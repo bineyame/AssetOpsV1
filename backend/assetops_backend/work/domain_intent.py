@@ -29,17 +29,24 @@ class DomainIntentStore(Protocol):
     def transaction(self, tenant_id: UUID, site_id: UUID, site_code: str, work: Callable[[Any], Any]) -> Any: ...
 
 
-def _actor(body: Mapping[str, Any], principal: str | None, refusal: d.DomainIntentRefused) -> m.Actor:
+def _actor(body: Mapping[str, Any], principal: str | None, refusal: d.DomainIntentRefused,
+           person: m.PersonActor | None = None) -> m.Actor | m.PersonActor:
+    """3C1a (spec §2): the signed-in person's server-composed actor, else today's client SERVICE actor."""
+    if person is not None:
+        return person
     return m.authorize(d.actor_shape(body["actor"], refusal), principal)
 
 
-def _gate(principal: str | None) -> None:
-    if principal is None:
+def _gate(principal: str | None, person: m.PersonActor | None = None) -> None:
+    """The service-principal gate; on the person path the router's person step has run in its place (§2)."""
+    if person is None and principal is None:
         raise m.WorkRefused("WORK_WRITE_FORBIDDEN")
 
 
-def _actor_row(actor: m.Actor) -> dict[str, str]:
-    return {"actor_kind": actor.kind, "actor_id": actor.id, "attestation": actor.attestation}
+def _actor_row(actor: m.Actor | m.PersonActor) -> dict[str, str | None]:
+    """The domain tables have no `authorization_basis`: on the person path the role is in the attestation (R4)."""
+    return {"actor_kind": actor.kind, "actor_id": actor.id, "attestation": actor.attestation,
+            "person_id": m.actor_person_id(actor)}
 
 
 def _spec(action: Mapping[str, Any]) -> d.DomainSpec:
@@ -73,11 +80,11 @@ class DomainIntentService:
                 "recorded_at": m.iso(row["recorded_at"])}
 
     def create_action(self, tenant_id: UUID, site_id: UUID, site_code: str, body: Any,
-                      principal: str | None) -> tuple[int, dict[str, Any]]:
-        _gate(principal)
-        normalized = d.action_body(body)
+                      principal: str | None, person: m.PersonActor | None = None) -> tuple[int, dict[str, Any]]:
+        _gate(principal, person)
+        normalized = d.action_body(body, actor=person is None)
         spec = d.ACTION_DOMAINS[normalized["domain"]]
-        actor = _actor(body, principal, spec.refuse("DOMAIN_INTENT_INVALID"))
+        actor = _actor(body, principal, spec.refuse("DOMAIN_INTENT_INVALID"), person)
         sha = d.command_sha256(tenant_id, site_id, None, d.CMD_ACTION, normalized, actor)
 
         def work(tx: Any) -> tuple[int, dict[str, Any]]:
@@ -137,10 +144,10 @@ class DomainIntentService:
                                  basis["work_record_id"], basis["accepted_evidence_ids"])
 
     def post_intent(self, tenant_id: UUID, site_id: UUID, site_code: str, action_id: str, body: Any,
-                    principal: str | None) -> tuple[int, dict[str, Any]]:
-        _gate(principal)
-        shape = d.intent_shape(body)
-        actor = _actor(body, principal, d.neutral(d.NEUTRAL_INTENT_INVALID))
+                    principal: str | None, person: m.PersonActor | None = None) -> tuple[int, dict[str, Any]]:
+        _gate(principal, person)
+        shape = d.intent_shape(body, actor=person is None)
+        actor = _actor(body, principal, d.neutral(d.NEUTRAL_INTENT_INVALID), person)
         aid = d.path_action_id(action_id)
 
         def respond(tx: Any, action: Mapping[str, Any], intent_id: str, basis: Mapping[str, Any],
@@ -226,10 +233,10 @@ class DomainIntentService:
     # ---- explicit W4 case link -----------------------------------------------------------------------------
 
     def post_case_link(self, tenant_id: UUID, site_id: UUID, site_code: str, action_id: str, body: Any,
-                       principal: str | None) -> tuple[int, dict[str, Any]]:
-        _gate(principal)
-        normalized = d.case_link_body(body)
-        actor = _actor(body, principal, d.neutral(d.NEUTRAL_CASE_LINK_INVALID))
+                       principal: str | None, person: m.PersonActor | None = None) -> tuple[int, dict[str, Any]]:
+        _gate(principal, person)
+        normalized = d.case_link_body(body, actor=person is None)
+        actor = _actor(body, principal, d.neutral(d.NEUTRAL_CASE_LINK_INVALID), person)
         aid = d.path_action_id(action_id)
         sha = d.command_sha256(tenant_id, site_id, aid, d.CMD_CASE_LINK, normalized, actor)
 

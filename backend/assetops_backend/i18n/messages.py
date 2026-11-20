@@ -120,5 +120,8 @@ CATALOGUE: dict[str, dict[str, str]] = {
         "accounts.accounts_store_refused": "The change was not saved: a value is not allowed.",
         "accounts.executive_exists": "This organisation already has an operator executive.",
         "accounts.database_url_required": "Set DATABASE_URL to the product database.",
+        # 3C1 (spec §2): the person step's refusals on the command routes; keys `person.<code lower case>`.
+        "person.person_required": "Sign in to continue.",
+        "person.person_role_required": "Your role cannot do this here.",
     },
 }

@@ -206,7 +206,7 @@ from assetops_backend.sites.ports import SiteRepository, SiteStoreUnavailable, S
 from assetops_backend.sites.foundation_records import FoundationStoreError
 from assetops_backend.reading_upload.service import ReadingUploadService
 from assetops_backend.reading_upload_api import build_reading_upload_router
-from assetops_backend.accounts.composition import (ACCOUNTS_UNAVAILABLE, build_account_service,
+from assetops_backend.accounts.composition import (ACCOUNTS_UNAVAILABLE, build_account_service, require_person,
                                                    session_cookie_secure)
 from assetops_backend.accounts.service import AccountService
 from assetops_backend.accounts_api import build_accounts_router
@@ -344,11 +344,14 @@ def create_app(
     app.add_middleware(LocaleMiddleware)  # UQ-6a: Accept-Language -> request locale, Content-Language
     app.include_router(health_router)
     # 3C0a (spec §6): sign-in, the signed-in person and Organisation's role grants; with no service and no
-    # DATABASE_URL every account route answers 503. No existing route reads a person yet (3C1).
+    # DATABASE_URL every account route answers 503. The work and domain commands read the person (3C1a).
     if accounts is None and database_url():
         accounts = build_account_service(database_url())
     app.include_router(build_accounts_router(accounts, cookie_secure=session_cookie_secure(),
                                              unavailable=ACCOUNTS_UNAVAILABLE))
+    # 3C1a (spec §2, R10): the person switch, read once here and passed down as a bool; off unless `3C0b` turns it on.
+    person_inputs = {"accounts": accounts, "require_person": require_person(),
+                     "accounts_unavailable": ACCOUNTS_UNAVAILABLE}
 
     legacy_repository = (
         build_site_repository() if site_repository is None else site_repository
@@ -658,7 +661,8 @@ def create_app(
         # OWN-G3a (build sheet OWN-GAPS §3.1-§3.2): the entry route's principal is injected only by `host/lab_app.py`
         # when ASSETOPS_OPERATIONAL_ENTRY=on; by default none, so an entry is 403.
         entry_principal=operational_entry_principal,
-        site_context=entry_site_context(fuel_store.night_context) if fuel_store is not None else None))
+        site_context=entry_site_context(fuel_store.night_context) if fuel_store is not None else None,
+        **person_inputs))
     # UP-1 (rev 7 section 7.5, D-17N.5): the reading-upload routes. The service is injected only by `host/lab_app.py`
     # when ASSETOPS_READING_UPLOAD_SITES names a Site; by default none, so every upload is 403 READING_UPLOAD_OFF.
     app.include_router(build_reading_upload_router(
@@ -669,7 +673,7 @@ def create_app(
     app.include_router(build_domain_work_router(
         build_domain_intent_service(database_url()) if database_url() else None,
         WorkGate(registry.ledger_scope, (WORK_UNAVAILABLE,), access=site_read_access,
-                 principal=domain_work_principal), (WORK_UNAVAILABLE,),
+                 principal=domain_work_principal, **person_inputs), (WORK_UNAVAILABLE,),
         reads=(domain_action_reads := build_domain_action_read_service(database_url()))))
     # W6-01a (Lane A): the read-only global work roots `/api/work/{incidents,...}`; tenant from the server registry
     # only, per-Site admission through the Finding-route access seam; typed 503 without a database or cursor key.

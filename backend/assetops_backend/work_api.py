@@ -24,21 +24,30 @@ then the service: absent server SERVICE principal 403 `WORK_WRITE_FORBIDDEN`, cl
 The SERVICE principal is server-side identity injected through `principal`; a client-supplied actor ID never
 authenticates it (closure 3 Q28, Run 1 ruling 1). The development composition injects none, so a write there is
 403. `authorization_basis` is derived by the service from that principal, never read from the request.
+
+3C1a (`specs/3C1-person-on-commands/spec.md` §2-§3): after the gate's Site scope, write grant and store check, every
+command route runs the person step (`accounts/permissions.py`). A signed-in person is recorded under their own actor
+(`USER`, `person:<id>`), composed by the server and authorised by their role; the body carries no `actor`. The gate's
+principal (or the entry route's) must still be composed (R6). With no person and `ASSETOPS_REQUIRE_PERSON` off, the
+path is today's, byte for byte; on, it is 401 `PERSON_REQUIRED`.
 """
 
 from __future__ import annotations
 
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 
+from assetops_backend.accounts.permissions import PersonRefused, case_event_command, person_step
 from assetops_backend.finding_api import ACCESS_BASIS, Access, Scope, development_access
+from assetops_backend.i18n.messages import message
+from assetops_backend.i18n.render import render
 from assetops_backend.sites.foundation_records import FoundationStoreError
 from assetops_backend.sites.ports import SiteStoreUnavailable
 from assetops_backend.work.detail import WorkDetailService
-from assetops_backend.work.model import MESSAGES, WorkRefused, WorkStoreUnavailable
+from assetops_backend.work.model import MESSAGES, PersonActor, WorkRefused, WorkStoreUnavailable
 from assetops_backend.work.operational_entry import compose_entry, validate_entry
 from assetops_backend.work.service import WorkService
 from assetops_backend.work.site_index import WorkIndexService, parse_list_request
@@ -52,6 +61,9 @@ Principal = Callable[[Request, str], "str | None"]
 # OWN-G3a: (tenant_id, site_id) -> (the Site's time zone, its one active fuel tank ID or None). A store outage raises
 # `WorkStoreUnavailable` (composed in `main.py`, R2-G3a 2).
 SiteContext = Callable[[UUID, UUID], "tuple[str, str | None]"]
+
+if TYPE_CHECKING:
+    from assetops_backend.accounts.service import AccountService
 
 _NOT_JSON = object()  # a body that is not JSON reaches the service as a non-object (422 after the write gate)
 
@@ -72,9 +84,14 @@ class WorkGate:
     `build_work_router` and the domain-work router both use it, so the refusal order and literals are one."""
 
     def __init__(self, scope: Scope, unavailable: tuple[type, ...] = (), access: Access = development_access,
-                 command_access: Access = development_access, principal: Principal = no_service_principal) -> None:
+                 command_access: Access = development_access, principal: Principal = no_service_principal, *,
+                 accounts: "AccountService | None" = None, require_person: bool = False,
+                 accounts_unavailable: tuple[type, ...] = ()) -> None:
         self._scope, self._access, self._command_access, self._principal = scope, access, command_access, principal
         self._down = (WorkStoreUnavailable, *unavailable)
+        # 3C1a (P6): the person-step inputs. All default to off, so every existing caller keeps today's path.
+        self._accounts, self._require_person = accounts, require_person
+        self._accounts_down = tuple(accounts_unavailable)
 
     def read_scope(self, request: Request, site_code: str) -> tuple[UUID, UUID, str]:
         refusal = self._access(request, site_code)
@@ -102,21 +119,57 @@ class WorkGate:
             raise _refuse(503, "WORK_STORE_UNAVAILABLE", MESSAGES["WORK_STORE_UNAVAILABLE"])
         return tenant_id, site_id, code, self._principal(request, site_code)
 
+    def command_scope(self, request: Request, site_code: str, available: bool, command: str,
+                      feature: Principal | None = None) -> tuple[UUID, UUID, str, str | None, PersonActor | None]:
+        """3C1a (spec §2): `open_scope`, then the person step for `command`. Returns the gate principal (or the
+        route's own `feature` principal) and the signed-in person's server-composed actor, or None for today's path.
+        A person needs that principal composed, as today (R6, D-3C1.12); the refusals are this API's own (R9)."""
+        tenant_id, site_id, code, who = self.open_scope(request, site_code, available)
+        if feature is not None:
+            who = feature(request, site_code)
+        try:
+            grant = person_step(request, self._accounts, required=self._require_person,
+                                unavailable=self._accounts_down, tenant_id=tenant_id, site_id=site_id,
+                                command=command, enabled=who is not None)
+        except PersonRefused as refused:
+            raise _person_refusal(refused, site_code) from refused
+        person = None if grant is None else PersonActor(grant.person_id, grant.session_id, grant.role)
+        return tenant_id, site_id, code, who, person
+
+
+def _person_refusal(refused: PersonRefused, site_code: str) -> HTTPException:
+    """The person step's refusals in this API's envelope (R9). A person of another tenant gets the unknown-Site 404,
+    byte for byte (D-3C1.6)."""
+    if refused.reason == "UNAVAILABLE":
+        return _refuse(503, "WORK_STORE_UNAVAILABLE", MESSAGES["WORK_STORE_UNAVAILABLE"])
+    if refused.reason == "TENANT":
+        return _refuse(404, "SITE_NOT_FOUND", f"No imported Site '{site_code}' in this tenant.")
+    if refused.reason == "FEATURE_OFF":
+        return _refuse(403, "WORK_WRITE_FORBIDDEN", MESSAGES["WORK_WRITE_FORBIDDEN"])
+    if refused.reason == "PERSON_REQUIRED":
+        return _refuse(401, "PERSON_REQUIRED", render(message("person.person_required")))
+    refusal = _refuse(403, "PERSON_ROLE_REQUIRED", render(message("person.person_role_required")))
+    refusal.detail["params"] = refused.params
+    return refusal
+
 
 def build_work_router(service: WorkService | None, scope: Scope, unavailable: tuple[type, ...] = (),
                       access: Access = development_access, command_access: Access = development_access,
                       principal: Principal = no_service_principal,
                       details: WorkDetailService | None = None, lists: WorkIndexService | None = None,
                       access_basis: str = ACCESS_BASIS, entry_principal: Principal = no_service_principal,
-                      site_context: SiteContext | None = None) -> APIRouter:
+                      site_context: SiteContext | None = None, *, accounts: "AccountService | None" = None,
+                      require_person: bool = False, accounts_unavailable: tuple[type, ...] = ()) -> APIRouter:
     router = APIRouter()
     down = (WorkStoreUnavailable, *unavailable)
-    gate = WorkGate(scope, unavailable, access, command_access, principal)
+    gate = WorkGate(scope, unavailable, access, command_access, principal, accounts=accounts,
+                    require_person=require_person, accounts_unavailable=accounts_unavailable)
     read_scope = gate.read_scope
 
-    def open_scope(request: Request, site_code: str) -> tuple[UUID, UUID, str | None]:
-        tenant_id, site_id, _, who = gate.open_scope(request, site_code, service is not None)
-        return tenant_id, site_id, who
+    def open_scope(request: Request, site_code: str, command: str
+                   ) -> tuple[UUID, UUID, str | None, PersonActor | None]:
+        tenant_id, site_id, _, who, person = gate.command_scope(request, site_code, service is not None, command)
+        return tenant_id, site_id, who, person
 
     async def body_of(request: Request) -> Any:
         try:
@@ -161,47 +214,48 @@ def build_work_router(service: WorkService | None, scope: Scope, unavailable: tu
 
     @router.post("/api/sites/{site_code}/work/cases")
     async def create_case(request: Request, site_code: str) -> JSONResponse:
-        tenant_id, site_id, who = open_scope(request, site_code)
+        tenant_id, site_id, who, person = open_scope(request, site_code, "work.case_create")
         body = await body_of(request)
-        return run(lambda: service.create_case(tenant_id, site_id, body, who))
+        return run(lambda: service.create_case(tenant_id, site_id, body, who, person=person))
 
     @router.post("/api/sites/{site_code}/work/cases/{case_id}/events")
     async def post_event(request: Request, site_code: str, case_id: str) -> JSONResponse:
-        tenant_id, site_id, who = open_scope(request, site_code)
-        body = await body_of(request)
-        return run(lambda: service.post_event(tenant_id, site_id, case_id, body, who))
+        body = await body_of(request)  # 3C1a: the event kind keys the command's roles (§3); reading refuses nothing
+        tenant_id, site_id, who, person = open_scope(request, site_code, case_event_command(body))
+        return run(lambda: service.post_event(tenant_id, site_id, case_id, body, who, person=person))
 
     @router.post("/api/sites/{site_code}/work/cases/{case_id}/revisions")
     async def post_revision(request: Request, site_code: str, case_id: str) -> JSONResponse:
-        tenant_id, site_id, who = open_scope(request, site_code)
+        tenant_id, site_id, who, person = open_scope(request, site_code, "work.case_revision")
         body = await body_of(request)
-        return run(lambda: service.post_revision(tenant_id, site_id, case_id, body, who))
+        return run(lambda: service.post_revision(tenant_id, site_id, case_id, body, who, person=person))
 
     @router.post("/api/sites/{site_code}/work/cases/{case_id}/records")
     async def post_record(request: Request, site_code: str, case_id: str) -> JSONResponse:
-        tenant_id, site_id, who = open_scope(request, site_code)
+        tenant_id, site_id, who, person = open_scope(request, site_code, "work.maintenance_record")
         body = await body_of(request)
-        return run(lambda: service.post_record(tenant_id, site_id, case_id, body, who))
+        return run(lambda: service.post_record(tenant_id, site_id, case_id, body, who, person=person))
 
     @router.post("/api/sites/{site_code}/work/plans")
     async def post_plan(request: Request, site_code: str) -> JSONResponse:
-        tenant_id, site_id, who = open_scope(request, site_code)
+        tenant_id, site_id, who, person = open_scope(request, site_code, "work.maintenance_plan")
         body = await body_of(request)
-        return run(lambda: service.post_plan(tenant_id, site_id, body, who))
+        return run(lambda: service.post_plan(tenant_id, site_id, body, who, person=person))
 
     @router.post("/api/sites/{site_code}/work/operational-records")
     async def post_operational_record(request: Request, site_code: str) -> JSONResponse:
-        tenant_id, site_id, who = open_scope(request, site_code)
+        tenant_id, site_id, who, person = open_scope(request, site_code, "work.operational_record")
         body = await body_of(request)
-        return run(lambda: service.post_operational_record(tenant_id, site_id, body, who))
+        return run(lambda: service.post_operational_record(tenant_id, site_id, body, who, person=person))
 
     @router.post("/api/sites/{site_code}/work/operational-entries")
     async def post_operational_entry(request: Request, site_code: str) -> JSONResponse:
         """OWN-G3a (build sheet OWN-GAPS §3.2, R2-G3a 1): read access, Site 404, write grant (the shared gate),
         then the entry principal 403, store 503, entry shape 422, the Site's tank and time zone, then the service.
-        The browser sends no actor; the server composes it (`work/operational_entry.py`)."""
-        tenant_id, site_id, _, _ = gate.open_scope(request, site_code, True)
-        who = entry_principal(request, site_code)
+        The browser sends no actor; the server composes it (`work/operational_entry.py`). 3C1a (P5): a signed-in
+        person needs the entry principal too (R6), and their actor replaces `ENTRY_ACTOR`."""
+        tenant_id, site_id, _, who, person = gate.command_scope(request, site_code, True, "work.operational_entry",
+                                                                feature=entry_principal)
         if who is None:
             raise _refuse(403, "WORK_WRITE_FORBIDDEN", MESSAGES["WORK_WRITE_FORBIDDEN"])
         if service is None or site_context is None:
@@ -211,7 +265,8 @@ def build_work_router(service: WorkService | None, scope: Scope, unavailable: tu
         def work() -> tuple[int, dict[str, Any]]:
             validate_entry(body)
             zone, tank_id = site_context(tenant_id, site_id)
-            return service.post_operational_record(tenant_id, site_id, compose_entry(body, zone, tank_id), who)
+            command = compose_entry(body, zone, tank_id, with_actor=person is None)
+            return service.post_operational_record(tenant_id, site_id, command, who, person=person)
 
         return run(work)
 

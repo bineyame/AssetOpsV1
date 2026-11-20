@@ -20,6 +20,10 @@ Each POST returns 201 for a first submission and 200 with the original body for 
 the shared W4 `WorkGate` (401 `UNAUTHENTICATED`, 403 `SITE_SCOPE_FORBIDDEN`, 404 `SITE_NOT_FOUND`, write grant
 401/403, 503 `WORK_STORE_UNAVAILABLE`), then the service (absent SERVICE principal 403, 422, 404 `ACTION_NOT_FOUND`,
 409). Refusals are `{"detail":{"code","message"}}`. The SERVICE principal is injected server-side only.
+
+3C1a (spec §2-§3): after the gate's Site scope, `WorkGate.command_scope` runs the person step. A signed-in person's
+actor is composed by the server (the body carries no `actor`; one that does is `DOMAIN_INTENT_INVALID`), and the gate's
+SERVICE principal must still be composed (R6).
 """
 
 from __future__ import annotations
@@ -67,21 +71,24 @@ def build_domain_work_router(service: DomainIntentService | None, gate: WorkGate
 
     @router.post("/api/sites/{site_code}/domain-work/actions")
     async def create_action(request: Request, site_code: str) -> JSONResponse:
-        tenant_id, site_id, code, who = gate.open_scope(request, site_code, service is not None)
+        tenant_id, site_id, code, who, person = gate.command_scope(request, site_code, service is not None,
+                                                                   "domain.create")
         body = await body_of(request)
-        return run(lambda: service.create_action(tenant_id, site_id, code, body, who))
+        return run(lambda: service.create_action(tenant_id, site_id, code, body, who, person=person))
 
     @router.post("/api/sites/{site_code}/domain-work/actions/{action_id}/intents")
     async def post_intent(request: Request, site_code: str, action_id: str) -> JSONResponse:
-        tenant_id, site_id, code, who = gate.open_scope(request, site_code, service is not None)
+        tenant_id, site_id, code, who, person = gate.command_scope(request, site_code, service is not None,
+                                                                   "domain.intent")
         body = await body_of(request)
-        return run(lambda: service.post_intent(tenant_id, site_id, code, action_id, body, who))
+        return run(lambda: service.post_intent(tenant_id, site_id, code, action_id, body, who, person=person))
 
     @router.post("/api/sites/{site_code}/domain-work/actions/{action_id}/case-links")
     async def post_case_link(request: Request, site_code: str, action_id: str) -> JSONResponse:
-        tenant_id, site_id, code, who = gate.open_scope(request, site_code, service is not None)
+        tenant_id, site_id, code, who, person = gate.command_scope(request, site_code, service is not None,
+                                                                   "domain.case_link")
         body = await body_of(request)
-        return run(lambda: service.post_case_link(tenant_id, site_id, code, action_id, body, who))
+        return run(lambda: service.post_case_link(tenant_id, site_id, code, action_id, body, who, person=person))
 
     def read(work: Callable[[], dict[str, Any]], extra: dict[str, Any]) -> JSONResponse:
         try:
