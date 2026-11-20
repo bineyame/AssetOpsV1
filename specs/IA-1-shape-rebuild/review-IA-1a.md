@@ -225,3 +225,14 @@ repeated.
 
   These are expected under D-IA.16, but the owner will see all of them at the G2 stop if IA-1b and IA-1c do not land the
   targets.
+# IA-1a review, round 2 (verification, W5), head 6a095453e
+
+**Verdict: ACCEPT.** M1-M3 and L1-L5 are fixed as classes; no regression found. No new findings.
+
+- ia_gates (rerun): 18 runs, all as expected (206 s), incl. new plants tabstop, notfound, noact, lablegacy, replace.
+- ia_shots (rerun, head): 126 measured, 0 bad. Plant M2 (scratch: status hidden <=1100 and icon-rail dashed border removed): 60 bad, caught.
+- Plant L2 (scratch: ?book Lab filter removed): shape_check fails "?book lists the Lab with the switch off" for all 3 operators.
+- Shots viewed: Harvest not-found 1280 light and 1440 dark (pending notice now a banner above the heading, top bar one line); Metro not-found 1200 dark; Lakeside plan 1200 light (dashed icon items, none past the rail), 900 dark (status in words on one line), 390 dark (no rail). Not-found 1280/1440 for the other two operators pass the measured check (0 bad).
+- M3: replace plant fails "frame root was replaced after insertion". L4: walkthroughs.md has 0 old-route mentions. L3: now labelled a workaround awaiting a ruling (still open for the Architect).
+- Not rerun (cited): ux_interaction 324/0, plan_switch 781/0, shell_check, design_lint, check_manifest 7571/0.
+- Residual: IA_ALIASES.financials vs IA-2e route (Architect); the L3 label ruling.
