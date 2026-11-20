@@ -113,6 +113,10 @@ When two principles conflict, the higher one wins. Each one serves the objective
 - More than one primary button, or more than 4 KPI tiles.
 - Mock review tooling taller than one 32 px strip (it is exempt from content rules, but it does not take the fold).
 
+### 2.2a The overview budget (wave 2c)
+
+An overview page holds the answer and the next step, nothing more: **the headline, at most four KPI tiles, the decision queue, one chart, and a slim strip of the four outcome headings**. Everything else lives in its tab and is linked from a single "More in the tabs" line. At 1440 the page stays under about two and a half screens; `ux_interaction_check` asserts at most six blocks and 2,500 px. On the Portfolio, "Where value leaks" lives on Demand and capacity, the insight on Outcomes by site, and the plan behind the Plan tile's "Review the plan". The four headings stay on the Overview (OD-21), as a strip whose tiles open their drawers.
+
 ### 2.3 What each screen holds at each level
 
 | Screen | L1 Glance | L2 Queue and decide | L3 Explain | L4 Evidence |
@@ -289,13 +293,14 @@ A brand pack is a named set of tokens, applied as `data-brand="<name>"` on the p
 | A pack may change | A pack may never change |
 |---|---|
 | Surface warmth (`--bg`, `--surface*`, `--line*`), text tints within AA, the interactive accent, the rail colour | Status colours and their meanings (§4.6) |
-| The brand mark, a 6 px motif band under the top bar, the rail footer rule, the active-item rule | Chart series meaning, type sizes, spacing, radius, layout, components |
+| The brand mark, a textile band under the top bar (up to 12 px), the rail footer rule and a pattern in the rail's empty lower part, the active-item and active-tab colours, the heading typeface and colour with a short accent rule under the page title (wave 2c: clearly distinguishable, still professional) | Chart series meaning, type sizes, spacing, radius, layout, components |
 | The empty-state mark and the loading shimmer | Anything behind data: no motif in a chart, table, tile or card body |
 
 - **East Africa**: a sunlit palette (sand surfaces; terracotta, ochre, deep indigo and earth accents) and accents from the region: kikoi and kanga stripe bands, a Maasai beadwork row, and the stud-and-link chain of Swahili-coast carved doors. The active rail item takes the pack's indigo. The accents are contemporary and sparing, never pictorial or a stereotype.
 - **To add a pack:** copy the three `east-africa` token blocks in `brand.css` under a new name (light, dark by preference, dark by choice), and register it in `UX_BRANDS` (`loop-ux.js`). No component or layout changes. Then run the contrast measure for the pack in light and dark: 0 text below AA.
 - **Resolution:** the tenant's setting (`UX_BRAND_BY_TENANT`), else Neutral. In the mock-up, a review-bar switch overrides it for comparison.
-- A display typeface for headings is optional: set `--font-heading` with a system fallback. It is not used in the demo, which must work offline.
+- **Heading typeface:** a pack may set `--font-heading`. East Africa uses an editorial serif stack (Iowan Old Style, Palatino or Georgia, with DejaVu Serif as the offline fallback), for headings only. Body text and figures stay in the system sans.
+- **Layout height:** a pack may add at most 32 px of decorative height (the band and the title rule); the brand-switch check asserts it.
 
 ## 5. Data visualisation
 
@@ -319,11 +324,19 @@ Each chart answers one question. Its title states the answer, for example "Cost 
 - legends where direct labels fit.
 
 **Wave 2 additions.**
-- **The bridge is a stepped waterfall and the page's hero**, full width under the decision queue (the queue stays above the fold). Steps float from the running total with a connector at each; the axis may start above zero only with a drawn break mark and a caption that says where it starts. Tooltip figures never break across lines.
+- **The bridge is the page's hero**, full width under the decision queue (the queue stays above the fold). It has two parts:
+  - the totals on an honest zero axis, as one bullet;
+  - below it, **the gap itself as the scale**: target at the left edge, October at the right, each driver a step across it, grouped under its heading with the heading's subtotal. The heading is printed once, never on every row. There is no axis break and no empty area, and each step shows its share of the gap.
+  - Tooltip figures never break across lines.
 - **Bars take the guide's thresholds:** on or better than target is green; within 5% is amber; further off is red.
 - **Where value leaks** draws the losses, not the stages. Each stage is a labelled value. Under it, each loss is a bar drawn against the largest loss, with its share of the stage before it ("1,350 kWh · 5.9% of delivered"). The title names the biggest leak. With no measurable leak, the title says "no leak measured".
 - **The bridge is the page's interactive chart.** Each step links to the decision on its driver, and shows its detail (amount, share of the gap, the decision) on hover and on keyboard focus. A step with no decision says so in its detail.
 - **Trend slot.** Each money tile reserves a trend line. Until earlier months are loaded it shows a dashed placeholder and "Trend not available yet", never an invented line.
+
+- **Modelled never carries the weight of an actual.** A modelled tile is lighter (smaller value, secondary colour, dashed outline) and keeps its marker.
+- **A number that opens its working** looks like text at rest and shows an underline on hover and focus. It is a button, so it stays reachable by keyboard.
+- **Prose is 14 px.** 12 to 13 px is for labels, units, notes and table cells only.
+- **Trend (when history is loaded, U9):** a 64 × 16 px sparkline of the months loaded, followed by the change against last month in words ("−$120 against September"). The accessible name lists each month and value. With fewer than two months it shows the "Trend not available yet" state, never an invented line.
 
 ### 5.1 Numbers
 
@@ -380,6 +393,8 @@ The system proposes; people choose, approve and act (design §2.6). Every surfac
 - **Order**: the design's placement (must do, deadline, value, evidence; design §2.8, "never a value ranking"), shown as groups with headers. The UI never re-ranks.
 - **Header**: a count and urgency, such as "6 need a decision · 2 due this week".
 - **Phone**: each row becomes a card with the chip and Site on the first line, the issue, then the at-stake value and due date, then the person chip and **Decide**.
+
+**Wave 2c row rules.** The status chips sit on their own line and the title starts on the next, so every row has the same left edge. A title never repeats a column: in the Kobo row, "Kobo generator stop setting" reads "Generator stop setting". An empty cell stays blank, and "No deadline" is said only to screen readers. Exactly one Decide is primary: the first row's, which is the first decision to take. The checks assert all four.
 
 **Wave 2 row anatomy (replaces the sentence row).**
 - **One row per decision.** Every issue behind it is a status chip on the row, and "Why (2 issues)" lists each issue. Counts on every screen are decisions, not issues.

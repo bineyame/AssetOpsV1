@@ -1293,12 +1293,55 @@ details.ux-pop>summary:focus-visible{outline:2px solid var(--focus);outline-offs
   .ux-q-k{position:static;width:auto;height:auto;clip:auto;color:var(--text-2);font-weight:400}
 }
 
+/* ===== wave 2c ===== */
+/* gap 3: chips on one line, the title on the next, every row the same left edge; one primary Decide */
+.ux-q-issue{gap:4px}
+.ux-q-top{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.ux-q-top .ux-chip+.ux-chip{margin-left:0}
+.ux-q-title{display:block}
+/* gap 5: numbers that open their working show it on hover and focus, not with a permanent dotted line */
+.ux-overview .ev-num,.ux-kpi .ev-num,.ux-chart .ev-num{text-decoration:none;cursor:pointer;border-radius:4px}
+.ux-overview .ev-num:hover,.ux-overview .ev-num:focus-visible,.ux-kpi .ev-num:hover,.ux-kpi .ev-num:focus-visible{text-decoration:underline;text-decoration-style:solid;text-underline-offset:4px}
+/* gap 5: a modelled figure never carries the weight of an actual */
+.ux-kpi.is-modelled{background:var(--surface-2);border-style:dashed}
+.ux-kpi.is-modelled .ux-kpi-v{font-size:var(--fs-2xl);line-height:32px;font-weight:500;color:var(--text-2)}
+/* gap 5: prose at 14 px; 12-13 px only for labels, units and notes */
+.ux-kpi-s,.ux-q-why,.ux-overview .panel-head p,.ux-q-title{font-size:var(--fs-md);line-height:20px}
+.ux-kpi-s .ux-trend{font-size:var(--fs-xs)}
+.ux-spark{display:inline-block;vertical-align:middle}
+.ux-spark path{fill:none;stroke:var(--series-1);stroke-width:1.5}
+/* gap 4: totals on a zero axis; the gap as the scale, steps grouped by heading */
+.ux-wf-totals{margin:var(--s2) 0 var(--s4)}
+.ux-wf-totals .ux-bullet{height:12px}
+.ux-wf-tl{display:flex;justify-content:space-between;font-size:var(--fs-sm);color:var(--text-2)}
+.ux-wf-tl b{color:var(--text);font-variant-numeric:tabular-nums}
+.ux-wf-scale{display:grid;grid-template-columns:auto 1fr auto;gap:var(--s3);margin-left:calc(min(30%,260px) + 96px + 2 * var(--s3));font-size:var(--fs-xs);color:var(--text-2);border-bottom:1px solid var(--line-strong);padding-bottom:4px}
+.ux-wf-scale span:nth-child(2){text-align:center}
+.ux-hero .ux-wf-gapscale .ux-wf-row,.ux-hero .ux-wf-gapscale .ux-wf-a{grid-template-columns:min(30%,260px) 96px minmax(0,1fr)}
+.ux-wf-gapscale .ux-wf-track{border-left:1px solid var(--line);border-right:1px solid var(--line);height:24px}
+.ux-wf-gapscale .ux-wf-val small{display:block;font-size:var(--fs-xs);color:var(--text-2);font-weight:400}
+.ux-wf-group{display:flex;justify-content:space-between;max-width:calc(min(30%,260px) + 96px + var(--s3));padding:var(--s3) 0 2px;font-size:var(--fs-xs);font-weight:600;color:var(--text-2);border-top:1px solid var(--line)}
+.ux-wf-group:first-child{border-top:0}
+.ux-wf-gv{font-variant-numeric:tabular-nums}
+@media (max-width:600px){.ux-wf-scale{margin-left:0}.ux-hero .ux-wf-gapscale .ux-wf-row,.ux-hero .ux-wf-gapscale .ux-wf-a{grid-template-columns:minmax(0,1fr) 84px}.ux-wf-group{max-width:none}}
+/* gap 6: a slim, even outcomes strip */
+.ux-cats.ocards{grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch}
+.ux-cat{padding:var(--s3) var(--s4);gap:6px}
+.ux-cat-pos{font-size:var(--fs-sm)}
+.ux-cat-n{display:none}
+.ux-more-tabs{margin:var(--s4) 0 0;font-size:var(--fs-sm);color:var(--text-2)}
+@media (max-width:1279px){.ux-cats.ocards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.ux-cats.ocards{grid-template-columns:minmax(0,1fr)}}
+.ux-cat-h{flex-wrap:nowrap;align-items:flex-start}
+.ux-cat-h h3{white-space:normal}
+@media (min-width:1280px){.ux-cat-h h3{white-space:normal}}
+
 /* brand.css: brand packs (UI/UX guide §4.7). A pack changes only brand tokens: surfaces' warmth, the interactive accent, the
    rail, the brand mark and the motif accents (a header band, the brand mark, empty and loading states). It never changes
    status colours, chart series meaning, type sizes, spacing or layout, and a motif never sits behind data. Default: neutral
    (no attribute, or data-brand="neutral"). To add a pack: copy the three "east-africa" blocks with a new name and register it in
    UX_BRANDS (loop-ux.js); nothing else changes. Contrast is checked in light and dark for every pack. */
-:root{--motif-band:none;--brand-mark:var(--accent);--brand-mark-bg:transparent}
+:root{--motif-band:none;--brand-mark:var(--accent);--brand-mark-bg:transparent;--font-heading:inherit;--brand-band-h:6px}
 
 /* East Africa: a warm, sunlit palette (sand, terracotta, ochre, deep indigo, earth) and accents from the region: kikoi and
    kanga stripe bands, Maasai beadwork rows and the chain geometry of Swahili-coast carved doors, used sparingly.
@@ -1310,6 +1353,10 @@ details.ux-pop>summary:focus-visible{outline:2px solid var(--focus);outline-offs
   --rail-bg:#1d1b3a; --rail-hover:#2c2954; --series-1:#5b6189; --series-total:#a39a8a; --hatch:#d6c9b4;
   --brand-terracotta:#b4532a; --brand-ochre:#c98b1e; --brand-indigo:#2f3e9e; --brand-earth:#5b3a22;
   --brand-mark:#c98b1e; --brand-mark-bg:#2c2954;
+  --font-heading:"Iowan Old Style","Palatino Linotype","Book Antiqua",Palatino,"DejaVu Serif",Georgia,serif;
+  --brand-h1:#1d1b3a; --brand-h1-rule:#c98b1e; --brand-tab:#9c4220;
+  --brand-rail-pattern:radial-gradient(circle at 12px 12px,#c98b1e40 2.5px,transparent 3px) 0 0/24px 24px,linear-gradient(45deg,transparent 46%,#b4532a2e 46% 54%,transparent 54%) 0 0/24px 24px,linear-gradient(-45deg,transparent 46%,#b4532a2e 46% 54%,transparent 54%) 0 0/24px 24px;
+  --brand-band-h:12px;
   --motif-band:repeating-linear-gradient(90deg,#b23a2e 0 6px,#f4ead8 6px 8px,#2f5aa8 8px 14px,#f4ead8 14px 16px,#d9822b 16px 22px,#f4ead8 22px 24px,#2e7d4f 24px 30px,#f4ead8 30px 32px) 0 0/100% 3px no-repeat,repeating-linear-gradient(90deg,#1d1b3a 0 22px,#b4532a 22px 25px,#c98b1e 25px 28px,#1d1b3a 28px 46px,#c98b1e 46px 48px) 0 3px/100% 3px no-repeat;
 }
 @media screen and (prefers-color-scheme:dark){
@@ -1319,6 +1366,10 @@ details.ux-pop>summary:focus-visible{outline:2px solid var(--focus);outline-offs
     --accent:#a9b4ff; --accent-solid:#4153c4; --accent-soft:#232642; --accent-line:#3d4680; --focus:#a9b4ff;
     --rail-bg:#110f22; --rail-hover:#1f1c3a; --series-1:#9aa0cf; --series-total:#6b6152; --hatch:#4a3d2e;
     --brand-mark:#e0a83a; --brand-mark-bg:#1f1c3a;
+  --font-heading:"Iowan Old Style","Palatino Linotype","Book Antiqua",Palatino,"DejaVu Serif",Georgia,serif;
+  --brand-h1:#f3e6cf; --brand-h1-rule:#e0a83a; --brand-tab:#e08a5c;
+  --brand-rail-pattern:radial-gradient(circle at 12px 12px,#e0a83a38 2.5px,transparent 3px) 0 0/24px 24px,linear-gradient(45deg,transparent 46%,#c0643a2e 46% 54%,transparent 54%) 0 0/24px 24px,linear-gradient(-45deg,transparent 46%,#c0643a2e 46% 54%,transparent 54%) 0 0/24px 24px;
+  --brand-band-h:12px;
     --motif-band:repeating-linear-gradient(90deg,#d0574a 0 6px,#3a3226 6px 8px,#5d86d6 8px 14px,#3a3226 14px 16px,#e89a4a 16px 22px,#3a3226 22px 24px,#4fa374 24px 30px,#3a3226 30px 32px) 0 0/100% 3px no-repeat,repeating-linear-gradient(90deg,#110f22 0 22px,#c0643a 22px 25px,#e0a83a 25px 28px,#110f22 28px 46px,#e0a83a 46px 48px) 0 3px/100% 3px no-repeat;
   }
 }
@@ -1328,12 +1379,16 @@ details.ux-pop>summary:focus-visible{outline:2px solid var(--focus);outline-offs
   --accent:#a9b4ff; --accent-solid:#4153c4; --accent-soft:#232642; --accent-line:#3d4680; --focus:#a9b4ff;
   --rail-bg:#110f22; --rail-hover:#1f1c3a; --series-1:#9aa0cf; --series-total:#6b6152; --hatch:#4a3d2e;
   --brand-mark:#e0a83a; --brand-mark-bg:#1f1c3a;
+  --font-heading:"Iowan Old Style","Palatino Linotype","Book Antiqua",Palatino,"DejaVu Serif",Georgia,serif;
+  --brand-h1:#f3e6cf; --brand-h1-rule:#e0a83a; --brand-tab:#e08a5c;
+  --brand-rail-pattern:radial-gradient(circle at 12px 12px,#e0a83a38 2.5px,transparent 3px) 0 0/24px 24px,linear-gradient(45deg,transparent 46%,#c0643a2e 46% 54%,transparent 54%) 0 0/24px 24px,linear-gradient(-45deg,transparent 46%,#c0643a2e 46% 54%,transparent 54%) 0 0/24px 24px;
+  --brand-band-h:12px;
   --motif-band:repeating-linear-gradient(90deg,#d0574a 0 6px,#3a3226 6px 8px,#5d86d6 8px 14px,#3a3226 14px 16px,#e89a4a 16px 22px,#3a3226 22px 24px,#4fa374 24px 30px,#3a3226 30px 32px) 0 0/100% 3px no-repeat,repeating-linear-gradient(90deg,#110f22 0 22px,#c0643a 22px 25px,#e0a83a 25px 28px,#110f22 28px 46px,#e0a83a 46px 48px) 0 3px/100% 3px no-repeat;
 }
 
 /* where a pack's accents may appear (and nowhere else) */
 .topbar{position:relative}
-:root[data-brand="east-africa"] .topbar::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:6px;background:var(--motif-band);pointer-events:none;z-index:1}
+:root[data-brand="east-africa"] .topbar::after{content:"";position:absolute;left:0;right:0;bottom:calc(-1 * var(--brand-band-h));height:var(--brand-band-h);background:var(--motif-band);pointer-events:none;z-index:1}
 .rail .brandmark{color:var(--brand-mark)}
 :root[data-brand="east-africa"] .rail .brandmark{display:inline-grid;place-items:center;width:28px;height:28px;margin-right:var(--s2);border-radius:var(--r1);background:var(--brand-mark-bg);box-shadow:inset 0 -3px 0 var(--brand-terracotta)}
 :root[data-brand="east-africa"] .rail-footer{border-top:4px solid transparent;border-image:repeating-linear-gradient(90deg,var(--brand-terracotta) 0 14px,var(--brand-ochre) 14px 16px,var(--brand-indigo) 16px 30px,var(--brand-ochre) 30px 32px) 4}
@@ -1343,6 +1398,17 @@ details.ux-pop>summary:focus-visible{outline:2px solid var(--focus);outline-offs
 :root[data-brand="east-africa"][data-theme="dark"] .rail a.active{background:var(--accent-solid)}
 /* the review-bar switch (mock tooling) */
 .ux-brand-sw{display:inline-flex;align-items:center;gap:var(--s1);font-size:var(--fs-xs)}
+
+/* wave 2c: a clearer, still professional East Africa expression. A pack may set the heading typeface, the heading colour and
+   a short accent rule, the active-tab colour and a textile band; and it may pattern the rail's empty lower part. Never data. */
+:root[data-brand="east-africa"] .canvas h1,:root[data-brand="east-africa"] .canvas h2{font-family:var(--font-heading);letter-spacing:0}
+:root[data-brand="east-africa"] .page-heading h1{color:var(--brand-h1)}
+:root[data-brand="east-africa"] .page-heading h1::after{content:"";display:block;width:40px;height:4px;margin-top:6px;border-radius:2px;background:linear-gradient(90deg,var(--brand-h1-rule) 0 60%,var(--brand-terracotta) 60% 80%,var(--brand-indigo) 80%)}
+:root[data-brand="east-africa"] .tabs a.active{color:var(--brand-tab);border-bottom-color:var(--brand-tab)}
+:root[data-brand="east-africa"] .canvas{padding-top:calc(var(--s5) + var(--brand-band-h))}
+:root[data-brand="east-africa"] .rail{position:relative;isolation:isolate}
+:root[data-brand="east-africa"] .rail::before{content:"";position:absolute;left:0;right:0;bottom:0;height:38%;z-index:-1;pointer-events:none;background:var(--brand-rail-pattern);-webkit-mask-image:linear-gradient(to top,black 35%,transparent);mask-image:linear-gradient(to top,black 35%,transparent)} /* Swahili-door studs and lattice in the rail's empty lower part */
+:root[data-brand="east-africa"] .ux-headline{font-family:var(--font-heading);font-weight:600}
 </style></head><body><div id="app"></div><div id="overlay"></div><script>/* Portfolio composition: presentation of site-owned results, never a second analytic. */
 const portfolioReview = {
  references:['v6.9 §8.1, p24: Portfolio command center','Client Demo Recommendation, Screen 1 and Appendix A1, p11'],
@@ -4336,8 +4402,8 @@ function uxMeterBar(used, cap, label) {
   const p = Math.min(100, used / cap * 100);
   return `<div class="ux-meterbar ${p >= 100 ? 'is-full' : p >= 90 ? 'is-near' : ''}" role="img" aria-label="${escapeHtml(label)}"><span style="width:${p.toFixed(1)}%"></span></div>`;
 }
-function uxKpi(label, value, lines = [], extra = '') {
-  return `<div class="ux-kpi"><div class="ux-kpi-l">${label}</div><div class="ux-kpi-v">${value}</div>${extra}${lines.filter(Boolean).map(l => `<div class="ux-kpi-s">${l}</div>`).join('')}</div>`;
+function uxKpi(label, value, lines = [], extra = '', cls = '') {
+  return `<div class="ux-kpi ${cls}"><div class="ux-kpi-l">${label}</div><div class="ux-kpi-v">${value}</div>${extra}${lines.filter(Boolean).map(l => `<div class="ux-kpi-s">${l}</div>`).join('')}</div>`;
 }
 
 /* ---------- status chip (guide §4.6): five states, each with a word; colour follows meaning ---------- */
@@ -4412,6 +4478,8 @@ function uxCatTile(op, k, C) {
   return `<div class="ux-cat" data-tile="${k}"><div class="ux-cat-h">${icon(ico)}<h3>${name}</h3></div>${uxTileStatus(k, op)}<p class="ux-cat-pos">${wholeText(pos)}</p>${vis}<p class="ux-cat-n">${counts}</p>${uxOpener(`uxd-${op}-${k}`, `View ${k === 'protect' ? 'measures' : k === 'assure' ? 'evidence' : 'drivers'}<span class="vh">: ${name}</span> <span aria-hidden="true">›</span>`, 'ux-cat-go')}</div>`;
 }
 
+/* a title never repeats a column: "Kobo generator stop setting" in the Kobo row reads "Generator stop setting" */
+const uxTitle = (t, site) => { const r = String(t).replace(new RegExp(`^${site}(?:’s|'s)?\\s+`), ''); return r === t ? t : r.charAt(0).toUpperCase() + r.slice(1); };
 /* one row per decision (review 2b): the issues behind it become its chips and its "Why"; counts are decisions, not issues */
 function uxMergeRows(rows) {
   const by = new Map();
@@ -4433,7 +4501,7 @@ function uxQueue(op, rows, cls = '') {
     const stake = P.value ? `<span class="ux-q-v">${P.value}</span><small>${P.note}</small>` : P.word ? `<span class="ux-q-word">${P.word}</span>` : '<span class="muted">Not available yet</span>';
     const ck = P.cls && (CLS[P.cls] || [])[1], cert = P.value && P.cls ? `<span class="ux-q-cert">How sure: ${ck === 'rec' || ck === 'der' ? 'recorded' : `${uxMark(P.cls)}`}${P.dv ? ` · ${dvTag()} design estimate, not yet tested on your recorded data` : ''}</span>` : '';
     const why = m.issues.map(([k, t, txt]) => `<span class="ux-q-issue-line"><b>${t}:</b> ${txt}</span>`).join('');
-    return `<li class="attn-${m.issues[0][0]} ux-q" data-order="${i}" data-site="${s}" data-kind="${worst}" data-kinds="${[...new Set(tones)].join(' ')}" data-due="${due}" data-urg="${uxUrgency(due)}" data-stake="${P.num || 0}" data-issues="${m.issues.length}"><div class="ux-q-issue"><div class="ux-q-top">${m.issues.map(([k, t]) => uxChip(k, t)).join('')}<b class="ux-q-title">${dec ? dec.q : m.issues[0][1]}</b></div><button type="button" class="ux-q-more" aria-expanded="false" aria-controls="${id}">Why${m.issues.length > 1 ? ` (${num(m.issues.length)} issues)` : ''}<span class="vh">: ${escapeHtml(dec ? dec.q : '')}</span></button><div class="ux-q-why is-collapsed" id="${id}">${why}${cert ? `<span class="ux-q-issue-line">${cert}</span>` : ''}</div></div><div class="ux-q-site"><span class="ux-q-k">Site: </span>${SK[s].name}</div><div class="ux-q-stake"><span class="ux-q-k">At stake: </span>${stake}</div><div class="ux-q-due"><span class="ux-q-k">Due: </span>${due ? fdate(due) : '<span class="muted">No deadline</span>'}</div><div class="ux-q-who"><span class="ux-q-k">Decides: </span>${who(op, D.p)}</div>${link(`decision/${d}`, `Decide<span class="vh">: ${escapeHtml(dec ? dec.q : '')}, ${SK[s].name}</span>`, 'button ux-q-go')}</li>`;
+    return `<li class="attn-${m.issues[0][0]} ux-q" data-order="${i}" data-site="${s}" data-kind="${worst}" data-kinds="${[...new Set(tones)].join(' ')}" data-due="${due}" data-urg="${uxUrgency(due)}" data-stake="${P.num || 0}" data-issues="${m.issues.length}"><div class="ux-q-issue"><div class="ux-q-top">${m.issues.map(([k, t]) => uxChip(k, t)).join('')}</div><b class="ux-q-title">${uxTitle(dec ? dec.q : m.issues[0][1], SK[s].name)}</b><button type="button" class="ux-q-more" aria-expanded="false" aria-controls="${id}">Why${m.issues.length > 1 ? ` (${num(m.issues.length)} issues)` : ''}<span class="vh">: ${escapeHtml(dec ? dec.q : '')}</span></button><div class="ux-q-why is-collapsed" id="${id}">${why}${cert ? `<span class="ux-q-issue-line">${cert}</span>` : ''}</div></div><div class="ux-q-site"><span class="ux-q-k">Site: </span>${SK[s].name}</div><div class="ux-q-stake"><span class="ux-q-k">At stake: </span>${stake}</div><div class="ux-q-due"><span class="ux-q-k">Due: </span>${due ? fdate(due) : '<span class="vh">No deadline</span>'}</div><div class="ux-q-who"><span class="ux-q-k">Decides: </span>${who(op, D.p)}</div>${link(`decision/${d}`, `Decide<span class="vh">: ${escapeHtml(dec ? dec.q : '')}, ${SK[s].name}</span>`, `button ux-q-go${i === 0 ? ' primary' : ''}`)}</li>`;
   });
   const sites = [...new Set(M.map(m => m.s))], kinds = [...new Set(M.flatMap(m => m.issues.map(([k, t]) => uxTone(k, t))))];
   const KW = { bad: 'Off target or breached', warn: 'At a limit or deadline', info: 'New or opportunity', neutral: 'Not explained yet', good: 'On target' };
@@ -4467,31 +4535,42 @@ function uxApplyQueue(wrap) {
 /* the bridge as a stepped waterfall, the page's hero chart (guide §5, review 2b): target, each factor's step from the running
    total, October. The axis starts at a round value below the lowest point and the break is drawn and said; each step links
    to the decision on its driver, with its detail on hover and keyboard focus. */
+
+/* the bridge (guide §5, wave 2c): the totals on an honest zero axis in one bullet; below it, the gap itself as the scale
+   (target at the left edge, October at the right), each driver a step across it, grouped under its heading. No axis break,
+   no empty area: the steps fill the width of the gap. Each step links to the decision on its driver. */
 function uxBridge(op) {
   const o = OPS[op], T = opTotals(op), G = gapByHeading(op), cost = o.kind === 'cost';
   const sum = G.rows.reduce((a, r) => a + r.total, 0), dir = Math.abs(T.actual - T.plan - sum) < Math.abs(T.actual - T.plan + sum) ? 1 : -1;
-  let rows = [...G.rows].sort((a, b) => (a.lens === b.lens ? 0 : a.lens === 'grow' ? -1 : 1) || Math.abs(b.total) - Math.abs(a.total));
-  if (rows.length > 8) { const keep = rows.slice(0, 7), rest = rows.slice(7); rows = [...keep, { word: 'Other factors', lens: 'other', total: r2(rest.reduce((a, r) => a + r.total, 0)) }]; }
-  let run = T.plan; const pts = [T.plan, T.actual];
-  const steps = rows.map(r => { const a = run, b = run + dir * r.total; run = b; pts.push(a, b); return { ...r, a, b }; });
-  const mn = Math.min(...pts), mx = Math.max(...pts), span = Math.max(1, mx - mn), mag = Math.pow(10, Math.floor(Math.log10(span)));
-  const lo = Math.max(0, Math.floor((mn - span * 0.5) / mag) * mag), hi = mx + span * 0.04, X = v => ((v - lo) / (hi - lo) * 100);
-  const bar = (a, b, c) => `<span class="ux-wf-bar ${c}" style="left:${X(Math.min(a, b)).toFixed(2)}%;width:${Math.max(0.6, X(Math.max(a, b)) - X(Math.min(a, b))).toFixed(2)}%"></span>`;
-  const head = cost ? 'Cost' : 'Contribution', shown = st => cost ? dir * st.total : st.total, gapAbs = Math.abs(T.actual - T.plan) || 1;
+  const head = cost ? 'Cost' : 'Contribution', gap = T.actual - T.plan, gapAbs = Math.abs(gap) || 1, shown = st => cost ? dir * st.total : st.total;
   const tone = r => { const worse = cost ? dir * r.total > 0 : dir * r.total < 0; return worse ? 'is-bad' : 'is-good'; };
-  const brk = lo > 0 ? '<span class="ux-wf-break" aria-hidden="true"></span>' : '';
   const names = OPS[op].sites.map(k => SK[k].name);
   const decFor = st => { const f = (HC.findings || []).find(f => names.includes(String(f.site).replace(/^Room [A-C] · /, '')) && (st.hkeys || []).includes(f.factor)); return f ? f.decision : null; };
   const nw = t => `<span class="ux-nw">${t}</span>`;
-  const total = (lab, v, c) => `<li class="ux-wf-row is-end"><span class="ux-wf-lab">${lab}</span><span class="ux-wf-val">${usdW(v)}</span><span class="ux-wf-track">${brk}${bar(lo, v, c)}</span></li>`;
-  const list = steps.map((st, i) => { const lab = `${st.lens === 'other' ? '' : `<span class="ux-wf-h">${st.lens === 'grow' ? 'Grow' : 'Optimize'}</span>`}${GAP_SHORT[st.word] || st.word}`, val = usdW(shown(st), true), b = bar(st.a, st.b, tone(st) + (st.residual ? ' is-resid' : '')) + `<span class="ux-wf-conn" style="left:${X(st.b).toFixed(2)}%" aria-hidden="true"></span>`, dk = decFor(st), dec = dk && decById(dk);
-    const share = Math.round(Math.abs(st.total) / gapAbs * 100), tip = `${GAP_SHORT[st.word] || st.word}: ${nw(val)}, ${nw(`${share}%`)} of the ${cost ? 'difference' : 'gap'}${dec ? `. Open: ${dec.q}` : '. No decision is open on it'}`;
-    return dec ? `<li class="ux-wf-row is-step is-link"><a class="ux-wf-a" href="#/decision/${dk}" aria-describedby="uxwt-${op}-${i}"><span class="ux-wf-lab">${lab}</span><span class="ux-wf-val">${val}</span><span class="ux-wf-track">${b}</span></a><span class="ux-tip" role="tooltip" id="uxwt-${op}-${i}">${tip} ›</span></li>`
-      : `<li class="ux-wf-row is-step" tabindex="0" aria-describedby="uxwt-${op}-${i}"><span class="ux-wf-lab">${lab}</span><span class="ux-wf-val">${val}</span><span class="ux-wf-track">${b}</span><span class="ux-tip" role="tooltip" id="uxwt-${op}-${i}">${tip}</span></li>`; }).join('');
+  /* steps in heading order, then size; the running position is measured across the gap (0 = target, 100 = October) */
+  const groups = ['grow', 'optimize'].map(k => ({ k, rows: G.rows.filter(r => r.lens === k).sort((a, b) => Math.abs(b.total) - Math.abs(a.total)) })).filter(g => g.rows.length);
+  let run = 0;
+  const body = groups.map(g => {
+    const gt = g.rows.reduce((a, r) => a + shown(r), 0);
+    const rows = g.rows.map((st, i) => {
+      const a = run, b = run + shown(st) / (gap || 1) * 100; run = b; /* progress across the gap: 0 at target, 100 at October */
+      const L = Math.min(a, b), W = Math.abs(b - a);
+      const lab = GAP_SHORT[st.word] || st.word, val = usdW(shown(st), true), dk = decFor(st), dec = dk && decById(dk), share = Math.round(Math.abs(st.total) / gapAbs * 100);
+      const bar = `<span class="ux-wf-bar ${tone(st)}${st.residual ? ' is-resid' : ''}" style="left:${Math.max(0, L).toFixed(2)}%;width:${Math.max(0.8, W).toFixed(2)}%"></span>`;
+      const tip = `${lab}: ${nw(val)}, ${nw(`${share}%`)} of the ${cost ? 'difference' : 'gap'}${dec ? `. Open: ${dec.q}` : '. No decision is open on it'}`, id = `uxwt-${op}-${g.k}-${i}`;
+      const inner = `<span class="ux-wf-lab">${lab}</span><span class="ux-wf-val">${val}<small>${share}%</small></span><span class="ux-wf-track">${bar}</span>`;
+      return dec ? `<li class="ux-wf-row is-step is-link"><a class="ux-wf-a" href="#/decision/${dk}" aria-describedby="${id}">${inner}</a><span class="ux-tip" role="tooltip" id="${id}">${tip} ›</span></li>`
+        : `<li class="ux-wf-row is-step" tabindex="0" aria-describedby="${id}">${inner}<span class="ux-tip" role="tooltip" id="${id}">${tip}</span></li>`;
+    }).join('');
+    return `<li class="ux-wf-group"><span class="ux-wf-gl">${LENS[g.k][0]}</span><span class="ux-wf-gv">${usdW(gt, true)}</span></li>${rows}`;
+  }).join('');
   const big = Object.entries({ grow: G.grow, optimize: G.optimize }).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))[0];
   const title = cost ? `Cost and efficiency explain ${usdW(Math.abs(G.optimize))} of the ${usdW(gapAbs)} over target`
     : `${big[0] === 'optimize' ? 'Cost and efficiency explain' : 'Revenue explains'} ${usdW(Math.abs(big[1]))} of the ${usdW(gapAbs)} gap`;
-  return `<section class="panel ux-chart ux-hero" aria-labelledby="uxb-h"><div class="panel-head"><div><h2 id="uxb-h">Where the gap comes from</h2><p>${title}. Open a step to see its decision.</p></div></div><ol class="ux-wf" aria-label="${head} from target to October, step by step">${total(`${head} target`, T.plan, 'is-total')}${list}${total(`${head}, October`, T.actual, 'is-total is-actual')}</ol>${lo > 0 ? `<p class="ux-axis-note"><span class="ux-wf-break is-key" aria-hidden="true"></span> The axis starts at ${usdW(lo)}, not zero, so the steps can be read; the totals are drawn from the same start.</p>` : ''}${uxTableView('Show as table, by Site', gapSplit(op))}</section>`;
+  const totals = `<div class="ux-wf-totals">${uxBullet(T.actual, T.plan, `${head} ${usdW(T.actual)} against a target of ${usdW(T.plan)}`, cost)}<div class="ux-wf-tl"><span>${head}, October <b>${usdW(T.actual)}</b></span><span>Target <b>${usdW(T.plan)}</b></span></div></div>`;
+  return `<section class="panel ux-chart ux-hero" aria-labelledby="uxb-h"><div class="panel-head"><div><h2 id="uxb-h">Where the gap comes from</h2><p>${title}. Open a step to see its decision.</p></div></div>${totals}
+ <div class="ux-wf-scale" aria-hidden="true"><span>Target ${usdW(T.plan)}</span><span>The ${usdW(gapAbs)} ${cost ? 'difference' : 'gap'}, driver by driver</span><span>October ${usdW(T.actual)}</span></div>
+ <ol class="ux-wf ux-wf-gapscale" aria-label="${head}: the gap from target to October, driver by driver">${body}</ol>${uxTableView('Show as table, by Site', gapSplit(op))}</section>`;
 }
 
 /* ---------- side drawer (guide §8): stays in the page (closed: hidden from view and focus), opened by a named button ---------- */
@@ -4545,7 +4624,7 @@ const GAP_SHORT = { 'kWh sold (demand volume)': 'kWh sold', 'Fuel the generator 
 function uxCats(op) {
   const C = CARDS[op](), ks = Object.keys(LENS);
   const about = 'The four headings sit over one structure: each factor under one heading, so no figure is counted twice and the headings are never added together. Grow and Optimize effects explain the contribution gap; cash collected sits under Optimize, outside that gap; Protect shows measures against target with values at stake listed beside, never money; Assure shows the evidence, with the bridge, and adds no money.';
-  return `<section class="ux-cats-wrap" aria-labelledby="uxc-h"><div class="ux-row-head"><h2 id="uxc-h">By outcome</h2><p class="ux-prov-extra" hidden data-prov="${escapeHtml(about)}"></p></div><div class="ux-cats ocards">${ks.map(k => uxCatTile(op, k, C)).join('')}</div>${ks.map(k => uxDrawer(`uxd-${op}-${k}`, LENS[k][0], categoryCard(op, k, C), true)).join('')}</section>`;
+  return `<section class="ux-cats-wrap" aria-labelledby="uxc-h"><div class="ux-row-head"><h2 id="uxc-h">By outcome</h2><span class="ux-note">Each heading opens its drivers, Findings and plan items</span><p class="ux-prov-extra" hidden data-prov="${escapeHtml(about)}"></p></div><div class="ux-cats ocards">${ks.map(k => uxCatTile(op, k, C)).join('')}</div>${ks.map(k => uxDrawer(`uxd-${op}-${k}`, LENS[k][0], categoryCard(op, k, C), true)).join('')}</section>`;
 }
 
 /* ---------- the plan card and the insight (L2 aside) ---------- */
@@ -4576,17 +4655,17 @@ function uxOverview(op) {
     cost ? [`Optimize ${usdW(G.optimize, true)}`, uxTrendNA(), resid ? `${usdW(G.residual, true)} not attributed yet: a target stated only as a bill total` : 'All of it explained']
       : [`Grow ${usdW(G.grow, true)} · Optimize ${usdW(G.optimize, true)}`, uxTrendNA(), resid ? `${usdW(G.residual, true)} not explained yet` : 'All of it explained']);
   const k3 = uxKpi(`Plan spend · ${periodWords()}`, `${fig(`port:${op}:spend`, usdW(P.spend))} <small>of ${usdW(budget)}</small> ${uxMark('QUOTE')}`,
-    [`${num(P.visits)} of ${num(derivedPlan(op).crew_visits_limit)} ${o.crewWord}`, `${STATE_WORD[PSTATE().state]}: awaiting the operator executive’s approval`], uxMeterBar(P.spend, budget, `${usdW(P.spend)} of ${usdW(budget)} budget`));
+    [`${num(P.visits)} of ${num(derivedPlan(op).crew_visits_limit)} ${o.crewWord}`, `${STATE_WORD[PSTATE().state]}: awaiting approval · ${link('portfolio/act-first/plan', 'Review the plan')}`], uxMeterBar(P.spend, budget, `${usdW(P.spend)} of ${usdW(budget)} budget`));
   const k4 = uxKpi('Options’ value, 12 months', `<span>${fig(`port:${op}:m12`, val === 0 ? '$0' : usdW(val, true))}${op === 'harvest' ? '' : dvTag()}</span> ${uxMark('MODELLED')}`,
-    [op === 'harvest' ? 'Includes an assumed recovery share (80%) at Kirinyaga' : 'Valued options only; not realised until records show it']);
+    [op === 'harvest' ? 'Includes an assumed recovery share (80%) at Kirinyaga' : 'Valued options only; not realised until records show it'], '', 'is-modelled');
   const n = uxDecCount(ATTN[op]);
   return `<div class="ux-overview"><p class="headline ux-headline">${hl}</p>
  <div class="heroes ux-kpis">${k1}${k2}${k3}${k4}</div>
  <div class="ux-main-aside"><section class="panel ux-queue-panel" aria-labelledby="uxq-h"><div class="panel-head"><div><h2 id="uxq-h">Needs a decision <span class="ux-count">${num(n)}</span></h2><p>One row per decision, with who decides. AssetOps values the options; your team chooses.</p></div>${link('portfolio/act-first', 'Act first ›', 'ux-link')}</div>${uxQueue(op, ATTN[op].filter(r => uxMergeRows(ATTN[op]).slice(0, 6).some(m => m.d === r[4])))}${n > 6 ? `<p class="ux-more">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : n > 3 ? `<p class="ux-more ux-more-phone">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : ''}</section>
  </div>
  ${uxBridge(op)}
- <div class="ux-two">${uxChain(op)}<div class="ux-aside ux-aside-stack">${uxPlanCard(op)}${uxInsight(op)}</div></div>
- ${uxCats(op)}</div>`;
+ ${uxCats(op)}
+ <p class="ux-more-tabs">More in the tabs: ${link('portfolio/demand-and-capacity', 'where value leaks')} · ${link('portfolio/outcomes-by-site', 'outcomes by site')} · ${link('portfolio/act-first/plan', 'the plan')}</p></div>`;
 }
 
 /* ---------- Decision page header (guide §2.3, §7.2): the recommendation in one line and the primary action ---------- */
@@ -4647,7 +4726,16 @@ function uxItemRow(op, id, f) {
 
 /* ===== wave 2, Portfolio polish: queue controls, the row's "Why", the provenance popover, the command search, the scope
    switcher and the period menu (guide §7.1, §8). Presentation only; every list is built from the data the screen shows. ===== */
-const uxTrendNA = () => '<span class="ux-trend"><span class="ux-spark-na" aria-hidden="true"></span>Trend not available yet</span>';
+/* trend slot (guide §5, wave 2c): a sparkline of the months loaded and the change against last month. History is not loaded
+   (proposal U9), so uxHistory returns null and the slot says so; nothing is ever drawn from invented months. */
+const uxHistory = (op, key) => null;
+function uxTrend(series, fmt = v => usdW(v, true)) {
+  if (!Array.isArray(series) || series.length < 2) return '<span class="ux-trend"><span class="ux-spark-na" aria-hidden="true"></span>Trend not available yet</span>';
+  const vs = series.map(p => p.v), mn = Math.min(...vs), mx = Math.max(...vs), w = 64, h = 16, X = i => (i / (vs.length - 1) * w).toFixed(1), Y = v => (h - 1 - (mx === mn ? h / 2 : (v - mn) / (mx - mn) * (h - 2))).toFixed(1);
+  const d = vs.map((v, i) => `${i ? 'L' : 'M'}${X(i)} ${Y(v)}`).join(' '), ch = vs[vs.length - 1] - vs[vs.length - 2];
+  return `<span class="ux-trend"><svg class="ux-spark" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${series.map(p => `${p.m} ${fmt(p.v)}`).join(', ')}"><path d="${d}"/></svg>${fmt(ch)} against ${series[series.length - 2].m}</span>`;
+}
+const uxTrendNA = (op, key) => uxTrend(op ? uxHistory(op, key) : null);
 
 /* queue: expand a row's explanation */
 document.addEventListener('click', e => {
@@ -4754,7 +4842,7 @@ const dyn = (o,k,f) => Object.defineProperty(o,k,{get:f,enumerable:true,configur
 
 /* Portfolio: six owner-approved tabs */
 const PQ = {portfolio:'Outcomes against target with the factors that make them, factors needing attention, and the first moves of the plan.','portfolio/act-first':'The issues needing a decision, each with who decides, and beside them the plan for November and December awaiting approval.','portfolio/outcomes-by-site':'Each outcome by site, broken down through its factors to target against actual; Protect measures against their targets.','portfolio/demand-and-capacity':'Demand that adds contribution, rejected demand with break-even, and capacity without a customer.','portfolio/what-changed':'Actions (each chosen option) with frozen predictions and three verdicts; contract rights and their states.','portfolio/scope':'Coverage by site and leaf factor, missing records, sources and the pilot request.'};
-const PR = {portfolio:overviewScreen,'portfolio/act-first':actFirstScreen,'portfolio/outcomes-by-site':outcomesBySiteScreen,'portfolio/demand-and-capacity':opportunityScreen,'portfolio/what-changed':whatChangedScreen,'portfolio/scope':scopeScreen};
+const PR = {portfolio:overviewScreen,'portfolio/act-first':actFirstScreen,'portfolio/outcomes-by-site':()=>outcomesBySiteScreen()+uxInsight(LS.op),'portfolio/demand-and-capacity':()=>uxChain(LS.op)+opportunityScreen(),'portfolio/what-changed':whatChangedScreen,'portfolio/scope':scopeScreen};
 const portfolioCrumbs = s => [['Portfolio','portfolio'],...(s.id==='portfolio'?[]:[[PTABS.find(t=>t[1]===(s.ptab||s.id))[0],s.ptab&&s.ptab!==s.id?s.ptab:null]]),...(s.ptab&&s.ptab!==s.id?[[s.crumbLabel||'Pilot request']]:[])];
 {const p=SCREENS.find(s=>s.id==='portfolio');Object.assign(p,{render:overviewScreen,loop:true,opScoped:true,ltabs:ptabs,crumbs:portfolioCrumbs,title:'Portfolio',question:PQ.portfolio,loopNotes,...LOOPDOC});dyn(p,'subtitle',()=>`${opName()} · ${OPN().typeWord} · October 2026, books closed 6 Nov`);}
 PTABS.slice(1).forEach(([lab,id])=>{addL(id,'Portfolio','Portfolio','',PQ[id],PR[id],{opScoped:true,ltabs:ptabs,crumbs:portfolioCrumbs,loopNotes});dyn(SCREENS.at(-1),'subtitle',()=>`${opName()} · ${lab} · October 2026`);});

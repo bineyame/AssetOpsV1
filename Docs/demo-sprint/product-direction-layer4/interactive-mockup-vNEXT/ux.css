@@ -545,3 +545,46 @@ details.ux-pop>summary:focus-visible{outline:2px solid var(--focus);outline-offs
   .ux-q-issue{grid-area:issue}.ux-q-site{grid-area:site}.ux-q-stake{grid-area:stake}.ux-q-due{grid-area:due;justify-self:end}.ux-q-who{grid-area:who}.ux-q-go{grid-area:go;justify-self:end}
   .ux-q-k{position:static;width:auto;height:auto;clip:auto;color:var(--text-2);font-weight:400}
 }
+
+/* ===== wave 2c ===== */
+/* gap 3: chips on one line, the title on the next, every row the same left edge; one primary Decide */
+.ux-q-issue{gap:4px}
+.ux-q-top{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.ux-q-top .ux-chip+.ux-chip{margin-left:0}
+.ux-q-title{display:block}
+/* gap 5: numbers that open their working show it on hover and focus, not with a permanent dotted line */
+.ux-overview .ev-num,.ux-kpi .ev-num,.ux-chart .ev-num{text-decoration:none;cursor:pointer;border-radius:4px}
+.ux-overview .ev-num:hover,.ux-overview .ev-num:focus-visible,.ux-kpi .ev-num:hover,.ux-kpi .ev-num:focus-visible{text-decoration:underline;text-decoration-style:solid;text-underline-offset:4px}
+/* gap 5: a modelled figure never carries the weight of an actual */
+.ux-kpi.is-modelled{background:var(--surface-2);border-style:dashed}
+.ux-kpi.is-modelled .ux-kpi-v{font-size:var(--fs-2xl);line-height:32px;font-weight:500;color:var(--text-2)}
+/* gap 5: prose at 14 px; 12-13 px only for labels, units and notes */
+.ux-kpi-s,.ux-q-why,.ux-overview .panel-head p,.ux-q-title{font-size:var(--fs-md);line-height:20px}
+.ux-kpi-s .ux-trend{font-size:var(--fs-xs)}
+.ux-spark{display:inline-block;vertical-align:middle}
+.ux-spark path{fill:none;stroke:var(--series-1);stroke-width:1.5}
+/* gap 4: totals on a zero axis; the gap as the scale, steps grouped by heading */
+.ux-wf-totals{margin:var(--s2) 0 var(--s4)}
+.ux-wf-totals .ux-bullet{height:12px}
+.ux-wf-tl{display:flex;justify-content:space-between;font-size:var(--fs-sm);color:var(--text-2)}
+.ux-wf-tl b{color:var(--text);font-variant-numeric:tabular-nums}
+.ux-wf-scale{display:grid;grid-template-columns:auto 1fr auto;gap:var(--s3);margin-left:calc(min(30%,260px) + 96px + 2 * var(--s3));font-size:var(--fs-xs);color:var(--text-2);border-bottom:1px solid var(--line-strong);padding-bottom:4px}
+.ux-wf-scale span:nth-child(2){text-align:center}
+.ux-hero .ux-wf-gapscale .ux-wf-row,.ux-hero .ux-wf-gapscale .ux-wf-a{grid-template-columns:min(30%,260px) 96px minmax(0,1fr)}
+.ux-wf-gapscale .ux-wf-track{border-left:1px solid var(--line);border-right:1px solid var(--line);height:24px}
+.ux-wf-gapscale .ux-wf-val small{display:block;font-size:var(--fs-xs);color:var(--text-2);font-weight:400}
+.ux-wf-group{display:flex;justify-content:space-between;max-width:calc(min(30%,260px) + 96px + var(--s3));padding:var(--s3) 0 2px;font-size:var(--fs-xs);font-weight:600;color:var(--text-2);border-top:1px solid var(--line)}
+.ux-wf-group:first-child{border-top:0}
+.ux-wf-gv{font-variant-numeric:tabular-nums}
+@media (max-width:600px){.ux-wf-scale{margin-left:0}.ux-hero .ux-wf-gapscale .ux-wf-row,.ux-hero .ux-wf-gapscale .ux-wf-a{grid-template-columns:minmax(0,1fr) 84px}.ux-wf-group{max-width:none}}
+/* gap 6: a slim, even outcomes strip */
+.ux-cats.ocards{grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch}
+.ux-cat{padding:var(--s3) var(--s4);gap:6px}
+.ux-cat-pos{font-size:var(--fs-sm)}
+.ux-cat-n{display:none}
+.ux-more-tabs{margin:var(--s4) 0 0;font-size:var(--fs-sm);color:var(--text-2)}
+@media (max-width:1279px){.ux-cats.ocards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.ux-cats.ocards{grid-template-columns:minmax(0,1fr)}}
+.ux-cat-h{flex-wrap:nowrap;align-items:flex-start}
+.ux-cat-h h3{white-space:normal}
+@media (min-width:1280px){.ux-cat-h h3{white-space:normal}}

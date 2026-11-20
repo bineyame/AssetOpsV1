@@ -30,8 +30,8 @@ function uxMeterBar(used, cap, label) {
   const p = Math.min(100, used / cap * 100);
   return `<div class="ux-meterbar ${p >= 100 ? 'is-full' : p >= 90 ? 'is-near' : ''}" role="img" aria-label="${escapeHtml(label)}"><span style="width:${p.toFixed(1)}%"></span></div>`;
 }
-function uxKpi(label, value, lines = [], extra = '') {
-  return `<div class="ux-kpi"><div class="ux-kpi-l">${label}</div><div class="ux-kpi-v">${value}</div>${extra}${lines.filter(Boolean).map(l => `<div class="ux-kpi-s">${l}</div>`).join('')}</div>`;
+function uxKpi(label, value, lines = [], extra = '', cls = '') {
+  return `<div class="ux-kpi ${cls}"><div class="ux-kpi-l">${label}</div><div class="ux-kpi-v">${value}</div>${extra}${lines.filter(Boolean).map(l => `<div class="ux-kpi-s">${l}</div>`).join('')}</div>`;
 }
 
 /* ---------- status chip (guide §4.6): five states, each with a word; colour follows meaning ---------- */
@@ -106,6 +106,8 @@ function uxCatTile(op, k, C) {
   return `<div class="ux-cat" data-tile="${k}"><div class="ux-cat-h">${icon(ico)}<h3>${name}</h3></div>${uxTileStatus(k, op)}<p class="ux-cat-pos">${wholeText(pos)}</p>${vis}<p class="ux-cat-n">${counts}</p>${uxOpener(`uxd-${op}-${k}`, `View ${k === 'protect' ? 'measures' : k === 'assure' ? 'evidence' : 'drivers'}<span class="vh">: ${name}</span> <span aria-hidden="true">›</span>`, 'ux-cat-go')}</div>`;
 }
 
+/* a title never repeats a column: "Kobo generator stop setting" in the Kobo row reads "Generator stop setting" */
+const uxTitle = (t, site) => { const r = String(t).replace(new RegExp(`^${site}(?:’s|'s)?\\s+`), ''); return r === t ? t : r.charAt(0).toUpperCase() + r.slice(1); };
 /* one row per decision (review 2b): the issues behind it become its chips and its "Why"; counts are decisions, not issues */
 function uxMergeRows(rows) {
   const by = new Map();
@@ -127,7 +129,7 @@ function uxQueue(op, rows, cls = '') {
     const stake = P.value ? `<span class="ux-q-v">${P.value}</span><small>${P.note}</small>` : P.word ? `<span class="ux-q-word">${P.word}</span>` : '<span class="muted">Not available yet</span>';
     const ck = P.cls && (CLS[P.cls] || [])[1], cert = P.value && P.cls ? `<span class="ux-q-cert">How sure: ${ck === 'rec' || ck === 'der' ? 'recorded' : `${uxMark(P.cls)}`}${P.dv ? ` · ${dvTag()} design estimate, not yet tested on your recorded data` : ''}</span>` : '';
     const why = m.issues.map(([k, t, txt]) => `<span class="ux-q-issue-line"><b>${t}:</b> ${txt}</span>`).join('');
-    return `<li class="attn-${m.issues[0][0]} ux-q" data-order="${i}" data-site="${s}" data-kind="${worst}" data-kinds="${[...new Set(tones)].join(' ')}" data-due="${due}" data-urg="${uxUrgency(due)}" data-stake="${P.num || 0}" data-issues="${m.issues.length}"><div class="ux-q-issue"><div class="ux-q-top">${m.issues.map(([k, t]) => uxChip(k, t)).join('')}<b class="ux-q-title">${dec ? dec.q : m.issues[0][1]}</b></div><button type="button" class="ux-q-more" aria-expanded="false" aria-controls="${id}">Why${m.issues.length > 1 ? ` (${num(m.issues.length)} issues)` : ''}<span class="vh">: ${escapeHtml(dec ? dec.q : '')}</span></button><div class="ux-q-why is-collapsed" id="${id}">${why}${cert ? `<span class="ux-q-issue-line">${cert}</span>` : ''}</div></div><div class="ux-q-site"><span class="ux-q-k">Site: </span>${SK[s].name}</div><div class="ux-q-stake"><span class="ux-q-k">At stake: </span>${stake}</div><div class="ux-q-due"><span class="ux-q-k">Due: </span>${due ? fdate(due) : '<span class="muted">No deadline</span>'}</div><div class="ux-q-who"><span class="ux-q-k">Decides: </span>${who(op, D.p)}</div>${link(`decision/${d}`, `Decide<span class="vh">: ${escapeHtml(dec ? dec.q : '')}, ${SK[s].name}</span>`, 'button ux-q-go')}</li>`;
+    return `<li class="attn-${m.issues[0][0]} ux-q" data-order="${i}" data-site="${s}" data-kind="${worst}" data-kinds="${[...new Set(tones)].join(' ')}" data-due="${due}" data-urg="${uxUrgency(due)}" data-stake="${P.num || 0}" data-issues="${m.issues.length}"><div class="ux-q-issue"><div class="ux-q-top">${m.issues.map(([k, t]) => uxChip(k, t)).join('')}</div><b class="ux-q-title">${uxTitle(dec ? dec.q : m.issues[0][1], SK[s].name)}</b><button type="button" class="ux-q-more" aria-expanded="false" aria-controls="${id}">Why${m.issues.length > 1 ? ` (${num(m.issues.length)} issues)` : ''}<span class="vh">: ${escapeHtml(dec ? dec.q : '')}</span></button><div class="ux-q-why is-collapsed" id="${id}">${why}${cert ? `<span class="ux-q-issue-line">${cert}</span>` : ''}</div></div><div class="ux-q-site"><span class="ux-q-k">Site: </span>${SK[s].name}</div><div class="ux-q-stake"><span class="ux-q-k">At stake: </span>${stake}</div><div class="ux-q-due"><span class="ux-q-k">Due: </span>${due ? fdate(due) : '<span class="vh">No deadline</span>'}</div><div class="ux-q-who"><span class="ux-q-k">Decides: </span>${who(op, D.p)}</div>${link(`decision/${d}`, `Decide<span class="vh">: ${escapeHtml(dec ? dec.q : '')}, ${SK[s].name}</span>`, `button ux-q-go${i === 0 ? ' primary' : ''}`)}</li>`;
   });
   const sites = [...new Set(M.map(m => m.s))], kinds = [...new Set(M.flatMap(m => m.issues.map(([k, t]) => uxTone(k, t))))];
   const KW = { bad: 'Off target or breached', warn: 'At a limit or deadline', info: 'New or opportunity', neutral: 'Not explained yet', good: 'On target' };
@@ -161,31 +163,42 @@ function uxApplyQueue(wrap) {
 /* the bridge as a stepped waterfall, the page's hero chart (guide §5, review 2b): target, each factor's step from the running
    total, October. The axis starts at a round value below the lowest point and the break is drawn and said; each step links
    to the decision on its driver, with its detail on hover and keyboard focus. */
+
+/* the bridge (guide §5, wave 2c): the totals on an honest zero axis in one bullet; below it, the gap itself as the scale
+   (target at the left edge, October at the right), each driver a step across it, grouped under its heading. No axis break,
+   no empty area: the steps fill the width of the gap. Each step links to the decision on its driver. */
 function uxBridge(op) {
   const o = OPS[op], T = opTotals(op), G = gapByHeading(op), cost = o.kind === 'cost';
   const sum = G.rows.reduce((a, r) => a + r.total, 0), dir = Math.abs(T.actual - T.plan - sum) < Math.abs(T.actual - T.plan + sum) ? 1 : -1;
-  let rows = [...G.rows].sort((a, b) => (a.lens === b.lens ? 0 : a.lens === 'grow' ? -1 : 1) || Math.abs(b.total) - Math.abs(a.total));
-  if (rows.length > 8) { const keep = rows.slice(0, 7), rest = rows.slice(7); rows = [...keep, { word: 'Other factors', lens: 'other', total: r2(rest.reduce((a, r) => a + r.total, 0)) }]; }
-  let run = T.plan; const pts = [T.plan, T.actual];
-  const steps = rows.map(r => { const a = run, b = run + dir * r.total; run = b; pts.push(a, b); return { ...r, a, b }; });
-  const mn = Math.min(...pts), mx = Math.max(...pts), span = Math.max(1, mx - mn), mag = Math.pow(10, Math.floor(Math.log10(span)));
-  const lo = Math.max(0, Math.floor((mn - span * 0.5) / mag) * mag), hi = mx + span * 0.04, X = v => ((v - lo) / (hi - lo) * 100);
-  const bar = (a, b, c) => `<span class="ux-wf-bar ${c}" style="left:${X(Math.min(a, b)).toFixed(2)}%;width:${Math.max(0.6, X(Math.max(a, b)) - X(Math.min(a, b))).toFixed(2)}%"></span>`;
-  const head = cost ? 'Cost' : 'Contribution', shown = st => cost ? dir * st.total : st.total, gapAbs = Math.abs(T.actual - T.plan) || 1;
+  const head = cost ? 'Cost' : 'Contribution', gap = T.actual - T.plan, gapAbs = Math.abs(gap) || 1, shown = st => cost ? dir * st.total : st.total;
   const tone = r => { const worse = cost ? dir * r.total > 0 : dir * r.total < 0; return worse ? 'is-bad' : 'is-good'; };
-  const brk = lo > 0 ? '<span class="ux-wf-break" aria-hidden="true"></span>' : '';
   const names = OPS[op].sites.map(k => SK[k].name);
   const decFor = st => { const f = (HC.findings || []).find(f => names.includes(String(f.site).replace(/^Room [A-C] · /, '')) && (st.hkeys || []).includes(f.factor)); return f ? f.decision : null; };
   const nw = t => `<span class="ux-nw">${t}</span>`;
-  const total = (lab, v, c) => `<li class="ux-wf-row is-end"><span class="ux-wf-lab">${lab}</span><span class="ux-wf-val">${usdW(v)}</span><span class="ux-wf-track">${brk}${bar(lo, v, c)}</span></li>`;
-  const list = steps.map((st, i) => { const lab = `${st.lens === 'other' ? '' : `<span class="ux-wf-h">${st.lens === 'grow' ? 'Grow' : 'Optimize'}</span>`}${GAP_SHORT[st.word] || st.word}`, val = usdW(shown(st), true), b = bar(st.a, st.b, tone(st) + (st.residual ? ' is-resid' : '')) + `<span class="ux-wf-conn" style="left:${X(st.b).toFixed(2)}%" aria-hidden="true"></span>`, dk = decFor(st), dec = dk && decById(dk);
-    const share = Math.round(Math.abs(st.total) / gapAbs * 100), tip = `${GAP_SHORT[st.word] || st.word}: ${nw(val)}, ${nw(`${share}%`)} of the ${cost ? 'difference' : 'gap'}${dec ? `. Open: ${dec.q}` : '. No decision is open on it'}`;
-    return dec ? `<li class="ux-wf-row is-step is-link"><a class="ux-wf-a" href="#/decision/${dk}" aria-describedby="uxwt-${op}-${i}"><span class="ux-wf-lab">${lab}</span><span class="ux-wf-val">${val}</span><span class="ux-wf-track">${b}</span></a><span class="ux-tip" role="tooltip" id="uxwt-${op}-${i}">${tip} ›</span></li>`
-      : `<li class="ux-wf-row is-step" tabindex="0" aria-describedby="uxwt-${op}-${i}"><span class="ux-wf-lab">${lab}</span><span class="ux-wf-val">${val}</span><span class="ux-wf-track">${b}</span><span class="ux-tip" role="tooltip" id="uxwt-${op}-${i}">${tip}</span></li>`; }).join('');
+  /* steps in heading order, then size; the running position is measured across the gap (0 = target, 100 = October) */
+  const groups = ['grow', 'optimize'].map(k => ({ k, rows: G.rows.filter(r => r.lens === k).sort((a, b) => Math.abs(b.total) - Math.abs(a.total)) })).filter(g => g.rows.length);
+  let run = 0;
+  const body = groups.map(g => {
+    const gt = g.rows.reduce((a, r) => a + shown(r), 0);
+    const rows = g.rows.map((st, i) => {
+      const a = run, b = run + shown(st) / (gap || 1) * 100; run = b; /* progress across the gap: 0 at target, 100 at October */
+      const L = Math.min(a, b), W = Math.abs(b - a);
+      const lab = GAP_SHORT[st.word] || st.word, val = usdW(shown(st), true), dk = decFor(st), dec = dk && decById(dk), share = Math.round(Math.abs(st.total) / gapAbs * 100);
+      const bar = `<span class="ux-wf-bar ${tone(st)}${st.residual ? ' is-resid' : ''}" style="left:${Math.max(0, L).toFixed(2)}%;width:${Math.max(0.8, W).toFixed(2)}%"></span>`;
+      const tip = `${lab}: ${nw(val)}, ${nw(`${share}%`)} of the ${cost ? 'difference' : 'gap'}${dec ? `. Open: ${dec.q}` : '. No decision is open on it'}`, id = `uxwt-${op}-${g.k}-${i}`;
+      const inner = `<span class="ux-wf-lab">${lab}</span><span class="ux-wf-val">${val}<small>${share}%</small></span><span class="ux-wf-track">${bar}</span>`;
+      return dec ? `<li class="ux-wf-row is-step is-link"><a class="ux-wf-a" href="#/decision/${dk}" aria-describedby="${id}">${inner}</a><span class="ux-tip" role="tooltip" id="${id}">${tip} ›</span></li>`
+        : `<li class="ux-wf-row is-step" tabindex="0" aria-describedby="${id}">${inner}<span class="ux-tip" role="tooltip" id="${id}">${tip}</span></li>`;
+    }).join('');
+    return `<li class="ux-wf-group"><span class="ux-wf-gl">${LENS[g.k][0]}</span><span class="ux-wf-gv">${usdW(gt, true)}</span></li>${rows}`;
+  }).join('');
   const big = Object.entries({ grow: G.grow, optimize: G.optimize }).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))[0];
   const title = cost ? `Cost and efficiency explain ${usdW(Math.abs(G.optimize))} of the ${usdW(gapAbs)} over target`
     : `${big[0] === 'optimize' ? 'Cost and efficiency explain' : 'Revenue explains'} ${usdW(Math.abs(big[1]))} of the ${usdW(gapAbs)} gap`;
-  return `<section class="panel ux-chart ux-hero" aria-labelledby="uxb-h"><div class="panel-head"><div><h2 id="uxb-h">Where the gap comes from</h2><p>${title}. Open a step to see its decision.</p></div></div><ol class="ux-wf" aria-label="${head} from target to October, step by step">${total(`${head} target`, T.plan, 'is-total')}${list}${total(`${head}, October`, T.actual, 'is-total is-actual')}</ol>${lo > 0 ? `<p class="ux-axis-note"><span class="ux-wf-break is-key" aria-hidden="true"></span> The axis starts at ${usdW(lo)}, not zero, so the steps can be read; the totals are drawn from the same start.</p>` : ''}${uxTableView('Show as table, by Site', gapSplit(op))}</section>`;
+  const totals = `<div class="ux-wf-totals">${uxBullet(T.actual, T.plan, `${head} ${usdW(T.actual)} against a target of ${usdW(T.plan)}`, cost)}<div class="ux-wf-tl"><span>${head}, October <b>${usdW(T.actual)}</b></span><span>Target <b>${usdW(T.plan)}</b></span></div></div>`;
+  return `<section class="panel ux-chart ux-hero" aria-labelledby="uxb-h"><div class="panel-head"><div><h2 id="uxb-h">Where the gap comes from</h2><p>${title}. Open a step to see its decision.</p></div></div>${totals}
+ <div class="ux-wf-scale" aria-hidden="true"><span>Target ${usdW(T.plan)}</span><span>The ${usdW(gapAbs)} ${cost ? 'difference' : 'gap'}, driver by driver</span><span>October ${usdW(T.actual)}</span></div>
+ <ol class="ux-wf ux-wf-gapscale" aria-label="${head}: the gap from target to October, driver by driver">${body}</ol>${uxTableView('Show as table, by Site', gapSplit(op))}</section>`;
 }
 
 /* ---------- side drawer (guide §8): stays in the page (closed: hidden from view and focus), opened by a named button ---------- */
@@ -239,7 +252,7 @@ const GAP_SHORT = { 'kWh sold (demand volume)': 'kWh sold', 'Fuel the generator 
 function uxCats(op) {
   const C = CARDS[op](), ks = Object.keys(LENS);
   const about = 'The four headings sit over one structure: each factor under one heading, so no figure is counted twice and the headings are never added together. Grow and Optimize effects explain the contribution gap; cash collected sits under Optimize, outside that gap; Protect shows measures against target with values at stake listed beside, never money; Assure shows the evidence, with the bridge, and adds no money.';
-  return `<section class="ux-cats-wrap" aria-labelledby="uxc-h"><div class="ux-row-head"><h2 id="uxc-h">By outcome</h2><p class="ux-prov-extra" hidden data-prov="${escapeHtml(about)}"></p></div><div class="ux-cats ocards">${ks.map(k => uxCatTile(op, k, C)).join('')}</div>${ks.map(k => uxDrawer(`uxd-${op}-${k}`, LENS[k][0], categoryCard(op, k, C), true)).join('')}</section>`;
+  return `<section class="ux-cats-wrap" aria-labelledby="uxc-h"><div class="ux-row-head"><h2 id="uxc-h">By outcome</h2><span class="ux-note">Each heading opens its drivers, Findings and plan items</span><p class="ux-prov-extra" hidden data-prov="${escapeHtml(about)}"></p></div><div class="ux-cats ocards">${ks.map(k => uxCatTile(op, k, C)).join('')}</div>${ks.map(k => uxDrawer(`uxd-${op}-${k}`, LENS[k][0], categoryCard(op, k, C), true)).join('')}</section>`;
 }
 
 /* ---------- the plan card and the insight (L2 aside) ---------- */
@@ -270,17 +283,17 @@ function uxOverview(op) {
     cost ? [`Optimize ${usdW(G.optimize, true)}`, uxTrendNA(), resid ? `${usdW(G.residual, true)} not attributed yet: a target stated only as a bill total` : 'All of it explained']
       : [`Grow ${usdW(G.grow, true)} · Optimize ${usdW(G.optimize, true)}`, uxTrendNA(), resid ? `${usdW(G.residual, true)} not explained yet` : 'All of it explained']);
   const k3 = uxKpi(`Plan spend · ${periodWords()}`, `${fig(`port:${op}:spend`, usdW(P.spend))} <small>of ${usdW(budget)}</small> ${uxMark('QUOTE')}`,
-    [`${num(P.visits)} of ${num(derivedPlan(op).crew_visits_limit)} ${o.crewWord}`, `${STATE_WORD[PSTATE().state]}: awaiting the operator executive’s approval`], uxMeterBar(P.spend, budget, `${usdW(P.spend)} of ${usdW(budget)} budget`));
+    [`${num(P.visits)} of ${num(derivedPlan(op).crew_visits_limit)} ${o.crewWord}`, `${STATE_WORD[PSTATE().state]}: awaiting approval · ${link('portfolio/act-first/plan', 'Review the plan')}`], uxMeterBar(P.spend, budget, `${usdW(P.spend)} of ${usdW(budget)} budget`));
   const k4 = uxKpi('Options’ value, 12 months', `<span>${fig(`port:${op}:m12`, val === 0 ? '$0' : usdW(val, true))}${op === 'harvest' ? '' : dvTag()}</span> ${uxMark('MODELLED')}`,
-    [op === 'harvest' ? 'Includes an assumed recovery share (80%) at Kirinyaga' : 'Valued options only; not realised until records show it']);
+    [op === 'harvest' ? 'Includes an assumed recovery share (80%) at Kirinyaga' : 'Valued options only; not realised until records show it'], '', 'is-modelled');
   const n = uxDecCount(ATTN[op]);
   return `<div class="ux-overview"><p class="headline ux-headline">${hl}</p>
  <div class="heroes ux-kpis">${k1}${k2}${k3}${k4}</div>
  <div class="ux-main-aside"><section class="panel ux-queue-panel" aria-labelledby="uxq-h"><div class="panel-head"><div><h2 id="uxq-h">Needs a decision <span class="ux-count">${num(n)}</span></h2><p>One row per decision, with who decides. AssetOps values the options; your team chooses.</p></div>${link('portfolio/act-first', 'Act first ›', 'ux-link')}</div>${uxQueue(op, ATTN[op].filter(r => uxMergeRows(ATTN[op]).slice(0, 6).some(m => m.d === r[4])))}${n > 6 ? `<p class="ux-more">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : n > 3 ? `<p class="ux-more ux-more-phone">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : ''}</section>
  </div>
  ${uxBridge(op)}
- <div class="ux-two">${uxChain(op)}<div class="ux-aside ux-aside-stack">${uxPlanCard(op)}${uxInsight(op)}</div></div>
- ${uxCats(op)}</div>`;
+ ${uxCats(op)}
+ <p class="ux-more-tabs">More in the tabs: ${link('portfolio/demand-and-capacity', 'where value leaks')} · ${link('portfolio/outcomes-by-site', 'outcomes by site')} · ${link('portfolio/act-first/plan', 'the plan')}</p></div>`;
 }
 
 /* ---------- Decision page header (guide §2.3, §7.2): the recommendation in one line and the primary action ---------- */
@@ -341,7 +354,16 @@ function uxItemRow(op, id, f) {
 
 /* ===== wave 2, Portfolio polish: queue controls, the row's "Why", the provenance popover, the command search, the scope
    switcher and the period menu (guide §7.1, §8). Presentation only; every list is built from the data the screen shows. ===== */
-const uxTrendNA = () => '<span class="ux-trend"><span class="ux-spark-na" aria-hidden="true"></span>Trend not available yet</span>';
+/* trend slot (guide §5, wave 2c): a sparkline of the months loaded and the change against last month. History is not loaded
+   (proposal U9), so uxHistory returns null and the slot says so; nothing is ever drawn from invented months. */
+const uxHistory = (op, key) => null;
+function uxTrend(series, fmt = v => usdW(v, true)) {
+  if (!Array.isArray(series) || series.length < 2) return '<span class="ux-trend"><span class="ux-spark-na" aria-hidden="true"></span>Trend not available yet</span>';
+  const vs = series.map(p => p.v), mn = Math.min(...vs), mx = Math.max(...vs), w = 64, h = 16, X = i => (i / (vs.length - 1) * w).toFixed(1), Y = v => (h - 1 - (mx === mn ? h / 2 : (v - mn) / (mx - mn) * (h - 2))).toFixed(1);
+  const d = vs.map((v, i) => `${i ? 'L' : 'M'}${X(i)} ${Y(v)}`).join(' '), ch = vs[vs.length - 1] - vs[vs.length - 2];
+  return `<span class="ux-trend"><svg class="ux-spark" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${series.map(p => `${p.m} ${fmt(p.v)}`).join(', ')}"><path d="${d}"/></svg>${fmt(ch)} against ${series[series.length - 2].m}</span>`;
+}
+const uxTrendNA = (op, key) => uxTrend(op ? uxHistory(op, key) : null);
 
 /* queue: expand a row's explanation */
 document.addEventListener('click', e => {

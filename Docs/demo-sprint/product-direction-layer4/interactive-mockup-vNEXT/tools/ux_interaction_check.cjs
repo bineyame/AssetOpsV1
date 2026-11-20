@@ -19,11 +19,13 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
       ok(st.open === 'true' && st.focus && st.card && inside && back, `overview drawer ${k}: opens with its card, focus on Close, Tab stays inside, Esc closes and returns focus`);
     }
     // 2 table views
-    for (const t of ['Show as table, by Site', 'Show the stages in detail']) {
+    for (const t of ['Show as table, by Site']) {
       const s = p.locator('summary', { hasText: t }).first(); await s.click(); await p.waitForTimeout(150);
       const shown = await p.evaluate(t => { const d = [...document.querySelectorAll('details.ux-tableview')].find(x => x.querySelector('summary').textContent.includes(t)); return d.open && d.querySelector('.ux-tableview-body').getBoundingClientRect().height > 50; }, t);
       ok(shown, `overview "${t}" opens its table view`);
-    }
+    }    { const pd = await page('portfolio/demand-and-capacity'); await pd.locator('summary', { hasText: 'Show the stages in detail' }).first().click(); await pd.waitForTimeout(150);
+      ok(await pd.evaluate(() => { const d = [...document.querySelectorAll('details.ux-tableview')].find(x => x.querySelector('summary').textContent.includes('Show the stages in detail')); return d.open && d.querySelector('.ux-tableview-body').getBoundingClientRect().height > 50; }), 'Demand and capacity: "Show the stages in detail" opens its table view'); await pd.context().close(); }
+
     // 4 keyboard focus visible
     await p.goto(base + '#/portfolio'); await p.waitForTimeout(400); await p.keyboard.press('Tab');
     let seen = 0, visible = 0; for (let i = 0; i < 25; i++) { await p.keyboard.press('Tab'); const f = await p.evaluate(() => { const e = document.activeElement, c = getComputedStyle(e); return { ok: e !== document.body, vis: c.outlineStyle !== 'none' && parseFloat(c.outlineWidth) >= 2 || c.boxShadow !== 'none' }; }); if (f.ok) { seen++; if (f.vis) visible++; } }
@@ -141,10 +143,10 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
   for (const op of ['lakeside', 'harvest', 'metro']) { const p = await page('portfolio', { op });
     const a = await p.$('.ux-wf-a'); let tip = false, href = null;
     if (a) { await a.focus(); await p.waitForTimeout(200); href = await a.getAttribute('href'); tip = await p.evaluate(() => { const t = document.activeElement.parentElement.querySelector('.ux-tip'); return +getComputedStyle(t).opacity > 0.9 && getComputedStyle(t).visibility === 'visible'; }); }
-    const vc = await p.evaluate(() => [...document.querySelectorAll('.ux-vc-loss .ux-vc-bar')].filter(b => b.getBoundingClientRect().width > 1).length);
+    const pd = await page('portfolio/demand-and-capacity', { op }); const vc = await pd.evaluate(() => [...document.querySelectorAll('.ux-vc-loss .ux-vc-bar')].filter(b => b.getBoundingClientRect().width > 1).length);
     const tiles = await p.evaluate(() => [...document.querySelectorAll('.ux-cat')].map(t => !!t.querySelector('.ux-bullet, .ux-seg, .ux-meterbar')));
     ok(!!href && /^#\/decision\//.test(href) && tip, `${op} bridge: a step links to ${href} and shows its detail on focus`);
-    const noLeak = await p.evaluate(() => /no leak measured/.test(document.querySelector('[id^="uxv-h-"]')?.parentElement?.textContent || ''));
+    const noLeak = await pd.evaluate(() => /no leak measured/.test(document.querySelector('[id^="uxv-h-"]')?.parentElement?.textContent || '')); await pd.context().close();
     ok(vc >= 1 || noLeak, `${op} value chain: ${vc} loss bars drawn${noLeak ? ' (no leak measured, said in the title)' : ''}`);
     ok(tiles.filter(Boolean).length >= 3, `${op} outcome tiles: ${tiles.filter(Boolean).length} of 4 with a target-against-actual visual`);
     await p.context().close(); }
@@ -155,10 +157,40 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
     const after = await p.evaluate(() => ({ b: document.documentElement.getAttribute('data-brand'), bad: getComputedStyle(document.querySelector('.ux-chip.is-bad')).color, h: document.documentElement.scrollHeight, band: getComputedStyle(document.querySelector('.topbar'), '::after').backgroundImage !== 'none' }));
     await p.reload(); await p.waitForTimeout(400);
     const kept = await p.evaluate(() => document.documentElement.getAttribute('data-brand'));
-    ok(!before.b && after.b === 'east-africa' && after.band && after.bad === before.bad && Math.abs(after.h - before.h) < 12 && kept === 'east-africa', `brand switch: neutral to East Africa, motif band on, status colour unchanged, layout height within 12 px (${before.h} to ${after.h}), kept on reload`);
+    ok(!before.b && after.b === 'east-africa' && after.band && after.bad === before.bad && Math.abs(after.h - before.h) <= 32 && kept === 'east-africa', `brand switch: neutral to East Africa, motif band on, status colour unchanged, layout height within 32 px (a pack's band and heading rule) (${before.h} to ${after.h}), kept on reload`);
     await p.selectOption('#ux-brand', 'neutral'); await p.waitForTimeout(150);
     ok(await p.evaluate(() => !document.documentElement.hasAttribute('data-brand')), 'brand switch: back to neutral');
     await p.context().close(); }
+  // wave 2c classes: overview budget; queue alignment, titles, one primary, quiet blanks; the bridge on the gap's scale;
+  // modelled weight; prose size; content in its tab; a distinguishable East Africa pack
+  for (const op of ['lakeside', 'harvest', 'metro']) { const p = await page('portfolio', { op });
+    const r = await p.evaluate(() => {
+      const ov = document.querySelector('.ux-overview'), blocks = [...ov.children].filter(e => e.offsetParent !== null && e.getBoundingClientRect().height > 0).length;
+      const rows = [...document.querySelectorAll('.ux-overview .ux-queue>li.ux-q')];
+      const ragged = rows.filter(li => Math.abs(li.querySelector('.ux-q-title').getBoundingClientRect().left - li.querySelector('.ux-q-top').getBoundingClientRect().left) > 1).length;
+      const repeat = rows.filter(li => li.querySelector('.ux-q-title').textContent.trim().toLowerCase().startsWith(li.querySelector('.ux-q-site').textContent.replace('Site: ', '').trim().toLowerCase())).length;
+      const prim = document.querySelectorAll('.ux-overview .ux-queue .ux-q-go.primary').length, firstPrim = rows[0]?.querySelector('.ux-q-go.primary') ? 1 : 0;
+      const vis = el => { const c = el.cloneNode(true); c.querySelectorAll('.vh, .ux-q-k').forEach(x => x.remove()); return c.textContent.trim(); }, blankDue = rows.filter(li => !li.dataset.due).every(li => vis(li.querySelector('.ux-q-due')) === '');
+      const brk = document.querySelectorAll('.ux-hero .ux-wf-break').length, steps = [...document.querySelectorAll('.ux-wf-gapscale .ux-wf-bar')].map(b => b.getBoundingClientRect().width / b.parentElement.getBoundingClientRect().width);
+      const groups = document.querySelectorAll('.ux-wf-gapscale .ux-wf-group').length, perRowHeading = [...document.querySelectorAll('.ux-wf-gapscale .ux-wf-h')].length;
+      const fs = e => parseFloat(getComputedStyle(e).fontSize), mod = document.querySelector('.ux-kpi.is-modelled .ux-kpi-v'), act = document.querySelector('.ux-kpi:not(.is-modelled) .ux-kpi-v');
+      const small = [...document.querySelectorAll('.ux-overview .ux-kpi-s:not(:has(.ux-trend)), .ux-overview .ux-q-why, .ux-overview .panel-head p, .ux-overview .ux-q-title')].filter(e => fs(e) < 14).length;
+      return { blocks, h: document.documentElement.scrollHeight, ragged, repeat, prim, firstPrim, blankDue, brk, minStep: Math.min(...steps), groups, perRowHeading, modW: mod && act ? fs(mod) < fs(act) && getComputedStyle(mod).color !== getComputedStyle(act).color : false, small, leaks: !!document.querySelector('[id^="uxv-h-"]') };
+    });
+    ok(r.blocks <= 6 && r.h <= 2500 && !r.leaks, `${op} overview budget: ${r.blocks} blocks, ${r.h} px at 1440, value leaks not here`);
+    ok(r.ragged === 0 && r.repeat === 0 && r.prim === 1 && r.firstPrim === 1 && r.blankDue, `${op} queue: titles aligned (${r.ragged} ragged), no title repeats its Site (${r.repeat}), one primary Decide on the first row, no "No deadline" noise`);
+    ok(r.brk === 0 && r.minStep >= 0.007 && r.groups >= 1 && r.perRowHeading === 0, `${op} bridge: on the gap's scale (no axis break), smallest step ${(r.minStep * 100).toFixed(1)}% of the width, ${r.groups} heading groups, no heading repeated per row`);
+    ok(r.modW && r.small === 0, `${op} tiles and text: the modelled tile lighter than actuals; ${r.small} prose elements under 14 px`);
+    await p.context().close(); }
+  { const pd = await page('portfolio/demand-and-capacity'), po = await page('portfolio/outcomes-by-site');
+    ok(await pd.evaluate(() => !!document.querySelector('[id^="uxv-h-"]')) && await po.evaluate(() => !!document.querySelector('.ux-insight')), 'content in its tab: value leaks on Demand and capacity, the insight on Outcomes by site');
+    await pd.context().close(); await po.context().close(); }
+  { const pn = await page('portfolio'), pe = await page('portfolio');
+    await pe.selectOption('#ux-brand', 'east-africa'); await pe.waitForTimeout(200);
+    const a = await pn.evaluate(() => ({ f: getComputedStyle(document.querySelector('.page-heading h1')).fontFamily, band: parseFloat(getComputedStyle(document.querySelector('.topbar'), '::after').height) || 0, tab: getComputedStyle(document.querySelector('.tabs a.active')).color }));
+    const b = await pe.evaluate(() => ({ f: getComputedStyle(document.querySelector('.page-heading h1')).fontFamily, band: parseFloat(getComputedStyle(document.querySelector('.topbar'), '::after').height) || 0, tab: getComputedStyle(document.querySelector('.tabs a.active')).color, rail: getComputedStyle(document.querySelector('.rail'), '::before').backgroundImage !== 'none' }));
+    ok(a.f !== b.f && b.band >= 10 && a.tab !== b.tab && b.rail, `East Africa distinguishable: heading typeface, ${b.band} px textile band, active-tab colour, rail pattern`);
+    await pe.selectOption('#ux-brand', 'neutral'); await pn.context().close(); await pe.context().close(); }
   // short laptop: the first queue row is above the fold at 1280 x 720 (guide §3.5)
   for (const [op, r] of [['lakeside', 'portfolio'], ['harvest', 'portfolio'], ['metro', 'portfolio'], ['lakeside', 'site/kobo'], ['lakeside', 'portfolio/act-first']]) {
     const p = await page(r, { w: 1280, h: 720, op });
