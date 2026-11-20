@@ -360,3 +360,10 @@ Branch `task/DS1b-canonical-writers` (base main `b28326e48`); spec `specs/DS1b-c
 
 - Settled: `simulator/assetops_simulator/world/records.py` writes month EXPENSE lines (O&M, staff, maintenance), customer-compensation ADJUSTMENTs and own-field BUDGET_LINEs for Jul-Oct at the nine Sites as `source-emulated` canonical v1 batches (one per tenant and source type, `parse_batch`-validated, golden `simulator/tests/world/golden/records_v1.json`). ESTIMATED October lines, fallback plan fields, zero actual liabilities and unread fields are listed unwritten with a reason. CLI `tools/world_history.py records --manifest M --out DIR` (exit 3 on `DS1B_*`). `history.json` byte-identical.
 - Open: mid-build Q1/Q2 (edge reasons, no output depends on them); the coordinator's output run to `/opt/assetecon/generated/ds1b-<rev>/`; DS3 loads, 3A3 native files, 3A3/DS2 finer records reconcile to these month lines (D-DS1B.8).
+
+## 3B1 - the structure registry, mini-grid (built, in_review)
+
+Branch `task/3B1-structure-registry` (base main `8c9af447b`); spec `specs/3B1-structure-registry/spec.md` rev 2, rulings D-3B1.1-D-3B1.9; packet `specs/3B1-structure-registry/packet.md`. No migration, no route, no store.
+
+- Settled: `backend/assetops_backend/structure/`: `registry.py` (records without validation, `HOMES`, `ABSENT`, `FAMILIES`, `REGISTRIES` = MINI_GRID v1), `rows_mini_grid.py` (47 literal rows: 31 leaves, 16 nodes; tolerance only on `unexplained_l`, 2.0 % of `diesel_l`), `expressions.py` (`Expr` = `Num`/`Ref`/`Bin`/`Neg`/`Call`, the contract for 3B3; `parse` with Decimal literals; `unit_of` with the literal rule), `check.py` (twelve `STRUCTURE_*` codes run code-major; `check_all`, `check_at_start`). `create_app` calls `check_at_start()` right after `install_handle_error_hook()`; a bad structure raises `ConfigurationError` naming the row. Test `backend/tests/test_3b1_structure_registry.py` (T1-T5).
+- Open: evaluation and `missing` (3B3), Findings pins (3B2), observer and tolerance use (3B4), cold rooms and EV depots (3B6), snapshot (3B7a), rights and operations rows (9a0, OPS1), levers (step 6).
