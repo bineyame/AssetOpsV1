@@ -200,7 +200,7 @@ Rules:
 
 `generate_history(view)`:
 1. **Validate** `history`:
-   - months: consecutive calendar months; each day count equals the calendar's; `anchor_period` is the month after the
+   - months: **exactly three** (the lists are read by position; review L3), consecutive calendar months; each day count equals the calendar's; `anchor_period` is the month after the
      last; the anchor is not in the set. Iterate in sorted order (R22). Refusal: `HISTORY_MONTHS`.
    - families and the rule grammar (§6.1);
    - every `sites:` override key names a real tenant and Site (`HISTORY_RULE_UNKNOWN`);
@@ -211,7 +211,8 @@ Rules:
    coverage: "RECORDED"}}`.
 3. **Assemble** §7.1.
 
-`generate_scope` does not check that the month belongs to the set. T9 uses that to generate `2026-10`, with
+`generate_scope` runs the same validation as `generate_history` (so it never raises a bare `KeyError`), except month-set
+membership: it does not check that the month belongs to the set. T9 uses that to generate `2026-10`, with
 `jitter=False`.
 
 ## 5. The `history:` block (DS1p appends it verbatim; DS1a's fixture uses the same bytes)
@@ -327,7 +328,13 @@ history:   # U9 (owner, 20 Nov): July-September 2026 history of the three demo o
 - `HISTORY_ANCHOR_ZERO`: a zero denominator in any `anchor`, `ratio`, `W(f, anchor)` or capacity (R3);
 - `HISTORY_MONTHS`;
 - `HISTORY_MONEY_LEAVES`;
-- `HISTORY_NO_PLAN_VALUE`.
+- `HISTORY_NO_PLAN_VALUE`;
+- `HISTORY_FIELD history <field>`: a required `history` field is absent (review L4);
+- `HISTORY_NUMBER <scope_key|history> <field>`: a number that is not a finite decimal (NaN, Infinity, or text that is not
+  a decimal) (review L4).
+
+An **absent** input value (`energy_model`, `physical`, room capacity, an October leaf an `anchor` names) is
+`HISTORY_RULE_REF`. `HISTORY_ANCHOR_ZERO` is only for a value that is present and zero.
 
 Refusals found before any scope, refusals that match no listed defect, and lists read for a month outside the set:
 see `rulings.md` "Mid-build answers" (MB1, MB2). Those texts are part of the spec.
@@ -541,7 +548,7 @@ expected value.
 | T5 | Allocation: sum preserved; tie to the lower index; refusals; exhaustive over totals 0..50 with 1 to 4 weights in {0,1,2,3}; `split_to_days` over 31 days |
 | T6 | No floats: the output holds only int/str/dict/list; `canonical_bytes` refuses a float; the view refuses a bool (`VIEW_TYPE`); greps in `world/**` find none of `\bfloat\(`, `^\s*(import|from)\s+(random|time|secrets)\b`, `\.(now|today|utcnow)\(`, `os\.environ|getenv` (R23) |
 | T7 | Months: 31, 31, 30; period ends; day classes Jul 23/4/4, Aug 21/5/5, Sep 22/4/4, Oct 22/5/4 |
-| T8 | Each refusal code in §6.1 raised by one planted case (one `HISTORY_ANCHOR_ZERO` case per rule); unknown leaf skipped |
+| T8 | Each refusal code in §6.1 raised by one planted case (one `HISTORY_ANCHOR_ZERO` case per rule), asserting the full text `<CODE> <scope> <leaf>`; also two months only, NaN, a missing `label`, `generate_scope` alone with no `jitter`; unknown leaf skipped |
 | T9 | `generate_scope(…, "2026-10", jitter=False)` returns October's leaf for every `scale`, `trend 1`, `level 1` and `anchor` rule |
 | T10 | CLI: `check` exits 0 on the generated file, and 1 with `DS1_CHECK_DIFF <scope>` after a one-byte change; `--manifest` accepts the `.json` fixture |
 
