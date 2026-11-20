@@ -9,13 +9,15 @@ Every row names its own home. There is no lookup of a parent's home anywhere.
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+import functools
+from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
 from decimal import Decimal
 from types import MappingProxyType
 
 from assetops_backend.outcomes.catalogue import CATEGORIES
-from assetops_backend.structure.expressions import names, parse
+from assetops_backend.structure import expressions
+from assetops_backend.structure.expressions import Expr, names
 from assetops_contracts.canonical.units import Unit
 
 _GROW, _OPTIMIZE, _PROTECT, _ASSURE = CATEGORIES
@@ -32,6 +34,8 @@ HOMES: Mapping[str, str] = MappingProxyType({
 })
 
 ABSENT = ("MISSING", "ZERO_WHEN_HELD", "OPTION_ONLY", "NEVER_EMPTY")
+#: 3B3 (D-3B3.14): what a portfolio does with a row. `NONE` is the default and fails closed (no total).
+COMPOSES = ("SUM", "NONE")
 FAMILIES = ("COMMERCIAL_RECORD", "READING", "OPERATIONAL_RECORD", "OBSERVER", "DECLARED", "DOCUMENT", "CALENDAR")
 
 
@@ -66,6 +70,10 @@ class FactorRow:
     absent: str | None
     tolerance: Tolerance | None
     levers: tuple[str, ...] = ()
+    #: 3B3 (D-3B3.9): the value an OPTION_ONLY leaf carries on an observed side; None on every other row.
+    neutral: Decimal | None = None
+    #: 3B3 (D-3B3.14): `SUM` (summed across Sites) or `NONE`; checked by `STRUCTURE_COMPOSES`.
+    composes: str = "NONE"
 
     @property
     def is_leaf(self) -> bool:
@@ -78,7 +86,33 @@ class FactorRow:
     @property
     def children(self) -> tuple[str, ...]:
         """The distinct factor names in the expression, in first-seen order (R3)."""
-        return () if self.expression is None else names(parse(self.expression))
+        return () if self.expression is None else names(parsed_text(self.expression))
+
+
+@functools.lru_cache(maxsize=None)
+def parsed_text(text: str) -> Expr:
+    """3B3 (P5): parse once per expression text. Calls `expressions.parse` by attribute, so a test can count it."""
+    return expressions.parse(text)
+
+
+class _LazyParsed(Mapping[str, Expr]):
+    """A registry's node expressions, parsed on first access per row (P5): a planted bad expression is refused
+    by `check`, never at attribute access."""
+
+    def __init__(self, reg: "Registry") -> None:
+        self._rows = {row.factor_id: row for row in reg.rows if not row.is_leaf}
+        self._done: dict[str, Expr] = {}
+
+    def __getitem__(self, factor_id: str) -> Expr:
+        if factor_id not in self._done:
+            self._done[factor_id] = parsed_text(self._rows[factor_id].expression)
+        return self._done[factor_id]
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self._rows)
+
+    def __len__(self) -> int:
+        return len(self._rows)
 
 
 @dataclass(frozen=True)
@@ -93,6 +127,21 @@ class Registry:
                 return candidate
         raise KeyError(factor_id)
 
+    @functools.cached_property
+    def parsed(self) -> Mapping[str, Expr]:
+        """3B3 (P5): every node's `Expr`, per instance (a planted registry starts empty), parsed lazily per row."""
+        return _LazyParsed(self)
+
+    @functools.cached_property
+    def parents(self) -> Mapping[str, tuple[str, ...]]:
+        """3B3 (P5): each factor's nodes that name it, in registry order."""
+        out: dict[str, list[str]] = {row.factor_id: [] for row in self.rows}
+        for row in self.rows:
+            if not row.is_leaf:
+                for child in names(self.parsed[row.factor_id]):
+                    out.setdefault(child, []).append(row.factor_id)
+        return MappingProxyType({k: tuple(v) for k, v in out.items()})
+
 
 # The rows import the records above, so they are imported after them (the package's
 # `__init__` imports this module first).
@@ -100,5 +149,5 @@ from assetops_backend.structure.rows_mini_grid import ROWS as _MINI_GRID_ROWS  #
 
 #: Read at call time by `check.check_all` (P3). `3B6` adds COLD_CHAIN and EV_DEPOT_CAPTIVE.
 REGISTRIES: Mapping[str, Registry] = MappingProxyType({
-    "MINI_GRID": Registry("MINI_GRID", 1, _MINI_GRID_ROWS),
+    "MINI_GRID": Registry("MINI_GRID", 2, _MINI_GRID_ROWS),  # 3B3 (D-3B3.9): v2, rows gained neutral and composes
 })

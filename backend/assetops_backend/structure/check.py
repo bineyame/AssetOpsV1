@@ -5,7 +5,9 @@ code-major (R9): each code runs over every row in `ROWS` order before the next c
 Nothing here is specific to one structure key, and nothing looks up a parent's home: every
 row is judged on its own `home`.
 
-Deferred (D-3B1.6): the runtime MISSING rule (3B3), observer existence (3B4), and mechanism
+3B3 added `STRUCTURE_NEUTRAL` and `STRUCTURE_COMPOSES`; the runtime leaf-value checks are in `evaluate.py`.
+
+Deferred (D-3B1.6): observer existence (3B4), and mechanism
 pins and levers (3B2, step 6).
 """
 
@@ -13,11 +15,12 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable, Mapping
+from decimal import Decimal
 
 from assetops_backend.config import ConfigurationError
 from assetops_backend.structure import registry as _registry
 from assetops_backend.structure.expressions import Expr, ExpressionError, UnitError, names, parse, unit_of
-from assetops_backend.structure.registry import ABSENT, FAMILIES, HOMES, Registry
+from assetops_backend.structure.registry import ABSENT, COMPOSES, FAMILIES, HOMES, Registry
 from assetops_contracts.canonical.factors import LEAF_FACTORS, STRUCTURE_KEYS, leaves_of
 
 _ABOVE, _CALENDAR = HOMES["above"], HOMES["calendar"]
@@ -129,13 +132,26 @@ def _leaf_absent(ctx: _Context) -> None:
             raise ctx.refuse("STRUCTURE_LEAF_ABSENT", row.factor_id)
 
 
+def _finite_decimal(value: object) -> bool:
+    """3B3 (carried L1, P7): a `Decimal` that is neither NaN nor infinite; never compares a float or a NaN."""
+    return isinstance(value, Decimal) and value.is_finite()
+
+
+def _neutral(ctx: _Context) -> None:
+    """3B3 (D-3B3.9, P7): exactly the OPTION_ONLY leaves carry a finite `Decimal` neutral value."""
+    for row in ctx.reg.rows:
+        option_only = row.is_leaf and row.absent == "OPTION_ONLY"
+        if option_only != (row.neutral is not None) or (option_only and not _finite_decimal(row.neutral)):
+            raise ctx.refuse("STRUCTURE_NEUTRAL", row.factor_id)
+
+
 def _tolerance(ctx: _Context) -> None:
     for row in ctx.reg.rows:
         tolerance = row.tolerance
         if tolerance is None:
             continue
         if (tolerance.of_factor not in ctx.units or ctx.units[tolerance.of_factor] != row.unit
-                or not tolerance.pct > 0):
+                or not _finite_decimal(tolerance.pct) or not tolerance.pct > 0):  # 3B3 carried L1
             raise ctx.refuse("STRUCTURE_TOLERANCE", row.factor_id)
 
 
@@ -149,6 +165,14 @@ def _unit(ctx: _Context) -> None:
             raise ctx.refuse("STRUCTURE_UNIT", row.factor_id) from error
         if composed != row.unit:
             raise ctx.refuse("STRUCTURE_UNIT", row.factor_id)
+
+
+def _composes(ctx: _Context) -> None:
+    """3B3 (D-3B3.14): `SUM` or `NONE`; a unit with a denominator (a price, a rate) is never summed."""
+    for row in ctx.reg.rows:
+        if row.composes not in COMPOSES or (
+                row.composes == "SUM" and any(exponent < 0 for _, exponent in row.unit.exponents)):
+            raise ctx.refuse("STRUCTURE_COMPOSES", row.factor_id)
 
 
 def _category(ctx: _Context) -> None:
@@ -187,8 +211,10 @@ _CHECKS: tuple[tuple[str, Callable[[_Context], None]], ...] = (
     ("STRUCTURE_CATALOGUE", _catalogue),
     ("STRUCTURE_LEAF_SOURCE", _leaf_source),
     ("STRUCTURE_LEAF_ABSENT", _leaf_absent),
+    ("STRUCTURE_NEUTRAL", _neutral),
     ("STRUCTURE_TOLERANCE", _tolerance),
     ("STRUCTURE_UNIT", _unit),
+    ("STRUCTURE_COMPOSES", _composes),
     ("STRUCTURE_CATEGORY", _category),
     ("STRUCTURE_OBJECTIVE", _objective),
     ("STRUCTURE_MONEY_HOME", _money_home),
