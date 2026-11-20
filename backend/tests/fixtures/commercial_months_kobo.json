@@ -1,0 +1,489 @@
+{
+ "_note": "3A4 spec \u00a74",
+ "steps": [
+  {
+   "at": "2026-11-02T06:00:00+00:00",
+   "batch": {
+    "format_version": 1,
+    "tenant_code": "lakeside-power",
+    "source_type": "billing_export",
+    "source_system": "kobo-vending",
+    "provenance": "source-emulated",
+    "produced_at": "2026-11-02T06:00:00+00:00",
+    "records": [
+     {
+      "format_version": 1,
+      "kind": "CHARGE",
+      "source_record_id": "KOBO-CH-0001",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-11-01",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "120.00",
+       "currency": "USD"
+      },
+      "quantity": {
+       "value": "400",
+       "unit": "kWh"
+      },
+      "body": {
+       "account_ref": "C-0001",
+       "line_type": "USAGE",
+       "tariff_code": "T-RES"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CHARGE",
+      "source_record_id": "KOBO-CH-0002",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-11-01",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "75.50",
+       "currency": "USD"
+      },
+      "quantity": {
+       "value": "250",
+       "unit": "kWh"
+      },
+      "body": {
+       "account_ref": "C-0002",
+       "line_type": "USAGE",
+       "tariff_code": "T-RES",
+       "tariff_class": "STANDARD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CHARGE",
+      "source_record_id": "KOBO-CH-0003",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-11-01",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "300.00",
+       "currency": "USD"
+      },
+      "quantity": {
+       "value": "1000",
+       "unit": "kWh"
+      },
+      "body": {
+       "account_ref": "C-0003",
+       "line_type": "USAGE",
+       "tariff_code": "T-PROD",
+       "tariff_class": "PRODUCTIVE"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CHARGE",
+      "source_record_id": "KOBO-CH-0004",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-11-01",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "10.00",
+       "currency": "USD"
+      },
+      "body": {
+       "account_ref": "C-0001",
+       "line_type": "FIXED",
+       "tariff_code": "T-RES"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "RECEIPT",
+      "source_record_id": "KOBO-RC-0001",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "occurred_at": "2026-10-30T19:00:00+03:00",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "100.00",
+       "currency": "USD"
+      },
+      "status": "COLLECTED",
+      "body": {
+       "payer_ref": "C-0001",
+       "method": "MOBILE_MONEY"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "RECEIPT",
+      "source_record_id": "KOBO-RC-0002",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "occurred_at": "2026-10-30T19:00:00+03:00",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "60.00",
+       "currency": "USD"
+      },
+      "status": "PAID_IN_TRANSIT",
+      "body": {
+       "payer_ref": "C-0002",
+       "method": "MOBILE_MONEY"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "at": "2026-11-02T06:00:00+00:00",
+   "batch": {
+    "format_version": 1,
+    "tenant_code": "lakeside-power",
+    "source_type": "mobile_money_statement",
+    "source_system": "kobo-mm",
+    "provenance": "source-emulated",
+    "produced_at": "2026-11-02T06:00:00+00:00",
+    "records": [
+     {
+      "format_version": 1,
+      "kind": "SETTLEMENT",
+      "source_record_id": "KOBO-ST-1031",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "settled_at": "2026-10-31T22:30:00+00:00"
+      },
+      "amount": {
+       "value": "60.00",
+       "currency": "USD"
+      },
+      "body": {
+       "provider": "mobile-money",
+       "batch_ref": "SB-1031",
+       "receipts": [
+        "KOBO-RC-0002"
+       ]
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "SETTLEMENT",
+      "source_record_id": "KOBO-ST-1030",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "settled_at": "2026-10-30T12:00:00+03:00"
+      },
+      "amount": {
+       "value": "100.00",
+       "currency": "USD"
+      },
+      "body": {
+       "provider": "mobile-money",
+       "batch_ref": "SB-1030",
+       "receipts": [
+        "KOBO-RC-0001"
+       ]
+      }
+     }
+    ]
+   }
+  },
+  {
+   "at": "2026-11-02T06:00:00+00:00",
+   "batch": {
+    "format_version": 1,
+    "tenant_code": "lakeside-power",
+    "source_type": "expense_ledger",
+    "source_system": "lakeside-accounts",
+    "provenance": "source-emulated",
+    "produced_at": "2026-11-02T06:00:00+00:00",
+    "records": [
+     {
+      "format_version": 1,
+      "kind": "EXPENSE",
+      "source_record_id": "KOBO-EX-FUEL-1014",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "occurred_at": "2026-10-14T11:00:00+03:00",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "500.00",
+       "currency": "USD"
+      },
+      "quantity": {
+       "value": "400",
+       "unit": "L"
+      },
+      "status": "PAID",
+      "body": {
+       "counterparty_ref": "SUP-X",
+       "category": "FUEL",
+       "document_ref": "KOBO-EX-FUEL-1014"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "EXPENSE",
+      "source_record_id": "KOBO-EX-FUEL-1028",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "occurred_at": "2026-10-14T11:00:00+03:00",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "262.50",
+       "currency": "USD"
+      },
+      "quantity": {
+       "value": "210",
+       "unit": "L"
+      },
+      "status": "INVOICED",
+      "body": {
+       "counterparty_ref": "SUP-X",
+       "category": "FUEL",
+       "document_ref": "KOBO-EX-FUEL-1028"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "EXPENSE",
+      "source_record_id": "KOBO-EX-OM-1001",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "occurred_at": "2026-10-14T11:00:00+03:00",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "180.00",
+       "currency": "USD"
+      },
+      "status": "PAID",
+      "body": {
+       "counterparty_ref": "SUP-X",
+       "category": "OM",
+       "document_ref": "KOBO-EX-OM-1001"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "EXPENSE",
+      "source_record_id": "KOBO-EX-Q-1019",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "occurred_at": "2026-10-14T11:00:00+03:00",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "900.00",
+       "currency": "USD"
+      },
+      "status": "QUOTE",
+      "body": {
+       "counterparty_ref": "SUP-X",
+       "category": "REPAIR",
+       "document_ref": "KOBO-EX-Q-1019"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "EXPENSE",
+      "source_record_id": "KOBO-EX-STAFF-10",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "occurred_at": "2026-10-14T11:00:00+03:00",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "450.00",
+       "currency": "USD"
+      },
+      "status": "PAID",
+      "body": {
+       "counterparty_ref": "SUP-X",
+       "category": "STAFF",
+       "document_ref": "KOBO-EX-STAFF-10"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "at": "2026-11-02T06:00:00+00:00",
+   "batch": {
+    "format_version": 1,
+    "tenant_code": "lakeside-power",
+    "source_type": "budget_workbook",
+    "source_system": "lakeside-budget-2026",
+    "provenance": "source-emulated",
+    "produced_at": "2026-11-02T06:00:00+00:00",
+    "records": [
+     {
+      "format_version": 1,
+      "kind": "BUDGET_LINE",
+      "source_record_id": "BUD-2026-10:KOBO-001:diesel_l",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "factor_id": "diesel_l",
+       "value": "700",
+       "version_ref": "budget-2026-v1"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "BUDGET_LINE",
+      "source_record_id": "BUD-2026-10:KOBO-001:diesel_price",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "factor_id": "diesel_price",
+       "value": "1.25",
+       "version_ref": "budget-2026-v1",
+       "currency": "USD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "BUDGET_LINE",
+      "source_record_id": "BUD-2026-10:PORTFOLIO:staff",
+      "source_version": "1",
+      "clocks": {
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "factor_id": "staff",
+       "value": "1200.00",
+       "version_ref": "budget-2026-v1",
+       "currency": "USD"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "at": "2026-11-06T09:00:00+00:00",
+   "batch": {
+    "format_version": 1,
+    "tenant_code": "lakeside-power",
+    "source_type": "expense_ledger",
+    "source_system": "lakeside-accounts",
+    "provenance": "source-emulated",
+    "produced_at": "2026-11-06T09:00:00+00:00",
+    "records": [
+     {
+      "format_version": 1,
+      "kind": "EXPENSE",
+      "source_record_id": "KOBO-EX-OM-1029",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "occurred_at": "2026-10-14T11:00:00+03:00",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "95.00",
+       "currency": "USD"
+      },
+      "status": "INVOICED",
+      "body": {
+       "counterparty_ref": "SUP-X",
+       "category": "OM",
+       "document_ref": "KOBO-EX-OM-1029"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "EXPENSE",
+      "source_record_id": "KOBO-EX-FUEL-1028",
+      "source_version": "2",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "occurred_at": "2026-10-14T11:00:00+03:00",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "275.00",
+       "currency": "USD"
+      },
+      "quantity": {
+       "value": "220",
+       "unit": "L"
+      },
+      "status": "INVOICED",
+      "body": {
+       "counterparty_ref": "SUP-X",
+       "category": "FUEL",
+       "document_ref": "KOBO-EX-FUEL-1028"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "at": "2026-11-07T09:00:00+00:00",
+   "batch": {
+    "format_version": 1,
+    "tenant_code": "lakeside-power",
+    "source_type": "billing_export",
+    "source_system": "kobo-vending",
+    "provenance": "source-emulated",
+    "produced_at": "2026-11-07T09:00:00+00:00",
+    "records": [
+     {
+      "format_version": 1,
+      "kind": "CHARGE",
+      "source_record_id": "KOBO-CH-0004",
+      "source_version": "2",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "effective_from": "2026-11-01",
+       "effective_to": "2026-12-01",
+       "recognition_period": "2026-11"
+      },
+      "amount": {
+       "value": "10.00",
+       "currency": "USD"
+      },
+      "body": {
+       "account_ref": "C-0001",
+       "line_type": "FIXED",
+       "tariff_code": "T-RES"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}
