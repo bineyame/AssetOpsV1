@@ -127,3 +127,18 @@ decision `D-2026-10-31-board-action-refresh-lineage`; packet `archive/agent-hist
   or is refused yet (D-3C0A.1).
 - Open: the sign-in page and Organisation settings (`3C0b`, held; the `Secure` cookie over the walkthrough's http
   address is its question, Q4); recording the person on commands (`3C1`); erasure of a person's data (Q5, pilot).
+
+## 3C1a: the signed-in person on work and domain commands (2026-11-20, `task/3C1a-person-on-work`, in review)
+
+- `accounts/permissions.py`: `COMMAND_ROLES` (spec §3 as amended, D-3C1.10) and `person_step`, run by
+  `WorkGate.command_scope` after the Site scope on the 10 work and domain commands (the 7 work routes, the
+  operational entry, the 3 domain routes). Order: account-store error 503; no person -> 401 `PERSON_REQUIRED` when
+  `ASSETOPS_REQUIRE_PERSON=on`, else today's path; other tenant -> the unknown-Site 404; no gate (or entry) principal
+  -> 403 `WORK_WRITE_FORBIDDEN` (R6); no listed role -> 403 `PERSON_ROLE_REQUIRED` with `params.roles`.
+- The server composes `PersonActor`: `USER`, `person:<id>`, `person_id`, attestation
+  `person=<id>;session=<sid>;role=<role>`, basis `PERSON_ROLE:<role>` on the W4 tables only. The hash holds
+  `{kind, id}` (R1); SERVICE hashes are unchanged. Person shapes carry no `actor`.
+- Migration `0063_person_on_work` (D-3A1.12 numbering): `person_id`, `<t>_person_fk` (tenant FK) and
+  `<t>_person_actor` (R8) on nine tables; the three domain kind checks widened to SERVICE/USER under their names.
+- The switch is read once in `create_app` and ships off; `3C0b` turns it on.
+- Open: trial actions (`3C1b`); names in reads (`3C2`, `3C3`); turning the switch on (`3C0b`).

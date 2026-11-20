@@ -79,4 +79,4 @@ finished work are in `archive/agent-history/`.
 | mockup-vnext-professional | Mock-up pass | superseded | `mockup-vnext-professional/packet.md` | small |
 | 3A1 | Commercial store; page P3A | rev 2 | `3A1-commercial-record-store/spec.md` | 20 KB |
 | 3B1 | Structure registry; page P3B | rev 2 | `3B1-structure-registry/spec.md` | 15 KB |
-| 3C1 | Person on commands (3C1a, 3C1b) | rev 2 | `3C1-person-on-commands/spec.md` | 15 KB |
+| 3C1 | Person on commands (3C1a, 3C1b) | rev 2; 3C1a in_review | `3C1-person-on-commands/spec.md` | 15 KB |
