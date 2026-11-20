@@ -1,0 +1,17 @@
+[
+  {"format_version": 1, "kind": "RECEIPT", "source_record_id": "MM-0001", "source_version": "1",
+   "site_code": "KOBO-001", "subject": {"kind": "CUSTOMER", "ref": "C-0412"},
+   "clocks": {"occurred_at": "2026-10-30T19:00:00+03:00", "recognition_period": "2026-10"},
+   "amount": {"value": "100.00", "currency": "USD"}, "status": "COLLECTED",
+   "body": {"payer_ref": "C-0412", "method": "MOBILE_MONEY"}},
+  {"format_version": 1, "kind": "RECEIPT", "source_record_id": "MM-0002", "source_version": "1",
+   "site_code": "KOBO-001", "subject": {"kind": "CUSTOMER", "ref": "C-0413"},
+   "clocks": {"occurred_at": "2026-10-31T19:30:00+03:00", "recognition_period": "2026-10"},
+   "amount": {"value": "60.00", "currency": "USD"}, "status": "PAID_IN_TRANSIT",
+   "body": {"payer_ref": "C-0413", "method": "MOBILE_MONEY"}},
+  {"format_version": 1, "kind": "RECEIPT", "source_record_id": "MM-0003", "source_version": "1",
+   "site_code": "KISIWA-001", "subject": {"kind": "CUSTOMER", "ref": "C-0901"},
+   "clocks": {"occurred_at": "2026-10-12T10:00:00+03:00", "recognition_period": "2026-10"},
+   "amount": {"value": "55.00", "currency": "USD"}, "status": "COLLECTED",
+   "body": {"payer_ref": "C-0901", "method": "MOBILE_MONEY"}}
+]

@@ -17,10 +17,10 @@ from uuid import UUID
 from assetops_backend.chain.ports import SiteRef
 from assetops_backend.structure import registry as _registry
 from assetops_backend.structure.check import StructureError
-from assetops_backend.structure.evaluate import Composition, SiteStructure, compose, evaluate
+from assetops_backend.structure.evaluate import Composition, LeafValue, SiteStructure, compose, evaluate
 
 if TYPE_CHECKING:
-    from assetops_backend.structure.sources import LeafSource
+    from assetops_backend.structure.sources import LeafSource, StatedSource
 
 #: R10: the Site types with a declared structure. Cold-room and EV Sites need `3B6`.
 SITE_TYPE_TO_STRUCTURE: Mapping[str, str] = MappingProxyType({"MINIGRID": "MINI_GRID"})
@@ -69,12 +69,33 @@ def _month(month: str) -> str:
     return month
 
 
-class StructureRead:
-    def __init__(self, sources: "LeafSource") -> None:
-        self._sources = sources
+@dataclass(frozen=True)
+class SiteInputs:
+    """3B7a unit 0 (D-3B7A.10): what one Site-month read gave, before evaluation."""
+    site_code: str
+    month: str
+    structure_key: str
+    structure_version: int
+    leaves: Mapping[str, LeafValue]  # every leaf of the registry, in registry order
+    stated: Mapping[str, LeafValue]  # every stated_by row in registry order; empty when no StatedSource is wired
 
-    def site(self, site: SiteRef, month: str, known_at: datetime | None = None) -> SiteStructure:
-        """Every leaf of the Site's structure read through the port, then evaluated (spec §4)."""
+
+def evaluate_inputs(inputs: SiteInputs) -> SiteStructure:
+    """Fold `inputs` by the registry of its key; a version that is not the registry's is STRUCTURE_COMPOSE."""
+    reg = _registry.REGISTRIES[inputs.structure_key]
+    if reg.version != inputs.structure_version:
+        raise StructureError("STRUCTURE_COMPOSE", inputs.structure_key, inputs.site_code)
+    return SiteStructure(inputs.site_code, inputs.month, reg.structure_key, reg.version,
+                         evaluate(reg, inputs.leaves, inputs.stated))
+
+
+class StructureRead:
+    def __init__(self, sources: "LeafSource", stated: "StatedSource | None" = None) -> None:
+        self._sources = sources
+        self._stated = stated  # 4b1 (spec §2.5): None reads every node from its expression, as 3B3
+
+    def site_inputs(self, site: SiteRef, month: str, known_at: datetime | None = None) -> "SiteInputs":
+        """3B7a unit 0: the Site's leaves (and stated rows) read through the ports, before any evaluation."""
         from assetops_backend.structure.sources import ReadContext
 
         key = SITE_TYPE_TO_STRUCTURE.get(site.site_type)
@@ -83,7 +104,14 @@ class StructureRead:
         reg = _registry.REGISTRIES[key]
         ctx = ReadContext(site, _month(month), known_at)
         leaves = {row.factor_id: self._sources.leaf(ctx, row.factor_id) for row in reg.rows if row.is_leaf}
-        return SiteStructure(site.site_code, month, reg.structure_key, reg.version, evaluate(reg, leaves))
+        stated = {} if self._stated is None else {row.factor_id: self._stated.stated(ctx, row.factor_id)
+                                                  for row in reg.rows if row.stated_by is not None}
+        return SiteInputs(site.site_code, month, reg.structure_key, reg.version,
+                          MappingProxyType(leaves), MappingProxyType(stated))
+
+    def site(self, site: SiteRef, month: str, known_at: datetime | None = None) -> SiteStructure:
+        """Every leaf of the Site's structure read through the port, then evaluated (spec §4)."""
+        return evaluate_inputs(self.site_inputs(site, month, known_at))
 
     def portfolio(self, tenant_id: UUID, sites: Sequence[SiteRef], month: str,
                   known_at: datetime | None = None) -> PortfolioStructure:
@@ -105,4 +133,5 @@ class StructureRead:
                                   tuple(s.site_code for s in sites))
 
 
-__all__ = ["NOT_DECLARED", "SITE_TYPE_TO_STRUCTURE", "PortfolioStructure", "SiteCount", "StructureRead", "site_count"]
+__all__ = ["NOT_DECLARED", "SITE_TYPE_TO_STRUCTURE", "PortfolioStructure", "SiteCount", "SiteInputs", "StructureRead",
+           "evaluate_inputs", "site_count"]

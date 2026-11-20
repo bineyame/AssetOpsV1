@@ -1,4 +1,4 @@
-# Owner feedback index, part 6 of 6 (2026-11-18 to 2026-11-20)
+# Owner feedback index, part 6 of 7 (2026-11-18 to 2026-11-20)
 
 One line per owner file (in `owner/`): date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
 

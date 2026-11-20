@@ -1,0 +1,4 @@
+Entry no,Revision,Site,Date,Month,Category,Supplier,Document,Litres,Amount,Currency,Status
+FUEL-K-01,1,KOBO-001,2026-10-11T09:00:00+03:00,2026-10,Diesel,fuel-supplier,DN-311,400,500.00,USD,Invoiced
+OM-K-10,1,KOBO-001,2026-10-31T17:00:00+03:00,2026-10,O&M,om-contractor,INV-OM-10,,600.00,USD,Paid
+STAFF-K-10,1,KOBO-001,2026-10-31T17:00:00+03:00,2026-10,Salaries,payroll,PAY-10,,500.00,USD,Paid

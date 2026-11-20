@@ -588,7 +588,7 @@ class ExtraReader(CanonicalJsonReader):
     def __init__(self, extra: frozenset[tuple[str, str]]) -> None:
         self.extra = extra
 
-    def read(self, data: bytes) -> ReadResult:
+    def read(self, data: bytes, *, context=None) -> ReadResult:
         return ReadResult(loads_canonical(data), None, self.extra)
 
 

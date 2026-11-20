@@ -6,6 +6,8 @@ Nothing here is specific to one structure key, and nothing looks up a parent's h
 row is judged on its own `home`.
 
 3B3 added `STRUCTURE_NEUTRAL` and `STRUCTURE_COMPOSES`; the runtime leaf-value checks are in `evaluate.py`.
+4b1 added `STRUCTURE_STATED` (D-4B.1, D-4B.17); `evaluate` raises it at run time too, for a stated key on a row
+without `stated_by`.
 
 Deferred (D-3B1.6): observer existence (3B4), and mechanism
 pins and levers (3B2, step 6).
@@ -175,6 +177,15 @@ def _composes(ctx: _Context) -> None:
             raise ctx.refuse("STRUCTURE_COMPOSES", row.factor_id)
 
 
+def _stated(ctx: _Context) -> None:
+    """4b1 (D-4B.1, D-4B.17): a record states only a summed money node's total, and is a commercial record."""
+    for row in ctx.reg.rows:
+        stated = row.stated_by
+        if stated is not None and (row.is_leaf or stated.family != "COMMERCIAL_RECORD" or row.composes != "SUM"
+                                   or not row.unit.is_money):
+            raise ctx.refuse("STRUCTURE_STATED", row.factor_id)
+
+
 def _category(ctx: _Context) -> None:
     for row in ctx.reg.rows:
         home = row.home
@@ -215,6 +226,7 @@ _CHECKS: tuple[tuple[str, Callable[[_Context], None]], ...] = (
     ("STRUCTURE_TOLERANCE", _tolerance),
     ("STRUCTURE_UNIT", _unit),
     ("STRUCTURE_COMPOSES", _composes),
+    ("STRUCTURE_STATED", _stated),
     ("STRUCTURE_CATEGORY", _category),
     ("STRUCTURE_OBJECTIVE", _objective),
     ("STRUCTURE_MONEY_HOME", _money_home),

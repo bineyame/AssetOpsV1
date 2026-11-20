@@ -1209,7 +1209,9 @@ H10_MANIFEST_SHA = "65a88b8f3e1b693ed656901036885405ecdc462299608eaaae8718fa8d59
 # `operations` block (registry, rights, schedules, incidents, maintenance of the 9 Sites; read by no evaluator, model or generator,
 # outside view_digest) and the crossing's screen words "Unbilled energy". derived-values.json, missing-records.json and
 # history.json stayed byte-identical after evaluate_structure.py. The rev 16.14 base was 5407c9869fa319126d9305bf39d0600b340ef0e6a7dea01dd95418798236accb.
-H9_BASELINE = 4501   # re-cut of 20 Nov (D-BW1, specs/BW1-build-wave1/rulings.md): two-week-build-plan.md §6 drops the money-leaves row
+H9_BASELINE = 4502   # 20 Nov: 4499 at the re-cut head plus the 3 alignment checks f4b8923a7 turned from failing to passing
+                     # (A3 on the design, A3 and A5 on the copy deck; A5 now ignores heading section numbers, body figures still caught).
+                     # Earlier: 4501, re-cut of 20 Nov (D-BW1, specs/BW1-build-wave1/rulings.md): two-week-build-plan.md §6 drops the money-leaves row
                      # (Kobo outstanding) and the bridge row (Kobo's gap), which no longer reach a screen by day 14: 2 figure anchors fewer.
                      # Before it: 4503 = 4487 (confirmed, D-RECON.8) plus the 16 figure anchors of design Figure 1c (owner, 20 Nov: "yes, add the figure");
                      # checks passed on the DS1p base after `merge main`, taken in place (packet-DS1p.md): 4465, plus the

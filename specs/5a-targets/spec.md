@@ -1,6 +1,6 @@
 # 5a: targets per factor, declarer recorded (implementer spec)
 
-Status: spec rev 2, handshake round 1 answered (`rulings.md` "Handshake answers (round 1)"; D-5A.13 to D-5A.15).
+Status: in_review (unit 1 merged; units 2 and 3 built on `task/5a-targets-u23`, packet `packet-5a-u23.md`). Spec rev 3: handshake round 1 answered (`rulings.md` "Handshake answers (round 1)"; D-5A.13 to D-5A.15); mid-build round 2 answered (Q2 literal, D-5A.16).
 P5 approved by the owner on 20 Nov (`owner/owner-p5-approved-and-defaults-2026-11-20.md`), so D-5A.12 is met: no 5a
 code is written before that approval, and unit 1 starts when the handshake has no open question.
 
@@ -129,9 +129,9 @@ MINI_GRID, every one of the 31 leaves:
 | `OPTION` | `extra_l`, `battery_throughput_kwh`, `collection_cost` |
 | `CALENDAR` | `period_days` |
 
-`solve_main(registry, leaves, heading, leaf, target) -> tuple[Decimal | None, str | None]` (D-5A.6): with `leaves`
+`solve_main(registry, leaves, heading, leaf, target, *, currency=None) -> tuple[Decimal | None, str | None]` (D-5A.6, D-5A.16): with `leaves`
 holding every leaf (the main one is replaced), evaluate three times (no `stated`), the main leaf set to
-`LeafValue(Decimal(k), "DECLARED", ("solve",), None, None, <heading currency if the leaf is money, else None>)` for
+`LeafValue(Decimal(k), "DECLARED", ("unknown",), None, None, currency)` (`currency`: the heading currency if the leaf is money, else None) for
 `k` in 0, 1, 2; `v_k = values[heading].value`. Any `v_k` None: `(None, f"MAIN_FACTOR_UNSOLVED:{heading}")`. `a = v1 −
 v0`; `v2 − v1 != a`: `(None, f"MAIN_FACTOR_NONLINEAR:{heading}")`; `a == 0`: `(None,
 f"MAIN_FACTOR_ZERO_SLOPE:{heading}")`; else `((target − v0) / a, None)` under `Context(prec=34,
@@ -177,7 +177,7 @@ class TargetRead:
    - `LEAK_ZERO`: an assumption of `Decimal("0")`, `LEAK_TEXT`, sources `("assumption:zero",)`; a money row takes
      `currency`, and with `currency` None it is absent, note `TARGET_CURRENCY_UNKNOWN`.
    - `AT_ACTUAL`: `act[leaf].value` None: absent, note `ACTUAL_NOT_AVAILABLE`. Else an assumption of that value,
-     `AT_ACTUAL_TEXT`, sources `("assumption:at-actual",)`, currency `act[leaf].currency`.
+     `AT_ACTUAL_TEXT`, sources `("assumption:at-actual",)`, currency `act[leaf].currency`; origins the actual's (`("unknown",)` if empty), and `LEAK_ZERO`'s `("unknown",)` (D-5A.16).
    - `MAIN` with no line of its own: decided in step 5.
 4. Each stated heading (rows with `stated_by`): in `bl.blocked`, absent (`NOT_CALCULATED_YET`, D-5A.13) with that
    note, so 4b1's blocking row keeps the heading absent whatever its expression; a `NODE` line: the
@@ -185,7 +185,8 @@ class TargetRead:
 5. Each `MAIN` leaf without a line, in registry order: with its heading's stated target absent, absent with
    `MAIN_FACTOR_UNSOLVED:<heading>`; else `solve_main` over the leaves so far (a later main leaf still unset counts
    as absent): a value gives an assumption, `MAIN_TEXT`, sources `(f"assumption:main-factor:{heading}",)`, currency
-   as `solve_main`'s; a note gives absent with it.
+   as `solve_main`'s; origins the union of the heading line's and the other leaves' under that heading, in D-4B.18's
+   order (D-5A.16); a note gives absent with it.
 6. `values = evaluate(reg, leaves, stated)`.
 7. `checks`: each `NODE` line whose row has no `stated_by`: `TargetCheck(f, line.value, values[f].value,
    line.currency, agrees = values[f].value is not None and values[f].value == line.value and values[f].currency ==
@@ -216,7 +217,7 @@ every Site in `Africa/Nairobi`, `recognition_period` `2026-10`, `source_version`
 
 | Step, `at`, `entered_by` | Batch | Records |
 |---|---|---|
-| 1, `2026-11-06T09:00:00+00:00`, `loader:ds3` | DS1b's `lakeside-power.budget_workbook` envelope (`assetops-world-generator`, `source-emulated`) | Its October `plan` records only, verbatim: Kobo `om` 600.00, `staff` 500.00; Kisiwa `om` 700.00, `staff` 500.00; Mto `om` 500.00, `staff` 450.00 (IDs `gen:<SITE>:2026-10:plan:<leaf>`) |
+| 1, `2026-11-06T09:00:00+00:00`, `service:ds3-loader` | DS1b's `lakeside-power.budget_workbook` envelope (`assetops-world-generator`, `source-emulated`) | Its October `plan` records only, verbatim: Kobo `om` 600.00, `staff` 500.00; Kisiwa `om` 700.00, `staff` 500.00; Mto `om` 500.00, `staff` 450.00 (IDs `gen:<SITE>:2026-10:plan:<leaf>`) |
 | 2, `2026-11-07T09:00:00+00:00`, `person:5a000000-0000-4000-8000-000000000001` | `budget_workbook`, `lakeside-budget-2026`, `source-emulated`, `produced_at` `2026-11-07T09:00:00+03:00` | BUDGET_LINEs, `version_ref` `budget-2026-v1`, `currency` USD, `line_ref` = the factor, IDs `BUD-2026-10:<SITE>:<factor>`: KOBO-001 `revenue` 3420.00, `fuel_cost` 875.00, `contribution` 1445.00, `diesel_cost` 875.00; KISIWA-001 `revenue` 4125.00, `fuel_cost` 2990.00, `contribution` -60.00; MTO-001 `revenue` 2240.00, `fuel_cost` 375.00, `contribution` 915.00; no Site, ID `BUD-2026-10:PORTFOLIO:staff`, `staff` 1200.00 |
 
 **The actual side** is `StructureRead(FakeActual())`: October, per Site: `om` (Kobo 600.00, Mto 500.00; Kisiwa
@@ -227,7 +228,7 @@ the OPTION_ONLY leaves their neutral; every other leaf absent, `NOT_CONNECTED`, 
 
 **Expected, Kobo `2026-10`.** `lines`: `contribution`, `fuel_cost`, `om`, `revenue`, `staff`; `unused`:
 `diesel_cost` `NOT_A_FACTOR`; `version_ref` `budget-2026-v1`; `currency` USD. `om`'s line: `declared_by`
-`loader:ds3`, `person_id` None, `declared_at` `2026-11-06T09:00:00+00:00`; `revenue`'s: `person_id`
+`service:ds3-loader`, `person_id` None, `declared_at` `2026-11-06T09:00:00+00:00`; `revenue`'s: `person_id`
 `5a000000-0000-4000-8000-000000000001`, `declared_at` `2026-11-07T09:00:00+00:00`.
 
 | Factor | Target | Evidence | Assumed leaves or note |
@@ -266,7 +267,7 @@ its check agrees.
 **No database** (`backend/tests/test_5a_targets.py`; the world is 3A4's `new_world`, imported, never edited):
 1. *(unit 1)* (a) §5's Kobo `BudgetLines` field by field: lines, declarers, unused, version, `stamp ==
    site_month's`. (b) Re-ingest step 1's batch unchanged at `2026-11-08T09:00:00+00:00` with `entered_by`
-   `person:5a000000-0000-4000-8000-000000000002`: Kobo `om`'s line still has `declared_by` `loader:ds3`, `person_id`
+   `person:5a000000-0000-4000-8000-000000000002`: Kobo `om`'s line still has `declared_by` `service:ds3-loader`, `person_id`
    None, `declared_at` `2026-11-06T09:00:00+00:00` (D-5A.14).
 2. *(unit 1)* Rules 1 to 4 of §2, one case each: (a) a step 3 at `2026-11-08T09:00:00+00:00` adding
    `BUD-2026-10:MTO-001:revenue-v2` (`version_ref` `budget-2026-v2`, `revenue` 2300.00): Mto `problem ==
@@ -301,7 +302,8 @@ its check agrees.
 9. *(unit 3)* `known_at = 2026-11-06T12:00:00+00:00` (after step 1, before step 2): Kobo has `om` and `staff` lines
    only, `revenue` and `fuel_cost` absent, contribution absent.
 10. *(unit 1)* DS1b parity: step 1's records equal, as parsed objects, those `build_records(view,
-    generate_history(view))` writes for those IDs.
+    generate_history(view))` writes for those IDs. Lives in `simulator/tests/world/test_5a_fixture_parity.py`, which reads the fixture by
+    path (mid-build Q1, `rulings.md` "Mid-build answers (round 1)").
 11. Grep: no `float(` under `structure/targets/`; `structure/targets/` edits no other module (the packet lists files).
 
 **Postgres** (pooled, `--db`; `backend/tests/test_5a_targets_postgres.py`; Sites by 3A4's `NairobiSeeder`):
@@ -324,7 +326,7 @@ Commands as 3B3 §6 with these files; check-all once at the end; `select-tests` 
    shown as a check, never used instead?
 6. Does the portfolio name every Site left out per factor, and keep operator-level lines out of the totals?
 7. Is the main factor solved only for a linear heading with a slope, through the evaluator?
-8. Is nothing changed outside `structure/targets/` (new), the fixture, the two test files and the packet?
+8. Is nothing changed outside `structure/targets/` (new), the fixture, the two test files, `simulator/tests/world/test_5a_fixture_parity.py` (mid-build Q1) and the packet?
 
 Packet: `specs/5a-targets/packet.md`, with module paths, the mid-build count, and P5's approval reference.
 

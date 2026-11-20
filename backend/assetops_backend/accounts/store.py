@@ -14,8 +14,8 @@ from assetops_backend.accounts.model import Account, GrantRow, PersonView, Sessi
 
 
 class StoreConflict(Exception):
-    """A write refused under the store's lock: ROLE_ALREADY_HELD, GRANT_ALREADY_REMOVED, LAST_EXECUTIVE, EMAIL_TAKEN
-    or EXECUTIVE_EXISTS."""
+    """A write refused under the store's lock: ROLE_ALREADY_HELD, GRANT_ALREADY_REMOVED, LAST_EXECUTIVE, EMAIL_TAKEN,
+    EXECUTIVE_EXISTS, or (ON1) ONBOARDING_CLOSED and ROLES_SEPARATE."""
 
     def __init__(self, code: str, constraint: str | None = None) -> None:
         super().__init__(code)
@@ -37,6 +37,9 @@ class AccountStore(Protocol):
     def tenant_by_slug(self, slug: str) -> tuple[UUID, str] | None: ...
 
     def tenant(self, tenant_id: UUID) -> tuple[str, str] | None: ...
+
+    def tenant_slug(self, tenant_id: UUID) -> str | None:
+        """3A3 (spec §2.7): the tenant's slug, or None."""
 
     def site_id(self, tenant_id: UUID, site_code: str) -> UUID | None: ...
 
@@ -69,6 +72,16 @@ class AccountStore(Protocol):
     def add_grant(self, row: GrantRow, actor_person_id: UUID) -> GrantRow: ...
 
     def add_removal(self, row: GrantRow, actor_person_id: UUID) -> GrantRow: ...
+
+    def add_onboarding_grant(self, row: GrantRow) -> GrantRow:
+        """ON1 (spec §3.3): under the tenant's role lock, in order: ONBOARDING_CLOSED (a person-made grant exists),
+        ROLES_SEPARATE (submitter and accepter), ROLE_ALREADY_HELD; then the grant insert."""
+
+    def person_grant_exists(self, tenant_id: UUID) -> bool:
+        """ON1: whether any grant row of the tenant was made by a person (not under a lock)."""
+
+    def executive_of(self, tenant_id: UUID) -> UUID | None:
+        """ON1: the person of a held OPERATOR_EXECUTIVE grant, or None."""
 
     def create_account(self, account: Account, password_hash: str, created_at: datetime, by: str,
                        executive_grant: GrantRow | None) -> None: ...

@@ -1,0 +1,321 @@
+{
+ "_note": "5a spec §5; Kisiwa's contribution line -60.00 is a deliberate disagreement with the computed -65.00 (the pack's plan), so the check reads False; do not correct it",
+ "steps": [
+  {
+   "at": "2026-11-06T09:00:00+00:00",
+   "entered_by": "service:ds3-loader",
+   "batch": {
+    "format_version": 1,
+    "tenant_code": "lakeside-power",
+    "source_type": "budget_workbook",
+    "source_system": "assetops-world-generator",
+    "provenance": "source-emulated",
+    "produced_at": "2026-11-06T06:00:00+03:00",
+    "records": [
+     {
+      "format_version": 1,
+      "kind": "BUDGET_LINE",
+      "source_record_id": "gen:KISIWA-001:2026-10:plan:om",
+      "source_version": "1",
+      "site_code": "KISIWA-001",
+      "clocks": {
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "factor_id": "om",
+       "value": "700.00",
+       "version_ref": "budget-2026-v1",
+       "line_ref": "om",
+       "currency": "USD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "BUDGET_LINE",
+      "source_record_id": "gen:KISIWA-001:2026-10:plan:staff",
+      "source_version": "1",
+      "site_code": "KISIWA-001",
+      "clocks": {
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "factor_id": "staff",
+       "value": "500.00",
+       "version_ref": "budget-2026-v1",
+       "line_ref": "staff",
+       "currency": "USD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "BUDGET_LINE",
+      "source_record_id": "gen:KOBO-001:2026-10:plan:om",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "factor_id": "om",
+       "value": "600.00",
+       "version_ref": "budget-2026-v1",
+       "line_ref": "om",
+       "currency": "USD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "BUDGET_LINE",
+      "source_record_id": "gen:KOBO-001:2026-10:plan:staff",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "factor_id": "staff",
+       "value": "500.00",
+       "version_ref": "budget-2026-v1",
+       "line_ref": "staff",
+       "currency": "USD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "BUDGET_LINE",
+      "source_record_id": "gen:MTO-001:2026-10:plan:om",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "clocks": {
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "factor_id": "om",
+       "value": "500.00",
+       "version_ref": "budget-2026-v1",
+       "line_ref": "om",
+       "currency": "USD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "BUDGET_LINE",
+      "source_record_id": "gen:MTO-001:2026-10:plan:staff",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "clocks": {
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "factor_id": "staff",
+       "value": "450.00",
+       "version_ref": "budget-2026-v1",
+       "line_ref": "staff",
+       "currency": "USD"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "at": "2026-11-07T09:00:00+00:00",
+   "entered_by": "person:5a000000-0000-4000-8000-000000000001",
+   "batch": {
+    "format_version": 1,
+    "tenant_code": "lakeside-power",
+    "source_type": "budget_workbook",
+    "source_system": "lakeside-budget-2026",
+    "provenance": "source-emulated",
+    "produced_at": "2026-11-07T09:00:00+03:00",
+    "records": [
+     {
+      "format_version": 1,
+      "kind": "BUDGET_LINE",
+      "source_record_id": "BUD-2026-10:KOBO-001:revenue",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "factor_id": "revenue",
+       "value": "3420.00",
+       "version_ref": "budget-2026-v1",
+       "line_ref": "revenue",
+       "currency": "USD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "BUDGET_LINE",
+      "source_record_id": "BUD-2026-10:KOBO-001:fuel_cost",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "factor_id": "fuel_cost",
+       "value": "875.00",
+       "version_ref": "budget-2026-v1",
+       "line_ref": "fuel_cost",
+       "currency": "USD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "BUDGET_LINE",
+      "source_record_id": "BUD-2026-10:KOBO-001:contribution",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "factor_id": "contribution",
+       "value": "1445.00",
+       "version_ref": "budget-2026-v1",
+       "line_ref": "contribution",
+       "currency": "USD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "BUDGET_LINE",
+      "source_record_id": "BUD-2026-10:KOBO-001:diesel_cost",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "factor_id": "diesel_cost",
+       "value": "875.00",
+       "version_ref": "budget-2026-v1",
+       "line_ref": "diesel_cost",
+       "currency": "USD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "BUDGET_LINE",
+      "source_record_id": "BUD-2026-10:KISIWA-001:revenue",
+      "source_version": "1",
+      "site_code": "KISIWA-001",
+      "clocks": {
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "factor_id": "revenue",
+       "value": "4125.00",
+       "version_ref": "budget-2026-v1",
+       "line_ref": "revenue",
+       "currency": "USD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "BUDGET_LINE",
+      "source_record_id": "BUD-2026-10:KISIWA-001:fuel_cost",
+      "source_version": "1",
+      "site_code": "KISIWA-001",
+      "clocks": {
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "factor_id": "fuel_cost",
+       "value": "2990.00",
+       "version_ref": "budget-2026-v1",
+       "line_ref": "fuel_cost",
+       "currency": "USD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "BUDGET_LINE",
+      "source_record_id": "BUD-2026-10:KISIWA-001:contribution",
+      "source_version": "1",
+      "site_code": "KISIWA-001",
+      "clocks": {
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "factor_id": "contribution",
+       "value": "-60.00",
+       "version_ref": "budget-2026-v1",
+       "line_ref": "contribution",
+       "currency": "USD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "BUDGET_LINE",
+      "source_record_id": "BUD-2026-10:MTO-001:revenue",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "clocks": {
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "factor_id": "revenue",
+       "value": "2240.00",
+       "version_ref": "budget-2026-v1",
+       "line_ref": "revenue",
+       "currency": "USD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "BUDGET_LINE",
+      "source_record_id": "BUD-2026-10:MTO-001:fuel_cost",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "clocks": {
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "factor_id": "fuel_cost",
+       "value": "375.00",
+       "version_ref": "budget-2026-v1",
+       "line_ref": "fuel_cost",
+       "currency": "USD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "BUDGET_LINE",
+      "source_record_id": "BUD-2026-10:MTO-001:contribution",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "clocks": {
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "factor_id": "contribution",
+       "value": "915.00",
+       "version_ref": "budget-2026-v1",
+       "line_ref": "contribution",
+       "currency": "USD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "BUDGET_LINE",
+      "source_record_id": "BUD-2026-10:PORTFOLIO:staff",
+      "source_version": "1",
+      "clocks": {
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "factor_id": "staff",
+       "value": "1200.00",
+       "version_ref": "budget-2026-v1",
+       "line_ref": "staff",
+       "currency": "USD"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

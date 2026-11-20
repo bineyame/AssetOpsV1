@@ -26,21 +26,16 @@ from typing import Callable, Mapping, TypeVar
 from uuid import UUID
 
 from sqlalchemy import create_engine, text
-from sqlalchemy.engine import Connection, make_url
+from sqlalchemy.engine import Connection
 from sqlalchemy.exc import DBAPIError, InterfaceError, OperationalError
 
-from assetops_backend.commercial.model import (ExistingRecord, IntakeRow, IntakeSummary, Plan, RejectionRow,
-                                               RevisionRow, StoreRefused, UploadAlreadyDecided, UploadDecisionRow,
-                                               UploadRecord, UploadRow)
+from assetops_backend.commercial.model import (ExistingRecord, HeldUpload, IntakeRow, IntakeSummary, Plan,
+                                               RejectionRow, RevisionRow, StoreRefused, UploadAlreadyDecided,
+                                               UploadDecisionRow, UploadRecord, UploadRow)
 
 _F = TypeVar("_F", bound=Callable)
 #: D-3A2.2: a connection failure is retried, not scrubbed; the routes answer 503 for these.
 UNAVAILABLE = (OperationalError, InterfaceError)
-
-
-def database_name(url: str) -> str | None:
-    """The database name of a SQLAlchemy URL (the RC4 settings check reads it)."""
-    return make_url(url).database
 
 
 def _scrubbed(method: _F) -> _F:
@@ -165,6 +160,11 @@ _UPLOADS = text(
     "SELECT " + _UPLOAD_COLUMNS + _UPLOAD_FROM + "WHERE u.tenant_id = :t AND "
     "((CAST(:s AS uuid) IS NULL AND u.site_id IS NULL) OR u.site_id = CAST(:s AS uuid)) "
     "ORDER BY u.submitted_at DESC, u.id DESC LIMIT :n")
+#: 3A3 (spec §2.8): what the tenant holds, one read.
+_HELD = text(
+    "SELECT u.id, u.source_type, u.reader, u.file_sha256, d.decision IS NULL AS waiting, u.submitted_by FROM commercial_upload u "
+    "LEFT JOIN commercial_upload_decision d ON d.tenant_id = u.tenant_id AND d.upload_id = u.id "
+    "WHERE u.tenant_id = :t AND (d.decision IS NULL OR d.decision = 'ACCEPTED') ORDER BY u.id")
 _UPLOAD_ARRAYS = ("kept_index", "row_map", "refusal_index", "refusal_code", "refusal_path", "month_site_code",
                   "month_period")
 _WRITTEN = text("SELECT id FROM commercial_record_revision WHERE tenant_id = :t AND intake_id = :i "
@@ -362,6 +362,12 @@ class PostgresCommercialStore:
         with self._engine.connect() as c:
             found = c.execute(_UPLOAD, {"t": tenant_id, "u": upload_id}).first()
             return None if found is None else self._record(c, found)
+
+    @_scrubbed
+    def held_uploads(self, tenant_id: UUID) -> tuple[HeldUpload, ...]:
+        with self._engine.connect() as c:
+            return tuple(HeldUpload(r.id, r.source_type, r.reader, r.file_sha256, bool(r.waiting), r.submitted_by)
+                         for r in c.execute(_HELD, {"t": tenant_id}))
 
     @_scrubbed
     def uploads_in_scope(self, tenant_id: UUID, site_id: UUID | None, limit: int) -> tuple[UploadRecord, ...]:

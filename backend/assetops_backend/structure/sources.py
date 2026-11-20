@@ -23,12 +23,14 @@ from assetops_backend.chain.ports import SiteRef
 from assetops_backend.chain.read import local_days
 from assetops_backend.structure import registry as _registry
 from assetops_backend.structure.check import StructureError
-from assetops_backend.structure.evaluate import Coverage, LeafValue, Missing
+from assetops_backend.structure.evaluate import ORIGIN_UNKNOWN, Coverage, LeafValue, Missing
 from assetops_backend.structure.read import SITE_TYPE_TO_STRUCTURE
 
 PROVIDED, ASSUMED = "PROVIDED", "ASSUMED"
 HELD_NOT_CALCULATED, NOT_CONNECTED, OPTION_ONLY = "HELD_NOT_CALCULATED", "NOT_CONNECTED", "OPTION_ONLY"
-STATES = (PROVIDED, ASSUMED, HELD_NOT_CALCULATED, NOT_CONNECTED, OPTION_ONLY)
+#: 4b2 (D-4B.6, D-4B.14): read from the leaf's own records; the labelled assumption only when none is held.
+PROVIDED_ELSE_ASSUMED = "PROVIDED_ELSE_ASSUMED"
+STATES = (PROVIDED, ASSUMED, HELD_NOT_CALCULATED, NOT_CONNECTED, OPTION_ONLY, PROVIDED_ELSE_ASSUMED)
 
 #: D-3B3.3, D-3B3.11: the state of every leaf on 20 Nov 2026. A later slice changes one row and adds its provider.
 SOURCE_STATE: Mapping[str, Mapping[str, str]] = MappingProxyType({
@@ -39,19 +41,19 @@ SOURCE_STATE: Mapping[str, Mapping[str, str]] = MappingProxyType({
         "adjustments_kwh": NOT_CONNECTED,
         "unmapped_kwh": NOT_CONNECTED,
         "tariff": NOT_CONNECTED,
-        "productive_kwh": NOT_CONNECTED,            # R1: metered productive energy is not the CHARGE record
+        "productive_kwh": PROVIDED,                 # its own record, CHARGE (productive class), now has an intake
         "productive_tariff": ASSUMED,
-        "in_transit": NOT_CONNECTED,
-        "outstanding": NOT_CONNECTED,
+        "in_transit": PROVIDED,
+        "outstanding": PROVIDED,
         "necessary_l": HELD_NOT_CALCULATED,         # dispatch gives minutes, not litres
         "candidate_l": HELD_NOT_CALCULATED,
         "unexplained_l": HELD_NOT_CALCULATED,       # the night-window residual is not a monthly litre
         "extra_l": OPTION_ONLY,
-        "diesel_price": ASSUMED,
+        "diesel_price": PROVIDED_ELSE_ASSUMED,
         "battery_throughput_kwh": OPTION_ONLY,
         "wear_rate": NOT_CONNECTED,
-        "om": NOT_CONNECTED,
-        "staff": NOT_CONNECTED,
+        "om": PROVIDED,
+        "staff": PROVIDED,
         "collection_cost": OPTION_ONLY,
         "reduced_days": HELD_NOT_CALCULATED,        # work cases
         "hours_per_day": HELD_NOT_CALCULATED,       # work cases
@@ -66,6 +68,14 @@ SOURCE_STATE: Mapping[str, Mapping[str, str]] = MappingProxyType({
         "dawn_days_below": HELD_NOT_CALCULATED,     # battery state of charge
     }),
 })
+
+#: 4b2 (spec §3.2, D-4B.1): the nodes a record states, and their state. `CommercialLeafSource` serves the PROVIDED ones.
+STATED_STATE: Mapping[str, Mapping[str, str]] = MappingProxyType({
+    "MINI_GRID": MappingProxyType({"revenue": PROVIDED, "fuel_cost": PROVIDED}),
+})
+#: 4b2: the PROVIDED leaves whose only provider is `structure.money.CommercialLeafSource`. Read alone (no commercial
+#: source wired), `ProductLeafSource` gives them NOT_CONNECTED naming their `filled_by`.
+COMMERCIAL_LEAVES = frozenset({"productive_kwh", "in_transit", "outstanding", "om", "staff"})
 
 #: D-3B3.11: the literal words of each ASSUMED leaf (the product never reads the manifest).
 ASSUMPTION_WORDS: Mapping[str, str] = MappingProxyType({
@@ -90,6 +100,12 @@ class ReadContext:
 
 class LeafSource(Protocol):
     def leaf(self, ctx: ReadContext, factor_id: str) -> LeafValue: ...
+
+
+class StatedSource(Protocol):
+    """4b1 (spec §2.5): the value a record states for a node with `stated_by`."""
+
+    def stated(self, ctx: ReadContext, factor_id: str) -> LeafValue: ...
 
 
 #: `window_price(tenant, site, key, start, end, known_at) -> fuel_cost.PriceSelection` (P2).
@@ -132,13 +148,13 @@ class ProductLeafSource:
             return LeafValue(row.neutral, "NEUTRAL", (NEUTRAL_SOURCE,), None, None, None)
         if state == HELD_NOT_CALCULATED:
             return _absent(fb, "NOT_CALCULATED_YET")
-        if state == NOT_CONNECTED:
+        if state == NOT_CONNECTED or (state == PROVIDED and factor_id in COMMERCIAL_LEAVES):
             return _absent(fb, "NOT_CONNECTED")
         if factor_id == "period_days":
             return self._period_days(ctx)
         if factor_id == "unserved_critical_kwh":
             return self._unserved_critical(ctx, fb)
-        if factor_id in PRICE_KEYS:
+        if factor_id in PRICE_KEYS and state in (ASSUMED, PROVIDED_ELSE_ASSUMED):  # 4b2: the fallback's answer
             return self._price(ctx, factor_id, fb)
         raise StructureError("STRUCTURE_LEAF_INPUT", key, factor_id)  # a state with no provider: a code bug
 
@@ -169,7 +185,8 @@ class ProductLeafSource:
             note = f"VALUE_NOT_STATED:{len(unknown)}" if closed and unknown and days.complete == days.expected \
                 else None
             return _absent(fb, "NOT_RECEIVED", note=note, coverage=coverage)
-        return LeafValue(value, "MEASURED", (f"snapshot:{CRITICAL_MEASURE}",), coverage, None, None)
+        return LeafValue(value, "MEASURED", (f"snapshot:{CRITICAL_MEASURE}",), coverage, None, None,
+                         (ORIGIN_UNKNOWN,))
 
     def _price(self, ctx: ReadContext, factor_id: str, fb: Any) -> LeafValue:
         """D-3B3.11: the operator's declared price of the same quantity, carried as a labelled assumption."""
@@ -181,10 +198,11 @@ class ProductLeafSource:
         missing = Missing(fb.kind, fb.family, "NOT_CONNECTED", "ASSUMPTION", (), fb.words,
                           ASSUMPTION_WORDS[factor_id], None)
         return LeafValue(selection.value, "ESTIMATED", (f"assumption:{selection.revision_id}",), None, missing,
-                         selection.currency)
+                         selection.currency, (ORIGIN_UNKNOWN,))
 
 
 __all__ = [
-    "ASSUMPTION_WORDS", "PRICE_KEYS", "SOURCE_STATE", "STATES", "LeafSource", "ProductLeafSource", "ReadContext",
-    "month_window",
+    "ASSUMPTION_WORDS", "COMMERCIAL_LEAVES", "PRICE_KEYS", "PROVIDED_ELSE_ASSUMED", "SOURCE_STATE", "STATED_STATE",
+    "STATES", "LeafSource", "ProductLeafSource", "ReadContext",
+    "StatedSource", "month_window",
 ]

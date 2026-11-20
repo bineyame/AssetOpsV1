@@ -66,4 +66,12 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 152. `3A4` amounts by month, month stamps · data.md
 153. `3A2` commercial file intake (migration 0065, uploads, pseudonyms, acceptance) · data.md
 154. `IA-1a` mock-up frame and gates (IA-1 shape rebuild) · demo.md
-155. `IA-1b` mock-up hub shape: Portfolio tabs and Site Overviews (IA-1 shape rebuild) · demo.md
+155. `5a` targets per factor: unit 1 budget lines and declarers · data.md
+156. `4b1` the stated-node seam (MINI_GRID v3, stated headings, origins; D-4B.18 fix round, R2-1) · data.md
+157. `5a` targets per factor: units 2-3 target rules, Site and portfolio read · data.md
+158. `RC4-F1` the database a URL really reaches (`database_target`, RC4 settings, backfill, demo env) · data.md
+159. `4b2` money leaves from records (CommercialLeafSource, READ_AS, diesel price from invoices) · data.md
+160. `3A3` emulated native exports, layout readers, source contract test, emulated-export loader · data.md
+161. `ON1` operator tenant from one onboarding file (check/apply, emulated grants, real refused, served tenant, key erasure, runbook) · data.md
+162. `5b` attribution unit 1: the split rules (AR1, AR2, scale, residual, 1E-12) · data.md
+163. `IA-1b` mock-up hub shape: Portfolio tabs and Site Overviews (IA-1 shape rebuild) · demo.md

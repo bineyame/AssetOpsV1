@@ -13,6 +13,8 @@ worse, serve simulator surfaces that were meant to be off.
 from __future__ import annotations
 
 import json
+import os
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -103,6 +105,21 @@ def parse_feature_flags(raw: Any, *, source: str = "<in-memory>") -> FeatureFlag
 #: (S1-01, D-2026-10-07). It is backend configuration, resolved at the request
 #: boundary; no client header, query or body value can name another tenant.
 DEVELOPMENT_TENANT_SLUG = "demo"
+
+
+#: ON1 (spec §3.4; D-ON1.5): the tenant the server serves, when not the development tenant.
+TENANT_SLUG_ENV = "ASSETOPS_TENANT_SLUG"
+_TENANT_SLUG = re.compile(r"[a-z0-9][a-z0-9-]{0,62}")
+
+
+def served_tenant_slug() -> str:
+    """`ASSETOPS_TENANT_SLUG` unset is the development tenant; set, it must be a tenant slug (empty refused)."""
+    value = os.environ.get(TENANT_SLUG_ENV)
+    if value is None:
+        return DEVELOPMENT_TENANT_SLUG
+    if _TENANT_SLUG.fullmatch(value) is None:
+        raise ConfigurationError("ASSETOPS_TENANT_SLUG must be a tenant slug.")
+    return value
 
 
 def database_url() -> str | None:

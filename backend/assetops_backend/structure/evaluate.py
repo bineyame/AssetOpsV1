@@ -4,6 +4,10 @@
 sums the `SUM` factors across Sites, factor by factor, naming the Sites left out. Unknown is never zero: a node over
 any leaf with no value has no value, and the only short cut is an option-only neutral 0 in a product (D-3B3.15).
 Every arithmetic step runs in one local decimal context; nothing is quantised.
+
+4b1 (spec §2.2 to §2.4; D-4B.1, D-4B.2, D-4B.11, D-4B.16): a node a record states (`stated_by`) takes that record's
+value from the `stated` map and keeps its expression as `computed` and `detail_missing`; every value carries the
+record provenances beneath it (`origins`, strongest first in `ORIGIN_ORDER`).
 """
 
 from __future__ import annotations
@@ -30,6 +34,13 @@ CAUSES = ("NOT_RECEIVED", "NOT_CONNECTED", "NOT_CALCULATED_YET")
 CARRIED_AS = ("TARGET", "ASSUMPTION", "RESIDUAL")
 _ASSUMED = ("TARGET", "ASSUMPTION")
 _RANK = {name: rank for rank, name in enumerate(EVIDENCE_ORDER)}
+#: D-4B.2: record provenances, strongest first (a literal; a test proves it equals 3A4's `PROVENANCE_ORDER`).
+#: D-4B.18: a part whose provenance cannot be named; ranked weakest, never a record provenance.
+ORIGIN_UNKNOWN = "unknown"
+ORIGIN_ORDER = ("observed-financial", "field-integrated", "bench-tested", "source-emulated", "demo-simulated",
+                ORIGIN_UNKNOWN)
+#: D-4B.16: the causes that mean "nothing to read", so the expression may stand in for a stated record.
+_NOTHING_TO_READ = ("NOT_CONNECTED", "NOT_RECEIVED")
 
 
 def _context() -> Context:
@@ -71,6 +82,7 @@ class LeafValue:
     coverage: Coverage | None
     missing: Missing | None
     currency: str | None
+    origins: tuple[str, ...] = ()  # 4b1 (D-4B.2): in ORIGIN_ORDER order, no repeats
 
 
 @dataclass(frozen=True)
@@ -85,6 +97,11 @@ class FactorValue:
     missing_leaves: tuple[str, ...]
     assumed_leaves: tuple[str, ...]
     currency: str | None
+    # 4b1 (D-4B.1, D-4B.2, D-4B.11)
+    origins: tuple[str, ...] = ()
+    stated: bool = False
+    computed: Decimal | None = None
+    detail_missing: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -118,6 +135,18 @@ def weakest(evidence: Sequence[str]) -> str:
     """The weakest non-NEUTRAL class; NEUTRAL when every part is NEUTRAL (or there is none)."""
     ranked = [e for e in evidence if e != NEUTRAL]
     return max(ranked, key=_RANK.__getitem__) if ranked else NEUTRAL
+
+
+def weakest_origin(origins: Sequence[str]) -> str | None:
+    """D-4B.2: the element latest in `ORIGIN_ORDER`; None for none."""
+    present = [o for o in ORIGIN_ORDER if o in origins]
+    return present[-1] if present else None
+
+
+def _origin_union(*groups: Sequence[str]) -> tuple[str, ...]:
+    """D-4B.2: the union of origins, in `ORIGIN_ORDER` order."""
+    held = {o for g in groups for o in g}
+    return tuple(o for o in ORIGIN_ORDER if o in held)
 
 
 def _min_coverage(coverages: Sequence[Coverage | None]) -> Coverage | None:
@@ -173,6 +202,28 @@ def _check_leaf(registry: Registry, factor_id: str, leaf: LeafValue) -> None:
     if (_money_dimension(row.unit) and leaf.value is not None and leaf.currency is None
             and leaf.evidence != NEUTRAL):
         raise StructureError("STRUCTURE_CURRENCY", key, factor_id)
+    origins = leaf.origins
+    if (any(o not in ORIGIN_ORDER for o in origins)
+            or tuple(origins) != tuple(o for o in ORIGIN_ORDER if o in origins)
+            or len(set(origins)) != len(origins)):
+        raise StructureError("STRUCTURE_ORIGIN", key, factor_id)
+    # D-4B.18: a valued part names its origin; only a NEUTRAL value or a CALENDAR row rests on no data.
+    if (leaf.value is not None and not origins and leaf.evidence != NEUTRAL
+            and not (row.filled_by is not None and row.filled_by.family == "CALENDAR")):
+        raise StructureError("STRUCTURE_ORIGIN", key, factor_id)
+
+
+def _check_stated(registry: Registry, stated: Mapping[str, LeafValue]) -> None:
+    """4b1 (spec §2.3): every key a node with `stated_by`; every value checked as a leaf against that node's row."""
+    key = registry.structure_key
+    for factor_id, value in stated.items():
+        try:
+            row = registry.row(factor_id)
+        except KeyError:
+            raise StructureError("STRUCTURE_STATED", key, str(factor_id)) from None
+        if row.is_leaf or row.stated_by is None:
+            raise StructureError("STRUCTURE_STATED", key, factor_id)
+        _check_leaf(registry, factor_id, value)
 
 
 # ---------------------------------------------------------------- the fold over one expression
@@ -190,6 +241,8 @@ class _Part:
     assumed_leaves: tuple[str, ...]
     currencies: tuple[str, ...]
     problem: Missing | None = None  # a node-level missing (zero denominator) found inside the expression
+    origins: tuple[str, ...] = ()  # 4b1 (D-4B.2)
+    detail_missing: tuple[str, ...] = ()  # 4b1 (D-4B.11)
 
     @property
     def neutral_zero(self) -> bool:
@@ -208,6 +261,8 @@ def _merge(parts: Sequence[_Part], value: Decimal | None) -> _Part:
         _union(*(p.assumed_leaves for p in parts)),
         tuple(c for p in parts for c in p.currencies),
         problem,
+        _origin_union(*(p.origins for p in parts)),
+        _union(*(p.detail_missing for p in parts)),
     )
 
 
@@ -226,15 +281,22 @@ def _text(expr: Expr, nested: bool = False) -> str:
 
 
 class _Evaluation:
-    def __init__(self, registry: Registry, leaves: Mapping[str, LeafValue]) -> None:
+    def __init__(self, registry: Registry, leaves: Mapping[str, LeafValue],
+                 stated: Mapping[str, LeafValue]) -> None:
         self.reg = registry
         self.leaves = leaves
+        self.stated = stated
         self.done: dict[str, FactorValue] = {}
 
     def factor(self, factor_id: str) -> FactorValue:
         if factor_id not in self.done:
             row = self.reg.row(factor_id)
-            self.done[factor_id] = self._leaf(factor_id) if row.is_leaf else self._node(factor_id)
+            if row.is_leaf:
+                self.done[factor_id] = self._leaf(factor_id)
+            elif factor_id in self.stated:
+                self.done[factor_id] = self._stated_node(factor_id, self._node(factor_id))
+            else:
+                self.done[factor_id] = self._node(factor_id)
         return self.done[factor_id]
 
     def _leaf(self, factor_id: str) -> FactorValue:
@@ -246,12 +308,13 @@ class _Evaluation:
         carried = None if missing is None else missing.carried_as
         return FactorValue(factor_id, leaf.value, row.unit, leaf.evidence, _union(leaf.sources), leaf.coverage,
                            missing, (factor_id,) if leaf.value is None else (),
-                           (factor_id,) if carried in _ASSUMED else (), leaf.currency)
+                           (factor_id,) if carried in _ASSUMED else (), leaf.currency, leaf.origins, False, None,
+                           (factor_id,) if leaf.value is None else ())
 
     def _part_of(self, factor_id: str) -> _Part:
         fv = self.factor(factor_id)
         return _Part(fv.value, (fv.evidence,), fv.sources, (fv.coverage,), fv.missing_leaves, fv.assumed_leaves,
-                     () if fv.currency is None else (fv.currency,))
+                     () if fv.currency is None else (fv.currency,), None, fv.origins, fv.detail_missing)
 
     def _expr(self, expr: Expr) -> _Part:
         if isinstance(expr, Num):
@@ -312,11 +375,32 @@ class _Evaluation:
             blocked_by = (factor_id,)
         return FactorValue(factor_id, value, row.unit, evidence, part.sources, _min_coverage(part.coverages),
                            missing, blocked_by, part.assumed_leaves,
-                           currencies[0] if len(currencies) == 1 else None)
+                           currencies[0] if len(currencies) == 1 else None, part.origins, False, None,
+                           part.detail_missing)
+
+    def _stated_node(self, factor_id: str, computed: FactorValue) -> FactorValue:
+        """Spec §2.3's table: `computed` is the node as 3B3 folds it from its expression."""
+        given = self.stated[factor_id]
+        blocks = blocks_of(self.reg, (factor_id,))
+        if given.value is not None:  # row 1: the record governs; the expression stays as the explanation
+            value = given.value.copy_abs() if given.value == 0 else given.value  # P10: never -0
+            missing = None if given.missing is None else dataclasses.replace(given.missing, blocks=blocks)
+            carried = None if given.missing is None else given.missing.carried_as
+            return FactorValue(factor_id, value, computed.unit, given.evidence, _union(given.sources),
+                               given.coverage, missing, (), (factor_id,) if carried in _ASSUMED else (),
+                               given.currency, given.origins, True, computed.value, computed.detail_missing)
+        if given.missing.cause in _NOTHING_TO_READ and computed.value is not None:  # row 2: nothing to read
+            return computed
+        # rows 3 and 4: a refused record blocks whatever the expression (D-4B.16); or neither has a value
+        return dataclasses.replace(
+            computed, value=None, evidence=NOT_AVAILABLE, missing=dataclasses.replace(given.missing, blocks=blocks),
+            missing_leaves=_union(computed.missing_leaves, (factor_id,)), stated=False, computed=None)
 
 
-def evaluate(registry: Registry, leaves: Mapping[str, LeafValue]) -> Mapping[str, FactorValue]:
-    """Every factor of `registry` from one Site's `leaves` (spec §2.2), in registry order."""
+def evaluate(registry: Registry, leaves: Mapping[str, LeafValue],
+             stated: Mapping[str, LeafValue] = MappingProxyType({})) -> Mapping[str, FactorValue]:
+    """Every factor of `registry` from one Site's `leaves` (spec §2.2), in registry order. 4b1: `stated` holds the
+    values a record states for nodes with `stated_by` (spec §2.3)."""
     key = registry.structure_key
     leaf_ids = [row.factor_id for row in registry.rows if row.is_leaf]
     for factor_id in leaf_ids:
@@ -324,8 +408,9 @@ def evaluate(registry: Registry, leaves: Mapping[str, LeafValue]) -> Mapping[str
             raise StructureError("STRUCTURE_LEAF_INPUT", key, factor_id)  # a caller bug, never a zero
     for factor_id in leaf_ids:
         _check_leaf(registry, factor_id, leaves[factor_id])
+    _check_stated(registry, stated)
     with localcontext(_context()):
-        run = _Evaluation(registry, leaves)
+        run = _Evaluation(registry, leaves, stated)
         out = {row.factor_id: run.factor(row.factor_id) for row in registry.rows}
     return MappingProxyType(out)
 
@@ -364,17 +449,20 @@ def _compose_factor(registry: Registry, factor_id: str, per_site: Mapping[str, S
     sources = _union(*(p.sources for p in parts))
     coverage = _summed_coverage([p.coverage for p in parts])
     assumed = _union(*([f"{s}:{leaf}" for leaf in p.assumed_leaves] for s, p in zip(included, parts)))
+    origins = _origin_union(*(p.origins for p in parts))  # 4b1 (spec §2.4)
+    detail = _union(*([f"{s}:{leaf}" for leaf in p.detail_missing] for s, p in zip(included, parts)))
     currencies = sorted({p.currency for p in parts if p.currency is not None})
     if len(currencies) > 1:
         missing = Missing(f"CURRENCY_MISMATCH:{','.join(currencies)}", "OBSERVER", "NOT_CALCULATED_YET", None, (),
                           None, None)
-        fv = FactorValue(factor_id, None, row.unit, NOT_AVAILABLE, sources, coverage, missing, (), assumed, None)
+        fv = FactorValue(factor_id, None, row.unit, NOT_AVAILABLE, sources, coverage, missing, (), assumed, None,
+                         origins, False, None, detail)
         return PortfolioValue(fv, included, excluded)
     value = _sum([p.value for p in parts])
     if value == 0:
         value = value.copy_abs()
     fv = FactorValue(factor_id, value, row.unit, weakest([p.evidence for p in parts]), sources, coverage, None, (),
-                     assumed, currencies[0] if currencies else None)
+                     assumed, currencies[0] if currencies else None, origins, False, None, detail)
     return PortfolioValue(fv, included, excluded)
 
 
@@ -392,6 +480,7 @@ def compose(registry: Registry, per_site: Mapping[str, SiteStructure]) -> Compos
 
 
 __all__ = [
-    "CARRIED_AS", "CAUSES", "EVIDENCE_ORDER", "NEUTRAL", "Composition", "Coverage", "FactorValue", "LeafValue",
-    "Missing", "PortfolioValue", "SiteStructure", "blocks_of", "compose", "evaluate", "weakest",
+    "CARRIED_AS", "CAUSES", "EVIDENCE_ORDER", "NEUTRAL", "ORIGIN_ORDER", "ORIGIN_UNKNOWN", "Composition", "Coverage",
+    "FactorValue", "LeafValue", "Missing", "PortfolioValue", "SiteStructure", "blocks_of", "compose", "evaluate", "weakest",
+    "weakest_origin",
 ]

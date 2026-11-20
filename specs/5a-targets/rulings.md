@@ -160,3 +160,65 @@ and `reviewer-guide.md` rev 2. Every gate named has a plant that fails it.
   to 4b2's `structure/composition.py`, outside 5a's scope; `3B7a`, which composes the served reads, can share them.
 
 No change to scope or units. New owner question Q7 (default: costs with no line at actual, labelled).
+
+## Mid-build answers (round 1)
+
+Architect (Claude), 2026-11-20, on `mid-build-questions.md` Q1 at `e28cd1e0c`. No new decision: this places test 10.
+
+- **Q1 (unit 1, test 10).** The builder's default is confirmed, with the details below. The guard stays as it is
+  (`dependency-direction.ps1`: "Do not weaken the checks below to make a task pass"); an allowlist for
+  `backend/tests` would open the product-to-simulator direction for a whole folder. The parity check is the
+  simulator's claim (its generator writes what the product's fixture says it writes), so it belongs on the simulator
+  side, which may read a repository file without importing the product; `simulator/tests` already runs on every
+  branch and after every merge through check-all's T2 guard (`tools/checks/neutral_tests.py`), so a later edit of the
+  fixture or of DS1b is still caught.
+  - **Where.** New `simulator/tests/world/test_5a_fixture_parity.py`. It reads
+    `backend/tests/fixtures/targets_lakeside.json` by path from the repository root (found from `__file__`, as
+    `test_5a_targets.py` finds `TREE`), with `json.loads`; it imports nothing from `assetops_backend` (test_records'
+    roots assertion, `:550`, stays green). The fixture does not move.
+  - **What it asserts (each can fail).** (a) Step 1's batch holds exactly 6 records (spec §5), all `BUDGET_LINE`, and
+    their `source_record_id`s are distinct. (b) Over `build_records(view, generate_history(view))`'s batches, each of
+    those IDs occurs exactly once. (c) Each fixture record equals, as a parsed JSON object, that record as DS1b writes
+    it into its batch file (the same serialisation the world CLI writes, loaded back with `json.loads`), field for
+    field: kind, `source_record_id`, `source_version`, `site_code`, `clocks`, `body`. (d) Step 1's batch `tenant_code`,
+    `source_type` and `provenance` equal those of the DS1b batch that holds the records. `view` is `load_fixture()`
+    from `simulator/tests/world/conftest.py` (`fixtures/view_v1.json`, the view DS1b's goldens pin), never a copy
+    or the demo manifest. If step 1 does not match that view's output, the fixture is wrong: raise Q2, do not switch
+    the view or edit the expected values to pass.
+  - **Plants (in the packet).** P10a: change Kobo `om`'s `value` in a scratch copy of the fixture read through a
+    module-level path the plant repoints, fails (c); P10b: drop one record from step 1, fails (a); P10c: rename one
+    `source_record_id`, fails (b). Revert after each; tree clean.
+  - **Scope.** Spec §7 question 8 now also allows this one file; §6 test 10 names it. Test 10's stub in
+    `backend/tests/test_5a_targets.py` is removed (no skipped test left behind).
+
+## Mid-build answers (round 2)
+
+Architect (Claude), 2026-11-20, on `mid-build-questions.md` Q2 and Q3 at `e6416e50a`. Spec rev 3 applies them.
+
+- **Q2 (units 2-3, the step-1 declarer literal).** Change the literal; drop the workaround. No new decision: the
+  declarer rule (D-5A.2, D-5A.14) is unchanged, only the fixture named a declarer production cannot hold.
+  - **Why.** One literal must serve both stores; a Postgres-only name means the in-memory tests prove a value the
+    product could never store (W6: a fixture must satisfy the production constraint, migration `0063`'s
+    `commercial_intake_entered_by_check`). Sweep of `backend/tests` and `simulator/tests`: this is the only
+    `entered_by` literal outside the pattern apart from `test_3a1_commercial_postgres.py:193`'s `"someone"`, which is
+    a deliberate refusal row and stays. The in-memory store is 3A1's and is not changed here.
+  - **Code it requires.** `backend/tests/fixtures/targets_lakeside.json` step 1 `entered_by` is `service:ds3-loader`;
+    `test_5a_targets.py` `LOADER = "service:ds3-loader"`; `test_5a_targets_postgres.py` drops `PG_LOADER` and its
+    workaround comment and uses the fixture's name (one literal); spec §5's step-1 row and every `declared_by`
+    `loader:ds3` read `service:ds3-loader`. The DS1b parity test (reads records only) is untouched and stays green.
+
+### D-5A.16 An assumed target carries the origins of the values it is computed from; one resting on none is `unknown` (Q3)
+
+- **Ruling.** The builder's default is confirmed as the rule: `LEAK_ZERO` carries `("unknown",)`; `AT_ACTUAL` carries
+  the actual's origins (`("unknown",)` if empty); a solved `MAIN` leaf carries the union of its heading line's origins
+  and those of the other leaves under that heading, in D-4B.18's order (Kobo `necessary_l`: `("source-emulated",
+  "unknown")`); `solve_main`'s probe leaf carries `("unknown",)` (spec's `("solve",)` was not a D-4B.18 origin; the
+  probe never reaches the result). `solve_main` gains keyword-only `currency: str | None = None`, used as the probe's
+  currency. Stated headings keep their line's origin.
+- **Why.** D-4B.18 makes an origin name what a value rests on, with an unnamed origin `unknown`. An assumption's
+  status is already carried by its label (`*_TEXT`, `assumption:` sources); its origins answer a different question,
+  where the numbers came from. Collapsing `MAIN` to `("unknown",)` would hide that it rests on a declared line; the
+  union keeps that and still ranks `unknown` weakest wherever an assumed part enters. The keyword argument is how the
+  spec's "the heading currency if the leaf is money" reaches the probe; positional order is unchanged.
+- **Code it requires.** None beyond the build; `test_3a_origins_of_assumptions` pins it. Spec §3.1's `solve_main`
+  signature and probe, and §3.2 steps 3 and 5, now name the origins.

@@ -1,6 +1,7 @@
-# 4b reviewer guide (rev 2)
+# 4b reviewer guide (rev 3)
 
-Rev 2 folds in the handshake answers (`rulings.md` "Handshake answers (round 1)", D-4B.13 to D-4B.17).
+Rev 2 folds in the handshake answers (`rulings.md` "Handshake answers (round 1)", D-4B.13 to D-4B.17). Rev 3 folds
+in the 4b1 review r1 answers (`rulings.md` "Review answers (r1)", D-4B.18: V21 to V24, a sweep, a risk).
 
 For the fresh Reviewer: first at the handshake (read `spec.md`, `rulings.md` and this guide; put questions in
 `handshake.md`), then at each of the two reviews (`4b1`, then `4b2`). Depth: discovery (W5) for both: `4b1` changes
@@ -41,9 +42,14 @@ regression set through `tools/heavy-slot.sh --db`, check-all, and every planted 
 | V15 | 4b2 | Give the portfolio total over all Sites, filling a missing Site with 0 | test 3 |
 | V16 | 4b1 | Serve the expression's value when the stated record is refused (`NOT_CALCULATED_YET`) | S10 |
 | V17 | 4b2 | Divide by zero litres, or fall back to the declared price on zero litres | test 12 |
-| V18 | 4b1 | Allow `stated_by` on any unit with a MONEY exponent | S8 (`revenue` copy with `MONEY / KWH`) |
+| V18 | 4b1 | Allow `stated_by` on any unit with a MONEY exponent | S8 (`s8_money_sq`, `s8_money_kwh`; mid-build Q1) |
+| V18b | 4b1 | Allow `stated_by` when MONEY's exponent is 1, whatever else the unit holds | S8 (`s8_money_kwh`) |
 | V19 | 4b2 | Build every absent `Missing` from `filled_by` (ignore `READ_AS`) | test 7(a), 7(c) (`in_transit` names SETTLEMENT; `outstanding` names RECEIPT) |
 | V20 | 4b2 | Leave earlier stores undisposed when the commercial builder fails | test 13 |
+| V21 | 4b1 | Accept `origins == ()` on a valued, non-NEUTRAL, non-CALENDAR leaf or stated value, or map it to `unknown` silently (D-4B.18) | S11(a) |
+| V22 | 4b1 | Drop `ORIGIN_UNKNOWN` from `ORIGIN_ORDER`, or rank it anywhere but last | S6 (order), S11(b) |
+| V23 | 4b1 | Key the exemption on evidence (`DERIVED`, or any class) instead of `filled_by.family == "CALENDAR"` | S11(a) (`outstanding` DERIVED refused), S11(c) (`period_days` accepted) |
+| V24 | 4b1 | `ProductLeafSource` returns `()` for the snapshot or the declared price | `test_t6_prices`, `test_t6_unserved_critical_needs_a_closed_fully_covered_month` |
 
 ## Probes
 
@@ -64,7 +70,12 @@ regression set through `tools/heavy-slot.sh --db`, check-all, and every planted 
   read (D-4B.14, D-4B.16); a held but refused record always blocks.
 - The weakest label: every place a `FactorValue` is built (`_leaf`, `_node`, the stated rule, `_compose_factor`)
   carries origins.
+- A valued part with no origin (D-4B.18): `grep -n "LeafValue(" backend/assetops_backend/structure/` (and, in 4b2,
+  `money.py`); every call that returns a value names `origins` (a record provenance, or `ORIGIN_UNKNOWN`), except
+  the NEUTRAL leaf and `period_days`. No code path turns `()` into `unknown`.
 
 ## Risks
 
 - `5a` builds on `4b1`'s fields; a change to them after `4b1` merges needs a ruling here and a note to `5a`.
+- `weakest_origin == "unknown"` must never be shown as recorded (D-4B.18); `None` on a value means nothing beneath it
+  is data, not "no weak part". `5a` and `5c` reviews check both.

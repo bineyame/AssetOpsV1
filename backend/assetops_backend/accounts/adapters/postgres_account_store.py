@@ -31,6 +31,9 @@ from assetops_backend.accounts.store import Attempt, StoreConflict
 #: The store errors the routes answer 503 `ACCOUNTS_UNAVAILABLE` (R14); passed to the router by `create_app`.
 UNAVAILABLE: tuple[type[BaseException], ...] = (OperationalError, InterfaceError)
 
+#: ON1 (D-ON1.10): the role that submits exports and the role that accepts them (with the executive's).
+ANALYST, FINANCE = "ANALYST", "FINANCE_AND_COMMERCIAL_LEAD"
+
 _TENANT_LOCK = text("SELECT pg_advisory_xact_lock(hashtextextended('role_grant:' || CAST(:tenant_id AS text), 0))")
 _EMAIL_LOCK = text("SELECT pg_advisory_xact_lock(hashtextextended('sign_in:' || :key_sha256, 0))")
 
@@ -57,6 +60,7 @@ _PURGE = text("DELETE FROM sign_in_attempt WHERE at < :before")
 
 _TENANT_BY_SLUG = text("SELECT id, name FROM tenant WHERE slug = :slug")
 _TENANT = text("SELECT slug, name FROM tenant WHERE id = :t")
+_TENANT_SLUG = text("SELECT slug FROM tenant WHERE id = :t")  # 3A3 (spec §2.7)
 _SITE = text("SELECT id FROM site WHERE tenant_id = :t AND site_code_key = lower(:code)")
 _ACCOUNT_COLUMNS = "SELECT id, tenant_id, email, display_name FROM operator_account "
 _ACCOUNT_BY_KEY = text(_ACCOUNT_COLUMNS + "WHERE email_key = :k")
@@ -83,6 +87,15 @@ _HELD_SAME = text(
     "SELECT 1 FROM role_grant g WHERE g.tenant_id = :t AND g.person_id = :p AND g.role = :role "
     "AND g.site_id IS NOT DISTINCT FROM :site AND g.action = 'GRANTED' "
     "AND NOT EXISTS (SELECT 1 FROM role_grant r WHERE r.grant_id = g.id)")
+#: ON1 (spec §3.3): a grant made by a person closes onboarding grants; the roles a person holds now; the executive.
+_PERSON_GRANT = text("SELECT 1 FROM role_grant WHERE tenant_id = :t AND by_person_id IS NOT NULL LIMIT 1")
+_HELD_ROLES = text(
+    "SELECT g.role FROM role_grant g WHERE g.tenant_id = :t AND g.person_id = :p AND g.action = 'GRANTED' "
+    "AND NOT EXISTS (SELECT 1 FROM role_grant r WHERE r.grant_id = g.id)")
+_EXECUTIVE_OF = text(
+    "SELECT g.person_id FROM role_grant g WHERE g.tenant_id = :t AND g.role = 'OPERATOR_EXECUTIVE' "
+    "AND g.action = 'GRANTED' AND NOT EXISTS (SELECT 1 FROM role_grant r WHERE r.grant_id = g.id) "
+    "ORDER BY g.at, g.id LIMIT 1")
 _REMOVED = text("SELECT 1 FROM role_grant WHERE grant_id = :g AND action = 'REMOVED'")
 #: The persons holding OPERATOR_EXECUTIVE on an ACTIVE account (D-3C0A.5, R7).
 _ACTIVE_EXECUTIVES = text(
@@ -166,6 +179,10 @@ class PostgresAccountStore:
         with self._read() as c:
             found = c.execute(_TENANT, {"t": tenant_id}).first()
         return None if found is None else (found.slug, found.name)
+
+    def tenant_slug(self, tenant_id: UUID) -> str | None:
+        with self._read() as c:
+            return c.execute(_TENANT_SLUG, {"t": tenant_id}).scalar()
 
     def site_id(self, tenant_id: UUID, site_code: str) -> UUID | None:
         with self._read() as c:
@@ -275,6 +292,32 @@ class PostgresAccountStore:
         recorded = self.grant_row(row.tenant_id, row.row_id)
         assert recorded is not None
         return recorded
+
+    def add_onboarding_grant(self, row: GrantRow) -> GrantRow:
+        """ON1 (spec §3.3; D-ON1.15): an onboarding grant, under the tenant's role lock, refused in this order:
+        ONBOARDING_CLOSED, ROLES_SEPARATE (the class backstop for the file rule), ROLE_ALREADY_HELD."""
+        with self._begin() as c:
+            self._lock_tenant(c, row.tenant_id)
+            if c.execute(_PERSON_GRANT, {"t": row.tenant_id}).first() is not None:
+                raise StoreConflict("ONBOARDING_CLOSED")
+            held = set(c.execute(_HELD_ROLES, {"t": row.tenant_id, "p": row.person_id}).scalars())
+            if (row.role == ANALYST and held & {FINANCE, EXECUTIVE}) or (row.role == FINANCE and ANALYST in held):
+                raise StoreConflict("ROLES_SEPARATE")
+            if c.execute(_HELD_SAME, {"t": row.tenant_id, "p": row.person_id, "role": row.role,
+                                      "site": row.site_id}).first() is not None:
+                raise StoreConflict("ROLE_ALREADY_HELD")
+            c.execute(_INSERT_GRANT, _grant_values(row))
+        recorded = self.grant_row(row.tenant_id, row.row_id)
+        assert recorded is not None
+        return recorded
+
+    def person_grant_exists(self, tenant_id: UUID) -> bool:
+        with self._read() as c:
+            return c.execute(_PERSON_GRANT, {"t": tenant_id}).first() is not None
+
+    def executive_of(self, tenant_id: UUID) -> UUID | None:
+        with self._read() as c:
+            return c.execute(_EXECUTIVE_OF, {"t": tenant_id}).scalar()
 
     # --- the onboarding writes --------------------------------------------------------------------------------------
 

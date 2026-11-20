@@ -5,8 +5,8 @@ from datetime import datetime
 from typing import Callable, Mapping, Protocol
 from uuid import UUID
 
-from assetops_backend.commercial.model import (ExistingRecord, IntakeSummary, Plan, RevisionRow, UploadDecisionRow,
-                                               UploadRecord, UploadRow)
+from assetops_backend.commercial.model import (ExistingRecord, HeldUpload, IntakeSummary, Plan, RevisionRow,
+                                               UploadDecisionRow, UploadRecord, UploadRow)
 
 
 class CommercialStore(Protocol):
@@ -53,6 +53,9 @@ class CommercialStore(Protocol):
 
     def uploads_in_scope(self, tenant_id: UUID, site_id: UUID | None, limit: int) -> tuple[UploadRecord, ...]:
         """Exactly that Site's uploads, or the organisation's (`site_id IS NULL`); newest first by (submitted_at, id)."""
+
+    def held_uploads(self, tenant_id: UUID) -> tuple[HeldUpload, ...]:
+        """3A3 (spec §2.8): every upload of the tenant with no decision or an ACCEPTED one, by upload id."""
 
     def intake_revisions(self, tenant_id: UUID,
                          intake_id: UUID) -> tuple[tuple[RevisionRow, RevisionRow | None], ...]:

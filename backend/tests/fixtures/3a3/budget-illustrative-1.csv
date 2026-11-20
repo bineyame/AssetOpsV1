@@ -1,0 +1,4 @@
+Line ID,Revision,Site,Month,Line,Value,Currency,Budget version
+KOBO-001-2026-10-revenue,1,KOBO-001,2026-10,revenue,3420.00,USD,budget-2026-v1
+KOBO-001-2026-10-billed_kwh,1,KOBO-001,2026-10,billed_kwh,8550,,budget-2026-v1
+ORG-2026-10-staff,1,,2026-10,staff,1200.00,USD,budget-2026-v1

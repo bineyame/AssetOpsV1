@@ -181,5 +181,16 @@ CATALOGUE: dict[str, dict[str, str]] = {
             "this version was sent before with other content; send the correction as a new version."),
         "commercial_upload.reason.intake_provenance_changed": "this version was sent before with another origin.",
         "commercial_upload.reason.intake_tenant_mismatch": "this file is for another organisation.",
+        # ON1 (spec §3.5; D-ON1.7): an erased tenant key.
+        "commercial_upload.key_erased": (
+            "This organisation's customer identities were erased, so its exports are no longer received."),
+        # 3A3 (spec §3): the native layout readers' own refusals.
+        "commercial_upload.reason.native_encoding": "the file is not UTF-8 text.",
+        "commercial_upload.reason.native_header": (
+            "the column headings are not the ones this layout reads, in this order."),
+        "commercial_upload.reason.native_row": "this row cannot be read: its cells do not line up with the headings.",
+        "commercial_upload.reason.native_value": "this value is not one this layout knows.",
+        "commercial_upload.reason.native_character": (
+            "this row holds a character that is not text (such as a NUL byte)."),
     },
 }

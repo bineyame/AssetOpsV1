@@ -394,3 +394,62 @@ Branch `task/3A4-amounts-by-month` (base main `38e2b3fe1`); spec `specs/3A4-amou
 
 - Settled: `commercial/months.py` `CommercialMonths.site_month/portfolio_month` read latest revisions (as of `known_at`, cutoff before "latest") as money by month: six money kinds, recognition month or Site-local settlement month (`month_bounds`, parity with 3B3's `month_window`), lines keyed `(kind, dims, measure, currency, unit, provenance, basis)`, exact 200-digit sums, budget lines never summed (`DUPLICATE_DECLARATION`), no line without a record; `MonthStamp` digest, `stale`, `months_touched`; `closed` at the read's cutoff. Store port and Postgres adapter: `latest_revisions(known_at=)`, `intake_revisions`, `site_zones`. `build_commercial_months`.
 - Open: `_scrubbed` (D-3A2.16) on the three reads at 3A2's merge if 3A2 merges second; `4b` turns lines into leaves, `5a` reads budget lines, `3B7a` keeps stamps; Site re-zoning moves settlements (residual).
+
+## 5a - targets per factor, unit 1: budget lines (merged 20 Nov; r2 ACCEPT)
+
+Branch `task/5a-targets` (base main `880ba4dbf`); spec `specs/5a-targets/spec.md` rev 2 §2, rulings D-5A.1-D-5A.15; packet `specs/5a-targets/packet-5a-u1.md`. New package `structure/targets/`; no existing module edited, no migration, no route.
+
+- Settled: `structure/targets/lines.py` `BudgetLineReader.site/portfolio` turn 3A4's `BUDGET_LINE` lines into `TargetLine`s in rule order (two versions block every registry factor, `NOT_A_FACTOR`, `DUPLICATE_DECLARATION` never summed, `CURRENCY_MISSING`/`CURRENCY_ON_QUANTITY`), `LEAF`/`NODE` place, and the declarer from the intake of each line's latest revision (`person_id` from `person:<uuid>`; an unchanged re-upload does not re-declare). Fixture `targets_lakeside.json`.
+- Open: units 2 (target rules, `TargetRead.site`) and 3 (portfolio, composition, Postgres) wait for `4b1`; owner Q7 default (cost with no line at actual, D-5A.15) applies in unit 2.
+
+## 5a - targets per factor, units 2-3: target rules, Site and portfolio read (built 20 Nov; in_review)
+
+Branch `task/5a-targets-u23` (base main `e88641e97`); spec `specs/5a-targets/spec.md` rev 2 §3-§6, rulings D-5A.4-D-5A.15, D-4B.16, D-4B.18; packet `specs/5a-targets/packet-5a-u23.md`. New modules only (`structure/targets/{rules,read,composition}.py`); no migration, no route, nothing stored.
+
+- Settled: `TARGET_RULE`/`MAIN_OF` literals for the 31 MINI_GRID leaves; `solve_main` through `evaluate` (linear, non-zero slope). `TargetRead.site`: leaf line DECLARED, stated heading line DECLARED (D-5A.7), other node lines are `TargetCheck`s only; no line gives a labelled ESTIMATED assumption (`LEAK_ZERO`, `AT_ACTUAL` incl. costs per D-5A.15, `MAIN`) or an absent target naming `BUDGET_LINE` (blocked `NOT_CALCULATED_YET`, D-5A.13). `portfolio` composes per factor with "k of n"; operator lines only in `portfolio_lines`. `build_target_read`. Lakeside Oct 2,295.00, 3 of 3; Kisiwa −60.00 vs −65.00 check False.
+- Answered: Q2 (fixture declarer is `service:ds3-loader` everywhere) and Q3 (D-5A.16, origins of assumptions); merged 20 Nov (r1 ACCEPT, F1 test added). `5b` splits the gap from this read.
+
+## 4b1 - the stated-node seam (merged 20 Nov; r2 ACCEPT + R2-1)
+
+Branch `task/4b1-money-leaves` (base main `880ba4dbf`); spec `specs/4b-money-leaves/spec.md` rev 2 §2, rulings D-4B.1, .2, .10, .11, .16, .17, .18; packet `specs/4b-money-leaves/packet-4b1.md`; reviews `review-4b1.md` (r1, r2). No migration, no route, no store.
+
+- Settled: MINI_GRID v3: `FactorRow.stated_by` on `revenue` (CHARGE) and `fuel_cost` (EXPENSE (FUEL)); check `STRUCTURE_STATED` after `STRUCTURE_COMPOSES`. `evaluate(registry, leaves, stated=)`: a stated value governs and the expression stays as `computed`/`detail_missing`; `NOT_CONNECTED`/`NOT_RECEIVED` let the expression through, `NOT_CALCULATED_YET` blocks (D-4B.16). `LeafValue.origins`, `FactorValue.origins/stated/computed/detail_missing`, `ORIGIN_ORDER`, `weakest_origin`, runtime `STRUCTURE_ORIGIN`; compose carries origins and `Site:leaf` detail. `StatedSource`, `StructureRead(sources, stated=None)`; `commercial.composition.build_commercial_reads`. With `stated` empty the old fields equal 3B3's.
+- Fix round (D-4B.18): a valued part names its origin; only a NEUTRAL value or a CALENDAR row may carry `()`, else `STRUCTURE_ORIGIN`; `unknown` ranks last in `ORIGIN_ORDER`. S11(a) is parametrized from the registry over every valued non-CALENDAR leaf row (money and non-money, every registry) and every stated node (r2 R2-1), so the exemption cannot widen unnoticed; plants P1 (refuse `()` only with a currency) and P2 (exempt OPERATIONAL_RECORD too) now fail.
+- Open: every production leaf still has `origins == ()` until 4b2 (`weakest_origin` is `None`, not "no weak part"); 4b2 providers (`structure/money.py`, states, T6 edits); `5a` builds on the new fields.
+
+## RC4-F1 - the database a URL really reaches (merged 20 Nov; r1 ACCEPT)
+
+Branch `task/RC4-F1-database-name` (base main `e88641e97`); spec `specs/RC4-F1-database-name/spec.md` rev 2, rulings D-RC4F1.1-5; packet `specs/RC4-F1-database-name/packet.md`. No migration, no route.
+
+- Settled: `assetops_backend/database_target.py` `database_target(url, environ)` returns host, port and name as psycopg is handed them, or `DatabaseTargetUnclear(reason)` (query allowlist, one plain host, plain non-empty name, none of six `PG*` target variables; reasons hold no URL value). `commercial_upload_settings` decides RC4 on it (unclear: `ConfigurationError` "DATABASE_URL must name one database plainly (<reason>)."); `postgres_commercial_store.database_name` deleted; the backfill's protected check uses it; `tools/demo_combined.py` `Demo.env()` strips the six variables. Plants F1-F8 fail.
+- Settled: Q1-Q3 answered (D-RC4F1.3-5); `$pgReaders` admits `database_target.py` (owner-approved line); plants F1-F9; test 8 pins the admission.
+- Open: backlog `RC4-F1-tools` (`tools/sweep-setup-cache.py` and one other tool still read the name); 3A3 `refuse_operator_database` and ON1 onboarding must call `database_target`; review residuals (test 7 misses `engine.url.database`, test 8 misses `importlib`).
+
+## 4b2 - the money leaves, providers (merged 20 Nov; r1 ACCEPT)
+
+Branch `task/4b2-money-providers` (base main `e88641e97`); spec `specs/4b-money-leaves/spec.md` rev 3 §3 to §5, rulings D-4B.3 to .9, .12 to .15, .18; packet `specs/4b-money-leaves/packet-4b2.md`. No migration, no route, no store.
+
+- Settled: `structure/money.py` `CommercialLeafSource(months, store, fallback)` serves `revenue` and `fuel_cost` (stated), `om`, `staff`, `productive_kwh`, `in_transit`, `outstanding` and `diesel_price` from 3A4's month; one `site_month` and one `latest_revisions` per context object. Connected = any record of the kind for the Site; open month = no value (`MONTH_OPEN`); QUOTE never cost; recorded 0 only for a held ZERO_WHEN_HELD kind; mixed currency `NOT_CALCULATED_YET`; the diesel price from INVOICED/PAID fuel invoices, the declared price only with no such invoice, none on zero litres. Absent values name `READ_AS`; valued ones carry record origins. `SOURCE_STATE` gains `PROVIDED_ELSE_ASSUMED`, `STATED_STATE` added; `build_structure_read` wires the commercial reads third.
+- Open: mid-build Q2 (Postgres `entered_by` literal; default applied); test 5 lives under `simulator/tests/world/` (dependency guard). Carrying a missing actual at target is `5b`; litres burned `4d`; settlement matching queue Q3.
+
+## 3A3 - emulated native exports and the source contract test (merged 20 Nov; r2 ACCEPT)
+
+Branch `task/3A3-emulators` (base main `3b3916d4f`); spec `specs/3A3-emulators-contract-test/spec.md` rev 2, rulings D-3A3.1-12; packet `packet.md`. No migration, no route, no screen.
+
+- Settled: `assetops_contracts.native` (`Layout`, `Column`, `read_layout`, `render_layout`, four `*-illustrative-1` layouts: billing, collections, expenses, budget). `commercial/readers.py` `ReadContext(tenant_code, received_at, real_data)`, `ReadResult.refused`, `LayoutReader` (provenance follows the database, D-3A3.10); `READERS` = canonical plus the four, each admitted by a case in `backend/tests/source_contracts.py` (C1-C10, S2). `_check` lets a reader's row refusal win; out-of-range is 500. Native refusal words (`NATIVE_ENCODING/HEADER/ROW/VALUE/CHARACTER`).
+- Settled: one writer of commercial records (S1 AST scan); `build_commercial_records` deleted; `refuse_operator_database` on `database_target`; `AccountService.onboard_person`; `CommercialUploads.held` / `held_uploads`. `python -m assetops_backend.load_emulated_exports` (exit 2 before any submission, 3 on a refused submission; `ALREADY_WAITING`, `NOTHING_NEW`, `decided_by_script`). `simulator/.../world/exports.py` + `tools/world_history.py exports`: October, mini-grid, totals equal the manifest (pinned SHA-256s).
+- Open: owner Q1 (`--accept-as` in rehearsal); `uploads_waiting` with the upload screen (D-3A3.8); `3A6` profiles append contract cases; S1 does not see `importlib`/string-built access.
+
+## ON1 - an operator's tenant from one onboarding file (in review, 20 Nov)
+
+Branch `task/ON1-operator-tenant` (base main `8fddb2bba`); spec `specs/ON1-operator-tenant/spec.md` rev 3, rulings D-ON1.1-16; packet `packet.md`. No migration, no route, no screen.
+
+- Settled: `onboarding/operator_file.py` (`assetops.operator-onboarding/1`, strict; `roles_digest`; submitter never accepter) and `onboarding/service.py` `OperatorOnboarding.check`/`apply` (tenant, Sites through `import_site`, accounts, roles by `service:onboarding`, key); `python -m assetops_backend.onboard_operator digest|check|apply`. A real file is refused before any write (`ONBOARD_REAL_AWAITS_APPROVAL`, until `ON1b`). `AccountService.onboard_grant`/`onboarding_may_grant`/`executive_of`; store `add_onboarding_grant` under the role lock (ONBOARDING_CLOSED, ROLES_SEPARATE, ROLE_ALREADY_HELD). `FoundationStore.tenant_slugs`. `config.served_tenant_slug()` (`ASSETOPS_TENANT_SLUG`) in `create_app`; `app.state.site_registry.served_tenant_slug`. Key tombstone (`_tombstoned` by lstat), `erase_key_file`, `key_state`, `directory_ok`, `pseudonym_key erase`, 409 `PSEUDONYM_KEY_ERASED`. `Demo.env()` pins `demo`. Runbook `Docs/engineering/operator-deep-dive-runbook.md` tested line by line.
+- Open: mid-build Q1 (structural refusal code, default `ONBOARD_FORMAT`) and Q2 (`onboarding_may_grant` trips the persistence guard's `open\(` pattern); `ON1b` (executive approval, real operators); Q5 grant-API separation (carried to `3C0b`).
+
+## 5b - attribution, unit 1: the split rules (in review, 20 Nov)
+
+Branch `task/5b-attribution` (base main `8a2900bc4`); spec `specs/5b-attribution/spec.md` rev 2 §2, rulings D-5B.1-14; packet `packet-u1.md`. Pure; no migration, no route, no screen; no diff in `structure/read.py`.
+
+- Settled: `structure/attribution/rules.py` (`BRIDGE_ROOTS`, kinds, splits, reasons, `SOLVE_TOLERANCE` 1E-12, `agree`) and `bridge.py` (`BridgeRow`, `bridge`, `by_home`, `lowest`): AR1 signed sums, AR2 volume at target price then price at actual volume (price chosen by unit), money pushed down by `scale`, neutral terms give no row, a RESIDUAL only beside a stated heading's unobserved terms, record-vs-factors and children-vs-parent judged within 1E-12. Kobo §5.1: −562.00 = +38.00 − 600.00; AT-1 to AT-3 to the cent.
+- Open: mid-build Q1 (a RESIDUAL row's `split`/`reason`; provisional `NOT_SPLIT`/`DETAIL_NOT_AVAILABLE`, unasserted). Units 2-3 wait for 3B7a unit 0 (the seam) on `main`.

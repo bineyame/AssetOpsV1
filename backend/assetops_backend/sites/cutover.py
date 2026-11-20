@@ -63,6 +63,11 @@ class ImportedSiteRegistry:
     def service(self) -> FoundationService | None:
         return self._service
 
+    @property
+    def served_tenant_slug(self) -> str | None:
+        """ON1 (spec §3.4, R11): the tenant the server serves; None with no service."""
+        return None if self._service is None else self._service.tenant_slug
+
     def tenant(self) -> TenantRef | None:
         """The configured tenant, or None when it holds nothing yet.
 

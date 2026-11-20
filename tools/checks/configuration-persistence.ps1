@@ -1059,6 +1059,8 @@ function Invoke-ConfigurationPersistenceCheck {
         # CH-1a section 3: the read-only chain input reader (every measure adapter reads through it); the SQL-write refusal
         # still applies to it.
         "$backendRoot/chain/adapters/postgres_chain_inputs.py",
+        # RC4-F1 (D-RC4F1.3): parses a URL with make_url only; never connects. The SQL-write refusal still applies to it.
+        "$backendRoot/database_target.py",
         # CH-2 §3: the read-only thread source reader; the SQL-write refusal still applies to it.
         "$backendRoot/chain/adapters/postgres_thread_sources.py",
         # CH-5a1 §A2 (pre-flight P4): the read-only ChainReader SQL (snapshots, Finding heads, R8, has_change); the SQL-write

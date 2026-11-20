@@ -368,6 +368,11 @@ class FoundationService:
     def store(self) -> FoundationStore:
         return self._store
 
+    @property
+    def tenant_slug(self) -> str:
+        """ON1 (spec §3.4, R11): the tenant this service serves."""
+        return self._tenant_slug
+
     def tenant(self) -> TenantRef:
         return self._store.resolve_tenant(self._tenant_slug)
 

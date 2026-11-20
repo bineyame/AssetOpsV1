@@ -19,6 +19,7 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-4B.15` Fuel invoices with zero litres give no price · live · specs/4b-money-leaves/rulings.md
 - `D-4B.16` A held but refused stated record blocks its heading; the expression never replaces it (refines D-4B.1) · live · specs/4b-money-leaves/rulings.md
 - `D-4B.17` A stated node's unit is exactly money · live · specs/4b-money-leaves/rulings.md
+- `D-4B.18` Every valued part names its origin; an unnamed origin is `unknown`, ranked weakest · live · specs/4b-money-leaves/rulings.md
 - `D-5A.1` Targets from budget lines; one budget version governs a Site-month · live · specs/5a-targets/rulings.md
 - `D-5A.2` The declarer is the person who loaded and accepted the line · live · specs/5a-targets/rulings.md
 - `D-5A.3` One line per factor; more is not available, never summed or picked · live · specs/5a-targets/rulings.md
@@ -34,9 +35,10 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-5A.13` A blocked target is held but refused (NOT_CALCULATED_YET) and never computed instead · live · specs/5a-targets/rulings.md
 - `D-5A.14` The declarer is the intake of the line's latest revision; an unchanged re-upload does not re-declare · live · specs/5a-targets/rulings.md
 - `D-5A.15` A cost with no budget line is taken at its actual, labelled (owner Q7 default) · live · specs/5a-targets/rulings.md
+- `D-5A.16` An assumed target carries the origins of the values it is computed from; none is unknown · live · specs/5a-targets/rulings.md
 - `D-ON1.1` One onboarding file, checked then applied; additive, re-runnable, changes refused · live · specs/ON1-operator-tenant/rulings.md
 - `D-ON1.2` Sites created through import_site from a generated Site document · live · specs/ON1-operator-tenant/rulings.md
-- `D-ON1.3` File roles granted at onboarding only, by service:onboarding; closed after the executive's first grant (refines D-3C0A.7) · live · specs/ON1-operator-tenant/rulings.md
+- `D-ON1.3` File roles granted at onboarding by service:onboarding (refines D-3C0A.7) · superseded by D-ON1.9 · specs/ON1-operator-tenant/rulings.md
 - `D-ON1.4` No password in the file or output; set-password per person · live · specs/ON1-operator-tenant/rulings.md
 - `D-ON1.5` The server serves ASSETOPS_TENANT_SLUG; required off demo when real data is on · live · specs/ON1-operator-tenant/rulings.md
 - `D-ON1.6` RC4 in onboarding: real only on the operator DB with the switch on; tests never touch an operator DB · live · specs/ON1-operator-tenant/rulings.md

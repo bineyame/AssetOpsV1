@@ -258,6 +258,9 @@ class FoundationStore(Protocol):
 
     def ensure_tenant(self, slug: str, name: str, *, now: datetime) -> TenantRef: ...
 
+    def tenant_slugs(self) -> tuple[str, ...]:
+        """ON1 (spec §4): every tenant's slug, in slug order (one operator per operator database)."""
+
     def find_site(self, tenant_id: UUID, site_code: str) -> StoredSite | None: ...
 
     def find_site_by_id(self, tenant_id: UUID, site_id: UUID) -> StoredSite | None: ...

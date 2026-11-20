@@ -1,0 +1,7 @@
+# Review 3B7a unit 0 (seam), head f46cdb8a5 - verdict: ACCEPT, no findings
+
+- Diff vs main: read.py, test_3b7a_site_inputs_seam.py, packet-u0.md (docs only; no other code). Three commits, not "one commit" (D-3B7A.10 wording); merge as one is a preference, not a gap.
+- Equivalence: loaded main's read.py beside the branch and compared repr(site(...)) (values, origins, missing, coverage, k of n, errors) for Kobo/Kisiwa/Mto x 2026-06..11 x stated source on/off: 36/36 identical. Old no-stated path used evaluate's default empty proxy; new passes {} (same).
+- Seam content fits spec 2.1 and what units 1-3 / 5b units 2-3 use: frozen SiteInputs, leaves/stated MappingProxyType in registry order, `dataclasses.replace` works for carry_at_target, untracked reads leaves, version mismatch -> STRUCTURE_COMPOSE, exports in __all__.
+- Reran (PYTHONPATH = worktree backend/contracts/simulator; module path verified): 3B1, 3B3 evaluate, window-price, 4b1, 4b money leaves, 5a targets, seam = 281 passed. 3B3 Postgres file via heavy-slot.sh --db + run-host-tests.ps1: 5 passed (could not confirm that wrapper kept my PYTHONPATH; code is unchanged by site's contract, so low risk).
+- Plants in scratch copy (scratchpad/wt): stated dropped from evaluate_inputs -> 3 fail; leaves reversed -> 3 fail; restored and diffed clean. Did not rerun check-architecture / check-agent-workflow / the full suite (cite packet's 40 guards).

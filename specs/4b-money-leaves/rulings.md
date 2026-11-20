@@ -142,6 +142,26 @@ Handshake answers go below, under "Handshake answers (round 1)".
 - **Why.** Handshake P4. `stated_by` names the record that states a node's *total*, and 4b sums records into it
   (§3.4). A money-per-unit heading is a rate; a record stating it would need a division the seam does not define.
 
+## D-4B.18 Every valued part names its origin; an origin that cannot be named is `unknown`, ranked weakest
+
+- **Ruling.** `ORIGIN_ORDER` gains a last, weakest element `ORIGIN_UNKNOWN = "unknown"` (never a record provenance).
+  A leaf or stated value with a value must carry non-empty `origins`, unless its evidence is `NEUTRAL` or its row's
+  `filled_by.family` is `CALENDAR` (a value that rests on no data). `()` is never read as "adds nothing": the
+  evaluator refuses it (`STRUCTURE_ORIGIN`). A provider that cannot name a provenance passes `(ORIGIN_UNKNOWN,)`
+  explicitly; the evaluator never infers it. Enforced in the evaluator only (`_check_leaf`, the one door every leaf
+  and stated value passes); the registry holds no values, and the exemption is read from the row.
+- **Why.** F3 of `.agent/review-4b1-r1.md`. D-4B.2 and the P3B rule (the weakest part sets the label; nothing is
+  shown stronger than its evidence) fail when a part with an unknown origin adds nothing to the union: a total over
+  emulated records and an untagged snapshot read "source-emulated", though the snapshot could be simulated. Ranking
+  `unknown` weakest makes the label honest; refusing `()` turns a provider that forgot to tag into a failure, not a
+  stronger label (the class is "silent absence of provenance", W6). A calendar count and an option-only neutral have
+  no data beneath them, so they carry no origin and are the only exemptions.
+- **Consequences.** `ProductLeafSource` (4b1's fix round, not 4b2): the snapshot leaf and the declared-price leaf carry
+  `(ORIGIN_UNKNOWN,)` (neither reader exposes a record provenance today; plumbing it is backlog, not 4b);
+  `period_days` (CALENDAR) and `NEUTRAL` leaves keep `()`. On a value, `weakest_origin` returns `None` only when
+  nothing beneath it is data. `5a` and `5c` read `"unknown"` as no stronger than `"demo-simulated"`: any rule that asks
+  "is this recorded?" answers no.
+
 ## Handshake answers (round 1)
 
 Architect (Claude), 2026-11-20, on `handshake.md` at `4da3a0dc6`. Each answer is folded into `spec.md` rev 2 and
@@ -197,3 +217,49 @@ Architect (Claude), 2026-11-20, on `handshake.md` at `4da3a0dc6`. Each answer is
 - **P5 (Low).** Confirmed: snapshots, prices, then commercial; the L1 test stays green unchanged.
 
 No change to scope or units: 4b1 gains S10 and the D-4B.17 check (inside its unit); 4b2 gains tests 12 and 13.
+
+## Mid-build answers (round 1)
+
+Architect (Claude), 2026-11-20, on `mid-build-questions.md` Q1 at `aa5e78036`. No new decision: this fixes the test
+that carries D-4B.17. The discovery review of 4b1 (`.agent/review-4b1-r1.md`) did not exist when this was written.
+
+- **Q1 (4b1, S8 / V18).** Builder's diagnosis is right: `check` runs code by code (`CODES` order, R9), so a
+  `MONEY / KWH` row is refused by `STRUCTURE_COMPOSES` (D-3B3.14) or, with `NONE`, by the `composes` condition of
+  `STRUCTURE_STATED`; the unit condition never decides it. **The check order stays** (fixed by the spec; moving
+  `STRUCTURE_STATED` ahead of `STRUCTURE_COMPOSES` would change which code every existing bad registry reports).
+  **The plant changes**, by class: a stated node that passes every earlier check and is not exactly money. S8's
+  `MONEY / KWH` copy of `revenue` is replaced by two *added* rows (a test-local helper appends a copy of `revenue`'s
+  row with `dataclasses.replace`: new `factor_id`, `expression` and `unit`; `composes="SUM"`, `stated_by` revenue's
+  literal `FilledBy("COMMERCIAL_RECORD", "CHARGE", ...)`, every other field as `revenue`):
+  - `s8_money_sq = tariff * delivered_kwh * om`, unit `MONEY * MONEY` (MONEY exponent 2, no denominator);
+  - `s8_money_kwh = om * delivered_kwh`, unit `MONEY * KWH` (MONEY exponent 1 plus another dimension).
+  Each asserts `STRUCTURE_STATED` with `factor_id` equal to the planted ID, and a control asserts that the same two
+  rows *without* `stated_by` pass `STRUCTURE_STATED` (so the refusal is the unit, not the row: the control may stop
+  at a later code, never at `STRUCTURE_STATED` or an earlier one). Plants: **V18** (refuse only units with no MONEY
+  exponent) fails both; new **V18b** (accept a MONEY exponent of 1 whatever else the unit holds) fails
+  `s8_money_kwh`. The packet records both plants. `spec.md` S8 and `reviewer-guide.md` V18 are amended to match.
+
+## Review answers (r1)
+
+Architect (Claude), 2026-11-20, on `.agent/review-4b1-r1.md` at `aa5e78036`. One new decision (D-4B.18). Built in
+4b1's fix round on this branch, before 4b1 merges: so before 4b2 branches and before 5a or 5c read `origins`.
+
+- **F3 (origins of a valued part; D-4B.18).** Rule above. Built in 4b1 (spec §2.2, §2.5, §2.7 S6 and S11; 3B3 test
+  edits listed in §2.7's regression line). Plants that must fail (guide V21 to V24):
+  - **V21** `_check_leaf` accepts `()` on a valued, non-NEUTRAL, non-CALENDAR leaf or stated value (or maps it to
+    `unknown` silently): fails S11(a).
+  - **V22** `ORIGIN_UNKNOWN` dropped from `ORIGIN_ORDER`, or ranked anywhere but last: fails S6 (order) and S11(b).
+  - **V23** the exemption keyed on evidence (`DERIVED`, or any class) instead of `family == "CALENDAR"`: fails S11(a)
+    (a `DERIVED` `outstanding` with `()` is refused) and S11(c) (`period_days` with `()` accepted).
+  - **V24** `ProductLeafSource` returns `()` for the snapshot or the declared price: fails `test_t6_prices` and
+    `test_t6_unserved_critical_needs_a_closed_fully_covered_month` (both edited to expect `(ORIGIN_UNKNOWN,)`).
+- **F4 (spec text).** §2.7's regression line corrected: the four version edits of §2.1 (two in
+  `test_3b3_structure_evaluate.py`, `:366` and `:652`), plus D-4B.18's edits.
+- **F1 / V18.** Already answered (mid-build Q1, `2a6386689`). The reviewer's `revenue * om` on `contribution` (a
+  `_plant` of an existing row, no new row) isolates the same condition, but it gives one plant where V18b needs two
+  shapes (`MONEY^2` and `MONEY * KWH`) and their no-`stated_by` controls. **The Q1 ruling stands unchanged**: the
+  builder writes the two added rows as ruled.
+- **F2.** Builder's, as the reviewer gives it (no ruling needed).
+- **Note to 5a.** Every valued `LeafValue` 5a builds (budget lines) names its line's record provenance; 5a's expected
+  `contribution` origins `("source-emulated",)` hold because 3B3's `pack_leaves` now tags `("source-emulated",)`.
+- **F3 (fixture declarer literal).** Applies the 5a Q2 ruling (D-5A: the fixture declarer is a `service:` name everywhere) to 4b by class. `"test:4b"` becomes `"service:test-4b"` in the fixture, both test files and spec §4.1/§5; `PG_ENTERED_BY` is removed; mid-build Q2 is answered.
