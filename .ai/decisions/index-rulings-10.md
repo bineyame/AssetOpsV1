@@ -19,6 +19,7 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-4B.15` Fuel invoices with zero litres give no price · live · specs/4b-money-leaves/rulings.md
 - `D-4B.16` A held but refused stated record blocks its heading; the expression never replaces it (refines D-4B.1) · live · specs/4b-money-leaves/rulings.md
 - `D-4B.17` A stated node's unit is exactly money · live · specs/4b-money-leaves/rulings.md
+- `D-4B.18` Every valued part names its origin; an unnamed origin is `unknown`, ranked weakest · live · specs/4b-money-leaves/rulings.md
 - `D-5A.1` Targets from budget lines; one budget version governs a Site-month · live · specs/5a-targets/rulings.md
 - `D-5A.2` The declarer is the person who loaded and accepted the line · live · specs/5a-targets/rulings.md
 - `D-5A.3` One line per factor; more is not available, never summed or picked · live · specs/5a-targets/rulings.md

@@ -100,7 +100,8 @@ def _missing_of(entry: dict, carried_as: str) -> Missing:
                    entry.get("record_words"), entry.get("assumption"), entry.get("note"))
 
 
-def pack_leaves(site: str, side: str = "actual", currency: str = USD) -> dict[str, LeafValue]:
+def pack_leaves(site: str, side: str = "actual", currency: str = USD,
+                origins: tuple[str, ...] = ("source-emulated",)) -> dict[str, LeafValue]:
     """The pack's leaves of one side: actual MEASURED, plan DECLARED, option-only NEUTRAL; the pack's carried and
     assumed entries ESTIMATED."""
     base = "MEASURED" if side == "actual" else "DECLARED"
@@ -111,7 +112,7 @@ def pack_leaves(site: str, side: str = "actual", currency: str = USD) -> dict[st
             out[leaf] = LeafValue(value, "NEUTRAL", ("pack",), None, None, None)
         else:
             out[leaf] = LeafValue(value, base, (f"pack:{side}",), None, None,
-                                  currency if leaf in MONEY_LEAVES else None)
+                                  currency if leaf in MONEY_LEAVES else None, origins)
     for entry in _entries(site, side):
         if side == "actual" and "leaf" in entry:  # R11: `right` and `stage` entries are not leaves
             leaf = entry["leaf"]
@@ -363,7 +364,7 @@ def test_t5_neutral_values_are_the_manifest_literals():
         else:
             assert row.neutral is None
     assert set(OPTION_ONLY) == {"extra_l", "battery_throughput_kwh", "collection_cost"}
-    assert MG.version == 2
+    assert MG.version == 3
 
 
 @pytest.mark.parametrize("target,neutral", [
@@ -456,7 +457,7 @@ def test_t5_neutral_identity():
     assert values["battery_wear"].missing_leaves == ()
     assert values["cost_to_serve"].evidence == "MEASURED" and values["contribution"].value is not None
     # Any other zero times an unknown has no value.
-    leaves["battery_throughput_kwh"] = LeafValue(Decimal("0"), "MEASURED", ("meter",), None, None, None)
+    leaves["battery_throughput_kwh"] = LeafValue(Decimal("0"), "MEASURED", ("meter",), None, None, None, ("source-emulated",))
     values = evaluate(MG, leaves)
     assert values["battery_wear"].value is None and values["battery_wear"].missing_leaves == ("wear_rate",)
     assert values["contribution"].value is None
@@ -562,6 +563,7 @@ def test_t6_unserved_critical_needs_a_closed_fully_covered_month():
     full = [_snap(d) for d in OCT]
     got = _leaf(_source(full), "unserved_critical_kwh")
     assert got.value == Decimal("46.5") and got.evidence == "MEASURED" and got.missing is None
+    assert got.origins == ("unknown",)  # D-4B.18: the snapshot reader exposes no record provenance
     assert (got.coverage.covered, got.coverage.expected) == (31, 31)
     for gap in ([_snap(d, "PARTIAL") if d.day == 9 else _snap(d) for d in OCT],
                 [_snap(d) for d in OCT if d.day != 9],
@@ -633,7 +635,7 @@ def test_t6_prices():
     got = _leaf(source, "diesel_price")
     assert got == LeafValue(Decimal("1.30"), "ESTIMATED", ("assumption:rev-1",), None,
                             Missing("EXPENSE (FUEL)", "COMMERCIAL_RECORD", "NOT_CONNECTED", "ASSUMPTION", (), None,
-                                    "Declared diesel price per litre, not a fuel invoice", None), "USD")
+                                    "Declared diesel price per litre, not a fuel invoice", None), "USD", ("unknown",))
     got = _leaf(source, "productive_tariff")
     assert got.missing.assumption == "Declared productive-use price per kWh, not a tariff schedule"
     assert got.missing.record_kind == "TARIFF_SCHEDULE" and got.currency == "USD"
@@ -649,7 +651,7 @@ def test_t6_the_read_evaluates_today_and_names_what_is_missing():
     priced = PriceSelection("PRICED", None, "rev-1", Decimal("1.30"), "USD", "a-1")
     source = _source([_snap(d) for d in OCT], FakePrices({"diesel_price_per_litre": priced}))
     result = StructureRead(source).site(KOBO, "2026-10")
-    assert (result.structure_key, result.structure_version, result.site_code) == ("MINI_GRID", 2, "KOBO-001")
+    assert (result.structure_key, result.structure_version, result.site_code) == ("MINI_GRID", 3, "KOBO-001")
     values = result.values
     assert values["unserved_critical_kwh"].value == Decimal("46.5")
     assert values["contribution"].value is None and values["contribution"].evidence == "NOT_AVAILABLE"
