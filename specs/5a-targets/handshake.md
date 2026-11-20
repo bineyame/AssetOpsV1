@@ -82,3 +82,8 @@ cost 4,240.00, O&M 1,800.00, staff 1,450.00, cost to serve 7,490.00, litres 3,30
 `portfolio.lakeside-power.plan.sums`; `necessary_l` 875.00 / 1.25 = 700, 2,990.00 / 1.30 = 2,300, 375.00 / 1.25 =
 300; test 7's 1,380.00 and its eight out leaves; test 5(a)'s 3,420.00 / 0.40 = 8,550; P5's Kobo gap −562.00 = +38.00
 − 600.00. The rule table covers the 31 leaves exactly (14 + 11 + 2 + 3 + 1).
+
+## Architect
+
+Round 1 answered, 2026-11-20: every R and P question in `rulings.md` "Handshake answers (round 1)", folded into
+`spec.md` rev 2 and `reviewer-guide.md` rev 2. No question is open unless round 2 adds one.

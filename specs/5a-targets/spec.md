@@ -1,26 +1,28 @@
 # 5a: targets per factor, declarer recorded (implementer spec)
 
-Status: spec rev 1, handshake open (`handshake.md`; `.ai/RULES.md` §4). **Code waits for the owner's approval of
-P5** (`structure-page-P5.md`, day 3, RC3; D-5A.12).
+Status: spec rev 2, handshake round 1 answered (`rulings.md` "Handshake answers (round 1)"; D-5A.13 to D-5A.15).
+P5 approved by the owner on 20 Nov (`owner/owner-p5-approved-and-defaults-2026-11-20.md`), so D-5A.12 is met: no 5a
+code is written before that approval, and unit 1 starts when the handshake has no open question.
 
 Architect (Claude), 2026-11-20. Lane C, on the deep-dive path's critical chain (`5a` → `5b` → `5c`;
 `two-week-build-plan.md` §0.1 row 9; D-BW1.8 to D-BW1.12; owner RC1 to RC9 accepted).
 - **Structure:** P5 (this folder) rules 1 to 7. P3B: "a target with no line of its own is a labelled assumption"
   (owner, 20 Nov, item 6). Owner: "k of n sites" (`owner/owner-k-of-n-sites-2026-11-20.md`).
-- **Builds on (merged, a8e1fd2a3):** `3B1` (`REGISTRIES`, `FactorRow`), `3B3` (`evaluate`, `compose`, `LeafValue`,
+- **Builds on (merged; `main` at `5a2ea9974`):** `3B1` (`REGISTRIES`, `FactorRow`), `3B3` (`evaluate`, `compose`, `LeafValue`,
   `Missing`, `SiteStructure`, `PortfolioStructure`, `StructureRead.site`, `site_count`, `SITE_TYPE_TO_STRUCTURE`,
   `NOT_DECLARED`), `3A4` (`CommercialMonths.site_month`, `.portfolio_month`, `MonthLine`, `MonthStamp`,
-  `DUPLICATE_DECLARATION`), `3A1` (`CommercialStore.latest_revisions`, `.intake`, `IntakeRow.entered_by`/
-  `.entered_at`), `2a` (`loads_canonical`, `parse_record`, the BUDGET_LINE body). **And on `4b1`** once merged
-  (`FactorRow.stated_by`, `evaluate(..., stated=)`, `LeafValue.origins`, `build_commercial_reads`; D-5A.11).
-- **Decisions:** `rulings.md` (D-5A.1 to D-5A.12). **Reviewer guide:** `reviewer-guide.md`.
+  `DUPLICATE_DECLARATION`), `3A1` (`CommercialStore.latest_revisions`, `.intake` returning `IntakeSummary | None`, whose
+  `.intake.entered_by`/`.intake.entered_at` are read), `2a` (`loads_canonical`, `parse_record`, the BUDGET_LINE body). **And on `4b1`** once merged
+  (`FactorRow.stated_by`, `evaluate(..., stated=)` with D-4B.16's blocking row, `LeafValue.origins`,
+  `build_commercial_reads`; D-5A.11).
+- **Decisions:** `rulings.md` (D-5A.1 to D-5A.15). **Reviewer guide:** `reviewer-guide.md`.
 
 Non-screen. **3 units.** Discovery review (W5): money figures and a new read.
 
 ## 0. Before you start
 
 - **Branch** `task/5a-targets` off `main`, worktree `/opt/assetecon/AssetOpsV1-5a`. Unit 1 starts when the handshake
-  has no open question and P5 is approved; units 2 and 3 start after `4b1` merges (merge `main` first).
+  has no open question (P5 is approved); units 2 and 3 start after `4b1` merges (merge `main` first).
 - **Python:** as 3B3 `spec.md` §0.
 - **Read:** `rulings.md`; P5; 4b `spec.md` §2 (the seam you build on); 3B3 `spec.md` §2 to §5; 3A4 `spec.md` §3;
   `structure/` (all); `commercial/months.py`; `backend/tests/test_3a4_commercial_months.py:27-115`.
@@ -93,10 +95,14 @@ version_ref, line_ref)`; `reg = REGISTRIES[structure_key]`.
 recognition_period=period, known_at=known_at)`; for the portfolio, the same with no `site_id` filter, then keep
 `site_id is None`. Parse each revision's `canonical` (`parse_record(loads_canonical(text.encode("utf-8")))`) and key
 it by `(factor_id, version_ref, line_ref, currency, provenance)`. Each used line matches exactly one revision (else
-`RuntimeError("budget line without its revision")`, a bug). Then `store.intake(tenant_id, rev.intake_id)` once per
-distinct intake: `declared_by = intake.entered_by`, `declared_at = intake.entered_at`, `person_id =
+`RuntimeError("budget line without its revision")`, a bug). Then `summary = store.intake(tenant_id, rev.intake_id)` once
+per distinct intake (`IntakeSummary | None`; `None` raises `RuntimeError("budget line without its intake")`, a bug):
+`declared_by = summary.intake.entered_by`, `declared_at = summary.intake.entered_at`, `person_id =
 UUID(m.group(1))` when `re.fullmatch(r"person:([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})",
 entered_by)` matches, else None. `stamp = amounts.stamp`. No `float`; values are 3A4's Decimals.
+The declarer is the intake of the line's latest revision: an unchanged re-upload writes no revision and does not
+re-declare (D-5A.14). The reader never reads `amounts.closed`: a target exists for an open or future month (budgets
+are declared ahead); an `AT_ACTUAL` target follows the actual side's answer for that month (handshake R5).
 
 ## 3. Unit 2: the target rules and the Site read (needs `4b1`)
 
@@ -158,11 +164,13 @@ class TargetRead:
    `act = actual.site(site, month, known_at).values`.
 2. `currency` = the one currency among `bl.lines`' non-None currencies; None when there are none or several.
 3. Each leaf, in registry order. An *absent target* is `LeafValue(None, "NOT_AVAILABLE", (), None,
-   Missing(TARGET_KIND, TARGET_FAMILY, "NOT_RECEIVED", None, (), TARGET_WORDS, None, note), None)`. An *assumption*
+   Missing(TARGET_KIND, TARGET_FAMILY, cause, None, (), TARGET_WORDS, None, note), None)`, `cause`
+   `NOT_CALCULATED_YET` for a blocked factor (D-5A.13) and `NOT_RECEIVED` otherwise. An *assumption*
    is `LeafValue(value, "ESTIMATED", sources, None, Missing(TARGET_KIND, TARGET_FAMILY, "NOT_RECEIVED",
    "ASSUMPTION", (), TARGET_WORDS, <text>, None), currency)`.
-   - In `bl.blocked`: absent, note the blocked note.
-   - A `LEAF` line: `LeafValue(line.value, "DECLARED", (f"budget:{line.revision_id}",), None, None, line.currency,
+   The bullets apply in this order; the first that matches decides.
+   - In `bl.blocked`: absent (`NOT_CALCULATED_YET`), note the blocked note.
+   - A `LEAF` line (a `MAIN` leaf with its own line included): `LeafValue(line.value, "DECLARED", (f"budget:{line.revision_id}",), None, None, line.currency,
      (line.provenance,))`.
    - `OPTION`: `LeafValue(row.neutral, "NEUTRAL", ("option-only neutral",), None, None, None)`.
    - `CALENDAR`: the actual leaf's value and evidence, sources `("calendar",)`, no missing, no currency.
@@ -170,10 +178,11 @@ class TargetRead:
      `currency`, and with `currency` None it is absent, note `TARGET_CURRENCY_UNKNOWN`.
    - `AT_ACTUAL`: `act[leaf].value` None: absent, note `ACTUAL_NOT_AVAILABLE`. Else an assumption of that value,
      `AT_ACTUAL_TEXT`, sources `("assumption:at-actual",)`, currency `act[leaf].currency`.
-   - `MAIN`: decided in step 5.
-4. Each stated heading (rows with `stated_by`): in `bl.blocked`, absent with that note; a `NODE` line: the
+   - `MAIN` with no line of its own: decided in step 5.
+4. Each stated heading (rows with `stated_by`): in `bl.blocked`, absent (`NOT_CALCULATED_YET`, D-5A.13) with that
+   note, so 4b1's blocking row keeps the heading absent whatever its expression; a `NODE` line: the
    `LEAF`-line form above (DECLARED); else absent, note None.
-5. Each `MAIN` leaf, in registry order: with its heading's stated target absent, absent with
+5. Each `MAIN` leaf without a line, in registry order: with its heading's stated target absent, absent with
    `MAIN_FACTOR_UNSOLVED:<heading>`; else `solve_main` over the leaves so far (a later main leaf still unset counts
    as absent): a value gives an assumption, `MAIN_TEXT`, sources `(f"assumption:main-factor:{heading}",)`, currency
    as `solve_main`'s; a note gives absent with it.
@@ -202,7 +211,7 @@ database_url)`; `dispose` disposes both; a failure in the second disposes the fi
 
 ## 5. Fixture: `backend/tests/fixtures/targets_lakeside.json` (hand-computed; tests write the literals, W2)
 
-`{"_note": "5a spec §5", "steps": [{"at": ..., "entered_by": ..., "batch": ...}]}`. Tenant `lakeside-power`, USD,
+`{"_note": "5a spec §5; Kisiwa's contribution line -60.00 is a deliberate disagreement with the computed -65.00 (the pack's plan), so the check reads False; do not correct it", "steps": [{"at": ..., "entered_by": ..., "batch": ...}]}`. Tenant `lakeside-power`, USD,
 every Site in `Africa/Nairobi`, `recognition_period` `2026-10`, `source_version` `"1"`.
 
 | Step, `at`, `entered_by` | Batch | Records |
@@ -235,6 +244,7 @@ the OPTION_ONLY leaves their neutral; every other leaf absent, `NOT_CONNECTED`, 
 | `tariff` | none | NOT_AVAILABLE | note `ACTUAL_NOT_AVAILABLE` (never 0) |
 | `delivered_kwh` (MAIN) | none | NOT_AVAILABLE | note `MAIN_FACTOR_UNSOLVED:revenue` |
 | `diesel_price` | 1.25 | ESTIMATED | `AT_ACTUAL_TEXT`, USD |
+| `productive_kwh` | 0 | ESTIMATED | `AT_ACTUAL_TEXT`, sources `("assumption:at-actual",)`, currency None (the actual is RECORDED) |
 | `period_days` | 31 | DERIVED | none |
 
 `checks == (TargetCheck("contribution", 1445.00, 1445.00, "USD", True),)`.
@@ -254,18 +264,24 @@ its check agrees.
 ## 6. Tests (written first)
 
 **No database** (`backend/tests/test_5a_targets.py`; the world is 3A4's `new_world`, imported, never edited):
-1. *(unit 1)* §5's Kobo `BudgetLines` field by field: lines, declarers, unused, version, `stamp == site_month's`.
+1. *(unit 1)* (a) §5's Kobo `BudgetLines` field by field: lines, declarers, unused, version, `stamp ==
+   site_month's`. (b) Re-ingest step 1's batch unchanged at `2026-11-08T09:00:00+00:00` with `entered_by`
+   `person:5a000000-0000-4000-8000-000000000002`: Kobo `om`'s line still has `declared_by` `loader:ds3`, `person_id`
+   None, `declared_at` `2026-11-06T09:00:00+00:00` (D-5A.14).
 2. *(unit 1)* Rules 1 to 4 of §2, one case each: (a) a step 3 at `2026-11-08T09:00:00+00:00` adding
    `BUD-2026-10:MTO-001:revenue-v2` (`version_ref` `budget-2026-v2`, `revenue` 2300.00): Mto `problem ==
    "BUDGET_VERSIONS:budget-2026-v1,budget-2026-v2"`, `lines == ()`, `blocked` = `om`, `staff`, `revenue`,
    `fuel_cost`, `contribution` each `BUDGET_VERSIONS`; (b) `BUD-2026-10:KOBO-001:om-extra` (`om` 50.00, `line_ref`
    `om-extra`): Kobo `blocked == {"om": "DUPLICATE_DECLARATION"}`; (c) a `revenue` line without currency: blocked
    `CURRENCY_MISSING`; (d) the portfolio read: one line, `staff`.
-3. *(unit 2)* §5's Kobo, Kisiwa and Mto tables, every named field (values as `Decimal`; sums also as
-   `format(v, "f")`), and the `Missing` of every absent and assumed target field by field.
+3. *(unit 2)* (a) §5's Kobo, Kisiwa and Mto tables, every named field (values as `Decimal`; sums also as
+   `format(v, "f")`), and the `Missing` of every absent and assumed target field by field. (b) A cost at its actual
+   (D-5A.15): the §5 world without `gen:MTO-001:2026-10:plan:staff`: Mto `staff` 450.00 `ESTIMATED`,
+   `AT_ACTUAL_TEXT`, sources `("assumption:at-actual",)`, USD; `cost_to_serve` 1325.00 and `contribution` 915.00,
+   both `ESTIMATED`; Mto's check still agrees.
 4. *(unit 2)* The rules: `TARGET_RULE["MINI_GRID"]` and `MAIN_OF` equal the test's own literals (W2) and cover the 31
    leaves exactly; `OPTION` is exactly the OPTION_ONLY rows, `CALENDAR` exactly NEVER_EMPTY; each MAIN heading has
-   `stated_by` and the leaf is in `blocks_of(reg, (leaf,))`.
+   `stated_by` and the heading is in `blocks_of(reg, (leaf,))`.
 5. *(unit 2)* The main solve: (a) `FakeActual` with `tariff` 0.40 and `productive_tariff` 0.30 (ASSUMED, USD): Kobo
    `delivered_kwh` target 8550, ESTIMATED, and `revenue.computed == 3420.00`; (b) a planted two-leaf registry
    (`x` KWH, `p` MONEY/KWH, `y = x * x * p`, `stated_by` set, built without `check`): `MAIN_FACTOR_NONLINEAR:y`;
@@ -276,7 +292,12 @@ its check agrees.
    ("delivered_kwh", "fuel_cost", "necessary_l", "om", "productive_tariff", "revenue", "staff", "tariff")),)`.
 8. *(unit 3)* Unknown is never zero: with 2(b), Kobo `om` target absent (`DUPLICATE_DECLARATION`, no assumption) and
    Kobo `contribution` absent with `missing_leaves == ("om",)`; with Kobo's actual `diesel_price` absent, `necessary_l`
-   absent `MAIN_FACTOR_UNSOLVED:fuel_cost` and `fuel_cost` still 875.00.
+   absent `MAIN_FACTOR_UNSOLVED:fuel_cost` and `fuel_cost` still 875.00. (c) A blocked heading stays absent
+   (D-5A.13): with `FakeActual`'s `tariff` 0.40 and `productive_tariff` 0.30 (as 5(a)) and a step adding
+   `BUD-2026-10:KOBO-001:delivered_kwh` (`delivered_kwh` 8550, no currency, `budget-2026-v1`, `line_ref`
+   `delivered_kwh`): control, Kobo `revenue` 3420.00 with `computed` not None (the expression has a value); then
+   adding `BUD-2026-10:KOBO-001:revenue-extra` (`revenue` 100.00 USD, `line_ref` `revenue-extra`): `revenue` has no
+   target, `missing.cause == "NOT_CALCULATED_YET"`, note `DUPLICATE_DECLARATION`, `computed` None.
 9. *(unit 3)* `known_at = 2026-11-06T12:00:00+00:00` (after step 1, before step 2): Kobo has `om` and `staff` lines
    only, `revenue` and `fuel_cost` absent, contribution absent.
 10. *(unit 1)* DS1b parity: step 1's records equal, as parsed objects, those `build_records(view,
@@ -318,9 +339,9 @@ EV targets (RC5).
 
 | Unit | Content | Needs | Commits |
 |---|---|---|---|
-| 1 | §2 `lines.py`; fixture; tests 1, 2, 10 | `main`, P5 approved | 1 |
-| 1 | §3 `rules.py`, `read.py` (`site`); tests 3 to 5 | `4b1` merged | 1 |
-| 1 | §4 `portfolio`, composition; tests 6 to 9, 11; Postgres; check-all; packet | | 1 |
+| 1 | §2 `lines.py`; fixture; tests 1, 2, 10 | `main`, P5 approved (met) | 1 |
+| 2 | §3 `rules.py`, `read.py` (`site`); tests 3 to 5 | `4b1` merged | 1 |
+| 3 | §4 `portfolio`, composition; tests 6 to 9, 11; Postgres; check-all; packet | unit 2 | 1 |
 
 ## 10. Decision queue (W3; defaults applied)
 
@@ -331,3 +352,5 @@ EV targets (RC5).
 | Q3 | Two lines for one additive factor (e.g. O&M contract and O&M spares) | Not summed: no target (D-5A.3); summing by line for `SUM` rows can follow |
 | Q4 | "Objectives become factor targets" (`delivery-plan.md` §2 row `5a`) | Not this fortnight: the deep-dive's targets are the operator's budget |
 | Q5 | A price target with no line is taken at the actual | Yes (D-5A.5): no price gap is claimed without a stated price |
+| Q6 | A person re-accepting an unchanged budget becomes its declarer | Not this fortnight (D-5A.14): the declarer is the intake of the latest revision; needs a 3A1 read of intakes that carried a record unchanged |
+| Q7 (owner) | A cost with no budget line (O&M, staff) | Taken at this month's actual, labelled; the headings above it read *Estimated* (D-5A.15). Alternative: no target, which removes the Site's contribution target |

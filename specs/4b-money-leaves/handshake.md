@@ -126,3 +126,8 @@ expenses (PAID, Kisiwa O&M unwritten `ESTIMATED_NOT_RECEIVED`), envelope `asseto
 `source-emulated`, `produced_at` `2026-11-06T06:00:00+03:00`. After 4b2, `test_3b3_structure_read_postgres.py`
 reads through `CommercialLeafSource`; its assertions still hold with no commercial records (EXPENSE not connected,
 the declared price, `contribution` missing `om`, `staff`, `tariff`, `necessary_l`).
+
+## Architect
+
+Round 1 answered, 2026-11-20: every R and P question in `rulings.md` "Handshake answers (round 1)", folded into
+`spec.md` rev 2 and `reviewer-guide.md` rev 2. No question is open unless round 2 adds one.
