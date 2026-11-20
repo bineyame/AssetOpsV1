@@ -1686,7 +1686,7 @@ def option_basis(doc):
         bad = [l for l, ok in basis_problems(d) if not ok]
         check(f"B self-test: planted copy fails {expect} ({len(bad)} failing)", any(l.startswith(expect) for l in bad))
     ev = lambda d: d["evaluation"]["options"]
-    planted(lambda d: ev(d)["KOB-STOPSOC"].pop("basis"), "B1 option KOB-STOPSOC")
+    planted(lambda d: ev(d)["KOB-STOPSOC"].pop("basis", None), "B1 option KOB-STOPSOC")
     planted(lambda d: ev(d)["KAS-LOCAL"].__setitem__("basis", "RESTORE_REFERENCE"), "B2 option KAS-LOCAL")
     planted(lambda d: ev(d)["EMB-DEADLINE"].__setitem__("basis", "NOT_VALUED"), "B3 option EMB-DEADLINE")
     return passes - n0
