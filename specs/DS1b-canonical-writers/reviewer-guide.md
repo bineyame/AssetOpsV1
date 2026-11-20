@@ -1,4 +1,4 @@
-# DS1b reviewer guide
+# DS1b reviewer guide (rev 2: handshake round 1 folded in)
 
 For the fresh Reviewer: first at the handshake (read `spec.md`, `rulings.md` and this guide; put questions in
 `handshake.md`), then at the review of the built unit. Depth: discovery (W5), because the unit writes money records.
@@ -14,6 +14,7 @@ For the fresh Reviewer: first at the handshake (read `spec.md`, `rulings.md` and
    - `tools/world_history.py`;
    - `simulator/tests/world/test_records.py`;
    - `simulator/tests/world/golden/records_v1.json`;
+   - `simulator/tests/world/conftest.py` (docstring and help text only);
    - the packet.
 3. **History untouched.** `history.json` and `golden/history_v1.json` are unchanged.
 
@@ -29,17 +30,24 @@ For the fresh Reviewer: first at the handshake (read `spec.md`, `rulings.md` and
   and the generated history only.
 - **P2 To the cent.** Pick Kobo October and Thika September. Recompute each EXPENSE, ADJUSTMENT and BUDGET_LINE by
   hand from the view and `history.json`.
-- **P3 First present.** For Embakasi's plan, check that `offpeak_kwh` (if present) beats `kwh` for `kwh_2200_2400`,
-  and that the loser is listed `ALTERNATIVE_NOT_FIRST`.
+- **P3 Own lines only.** No BUDGET_LINE `kwh_2200_2400` at Embakasi or Kasarani, and no `delivered_kwh` or
+  `necessary_l` at the mini-grid Sites; their plan fields are listed `NOT_OWN_LINE`. T9 checks this against
+  `missing-records.json`, independently of the rule.
+- **P3b Estimates.** Kisiwa October `om`, Thika October `maint` and Kasarani October `maintenance` are not written,
+  and are listed `ESTIMATED_NOT_RECEIVED`.
 - **P4 No totals.** No BUDGET_LINE names `contribution`, `revenue`, `energy_cost`, `total` or any other node.
-- **P5 Zero handling.** A `liability` of 0 gives no row. An `om` of 0, if one occurs, gives a 0.00 row.
+- **P5 Zero handling.** An actual `liability` of 0 gives no row (`ZERO_NO_ROW`). Thika's plan `liability` of 0 gives a
+  `0.00` BUDGET_LINE. An `om` of 0, if one occurs, gives a 0.00 row.
 - **P6 Determinism.** Run the CLI twice yourself and compare the bytes with `cmp`.
-- **P7 Labels.** Every batch's provenance is `source-emulated`.
+- **P7 Labels.** Every batch's provenance is `source-emulated`, and no output holds `RECORDED` or a stronger
+  provenance (T1).
+- **P8 Merge gate.** `T2` is on `main` before DS1b merges.
 
 ## Class sweeps (W6)
 
 - If one mapping row is wrong, recheck all of spec §2.1 and §2.2 against the manifest. T3 is the check for this, so
   confirm that it derives the tables rather than copying them.
+- If one honesty case slips (an estimate, a fallback or a label), sweep all three over every Site and month.
 
 ## Risks to keep in view
 
