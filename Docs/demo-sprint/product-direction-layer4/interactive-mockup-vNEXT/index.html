@@ -5852,7 +5852,7 @@ function IA_G1_SURFACES() {
 }
 /* the context every route renders from */
 function iaCtx(path, params, query) {
-  const q = query || {}, sc = String(q.scope || 'all'), [kind, id] = sc.includes(':') ? sc.split(':') : [sc, null];
+  const q = query || {}, sc = String(q.scope || (params && params.site ? `site:${params.site}` : 'all')), /* a Site's page is scoped to that Site */ [kind, id] = sc.includes(':') ? sc.split(':') : [sc, null];
   return { op: LS.op, scope: kind === 'group' || kind === 'site' ? { kind, id } : { kind: 'all', id: null }, site: params && params.site || null, params: params || {}, query: q, path };
 }
 /* resolveScreen's view of a landed route: the screen object the review bar and the legacy helpers read */
@@ -5906,7 +5906,7 @@ function iaUnlink(root) {
     const href = a.getAttribute('href');
     if (iaLive(href)) { const c = iaCanon(href); if (c !== href) a.setAttribute('href', c); return; }
     if (a.closest('.tabs, .ux-tabs, .ux-tabmenu')) { a.remove(); return; }
-    const sp = document.createElement('span'); sp.className = 'ia-unlinked'; sp.innerHTML = a.innerHTML.replace(/\s*→\s*$/, ''); a.replaceWith(sp);
+    const sp = document.createElement('span'); sp.className = 'ia-unlinked'; sp.dataset.iaTo = iaParse(href).path; /* where it will lead once its unit lands */ sp.innerHTML = a.innerHTML.replace(/\s*→\s*$/, ''); a.replaceWith(sp);
   });
 }
 /* today's finishing passes, in today's order, on the detached fragment */

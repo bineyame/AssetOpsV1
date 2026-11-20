@@ -41,7 +41,7 @@ function iaUnlink(root) {
     const href = a.getAttribute('href');
     if (iaLive(href)) { const c = iaCanon(href); if (c !== href) a.setAttribute('href', c); return; }
     if (a.closest('.tabs, .ux-tabs, .ux-tabmenu')) { a.remove(); return; }
-    const sp = document.createElement('span'); sp.className = 'ia-unlinked'; sp.innerHTML = a.innerHTML.replace(/\s*→\s*$/, ''); a.replaceWith(sp);
+    const sp = document.createElement('span'); sp.className = 'ia-unlinked'; sp.dataset.iaTo = iaParse(href).path; /* where it will lead once its unit lands */ sp.innerHTML = a.innerHTML.replace(/\s*→\s*$/, ''); a.replaceWith(sp);
   });
 }
 /* today's finishing passes, in today's order, on the detached fragment */

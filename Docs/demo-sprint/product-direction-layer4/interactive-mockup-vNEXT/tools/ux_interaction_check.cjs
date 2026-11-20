@@ -42,6 +42,9 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
     ok(op1 && !/Kobo generator/.test(kg) && /Kisiwa/.test(first) && at === '#/site/kisiwa', `command search: Ctrl+K opens, "kobo gen" finds ${kg ? `"${kg}"` : 'nothing live'}, "kisiwa" finds "${first}", Enter opens ${at}`);
     if (at !== '#/portfolio') { await p.goto(base + '#/portfolio'); await p.waitForTimeout(400); }
   }
+  if (PLANT === 'x5') { const p = await page('site/mto'); const bad = await p.evaluate(() => { document.querySelectorAll('.ux-queue-panel .ux-qcount').forEach(q => q.remove()); const out = [];
+      document.querySelectorAll('.canvas [data-count]').forEach(e => { const n = document.querySelectorAll(e.dataset.countOf || '#none').length, capped = /ux-queue/.test(e.dataset.countOf || '') && [...document.querySelectorAll('.ux-queue-panel .ux-qcount')].some(q => +q.dataset.total === +e.dataset.count); if (+e.dataset.count !== n && !capped) out.push(`count ${e.dataset.count} but ${n} in ${e.dataset.countOf}`); }); return out; });
+    ok(!bad.length, `plant x5: site/mto without its "3 of 4" line: ${bad.join('; ') || 'counts hold'}`); await b.close(); console.log(out.join('\n')); process.exit(out.some(l => l.startsWith('FAIL')) ? 1 : 0); }
   if (PLANT === 'palette') { const p = await page('portfolio'); await p.evaluate(() => { iaPaletteFilter = out => out; }); await paletteTest(p); await b.close(); console.log(out.join('\n')); process.exit(out.some(l => l.startsWith('FAIL')) ? 1 : 0); }
   /* IA-1b plants (spec §6 item 4, P16): block7 adds two blocks to the Overview's L3 (seven), tall one block that takes the hub past
      2,500 px, viewall puts the "View all" line back on the phone queue; each must fail its retargeted assertion */
@@ -195,7 +198,7 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
     const bad = []; const h0 = await p.evaluate(() => location.hash);
     for (const m of marks) { if (!m.d) { bad.push(`mark ${m.i} opens no drawer`); continue; }
       await p.click(`[data-gx="${m.i}"]`); await p.waitForTimeout(220);
-      const r = await p.evaluate(id => { const d = document.getElementById(id); const t = d ? d.textContent : ''; return { open: d && d.dataset.open === 'true', hash: location.hash, drv: /^uxdrv-/.test(id), done: /What is being done/.test(t) && (d.querySelector('a[href^="#/decision/"]') ? /Open decision →/.test(t) : /No decision yet/.test(t)) }; }, m.d);
+      const r = await p.evaluate(id => { const d = document.getElementById(id); const t = d ? d.textContent : ''; return { open: d && d.dataset.open === 'true', hash: location.hash, drv: /^uxdrv-/.test(id), done: /What is being done/.test(t) && (d.querySelector('a[href^="#/decision/"]') ? /Open decision →/.test(t) : d.querySelector('.ia-unlinked[data-ia-to^="decision/"]') ? /Open decision/.test(t) : /No decision yet/.test(t)) }; /* IA-1b: until IA-1c lands decisions, iaUnlink names them as text */ }, m.d);
       if (!r.open) bad.push(`${m.d} did not open`); if (r.hash !== h0) bad.push(`${m.d} navigated to ${r.hash}`); if (r.drv && !r.done) bad.push(`${m.d} does not say what is being done`);
       await p.keyboard.press('Escape'); await p.waitForTimeout(150); }
     const same = await p.evaluate(() => ['grow', 'optimize'].every(k => { const g = document.querySelector(`.ux-hero .ux-wf-gbtn[data-ux-drawer$="-${k}"]`), t = document.querySelector(`.ux-cat[data-tile="${k}"] .ux-cat-go`); return !g || (t && t.dataset.uxDrawer === g.dataset.uxDrawer); }));
@@ -210,7 +213,7 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
       M.groups.forEach(g => g.steps.forEach(s => { const hk = s.st.hkeys || [], sites = Object.keys(s.st.by), nm = sites.map(k => SK[k].name), siteOf = f => String(f.site).replace(/^Room [A-C] · /, '');
         const want = new Set([...DEC.filter(d => sites.includes(d.site) && d.opts.some(x => (omf[x] || []).some(f => hk.includes(f)))).map(d => d.id),
           ...(HC.findings || []).filter(f => nm.includes(siteOf(f)) && (hk.includes(f.factor) || (hk.some(h => svcN.includes(h)) && f.heading === 'protect'))).map(f => f.decision)].filter(Boolean));
-        const dr = document.getElementById(s.id), got = new Set([...dr.querySelectorAll('a[href^="#/decision/"]')].map(a => a.getAttribute('href').replace('#/decision/', '')));
+        const dr = document.getElementById(s.id), got = new Set([...[...dr.querySelectorAll('a[href^="#/decision/"]')].map(a => a.getAttribute('href').replace('#/decision/', '')), ...[...dr.querySelectorAll('.ia-unlinked[data-ia-to^="decision/"]')].map(e => e.dataset.iaTo.replace('decision/', ''))]); /* IA-1b: named as text until IA-1c */
         const same = want.size === got.size && [...want].every(x => got.has(x)); if (!same || (!want.size && !/No decision yet/.test(dr.textContent))) bad.push(`${s.lab}: wants ${[...want].join('+') || 'none'}, shows ${[...got].join('+') || 'none'}`); }));
       return bad; }, op);
     ok(!h1.length, `${op} drivers: each drawer names every decision that moves its driver (${h1.join('; ') || 'all hold'})`);
@@ -248,7 +251,7 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
       const rows = [...document.querySelectorAll('.ux-overview .ux-queue>li.ux-q')];
       const ragged = rows.filter(li => Math.abs(li.querySelector('.ux-q-title').getBoundingClientRect().left - li.querySelector('.ux-q-top').getBoundingClientRect().left) > 1).length;
       const repeat = rows.filter(li => li.querySelector('.ux-q-title').textContent.trim().toLowerCase().startsWith(li.querySelector('.ux-q-site').textContent.replace('Site: ', '').trim().toLowerCase())).length;
-      const prim = document.querySelectorAll('.ux-overview .ux-queue .ux-q-go.primary').length, fc = rows.find(li => li.dataset.state === 'choose'), firstPrim = fc ? (fc.querySelector('.ux-q-go.primary') ? 1 : 0) : 1;
+      const prim = document.querySelectorAll('.ux-overview .ux-queue .ux-q-go.primary').length, fc = rows.find(li => li.dataset.state === 'choose'), firstPrim = fc ? (fc.querySelector('.ux-q-go.primary') || (!fc.querySelector('a.ux-q-go') && fc.querySelector('.ia-unlinked[data-ia-to^="decision/"]')) ? 1 : 0) : 1; /* IA-1b (D-IA.25): no primary while decisions are unlanded */
       const vis = el => { const c = el.cloneNode(true); c.querySelectorAll('.vh, .ux-q-k').forEach(x => x.remove()); return c.textContent.trim(); }, blankDue = rows.filter(li => !li.dataset.due).every(li => vis(li.querySelector('.ux-q-due')) === '');
       const brk = document.querySelectorAll('.ux-hero .ux-wf-break').length, steps = [...document.querySelectorAll('.ux-wf-gapscale .ux-wf-bar')].map(b => b.getBoundingClientRect().width / b.parentElement.getBoundingClientRect().width);
       const groups = document.querySelectorAll('.ux-wf-gapscale .ux-wf-group').length, perRowHeading = [...document.querySelectorAll('.ux-wf-gapscale .ux-wf-h')].length;
@@ -434,7 +437,7 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
           for (const s of [...new Set(out.figs.map(x => x.s))]) for (const [L, H] of [['revenue_change', 'grow'], ['optimize', 'cost_change']]) {
             const l = by(L, s)[0], h = by(H, s)[0]; if (l && h && Math.abs(l.v - h.v) > 0.005) { const x = by('metered_not_billed', s)[0];
               if (!x || Math.abs(x.v - (L === 'revenue_change' ? l.v - h.v : l.v - h.v)) > 0.01 || !x.t.toLowerCase().includes(label.toLowerCase())) out.bad.push(`X2 ${r} ${s}: ${L} ${l.v} and ${H} ${h.v} differ, with no labelled ${label} line equal to the difference`); } }
-          document.querySelectorAll('.canvas [data-count]').forEach(e => { const n = document.querySelectorAll(e.dataset.countOf || '#none').length; if (+e.dataset.count !== n) out.bad.push(`X5 ${r}: count ${e.dataset.count} but ${n} in ${e.dataset.countOf}`); });
+          document.querySelectorAll('.canvas [data-count]').forEach(e => { const n = document.querySelectorAll(e.dataset.countOf || '#none').length, capped = /ux-queue/.test(e.dataset.countOf || '') && [...document.querySelectorAll('.ux-queue-panel .ux-qcount')].some(q => +q.dataset.total === +e.dataset.count); /* IA-1b (D-IA.22): the Site queue shows its top 3 and says "3 of 4" */ if (+e.dataset.count !== n && !capped) out.bad.push(`X5 ${r}: count ${e.dataset.count} but ${n} in ${e.dataset.countOf}`); });
           document.querySelectorAll('.canvas .is-bad[data-actual][data-target]').forEach(e => { if (+e.dataset.actual >= +e.dataset.target) out.bad.push(`X6 ${r}: a bar marked as a loss is at or above its target`); });
           if (/(?<!grow )revenue explains/i.test(document.querySelector('.canvas').textContent)) out.bad.push(`X7 ${r}: "revenue explains" labels a Grow figure`); /* r2 M4: any case */
           const qc = document.querySelector('.ux-queue-panel .ux-qcount'), badge = document.querySelector('.ux-queue-panel .ux-count');
@@ -573,7 +576,7 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
       tiles += r.n; if (r.hid || r.sub || r.clip.length) hidden.push(`${sk}${r.hid ? ` ${r.hid} trend(s)` : ''}${r.sub ? ' subtitle' : ''}${r.clip.length ? ` clipped "${r.clip[0]}"` : ''}`); await p.context().close(); }
     ok(tiles >= 9 && !hidden.length, `Site pages at 1280 x 720: ${tiles} tile trends and the subtitle all show, none clipped${hidden.length ? ` (HIDDEN OR CLIPPED: ${hidden.join('; ')})` : ''}`); }
   /* r2 M3: the captive fleet's revenue row says "Not applicable", in its own words */
-  { const p = await page('ev', { op: 'metro' }); const t = await p.evaluate(() => document.querySelector('.canvas').textContent);
+  { const p = await page('plan', { op: 'metro' }); const t = await p.evaluate(() => { const d = document.createElement('div'); d.innerHTML = SCREENS.find(s => s.id === 'ev').render(); return d.textContent; }); /* IA-1b: #/ev is an alias of the first EV Site (D-IA.28); the legacy board is read from its own screen */
     ok(/Not applicable/.test(t) && /Revenue not applicable: charging is a cost centre/.test(t) && !/Grow revenue\s*Not measured yet/.test(t), 'EV board: the revenue row reads "Not applicable" with its reason'); await p.context().close(); }
   // empty states that name their data path fail when the data holds a value there (placeholder audit, gap 4)
   for (const [op, r] of [['metro', 'portfolio'], ['metro', 'portfolio/demand-and-capacity'], ['metro', 'portfolio/scope'], ['metro', 'site/embakasi'], ['metro', 'site/kasarani'], ['metro', 'site/ruiru'], ['lakeside', 'portfolio/scope'], ['lakeside', 'portfolio/demand-and-capacity'], ['harvest', 'portfolio/scope'], ['lakeside', 'mini'], ['lakeside', 'cold'], ['lakeside', 'ev']]) {

@@ -26,3 +26,4 @@
 /* IA-1b (D-IA.22): levels are structure only, so the reviewed layout does not move */
 [data-shape="hub"]>[data-level],[data-shape="decision"]>[data-level],[data-ia-drawers]{display:contents}
 .ia-outcomes td small{display:block;color:var(--text-2);font-weight:400}
+.table-wrap:has(>.ia-outcomes){margin-bottom:var(--s4,16px)}

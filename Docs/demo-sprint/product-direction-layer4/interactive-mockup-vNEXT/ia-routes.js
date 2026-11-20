@@ -125,7 +125,7 @@ function IA_G1_SURFACES() {
 }
 /* the context every route renders from */
 function iaCtx(path, params, query) {
-  const q = query || {}, sc = String(q.scope || 'all'), [kind, id] = sc.includes(':') ? sc.split(':') : [sc, null];
+  const q = query || {}, sc = String(q.scope || (params && params.site ? `site:${params.site}` : 'all')), /* a Site's page is scoped to that Site */ [kind, id] = sc.includes(':') ? sc.split(':') : [sc, null];
   return { op: LS.op, scope: kind === 'group' || kind === 'site' ? { kind, id } : { kind: 'all', id: null }, site: params && params.site || null, params: params || {}, query: q, path };
 }
 /* resolveScreen's view of a landed route: the screen object the review bar and the legacy helpers read */
