@@ -188,7 +188,8 @@ row naming it.
   `email_key = email.lower()`, which then equals Postgres `lower()`. Unique across all tenants (D-3C0A.3). The
   attempt record stores `email_key_sha256 = sha256(email_key.encode("ascii")).hexdigest()`, never the key.
 - **Password** (set only by the onboarding command in this unit): 12 to 128 characters, not all whitespace, kept
-  exactly as typed (no trimming or normalisation). Hash: `hashlib.scrypt(password.encode("utf-8"),
+  exactly as typed (no trimming or normalisation); a lone surrogate (U+D800 to U+DFFF) fails the policy (RV1-L3). Hash:
+  `hashlib.scrypt(password.encode("utf-8", "surrogatepass"),
   salt=os.urandom(16), n=32768, r=8, p=1, maxmem=67108864, dklen=32)`, stored as
   `scrypt$32768$8$1$<salt>$<hash>` with unpadded URL-safe base64 (22 and 43 characters). Verify with
   `hmac.compare_digest`. A stored hash in any other form fails verification (it never raises). About 0.13 s per hash
@@ -252,8 +253,10 @@ under the per-email lock: count, return `Attempt(locked=True, retry_at)` if lock
 `session(token_sha256) -> tuple[UUID, UUID, UUID, datetime, datetime | None] | None` (id, tenant, person, expires,
 revoked); `revoke(token_sha256, at) -> None` (the one UPDATE; a no-op when already revoked);
 `people(tenant_id) -> tuple[PersonView, ...]` (sorted in Python by `(display_name.casefold(), email_key)`, P13); `grant_rows(tenant_id) -> tuple[GrantRow, ...]`
-(newest first by `(at, id)`); `add_grant(row: GrantRow) -> GrantRow` (refuses `ROLE_ALREADY_HELD` by `StoreConflict`);
-`add_removal(row: GrantRow) -> GrantRow` (refuses `GRANT_ALREADY_REMOVED`, `LAST_EXECUTIVE`);
+(newest first by `(at, id)`); `add_grant(row: GrantRow, actor_person_id: UUID) -> GrantRow` (refuses `ROLE_REQUIRED` when, under the tenant lock,
+the actor no longer holds `OPERATOR_EXECUTIVE` on an ACTIVE account, then `ROLE_ALREADY_HELD`, by `StoreConflict`; RV1-R2);
+`add_removal(row: GrantRow, actor_person_id: UUID) -> GrantRow` (refuses `ROLE_REQUIRED` as `add_grant`, then
+`GRANT_ALREADY_REMOVED`, `LAST_EXECUTIVE`);
 `create_account(account, password_hash, created_at, by, executive_grant: GrantRow | None) -> None` (one
 transaction: the account, its credential, an ACTIVE status, and the optional first grant; refuses `EMAIL_TAKEN`,
 and `EXECUTIVE_EXISTS` when `executive_grant` is given and the tenant already has a held `OPERATOR_EXECUTIVE` on an
@@ -290,7 +293,8 @@ Every route is `async`, reads the body with a 4 KiB limit, and calls the service
 over 4 KiB, not JSON or not an object; otherwise the first unknown key in sorted order, then the first missing or
 wrongly typed key in the route's listed order (`site_code` may be absent or `null`; P6). **Order of refusals** (R13):
 503 `ACCOUNTS_UNAVAILABLE`, 415, 422, 401 `NOT_SIGNED_IN` (routes needing a session; sign-out never answers 401), then
-the service's order. Every response under `/api/auth/` and `/api/organisation/` carries `Cache-Control: no-store`.
+the service's order. Every response of the seven routes carries `Cache-Control: no-store`; the framework's own 404
+and 405 answers under those prefixes carry no personal data and are out of scope (RV1-L4).
 `sqlalchemy.exc.OperationalError` and `InterfaceError` from the store answer 503 `ACCOUNTS_UNAVAILABLE` (R14). The
 table's refusal column lists only the domain refusals.
 Every refusal body is `{"code", "message", "words"}` as the reading-upload routes (`message` rendered for the
@@ -341,10 +345,12 @@ request's locale, `words` the `Message`). With `accounts` None every route answe
 | `BAD_EMAIL` | That is not an email address. |
 | `EMAIL_TAKEN` | An account already uses that email. |
 | `PASSWORD_POLICY` | A password has 12 to 128 characters and is not only spaces. |
+| `BAD_NAME` | A name has 1 to 120 characters. |
+| `BAD_REASON` | A reason has 1 to 500 characters. |
 | `EXECUTIVE_EXISTS` | This organisation already has an operator executive. |
 | `DATABASE_URL_REQUIRED` | Set DATABASE_URL to the product database. |
 
-21 codes in all (P4); the last six are the onboarding command's, rendered in English by it.
+23 codes in all (P4, RV1-L2); the last eight are the onboarding command's, rendered in English by it.
 
 ## 6. Composition
 
@@ -482,6 +488,6 @@ later); password reset by email; the demo people's accounts (`WK`, D-3C0A.8).
 |---|---|---|
 | Q1 | Is 3C0a inside "non-screen work now"? | Yes (D-BW1.3); if the owner meant only data, engine and integrations, lane A takes `0K1` instead |
 | Q2 | Email unique across tenants, so sign-in needs no tenant field (D-3C0A.3) | Yes |
-| Q3 | 12-hour absolute sessions; lockout after 5 failures in 15 minutes | Yes; revisit at the pilot |
+| Q3 | 12-hour absolute sessions; lockout after 5 failures in 15 minutes | Yes; revisit at the pilot, with two known limits: anyone can lock any email for 15 minutes, and there is no per-IP limit, so one password sprayed across many emails is not bounded (review RV1) |
 | Q4 | `Secure` cookie by default; `off` only for local http | Yes; `3C0b` checks the walkthrough's address and that cookies are shared across ports on one host (R12b) |
 | Q5 | Accounts, credentials, statuses and grants are undeletable by design (D-3C0A.2); attempts are purged after 30 days | Accepted for the demo; erasure of a person's data is a pilot data-protection question |

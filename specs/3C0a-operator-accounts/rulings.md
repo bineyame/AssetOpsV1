@@ -230,3 +230,41 @@ entries they name. No done criterion changes. The stopped `xfail` test becomes a
   `session_expires_at` comes from `SignedIn.expires_at` at sign-in and from `principal.session_expires_at` at `/me`.
 - **If the tenant is missing.** `tenant()` cannot return `None` for a principal's tenant, because of the foreign key.
   If it does, the route answers 503 `ACCOUNTS_UNAVAILABLE`. It never invents a slug or name.
+
+## Review round 1 answers (3C0a, 2026-11-20; review `.agent/review-3C0a-r1.md`, ACCEPT with Lows)
+
+Folded into `spec.md`. One Sonnet fix round builds them; a verification re-review checks the named items only.
+
+- **RV1-L1: add the test.** A Postgres test runs the review's sequence against the real adapter: 4 failures, a
+  success, then 2 failures, and the result is not locked. The W6 sweep is accepted as done by the reviewer: every
+  other store rule is already covered against Postgres.
+- **RV1-L2: (c), both.**
+  - **Refusals in the service.** The onboarding writes trim `--name` and `--reason` of surrounding whitespace, then
+    refuse a name outside 1 to 120 characters with `BAD_NAME` (422, "A name has 1 to 120 characters.") and a reason
+    outside 1 to 500 characters with `BAD_REASON` (422, "A reason has 1 to 500 characters."). That makes 23 codes.
+  - **Hidden parameters.** The account store's engine is built with `hide_parameters=True`, so no store error,
+    whether from the command or from a server 500, prints parameters.
+  - **Why both.** The refusal gives the operator a plain answer. Hidden parameters close the whole class: any future
+    CHECK failure stays free of personal data.
+- **RV1-L3: surrogatepass, and the policy refuses surrogates.**
+  - `_derive` encodes with `"utf-8", "surrogatepass"`, so a lone-surrogate password at sign-in gets the one 401 body
+    after its one verification, as every refused sign-in does (spec §3).
+  - `check_policy` refuses any lone surrogate with `PASSWORD_POLICY`, so no stored password can hold one.
+  - This is chosen over a 422 because a 422 would give sign-in a second refusal body.
+- **RV1-L4: accepted, out of scope.** The spec's literal is narrowed to "every response of the seven routes". The
+  framework's 404 and 405 answers carry no personal data. A middleware would add a moving part for no protection.
+
+**The review's residual risks**
+- **RV1-R1, the password-change race:** accepted, no change. A sign-in that reads the old credential in the
+  milliseconds before the onboarding command commits a new one keeps its session. The window is milliseconds,
+  onboarding is an operator action, and the session ends at its 12-hour expiry. No queue entry.
+- **RV1-R2, the executive's role is not re-checked under the lock: fixed in this round.**
+  - `add_grant(row, actor_person_id)` and `add_removal(row, actor_person_id)` re-check, inside the tenant lock, that
+    the actor still holds `OPERATOR_EXECUTIVE` on an ACTIVE account, and refuse `ROLE_REQUIRED` otherwise.
+  - **Why fix it now.** It is a small change to the port, and it closes an authorisation gap: an executive whose role
+    is removed must not complete one more grant.
+  - **The test.** A Postgres lock-proof test in the R2 shape: the test holds the lock, a grant by executive A waits
+    while A's role is removed, then A's grant is refused `ROLE_REQUIRED`.
+- **RV1-R3, anyone can lock any email, and there is no per-IP limit:** added to the decision queue's Q3 as known
+  limits, to revisit at the pilot. A per-IP limit needs the client address, and behind the walkthrough's proxy that
+  address is not yet trustworthy.
