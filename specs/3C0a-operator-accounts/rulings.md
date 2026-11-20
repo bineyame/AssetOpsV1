@@ -268,3 +268,28 @@ Folded into `spec.md`. One Sonnet fix round builds them; a verification re-revie
 - **RV1-R3, anyone can lock any email, and there is no per-IP limit:** added to the decision queue's Q3 as known
   limits, to revisit at the pilot. A per-IP limit needs the client address, and behind the walkthrough's proxy that
   address is not yet trustworthy.
+
+## RV1-L2b follow-up: the driver's DETAIL text (2026-11-20)
+
+- **Where.** The store adapter, and only there. It is the one boundary both the server and the command pass through.
+- **What the adapter does with an `sqlalchemy.exc.IntegrityError`.**
+  - It keeps its existing mappings by constraint name first: `EMAIL_TAKEN`, `ROLE_ALREADY_HELD` and the rest stay as
+    they are.
+  - Any other integrity error becomes `StoreConflict("ACCOUNTS_STORE_REFUSED")`, raised with `from None`.
+- **What the refusal carries.** It holds only the constraint name (`exc.orig.diag.constraint_name`) as a parameter.
+  No driver message and no `DETAIL` survives in the text, the cause or the context.
+- **Why at the adapter.** One catch covers every caller, including future ones.
+- **New code.** `ACCOUNTS_STORE_REFUSED` (422): "The change was not saved: a value is not allowed." That makes 24
+  codes.
+  - The command prints the code and these words, plus `constraint=<name>`, and exits 2.
+  - The routes answer 422 with the same words and log nothing more.
+- **Why 422 and not 503.** It is a refused value, not an outage. The service validates every value first, so on the
+  server this is a defect signal, not a normal path.
+- **Server routes otherwise.** No other change: 503 for `OperationalError` and `InterfaceError` stays, and
+  `hide_parameters=True` stays.
+- **The test.** Call the store directly with a value the service would refuse, for example a padded display name
+  that bypasses `BAD_NAME`. Assert all of these:
+  - the refusal is `ACCOUNTS_STORE_REFUSED`;
+  - `__cause__` is `None` and `__suppress_context__` is true;
+  - neither `traceback.format_exception` of it nor the command's stderr contains the email.
+  - Then plant: remove `from None` and see the test fail.
