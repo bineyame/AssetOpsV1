@@ -452,4 +452,11 @@ Branch `task/ON1-operator-tenant` (base main `8fddb2bba`); spec `specs/ON1-opera
 Branch `task/5b-attribution` (base main `8a2900bc4`); spec `specs/5b-attribution/spec.md` rev 2 §2, rulings D-5B.1-14; packet `packet-u1.md`. Pure; no migration, no route, no screen; no diff in `structure/read.py`.
 
 - Settled: `structure/attribution/rules.py` (`BRIDGE_ROOTS`, kinds, splits, reasons, `SOLVE_TOLERANCE` 1E-12, `agree`) and `bridge.py` (`BridgeRow`, `bridge`, `by_home`, `lowest`): AR1 signed sums, AR2 volume at target price then price at actual volume (price chosen by unit), money pushed down by `scale`, neutral terms give no row, a RESIDUAL only beside a stated heading's unobserved terms, record-vs-factors and children-vs-parent judged within 1E-12. Kobo §5.1: −562.00 = +38.00 − 600.00; AT-1 to AT-3 to the cent.
-- Open: mid-build Q1 (a RESIDUAL row's `split`/`reason`; provisional `NOT_SPLIT`/`DETAIL_NOT_AVAILABLE`, unasserted). Units 2-3 wait for 3B7a unit 0 (the seam) on `main`.
+- Closed since: Q1 ruled D-5B.15 (`NOT_SPLIT`/`DETAIL_NOT_AVAILABLE`, now asserted); the seam is on `main`; units 2-3 below.
+
+## 5b - attribution, units 2-3: carrying, Site and portfolio bridges, the read (in review, 20 Nov)
+
+Branch `task/5b-attribution-u23` (base main `fb6d248d3`); spec rev 2 §3, §4, §5.2; rulings D-5B.1-15; packet `packet-u23.md`. Pure plus one wiring module; no migration, no route, no screen; no diff in `structure/read.py`.
+
+- Settled: `carry.py` (`om`/`staff` at their own budget line, ESTIMATED, `carried_as` TARGET, never for an open month, an unconnected source, an assumed target or a heading); `site.py` (`SiteBridge`: contribution and cash trees from the carried inputs); `portfolio.py` (k of n over one Site set per row, values added only for `SUM` factors, effects always, currencies never, `carried` Sites named, repeated key refused, disagreements kept); `read.py` (`BridgeRead`, one UTC instant per call); `composition.py` (`build_bridge_read`, the only `commercial` import). Lakeside October: 1,443.00 against 2,295.00, −852.00, 3 of 3, ESTIMATED; without Mto's billing −747.00, 2 of 3.
+- Open: owner Q1 (carry a heading) and Q5 (also show the 3-of-3 target) on their defaults; `5c` words every stop and disagreement (D-5B.10, D-5B.12); pack fix for summed prices queued (handshake R1).
