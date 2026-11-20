@@ -1,4 +1,5 @@
 # AssetEcon Layer 4 — demo site and scenario manifest (proposed design, not built) · rev 12 (17 Nov 2026)
+# rev 16.13 (20 Nov): `empty_states` added (structure-specification.md §3.1): the record behind every empty leaf, usable capacity deferred to queued slice 4c, the cold occupied-to-chargeable leak a reconciled zero. No figure changed.
 # rev 12 (re-review rev 11): no typed admissibility (notice-deadline lapse + cover bound; dawn-adequacy bound over the spike-K leaf); value nets the
 # reference path's one-off; crews enforced; budget-aware least violation; one redundancy rule measured on hours with no backup supply (Q15);
 # restore dates follow rights; KAS-LOCAL evaluated; forward baseline for options; Kasarani November figures and Harvest capacity evaluated, not typed.
@@ -687,7 +688,7 @@ tenants:
       thread: "City offers a route expansion: 6 more buses at Ruiru"
       origin: CUSTOMER_PROPOSAL
       options:
-        - {id: RUI-ABSORB6, kind: CAPACITY_USE, required_kwh: 2800, deliverable_kwh: 3200, capex: 0.00, avoided_capex: 60000.00, avoided_capex_class: MODELLED,
+        - {id: RUI-ABSORB6, kind: CAPACITY_USE, required_kwh: 2800, deliverable_kwh: 3200, capex: 0.00, capex_not_needed: {amount: 60000.00, against: RUI-4CHARGERS, class: QUOTE},
            disposition: RECOMMENDED, condition: "connector compatibility confirmed for the {fig:options.RUI-ABSORB6.params.added_buses} new buses"}
         - {id: RUI-ABSORB10, kind: CAPACITY_USE, required_kwh: 3360, deliverable_kwh: 3200, disposition: REJECTED, reason: "exceeds the {rec:tenants[metro-bus].sites[Ruiru].physical.import_limit_kw} kW import limit"}
         - {id: RUI-4CHARGERS, kind: CAPEX, capex: 60000.00, disposition: REJECTED, reason: "not needed for +{fig:options.RUI-ABSORB6.params.added_buses}; insufficient alone for +{fig:options.RUI-ABSORB10.params.added_buses} (grid upgrade ~45,000 [assumption])"}
@@ -772,7 +773,7 @@ tenants:
       unvalued_spend: 0.00             # rev 10: the Kasarani stopgap changes a money factor (penalties avoided), so it is valued
       modelled_12m_change: {EMB-DEADLINE: 95484.00, KAS-OEM-STOPGAP: 150.00, total: 95634.00, class: MODELLED}
       downside: {value: 150.00, sensitivity: "Embakasi's time-of-use and demand-charge tariff does not apply (flat tariff)", class: MODELLED}
-      listed_not_summed: {RUI-ABSORB6_avoided_capex: 60000.00}
+      listed_not_summed: {RUI-4CHARGERS_capex_not_needed: 60000.00}
       technician_visits_used: 0
       priority_order: ["KAS-OEM-STOPGAP (departures at risk now)", "EMB-DEADLINE (largest money)", "RUI-ABSORB6 (contract decision)", "CH-R7 claim (no consequence)"]
       switches:
@@ -830,7 +831,7 @@ structures:   # rev 10 (owner, ninth to eleventh messages): the declared outcome
     asset_days_total: "major_assets * period_days"                                     # O2
     asset_days_available: "asset_days_total - asset_days_out_of_service"
   COLD_CHAIN:
-    revenue: "crate_days * rate + contract_crate_days * contract_rate"                 # occupied = chargeable (no October difference) -> invoiced
+    revenue: "crate_days * rate + contract_crate_days * contract_rate"                 # chargeable -> invoiced; occupied to chargeable is a reconciled zero in October (empty_states.chain_nodes)
     received: "revenue - outstanding"
     kwh_model: "(base_kwh + k_kwh_per_crate_day * (crate_days + contract_crate_days)) * model_factor"
     kwh: "kwh_model + excess_kwh"                                                      # physical: normalised energy + excess over model
@@ -981,10 +982,14 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
   option_detail:   # rev 12 (L7): per-vertical detail nodes shown with an option (capacity check, unit cost, bills), declared here
     EV_DEPOT_CAPTIVE: {capacity: [required_kwh_night, supplied_kwh_night, deliverable_kwh_night, buses_short_per_night, max_kw, import_limit_kw],
                        option_nodes: {cost_per_departure_met: cost_per_departure_met, energy_bill_option: energy_cost}, reference_nodes: {energy_bill_reference: energy_cost}}
-  options:
+  options:   # basis (rev 16.14, ruling D-RECON.6): what the option's figure is measured against. NO_ACTION: the decision's no-action
+             # path; RESTORE_REFERENCE: an immediate restore at no operator cost (the "cost to restore"), allowed only where the
+             # decision's no-action option never restores (restore: {date: none}); NOT_VALUED: a comparator row, listed beside the plan.
+             # The evaluator does not read it; check_manifest.py option_basis() checks it.
     # ---------------- Lakeside Power ----------------
     KOB-STOPSOC:
       site: Kobo
+      basis: NO_ACTION
       months: 12
       params: {avoided_candidate_l: {value: 210, design_value: K}, added_throughput_kwh: {value: 150, design_value: K},
                dawn_days_below_35pct: {value: "row.forward_replay.soc_0500_below_35_days", design_value: K}}
@@ -993,12 +998,14 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       sensitivities: {diesel_minus_20pct: {factors: {diesel_price: "diesel_price * 0.8"}}, feasible_fuel_160l: {params: {avoided_candidate_l: 160}}}
     KOB-RESERVE:
       site: Kobo
+      basis: NO_ACTION
       months: 12
       params: {avoided_candidate_l: {value: 20, design_value: K}, dawn_days_below_35pct: {value: "row.forward_replay.soc_0500_below_35_days", design_value: K}}
       changes: {candidate_l: "candidate_l - avoided_candidate_l", dawn_days_below: "dawn_days_below_35pct"}
       crew_visits: {value: 0, basis: "remote reconfiguration, as KOB-STOPSOC"}
     MTO-HULLER:
       site: Mto
+      basis: NO_ACTION
       months: 12
       params: {load_kw: "row.load.kw", load_hours_per_day: {value: 5, basis: "window 10:00-15:00"}, days: "row.load.days_per_month",
                added_fuel_l: {value: 68, design_value: M}, collection: "row.economics.collection_cost_monthly"}
@@ -1009,6 +1016,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       sensitivities: {diesel_minus_20pct: {factors: {diesel_price: "diesel_price * 0.8"}}}
     MTO-WELDING:
       site: Mto
+      basis: NO_ACTION
       months: 12
       params: {load_kw: "row.load.kw", load_hours_per_day: {value: 3, basis: "window 18:00-21:00"}, days: "row.load.days_per_month", sfc: "physical.sfc_l_per_kwh"}
       changes: {delivered_kwh: "delivered_kwh + load_kw * load_hours_per_day * days", extra_l: "extra_l + load_kw * load_hours_per_day * days * sfc"}
@@ -1016,6 +1024,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       crew_visits: {value: 0, basis: "existing connection; no works"}
     KIS-BATT60:
       site: Kisiwa
+      basis: NO_ACTION
       months: 12
       params: {shifted_fuel_l: {value: 150, assumption: "no Kisiwa battery replay exists; deferred option; owner decision Q14"}}
       changes: {necessary_l: "necessary_l - shifted_fuel_l"}
@@ -1023,6 +1032,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       crew_visits: {value: 1, basis: "installation visit (assumption; no quote held)"}
     MTO-INV-CLAIM:
       site: Mto
+      basis: RESTORE_REFERENCE
       sensitivities: {diesel_minus_20pct: {factors: {diesel_price: "diesel_price * 0.8"}}}
       reference: "immediate restore at no operator cost"
       files_notice: {INV-MT-02: {date: as_of}}   # rev 12 (H1): notice filed now, before the 27 Nov deadline; the right stays live
@@ -1034,6 +1044,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       cost_lines: {replacement_unit: {amount: 2600.00, covered_by: INV-MT-02}, shipping_failed_unit: 150.00, install: 80.00}
     MTO-INV-BUYNOW:
       site: Mto
+      basis: RESTORE_REFERENCE
       sensitivities: {diesel_minus_20pct: {factors: {diesel_price: "diesel_price * 0.8"}}}
       reference: "immediate restore at no operator cost"
       files_notice: {INV-MT-02: {date: as_of}}   # the failed unit is claimed now (the returned unit becomes a spare)
@@ -1043,6 +1054,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       cost_lines: {replacement_unit_bought: 2600.00, install: 80.00, ship_failed_unit_for_claim: 150.00, install_returned_unit_as_spare: 80.00}
     MTO-INV-NOACT:
       site: Mto
+      basis: RESTORE_REFERENCE
       reference: "immediate restore at no operator cost"
       # rev 12 (H1): complete like the other two paths (extra fuel included) and files no notice: INV-MT-02 lapses on its 27 Nov deadline,
       # 2,600 of cover is lost, and the declared claimable_cover bound rejects it. No typed admissibility.
@@ -1051,6 +1063,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       crew_visits: {value: 0, basis: "no action"}
     MTO-INV-LOCAL:   # rev 13 (L3): evaluated like KAS-LOCAL, not a hand disposition
       site: Mto
+      basis: RESTORE_REFERENCE
       reference: "immediate restore at no operator cost"
       voids_rights: [INV-MT-02]
       params: {restore: {date: as_of, plus: ["local_repair_days"]}, local_repair_days: {value: 2, assumption: "a local technician opens and repairs the unit in 2 days; no quote held"},
@@ -1060,6 +1073,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       crew_visits: {value: 1, basis: "own crew visit with the technician"}
     KIS-REPAIR:
       site: Kisiwa
+      basis: NO_ACTION
       reference_option: KIS-NOACT
       reference: "no action"
       params: {restore: {date: "row.crew_visit", plus: ["repair_days"]}, repair_days: {value: 1, basis: "workshop estimate"}}
@@ -1067,6 +1081,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       cost_lines: {alternator_repair: {amount: 1800.00, covered_by: GEN-KS-01}}
     KIS-REPLACE:
       site: Kisiwa
+      basis: NO_ACTION
       reference_option: KIS-NOACT
       reference: "no action"
       params: {restore: {date: as_of, plus: ["row.lead_time_days"]}}
@@ -1075,6 +1090,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       crew_visits: {value: 1, basis: "installation visit"}
     KIS-NOACT:
       site: Kisiwa
+      basis: NO_ACTION
       is_reference: true
       reference: "no action"
       params: {restore: {date: none}}
@@ -1082,16 +1098,19 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       crew_visits: {value: 0, basis: "no action"}
     BAT-EVIDENCE:
       site: Kobo
+      basis: NO_ACTION
       set_rights: {BAT-001: POTENTIALLY_COVERED}
       cost_lines: {capacity_test: 250.00, temperature_sensor: 180.00}
       rights_effect: "evaluated: unclaimable cover 64,000.00 -> 0 (claimable, at stake, listed); tracked assets with complete contract evidence 1 of 3 -> 2 of 3 (record count)"
     BAT-NOACT:
       site: Kobo
+      basis: NO_ACTION
       is_reference: true
       crew_visits: {value: 0, basis: "no action"}
     # ---------------- Harvest Cold Network ----------------
     MWEA-AGG:
       site: "Room A · Mwea"
+      basis: NO_ACTION
       months: 4
       params: {crates: {value: 150, basis: "draft contract"}, days: {value: 30, basis: "December-March, per month"}, contract_rate: {value: 0.18, basis: "draft contract"},
                handling: {value: 100.00, basis: "handling estimate"}}
@@ -1100,6 +1119,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       requires_switch: aggregator_signs   # the contract exists only if the aggregator signs (a person sets the switch)
     KIRI-REPAIR:
       site: "Room C · Kirinyaga"
+      basis: NO_ACTION
       months: 12
       params: {recovery_share: "row.recovery_share"}
       changes: {excess_kwh: "excess_kwh * (1 - recovery_share)"}
@@ -1108,6 +1128,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       sensitivities: {kirinyaga_recovery_60pct: {params: {recovery_share: 0.60}}}
     KIRI-REPLACE:
       site: "Room C · Kirinyaga"
+      basis: NO_ACTION
       months: 12
       params: {new_unit_factor: {value: 0.95, assumption: "a new compressor runs 5% below the occupancy model (vendor datasheet)"}}
       changes: {excess_kwh: "0", model_factor: "new_unit_factor"}
@@ -1115,6 +1136,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       crew_visits: {value: 1, basis: "installation visit"}
     THIKA-EPC-WAIT:
       site: "Room B · Thika"
+      basis: NO_ACTION
       is_reference: true
       reference: "no action (wait for the supplier)"
       params: {restore: {date: "entitlement.remedy_scheduled", performed_under: "GEN-CR-01 start controller (backup generator)", if_not_covered: {date: as_of, plus: ["procurement_days"], crew_visits: {value: 1, basis: "own technician fits the controller"}}},
@@ -1124,6 +1146,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       crew_visits: {value: 0, basis: "supplier's technician"}
     THIKA-EPC-STOPGAP:
       site: "Room B · Thika"
+      basis: NO_ACTION
       reference_option: THIKA-EPC-WAIT
       reference: "no action (wait for the supplier)"
       params: {restore: {date: as_of}}
@@ -1131,6 +1154,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       cost_lines: {sms_alarm_relay: 40.00, night_rota_labour: 60.00, controller_replacement: {amount: "entitlement.cover_value", covered_by: "GEN-CR-01 start controller (backup generator)"}}
     THIKA-SELF:
       site: "Room B · Thika"
+      basis: NO_ACTION
       reference_option: THIKA-EPC-WAIT
       reference: "no action (wait for the supplier)"
       params: {restore: {date: as_of, plus: ["procurement_days"]}, procurement_days: {value: 0, assumption: "controller held in local stock and fitted the same day; no quote held (rev 12, L3)"}}
@@ -1141,6 +1165,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
     # ---------------- Metro Bus Depots ----------------
     EMB-DEADLINE:
       site: Embakasi
+      basis: NO_ACTION
       months: 12
       reference_factors: {night_price: "tariff.prices.night_from_1_nov"}
       params: {max_kw_option: "row.max_kw", hours_before_midnight: {value: 2, basis: "22:00-24:00"}, hours_after_midnight: {value: 5, basis: "00:00-05:00 (to 05:15)"},
@@ -1151,6 +1176,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       sensitivities: {flat_tariff: {factors: {peak_price: "offpeak_price", night_price: "offpeak_price", demand_rate: "0"}}}
     EMB-CHEAPEST:
       site: Embakasi
+      basis: NO_ACTION
       months: 12
       reference_factors: {night_price: "tariff.prices.night_from_1_nov"}
       params: {max_kw_option: "physical.import_limit_kw", hours_after_midnight: {value: 5, basis: "00:00-05:00"}}
@@ -1158,6 +1184,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       crew_visits: {value: 0, basis: "schedule configured remotely, as EMB-DEADLINE"}
     KAS-OEM-WAIT:
       site: Kasarani
+      basis: NO_ACTION
       is_reference: true
       reference: "no action (wait for the supplier)"
       params: {restore: {date: "entitlement.claim_events[0].at", business_days: "entitlement.contracts[1].restore_business_days", performed_under: CH-K2, if_not_covered: {date: as_of, plus: ["local_repair_days"]}},
@@ -1168,6 +1195,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       crew_visits: {value: 0, basis: "supplier's technician"}
     KAS-OEM-STOPGAP:
       site: Kasarani
+      basis: NO_ACTION
       reference_option: KAS-OEM-WAIT
       reference: "no action (wait for the supplier)"
       params: {restore: {date: "entitlement.claim_events[0].at", business_days: "entitlement.contracts[1].restore_business_days", performed_under: CH-K2, if_not_covered: {date: as_of, plus: ["local_repair_days"]}},
@@ -1179,6 +1207,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       cost_lines: {buses_charged_at_ruiru: {amount: "covered_bus_nights * cost_per_bus_night"}, contactor_repair: {amount: "entitlement.cover_value", covered_by: CH-K2}}
     KAS-LOCAL:   # rev 12 (L4): evaluated, not narrated: a local repair restores sooner but voids the power-stage cover
       site: Kasarani
+      basis: NO_ACTION
       reference_option: KAS-OEM-WAIT
       reference: "no action (wait for the supplier)"
       voids_rights: [CH-K2]
@@ -1189,12 +1218,14 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       crew_visits: {value: 0, basis: "local electrician (contractor)"}
     RUI-ABSORB6:
       site: Ruiru
+      basis: NOT_VALUED
       months: 1
       params: {added_buses: {value: 6, basis: "city route offer"}}
       changes: {buses: "buses + added_buses", kwh_2200_2400: "kwh_2200_2400 + added_buses * kwh_per_bus_night * nights_in_period"}
       comparator: "service expansion: more departures, so cost rises; compared with buying 4 chargers (4 x physical.charger_unit_cost), listed not added"
     RUI-4CHARGERS:
       site: Ruiru
+      basis: NOT_VALUED
       months: 1
       params: {added_chargers: {value: 4, basis: "vendor proposal"}, unit_cost: "physical.charger_unit_cost"}
       changes: {chargers_in_service: "chargers_in_service + added_chargers", chargers_installed: "chargers_installed + added_chargers"}
@@ -1202,6 +1233,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       comparator: "capacity purchase compared with absorbing the expansion on existing chargers; listed, not added"
     RUI-ABSORB10:
       site: Ruiru
+      basis: NOT_VALUED
       months: 1
       params: {added_buses: {value: 10, basis: "city route offer, larger variant"}}
       changes: {buses: "buses + added_buses", kwh_2200_2400: "kwh_2200_2400 + added_buses * kwh_per_bus_night * nights_in_period"}
@@ -1471,7 +1503,7 @@ home_categories:   # design rev 16.11 §2.0 (OD-21; Architect's calls): the regi
       contribution: [above]
       nights_in_period: [calendar]
   potential:   # capacity with no customer: shown beside Grow, never as Grow's actual and never added to it (owner, 1 Nov)
-    MINI_GRID: [{name: headroom, measure: "usable capacity minus delivered kWh, by time window", objective: G2, shown: "not available yet until the energy management export by time window"},
+    MINI_GRID: [{name: headroom, measure: "usable capacity minus delivered kWh, by time window", objective: G2, deferred: usable_capacity},
                 {name: letter_of_intent_demand, measure: "kWh a month a signed letter of intent names (Mto huller)", objective: G3}]
     COLD_CHAIN: [{name: idle_capacity, measure: "capacity_crate_days - occupied_total_crate_days", objective: G2}]
     EV_DEPOT_CAPTIVE: [{name: spare_deliverable_energy, measure: "deliverable_kwh_night - required_kwh_night (Ruiru: 6 more buses fit)", objective: G2}]
@@ -1490,6 +1522,31 @@ home_categories:   # design rev 16.11 §2.0 (OD-21; Architect's calls): the regi
     CUSTOMER_COMPENSATION: liability
     PEAK_ENERGY_SHARE: peak_kwh
     DEMAND_CHARGE: max_kw
+  reconciliation:   # design rev 16.14 §2.0 (20 Nov; UX audit C2; rulings D-RECON.1 to D-RECON.4, specs/RECON-1/rulings.md): one
+                    # gap, two cuts. The statement cut reads each bridge row on the statement line its node sits under (revenue or
+                    # cost_to_serve; a node under both is read on the line whose own home is the node's heading); the heading cut
+                    # reads it under its node's home. Both are the margins of one matrix, line x heading, plus an explicit residual
+                    # on its own row. A row on one line whose heading is the other line's is a CROSSING row and is named here; a
+                    # screen that shows a line's figure and a heading's figure for one scope shows the crossing as a labelled line.
+                    # No figure here: check_manifest.py reconciliation() computes every amount from the bridge and
+                    # derived-values.json. The evaluator and the independent model do not read this block.
+    rule: "a heading figure is a column of the statement-to-heading matrix and a statement figure a row; where they differ, the crossing is a labelled line on the screen, never left to the reader"
+    crossing_label: "Metered but not billed"
+    crossing_note: "energy customers used and their meters recorded, not yet billed; it lowers revenue on the statement and is counted under Optimize, because recovering it is a billing and settlement task, not selling more"
+    crossing:   # driver -> its plain words on screen; each is a revenue-line row homed under Optimize (O3)
+      METER_MAPPING_UNBILLED: "meters not yet mapped to a customer"
+      AUTHORISED_ADJUSTMENT: "authorised adjustments"
+    shared_figures:   # every headline money figure the screens show on more than one route. `reads` is one matrix term, so the
+                      # figure is identical wherever it appears. Terms: total, row:<line>, col:<heading>, cross. `routes` lists the routes.
+      - {figure: gap, reads: total, words: "Gap to target", routes: [portfolio, portfolio/outcomes-by-site, globalfinancials, sites, "site/*"]}
+      - {figure: grow, reads: "col:grow", words: "Grow revenue", routes: [portfolio, portfolio/outcomes-by-site, globalfinancials]}
+      - {figure: optimize, reads: "col:optimize", words: "Optimize cost and efficiency", routes: [portfolio, portfolio/outcomes-by-site, globalfinancials]}
+      - {figure: revenue_change, reads: "row:revenue", words: "Revenue against target", routes: [portfolio, globalfinancials, "site/*/economics"]}
+      - {figure: cost_change, reads: "row:cost_to_serve", words: "Cost to serve against target", routes: [portfolio, globalfinancials, "site/*/economics"]}
+      - {figure: metered_not_billed, reads: cross, words: "Metered but not billed", routes: [portfolio, portfolio/outcomes-by-site, globalfinancials, "site/*/economics"]}
+    ties:   # two different figures shown for one scope are tied by a stated line: left = right + by, each an effect on the outcome
+      - {left: revenue_change, right: grow, by: metered_not_billed}
+      - {left: optimize, right: cost_change, by: metered_not_billed}
   findings:   # rev 16.12 (coordinator, after mock-up commit fb13bba7f; design §2.0): EVERY Finding the screens show, origin or linked,
               # names the factor it is pinned to (the most specific factor it observes) and so its own heading. A decision's
               # origin Finding (origin: true) is the one in home_categories.decisions; a linked Finding (origin: false) answers the
@@ -1505,6 +1562,7 @@ home_categories:   # design rev 16.11 §2.0 (OD-21; Architect's calls): the regi
     - {id: mto-letter-of-intent, site: Mto, decision: mto-demand, origin: true, factor: letter_of_intent_demand, heading: grow}
     - {id: mto-unbilled, site: Mto, decision: mto-billing, origin: true, factor: unmapped_kwh, heading: optimize}
     - {id: mto-inverter-notice, site: Mto, decision: mto-inverter, origin: true, factor: cover_not_claimable, heading: protect}
+    - {id: mto-unexplained-loss, site: Mto, decision: mto-losses, origin: true, factor: unexplained_loss_kwh, heading: optimize}
     - {id: mwea-occupancy, site: "Room A · Mwea", decision: mwea-occupancy, origin: true, factor: crate_days, heading: grow}
     - {id: mwea-aggregator, site: "Room A · Mwea", decision: mwea-occupancy, origin: false, factor: contract_crate_days, heading: grow}
     - {id: thika-backup-start, site: "Room B · Thika", decision: thika-backup, origin: true, factor: nights_without_backup_cover, heading: protect}
@@ -1556,6 +1614,7 @@ home_categories:   # design rev 16.11 §2.0 (OD-21; Architect's calls): the regi
     - {id: mto-demand, site: Mto, plan: mto_demand, finding: "Opportunity: the cooperative's signed letter of intent for a daytime rice huller", finding_factor: letter_of_intent_demand, lever: productive_kwh, heading: grow, chooser: SITE_MANAGER}
     - {id: mto-billing, site: Mto, finding: "Unbilled charges: kWh metered but not billed after the 3 Oct meter swap", finding_factor: unmapped_kwh, lever: unmapped_kwh, heading: optimize, chooser: FINANCE_AND_COMMERCIAL_LEAD}
     - {id: mto-inverter, site: Mto, plan: mto_inverter, finding: "Deadline on a right: inverter 2's warranty notice is due by 27 Nov", finding_factor: cover_not_claimable, lever: cover_not_claimable, heading: protect, chooser: SITE_MANAGER}
+    - {id: mto-losses, site: Mto, finding: "Losses beyond expected: kWh delivered but not explained after expected losses", finding_factor: unexplained_loss_kwh, lever: unexplained_loss_kwh, heading: optimize, chooser: SITE_MANAGER}
     - {id: mwea-occupancy, site: "Room A · Mwea", plan: mwea_occupancy, finding: "Off target: occupied crate-days below target", finding_factor: crate_days, lever: contract_crate_days, heading: grow, chooser: SITE_MANAGER}
     - {id: thika-backup, site: "Room B · Thika", plan: thika_backup, finding: "Limit breached: the backup start failed and a batch went above its limit", finding_factor: nights_without_backup_cover, lever: nights_without_backup_cover, heading: protect, chooser: SITE_MANAGER}
     - {id: kirinyaga-energy, site: "Room C · Kirinyaga", plan: kirinyaga_energy, finding: "Off target: electricity above what occupancy explains", finding_factor: excess_kwh, lever: excess_kwh, heading: optimize, chooser: SITE_MANAGER}
@@ -1563,6 +1622,155 @@ home_categories:   # design rev 16.11 §2.0 (OD-21; Architect's calls): the regi
     - {id: kasarani-charger, site: Kasarani, plan: kasarani_charger, finding: "EV interruption: charger 2 down, so deliverable energy is below what the roster needs", finding_factor: chargers_in_service, lever: departures_missed, heading: protect, chooser: SITE_MANAGER}
     - {id: ruiru-expansion, site: Ruiru, plan: ruiru_expansion, finding: "Opportunity: the city offers 6 more buses on a new route", finding_factor: spare_deliverable_energy, lever: buses, heading: grow, chooser: OPERATOR_EXECUTIVE}
     - {id: ruiru-connector, site: Ruiru, finding: "EV interruption: charger 7, connector 2 stopped on a fault on 6 Oct and has reported nothing since", finding_factor: chargers_in_service, lever: charger_days_out_of_service, heading: protect, chooser: SITE_MANAGER}
+
+empty_states:   # rev 16.13 (20 Nov; owner routed the placeholder audit's gaps 1 and 5 and the unknown-as-zero case to the Architect,
+                # owner/owner-placeholder-gaps-routing-2026-11-20.md). structure-specification.md §3.1. What fills each leaf, what its
+                # absence means, and which slice makes its source reachable, so every "not available yet" names its record and its
+                # slice, and no unknown is ever read as zero (rule R4). The product registry (3B1, 3B6) carries `family`, `kind` and
+                # `absent` on every leaf; `slice` and `trigger` are pack-only. evaluate_structure.py writes missing-records.json from
+                # this block and the records; check_manifest.py empty_states() checks it. Changes no figure.
+  # absent: MISSING        - no record means not available; the leaf has no numeric fallback on an observed side
+  #         ZERO_WHEN_HELD - zero is a recorded fact only while the source that would record the event is held for the period;
+  #                          if that source is not held, the leaf is MISSING (cause NOT_CONNECTED or NOT_RECEIVED)
+  #         OPTION_ONLY    - a factor only an option's changes move; observed sides carry its identity value (0, or 1 for a factor)
+  #         NEVER_EMPTY    - calendar
+  # family: COMMERCIAL_RECORD (integration-source-to-canonical-design.md §6.1 kinds) | READING (role) | OPERATIONAL_RECORD |
+  #         OBSERVER (a computed leaf over the named records) | DECLARED (site configuration, price or model) | DOCUMENT | CALENDAR
+  leaf_sources:
+    MINI_GRID:
+      delivered_kwh:              {family: READING, kind: feeder_demand, absent: MISSING, slice: 3B3}
+      technical_loss_kwh:         {family: DECLARED, kind: expected_technical_loss_band, absent: MISSING, slice: 4a}
+      unexplained_loss_kwh:       {family: OBSERVER, kind: "energy-to-cash@1 (feeder_demand, CUSTOMER_METER_READ)", absent: ZERO_WHEN_HELD, slice: 4a}
+      adjustments_kwh:            {family: COMMERCIAL_RECORD, kind: ADJUSTMENT, absent: ZERO_WHEN_HELD, slice: 4a}
+      unmapped_kwh:               {family: COMMERCIAL_RECORD, kind: "CUSTOMER_METER_READ (meter register with effective dates)", absent: ZERO_WHEN_HELD, slice: 4a}
+      tariff:                     {family: COMMERCIAL_RECORD, kind: TARIFF_SCHEDULE, absent: MISSING, slice: 4b}
+      productive_kwh:             {family: COMMERCIAL_RECORD, kind: "CHARGE (productive tariff class)", absent: ZERO_WHEN_HELD, slice: 4b}
+      productive_tariff:          {family: COMMERCIAL_RECORD, kind: TARIFF_SCHEDULE, absent: MISSING, slice: 4b}
+      in_transit:                 {family: COMMERCIAL_RECORD, kind: SETTLEMENT, absent: ZERO_WHEN_HELD, slice: 4b}
+      outstanding:                {family: COMMERCIAL_RECORD, kind: RECEIPT, absent: ZERO_WHEN_HELD, slice: 4b}
+      necessary_l:                {family: OBSERVER, kind: "dispatch-3.2 (generator_state, pv_available_power, battery_soc; FUEL_DELIVERY, TANK_DIP)", absent: MISSING, slice: 3B3}
+      candidate_l:                {family: OBSERVER, kind: "dispatch-3.2 (generator_state, pv_available_power, battery_soc)", absent: ZERO_WHEN_HELD, slice: 3B3}
+      unexplained_l:              {family: OBSERVER, kind: "fuel balance (FUEL_DELIVERY, TANK_DIP) minus dispatch-3.2", absent: ZERO_WHEN_HELD, slice: 3B3}
+      extra_l:                    {family: OBSERVER, kind: "forward replay (an option's extra running)", absent: OPTION_ONLY, slice: 6c}
+      diesel_price:               {family: COMMERCIAL_RECORD, kind: "EXPENSE (FUEL)", absent: MISSING, slice: 4b}
+      battery_throughput_kwh:     {family: OBSERVER, kind: "forward replay (throughput an option adds)", absent: OPTION_ONLY, slice: 6c}
+      wear_rate:                  {family: DECLARED, kind: battery_wear_rate_assumption, absent: MISSING, slice: 6c}
+      om:                         {family: COMMERCIAL_RECORD, kind: "EXPENSE (OM)", absent: MISSING, slice: 4b, words: "Service contractor invoice"}
+      staff:                      {family: COMMERCIAL_RECORD, kind: "EXPENSE (STAFF)", absent: MISSING, slice: 4b, words: "Payroll summary"}
+      collection_cost:            {family: COMMERCIAL_RECORD, kind: "EXPENSE (an option's collection cost)", absent: OPTION_ONLY, slice: 6g}
+      reduced_days:               {family: OPERATIONAL_RECORD, kind: "work case (failure and restore)", absent: ZERO_WHEN_HELD, slice: 3B3}
+      hours_per_day:              {family: OPERATIONAL_RECORD, kind: "work case (failure and restore)", absent: ZERO_WHEN_HELD, slice: 3B3}
+      major_assets:               {family: DECLARED, kind: asset_register, absent: MISSING, slice: 3B3}
+      unserved_critical_kwh:      {family: READING, kind: critical_load_delivered_power, absent: ZERO_WHEN_HELD, slice: 3B3}
+      customer_hours_interrupted: {family: READING, kind: "feeder supply-loss flag", absent: ZERO_WHEN_HELD, slice: 3B3}
+      field_visits:               {family: OPERATIONAL_RECORD, kind: "work case (field visit)", absent: ZERO_WHEN_HELD, slice: 3B3}
+      liability:                  {family: COMMERCIAL_RECORD, kind: "ADJUSTMENT (credit note)", absent: ZERO_WHEN_HELD, slice: 4b}
+      period_days:                {family: CALENDAR, kind: period_days, absent: NEVER_EMPTY, slice: 3B1}
+      standby_kw:                 {family: DECLARED, kind: "outage units (site configuration)", absent: ZERO_WHEN_HELD, slice: 3B3}
+      lost_unit_kw:               {family: DECLARED, kind: "outage units (site configuration)", absent: ZERO_WHEN_HELD, slice: 3B3}
+      dawn_days_below:            {family: READING, kind: battery_soc, absent: ZERO_WHEN_HELD, slice: 3B3}
+    COLD_CHAIN:
+      crate_days:                 {family: COMMERCIAL_RECORD, kind: "STORAGE_MOVEMENT (occupied crate-days)", absent: MISSING, slice: 9d}
+      rate:                       {family: COMMERCIAL_RECORD, kind: "TARIFF_SCHEDULE (storage rate card)", absent: MISSING, slice: 9d}
+      contract_crate_days:        {family: COMMERCIAL_RECORD, kind: "CONTRACT_DOCUMENT (an option's storage contract)", absent: OPTION_ONLY, slice: 9d}
+      contract_rate:              {family: COMMERCIAL_RECORD, kind: "CONTRACT_DOCUMENT (an option's storage contract)", absent: OPTION_ONLY, slice: 9d}
+      base_kwh:                   {family: DECLARED, kind: energy_model, absent: MISSING, slice: 9d}
+      k_kwh_per_crate_day:        {family: DECLARED, kind: energy_model, absent: MISSING, slice: 9d}
+      model_factor:               {family: DECLARED, kind: "energy_model (an option's efficiency change)", absent: OPTION_ONLY, slice: 9d}
+      excess_kwh:                 {family: OBSERVER, kind: "cold energy normalisation (CHARGE electricity bill, STORAGE_MOVEMENT)", absent: MISSING, slice: 9d}
+      elec_price:                 {family: COMMERCIAL_RECORD, kind: "CHARGE (electricity bill)", absent: MISSING, slice: 9d}
+      staff:                      {family: COMMERCIAL_RECORD, kind: "EXPENSE (STAFF)", absent: MISSING, slice: 9d, words: "Payroll summary"}
+      maint:                      {family: COMMERCIAL_RECORD, kind: "EXPENSE (OM)", absent: MISSING, slice: 9d, words: "Service contractor invoice"}
+      liability:                  {family: COMMERCIAL_RECORD, kind: "ADJUSTMENT (credit note)", absent: ZERO_WHEN_HELD, slice: 9d}
+      handling:                   {family: COMMERCIAL_RECORD, kind: "EXPENSE (an option's handling cost)", absent: OPTION_ONLY, slice: 9d}
+      outstanding:                {family: COMMERCIAL_RECORD, kind: RECEIPT, absent: ZERO_WHEN_HELD, slice: 9d}
+      uncovered_nights:           {family: OPERATIONAL_RECORD, kind: "work case (failed start, witnessed test) and the manual-start rota", absent: ZERO_WHEN_HELD, slice: 9d}
+      backup_unproven_days:       {family: OPERATIONAL_RECORD, kind: "work case (failed start, witnessed test)", absent: ZERO_WHEN_HELD, slice: 9d}
+      excursion_crates:           {family: OBSERVER, kind: "exposure (chamber temperature, STORAGE_MOVEMENT)", absent: ZERO_WHEN_HELD, slice: 9d}
+      excursion_days:             {family: OBSERVER, kind: "exposure (chamber temperature, STORAGE_MOVEMENT)", absent: ZERO_WHEN_HELD, slice: 9d}
+      batches_exposed:            {family: OBSERVER, kind: "exposure (chamber temperature, STORAGE_MOVEMENT)", absent: ZERO_WHEN_HELD, slice: 9d}
+      cooling_minutes_unavailable: {family: READING, kind: "cooling state", absent: ZERO_WHEN_HELD, slice: 9d}
+      minutes_per_day:            {family: CALENDAR, kind: minutes_per_day, absent: NEVER_EMPTY, slice: 3B6}
+      capacity_crate_days:        {family: DECLARED, kind: "room capacity (site configuration)", absent: MISSING, slice: 3B6}
+      period_days:                {family: CALENDAR, kind: period_days, absent: NEVER_EMPTY, slice: 3B6}
+    EV_DEPOT_CAPTIVE:
+      chargers_in_service:        {family: OBSERVER, kind: "charging capacity (charger register, ev_connector_state, ev_connector_fault)", absent: MISSING, slice: 9e}
+      chargers_installed:         {family: DECLARED, kind: "charger register (site configuration)", absent: MISSING, slice: 9e}
+      charger_kw:                 {family: DECLARED, kind: "charger register (site configuration)", absent: MISSING, slice: 9e}
+      import_limit_kw:            {family: DECLARED, kind: "grid connection (site configuration)", absent: MISSING, slice: 9e}
+      window_h:                   {family: COMMERCIAL_RECORD, kind: FLEET_ROSTER, absent: MISSING, slice: 9e}
+      buses:                      {family: COMMERCIAL_RECORD, kind: FLEET_ROSTER, absent: MISSING, slice: 9e}
+      kwh_per_bus_night:          {family: COMMERCIAL_RECORD, kind: FLEET_ROSTER, absent: MISSING, slice: 9e}
+      nights_in_period:           {family: CALENDAR, kind: "period nights", absent: NEVER_EMPTY, slice: 3B6}
+      peak_kwh:                   {family: COMMERCIAL_RECORD, kind: "CHARGE (utility time-of-use line)", absent: ZERO_WHEN_HELD, slice: 9e}
+      kwh_2200_2400:              {family: COMMERCIAL_RECORD, kind: "CHARGE (utility time-of-use line)", absent: MISSING, slice: 9e}
+      kwh_0000_0500:              {family: COMMERCIAL_RECORD, kind: "CHARGE (utility time-of-use line)", absent: ZERO_WHEN_HELD, slice: 9e}
+      max_kw:                     {family: COMMERCIAL_RECORD, kind: "CHARGE (utility demand line)", absent: ZERO_WHEN_HELD, slice: 9e}
+      peak_price:                 {family: COMMERCIAL_RECORD, kind: TARIFF_SCHEDULE, absent: MISSING, slice: 9e}
+      offpeak_price:              {family: COMMERCIAL_RECORD, kind: TARIFF_SCHEDULE, absent: MISSING, slice: 9e}
+      night_price:                {family: COMMERCIAL_RECORD, kind: TARIFF_SCHEDULE, absent: MISSING, slice: 9e}
+      demand_rate:                {family: COMMERCIAL_RECORD, kind: TARIFF_SCHEDULE, absent: MISSING, slice: 9e}
+      maintenance:                {family: COMMERCIAL_RECORD, kind: "EXPENSE (OM)", absent: MISSING, slice: 9e, words: "Service contractor invoice"}
+      short_nights:               {family: OBSERVER, kind: "charging capacity (FLEET_ROSTER, ev_connector_state)", absent: MISSING, slice: 9e}
+      spare_bus_nights:           {family: COMMERCIAL_RECORD, kind: FLEET_ROSTER, absent: ZERO_WHEN_HELD, slice: 9e}
+      covered_bus_nights:         {family: COMMERCIAL_RECORD, kind: "FLEET_ROSTER (an option's cover)", absent: OPTION_ONLY, slice: 9e}
+      extra_missed_departures:    {family: COMMERCIAL_RECORD, kind: "DEPARTURE (an option's extra misses)", absent: OPTION_ONLY, slice: 9e}
+      charger_out_days:           {family: OPERATIONAL_RECORD, kind: "SERVICE_TICKET (fault and restore)", absent: ZERO_WHEN_HELD, slice: 9e}
+      penalty_rate:               {family: DOCUMENT, kind: "CONTRACT_DOCUMENT (service contract penalty term)", absent: ZERO_WHEN_HELD, slice: 9e}
+  target_side:   # a leaf with no target line of its own on a Site's target side (structure-specification.md §3.1)
+    kind: "PLAN_LINE (a target line per factor)"
+    family: COMMERCIAL_RECORD
+    slice: 5a
+    words: "Targets below the site total"
+    assumption: "Target not set below the site total: leaks and avoidable use are taken at zero, and the rest of the target on its main factor (assumption)"
+  conditions:   # rights condition evidence (condition_evidence state MISSING, integration-source-to-canonical-design.md §6.3)
+    temperature:                 {family: READING, kind: battery_cell_temperature, cause: NOT_CONNECTED, slice: 9a, label: "Battery cell temperature", words: "Battery management system temperature log"}
+    commissioning_capacity_test: {family: DOCUMENT, kind: CAPACITY_TEST_REPORT, cause: NOT_RECEIVED, slice: 9a, label: "Commissioning capacity test", words: "Capacity test record"}
+    service_1000h:               {family: OPERATIONAL_RECORD, kind: "SERVICE_TICKET (1,000-hour service)", cause: NOT_RECEIVED, slice: 9a, label: "1,000-hour service", words: "Service log entry"}
+  assumptions:   # a record field the manifest marks "[assumption]": shown with its assumption label and the record that would confirm it
+    tariff.applicability:        {family: COMMERCIAL_RECORD, kind: "TARIFF_SCHEDULE (applicability evidence)", slice: 9e, label: "Tariff applicability", words: "Utility invoice with time-of-use lines", blocks: [energy_cost]}
+  chain_nodes:   # every chain_model stage and leak: the nodes or leaves that carry it, a potential entry, a deferred stage, or a reconciled zero
+    MINI_GRID:
+      usable_capacity: {deferred: usable_capacity}
+      delivered_kwh: [delivered_kwh]
+      metered_kwh: [metered_kwh]
+      billed_kwh: [billed_kwh]
+      revenue: [revenue]
+      cash: [collected]
+      delivered_to_metered: [technical_loss_kwh, unexplained_loss_kwh]
+      metered_to_billed: [adjustments_kwh, unmapped_kwh]
+      revenue_to_cash: [in_transit, outstanding]
+    COLD_CHAIN:
+      capacity_crate_days: [capacity_crate_days]
+      occupied_crate_days: [occupied_total_crate_days]
+      chargeable_crate_days: [crate_days, contract_crate_days]
+      revenue: [revenue]
+      cash: [received]
+      capacity_to_occupied: [idle_capacity]
+      occupied_to_chargeable: {reconciled: ["STORAGE_MOVEMENT (occupied crate-days)", "CHARGE (storage lines)"], absent: ZERO_WHEN_HELD, slice: 9d,
+                               note: "October's ledger and invoices agree (revenue = crate-days x rate on every room, both RECORDED), so the leak is a recorded zero; per-batch compatibility explains a difference only once one appears"}
+      revenue_to_cash: [outstanding]
+    EV_DEPOT_CAPTIVE:
+      deliverable_kwh_per_night: [deliverable_kwh_night]
+      delivered_kwh: [peak_kwh, kwh_2200_2400, kwh_0000_0500]
+      departures_required: [departures_required]
+      departures_met: [departures_met]
+      required_to_met: [departures_missed]
+  deferred_stages:   # a named stage no slice of the fortnight builds: its records, why it is empty, what it blocks, its queued slice and trigger
+    usable_capacity:
+      vertical: MINI_GRID
+      label: "Usable capacity by time window"
+      family: READING
+      kind: "pv_available_power, pcs_discharge_capability, generator_state (held today, integration-source-to-canonical-design.md §2)"
+      cause: NOT_CALCULATED_YET
+      words: "Solar, battery and generator readings (already received)"
+      blocks: [headroom]
+      slice: 4c
+      trigger: "pulled from the deferral queue when a lane is free after the must-keep set (day 12); at the latest when a pilot pins a real register profile"
+  queued_slices:   # slices declared here, outside plan_model.py's fortnight: each with its scope, units and trigger
+    4c: {name: "Capacity by time window: usable capacity and idle capacity as capacity factors (no money), from the kept headroom observer", lane: STR, units: 2.5, deps: [3B3, 0M]}
+  record_words:   # plain words for a record kind on screen, where the leaf row gives none
+    PLAN_LINE: "Targets below the site total"
 
 snapshot:   # design rev 16.11 §2.8 (OD-23): the calculated daily snapshot every screen reads, and the demo's pending recalculation.
             # A snapshot is an output: rebuilt from records, never a source. `as_of` is when it was computed; a portfolio whose
@@ -1631,3 +1839,51 @@ checks:
   - "cold: revenue == crate_days x 0.20; kwh_model == 1550 + 0.25 x crate_days"
   - "ev: energy_cost == peak_cost + offpeak_cost + demand_cost"
   - "allocation spend == sum(spend_breakdown) <= budget"
+history:   # U9 (owner, 20 Nov): July-September 2026 history of the three demo operators. GENERATOR INPUTS ONLY: seasons,
+           # day classes, family weights and per-leaf rules. Leaf values are generated by assetops_simulator.world into
+           # history.json; every node, total and series is evaluated by evaluate_structure.py (D-DS1.4). Every history
+           # leaf is Simulated (D-DS1.10). A leaf outside the generated scope is MISSING with cause NOT_IN_HISTORY (D-DS1.12).
+  version: 1
+  months: {"2026-07": 31, "2026-08": 31, "2026-09": 30}
+  anchor_period: "2026-10"
+  shape_source: synthetic
+  money_leaves: [energy_cost, in_transit, liability, maint, maintenance, om, outstanding, staff, total]
+  label: {provenance: demo-simulated, evidence: Simulated}
+  missing_cause: NOT_IN_HISTORY   # the record behind a history leaf DS1 does not generate (rev 16.13 vocabulary plus this one value)
+  seasons: {"2026-07": cool_dry, "2026-08": cool_dry, "2026-09": warm_dry, "2026-10": short_rains}
+  day_classes: {WD: [1, 2, 3, 4, 5], SA: [6], SU: [7]}   # ISO weekday
+  families:   # day weight = season x day class; jitter = amplitude of the seeded month factor
+    demand:        {season: {cool_dry: "0.96", warm_dry: "1.00", short_rains: "1.00"}, day: {WD: "1.00", SA: "0.97", SU: "0.90"}, jitter: "0.02"}
+    generator:     {season: {cool_dry: "0.98", warm_dry: "0.93", short_rains: "1.00"}, day: {WD: "1.00", SA: "0.97", SU: "0.90"}, jitter: "0.02"}   # October's short rains need the most generator fuel
+    solar_surplus: {season: {cool_dry: "0.80", warm_dry: "1.10", short_rains: "1.00"}, day: {WD: "1.00", SA: "1.00", SU: "1.00"}, jitter: "0.06"}
+    cooling:       {season: {cool_dry: "0.97", warm_dry: "1.02", short_rains: "1.00"}, day: {WD: "1.00", SA: "1.00", SU: "1.00"}, jitter: "0.01"}
+    flat:          {season: {cool_dry: "1", warm_dry: "1", short_rains: "1"}, day: {WD: "1", SA: "1", SU: "1"}, jitter: "0"}
+  rules:   # keyed by the tenant's own `vertical`; per side: leaf -> rule (spec §6.1)
+    MINI_GRID:
+      plan:   {billed_kwh: per_day, diesel_l: per_day, om: fixed, staff: fixed}
+      actual: {delivered_kwh: scale demand, technical_loss_kwh: scale demand, expected_technical_loss_kwh: scale demand,
+               unexplained_kwh: scale demand, adjustments_kwh: scale demand, unbilled_mapping_kwh: zero, in_transit: zero,
+               outstanding: scale demand, necessary_l: scale generator, candidate_l: scale solar_surplus,
+               unexplained_l: scale generator, om: plan_value, staff: fixed}
+    COLD_CHAIN:
+      plan:   {crate_days: per_day, kwh: per_day, staff: fixed, maint: fixed, liability: fixed}
+      actual: {crate_days: occupancy anchor anchor anchor, kwh: cold_kwh cooling anchor anchor anchor,
+               outstanding: ratio crate_days, staff: fixed, maint: plan_value, liability: zero}
+    EV_DEPOT:
+      plan:   {kwh: per_day, peak_kwh: share kwh anchor anchor anchor, offpeak_kwh: rest kwh peak_kwh, max_kw: fixed, maintenance: fixed}
+      actual: {kwh: fleet_kwh, peak_kwh: share kwh anchor anchor anchor, offpeak_kwh: rest kwh peak_kwh,
+               kwh_2200_2400: share offpeak_kwh anchor anchor anchor, kwh_0000_0500: rest offpeak_kwh kwh_2200_2400,
+               max_kw: fixed, maintenance: plan_value}
+  sites:   # per-Site overrides, merged by side into the vertical table (the override wins and may add keys)
+    lakeside-power/Kobo:
+      actual: {unexplained_l: trend generator 0.10 0.10 0.10}   # the above-tolerance residual (120 L) is October's; before it, within tolerance
+    harvest-cold/Room A · Mwea:
+      actual: {crate_days: occupancy 0.56 0.49 0.42}             # occupancy sliding toward October's 35% (the occupancy root cause)
+    harvest-cold/Room B · Thika:
+      actual: {crate_days: occupancy 0.68 0.71 0.70}
+    harvest-cold/Room C · Kirinyaga:
+      actual: {crate_days: occupancy 0.79 0.81 0.80, kwh: cold_kwh cooling 1.05 1.10 1.17}   # efficiency drift toward October's +24%
+    metro-bus/Ruiru:
+      plan:   {energy_cost: per_day, maintenance: fixed, total: sum energy_cost maintenance, departures_required: fleet_nights}   # October's plan is stated only as a bill total; history keeps that form
+    metro-bus/Embakasi:
+      actual: {peak_kwh: share kwh 0.36 0.43 0.49, max_kw: level flat 0.92 0.95 0.98}        # peak charging creeping toward October's 0.55

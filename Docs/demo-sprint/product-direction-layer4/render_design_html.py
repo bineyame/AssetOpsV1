@@ -1,6 +1,7 @@
 """Render layer4-transformation-design.md to its HTML twin (mermaid diagrams drawn client-side from the jsDelivr CDN).
 
-Usage: python3 render_design_html.py layer4-transformation-design.md layer4-transformation-design.html
+Usage: python3 render_design_html.py layer4-transformation-design.md layer4-transformation-design.html [TITLE]
+       python3 render_design_html.py product-transition-and-roadmap.md product-transition-and-roadmap.html "Layer 4 Roadmap"
 Reproduces the twin that was previously rendered by hand-run tooling outside the repository (rev 4 of the transition
 document added this script so the twin can be rebuilt and checked: rendering the committed .md must give the committed
 .html byte for byte). A line `<!--diagram:NAME-->` before a mermaid block replaces that block, in the HTML only, with
@@ -11,9 +12,10 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from motivation_figures import CSS as FIG_CSS, FIGURES   # §0's inline SVG figures (wide and narrow layouts)
 
 SRC, OUT = sys.argv[1], sys.argv[2]
+TITLE = sys.argv[3] if len(sys.argv) > 3 else "Layer 4 Design"   # rev 5 of the roadmap renders through this script too
 
 HEAD = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-        '<title>Layer 4 Design</title><style>:root{--bg:#f6f7f9;--fg:#18212f;--muted:#5d6878;--line:#dfe3ea;--card:#fff;--accent:#1d4ed8;--code:#eef1f5;--acard:#eef3ff;--pcard:#f4f5f7}\n'
+        '<title>' + TITLE + '</title><style>:root{--bg:#f6f7f9;--fg:#18212f;--muted:#5d6878;--line:#dfe3ea;--card:#fff;--accent:#1d4ed8;--code:#eef1f5;--acard:#eef3ff;--pcard:#f4f5f7}\n'
         '@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#11161d;--fg:#e4e8ee;--muted:#9aa5b4;--line:#2a3340;--card:#171d26;--accent:#7aa2f7;--code:#1f2733;--acard:#1a2540;--pcard:#1b212b}}\n'
         ':root[data-theme=dark]{--bg:#11161d;--fg:#e4e8ee;--muted:#9aa5b4;--line:#2a3340;--card:#171d26;--accent:#7aa2f7;--code:#1f2733;--acard:#1a2540;--pcard:#1b212b}\n'
         'body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}\n'
@@ -25,7 +27,7 @@ HEAD = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="
         '.toc{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px 16px;margin:20px 0}.toc ul{margin:6px 0;padding-left:18px}.toc .l3{margin-left:16px;font-size:.93em}\n'
         + FIG_CSS +
         ':focus-visible{outline:2px solid var(--accent);outline-offset:2px}</style></head><body><main class="wrap">')
-FOOT = ('<p style="color:var(--muted);font-size:13px">Rendered from layer4-transformation-design.md. Diagrams render with Mermaid from the '
+FOOT = ('<p style="color:var(--muted);font-size:13px">Rendered from ' + pathlib.Path(SRC).name + '. Diagrams render with Mermaid from the '
         'jsDelivr CDN; offline, the diagram source is shown. On a narrow screen a wide diagram keeps its text at a legible size '
         'and scrolls sideways inside its frame.</p></main>\n'
         '<script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.esm.min.mjs";'

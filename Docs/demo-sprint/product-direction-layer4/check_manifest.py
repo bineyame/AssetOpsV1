@@ -28,6 +28,23 @@ and the manifest alone. Against that independent recomputation the checker compa
      factors that exist in the registry (or a manifest measure or potential entry) with a heading equal to the registry's
      and a Site and a portfolio read; the traceability CSV's factor column uses the same IDs and its text passes the naming
      lint (OD-6). It proves itself on planted copies every run.
+ 10. empty_states(): every leaf names what fills it, what its absence means and the slice that makes its source reachable; no
+     leaf declared MISSING has a numeric fallback, and every numeric fallback is a held-source zero or an option's identity
+     (rule R4, "Unknown is not zero"); every value-chain stage and leak is carried by a node, a potential entry, a deferred stage
+     with its slice and trigger, or a reconciled zero; every missing condition, assumption and estimated line has its record;
+     missing-records.json names a record, a cause and a slice for each entry and covers every side derived-values.json leaves
+     not decomposed (structure-specification.md §3.1, rev 16.13). It proves itself on planted copies every run.
+ 11. history_checks(): the July-September history (DS1 spec §8.3, H1-H13).
+ 12. reconciliation(): the statement and the headings reconcile (design rev 16.14 §2.0; rulings D-RECON.1 to D-RECON.4). Each
+     bridge row sits on one statement line (RC1); the rows on each line add to the evaluator's change in that line (RC2); only a
+     not-decomposed side leaves a residual, in its vertical's residual row (RC3); every crossing row (one line, the other line's
+     heading) is declared and every declaration crosses (RC4); each portfolio's matrix adds to its gap, which equals the
+     evaluator's and the history's October gap (RC5); every shared headline figure reads one matrix term (RC6); a statement row and
+     its line's heading shown on one route are tied, and each tie holds for every portfolio and Site (RC7). Runs after the history
+     checks, so H9's baseline is unchanged. It proves itself on planted copies every run.
+ 13. option_basis(): every evaluation option names its basis, NO_ACTION, RESTORE_REFERENCE or NOT_VALUED (B1); RESTORE_REFERENCE
+     only where the decision's no-action option never restores (B2), and exactly where that holds and the decision is valued in money (B4, D-RECON.8); NOT_VALUED exactly on the comparator rows (B3) (design
+     rev 16.14 §2.4; ruling D-RECON.6). Runs after the history checks. It proves itself on planted copies every run.
 Run:  python3 check_manifest.py [manifest]   Exit 0 = all pass.
 """
 from __future__ import annotations
@@ -216,8 +233,13 @@ def stated(doc, ref):
                 eq(f"stated {oid} buses short a night", row["buses_short"], e["bound"]["buses_short_per_night"])
             if "deliverable_kwh" in row and oid.startswith("RUI"):
                 eq(f"stated {oid} deliverable a night", row["deliverable_kwh"], e["bound"]["deliverable_kwh_night"])
-            if "avoided_capex" in row:
-                eq(f"stated {oid} avoided purchase = RUI-4CHARGERS one-off", row["avoided_capex"], O["RUI-4CHARGERS"]["operator_one_off"])
+            if "capex_not_needed" in row:   # D-RECON.5: the rejected purchase it makes unnecessary, as context, never a result
+                cn = row["capex_not_needed"]
+                alt = cn.get("against")
+                eq(f"stated {oid} capital not needed = {alt} one-off", cn.get("amount"), (O.get(alt) or {}).get("operator_one_off"))
+                dec = next((d for d in doc["plans"].get(tid, {}).get("decisions", []) if oid in d["options"]), None)
+                check(f"stated {oid} capital not needed: against {alt} is a REJECTED option of the same decision",
+                      dec is not None and alt in dec["options"] and alt != oid and (rows.get(alt) or {}).get("disposition") == "REJECTED")
             if "expected_penalties" in row:
                 eq(f"stated {oid} penalties", row["expected_penalties"], -D(str(e["monthly_or_horizon_change"])))
         for pe in t["portfolio"].get("protect_effects", []):
@@ -377,8 +399,9 @@ REQUIRED = {"layer4-transformation-design.md": ["sites.lakeside-power/Kobo.plan.
             ["sites.metro-bus/Kasarani.november_to_date.nodes.departures_missed", "sites.metro-bus/Kasarani.november_to_date.nodes.penalties"],
             "design-questions-and-decisions.md": ["owner_question_variants.Q15.B.lakeside-power.cases.6500/True.value", "owner_question_variants.Q15.B.lakeside-power.cases.6500/True.value_change_vs_applied",
                                                   "owner_question_variants.Q15.C.lakeside-power.cases.5000/False.value"],
+            # rev 5 of the roadmap (20 Nov): a short roadmap; its three money figures are anchored
             "product-transition-and-roadmap.md": ["sites.lakeside-power/Kobo.plan.nodes.contribution", "sites.lakeside-power/Kobo.actual.nodes.contribution",
-                                                  "plans.lakeside-power.default.spend", "plans.lakeside-power.default.value", "plans.lakeside-power.downside"]}
+                                                  "options.KOB-STOPSOC.value"]}
 ANCHOR = re.compile(r"(?:(?<=[\s(=:*$|/,;])|^)((?:−|\+|-(?=\d))\s?)?\$?([\d,]*\d(?:\.\d+)?)(%?)(\**)<!--fig:(-?)([^>]+)-->", re.M)
 FIGX = re.compile(r"(?:(?<=[\s(=:*$|/,;])|^)((?:−|\+|-(?=\d))\s?)?\$?([\d,]*\d(?:\.\d+)?)(%?)(\**)<!--figx:([^>]+)-->", re.M)
 RECORDS: set = set()
@@ -552,14 +575,14 @@ def documents(root, doc, ref):
             for m in re.findall(r"\d[\d,]*(?:\.\d+)?", o):
                 try: allowed.add(round(abs(float(m.replace(",", ""))), 2))
                 except ValueError: pass
-    walk({k: v for k, v in doc.items() if k != "oracle"}); walk(ref)
+    walk({k: v for k, v in doc.items() if k not in ("oracle", "history")}); walk(ref)   # DS1 §8.3: the history's rules are not figures
     main_doc = (root / "layer4-transformation-design.md").read_text(encoding="utf-8")
     wp = (root / "worked-portfolios.md").read_text(encoding="utf-8")
     sections = [("main Parts 1-2", main_doc[main_doc.index("## Part 1."):main_doc.index("## Appendix")]),
                 ("worked portfolios", wp[wp.index("## 1. The worked portfolios"):]),
                 ("walkthroughs", (root / "interactive-mockup-vNEXT" / "walkthroughs.md").read_text(encoding="utf-8"))]
     tr = (root / "product-transition-and-roadmap.md").read_text(encoding="utf-8")
-    sections.append(("transition §1-§4", tr[tr.index("## 1. Where we are"):tr.index("## 5. ")]))
+    sections.append(("roadmap", tr[tr.index("## 1. "):]))   # rev 5 (20 Nov): the whole short roadmap
     for name, body in sections:
         body = re.sub(r"[\d,]*\d(?:\.\d+)?%?\**<!--figx:[^>]*-->", "", body)   # recomputed by anchors() instead
         body = re.sub(r"`[^`]*`|<!--[^>]*-->", "", body)
@@ -962,6 +985,720 @@ def derived_fig_docs(root):
     return tuple(fn for fn in ca.derived_present(root) if fn not in FIG_DOCS)
 
 
+# ---------------- 10. empty states: the record behind every "not available yet" (structure-specification.md §3.1) ----------------
+FAMILIES = {"COMMERCIAL_RECORD", "READING", "OPERATIONAL_RECORD", "OBSERVER", "DECLARED", "DOCUMENT", "CALENDAR"}
+ABSENT = {"MISSING", "ZERO_WHEN_HELD", "OPTION_ONLY", "NEVER_EMPTY"}
+CAUSES = {"NOT_RECEIVED", "NOT_CONNECTED", "NOT_CALCULATED_YET"}
+CARRIED = {None, "TARGET", "ASSUMPTION", "RESIDUAL"}
+
+
+def plan_slice_ids(root):
+    return set(re.findall(r'^\s+\("(\w+)", "', (root / "plan_model.py").read_text(encoding="utf-8"), flags=re.M))
+
+
+def numeric_alternatives(expr):
+    """The number literals that are whole alternatives of `a | b | 0` (or the whole expression)."""
+    import ast
+    out, stack = [], [ast.parse(str(expr), mode="eval").body]
+    while stack:
+        n = stack.pop()
+        if isinstance(n, ast.BinOp) and isinstance(n.op, ast.BitOr):
+            stack += [n.left, n.right]
+        elif isinstance(n, ast.Constant) and isinstance(n.value, (int, float)):
+            out.append(n.value)
+    return out
+
+
+def observed_reads_literal(doc, v, f, x):
+    """Sites of vertical v whose observed side (October, November to date) has none of the record alternatives before the
+    leaf's number literal, so the literal would be read as an observed value."""
+    import ast
+    def alts(n):
+        return alts(n.left) + alts(n.right) if isinstance(n, ast.BinOp) and isinstance(n.op, ast.BitOr) else [n]
+    def fields(n):   # record.<field> paths an alternative reads
+        return [a.attr for a in ast.walk(n) if isinstance(a, ast.Attribute) and isinstance(a.value, ast.Name) and a.value.id == "record"]
+    seq = alts(ast.parse(str(x), mode="eval").body)
+    first_lit = next((i for i, a in enumerate(seq) if isinstance(a, ast.Constant)), None)
+    if first_lit is None:
+        return []
+    out = []
+    for t in doc["tenants"]:
+        if ("EV_DEPOT_CAPTIVE" if t["vertical"] == "EV_DEPOT" else t["vertical"]) != v:
+            continue
+        for s_ in t["sites"]:
+            obs = s_.get("observations", {})
+            for side, rec in [("actual", {**s_["period"]["actual"], **obs.get("october", {})})] + \
+                             ([("november_to_date", obs["november_to_date"])] if "november_to_date" in obs else []):
+                if not any(fields(a) and all(k in rec for k in fields(a)) for a in seq[:first_lit]):
+                    out.append(f"{s_['site']} {side}")
+    return out
+
+
+def empty_state_problems(doc, slices, mr, dv):
+    bad = []
+    ES = doc.get("empty_states") or {}
+    LS, CN, DS_, CO, AS = (ES.get(k) or {} for k in ("leaf_sources", "chain_nodes", "deferred_stages", "conditions", "assumptions"))
+    ok_slices = slices | set(ES.get("queued_slices") or {})
+    vert_of = {t["tenant"]: ("EV_DEPOT_CAPTIVE" if t["vertical"] == "EV_DEPOT" else t["vertical"]) for t in doc["tenants"]}
+    pot = {v: {p_["name"] for p_ in ps} for v, ps in ((doc.get("home_categories") or {}).get("potential") or {}).items()}
+    for v, fm in doc["factor_map"].items():
+        rows = LS.get(v) or {}
+        if set(rows) != set(fm):
+            bad.append(f"leaf_sources {v}: rows {sorted(set(rows) ^ set(fm))[:4]} differ from the factor map")
+        exprs = {f: [x] for f, x in fm.items()}
+        for t in doc["tenants"]:
+            if vert_of[t["tenant"]] == v:
+                for s_ in t["sites"]:
+                    for f, x in (s_.get("factor_sources") or {}).items():
+                        exprs.setdefault(f, []).append(x)
+        for f, r in rows.items():
+            r = r or {}
+            if r.get("family") not in FAMILIES or r.get("absent") not in ABSENT or not r.get("kind"):
+                bad.append(f"leaf_sources {v}/{f}: family, kind and absent must be named ({r})")
+            if r.get("slice") not in ok_slices:
+                bad.append(f"leaf_sources {v}/{f}: slice {r.get('slice')} is not a slice of plan_model.py or a queued slice")
+            if (r.get("absent") == "NEVER_EMPTY") != (r.get("family") == "CALENDAR"):
+                bad.append(f"leaf_sources {v}/{f}: only a calendar leaf is never empty")
+            for x in exprs.get(f, []):
+                lits = numeric_alternatives(x)
+                if lits and r.get("absent") == "MISSING":   # the literal may serve only the target side, under its labelled assumption
+                    for where in observed_reads_literal(doc, v, f, x):
+                        bad.append(f"leaf_sources {v}/{f}: declared MISSING but {where} reads {lits} for an absent record (unknown as zero, R4)")
+                if r.get("absent") == "ZERO_WHEN_HELD" and any(l_ != 0 for l_ in lits):
+                    bad.append(f"leaf_sources {v}/{f}: a held-source zero falls back to {lits}, not 0")
+                if lits and r.get("absent") not in ("ZERO_WHEN_HELD", "OPTION_ONLY", "NEVER_EMPTY", "MISSING"):
+                    bad.append(f"leaf_sources {v}/{f}: a numeric fallback with no declared meaning")
+    for v, cm in doc["chain_model"].items():
+        want = set(cm["stages"]) | set(cm.get("leaks") or {})
+        got = CN.get(v) or {}
+        if set(got) != want:
+            bad.append(f"chain_nodes {v}: {sorted(set(got) ^ want)} differ from chain_model's stages and leaks")
+        names = set(doc["structures"][v]) | set(doc["factor_map"][v]) | pot.get(v, set())
+        for k, m in got.items():
+            if isinstance(m, list):
+                if not m or not set(m) <= names:
+                    bad.append(f"chain_nodes {v}/{k}: {m} are not all nodes, leaves or potential entries")
+            elif isinstance(m, dict) and "deferred" in m:
+                d_ = DS_.get(m["deferred"]) or {}
+                if d_.get("vertical") != v:
+                    bad.append(f"chain_nodes {v}/{k}: deferred stage {m['deferred']} is not declared for {v}")
+            elif isinstance(m, dict) and "reconciled" in m:
+                if not m["reconciled"] or m.get("absent") != "ZERO_WHEN_HELD" or m.get("slice") not in ok_slices or not m.get("note"):
+                    bad.append(f"chain_nodes {v}/{k}: a reconciled zero names its records, ZERO_WHEN_HELD, a slice and its note")
+            else:
+                bad.append(f"chain_nodes {v}/{k}: carried by nothing")
+    for st, d_ in DS_.items():
+        need = ("vertical", "label", "family", "kind", "cause", "words", "blocks", "slice", "trigger")
+        if any(not d_.get(k) for k in need) or d_.get("cause") not in CAUSES or d_.get("family") not in FAMILIES or d_.get("slice") not in ok_slices:
+            bad.append(f"deferred stage {st}: names {need} with a known cause, family and slice")
+        names = set(doc["structures"].get(d_.get("vertical"), {})) | pot.get(d_.get("vertical"), set())
+        if not set(d_.get("blocks") or []) <= names:
+            bad.append(f"deferred stage {st}: blocks {d_.get('blocks')} are not nodes or potential entries")
+        if not any(isinstance(m, dict) and m.get("deferred") == st for m in (CN.get(d_.get("vertical")) or {}).values()):
+            bad.append(f"deferred stage {st}: no chain stage is carried by it")
+    for v, ps in ((doc.get("home_categories") or {}).get("potential") or {}).items():
+        for p_ in ps:
+            if "shown" in p_:
+                bad.append(f"potential {v}/{p_['name']}: free-text empty state; name its deferred stage instead")
+            if "deferred" in p_ and p_["deferred"] not in DS_:
+                bad.append(f"potential {v}/{p_['name']}: deferred stage {p_['deferred']} is not declared")
+    want_entries = []   # (site key, side, subject) the manifest itself says are missing
+    for t in doc["tenants"]:
+        for s_ in t["sites"]:
+            key = f"{t['tenant']}/{s_['site']}"
+            for line, state in (s_["period"].get("coverage") or {}).items():
+                if state == "ESTIMATED":
+                    want_entries.append((key, "actual", ("leaf", line)))
+            rights = ([s_["entitlement"]] if "entitlement" in s_ else []) + s_.get("entitlements", []) + \
+                     ([s_["incident"]["entitlement"]] if isinstance(s_.get("incident", {}).get("entitlement"), dict) else [])
+            for r in rights:
+                for c, state in (r.get("evidence") or {}).items():
+                    if state == "MISSING":
+                        cr = CO.get(c) or {}
+                        if not all(cr.get(k) for k in ("family", "kind", "cause", "slice", "label", "words")) or cr.get("slice") not in ok_slices:
+                            bad.append(f"condition {c} ({key}): names its record, cause, slice and words")
+                        want_entries.append((key, "actual", ("condition", c)))
+            for head, blk in s_.items():
+                if isinstance(blk, dict):
+                    for field, val in blk.items():
+                        if isinstance(val, str) and val.startswith("[assumption]"):
+                            if f"{head}.{field}" not in AS:
+                                bad.append(f"assumption {key} {head}.{field}: no record that would confirm it")
+                            want_entries.append((key, "actual", ("field", f"{head}.{field}")))
+            for side, r in (dv["sites"].get(key) or {}).items():
+                if r["status"] != "evaluated":
+                    want_entries.append((key, side, ("not decomposed", side)))
+    sites = mr.get("sites") or {}
+    for key, side, (kind, what) in want_entries:
+        es = [e for e in sites.get(key, []) if e.get("side") == side]
+        hit = {"leaf": lambda e: e.get("leaf") == what, "condition": lambda e: e.get("condition") == what,
+               "field": lambda e: e.get("field") == what, "not decomposed": lambda e: e.get("carried_as") == "RESIDUAL" or e.get("cause") == "NOT_RECEIVED" and e.get("leaf")}[kind]
+        if not any(hit(e) for e in es):
+            bad.append(f"missing-records {key} {side}: no entry for {kind} {what}")
+    for key, es in sites.items():
+        v = vert_of.get(key.split("/")[0])
+        for e in es:
+            if not e.get("record_kind") or e.get("source_family") not in FAMILIES or e.get("cause") not in CAUSES \
+                    or e.get("carried_as", "x") not in CARRIED or e.get("slice") not in ok_slices or not isinstance(e.get("blocks"), list):
+                bad.append(f"missing-records {key}: entry {e.get('leaf') or e.get('leaves') or e.get('condition') or e.get('stage') or e.get('field')} lacks a record, cause, carried-as or slice")
+            if "leaf" in e and e["leaf"] not in (LS.get(v) or {}):
+                bad.append(f"missing-records {key}: leaf {e['leaf']} is not a registry leaf")
+            if "stage" in e and e["stage"] not in DS_:
+                bad.append(f"missing-records {key}: stage {e['stage']} is not a deferred stage")
+            if e.get("carried_as") is None and "leaf" in e and (dv["sites"].get(key) or {}).get(e["side"], {}).get("status") == "evaluated":
+                bad.append(f"missing-records {key}: {e['leaf']} is shown as not available on a side that is evaluated (stale empty state)")
+    return bad
+
+
+def empty_states(root, doc):
+    import copy
+    try:
+        mr = json.loads((root / "missing-records.json").read_text(encoding="utf-8"))
+    except Exception:
+        check("empty states: missing-records.json is readable (run evaluate_structure.py)", False); return
+    dv = json.loads((root / "derived-values.json").read_text(encoding="utf-8"))
+    slices = plan_slice_ids(root)
+    bad = empty_state_problems(doc, slices, mr, dv)
+    check(f"empty states: every leaf, stage, condition and missing record names its source and its slice ({bad[:4]} x{len(bad)})", not bad)
+    n = sum(len(v) for v in (mr.get("sites") or {}).values())
+    check(f"empty states: missing-records.json covers every Site ({n} entries)", set(mr.get("sites") or {}) == set(dv["sites"]))
+
+    def planted(edit, on="doc"):
+        d2, m2 = copy.deepcopy(doc), copy.deepcopy(mr)
+        edit(d2 if on == "doc" else m2)
+        return bool(empty_state_problems(d2, slices, m2, dv))
+    first_site = next(iter(mr["sites"]))
+    plants = {
+        "a leaf with no source row": lambda d: d["empty_states"]["leaf_sources"]["MINI_GRID"].pop("om"),
+        "a zero fallback declared MISSING and read on an observed side (unknown as zero)": lambda d: d["empty_states"]["leaf_sources"]["MINI_GRID"]["unexplained_loss_kwh"].update(absent="MISSING"),
+        "an observed side losing the record a MISSING leaf reads": lambda d: d["tenants"][0]["sites"][0]["observations"]["october"].pop("major_assets"),
+        "a leaf with an unknown slice": lambda d: d["empty_states"]["leaf_sources"]["COLD_CHAIN"]["crate_days"].update(slice="99z"),
+        "a chain stage carried by nothing": lambda d: d["empty_states"]["chain_nodes"]["MINI_GRID"].pop("usable_capacity"),
+        "a free-text empty state on a potential entry": lambda d: d["home_categories"]["potential"]["MINI_GRID"][0].update(shown="needs an export"),
+        "a missing condition with no record": lambda d: d["empty_states"]["conditions"].pop("temperature"),
+        "an entry with no slice": (lambda m: m["sites"][first_site][0].pop("slice"), "mr"),
+        "an estimated line with no entry": (lambda m: m["sites"].update({k: [e for e in v if e.get("carried_as") != "TARGET"] for k, v in m["sites"].items()}), "mr"),
+    }
+    for label, p_ in plants.items():
+        fn_, on = p_ if isinstance(p_, tuple) else (p_, "doc")
+        check(f"empty states self-test: {label} is planted and fails", planted(fn_, on))
+
+
+# ---------------- 11. history (DS1 spec §8.3, checks H1-H11; D-DS1.5 to D-DS1.12) ----------------
+# They run when history.json exists. Every expected value comes from independent_model.compute_history(); the constants below
+# are the base commit's October digests (H8, H10). Lifetime (R14): the next slice that changes October replaces them in its diff.
+H8_DERIVED_SHA = "bfe2cbc54571963ea4f9c1ed18633dc84c6579a2fc1003bc51a7ff8d1ab3813a"   # derived-values.json at the DS1p base
+H8_MISSING_SHA = "b8d3bcbc376cf530ddc633e1f5ba1878f99eb0314d47f656278c76423c864fa5"   # missing-records.json at the DS1p base
+H10_MANIFEST_SHA = "5407c9869fa319126d9305bf39d0600b340ef0e6a7dea01dd95418798236accb"  # the manifest at the DS1p base, plus
+# `home_categories.reconciliation` (ruling D-RECON.4, 20 Nov): a declaration no evaluator, model or generator reads and outside
+# view_digest; October values (H8), history.json and H11 are unchanged. The DS1p base was 8c027d0405936e4730426633ee703de5623bea3da6ddec36933b50b77a2edb4c.
+# Re-based again (20 Nov) for the data lane of rulings D-RECON.5 to D-RECON.7, all before `history:` and none read by the
+# evaluator, the independent model or the history generator, and none inside view_digest: RUI-ABSORB6 `capex_not_needed`
+# replaces `avoided_capex` and the Metro listed key is renamed (D-RECON.5); every evaluation option gains `basis` (D-RECON.6);
+# the `mto-losses` decision and its `mto-unexplained-loss` Finding rows (D-RECON.7). derived-values.json, missing-records.json
+# and history.json stayed byte-identical after evaluate_structure.py. The RECON-1 base was 09903eba1032bf6dc7b421c3c51855fe9fdb0929d090dda48a3c17d3d6dc2a85.
+H9_BASELINE = 4503   # 4487 (confirmed, D-RECON.8) plus the 16 figure anchors of design Figure 1c (owner, 20 Nov: "yes, add the figure");
+                     # checks passed on the DS1p base after `merge main`, taken in place (packet-DS1p.md): 4465, plus the
+                     # 11 figure anchors of design §2.0 "How the statement and the headings reconcile" (rev 16.14, D-RECON.4),
+                     # plus 11 for D-RECON.5 and D-RECON.7: stated() checks capex_not_needed's `against` (+1), and homes() checks
+                     # the new decision mto-losses (6) and its Finding mto-unexplained-loss (3) and origin row (1). Section 13 runs after.
+H_RULE_BASES = ("share", "rest")   # MB3 (ruled): a base key a declared share/rest rule reads (EV `kwh`) is a generated record
+H_ENTRY_META = {"side", "record_kind", "source_family", "cause", "carried_as", "blocks", "slice", "record_words", "assumption", "trigger", "note"}
+
+
+def entry_subject(e):
+    """The subject of a missing-records entry (leaf | leaves | field | stage | right and condition, with its label)."""
+    return {k: v for k, v in e.items() if k not in H_ENTRY_META}
+
+
+def entry_key(e):
+    """H4b: the whole entry, blocks as a set; the independent model's entries carry `subject` as one key."""
+    subj = e["subject"] if "subject" in e else entry_subject(e)
+    return (e.get("side"), json.dumps(subj, sort_keys=True, ensure_ascii=False), e.get("record_kind"), e.get("source_family"),
+            e.get("cause"), e.get("carried_as"), tuple(sorted(e.get("blocks") or [])), e.get("slice"))
+
+
+def entry_key13(e):
+    """H13: (subject, record_kind, cause, carried_as). MB6 (ruled): a target-side `leaves` subject is keyed by its kind only,
+    because its leaf list is each month's own (Mto's `unmapped_kwh` is split only in October); H13 adds that the list is a
+    subset of October's, and H4b compares it exactly against the independent model."""
+    subj = entry_subject(e)
+    return (json.dumps({"leaves": None} if "leaves" in subj else subj, sort_keys=True, ensure_ascii=False),
+            e.get("record_kind"), e.get("cause"), e.get("carried_as"))
+
+
+def view_digest(doc):
+    """H11 (R15): spec §4.2 re-implemented: allowlist, float repr, canonical bytes. Shares no code with the generator."""
+    import hashlib
+
+    def conv(x, p):
+        if isinstance(x, bool) or not isinstance(x, (int, float, str, dict, list)):
+            raise ValueError(f"VIEW_TYPE {p}")
+        if isinstance(x, float):
+            return repr(x)
+        if isinstance(x, dict):
+            return {str(k): conv(v, f"{p}.{k}") for k, v in x.items()}
+        return [conv(v, p) for v in x] if isinstance(x, list) else x
+
+    def pick(d, keys):
+        return {k: d[k] for k in keys if k in d}
+    view = pick(doc, ("manifest_version", "as_of", "accounting_period", "currency", "timezone_default", "history"))
+    view["tenants"] = [{**pick(t, ("tenant", "vertical", "prices", "energy_model", "capacity_crates_per_room")),
+                        "sites": [{**pick(s, ("site", "code", "physical", "tariff")),
+                                   **({"period": pick(s["period"], ("plan", "actual", "coverage"))} if "period" in s else {})}
+                                  for s in t["sites"]]} for t in doc["tenants"]]
+    raw = json.dumps(conv(view, "view"), sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(raw).hexdigest()
+
+
+def first_present_keys(fm, keys):
+    """H2 (P1): for each factor-map leaf, the record.* names of its first alternative whose record names are all present."""
+    import ast as _ast
+    out = set()
+
+    def alts(n):
+        if isinstance(n, _ast.BinOp) and isinstance(n.op, _ast.BitOr):
+            return alts(n.left) + alts(n.right)
+        return [n]
+    for x in fm.values():
+        for a in alts(_ast.parse(str(x), mode="eval").body):
+            names = {n.attr for n in _ast.walk(a) if isinstance(n, _ast.Attribute) and isinstance(n.value, _ast.Name)
+                     and n.value.id == "record"}
+            if names and names <= keys:
+                out |= names
+                break
+    return out
+
+
+def history_checks(doc, dv, root, path, im):
+    import calendar
+    import datetime as _dt
+    import hashlib
+    global passes
+    base_passes, base_failed = passes, len(failures)
+    hist = json.loads((root / "history.json").read_text(encoding="utf-8"))
+    ref = im.compute_history(str(path))
+    H = doc["history"]
+    dh = dv.get("history") or {}
+    check("H6 derived-values.json carries the history series", bool(dh))
+    money = set(hist["meta"]["money_leaves"])
+    mr = json.loads((root / "missing-records.json").read_text(encoding="utf-8"))
+    bad_mr = sorted({e.get("cause") for es in mr["sites"].values() for e in es} - CAUSES)
+    check(f"H12 missing-records.json causes are main causes only (bad {bad_mr})", not bad_mr)
+    vert_of = {t["tenant"]: ("EV_DEPOT_CAPTIVE" if t["vertical"] == "EV_DEPOT" else t["vertical"]) for t in doc["tenants"]}
+    for t in doc["tenants"]:
+        tid, V = t["tenant"], vert_of[t["tenant"]]
+        rt, dt_ = ref["tenants"][tid], dh.get(tid, {})
+        kind = rt["kind"]
+        outcome = "cost_to_serve" if kind == "cost" else "contribution"
+        check(f"H6 {tid}: kind {dt_.get('kind')!r} == independent {kind!r}", dt_.get("kind") == kind)
+        check(f"H7 {tid}: series evidence is Simulated", dt_.get("evidence") == "Simulated")
+        check(f"H6 {tid}: months {dt_.get('months')} == {ref['months']}", dt_.get("months") == ref["months"])
+        for s_ in t["sites"]:
+            n = s_["site"]
+            rs, ds = rt["sites"][n], (dt_.get("sites") or {}).get(n, {})
+            fm = {**doc["factor_map"][V], **(s_.get("factor_sources") or {})}
+            rules = {side: {**(H["rules"][t["vertical"]].get(side) or {}), **((H["sites"].get(f"{tid}/{n}") or {}).get(side) or {})}
+                     for side in ("plan", "actual")}
+            for mo in H["months"]:
+                blk = hist["tenants"][tid][n][mo]
+                y, m_ = int(mo[:4]), int(mo[5:7])
+                last = calendar.monthrange(y, m_)[1]
+                check(f"H1 {tid}/{n}/{mo}: period_days {blk['period_days']} == {last}", blk["period_days"] == last)
+                check(f"H1 {tid}/{n}/{mo}: period_end {blk['period_end']} == calendar", blk["period_end"] == _dt.date(y, m_, last).isoformat())
+                for side in ("plan", "actual"):
+                    scope = f"{tid}/{n}/{mo}/{side}"
+                    oct_side = dv["sites"][f"{tid}/{n}"][side]
+                    rec = blk[side]
+                    # H2: leaf sets, status, zero-rule leaves
+                    oct_keys = set(s_["period"][side])
+                    if oct_side["status"] == "evaluated":
+                        want = first_present_keys(fm, oct_keys)
+                        bases = {r.split()[1] for lf, r in rules[side].items() if lf in rec and r.split()[0] in H_RULE_BASES} & oct_keys - want
+                        check(f"H2 {scope}: keys {sorted(rec)} == first-present {sorted(want)} plus share/rest bases {sorted(bases)}, "
+                              f"among October's keys (MB3)", set(rec) - bases == want)
+                    else:
+                        check(f"H2 {scope}: keys {sorted(rec)} == October's {sorted(oct_keys)}", set(rec) == oct_keys)
+                    hs = ((ds.get("periods") or {}).get(mo) or {}).get(side) or {}
+                    check(f"H2 {scope}: status {hs.get('status')!r} == October's {oct_side['status']!r}", hs.get("status") == oct_side["status"])
+                    for leaf, rule in rules[side].items():
+                        if rule == "zero" and leaf in rec:
+                            check(f"H2 {scope}: zero-rule leaf {leaf} is 0 (got {rec[leaf]})", rec[leaf] == 0)
+                    # H3: independent == evaluator
+                    rside = rs["periods"][mo][side]
+                    check(f"H3 {scope}: status {hs.get('status')!r} begins with independent {rside['status']!r}",
+                          isinstance(hs.get("status"), str) and hs["status"].startswith(rside["status"]))
+                    nodes = hs.get("nodes") or {}
+                    got = nodes.get(outcome) if rside["status"] == "evaluated" else hs.get("stated_total")
+                    eq(f"H3 {scope}: outcome", got, rside["outcome"])
+                    if rside["status"] == "evaluated":
+                        check(f"H3 {scope}: node set {sorted(set(nodes) ^ set(rside['nodes']))} differs", set(nodes) == set(rside["nodes"]))
+                        for k in sorted(set(nodes) & set(rside["nodes"])):
+                            eq(f"H3 {scope}: node {k}", nodes[k], rside["nodes"][k])
+                    # H4: not observed
+                    no = hs.get("not_observed")
+                    check(f"H4 {scope}: not_observed {no} == independent {rside['not_observed']}", no == rside["not_observed"])
+                    check(f"H4 {scope}: no not-observed node or observation leaf in nodes",
+                          not (set(nodes) & (set(rside["not_observed"]) | set(rs["observation_leaves"]))))
+                    named = {b for e in hs.get("missing") or [] if e.get("cause") == H["missing_cause"] for b in e.get("blocks") or []}
+                    check(f"H4 {scope}: every not-observed node has a {H['missing_cause']} missing entry naming it "
+                          f"(unnamed {sorted(set(rside['not_observed']) - named)})", set(rside["not_observed"]) <= named)
+                    leaves_named = {e.get("leaf") for e in hs.get("missing") or [] if e.get("cause") == H["missing_cause"]}
+                    check(f"H4 {scope}: every observation leaf has its {H['missing_cause']} entry", set(rs["observation_leaves"]) <= leaves_named)
+                    # H4b: every entry equals the independent model's (plan: RESIDUAL/ASSUMPTION; actual: the observed side's)
+                    mine, theirs = sorted(map(entry_key, hs.get("missing") or [])), sorted(map(entry_key, rside["missing"]))
+                    check(f"H4b {scope}: missing entries == independent (only here {sorted(set(mine) - set(theirs))[:2]}; "
+                          f"only there {sorted(set(theirs) - set(mine))[:2]})", mine == theirs)
+                    if f"{tid}/{n}" == "metro-bus/Ruiru" and side == "plan":
+                        check(f"H4b {scope}: Ruiru's plan carries carried_as RESIDUAL",
+                              any(e.get("carried_as") == "RESIDUAL" for e in hs.get("missing") or []))
+                    # H12: causes
+                    bad_c = [e.get("cause") for e in hs.get("missing") or [] if e.get("cause") not in CAUSES | {H["missing_cause"]}]
+                    check(f"H12 {scope}: every cause is a main cause or {H['missing_cause']} (bad {bad_c})", not bad_c)
+                    # H13: completeness against October's same side, less the October-only kinds, plus NOT_IN_HISTORY
+                    octe = [e for e in mr["sites"][f"{tid}/{n}"] if e["side"] == side and e.get("carried_as") != "TARGET" and "condition" not in e]
+                    want13 = sorted(map(entry_key13, octe + [e for e in hs.get("missing") or [] if e.get("cause") == H["missing_cause"]]))
+                    got13 = sorted(map(entry_key13, hs.get("missing") or []))
+                    check(f"H13 {scope}: entries == October's same side less TARGET and conditions, plus {H['missing_cause']} "
+                          f"(only history {sorted(set(got13) - set(want13))[:2]}; only October {sorted(set(want13) - set(got13))[:2]})",
+                          got13 == want13)
+                    oct_leaves = {x for e in octe if "leaves" in e for x in e["leaves"]}
+                    for e in hs.get("missing") or []:
+                        if "leaves" in e:
+                            stray = sorted(set(e["leaves"]) - oct_leaves)
+                            check(f"H13 {scope}: {e.get('carried_as')} leaves are a subset of October's list (stray {stray})", not stray)
+                    # H5: what history may not show
+                    if V == "MINI_GRID" and side == "actual" and "diesel_l" in nodes:
+                        check(f"H5 {scope}: unexplained_l {rec.get('unexplained_l')} <= 2% of diesel_l {nodes['diesel_l']}",
+                              D(rec.get("unexplained_l", 0)) <= D("0.02") * D(str(nodes["diesel_l"])))
+                    if V == "COLD_CHAIN":
+                        cap = D(str(t["capacity_crates_per_room"])) * blk["period_days"]
+                        check(f"H5 {scope}: crate_days {rec.get('crate_days')} <= capacity {cap}", D(rec.get("crate_days", 0)) <= cap)
+                        r_ = (rules[side].get("kwh") or "").split()
+                        if side == "actual" and r_[:1] == ["cold_kwh"] and r_[2:] and r_[2 + sorted(H["months"]).index(mo)] == "anchor":
+                            km = nodes.get("kwh_model")
+                            check(f"H5 {scope}: anchor kwh {rec['kwh']} within 5% of kwh_model {km}",
+                                  km is not None and abs(D(rec["kwh"]) - D(str(km))) <= D("0.05") * D(str(km)))
+                    if V == "EV_DEPOT_CAPTIVE" and rside["status"] == "evaluated":
+                        check(f"H5 {scope}: buses_short_per_night {nodes.get('buses_short_per_night')} == 0", nodes.get("buses_short_per_night") == 0)
+                    # H7: coverage
+                    check(f"H7 {tid}/{n}/{mo}: coverage all RECORDED", all(v == "RECORDED" for v in blk["coverage"].values()))
+            # H6: Site series against the independent model, October included
+            for key, rkey in ((kind, "outcome"), ("gap", "gap")):
+                got = ds.get(key) or []
+                check(f"H6 {tid}/{n} {key}: four points {[p.get('p') for p in got]}", [p.get("p") for p in got] == ref["months"])
+                check(f"H6 {tid}/{n} {key}: labels {[p.get('m') for p in got]}", [p.get("m") for p in got] == [p["m"] for p in rs[rkey]])
+                for p, r in zip(got, rs[rkey]):
+                    eq(f"H6 {tid}/{n} {key} {r['p']}", p.get("v"), r["v"])
+        # H6: portfolio points against the independent model, as the sum of the Sites, and the gap rule
+        for key, rkey in ((kind, "outcome"), ("gap", "gap")):
+            got = (dt_.get("portfolio") or {}).get(key) or []
+            check(f"H6 {tid} portfolio {key}: four points", [p.get("p") for p in got] == ref["months"])
+            for i, (p, r) in enumerate(zip(got, rt["portfolio"][rkey])):
+                eq(f"H6 {tid} portfolio {key} {r['p']}", p.get("v"), r["v"])
+                pts = [(((dt_.get("sites") or {}).get(s["site"]) or {}).get(key) or [{}] * 4)[i].get("v") for s in t["sites"]]
+                eq(f"H6 {tid} portfolio {key} {r['p']} = Σ sites", p.get("v"),
+                   sum((D(str(x)) for x in pts), D(0)) if None not in pts else None)
+        for i, mo in enumerate(ref["months"]):
+            for s in t["sites"]:
+                ss = (dt_.get("sites") or {}).get(s["site"]) or {}
+                if mo in H["months"]:
+                    side_ = ss.get("periods", {}).get(mo, {}).get("plan", {})
+                    pl = side_.get("nodes", {}).get(outcome, side_.get("stated_total"))
+                else:
+                    side_ = dv["sites"][f"{tid}/{s['site']}"]["plan"]
+                    pl = side_.get("nodes", {}).get(outcome, side_.get("stated_total"))
+                ac = (ss.get(kind) or [{}] * 4)[i].get("v")
+                g = (ss.get("gap") or [{}] * 4)[i].get("v")
+                if pl is not None and ac is not None:
+                    eq(f"H6 {tid}/{s['site']} gap {mo} follows the {kind} rule", g, (D(str(pl)) - D(str(ac))) if kind == "cost" else (D(str(ac)) - D(str(pl))))
+                else:
+                    check(f"H6 {tid}/{s['site']} gap {mo}: plan and actual present", False)
+    # H7: labels everywhere
+    seen = []
+
+    def walk(o, p):
+        if isinstance(o, dict):
+            for k, v in o.items():
+                if k == "evidence":
+                    seen.append((p, v))
+                walk(v, f"{p}.{k}")
+        elif isinstance(o, list):
+            for v in o:
+                walk(v, p)
+        elif o == "Recorded":
+            seen.append((p, o))
+    walk(hist, "history.json"); walk(dh, "derived.history")
+    bad = [x for x in seen if x[1] != "Simulated"]
+    check(f"H7 every evidence value is Simulated and none is Recorded ({len(seen)} seen; bad {bad[:3]})", seen and not bad)
+    # H8: October unchanged
+    rest = {k: v for k, v in dv.items() if k != "history"}
+    octb = (json.dumps(rest, indent=1, ensure_ascii=False) + "\n").encode("utf-8")
+    check(f"H8 derived-values.json minus history has the base SHA-256 ({hashlib.sha256(octb).hexdigest()[:12]})",
+          hashlib.sha256(octb).hexdigest() == H8_DERIVED_SHA)
+    mrb = (root / "missing-records.json").read_bytes()
+    check(f"H8 missing-records.json is the base's ({hashlib.sha256(mrb).hexdigest()[:12]})", hashlib.sha256(mrb).hexdigest() == H8_MISSING_SHA)
+    # H10: the manifest before `history:` is the base's; the rest is exactly one key
+    raw = pathlib.Path(path).read_bytes()
+    cut = raw.find(b"\nhistory:")
+    check("H10 manifest has a top-level `history:` line", cut >= 0)
+    head, tail = raw[:cut + 1], raw[cut + 1:]
+    check(f"H10 manifest before `history:` has the base SHA-256 ({hashlib.sha256(head).hexdigest()[:12]})",
+          hashlib.sha256(head).hexdigest() == H10_MANIFEST_SHA)
+    tail_doc = yaml.safe_load(tail.decode("utf-8")) if cut >= 0 else None
+    check(f"H10 manifest after the base parses to exactly `history` ({list(tail_doc or {})})", isinstance(tail_doc, dict) and list(tail_doc) == ["history"])
+    # H11: freshness
+    vd = view_digest(doc)
+    check(f"H11 view_digest {vd[:12]} == meta.view_digest {hist['meta']['view_digest'][:12]}", vd == hist["meta"]["view_digest"])
+    # H9: baseline
+    check(f"H9 baseline: {base_passes} checks passed before the history checks == {H9_BASELINE}, with {base_failed} failed",
+          base_passes == H9_BASELINE and base_failed == 0)
+    return passes - base_passes
+
+
+# ---------------- 12. statement and headings reconcile (design rev 16.14 §2.0; UX audit C2; D-RECON.1 to D-RECON.4) ----------------
+# One gap, two cuts: each bridge row is read on the statement line its node sits under (revenue or cost_to_serve) and under its
+# node's home heading. The matrix line x heading (plus an explicit residual) has the statement figures as rows and the heading
+# figures as columns. Every amount is computed here from the manifest's bridge and derived-values.json; no figure is held.
+RECON_LINES = ("revenue", "cost_to_serve")
+RECON_CHECKS = ("RC1", "RC2", "RC3", "RC4", "RC5", "RC6", "RC7")
+
+
+def recon_ancestors(struct):
+    """child -> every node whose expression reads it, transitively (the structure's parents)."""
+    parents = {}
+    for n, e in struct.items():
+        for c in set(re.findall(r"[A-Za-z_][A-Za-z_0-9]*", str(e))) - {n}:
+            parents.setdefault(c, set()).add(n)
+    memo = {}
+
+    def up(x, seen=()):
+        if x in memo:
+            return memo[x]
+        out = set()
+        for p in parents.get(x, ()):
+            if p not in seen:
+                out |= {p} | up(p, seen + (x,))
+        memo[x] = out
+        return out
+    return up
+
+
+def recon_matrix(doc, dv):
+    """-> ({scope: {"M": {(line, heading): D}, "resid": {(line, heading): D}, "gap": D, "applicable": set(lines)}}, problems).
+    Scopes are 'tenant' and 'tenant/site'. problems is a list of (label, ok)."""
+    out, res = {}, []
+    hc = doc.get("home_categories") or {}
+    reg, drivers = hc.get("nodes") or {}, hc.get("bridge_drivers") or {}
+    resid_rows = hc.get("residuals") or {}
+    vert_of = {t["tenant"]: ("EV_DEPOT_CAPTIVE" if t["vertical"] == "EV_DEPOT" else t["vertical"]) for t in doc["tenants"]}
+    for t in doc["tenants"]:
+        tn, v = t["tenant"], vert_of[t["tenant"]]
+        struct, rows = doc["structures"][v], reg.get(v) or {}
+        up = recon_ancestors(struct)
+        lines = [l for l in RECON_LINES if l in struct]
+        home = lambda n: (rows.get(n) or [None])[0]
+        P = out.setdefault(tn, {"M": {}, "resid": {}, "gap": D(0), "applicable": set(lines), "rows": []})
+        for s_ in t["sites"]:
+            sk, p = f"{tn}/{s_['site']}", s_["period"]
+            S = out.setdefault(sk, {"M": {}, "resid": {}, "gap": D(0), "applicable": set(lines), "rows": []})
+            for b in p.get("bridge", []):
+                n = drivers.get(b["driver"])
+                cand = [l for l in lines if n == l or l in up(n)]
+                if len(cand) > 1:
+                    cand = [l for l in cand if home(l) == home(n)]
+                res.append((f"RC1 {sk}: bridge row {b['driver']} ({n}) sits on exactly one statement line ({cand})", len(cand) == 1))
+                if len(cand) != 1:
+                    continue
+                key, amt = (cand[0], home(n)), D(str(b["amount"]))
+                for X in (S, P):
+                    X["M"][key] = X["M"].get(key, D(0)) + amt
+                    X["rows"].append((b["driver"], cand[0], home(n), amt, s_["site"]))
+            var = D(str(p.get("variance", 0)))
+            S["gap"] += var; P["gap"] += var
+            sides = dv["sites"].get(sk) or {}
+            both = all((sides.get(x) or {}).get("status") == "evaluated" for x in ("plan", "actual"))
+            rest = var - sum(S["M"].values(), D(0))
+            if both:
+                pn, an = sides["plan"]["nodes"], sides["actual"]["nodes"]
+                for l in lines:
+                    want = D(str(an[l])) - D(str(pn[l]))
+                    want = want if home(l) == "grow" else -want   # as an effect on the outcome: more revenue up, more cost down
+                    got = sum((a for (ll, _), a in S["M"].items() if ll == l), D(0))
+                    res.append((f"RC2 {sk}: the bridge rows on {l} add to the evaluator's change in {l} ({got} == {want})", got == want))
+                res.append((f"RC3 {sk}: both sides evaluated, so nothing is left unattributed ({rest})", rest == 0))
+            elif rest != 0:
+                rr = list((resid_rows.get(v) or {}).values())
+                ok = len(rr) == 1 and "revenue" not in lines
+                res.append((f"RC3 {sk}: an unattributed {rest} sits in the vertical's one residual row, on its only line ({rr}, {lines})", ok))
+                if ok:
+                    key = ("cost_to_serve", rr[0][0])
+                    for X in (S, P):
+                        X["resid"][key] = X["resid"].get(key, D(0)) + rest
+    return out, res
+
+
+def recon_term(X, term):
+    """A term of the matrix for one scope, as an effect on the outcome; None when not applicable (no such line)."""
+    cell = lambda l, h: X["M"].get((l, h), D(0)) + X["resid"].get((l, h), D(0))
+    if term == "total":
+        return X["gap"]
+    if term == "cross":
+        return cell("revenue", "optimize") if "revenue" in X["applicable"] else None
+    kind, _, name = term.partition(":")
+    if kind == "row":
+        return sum((cell(name, h) for h in ("grow", "optimize")), D(0)) if name in X["applicable"] else None
+    if kind == "col":
+        if name == "grow" and "revenue" not in X["applicable"]:
+            return None
+        return sum((cell(l, name) for l in X["applicable"]), D(0))
+    raise ValueError(term)
+
+
+def recon_problems(doc, dv):
+    out, res = recon_matrix(doc, dv)
+    rc = (doc.get("home_categories") or {}).get("reconciliation") or {}
+    declared = rc.get("crossing") or {}
+    crossing = {}
+    for sc, X in out.items():
+        if "/" in sc:
+            continue
+        for drv, line, h, amt, site in X["rows"]:
+            natural = "grow" if line == "revenue" else "optimize"
+            if h != natural:
+                crossing.setdefault(drv, []).append((sc, site, line, h, amt))
+    for drv, hits in sorted(crossing.items()):
+        res.append((f"RC4 crossing row {drv} ({hits[0][2]} line, under {hits[0][3]}) is named in reconciliation.crossing", drv in declared))
+        res.append((f"RC4 crossing row {drv} is revenue under Optimize, the meaning of the crossing label; another direction needs its own label, ruled",
+                    all(l == "revenue" and h == "optimize" for _, _, l, h, _ in hits)))
+    for drv in declared:
+        res.append((f"RC4 declared crossing {drv} crosses in at least one bridge (no stale declaration)", drv in crossing))
+    hist = dv.get("history") or {}
+    for t in doc["tenants"]:
+        tn, X = t["tenant"], out[t["tenant"]]
+        sides = [dv["sites"].get(f"{tn}/{s_['site']}") or {} for s_ in t["sites"]]
+        def outcome(sd, side):
+            x = sd.get(side) or {}
+            if x.get("status") == "evaluated":
+                n = x["nodes"]
+                return D(str(n["contribution"])) if "contribution" in n else -D(str(n["cost_to_serve"]))
+            return -D(str(x["stated_total"]))   # a stated total is a cost total (EV depots, rule R4)
+        want = sum((outcome(sd, "actual") - outcome(sd, "plan") for sd in sides), D(0))
+        res.append((f"RC5 {tn}: the gap {X['gap']} equals the evaluator's outcome change, summed over sites ({want})", X["gap"] == want))
+        g = [r for r in ((hist.get(tn) or {}).get("portfolio") or {}).get("gap", []) if r.get("p") == doc.get("accounting_period")]
+        res.append((f"RC5 {tn}: the history's October gap is the same figure ({[r['v'] for r in g]} == {X['gap']})",
+                    len(g) == 1 and D(str(g[0]["v"])).quantize(D("0.01")) == X["gap"].quantize(D("0.01"))))
+        total = sum(X["M"].values(), D(0)) + sum(X["resid"].values(), D(0))
+        res.append((f"RC5 {tn}: the matrix adds to the gap ({total} == {X['gap']})", total == X["gap"]))
+        res.append((f"RC4 {tn}: no cost-line row sits under Grow ({X['M'].get(('cost_to_serve', 'grow'))})", not X["M"].get(("cost_to_serve", "grow"))))
+    figs = rc.get("shared_figures") or []
+    by = {f_["figure"]: f_ for f_ in figs}
+    res.append((f"RC6 shared figures are named once ({[f_['figure'] for f_ in figs]})", bool(figs) and len(by) == len(figs)))
+    for f_ in figs:
+        ok = True
+        try:
+            recon_term(out[doc["tenants"][0]["tenant"]], f_["reads"])
+        except Exception:
+            ok = False
+        res.append((f"RC6 shared figure {f_['figure']} reads one matrix term ({f_.get('reads')}) and is on two or more routes", ok and len(f_.get("routes") or []) >= 2))
+    crossf = [f_ for f_ in figs if f_.get("reads") == "cross"]
+    res.append((f"RC6 the figure reading the crossing carries the crossing label ({[f_.get('words') for f_ in crossf]})",
+                len(crossf) == 1 and crossf[0].get("words") == rc.get("crossing_label")))
+    ties = rc.get("ties") or []
+    for f_ in figs:   # a statement row and its line's own heading on one route must be tied by a stated line
+        kind, _, line = f_["reads"].partition(":")
+        if kind != "row":
+            continue
+        g_ = next((x for x in figs if x["reads"] == "col:" + ("grow" if line == "revenue" else "optimize")), None)
+        if g_ and set(f_["routes"]) & set(g_["routes"]):
+            res.append((f"RC7 {f_['figure']} and {g_['figure']} share a route, so a tie states their difference",
+                        any({t_["left"], t_["right"]} == {f_["figure"], g_["figure"]} for t_ in ties)))
+    for t_ in ties:
+        names = (t_.get("left"), t_.get("right"), t_.get("by"))
+        res.append((f"RC7 tie {names} names three shared figures", all(n in by for n in names)))
+        if not all(n in by for n in names):
+            continue
+        for sc, X in sorted(out.items()):
+            L, R, B = (recon_term(X, by[n]["reads"]) for n in names)
+            if None in (L, R, B):
+                continue
+            res.append((f"RC7 {sc}: {names[0]} {L} = {names[1]} {R} + {names[2]} {B}", L == R + B))
+    return res, out
+
+
+def reconciliation(doc, dv):
+    """Run section 12, then prove it on planted copies: an undeclared crossing, a stale declaration, a dropped tie and a
+    bridge row moved off its line must each fail."""
+    import copy
+    n0 = passes
+    res, _ = recon_problems(doc, dv)
+    for label, ok in res:
+        check(label, ok)
+
+    def planted(mutate, expect):
+        d = copy.deepcopy(doc)
+        mutate(d)
+        bad = [l for l, ok in recon_problems(d, dv)[0] if not ok]
+        check(f"RC self-test: planted copy fails {expect} ({len(bad)} failing)", any(l.startswith(expect) for l in bad))
+    planted(lambda d: d["home_categories"]["reconciliation"]["crossing"].pop("AUTHORISED_ADJUSTMENT"), "RC4 crossing row AUTHORISED_ADJUSTMENT")
+    planted(lambda d: d["home_categories"]["nodes"]["MINI_GRID"].__setitem__("unmapped_kwh", ["grow", "G1"]), "RC4 declared crossing METER_MAPPING_UNBILLED")
+    planted(lambda d: d["home_categories"]["reconciliation"].__setitem__("ties", d["home_categories"]["reconciliation"]["ties"][1:]), "RC7 revenue_change and grow")
+    planted(lambda d: d["tenants"][0]["sites"][2]["period"]["bridge"][1].__setitem__("amount", -1.0), "RC2 lakeside-power/Mto")
+    return passes - n0
+
+
+# ---------------- 13. every option names its basis (design rev 16.14 §2.4; ruling D-RECON.6) ----------------
+BASES = ("NO_ACTION", "RESTORE_REFERENCE", "NOT_VALUED")
+
+
+def basis_problems(doc):
+    """[(label, ok)] for section 13. Every evaluation option declares a basis from BASES. The class rule: an option is
+    valued against its decision's no-action path, unless that no-action option never restores (restore: {date: none}),
+    where RESTORE_REFERENCE (an immediate restore at no operator cost) is allowed; NOT_VALUED is exactly the comparator rows."""
+    out = []
+    dec_of = {o: d for tp in doc["plans"].values() for d in tp["decisions"] for o in d["options"]}
+    EVO = doc["evaluation"]["options"]
+
+    def no_action(d):
+        return [o for o in d["options"] if (EVO.get(o) or {}).get("is_reference") or o.endswith("-NOACT")]
+    for oid, o in EVO.items():
+        b, d = o.get("basis"), dec_of.get(oid)
+        out.append((f"B1 option {oid} declares a basis from {BASES} ({b})", b in BASES))
+        if b == "RESTORE_REFERENCE":
+            na = no_action(d) if d else []
+            never = [n for n in na if str(((EVO[n].get("params") or {}).get("restore") or {}).get("date")) == "none"]
+            out.append((f"B2 option {oid} RESTORE_REFERENCE: its decision's no-action option never restores ({na})", bool(never)))
+        if d:   # B4 (D-RECON.8): RESTORE_REFERENCE exactly when no action never restores AND the decision is valued in money
+            never_d = any(str(((EVO.get(n, {}).get("params") or {}).get("restore") or {}).get("date")) == "none" for n in no_action(d))
+            out.append((f"B4 option {oid} {b}: RESTORE_REFERENCE exactly when its decision is valued ({d['kind']}) and its no-action option never restores ({never_d})",
+                        (b == "RESTORE_REFERENCE") == (never_d and d["kind"] == "valued")))
+        out.append((f"B3 option {oid} {b}: NOT_VALUED exactly when its decision is a comparator ({d and d['kind']})",
+                    (b == "NOT_VALUED") == bool(d and d["kind"] == "comparator")))
+    return out
+
+
+def option_basis(doc):
+    """Run section 13, then prove it on planted copies: a missing basis, RESTORE_REFERENCE where no action restores
+    (Kasarani: the supplier restores on its own date), and a valued option marked NOT_VALUED must each fail."""
+    import copy
+    n0 = passes
+    for label, ok in basis_problems(doc):
+        check(label, ok)
+
+    def planted(mutate, expect):
+        d = copy.deepcopy(doc)
+        mutate(d)
+        bad = [l for l, ok in basis_problems(d) if not ok]
+        check(f"B self-test: planted copy fails {expect} ({len(bad)} failing)", any(l.startswith(expect) for l in bad))
+    ev = lambda d: d["evaluation"]["options"]
+    planted(lambda d: ev(d)["KOB-STOPSOC"].pop("basis", None), "B1 option KOB-STOPSOC")
+    planted(lambda d: ev(d)["KAS-LOCAL"].__setitem__("basis", "RESTORE_REFERENCE"), "B2 option KAS-LOCAL")
+    planted(lambda d: ev(d)["KIS-REPAIR"].__setitem__("basis", "RESTORE_REFERENCE"), "B4 option KIS-REPAIR")   # protective: no money to label
+    planted(lambda d: ev(d)["MTO-INV-CLAIM"].__setitem__("basis", "NO_ACTION"), "B4 option MTO-INV-CLAIM")    # the converse
+    planted(lambda d: ev(d)["EMB-DEADLINE"].__setitem__("basis", "NOT_VALUED"), "B3 option EMB-DEADLINE")
+    return passes - n0
+
+
 def main(path):
     root = pathlib.Path(path).resolve().parent
     doc = yaml.safe_load(open(path, encoding="utf-8"))
@@ -974,7 +1711,7 @@ def main(path):
     def walk(o):
         if isinstance(o, dict):
             for k, v in o.items():
-                if k not in ("oracle", "evaluation", "plans", "calibration_spikes", "owner_question_variants"): walk(v)
+                if k not in ("oracle", "evaluation", "plans", "calibration_spikes", "owner_question_variants", "empty_states"): walk(v)
         elif isinstance(o, list):
             for v in o: walk(v)
         elif isinstance(o, float):   # money records are written with cents (floats); counts and days are integers
@@ -990,8 +1727,12 @@ def main(path):
     homes(doc)
     homes_selftest(doc)
     factor_map(root, doc)
+    empty_states(root, doc)
     alignment(root)
-    print(f"{passes} checks passed, {len(failures)} failed")
+    nh = history_checks(doc, dv, root, path, im) if (root / "history.json").exists() else 0
+    reconciliation(doc, dv)   # after the history checks, so H9's baseline (checks before them) is unchanged
+    option_basis(doc)         # after the history checks too (D-RECON.6)
+    print(f"{passes} checks passed ({nh} history checks), {len(failures)} failed")
     for f in failures:
         print("FAIL", f)
     return 1 if failures else 0

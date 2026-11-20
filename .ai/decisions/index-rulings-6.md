@@ -57,3 +57,11 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-DS1.12` DS1 history nodes carry the missing record (NOT_IN_HISTORY); no unknown reads as zero · live · specs/DS1-history-generator/rulings.md
 - `D-DS1.13` DS1 DS1p based on the pack branch after 46b62c92b, main merged in · live · specs/DS1-history-generator/rulings.md
 - `D-DS1.14` DS1 units (integer at month grain) and estimate (4 units, DS1b 1) · live · specs/DS1-history-generator/rulings.md
+- `D-RECON.1` Grow/Optimize vs revenue/cost: one table line x heading; crossing rows = metered but not billed (Lakeside -72, others 0) · live · specs/RECON-1/rulings.md
+- `D-RECON.2` Both splits correct; heading/line vocabulary; one value per figure; labelled tie line; Financials shows the table · live · specs/RECON-1/rulings.md
+- `D-RECON.3` Cross-page figure check: check_manifest reconciliation() RC1-RC7 and ux_interaction_check X1-X7 · live · specs/RECON-1/rulings.md
+- `D-RECON.4` Recorded in manifest home_categories.reconciliation, design rev 16.14 §2.0, registers; H10 re-based, H9 4476; derived/history unchanged · live · specs/RECON-1/rulings.md
+- `D-RECON.5` Ruiru expansion: "Not valued: listed beside the plan"; chargers as context (capex_not_needed against RUI-4CHARGERS) · live · specs/RECON-1/rulings.md
+- `D-RECON.6` Comparator: against no action unless no action never restores (then cost to restore); option basis key; plan totals by basis · live · specs/RECON-1/rulings.md
+- `D-RECON.7` Mto meter audit: its own decision on the unexplained-loss Finding (Optimize); manifest change for the data lane · live · specs/RECON-1/rulings.md
+- `D-RECON.8` RESTORE_REFERENCE iff no action never restores AND the decision is valued in money; Kisiwa stays NO_ACTION; converse check B4; H9 4487 confirmed · live · specs/RECON-1/rulings.md
