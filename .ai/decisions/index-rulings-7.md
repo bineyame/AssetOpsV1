@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-BW1.1 to D-DS1B.6)
+# Decision index: Demo-sprint and later rulings (index only) (D-BW1.1 to D-2A.12)
 
 One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it. Top index: `INDEX.md`.
 
@@ -36,3 +36,18 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-DS1B.4` Budget lines follow the evaluator's first-present pass-through rule · live · specs/DS1b-canonical-writers/rulings.md
 - `D-DS1B.5` DS1b records are source-emulated · live · specs/DS1b-canonical-writers/rulings.md
 - `D-DS1B.6` DS1b tests in simulator/tests/world; merge gap is a tools item · live · specs/DS1b-canonical-writers/rulings.md
+- `D-L4OPS.1` Site Operations tab on all 9 Sites; asset page; incident, maintenance, right drawers; five rail lists become one Operations entry, one row per Site · live · specs/L4-OPS/rulings.md
+- `D-L4OPS.2` Incident: failure mode, out-of-service interval; consequences counted once on their nodes; cost a cut, never a leaf · live · specs/L4-OPS/rulings.md
+- `D-L4OPS.3` Repeat = same asset, same mode inside the window; repeat_failures (P2, Protect) raises a Finding linked to the asset's decision · live · specs/L4-OPS/rulings.md
+- `D-L4OPS.4` Repeat window 90 days, an operator setting; tolerance per OD-3 (0) · live · specs/L4-OPS/rulings.md
+- `D-L4OPS.5` Maintenance scheduled or responsive; visit; cost basis; leaf = fees in force + invoices; schedule occurrence with crew visit or spend = plan item · live · specs/L4-OPS/rulings.md
+- `D-L4OPS.6` Rights register 9a0 before extraction 9a; right states derived from terms and claims · live · specs/L4-OPS/rulings.md
+- `D-L4OPS.7` Operations slices queued (26 units) after the must-keep set; fortnight unchanged · live · specs/L4-OPS/rulings.md
+- `D-L4OPS.8` Kasarani service fee = maintenance leaf 300; data lane corrects the SLA text · live · specs/L4-OPS/rulings.md
+- `D-L4OPS.9` Tie line "Unbilled energy" (OD-28), industry-standard term; replaces D-RECON.2's words · live · specs/L4-OPS/rulings.md
+- `D-DS1B.7` ESTIMATED October lines are never written as records · live · specs/DS1b-canonical-writers/rulings.md
+- `D-DS1B.8` One canonical record per Site, month and field · live · specs/DS1b-canonical-writers/rulings.md
+- `D-T2.1` Neutral package tests as a check-all guard; select-tests names them · live · specs/T2-neutral-package-tests/rulings.md
+- `D-T2.2` The neutral-tests guard sets PYTHONPATH so child processes import the tree · live · specs/T2-neutral-package-tests/rulings.md
+- `D-2A.11` Surrogate keys CANONICAL_REF at the container path; key text in paths ASCII-escaped and capped at 64 · live · specs/2a-canonical-format/rulings.md
+- `D-2A.12` Conditional fields report the root cause (controlling value first) · live · specs/2a-canonical-format/rulings.md
