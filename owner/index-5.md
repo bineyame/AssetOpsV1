@@ -38,3 +38,4 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-11-20 `owner-start-ds1-2026-11-20.md` Start data slice DS1 now (July–September history, U9) under the spec handshake, ahead of the pack/strategy review · current
 - 2026-11-20 `owner-decision-page-redesign-2026-11-20.md` Owner finds the Decide page confusing; approved sending the coordinator's 8-point Decision page redesign (question first, one primary choice, option cards, collapsed why, confirm dialog, status line, state-aware queue button) to the Architect · current
 - 2026-11-20 `owner-placeholder-gaps-routing-2026-11-20.md` Owner approved routing the placeholder-audit gaps: 1, 5, unknown-as-zero to the design Architect; 4 + wording + Site-tile wiring to the UI Architect after the Decision page; 2, 3 with DS1 · current
+- 2026-11-20 `owner-merge-wave2c-ds1-defaults-2026-11-20.md` Merge UI wave 2c to main; DS1 owner questions (D-DS1.6, Q1–Q5) on their defaults · current
