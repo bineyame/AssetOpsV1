@@ -163,3 +163,31 @@ proposed answer is the ruling.
 
 - **Ruling.** As R7.
 - **Why.** Two records for one amount would count it twice in the store.
+
+## Mid-build answers (DS1b, 2026-11-20)
+
+Neither case occurs in today's data. Both provisional builds are adopted, and Q2 gains one test. The code does not
+change.
+
+**MB1 (Q1): an ESTIMATED October `liability` of 0 is listed `ESTIMATED_NOT_RECEIVED`.**
+- **The rule.** The ESTIMATED check comes first for every §2.1 field, so a field gets one reason, in this order:
+  `ESTIMATED_NOT_RECEIVED`, then `ZERO_NO_ROW`.
+- **Why.** An estimate means the source was not received. "Zero, held" would claim a held source the manifest says is
+  missing (D-DS1B.7).
+
+**MB2 (Q2): exponent text from the view is accepted and normalised. The record never carries it.**
+- **Why it must be accepted.** The view writes every binary float as its `repr` (`view.py`), and `repr(0.00001)` is
+  `"1e-05"`. Refusing exponent text would refuse a legitimate manifest value only because of how Python prints it.
+- **What is written.** The value goes through `format(Decimal(text), "f")` (spec §3), so the record holds plain text
+  (`"0.00001"`), which is 2a's canonical form (R2). Money goes through `Fraction(text) * 100` and the whole-cent rule
+  as before.
+- **What is still refused.**
+  - A value whose plain form breaks 2a's bounds (over 32 characters, or an adjusted exponent outside [-12, 12], such
+    as `"1e+30"`) is refused `DS1B_FORMAT CANONICAL_NUMBER ...` by `parse_batch`, as spec §3 says.
+  - Anything else that is not an int or matches the built pattern is refused `DS1B_NUMBER`.
+- **One test to add in the fix round or the review round.** T7 gains three cases:
+  - an October plan `crate_days` of `"1e+03"` is written as `1000`;
+  - an October plan `crate_days` of `"1e+30"` is refused `DS1B_FORMAT`;
+  - no output byte string anywhere matches `[0-9][eE][-+]?[0-9]`.
+
+The DS1b packet's mid-build count is 2.
