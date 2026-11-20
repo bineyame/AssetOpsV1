@@ -76,3 +76,4 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 162. `5b` attribution unit 1: the split rules (AR1, AR2, scale, residual, 1E-12) · data.md
 163. `5b` attribution units 2-3: carrying at the budget line, Site and portfolio bridges (k of n, SUM-only), pinned read · data.md
 164. `IA-1b` mock-up hub shape: Portfolio tabs and Site Overviews (IA-1 shape rebuild) · demo.md
+165. `IA-1c` mock-up decision shape and the "Waiting for you" inbox (IA-1 shape rebuild) · demo.md

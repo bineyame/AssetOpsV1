@@ -1,6 +1,6 @@
 # IA-1 and IA-2: rebuild the mock-up by shape (implementer spec)
 
-Status: IA-1a merged (`e100640bf`); IA-1b in_review after fix round r1 (branch `task/IA-1b-hub`, `packet-IA-1b.md`); IA-1c specified, not started
+Status: IA-1a merged (`e100640bf`); IA-1b merged (`b817f9370`); IA-1c in_review (branch `task/IA-1c-decision`, `packet-IA-1c.md`); G2 stop after IA-1c
 
 Architect (Claude), 2026-11-20, rev 3 (the IA-1b/IA-1c handshake folded in: D-IA.21 to D-IA.30; rev 2 folded in round 1,
 D-IA.15 to D-IA.20). This is the handshake format (`.ai/RULES.md` §4): this spec, `reviewer-guide.md`, `rulings.md`
