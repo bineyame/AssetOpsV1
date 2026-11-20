@@ -73,3 +73,9 @@ in the reading-upload writer -> "Only .../postgres_commercial_store.py writes co
 
 - Full suite (by design). Real concurrency beyond two writers. The in-memory lock proves nothing (R15).
 - Renumbering against 3C1a: tests read head/down_revision from modules, not exercised against a second migration.
+
+## Follow-up after review r1 (ACCEPT with Lows)
+
+- Mid-build count 3: the three unstated choices; the Architect will ratify them in 3A2's spec.
+- L1: `test_downgrade_refused_with_only_a_refused_intake` added; with `commercial_intake` removed from the 0063 refusal check it fails, restored it passes.
+- L4: `service.py` imports 2a's `PROVENANCES`. Migration stays 0063; 3A1 merges first and 3C1a renumbers.
