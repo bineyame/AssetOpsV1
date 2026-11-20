@@ -93,3 +93,28 @@ the same in two subprocesses and asserts equality with `golden.file_sha256`.
 ## Review focus
 
 `world/history.py` (`_value`, `_side` order and refs, `listed`), `view.py` allowlist, T3/T4 planted cases, MB1/MB2.
+
+## Review round 1 fixes
+
+Review `.agent/review-DS1a-r1.md` (ACCEPT with Lows); rulings in `rulings.md` "Review round 1 answers". Commit
+`f28daf1da`. The mid-build count stays 2. Golden `file_sha256` is unchanged:
+`9cb1b6bfecd6b1cec0d10974c037161e2e454f7dac3694791a584bfd173fd4c9`.
+
+| Item | Result |
+| --- | --- |
+| L3 months | `HISTORY_MONTHS history months` unless exactly three months. |
+| L4 numbers | New `_number(text, scope, field)`: NaN, Infinity or non-decimal text gives `HISTORY_NUMBER <scope_key\|history> <field>` (weights and jitter use the family name as field; tokens, leaves, capacity, energy model, physical use the leaf). The view refuses a non-finite float with `VIEW_TYPE <path>`. |
+| L4 absent | Absent room capacity is `HISTORY_RULE_REF`; `HISTORY_ANCHOR_ZERO` only for a present zero. |
+| L4 fields | `HISTORY_FIELD history <field>` for the 11 required fields (checked first, so a missing `months` is now a field refusal). |
+| L4 `generate_scope` | Runs the shared `_validate` (all but month membership); `generate_history` validates once and uses `_scope_block`. No bare KeyError. |
+| T8 | Full `<CODE> <scope> <leaf>` text asserted for every case (47 cases); new plants: two months, a real gap, NaN/Infinity weights, jitter, tokens, leaf, capacity, text weight, missing capacity, energy model, October leaf, each required field, missing label, NaN view float, `generate_scope` alone with no jitter. |
+| L1 | `test_round_half_even` (9 cases). Planting half-up: 3 failures; reverted. |
+| L2 | `\b31\b` added to T6 greps; `test_anchor_month_of_30_days` (Jun-Aug, anchor Sep). Planting `/ 31`: both fail; reverted. |
+| L5 | T3b scans every file outside `__pycache__` as bytes. A planted `world/table.json` fails it; removed. |
+
+Interpretations to confirm: (a) a present but non-decimal October leaf, physical or energy value is
+`HISTORY_NUMBER` (L4), not the `HISTORY_RULE_REF` that MB2 listed for "non-numeric"; (b) a non-decimal rule token
+(including `anchor` in a rule that does not take it) is `HISTORY_NUMBER`, no longer `HISTORY_RULE_UNKNOWN`;
+(c) a missing `history` block itself stays `HISTORY_MONTHS history history` (not ruled).
+
+Verified: world tests `90 passed in 3.0 s` (was 54); fast check-all "All 37 guards passed", 42.4 s wall.
