@@ -1,6 +1,6 @@
 # DS1: generator core and the July to September history (implementer spec)
 
-Status: **handshake closed** (round 1 answered in `rulings.md`, "Handshake answers (round 1)"). Architect spec **rev 2**,
+Status: **handshake closed**; DS1m **in_review** (`packet-DS1m.md`, MB7 and MB8 open) (round 1 answered in `rulings.md`, "Handshake answers (round 1)"). Architect spec **rev 2**,
 2026-11-20. DS1a may start. Branch `task/DS1-spec`. Review depth: discovery (W5): a new generator, a new schema and
 money figures.
 

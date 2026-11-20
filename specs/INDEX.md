@@ -66,7 +66,7 @@ finished work are in `archive/agent-history/`.
 | Lane T | Build spec, telemetry lane | finished — as TEL-01 to TEL-06; to confirm | `Lane-T/README.md` (split) | 134 KB |
 | DECLUTTER | Repo declutter recommendation, packets and reviews | live — steps 4-5 | `DECLUTTER/repo-declutter-recommendation-2026-11-18.md` | 42 KB |
 | T1 | Heavy-tool slot pool, enforced (spec, reviewer guide, handshake, rulings) | in_review — rev 2 (option C) built; packet in the folder | `T1-heavy-tool-slot-pool/spec.md` | 36 KB |
-| DS1 | Generator core and the July-September history (spec, reviewer guide, rulings, handshake) | live — handshake closed, rev 2; DS1a may start | `DS1-history-generator/spec.md` | 94 KB |
+| DS1 | Generator core and the July-September history (spec, reviewer guide, rulings, handshake) | live — handshake closed, rev 2; DS1m in_review (MB7, MB8 open) | `DS1-history-generator/spec.md` | 94 KB |
 | RECON-1 | Figures that reconcile (UX audit C2) and comparators that say their basis (Decision page re-review M1, (b), plan totals): rulings D-RECON.1 to D-RECON.7, UI change list | live — reconciliation applied in the pack; D-RECON.5 to .7 data changes to the data lane | `RECON-1/rulings.md` | 22 KB |
 | mockup-vnext-categories-snapshot | Mock-up vNEXT: the four headings and the snapshot "as of" (review packet) | finished — in the frozen pack | `mockup-vnext-categories-snapshot/packet.md` | small |
 | mockup-vnext-demo-items | Mock-up vNEXT: demo workflow items wired (review packet) | finished — in the frozen pack | `mockup-vnext-demo-items/packet.md` | small |
