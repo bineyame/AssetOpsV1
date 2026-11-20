@@ -13,7 +13,7 @@ const { chromium } = require(process.env.PW);
   const errors = []; p.on('pageerror', e => errors.push(e.message));
   await p.goto(src); await p.waitForTimeout(800);
   const r = await p.evaluate(({ names, vh }) => {
-    const root = document.querySelector('main') || document.body;
+    const root = document.querySelector('#app') || document.body; /* the whole app (rail, top bar, page); review tooling excluded below */
     const vis = e => e.offsetParent !== null && !e.closest('.reviewbar,[data-review]');
     const top = e => Math.round(e.getBoundingClientRect().top + scrollY);
     const sections = {};

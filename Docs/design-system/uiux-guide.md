@@ -333,6 +333,10 @@ Each chart answers one question. Its title states the answer, for example "Cost 
 - **The bridge is the page's interactive chart.** Each step links to the decision on its driver, and shows its detail (amount, share of the gap, the decision) on hover and on keyboard focus. A step with no decision says so in its detail.
 - **Trend slot.** Each money tile reserves a trend line. Until earlier months are loaded it shows a dashed placeholder and "Trend not available yet", never an invented line.
 
+- **Displayed figures reconcile** (wave 2c ruling). Parts are rounded with the largest-remainder method, so the shown parts add up to the shown total: steps to their heading's subtotal, subtotals to the gap. Shares add to 100%. A check asserts it for every operator.
+- **Shares are of what widens the gap.** A step that works the other way is an **offset**: it shows "offsets" and its amount, never a share. Example: Harvest's +$155 electricity effect.
+- **One sign rule per page:** every figure is its effect on the headline result. For a cost centre, a cost overrun is negative (worse), as the tile, the drawer and the Site rows show. The bridge follows the same rule (Metro: −$2,604, −$600, +$20).
+- **Scales hold their marks.** When offsetting steps run past the target or October, the track widens to the lowest and highest running total, and Target and October sit at their scaled places. A check asserts every bar ends inside its track.
 - **Modelled never carries the weight of an actual.** A modelled tile is lighter (smaller value, secondary colour, dashed outline) and keeps its marker.
 - **A number that opens its working** looks like text at rest and shows an underline on hover and focus. It is a button, so it stays reachable by keyboard.
 - **Prose is 14 px.** 12 to 13 px is for labels, units, notes and table cells only.

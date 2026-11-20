@@ -108,7 +108,7 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
   for (const [op, r] of [['lakeside', 'portfolio'], ['harvest', 'portfolio'], ['metro', 'portfolio'], ['lakeside', 'portfolio/act-first'], ['lakeside', 'site/kobo']]) for (const w of [1280, 1440]) {
     const p = await page(r, { op, w, h: 900 });
     const bad = await p.evaluate(() => { const out = [];
-      for (const li of document.querySelectorAll('.ux-queue>li.ux-q')) { const cells = [...li.children].filter(c => c.offsetParent !== null);
+      for (const li of document.querySelectorAll('.ux-queue>li.ux-q')) { const cells = [...li.children].filter(c => c.offsetParent !== null && c.getBoundingClientRect().width > 2); /* a 1 px screen-reader-only cell is not a visible cell */
         for (const c of cells) { if (c.scrollWidth > c.clientWidth + 1) out.push(`${c.className} overflows (${c.scrollWidth} > ${c.clientWidth})`);
           for (const e of c.querySelectorAll('*')) { const a = e.getBoundingClientRect(), b = c.getBoundingClientRect(); if (a.width && a.right > b.right + 1) { out.push(`${c.className}: "${e.textContent.trim().slice(0, 24)}" past its cell`); break; } } }
         for (let i = 1; i < cells.length; i++) { const a = cells[i - 1].getBoundingClientRect(), b = cells[i].getBoundingClientRect(); if (Math.abs(a.top - b.top) < 4 && a.right > b.left + 1) out.push(`${cells[i - 1].className} overlaps ${cells[i].className}`); } }
@@ -191,6 +191,24 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
     const b = await pe.evaluate(() => ({ f: getComputedStyle(document.querySelector('.page-heading h1')).fontFamily, band: parseFloat(getComputedStyle(document.querySelector('.topbar'), '::after').height) || 0, tab: getComputedStyle(document.querySelector('.tabs a.active')).color, rail: getComputedStyle(document.querySelector('.rail'), '::before').backgroundImage !== 'none' }));
     ok(a.f !== b.f && b.band >= 10 && a.tab !== b.tab && b.rail, `East Africa distinguishable: heading typeface, ${b.band} px textile band, active-tab colour, rail pattern`);
     await pe.selectOption('#ux-brand', 'neutral'); await pn.context().close(); await pe.context().close(); }
+  // wave 2c fix round: every bridge bar inside its track; displayed figures reconcile; empty due cells silent on phone
+  for (const op of ['lakeside', 'harvest', 'metro']) for (const w of [1440, 390]) {
+    const p = await page('portfolio', { op, w, h: 900 });
+    const r = await p.evaluate(() => {
+      const out = [];
+      for (const b of document.querySelectorAll('.ux-wf-gapscale .ux-wf-bar')) { const t = b.closest('.ux-wf-track').getBoundingClientRect(), a = b.getBoundingClientRect(); if (a.left < t.left - 1 || a.right > t.right + 1) out.push(`bar ${Math.round(a.left - t.left)}..${Math.round(a.right - t.right)} px outside`); }
+      const num = t => { const m = String(t).replace(/,/g, '').match(/([+−-]?)\$(\d+)/); return m ? (m[1] === '−' || m[1] === '-' ? -1 : 1) * +m[2] : 0; };
+      const ol = document.querySelector('.ux-wf-gapscale'), gap = +ol.dataset.gap; let subSum = 0; const sharesW = [];
+      for (const g of ol.querySelectorAll('.ux-wf-group')) { const sub = num(g.querySelector('.ux-wf-gv').textContent); subSum += sub; let n = g.nextElementSibling, s = 0;
+        while (n && !n.classList.contains('ux-wf-group')) { const v = n.querySelector('.ux-wf-val'); s += num(v.firstChild.textContent); if (v.dataset.share) sharesW.push(+v.dataset.share); n = n.nextElementSibling; }
+        if (s !== sub) out.push(`rows ${s} against subtotal ${sub}`); }
+      if (subSum !== gap) out.push(`subtotals ${subSum} against gap ${gap}`);
+      if (sharesW.reduce((a, b) => a + b, 0) !== 100) out.push(`shares sum ${sharesW.reduce((a, b) => a + b, 0)}%`);
+      const emptyDue = innerWidth < 600 ? [...document.querySelectorAll('.ux-q-due.is-empty')].filter(e => e.getBoundingClientRect().height > 2).length : 0;
+      if (emptyDue) out.push(`${emptyDue} empty due lines visible`);
+      return out; });
+    ok(!r.length, `${op} at ${w}: bridge bars inside their track, rows sum to subtotals and the gap, shares 100%, no empty due line (${r.slice(0, 3).join('; ') || 'all hold'})`);
+    await p.context().close(); }
   // short laptop: the first queue row is above the fold at 1280 x 720 (guide §3.5)
   for (const [op, r] of [['lakeside', 'portfolio'], ['harvest', 'portfolio'], ['metro', 'portfolio'], ['lakeside', 'site/kobo'], ['lakeside', 'portfolio/act-first']]) {
     const p = await page(r, { w: 1280, h: 720, op });

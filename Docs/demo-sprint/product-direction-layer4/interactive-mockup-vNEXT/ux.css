@@ -3,18 +3,18 @@
 
 /* 1. Tokens added by the guide (§4.1-§4.3): light, then dark twice (system preference unless forced light; forced dark) */
 :root{
-  --text-3:#7a8699; --info:#0e6a8a; --info-soft:#e2f3f8; --info-line:#a9d7e6;
+  --rail-text-2:#b3bdd0; --text-3:#7a8699; --info:#0e6a8a; --info-soft:#e2f3f8; --info-line:#a9d7e6;
   --series-1:#5b6f8f; --series-target:var(--text); --series-total:#9aa7bb; --hatch:#c8d0dc;
   --on-accent:#ffffff; --fs-kpi:32px; --s7:48px; --s8:64px; --r3:12px; --ease:cubic-bezier(.2,.7,.2,1);
 }
 @media screen and (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --text-3:#7d8899; --info:#6cc4e0; --info-soft:#12303a; --info-line:#2b5f70;
+    --rail-text-2:#a9b3c6; --text-3:#7d8899; --info:#6cc4e0; --info-soft:#12303a; --info-line:#2b5f70;
     --series-1:#8ea3c4; --series-total:#5d6a80; --hatch:#3d4859;
   }
 }
 :root[data-theme="dark"]{
-  --text-3:#7d8899; --info:#6cc4e0; --info-soft:#12303a; --info-line:#2b5f70;
+  --rail-text-2:#a9b3c6; --text-3:#7d8899; --info:#6cc4e0; --info-soft:#12303a; --info-line:#2b5f70;
   --series-1:#8ea3c4; --series-total:#5d6a80; --hatch:#3d4859;
 }
 
@@ -588,3 +588,19 @@ details.ux-pop>summary:focus-visible{outline:2px solid var(--focus);outline-offs
 .ux-cat-h{flex-wrap:nowrap;align-items:flex-start}
 .ux-cat-h h3{white-space:normal}
 @media (min-width:1280px){.ux-cat-h h3{white-space:normal}}
+
+/* ===== wave 2c fix round ===== */
+/* M1: Target and October sit at their scaled places on the track */
+.ux-wf-scale{display:block;position:relative;height:20px;border-bottom:1px solid var(--line-strong);padding:0}
+.ux-wf-mark{position:absolute;bottom:4px;transform:translateX(0);white-space:nowrap}
+.ux-wf-mark.is-end{transform:translateX(-100%)}
+.ux-wf-mark::after{content:"";position:absolute;left:0;bottom:-5px;height:6px;border-left:1px solid var(--text-2)}
+.ux-wf-mark.is-end::after{left:auto;right:0;border-left:0;border-right:1px solid var(--text-2)}
+.ux-wf-cap{margin:var(--s1) 0 0;font-size:var(--fs-xs);color:var(--text-2);margin-left:calc(min(30%,260px) + 96px + 2 * var(--s3))}
+.ux-wf-gapscale .ux-wf-track{overflow:visible}
+@media (max-width:600px){.ux-wf-cap{margin-left:0}}
+/* L1: on a narrow card an empty due cell is said to screen readers only */
+@container (max-width:880px){.ux-q-due.is-empty{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}
+/* L5: rail labels at AA; the footer has a solid backing */
+.rail .eyebrow,.rail .rail-group .eyebrow,.rail-footer,.rail-footer .eyebrow{color:var(--rail-text-2);opacity:1}
+.rail-footer{position:relative;z-index:1;background:var(--rail-bg)}

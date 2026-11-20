@@ -129,7 +129,7 @@ function uxQueue(op, rows, cls = '') {
     const stake = P.value ? `<span class="ux-q-v">${P.value}</span><small>${P.note}</small>` : P.word ? `<span class="ux-q-word">${P.word}</span>` : '<span class="muted">Not available yet</span>';
     const ck = P.cls && (CLS[P.cls] || [])[1], cert = P.value && P.cls ? `<span class="ux-q-cert">How sure: ${ck === 'rec' || ck === 'der' ? 'recorded' : `${uxMark(P.cls)}`}${P.dv ? ` · ${dvTag()} design estimate, not yet tested on your recorded data` : ''}</span>` : '';
     const why = m.issues.map(([k, t, txt]) => `<span class="ux-q-issue-line"><b>${t}:</b> ${txt}</span>`).join('');
-    return `<li class="attn-${m.issues[0][0]} ux-q" data-order="${i}" data-site="${s}" data-kind="${worst}" data-kinds="${[...new Set(tones)].join(' ')}" data-due="${due}" data-urg="${uxUrgency(due)}" data-stake="${P.num || 0}" data-issues="${m.issues.length}"><div class="ux-q-issue"><div class="ux-q-top">${m.issues.map(([k, t]) => uxChip(k, t)).join('')}</div><b class="ux-q-title">${uxTitle(dec ? dec.q : m.issues[0][1], SK[s].name)}</b><button type="button" class="ux-q-more" aria-expanded="false" aria-controls="${id}">Why${m.issues.length > 1 ? ` (${num(m.issues.length)} issues)` : ''}<span class="vh">: ${escapeHtml(dec ? dec.q : '')}</span></button><div class="ux-q-why is-collapsed" id="${id}">${why}${cert ? `<span class="ux-q-issue-line">${cert}</span>` : ''}</div></div><div class="ux-q-site"><span class="ux-q-k">Site: </span>${SK[s].name}</div><div class="ux-q-stake"><span class="ux-q-k">At stake: </span>${stake}</div><div class="ux-q-due"><span class="ux-q-k">Due: </span>${due ? fdate(due) : '<span class="vh">No deadline</span>'}</div><div class="ux-q-who"><span class="ux-q-k">Decides: </span>${who(op, D.p)}</div>${link(`decision/${d}`, `Decide<span class="vh">: ${escapeHtml(dec ? dec.q : '')}, ${SK[s].name}</span>`, `button ux-q-go${i === 0 ? ' primary' : ''}`)}</li>`;
+    return `<li class="attn-${m.issues[0][0]} ux-q" data-order="${i}" data-site="${s}" data-kind="${worst}" data-kinds="${[...new Set(tones)].join(' ')}" data-due="${due}" data-urg="${uxUrgency(due)}" data-stake="${P.num || 0}" data-issues="${m.issues.length}"><div class="ux-q-issue"><div class="ux-q-top">${m.issues.map(([k, t]) => uxChip(k, t)).join('')}</div><b class="ux-q-title">${uxTitle(dec ? dec.q : m.issues[0][1], SK[s].name)}</b><button type="button" class="ux-q-more" aria-expanded="false" aria-controls="${id}">Why${m.issues.length > 1 ? ` (${num(m.issues.length)} issues)` : ''}<span class="vh">: ${escapeHtml(dec ? dec.q : '')}</span></button><div class="ux-q-why is-collapsed" id="${id}">${why}${cert ? `<span class="ux-q-issue-line">${cert}</span>` : ''}</div></div><div class="ux-q-site"><span class="ux-q-k">Site: </span>${SK[s].name}</div><div class="ux-q-stake"><span class="ux-q-k">At stake: </span>${stake}</div><div class="ux-q-due${due ? '' : ' is-empty'}"><span class="ux-q-k">Due: </span>${due ? fdate(due) : '<span class="vh">No deadline</span>'}</div><div class="ux-q-who"><span class="ux-q-k">Decides: </span>${who(op, D.p)}</div>${link(`decision/${d}`, `Decide<span class="vh">: ${escapeHtml(dec ? dec.q : '')}, ${SK[s].name}</span>`, `button ux-q-go${i === 0 ? ' primary' : ''}`)}</li>`;
   });
   const sites = [...new Set(M.map(m => m.s))], kinds = [...new Set(M.flatMap(m => m.issues.map(([k, t]) => uxTone(k, t))))];
   const KW = { bad: 'Off target or breached', warn: 'At a limit or deadline', info: 'New or opportunity', neutral: 'Not explained yet', good: 'On target' };
@@ -164,6 +164,13 @@ function uxApplyQueue(wrap) {
    total, October. The axis starts at a round value below the lowest point and the break is drawn and said; each step links
    to the decision on its driver, with its detail on hover and keyboard focus. */
 
+/* rounding that reconciles (guide §5.1, wave 2c ruling): round the parts so they sum to the rounded total (largest remainder) */
+function uxRoundTo(values, total) {
+  const fl = values.map(v => Math.floor(v)), short = Math.round(total) - fl.reduce((a, b) => a + b, 0);
+  const order = values.map((v, i) => [v - Math.floor(v), i]).sort((a, b) => b[0] - a[0] || a[1] - b[1]);
+  const out = [...fl]; for (let k = 0; k < Math.abs(short) && k < order.length; k++) out[order[k][1]] += Math.sign(short);
+  return out;
+}
 /* the bridge (guide §5, wave 2c): the totals on an honest zero axis in one bullet; below it, the gap itself as the scale
    (target at the left edge, October at the right), each driver a step across it, grouped under its heading. No axis break,
    no empty area: the steps fill the width of the gap. Each step links to the decision on its driver. */
@@ -175,30 +182,41 @@ function uxBridge(op) {
   const names = OPS[op].sites.map(k => SK[k].name);
   const decFor = st => { const f = (HC.findings || []).find(f => names.includes(String(f.site).replace(/^Room [A-C] · /, '')) && (st.hkeys || []).includes(f.factor)); return f ? f.decision : null; };
   const nw = t => `<span class="ux-nw">${t}</span>`;
-  /* steps in heading order, then size; the running position is measured across the gap (0 = target, 100 = October) */
+  /* steps in heading order, then size. Position is progress across the gap (0 = target, 100 = October); offsetting steps can
+     run past either end, so the track spans [min(0, lowest run), max(100, highest run)] and Target and October sit at their
+     scaled places (review 2c M1). Signs: one rule per page, the change in the headline measure (cost for a cost centre). */
   const groups = ['grow', 'optimize'].map(k => ({ k, rows: G.rows.filter(r => r.lens === k).sort((a, b) => Math.abs(b.total) - Math.abs(a.total)) })).filter(g => g.rows.length);
-  let run = 0;
-  const body = groups.map(g => {
-    const gt = g.rows.reduce((a, r) => a + shown(r), 0);
+  /* one sign rule (L4): every figure is its effect on the headline result, as the tiles, drawers and site rows already show;
+     for a cost centre a cost overrun is negative (worse). Position uses progress from target (0) to October (100). */
+  const disp = st => cost ? -dir * st.total : st.total, gapShown = T.variance, all = groups.flatMap(g => g.rows);
+  let run = 0; const pos = new Map(); let lo = 0, hi = 100;
+  all.forEach(st => { const a = run, b = run + disp(st) / (gapShown || 1) * 100; run = b; pos.set(st, [a, b]); lo = Math.min(lo, a, b); hi = Math.max(hi, a, b); });
+  const S = p => (p - lo) / (hi - lo) * 100;
+  /* displayed figures reconcile: steps round to their heading's subtotal, subtotals to the gap (L2) */
+  const gapR = Math.round(gapShown), subs = uxRoundTo(groups.map(g => g.rows.reduce((a, r) => a + disp(r), 0)), gapR);
+  /* shares (L3): of what widens the gap; a step that narrows it is an offset, with no share */
+  const widens = st => Math.sign(disp(st)) === Math.sign(gapShown), wTot = all.filter(widens).reduce((a, r) => a + Math.abs(disp(r)), 0) || 1;
+  const wl = all.filter(widens), sharesR = uxRoundTo(wl.map(r => Math.abs(disp(r)) / wTot * 100), 100), share = new Map(wl.map((r, i) => [r, sharesR[i]]));
+  const body = groups.map((g, gi) => {
+    const vals = uxRoundTo(g.rows.map(r => disp(r)), subs[gi]);
     const rows = g.rows.map((st, i) => {
-      const a = run, b = run + shown(st) / (gap || 1) * 100; run = b; /* progress across the gap: 0 at target, 100 at October */
-      const L = Math.min(a, b), W = Math.abs(b - a);
-      const lab = GAP_SHORT[st.word] || st.word, val = usdW(shown(st), true), dk = decFor(st), dec = dk && decById(dk), share = Math.round(Math.abs(st.total) / gapAbs * 100);
-      const bar = `<span class="ux-wf-bar ${tone(st)}${st.residual ? ' is-resid' : ''}" style="left:${Math.max(0, L).toFixed(2)}%;width:${Math.max(0.8, W).toFixed(2)}%"></span>`;
-      const tip = `${lab}: ${nw(val)}, ${nw(`${share}%`)} of the ${cost ? 'difference' : 'gap'}${dec ? `. Open: ${dec.q}` : '. No decision is open on it'}`, id = `uxwt-${op}-${g.k}-${i}`;
-      const inner = `<span class="ux-wf-lab">${lab}</span><span class="ux-wf-val">${val}<small>${share}%</small></span><span class="ux-wf-track">${bar}</span>`;
+      const [a, b] = pos.get(st), L = S(Math.min(a, b)), W = Math.abs(S(b) - S(a));
+      const lab = GAP_SHORT[st.word] || st.word, val = usdW(vals[i], true), dk = decFor(st), dec = dk && decById(dk), sh = share.has(st) ? `${share.get(st)}%` : 'offsets';
+      const bar = `<span class="ux-wf-bar ${tone(st)}${st.residual ? ' is-resid' : ''}" style="left:${L.toFixed(2)}%;width:${Math.max(0.8, Math.min(W, 100 - L)).toFixed(2)}%"></span>`;
+      const tip = `${lab}: ${nw(val)}, ${share.has(st) ? `${nw(sh)} of what ${cost ? 'raises the cost' : 'widens the gap'}` : `offsets ${nw(usdW(Math.abs(vals[i])))} of it`}${dec ? `. Open: ${dec.q}` : '. No decision is open on it'}`, id = `uxwt-${op}-${g.k}-${i}`;
+      const inner = `<span class="ux-wf-lab">${lab}</span><span class="ux-wf-val" data-v="${vals[i]}" data-share="${share.has(st) ? share.get(st) : ''}">${val}<small>${sh}</small></span><span class="ux-wf-track">${bar}</span>`;
       return dec ? `<li class="ux-wf-row is-step is-link"><a class="ux-wf-a" href="#/decision/${dk}" aria-describedby="${id}">${inner}</a><span class="ux-tip" role="tooltip" id="${id}">${tip} ›</span></li>`
         : `<li class="ux-wf-row is-step" tabindex="0" aria-describedby="${id}">${inner}<span class="ux-tip" role="tooltip" id="${id}">${tip}</span></li>`;
     }).join('');
-    return `<li class="ux-wf-group"><span class="ux-wf-gl">${LENS[g.k][0]}</span><span class="ux-wf-gv">${usdW(gt, true)}</span></li>${rows}`;
+    return `<li class="ux-wf-group" data-v="${subs[gi]}"><span class="ux-wf-gl">${LENS[g.k][0]}</span><span class="ux-wf-gv">${usdW(subs[gi], true)}</span></li>${rows}`;
   }).join('');
   const big = Object.entries({ grow: G.grow, optimize: G.optimize }).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))[0];
   const title = cost ? `Cost and efficiency explain ${usdW(Math.abs(G.optimize))} of the ${usdW(gapAbs)} over target`
     : `${big[0] === 'optimize' ? 'Cost and efficiency explain' : 'Revenue explains'} ${usdW(Math.abs(big[1]))} of the ${usdW(gapAbs)} gap`;
   const totals = `<div class="ux-wf-totals">${uxBullet(T.actual, T.plan, `${head} ${usdW(T.actual)} against a target of ${usdW(T.plan)}`, cost)}<div class="ux-wf-tl"><span>${head}, October <b>${usdW(T.actual)}</b></span><span>Target <b>${usdW(T.plan)}</b></span></div></div>`;
   return `<section class="panel ux-chart ux-hero" aria-labelledby="uxb-h"><div class="panel-head"><div><h2 id="uxb-h">Where the gap comes from</h2><p>${title}. Open a step to see its decision.</p></div></div>${totals}
- <div class="ux-wf-scale" aria-hidden="true"><span>Target ${usdW(T.plan)}</span><span>The ${usdW(gapAbs)} ${cost ? 'difference' : 'gap'}, driver by driver</span><span>October ${usdW(T.actual)}</span></div>
- <ol class="ux-wf ux-wf-gapscale" aria-label="${head}: the gap from target to October, driver by driver">${body}</ol>${uxTableView('Show as table, by Site', gapSplit(op))}</section>`;
+ <div class="ux-wf-scale" aria-hidden="true"><span class="ux-wf-mark" style="left:${S(0).toFixed(2)}%">Target ${usdW(T.plan)}</span><span class="ux-wf-mark is-end" style="left:${S(100).toFixed(2)}%">October ${usdW(T.actual)}</span></div><p class="ux-wf-cap">The ${usdW(gapAbs)} ${cost ? 'difference' : 'gap'}, driver by driver. Shares are of what ${cost ? 'raises the cost' : 'widens the gap'}; a step that works the other way is an offset.</p>
+ <ol class="ux-wf ux-wf-gapscale" data-gap="${gapR}" aria-label="${head}: the gap from target to October, driver by driver">${body}</ol>${uxTableView('Show as table, by Site', gapSplit(op))}</section>`;
 }
 
 /* ---------- side drawer (guide §8): stays in the page (closed: hidden from view and focus), opened by a named button ---------- */
@@ -256,15 +274,6 @@ function uxCats(op) {
 }
 
 /* ---------- the plan card and the insight (L2 aside) ---------- */
-function uxPlanCard(op) {
-  const P = planCase(op), o = OPS[op], M2 = o.t.portfolio_constraints, budget = op === 'lakeside' ? LS.budget : M2.budget_usd_nov_dec, S = PSTATE();
-  const moves = P.rows.slice(0, 3).map(r => `<li>${link(`decision/${DEC_SEE_ALSO[r.id] || decOf(r.id).id}`, optLabel(r.id))} <small>${SK[OPT[r.id]._site].name}</small></li>`).join('');
-  return `<section class="panel ux-plan" aria-labelledby="uxp-h"><div class="ux-plan-head"><h2 id="uxp-h">The plan, ${periodWords()}</h2><span class="status-pill is-${S.state === 'PROPOSED' ? 'proposed' : S.state === 'APPROVED' ? 'approved' : 'waiting'}">${STATE_WORD[S.state]} · v${num(S.version)}</span></div>
- <p class="ux-plan-who">Approver: ${who(op, execOf(op))}</p>
- ${meter('Budget used', P.spend, budget, usdW)}${crewMeters(op, P)}
- <h3 class="ux-h3">First three moves</h3><ol class="ux-moves">${moves}</ol>
- <div class="ux-plan-go">${btn('portfolio/act-first/plan', 'Review the plan', true)}${link('portfolio/act-first', 'Act first', 'ux-link')}</div></section>`;
-}
 function uxInsight(op) {
   return CONTRAST[op].map(([h, p, d, l]) => `<section class="panel ux-insight" aria-labelledby="uxi-h"><div class="ux-eyebrow">Sites that look alike need different levers</div><h2 id="uxi-h">${h}</h2><p>${p}</p>${link(`decision/${d}`, `Open ${l} →`)}</section>`).join('');
 }
