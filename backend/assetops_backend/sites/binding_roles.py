@@ -1,7 +1,7 @@
 """The code-owned MINIGRID signal role vocabulary (S1-02).
 
 Decided by `D-2026-10-08-s1-bindings-roles-and-snapshot` (Architect answers
-Q1, Q3 and Q4 in `.agent/architect-S1-02-answers-2026-10-08.md`). Every
+Q1, Q3 and Q4 in `archive/agent-history/architect-S1-02-answers-2026-10-08.md`). Every
 vocabulary choice lives here; the binding mechanism does not name a role.
 
 A role names what a bound channel means for analysis. The canonical unit is
@@ -32,7 +32,7 @@ ROLE_SET_MINIGRID_3 = "minigrid-roles-3"
 ROLE_SET_MINIGRID_4 = "minigrid-roles-4"
 #: The set a new MINIGRID binding publication is recorded under.
 ROLE_SET_MINIGRID = ROLE_SET_MINIGRID_2
-#: W2-01 (`.agent/W2-technical-design-cold.md` section 3, `D-2026-10-17-w2-01-answers`
+#: W2-01 (`archive/agent-history/W2-technical-design-cold.md` section 3, `D-2026-10-17-w2-01-answers`
 #: and its W2-02 channel closure): the immutable COLDCHAIN vocabulary.
 ROLE_SET_COLD_1 = "cold-roles-1"
 #: W2-05a (`D-2026-10-18-w2-05-buildspec` "Role set", Q1/Q4/Q8): the immutable EV_CHARGING vocabulary.

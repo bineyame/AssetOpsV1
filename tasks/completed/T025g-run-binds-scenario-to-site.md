@@ -25,7 +25,7 @@ should not depend on it. Rule: `D-2026-10-01-run-binds-scenario-to-site`.
 
 ## Read for detail
 
-- `D-2026-10-01-run-binds-scenario-to-site`; `.agent/scenario-site-targeting-architect.md`
+- `D-2026-10-01-run-binds-scenario-to-site`; `archive/agent-history/scenario-site-targeting-architect.md`
   sections 2, 3, 4 (S1), 5 and 6. Do not re-derive its findings.
 - `D-2026-09-22-contract-version-scope`, `D-2026-09-20-scenario-detail-affordances`
   (amended), the "one invalid document" backlog entry; `tasks/README.md` checks.
@@ -167,11 +167,11 @@ named reasons on an old one, with the site chosen only at setup.
 Owner review required and done: on 2026-10-02 the owner reported the hands-on
 check done and passed, and accepted T025g.
 
-- First Claude review (`.agent/T025g-claude-review.md`, commit `3c37d60`), a
+- First Claude review (`archive/agent-history/T025g-claude-review.md`, commit `3c37d60`), a
   fresh Claude reviewer under the temporary binding: ACCEPT WITH CARRIES.
 - Fix round R1 fixed F1 (an empty `site_contract` serialises as no contract)
   and F5 (architect guidance is revision 3, owner signed off).
-- R1 verification review (`.agent/T025g-claude-review-r1.md`, commit `36a27c7`):
+- R1 verification review (`archive/agent-history/T025g-claude-review-r1.md`, commit `36a27c7`):
   ACCEPT WITH CARRIES, nothing new.
 - F2 resolved by amending AC6b's wording to the built behaviour (owner-approved
   2026-10-02): a missing generator-status source is recorded, not blocking.

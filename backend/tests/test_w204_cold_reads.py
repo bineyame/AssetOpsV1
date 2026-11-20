@@ -1,6 +1,6 @@
 """W2-04 commit 3: the five cold Site reads over registered W2-02 replays, W2-03 assessment and W2-04 money.
 
-`.agent/W2-04-build-spec.md` "Five API reads", "Selection, projection and capability", the commit-3 Architect
+`specs/W2-04/spec.md` "Five API reads", "Selection, projection and capability", the commit-3 Architect
 ruling on source contact and the dry-read table. Each replay test runs the W2-02 chain, the W2-03 cold worker and
 the W2-04 cold consequence worker in the private `*_test` database, then reads through the real router with the
 real `ColdReadService` and consequence store. No accepted, assessment, Finding or consequence row is inserted by
@@ -53,7 +53,7 @@ ENVELOPE = {"site_id", "window", "currentness", "source_provenance", "selected_s
 DTO = {"classification", "state", "source_ids", "evidence_ids", "basis_sha256", "reasons", "detail"}
 RAW_CODES = tuple(SCREEN_WORDING)
 EXCURSION_ATTENTION = ["COLD_START_FAILURE", "COLD_TRANSFER_UNKNOWN"]  # the excursion replay's chain
-# W2-F q1 ruling (.agent/W2-F-build-spec.md "Copy rulings (q1)"): the exact cooling limitation literal.
+# W2-F q1 ruling (specs/W2-F/spec.md "Copy rulings (q1)"): the exact cooling limitation literal.
 Q1_COOLING_LIMITATION = ("We cannot confirm that the compressor switched on after the interruption and that a later "
                          "chamber reading returned to the allowed temperature range.")
 

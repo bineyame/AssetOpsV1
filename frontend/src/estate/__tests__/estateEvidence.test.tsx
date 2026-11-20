@@ -1,5 +1,5 @@
 /**
- * W3-02 commit 2 named frontend tests (`.agent/W3-02-build-spec.md` "Proof and builder handoff"): the estate
+ * W3-02 commit 2 named frontend tests (`specs/W3-02/` "Proof and builder handoff"): the estate
  * Evidence root under a local MemoryRouter (Lane A mounts the shell route), against the v6.9 `globalevidence`
  * panel structure, with every card, column, chip, link, inert example and state-table string asserted. Bodies are
  * shaped as the reviewed `estate-evidence-1` wire; IDs are synthetic, and no mock count, Site or Action survives.
@@ -655,7 +655,7 @@ describe("W3-02 estate Evidence root", () => {
   it("meetsMeasuredNarrowLayoutWithoutDocumentOverflow", async () => {
     // jsdom has no layout: this reads the real-browser 390 px measurements of the mounted page (capture.mjs).
     for (const state of ["positive", "partial"]) {
-      const file = `../.agent/W3-02-evidence/app-${state}.json`;
+      const file = `src/estate/__tests__/fixtures/w3-02/app-${state}.json`;
       const narrow = (JSON.parse(await readDisk(file)).results as Record<string, any>[]).find((r) => r.width === 390);
       expect(narrow, `${state} 390 measurement present`).toBeDefined();
       expect(narrow!.ready).toBe(true);

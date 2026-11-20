@@ -1,6 +1,6 @@
 """W5-04a unit V1a: the domain Action root admits `EV_CHARGING` (EV Work and declared intent).
 
-`.agent/W5-04-build-spec.md` "V1 migration" and "V1 selection, clock and schema", readiness rulings 2-4. Chains to
+`specs/W5-04/spec.md` "V1 migration" and "V1 selection, clock and schema", readiness rulings 2-4. Chains to
 exactly `0034_w5_ev_scenarios`. No new table, column or index (pre-flight 7: 0033 `domain_action_site_raised`
 serves the Site index):
 

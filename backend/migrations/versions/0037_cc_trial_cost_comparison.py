@@ -1,7 +1,7 @@
 """CC-M (owner Q14): the append-only `trial_cost_comparison_revision` table: the modelled cost change after a
 verified generator trial.
 
-`.agent/build-spec-commercial-2026-10-27.md` "CC-M" table and Q-C42. Chains to exactly `0036_cc_mini_contribution`.
+`specs/Lane-C/rulings.md` "CC-M" table and Q-C42. Chains to exactly `0036_cc_mini_contribution`.
 One row is one post-trial commercial reassessment revision of a verification outcome (formula
 `trial-fuel-comparison/1`). It uses 0019's `SHA`, `KEY` and `DEMO_ACTOR` column pattern (copied here; 0019 is not
 edited). Rows are immutable: the 0027 `w4_append_only()` function refuses UPDATE and DELETE. The writer is

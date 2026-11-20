@@ -1,6 +1,6 @@
 # S6-01b — Action, recommendation and change surfaces
 
-Status: done (owner walkthrough accepted 2026-10-16, `.agent/owner-S404-S601b-acceptance-2026-10-16.md`, conditional: user-focused copy and visuals at W1 conclusion; merged to main; was in_review (built 2026-10-15; activated 2026-10-15, stacked on reviewed S6-01a `c341599b`, under the owner-absence work order; merge held for owner walkthrough and S6-01a merge); was implementation-ready
+Status: done (owner walkthrough accepted 2026-10-16, `owner/owner-S404-S601b-acceptance-2026-10-16.md`, conditional: user-focused copy and visuals at W1 conclusion; merged to main; was in_review (built 2026-10-15; activated 2026-10-15, stacked on reviewed S6-01a `c341599b`, under the owner-absence work order; merge held for owner walkthrough and S6-01a merge); was implementation-ready
 USER_REVIEW_REQUIRED: true; hold merge for owner's actual visual walkthrough
 Size: M; phases: two. Branch: `task/S6-01b-action-ui` on freshly reviewed/merged S6-01a; if unmerged, label stack and hold merge.
 Depends on: reviewed S6-01a store/read, closed `I-S4-01`, S1 Foundation. S5-01 is queue order only.
@@ -36,7 +36,7 @@ Owner walkthrough tool **new**: prepare an isolated DB and fixture, `serve` API/
 
 ## Architect rulings
 
-`.agent/architect-S6-01-answers.md` Q1-Q5 and M1-M3, ratified by `D-2026-10-15-s601-action-store-and-ui` in `.ai/DECISIONS.md`, govern the trial limitation, scoped demonstration controls, exact cutoff URLs, accepted snapshot and backdated OBSERVED display.
+`archive/agent-history/architect-S6-01-answers.md` Q1-Q5 and M1-M3, ratified by `D-2026-10-15-s601-action-store-and-ui` in `.ai/DECISIONS.md`, govern the trial limitation, scoped demonstration controls, exact cutoff URLs, accepted snapshot and backdated OBSERVED display.
 
 ## Plan fix round 1
 

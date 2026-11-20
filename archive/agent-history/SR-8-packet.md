@@ -1,0 +1,154 @@
+> Finished; historical. Archived from .agent/SR-8-packet.md on 2026-11-18 (declutter step 4).
+# SR-8 packet: mini-grid Renewable over the whole date range (server part)
+
+Branch `task/SR-8-renewable-range` (worktree `/opt/assetecon/AssetOpsV1-sr8`), main merged at cdd65115c.
+Spec: rev 10 §10.4, rev 10a §10a.3, D-SR.15/16/23/27. Page not started (waits for SR-4 merge).
+
+## Done
+
+- `backend/assetops_backend/sites/renewable_range.py`: pure composer, schema `site-renewable-range-1`.
+  Per day `{local_day, grade, low_kw, high_kw, decision, window_hours, covered_hours, operating_hours, state, link}`.
+  State: a grade gap first (no row or NO_DATA → NO_DATA; PENDING; NOT_EXPECTED), else the stored value: ELIGIBLE →
+  COUNTED, EXCLUDED → EXCLUDED (bounds shown), `result_state` CONFLICT / LIMITED / MISSING_HOUR (band null), graded
+  row with no value → NO_VALUE. Hours = row `covered_seconds` / `required_seconds` ÷ 3600 (operating hours).
+  Totals `{days_requested, days_counted, average_low_kw, average_high_kw, average_label: "average daylight
+  headroom", partial}`: averages over COUNTED days with both bounds, low and high separately.
+  Link `/sites/{code}/performance/renewable?from=<local midnight UTC>&to=<+1 day>`.
+- `mini_depth_api.py`: `RENEWABLE_RANGE_ROUTE` + `build_renewable_range_router(chain_reader, registry, access,
+  unavailable, responses)`; `perf.route`; StoredRoute key `{site, from, to, known_at}`, `sites`/`watermark_sites` =
+  the Site. Refusals 401/403/404 `SITE_NOT_FOUND`/404 `RENEWABLE_RANGE_NOT_APPLICABLE` (Cold/EV)/422
+  `INVALID_WINDOW` (estate rule via `estate_request`: UTC midnights, ≤31 days)/422 `INVALID_KNOWN_AT`/503
+  `SITE_RENEWABLE_RANGE_UNAVAILABLE`. One `ChainRequest.day` read over `window_days(from, to, tz)`.
+- `main.py`: router included after `build_chain_router` (after `responses`, `estate_portfolio`, `outcome_board`;
+  D-SR.23), chain reader = `outcome_board.s.chain_reader`. `MAX_DAYS = 5` depth read untouched.
+
+## Tests
+
+- `backend/tests/test_sr8_renewable_range_route.py` (stubs, real `ChainReader` over a fake port): **26 passed** (incl. D-SR.47 LOW-with-value and PARTIAL-counted tests).
+  Covers every state, absent-row NO_DATA (D-SR.16), averages/partial, hours, link, known_at passed to the read,
+  31-day window, 7 window refusals, admission/type/503 refusals, stored-route key + watermark, perf line.
+  Non-vacuity: mapping EXCLUDED → COUNTED fails 2 tests (reverted).
+- Adjacent: `test_w402_reads.py`, `test_ch5a2_contract.py` with the above: 71 passed, 3 skipped (no DB).
+- `backend/tests/test_sr8_renewable_range_postgres.py` (DB `assetops_sr8_test`): **1 passed** (61 s). Covers stored-row equality,
+  MISSING_HOUR day, absent-row day, 3 sampled days vs the one-day depth `headroom_kw` card, totals.
+- check-all: **All 19 guards passed** (957 s under load ~10; a first run hit a 900 s cap I set, not a failure).
+
+## Pending (coordinator turn)
+
+1. (done) Postgres file run.
+2. Parity and timing (KOBO-001, KISIWA-001 × 7/14/31 days), output `.agent/SR-8-parity.json`.
+3. Page (Renewable tab, R726), vitest, `sr2RequestUrls` pin, `RANGE_MATRIX` Renewable D→R: after SR-4 merges.
+
+## Rulings applied
+
+- D-SR.45: `window_days` (Q1). D-SR.47: NO_VALUE, 0.01 rounding on averages only, codes and `known_at` in the key
+  confirmed; LOW grade -> NOT_ENOUGH_READINGS, never counted; PARTIAL-grade COUNTED/EXCLUDED day has `partial: true`.
+
+## Q6 resolved by D-SR.48 (server part built)
+
+- Depth `cards.all_hours_headroom_kw` {low, high} (`mini_depth/rules.py summarize_renewable`, `read.py compose_renewable`
+  and `NULL_CARDS`): min low and min high over ELIGIBLE hours of ELIGIBLE days; null when `headroom_kw` is null. The
+  existing `headroom_kw` card is unchanged. The stored day value equals it exactly (Postgres test); card high >= stored high.
+- Tests: `test_w402_rules.py` (field, low==card low, high<=card high, null on excluded), `test_w402_reads.py`
+  (compose value and null cards), `test_sr8_renewable_range_postgres.py` (exact equality on sampled days).
+- Server bodies carry no label text for this figure; wording lives in the page.
+- Page resume points (frontend, after SR-4): range per-day and totals wording "Headroom available in every eligible
+  hour: low-high kW" / totals "average headroom available in every eligible hour"; one-day Renewable line under the
+  card with the same words from `cards.all_hours_headroom_kw`; relabel the existing card "Range across eligible
+  hours"; record MOCK DEVIATION R726; vitest pins the one-day line and range wording; parity JSON compares stored day
+  value to `all_hours_headroom_kw`, gate 0 mismatches. Add `all_hours_headroom_kw` to `miniDepthClient.ts` cards type.
+
+## D-SR.62 fix (one-day read follows the stored measure's missing-hour rule; sequence doc §10e.1)
+
+- Commits 6377fea9e (code + pure tests), b28fec415 (Postgres sample). main merged at 26c4845a7.
+- `read._Hour.missing` (last field, default False) = the hour is in `daylight_hours(...).missing` at the cutoff.
+  Set by `hour_windows(..., missing=<set>)` (new optional collector of `(day, window.start)`), passed through
+  `_hour(..., missing)` on the compose path (`_read`) and in `build_period`; `_job_fallback` keeps a row's flag
+  (`dataclasses.replace`). Stored: `period_rows.hour_json` writes `"missing"`, `hour_from_json` reads it (absent =
+  False). `BUILDER_VERSION` = `mini-depth-rows-2` (a `-1` row reads PENDING_RECOMPUTE by the existing version rule).
+- `compose_renewable(hours, *, missing=frozenset())`: missing hours leave the decision, cards and UNKNOWN test; a day
+  is missing only when a non-missing hour has no head. `rules.summarize_renewable(..., partial_days=())`: any partial
+  day blocks `recurrence_established` (not exposed on the wire today).
+- **Interpretation for Architect confirmation (commit 1a4d94dd5):** a day whose every hour is missing (no pv reading
+  at all, so no measured daylight hour) is still a missing day (UNKNOWN), not dropped. The literal rule ("missing only
+  when a non-missing hour has no head") dropped it and turned `test_w402_reads_postgres` 10-11 from UNKNOWN to
+  LIMITED; the stored measure gives such a day no inputs and no value, so this keeps the one rule.
+- Envelope: renewable gains `missing_hours` (count of missing windows); other domains unchanged.
+- **Shared functions touched (SR-10 merge note):** `read.hour_windows` (new kwarg), `read._Hour` (new field),
+  `MiniDepthRead._hour` (new trailing param), `_read`, `_job_fallback`, `build_period` (renewable branch only),
+  `renewable_envelope`, `_envelope`; `period_rows.hour_json`/`hour_from_json`/`BUILDER_VERSION`;
+  `rules.summarize_renewable`. Fuel/service/backup paths unchanged except the shared version bump.
+- Tests: `test_w402_reads.py` +6 (Finding-day shape SUPPORTED 25-31, 1/1, `missing_hours` 16; headless daylight hour
+  UNKNOWN; partial day no recurrence; shared-rule pin vs `RenewableHeadroom.measure` for complete/partial/headless);
+  `test_ar2_mini_period_rows.py` +1 (round-trip, v1 body). `test_sr8_renewable_range_postgres.py`: DAYS[2] gets 4
+  hours with no pv reading; asserts one-day `missing_hours` = range uncovered hours = 4, PARTIAL, and value equality.
+  Non-vacuity: dropping the missing filter fails the Postgres test and 2 pure tests (reverted).
+- Runs (final rev 1a4d94dd5): no-DB SR-8 + w402 rules/reads + AR-2 + board neighbours 193 passed / 3 skipped;
+  Postgres on `assetops_sr8_test`: w402_reads + SR-8 + ar2_mini_period_rows 11 passed (5 m 11 s). check-all: for coordinator.
+- Parity JSON: the "all 7 rows EXCLUDED" note corrected (`correction_d_sr62`). Coordinator: rebuild `mini_depth.*`
+  rows (KOBO-001, KISIWA-001), rerun parity with gate 0, `missing_hours` equal, decisions from `rows[].decision`.
+- Grow board (expected effect): a 5-day board window holding a Finding day (27 Oct, 3 Nov, 10 Nov on Kobo) now counts
+  that day as assessed (ELIGIBLE, 25-31 kW) instead of missing; it never sets recurrence. Board fixtures unchanged.
+- Page resume point (page not built): the one-day Renewable page shows the D-E5.45 PARTIAL label when
+  `missing_hours` > 0, with the range row's words, inside R726; add `missing_hours` to `miniDepthClient.ts`.
+
+## Questions (Architect, answered by D-SR.45/47)
+
+- Q1 Days of the window: used `window_days` (UTC-midnight window → its UTC dates read as Site-local days, the
+  estate frame rule), so 7 UTC days = 7 rows. `local_days(from, to, tz)` (as rev 10.3 names for SR-7) would give 8
+  Site-local days for a UTC+3 Site. SR-7 should use the same rule; confirm which.
+- Q2 A graded row with no value (or an unknown decision) reads `NO_VALUE` (borrowed from D-SR.26); not in D-SR.27's
+  state list. Confirm.
+- Q3 Averages are rounded to 0.01 kW (half-up). Confirm the step.
+- Q4 Grade-gap precedence: a PENDING/NO_DATA/NOT_EXPECTED grade wins over any stored value; LOW/PARTIAL/COMPLETE
+  grades read the value (so a PARTIAL-grade ELIGIBLE day is COUNTED). Confirm.
+- Q5 Refusal codes `RENEWABLE_RANGE_NOT_APPLICABLE` / `SITE_RENEWABLE_RANGE_UNAVAILABLE` by analogy with SR-6; the
+  route also accepts optional `known_at` (spec lists only from/to). Confirm.
+
+## Resume
+
+Run pending 1-2 when the DB is free; then the page after SR-4 merges (rev 10 §10.4 page bullet).
+
+Checks (D-SR.48 follow-up): no-DB neighbours 58 passed/3 skipped; Postgres SR-8 file 1 passed (assetops_sr8_test); w402_reads_postgres + w501_cold_depth_postgres 19 passed; check-all: All 19 guards passed.
+
+## Page (branch `task/SR-8-10-pages` from main e8f2bdea5; commits 836bce352 server L1-L3, 41da3c6a0 page)
+
+- **Review L1-L3 (server, no DB):** `AVERAGE_LABEL` = "average headroom available in every eligible hour" (D-SR.48);
+  the window rule runs before `known_at`, and malformed bounds refuse with `RANGE_REFUSALS` text (`_instant(..., refuse)`);
+  Postgres test: `ROUND_HALF_UP`, EXCLUDED asserts `all_hours_headroom_kw is None`, docstring corrected.
+  No-DB: SR-8 route + SR-10 route + w402_reads 72 passed / 3 skipped. **Pending (coordinator, DB):** rerun
+  `test_sr8_renewable_range_postgres.py` (only its assertions changed).
+- **Routing** (`miniDepthClient.miniRangeWindowFromParams`): a valid shared range with no `?day=` and not a story window
+  (exact Site-local midnights 1-5 days apart) opens the range view over `rangeWindow(range)` + address `known_at`; story
+  windows, named days and no-range addresses keep the one-day page. `renewableWindowFromParams` is unchanged (D-SR.59
+  contract fixture says do not regenerate); its "last 5 days" branch is no longer reached from the page.
+- **Range view** `sites/MiniRenewableRange.tsx` (+ shared `sites/miniRange.tsx`): strip "Headroom counted on n of m days
+  · {days}: {reason}" (D-E5.46 grouping), Partial chip, R726 label; card "Average headroom available in every eligible
+  hour" (existing `boundText`) + "Days counted"; `ValueBars` per day (value = high, text low–high kW); day table (day link
+  to the one-day page, band, eligible hours, covered of operating hours, state words incl. NO_VALUE "No headroom figure
+  for this day", NO_DATA "No readings this day"; partial COUNTED day "· Partial: n hours missing"). Declares nothing.
+  503 `SITE_RENEWABLE_RANGE_UNAVAILABLE` → "Temporarily unavailable. Retrying…" (2/4/8 s) → "Still unavailable…".
+- **One-day page:** headroom card note "Range across eligible hours, after retained margin and service checks" + line
+  "Headroom available in every eligible hour: low–high kW" from `cards.all_hours_headroom_kw`; strip
+  "Partial: n hours missing" when `missing_hours` > 0 (D-SR.62). Types: `all_hours_headroom_kw?`, `missing_hours?`.
+- **Tests:** new `miniRenewableRange.test.tsx` (6); re-pinned (not deleted): `miniRenewableRoutes` (story window, >5-day
+  no clamp, unprovable cause via `?day=`), `siteRangeTags` (Renewable "All pages"), `sr2RequestUrls` (Yesterday →
+  one `renewable-range` request, no one-day read). tsc clean.
+- **Not done:** `RANGE_MATRIX` (SR-5e `ui/rangeMatrix.ts`) does not exist on main, so no D→R entry to flip.
+
+### Interpretations / questions (Architect)
+1. "A range of any length shows the day table" + "a story window of at most 5 days keeps the existing page": read as
+   shared range → range view (also 1-5 days); exact local-midnight address → one-day page. On a UTC-zone Site a bar range
+   of ≤5 days is also exact local midnights and keeps the one-day page. Confirm.
+2. Card relabel: kept the label "Usable headroom" (v69) and put "Range across eligible hours" in the card note; the new
+   line sits under it in the same card. Confirm, or rename the label itself.
+3. Partial words "Partial: n hours missing" shared by the range row and the one-day strip (D-SR.62 "same words"). Confirm.
+4. No "Back to the whole range" on the Renewable day page (asked only for Fuel). Add for parity?
+5. 10d.3: "SR-8's range view links to [Opportunity detail] with that window" - not built (the CTA stays on the one-day
+   page); say if the range view needs it.
+
+## Fix round (D-SR.76 Q1-Q6, review L1-L6)
+- Q1: `miniRangeWindowFromParams` opens the whole-range view for any range longer than one Site-local day (UTC and Africa/* tested); exactly one day keeps the one-day page. Story-window tests moved to one-day windows.
+- Q3: "Partial: some hours have too few readings" (range rows, one-day strip, Fuel). Q4: "Back to the whole range" on the Renewable one-day page (router state, R726 label). No Opportunity link.
+- L1 R726/R727 inline labels; L2 partial flag without hour counts; L3 tests (NOT_ENOUGH_READINGS, NO_VALUE, PENDING, Fuel Still unavailable, too-few-readings); L4 sr2RequestUrls answers 404 (no retry timers); L5 two-card row (`v69-cards--two`), Fuel cell no longer repeats its header, range period bar says Site-local days.
+- Checks: vitest miniRenewable*/miniFuel*/sr2RequestUrls/siteRangeTags 7 files pass; tsc clean; SR-8/SR-10 route pytest 44 passed; mock-deviation-labels OK. check-all: for coordinator. layout evidence: not run (no Chrome/dev server on lane); two new dense table views unverified for layout.

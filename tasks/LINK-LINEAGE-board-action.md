@@ -6,8 +6,8 @@ The Site outcome board joined a mini Action to its origin Finding only on the ex
 revisions after the Action were pure basis refreshes lost the applied status signal and the Cost Must-not-harm line
 (register R552). One narrow board rule widens that join.
 Branch `task/LINK-LINEAGE-board-action`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-link`, from main `15eed62c8`.
-Contract: `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\build-sheet-LINK-LINEAGE.md` units U1-U3 (self-contained).
-Decision `D-2026-10-31-board-action-refresh-lineage`. Packet `.agent/LINK-LINEAGE-packet.md`.
+Contract: `C:\Users\assef\Bineyame\AssetOpsV1-plan2\specs\LINK-LINEAGE\spec.md` units U1-U3 (self-contained).
+Decision `D-2026-10-31-board-action-refresh-lineage`. Packet `archive/agent-history/LINK-LINEAGE-packet.md`.
 
 ## Gates (from the sheet)
 

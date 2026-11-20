@@ -1,4 +1,4 @@
-"""W4-03 unit 4: the opportunity worker scan and reconcile (`.agent/W4-03-build-spec.md` closure 2 Q4, closure 4
+"""W4-03 unit 4: the opportunity worker scan and reconcile (`specs/W4-03/` closure 2 Q4, closure 4
 S2/S5/S6, u3 "Unit 4 dry-read"): exact five-day study windows, routine retention edge, missing days, historical
 reconcile and coalescing under the study-key advisory lock.
 """

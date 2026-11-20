@@ -1,4 +1,4 @@
-"""W4-03 unit 4: five-day opportunity study identity (`.agent/W4-03-build-spec.md` closure 2 Q4, closure 4 S5/S6,
+"""W4-03 unit 4: five-day opportunity study identity (`specs/W4-03/` closure 2 Q4, closure 4 S5/S6,
 u3 "Unit 4 dry-read").
 
 A study is the five contiguous Site-local days ending on a day with a selected renewable hour. Its job window runs

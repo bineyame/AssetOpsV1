@@ -1,7 +1,7 @@
 """W5-04a V1b: the domain-work routes for an EV Site - readiness-28 refusal order over HTTP, readiness-7/30 foreign
 session and evidence refusals with zero writes, and the EV detail/index wire.
 
-`.agent/W5-04-build-spec.md` "Frozen contract" (Command/read, refusal order), readiness rulings 7, 27, 28 and 30.
+`specs/W5-04/spec.md` "Frozen contract" (Command/read, refusal order), readiness rulings 7, 27, 28 and 30.
 The EV Finding is W2-05b's registered `interrupted` replay (`test_w504_ev_intent_postgres.ev`). Producer K0 route
 and clock tests (rulings 8/29) belong to the V1b producer, not this file. Requires ASSETOPS_TEST_DATABASE_URL naming a
 `*_test` database.

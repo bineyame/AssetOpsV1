@@ -1,7 +1,7 @@
 /**
  * W6-01c C2/C3: the work request page parts shared by Overview (C2), Maintenance record (C3) and History (C4), from the
  * v6.9 `wr-overview` mock (`index.html:966-968`: `wrHeader`, `WR_TABS`, `breadcrumbs`, shell heading action) and
- * `.agent/W6-01-build-spec.md` "C1-C3 pre-flight rulings" P-C2-1..14 and P-X-1..3, which supersede section 2,
+ * `specs/W6-01/` "C1-C3 pre-flight rulings" P-C2-1..14 and P-X-1..3, which supersede section 2,
  * CL3-5 and A2Q7 for these pages.
  *
  * The page reads `GET /api/work/requests/{case_id}?site_id={site_code}[&known_at=]` once per route/query. Headings

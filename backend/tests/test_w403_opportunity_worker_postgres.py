@@ -1,4 +1,4 @@
-"""W4-03 unit 4: the opportunity lease loop and projection (`.agent/W4-03-build-spec.md` closure 2 Q4, closure 4
+"""W4-03 unit 4: the opportunity lease loop and projection (`specs/W4-03/` closure 2 Q4, closure 4
 S2/S3/S5/S7/S20, u3 "Unit 4 dry-read", "Unit-4 rulings (u4)"): exact five-day selection, unchanged reselection,
 late evidence, missing day, job window mismatch and interrupted lease retry.
 """

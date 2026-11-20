@@ -1,4 +1,4 @@
-"""DIESEL-K5 L0 (`.agent/build-sheet-DIESEL-1.md` §9l.2 A1-A7): the Fuel page's night-mode wording, with no database.
+"""DIESEL-K5 L0 (`specs/DIESEL-1/` §9l.2 A1-A7): the Fuel page's night-mode wording, with no database.
 Every "must fail" names the mutation it kills."""
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ from assetops_backend.fuel_balance import night_text as nt
 from assetops_backend.fuel_balance.model import REASONS, STATES, FuelBalanceWindow, FuelFinding
 
 REPO = Path(__file__).resolve().parents[2]
-PROBE = json.loads((REPO / ".agent" / "DIESEL-F0" / "probe-result.json").read_text(encoding="utf-8"))
+PROBE = json.loads((REPO / "host" / "fixtures" / "diesel-f0" / "probe-result.json").read_text(encoding="utf-8"))
 TZ = "Africa/Dar_es_Salaam"
 SFC = Fraction("0.355")
 FORBIDDEN = ("theft", "stolen", "stole", "siphon", "pilfer")

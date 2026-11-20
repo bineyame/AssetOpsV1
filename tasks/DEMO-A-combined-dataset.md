@@ -7,9 +7,9 @@ One `tools/demo_combined.py prepare` builds a private test database holding KOBO
 `backend/conversions/demo-story-days-v1.json` (8 Kobo, 3 cold, 2 EV story days; every day a registered Lab run),
 then finishes objectives, comparisons and ticks and runs the acceptance self-check (`tools/demo_combined_finish.py`).
 Branch `task/DEMO-A-combined-dataset`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-demo3`. Packet
-`.agent/DEMO-A-packet.md`; phase handoff `.agent/DEMO-A-phase-handoff.md`.
+`archive/agent-history/DEMO-A-packet.md`; phase handoff `archive/agent-history/DEMO-A-phase-handoff.md`.
 
-Contract: `AssetOpsV1-plan2/.agent/build-sheet-DEMO-SPARSE.md` (rev 1 + Addenda 1-3, wins where it differs) over
+Contract: `AssetOpsV1-plan2/specs/DEMO-SPARSE/spec.md` (rev 1 + Addenda 1-3, wins where it differs) over
 `build-sheet-DEMO-COMBINED.md` (rev 1 + Addendum 1). Depends on IDX-GAPS, SCN and FIX-S4-DOMAIN (all on main).
 
 ## Gates (from the sheet)

@@ -4,7 +4,7 @@ Status: done (merged to main 2026-10-17; review ACCEPT, 3 Lows carried to W2-01/
 
 ## Binding design
 
-- `.agent/W2-technical-design-cold.md` §1, especially **W2-00 implementation rulings**, owns exact v4 shapes, identity hash, header/ordinal boundary, snapshot keys, refusals, S2 admission and Postgres reads; §2 owns migration `0020_w2_source_event`, downgrade and collision order; §4 owns closed channel tuples; §7 owns proof. Decisions `D-2026-10-17-w2-design`, `D-2026-10-17-w2-techdesign-cold` and `D-2026-10-17-w2-00-answers` apply. Existing v3, Stage v1/v2 and private-world boundaries remain as specified there.
+- `archive/agent-history/W2-technical-design-cold.md` §1, especially **W2-00 implementation rulings**, owns exact v4 shapes, identity hash, header/ordinal boundary, snapshot keys, refusals, S2 admission and Postgres reads; §2 owns migration `0020_w2_source_event`, downgrade and collision order; §4 owns closed channel tuples; §7 owns proof. Decisions `D-2026-10-17-w2-design`, `D-2026-10-17-w2-techdesign-cold` and `D-2026-10-17-w2-00-answers` apply. Existing v3, Stage v1/v2 and private-world boundaries remain as specified there.
 
 ## Phase 1 — v4 admission through ordinary evidence
 
@@ -24,8 +24,8 @@ W2-00 is a prerequisite shared source-format packet. The current registry has no
 
 Resolved by `D-2026-10-17-w2-00-answers` and the six numbered rulings in technical design §1. No implementer design choice remains. Test-only v4 `BindingBasis` injection may reuse registered binding/asset IDs until W2-01/02 publication exists; it is not runtime v4 authority.
 
-## Plan review fixes (coordinator, 2026-10-17; `.agent/W2-packets-1-review.md`)
+## Plan review fixes (coordinator, 2026-10-17; `archive/agent-history/W2-packets-1-review.md`)
 
-- **Rule-8 writer guard (design `.agent/W2-technical-design-cold.md:164-168`, required):** ADD probes to `tools/writer_guard_probes.py` and the rule-8 policy in `tools/checks/configuration-persistence.ps1`: pass probes for the ledger as sole writer of the new columns and for the message conflict target on every insert; fail probes for an event partial-index conflict target, any `DO UPDATE`, and a foreign writer; double-collision probes proving message+event resolves to the message disposition and event+session resolves to the event disposition. Running the existing probe corpus alone does not satisfy acceptance.
+- **Rule-8 writer guard (design `archive/agent-history/W2-technical-design-cold.md:165-169`, required):** ADD probes to `tools/writer_guard_probes.py` and the rule-8 policy in `tools/checks/configuration-persistence.ps1`: pass probes for the ledger as sole writer of the new columns and for the message conflict target on every insert; fail probes for an event partial-index conflict target, any `DO UPDATE`, and a foreign writer; double-collision probes proving message+event resolves to the message disposition and event+session resolves to the event disposition. Running the existing probe corpus alone does not satisfy acceptance.
 - **Receipt counts:** `backend/assetops_backend/evidence/ledger_reads.py` must count all three conflict kinds (message, event, session) as conflicts in both count queries and the rejection-list split; add tests that a receipt with each new conflict kind reports it as a conflict and leaves rejected counts unchanged, and that `MESSAGE_CONFLICT` receipt bytes are unchanged.
 - **Explicit tests (L1):** v3 mapping snapshots still parse without the five optional mapping keys; the four EV rejection codes write a null conflicting-record reference; Postgres `/evidence/records` family/kind filters work and old records return the seven new fields as null; the legacy file read rejects these filters with 422 `FILTER_UNSUPPORTED`; accepted v4 rows create no dispatch job while v3 still does.

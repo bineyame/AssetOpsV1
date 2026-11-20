@@ -1,6 +1,6 @@
 """W2-03: cold assessment episodes and the cold_chain Finding domain.
 
-`.agent/W2-03-build-spec.md` "Migration 0022" and `.agent/W2-technical-design-cold.md` section 2
+`specs/W2-03/spec.md` "Migration 0022" and `archive/agent-history/W2-technical-design-cold.md` section 2
 (`D-2026-10-17-w2-02-buildspec`).
 
 Adds three scoped, append-only tables:

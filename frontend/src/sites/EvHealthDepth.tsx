@@ -1,7 +1,7 @@
 /**
  * W5-03b E4: the EV Site Health page body (v6.9 `ev-health`, `index.html:689-691`), from the selected `/ev/health`
- * depth read (`.agent/W5-03-build-spec.md` E4 card, literal ledger, the W5-03b pre-flight E4 correction and
- * `.agent/W5-03b-ui-preflight-rulings.md` points 2 and 5-8).
+ * depth read (`specs/W5-03/` E4 card, literal ledger, the W5-03b pre-flight E4 correction and
+ * `archive/agent-history/W5-03b-ui-preflight-rulings.md` points 2 and 5-8).
  *
  * Composition: optional currentness notice (R15), one card per selected connector then `Stationary battery`, the
  * sole `Condition and evidence` panel, then the condition notice (R16). No completed session proves hardware health,

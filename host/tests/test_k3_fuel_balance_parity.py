@@ -1,4 +1,4 @@
-"""DIESEL-K3 L2 parity (`.agent/build-sheet-DIESEL-1.md` §9d.6 C): K3's stored windows reproduce F0's readings band.
+"""DIESEL-K3 L2 parity (`specs/DIESEL-1/` §9d.6 C): K3's stored windows reproduce F0's readings band.
 
 Needs `ASSETOPS_TEST_DATABASE_URL` naming a `*_test` database (K3: `assetops_k3_test`); skipped without it.
 
@@ -7,7 +7,7 @@ Nights 2, 4 and 6 (delivery, incident, after-phase dips): each run starts from F
 on the registered basis (product mini-grid v7, registered-kobo-publication v5), gets F0's actions through the probe's
 own hook (`probe_kisiwa_fuel.apply_actions`), and is published and accepted through a real gateway. The delivery and
 the dips are posted through `WorkService.post_operational_record` (K2). Each night is assessed by
-`FuelBalanceService` and compared with `.agent/DIESEL-F0/probe-result.json` `nights[k-1]["readings"]`.
+`FuelBalanceService` and compared with `host/fixtures/diesel-f0/probe-result.json` `nights[k-1]["readings"]`.
 """
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ pytestmark = pytest.mark.skipif(
     not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)"
 )
 
-REFERENCE = ROOT / ".agent" / "DIESEL-F0" / "probe-result.json"
+REFERENCE = ROOT / "host" / "fixtures" / "diesel-f0" / "probe-result.json"
 IMPORT_AT = datetime(2026, 9, 29, 9, 0, tzinfo=timezone.utc)
 INSTALL_AT = datetime(2026, 9, 29, 9, 30, tzinfo=timezone.utc)
 SETUP_AT = "2026-09-29T11:00:00Z"

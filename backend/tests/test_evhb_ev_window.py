@@ -1,4 +1,4 @@
-"""EV-HB (D-E5.48 card EV-HB, `AssetOpsV1-plan2/.agent/build-sheet-OWN-GAPS-2026-11-08.md`): every EV story day
+"""EV-HB (D-E5.48 card EV-HB, `AssetOpsV1-plan2/specs/OWN-GAPS/`): every EV story day
 records the depot's whole declared charging hours, Tuesday 08:00-16:00 UTC, instead of the first hour only.
 
 The charging sessions (08:01-08:31) and the fault-day fault keep their values byte for byte; the connector status

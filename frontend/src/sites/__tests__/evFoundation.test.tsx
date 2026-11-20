@@ -733,7 +733,7 @@ describe("W2-05a: the Site record accepts the one state-valued property", () => 
 });
 
 /*
- * W2-F unit 3 (`.agent/W2-F-build-spec.md` ledger M2/M14, closure N3/N8): What is needed lists the selected readiness
+ * W2-F unit 3 (`specs/W2-F/spec.md` ledger M2/M14, closure N3/N8): What is needed lists the selected readiness
  * message first, then `Commissioning record` while no commissioning evidence is stored; an undeclared charger slot keeps
  * its topology label.
  */

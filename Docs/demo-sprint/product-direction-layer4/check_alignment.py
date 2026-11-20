@@ -229,7 +229,9 @@ def ref_ok(ref, lx):
     if ref in lx["named"] or ref in lx["decisions"] or ref in lx["constructs"] or ref in lx["gaps"]: return True
     if ref == "plan_model": return True
     m = re.fullmatch(r"owner:\s*(\S+)", ref)
-    if m: return (REPO / m.group(1)).is_file()
+    if m:                                       # owner files moved from .agent/ to owner/ (declutter step 4; specs/CITATION_MAP.md)
+        rel = m.group(1)
+        return (REPO / rel).is_file() or (rel.startswith(".agent/owner-") and (REPO / "owner" / rel[len(".agent/"):]).is_file())
     return False
 
 

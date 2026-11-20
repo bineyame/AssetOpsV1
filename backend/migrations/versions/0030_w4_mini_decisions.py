@@ -1,6 +1,6 @@
 """W4-03 unit 1: mini-grid decisions (scenarios, alternatives, five-day opportunities) and their work links.
 
-`.agent/W4-03-build-spec.md`: original "Migration `0030_w4_mini_decisions`" DDL, closure 1 catalog/lock paragraph,
+`specs/W4-03/spec.md`: original "Migration `0030_w4_mini_decisions`" DDL, closure 1 catalog/lock paragraph,
 closure 4 S3 (job reference), S4 (consolidated contract and exact names), S18 (head) and S19 (downgrade job/stage
 refusal). Chains to `0029_w4_mini_depth`. No `known_at`, `finding`, W4-01 work or 0029 schema modification beyond
 the one replaced Site-stage CHECK.

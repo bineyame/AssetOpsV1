@@ -1,6 +1,6 @@
 /**
  * W5-03b E4: EV Site Health (v6.9 `ev-health`) from the selected `/ev/health` depth read
- * (`.agent/W5-03-build-spec.md` E4 card and pre-flight E4 correction; `.agent/W5-03b-ui-preflight-rulings.md` 2-8).
+ * (`specs/W5-03/` E4 card and pre-flight E4 correction; `archive/agent-history/W5-03b-ui-preflight-rulings.md` 2-8).
  */
 import { entryRange } from "../../ui/sharedRange";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";

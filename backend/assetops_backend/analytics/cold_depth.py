@@ -1,4 +1,4 @@
-"""W5-01 C1: the selected cold Cooling and Health depth reads (`.agent/W5-01-build-spec.md` "Shared selected
+"""W5-01 C1: the selected cold Cooling and Health depth reads (`specs/W5-01/` "Shared selected
 read and guards", "C1", its derivation table and the "C1 Health read" tables).
 
 Pure composition over `ColdReadService` (no SQL driver here): one REPEATABLE READ connection from

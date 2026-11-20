@@ -5,9 +5,9 @@ Status: in_review
 Lane C (commercial). Branch `task/CC-R2-placement`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-cc2`, branched from
 the CC-R1 head `71aa1fea`.
 
-The contract is `.agent/build-spec-commercial-2026-10-27.md` "CC-R2", including its "Implementer questions and
+The contract is `specs/Lane-C/rulings.md` "CC-R2", including its "Implementer questions and
 resolutions" and CC-R1-Q1/Q2. It also includes `Docs/demo-sprint/commercial-capability-readiness.html` Appendix C D5,
-as amended, and owner Q11 (the MG-C stand-in is kept). The index is `.agent/build-sequence-2026-10-27.md`.
+as amended, and owner Q11 (the MG-C stand-in is kept). The index is `archive/agent-history/build-sequence-2026-10-27.md`.
 
 PYTHONPATH (PowerShell):
 ```
@@ -39,4 +39,4 @@ $env:PYTHONPATH = "C:\Users\assef\Bineyame\AssetOpsV1-cc2\backend;C:\Users\assef
   - KOBO-001 rows in `estate` resolve to a source of UNKNOWN or MIXED;
   - the F03/F05 steps stop F01 from being VERIFIED.
 
-Open questions: `.agent/CC-R2-questions.md` (Q1-Q4). Packet: `.agent/CC-R2-review-packet.md`.
+Open questions: `archive/agent-history/CC-R2-questions.md` (Q1-Q4). Packet: `archive/agent-history/CC-R2-review-packet.md`.

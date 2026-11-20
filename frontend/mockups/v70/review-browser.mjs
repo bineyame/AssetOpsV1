@@ -4,6 +4,8 @@ import {mkdtempSync, writeFileSync, mkdirSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import { assertHeavySlot } from "../../../tools/heavy_slot_check.cjs";
+assertHeavySlot("browser capture"); // T1 (spec §5.4): a browser capture runs only inside the heavy-tool slot pool
 const dir=fileURLToPath(new URL('./',import.meta.url));
 const profile=mkdtempSync(join(tmpdir(),'assetops-mockups-'));
 const port=9447;

@@ -1,5 +1,5 @@
 /**
- * W5-02 K3a (`.agent/W5-02-build-spec.md` "K3a and K3b: cases", K3 pre-flight rulings 1-6, M5 withdrawal; K2
+ * W5-02 K3a (`specs/W5-02/` "K3a and K3b: cases", K3 pre-flight rulings 1-6, M5 withdrawal; K2
  * rulings 4, 5, 12, 21, 23): the COLDCHAIN Site > Work > Incidents and Maintenance tabs over the W4 Site work list
  * (`site-work-index-1`), against the v69 `cold-work-incidents` / `cold-work-maintenance` mock
  * (`frontend/mockups/v69/index.html:333-342`). The wire rows carry exactly the W4 row keys; IDs are test constants.

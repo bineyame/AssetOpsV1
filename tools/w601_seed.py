@@ -1,4 +1,4 @@
-"""W6-01a (A1): the W6-01 global work fixture producer (`.agent/W6-01-build-spec.md` section 4).
+"""W6-01a (A1): the W6-01 global work fixture producer (`specs/W6-01/` section 4).
 
     python tools/w601_seed.py --db assetops_w601_<unit>_test
         --fixture {incidents|zero|empty_scope|historical|cursor_change|stress|maintenance|preventive|detail|linked|
@@ -16,7 +16,7 @@ before `--clock`. Prints the stored IDs and codes read back from the database as
 `stress` (W6-01a A2, A2Q2) writes six KOBO-001 incidents: incident 1 has a 200-character unbroken title and a
 128-character unbroken assignee; incidents 2-6 are `Stress incident 2` ... `Stress incident 6` (five rows plus Next).
 `empty_scope` seeds the same rows as `incidents`; the empty scope is the read's access callback denying every Site.
-W6-01b (B1, `.agent/W6-01-build-spec.md` "B1-B3 pre-flight rulings" P-B1-1..9) adds `maintenance` (seven `demo`
+W6-01b (B1, `specs/W6-01/` "B1-B3 pre-flight rulings" P-B1-1..9) adds `maintenance` (seven `demo`
 requests over KOBO-001/KOBO-002 in every reachable state plus one other-tenant request), `preventive` (five `demo` DRAFT
 plans, two RUN_HOURS, plus one other-tenant plan), `detail` (the C2-C4 request with CREATED, ASSIGN, COMMENT, a
 record, COMPLETE, REOPEN and a case revision, and a second CANCELLED request), `linked` (a real S4 Finding and S6

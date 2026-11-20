@@ -1,6 +1,6 @@
 """W2-06 commit 2: pure `ev-session/1` correlation rules over hand-built accepted records.
 
-Authority: `.agent/W2-06-build-spec.md` "Total ordering and state table", "Coverage and JSON", Run 1 rulings
+Authority: `specs/W2-06/` "Total ordering and state table", "Coverage and JSON", Run 1 rulings
 R1-R9, Run 2 rulings Q2-Q7, Q14, Q15 and Run 3 rulings P1-P5.
 Every row of the state table is exercised here; the pinned public
 vectors are checked separately once `ev-w206-vectors.json` lands.

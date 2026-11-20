@@ -1,7 +1,7 @@
 """S4-04 phase 1: the Site Finding index read (`I-finding-index`).
 
 Authority: `D-2026-10-15-a-finding-index` and `D-2026-10-15-s404-contract` (full rulings in
-`.agent/architect-A-finding-index-answers.md` and `.agent/architect-S4-04-answers.md`).
+`archive/agent-history/architect-A-finding-index-answers.md` and `archive/agent-history/architect-S4-04-answers.md`).
 
 One scoped read over committed S4-01 Finding/FindingRevision rows: the latest revision of each canonical
 Finding of one domain whose selected episode intersects the half-open UTC window `[from, to)`, ordered by

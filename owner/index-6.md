@@ -1,0 +1,19 @@
+# Owner feedback index, part 6 of 6 (2026-11-18 to 2026-11-20)
+
+One line per owner file (in `owner/`): date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
+
+- 2026-11-18 `owner-design-intro-and-motivation-request-2026-11-18.md` Design doc intro and transition motivation (moved from `.agent/` 20 Nov) · historical
+- 2026-11-18 `owner-grounded-transition-request-2026-11-18.md` Ground the current product in Layer 4 primitives; Findings and Actions stay relevant (moved from `.agent/` 20 Nov) · historical — folded into the Layer 4 design
+- 2026-11-20 `owner-answers-uiux-datastrat-d7-2026-11-20.md` U9 adopt, U10 yes, U8 keep 6 groups, U7 yes; data strategy Q1–Q8 defaults except Q7 (recalc once a day + on demand, for now), Q2 switchable, Q3 combination on merit but speed now; D7 default · current
+- 2026-11-20 `owner-start-ds1-2026-11-20.md` Start data slice DS1 now (July–September history, U9) under the spec handshake, ahead of the pack/strategy review · current
+- 2026-11-20 `owner-decision-page-redesign-2026-11-20.md` Owner finds the Decide page confusing; approved sending the coordinator's 8-point Decision page redesign (question first, one primary choice, option cards, collapsed why, confirm dialog, status line, state-aware queue button) to the Architect · current
+- 2026-11-20 `owner-placeholder-gaps-routing-2026-11-20.md` Owner approved routing the placeholder-audit gaps: 1, 5, unknown-as-zero to the design Architect; 4 + wording + Site-tile wiring to the UI Architect after the Decision page; 2, 3 with DS1 · current
+- 2026-11-20 `owner-merge-wave2c-ds1-defaults-2026-11-20.md` Merge UI wave 2c to main; DS1 owner questions (D-DS1.6, Q1–Q5) on their defaults · current
+- 2026-11-20 `owner-roadmap-replace-2026-11-20.md` Replace the stale product-transition-and-roadmap (rev 4.2, 18 Nov) with a short current roadmap linking to the design, register and build plan; rev 4.2 to history; router to point at the design and register · current
+- 2026-11-20 `owner-queue-site-plan-pages-2026-11-20.md` Queue the Site and plan pages for the UI Architect after the Decision page (coordinator UI opinion: Portfolio ~7.5, Decision ~6 until fixed, rest ~4) · current
+- 2026-11-20 `owner-portfolio-click-consistency-2026-11-20.md` Portfolio: one drill-down behaviour (gap steps and outcome tiles open the same side drawer, explicit "Open decision →"); By outcome stops restating Grow/Optimize · current
+- 2026-11-20 `owner-long-page-and-design-philosophy-2026-11-20.md` Long-page standard (sticky context, answer-titled sections, in-page navigation, capped lists) to the Architect; the Architect to address the overall underlying design philosophy that is missing · current — governs the UI guide
+- 2026-11-20 `owner-design-philosophy-clarified-2026-11-20.md` Design philosophy = deliberate content exposure with the right controls; user experience and content exposure that scale; simplicity achieved through deliberate design · current — governs the UI guide
+- 2026-11-20 `owner-no-new-document-2026-11-20.md` The design philosophy is to be embodied in the UI itself, not delivered as another document for the owner to read · current — governs the UI work
+- 2026-11-20 `owner-ui-standing-brief-2026-11-20.md` Standing UI/UX brief: deliberate information architecture (deliberate exposure with the right controls, consistent interaction, exposure that scales, simplicity by design, honesty, judged by using it) · current — governs all UI work
+- 2026-11-20 `owner-ux-audit-start-2026-11-20.md` Start an independent state-of-the-art UX audit of every screen (baseline practice the owner should not have to raise); findings feed the Architect as work, not an owner document; expert UX evaluation before anything reaches the owner · current

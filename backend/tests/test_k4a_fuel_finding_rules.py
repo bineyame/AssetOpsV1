@@ -1,4 +1,4 @@
-"""DIESEL-K4a L0 (`.agent/build-sheet-DIESEL-1.md` §9j.8 A1-A7, §9k.5 A9): the unexplained-fuel Finding's wording,
+"""DIESEL-K4a L0 (`specs/DIESEL-1/` §9j.8 A1-A7, §9k.5 A9): the unexplained-fuel Finding's wording,
 money, lifecycle and the no-sum guard, with no database. Every "must fail" names the mutation it kills."""
 
 from __future__ import annotations
@@ -26,7 +26,7 @@ from assetops_backend.fuel_balance import findings_service as fs
 from assetops_backend.fuel_balance.model import FuelBalanceWindow, FuelFinding
 
 REPO = Path(__file__).resolve().parents[2]
-PROBE = json.loads((REPO / ".agent" / "DIESEL-F0" / "probe-result.json").read_text(encoding="utf-8"))
+PROBE = json.loads((REPO / "host" / "fixtures" / "diesel-f0" / "probe-result.json").read_text(encoding="utf-8"))
 TZ = "Africa/Dar_es_Salaam"
 NIGHT4 = date(2026, 10, 4)
 BAND = PROBE["nights"][3]["readings"]

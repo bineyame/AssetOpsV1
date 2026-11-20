@@ -4,7 +4,7 @@ Status: in_review
 
 Outcome sprint, follow-up to OUT-C (P-C1, owner option A: "latest assessed event within the period"). Branch
 `task/OUT-W-estate-event-windows`, worktree `C:\Users\assef\Bineyame\AssetOpsV1-outW`, cut from main `833e7c95`.
-Implementation contract: `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\build-sheet-OUT-W.md` (§0 rules, §2 units W1-W3,
+Implementation contract: `C:\Users\assef\Bineyame\AssetOpsV1-plan2\specs\OUT-W\spec.md` (§0 rules, §2 units W1-W3,
 §3 wire, §5 acceptance, §6 register). Resolves R575; adds R576 and R577 (Architect ruling (a), 2026-10-31, EV 6 Oct).
 
 ## Gates (from the sheet)
@@ -16,4 +16,4 @@ Implementation contract: `C:\Users\assef\Bineyame\AssetOpsV1-plan2\.agent\build-
 
 USER_REVIEW_REQUIRED: false for merge (fresh independent review gates merge; owner sees it in the post-sprint walkthrough).
 
-Review packet: `.agent/OUT-W-packet.md`. History: `.agent/OUT-W-phase-handoff.md`.
+Review packet: `archive/agent-history/OUT-W-packet.md`. History: `archive/agent-history/OUT-W-phase-handoff.md`.

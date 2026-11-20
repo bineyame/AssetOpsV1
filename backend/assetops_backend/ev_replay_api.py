@@ -1,4 +1,4 @@
-"""W2-05b EV replay route (`.agent/W2-05b-build-spec.md` commit 5 and q4 "Final commit 4-5" item 3).
+"""W2-05b EV replay route (`specs/W2-05b/` commit 5 and q4 "Final commit 4-5" item 3).
 
 `GET /api/sites/{site_code}/ev/replay?run_id=<id>` - mounted only under the Simulator Lab gate, beside the cold
 replay route it mirrors. `main.create_app` passes its injected `ev_access`/`ev_owner` (N1), the same callables the

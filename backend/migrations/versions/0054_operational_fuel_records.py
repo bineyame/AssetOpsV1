@@ -1,4 +1,4 @@
-"""DIESEL-K2 (`.agent/build-sheet-DIESEL-1.md` §9c.2, ruling DIESEL-1-R3c): fuel delivery and tank dip records.
+"""DIESEL-K2 (`specs/DIESEL-1/` §9c.2, ruling DIESEL-1-R3c): fuel delivery and tank dip records.
 
 `operational_record` (0027) admits two more kinds, `FUEL_DELIVERY` and `TANK_DIP`, and one nullable column, `asset_id`,
 the fuel tank a fuel record concerns:

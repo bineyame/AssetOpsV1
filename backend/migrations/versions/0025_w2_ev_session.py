@@ -1,7 +1,7 @@
 """W2-06 commit 1: append-only EV session assessment tables and the widened Finding domain checks.
 
-`.agent/W2-06-build-spec.md` (decision D-2026-10-18-w2-06-07-buildspec), "Pre-build closure (2026-10-19)" 0025 DDL,
-and `.agent/W2-technical-design-ev.md` section 1. Creates, in order:
+`specs/W2-06/rulings.md` (decision D-2026-10-18-w2-06-07-buildspec), "Pre-build closure (2026-10-19)" 0025 DDL,
+and `archive/agent-history/W2-technical-design-ev.md` section 1. Creates, in order:
 
 - `ev_session`: the scoped session identity `(tenant_id, site_id, charger_asset_id, connector_asset_id,
   external_session_id)`, anchored to the first accepted START evidence ID and its source time.
@@ -233,7 +233,7 @@ END;
 $$;
 """
 
-# W2-06 Run 2 ruling Q10-Q11 (`.agent/W2-06-build-spec.md` "Q10-Q13: enqueue and worker"): the S2 accepted-evidence
+# W2-06 Run 2 ruling Q10-Q11 (`specs/W2-06/` "Q10-Q13: enqueue and worker"): the S2 accepted-evidence
 # writer is unchanged; a DEFERRABLE INITIALLY DEFERRED constraint trigger on `accepted_evidence` enqueues
 # `recompute_job.domain='ev_charging'` before commit for a newly accepted row bound to an `ev-roles-1` role. A
 # duplicate receipt inserts no accepted row, so it fires nothing. Job IDs come from `gen_random_uuid()` so the

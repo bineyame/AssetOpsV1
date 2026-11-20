@@ -34,7 +34,7 @@ import {
 
 /**
  * W2-05b: set up a Draft run from one registered EV test run. A Simulator Lab
- * surface (`.agent/W2-05b-build-spec.md`, Run 1 rulings Q8-Q11).
+ * surface (`specs/W2-05b/`, Run 1 rulings Q8-Q11).
  *
  * The Site is chosen first. Only a Site whose detail says `EV_CHARGING` reads
  * the EV choices, for that exact Site, and only the returned ones are offered;

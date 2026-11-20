@@ -4,7 +4,7 @@ A router. It says where the current truth is; it does not hold it.
 
 Current milestone: demo sprint (live product on `main`) running alongside the
 Layer 4 product-direction design, which awaits owner decisions. Repo declutter
-in progress (step 1 of 5). Detail: `.ai/NOW.md`.
+in progress (step 5 of 5). Detail: `.ai/NOW.md`.
 
 Planning status: the S1-S7 queue is built; new product work waits on the owner's
 Layer 4 decisions (open queue: `decisions-register.md` §5 in the pack). Demo-sprint fixes are sequenced by the
@@ -48,7 +48,7 @@ it does not authorise a claim the data cannot support. Show a missing source as
 
 ## Authority order
 
-1. The owner's instructions (verbatim files `.agent/owner-*.md`).
+1. The owner's instructions (verbatim files in `owner/`).
 2. The active spec's acceptance criteria and rulings.
 3. `.ai/RULES.md` and `.ai/ROLE_CONFIG.md`.
 4. The direction documents above, inside the O1 boundary.
@@ -56,17 +56,20 @@ it does not authorise a claim the data cannot support. Show a missing source as
 6. Existing code and tests.
 
 When two conflict, follow the higher one and record the consequence as a
-decision (`.ai/DECISIONS.md` or the active rulings file).
+decision (`.ai/decisions/`, or the active rulings file, plus an index line).
 
 ## Where things are (find on demand)
 
 - Active work: `.ai/NOW.md`. Coordinator state: `.agent/coordinator-handoff.md`.
-- Decisions: `.ai/DECISIONS.md` (by ID); demo-sprint rulings
-  `.agent/build-sheet-OWN-GAPS-2026-11-08.md` (D-SR.*, D-ANY.*, D-DATA.* ...).
-- Built state: `.ai/CODE_STATE.md` (by slice ID).
-- S1-S7 queue tables (machine-read by guards): `tasks/README.md`.
+- Decisions, every ID family (dated, D-SR, D-E5, D-ANY ...): grep the ID in
+  `.ai/decisions/index-*.md`; how-to in `.ai/decisions/INDEX.md`.
+- Built state: `.ai/state/INDEX.md`; grep the slice ID in `.ai/state/index-*.md`.
+- Specs (build sheets, specs and their rulings, in `specs/<ID>/`): `specs/INDEX.md`.
+  Old `.agent/` paths: `specs/CITATION_MAP.md`.
+- Owner words: read `owner/SUMMARY.md` first, then the verbatim files it names; status in `owner/INDEX.md`.
+- S1-S7 queue tables (history; no guard reads them since declutter step 5):
+  `tasks/archive/site-first-2026-10/queue-tables.md`.
 - UI defaults: `frontend/docs/architecture/ui-ux-decision-guide.md`.
-- Tests: `backend/TESTING.md`. Guards: `tools/check-all.ps1`.
+- Tests: `backend/TESTING.md`; heavy tools through `tools/heavy-slot.sh`. Guards: `tools/check-all.ps1`.
 
-Indexes for decisions, state, specs and owner files arrive in declutter step 2;
-until then, grep by ID.
+`python tools/check-decision-index.py` (in check-all) keeps the indexes whole.

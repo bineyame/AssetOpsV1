@@ -1,6 +1,6 @@
 """W6-01e (E1): the global Operational records root `GET /api/work/operational-records?kind=`.
 
-`.agent/W6-01-build-spec.md` section 1 (operational row), the E1 card, section 3.1 (A1Q2 R3, X2) and the "E1-E2
+`specs/W6-01/` section 1 (operational row), the E1 card, section 3.1 (A1Q2 R3, X2) and the "E1-E2
 pre-flight rulings" P-E1-1..10. Rows are written by `tools/w601_seed.py --fixture operational` (P-E1-9) through the
 real W4 `WorkService` and the ordered write clock from `--clock 2026-10-21T12:00:00Z`, and read through the
 constructor read-clock override. Unreachable consistency states use a rolled-back controlled mutation only.

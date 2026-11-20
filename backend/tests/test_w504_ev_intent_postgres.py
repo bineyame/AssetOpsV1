@@ -1,7 +1,7 @@
 """W5-04a V1a/V1b: migration `0035_w5_ev_work`, the EV domain contract, the selected EV basis port, EV case links,
 and the EV commands and detail over the real selection (readiness 27, 28, 30, 7).
 
-`.agent/W5-04-build-spec.md` "V1 migration", "V1 selection, clock and schema" and readiness rulings 2-5, 9, 12.
+`specs/W5-04/spec.md` "V1 migration", "V1 selection, clock and schema" and readiness rulings 2-5, 9, 12.
 The EV Finding comes from W2-05b's registered `interrupted` replay through the W2-06 worker (`ev_depth_cases.
 settled`); its selection is the real W4 linked-selection pin and the real `EvReadService` reads on the caller's
 connection. Direct-SQL rows exercise only DB constraints and the downgrade guard; W4 cases come from the W4 service.

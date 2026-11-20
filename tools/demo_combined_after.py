@@ -414,6 +414,8 @@ def main(url: str, work: Path, s2: bool = False, ref: Path | None = None) -> int
 
 
 if __name__ == "__main__":
+    import heavy_slot_check  # T1 (spec §5.5): only when run as a script; children of a pooled prepare pass by ancestry
+    heavy_slot_check.require("database job", db=True)
     args = sys.argv[1:]
     s2_mode = "--s2" in args
     ref_path = Path(args[args.index("--ref") + 1]) if "--ref" in args else None

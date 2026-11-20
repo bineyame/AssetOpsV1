@@ -1,5 +1,5 @@
 /**
- * Read-only client for an EV_CHARGING Site's five W2-07 selected reads (`.agent/W2-07-build-spec.md` "Commits 2-3",
+ * Read-only client for an EV_CHARGING Site's five W2-07 selected reads (`specs/W2-07/` "Commits 2-3",
  * "Run 6 rulings (q5)" R5 and "Run 7 rulings (q6)"):
  *
  *   GET /api/sites/{code}/ev/overview               (from, to, known_at)

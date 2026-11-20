@@ -559,7 +559,7 @@ def documents(root, doc, ref):
             for m in re.findall(r"\d[\d,]*(?:\.\d+)?", o):
                 try: allowed.add(round(abs(float(m.replace(",", ""))), 2))
                 except ValueError: pass
-    walk({k: v for k, v in doc.items() if k != "oracle"}); walk(ref)
+    walk({k: v for k, v in doc.items() if k not in ("oracle", "history")}); walk(ref)   # DS1 §8.3: the history's rules are not figures
     main_doc = (root / "layer4-transformation-design.md").read_text(encoding="utf-8")
     wp = (root / "worked-portfolios.md").read_text(encoding="utf-8")
     sections = [("main Parts 1-2", main_doc[main_doc.index("## Part 1."):main_doc.index("## Appendix")]),
@@ -794,7 +794,25 @@ def homes_selftest(doc):
 
 
 # ---------------- 9. the vertical factor map and the traceability file (owner, 19 Nov: vertical-factor-map.md) ----------------
-BRIEF = pathlib.Path(__file__).resolve().parents[3] / ".agent" / "AssetEcon_Product_Direction_Layers_1_to_3_and_Claude_Brief_REVISED.md"
+_BRIEF_NAME = "AssetEcon_Product_Direction_Layers_1_to_3_and_Claude_Brief_REVISED.md"
+
+
+def _find_brief():
+    """The owner's brief is untracked in the main checkout's .agent/; a linked worktree finds it via git's common dir."""
+    here = pathlib.Path(__file__).resolve().parents[3]
+    cands = [here / ".agent" / _BRIEF_NAME]
+    try:
+        import subprocess
+        common = subprocess.run(["git", "rev-parse", "--path-format=absolute", "--git-common-dir"], cwd=here,
+                                capture_output=True, text=True).stdout.strip()
+        if common:
+            cands.append(pathlib.Path(common).parent / ".agent" / _BRIEF_NAME)
+    except OSError:
+        pass
+    return next((c for c in cands if c.is_file()), cands[0])
+
+
+BRIEF = _find_brief()
 MAP_DOC = "vertical-factor-map.md"
 TRACE = "outcome-lever-capability-traceability.csv"
 CSV_VERT = {"MINI_GRID": "MINI_GRID", "COLD_CHAIN": "COLD_CHAIN", "EV_DEPOT": "EV_DEPOT_CAPTIVE"}
@@ -1150,6 +1168,267 @@ def empty_states(root, doc):
         check(f"empty states self-test: {label} is planted and fails", planted(fn_, on))
 
 
+# ---------------- 11. history (DS1 spec §8.3, checks H1-H11; D-DS1.5 to D-DS1.12) ----------------
+# They run when history.json exists. Every expected value comes from independent_model.compute_history(); the constants below
+# are the base commit's October digests (H8, H10). Lifetime (R14): the next slice that changes October replaces them in its diff.
+H8_DERIVED_SHA = "bfe2cbc54571963ea4f9c1ed18633dc84c6579a2fc1003bc51a7ff8d1ab3813a"   # derived-values.json at the DS1p base
+H8_MISSING_SHA = "b8d3bcbc376cf530ddc633e1f5ba1878f99eb0314d47f656278c76423c864fa5"   # missing-records.json at the DS1p base
+H10_MANIFEST_SHA = "8c027d0405936e4730426633ee703de5623bea3da6ddec36933b50b77a2edb4c"  # the manifest at the DS1p base
+H9_BASELINE = 4465   # checks passed on the DS1p base after `merge main`, taken in place (packet-DS1p.md)
+H_RULE_BASES = ("share", "rest")   # MB3 (ruled): a base key a declared share/rest rule reads (EV `kwh`) is a generated record
+H_ENTRY_META = {"side", "record_kind", "source_family", "cause", "carried_as", "blocks", "slice", "record_words", "assumption", "trigger", "note"}
+
+
+def entry_subject(e):
+    """The subject of a missing-records entry (leaf | leaves | field | stage | right and condition, with its label)."""
+    return {k: v for k, v in e.items() if k not in H_ENTRY_META}
+
+
+def entry_key(e):
+    """H4b: the whole entry, blocks as a set; the independent model's entries carry `subject` as one key."""
+    subj = e["subject"] if "subject" in e else entry_subject(e)
+    return (e.get("side"), json.dumps(subj, sort_keys=True, ensure_ascii=False), e.get("record_kind"), e.get("source_family"),
+            e.get("cause"), e.get("carried_as"), tuple(sorted(e.get("blocks") or [])), e.get("slice"))
+
+
+def entry_key13(e):
+    """H13: (subject, record_kind, cause, carried_as). MB6 (ruled): a target-side `leaves` subject is keyed by its kind only,
+    because its leaf list is each month's own (Mto's `unmapped_kwh` is split only in October); H13 adds that the list is a
+    subset of October's, and H4b compares it exactly against the independent model."""
+    subj = entry_subject(e)
+    return (json.dumps({"leaves": None} if "leaves" in subj else subj, sort_keys=True, ensure_ascii=False),
+            e.get("record_kind"), e.get("cause"), e.get("carried_as"))
+
+
+def view_digest(doc):
+    """H11 (R15): spec §4.2 re-implemented: allowlist, float repr, canonical bytes. Shares no code with the generator."""
+    import hashlib
+
+    def conv(x, p):
+        if isinstance(x, bool) or not isinstance(x, (int, float, str, dict, list)):
+            raise ValueError(f"VIEW_TYPE {p}")
+        if isinstance(x, float):
+            return repr(x)
+        if isinstance(x, dict):
+            return {str(k): conv(v, f"{p}.{k}") for k, v in x.items()}
+        return [conv(v, p) for v in x] if isinstance(x, list) else x
+
+    def pick(d, keys):
+        return {k: d[k] for k in keys if k in d}
+    view = pick(doc, ("manifest_version", "as_of", "accounting_period", "currency", "timezone_default", "history"))
+    view["tenants"] = [{**pick(t, ("tenant", "vertical", "prices", "energy_model", "capacity_crates_per_room")),
+                        "sites": [{**pick(s, ("site", "code", "physical", "tariff")),
+                                   **({"period": pick(s["period"], ("plan", "actual", "coverage"))} if "period" in s else {})}
+                                  for s in t["sites"]]} for t in doc["tenants"]]
+    raw = json.dumps(conv(view, "view"), sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(raw).hexdigest()
+
+
+def first_present_keys(fm, keys):
+    """H2 (P1): for each factor-map leaf, the record.* names of its first alternative whose record names are all present."""
+    import ast as _ast
+    out = set()
+
+    def alts(n):
+        if isinstance(n, _ast.BinOp) and isinstance(n.op, _ast.BitOr):
+            return alts(n.left) + alts(n.right)
+        return [n]
+    for x in fm.values():
+        for a in alts(_ast.parse(str(x), mode="eval").body):
+            names = {n.attr for n in _ast.walk(a) if isinstance(n, _ast.Attribute) and isinstance(n.value, _ast.Name)
+                     and n.value.id == "record"}
+            if names and names <= keys:
+                out |= names
+                break
+    return out
+
+
+def history_checks(doc, dv, root, path, im):
+    import calendar
+    import datetime as _dt
+    import hashlib
+    global passes
+    base_passes, base_failed = passes, len(failures)
+    hist = json.loads((root / "history.json").read_text(encoding="utf-8"))
+    ref = im.compute_history(str(path))
+    H = doc["history"]
+    dh = dv.get("history") or {}
+    check("H6 derived-values.json carries the history series", bool(dh))
+    money = set(hist["meta"]["money_leaves"])
+    mr = json.loads((root / "missing-records.json").read_text(encoding="utf-8"))
+    bad_mr = sorted({e.get("cause") for es in mr["sites"].values() for e in es} - CAUSES)
+    check(f"H12 missing-records.json causes are main causes only (bad {bad_mr})", not bad_mr)
+    vert_of = {t["tenant"]: ("EV_DEPOT_CAPTIVE" if t["vertical"] == "EV_DEPOT" else t["vertical"]) for t in doc["tenants"]}
+    for t in doc["tenants"]:
+        tid, V = t["tenant"], vert_of[t["tenant"]]
+        rt, dt_ = ref["tenants"][tid], dh.get(tid, {})
+        kind = rt["kind"]
+        outcome = "cost_to_serve" if kind == "cost" else "contribution"
+        check(f"H6 {tid}: kind {dt_.get('kind')!r} == independent {kind!r}", dt_.get("kind") == kind)
+        check(f"H7 {tid}: series evidence is Simulated", dt_.get("evidence") == "Simulated")
+        check(f"H6 {tid}: months {dt_.get('months')} == {ref['months']}", dt_.get("months") == ref["months"])
+        for s_ in t["sites"]:
+            n = s_["site"]
+            rs, ds = rt["sites"][n], (dt_.get("sites") or {}).get(n, {})
+            fm = {**doc["factor_map"][V], **(s_.get("factor_sources") or {})}
+            rules = {side: {**(H["rules"][t["vertical"]].get(side) or {}), **((H["sites"].get(f"{tid}/{n}") or {}).get(side) or {})}
+                     for side in ("plan", "actual")}
+            for mo in H["months"]:
+                blk = hist["tenants"][tid][n][mo]
+                y, m_ = int(mo[:4]), int(mo[5:7])
+                last = calendar.monthrange(y, m_)[1]
+                check(f"H1 {tid}/{n}/{mo}: period_days {blk['period_days']} == {last}", blk["period_days"] == last)
+                check(f"H1 {tid}/{n}/{mo}: period_end {blk['period_end']} == calendar", blk["period_end"] == _dt.date(y, m_, last).isoformat())
+                for side in ("plan", "actual"):
+                    scope = f"{tid}/{n}/{mo}/{side}"
+                    oct_side = dv["sites"][f"{tid}/{n}"][side]
+                    rec = blk[side]
+                    # H2: leaf sets, status, zero-rule leaves
+                    oct_keys = set(s_["period"][side])
+                    if oct_side["status"] == "evaluated":
+                        want = first_present_keys(fm, oct_keys)
+                        bases = {r.split()[1] for lf, r in rules[side].items() if lf in rec and r.split()[0] in H_RULE_BASES} & oct_keys - want
+                        check(f"H2 {scope}: keys {sorted(rec)} == first-present {sorted(want)} plus share/rest bases {sorted(bases)}, "
+                              f"among October's keys (MB3)", set(rec) - bases == want)
+                    else:
+                        check(f"H2 {scope}: keys {sorted(rec)} == October's {sorted(oct_keys)}", set(rec) == oct_keys)
+                    hs = ((ds.get("periods") or {}).get(mo) or {}).get(side) or {}
+                    check(f"H2 {scope}: status {hs.get('status')!r} == October's {oct_side['status']!r}", hs.get("status") == oct_side["status"])
+                    for leaf, rule in rules[side].items():
+                        if rule == "zero" and leaf in rec:
+                            check(f"H2 {scope}: zero-rule leaf {leaf} is 0 (got {rec[leaf]})", rec[leaf] == 0)
+                    # H3: independent == evaluator
+                    rside = rs["periods"][mo][side]
+                    check(f"H3 {scope}: status {hs.get('status')!r} begins with independent {rside['status']!r}",
+                          isinstance(hs.get("status"), str) and hs["status"].startswith(rside["status"]))
+                    nodes = hs.get("nodes") or {}
+                    got = nodes.get(outcome) if rside["status"] == "evaluated" else hs.get("stated_total")
+                    eq(f"H3 {scope}: outcome", got, rside["outcome"])
+                    if rside["status"] == "evaluated":
+                        check(f"H3 {scope}: node set {sorted(set(nodes) ^ set(rside['nodes']))} differs", set(nodes) == set(rside["nodes"]))
+                        for k in sorted(set(nodes) & set(rside["nodes"])):
+                            eq(f"H3 {scope}: node {k}", nodes[k], rside["nodes"][k])
+                    # H4: not observed
+                    no = hs.get("not_observed")
+                    check(f"H4 {scope}: not_observed {no} == independent {rside['not_observed']}", no == rside["not_observed"])
+                    check(f"H4 {scope}: no not-observed node or observation leaf in nodes",
+                          not (set(nodes) & (set(rside["not_observed"]) | set(rs["observation_leaves"]))))
+                    named = {b for e in hs.get("missing") or [] if e.get("cause") == H["missing_cause"] for b in e.get("blocks") or []}
+                    check(f"H4 {scope}: every not-observed node has a {H['missing_cause']} missing entry naming it "
+                          f"(unnamed {sorted(set(rside['not_observed']) - named)})", set(rside["not_observed"]) <= named)
+                    leaves_named = {e.get("leaf") for e in hs.get("missing") or [] if e.get("cause") == H["missing_cause"]}
+                    check(f"H4 {scope}: every observation leaf has its {H['missing_cause']} entry", set(rs["observation_leaves"]) <= leaves_named)
+                    # H4b: every entry equals the independent model's (plan: RESIDUAL/ASSUMPTION; actual: the observed side's)
+                    mine, theirs = sorted(map(entry_key, hs.get("missing") or [])), sorted(map(entry_key, rside["missing"]))
+                    check(f"H4b {scope}: missing entries == independent (only here {sorted(set(mine) - set(theirs))[:2]}; "
+                          f"only there {sorted(set(theirs) - set(mine))[:2]})", mine == theirs)
+                    if f"{tid}/{n}" == "metro-bus/Ruiru" and side == "plan":
+                        check(f"H4b {scope}: Ruiru's plan carries carried_as RESIDUAL",
+                              any(e.get("carried_as") == "RESIDUAL" for e in hs.get("missing") or []))
+                    # H12: causes
+                    bad_c = [e.get("cause") for e in hs.get("missing") or [] if e.get("cause") not in CAUSES | {H["missing_cause"]}]
+                    check(f"H12 {scope}: every cause is a main cause or {H['missing_cause']} (bad {bad_c})", not bad_c)
+                    # H13: completeness against October's same side, less the October-only kinds, plus NOT_IN_HISTORY
+                    octe = [e for e in mr["sites"][f"{tid}/{n}"] if e["side"] == side and e.get("carried_as") != "TARGET" and "condition" not in e]
+                    want13 = sorted(map(entry_key13, octe + [e for e in hs.get("missing") or [] if e.get("cause") == H["missing_cause"]]))
+                    got13 = sorted(map(entry_key13, hs.get("missing") or []))
+                    check(f"H13 {scope}: entries == October's same side less TARGET and conditions, plus {H['missing_cause']} "
+                          f"(only history {sorted(set(got13) - set(want13))[:2]}; only October {sorted(set(want13) - set(got13))[:2]})",
+                          got13 == want13)
+                    oct_leaves = {x for e in octe if "leaves" in e for x in e["leaves"]}
+                    for e in hs.get("missing") or []:
+                        if "leaves" in e:
+                            stray = sorted(set(e["leaves"]) - oct_leaves)
+                            check(f"H13 {scope}: {e.get('carried_as')} leaves are a subset of October's list (stray {stray})", not stray)
+                    # H5: what history may not show
+                    if V == "MINI_GRID" and side == "actual" and "diesel_l" in nodes:
+                        check(f"H5 {scope}: unexplained_l {rec.get('unexplained_l')} <= 2% of diesel_l {nodes['diesel_l']}",
+                              D(rec.get("unexplained_l", 0)) <= D("0.02") * D(str(nodes["diesel_l"])))
+                    if V == "COLD_CHAIN":
+                        cap = D(str(t["capacity_crates_per_room"])) * blk["period_days"]
+                        check(f"H5 {scope}: crate_days {rec.get('crate_days')} <= capacity {cap}", D(rec.get("crate_days", 0)) <= cap)
+                        r_ = (rules[side].get("kwh") or "").split()
+                        if side == "actual" and r_[:1] == ["cold_kwh"] and r_[2:] and r_[2 + sorted(H["months"]).index(mo)] == "anchor":
+                            km = nodes.get("kwh_model")
+                            check(f"H5 {scope}: anchor kwh {rec['kwh']} within 5% of kwh_model {km}",
+                                  km is not None and abs(D(rec["kwh"]) - D(str(km))) <= D("0.05") * D(str(km)))
+                    if V == "EV_DEPOT_CAPTIVE" and rside["status"] == "evaluated":
+                        check(f"H5 {scope}: buses_short_per_night {nodes.get('buses_short_per_night')} == 0", nodes.get("buses_short_per_night") == 0)
+                    # H7: coverage
+                    check(f"H7 {tid}/{n}/{mo}: coverage all RECORDED", all(v == "RECORDED" for v in blk["coverage"].values()))
+            # H6: Site series against the independent model, October included
+            for key, rkey in ((kind, "outcome"), ("gap", "gap")):
+                got = ds.get(key) or []
+                check(f"H6 {tid}/{n} {key}: four points {[p.get('p') for p in got]}", [p.get("p") for p in got] == ref["months"])
+                check(f"H6 {tid}/{n} {key}: labels {[p.get('m') for p in got]}", [p.get("m") for p in got] == [p["m"] for p in rs[rkey]])
+                for p, r in zip(got, rs[rkey]):
+                    eq(f"H6 {tid}/{n} {key} {r['p']}", p.get("v"), r["v"])
+        # H6: portfolio points against the independent model, as the sum of the Sites, and the gap rule
+        for key, rkey in ((kind, "outcome"), ("gap", "gap")):
+            got = (dt_.get("portfolio") or {}).get(key) or []
+            check(f"H6 {tid} portfolio {key}: four points", [p.get("p") for p in got] == ref["months"])
+            for i, (p, r) in enumerate(zip(got, rt["portfolio"][rkey])):
+                eq(f"H6 {tid} portfolio {key} {r['p']}", p.get("v"), r["v"])
+                pts = [(((dt_.get("sites") or {}).get(s["site"]) or {}).get(key) or [{}] * 4)[i].get("v") for s in t["sites"]]
+                eq(f"H6 {tid} portfolio {key} {r['p']} = Σ sites", p.get("v"),
+                   sum((D(str(x)) for x in pts), D(0)) if None not in pts else None)
+        for i, mo in enumerate(ref["months"]):
+            for s in t["sites"]:
+                ss = (dt_.get("sites") or {}).get(s["site"]) or {}
+                if mo in H["months"]:
+                    side_ = ss.get("periods", {}).get(mo, {}).get("plan", {})
+                    pl = side_.get("nodes", {}).get(outcome, side_.get("stated_total"))
+                else:
+                    side_ = dv["sites"][f"{tid}/{s['site']}"]["plan"]
+                    pl = side_.get("nodes", {}).get(outcome, side_.get("stated_total"))
+                ac = (ss.get(kind) or [{}] * 4)[i].get("v")
+                g = (ss.get("gap") or [{}] * 4)[i].get("v")
+                if pl is not None and ac is not None:
+                    eq(f"H6 {tid}/{s['site']} gap {mo} follows the {kind} rule", g, (D(str(pl)) - D(str(ac))) if kind == "cost" else (D(str(ac)) - D(str(pl))))
+                else:
+                    check(f"H6 {tid}/{s['site']} gap {mo}: plan and actual present", False)
+    # H7: labels everywhere
+    seen = []
+
+    def walk(o, p):
+        if isinstance(o, dict):
+            for k, v in o.items():
+                if k == "evidence":
+                    seen.append((p, v))
+                walk(v, f"{p}.{k}")
+        elif isinstance(o, list):
+            for v in o:
+                walk(v, p)
+        elif o == "Recorded":
+            seen.append((p, o))
+    walk(hist, "history.json"); walk(dh, "derived.history")
+    bad = [x for x in seen if x[1] != "Simulated"]
+    check(f"H7 every evidence value is Simulated and none is Recorded ({len(seen)} seen; bad {bad[:3]})", seen and not bad)
+    # H8: October unchanged
+    rest = {k: v for k, v in dv.items() if k != "history"}
+    octb = (json.dumps(rest, indent=1, ensure_ascii=False) + "\n").encode("utf-8")
+    check(f"H8 derived-values.json minus history has the base SHA-256 ({hashlib.sha256(octb).hexdigest()[:12]})",
+          hashlib.sha256(octb).hexdigest() == H8_DERIVED_SHA)
+    mrb = (root / "missing-records.json").read_bytes()
+    check(f"H8 missing-records.json is the base's ({hashlib.sha256(mrb).hexdigest()[:12]})", hashlib.sha256(mrb).hexdigest() == H8_MISSING_SHA)
+    # H10: the manifest before `history:` is the base's; the rest is exactly one key
+    raw = pathlib.Path(path).read_bytes()
+    cut = raw.find(b"\nhistory:")
+    check("H10 manifest has a top-level `history:` line", cut >= 0)
+    head, tail = raw[:cut + 1], raw[cut + 1:]
+    check(f"H10 manifest before `history:` has the base SHA-256 ({hashlib.sha256(head).hexdigest()[:12]})",
+          hashlib.sha256(head).hexdigest() == H10_MANIFEST_SHA)
+    tail_doc = yaml.safe_load(tail.decode("utf-8")) if cut >= 0 else None
+    check(f"H10 manifest after the base parses to exactly `history` ({list(tail_doc or {})})", isinstance(tail_doc, dict) and list(tail_doc) == ["history"])
+    # H11: freshness
+    vd = view_digest(doc)
+    check(f"H11 view_digest {vd[:12]} == meta.view_digest {hist['meta']['view_digest'][:12]}", vd == hist["meta"]["view_digest"])
+    # H9: baseline
+    check(f"H9 baseline: {base_passes} checks passed before the history checks == {H9_BASELINE}, with {base_failed} failed",
+          base_passes == H9_BASELINE and base_failed == 0)
+    return passes - base_passes
+
+
 def main(path):
     root = pathlib.Path(path).resolve().parent
     doc = yaml.safe_load(open(path, encoding="utf-8"))
@@ -1180,7 +1459,8 @@ def main(path):
     factor_map(root, doc)
     empty_states(root, doc)
     alignment(root)
-    print(f"{passes} checks passed, {len(failures)} failed")
+    nh = history_checks(doc, dv, root, path, im) if (root / "history.json").exists() else 0
+    print(f"{passes} checks passed ({nh} history checks), {len(failures)} failed")
     for f in failures:
         print("FAIL", f)
     return 1 if failures else 0

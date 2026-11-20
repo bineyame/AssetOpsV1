@@ -31,7 +31,7 @@ import { boardBody, boardRows, expectOutcomeBoardReplacesCards, fakeOutcomeBoard
 import koboDetail from "../../shell/__tests__/kobo-site-detail.json";
 
 /*
- * W2-07 commits 4-5 (`.agent/W2-07-build-spec.md` "Commits 4-5", closure section 4, q5 dry-read, q6): an
+ * W2-07 commits 4-5 (`specs/W2-07/` "Commits 4-5", closure section 4, q5 dry-read, q6): an
  * EV_CHARGING Site's five `/sites/{code}/ev...` routes render `ev`, `ev-evidence`, `ev-evidence-analysis`,
  * `ev-financials` and `ev-assumptions` in the exact v69 panel registry for stocked, empty/unknown, unpriced,
  * pending, historical and refused reads. Fixture values follow the W2-05b replay shapes (EV-LAB-001), never the
@@ -786,7 +786,7 @@ describe("W3-01 r1 M2: selected versus pending source on the EV Site reads", () 
 });
 
 /*
- * W2-F unit 3 (`.agent/W2-F-build-spec.md` ledger M8/M9/M10, closure B2, S9, N1): the Overview SLD link, the status and
+ * W2-F unit 3 (`specs/W2-F/spec.md` ledger M8/M9/M10, closure B2, S9, N1): the Overview SLD link, the status and
  * confidence chips, and full timeline record IDs.
  */
 describe("W2-F: EV Overview link, status and record IDs", () => {

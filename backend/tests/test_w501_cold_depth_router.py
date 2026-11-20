@@ -1,5 +1,5 @@
 """W5-01 C1: the extracted cold Site gate and the cold depth route without a database
-(`.agent/W5-01-build-spec.md` "Shared selected read and guards", "C1").
+(`specs/W5-01/spec.md` "Shared selected read and guards", "C1").
 
 The gate is `cold_site_api.build_cold_gate`, shared unchanged by the W2-04 Site reads and `/cold/cooling`. The
 pure `ColdDepthReadService` composition is driven by an in-memory snapshot to prove the `cold-depth-1` envelope,

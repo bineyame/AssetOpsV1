@@ -1,4 +1,4 @@
-"""W4-03 unit 4: B3 W1 fences and the tick's OPPORTUNITY stage on Postgres (`.agent/W4-03-build-spec.md` closure 4
+"""W4-03 unit 4: B3 W1 fences and the tick's OPPORTUNITY stage on Postgres (`specs/W4-03/` closure 4
 B3/S1, u3 "Unit 4 dry-read"). An MG `mini_opportunity` job enqueued, coalesced, leased and settled leaves the W1
 Finding matcher fence and the Site Evidence pending-job projection unchanged, while a W1-domain job stays visible to
 both; the unchanged-fence tick path still returns SKIPPED_UNCHANGED_FENCE with an opportunity job settled in that

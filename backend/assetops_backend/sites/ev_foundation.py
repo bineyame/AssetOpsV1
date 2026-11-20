@@ -1,7 +1,7 @@
 """W2-05a EV_CHARGING Foundation rules: properties, topology and the connector enable schedule.
 
-Binding contract: `.agent/W2-05a-build-spec.md` (`D-2026-10-18-w2-05-buildspec`, Architect answers Q1-Q8) and
-`.agent/W2-technical-design-ev.md` section 2.
+Binding contract: `specs/W2-05a/spec.md` (`D-2026-10-18-w2-05-buildspec`, Architect answers Q1-Q8) and
+`archive/agent-history/W2-technical-design-ev.md` section 2.
 
 Two entry points, both pure (no store, no SQL):
 

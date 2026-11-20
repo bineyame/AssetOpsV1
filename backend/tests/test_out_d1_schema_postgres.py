@@ -1,4 +1,4 @@
-"""OUT-D U1: migration `0038_out_objectives` against Postgres (`.agent/build-sheet-OUT-D.md` §3 U1).
+"""OUT-D U1: migration `0038_out_objectives` against Postgres (`specs/OUT-D/spec.md` §3 U1).
 
 The sole head and its chain to `0035_w5_ev_work`; the exact `outcome_objective_revision` catalog (columns, named
 CHECKs, FKs, UNIQUEs, read index, trigger); each CHECK refuses by name; the site FK refuses an unknown Site; the

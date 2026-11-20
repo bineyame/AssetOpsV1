@@ -1,6 +1,6 @@
 """W5-01b C4: the sole runtime writer of the two migration-0032 cold scenario tables.
 
-`.agent/W5-01-build-spec.md` "C4 rule-8 writer policy" and pre-flight rulings P-C4-2..6. Every write is one INSERT
+`specs/W5-01/` "C4 rule-8 writer policy" and pre-flight rulings P-C4-2..6. Every write is one INSERT
 into `cold_scenario` or `cold_scenario_revision` on the caller's transaction; 0032's `<table>_immutable` triggers
 refuse row changes and removals, and this module never issues either, never upserts and writes no other table. An
 idempotent replay is a SELECT followed by a caught unique violation. Writer transactions are REPEATABLE READ; the

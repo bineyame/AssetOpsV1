@@ -30,7 +30,7 @@ The other five portfolio stories do not supply this reliability assessment.
 
 ## Leanness standard
 
-`Docs/queue-review-feedback-verbatim.md` sets the bar this slice is judged by:
+`Docs/archive/2026-09/queue-review-feedback-verbatim.md` sets the bar this slice is judged by:
 one credible outage -> backup response -> unserved-energy chain, without
 building a generalized incident-management subsystem. If a criterion below
 cannot be traced to that chain, cut it rather than implement it.

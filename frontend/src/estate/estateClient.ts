@@ -1,5 +1,5 @@
 /**
- * W3-01 commit 3: the typed client for the three estate reads (`.agent/W3-01-build-spec.md`, "Public API and
+ * W3-01 commit 3: the typed client for the three estate reads (`specs/W3-01/`, "Public API and
  * examples", Run 8 ruling 3 and Run 12 ruling 3). The Findings envelope is `estate-finding-index-2`; Actions and
  * scope stay `-1`. The cursor is opaque: the client passes it back unchanged (it carries `page_one_mode` and the
  * full-precision cutoff), and any lens, state or window change restarts at page one without it.
@@ -239,7 +239,7 @@ export interface EstateScopeBody {
 }
 
 /**
- * W3-03 run 2 (Lane A; `.agent/W3-03-build-spec.md` r0a L3, r1a reading 6, r1b2 R5-R12): the Portfolio root.
+ * W3-03 run 2 (Lane A; `specs/W3-03/` r0a L3, r1a reading 6, r1b2 R5-R12): the Portfolio root.
  * Its status and F/E/M coverage are typed here without widening `EstateSiteState` or `EstateEnvelope` for the
  * existing roots. Display slots the API leaves null are built by the page with the W3-02 money words.
  */

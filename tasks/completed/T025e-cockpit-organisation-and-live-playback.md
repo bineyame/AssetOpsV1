@@ -22,7 +22,7 @@ here next. Function outranks fidelity; the organisation floor is required.
 
 ## Read for detail
 
-- `.agent/T025e-architect-guidance.md` (F1-F6, items 1-11; addendum A1-A7 wins).
+- `archive/agent-history/T025e-architect-guidance.md` (F1-F6, items 1-11; addendum A1-A7 wins).
 - `D-2026-09-30-t025e-live-follow`, `-lab-cockpit-history`, `-presentation`;
   T025d packet; carry C3 in the milestone backlog; `tasks/README.md` checks.
 
@@ -149,7 +149,7 @@ guidance items 5-7 to a T025f; live follow and AC11-AC12 stay here.
 
 Run shared checks, affected backend/host/frontend suites, the contract-9 gate
 and layout evidence on copied/isolated var; evidence at
-`.agent/T025e-layout-evidence.txt`, packet at `.agent/T025e-review-packet.md`.
+`.agent/T025e-layout-evidence.txt`, packet at `archive/agent-history/T025e-review-packet.md`.
 
 ## Scope limits and review
 
@@ -165,9 +165,9 @@ The owner judges organisation and flicker-free current playback. Outcome: pendin
 Accepted by the owner on 2026-10-01 after a hands-on check ("T025e hands on
 check is fine"). All reviews were by Claude under the temporary binding.
 
-- Discovery review (`.agent/T025e-claude-review.md`): REJECT; fixed in R1.
-- R1 re-review (`.agent/T025e-claude-review-r1.md`): REJECT; fixed in R2.
-- R2 verification (`.agent/T025e-claude-review-r2.md`): ACCEPT WITH CARRIES.
+- Discovery review (`archive/agent-history/T025e-claude-review.md`): REJECT; fixed in R1.
+- R1 re-review (`archive/agent-history/T025e-claude-review-r1.md`): REJECT; fixed in R2.
+- R2 verification (`archive/agent-history/T025e-claude-review-r2.md`): ACCEPT WITH CARRIES.
 
 Carries C1-C9 are in `.ai/MILESTONE_REVIEW_BACKLOG.md`. Next: T025f then T025g,
 planned on `plan/scenario-site-contract`, run before T026.

@@ -1,6 +1,6 @@
 """DATA-5 (D-17N.4): the story harnesses route gateway diagnostics to the product ingestion. No database: the
 ingestion is a fake with the `DiagnosticIngestionService.submit` contract; the Postgres proof is the VPS scratch
-prepare named in `.agent/DATA-17N-packet.md`."""
+prepare named in `archive/agent-history/DATA-17N-packet.md`."""
 
 from __future__ import annotations
 

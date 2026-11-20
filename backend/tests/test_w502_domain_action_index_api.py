@@ -1,6 +1,6 @@
 """W5-02a K1b: `GET /api/sites/{site_code}/domain-work/action-index` - gate, B3 refusal order and literals, wire.
 
-`.agent/W5-02-build-spec.md` "Site Action index", K1b index line and the Architect pre-flight ruling B3: 401/403/404/503
+`specs/W5-02/` "Site Action index", K1b index line and the Architect pre-flight ruling B3: 401/403/404/503
 from the shared W4 gate, then 422 `INVALID_WINDOW`, `INVALID_LIMIT`, `INVALID_KNOWN_AT`, `INVALID_CURSOR` in that
 order with the exact W4 literals, and 409 `WORK_BASIS_CHANGED` for a valid changed-basis cursor. No refusal carries a
 count. The data path uses the ordinary cold replay fixture. Requires ASSETOPS_TEST_DATABASE_URL naming a `*_test`

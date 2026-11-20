@@ -1,5 +1,5 @@
 /**
- * W3-02 commit 4: plain words and money display for the estate Financials root (`.agent/W3-02-build-spec.md`
+ * W3-02 commit 4: plain words and money display for the estate Financials root (`specs/W3-02/`
  * closure 1 "Money row and comparison contract" display rules and "Mock copy, navigation and measured layout" tones).
  * Every value is a stored server field: the helpers only format it. Exact Decimal strings are rounded without a float.
  */

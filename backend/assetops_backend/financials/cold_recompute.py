@@ -1,6 +1,6 @@
 """W2-04 commit 2: the cold consequence worker, written against store protocols (no SQL driver).
 
-`.agent/W2-04-build-spec.md` "Money schema `0023` and rules" (last paragraph) and "Implementer dry-read".
+`specs/W2-04/spec.md` "Money schema `0023` and rules" (last paragraph) and "Implementer dry-read".
 `process_one` works one trigger-created `cold_consequence_work` item inside the store's locked repeatable-read
 unit: it reads each exact cold FindingRevision basis the item names, refuses a missing/foreign/unpaired basis
 (`COLD_BASIS_MISMATCH`), derives `cold-exposure/1` and writes the consequence revisions, their evidence links and

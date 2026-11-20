@@ -1,4 +1,4 @@
-"""DIESEL-K3 L2 (`.agent/build-sheet-DIESEL-1.md` §9d.6 B1-B6): `fuel_balance_window` over real Postgres.
+"""DIESEL-K3 L2 (`specs/DIESEL-1/` §9d.6 B1-B6): `fuel_balance_window` over real Postgres.
 
 Kobo is imported as K2's L2 does (`test_s1_bindings_postgres.imported`); the twin-tank Site is created from
 `config/site-templates/twin-tank-mini-grid-150kw.yaml` through the product's create path and imported with

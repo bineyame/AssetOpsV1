@@ -502,7 +502,7 @@ describe("W2-01: the selected time drives the read and survives reload", () => {
 });
 
 /*
- * W2-F unit 3 (`.agent/W2-F-build-spec.md` ledger M2, closure N3): What is needed lists the selected readiness message
+ * W2-F unit 3 (`specs/W2-F/spec.md` ledger M2, closure N3): What is needed lists the selected readiness message
  * first, then `Commissioning record` while no commissioning evidence is stored; `Nothing further recorded` only for a
  * configured row with nothing left.
  */

@@ -21,12 +21,12 @@ An honest missing-capability message in a supported Site view has a stable, insp
 
 ## Review and checks
 
-Independent review samples catalogue↔panel↔UI joins and the mutation failures. Run focused Vitest, `node frontend/docs/architecture/check_v69_dependency_registry.cjs`, `python frontend/docs/architecture/check_v69_ledger.py`, delivery checker fixtures, and `powershell -ExecutionPolicy Bypass -File tools/check-all.ps1 -Python python`. Show the real Readiness gateway panel with a populated central-contact read and with unknown/unavailable contact while firmware stays explicitly missing, at 1440 and 390 pixels. Owner checks the visible missing-state treatment. No non-core scoring or completion policy is authorized before W1 exit.
+Independent review samples catalogue↔panel↔UI joins and the mutation failures. Run focused Vitest, `node archive/frontend/docs/architecture/check_v69_dependency_registry.cjs`, `python archive/frontend/docs/architecture/check_v69_ledger.py`, delivery checker fixtures, and `powershell -ExecutionPolicy Bypass -File tools/check-all.ps1 -Python python`. Show the real Readiness gateway panel with a populated central-contact read and with unknown/unavailable contact while firmware stays explicitly missing, at 1440 and 390 pixels. Owner checks the visible missing-state treatment. No non-core scoring or completion policy is authorized before W1 exit.
 > Note: the `-ExecutionPolicy Bypass` form above is historical; guards now run with no override (`.ai/ROLE_CONFIG.md`).
 
 ## Review Outcome (recorded by coordinator, 2026-10-13)
 
-- Reviews read (both): `.agent/G-01-review.md` RETURN (Finding 1 duplicate placement; Finding 2 browser evidence owed); `.agent/G-01-fix-rereview.md` ACCEPT (`e79ce8b`). Browser evidence 113/113 at 1440/390 recorded in the packet; screenshots kept at %LOCALAPPDATA%/AssetOps/evidence/g01.
-- Architect: `.agent/architect-G-01-answers.md`, decision `D-2026-10-13-g01-placement-and-orphan-scan-boundary` (Q1-Q4 ratified; C5/C7 are G-02 carries).
-- Owner checkpoint: `.agent/owner-G-01-acceptance-2026-10-13.md` — accepted conditionally; nothing becomes Real.
+- Reviews read (both): `archive/agent-history/G-01-review.md` RETURN (Finding 1 duplicate placement; Finding 2 browser evidence owed); `archive/agent-history/G-01-fix-rereview.md` ACCEPT (`e79ce8b`). Browser evidence 113/113 at 1440/390 recorded in the packet; screenshots kept at %LOCALAPPDATA%/AssetOps/evidence/g01.
+- Architect: `archive/agent-history/architect-G-01-answers.md`, decision `D-2026-10-13-g01-placement-and-orphan-scan-boundary` (Q1-Q4 ratified; C5/C7 are G-02 carries).
+- Owner checkpoint: `owner/owner-G-01-acceptance-2026-10-13.md` — accepted conditionally; nothing becomes Real.
 - Carries: `.ai/MILESTONE_REVIEW_BACKLOG.md` "G-01 carries (2026-10-13)".

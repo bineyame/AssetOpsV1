@@ -1,7 +1,7 @@
 /**
  * W6-01a A2: the global Incidents root (v6.9 `incidents`), read from `GET /api/work/incidents`
  * (`global-work-index-1`). The mock's slots, in order: page header, the four cards, the `Incident cases` panel and
- * the `Case boundaries` panel (`screens.js:514-517`). Copy follows `.agent/W6-01-build-spec.md` section 2 and the
+ * the `Case boundaries` panel (`screens.js:514-517`). Copy follows `specs/W6-01/` section 2 and the
  * section 3.1 A2Q rulings: cards from `state_counts` (A2Q1), the work provenance line (A2Q4), a URL-only cutoff
  * (A2Q5), the refusal table (A2Q6), the footer as the panel sub-line (A2Q7), the cell literals (A2Q8) and the
  * cursor plus `globalWorkTrail` pager (A2Q10). W6-01b P-B2-1 moved the shared parts to `globalWorkParts.tsx`.

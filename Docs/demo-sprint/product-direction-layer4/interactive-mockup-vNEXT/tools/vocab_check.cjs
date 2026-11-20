@@ -16,6 +16,12 @@ const BANNED = [
   ['design or workflow code', /\b(?:L[1-7]|B[1-3]|CH[1-5]|G-?F?\d|OD-\d+|D1[0-9]|Q-[A-Z]\d|W[1-9]|S[1-6]-\d+)\b/],
   ['system or build term', /\b(?:registry|observer|evaluator|manifest|fixtures?|oracle|canonical|schema|payload|endpoint|API|JSON|YAML|tenant|slice|spec|specification|backend|frontend|idempoten\w*|enum|undefined|NaN|null)\b|\[object|\.py\b|\.js\b|[<>]=/i],
   ['design jargon', /\b(?:levers?|evidence class(?:es)?|factor structure|leaf factors?|structure evaluator|evaluated through|replay(?:ed|s)?|composes|disposition|admissib\w+|guardrails?|horizon)\b|Σ/i],
+  ['design jargon (review, wave 1)', /\b(?:counterfactual|bound check|obligations check|switches|what if|explained by factors|Emulated)\b/i],
+  ['design jargon (review, round 2)', /\b(?:switch(?:es)?|obligations?|rights)\b/i],
+  ['design jargon (review, round 3)', /\b(?:factors?|protect measures?|candidate running|necessary running|item state|item released|rate-card|ledger to invoice)\b/i],
+  ['design jargon (review, round 4)', /\b(?:the structure|protect nodes?|money drivers?|at this driver)\b/i],
+  ['system voice (review, wave 2b)', /\bthe system (?:recommends|values)\b|\bobserved through\b|\bfind a screen\b/i],
+  ['asset or record code', /\b(?:GEN|INV|BAT|CH|CN|PM)-[A-Z0-9]{1,4}(?:-\d+)?\b/],
   ['retired word: plan used for a target (OD-6)', /\b(?:against|off|to|versus|vs\.?|from|than) (?:the )?plan\b(?! (?:for|item|items|approval|beside))|\bActual against plan\b/i],
 ];
 function scan(recs) {

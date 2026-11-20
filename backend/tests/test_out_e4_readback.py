@@ -1,4 +1,4 @@
-"""OUT-E E4: the cost check read back on the Site outcome board, with fake ports (`.agent/build-sheet-OUT-E.md` E4).
+"""OUT-E E4: the cost check read back on the Site outcome board, with fake ports (`specs/OUT-E/spec.md` E4).
 
 Every Cost-line state and the 11 reason words; rounding (1/24 -> 0.042, 11/240 -> 0.046); equal bounds give one
 figure; the before/after line attributed only on VERIFIED, "Status changed; not attributed" otherwise, unchanged

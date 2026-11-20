@@ -25,7 +25,7 @@ freeze, not because it is product progress. Implement the narrow parser closure
 and stop. No architectural discussion, no readiness rework, no vocabulary
 debate. If it grows beyond the narrow closure, stop, say so, and move it out of
 the critical path rather than delaying T022.
-`Docs/queue-review-feedback-verbatim.md` asked for exactly this time-box.
+`Docs/archive/2026-09/queue-review-feedback-verbatim.md` asked for exactly this time-box.
 
 ## Read for detail
 

@@ -1,4 +1,4 @@
-"""DIESEL-K2 L0 (`.agent/build-sheet-DIESEL-1.md` §9c.2): fuel delivery and tank dip validation, no database.
+"""DIESEL-K2 L0 (`specs/DIESEL-1/` §9c.2): fuel delivery and tank dip validation, no database.
 
 A fake transaction implements only the `_Tx` methods `post_operational_record` calls. The OPERATOR_LOG command hash is
 pinned to the literal computed on main (099b57c96) before any K2 edit, so an existing kind's hash stays byte-equal.

@@ -1,6 +1,6 @@
 """W5-01b unit C4: authored cold scenario store (`cold_scenario` root plus append-only `cold_scenario_revision`).
 
-`.agent/W5-01-build-spec.md`: "C4 exact persisted schema and wire contract" and pre-flight rulings P-C4-1..6.
+`specs/W5-01/`: "C4 exact persisted schema and wire contract" and pre-flight rulings P-C4-1..6.
 Chains to `0030_w4_mini_decisions`. Creates one global `cold_scenario_public_no_seq`, the Site-scoped root, the
 append-only revision table (no observed-outcome column), the `cold_scenario_site_order` revision index and two
 `<table>_immutable` append-only triggers on the existing `ledger_append_only()`. Exact keys, decimal grammar, ISO

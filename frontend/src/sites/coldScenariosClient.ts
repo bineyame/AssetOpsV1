@@ -1,5 +1,5 @@
 /**
- * W5-01b C5: read-only client for a cold-chain Site's authored scenario list (`.agent/W5-01-build-spec.md` C4 GET
+ * W5-01b C5: read-only client for a cold-chain Site's authored scenario list (`specs/W5-01/` C4 GET
  * list DTO, C5 "Client" and P-C5-9..16 validator rules):
  *
  *   GET /api/sites/{site_code}/cold/financials/scenarios?from=&to=&known_at=&scenario_at=&cursor=

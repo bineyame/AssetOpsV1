@@ -1,6 +1,6 @@
 """W5-03b E5: the sole runtime writer of the two migration-0034 EV scenario tables.
 
-`.agent/W5-03-build-spec.md` "E5 guard and composition ownership" (the W5-01b C4 rule-8 writer policy with the E5
+`specs/W5-03/` "E5 guard and composition ownership" (the W5-01b C4 rule-8 writer policy with the E5
 substitutions) and P-E5-6. Every write is one INSERT
 into `ev_scenario` or `ev_scenario_revision` on the caller's transaction; 0034's `<table>_immutable` triggers
 refuse row changes and removals, and this module never issues either, never upserts and writes no other table. An

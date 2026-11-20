@@ -1,6 +1,6 @@
 /**
  * W3-03 run 2: the estate Portfolio page under a local MemoryRouter (Lane A mounts the shell route), against the
- * v69 `portfolio` panels and `.agent/W3-03-build-spec.md` closures 1-5, r1a, r1b, r1b2 and r1b4 literals.
+ * v69 `portfolio` panels and `specs/W3-03/` closures 1-5, r1a, r1b, r1b2 and r1b4 literals.
  */
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { Route, Routes, useLocation } from "react-router-dom";
@@ -2194,7 +2194,7 @@ describe("PL-1: a lens change keeps the page and loads the panel only", () => {
 });
 
 /**
- * PF-T: Portfolio section tabs (`.agent/architect-proposal-portfolio-layout-2026-11-10.md` §6, §11; layout
+ * PF-T: Portfolio section tabs (`archive/agent-history/architect-proposal-portfolio-layout-2026-11-10.md` §6, §11; layout
  * `frontend/mockups/v71/portfolio-tabs.html`). One assertion per card rule.
  */
 describe("PF-T Portfolio section tabs", () => {

@@ -30,6 +30,15 @@ function visible(doc) {
   const opts = [...c.querySelectorAll('option')].map(o => o.textContent).join(' | ');
   return (words(c) + ' || ' + attrs + ' || ' + opts).replace(/\s+/g, ' ');
 }
+/* prose segments (added for tools/copy_check.cjs): the text of each block-level leaf as the reader meets it, with the
+   element's own spacing kept (no space added between inline nodes), so a doubled word or a stray space shows as it renders */
+function segments(root) {
+  const c = root.cloneNode(true); c.querySelectorAll('.reviewbar, script, style, [hidden], .sr-only-tech, details.tech').forEach(x => x.remove());
+  c.querySelectorAll('small, br, .ux-tip, .ux-wf-val, .ux-q-why').forEach(x => x.before(' ¶ ')); /* a line break or a note under a label reads as a new line, not run-on text */
+  const seen = new Set();
+  for (const e of c.querySelectorAll('p, li, td, th, dd, dt, h1, h2, h3, h4, summary, figcaption, small, label')) { if (e.querySelector('.ux-drawer, select, .vh')) continue; const t = e.textContent.replace(/\s+/g, ' ').trim(); if (t) seen.add(t); }
+  return [...seen];
+}
 const out = [];
 const first = boot('lakeside', 'portfolio');
 const manifest = first.window.mockupManifest || [];
@@ -39,9 +48,9 @@ for (const op of ONLY) for (const s of manifest) {
   CUR = s.id; const dom = boot(op, s.id); const w = dom.window, d = w.document;
   if (!d.querySelector('#app .canvas')) { errors.push({ op, id: s.id, e: 'no canvas' }); w.close(); continue; }
   const chrome = [...d.querySelectorAll('#app .rail, #app .topbar, #app footer, #app .tabs, #app .slim-banner')].map(words).join(' ').replace(/\s+/g, ' ');
-  const rec = { op, id: s.id, status: s.layer4_status, loop: !!(s.loop || s.opScoped), text: visible(d), chrome, drawers: [] };
+  const rec = { op, id: s.id, status: s.layer4_status, loop: !!(s.loop || s.opScoped), text: visible(d), chrome, drawers: [], segments: segments(d.querySelector('#app')) };
   const nums = [...d.querySelectorAll('.ev-num')].slice(0, 4);
-  for (const n of nums) { try { n.dispatchEvent(new w.MouseEvent('click', { bubbles: true })); const dr = d.querySelector('#overlay .drawer, .drawer'); if (dr) { const c = dr.cloneNode(true); c.querySelectorAll('details.tech').forEach(x => x.remove()); rec.drawers.push(words(c).replace(/\s+/g, ' ')); } d.querySelector('#overlay').innerHTML = ''; } catch (e) {} }
+  for (const n of nums) { try { n.dispatchEvent(new w.MouseEvent('click', { bubbles: true })); const dr = d.querySelector('#overlay .drawer, .drawer'); if (dr) { const c = dr.cloneNode(true); c.querySelectorAll('details.tech').forEach(x => x.remove()); rec.drawers.push(words(c).replace(/\s+/g, ' ')); rec.segments.push(...segments(dr)); } d.querySelector('#overlay').innerHTML = ''; } catch (e) {} }
   out.push(rec); w.close();
 }
 fs.writeFileSync(path.join(__dirname, 'rendered-text.json'), JSON.stringify(out));

@@ -1,6 +1,6 @@
 """PB-1b (D-E5.31): EV analysed periods inside a requested window, default Site selection only.
 
-Rule (`.agent/architect-answer-non-kobo-sites-2026-11-10.md` D-E5.31, card PB-1b): (i) a stored selection equal to
+Rule (`archive/agent-history/architect-answer-non-kobo-sites-2026-11-10.md` D-E5.31, card PB-1b): (i) a stored selection equal to
 the window is unchanged (EV's default selection is exact-window); (ii) otherwise the selected analysed periods lying
 wholly inside the window are listed, two stored windows sharing a start listing only the widest, and the snapshot
 reads the most recent one with an open (SUPPORTED) Finding, or else the most recent one; (iii) none inside is

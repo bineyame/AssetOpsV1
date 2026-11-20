@@ -2,7 +2,7 @@
  * W6-01c C2: the work request Overview (v6.9 `wr-overview`, `index.html:968`), read from
  * `GET /api/work/requests/{case_id}?site_id={site_code}` (`global-work-detail-1`). Mock order: breadcrumb, heading
  * with `Open site`, the `Context tabs` row, the date bar, the `wrHeader` mheader, then the `Work done` / `Lifecycle`
- * pair. Copy follows `.agent/W6-01-build-spec.md` section 2 and the "C1-C3 pre-flight rulings" P-C2-1..14, which
+ * pair. Copy follows `specs/W6-01/` section 2 and the "C1-C3 pre-flight rulings" P-C2-1..14, which
  * supersede CL3-5, F5 `wr-overview` and A2Q7 here.
  *
  * MOCK DEVIATION (P-C2-6..8, P-C2-10): mock values are replaced by stored facts or stated gaps: Asset has no diagram

@@ -1,4 +1,4 @@
-"""FUEL-1 A3 (`.agent/build-sheet-FUEL-1.md` A3-R §5.1-§5.2): idle fuel on Kobo's screens, L0 (fakes, no DB).
+"""FUEL-1 A3 (`specs/FUEL-1/` A3-R §5.1-§5.2): idle fuel on Kobo's screens, L0 (fakes, no DB).
 
 Every expected line is built from the module constants, never retyped from a run."""
 from __future__ import annotations

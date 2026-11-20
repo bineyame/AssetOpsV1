@@ -1,4 +1,4 @@
-"""W2-07 commit 3: the five selected EV Site reads (`.agent/W2-07-build-spec.md` "Five selected reads", the
+"""W2-07 commit 3: the five selected EV Site reads (`specs/W2-07/spec.md` "Five selected reads", the
 post-W2-06 reconciliation "Commits 3-5: refusals" and q4).
 
 `GET /api/sites/{code}/ev/overview`, `/ev/evidence`, `/ev/evidence/analysis`, `/ev/financials` and

@@ -1,5 +1,5 @@
 /**
- * W6-01b B2: the global Maintenance root, Corrective view (`.agent/W6-01-build-spec.md` section 2, section 3.1
+ * W6-01b B2: the global Maintenance root, Corrective view (`specs/W6-01/` section 2, section 3.1
  * A2Q1-A2Q10/X1-X8/CL3-1 and the "B1-B3 pre-flight rulings" P-B2-1..15). Typed responses only: the persisted
  * positive, zero, historical, refused, cursor-changed, stress and linked states are captured against the real API in
  * `.agent/W6-01-evidence/B2/`.

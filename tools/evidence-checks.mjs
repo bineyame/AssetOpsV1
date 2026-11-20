@@ -22,6 +22,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { assertHeavySlot } from "./heavy_slot_check.cjs";
 
 /** A classic scrollbar is about 15 px; 20 leaves room for it and nothing else. */
 export const WIDTH_SLACK = 20;
@@ -233,5 +234,6 @@ async function selfTest() {
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1] && process.argv.includes("--self-test")) {
+  assertHeavySlot("browser capture"); // T1: the self-test launches Chrome; importing this module does not
   await selfTest();
 }

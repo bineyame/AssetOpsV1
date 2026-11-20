@@ -1,6 +1,6 @@
 # S4-01 — Candidate generator-support Finding
 
-Status: done (owner checkpoint passed 2026-10-12 `.agent/owner-S4-01-acceptance-2026-10-12.md`; fresh Claude reviews accepted; merged to main)
+Status: done (owner checkpoint passed 2026-10-12 `owner/owner-S4-01-acceptance-2026-10-12.md`; fresh Claude reviews accepted; merged to main)
 USER_REVIEW_REQUIRED: true
 Milestone: S4 Finding + Financials
 Depends on: merged S3-01 (`I-S3-01`), resolved `A-finding-episode` and `A-claim-work-routes`, accepted S2 Evidence
@@ -11,7 +11,7 @@ Planner: Codex, 2026-10-12
 
 Open a persisted mini-grid candidate generator-support Finding from a CURRENT, coherent `dispatch-3.1` selected assessment containing at least one bounded `CANDIDATE_AVOIDABLE` segment. The Site-scoped Finding detail (`finding:1,2,4`) shows its exact selected revision, bounded duration/limitations, lifecycle state and accepted-source drill-down after reload. Necessary and Indeterminate portions remain distinct facts; a candidate segment does not make a whole generator interval avoidable. Owner W1 core approval is a target, not panel delivery or whole-screen Real status.
 
-Use `D-2026-10-12-finding-episode-and-revisions` and `.agent/architect-A-finding-episode-answers.md`, the S3-01 reviewed `dispatch-3.1` selected-revision/read contract, technical design §§1/3–4, and `D-2026-10-09-pre-s3-claim-routes-and-actor`. Existing file-backed/T028 Findings are comparison history only; their assessment IDs are not durable Finding identity. `A-finding-index` and the S3-01u assessed-day/paged-evidence carry are separate and are not S4-01 technical gates.
+Use `D-2026-10-12-finding-episode-and-revisions` and `archive/agent-history/architect-A-finding-episode-answers.md`, the S3-01 reviewed `dispatch-3.1` selected-revision/read contract, technical design §§1/3–4, and `D-2026-10-09-pre-s3-claim-routes-and-actor`. Existing file-backed/T028 Findings are comparison history only; their assessment IDs are not durable Finding identity. `A-finding-index` and the S3-01u assessed-day/paged-evidence carry are separate and are not S4-01 technical gates.
 
 ## Write, matching and lineage contract
 

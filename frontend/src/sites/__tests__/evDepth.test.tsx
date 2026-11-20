@@ -23,7 +23,7 @@ import { expectPlantedPanelRejected, expectV69Panels } from "../../test/panelStr
 import { settledScreen } from "../../test/settled";
 
 /*
- * W5-03a E2 (`.agent/W5-03-build-spec.md` E2 card, closure 2 and the pre-flight E2 ruling): an EV_CHARGING Site's
+ * W5-03a E2 (`specs/W5-03/` E2 card, closure 2 and the pre-flight E2 ruling): an EV_CHARGING Site's
  * Performance/Availability route renders v6.9 `availability` from the selected `ev-depth-1` read. Fixture values
  * follow the E1a producer window `[08:00, 09:00)` (EV-LAB-001, Connector c1/c2), never the mock's illustrations.
  */

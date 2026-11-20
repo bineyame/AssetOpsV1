@@ -14,8 +14,9 @@ manifests. A changed non-Python file elsewhere under a package (for example a YA
 also selects the whole suite, because the import graph cannot see who reads it. Documentation, .agent and
 frontend-only changes select no backend test.
 
-Frontend: changed files under frontend/ give `npx vitest related --run <files>` (vitest's own module graph);
-a change to frontend config or test setup gives the full `npx vitest run`.
+Frontend: changed files under frontend/ give `../tools/heavy-slot.sh -- npx vitest related --run <files>` (vitest's
+own module graph); a change to frontend config or test setup gives `../tools/heavy-slot.sh -- npx vitest run`.
+Every printed command is in its pooled form (T1, backend/TESTING.md); `--json` keeps the bare commands.
 """
 
 from __future__ import annotations
@@ -44,12 +45,14 @@ ALWAYS_FULL = [
 ]
 # Review M3: a tools/ file other than the guard scripts and .mjs evidence tools, and a non-code frontend file
 # (JSON, docs and other data), can be read by a backend test at run time: the whole suite.
-TOOLS_EXEMPT = ["tools/*.mjs", "tools/check*.ps1", "tools/checks/*"]
+TOOLS_EXEMPT = ["tools/*.mjs", "tools/check*.ps1", "tools/checks/*", "tools/declutter/*",
+                "tools/heavy-slot.sh", "tools/heavy-slot.ps1", "tools/select-tests.py", "tools/heavy_slot_check.py"]  # T1 D-T1.9
 FRONTEND_MANIFESTS = ["frontend/package.json", "frontend/package-lock.json", "frontend/tsconfig*.json",
                       "frontend/vite.config.ts"]  # frontend-only: no backend test reads them
 FRONTEND_CODE = ["frontend/src/*.ts", "frontend/src/*.tsx", "frontend/src/*.css", "frontend/*.md"]
-NO_BACKEND = ["*.md", ".agent/*", "Docs/*", "docs/*", "frontend/*", "tasks/*", ".ai/*", "AGENTS.md",
-              "tools/*.mjs", "tools/check*.ps1", "tools/checks/*"]
+NO_BACKEND = ["*.md", ".agent/*", "specs/*", "owner/*", "archive/*", "Docs/*", "docs/*", "frontend/*", "tasks/*",
+              ".ai/*", "AGENTS.md", "tools/*.mjs", "tools/check*.ps1", "tools/checks/*",
+              "tools/declutter/*"]
 FRONTEND_FULL = ["frontend/package.json", "frontend/package-lock.json", "frontend/vite.config.ts",
                  "frontend/tsconfig*.json", "frontend/src/test/*"]
 
@@ -185,9 +188,9 @@ def select(changed: list[str], graph=None) -> dict:
         selected = [t.relative_to(REPO).as_posix() for t in tests if reaches(t, python_changed, edges, memo)]
         mode = "selected" if selected else "none"
     if any(matches(c, FRONTEND_FULL) for c in frontend):
-        frontend_command = "npx vitest run"
+        frontend_command = "npx vitest run"  # --json keeps this unpooled value; main() prints it pooled
     elif frontend:
-        frontend_command = "npx vitest related --run " + " ".join(c[len("frontend/"):] for c in frontend)
+        frontend_command = "npx vitest related --run " + " ".join(c[len("frontend/"):] for c in frontend)  # unpooled, as above
     else:
         frontend_command = None
     return {"mode": mode, "full_reasons": full_reasons, "changed": changed, "selected": selected,
@@ -210,10 +213,10 @@ def main() -> None:
     for reason in result["full_reasons"][:20]:
         print(f"  full because: {reason}")
     if result["mode"] == "selected":
-        print("backend: tools\\run-backend-suite-in-container.ps1 -Tier fast -Targets '" +
+        print("backend: pwsh -NoProfile -File tools/heavy-slot.ps1 -- tools\\run-backend-suite-in-container.ps1 -Tier fast -Targets '" +
               " ".join(result["selected"]) + "'")
     if result["frontend"]:
-        print(f"frontend (in frontend/): {result['frontend']}")
+        print(f"frontend (in frontend/): ../tools/heavy-slot.sh -- {result['frontend']}")
 
 
 if __name__ == "__main__":

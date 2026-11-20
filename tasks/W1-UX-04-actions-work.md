@@ -1,6 +1,6 @@
 # W1-UX-04 — Action, work, change and verification presentation
 
-Status: done (merged to main 2026-10-17; review ACCEPT after fix round 1; owner visual acceptance in the combined W1 walkthrough); was in_review (built 2026-10-17 on `task/W1-UX-04`, phases 1-2; packet `.agent/W1-UX-04-review-packet.md`); activated 2026-10-16 from main `b4a89314`. Branch `task/W1-UX-04` after W1-UX-01 **and reviewed/merged S6-02b and S6-03**; re-inventory their actual files at merge. Frontend only; owner walkthrough deferred to combined W1. Scope: `recommendation`, `changes`, `action-overview`, `action-plan`, `action-execution`, `action-evidence`, `action-history`, `verification`, `sitework`. Use [umbrella](W1-UX-mockup-fidelity.md), v69 named screens/manifest, S6-01b/S6-02b/S6-03 packets and the S6 verification decisions.
+Status: done (merged to main 2026-10-17; review ACCEPT after fix round 1; owner visual acceptance in the combined W1 walkthrough); was in_review (built 2026-10-17 on `task/W1-UX-04`, phases 1-2; packet `archive/agent-history/W1-UX-04-review-packet.md`); activated 2026-10-16 from main `b4a89314`. Branch `task/W1-UX-04` after W1-UX-01 **and reviewed/merged S6-02b and S6-03**; re-inventory their actual files at merge. Frontend only; owner walkthrough deferred to combined W1. Scope: `recommendation`, `changes`, `action-overview`, `action-plan`, `action-execution`, `action-evidence`, `action-history`, `verification`, `sitework`. Use [umbrella](W1-UX-mockup-fidelity.md), v69 named screens/manifest, S6-01b/S6-02b/S6-03 packets and the S6 verification decisions.
 
 ## Visible result
 
@@ -23,4 +23,4 @@ Focused UI tests per phase; final `npm.cmd test`, type check, vocabulary scan, r
 
 ## Architect ruling
 
-Questions answered by `D-2026-10-16-w1-ux` in `.agent/architect-W1-ux-answers.md`. Its destination, vocabulary and honest-state boundaries govern this packet.
+Questions answered by `D-2026-10-16-w1-ux` in `archive/agent-history/architect-W1-ux-answers.md`. Its destination, vocabulary and honest-state boundaries govern this packet.

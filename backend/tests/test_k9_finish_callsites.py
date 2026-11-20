@@ -1,4 +1,4 @@
-"""DIESEL-K9 (coordinator, carries from `.agent/followups-fuel-kisiwa-2026-11-07.md`): L0 tests of two
+"""DIESEL-K9 (coordinator, carries from `archive/agent-history/followups-fuel-kisiwa-2026-11-07.md`): L0 tests of two
 `tools/demo_combined_finish.py` call sites that otherwise only run inside a 2 h prepare.
 
 - K6b review L4: `_kisiwa_fuel` hands the fuel store UUIDs (the window id and the tank asset id), never strings.

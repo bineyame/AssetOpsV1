@@ -1,7 +1,7 @@
 """`fuel-cost-1`: the reviewed conditional fuel quantity and consequence basis (S4-02b phase 1).
 
 `D-2026-10-13-s4-bounded-financial-basis` and its S4-02b addendum; Architect rulings Q1 and C4 in
-`.agent/architect-S4-02-answers.md`; packet `tasks/S4-02b-fuel-consequence.md` items 1-3.
+`archive/agent-history/architect-S4-02-answers.md`; packet `tasks/S4-02b-fuel-consequence.md` items 1-3.
 
 This module does no I/O. The PostgreSQL consequence store reads the exact persisted inputs (one
 FindingRevision, its primary and every supporting INTERVAL AssessmentRevision with their analytic-run input

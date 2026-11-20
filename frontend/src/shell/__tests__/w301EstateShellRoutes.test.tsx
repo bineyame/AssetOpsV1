@@ -25,7 +25,7 @@ import {
 } from "../operatorSiteRoutes";
 
 /**
- * W3-01 commit 3 (build spec Review closure B1/B2; `.agent/W3-01-lane-a-requests.md` commit-3 items 1-6): the
+ * W3-01 commit 3 (build spec Review closure B1/B2; `archive/agent-history/W3-01-lane-a-requests.md` commit-3 items 1-6): the
  * estate Finding lens roots and the Actions root are mounted in the operator shell ahead of the legacy Finding
  * patterns, the rail's Actions root is live, and the legacy Finding routes, `/api/findings` and the Site Findings
  * lens chips are unchanged.

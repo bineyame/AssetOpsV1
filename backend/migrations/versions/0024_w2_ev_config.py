@@ -1,6 +1,6 @@
 """W2-05a commit 5: the partial EV measurement read index.
 
-`.agent/W2-05a-build-spec.md` (decision D-2026-10-18-w2-05-buildspec) "Q7" and the property paragraph. Adds only the
+`specs/W2-05a/spec.md` (decision D-2026-10-18-w2-05-buildspec) "Q7" and the property paragraph. Adds only the
 partial `(site_id, session_id, connector_id, source_time, id)` index over EV interval-delta measurements. Foundation
 history and the 0020 family CHECK are retained untouched; EV configuration (properties, bindings) lives in the
 existing Foundation/binding tables, so there is no new configuration table. Downgrade refuses while any EV measurement

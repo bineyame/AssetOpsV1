@@ -66,7 +66,7 @@ import { AffectsLine, CategoryTags } from "./outcomeCategories";
 
 /*
  * W2-03 commit 5: the four cold assessment screens of a COLDCHAIN Site in their exact v69 panel slots
- * (`.agent/W2-03-build-spec.md` "Commit 5 - exact v69 slots"; `D-2026-10-17-mockup-layout-spec`):
+ * (`specs/W2-03/spec.md` "Commit 5 - exact v69 slots"; `D-2026-10-17-mockup-layout-spec`):
  *
  *   temperature             1 Temperature with operating context, 2 Excursion context, 3 Claim boundary
  *   coldbackup              1 What the chain shows, 2 Reconstructed event chain, 3 Backup event chains,

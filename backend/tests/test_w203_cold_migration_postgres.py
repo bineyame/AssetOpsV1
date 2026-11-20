@@ -1,6 +1,6 @@
 """W2-03 commit 1: migration `0022_w2_cold_assessment` against Postgres.
 
-`.agent/W2-03-build-spec.md` "Migration 0022": upgrade over existing mini-grid Findings keeps their rows,
+`specs/W2-03/spec.md` "Migration 0022": upgrade over existing mini-grid Findings keeps their rows,
 reads and constraints; the three cold episode tables are scoped and append-only; episode key and basis are
 unique; and downgrade refuses while any cold episode row or cold Finding exists, deleting nothing.
 Requires ASSETOPS_TEST_DATABASE_URL.

@@ -1,6 +1,6 @@
 # S6-02a — Frozen verification and exact read
 
-Status: done (merged to main 2026-10-16; non-UI; slice review ACCEPT after fix rounds 1-2; public positive replay carried to S6-02b per D-2026-10-16-s602a-replay); was in_review (phases 1-2 built 2026-10-16; packet `.agent/S6-02a-review-packet.md`; activated 2026-10-16 from main; plan re-review ACCEPT `.agent/S6-02-plan-rereview.md`); was implementation-ready. USER_REVIEW_REQUIRED: false; non-UI, mergeable after fresh independent review. Size M, two phases maximum. Branch `task/S6-02a-verification-core` from merged main; coordinator commits plan. Depends on merged S6-01a, S3, S4 Finding, S4-05a resolver; consume S4-05b if merged. Migration is **new** after main's `0018_finding_match_deferral` (`backend/migrations/versions/0018_finding_match_deferral.py:22-23`); recheck head before coding. Authority: `.agent/architect-A-S6-verification-answers.md`, `D-2026-10-16-s6-verification` (`.ai/DECISIONS.md:4155`), lifecycle/S6-01 store/reopen decisions (`:4123,4145,4152`) and both architecture reviews.
+Status: done (merged to main 2026-10-16; non-UI; slice review ACCEPT after fix rounds 1-2; public positive replay carried to S6-02b per D-2026-10-16-s602a-replay); was in_review (phases 1-2 built 2026-10-16; packet `archive/agent-history/S6-02a-review-packet.md`; activated 2026-10-16 from main; plan re-review ACCEPT `archive/agent-history/S6-02-plan-rereview.md`); was implementation-ready. USER_REVIEW_REQUIRED: false; non-UI, mergeable after fresh independent review. Size M, two phases maximum. Branch `task/S6-02a-verification-core` from merged main; coordinator commits plan. Depends on merged S6-01a, S3, S4 Finding, S4-05a resolver; consume S4-05b if merged. Migration is **new** after main's `0018_finding_match_deferral` (`backend/migrations/versions/0018_finding_match_deferral.py:22-23`); recheck head before coding. Authority: `archive/agent-history/architect-A-S6-verification-answers.md`, `D-2026-10-16-s6-verification` (`.ai/DECISIONS.md:4155`), lifecycle/S6-01 store/reopen decisions (`:4123,4145,4152`) and both architecture reviews.
 
 ## Persisted trial and evaluation
 
@@ -41,7 +41,7 @@ S3 day selection `backend/assetops_backend/analytics/assessment_worker.py:62-69`
 
 **Plan fix round 1 (2026-10-16):** Folded Architect rulings into freeze, slot, evaluator and API contracts; named the ninth writer, re-evaluation trigger, battery-scoped guard/read and adjacent tests; carried interval-publication, load-binding and withdrawable-resolution risks from plan review.
 
-## Coordinator note after plan re-review (`.agent/S6-02-plan-rereview.md`: ACCEPT)
+## Coordinator note after plan re-review (`archive/agent-history/S6-02-plan-rereview.md`: ACCEPT)
 
 Implementer carries: R1 - the overlap block applies only when the late accepted evidence that invalidated a closure overlaps the verification window (name that evidence); an Action accepted before such evidence arrived is not permanently blocked by it - test both sides. R2 - recheck the LR-01 read-state citation and all line citations on the build base (main moved; e.g. `$actionTables` is at `configuration-persistence.ps1:707-708`). Optional: add a test in `test_delivery_next_work.cjs` pinning the S6-02a predecessor exception.
 

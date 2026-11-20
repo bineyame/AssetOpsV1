@@ -63,6 +63,16 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 WORKSPACE_BASE_TEMP = REPOSITORY_ROOT / ".pytest-basetemp"
 
 
+def _heavy_slot_check():
+    """T1 (spec §5.3): tools/heavy_slot_check.py, loaded by path (tools/ is not a package)."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("heavy_slot_check", REPOSITORY_ROOT / "tools" / "heavy_slot_check.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def _is_writable(directory: Path) -> bool:
     """Whether this process can actually create a file in `directory`."""
     try:
@@ -127,6 +137,8 @@ SLOW_MARKER = ('slow: deliberate real-clock tests, the PERF-01 slow tier (backen
 
 
 def pytest_configure(config: pytest.Config) -> None:
+    # T1: a run with a database refuses to start outside the heavy-tool slot pool (xdist workers pass by ancestry).
+    if os.environ.get("ASSETOPS_TEST_DATABASE_URL"): _heavy_slot_check().require("pytest with Postgres", exit_with=pytest.exit)
     config.addinivalue_line("markers", SLOW_MARKER)
     refuse_template_opt_out_under_xdist(config)
     workerinput = _workerinput(config)

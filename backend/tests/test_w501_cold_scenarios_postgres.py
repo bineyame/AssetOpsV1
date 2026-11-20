@@ -1,6 +1,6 @@
 """W5-01b unit C4: authored cold scenario store, migration `0032_w5_cold_scenarios`, command/list service and API.
 
-`.agent/W5-01-build-spec.md` C4 card, "C4 exact persisted schema and wire contract" and pre-flight rulings
+`specs/W5-01/` C4 card, "C4 exact persisted schema and wire contract" and pre-flight rulings
 P-C4-1..23. Requires ASSETOPS_TEST_DATABASE_URL.
 """
 

@@ -31,9 +31,9 @@ from assetops_backend.sites.site_parsing import parse_site_document, render_site
 from assetops_backend.sites.composition import build_site_template_catalog  # noqa: E402
 
 TEMPLATE = REPO / "config" / "site-templates" / "kisiwa-diesel-hybrid-60kw.yaml"
-DRAFT_TEMPLATE = REPO / ".agent" / "DIESEL-D0" / "kisiwa-diesel-hybrid-60kw.draft.yaml"
+DRAFT_TEMPLATE = REPO / "host" / "fixtures" / "diesel-d0" / "kisiwa-diesel-hybrid-60kw.draft.yaml"
 BINDINGS = REPO / "backend" / "conversions" / "kisiwa-001-bindings.json"
-DRAFT_BINDINGS = REPO / ".agent" / "DIESEL-F0" / "kisiwa-001-bindings.draft.json"
+DRAFT_BINDINGS = REPO / "host" / "fixtures" / "diesel-f0" / "kisiwa-001-bindings.draft.json"
 SITE_SOURCE = REPO / "backend" / "tests" / "fixtures" / "s1" / "kisiwa-001.yaml"
 ROLES4 = REPO / "backend" / "conversions" / "kisiwa-001-minigrid-roles-demo-config.json"
 VERIFICATION_V3 = REPO / "backend" / "conversions" / "d-verification-window-v3.json"

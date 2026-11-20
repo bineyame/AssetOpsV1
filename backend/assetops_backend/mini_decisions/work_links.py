@@ -1,6 +1,6 @@
 """W4-03 unit 8: explicit decision-to-work associations and the Site Work decision-context overlay.
 
-`.agent/W4-03-build-spec.md`: "Work connection"; closure 1 (case-link command/response and the overlay read);
+`specs/W4-03/`: "Work connection"; closure 1 (case-link command/response and the overlay read);
 closure 4 B1/B2/N4; "Unit-5..12 rulings (u5)" unit 8 and the u6 unit-8 dry-read paragraph, which control.
 
 - `POST /api/sites/{code}/work/decision-links` (`mini-decision-link-command-1` -> `mini-decision-link-write-1`).

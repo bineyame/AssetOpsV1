@@ -1,5 +1,5 @@
 """W4-03 unit 8: explicit decision-to-work associations and the Site Work decision-context overlay over Postgres
-(`.agent/W4-03-build-spec.md` "Work connection"; closure 1 case link and overlay; closure 4 B1/B2/N4; "Unit-5..12
+(`specs/W4-03/` "Work connection"; closure 1 case link and overlay; closure 4 B1/B2/N4; "Unit-5..12
 rulings (u5)" unit 8 and the u6 unit-8 paragraph).
 
 The MG study is projected by the unit-4 worker over the MG-W402-001 authored cases. W4-01 cases are created through

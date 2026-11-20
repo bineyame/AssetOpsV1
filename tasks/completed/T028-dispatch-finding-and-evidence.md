@@ -25,7 +25,7 @@ not require priced Financials or a portfolio.
 
 With T029 this is a legitimate external-feedback and early-prospect demo, not a
 rehearsal for one: one site, one strong Finding, its evidence and its money is
-enough to learn from a real operator. `Docs/queue-review-feedback-verbatim.md`
+enough to learn from a real operator. `Docs/archive/2026-09/queue-review-feedback-verbatim.md`
 says waiting for the portfolio wastes the feedback.
 
 ## Read for detail
@@ -134,7 +134,7 @@ scenario, template or contract change, stop and ask; do not make it here.
     History are not rendered until T034); Site > Evidence has local
     `Overview | Analysis` views (amended 2026-10-04 by
     `D-2026-10-04-plain-language-analysis-views`; spec
-    `.agent/T028-architect-presentation.md`); the claim drawer
+    `archive/agent-history/T028-architect-presentation.md`); the claim drawer
     reuses T027's record inspector and opening it never changes the root;
     Findings is a rail root with its global index; Site > Findings is a scoped
     index (filter, no KPI strip, no status model of its own; a row click
@@ -143,8 +143,8 @@ scenario, template or contract change, stop and ask; do not make it here.
 ## Presentation revision (2026-10-04)
 
 `D-2026-10-04-plain-language-analysis-views` (owner direction
-`.agent/owner-T028-presentation-direction-2026-10-04.md`, Architect spec
-`.agent/T028-architect-presentation.md`) adds two checkpoints before merge:
+`owner/owner-T028-presentation-direction-2026-10-04.md`, Architect spec
+`archive/agent-history/T028-architect-presentation.md`) adds two checkpoints before merge:
 (1) plain default reading and Analysis destinations; (2) four assessment
 graphics and the product-vocabulary guard. The spec's section 5 verification
 list and its owner walk (default views first, then Analysis) are part of
@@ -231,4 +231,4 @@ from what the screen shows, whether the evidence they would want before acting
 is either present or named as missing, and whether the claim ceiling is one
 they would repeat to an operator. Three yeses is the pass; anything else is
 feedback that redirects later work rather than a defect list for this slice.
-Review outcome: owner accepted 2026-10-04 on a quick UI check ("Quick check of the UI looks ok for T028", `.agent/owner-T028-acceptance-2026-10-04.md`); the full packet walk was not recorded. Domain-expert feedback checkpoint still outstanding.
+Review outcome: owner accepted 2026-10-04 on a quick UI check ("Quick check of the UI looks ok for T028", `owner/owner-T028-acceptance-2026-10-04.md`); the full packet walk was not recorded. Domain-expert feedback checkpoint still outstanding.

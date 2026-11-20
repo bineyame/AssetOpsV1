@@ -1,7 +1,7 @@
 """W3-02 commit 1: the estate Evidence root, `GET /api/estate/evidence`, over the one W3-01 estate snapshot (pure).
 
 Every row, card, gap group and selection-token array is computed from the full authorized selected set before
-paging (`.agent/W3-02-build-spec.md` closures 1-5). The snapshot is
+paging (`specs/W3-02/` closures 1-5). The snapshot is
 `estate/adapters/postgres_evidence_money_read.py`'s bound read: every call it makes runs on the one read-only
 REPEATABLE READ estate connection; nothing here opens a connection, reads a page or writes.
 

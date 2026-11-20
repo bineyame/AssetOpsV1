@@ -12,7 +12,8 @@ technical reviewers.
 
 ## Planning Basis
 
-The intended demo path is `Docs/mini-grid-demo-architecture-and-roadmap.md`;
+The intended demo path was `Docs/archive/2026-09/mini-grid-demo-architecture-and-roadmap.md`
+(archived 2026-11-18; now the Site-first plan in `.ai/START_HERE.md`);
 simulator mechanisms come from `Docs/simulator_design_v4.md`. The feature map
 translates those sources into buildable outcomes from the recorded code state.
 UI references guide presentation when content exists; they no longer determine

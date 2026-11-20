@@ -1,6 +1,6 @@
 """W5-02a K1c item 29: the test-only cold generated-scenario producer through the ordinary W2 chain.
 
-`.agent/W5-02-build-spec.md` "W5-02a build rulings (K1c)" 2 and 3. In a fresh private `*_test` database the existing
+`specs/W5-02/rulings-2.md` "W5-02a build rulings (K1c)" 2 and 3. In a fresh private `*_test` database the existing
 `install_cold_lab` imports COLD-LAB-001; `tools/w502_cold_work_cases.py` shifts `cold-backup-failed` (unique
 `cold-...` ID) onto `[D+16h, D+17h)` for the DB time `R`; the definition is registered only in this test's
 `FakeScenarios`, shared by `RunSetupService` and `host.cold_lab.StoreColdInputs`; the run is frozen and replayed

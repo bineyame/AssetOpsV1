@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conversion Potential</title>
+<style>
+:root{
+  --bg:#f6f6f3;--surface:#ffffff;--ink:#1c1f24;--muted:#5a6070;--line:#d8dae0;
+  --accent:#2f5fb3;--accent-soft:#e6eefb;--good:#1f7a4d;--good-soft:#e2f3e9;
+  --warn:#9a5b00;--warn-soft:#fbefd9;--bad:#a8322d;--bad-soft:#f8e2df;--code:#eff0f3;
+  --grow:#1f7a4d;--cost:#9a5b00;--protect:#a8322d;--assure:#5b4bb0;--assure-soft:#ece9fa;
+  --est:#8a8f9c;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14161a;--surface:#1c1f25;--ink:#e8e9ec;--muted:#a3a9b6;--line:#343944;
+    --accent:#7ea6f0;--accent-soft:#22304a;--good:#5cc28f;--good-soft:#1b3227;
+    --warn:#e2a64a;--warn-soft:#3a2e1a;--bad:#ec7b74;--bad-soft:#3d2221;--code:#262a31;
+    --grow:#5cc28f;--cost:#e2a64a;--protect:#ec7b74;--assure:#a99cf0;--assure-soft:#2a2547;--est:#7c8290;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14161a;--surface:#1c1f25;--ink:#e8e9ec;--muted:#a3a9b6;--line:#343944;
+  --accent:#7ea6f0;--accent-soft:#22304a;--good:#5cc28f;--good-soft:#1b3227;
+  --warn:#e2a64a;--warn-soft:#3a2e1a;--bad:#ec7b74;--bad-soft:#3d2221;--code:#262a31;
+  --grow:#5cc28f;--cost:#e2a64a;--protect:#ec7b74;--assure:#a99cf0;--assure-soft:#2a2547;--est:#7c8290;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.58 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:1000px;margin:0 auto;padding:28px 16px 80px}
+h1{font-size:1.85rem;margin:.2em 0 .15em;line-height:1.2;letter-spacing:-.01em}
+h2{font-size:1.35rem;margin:2.4em 0 .5em;padding-top:.7em;border-top:1px solid var(--line)}
+h3{font-size:1.08rem;margin:1.7em 0 .45em}
+h4{font-size:.98rem;margin:1.2em 0 .3em}
+p,li{max-width:76ch}
+a{color:var(--accent)}
+.sub{color:var(--muted);margin:0 0 1.1em}
+.ref{color:var(--muted);font-size:.78rem;line-height:1.4}
+.ref code{font-size:.95em}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0}
+.summary{border-left:5px solid var(--accent)}
+.summary ol{margin:.3em 0;padding-left:1.3em}
+.rec{border-left:5px solid var(--good);background:var(--good-soft)}
+.warnbox{border-left:5px solid var(--warn);background:var(--warn-soft)}
+.badbox{border-left:5px solid var(--bad);background:var(--bad-soft)}
+code{background:var(--code);padding:1px 5px;border-radius:4px;font-size:.86em;word-break:break-word}
+.tag{display:inline-block;font-size:.72rem;font-weight:650;padding:1px 8px;border-radius:999px;vertical-align:middle;white-space:nowrap}
+.y{background:var(--good-soft);color:var(--good)}
+.p{background:var(--warn-soft);color:var(--warn)}
+.n{background:var(--bad-soft);color:var(--bad)}
+.e{background:var(--code);color:var(--muted)}
+.a{background:var(--assure-soft);color:var(--assure)}
+.tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:12px 0;border-radius:10px;border:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;min-width:640px;background:var(--surface);font-size:.89rem}
+th,td{border-bottom:1px solid var(--line);border-right:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th:last-child,td:last-child{border-right:0}
+tr:last-child td{border-bottom:0}
+th{background:var(--accent-soft);font-weight:650}
+td small{color:var(--muted)}
+figure{margin:18px 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+figure svg{min-width:720px}
+.scrollhint{display:none;color:var(--muted);font-size:.8rem}
+@media (max-width:760px){.scrollhint{display:block}}
+figcaption{color:var(--muted);font-size:.86rem;margin-top:6px}
+svg{width:100%;height:auto;display:block}
+svg text{fill:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:12px}
+svg .t{font-size:13px;font-weight:650}
+svg .s{font-size:10.5px;fill:var(--muted)}
+svg .h{font-size:11px;font-weight:700;fill:var(--muted);letter-spacing:.06em}
+svg .box{fill:var(--surface);stroke:var(--line);stroke-width:1.4}
+svg .acc{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.4}
+svg .gd{fill:var(--good-soft);stroke:var(--good);stroke-width:1.4}
+svg .bd{fill:var(--bad-soft);stroke:var(--bad);stroke-width:1.4;stroke-dasharray:5 3}
+svg .wn{fill:var(--warn-soft);stroke:var(--warn);stroke-width:1.4}
+svg .as{fill:var(--assure-soft);stroke:var(--assure);stroke-width:1.4}
+svg .ln{stroke:var(--muted);stroke-width:1.5;fill:none}
+svg .lnb{stroke:var(--bad);stroke-width:1.6;fill:none;stroke-dasharray:5 4}
+svg .lng{stroke:var(--good);stroke-width:2;fill:none}
+svg .lane{fill:var(--bg);stroke:none}
+svg .ah{fill:var(--muted)}
+.pill-head{display:flex;align-items:center;gap:10px;margin-top:2.4em;padding-top:.7em;border-top:1px solid var(--line)}
+.pill-head h2{border:0;margin:0;padding:0}
+.dot{width:14px;height:14px;border-radius:4px;flex:none}
+.toc{columns:2;column-gap:28px;font-size:.92rem;padding-left:1.2em}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.kpi b{display:block;font-size:1.35rem;line-height:1.2}
+.kpi span{color:var(--muted);font-size:.85rem}
+.verdict{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:start}
+details{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:10px 0}
+details summary{cursor:pointer;font-weight:650}
+details summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:.84rem;color:var(--muted);margin:6px 0}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.m-y{background:var(--good-soft);border:1px solid var(--good)}
+.m-p{background:var(--warn-soft);border:1px solid var(--warn)}
+.m-n{background:var(--bad-soft);border:1px dashed var(--bad)}
+.m-e{background:var(--code);border:1px solid var(--line)}
+td.y,td.p,td.n,td.e{font-size:.82rem;font-weight:600}
+.script{font-family:Georgia,"Times New Roman",serif;font-size:1.02rem;background:var(--surface);border-left:4px solid var(--accent);padding:10px 16px;margin:10px 0;border-radius:0 10px 10px 0}
+.script em{color:var(--muted);font-family:system-ui,sans-serif;font-style:normal;font-size:.82rem;display:block;margin-top:4px}
+@media (max-width:720px){.toc{columns:1}.grid2,.grid3{grid-template-columns:1fr}h1{font-size:1.45rem}}
+</style>
+</head>
+<body>
+<main>
+<p class="sub">AssetOps Architect (Claude) · 14 Nov 2026 · design review for the owner · no code or other documents changed</p>
+<details open class="card"><summary>Revision 2 · 14 Nov 2026 · changes after the independent review (ACCEPT WITH NOTES)</summary>
+<ul>
+<li><b>M1</b> Disconnect (f) restated: CC-3 cannot read On track (no declarable CC-3 measure). It reads "No objective declared" where it should read "Not measured yet". Gap lowered to Low (now #12). Summary, §3 limits and §7(f) updated.</li>
+<li><b>M2</b> The "Price it" design and shipped price entry are now in "exists today" (§8, §10). PR-3 site-admin entry is merged; five further price keys are listed on the price page but not yet storable. The old maintenance-cost and produce-value gaps are merged into gap #5, as "finish the PR-3 keys + PR-4/PR-5". Cost columns on work records are kept as a later step for real invoices.</li>
+<li><b>M3</b> CrossBoundary mesh-grid figure removed (it did not match its source and casts mini-grids as the poor comparison group). Marked do-not-quote.</li>
+<li><b>M4</b> EV lever corrected: two single-tariff scenarios (KSh 8 and KSh 16), not a peak/off-peak split. A real time-of-use split stays in gap #8.</li>
+<li><b>M5</b> Gap #1 scoped: it needs a classified critical feeder and declared operating hours, and its output is "critical demand not served", not uptime or SAIDI/SAIFI.</li>
+<li><b>L1</b> Pipeline label corrected to 6 not-measured outcomes. <b>L2</b> Line references corrected (§2 map, §7b, §7d). <b>L3</b> Summary cross-reference now points to section 7.</li>
+<li><b>L4</b> Attributions corrected: $6,824/kW is SEforALL via Microgrid Knowledge; the diesel LCOE review is Zebra et al. 2021 (developing countries generally); ColdHubs figures flagged as internally inconsistent and self-reported. <b>L5</b> Company claims tagged "company-reported".</li>
+<li><b>L6</b> Data-request script reworded so it promises nothing unbuilt, with an internal note per line. <b>L7</b> Diagrams scroll sideways on phones instead of shrinking to unreadable text.</li>
+<li><b>L8</b> New §10a on Africa-specific items: currency and FX, customer-data consent (Kenya DPA, Nigeria NDPA), non-technical loss, and mini-grid carbon. Script, levers and gaps updated to match.</li>
+<li><b>Revision 3</b> (re-review R2): the cold stock what-if is described as it works (quantity and unit value shown separately, no value-at-risk amount) in §11 and script line 4. §4 now describes the rescoped gap #1. "Items 3 and 8" corrected to "3 and 7". Two script lines no longer use the present tense for unbuilt features, and price entry is attributed to the site admin. §10a now says pseudonymised IDs remain personal data and adds the cross-border transfer rules (Kenya DPA ss.48–49, Nigeria DPA ss.41–43). A "Do not quote" box in §9 lists the mesh-grid figure, ColdHubs $60→$120 and the AMDA 2020 figures.</li>
+</ul></details>
+
+<h1>Conversion potential: what feeds the four Portfolio cards, and what data would make them sell</h1>
+<p class="sub">Part 1 traces each of the four Portfolio cards from the reading to the number on screen, for the mini-grid, cold-chain and EV Sites, exactly as the code does it. Part 2 sets that against what operators, finance teams and investors in African markets are judged on, and the data each card would need. It closes with the demo moments most likely to convert, a script for the data conversation, and ranked build proposals.</p>
+
+<div class="card summary">
+<strong>In plain words</strong>
+<ol>
+<li><b>Two of the four cards are carried by one Site type each.</b> Optimize gets money only from the mini-grid generator finding. Protect's headline count can only come from cold-chain and EV findings. Cold chain adds no money to any card, and EV adds money only to Grow.</li>
+<li><b>Every money figure is an estimate built from your declared prices.</b> None comes from a bill, a meter account or a ledger. The code marks each one honestly ("not billed or collected", "not a saving", "loss not priced"). Those labels are also exactly where a CFO or investor stops trusting the number.</li>
+<li><b>The things investors judge first don't exist in the product yet:</b> revenue per customer, cash collected, uptime against demand, cost per kWh delivered, and paid cold-room occupancy. The catalogue already names most of them as "not connected yet" (MG-6, MG-3, CC-2, CC-4, EV-6, EV-2). The gap is the data, not the design.</li>
+<li><b>All five suspected gaps, (a) to (e), are confirmed</b>, with nuances in section 7. I found three more. CC-3 "Cost per cooling unit" is flagged as measured although it has no cost input, so its row reads "No objective declared" instead of "Not measured yet". EV "idle chargers" is mapped but nothing produces it, although the mock's Grow card names it. Verified results are counted from fix status, not from any outcome.</li>
+<li><b>The quickest gain is a billing/payments + customer-meter feed for mini-grids</b>, through CSV first and an API later. It turns MG-6 and MG-3 on, gives Grow a collected figure next to the estimate, and gives the per-kWh card a real denominator. Part 2 ranks this and the other gaps.</li>
+</ol>
+</div>
+
+<nav aria-label="Contents"><ol class="toc">
+<li><a href="#pipeline">How a reading becomes a card</a></li>
+<li><a href="#grow">Grow revenue</a></li>
+<li><a href="#cost">Optimize cost and efficiency</a></li>
+<li><a href="#protect">Protect asset and capital</a></li>
+<li><a href="#assure">Assure performance and returns</a></li>
+<li><a href="#money">Money composition</a></li>
+<li><a href="#disconnects">Disconnects (a)–(e) and three more</a></li>
+<li><a href="#matrix">Wired / not-wired matrix</a></li>
+<li><a href="#research">Part 2: what each vertical is judged on</a></li>
+<li><a href="#data">Part 2: the data each pillar needs</a></li>
+<li><a href="#levers">Conversion levers</a></li>
+<li><a href="#script">Data-request script</a></li>
+<li><a href="#gaps">Ranked build gaps (proposals)</a></li>
+</ol></nav>
+
+<!-- ============================================================ PIPELINE -->
+<h2 id="pipeline">1. How a reading becomes a card</h2>
+<p>Every card follows the same seven-step chain. Two steps carry most of the meaning. The <b>outcome map</b> decides which outcome a signal "moves" (its first entry is the primary) and which outcomes it is only "checked" against. The <b>contribution records</b> decide whether that outcome gets a target, an earnings figure or a potential, and which pricing rule (strategy) makes the money.</p>
+<p class="scrollhint" aria-hidden="true">Diagram scrolls sideways on narrow screens →</p>
+<figure tabindex="0">
+<svg viewBox="0 0 980 300" role="img" aria-labelledby="pipeT pipeD">
+<title id="pipeT">The seven-step chain from reading to Portfolio card</title>
+<desc id="pipeD">Readings and records become findings, signals or warnings; the outcome map routes them to catalogue outcomes; outcomes belong to one of four categories; the Site board builds one row per category; the Portfolio card builder reads every Site's rows and the estate count claims; money is composed by a registered strategy.</desc>
+<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" class="ah"/></marker></defs>
+<rect x="10" y="20" width="220" height="104" rx="10" class="box"/><text x="24" y="44" class="t">1 · Reading / record</text><text x="24" y="64" class="s">interval telemetry (CSV or Modbus)</text><text x="24" y="80" class="s">EV sessions, chamber temperature</text><text x="24" y="96" class="s">fuel tickets, tank dips, work records</text><text x="24" y="112" class="s">declared prices and objectives</text>
+<rect x="255" y="20" width="220" height="104" rx="10" class="box"/><text x="269" y="44" class="t">2 · Finding / signal / warning</text><text x="269" y="64" class="s">5 stored Finding mechanisms</text><text x="269" y="80" class="s">3 non-Finding signals</text><text x="269" y="96" class="s">8 early-warning kinds (1 has no producer)</text><text x="269" y="112" class="s">4 chain measures with targets</text>
+<rect x="500" y="20" width="220" height="104" rx="10" class="acc"/><text x="514" y="44" class="t">3 · Outcome map</text><text x="514" y="64" class="s">ENTRIES: moves (first = primary)</text><text x="514" y="80" class="s">and checked outcomes</text><text x="514" y="96" class="s">aliases @COST @ASSET_LIFE @EVIDENCE</text><text x="514" y="112" class="s">resolve per Site type</text>
+<rect x="745" y="20" width="225" height="104" rx="10" class="box"/><text x="759" y="44" class="t">4 · Catalogue outcome</text><text x="759" y="64" class="s">22 outcomes (8 mini, 7 cold, 7 EV)</text><text x="759" y="80" class="s">each has one category</text><text x="759" y="96" class="s">6 are "not measured" (no data)</text><text x="759" y="112" class="s">order = tie-break for row lead</text>
+<rect x="10" y="170" width="220" height="110" rx="10" class="box"/><text x="24" y="194" class="t">5 · Category</text><text x="24" y="214" class="s">Grow · Optimize · Protect · Assure</text><text x="24" y="230" class="s">fixed list of four</text><text x="24" y="246" class="s">Protect primary = disruption count</text><text x="24" y="262" class="s">Assure has no index lens</text>
+<rect x="255" y="170" width="220" height="110" rx="10" class="box"/><text x="269" y="194" class="t">6 · Site board row</text><text x="269" y="214" class="s">state per outcome, then roll-up</text><text x="269" y="230" class="s">headline, sub-line, contributors</text><text x="269" y="246" class="s">"settled" gate: no read, no state</text><text x="269" y="262" class="s">nodes: target, earnings, potential</text>
+<rect x="500" y="170" width="220" height="110" rx="10" class="gd"/><text x="514" y="194" class="t">7a · Money (strategy)</text><text x="514" y="214" class="s">priced_energy · avoided_cost</text><text x="514" y="230" class="s">direction_only · recorded_amount</text><text x="514" y="246" class="s">no strategy invents money</text><text x="514" y="262" class="s">measure × declared price, or a stored model</text>
+<rect x="745" y="170" width="225" height="110" rx="10" class="acc"/><text x="759" y="194" class="t">7b · Portfolio card</text><text x="759" y="214" class="s">value + detail + parts + basis</text><text x="759" y="230" class="s">Grow: summed income</text><text x="759" y="246" class="s">Optimize: per-Site, never summed</text><text x="759" y="262" class="s">Protect / Assure: estate counts</text>
+<path d="M230 72H253" class="ln" marker-end="url(#ar)"/><path d="M475 72H498" class="ln" marker-end="url(#ar)"/><path d="M720 72H743" class="ln" marker-end="url(#ar)"/>
+<path d="M857 124V146H120V168" class="ln" marker-end="url(#ar)"/><path d="M230 225H253" class="ln" marker-end="url(#ar)"/><path d="M475 225H498" class="ln" marker-end="url(#ar)"/><path d="M720 225H743" class="ln" marker-end="url(#ar)"/>
+</svg>
+<figcaption>Blue boxes are configuration that is data, not code (the map and the card builder's inputs). The green box is where money is formed.</figcaption>
+</figure>
+<p class="ref">Map: <code>backend/assetops_backend/outcomes/outcome_map.py:17-40</code> (ENTRIES, DOMAIN_ALIAS), <code>:150-180</code> (CONTRIBUTIONS). Catalogue: <code>outcomes/catalogue.py:9-19, 43-68</code>. State rules: <code>outcomes/status.py:55-95</code> (not applicable → not measured → not settled → finding/warning → objective). Row build: <code>site_outcomes/board.py:671-712</code> (assemble), <code>:860-1075</code> (_row). Card builder: <code>site_outcomes/read.py:926-977</code> (portfolio_cards). Estate counts: <code>chain/claims.py:179-218</code>. Strategies: <code>chain/strategies/base.py:1-7</code> ("No strategy computes new money").</p>
+
+<h3>The rule that decides whether a row can say anything at all</h3>
+<p>Before any signal counts, each outcome passes three gates in order (<code class="ref">status.py:67-72</code>). It must apply to the Site. It must be <b>measured</b>: a catalogue constant, so MG-6, MG-3, CC-2, CC-4, EV-6 and EV-2 always read "Not measured yet · … not connected yet". And it must be <b>settled</b>: the composer has read its inputs for the window. Only then do open findings, warnings and declared objectives set Needs attention, Watch or On track. This is why a missing data source shows up as an honest grey row and not as a zero.</p>
+<p class="ref">Settled maps: mini <code>site_outcomes/mini.py:596-603</code>; cold <code>site_outcomes/cold.py:164-168</code>; EV <code>site_outcomes/ev.py:171-174</code>. Row not-measured sentence: <code>catalogue.py:72-83</code>, <code>board.py:895-900</code>.</p>
+
+<!-- ============================================================ GROW -->
+<div class="pill-head"><span class="dot" style="background:var(--grow)"></span><h2 id="grow">2. Grow revenue</h2></div>
+<p><b>What the card shows.</b> Value: the sum of every Site's estimated income in one currency, prefixed "At least" when any day lacks complete readings. Parts: Target, Potential and Estimated income, one line per Site. Basis: "Declared price × measured kWh · not billed or collected".</p>
+<p class="scrollhint" aria-hidden="true">Diagram scrolls sideways on narrow screens →</p>
+<figure tabindex="0">
+<svg viewBox="0 0 980 340" role="img" aria-labelledby="gT gD">
+<title id="gT">Grow revenue: signal to card, per vertical</title>
+<desc id="gD">Mini-grid productive-use kWh and daytime headroom feed MG-1 and reach the card as income and potential. Cold chain has no wired input. EV charging kWh feeds EV-3 and reaches the card as income; the idle-charger warning has no producer.</desc>
+<defs><marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" class="ah"/></marker></defs>
+<text x="10" y="16" class="h">SIGNAL</text><text x="262" y="16" class="h">OUTCOME (MAP)</text><text x="470" y="16" class="h">MONEY RULE</text><text x="720" y="16" class="h">GROW CARD</text>
+<rect x="0" y="26" width="980" height="98" class="lane" rx="8"/><text x="8" y="42" class="s">MINI-GRID</text>
+<rect x="10" y="48" width="225" height="30" rx="7" class="acc"/><text x="20" y="67">Productive-user kWh (sub-metered)</text>
+<rect x="10" y="86" width="225" height="30" rx="7" class="acc"/><text x="20" y="105">Daytime solar headroom (study)</text>
+<rect x="262" y="48" width="180" height="68" rx="7" class="gd"/><text x="272" y="68" class="t">MG-1</text><text x="272" y="86" class="s">Productive electricity sales</text><text x="272" y="102" class="s">MG-6, MG-3 not measured</text>
+<rect x="470" y="48" width="225" height="30" rx="7" class="gd"/><text x="480" y="67">kWh × declared price (sum days)</text>
+<rect x="470" y="86" width="225" height="30" rx="7" class="wn"/><text x="480" y="105">kW × 1 h × price, if SUPPORTED</text>
+<path d="M235 63H260" class="ln" marker-end="url(#ag)"/><path d="M235 101H260" class="ln" marker-end="url(#ag)"/><path d="M442 63H468" class="ln" marker-end="url(#ag)"/><path d="M442 101H468" class="ln" marker-end="url(#ag)"/>
+<rect x="0" y="132" width="980" height="78" class="lane" rx="8"/><text x="8" y="148" class="s">COLD CHAIN</text>
+<rect x="10" y="156" width="225" height="44" rx="7" class="bd"/><text x="20" y="174">Occupancy, contracts, sales</text><text x="20" y="190" class="s">no table, no adapter</text>
+<rect x="262" y="156" width="180" height="44" rx="7" class="bd"/><text x="272" y="174" class="t">CC-2, CC-4</text><text x="272" y="190" class="s">both "not measured"</text>
+<rect x="470" y="156" width="225" height="44" rx="7" class="bd"/><text x="480" y="174">none</text><text x="480" y="190" class="s">row reads "Not measured yet"</text>
+<path d="M235 178H260" class="lnb"/><path d="M442 178H468" class="lnb"/>
+<rect x="0" y="218" width="980" height="112" class="lane" rx="8"/><text x="8" y="234" class="s">EV</text>
+<rect x="10" y="242" width="225" height="30" rx="7" class="acc"/><text x="20" y="261">Charging kWh (session meter)</text>
+<rect x="10" y="280" width="225" height="40" rx="7" class="bd"/><text x="20" y="297">"Chargers mostly idle"</text><text x="20" y="312" class="s">warning has no producer (BL-06)</text>
+<rect x="262" y="242" width="180" height="78" rx="7" class="gd"/><text x="272" y="262" class="t">EV-3</text><text x="272" y="280" class="s">Charger use</text><text x="272" y="296" class="s">EV-6 billed vs metered:</text><text x="272" y="310" class="s">not measured</text>
+<rect x="470" y="242" width="225" height="30" rx="7" class="gd"/><text x="480" y="261">kWh × declared EV tariff</text>
+<rect x="470" y="280" width="225" height="40" rx="7" class="bd"/><text x="480" y="297">direction only, no number</text><text x="480" y="312" class="s">"No potential found yet"</text>
+<path d="M235 257H260" class="ln" marker-end="url(#ag)"/><path d="M235 300H260" class="lnb"/><path d="M442 257H468" class="ln" marker-end="url(#ag)"/><path d="M442 300H468" class="lnb"/>
+<rect x="720" y="48" width="250" height="272" rx="10" class="acc"/>
+<text x="734" y="72" class="t">Grow revenue card</text>
+<text x="734" y="96">Value: "At least 1,234 USD"</text><text x="734" y="112" class="s">= Σ mini income + Σ EV income</text><text x="734" y="128" class="s">one currency, else "Not shown"</text>
+<text x="734" y="158">Target</text><text x="734" y="174" class="s">Sites whose Grow target has a record</text>
+<text x="734" y="200">Potential</text><text x="734" y="216" class="s">mini headroom lines only</text>
+<text x="734" y="242">Estimated income</text><text x="734" y="258" class="s">"{Site}: amount over k of m days"</text>
+<text x="734" y="290" class="s">Basis: declared price × measured kWh</text><text x="734" y="306" class="s">· not billed or collected</text>
+<path d="M695 63H718" class="lng" marker-end="url(#ag)"/><path d="M695 101H718" class="ln" marker-end="url(#ag)"/><path d="M695 257H718" class="lng" marker-end="url(#ag)"/>
+</svg>
+<figcaption>Green arrows carry money that is summed on the card. Dashed red marks a link that exists in the design but has no data or no producer.</figcaption>
+</figure>
+
+<h3>Trace per vertical</h3>
+<div class="tablewrap"><table>
+<thead><tr><th>Step</th><th>Mini-grid</th><th>Cold chain</th><th>EV</th></tr></thead>
+<tbody>
+<tr><td>Reading</td><td>kWh of declared productive users (sub-meter per asset), daylight headroom kW from the renewable study</td><td>none</td><td>Session meter kWh (<code>ev_session</code>, <code>ev_meter_interval</code>)</td></tr>
+<tr><td>Finding / signal</td><td><code>MEASURE:productive_kwh</code>; <code>SIGNAL:PRODUCTIVE_USE_HEADROOM</code> (moves MG-1, checks MG-2, MG-5)</td><td>none</td><td><code>MEASURE:charging_kwh</code>; <code>FINDING:EV_INTERRUPTION</code> moves EV-3 as a <i>secondary</i> outcome; <code>WARNING:CHARGERS_MOSTLY_IDLE</code> (no producer)</td></tr>
+<tr><td>Catalogue outcome</td><td>MG-1 Productive electricity sales <span class="tag y">measured</span><br>MG-6 Cash collected <span class="tag n">not measured</span><br>MG-3 Site profitability <span class="tag n">not measured</span></td><td>CC-2 Paid cold-room use <span class="tag n">not measured</span><br>CC-4 Market value of produce <span class="tag n">not measured</span></td><td>EV-3 Charger use <span class="tag y">measured</span><br>EV-6 Energy billed against metered <span class="tag n">not measured</span></td></tr>
+<tr><td>Board row</td><td>Headline: sales estimate, else "x–y kW of daytime solar unused". Contributors: Productive-use sales, Price per kWh, Productive use, Cash collected (fixed "not connected"), Site earnings (fixed "not connected")</td><td>"Not measured yet · Occupancy, storage contract, income and sales records are not connected yet"</td><td>Headline "estimated charging income" or "Charging income estimate not available yet". Contributors: Charging, Tariff, Charger use, Energy billed (fixed "not connected")</td></tr>
+<tr><td>Settled when</td><td>overview source open, board day settled, dispatch read, depth read</td><td>never reaches state (not measured)</td><td>overview currentness settled</td></tr>
+<tr><td>Card value</td><td>adds <code>estimated_income</code></td><td>adds nothing</td><td>adds <code>estimated_charging_income</code></td></tr>
+<tr><td>Money rule</td><td><code>priced_energy@1</code>: Σ stored day money (kWh × <code>declared.productive_price</code>) over COMPLETE + PARTIAL days; potential: headroom kW × 1 h × price, only when evidence is SUPPORTED, "per hour of use"</td><td>none (<code>recorded_amount@1</code> would return NO_RECORDS)</td><td><code>priced_energy@1</code>: Σ day money (kWh × <code>declared.ev_tariff</code>)</td></tr>
+</tbody></table></div>
+<p class="ref">Map: <code>outcome_map.py:22, 25, 36</code>; records <code>:151-158, 172-180</code>. Catalogue <code>catalogue.py:44-46, 53-54, 61-62</code>. Mini Grow board <code>mini.py:606-668, 722-731, 1039-1146</code>; EV Grow <code>ev.py:201-205, 236-245</code>. Card <code>read.py:855-891</code>; total <code>chain/vocabulary.py:459-508</code> (estate_income, "At least" rule at :483-507); strategy <code>chain/strategies/priced_energy.py:26-63</code>. Idle warning without producer: <code>outcomes/warnings.py:29</code> (KINDS lacks it), <code>chain/graph.py:47</code>.</p>
+
+<div class="grid2">
+<div class="card rec"><strong>Flexible</strong><ul>
+<li>Prices are declared assumptions with revisions, so a client can enter its own tariff and every figure reprices.</li>
+<li>A new income source needs one <code>CONTRIBUTIONS</code> record with node <code>earnings</code> and a label in <code>INCOME_LABELS</code>. The card then sums it without a code change.</li>
+<li>The "At least" rule and per-Site lines already handle partial days, mixed currencies and unreadable Sites.</li></ul></div>
+<div class="card warnbox"><strong>Hard-wired limits</strong><ul>
+<li>Income is <b>energy × declared price</b>. There is no billed or collected amount anywhere. <code>recorded_amount@1</code> always returns "no records".</li>
+<li>Only two income labels are summed. A third (cold-room fees, say) also needs its vocabulary label.</li>
+<li>Potential exists for mini headroom only. EV idle capacity is mapped, but nothing produces it.</li>
+<li>Mini income covers sub-metered productive users only, not household or commercial customers, so it understates site revenue by design.</li></ul></div>
+</div>
+<p><b>What a new data source would take.</b> Billing/payments for mini-grids: a store (customer, meter, invoice, payment), an adapter (CSV upload, then a SparkMeter/Steama-style API), a chain measure such as <code>collected_amount</code>, a record moving MG-6 with a <code>recorded_amount</code>-style strategy that finally returns money, and flipping MG-6 to measured in the catalogue. The card then needs a deliberate ruling on whether "collected" is shown beside "estimated" or replaces it. They should never be added together.</p>
+
+<!-- ============================================================ OPTIMIZE -->
+<div class="pill-head"><span class="dot" style="background:var(--cost)"></span><h2 id="cost">3. Optimize cost and efficiency</h2></div>
+<p><b>What the card shows.</b> When one Site is priced: that Site's claim text, e.g. "120–180 USD possible extra fuel cost", with "At {Site} · not added across sites". When several are priced: "Costs at N sites" and a line for each. When none: "Not known yet · A cost needs a priced record". Basis: "Modelled from the stored record and the declared price · not a saving".</p>
+<p class="scrollhint" aria-hidden="true">Diagram scrolls sideways on narrow screens →</p>
+<figure tabindex="0">
+<svg viewBox="0 0 980 330" role="img" aria-labelledby="oT oD">
+<title id="oT">Optimize cost: signal to card, per vertical</title>
+<desc id="oD">Only the mini-grid generator-support finding produces a priced cost. Cold-chain repeat-visit warnings move CC-3 without money. EV-2 is not measured.</desc>
+<defs><marker id="ao" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" class="ah"/></marker></defs>
+<text x="10" y="16" class="h">SIGNAL</text><text x="262" y="16" class="h">OUTCOME (MAP)</text><text x="470" y="16" class="h">MONEY RULE</text><text x="720" y="16" class="h">OPTIMIZE CARD</text>
+<rect x="0" y="26" width="980" height="118" class="lane" rx="8"/><text x="8" y="42" class="s">MINI-GRID</text>
+<rect x="10" y="48" width="225" height="40" rx="7" class="acc"/><text x="20" y="65">Generator ran when battery/PV could</text><text x="20" y="80" class="s">FINDING GENERATOR_SUPPORT_CANDIDATE</text>
+<rect x="10" y="96" width="225" height="40" rx="7" class="acc"/><text x="20" y="113">Avoidable generator minutes</text><text x="20" y="128" class="s">chain measure, has a target</text>
+<rect x="262" y="48" width="180" height="88" rx="7" class="wn"/><text x="272" y="68" class="t">MG-2</text><text x="272" y="86" class="s">"Supply cost per kWh"</text><text x="272" y="102" class="s">no actual unit cost behind it</text><text x="272" y="118" class="s">also @COST for repeat visits</text>
+<rect x="470" y="48" width="225" height="40" rx="7" class="gd"/><text x="480" y="65">Stored fuel model × diesel price</text><text x="480" y="80" class="s">avoided_cost@1, range 0 – high</text>
+<rect x="470" y="96" width="225" height="40" rx="7" class="box"/><text x="480" y="113">Target verdict only</text><text x="480" y="128" class="s">graded_verdict@1, no money</text>
+<path d="M235 68H260" class="ln" marker-end="url(#ao)"/><path d="M235 116H260" class="ln" marker-end="url(#ao)"/><path d="M442 68H468" class="ln" marker-end="url(#ao)"/><path d="M442 116H468" class="ln" marker-end="url(#ao)"/>
+<rect x="0" y="152" width="980" height="78" class="lane" rx="8"/><text x="8" y="168" class="s">COLD CHAIN</text>
+<rect x="10" y="176" width="225" height="44" rx="7" class="acc"/><text x="20" y="194">Repeated visits, no result</text><text x="20" y="210" class="s">WARNING (moves @COST = CC-3)</text>
+<rect x="262" y="176" width="180" height="44" rx="7" class="wn"/><text x="272" y="194" class="t">CC-3</text><text x="272" y="210" class="s">"measured", but no cost input</text>
+<rect x="470" y="176" width="225" height="44" rx="7" class="bd"/><text x="480" y="194">no money record</text><text x="480" y="210" class="s">no meter, no repair cost</text>
+<path d="M235 198H260" class="ln" marker-end="url(#ao)"/><path d="M442 198H468" class="lnb"/>
+<rect x="0" y="238" width="980" height="82" class="lane" rx="8"/><text x="8" y="254" class="s">EV</text>
+<rect x="10" y="262" width="225" height="44" rx="7" class="bd"/><text x="20" y="280">Odometer / telematics</text><text x="20" y="296" class="s">no table, no adapter</text>
+<rect x="262" y="262" width="180" height="44" rx="7" class="bd"/><text x="272" y="280" class="t">EV-2</text><text x="272" y="296" class="s">"Energy cost per km", not measured</text>
+<rect x="470" y="262" width="225" height="44" rx="7" class="bd"/><text x="480" y="280">none</text><text x="480" y="296" class="s">tariff estimate lives in Financials</text>
+<path d="M235 284H260" class="lnb"/><path d="M442 284H468" class="lnb"/>
+<rect x="720" y="48" width="250" height="258" rx="10" class="wn"/>
+<text x="734" y="72" class="t">Optimize card</text>
+<text x="734" y="96">1 priced Site → its claim text</text><text x="734" y="112" class="s">"At Kobo · not added across sites"</text>
+<text x="734" y="140">≥2 → "Costs at N sites"</text><text x="734" y="156" class="s">one line per Site, no total</text>
+<text x="734" y="184">0 → "Not known yet"</text><text x="734" y="200" class="s">"A cost needs a priced record"</text>
+<text x="734" y="236" class="s">Basis: modelled from the stored</text><text x="734" y="252" class="s">record and the declared price</text><text x="734" y="268" class="s">· not a saving</text>
+<path d="M695 68H718" class="ln" marker-end="url(#ao)"/>
+</svg>
+<figcaption>In practice the card is mini-grid only. Cold chain and EV can reach the Site board row but never the card's value.</figcaption>
+</figure>
+<div class="tablewrap"><table>
+<thead><tr><th>Step</th><th>Mini-grid</th><th>Cold chain</th><th>EV</th></tr></thead>
+<tbody>
+<tr><td>Reading</td><td>Generator power and state, battery SOC, PV available power, feeder demand (CSV profile roles). Fuel tickets and tank dips (manual records)</td><td>Work visits, linked findings</td><td>none for cost</td></tr>
+<tr><td>Finding / signal</td><td><code>FINDING:GENERATOR_SUPPORT_CANDIDATE</code> → moves MG-2, checks MG-5, MG-4. <code>SIGNAL:EVIDENCE_GAP</code> checks MG-2. <code>WARNING:REPEATED_MAINTENANCE_NO_RESULT</code> → @COST</td><td><code>WARNING:REPEATED_MAINTENANCE_NO_RESULT</code> → @COST = CC-3; <code>COLD_START_FAILURE</code> checks CC-3</td><td>@COST = EV-2, but EV-2 is not measured, so the row stays grey</td></tr>
+<tr><td>Board row</td><td>Headline "possible extra fuel cost on this day" with money, or idle-fuel wording, or "No fuel cost estimated for this day". Contributors: Generator use, Fuel, Fuel price. Options: Trial a lower generator stop setting</td><td>Headline from the repeat-visit warning. Contributors: Maintenance effectiveness, "Repair and call-out costs are not connected yet", "Not available yet · no cooling energy meter"</td><td>"Odometer readings are not connected yet; a tariff estimate exists in Financials"</td></tr>
+<tr><td>Money rule</td><td><code>avoided_cost@1</code> reads the stored consequence of the lead Finding: fuel-cost-1 (loaded kW × hours × SFC) or fuel-cost-2 (adds idle hours × declared no-load rate). Range 0 – 1.10 × litres × declared diesel price</td><td>none</td><td>none</td></tr>
+<tr><td>Summed?</td><td colspan="3">Never. Each Site's claim is shown on its own (design A6, D-AW-5). A modelled fuel range from one Site and a repair cost from another are not comparable, so no total is formed.</td></tr>
+</tbody></table></div>
+<p class="ref">Map <code>outcome_map.py:19, 29, 38</code>; records <code>:161-167</code>. Card <code>read.py:894-923</code>; texts <code>vocabulary.py:326, 576-581</code>. Mini cost board <code>mini.py:63-77, 652-660, 1150-1180</code>; cold <code>cold.py:71-75, 223-231, 365-383</code>; EV not-measured sentence <code>catalogue.py:55-56, 74-78</code>. Fuel model <code>financials/fuel_cost_v2.py:1-20</code>; strategy <code>chain/strategies/avoided_cost.py:1-16</code>. Trial per-kWh change: <code>board.py:60-63, 549-566</code>.</p>
+<div class="grid2">
+<div class="card rec"><strong>Flexible</strong><ul>
+<li>The fuel model is versioned (cost-1, cost-2), and parameters are declared per generator (SFC, no-load rate).</li>
+<li>The @COST alias already routes "repeat visit, no result" in all three verticals. Price that one input (call-out cost) and all three light up.</li>
+<li>A verified trial already stores a priced before/after fuel change, so the "verified saving" story exists for mini-grids.</li></ul></div>
+<div class="card warnbox"><strong>Hard-wired limits</strong><ul>
+<li>One Finding mechanism is the only source of money. No opex ledger, fuel invoice, repair cost or energy bill exists.</li>
+<li>The card shows a <i>possible extra cost</i> range starting at 0. It is not a unit cost (USD/kWh) and not a saving.</li>
+<li>CC-3 is marked measured, so with no warning its row reads "No objective declared" (grey) where "Not measured yet · repair costs and cooling energy are not connected" would be honest. It cannot read On track: no CC-3 objective measure exists.</li>
+<li>EV cost per km needs odometer readings, which have no table.</li></ul></div>
+</div>
+<p><b>What a new data source would take.</b> Fuel purchase logs: the <code>FUEL_DELIVERY</code> record already exists with litres only (migration 0054). Adding a unit price or invoice amount would let MG-2 show <i>actual</i> fuel spend per kWh delivered. That needs a column, a chain measure (litres bought × price ÷ kWh served), and a second MG-2 earnings record. Maintenance cost: the accepted "Price it" design already covers this with a declared <code>repair_visit_cost</code> per visit (and <code>planned_service_cost</code>, <code>charger_repair_cost</code>). These keys are listed on the Site price page (<code>financials/price_page.py:58-87</code>) but are not storable until the PR-3 key migration lands; PR-4 recalculates on publish. Cost columns on <code>maintenance_record</code> / <code>work_case</code> are a later step, for real invoices. Odometer: a new telematics adapter plus an EV-2 measure.</p>
+
+<!-- ============================================================ PROTECT -->
+<div class="pill-head"><span class="dot" style="background:var(--protect)"></span><h2 id="protect">4. Protect asset and capital</h2></div>
+<p><b>What the card shows.</b> Value: "N sites disrupted", the number of Sites with at least one counted thread whose <i>primary</i> outcome is in Protect, whose state is Open, Recurred or Action in hand, and whose mechanism is not unexplained fuel. Detail: "Service disruptions recorded as findings · W early warnings, counted separately". Unexplained-fuel lines are listed beneath and never added. Basis: "Measured events, counted separately · loss not priced".</p>
+<p class="scrollhint" aria-hidden="true">Diagram scrolls sideways on narrow screens →</p>
+<figure tabindex="0">
+<svg viewBox="0 0 980 360" role="img" aria-labelledby="pT pD">
+<title id="pT">Protect asset: signal to card, per vertical</title>
+<desc id="pD">Cold excursion, cold start failure and EV interruption findings have a primary Protect outcome and reach the disruption count. The mini-grid has none: its only Protect finding, unexplained fuel, is excluded; its warnings reach the detail line only.</desc>
+<defs><marker id="ap" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" class="ah"/></marker></defs>
+<text x="10" y="16" class="h">SIGNAL</text><text x="262" y="16" class="h">OUTCOME (MAP)</text><text x="470" y="16" class="h">COUNT RULE</text><text x="720" y="16" class="h">PROTECT CARD</text>
+<rect x="0" y="26" width="980" height="128" class="lane" rx="8"/><text x="8" y="42" class="s">MINI-GRID</text>
+<rect x="10" y="48" width="225" height="30" rx="7" class="acc"/><text x="20" y="67">Generator support (moves MG-2)</text>
+<rect x="10" y="84" width="225" height="30" rx="7" class="acc"/><text x="20" y="103">Unexplained fuel (moves MG-8)</text>
+<rect x="10" y="120" width="225" height="28" rx="7" class="box"/><text x="20" y="138">Battery near reserve · plan due</text>
+<rect x="262" y="48" width="180" height="100" rx="7" class="wn"/><text x="272" y="68" class="t">MG-5 · MG-4 · MG-8</text><text x="272" y="86" class="s">MG-5 checked only, reading only</text><text x="272" y="102" class="s">MG-4 warnings only</text><text x="272" y="118" class="s">MG-8 primary but excluded</text><text x="272" y="134" class="s">no MG-5 contribution record</text>
+<rect x="470" y="48" width="225" height="30" rx="7" class="bd"/><text x="480" y="67">primary is Optimize → not counted</text>
+<rect x="470" y="84" width="225" height="30" rx="7" class="bd"/><text x="480" y="103">NOT_DISRUPTION_MECHANISMS</text>
+<rect x="470" y="120" width="225" height="28" rx="7" class="box"/><text x="480" y="138">warnings → detail only</text>
+<path d="M235 63H260" class="ln" marker-end="url(#ap)"/><path d="M235 99H260" class="ln" marker-end="url(#ap)"/><path d="M235 134H260" class="ln" marker-end="url(#ap)"/>
+<path d="M442 63H468" class="lnb"/><path d="M442 99H468" class="lnb"/><path d="M442 134H468" class="ln" marker-end="url(#ap)"/>
+<rect x="0" y="162" width="980" height="92" class="lane" rx="8"/><text x="8" y="178" class="s">COLD CHAIN</text>
+<rect x="10" y="184" width="225" height="30" rx="7" class="acc"/><text x="20" y="203">Chamber excursion</text>
+<rect x="10" y="220" width="225" height="28" rx="7" class="acc"/><text x="20" y="238">Backup start failure</text>
+<rect x="262" y="184" width="180" height="64" rx="7" class="gd"/><text x="272" y="204" class="t">CC-1 · CC-6</text><text x="272" y="222" class="s">primary Protect</text><text x="272" y="238" class="s">CC-5 via plan warnings</text>
+<rect x="470" y="184" width="225" height="64" rx="7" class="gd"/><text x="480" y="204">counts if Open, Recurred</text><text x="480" y="220">or Action in hand</text><text x="480" y="238" class="s">a Site counts once</text>
+<path d="M235 199H260" class="ln" marker-end="url(#ap)"/><path d="M235 234H260" class="ln" marker-end="url(#ap)"/><path d="M442 216H468" class="lng" marker-end="url(#ap)"/>
+<rect x="0" y="262" width="980" height="88" class="lane" rx="8"/><text x="8" y="278" class="s">EV</text>
+<rect x="10" y="284" width="225" height="30" rx="7" class="acc"/><text x="20" y="303">Interrupted charging session</text>
+<rect x="10" y="318" width="225" height="26" rx="7" class="box"/><text x="20" y="335">Connector out · fault · peak</text>
+<rect x="262" y="284" width="180" height="60" rx="7" class="gd"/><text x="272" y="304" class="t">EV-1 · EV-4 · EV-5</text><text x="272" y="320" class="s">EV-1 primary for finding</text><text x="272" y="336" class="s">others via warnings</text>
+<rect x="470" y="284" width="225" height="60" rx="7" class="gd"/><text x="480" y="304">counts if Open, Recurred</text><text x="480" y="320">or Action in hand</text><text x="480" y="336" class="s">warnings → detail only</text>
+<path d="M235 299H260" class="ln" marker-end="url(#ap)"/><path d="M235 331H260" class="ln" marker-end="url(#ap)"/><path d="M442 314H468" class="lng" marker-end="url(#ap)"/>
+<rect x="720" y="48" width="250" height="296" rx="10" class="bd" style="stroke-dasharray:none"/>
+<text x="734" y="72" class="t">Protect card</text>
+<text x="734" y="98">Value: "2 sites disrupted"</text><text x="734" y="114" class="s">cold + EV only can add to it</text>
+<text x="734" y="146">Detail: W early warnings</text><text x="734" y="162" class="s">all three verticals add here</text>
+<text x="734" y="194">Fuel lines (mini)</text><text x="734" y="210" class="s">"{Site} · unexplained fuel …"</text><text x="734" y="226" class="s">shown alone, never added</text>
+<text x="734" y="262" class="s">Basis: measured events, counted</text><text x="734" y="278" class="s">separately · loss not priced</text>
+<text x="734" y="310" class="s">No money on this card at all</text>
+<path d="M695 216H718" class="lng" marker-end="url(#ap)"/><path d="M695 314H718" class="lng" marker-end="url(#ap)"/><path d="M695 134H718" class="ln" marker-end="url(#ap)"/>
+</svg>
+<figcaption>The mini-grid lane never reaches the count. It reaches only the detail line (warnings) and the fuel lines.</figcaption>
+</figure>
+<div class="tablewrap"><table>
+<thead><tr><th>Step</th><th>Mini-grid</th><th>Cold chain</th><th>EV</th></tr></thead>
+<tbody>
+<tr><td>Outcomes</td><td>MG-5 Reliable service · MG-4 Battery and generator life · MG-8 Fuel accounted for (mock deviation MD-FUEL-K4-2)</td><td>CC-1 Stock kept saleable · CC-6 Cooling continuity · CC-5 Compressor life</td><td>EV-1 Buses ready for service · EV-4 Charger life · EV-5 Room before expansion</td></tr>
+<tr><td>Moves Protect (primary)</td><td><code>UNEXPLAINED_FUEL</code> → MG-8 (excluded from the count); warnings <code>BATTERY_NEAR_RESERVE</code>, <code>PLAN_*</code> → MG-4</td><td><code>COLD_EXCURSION</code> → CC-1; <code>COLD_START_FAILURE</code> → CC-6, CC-1</td><td><code>EV_INTERRUPTION</code> → EV-1, EV-3; <code>CONNECTOR_OUT_OF_SERVICE</code> → EV-1; <code>CHARGER_FAULT_OVERDUE_INSPECTION</code>, <code>PLAN_*</code> → EV-4; <code>PEAK_NEAR_IMPORT_LIMIT</code> → EV-5</td></tr>
+<tr><td>Board headline</td><td>"N early warnings on battery and generator", or "Battery stayed clear of its reserve in m assessed generator periods". Sub-line: "…wear model … not connected yet … what customers needed is not measured"</td><td>Excursion headline (e.g. "Chamber above 4°C for 25–35 min"); contributors: Chamber temperature, Backup start, Cooling recovery, two plan lines</td><td>"f interrupted · u unknown of n sessions"; contributors: Session service, Availability, Condition, Site power, "Warranty records are not connected yet"</td></tr>
+<tr><td>MG-5 / service</td><td><code>critical_served</code> gives "x kWh not served over the whole day". It is used only to judge a declared objective, not to make a finding</td><td>n/a</td><td>n/a</td></tr>
+<tr><td>Card contribution</td><td>detail (warnings) + fuel lines; count always 0</td><td>count + detail</td><td>count + detail</td></tr>
+<tr><td>Money</td><td colspan="3">None. "loss not priced". The mock has a "Stock value what-if" option for cold chain (scenario) and "≈ $3.49 per interrupted session" for EV (scenario) on deeper pages, but neither reaches this card.</td></tr>
+</tbody></table></div>
+<p class="ref">Count: <code>chain/claims.py:38-43, 151-161, 202, 212</code>; texts <code>vocabulary.py:108-112, 544-551</code>. Card <code>read.py:944-950, 960-967</code>. Map <code>outcome_map.py:19-23, 30-35</code>. Warning producers <code>outcomes/warnings.py:20-29, 300-303</code>. Mini Protect <code>mini.py:63-70, 718-734, 830-853, 1182-1260</code>; cold <code>cold.py:59, 184-201, 286-351</code>; EV <code>ev.py:206-210, 237-240</code>. Mock card: <code>frontend/mockups/v70/outcomes.js:191</code> ("2 sites disrupted": cold-room exposure and interrupted charging, no mini-grid).</p>
+<div class="grid2">
+<div class="card rec"><strong>Flexible</strong><ul>
+<li>"Disrupting" is a property of the map: any future mechanism whose first moved outcome is Protect counts automatically.</li>
+<li>Early warnings attach to any outcome through the map, and the detail line counts them per category.</li>
+<li>Exclusions are a named set (<code>NOT_DISRUPTION_MECHANISMS</code>), so the rule is visible and reviewable.</li></ul></div>
+<div class="card warnbox"><strong>Hard-wired limits</strong><ul>
+<li>A mini-grid outage (unserved demand, low SAIDI/SAIFI) produces no finding today, so the most important mini-grid Protect fact cannot make the card red.</li>
+<li>No wear model is connected for battery cycles, generator hours or compressor duty, so "asset life" is only plan-based warnings.</li>
+<li>Loss is never priced: no spoiled-stock value, no lost-tariff value, no SLA penalty.</li></ul></div>
+</div>
+<p><b>What a new data source would take.</b> Mini-grid "critical demand not served": a Finding producer over the existing <code>critical_served</code> measure, mapped to MG-5 primary (gap #1). It needs no new feed, but each Site needs a critical feeder classified and declared operating hours. Its output is unserved critical kWh, not customer interruption hours (SAIDI/SAIFI). Pricing loss: the accepted "Price it" design already plans <code>stock_value_at_risk</code> (per chamber load, shown as "up to … at risk", never a loss) and <code>interrupted_session_cost</code> (per session, a lower bound). Both are listed on the price page and queued under PR-3 keys and PR-4/PR-5 (<code>archive/agent-history/architect-answer-price-it-2026-11-10.md:56-71, 195-201</code>). They stay apart from income.</p>
+
+<!-- ============================================================ ASSURE -->
+<div class="pill-head"><span class="dot" style="background:var(--assure)"></span><h2 id="assure">5. Assure performance and returns</h2></div>
+<p><b>What the card shows.</b> Value: "N fixes confirmed" (verified threads plus verified opportunity actions), or "No verified result yet". Detail: "targets declared at N sites, for any outcome". Value lines: each verified result's own money, never added. Basis: "Completed work does not establish savings".</p>
+<p class="scrollhint" aria-hidden="true">Diagram scrolls sideways on narrow screens →</p>
+<figure tabindex="0">
+<svg viewBox="0 0 980 280" role="img" aria-labelledby="aT aD">
+<title id="aT">Assure performance: two unrelated feeds</title>
+<desc id="aD">The outcome map routes only evidence-quality signals to the Assure category. The card value comes instead from the fix lifecycle: verified threads and verified opportunity actions across every category. Targets come from declared objectives on any outcome.</desc>
+<defs><marker id="aa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" class="ah"/></marker></defs>
+<text x="10" y="16" class="h">FEED</text><text x="262" y="16" class="h">PATH</text><text x="520" y="16" class="h">WHERE IT LANDS</text>
+<rect x="10" y="30" width="230" height="56" rx="8" class="acc"/><text x="22" y="52">Evidence readiness, gaps</text><text x="22" y="70" class="s">SIGNAL:EVIDENCE_READINESS / _GAP</text>
+<rect x="262" y="30" width="230" height="56" rx="8" class="as"/><text x="274" y="52">map → MG-7 / CC-7 / EV-7</text><text x="274" y="70" class="s">"Evidence quality", per Site</text>
+<rect x="520" y="30" width="200" height="56" rx="8" class="box"/><text x="532" y="52">Site board Assure row</text><text x="532" y="70" class="s">Watch when readiness is limited</text>
+<rect x="10" y="108" width="230" height="56" rx="8" class="acc"/><text x="22" y="130">Verified fix (any category)</text><text x="22" y="148" class="s">thread VERIFIED + opportunity actions</text>
+<rect x="262" y="108" width="230" height="56" rx="8" class="wn"/><text x="274" y="130">lifecycle count, not the map</text><text x="274" y="148" class="s">claims.py verified_n</text>
+<rect x="10" y="186" width="230" height="56" rx="8" class="acc"/><text x="22" y="208">Declared objectives</text><text x="22" y="226" class="s">on any outcome, any category</text>
+<rect x="262" y="186" width="230" height="56" rx="8" class="wn"/><text x="274" y="208">count of Sites with targets</text><text x="274" y="226" class="s">objectives read per board</text>
+<rect x="745" y="30" width="225" height="230" rx="10" class="as"/>
+<text x="757" y="54" class="t">Assure card</text>
+<text x="757" y="80">Value: "N fixes confirmed"</text><text x="757" y="96" class="s">from the lifecycle feed</text>
+<text x="757" y="126">Detail: targets at N sites</text><text x="757" y="142" class="s">from the objectives feed</text>
+<text x="757" y="172">Value lines (never summed)</text><text x="757" y="188" class="s">mill: + x USD/day (declared price)</text><text x="757" y="204" class="s">trial: y L less diesel (modelled)</text>
+<text x="757" y="236" class="s">Evidence quality: not on the card</text>
+<path d="M240 58H260" class="ln" marker-end="url(#aa)"/><path d="M492 58H518" class="ln" marker-end="url(#aa)"/>
+<path d="M240 136H260" class="ln" marker-end="url(#aa)"/><path d="M492 136H743" class="lng" marker-end="url(#aa)"/>
+<path d="M240 214H260" class="ln" marker-end="url(#aa)"/><path d="M492 214H743" class="ln" marker-end="url(#aa)"/>
+<path d="M720 58H743" class="lnb"/>
+</svg>
+<figcaption>The category's own outcomes (evidence quality) do not reach the card. The card is built from two feeds that sit outside the outcome map.</figcaption>
+</figure>
+<div class="tablewrap"><table>
+<thead><tr><th>Step</th><th>Mini-grid</th><th>Cold chain</th><th>EV</th></tr></thead>
+<tbody>
+<tr><td>Catalogue outcome</td><td>MG-7 Evidence quality</td><td>CC-7 Evidence quality</td><td>EV-7 Evidence quality</td></tr>
+<tr><td>Map inputs</td><td><code>SIGNAL:EVIDENCE_GAP</code> (moves MG-7, checks MG-2), <code>SIGNAL:EVIDENCE_READINESS</code></td><td><code>SIGNAL:EVIDENCE_READINESS</code></td><td><code>SIGNAL:EVIDENCE_READINESS</code></td></tr>
+<tr><td>Board row</td><td>Headline "n verified results" or "No verified result yet"; contributors: Verified results, Actual against plan, Readings, Battery reporting</td><td>"Event fully/partly reconstructed · no verified result yet"; contributors: Verified results (completed maintenance, "not yet verified"), "Storage contracts are not connected yet", Power–backup–cooling chain, "Loading and door records are not connected yet"</td><td>"Evidence limited · no verified result yet"; contributors: "Bus rosters are not connected yet", "Billing records are not connected yet · reconciles the revenue shown under Grow", Session records, Status gap</td></tr>
+<tr><td>What verifies</td><td>Generator trial (verification plan, before/after), mill opportunity action, fuel-balance verdict</td><td>A thread reaching VERIFIED (no cold verification plan exists; completed work reads "not yet verified")</td><td>A thread reaching VERIFIED</td></tr>
+<tr><td>Money</td><td>Value lines: "about d USD a day more in estimated sales" (mill), "about l L, x USD less diesel in the one-hour trial (modelled)". Each on its own</td><td>none</td><td>none</td></tr>
+</tbody></table></div>
+<p class="ref">Map <code>outcome_map.py:26-27, 40</code>. Count <code>chain/claims.py:137-143, 199-201, 210</code>; classify <code>chain/threads.py:116-126</code>; text <code>vocabulary.py:100-102, 553-560</code>. Card <code>read.py:931-951, 952-957, 968-976</code>. Mini Assure <code>mini.py:102-109, 652-658, 1310-1365</code>; cold <code>cold.py:60-62, 187-190, 409-416</code>; EV <code>ev.py:45-46, 211-215, 240</code>. Mock: <code>v70/outcomes.js:192</code> ("Not established · No verified result yet · no targets declared · evidence gaps at all 3 sites").</p>
+<div class="grid2">
+<div class="card rec"><strong>Flexible</strong><ul>
+<li>Any outcome can carry a declared objective (target), and the card counts Sites with targets across all categories.</li>
+<li>A verified result from any category counts. That fits how an investor reads "what has been proven".</li>
+<li>Verified money lines are kept separate by design, so a modelled saving is never mixed with income.</li></ul></div>
+<div class="card warnbox"><strong>Hard-wired limits</strong><ul>
+<li>"Returns" is in the name, but nothing measures a return: no IRR, payback, ARPU against plan, or budget against actual.</li>
+<li>Evidence quality, the category's only catalogue outcome, never reaches the card.</li>
+<li>Independent verification (third-party or remote verification of connections, uptime and kWh, as in results-based financing) is not a concept yet; "verified" means verified by our own plan.</li></ul></div>
+</div>
+
+<!-- ============================================================ MONEY -->
+<h2 id="money">6. Money composition: what is added, what never is, and why</h2>
+<p class="scrollhint" aria-hidden="true">Diagram scrolls sideways on narrow screens →</p>
+<figure tabindex="0">
+<svg viewBox="0 0 980 330" role="img" aria-labelledby="mT mD">
+<title id="mT">Money composition across the four cards</title>
+<desc id="mD">Only Grow sums money: estimated productive-use income and estimated charging income, same currency, over checked days. Optimize lists each Site's modelled fuel-cost range. Protect has no money, only fuel lines on their own. Assure lists each verified result's value on its own.</desc>
+<defs><marker id="am" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" class="ah"/></marker></defs>
+<text x="10" y="18" class="h">INPUT × PRICE</text><text x="300" y="18" class="h">STRATEGY · LABEL · BASIS</text><text x="640" y="18" class="h">CARD COMPOSITION</text>
+<rect x="10" y="30" width="270" height="44" rx="8" class="acc"/><text x="22" y="48">Productive kWh × declared price</text><text x="22" y="64" class="s">price source: declared.productive_price</text>
+<rect x="10" y="82" width="270" height="44" rx="8" class="acc"/><text x="22" y="100">Charging kWh × declared EV tariff</text><text x="22" y="116" class="s">price source: declared.ev_tariff</text>
+<rect x="10" y="134" width="270" height="44" rx="8" class="wn"/><text x="22" y="152">Headroom kW × 1 h × declared price</text><text x="22" y="168" class="s">only when evidence SUPPORTED</text>
+<rect x="10" y="186" width="270" height="44" rx="8" class="wn"/><text x="22" y="204">Generator kW·h × SFC × diesel price</text><text x="22" y="220" class="s">price source: model.fuel-cost-1/2</text>
+<rect x="10" y="238" width="270" height="44" rx="8" class="as"/><text x="22" y="256">Verified trial / mill change</text><text x="22" y="272" class="s">stored cost check, declared price</text>
+<rect x="300" y="30" width="310" height="44" rx="8" class="gd"/><text x="312" y="48">priced_energy@1 · estimated_income</text><text x="312" y="64" class="s">MEASURED · "over k of m days" · not billed or collected</text>
+<rect x="300" y="82" width="310" height="44" rx="8" class="gd"/><text x="312" y="100">priced_energy@1 · estimated_charging_income</text><text x="312" y="116" class="s">MEASURED · same day rule</text>
+<rect x="300" y="134" width="310" height="44" rx="8" class="box"/><text x="312" y="152">priced_energy@1 · potential</text><text x="312" y="168" class="s">DECLARED · "per hour of use"</text>
+<rect x="300" y="186" width="310" height="44" rx="8" class="box"/><text x="312" y="204">avoided_cost@1 · possible_extra_fuel_cost</text><text x="312" y="220" class="s">MODELLED · range from 0 · not a saving</text>
+<rect x="300" y="238" width="310" height="44" rx="8" class="box"/><text x="312" y="256">verified value line</text><text x="312" y="272" class="s">modelled / declared price · never credited as savings total</text>
+<rect x="640" y="30" width="330" height="96" rx="10" class="gd"/><text x="652" y="52" class="t">Grow value = Σ (summed)</text><text x="652" y="72" class="s">one currency; rounded per Site, then added</text><text x="652" y="88" class="s">"At least" if any day partial or Site unknown</text><text x="652" y="104" class="s">why: same unit (income), same basis (measured × declared)</text>
+<rect x="640" y="134" width="330" height="44" rx="10" class="box"/><text x="652" y="152">Grow "Potential" part · per-Site line</text><text x="652" y="168" class="s">never added to income (different basis)</text>
+<rect x="640" y="186" width="330" height="44" rx="10" class="wn"/><text x="652" y="204">Optimize · per-Site, never summed</text><text x="652" y="220" class="s">why: modelled ranges, not comparable across Sites</text>
+<rect x="640" y="238" width="330" height="44" rx="10" class="as"/><text x="652" y="256">Assure value lines · each on its own</text><text x="652" y="272" class="s">why: a verified change is not a booked saving</text>
+<path d="M280 52H298" class="ln" marker-end="url(#am)"/><path d="M280 104H298" class="ln" marker-end="url(#am)"/><path d="M280 156H298" class="ln" marker-end="url(#am)"/><path d="M280 208H298" class="ln" marker-end="url(#am)"/><path d="M280 260H298" class="ln" marker-end="url(#am)"/>
+<path d="M610 52H638" class="lng" marker-end="url(#am)"/><path d="M610 104H625V90H638" class="lng" marker-end="url(#am)"/><path d="M610 156H638" class="ln" marker-end="url(#am)"/><path d="M610 208H638" class="ln" marker-end="url(#am)"/><path d="M610 260H638" class="ln" marker-end="url(#am)"/>
+<text x="652" y="312" class="s">Protect: no money. Unexplained-fuel lines are shown alone, "never added to any other money".</text>
+</svg>
+<figcaption>Every price comes from a declared assumption or a versioned model. No price comes from a client ledger.</figcaption>
+</figure>
+<div class="tablewrap"><table>
+<thead><tr><th>Card</th><th>Strategy</th><th>Measure</th><th>Price source</th><th>Label</th><th>Basis</th><th>Summed?</th></tr></thead>
+<tbody>
+<tr><td>Grow · income</td><td><code>priced_energy@1</code></td><td><code>productive_kwh</code>, <code>charging_kwh</code></td><td><code>declared.productive_price</code>, <code>declared.ev_tariff</code></td><td>estimated_income, estimated_charging_income</td><td>MEASURED</td><td><span class="tag y">yes</span> across Sites, one currency</td></tr>
+<tr><td>Grow · potential</td><td><code>priced_energy@1</code></td><td><code>headroom_kw</code></td><td><code>declared.productive_price</code></td><td>potential (per hour of use)</td><td>DECLARED</td><td><span class="tag n">no</span> per-Site text</td></tr>
+<tr><td>Grow · EV idle</td><td><code>direction_only@1</code></td><td>none</td><td>none</td><td>none</td><td>NOT_PRESENT</td><td><span class="tag e">no producer</span></td></tr>
+<tr><td>Grow · target</td><td><code>graded_verdict@1</code></td><td><code>productive_kwh</code></td><td>none</td><td>verdict</td><td>day grades</td><td><span class="tag n">no</span></td></tr>
+<tr><td>Optimize</td><td><code>avoided_cost@1</code></td><td>stored consequence</td><td><code>model.fuel-cost-1</code> (and /2), declared diesel price</td><td>possible_extra_fuel_cost</td><td>MODELLED</td><td><span class="tag n">never</span> (A6, D-AW-5)</td></tr>
+<tr><td>Protect</td><td>count</td><td>threads</td><td>none</td><td>count.sites_disrupted</td><td>checked days</td><td><span class="tag e">count only</span></td></tr>
+<tr><td>Assure</td><td>count + value lines</td><td>threads, verified values</td><td>stored cost check / declared</td><td>count.verified_results</td><td>checked days</td><td><span class="tag n">never</span> (PV-1-R §2)</td></tr>
+</tbody></table></div>
+<p class="ref"><code>outcome_map.py:150-180</code>; <code>chain/strategies/priced_energy.py:33-63</code>, <code>avoided_cost.py:8-16</code>, <code>direction_only.py</code>, <code>recorded_amount.py:1</code> ("no billing source exists (AG-11)"); <code>vocabulary.py:323-326, 426-453, 459-508</code>; <code>read.py:759-781, 901-923, 952-957</code>.</p>
+
+<!-- ============================================================ DISCONNECTS -->
+<h2 id="disconnects">7. The five suspected disconnects, and three more</h2>
+<div class="card badbox"><div class="verdict">
+<span class="tag n">(a) confirmed</span><div><b>The mini-grid can never add to "sites disrupted".</b> The count takes threads whose <i>first moved</i> outcome is Protect (<code>claims.py:151-161</code>). Mini-grids have two Finding mechanisms. <code>GENERATOR_SUPPORT_CANDIDATE</code> moves MG-2 (Optimize) first. <code>UNEXPLAINED_FUEL</code> moves MG-8 (Protect) but sits in <code>NOT_DISRUPTION_MECHANISMS</code> (<code>claims.py:43</code>). Warnings are not threads, and the headroom opportunity has no Finding occurrence, so neither counts (<code>claims.py:124-134</code>). <i>Nuance:</i> the mini-grid still reaches the card's detail line (battery and plan warnings) and the fuel lines. The mock's "2 sites disrupted" is also cold plus EV only (<code>v70/outcomes.js:191</code>), so this matches the mock. It is a product gap, not a build defect.</div>
+</div></div>
+<div class="card badbox"><div class="verdict">
+<span class="tag n">(b) confirmed</span><div><b>Assure counts something the outcome map does not route.</b> The map sends only <code>EVIDENCE_GAP</code> and <code>EVIDENCE_READINESS</code> to Assure (MG-7/CC-7/EV-7, <code>outcome_map.py:26-27, 40</code>). The card value is <code>verified_n</code> = verified threads of <i>any</i> category plus verified opportunity actions (<code>claims.py:210</code>), and the detail counts targets on any outcome (<code>read.py:944-951</code>). No catalogue outcome exists for "verified result" or "target met" (<code>catalogue.py:43-68</code>). So the Assure category has two meanings: evidence quality on the Site board, and proven fixes on the Portfolio.</div>
+</div></div>
+<div class="card badbox"><div class="verdict">
+<span class="tag n">(c) confirmed</span><div><b>MG-5 unserved energy is a board reading only.</b> <code>critical_served</code> is a chain measure (<code>chain/measures.py</code>) that yields "x kWh not served over the whole day" (<code>mini.py:846-853</code>). It is used only to judge a declared MG-5 objective. MG-5 has no contribution record ("MG-5 has none (R9)", <code>outcome_map.py:149</code>), no Finding moves it, and it is never priced. <i>Nuance:</i> a missed MG-5 target does turn the Site's Protect row to Needs attention (<code>status.py:79-80</code>), and its days count in the coverage line. It still never reaches the card count.</div>
+</div></div>
+<div class="card badbox"><div class="verdict">
+<span class="tag n">(d) confirmed</span><div><b>MG-2 "Supply cost per kWh" has no actual unit cost.</b> Its target is avoidable generator minutes (<code>outcome_map.py:161-162</code>). Its money is a modelled 0–high fuel range (<code>:163-166</code>). Nothing divides total supply cost by kWh delivered: there is no fuel spend (delivery tickets hold litres only, migration 0054), no opex, no capex. <i>Nuance:</i> a verified trial's stored cost check can say "x USD less supply cost per kWh" (<code>board.py:60-61, 549-566</code>). That is a modelled <i>change</i> for one trial hour, not a level.</div>
+</div></div>
+<div class="card badbox"><div class="verdict">
+<span class="tag n">(e) confirmed</span><div><b>Six outcomes are "not connected yet".</b> MG-6, MG-3, CC-2, CC-4, EV-6 and EV-2 are created with a <code>missing_records</code> sentence, which sets <code>measured = False</code> (<code>catalogue.py:38-39, 45-46, 54-56, 61-62</code>). They always read Not measured, and no table or adapter exists for billing, payments, customers, occupancy, contracts, produce prices or odometers (checked across all migrations). <i>Nuance:</i> cold Grow and EV Optimize are therefore whole rows that can never change state.</div>
+</div></div>
+<div class="card warnbox"><div class="verdict">
+<span class="tag p">(f) new</span><div><b>CC-3 "Cost per cooling unit" is flagged measured but has no cost input.</b> It is moved only by the repeat-visit warning (@COST). The row's own contributors say "Repair and call-out costs are not connected yet" and "no cooling energy meter" (<code>cold.py:71-72</code>). Because it is <code>measured=True</code> (<code>catalogue.py:63</code>), the row reads "No objective declared" when no warning fires, and Needs attention or Watch when one does. It cannot read On track, because no declarable objective measure exists for CC-3 (<code>outcomes/objectives.py:57-72</code>, <code>status.py:88-102</code>). This is a small honesty issue: the row should read "Not measured yet". The same applies in a softer form to MG-2 (d).</div>
+</div></div>
+<div class="card warnbox"><div class="verdict">
+<span class="tag p">(g) new</span><div><b>"Idle chargers at Depot" is in the mock's Grow card but has no producer.</b> The mock text is "Productive use at Kobo · idle chargers at Depot" (<code>v70/outcomes.js:189</code>). <code>WARNING:CHARGERS_MOSTLY_IDLE</code> is mapped with a record (<code>outcome_map.py:36, 177-180</code>), but <code>outcomes/warnings.py:29</code> has no such kind (backlog BL-06). The EV Grow potential therefore always reads "No potential found yet". This is the clearest "data is here, producer is missing" gap: charging kWh and charger ratings already exist.</div>
+</div></div>
+<div class="card warnbox"><div class="verdict">
+<span class="tag p">(h) new</span><div><b>Cold chain adds no money to any card, and EV adds money only to Grow.</b> Of the three verticals, only the mini-grid has a money path into Optimize, and only cold chain and EV can raise Protect. A cold-chain-only prospect would see a Portfolio with grey Grow, an empty Optimize, a red Protect and an Assure saying "no verified result yet". That is honest, but a weak demo for that buyer.</div>
+</div></div>
+
+<!-- ============================================================ MATRIX -->
+<h2 id="matrix">8. Wired / not-wired matrix: pillar × vertical × data source</h2>
+<div class="legend"><span><i class="m-y"></i>wired to the card</span><span><i class="m-p"></i>reaches the Site board only, or partly wired</span><span><i class="m-n"></i>named in the product, no data</span><span><i class="m-e"></i>not modelled at all</span></div>
+<div class="tablewrap"><table>
+<thead><tr><th>Data source</th><th>Exists today as</th><th>Grow</th><th>Optimize</th><th>Protect</th><th>Assure</th></tr></thead>
+<tbody>
+<tr><th colspan="6">Mini-grid</th></tr>
+<tr><td>Interval telemetry (PV, battery SOC, generator, feeder)</td><td>CSV upload profile + Modbus poller via gateway</td><td class="p">headroom potential</td><td class="y">generator finding → money</td><td class="p">warnings, MG-5 reading</td><td class="p">readiness / gaps</td></tr>
+<tr><td>Productive-user sub-meters</td><td>declared productive users + readings</td><td class="y">MG-1 income</td><td class="e">—</td><td class="e">—</td><td class="y">mill value line</td></tr>
+<tr><td>Fuel deliveries, tank dips</td><td><code>operational_record</code> FUEL_DELIVERY / TANK_DIP (litres)</td><td class="e">—</td><td class="p">no price on ticket</td><td class="y">unexplained-fuel lines</td><td class="y">fuel verdict</td></tr>
+<tr><td>Declared prices (diesel, productive, EV tariff)</td><td><code>financial_assumption_revision</code>; site-admin entry on the price page (PR-3, migration 0060, merged)</td><td class="y">prices income</td><td class="y">prices fuel</td><td class="e">—</td><td class="y">prices value lines</td></tr>
+<tr><td>Maintenance plans, work cases</td><td><code>maintenance_plan</code>, <code>work_case</code> (no cost)</td><td class="e">—</td><td class="p">repeat-visit warning</td><td class="p">plan due warnings</td><td class="e">—</td></tr>
+<tr><td>Billing / payments, customer meters</td><td>none</td><td class="n">MG-6</td><td class="n">MG-2 denominator</td><td class="e">—</td><td class="n">ARPU vs plan</td></tr>
+<tr><td>Opex / capex ledger</td><td>none</td><td class="n">MG-3</td><td class="n">cost per kWh</td><td class="e">—</td><td class="n">returns</td></tr>
+<tr><td>Planned price keys: cost per visit, planned service cost</td><td>listed on the price page, not storable yet (PR-3 keys, PR-4/5 queued)</td><td class="e">—</td><td class="p">would price @COST warning</td><td class="p">would price plan warnings</td><td class="e">—</td></tr>
+<tr><th colspan="6">Cold chain</th></tr>
+<tr><td>Chamber temperature, power and backup chain</td><td>events + intervals, causal strip</td><td class="e">—</td><td class="e">—</td><td class="y">CC-1, CC-6 count</td><td class="p">reconstruction</td></tr>
+<tr><td>Work visits, plans</td><td><code>work_case</code>, <code>maintenance_plan</code></td><td class="e">—</td><td class="p">CC-3 warning, no cost</td><td class="p">CC-5 warnings</td><td class="e">—</td></tr>
+<tr><td>Cooling energy meter</td><td>none</td><td class="e">—</td><td class="n">CC-3 kWh per unit</td><td class="e">—</td><td class="e">—</td></tr>
+<tr><td>Occupancy, crate/storage contracts, fees</td><td>none</td><td class="n">CC-2</td><td class="e">—</td><td class="e">—</td><td class="n">storage service level</td></tr>
+<tr><td>Produce value / market prices</td><td>none; <code>stock_value_at_risk</code> planned (price page, not storable yet)</td><td class="n">CC-4</td><td class="e">—</td><td class="n">loss not priced</td><td class="e">—</td></tr>
+<tr><td>Loading and door logs</td><td>none</td><td class="e">—</td><td class="e">—</td><td class="n">stock impact</td><td class="n">named on board</td></tr>
+<tr><th colspan="6">EV</th></tr>
+<tr><td>Charging sessions, meter intervals</td><td><code>ev_session</code>, <code>ev_meter_interval</code></td><td class="y">EV-3 income</td><td class="e">—</td><td class="y">EV-1 interruption count</td><td class="p">session records</td></tr>
+<tr><td>Connector status, faults, site power</td><td>availability + health reads</td><td class="n">idle warning missing</td><td class="e">—</td><td class="p">EV-1/4/5 warnings</td><td class="p">status gap</td></tr>
+<tr><td>Interrupted-session cost, charger repair cost</td><td>planned price keys (price page, not storable yet)</td><td class="e">—</td><td class="e">—</td><td class="p">would price EV-1 / EV-4</td><td class="e">—</td></tr>
+<tr><td>Billing / settlement</td><td>none</td><td class="n">EV-6</td><td class="e">—</td><td class="e">—</td><td class="n">reconcile line</td></tr>
+<tr><td>Odometer / telematics</td><td>none</td><td class="e">—</td><td class="n">EV-2</td><td class="e">—</td><td class="e">—</td></tr>
+<tr><td>Bus roster / timetable</td><td>none</td><td class="e">—</td><td class="e">—</td><td class="n">departures affected</td><td class="n">departures vs timetable</td></tr>
+<tr><td>Warranty records</td><td>none</td><td class="e">—</td><td class="e">—</td><td class="n">named on board</td><td class="e">—</td></tr>
+</tbody></table></div>
+<p class="ref">Tables checked across <code>backend/migrations/versions/*.py</code>; none named for customer, billing, payment, tariff plan, odometer, crate or occupancy. Ingestion: <code>field/assetops_field/csv_upload.py</code>, <code>modbus_poller.py</code>, profiles in <code>field/profiles/</code> (roles: pv_power, pv_available_power, battery_soc, generator_power, generator_state, feeder_demand, pcs_discharge_capability); <code>backend/assetops_backend/reading_upload/service.py</code>; fuel records <code>migrations/versions/0054_operational_fuel_records.py:52</code> (quantity in L only); declared prices <code>financials/assumptions.py:32</code>; price page keys <code>financials/price_page.py:58-87</code>; price actions <code>outcomes/price_action.py:24-31</code>; site-admin entry merge <code>8fdb0cf76</code>.</p>
+
+<!-- ============================================================ PART 2 -->
+<h2 id="research">Part 2 · 9. What each vertical is judged on (research)</h2>
+<p>How to read the source tags: <span class="tag y">checked</span> means the figure was confirmed on the linked page. <span class="tag p">snippet</span> means the page resolved but the figure was read from a search summary or an unparsed PDF, so confirm it before quoting it to a client. <span class="tag n">unverified</span> means it was not found at source. <span class="tag p">company-reported</span> means the source page states it, but the claim is the company's own. Role bullets are the Architect's synthesis, anchored on the cited sources.</p>
+<div class="card warnbox"><strong>Two requested anchors could not be confirmed.</strong> I could not find the mini-grid LCOE range "$0.49–0.68/kWh" at source. The World Bank/ESMAP 2022 release gives <b>$0.38/kWh</b> today (down from $0.55 in 2018) and a $0.20 target for 2030 <span class="tag y">checked</span>. The AMDA 2024 headline KPIs (ARPU, uptime, opex per connection, diesel share) sit in a PDF that could not be parsed here. Someone should pull them by hand from the <a href="https://www.africamda.org/wp-content/uploads/2025/04/Benchmarking-Africas-Minigrids-Report-2024-Online-version.pdf">AMDA 2024 report</a> before the demo.</div>
+
+<div class="card badbox"><strong>Do not quote to a client</strong> (until refreshed or confirmed at source):
+<ul>
+<li>the CrossBoundary mesh-grid reliability/ARPU comparison (removed in revision 2; it did not match its source and frames mini-grids as the weaker comparison group);</li>
+<li>ColdHubs' "$60 to $120/month" income rise (2019, self-reported, and the same page calls it a "50% increase");</li>
+<li>the AMDA 2020 benchmarks ($733 per connection, 99.1% service level, ARPU under $5, over 52 weeks to approval) until they are replaced with AMDA 2024 figures.</li>
+</ul></div>
+
+<h3>Mini-grids</h3>
+<div class="grid3">
+<div class="kpi"><b>$0.38/kWh</b><span>solar mini-grid cost, from $0.55 in 2018; target $0.20 by 2030 · <a href="https://www.worldbank.org/en/news/press-release/2022/09/27/solar-mini-grids-could-power-half-a-billion-people-by-2030-if-action-is-taken-now">World Bank/ESMAP</a> <span class="tag y">checked</span></span></div>
+<div class="kpi"><b>$6,824/kW</b><span>mini-grid capex per a SEforALL presentation, against a $3,000/kW global benchmark; AMDA 2024 reports a 20% decline since 2020 · <a href="https://www.microgridknowledge.com/remote-microgrids/article/55281198/resources/microgrid-perspectives">Microgrid Knowledge</a> <span class="tag y">checked</span></span></div>
+<div class="kpi"><b>USD 592</b><span>per verified connection, paid after verification · <a href="https://www.seforall.org/programmes/universal-energy-facility/universal-energy-facility-mini-grids">SEforALL UEF</a> <span class="tag y">checked</span></span></div>
+</div>
+<ul>
+<li><b>The fund KPIs are ARPU and reliability.</b> CrossBoundary Energy Access named "Average Revenue per User" and "Power Reliability" as its two essential KPIs, and noted that the data is "high-volume and often patchy" and that definitions of a user vary · <a href="https://shellfoundation.org/odyssey-learning-report_final">Odyssey/CBEA learning report</a> <span class="tag p">snippet</span>.</li>
+<li><b>Independent verification.</b> The REPP/AMDA CEO roundtable call to action lists ARPU, connection maximisation, profitability, productive use and impact metrics, to be "independently verified where required" · <a href="https://repp.energy/wp-content/uploads/2023/05/230517-Roundtable-call-to-action-FINAL.pdf">REPP 2023</a> <span class="tag p">snippet</span>.</li>
+<li><b>How results-based finance is verified.</b> Nigeria NEP/DARES pays "per new customer connection", varying by residential or productive-use customer. Verification runs through Odyssey ("real-time verification of submitted claims" when the developer's CRM is linked), independent verification agent phone checks and field checks, and projects must show minimum commercial load · <a href="https://nep.rea.gov.ng/mini-grid.html">REA NEP</a> <span class="tag y">checked</span>. A DARES verification-agent ToR allows connections to be verified remotely through smart meters · <a href="https://nep.rea.gov.ng/wp-content/uploads/2024/11/TOR_IVA_DARES_FC_North.pdf">DARES IVA ToR</a> <span class="tag p">snippet</span>. The UEF Platform does "remote connection verification and data aggregation" · <a href="https://www.seforall.org/programmes/universal-energy-facility/universal-energy-facility-mini-grids">UEF</a> <span class="tag y">checked</span>.</li>
+<li><b>Diesel exposure.</b> Published ranges diverge on the fuel price assumed. Diesel-only LCOE is about $0.92–1.30/kWh against $0.54–0.77/kWh for PV-diesel hybrids, across developing countries generally (not an African field benchmark) · <a href="https://publications.tno.nl/publication/34638719/GUxjXZ/corne-zebra-2021-review.pdf">Zebra et al. 2021, <i>Renewable and Sustainable Energy Reviews</i> (PDF hosted by TNO)</a> <span class="tag p">snippet</span>. Gensets run about $0.35–0.70/kWh · <a href="https://www.powerforall.org/application/files/4415/6700/7650/FS__Mini-grids_costs_can_be_reduced_by_60_by_2030.pdf">Power for All</a> <span class="tag p">snippet</span>. Because these disagree so widely, fuel price should be shown as a sensitivity, which our declared-price model already supports.</li>
+<li><b>Benchmarks.</b> AMDA 2020 recorded $733 installed cost per connection, a 99.1% service level, ARPU under $5/month, and over 52 weeks to approval · <a href="https://www.greenbuildingafrica.co.za/solar-mini-grid-report-benchmarks-africas-performance/">Green Building Africa</a> <span class="tag y">checked</span> (2020 data; refresh from AMDA 2024 before any client deck).</li>
+<li><b>Data systems in the sector.</b> <a href="https://www.sparkmeter.io/">SparkMeter</a> (meters, prepaid billing, grid management), <a href="https://steama.co/">SteamaCo</a> (smart metering, prepaid, loss monitoring), <a href="https://www.odysseyenergysolutions.com/">Odyssey</a> (results-based finance, data verification, portfolio reporting), and <a href="https://www.ammp.io/">AMMP</a> (vendor-agnostic monitoring and investor reporting) <span class="tag y">checked</span>.</li>
+</ul>
+
+<h3>Cold chain</h3>
+<div class="grid3">
+<div class="kpi"><b>23%</b><span>of food lost between harvest and retail in Sub-Saharan Africa (13.3% globally) · <a href="https://www.fao.org/statistics/highlights-archive/highlights-detail/on-the-international-day-of-awareness-of-food-loss-and-waste--learn-how-fao-is-leveraging-data-to-save-food-and-advance-the-2030-agenda/en">FAO</a> <span class="tag y">checked</span></span></div>
+<div class="kpi"><b>2 → 21 days</b><span>shelf life at ColdHubs, at ₦100 per 20 kg crate per day (2019–20) · <a href="https://solve.mit.edu/solutions/31462">MIT Solve</a> <span class="tag p">company-reported</span></span></div>
+<div class="kpi"><b>20–30%</b><span>post-harvest loss cut by YieldWise in East Africa · <a href="https://www.rockefellerfoundation.org/initiatives/yieldwise">Rockefeller</a> <span class="tag y">checked</span></span></div>
+</div>
+<ul>
+<li><b>Revenue is the crate-day.</b> ColdHubs charges per crate per day, and reports users' income rising from $60 to $120/month, which the same page also calls a "50% increase" (internally inconsistent, 2019) · <a href="https://solve.mit.edu/solutions/31462">MIT Solve</a> <span class="tag p">company-reported</span>. SokoFresh rents solar cold rooms on lease and lease-to-own terms and claims "40% more produce" reaching market · <a href="https://www.sokofresh.co.ke/">SokoFresh</a> <span class="tag p">company-reported</span>. Under cooling-as-a-service, customers pay per unit of cooling while the provider owns the equipment · <a href="https://energy-base.org/wp-content/uploads/2022/05/Cooling-as-a-Service-White-Paper.pdf">BASE CaaS white paper</a> <span class="tag p">snippet</span>.</li>
+<li><b>Utilisation is the risk.</b> Efficiency for Access/CLASP work flags off-season under-use as a core problem for solar cold rooms · <a href="https://refindustry.com/?p=81645">summary</a> <span class="tag p">snippet</span>. The GET.invest Uganda cold-storage business case models payback on utilisation · <a href="https://www.get-invest.eu/wp-content/uploads/2023/10/GET.invest-Market-Insights_Uganda_MBC_Cold-Storage_Oct-2023.pdf">GET.invest</a> <span class="tag p">snippet</span>.</li>
+<li><b>Monitoring is part of the offer.</b> InspiraFarms ships cold rooms with "real-time data monitoring" · <a href="https://www.inspirafarms.com/">InspiraFarms</a> <span class="tag y">checked</span>. That is temperature data, the part we already do well.</li>
+</ul>
+
+<h3>EV</h3>
+<div class="grid3">
+<div class="kpi"><b>KSh 20/km</b><span>BasiGo pay-as-you-drive, against KSh 30–50/km for diesel fuel alone · <a href="https://cleantechnica.com/2022/11/15/basigo-secures-6-6-million-in-new-funding-to-start-commercial-delivery-of-electric-buses-in-kenya/">CleanTechnica</a> <span class="tag y">checked</span></span></div>
+<div class="kpi"><b>KSh 8 / 16</b><span>per kWh, off-peak / peak, Kenya e-mobility tariff · <a href="https://cleantechnica.com/2023/03/28/kenyas-energy-regulator-approves-new-e-mobility-specific-electricity-tariffs-new-time-of-use-tariffs/">CleanTechnica</a> <span class="tag y">checked</span></span></div>
+<div class="kpi"><b>~41%</b><span>of moto-taxi gross earnings spent on fuel; take-home up about 46% on electric · <a href="https://acumen.org/companies/ampersand/">Acumen/Ampersand</a> <span class="tag y">checked</span></span></div>
+</div>
+<ul>
+<li><b>Operating reality.</b> BasiGo moved to KSh 1M upfront plus a per-km fee with a $3,000/month minimum. Its buses need midday top-ups, and real range falls below rated range · <a href="https://news.mongabay.com/2024/12/kenya-embraces-electric-buses-to-combat-climate-change-but-rollout-is-bumpy/">Mongabay</a> <span class="tag y">checked</span>. Both are uptime and energy-per-km questions.</li>
+<li><b>Scale in e-moto.</b> Spiro has 60,000+ bikes and 1,500 swap stations, riders cover 150–200 km/day and save "up to $3 per day", and costs run about 30% lower per km · <a href="https://techcrunch.com/2025/10/21/spiro-raises-100m-the-largest-ever-investment-in-africas-e-mobility">TechCrunch</a> <span class="tag p">company-reported (CEO)</span>.</li>
+<li><b>Carbon is a second revenue line that needs measured km.</b> The Spiro/MAuto project is Verra VCS 3985, with IoT tracking of km and location · <a href="https://www.aera-group.fr/portfolio/portfolio/mauto-electric-bikes-project">AERA</a> <span class="tag y">checked</span>. Verra VM0038 v1.1 covers EV charging systems · <a href="https://verra.org/methodologies/vm0038-electric-vehicle-charging-systems-v1-1/">Verra</a> <span class="tag y">checked</span>. South Pole found "complicated MRV" and proposes digital MRV · <a href="https://www.southpole.com/publications/final-report-e-mobility-east-africa">South Pole</a> <span class="tag y">checked</span>.</li>
+<li><b>Payments platforms</b> such as <a href="https://www.angaza.com/">Angaza</a> hold PAYG ledgers for asset financing <span class="tag y">checked</span>.</li>
+</ul>
+
+<h3>Who judges what (synthesis)</h3>
+<div class="tablewrap"><table>
+<thead><tr><th></th><th>Mini-grid</th><th>Cold chain</th><th>EV</th><th>AssetOps today</th></tr></thead>
+<tbody>
+<tr><td><b>COO</b></td><td>Uptime and service level; outage hours; genset hours and fuel; O&amp;M response; non-technical losses</td><td>Temperature in band; uptime; crate occupancy; kWh per kg-day</td><td>Vehicle and charger availability; km per vehicle-day; kWh/km; queue time</td><td class="p">Strong on events and evidence (generator, chamber, sessions); no uptime-against-demand KPI</td></tr>
+<tr><td><b>CEO</b></td><td>Connections against plan; ARPU growth; productive-use load</td><td>Farmers served; tonnes handled; spoilage avoided</td><td>Fleet growth; swaps or charges per day; rider earnings</td><td class="p">Productive use (MG-1) and headroom only</td></tr>
+<tr><td><b>CFO</b></td><td>ARPU and collections; capex per connection; opex per connection; diesel cost per kWh</td><td>Revenue per crate-day; collections; payback against utilisation</td><td>Revenue per km or vehicle-day; energy cost per km under time-of-use; battery reserve</td><td class="n">Estimates only (declared price × kWh); nothing billed, collected or booked</td></tr>
+<tr><td><b>Investor / funder</b></td><td>ARPU and reliability, independently verified; verified connections for grant drawdown</td><td>Utilisation across seasons; loss reduced; farmer income</td><td>$/km against petrol; repayment; measured km for carbon credits</td><td class="p">"Verified" means our own plan; the evidence chain is strong, but there is no third-party verification pack</td></tr>
+</tbody></table></div>
+
+<!-- ============================================================ DATA -->
+<h2 id="data">10. The data each pillar needs: source, path, effort, and whether it exists</h2>
+<div class="legend"><span><span class="tag y">exists</span> in code today</span><span><span class="tag p">partial</span></span><span><span class="tag n">missing</span></span><span>Effort: S ≈ days, M ≈ 1–2 weeks, L ≈ several weeks (Architect estimate)</span></div>
+
+<h3>Mini-grid</h3>
+<div class="tablewrap"><table>
+<thead><tr><th>Data point</th><th>Pillar</th><th>Source system</th><th>Integration path</th><th>Effort</th><th>Priority</th><th>Today</th></tr></thead>
+<tbody>
+<tr><td>Customer meter kWh (revenue grade), per customer and class</td><td>Grow, Assure</td><td>SparkMeter, SteamaCo, other smart meters</td><td>CSV export first, then vendor API</td><td>M</td><td>1</td><td><span class="tag n">missing</span> only productive-user sub-meters</td></tr>
+<tr><td>Billing and payments (top-ups, invoices, collections)</td><td>Grow (MG-6), Assure (ARPU)</td><td>Meter vendor prepaid platform, Odyssey, CRM</td><td>CSV, then API</td><td>M</td><td>1</td><td><span class="tag n">missing</span> (<code>recorded_amount@1</code> returns no records)</td></tr>
+<tr><td>Tariff schedule per customer class</td><td>Grow</td><td>Regulator approval, operator</td><td>Manual declaration (extends declared prices)</td><td>S</td><td>2</td><td><span class="tag p">partial</span> one productive price; site-admin entry exists (PR-3)</td></tr>
+<tr><td>Generation, battery and genset telemetry</td><td>Optimize, Protect</td><td>Inverter/EMS (e.g. Victron GX), AMMP</td><td>Meter/telemetry gateway (Modbus) or CSV</td><td>—</td><td>—</td><td><span class="tag y">exists</span> CSV profile + Modbus poller</td></tr>
+<tr><td>Feeder demand / unserved energy</td><td>Protect (MG-5)</td><td>Same telemetry</td><td>Same</td><td>S (finding producer)</td><td>1</td><td><span class="tag p">partial</span> measured, no finding</td></tr>
+<tr><td>Fuel purchase logs with price</td><td>Optimize (MG-2)</td><td>Fuel invoices, operator log</td><td>Manual record or CSV</td><td>S</td><td>2</td><td><span class="tag p">partial</span> tickets in litres; diesel price is declared and editable (PR-3)</td></tr>
+<tr><td>Maintenance cost (declared per visit / per job first, invoices later)</td><td>Optimize, Protect</td><td>Operator declaration; later CMMS or spreadsheet</td><td>Price page (PR-3 keys), then CSV/API</td><td>S, then M</td><td>2</td><td><span class="tag p">partial</span> work cases and plans; <code>repair_visit_cost</code>, <code>planned_service_cost</code> listed, not storable yet</td></tr>
+<tr><td>Capex and opex per site</td><td>Grow (MG-3), Assure (returns)</td><td>Accounting (Xero, QuickBooks, Sage)</td><td>CSV per month</td><td>M</td><td>3</td><td><span class="tag n">missing</span></td></tr>
+<tr><td>Connection and grant-claim records</td><td>Assure (RBF)</td><td>CRM, Odyssey, NEP/UEF platforms</td><td>CSV or API</td><td>M</td><td>3</td><td><span class="tag n">missing</span></td></tr>
+</tbody></table></div>
+
+<h3>Cold chain</h3>
+<div class="tablewrap"><table>
+<thead><tr><th>Data point</th><th>Pillar</th><th>Source system</th><th>Integration path</th><th>Effort</th><th>Priority</th><th>Today</th></tr></thead>
+<tbody>
+<tr><td>Crate check-in/out (occupancy), customer, produce type, weight</td><td>Grow (CC-2), Protect</td><td>Operator app, ledger, spreadsheet</td><td>CSV upload, later app API</td><td>M</td><td>1</td><td><span class="tag n">missing</span></td></tr>
+<tr><td>Storage fees and payments (per crate-day, lease)</td><td>Grow, Assure</td><td>Mobile money, POS, accounting</td><td>CSV</td><td>M</td><td>1</td><td><span class="tag n">missing</span></td></tr>
+<tr><td>Produce value / market prices</td><td>Grow (CC-4), Protect (stock at risk)</td><td>Market price feeds, operator declaration</td><td>Declared <code>stock_value_at_risk</code> per chamber load first (Price it); market feeds later</td><td>S</td><td>1</td><td><span class="tag p">planned</span> key listed, not storable yet; what-if scenario exists</td></tr>
+<tr><td>Chamber temperature, power and backup chain</td><td>Protect</td><td>Sensors, controller</td><td>Gateway or CSV</td><td>—</td><td>—</td><td><span class="tag y">exists</span></td></tr>
+<tr><td>Cooling energy meter</td><td>Optimize (CC-3)</td><td>Sub-meter or inverter</td><td>Telemetry gateway</td><td>S–M</td><td>2</td><td><span class="tag n">missing</span></td></tr>
+<tr><td>Repair and call-out cost</td><td>Optimize (CC-3)</td><td>Declared per visit; later technician invoices, CMMS</td><td>Price page (PR-3 keys), then CSV</td><td>S</td><td>2</td><td><span class="tag p">partial</span> visits recorded; <code>repair_visit_cost</code> listed, not storable yet</td></tr>
+<tr><td>Door and loading logs</td><td>Protect, Assure</td><td>Door sensors, operator log</td><td>Gateway or manual</td><td>M</td><td>3</td><td><span class="tag n">missing</span></td></tr>
+</tbody></table></div>
+
+<h3>EV</h3>
+<div class="tablewrap"><table>
+<thead><tr><th>Data point</th><th>Pillar</th><th>Source system</th><th>Integration path</th><th>Effort</th><th>Priority</th><th>Today</th></tr></thead>
+<tbody>
+<tr><td>Charging sessions and meter kWh</td><td>Grow, Protect</td><td>Charge-point management system (OCPP back end)</td><td>CSV or CPMS API</td><td>—</td><td>—</td><td><span class="tag y">exists</span> sessions + meter intervals</td></tr>
+<tr><td>Connector status, faults</td><td>Protect, Grow (idle)</td><td>CPMS</td><td>Same</td><td>S (idle producer)</td><td>1</td><td><span class="tag p">partial</span> idle warning missing</td></tr>
+<tr><td>Utility bill and time-of-use tariff</td><td>Optimize</td><td>Utility (e.g. KSh 8/16 per kWh)</td><td>Manual declaration plus bill CSV</td><td>S–M</td><td>1</td><td><span class="tag p">partial</span> one declared tariff (editable, PR-3); no time-of-use split anywhere in code</td></tr>
+<tr><td>Billing / settlement (energy sold, per-km fees)</td><td>Grow (EV-6), Assure</td><td>Fleet billing, PAYG ledger (e.g. Angaza)</td><td>CSV, then API</td><td>M</td><td>2</td><td><span class="tag n">missing</span></td></tr>
+<tr><td>Odometer, GPS, state of charge</td><td>Optimize (EV-2), carbon</td><td>Telematics or OEM portal</td><td>API or CSV</td><td>M–L</td><td>2</td><td><span class="tag n">missing</span></td></tr>
+<tr><td>Bus roster / timetable</td><td>Protect, Assure</td><td>Operator scheduling</td><td>CSV</td><td>M</td><td>3</td><td><span class="tag n">missing</span></td></tr>
+<tr><td>Interrupted-session cost, charger repair cost</td><td>Protect (priced)</td><td>Operator declaration</td><td>Price page (PR-3 keys)</td><td>S</td><td>2</td><td><span class="tag p">planned</span> keys listed, not storable yet</td></tr>
+<tr><td>Warranty terms</td><td>Protect</td><td>Vendor contract</td><td>Manual declaration</td><td>S</td><td>3</td><td><span class="tag n">missing</span></td></tr>
+</tbody></table></div>
+<p class="ref">"Today" verified in code: ingestion <code>field/assetops_field/</code> (csv_upload, modbus_poller), <code>reading_upload/service.py</code>; tables from <code>backend/migrations/versions</code> (<code>ev_session</code>, <code>ev_meter_interval</code>, <code>operational_record</code> incl. FUEL_DELIVERY/TANK_DIP, <code>maintenance_plan</code>, <code>maintenance_record</code>, <code>work_case</code>, <code>financial_assumption_revision</code>); declared keys <code>financials/assumptions.py:32</code> (diesel_price_per_litre, ev_gross_tariff_per_kwh, productive_use_price_per_kwh).</p>
+
+<h3 id="africa">10a. Africa-specific items that shape the data conversation</h3>
+<div class="grid2">
+<div class="card"><strong>Currency and FX</strong><p>Operators bill in NGN, KES or UGX, while investors read USD. Naira volatility is a live CFO topic. Our income total already refuses to add mixed currencies ("Not shown · amounts in more than one currency", <code class="ref">vocabulary.py:300</code>). A USD investor view would need a declared FX rate per window, labelled as such, and is not built.</p></div>
+<div class="card"><strong>Customer-data consent</strong><p>Per-customer billing and meter exports are personal data under Kenya's Data Protection Act 2019 and Nigeria's Data Protection Act 2023. Ask for exports aggregated by customer class where possible. Pseudonymised meter IDs remain personal data under both Acts, so they reduce exposure but still need a lawful basis and a data-processing agreement before we receive them. Cross-border transfer rules also apply if data leaves the country (Kenya DPA 2019 ss.48–49; Nigeria DPA 2023 ss.41–43), so hosting location belongs in that agreement.</p></div>
+<div class="card"><strong>Non-technical loss</strong><p>Generated or delivered kWh minus billed kWh is the COO's theft-and-leakage figure. It needs billing (#3), and it is then the strongest follow-on lever. Added as gap #4a.</p></div>
+<div class="card"><strong>Mini-grid carbon</strong><p>Diesel displaced by solar is a carbon revenue line for mini-grids as well as EVs. It needs measured generation and generator kWh (we have these), plus a methodology and baseline. Added as a later gap.</p></div>
+</div>
+
+<!-- ============================================================ LEVERS -->
+<h2 id="levers">11. Conversion levers: demo moments most likely to convert</h2>
+<div class="grid3">
+<div class="card"><strong>Mini-grid</strong><ol>
+<li><b>"Your generator ran when the battery could have carried the load."</b> Show the minutes and the modelled fuel range at the client's own diesel price, then enter their price on the Site price page (site-admin entry, PR-3). This puts diesel exposure into the CFO's number.</li>
+<li><b>The verified trial.</b> Before and after, with litres saved in the trial hour. This is evidence-grade proof, which is what REPP-style "independently verified" asks for.</li>
+<li><b>Unexplained fuel.</b> Tank dips and deliveries that do not balance. COOs remember fuel leakage.</li>
+<li><b>Spare daytime solar priced as productive-use income</b> (the mill). This is the ARPU-growth story.</li>
+<li><b>The honest grey rows:</b> "Cash collected · not connected yet". Use it as the bridge into the data request below.</li></ol></div>
+<div class="card"><strong>Cold chain</strong><ol>
+<li><b>The reconstructed excursion.</b> Power failed, the backup did not start, the chamber rose above 4°C for 25–35 min, someone started the backup by hand. The full causal chain is on one screen.</li>
+<li><b>Backup-start reliability</b> across events, with a witnessed start test as the fix.</li>
+<li><b>Repeat visits without a result.</b> "3 call-outs, fault still there" is a maintenance-contract conversation.</li>
+<li><b>Stock-value what-if:</b> the existing scenario shows the stock quantity and its unit value side by side. It computes no value-at-risk amount. A declared per-load value (<code>stock_value_at_risk</code>), which would give "up to … at risk", is designed but not storable yet.</li></ol></div>
+<div class="card"><strong>EV</strong><ol>
+<li><b>Interrupted sessions</b> and which connector caused them, with time out of service.</li>
+<li><b>Estimated charging income at their tariff</b>, then re-price the same sessions as two single-tariff scenarios (KSh 8 and KSh 16). A true peak/off-peak split is not built (gap #8).</li>
+<li><b>Peak near the import limit</b>, "room before expansion". This speaks to capex planning.</li>
+<li><b>Session evidence quality:</b> missing ends and status gaps. An MRV-ready dataset is the carbon-credit hook.</li></ol></div>
+</div>
+
+<!-- ============================================================ SCRIPT -->
+<h2 id="script">12. Data-request script</h2>
+<p>Each line opens on something the demo just showed, then asks for the one record that would turn an estimate into a fact. The order runs from easiest to hardest to share. <b>Internal note:</b> the italic line under each says what is built today. Nothing here should be heard as a delivery commitment.</p>
+<div class="script">"The income you just saw is your declared price times the kWh we measured. If you can share a month of your meter vendor's billing and top-up export, aggregated by customer group or with pseudonymised meter IDs, we can work with you on putting collected revenue beside that estimate. That's the ARPU your funders ask for."<em>Gets: billing/payments CSV, customer meter export (MG-6, ARPU, later non-technical loss). Not built: gap #3. Prefers aggregation; pseudonymised IDs are still personal data and need a lawful basis, a data-processing agreement and the cross-border transfer rules (Kenya DPA ss.48–49, Nigeria DPA ss.41–43).</em></div>
+<div class="script">"We priced that generator time at the diesel price you gave us, and your site admin can enter your own price on the price page. Do you keep fuel invoices or delivery notes? They are what would let us move from 'possible extra cost' towards your actual fuel cost per kWh."<em>Gets: fuel purchase logs with price. Built: price entry (PR-3). Not built: priced delivery records (gap #6).</em></div>
+<div class="script">"When your verification agent checks connections and uptime, what do they ask you for? We'd like to line our evidence up with that, so the same records can serve the claim."<em>Gets: RBF/verification requirements and connection records. Not built: gap #4.</em></div>
+<div class="script">"For the cold room: how do you record who brings crates in and out, and what they pay? A spreadsheet is fine. It's the starting point for paid occupancy by season. And what is a typical chamber load worth? That figure is what an "up to … at risk" amount for an excursion would be built on."<em>Gets: crate logs, fees, a declared load value. Built: excursion evidence, and a stock what-if that shows quantity and unit value separately but computes no value-at-risk amount. Not built: occupancy (gap #7); per-load price key queued (gap #5).</em></div>
+<div class="script">"For the depot: does your charger back end or your utility bill show the time-of-use split? And do the buses report odometer readings anywhere? Those are what energy cost per kilometre, and the kilometres a carbon project needs, would be built on."<em>Gets: tariff bill, CPMS export, telematics. Not built: gaps #8, #9.</em></div>
+<div class="script">"Last one: roughly what does a call-out cost you, and who keeps repair invoices? A typical figure is what would let 'repeat visits without a result' carry a cost. The invoices would firm it up."<em>Gets: a declared per-visit cost (queued, gap #5), and later CMMS/invoice data.</em></div>
+<div class="script">"Which currency do you report to your investors in, and how do you convert?"<em>Gets: reporting currency and FX practice. Not built: a declared-FX investor view (later gap).</em></div>
+
+<!-- ============================================================ GAPS -->
+<h2 id="gaps">13. Ranked build gaps (proposals, not commitments)</h2>
+<div class="card warnbox">Under the demo-critical-scope rule, none of these is committed. Items 1 and 2 are the only ones I would argue are demo-relevant: they need no new client data, and item 2 closes a gap against the mock's own card text. Everything else is a queued proposal for after the walkthrough. Each item that touches a screen keeps the v69/v70 card form: Value, Detail, Parts, Basis.</div>
+<div class="tablewrap"><table>
+<thead><tr><th>#</th><th>Proposal</th><th>Client value</th><th>Effort</th><th>New client data?</th><th>Turns on</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Mini-grid "critical demand not served" Finding over the existing <code>critical_served</code> measure, mapped to MG-5 primary. <b>Precondition:</b> per Site, a critical feeder classified as a SUPPORTED CRITICAL load in the <code>mini-service/2</code> head, and declared operating hours (<code>chain/measure_impls.py:225-280</code>). <b>Output:</b> unserved critical kWh, not customer interruption hours (SAIDI/SAIFI), so not the funders' "reliability" KPI in full</td><td>High: lets a mini-grid raise Protect, fixing (a) and (c); a first step towards reliability</td><td>S–M</td><td>No new feed; needs a per-Site load classification</td><td>Protect count, MG-5</td></tr>
+<tr><td>2</td><td>Producer for <code>CHARGERS_MOSTLY_IDLE</code> (BL-06) from session kWh and charger rating</td><td>Medium: an EV Grow potential; matches the mock "idle chargers at Depot", fixing (g)</td><td>S</td><td>No</td><td>Grow potential (EV)</td></tr>
+<tr><td>3</td><td>Billing/payments + customer-meter CSV import for mini-grids, MG-6 measured, shown <i>beside</i> the estimate; aggregated or pseudonymised exports</td><td>Very high: ARPU and collections</td><td>M</td><td>Yes</td><td>MG-6, Grow, Assure</td></tr>
+<tr><td>4</td><td>Verification export pack (connections, kWh, evidence grades) shaped to NEP/DARES/UEF checks. Moved up per review: it largely reuses evidence we already hold</td><td>High for funded developers</td><td>M</td><td>Partly</td><td>Assure</td></tr>
+<tr><td>4a</td><td>Non-technical loss: delivered kWh minus billed kWh (follow-on to #3)</td><td>High for the COO</td><td>S after #3</td><td>Needs #3</td><td>Optimize / Assure</td></tr>
+<tr><td>5</td><td><b>Finish the planned "Price it" work:</b> store the PR-3 keys (<code>repair_visit_cost</code>, <code>planned_service_cost</code>, <code>charger_repair_cost</code>, <code>interrupted_session_cost</code>, <code>stock_value_at_risk</code>), then PR-4 (recalculate on publish) and PR-5 ("what is needed" blocks). This is already designed in <code>archive/agent-history/architect-answer-price-it-2026-11-10.md</code> and replaces the earlier separate gaps for maintenance cost and produce value</td><td>High in all three verticals: prices @COST warnings, plan warnings, EV interruptions, and cold "up to … at risk" (never a loss)</td><td>S–M (design sized 2.75 units in total, part done)</td><td>Declarations only</td><td>MG-2, CC-3, EV rows; Protect detail</td></tr>
+<tr><td>6</td><td>Unit price on fuel delivery records; MG-2 actual fuel spend per kWh served</td><td>High: real cost per kWh, fixing (d)</td><td>S</td><td>Yes (invoices)</td><td>MG-2</td></tr>
+<tr><td>7</td><td>Crate check-in/out + fees CSV; CC-2 paid occupancy</td><td>High for cooling-as-a-service operators</td><td>M</td><td>Yes</td><td>CC-2, Grow</td></tr>
+<tr><td>8</td><td>Time-of-use tariff (peak/off-peak) and utility-bill CSV for EV depots (structured tariffs, BL-67b)</td><td>Medium</td><td>S–M</td><td>Yes</td><td>EV Grow and cost</td></tr>
+<tr><td>9</td><td>Telematics/odometer adapter; EV-2 energy cost per km, km for carbon MRV</td><td>High for fleets, but a larger build</td><td>M–L</td><td>Yes</td><td>EV-2</td></tr>
+<tr><td>10</td><td>Opex/capex monthly CSV; MG-3 profitability and an Assure "returns" line</td><td>High for the CFO, lower urgency</td><td>M</td><td>Yes</td><td>MG-3, Assure</td></tr>
+<tr><td>11</td><td>Declared FX rate per window for a USD investor view (never mixing currencies silently); mini-grid carbon (diesel displaced) estimate</td><td>Medium</td><td>M</td><td>Declarations, methodology</td><td>Grow, Assure</td></tr>
+<tr><td>12</td><td>Honesty fix (Low): CC-3 reads "Not measured yet" until a cost or energy input exists</td><td>Trust (small)</td><td>S</td><td>No</td><td>Fixes (f)</td></tr>
+</tbody></table></div>
+<p>A decision these proposals raise, which needs a ruling before items 3 and 7 are built: when billed or collected money exists, does the Grow card show it <i>beside</i> the estimate or <i>instead of</i> it? I recommend beside, as two labelled lines that are never added, consistent with the never-sum rules for Optimize and Assure. That keeps the mock's single-value card form and adds a part line rather than a new card.</p>
+<p class="ref">Mock reference for the card form: <code>frontend/mockups/v70/outcomes.js:186-194</code> (pfCard: value, detail, Grow parts, site dots, basis). No mock element is trimmed or redesigned by any proposal here.</p>
+
+</main>
+</body>
+</html>

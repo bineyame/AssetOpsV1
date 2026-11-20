@@ -7,7 +7,7 @@ Depends on: merged S4-01 (`I-finding-read`, `D-finding-revisions`), accepted S2 
 Branch when activated: `task/S4-03-finding-evidence-history`
 Planner: Codex, 2026-10-13
 
-Activation routing: the owner selected `I-finding-evidence-read` after G-01 in `.agent/owner-next-work-2026-10-13.md`; G-02 is also due at its next free slot. The registry still has a queue-only `I-S4-03.sequenced_after: ["I-S4-02"]` edge. That edge records queue history only (`.ai/WORKFLOW.md`: `sequenced_after` records history) and is left unchanged; it is not an Evidence/History data dependency.
+Activation routing: the owner selected `I-finding-evidence-read` after G-01 in `owner/owner-next-work-2026-10-13.md`; G-02 is also due at its next free slot. The registry still has a queue-only `I-S4-03.sequenced_after: ["I-S4-02"]` edge. That edge records queue history only (`.ai/WORKFLOW.md`: `sequenced_after` records history) and is left unchanged; it is not an Evidence/History data dependency.
 
 ## Outcome and authority
 
@@ -48,8 +48,8 @@ Out of scope: S4-02 financial basis/assumption history, S4-04 Site FindingIndex/
 
 ## Review Outcome (recorded by coordinator, 2026-10-13)
 
-- Reviews read (all six): `.agent/S4-03-plan-review.md` ACCEPT; `S4-03-phase1-review.md` RETURN (F1) -> `S4-03-phase1-fix-rereview.md` ACCEPT; `S4-03-phase2-review.md` RETURN (M1-M4, L1-L4) -> `S4-03-phase2-fix-rereview.md` ACCEPT; `S4-03-phase3-review.md` ACCEPT (full backend 1908 passed). No unresolved disagreement.
-- Architect: `.agent/architect-S4-03-answers.md` (Q1, Q2 overruled; Q3 ratified), `.agent/architect-S4-03-answers-2.md` (Q4-Q6 ratified); decision `D-2026-10-13-s403-legacy-evidence-and-lineage-words`.
-- Owner checkpoint: `.agent/owner-S4-03-acceptance-2026-10-13.md` — accepted conditionally.
+- Reviews read (all six): `archive/agent-history/S4-03-plan-review.md` ACCEPT; `S4-03-phase1-review.md` RETURN (F1) -> `S4-03-phase1-fix-rereview.md` ACCEPT; `S4-03-phase2-review.md` RETURN (M1-M4, L1-L4) -> `S4-03-phase2-fix-rereview.md` ACCEPT; `S4-03-phase3-review.md` ACCEPT (full backend 1908 passed). No unresolved disagreement.
+- Architect: `archive/agent-history/architect-S4-03-answers.md` (Q1, Q2 overruled; Q3 ratified), `archive/agent-history/architect-S4-03-answers-2.md` (Q4-Q6 ratified); decision `D-2026-10-13-s403-legacy-evidence-and-lineage-words`.
+- Owner checkpoint: `owner/owner-S4-03-acceptance-2026-10-13.md` — accepted conditionally.
 - Registry/ledger closeout follows on a separate branch per the packet proposal, with phase-3 review carry C3 (`finding-history:1` gap -> partial, add `66d001f` to evidence) and Q4's correction of the two gap `review_trigger` texts.
 - Carries: phase reviews' carry lists; `.ai/MILESTONE_REVIEW_BACKLOG.md` "S4-03 carries".

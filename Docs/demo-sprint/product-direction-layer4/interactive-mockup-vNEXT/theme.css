@@ -202,7 +202,7 @@ th,.flow-box,.code,.empty,.screen-tile,.dropzone,.gw-src,.oc-ocard.later,.ob-lat
 
 /* 6. Controls: buttons, chips, inputs ----------------------------------------------------------- */
 .button{background:var(--surface);border-color:var(--line-strong);border-radius:var(--r1);padding:6px 12px;font-size:var(--fs-sm);font-weight:500;min-height:32px}
-.button.primary{background:var(--accent-solid);border-color:var(--accent-solid);color:#fff}
+.button.primary{background:var(--accent-solid);border-color:var(--accent-solid);color:var(--on-accent)}
 .button.primary:hover{filter:brightness(1.08);background:var(--accent-solid)}
 .chip{background:var(--surface);border-color:var(--line);border-radius:999px;font-size:var(--fs-xs);padding:5px 12px}
 .field{font-size:var(--fs-xs);gap:var(--s1)}

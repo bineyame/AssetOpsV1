@@ -1,5 +1,5 @@
 /**
- * W5-04 V2a (`.agent/W5-04-build-spec.md` "Mock element, table cells and copy ledger", "EV producer, UI and registry";
+ * W5-04 V2a (`specs/W5-04/spec.md` "Mock element, table cells and copy ledger", "EV producer, UI and registry";
  * readiness rulings 14, 19, 20, 44-46): the EV charging Site Work words. No fetches; `domainActionClient.ts` owns the
  * reads. Cold literals stay in `coldWorkPresentation.ts` (ruling 47 moves shared literals only in V4a).
  */

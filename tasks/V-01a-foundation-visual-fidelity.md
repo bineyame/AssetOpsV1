@@ -1,6 +1,6 @@
 # V-01a — Site and Foundation visual fidelity
 
-Status: done (owner visual acceptance, conditional, 2026-10-12: "V-01a round 3 passes, accepted conditionally" — `.agent/owner-V-01a-acceptance-2026-10-12.md`; fresh Claude reviews accept, `.agent/V-01a-round3-review.md`; merged to main)
+Status: done (owner visual acceptance, conditional, 2026-10-12: "V-01a round 3 passes, accepted conditionally" — `owner/owner-V-01a-acceptance-2026-10-12.md`; fresh Claude reviews accept, `archive/agent-history/V-01a-round3-review.md`; merged to main)
 USER_REVIEW_REQUIRED: true
 Depends on: merged S1-03 Site/Foundation/Readiness/SLD surfaces
 Branch when activated: task/V-01a-foundation-visual
@@ -13,7 +13,7 @@ Record the exact route, viewport, supported claim, deliberate gap, API/source an
 
 ## Owner-directed fix round (2026-10-12)
 
-The owner confirmed that the Sites comparison is `sites:1` Site inventory only, requested a denser inventory, a bus-bar SLD and topology icons, green/amber configuration Readiness, and an inferred persistent part selection. The Architect's exact ruling and implementation checklist are in `.agent/architect-V-01a-answers.md` and decision `D-2026-10-12-v01a-owner-visual-rulings`.
+The owner confirmed that the Sites comparison is `sites:1` Site inventory only, requested a denser inventory, a bus-bar SLD and topology icons, green/amber configuration Readiness, and an inferred persistent part selection. The Architect's exact ruling and implementation checklist are in `archive/agent-history/architect-V-01a-answers.md` and decision `D-2026-10-12-v01a-owner-visual-rulings`.
 
 For `sites:1`, make Site identity, Type and Mode the compact primary row; keep location, lifecycle, configuration origin and template provenance accessible as separate, labelled secondary/detail facts. Explain the absent mock Assessment, Top issue, Evidence and Last analysed claims beside the panel: S2 Evidence and S3 assessment reads require a selected Site/window, S4-01 supplies Finding detail rather than a ranked Site FindingIndex, and S5/S7 own broader summary/health. Do not manufacture positive directory values, cross-Site totals or a timestamp. This visual change leaves the registry's `sites:1#a` technical boundary and status unchanged.
 
@@ -25,7 +25,7 @@ Add a selectable configured part linked by stable component ID in the address. S
 
 ## Owner-directed round 3 (2026-10-12)
 
-The owner withheld visual acceptance after round 2 and asked for mock-shaped Readiness hierarchy, plain-language defaults with explicit advanced disclosures, denser Site model, and a compact chosen-part detail. The binding ruling and exact fix list are in `.agent/architect-V-01a-round3-answers.md` and `D-2026-10-12-v01a-round3-readiness-and-organization`.
+The owner withheld visual acceptance after round 2 and asked for mock-shaped Readiness hierarchy, plain-language defaults with explicit advanced disclosures, denser Site model, and a compact chosen-part detail. The binding ruling and exact fix list are in `archive/agent-history/architect-V-01a-round3-answers.md` and `D-2026-10-12-v01a-round3-readiness-and-organization`.
 
 Add four category cards and a plain Readiness/commissioning table derived from selected Foundation gaps, controls, topology, ratings and binding roles. “Confirmed” stays “Not recorded” without a commissioning source. Reuse the existing S2 gateway-health read for a separately time-labelled central contact summary, with unknown/unavailable/disabled states and no claim of device connection or accepted telemetry. This bounded read composition expands V-01a beyond a purely visual edit; independent review of the exact S2 read/UI path is required before noncore `readiness:2` registry portions can be marked delivered. Keep `readiness:1` W1 core mapping and whole-screen status unchanged.
 
@@ -34,4 +34,4 @@ Move raw role/binding/channel and revision/provenance records into clearly named
 
 ## Review outcome (coordinator, 2026-10-12)
 
-Fresh Claude reviews: round 1 accept with B1 fixed and re-reviewed; round 2 accept with B1 fixed and re-reviewed; round 3 accept, no block (`.agent/V-01a-round3-review.md`). Owner visual checkpoint: "V-01a round 3 passes, accepted conditionally". Acceptance is conditional on the packet's Round 3 named data gaps (layout/copy only); no panel becomes Real and no technical node closes from it. Carries C1-C4 of the round 3 review go to `.ai/MILESTONE_REVIEW_BACKLOG.md` and the G-02 gap pilot.
+Fresh Claude reviews: round 1 accept with B1 fixed and re-reviewed; round 2 accept with B1 fixed and re-reviewed; round 3 accept, no block (`archive/agent-history/V-01a-round3-review.md`). Owner visual checkpoint: "V-01a round 3 passes, accepted conditionally". Acceptance is conditional on the packet's Round 3 named data gaps (layout/copy only); no panel becomes Real and no technical node closes from it. Carries C1-C4 of the round 3 review go to `.ai/MILESTONE_REVIEW_BACKLOG.md` and the G-02 gap pilot.
