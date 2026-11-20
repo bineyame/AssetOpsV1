@@ -1,5 +1,7 @@
 # 3B1: the structure registry, mini-grid (implementer spec)
 
+Status: in_review (built on `task/3B1-structure-registry`; packet `packet.md`).
+
 Architect (Claude), 2026-11-20. **Rev 2** (handshake round 1 folded in: `rulings.md` "Handshake answers (round 1)", D-3B1.7 to D-3B1.9). Rev 1 was spec handshake step 1. Lane B (structure). The structure is page P3B
 (`structure-page-P3B.md`, approved by the owner on 20 Nov). Decisions are in `rulings.md` (D-3B1.1 to D-3B1.6). The
 reviewer's guide is `reviewer-guide.md`. Questions go in `handshake.md`, then `mid-build-questions.md`.

@@ -339,6 +339,8 @@ def create_app(
     """
     resolved_flags = load_feature_flags() if flags is None else flags
     install_handle_error_hook()  # INFRA-1 (D-E5.47): the backstop that marks a connection failure mid-compose
+    from assetops_backend.structure.check import check_at_start  # 3B1 (D-3B1.9): a broken structure refuses to start
+    check_at_start()
 
     app = FastAPI(title="AssetOps", version="0.0.0")
     app.add_middleware(LocaleMiddleware)  # UQ-6a: Accept-Language -> request locale, Content-Language
