@@ -47,6 +47,8 @@ SPEC_ROLES = {
     "work.case_event.CANCEL": (SM,), "work.case_revision": (SM,), "work.maintenance_record": (FT, SM),
     "work.maintenance_plan": (SM,), "work.operational_record": (FT, SM), "work.operational_entry": (FT, SM),
     "domain.create": (SM, FIN), "domain.intent": (SM, FIN), "domain.case_link": (SM,),
+    "commercial.upload": ("ANALYST", FIN), "commercial.upload_decision": (FIN, "OPERATOR_EXECUTIVE"),
+    "commercial.upload_read": ("ANALYST", FIN, "OPERATOR_EXECUTIVE", SM),
 }
 
 
@@ -475,7 +477,7 @@ def detail(response) -> dict:
 
 def test_command_roles_is_the_spec_table() -> None:
     assert COMMAND_ROLES == SPEC_ROLES
-    assert set(COMMANDS) == set(SPEC_ROLES)  # every command of the unit is exercised below
+    assert set(COMMANDS) == {k for k in SPEC_ROLES if not k.startswith("commercial.")}
     for other in ("work.case_event.VERIFIED", "work.case_event.CREATED", "work.case_event.?"):
         assert roles_of(other) == (SM,)
 

@@ -32,6 +32,8 @@ if TYPE_CHECKING:
 SITE_MANAGER = "SITE_MANAGER"
 FIELD_TECHNICIAN = "FIELD_TECHNICIAN"
 FINANCE = "FINANCE_AND_COMMERCIAL_LEAD"
+ANALYST = "ANALYST"
+EXECUTIVE = "OPERATOR_EXECUTIVE"
 
 #: D-3C1.2 as amended (R5, D-3C1.10): one literal table, command key -> roles in admitting order.
 COMMAND_ROLES: dict[str, tuple[str, ...]] = {
@@ -50,6 +52,10 @@ COMMAND_ROLES: dict[str, tuple[str, ...]] = {
     "domain.create": (SITE_MANAGER, FINANCE),
     "domain.intent": (SITE_MANAGER, FINANCE),
     "domain.case_link": (SITE_MANAGER,),
+    # 3A2 (spec §3.1, D-3A2.9): commercial uploads; always a signed-in person (the routes pass required=True).
+    "commercial.upload": (ANALYST, FINANCE),
+    "commercial.upload_decision": (FINANCE, EXECUTIVE),
+    "commercial.upload_read": (ANALYST, FINANCE, EXECUTIVE, SITE_MANAGER),
 }
 #: §3: a case event kind not listed above (any other kind) admits the Site manager only.
 OTHER_EVENT_ROLES: tuple[str, ...] = (SITE_MANAGER,)
@@ -90,7 +96,7 @@ class PersonRefused(Exception):
 
 
 def person_step(request: Request, accounts: "AccountService | None", *, required: bool,
-                unavailable: tuple[type, ...], tenant_id: UUID, site_id: UUID, command: str,
+                unavailable: tuple[type, ...], tenant_id: UUID, site_id: UUID | None, command: str,
                 enabled: bool) -> PersonGrant | None:
     roles = roles_of(command)  # an unknown command is a programming error, before any store read
     person = None
