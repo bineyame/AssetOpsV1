@@ -1,0 +1,29 @@
+# Decision index: Demo-sprint and later rulings (index only) (D-4D.1 to D-DDR.6)
+
+- `D-4D.1` No new intake: litres read existing readings (dispatch-3.2), TANK_DIP/FUEL_DELIVERY records and the Foundation fuel curve · live · specs/4d-litre-split/rulings.md
+- `D-4D.2` A litre is a running slot's measured output at the fuel curve; any gap in output gives no month figure · live · specs/4d-litre-split/rulings.md
+- `D-4D.3` INDETERMINATE litres count as necessary, never candidate; kept as indeterminate_l · live · specs/4d-litre-split/rulings.md
+- `D-4D.4` A slot takes the class of the segment holding its start; overlapping segments are not analysed · live · specs/4d-litre-split/rulings.md
+- `D-4D.5` The month's fuel balance runs between tank dips within 24 h of the month's ends; dips only · live · specs/4d-litre-split/rulings.md
+- `D-4D.6` Exact Fraction arithmetic, one rounding to 0.001 L at the end · live · specs/4d-litre-split/rulings.md
+- `D-4D.7` Unexplained litres may be negative · live · specs/4d-litre-split/rulings.md
+- `D-4D.8` Litres are MODELLED with origin unknown · live · specs/4d-litre-split/rulings.md
+- `D-4D.9` Litre sources name the dispatch runs, the curve revisions and the fuel records used · live · specs/4d-litre-split/rulings.md
+- `D-5C.1` The deep-dive screen is a Portfolio tab "The month" in the hub shape (MD7, D5 until IA-2) · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.2` The server writes every figure and word; the browser only renders · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.3` The evidence word on this screen (3A5's rule, scoped); emulated never Recorded · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.4` Every money figure carries 3A7's standing read at the snapshot's as_of · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.5` Waterfall steps are the heading rows; drivers in the step drawer; by_home not shown · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.6` n is the Sites asked; each figure its own k of n; a Site left out named with its own target · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.7` On a real-data server the screen needs a signed-in person of the tenant · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.8` The agreed change is read through AgreedActionsPort; contract binding on 3C2 · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.9` Every stop worded by one rule: why, then the records that would fill it · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.10` Budget disagreements shown in the bridge section, never only in a drawer · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.11` "What is not available yet" groups missing records by kind, with the Sites · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.12` Caps that scale to 300 Sites (10 Sites, 8 rows, 3 Actions) · live · specs/5c-deep-dive-screen/rulings.md
+- `D-DDR.1` The rehearsal is the runbook as written plus a checker of what each step leaves · live · specs/DDR-rehearsal/rulings.md
+- `D-DDR.2` The unseen shape is the board budget XLSX, replacing the emulated budget · live · specs/DDR-rehearsal/rulings.md
+- `D-DDR.3` Each gate reads its own step's records, never another gate's output · live · specs/DDR-rehearsal/rulings.md
+- `D-DDR.4` "Not yet reconciled" shown before "reconciled" (a mismatching first statement) · live · specs/DDR-rehearsal/rulings.md
+- `D-DDR.5` DDR waits for 3C2 · live · specs/DDR-rehearsal/rulings.md
+- `D-DDR.6` One read added to the snapshot store: portfolio_history · live · specs/DDR-rehearsal/rulings.md
