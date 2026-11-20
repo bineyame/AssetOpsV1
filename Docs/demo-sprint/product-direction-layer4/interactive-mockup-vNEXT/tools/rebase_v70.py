@@ -34,6 +34,9 @@ HOOKS = {
   ("${lab?'Simulator Lab · MG-DEMO-01':'Bineyame Operations'} <span class=\"muted\">/ Demo estate</span>",
    "${lab?'Simulator Lab · MG-DEMO-01':opName()} <span class=\"muted\">/ Demo operator</span>"),
   ("${rangePicker(global?null:s.domain)}", "${s.loop?periodChip(s):rangePicker(global?null:s.domain)}"),
+  # the decision page's title is its question, with no repeated subtitle (REVIEW-decision-page L5)
+  ("<h1>${s.title}</h1>", "<h1>${s.h1?s.h1(s):s.title}</h1>"),
+  ("<p>${s.subtitle||s.question}</p></div><div class=\"heading-actions\">", "${s.h1?'':`<p>${s.subtitle||s.question}</p>`}</div><div class=\"heading-actions\">"),
   ("${s.root==='Sites'&&s.section&&!s.gtabs?provTag(s.domain):''}", "${s.root==='Sites'&&s.section&&!s.gtabs&&!s.loop?provTag(s.domain):''}"),
   ("${!global&&!lab&&s.root!=='Sites'?btn(SITES[s.domain].overview,'Open site'):''}",
    "${s.actions?s.actions(s):!global&&!lab&&s.root!=='Sites'?btn(siteOverviewFor(s.domain),'Open site'):''}"),

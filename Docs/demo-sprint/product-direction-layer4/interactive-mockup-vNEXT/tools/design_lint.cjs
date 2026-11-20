@@ -22,6 +22,16 @@ const COLOR = /#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?)\(/g;
 const owned = { 'ux.css': read('ux.css') + (PLANT ? '\n.lint-plant{color:#123456}' : ''), 'loop-ux.js': read('loop-ux.js'), 'theme.css': read('theme.css'), 'brand.css': read('brand.css') };
 for (const [f, t] of Object.entries(owned)) { const n = (stripTokens(t).match(COLOR) || []).length; if (n) fails.push(`${f}: ${n} colour literal(s) outside the token blocks`); }
 for (const f of fs.readdirSync(root).filter(f => /^loop-.*\.js$/.test(f))) { const n = (read(f).match(/style="[^"]*(?:#[0-9a-fA-F]{3,8}|rgba?\(|color:)[^"]*"/g) || []).length; if (n) fails.push(`${f}: ${n} inline style colour(s)`); }
+/* a figure's period or meaning is read from the data (optEffect's second part), never typed in the page code (REVIEW-decision-page H1) */
+{ const t = owned['loop-ux.js'] + (PLANT ? "\nconst p = 'over 12 months against doing nothing';" : ''), m = t.match(/over 12 months|12 months against/g); if (m) fails.push(`loop-ux.js: ${m.length} figure period(s) typed by hand ("${m[0]}"); read it from optEffect`); }
+/* no dead declaration: the same property for the same selector list under the same condition, declared twice, leaves the earlier one dead (REVIEW-decision-page L1) */
+function deadDecls(css) {
+  const t = css.replace(/\/\*[\s\S]*?\*\//g, ''), seen = new Map(), dead = [];
+  const block = (ctx, txt) => { for (const m of txt.matchAll(/([^{}]+)\{([^{}]*)\}/g)) { const sel = m[1].trim().split(',').map(s => s.trim().replace(/\s+/g, ' ')).sort().join(','); for (const d of m[2].split(';')) { const k = d.split(':')[0].trim(); if (!k || !d.includes(':')) continue; const key = `${ctx}|${sel}|${k}`, imp = /!important/.test(d); if (seen.has(key) && !(seen.get(key) && !imp)) dead.push(key); seen.set(key, imp); } } };
+  let top = ''; for (let j = 0; j < t.length; j++) { if (t[j] === '@') { const o = t.indexOf('{', j), at = t.slice(j, o).trim(); let d = 1, k = o + 1; while (d && k < t.length) { if (t[k] === '{') d++; else if (t[k] === '}') d--; k++; } if (/^@(media|container|supports)/.test(at)) block(at.replace(/\s+/g, ' '), t.slice(o + 1, k - 1)); else top += t.slice(j, k); j = k - 1; continue; } top += t[j]; }
+  block('', top); return dead;
+}
+for (const f of ['ux.css', 'brand.css', 'theme.css']) { const dd = deadDecls(owned[f] + (PLANT && f === 'ux.css' ? '\n.lint-plant{gap:4px}\n.lint-plant{gap:8px}' : '')); if (dd.length) fails.push(`${f}: ${dd.length} dead declaration(s), overridden later in the file (${dd.slice(0, 3).join('; ')})`); }
 for (const f of ['economics.css', 'mockups.css', 'portfolio.css', 'outcomes.css']) notes.push(`${f}: ${(read(f).match(COLOR) || []).length} colour literals, re-pointed by theme.css (residual, not failing)`);
 async function rendered() {
   const { chromium } = require(process.env.PW);

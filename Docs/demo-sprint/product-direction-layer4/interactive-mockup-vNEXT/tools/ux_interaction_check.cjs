@@ -220,31 +220,88 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
     const after = await p.evaluate(() => { const t = document.querySelector('.ux-pending .snap-pending'); return { txt: t.textContent, status: t.getAttribute('role'), btn: !!document.querySelector('[data-ux-recalc]') }; });
     ok(has && reached && /^Recalculation requested at \d{2}:\d{2}, 6 Nov by Operator executive/.test(after.txt.trim()) && (await p.evaluate(() => !!(typeof DERIVED !== 'undefined' && DERIVED.recalc)) ? /^Recalculated at/.test(after.txt.trim()) : /This demo holds no recalculated values, so the figures still show 06:00\./.test(after.txt)) && !/^Recalculated|Figures updated/.test(after.txt.trim()) && !/green/.test(await p.evaluate(() => document.querySelector('.ux-pending .snap-pending .badge').className)) && /as of 06:00/.test(await p.evaluate(() => document.querySelector('.topbar').textContent)) && after.status === 'status' && !after.btn, `Recalculate now: reachable by keyboard, the notice reads "${after.txt.trim().slice(0, 70)}…"`);
     await p.context().close(); }
-  // the Decision page (owner, 20 Nov): question, one primary, state-aware queue buttons, the confirmation, L1 above the fold
+  // the Decision page (owner, 20 Nov; REVIEW-decision-page r1): the question is the title, one primary, state-aware queue buttons,
+  // the status line follows the real path, one Recommended, each figure with its own basis, the confirmation states the design's rules
   const STATE_BTN = { choose: 'Decide', approval: 'Awaiting approval', released: 'Review', none: 'Review' };
   for (const op of ['lakeside', 'harvest', 'metro']) {
     const p = await page('portfolio/act-first', { op });
     const rows = await p.evaluate(() => [...document.querySelectorAll('.ux-queue>li.ux-q')].map(li => ({ st: li.dataset.state, btn: li.querySelector('.ux-q-go').childNodes[0].textContent.trim(), href: li.querySelector('.ux-q-go').getAttribute('href') })));
     ok(rows.length && rows.every(r => STATE_BTN[r.st] === r.btn), `${op} queue buttons follow the state: ${rows.map(r => `${r.st}=${r.btn}`).join(', ')}`);
+    /* a queue with no decision waiting for a choice has no primary button (the primary check cannot pass trivially) */
+    const prim = await p.evaluate(() => ({ n: document.querySelectorAll('.ux-queue .ux-q-go.primary').length, choose: document.querySelectorAll('.ux-queue>li.ux-q[data-state="choose"]').length }));
+    ok(prim.choose ? prim.n === 1 : prim.n === 0, `${op} queue: ${prim.n} primary button for ${prim.choose} decision(s) waiting for a choice`);
     const decs = await p.evaluate(op => DEC.filter(d => SK[d.site].op === op).map(d => d.id), op); await p.context().close();
     for (const id of decs) for (const [w, h] of [[1280, 720], [1440, 900], [390, 844]]) {
       const q = await page(`decision/${id}`, { op, w, h });
-      const r = await q.evaluate(() => {
+      const r = await q.evaluate(id => {
         const vis = e => e && e.offsetParent !== null && !e.closest('.ux-drawer') && !e.closest('details:not([open])');
-        const dq = document.querySelector('.ux-dq'), prims = [...document.querySelectorAll('.canvas .button.primary')].filter(vis).length;
+        const h1 = document.querySelector('.page-heading h1'), prims = [...document.querySelectorAll('.canvas .button.primary')].filter(vis).length;
         const rec = document.querySelector('.ux-drec'), recBottom = rec ? Math.round(rec.getBoundingClientRect().bottom + scrollY) : 9999;
-        const steps = document.querySelectorAll('.ux-dsteps li').length, cur = document.querySelectorAll('.ux-dsteps li.is-current').length, grid = !!document.querySelector('.who-decides') && vis(document.querySelector('.who-decides'));
+        const lis = [...document.querySelectorAll('.ux-dsteps li')].map(li => ({ t: li.textContent.trim(), c: li.className })), grid = !!document.querySelector('.who-decides') && vis(document.querySelector('.who-decides'));
         const cards = document.querySelectorAll('.ux-ocard').length, base = document.querySelectorAll('.ux-ocard.is-base').length;
-        return { q: dq && /\?$/.test(dq.textContent.trim()), prims, recBottom, steps, cur, grid, cards, base, h: innerHeight };
-      });
-      ok(r.q && r.prims <= 1 && r.steps === 4 && r.cur === 1 && !r.grid && r.cards >= 2 && r.base === 1 && (r.h > 720 || r.recBottom <= 720 || w < 600),
-        `${op} ${id} at ${w}: question, ${r.prims} primary, status line, process grid not on the page, ${r.cards} option cards with one baseline${w === 1280 ? `, recommendation ends at ${r.recBottom} px (fold 720)` : ''}`);
+        /* the path the design gives this decision (decision-loop §6) */
+        const d = decById(id), op = SK[d.site].op, st = uxDecState(id), it = deciderOf(id).item, oid = it || uxRec(d), path = oid ? uxReleaseFor(op, oid).path : 'wait', atOnce = st.key === 'released' && releaseOf(op, it).at;
+        const want = [st.key === 'none' ? 'No option recommended' : 'Recommended', 'Chosen', ...(atOnce || path === 'at' ? ['Released at once'] : path === 'none' ? ['Actions go ahead'] : ['Awaiting approval', 'Actions released'])];
+        const curAt = lis.findIndex(l => /is-current/.test(l.c)), wantCur = st.key === 'released' ? want.length - 1 : st.key === 'approval' ? 2 : 0;
+        const stepsOk = lis.map(l => l.t).join('|') === want.join('|') && lis.filter(l => /is-current/.test(l.c)).length === 1 && curAt === wantCur && !(atOnce && lis.some(l => /Awaiting approval/.test(l.t)));
+        /* one Recommended: on the cards, and in the table under Why */
+        const chips = sel => [...document.querySelectorAll(sel)].filter(e => e.textContent.trim() === 'Recommended').length;
+        const oneRec = chips('.ux-ocard header .badge') <= 1 && chips('table.ux-opts td[data-label="Status"] .badge') <= 1;
+        return { q: h1 && /^What should we do about .+\?$/.test(h1.textContent.trim()) && !document.querySelector('.ux-dq') && !document.querySelector('.page-heading h1 + p, .page-heading .title-row + p'), prims, recBottom, stepsOk, steps: lis.map(l => l.t).join(' > '), grid, cards, base, oneRec, mock: /MOCK DEVIATION/.test(document.querySelector('.canvas').textContent), rb: /MOCK DEVIATION · decision page redesign/.test(document.querySelector('.reviewbar').textContent), h: innerHeight };
+      }, id);
+      ok(r.q && r.prims <= 1 && r.stepsOk && !r.grid && r.cards >= 2 && r.base === 1 && r.oneRec && !r.mock && r.rb && (r.h > 720 || r.recBottom <= 720 || w < 600),
+        `${op} ${id} at ${w}: the question is the title, ${r.prims} primary, status line "${r.steps}" follows the path, process grid not on the page, ${r.cards} option cards with one baseline, one Recommended, review mark in the review bar only${w === 1280 ? `, recommendation ends at ${r.recBottom} px (fold 720)` : ''}`);
+      if (w === 1440) {
+        /* each figure carries its own basis: the recommendation's and every card's qualifier equal the options table's (review r1 H1, L8) */
+        await openAll(q); await q.waitForTimeout(80);
+        const m = await q.evaluate(id => {
+          const d = decById(id), rec = uxRec(d), tq = o => { const c = document.querySelector(`table.ux-opts tr[data-opt="${o}"] td[data-label="Result against no action"] .cellnote`); return c ? c.textContent.trim() : null; }, bad = [];
+          const rq = document.querySelector('.ux-drec-q');
+          if (rec && (!rq || rq.textContent.trim() !== tq(rec))) bad.push(`recommendation "${rq && rq.textContent.trim()}" vs table "${tq(rec)}"`);
+          for (const c of document.querySelectorAll('.ux-ocard:not(.is-base)')) { const o = c.dataset.optCard, cq = c.querySelector('.ux-ocard-q'); if (!cq || cq.textContent.trim() !== tq(o)) bad.push(`${optLabel(o)}: "${cq && cq.textContent.trim()}" vs "${tq(o)}"`); }
+          const dv = rec && DV_OPT[rec] && !String(DV_OPT[rec]).startsWith(DVTEXT) ? (document.querySelector('.ux-drec-n') || {}).textContent.includes(DV_OPT[rec]) : true;
+          return { bad, dv, n: document.querySelectorAll('.ux-ocard:not(.is-base)').length };
+        }, id);
+        ok(!m.bad.length && m.dv, `${op} ${id}: the recommendation and ${m.n} card(s) state each figure's own basis, as the options table does${m.dv ? '' : '; the specific estimate note is lost'} (${m.bad.join('; ') || 'all match'})`);
+      }
       await q.context().close(); }
   }
+  /* the confirmation states the design's rules for every option that can be chosen (decision-loop §6-§8; review r1 H2, M1, M3) */
+  { const p = await page('portfolio');
+    const R = await p.evaluate(() => {
+      const out = [], money = ['COMMERCIAL_CORRECTION'], claim = ['SUPPLIER_REMEDY', 'RIGHTS_REVIEW'];
+      for (const d of DEC) { const op = SK[d.site].op; if (uxDecState(d.id).key !== 'choose') continue;
+        for (const o of d.opts.filter(o => !isNoAction(o) && uxDisp(o) !== 'REJECTED')) {
+          const host = document.createElement('div'); host.innerHTML = uxChooseDialog(d.id, o); const t = host.textContent.replace(/\s+/g, ' ');
+          const x = DOPT(o) || {}, spend = x.operator_one_off || 0, crew = x.crew_visits || 0, chooser = ((HC.decisions || []).find(r => r.id === d.id) || {}).chooser;
+          const fin = personByRole(op, 'FINANCE_AND_COMMERCIAL_LEAD').name, sm = personByRole(op, 'SITE_MANAGER', SK[d.site].name).name, ex = execOf(op).name, acts = actionsOf(op, o).length;
+          const errs = [];
+          if (/valued at|No saving claimed over|in the demo data/i.test(t)) errs.push('generic wording');
+          if (chooser === 'OPERATOR_EXECUTIVE') { if (!/listed beside the plan/.test(t) || /becomes a plan item|Released when|Released at once/.test(t)) errs.push('expansion not beside the plan, or released'); if (!acts && !/After .*approval/.test(t)) errs.push('expansion Actions not after approval'); if (!acts && new RegExp(`${ex}\\s*creates`).test(t)) errs.push('the executive creates an Action'); }
+          else if (!spend && !crew && !['CAPEX', 'DEMAND_CONNECTION'].includes(OPT[o].kind)) { if (!/not a plan item/.test(t) || /becomes a plan item/.test(t)) errs.push('a no-spend option called a plan item'); }
+          if (!acts && (claim.includes(OPT[o].kind) || money.includes(OPT[o].kind) || chooser === 'FINANCE_AND_COMMERCIAL_LEAD') && !new RegExp(`${fin}\\s*creates`).test(t)) errs.push(`the finance lead (${fin}) is not named as creator`);
+          if (!acts && !claim.includes(OPT[o].kind) && !money.includes(OPT[o].kind) && chooser === 'SITE_MANAGER' && !new RegExp(`${sm}\\s*creates`).test(t)) errs.push(`the Site manager (${sm}) is not named as creator`);
+          if (!/Result against doing nothing/.test(t) || !t.includes(uxQual(o))) errs.push('result without its basis');
+          out.push(`${o}${errs.length ? ': ' + errs.join(', ') : ''}`); } }
+      return out; });
+    ok(R.length >= 5 && R.every(s => !s.includes(':')), `confirmation rules for ${R.length} choosable options: plan item only when it spends budget or a crew visit, an expansion beside the plan and after approval, the §8 creator named (${R.filter(s => s.includes(':')).join('; ') || 'all hold'})`);
+    await p.context().close(); }
   { const p = await page('decision/mto-billing'); await p.click('.ux-drec [data-ux-drawer^="uxc-"]'); await p.waitForTimeout(250);
     const d = await p.evaluate(() => { const dr = document.querySelector('.ux-drawer[data-open="true"]'); return dr ? { t: dr.textContent, f: document.activeElement.classList.contains('ux-x') } : null; });
-    ok(d && /What happens/.test(d.t) && /Actions/.test(d.t) && /Approval/.test(d.t) && /(Released at once|Waits for)/.test(d.t) && /Recorded under/.test(d.t) && /Finance and commercial lead/.test(d.t) && d.f, 'Choose this: the confirmation says what happens, the Actions, the approval rule and whose name it is recorded under');
-    await p.keyboard.press('Escape'); await p.context().close(); }
+    ok(d && /What happens/.test(d.t) && /Actions/.test(d.t) && /Approval/.test(d.t) && /(Released when|Waits for|No approval needed)/.test(d.t) && /Recorded under/.test(d.t) && /Finance and commercial lead/.test(d.t) && d.f, 'Choose this: the confirmation says what happens, the Actions, the approval rule and whose name it is recorded under');
+    await p.click('.ux-drawer[data-open="true"] [data-ux-confirm]'); await p.waitForTimeout(300);
+    const c = await p.evaluate(() => ({ open: !!document.querySelector('.ux-drawer[data-open="true"]'), toast: (document.querySelector('.toast') || {}).textContent || '' }));
+    ok(!c.open && /^Not recorded in this demonstration/.test(c.toast), `Confirm the choice closes the dialog with a neutral notice ("${c.toast}")`);
+    await p.context().close(); }
+  /* the fourth state, from its review fixture and the review-bar control (review r1 L2) */
+  { const p = await page('decision/kisiwa-om', { op: 'lakeside' });
+    const ctl = await p.evaluate(() => { const a = document.querySelector('.reviewbar [data-ux-norec]'); return a ? a.getAttribute('href') : null; });
+    let r = null;
+    if (ctl) { await p.click('.reviewbar [data-ux-norec]'); await p.waitForTimeout(400);
+      r = await p.evaluate(() => ({ pill: document.querySelector('.ux-dmeta .status-pill').textContent.trim(), cur: (document.querySelector('.ux-dsteps li.is-current') || {}).textContent, recChip: [...document.querySelectorAll('.canvas .badge')].some(b => b.textContent.trim() === 'Recommended'), prim: document.querySelectorAll('.canvas .ux-drec .button.primary').length, why: (document.querySelector('.ux-drec .ux-note') || {}).textContent || '', rb: /preview: no option recommended/.test(document.querySelector('.reviewbar').textContent), canvas: /preview|fixture/i.test(document.querySelector('.ux-drec').textContent) })); }
+    ok(!!ctl && r && r.pill === 'No option recommended' && r.cur === 'No option recommended' && !r.recChip && r.prim === 0 && /^No option is recommended: of \d+ options?, .+\. .+ can still choose/.test(r.why) && r.rb && !r.canvas,
+      `fourth state: the review-bar control opens it; pill and current step say "No option recommended", no Recommended chip, no primary, the reason counts the options ("${r ? r.why.slice(0, 90) : 'control missing'}")`);
+    await p.context().close(); }
   // empty states that name their data path fail when the data holds a value there (placeholder audit, gap 4)
   for (const [op, r] of [['metro', 'portfolio'], ['metro', 'portfolio/demand-and-capacity'], ['metro', 'portfolio/scope'], ['metro', 'site/embakasi'], ['metro', 'site/kasarani'], ['metro', 'site/ruiru'], ['lakeside', 'portfolio/scope'], ['lakeside', 'portfolio/demand-and-capacity'], ['harvest', 'portfolio/scope'], ['lakeside', 'mini'], ['lakeside', 'cold'], ['lakeside', 'ev']]) {
     const p = await page(r, { op });

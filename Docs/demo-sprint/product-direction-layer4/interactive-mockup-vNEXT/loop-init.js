@@ -39,7 +39,7 @@ Object.keys(SK).forEach(sk=>{const st=SK[sk],op=st.op,sub=()=>`${st.type} · ${O
  if(!st.v70)['Foundation','Health','Performance','Findings','Work','Evidence'].forEach(tab=>addL(`site/${sk}/${tab.toLowerCase()}`,st.name,'Sites',tab,`${tab} views for ${st.name} (not built in this mock-up).`,()=>deepPlaceholder(sk,tab),{site:sk,siteTab:tab,ltabs:()=>siteTabRow(sk,tab),crumbs,loopNotes,subtitle:sub()}));});
 
 /* Decisions: drill-down pages, not a menu */
-DEC.forEach(d=>addL(`decision/${d.id}`,d.q,'Portfolio','Decision',d.q,()=>decisionScreen(d.id),{site:d.site,ltabs:()=>'',crumbs:()=>[['Portfolio','portfolio'],['Act first','portfolio/act-first'],[SK[d.site].name,`site/${d.site}`],['Decision']],loopNotes,
+DEC.forEach(d=>addL(`decision/${d.id}`,d.q,'Portfolio','Decision',d.q,()=>decisionScreen(d.id),{site:d.site,h1:()=>uxDecQuestion(d),ltabs:()=>'',crumbs:()=>[['Portfolio','portfolio'],['Act first','portfolio/act-first'],[SK[d.site].name,`site/${d.site}`],['Decision']],loopNotes,
  subtitle:`${SK[d.site].name} · ${OPS[SK[d.site].op].name} · options compared with no action`,actions:()=>btn(`site/${d.site}`,'Open site')}));
 
 window.mockupManifest = SCREENS.map(({render,ltabs,crumbs,actions,loopNotes:_l,...meta})=>({...meta,title:typeof meta.title==='string'?meta.title:'',layer4_status:REG_STATUS({...meta}),layer4_note:REG_NOTE({...meta})}));

@@ -42,11 +42,11 @@ const uxTileStatus = (k, op) => { if (k !== 'protect') return ''; const pc = pro
 function uxChip(k, t) { const tone = uxTone(k, t); return `<span class="ux-chip attn-k is-${tone}"><span aria-hidden="true">${UX_GLYPH[tone]}</span>${t}</span>`; }
 
 /* ---------- decision queue (guide §7.1): the data's order (design §2.8: never a value ranking); at stake, due and who decides on each row.
-   At stake: the recommended option's 12-month result against no action, with its marker; else the right's value at stake; else the
+   At stake: the recommended option's result against no action, with its own basis and marker; else the right's value at stake; else the
    option's own words ("No saving claimed"); else "Not available yet". Due: the right's deadline; else the date the issue names. ---------- */
 const UX_MON = '(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)';
 const uxRights = d => (d.rights || []).map(k => { try { return rightsOf(k); } catch (e) { return null; } }).filter(Boolean);
-function uxRec(d) { const op = SK[d.site].op, inPlan = planItemsV1(op); return d.opts.find(x => OPT[x].disposition === 'RECOMMENDED') || d.opts.find(x => inPlan.includes(x)); }
+function uxRec(d) { const op = SK[d.site].op, inPlan = planItemsV1(op); return d.opts.find(x => uxDisp(x) === 'RECOMMENDED') || d.opts.find(x => inPlan.includes(x)); }
 function uxDue(decId, txt) {
   const d = decById(decId), r = d && uxRights(d).find(r => r.deadline);
   if (r) return fdate(r.deadline);
@@ -63,7 +63,7 @@ function uxStakeParts(decId) {
   const d = decById(decId); if (!d) return {};
   const rec = uxRec(d), x = rec ? OPT[rec] : null, ev = x ? String(optEffect(x)[0]) : '';
   if (/^[+−-]?\$/.test(ev)) { const P = planCase(SK[d.site].op), inP = P.ids.includes(rec), capAv = x.avoided_capex != null && !/^[+−-]/.test(ev);
-    return { value: wholeText(ev), num: Number(ev.replace(/[^\d.−-]/g, '').replace('−', '-')) || 0, note: `${capAv ? 'capital avoided, not a saving' : '12 months'} · ${inP ? 'in the plan' : 'not in the plan'}`, cls: optClass(x), dv: !!DV_OPT[rec], rec }; }
+    return { value: wholeText(ev), num: Number(ev.replace(/[^\d.−-]/g, '').replace('−', '-')) || 0, note: `${capAv ? 'capital avoided, not a saving' : uxQualShort(rec) || 'against doing nothing'} · ${inP ? 'in the plan' : 'not in the plan'}`, cls: optClass(x), dv: !!DV_OPT[rec], rec }; }
   const st = uxRights(d).find(r => r.stake), amt = st && (String(st.stake).match(/\$[\d,]+(?:\.\d+)?/) || [])[0];
   if (amt) return { value: wholeText(amt), num: Number(amt.replace(/[^\d.]/g, '')) || 0, note: /cover/i.test(st.stake) ? 'cover kept claimable' : /credit/i.test(st.stake) ? 'possible credit' : 'at stake', cls: 'EXPOSURE', rec };
   if (ev && !/^Not (valued|modelled)/i.test(ev)) return { word: ev, num: 0, rec };
@@ -315,7 +315,7 @@ function uxSiteTiles(sk) {
   return `<div class="heroes ux-kpis">${uxKpi(cost ? 'Cost per required departure met' : 'Contribution', fig(`node:${sk}:root`, cost ? fmtU(t.actual, t.unit) : usdW(t.actual)), [`Target ${cost ? fmtU(t.plan, t.unit) : usdW(t.plan)}`, uxTrendNA(op, cost ? 'cost' : 'contribution', sk)], cost ? '' : uxBullet(t.actual, t.plan, `Contribution ${usdW(t.actual)} against a target of ${usdW(t.plan)}`))}
  ${uxKpi('Gap to target', usdW(s.period.variance, true), [cost ? 'on cost' : 'October', uxTrendNA(op, 'gap', sk)])}
  ${(() => { const v = decs.map(d => [d, uxRec(d)]).filter(([, r]) => r && /^[+−-]?\$/.test(String(optEffect(OPT[r])[0])));
-   return uxKpi('Open decisions: value if chosen', v.length ? `${wholeText(optEffect(OPT[v[0][1]])[0])} ${uxMark(optClass(OPT[v[0][1]]))}` : '<span class="ux-kpi-na">Not valued</span>', v.length ? [`${optLabel(v[0][1])}, 12 months against no action`, v.length > 1 ? `+ ${num(v.length - 1)} more valued decision${v.length > 2 ? 's' : ''}` : `${num(decs.length)} decision${decs.length === 1 ? '' : 's'} open`] : [`${num(decs.length)} decision${decs.length === 1 ? '' : 's'} open`]); })()}
+   return uxKpi('Open decisions: value if chosen', v.length ? `${wholeText(optEffect(OPT[v[0][1]])[0])} ${uxMark(optClass(OPT[v[0][1]]))}` : '<span class="ux-kpi-na">Not valued</span>', v.length ? [`${optLabel(v[0][1])}, ${uxQual(v[0][1])}`, v.length > 1 ? `+ ${num(v.length - 1)} more valued decision${v.length > 2 ? 's' : ''}` : `${num(decs.length)} decision${decs.length === 1 ? '' : 's'} open`] : [`${num(decs.length)} decision${decs.length === 1 ? '' : 's'} open`]); })()}
  ${(() => { const st = decs.flatMap(uxRights).find(r => r.stake), amt = st && (String(st.stake).match(/\$[\d,]+/) || [])[0];
    return uxKpi('At stake, not money', amt ? `${amt} <small>${/cover/i.test(st.stake) ? 'of cover' : 'at stake'}</small>` : '<span class="ux-kpi-na">None open</span>', [st ? `${st.asset} ${String(st.type).toLowerCase()}: protected, never added to money` : 'No warranty or contract at stake at this site']); })()}</div>`;
 }
@@ -438,6 +438,15 @@ function uxBrandSwitch() {
   const rb = document.querySelector('.reviewbar .right'); if (!rb || rb.querySelector('.ux-brand-sw')) return;
   const b = uxBrand();
   rb.insertAdjacentHTML('afterbegin', `<span class="ux-mockdev" title="Added to the mock-up, not in the product: on-request recalculation (owner Q7)">MOCK DEVIATION D2 · Recalculate now</span><label class="ux-brand-sw">Brand <select id="ux-brand" aria-label="Brand pack (review tool)">${Object.entries(UX_BRANDS).map(([k, l]) => `<option value="${k}"${k === b ? ' selected' : ''}>${l}</option>`).join('')}</select></label>`);
+  uxDecReviewMarks(rb);
+}
+/* the decision page's review marks live in the review bar, never in the canvas (review r1 L4; same class as wave 2c L2), with the
+   control for the fourth state's fixture on a decision waiting for a choice (review r1 L2) */
+function uxDecReviewMarks(rb) {
+  const m = location.hash.match(/^#\/decision\/([\w-]+)/); if (!m || !decById(m[1])) return;
+  const id = m[1], st = uxDecState(id), href = `${location.pathname}${UX_NOREC ? '' : '?state=no-recommendation'}#/decision/${id}`;
+  const ctl = st.key === 'choose' || UX_NOREC ? `<a class="ux-mockdev ux-rb-ctl" data-ux-norec href="${href}">${UX_NOREC ? 'Leave the preview' : 'Preview: no option recommended'}</a>` : '';
+  rb.insertAdjacentHTML('afterbegin', `<span class="ux-mockdev" title="The decision page redesigned (owner, 20 Nov)">MOCK DEVIATION · decision page redesign${UX_NOREC ? ' · preview: no option recommended' : ''}</span>${ctl}`);
 }
 document.addEventListener('change', e => { if (e.target.id !== 'ux-brand') return; try { localStorage.setItem('l4-brand', e.target.value); } catch (x) {} uxApplyBrand(); });
 
@@ -462,68 +471,165 @@ document.addEventListener('click', e => {
 /* ===== the Decision page (owner, 20 Nov: "i don't understand how 'decide' is supposed to work"); guide §2.3, §7.1-§7.3, §9b =====
    One question, one recommendation with one number and one primary choice, the options as cards with the same three numbers,
    "Why we recommend it" collapsed, evidence in a drawer, a confirmation that says what happens, and a slim status line.
-   The rules stay the design's (§2.4-§2.6, decision-loop §6-§8): the accountable role chooses; a choice within both thresholds
-   and not capital is released at once, otherwise it waits for the executive's approval of the plan version. */
+   The rules stay the design's (§2.4-§2.6, decision-loop §6-§8), read by the helpers below; ruling D-2026-11-20-decision-page-rules. */
+
+/* review fixture (guide §7.2, review r1 L2): ?state=no-recommendation shows the fourth state on a decision waiting for a choice.
+   Every option that is not already rejected is shown as deferred; the review bar names the preview (never the canvas). */
+const UX_NOREC = UX_STATE === 'no-recommendation';
+function uxDisp(o) { const k = OPT[o]?.disposition; return UX_NOREC && k && k !== 'REJECTED' && !isNoAction(o) ? 'DEFERRED' : k; }
+/* one Recommended per decision (decision-loop §6: "the Recommended option of each decision"). When the data marks a second option
+   Recommended (Mto: the meter audit beside the billing fix), the first in the data's order is the recommendation and the other
+   reads "Alongside the recommendation": the design lets both go ahead (worked-portfolios.md:275), but only one is the answer. */
+function uxDispBadge(d, o) {
+  const k = uxDisp(o);
+  if (k === 'RECOMMENDED' && o !== uxRec(d)) return badge('Alongside the recommendation', 'blue');
+  return k ? badge(...DISP[k]) : badge('No action (baseline)', 'outline');
+}
+/* a figure's own basis (review r1 H1): the second part of optEffect, the same words as the options table; never typed here */
+const uxQual = o => String(optEffect(OPT[o])[1] || '');
+const uxQualShort = o => uxQual(o).replace(/,? ?against (?:no action|the reference)$/, '');
+const uxLcFirst = t => t ? t[0].toLowerCase() + t.slice(1) : '';
+/* a figure and its basis: a money figure reads straight on ("+$672 charges restored …"), a word figure takes a colon */
+const uxFigQ = (fig, q, cls) => `${fig}${/^[+−-]?\$/.test(String(fig).replace(/<[^>]+>/g, '')) ? ' ' : ': '}<span class="${cls}">${q}</span>`;
+
 function uxDecState(id) {
   const d = decById(id); if (!d) return { key: 'choose', label: 'Waiting for a choice', btn: 'Decide' };
   const op = SK[d.site].op, D = deciderOf(id), it = D.item ? itemOf(op, D.item) : null, rec = uxRec(d);
-  if (it && it.item_state === 'RELEASED') return { key: 'released', label: 'Released: Actions under way', btn: 'Review', step: 3 };
-  if (it) return { key: 'approval', label: 'Chosen · awaiting approval', btn: 'Awaiting approval', step: 2 };
-  if (!rec) return { key: 'none', label: 'No option recommended', btn: 'Review', step: 0 }; /* every option rejected or deferred */
-  return { key: 'choose', label: 'Waiting for a choice', btn: 'Decide', step: 0 };
+  if (it && it.item_state === 'RELEASED') return { key: 'released', label: 'Released: Actions under way', btn: 'Review' };
+  if (it) return { key: 'approval', label: 'Chosen · awaiting approval', btn: 'Awaiting approval' };
+  if (!rec) return { key: 'none', label: 'No option recommended', btn: 'Review' };
+  return { key: 'choose', label: 'Waiting for a choice', btn: 'Decide' };
 }
-/* what a choice would do, by the design's release rule (both thresholds, never capital) */
+
+/* capital (decision-loop §6 and §8, OD-17): a capital item, a new connection, a capital purchase, or a decision the executive
+   chooses (an expansion). An expansion is listed beside the plan, not valued as a saving (worked-portfolios.md:582). */
+const uxChooserRole = d => ((HC.decisions || []).find(x => x.id === d.id) || {}).chooser || '';
+function uxCapital(op, oid) {
+  const d = DEC.find(x => x.opts.includes(oid)), it = itemOf(op, oid), k = OPT[oid]?.kind;
+  if (!oid || isNoAction(oid)) return '';
+  if (d && uxChooserRole(d) === 'OPERATOR_EXECUTIVE') return 'expansion';
+  if (it && it.capital === 'NEW_CONNECTION' || k === 'DEMAND_CONNECTION') return 'connection';
+  if (it && it.capital || k === 'CAPEX') return 'capital';
+  return '';
+}
+/* what a choice would do (decision-loop §6): its path and the words for it.
+   path: 'none' (spends no shared budget or crew visit: not a plan item, its Actions go ahead once created),
+         'at' (a plan item within both thresholds: released when its Actions are created, while the plan still fits),
+         'wait' (a plan item above a threshold: waits for the plan's approval), 'capital' (waits for the executive's approval) */
 function uxReleaseFor(op, oid) {
-  const w = WF(op), x = DOPT(oid) || {}, it = itemOf(op, oid), spend = x.operator_one_off || 0, crew = x.crew_visits || 0, ex = execOf(op);
-  const capital = !!(it && it.capital) || ['CAPEX', 'DEMAND_CONNECTION'].includes(OPT[oid]?.kind);
-  if (capital) return { at: false, text: `Waits for ${who(op, ex)}’s approval: it is capital, whatever its spend` };
+  const w = WF(op), x = DOPT(oid) || {}, spend = x.operator_one_off || 0, crew = x.crew_visits || 0, ex = execOf(op), cap = uxCapital(op, oid), cw = OPS[op].crewWord;
+  const inPlan = planCase(op).ids.includes(oid);
+  if (cap === 'expansion') return { path: 'capital', cap, inPlan: false, text: `Waits for ${who(op, ex)}’s approval of the plan version that holds it: an expansion is capital, listed beside the plan and never released when chosen` };
+  if (cap) return { path: 'capital', cap, inPlan, text: `Waits for ${who(op, ex)}’s approval of the plan version that holds it: ${cap === 'connection' ? 'a new connection' : 'a capital purchase'} is capital, whatever its spend` };
+  if (!spend && !crew) return { path: 'none', inPlan: false, text: `No approval needed: it spends no shared budget and no ${cw}, so it is not a plan item` };
   const overS = spend > w.spend_threshold, overC = crew > w.crew_visit_threshold;
-  if (!overS && !overC) return { at: true, text: `Released at once: ${usdW(spend)} is within the ${usdW(w.spend_threshold)} spend threshold${crew ? '' : ', with no crew visit'}` };
-  return { at: false, text: `Waits for ${who(op, ex)}’s approval of the plan: ${overS ? `${usdW(spend)} is above the ${usdW(w.spend_threshold)} spend threshold` : ''}${overS && overC ? ' and ' : ''}${overC ? `it uses ${num(crew)} ${crew === 1 ? crewOne(op) : OPS[op].crewWord}, above the threshold of ${num(w.crew_visit_threshold)}` : ''}` };
+  if (!overS && !overC) return { path: 'at', inPlan, text: `Released when its Actions are created: ${usdW(spend)} is within the ${usdW(w.spend_threshold)} spend threshold${crew ? '' : `, with no ${crewOne(op)}`}, while the plan still fits its budget and ${cw}` };
+  return { path: 'wait', inPlan, text: `Waits for ${who(op, ex)}’s approval of the plan: ${overS ? `${usdW(spend)} is above the ${usdW(w.spend_threshold)} spend threshold` : ''}${overS && overC ? ' and ' : ''}${overC ? `it uses ${num(crew)} ${crew === 1 ? crewOne(op) : cw}, above the threshold of ${num(w.crew_visit_threshold)}` : ''}` };
 }
-const UX_STEPS = ['Recommended', 'Chosen', 'Awaiting approval', 'Actions released'];
-function uxDecStatus(st) {
-  const cur = st.key === 'released' ? 3 : st.key === 'approval' ? 2 : 0;
-  return `<ol class="ux-dsteps" aria-label="Where this decision is">${UX_STEPS.map((s, i) => `<li class="${i < cur ? 'is-done' : i === cur ? 'is-current' : ''}"${i === cur ? ' aria-current="step"' : ''}>${s}</li>`).join('')}</ol>`;
+/* the plan line under the recommendation, from the same path (review r1 M1: never claim a fit that was not checked) */
+function uxPlanNote(op, oid) {
+  const R = uxReleaseFor(op, oid), ex = execOf(op), cw = OPS[op].crewWord;
+  if (R.cap === 'expansion') return `An expansion is listed beside the plan, not counted in it. Once chosen, it waits for ${who(op, ex)}’s approval of the plan version that holds it, and its Actions are created after that approval.`;
+  if (R.path === 'capital') return `${R.inPlan ? 'In the proposed plan as capital' : 'A capital choice'}: once chosen, it waits for ${who(op, ex)}’s approval of the plan.`;
+  if (R.path === 'none') return `It spends no shared budget and no ${cw}, so it is not a plan item; its Actions go ahead once created.`;
+  if (!R.inPlan) return `Not in the proposed plan: choosing it adds a plan item, and the plan’s budget and ${cw} are checked when its Actions are created.`;
+  return '';
 }
+/* who creates the Actions (decision-loop §8, "Create an Action"): the finance and commercial lead creates every notice and claim
+   Action and the Actions on money Findings; the Site manager creates operational Actions on the items they chose. An expansion's
+   Actions are created after the executive's approval by the Site's manager (operational) and the finance lead (any notice or
+   claim): the executive creates none (ruling D-2026-11-20-decision-page-rules, item 4). */
+const UX_CLAIM_KINDS = ['SUPPLIER_REMEDY', 'RIGHTS_REVIEW', 'COMMERCIAL_CORRECTION'];
+function uxCreators(op, d, oid) {
+  const fin = personByRole(op, 'FINANCE_AND_COMMERCIAL_LEAD'), sm = personByRole(op, 'SITE_MANAGER', SK[d.site].name), k = OPT[oid]?.kind;
+  if (uxCapital(op, oid) === 'expansion') return [[sm, 'the operational Actions'], [fin, 'any notice or claim']];
+  if (uxChooserRole(d) === 'FINANCE_AND_COMMERCIAL_LEAD') return [[fin, 'the Actions']]; /* a money Finding's decision */
+  if (k === 'STOPGAP_PLUS_CLAIM') return [[fin, 'the claim and its notice'], [sm, 'the operational Actions']];
+  if (UX_CLAIM_KINDS.includes(k)) return [[fin, k === 'COMMERCIAL_CORRECTION' ? 'the billing Actions' : 'the claim and notice Actions']];
+  return [[sm, 'the Actions']];
+}
+function uxCreatorText(op, d, oid) {
+  const it = itemOf(op, oid), R = uxReleaseFor(op, oid), ex = execOf(op);
+  if (it?.actions_after_approval?.length) return `After ${who(op, ex)}’s approval, ${who(op, it.owner)} creates: ${it.actions_after_approval.join('; ')}.`;
+  const parts = uxCreators(op, d, oid).filter(([p]) => p).map(([p, what]) => `${who(op, p)} creates ${what}`);
+  return `${R.path === 'capital' ? `After ${who(op, ex)}’s approval, ` : 'After the choice, '}${parts.join('; ')}.`;
+}
+
+/* the status line follows the real path (review r1 M2): a choice released at once never waited for approval; with nothing
+   recommended, the first step says so */
+function uxDecSteps(id, st) {
+  const d = decById(id), op = SK[d.site].op, oid = deciderOf(id).item || uxRec(d), path = oid ? uxReleaseFor(op, oid).path : 'wait';
+  const it = deciderOf(id).item ? itemOf(op, deciderOf(id).item) : null, atOnce = st.key === 'released' && it && releaseOf(op, it.item).at;
+  const tail = atOnce || path === 'at' ? ['Released at once'] : path === 'none' ? ['Actions go ahead'] : ['Awaiting approval', 'Actions released'];
+  const steps = [st.key === 'none' ? 'No option recommended' : 'Recommended', 'Chosen', ...tail];
+  const cur = st.key === 'released' ? steps.length - 1 : st.key === 'approval' ? 2 : 0;
+  return { steps, cur };
+}
+function uxDecStatus(id, st) {
+  const { steps, cur } = uxDecSteps(id, st);
+  return `<ol class="ux-dsteps" aria-label="Where this decision is">${steps.map((s, i) => `<li class="${i < cur ? 'is-done' : i === cur ? 'is-current' : ''}"${i === cur ? ' aria-current="step"' : ''}>${s}</li>`).join('')}</ol>`;
+}
+/* the honest reason when nothing is recommended, from the dispositions shown */
+function uxNoRecReason(id) {
+  const d = decById(id), op = SK[d.site].op, D = deciderOf(id), opts = d.opts.filter(o => !isNoAction(o)), n = k => opts.filter(o => uxDisp(o) === k).length;
+  const rej = n('REJECTED'), def = n('DEFERRED'), other = opts.length - rej - def;
+  const parts = [rej ? `${num(rej)} ${rej === 1 ? 'is' : 'are'} rejected` : '', def ? `${num(def)} ${def === 1 ? 'is' : 'are'} deferred` : '', other ? `${num(other)} ${other === 1 ? 'is' : 'are'} allowed but none does better than doing nothing within the limits` : ''].filter(Boolean);
+  return `No option is recommended: of ${num(opts.length)} option${opts.length === 1 ? '' : 's'}, ${parts.join(' and ')}. ${who(op, D.p)} can still choose ${rej === opts.length ? 'to do nothing' : 'one, or none'}.`;
+}
+/* the question is the page's title (review r1 L5): the decision's name, as a question */
+const uxDecQuestion = d => `What should we do about the ${String(d.q).replace(/: (.+)$/, ' ($1)')}?`;
+
 function uxChooseDialog(id, oid) {
-  const d = decById(id), op = SK[d.site].op, D = deciderOf(id), R = uxReleaseFor(op, oid), acts = actionsOf(op, oid), it = itemOf(op, oid);
+  const d = decById(id), op = SK[d.site].op, D = deciderOf(id), R = uxReleaseFor(op, oid), acts = actionsOf(op, oid), [ev] = optEffect(OPT[oid]), cw = OPS[op].crewWord;
   const actHtml = acts.length ? `<ul class="list">${acts.map(a => `<li>${a.action}<small class="cellnote"> created by ${who(op, a.created_by)}${a.owner !== a.created_by ? `, owned by ${who(op, a.owner)}` : ''}, due ${fdate(a.due)}</small></li>`).join('')}</ul>`
-    : `<p>${it?.actions_after_approval?.length ? `After approval, ${it.owner} creates: ${it.actions_after_approval.join('; ')}.` : `The Actions are created after the choice by the person who owns the item; none exists yet in the demo data.`}</p>`;
-  return uxDrawer(`uxc-${id}-${oid}`, `Choose: ${optLabel(oid)}`, `<dl class="ux-confirm"><div><dt>What happens</dt><dd>${optLabel(oid)} becomes the plan item for this decision, valued at ${wholeText(optEffect(OPT[oid])[0])} over 12 months against doing nothing.</dd></div>
+    : `<p>${uxCreatorText(op, d, oid)}</p>`;
+  const what = R.cap === 'expansion' ? `${optLabel(oid)} is an expansion: listed beside the plan, not counted in it, until ${who(op, execOf(op))} approves the plan version that holds it.`
+    : R.path === 'capital' ? `${optLabel(oid)} becomes a capital plan item, held for ${who(op, execOf(op))}’s approval.`
+    : R.path === 'none' ? `${optLabel(oid)} spends no shared budget and no ${cw}, so it is not a plan item. Its Actions go ahead once created.`
+    : R.inPlan ? `${optLabel(oid)} becomes a plan item; it is in the proposed plan.` : `${optLabel(oid)} becomes a plan item. It is not in the proposed plan, so the plan’s budget and ${cw} are checked when its Actions are created.`;
+  return uxDrawer(`uxc-${id}-${oid}`, `Choose: ${optLabel(oid)}`, `<dl class="ux-confirm"><div><dt>What happens</dt><dd>${what}</dd></div>
+   <div><dt>Result against doing nothing</dt><dd>${uxFigQ(wholeText(ev), uxQual(oid), 'ux-confirm-q')}</dd></div>
    <div><dt>Actions</dt><dd>${actHtml}</dd></div><div><dt>Approval</dt><dd>${R.text}.</dd></div><div><dt>Recorded under</dt><dd>${who(op, D.p)}, with the time.</dd></div></dl>
-   <div class="ux-confirm-go"><button type="button" class="button primary" aria-describedby="uxnw-${id}-${oid}">Confirm the choice</button><button type="button" class="button" data-ux-close>Cancel</button></div><p class="note" id="uxnw-${id}-${oid}">Choosing is not wired in this mock-up.</p>`);
+   <div class="ux-confirm-go"><button type="button" class="button primary" data-ux-confirm>Confirm the choice</button><button type="button" class="button" data-ux-close>Cancel</button></div>`);
 }
+/* Confirm closes the dialog with a neutral notice (review r1 L6): the demonstration records nothing */
+document.addEventListener('click', e => { const b = e.target.closest('[data-ux-confirm]'); if (!b) return; e.preventDefault(); uxClose(b.closest('.ux-drawer')); toast('Not recorded in this demonstration.'); });
+
 function uxDecisionPage(id, parts) {
   const d = decById(id), op = SK[d.site].op, D = deciderOf(id), st = uxDecState(id), rec = uxRec(d), x = rec ? OPT[rec] : null, T = decText(d);
   const due = ATTN[op].filter(r => r[4] === id).map(r => uxDueIso(id, r[3])).filter(Boolean).sort()[0] || '';
   const ex = execOf(op), chosen = D.item;
-  const [ev, en] = x ? optEffect(x) : ['—', ''], [cv] = x ? optCost(x) : ['—'];
+  const [ev] = x ? optEffect(x) : ['—'], [cv] = x ? optCost(x) : ['—'], money = v => /^[+−-]?\$/.test(String(v));
   /* certainty said once when every valued option shares it (guide §6, U1) */
-  const valued = d.opts.filter(o => /^[+−-]?\$/.test(String(optEffect(OPT[o])[0])) && !isNoAction(o)), classes = [...new Set(valued.map(o => optClass(OPT[o])))];
-  const oneClass = classes.length === 1 ? classes[0] : null, anyDv = valued.some(o => DV_OPT[o]);
-  const head = `<section class="ux-dhd" aria-labelledby="uxdq-${id}"><p class="ux-dq" id="uxdq-${id}">What should we do about the ${d.q}?</p>
-  <p class="ux-dmeta"><span>${SK[d.site].name}</span><span>Decides: ${who(op, D.p)}</span><span>${due ? `Due ${fdate(due)}` : 'No deadline'}</span><span class="status-pill is-${st.key === 'released' ? 'approved' : st.key === 'approval' ? 'waiting' : 'proposed'}">${st.label}</span></p>
-  ${uxDecStatus(st)}<span class="ux-mockdev" title="The decision page redesigned (owner, 20 Nov)">MOCK DEVIATION · decision page redesign</span></section>`;
-  const recNum = x ? `<p class="ux-drec-n"><b>${wholeText(ev)}</b> ${/^[+−-]?\$/.test(String(ev)) ? 'over 12 months against doing nothing' : ''}${oneClass && /^[+−-]?\$/.test(String(ev)) ? ` ${uxMark(oneClass)}${anyDv ? dvTag() : ''}` : ''} · costs ${wholeText(cv)}, ${whoPays(x).toLowerCase()}</p>` : '';
+  const valued = d.opts.filter(o => money(optEffect(OPT[o])[0]) && !isNoAction(o)), classes = [...new Set(valued.map(o => optClass(OPT[o])))];
+  const oneClass = classes.length === 1 ? classes[0] : null, anyDv = valued.some(o => DV_OPT[o] && String(DV_OPT[o]).startsWith(DVTEXT));
+  const head = `<section class="ux-dhd" aria-label="Decision status"><p class="ux-dmeta"><span>${SK[d.site].name}</span><span>Decides: ${who(op, D.p)}</span><span>${due ? `Due ${fdate(due)}` : 'No deadline'}</span><span class="status-pill is-${st.key === 'released' ? 'approved' : st.key === 'approval' ? 'waiting' : 'proposed'}">${st.label}</span></p>
+  ${uxDecStatus(id, st)}</section>`;
+  const pays = x ? whoPays(x) : '—';
+  const noCost = /^\$0$/.test(String(wholeText(cv)).trim());
+  const recNum = x ? `<p class="ux-drec-n">${uxFigQ(`<b>${wholeText(ev)}</b>`, uxQual(rec), 'ux-drec-q')}${money(ev) ? ` ${uxMark(optClass(x))}${DV_OPT[rec] ? ` ${dvTag(DV_OPT[rec])}` : ''}` : ''} · ${noCost ? 'no one-off cost' : `costs ${wholeText(cv)}${pays !== '—' ? `, ${uxLcFirst(pays)}` : ''}`}</p>` : '';
   let act = '';
-  if (st.key === 'choose') act = `${x ? uxOpener(`uxc-${id}-${rec}`, 'Choose this', 'button primary') : ''}<a class="button" href="#uxcards-${id}">Choose another option</a>`;
+  if (st.key === 'choose') act = `${uxOpener(`uxc-${id}-${rec}`, 'Choose this', 'button primary')}<a class="button" href="#uxcards-${id}">Choose another option</a>`;
   else if (st.key === 'approval') act = `<span>Chosen by ${who(op, D.p)}: ${optLabel(chosen)}. Awaiting ${who(op, ex)}’s approval of the plan.</span>${link('portfolio/act-first/plan', 'Review the plan', 'button')}`;
-  else if (st.key === 'released') act = `<span>Chosen by ${who(op, D.p)}: ${optLabel(chosen)}. Its Actions are released.</span>${uxOpener(`uxacts-${id}`, 'See the Actions', 'button')}`;
-  else act = `<span>No option fits the limits better than doing nothing; ${who(op, D.p)} can still choose one.</span>`;
-  const notInPlan = x && st.key === 'choose' && !planCase(op).ids.includes(rec) ? `<p class="ux-note">Not in the proposed plan: choosing it adds it, within the plan’s budget and crew limits.</p>` : '';
-  const recCard = `<section class="panel ux-drec" aria-labelledby="uxdr-${id}"><div class="ux-eyebrow">${x ? 'We recommend' : 'No option recommended'}</div><h2 id="uxdr-${id}">${x ? optLabel(rec) : 'Each option valued against doing nothing'}</h2>${recNum}${notInPlan}<div class="ux-dgo">${act}${uxOpener(`uxev-${id}`, 'Evidence and records', 'ux-link')}</div></section>`;
-  const cards = d.opts.map(o => { const y = OPT[o], [e2] = optEffect(y), [c2] = optCost(y), isRec = o === rec, isNo = isNoAction(o), rej = y.disposition === 'REJECTED';
-    const money = /^[+−-]?\$/.test(String(e2)), mark = money && !isNo && (!oneClass || optClass(y) !== oneClass) ? uxMark(optClass(y)) : '';
-    const go = st.key === 'choose' && !isRec && !isNo && !rej ? uxOpener(`uxc-${id}-${o}`, 'Choose this instead', 'button') : '';
-    return `<article class="ux-ocard${isRec ? ' is-rec' : ''}${isNo ? ' is-base' : ''}${o === chosen ? ' is-chosen' : ''}" data-opt-card="${o}"><header><h3>${optLabel(o)}</h3>${o === chosen ? '<span class="status-pill is-approved">Chosen</span>' : isNo ? '<span class="ux-chip is-neutral">The baseline</span>' : dispBadge(y)}</header>
-     <dl><div><dt>Result</dt><dd>${isNo ? 'The baseline' : wholeText(e2)} ${mark}</dd></div><div><dt>One-off cost</dt><dd>${wholeText(c2)} <small>${whoPays(y)}</small></dd></div><div><dt>Limits</dt><dd>${uxOblSummary(obligations(y))}</dd></div></dl>
-     ${rej || y.disposition === 'DEFERRED' ? `<p class="ux-ocard-why">${optWhy(y)}</p>` : ''}${go}</article>`; }).join('');
-  const cardsSec = `<section class="ux-ocards" id="uxcards-${id}" aria-labelledby="uxoc-${id}"><div class="ux-row-head"><h2 id="uxoc-${id}">The options, against doing nothing</h2><span class="ux-note">Results over 12 months, as above${anyDv ? '; † design estimates' : ''}</span></div><div class="ux-ocards-grid">${cards}</div></section>`;
-  const dialogs = st.key === 'choose' ? d.opts.filter(o => !isNoAction(o) && OPT[o].disposition !== 'REJECTED').map(o => uxChooseDialog(id, o)).join('') : '';
+  else if (st.key === 'released') act = `<span>Chosen by ${who(op, D.p)}: ${optLabel(chosen)}. ${releaseOf(op, chosen).at ? 'Released at once, within both thresholds.' : 'Released on the plan’s approval.'}</span>${uxOpener(`uxacts-${id}`, 'See the Actions', 'button')}`;
+  else act = `<a class="button" href="#uxcards-${id}">See the options</a>`;
+  const planNote = x && st.key === 'choose' ? uxPlanNote(op, rec) : '';
+  const recCard = `<section class="panel ux-drec" aria-labelledby="uxdr-${id}"><div class="ux-eyebrow">${x ? 'We recommend' : 'No option recommended'}</div><h2 id="uxdr-${id}">${x ? optLabel(rec) : 'Each option valued against doing nothing'}</h2>${recNum}${x ? '' : `<p class="ux-note">${uxNoRecReason(id)}</p>`}${planNote ? `<p class="ux-note">${planNote}</p>` : ''}<div class="ux-dgo">${act}${uxOpener(`uxev-${id}`, 'Evidence and records', 'ux-link')}</div></section>`;
+  const quals = new Set(d.opts.filter(o => !isNoAction(o)).map(uxQual)), oneQual = quals.size === 1 ? [...quals][0] : null;
+  const cards = d.opts.map(o => { const y = OPT[o], [e2] = optEffect(y), [c2] = optCost(y), isRec = o === rec, isNo = isNoAction(o), k = uxDisp(o), q2 = uxQual(o);
+    const mark = money(e2) && !isNo && (!oneClass || optClass(y) !== oneClass) ? uxMark(optClass(y)) : '';
+    const dv = money(e2) && !isNo && DV_OPT[o] ? dvTag(DV_OPT[o]) : '';
+    const go = st.key === 'choose' && !isRec && !isNo && k !== 'REJECTED' ? uxOpener(`uxc-${id}-${o}`, 'Choose this instead', 'button') : '';
+    const why = UX_NOREC && k !== y.disposition ? 'Deferred for now.' : (k === 'REJECTED' || k === 'DEFERRED' || (k === 'RECOMMENDED' && !isRec)) ? optWhy(y) : '';
+    const result = isNo ? `The baseline${q2 && q2 !== 'baseline' ? ` <small class="ux-ocard-q">${q2}</small>` : ''}` : `${uxFigQ(wholeText(e2), q2, 'ux-ocard-q')} ${mark}${dv ? ` ${dv}` : ''}`;
+    return `<article class="ux-ocard${isRec ? ' is-rec' : ''}${isNo ? ' is-base' : ''}${o === chosen ? ' is-chosen' : ''}" data-opt-card="${o}"><header><h3>${optLabel(o)}</h3>${o === chosen ? '<span class="status-pill is-approved">Chosen</span>' : isNo ? '<span class="ux-chip is-neutral">The baseline</span>' : uxDispBadge(d, o)}</header>
+     <dl><div><dt>Result</dt><dd>${result}</dd></div><div><dt>One-off cost</dt><dd>${wholeText(c2)} <small>${whoPays(y)}</small></dd></div><div><dt>Limits</dt><dd>${uxOblSummary(obligations(y))}</dd></div></dl>
+     ${why ? `<p class="ux-ocard-why">${why}</p>` : ''}${go}</article>`; }).join('');
+  const cardsSec = `<section class="ux-ocards" id="uxcards-${id}" aria-labelledby="uxoc-${id}"><div class="ux-row-head"><h2 id="uxoc-${id}">The options, against doing nothing</h2><span class="ux-note">${oneQual && /^(?:over|to) /.test(oneQual) ? `Each result ${uxLcFirst(oneQual).replace(/ against no action$/, '')}` : 'Each result as stated on its card'}${anyDv ? '; † design estimates' : ''}</span></div><div class="ux-ocards-grid">${cards}</div></section>`;
+  const dialogs = st.key === 'choose' ? d.opts.filter(o => !isNoAction(o) && uxDisp(o) !== 'REJECTED').map(o => uxChooseDialog(id, o)).join('') : '';
   const evidence = uxDrawer(`uxev-${id}`, 'Evidence and records', `<ul class="list">${T.records.map(([k, l]) => `<li>${fig(k, l)}</li>`).join('')}</ul>${(d.rights || []).map(rightsPanel).join('')}`, true);
   const why = secD('Why we recommend it', `<div class="grid2">${sec('The reasoning', `<p class="prose">${T.why}</p>`)}${sec('What would change the recommendation', `<ul class="list">${T.sens.map(s => `<li>${s}</li>`).join('')}</ul>`)}</div>${parts.inner}<div id="uxwho-${id}">${secD('Who chooses, who approves, and the Actions', whoDecides(id), 'The accountable role chooses; the plan’s approval releases what waits', st.key === 'released')}</div>`, 'The reasoning, what drives the result, limits, cover, who pays, verification and all options in detail');
-  const actsDrawer = chosen ? uxDrawer(`uxacts-${id}`, 'The Actions', actionsOf(op, chosen).length ? `<ul class="list">${actionsOf(op, chosen).map(a => `<li>${a.action}<small class="cellnote"> created by ${who(op, a.created_by)}${a.owner === a.created_by ? ', who owns it' : `, owned by ${who(op, a.owner)}`}, due ${fdate(a.due)}</small></li>`).join('')}</ul>` : '<p>No Action exists yet in the demo data.</p>') : '';
+  const actsDrawer = chosen ? uxDrawer(`uxacts-${id}`, 'The Actions', actionsOf(op, chosen).length ? `<ul class="list">${actionsOf(op, chosen).map(a => `<li>${a.action}<small class="cellnote"> created by ${who(op, a.created_by)}${a.owner === a.created_by ? ', who owns it' : `, owned by ${who(op, a.owner)}`}, due ${fdate(a.due)}</small></li>`).join('')}</ul>` : `<p>${uxCreatorText(op, d, chosen)}</p>`) : '';
   return `${head}${recCard}${cardsSec}${why}${dialogs}${evidence}${actsDrawer}`;
 }
 
