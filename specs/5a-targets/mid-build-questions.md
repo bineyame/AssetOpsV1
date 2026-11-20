@@ -6,7 +6,10 @@ the count in the packet; a count above zero is a spec-template defect to fix.
 
 Count: **1** (reset at spec rev 2, after handshake round 1).
 
-## Q1 (unit 1, spec §6 test 10): DS1b parity cannot live in `backend/tests`
+## Q1 (unit 1, spec §6 test 10): DS1b parity cannot live in `backend/tests`: ANSWERED
+
+**Answered** 2026-11-20 in `rulings.md` "Mid-build answers (round 1)": builder's default confirmed
+(simulator-side test reading the fixture by path; guard unchanged), with its assertions and plants.
 
 - **Stopped:** test 10 only. **Built:** tests 1 and 2, `lines.py`, the fixture (its step 1 was produced from DS1b's
   `build_records` output for the October `plan` records and matches §5's values).
