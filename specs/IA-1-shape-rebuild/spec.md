@@ -18,7 +18,7 @@ are folded in after the owner's G2 input (D-IA.11). No IA-2 unit starts before t
 - **Where.**
   - The mock-up is `Docs/demo-sprint/product-direction-layer4/interactive-mockup-vNEXT/`, shortened below to `vNEXT/`.
   - Branch from `task/uiux-design-model` at the head where its review is accepted (D-IA.13), then merge `main`.
-  - **Base:** _the coordinator writes the accepted head's SHA here when that review is accepted_. `786e1f905` is
+  - **Base:** `a090e1220` (task/uiux-design-model, review r5 ACCEPT 20 Nov; merged to main as `25b3ae88b`). Branch from main at or after `25b3ae88b`. `786e1f905` is
     the handshake's pre-flight read, not the base. No IA-1a code starts before this line is filled.
   - If a fix round on that branch is still open when you start, branch from its latest head and merge each later
     fix round in before review.
