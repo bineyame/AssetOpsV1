@@ -59,5 +59,12 @@ def test_d_batch_envelope_matches_the_holding_ds1b_batch() -> None:
     ids = {r["source_record_id"] for r in step["records"]}
     holders = [b for b in _ds1b_batches() if ids & {r["source_record_id"] for r in b["records"]}]
     assert len(holders) == 1
-    for key in ("tenant_code", "source_type", "provenance"):
+    for key in ("tenant_code", "source_type", "source_system", "provenance"):
         assert step[key] == holders[0][key], key
+
+
+def test_e_ds1b_lakeside_october_plan_ids_equal_the_fixtures() -> None:  # review r1 F2: both directions
+    ds1b = {r["source_record_id"] for b in _ds1b_batches() if b["tenant_code"] == "lakeside-power"
+            for r in b["records"] if r["kind"] == "BUDGET_LINE" and r["clocks"]["recognition_period"] == "2026-10"
+            and ":plan:" in r["source_record_id"]}
+    assert ds1b == {r["source_record_id"] for r in _fixture_records()}

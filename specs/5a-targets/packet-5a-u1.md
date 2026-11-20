@@ -70,3 +70,19 @@ Module paths (PYTHONPATH = worktree backend, backend/tests, contracts, simulator
 Update after Q1: fast check-all on the final tree -> `All 40 guards passed`, 76.8 s wall (an earlier run failed
 dependency-direction because the new file's docstring named the backend package after "imported from"; reworded, the
 guard unchanged).
+
+## Fix round r1 (review `review-5a-u1.md`)
+
+- F1: `test_2_known_at_declarer_join_honours_the_cutoff` (Kobo `om` revised to 650.00 by person 2; read before the
+  revision gives 600.00, `loader:ds3`, revision 1; without the cutoff 650.00, person 2). Plant: `known_at` dropped
+  from the Site `latest_revisions` read (lines.py) fails it; reverted.
+- F2: parity test (e) DS1b Lakeside October `:plan:` BUDGET_LINE ids equal the fixture's (both ways); (d) adds
+  `source_system`.
+- Residual: `test_2_a_person_id_only_when_the_whole_name_is_one` (`imported-by person:<uuid>` gives `person_id`
+  None). Plant `fullmatch` -> `search` fails it; reverted.
+- D-4B.18 (4b1 review answers): about `origins` on valued parts and `unknown` ranked weakest. Unit 1 builds no
+  valued part, only target lines carrying a record provenance, so nothing applies to unit 1. Units 2-3 must give
+  every valued part non-empty origins (`(ORIGIN_UNKNOWN,)` when unnameable; only NEUTRAL and CALENDAR exempt) and read
+  `"unknown"` as no stronger than `demo-simulated` in any "is this recorded?" rule.
+- Runs (PYTHONPATH = worktree backend, backend/tests, contracts, simulator; module paths verified in the worktree):
+  5a + parity 18 passed; simulator/tests/world + 5a 143 passed; 5a + 3A4 + 3B3 (+ window price) 113 passed; fast check-all (final tree) All 40 guards passed, 77.1 s.

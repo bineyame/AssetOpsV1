@@ -221,6 +221,34 @@ def test_2_known_at_before_step_2() -> None:  # the cutoff reaches the declarer 
     assert bl.unused == ()
 
 
+def test_2_known_at_declarer_join_honours_the_cutoff() -> None:  # review r1 F1: the join carries no value
+    w = lakeside()
+    ingest(w, STEP_3_AT, PERSON_2, budget_batch([
+        budget_line("KOBO-001", "gen:KOBO-001:2026-10:plan:om", "om", "650.00", source_version="2")],
+        source_system=GEN))
+    rev1 = [r for r in w["store"].latest_revisions(w["tid"], known_at=datetime(2026, 11, 7, 12, 0, tzinfo=timezone.utc))
+            if r.source_record_id == "gen:KOBO-001:2026-10:plan:om"]
+    assert len(rev1) == 1
+    before = {line.factor_id: line for line in
+              site(w, "KOBO-001", known_at=datetime(2026, 11, 7, 12, 0, tzinfo=timezone.utc)).lines}["om"]
+    assert (before.value, before.declared_by, before.person_id, before.declared_at) == (
+        Decimal("600.00"), LOADER, None, STEP_1_AT)
+    assert before.revision_id == rev1[0].id and before.intake_id == w["intakes"][0]
+    after = {line.factor_id: line for line in site(w, "KOBO-001").lines}["om"]
+    assert (after.value, after.declared_by) == (Decimal("650.00"), PERSON_2)
+    assert after.revision_id != before.revision_id
+
+
+def test_2_a_person_id_only_when_the_whole_name_is_one() -> None:  # review r1 residual: fullmatch, not search
+    w = lakeside()
+    odd = "imported-by " + PERSON_1
+    ingest(w, STEP_3_AT, odd, budget_batch([
+        budget_line("KOBO-001", "gen:KOBO-001:2026-10:plan:om", "om", "650.00", source_version="2")],
+        source_system=GEN))
+    om = {line.factor_id: line for line in site(w, "KOBO-001").lines}["om"]
+    assert (om.declared_by, om.person_id) == (odd, None)
+
+
 def test_2_an_intake_that_is_gone_is_a_bug() -> None:  # spec §2 (P1): `None` raises
     w = lakeside()
     w["store"].intakes[:] = [i for i in w["store"].intakes if i.id != w["intakes"][0]]
