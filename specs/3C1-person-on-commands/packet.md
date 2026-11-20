@@ -76,9 +76,18 @@ path.
 
 ## Mid-build questions: 1 (Q1)
 
-Two older migration tests assume their own migration is the head. The 3C0a downgrade test runs `TRUNCATE
-operator_account` and is refused because of §4's required FK. The k2 test diffs `operational_record`'s columns at
-head. Neither file is edited. The proposed small edits are in `mid-build-questions.md`.
+Two older migration tests assumed their own migration was head. Ruled yes (rulings.md, Mid-build answers Q1); both
+edited, and no other test file:
+
+- `test_3c0a_accounts_postgres.py::test_downgrade_refused_with_an_account_then_down_and_up`: the one TRUNCATE now ends
+  `CASCADE` (the referencing tables are empty; every assertion unchanged).
+- `test_k2_fuel_records_postgres.py::test_migration_up_down_up_on_empty_table`: downgrade to 0054 first and take
+  `at_k2`; the column, index and constraint differences are computed from `at_k2`, expected sets unchanged; the final
+  `shape(engine) == up` stays.
+
+Why: both measured "head" as if their own migration were head, false once 0063 adds its FK and column. §4's list
+otherwise ran unchanged. After `git merge main` both files: 25 passed (21 s, routed `*_test` database,
+`tools/heavy-slot.sh --db`).
 
 ## Not verified
 
