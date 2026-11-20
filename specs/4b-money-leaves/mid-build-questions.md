@@ -4,7 +4,7 @@ A question about something the spec did not fix stops only the affected part. Wr
 unit (`4b1` or `4b2`), the section, what is stopped, what is built, and what you ask. The Architect rules in
 `rulings.md`. Record the count in each packet; a count above zero is a spec-template defect to fix.
 
-Count: **1** (reset at spec rev 2, after handshake round 1; Q1 raised in the 4b1 build).
+Count: **2** (reset at spec rev 2, after handshake round 1; Q1 raised in the 4b1 build, Q2 in the 4b2 build).
 
 ## Q1 (4b1, spec §2.1 and §2.7 S8; D-4B.17; plant V18): ANSWERED
 
@@ -27,3 +27,14 @@ stated SUM nodes (`MONEY * MONEY`, `MONEY * KWH`) with controls; V18 and new V18
   (unit `MONEY^2`, `composes="SUM"`, `stated_by` CHARGE); V18 fails it. Or the check order could change, which the
   spec fixes and I have not touched.
 
+
+## Q2 (4b2, spec §4.1 and §5 "Postgres" 1; fixture `entered_by`): ANSWERED
+
+- **What the spec fixes.** §4.1: every step `entered_by` `"test:4b"`; §5 test 2(ii) ingests with `"test:4b"`; §5
+  "Postgres" 1 ingests §4.1 through `PostgresCommercialStore`.
+- **Why it cannot.** Migration 0063's `commercial_intake_entered_by_check` admits only
+  `^(service:[a-z][a-z0-9-]{0,62}|person:[0-9a-f-]{36})$`; Postgres refuses `"test:4b"` (`StoreRefused:
+  commercial_intake_entered_by_check`, first Postgres run). The memory store does not check it.
+- **Stopped.** Nothing in the figures: `entered_by` enters no value, source or origin.
+- **Built.** Fixture, both test files and spec §4.1/§5 use `"service:test-4b"`; `PG_ENTERED_BY` removed.
+- **Answered** (Architect, 5a Q2 ruling D-5A, applied here by class; see rulings.md "Review answers (r1)"): the fixture declarer is a `service:` name everywhere.

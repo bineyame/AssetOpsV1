@@ -70,3 +70,4 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 156. `4b1` the stated-node seam (MINI_GRID v3, stated headings, origins; D-4B.18 fix round, R2-1) · data.md
 157. `5a` targets per factor: units 2-3 target rules, Site and portfolio read · data.md
 158. `RC4-F1` the database a URL really reaches (`database_target`, RC4 settings, backfill, demo env) · data.md
+159. `4b2` money leaves from records (CommercialLeafSource, READ_AS, diesel price from invoices) · data.md
