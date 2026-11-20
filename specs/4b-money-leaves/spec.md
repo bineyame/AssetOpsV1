@@ -2,7 +2,7 @@
 
 Status: spec rev 3. Rev 2: handshake round 1 answered (D-4B.13 to D-4B.17). Rev 3: 4b1 review r1 answered
 (`rulings.md` "Review answers (r1)"; D-4B.18 origins, built in 4b1's fix round; §2.7 regression line corrected).
-4b1: in_review (`packet-4b1.md`, branch `task/4b1-money-leaves`; mid-build Q1 answered in `rulings.md`). 4b2: not started.
+4b1: merged. 4b2: in_review (`packet-4b2.md`, branch `task/4b2-money-providers`; mid-build Q2 open, default applied).
 Code starts when the handshake has no open question (`.ai/RULES.md` §4).
 
 Architect (Claude), 2026-11-20. Lane B, on the deep-dive path's critical chain (`3B3` → `3A4` → `4b` and `5a` → `5b` →
