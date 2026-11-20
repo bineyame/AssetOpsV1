@@ -470,3 +470,188 @@ def test_8_no_float_no_adapter_and_compositions_only_in_composition() -> None:
         if p.name != "composition.py":
             assert not mods & {"assetops_backend.fuel_balance.composition",
                                "assetops_backend.analytics.composition"}, p.name
+
+
+# =====================================================================================================================
+# Unit 2 (spec §3): the provider and the wiring; tests 5 to 7
+# =====================================================================================================================
+
+from uuid import uuid4  # noqa: E402
+
+from assetops_backend.chain.ports import SiteRef  # noqa: E402
+from assetops_backend.structure.litres.source import LitreLeafSource  # noqa: E402
+from assetops_backend.structure.sources import LITRE_LEAVES, SOURCE_STATE, ReadContext  # noqa: E402
+
+TENANT = uuid4()
+KOBO_REF = SiteRef(TENANT, uuid4(), "KOBO-001", "MINIGRID", "Africa/Nairobi")
+
+
+class Counting:
+    def __init__(self, world: World | None = None) -> None:
+        self.calls: list[tuple[str, str, datetime]] = []
+        self.world = world or kobo()
+
+    def read(self, site: SiteRef, month: str, known_at: datetime) -> LitreInputs:
+        self.calls.append((site.site_code, month, known_at))
+        return self.world.inputs()
+
+
+class Fallback:
+    def __init__(self) -> None:
+        self.asked: list[str] = []
+
+    def leaf(self, ctx: ReadContext, factor_id: str) -> LeafValue:
+        self.asked.append(factor_id)
+        return LeafValue(D("1"), "DERIVED", ("fallback",), None, None, None)
+
+
+def test_5_a_non_litre_factor_goes_to_the_fallback() -> None:
+    inputs, fb = Counting(), Fallback()
+    src = LitreLeafSource(inputs, fb, lambda: KNOWN_AT)
+    got = src.leaf(ReadContext(KOBO_REF, "2026-10", KNOWN_AT), "diesel_price")
+    assert got.sources == ("fallback",) and fb.asked == ["diesel_price"] and inputs.calls == []
+
+
+def test_5_a_pinned_read_costs_one_input_read() -> None:
+    inputs = Counting()
+    src = LitreLeafSource(inputs, Fallback(), lambda: KNOWN_AT)
+    ctx = ReadContext(KOBO_REF, "2026-10", KNOWN_AT)
+    got = [src.leaf(ctx, leaf).value for leaf in LEAVES]
+    assert [format(v, "f") for v in got] == ["730.000", "330.000", "120.000"]
+    assert inputs.calls == [("KOBO-001", "2026-10", KNOWN_AT)]
+
+
+def test_5_a_live_read_is_never_memoised() -> None:
+    inputs = Counting()
+    src = LitreLeafSource(inputs, Fallback(), lambda: KNOWN_AT)
+    ctx = ReadContext(KOBO_REF, "2026-10", None)
+    for leaf in LEAVES:
+        src.leaf(ctx, leaf)
+    assert inputs.calls == [("KOBO-001", "2026-10", KNOWN_AT)] * 3  # `now()` stands in for known_at
+
+
+def test_5_the_memo_keeps_at_most_sixteen() -> None:
+    inputs = Counting()
+    src = LitreLeafSource(inputs, Fallback(), lambda: KNOWN_AT)
+    pins = [KNOWN_AT + timedelta(minutes=i) for i in range(17)]
+    for k in pins:
+        src.leaf(ReadContext(KOBO_REF, "2026-10", k), "necessary_l")
+    src.leaf(ReadContext(KOBO_REF, "2026-10", pins[-1]), "candidate_l")   # still held
+    src.leaf(ReadContext(KOBO_REF, "2026-10", pins[0]), "candidate_l")    # dropped, read again
+    assert len(inputs.calls) == 18
+
+
+# --- test 7: read alone, and the state rows -------------------------------------------------------------------------
+
+def test_7_product_source_alone_gives_not_connected() -> None:
+    from test_4b_money_leaves import fallback
+
+    assert LITRE_LEAVES == frozenset(LEAVES)
+    for leaf in LEAVES:
+        assert SOURCE_STATE["MINI_GRID"][leaf] == "PROVIDED"
+        got = fallback().leaf(ReadContext(KOBO_REF, "2026-10", KNOWN_AT), leaf)
+        fb = FB[leaf]
+        assert got == LeafValue(None, "NOT_AVAILABLE", (), None,
+                                Missing(fb.kind, fb.family, "NOT_CONNECTED", None, (), fb.words, None, None), None)
+
+
+# --- test 6: the bridge (spec §5; 5b §5.2's world with its step) -----------------------------------------------------
+
+class LakesideInputs:
+    """KOBO-OCT for KOBO-001; V11 (no generator and tank declared, no readings) for every other Site."""
+
+    def read(self, site: SiteRef, month: str, known_at: datetime) -> LitreInputs:
+        if site.site_code == "KOBO-001":
+            return kobo().inputs()
+        w = v10(kobo())
+        w.assets = "NOT_ONE_EACH"
+        return w.inputs()
+
+
+def _bridge_reads(w: dict):
+    from test_3a4_commercial_months import READ_AT
+    from test_4b_money_leaves import fallback
+
+    from assetops_backend.structure.money import CommercialLeafSource
+    from assetops_backend.structure.read import StructureRead
+    from assetops_backend.structure.targets.lines import BudgetLineReader
+    from assetops_backend.structure.targets.read import TargetRead
+
+    src = CommercialLeafSource(w["months"], w["store"], LitreLeafSource(LakesideInputs(), fallback(),
+                                                                        lambda: READ_AT))
+    actual = StructureRead(src, stated=src)
+    return actual, TargetRead(BudgetLineReader(w["months"], w["store"]), actual), READ_AT
+
+
+def _site_bridge(code: str):
+    import test_5b_attribution as t5b
+    from assetops_backend.structure.attribution.site import site_bridge
+
+    w = t5b._world()
+    actual, targets, at = _bridge_reads(w)
+    s = t5b.ref(w, code)
+    return site_bridge(actual.site_inputs(s, t5b.OCT, at), targets.site(s, t5b.OCT, at))
+
+
+def shape(row, expected: tuple) -> None:
+    """5b's `check_shape`, with `effect` compared as a `Decimal` only: a litre leaf has three places (D-4D.6), so
+    480.000 x -1.25 is -600.00000, equal to the literal -600.00 (mid-build question 1)."""
+    factor, kind, rule, scale, gap, effect, split, reason, children = expected
+    where = f"{row.parent}>{row.factor_id}"
+    assert (row.factor_id, row.kind, row.rule, row.split, row.reason) == (factor, kind, rule, split, reason), where
+    assert (row.scale, row.gap, row.effect) == (D(scale), D(gap), D(effect)), (where, row.scale, row.gap, row.effect)
+    assert [c.factor_id for c in row.rows] == [c[0] for c in children], where
+    for child, exp in zip(row.rows, children):
+        shape(child, exp)
+
+
+def test_6_kobo_fuel_cost_splits_into_the_three_litre_leaves() -> None:
+    import test_5b_attribution as t5b
+
+    sb = _site_bridge("KOBO-001")
+    root = sb.roots["contribution"]
+    t5b.money(root.gap, "-562.00"), t5b.money(root.effect, "-562.00")
+    fuel = t5b.find(root, "fuel_cost")
+    t5b.money(fuel.effect, "-600.00")
+    shape(fuel, ("fuel_cost", "TERM", "AR1", "-1", "600.00", "-600.00", "SPLIT", None, (
+        ("diesel_l", "VOLUME", "AR2", "-1.25", "480", "-600.00", "SPLIT", None, (
+            t5b.leaf("necessary_l", "TERM", "-1.25", "30", "-37.50"),
+            t5b.leaf("candidate_l", "TERM", "-1.25", "330", "-412.50"),
+            t5b.leaf("unexplained_l", "TERM", "-1.25", "120", "-150.00"))),
+        t5b.leaf("diesel_price", "PRICE", "-1180", "0", "0.00"))))
+    diesel = t5b.find(root, "diesel_l")
+    assert diesel.evidence == "MODELLED"
+    assert [r.evidence for r in diesel.rows] == ["MODELLED"] * 3
+    assert [format(sb.actual.values[f].value, "f") for f in LEAVES] == ["730.000", "330.000", "120.000"]
+
+
+@pytest.mark.parametrize("code", ["KISIWA-001", "MTO-001"])
+def test_6_other_sites_say_what_is_missing(code: str) -> None:
+    import test_5b_attribution as t5b
+
+    sb = _site_bridge(code)
+    fuel = t5b.find(sb.roots["contribution"], "fuel_cost")
+    assert (fuel.split, fuel.reason, fuel.rows) == ("NOT_SPLIT", "DETAIL_NOT_AVAILABLE", ())
+    assert fuel.unobserved_actual == ("candidate_l", "necessary_l", "unexplained_l")
+    for leaf in LEAVES:
+        lv = sb.actual.values[leaf]
+        assert lv.value is None and lv.missing.note == "GENERATOR_OR_TANK_NOT_DECLARED", (code, leaf)
+
+
+def test_6_the_portfolio() -> None:
+    import test_5b_attribution as t5b
+    from assetops_backend.structure.attribution.read import BridgeRead
+
+    w = t5b._world()
+    actual, targets, at = _bridge_reads(w)
+    r = t5b.t5a.refs(w)
+    pb = BridgeRead(actual, targets, clock=lambda: at).portfolio(w["tid"], [r[c] for c in t5b.CODES], t5b.OCT)
+    rows = pb.rows["contribution"]
+    fuel, diesel = rows["fuel_cost"], rows["diesel_l"]
+    t5b.money(fuel.effect, "-755.00")
+    assert (fuel.k, fuel.n, fuel.out) == (3, 3, ())
+    assert format(diesel.actual, "f") == "1180.000" and diesel.target == D("700")
+    assert format(diesel.gap, "f") == "480.000"
+    assert diesel.effect == D("-600.00")  # -600.00000: mid-build question 1
+    assert (diesel.k, diesel.n) == (1, 3)
+    assert diesel.out == (("KISIWA-001", ("NOT_SPLIT",)), ("MTO-001", ("NOT_SPLIT",)))
