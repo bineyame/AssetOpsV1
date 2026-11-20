@@ -282,3 +282,13 @@ path. The focused files plus `contracts/tests` are the complete evidence, and th
 The standing brief says to write reviews to `specs/<ID>/review.md` and never to `.agent/`. The dispatch named
 `.agent/review-2a-r1.md`; I followed the dispatch. The coordinator may wish to copy this file to
 `specs/2a-canonical-format/review.md`.
+# 2a review round 2 (verification, b916ac2c1..d29e436ee): ACCEPT
+
+1. M1 confirmed. Surrogate key: CANONICAL_REF at the container path (`record.body`) from _check_keys, `json` from loads_canonical. Unknown/duplicate keys use _key_text (ASCII-escaped, 64 chars + "..."). T7 now asserts ASCII and bounded path; both T11 key tests pass. Plants: removing the container check fails 12 tests; removing the cap fails 2.
+2. M2 confirmed. EXPENSE map has FUEL:R and OM, STAFF, REPAIR, ENERGY, PENALTY, COLLECTION, HANDLING:F, default "" (undecidable, shape only). Matches the spec's eight categories; none missing or mis-mapped. CHARGE and CUSTOMER_METER_READ already default "" / "O". T11 pins CANONICAL_FIELD / CANONICAL_ENUM on the control for CHARGE, EXPENSE, METER_READ. Plant (default "F") fails the EXPENSE case.
+3. Batch order confirmed: format_version before _check_keys. Plant (keys first) fails test_t11_version_before_envelope_keys.
+4. Lows 1-2 confirmed. Plant fullmatch->match fails 7 tests (site_code, currency, sha256, recognition_period, bands from, tenant_code, factor_id). NFC-normalising plant fails the NFD test. Note: occurred_at/effective_from junk cases do not fail under the pattern plant because fromisoformat rejects the trailing newline anyway; behaviour is still refused correctly, so those two cases are not pattern-specific. Not a finding.
+5. Clumsy assertion is correct: 64 escaped chars = 10 x "é" (60) + "\u00" (4), then "...". The `"..."[:0]` is a no-op. Worth a cosmetic tidy (Low, optional): `("\\u00e9"*11)[:64] + "..."`. Not blocking.
+6. Reruns: PYTHONPATH = scratch worktree contracts/ and backend/ (module path verified inside the scratch worktree). backend/tests/test_2a_canonical_v1.py + contracts/tests: 181 passed. Scratch worktree removed; no DB, server or Docker touched. Architecture/workflow checks not rerun.
+
+New issues from the fixes: none. Residual: a refusal path cut mid-escape (e.g. `\u00`) is per spec but cosmetically odd for operators.
