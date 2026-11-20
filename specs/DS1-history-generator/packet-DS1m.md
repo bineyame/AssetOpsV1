@@ -5,7 +5,13 @@ Branch `task/DS1-mockup-trends` (worktree `/opt/assetecon/AssetOpsV1/.claude/wor
 Head used for the call sites (P15): `uxOverview` and `uxHistory` in `interactive-mockup-vNEXT/loop-ux.js` at `54808af06`
 (`uxHistory` line 370; tile calls lines 290-293). No screen code changed.
 
-**Mid-build questions: 2** (MB7, MB8 in `mid-build-questions.md`). Each is a spec gap, not an implementer defect.
+**Mid-build questions: 2** (MB7, MB8 in `mid-build-questions.md`), both ruled on `main` (`a74b40fe8`, `rulings.md`
+"DS1m mid-build answers"). MB7: G3 amended. MB8: the Lakeside sentence is accepted with DS1m. Each was a spec gap, not
+an implementer defect.
+
+**Round 2 status: one gate is red, caused by `main`'s data and not by DS1m; stopped and reported.** After merging `main`
+and regenerating, `plan_switch_check` gives 777 passed and 1 failed. The failure is `mto-losses: chosen by David
+(SITE_MANAGER) ()`. `main`'s own regenerated output fails identically (see "Round 2" below).
 
 ## Commits
 
@@ -91,7 +97,58 @@ Head used for the call sites (P15): `uxOverview` and `uxHistory` in `interactive
   measured only.
 - No full suites were run, and none was scheduled.
 
-## Merge note
+## Round 2: after merging `main` (rulings `a74b40fe8`)
+
+**Commits:** `d8b610b16` (merge of `main` at `e3052032d`, no conflict); `f6830f091` (regenerated `fixtures.js` and
+`index.html`, manifest sha `357a7b6f6cff`). The §9.1 pack-output diff exits 0. Evidence: `/opt/assetecon/evidence/DS1/m-r2/`.
+
+| Gate | Result at `f6830f091` |
+| --- | --- |
+| render_text | 205 renders, 0 script errors |
+| vocab_check / copy_check | exit 0, 0 hits / exit 0, no hits |
+| **plan_switch_check** | **777 passed, 1 failed**: `mto-losses: chosen by David (SITE_MANAGER) ()`. The decision page's "who decides" step is empty |
+| hand_typed_scan | exit 0. Count 2, the same `loop-core.js:401` comment as before; manifest hits 0 |
+| ux_interaction_check (G1, G1+) | 98 PASS, 0 FAIL (70 s); the three overview-trend checks pass |
+| G1+ plant (`DERIVED.history` removed; `/opt/assetecon/evidence/DS1/m-plant2/`) | exit 1: 95 PASS, 3 FAIL (the trend checks) |
+| design_lint (G2) | exit 0, `fails: []` |
+| G3, amended by MB7 | **30 of 30 pass** (below) |
+| check_manifest.py | 7556 passed (2869 history checks), 0 failed |
+| check_alignment.py | 114 passed, 0 failed |
+
+**Where the `plan_switch_check` failure comes from.** The decision `mto-losses` (`chooser: SITE_MANAGER`, manifest line
+1617) was added on `main` by the RECON-1 data lane (`6448fd67b`, D-RECON.5-7). `main`'s committed `fixtures.js` predates
+it.
+- `main`, files as committed: 777 passed, 0 failed.
+- `main`, regenerated in a scratch worktree (`/opt/assetecon/evidence/DS1/m-mainwt`): 777 passed, 1 failed, the same
+  line.
+- Any branch that regenerates from today's `main` turns this gate red. DS1m did not fix it: the fix is screen code or
+  data owned by another lane.
+
+**rendered-text.json diff**
+- **Against `main`'s own regenerated output:** byte-identical. `fixtures.js` and `index.html` are byte-identical to
+  `main`'s regeneration, and so is `rendered-text.json`. No difference at all.
+- **Against `main`'s committed (stale) files**
+  (`/opt/assetecon/evidence/DS1/m-r2/textdiff-vs-main-committed.txt`), 11 fields differ:
+  - DS1m's trend slots and sparkline names on the three Portfolio overviews;
+  - the MB8 Lakeside sentence;
+  - **RECON-1's own change:** Ruiru's "$60,000 capital avoided (Modelled)" becomes "Not modelled" / "not available
+    yet". It appears on 6 renders: Lakeside `decision/ruiru-expansion` and `site/ruiru`; Metro `portfolio`,
+    `portfolio/act-first`, `portfolio/act-first/plan` and `portfolio/demand-and-capacity`, text and drawers.
+  - This figure change comes from `main`'s manifest (`capex_not_needed`), not from DS1m. It reaches the committed mock-up
+    with whichever branch regenerates first.
+
+**G3, amended by MB7** (`/opt/assetecon/evidence/DS1/m-g3-f6830f091/`, `results.json`; log
+`/opt/assetecon/evidence/DS1/m-r2/g3.txt`; 36 s through the slot):
+- 30 of 30 pass, with 0 page errors, 0 elements clipped by their tile, and no sideways scroll in every shot.
+- Portfolio at 1440×900 (6): both trends visible, inside the tile, inside the first viewport.
+- Portfolio at 1280×720 and 390×844 (12): both trend slots are present with their series (`svg.ux-spark` and
+  "against Sep"). Each sits in a `.ux-kpi-s` that is `display:none` and matches `.ux-kpi-s+.ux-kpi-s`, with nothing
+  else hiding it (`compactHidden`).
+- The `compactHidden` test is not vacuous: it is false for all 12 trends in the 1440 shots.
+- Site at 1440×900 and 390×844 (12): "Trend not available yet", no sparkline (D5, R742).
+- Screenshot names are as in round 1, in the new folder.
+
+## Merge note (round 1; done in round 2)
 
 `main` moved after the base. From `54808af06` to `56300a810` it changed `demo-site-scenario-manifest.yaml` (the RECON-1
 data lane, D-RECON.5-7) and `check_manifest.py`. `derived-values.json`, `fixtures.js` and `index.html` did not change on
