@@ -169,6 +169,7 @@ class MemoryStore:
             if any(g.person_id == row.person_id and g.role == row.role and g.site_id == row.site_id
                    for g in self._held(row.tenant_id)):
                 raise StoreConflict("ROLE_ALREADY_HELD")
+            row = replace(row, site_code=self._site_code(row.site_id))
             self.grants.append(row)
             return row
 
@@ -415,6 +416,7 @@ def test_resolve_none_for_a_disabled_account(world: World) -> None:
     w.clock.advance(seconds=1)
     w.svc.onboard_set_status("joseph@acme.example", "DISABLED", "left")
     assert w.svc.resolve(signed.token) is None
+    w.clock.advance(seconds=1)  # state is the latest row by time
     w.svc.onboard_set_status("joseph@acme.example", "ACTIVE", None)
     assert w.svc.resolve(signed.token) is not None
 

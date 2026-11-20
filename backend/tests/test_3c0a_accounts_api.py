@@ -113,6 +113,7 @@ def test_a_bad_cookie_setting_refuses_create_app(env) -> None:
 
 def test_refused_sign_ins_are_identical(client: TestClient, world: World) -> None:
     world.svc.onboard_create("acme", "peter@acme.example", "Peter", PW, executive=False)
+    world.clock.advance(seconds=1)  # the status row after the ACTIVE one (state is the latest row by time)
     world.svc.onboard_set_status("peter@acme.example", "DISABLED", "left")
     world.store.add_bare_account(world.tenant, "nocred@acme.example", "No Cred", world.clock.now)
     answers = [_sign_in(client, email, pw) for email, pw in (
