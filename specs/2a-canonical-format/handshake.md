@@ -143,3 +143,85 @@ coverage fix. **(done)** marks a question whose answer changes what counts as do
 ## Implementer pre-flight questions
 
 (none yet)
+
+## Implementer pre-flight
+
+Implementer (Claude), 2026-11-20. Pre-flight of `spec.md` rev 1 against `main` at `e3052032d`, read-only; no code.
+**(done)** marks an answer that changes what counts as done. Each item has its evidence and a proposed answer.
+
+**Checked and true as the spec says:** `contracts/pyproject.toml` has `dependencies = []`; the venv has pytest
+9.2.0 and pyyaml 6.0.3 (Python 3.12.16); `contracts/tests` runs on its own with no conftest (6 passed); the manifest
+path resolves from `parents[2]`; `factor_map` holds 73 IDs, and for each structure key the set equals spec §5's
+rows (4 shared IDs, 9 money leaves, money flag equals unit `MONEY` on every row); T3 passes on today's
+`leaf_sources` with spec §6.4's kinds; the fixture has 13 batches and all 14 kinds; tenant slug rule
+`0001_foundation_identity.py:54`; `site.timezone` `0001:67`; the DS1 bound `world/history.py:57`;
+`world/leaves.py`, `source_envelope_v4.py` and `operational_records.py` exist; `dependency-direction.ps1:141-165`
+scans `contracts/`; `tracked_evidence.py` allows a `fixtures/` folder.
+
+- **P1 (done) The spec folder is not on `main`.** §0 says branch off `main` at or after `56300a810`, but
+  `specs/2a-canonical-format/` (the fixture source, the packet's home) exists only on `task/build-wave1-specs`
+  (`git ls-tree main specs/` has no such folder; `git merge-base main 2a56ed99c` is `56300a810`). A build branch cut
+  from `main` cannot `cmp` the fixture or hold the packet. *Proposed:* the coordinator merges `task/build-wave1-specs`
+  into `main` when the handshake closes, and the build branch is cut after that merge. §0 says so.
+- **P2 (done) `select-tests` does not select "no backend file".** A non-Python file under `contracts/` makes it
+  select everything (`tools/select-tests.py:178-180`). Measured with `--files`: with the fixture, `mode: full (510 of
+  510) ... full because: contracts/tests/fixtures/canonical_v1_examples.json (run-time data the import graph cannot
+  trace)`; without it, `mode: none`. *Proposed:* §9 expects "full, for the fixture alone". The packet cites that output
+  and does not run the full suite, because no backend module reads the file. Exempting `contracts/tests/fixtures/*`
+  would be a change to `tools/`, so it is a separate small item and not part of 2a.
+- **P3 Nothing runs `contracts/tests` after the merge.** No runner, check-all mode, `select-tests` (`TEST_DIR =
+  "backend/tests"`, `select-tests.py:37`) or full-suite tier collects `contracts/tests`. Grepping `tools/`,
+  `backend/TESTING.md` and `backend/pyproject.toml` for `contracts/tests` finds nothing. So T1 (parity with the
+  manifest) would not catch a later manifest edit. *Proposed:* the Architect decides between adding `contracts/tests`
+  to check-all's fast mode (a small change to `tools/`, not part of 2a) and recording it as a known risk in the packet.
+  2a does not edit `tools/`.
+- **P4 (done) The refusal code is not fixed for several cases T6 must assert in full.** §6.3 and §6.7 leave these
+  open. *Proposed mapping:*
+  - A whole-number violation (`STORAGE_MOVEMENT` quantity `"120.5"`) is `CANONICAL_NUMBER record.quantity.value`.
+  - `factor_id` failing `FACTOR_ID_PATTERN` (`"Diesel"`) is `CANONICAL_FACTOR record.body.factor_id`.
+  - An integer or bounded decimal outside its range (`pages` 0 or 10,001; `soc_pct` 100.5) is `CANONICAL_SIGN`,
+    the one code for "outside the table's range".
+  - Every pattern-checked identifier fails as `CANONICAL_REF`: `site_code`, `tenant_code`, `document_sha256`, and a
+    ref over its own length limit (`band` 40, `reason_code` 40, `source_version` 64).
+  - A `subject.kind` the kind does not allow (`VEHICLE` on a `CHARGE`) is `CANONICAL_ENUM record.subject.kind`.
+    `subject` present where the table says F is `CANONICAL_FORBIDDEN record.subject`. A `status` outside the kind's
+    enum is `CANONICAL_ENUM`.
+  - A quantity unit wrong for the kind or `line_type` (`DEMAND` with `kWh`), and a band `unit` outside the three, are
+    `CANONICAL_UNIT`.
+  - A currency failing `^[A-Z]{3}$`, in `amount` or in `body.currency`, is `CANONICAL_CURRENCY`. On
+    `STORAGE_MOVEMENT`, `currency` without `rate` is `CANONICAL_FORBIDDEN`, and `rate` without `currency` is
+    `CANONICAL_FIELD record.body.currency`.
+  - A duplicate band name is `CANONICAL_DUPLICATE record.body.bands[n].band`. `acknowledged_at` or `restored_at`
+    before `occurred_at` is `CANONICAL_RANGE`. `restored_at` absent with status `RESTORED` is `CANONICAL_FIELD`.
+  - On the envelope: an unknown `source_type` is `CANONICAL_SOURCE_TYPE batch.source_type`; a batch that is not an
+    object is `CANONICAL_TYPE batch`; `records` that is not an array is `CANONICAL_TYPE batch.records`; more than
+    10,000 records is `CANONICAL_RANGE batch.records` (add "batch size" to `CANONICAL_RANGE`'s definition).
+- **P5 (done) The order inside "the top-level key set" and "the body's keys" is not fixed.** §6.6 does not say
+  whether an unknown key or a missing required key is reported first, or in what order several unknown keys are
+  reported. It also does not say whether an absent required top-level field is reported at the key-set step or at its
+  own step. *Proposed:* the key-set step reports only keys that are present and not allowed (`CANONICAL_FORBIDDEN`,
+  the first in sorted key order). An absent required key is reported at its own step, in §6.6's order
+  (`CANONICAL_FIELD`). The body follows the same rule: forbidden keys first (sorted), then each field in table order.
+- **P6 The path of a refusal inside a batch.** §6.6 gives record-relative paths (`CANONICAL_SOURCE_TYPE
+  record.kind`), while §6.5's examples include `batch.records[3]`. *Proposed:* every record outcome carries a
+  `record.`-relative path, including a non-object element (`CANONICAL_TYPE record`). No v1 refusal produces
+  `batch.records[n]`, so that example is removed from §6.5.
+- **P7 Canonical unit text with no numerator, and non-reduced input.** §4's rule gives `"/DAY"` for `ONE / DAY`,
+  which its own grammar refuses. The grammar also admits non-reduced text (`KWH*L/KWH`). *Proposed:* the numerator is
+  `1` when no exponent is positive (`1/DAY`). `parse_unit` accepts a text only when `str(parse(text)) == text`, so
+  out-of-order, non-reduced and repeated forms all raise `ValueError("CANONICAL_UNIT <text>")`.
+- **P8 T4's terms are not the manifest's text.** Seven of the fourteen listed products do not occur in the manifest
+  as written. For example, the manifest has `battery_throughput_kwh * wear_rate` (manifest line 823) and
+  `departures_missed * penalty_rate` (863); `spare_bus_nights * penalty_rate` does not occur. *Proposed:* T4
+  hand-lists the fourteen terms and checks units only. It does not assert that they occur in the manifest.
+- **P9 `leaves_of("COLD_CHAIN")` order.** "The table's order" puts `outstanding`, `staff`, `liability` and
+  `period_days` at their MG rows (10, 19, 27, 28), before `crate_days`, which differs from the manifest's
+  `factor_map` order. The sets are equal (checked). *Proposed:* keep the table's order (T1 compares sets) and note it
+  in the docstring so DS1b does not rely on manifest order.
+- **P10 (done) Finish bookkeeping falls outside §10 Q6's scope.** The standing brief requires a `.ai/state/` entry and
+  its `index-*.md` line, plus the spec's status. The specs have no `Status:` line; the status lives in the
+  `specs/INDEX.md` row (line 72). Q6 and reviewer-guide check 2 allow only `contracts/` and the packet. *Proposed:*
+  those three bookkeeping files are allowed and are excluded from the scope check, and "Status: in_review" means the
+  `specs/INDEX.md` row.
+- **Estimate.** 1.5 units holds if P4 and P5 are ruled before code: the per-kind table as data and the 17-code mapping
+  are the bulk, and the open mappings are the main risk of rework at review.
