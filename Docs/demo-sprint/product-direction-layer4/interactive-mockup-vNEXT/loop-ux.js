@@ -460,3 +460,13 @@ document.addEventListener('input', e => { if (!e.target.classList.contains('ux-s
 
 /* the top bar's search names what it searches, on every screen */
 function uxSearchLabel() { const sb = document.querySelector('.topbar [data-index]'); if (!sb) return; [...sb.childNodes].filter(n => n.nodeType === 3 && n.nodeValue.trim()).forEach(n => { n.nodeValue = 'Search sites, decisions, screens'; }); sb.setAttribute('aria-label', 'Search sites, decisions and screens (Ctrl K)'); }
+
+/* on-request recalculation (owner Q7, OD-23; MOCK DEVIATION addition): the notice turns to "Recalculated", recorded under the
+   signed-in person. The demo data holds no post-recalculation values, so no figure changes; the notice says so. */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-ux-recalc]'); if (!b) return;
+  const row = b.closest('.ux-pending'), st = row?.querySelector('.snap-pending'); if (!st) return;
+  const d = new Date(), hh = String(d.getHours()).padStart(2, '0'), mm = String(d.getMinutes()).padStart(2, '0'), who = typeof avatarName === 'function' ? avatarName() : '';
+  st.innerHTML = `<span class="badge green">Recalculated · figures as of ${hh}:${mm}, ${fdate(AS_OF)}${who ? ` · asked for by Operator executive · ${who}` : ''}. Figures updated: this demo holds no recalculated values, so the numbers shown are unchanged.</span>`;
+  st.classList.add('is-done'); b.remove();
+});

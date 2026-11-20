@@ -376,7 +376,7 @@ function orgUsersAndRoles(){const op=LS.op,o=OPS[op],w=WF(op),ex=execOf(op),C=o.
  <h3 class="h3s">Grants and removals, newest first</h3>${grants}<p class="note">Only the operator executive grants or removes a role; each change is a new row with its person and time. No removal recorded yet.</p>
  <div class="approval-buttons"><button type="button" class="button" disabled title="Not wired in this mock-up">Grant a role</button><button type="button" class="button" disabled title="Not wired in this mock-up">Remove a role</button><small class="cellnote">Shown to the operator executive only</small></div>
  <h3 class="h3s">Release thresholds</h3>${thr}<p class="note">A Site setting wins over the portfolio’s; a change spanning Sites is judged against the portfolio’s. When unset, the spend threshold reads “${ORG_DEFAULT.spend.toLowerCase()}” and the ${crewOne(op)} threshold reads ${num(ORG_DEFAULT.crew)}.</p>
- <h3 class="h3s">Budget and ${o.crewWord} by month</h3>${limits}<p class="note">Each change to a threshold or limit is recorded with its person and time, and recalculates the figures.</p>${ILLUS}`,'Read by every role; changed only by the operator executive');}
+ <h3 class="h3s">Budget and ${o.crewWord} by month</h3>${limits}<p class="note">Each change to a threshold or limit is recorded with its person and time. The figures it touches are recalculated at the daily run, or at once when someone asks.</p>${ILLUS}`,'Read by every role; changed only by the operator executive');}
 
 /* ---------- Act first: the Finding triage first, the plan beside it ---------- */
 /* who chooses (design rev 16.12 §2.4 step 2, the Architect's ruling on OD-16): the role the data names for the decision

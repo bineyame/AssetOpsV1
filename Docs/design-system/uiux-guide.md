@@ -381,7 +381,7 @@ Each chart answers one question. Its title states the answer, for example "Cost 
 
 **Caveats once per scope.** A caveat such as "Design estimate: not yet tested on your recorded data" is one notice at the top of the page or section. The affected figures carry a small dagger (†) that points to it (proposal U2). Today the same sentence appears 17 times on the Kobo decision page.
 
-**Freshness.** The top bar shows "Figures as of 06:00, 6 Nov". While a recalculation is pending, an inline notice under the page header says "Thika is being recalculated after a new invoice; its figures are from 06:00" (design §2.8). There is one notice, not a badge per figure.
+**Freshness.** The top bar shows "Figures as of 06:00, 6 Nov". Figures are recalculated at the daily run, or at once when someone asks (owner, Q7; OD-23). The pending notice carries a secondary **Recalculate now** button. Pressing it turns the notice to "Recalculated · figures as of <time>", recorded under the person who asked. Until the recalculated values exist, it says the numbers are unchanged; it never invents them. This is a mock-up addition, labelled MOCK DEVIATION. While a recalculation is pending, an inline notice under the page header says "Thika is being recalculated after a new invoice; its figures are from 06:00" (design §2.8). There is one notice, not a badge per figure.
 
 ---
 

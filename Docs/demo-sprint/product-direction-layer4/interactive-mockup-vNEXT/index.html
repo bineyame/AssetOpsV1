@@ -1351,6 +1351,16 @@ details.ux-pop>summary:focus-visible{outline:2px solid var(--focus);outline-offs
 /* L5: rail labels at AA; the footer has a solid backing */
 .rail .eyebrow,.rail .rail-group .eyebrow,.rail-footer,.rail-footer .eyebrow{color:var(--rail-text-2);opacity:1}
 .rail-footer{position:relative;z-index:1;background:var(--rail-bg)}
+/* the pending-recalculation notice with its on-request control (guide §6 freshness, §7.6) */
+.ux-pending{display:flex;flex-direction:column;gap:var(--s2)}
+.ux-recalc-row{display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap}
+.ux-recalc.button{min-height:32px;padding:4px 14px;font-size:var(--fs-sm)}
+.ux-mockdev{font-size:var(--fs-xs);color:var(--text-2);border:1px dashed var(--line-strong);border-radius:var(--r1);padding:0 6px}
+.ux-pending{flex-direction:row;align-items:center;gap:var(--s3)}
+.ux-pending .snap-pending{flex:1;min-width:0}
+.ux-recalc-row{flex:none;flex-direction:column;align-items:flex-end;gap:2px}
+@media (max-width:760px){.ux-pending{flex-direction:column;align-items:stretch}.ux-recalc-row{flex-direction:row;align-items:center}}
+@media (min-width:1024px) and (max-height:820px){.ux-pending{margin-bottom:var(--s2)}.ux-pending .badge{padding:4px var(--s3);line-height:18px}}
 
 /* brand.css: brand packs (UI/UX guide §4.7). A pack changes only brand tokens: surfaces' warmth, the interactive accent, the
    rail, the brand mark and the motif accents (a header band, the brand mark, empty and loading states). It never changes
@@ -3265,7 +3275,9 @@ function afterRender(s){if(s.loop||s.opScoped){tagReplay(document.querySelector(
 
 /* the page's one scope line (UI/UX guide §6, U1 and U2): the baseline evidence said once; the design-estimate caveat said once */
 function uxScopeLine(){const c=document.querySelector('.canvas'),h=c&&c.querySelector('.page-heading>div');if(!h||h.querySelector('.ux-scope'))return;
- const pend=document.querySelector('.topbar .snap-pending');if(pend){const row=document.createElement('div');row.className='ux-pending';row.appendChild(pend);c.insertBefore(row,c.firstChild);}
+ const pend=document.querySelector('.topbar .snap-pending');if(pend){const row=document.createElement('div');row.className='ux-pending';row.appendChild(pend);
+  /* MOCK DEVIATION (addition), owner Q7 / OD-23: figures recalculate at the daily run or when someone asks */
+  row.insertAdjacentHTML('beforeend','<div class="ux-recalc-row"><button type="button" class="button ux-recalc" data-ux-recalc>Recalculate now</button><span class="ux-mockdev" title="Added to the mock-up: on-request recalculation (owner Q7)">MOCK DEVIATION · addition</span></div>');c.insertBefore(row,c.firstChild);}
  const dv=!!c.querySelector('.dv-mark'),il=c.querySelectorAll('.illus');il.forEach(e=>e.remove());h.insertAdjacentHTML('beforeend',`<details class="ux-pop ux-prov"><summary><span aria-hidden="true">ⓘ</span> About these figures${dv?' <span class="ux-prov-dag">· † design estimates</span>':''}</summary><div class="ux-pop-menu ux-scope" role="note"><p>Figures are recorded or measured unless marked; all are simulated demo data.</p>${dv?'<p><span aria-hidden="true">†</span> Design estimate: not yet tested on your recorded data.</p>':''}${il.length?'<p>Names are illustrative.</p>':''}${[...c.querySelectorAll('.ux-prov-extra')].map(x=>`<p>${x.dataset.prov}</p>`).join('')}<p>Open any figure to see how it is worked out.</p></div></details>`);c.querySelectorAll('.ux-prov-extra').forEach(x=>x.remove());} /* wave 2: one quiet provenance control */
 /* click and change hooks */
 /* ---------- theme: follow the system, or light, or dark (top bar) ---------- */
@@ -4120,7 +4132,7 @@ function orgUsersAndRoles(){const op=LS.op,o=OPS[op],w=WF(op),ex=execOf(op),C=o.
  <h3 class="h3s">Grants and removals, newest first</h3>${grants}<p class="note">Only the operator executive grants or removes a role; each change is a new row with its person and time. No removal recorded yet.</p>
  <div class="approval-buttons"><button type="button" class="button" disabled title="Not wired in this mock-up">Grant a role</button><button type="button" class="button" disabled title="Not wired in this mock-up">Remove a role</button><small class="cellnote">Shown to the operator executive only</small></div>
  <h3 class="h3s">Release thresholds</h3>${thr}<p class="note">A Site setting wins over the portfolio’s; a change spanning Sites is judged against the portfolio’s. When unset, the spend threshold reads “${ORG_DEFAULT.spend.toLowerCase()}” and the ${crewOne(op)} threshold reads ${num(ORG_DEFAULT.crew)}.</p>
- <h3 class="h3s">Budget and ${o.crewWord} by month</h3>${limits}<p class="note">Each change to a threshold or limit is recorded with its person and time, and recalculates the figures.</p>${ILLUS}`,'Read by every role; changed only by the operator executive');}
+ <h3 class="h3s">Budget and ${o.crewWord} by month</h3>${limits}<p class="note">Each change to a threshold or limit is recorded with its person and time. The figures it touches are recalculated at the daily run, or at once when someone asks.</p>${ILLUS}`,'Read by every role; changed only by the operator executive');}
 
 /* ---------- Act first: the Finding triage first, the plan beside it ---------- */
 /* who chooses (design rev 16.12 §2.4 step 2, the Architect's ruling on OD-16): the role the data names for the decision
@@ -4853,6 +4865,16 @@ document.addEventListener('input', e => { if (!e.target.classList.contains('ux-s
 
 /* the top bar's search names what it searches, on every screen */
 function uxSearchLabel() { const sb = document.querySelector('.topbar [data-index]'); if (!sb) return; [...sb.childNodes].filter(n => n.nodeType === 3 && n.nodeValue.trim()).forEach(n => { n.nodeValue = 'Search sites, decisions, screens'; }); sb.setAttribute('aria-label', 'Search sites, decisions and screens (Ctrl K)'); }
+
+/* on-request recalculation (owner Q7, OD-23; MOCK DEVIATION addition): the notice turns to "Recalculated", recorded under the
+   signed-in person. The demo data holds no post-recalculation values, so no figure changes; the notice says so. */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-ux-recalc]'); if (!b) return;
+  const row = b.closest('.ux-pending'), st = row?.querySelector('.snap-pending'); if (!st) return;
+  const d = new Date(), hh = String(d.getHours()).padStart(2, '0'), mm = String(d.getMinutes()).padStart(2, '0'), who = typeof avatarName === 'function' ? avatarName() : '';
+  st.innerHTML = `<span class="badge green">Recalculated · figures as of ${hh}:${mm}, ${fdate(AS_OF)}${who ? ` · asked for by Operator executive · ${who}` : ''}. Figures updated: this demo holds no recalculated values, so the numbers shown are unchanged.</span>`;
+  st.classList.add('is-done'); b.remove();
+});
 
 /* ===== Layer 4 rev 4 mock-up · screen registration, change status, initial render ===== */
 const V70IDS = new Set(SCREENS.map(s=>s.id));
