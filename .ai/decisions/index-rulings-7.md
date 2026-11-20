@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-BW1.1 to D-DS1B.6)
+# Decision index: Demo-sprint and later rulings (index only) (D-BW1.1 to D-T2.1)
 
 One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it. Top index: `INDEX.md`.
 
@@ -45,3 +45,6 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-L4OPS.7` Operations slices queued (26 units) after the must-keep set; fortnight unchanged · live · specs/L4-OPS/rulings.md
 - `D-L4OPS.8` Kasarani service fee = maintenance leaf 300; data lane corrects the SLA text · live · specs/L4-OPS/rulings.md
 - `D-L4OPS.9` Tie line "Unbilled energy" (OD-28), industry-standard term; replaces D-RECON.2's words · live · specs/L4-OPS/rulings.md
+- `D-DS1B.7` ESTIMATED October lines are never written as records · live · specs/DS1b-canonical-writers/rulings.md
+- `D-DS1B.8` One canonical record per Site, month and field · live · specs/DS1b-canonical-writers/rulings.md
+- `D-T2.1` Neutral package tests as a check-all guard; select-tests names them · live · specs/T2-neutral-package-tests/rulings.md
