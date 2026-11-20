@@ -507,8 +507,13 @@ def _mutate(rng: random.Random, record: dict) -> dict:
     path = rng.choice(paths)
     parent = _get(record, path[:-1])
     key = path[-1]
-    op = rng.choice(["drop", "type", "control", "surrogate", "sign"])
-    if op == "drop":
+    op = rng.choice(["drop", "type", "control", "surrogate", "sign", "key"])
+    if op == "key":
+        # A key mutation at any object level (spec T7): a surrogate, a control character or 1,000 characters.
+        target = parent[key] if isinstance(parent.get(key) if isinstance(parent, dict) else None, dict) else parent
+        if isinstance(target, dict):
+            target[rng.choice(["\ud800x", "a\x00b", "\x1f", "k" * 1000, "\udfff" * 3])] = 1
+    elif op == "drop":
         if isinstance(parent, dict):
             del parent[key]
         else:
@@ -542,11 +547,125 @@ def test_t7_mutations_raise_only_canonical_refused():
             record = parse_record(mutated)
         except CanonicalRefused as refused:
             assert refused.path.startswith("record"), str(refused)
+            str(refused).encode("ascii")  # D-2A.11: every refusal text is ASCII
+            assert len(refused.path) < 400
             continue
         parsed_count += 1
         written = to_canonical_json(record)
         assert to_canonical_json(parse_record(loads_canonical(written))) == written
     assert 0 < parsed_count < 500
+
+
+# --- T11: review round 1 (spec rev 3: D-2A.11, D-2A.12) ---------------------
+
+
+def _refusal_text(fn, *args) -> str:
+    with pytest.raises(CanonicalRefused) as caught:
+        fn(*args)
+    text = str(caught.value)
+    text.encode("ascii")
+    return text
+
+
+def test_t11_surrogate_key_in_body_is_a_ref_refusal_at_the_container():
+    record = _record("INV-MTO-2026-10-C0412-1")
+    record["body"]["\ud800"] = "x"
+    assert _refusal_text(parse_record, record) == "CANONICAL_REF record.body"
+
+
+def test_t11_loads_canonical_duplicate_surrogate_key():
+    data = b'{"\\ud800": 1, "\\ud800": 2}'
+    assert _refusal_text(loads_canonical, data) == "CANONICAL_REF json"
+
+
+def test_t11_long_unknown_key_is_escaped_and_capped():
+    record = _record("INV-MTO-2026-10-C0412-1")
+    record["body"]["k" * 1000] = "x"
+    assert _refusal_text(parse_record, record) == "CANONICAL_FORBIDDEN record.body." + "k" * 64 + "..."
+    record = _record("INV-MTO-2026-10-C0412-1")
+    record["body"]["\u00e9" * 1000] = "x"
+    assert _refusal_text(parse_record, record) == "CANONICAL_FORBIDDEN record.body." + "\\u00e9" * 10 + "..."[:0] + "\\u00e9"[:4] + "..."
+    assert _refusal_text(loads_canonical, ('{"' + "z" * 1000 + '": 1, "' + "z" * 1000 + '": 2}').encode()) == \
+        "CANONICAL_DUPLICATE json." + "z" * 64 + "..."
+
+
+CONTROL_CASES = [
+    ("INV-MTO-2026-10-C0412-1", "line_type"),
+    ("FP-KOBO-2026-10-14", "category"),
+    ("MT-2201:2026-10", "read_type"),
+]
+
+
+@pytest.mark.parametrize("record_id, control", CONTROL_CASES, ids=[c[1] for c in CONTROL_CASES])
+def test_t11_missing_or_invalid_control_is_the_root_cause(record_id, control):
+    record = _record(record_id)
+    assert "quantity" in record
+    del record["body"][control]
+    assert _refusal(record) == f"CANONICAL_FIELD record.body.{control}"
+    record = _record(record_id)
+    record["body"][control] = "BOGUS"
+    assert _refusal(record) == f"CANONICAL_ENUM record.body.{control}"
+
+
+def test_t11_version_before_envelope_keys():
+    batch = _batch("mobile_money_statement")
+    batch["format_version"] = 2
+    batch["extra"] = 1
+    assert _batch_refusal(batch) == "CANONICAL_VERSION batch.format_version"
+
+
+def test_t11_null_subject_on_a_forbidden_row():
+    record = _record("MM-SETTLE-2026-11-02")
+    record["subject"] = None
+    assert _refusal(record) == "CANONICAL_FORBIDDEN record.subject"
+
+
+JUNK_CASES = [
+    ("INV-MTO-2026-10-C0412-1", ["site_code"], "CANONICAL_REF record.site_code"),
+    ("INV-MTO-2026-10-C0412-1", ["amount", "currency"], "CANONICAL_CURRENCY record.amount.currency"),
+    ("DOC-SUNFIELD-WARRANTY", ["body", "document_sha256"], "CANONICAL_REF record.body.document_sha256"),
+    ("INV-MTO-2026-10-C0412-1", ["clocks", "recognition_period"], "CANONICAL_CLOCK record.clocks.recognition_period"),
+    ("INV-MTO-2026-10-C0412-1", ["clocks", "effective_from"], "CANONICAL_CLOCK record.clocks.effective_from"),
+    ("C-114:rev-2", ["body", "bands", 0, "from"], "CANONICAL_CLOCK record.body.bands[0].from"),
+    ("FP-KOBO-2026-10-14", ["clocks", "occurred_at"], "CANONICAL_CLOCK record.clocks.occurred_at"),
+]
+
+
+@pytest.mark.parametrize("record_id, path, expected", JUNK_CASES, ids=[c[2] for c in JUNK_CASES])
+def test_t11_trailing_junk_fails_every_pattern(record_id, path, expected):
+    record = _record(record_id)
+    target = _get(record, path[:-1])
+    target[path[-1]] = target[path[-1]] + "\n"
+    assert _refusal(record) == expected
+
+
+def test_t11_trailing_junk_tenant_code():
+    batch = _batch("mobile_money_statement")
+    batch["tenant_code"] += "\n"
+    assert _batch_refusal(batch) == "CANONICAL_REF batch.tenant_code"
+
+
+def test_t11_nfd_ref_round_trips_and_differs_from_nfc():
+    import unicodedata
+    nfd = unicodedata.normalize("NFD", "Caf\u00e9")
+    nfc = unicodedata.normalize("NFC", nfd)
+    assert nfd != nfc
+    a = _record("INV-MTO-2026-10-C0412-1")
+    a["body"]["tariff_code"] = nfd
+    b = _record("INV-MTO-2026-10-C0412-1")
+    b["body"]["tariff_code"] = nfc
+    written = to_canonical_json(parse_record(a))
+    assert nfd.encode() in written and nfc.encode() not in written
+    assert to_canonical_json(parse_record(loads_canonical(written))) == written
+    assert written != to_canonical_json(parse_record(b))
+    assert record_digest(parse_record(a)) != record_digest(parse_record(b))
+
+
+def test_t11_overlap_points_at_the_input_index_of_the_later_band():
+    record = _record("C-114:rev-2")
+    mk = lambda name, a, b: {"band": name, "from": a, "to": b, "rate": "0.10", "unit": "per_kWh"}
+    record["body"]["bands"] = [mk("C", "20:00", "23:00"), mk("A", "01:00", "11:00"), mk("B", "10:00", "12:00")]
+    assert _refusal(record) == "CANONICAL_RANGE record.body.bands[2].from"
 
 
 # --- T8: units ---------------------------------------------------------------

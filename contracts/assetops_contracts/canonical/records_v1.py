@@ -199,7 +199,9 @@ _SPECS = (
         "EXPENSE", _CR, ("occurred_at", "recognition_period"), (), "R",
         ("O", ("ASSET", "SITE")),
         _Part("R"),
-        _Part(_When("body", "category", {"FUEL": "R"}, "F"), units=("L",)),
+        _Part(_When("body", "category",
+                    {"FUEL": "R", "OM": "F", "STAFF": "F", "REPAIR": "F", "ENERGY": "F", "PENALTY": "F",
+                     "COLLECTION": "F", "HANDLING": "F"}, ""), units=("L",)),
         ("R", ("QUOTE", "INVOICED", "PAID")),
         (_ref("counterparty_ref"),
          _enum("category", "FUEL", "OM", "STAFF", "REPAIR", "ENERGY", "PENALTY", "COLLECTION", "HANDLING"),
@@ -335,11 +337,21 @@ class BatchResult:
 # --- Bytes in (§6.6, R7) ------------------------------------------------------------------
 
 
+def _key_text(key) -> str:
+    """A key as it may enter a path (§6.8a): ASCII-escaped, at most 64 characters, `...` when cut."""
+    text = json.dumps(str(key), ensure_ascii=True)[1:-1]
+    return text if len(text) <= 64 else text[:64] + "..."
+
+
 def _pairs(pairs):
+    pairs = list(pairs)
+    for key, _ in pairs:
+        if _SURROGATE.search(key):
+            _fail("CANONICAL_REF", "json")
     out = {}
     for key, value in pairs:
         if key in out:
-            _fail("CANONICAL_DUPLICATE", f"json.{key}")
+            _fail("CANONICAL_DUPLICATE", f"json.{_key_text(key)}")
         out[key] = value
     return out
 
@@ -458,9 +470,12 @@ def _check_object(value, path: str) -> dict:
 
 
 def _check_keys(obj: dict, allowed, path: str) -> None:
+    for key in obj:
+        if _SURROGATE.search(str(key)):
+            _fail("CANONICAL_REF", path)
     unknown = sorted(str(key) for key in obj if key not in allowed)
     if unknown:
-        _fail("CANONICAL_FORBIDDEN", f"{path}.{unknown[0]}")
+        _fail("CANONICAL_FORBIDDEN", f"{path}.{_key_text(unknown[0])}")
 
 
 def _check_refset(value, path: str, min_items: int) -> tuple[str, ...]:
@@ -740,10 +755,10 @@ def parse_batch(obj: object) -> BatchResult:
     valid, a second `(source_record_id, source_version)` is refused (R13).
     """
     batch = _check_object(obj, "batch")
-    _check_keys(batch, BATCH_KEYS, "batch")
     version = batch.get("format_version")
     if type(version) is not int or version != FORMAT_VERSION:
         _fail("CANONICAL_VERSION", "batch.format_version")
+    _check_keys(batch, BATCH_KEYS, "batch")
     _present(batch, "tenant_code", "R", "batch")
     tenant_code = _check_pattern(batch["tenant_code"], "batch.tenant_code", _TENANT, "CANONICAL_REF")
     _present(batch, "source_type", "R", "batch")
