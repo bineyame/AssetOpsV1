@@ -286,19 +286,25 @@ def within_command_window(value: datetime, db_now: datetime) -> bool:
 
 # ---- closed bodies ---------------------------------------------------------------------------------------------
 
-def action_body(body: Any) -> dict[str, Any]:
+def _actor_key(actor: bool) -> tuple[str, ...]:
+    """3C1a (P4): the person path's closed shapes carry no `actor`, so a body naming one is the route's 422."""
+    return ("actor",) if actor else ()
+
+
+def action_body(body: Any, actor: bool = True) -> dict[str, Any]:
     """The normalized closed Action creation body (actor excluded; validated by the caller). A missing or
     unsupported `domain` is the neutral 422 (pre-flight 10); every other failure carries that domain's literal."""
     spec = spec_of(body.get("domain")) if isinstance(body, dict) else None
     if spec is None:
         raise neutral(NEUTRAL_DOMAIN_INVALID)
-    return _as(spec.refuse("DOMAIN_INTENT_INVALID"), _action_body, body, spec)
+    return _as(spec.refuse("DOMAIN_INTENT_INVALID"), _action_body, body, spec, actor)
 
 
-def _action_body(body: Any, spec: DomainSpec) -> dict[str, Any]:
+def _action_body(body: Any, spec: DomainSpec, actor: bool = True) -> dict[str, Any]:
     pair = (("origin_opportunity_id", "origin_opportunity_revision_id") if spec.origin == ORIGIN_OPPORTUNITY
             else ("origin_finding_id", "origin_finding_revision_id"))
-    b = closed(body, ("domain", *pair, "title", "owner_label", "due_at", "raised_at", "actor", "idempotency_key"))
+    b = closed(body, ("domain", *pair, "title", "owner_label", "due_at", "raised_at", *_actor_key(actor),
+                      "idempotency_key"))
     raised = instant(b["raised_at"])
     due = None if b["due_at"] is None else instant(b["due_at"])
     if due is not None and not raised <= due <= raised + DUE_LIMIT:
@@ -376,17 +382,17 @@ def basis(value: Any, spec: DomainSpec | None = None) -> dict[str, Any]:
     return out
 
 
-def _intent_shape(body: Any) -> dict[str, Any]:
-    b = closed(body, ("supersedes_id", "declared_at", "criteria", "basis", "actor", "idempotency_key"))
+def _intent_shape(body: Any, actor: bool = True) -> dict[str, Any]:
+    b = closed(body, ("supersedes_id", "declared_at", "criteria", "basis", *_actor_key(actor), "idempotency_key"))
     return {"supersedes_id": optional_uuid(b["supersedes_id"]), "declared_at": instant(b["declared_at"]),
             "criteria": _criteria_shape(b["criteria"]), "basis": _basis_shape(b["basis"]),
             "idempotency_key": key(b["idempotency_key"])}
 
 
-def intent_shape(body: Any) -> dict[str, Any]:
+def intent_shape(body: Any, actor: bool = True) -> dict[str, Any]:
     """Readiness 28, before the Action is resolved: the closed top-level shape, static bounds and the
     domain-independent criteria/basis shape; any failure is the neutral intent 422."""
-    return _as(neutral(NEUTRAL_INTENT_INVALID), _intent_shape, body)
+    return _as(neutral(NEUTRAL_INTENT_INVALID), _intent_shape, body, actor)
 
 
 def intent_for(spec: DomainSpec, shape: Mapping[str, Any]) -> dict[str, Any]:
@@ -404,15 +410,15 @@ def intent_body(body: Any, domain: str = DOMAIN) -> dict[str, Any]:
     return intent_for(DOMAINS[domain], intent_shape(body))
 
 
-def _case_link_body(body: Any) -> dict[str, Any]:
-    b = closed(body, ("case_id", "case_revision_id", "case_event_id", "actor", "idempotency_key"))
+def _case_link_body(body: Any, actor: bool = True) -> dict[str, Any]:
+    b = closed(body, ("case_id", "case_revision_id", "case_event_id", *_actor_key(actor), "idempotency_key"))
     return {"case_id": uuid_text(b["case_id"]), "case_revision_id": uuid_text(b["case_revision_id"]),
             "case_event_id": uuid_text(b["case_event_id"]), "idempotency_key": key(b["idempotency_key"])}
 
 
-def case_link_body(body: Any) -> dict[str, Any]:
+def case_link_body(body: Any, actor: bool = True) -> dict[str, Any]:
     """Domain-independent (readiness 28): any failure is the neutral case-link 422."""
-    return _as(neutral(NEUTRAL_CASE_LINK_INVALID), _case_link_body, body)
+    return _as(neutral(NEUTRAL_CASE_LINK_INVALID), _case_link_body, body, actor)
 
 
 def path_action_id(value: str) -> str | None:
@@ -436,7 +442,7 @@ def _canonical(value: Any) -> Any:
 
 
 def command_sha256(tenant_id: UUID, site_id: UUID, action_id: str | None, command: str,
-                   normalized: Mapping[str, Any], actor: m.Actor) -> str:
+                   normalized: Mapping[str, Any], actor: m.Actor | m.PersonActor) -> str:
     """Ruling A2: W4 `command_sha256` over route identity `{tenant_id,site_id,action_id|null,command}` and the
     normalized closed body (trimmed text, UTC `Z` instants, sorted evidence IDs, the validated actor)."""
     path = {"tenant_id": str(tenant_id), "site_id": str(site_id), "action_id": action_id, "command": command}

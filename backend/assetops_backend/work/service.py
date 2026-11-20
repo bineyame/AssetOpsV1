@@ -117,12 +117,18 @@ class WorkService:
         return str(self._new_id())
 
     @staticmethod
-    def _actor(body: Mapping[str, Any], principal: str | None) -> m.Actor:
+    def _actor(body: Mapping[str, Any], principal: str | None, person: m.PersonActor | None = None
+               ) -> m.Actor | m.PersonActor:
+        """3C1a (spec §2): the signed-in person's server-composed actor, else today's client SERVICE actor under the
+        injected principal (a client USER actor stays 403)."""
+        if person is not None:
+            return person
         return m.authorize(m.actor_shape(body["actor"]), principal)
 
     @staticmethod
-    def _gate(principal: str | None) -> None:
-        if principal is None:
+    def _gate(principal: str | None, person: m.PersonActor | None = None) -> None:
+        """The service-principal gate; on the person path the router's person step has run in its place (§2)."""
+        if person is None and principal is None:
             raise WorkRefused("WORK_WRITE_FORBIDDEN")
 
     @staticmethod
@@ -163,15 +169,16 @@ class WorkService:
 
     # ---- case create -----------------------------------------------------------------------------------------
 
-    def create_case(self, tenant_id: UUID, site_id: UUID, body: Any, principal: str | None) -> Result:
-        self._gate(principal)
+    def create_case(self, tenant_id: UUID, site_id: UUID, body: Any, principal: str | None,
+                    person: m.PersonActor | None = None) -> Result:
+        self._gate(principal, person)
         if not isinstance(body, dict):
             raise m.invalid()
         kind = body.get("kind")
         if kind not in m.CASE_KINDS:
             raise m.invalid()
-        m.closed(body, CASE_CREATE_KEYS, ("incident_id",) if kind == m.REQUEST else ())
-        actor = self._actor(body, principal)
+        m.closed(body, m.without_actor(CASE_CREATE_KEYS, person), ("incident_id",) if kind == m.REQUEST else ())
+        actor = self._actor(body, principal, person)
         occurred_at = m.utc_instant(body["occurred_at"])
         canon = {"kind": kind, "occurred_at": m.iso(occurred_at), "asset_id": m.optional_uuid(body["asset_id"]),
                  "finding_links": m.finding_links(body["finding_links"]),
@@ -219,9 +226,9 @@ class WorkService:
         return self._store.transaction(tenant_id, site_id, work)
 
     @staticmethod
-    def _actor_cols(actor: m.Actor) -> dict[str, str]:
+    def _actor_cols(actor: m.Actor | m.PersonActor) -> dict[str, str | None]:
         return {"actor_kind": actor.kind, "actor_id": actor.id, "attestation": actor.attestation,
-                "authorization_basis": actor.authorization_basis}
+                "authorization_basis": actor.authorization_basis, "person_id": m.actor_person_id(actor)}
 
     @staticmethod
     def _insert_revision(tx: Any, row: dict[str, Any], finding: list[dict[str, str]], action: list[dict[str, str]],
@@ -258,9 +265,10 @@ class WorkService:
 
     # ---- events ----------------------------------------------------------------------------------------------
 
-    def post_event(self, tenant_id: UUID, site_id: UUID, case_id: Any, body: Any, principal: str | None) -> Result:
-        self._gate(principal)
-        m.closed(body, EVENT_KEYS)
+    def post_event(self, tenant_id: UUID, site_id: UUID, case_id: Any, body: Any, principal: str | None,
+                   person: m.PersonActor | None = None) -> Result:
+        self._gate(principal, person)
+        m.closed(body, m.without_actor(EVENT_KEYS, person))
         kind = body["kind"]
         if kind in m.OUTCOME_REQUESTS:
             raise WorkRefused("WORK_OUTCOME_NOT_SUPPORTED")
@@ -269,7 +277,7 @@ class WorkService:
         if kind not in m.WRITABLE_EVENTS:
             raise m.invalid()
         payload = m.event_payload(kind, body["payload"])
-        actor = self._actor(body, principal)
+        actor = self._actor(body, principal, person)
         occurred_at = m.utc_instant(body["occurred_at"])
 
         def work(tx: Any) -> Result:
@@ -311,11 +319,11 @@ class WorkService:
 
     # ---- revisions (corrections) -----------------------------------------------------------------------------
 
-    def post_revision(self, tenant_id: UUID, site_id: UUID, case_id: Any, body: Any, principal: str | None
-                      ) -> Result:
-        self._gate(principal)
-        m.closed(body, REVISION_KEYS, REVISION_OPTIONAL)
-        actor = self._actor(body, principal)
+    def post_revision(self, tenant_id: UUID, site_id: UUID, case_id: Any, body: Any, principal: str | None,
+                      person: m.PersonActor | None = None) -> Result:
+        self._gate(principal, person)
+        m.closed(body, m.without_actor(REVISION_KEYS, person), REVISION_OPTIONAL)
+        actor = self._actor(body, principal, person)
         occurred_at = m.utc_instant(body["occurred_at"])
         canon: dict[str, Any] = {
             "supersedes_revision_id": m.uuid_text(body["supersedes_revision_id"]),
@@ -365,10 +373,11 @@ class WorkService:
 
     # ---- performed activity ----------------------------------------------------------------------------------
 
-    def post_record(self, tenant_id: UUID, site_id: UUID, case_id: Any, body: Any, principal: str | None) -> Result:
-        self._gate(principal)
-        m.closed(body, RECORD_KEYS)
-        actor = self._actor(body, principal)
+    def post_record(self, tenant_id: UUID, site_id: UUID, case_id: Any, body: Any, principal: str | None,
+                    person: m.PersonActor | None = None) -> Result:
+        self._gate(principal, person)
+        m.closed(body, m.without_actor(RECORD_KEYS, person))
+        actor = self._actor(body, principal, person)
         occurred_at = m.utc_instant(body["occurred_at"])
         canon = {"activity": m.text_value(body["activity"], 1, 4000),
                  "outcome_note": m.optional_text(body["outcome_note"], 1, 2000), "occurred_at": m.iso(occurred_at),
@@ -425,10 +434,11 @@ class WorkService:
             raise WorkRefused("WORK_CORRECTION_CONFLICT")
         return root, head
 
-    def post_plan(self, tenant_id: UUID, site_id: UUID, body: Any, principal: str | None) -> Result:
-        self._gate(principal)
-        m.closed(body, PLAN_KEYS, PLAN_CORRECTION)
-        actor = self._actor(body, principal)
+    def post_plan(self, tenant_id: UUID, site_id: UUID, body: Any, principal: str | None,
+                  person: m.PersonActor | None = None) -> Result:
+        self._gate(principal, person)
+        m.closed(body, m.without_actor(PLAN_KEYS, person), PLAN_CORRECTION)
+        actor = self._actor(body, principal, person)
         correction = self._correction(body, PLAN_CORRECTION)
         occurred_at = m.utc_instant(body["occurred_at"])
         trigger = body["trigger_kind"]
@@ -471,10 +481,11 @@ class WorkService:
 
         return self._store.transaction(tenant_id, site_id, work)
 
-    def post_operational_record(self, tenant_id: UUID, site_id: UUID, body: Any, principal: str | None) -> Result:
-        self._gate(principal)
-        m.closed(body, OPERATIONAL_KEYS, OPERATIONAL_OPTIONAL)
-        actor = self._actor(body, principal)
+    def post_operational_record(self, tenant_id: UUID, site_id: UUID, body: Any, principal: str | None,
+                                person: m.PersonActor | None = None) -> Result:
+        self._gate(principal, person)
+        m.closed(body, m.without_actor(OPERATIONAL_KEYS, person), OPERATIONAL_OPTIONAL)
+        actor = self._actor(body, principal, person)
         correction = self._correction(body, OPERATIONAL_CORRECTION)
         kind = body["kind"]
         if kind not in OPERATIONAL_KINDS:

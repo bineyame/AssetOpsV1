@@ -208,9 +208,10 @@ class _Tx:
     def insert_case(self, r: dict[str, Any]) -> None:
         self._c.execute(text(
             "INSERT INTO work_case (id, tenant_id, site_id, kind, public_no, public_code, asset_id, occurred_at, "
-            "actor_kind, actor_id, authorization_basis, attestation, create_key, create_payload_sha256, created_at) "
+            "actor_kind, actor_id, authorization_basis, attestation, person_id, create_key, create_payload_sha256, "
+            "created_at) "
             "VALUES (:id, :t, :s, :kind, :public_no, :public_code, :asset_id, :occurred_at, :actor_kind, :actor_id, "
-            ":authorization_basis, :attestation, :create_key, :create_payload_sha256, :command_now)"), self._p(**r))
+            ":authorization_basis, :attestation, :person_id, :create_key, :create_payload_sha256, :command_now)"), self._p(**r))
 
     def insert_incident(self, case_id: str, key: str) -> None:
         self._c.execute(text("INSERT INTO incident (tenant_id, site_id, id, incident_key) VALUES (:t, :s, :i, :k)"),
@@ -225,9 +226,9 @@ class _Tx:
         self._c.execute(text(
             "INSERT INTO work_case_revision (id, tenant_id, site_id, case_id, revision_no, supersedes_revision_id, "
             "title, narrative, actor_kind, actor_id, attestation, authorization_basis, occurred_at, idempotency_key, "
-            "payload_sha256, reason, recorded_at) VALUES (:id, :t, :s, :case_id, :revision_no, "
+            "payload_sha256, reason, person_id, recorded_at) VALUES (:id, :t, :s, :case_id, :revision_no, "
             ":supersedes_revision_id, :title, :narrative, :actor_kind, :actor_id, :attestation, :authorization_basis, "
-            ":occurred_at, :idempotency_key, :payload_sha256, :reason, :command_now)"), self._p(**r))
+            ":occurred_at, :idempotency_key, :payload_sha256, :reason, :person_id, :command_now)"), self._p(**r))
 
     def insert_finding_link(self, revision_id: str, finding_id: str, finding_revision_id: str) -> None:
         self._c.execute(text(
@@ -247,25 +248,26 @@ class _Tx:
     def insert_event(self, r: dict[str, Any]) -> None:
         self._c.execute(text(
             "INSERT INTO work_event (id, tenant_id, site_id, case_id, kind, payload, occurred_at, actor_kind, "
-            "actor_id, authorization_basis, attestation, idempotency_key, payload_sha256, recorded_at) VALUES (:id, "
+            "actor_id, authorization_basis, attestation, person_id, idempotency_key, payload_sha256, recorded_at) "
+            "VALUES (:id, "
             ":t, :s, :case_id, :kind, CAST(:payload AS jsonb), :occurred_at, :actor_kind, :actor_id, "
-            ":authorization_basis, :attestation, :idempotency_key, :payload_sha256, :command_now)"), self._p(**{**r, "payload": json.dumps(r["payload"])}))
+            ":authorization_basis, :attestation, :person_id, :idempotency_key, :payload_sha256, :command_now)"), self._p(**{**r, "payload": json.dumps(r["payload"])}))
 
     def insert_record(self, r: dict[str, Any]) -> None:
         self._c.execute(text(
             "INSERT INTO maintenance_record (id, tenant_id, site_id, case_id, activity, outcome_note, occurred_at, "
-            "actor_id, actor_kind, authorization_basis, attestation, idempotency_key, payload_sha256, recorded_at) "
-            "VALUES (:id, :t, :s, :case_id, :activity, :outcome_note, :occurred_at, :actor_id, :actor_kind, "
-            ":authorization_basis, :attestation, :idempotency_key, :payload_sha256, :command_now)"), self._p(**r))
+            "actor_id, actor_kind, authorization_basis, attestation, person_id, idempotency_key, payload_sha256, "
+            "recorded_at) VALUES (:id, :t, :s, :case_id, :activity, :outcome_note, :occurred_at, :actor_id, :actor_kind, "
+            ":authorization_basis, :attestation, :person_id, :idempotency_key, :payload_sha256, :command_now)"), self._p(**r))
 
     def insert_plan(self, r: dict[str, Any]) -> None:
         self._c.execute(text(
             "INSERT INTO maintenance_plan (id, tenant_id, site_id, asset_id, public_no, public_code, "
             "canonical_plan_id, title, trigger_kind, next_due_at, next_due_hours, state, supersedes_plan_id, "
-            "actor_id, actor_kind, authorization_basis, occurred_at, correction_reason, attestation, idempotency_key, "
-            "payload_sha256, recorded_at) VALUES (:id, :t, :s, :asset_id, :public_no, :public_code, "
+            "actor_id, actor_kind, authorization_basis, occurred_at, correction_reason, attestation, person_id, "
+            "idempotency_key, payload_sha256, recorded_at) VALUES (:id, :t, :s, :asset_id, :public_no, :public_code, "
             ":canonical_plan_id, :title, :trigger_kind, :next_due_at, :next_due_hours, :state, :supersedes_plan_id, "
-            ":actor_id, :actor_kind, :authorization_basis, :occurred_at, :correction_reason, :attestation, "
+            ":actor_id, :actor_kind, :authorization_basis, :occurred_at, :correction_reason, :attestation, :person_id, "
             ":idempotency_key, :payload_sha256, :command_now)"), self._p(**r))
 
     def insert_operational_record(self, r: dict[str, Any]) -> None:
@@ -273,10 +275,11 @@ class _Tx:
             "INSERT INTO operational_record (id, tenant_id, site_id, public_no, public_code, canonical_record_id, "
             "kind, body, period_end, unit, quantity, source_document_sha256, correction_reason, state, "
             "supersedes_record_id, case_id, occurred_at, actor_id, actor_kind, authorization_basis, attestation, "
-            "idempotency_key, payload_sha256, asset_id, recorded_at) VALUES (:id, :t, :s, :public_no, :public_code, "
+            "idempotency_key, payload_sha256, asset_id, person_id, recorded_at) VALUES (:id, :t, :s, :public_no, "
+            ":public_code, "
             ":canonical_record_id, :kind, :body, :period_end, :unit, :quantity, :source_document_sha256, "
             ":correction_reason, :state, :supersedes_record_id, :case_id, :occurred_at, :actor_id, :actor_kind, "
-            ":authorization_basis, :attestation, :idempotency_key, :payload_sha256, :asset_id, :command_now)"),
+            ":authorization_basis, :attestation, :idempotency_key, :payload_sha256, :asset_id, :person_id, :command_now)"),
             self._p(**r))
 
 

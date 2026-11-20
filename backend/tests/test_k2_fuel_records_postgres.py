@@ -154,6 +154,9 @@ def test_migration_up_down_up_on_empty_table(store, engine) -> None:  # noqa: F8
     config = _alembic()
     engine.dispose()
     try:
+        command.downgrade(config, MIGRATION)  # compare at k2's own revision, not at a later head
+        at_k2 = shape(engine)
+        cols, indexes, defs = at_k2
         command.downgrade(config, PREVIOUS)
         assert head(engine) == PREVIOUS
         cols_down, indexes_down, defs_down = shape(engine)
