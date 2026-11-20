@@ -52,3 +52,4 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-IA.28` Addresses within the operator; no alias key shadows a route; fixed recommendation aliases · live · specs/IA-1-shape-rebuild/rulings.md
 - `D-IA.29` Plants on their hosts; G3, headline and landing gates for the hub · live · specs/IA-1-shape-rebuild/rulings.md
 - `D-IA.30` The review bar's rebuild list is a popover by design · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.31` Drawer focus trap bounds over what Tab reaches (`uxTabbable`); plant UXI_PLANT=trap · live · specs/IA-1-shape-rebuild/rulings-2.md

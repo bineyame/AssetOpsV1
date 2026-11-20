@@ -8,7 +8,7 @@ in the packet; a count above zero is a spec-template defect to fix.
 
 Count: **1**.
 
-**Q1 (IA-1b, spec §2.4 and §7; open).** On `#/portfolio` the reviewed Assure drawer (`uxd-<op>-assure`) loses its focus trap:
+**Q1 (IA-1b, spec §2.4 and §7; answered: D-IA.31, `rulings-2.md`; IA-1b fixes the trap's filter now).** On `#/portfolio` the reviewed Assure drawer (`uxd-<op>-assure`) loses its focus trap:
 its last focusable was "Open Scope & coverage" (`portfolio/scope`), which `iaUnlink` now renders as text (IA-2d). The trap in
 `loop-ux.js` (the drawer keydown handler) takes the last element with `offsetParent !== null`, which in Chromium includes the
 links inside the drawer's closed `<details>`; focus never equals it, so Tab leaves the open drawer (uxi "overview drawer assure"
