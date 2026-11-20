@@ -72,3 +72,180 @@ Architect (Claude), 2026-11-20. Each ruling gives its reason. The index lines ar
 - **Ruling.** The read takes a Site-local month (`YYYY-MM`). Day and range reads are `3B7a`'s.
 - **Why.** The structure is declared per period. The bridge and the cards read months. A range read would duplicate
   the snapshot's job.
+
+## Handshake answers (round 1)
+
+Answered once, 2026-11-20, against `handshake.md` (R1 to R19, P1 to P10), and folded into `spec.md` rev 2 and
+`reviewer-guide.md` rev 2. "Adopted" means the proposed answer is the ruling. Six new rulings (D-3B3.11 to
+D-3B3.16) come out of the four Highs and R15/R16; D-3B3.4 and D-3B3.8 are amended below. The estimate moves from 3
+to 4 units (the leaf-value checks, currency, the `composes` flag, `month_sum` and per-factor composition).
+
+### The four Highs
+
+- **R1: adopted for the two prices, overruled for `productive_kwh`** (D-3B3.11).
+  - The class: a leaf is filled either by its own record (`filled_by`) or, where a person has declared a value of
+    the **same quantity**, by that declaration carried as a labelled assumption. A measurement of a **different
+    quantity** is neither, and fills nothing.
+  - `productive_tariff` and `diesel_price` are the operator's declared values of the same price, and the product
+    already calls them assumptions. They are carried with `Missing(filled_by.kind, filled_by.family,
+    "NOT_CONNECTED", "ASSUMPTION", (), filled_by.words, <literal words>, note=None)`, evidence `ESTIMATED`,
+    `sources = ("assumption:<revision id>",)`. Words: "Declared productive-use price per kWh, not a tariff
+    schedule" and "Declared diesel price per litre, not a fuel invoice".
+  - `productive_kwh` is metered energy at productive loads, not kWh charged at the productive tariff. It is a
+    different quantity, and no one declared it as the billed value, so it is not an assumption. It moves to
+    NOT_CONNECTED (its own record, CHARGE, has no intake). Its metered figure stays on the existing board.
+  - When a source is absent, the leaf carries `filled_by`'s record with the true cause, never a second record kind.
+  - The new state is `ASSUMED` (§3). Today: 2 leaves on their own record (`period_days`, `unserved_critical_kwh`),
+    2 labelled assumptions, 0 substitutes.
+  - Sweep (W6): every later provider is checked against `filled_by` by the same test; the reviewer guide carries it.
+- **R2: adopted** (D-3B3.12). A summed reading leaf has a value only when the month has closed in the Site's
+  calendar and every expected day is COMPLETE (`expected > 0` and `covered == expected`). Otherwise no value,
+  `Missing(filled_by..., "NOT_RECEIVED", None, ...)`, with the coverage kept so the screen can say "28 of 31 days".
+  A month not yet closed is read the same way. Month-to-date figures stay with the board and `3B7a`.
+  The lower-bound alternative is refused: it needs a label the design does not have, and it reads as the month.
+- **R3: adopted, with the open question ruled per factor, not per Site** (D-3B3.13, which replaces D-3B3.8's
+  first sentence). Pushback on the reviewer's default ("keep per Site"):
+  - Per Site keys exclusion on `contribution`, which has no value at any Site today. Every portfolio figure,
+    including Protect figures that never rest on money (`unserved_critical_kwh`), would vanish for a reason that
+    does not touch them. That hides known values, which is the mirror of reading unknown as zero.
+  - The design's rule is "a Site that cannot be evaluated is excluded by name". Per factor applies it at the
+    grain the evaluator already works at: the Site cannot be evaluated *for that factor*.
+  - Ruling: for each composed factor, the Sites with a value are `included`, the others are `excluded` by name
+    with their `missing_leaves`. The value is the sum over `included`. With no Site included, the value is None
+    (never 0), and `missing_leaves` is the union prefixed `SITE:leaf`.
+  - The cost of per factor is that two portfolio factors may rest on different Site sets, so portfolio
+    `revenue - cost_to_serve` need not equal portfolio `contribution`. Every composed value therefore carries its
+    `included` and `excluded`, and `3B5` must show "k of n Sites" whenever `excluded` is non-empty (carried to
+    `3B5`'s spec as a done criterion). The owner may want to weigh in on this display (decision queue).
+  - A Site whose type has no structure is excluded whole, in `Composition.sites_excluded`, with
+    `("STRUCTURE_NOT_DECLARED",)`.
+- **R4: adopted, as a row flag** (D-3B3.14). `FactorRow` gains `composes: str` (`SUM` or `NONE`; dataclass default
+  `NONE`, which fails closed: a forgotten row gives no total, never a wrong one). `_leaf` and `_node` take it as a
+  required keyword, so every MINI_GRID row states it. The start-up check `STRUCTURE_COMPOSES` refuses a value
+  outside the two, and `SUM` on a unit with a denominator. MINI_GRID `SUM`: the reviewer's list. `NONE`: the four
+  prices and rates, `hours_per_day`, `standby_kw`, `lost_unit_kw`, `shortfall_backed`, `period_days`. A row flag
+  over a module frozenset because `3B6` then declares its own rows the same way. T3 keeps its own copy (W2).
+
+### The rest
+
+- **R5: adopted.** "Every node in `blocks(om)` has no value, and no node with a value rests on `om`", in T4 and P1.
+- **R6: adopted, widened** (closes D-3B1.6's first item). `evaluate` checks every input `LeafValue` and raises
+  `StructureError(code, key, leaf)`:
+  - `STRUCTURE_MISSING`: value None and `missing` None; value present with `missing` whose `carried_as` is None;
+    value None with `carried_as` set; a non-empty `missing.blocks` (P6).
+  - `STRUCTURE_EVIDENCE`: a class outside the order (R17); `carried_as` TARGET or ASSUMPTION without `ESTIMATED`
+    (R14); value None without `NOT_AVAILABLE` (R14); `NEUTRAL` on a row that is not OPTION_ONLY or with a value
+    other than `row.neutral` (R15).
+  - `STRUCTURE_CURRENCY`: a money-dimension leaf with a value and no currency, except a `NEUTRAL` leaf (R16).
+  - These are runtime codes, not in `check.CODES`. T5 plants each case.
+- **R7: adopted.** Share is `Fraction(covered, expected)`; `expected == 0` is share 0. A node keeps the minimum
+  child's whole `Coverage`; on a tie, the first child in `names()` order. Portfolio coverage per factor is the sum
+  of `covered`, `expected` and `grades` over `included`. Subject-level exclusions stay `3B7a`'s.
+- **R8: adopted.** `Composition.not_composed: tuple[str, ...]` lists the `NONE` factors; they are not in `values`.
+- **R9: adopted.** Replaced in place (nothing stores a v1 value; D-3B3.9 amended). `SiteStructure` and
+  `PortfolioStructure` carry `structure_key` and `structure_version`. The edit of
+  `test_3b1_structure_registry.py:88` to `version == 2` is allowed.
+- **R10: adopted.** A literal map `SITE_TYPE_TO_STRUCTURE = {"MINIGRID": "MINI_GRID"}` in `read.py`; any other
+  type is excluded whole. `compose(registry, per_site)` raises `StructureError("STRUCTURE_COMPOSE", key, site)`
+  for a Site evaluated under another key or version. Cross-vertical totals are `3B6`'s.
+- **R11: adopted, second option.** `evaluate.py` exports `blocks_of(registry, leaves) -> tuple[str, ...]` (the
+  pack's breadth-first walk from the whole group); T2 calls it per plan-side group. T1 compares `blocks` only for
+  entries that carry a `leaf` (Kisiwa `om` on the actual side); `right` and `stage` entries are not leaves.
+- **R12: adopted.** T1 and T2 assert each pack leaf equals itself quantised to 0.01, naming the leaf if not.
+- **R13: adopted.**
+- **R14: adopted.** Plan lines in T2 are `DECLARED`; assumed and carried leaves `ESTIMATED`; no-value leaves
+  `NOT_AVAILABLE`. Enforced by R6's `STRUCTURE_EVIDENCE`.
+- **R15: ruled (D-3B3.15), not the default.** An OPTION_ONLY leaf carries evidence `NEUTRAL`, a class outside the
+  order that the weakest-part fold skips (it is an identity, not evidence). In a product, a `NEUTRAL` 0 operand
+  makes the product 0 with evidence `NEUTRAL`, whatever the other operand: an option that adds no throughput adds
+  no wear at any rate, which is the 3B1 carried meaning of the neutral ("adds nothing to its parent"). Everything
+  else stays strict (`0 x unknown` from any other source is unknown). So `battery_wear` is 0 today and does not
+  block `contribution`; `wear_rate` stays NOT_CONNECTED and is carried to step 6 (option evaluation), where a
+  non-zero throughput needs it.
+- **R16: adopted** (D-3B3.16). `LeafValue` and `FactorValue` carry `currency: str | None`. A node's currency is the
+  one non-None currency among its children; two different ones give no value with
+  `Missing("CURRENCY_MISMATCH:<a>,<b>", "OBSERVER", "NOT_CALCULATED_YET", None, blocks, None, None)`, the same
+  node-level pattern as `ZERO_DENOMINATOR`. `compose` does the same per factor across included Sites. No
+  conversion anywhere.
+- **R17: adopted.** D-3B3.2 records DECLARED as an addition to the design's §6.2 list, and `NEUTRAL` (R15) as a
+  non-ranked class. `AT_STAKE` and `VERIFIED` are not produced by an evaluation; `EXTERNAL` is not a leaf class here.
+- **R18: adopted.** Carried to `3B4` and step 6 by name.
+- **R19: confirmed.** `major_assets`, `standby_kw`, `lost_unit_kw`: NOT_CONNECTED (the "major" class and outage
+  units are not declared fields; the held components are not that record). `field_visits` is already
+  HELD_NOT_CALCULATED. `delivered_kwh` stays HELD_NOT_CALCULATED because no monthly measure over feeder readings is
+  built, not because integration is invalid; D-3B3.4's reason is corrected, so it agrees with R1.
+- **P1: adopted.** Public pure `month_sum(rows, lo, hi, key) -> tuple[Decimal | None, GradeCounts]` in
+  `chain/outcomes.py`; `_month_reading` calls it with `key="kwh"`, unchanged behaviour. `chain/outcomes.py` is
+  added to the file list.
+- **P2: adopted.** `ProductLeafSource(snapshot_reader, window_price)`, built in `structure/composition.py` from
+  `PostgresAssumptionStore.snapshot` and `fuel_cost.select_window_price(..., key=key, unit=unit_for(key))`, as in
+  `financials/composition.py:142-171`. Any state other than PRICED is absent; the reason (`NO_PRICE`,
+  `PRICE_CONFLICT`, `PRICE_SPANS_WINDOW`, `PRICE_REVISION_MISSING`, `PRICE_UNIT_MISMATCH`, `PRICE_INVALID`) goes in
+  `Missing.note`.
+- **P3: adopted.**
+- **P4: adopted in part.** `expected == 0` gives no value with NOT_CONNECTED (no reading role declared). No recorded
+  0 is inferred from "no subject declared": that would be a claim about the Foundation's completeness. Moot for
+  `productive_kwh` after R1; the Postgres test covers a non-Kobo Site.
+- **P5: adopted.**
+- **P6: adopted.**
+- **P7: adopted.** `STRUCTURE_NEUTRAL` sits after `STRUCTURE_LEAF_ABSENT`; `STRUCTURE_COMPOSES` after
+  `STRUCTURE_UNIT`.
+- **P8: adopted.**
+- **P9: adopted.** The first pytest command runs under `tools/heavy-slot.sh --`; the packet notes the `fixtures`
+  namespace package.
+- **P10: adopted.** `chain.ports.SiteRef`; `ReadContext(site, month, known_at)` with the tenant read from `site`;
+  `portfolio()` raises `StructureError("STRUCTURE_COMPOSE", ...)` on a duplicate Site or another tenant's Site; a
+  zero node value is normalised with `copy_abs()`; `Missing` gains `note: str | None` (the pack's Kisiwa `om` words,
+  and P2's price reason).
+
+### New rulings
+
+## D-3B3.11 A leaf rests on its own record or on a declared value of the same quantity, labelled
+
+- **Ruling.** States are PROVIDED (own record), ASSUMED (a person's declared value of the same quantity, carried as
+  ASSUMPTION, ESTIMATED, with literal words), HELD_NOT_CALCULATED, NOT_CONNECTED, OPTION_ONLY. A measurement of a
+  different quantity fills nothing.
+- **Why.** P3B: unknown is never zero and the weakest part sets the label; a declared price is the operator's
+  assumption (`AUTHORITY["DECLARED"] = False`), and a delivered kWh is not a billed kWh.
+
+## D-3B3.12 A summed reading leaf needs a closed, fully covered month
+
+- **Ruling.** No value unless the month has closed and every expected day is COMPLETE; coverage is kept.
+- **Why.** A sum over fewer days is a lower bound shown as the month: unknown days read as zero (design §6.7).
+
+## D-3B3.13 The portfolio excludes Sites per factor, by name
+
+- **Ruling.** Each composed factor sums its Sites with a value and names the others; none included gives no value.
+- **Why.** Exclusion keyed on `contribution` would hide every known Protect figure today; per factor is the
+  design's rule at the evaluator's grain. The value carries its Site sets so the screen says "k of n Sites".
+
+## D-3B3.14 What is summed is a declared row flag
+
+- **Ruling.** `FactorRow.composes` is `SUM` or `NONE` (default `NONE`), checked at start-up.
+- **Why.** A unit rule cannot tell a 0/1 ratio from a count, or a period from a quantity; a declared flag can, and
+  `3B6` reuses it.
+
+## D-3B3.15 An option-only neutral is an identity, not evidence
+
+- **Ruling.** Evidence `NEUTRAL`, skipped by the weakest-part fold; a `NEUTRAL` 0 operand makes a product 0.
+- **Why.** The neutral says the option adds nothing; ranking it would weaken every cost label for no record, and
+  strictness on it would block `contribution` on a rate the zero does not depend on.
+
+## D-3B3.16 Money carries its currency; mixed currencies give no value
+
+- **Ruling.** `currency` on leaf and factor values; a mismatch is a node-level missing; no conversion.
+- **Why.** Prices are authored per Site and key with a currency; summing two silently would be an invented figure.
+
+### Amended
+
+- **D-3B3.4**: "an hourly mean is not delivered kWh" is replaced by "no monthly measure over feeder readings is built
+  yet"; filled leaves are as D-3B3.11.
+- **D-3B3.8**: the first sentence ("a Site with no contribution is excluded") is replaced by D-3B3.13; what is
+  summed is D-3B3.14.
+- **D-3B3.9**: in place, because no stored consumer of version 1 exists; outputs carry key and version.
+
+### Decision queue (W3)
+
+- **Per-factor "k of n Sites" display** (D-3B3.13). Default: shown beside every portfolio figure with a non-empty
+  `excluded`. Owner view welcome before `3B5`.
+- **Who supplies `wear_rate`.** Default: step 6, when an option first adds throughput.
