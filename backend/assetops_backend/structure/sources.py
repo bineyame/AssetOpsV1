@@ -23,7 +23,7 @@ from assetops_backend.chain.ports import SiteRef
 from assetops_backend.chain.read import local_days
 from assetops_backend.structure import registry as _registry
 from assetops_backend.structure.check import StructureError
-from assetops_backend.structure.evaluate import Coverage, LeafValue, Missing
+from assetops_backend.structure.evaluate import ORIGIN_UNKNOWN, Coverage, LeafValue, Missing
 from assetops_backend.structure.read import SITE_TYPE_TO_STRUCTURE
 
 PROVIDED, ASSUMED = "PROVIDED", "ASSUMED"
@@ -175,7 +175,8 @@ class ProductLeafSource:
             note = f"VALUE_NOT_STATED:{len(unknown)}" if closed and unknown and days.complete == days.expected \
                 else None
             return _absent(fb, "NOT_RECEIVED", note=note, coverage=coverage)
-        return LeafValue(value, "MEASURED", (f"snapshot:{CRITICAL_MEASURE}",), coverage, None, None)
+        return LeafValue(value, "MEASURED", (f"snapshot:{CRITICAL_MEASURE}",), coverage, None, None,
+                         (ORIGIN_UNKNOWN,))
 
     def _price(self, ctx: ReadContext, factor_id: str, fb: Any) -> LeafValue:
         """D-3B3.11: the operator's declared price of the same quantity, carried as a labelled assumption."""
@@ -187,7 +188,7 @@ class ProductLeafSource:
         missing = Missing(fb.kind, fb.family, "NOT_CONNECTED", "ASSUMPTION", (), fb.words,
                           ASSUMPTION_WORDS[factor_id], None)
         return LeafValue(selection.value, "ESTIMATED", (f"assumption:{selection.revision_id}",), None, missing,
-                         selection.currency)
+                         selection.currency, (ORIGIN_UNKNOWN,))
 
 
 __all__ = [

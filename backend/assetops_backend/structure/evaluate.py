@@ -35,7 +35,10 @@ CARRIED_AS = ("TARGET", "ASSUMPTION", "RESIDUAL")
 _ASSUMED = ("TARGET", "ASSUMPTION")
 _RANK = {name: rank for rank, name in enumerate(EVIDENCE_ORDER)}
 #: D-4B.2: record provenances, strongest first (a literal; a test proves it equals 3A4's `PROVENANCE_ORDER`).
-ORIGIN_ORDER = ("observed-financial", "field-integrated", "bench-tested", "source-emulated", "demo-simulated")
+#: D-4B.18: a part whose provenance cannot be named; ranked weakest, never a record provenance.
+ORIGIN_UNKNOWN = "unknown"
+ORIGIN_ORDER = ("observed-financial", "field-integrated", "bench-tested", "source-emulated", "demo-simulated",
+                ORIGIN_UNKNOWN)
 #: D-4B.16: the causes that mean "nothing to read", so the expression may stand in for a stated record.
 _NOTHING_TO_READ = ("NOT_CONNECTED", "NOT_RECEIVED")
 
@@ -203,6 +206,10 @@ def _check_leaf(registry: Registry, factor_id: str, leaf: LeafValue) -> None:
     if (any(o not in ORIGIN_ORDER for o in origins)
             or tuple(origins) != tuple(o for o in ORIGIN_ORDER if o in origins)
             or len(set(origins)) != len(origins)):
+        raise StructureError("STRUCTURE_ORIGIN", key, factor_id)
+    # D-4B.18: a valued part names its origin; only a NEUTRAL value or a CALENDAR row rests on no data.
+    if (leaf.value is not None and not origins and leaf.evidence != NEUTRAL
+            and not (row.filled_by is not None and row.filled_by.family == "CALENDAR")):
         raise StructureError("STRUCTURE_ORIGIN", key, factor_id)
 
 
@@ -473,7 +480,7 @@ def compose(registry: Registry, per_site: Mapping[str, SiteStructure]) -> Compos
 
 
 __all__ = [
-    "CARRIED_AS", "CAUSES", "EVIDENCE_ORDER", "NEUTRAL", "ORIGIN_ORDER", "Composition", "Coverage", "FactorValue",
-    "LeafValue", "Missing", "PortfolioValue", "SiteStructure", "blocks_of", "compose", "evaluate", "weakest",
+    "CARRIED_AS", "CAUSES", "EVIDENCE_ORDER", "NEUTRAL", "ORIGIN_ORDER", "ORIGIN_UNKNOWN", "Composition", "Coverage",
+    "FactorValue", "LeafValue", "Missing", "PortfolioValue", "SiteStructure", "blocks_of", "compose", "evaluate", "weakest",
     "weakest_origin",
 ]

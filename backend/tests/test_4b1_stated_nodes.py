@@ -17,6 +17,8 @@ from assetops_backend.commercial.months import PROVENANCE_ORDER, CommercialMonth
 from assetops_backend.structure.check import CODES, check
 from assetops_backend.structure.evaluate import (
     ORIGIN_ORDER,
+    ORIGIN_UNKNOWN,
+    Coverage,
     LeafValue,
     Missing,
     SiteStructure,
@@ -27,6 +29,7 @@ from assetops_backend.structure.evaluate import (
 from assetops_backend.structure.read import StructureRead
 from assetops_backend.structure.registry import FilledBy
 from assetops_contracts.canonical.records_v1 import PROVENANCES
+from assetops_backend.structure.registry import Registry
 from test_3b3_structure_evaluate import KOBO, MG, _absent, _plant, _raises, pack_leaves, site_structure
 
 CENT = Decimal("0.01")
@@ -90,6 +93,33 @@ def test_s4_both_absent():
     assert revenue.stated is False and revenue.computed is None and revenue.detail_missing == ("delivered_kwh",)
     assert {"delivered_kwh", "revenue"} <= set(values["contribution"].missing_leaves)
     assert values["contribution"].value is None
+    # Row 4 takes sources, origins and coverage from the expression, not from the (absent) stated value (F2c).
+    expression_only = evaluate(MG, _kobo_without_kwh())["revenue"]
+    stated_with_provenance = dataclasses.replace(
+        _absent_stated("NOT_CONNECTED"), sources=("commercial:x",), origins=("demo-simulated",),
+        coverage=Coverage(1, 31))
+    planted = evaluate(MG, _kobo_without_kwh(), stated={"revenue": stated_with_provenance})["revenue"]
+    assert expression_only.sources and expression_only.origins == ("source-emulated",)
+    assert (revenue.sources, revenue.origins, revenue.coverage) == (
+        expression_only.sources, expression_only.origins, expression_only.coverage)
+    assert (planted.sources, planted.origins, planted.coverage) == (
+        expression_only.sources, expression_only.origins, expression_only.coverage)
+    # Row 3: the computed value, with the expression's provenance (F2c).
+    row3 = evaluate(MG, pack_leaves("Kobo"), stated={"revenue": stated_with_provenance})["revenue"]
+    ref = evaluate(MG, pack_leaves("Kobo"))["revenue"]
+    assert (row3.sources, row3.origins, row3.coverage) == (ref.sources, ref.origins, ref.coverage)
+
+
+def test_s1_stated_carried_as_target_stays_assumed_and_keeps_its_missing():
+    """F2a/F2b: a stated value carried as TARGET is estimated, assumed, and keeps its Missing with `blocks`."""
+    target = LeafValue(Decimal("3000.00"), "ESTIMATED", ("budget:b1",), None,
+                       Missing("CHARGE", "COMMERCIAL_RECORD", "NOT_CONNECTED", "TARGET", (), CHARGE_WORDS,
+                               "Budget line", None), "USD", ("source-emulated",))
+    revenue = evaluate(MG, pack_leaves("Kobo"), stated={"revenue": target})["revenue"]
+    assert revenue.value == Decimal("3000.00") and revenue.evidence == "ESTIMATED" and revenue.stated is True
+    assert revenue.assumed_leaves == ("revenue",)
+    assert revenue.missing is not None and revenue.missing.carried_as == "TARGET"
+    assert revenue.missing.blocks == ("collected", "contribution")
 
 
 # ---------------------------------------------------------------- S5: refusals
@@ -124,19 +154,22 @@ def test_s5_a_leaf_origin_is_checked_too():
 
 
 def test_s6_origin_order_is_the_provenance_order():
-    assert ORIGIN_ORDER == ("observed-financial", "field-integrated", "bench-tested", "source-emulated",
-                            "demo-simulated")
-    assert ORIGIN_ORDER == PROVENANCE_ORDER and set(ORIGIN_ORDER) == set(PROVENANCES)
+    assert ORIGIN_ORDER[-1] == ORIGIN_UNKNOWN == "unknown"
+    assert ORIGIN_ORDER[:-1] == PROVENANCE_ORDER and set(ORIGIN_ORDER[:-1]) == set(PROVENANCES)
+    assert "unknown" not in PROVENANCES
     assert weakest_origin(()) is None
 
 
-@pytest.mark.parametrize("om, staff, union, weakest", [
-    ("source-emulated", "observed-financial", ("observed-financial", "source-emulated"), "source-emulated"),
-    ("demo-simulated", "source-emulated", ("source-emulated", "demo-simulated"), "demo-simulated"),
-    ("field-integrated", "observed-financial", ("observed-financial", "field-integrated"), "field-integrated"),
+@pytest.mark.parametrize("om, staff, base, union, weakest", [
+    ("source-emulated", "observed-financial", "source-emulated", ("observed-financial", "source-emulated"),
+     "source-emulated"),
+    ("demo-simulated", "source-emulated", "source-emulated", ("source-emulated", "demo-simulated"),
+     "demo-simulated"),
+    ("field-integrated", "observed-financial", "observed-financial", ("observed-financial", "field-integrated"),
+     "field-integrated"),
 ])
-def test_s6_origins_union_in_origin_order(om, staff, union, weakest):
-    leaves = pack_leaves("Kobo")
+def test_s6_origins_union_in_origin_order(om, staff, base, union, weakest):
+    leaves = pack_leaves("Kobo", origins=(base,))
     leaves["om"] = dataclasses.replace(leaves["om"], origins=(om,))
     leaves["staff"] = dataclasses.replace(leaves["staff"], origins=(staff,))
     cost_to_serve = evaluate(MG, leaves)["cost_to_serve"]
@@ -154,6 +187,49 @@ def test_s6_neutral_identity_drops_the_other_operand():
     leaves["wear_rate"] = dataclasses.replace(pack_leaves("Kobo")["wear_rate"], origins=("demo-simulated",))
     wear = evaluate(MG, leaves)["battery_wear"]
     assert wear.origins == () and wear.detail_missing == ()
+
+
+# ---------------------------------------------------------------- S11: a valued part names its origin (D-4B.18)
+
+
+def _no_origin() -> LeafValue:
+    return LeafValue(Decimal("600.00"), "MEASURED", ("x",), None, None, "USD")
+
+
+@pytest.mark.parametrize("factor, leaf", [
+    ("om", _no_origin()),
+    ("outstanding", LeafValue(Decimal("600.00"), "DERIVED", ("x",), None, None, "USD")),
+])
+def test_s11a_a_valued_leaf_without_origins_is_refused(factor, leaf):
+    leaves = pack_leaves("Kobo")
+    leaves[factor] = leaf
+    assert _raises("STRUCTURE_ORIGIN", evaluate, MG, leaves).factor_id == factor
+
+
+def test_s11a_a_valued_stated_value_without_origins_is_refused():
+    value = LeafValue(Decimal("3458.00"), "RECORDED", ("commercial:kobo-vending",), None, None, "USD")
+    assert _raises("STRUCTURE_ORIGIN", evaluate, MG, pack_leaves("Kobo"), {"revenue": value}).factor_id == "revenue"
+
+
+def test_s11b_unknown_ranks_weakest():
+    leaves = pack_leaves("Kobo")
+    leaves["om"] = dataclasses.replace(leaves["om"], origins=("unknown",))
+    leaves["staff"] = dataclasses.replace(leaves["staff"], origins=("observed-financial",))
+    cts = evaluate(MG, leaves)["cost_to_serve"]
+    assert cts.origins == ("observed-financial", "source-emulated", "unknown")
+    assert weakest_origin(cts.origins) == "unknown"
+    leaves["om"] = dataclasses.replace(leaves["om"], origins=("demo-simulated",))
+    leaves["staff"] = dataclasses.replace(leaves["staff"], origins=("unknown",))
+    assert weakest_origin(evaluate(MG, leaves)["cost_to_serve"].origins) == "unknown"
+
+
+def test_s11c_calendar_and_neutral_leaves_carry_no_origin():
+    leaves = pack_leaves("Kobo")
+    leaves["period_days"] = LeafValue(Decimal(31), "DERIVED", ("calendar",), None, None, None)
+    neutral = [k for k, v in leaves.items() if v.evidence == "NEUTRAL"]
+    assert neutral and all(leaves[k].origins == () for k in neutral)
+    values = evaluate(MG, leaves)
+    assert values["asset_days_total"].origins == ("source-emulated",)
 
 
 # ---------------------------------------------------------------- S7: compose
@@ -196,7 +272,36 @@ def test_s8_registry_version_and_stated_rows():
 def test_s8_structure_stated(target, changes):
     error = _raises("STRUCTURE_STATED", check, _plant(MG, target, **changes))
     assert error.factor_id == target
-# The D-4B.17 rate plant (a copy of `revenue` with `tariff`'s unit MONEY / KWH) is stopped: mid-build question Q1.
+
+
+def _with_stated_copy(factor_id: str, expression: str, unit, stated: bool) -> Registry:
+    """Mid-build Q1: append a copy of `revenue` with a new ID, expression and unit; `stated_by` kept or dropped."""
+    revenue = MG.row("revenue")
+    row = dataclasses.replace(revenue, factor_id=factor_id, expression=expression, unit=unit,
+                              stated_by=revenue.stated_by if stated else None)
+    return dataclasses.replace(MG, rows=MG.rows + (row,))
+
+
+_NOT_EXACTLY_MONEY = [
+    ("s8_money_sq", "tariff * delivered_kwh * om", MG.row("om").unit * MG.row("om").unit),
+    ("s8_money_kwh", "om * delivered_kwh", MG.row("om").unit * MG.row("delivered_kwh").unit),
+]
+
+
+@pytest.mark.parametrize("factor_id, expression, unit", _NOT_EXACTLY_MONEY)
+def test_s8_a_stated_node_must_be_exactly_money(factor_id, expression, unit):
+    assert not unit.is_money and any(d == "MONEY" and e != 0 for d, e in unit.exponents)
+    error = _raises("STRUCTURE_STATED", check, _with_stated_copy(factor_id, expression, unit, stated=True))
+    assert error.factor_id == factor_id
+
+
+@pytest.mark.parametrize("factor_id, expression, unit", _NOT_EXACTLY_MONEY)
+def test_s8_the_control_without_stated_by_is_not_refused_at_stated(factor_id, expression, unit):
+    try:
+        check(_with_stated_copy(factor_id, expression, unit, stated=False))
+    except Exception as error:  # a later code is allowed; STRUCTURE_STATED or an earlier one is not
+        code = getattr(error, "code", None)
+        assert code in CODES and CODES.index(code) > CODES.index("STRUCTURE_STATED"), str(error)
 
 
 # ---------------------------------------------------------------- S9: the read
