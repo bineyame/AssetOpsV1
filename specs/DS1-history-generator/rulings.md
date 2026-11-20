@@ -1,8 +1,8 @@
 # DS1 rulings
 
 Architect (Claude), 2026-11-20. Each ruling has its reason. Index lines are in `.ai/decisions/index-rulings-6.md`. The owner
-is informed through the coordinator; the owner is asked to weigh in on D-DS1.6 and on queue items Q1 and Q5 (`spec.md`
-§11).
+took D-DS1.6 and every queue default (Q1 to Q5, `spec.md` §11) on 20 Nov: "merge wave 2c, and defaults for DS1"
+(`owner/owner-merge-wave2c-ds1-defaults-2026-11-20.md`).
 
 ## D-DS1.1 `2a` is not built; DS1 is cut so it does not need it
 
@@ -36,11 +36,11 @@ is informed through the coordinator; the owner is asked to weigh in on D-DS1.6 a
 
 ## D-DS1.3 Three branches; nothing generated is merged from two sides
 
-- DS1a goes on `main`. DS1p goes on `task/pack-recreate-integrate` at `d9329b582`. DS1m goes on `task/uiux-guide`, after
-  merging DS1p into it.
-- **Why there is no conflict.** The file sets are disjoint from what the pack and UI branches changed after the freeze
-  (checked with `git diff --stat pack-freeze-2026-11-19` against both branches). The generated mock-up files are rebuilt
-  only on the UI branch.
+- **Rev 1.1:** wave 2c merged to `main` (`76022d3c8`), bringing the pack and the mock-up with it. All three tasks are
+  now based on `main`: DS1a, then DS1p, then DS1m after DS1p merges (after the Decision-page branch, if it lands first).
+  The pack files DS1p edits are blob-identical on `main` and at `d9329b582`, so P8 and P10 keep that reference.
+- **Why there is no conflict.** No other lane edits DS1p's pack files. The generated mock-up files are rebuilt by
+  whichever branch merges last, never hand-merged.
 - The tag `pack-freeze-2026-11-19` is never touched. U9 is the owner's authority for this one pack change.
 
 ## D-DS1.4 History inputs are rules, not values; leaves are generated; totals are evaluated
@@ -58,7 +58,7 @@ is informed through the coordinator; the owner is asked to weigh in on D-DS1.6 a
 - **Money in integer cents** keeps the file free of floats and decimal text. The evaluator converts on load to
   `Decimal`.
 
-## D-DS1.6 History months carry no bridge rows (owner to weigh in)
+## D-DS1.6 History months carry no bridge rows (decided by the owner, 20 Nov)
 
 - **Pushback on A2's "plus `coverage` and `bridge`".** A bridge row attributes a variance to a driver. October's rows are
   declared inputs that `check_manifest` verifies. For history they would have to be typed by hand, which A2 forbids, or
@@ -91,9 +91,10 @@ See `spec.md` §6.3. In short:
     `{at: "2026-11-06T09:40:00+03:00", kind: EXPENSE, site: "Room B · Thika", period: "2026-10", leaf: maint, amount: <Q5>}`;
   - the evaluator emits an `after_recalculation` block for that portfolio, with `as_of` set to the request time in story
     time;
+  - the request time is 2026-11-06T10:00:00+03:00, the time the mock-up already ships (`UX_RECALC_TIME`);
   - the mock-up's *Recalculate now* reads that block instead of saying the figures are unchanged;
   - `ux_interaction_check.cjs:218` changes with it. That is `3B7b`'s gate.
-- The default amount and request time are queue item Q5.
+- Amount 96.00 and request time 10:00 are decided (owner, 20 Nov, Q5).
 
 ## D-DS1.10 Evidence words: Simulated or Emulated; coverage `RECORDED` is not one
 

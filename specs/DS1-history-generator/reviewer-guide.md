@@ -88,8 +88,8 @@ This guide is for the fresh Reviewer of DS1. Read it with `spec.md` and `rulings
   - The Oct point equals `opTotals` for each operator: compute it from `derived["sites"]` yourself.
   - Each portfolio point equals the sum of its Site points.
   - Metro Bus's `kind` is `cost`, and its gap is plan minus actual.
-- **R8 Branch hygiene.** `git diff --stat pack-freeze-2026-11-19..task/DS1-pack-history` lists only the five §3 pack
-  files and `history.json`, plus the two post-freeze pack commits. The tag still points at `c5d4fcffc`.
+- **R8 Branch hygiene.** `git diff --stat main...task/DS1-pack-history` lists only the five §3 pack files and
+  `history.json`. The tag `pack-freeze-2026-11-19` still points at `c5d4fcffc`.
 
 ## Risks to keep in view
 
@@ -98,5 +98,5 @@ This guide is for the fresh Reviewer of DS1. Read it with `spec.md` and `rulings
 - **Floats from YAML** enter the view (prices such as 0.40). The digest of a view float uses Python's shortest `repr`,
   which is stable. The arithmetic must go through `Decimal(str(x))`. Check that no path uses `Fraction(x)` on a float
   directly.
-- **The story trends are Architect defaults** (queue Q1). Judge them for plausibility, not for figures. The owner judges
+- **The story trends are decided** (owner, Q1). Judge them for plausibility, not for figures. The owner judges
   the figures at the walkthrough.

@@ -1,6 +1,7 @@
 # DS1: generator core and the July to September history (implementer spec)
 
-Status: **handshake open**. Architect spec rev 1, 2026-11-20. Branch `task/DS1-spec` (off `main`). Review depth:
+Status: **handshake open**. Architect spec rev 1.1, 2026-11-20 (owner took the §11 defaults; wave 2c on `main`, so every
+base is `main`, D-DS1.3). Branch `task/DS1-spec` (off `main`). Review depth:
 discovery (W5): a new generator, a new schema and money figures.
 Reviewer guide: `reviewer-guide.md`. Rulings: `rulings.md` (D-DS1.1 to D-DS1.11). Handshake: `handshake.md`.
 
@@ -9,8 +10,9 @@ Sources:
   (`owner/owner-answers-uiux-datastrat-d7-2026-11-20.md`);
 - data and build strategy §3, §6, §8, §9 (row `DS1`, "History months"), Appendix F (worktree
   `/opt/assetecon/AssetOpsV1-datastrat`, branch `task/data-build-strategy`, `Docs/engineering/data-and-build-strategy.md`);
-- UI/UX guide Appendix A2 (branch `task/uiux-guide`, `Docs/design-system/uiux-guide.md`);
-- the frozen pack (branch `task/pack-recreate-integrate` at `d9329b582`, `Docs/demo-sprint/product-direction-layer4/`,
+- UI/UX guide Appendix A2 (`Docs/design-system/uiux-guide.md`, on `main` since wave 2c);
+- the frozen pack, now on `main` with wave 2c (`76022d3c8`; the five pack files DS1p touches are blob-identical to
+  `task/pack-recreate-integrate` at `d9329b582`, the reference for P8 and P10; `Docs/demo-sprint/product-direction-layer4/`,
   written `P/` below). Tag `pack-freeze-2026-11-19` is never moved or edited;
 - the coordinator's placeholder audit of 20 Nov (items 1 to 4, folded in at §2 and in `rulings.md`).
 
@@ -83,23 +85,26 @@ computed the way October is, from labelled simulated inputs.
 | Task | Branch | Base | Files it may touch | Units |
 | --- | --- | --- | --- | ---: |
 | **DS1a** generator core and history generation | `task/DS1a-world-generator` | `main` | `simulator/assetops_simulator/world/**`, `simulator/tests/world/**`, `tools/world_history.py`, this folder's packet | 1.5 |
-| **DS1p** pack: history rules, history file, evaluator, checks | `task/DS1-pack-history` | `task/pack-recreate-integrate` at `d9329b582` | `P/demo-site-scenario-manifest.yaml` (append `history:` only), `P/history.json` (new), `P/evaluate_structure.py`, `P/independent_model.py`, `P/check_manifest.py`, `P/derived-values.json` (regenerated) | 1 |
-| **DS1m** mock-up regeneration and gates | `task/DS1-mockup-trends` | `task/uiux-guide` head when the UI lane is idle, after merging `task/DS1-pack-history` | `interactive-mockup-vNEXT/fixtures.js`, `index.html` (both regenerated), tool outputs the gates rewrite | 0.5 |
+| **DS1p** pack: history rules, history file, evaluator, checks | `task/DS1-pack-history` | `main` (at or after `76022d3c8`) | `P/demo-site-scenario-manifest.yaml` (append `history:` only), `P/history.json` (new), `P/evaluate_structure.py`, `P/independent_model.py`, `P/check_manifest.py`, `P/derived-values.json` (regenerated) | 1 |
+| **DS1m** mock-up regeneration and gates | `task/DS1-mockup-trends` | `main` after DS1p merges (and after the Decision-page branch, if it lands first) | `interactive-mockup-vNEXT/fixtures.js`, `index.html` (both regenerated), tool outputs the gates rewrite | 0.5 |
 
 **Order.** DS1a is built first. DS1p's `history.json` is produced by DS1a's CLI run against DS1p's manifest
 (`tools/world_history.py generate`, §4.6), so DS1p starts once DS1a's generator passes its tests; it need not be merged.
 DS1m starts after DS1p's review.
 
-**Why there are no conflicts.**
-- Since the freeze tag, `task/pack-recreate-integrate` changed only five documents and `task/uiux-guide` changed only the
-  mock-up and `Docs/design-system/`. Neither touched the manifest, `history.json`, the evaluator, the independent model,
-  `check_manifest.py` or `derived-values.json`. DS1p touches only those, and appends to the manifest after `checks:`.
-- `fixtures.js` and `index.html` are generated. DS1m regenerates them on the UI branch itself, never on the pack branch,
-  so no generated file is ever merged from two sides.
+**Why there are no conflicts** (rev 1.1: the pack and wave 2c are on `main`, `76022d3c8`).
+- On `main` today, the pack files DS1p touches (manifest, evaluator, independent model, `check_manifest.py`,
+  `derived-values.json`) are blob-identical to `d9329b582`. No other lane is changing them. DS1p appends to the manifest
+  after `checks:` and adds `history.json`.
+- `fixtures.js` and `index.html` are generated. They are rebuilt only by the branch that merges last: DS1m on `main`, or,
+  if a UI branch (the Decision page) is still open when DS1m merges, that branch reruns `gen_fixtures.py` and `build.mjs`
+  after merging `main`. A generated file is never hand-merged; on a conflict, take either side and regenerate.
+- `task/pack-recreate-integrate` holds two post-freeze document commits that DS1 does not touch. It takes `main` when the
+  coordinator merges it.
 - `task/data-build-strategy` holds one document. DS1 changes no file of it. Its §9 row needs the amendment in
   `rulings.md` D-DS1.1 (DS1 at 3 units, plus DS1b). The coordinator makes it on that branch.
-- DS1a merges to `main` after review. DS1p merges into `task/pack-recreate-integrate` (the pack's integration branch),
-  under U9, which authorises this pack change. The tag stays where it is.
+- All three tasks merge to `main` after review. U9 authorises the pack change. The tag `pack-freeze-2026-11-19` stays
+  where it is.
 
 ## 4. The generator core (DS1a)
 
@@ -477,15 +482,18 @@ DS1a worktree, exit 0.
 
 **Guards**: fast check-all on DS1a only (a code branch on `main`), once, at the end, through its own slot.
 
-## 11. Decision queue (W3; the defaults apply until the owner answers)
+## 11. Decision queue: decided
 
-| # | Question | Default applied |
+The owner took every default, and D-DS1.6, on 20 Nov: "merge wave 2c, and defaults for DS1"
+(`owner/owner-merge-wave2c-ds1-defaults-2026-11-20.md`).
+
+| # | Question | Decided |
 | --- | --- | --- |
-| Q1 | Are the story trends right (Mwea occupancy 56, 49, 42%; Kirinyaga energy +5, +10, +17%; Embakasi peak share 36, 43, 49%)? | As in §5; the owner sees them at the walkthrough |
+| Q1 | Are the story trends right (Mwea occupancy 56, 49, 42%; Kirinyaga energy +5, +10, +17%; Embakasi peak share 36, 43, 49%)? | As in §5 (owner, 20 Nov); the owner sees the figures at the walkthrough |
 | Q2 | Should plans carry seasonality? | No: plans are a flat daily rate (`per_day`), as small operators budget |
 | Q3 | Should an October Finding say "since August" where history shows the condition earlier? | No: Findings stay October's; a later screen slice may add it |
 | Q4 | Should the trend tile carry the evidence word (Simulated)? | Not in DS1; the UI lane decides with the Site trend wiring |
-| Q5 | The Thika invoice amount for `3B7b`'s after-state | 96.00 (the estimate carried was 80.00), received 2026-11-06T09:40+03:00, recalculated at the request time in story time (default 2026-11-06T10:15+03:00), never the browser clock |
+| Q5 | The Thika invoice amount for `3B7b`'s after-state | 96.00 (the estimate carried was 80.00), received 2026-11-06T09:40+03:00, recalculated at the request time in story time 2026-11-06T10:00:00+03:00, the time the mock-up already shows (`UX_RECALC_TIME` in `loop-ux.js`), never the browser clock. Carried to `3B7b` |
 
 ## 12. Scope limits
 
