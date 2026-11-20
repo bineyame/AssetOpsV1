@@ -664,6 +664,39 @@ def unreceived_leaves(side, fm, vals, leaf_sources, struct):
     return [missing_entry(side, {"leaf": f}, leaf_sources[f], "NOT_RECEIVED", None, ancestors(struct, [f])) for f in fm if vals[f] is None]
 
 
+def target_side_entries(doc, vert, fm, vals, own):
+    """The plan side's entries: not decomposed (RESIDUAL), or leaves without a target line of their own (ASSUMPTION).
+    `vals`/`own` hold the plan and actual sides' leaf_values (missing_records and the history, MB5)."""
+    S, ES = doc["structures"], doc["empty_states"]
+    LS, TS = ES["leaf_sources"], ES["target_side"]
+    row = {"kind": TS["kind"], "family": TS["family"], "slice": TS["slice"], "words": TS["words"]}
+    gone = [f for f in fm if vals["plan"][f] is None]
+    if gone:
+        return [missing_entry("plan", {"leaves": gone}, row, "NOT_RECEIVED", "RESIDUAL", ancestors(S[vert], gone))]
+    result = doc["chain_model"][vert]["result"]   # Protect and operations measures carry their own declared targets
+    split = [f for f in fm if f not in own["plan"] and LS[vert][f]["absent"] not in ("OPTION_ONLY", "NEVER_EMPTY")
+             and vals["actual"][f] is not None and vals["actual"][f] != vals["plan"][f] and result in ancestors(S[vert], [f])]
+    return [missing_entry("plan", {"leaves": split}, row, "NOT_RECEIVED", "ASSUMPTION", ancestors(S[vert], split),
+                          assumption=TS["assumption"])] if split else []
+
+
+def field_assumption_entries(ES, s_):
+    """Record fields marked as assumptions (actual side)."""
+    out = []
+    for path, ar in ES["assumptions"].items():
+        head, field = path.split(".")
+        if str((s_.get(head) or {}).get(field, "")).startswith("[assumption]"):
+            out.append(missing_entry("actual", {"field": path, "label": ar["label"]}, ar, "NOT_RECEIVED", "ASSUMPTION", ar["blocks"],
+                                     assumption=s_[head][field]))
+    return out
+
+
+def deferred_stage_entries(ES, vert):
+    """Stages the structure names but no slice of the fortnight builds (actual side)."""
+    return [missing_entry("actual", {"stage": st, "label": dr["label"]}, dr, dr["cause"], None, dr["blocks"], trigger=dr["trigger"])
+            for st, dr in ES["deferred_stages"].items() if dr["vertical"] == vert]
+
+
 def missing_records(doc) -> dict:
     """One entry per leaf, condition, assumption or stage that is not available, with the record that would fill it (factor_value
     `missing`, integration-source-to-canonical-design.md §6.2). Computed from empty_states and the records; holds no figure."""
@@ -690,17 +723,7 @@ def missing_records(doc) -> dict:
             for k, _ in sides[1:]:
                 ents += unreceived_leaves(k, fm, vals[k], LS[vert], S[vert])
             # the target side: not decomposed (residual), or leaves without a target line of their own (labelled assumption)
-            row = {"kind": TS["kind"], "family": TS["family"], "slice": TS["slice"], "words": TS["words"]}
-            gone = [f for f in fm if vals["plan"][f] is None]
-            if gone:
-                ents.append(entry("plan", {"leaves": gone}, row, "NOT_RECEIVED", "RESIDUAL", ancestors(S[vert], gone)))
-            else:
-                result = doc["chain_model"][vert]["result"]   # Protect and operations measures carry their own declared targets
-                split = [f for f in fm if f not in own["plan"] and LS[vert][f]["absent"] not in ("OPTION_ONLY", "NEVER_EMPTY")
-                         and vals["actual"][f] is not None and vals["actual"][f] != vals["plan"][f] and result in ancestors(S[vert], [f])]
-                if split:
-                    ents.append(entry("plan", {"leaves": split}, row, "NOT_RECEIVED", "ASSUMPTION", ancestors(S[vert], split),
-                                      assumption=TS["assumption"]))
+            ents += target_side_entries(doc, vert, fm, vals, own)
             # actual lines carried at target (coverage ESTIMATED)
             for line, state in (s_["period"].get("coverage") or {}).items():
                 if state == "ESTIMATED":
@@ -715,16 +738,8 @@ def missing_records(doc) -> dict:
                         cr = ES["conditions"][c]
                         ents.append(entry("actual", {"right": r["asset"], "condition": c, "label": cr["label"]}, cr, cr["cause"], None,
                                           [r["asset"]]))
-            # record fields marked as assumptions
-            for path, ar in ES["assumptions"].items():
-                head, field = path.split(".")
-                if str((s_.get(head) or {}).get(field, "")).startswith("[assumption]"):
-                    ents.append(entry("actual", {"field": path, "label": ar["label"]}, ar, "NOT_RECEIVED", "ASSUMPTION", ar["blocks"],
-                                      assumption=s_[head][field]))
-            # stages the structure names but no slice of the fortnight builds
-            for st, dr in ES["deferred_stages"].items():
-                if dr["vertical"] == vert:
-                    ents.append(entry("actual", {"stage": st, "label": dr["label"]}, dr, dr["cause"], None, dr["blocks"], trigger=dr["trigger"]))
+            # record fields marked as assumptions; stages the structure names but no slice of the fortnight builds
+            ents += field_assumption_entries(ES, s_) + deferred_stage_entries(ES, vert)
             out["sites"][f"{t['tenant']}/{n}"] = ents
     return out
 
@@ -782,24 +797,31 @@ def evaluate_history(doc, hist, out) -> dict:
             periods, series, gap = {}, [], []
             for mo in months:
                 blk = hist["tenants"][tid][n][mo]
-                periods[mo] = {}
+                periods[mo], seen, vals, own = {}, {}, {}, {}
                 for side in ("plan", "actual"):
                     scope = f"{tid}/{n}/{mo}/{side}"
                     r, ctx, _ = observe_side(S, FM, vert, t, s_, blk[side], {}, {}, {}, blk["period_days"], blk["period_end"], doc["as_of"])
                     if r["status"] != out["sites"][key][side]["status"] or (r["status"] != "evaluated" and r["stated_total"] is None):
                         raise ValueError(f"HISTORY_NOT_EVALUATED {scope}")
-                    # (a) a leaf whose own record October takes from observations: missing, never 0
-                    missing = [{"leaf": f, "record_kind": ES["leaf_sources"][vert][f]["kind"], "source_family": ES["leaf_sources"][vert][f]["family"],
-                                "cause": cause, "carried_as": None, "blocks": ancestors(S[vert], [f])} for f in from_obs]
-                    # (b) every other entry an observed side gets (missing_records), applied to the history record
-                    if side == "actual":
-                        vals, _ = leaf_values(S[vert], fm, ctx)
-                        missing += [e for e in unreceived_leaves(side, fm, vals, ES["leaf_sources"][vert], S[vert]) if e["leaf"] not in from_obs]
-                    not_obs = sorted({b for e in missing[:len(from_obs)] for b in e["blocks"]})
+                    seen[side] = r
+                    vals[side], own[side] = leaf_values(S[vert], fm, ctx)
+                for side in ("plan", "actual"):
+                    scope, r = f"{tid}/{n}/{mo}/{side}", seen[side]
+                    # (a) a leaf whose own record October takes from observations: missing, never 0 (shape and slice: missing_records')
+                    unobserved = [missing_entry(side, {"leaf": f}, ES["leaf_sources"][vert][f], cause, None, ancestors(S[vert], [f])) for f in from_obs]
+                    # (b) the entries October's same side gets, on the history records, less the October-only kinds (coverage
+                    # ESTIMATED and rights conditions; review DS1p M1, MB5)
+                    if side == "plan":
+                        missing = target_side_entries(doc, vert, fm, vals, own)
+                    else:
+                        missing = [e for e in unreceived_leaves(side, fm, vals[side], ES["leaf_sources"][vert], S[vert]) if e["leaf"] not in from_obs]
+                        missing += field_assumption_entries(ES, s_) + deferred_stage_entries(ES, vert)
+                    missing += unobserved
+                    not_obs = sorted({b for e in unobserved for b in e["blocks"]})
                     if {"contribution", "cost_to_serve"} & set(not_obs):
                         raise ValueError(f"HISTORY_OUTCOME_UNOBSERVED {scope}")
                     side_out = {"status": r["status"]}
-                    if r["status"] == "evaluated":   # MB3 (pending): the observation leaves themselves leave `nodes` too
+                    if r["status"] == "evaluated":   # MB4: the observation leaves themselves leave `nodes` too
                         side_out["nodes"] = {k: v for k, v in r["nodes"].items() if k not in not_obs and k not in from_obs}
                     else:
                         side_out["stated_total"], side_out["nodes"] = money(D(str(r["stated_total"]))), {}

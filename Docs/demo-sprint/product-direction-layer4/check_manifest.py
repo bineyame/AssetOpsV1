@@ -1175,7 +1175,28 @@ H8_DERIVED_SHA = "bfe2cbc54571963ea4f9c1ed18633dc84c6579a2fc1003bc51a7ff8d1ab381
 H8_MISSING_SHA = "b8d3bcbc376cf530ddc633e1f5ba1878f99eb0314d47f656278c76423c864fa5"   # missing-records.json at the DS1p base
 H10_MANIFEST_SHA = "8c027d0405936e4730426633ee703de5623bea3da6ddec36933b50b77a2edb4c"  # the manifest at the DS1p base
 H9_BASELINE = 4465   # checks passed on the DS1p base after `merge main`, taken in place (packet-DS1p.md)
-H_RULE_BASES = ("share", "rest")   # MB3 (pending): a rule's base key, e.g. EV `kwh` under `share kwh`, is a generated record
+H_RULE_BASES = ("share", "rest")   # MB3 (ruled): a base key a declared share/rest rule reads (EV `kwh`) is a generated record
+H_ENTRY_META = {"side", "record_kind", "source_family", "cause", "carried_as", "blocks", "slice", "record_words", "assumption", "trigger", "note"}
+
+
+def entry_subject(e):
+    """The subject of a missing-records entry (leaf | leaves | field | stage | right and condition, with its label)."""
+    return {k: v for k, v in e.items() if k not in H_ENTRY_META}
+
+
+def entry_key(e):
+    """H4b: the whole entry, blocks as a set; the independent model's entries carry `subject` as one key."""
+    subj = e["subject"] if "subject" in e else entry_subject(e)
+    return (e.get("side"), json.dumps(subj, sort_keys=True, ensure_ascii=False), e.get("record_kind"), e.get("source_family"),
+            e.get("cause"), e.get("carried_as"), tuple(sorted(e.get("blocks") or [])), e.get("slice"))
+
+
+def entry_key13(e):
+    """H13: (subject, record_kind, cause, carried_as). MB6 (pending): a target-side `leaves` subject is keyed by its kind only,
+    because its leaf list is computed on each month's records (Mto's `unmapped_kwh` is split only in October)."""
+    subj = entry_subject(e)
+    return (json.dumps({"leaves": None} if "leaves" in subj else subj, sort_keys=True, ensure_ascii=False),
+            e.get("record_kind"), e.get("cause"), e.get("carried_as"))
 
 
 def view_digest(doc):
@@ -1233,6 +1254,9 @@ def history_checks(doc, dv, root, path, im):
     dh = dv.get("history") or {}
     check("H6 derived-values.json carries the history series", bool(dh))
     money = set(hist["meta"]["money_leaves"])
+    mr = json.loads((root / "missing-records.json").read_text(encoding="utf-8"))
+    bad_mr = sorted({e.get("cause") for es in mr["sites"].values() for e in es} - CAUSES)
+    check(f"H12 missing-records.json causes are main causes only (bad {bad_mr})", not bad_mr)
     vert_of = {t["tenant"]: ("EV_DEPOT_CAPTIVE" if t["vertical"] == "EV_DEPOT" else t["vertical"]) for t in doc["tenants"]}
     for t in doc["tenants"]:
         tid, V = t["tenant"], vert_of[t["tenant"]]
@@ -1263,7 +1287,8 @@ def history_checks(doc, dv, root, path, im):
                     if oct_side["status"] == "evaluated":
                         want = first_present_keys(fm, oct_keys)
                         bases = {r.split()[1] for lf, r in rules[side].items() if lf in rec and r.split()[0] in H_RULE_BASES} & oct_keys - want
-                        check(f"H2 {scope}: keys {sorted(set(rec) - bases)} == first-present {sorted(want)}", set(rec) - bases == want)
+                        check(f"H2 {scope}: keys {sorted(rec)} == first-present {sorted(want)} plus share/rest bases {sorted(bases)}, "
+                              f"among October's keys (MB3)", set(rec) - bases == want)
                     else:
                         check(f"H2 {scope}: keys {sorted(rec)} == October's {sorted(oct_keys)}", set(rec) == oct_keys)
                     hs = ((ds.get("periods") or {}).get(mo) or {}).get(side) or {}
@@ -1292,6 +1317,23 @@ def history_checks(doc, dv, root, path, im):
                           f"(unnamed {sorted(set(rside['not_observed']) - named)})", set(rside["not_observed"]) <= named)
                     leaves_named = {e.get("leaf") for e in hs.get("missing") or [] if e.get("cause") == H["missing_cause"]}
                     check(f"H4 {scope}: every observation leaf has its {H['missing_cause']} entry", set(rs["observation_leaves"]) <= leaves_named)
+                    # H4b: every entry equals the independent model's (plan: RESIDUAL/ASSUMPTION; actual: the observed side's)
+                    mine, theirs = sorted(map(entry_key, hs.get("missing") or [])), sorted(map(entry_key, rside["missing"]))
+                    check(f"H4b {scope}: missing entries == independent (only here {sorted(set(mine) - set(theirs))[:2]}; "
+                          f"only there {sorted(set(theirs) - set(mine))[:2]})", mine == theirs)
+                    if f"{tid}/{n}" == "metro-bus/Ruiru" and side == "plan":
+                        check(f"H4b {scope}: Ruiru's plan carries carried_as RESIDUAL",
+                              any(e.get("carried_as") == "RESIDUAL" for e in hs.get("missing") or []))
+                    # H12: causes
+                    bad_c = [e.get("cause") for e in hs.get("missing") or [] if e.get("cause") not in CAUSES | {H["missing_cause"]}]
+                    check(f"H12 {scope}: every cause is a main cause or {H['missing_cause']} (bad {bad_c})", not bad_c)
+                    # H13: completeness against October's same side, less the October-only kinds, plus NOT_IN_HISTORY
+                    octe = [e for e in mr["sites"][f"{tid}/{n}"] if e["side"] == side and e.get("carried_as") != "TARGET" and "condition" not in e]
+                    want13 = sorted(map(entry_key13, octe + [e for e in hs.get("missing") or [] if e.get("cause") == H["missing_cause"]]))
+                    got13 = sorted(map(entry_key13, hs.get("missing") or []))
+                    check(f"H13 {scope}: entries == October's same side less TARGET and conditions, plus {H['missing_cause']} "
+                          f"(only history {sorted(set(got13) - set(want13))[:2]}; only October {sorted(set(want13) - set(got13))[:2]})",
+                          got13 == want13)
                     # H5: what history may not show
                     if V == "MINI_GRID" and side == "actual" and "diesel_l" in nodes:
                         check(f"H5 {scope}: unexplained_l {rec.get('unexplained_l')} <= 2% of diesel_l {nodes['diesel_l']}",

@@ -1,8 +1,8 @@
 # DS1 mid-build questions (RULES §4 item 7)
 
 Raised during the build, after the handshake closed. Each one stops only the affected part. The Architect rules in
-`rulings.md`. Count: **5**. MB1 and MB2 (DS1a) are ruled. MB3 to MB5 (DS1p) are open, each built to the default it states; none changes
-`history.json` or any October byte.
+`rulings.md`. Count: **6**. MB1 and MB2 (DS1a) and MB3 to MB5 (DS1p) are ruled (`rulings.md`). MB6 (DS1p fix round) is open,
+built to the default it states. None changes `history.json` or any October byte.
 
 ## MB1 (DS1a): which entry of a Jul/Aug/Sep list a month outside `history.months` reads
 
@@ -77,3 +77,18 @@ Raised during the build, after the handshake closed. Each one stops only the aff
   - Today (b) yields no entry on any history side.
 - **Stopped.** Only the plan side's `missing` list.
 - **Question.** Confirm, or name the plan side's entries (for example, October's target-side entry carried over)?
+
+## MB6 (DS1p fix round): H13's key for a target-side `leaves` subject
+
+- **Gap.** H13 keys by (subject, `record_kind`, `cause`, `carried_as`) and requires equality with October's same-side
+  entries. The review M1 ruling also says entries are "computed on the history records by the same helper". For a
+  target-side `ASSUMPTION`, the subject is the list of split leaves, and the helper computes it from each month's
+  records. Mto's October list includes `unmapped_kwh` because October's actual has the incident's
+  `unbilled_mapping_kwh`. History has none (a `zero` rule), so the helper leaves `unmapped_kwh` out. With list keys, H13
+  fails on Mto's plan in all three months. This was shown by a plant that keys the lists: 3 failures, all Mto plan.
+- **What was built (pending a ruling).** H13 keys a `leaves` subject by its kind only
+  (`check_manifest.entry_key13`). The list itself is compared in full against the independent model by H4b. Every
+  other subject is keyed whole.
+- **Stopped.** Only H13's comparison of the leaf list. Nothing generated depends on it.
+- **Question.** Keep this key, or should the history month carry October's leaf list instead of its own? The second
+  would contradict "computed on the history records".
