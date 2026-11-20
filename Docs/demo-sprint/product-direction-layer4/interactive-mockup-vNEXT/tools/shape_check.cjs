@@ -20,7 +20,7 @@
    depth 0; the Lab plants item 5; notfound the typed probe; aliaskey item 7; crossop item 8; landing item 9.
    10 (IA-1b, D-IA.35 L4) a scope never empties by address: another vertical's group:<g> and another operator's site:<k> render all the operator's Sites on Outcomes.
    Run: node tools/shape_check.cjs   Plants: SHAPE_PLANT=foreignscope|unlink|stub|rail|palette|primary|lab|tabstop|notfound|noact|lablegacy|
-   selflink|aliaskey|crossop|linkprimary|landing (each must fail). */
+   selflink|aliaskey|crossop|linkprimary|landing|decprimary|stickyact (each must fail). */
 const { boot, classifier, identity, liveRoutes, hrefsOf, OPS } = require('./ia_crawl.cjs');
 const PLANT = process.env.SHAPE_PLANT || '';
 const fails = [], log = [];
@@ -41,9 +41,13 @@ const PLANTS = {
   crossop: `iaSiteOk = k => !!SK[k]; iaDecOk = id => DEC.some(d => d.id === id);`,
   linkprimary: `{ ${atLevel('iaStart()', ['L2', '<a class="button primary" href="#/portfolio/outcomes">A</a><a class="button primary" href="#/plan">B</a>'])} }`,
   landing: `iaLanding = () => null;`,
+  /* IA-1c (D-IA.23; host: the operator's first decision waiting with a recommendation; Harvest has none and skips them): a second
+     "Choose this" opener in its L1; the sticky's opener pointed at another option's dialog */
+  decprimary: `{ const r = IA_ROUTES.find(x => x.id === 'decision/:dec'), _r = r.render; r.render = ctx => { const d = decById(ctx.params.dec), o = d.opts.find(x => x !== uxRec(d) && !isNoAction(x)) || 'plant'; return _r(ctx).replace('<div data-level="L1">', '<div data-level="L1">' + uxOpener('uxc-' + d.id + '-' + o, 'Choose this', 'button primary')); }; }`,
+  stickyact: `{ const r = IA_ROUTES.find(x => x.id === 'decision/:dec'), _r = r.render; r.render = ctx => { const h = _r(ctx), d = decById(ctx.params.dec), rec = uxRec(d), o = d.opts.find(x => x !== rec && !isNoAction(x)) || 'plant', i = h.indexOf('data-ux-sticky'), j = h.indexOf('</div>', i); return h.slice(0, i) + h.slice(i, j).replace('data-ux-drawer="uxc-' + d.id + '-' + rec + '"', 'data-ux-drawer="uxc-' + d.id + '-' + o + '"') + h.slice(j); }; }`,
   foreignscope: `iaCtx = eval('(' + iaCtx.toString().replace("kind === 'group' ? sites.some(k => iaVertical(k) === id)", "kind === 'group' ? true") + ')');`
 };
-const HOSTED = ['unlink', 'stub', 'rail', 'palette', 'primary', 'tabstop', 'noact', 'selflink', 'linkprimary'];
+const HOSTED = ['unlink', 'stub', 'rail', 'palette', 'primary', 'tabstop', 'noact', 'selflink', 'linkprimary', 'decprimary', 'stickyact'], DEC_HOSTED = ['decprimary', 'stickyact'];
 const ITEM = { lab: 5, lablegacy: 5, notfound: 'probe', aliaskey: 7, crossop: 8, landing: 9, foreignscope: 10 };
 if (PLANT && !PLANTS[PLANT]) { console.error(`shape_check: unknown plant ${PLANT}`); process.exit(2); }
 const all = !PLANT, runs = n => all || ITEM[PLANT] === n;
@@ -81,7 +85,9 @@ function onPage(B, r, bad, cls, state) {
     if (PLANT) w.eval(PLANTS[PLANT]);
     const start = w.eval('iaStart()'); await go(start);
     const cls = classifier(w, op);
-    const host = PLANT === 'noact' ? 'plan' : start;
+    const decHost = w.eval(`(() => { const id = [...new Set(ATTN[${JSON.stringify(op)}].map(r => r[4]))].find(id => uxDecState(id).key === 'choose' && uxRec(decById(id))); return id ? 'decision/' + id : null; })()`);
+    const host = PLANT === 'noact' ? 'plan' : DEC_HOSTED.includes(PLANT) ? decHost : start;
+    if (DEC_HOSTED.includes(PLANT) && !host) { log.push(`${B.opName} · plant ${PLANT}: no decision waiting with a recommendation, skipped`); B.dom.window.close(); continue; }
     /* 1, 3, 4, 6: every live route (unplanted), the host (a hosted plant), the typed unknown address (unplanted and notfound) */
     const live = liveRoutes(w, op), probe = { id: 'x-unknown', shape: 'frame', notFound: true };
     const routes = all ? [...live, probe] : HOSTED.includes(PLANT) ? live.filter(r => r.id === host) : PLANT === 'notfound' ? [probe] : [];

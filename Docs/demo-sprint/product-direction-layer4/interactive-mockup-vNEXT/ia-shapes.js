@@ -32,7 +32,7 @@ function iaTabsHtml(route, ctx) {
 function iaFrame(route, ctx, body) {
   const title = route.title(ctx), sub = route.subtitle ? route.subtitle(ctx) : '';
   const crumbs = `<div class="breadcrumbs">${route.crumbs(ctx).map(([t, id]) => id ? link(id, t) : escapeHtml(t)).join('<span>›</span>')}</div>`;
-  return `<div class="shell ia-frame" id="ia-root">${iaRailHtml(route)}<main class="workspace"><header class="topbar">${uxScopeSwitchHtml(iaScopeEntries(ctx), iaScopeLabel(ctx))}<div class="right"><button class="searchbox" data-index aria-label="Search Sites, decisions and Findings (Ctrl K)">${icon('search')}Search Sites, decisions and Findings</button>${uxPeriodMenuHtml(ctx.op)}${themeToggle()}<span class="avatar" title="${avatarName()}, illustrative operator executive">${avatarInitial()}</span></div></header><div class="canvas">${crumbs}<div class="page-heading"><div><div class="title-row"><h1>${title}</h1></div>${sub ? `<p>${sub}</p>` : ''}</div></div>${iaTabsHtml(route, ctx)}${body}${footer()}</div></main></div>`;
+  return `<div class="shell ia-frame" id="ia-root">${iaRailHtml(route)}<main class="workspace"><header class="topbar">${uxScopeSwitchHtml(iaScopeEntries(ctx), iaScopeLabel(ctx))}<div class="right"><button class="searchbox" data-index aria-label="Search Sites, decisions and Findings (Ctrl K)">${icon('search')}Search Sites, decisions and Findings</button>${uxPeriodMenuHtml(ctx.op)}${IA_LANDED.has('IA-1c') ? iaInboxControl(ctx.op) : ''}${themeToggle()}<span class="avatar" title="${avatarName()}, illustrative operator executive">${avatarInitial()}</span></div></header><div class="canvas">${crumbs}<div class="page-heading"><div><div class="title-row"><h1>${title}</h1></div>${sub ? `<p>${sub}</p>` : ''}</div></div>${iaTabsHtml(route, ctx)}${body}${footer()}</div>${IA_LANDED.has('IA-1c') ? iaInboxDrawer(ctx.op) : ''}</main></div>`;
 }
 /* D-IA.16: every link whose target is not live becomes text (its trailing arrow dropped); a tab to it is removed; a live alias
    gets its target's canonical address. Runs first, on the detached fragment. */
@@ -151,4 +151,35 @@ function shapeHubDemand(ctx) { return shapeHub(ctx, { l1: uxChain(ctx.op), l3: o
 function shapeHubSite(ctx) {
   const sk = ctx.site, X = uxSiteParts(sk, siteOverviewP(sk), 3, true);
   return shapeHub(ctx, { sticky: X.sticky, l1: `${X.lead}${X.tiles}`, l2: X.queue, l3: `${X.secs}${X.help}`, drawers: X.drawers });
+}
+
+/* ---- IA-1c: the decision shape and the "Waiting for you" inbox (spec §4, D-IA.21, D-IA.24, D-IA.26) ---- */
+function shapeDecision(ctx, slots) { return iaLevels('decision', slots); }
+/* the reviewed page's slots placed in levels: the sticky first; head and recommendation L1; the option cards L2; the six answer-titled
+   sections L3; the dialogs, Evidence and records, The Actions and How this works in [data-ia-drawers] */
+function shapeDecisionPage(ctx) {
+  const id = ctx.params.dec, S = uxDecisionSlots(id, decisionParts(id));
+  return shapeDecision(ctx, { sticky: S.sticky, l1: `${S.head}${S.rec}`, l2: S.cards, l3: S.secs, drawers: S.drawers });
+}
+/* who decides: the executive's own items are "For you" (the plan while proposed, then every waiting decision the executive chooses);
+   every other waiting decision is "In your portfolio". The badge counts "For you" (D-IA.24, OQ-IA.2) */
+const iaExecChooses = id => uxChooserRole(decById(id)) === 'OPERATOR_EXECUTIVE';
+function iaForYou(op) { return [...(uxPlanState(op).state === 'PROPOSED' ? ['plan'] : []), ...iaDecIds(op, { kind: 'all' }).filter(id => iaWaiting(id) && iaExecChooses(id))]; }
+function iaInPortfolio(op) { return iaDecIds(op, { kind: 'all' }).filter(id => iaWaiting(id) && !iaExecChooses(id)); }
+/* the control, in the top bar between the period chip and the theme toggle; the badge is absent at 0 */
+function iaInboxControl(op) {
+  const n = iaForYou(op).length;
+  return `<button type="button" class="ia-inbox" data-ia-inbox data-ux-drawer="ia-inbox" aria-haspopup="dialog" aria-controls="ia-inbox">${icon('check')}<span class="ia-inbox-label">Waiting for you</span>${n ? `<span class="ia-badge" data-ia-badge>${num(n)}</span><span class="vh">, ${num(n)} waiting</span>` : ''}</button>`;
+}
+/* the drawer, rendered closed in the frame after .canvas; it opens in place (its address is IA-2d's) */
+function iaInboxDrawer(op) {
+  const S = uxPlanState(op), L = (uxMock().log || []).filter(e => e.op === op);
+  const row = (href, key, text, small) => `<li><a href="#/${href}" data-ia-row="${key}">${text} <small>${small}</small></a></li>`;
+  const item = x => { if (x === 'plan') return row('plan', 'plan', `The plan for ${periodWords()}`, `${STATE_WORD[S.state]}: awaiting approval`);
+    const d = decById(x); return row(`decision/${x}`, `decision:${x}`, d.q, `${SK[d.site].name} · Decides: ${who(op, deciderOf(x).p)}`); };
+  const logRow = (e, i) => { const [n, id] = String(e.key).split(':'); return row(n === 'choose' ? `decision/${id}` : 'plan', `log:${i}`, e.toast, `${e.by} · ${hhmm(e.at) || ''}`); };
+  const list = (rows, empty) => rows.length ? `<ul class="list ia-inbox-rows">${rows.join('')}</ul>` : `<p class="ux-note ia-inbox-empty">${empty}</p>`;
+  const sec = (k, title, body) => `<section class="ia-inbox-sec" data-ia-section="${k}" aria-labelledby="ia-inbox-${k}"><h3 id="ia-inbox-${k}">${title}</h3>${body}</section>`;
+  const snap = `<p class="ux-note">${snapText(op)}</p>${snapOf(op).pending ? `<p class="ux-note">${pendingText(op)}</p>` : ''}`;
+  return uxDrawer('ia-inbox', 'Waiting for you', `${sec('for-you', 'For you', list(iaForYou(op).map(item), 'Nothing is waiting for you'))}${sec('portfolio', 'In your portfolio', list(iaInPortfolio(op).map(item), 'Nothing else is waiting for a choice'))}${sec('since', 'Since you last looked', `${list(L.map(logRow), 'No change recorded in this session')}${snap}`)}`, true);
 }

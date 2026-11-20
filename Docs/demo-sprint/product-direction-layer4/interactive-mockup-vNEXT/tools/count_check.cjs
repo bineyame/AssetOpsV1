@@ -78,7 +78,7 @@ const waitingIn = txt => { const m = String(txt || '').match(/(\d+) waiting for 
       const plan = w.eval(`uxPlanState(${JSON.stringify(op)}).state === 'PROPOSED'`), forYou = [...(plan ? ['plan'] : []), ...E.waiting.filter(id => E.chooser[id] === 'OPERATOR_EXECUTIVE')], port = E.waiting.filter(id => E.chooser[id] !== 'OPERATOR_EXECUTIVE');
       const badge = +(doc.querySelector('[data-ia-inbox] .ia-badge')?.textContent.replace(/\D/g, '') || 0);
       if (badge !== forYou.length) bad(`the badge reads ${badge}, expected ${forYou.length}`);
-      const rows = sec => [...doc.querySelectorAll(`#ia-inbox [data-ia-section="${sec}"] a[data-ia-row]`)].map(a => a.dataset.iaRow).sort().join(',');
+      const rows = sec => [...doc.querySelectorAll(`#ia-inbox [data-ia-section="${sec}"] a[data-ia-row]`)].map(a => a.dataset.iaRow.replace(/^decision:/, '')).sort().join(',');
       if (rows('for-you') !== [...forYou].sort().join(',')) bad(`"For you" holds ${rows('for-you') || 'nothing'}, expected ${forYou.join(',') || 'nothing'}`);
       if (rows('portfolio') !== [...port].sort().join(',')) bad(`"In your portfolio" holds ${rows('portfolio') || 'nothing'}, expected ${port.join(',') || 'nothing'}`);
     }
@@ -92,7 +92,10 @@ const waitingIn = txt => { const m = String(txt || '').match(/(\d+) waiting for 
     const want = S.wait[0], d = B.doc.createElement('div'); d.innerHTML = S.more;
     if (S.shown.length !== 1 || S.shown[0] !== want) fails.push(`synthetic: iaQueueCap(Mto, 1) shows ${S.shown.join(',')}, expected the first waiting id ${want}`);
     if (S.hidden.length !== S.ids.length - 1 || S.hidden.includes(want)) fails.push(`synthetic: iaQueueCap(Mto, 1) hides ${S.hidden.join(',')}`);
-    const wantT = `And ${S.ids.length - 1} more: ${partsOf(w, S.ids.filter(id => id !== want))}.`; if (d.textContent.trim() !== wantT) fails.push(`synthetic: iaCapMore reads "${d.textContent.trim()}", expected "${wantT}"`);
+    /* from IA-1c the line ends with the inbox opener when it hides a waiting decision (D-IA.34) */
+    const hidW = S.hidden.some(id => S.wait.includes(id)), opener = w.eval('IA_LANDED.has("IA-1c")') && hidW;
+    const wantT = `And ${S.ids.length - 1} more: ${partsOf(w, S.ids.filter(id => id !== want))}.${opener ? ' Open Waiting for you' : ''}`; if (d.textContent.trim() !== wantT) fails.push(`synthetic: iaCapMore reads "${d.textContent.trim()}", expected "${wantT}"`);
+    if (opener !== !!d.querySelector('[data-ux-drawer="ia-inbox"]')) fails.push(`synthetic: iaCapMore ${opener ? 'lacks' : 'carries'} the inbox opener`);
     log.push(`synthetic · Mto cap 1 · shown ${S.shown.join(',')} · "${d.textContent.trim()}"`); B.dom.window.close(); }
   /* M4: the same counts as rendered at 390 (the media rules are in force only in a browser) */
   if (!process.env.PW) { console.error('count_check: PW is not set (source /opt/assetecon/tools/pw/env.sh)'); process.exit(2); }

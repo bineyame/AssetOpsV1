@@ -27,3 +27,15 @@
 [data-shape="hub"]>[data-level],[data-shape="decision"]>[data-level],[data-ia-drawers]{display:contents}
 .ia-outcomes td small{display:block;color:var(--text-2);font-weight:400}
 .table-wrap:has(>.ia-outcomes){margin-bottom:var(--s4,16px)}
+/* IA-1c (spec §4.3): the "Waiting for you" control in the top bar, sized with the theme toggle; at 390 its label is visually hidden and the
+   icon and badge stay */
+.ia-inbox{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px;border:1px solid var(--line-strong);border-radius:var(--r1);background:var(--surface);color:var(--text);font-size:var(--fs-xs);font-weight:550;white-space:nowrap;cursor:pointer;flex:none}
+.ia-inbox:hover{background:var(--surface-2)}
+.ia-inbox svg,.ia-inbox .icon{width:14px;height:14px;flex:none}
+.ia-badge{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--accent-solid);color:var(--on-accent);font-size:12px;font-weight:650;line-height:1}
+.ia-inbox-sec+.ia-inbox-sec{margin-top:var(--s5,24px)}
+.ia-inbox-sec h3{margin:0 0 var(--s2,8px);font-size:var(--fs-sm)}
+.ia-inbox-rows a{display:block}
+.ia-inbox-rows small{display:block;color:var(--text-2);font-weight:400}
+.ia-inbox-rows .who{display:inline}
+@media (max-width:760px){.ia-inbox-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.ia-inbox{padding:0 8px}}

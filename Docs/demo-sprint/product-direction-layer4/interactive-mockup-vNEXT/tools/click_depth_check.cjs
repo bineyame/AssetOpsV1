@@ -56,6 +56,8 @@ const APP = {
   tile: `{ const r = IA_ROUTES.find(x => x.id === 'portfolio'), _r = r.render; r.render = ctx => _r(ctx).replace(/<a[^>]*href="#\\/portfolio\\/act-first\\/plan"[^>]*>([\\s\\S]*?)<\\/a>/, '$1'); }`,
   closed: `{ const r = IA_ROUTES.find(x => x.id === 'portfolio'), _r = r.render; r.render = ctx => _r(ctx).replace(/<a[^>]*href="#\\/portfolio\\/act-first\\/plan"[^>]*>[\\s\\S]*?<\\/a>/, m => '<details><summary>More</summary>' + m + '</details>'); }`,
   siteclosed: `shapeHubSite = eval('(' + shapeHubSite.toString().replace('3, true)', '3, false)') + ')');`,
+  /* IA-1c: one waiting decision dropped from the inbox rows (its via-inbox surface becomes unreached) */
+  inbox: `{ const _f = iaInboxDrawer; iaInboxDrawer = op => _f(op).replace(/<li><a href="#\\/decision\\/[^"]*" data-ia-row="decision:[^"]*">[\\s\\S]*?<\\/a><\\/li>/, ''); }`,
   driver: `{ const r = IA_ROUTES.find(x => x.id === 'site/:site'), _r = r.render; r.render = ctx => _r(ctx).replace(/data-ux-drawer="(uxsdrv-[^"]*)"/g, 'data-ux-plant="$1"'); }`
 };
 (async () => {
