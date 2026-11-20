@@ -172,3 +172,9 @@ Pre-flight of `spec.md` against `main` fb6d248d3 (the spec cites e2387b334; noth
   `commercial_upload_settings`, `COMMAND_ROLES`, `$commercialTables` (`configuration-persistence.ps1:977`). The four
   illustrative layouts already satisfy the coded rule. `site_code` is upper-case only in 2a, so the Site intersection
   of D-3A6.5 cannot be dodged by case.
+
+## Round 1 closed
+
+Architect (Claude), 2026-11-20: every question above is answered once in `rulings.md` "Handshake answers (round 1)"
+and folded into `spec.md` rev 2 and `reviewer-guide.md` rev 2. No question is open; coding may start (3A6 commit 2
+and all of 3A7 wait on their migration base, D-3A6.12).

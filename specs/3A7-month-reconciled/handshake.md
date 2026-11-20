@@ -107,3 +107,9 @@ specified). Read-only; no database run.
   `.source_systems`, `.provenance`, `site_zones`, `site_ids`, `build_commercial_reads` (`composition.py:128`),
   `has_control_character`, `COMMAND_ROLES`, `roles_of`; `site (tenant_id, id)` is unique (`0001`), so the statement's
   composite foreign key is valid. The months clock is private (`_clock`), as §2.6 anticipates.
+
+## Round 1 closed
+
+Architect (Claude), 2026-11-20: every question above is answered once in `rulings.md` "Handshake answers (round 1)"
+and folded into `spec.md` rev 2 and `reviewer-guide.md` rev 2. No question is open; coding may start (3A6 commit 2
+and all of 3A7 wait on their migration base, D-3A6.12).
