@@ -70,3 +70,39 @@ operators at 1440, 1280×720 and 390, light and dark; the page body matches main
    visually hidden as at 390 (spec names 390 only).
 5. A decision's scope label reads "All sites" (spec silent; a Site page reads its Site).
 6. `IA_G1_SURFACES` "plan items" are `planCase(op).ids` mapped through `DEC_SEE_ALSO`/`decOf`.
+
+
+## Review fix round r1 (D-IA.36 to D-IA.40; review `review-IA-1c.md`, answers in `rulings-2.md`)
+Merged `task/IA-1c-review-answers` and main (index-rulings-12 and INDEX.md conflicts resolved by keeping both sides). Built as ruled:
+- **D-IA.36** `iaInPage(a)` plus one capture-phase click listener (`ia-routes.js`); `.ux-ocards{scroll-margin-top:var(--ia-sticky-h)}`, the var set
+  by `iaInPage` from the sticky bar's measured height (the bar is only shown after the scroll, so it is measured by showing it briefly). shape_check
+  item 11 (every `#<id>` link names an element, all states); uxi "in-page link" (Metro Ruiru connector, `?state=no-recommendation`, 1440 and 390).
+- **D-IA.37** `iaFitTopbar` (`data-fit` 0..3, called at the end of `iaRender` after insertion and before the after-render guard observes, on resize and
+  `fonts.ready`); the four width patches removed from `ia.css`; ia_shots sweep (761 to 1920, portfolio, plan, x-unknown, longest-Site decision) with
+  one-row, past-window and truncation measures and `data-fit="0"` at 1440; register **R754** (`.agent/mock-departure-register.md`).
+- **D-IA.38** `data-ia-crumbs="keep"` on `.canvas` for decision, record, asset shapes; CSS only; shape_check item 12; ia_shots Site-crumb measure.
+- **D-IA.39** count_check acts through `uxActDo`, reads the act log after Choose and after Undo (the toast is read before navigation).
+- **D-IA.40** `iaParamSite`; shape_check item 13 (scope text and lit entry on every `site/*` and `decision/*`).
+
+### New plants (each run, first failing line)
+| plant | first failing line |
+|---|---|
+| SHAPE anchor | `Lakeside Power · #/decision/kisiwa-om: in-page link "#nowhere" names no element on the page` |
+| SHAPE sitecrumb | `#/decision/kisiwa-om: the crumbs are not "Decisions" (text), a link #/site/kisiwa reading "Kisiwa", then the subject (text text text)` |
+| SHAPE decscope | `#/decision/kisiwa-om: the scope reads "Lakeside Power · All sites", not "Lakeside Power · Kisiwa"` |
+| COUNT nolog | `Lakeside Power (after one act) · act log after Choose: 0 rows (none), expected one log:0 to #/decision/kisiwa-om` |
+| UXI anchor | `FAIL in-page link at 1440: ... H1 "Page not found", focus on nothing ... not-found true` |
+| SHOTS fit (sweep) | `BAD lakeside #/portfolio 761x800: ... top bar runs past the window (right)` |
+| SHOTS truncate (sweep) | `BAD lakeside #/portfolio 1366x800: ... truncated control (ia-search-t 219 > 29)` (alone, at a width where the bar fits) |
+| SHOTS crumbs (decision) | `BAD lakeside #/decision/kobo-generator 1280x720: ... the Site crumb is not shown` |
+Final run at head, all through `tools/heavy-slot.sh`: uxi **386 PASS, 0 FAIL (530 s)**; count_check PASS (desktop jsdom and 390 Chromium); G3 36 of 36; plan_switch 785/0; shell_check, design_lint, vocab, copy, hand_typed 0 findings; render_text 237 renders, 0 script errors; check_manifest 7572 passed, 0 failed; after_render_check PASS (the fit runs before the guard observes).
+`ia_gates.cjs` now lists anchor, sitecrumb, decscope and nolog under IA-1c: **51 runs, all as expected (764.8 s)**.
+
+### Known deviation: D-IA.37's own stop condition is hit
+The ruled collapse (level 3, avatar hidden) does not fit below about 950 to 1000 px: the bar needs 760 px beside a 174 to 204 px rail and the
+period chip alone is about 298 px, the scope switch about 200 px. Measured `data-fit` / overflow (X), lakeside portfolio: 761 to 934 3X,
+960 3, 1000 2, 1024 1; Harvest needs about 1000; Metro and decisions about 934. `ia_shots` therefore reports **456 measured, 48 bad**, all
+"top bar runs past the window" at 761, 800 and 900 (nothing else is bad: 1023 and up pass the sweep, the decisions, the crumbs). I did not tune a
+width, gap or label (the ruling forbids it): **the round stops here for a ruling** (for example the period chip as an icon at level 3, or the
+rail narrower, or the two-row bar below 1000). Looked at: the top bar at 761 (period chip clipped, inbox and theme off screen), 1024, 1280, 1440 (full
+search); a decision at 390 and 1280x720 with its Site crumb visible (both fine).
