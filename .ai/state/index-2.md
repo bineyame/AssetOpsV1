@@ -66,4 +66,4 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 152. `3A4` amounts by month, month stamps · data.md
 153. `3A2` commercial file intake (migration 0065, uploads, pseudonyms, acceptance) · data.md
 154. `IA-1a` mock-up frame and gates (IA-1 shape rebuild) · demo.md
-155. `4b1` the stated-node seam (MINI_GRID v3, stated headings, origins) · data.md
+155. `4b1` the stated-node seam (MINI_GRID v3, stated headings, origins; D-4B.18 fix round, R2-1) · data.md

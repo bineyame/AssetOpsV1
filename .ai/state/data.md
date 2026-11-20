@@ -397,7 +397,8 @@ Branch `task/3A4-amounts-by-month` (base main `38e2b3fe1`); spec `specs/3A4-amou
 
 ## 4b1 - the stated-node seam (built, in_review)
 
-Branch `task/4b1-money-leaves` (base main `880ba4dbf`); spec `specs/4b-money-leaves/spec.md` rev 2 §2, rulings D-4B.1, .2, .10, .11, .16, .17; packet `specs/4b-money-leaves/packet-4b1.md`. No migration, no route, no store.
+Branch `task/4b1-money-leaves` (base main `880ba4dbf`); spec `specs/4b-money-leaves/spec.md` rev 2 §2, rulings D-4B.1, .2, .10, .11, .16, .17, .18; packet `specs/4b-money-leaves/packet-4b1.md`; reviews `review-4b1.md` (r1, r2). No migration, no route, no store.
 
 - Settled: MINI_GRID v3: `FactorRow.stated_by` on `revenue` (CHARGE) and `fuel_cost` (EXPENSE (FUEL)); check `STRUCTURE_STATED` after `STRUCTURE_COMPOSES`. `evaluate(registry, leaves, stated=)`: a stated value governs and the expression stays as `computed`/`detail_missing`; `NOT_CONNECTED`/`NOT_RECEIVED` let the expression through, `NOT_CALCULATED_YET` blocks (D-4B.16). `LeafValue.origins`, `FactorValue.origins/stated/computed/detail_missing`, `ORIGIN_ORDER`, `weakest_origin`, runtime `STRUCTURE_ORIGIN`; compose carries origins and `Site:leaf` detail. `StatedSource`, `StructureRead(sources, stated=None)`; `commercial.composition.build_commercial_reads`. With `stated` empty the old fields equal 3B3's.
-- Open: mid-build Q1 (S8's MONEY / KWH plant cannot isolate D-4B.17); 4b2 providers (`structure/money.py`, states, T6 edits); `5a` builds on the new fields.
+- Fix round (D-4B.18): a valued part names its origin; only a NEUTRAL value or a CALENDAR row may carry `()`, else `STRUCTURE_ORIGIN`; `unknown` ranks last in `ORIGIN_ORDER`. S11(a) is parametrized from the registry over every valued non-CALENDAR leaf row (money and non-money, every registry) and every stated node (r2 R2-1), so the exemption cannot widen unnoticed; plants P1 (refuse `()` only with a currency) and P2 (exempt OPERATIONAL_RECORD too) now fail.
+- Open: every production leaf still has `origins == ()` until 4b2 (`weakest_origin` is `None`, not "no weak part"); 4b2 providers (`structure/money.py`, states, T6 edits); `5a` builds on the new fields.

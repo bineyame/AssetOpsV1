@@ -157,3 +157,19 @@ All with `PYTHONPATH` = worktree `backend`, `backend/tests`, `contracts`, `simul
   A screen must not read `None` as "no weak part".
 - `_check_leaf` does not validate `Missing.cause` against `CAUSES`. Any unknown cause on a stated value blocks, which
   is safe, but 4b2's providers should be held to `CAUSES`.
+
+---
+
+# Review r2 (verification, fix round 1, head dc731bf29)
+
+Verdict: ACCEPT WITH ONE FINDING (R2-1, Low/Medium test gap). Reviewer text: `.agent/review-4b1-r2.md`.
+
+- F1 to F4 fixed as classes: S8 plants for MONEY^2 and MONEY*KWH with no-stated_by controls (V18b); provenance rows 3/4 and TARGET row 1 pinned; D-4B.18 in one door (`_check_leaf`, also used by `_check_stated`): exemption is NEUTRAL or family CALENDAR only, `()` refused and never inferred, `unknown` ranks last; spec text fixed.
+- Ran (no DB): 4b1 + 3B3 tests, 112 passed. Not run: builder's 191, check-all, Postgres 3B3, frontend.
+- Plants in a scratch copy, both survived all 112 tests: P1 (refuse `()` only when the leaf has a currency) and P2 (exemption widened to CALENDAR plus OPERATIONAL_RECORD).
+- R2-1 (test gap, code right): S11(a) covered only `om` and `outstanding`; no test refused `()` on each non-CALENDAR family or on a non-money leaf.
+
+## R2-1 closed (builder, commit bfe57c2f0)
+
+`test_s11a_every_valued_part_with_empty_origins_is_refused` is parametrized from `REGISTRIES`: every valued leaf row not in CALENDAR (money and non-money) plus every stated node, each with empty origins, asserting `STRUCTURE_ORIGIN` on that factor (38 S11 cases; `test_s11a_the_registry_yields_money_and_non_money_leaves` proves both sets non-empty).
+- P1 replayed: 20 failed. P2 replayed: 3 failed. Each reverted with `git checkout`; tree clean.
