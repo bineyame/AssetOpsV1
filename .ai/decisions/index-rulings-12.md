@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-5B.15 to D-3A7.7)
+# Decision index: Demo-sprint and later rulings (index only) (D-5B.15 to D-3A7.13)
 
 - `D-5B.15` A RESIDUAL row carries NOT_SPLIT / DETAIL_NOT_AVAILABLE; 5c keys on kind first (mid-build Q1) · live · specs/5b-attribution/rulings.md
 - `D-3A6.1` A source profile is a JSON data file compiled to the one engine's Layout; new fields default to today's behaviour (amends D-3A3.2) · live · specs/3A6-source-profiles/rulings.md
@@ -11,6 +11,13 @@
 - `D-3A6.8` Only the latest admitted version of a profile reads uploads · live · specs/3A6-source-profiles/rulings.md
 - `D-3A6.9` Single-sheet XLSX via the standard library; numbers to Excel's 15 significant digits · live · specs/3A6-source-profiles/rulings.md
 - `D-3A6.10` The emulated loader takes admitted profiles; the admission command runs where the real data lives · live · specs/3A6-source-profiles/rulings.md
+- `D-3A6.11` The sample must exercise every written column, every map value and the date/number order (ADMIT_* coverage checks) · live · specs/3A6-source-profiles/rulings.md
+- `D-3A6.12` Migration order 0066 (3B7a) then 0067 (3A6) then 0068 (3A7); 3A6 commit 1 may start before 3B7a merges · live · specs/3A6-source-profiles/rulings.md
+- `D-3A6.13` XLSX: YYYYMM numbers read as text, serial window 61-73050, bad cells are marks judged only in written columns, zip/XML faults are NATIVE_WORKBOOK · live · specs/3A6-source-profiles/rulings.md
+- `D-3A6.14` S1 has one tagged plant per clause; sys.modules and runpy are rules; stated residuals · live · specs/3A6-source-profiles/rulings.md
+- `D-3A6.15` The source-switch rule is re-checked under the tenant's lock at acceptance against accepted uploads (amends D-3A6.5) · live · specs/3A6-source-profiles/rulings.md
+- `D-3A6.16` A profile for a mutable ledger versions by row digest; constant version refused with a status column · live · specs/3A6-source-profiles/rulings.md
+- `D-3A6.17` Commands find a tenant by slug through AccountService.tenant_by_slug · live · specs/3A6-source-profiles/rulings.md
 - `D-3A7.1` Reconcile exactly what the screen shows (4b's revenue and fuel cost; cross-checked) · live · specs/3A7-month-reconciled/rulings.md
 - `D-3A7.2` One matched month opens the gate for the tenant; a month's own mismatch still reads not yet reconciled · live · specs/3A7-month-reconciled/rulings.md
 - `D-3A7.3` The comparison is made live on every read; stored result is audit only · live · specs/3A7-month-reconciled/rulings.md
@@ -18,3 +25,9 @@
 - `D-3A7.5` The finance lead's statement recorded by command, marked scripted, closed months only · live · specs/3A7-month-reconciled/rulings.md
 - `D-3A7.6` The standing is read live by 5c, not snapshotted by 3B7a · live · specs/3A7-month-reconciled/rulings.md
 - `D-3A7.7` Each heading's sentence states both figures, the difference, its share and the amount allowed · live · specs/3A7-month-reconciled/rulings.md
+- `D-3A7.8` Only a statement matched on both headings against recorded lines opens the gate (amends D-3A7.2) · live · specs/3A7-month-reconciled/rulings.md
+- `D-3A7.9` The standing is read at the known_at of the figure it labels; 5c passes the snapshot's as_of (amends D-3A7.6) · live · specs/3A7-month-reconciled/rulings.md
+- `D-3A7.10` Compare exactly; display rounding directed so a sentence never contradicts its state · live · specs/3A7-month-reconciled/rulings.md
+- `D-3A7.11` The organisation's scope is its mini-grid Sites; other Site types refused · live · specs/3A7-month-reconciled/rulings.md
+- `D-3A7.12` A tolerance cites an owner file naming the tenant and the figure, pinned by SHA-256 (amends D-3A7.4) · live · specs/3A7-month-reconciled/rulings.md
+- `D-3A7.13` The standing's text appends the sentences of the headings that did not match (amends D-3A7.7) · live · specs/3A7-month-reconciled/rulings.md
