@@ -58,7 +58,8 @@ COMMERCIAL_RECORD, OPERATIONAL_RECORD and DOCUMENT row of `empty_states.leaf_sou
 
 ## Mid-build questions
 
-Count: **0**.
+Count: **4** (the four filled gaps below, recorded after review round 1). Gap rulings, M1/M2 and the Lows are in
+spec rev 3 and `rulings.md` "Review round 1 answers" (D-2A.11, D-2A.12): gap 1, 2 and 4 ratified, gap 3 settled by M2.
 
 ## Readings made where the spec was terse (not open choices; flag if wrong)
 
@@ -68,7 +69,7 @@ Count: **0**.
 - When a controlling body value (`line_type`, `read_type`, `category`) is absent or invalid, the quantity step checks
   only the quantity's own shape; the body step then refuses the controlling value.
 - `FORMAT_VERSION` is defined in `records_v1.py` and re-exported by `__init__.py`.
-- The batch key-set check runs before `format_version`; the record order is §6.6's.
+- `format_version` is checked before the key set, in batch and record alike (rev 3, Low 3).
 
 ## Not verified
 
