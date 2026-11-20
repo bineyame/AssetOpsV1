@@ -329,6 +329,9 @@ history:   # U9 (owner, 20 Nov): July-September 2026 history of the three demo o
 - `HISTORY_MONEY_LEAVES`;
 - `HISTORY_NO_PLAN_VALUE`.
 
+Refusals found before any scope, refusals that match no listed defect, and lists read for a month outside the set:
+see `rulings.md` "Mid-build answers" (MB1, MB2). Those texts are part of the spec.
+
 ### 6.2 Seasonality from day types (P5)
 
 - `W(f, m) = Σ over m's dates of season_f[seasons[m]] * day_f[day_class(date)]`.
