@@ -115,7 +115,7 @@ When two principles conflict, the higher one wins. Each one serves the objective
 
 ### 2.2a The overview budget (wave 2c)
 
-An overview page holds the answer and the next step, nothing more: **the headline, at most four KPI tiles, the decision queue, one chart, and a slim strip of the four outcome headings**. Everything else lives in its tab and is linked from a single "More in the tabs" line. At 1440 the page stays under about two and a half screens; `ux_interaction_check` asserts at most six blocks and 2,500 px. On the Portfolio, "Where value leaks" lives on Demand and capacity, the insight on Outcomes by site, and the plan behind the Plan tile's "Review the plan". The four headings stay on the Overview (OD-21), as a strip whose tiles open their drawers.
+An overview page holds the answer and the next step, nothing more: **the headline, at most four KPI tiles, the decision queue, one chart, and a slim strip of the four outcome headings**. Everything else lives in its tab and is linked from a single "More in the tabs" line. At 1440 the page stays under about two and a half screens; `ux_interaction_check` asserts at most six blocks and 2,500 px. On the Portfolio, "Where value leaks" lives on Demand and capacity, the insight on Outcomes by site, and the plan behind the Plan tile's "Review the plan". The four headings stay on the Overview (OD-21), as a strip whose tiles open their drawers. Grow and Optimize do not restate the gap chart's money: each tile gives its share of the gap and opens the same drawer as its chart group. Protect and Assure keep their own measures.
 
 ### 2.3 What each screen holds at each level
 
@@ -502,7 +502,7 @@ There is no role switcher, role view or role filter (design §2.6; memory "no bo
 | **Inline expand** | Table row detail, long values (builder guide §1) | `aria-expanded` |
 
 - **Filters**: a filter bar under the page header (vertical, Site, heading, status), with applied-filter chips and "Clear". Filters are kept in the URL. The period selector is global, in the top bar.
-- **Drill-down**: a figure opens its evidence; a row opens its object. Each target is a single link or button; a whole-row link never contains other controls.
+- **Drill-down, one grammar on every page** (owner, 20 Nov): a chart mark, a chart heading, a tile or a figure opens a **drawer about that subject, in place**; it never navigates. A driver or heading drawer has one shape: the amount and its share, what is behind it (Findings), what is being done ("Open decision →", or "No decision yet"), then the evidence. Leaving the page takes an explicit, named button: a queue row's Decide or Review, "Open decision →", a breadcrumb. Each target is a single link or button; a whole-row link never contains other controls. Gate: `ux_interaction_check` clicks every chart step, chart heading and tile on each overview and fails one that does not open a drawer, changes the route, or leaves a driver drawer without "what is being done".
 - **Motion**: 150 to 200 ms ease-out for drawers, expansion and toasts, and nothing else. `prefers-reduced-motion` removes it. There is no parallax, no count-up numbers and no hover lifts.
 - **Keyboard and accessibility (WCAG 2.2 AA)**:
   - a skip link, landmarks, one `h1`, ordered headings and `th scope` on tables;

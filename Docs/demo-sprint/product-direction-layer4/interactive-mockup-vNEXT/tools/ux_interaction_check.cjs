@@ -142,11 +142,24 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
     await p.context().close(); }
   // wave 2: the bridge links each step to its decision, with detail on focus; the value chain draws its losses; tiles have a visual
   for (const op of ['lakeside', 'harvest', 'metro']) { const p = await page('portfolio', { op });
-    const a = await p.$('.ux-wf-a'); let tip = false, href = null;
-    if (a) { await a.focus(); await p.waitForTimeout(200); href = await a.getAttribute('href'); tip = await p.evaluate(() => { const t = document.activeElement.parentElement.querySelector('.ux-tip'); return +getComputedStyle(t).opacity > 0.9 && getComputedStyle(t).visibility === 'visible'; }); }
+    const a = await p.$('.ux-wf-a'); let tip = false;
+    if (a) { await a.focus(); await p.waitForTimeout(200); tip = await p.evaluate(() => { const t = document.activeElement.parentElement.querySelector('.ux-tip'); return +getComputedStyle(t).opacity > 0.9 && getComputedStyle(t).visibility === 'visible'; }); }
+    /* one drill-down grammar (guide §8; owner, 20 Nov): every chart step, chart heading and outcome tile opens a drawer in place and
+       never changes the route; a driver drawer says what is being done ("Open decision →" or "No decision yet"); the Grow and
+       Optimize tiles open the same drawer as their chart group; no direct decision link sits on the chart or the tiles */
+    const marks = await p.evaluate(() => [...document.querySelectorAll('.ux-hero .ux-wf-a, .ux-hero .ux-wf-gbtn, .ux-cats .ux-cat-go')].map((e, i) => { e.setAttribute('data-gx', i); return { i, d: e.dataset.uxDrawer || null }; }));
+    const bad = []; const h0 = await p.evaluate(() => location.hash);
+    for (const m of marks) { if (!m.d) { bad.push(`mark ${m.i} opens no drawer`); continue; }
+      await p.click(`[data-gx="${m.i}"]`); await p.waitForTimeout(220);
+      const r = await p.evaluate(id => { const d = document.getElementById(id); const t = d ? d.textContent : ''; return { open: d && d.dataset.open === 'true', hash: location.hash, drv: /^uxdrv-/.test(id), done: /What is being done/.test(t) && (d.querySelector('a[href^="#/decision/"]') ? /Open decision →/.test(t) : /No decision yet/.test(t)) }; }, m.d);
+      if (!r.open) bad.push(`${m.d} did not open`); if (r.hash !== h0) bad.push(`${m.d} navigated to ${r.hash}`); if (r.drv && !r.done) bad.push(`${m.d} does not say what is being done`);
+      await p.keyboard.press('Escape'); await p.waitForTimeout(150); }
+    const same = await p.evaluate(() => ['grow', 'optimize'].every(k => { const g = document.querySelector(`.ux-hero .ux-wf-gbtn[data-ux-drawer$="-${k}"]`), t = document.querySelector(`.ux-cat[data-tile="${k}"] .ux-cat-go`); return !g || (t && t.dataset.uxDrawer === g.dataset.uxDrawer); }));
+    const direct = await p.evaluate(() => [...document.querySelectorAll('.ux-hero a[href], .ux-cats a[href]')].filter(a => !a.closest('.ux-drawer')).length);
+    ok(marks.length >= 4 && !bad.length && same && !direct, `${op} drill-down: ${marks.length} chart steps, headings and tiles each open a drawer in place, none navigates; Grow and Optimize tiles share their chart group's drawer; ${direct} direct links on the chart or tiles (${bad.slice(0, 3).join('; ') || 'all hold'})`);
     const pd = await page('portfolio/demand-and-capacity', { op }); const vc = await pd.evaluate(() => [...document.querySelectorAll('.ux-vc-loss .ux-vc-bar')].filter(b => b.getBoundingClientRect().width > 1).length);
     const tiles = await p.evaluate(() => [...document.querySelectorAll('.ux-cat')].map(t => !!t.querySelector('.ux-bullet, .ux-seg, .ux-meterbar')));
-    ok(!!href && /^#\/decision\//.test(href) && tip, `${op} bridge: a step links to ${href} and shows its detail on focus`);
+    ok(tip, `${op} bridge: a step shows its detail on focus`);
     const noLeak = await pd.evaluate(() => /no leak measured/.test(document.querySelector('[id^="uxv-h-"]')?.parentElement?.textContent || '')); await pd.context().close();
     ok(vc >= 1 || noLeak, `${op} value chain: ${vc} loss bars drawn${noLeak ? ' (no leak measured, said in the title)' : ''}`);
     ok(tiles.filter(Boolean).length >= 3, `${op} outcome tiles: ${tiles.filter(Boolean).length} of 4 with a target-against-actual visual`);

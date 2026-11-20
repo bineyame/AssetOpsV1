@@ -1400,6 +1400,15 @@ details.ux-pop>summary:focus-visible{outline:2px solid var(--focus);outline-offs
 /* review r1: the review-bar control for the fourth state; the qualifier beside a figure is its basis, in the secondary colour */
 .reviewbar a.ux-rb-ctl{color:var(--rb-text);text-decoration:underline;text-underline-offset:2px}
 .ux-drec-q,.ux-confirm-q{color:var(--text-2)}
+/* one drill-down grammar (owner, 20 Nov): a chart step and a chart heading are buttons that open their drawer in place */
+button.ux-wf-a{width:calc(100% + 2 * var(--s1));background:none;border:0;font:inherit;text-align:left;cursor:pointer}
+.ux-wf-group .ux-wf-gbtn{display:flex;justify-content:space-between;width:100%;padding:2px 0;background:none;border:0;border-radius:var(--r1);font:inherit;color:inherit;cursor:pointer}
+.ux-wf-group .ux-wf-gbtn:hover .ux-wf-gl{text-decoration:underline;text-underline-offset:3px}
+.ux-drv-amt{margin:0 0 var(--s4);font-size:var(--fs-md);color:var(--text-2)}
+.ux-drv-amt b{font-size:var(--fs-xl);color:var(--text);font-variant-numeric:tabular-nums}
+.ux-drv-h{margin:var(--s4) 0 var(--s2);font-size:var(--fs-sm);font-weight:600;color:var(--text-2)}
+.ux-drv-decs li{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:baseline}
+.ux-drv-top{margin-bottom:var(--s5);padding-bottom:var(--s4);border-bottom:1px solid var(--line)}
 
 /* brand.css: brand packs (UI/UX guide §4.7). A pack changes only brand tokens: surfaces' warmth, the interactive accent, the
    rail, the brand mark and the motif accents (a header band, the brand mark, empty and loading states). It never changes
@@ -4542,6 +4551,11 @@ function uxCatTile(op, k, C) {
   const pos = k === 'assure' ? (C.assure?.pos || 'The evidence behind every heading') : k === 'protect' ? protectCard(op).pos : (C[k]?.pos || '');
   const counts = [finds ? `${num(finds)} Finding${finds === 1 ? '' : 's'}` : 'No Finding', items ? `${num(items)} plan item${items === 1 ? '' : 's'}` : ''].filter(Boolean).join(' · ');
   let vis = '';
+  /* Grow and Optimize do not restate the gap chart's money (owner, 20 Nov; OD-21 keeps the four headings): each gives its share of
+     the gap and opens the same drawer as its chart group. Protect and Assure keep their own measures. */
+  const g = (k === 'grow' || k === 'optimize') ? uxGapModel(op).groups.find(x => x.k === k) : null;
+  if (g) { const M = uxGapModel(op);
+    return `<div class="ux-cat" data-tile="${k}"><div class="ux-cat-h">${icon(ico)}<h3>${name}</h3></div><p class="ux-cat-pos"><b>${usdW(g.sub, true)}</b> ${g.share != null ? `· ${g.share}% of what ${uxWidenWord(M)}` : '· an offset to the gap'}</p>${g.share != null ? `<div class="ux-meterbar" role="img" aria-label="${g.share}% of what ${uxWidenWord(M)}"><span style="width:${g.share}%"></span></div>` : ''}<p class="ux-cat-n">${num(g.steps.length)} driver${g.steps.length === 1 ? '' : 's'} · ${counts}</p>${uxOpener(`uxd-${op}-${k}`, `View drivers<span class="vh">: ${name}</span> <span aria-hidden="true">›</span>`, 'ux-cat-go')}</div>`; }
   if (k === 'grow' && o.kind !== 'cost') { const a = sumNodes(op, 'actual', 'revenue'), t = sumNodes(op, 'plan', 'revenue'); vis = uxBullet(a, t, `Revenue ${usdW(a)} against a target of ${usdW(t)}`); }
   if (k === 'optimize') { const a = o.kind === 'cost' ? opTotals(op).actual : sumNodes(op, 'actual', 'cost_to_serve'), t = o.kind === 'cost' ? opTotals(op).plan : sumNodes(op, 'plan', 'cost_to_serve'); vis = uxBullet(a, t, `Cost ${usdW(a)} against a target of ${usdW(t)}`, true); }
   if (k === 'protect') { const pc = protectCard(op); vis = pc.total ? `<div class="ux-seg" role="img" aria-label="${num(pc.broken)} of ${num(pc.total)} limits broken">${Array.from({ length: pc.total }, (_, i) => `<span class="${i < pc.broken ? 'is-bad' : 'is-good'}"></span>`).join('')}</div>` : ''; }
@@ -4614,52 +4628,75 @@ function uxRoundTo(values, total) {
   const out = [...fl]; for (let k = 0; k < Math.abs(short) && k < order.length; k++) out[order[k][1]] += Math.sign(short);
   return out;
 }
-/* the bridge (guide §5, wave 2c): the totals on an honest zero axis in one bullet; below it, the gap itself as the scale
-   (target at the left edge, October at the right), each driver a step across it, grouped under its heading. No axis break,
-   no empty area: the steps fill the width of the gap. Each step links to the decision on its driver. */
-function uxBridge(op) {
+/* the gap, modelled once (wave 2c rulings): heading groups in order, each step's displayed value (one sign rule: the effect on the
+   headline result), shares of what widens the gap, positions on the gap scale, and the Findings and decisions on each driver.
+   The chart, the heading tiles and every driver or heading drawer read this one model, so they cannot disagree. */
+function uxGapModel(op) {
   const o = OPS[op], T = opTotals(op), G = gapByHeading(op), cost = o.kind === 'cost';
   const sum = G.rows.reduce((a, r) => a + r.total, 0), dir = Math.abs(T.actual - T.plan - sum) < Math.abs(T.actual - T.plan + sum) ? 1 : -1;
-  const head = cost ? 'Cost' : 'Contribution', gap = T.actual - T.plan, gapAbs = Math.abs(gap) || 1, shown = st => cost ? dir * st.total : st.total;
-  const tone = r => { const worse = cost ? dir * r.total > 0 : dir * r.total < 0; return worse ? 'is-bad' : 'is-good'; };
-  const names = OPS[op].sites.map(k => SK[k].name);
-  const decFor = st => { const f = (HC.findings || []).find(f => names.includes(String(f.site).replace(/^Room [A-C] · /, '')) && (st.hkeys || []).includes(f.factor)); return f ? f.decision : null; };
-  const nw = t => `<span class="ux-nw">${t}</span>`;
-  /* steps in heading order, then size. Position is progress across the gap (0 = target, 100 = October); offsetting steps can
-     run past either end, so the track spans [min(0, lowest run), max(100, highest run)] and Target and October sit at their
-     scaled places (review 2c M1). Signs: one rule per page, the change in the headline measure (cost for a cost centre). */
+  const disp = st => cost ? -dir * st.total : st.total, gapShown = T.variance;
+  const names = o.sites.map(k => SK[k].name), siteOf = f => String(f.site).replace(/^Room [A-C] · /, '');
   const groups = ['grow', 'optimize'].map(k => ({ k, rows: G.rows.filter(r => r.lens === k).sort((a, b) => Math.abs(b.total) - Math.abs(a.total)) })).filter(g => g.rows.length);
-  /* one sign rule (L4): every figure is its effect on the headline result, as the tiles, drawers and site rows already show;
-     for a cost centre a cost overrun is negative (worse). Position uses progress from target (0) to October (100). */
-  const disp = st => cost ? -dir * st.total : st.total, gapShown = T.variance, all = groups.flatMap(g => g.rows);
-  let run = 0; const pos = new Map(); let lo = 0, hi = 100;
+  const all = groups.flatMap(g => g.rows);
+  let run = 0, lo = 0, hi = 100; const pos = new Map();
   all.forEach(st => { const a = run, b = run + disp(st) / (gapShown || 1) * 100; run = b; pos.set(st, [a, b]); lo = Math.min(lo, a, b); hi = Math.max(hi, a, b); });
-  const S = p => (p - lo) / (hi - lo) * 100;
-  /* displayed figures reconcile: steps round to their heading's subtotal, subtotals to the gap (L2) */
   const gapR = Math.round(gapShown), subs = uxRoundTo(groups.map(g => g.rows.reduce((a, r) => a + disp(r), 0)), gapR);
-  /* shares (L3): of what widens the gap; a step that narrows it is an offset, with no share */
-  const widens = st => Math.sign(disp(st)) === Math.sign(gapShown), wTot = all.filter(widens).reduce((a, r) => a + Math.abs(disp(r)), 0) || 1;
-  const wl = all.filter(widens), sharesR = uxRoundTo(wl.map(r => Math.abs(disp(r)) / wTot * 100), 100), share = new Map(wl.map((r, i) => [r, sharesR[i]]));
-  const body = groups.map((g, gi) => {
+  const widens = v => Math.sign(v) === Math.sign(gapShown);
+  const wl = all.filter(st => widens(disp(st))), wTot = wl.reduce((a, r) => a + Math.abs(disp(r)), 0) || 1;
+  const sharesR = uxRoundTo(wl.map(r => Math.abs(disp(r)) / wTot * 100), 100), share = new Map(wl.map((r, i) => [r, sharesR[i]]));
+  const gw = groups.map((g, i) => [g.k, subs[i]]).filter(([, v]) => widens(v)), gTot = gw.reduce((a, [, v]) => a + Math.abs(v), 0) || 1;
+  const gShareR = uxRoundTo(gw.map(([, v]) => Math.abs(v) / gTot * 100), 100), gShare = new Map(gw.map(([k], i) => [k, gShareR[i]]));
+  groups.forEach((g, gi) => { g.sub = subs[gi]; g.share = gShare.has(g.k) ? gShare.get(g.k) : null;
     const vals = uxRoundTo(g.rows.map(r => disp(r)), subs[gi]);
-    const rows = g.rows.map((st, i) => {
-      const [a, b] = pos.get(st), L = S(Math.min(a, b)), W = Math.abs(S(b) - S(a));
-      const lab = GAP_SHORT[st.word] || st.word, val = usdW(vals[i], true), dk = decFor(st), dec = dk && decById(dk), sh = share.has(st) ? `${share.get(st)}%` : 'offsets';
-      const bar = `<span class="ux-wf-bar ${tone(st)}${st.residual ? ' is-resid' : ''}" style="left:${L.toFixed(2)}%;width:${Math.max(0.8, Math.min(W, 100 - L)).toFixed(2)}%"></span>`;
-      const tip = `${lab}: ${nw(val)}, ${share.has(st) ? `${nw(sh)} of what ${cost ? 'raises the cost' : 'widens the gap'}` : `offsets ${nw(usdW(Math.abs(vals[i])))} of it`}${dec ? `. Open: ${dec.q}` : '. No decision is open on it'}`, id = `uxwt-${op}-${g.k}-${i}`;
-      const inner = `<span class="ux-wf-lab">${lab}</span><span class="ux-wf-val" data-v="${vals[i]}" data-share="${share.has(st) ? share.get(st) : ''}">${val}<small>${sh}</small></span><span class="ux-wf-track">${bar}</span>`;
-      return dec ? `<li class="ux-wf-row is-step is-link"><a class="ux-wf-a" href="#/decision/${dk}" aria-describedby="${id}">${inner}</a><span class="ux-tip" role="tooltip" id="${id}">${tip} ›</span></li>`
-        : `<li class="ux-wf-row is-step" tabindex="0" aria-describedby="${id}">${inner}<span class="ux-tip" role="tooltip" id="${id}">${tip}</span></li>`;
+    g.steps = g.rows.map((st, i) => {
+      const finds = (HC.findings || []).filter(f => names.includes(siteOf(f)) && (st.hkeys || []).includes(f.factor));
+      const decs = [...new Set(finds.map(f => f.decision).filter(d => d && decById(d)))];
+      const nodes = Object.keys(st.by).flatMap(sk => effectsOf(sk).filter(n => n.lens === st.lens && (n.residual ? n.label : (GAP_WORD[n.hkey] || n.label)) === st.word).map(n => ({ sk, n, v: cost ? -dir * n.eff : n.eff })));
+      return { st, i, id: `uxdrv-${op}-${g.k}-${i}`, lab: GAP_SHORT[st.word] || st.word, v: vals[i], share: share.has(st) ? share.get(st) : null, pos: pos.get(st), finds, decs, nodes };
+    }); });
+  return { op, o, T, G, cost, groups, lo, hi, gapR, gapAbs: Math.abs(T.actual - T.plan) || 1 };
+}
+const uxWidenWord = M => M.cost ? 'raises the cost' : 'widens the gap';
+/* one drawer shape for a driver (guide §8 drill-down): the amount and its share, what is behind it, what is being done, the evidence */
+function uxDecLine(dk) { const d = decById(dk), st = uxDecState(dk); return `<li><span>${d.q}</span> <span class="status-pill is-${st.key === 'released' ? 'approved' : st.key === 'approval' ? 'waiting' : 'proposed'}">${st.label}</span> ${link(`decision/${dk}`, 'Open decision →')}</li>`; }
+function uxDriverBody(M, s) {
+  const issue = f => { const r = ATTN[M.op].find(r => r[5] === f.id); return r ? r[3] : 'No issue text recorded'; };
+  return `<p class="ux-drv-amt"><b>${usdW(s.v, true)}</b> ${s.share != null ? `${s.share}% of what ${uxWidenWord(M)}` : `offsets ${usdW(Math.abs(s.v))} of it`}, October against target</p>
+   <h3 class="ux-drv-h">What is behind it</h3>${s.finds.length ? `<ul class="list">${s.finds.map(f => `<li><b>${f.site}</b>: ${issue(f)}</li>`).join('')}</ul>` : '<p class="muted">No Finding names this driver yet.</p>'}
+   <h3 class="ux-drv-h">What is being done</h3>${s.decs.length ? `<ul class="list ux-drv-decs">${s.decs.map(uxDecLine).join('')}</ul>` : '<p>No decision yet.</p>'}
+   <h3 class="ux-drv-h">Evidence</h3>${s.nodes.length ? `<ul class="list">${s.nodes.map(({ sk, n, v }) => `<li>${SK[sk].name}: ${fig(n.evd || `node:${sk}:${n.id}`, usdW(v, true))} ${ec(n.cls)}</li>`).join('')}</ul>` : '<p class="muted">Not available yet.</p>'}`;
+}
+/* the heading drawer's head (Grow, Optimize): the same shape, one level up; the heading's full card follows it */
+function uxHeadingTop(M, k) {
+  const g = M.groups.find(x => x.k === k); if (!g) return '';
+  return `<section class="ux-drv-top" aria-label="${LENS[k][0]}: its share of the gap"><p class="ux-drv-amt"><b>${usdW(g.sub, true)}</b> ${g.share != null ? `${g.share}% of what ${uxWidenWord(M)}` : `offsets ${usdW(Math.abs(g.sub))} of it`}, October against target</p>
+   <h3 class="ux-drv-h">Its drivers, and what is being done</h3><ul class="list ux-drv-decs">${g.steps.map(s => `<li><span>${s.lab}: <b>${usdW(s.v, true)}</b></span> ${s.decs.length ? s.decs.map(dk => link(`decision/${dk}`, 'Open decision →')).join(' ') : '<span class="muted">No decision yet</span>'}</li>`).join('')}</ul></section>`;
+}
+/* the bridge (guide §5, wave 2c): the totals on an honest zero axis in one bullet; below it, the gap itself as the scale, each
+   driver a step across it under its heading. One drill-down grammar (guide §8): a step opens its driver drawer and a heading opens
+   its heading drawer, in place; leaving the page is the drawer's explicit "Open decision →". */
+function uxBridge(op) {
+  const M = uxGapModel(op), { T, cost, lo, hi, gapR, gapAbs, G } = M, head = cost ? 'Cost' : 'Contribution';
+  const S = p => (p - lo) / (hi - lo) * 100, nw = t => `<span class="ux-nw">${t}</span>`;
+  const tone = s => { const worse = s.v < 0; return worse ? 'is-bad' : 'is-good'; };
+  const body = M.groups.map(g => {
+    const rows = g.steps.map(s => {
+      const [a, b] = s.pos, L = S(Math.min(a, b)), W = Math.abs(S(b) - S(a)), val = usdW(s.v, true), sh = s.share != null ? `${s.share}%` : 'offsets', tid = `${s.id}-tip`;
+      const bar = `<span class="ux-wf-bar ${tone(s)}${s.st.residual ? ' is-resid' : ''}" style="left:${L.toFixed(2)}%;width:${Math.max(0.8, Math.min(W, 100 - L)).toFixed(2)}%"></span>`;
+      const tip = `${s.lab}: ${nw(val)}, ${s.share != null ? `${nw(sh)} of what ${uxWidenWord(M)}` : `offsets ${nw(usdW(Math.abs(s.v)))} of it`}. ${s.decs.length ? `${s.decs.length === 1 ? 'A decision is' : `${num(s.decs.length)} decisions are`} open on it` : 'No decision is open on it'}`;
+      const inner = `<span class="ux-wf-lab">${s.lab}</span><span class="ux-wf-val" data-v="${s.v}" data-share="${s.share ?? ''}">${val}<small>${sh}</small></span><span class="ux-wf-track">${bar}</span>`;
+      return `<li class="ux-wf-row is-step is-link"><button type="button" class="ux-wf-a" data-ux-drawer="${s.id}" aria-haspopup="dialog" aria-controls="${s.id}" aria-describedby="${tid}">${inner}</button><span class="ux-tip" role="tooltip" id="${tid}">${tip}</span></li>`;
     }).join('');
-    return `<li class="ux-wf-group" data-v="${subs[gi]}"><span class="ux-wf-gl">${LENS[g.k][0]}</span><span class="ux-wf-gv">${usdW(subs[gi], true)}</span></li>${rows}`;
+    return `<li class="ux-wf-group" data-v="${g.sub}">${uxOpener(`uxd-${op}-${g.k}`, `<span class="ux-wf-gl">${LENS[g.k][0]}</span><span class="ux-wf-gv">${usdW(g.sub, true)}</span>`, 'ux-wf-gbtn')}</li>${rows}`;
   }).join('');
+  const drawers = M.groups.flatMap(g => g.steps.map(s => uxDrawer(s.id, s.lab, uxDriverBody(M, s)))).join('');
   const big = Object.entries({ grow: G.grow, optimize: G.optimize }).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))[0];
   const title = cost ? `Cost and efficiency explain ${usdW(Math.abs(G.optimize))} of the ${usdW(gapAbs)} over target`
     : `${big[0] === 'optimize' ? 'Cost and efficiency explain' : 'Revenue explains'} ${usdW(Math.abs(big[1]))} of the ${usdW(gapAbs)} gap`;
   const totals = `<div class="ux-wf-totals">${uxBullet(T.actual, T.plan, `${head} ${usdW(T.actual)} against a target of ${usdW(T.plan)}`, cost)}<div class="ux-wf-tl"><span>${head}, October <b>${usdW(T.actual)}</b></span><span>Target <b>${usdW(T.plan)}</b></span></div></div>`;
-  return `<section class="panel ux-chart ux-hero" aria-labelledby="uxb-h"><div class="panel-head"><div><h2 id="uxb-h">Where the gap comes from</h2><p>${title}. Open a step to see its decision.</p></div></div>${totals}
- <div class="ux-wf-scale" aria-hidden="true"><span class="ux-wf-mark" style="left:${S(0).toFixed(2)}%">Target ${usdW(T.plan)}</span><span class="ux-wf-mark is-end" style="left:${S(100).toFixed(2)}%">October ${usdW(T.actual)}</span></div><p class="ux-wf-cap">The ${usdW(gapAbs)} ${cost ? 'difference' : 'gap'}, driver by driver. Shares are of what ${cost ? 'raises the cost' : 'widens the gap'}; a step that works the other way is an offset.</p>
- <ol class="ux-wf ux-wf-gapscale" data-gap="${gapR}" aria-label="${head}: the gap from target to October, driver by driver">${body}</ol>${uxTableView('Show as table, by Site', gapSplit(op))}</section>`;
+  return `<section class="panel ux-chart ux-hero" aria-labelledby="uxb-h"><div class="panel-head"><div><h2 id="uxb-h">Where the gap comes from</h2><p>${title}. Open a step or a heading for what is behind it and the decision on it.</p></div></div>${totals}
+ <div class="ux-wf-scale" aria-hidden="true"><span class="ux-wf-mark" style="left:${S(0).toFixed(2)}%">Target ${usdW(T.plan)}</span><span class="ux-wf-mark is-end" style="left:${S(100).toFixed(2)}%">October ${usdW(T.actual)}</span></div><p class="ux-wf-cap">The ${usdW(gapAbs)} ${cost ? 'difference' : 'gap'}, driver by driver. Shares are of what ${uxWidenWord(M)}; a step that works the other way is an offset.</p>
+ <ol class="ux-wf ux-wf-gapscale" data-gap="${gapR}" aria-label="${head}: the gap from target to October, driver by driver">${body}</ol>${uxTableView('Show as table, by Site', gapSplit(op))}${drawers}</section>`;
 }
 
 /* ---------- side drawer (guide §8): stays in the page (closed: hidden from view and focus), opened by a named button ---------- */
@@ -4713,7 +4750,7 @@ const GAP_SHORT = { 'kWh sold (demand volume)': 'kWh sold', 'Fuel the generator 
 function uxCats(op) {
   const C = CARDS[op](), ks = Object.keys(LENS);
   const about = 'The four headings sit over one structure: each factor under one heading, so no figure is counted twice and the headings are never added together. Grow and Optimize effects explain the contribution gap; cash collected sits under Optimize, outside that gap; Protect shows measures against target with values at stake listed beside, never money; Assure shows the evidence, with the bridge, and adds no money.';
-  return `<section class="ux-cats-wrap" aria-labelledby="uxc-h"><div class="ux-row-head"><h2 id="uxc-h">By outcome</h2><span class="ux-note">Each heading opens its drivers, Findings and plan items</span><p class="ux-prov-extra" hidden data-prov="${escapeHtml(about)}"></p></div><div class="ux-cats ocards">${ks.map(k => uxCatTile(op, k, C)).join('')}</div>${ks.map(k => uxDrawer(`uxd-${op}-${k}`, LENS[k][0], categoryCard(op, k, C), true)).join('')}</section>`;
+  return `<section class="ux-cats-wrap" aria-labelledby="uxc-h"><div class="ux-row-head"><h2 id="uxc-h">By outcome</h2><span class="ux-note">Each heading opens its drivers, Findings and plan items</span><p class="ux-prov-extra" hidden data-prov="${escapeHtml(about)}"></p></div><div class="ux-cats ocards">${ks.map(k => uxCatTile(op, k, C)).join('')}</div>${ks.map(k => uxDrawer(`uxd-${op}-${k}`, LENS[k][0], `${uxHeadingTop(uxGapModel(op), k)}${categoryCard(op, k, C)}`, true)).join('')}</section>`;
 }
 
 /* ---------- the plan card and the insight (L2 aside) ---------- */

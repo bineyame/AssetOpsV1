@@ -653,3 +653,12 @@ details.ux-pop>summary:focus-visible{outline:2px solid var(--focus);outline-offs
 /* review r1: the review-bar control for the fourth state; the qualifier beside a figure is its basis, in the secondary colour */
 .reviewbar a.ux-rb-ctl{color:var(--rb-text);text-decoration:underline;text-underline-offset:2px}
 .ux-drec-q,.ux-confirm-q{color:var(--text-2)}
+/* one drill-down grammar (owner, 20 Nov): a chart step and a chart heading are buttons that open their drawer in place */
+button.ux-wf-a{width:calc(100% + 2 * var(--s1));background:none;border:0;font:inherit;text-align:left;cursor:pointer}
+.ux-wf-group .ux-wf-gbtn{display:flex;justify-content:space-between;width:100%;padding:2px 0;background:none;border:0;border-radius:var(--r1);font:inherit;color:inherit;cursor:pointer}
+.ux-wf-group .ux-wf-gbtn:hover .ux-wf-gl{text-decoration:underline;text-underline-offset:3px}
+.ux-drv-amt{margin:0 0 var(--s4);font-size:var(--fs-md);color:var(--text-2)}
+.ux-drv-amt b{font-size:var(--fs-xl);color:var(--text);font-variant-numeric:tabular-nums}
+.ux-drv-h{margin:var(--s4) 0 var(--s2);font-size:var(--fs-sm);font-weight:600;color:var(--text-2)}
+.ux-drv-decs li{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:baseline}
+.ux-drv-top{margin-bottom:var(--s5);padding-bottom:var(--s4);border-bottom:1px solid var(--line)}
