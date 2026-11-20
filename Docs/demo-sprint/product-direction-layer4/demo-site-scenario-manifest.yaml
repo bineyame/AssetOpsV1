@@ -1491,6 +1491,31 @@ home_categories:   # design rev 16.11 §2.0 (OD-21; Architect's calls): the regi
     CUSTOMER_COMPENSATION: liability
     PEAK_ENERGY_SHARE: peak_kwh
     DEMAND_CHARGE: max_kw
+  reconciliation:   # design rev 16.14 §2.0 (20 Nov; UX audit C2; rulings D-RECON.1 to D-RECON.4, specs/RECON-1/rulings.md): one
+                    # gap, two cuts. The statement cut reads each bridge row on the statement line its node sits under (revenue or
+                    # cost_to_serve; a node under both is read on the line whose own home is the node's heading); the heading cut
+                    # reads it under its node's home. Both are the margins of one matrix, line x heading, plus an explicit residual
+                    # on its own row. A row on one line whose heading is the other line's is a CROSSING row and is named here; a
+                    # screen that shows a line's figure and a heading's figure for one scope shows the crossing as a labelled line.
+                    # No figure here: check_manifest.py reconciliation() computes every amount from the bridge and
+                    # derived-values.json. The evaluator and the independent model do not read this block.
+    rule: "a heading figure is a column of the statement-to-heading matrix and a statement figure a row; where they differ, the crossing is a labelled line on the screen, never left to the reader"
+    crossing_label: "Metered but not billed"
+    crossing_note: "energy customers used and their meters recorded, not yet billed; it lowers revenue on the statement and is counted under Optimize, because recovering it is a billing and settlement task, not selling more"
+    crossing:   # driver -> its plain words on screen; each is a revenue-line row homed under Optimize (O3)
+      METER_MAPPING_UNBILLED: "meters not yet mapped to a customer"
+      AUTHORISED_ADJUSTMENT: "authorised adjustments"
+    shared_figures:   # every headline money figure the screens show on more than one route. `reads` is one matrix term, so the
+                      # figure is identical wherever it appears. Terms: total, row:<line>, col:<heading>, cross. `routes` lists the routes.
+      - {figure: gap, reads: total, words: "Gap to target", routes: [portfolio, portfolio/outcomes-by-site, globalfinancials, sites, "site/*"]}
+      - {figure: grow, reads: "col:grow", words: "Grow revenue", routes: [portfolio, portfolio/outcomes-by-site, globalfinancials]}
+      - {figure: optimize, reads: "col:optimize", words: "Optimize cost and efficiency", routes: [portfolio, portfolio/outcomes-by-site, globalfinancials]}
+      - {figure: revenue_change, reads: "row:revenue", words: "Revenue against target", routes: [portfolio, globalfinancials, "site/*/economics"]}
+      - {figure: cost_change, reads: "row:cost_to_serve", words: "Cost to serve against target", routes: [portfolio, globalfinancials, "site/*/economics"]}
+      - {figure: metered_not_billed, reads: cross, words: "Metered but not billed", routes: [portfolio, portfolio/outcomes-by-site, globalfinancials, "site/*/economics"]}
+    ties:   # two different figures shown for one scope are tied by a stated line: left = right + by, each an effect on the outcome
+      - {left: revenue_change, right: grow, by: metered_not_billed}
+      - {left: optimize, right: cost_change, by: metered_not_billed}
   findings:   # rev 16.12 (coordinator, after mock-up commit fb13bba7f; design §2.0): EVERY Finding the screens show, origin or linked,
               # names the factor it is pinned to (the most specific factor it observes) and so its own heading. A decision's
               # origin Finding (origin: true) is the one in home_categories.decisions; a linked Finding (origin: false) answers the

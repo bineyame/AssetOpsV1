@@ -1499,6 +1499,19 @@ Added after rev 13's scan (owner routing of 20 Nov, `owner/owner-placeholder-gap
 | `empty_states.record_words` | plain words for a record kind on screen | (c) presentation |
 | `home_categories.potential.MINI_GRID[headroom].deferred` | replaces the free-text `shown` copy, which blamed a missing export | (b) structure declaration |
 
+### 3.4 Reconciliation (`home_categories.reconciliation`, rev 16.14, 20 Nov)
+
+Added for the UX audit's C2 (rulings D-RECON.1 to D-RECON.4). No leaf here moves a figure or a choice: the evaluator and the independent model do not read the block, and `derived-values.json` is byte-identical (H8 green). The block moves only `check_manifest.py` `reconciliation()` and, through the fixtures, the screens' words.
+
+| Block | Leaves | Disposition |
+|---|---|---|
+| `home_categories.reconciliation.rule` | the rule in words | (c) presentation |
+| `home_categories.reconciliation.crossing_label`, `crossing_note` | the crossing's screen words, "Metered but not billed" | (c) presentation; owner view wanted (D-RECON.2) |
+| `home_categories.reconciliation.crossing` | the two crossing drivers and their plain words | (b) structure declaration; RC4 fails an undeclared or a stale one |
+| `home_categories.reconciliation.shared_figures` | six headline figures, each reading one term of the statement-to-heading table, with their routes | (b) structure declaration; RC6 |
+| `home_categories.reconciliation.ties` | two ties (revenue = Grow + crossing; Optimize = cost to serve + crossing) | (b) structure declaration; each tie is (a) derived per portfolio and Site and checked (RC7) |
+| the statement-to-heading table itself | line × heading per portfolio and Site | (a) derived: from the bridge and `derived-values.json`; moved by any bridge amount (self-test plant on Mto) or any home row (self-test plant on `unmapped_kwh`) |
+
 ## 4. Evaluator code (`evaluate_structure.py`)
 
 Every rule here is also a rule of `structure-specification.md`. The independent model implements it separately from that text, and the checker compares the two programs on every computed path, so a rule that drifts from the specification fails the check. Items marked † could not be revealed by perturbing an input; §7 lists them again.
@@ -1557,6 +1570,7 @@ Every rule here is also a rule of `structure-specification.md`. The independent 
 | C10 | `narratives()` | manifest strings may not state an evaluated money figure as a literal; placeholders must resolve | stale strings (rev 12 M3) | (a) derived check |
 | C11 | `documents()` | untagged money figures in main §2–§10 and the walkthroughs are model values or declared inputs | untraced figures | (b) scope |
 | C13 | `empty_states()`, `empty_state_problems()`, `observed_reads_literal()` (rev 16.13) | every leaf has a source row with family, kind, absent and a slice of `plan_model.py` or a queued slice; a MISSING leaf never reads a number literal on an observed side; a held-source zero falls back only to 0; every chain stage and leak is carried; every MISSING condition, "[assumption]" field, ESTIMATED line and not-decomposed side has an entry; no entry shows an evaluated leaf as not available; eight planted copies must fail | the empty states | (a) derived check |
+| C14 | `reconciliation()`, `recon_matrix()`, `recon_term()`, `recon_problems()` (rev 16.14) | the statement-to-heading table from the bridge; RC1 one line per bridge row, RC2 each line's rows equal the evaluator's change in it, RC3 residuals only where a side is not decomposed, RC4 crossings declared and live, RC5 table = gap = history's October gap, RC6 shared figures read one term, RC7 ties hold for every scope; four planted copies fail every run; runs after the history checks | figures that disagree across screens (UX audit C2) | (a) derived check; holds no figure |
 | C12 | removed in rev 13 | the `SUPERSEDED` figure list, the `calibration_spikes.scanned` / `plan_values` lists and the import of the evaluator | — | removed (owner rules 1 and 3) |
 
 ## 6. Documents

@@ -34,6 +34,14 @@ and the manifest alone. Against that independent recomputation the checker compa
      with its slice and trigger, or a reconciled zero; every missing condition, assumption and estimated line has its record;
      missing-records.json names a record, a cause and a slice for each entry and covers every side derived-values.json leaves
      not decomposed (structure-specification.md §3.1, rev 16.13). It proves itself on planted copies every run.
+ 11. history_checks(): the July-September history (DS1 spec §8.3, H1-H13).
+ 12. reconciliation(): the statement and the headings reconcile (design rev 16.14 §2.0; rulings D-RECON.1 to D-RECON.4). Each
+     bridge row sits on one statement line (RC1); the rows on each line add to the evaluator's change in that line (RC2); only a
+     not-decomposed side leaves a residual, in its vertical's residual row (RC3); every crossing row (one line, the other line's
+     heading) is declared and every declaration crosses (RC4); each portfolio's matrix adds to its gap, which equals the
+     evaluator's and the history's October gap (RC5); every shared headline figure reads one matrix term (RC6); a statement row and
+     its line's heading shown on one route are tied, and each tie holds for every portfolio and Site (RC7). Runs after the history
+     checks, so H9's baseline is unchanged. It proves itself on planted copies every run.
 Run:  python3 check_manifest.py [manifest]   Exit 0 = all pass.
 """
 from __future__ import annotations
@@ -1173,8 +1181,11 @@ def empty_states(root, doc):
 # are the base commit's October digests (H8, H10). Lifetime (R14): the next slice that changes October replaces them in its diff.
 H8_DERIVED_SHA = "bfe2cbc54571963ea4f9c1ed18633dc84c6579a2fc1003bc51a7ff8d1ab3813a"   # derived-values.json at the DS1p base
 H8_MISSING_SHA = "b8d3bcbc376cf530ddc633e1f5ba1878f99eb0314d47f656278c76423c864fa5"   # missing-records.json at the DS1p base
-H10_MANIFEST_SHA = "8c027d0405936e4730426633ee703de5623bea3da6ddec36933b50b77a2edb4c"  # the manifest at the DS1p base
-H9_BASELINE = 4465   # checks passed on the DS1p base after `merge main`, taken in place (packet-DS1p.md)
+H10_MANIFEST_SHA = "09903eba1032bf6dc7b421c3c51855fe9fdb0929d090dda48a3c17d3d6dc2a85"  # the manifest at the DS1p base, plus
+# `home_categories.reconciliation` (ruling D-RECON.4, 20 Nov): a declaration no evaluator, model or generator reads and outside
+# view_digest; October values (H8), history.json and H11 are unchanged. The DS1p base was 8c027d0405936e4730426633ee703de5623bea3da6ddec36933b50b77a2edb4c.
+H9_BASELINE = 4476   # checks passed on the DS1p base after `merge main`, taken in place (packet-DS1p.md): 4465, plus the
+                     # 11 figure anchors of design §2.0 "How the statement and the headings reconcile" (rev 16.14, D-RECON.4)
 H_RULE_BASES = ("share", "rest")   # MB3 (ruled): a base key a declared share/rest rule reads (EV `kwh`) is a generated record
 H_ENTRY_META = {"side", "record_kind", "source_family", "cause", "carried_as", "blocks", "slice", "record_words", "assumption", "trigger", "note"}
 
@@ -1429,6 +1440,197 @@ def history_checks(doc, dv, root, path, im):
     return passes - base_passes
 
 
+# ---------------- 12. statement and headings reconcile (design rev 16.14 §2.0; UX audit C2; D-RECON.1 to D-RECON.4) ----------------
+# One gap, two cuts: each bridge row is read on the statement line its node sits under (revenue or cost_to_serve) and under its
+# node's home heading. The matrix line x heading (plus an explicit residual) has the statement figures as rows and the heading
+# figures as columns. Every amount is computed here from the manifest's bridge and derived-values.json; no figure is held.
+RECON_LINES = ("revenue", "cost_to_serve")
+RECON_CHECKS = ("RC1", "RC2", "RC3", "RC4", "RC5", "RC6", "RC7")
+
+
+def recon_ancestors(struct):
+    """child -> every node whose expression reads it, transitively (the structure's parents)."""
+    parents = {}
+    for n, e in struct.items():
+        for c in set(re.findall(r"[A-Za-z_][A-Za-z_0-9]*", str(e))) - {n}:
+            parents.setdefault(c, set()).add(n)
+    memo = {}
+
+    def up(x, seen=()):
+        if x in memo:
+            return memo[x]
+        out = set()
+        for p in parents.get(x, ()):
+            if p not in seen:
+                out |= {p} | up(p, seen + (x,))
+        memo[x] = out
+        return out
+    return up
+
+
+def recon_matrix(doc, dv):
+    """-> ({scope: {"M": {(line, heading): D}, "resid": {(line, heading): D}, "gap": D, "applicable": set(lines)}}, problems).
+    Scopes are 'tenant' and 'tenant/site'. problems is a list of (label, ok)."""
+    out, res = {}, []
+    hc = doc.get("home_categories") or {}
+    reg, drivers = hc.get("nodes") or {}, hc.get("bridge_drivers") or {}
+    resid_rows = hc.get("residuals") or {}
+    vert_of = {t["tenant"]: ("EV_DEPOT_CAPTIVE" if t["vertical"] == "EV_DEPOT" else t["vertical"]) for t in doc["tenants"]}
+    for t in doc["tenants"]:
+        tn, v = t["tenant"], vert_of[t["tenant"]]
+        struct, rows = doc["structures"][v], reg.get(v) or {}
+        up = recon_ancestors(struct)
+        lines = [l for l in RECON_LINES if l in struct]
+        home = lambda n: (rows.get(n) or [None])[0]
+        P = out.setdefault(tn, {"M": {}, "resid": {}, "gap": D(0), "applicable": set(lines), "rows": []})
+        for s_ in t["sites"]:
+            sk, p = f"{tn}/{s_['site']}", s_["period"]
+            S = out.setdefault(sk, {"M": {}, "resid": {}, "gap": D(0), "applicable": set(lines), "rows": []})
+            for b in p.get("bridge", []):
+                n = drivers.get(b["driver"])
+                cand = [l for l in lines if n == l or l in up(n)]
+                if len(cand) > 1:
+                    cand = [l for l in cand if home(l) == home(n)]
+                res.append((f"RC1 {sk}: bridge row {b['driver']} ({n}) sits on exactly one statement line ({cand})", len(cand) == 1))
+                if len(cand) != 1:
+                    continue
+                key, amt = (cand[0], home(n)), D(str(b["amount"]))
+                for X in (S, P):
+                    X["M"][key] = X["M"].get(key, D(0)) + amt
+                    X["rows"].append((b["driver"], cand[0], home(n), amt, s_["site"]))
+            var = D(str(p.get("variance", 0)))
+            S["gap"] += var; P["gap"] += var
+            sides = dv["sites"].get(sk) or {}
+            both = all((sides.get(x) or {}).get("status") == "evaluated" for x in ("plan", "actual"))
+            rest = var - sum(S["M"].values(), D(0))
+            if both:
+                pn, an = sides["plan"]["nodes"], sides["actual"]["nodes"]
+                for l in lines:
+                    want = D(str(an[l])) - D(str(pn[l]))
+                    want = want if home(l) == "grow" else -want   # as an effect on the outcome: more revenue up, more cost down
+                    got = sum((a for (ll, _), a in S["M"].items() if ll == l), D(0))
+                    res.append((f"RC2 {sk}: the bridge rows on {l} add to the evaluator's change in {l} ({got} == {want})", got == want))
+                res.append((f"RC3 {sk}: both sides evaluated, so nothing is left unattributed ({rest})", rest == 0))
+            elif rest != 0:
+                rr = list((resid_rows.get(v) or {}).values())
+                ok = len(rr) == 1 and "revenue" not in lines
+                res.append((f"RC3 {sk}: an unattributed {rest} sits in the vertical's one residual row, on its only line ({rr}, {lines})", ok))
+                if ok:
+                    key = ("cost_to_serve", rr[0][0])
+                    for X in (S, P):
+                        X["resid"][key] = X["resid"].get(key, D(0)) + rest
+    return out, res
+
+
+def recon_term(X, term):
+    """A term of the matrix for one scope, as an effect on the outcome; None when not applicable (no such line)."""
+    cell = lambda l, h: X["M"].get((l, h), D(0)) + X["resid"].get((l, h), D(0))
+    if term == "total":
+        return X["gap"]
+    if term == "cross":
+        return cell("revenue", "optimize") if "revenue" in X["applicable"] else None
+    kind, _, name = term.partition(":")
+    if kind == "row":
+        return sum((cell(name, h) for h in ("grow", "optimize")), D(0)) if name in X["applicable"] else None
+    if kind == "col":
+        if name == "grow" and "revenue" not in X["applicable"]:
+            return None
+        return sum((cell(l, name) for l in X["applicable"]), D(0))
+    raise ValueError(term)
+
+
+def recon_problems(doc, dv):
+    out, res = recon_matrix(doc, dv)
+    rc = (doc.get("home_categories") or {}).get("reconciliation") or {}
+    declared = rc.get("crossing") or {}
+    crossing = {}
+    for sc, X in out.items():
+        if "/" in sc:
+            continue
+        for drv, line, h, amt, site in X["rows"]:
+            natural = "grow" if line == "revenue" else "optimize"
+            if h != natural:
+                crossing.setdefault(drv, []).append((sc, site, line, h, amt))
+    for drv, hits in sorted(crossing.items()):
+        res.append((f"RC4 crossing row {drv} ({hits[0][2]} line, under {hits[0][3]}) is named in reconciliation.crossing", drv in declared))
+        res.append((f"RC4 crossing row {drv} is revenue under Optimize, the meaning of the crossing label; another direction needs its own label, ruled",
+                    all(l == "revenue" and h == "optimize" for _, _, l, h, _ in hits)))
+    for drv in declared:
+        res.append((f"RC4 declared crossing {drv} crosses in at least one bridge (no stale declaration)", drv in crossing))
+    hist = dv.get("history") or {}
+    for t in doc["tenants"]:
+        tn, X = t["tenant"], out[t["tenant"]]
+        sides = [dv["sites"].get(f"{tn}/{s_['site']}") or {} for s_ in t["sites"]]
+        def outcome(sd, side):
+            x = sd.get(side) or {}
+            if x.get("status") == "evaluated":
+                n = x["nodes"]
+                return D(str(n["contribution"])) if "contribution" in n else -D(str(n["cost_to_serve"]))
+            return -D(str(x["stated_total"]))   # a stated total is a cost total (EV depots, rule R4)
+        want = sum((outcome(sd, "actual") - outcome(sd, "plan") for sd in sides), D(0))
+        res.append((f"RC5 {tn}: the gap {X['gap']} equals the evaluator's outcome change, summed over sites ({want})", X["gap"] == want))
+        g = [r for r in ((hist.get(tn) or {}).get("portfolio") or {}).get("gap", []) if r.get("p") == doc.get("accounting_period")]
+        res.append((f"RC5 {tn}: the history's October gap is the same figure ({[r['v'] for r in g]} == {X['gap']})",
+                    len(g) == 1 and D(str(g[0]["v"])).quantize(D("0.01")) == X["gap"].quantize(D("0.01"))))
+        total = sum(X["M"].values(), D(0)) + sum(X["resid"].values(), D(0))
+        res.append((f"RC5 {tn}: the matrix adds to the gap ({total} == {X['gap']})", total == X["gap"]))
+        res.append((f"RC4 {tn}: no cost-line row sits under Grow ({X['M'].get(('cost_to_serve', 'grow'))})", not X["M"].get(("cost_to_serve", "grow"))))
+    figs = rc.get("shared_figures") or []
+    by = {f_["figure"]: f_ for f_ in figs}
+    res.append((f"RC6 shared figures are named once ({[f_['figure'] for f_ in figs]})", bool(figs) and len(by) == len(figs)))
+    for f_ in figs:
+        ok = True
+        try:
+            recon_term(out[doc["tenants"][0]["tenant"]], f_["reads"])
+        except Exception:
+            ok = False
+        res.append((f"RC6 shared figure {f_['figure']} reads one matrix term ({f_.get('reads')}) and is on two or more routes", ok and len(f_.get("routes") or []) >= 2))
+    crossf = [f_ for f_ in figs if f_.get("reads") == "cross"]
+    res.append((f"RC6 the figure reading the crossing carries the crossing label ({[f_.get('words') for f_ in crossf]})",
+                len(crossf) == 1 and crossf[0].get("words") == rc.get("crossing_label")))
+    ties = rc.get("ties") or []
+    for f_ in figs:   # a statement row and its line's own heading on one route must be tied by a stated line
+        kind, _, line = f_["reads"].partition(":")
+        if kind != "row":
+            continue
+        g_ = next((x for x in figs if x["reads"] == "col:" + ("grow" if line == "revenue" else "optimize")), None)
+        if g_ and set(f_["routes"]) & set(g_["routes"]):
+            res.append((f"RC7 {f_['figure']} and {g_['figure']} share a route, so a tie states their difference",
+                        any({t_["left"], t_["right"]} == {f_["figure"], g_["figure"]} for t_ in ties)))
+    for t_ in ties:
+        names = (t_.get("left"), t_.get("right"), t_.get("by"))
+        res.append((f"RC7 tie {names} names three shared figures", all(n in by for n in names)))
+        if not all(n in by for n in names):
+            continue
+        for sc, X in sorted(out.items()):
+            L, R, B = (recon_term(X, by[n]["reads"]) for n in names)
+            if None in (L, R, B):
+                continue
+            res.append((f"RC7 {sc}: {names[0]} {L} = {names[1]} {R} + {names[2]} {B}", L == R + B))
+    return res, out
+
+
+def reconciliation(doc, dv):
+    """Run section 12, then prove it on planted copies: an undeclared crossing, a stale declaration, a dropped tie and a
+    bridge row moved off its line must each fail."""
+    import copy
+    n0 = passes
+    res, _ = recon_problems(doc, dv)
+    for label, ok in res:
+        check(label, ok)
+
+    def planted(mutate, expect):
+        d = copy.deepcopy(doc)
+        mutate(d)
+        bad = [l for l, ok in recon_problems(d, dv)[0] if not ok]
+        check(f"RC self-test: planted copy fails {expect} ({len(bad)} failing)", any(l.startswith(expect) for l in bad))
+    planted(lambda d: d["home_categories"]["reconciliation"]["crossing"].pop("AUTHORISED_ADJUSTMENT"), "RC4 crossing row AUTHORISED_ADJUSTMENT")
+    planted(lambda d: d["home_categories"]["nodes"]["MINI_GRID"].__setitem__("unmapped_kwh", ["grow", "G1"]), "RC4 declared crossing METER_MAPPING_UNBILLED")
+    planted(lambda d: d["home_categories"]["reconciliation"].__setitem__("ties", d["home_categories"]["reconciliation"]["ties"][1:]), "RC7 revenue_change and grow")
+    planted(lambda d: d["tenants"][0]["sites"][2]["period"]["bridge"][1].__setitem__("amount", -1.0), "RC2 lakeside-power/Mto")
+    return passes - n0
+
+
 def main(path):
     root = pathlib.Path(path).resolve().parent
     doc = yaml.safe_load(open(path, encoding="utf-8"))
@@ -1460,6 +1662,7 @@ def main(path):
     empty_states(root, doc)
     alignment(root)
     nh = history_checks(doc, dv, root, path, im) if (root / "history.json").exists() else 0
+    reconciliation(doc, dv)   # after the history checks, so H9's baseline (checks before them) is unchanged
     print(f"{passes} checks passed ({nh} history checks), {len(failures)} failed")
     for f in failures:
         print("FAIL", f)
