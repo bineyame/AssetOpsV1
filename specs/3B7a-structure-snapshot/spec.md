@@ -1,6 +1,6 @@
 # 3B7a: the frozen monthly snapshot (implementer spec)
 
-Status: rev 2, handshake round 1 answered (`rulings.md` "Handshake answers (round 1)", D-3B7A.10 to D-3B7A.12).
+Status: in_review (units 1 to 3 on `task/3B7a-snapshot`; unit 0 merged). Rev 2, handshake round 1 answered (`rulings.md` "Handshake answers (round 1)", D-3B7A.10 to D-3B7A.12).
 Architect (Claude), 2026-11-20. Lane B, on the deep-dive path (`two-week-build-plan.md` §0.1 row 10; D-BW1.8;
 OD-23). **2.75 units** (rev 1: 2.5; +0.25 for the code digest and the held kinds). Discovery review (W5): a new table, a new
 read the screen will use, and money figures served from storage.

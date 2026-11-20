@@ -73,3 +73,4 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 159. `4b2` money leaves from records (CommercialLeafSource, READ_AS, diesel price from invoices) · data.md
 160. `3A3` emulated native exports, layout readers, source contract test, emulated-export loader · data.md
 161. `ON1` operator tenant from one onboarding file (check/apply, emulated grants, real refused, served tenant, key erasure, runbook) · data.md
+162. `3B7a` the frozen monthly structure snapshot, units 1-3 (store, served read with freshness, build/verify command, migration 0066) · data.md
