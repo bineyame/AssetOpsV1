@@ -361,6 +361,12 @@ Branch `task/DS1b-canonical-writers` (base main `b28326e48`); spec `specs/DS1b-c
 - Settled: `simulator/assetops_simulator/world/records.py` writes month EXPENSE lines (O&M, staff, maintenance), customer-compensation ADJUSTMENTs and own-field BUDGET_LINEs for Jul-Oct at the nine Sites as `source-emulated` canonical v1 batches (one per tenant and source type, `parse_batch`-validated, golden `simulator/tests/world/golden/records_v1.json`). ESTIMATED October lines, fallback plan fields, zero actual liabilities and unread fields are listed unwritten with a reason. CLI `tools/world_history.py records --manifest M --out DIR` (exit 3 on `DS1B_*`). `history.json` byte-identical.
 - Open: mid-build Q1/Q2 (edge reasons, no output depends on them); the coordinator's output run to `/opt/assetecon/generated/ds1b-<rev>/`; DS3 loads, 3A3 native files, 3A3/DS2 finer records reconcile to these month lines (D-DS1B.8).
 
+## 3A1 - the commercial record store (built, in_review)
+
+Branch `task/3A1-commercial-record-store` (base main `8c9af447b`); spec `specs/3A1-commercial-record-store/spec.md` rev 2, rulings D-3A1.1-D-3A1.12; packet `specs/3A1-commercial-record-store/packet.md`. Non-screen; no route.
+
+- Settled: migration `0063_commercial_records` (four append-only tables: intake, record, revision, rejection; composite FKs, R11). `backend/assetops_backend/commercial/`: `CommercialRecords.ingest(tenant_id, bytes)` runs 2a's `parse_batch`, refuses envelope and tenant mismatch as REFUSED intakes (SHA of the bytes only, R1), decides records in input order under the per-tenant advisory lock at READ COMMITTED with a re-read under it (R4, R9), and reports NEW/REVISED/UNCHANGED/REFUSED per record; `latest_revisions` picks latest before any filter (R7). Sole writer registered in `configuration-persistence.ps1`.
+- Open: 3A2 mounts the HTTP intake, caps declared provenance by path (D-3A1.9) and words STORED (R17); version order is arrival order (R10 residual for 3A3); erasure is a pilot residual (D-3A1.10); chain change-log registration waits for the first stored reader (D-3A1.6); migration renumbered at merge if 3C1a lands first (D-3A1.12).
 ## 3B1 - the structure registry, mini-grid (built, in_review)
 
 Branch `task/3B1-structure-registry` (base main `8c9af447b`); spec `specs/3B1-structure-registry/spec.md` rev 2, rulings D-3B1.1-D-3B1.9; packet `specs/3B1-structure-registry/packet.md`. No migration, no route, no store.

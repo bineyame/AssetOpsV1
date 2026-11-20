@@ -1,5 +1,7 @@
 # 3A1: the commercial record store (implementer spec)
 
+Status: in_review (built on `task/3A1-commercial-record-store`; packet `packet.md`).
+
 Architect (Claude), 2026-11-20. **Rev 2** (handshake round 1 folded in; `rulings.md` "Handshake answers (round 1)", D-3A1.8 to D-3A1.12). Rev 1 was spec handshake step 1 (`.ai/RULES.md` §4). Lane A (sources and money). The
 structure is page P3A (`structure-page-P3A.md`, approved by the owner on 20 Nov). Decisions and their reasons are in
 `rulings.md` (D-3A1.1 to D-3A1.7). The reviewer's guide is `reviewer-guide.md`. Questions go in `handshake.md` before
