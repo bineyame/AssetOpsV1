@@ -45,7 +45,8 @@ def _refuse(code: str, key: str, leaf: str) -> ValueError:
 def _number(text, key: str, field: str) -> Fraction:
     """A view number (int, or decimal text) as an exact rational.
 
-    Anything else (text that is not a decimal, NaN, Infinity) is `HISTORY_NUMBER`.
+    Anything else (not a decimal, not finite, text over 32 characters, or an
+    adjusted exponent outside [-12, 12]) is `HISTORY_NUMBER`, before any Fraction.
     """
     if isinstance(text, bool) or not isinstance(text, (int, str)):
         raise _refuse("HISTORY_NUMBER", key, field)
@@ -53,7 +54,7 @@ def _number(text, key: str, field: str) -> Fraction:
         decimal = Decimal(str(text))
     except InvalidOperation:
         raise _refuse("HISTORY_NUMBER", key, field) from None
-    if not decimal.is_finite():
+    if not decimal.is_finite() or len(str(text)) > 32 or not -12 <= decimal.adjusted() <= 12:
         raise _refuse("HISTORY_NUMBER", key, field)
     return Fraction(decimal)
 
@@ -393,7 +394,7 @@ def _validate(view: dict) -> list[str]:
     """The checks made before any scope; returns the sorted month set."""
     history = view.get("history")
     if not isinstance(history, dict):
-        raise _refuse("HISTORY_MONTHS", "history", "history")
+        raise _refuse("HISTORY_FIELD", "history", "history")
     _validate_fields(history)
     months = _validate_months(history)
     _validate_families(history)
