@@ -51,10 +51,11 @@ handoff.
   guards the spec names; focused backend and frontend tests, typecheck, build
   (`.ai/RULES.md` §7, `backend/TESTING.md`). Full suites only when the
   coordinator schedules them; record command, revision, wall time and counts.
-- `node tools/layout-evidence.mjs <base-url>` when layout-sensitive (shell,
+- `tools/heavy-slot.sh -- node tools/layout-evidence.mjs <base-url>` when layout-sensitive (shell,
   dense tables, intrinsic-width drawings, SVG, tabs, viewport). A missing
   precondition is `layout evidence: not run` with the reason, never a pass.
   A measured claim needs one measurement proving its set is non-empty.
+- All heavy tools run through `tools/heavy-slot.sh` (pwsh: `tools/heavy-slot.ps1`; `--db` for database jobs).
 - Report actual output, failures with their text. Never present a trimmed run
   as a clean one.
 

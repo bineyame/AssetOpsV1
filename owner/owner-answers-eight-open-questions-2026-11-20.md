@@ -1,0 +1,7 @@
+# Owner: answers to the eight open questions (2026-11-20)
+
+The coordinator listed eight open questions with context and defaults: (1) the five v7.0 lists (Assets, Incidents, Maintenance, Operational records, Evidence) — A remove from navigation, or B rebuild from the plan's data — plus a Site Operations tab; (2) approve the `2a` structure page; (3) build lanes, 3 now and 4 later; (4) new capabilities — "since you last looked" feed, "waiting for you" badge, month-on-month comparison in the mock-up now, export as one control; (5) who creates an approved expansion's Actions — Site manager for operational, finance lead for notices; (6) drivers with no target line shown as a labelled assumption; (7) the tie-line phrase, "metered but not billed" or the brief's "service-to-charge"; (8) T1-F1, the `.claude/agents` instructions to use the heavy-command queue.
+
+The owner replied, verbatim:
+
+> here is my response 1-i'd go for option B. Their purpose is not irrelevant in the broader product picture. Incidents impact operating bottomline, especially repeated ones. Maintenance are planned or in response to incidents. Assets registry and warranty are also quite important. The new enahcned product prposition doesn't negate all these and they should be seamlessly integrated through propoer design not just  a patch. 2.approved 3.accept 4.accept default 5.accept, it is configurable by role that can change later as needed 6.accept default 7.use whichever is the industry standard term 8.approve

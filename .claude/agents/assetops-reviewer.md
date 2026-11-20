@@ -34,15 +34,16 @@ Run the checks yourself and report what you saw:
 ```
 pwsh -NoProfile -File tools/check-architecture.ps1
 pwsh -NoProfile -File tools/check-agent-workflow.ps1
-.venv/bin/python -m pytest <focused backend files> -q
-cd frontend && npx vitest run <focused files> && npx tsc --noEmit
+tools/heavy-slot.sh -- .venv/bin/python -m pytest <focused backend files> -q
+cd frontend && ../tools/heavy-slot.sh -- sh -c 'npx vitest run <focused files> && npx tsc --noEmit'
 ```
 
+Heavy tools go through `tools/heavy-slot.sh` (pwsh: `tools/heavy-slot.ps1`; `--db` for database jobs); unpooled runs are refused.
 Follow `backend/TESTING.md` for Postgres setup. Do not rerun a full suite by
 default: cite the implementer's same-revision run and check its revision.
 Rerun only for a finding that needs it, under `.ai/RULES.md` §7.
 
-For a layout-sensitive slice, check the packet for `tools/layout-evidence.mjs`
+For a layout-sensitive slice, check the packet for layout-evidence
 output; a skipped run recorded as a pass is a finding. If a check cannot run,
 say what you could not verify. (Old Windows-sandbox notes:
 `.ai/history/reviewer-windows-notes.md`.)

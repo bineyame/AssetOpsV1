@@ -206,6 +206,10 @@ from assetops_backend.sites.ports import SiteRepository, SiteStoreUnavailable, S
 from assetops_backend.sites.foundation_records import FoundationStoreError
 from assetops_backend.reading_upload.service import ReadingUploadService
 from assetops_backend.reading_upload_api import build_reading_upload_router
+from assetops_backend.accounts.composition import (ACCOUNTS_UNAVAILABLE, build_account_service,
+                                                   session_cookie_secure)
+from assetops_backend.accounts.service import AccountService
+from assetops_backend.accounts_api import build_accounts_router
 from assetops_backend.chain.composition import (
     build_estate_claims,
     build_mini_period_rows,
@@ -260,6 +264,7 @@ def create_app(
     operational_entry_principal: Principal = no_service_principal,
     reading_uploads: ReadingUploadService | None = None,
     reading_upload_sites: frozenset[str] = frozenset(),
+    accounts: AccountService | None = None,
 ) -> FastAPI:
     """Build the application for a given set of feature flags.
 
@@ -338,6 +343,12 @@ def create_app(
     app = FastAPI(title="AssetOps", version="0.0.0")
     app.add_middleware(LocaleMiddleware)  # UQ-6a: Accept-Language -> request locale, Content-Language
     app.include_router(health_router)
+    # 3C0a (spec §6): sign-in, the signed-in person and Organisation's role grants; with no service and no
+    # DATABASE_URL every account route answers 503. No existing route reads a person yet (3C1).
+    if accounts is None and database_url():
+        accounts = build_account_service(database_url())
+    app.include_router(build_accounts_router(accounts, cookie_secure=session_cookie_secure(),
+                                             unavailable=ACCOUNTS_UNAVAILABLE))
 
     legacy_repository = (
         build_site_repository() if site_repository is None else site_repository

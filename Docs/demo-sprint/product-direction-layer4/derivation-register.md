@@ -1506,11 +1506,26 @@ Added for the UX audit's C2 (rulings D-RECON.1 to D-RECON.4). No leaf here moves
 | Block | Leaves | Disposition |
 |---|---|---|
 | `home_categories.reconciliation.rule` | the rule in words | (c) presentation |
-| `home_categories.reconciliation.crossing_label`, `crossing_note` | the crossing's screen words, "Metered but not billed" | (c) presentation; owner view wanted (D-RECON.2) |
+| `home_categories.reconciliation.crossing_label`, `crossing_note` | the crossing's screen words, "Unbilled energy" (OD-28; ruling D-L4OPS.9) | (c) presentation; settled by the owner (OD-28: the industry-standard term) |
 | `home_categories.reconciliation.crossing` | the two crossing drivers and their plain words | (b) structure declaration; RC4 fails an undeclared or a stale one |
 | `home_categories.reconciliation.shared_figures` | six headline figures, each reading one term of the statement-to-heading table, with their routes | (b) structure declaration; RC6 |
 | `home_categories.reconciliation.ties` | two ties (revenue = Grow + crossing; Optimize = cost to serve + crossing) | (b) structure declaration; each tie is (a) derived per portfolio and Site and checked (RC7) |
 | the statement-to-heading table itself | line × heading per portfolio and Site | (a) derived: from the bridge and `derived-values.json`; moved by any bridge amount (self-test plant on Mto) or any home row (self-test plant on `unmapped_kwh`) |
+
+### 3.5 Operations (`operations`, rev 16.16, 20 Nov)
+
+Added for OD-26 (rulings D-L4OPS.1 to D-L4OPS.8). No leaf here moves a figure or a choice: the evaluator, the independent model and the history generator do not read the block, it is outside `view_digest`, and `derived-values.json`, `missing-records.json` and `history.json` are byte-identical after `evaluate_structure.py` (H8 and H11 green; H10 re-based). The block moves only `check_manifest.py` `operations()` (OP1 to OP9), which checks it against the figures below it.
+
+| Block | Leaves | Disposition |
+|---|---|---|
+| `operations.settings` | repeat window (90 days), repeat tolerance (0) | (b) policy declaration (Architect's call 31; configurable per operator) |
+| `operations.measures` | repeat failures (P2), scheduled share (O2), overdue schedules (P2), with heading and basis | (b) structure declaration; OP9 checks each heading against its objective |
+| `operations.sites[*].assets` | registry rows: code, type, what the asset serves, commissioning, parent, `availability_name` | (b) record; OP3 ties the major assets to `asset_availability` |
+| `operations.sites[*].rights`, `portfolio_rights` | rights rows: terms, fees, or `from` a manifest entitlement (no term restated) | (b) record; the state is (a) derived from terms and claims (OP8) |
+| `operations.sites[*].schedules` | schedules with their done dates and next due | (b) record; October visits (a) derived for OP7 |
+| `operations.sites[*].incidents` | asset, time, failure mode, out-of-service interval, consequences, `repeat_of`, decision | (b) record; the counted consequences and every `repeat_of` are (a) derived and checked (OP4, OP5) |
+| `operations.sites[*].maintenance` | responsive work: kind, visit, cost basis, right | (b) record; each Site-month's fee-plus-invoice sum is checked against its maintenance leaf (OP6) |
+| `operations.counting`, `no_incidents`, `summary`, `activity`, `note` | words | (c) presentation |
 
 ## 4. Evaluator code (`evaluate_structure.py`)
 

@@ -91,3 +91,26 @@ Architect (Claude), 2026-11-20. The owner, 20 Nov: "yes, start the non-screen bu
 - **Result.** At the planning pace the fortnight lands 64.5 units in 24 slices (with `3C0a` at 2.5 units, 3C0a P14) and completes step 3A (it was 111.5 units
   and step 5 with four lanes and no data slices). Four lanes would land 115 and complete step 4; a third lane, once
   DS1m frees one, lands 91.5. The screen hold costs nothing on two lanes.
+
+## D-BW1.7 The third lane, and P2 approved (owner, 20 Nov)
+
+- **What the owner decided** (`owner/owner-answers-eight-open-questions-2026-11-20.md`). Item 2: "approved", so step
+  2's page P2 is approved and D-BW1.1's DS2 fallback is not needed. Item 3: "accept", three build lanes now and four
+  later.
+- **Ruling.** `plan_model.py` plans on three lanes:
+  - lane A: sources and money (W4 lane 1);
+  - lane B: structure, the plan's records, data tools and screens (lanes 2 and 4);
+  - lane C: the person, decisions and calibration (lane 3; the lane that built `3C0a` continues with `3C1` and `3C2`).
+- **The new lane's first unit is `DS1b`**, the generator's canonical writers (`specs/DS1b-canonical-writers/`). Its
+  handshake runs while `2a` is built, and its code starts when `2a` merges.
+- **Why `DS1b`.**
+  - It is lane A's first slice in the 3-lane schedule. `3A1` waits for both `2a` and structure page P3A, which is
+    not yet approved.
+  - `DS2` is lane B's, after `2a`.
+  - `0K1` is lane C's, after `3C2`.
+  - Taking `0K1` or `DS2` into lane A instead would delay the must-keep `3A` chain behind a slice of 3 units.
+- **Effect.** 91.5 units land in 33 slices by day 14, through step 3A, with step 4 also complete by day 10. On two
+  lanes it was 64.5 units in 24 slices.
+- **Item 6** ("accept default": a driver with no target line reads as a labelled assumption) needs nothing in the
+  build specs. `DS1b` writes budget lines only where the operator's plan record holds them (D-DS1B.4), and the leaves
+  without one are what item 6 labels.
