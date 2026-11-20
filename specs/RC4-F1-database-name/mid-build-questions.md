@@ -6,7 +6,7 @@ the packet; a count above zero is a spec-template defect to fix.
 
 Count: **3**.
 
-## Q1 (§2.2 backfill vs the §4 regression `test_ch2_backfill_cli.py`)
+## Q1 (§2.2 backfill vs the §4 regression `test_ch2_backfill_cli.py`) - answered (D-RC4F1.4)
 
 - **Conflict.** §2.2 says a non-dry run with `url` set reads `database_target(url).name`, and the reader's name only
   with no `url`. `test_ch2_backfill_cli.py` (a named regression, outside §3's files) patches `database_url` to
@@ -17,7 +17,7 @@ Count: **3**.
   CH-2's tests pass unchanged.
 - **Ask.** Keep both names (as built), or URL only with CH-2's fixture URL changed to a protected name?
 
-## Q2 (§4 test 7 vs §2.2's backlog `RC4-F1-tools`)
+## Q2 (§4 test 7 vs §2.2's backlog `RC4-F1-tools`) - answered (D-RC4F1.5)
 
 - **Conflict.** Test 7 scans `tools` for `make_url(...).database`; `tools/sweep-setup-cache.py:28` holds one, and
   §2.2 says that tool is not changed here (backlog `RC4-F1-tools`).
@@ -25,8 +25,7 @@ Count: **3**.
   (the scan's set is non-empty). Nothing outside §3 changed.
 - **Ask.** Confirm the exemption; `RC4-F1-tools` removes it.
 
-
-## Q3 (§2.1 module vs the persistence seam guard) - open, stopped
+## Q3 (§2.1 module vs the persistence seam guard) - answered (D-RC4F1.3; guard edit by the coordinator)
 
 - **Conflict.** §2.1 fixes `backend/assetops_backend/database_target.py` with `sqlalchemy.engine.make_url`, and §3
   says "no new guard"; `tools/checks/configuration-persistence.ps1` rule 8 refuses any `sqlalchemy` import outside

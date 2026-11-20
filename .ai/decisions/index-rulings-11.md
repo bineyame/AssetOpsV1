@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-ON1.9 to D-RC4F1.2)
+# Decision index: Demo-sprint and later rulings (index only) (D-ON1.9 to D-RC4F1.5)
 
 - `D-ON1.9` File proposes roles; nothing granted until the executive approves at sign-in with the confirmed digest (owner A) · live · specs/ON1-operator-tenant/rulings.md
 - `D-ON1.10` Executive confirms a roles digest; apply refuses other files; submitter never accepter · live · specs/ON1-operator-tenant/rulings.md
@@ -12,3 +12,6 @@
 - `D-3A3.12` Single-writer test reach: attribute, getattr and alias import caught; dynamic access not · live · specs/3A3-emulators-contract-test/rulings.md
 - `D-RC4F1.1` database_target names the database libpq reaches; unclear URL or PG* environment refused · live · specs/RC4-F1-database-name/rulings.md
 - `D-RC4F1.2` Every name-based database decision uses it; database_name deleted; demo strips PG* · live · specs/RC4-F1-database-name/rulings.md
+- `D-RC4F1.3` database_target.py named in rule 8's $pgReaders; parse stays make_url; test 8 pins it · live · specs/RC4-F1-database-name/rulings.md
+- `D-RC4F1.4` Backfill refuses when the URL's target or the reader's own name is protected · live · specs/RC4-F1-database-name/rulings.md
+- `D-RC4F1.5` Test 7 exempts tools/sweep-setup-cache.py by path until RC4-F1-tools · live · specs/RC4-F1-database-name/rulings.md
