@@ -1,6 +1,8 @@
 /* Browser interaction check (UI/UX guide gate G3/G4 support): drawers, table views, phone Section menu, keyboard focus,
    heading order, reduced motion, empty and loading states. Needs /opt/assetecon/tools/pw/env.sh sourced.
-   Run: node tools/ux_interaction_check.cjs "$PWD/index.html" <folder for the two state screenshots> */
+   Run: node tools/ux_interaction_check.cjs "$PWD/index.html" <folder for the two state screenshots>
+   IA-1b fix round: D-IA.31 drawer walks (every press stays inside; sweep; unlinked last), D-IA.35 L1/L2 (EV board on its live route; text-accepting retargets
+   expire with IA-1c). Plants (each must fail): container, x5, palette, block7, tall, viewall, trap (D-IA.31), evrev, expiry (D-IA.35). */
 const { chromium } = require(process.env.PW);
 const base = 'file://' + process.argv[2];
 const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}`);
@@ -15,15 +17,26 @@ const PLAN_LAYOUT = () => { const bad = [], inter = (a, b) => Math.min(a.right, 
         if (s.scrollWidth > s.clientWidth + 1) bad.push(`${s.parentElement.dataset.row}: row ${s.scrollWidth} px wide in a ${s.clientWidth} px box`);
         const box = (s.closest('.panel, .ux-items') || s).getBoundingClientRect(), last = rc.filter(r => r.width > 0).pop(); if (last && last.right > box.right + 1) bad.push(`${s.parentElement.dataset.row}: last cell ends at ${Math.round(last.right)}, past its card at ${Math.round(box.right)}`); });
       return { rows, card, bad: [...new Set(bad)].slice(0, 3) }; };
+let TEXT_OK = null; /* D-IA.35 L2: the text form of an unbuilt decision link counts only until IA-1c lands; expiry forces landed */
 const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list's container query removed; the layout gate must fail at 1440 and 1280 */
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.CHROME });
+  /* D-IA.31: after every one of 30 Tab and 30 Shift+Tab presses the focus is inside the open drawer; returns the first leak or null */
+  const walk = async (p, sel) => { for (const dir of ['Tab', 'Shift+Tab']) for (let i = 0; i < 30; i++) { await p.keyboard.press(dir); await p.waitForTimeout(12);
+    const at = await p.evaluate(s => document.activeElement.closest(s) ? null : `${document.activeElement.tagName.toLowerCase()}.${String(document.activeElement.className).split(' ')[0]}`, sel); if (at) return `${dir} press ${i + 1} left the drawer for ${at}`; } return null; };
+  const unlinkedLast = async p => { await p.click('[data-ux-drawer="uxd-lakeside-assure"]'); await p.waitForTimeout(250);
+    await p.evaluate(() => { const d = document.getElementById('uxd-lakeside-assure'), x = d.querySelector('.ux-x'); d.querySelectorAll('a[href]').forEach(a => { if (x.compareDocumentPosition(a) & Node.DOCUMENT_POSITION_FOLLOWING) { const sp = document.createElement('span'); sp.className = 'ia-unlinked'; sp.dataset.iaTo = a.getAttribute('href').replace(/^#\//, ''); sp.innerHTML = a.innerHTML; a.replaceWith(sp); } });
+      const body = d.querySelector('.ux-drawer-body') || d; body.insertAdjacentHTML('beforeend', '<details data-plant-d><summary>More</summary><a href="#/plan">x</a></details>'); });
+    const leak = await walk(p, '#uxd-lakeside-assure');
+    await p.evaluate(() => document.querySelector('#uxd-lakeside-assure .ux-x').focus()); await p.keyboard.press('Shift+Tab'); await p.waitForTimeout(12);
+    const onSummary = await p.evaluate(() => document.activeElement === document.querySelector('#uxd-lakeside-assure details[data-plant-d] > summary'));
+    return { leak, onSummary }; };
   const openAll = p => p.evaluate(() => document.querySelectorAll('.canvas details').forEach(d => { d.open = true; }));
   const page = async (hash, o = {}) => { const ctx = await b.newContext({ viewport: { width: o.w || 1440, height: o.h || 900 }, colorScheme: o.dark ? 'dark' : 'light', reducedMotion: o.rm ? 'reduce' : 'no-preference' }); if (o.op) await ctx.addInitScript(v => { try { sessionStorage.setItem('l4-op', v); } catch (e) {} }, o.op);
     /* review Site M3: sideways overflow is any visible element in the canvas past the viewport outside its own scrolling frame;
        the page never scrolls sideways (.workspace clips), so the page's scrollWidth alone cannot fail */
     await ctx.addInitScript(() => { window.__ovf = () => { const out = []; for (const e of document.querySelectorAll('#app .canvas *')) { const a = e.getBoundingClientRect(); if (a.width <= 1 || a.height <= 1 || (a.right <= innerWidth + 1 && a.left >= -1)) continue; if (e.closest('.ux-drawer:not([data-open="true"]), [hidden], .vh')) continue;
-      let sc = false; for (let x = e.parentElement; x && !sc && !x.matches('.canvas'); x = x.parentElement) { const ov = getComputedStyle(x).overflowX; sc = ov === 'auto' || ov === 'scroll'; } if (!sc) out.push(`${e.tagName.toLowerCase()}.${String(e.className).split(' ')[0]} ${Math.round(a.left)}..${Math.round(a.right)}`); } return out.length ? out.slice(0, 3).join('; ') : false; }; }); const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message)); await p.goto(base + (o.q || '') + '#/' + hash); await p.waitForTimeout(500); p._errs = errs; return p; };
+      let sc = false; for (let x = e.parentElement; x && !sc && !x.matches('.canvas'); x = x.parentElement) { const ov = getComputedStyle(x).overflowX; sc = ov === 'auto' || ov === 'scroll'; } if (!sc) out.push(`${e.tagName.toLowerCase()}.${String(e.className).split(' ')[0]} ${Math.round(a.left)}..${Math.round(a.right)}`); } return out.length ? out.slice(0, 3).join('; ') : false; }; }); const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message)); await p.goto(base + (o.q || '') + '#/' + hash); await p.waitForTimeout(500); p._errs = errs; if (TEXT_OK === null) TEXT_OK = PLANT === 'expiry' ? false : !(await p.evaluate(() => IA_LANDED.has('IA-1c'))); await p.evaluate(v => { window.__tx = v; }, TEXT_OK); return p; };
   if (PLANT === 'container') { for (const op of ['lakeside', 'harvest', 'metro']) for (const [w, h] of [[1440, 900], [1280, 720]]) { const p = await page('plan', { op, w, h });
       await p.evaluate(() => { for (const sh of document.styleSheets) for (let i = sh.cssRules.length - 1; i >= 0; i--) { const r = sh.cssRules[i]; if (r.constructor.name === 'CSSContainerRule' && r.containerName === 'uxitems') sh.deleteRule(i); } }); await p.waitForTimeout(150);
       const lay = await p.evaluate(PLAN_LAYOUT); ok(lay.rows > 0 && !lay.bad.length, `plant container: ${op} plan at ${w}: ${lay.rows} rows${lay.bad.length ? `, ${lay.bad.join('; ')}` : ''}`); await p.context().close(); }
@@ -42,6 +55,18 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
     ok(op1 && !/Kobo generator/.test(kg) && /Kisiwa/.test(first) && at === '#/site/kisiwa', `command search: Ctrl+K opens, "kobo gen" finds ${kg ? `"${kg}"` : 'nothing live'}, "kisiwa" finds "${first}", Enter opens ${at}`);
     if (at !== '#/portfolio') { await p.goto(base + '#/portfolio'); await p.waitForTimeout(400); }
   }
+  const evBoard = async () => { const p = await page('portfolio/demand-and-capacity', { op: 'metro' }); /* D-IA.35 L1: the live route, not the legacy builder */
+    if (PLANT === 'evrev') await p.evaluate(() => { document.querySelectorAll('#app li.ux-vc-stage.is-na').forEach(li => { const w = document.createTreeWalker(li, NodeFilter.SHOW_TEXT); let n; while ((n = w.nextNode())) if (/Not applicable/.test(n.nodeValue)) n.nodeValue = n.nodeValue.replace('Not applicable', 'Not measured yet'); }); });
+    const r = await p.evaluate(() => ({ rows: [...document.querySelectorAll('#app li.ux-vc-stage')].filter(l => /Revenue/.test(l.textContent) && /charging is a cost centre/.test(l.textContent) && /Not applicable/.test(l.textContent)).length, bad: /Grow revenue\s*Not measured yet/.test(document.body.textContent) }));
+    ok(r.rows === 1 && !r.bad, `EV board: Metro #/portfolio/demand-and-capacity has ${r.rows} Revenue row reading "charging is a cost centre" and "Not applicable"${r.bad ? ', and "Grow revenue Not measured yet" appears' : ''}`); await p.context().close(); };
+  if (PLANT === 'evrev') { await evBoard(); await b.close(); console.log(out.join('\n')); process.exit(out.some(l => l.startsWith('FAIL')) ? 1 : 3); }
+  if (PLANT === 'trap') { /* D-IA.31: the pre-fix filter; "drawer trap unlinked last" and the Lakeside "overview drawer assure" walk must both fail */
+    const p = await page('portfolio'); await p.evaluate(() => { uxTabbable = x => x.offsetParent !== null; });
+    const u = await unlinkedLast(p); ok(!u.leak && u.onSummary, `plant trap: drawer trap unlinked last: ${u.leak || (u.onSummary ? 'holds' : 'Shift+Tab from Close does not land on the last summary')}`);
+    const q = await page('portfolio'); await q.evaluate(() => { uxTabbable = x => x.offsetParent !== null; }); await q.click('[data-ux-drawer="uxd-lakeside-assure"]'); await q.waitForTimeout(250);
+    await q.evaluate(() => { const d = document.getElementById('uxd-lakeside-assure'), x = d.querySelector('.ux-x'); d.querySelectorAll('a[href]').forEach(a => { if (x.compareDocumentPosition(a) & Node.DOCUMENT_POSITION_FOLLOWING) { const sp = document.createElement('span'); sp.className = 'ia-unlinked'; sp.innerHTML = a.innerHTML; a.replaceWith(sp); } }); });
+    const w = await walk(q, '#uxd-lakeside-assure'); ok(!w, `plant trap: overview drawer assure walk: ${w || 'holds'}`);
+    await b.close(); console.log(out.join('\n')); const passed = out.filter(l => l.startsWith('PASS')).length; if (passed) { console.log(`plant trap NOT CAUGHT: ${passed} of 2 passed`); process.exit(3); } process.exit(1); }
   if (PLANT === 'x5') { const p = await page('site/mto'); const bad = await p.evaluate(() => { document.querySelectorAll('.ux-queue-panel .ux-qcount').forEach(q => q.remove()); const out = [];
       document.querySelectorAll('.canvas [data-count]').forEach(e => { const n = document.querySelectorAll(e.dataset.countOf || '#none').length, capped = /ux-queue/.test(e.dataset.countOf || '') && [...document.querySelectorAll('.ux-queue-panel .ux-qcount')].some(q => +q.dataset.total === +e.dataset.count); if (+e.dataset.count !== n && !capped) out.push(`count ${e.dataset.count} but ${n} in ${e.dataset.countOf}`); }); return out; });
     ok(!bad.length, `plant x5: site/mto without its "3 of 4" line: ${bad.join('; ') || 'counts hold'}`); await b.close(); console.log(out.join('\n')); process.exit(out.some(l => l.startsWith('FAIL')) ? 1 : 0); }
@@ -61,17 +86,30 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
       else ok(r.blocks <= 6 && r.h <= 2500, `plant ${PLANT}: ${op} overview budget: ${r.blocks} blocks, ${r.h} px at 1440`);
       await p.context().close(); }
     await b.close(); console.log(out.join('\n')); process.exit(out.some(l => l.startsWith('FAIL')) ? 1 : 0); }
-  // 1 drawers on the Overview: open, focus, trap, Esc, return focus
-  { const p = await page('portfolio');
+  // 1 drawers on the Overview: open, focus, trap (every press, D-IA.31), Esc, return focus; all three operators
+  for (const op of ['lakeside', 'harvest', 'metro']) { const p = await page('portfolio', { op });
     for (const k of ['grow', 'optimize', 'protect', 'assure']) {
-      const sel = `[data-ux-drawer="uxd-lakeside-${k}"]`; await p.click(sel); await p.waitForTimeout(250);
-      const st = await p.evaluate(k => ({ open: document.getElementById(`uxd-lakeside-${k}`).dataset.open, focus: document.activeElement.classList.contains('ux-x'), card: !!document.querySelector(`#uxd-lakeside-${k} .ocard[data-heading="${k}"]`) }), k);
-      for (let i = 0; i < 40; i++) await p.keyboard.press('Tab');
-      const inside = await p.evaluate(k => !!document.activeElement.closest(`#uxd-lakeside-${k}`), k);
+      const sel = `[data-ux-drawer="uxd-${op}-${k}"]`; await p.click(sel); await p.waitForTimeout(250);
+      const st = await p.evaluate(([op, k]) => ({ open: document.getElementById(`uxd-${op}-${k}`).dataset.open, focus: document.activeElement.classList.contains('ux-x'), card: !!document.querySelector(`#uxd-${op}-${k} .ocard[data-heading="${k}"]`) }), [op, k]);
+      const leak = await walk(p, `#uxd-${op}-${k}`);
       await p.keyboard.press('Escape'); await p.waitForTimeout(250);
       const back = await p.evaluate(sel => document.activeElement === document.querySelector(sel) && document.querySelector('.ux-drawer[data-open="true"]') === null, sel);
-      ok(st.open === 'true' && st.focus && st.card && inside && back, `overview drawer ${k}: opens with its card, focus on Close, Tab stays inside, Esc closes and returns focus`);
+      ok(st.open === 'true' && st.focus && st.card && !leak && back, `${op} overview drawer ${k}: opens with its card, focus on Close, every Tab and Shift+Tab stays inside${leak ? ` (${leak})` : ''}, Esc closes and returns focus`);
     }
+    await p.context().close(); }
+  // D-IA.31 sweep: every visible drawer opener of the hub, one per drawer id, the same walk, then Escape returns focus to the opener
+  for (const op of ['lakeside', 'harvest', 'metro']) { const first = await (async () => { const q = await page('portfolio', { op }); const k = await q.evaluate(op => OPS[op].sites[0], op); await q.context().close(); return k; })();
+    for (const r of ['portfolio', 'portfolio/outcomes', 'portfolio/demand-and-capacity', `site/${first}`]) { const p = await page(r, { op });
+      const ids = await p.evaluate(() => { const seen = new Set(), out = []; document.querySelectorAll('#app [data-ux-drawer]').forEach(e => { const id = e.dataset.uxDrawer; if (seen.has(id) || !e.getClientRects().length || e.closest('details:not([open]) > :not(summary)')) return; seen.add(id); e.setAttribute('data-gx-sweep', out.length); out.push(id); }); return out; });
+      let leak = null;
+      for (let i = 0; i < ids.length && !leak; i++) { const sel = `[data-gx-sweep="${i}"]`; await p.click(sel); await p.waitForTimeout(250);
+        const w = await walk(p, `#${ids[i]}`); if (w) { leak = `${ids[i]}: ${w}`; break; }
+        await p.keyboard.press('Escape'); await p.waitForTimeout(200);
+        const back = await p.evaluate(sel => document.activeElement === document.querySelector(sel), sel); if (!back) leak = `${ids[i]}: Escape did not return focus to its opener`; }
+      ok(ids.length > 0 && !leak, `drawer trap sweep: ${op} #/${r}: ${ids.length} drawers${leak ? `; first leak ${leak}` : ' hold'}`); await p.context().close(); } }
+  // D-IA.31 the class: the last link unlinked and a closed disclosure last; the walk stays inside, and Shift+Tab from Close lands on that summary
+  { const p = await page('portfolio'); const u = await unlinkedLast(p); ok(!u.leak && u.onSummary, `drawer trap unlinked last: ${u.leak || (u.onSummary ? 'the walk holds and Shift+Tab from Close lands on the last summary' : 'Shift+Tab from Close does not land on the last summary')}`); await p.context().close(); }
+  { const p = await page('portfolio');
     // 2 table views
     for (const t of ['Show as table, by Site']) {
       const s = p.locator('summary', { hasText: t }).first(); await s.click(); await p.waitForTimeout(150);
@@ -198,7 +236,7 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
     const bad = []; const h0 = await p.evaluate(() => location.hash);
     for (const m of marks) { if (!m.d) { bad.push(`mark ${m.i} opens no drawer`); continue; }
       await p.click(`[data-gx="${m.i}"]`); await p.waitForTimeout(220);
-      const r = await p.evaluate(id => { const d = document.getElementById(id); const t = d ? d.textContent : ''; return { open: d && d.dataset.open === 'true', hash: location.hash, drv: /^uxdrv-/.test(id), done: /What is being done/.test(t) && (d.querySelector('a[href^="#/decision/"]') ? /Open decision →/.test(t) : d.querySelector('.ia-unlinked[data-ia-to^="decision/"]') ? /Open decision/.test(t) : /No decision yet/.test(t)) }; /* IA-1b: until IA-1c lands decisions, iaUnlink names them as text */ }, m.d);
+      const r = await p.evaluate(id => { const tx = window.__tx, d = document.getElementById(id); const t = d ? d.textContent : ''; return { open: d && d.dataset.open === 'true', hash: location.hash, drv: /^uxdrv-/.test(id), done: /What is being done/.test(t) && (d.querySelector('a[href^="#/decision/"]') ? /Open decision →/.test(t)     : tx && d.querySelector('.ia-unlinked[data-ia-to^="decision/"]') ? /Open decision/.test(t) : /No decision yet/.test(t)) }; /* IA-1b: until IA-1c lands decisions, iaUnlink names them as text (D-IA.35 L2: only then) */ }, m.d);
       if (!r.open) bad.push(`${m.d} did not open`); if (r.hash !== h0) bad.push(`${m.d} navigated to ${r.hash}`); if (r.drv && !r.done) bad.push(`${m.d} does not say what is being done`);
       await p.keyboard.press('Escape'); await p.waitForTimeout(150); }
     const same = await p.evaluate(() => ['grow', 'optimize'].every(k => { const g = document.querySelector(`.ux-hero .ux-wf-gbtn[data-ux-drawer$="-${k}"]`), t = document.querySelector(`.ux-cat[data-tile="${k}"] .ux-cat-go`); return !g || (t && t.dataset.uxDrawer === g.dataset.uxDrawer); }));
@@ -213,7 +251,7 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
       M.groups.forEach(g => g.steps.forEach(s => { const hk = s.st.hkeys || [], sites = Object.keys(s.st.by), nm = sites.map(k => SK[k].name), siteOf = f => String(f.site).replace(/^Room [A-C] · /, '');
         const want = new Set([...DEC.filter(d => sites.includes(d.site) && d.opts.some(x => (omf[x] || []).some(f => hk.includes(f)))).map(d => d.id),
           ...(HC.findings || []).filter(f => nm.includes(siteOf(f)) && (hk.includes(f.factor) || (hk.some(h => svcN.includes(h)) && f.heading === 'protect'))).map(f => f.decision)].filter(Boolean));
-        const dr = document.getElementById(s.id), got = new Set([...[...dr.querySelectorAll('a[href^="#/decision/"]')].map(a => a.getAttribute('href').replace('#/decision/', '')), ...[...dr.querySelectorAll('.ia-unlinked[data-ia-to^="decision/"]')].map(e => e.dataset.iaTo.replace('decision/', ''))]); /* IA-1b: named as text until IA-1c */
+        const dr = document.getElementById(s.id), got = new Set([...[...dr.querySelectorAll('a[href^="#/decision/"]')].map(a => a.getAttribute('href').replace('#/decision/', '')), ...(window.__tx ? [...dr.querySelectorAll('.ia-unlinked[data-ia-to^="decision/"]')].map(e => e.dataset.iaTo.replace('decision/', '')) : [])]); /* IA-1b: named as text until IA-1c (D-IA.35 L2) */
         const same = want.size === got.size && [...want].every(x => got.has(x)); if (!same || (!want.size && !/No decision yet/.test(dr.textContent))) bad.push(`${s.lab}: wants ${[...want].join('+') || 'none'}, shows ${[...got].join('+') || 'none'}`); }));
       return bad; }, op);
     ok(!h1.length, `${op} drivers: each drawer names every decision that moves its driver (${h1.join('; ') || 'all hold'})`);
@@ -251,7 +289,7 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
       const rows = [...document.querySelectorAll('.ux-overview .ux-queue>li.ux-q')];
       const ragged = rows.filter(li => Math.abs(li.querySelector('.ux-q-title').getBoundingClientRect().left - li.querySelector('.ux-q-top').getBoundingClientRect().left) > 1).length;
       const repeat = rows.filter(li => li.querySelector('.ux-q-title').textContent.trim().toLowerCase().startsWith(li.querySelector('.ux-q-site').textContent.replace('Site: ', '').trim().toLowerCase())).length;
-      const prim = document.querySelectorAll('.ux-overview .ux-queue .ux-q-go.primary').length, fc = rows.find(li => li.dataset.state === 'choose'), firstPrim = fc ? (fc.querySelector('.ux-q-go.primary') || (!fc.querySelector('a.ux-q-go') && fc.querySelector('.ia-unlinked[data-ia-to^="decision/"]')) ? 1 : 0) : 1; /* IA-1b (D-IA.25): no primary while decisions are unlanded */
+      const prim = document.querySelectorAll('.ux-overview .ux-queue .ux-q-go.primary').length, fc = rows.find(li => li.dataset.state === 'choose'), firstPrim = fc ? (fc.querySelector('.ux-q-go.primary') || (window.__tx && !fc.querySelector('a.ux-q-go') && fc.querySelector('.ia-unlinked[data-ia-to^="decision/"]')) ? 1 : 0) : 1; /* IA-1b (D-IA.25): no primary while decisions are unlanded */
       const vis = el => { const c = el.cloneNode(true); c.querySelectorAll('.vh, .ux-q-k').forEach(x => x.remove()); return c.textContent.trim(); }, blankDue = rows.filter(li => !li.dataset.due).every(li => vis(li.querySelector('.ux-q-due')) === '');
       const brk = document.querySelectorAll('.ux-hero .ux-wf-break').length, steps = [...document.querySelectorAll('.ux-wf-gapscale .ux-wf-bar')].map(b => b.getBoundingClientRect().width / b.parentElement.getBoundingClientRect().width);
       const groups = document.querySelectorAll('.ux-wf-gapscale .ux-wf-group').length, perRowHeading = [...document.querySelectorAll('.ux-wf-gapscale .ux-wf-h')].length;
@@ -576,8 +614,7 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
       tiles += r.n; if (r.hid || r.sub || r.clip.length) hidden.push(`${sk}${r.hid ? ` ${r.hid} trend(s)` : ''}${r.sub ? ' subtitle' : ''}${r.clip.length ? ` clipped "${r.clip[0]}"` : ''}`); await p.context().close(); }
     ok(tiles >= 9 && !hidden.length, `Site pages at 1280 x 720: ${tiles} tile trends and the subtitle all show, none clipped${hidden.length ? ` (HIDDEN OR CLIPPED: ${hidden.join('; ')})` : ''}`); }
   /* r2 M3: the captive fleet's revenue row says "Not applicable", in its own words */
-  { const p = await page('plan', { op: 'metro' }); const t = await p.evaluate(() => { const d = document.createElement('div'); d.innerHTML = SCREENS.find(s => s.id === 'ev').render(); return d.textContent; }); /* IA-1b: #/ev is an alias of the first EV Site (D-IA.28); the legacy board is read from its own screen */
-    ok(/Not applicable/.test(t) && /Revenue not applicable: charging is a cost centre/.test(t) && !/Grow revenue\s*Not measured yet/.test(t), 'EV board: the revenue row reads "Not applicable" with its reason'); await p.context().close(); }
+  await evBoard();
   // empty states that name their data path fail when the data holds a value there (placeholder audit, gap 4)
   for (const [op, r] of [['metro', 'portfolio'], ['metro', 'portfolio/demand-and-capacity'], ['metro', 'portfolio/scope'], ['metro', 'site/embakasi'], ['metro', 'site/kasarani'], ['metro', 'site/ruiru'], ['lakeside', 'portfolio/scope'], ['lakeside', 'portfolio/demand-and-capacity'], ['harvest', 'portfolio/scope'], ['lakeside', 'mini'], ['lakeside', 'cold'], ['lakeside', 'ev']]) {
     const p = await page(r, { op });

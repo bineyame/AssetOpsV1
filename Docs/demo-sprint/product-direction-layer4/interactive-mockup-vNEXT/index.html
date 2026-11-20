@@ -1028,7 +1028,7 @@ table.opts tbody tr.rec,table.opts tbody tr.rec>th,table.opts tbody tr.rec>td{ba
 }
 .ux-kpi-na{font-size:var(--fs-lg);font-weight:500;color:var(--text-2)}
 
-/* decision options: five columns, detail in a drawer; stacked cards on phone (finding 2) */
+/* decision options: five columns, detail in a drawer; stacked cards on phone (finding 2). D-IA.35 L5: the stacking is the class ux-stack (options and Outcomes tables) */
 table.ux-opts td,table.ux-opts th{min-width:0}
 table.ux-opts tbody th{min-width:200px}
 .ux-lim{display:inline-block;font-size:var(--fs-sm);font-weight:600;white-space:nowrap;margin-right:6px}
@@ -1039,13 +1039,14 @@ table.ux-opts tbody th{min-width:200px}
 .ux-optd dd{margin:0;font-size:var(--fs-md)}
 .ux-optd .obl{display:flex;gap:6px;align-items:flex-start;margin-bottom:var(--s2)}
 @media (max-width:760px){
-  table.ux-opts thead{display:none}
-  table.ux-opts,table.ux-opts tbody,table.ux-opts tr,table.ux-opts tbody th,table.ux-opts td{display:block;width:auto}
-  table.ux-opts tr{border:1px solid var(--line);border-radius:var(--r2);padding:var(--s3);margin-bottom:var(--s3);background:var(--surface)}
-  table.ux-opts tbody th{min-width:0;padding:0 0 var(--s2);border:0}
-  table.ux-opts td{display:grid;grid-template-columns:110px minmax(0,1fr);gap:var(--s2);padding:4px 0;border:0}
-  table.ux-opts td::before{content:attr(data-label);font-size:var(--fs-xs);color:var(--text-2)}
-  .ux-opts-wrap,.scroll-region:has(table.ux-opts){overflow:visible}
+  table.ux-stack thead{display:none}
+  table.ux-stack,table.ux-stack tbody,table.ux-stack tr,table.ux-stack tbody th,table.ux-stack td{display:block;width:auto}
+  table.ux-stack tr{border:1px solid var(--line);border-radius:var(--r2);padding:var(--s3);margin-bottom:var(--s3);background:var(--surface)}
+  table.ux-stack tbody th{min-width:0;padding:0 0 var(--s2);border:0}
+  table.ux-stack td{display:grid;grid-template-columns:110px minmax(0,1fr);gap:var(--s2);padding:4px 0;border:0}
+  table.ux-stack td::before{content:attr(data-label);font-size:var(--fs-xs);color:var(--text-2)}
+  table.ux-stack tr[hidden]{display:none}
+  .table-wrap:has(>table.ux-stack),.ux-opts-wrap,.scroll-region:has(table.ux-stack){overflow:visible}
 }
 .ux-chosen{gap:var(--s3)}
 .ux-chosen>span:not(.status-pill){font-size:var(--fs-md)}
@@ -1084,7 +1085,7 @@ details.ux-item[open]>summary .ux-disc-cue{transform:rotate(225deg)}
 /* ---- fix round 2 ---- */
 /* H1: a phone option card has two columns, label and value; the cell content is one wrapper in the value column */
 .ux-cell{min-width:0}
-@media (max-width:760px){table.ux-opts td>.ux-cell{grid-column:2}}
+@media (max-width:760px){table.ux-stack td>.ux-cell{grid-column:2}}
 /* H2: the recalculation notice on its own full-width row under the header */
 .ux-pending{margin:0 0 var(--s3)}
 .ux-pending .snap-pending{display:block}
@@ -4643,7 +4644,7 @@ function decisionScreen(id){const d=decById(id),sk=d.site,T=decText(d),n=d.node?
  const rows=d.opts.map(oid=>{const x=OPT[oid],[cv,cn]=optCost(x),[ev,en]=optEffect(x);const recd=oid===uxRec(d);
   const detail=`<dl class="ux-optd"><div><dt>${BASIS_LABEL[isNoAction(oid)?decBasis(d):optBasis(oid)]}</dt><dd>${ev} <small>${en}</small> ${/^Not /.test(ev)?'':ec(optClass(x))}</dd></div><div><dt>Effect under each heading</dt><dd>${x.kind==='NO_ACTION'&&decBasis(d)==='NO_ACTION'?'<span class="muted">The reference</span>':byHeading(oid)}</dd></div><div><dt>Limits</dt><dd class="ux-obl">${obligations(x)}</dd></div><div><dt>Condition</dt><dd>${fx(x.condition)||'None'}</dd></div><div><dt>Status and reason</dt><dd>${uxDispBadge(d,oid)} ${optWhy(x)}</dd></div></dl>`;
   return `<tr data-opt="${oid}" class="${recd?'rec':''} ${x.disposition==='REJECTED'?'rej':''}"><th scope="row">${optLabel(oid)}<small>${OPT_KIND[x.kind]||''}</small></th><td data-label="${BASIS_LABEL[isNoAction(oid)?decBasis(d):optBasis(oid)]}"><div class="ux-cell">${x._synthetic&&x.kind==='NO_ACTION'?ev:fig(`opt:${oid}:effect`,ev)}<small class="cellnote">${en}</small>${/^Not /.test(ev)?'':ec(optClass(x))}${DV_OPT[oid]&&!/^Not /.test(ev)?dvTag(DV_OPT[oid]):''}</div></td><td data-label="Limits"><div class="ux-cell">${uxOblSummary(obligations(x))}</div></td><td data-label="One-off cost · who pays"><div class="ux-cell">${x.kind==='NO_ACTION'?cv:fig(`opt:${oid}:cost`,cv)}<small class="cellnote">${whoPays(x)}</small></div></td><td data-label="Status"><div class="ux-cell">${chosenId===oid?`<span class="status-pill is-approved">Chosen</span><small class="cellnote">${recd?'Recommended by the system':''}</small>`:x.kind==='NO_ACTION'&&decBasis(d)==='NO_ACTION'?`${badge('No change','outline')}<small class="cellnote">The reference</small>`:uxDispBadge(d,oid)}</div></td><td data-label="Details"><div class="ux-cell">${uxOpener(`uxo-${oid}`,`Details<span class="vh">: ${optLabel(oid)}</span>`,'ux-optgo')}${uxDrawer(`uxo-${oid}`,optLabel(oid),detail,true)}</div></td></tr>`;}).join('');
- const comp=`<table class="opts ux-opts"><thead><tr><th>Option</th><th>${BASIS_LABEL[decBasis(d)]}</th><th>Limits</th><th>One-off cost · who pays</th><th>Status</th><th><span class="vh">Details</span></th></tr></thead><tbody>${rows}</tbody></table>`;
+ const comp=`<table class="opts ux-opts ux-stack"><thead><tr><th>Option</th><th>${BASIS_LABEL[decBasis(d)]}</th><th>Limits</th><th>One-off cost · who pays</th><th>Status</th><th><span class="vh">Details</span></th></tr></thead><tbody>${rows}</tbody></table>`;
  const cf=`<table class="cf"><thead><tr>${T.cfHead.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${T.cf.map(r=>`<tr><th scope="row">${r[0]}</th>${r.slice(1).map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
  /* the parts of the page, each answered in its own section heading (guide §7.2, the long-page standard) */
  const parts={anchor:`<p class="prose">${T.factor}</p>${n?`<p class="anchorfig">${n.label}: ${n.actual!=null?fig(`node:${sk}:${n.id}`,fmtU(n.actual,n.unit)):'—'}${n.plan!=null?` against ${fmtU(n.plan,n.unit)} target`:''} ${ec(n.cls)}</p>`:''}<p class="note">${T.change}</p>${DV_DEC[id]?`<p>${dvTag(DV_DEC[id])}</p>`:''}`,
@@ -4936,14 +4937,16 @@ document.addEventListener('click', e => {
   const o = e.target.closest('[data-ux-drawer]'); if (o) { e.preventDefault(); uxOpen(o.dataset.uxDrawer, o); return; }
   const c = e.target.closest('[data-ux-close]'); if (c) { e.preventDefault(); uxClose(c.closest('.ux-drawer')); }
 });
+function uxTabbable(x) { return x.getClientRects().length > 0 && getComputedStyle(x).visibility !== 'hidden' && !x.closest('[inert], [hidden], [aria-hidden="true"]') && !x.matches('[tabindex="-1"]') && !x.closest('details:not([open]) > :not(summary)'); }
 document.addEventListener('keydown', e => {
   const d = document.querySelector('.ux-drawer[data-open="true"]'); if (!d) return;
   if (e.key === 'Escape') { e.preventDefault(); uxClose(d); return; }
-  if (e.key === 'Tab') { /* keep focus inside the open drawer */
-    const f = [...d.querySelectorAll('a[href],button:not([disabled]),input,select,summary,[tabindex="0"]')].filter(x => x.offsetParent !== null);
-    if (!f.length) return; const first = f[0], last = f[f.length - 1];
-    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  if (e.key === 'Tab') { /* keep focus inside the open drawer, over what Tab really reaches (D-IA.31) */
+    const f = [...d.querySelectorAll('a[href],button:not([disabled]),input,select,summary,[tabindex="0"]')].filter(uxTabbable);
+    if (!f.length) { e.preventDefault(); (d.querySelector('.ux-x') || d).focus(); return; }
+    const first = f[0], last = f[f.length - 1], at = document.activeElement, out = !f.includes(at);
+    if (e.shiftKey && (at === first || out)) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && (at === last || out)) { e.preventDefault(); first.focus(); }
   }
 });
 
@@ -4979,7 +4982,7 @@ function uxInsight(op) {
 /* ---------- Portfolio Overview (guide §9) ---------- */
 /* IA-1b (D-IA.22): the Overview cut into parts at its element boundaries; uxOverview joins them into exactly today's string.
    Every part is built eagerly, in today's order, so counters (UX_QN) advance as before. */
-function uxOverviewParts(op) {
+function uxOverviewParts(op, rank = false) {
   const o = OPS[op], T = opTotals(op), G = gapByHeading(op), cost = o.kind === 'cost', P = planCase(op), Pp = o.t.portfolio, M2 = o.t.portfolio_constraints;
   const budget = op === 'lakeside' ? LS.budget : M2.budget_usd_nov_dec, val = op === 'lakeside' ? P.value : op === 'harvest' ? harvestValue() : derivedPlan('metro').value;
   const gap = T.actual - T.plan, big = Object.entries({ grow: G.grow, optimize: G.optimize }).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))[0];
@@ -4999,7 +5002,8 @@ function uxOverviewParts(op) {
   const headline = `<p class="headline ux-headline">${hl}</p>`, tiles = `<div class="heroes ux-kpis">${k1}${k2}${k3}${k4}</div>`;
   const qHead = `<div class="ux-main-aside"><section class="panel ux-queue-panel" aria-labelledby="uxq-h"><div class="panel-head"><div><h2 id="uxq-h">Decisions <span class="ux-count">${num(n)}</span> <small class="ux-split" data-ux-split>${uxStateSplit(ATTN[op].map(r => r[4]))}</small></h2><p>One row per decision, with who decides. AssetOps values the options; your team chooses.</p></div>`;
   const actFirst = link('portfolio/act-first', 'Act first ›', 'ux-link');
-  const qBody = `</div>${uxQueue(op, ATTN[op].filter(r => uxMergeRows(ATTN[op]).slice(0, 6).some(m => m.d === r[4])), '', n)}`;
+  const cap = rank ? iaQueueCap(uxMergeRows(ATTN[op]).map(m => m.d), 6) : null, shown6 = cap ? new Set(cap.shown) : new Set(uxMergeRows(ATTN[op]).slice(0, 6).map(m => m.d)); /* D-IA.34: the hub ranks waiting decisions first and says what it leaves out */
+  const qBody = `</div>${uxQueue(op, ATTN[op].filter(r => shown6.has(r[4])), '', n)}${cap ? iaCapMore(cap.hidden) : ''}`;
   const more = n > 6 ? `<p class="ux-more">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : n > 3 ? `<p class="ux-more ux-more-phone">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : '';
   const queue = (a, m) => `${qHead}${a}${qBody}${m}</section>
  </div>`;
@@ -5423,7 +5427,7 @@ function uxDecisionPage(id, parts) {
 function uxCapLists(root) { root.querySelectorAll('ul.list').forEach((ul, i) => { if (ul.closest('.ux-drawer')) return; const li = [...ul.children].filter(x => x.tagName === 'LI'); if (li.length <= 7) return;
   if (!ul.id) ul.id = `uxcap-${i}`; li.slice(7).forEach(x => { x.hidden = true; x.dataset.uxOver = ''; }); ul.insertAdjacentHTML('afterend', uxCapNote(li.length, 7, ul.id)); }); }
 /* an answer-titled section: the label and its answer, visible when closed */
-const uxSecA = (label, answer, body) => `<details class="panel ux-disc ux-ans-sec"><summary><span class="ux-disc-t"><span class="ux-h2">${label}</span><span class="ux-ans">${answer}</span></span><span class="ux-disc-cue" aria-hidden="true"></span></summary><div class="ux-disc-body">${body}</div></details>`;
+const uxSecA = (label, answer, body, open = false) => `<details class="panel ux-disc ux-ans-sec"${open ? ' open' : ''}><summary><span class="ux-disc-t"><span class="ux-h2">${label}</span><span class="ux-ans">${answer}</span></span><span class="ux-disc-cue" aria-hidden="true"></span></summary><div class="ux-disc-body">${body}</div></details>`;
 /* the sticky bar shows once the recommendation card has scrolled under the top bar */
 function uxStickyTick() { const b = document.querySelector('[data-ux-sticky]'), r = document.querySelector('.ux-drec') || document.querySelector('.ux-kpis') || document.querySelector('[data-ux-sticky-anchor]'); if (!b || !r) { document.body.style.paddingBottom = ''; document.documentElement.style.scrollPaddingTop = ''; document.documentElement.style.scrollPaddingBottom = ''; return; } const on = r.getBoundingClientRect().bottom < Math.max(0, document.querySelector('.topbar')?.getBoundingClientRect().bottom || 0); b.classList.toggle('is-on', on); document.documentElement.classList.toggle('ux-has-sticky', on);
   /* r3 L4: the bar starts where the rail ends, measured, never typed */ const rail = document.querySelector('.rail'), rr = rail && rail.getBoundingClientRect(); const HS = document.documentElement.style; /* IA-1a (D-IA.17): the measured offsets live on <html>, outside the frame */ HS.setProperty('--ux-sticky-left', rr && rr.width > 0 && innerWidth > 600 ? `${Math.round(rr.right)}px` : '0px'); if (innerWidth > 600) HS.setProperty('--ux-sticky-top', `${Math.max(0, Math.round(document.querySelector('.reviewbar')?.getBoundingClientRect().bottom || 0))}px`); else HS.removeProperty('--ux-sticky-top');
@@ -5630,7 +5634,7 @@ function uxSiteTrend(sk) {
 }
 /* IA-1b (D-IA.22): the Site page cut into parts; qMax caps the queue at its first qMax merged decisions (the hub passes 3, as the
    Overview passes 6); uxSitePage joins uxSiteParts(sk, P, Infinity) into exactly today's string. */
-function uxSiteParts(sk, P, qMax) {
+function uxSiteParts(sk, P, qMax, openFirst = false) {
   const op = SK[sk].op, o = OPS[op], t = tree(sk), att = ATTN[op].filter(r => r[2] === sk), nd = uxDecCount(att);
   const waiting = [...new Set(att.map(r => r[4]))].filter(id => ['choose', 'none'].includes(uxDecState(id).key)), B = uxSiteBoard(sk), A = uxSiteActions(sk), T = uxSiteTrend(sk);
   const plain = s => String(s || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
@@ -5648,11 +5652,11 @@ function uxSiteParts(sk, P, qMax) {
     ['Limits and warranties', `${P.limits ? `${num(P.limits)} limit${P.limits === 1 ? '' : 's'} to keep` : 'No service limit declared'}; ${P.rights ? `${num(P.rights)} warrant${P.rights === 1 ? 'y or contract' : 'ies or contracts'}` : 'no warranty or contract open'}`, P.limitsHtml]
   ];
   /* D-IA.22's one named fix: "Decide" targets the queue's own primary (the first choose decision among the rows shown), else none */
-  const shown = att.filter(r => uxMergeRows(att).slice(0, qMax).some(m => m.d === r[4])), first = (uxMergeRows(shown).find(m => uxDecState(m.d).key === 'choose') || {}).d, sticky = `<div class="ux-dsticky" role="region" aria-label="This Site" data-ux-sticky><span class="ux-dsticky-t">${SK[sk].name}</span><span class="ux-dsticky-n">${t.plan != null ? `${usdW(siteM(sk).period.variance, true)} <small>against target</small>` : ''}</span><span class="status-pill is-${waiting.length ? 'proposed' : 'approved'}">${waiting.length ? `${num(waiting.length)} waiting for a choice` : `${num(nd)} decision${nd === 1 ? '' : 's'} in hand`}</span>${first ? link(`decision/${first}`, 'Decide', 'button primary') : ''}</div>`;
+  const cap = iaQueueCap(uxMergeRows(att).map(m => m.d), qMax), shownIds = new Set(cap.shown), shown = att.filter(r => shownIds.has(r[4])), first = (uxMergeRows(shown).find(m => uxDecState(m.d).key === 'choose') || {}).d, sticky = `<div class="ux-dsticky" role="region" aria-label="This Site" data-ux-sticky><span class="ux-dsticky-t">${SK[sk].name}</span><span class="ux-dsticky-n">${t.plan != null ? `${usdW(siteM(sk).period.variance, true)} <small>against target</small>` : ''}</span><span class="status-pill is-${waiting.length ? 'proposed' : 'approved'}">${waiting.length ? `${num(waiting.length)} waiting for a choice` : `${num(nd)} decision${nd === 1 ? '' : 's'} in hand`}</span>${first ? link(`decision/${first}`, 'Decide', 'button primary') : ''}</div>`;
   const lead = `<p class="headline ux-headline" data-ux-sticky-anchor>${P.lead}</p>`, tiles = uxSiteTiles(sk);
-  const queue = `<div class="ux-main-aside"><div class="ux-aside"><section class="panel ux-queue-panel" aria-labelledby="uxsq-h"><div class="panel-head"><div><h2 id="uxsq-h">Decisions at this Site <span class="ux-count">${num(nd)}</span></h2><p data-ux-split>${uxStateCount(att.map(r => r[4]))}. One row each, with who decides.</p></div></div>${uxQueue(op, shown, '', nd)}</section></div>
+  const queue = `<div class="ux-main-aside"><div class="ux-aside"><section class="panel ux-queue-panel" aria-labelledby="uxsq-h"><div class="panel-head"><div><h2 id="uxsq-h">Decisions at this Site <span class="ux-count">${num(nd)}</span></h2><p data-ux-split>${uxStateCount(att.map(r => r[4]))}. One row each, with who decides.</p></div></div>${uxQueue(op, shown, '', nd)}${iaCapMore(cap.hidden)}</section></div>
  <div class="ux-aside"><section class="panel" aria-labelledby="uxsa-h"><div class="panel-head"><div><h2 id="uxsa-h" data-count="${A.n}" data-count-of=".ux-site-acts .ux-sacts > li">Actions in hand <span class="ux-count">${num(A.n)}</span></h2><p>The plan’s Actions at this Site, with owner, due date and release.</p></div></div><div class="ux-site-acts">${A.html}</div></section></div></div>`;
-  const secs = `<div class="ux-dsecs">${sections.map(([l, a, b]) => uxSecA(l, a, b)).join('')}</div>`, drawers = `${B.drawers}${uxDrawer(`uxhow-site-${sk}`, P.howTitle, P.howHtml, true)}`;
+  const secs = `<div class="ux-dsecs">${sections.map(([l, a, b], i) => uxSecA(l, a, b, openFirst && i === 0)).join('')}</div>`, drawers = `${B.drawers}${uxDrawer(`uxhow-site-${sk}`, P.howTitle, P.howHtml, true)}`;
   const help = `<p class="ux-help-line">${uxOpener(`uxhow-site-${sk}`, P.howTitle, 'ux-link')}</p>`;
   return { sticky, lead, tiles, queue, secs, help, drawers };
 }
@@ -5854,7 +5858,8 @@ function IA_G1_SURFACES() {
 /* the context every route renders from */
 function iaCtx(path, params, query) {
   const q = query || {}, sc = String(q.scope || (params && params.site ? `site:${params.site}` : 'all')), /* a Site's page is scoped to that Site */ [kind, id] = sc.includes(':') ? sc.split(':') : [sc, null];
-  return { op: LS.op, scope: kind === 'group' || kind === 'site' ? { kind, id } : { kind: 'all', id: null }, site: params && params.site || null, params: params || {}, query: q, path };
+  const sites = OPS[LS.op].sites, ok = kind === 'group' ? sites.some(k => iaVertical(k) === id) : kind === 'site' ? sites.includes(id) : false; /* D-IA.35 L4: a scope that matches no Site of this operator is all */
+  return { op: LS.op, scope: ok ? { kind, id } : { kind: 'all', id: null }, site: params && params.site || null, params: params || {}, query: q, path };
 }
 /* resolveScreen's view of a landed route: the screen object the review bar and the legacy helpers read */
 function iaScreen(route, path) {
@@ -5960,24 +5965,38 @@ function iaLargestAdverse(sk) {
   let best = null; uxSiteDriversShown(sk).forEach(r => { if (!r.s.st.residual && r.vr < 0 && (!best || r.vr < best.vr)) best = r; });
   return best;
 }
+/* D-IA.34: a capped queue keeps every decision waiting for a choice, then says what it leaves out. ids in reviewed order; pure */
+function iaQueueCap(ids, cap) {
+  if (cap === Infinity || ids.length <= cap) return { shown: ids.slice(), hidden: [] };
+  const rank = [...ids.filter(iaWaiting), ...ids.filter(id => !iaWaiting(id))], keep = new Set(rank.slice(0, cap));
+  return { shown: ids.filter(id => keep.has(id)), hidden: ids.filter(id => !keep.has(id)) };
+}
+function iaCapMore(hidden) {
+  if (!hidden.length) return '';
+  const inbox = IA_LANDED.has('IA-1c') && hidden.some(iaWaiting) ? ' ' + uxOpener('ia-inbox', 'Open Waiting for you', 'ux-link') : '';
+  return `<p class="ux-cap-more" data-ia-more="${hidden.length}">And ${num(hidden.length)} more: ${uxStateSplit(hidden)}.${inbox}</p>`;
+}
 const iaMonth = () => MONTHS[+String(MANIFEST.accounting_period).split('-')[1] - 1];
 /* the Outcomes table (D-IA.27): pure. rows { key, name, group, hasTarget, resultHtml, gapHtml, gap, driverHtml, waiting }. One row
    per Site in scope, gap ascending (most adverse first), ties in the given order, Sites without a target last; capped at 10 the way
    the Site board caps; grouped (one tbody per group, its word and count) only above 10 Sites in more than one group. */
+function iaOutcomeScope(rows, scope) { return rows.filter(r => scope.kind === 'site' ? r.key === scope.id : scope.kind === 'group' ? r.group === scope.id : true); }
 function iaOutcomeTable(rows, { scope = { kind: 'all' }, cost = false, id = 'ia-outcomes' } = {}) {
-  const inScope = rows.filter(r => scope.kind === 'site' ? r.key === scope.id : scope.kind === 'group' ? r.group === scope.id : true);
+  const inScope = iaOutcomeScope(rows, scope);
   const sorted = inScope.map((r, i) => [r, i]).sort(([a, i], [b, j]) => (a.hasTarget !== b.hasTarget ? (a.hasTarget ? -1 : 1) : a.hasTarget ? a.gap - b.gap : 0) || i - j).map(([r]) => r);
   const groups = [...new Set(sorted.map(r => r.group))], grouped = sorted.length > 10 && groups.length > 1, NA = '<span class="ux-kpi-na">Not available yet</span>';
   const word = g => IA_GROUP_WORD[g] || g;
-  const row = (r, i) => `<tr data-site="${r.key}"${i >= 10 ? ' data-ux-over hidden' : ''}><th scope="row">${link(`site/${r.key}`, r.name)}</th><td>${word(r.group)}</td><td class="num">${r.hasTarget ? r.resultHtml : NA}</td><td class="num">${r.hasTarget ? r.gapHtml : NA}</td><td>${r.hasTarget ? r.driverHtml : NA}</td><td class="num">${num(r.waiting)}</td></tr>`;
-  const head = `<thead><tr><th>Site</th><th>Group</th><th>${cost ? 'Cost per required departure met' : 'Contribution'}</th><th>Gap to target</th><th>Largest driver against target</th><th>Waiting for a choice</th></tr></thead>`;
-  if (!grouped) return `<div class="table-wrap"><table class="ia-outcomes" id="${id}">${head}<tbody>${sorted.map(row).join('')}</tbody></table></div>${uxCapNote(sorted.length, 10, id)}`;
-  return `<div class="table-wrap"><table class="ia-outcomes ia-outcomes-grouped">${head}${groups.map(g => { const R = sorted.filter(r => r.group === g), gid = `${id}-${g}`;
+  const H = ['Site', 'Group', cost ? 'Cost per required departure met' : 'Contribution', 'Gap to target', 'Largest driver against target', 'Waiting for a choice'];
+  const row = (r, i) => `<tr data-site="${r.key}"${i >= 10 ? ' data-ux-over hidden' : ''}><th scope="row">${link(`site/${r.key}`, r.name)}</th><td data-label="${H[1]}">${word(r.group)}</td><td class="num" data-label="${H[2]}">${r.hasTarget ? r.resultHtml : NA}</td><td class="num" data-label="${H[3]}">${r.hasTarget ? r.gapHtml : NA}</td><td data-label="${H[4]}">${r.hasTarget ? r.driverHtml : NA}</td><td class="num" data-label="${H[5]}">${num(r.waiting)}</td></tr>`;
+  const head = `<thead><tr>${H.map(h => `<th>${h}</th>`).join('')}</tr></thead>`;
+  if (!grouped) return `<div class="table-wrap"><table class="ia-outcomes ux-stack" id="${id}">${head}<tbody>${sorted.map(row).join('')}</tbody></table></div>${uxCapNote(sorted.length, 10, id)}`;
+  return `<div class="table-wrap"><table class="ia-outcomes ia-outcomes-grouped ux-stack">${head}${groups.map(g => { const R = sorted.filter(r => r.group === g), gid = `${id}-${g}`;
     return `<tbody id="${gid}" data-group="${g}"><tr class="ia-out-group"><th colspan="6" scope="rowgroup">${word(g)} <span class="ux-count">${num(R.length)}</span></th></tr>${R.map(row).join('')}${R.length > 10 ? `<tr><td colspan="6">${uxCapNote(R.length, 10, gid)}</td></tr>` : ''}</tbody>`; }).join('')}</table></div>`;
 }
 /* the Outcomes headline (spec §3.3): n counts Sites with a negative gap, m Sites with a target; pure */
 function iaOutcomeHeadline(rows, cost, mo) {
   const T = rows.filter(r => r.hasTarget), n = T.filter(r => r.gap < 0).length;
+  if (!T.length) return `No Site in this scope has a target in ${mo}`;
   return n ? `${num(n)} of ${num(T.length)} Sites are ${cost ? 'over' : 'below'} target in ${mo}` : `Every Site is on or ${cost ? 'under' : 'above'} target in ${mo}`;
 }
 /* one Outcomes row per Site of the operator, each figure through the Site page's own call */
@@ -5992,16 +6011,16 @@ function iaOutcomeRows(op) {
       waiting: iaDecIds(op, sk).filter(iaWaiting).length }; });
 }
 function shapeHubOverview(ctx) {
-  const P = uxOverviewParts(ctx.op);
+  const P = uxOverviewParts(ctx.op, true);
   return shapeHub(ctx, { cls: 'ux-overview', l1: `${P.headline}\n ${P.tiles}`, l2: P.queue('', ''), l3: `${P.bridge}\n ${P.cats}` });
 }
 function shapeHubOutcomes(ctx) {
-  const op = ctx.op, cost = OPS[op].kind === 'cost', rows = iaOutcomeRows(op).filter(r => ctx.scope.kind === 'site' ? r.key === ctx.scope.id : ctx.scope.kind === 'group' ? r.group === ctx.scope.id : true);
+  const op = ctx.op, cost = OPS[op].kind === 'cost', rows = iaOutcomeScope(iaOutcomeRows(op), ctx.scope);
   return shapeHub(ctx, { l1: `<p class="headline ux-headline">${iaOutcomeHeadline(rows, cost, iaMonth())}</p>`, l2: iaOutcomeTable(rows, { scope: ctx.scope, cost }), l3: uxInsight(op) });
 }
 function shapeHubDemand(ctx) { return shapeHub(ctx, { l1: uxChain(ctx.op), l3: opportunityScreen() }); }
 function shapeHubSite(ctx) {
-  const sk = ctx.site, X = uxSiteParts(sk, siteOverviewP(sk), 3);
+  const sk = ctx.site, X = uxSiteParts(sk, siteOverviewP(sk), 3, true);
   return shapeHub(ctx, { sticky: X.sticky, l1: `${X.lead}${X.tiles}`, l2: X.queue, l3: `${X.secs}${X.help}`, drawers: X.drawers });
 }
 

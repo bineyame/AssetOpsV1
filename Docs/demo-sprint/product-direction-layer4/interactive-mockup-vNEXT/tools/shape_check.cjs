@@ -18,7 +18,8 @@
    9 (IA-1b) the landing: the empty hash renders iaStart().
    Hosts (D-IA.29): a planted run visits only its plant's host: the hosted plants run items 1, 3, 4 and 6 on the host and the crawl to
    depth 0; the Lab plants item 5; notfound the typed probe; aliaskey item 7; crossop item 8; landing item 9.
-   Run: node tools/shape_check.cjs   Plants: SHAPE_PLANT=unlink|stub|rail|palette|primary|lab|tabstop|notfound|noact|lablegacy|
+   10 (IA-1b, D-IA.35 L4) a scope never empties by address: another vertical's group:<g> and another operator's site:<k> render all the operator's Sites on Outcomes.
+   Run: node tools/shape_check.cjs   Plants: SHAPE_PLANT=foreignscope|unlink|stub|rail|palette|primary|lab|tabstop|notfound|noact|lablegacy|
    selflink|aliaskey|crossop|linkprimary|landing (each must fail). */
 const { boot, classifier, identity, liveRoutes, hrefsOf, OPS } = require('./ia_crawl.cjs');
 const PLANT = process.env.SHAPE_PLANT || '';
@@ -39,10 +40,11 @@ const PLANTS = {
   aliaskey: `IA_ALIASES['portfolio/outcomes'] = 'portfolio';`,
   crossop: `iaSiteOk = k => !!SK[k]; iaDecOk = id => DEC.some(d => d.id === id);`,
   linkprimary: `{ ${atLevel('iaStart()', ['L2', '<a class="button primary" href="#/portfolio/outcomes">A</a><a class="button primary" href="#/plan">B</a>'])} }`,
-  landing: `iaLanding = () => null;`
+  landing: `iaLanding = () => null;`,
+  foreignscope: `iaCtx = eval('(' + iaCtx.toString().replace("kind === 'group' ? sites.some(k => iaVertical(k) === id)", "kind === 'group' ? true") + ')');`
 };
 const HOSTED = ['unlink', 'stub', 'rail', 'palette', 'primary', 'tabstop', 'noact', 'selflink', 'linkprimary'];
-const ITEM = { lab: 5, lablegacy: 5, notfound: 'probe', aliaskey: 7, crossop: 8, landing: 9 };
+const ITEM = { lab: 5, lablegacy: 5, notfound: 'probe', aliaskey: 7, crossop: 8, landing: 9, foreignscope: 10 };
 if (PLANT && !PLANTS[PLANT]) { console.error(`shape_check: unknown plant ${PLANT}`); process.exit(2); }
 const all = !PLANT, runs = n => all || ITEM[PLANT] === n;
 const actOf = e => e.dataset.act || e.dataset.uxAct || (e.dataset.uxDrawer ? `drawer:${e.dataset.uxDrawer}` : '') || (e.getAttribute('href') ? `href:${e.getAttribute('href')}` : '');
@@ -134,6 +136,12 @@ function onPage(B, r, bad, cls, state) {
     }
     /* 9 the landing */
     if (runs(9)) { await go(''); const id = w.eval('currentScreen().id'); if (id !== start || !doc.getElementById('ia-root')) bad(`landing: the empty hash renders ${id}${doc.getElementById('ia-root') ? '' : ' (the legacy screen, outside the frame)'}, not ${start} in the frame`); }
+    /* 10 a scope never empties by address */
+    if (runs(10)) {
+      const X = w.eval(`(() => { const mine = OPS[${JSON.stringify(op)}].sites, have = new Set(mine.map(iaVertical)), g = ['mini', 'cold', 'ev'].find(x => !have.has(x)), s = Object.keys(SK).find(k => !mine.includes(k)); return { n: mine.length, scopes: ['group:' + g, 'site:' + s] }; })()`);
+      for (const sc of X.scopes) { await go(`portfolio/outcomes?scope=${sc}`); const n = doc.querySelectorAll('.ia-outcomes tr[data-site]').length; if (n !== X.n) bad(`foreign scope: #/portfolio/outcomes?scope=${sc} renders ${n} rows, expected ${X.n}`); }
+      log.push(`${B.opName} · foreign scopes: ${X.scopes.join(', ')} render all ${X.n} Sites`);
+    }
     if (B.errors.length) bad(`script errors: ${B.errors.slice(0, 2).join(' | ')}`);
     B.dom.window.close();
   }

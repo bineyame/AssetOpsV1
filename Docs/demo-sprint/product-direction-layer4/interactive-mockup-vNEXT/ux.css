@@ -281,7 +281,7 @@ table.opts tbody tr.rec,table.opts tbody tr.rec>th,table.opts tbody tr.rec>td{ba
 }
 .ux-kpi-na{font-size:var(--fs-lg);font-weight:500;color:var(--text-2)}
 
-/* decision options: five columns, detail in a drawer; stacked cards on phone (finding 2) */
+/* decision options: five columns, detail in a drawer; stacked cards on phone (finding 2). D-IA.35 L5: the stacking is the class ux-stack (options and Outcomes tables) */
 table.ux-opts td,table.ux-opts th{min-width:0}
 table.ux-opts tbody th{min-width:200px}
 .ux-lim{display:inline-block;font-size:var(--fs-sm);font-weight:600;white-space:nowrap;margin-right:6px}
@@ -292,13 +292,14 @@ table.ux-opts tbody th{min-width:200px}
 .ux-optd dd{margin:0;font-size:var(--fs-md)}
 .ux-optd .obl{display:flex;gap:6px;align-items:flex-start;margin-bottom:var(--s2)}
 @media (max-width:760px){
-  table.ux-opts thead{display:none}
-  table.ux-opts,table.ux-opts tbody,table.ux-opts tr,table.ux-opts tbody th,table.ux-opts td{display:block;width:auto}
-  table.ux-opts tr{border:1px solid var(--line);border-radius:var(--r2);padding:var(--s3);margin-bottom:var(--s3);background:var(--surface)}
-  table.ux-opts tbody th{min-width:0;padding:0 0 var(--s2);border:0}
-  table.ux-opts td{display:grid;grid-template-columns:110px minmax(0,1fr);gap:var(--s2);padding:4px 0;border:0}
-  table.ux-opts td::before{content:attr(data-label);font-size:var(--fs-xs);color:var(--text-2)}
-  .ux-opts-wrap,.scroll-region:has(table.ux-opts){overflow:visible}
+  table.ux-stack thead{display:none}
+  table.ux-stack,table.ux-stack tbody,table.ux-stack tr,table.ux-stack tbody th,table.ux-stack td{display:block;width:auto}
+  table.ux-stack tr{border:1px solid var(--line);border-radius:var(--r2);padding:var(--s3);margin-bottom:var(--s3);background:var(--surface)}
+  table.ux-stack tbody th{min-width:0;padding:0 0 var(--s2);border:0}
+  table.ux-stack td{display:grid;grid-template-columns:110px minmax(0,1fr);gap:var(--s2);padding:4px 0;border:0}
+  table.ux-stack td::before{content:attr(data-label);font-size:var(--fs-xs);color:var(--text-2)}
+  table.ux-stack tr[hidden]{display:none}
+  .table-wrap:has(>table.ux-stack),.ux-opts-wrap,.scroll-region:has(table.ux-stack){overflow:visible}
 }
 .ux-chosen{gap:var(--s3)}
 .ux-chosen>span:not(.status-pill){font-size:var(--fs-md)}
@@ -337,7 +338,7 @@ details.ux-item[open]>summary .ux-disc-cue{transform:rotate(225deg)}
 /* ---- fix round 2 ---- */
 /* H1: a phone option card has two columns, label and value; the cell content is one wrapper in the value column */
 .ux-cell{min-width:0}
-@media (max-width:760px){table.ux-opts td>.ux-cell{grid-column:2}}
+@media (max-width:760px){table.ux-stack td>.ux-cell{grid-column:2}}
 /* H2: the recalculation notice on its own full-width row under the header */
 .ux-pending{margin:0 0 var(--s3)}
 .ux-pending .snap-pending{display:block}

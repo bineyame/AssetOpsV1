@@ -94,24 +94,38 @@ function iaLargestAdverse(sk) {
   let best = null; uxSiteDriversShown(sk).forEach(r => { if (!r.s.st.residual && r.vr < 0 && (!best || r.vr < best.vr)) best = r; });
   return best;
 }
+/* D-IA.34: a capped queue keeps every decision waiting for a choice, then says what it leaves out. ids in reviewed order; pure */
+function iaQueueCap(ids, cap) {
+  if (cap === Infinity || ids.length <= cap) return { shown: ids.slice(), hidden: [] };
+  const rank = [...ids.filter(iaWaiting), ...ids.filter(id => !iaWaiting(id))], keep = new Set(rank.slice(0, cap));
+  return { shown: ids.filter(id => keep.has(id)), hidden: ids.filter(id => !keep.has(id)) };
+}
+function iaCapMore(hidden) {
+  if (!hidden.length) return '';
+  const inbox = IA_LANDED.has('IA-1c') && hidden.some(iaWaiting) ? ' ' + uxOpener('ia-inbox', 'Open Waiting for you', 'ux-link') : '';
+  return `<p class="ux-cap-more" data-ia-more="${hidden.length}">And ${num(hidden.length)} more: ${uxStateSplit(hidden)}.${inbox}</p>`;
+}
 const iaMonth = () => MONTHS[+String(MANIFEST.accounting_period).split('-')[1] - 1];
 /* the Outcomes table (D-IA.27): pure. rows { key, name, group, hasTarget, resultHtml, gapHtml, gap, driverHtml, waiting }. One row
    per Site in scope, gap ascending (most adverse first), ties in the given order, Sites without a target last; capped at 10 the way
    the Site board caps; grouped (one tbody per group, its word and count) only above 10 Sites in more than one group. */
+function iaOutcomeScope(rows, scope) { return rows.filter(r => scope.kind === 'site' ? r.key === scope.id : scope.kind === 'group' ? r.group === scope.id : true); }
 function iaOutcomeTable(rows, { scope = { kind: 'all' }, cost = false, id = 'ia-outcomes' } = {}) {
-  const inScope = rows.filter(r => scope.kind === 'site' ? r.key === scope.id : scope.kind === 'group' ? r.group === scope.id : true);
+  const inScope = iaOutcomeScope(rows, scope);
   const sorted = inScope.map((r, i) => [r, i]).sort(([a, i], [b, j]) => (a.hasTarget !== b.hasTarget ? (a.hasTarget ? -1 : 1) : a.hasTarget ? a.gap - b.gap : 0) || i - j).map(([r]) => r);
   const groups = [...new Set(sorted.map(r => r.group))], grouped = sorted.length > 10 && groups.length > 1, NA = '<span class="ux-kpi-na">Not available yet</span>';
   const word = g => IA_GROUP_WORD[g] || g;
-  const row = (r, i) => `<tr data-site="${r.key}"${i >= 10 ? ' data-ux-over hidden' : ''}><th scope="row">${link(`site/${r.key}`, r.name)}</th><td>${word(r.group)}</td><td class="num">${r.hasTarget ? r.resultHtml : NA}</td><td class="num">${r.hasTarget ? r.gapHtml : NA}</td><td>${r.hasTarget ? r.driverHtml : NA}</td><td class="num">${num(r.waiting)}</td></tr>`;
-  const head = `<thead><tr><th>Site</th><th>Group</th><th>${cost ? 'Cost per required departure met' : 'Contribution'}</th><th>Gap to target</th><th>Largest driver against target</th><th>Waiting for a choice</th></tr></thead>`;
-  if (!grouped) return `<div class="table-wrap"><table class="ia-outcomes" id="${id}">${head}<tbody>${sorted.map(row).join('')}</tbody></table></div>${uxCapNote(sorted.length, 10, id)}`;
-  return `<div class="table-wrap"><table class="ia-outcomes ia-outcomes-grouped">${head}${groups.map(g => { const R = sorted.filter(r => r.group === g), gid = `${id}-${g}`;
+  const H = ['Site', 'Group', cost ? 'Cost per required departure met' : 'Contribution', 'Gap to target', 'Largest driver against target', 'Waiting for a choice'];
+  const row = (r, i) => `<tr data-site="${r.key}"${i >= 10 ? ' data-ux-over hidden' : ''}><th scope="row">${link(`site/${r.key}`, r.name)}</th><td data-label="${H[1]}">${word(r.group)}</td><td class="num" data-label="${H[2]}">${r.hasTarget ? r.resultHtml : NA}</td><td class="num" data-label="${H[3]}">${r.hasTarget ? r.gapHtml : NA}</td><td data-label="${H[4]}">${r.hasTarget ? r.driverHtml : NA}</td><td class="num" data-label="${H[5]}">${num(r.waiting)}</td></tr>`;
+  const head = `<thead><tr>${H.map(h => `<th>${h}</th>`).join('')}</tr></thead>`;
+  if (!grouped) return `<div class="table-wrap"><table class="ia-outcomes ux-stack" id="${id}">${head}<tbody>${sorted.map(row).join('')}</tbody></table></div>${uxCapNote(sorted.length, 10, id)}`;
+  return `<div class="table-wrap"><table class="ia-outcomes ia-outcomes-grouped ux-stack">${head}${groups.map(g => { const R = sorted.filter(r => r.group === g), gid = `${id}-${g}`;
     return `<tbody id="${gid}" data-group="${g}"><tr class="ia-out-group"><th colspan="6" scope="rowgroup">${word(g)} <span class="ux-count">${num(R.length)}</span></th></tr>${R.map(row).join('')}${R.length > 10 ? `<tr><td colspan="6">${uxCapNote(R.length, 10, gid)}</td></tr>` : ''}</tbody>`; }).join('')}</table></div>`;
 }
 /* the Outcomes headline (spec §3.3): n counts Sites with a negative gap, m Sites with a target; pure */
 function iaOutcomeHeadline(rows, cost, mo) {
   const T = rows.filter(r => r.hasTarget), n = T.filter(r => r.gap < 0).length;
+  if (!T.length) return `No Site in this scope has a target in ${mo}`;
   return n ? `${num(n)} of ${num(T.length)} Sites are ${cost ? 'over' : 'below'} target in ${mo}` : `Every Site is on or ${cost ? 'under' : 'above'} target in ${mo}`;
 }
 /* one Outcomes row per Site of the operator, each figure through the Site page's own call */
@@ -126,15 +140,15 @@ function iaOutcomeRows(op) {
       waiting: iaDecIds(op, sk).filter(iaWaiting).length }; });
 }
 function shapeHubOverview(ctx) {
-  const P = uxOverviewParts(ctx.op);
+  const P = uxOverviewParts(ctx.op, true);
   return shapeHub(ctx, { cls: 'ux-overview', l1: `${P.headline}\n ${P.tiles}`, l2: P.queue('', ''), l3: `${P.bridge}\n ${P.cats}` });
 }
 function shapeHubOutcomes(ctx) {
-  const op = ctx.op, cost = OPS[op].kind === 'cost', rows = iaOutcomeRows(op).filter(r => ctx.scope.kind === 'site' ? r.key === ctx.scope.id : ctx.scope.kind === 'group' ? r.group === ctx.scope.id : true);
+  const op = ctx.op, cost = OPS[op].kind === 'cost', rows = iaOutcomeScope(iaOutcomeRows(op), ctx.scope);
   return shapeHub(ctx, { l1: `<p class="headline ux-headline">${iaOutcomeHeadline(rows, cost, iaMonth())}</p>`, l2: iaOutcomeTable(rows, { scope: ctx.scope, cost }), l3: uxInsight(op) });
 }
 function shapeHubDemand(ctx) { return shapeHub(ctx, { l1: uxChain(ctx.op), l3: opportunityScreen() }); }
 function shapeHubSite(ctx) {
-  const sk = ctx.site, X = uxSiteParts(sk, siteOverviewP(sk), 3);
+  const sk = ctx.site, X = uxSiteParts(sk, siteOverviewP(sk), 3, true);
   return shapeHub(ctx, { sticky: X.sticky, l1: `${X.lead}${X.tiles}`, l2: X.queue, l3: `${X.secs}${X.help}`, drawers: X.drawers });
 }
