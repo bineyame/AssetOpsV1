@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-BW1.1 to D-T2.1)
+# Decision index: Demo-sprint and later rulings (index only) (D-BW1.1 to D-T2.2)
 
 One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it. Top index: `INDEX.md`.
 
@@ -48,3 +48,4 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-DS1B.7` ESTIMATED October lines are never written as records · live · specs/DS1b-canonical-writers/rulings.md
 - `D-DS1B.8` One canonical record per Site, month and field · live · specs/DS1b-canonical-writers/rulings.md
 - `D-T2.1` Neutral package tests as a check-all guard; select-tests names them · live · specs/T2-neutral-package-tests/rulings.md
+- `D-T2.2` The neutral-tests guard sets PYTHONPATH so child processes import the tree · live · specs/T2-neutral-package-tests/rulings.md
