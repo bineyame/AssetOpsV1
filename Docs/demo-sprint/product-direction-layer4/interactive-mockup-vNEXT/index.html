@@ -1055,7 +1055,9 @@ table.ux-opts tbody th{min-width:200px}
 .ux-planband .heroes.ux-kpis{margin-bottom:var(--s3)}
 .ux-planact{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3)}
 .ux-note{font-size:var(--fs-sm);color:var(--text-2)}
-.ux-itemh,.ux-itemrow{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(130px,1.1fr) 64px 72px 44px minmax(130px,1.2fr) 84px 16px;gap:var(--s3);align-items:center}
+/* review r4 H1: the row switches on the list's own width (a container), not the screen's: beside the 380 px approval panel the list is narrow on a wide screen */
+.ux-items{container:uxitems/inline-size}
+.ux-itemh,.ux-itemrow{display:grid;grid-template-columns:minmax(200px,2.2fr) minmax(120px,1.1fr) 64px 72px 52px minmax(130px,1.2fr) 84px 16px;gap:var(--s3);align-items:center}
 .ux-itemh{padding:0 var(--s3) var(--s2);font-size:var(--fs-xs);font-weight:500;color:var(--text-2);border-bottom:1px solid var(--line)}
 details.ux-item{border-bottom:1px solid var(--line)}
 details.ux-item>summary{list-style:none;cursor:pointer;padding:var(--s3)}
@@ -1071,12 +1073,13 @@ details.ux-item[open]>summary .ux-disc-cue{transform:rotate(225deg)}
 .ux-state{display:inline-block;padding:0 8px;border:1px solid var(--line-strong);border-radius:999px;font-size:var(--fs-xs);font-weight:500;line-height:20px}
 .ux-item-body{padding:0 var(--s3) var(--s4)}
 .ux-item-body>.plan-item{border:0;box-shadow:none;margin:0}
-@media (max-width:760px){
+@container uxitems (max-width:879px){
   .ux-itemh{display:none}
   .ux-itemrow{grid-template-columns:minmax(0,1fr) minmax(0,1fr);position:relative}details.ux-item>summary.ux-itemrow{padding-right:calc(var(--s3) + 24px)}
   .ux-it-main{grid-column:1/3}.ux-itemrow .ux-disc-cue{position:absolute;right:var(--s3);top:calc(var(--s3) + 4px)} /* the cue sits outside the grid so no cell lands in its 16px column */
   .ux-it-c::before{content:attr(data-k) ": ";color:var(--text-2);font-size:var(--fs-xs)}
 }
+@container uxitems (min-width:560px) and (max-width:879px){.ux-itemrow{grid-template-columns:repeat(3,minmax(0,1fr))}.ux-it-main{grid-column:1/4}}
 
 /* ---- fix round 2 ---- */
 /* H1: a phone option card has two columns, label and value; the cell content is one wrapper in the value column */
@@ -1104,8 +1107,8 @@ details.ux-item[open]>summary .ux-disc-cue{transform:rotate(225deg)}
   .heroes.ux-kpis{gap:var(--s3)}
   .ux-kpi{gap:2px}
 
-  .ux-kpi-s+.ux-kpi-s{display:none}
-  .ux-overview .ux-queue-panel .panel-head p{display:none}
+  .ux-kpi-s+.ux-kpi-s:not(.has-trend){display:none} /* a trend is shortened, never hidden (review r4 L6) */
+  .ux-kpi-s.has-trend{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 }
 /* low: the decider's name never truncates */
@@ -1113,10 +1116,10 @@ details.ux-item[open]>summary .ux-disc-cue{transform:rotate(225deg)}
 .ux-q-who .who>span{white-space:nowrap}
 @media (min-width:1024px) and (max-height:820px){
   .canvas .breadcrumbs{display:none}
-  .page-heading>div>p:not(.ux-scope){display:none} /* the operator and period are in the top bar */
+  .page-heading>div>p:not(.ux-scope){white-space:nowrap;overflow:hidden;text-overflow:ellipsis} /* one line, shortened, not hidden */
   .ux-main-aside{grid-template-columns:minmax(0,1fr)} /* the queue first, full width; the plan card follows */
 
-  .ux-site-tiles .ux-kpi-s{display:none}
+  .ux-site-tiles .ux-kpi-s:not(.has-trend){display:none}
 }
 @media (min-width:1024px) and (max-height:820px){
   .canvas{padding-top:var(--s3)}
@@ -1461,6 +1464,21 @@ html.ux-has-sticky{scroll-padding-top:64px}
 .ux-it-basis{display:block;font-weight:400;font-size:var(--fs-xs);color:var(--text-2)}
 .ux-toast{display:flex;align-items:center;gap:var(--s3)}
 .ux-reason{width:100%;font:inherit;padding:var(--s2);border:1px solid var(--line-strong);border-radius:var(--r1);background:var(--surface);color:var(--text)}
+/* review r4: a required answer disables the primary until it is given (M3); the toast sits above the phone bar (L1); the plan bar on a
+   phone is three rows, so its state pill wraps to its own row instead of truncating (L5) */
+.button:disabled{opacity:.5;cursor:not-allowed}
+.ux-confirm select.ux-reason{width:100%}
+@media (max-width:600px){
+  html.ux-has-sticky .ux-toast{bottom:136px;max-width:calc(100vw - 24px)}
+  html.ux-has-sticky{scroll-padding-bottom:128px}html.ux-has-sticky body{padding-bottom:128px}
+  .ux-dsticky.is-on[aria-label="This plan"]{grid-template-columns:minmax(0,1fr) auto auto}
+  .ux-dsticky[aria-label="This plan"] .ux-dsticky-t{grid-column:1/-1;grid-row:1}
+  .ux-dsticky[aria-label="This plan"] .ux-dsticky-n{grid-column:1;grid-row:2}
+  .ux-dsticky[aria-label="This plan"] .button.primary{grid-column:2;grid-row:2}
+  .ux-dsticky[aria-label="This plan"] .button:not(.primary){grid-column:3;grid-row:2}
+  .ux-dsticky[aria-label="This plan"] .ux-note{grid-column:2/-1;grid-row:2}
+  .ux-dsticky[aria-label="This plan"] .status-pill{grid-column:1/-1;grid-row:3;justify-self:start;white-space:normal}
+}
 
 /* brand.css: brand packs (UI/UX guide §4.7). A pack changes only brand tokens: surfaces' warmth, the interactive accent, the
    rail, the brand mark and the motif accents (a header band, the brand mark, empty and loading states). It never changes
@@ -4216,6 +4234,14 @@ const WF=op=>M.demo_workflow.tenants.find(t=>t.tenant===TKEY[op]);
 const PSTATE=()=>M.demo_workflow.plan_state;
 const ROLE_WORD={OPERATOR_EXECUTIVE:'Operator executive',FINANCE_AND_COMMERCIAL_LEAD:'Finance and commercial lead',SITE_MANAGER:'Site manager',FIELD_TECHNICIAN:'Field technician',ANALYST:'Analyst'};
 const STATE_WORD={DRAFT:'Draft',PROPOSED:'Proposed',APPROVED:'Approved',REVISED:'Revised',CLOSED:'Closed'};
+/* one source for what the plan state shown does to items, Actions and decisions (review r4 M1, M6): approving releases every item the
+   approved version holds; sending it back returns the plan to Draft. Item, Action, decision and count states all read these. */
+const planApprovedIds=op=>{const S=uxPlanState(op);return S.state==='APPROVED'?(S.ids||planItemsV1(op)):[];};
+const planReleasedItem=(op,id)=>planApprovedIds(op).includes(id);
+/* the release as shown: the rule's result, unless the approval of the plan released the item (one source for pills, rows and drawers) */
+function releaseShown(op,id){const r=releaseOf(op,id);if(!r.at&&planReleasedItem(op,id)){const S=uxPlanState(op);return {...r,at:true,code:'RELEASED',reason:`Released when ${S.by||'the executive'} approved version ${num(S.version)} of the plan`};}return r;}
+const planIsDraft=op=>uxPlanState(op).state==='DRAFT';
+const planCaseIds=op=>[...planCase(op).ids,...proactiveOf(op).map(i=>i.item)]; /* the case on screen, as the plan would hold it */
 const personSite=p=>p.site?p.site.split(' · ').pop():'';
 const personOf=(op,name)=>WF(op).people.find(p=>p.name===name);
 const personByRole=(op,role,site)=>WF(op).people.find(p=>p.role===role&&(!site||personSite(p)===site));
@@ -4257,7 +4283,8 @@ function releaseOf(op,id){const w=WF(op),it=itemOf(op,id),pro=it?.kind==='PROACT
 /* the item's stated state (Chosen or Released), checked against the release rule */
 function itemStateOf(op,id){const it=itemOf(op,id);if(!it)return null;const r=releaseOf(op,id);
  if((r.at?'RELEASED':'CHOSEN')!==it.item_state)console.error(`release rule and stated item state differ for ${id}: ${r.at?'RELEASED':'CHOSEN'} vs ${it.item_state}`);
- return {code:it.item_state,word:ITEM_STATE_WORD[it.item_state]||'not available yet',r};}
+ const code=planReleasedItem(op,id)?'RELEASED':it.item_state;
+ return {code,word:ITEM_STATE_WORD[code]||'not available yet',r};}
 const statePill=st=>`<span class="status-pill ${st.code==='RELEASED'?'is-approved':'is-waiting'}">${st.word}</span>`;
 /* an item's owner and state for the item card (OD-16: the owner is the person who chose or declared it) */
 function itemOwnerLine(op,id){const it=itemOf(op,id);
@@ -4280,16 +4307,17 @@ function dueWords(iso){const n=daysUntil(iso);return n<0?`overdue by ${num(-n)} 
 function actionState(op,a,inCase){const r=releaseOf(op,a.item);
  if(r.code!==a.release)console.error(`release rule and stated release differ for ${a.item}: ${r.code} vs ${a.release}`);
  if(!inCase)return [`<span class="status-pill" data-release="RETURNED">${RELEASE_WORD.RETURNED}</span>`,'To its creator: its item is left out in this case; the creator revises it, defers it with its item to the next draft, or withdraws it'];
- return r.at?[`<span class="status-pill is-approved" data-release="RELEASED">${RELEASE_WORD.RELEASED}</span>`,r.reason]:[`<span class="status-pill is-waiting" data-release="WAITING">${RELEASE_WORD.WAITING}</span>`,r.reason];}
+ const q=releaseShown(op,a.item);
+ return q.at?[`<span class="status-pill is-approved" data-release="RELEASED">${RELEASE_WORD.RELEASED}</span>`,q.reason]:[`<span class="status-pill is-waiting" data-release="WAITING">${RELEASE_WORD.WAITING}</span>`,q.reason];}
 function actionRows(op,acts,inCase=()=>true,showItem=false){if(!acts.length)return '<p class="note">No Action created for this item yet.</p>';
  return `<ul class="action-list wide"><li class="action-list-head" aria-hidden="true"><span>Action</span><span>Owner</span><span>Due</span><span>State</span></li>${acts.map(a=>{const [pill,why]=actionState(op,a,inCase(a.item));
   return `<li><span class="what">${a.action}<small>${showItem?`${SHORT[a.item]||optLabel(a.item)} · `:''}Created by ${who(op,a.created_by)}</small></span><span class="owner">${who(op,a.owner)}</span><span class="due">${fdate(a.due)}<small>${dueWords(a.due)}</small></span><span class="state">${pill}<small>${why}</small></span></li>`;}).join('')}</ul>`;}
 /* what approving version 1 releases: every version-1 item not released at creation (items with waiting Actions, capital items
    and proactive items whose Actions are created later), with its planned spend counted once on the item */
-function waitingSummary(op){const ids=planItemsV1(op),acts=WF(op).actions.filter(a=>ids.includes(a.item)),wait=acts.filter(a=>!releaseOf(op,a.item).at),rel=acts.length-wait.length;
+function waitingSummary(op,ids=planItemsV1(op)){const acts=WF(op).actions.filter(a=>ids.includes(a.item)),wait=acts.filter(a=>!releaseOf(op,a.item).at),rel=acts.length-wait.length;
  const waitItems=ids.filter(id=>!releaseOf(op,id).at),spend=waitItems.reduce((s,id)=>s+releaseOf(op,id).spend,0);
  const capital=waitItems.filter(id=>isCapital(op,id)),capSpend=capital.reduce((s,id)=>s+releaseOf(op,id).spend,0),later=waitItems.filter(id=>!actionsOf(op,id).length);
- return {n:acts.length,rel,wait:wait.length,waitItems,spend,capital,capSpend,later};}
+ const S=uxPlanState(op);return {n:acts.length,rel,wait:wait.length,waitItems,spend,capital,capSpend,later,approved:S.state==='APPROVED',draft:S.state==='DRAFT'};}
 function planStatusBlock(op){const S=uxPlanState(op);
  return `<div class="plan-status"><span class="status-pill is-${S.state==='PROPOSED'?'proposed':S.state==='APPROVED'?'approved':'waiting'}">${STATE_WORD[S.state]}</span><span class="plan-version">Version ${num(S.version)}</span></div>
  <p class="plan-status-line">Proposed by the system on ${fdate(S.proposed)} · ${S.state==='PROPOSED'?'awaiting the operator executive’s approval':S.state==='APPROVED'?`approved by ${S.by} in this demonstration`:`sent back by ${S.by} in this demonstration`}</p><p class="plan-approver">Approver: ${who(op,execOf(op))}</p>`;}
@@ -4332,29 +4360,29 @@ function planSummary(op){const P=planCase(op),o=OPS[op],M2=o.t.portfolio_constra
  return `<section class="panel plan-summary" aria-labelledby="ps-h"><h2 id="ps-h">The plan for ${periodWords()}</h2>${planStatusBlock(op)}
  ${meter('Budget used',P.spend,budget,usd)}${crewMeters(op,P)}
  <div class="kpi"><div class="kpi-label">${PLAN_TOTAL_TITLE}</div><div class="kpi-value">${usdW(P.value??derivedPlan(op).value,true)}</div><div class="kpi-sub">Not realised: money is counted only when records show it</div></div>
- <p class="plan-actions-line">${num(W.n)} Actions: ${num(W.rel)} released when created, ${num(W.wait)} waiting for approval${W.later.length?`; ${num(W.later.length)} more item${W.later.length===1?'':'s'} (${W.later.map(id=>itemProse(op,id)).join(', ')}) create${W.later.length===1?'s':''} ${W.later.length===1?'its Action':'their Actions'} after approval`:''}</p>
+ <p class="plan-actions-line">${num(W.n)} Actions: ${W.approved?`all released (${num(W.rel)} when created, ${num(W.wait)} when the plan was approved)`:`${num(W.rel)} released when created, ${num(W.wait)} waiting for ${W.draft?'a new version of the plan':'approval'}`}${W.later.length?`; ${num(W.later.length)} more item${W.later.length===1?'':'s'} (${W.later.map(id=>itemProse(op,id)).join(', ')}) create${W.later.length===1?'s':''} ${W.later.length===1?'its Action':'their Actions'} after approval`:''}</p>
  ${btn('portfolio/act-first/plan','Open the plan',true)}
  <details class="ux-more-d"><summary>Release thresholds</summary>${thresholdsKv(op)}</details>${ILLUS}</section>`;}
 function actFirstScreen(){const op=LS.op;
- return `<div class="layout-main-side"><div>${sec(`Decisions waiting <span class="ux-count">${num(uxDecCount(ATTN[op]))}</span>`,triageList(op),'One row per decision, with the issues behind it. AssetOps values the options; your team chooses and creates the Actions.')}</div><aside class="side-panel">${planSummary(op)}</aside></div>`;}
+ return `<div class="layout-main-side"><div>${sec(`Decisions <span class="ux-count">${num(uxDecCount(ATTN[op]))}</span>`,triageList(op),`<span data-ux-split>${uxStateCount(ATTN[op].map(r=>r[4]))}</span>. One row each, with the issues behind it; your team chooses and creates the Actions.`)}</div><aside class="side-panel">${planSummary(op)}</aside></div>`;}
 
 /* ---------- The plan (drill-down from Act first): items, their Actions, approval ---------- */
 function itemActions(op,id){return laterActions(op,id)||actionRows(op,actionsOf(op,id));}
 /* a declared proactive item (design §2.5; OD-5): no issue behind it, its own spend and crew visit, a dependency and a date */
 function proactiveCard(op,it,P){const ms=crewByMonth(op,P),m=ms.find(x=>x.ym===it.crew_month),dep=it.depends_on,inCase=!dep||P.ids.includes(dep);
  return `<article class="plan-item proactive" data-item="${it.item}"><header class="plan-item-head"><div><div class="eyebrow">${SK[siteKeyOf(op,it.site)]?.name||it.site} · Declared work</div><h3>${it.label}</h3></div></header>${itemOwnerLine(op,it.item)}<dl class="plan-item-figs"><div><dt>One-off from this budget · basis</dt><dd>${usd(it.planned_spend||0)} <small class="cellnote">${it.spend_basis}</small></dd></div><div><dt>${cap(OPS[op].crewWord)}</dt><dd>${num(it.crew_visits||0)} in ${it.crew_month?monthOf(it.crew_month):'the period'}${m?` <small class="cellnote">${num(m.used)} of ${num(m.limit)} ${OPS[op].crewWord} used in ${m.month}</small>`:''}</dd></div><div><dt>Factor it moves · value</dt><dd>${cap(it.factor)} <small class="cellnote">Upkeep, no value claimed</small></dd></div>${dep?`<div><dt>Depends on</dt><dd>${itemShort(op,dep)}${inCase?'':' <small class="cellnote">not in this case</small>'} <small class="cellnote">${cap(it.depends_reason)}</small></dd></div>`:''}${it.service_date?`<div><dt>Service date</dt><dd>${fdate(it.service_date)}</dd></div>`:''}<div><dt>Effect under each heading</dt><dd><ul class="byhead"><li data-heading="protect">${lensTag('protect')} <span>Upkeep, no value claimed</span></li></ul></dd></div></dl>${itemActions(op,it.item)}</article>`;}
-function approvalPanel(op,P,budget){const S=PSTATE(),W=waitingSummary(op),def=DEFAULT_CASE(op);
+function approvalPanel(op,P,budget){const S0=PSTATE(),S=uxPlanState(op),W=waitingSummary(op,planCaseIds(op)),def=DEFAULT_CASE(op),pre=S.state==='PROPOSED';
  return `<section class="panel approval" aria-labelledby="ap-h"><h2 id="ap-h">Approval</h2>${planStatusBlock(op)}
- ${kv([['Opened',`${fdate(S.opened)}, by the system, within the executive’s limits`],['Proposed',`${fdate(S.proposed)}, by the system`]])}
+ ${kv([['Opened',`${fdate(S0.opened)}, by the system, within the executive’s limits`],['Proposed',`${fdate(S0.proposed)}, by the system`]])}
  ${meter('Budget used',P.spend,budget,usd)}${crewMeters(op,P)}
- <p class="approval-releases">Approving releases ${num(W.wait)} waiting Action${W.wait===1?'':'s'} and ${num(W.waitItems.length)} item${W.waitItems.length===1?'':'s'}, ${usd(W.spend)} of one-off spend${W.capital.length?`, including ${usd(W.capSpend)} of capital (${W.capital.map(id=>itemProse(op,id)).join(', ')})`:''}.${W.later.length?` After approval, ${W.later.map(id=>`${itemOf(op,id).owner} creates the Action for ${itemProse(op,id)}`).join('; ')}.`:''}</p>
- ${def?'':`<p class="notice">The case shown is not the proposed version. Version ${num(S.version)} was proposed for the default switches; approving a different case makes a new version.</p>`}
+ <p class="approval-releases">${S.state==='DRAFT'?'Sent back to draft: nothing is released. Each changed item returns to its creator with the reason.':`${pre?'Approving releases':'Released with the approval:'} ${num(W.wait)} waiting Action${W.wait===1?'':'s'} and ${num(W.waitItems.length)} item${W.waitItems.length===1?'':'s'}, ${usd(W.spend)} of one-off spend${W.capital.length?`, including ${usd(W.capSpend)} of capital (${W.capital.map(id=>itemProse(op,id)).join(', ')})`:''}.${W.later.length?` ${pre?'After approval':'Now'}, ${W.later.map(id=>`${itemOf(op,id)?.owner||'its owner'} ${pre?'creates':'creates'} the Action for ${itemProse(op,id)}`).join('; ')}.`:''}`}</p>
+ ${def||!pre?'':`<p class="notice">The case shown is not the proposed version. Version ${num(S0.version)} was proposed for the default switches; approving this case makes version ${num(S0.version+1)}.</p>`}
  <p class="note">Recorded under the executive’s name and the time. Sending it back returns each changed item to its creator with the reason.</p>
  <h3 class="h3s">Release thresholds</h3>${thresholdsKv(op)}${ILLUS}</section>`;}
 function planScreen(){const op=LS.op,o=OPS[op],A=o.t.portfolio.allocation,M=o.t.portfolio_constraints,P=planCase(op),budget=op==='lakeside'?LS.budget:M.budget_usd_nov_dec;
  const rows=P.ids.map(id=>{const x=OPT[id],[cv,cn]=optCost(x),[ev,en]=PLAN_EFFECT[id]?PLAN_EFFECT[id]():optEffect(x),d=DEC_SEE_ALSO[id]||decOf(id).id;
   const costc=id==='MTO-METER-AUDIT'?`${usd(OPT['MTO-METER-AUDIT'].cost)} <small class="cellnote">routine maintenance budget</small>`:`${fig(`opt:${id}:cost`,cv)} <small class="cellnote">${whoPays(x)}</small>`,effc=`${ev} <small class="cellnote">${en}</small>${ec(id==='MTO-BILLING'?'ECONOMIC_ACTUAL_FORWARD':id==='BAT-EVIDENCE'?'EXPOSURE':optClass(x))}${DV_OPT[id]?dvTag(DV_OPT[id]):''}`,cond=fx(x.condition);
-  return uxItemRow(op,id,{site:SK[x._site].name,why:WHY_FIRST[id],label:optLabel(id),cost:id==='MTO-METER-AUDIT'?usd(OPT['MTO-METER-AUDIT'].cost):cv,result:ev,basis:[en,BASIS_WORDS[optBasis(id)]].filter(Boolean).join(', '),cls:id==='MTO-BILLING'?'ECONOMIC_ACTUAL_FORWARD':id==='BAT-EVIDENCE'?'EXPOSURE':optClass(x)})+`<article class="plan-item" data-item="${id}"><header class="plan-item-head"><div><div class="eyebrow">${SK[x._site].name}${WHY_FIRST[id]?` · ${WHY_FIRST[id]}`:''}</div><h3>${optLabel(id)}</h3></div>${link(`decision/${d}`,'Decision →','plan-item-link')}</header>${itemOwnerLine(op,id)}<dl class="plan-item-figs"><div><dt>One-off cost · who pays</dt><dd>${costc}</dd></div><div><dt>${cap(o.crewWord)} or remote</dt><dd>${VISIT[id]?.[0]?.()||'—'}</dd></div><div><dt>12-month result · evidence</dt><dd>${effc}</dd></div><div><dt>Effect under each heading</dt><dd>${byHeading(id)}</dd></div>${cond?`<div><dt>Condition</dt><dd>${cond}</dd></div>`:''}</dl>${itemActions(op,id)}</article></div></details>`;}).concat(proactiveOf(op).map(it=>uxItemRow(op,it.item,{site:SK[siteKeyOf(op,it.site)]?.name||it.site,why:'Declared work',label:it.label,cost:usd(it.planned_spend||0),result:'Upkeep, no value claimed',cls:''})+proactiveCard(op,it,P)+'</div></details>'));
+  return uxItemRow(op,id,{site:SK[x._site].name,why:WHY_FIRST[id],label:optLabel(id),cost:id==='MTO-METER-AUDIT'?usd(OPT['MTO-METER-AUDIT'].cost):cv,result:ev,basis:[en,BASIS_WORDS[optBasis(id)]&&!String(en).includes(BASIS_WORDS[optBasis(id)])?BASIS_WORDS[optBasis(id)]:''].filter(Boolean).join(', '),cls:id==='MTO-BILLING'?'ECONOMIC_ACTUAL_FORWARD':id==='BAT-EVIDENCE'?'EXPOSURE':optClass(x)})+`<article class="plan-item" data-item="${id}"><header class="plan-item-head"><div><div class="eyebrow">${SK[x._site].name}${WHY_FIRST[id]?` · ${WHY_FIRST[id]}`:''}</div><h3>${optLabel(id)}</h3></div>${link(`decision/${d}`,'Decision →','plan-item-link')}</header>${itemOwnerLine(op,id)}<dl class="plan-item-figs"><div><dt>One-off cost · who pays</dt><dd>${costc}</dd></div><div><dt>${cap(o.crewWord)} or remote</dt><dd>${VISIT[id]?.[0]?.()||'—'}</dd></div><div><dt>12-month result · evidence</dt><dd>${effc}</dd></div><div><dt>Effect under each heading</dt><dd>${byHeading(id)}</dd></div>${cond?`<div><dt>Condition</dt><dd>${cond}</dd></div>`:''}</dl>${itemActions(op,id)}</article></div></details>`;}).concat(proactiveOf(op).map(it=>uxItemRow(op,it.item,{site:SK[siteKeyOf(op,it.site)]?.name||it.site,why:'Declared work',label:it.label,cost:usd(it.planned_spend||0),result:'Upkeep, no value claimed',cls:''})+proactiveCard(op,it,P)+'</div></details>'));
  const say=op==='lakeside'?`Plan re-computed: spend ${usd(P.spend)}, change within the next 12 months ${usd(P.value,true)}.`:`Plan re-computed: spend ${usd(P.spend)}.`;
  let excl=[];
  if(op==='lakeside'){excl=A.excluded.filter(x=>!['MTO-INV-BUYNOW'].includes(x.id)).map(x=>[x.id,fx(x.reason)]);if(P.lose)excl.unshift([P.lose.id,P.loseAffordable?`Under this assumption it gives ${usd(P.lose.value,true)} against ${usd(P.win.value,true)}`:`Needs ${usd(P.lose.spend)} with everything else; the budget is ${usd(budget)}`]);if(!P.huller)excl.unshift(['MTO-HULLER',cap(hullerCell(inv0(P.c)))]);}
@@ -4371,10 +4399,10 @@ function planScreen(){const op=LS.op,o=OPS[op],A=o.t.portfolio.allocation,M=o.t.
  const fieldRows=P.ids.map(id=>[VISIT[id]?.[1]==='field'?'Field work':VISIT[id]?.[1]==='contractor'?'Contractor':'Remote or office',`${SK[OPT[id]._site].name}: ${optLabel(id)}`,VISIT[id]?.[0]?.()||'—']).concat(proactiveOf(op).map(it=>['Field work',`${SK[siteKeyOf(op,it.site)]?.name||it.site}: ${it.label}`,`${num(it.crew_visits||0)} ${it.crew_visits===1?crewOne(op):o.crewWord}${it.crew_month?` in ${monthOf(it.crew_month)}`:''}${it.service_date?`, on ${fdate(it.service_date)}`:''}`])).sort((a,b)=>a[0].localeCompare(b[0]));
  const v1=planItemsV1(op),gone=WF(op).actions.filter(x=>v1.includes(x.item)&&!P.ids.includes(x.item));
  return `${uxPlanSticky(op,P,budget)}${uxPlanBand(op,P,budget)}<div class="layout-main-side"><div>
- ${sec(`The plan for ${periodWords()}: items and their Actions`,uxItemHead()+rows.join('')+total+`<details class="ux-about ux-about-inline"><summary>How the plan is chosen</summary><p>One search over all the decisions together: one option for each, within the budget, ${o.crewWord}, deadlines and dependencies. An option that breaks a hard limit is left out unless no option can keep it. The plan breaks the limits least, then is worth most, then spends least. Each item lists the Actions people created for it.</p></details>`+ILLUS,`One option per decision, within the budget, ${o.crewWord}, deadlines and dependencies.`)}
+ ${sec(`The plan for ${periodWords()}: items and their Actions`,`<div class="ux-items">${uxItemHead()}${rows.join('')}</div>`+total+`<details class="ux-about ux-about-inline"><summary>How the plan is chosen</summary><p>One search over all the decisions together: one option for each, within the budget, ${o.crewWord}, deadlines and dependencies. An option that breaks a hard limit is left out unless no option can keep it. The plan breaks the limits least, then is worth most, then spends least. Each item lists the Actions people created for it.</p></details>`+ILLUS,`One option per decision, within the budget, ${o.crewWord}, deadlines and dependencies.`)}
  ${uxPlanDiff(op,P)}
  ${paths}
- <div class="grid2">${uxSecAx('Crew visits and remote changes',region('Crew visits and remote changes',table(['Kind','Work','Who'],fieldRows)),`${num(fieldRows.filter(r=>r[0]==='Field work').length)} field visits, ${num(fieldRows.filter(r=>r[0]!=='Field work').length)} remote, office or contractor`)}${uxSecAx('Listed beside the plan, not added',region('Listed beside the plan',table(['Item','Amount','Evidence','Why it is not added'],listed.map(([a,b,c,d])=>[a,b,ec(c),d]))),`${num(listed.length)} values, never added`)}</div>
+ <div class="grid2">${uxSecAx(`${cap(o.crewWord)} and remote changes`,region(`${cap(o.crewWord)} and remote changes`,table(['Kind','Work','Who'],fieldRows)),`${num(fieldRows.filter(r=>r[0]==='Field work').length)} field visits, ${num(fieldRows.filter(r=>r[0]!=='Field work').length)} remote, office or contractor`)}${uxSecAx('Listed beside the plan, not added',region('Listed beside the plan',table(['Item','Amount','Evidence','Why it is not added'],listed.map(([a,b,c,d])=>[a,b,ec(c),d]))),`${num(listed.length)} values, never added`)}</div>
  ${uxSecAx('Left out of the plan, and why',region('Options left out',table(['Option','Site','Reason'],excl.map(([id,r])=>[link(`decision/${DEC_SEE_ALSO[id]||decOf(id).id}`,optLabel(id)),SK[OPT[id]._site].name,r]))),`${num(excl.length)} options, each with its reason`)}
  ${op==='lakeside'?uxSecAx('All four cases of the two assumptions',region('Four cases',table(['Budget','Letter extended','Inverter path','Rice huller','Spend',PLAN_TOTAL_TITLE],Object.entries(DERIVED.plans['lakeside-power'].switch_cases).map(([k,c])=>{const [b,l]=k.split('/');return [usd(+b),l==='True'?'Yes':'No',optLabel(inv0(c)),c.items.includes('MTO-HULLER')?'Kept':'Lost',usd(c.spend),usd(c.value,true)];}))),'More budget never lowers the result; whether the letter is extended is what changes the path.'):''}
  ${gone.length?sec('Actions that return to their creator in this case',actionRows(op,gone,()=>false,true),'Their item is in the proposed version but left out under these switches.'):''}
@@ -4446,19 +4474,20 @@ const COMMIT=new Proxy({},{get:(_,op)=>COMMIT_OF(op)});
    plan item, beside the plan. The stated note (COMMIT) is kept only as the field detail after the derived state. */
 function commitState(op,d,note){const dec=decById(d),id=dec?dec.opts.find(x=>itemOf(op,x)):null,it=id?itemOf(op,id):null,A=id?actionsOf(op,id):[],ex=execOf(op);
  if(!it)return `<span class="status-pill" data-commit-state="BESIDE">Beside the plan</span><small class="cellnote">No plan item: no spend or ${crewOne(op)} counted in the plan. ${note}</small>`;
+ if(it.capital&&!A.length&&planReleasedItem(op,id))return `<span class="status-pill is-approved" data-commit-state="RELEASED">Released</span><small class="cellnote">Approved as capital with the plan; ${it.owner} now creates its Action</small>`;
  if(it.capital&&!A.length)return `<span class="status-pill is-waiting" data-commit-state="CAPITAL">Waiting for the executive’s capital approval</span><small class="cellnote">${ex?ex.name+' approves it as capital. ':''}No Action yet: ${it.owner} creates it after that approval</small>`;
- const rel=A.length&&A.every(a=>releaseOf(op,a.item).at);
+ const rel=A.length&&A.every(a=>releaseOf(op,a.item).at)||planReleasedItem(op,id);
  return rel?`<span class="status-pill is-approved" data-commit-state="RELEASED">Released</span><small class="cellnote">${note}</small>`:`<span class="status-pill is-waiting" data-commit-state="WAITING">Waiting for approval</span><small class="cellnote">${A.length?`${num(A.length)} Action${A.length===1?'':'s'} waiting for the plan’s approval`:'No Action yet'}</small>`;}
 function whatChangedScreen(){const op=LS.op;
  const rows=COMMIT[op].map(([d,what,pred,state])=>[link(`decision/${d}`,what),pred+ec('MODELLED'),commitState(op,d,state),badge('Not yet','amber'),badge('Not yet','amber'),badge('Not yet','amber')]);
  const rt=RIGHTS_OF_OP[op].map(k=>{const r=rightsOf(k),cur=STAGE_IX[r.state];return [link(`decision/${r.dec}`,r.asset),r.type,`<span class="ministeps" aria-label="Stage ${cur+1} of 8: ${cur>=0?STAGES[cur]:'no claim stage'}">${STAGES.map((st,i)=>`<i class="${i<=cur?'on':''}" title="${st}"></i>`).join('')}</span><small class="cellnote">${cur>=0?STAGES[cur]:'No claim possible'}${r.stopped?' · '+r.stopped:''}</small>`,r.deadline?`${fdate(r.deadline)} <small class="cellnote">${daysUntil(r.deadline)} days</small>`:'—',r.cost,'None'];});
- const S=PSTATE(),v1=planItemsV1(op),acts=WF(op).actions;
+ const S=uxPlanState(op),v1=planItemsV1(op),acts=WF(op).actions;
  const review=v1.map(id=>{const it=itemOf(op,id),A=actionsOf(op,id),st=itemStateOf(op,id);
   const site=isProactive(op,id)?(SK[siteKeyOf(op,it.site)]?.name||it.site):SK[OPT[id]._site].name;
   const pred=isProactive(op,id)?`${cap(it.factor)} <small class="cellnote">Upkeep, no value claimed</small>`:(()=>{const [ev,en]=PLAN_EFFECT[id]?PLAN_EFFECT[id]():optEffect(OPT[id]);return `${ev} <small class="cellnote">${en}</small>`;})();
   const acts=A.length?A.map(a=>who(op,a.owner)).filter((v,i,l)=>l.indexOf(v)===i).join('<br>'):it?.capital?`None yet <small class="cellnote">${it.owner} creates it after approval, as capital</small>`:isProactive(op,id)?`None yet <small class="cellnote">${cap(it.action_note)}</small>`:'None yet';
   return [`<b>${itemName(op,id)}</b><small class="cellnote">${site}</small>`,pred,it?who(op,it.owner):'not available yet',st?statePill(st):'not available yet',acts,'Not yet',badge('Not yet','amber')];});
- return `<div class="kpi-row"><div class="kpi"><div class="kpi-label">The plan</div><div class="kpi-value">Version ${num(S.version)}</div><div class="kpi-sub">${STATE_WORD[S.state]}, awaiting the operator executive’s approval</div></div><div class="kpi"><div class="kpi-label">Actions</div><div class="kpi-value">${num(acts.length)}</div><div class="kpi-sub">${num(waitingSummary(op).rel)} released, ${num(waitingSummary(op).wait)} waiting for approval${waitingSummary(op).later.length?`; ${num(waitingSummary(op).later.length)} item${waitingSummary(op).later.length===1?'':'s'} create${waitingSummary(op).later.length===1?'s':''} ${waitingSummary(op).later.length===1?'its Action':'theirs'} after approval`:''}</div></div><div class="kpi"><div class="kpi-label">Overdue</div><div class="kpi-value">${num(acts.filter(a=>daysUntil(a.due)<0).length)}</div><div class="kpi-sub">as of ${fdate(AS_OF)}</div></div><div class="kpi"><div class="kpi-label">Plan review</div><div class="kpi-value">${fdate(periodEnd())}</div><div class="kpi-sub">when the period ends</div></div></div>
+ return `<div class="kpi-row"><div class="kpi"><div class="kpi-label">The plan</div><div class="kpi-value">Version ${num(S.version)}</div><div class="kpi-sub">${STATE_WORD[S.state]}${S.state==='PROPOSED'?', awaiting the operator executive’s approval':S.by?` by ${S.by} in this demonstration`:''}</div></div><div class="kpi"><div class="kpi-label">Actions</div><div class="kpi-value">${num(acts.length)}</div><div class="kpi-sub">${waitingSummary(op).approved?`${num(acts.length)} released`:`${num(waitingSummary(op).rel)} released, ${num(waitingSummary(op).wait)} waiting for ${waitingSummary(op).draft?'a new version of the plan':'approval'}`}${waitingSummary(op).later.length?`; ${num(waitingSummary(op).later.length)} item${waitingSummary(op).later.length===1?'':'s'} ${waitingSummary(op).approved?'now create':'create'}${waitingSummary(op).later.length===1&&!waitingSummary(op).approved?'s':''} ${waitingSummary(op).later.length===1?'its Action':'theirs'}${waitingSummary(op).approved?'':' after approval'}`:''}</div></div><div class="kpi"><div class="kpi-label">Overdue</div><div class="kpi-value">${num(acts.filter(a=>daysUntil(a.due)<0).length)}</div><div class="kpi-sub">as of ${fdate(AS_OF)}</div></div><div class="kpi"><div class="kpi-label">Plan review</div><div class="kpi-value">${fdate(periodEnd())}</div><div class="kpi-sub">when the period ends</div></div></div>
  ${sec('Actions and their owners',actionRows(op,acts,()=>true,true)+ILLUS,'Every Action with who created it, who owns it, when it is due and whether it is released. Overdue is shown when a due date passes.',btn('portfolio/act-first/plan','Open the plan'))}
  ${sec('The plan’s review',region('Plan review',table(['Item','Predicted change','Item owner','Item state','Action owners','Observed change','Review'],review))+`<p class="note">At the end of the period, ${fdate(periodEnd())}, each item’s predicted factor change is set against what was observed. The plan’s realised value comes only from the money verdicts. Not run yet: the period is open.</p>`)}
  ${sec('What was chosen: its frozen prediction and three verdicts',region('Chosen options',table(['The chosen option','Frozen prediction','State','Operational verdict: factor moved, limits held','Economic verdict: money moved','Causal verdict: strength of attribution'],rows))+'<p class="note">Each chosen option is tracked from the moment it is chosen, through the Actions people create for it. Each verdict is separate. Not proven yet is a verdict, not a pass; a prediction is never relabelled as realised.</p>')}
@@ -4552,11 +4581,11 @@ function whoDecides(id){const d=decById(id),op=SK[d.site].op,D=deciderOf(id),inP
  const item=D.item||d.opts.find(x=>inPlan.includes(x)),acts=item?actionsOf(op,item):[];
  const recTxt=rec?`<b>${optLabel(rec)}</b><small>Each option ${BASIS_WORDS[decBasis(d)]?`valued ${BASIS_WORDS[decBasis(d)]}`:'compared, not valued in money'}. AssetOps recommends; your team decides and creates the Actions.</small>`:`<b>No option recommended</b><small>Each option ${BASIS_WORDS[decBasis(d)]?`valued ${BASIS_WORDS[decBasis(d)]}`:'compared, not valued in money'}; none fits the limits better than the others.</small>`; /* the comparator is the decision's basis (review r2 H1) */
  const it=D.item?itemOf(op,D.item):null;
- const chooseTxt=`${who(op,D.p)}<small>${D.item?`Chose ${optLabel(D.item)}, recorded under their name${it&&it.owner===it.chosen_by?', and so owns the item':''}.${it&&it.owner!==it.chosen_by?` Item owner: ${it.owner}.`:''}${it?` Item state: ${ITEM_STATE_WORD[it.item_state]||'state not recorded'}.`:''}`:'Chooses an option, or none, and creates the Actions. Nothing chosen yet.'}</small>`;
+ const chooseTxt=`${who(op,D.p)}<small>${D.item?`Chose ${optLabel(D.item)}, recorded under their name${it&&it.owner===it.chosen_by?', and so owns the item':''}.${it&&it.owner!==it.chosen_by?` Item owner: ${it.owner}.`:''}${it?` Item state: ${itemStateOf(op,item)?.word||'state not recorded'}.`:''}`:'Chooses an option, or none, and creates the Actions. Nothing chosen yet.'}</small>`;
  const oneBy=acts.length&&acts.every(a=>a.created_by===acts[0].created_by),actTxt=acts.length?`${oneBy?`<small class="wd-by">Created by ${who(op,acts[0].created_by)}</small>`:''}<ul class="wd-acts">${acts.map(a=>`<li>${a.action}<small>${oneBy?(a.owner===a.created_by?'Owned by the creator':`Owner ${who(op,a.owner)}`):a.owner===a.created_by?`Created by ${who(op,a.owner)}, who owns it`:`Created by ${who(op,a.created_by)} · owner ${who(op,a.owner)}`} · due ${fdate(a.due)}</small></li>`).join('')}</ul><small>Raised against this issue; counted in the plan on the item “${SHORT[item]||optLabel(item)}”.</small>`:it?.capital?`<b>None yet</b>${(it.actions_after_approval||[]).length?`<ul class="wd-acts">${it.actions_after_approval.map(a=>`<li>${a}<small>Created by ${who(op,it.owner)} after approval</small></li>`).join('')}</ul>`:''}<small>A capital item: ${it.owner} creates its Action only after ${execOf(op)?.name||'the operator executive'} approves the version that holds it.</small>`
   :`<b>None yet</b><small>${rec?uxCreatorText(op,d,rec):'Created after the choice by the roles that own them.'}</small>`; /* r3 M3: one source with the dialog */
  let relTxt;
- if(item&&inPlan.includes(item)){const r=releaseOf(op,item);relTxt=`<span class="status-pill ${r.at?'is-approved':'is-waiting'}" data-release="${r.at?'RELEASED':'WAITING'}">${RELEASE_WORD[r.at?'RELEASED':'WAITING']}</span><small>${r.reason}.</small>`;}
+ if(item&&inPlan.includes(item)){const r=releaseShown(op,item);relTxt=`<span class="status-pill ${r.at?'is-approved':'is-waiting'}" data-release="${r.at?'RELEASED':'WAITING'}">${RELEASE_WORD[r.at?'RELEASED':'WAITING']}</span><small>${r.reason}.</small>`;}
  else{const R=rec?uxReleaseFor(op,rec):null;relTxt=R?`<b>${R.path==='none'?'Not a plan item':R.path==='capital'?'Waits for the executive':R.path==='at'?'Released when created':'Waits for the plan’s approval'}</b><small data-release-text>${R.text}.</small>`:`<b>Nothing chosen yet</b><small>The release rule follows the option chosen.</small>`;} /* r3 M3: the same rule as the status line and the dialog */
  return `<section class="panel who-decides" aria-labelledby="wd-h-${id}"><h2 id="wd-h-${id}" class="vh">Who decides</h2><ol class="wd-steps">
  <li><span class="wd-k">1 · AssetOps recommends</span>${recTxt}</li><li><span class="wd-k">2 · Who chooses</span>${chooseTxt}</li><li><span class="wd-k">3 · Actions created</span>${actTxt}</li><li><span class="wd-k">4 · Release</span>${relTxt}</li></ol>${ILLUS}</section>`;}
@@ -4917,7 +4946,7 @@ function uxOverview(op) {
   const n = uxDecCount(ATTN[op]);
   return `<div class="ux-overview"><p class="headline ux-headline">${hl}</p>
  <div class="heroes ux-kpis">${k1}${k2}${k3}${k4}</div>
- <div class="ux-main-aside"><section class="panel ux-queue-panel" aria-labelledby="uxq-h"><div class="panel-head"><div><h2 id="uxq-h">Needs a decision <span class="ux-count">${num(n)}</span></h2><p>One row per decision, with who decides. AssetOps values the options; your team chooses.</p></div>${link('portfolio/act-first', 'Act first ›', 'ux-link')}</div>${uxQueue(op, ATTN[op].filter(r => uxMergeRows(ATTN[op]).slice(0, 6).some(m => m.d === r[4])), '', n)}${n > 6 ? `<p class="ux-more">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : n > 3 ? `<p class="ux-more ux-more-phone">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : ''}</section>
+ <div class="ux-main-aside"><section class="panel ux-queue-panel" aria-labelledby="uxq-h"><div class="panel-head"><div><h2 id="uxq-h">Decisions <span class="ux-count">${num(n)}</span></h2><p data-ux-split>${uxStateCount(ATTN[op].map(r => r[4]))}. One row each, with who decides.</p></div>${link('portfolio/act-first', 'Act first ›', 'ux-link')}</div>${uxQueue(op, ATTN[op].filter(r => uxMergeRows(ATTN[op]).slice(0, 6).some(m => m.d === r[4])), '', n)}${n > 6 ? `<p class="ux-more">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : n > 3 ? `<p class="ux-more ux-more-phone">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : ''}</section>
  </div>
  ${uxBridge(op)}
  ${uxCats(op)}
@@ -4961,14 +4990,14 @@ function uxPlanBand(op, P, budget) {
  </div><div class="ux-planact">${uxPlanStateChip(op)}${uxPlanActions(op)}<span class="ux-note">Proposed by the system on ${fdate(S.proposed)} · approver ${who(op, execOf(op))}</span></div></section>`;
 }
 /* the plan's state, version, who proposed it and who approves it, and the approver's two actions (one feedback pattern) */
-function uxPlanStateChip(op) { const S = uxPlanState(op); return `<span class="status-pill is-${S.state === 'PROPOSED' ? 'proposed' : S.state === 'APPROVED' ? 'approved' : 'waiting'}" data-plan-state="${S.state}">${STATE_WORD[S.state]}${S.by ? ` by ${S.by}` : ''} · version ${num(S.version)}</span>`; }
-function uxPlanActions(op) { const S = uxPlanState(op); return S.state === 'PROPOSED' ? `${uxActButton('approve-plan', `Approve version ${num(S.version)}`, 'button primary')}${uxActButton('send-back', 'Send back')}` : `<span class="ux-note">${S.state === 'APPROVED' ? 'Approved in this demonstration; its waiting Actions are released.' : `Sent back in this demonstration${S.reason ? `: “${S.reason}”` : ''}.`}</span>`;
+function uxPlanStateChip(op) { const S = uxPlanState(op); return `<span class="status-pill is-${S.state === 'PROPOSED' ? 'proposed' : S.state === 'APPROVED' ? 'approved' : 'waiting'}" data-plan-state="${S.state}">${S.state === 'DRAFT' && S.by ? `Draft, sent back by ${S.by}` : `${STATE_WORD[S.state]}${S.by ? ` by ${S.by}` : ''}`} · version ${num(S.version)}</span>`; }
+function uxPlanActions(op) { const S = uxPlanState(op); return S.state === 'PROPOSED' ? `${uxActButton('approve-plan', `Approve version ${num(S.version)}`, 'button primary')}${uxActButton('send-back', 'Send back')}` : `<span class="ux-note">${S.state === 'APPROVED' ? `Approved in this demonstration; its ${num(waitingSummary(op, S.ids || planItemsV1(op)).wait)} waiting Actions are released.` : `Sent back in this demonstration${S.reason ? `: “${S.reason}”` : ''}${S.giveWay ? `; ${S.giveWay} gives way` : ''}.`}</span>`;
 }
-const uxItemHead = () => '<div class="ux-itemh" aria-hidden="true"><span>Item</span><span>Owner</span><span>Due</span><span>One-off</span><span>Crew</span><span>Result and its period</span><span>State</span></div>';
+const uxItemHead = () => '<div class="ux-itemh" aria-hidden="true"><span>Item</span><span>Owner</span><span>Due</span><span>One-off</span><span>Visits</span><span>Result and its period</span><span>State</span></div>';
 function uxItemRow(op, id, f) {
   const it = itemOf(op, id), acts = actionsOf(op, id), due = acts.map(a => a.due).filter(Boolean).sort()[0] || it?.service_date || null;
-  const st = it ? ITEM_STATE_WORD[it.item_state] || '' : '';
-  return `<details class="ux-item" data-row="${id}"><summary class="ux-itemrow"><span class="ux-it-main"><small>${f.site}${f.why ? ` · ${f.why}` : ''}</small><b>${f.label}</b></span><span class="ux-it-c" data-k="Owner">${it ? who(op, it.owner) : '<span class="muted">Not chosen yet</span>'}</span><span class="ux-it-c" data-k="Due">${due ? fdate(due) : '<span class="muted">No date</span>'}</span><span class="ux-it-c ux-num" data-k="One-off">${wholeText(f.cost)}</span><span class="ux-it-c ux-num" data-k="Crew">${(() => { const it2 = itemOf(op, id), c = it2?.kind === 'PROACTIVE' ? it2.crew_visits || 0 : (DOPT(id)?.crew_visits || 0); return c ? num(c) : '<span class="muted">None</span>'; })()}</span><span class="ux-it-c ux-num" data-k="Result and its period">${/of cover/.test(f.result) ? wholeText(f.result).replace(/^Protects /, '') : `${wholeText(f.result)} ${f.cls && !/^Not /.test(f.result) ? uxMark(f.cls) : ''}${f.basis ? `<small class="ux-it-basis">${f.basis}</small>` : ''}`}</span><span class="ux-it-c" data-k="State">${st ? `<span class="ux-state">${st}</span>` : ''}</span><span class="ux-disc-cue" aria-hidden="true"></span></summary><div class="ux-item-body">`;
+  const st = it ? itemStateOf(op, id)?.word || '' : '';
+  return `<details class="ux-item" data-row="${id}"><summary class="ux-itemrow"><span class="ux-it-main"><small>${f.site}${f.why ? ` · ${f.why}` : ''}</small><b>${f.label}</b></span><span class="ux-it-c" data-k="Owner">${it ? who(op, it.owner) : '<span class="muted">Not chosen yet</span>'}</span><span class="ux-it-c" data-k="Due">${due ? fdate(due) : '<span class="muted">No date</span>'}</span><span class="ux-it-c ux-num" data-k="One-off">${wholeText(f.cost)}</span><span class="ux-it-c ux-num" data-k="Visits">${(() => { const it2 = itemOf(op, id), c = it2?.kind === 'PROACTIVE' ? it2.crew_visits || 0 : (DOPT(id)?.crew_visits || 0); return c ? num(c) : '<span class="muted">None</span>'; })()}</span><span class="ux-it-c ux-num" data-k="Result and its period">${/of cover/.test(f.result) ? wholeText(f.result).replace(/^Protects /, '') : `${wholeText(f.result)} ${f.cls && !/^Not /.test(f.result) ? uxMark(f.cls) : ''}${f.basis ? `<small class="ux-it-basis">${f.basis}</small>` : ''}`}</span><span class="ux-it-c" data-k="State">${st ? `<span class="ux-state">${st}</span>` : ''}</span><span class="ux-disc-cue" aria-hidden="true"></span></summary><div class="ux-item-body">`;
 }
 
 /* ===== wave 2, Portfolio polish: queue controls, the row's "Why", the provenance popover, the command search, the scope
@@ -5131,7 +5160,8 @@ const uxFigQ = (fig, q, cls) => `${fig}${/^[+−-]?\$/.test(String(fig).replace(
 function uxDecState(id) {
   const d = decById(id); if (!d) return { key: 'choose', label: 'Waiting for a choice', btn: 'Decide' };
   const op = SK[d.site].op, D = deciderOf(id), it = D.item ? itemOf(op, D.item) : null, rec = uxRec(d);
-  if (it && it.item_state === 'RELEASED') return { key: 'released', label: 'Released: Actions under way', btn: 'Review' };
+  if (it && (it.item_state === 'RELEASED' || planReleasedItem(op, D.item))) return { key: 'released', label: 'Released: Actions under way', btn: 'Review' }; /* the one state source: the plan state shown counts (review r4 M1) */
+  if (it && planIsDraft(op)) return { key: 'approval', draft: true, label: 'Chosen · the plan was sent back to draft', btn: 'Review' };
   if (it) return { key: 'approval', label: 'Chosen · awaiting approval', btn: 'Awaiting approval' };
   const mk = uxMock().chosen?.[id]; /* a choice made in this demonstration (one feedback pattern) */
   if (mk) { const p = uxReleaseFor(op, mk).path; return p === 'at' || p === 'none' ? { key: 'released', label: 'Chosen in this demonstration: Actions go ahead', btn: 'Review' } : { key: 'approval', label: 'Chosen in this demonstration · awaiting approval', btn: 'Awaiting approval' }; }
@@ -5258,7 +5288,7 @@ function uxDecisionPage(id, parts) {
   const others = d.opts.filter(o => o !== rec && !isNoAction(o) && uxDisp(o) !== 'REJECTED' && uxDisp(o) !== 'RECOMMENDED');
   if (st.key === 'choose') act = `${uxOpener(`uxc-${id}-${rec}`, 'Choose this', 'button primary')}${others.length ? `<a class="button" href="#uxcards-${id}">Choose another option</a>` : ''}`;
   else if (st.key === 'approval') act = `<span>Chosen by ${who(op, D.p)}: ${optLabel(chosen)}. Awaiting ${who(op, ex)}’s approval of the plan.</span>${link('portfolio/act-first/plan', 'Review the plan', 'button')}`;
-  else if (st.key === 'released') act = `<span>Chosen by ${who(op, D.p)}: ${optLabel(chosen)}. ${releaseOf(op, chosen).at ? 'Released at once, within both thresholds.' : 'Released on the plan’s approval.'}</span>${uxOpener(`uxacts-${id}`, 'See the Actions', 'button')}`;
+  else if (st.key === 'released') act = `<span>Chosen by ${who(op, D.p)}: ${optLabel(chosen)}. ${planReleasedItem(op, chosen) ? `Released when ${uxPlanState(op).by || 'the executive'} approved the plan.` : uxReleaseFor(op, chosen).text + '.'}</span>${uxOpener(`uxacts-${id}`, 'See the Actions', 'button')}`;
   else act = `<a class="button" href="#uxcards-${id}">See the options</a>`;
   const planNote = x && st.key === 'choose' ? uxPlanNote(op, rec) : '';
   const recCard = `<section class="panel ux-drec" aria-labelledby="uxdr-${id}"><div class="ux-eyebrow">${x ? 'We recommend' : 'No option recommended'}</div><h2 id="uxdr-${id}">${x ? optLabel(rec) : `Each option ${BASIS_WORDS[decBasis(d)] ? `valued ${BASIS_WORDS[decBasis(d)]}` : 'compared, not valued in money'}`}</h2>${recNum}${x ? (optContext(rec).length ? `<ul class="list ux-ctx">${optContext(rec).map(c => `<li>${c}</li>`).join('')}</ul>` : '') : `<p class="ux-note">${uxNoRecReason(id)}</p>`}${planNote ? `<p class="ux-note">${planNote}</p>` : ''}<div class="ux-dgo">${act}${uxOpener(`uxev-${id}`, 'Evidence and records', 'ux-link')}</div></section>`;
@@ -5467,7 +5497,7 @@ function uxNotFound() { return `<section class="panel ux-empty-page" role="statu
    row opens its drawer in place; leaving takes a named button. The Site tabs leave a slot for "Operations" (pending the owner). ===== */
 const SITE_TABS_PENDING = ['Operations']; /* the owner's call (reviewer's proposal): measures and assets for the period, the same on every Site */
 /* decisions counted by state, in the words of the one state source (review Site M1); "need a decision" only for the choose state */
-function uxStateCount(ids) { ids = [...new Set(ids)]; const k = ids.map(id => uxDecState(id).key), n = s => k.filter(x => x === s).length, parts = [[n('choose') + n('none'), 'waiting for a choice'], [n('approval'), 'awaiting approval'], [n('released'), 'under way']].filter(([c]) => c);
+function uxStateCount(ids) { ids = [...new Set(ids)]; const k = ids.map(id => uxDecState(id).key), n = s => k.filter(x => x === s).length, parts = [[n('choose') + n('none'), 'waiting for a choice'], [k.filter((x, i) => x === 'approval' && !uxDecState(ids[i]).draft).length, 'awaiting approval'], [k.filter((x, i) => x === 'approval' && uxDecState(ids[i]).draft).length, 'with the plan sent back to draft'], [n('released'), 'under way']].filter(([c]) => c);
   return ids.length ? `${num(ids.length)} decision${ids.length === 1 ? '' : 's'}: ${parts.map(([c, w]) => `${num(c)} ${w}`).join(', ')}` : 'No decision at this Site'; }
 /* the Operations measures' answer is its rows: the first measure against its target, or that none is declared (review Site M4) */
 function uxOpsAnswer(html) { const h = document.createElement('div'); h.innerHTML = html; const tr = [...h.querySelectorAll('tbody tr')], txt = e => (e?.textContent || '').replace(/\s+/g, ' ').trim();
@@ -5538,7 +5568,7 @@ function uxSitePage(sk, P) {
   ];
   const first = waiting[0], sticky = `<div class="ux-dsticky" role="region" aria-label="This Site" data-ux-sticky><span class="ux-dsticky-t">${SK[sk].name}</span><span class="ux-dsticky-n">${t.plan != null ? `${usdW(siteM(sk).period.variance, true)} <small>against target</small>` : ''}</span><span class="status-pill is-${waiting.length ? 'proposed' : 'approved'}">${waiting.length ? `${num(waiting.length)} waiting for a choice` : `${num(nd)} decision${nd === 1 ? '' : 's'} in hand`}</span>${first ? link(`decision/${first}`, 'Decide', 'button primary') : ''}</div>`;
   return `${sticky}<p class="headline ux-headline" data-ux-sticky-anchor>${P.lead}</p>${uxSiteTiles(sk)}
- <div class="ux-main-aside"><div class="ux-aside"><section class="panel ux-queue-panel" aria-labelledby="uxsq-h"><div class="panel-head"><div><h2 id="uxsq-h">${waiting.length ? 'Needs a decision at this Site' : 'Decisions at this Site'} <span class="ux-count">${num(nd)}</span></h2><p>One row per decision, with who decides.</p></div></div>${uxQueue(op, att, '', nd)}</section></div>
+ <div class="ux-main-aside"><div class="ux-aside"><section class="panel ux-queue-panel" aria-labelledby="uxsq-h"><div class="panel-head"><div><h2 id="uxsq-h">Decisions at this Site <span class="ux-count">${num(nd)}</span></h2><p data-ux-split>${uxStateCount(att.map(r => r[4]))}. One row each, with who decides.</p></div></div>${uxQueue(op, att, '', nd)}</section></div>
  <div class="ux-aside"><section class="panel" aria-labelledby="uxsa-h"><div class="panel-head"><div><h2 id="uxsa-h" data-count="${A.n}" data-count-of=".ux-site-acts .ux-sacts > li">Actions in hand <span class="ux-count">${num(A.n)}</span></h2><p>The plan’s Actions at this Site, with owner, due date and release.</p></div></div><div class="ux-site-acts">${A.html}</div></section></div></div>
  <div class="ux-dsecs">${sections.map(([l, a, b]) => uxSecA(l, a, b)).join('')}</div>${B.drawers}${uxDrawer(`uxhow-site-${sk}`, P.howTitle, P.howHtml, true)}<p class="ux-help-line">${uxOpener(`uxhow-site-${sk}`, P.howTitle, 'ux-link')}</p>`;
 }
@@ -5550,16 +5580,19 @@ const UX_MOCK_KEY = 'l4-mock';
 function uxMock() { try { return JSON.parse(sessionStorage.getItem(UX_MOCK_KEY) || '{}'); } catch (e) { return {}; } }
 function uxMockSet(m) { try { sessionStorage.setItem(UX_MOCK_KEY, JSON.stringify(m)); } catch (e) {} }
 /* the plan's state as shown: the data's, unless an action in this demonstration changed it */
-function uxPlanState(op) { const S = PSTATE(), m = uxMock().plan?.[op]; return m ? { ...S, state: m.state, by: m.by, at: m.at, reason: m.reason } : S; }
+function uxPlanState(op) { const S = PSTATE(), m = uxMock().plan?.[op]; return m ? { ...S, state: m.state, by: m.by, at: m.at, reason: m.reason, giveWay: m.giveWay, version: m.version ?? S.version, ids: m.ids } : S; }
 const UX_ACTS = {
-  'approve-plan': op => { const S = uxPlanState(op), ex = execOf(op), W = waitingSummary(op);
-    return { title: `Approve version ${num(S.version)} of the plan`, primary: 'Approve the plan',
-      body: `<dl class="ux-confirm"><div><dt>What happens</dt><dd>Version ${num(S.version)} becomes the approved plan for ${periodWords()}. It releases ${num(W.wait)} waiting Action${W.wait === 1 ? '' : 's'} and ${num(W.waitItems.length)} item${W.waitItems.length === 1 ? '' : 's'}, ${usd(W.spend)} of one-off spend.</dd></div><div><dt>Recorded under</dt><dd>${who(op, ex)}, with the time.</dd></div></dl>`,
-      apply: () => ({ plan: { [op]: { state: 'APPROVED', by: ex?.name || '', at: 'now' } } }), toast: `Version ${num(S.version)} approved` }; },
-  'send-back': op => { const S = uxPlanState(op), ex = execOf(op);
+  /* the dialog follows the case on screen (review r4 M4): a case that differs from the proposal is approved as the next version, with its own items and spend */
+  'approve-plan': op => { const S0 = PSTATE(), ex = execOf(op), P = planCase(op), ids = planCaseIds(op), W = waitingSummary(op, ids), def = DEFAULT_CASE(op), ver = def ? S0.version : S0.version + 1, budget = op === 'lakeside' ? LS.budget : OPS[op].t.portfolio_constraints.budget_usd_nov_dec;
+    return { title: `Approve version ${num(ver)} of the plan`, primary: 'Approve the plan',
+      body: `<dl class="ux-confirm"><div><dt>What happens</dt><dd>${def ? `Version ${num(ver)} becomes` : `This case differs from the proposed version ${num(S0.version)}, so approving it makes version ${num(ver)}, which becomes`} the approved plan for ${periodWords()}. It releases ${num(W.wait)} waiting Action${W.wait === 1 ? '' : 's'} and ${num(W.waitItems.length)} item${W.waitItems.length === 1 ? '' : 's'}, ${usd(W.spend)} of one-off spend${W.later.length ? `. After approval, ${W.later.map(id => `${itemOf(op, id)?.owner || 'its owner'} creates the Action for ${itemProse(op, id)}`).join('; ')}` : ''}.</dd></div><div><dt>The plan</dt><dd><span data-ux-plan-spend>${usdW(P.spend)}</span> of ${usdW(budget)} budget, <span data-ux-plan-items>${num(ids.length)}</span> item${ids.length === 1 ? '' : 's'}</dd></div><div><dt>Recorded under</dt><dd>${who(op, ex)}<br><span class="ux-note">with the date and time of the approval</span></dd></div></dl>`,
+      apply: () => ({ plan: { [op]: { state: 'APPROVED', by: ex?.name || '', at: 'now', version: ver, ids } } }), toast: `Version ${num(ver)} approved` }; },
+  /* a reason and a trade-off are required and not prefilled (review r4 M3; guide §7.4); the plan returns to Draft (design §2.5; M2) */
+  'send-back': op => { const S = uxPlanState(op), ex = execOf(op), ids = planCaseIds(op), val = () => ({ reason: (document.getElementById('ux-sb-reason')?.value || '').trim(), way: document.getElementById('ux-sb-way')?.value || '' });
     return { title: `Send version ${num(S.version)} back`, primary: 'Send it back',
-      body: `<dl class="ux-confirm"><div><dt>What happens</dt><dd>The plan returns to draft. Each changed item goes back to its creator with your reason; nothing is released.</dd></div><div><dt>Your reason</dt><dd><label class="vh" for="ux-sb-reason">Reason</label><textarea id="ux-sb-reason" rows="3" class="ux-reason">The budget should go first to the deadline items</textarea></dd></div><div><dt>Recorded under</dt><dd>${who(op, ex)}, with the time.</dd></div></dl>`,
-      apply: () => ({ plan: { [op]: { state: 'REVISED', by: ex?.name || '', at: 'now', reason: (document.getElementById('ux-sb-reason')?.value || '').trim() } } }), toast: `Version ${num(S.version)} sent back` }; }
+      body: `<dl class="ux-confirm"><div><dt>What happens</dt><dd>The plan returns to draft. Each changed item goes back to its creator with your reason; nothing is released.</dd></div><div><dt><label for="ux-sb-reason">Your reason</label></dt><dd><textarea id="ux-sb-reason" rows="3" class="ux-reason" required placeholder="Say what is wrong with this version"></textarea></dd></div><div><dt><label for="ux-sb-way">What gives way</label></dt><dd><select id="ux-sb-way" class="ux-reason" required><option value="">Choose an item</option>${ids.map(id => `<option value="${id}">${optLabel(id)}</option>`).join('')}</select><span class="ux-note">The trade-off: the item that gives way so the budget or the ${OPS[op].crewWord} fit.</span></dd></div><div><dt>Recorded under</dt><dd>${who(op, ex)}<br><span class="ux-note">with the date and time</span></dd></div></dl><p class="ux-note" data-ux-hint role="status">Give a reason and the item that gives way to send it back.</p>`,
+      valid: () => !!(val().reason && val().way),
+      apply: () => ({ plan: { [op]: { state: 'DRAFT', by: ex?.name || '', at: 'now', reason: val().reason, giveWay: val().way ? optLabel(val().way) : '' } } }), toast: `Version ${num(S.version)} sent back` }; }
 };
 function uxActButton(key, label, cls = 'button') { return `<button type="button" class="${cls}" data-ux-act="${key}">${label}</button>`; }
 /* the confirmation drawer for an action (built on demand, so every action uses the same one) */
@@ -5568,13 +5601,20 @@ function uxActOpen(key, from) {
   document.getElementById('uxact')?.remove();
   document.body.insertAdjacentHTML('beforeend', uxDrawer('uxact', A.title, `${A.body}<div class="ux-confirm-go"><button type="button" class="button primary" data-ux-act-go="${key}">${A.primary}</button><button type="button" class="button" data-ux-close>Cancel</button></div>`));
   uxOpen('uxact', from);
+  if (A.valid) { const go = document.querySelector('#uxact [data-ux-act-go]'), hint = document.querySelector('#uxact [data-ux-hint]'), upd = () => { go.disabled = !A.valid(); if (hint) hint.hidden = !go.disabled; }; document.getElementById('uxact').addEventListener('input', upd); document.getElementById('uxact').addEventListener('change', upd); upd(); }
 }
 function uxActDo(key) {
-  const [name, ...args] = key.split(':'), A = name === 'choose' ? uxChooseAct(...args) : UX_ACTS[name](LS.op), before = uxMock(), patch = A.apply();
+  const [name, ...args] = key.split(':'), A = name === 'choose' ? uxChooseAct(...args) : UX_ACTS[name](LS.op), before = uxMock();
+  if (A.valid && !A.valid()) return; /* a required answer is missing: nothing is recorded */
+  const patch = A.apply();
   const next = { ...before, plan: { ...(before.plan || {}), ...(patch.plan || {}) }, chosen: { ...(before.chosen || {}), ...(patch.chosen || {}) } };
   uxMockSet(next); document.getElementById('uxact')?.remove(); document.querySelectorAll('.ux-drawer[data-open="true"]').forEach(d => uxClose(d));
-  render(); uxToast(`${A.toast}. Shown in this demonstration only.`, () => { uxMockSet(before); render(); uxToast('Undone.'); });
+  render(); uxFocusState(); uxToast(`${A.toast}. Shown in this demonstration only.`, () => { uxMockSet(before); render(); uxToast('Undone.'); uxFocusAction(key); });
 }
+/* focus returns (WCAG 2.4.3; review r4 M7): render() replaces the opener, so after an action focus goes to the new state, after Undo to the restored button */
+function uxFocusState() { uxStickyTick(); /* render() rebuilt the bar: let it show again where the page is scrolled */ const t = document.querySelector('.ux-planband [data-plan-state], .ux-dmeta .status-pill') || document.querySelector('.page-heading h1'); if (t) { t.setAttribute('tabindex', '-1'); t.focus(); } }
+function uxFocusAction(key) { uxStickyTick(); const [n, id, oid] = key.split(':'), t = [...document.querySelectorAll(n === 'choose' ? `[data-ux-drawer="uxc-${id}-${oid}"]` : `[data-ux-act="${key}"]`)].find(e => e.offsetParent !== null) || document.querySelector('.page-heading h1'); if (t) { if (!/^(BUTTON|A)$/.test(t.tagName)) t.setAttribute('tabindex', '-1'); t.focus(); } }
+window.addEventListener('hashchange', () => document.querySelector('.ux-toast')?.remove()); /* a toast belongs to the page it reported on (review r4 L1) */
 /* a toast that can undo what it reports (and is never the only record: the state on the page changes too) */
 function uxToast(msg, undo) {
   document.querySelector('.toast')?.remove(); const e = document.createElement('div'); e.className = 'toast ux-toast'; e.setAttribute('role', 'status');

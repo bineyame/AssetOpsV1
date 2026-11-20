@@ -442,24 +442,100 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
       await p.context().close(); }
     ok(shapes.size === 1, `Site pages: one section structure for every Site type (${[...shapes].join(' / ')})`);
     ok(opsAns.size > 2, `Site pages: the Operations answers differ with their measures (${opsAns.size} distinct)`); }
-  /* the plan page: answer-titled sections, the approver's sticky bar, and Approve / Send back with the one feedback pattern */
+  /* the plan page: answer-titled sections, the approver's sticky bar, and Approve / Send back with the one feedback pattern.
+     Review r4: H1 the item list never overlaps (cells do not intersect, none is wider than its box, the item cell holds 160 px or the row is a card);
+     M1 after Approve nothing on any page still says waiting; M2 Send back returns to Draft; M3 a reason and a trade-off are required and not prefilled;
+     M4 the dialog follows the case on screen; M7 focus is never on the page body after an action or an Undo; L2 dialog copy; L3 the vertical's word;
+     L4 no phrase said twice in a row; L5 the phone bar does not truncate its pill; L7 a focus walk under the plan's sticky bar */
+  const WAIT = /awaiting approval|awaiting [^.]{0,40}approval|waiting for (?:the plan’s )?approval|Chosen · awaiting|Chosen · the plan was sent back/i;
   for (const op of ['lakeside', 'harvest', 'metro']) for (const [w, h] of [[1440, 900], [1280, 720], [390, 844]]) {
     const p = await page('portfolio/act-first/plan', { op, w, h });
-    const r = await p.evaluate(() => { const secs = [...document.querySelectorAll('.ux-ans-sec')]; return { n: secs.length, ans: secs.every(s => (s.querySelector('.ux-ans')?.textContent.trim() || '').length > 4), ovf: (window.__ovf() || document.documentElement.scrollWidth > innerWidth), chip: document.querySelector('.ux-planband [data-plan-state]')?.dataset.planState, diff: /Changes since version/.test(document.body.textContent), crew: !!document.querySelector('[data-k="Crew"]') }; });
+    const r = await p.evaluate(() => { const secs = [...document.querySelectorAll('.ux-ans-sec')]; return { n: secs.length, ans: secs.every(s => (s.querySelector('.ux-ans')?.textContent.trim() || '').length > 4), ovf: (window.__ovf() || document.documentElement.scrollWidth > innerWidth), chip: document.querySelector('.ux-planband [data-plan-state]')?.dataset.planState, diff: /Changes since version/.test(document.body.textContent), crew: !!document.querySelector('[data-k="Visits"]') }; });
+    /* H1: layout of the item list, measured, with its own proof that the set is not empty */
+    const lay = await p.evaluate(() => { const bad = [], inter = (a, b) => Math.min(a.right, b.right) - Math.max(a.left, b.left) > 1 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1;
+      const head = document.querySelector('.ux-itemh'), card = !head || getComputedStyle(head).display === 'none'; let rows = 0;
+      const check = (el, name) => { const cs = [...el.children].filter(c => !c.classList.contains('ux-disc-cue') && getComputedStyle(c).display !== 'none'), rc = cs.map(c => c.getBoundingClientRect());
+        cs.forEach((c, i) => { if (c.scrollWidth > c.clientWidth + 1) bad.push(`${name}: cell ${i} text is wider than its cell`); for (let j = i + 1; j < cs.length; j++) if (inter(rc[i], rc[j])) bad.push(`${name}: cells ${i} and ${j} overlap`); }); return rc; };
+      if (head && !card) check(head, 'header');
+      document.querySelectorAll('summary.ux-itemrow').forEach(s => { rows++; const rc = check(s, s.parentElement.dataset.row); if (!card && rc[0].width < 160) bad.push(`${s.parentElement.dataset.row}: item cell ${Math.round(rc[0].width)} px`); });
+      return { rows, card, bad: [...new Set(bad)].slice(0, 3) }; });
+    /* L4 a phrase said twice in a row; L3 the vertical's word */
+    const words = await p.evaluate(() => { const rep = []; document.querySelectorAll('summary.ux-itemrow').forEach(s => { const segs = s.textContent.replace(/\s+/g, ' ').split(/[,:;]| · /).map(x => x.trim()).filter(x => x.length >= 24); const seen = new Set(); for (const x of segs) { if (seen.has(x)) rep.push(x.slice(0, 40)); seen.add(x); } });
+      const t = [...document.querySelectorAll('.ux-h2, th, .ux-itemh span, .ux-kpi-l, [data-k]')].map(e => e.textContent).join(' | '); /* the page's own labels, not the data's prose */ return { rep, crew: /\bcrews?\b/i.test(t), tech: /technician/i.test(t), op: OPS[LS.op].vertical, n: document.querySelectorAll('.ux-h2, th').length }; });
+    const wordOk = words.n > 3 && !words.rep.length && (words.op === 'mini' ? !words.tech : !words.crew);
     await p.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight)); await p.waitForTimeout(150);
-    const st = await p.evaluate(() => ({ on: !!document.querySelector('.ux-dsticky.is-on [data-plan-state]'), act: !!document.querySelector('.ux-dsticky.is-on [data-ux-act="approve-plan"]') }));
+    const st = await p.evaluate(() => { const b = document.querySelector('.ux-dsticky.is-on'); return { on: !!document.querySelector('.ux-dsticky.is-on [data-plan-state]'), act: !!document.querySelector('.ux-dsticky.is-on [data-ux-act="approve-plan"]'), trunc: b ? [...b.querySelectorAll('.status-pill, .ux-dsticky-t')].filter(e => e.scrollWidth > e.clientWidth + 1).map(e => e.textContent.trim().slice(0, 24)) : [] }; });
+    /* L7: the focus walk under the plan's sticky bar, forwards and backwards */
+    const covered = []; await p.evaluate(() => { window.scrollTo(0, 0); document.activeElement?.blur(); });
+    for (const key of [...Array(70).fill('Tab'), ...Array(30).fill('Shift+Tab')]) { await p.keyboard.press(key); await p.waitForTimeout(12);
+      const c = await p.evaluate(() => { const b = document.querySelector('.ux-dsticky.is-on'), e = document.activeElement; if (!b || !e || e === document.body || b.contains(e) || e.closest('.reviewbar, .ux-drawer')) return null; const r = b.getBoundingClientRect(), f = e.getBoundingClientRect(); if (!f.width || !f.height) return null;
+        const ox = Math.min(r.right, f.right) - Math.max(r.left, f.left), oy = Math.min(r.bottom, f.bottom) - Math.max(r.top, f.top), vis = Math.max(0, Math.min(f.bottom, innerHeight) - Math.max(f.top, 0)) * Math.max(0, Math.min(f.right, innerWidth) - Math.max(f.left, 0)), big = f.height > innerHeight / 2;
+        return ox > 0 && oy > 0 && (!big || Math.max(0, ox) * Math.max(0, oy) > vis * 0.5) ? (e.textContent || e.tagName).trim().slice(0, 40) : null; }); if (c) covered.push(c); }
+    await p.evaluate(() => window.scrollTo(0, 0));
+    /* L1: at a phone width the toast sits above the bar and not over it or the state it reports */
+    let toastOk = true; if (w === 390) { await p.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight)); await p.waitForTimeout(150); await p.click('.ux-dsticky.is-on [data-ux-act="approve-plan"]'); await p.waitForTimeout(250); await p.click('#uxact [data-ux-act-go]'); await p.waitForTimeout(400); await p.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight)); await p.waitForTimeout(200);
+      toastOk = await p.evaluate(() => { const t = document.querySelector('.ux-toast')?.getBoundingClientRect(), b = document.querySelector('.ux-dsticky.is-on')?.getBoundingClientRect(); return !!t && !!b && t.bottom <= b.top + 1; }); await p.evaluate(() => sessionStorage.removeItem('l4-mock')); await p.reload(); await p.waitForTimeout(300); }
     let flow = true, desc = '';
-    if (w === 1440) { await p.evaluate(() => window.scrollTo(0, 0)); await p.click('.ux-planband [data-ux-act="approve-plan"]'); await p.waitForTimeout(250);
-      const dlg = await p.evaluate(() => document.getElementById('uxact')?.dataset.open === 'true' && /What happens/.test(document.getElementById('uxact').textContent) && /Recorded under/.test(document.getElementById('uxact').textContent));
+    if (w === 1440) { const fails = [], ST = () => p.evaluate(() => ({ chip: document.querySelector('.ux-planband [data-plan-state]')?.dataset.planState, undo: !!document.querySelector('.toast [data-ux-undo]'), focus: document.activeElement.tagName, act: document.activeElement.dataset?.uxAct || '' }));
+      await p.click('.ux-planband [data-ux-act="approve-plan"]'); await p.waitForTimeout(250);
+      /* M4 L2: the dialog says what the screen says, and no stray space before a comma */
+      const dlg = await p.evaluate(() => { const d = document.getElementById('uxact'), t = (d?.textContent || '').replace(/\s+/g, ' '), band = (document.querySelector('.ux-planband .ux-kpi-v')?.textContent.match(/\$[\d,]+/) || [''])[0], later = waitingSummary(LS.op, planCaseIds(LS.op)).later.length;
+        return { ok: d?.dataset.open === 'true' && /What happens/.test(t) && /Recorded under/.test(t), spend: d?.querySelector('[data-ux-plan-spend]')?.textContent, band, comma: /\s,/.test(t), later: later ? /After approval/.test(t) : true, items: d?.querySelector('[data-ux-plan-items]')?.textContent, shown: document.querySelectorAll('summary.ux-itemrow').length }; });
+      if (!dlg.ok) fails.push('the Approve dialog lacks What happens / Recorded under'); if (dlg.spend !== dlg.band) fails.push(`dialog spend ${dlg.spend} against the band ${dlg.band}`); if (dlg.comma) fails.push('a space before a comma in the dialog'); if (!dlg.later) fails.push('the dialog omits the Actions created after approval'); if (+dlg.items !== dlg.shown) fails.push(`dialog items ${dlg.items} against ${dlg.shown} rows`);
       await p.click('#uxact [data-ux-act-go]'); await p.waitForTimeout(400);
-      const a = await p.evaluate(() => ({ chip: document.querySelector('.ux-planband [data-plan-state]')?.dataset.planState, undo: !!document.querySelector('.toast [data-ux-undo]') }));
-      await p.click('.toast [data-ux-undo]'); await p.waitForTimeout(400); const b = await p.evaluate(() => document.querySelector('.ux-planband [data-plan-state]')?.dataset.planState);
-      await p.click('.ux-planband [data-ux-act="send-back"]'); await p.waitForTimeout(250); await p.click('#uxact [data-ux-act-go]'); await p.waitForTimeout(400);
-      const sb = await p.evaluate(() => ({ chip: document.querySelector('.ux-planband [data-plan-state]')?.dataset.planState, reason: /Sent back in this demonstration: “/.test(document.querySelector('.ux-planband').textContent) }));
-      await p.click('.toast [data-ux-undo]'); await p.waitForTimeout(300);
-      flow = dlg && a.chip === 'APPROVED' && a.undo && b === 'PROPOSED' && sb.chip === 'REVISED' && sb.reason; desc = `; Approve: confirm, toast with Undo, ${a.chip}, Undo ${b}; Send back with a reason: ${sb.chip}`; }
-    ok(r.n >= 4 && r.ans && !r.ovf && r.chip === 'PROPOSED' && r.diff && (w < 600 || r.crew) && st.on && st.act && flow, `${op} plan at ${w}: ${r.n} answer-titled sections, changes since the version, crew per item, sticky approver bar${desc}`);
+      const a = await ST(), left = await p.evaluate(src => ({ waiting: document.querySelectorAll('[data-release="WAITING"]').length, chosen: [...document.querySelectorAll('.ux-state')].filter(e => /Chosen/.test(e.textContent)).length, say: new RegExp(src, 'i').test(document.querySelector('.canvas').textContent) }), WAIT.source);
+      if (a.chip !== 'APPROVED' || !a.undo) fails.push(`Approve gives ${a.chip}, toast ${a.undo}`); if (a.focus === 'BODY') fails.push('focus on the page body after Approve (M7)');
+      if (left.waiting || left.chosen || left.say) fails.push(`after Approve the plan page still says waiting: ${left.waiting} waiting pills, ${left.chosen} Chosen, "awaiting" text ${left.say} (M1)`);
+      await p.click('.toast [data-ux-undo]'); await p.waitForTimeout(400); const b = await ST(); if (b.chip !== 'PROPOSED') fails.push(`Undo gives ${b.chip}`); if (b.focus === 'BODY') fails.push('focus on the page body after Undo (M7)');
+      /* M1: every page agrees with the approval */
+      await p.click('.ux-planband [data-ux-act="approve-plan"]'); await p.waitForTimeout(250); await p.click('#uxact [data-ux-act-go]'); await p.waitForTimeout(400);
+      const dec = { lakeside: 'kisiwa-genset', harvest: 'kirinyaga-energy', metro: 'embakasi-schedule' }[op], routes = ['portfolio', 'portfolio/act-first', 'portfolio/what-changed', `decision/${dec}`, 'portfolio/act-first/plan'];
+      for (const rt of routes) { await p.goto(base + '#/' + rt); await p.waitForTimeout(300);
+        const s = await p.evaluate(src => { const k = document.querySelector('.canvas').cloneNode(true); k.querySelectorAll('.ux-dsteps').forEach(x => x.remove()); /* the stage list names its steps */ const t = k.textContent.replace(/\s+/g, ' '), m = t.match(new RegExp('.{0,40}(?:' + src + ').{0,20}', 'i')); return { say: m ? m[0] : '', waiting: document.querySelectorAll('[data-release="WAITING"]').length }; }, WAIT.source);
+        if (s.say || s.waiting) fails.push(`${rt} after Approve: "${s.say}" ${s.waiting} waiting pills`);
+        if (rt === 'portfolio' && await p.evaluate(() => !!document.querySelector('.ux-toast'))) fails.push('the toast of the plan survives navigation to another page (L1)'); }
+      await p.evaluate(() => sessionStorage.removeItem('l4-mock')); await p.reload(); await p.waitForTimeout(400);
+      /* M2 M3: Send back returns to Draft, and needs a reason and a trade-off that the executive wrote */
+      await p.click('.ux-planband [data-ux-act="send-back"]'); await p.waitForTimeout(250);
+      const sd = () => p.evaluate(() => ({ dis: document.querySelector('#uxact [data-ux-act-go]').disabled, reason: document.getElementById('ux-sb-reason').value, way: document.getElementById('ux-sb-way').value }));
+      const s0 = await sd(); if (!s0.dis || s0.reason || s0.way) fails.push(`Send back opens prefilled or enabled (${JSON.stringify(s0)})`);
+      await p.fill('#ux-sb-reason', 'Too much spend before the deadline items'); const s1 = await sd(); if (!s1.dis) fails.push('Send back is enabled with a reason and no trade-off');
+      await p.selectOption('#ux-sb-way', { index: 1 }); const s2 = await sd(); if (s2.dis) fails.push('Send back stays disabled with a reason and a trade-off');
+      await p.fill('#ux-sb-reason', '   '); const s3 = await sd(); if (!s3.dis) fails.push('Send back accepts a blank reason');
+      await p.fill('#ux-sb-reason', 'Too much spend before the deadline items'); await p.click('#uxact [data-ux-act-go]'); await p.waitForTimeout(400);
+      const sb = await p.evaluate(() => ({ chip: document.querySelector('.ux-planband [data-plan-state]')?.dataset.planState, txt: document.querySelector('.ux-planband').textContent, focus: document.activeElement.tagName, sub: document.querySelector('.page-heading')?.textContent || '' }));
+      if (sb.chip !== 'DRAFT' || /Revised/.test(sb.txt + sb.sub)) fails.push(`Send back gives ${sb.chip}, not Draft`); if (!/Too much spend/.test(sb.txt) || !/gives way/.test(sb.txt)) fails.push('the reason and the trade-off are not shown'); if (sb.focus === 'BODY') fails.push('focus on the page body after Send back (M7)');
+      await p.click('.toast [data-ux-undo]'); await p.waitForTimeout(300); const c2 = await ST(); if (c2.chip !== 'PROPOSED' || c2.focus === 'BODY') fails.push(`Undo after Send back: ${c2.chip}, focus ${c2.focus}`);
+      /* M4: a case that differs from the proposal is approved as the next version, with its own items and spend */
+      await p.evaluate(() => { const op = LS.op; if (op === 'lakeside') LS.loi = false; else if (op === 'harvest') LS.agg = false; else LS.tou = false; render(); }); await p.waitForTimeout(300);
+      await p.click('.ux-planband [data-ux-act="approve-plan"]'); await p.waitForTimeout(250);
+      const nd = await p.evaluate(() => { const d = document.getElementById('uxact'), t = (d?.textContent || '').replace(/\s+/g, ' '), band = (document.querySelector('.ux-planband .ux-kpi-v')?.textContent.match(/\$[\d,]+/) || [''])[0]; return { def: DEFAULT_CASE(LS.op), v2: /makes version 2/.test(t), spend: d?.querySelector('[data-ux-plan-spend]')?.textContent, band, items: d?.querySelector('[data-ux-plan-items]')?.textContent, shown: document.querySelectorAll('summary.ux-itemrow').length }; });
+      if (nd.def || !nd.v2 || nd.spend !== nd.band || +nd.items !== nd.shown) fails.push(`a case that differs: default ${nd.def}, makes version 2 ${nd.v2}, spend ${nd.spend} against ${nd.band}, items ${nd.items} against ${nd.shown} rows`);
+      flow = !fails.length; desc = `; Approve/Send back/case flows${fails.length ? ` FAIL: ${fails.join(' | ')}` : ': dialog matches the case, every page follows Approve, Send back returns to Draft with a required reason and trade-off, focus stays on the page'}`; }
+    const layOk = lay.rows > 0 && !lay.bad.length;
+    ok(r.n >= 4 && r.ans && !r.ovf && r.chip === 'PROPOSED' && r.diff && (w < 600 || r.crew) && st.on && st.act && flow && toastOk && layOk && wordOk && !st.trunc.length && !covered.length,
+      `${op} plan at ${w}: ${r.n} answer-titled sections, changes since the version, visits per item, sticky approver bar${w < 600 ? ` (pill ${st.trunc.length ? 'TRUNCATED ' + st.trunc[0] : 'whole'})` : ''}; ${lay.rows} item rows as ${lay.card ? 'cards' : 'a table'}${layOk ? ', no cell overlaps or overflows (H1)' : ` OVERLAP ${lay.rows ? lay.bad.join('; ') : 'no rows found'}`}${wordOk ? '' : ` WORDS ${words.rep.join('; ')} ${words.op === 'mini' ? (words.tech ? 'technician' : '') : (words.crew ? 'crew' : '')}`}${toastOk ? '' : ' TOAST over the bar'}; a full focus walk finds ${covered.length ? `the bar covering "${covered[0]}" (${covered.length} times)` : 'no focused element under it'}${desc}`);
     await p.context().close(); }
+  /* review r4 M5: a choice made in the demonstration says the one release rule, the same words as its dialog and How this works */
+  { const p = await page('decision/mto-billing', { op: 'lakeside' });
+    await p.click('.ux-drec [data-ux-drawer^="uxc-mto-billing-"]'); await p.waitForTimeout(250); await p.click('.ux-drawer[data-open="true"] [data-ux-act-go^="choose:"]'); await p.waitForTimeout(400);
+    const r = await p.evaluate(() => { const line = document.querySelector('.ux-dgo span')?.textContent.replace(/\s+/g, ' ') || '', oid = uxMock().chosen?.['mto-billing'], h = document.createElement('div'); h.innerHTML = oid ? uxReleaseFor('lakeside', oid).text : ''; const rule = h.textContent.replace(/\s+/g, ' ').trim(); return { line, rule, oid, focus: document.activeElement.tagName }; });
+    ok(!!r.oid && r.rule.length > 10 && r.line.includes(r.rule) && !/Released at once/.test(r.line) && r.focus !== 'BODY', `mto-billing after Choose: the card says the one release rule ("${r.rule.slice(0, 50)}…"), not a second one; focus is not on the page body (${r.focus})`);
+    await p.click('.toast [data-ux-undo]'); await p.waitForTimeout(300); ok(await p.evaluate(() => document.activeElement.tagName !== 'BODY'), 'mto-billing after Undo: focus returns to the Choose button'); await p.context().close(); }
+  /* review r4 M6 (Site r1 M1 class): the queue heads on the Portfolio and Act first say their count by state, from the one state source */
+  { let differs = 0;
+    for (const op of ['lakeside', 'harvest', 'metro']) for (const rt of ['portfolio', 'portfolio/act-first']) { const p = await page(rt, { op });
+      const r = await p.evaluate(() => { const ids = [...new Set(ATTN[LS.op].map(x => x[4]))], k = ids.map(id => uxDecState(id).key), want = k.filter(x => x === 'choose' || x === 'none').length, h = document.querySelector('.ux-queue-panel h2, .layout-main-side h2'), head = h?.textContent.replace(/\s+/g, ' ').trim() || '', split = document.querySelector('[data-ux-split]')?.textContent || '', cnt = +(h?.querySelector('.ux-count')?.textContent || -1);
+        const claims = /Needs a decision|waiting/i.test(head); const m = split.match(/(\d+) waiting for a choice/); return { ids: ids.length, want, head, claims, cnt, said: m ? +m[1] : 0, split: split.slice(0, 80) }; });
+      if (r.ids !== r.want) differs++;
+      ok((!r.claims || r.cnt === r.want) && r.said === r.want && r.cnt === r.ids, `${op} ${rt}: "${r.head}" counts ${r.cnt} of ${r.ids} decisions; ${r.want} wait for a choice and the line says ${r.said} (${r.split})`); await p.context().close(); }
+    ok(differs >= 3, `queue heads: ${differs} of 6 pages hold decisions that are not waiting for a choice, so the check above is not empty`); }
+  /* review r4 L6: at 1280 x 720 a tile's trend is shortened, never hidden */
+  { let tiles = 0, hidden = [];
+    for (const [op, sk] of [['lakeside', 'kobo'], ['lakeside', 'kisiwa'], ['lakeside', 'mto'], ['harvest', 'mwea'], ['harvest', 'thika'], ['harvest', 'kirinyaga'], ['metro', 'embakasi'], ['metro', 'kasarani'], ['metro', 'ruiru']]) { const p = await page(`site/${sk}`, { op, w: 1280, h: 720 });
+      const r = await p.evaluate(() => { const t = [...document.querySelectorAll('.ux-kpis .ux-kpi')].filter(k => k.querySelector('.ux-trend')); return { n: t.length, hid: t.filter(k => { const e = k.querySelector('.ux-kpi-s.has-trend'); return !e || e.offsetHeight === 0; }).length, sub: (() => { const e = document.querySelector('.page-heading>div>p:not(.ux-scope)'); return e ? e.offsetHeight === 0 : false; })() }; });
+      tiles += r.n; if (r.hid || r.sub) hidden.push(`${sk}${r.hid ? ` ${r.hid} trend(s)` : ''}${r.sub ? ' subtitle' : ''}`); await p.context().close(); }
+    ok(tiles >= 9 && !hidden.length, `Site pages at 1280 x 720: ${tiles} tile trends and the subtitle all show${hidden.length ? ` (HIDDEN: ${hidden.join('; ')})` : ''}`); }
   /* r2 M3: the captive fleet's revenue row says "Not applicable", in its own words */
   { const p = await page('ev', { op: 'metro' }); const t = await p.evaluate(() => document.querySelector('.canvas').textContent);
     ok(/Not applicable/.test(t) && /Revenue not applicable: charging is a cost centre/.test(t) && !/Grow revenue\s*Not measured yet/.test(t), 'EV board: the revenue row reads "Not applicable" with its reason'); await p.context().close(); }

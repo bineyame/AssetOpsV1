@@ -308,7 +308,9 @@ table.ux-opts tbody th{min-width:200px}
 .ux-planband .heroes.ux-kpis{margin-bottom:var(--s3)}
 .ux-planact{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3)}
 .ux-note{font-size:var(--fs-sm);color:var(--text-2)}
-.ux-itemh,.ux-itemrow{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(130px,1.1fr) 64px 72px 44px minmax(130px,1.2fr) 84px 16px;gap:var(--s3);align-items:center}
+/* review r4 H1: the row switches on the list's own width (a container), not the screen's: beside the 380 px approval panel the list is narrow on a wide screen */
+.ux-items{container:uxitems/inline-size}
+.ux-itemh,.ux-itemrow{display:grid;grid-template-columns:minmax(200px,2.2fr) minmax(120px,1.1fr) 64px 72px 52px minmax(130px,1.2fr) 84px 16px;gap:var(--s3);align-items:center}
 .ux-itemh{padding:0 var(--s3) var(--s2);font-size:var(--fs-xs);font-weight:500;color:var(--text-2);border-bottom:1px solid var(--line)}
 details.ux-item{border-bottom:1px solid var(--line)}
 details.ux-item>summary{list-style:none;cursor:pointer;padding:var(--s3)}
@@ -324,12 +326,13 @@ details.ux-item[open]>summary .ux-disc-cue{transform:rotate(225deg)}
 .ux-state{display:inline-block;padding:0 8px;border:1px solid var(--line-strong);border-radius:999px;font-size:var(--fs-xs);font-weight:500;line-height:20px}
 .ux-item-body{padding:0 var(--s3) var(--s4)}
 .ux-item-body>.plan-item{border:0;box-shadow:none;margin:0}
-@media (max-width:760px){
+@container uxitems (max-width:879px){
   .ux-itemh{display:none}
   .ux-itemrow{grid-template-columns:minmax(0,1fr) minmax(0,1fr);position:relative}details.ux-item>summary.ux-itemrow{padding-right:calc(var(--s3) + 24px)}
   .ux-it-main{grid-column:1/3}.ux-itemrow .ux-disc-cue{position:absolute;right:var(--s3);top:calc(var(--s3) + 4px)} /* the cue sits outside the grid so no cell lands in its 16px column */
   .ux-it-c::before{content:attr(data-k) ": ";color:var(--text-2);font-size:var(--fs-xs)}
 }
+@container uxitems (min-width:560px) and (max-width:879px){.ux-itemrow{grid-template-columns:repeat(3,minmax(0,1fr))}.ux-it-main{grid-column:1/4}}
 
 /* ---- fix round 2 ---- */
 /* H1: a phone option card has two columns, label and value; the cell content is one wrapper in the value column */
@@ -357,8 +360,8 @@ details.ux-item[open]>summary .ux-disc-cue{transform:rotate(225deg)}
   .heroes.ux-kpis{gap:var(--s3)}
   .ux-kpi{gap:2px}
 
-  .ux-kpi-s+.ux-kpi-s{display:none}
-  .ux-overview .ux-queue-panel .panel-head p{display:none}
+  .ux-kpi-s+.ux-kpi-s:not(.has-trend){display:none} /* a trend is shortened, never hidden (review r4 L6) */
+  .ux-kpi-s.has-trend{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 }
 /* low: the decider's name never truncates */
@@ -366,10 +369,10 @@ details.ux-item[open]>summary .ux-disc-cue{transform:rotate(225deg)}
 .ux-q-who .who>span{white-space:nowrap}
 @media (min-width:1024px) and (max-height:820px){
   .canvas .breadcrumbs{display:none}
-  .page-heading>div>p:not(.ux-scope){display:none} /* the operator and period are in the top bar */
+  .page-heading>div>p:not(.ux-scope){white-space:nowrap;overflow:hidden;text-overflow:ellipsis} /* one line, shortened, not hidden */
   .ux-main-aside{grid-template-columns:minmax(0,1fr)} /* the queue first, full width; the plan card follows */
 
-  .ux-site-tiles .ux-kpi-s{display:none}
+  .ux-site-tiles .ux-kpi-s:not(.has-trend){display:none}
 }
 @media (min-width:1024px) and (max-height:820px){
   .canvas{padding-top:var(--s3)}
@@ -714,3 +717,18 @@ html.ux-has-sticky{scroll-padding-top:64px}
 .ux-it-basis{display:block;font-weight:400;font-size:var(--fs-xs);color:var(--text-2)}
 .ux-toast{display:flex;align-items:center;gap:var(--s3)}
 .ux-reason{width:100%;font:inherit;padding:var(--s2);border:1px solid var(--line-strong);border-radius:var(--r1);background:var(--surface);color:var(--text)}
+/* review r4: a required answer disables the primary until it is given (M3); the toast sits above the phone bar (L1); the plan bar on a
+   phone is three rows, so its state pill wraps to its own row instead of truncating (L5) */
+.button:disabled{opacity:.5;cursor:not-allowed}
+.ux-confirm select.ux-reason{width:100%}
+@media (max-width:600px){
+  html.ux-has-sticky .ux-toast{bottom:136px;max-width:calc(100vw - 24px)}
+  html.ux-has-sticky{scroll-padding-bottom:128px}html.ux-has-sticky body{padding-bottom:128px}
+  .ux-dsticky.is-on[aria-label="This plan"]{grid-template-columns:minmax(0,1fr) auto auto}
+  .ux-dsticky[aria-label="This plan"] .ux-dsticky-t{grid-column:1/-1;grid-row:1}
+  .ux-dsticky[aria-label="This plan"] .ux-dsticky-n{grid-column:1;grid-row:2}
+  .ux-dsticky[aria-label="This plan"] .button.primary{grid-column:2;grid-row:2}
+  .ux-dsticky[aria-label="This plan"] .button:not(.primary){grid-column:3;grid-row:2}
+  .ux-dsticky[aria-label="This plan"] .ux-note{grid-column:2/-1;grid-row:2}
+  .ux-dsticky[aria-label="This plan"] .status-pill{grid-column:1/-1;grid-row:3;justify-self:start;white-space:normal}
+}
