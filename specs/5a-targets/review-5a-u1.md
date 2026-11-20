@@ -104,3 +104,9 @@ fixture.
   The code is correct today.
 - Units 2 and 3 carry every money-honesty rule (assumption labels, unknown never zero, the 2,295.00 figure). Unit 1
   only guarantees that a used line is single, in its currency and declared.
+# 5a unit 1 r2 (verification), head 07512f2d2
+Verdict: ACCEPT. F1, F2, fullmatch residual closed. No new findings.
+- Tests (worktree PYTHONPATH, modules resolve to worktree): 5a + parity = 18 passed.
+- Plant RB (known_at dropped from declarer join): new declarer-join test fails (1 failed, 12 passed). Plant RD (fullmatch->search): new fullmatch test fails.
+- F2: two-way set equality plus source_system added to envelope check.
+- D-4B.18 note: not found in .ai/decisions index; packet describes it as origins/unknown ranking; lines.py has no origins/unknown code, so unit 1 not bound (could not verify decision text itself).
