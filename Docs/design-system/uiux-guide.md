@@ -808,8 +808,16 @@ The history comes from the data lane's deterministic generator, never typed by h
   - Cold room leaf keys: crate-days, occupancy, revenue, collected, outstanding, model and metered kWh, energy, staff, maintenance.
   - EV depot leaf keys: the same leaves its October block has.
   - Proposed file: `history.json` beside the scenario, `{ "tenant": { "site": { "2026-07": { "plan": {…}, "actual": {…}, "coverage": {…}, "bridge": […] }, … } } }`.
-- **Output the mock-up reads:** `DERIVED.history[tenant].portfolio[key] = [{ "m": "Jul", "v": … }, …]`, with keys `contribution` (or `cost` for the depot operator) and `gap`, written by the evaluator next to `derived-values.json`. Site series take the same shape under `sites[site]`.
+- **Output the mock-up reads:** `DERIVED.history[tenant].portfolio[key] = [{ "m": "Jul", "v": … }, …, { "m": "Oct", "v": … }]`. The series runs **July to October**: October is the last point, so the slot can print the change "against September". Keys are `contribution` (or `cost` for the depot operator) and `gap`, written by the evaluator next to `derived-values.json`. Site series take the same shape under `sites[<site key>]`, keyed by the mock-up's Site keys (kobo, kisiwa, mto, mwea, thika, kirinyaga, kasarani, embakasi, ruiru). The Site tiles already read them.
 - **Today's derivation cannot supply it.** `evaluate_structure.py` and `plan_model.py` evaluate October's records only. The scenario declares a four-month ledger span but carries no July to September values, so computing them now would mean inventing inputs. Until the file exists, every slot reads "Trend not available yet".
+
+## Appendix A3. Empty states (placeholder audit, 20 Nov)
+
+- **An empty state never stands where the data has a value.** An empty state that can name its data carries `data-na-path`, and `ux_interaction_check` fails it when the data holds a value at that path. The earlier-view boards read the data where it exists: Kobo billing and target, Thika cooling energy, Ruiru's roster.
+- **Say what is meant:** "nothing yet" for an empty history, "not chosen yet" for an owner before anyone chooses, "the contract extract states no notice period", "not valued" for an option. "Not available yet" is only for data that will come.
+- **A captive fleet asks for nothing it cannot have:** no settlement records, no odometer readings, no tariff revenue.
+- **Usable capacity** (D-2026-11-20-l4-empty-states): "Not available yet · worked out from the solar, battery and generator readings already received; the calculation comes in a later release". It never blames an export.
+- **Held until the pack branch merges** (owner's pack review): the missing-records table read from `missing-records.json` instead of typed by hand; target-assumption labels; Embakasi's tariff applicability from its entry; and `usd(null)` / `num(null)` looking up an entry.
 
 ## Appendix B. Sources relied on
 

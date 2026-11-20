@@ -312,8 +312,8 @@ function uxSiteTiles(sk) {
   const s = siteM(sk), op = SK[sk].op, o = OPS[op], t = tree(sk), decs = DEC.filter(d => d.site === sk), att = ATTN[op].filter(r => r[2] === sk);
   if (t.plan == null) return '';
   const cost = o.kind === 'cost';
-  return `<div class="heroes ux-kpis">${uxKpi(cost ? 'Cost per required departure met' : 'Contribution', fig(`node:${sk}:root`, cost ? fmtU(t.actual, t.unit) : usdW(t.actual)), [`Target ${cost ? fmtU(t.plan, t.unit) : usdW(t.plan)}`, uxTrendNA()], cost ? '' : uxBullet(t.actual, t.plan, `Contribution ${usdW(t.actual)} against a target of ${usdW(t.plan)}`))}
- ${uxKpi('Gap to target', usdW(s.period.variance, true), [cost ? 'on cost' : 'October', uxTrendNA()])}
+  return `<div class="heroes ux-kpis">${uxKpi(cost ? 'Cost per required departure met' : 'Contribution', fig(`node:${sk}:root`, cost ? fmtU(t.actual, t.unit) : usdW(t.actual)), [`Target ${cost ? fmtU(t.plan, t.unit) : usdW(t.plan)}`, uxTrendNA(op, cost ? 'cost' : 'contribution', sk)], cost ? '' : uxBullet(t.actual, t.plan, `Contribution ${usdW(t.actual)} against a target of ${usdW(t.plan)}`))}
+ ${uxKpi('Gap to target', usdW(s.period.variance, true), [cost ? 'on cost' : 'October', uxTrendNA(op, 'gap', sk)])}
  ${(() => { const v = decs.map(d => [d, uxRec(d)]).filter(([, r]) => r && /^[+−-]?\$/.test(String(optEffect(OPT[r])[0])));
    return uxKpi('Open decisions: value if chosen', v.length ? `${wholeText(optEffect(OPT[v[0][1]])[0])} ${uxMark(optClass(OPT[v[0][1]]))}` : '<span class="ux-kpi-na">Not valued</span>', v.length ? [`${optLabel(v[0][1])}, 12 months against no action`, v.length > 1 ? `+ ${num(v.length - 1)} more valued decision${v.length > 2 ? 's' : ''}` : `${num(decs.length)} decision${decs.length === 1 ? '' : 's'} open`] : [`${num(decs.length)} decision${decs.length === 1 ? '' : 's'} open`]); })()}
  ${(() => { const st = decs.flatMap(uxRights).find(r => r.stake), amt = st && (String(st.stake).match(/\$[\d,]+/) || [])[0];
@@ -343,7 +343,7 @@ const uxItemHead = () => '<div class="ux-itemh" aria-hidden="true"><span>Item</s
 function uxItemRow(op, id, f) {
   const it = itemOf(op, id), acts = actionsOf(op, id), due = acts.map(a => a.due).filter(Boolean).sort()[0] || it?.service_date || null;
   const st = it ? ITEM_STATE_WORD[it.item_state] || '' : '';
-  return `<details class="ux-item" data-row="${id}"><summary class="ux-itemrow"><span class="ux-it-main"><small>${f.site}${f.why ? ` · ${f.why}` : ''}</small><b>${f.label}</b></span><span class="ux-it-c" data-k="Owner">${it ? who(op, it.owner) : '<span class="muted">Not available yet</span>'}</span><span class="ux-it-c" data-k="Due">${due ? fdate(due) : '<span class="muted">No date</span>'}</span><span class="ux-it-c ux-num" data-k="One-off">${wholeText(f.cost)}</span><span class="ux-it-c ux-num" data-k="12-month result">${/of cover/.test(f.result) ? wholeText(f.result).replace(/^Protects /, '') : `${wholeText(f.result)} ${f.cls && !/^Not /.test(f.result) ? uxMark(f.cls) : ''}`}</span><span class="ux-it-c" data-k="State">${st ? `<span class="ux-state">${st}</span>` : ''}</span><span class="ux-disc-cue" aria-hidden="true"></span></summary><div class="ux-item-body">`;
+  return `<details class="ux-item" data-row="${id}"><summary class="ux-itemrow"><span class="ux-it-main"><small>${f.site}${f.why ? ` · ${f.why}` : ''}</small><b>${f.label}</b></span><span class="ux-it-c" data-k="Owner">${it ? who(op, it.owner) : '<span class="muted">Not chosen yet</span>'}</span><span class="ux-it-c" data-k="Due">${due ? fdate(due) : '<span class="muted">No date</span>'}</span><span class="ux-it-c ux-num" data-k="One-off">${wholeText(f.cost)}</span><span class="ux-it-c ux-num" data-k="12-month result">${/of cover/.test(f.result) ? wholeText(f.result).replace(/^Protects /, '') : `${wholeText(f.result)} ${f.cls && !/^Not /.test(f.result) ? uxMark(f.cls) : ''}`}</span><span class="ux-it-c" data-k="State">${st ? `<span class="ux-state">${st}</span>` : ''}</span><span class="ux-disc-cue" aria-hidden="true"></span></summary><div class="ux-item-body">`;
 }
 
 /* ===== wave 2, Portfolio polish: queue controls, the row's "Why", the provenance popover, the command search, the scope
@@ -352,14 +352,14 @@ function uxItemRow(op, id, f) {
    (proposal U9), so uxHistory returns null and the slot says so; nothing is ever drawn from invented months. */
 /* U9 adopted (owner, 20 Nov): the history comes from the data lane's generator, evaluated like October, as
    DERIVED.history[tenant].portfolio[key] = [{ m: 'Jul', v }, …] (keys: contribution or cost, gap). Until it exists, null. */
-const uxHistory = (op, key) => { const h = (typeof DERIVED !== 'undefined' && DERIVED.history) || null, t = OPS[op]?.t?.tenant; const s = h && h[t] && h[t].portfolio && h[t].portfolio[key]; return Array.isArray(s) && s.length >= 2 ? s : null; };
+const uxHistory = (op, key, sk) => { const h = (typeof DERIVED !== 'undefined' && DERIVED.history) || null, t = OPS[op]?.t?.tenant, b = h && h[t]; const s = b && (sk ? b.sites && b.sites[sk] && b.sites[sk][key] : b.portfolio && b.portfolio[key]); return Array.isArray(s) && s.length >= 2 ? s : null; }; /* series Jul–Oct; Site series keyed by the mock-up's Site keys */
 function uxTrend(series, fmt = v => usdW(v, true)) {
   if (!Array.isArray(series) || series.length < 2) return '<span class="ux-trend"><span class="ux-spark-na" aria-hidden="true"></span>Trend not available yet</span>';
   const vs = series.map(p => p.v), mn = Math.min(...vs), mx = Math.max(...vs), w = 64, h = 16, X = i => (i / (vs.length - 1) * w).toFixed(1), Y = v => (h - 1 - (mx === mn ? h / 2 : (v - mn) / (mx - mn) * (h - 2))).toFixed(1);
   const d = vs.map((v, i) => `${i ? 'L' : 'M'}${X(i)} ${Y(v)}`).join(' '), ch = vs[vs.length - 1] - vs[vs.length - 2];
   return `<span class="ux-trend"><svg class="ux-spark" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${series.map(p => `${p.m} ${fmt(p.v)}`).join(', ')}"><path d="${d}"/></svg>${fmt(ch)} against ${series[series.length - 2].m}</span>`;
 }
-const uxTrendNA = (op, key) => uxTrend(op ? uxHistory(op, key) : null);
+const uxTrendNA = (op, key, sk) => uxTrend(op ? uxHistory(op, key, sk) : null);
 
 /* queue: expand a row's explanation */
 document.addEventListener('click', e => {
@@ -454,7 +454,8 @@ document.addEventListener('click', e => {
   const row = b.closest('.ux-pending'), st = row?.querySelector('.snap-pending'); if (!st) return;
   const who = typeof avatarName === 'function' ? avatarName() : '', role = 'Operator executive';
   /* story time, never the wall clock: after the 09:40 invoice on the demo date */
-  st.innerHTML = `<span class="badge">Recalculation requested at ${UX_RECALC_TIME}, ${fdate(AS_OF)} by ${role}${who ? ` · ${who}` : ''}. This demo holds no recalculated values, so the figures still show 06:00.</span>`;
+  const rv = typeof DERIVED !== 'undefined' && DERIVED.recalc ? DERIVED.recalc[OPS[LS.op]?.t?.tenant] : null; /* filled by the data lane (3B7b); none in the demo */
+  st.innerHTML = rv ? `<span class="badge">Recalculated at ${UX_RECALC_TIME}, ${fdate(AS_OF)} by ${role}${who ? ` · ${who}` : ''}: figures as of ${rv.as_of || UX_RECALC_TIME}.</span>` : `<span class="badge">Recalculation requested at ${UX_RECALC_TIME}, ${fdate(AS_OF)} by ${role}${who ? ` · ${who}` : ''}. This demo holds no recalculated values, so the figures still show 06:00.</span>`;
   st.classList.add('is-done'); b.remove();
 });
 
@@ -525,3 +526,25 @@ function uxDecisionPage(id, parts) {
   const actsDrawer = chosen ? uxDrawer(`uxacts-${id}`, 'The Actions', actionsOf(op, chosen).length ? `<ul class="list">${actionsOf(op, chosen).map(a => `<li>${a.action}<small class="cellnote"> created by ${who(op, a.created_by)}${a.owner === a.created_by ? ', who owns it' : `, owned by ${who(op, a.owner)}`}, due ${fdate(a.due)}</small></li>`).join('')}</ul>` : '<p>No Action exists yet in the demo data.</p>') : '';
   return `${head}${recCard}${cardsSec}${why}${dialogs}${evidence}${actsDrawer}`;
 }
+
+/* ===== empty states that name their data (placeholder audit, gap 4): a not-available state carries data-na-path; the check
+   fails it when the data holds a value at that path ===== */
+function uxPathValue(path) { let o = typeof DERIVED !== 'undefined' ? DERIVED : null; for (const k of String(path).split('.')) { if (o == null) return null; o = o[k]; } return o == null ? null : o; }
+/* the earlier-view boards read the data where it exists (Kobo billing and target, Thika cooling energy, Ruiru's roster) and
+   drop the asks a captive fleet rules out (settlement records, odometer readings, a tariff estimate) */
+function uxBoardsFromData() {
+  if (typeof BOARD === 'undefined' || uxBoardsFromData.done) return; uxBoardsFromData.done = true;
+  const row = (b, label) => { for (const k of Object.keys(b || {})) { const c = b[k] && b[k].contrib; if (!Array.isArray(c)) continue; const r = c.find(x => x[0] === label); if (r) return [c, r]; } return [null, null]; };
+  try {
+    const ko = siteM('kobo').period.actual, kt = tree('kobo');
+    let [, r] = row(BOARD.mini, 'Cash collected'); if (r && ko.collected != null) { r[1] = `${usd(ko.collected)} collected of ${usd(ko.revenue)} billed in October`; r[2] = 'Recorded'; }
+    [, r] = row(BOARD.mini, 'Actual against plan'); if (r && kt.plan != null) { r[0] = 'Actual against target'; r[1] = `Contribution ${usd(kt.actual)} against a target of ${usd(kt.plan)}`; r[2] = 'Recorded'; }
+    const th = siteM('thika').period.actual; [, r] = row(BOARD.cold, 'Cooling energy'); if (r && th.kwh != null) { r[1] = `${num(th.kwh)} kWh, ${usd(th.energy)} in October`; r[2] = 'Measured'; }
+    const ru = siteM('ruiru').period.actual; [, r] = row(BOARD.ev, 'Departures against the timetable'); if (r && ru.departures_required != null) { r[1] = `${num(ru.departures_met)} of ${num(ru.departures_required)} required departures met in October`; r[2] = 'Recorded'; }
+    for (const k of Object.keys(BOARD.ev || {})) { const c = BOARD.ev[k] && BOARD.ev[k].contrib; if (Array.isArray(c)) BOARD.ev[k].contrib = c.filter(x => !/^Energy billed against metered/.test(x[0])); }
+    if (BOARD.ev?.cost) BOARD.ev.cost.sub = 'A captive fleet is judged on charging cost per required departure met; it earns no tariff revenue';
+    if (BOARD.ev?.grow) { BOARD.ev.grow.head = 'Revenue not applicable: charging is a cost centre'; BOARD.ev.grow.st = 'notyet'; }
+  } catch (e) { /* the boards keep their text if a read fails */ }
+}
+uxBoardsFromData.done = false;
+uxBoardsFromData();

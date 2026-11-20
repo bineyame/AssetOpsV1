@@ -138,7 +138,7 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
     await p.click('.ux-scope-sw>summary'); await p.click('.ux-scope-sw a[href="#/site/kobo"]'); await p.waitForTimeout(400);
     ok(await p.evaluate(() => location.hash === '#/site/kobo' && /Kobo/.test(document.querySelector('.ux-scope-sw>summary').textContent)), 'scope switcher: opens a Site and names it');
     await p.click('.ux-period>summary'); await p.waitForTimeout(100);
-    ok(await p.evaluate(() => { const d = document.querySelector('.ux-period'); return d.open && /not available yet/.test(d.textContent) && !!d.querySelector('.period-chip'); }), 'period menu: the current period, earlier periods "not available yet"');
+    ok(await p.evaluate(() => { const d = document.querySelector('.ux-period'), hasHist = !!(typeof DERIVED !== 'undefined' && DERIVED.history); return d.open && !!d.querySelector('.period-chip') && (hasHist ? /September 2026/.test(d.textContent) && !/September 2026\s*not available yet/.test(d.textContent) : /not available yet/.test(d.textContent)); }), 'period menu: the current period; earlier periods listed when history is loaded, otherwise "not available yet"');
     await p.context().close(); }
   // wave 2: the bridge links each step to its decision, with detail on focus; the value chain draws its losses; tiles have a visual
   for (const op of ['lakeside', 'harvest', 'metro']) { const p = await page('portfolio', { op });
@@ -218,7 +218,7 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
     let reached = false; for (let i = 0; i < 40 && !reached; i++) { await p.keyboard.press('Tab'); reached = await p.evaluate(() => document.activeElement?.hasAttribute('data-ux-recalc')); }
     if (reached) { await p.keyboard.press('Enter'); await p.waitForTimeout(150); }
     const after = await p.evaluate(() => { const t = document.querySelector('.ux-pending .snap-pending'); return { txt: t.textContent, status: t.getAttribute('role'), btn: !!document.querySelector('[data-ux-recalc]') }; });
-    ok(has && reached && /^Recalculation requested at \d{2}:\d{2}, 6 Nov by Operator executive/.test(after.txt.trim()) && /This demo holds no recalculated values, so the figures still show 06:00\./.test(after.txt) && !/^Recalculated|Figures updated/.test(after.txt.trim()) && !/green/.test(await p.evaluate(() => document.querySelector('.ux-pending .snap-pending .badge').className)) && /as of 06:00/.test(await p.evaluate(() => document.querySelector('.topbar').textContent)) && after.status === 'status' && !after.btn, `Recalculate now: reachable by keyboard, the notice reads "${after.txt.trim().slice(0, 70)}…"`);
+    ok(has && reached && /^Recalculation requested at \d{2}:\d{2}, 6 Nov by Operator executive/.test(after.txt.trim()) && (await p.evaluate(() => !!(typeof DERIVED !== 'undefined' && DERIVED.recalc)) ? /^Recalculated at/.test(after.txt.trim()) : /This demo holds no recalculated values, so the figures still show 06:00\./.test(after.txt)) && !/^Recalculated|Figures updated/.test(after.txt.trim()) && !/green/.test(await p.evaluate(() => document.querySelector('.ux-pending .snap-pending .badge').className)) && /as of 06:00/.test(await p.evaluate(() => document.querySelector('.topbar').textContent)) && after.status === 'status' && !after.btn, `Recalculate now: reachable by keyboard, the notice reads "${after.txt.trim().slice(0, 70)}…"`);
     await p.context().close(); }
   // the Decision page (owner, 20 Nov): question, one primary, state-aware queue buttons, the confirmation, L1 above the fold
   const STATE_BTN = { choose: 'Decide', approval: 'Awaiting approval', released: 'Review', none: 'Review' };
@@ -245,6 +245,13 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
     const d = await p.evaluate(() => { const dr = document.querySelector('.ux-drawer[data-open="true"]'); return dr ? { t: dr.textContent, f: document.activeElement.classList.contains('ux-x') } : null; });
     ok(d && /What happens/.test(d.t) && /Actions/.test(d.t) && /Approval/.test(d.t) && /(Released at once|Waits for)/.test(d.t) && /Recorded under/.test(d.t) && /Finance and commercial lead/.test(d.t) && d.f, 'Choose this: the confirmation says what happens, the Actions, the approval rule and whose name it is recorded under');
     await p.keyboard.press('Escape'); await p.context().close(); }
+  // empty states that name their data path fail when the data holds a value there (placeholder audit, gap 4)
+  for (const [op, r] of [['metro', 'portfolio'], ['metro', 'portfolio/demand-and-capacity'], ['metro', 'portfolio/scope'], ['metro', 'site/embakasi'], ['metro', 'site/kasarani'], ['metro', 'site/ruiru'], ['lakeside', 'portfolio/scope'], ['lakeside', 'portfolio/demand-and-capacity'], ['harvest', 'portfolio/scope'], ['lakeside', 'mini'], ['lakeside', 'cold'], ['lakeside', 'ev']]) {
+    const p = await page(r, { op });
+    const bad = await p.evaluate(() => [...document.querySelectorAll('[data-na-path]')].flatMap(e => e.dataset.naPath.split(' ').filter(Boolean)).filter(path => uxPathValue(path) != null));
+    const boards = r.length <= 4 ? await p.evaluate(() => !/(no billing or payment records|no target declared for this site|no cooling energy meter|no bus roster connected|no settlement records|odometer readings|gross tariff estimate)/i.test(document.querySelector('.canvas').textContent)) : true;
+    ok(!bad.length && boards, `${op} ${r}: no empty state where the data holds a value (${bad.join(', ') || 'none'})${r.length <= 4 ? ', earlier-view board reads the data' : ''}`);
+    await p.context().close(); }
   // short laptop: the first queue row is above the fold at 1280 x 720 (guide §3.5)
   for (const [op, r] of [['lakeside', 'portfolio'], ['harvest', 'portfolio'], ['metro', 'portfolio'], ['lakeside', 'site/kobo'], ['lakeside', 'portfolio/act-first']]) {
     const p = await page(r, { w: 1280, h: 720, op });

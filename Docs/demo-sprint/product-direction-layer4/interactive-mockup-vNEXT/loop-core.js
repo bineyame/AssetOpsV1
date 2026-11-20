@@ -398,7 +398,7 @@ const plainText = t => PLAIN_WORDS.reduce((v,[r,s])=>v.replace(r,s),String(t??''
 function plainWords(root){if(!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement&&n.parentElement.closest('details.tech,pre.code,script,style')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});let n;
  while((n=w.nextNode())){let v=n.nodeValue;if(!/[A-Za-zΣ]/.test(v))continue;const o=v;for(const [r,s] of PLAIN_WORDS)v=v.replace(r,s);if(v!==o)n.nodeValue=v;}
  root.querySelectorAll('[aria-label],[title]').forEach(e=>['aria-label','title'].forEach(a=>{const v=e.getAttribute(a);if(!v)return;let x=v;for(const [r,s] of PLAIN_WORDS)x=x.replace(r,s);if(x!==v)e.setAttribute(a,x);}));}
-/* a sum written across nodes ("$883 + " then "−$250") reads as a subtraction, never "+ −" */
+/* a sum written across nodes (a "+" at the end of one, a signed figure starting the next) reads as a subtraction, never "+ −" */
 function uxFixSigns(root){if(!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),a=[];let n;while((n=w.nextNode()))if(n.nodeValue.trim())a.push(n);
  for(let i=0;i<a.length-1;i++){const t=a[i],u=a[i+1],m=t.nodeValue.match(/\+\s*$/),k=u.nodeValue.match(/^\s*([+−])/);if(m&&k){if(k[1]==='−')t.nodeValue=t.nodeValue.replace(/\+(\s*)$/,'−$1');u.nodeValue=u.nodeValue.replace(/^(\s*)[+−]/,'$1');}}}
 function uxDedupeUnits(root){if(!root)return;root.querySelectorAll('small').forEach(sm=>{const p=sm.previousElementSibling;if(!p)return;const pt=p.textContent.trim().toLowerCase(),u=sm.textContent.trim(),head=u.split(/[,·]/)[0].trim();

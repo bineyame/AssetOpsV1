@@ -16,6 +16,8 @@ src = here / 'src-v70-baseline'
 
 HOOKS = {
  'screens.js': [
+  # a captive fleet earns no tariff revenue (economic-metric-and-effect-contracts.md:104,114; placeholder audit, 20 Nov)
+  ('pair(panel(\'Bounded money consequence\',`<div class="metric-value">$36.00</div><p class="prose">Gross tariff estimate for 120 kWh delivered in complete sessions at a $0.30/kWh scenario tariff. <strong>Not cash collected.</strong> The interrupted session is not priced: unmet demand is not established.</p>', 'pair(panel(\'Bounded money consequence\',`<div class="metric-value">Not applicable</div><p class="prose">A captive fleet earns no charging revenue, so no tariff is estimated. Its money measure is charging cost per required departure met. The interrupted session is not priced: unmet demand is not established.</p>'),
   # routing: aliases for merged screens, loop screens, operator from the screen
   ("function currentScreen(){return SCREENS.find(s=>s.id===location.hash.replace(/^#\\//,''))||SCREENS[0];}",
    "function currentScreen(){return resolveScreen(location.hash.replace(/^#\\//,''));}"),
@@ -69,6 +71,8 @@ HOOKS = {
   ("href=\"previews/portfolio-previous.png\"", "href=\"../../../../frontend/mockups/v70/previews/portfolio-previous.png\""),
  ],
  'outcomes.js': [
+  # an empty history says what it means (placeholder audit, 20 Nov): nothing yet, not "not available yet"
+  ('<p class="ob-none">${NAY}</p>', '<p class="ob-none">Nothing yet</p>'),
   # design rev 16.9/16.10 §2.0 named change 1 (OD-21): contribution is the outcome above Grow and Optimize, not a Grow row
   (",['Cash collected',`${NAY} · no billing or payment records`,null,null],['Site earnings',`${NAY} · needs site income, operating cost and capital records`,null,null]]", "]"),
   # rev 16.10 §2.0 (OD-21 corrected): collection of what was billed is Optimize (billed against collected), cash outside contribution

@@ -1,11 +1,13 @@
 portfolio.js: hook 'href="previews/portfolio-previous.png"'
 portfolio.js: name 'GreenHarvest' -> 'Thika' x2
 portfolio.js: name '(?<!Westfield )\\bDepot\\b(?! auxiliary| attendant)' -> 'Ruiru' x3
+outcomes.js: hook '<p class="ob-none">${NAY}</p>'
 outcomes.js: hook ",['Cash collected',`${NAY} · no billing or payment records`,"
 outcomes.js: hook "contrib:[['Generator use','30 min avoidable, 30 min unclear'"
 outcomes.js: hook "const CAT_OF={'MG-1':'grow','MG-3':'grow','MG-6':'grow',"
 outcomes.js: name 'GreenHarvest' -> 'Thika' x14
 outcomes.js: name '(?<!Westfield )\\bDepot\\b(?! auxiliary| attendant)' -> 'Ruiru' x15
+screens.js: hook 'pair(panel(\'Bounded money consequence\',`<div class="metric-v'
 screens.js: hook 'function currentScreen(){return SCREENS.find(s=>s.id===locat'
 screens.js: hook 'function siteSwitch(s){'
 screens.js: hook 'function siteRoutes(domain){'
