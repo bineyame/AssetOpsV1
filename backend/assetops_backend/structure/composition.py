@@ -2,10 +2,8 @@
 
 `build_structure_read(database_url)` wires `ProductLeafSource` to the snapshot store and to the declared prices.
 The adapters are reached only through their domains' compositions (the configuration-persistence guard: only
-`chain/composition.py` and `financials/composition.py` may import their adapters), so the prices come from the
-two existing window-price builders, each `PostgresAssumptionStore.snapshot` + `fuel_cost.select_window_price`
-with its key and stored unit: `build_trial_comparison_ports(...).price_selection` (diesel, `currency/L`) and
-`build_productive_price_selection` (productive use, `unit_for(PRODUCTIVE_PRICE_KEY)`).
+`chain/composition.py` and `financials/composition.py` may import their adapters), so the prices come from
+`financials.composition.build_window_price_selection`: one assumption store, disposed with the service.
 """
 
 from __future__ import annotations
@@ -13,7 +11,6 @@ from __future__ import annotations
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from uuid import UUID
 
 from assetops_backend.structure.read import StructureRead
 
@@ -32,28 +29,19 @@ def _utc_now() -> datetime:
 def build_structure_read(database_url: str | None) -> StructureReadService:
     from assetops_backend.chain.composition import build_snapshot_store
     from assetops_backend.chain.reader import SnapshotReader
-    from assetops_backend.financials.composition import (
-        build_productive_price_selection,
-        build_trial_comparison_ports,
-    )
-    from assetops_backend.structure.sources import PRICE_KEYS, ProductLeafSource
+    from assetops_backend.financials.composition import build_window_price_selection
+    from assetops_backend.structure.sources import ProductLeafSource
 
     snapshots = build_snapshot_store(database_url)
     if snapshots is None:
         raise RuntimeError("DATABASE_URL is not set, so the structure read cannot reach its sources.")
-    diesel = build_trial_comparison_ports(database_url)
-    by_key = {PRICE_KEYS["diesel_price"]: diesel.price_selection,
-              PRICE_KEYS["productive_tariff"]: build_productive_price_selection(database_url)}
-
-    def window_price(tenant_id: UUID, site_id: UUID, key: str, start: datetime, end: datetime,
-                     known_at: datetime | None):
-        return by_key[key](tenant_id, site_id, start, end, known_at)
+    prices = build_window_price_selection(database_url)
 
     def dispose() -> None:
         snapshots.dispose()
-        getattr(diesel.store, "dispose", lambda: None)()
+        prices.dispose()
 
-    source = ProductLeafSource(SnapshotReader(snapshots), window_price, _utc_now)
+    source = ProductLeafSource(SnapshotReader(snapshots), prices.select, _utc_now)
     return StructureReadService(StructureRead(source), dispose)
 
 

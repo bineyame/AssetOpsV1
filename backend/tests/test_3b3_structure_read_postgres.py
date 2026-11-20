@@ -122,3 +122,22 @@ def test_a_site_with_no_operating_calendar_is_not_connected(store, engine, servi
     unserved = service.read.site(other, MONTH).values["unserved_critical_kwh"]
     assert unserved.value is None and unserved.missing.cause == "NOT_CONNECTED"
     assert unserved.coverage.expected == 0
+
+
+def test_window_price_selection_equals_the_diesel_port_on_the_same_rows(store):  # noqa: F811
+    from assetops_backend.financials import fuel_cost
+    from assetops_backend.financials.composition import build_trial_comparison_ports, build_window_price_selection
+
+    kobo = _site(store)
+    _price(kobo, datetime(2026, 9, 1, tzinfo=UTC))
+    start, end = datetime(2026, 9, 30, 21, tzinfo=UTC), datetime(2026, 10, 31, 21, tzinfo=UTC)
+    known = datetime.now(UTC)  # the revision is recorded now
+    new = build_window_price_selection(URL)
+    old = build_trial_comparison_ports(URL)
+    try:
+        got = new.select(kobo.tenant_id, kobo.site_id, fuel_cost.PRICE_KEY, start, end, known)
+        assert got.state == "PRICED"
+        assert got == old.price_selection(kobo.tenant_id, kobo.site_id, start, end, known)
+    finally:
+        new.dispose()
+        old.store.dispose()

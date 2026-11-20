@@ -11,7 +11,7 @@ from __future__ import annotations
 import dataclasses
 import decimal
 import json
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
@@ -32,7 +32,8 @@ from assetops_backend.structure.evaluate import (
     compose,
     evaluate,
 )
-from assetops_backend.structure.read import StructureRead
+from assetops_backend.chain.outcomes import month_sum
+from assetops_backend.structure.read import StructureRead, site_count
 from assetops_backend.structure.registry import REGISTRIES, Registry, Tolerance
 from assetops_backend.structure.sources import SOURCE_STATE, ProductLeafSource, ReadContext
 
@@ -584,6 +585,36 @@ def test_t6_unserved_critical_needs_a_closed_fully_covered_month():
     assert got.value is None
 
 
+@pytest.mark.parametrize("value", [None, {}])
+def test_t4_a_complete_day_with_no_value_is_unknown_never_zero(value):
+    rows = [_snap(d) for d in OCT]
+    rows[8] = SimpleNamespace(local_day=OCT[8], measure="critical_served", evidence_class="MEASURED",
+                              grade="COMPLETE", value=value)
+    got = _leaf(_source(rows), "unserved_critical_kwh")
+    assert got.value is None and got.evidence == "NOT_AVAILABLE"
+    assert got.missing.cause == "NOT_RECEIVED" and got.missing.note == "VALUE_NOT_STATED:1"
+    assert (got.coverage.covered, got.coverage.expected) == (30, 31)
+
+
+def test_t4_month_sum_lists_unstated_days_for_partial_days_too():
+    rows = [_snap(d) for d in OCT]
+    rows[4] = _snap(OCT[4], "PARTIAL", None)
+    rows[8] = _snap(OCT[8], "COMPLETE", None)
+    value, days, unstated = month_sum(rows, "critical_served", OCT[0], OCT[-1], "unserved_kwh")
+    assert unstated == (OCT[4], OCT[8])
+    assert value == Decimal("1.5") * 29 and days.partial == 1
+    assert month_sum([_snap(d) for d in OCT], "critical_served", OCT[0], OCT[-1], "unserved_kwh")[2] == ()
+
+
+def test_t4_closed_is_the_wall_clock_only_without_known_at():
+    full = [_snap(d) for d in OCT]
+    end = datetime(2026, 10, 31, 21, tzinfo=timezone.utc)  # Site-local midnight of 1 November, Africa/Nairobi
+    before = _leaf(_source(full, now=end - timedelta(seconds=1)), "unserved_critical_kwh")
+    assert before.value is None and before.missing.cause == "NOT_RECEIVED"
+    at = _leaf(_source(full, now=end), "unserved_critical_kwh")
+    assert at.value == Decimal("46.5")
+
+
 def test_t6_month_window_is_site_local():
     prices = FakePrices()
     snaps = FakeSnapshots()
@@ -646,6 +677,24 @@ def test_t6_portfolio_refuses_duplicates_and_other_tenants_and_excludes_undeclar
             "2026-10")
     with pytest.raises(ValueError):
         read.site(KOBO, "2026-13")
+
+
+def test_t6_site_count_is_k_of_n_over_every_site_asked_for():
+    read = StructureRead(_source([_snap(d) for d in OCT]))
+    cold = SiteRef(TENANT, uuid4(), "ROOM-A", "COLDCHAIN", TZ)
+    mto = SiteRef(TENANT, uuid4(), "MTO-001", "MINIGRID", TZ)
+    portfolio = read.portfolio(TENANT, [KOBO, cold, mto], "2026-10")
+    for row in MG.rows:
+        count = site_count(portfolio, row.factor_id)
+        if row.factor_id in portfolio.composition.not_composed:
+            assert count is None
+            continue
+        assert count.n == 3 and count.k + len(count.out) == count.n, row.factor_id
+        assert ("ROOM-A", ("STRUCTURE_NOT_DECLARED",)) in count.out
+        assert [c for c, _ in count.out] == [c for c in portfolio.sites if c in dict(count.out)]
+    assert site_count(portfolio, "unserved_critical_kwh").k == 2
+    assert site_count(portfolio, "contribution").k == 0
+    assert dict(site_count(portfolio, "contribution").out)["KOBO-001"]
 
 
 # ---------------------------------------------------------------- T7 evidence order

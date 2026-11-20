@@ -38,6 +38,28 @@ class PortfolioStructure:
     sites: tuple[str, ...]  # every Site asked for, in the order given
 
 
+@dataclass(frozen=True)
+class SiteCount:
+    """D-3B3.13: "k of n sites". n is every Site asked for; `out` names those not in k, in the order asked."""
+    k: int
+    n: int
+    out: tuple[tuple[str, tuple[str, ...]], ...]
+
+
+def site_count(portfolio: PortfolioStructure, factor_id: str) -> SiteCount | None:
+    """The factor's k of n over the Sites the portfolio was asked for; None when the factor is not composed."""
+    value = portfolio.composition.values.get(factor_id)
+    if value is None:
+        return None
+    out = []
+    for code in portfolio.sites:
+        if code in value.included:
+            continue
+        reasons = value.excluded.get(code) or portfolio.composition.sites_excluded.get(code) or NOT_DECLARED
+        out.append((code, tuple(reasons)))
+    return SiteCount(len(value.included), len(portfolio.sites), tuple(out))
+
+
 def _month(month: str) -> str:
     if not isinstance(month, str) or _MONTH.fullmatch(month) is None:
         raise ValueError(f"month {month!r} is not YYYY-MM")
@@ -80,4 +102,4 @@ class StructureRead:
                                   tuple(s.site_code for s in sites))
 
 
-__all__ = ["NOT_DECLARED", "SITE_TYPE_TO_STRUCTURE", "PortfolioStructure", "StructureRead"]
+__all__ = ["NOT_DECLARED", "SITE_TYPE_TO_STRUCTURE", "PortfolioStructure", "SiteCount", "StructureRead", "site_count"]

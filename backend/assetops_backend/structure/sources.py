@@ -17,7 +17,8 @@ from typing import Any, Protocol
 from uuid import UUID
 from zoneinfo import ZoneInfo
 
-from assetops_backend.chain.outcomes import month_sum
+from assetops_backend.chain.outcomes import AUTHORITY, month_sum
+from assetops_backend.chain.strategies.graded_verdict import day_grades
 from assetops_backend.chain.ports import SiteRef
 from assetops_backend.chain.read import local_days
 from assetops_backend.structure import registry as _registry
@@ -152,15 +153,22 @@ class ProductLeafSource:
         lo, hi, first, last = month_window(ctx.month, ctx.site.timezone)
         rows = self._snapshots.latest(ctx.site.tenant_id, ctx.site.site_id, first, last, [CRITICAL_MEASURE],
                                       ctx.known_at)
-        value, days = month_sum(rows, CRITICAL_MEASURE, first, last, "unserved_kwh")
-        coverage = Coverage(days.complete, days.expected, MappingProxyType({
+        value, days, unstated = month_sum(rows, CRITICAL_MEASURE, first, last, "unserved_kwh")
+        # D-3B3.17: a COMPLETE day that states no value is unknown, so it is not covered.
+        grades = day_grades(tuple(r for r in rows if r.measure == CRITICAL_MEASURE
+                                  and AUTHORITY.get(r.evidence_class, False) and first <= r.local_day <= last))
+        unknown = [d for d in unstated if grades.get(d) == "COMPLETE"]
+        covered = days.complete - len(unknown)
+        coverage = Coverage(covered, days.expected, MappingProxyType({
             "COMPLETE": days.complete, "PARTIAL": days.partial, "LOW": days.low, "NO_DATA": days.no_data,
             "NOT_EXPECTED": days.not_expected, "PENDING": days.pending}))
         if days.expected == 0:  # P4: no reading role declared over the month
             return _absent(fb, "NOT_CONNECTED", coverage=coverage)
         closed = hi <= (ctx.known_at if ctx.known_at is not None else self._now())
-        if not closed or days.complete != days.expected or value is None:
-            return _absent(fb, "NOT_RECEIVED", coverage=coverage)
+        if not closed or covered != days.expected or value is None:
+            note = f"VALUE_NOT_STATED:{len(unknown)}" if closed and unknown and days.complete == days.expected \
+                else None
+            return _absent(fb, "NOT_RECEIVED", note=note, coverage=coverage)
         return LeafValue(value, "MEASURED", (f"snapshot:{CRITICAL_MEASURE}",), coverage, None, None)
 
     def _price(self, ctx: ReadContext, factor_id: str, fb: Any) -> LeafValue:

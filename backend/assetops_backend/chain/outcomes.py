@@ -83,18 +83,23 @@ def _dec(value: Any) -> Decimal | None:
     return None if value is None else Decimal(str(value))
 
 
-def month_sum(rows: Any, measure: str, lo: date, hi: date, key: str) -> tuple[Decimal | None, GradeCounts]:
+def month_sum(rows: Any, measure: str, lo: date, hi: date, key: str
+              ) -> tuple[Decimal | None, GradeCounts, tuple[date, ...]]:
     """3B3 (P1): the sum of `value[key]` over the COMPLETE and PARTIAL days of `measure`'s authoritative rows in the
     Site-local days `[lo, hi]`, and those days' `GradeCounts` (the one day rule). LOW days are counted in the grades
-    and never totalled; no counted day gives None. Extracted from `_month_reading`, which calls it with "kwh"."""
+    and never totalled; no counted day gives None. The third element is the counted days stating no `key` (D-3B3.17).
+    Extracted from `_month_reading`, which calls it with "kwh"."""
     rows = tuple(r for r in rows if r.measure == measure and AUTHORITY.get(r.evidence_class, False)
                  and lo <= r.local_day <= hi)
     grades = day_grades(rows)
     counted = {d for d, g in grades.items() if g in COUNTED}
-    amounts = [Decimal(str(r.value[key])) for r in rows
-               if r.local_day in counted and r.grade in COUNTED and r.value and r.value.get(key) is not None]
+    stated = [r for r in rows if r.local_day in counted and r.grade in COUNTED and r.value
+              and r.value.get(key) is not None]
+    amounts = [Decimal(str(r.value[key])) for r in stated]
     value = sum(amounts, Decimal(0)) if counted else None
-    return value, counts(rows, lo, hi, [measure])
+    # D-3B3.17: a counted day with no counted row stating `key` is unknown; the caller decides what that means.
+    unstated = tuple(sorted(counted - {r.local_day for r in stated}))
+    return value, counts(rows, lo, hi, [measure]), unstated
 
 
 class OutcomeEvaluator:
@@ -125,7 +130,7 @@ class OutcomeEvaluator:
         hi = inp.window[1]
         lo = hi.replace(day=1)
         rows = self._rows(inp, measure, lo, hi)
-        value, days = month_sum(rows, measure, lo, hi, "kwh")
+        value, days, _ = month_sum(rows, measure, lo, hi, "kwh")
         checked = days.complete
         elapsed = (hi - lo).days + 1
         month_days = calendar.monthrange(hi.year, hi.month)[1]
