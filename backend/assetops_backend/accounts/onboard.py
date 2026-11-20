@@ -33,7 +33,7 @@ def _password() -> str:
     return line[:-1] if line.endswith("\n") else line
 
 
-def _parser() -> argparse.ArgumentParser:
+def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m assetops_backend.accounts.onboard")
     commands = parser.add_subparsers(dest="command", required=True)
     create = commands.add_parser("create")
@@ -50,7 +50,7 @@ def _parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    args = _parser().parse_args(argv)
+    args = build_parser().parse_args(argv)
     url = database_url()
     if url is None:
         return _refuse("DATABASE_URL_REQUIRED")

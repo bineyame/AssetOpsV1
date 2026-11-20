@@ -30,6 +30,10 @@ FileKeyStore = file_key_store.FileKeyStore
 create_key_file = file_key_store.create_key_file
 KeyExists = file_key_store.KeyExists
 KeyDirectoryMissing = file_key_store.KeyDirectoryMissing
+#: ON1 (spec §3.5; D-ON1.7, D-ON1.14): terminal erasure.
+KeyErased = file_key_store.KeyErased
+key_state = file_key_store.key_state
+erase_key_file = file_key_store.erase_key_file
 REAL_DATA_ENV = "ASSETOPS_REAL_OPERATOR_DATA"
 KEY_DIR_ENV = "ASSETOPS_PSEUDONYM_KEY_DIR"
 _MISMATCH = ("Real operator data needs its own database (assetops_op_<name>) and ASSETOPS_REAL_OPERATOR_DATA=on, "
@@ -69,6 +73,22 @@ def commercial_upload_settings(database_url: str | None) -> UploadSettings:
         raise ConfigurationError(_MISMATCH)
     key_dir = os.environ.get(KEY_DIR_ENV)
     return UploadSettings(key_dir or None, real_data)
+
+
+class FileKeyFiles:
+    """ON1 (spec §3.1, §3.5): the onboarding command's `KeyFiles` port over one key directory."""
+
+    def __init__(self, directory: str) -> None:
+        self._directory = directory
+
+    def directory_ok(self) -> bool:
+        return file_key_store.directory_ok(self._directory)
+
+    def state(self, tenant_id) -> str:
+        return file_key_store.key_state(self._directory, tenant_id)
+
+    def create(self, tenant_id) -> None:
+        file_key_store.create_key_file(self._directory, tenant_id)
 
 
 class OperatorDatabaseRefused(Exception):

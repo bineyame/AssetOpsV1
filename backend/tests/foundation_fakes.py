@@ -64,6 +64,10 @@ class InMemoryFoundationStore:
         self._check()
         return self.tenants.setdefault(slug, TenantRef(id=uuid4(), slug=slug, name=name))
 
+    def tenant_slugs(self) -> tuple[str, ...]:
+        self._check()
+        return tuple(sorted(self.tenants))
+
     def find_site(self, tenant_id: UUID, site_code: str) -> StoredSite | None:
         self._check()
         return next(

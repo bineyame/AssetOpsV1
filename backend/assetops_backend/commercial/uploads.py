@@ -25,8 +25,8 @@ from uuid import UUID, uuid4
 
 from assetops_backend.commercial.model import (Acceptance, HeldUpload, UploadAlreadyDecided, UploadDecisionRow,
                                                UploadRecord, UploadRow, UploadStale)
-from assetops_backend.commercial.pseudonym import (PseudonymKeyMissing, PseudonymKeys, PseudonymKeyUnusable,
-                                                   cut_path, pseudonymise)
+from assetops_backend.commercial.pseudonym import (PseudonymKeyErased, PseudonymKeyMissing, PseudonymKeys,
+                                                   PseudonymKeyUnusable, cut_path, pseudonymise)
 from assetops_backend.commercial.readers import DEFAULT_READER, READERS, ReadContext, ReadResult, SourceReader
 from assetops_backend.commercial.service import CommercialRecords
 from assetops_backend.commercial.store import CommercialStore
@@ -50,6 +50,7 @@ _WORDS = {
     "UPLOAD_PROVENANCE_NOT_ALLOWED": "provenance_not_allowed",
     "PSEUDONYM_KEY_MISSING": "key_missing",
     "PSEUDONYM_KEY_UNUSABLE": "key_unusable",
+    "PSEUDONYM_KEY_ERASED": "key_erased",  # ON1 (D-ON1.7)
     "COMMERCIAL_STORE_FAULT": "store_fault",
     "UPLOAD_NOTHING_NEW": "nothing_new",
     "UPLOAD_NOT_FOUND": "not_found",
@@ -184,6 +185,8 @@ class CommercialUploads:
             key = self._keys.key(tenant_id)
         except PseudonymKeyMissing:
             raise UploadRefused(409, "PSEUDONYM_KEY_MISSING") from None
+        except PseudonymKeyErased:
+            raise UploadRefused(409, "PSEUDONYM_KEY_ERASED") from None
         except PseudonymKeyUnusable:
             raise UploadRefused(503, "PSEUDONYM_KEY_UNUSABLE") from None
 

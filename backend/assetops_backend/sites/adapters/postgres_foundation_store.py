@@ -195,6 +195,14 @@ class PostgresFoundationStore:
 
         return self._run(work, write=True)
 
+    def tenant_slugs(self) -> tuple[str, ...]:
+        """ON1 (spec §4): every tenant's slug, in slug order."""
+
+        def work(connection: Connection) -> tuple[str, ...]:
+            return tuple(connection.execute(text("SELECT slug FROM tenant ORDER BY slug")).scalars())
+
+        return self._run(work)
+
     # --- reads --------------------------------------------------------------
 
     def _select_sites(self, connection: Connection, where: str, params: dict) -> list[StoredSite]:
