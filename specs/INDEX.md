@@ -1,7 +1,7 @@
 # Specs index
 
-Build sheets and build specs, one folder each: `specs/<ID>/` (moved from `.agent/`
-in declutter step 4; old paths: `CITATION_MAP.md`). Status: live (governs current
+Build sheets and specs, one folder each: `specs/<ID>/` (old `.agent/` paths:
+`CITATION_MAP.md`). Status: live (governs current
 work), finished (built and merged; the record), superseded (replaced). Notes name
 partial replacements. A sheet over the 15k-token cap (about 60 KB) was split by its
 own headings into spec and rulings parts; its README.md lists the parts and
@@ -27,3 +27,4 @@ finished work are in `archive/agent-history/`.
 | 3B2 | Findings pinned to factors | live — spec | `3B2-findings-pinned/spec.md` | — |
 
 Finished, merged or superseded (folder kept as the record): `3C0a-operator-accounts/`, `CH-0/`, `CH-1a/`, `CH-1b/`, `CH-2/`, `CH-3/`, `CH-4/`, `CH-5a/`, `CH-5b/`, `CH-5c/`, `CH-5d/`, `CH-6/`, `CH-9/`, `CH-9b/`, `COV-PARTIAL/`, `DD-1/`, `DEMO-COMBINED/`, `DEMO-SPARSE/`, `FIX-COLD-DRAIN/`, `FUEL-1/`, `IDX-GAPS/`, `LINK-LINEAGE/`, `Lane-C/`, `Lane-T/`, `MD-0/`, `OUT-C/`, `OUT-D/`, `OUT-E/`, `OUT-W/`, `POLISH/`, `RECON-1/`, `SCN/`, `T1-heavy-tool-slot-pool/`, `TEST-drift/`, `W2-02/`, `W2-03/`, `W2-04/`, `W2-05a/`, `W2-05b/`, `W2-06/`, `W2-07/`, `W2-F/`, `W3-01/`, `W3-02/`, `W3-03/`, `W4-01/`, `W4-02/`, `W4-03/`, `W5-01/`, `W5-02/`, `W5-03/`, `W5-04/`, `W5-F1/`, `W6-01/`, `WALK1/`, `mockup-vnext-categories-snapshot/`, `mockup-vnext-demo-items/`, `mockup-vnext-professional/`.
+| IA-1 | Menu, page organization, shape rebuild | rev 1, handshake | `IA-1-shape-rebuild/spec.md` | 22 KB |
