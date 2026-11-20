@@ -412,3 +412,45 @@ should follow:
 - **DS1p change:** add the subset condition to H13's `leaves` match, and plant a stray leaf (for example, add `om` to one
   history plan list) to show it fails. No figure or file other than `check_manifest.py` changes. Then send DS1p to the
   verification re-review.
+
+## DS1m mid-build answers (MB7, MB8), deferrals and merge order (2026-11-20)
+
+**MB7 (G3 at the compact sizes): G3 is amended. The compact rule stays the UI lane's call.**
+- The compact rules (`ux.css` `.ux-kpi-s+.ux-kpi-s{display:none}`, at max-width 600 px and at 1024+ wide by 820 px or
+  less tall) are the mock-up's own overview budget (UI/UX guide §2.2a). DS1m must not change them, and a gate must not
+  require what the governing mock hides by design.
+- **G3, amended:**
+  - at 1440×900, each overview `.ux-kpi .ux-trend` is visible and not clipped;
+  - at 1280×720 and 390×844, the trend slot is present in the DOM with its series, hidden only by the compact rule, and
+    nothing is clipped;
+  - page errors are 0 in all 18 shots.
+  - The 6/18 already measured, plus the presence check on the other 12, satisfy it.
+- **Recommendation to the UI lane** (not blocking; under RULES §6, "strong 390 px behaviour" and plain copy):
+  - on a phone, show the change in words ("−$X against Sep") as the tile's one sub-line, and drop the sparkline. A
+    64×16 line carries little at 390 px; the words carry the decision-relevant fact.
+  - at 1280×720, keep the sparkline if the overview budget allows.
+  - That is a UI-lane change with its own G3, not a DS1 condition.
+
+**MB8 (the Lakeside sentence): accepted with DS1m.** The sentence changes because the regenerated fixtures carry the
+owner-approved pack wording (the empty-state ruling: never blame an export). It is generated, and it changes no figure.
+The packet records it as the one non-trend text change.
+
+**Deferrals confirmed.**
+- **The Site tiles keep "Trend not available yet" in DS1m** (D5, register R742). R742 closes when the UI lane's Site
+  wiring (`583bdd7c8`, Decision-page branch) and DS1's `history.sites` are both on `main`, that is, at the merge of the
+  Decision-page branch after DS1m. That merger regenerates the fixtures, checks with G3 at 1440×900 that the Site tiles
+  show "against Sep", and closes R742 in the same commit.
+- **The period menu keeps earlier months "not available yet"** (R21). Choosing September as the period needs the
+  product's month-series read (`3B7a`). It is not a departure, and there is no register row.
+
+**Merge order: DS1m first, after merging `main` into it.**
+1. Merge `main` into `task/DS1-mockup-trends`.
+2. Regenerate (`gen_fixtures.py`, `build.mjs`), never hand-merging a generated file.
+3. Rerun G1, G1+ and G2, and the amended G3.
+4. Diff `rendered-text.json` against `main`'s regenerated output: only the trend slots may differ.
+5. A verification reviewer checks those results; then merge to `main`.
+6. The Decision-page branch then merges `main` and regenerates. It receives DS1m's `ux_interaction_check.cjs` assertion
+   by an ordinary merge, as a source file.
+
+**Why this order.** DS1's gate stays with DS1's review, rather than being absorbed into another lane's review where it
+could be lost.
