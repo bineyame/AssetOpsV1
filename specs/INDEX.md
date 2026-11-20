@@ -66,3 +66,4 @@ finished work are in `archive/agent-history/`.
 | Lane T | Build spec, telemetry lane | finished — as TEL-01 to TEL-06; to confirm | `Lane-T/README.md` (split) | 134 KB |
 | DECLUTTER | Repo declutter recommendation, packets and reviews | live — steps 4-5 | `DECLUTTER/repo-declutter-recommendation-2026-11-18.md` | 42 KB |
 | T1 | Heavy-tool slot pool, enforced (spec, reviewer guide, handshake, rulings) | in_review — rev 2 (option C) built; packet in the folder | `T1-heavy-tool-slot-pool/spec.md` | 36 KB |
+| DS1 | Generator core and the July-September history (spec, reviewer guide, rulings, handshake) | live — handshake open | `DS1-history-generator/spec.md` | 50 KB |
