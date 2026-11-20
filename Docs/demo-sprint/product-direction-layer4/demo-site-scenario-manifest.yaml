@@ -1531,8 +1531,8 @@ home_categories:   # design rev 16.11 §2.0 (OD-21; Architect's calls): the regi
                     # No figure here: check_manifest.py reconciliation() computes every amount from the bridge and
                     # derived-values.json. The evaluator and the independent model do not read this block.
     rule: "a heading figure is a column of the statement-to-heading matrix and a statement figure a row; where they differ, the crossing is a labelled line on the screen, never left to the reader"
-    crossing_label: "Metered but not billed"
-    crossing_note: "energy customers used and their meters recorded, not yet billed; it lowers revenue on the statement and is counted under Optimize, because recovering it is a billing and settlement task, not selling more"
+    crossing_label: "Unbilled energy"   # OD-28 (owner, 20 Nov: "use whichever is the industry standard term"); ruling D-L4OPS.9. The UI keeps it in one constant
+    crossing_note: "unbilled energy: energy customers used and their meters recorded, not billed (meters not yet mapped to a customer, and authorised adjustments, which are not losses); it lowers revenue on the statement and is counted under Optimize, because recovering it is a billing and settlement task, not selling more"
     crossing:   # driver -> its plain words on screen; each is a revenue-line row homed under Optimize (O3)
       METER_MAPPING_UNBILLED: "meters not yet mapped to a customer"
       AUTHORISED_ADJUSTMENT: "authorised adjustments"
@@ -1543,7 +1543,7 @@ home_categories:   # design rev 16.11 §2.0 (OD-21; Architect's calls): the regi
       - {figure: optimize, reads: "col:optimize", words: "Optimize cost and efficiency", routes: [portfolio, portfolio/outcomes-by-site, globalfinancials]}
       - {figure: revenue_change, reads: "row:revenue", words: "Revenue against target", routes: [portfolio, globalfinancials, "site/*/economics"]}
       - {figure: cost_change, reads: "row:cost_to_serve", words: "Cost to serve against target", routes: [portfolio, globalfinancials, "site/*/economics"]}
-      - {figure: metered_not_billed, reads: cross, words: "Metered but not billed", routes: [portfolio, portfolio/outcomes-by-site, globalfinancials, "site/*/economics"]}
+      - {figure: metered_not_billed, reads: cross, words: "Unbilled energy", routes: [portfolio, portfolio/outcomes-by-site, globalfinancials, "site/*/economics"]}
     ties:   # two different figures shown for one scope are tied by a stated line: left = right + by, each an effect on the outcome
       - {left: revenue_change, right: grow, by: metered_not_billed}
       - {left: optimize, right: cost_change, by: metered_not_billed}
@@ -1839,6 +1839,253 @@ checks:
   - "cold: revenue == crate_days x 0.20; kwh_model == 1550 + 0.25 x crate_days"
   - "ev: energy_cost == peak_cost + offpeak_cost + demand_cost"
   - "allocation spend == sum(spend_breakdown) <= budget"
+operations:   # design rev 16.16 §2.10 (owner OD-26, 20 Nov: "they should be seamlessly integrated through propoer design not just a patch";
+              # rulings D-L4OPS.1 to D-L4OPS.9 in specs/L4-OPS/rulings.md). The asset registry, the rights on each asset or Site, the incidents
+              # with their repeats, and the maintenance schedules and records of all 9 Sites, July to October 2026 (and November to 6 Nov
+              # where the story runs on). GENERATOR INPUTS AND RECORDS ONLY: the evaluator and the independent model do not read this
+              # block, so derived-values.json is unchanged. check_manifest.py operations() checks it (OP1 to OP9) against the rest of the
+              # manifest and history.json: the story's dates and assets, asset-days and obligation hours, field visits, the maintenance
+              # money leaf of every Site-month, repeats, and scope by Site key. Internal keys (`key`) are never shown on screen.
+  as_of: "2026-11-06"
+  months: ["2026-07", "2026-08", "2026-09", "2026-10"]
+  settings:   # operator settings (D-L4OPS.4): configurable per operator, recorded with who set them; demo defaults
+    repeat_window_days: 90          # two incidents on one asset with one failure mode, this close, form a repeat
+    repeat_tolerance: 0             # OD-3: the repeat_failures factor's tolerance; 0 raises every repeat
+  measures:   # the registry rows slice OPS1 adds (3B1's registry); heading = the objective's (design §2.0 rule "a measure takes its objective's heading")
+    - {id: repeat_failures, unit: incidents, objective: P2, heading: protect, target: 0, class: DERIVED,
+       basis: "incidents in the period that repeat an earlier incident on the same asset with the same failure mode inside the repeat window"}
+    - {id: scheduled_maintenance_share, unit: "% of maintenance work records", objective: O2, heading: optimize, class: DERIVED,
+       basis: "scheduled records / all maintenance records in the period (Σ/Σ); a measure, never money"}
+    - {id: maintenance_due_overdue, unit: schedules, objective: P2, heading: protect, target: 0, class: DERIVED,
+       basis: "calendar schedules due before the period end and not done (outcomes/plan_due.py OVERDUE)"}
+  counting: "asset-days and charger-days: each calendar day from out_from to the day before restoration; an open incident counts to the period end; obligation hours: the Site's obligation window on each of those days"
+  portfolio_rights:   # a right that covers several Sites is declared once, at its portfolio, and listed on each Site it names (scope by data, review H3)
+    - {key: harvest-goods-insurance, tenant: harvest-cold, sites: ["Room A · Mwea", "Room B · Thika", "Room C · Kirinyaga"], type: INSURANCE,
+       counterparty: "goods-in-custody policy", from: "tenants[harvest-cold].sites[Room B · Thika].incident.insurance", state: IN_COVER}
+  sites:
+    - site: Kobo
+      tenant: lakeside-power
+      assets:   # `availability_name` ties a major asset to the asset_availability counting list (OP3)
+        - {code: KOB-PV, type: PV_ARRAY, serves: "daytime supply", commissioned: "2024-02-20", availability_name: "PV array"}
+        - {code: KOB-INV, type: INVERTER, serves: "daytime supply", commissioned: "2024-02-20", availability_name: "inverter (50 kW AC)"}
+        - {code: BAT-001, type: BATTERY, serves: "evening and night supply", commissioned: "2024-02-20", availability_name: "battery"}
+        - {code: KOB-PCS, type: BATTERY_CONVERTER, serves: "evening and night supply", commissioned: "2024-02-20", availability_name: "battery converter (PCS 30 kW)"}
+        - {code: KOB-GEN, type: GENERATOR, serves: "backup and evening top-up", commissioned: "2024-02-20", availability_name: "generator"}
+        - {code: KOB-TANK, type: FUEL_TANK, parent: KOB-GEN, serves: "generator fuel", commissioned: "2024-02-20"}
+      rights:
+        - {key: kob-bat-warranty, asset: BAT-001, from: "tenants[lakeside-power].sites[Kobo].entitlement"}
+        - {key: kob-inv-warranty, asset: KOB-INV, type: EQUIPMENT_WARRANTY, counterparty: "Sunfield Inverters", term_start: "2024-02-20", term_end: "2029-02-20",
+           conditions: ["certified installer", "firmware current"], notice_days: 30, state: IN_COVER}
+        - {key: kob-om, scope: SITE, type: OM_CONTRACT, counterparty: "Island Power Services", term_start: "2025-01-01", term_end: "2026-12-31",
+           monthly_fee: 600.00, covers: "one routine visit a month, remote monitoring, corrective labour and minor parts", response_hours: 48, state: IN_COVER}
+      schedules:
+        - {key: kob-routine, asset: KOB-GEN, title: "Routine site visit: generator service, PV and battery checks", trigger: CALENDAR, every: monthly,
+           done: ["2026-07-09", "2026-08-11", "2026-09-10", "2026-10-09"], next_due: "2026-11-10", visit: true, cost_basis: IN_FEE, right: kob-om}
+        - {key: kob-capacity-test, asset: BAT-001, title: "Battery capacity test", trigger: CALENDAR, every: once, done: [], next_due: null,
+           note: "not yet scheduled; the plan's battery evidence item would schedule it (decision kobo-battery)", right: kob-bat-warranty}
+      incidents:
+        - {key: kob-pcs-2026-08-22, asset: KOB-PCS, at: "2026-08-22T14:05+03:00", mode: OVER_TEMPERATURE, out_from: null, restored: "2026-08-22T16:10+03:00",
+           summary: "battery converter tripped on over-temperature; reset remotely after cooling", consequences: []}
+      maintenance:
+        - {key: kob-pcs-reset, incident: kob-pcs-2026-08-22, kind: RESPONSIVE, at: "2026-08-22", asset: KOB-PCS, visit: false, cost_basis: IN_FEE, right: kob-om,
+           activity: "remote reset; filter clean added to the next routine visit"}
+    - site: Kisiwa
+      tenant: lakeside-power
+      assets:
+        - {code: KIS-PV, type: PV_ARRAY, serves: "daytime supply", commissioned: "2023-06-15", availability_name: "PV array"}
+        - {code: KIS-BAT, type: BATTERY, serves: "evening supply", commissioned: "2023-06-15", availability_name: "battery"}
+        - {code: GEN-KS-01, type: GENERATOR, serves: "evening supply 18:00-23:00", commissioned: "2023-06-15", availability_name: "GEN-KS-01"}
+        - {code: GEN-KS-02, type: GENERATOR, serves: "evening supply 18:00-23:00", commissioned: "2023-06-15", availability_name: "GEN-KS-02"}
+      rights:
+        - {key: kis-gen1-warranty, asset: GEN-KS-01, from: "tenants[lakeside-power].sites[Kisiwa].entitlements[GEN-KS-01]", state: EXPIRED}
+        - {key: kis-om, scope: SITE, from: "tenants[lakeside-power].sites[Kisiwa].entitlements[1]", monthly_fee: 700.00, term_start: "2025-01-01", term_end: "2026-12-31",
+           covers: "one routine visit a month, corrective labour and minor parts", state: IN_COVER}
+      schedules:
+        - {key: kis-routine, asset: GEN-KS-02, title: "Routine site visit: generator service and battery checks", trigger: CALENDAR, every: monthly,
+           done: ["2026-07-15", "2026-08-19", "2026-09-16", "2026-10-14"], next_due: "2026-11-18", visit: true, cost_basis: IN_FEE, right: kis-om}
+        - {key: kis-gen1-1000h, asset: GEN-KS-01, title: "1,000-hour service", trigger: RUN_HOURS, every: "1000 h", done: [], next_due_hours: 1000,
+           note: "never done; the run-hours at failure were 1,240 (the expired warranty's condition)", right: kis-gen1-warranty}
+      incidents:
+        - {key: kis-gen1-2026-08-14, asset: GEN-KS-01, at: "2026-08-14T19:20+03:00", mode: ALTERNATOR_FAULT, out_from: "2026-08-14", restored: "2026-08-17T11:00+03:00",
+           summary: "generator 1 lost output: alternator voltage regulator and brushes; repaired by the O&M contractor", consequences: [{node: obligation_hours_without_redundancy, quantity: 15, unit: h}]}
+        - {key: kis-gen1-2026-10-30, asset: GEN-KS-01, at: "2026-10-30T18:40+03:00", mode: ALTERNATOR_FAULT, out_from: "2026-10-30", restored: null, repeat_of: kis-gen1-2026-08-14,
+           summary: "generator 1 failed again: alternator; the evening runs on generator 2 alone",
+           consequences: [{node: obligation_hours_without_redundancy, quantity: 10, unit: h}, {node: asset_days_out_of_service, quantity: 2, unit: asset-days}],
+           decision: kisiwa-genset, contract_performance: kisiwa-om}
+      maintenance:
+        - {key: kis-gen1-avr, incident: kis-gen1-2026-08-14, kind: RESPONSIVE, at: "2026-08-17", asset: GEN-KS-01, visit: true, cost_basis: IN_FEE, right: kis-om,
+           activity: "voltage regulator replaced, brushes renewed; returned to service"}
+    - site: Mto
+      tenant: lakeside-power
+      assets:
+        - {code: MTO-PV, type: PV_ARRAY, serves: "daytime supply", commissioned: "2024-03-14", availability_name: "PV array"}
+        - {code: INV-MT-01, type: INVERTER, serves: "daytime supply 10:00-15:00", commissioned: "2024-03-14", availability_name: "INV-MT-01"}
+        - {code: INV-MT-02, type: INVERTER, serves: "daytime supply 10:00-15:00", commissioned: "2024-03-14", availability_name: "INV-MT-02"}
+        - {code: MTO-BAT, type: BATTERY, serves: "evening supply", commissioned: "2024-03-14", availability_name: "battery"}
+        - {code: MTO-GEN, type: GENERATOR, serves: "backup and evening top-up", commissioned: "2024-03-14", availability_name: "generator"}
+      rights:
+        - {key: mto-inv2-warranty, asset: INV-MT-02, from: "tenants[lakeside-power].sites[Mto].entitlement"}
+        - {key: mto-inv1-warranty, asset: INV-MT-01, type: EQUIPMENT_WARRANTY, counterparty: "Sunfield Inverters", term_start: "2024-03-14", term_end: "2029-03-14",
+           conditions: ["certified installer", "ambient within spec", "firmware current"], notice_days: 30, state: IN_COVER}
+        - {key: mto-om, scope: SITE, type: OM_CONTRACT, counterparty: "Island Power Services", term_start: "2025-01-01", term_end: "2026-12-31",
+           monthly_fee: 500.00, covers: "one routine visit a month, corrective labour and minor parts", response_hours: 48, state: IN_COVER}
+      schedules:
+        - {key: mto-routine, asset: MTO-GEN, title: "Routine site visit: generator service, inverter and battery checks", trigger: CALENDAR, every: monthly,
+           done: ["2026-07-22", "2026-08-20", "2026-09-23", "2026-10-21"], next_due: "2026-11-20", visit: true, cost_basis: IN_FEE, right: mto-om}
+      incidents:
+        - {key: mto-inv2-2026-10-28, asset: INV-MT-02, at: "2026-10-28T11:02+03:00", mode: OVERCURRENT_TRIP, out_from: "2026-10-28", restored: null,
+           summary: "inverter 2 latched on an overcurrent trip; daytime supply at half inverter capacity",
+           consequences: [{node: obligation_hours_without_redundancy, quantity: 20, unit: h}, {node: asset_days_out_of_service, quantity: 4, unit: asset-days}],
+           decision: mto-inverter}
+      maintenance:
+        - {key: mto-inv2-diagnosis, incident: mto-inv2-2026-10-28, kind: RESPONSIVE, at: "2026-10-28", asset: INV-MT-02, visit: false, cost_basis: IN_FEE, right: mto-om,
+           activity: "remote fault-log download; latch confirmed; unit not opened (opening it voids the warranty)"}
+    - site: "Room A · Mwea"
+      tenant: harvest-cold
+      assets:
+        - {code: CMP-001, type: COMPRESSOR, serves: "chamber cooling", commissioned: "2024-09-01"}
+        - {code: EVP-001, type: EVAPORATOR, serves: "chamber cooling", commissioned: "2024-09-01"}
+        - {code: CND-001, type: CONDENSER, serves: "chamber cooling", commissioned: "2024-09-01"}
+        - {code: GEN-CR-02, type: GENERATOR, serves: "backup cooling during grid outages", commissioned: "2024-09-01"}
+      rights:
+        - {key: mwea-cmp-warranty, asset: CMP-001, type: EQUIPMENT_WARRANTY, counterparty: "Frigo Parts EA", term_start: "2024-09-01", term_end: "2027-09-01",
+           conditions: ["service by a licensed refrigeration technician"], notice_days: 14, state: IN_COVER}
+        - {key: mwea-service, scope: SITE, type: SERVICE_CONTRACT, counterparty: "CoolCare Services", term_start: "2025-01-01", term_end: "2026-12-31",
+           monthly_fee: 50.00, covers: "one routine service a month", state: IN_COVER}
+      schedules:
+        - {key: mwea-routine, asset: CMP-001, title: "Monthly refrigeration service", trigger: CALENDAR, every: monthly,
+           done: ["2026-07-07", "2026-08-06", "2026-09-08", "2026-10-07"], next_due: "2026-11-09", visit: true, cost_basis: IN_FEE, right: mwea-service}
+      incidents: []
+      no_incidents: "no incident in the work log, July to October; the work log is held, so none is a recorded fact"
+      maintenance: []
+    - site: "Room B · Thika"
+      tenant: harvest-cold
+      assets:
+        - {code: CMP-003, type: COMPRESSOR, serves: "chamber cooling", commissioned: "2025-02-10"}
+        - {code: EVP-003, type: EVAPORATOR, serves: "chamber cooling", commissioned: "2025-02-10"}
+        - {code: GEN-CR-01, type: GENERATOR, serves: "backup cooling during grid outages", commissioned: "2025-02-10"}
+        - {code: GEN-CR-01-SC, type: START_CONTROLLER, parent: GEN-CR-01, serves: "automatic backup start", commissioned: "2025-02-10"}
+        - {code: BAT-CR-01, type: BATTERY, serves: "controls and alarm supply", commissioned: "2025-02-10"}
+      rights:
+        - {key: thika-epc, asset: GEN-CR-01-SC, from: "tenants[harvest-cold].sites[Room B · Thika].entitlement"}
+        - {key: thika-service, scope: SITE, type: SERVICE_CONTRACT, counterparty: "CoolCare Services", term_start: "2025-02-10", term_end: "2026-12-31",
+           monthly_fee: 80.00, covers: "one routine service a month and call-outs", state: IN_COVER}
+      schedules:
+        - {key: thika-routine, asset: CMP-003, title: "Monthly refrigeration service", trigger: CALENDAR, every: monthly,
+           done: ["2026-07-14", "2026-08-12", "2026-09-15", "2026-10-13"], next_due: "2026-11-12", visit: true, cost_basis: IN_FEE, right: thika-service}
+        - {key: thika-backup-test, asset: GEN-CR-01, title: "Quarterly backup start test (EPC cover condition)", trigger: CALENDAR, every: quarterly,
+           done: ["2026-09-04"], next_due: "2026-12-04", visit: false, cost_basis: IN_FEE, right: thika-epc, note: "3 of 3 tests logged since commissioning (entitlement evidence)"}
+      incidents:
+        - {key: thika-gen-2026-10-06, asset: GEN-CR-01-SC, at: "2026-10-06T19:11+03:00", mode: START_FAILURE, out_from: "2026-10-06", restored: null, state: REDUCED,
+           summary: "grid outage; the backup generator failed to start automatically (start controller); started by hand at 19:14",
+           consequences: [{node: cooling_minutes_unavailable, quantity: 4, unit: minutes}, {node: days_backup_start_unproven, quantity: 26, unit: days}, {node: liability, amount: 108.00, note: "credit note CN-0412, counted once in its cost leaf"}],
+           decision: thika-backup}
+      maintenance:
+        - {key: thika-wr019, incident: thika-gen-2026-10-06, kind: RESPONSIVE, at: "2026-10-07", asset: GEN-CR-01-SC, visit: true, cost_basis: IN_FEE, right: thika-service,
+           activity: "starter and control-circuit inspection: controller fault found"}
+    - site: "Room C · Kirinyaga"
+      tenant: harvest-cold
+      assets:
+        - {code: CMP-002, type: COMPRESSOR, serves: "chamber cooling", commissioned: "2023-11-01"}
+        - {code: EVP-002, type: EVAPORATOR, serves: "chamber cooling", commissioned: "2023-11-01"}
+        - {code: CND-KR-01, type: CONDENSER, serves: "chamber cooling", commissioned: "2023-11-01"}
+        - {code: GEN-CR-03, type: GENERATOR, serves: "backup cooling during grid outages", commissioned: "2023-11-01"}
+      rights:
+        - {key: kiri-cmp-warranty, asset: CMP-002, type: EQUIPMENT_WARRANTY, counterparty: "Frigo Parts EA", term_start: "2023-11-01", term_end: "2026-11-01",
+           conditions: ["service by a licensed refrigeration technician"], notice_days: 14, state: EXPIRED}
+        - {key: kiri-service, scope: SITE, type: SERVICE_CONTRACT, counterparty: "CoolCare Services", term_start: "2025-01-01", term_end: "2026-12-31",
+           monthly_fee: 80.00, covers: "one routine service a month; condenser coil clean each quarter", state: IN_COVER}
+      schedules:
+        - {key: kiri-routine, asset: CMP-002, title: "Monthly refrigeration service", trigger: CALENDAR, every: monthly,
+           done: ["2026-07-21", "2026-08-18", "2026-09-22", "2026-10-20"], next_due: "2026-11-17", visit: true, cost_basis: IN_FEE, right: kiri-service}
+        - {key: kiri-coil-clean, asset: CND-KR-01, title: "Quarterly condenser coil clean", trigger: CALENDAR, every: quarterly,
+           done: [], last_done: "2026-06-12", next_due: "2026-09-12", visit: true, cost_basis: IN_FEE, right: kiri-service,
+           note: "due 12 Sep and not done: OVERDUE at the October read; a fact beside the energy Finding, not offered as its cause"}
+      incidents: []
+      no_incidents: "no incident in the work log, July to October; the energy drift is a Finding on electricity, not an incident"
+      maintenance: []
+    - site: Embakasi
+      tenant: metro-bus
+      assets:
+        - {code: CH-E01, type: CHARGER, serves: "night charging"}
+        - {code: CH-E02, type: CHARGER, serves: "night charging"}
+        - {code: CH-E03, type: CHARGER, serves: "night charging"}
+        - {code: CH-E04, type: CHARGER, serves: "night charging"}
+        - {code: CH-E05, type: CHARGER, serves: "night charging"}
+        - {code: CH-E06, type: CHARGER, serves: "night charging"}
+        - {code: CH-E07, type: CHARGER, serves: "night charging"}
+        - {code: CH-E08, type: CHARGER, serves: "night charging"}
+        - {code: CH-E09, type: CHARGER, serves: "night charging"}
+        - {code: CH-E10, type: CHARGER, serves: "night charging"}
+        - {code: TX-EMB, type: GRID_CONNECTION, serves: "500 kW import"}
+      rights:
+        - {key: emb-chargers-warranty, asset: CH-E01, assets: [CH-E01, CH-E02, CH-E03, CH-E04, CH-E05, CH-E06, CH-E07, CH-E08, CH-E09, CH-E10], type: EQUIPMENT_WARRANTY,
+           counterparty: "Ampere Charge Co", term_start: "2025-04-01", term_end: "2028-03-31", covers: "power stage parts", exclusion: "unauthorised repair voids power-stage cover", state: IN_COVER}
+        - {key: emb-service, scope: SITE, type: SERVICE_CONTRACT, counterparty: "Ampere Charge Co", term_start: "2025-04-01", term_end: "2027-03-31",
+           monthly_fee: 600.00, covers: "monthly preventive maintenance of every charger; call-outs", response_hours: 48, state: IN_COVER}
+      schedules:
+        - {key: emb-routine, asset: CH-E01, title: "Monthly charger preventive maintenance (all chargers)", trigger: CALENDAR, every: monthly,
+           done: ["2026-07-08", "2026-08-05", "2026-09-09", "2026-10-07"], next_due: "2026-11-11", visit: true, cost_basis: IN_FEE, right: emb-service}
+      incidents: []
+      no_incidents: "no incident in the work log, July to October"
+      maintenance: []
+    - site: Kasarani
+      tenant: metro-bus
+      assets:
+        - {code: CH-K1, type: CHARGER, serves: "night charging"}
+        - {code: CH-K2, type: CHARGER, serves: "night charging"}
+        - {code: CH-K3, type: CHARGER, serves: "night charging"}
+        - {code: CH-K4, type: CHARGER, serves: "night charging"}
+        - {code: TX-KAS, type: GRID_CONNECTION, serves: "250 kW import"}
+      rights:
+        - {key: kas-chk2-warranty, asset: CH-K2, from: "tenants[metro-bus].sites[Kasarani].entitlement.contracts[0]", assets: [CH-K1, CH-K2, CH-K3, CH-K4], state: CLAIM_OPEN}
+        - {key: kas-service, scope: SITE, from: "tenants[metro-bus].sites[Kasarani].entitlement.contracts[1]", type: SERVICE_CONTRACT, monthly_fee: 300.00,
+           term_start: "2025-06-01", term_end: "2027-05-31", covers: "monthly preventive maintenance; call-outs within the SLA", state: IN_COVER,
+           data_lane_note: "D-L4OPS.8: the SLA text quotes a fee of 400, the maintenance leaf is 300; the fee is the leaf (300) and the data lane corrects the SLA text"}
+      schedules:
+        - {key: kas-routine, asset: CH-K1, title: "Monthly charger preventive maintenance (all chargers)", trigger: CALENDAR, every: monthly,
+           done: ["2026-07-16", "2026-08-13", "2026-09-17", "2026-10-15"], next_due: "2026-11-12", visit: true, cost_basis: IN_FEE, right: kas-service}
+      incidents:
+        - {key: kas-chk2-2026-08-22, asset: CH-K2, at: "2026-08-22T00:15+03:00", mode: CONTACTOR_WELD, out_from: "2026-08-22", restored: "2026-08-24T16:00+03:00",
+           summary: "charger 2: contactor weld detected; contactor replaced by the supplier under warranty; the spare bus covered the roster", consequences: [{node: charger_days_out_of_service, quantity: 2, unit: charger-days}]}
+        - {key: kas-chk2-2026-11-01, asset: CH-K2, at: "2026-11-01T23:40+03:00", mode: CONTACTOR_WELD, out_from: "2026-11-02", restored: null, repeat_of: kas-chk2-2026-08-22,
+           summary: "charger 2: contactor weld again; deliverable energy below what the roster needs",
+           consequences: [{node: charger_days_out_of_service, quantity: 5, unit: charger-days, period: november_to_date}, {node: departures_missed, quantity: 2, unit: departures, period: november_to_date},
+                          {node: penalties, amount: 240.00, period: november_to_date, note: "counted once in the penalties cost leaf (Optimize)"}],
+           decision: kasarani-charger}
+      maintenance:
+        - {key: kas-chk2-contactor, incident: kas-chk2-2026-08-22, kind: RESPONSIVE, at: "2026-08-24", asset: CH-K2, visit: true, cost_basis: UNDER_COVER, right: kas-chk2-warranty,
+           activity: "contactor replaced by Ampere Charge Co under the power-stage warranty"}
+    - site: Ruiru
+      tenant: metro-bus
+      assets:
+        - {code: CH-R1, type: CHARGER, serves: "night charging"}
+        - {code: CH-R2, type: CHARGER, serves: "night charging"}
+        - {code: CH-R3, type: CHARGER, serves: "night charging"}
+        - {code: CH-R4, type: CHARGER, serves: "night charging"}
+        - {code: CH-R5, type: CHARGER, serves: "night charging"}
+        - {code: CH-R6, type: CHARGER, serves: "night charging"}
+        - {code: CH-R7, type: CHARGER, serves: "night charging"}
+        - {code: CH-R8, type: CHARGER, serves: "night charging"}
+        - {code: CH-R9, type: CHARGER, serves: "night charging"}
+        - {code: CH-R10, type: CHARGER, serves: "night charging"}
+        - {code: CH-R11, type: CHARGER, serves: "night charging"}
+        - {code: CH-R12, type: CHARGER, serves: "night charging"}
+        - {code: TX-RUI, type: GRID_CONNECTION, serves: "400 kW import"}
+      rights:
+        - {key: rui-chr7-warranty, asset: CH-R7, from: "tenants[metro-bus].sites[Ruiru].incident.entitlement", state: IN_COVER}
+        - {key: rui-service, scope: SITE, type: SERVICE_CONTRACT, counterparty: "Ampere Charge Co", term_start: "2025-01-01", term_end: "2026-12-31",
+           monthly_fee: 500.00, covers: "monthly preventive maintenance of every charger; call-outs", response_hours: 48, state: IN_COVER}
+      schedules:
+        - {key: rui-routine, asset: CH-R1, title: "Monthly charger preventive maintenance (all chargers)", trigger: CALENDAR, every: monthly,
+           done: ["2026-07-23", "2026-08-27", "2026-09-24", "2026-10-22"], next_due: "2026-11-19", visit: true, cost_basis: IN_FEE, right: rui-service,
+           note: "the CH-R7 connector claim is planned for the next routine visit (incident entitlement)"}
+      incidents:
+        - {key: rui-chr7-2026-10-06, asset: CH-R7, at: "2026-10-06T22:31+03:00", mode: CONNECTOR_FAULT, out_from: "2026-10-06", restored: null, state: REDUCED,
+           summary: "charger 7, connector 2 stopped on a fault and has reported nothing since; connector 1 works",
+           consequences: [{node: charger_days_out_of_service, quantity: 26, unit: charger-days}, {node: charger_days_out_of_service, quantity: 6, unit: charger-days, period: november_to_date}],
+           decision: ruiru-connector}
+      maintenance: []
 history:   # U9 (owner, 20 Nov): July-September 2026 history of the three demo operators. GENERATOR INPUTS ONLY: seasons,
            # day classes, family weights and per-leaf rules. Leaf values are generated by assetops_simulator.world into
            # history.json; every node, total and series is evaluated by evaluate_structure.py (D-DS1.4). Every history

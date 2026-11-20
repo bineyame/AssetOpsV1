@@ -67,12 +67,13 @@ finished work are in `archive/agent-history/`.
 | DECLUTTER | Repo declutter recommendation, packets and reviews | live — steps 4-5 | `DECLUTTER/repo-declutter-recommendation-2026-11-18.md` | 42 KB |
 | T1 | Heavy-tool slot pool, enforced | merged | `T1-heavy-tool-slot-pool/spec.md` | 36 KB |
 | DS1 | Generator core and the July-September history | DS1a, DS1p done; DS1m in progress | `DS1-history-generator/spec.md` | 94 KB |
-| RECON-1 | Figures that reconcile (UX audit C2) and comparators that say their basis (Decision page re-review M1, (b), plan totals): rulings D-RECON.1 to D-RECON.7, UI change list | live — reconciliation applied in the pack; D-RECON.5 to .7 data changes to the data lane | `RECON-1/rulings.md` | 22 KB |
+| RECON-1 | Figures that reconcile (UX audit C2), comparators that state their basis: rulings D-RECON.1 to .8 | live — applied in the pack; .5 to .7 data to the data lane | `RECON-1/rulings.md` | 22 KB |
 | BW1 | Non-screen build start: re-cut, waves (D-BW1.1-7) | live | `BW1-build-wave1/rulings.md` | small |
 | 2a | Canonical format v1, leaf factor IDs; lane B unit 1 | live — handshake closed; P2 approved | `2a-canonical-format/spec.md` | 30 KB |
 | 3C0a | Operator accounts and roles (API); lane C unit 1 | merged (773d9bafc) | `3C0a-operator-accounts/spec.md` | 35 KB |
 | DS1b | Generator canonical writers; lane A unit 1 | live — handshake | `DS1b-canonical-writers/spec.md` | 15 KB |
+| L4-OPS | Operations in the structure (OD-26, OD-28) | live — design rev 16.16 §2.10 | `L4-OPS/rulings.md` | 10 KB |
 | mockup-vnext-categories-snapshot | Mock-up vNEXT: the four headings and the snapshot "as of" (review packet) | finished — in the frozen pack | `mockup-vnext-categories-snapshot/packet.md` | small |
 | mockup-vnext-demo-items | Mock-up vNEXT: demo workflow items wired (review packet) | finished — in the frozen pack | `mockup-vnext-demo-items/packet.md` | small |
-| mockup-vnext-professional | Mock-up vNEXT professional pass (handoff, packet) | superseded — by the UI/UX guide waves (merged 20 Nov) | `mockup-vnext-professional/packet.md` | small |
+| mockup-vnext-professional | Mock-up vNEXT professional pass (handoff, packet) | superseded — by the UI/UX guide waves | `mockup-vnext-professional/packet.md` | small |
 
