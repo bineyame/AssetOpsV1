@@ -25,7 +25,7 @@ from zoneinfo import ZoneInfo
 from assetops_contracts.canonical import CanonicalRefused, parse_record, to_canonical_json
 from assetops_contracts.native import LAYOUTS, render_layout
 
-from .months import parse_month, period_end
+from .months import days_in, parse_month, period_end
 from .records import build_records, money_text
 from .view import ManifestView
 
@@ -218,7 +218,8 @@ def _fuel_records(s: _Site) -> list[dict]:
         out.append(s.checked(name, {
             "format_version": 1, "kind": "EXPENSE", "source_record_id": record_id, "source_version": SOURCE_VERSION,
             "site_code": s.code, "subject": {"kind": "SITE", "ref": s.code},
-            "clocks": {"occurred_at": s.at(1 + (k - 1) * (31 // m), 9), "recognition_period": s.month},
+            "clocks": {"occurred_at": s.at(1 + (k - 1) * (days_in(s.month) // m), 9),
+                       "recognition_period": s.month},
             "quantity": {"value": str(amount_l), "unit": "L"},
             "amount": {"value": money_text(amount_l * price), "currency": s.currency}, "status": "INVOICED",
             "body": {"counterparty_ref": "fuel-supplier", "category": "FUEL", "document_ref": record_id}}))
