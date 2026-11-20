@@ -342,6 +342,10 @@ def build_records(view: dict, history: dict) -> RecordsResult:
     _check_tables()
     view = ManifestView.from_document(view)
     as_of = _as_of(view)
+    if view["accounting_period"] in history["meta"]["months"]:
+        # The view's period would be written twice (a history month and the period), so the batch's own duplicate
+        # check would refuse it; refuse it here, before any row is built, so the unwritten list never double-lists.
+        raise _refuse(f"DS1B_FORMAT PERIOD_IN_HISTORY {view['accounting_period']}")
     zone = ZoneInfo(view["timezone_default"])
     currency = view["currency"]
     produced_at = datetime.combine(as_of, time(6, 0), tzinfo=zone).isoformat()

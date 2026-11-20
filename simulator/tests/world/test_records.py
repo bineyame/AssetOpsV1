@@ -243,6 +243,17 @@ def test_t3_actual_writers_derived_from_leaf_sources() -> None:
                 continue
             derived[(key, leaf)] = kind
     assert {(k, f) for k, v in ACTUAL_WRITERS.items() for f in v} == set(derived)
+    # Spec §2.1's source-type column, written literally: the manifest does not carry source types (review L1).
+    spec_source_types = {
+        ("MINI_GRID", "om"): "expense_ledger",
+        ("MINI_GRID", "staff"): "expense_ledger",
+        ("MINI_GRID", "liability"): "billing_export",
+        ("COLD_CHAIN", "maint"): "expense_ledger",
+        ("COLD_CHAIN", "staff"): "expense_ledger",
+        ("COLD_CHAIN", "liability"): "customer_invoicing",
+        ("EV_DEPOT_CAPTIVE", "maintenance"): "expense_ledger",
+    }
+    assert {(k, f): w.source_type for k, v in ACTUAL_WRITERS.items() for f, w in v.items()} == spec_source_types
     by_parenthesis = {"(OM)": ("EXPENSE", "OM"), "(STAFF)": ("EXPENSE", "STAFF"),
                       "(credit note)": ("ADJUSTMENT", "CUSTOMER_COMPENSATION")}
     for (key, field), kind in derived.items():
@@ -468,6 +479,40 @@ def test_t7_refusals(plant, text: str) -> None:
     with pytest.raises(ValueError) as caught:
         build_records(planted, history)
     assert str(caught.value) == text
+
+
+def _october_plan_crate_days(value: str) -> dict:
+    planted = load_fixture()
+    _site_doc(planted, "COLD-MWEA")["period"]["plan"]["crate_days"] = value
+    return planted
+
+
+def test_t7_exponent_text_is_normalised_mb2() -> None:
+    _, history, _ = _built()
+    result = build_records(_october_plan_crate_days("1e+03"), history)
+    values = [o.body["value"] for _, _, o in _records(result)
+              if o.source_record_id == "gen:COLD-MWEA:2026-10:plan:crate_days"]
+    assert len(values) == 1 and values[0] == Decimal(1000)
+    written = [to_canonical_json(b) for b in result.batches]
+    assert any(b'"value":"1000"' in data or b'"value": "1000"' in data for data in written), "1000 not written plain"
+    for data in written + [_unwritten_bytes(result)]:
+        assert re.search(rb"[0-9][eE][-+]?[0-9]", data) is None
+
+
+def test_t7_exponent_text_out_of_bounds_refused_mb2() -> None:
+    _, history, _ = _built()
+    with pytest.raises(ValueError) as caught:
+        build_records(_october_plan_crate_days("1e+30"), history)
+    assert str(caught.value).startswith("DS1B_FORMAT ")
+
+
+def test_t7_period_inside_history_months_refused() -> None:
+    _, history, _ = _built()
+    planted = load_fixture()
+    planted["accounting_period"] = history["meta"]["months"][-1]
+    with pytest.raises(ValueError) as caught:
+        build_records(planted, history)
+    assert str(caught.value) == f"DS1B_FORMAT PERIOD_IN_HISTORY {planted['accounting_period']}"
 
 
 def test_t7_money_mismatch_money_field_on_non_money_leaf(monkeypatch: pytest.MonkeyPatch) -> None:
