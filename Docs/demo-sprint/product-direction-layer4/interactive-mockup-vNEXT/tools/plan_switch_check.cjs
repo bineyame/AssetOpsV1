@@ -77,8 +77,11 @@ function itemsCheck(op, d, c, label) {
   ok(d.querySelectorAll('.plan-item').length === c.items.length + proOf(op).length, `${label}: ${c.items.length} case items plus ${proOf(op).length} declared`);
 }
 function approvalCheck(op, d, label) {
-  const wf = wfOf(op), v1 = [...DV.plans[T[op]].default.items, ...proOf(op).map(i => i.item)];
-  const waiting = (wf.items || []).filter(i => v1.includes(i.item) && i.item_state === 'CHOSEN'), spend = waiting.reduce((s, i) => s + itemSpend(op, i), 0);
+  /* review r4 M4: the approval covers the case on screen (a different case is approved as the next version), so its items are the ones shown */
+  const wf = wfOf(op), v1 = [...d.querySelectorAll('.plan-item')].map(e => e.dataset.item);
+  /* an option the case adds has no item record yet: it waits when it is above either threshold (the release rule) */
+  const have = new Set((wf.items || []).map(i => i.item)), extra = v1.filter(id => !have.has(id)).map(id => { const x = DV.options[id] || {}; return { item: id, kind: 'OPTION', item_state: (x.operator_one_off || 0) > wf.spend_threshold || (x.crew_visits || 0) > wf.crew_visit_threshold ? 'CHOSEN' : 'RELEASED' }; });
+  const waiting = [...(wf.items || []), ...extra].filter(i => v1.includes(i.item) && i.item_state === 'CHOSEN'), spend = waiting.reduce((s, i) => s + itemSpend(op, i), 0);
   const capital = waiting.filter(i => i.capital), capSpend = capital.reduce((s, i) => s + itemSpend(op, i), 0);
   const tx = squash(d.querySelector('.approval .approval-releases')?.textContent);
   ok(tx.includes(`${waiting.length} item${waiting.length === 1 ? '' : 's'}, ${usd(spend)} of one-off spend`), `${label}: approval releases ${waiting.length} items, ${usd(spend)} (${tx.slice(0, 90)})`);
@@ -161,7 +164,8 @@ for (const op of ['lakeside', 'harvest', 'metro']) {
     const exp = { grow: r2c(br.filter(b => GROW_DRIVERS.includes(b.driver)).reduce((a, b) => a + b.amount, 0)), optimize: r2c(br.filter(b => !GROW_DRIVERS.includes(b.driver)).reduce((a, b) => a + b.amount, 0)) };
     if (!br.length) exp.optimize = gap; // no bridge: the explicit residual on the cost leaf (Ruiru) is the whole gap
     for (const k of ['grow', 'optimize']) {
-      const lis = [...(card(k)?.querySelectorAll(`li[data-site="${sk}"][data-effect]`) || [])], got = r2c(lis.reduce((a, l) => a + +l.dataset.effect, 0));
+      /* the heading's effects, by Site: on its card, or (opened from the gap, one grammar) in its drivers' drawers */
+      const lis = [...(card(k)?.querySelectorAll(`li[data-site="${sk}"][data-effect]`) || []), ...d.querySelectorAll(`.ux-drawer[id^="uxdrv-${op}-${k}-"] li[data-site="${sk}"][data-effect]`)], got = r2c(lis.reduce((a, l) => a + +l.dataset.effect, 0));
       const n = br.length ? br.filter(b => GROW_DRIVERS.includes(b.driver) === (k === 'grow') && Math.abs(b.amount) > 0.004).length : (k === 'optimize' && Math.abs(gap) > 0.004 ? 1 : 0);
       ok(lis.length === n && Math.abs(got - exp[k]) < 0.005, `${op} ${sk}: ${k} card lists ${n} effect(s) summing ${exp[k]} (got ${lis.length}, ${got})`);
     }

@@ -22,6 +22,7 @@ const BANNED = [
   ['design jargon (review, round 4)', /\b(?:the structure|protect nodes?|money drivers?|at this driver)\b/i],
   ['system voice (review, wave 2b)', /\bthe system (?:recommends|values)\b|\bobserved through\b|\bfind a screen\b/i],
   ['asset or record code', /\b(?:GEN|INV|BAT|CH|CN|PM)-[A-Z0-9]{1,4}(?:-\d+)?\b/],
+  ['review mark in the product canvas (it belongs in the review bar; REVIEW-decision-page L4)', /MOCK DEVIATION/],
   ['retired word: plan used for a target (OD-6)', /\b(?:against|off|to|versus|vs\.?|from|than) (?:the )?plan\b(?! (?:for|item|items|approval|beside))|\bActual against plan\b/i],
 ];
 function scan(recs) {
@@ -38,7 +39,7 @@ function scan(recs) {
   return { hits, preserved };
 }
 let recs = JSON.parse(fs.readFileSync(path.join(__dirname, 'rendered-text.json'), 'utf8'));
-if (process.env.VOCAB_PLANT) { recs = recs.map(r => r.id === 'portfolio' && r.op === 'lakeside' ? { ...r, text: r.text + ' Actual against plan from the factor registry (KOB-STOPSOC)' } : r); }
+if (process.env.VOCAB_PLANT) { recs = recs.map(r => r.id === 'portfolio' && r.op === 'lakeside' ? { ...r, text: r.text + ' Actual against plan from the factor registry (KOB-STOPSOC) MOCK DEVIATION · a review mark' } : r); }
 const { hits, preserved } = scan(recs);
 const byKind = hits.reduce((a, h) => (a[h.kind] = (a[h.kind] || 0) + 1, a), {});
 const out = { screens_scanned: recs.length, hits: hits.length, by_kind: byKind, earlier_view_body_hits_not_failing: Object.values(preserved).reduce((a, b) => a + b, 0), earlier_view_routes: Object.keys(preserved).length, first: hits.slice(0, +(process.env.VOCAB_SHOW || 25)) };

@@ -5,13 +5,13 @@ Architect classification, 2026-10-24; counts refreshed 2026-10-26 (post-W6 final
 | Category | Rows | Standing or open |
 | --- | ---: | ---: |
 | D1 data or feature unavailable | 133 | 132 |
-| D2 improvement | 72 | 69 |
+| D2 improvement | 76 | 73 |
 | D3 structural oversight | 140 | 2 |
 | D4 illustrative placeholder | 53 | 53 |
-| D5 build order | 6 | 1 |
+| D5 build order | 7 | 2 |
 | D6 technical constraint | 0 | 0 |
 | Backlog (non-departure) | 1 | 1 |
-| **Total** | **405** | **258** |
+| **Total** | **410** | **263** |
 
 ## D1 — data or feature unavailable
 
@@ -703,3 +703,8 @@ R396; cold names R235; mini status strip R154).
 | R728 | SR-11 (D-SR.76 Q10; rev 10 §10.3) | Backup tab (`backup`, v69 screen 8.24) | One selected hour's backup event chains with step records | Over a date range: a day table plus a table of the range's sequences with only the fields the stored day rows carry (When, Outcome for service, Recovery, Result); each row's one-day link keeps the full step chain; same "Whole days that include the selected time" frame for a non-hour address | D1 content | Stored day rows carry no step records, so a step column reading "No accepted record" in every row would be false (alternatives: that step table, rejected as dishonest; new step rows, out of scope). rev 10b.3's "existing backup chain table" line is withdrawn | SR-11 | open until owner review |
 | R740 | UQ-FI-3 (D-UQFI.12) | Portfolio outcome card foot (portfolio-hifi `.kpi` state chip) | A state chip in the card foot | No state pill in the card foot; the per-Site states stay behind "Why?" | D1 content | The server card carries a tone, not a state code; an estate-level state needs an owner-ruled roll-up (BL-69, after 17 Nov) | UQ-FI-3 | open until owner review |
 | R741 | UQ-FI-2 (D-UQFI.4, rev 6 6.3) | Site outcome board rows (portfolio-hifi/v69 board, "What drives it" column) | One gap line per contributor in a row | Contributors whose whole line is the same gap string become one line naming each contributor (links kept), at the first one's place; chip-carrying or differently worded contributors keep their own line (`OutcomeBoard.tsx` `contributorLines`) | D2 | Saying the same missing fact once per row removes repetition without losing any contributor or reason | UQ-FI-2 | open until owner review |
+| R743 | UI lane, vNEXT Portfolio drill-down (e7f5566ac; RECON-1 item 2) | `portfolio` By-outcome Grow tile | Grow tile with the bullet "Revenue $9,688 against a target of $9,785" | The Grow and Optimize tiles show their share of the gap and open their chart group's drawer; the revenue tie sits in the Grow drawer | D2 | The tiles no longer restate the gap chart's money; one drill-down grammar (owner, 20 Nov). Review-bar mark "MOCK DEVIATION D2 · Grow tile". | UI lane; owner walkthrough | standing (owner) |
+| R744 | UI lane, recalculation (owner Q7, OD-23) | top bar, recalculation notice | Notice only, no control | "Recalculate now" control; the request is recorded under the signed-in role and time; the demo holds no recalculated values and says so | D2 | Owner Q7: "once a day and on demand for now". Review-bar mark "MOCK DEVIATION D2 · Recalculate now". | UI lane; build lanes (on-request recalculation) | standing (owner) |
+| R745 | UI lane, Decision page redesign (d1b5d5ea9, 92d9d1462) | `decision/*` | The decision page of the governing mock (options table first, process grid on the page) | Question-led page: one recommendation with its basis, option cards, answer-titled sections, a "How this works" drawer, a sticky context bar | D2 | Owner, 20 Nov: "i don't understand how 'decide' is supposed to work". Review-bar mark "MOCK DEVIATION D2 · decision page redesign". | UI lane; owner walkthrough | standing (owner) |
+| R746 | UI lane, one feedback pattern (37507a194) | `portfolio/act-first/plan` Approve / Send back; `decision/*` Confirm the choice | Approve and Choose do nothing ("not wired") | Confirm, then a toast with Undo, then a visible state change, kept for the browser tab only and labelled "in this demonstration" | D5 | The mock has no store for approvals and choices; the state is shown, not recorded. Review-bar mark "MOCK DEVIATION D5 · kept in this demonstration". | Build lanes: plan approval and choice commands (3C) | standing |
+| R747 | UI lane, Operations tab (design rev 16.16 §2.10, D-L4OPS.1–9; not built yet) | `site/*` tabs; rail OPERATIONS items | Separate v7.0 Assets, Incidents, Maintenance, Operational records and Evidence screens | One Operations tab between Overview and Financials on all 9 Sites, four views filtered by Site key; the rail's five items become one Operations entry | D2 | Ruled by D-L4OPS (an improvement flagged to the owner); owner questions on the rail change, the 90-day repeat window and timing are open, defaults apply. Mark "MOCK DEVIATION D2 · Operations" when built. | UI lane (after the new capabilities) | planned |

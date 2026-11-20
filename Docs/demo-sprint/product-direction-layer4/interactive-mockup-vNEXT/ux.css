@@ -91,13 +91,13 @@
 
 /* decision queue (§7.1) */
 .ux-queue{list-style:none;margin:0;padding:0}
-.ux-queue>li.ux-q{display:grid;grid-template-columns:minmax(150px,auto) minmax(0,1fr) minmax(170px,auto) auto;gap:var(--s2) var(--s4);align-items:center;padding:var(--s3) 0;border-top:1px solid var(--line);background:none}
+.ux-queue>li.ux-q{display:grid;grid-template-columns:minmax(150px,auto) minmax(0,1fr) minmax(170px,auto) auto;gap:var(--s2) var(--s4);padding:var(--s3) 0;border-top:1px solid var(--line);background:none}
 .ux-queue>li.ux-q:first-child{border-top:0}
-.ux-q-top{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
-.ux-q-site{font-size:var(--fs-md);font-weight:600}
+
+
 .ux-q-txt{font-size:var(--fs-md);line-height:20px;color:var(--text)}
 .ux-q-who .who{font-size:var(--fs-sm)}
-.ux-q-go.button{min-height:32px;padding:4px 14px;font-size:var(--fs-sm);font-weight:600;white-space:nowrap}
+.ux-q-go.button{min-height:32px;padding:4px 14px;font-size:var(--fs-sm);font-weight:600}
 .ux-chip.attn-k{display:inline-flex;align-items:center;gap:4px;width:auto;padding:2px 8px;border-radius:999px;font-size:var(--fs-xs);font-weight:600;line-height:18px;white-space:nowrap;border:1px solid transparent}
 .ux-chip.is-bad{background:var(--bad-soft);color:var(--bad);border-color:var(--bad-line)}
 .ux-chip.is-warn{background:var(--warn-soft);color:var(--warn);border-color:var(--warn-line)}
@@ -136,7 +136,7 @@
 .ux-wf-bar.is-bad{background:var(--bad)}
 .ux-wf-bar.is-good{background:var(--good)}
 .ux-wf-bar.is-resid{background:repeating-linear-gradient(45deg,var(--hatch) 0 3px,transparent 3px 6px);border:1px solid var(--line-strong)}
-.ux-vc-stage{display:grid;grid-template-columns:minmax(120px,1.1fr) minmax(84px,auto) minmax(0,1.4fr);gap:var(--s3);align-items:center;padding:6px 0;font-size:var(--fs-sm)}
+.ux-vc-stage{display:grid;gap:var(--s3);align-items:center;padding:6px 0;font-size:var(--fs-sm)}
 .ux-vc-lab small{display:block;font-size:var(--fs-xs);color:var(--text-2)}
 .ux-vc-val{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
 .ux-vc-track{position:relative;height:20px}
@@ -156,15 +156,15 @@
 .ux-about{font-size:var(--fs-sm);max-width:75ch}
 .ux-about>summary{cursor:pointer;color:var(--accent);font-weight:500;text-align:right}
 .ux-about p{margin-top:var(--s2);color:var(--text-2);line-height:20px}
-.ux-cats.ocards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s4)}
-.ux-cat{display:flex;flex-direction:column;gap:var(--s2);min-width:0;padding:var(--s4);background:var(--surface);border:1px solid var(--line);border-radius:var(--r2)}
-.ux-cat-h{display:flex;align-items:center;gap:var(--s2)}
+.ux-cats.ocards{display:grid;gap:var(--s4)}
+.ux-cat{display:flex;flex-direction:column;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r2)}
+.ux-cat-h{display:flex;gap:var(--s2)}
 .ux-cat-h .icon{width:20px;height:20px;color:var(--text-2)}
 .ux-cat-h h3{font-size:var(--fs-md);font-weight:600}
-.ux-cat-pos{font-size:var(--fs-md);font-weight:500;line-height:20px;margin:0}
+.ux-cat-pos{font-weight:500;line-height:20px;margin:0}
 .ux-cat-n{font-size:var(--fs-sm);color:var(--text-2);margin:0}
 .ux-open:not(.button){font:inherit;background:none;border:0;padding:0;cursor:pointer;color:var(--accent)}
-.ux-cat-go{margin-top:auto;align-self:flex-start;font-size:var(--fs-sm);font-weight:500;min-height:24px}
+.ux-cat-go{align-self:flex-start;font-size:var(--fs-sm);font-weight:500;min-height:24px}
 .ocard[class*="lens-b-"]{border-top:1px solid var(--line)}
 .lens{background:none;border:0;color:var(--text-2);padding:0}
 
@@ -210,13 +210,13 @@ details.ux-disc>summary:focus-visible,.ux-tableview>summary:focus-visible,.ux-ab
 .ux-choose-steps .who-decides{border:0;padding:0;box-shadow:none}
 
 /* 12. Breakpoints (§3.1) */
-@media (max-width:1279px){.heroes.ux-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.ux-cats.ocards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:1279px){.heroes.ux-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (min-width:1280px) and (max-width:1439px){.heroes.ux-kpis{grid-template-columns:repeat(4,minmax(0,1fr))}.ux-kpi-v{font-size:var(--fs-2xl);line-height:32px}}
 @media (max-width:1023px){.ux-main-aside,.ux-two{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:760px){
-  .ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"top top" "txt txt" "who go";gap:var(--s2) var(--s3)}
+  .ux-queue>li.ux-q{gap:var(--s2) var(--s3)}
   .ux-q-top{grid-area:top;flex-direction:row;align-items:center;gap:var(--s2)}
-  .ux-q-txt{grid-area:txt}.ux-q-who{grid-area:who}.ux-q-go{grid-area:go}
+  .ux-q-txt{grid-area:txt}.ux-q-go{}
   .ux-dfacts{grid-template-columns:minmax(0,1fr)}
 }
 @media (max-width:600px){
@@ -225,7 +225,7 @@ details.ux-disc>summary:focus-visible,.ux-tableview>summary:focus-visible,.ux-ab
   .ux-kpi-v{font-size:var(--fs-xl);line-height:28px}
   .ux-kpi-s{font-size:var(--fs-xs)}
   .headline.ux-headline{font-size:var(--fs-lg);line-height:24px}
-  .ux-cats.ocards{grid-template-columns:minmax(0,1fr)}
+
   .ux-wf-row,.ux-vc-stage{grid-template-columns:minmax(0,1fr) 76px;gap:2px var(--s3)}
   .ux-wf-track,.ux-vc-track{grid-column:1/-1}
   details.ux-disc>summary{padding:var(--s3) var(--s4)}.ux-disc-body{padding:0 var(--s4) var(--s4)}
@@ -252,17 +252,17 @@ table.opts tbody tr.rec,table.opts tbody tr.rec>th,table.opts tbody tr.rec>td{ba
 
 /* ---- fix round 1 (design review of wave 1) ---- */
 /* queue with At stake and Due columns (finding 1) */
-.ux-qh,.ux-queue>li.ux-q{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(112px,1fr) 72px minmax(140px,1fr) auto;gap:var(--s2) var(--s4);align-items:center}
+.ux-qh,.ux-queue>li.ux-q{display:grid;gap:var(--s2) var(--s4);align-items:center}
 .ux-qh{padding:0 0 var(--s2);border-bottom:1px solid var(--line);font-size:var(--fs-xs);font-weight:500;color:var(--text-2)}
 .ux-queue>li.ux-q{align-items:start}
-.ux-q-issue{min-width:0;display:flex;flex-direction:column;gap:4px}
-.ux-q-top{flex-direction:row;align-items:center;gap:var(--s2)}
+.ux-q-issue{min-width:0;display:flex;flex-direction:column}
+.ux-q-top{flex-direction:row;}
 .ux-q-k{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .ux-q-stake{display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px;font-size:var(--fs-sm)}
 .ux-q-stake small{flex-basis:100%;font-size:var(--fs-xs);color:var(--text-2)}
 .ux-q-v{font-weight:600;font-size:var(--fs-md);font-variant-numeric:tabular-nums}
 .ux-q-word{color:var(--text-2)}
-.ux-q-due{font-size:var(--fs-sm);font-weight:500;white-space:nowrap}
+.ux-q-due{font-size:var(--fs-sm);font-weight:500}
 .ux-q-go.button{align-self:center}
 .ux-skel{display:flex;flex-direction:column;gap:var(--s3);padding:var(--s3) 0}
 .ux-skel-row{display:block;height:44px;border-radius:var(--r1);background:linear-gradient(90deg,var(--surface-2),var(--surface-3),var(--surface-2));background-size:200% 100%;animation:ux-shimmer 1.4s linear infinite}
@@ -271,7 +271,7 @@ table.opts tbody tr.rec,table.opts tbody tr.rec>th,table.opts tbody tr.rec>td{ba
 .ux-more-phone{display:none}
 @media (max-width:760px){
   .ux-qh{display:none}
-  .ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"issue issue" "stake due" "who go"}
+  .ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) auto}
   .ux-q-issue{grid-area:issue}.ux-q-stake{grid-area:stake}.ux-q-due{grid-area:due;justify-self:end}.ux-q-who{grid-area:who}.ux-q-go{grid-area:go}
   .ux-q-k{position:static;width:auto;height:auto;clip:auto;color:var(--text-2);font-weight:400}
 }
@@ -308,7 +308,9 @@ table.ux-opts tbody th{min-width:200px}
 .ux-planband .heroes.ux-kpis{margin-bottom:var(--s3)}
 .ux-planact{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3)}
 .ux-note{font-size:var(--fs-sm);color:var(--text-2)}
-.ux-itemh,.ux-itemrow{display:grid;grid-template-columns:minmax(0,2.4fr) minmax(130px,1.2fr) 64px 80px minmax(110px,1fr) 84px 16px;gap:var(--s3);align-items:center}
+/* review r4 H1: the row switches on the list's own width (a container), not the screen's: beside the 380 px approval panel the list is narrow on a wide screen */
+.ux-items{container:uxitems/inline-size}
+.ux-itemh,.ux-itemrow{display:grid;grid-template-columns:minmax(200px,2.2fr) minmax(120px,1.1fr) 64px 72px 52px minmax(130px,1.2fr) 84px 16px;gap:var(--s3);align-items:center}
 .ux-itemh{padding:0 var(--s3) var(--s2);font-size:var(--fs-xs);font-weight:500;color:var(--text-2);border-bottom:1px solid var(--line)}
 details.ux-item{border-bottom:1px solid var(--line)}
 details.ux-item>summary{list-style:none;cursor:pointer;padding:var(--s3)}
@@ -324,12 +326,13 @@ details.ux-item[open]>summary .ux-disc-cue{transform:rotate(225deg)}
 .ux-state{display:inline-block;padding:0 8px;border:1px solid var(--line-strong);border-radius:999px;font-size:var(--fs-xs);font-weight:500;line-height:20px}
 .ux-item-body{padding:0 var(--s3) var(--s4)}
 .ux-item-body>.plan-item{border:0;box-shadow:none;margin:0}
-@media (max-width:760px){
+@container uxitems (max-width:879px){
   .ux-itemh{display:none}
-  .ux-itemrow{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 16px}
-  .ux-it-main{grid-column:1/3}.ux-itemrow .ux-disc-cue{grid-column:3;grid-row:1}
+  .ux-itemrow{grid-template-columns:minmax(0,1fr) minmax(0,1fr);position:relative}details.ux-item>summary.ux-itemrow{padding-right:calc(var(--s3) + 24px)}
+  .ux-it-main{grid-column:1/3}.ux-itemrow .ux-disc-cue{position:absolute;right:var(--s3);top:calc(var(--s3) + 4px)} /* the cue sits outside the grid so no cell lands in its 16px column */
   .ux-it-c::before{content:attr(data-k) ": ";color:var(--text-2);font-size:var(--fs-xs)}
 }
+@container uxitems (min-width:560px) and (max-width:879px){.ux-itemrow{grid-template-columns:repeat(3,minmax(0,1fr))}.ux-it-main{grid-column:1/4}}
 
 /* ---- fix round 2 ---- */
 /* H1: a phone option card has two columns, label and value; the cell content is one wrapper in the value column */
@@ -352,24 +355,26 @@ details.ux-item[open]>summary .ux-disc-cue{transform:rotate(225deg)}
   .page-heading p{margin-top:2px}
   .ux-scope{margin-top:2px}
   .canvas .breadcrumbs{margin-bottom:var(--s1)}
-  .canvas{padding-top:var(--s4)}
-  .headline.ux-headline{margin-bottom:var(--s3);font-size:var(--fs-lg);line-height:24px}
-  .heroes.ux-kpis{margin-bottom:var(--s4);gap:var(--s3)}
-  .ux-kpi{padding:var(--s3) var(--s4);gap:2px}
-  .ux-kpi-v{font-size:var(--fs-2xl);line-height:32px}
-  .ux-kpi-s+.ux-kpi-s{display:none}
+
+  .headline.ux-headline{font-size:var(--fs-lg);line-height:24px}
+  .heroes.ux-kpis{gap:var(--s3)}
+  .ux-kpi{gap:2px}
+
+  .ux-kpi-s+.ux-kpi-s:not(.has-trend){display:none} /* a trend is shortened, never hidden (review r4 L6) */
+  .ux-kpi-s.has-trend{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .ux-overview .ux-queue-panel .panel-head p{display:none}
-  .tabs{margin-bottom:var(--s3)}
+
 }
 /* low: the decider's name never truncates */
-.ux-q-who .who{white-space:normal;display:inline;overflow:visible}
+.ux-q-who .who{display:inline;overflow:visible}
 .ux-q-who .who>span{white-space:nowrap}
 @media (min-width:1024px) and (max-height:820px){
   .canvas .breadcrumbs{display:none}
   .page-heading>div>p:not(.ux-scope){display:none} /* the operator and period are in the top bar */
+  .canvas:has([aria-label="This Site"]) .page-heading>div>p:not(.ux-scope){display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} /* a Site's subtitle is shortened, not hidden (review r4 L6) */
   .ux-main-aside{grid-template-columns:minmax(0,1fr)} /* the queue first, full width; the plan card follows */
-  .ux-queue>li.ux-q{padding:var(--s2) 0}
-  .ux-site-tiles .ux-kpi-s{display:none}
+
+  .ux-site-tiles .ux-kpi-s:not(.has-trend){display:none}
 }
 @media (min-width:1024px) and (max-height:820px){
   .canvas{padding-top:var(--s3)}
@@ -385,7 +390,7 @@ details.ux-item[open]>summary .ux-disc-cue{transform:rotate(225deg)}
 @media (max-width:760px){table.ux-opts tr.rec>th:first-child{box-shadow:none}table.ux-opts tr.rec{border-left:3px solid var(--accent-solid)}}
 
 /* ---- fix round 3 ---- */
-.ux-cat-st{margin:0}
+
 .ux-about-inline{margin-top:var(--s3);max-width:none}
 .ux-about-inline>summary{text-align:left}
 @media (max-width:600px){.ux-vc-stage{grid-template-columns:minmax(0,1fr) auto}.ux-chart{overflow-wrap:anywhere}}
@@ -394,9 +399,8 @@ table.ux-opts .badge,table.ux-opts .status-pill{white-space:normal;max-width:100
 
 /* ===== wave 2: Portfolio polish ===== */
 /* queue: title + scannable columns; explanation on demand; controls */
-.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,2fr) 88px minmax(120px,1fr) 64px minmax(150px,auto) auto}
 .ux-q-title{font-size:var(--fs-md);font-weight:600;line-height:20px}
-.ux-q-top{flex-wrap:wrap}
+
 .ux-q-more{align-self:flex-start;background:none;border:0;padding:2px 0;color:var(--accent);font:inherit;font-size:var(--fs-sm);cursor:pointer;min-height:24px}
 .ux-q-more::after{content:" ▾";font-size:var(--fs-xs)}
 .ux-q-more[aria-expanded="true"]::after{content:" ▴"}
@@ -404,7 +408,7 @@ table.ux-opts .badge,table.ux-opts .status-pill{white-space:normal;max-width:100
 .ux-q-why.is-collapsed{display:none}
 .ux-q-cert{font-size:var(--fs-xs)}
 .ux-q-site{font-size:var(--fs-sm);font-weight:500}
-.ux-q-who .who{white-space:nowrap}
+
 .ux-queue>li.ux-grp{padding:var(--s3) 0 var(--s1);border-top:1px solid var(--line)}
 .ux-queue>li.ux-grp h3{font-size:var(--fs-sm);font-weight:600;color:var(--text-2)}
 .ux-qtools{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2) var(--s4);margin:0 0 var(--s3);font-size:var(--fs-sm);color:var(--text-2)}
@@ -412,26 +416,28 @@ table.ux-opts .badge,table.ux-opts .status-pill{white-space:normal;max-width:100
 .ux-qtools select{font:inherit;font-size:var(--fs-sm);color:var(--text);background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--r1);padding:4px 8px;min-height:32px}
 .ux-qcount{margin-left:auto}
 @media (max-width:760px){
-  .ux-queue>li.ux-q{grid-template-areas:"issue issue" "site due" "stake stake" "who go"}
+
   .ux-q-site{grid-area:site}
   .ux-qtools label{flex:1 1 40%}.ux-qtools select{flex:1}.ux-qcount{margin-left:0}
 }
 /* KPI: the trend slot says when no history is loaded */
-.ux-trend{display:inline-flex;align-items:center;gap:var(--s2);font-size:var(--fs-xs);color:var(--text-2)}
-.ux-spark-na{display:inline-block;width:48px;height:12px;border-bottom:1px dashed var(--line-strong);transform:translateY(-3px)}
+.ux-trend{display:inline-flex;align-items:center;gap:var(--s2);font-size:var(--fs-xs)}
+.ux-spark-na{display:inline-block;height:12px;transform:translateY(-3px)}
 /* value chain as leaks */
 .ux-vc-stage{grid-template-columns:minmax(0,1fr) auto}
 .ux-vc-loss{display:grid;grid-template-columns:minmax(120px,1fr) minmax(110px,auto) minmax(0,1.2fr);gap:var(--s3);align-items:center;padding:4px 0 8px var(--s3);font-size:var(--fs-sm)}
-.ux-vc-loss .ux-vc-val{font-weight:600;color:var(--bad)}
+.ux-vc-loss .ux-vc-val{font-weight:600;color:var(--text)}
+.ux-vc-loss.is-adverse .ux-vc-val{color:var(--bad)} /* review r2 L3: the amount is red only where the bar is a loss against target */
 .ux-vc-loss .ux-vc-val small{display:block;font-weight:400;color:var(--text-2);font-size:var(--fs-xs)}
-.ux-vc-loss .ux-vc-bar{background:var(--bad)}
+.ux-vc-loss .ux-vc-bar{background:var(--line-strong)}
+.ux-vc-loss .ux-vc-bar.is-bad{background:var(--bad)}
 @media (max-width:600px){.ux-vc-loss{grid-template-columns:minmax(0,1fr) auto}.ux-vc-loss .ux-vc-track{grid-column:1/-1}}
 /* outcome tiles: a visual, no empty space */
-.ux-cats.ocards{align-items:start}
-.ux-cat{gap:var(--s2)}
-.ux-cat-h{flex-wrap:wrap}
+
+
+
 .ux-cat-h .ux-cat-st{margin-left:auto}
-.ux-cat-go{margin-top:0}
+
 .ux-seg{display:flex;gap:4px;height:8px;margin:var(--s1) 0}
 .ux-seg span{flex:1;border-radius:2px}
 .ux-seg .is-bad{background:var(--bad)}.ux-seg .is-good{background:var(--good)}
@@ -440,7 +446,7 @@ table.ux-opts .badge,table.ux-opts .status-pill{white-space:normal;max-width:100
 .ux-wf-a{display:grid;grid-template-columns:minmax(120px,1.1fr) 76px minmax(0,1.6fr);gap:var(--s3);align-items:center;padding:6px var(--s1);margin:0 calc(-1 * var(--s1));border-radius:var(--r1);color:inherit;text-decoration:none}
 .ux-wf-a:hover,.ux-wf-a:focus-visible{background:var(--surface-2);text-decoration:none}
 .ux-wf-row{position:relative}
-.ux-tip{position:absolute;z-index:30;left:40%;bottom:calc(100% - 4px);max-width:320px;padding:var(--s2) var(--s3);border-radius:var(--r1);background:var(--text);color:var(--surface);font-size:var(--fs-xs);line-height:16px;box-shadow:var(--shadow-md);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .12s var(--ease)}
+.ux-tip{position:absolute;z-index:30;bottom:calc(100% - 4px);padding:var(--s2) var(--s3);border-radius:var(--r1);background:var(--text);color:var(--surface);font-size:var(--fs-xs);line-height:16px;box-shadow:var(--shadow-md);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .12s var(--ease)}
 .ux-wf-row:hover>.ux-tip,.ux-wf-row:focus-within>.ux-tip,.ux-wf-row:focus>.ux-tip{opacity:1;visibility:visible}
 @media (max-width:600px){.ux-wf-a{grid-template-columns:minmax(0,1fr) 76px}.ux-wf-a .ux-wf-track{grid-column:1/-1}.ux-tip{left:0}}
 @media (prefers-reduced-motion:reduce){.ux-tip{transition:none}}
@@ -489,9 +495,6 @@ details.ux-pop>summary:focus-visible{outline:2px solid var(--focus);outline-offs
 @media (max-width:1023px){.ux-overview .ux-aside{grid-template-columns:minmax(0,1fr)}}
 .ux-meterbar.is-neutral span{background:var(--series-1)}
 /* fixed column tracks, so every row of the queue lines up */
-.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) 92px 176px 84px 236px 84px}
-@media (max-width:1279px){.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) 84px 150px 72px 200px 80px}}
-@media (max-width:760px){.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) auto}}
 @media (min-width:1024px) and (max-height:820px){.ux-qh{display:none}.ux-qtools{margin-bottom:var(--s2)}.ux-queue>li.ux-q{padding:6px 0}}
 .ux-tip{left:auto;right:0;max-width:min(320px,90%)}
 .reviewbar .right{flex-wrap:wrap;justify-content:flex-end;min-width:0}.reviewbar{flex-wrap:wrap}
@@ -499,12 +502,10 @@ details.ux-pop>summary:focus-visible{outline:2px solid var(--focus);outline-offs
 
 /* ===== wave 2b fixes ===== */
 /* M1: the decider column has room, and a long role drops to a second line instead of running under Decide */
-.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) 92px 168px 76px minmax(170px,220px) 84px}
-@media (max-width:1279px){.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) 80px 140px 68px minmax(150px,180px) 78px}}
 .ux-q-who{min-width:0}
 .ux-q-who .who{white-space:normal}
 .ux-q-who .who>b,.ux-q-who .who>span{white-space:nowrap}
-.ux-q-top .ux-chip+.ux-chip{margin-left:-4px}
+
 .ux-q-issue-line{display:block;margin-top:4px}
 .ux-queue-wrap.is-dense .ux-queue>li.ux-q{padding:4px 0}
 .ux-queue-wrap.is-dense .ux-q-more{display:none}
@@ -523,8 +524,8 @@ details.ux-pop>summary:focus-visible{outline:2px solid var(--focus);outline-offs
 .ux-aside-stack{display:flex;flex-direction:column;gap:var(--s4)}
 .ux-overview .ux-two .ux-aside{display:flex}
 /* tiles: one-line headings at desktop widths, the link on a shared baseline */
-.ux-cats.ocards{align-items:stretch}
-@media (min-width:1280px){.ux-cat-h h3{white-space:nowrap}}
+
+@media (min-width:1280px){.ux-cat-h h3{}}
 .ux-cat-st{margin:0}
 .ux-cat-go{margin-top:auto}
 .ux-bullet-bar.is-warn{background:var(--warn)}
@@ -536,7 +537,9 @@ details.ux-pop>summary:focus-visible{outline:2px solid var(--focus);outline-offs
 .ux-sw-q{font:inherit;font-size:var(--fs-sm);width:100%;box-sizing:border-box;margin-bottom:var(--s1);padding:6px 8px;border:1px solid var(--line-strong);border-radius:var(--r1);background:var(--surface);color:var(--text)}
 /* the queue lays itself out by the room it has (a container query), not by the window: in a side-by-side column it stacks */
 .ux-queue-wrap{container-type:inline-size}
-.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) 92px 168px 88px minmax(170px,220px) 84px}
+/* the queue's column tracks, declared once (review r1 L1); the action column fits its longest state label ("Awaiting approval"); the container query below stacks it */
+.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) 92px 168px 88px minmax(170px,220px) 148px}
+@media (max-width:1439px){.ux-qh,.ux-queue>li.ux-q{grid-template-columns:minmax(0,1fr) 76px 140px 64px minmax(140px,176px) 144px}}
 .ux-q-due{white-space:normal}
 .ux-q-who .who>b{white-space:normal}
 @container (max-width:880px){
@@ -568,7 +571,7 @@ details.ux-pop>summary:focus-visible{outline:2px solid var(--focus);outline-offs
 .ux-wf-totals .ux-bullet{height:12px}
 .ux-wf-tl{display:flex;justify-content:space-between;font-size:var(--fs-sm);color:var(--text-2)}
 .ux-wf-tl b{color:var(--text);font-variant-numeric:tabular-nums}
-.ux-wf-scale{display:grid;grid-template-columns:auto 1fr auto;gap:var(--s3);margin-left:calc(min(30%,260px) + 96px + 2 * var(--s3));font-size:var(--fs-xs);color:var(--text-2);border-bottom:1px solid var(--line-strong);padding-bottom:4px}
+.ux-wf-scale{grid-template-columns:auto 1fr auto;gap:var(--s3);margin-left:calc(min(30%,260px) + 96px + 2 * var(--s3));font-size:var(--fs-xs);color:var(--text-2);padding-bottom:4px}
 .ux-wf-scale span:nth-child(2){text-align:center}
 .ux-hero .ux-wf-gapscale .ux-wf-row,.ux-hero .ux-wf-gapscale .ux-wf-a{grid-template-columns:min(30%,260px) 96px minmax(0,1fr)}
 .ux-wf-gapscale .ux-wf-track{border-left:1px solid var(--line);border-right:1px solid var(--line);height:24px}
@@ -605,8 +608,8 @@ details.ux-pop>summary:focus-visible{outline:2px solid var(--focus);outline-offs
 .rail .eyebrow,.rail .rail-group .eyebrow,.rail-footer,.rail-footer .eyebrow{color:var(--rail-text-2);opacity:1}
 .rail-footer{position:relative;z-index:1;background:var(--rail-bg)}
 /* the pending-recalculation notice with its on-request control (guide §6 freshness, §7.6) */
-.ux-pending{display:flex;flex-direction:column;gap:var(--s2)}
-.ux-recalc-row{display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap}
+.ux-pending{display:flex;}
+.ux-recalc-row{display:flex;flex-wrap:wrap}
 .ux-recalc.button{min-height:32px;padding:4px 14px;font-size:var(--fs-sm)}
 .ux-mockdev{font-size:var(--fs-xs);color:var(--rb-text);border:1px dashed var(--rb-line);border-radius:var(--r1);padding:0 6px}
 .ux-pending{flex-direction:row;align-items:center;gap:var(--s3)}
@@ -614,3 +617,120 @@ details.ux-pop>summary:focus-visible{outline:2px solid var(--focus);outline-offs
 .ux-recalc-row{flex:none;flex-direction:column;align-items:flex-end;gap:2px}
 @media (max-width:760px){.ux-pending{flex-direction:column;align-items:stretch}.ux-recalc-row{flex-direction:row;align-items:center}}
 @media (min-width:1024px) and (max-height:820px){.ux-pending{margin-bottom:var(--s2)}.ux-pending .badge{padding:4px var(--s3);line-height:18px}}
+
+/* ===== the Decision page (owner, 20 Nov; guide §7.2, §9b) ===== */
+.ux-dhd{display:flex;flex-direction:column;gap:var(--s2);margin:0 0 var(--s4)}
+.ux-dmeta{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s1) var(--s4);margin:0;font-size:var(--fs-sm);color:var(--text-2)}
+.ux-dmeta .who{font-size:var(--fs-sm)}
+.ux-dsteps{display:flex;flex-wrap:wrap;gap:0;margin:0;padding:0;list-style:none;font-size:var(--fs-xs);color:var(--text-2)}
+.ux-dsteps li{display:flex;align-items:center;gap:6px;padding-right:var(--s3)}
+.ux-dsteps li::before{content:"";width:8px;height:8px;border-radius:50%;border:1px solid var(--line-strong);background:var(--surface)}
+.ux-dsteps li+li::after{content:none}
+.ux-dsteps li+li{padding-left:var(--s3);border-left:1px solid var(--line)}
+.ux-dsteps li.is-done::before{background:var(--good);border-color:var(--good)}
+.ux-dsteps li.is-current{color:var(--text);font-weight:600}
+.ux-dsteps li.is-current::before{background:var(--accent-solid);border-color:var(--accent-solid)}
+.ux-drec{margin-bottom:var(--s4)}
+.ux-drec h2{font-size:var(--fs-xl);line-height:28px;margin:2px 0 var(--s1)}
+.ux-drec-n{margin:0 0 var(--s3);font-size:var(--fs-md);color:var(--text-2)}
+.ux-drec-n b{font-size:var(--fs-xl);color:var(--text);font-variant-numeric:tabular-nums}
+.ux-drec .ux-dgo{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3);margin-top:var(--s2);font-size:var(--fs-md)}
+.ux-ocards{margin-bottom:var(--s4)}
+.ux-ocards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--s3)}
+.ux-ocard{display:flex;flex-direction:column;gap:var(--s2);padding:var(--s4);background:var(--surface);border:1px solid var(--line);border-radius:var(--r2)}
+.ux-ocard header{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.ux-ocard h3{font-size:var(--fs-md);font-weight:600;line-height:20px;margin:0}
+.ux-ocard.is-rec{border-color:var(--accent-line);box-shadow:inset 3px 0 0 var(--accent-solid)}
+.ux-ocard.is-base{background:var(--surface-2);border-style:dashed}
+.ux-ocard dl{display:grid;grid-template-columns:auto 1fr;gap:4px var(--s3);margin:0;font-size:var(--fs-sm)}
+.ux-ocard dl>div{display:contents}
+.ux-ocard dt{color:var(--text-2)}
+.ux-ocard dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums}
+.ux-ocard dd small{font-weight:400;color:var(--text-2)}
+.ux-ocard-why{margin:0;font-size:var(--fs-sm);color:var(--text-2)}
+.ux-ocard .button{align-self:flex-start;margin-top:auto}
+.ux-confirm{display:flex;flex-direction:column;gap:var(--s4);margin:0}
+.ux-confirm dt{font-size:var(--fs-sm);color:var(--text-2);margin-bottom:4px}
+.ux-confirm dd{margin:0;font-size:var(--fs-md)}
+.ux-confirm-go{display:flex;gap:var(--s3);margin-top:var(--s5)}
+.canvas .ev-num{text-decoration:none}
+.canvas .ev-num:hover,.canvas .ev-num:focus-visible{text-decoration:underline;text-underline-offset:4px}
+@media (max-width:600px){.ux-ocards-grid{grid-template-columns:minmax(0,1fr)}.ux-dsteps li+li{border-left:0;padding-left:0}}
+.ux-q-go.button{justify-self:end;white-space:nowrap}
+/* review r1: the review-bar control for the fourth state; the qualifier beside a figure is its basis, in the secondary colour */
+.reviewbar a.ux-rb-ctl{color:var(--rb-text);text-decoration:underline;text-underline-offset:2px}
+.ux-drec-q,.ux-confirm-q{color:var(--text-2)}
+/* one drill-down grammar (owner, 20 Nov): a chart step and a chart heading are buttons that open their drawer in place */
+button.ux-wf-a{width:calc(100% + 2 * var(--s1));background:none;border:0;font:inherit;text-align:left;cursor:pointer}
+.ux-wf-group .ux-wf-gbtn{display:flex;justify-content:space-between;width:100%;padding:2px 0;background:none;border:0;border-radius:var(--r1);font:inherit;color:inherit;cursor:pointer}
+.ux-wf-group .ux-wf-gbtn:hover .ux-wf-gl{text-decoration:underline;text-underline-offset:3px}
+.ux-drv-amt{margin:0 0 var(--s4);font-size:var(--fs-md);color:var(--text-2)}
+.ux-drv-amt b{font-size:var(--fs-xl);color:var(--text);font-variant-numeric:tabular-nums}
+.ux-drv-h{margin:var(--s4) 0 var(--s2);font-size:var(--fs-sm);font-weight:600;color:var(--text-2)}
+.ux-drv-decs li{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:baseline}
+.ux-drv-top{margin-bottom:var(--s5);padding-bottom:var(--s4);border-bottom:1px solid var(--line)}
+/* one shell model: the Findings list, read from the plan's store; a link into a review-only screen reads as plain text */
+.ux-flist{list-style:none;margin:0;padding:0}
+.ux-flist>li{display:grid;grid-template-columns:132px 96px minmax(0,1fr) minmax(200px,auto);gap:var(--s3);align-items:start;padding:var(--s3) 0;border-top:1px solid var(--line)}
+.ux-flist>li:first-child{border-top:0}
+.ux-fl-t small{display:block;color:var(--text-2);font-size:var(--fs-xs)}
+.ux-fl-dec{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center;justify-content:flex-end}
+@container (max-width:880px){.ux-flist>li{grid-template-columns:minmax(0,1fr) auto}.ux-fl-t,.ux-fl-dec{grid-column:1/-1;justify-content:flex-start}}
+@media (max-width:600px){.ux-flist>li{grid-template-columns:minmax(0,1fr) auto}.ux-fl-t,.ux-fl-dec{grid-column:1/-1;justify-content:flex-start}}
+.ux-act-g .ux-row-head h3{margin:0;font-size:var(--fs-md)}
+.ux-empty-page{padding:var(--s6)}
+
+/* a leak is coloured as a loss only against a target (X6); the tie line between a statement line and its heading (D-RECON.2) */
+.ux-tie{margin:0 0 var(--s3);font-size:var(--fs-sm);color:var(--text-2)}
+.ux-tie small{display:block;font-size:var(--fs-xs)}
+.ux-cross small{display:block;color:var(--text-2);font-size:var(--fs-xs)}
+.ux-ctx{margin:var(--s2) 0 var(--s3);font-size:var(--fs-sm);color:var(--text-2)}
+.ux-flist>li[hidden]{display:none} /* review M3: "Show all" reveals what is held back */
+/* the decision page: answer-titled sections (the label and its answer, visible when closed) and the sticky context bar */
+.ux-ans{font-size:var(--fs-sm);color:var(--text-2);font-weight:400}
+.ux-dsecs{display:flex;flex-direction:column;gap:var(--s3)}
+.ux-sub-h{margin:var(--s4) 0 var(--s2);font-size:var(--fs-sm);font-weight:600}
+.ux-dhd .ux-how{align-self:flex-start;margin:0;font-size:var(--fs-sm)}
+.ux-drec-n.is-second{font-size:var(--fs-sm)}
+.ux-dsticky{display:none}
+.ux-dsticky.is-on{display:flex;position:fixed;top:0;left:0;right:0;z-index:30;align-items:center;gap:var(--s3);padding:var(--s2) var(--s5);background:var(--surface);border-bottom:1px solid var(--line);box-shadow:var(--shadow-sm)}
+.ux-dsticky-t{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ux-dsticky-n{font-variant-numeric:tabular-nums;white-space:nowrap}
+.ux-dsticky-n small{color:var(--text-2)}
+.ux-dsticky .button{margin-left:auto}
+html.ux-has-sticky{scroll-padding-top:64px}
+/* r3 L4: on a phone, two rows: the title and the action; the key figure and the state */
+@media (max-width:600px){.ux-dsticky.is-on{top:auto;bottom:0;border-top:1px solid var(--line);border-bottom:0;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:2px var(--s2);padding:var(--s2) var(--s3)}.ux-dsticky-t{grid-column:1/3;grid-row:1}.ux-dsticky-n{grid-column:1;grid-row:2;font-size:var(--fs-sm)}.ux-dsticky .status-pill{grid-column:2;grid-row:2;justify-self:start}.ux-dsticky .button,.ux-dsticky .ux-note{grid-column:3;margin-left:0}html.ux-has-sticky{scroll-padding-top:0;scroll-padding-bottom:128px}html.ux-has-sticky body{padding-bottom:128px}}
+/* the Site page: the outcome board, the help line; on a phone a KPI's trend is its words, not a sparkline (DS1 recommendation, G3) */
+.ux-site-board th small{display:block;font-weight:400;color:var(--text-2);font-size:var(--fs-xs)}
+.ux-site-board td,.ux-site-board th{vertical-align:top}
+.ux-board-go{font-weight:600}
+.ux-help-line{margin:var(--s4) 0;font-size:var(--fs-sm)}
+@media (max-width:600px){.ux-kpi .ux-spark{display:none}}
+.ux-sacts .ux-sact{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px var(--s3);align-items:start}
+.ux-sact-t{font-weight:600}
+.ux-sact small{grid-column:1;color:var(--text-2)}
+.ux-sact small .who{display:inline}.ux-sact small .who>b::after{margin-right:4px}.ux-sact-due{display:block} /* r1 L7: owner on one line, due date on the next */
+/* review Site L2: tile 3's option text keeps to two lines on a phone so the first queue card shows */
+@media (max-width:600px){.ux-kpi-clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}}
+.ux-sact .status-pill{grid-column:2;grid-row:1 / span 2;align-self:center}
+@media (max-width:600px){.ux-kpi-s.has-trend{display:block}} /* on a phone the trend stays, as words (the sparkline is hidden): DS1 recommendation, G3 */
+
+.ux-it-basis{display:block;font-weight:400;font-size:var(--fs-xs);color:var(--text-2)}
+.ux-toast{display:flex;align-items:center;gap:var(--s3)}
+.ux-reason{width:100%;font:inherit;padding:var(--s2);border:1px solid var(--line-strong);border-radius:var(--r1);background:var(--surface);color:var(--text)}
+h2 .ux-split{font-size:var(--fs-sm);font-weight:400;color:var(--text-2)}
+/* review r4: a required answer disables the primary until it is given (M3); the toast sits above the phone bar (L1); the plan bar on a
+   phone is three rows, so its state pill wraps to its own row instead of truncating (L5) */
+.button:disabled{opacity:.5;cursor:not-allowed}
+.ux-confirm select.ux-reason{width:100%}
+@media (max-width:600px){
+  html.ux-has-sticky .ux-toast{bottom:136px;max-width:calc(100vw - 24px)}
+  .ux-dsticky.is-on[aria-label="This plan"]{grid-template-columns:minmax(0,1fr) auto auto}
+  .ux-dsticky[aria-label="This plan"] .ux-dsticky-t{grid-column:1/-1;grid-row:1}
+  .ux-dsticky[aria-label="This plan"] .ux-dsticky-n{grid-column:1;grid-row:2}
+  .ux-dsticky[aria-label="This plan"] .button.primary{grid-column:2;grid-row:2}
+  .ux-dsticky[aria-label="This plan"] .button:not(.primary){grid-column:3;grid-row:2}
+  .ux-dsticky[aria-label="This plan"] .ux-note{grid-column:2/-1;grid-row:2}
+  .ux-dsticky[aria-label="This plan"] .status-pill{grid-column:1/-1;grid-row:3;justify-self:start;white-space:normal}
+}
