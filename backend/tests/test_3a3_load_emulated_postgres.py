@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+from datetime import timedelta
 from uuid import UUID
 
 import pytest
@@ -47,7 +48,8 @@ def acme(store, engine, tmp_path, monkeypatch):  # noqa: F811 - `store` empties 
     tid = seeder.add_tenant("acme")
     seeder.add_site(tid, KOBO)
     seeder.add_site(tid, KISIWA)
-    accounts = AccountService(PostgresAccountStore(URL), clock=Clock(T_SUBMIT))
+    clock = Clock(T_SUBMIT)
+    accounts = AccountService(PostgresAccountStore(URL), clock=clock)
     accounts.onboard_create("acme", "amina@acme.example", "Amina", PW, executive=True)
     boss = accounts.sign_in("amina@acme.example", PW).principal
     ids = {}
@@ -63,7 +65,7 @@ def acme(store, engine, tmp_path, monkeypatch):  # noqa: F811 - `store` empties 
     monkeypatch.setenv("DATABASE_URL", URL)
     monkeypatch.setenv("ASSETOPS_PSEUDONYM_KEY_DIR", str(keys))
     commercial = PostgresCommercialStore(URL)
-    yield dict(tid=tid, accounts=accounts, ids=ids, commercial=commercial)
+    yield dict(tid=tid, accounts=accounts, ids=ids, commercial=commercial, clock=clock)
     commercial.dispose()
 
 
@@ -99,6 +101,7 @@ def test_p2_onboard_person_round_trips(acme) -> None:
     assert fiona.roles == frozenset({(FIN, None)})
     assert acme["accounts"].onboard_person("nobody@acme.example") is None
     assert acme["accounts"].onboard_person("not an email") is None
+    acme["clock"].now = T_SUBMIT + timedelta(minutes=1)  # a later status row
     acme["accounts"].onboard_set_status("ana@acme.example", "DISABLED", "Left.")
     assert acme["accounts"].onboard_person("ana@acme.example").active is False
 
