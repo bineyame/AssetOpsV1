@@ -339,7 +339,7 @@ function uxOverview(op) {
   const n = uxDecCount(ATTN[op]);
   return `<div class="ux-overview"><p class="headline ux-headline">${hl}</p>
  <div class="heroes ux-kpis">${k1}${k2}${k3}${k4}</div>
- <div class="ux-main-aside"><section class="panel ux-queue-panel" aria-labelledby="uxq-h"><div class="panel-head"><div><h2 id="uxq-h">Decisions <span class="ux-count">${num(n)}</span></h2><p data-ux-split>${uxStateCount(ATTN[op].map(r => r[4]))}. One row each, with who decides.</p></div>${link('portfolio/act-first', 'Act first ›', 'ux-link')}</div>${uxQueue(op, ATTN[op].filter(r => uxMergeRows(ATTN[op]).slice(0, 6).some(m => m.d === r[4])), '', n)}${n > 6 ? `<p class="ux-more">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : n > 3 ? `<p class="ux-more ux-more-phone">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : ''}</section>
+ <div class="ux-main-aside"><section class="panel ux-queue-panel" aria-labelledby="uxq-h"><div class="panel-head"><div><h2 id="uxq-h">Decisions <span class="ux-count">${num(n)}</span> <small class="ux-split" data-ux-split>${uxStateSplit(ATTN[op].map(r => r[4]))}</small></h2><p>One row per decision, with who decides. AssetOps values the options; your team chooses.</p></div>${link('portfolio/act-first', 'Act first ›', 'ux-link')}</div>${uxQueue(op, ATTN[op].filter(r => uxMergeRows(ATTN[op]).slice(0, 6).some(m => m.d === r[4])), '', n)}${n > 6 ? `<p class="ux-more">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : n > 3 ? `<p class="ux-more ux-more-phone">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : ''}</section>
  </div>
  ${uxBridge(op)}
  ${uxCats(op)}
@@ -890,6 +890,7 @@ function uxNotFound() { return `<section class="panel ux-empty-page" role="statu
    row opens its drawer in place; leaving takes a named button. The Site tabs leave a slot for "Operations" (pending the owner). ===== */
 const SITE_TABS_PENDING = ['Operations']; /* the owner's call (reviewer's proposal): measures and assets for the period, the same on every Site */
 /* decisions counted by state, in the words of the one state source (review Site M1); "need a decision" only for the choose state */
+function uxStateSplit(ids) { return uxStateCount(ids).replace(/^[^:]*: /, ''); }
 function uxStateCount(ids) { ids = [...new Set(ids)]; const k = ids.map(id => uxDecState(id).key), n = s => k.filter(x => x === s).length, parts = [[n('choose') + n('none'), 'waiting for a choice'], [k.filter((x, i) => x === 'approval' && !uxDecState(ids[i]).draft).length, 'awaiting approval'], [k.filter((x, i) => x === 'approval' && uxDecState(ids[i]).draft).length, 'with the plan sent back to draft'], [n('released'), 'under way']].filter(([c]) => c);
   return ids.length ? `${num(ids.length)} decision${ids.length === 1 ? '' : 's'}: ${parts.map(([c, w]) => `${num(c)} ${w}`).join(', ')}` : 'No decision at this Site'; }
 /* the Operations measures' answer is its rows: the first measure against its target, or that none is declared (review Site M4) */

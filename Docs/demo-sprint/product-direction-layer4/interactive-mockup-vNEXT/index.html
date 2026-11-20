@@ -1109,6 +1109,7 @@ details.ux-item[open]>summary .ux-disc-cue{transform:rotate(225deg)}
 
   .ux-kpi-s+.ux-kpi-s:not(.has-trend){display:none} /* a trend is shortened, never hidden (review r4 L6) */
   .ux-kpi-s.has-trend{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ux-overview .ux-queue-panel .panel-head p{display:none}
 
 }
 /* low: the decider's name never truncates */
@@ -1116,7 +1117,8 @@ details.ux-item[open]>summary .ux-disc-cue{transform:rotate(225deg)}
 .ux-q-who .who>span{white-space:nowrap}
 @media (min-width:1024px) and (max-height:820px){
   .canvas .breadcrumbs{display:none}
-  .page-heading>div>p:not(.ux-scope){white-space:nowrap;overflow:hidden;text-overflow:ellipsis} /* one line, shortened, not hidden */
+  .page-heading>div>p:not(.ux-scope){display:none} /* the operator and period are in the top bar */
+  .canvas:has([aria-label="This Site"]) .page-heading>div>p:not(.ux-scope){display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} /* a Site's subtitle is shortened, not hidden (review r4 L6) */
   .ux-main-aside{grid-template-columns:minmax(0,1fr)} /* the queue first, full width; the plan card follows */
 
   .ux-site-tiles .ux-kpi-s:not(.has-trend){display:none}
@@ -1445,7 +1447,7 @@ button.ux-wf-a{width:calc(100% + 2 * var(--s1));background:none;border:0;font:in
 .ux-dsticky .button{margin-left:auto}
 html.ux-has-sticky{scroll-padding-top:64px}
 /* r3 L4: on a phone, two rows: the title and the action; the key figure and the state */
-@media (max-width:600px){.ux-dsticky.is-on{top:auto;bottom:0;border-top:1px solid var(--line);border-bottom:0;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:2px var(--s2);padding:var(--s2) var(--s3)}.ux-dsticky-t{grid-column:1/3;grid-row:1}.ux-dsticky-n{grid-column:1;grid-row:2;font-size:var(--fs-sm)}.ux-dsticky .status-pill{grid-column:2;grid-row:2;justify-self:start}.ux-dsticky .button,.ux-dsticky .ux-note{grid-column:3;margin-left:0}html.ux-has-sticky{scroll-padding-top:0;scroll-padding-bottom:96px}html.ux-has-sticky body{padding-bottom:96px}}
+@media (max-width:600px){.ux-dsticky.is-on{top:auto;bottom:0;border-top:1px solid var(--line);border-bottom:0;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:2px var(--s2);padding:var(--s2) var(--s3)}.ux-dsticky-t{grid-column:1/3;grid-row:1}.ux-dsticky-n{grid-column:1;grid-row:2;font-size:var(--fs-sm)}.ux-dsticky .status-pill{grid-column:2;grid-row:2;justify-self:start}.ux-dsticky .button,.ux-dsticky .ux-note{grid-column:3;margin-left:0}html.ux-has-sticky{scroll-padding-top:0;scroll-padding-bottom:128px}html.ux-has-sticky body{padding-bottom:128px}}
 /* the Site page: the outcome board, the help line; on a phone a KPI's trend is its words, not a sparkline (DS1 recommendation, G3) */
 .ux-site-board th small{display:block;font-weight:400;color:var(--text-2);font-size:var(--fs-xs)}
 .ux-site-board td,.ux-site-board th{vertical-align:top}
@@ -1464,13 +1466,13 @@ html.ux-has-sticky{scroll-padding-top:64px}
 .ux-it-basis{display:block;font-weight:400;font-size:var(--fs-xs);color:var(--text-2)}
 .ux-toast{display:flex;align-items:center;gap:var(--s3)}
 .ux-reason{width:100%;font:inherit;padding:var(--s2);border:1px solid var(--line-strong);border-radius:var(--r1);background:var(--surface);color:var(--text)}
+h2 .ux-split{font-size:var(--fs-sm);font-weight:400;color:var(--text-2)}
 /* review r4: a required answer disables the primary until it is given (M3); the toast sits above the phone bar (L1); the plan bar on a
    phone is three rows, so its state pill wraps to its own row instead of truncating (L5) */
 .button:disabled{opacity:.5;cursor:not-allowed}
 .ux-confirm select.ux-reason{width:100%}
 @media (max-width:600px){
   html.ux-has-sticky .ux-toast{bottom:136px;max-width:calc(100vw - 24px)}
-  html.ux-has-sticky{scroll-padding-bottom:128px}html.ux-has-sticky body{padding-bottom:128px}
   .ux-dsticky.is-on[aria-label="This plan"]{grid-template-columns:minmax(0,1fr) auto auto}
   .ux-dsticky[aria-label="This plan"] .ux-dsticky-t{grid-column:1/-1;grid-row:1}
   .ux-dsticky[aria-label="This plan"] .ux-dsticky-n{grid-column:1;grid-row:2}
@@ -4946,7 +4948,7 @@ function uxOverview(op) {
   const n = uxDecCount(ATTN[op]);
   return `<div class="ux-overview"><p class="headline ux-headline">${hl}</p>
  <div class="heroes ux-kpis">${k1}${k2}${k3}${k4}</div>
- <div class="ux-main-aside"><section class="panel ux-queue-panel" aria-labelledby="uxq-h"><div class="panel-head"><div><h2 id="uxq-h">Decisions <span class="ux-count">${num(n)}</span></h2><p data-ux-split>${uxStateCount(ATTN[op].map(r => r[4]))}. One row each, with who decides.</p></div>${link('portfolio/act-first', 'Act first ›', 'ux-link')}</div>${uxQueue(op, ATTN[op].filter(r => uxMergeRows(ATTN[op]).slice(0, 6).some(m => m.d === r[4])), '', n)}${n > 6 ? `<p class="ux-more">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : n > 3 ? `<p class="ux-more ux-more-phone">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : ''}</section>
+ <div class="ux-main-aside"><section class="panel ux-queue-panel" aria-labelledby="uxq-h"><div class="panel-head"><div><h2 id="uxq-h">Decisions <span class="ux-count">${num(n)}</span> <small class="ux-split" data-ux-split>${uxStateSplit(ATTN[op].map(r => r[4]))}</small></h2><p>One row per decision, with who decides. AssetOps values the options; your team chooses.</p></div>${link('portfolio/act-first', 'Act first ›', 'ux-link')}</div>${uxQueue(op, ATTN[op].filter(r => uxMergeRows(ATTN[op]).slice(0, 6).some(m => m.d === r[4])), '', n)}${n > 6 ? `<p class="ux-more">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : n > 3 ? `<p class="ux-more ux-more-phone">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : ''}</section>
  </div>
  ${uxBridge(op)}
  ${uxCats(op)}
@@ -5497,6 +5499,7 @@ function uxNotFound() { return `<section class="panel ux-empty-page" role="statu
    row opens its drawer in place; leaving takes a named button. The Site tabs leave a slot for "Operations" (pending the owner). ===== */
 const SITE_TABS_PENDING = ['Operations']; /* the owner's call (reviewer's proposal): measures and assets for the period, the same on every Site */
 /* decisions counted by state, in the words of the one state source (review Site M1); "need a decision" only for the choose state */
+function uxStateSplit(ids) { return uxStateCount(ids).replace(/^[^:]*: /, ''); }
 function uxStateCount(ids) { ids = [...new Set(ids)]; const k = ids.map(id => uxDecState(id).key), n = s => k.filter(x => x === s).length, parts = [[n('choose') + n('none'), 'waiting for a choice'], [k.filter((x, i) => x === 'approval' && !uxDecState(ids[i]).draft).length, 'awaiting approval'], [k.filter((x, i) => x === 'approval' && uxDecState(ids[i]).draft).length, 'with the plan sent back to draft'], [n('released'), 'under way']].filter(([c]) => c);
   return ids.length ? `${num(ids.length)} decision${ids.length === 1 ? '' : 's'}: ${parts.map(([c, w]) => `${num(c)} ${w}`).join(', ')}` : 'No decision at this Site'; }
 /* the Operations measures' answer is its rows: the first measure against its target, or that none is declared (review Site M4) */
