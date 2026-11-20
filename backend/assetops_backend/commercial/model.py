@@ -1,0 +1,157 @@
+"""3A1 (spec §2, §4; R6, R12, P2): the rows of migration 0063 and the results of one intake.
+
+- `IntakeRow`, `RecordRow`, `RevisionRow` and `RejectionRow` are the four tables' rows, every column. `RevisionRow`
+  also carries its record's `source_system` and `source_record_id` (read through the join; not revision columns).
+- `RevisionRow.provenance` is the batch's *declared* provenance (D-3A1.9); `3A2` caps what a path may declare.
+- `Plan` is what one intake decides under the tenant lock: the intake row, the rows to insert and the per-record
+  outcomes (P2). The service builds `IntakeResult` from the plan the store applied, never from a pre-lock guess.
+- `IntakeSummary` is the stored account of one intake (R6): the intake row, its rejections in `record_index` order
+  and the IDs of the revisions it wrote. UNCHANGED records are counted, not listed; only `ingest` returns the
+  per-record `RecordOutcome`s.
+- `STORED` means the intake was processed and its account kept. It never means "accepted" (R17; OD-15 is `3A2`'s).
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass
+from datetime import date, datetime
+from decimal import Decimal
+from typing import Mapping
+from uuid import UUID
+
+OUTCOMES = ("NEW", "REVISED", "UNCHANGED", "REFUSED")
+INTAKE_STATES = ("STORED", "REFUSED")
+
+
+@dataclass(frozen=True)
+class RecordOutcome:
+    """One input record's outcome, in input order. `revision_no` is the revision this intake wrote (None when it
+    wrote none); `record_id` is the stored record's ID when the record is known (None for a refusal or a format
+    refusal). `code` and `path` are set only on REFUSED."""
+    index: int
+    outcome: str
+    source_record_id: str | None
+    record_id: UUID | None
+    revision_no: int | None
+    code: str | None
+    path: str | None
+
+
+@dataclass(frozen=True)
+class IntakeResult:
+    intake_id: UUID | None  # None on a dry run (R15)
+    state: str
+    refusal_code: str | None
+    refusal_path: str | None
+    outcomes: tuple[RecordOutcome, ...]
+    dry_run: bool
+
+
+@dataclass(frozen=True)
+class IntakeRow:
+    id: UUID
+    tenant_id: UUID
+    source_type: str | None
+    source_system: str | None
+    provenance: str | None
+    produced_at: datetime | None
+    batch_sha256: str
+    state: str
+    refusal_code: str | None
+    refusal_path: str | None
+    record_count: int
+    new_count: int
+    revised_count: int
+    unchanged_count: int
+    refused_count: int
+    entered_by: str
+    entered_at: datetime
+
+
+@dataclass(frozen=True)
+class RecordRow:
+    id: UUID
+    tenant_id: UUID
+    site_id: UUID | None
+    kind: str
+    source_system: str
+    source_record_id: str
+    first_recorded_at: datetime
+
+
+@dataclass(frozen=True)
+class RevisionRow:
+    id: UUID
+    tenant_id: UUID
+    record_id: UUID
+    site_id: UUID | None
+    kind: str
+    revision_no: int
+    source_version: str
+    intake_id: UUID
+    record_sha256: str
+    canonical: str
+    provenance: str  # declared by the batch (D-3A1.9)
+    recognition_period: str | None
+    occurred_at: datetime | None
+    settled_at: datetime | None
+    effective_from: date | None
+    effective_to: date | None
+    amount: Decimal | None
+    currency: str | None
+    quantity: Decimal | None
+    unit: str | None
+    status: str | None
+    supersedes_revision_id: UUID | None
+    recorded_at: datetime
+    source_system: str
+    source_record_id: str
+
+
+@dataclass(frozen=True)
+class RejectionRow:
+    id: UUID
+    tenant_id: UUID
+    intake_id: UUID
+    record_index: int
+    source_record_id: str | None  # NULL for a 2a format refusal, the parsed ID for an INTAKE_* refusal (P3)
+    code: str
+    path: str
+    recorded_at: datetime
+
+
+@dataclass(frozen=True)
+class ExistingRecord:
+    """A stored record as the intake decides against it (spec §4.1). `versions` maps each source version to its
+    digest; `provenances` maps each source version to its declared provenance (R12)."""
+    record_id: UUID
+    kind: str
+    site_id: UUID | None
+    versions: Mapping[str, str]
+    latest_revision_id: UUID
+    latest_revision_no: int
+    provenances: Mapping[str, str]
+
+
+@dataclass(frozen=True)
+class Plan:
+    intake: IntakeRow
+    records: tuple[RecordRow, ...]
+    revisions: tuple[RevisionRow, ...]
+    rejections: tuple[RejectionRow, ...]
+    outcomes: tuple[RecordOutcome, ...]
+
+
+@dataclass(frozen=True)
+class IntakeSummary:
+    intake: IntakeRow
+    rejections: tuple[RejectionRow, ...]
+    revision_ids: tuple[UUID, ...]
+
+
+class StoreRefused(Exception):
+    """A database constraint refused a planned row. It carries only the constraint's name, never a row value
+    (D-2A.11's class, R13): the driver's message and DETAIL print the failing row and never survive."""
+
+    def __init__(self, constraint: str | None) -> None:
+        super().__init__(constraint or "unnamed constraint")
+        self.constraint = constraint
