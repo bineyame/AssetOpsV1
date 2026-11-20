@@ -432,6 +432,9 @@ see `rulings.md` "Mid-build answers" (MB1, MB2). Those texts are part of the spe
      [leaf])` (the rev 16.13 helper).
    - **(b)** Every other entry `missing_records()` would give for an observed side, applied to the history record.
      Refactor its per-side part into a helper both call. `missing-records.json` stays byte-identical.
+   - Sides (MB5): (a) applies to plan and actual. The plan side also gets `missing_records()`'s target-side entries
+     (`RESIDUAL`, `ASSUMPTION`), and the actual side its observed-side entries. The (a) leaves themselves also leave
+     `nodes` (MB4). A history entry's cause is in the main causes ∪ {`history.missing_cause`} (check H12).
    - Nodes named in any (a) entry's `blocks` are removed from `periods.<side>.nodes` and listed under `"not_observed"`
      (sorted).
    - If `contribution` or `cost_to_serve` would be removed: refuse with `HISTORY_OUTCOME_UNOBSERVED`.
@@ -475,7 +478,7 @@ these checks consume `compute_history`. `documents()` excludes `doc["history"]` 
 | ID | Check |
 | --- | --- |
 | H1 | `period_days` and `period_end` are the calendar's |
-| H2 | Leaf sets: for an evaluated October side, history keys == the **first-present** `record.*` alternative of each factor-map leaf, among the keys of October's `period` side (observations excluded) (P1); for a non-decomposed side, history keys == October keys. Status equals October's. Every `zero`-rule incident leaf is 0 |
+| H2 | Leaf sets: for an evaluated October side, history keys == the **first-present** `record.*` alternative of each factor-map leaf, plus every base key a declared `share` or `rest` rule reads, among the keys of October's `period` side (observations excluded) (P1, MB3); for a non-decomposed side, history keys == October keys. Status equals October's. Every `zero`-rule incident leaf is 0 |
 | H3 | Independent == evaluator for every Site, side and month: status, outcome, and every node both list |
 | H4 | Not observed: the evaluator's `not_observed` per side equals the independent model's; no such node appears in `nodes`; each has a `missing` entry with cause `NOT_IN_HISTORY` naming it in `blocks` |
 | H5 | Mini-grid `unexplained_l <= 0.02 * nodes.diesel_l`. Cold, for `anchor` kWh rules: `abs(kwh - kwh_model) <= 0.05 * kwh_model`. Cold: `crate_days <= capacity * period_days`. EV: `buses_short_per_night == 0` |
