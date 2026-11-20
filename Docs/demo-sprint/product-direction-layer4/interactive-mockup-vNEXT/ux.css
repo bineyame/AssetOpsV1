@@ -421,9 +421,11 @@ table.ux-opts .badge,table.ux-opts .status-pill{white-space:normal;max-width:100
 /* value chain as leaks */
 .ux-vc-stage{grid-template-columns:minmax(0,1fr) auto}
 .ux-vc-loss{display:grid;grid-template-columns:minmax(120px,1fr) minmax(110px,auto) minmax(0,1.2fr);gap:var(--s3);align-items:center;padding:4px 0 8px var(--s3);font-size:var(--fs-sm)}
-.ux-vc-loss .ux-vc-val{font-weight:600;color:var(--bad)}
+.ux-vc-loss .ux-vc-val{font-weight:600;color:var(--text)}
+.ux-vc-loss.is-adverse .ux-vc-val{color:var(--bad)} /* review r2 L3: the amount is red only where the bar is a loss against target */
 .ux-vc-loss .ux-vc-val small{display:block;font-weight:400;color:var(--text-2);font-size:var(--fs-xs)}
-.ux-vc-loss .ux-vc-bar{background:var(--bad)}
+.ux-vc-loss .ux-vc-bar{background:var(--line-strong)}
+.ux-vc-loss .ux-vc-bar.is-bad{background:var(--bad)}
 @media (max-width:600px){.ux-vc-loss{grid-template-columns:minmax(0,1fr) auto}.ux-vc-loss .ux-vc-track{grid-column:1/-1}}
 /* outcome tiles: a visual, no empty space */
 
@@ -674,7 +676,6 @@ button.ux-wf-a{width:calc(100% + 2 * var(--s1));background:none;border:0;font:in
 .ux-empty-page{padding:var(--s6)}
 
 /* a leak is coloured as a loss only against a target (X6); the tie line between a statement line and its heading (D-RECON.2) */
-.ux-vc-loss .ux-vc-bar:not(.is-bad){background:var(--line-strong)}
 .ux-tie{margin:0 0 var(--s3);font-size:var(--fs-sm);color:var(--text-2)}
 .ux-tie small{display:block;font-size:var(--fs-xs)}
 .ux-cross small{display:block;color:var(--text-2);font-size:var(--fs-xs)}

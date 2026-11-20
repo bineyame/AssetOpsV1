@@ -67,9 +67,10 @@ function uxStakeParts(decId) {
     return { word: `Not valued: ${uxCapital(SK[d.site].op, rec) || 'listed beside the plan'}`, wnote: dd.params?.added_buses ? `${num(dd.params.added_buses)} more buses offered; ${miss ? `${num(miss)} departures missed` : 'all departures met'}` : '', num: 0, rec }; }
   if (/^[+−-]?\$/.test(ev)) { const P = planCase(SK[d.site].op), inP = P.ids.includes(rec);
     return { value: wholeText(ev), num: Number(ev.replace(/[^\d.−-]/g, '').replace('−', '-')) || 0, note: `${[uxQualShort(rec), BASIS_WORDS[optBasis(rec)]].filter(Boolean).join(', ')} · ${inP ? 'in the plan' : 'not in the plan'}`, cls: optClass(x), dv: !!DV_OPT[rec], rec }; }
-  const st = uxRights(d).find(r => r.stake), amt = st && (String(st.stake).match(/\$[\d,]+(?:\.\d+)?/) || [])[0];
+  const st = uxRights(d).find(r => r.stake), amt = st && (String(st.stake).match(/\$\d(?:[\d,]*\d)?(?:\.\d+)?/) || [])[0];
   if (amt) return { value: wholeText(amt), num: Number(amt.replace(/[^\d.]/g, '')) || 0, note: /cover/i.test(st.stake) ? 'cover kept claimable' : /credit/i.test(st.stake) ? 'possible credit' : 'at stake', cls: 'EXPOSURE', rec };
   if (ev && !/^Not (valued|modelled)/i.test(ev)) return { word: ev, num: 0, rec };
+  if (x && /^Not valued/.test(ev)) return { word: `Not valued: ${optEffect(x)[1]}`, num: 0, rec }; /* not valued is a fact, not missing data (r2 M1) */
   return { num: 0, rec };
 }
 const UX_ISO_MON = { Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06', Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12' };
@@ -93,7 +94,7 @@ function uxChain(op, sk) {
   });
   const maxPct = Math.max(1, ...leaks.map(l => l.pct || 0)), byPct = (a, b) => (b.pct || 0) - (a.pct || 0), topBad = leaks.filter(l => l.adv && l.adv.bad).sort(byPct)[0], top = topBad || [...leaks].sort(byPct)[0];
   const html = rows.map(r => r.stage ? `<li class="ux-vc-stage ${r.na ? 'is-na' : ''}"><span class="ux-vc-lab">${r.stage[0]}<small>${quiet(r.stage[2])}</small></span><span class="ux-vc-val">${r.stage[1]}</span></li>`
-    : (r.parts || []).map(p => p.pct != null ? `<li class="ux-vc-loss"><span class="ux-vc-lab"><span aria-hidden="true">↳</span> ${p.label || 'Lost'}</span><span class="ux-vc-val">${p.amount}<small>${p.pct < 0.05 ? 'none' : `${p.pct.toFixed(1)}% of ${p.of}`}</small></span><span class="ux-vc-track"><span class="ux-vc-bar${p.adv && p.adv.bad ? ' is-bad' : ''}"${p.adv ? ` data-actual="${p.adv.a}" data-target="${p.adv.t}"` : ''} style="width:${Math.max(p.pct > 0.05 ? 1.5 : 0, p.pct / maxPct * 100).toFixed(1)}%"></span></span></li>` : `<li class="ux-vc-leak"><span aria-hidden="true">↳</span> ${p.text}</li>`).join('')).join('');
+    : (r.parts || []).map(p => p.pct != null ? `<li class="ux-vc-loss${p.adv && p.adv.bad ? ' is-adverse' : ''}"><span class="ux-vc-lab"><span aria-hidden="true">↳</span> ${p.label || 'Lost'}</span><span class="ux-vc-val">${p.amount}<small>${p.pct < 0.05 ? 'none' : `${p.pct.toFixed(1)}% of ${p.of}`}</small></span><span class="ux-vc-track"><span class="ux-vc-bar${p.adv && p.adv.bad ? ' is-bad' : ''}"${p.adv ? ` data-actual="${p.adv.a}" data-target="${p.adv.t}"` : ''} style="width:${Math.max(p.pct > 0.05 ? 1.5 : 0, p.pct / maxPct * 100).toFixed(1)}%"></span></span></li>` : `<li class="ux-vc-leak"><span aria-hidden="true">↳</span> ${p.text}</li>`).join('')).join('');
   const title = topBad && topBad.pct > 0.05 ? `The biggest leak against target: ${topBad.label || 'lost'} ${topBad.amount}, ${topBad.pct.toFixed(1)}% of ${topBad.of}` : top && top.pct > 0.05 ? `No leak against target; the largest step: ${top.label || 'lost'} ${top.amount}, ${top.pct.toFixed(1)}% of ${top.of}` : `${sk ? SK[sk].name : OPS[op].name}, October: no leak measured`;
   return `<section class="panel ux-chart" aria-labelledby="uxv-h-${sk || op}"><div class="panel-head"><div><h2 id="uxv-h-${sk || op}">Where value leaks</h2><p>${title}</p></div></div><ol class="ux-vc">${html}</ol><p class="ux-axis-note">Loss bars are drawn against the largest loss; each says its share of the stage before it.</p>${uxTableView('Show the stages in detail', chainStrip(op, sk))}</section>`;
 }
@@ -108,7 +109,7 @@ function uxCatTile(op, k, C) {
      the gap and opens the same drawer as its chart group. Protect and Assure keep their own measures. */
   const g = (k === 'grow' || k === 'optimize') ? uxGapModel(op).groups.find(x => x.k === k) : null;
   if (g) { const M = uxGapModel(op);
-    return `<div class="ux-cat" data-tile="${k}"><div class="ux-cat-h">${icon(ico)}<h3>${name}</h3></div><p class="ux-cat-st">${g.sub < 0 ? uxChip('off', 'Off target') : uxChip('ok', 'On target')}</p><p class="ux-cat-pos"><b${figA(k, op, M.G[k])}>${usdW(g.sub, true)}</b> ${g.share != null ? `· <span data-heading-share="${g.share}">${g.share}%</span> of what ${uxWidenWord(M)}${g.offset ? `; ${usdW(g.offset, true)} offsets` : ''}` : '· an offset to the gap'}</p>${g.share != null ? `<div class="ux-meterbar" role="img" aria-label="${g.share}% of what ${uxWidenWord(M)}"><span style="width:${g.share}%"></span></div>` : ''}<p class="ux-cat-n">${num(g.steps.length)} driver${g.steps.length === 1 ? '' : 's'} · ${counts}</p>${uxOpener(`uxd-${op}-${k}`, `View drivers<span class="vh">: ${name}</span> <span aria-hidden="true">›</span>`, 'ux-cat-go')}</div>`; }
+    return `<div class="ux-cat" data-tile="${k}"><div class="ux-cat-h">${icon(ico)}<h3>${name}</h3></div><p class="ux-cat-st">${g.sub < 0 ? uxChip('off', 'Off target') : uxChip('ok', 'On target')}</p><p class="ux-cat-pos"><b${figA(k, op, M.G[k])}>${usdW(g.sub, true)}</b> ${g.share != null ? `· <span data-heading-share="${g.share}">${g.share}%</span> of what ${uxWidenWord(M)}${g.offset ? `; ${usdW(g.offset, true)} offsets` : ''}${g.resid ? `; ${usdW(g.resid, true)} not attributed yet` : ''}` : '· an offset to the gap'}</p>${g.share != null ? `<div class="ux-meterbar" role="img" aria-label="${g.share}% of what ${uxWidenWord(M)}"><span style="width:${g.share}%"></span></div>` : ''}<p class="ux-cat-n">${num(g.steps.length)} driver${g.steps.length === 1 ? '' : 's'} · ${counts}</p>${uxOpener(`uxd-${op}-${k}`, `View drivers<span class="vh">: ${name}</span> <span aria-hidden="true">›</span>`, 'ux-cat-go')}</div>`; }
   if (k === 'grow' && o.kind !== 'cost') { const a = sumNodes(op, 'actual', 'revenue'), t = sumNodes(op, 'plan', 'revenue'); vis = uxBullet(a, t, `Revenue ${usdW(a)} against a target of ${usdW(t)}`); }
   if (k === 'optimize') { const a = o.kind === 'cost' ? opTotals(op).actual : sumNodes(op, 'actual', 'cost_to_serve'), t = o.kind === 'cost' ? opTotals(op).plan : sumNodes(op, 'plan', 'cost_to_serve'); vis = uxBullet(a, t, `Cost ${usdW(a)} against a target of ${usdW(t)}`, true); }
   if (k === 'protect') { const pc = protectCard(op); vis = pc.total ? `<div class="ux-seg" role="img" aria-label="${num(pc.broken)} of ${num(pc.total)} limits broken">${Array.from({ length: pc.total }, (_, i) => `<span class="${i < pc.broken ? 'is-bad' : 'is-good'}"></span>`).join('')}</div>` : ''; }
@@ -129,14 +130,14 @@ const UX_RANK = { bad: 0, warn: 1, info: 2, neutral: 3, good: 4 };
 const uxUrgency = iso => { if (!iso) return 'none'; const d = daysUntil(iso); return d <= 7 ? 'week' : iso.slice(0, 7) === String(AS_OF).slice(0, 7) || d <= 31 ? 'month' : 'later'; };
 const UX_URG = { week: 'Due this week', month: 'Due this month', later: 'Due later', none: 'No deadline' };
 let UX_QN = 0;
-function uxQueue(op, rows, cls = '') {
+function uxQueue(op, rows, cls = '', total = 0) { /* total: every open decision in scope, when the list shows only the first rows (review r2 M6) */
   if (UX_STATE === 'loading') return `<div class="ux-skel" role="status"><span class="vh">Loading decisions…</span>${'<span class="ux-skel-row" aria-hidden="true"></span>'.repeat(3)}</div>`;
   if (UX_STATE === 'empty' || !rows.length) return '<p class="ux-empty" role="status">No decisions waiting. New issues appear here when the next day of records is in.</p>';
   const M = uxMergeRows(rows), firstChoose = (M.find(m => uxDecState(m.d).key === 'choose') || {}).d; /* the button follows the state; one primary: the first decision waiting for a choice */
   const items = M.map((m, i) => {
     const { d, s } = m, D = deciderOf(d), dec = decById(d), DS = uxDecState(d), id = `uxq-${++UX_QN}`, P = uxStakeParts(d), due = m.issues.map(([, , txt]) => uxDueIso(d, txt)).filter(Boolean).sort()[0] || '';
     const tones = m.issues.map(([k, t]) => uxTone(k, t)), worst = [...tones].sort((a, b) => UX_RANK[a] - UX_RANK[b])[0];
-    const stake = P.value ? `<span class="ux-q-v">${P.value}</span><small>${P.note}</small>` : P.word ? `<span class="ux-q-word">${P.word}</span>` : '<span class="muted">Not available yet</span>';
+    const stake = uxStake(d); /* one stake renderer (review r2 M1) */
     const ck = P.cls && (CLS[P.cls] || [])[1], cert = P.value && P.cls ? `<span class="ux-q-cert">How sure: ${ck === 'rec' || ck === 'der' ? 'recorded' : `${uxMark(P.cls)}`}${P.dv ? ` · ${dvTag()} design estimate, not yet tested on your recorded data` : ''}</span>` : '';
     const why = m.issues.map(([k, t, txt]) => `<span class="ux-q-issue-line"><b>${t}:</b> ${txt}</span>`).join('');
     return `<li class="attn-${m.issues[0][0]} ux-q" data-state="${DS.key}" data-order="${i}" data-site="${s}" data-kind="${worst}" data-kinds="${[...new Set(tones)].join(' ')}" data-due="${due}" data-urg="${uxUrgency(due)}" data-stake="${P.num || 0}" data-issues="${m.issues.length}"><div class="ux-q-issue"><div class="ux-q-top">${m.issues.map(([k, t]) => uxChip(k, t)).join('')}</div><b class="ux-q-title">${uxTitle(dec ? dec.q : m.issues[0][1], SK[s].name)}</b><button type="button" class="ux-q-more" aria-expanded="false" aria-controls="${id}">Why${m.issues.length > 1 ? ` (${num(m.issues.length)} issues)` : ''}<span class="vh">: ${escapeHtml(dec ? dec.q : '')}</span></button><div class="ux-q-why is-collapsed" id="${id}">${why}${cert ? `<span class="ux-q-issue-line">${cert}</span>` : ''}</div></div><div class="ux-q-site"><span class="ux-q-k">Site: </span>${SK[s].name}</div><div class="ux-q-stake"><span class="ux-q-k">At stake: </span>${stake}</div><div class="ux-q-due${due ? '' : ' is-empty'}"><span class="ux-q-k">Due: </span>${due ? fdate(due) : '<span class="vh">No deadline</span>'}</div><div class="ux-q-who"><span class="ux-q-k">Decides: </span>${who(op, D.p)}</div>${link(`decision/${d}`, `${DS.btn}<span class="vh">: ${escapeHtml(dec ? dec.q : '')}, ${SK[s].name}</span>`, `button ux-q-go${DS.key === 'choose' && d === firstChoose ? ' primary' : ''}`)}</li>`;
@@ -150,7 +151,7 @@ function uxQueue(op, rows, cls = '') {
    <label>Sort <select data-qs><option value="order">Priority</option><option value="due">Due date</option><option value="stake">At stake</option></select></label>
    <label>Group <select data-qg><option value="">None</option><option value="urg">By urgency</option>${sites.length > 1 ? '<option value="site">By site</option>' : ''}</select></label>
    <label class="ux-dense"><input type="checkbox" data-qd> Compact</label>
-   <span class="ux-qcount" role="status" aria-live="polite">${num(M.length)} of ${num(M.length)}</span></div>` : '';
+   <span class="ux-qcount" role="status" aria-live="polite" data-total="${total || M.length}">${num(M.length)} of ${num(total || M.length)}</span></div>` : '';
   return `<div class="ux-queue-wrap">${tools}<div class="ux-qh" aria-hidden="true"><span>Decision</span><span>Site</span><span>At stake</span><span>Due</span><span>Who decides</span><span></span></div><ul class="attn triage ux-queue ${cls}">${items.join('')}</ul></div>`;
 }
 function uxApplyQueue(wrap) {
@@ -166,7 +167,7 @@ function uxApplyQueue(wrap) {
   li.sort((a, b) => (group ? (gk(a) < gk(b) ? -1 : gk(a) > gk(b) ? 1 : 0) : 0) || (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : +a.dataset.order - +b.dataset.order));
   let last = null;
   li.forEach(x => { if (group && !x.hidden && gk(x) !== last) { last = gk(x); const n = li.filter(y => !y.hidden && gk(y) === last).length; ul.insertAdjacentHTML('beforeend', `<li class="ux-grp"><h3>${gl(x)} <span class="ux-count">${num(n)}</span></h3></li>`); } ul.appendChild(x); });
-  const shown = li.filter(x => !x.hidden).length; wrap.querySelector('.ux-qcount').textContent = `${num(shown)} of ${num(li.length)}`;
+  const shown = li.filter(x => !x.hidden).length; const qc = wrap.querySelector('.ux-qcount'); qc.textContent = `${num(shown)} of ${num(+qc.dataset.total || li.length)}`;
   ul.classList.toggle('is-filtered', !!(q || fKind || group || sort !== 'order'));
 }
 
@@ -199,7 +200,7 @@ function uxGapModel(op) {
   const sharesR = uxRoundTo(wl.map(r => Math.abs(disp(r)) / wTot * 100), 100), share = new Map(wl.map((r, i) => [r, sharesR[i]]));
   /* one share basis for steps and headings (review H2): a heading's share is the sum of its widening steps' shares; its offsets are said */
   groups.forEach((g, gi) => { g.sub = subs[gi]; const ws = g.rows.filter(r => share.has(r)); g.share = ws.length ? ws.reduce((a, r) => a + share.get(r), 0) : null;
-    g.offset = r2(g.rows.filter(r => !share.has(r)).reduce((a, r) => a + disp(r), 0));
+    g.offset = r2(g.rows.filter(r => !share.has(r) && !r.residual).reduce((a, r) => a + disp(r), 0)); g.resid = r2(g.rows.filter(r => !share.has(r) && r.residual).reduce((a, r) => a + disp(r), 0));
     const vals = uxRoundTo(g.rows.map(r => disp(r)), subs[gi]);
     g.steps = g.rows.map((st, i) => {
       /* what is being done on a driver (review H1): a decision whose Finding sits on the driver, or one of whose options moves it
@@ -221,7 +222,7 @@ function uxDecLine(dk) { const d = decById(dk), st = uxDecState(dk); return `<li
 function uxDriverBody(M, s) {
   const issue = f => { const r = ATTN[M.op].find(r => r[5] === f.id); return r ? r[3] : 'No issue text recorded'; };
   const dirOf = v => Math.sign(v) === Math.sign(M.T.variance) ? 'widens' : 'offsets';
-  return `<p class="ux-drv-amt"><b>${usdW(s.v, true)}</b> ${s.share != null ? `${s.share}% of what ${uxWidenWord(M)}` : `offsets ${usdW(Math.abs(s.v))} of it`}, October against target</p>
+  return `<p class="ux-drv-amt"><b>${usdW(s.v, true)}</b> ${s.share != null ? `${s.share}% of what ${uxWidenWord(M)}` : s.st.residual ? 'not attributed yet' : `offsets ${usdW(Math.abs(s.v))} of it`}, October against target</p>
    <h3 class="ux-drv-h">What is behind it</h3>${s.finds.length ? `<ul class="list">${s.finds.map(f => `<li><b>${f.site}</b>: ${issue(f)}</li>`).join('')}</ul>` : '<p class="muted">No Finding names this driver yet.</p>'}
    <h3 class="ux-drv-h">What is being done</h3>${s.decs.length ? `<ul class="list ux-drv-decs">${s.decs.map(uxDecLine).join('')}</ul>` : '<p>No decision yet.</p>'}
    <h3 class="ux-drv-h">Evidence</h3>${s.nodes.length ? `<ul class="list ux-drv-ev">${s.nodes.map(({ sk, n, vr }) => `<li data-site="${sk}" data-effect="${r2(n.eff)}">${SK[sk].name}: ${fig(n.evd || `node:${sk}:${n.id}`, usdW(vr, true))}${s.nodes.length > 1 && vr ? `, ${dirOf(vr)}` : ''} ${ec(n.cls)}</li>`).join('')}${s.nodes.length > 1 ? `<li class="ux-drv-sum"><b>Total ${usdW(s.v, true)}</b></li>` : ''}</ul>` : '<p class="muted">Not available yet.</p>'}`;
@@ -229,7 +230,7 @@ function uxDriverBody(M, s) {
 /* the heading drawer's head (Grow, Optimize): the same shape, one level up; the heading's full card follows it */
 function uxHeadingTop(M, k) {
   const g = M.groups.find(x => x.k === k); if (!g) return '';
-  return `<section class="ux-drv-top" aria-label="${LENS[k][0]}: its share of the gap"><p class="ux-drv-amt"><b${figA(k, M.op, M.G[k])}>${usdW(g.sub, true)}</b> ${g.share != null ? `<span data-heading-share="${g.share}">${g.share}%</span> of what ${uxWidenWord(M)}${g.offset ? `; ${usdW(g.offset, true)} offsets` : ''}` : `offsets ${usdW(Math.abs(g.sub))} of it`}, October against target</p>
+  return `<section class="ux-drv-top" aria-label="${LENS[k][0]}: its share of the gap"><p class="ux-drv-amt"><b${figA(k, M.op, M.G[k])}>${usdW(g.sub, true)}</b> ${g.share != null ? `<span data-heading-share="${g.share}">${g.share}%</span> of what ${uxWidenWord(M)}${g.offset ? `; ${usdW(g.offset, true)} offsets` : ''}${g.resid ? `; ${usdW(g.resid, true)} not attributed yet` : ''}` : `offsets ${usdW(Math.abs(g.sub))} of it`}, October against target</p>
    ${reconTie(M.op, k)}<h3 class="ux-drv-h">Its drivers, and what is being done</h3><ul class="list ux-drv-decs">${g.steps.map(s => `<li><span>${s.lab}: <b>${usdW(s.v, true)}</b></span> ${s.decs.length ? s.decs.map(dk => link(`decision/${dk}`, 'Open decision →')).join(' ') : '<span class="muted">No decision yet</span>'}</li>`).join('')}</ul></section>`;
 }
 /* the bridge (guide §5, wave 2c): the totals on an honest zero axis in one bullet; below it, the gap itself as the scale, each
@@ -241,9 +242,9 @@ function uxBridge(op) {
   const tone = s => { const worse = s.v < 0; return worse ? 'is-bad' : 'is-good'; };
   const body = M.groups.map(g => {
     const rows = g.steps.map(s => {
-      const [a, b] = s.pos, L = S(Math.min(a, b)), W = Math.abs(S(b) - S(a)), val = usdW(s.v, true), sh = s.share != null ? `${s.share}%` : 'offsets', tid = `${s.id}-tip`;
+      const [a, b] = s.pos, L = S(Math.min(a, b)), W = Math.abs(S(b) - S(a)), val = usdW(s.v, true), sh = s.share != null ? `${s.share}%` : s.st.residual ? 'not attributed yet' : 'offsets', tid = `${s.id}-tip`;
       const bar = `<span class="ux-wf-bar ${tone(s)}${s.st.residual ? ' is-resid' : ''}" style="left:${L.toFixed(2)}%;width:${Math.max(0.8, Math.min(W, 100 - L)).toFixed(2)}%"></span>`;
-      const tip = `${s.lab}: ${nw(val)}, ${s.share != null ? `${nw(sh)} of what ${uxWidenWord(M)}` : `offsets ${nw(usdW(Math.abs(s.v)))} of it`}. ${s.decs.length ? `${s.decs.length === 1 ? 'A decision is' : `${num(s.decs.length)} decisions are`} open on it` : 'No decision is open on it'}`;
+      const tip = `${s.lab}: ${nw(val)}, ${s.share != null ? `${nw(sh)} of what ${uxWidenWord(M)}` : s.st.residual ? 'not attributed yet' : `offsets ${nw(usdW(Math.abs(s.v)))} of it`}. ${s.decs.length ? `${s.decs.length === 1 ? 'A decision is' : `${num(s.decs.length)} decisions are`} open on it` : 'No decision is open on it'}`;
       const inner = `<span class="ux-wf-lab">${s.lab}</span><span class="ux-wf-val" data-v="${s.v}" data-share="${s.share ?? ''}">${val}<small>${sh}</small></span><span class="ux-wf-track">${bar}</span>`;
       return `<li class="ux-wf-row is-step is-link"><button type="button" class="ux-wf-a" data-ux-drawer="${s.id}" aria-haspopup="dialog" aria-controls="${s.id}" aria-describedby="${tid}">${inner}</button><span class="ux-tip" role="tooltip" id="${tid}">${tip}</span></li>`;
     }).join('');
@@ -338,7 +339,7 @@ function uxOverview(op) {
   const n = uxDecCount(ATTN[op]);
   return `<div class="ux-overview"><p class="headline ux-headline">${hl}</p>
  <div class="heroes ux-kpis">${k1}${k2}${k3}${k4}</div>
- <div class="ux-main-aside"><section class="panel ux-queue-panel" aria-labelledby="uxq-h"><div class="panel-head"><div><h2 id="uxq-h">Needs a decision <span class="ux-count">${num(n)}</span></h2><p>One row per decision, with who decides. AssetOps values the options; your team chooses.</p></div>${link('portfolio/act-first', 'Act first ›', 'ux-link')}</div>${uxQueue(op, ATTN[op].filter(r => uxMergeRows(ATTN[op]).slice(0, 6).some(m => m.d === r[4])))}${n > 6 ? `<p class="ux-more">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : n > 3 ? `<p class="ux-more ux-more-phone">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : ''}</section>
+ <div class="ux-main-aside"><section class="panel ux-queue-panel" aria-labelledby="uxq-h"><div class="panel-head"><div><h2 id="uxq-h">Needs a decision <span class="ux-count">${num(n)}</span></h2><p>One row per decision, with who decides. AssetOps values the options; your team chooses.</p></div>${link('portfolio/act-first', 'Act first ›', 'ux-link')}</div>${uxQueue(op, ATTN[op].filter(r => uxMergeRows(ATTN[op]).slice(0, 6).some(m => m.d === r[4])), '', n)}${n > 6 ? `<p class="ux-more">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : n > 3 ? `<p class="ux-more ux-more-phone">${link('portfolio/act-first', `View all ${num(n)} in Act first`)}</p>` : ''}</section>
  </div>
  ${uxBridge(op)}
  ${uxCats(op)}
@@ -482,6 +483,8 @@ function uxBrandSwitch() {
   const b = uxBrand();
   rb.insertAdjacentHTML('afterbegin', `<span class="ux-mockdev" title="Added to the mock-up, not in the product: on-request recalculation (owner Q7)">MOCK DEVIATION D2 · Recalculate now</span><label class="ux-brand-sw">Brand <select id="ux-brand" aria-label="Brand pack (review tool)">${Object.entries(UX_BRANDS).map(([k, l]) => `<option value="${k}"${k === b ? ' selected' : ''}>${l}</option>`).join('')}</select></label>`);
   uxDecReviewMarks(rb);
+  /* MOCK DEVIATION D3 (RECON-1 item 2, accepted 20 Nov): the Grow tile shows its share of the gap, not the revenue bullet; the tie sits in its drawer */
+  if (/^#\/portfolio\/?$/.test(location.hash) || location.hash === '') rb.insertAdjacentHTML('afterbegin', '<span class="ux-mockdev" title="RECON-1 item 2: the Grow tile shows its share of the gap; the revenue tie is in the Grow drawer">MOCK DEVIATION D3 · Grow tile</span>');
 }
 /* the decision page's review marks live in the review bar, never in the canvas (review r1 L4; same class as wave 2c L2), with the
    control for the fourth state's fixture on a decision waiting for a choice (review r1 L2) */
@@ -572,7 +575,7 @@ function uxReleaseFor(op, oid) {
 /* the plan line under the recommendation, from the same path (review r1 M1: never claim a fit that was not checked) */
 function uxPlanNote(op, oid) {
   const R = uxReleaseFor(op, oid), ex = execOf(op), cw = OPS[op].crewWord;
-  if (R.cap === 'expansion') return `An expansion is listed beside the plan, not counted in it. Once chosen, it waits for ${who(op, ex)}’s approval of the plan version that holds it, and its Actions are created after that approval.`;
+  if (R.cap === 'expansion') return `Once chosen, it waits for ${who(op, ex)}’s approval of the plan version that holds it, and its Actions are created after that approval.`;
   if (R.path === 'capital') return `${R.inPlan ? 'In the proposed plan as capital' : 'A capital choice'}: once chosen, it waits for ${who(op, ex)}’s approval of the plan.`;
   if (R.path === 'none') return `It spends no shared budget and no ${cw}, so it is not a plan item; its Actions go ahead once created.`;
   if (!R.inPlan) return `Not in the proposed plan: choosing it adds a plan item, and the plan’s budget and ${cw} are checked when its Actions are created.`;
@@ -662,7 +665,7 @@ function uxDecisionPage(id, parts) {
   else if (st.key === 'released') act = `<span>Chosen by ${who(op, D.p)}: ${optLabel(chosen)}. ${releaseOf(op, chosen).at ? 'Released at once, within both thresholds.' : 'Released on the plan’s approval.'}</span>${uxOpener(`uxacts-${id}`, 'See the Actions', 'button')}`;
   else act = `<a class="button" href="#uxcards-${id}">See the options</a>`;
   const planNote = x && st.key === 'choose' ? uxPlanNote(op, rec) : '';
-  const recCard = `<section class="panel ux-drec" aria-labelledby="uxdr-${id}"><div class="ux-eyebrow">${x ? 'We recommend' : 'No option recommended'}</div><h2 id="uxdr-${id}">${x ? optLabel(rec) : 'Each option valued against doing nothing'}</h2>${recNum}${x ? (optContext(rec).length ? `<ul class="list ux-ctx">${optContext(rec).map(c => `<li>${c}</li>`).join('')}</ul>` : '') : `<p class="ux-note">${uxNoRecReason(id)}</p>`}${planNote ? `<p class="ux-note">${planNote}</p>` : ''}<div class="ux-dgo">${act}${uxOpener(`uxev-${id}`, 'Evidence and records', 'ux-link')}</div></section>`;
+  const recCard = `<section class="panel ux-drec" aria-labelledby="uxdr-${id}"><div class="ux-eyebrow">${x ? 'We recommend' : 'No option recommended'}</div><h2 id="uxdr-${id}">${x ? optLabel(rec) : `Each option ${BASIS_WORDS[decBasis(d)] ? `valued ${BASIS_WORDS[decBasis(d)]}` : 'compared, not valued in money'}`}</h2>${recNum}${x ? (optContext(rec).length ? `<ul class="list ux-ctx">${optContext(rec).map(c => `<li>${c}</li>`).join('')}</ul>` : '') : `<p class="ux-note">${uxNoRecReason(id)}</p>`}${planNote ? `<p class="ux-note">${planNote}</p>` : ''}<div class="ux-dgo">${act}${uxOpener(`uxev-${id}`, 'Evidence and records', 'ux-link')}</div></section>`;
   const quals = new Set(d.opts.filter(o => !isNoAction(o)).map(uxQual)), oneQual = quals.size === 1 ? [...quals][0] : null;
   const cards = d.opts.map(o => { const y = OPT[o], [e2] = optEffect(y), [c2] = optCost(y), isRec = o === rec, isNo = isNoAction(o) && decBasis(d) !== 'RESTORE_REFERENCE', k = uxDisp(o), q2 = uxQual(o);
     const mark = money(e2) && !isNo && (!oneClass || optClass(y) !== oneClass) ? uxMark(optClass(y)) : '';
@@ -671,9 +674,9 @@ function uxDecisionPage(id, parts) {
     const why = UX_NOREC && k !== y.disposition ? 'Deferred for now.' : (k === 'REJECTED' || k === 'DEFERRED' || (k === 'RECOMMENDED' && !isRec)) ? optWhy(y) : '';
     const result = isNo ? `The baseline${q2 && q2 !== 'baseline' ? ` <small class="ux-ocard-q">${q2}</small>` : ''}` : `${uxFigQ(wholeText(e2), q2, 'ux-ocard-q')} ${mark}${dv ? ` ${dv}` : ''}`;
     return `<article class="ux-ocard${isRec ? ' is-rec' : ''}${isNo ? ' is-base' : ''}${o === chosen ? ' is-chosen' : ''}" data-opt-card="${o}"><header><h3>${optLabel(o)}</h3>${o === chosen ? '<span class="status-pill is-approved">Chosen</span>' : isNo ? '<span class="ux-chip is-neutral">The baseline</span>' : uxDispBadge(d, o)}</header>
-     <dl><div><dt>Result</dt><dd>${result}</dd></div><div><dt>One-off cost</dt><dd>${wholeText(c2)} <small>${whoPays(y)}</small></dd></div><div><dt>Limits</dt><dd>${uxOblSummary(obligations(y))}</dd></div></dl>
+     <dl><div><dt>Result</dt><dd>${result}</dd></div><div><dt>One-off cost</dt><dd>${wholeText(c2)}${/^\$0$/.test(String(wholeText(c2)).trim()) ? '' : ` <small>${whoPays(y)}</small>`}</dd></div><div><dt>Limits</dt><dd>${uxOblSummary(obligations(y))}</dd></div></dl>
      ${why ? `<p class="ux-ocard-why">${why}</p>` : ''}${go}</article>`; }).join('');
-  const cardsSec = `<section class="ux-ocards" id="uxcards-${id}" aria-labelledby="uxoc-${id}"><div class="ux-row-head"><h2 id="uxoc-${id}">${BASIS_CARDS[decBasis(d)]}</h2><span class="ux-note">${oneQual && /^(?:over|to) /.test(oneQual) ? `Each result ${uxLcFirst(oneQual).replace(/ against no action$/, '')}` : 'Each result as stated on its card'}${anyDv ? '; † design estimates' : ''}</span></div><div class="ux-ocards-grid">${cards}</div></section>`;
+  const cardsSec = `<section class="ux-ocards" id="uxcards-${id}" aria-labelledby="uxoc-${id}"><div class="ux-row-head"><h2 id="uxoc-${id}">${BASIS_CARDS[decBasis(d)]}</h2><span class="ux-note">${oneQual && /^(?:over|to) /.test(oneQual) ? `Each result ${uxLcFirst(oneQual)}` : 'Each result as stated on its card'}${anyDv ? '; † design estimates' : ''}</span></div><div class="ux-ocards-grid">${cards}</div></section>`;
   const dialogs = st.key === 'choose' || st.key === 'none' ? d.opts.filter(o => !isNoAction(o) && uxDisp(o) !== 'REJECTED').map(o => uxChooseDialog(id, o)).join('') : '';
   const evidence = uxDrawer(`uxev-${id}`, 'Evidence and records', `<ul class="list">${T.records.map(([k, l]) => `<li>${fig(k, l)}</li>`).join('')}</ul>${(d.rights || []).map(rightsPanel).join('')}`, true);
   /* answer-titled sections, one level (the long-page standard; UX audit #8): each heading says its answer while closed */
@@ -751,6 +754,8 @@ const V70_KEYS = {
 };
 const V70_VENDORS = { 'Northwind Storage': ['kobo', 'thika'], 'Kestrel Gensets': ['kobo', 'thika'], 'Polar Cooling Co': ['thika'], 'Ampere Charge Co': ['ruiru'] };
 const V70_RECORD = /\b(?:F|ACT|WR|INC|REC|CHG|PM)-\d{2,4}\b/g;
+/* the kept v7.0 lists of records (each row must carry a Site key to be shown); settings and setup forms are organisation-level */
+const UX_RECORD_LISTS = ['assets', 'assets-warranty', 'incidents', 'maintenance', 'maintenance-preventive', 'oprecords', 'globalevidence'];
 function uxRowSites(e) {
   const t = uxWords(e), out = new Set();
   Object.entries(V70_KEYS).forEach(([sk, keys]) => { if (keys.some(k => t.includes(k))) out.add(sk); });
@@ -765,14 +770,26 @@ function uxShell(s) {
   if (!s.loop && !s.opScoped) {
     const op = LS.op, mine = OPS[op].sites, oname = OPS[op].name, poss = uxPoss(oname);
     /* every row gets its Site(s) as data; a row is this operator's only when all its Sites are */
-    c.querySelectorAll('tbody tr, ul li, ol li, option, article, p, .notice').forEach(e => { if (e.closest('.ux-drawer, .tabs, .chips')) return; const ss = uxRowSites(e); e.dataset.site = ss.length ? ss.join(' ') : 'all'; if (ss.length && !ss.every(x => mine.includes(x))) e.remove(); });
+    /* every row gets its Site(s) as data; a row is this operator's only when all its Sites are. On a list of records, a row or note
+       that names no Site by key is not shown (default-deny, review r2 H2): it cannot be shown to be this operator's */
+    const records = UX_RECORD_LISTS.includes(s.id);
+    c.querySelectorAll('tbody tr, ul li, ol li, option, article, p, .notice').forEach(e => { if (e.closest('.ux-drawer, .tabs, .chips, .panel-head, .page-heading, .breadcrumbs')) return; const ss = uxRowSites(e); e.dataset.site = ss.length ? ss.join(' ') : 'all';
+      if (ss.length ? !ss.every(x => mine.includes(x)) : records) e.remove(); });
     /* an asset code before its own label says nothing more (review M4); on a Site setup page an id is the form's subject */
     const setup = /^site-(?:create|batch|setup)/.test(s.id), CODE = /^[A-Z]{2,4}(?:-[A-Z]{1,3})?-[A-Z0-9]{1,3}$/;
     c.querySelectorAll('td, b, strong, code').forEach(b => { const t = b.textContent.trim(); if (!CODE.test(t)) return; if (setup) { b.dataset.subjectId = ''; return; }
       const nx = b.nextSibling; if (b.tagName !== 'TD' && nx && nx.nodeType === 3 && /^\s*·\s*/.test(nx.nodeValue)) { nx.nodeValue = nx.nodeValue.replace(/^\s*·\s*/, ''); b.remove(); } });
     /* a v7.0 record id is not this product's id (Findings and Actions read the plan's store) */
     const tw = document.createTreeWalker(c, NodeFilter.SHOW_TEXT), nodes = []; while (tw.nextNode()) nodes.push(tw.currentNode);
-    nodes.forEach(n => { if (V70_RECORD.test(n.nodeValue)) { V70_RECORD.lastIndex = 0; const prose = !n.parentElement.closest('td, th, li'); n.nodeValue = n.nodeValue.replace(V70_RECORD, prose ? 'its record' : '').replace(/^\s*[·,]\s*/, '').replace(/(\s*[·,]\s*){2,}/g, ' · '); } V70_RECORD.lastIndex = 0; });
+    const ID = '\\b(?:F|ACT|WR|INC|REC|CHG|PM)-\\d{2,4}\\b', hasId = new RegExp(ID);
+    nodes.forEach(n => { let v = n.nodeValue; if (!hasId.test(v)) return;
+      v = v.replace(new RegExp(`\\s*\\([^()]*${ID}[^()]*\\)`, 'g'), '');
+      v = v.split(' · ').filter(seg => !hasId.test(seg)).join(' · ');
+      v = v.replace(new RegExp(`[^.;]*${ID}[^.;]*[.;]?\\s*`, 'g'), '');
+      v = v.replace(/^\s*[·,\/]\s*|\s*[·,\/]\s*$/g, '').replace(/\s*·\s*\/\s*/g, ' ');
+      n.nodeValue = v; });
+    /* a separator left between an emptied neighbour and its cell's edge goes with it */
+    nodes.forEach(n => { if (!n.parentNode || !/^\s*[·\/,]\s*$/.test(n.nodeValue)) return; const empty = x => !x || !String(x.textContent).trim(); if (empty(n.previousSibling) || empty(n.nextSibling)) n.nodeValue = ' '; });
     c.querySelectorAll('td').forEach(td => { const tw2 = document.createTreeWalker(td, NodeFilter.SHOW_TEXT); let last = null; while (tw2.nextNode()) if (tw2.currentNode.nodeValue.trim()) last = tw2.currentNode; if (last) last.nodeValue = last.nodeValue.replace(/\s*[·,]\s*$/, ''); });
     /* count tiles written for the three operators together cannot be read for one; the list under them is the count */
     c.querySelectorAll('.cards, .statusbar').forEach(k => { if ((k.querySelector('.metric') || k.classList.contains('statusbar')) && !k.closest('.ux-drawer') && /\d/.test(k.textContent)) k.remove(); });
@@ -780,10 +797,13 @@ function uxShell(s) {
     c.querySelectorAll('p, .panel-head p, .notice').forEach(p => { if (/moves you to its own pages|pages are shown for|in this mock-up/i.test(p.textContent) && !p.querySelector('table')) p.remove(); });
     /* an emptied list never says "None" where the plan's store has rows (review H4): it lists them, from the store */
     const store = uxStoreRows(s, op);
+    const firstTb = c.querySelector('tbody');
+    c.querySelectorAll('tbody').forEach(tb => { if (!tb.querySelector('tr') && tb !== firstTb && records) { (tb.closest('.panel') || tb.closest('table')).remove(); return; } });
+    c.querySelectorAll('.panel').forEach(pn => { if (records && !pn.querySelector('table, ul, ol, .metric, form, input, select, button') && !pn.querySelector(':scope > :not(.panel-head)')?.textContent.trim()) pn.remove(); });
     c.querySelectorAll('tbody').forEach(tb => { if (!tb.querySelector('tr')) { const n = tb.closest('table')?.querySelectorAll('thead th').length || 1; tb.insertAdjacentHTML('beforeend', `<tr class="ux-none" data-site="all" data-ux-added><td colspan="${n}">${store || `None recorded at ${poss} Sites.`}</td></tr>`); } });
     /* the list says which Sites its records cover, from the data */
     const covered = OPS[op].sites.filter(sk => c.querySelector(`[data-site~="${sk}"]`)), rest = mine.filter(sk => !covered.includes(sk));
-    if (rest.length) (c.querySelector('.page-heading') || c.querySelector('.breadcrumbs'))?.insertAdjacentHTML('afterend', `<p class="ux-scope-note" data-ux-added>${covered.length ? `These records cover ${covered.map(k => SK[k].name).join(' and ')}.` : 'No record here yet.'} For ${rest.map(k => SK[k].name).join(', ')}, see ${link('findings', 'Findings')} and ${link('actions', 'the plan’s Actions')}.</p>`);
+    if (rest.length) (c.querySelector('.page-heading') || c.querySelector('.breadcrumbs'))?.insertAdjacentHTML('afterend', `<p class="ux-scope-note" data-ux-added>${covered.length ? `These records cover ${uxAnd(covered.map(k => SK[k].name))}.` : 'No record here yet.'} For ${uxAnd(rest.map(k => SK[k].name))}, see ${link('findings', 'Findings')} and ${link('actions', 'the plan’s Actions')}.</p>`);
   }
   /* the navigation never lists a v7.0 screen kept for review only */
   document.querySelectorAll('.tabs a[href^="#/"], .ux-tabmenu a[href^="#/"]').forEach(a => { if (uxIsClassic(uxRouteOf(a.getAttribute('href')))) a.remove(); });
@@ -792,6 +812,8 @@ function uxShell(s) {
   c.querySelectorAll('a[href^="#/"]').forEach(a => { if (uxIsClassic(uxRouteOf(a.getAttribute('href')))) { const sp = document.createElement('span'); sp.className = 'ux-unlinked'; sp.innerHTML = a.innerHTML.replace(/\s*→\s*$/, ''); a.replaceWith(sp); } });
 }
 /* the possessive of a name ("Metro Bus Depots’", "Lakeside Power’s") (review L3) */
+/* a list in words: "A", "A and B", "A, B and C" (review r2 L5) */
+const uxAnd = a => a.length < 2 ? (a[0] || '') : `${a.slice(0, -1).join(', ')} and ${a[a.length - 1]}`;
 const uxPoss = n => /s$/.test(n) ? `${n}’` : `${n}’s`;
 /* the store's rows for an emptied v7.0 list: failures and limits as Findings, repairs and upkeep as the plan's Actions */
 function uxStoreRows(s, op) {

@@ -48,15 +48,20 @@ const STATUS = ['Off target', 'At its limit', 'Opportunity', 'Deadline', 'Not ex
       /* S9 operator scope by data (review H3): every record row of a kept v7.0 list carries its Site, and it is this operator's */
       if (w.eval('UX_SCOPED').includes(id) && !s.loop && !s.opScoped) { const mine = w.eval(`OPS[${JSON.stringify(op)}].sites`);
         const rows = [...canvas.querySelectorAll('tbody tr, ul li, ol li, article')].filter(e => !e.closest('.ux-drawer, .tabs, .chips'));
-        const off = rows.filter(e => !e.dataset.site || e.dataset.site.split(' ').some(x => x !== 'all' && !mine.includes(x)));
+        const recs = w.eval('UX_RECORD_LISTS').includes(id);
+        const off = rows.filter(e => !e.closest('[data-ux-added]') && (!e.dataset.site || e.dataset.site.split(' ').some(x => (x === 'all' ? recs : !mine.includes(x)))));
         if (off.length) bad(`S9 ${off.length} row(s) without this operator's Site as data (${(off[0].dataset.site || 'no data-site')})`);
         /* S10 before and after (review structural): what the page shows is what the v7.0 page held, less what is out of scope; only
            elements marked as added say anything new */
         const wordsOf = el => { const o = [], tw = doc.createTreeWalker(el, w.NodeFilter.SHOW_TEXT); while (tw.nextNode()) o.push(tw.currentNode.nodeValue); return o.join(' '); };
         const after = (() => { const cl = canvas.cloneNode(true); cl.querySelectorAll('[data-ux-added]').forEach(x => x.remove()); return wordsOf(cl); })();
-        const keep = w.uxShell; w.eval('var __us=uxShell;uxShell=function(){}'); await go(id); const before = wordsOf(doc.querySelector('.canvas')); w.eval('uxShell=__us'); await go(id);
+        const keep = w.uxShell; w.eval('var __us=uxShell;uxShell=function(){}'); await go(id); const before = wordsOf(doc.querySelector('.canvas')); w.eval(`var __rowsBefore=${doc.querySelectorAll('.canvas tbody tr').length}`); w.eval('uxShell=__us'); await go(id);
         const words = s => new Set(s.toLowerCase().match(/[a-z]{3,}/g) || []), bw = words(before), novel = [...words(after)].filter(x => !bw.has(x) && !['its', 'record'].includes(x));
-        if (novel.length) bad(`S10 text not in the v7.0 page and not marked as added: ${novel.slice(0, 5).join(', ')}`); }
+        if (novel.length) bad(`S10 text not in the v7.0 page and not marked as added: ${novel.slice(0, 5).join(', ')}`);
+        /* r2: numbers and rows too; a scoped page shows no number the v7.0 page did not hold, and no more rows */
+        const nums = s => new Set((s.match(/\d[\d,.]*/g) || []).map(x => x.replace(/[,.]$/, ''))), bn = nums(before), novelN = [...nums(after)].filter(x => !bn.has(x));
+        if (novelN.length) bad(`S10 numbers not in the v7.0 page: ${novelN.slice(0, 5).join(', ')}`);
+        const rowsAfter = canvas.querySelectorAll('tbody tr:not([data-ux-added])').length, rowsBefore = w.eval('__rowsBefore||0'); if (rowsAfter > rowsBefore) bad(`S10 ${rowsAfter} rows after scoping, ${rowsBefore} before`); }
       if (['findings', 'actions'].includes(id)) {
         const ids = text.match(/\b(?:F|ACT|WR|INC)-\d+\b/); if (ids) bad(`S6 a v7.0 record id "${ids[0]}"`);
         const n = +(canvas.querySelector('[data-count]')?.dataset.count ?? -1), shown = id === 'findings' ? canvas.querySelectorAll('.ux-flist>li').length : canvas.querySelectorAll('.action-list li:not(.action-list-head)').length;

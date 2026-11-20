@@ -303,6 +303,8 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
           if (rec && (!rq || rq.textContent.trim() !== tq(rec))) bad.push(`recommendation "${rq && rq.textContent.trim()}" vs table "${tq(rec)}"`);
           for (const c of document.querySelectorAll('.ux-ocard:not(.is-base)')) { const o = c.dataset.optCard, cq = c.querySelector('.ux-ocard-q'); if (!cq || cq.textContent.trim() !== tq(o)) bad.push(`${optLabel(o)}: "${cq && cq.textContent.trim()}" vs "${tq(o)}"`); }
           const dv = rec && DV_OPT[rec] && !String(DV_OPT[rec]).startsWith(DVTEXT) ? (document.querySelector('.ux-drec-n') || {}).textContent.includes(DV_OPT[rec]) : true;
+          /* r2 H1: no sentence on the page names a comparator the decision does not use */
+          if (decBasis(d) !== 'NO_ACTION' && /against (?:no action|doing nothing)/i.test(document.querySelector('.canvas').textContent)) bad.push(`a typed "against no action" on a ${decBasis(d)} decision`);
           return { bad, dv, n: document.querySelectorAll('.ux-ocard:not(.is-base)').length };
         }, id);
         ok(!m.bad.length && m.dv, `${op} ${id}: the recommendation and ${m.n} card(s) state each figure's own basis, as the options table does${m.dv ? '' : '; the specific estimate note is lost'} (${m.bad.join('; ') || 'all match'})`);
@@ -361,7 +363,9 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
               if (!x || Math.abs(x.v - (L === 'revenue_change' ? l.v - h.v : l.v - h.v)) > 0.01 || !x.t.toLowerCase().includes(label.toLowerCase())) out.bad.push(`X2 ${r} ${s}: ${L} ${l.v} and ${H} ${h.v} differ, with no labelled ${label} line equal to the difference`); } }
           document.querySelectorAll('.canvas [data-count]').forEach(e => { const n = document.querySelectorAll(e.dataset.countOf || '#none').length; if (+e.dataset.count !== n) out.bad.push(`X5 ${r}: count ${e.dataset.count} but ${n} in ${e.dataset.countOf}`); });
           document.querySelectorAll('.canvas .is-bad[data-actual][data-target]').forEach(e => { if (+e.dataset.actual >= +e.dataset.target) out.bad.push(`X6 ${r}: a bar marked as a loss is at or above its target`); });
-          if (/(^|[.;]\s)Revenue explains/.test(document.querySelector('.canvas').textContent)) out.bad.push(`X7 ${r}: "Revenue explains" labels a Grow figure`);
+          if (/(?<!grow )revenue explains/i.test(document.querySelector('.canvas').textContent)) out.bad.push(`X7 ${r}: "revenue explains" labels a Grow figure`); /* r2 M4: any case */
+          const qc = document.querySelector('.ux-queue-panel .ux-qcount'), badge = document.querySelector('.ux-queue-panel .ux-count');
+          if (qc && badge && +qc.dataset.total !== +badge.textContent.replace(/\D/g, '')) out.bad.push(`X5 ${r}: the queue says "${qc.textContent}" under a count of ${badge.textContent}`); /* r2 M6 */
           return out; }, { r, op });
         all.push(...res.figs.map(f => ({ ...f, op }))); bad.push(...res.bad); await p.context().close(); }
     }

@@ -44,7 +44,7 @@ Object.keys(SK).forEach(sk=>{const st=SK[sk],op=st.op,sub=()=>`${st.type} · ${O
 
 /* Decisions: drill-down pages, not a menu */
 DEC.forEach(d=>addL(`decision/${d.id}`,d.q,'Portfolio','Decision',d.q,()=>decisionScreen(d.id),{site:d.site,h1:()=>['choose','none'].includes(uxDecState(d.id).key)?uxDecQuestion(d):d.q, /* UX audit C17: a question only while a choice is waiting */ltabs:()=>'',crumbs:()=>[['Portfolio','portfolio'],['Act first','portfolio/act-first'],[SK[d.site].name,`site/${d.site}`],['Decision']],loopNotes,
- subtitle:`${SK[d.site].name} · ${OPS[SK[d.site].op].name} · options compared with no action`,actions:()=>btn(`site/${d.site}`,'Open site')}));
+ subtitle:`${SK[d.site].name} · ${OPS[SK[d.site].op].name} · options ${BASIS_WORDS[decBasis(d)]?`compared ${BASIS_WORDS[decBasis(d)]}`:'compared, not valued in money'}`,actions:()=>btn(`site/${d.site}`,'Open site')}));
 
 window.mockupManifest = SCREENS.map(({render,ltabs,crumbs,actions,loopNotes:_l,...meta})=>({...meta,title:typeof meta.title==='string'?meta.title:'',layer4_status:REG_STATUS({...meta}),layer4_note:REG_NOTE({...meta})}));
 render();

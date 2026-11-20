@@ -41,10 +41,10 @@ function segments(root) {
 }
 const out = [];
 const first = boot('lakeside', 'portfolio');
-const manifest = first.window.mockupManifest || [];
+const manifest = first.window.mockupManifest || [], SCOPED = first.window.eval('UX_SCOPED');
 first.window.close();
 for (const op of ONLY) for (const s of manifest) {
-  if (op !== 'lakeside' && !s.id.startsWith('portfolio') && s.id !== 'sites' && s.id !== 'globalfinancials') continue;
+  if (op !== 'lakeside' && !s.id.startsWith('portfolio') && s.id !== 'sites' && s.id !== 'globalfinancials' && !SCOPED.includes(s.id) && !['findings', 'actions'].includes(s.id)) continue; /* r2: kept lists and the store's lists for every operator */
   CUR = s.id; const dom = boot(op, s.id); const w = dom.window, d = w.document;
   if (!d.querySelector('#app .canvas')) { errors.push({ op, id: s.id, e: 'no canvas' }); w.close(); continue; }
   const chrome = [...d.querySelectorAll('#app .rail, #app .topbar, #app footer, #app .tabs, #app .slim-banner')].map(words).join(' ').replace(/\s+/g, ' ');

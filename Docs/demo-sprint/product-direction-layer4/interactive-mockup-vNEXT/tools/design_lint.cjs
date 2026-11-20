@@ -24,6 +24,10 @@ for (const [f, t] of Object.entries(owned)) { const n = (stripTokens(t).match(CO
 for (const f of fs.readdirSync(root).filter(f => /^loop-.*\.js$/.test(f))) { const n = (read(f).match(/style="[^"]*(?:#[0-9a-fA-F]{3,8}|rgba?\(|color:)[^"]*"/g) || []).length; if (n) fails.push(`${f}: ${n} inline style colour(s)`); }
 /* a figure's period or meaning is read from the data (optEffect's second part), never typed in the page code (REVIEW-decision-page H1) */
 { const t = owned['loop-ux.js'] + (PLANT ? "\nconst p = 'over 12 months against doing nothing';" : ''), m = t.match(/over 12 months|12 months against/g); if (m) fails.push(`loop-ux.js: ${m.length} figure period(s) typed by hand ("${m[0]}"); read it from optEffect`); }
+/* the comparator of a figure is its basis (D-RECON.6, review r2 H1): no typed "against no action / doing nothing" in page code
+   outside the basis table (loop-decisions.js BASIS_*) and comments */
+for (const f of fs.readdirSync(root).filter(f => /^loop-.*\.js$/.test(f))) { const src = read(f).replace(/\/\*[\s\S]*?\*\//g, '').split('\n').filter(l => !/^\s*const BASIS_|^\s*\/\//.test(l)).join('\n') + (PLANT && f === 'loop-site.js' ? "\nconst x = 'Each option valued against no action';" : '');
+  const m = src.match(/against (?:no action|doing nothing)/g); if (m) fails.push(`${f}: ${m.length} comparator(s) typed by hand ("${m[0]}"); read it from the basis`); }
 /* no dead declaration: the same property for the same selector list under the same condition, declared twice, leaves the earlier one dead (REVIEW-decision-page L1) */
 function deadDecls(css) {
   const t = css.replace(/\/\*[\s\S]*?\*\//g, ''), seen = new Map(), dead = [];
