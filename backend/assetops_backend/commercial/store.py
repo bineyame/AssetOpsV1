@@ -1,6 +1,7 @@
 """3A1 (spec §4.1; R4, R6, R7, P2, P7): the commercial record store port. 3A2 (spec §3.5): uploads and decisions."""
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Callable, Mapping, Protocol
 from uuid import UUID
 
@@ -28,9 +29,12 @@ class CommercialStore(Protocol):
         `UploadAlreadyDecided` when the upload has a decision; after the plan's rows, insert the decision."""
 
     def latest_revisions(self, tenant_id: UUID, *, site_id: UUID | None = None, kind: str | None = None,
-                         recognition_period: str | None = None) -> tuple[RevisionRow, ...]:
+                         recognition_period: str | None = None,
+                         known_at: datetime | None = None) -> tuple[RevisionRow, ...]:
         """Each record's latest revision (by revision_no, over all its revisions), then filtered (R7); None is no
-        filter (P7). Sorted by (site_id NULLS FIRST, kind, recognition_period, source_system, source_record_id)."""
+        filter (P7). Sorted by (site_id NULLS FIRST, kind, recognition_period, source_system, source_record_id).
+        3A4 (D-3A4.7): with `known_at`, only revisions with `recorded_at <= known_at` are candidates, latest is
+        picked over those, and only then the filters apply; a record with no revision by then does not appear."""
 
     def record_history(self, tenant_id: UUID, record_id: UUID) -> tuple[RevisionRow, ...]:
         """Every revision of one record, ascending by revision_no."""
@@ -49,3 +53,11 @@ class CommercialStore(Protocol):
 
     def uploads_in_scope(self, tenant_id: UUID, site_id: UUID | None, limit: int) -> tuple[UploadRecord, ...]:
         """Exactly that Site's uploads, or the organisation's (`site_id IS NULL`); newest first by (submitted_at, id)."""
+
+    def intake_revisions(self, tenant_id: UUID,
+                         intake_id: UUID) -> tuple[tuple[RevisionRow, RevisionRow | None], ...]:
+        """3A4: each revision the intake wrote, with the revision it supersedes (None for revision 1), sorted by
+        (source_system, source_record_id) byte-wise. At most two statements."""
+
+    def site_zones(self, tenant_id: UUID) -> Mapping[UUID, str]:
+        """3A4: the tenant's Sites and their time zones."""

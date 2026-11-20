@@ -454,3 +454,83 @@ The packet records it as the one non-trend text change.
 
 **Why this order.** DS1's gate stays with DS1's review, rather than being absorbed into another lane's review where it
 could be lost.
+
+## DS1m round 3 answers (2026-11-20; packet `packet-DS1m.md` "Round 3", head `5a57d7f31`) — D-DS1.15
+
+**Verified, not taken as given.** Both reds come from `main`'s accepted UI branch (`25b3ae88b`, r5 ACCEPT), not from the
+DS1 data. Checked at `5a57d7f31`:
+- `loop-ux.js` `uxTrendCost` (review Site H1, `786e1f905`) renders a cost operator's tile-1 trend as words only
+  (`data-measure="monthly-cost"`, no `svg.ux-spark`), on the Portfolio and the Site tiles. Block 8's `sparks === 2` and
+  `sep === 2` cannot hold for Metro by design.
+- `ux.css:363` (1024+ by 820 or less): `.ux-kpi-s+.ux-kpi-s:not(.has-trend){display:none}`, so a trend is shortened
+  (nowrap, ellipsis), never hidden (review r4 L6). `ux.css:709` and `:717` (600 px or less): the sparkline is hidden and
+  the trend sub-line is shown as words. That is the MB7 recommendation, now built. MB7's "hidden by the compact rule"
+  clause demands the old state.
+- `uxSiteTiles` passes the Site key to `uxHistory`, and the Site wiring (`583bdd7c8`) is an ancestor of the head. All 9
+  Sites' series end on their headlines (Site tile 1 = the Site's evaluated actual; tile 2 = `siteM(sk).period.variance`;
+  for example Ruiru 13080.32 / 19.68, Kobo 883 / −562). The data is honest. The Site clause and R742 are stale.
+- `results.json` (m-r3): 0 page errors, 0 clipped, no sideways scroll in all 30. The only fails are the clauses above.
+
+**Ruling: the expectations follow the screen's accepted form. The check moves from "how it is drawn" to "what it says,
+and that it is true".** Spec §9.2's "64×16 sparkline" and §9.3 (D5 "Trend not available yet") and MB7's amended G3 are
+superseded by this ruling. The class is "a gate that asserts a drawing form fails when the UI lane changes the form", so
+every clause below asserts the trend's figure, its source and its visibility, and asserts the form only by the measure.
+
+**Trend slot (both gates).** A trend slot is each `.ux-kpi .ux-trend` in KPI tiles 1 and 2. It has one of two forms:
+- *signed:* no `data-measure`, exactly one `svg.ux-spark`, text `<signed change> against Sep`;
+- *measure-named:* `data-measure="monthly-cost"`, no `svg.ux-spark`, text `Monthly cost (up $X|down $X|unchanged) against Sep`.
+Any other content, including "Trend not available yet", fails.
+
+**G1+ block 8, amended (`tools/ux_interaction_check.cjs`).** Sweep: the 3 Portfolio overviews and all 9 Site pages
+(each operator's `OPS[op].sites`). A Site whose tiles do not render fails; nothing is skipped. For each page:
+- **8a, form:** exactly 2 trend slots, each in one of the two forms. Tile 1 is measure-named iff `OPS[op].kind === 'cost'`;
+  tile 2 is always signed. So the sparkline count is 1 for Metro and 2 otherwise, computed, never a literal.
+- **8b, source and headline:** the series is `uxHistory(op, k1[, sk])` with `k1 = cost|contribution` by kind, and
+  `uxHistory(op, 'gap'[, sk])`. Last points equal the headline within 0.005:
+  - Portfolio: `opTotals(op).actual` and `.variance` (as now);
+  - Site: `ov(DERIVED.sites[`${OPS[op].t.tenant}/${siteM(sk).site}`].actual)`, where `ov` is `opTotals`' rule
+    (`cost_to_serve` or `contribution` node if evaluated, else `stated_total`), and `siteM(sk).period.variance`.
+- **8c, stated change:** the figure in the text equals `last − Sep` of that series: signed `usdW(ch, true)`; measure-named
+  `Math.round(ch)` with "up" if > 0, "down" (absolute value) if < 0, "unchanged" if 0. "Sep" is the series' second-last `m`.
+- Page errors 0.
+
+**G3, amended (the capture script).** Grid: Portfolio and Site (Kobo, Thika, Ruiru) × 1440×900, 1280×720, 390×844 ×
+light, dark = 36 shots (Site at 1280×720 is added: `ux.css:377` makes it a distinct state). Every shot: theme attribute
+matches, page errors 0, no clipped element outside its `.ux-kpi`, no sideways scroll, 2 trend slots in the 8a forms.
+Per slot, "the figure" is the change figure (`[−+]?\$[\d,]+` in the slot's text), measured with a `Range` over its text:
+- **1440×900:** the slot is visible, inside its tile and in the first viewport; a signed slot's sparkline has
+  width > 0; the whole slot text is unclipped (its sub-line's `scrollWidth <= clientWidth`).
+- **1280×720:** the sub-line is displayed; a signed slot's sparkline has width > 0; the figure's rect lies inside the
+  sub-line's rect (±0.5 px). "against Sep" may be ellipsised: shortened, never hidden.
+- **390×844:** the sub-line is displayed; the sparkline's width is 0 (words, not a line); the figure lies inside the
+  sub-line, and the text ends "against Sep" (unclipped, as at 1440).
+
+**Plants (each amended clause must fail; evidence `/opt/assetecon/evidence/DS1/m-r4-plant/`).** Each plant is a copy of
+`index.html`; the generated file is never edited. Each records the FAIL lines that it must produce.
+| Plant | Change in the copy | Must fail |
+| --- | --- | --- |
+| P1 | delete `DERIVED.history` (as now) | 8a on all 12 pages; G3 form on all 36 |
+| P2 | a script after the fixtures adds 100 to the Oct point of Ruiru's `cost` and Kobo's `gap` | 8b on Ruiru and Kobo only |
+| P3 | in `uxTrend` and `uxTrendCost`, compare against the first point (`vs[0]`, `s[0].v`) instead of the second-last | 8c on every page |
+| P4 | remove `data-measure="monthly-cost"` from `uxTrendCost`'s output | 8a on the 4 Metro pages (Portfolio and 3 Sites) |
+| P5 | CSS `.ux-kpi .ux-trend{visibility:hidden}` | G3 1440 |
+| P6 | CSS `@media (min-width:1024px) and (max-height:820px){.ux-kpi-s.has-trend{max-width:40px}}` | G3 1280 (figure cut) |
+| P7 | CSS `@media (min-width:1024px) and (max-height:820px){.ux-kpi-s+.ux-kpi-s{display:none!important}}` (MB7's old state) | G3 1280 |
+| P8 | CSS `@media (max-width:600px){.ux-kpi .ux-spark{display:inline-block!important}}` | G3 390 |
+| P9 | CSS `@media (max-width:600px){.ux-kpi-s.has-trend{display:none!important}}` | G3 390 |
+A plant that does not produce its FAIL lines is a gate defect: fix the gate, not the plant.
+
+**R742 closes in DS1m's round 4 commit.** Its closing condition (MB7: the Site wiring and `history.sites` both on one
+branch, G3 at 1440 showing "against Sep" on the Site tiles) is met on this branch, so the closure moves from the
+Decision-page merge to DS1m. Status: `closed (DS1m r4: Site wiring 583bdd7c8 via 25b3ae88b; history.sites from DS1;
+G1+ 8a-8c on 9 Sites, G3 Site clauses)`. The D5 header count goes from 2 open to 1 open in the same edit. MB7's
+"Decision-page branch closes R742" step is void.
+
+**Not a DS1m condition (recommendation to the UI lane, non-blocking).** On the Portfolio, Metro's tile-1 headline is the
+monthly cost itself, so H1's reason (a per-departure headline) does not apply there; a sparkline would be the same
+measure. The UI lane may restore it on that one tile. If it does, 8a's form rule still holds unchanged, because the
+form follows `data-measure`, not the operator.
+
+**Builder's round 4.** Amend block 8 and the G3 script as above, run the 9 plants, close R742, rerun G1, G1+, G2, G3 and
+`plan_switch_check`, and record the results in the packet's "Round 4". `check_manifest.py`'s 3 fails are `main`'s (the
+packet shows them on a clean checkout); they are out of DS1m's scope and go to the coordinator.

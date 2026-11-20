@@ -62,3 +62,6 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 148. `3A1` commercial record store (migration 0063, ingest service) · data.md
 149. `3C1a` the signed-in person on work and domain commands · work.md
 150. `3A2` commercial file intake (migration 0065, uploads, pseudonyms, acceptance) · data.md
+150. `3B3` the structure read and evaluator, mini-grid · data.md
+151. `DS1m` Layer 4 mock-up trends from the July-September history · demo.md
+152. `3A4` amounts by month, month stamps · data.md

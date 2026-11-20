@@ -21,6 +21,7 @@ transaction, after an under-lock "no decision yet" check that precedes `decide`.
 from __future__ import annotations
 
 import functools
+from datetime import datetime
 from typing import Callable, Mapping, TypeVar
 from uuid import UUID
 
@@ -102,11 +103,13 @@ _REVISION_COLUMNS = (
     "v.effective_to, v.amount, v.currency, v.quantity, v.unit, v.status, v.supersedes_revision_id, v.recorded_at, "
     "r.source_system, r.source_record_id")
 #: R7: the latest revision per record over all of its revisions first; only then the filters. P7: a NULL filter is
-#: no filter. The text sort keys are compared byte-wise (`COLLATE "C"`), as the in-memory store compares them.
+#: no filter. 3A4 (D-3A4.7): the `known_at` cutoff sits inside the `DISTINCT ON` subquery, before "latest". The text sort keys are compared byte-wise (`COLLATE "C"`), as the in-memory store compares them.
 _LATEST = text(
     "SELECT * FROM (SELECT DISTINCT ON (v.record_id) " + _REVISION_COLUMNS + " "
     "FROM commercial_record_revision v JOIN commercial_record r ON r.id = v.record_id "
-    "WHERE v.tenant_id = :t ORDER BY v.record_id, v.revision_no DESC) latest "
+    "WHERE v.tenant_id = :t "
+    "AND (CAST(:known AS timestamptz) IS NULL OR v.recorded_at <= CAST(:known AS timestamptz)) "
+    "ORDER BY v.record_id, v.revision_no DESC) latest "
     "WHERE (CAST(:site AS uuid) IS NULL OR latest.site_id = CAST(:site AS uuid)) "
     "AND (CAST(:kind AS text) IS NULL OR latest.kind = CAST(:kind AS text)) "
     "AND (CAST(:period AS text) IS NULL OR latest.recognition_period = CAST(:period AS text)) "
@@ -115,6 +118,15 @@ _LATEST = text(
 _HISTORY = text(
     "SELECT " + _REVISION_COLUMNS + " FROM commercial_record_revision v JOIN commercial_record r ON r.id = v.record_id "
     "WHERE v.tenant_id = :t AND v.record_id = :r ORDER BY v.revision_no")
+#: 3A4 (spec §2): an intake's revisions, byte-wise by (source_system, source_record_id); then the superseded ones.
+_INTAKE_REVISIONS = text(
+    "SELECT " + _REVISION_COLUMNS + " FROM commercial_record_revision v JOIN commercial_record r ON r.id = v.record_id "
+    "WHERE v.tenant_id = :t AND v.intake_id = :i "
+    "ORDER BY r.source_system COLLATE \"C\", r.source_record_id COLLATE \"C\"")
+_REVISIONS_BY_ID = text(
+    "SELECT " + _REVISION_COLUMNS + " FROM commercial_record_revision v JOIN commercial_record r ON r.id = v.record_id "
+    "WHERE v.tenant_id = :t AND v.id = ANY(:ids)")
+_SITE_ZONES = text("SELECT id, timezone FROM site WHERE tenant_id = :t")
 _INTAKE = text(
     "SELECT id, tenant_id, source_type, source_system, provenance, produced_at, batch_sha256, state, refusal_code, "
     "refusal_path, record_count, new_count, revised_count, unchanged_count, refused_count, entered_by, entered_at "
@@ -224,9 +236,11 @@ class PostgresCommercialStore:
 
     @_scrubbed
     def latest_revisions(self, tenant_id: UUID, *, site_id: UUID | None = None, kind: str | None = None,
-                         recognition_period: str | None = None) -> tuple[RevisionRow, ...]:
+                         recognition_period: str | None = None,
+                         known_at: datetime | None = None) -> tuple[RevisionRow, ...]:
         with self._engine.connect() as c:
-            rows = c.execute(_LATEST, {"t": tenant_id, "site": site_id, "kind": kind, "period": recognition_period})
+            rows = c.execute(_LATEST, {"t": tenant_id, "site": site_id, "kind": kind, "period": recognition_period,
+                                       "known": known_at})
             return tuple(_revision(r) for r in rows)
 
     @_scrubbed
@@ -248,6 +262,25 @@ class PostgresCommercialStore:
                            for r in c.execute(_REJECTIONS, {"t": tenant_id, "i": intake_id}))
         written = tuple(c.execute(_WRITTEN, {"t": tenant_id, "i": intake_id}).scalars())
         return IntakeSummary(IntakeRow(**dict(found._mapping)), rejections, written)
+
+    # --- 3A4 reads (spec §2) --------------------------------------------------------------------------------------
+
+    @_scrubbed
+    def intake_revisions(self, tenant_id: UUID,
+                         intake_id: UUID) -> tuple[tuple[RevisionRow, RevisionRow | None], ...]:
+        with self._engine.connect() as c:
+            written = [_revision(r) for r in c.execute(_INTAKE_REVISIONS, {"t": tenant_id, "i": intake_id})]
+            ids = sorted({r.supersedes_revision_id for r in written if r.supersedes_revision_id is not None}, key=str)
+            superseded = ({} if not ids else
+                          {row.id: row for row in (_revision(r) for r in
+                                                   c.execute(_REVISIONS_BY_ID, {"t": tenant_id, "ids": ids}))})
+        return tuple((r, superseded[r.supersedes_revision_id] if r.supersedes_revision_id is not None else None)
+                     for r in written)
+
+    @_scrubbed
+    def site_zones(self, tenant_id: UUID) -> Mapping[UUID, str]:
+        with self._engine.connect() as c:
+            return dict(c.execute(_SITE_ZONES, {"t": tenant_id}).all())
 
     # --- the one write ------------------------------------------------------------------------------------------
 

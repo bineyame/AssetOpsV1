@@ -92,3 +92,37 @@ built to the default it states. None changes `history.json` or any October byte.
 - **Stopped.** Only H13's comparison of the leaf list. Nothing generated depends on it.
 - **Question.** Keep this key, or should the history month carry October's leaf list instead of its own? The second
   would contradict "computed on the history records".
+
+## MB7 (DS1m): G3 asks for the trend to be visible where the mock-up's own CSS hides it
+
+- **Gap.** Spec §9.4 G3 passes a shot only if each `.ux-kpi .ux-trend` on the overview is visible and not clipped, at
+  1280×720 and 390×844 as well as 1440×900. The mock-up's existing compact rules hide every KPI sub-line after the
+  first, and the trend is the second sub-line of tiles 1 and 2:
+  - `ux.css:246` (inside `@media (max-width:600px)`): `.ux-kpi-s+.ux-kpi-s{display:none}`;
+  - `ux.css:360` (inside `@media (min-width:1024px) and (max-height:820px)`, which 1280×720 meets): the same rule.
+- **Measured** (commit `160fed3b6`, `/opt/assetecon/evidence/DS1/m-g3-160fed3b6/results.json`): 6 of 18 Portfolio
+  states pass (all 1440×900, light and dark, three operators). The 12 at 1280×720 and 390×844 render the trend with
+  `display:none` (0×0 box). Page errors are 0 in all 18. The pre-existing Site tiles behave the same way at 390×844.
+- **Why it is not built.** Making the trend visible there is a change to `ux.css` (screen code). Spec §9.2 says no screen
+  code changes, and `ux.css` is not in §3's DS1m file list. The UI Architect is editing these source files on
+  `task/uiux-design-model`.
+- **Stopped.** Only G3's pass at 1280×720 and 390×844. The trend wiring, G1, G1+, G2 and the 1440×900 shots are done.
+- **Question.** Is the hidden trend at the compact sizes the intended design (amend G3 to "visible at 1440×900; at
+  1280×720 and 390×844 the slot is present in the DOM and hidden by the compact rule"), or should the UI lane change the
+  compact rule so that the trend line survives (then G3 stands, and DS1m's shots are retaken after that change)?
+
+## MB8 (DS1m): the regenerated fixtures carry one non-trend text change, from the pack merge
+
+- **Observed.** Regenerating `fixtures.js` from `main`'s manifest also brings the manifest changes the pack merge
+  (`54808af06`) made: `MANIFEST` gains `empty_states` and `history`, and `home_categories` changes (one `shown` text
+  replaced by `deferred: usable_capacity`, plus the RECON-1 `reconciliation` block). `DERIVED` gains only `history`;
+  `REPLAY_PATTERNS` and `REPLAY_VALUES` are unchanged.
+- **Rendered effect** (jsdom, all 205 renders, `tools/rendered-text.json` before and after): the only change outside
+  the three Portfolio overviews' trend slots and sparkline names is one Lakeside Portfolio sentence:
+  - before: "room with no customer: not available yet until the energy management export by time window";
+  - after: "room with no customer: not available yet".
+  No figure changes on any screen; no drawer text changes; no other operator or route changes.
+- **Not decided.** It is the pack's own (owner-approved) wording reaching the screen. A generated file is never
+  hand-edited, so DS1m cannot keep the old sentence. Built: regenerated as the spec says.
+- **Question.** Confirm this carried wording change is accepted with DS1m (it is not a trend figure, so it is outside
+  §9.2's expected change).

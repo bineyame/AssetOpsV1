@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 from assetops_backend.commercial.adapters import file_key_store
 from assetops_backend.commercial.adapters.postgres_commercial_store import (UNAVAILABLE, PostgresCommercialStore,
                                                                            database_name)
+from assetops_backend.commercial.months import CommercialMonths
 from assetops_backend.commercial.service import CommercialRecords
 from assetops_backend.commercial.uploads import CommercialUploads
 from assetops_backend.config import ConfigurationError
@@ -73,3 +74,7 @@ def build_commercial_uploads(database_url: str, settings: UploadSettings) -> Com
     store = PostgresCommercialStore(database_url)
     return CommercialUploads(CommercialRecords(store, clock=_now), store, FileKeyStore(settings.key_dir), clock=_now,
                              real_data=settings.real_data)
+
+def build_commercial_months(database_url: str) -> CommercialMonths:
+    """3A4 (spec §3.5): money by month over the Postgres store, with the UTC clock."""
+    return CommercialMonths(PostgresCommercialStore(database_url), clock=_now)
