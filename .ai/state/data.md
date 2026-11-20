@@ -394,3 +394,10 @@ Branch `task/3A4-amounts-by-month` (base main `38e2b3fe1`); spec `specs/3A4-amou
 
 - Settled: `commercial/months.py` `CommercialMonths.site_month/portfolio_month` read latest revisions (as of `known_at`, cutoff before "latest") as money by month: six money kinds, recognition month or Site-local settlement month (`month_bounds`, parity with 3B3's `month_window`), lines keyed `(kind, dims, measure, currency, unit, provenance, basis)`, exact 200-digit sums, budget lines never summed (`DUPLICATE_DECLARATION`), no line without a record; `MonthStamp` digest, `stale`, `months_touched`; `closed` at the read's cutoff. Store port and Postgres adapter: `latest_revisions(known_at=)`, `intake_revisions`, `site_zones`. `build_commercial_months`.
 - Open: `_scrubbed` (D-3A2.16) on the three reads at 3A2's merge if 3A2 merges second; `4b` turns lines into leaves, `5a` reads budget lines, `3B7a` keeps stamps; Site re-zoning moves settlements (residual).
+
+## 4b1 - the stated-node seam (built, in_review)
+
+Branch `task/4b1-money-leaves` (base main `880ba4dbf`); spec `specs/4b-money-leaves/spec.md` rev 2 §2, rulings D-4B.1, .2, .10, .11, .16, .17; packet `specs/4b-money-leaves/packet-4b1.md`. No migration, no route, no store.
+
+- Settled: MINI_GRID v3: `FactorRow.stated_by` on `revenue` (CHARGE) and `fuel_cost` (EXPENSE (FUEL)); check `STRUCTURE_STATED` after `STRUCTURE_COMPOSES`. `evaluate(registry, leaves, stated=)`: a stated value governs and the expression stays as `computed`/`detail_missing`; `NOT_CONNECTED`/`NOT_RECEIVED` let the expression through, `NOT_CALCULATED_YET` blocks (D-4B.16). `LeafValue.origins`, `FactorValue.origins/stated/computed/detail_missing`, `ORIGIN_ORDER`, `weakest_origin`, runtime `STRUCTURE_ORIGIN`; compose carries origins and `Site:leaf` detail. `StatedSource`, `StructureRead(sources, stated=None)`; `commercial.composition.build_commercial_reads`. With `stated` empty the old fields equal 3B3's.
+- Open: mid-build Q1 (S8's MONEY / KWH plant cannot isolate D-4B.17); 4b2 providers (`structure/money.py`, states, T6 edits); `5a` builds on the new fields.

@@ -1,6 +1,7 @@
 # 4b: money leaves from records into the structure read (implementer spec)
 
 Status: spec rev 2, handshake round 1 answered (`rulings.md` "Handshake answers (round 1)"; D-4B.13 to D-4B.17).
+4b1: in_review (`packet-4b1.md`, branch `task/4b1-money-leaves`; mid-build Q1 open). 4b2: not started.
 Code starts when the handshake has no open question (`.ai/RULES.md` §4).
 
 Architect (Claude), 2026-11-20. Lane B, on the deep-dive path's critical chain (`3B3` → `3A4` → `4b` and `5a` → `5b` →
