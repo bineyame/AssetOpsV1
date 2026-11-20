@@ -1,6 +1,6 @@
 # ON1: an operator's tenant from one onboarding file (implementer spec)
 
-Status: **rev 3** (re-scope, D-ON1.15, D-ON1.16), on rev 2's handshake answers (D-ON1.9 to D-ON1.14). The owner
+Status: **in_review** (built on `task/ON1-operator-tenant`, packet `packet.md`). Spec **rev 3** (re-scope, D-ON1.15, D-ON1.16), on rev 2's handshake answers (D-ON1.9 to D-ON1.14). The owner
 chose option A (`owner/owner-on1-roles-executive-approves-2026-11-20.md`: "A, executive approves roles at first
 sign-in"), then allowed it to wait (`owner/owner-on1-approval-can-wait-2026-11-20.md`: "the approval step can wait if
 autoamtic approval for the demo saves us time"). Rev 3: **an emulated file's roles are granted automatically** at

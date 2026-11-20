@@ -854,6 +854,10 @@ class Demo:
         out = dict(os.environ)
         for k in PG_TARGET_ENV:
             out.pop(k, None)
+        # ON1 (D-ON1.11): the demo serves the demo tenant whatever the shell holds, never an operator's settings.
+        out["ASSETOPS_TENANT_SLUG"] = "demo"
+        for k in ("ASSETOPS_REAL_OPERATOR_DATA", "ASSETOPS_PSEUDONYM_KEY_DIR"):
+            out.pop(k, None)
         parts = ["backend", "backend/tests", "contracts", "gateway", "simulator", "host", "host/tests",
                  "gateway/tests", "tools"]
         out["PYTHONPATH"] = os.pathsep.join(str(self.tree / p) for p in parts)

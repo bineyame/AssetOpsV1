@@ -4,7 +4,7 @@ A question about something the spec did not fix stops only the affected part. Wr
 section, what is stopped, what is built, and what you ask. The Architect rules in `rulings.md`. Record the count in
 the packet; a count above zero is a spec-template defect to fix.
 
-Count: **1** (reset at spec rev 2, 2026-11-20).
+Count: **2** (reset at spec rev 2, 2026-11-20).
 
 ## Q1 (spec §2): the code for a structural refusal (open; default built)
 
@@ -16,3 +16,17 @@ Count: **1** (reset at spec rev 2, 2026-11-20).
   the object or list concerned (`sites[0]`, `people[2].roles[0]`, `sites`; none at the top level). A Site field of the
   wrong type inside a well-formed Site entry is `ONBOARD_SITE_INVALID` (the Site parser judges it).
 - **Ask.** Confirm `ONBOARD_FORMAT`, or name another code (for example a new `ONBOARD_STRUCTURE`).
+
+## Q2 (spec §3.3, §7): `onboarding_open` trips the persistence guard (open; stopped)
+
+- **Section.** §3.3 names `AccountService.onboarding_open`; §7 says `tools/checks/configuration-persistence.ps1` is not
+  changed. The guard's "storage technology above the adapter layer" list holds the bare pattern `open\(`, so the line
+  `def onboarding_open(self, tenant_slug: str) -> bool:` in `accounts/service.py` (a configuration package, outside
+  its adapters) fails it: a false positive (no file is opened), the guard's only failure on this branch.
+- **Stopped.** Only that guard result: the method keeps the spec's name, the guard is not edited, and no spacing
+  trick (`def onboarding_open (`) is used to pass it (owner: never work around a safety check).
+- **Built.** Everything else; the three planted violations of §7 each add their own failure to the guard.
+- **Ask.** Either (a) rename the method (for example `AccountService.onboarding_grants_open`, store
+  `person_grant_exists` unchanged), or (b) narrow the guard's pattern to a call not preceded by an identifier
+  character (`(?<![A-Za-z0-9_])open\(`, which still catches `open(`, `os.open(` and `Path(...).open(`), a guard
+  change outside §4's list. Builder's lean: (a), one line in service, its two callers and the tests.

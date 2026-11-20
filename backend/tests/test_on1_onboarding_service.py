@@ -105,16 +105,18 @@ class Accounts(MemoryStore):
         self.creates += 1
         if self.fail_on_create == self.creates:
             raise RuntimeError("the store fell over")
+        super().create_account(*args, **kwargs)
         self.writes += 1
-        return super().create_account(*args, **kwargs)
 
     def add_grant(self, *args, **kwargs):
-        self.writes += 1
-        return super().add_grant(*args, **kwargs)
+        row = super().add_grant(*args, **kwargs)
+        self.writes += 1  # counted once written: a refused write writes nothing
+        return row
 
     def add_onboarding_grant(self, row):
+        row = super().add_onboarding_grant(row)
         self.writes += 1
-        return super().add_onboarding_grant(row)
+        return row
 
 
 class Keys:
@@ -332,6 +334,7 @@ def test_7_onboarding_closes_after_a_person_made_grant(applied: World) -> None:
     refused(lambda: w.svc.apply(file(doc), confirmed_digest=roles_digest(file(doc))), "ONBOARDING_CLOSED",
             "people[3]")
     assert w.writes() == before
+    _grant_refused(w, "peter@lakeside-power.example", "FIELD_TECHNICIAN", None, "ONBOARDING_CLOSED", 409)
     plan = w.svc.apply(file(), confirmed_digest=DIGEST).as_json()
     assert {r["action"] for r in plan["roles"]} == {"keep"} and w.writes() == before
 

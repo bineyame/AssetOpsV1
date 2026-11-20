@@ -137,6 +137,25 @@ def test_2_crash_case_the_store_never_reads_a_key_beside_a_tombstone(keys) -> No
         FileKeyStore(keys).key(other)
 
 
+def test_2_crash_case_a_tombstone_that_cannot_be_written_leaves_the_key(keys, monkeypatch) -> None:
+    """The tombstone comes first: if writing it fails, the key is still there (never MISSING, which would let a
+    later onboarding mint a new key)."""
+    tid = uuid4()
+    create_key_file(keys, tid)
+    real_open = os.open
+
+    def failing_open(path, *args, **kwargs):
+        if str(path).endswith(".erased"):
+            raise OSError("disk full")
+        return real_open(path, *args, **kwargs)
+
+    monkeypatch.setattr(os, "open", failing_open)
+    with pytest.raises(OSError):
+        erase_key_file(keys, tid)
+    monkeypatch.setattr(os, "open", real_open)
+    assert key_state(keys, tid) == "PRESENT"
+
+
 # --- 3: the 3A2 upload path ------------------------------------------------------------------------------------------
 
 def test_3_an_upload_with_an_erased_key_is_409_with_its_words(keys) -> None:
