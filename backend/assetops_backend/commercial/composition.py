@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 
 from assetops_backend.commercial.adapters.postgres_commercial_store import PostgresCommercialStore
+from assetops_backend.commercial.months import CommercialMonths
 from assetops_backend.commercial.service import CommercialRecords
 
 
@@ -14,3 +15,8 @@ def _now() -> datetime:
 
 def build_commercial_records(database_url: str) -> CommercialRecords:
     return CommercialRecords(PostgresCommercialStore(database_url), clock=_now)
+
+
+def build_commercial_months(database_url: str) -> CommercialMonths:
+    """3A4 (spec §3.5): money by month over the Postgres store, with the UTC clock."""
+    return CommercialMonths(PostgresCommercialStore(database_url), clock=_now)

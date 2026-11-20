@@ -1,6 +1,6 @@
 # 3A4: amounts by month (implementer spec)
 
-Status: live, spec **rev 2** (handshake round 1 answered in `rulings.md`; `.ai/RULES.md` §4).
+Status: in_review, spec **rev 2** (handshake round 1 answered in `rulings.md`; `.ai/RULES.md` §4).
 
 Architect (Claude), 2026-11-20. Lane B, on the deep-dive path's critical chain (`3B3` → `3A4` → `4b` and `5a`;
 `two-week-build-plan.md` §0.1 row 3; D-BW1.8 to D-BW1.12; owner RC1 to RC9 accepted).
