@@ -1494,7 +1494,13 @@ h2 .ux-split{font-size:var(--fs-sm);font-weight:400;color:var(--text-2)}
 .ia-frame .topbar{flex-wrap:nowrap;gap:var(--s3)}
 .ia-frame .topbar .ux-scope-sw>summary,.ia-frame .topbar .searchbox{white-space:nowrap}
 .ia-frame .topbar .right{flex-wrap:nowrap;min-width:0}
-@media (max-width:1100px){.ia-rail-status{display:none}}
+/* an unavailable item never overflows the rail and never reads as a link: the status stays in words (one line) at every width
+   the rail shows; in the 64 px icon rail (1024 to 1279) the words move to the title and the accessible name, and a dashed
+   outline marks the item, so the state is not colour alone */
+.ia-rail-unavailable{max-width:100%;overflow:hidden}
+.ia-rail-label,.ia-rail-status{overflow-wrap:anywhere}
+.ia-rail-unavailable svg{flex:none;opacity:.6}
+@media (min-width:1024px) and (max-width:1279px){.ia-rail-unavailable{width:44px;padding:6px 11px;border:1px dashed var(--rail-text-2);border-radius:var(--r1);box-sizing:border-box;white-space:nowrap}.ia-rail-unavailable .ia-rail-text{display:none}.ia-frame .rail a{padding-left:11px;padding-right:11px}.ia-rail-link-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}
 @media (max-width:760px){.ia-frame .topbar{flex-wrap:wrap}.ia-frame .topbar .right{flex-wrap:wrap}}
 .reviewbar .ux-dev-sw,.reviewbar .ux-rebuild>summary{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;font-size:var(--fs-xs);line-height:16px}
 .reviewbar .ux-dev-sw input{margin:0;width:12px;height:12px}
@@ -2818,9 +2824,9 @@ function tabs(s){
  return '';
 }
 function rail(s){
- const lab=s.root==='Simulator Lab';
+ const lab=s.root==='Simulator Lab',labOk=lab||typeof iaDev!=='function'||iaDev(); /* IA-1a review L2: no Lab link with the switch off */
  const groups=lab?[['TECHNICAL PROOF',[['Gateway & Ingestion','lab','lab']]]]:[['OPERATIONS',ROOTS.slice(0,3)],['INTELLIGENCE',ROOTS.slice(3,4)],['WORK',ROOTS.slice(4,8)],['ASSURANCE',ROOTS.slice(8,9)],['BUSINESS',ROOTS.slice(9,10)],['ADMIN',ROOTS.slice(10)]];
- return `<aside class="rail"><div class="brand"><span class="brandmark">⌁</span>AssetOps${lab?'<small>LAB</small>':''}</div>${groups.map(([name,items])=>`<div class="rail-group"><div class="eyebrow">${name}</div>${items.map(([label,id,ico])=>link(id,`${icon(ico)}${label}`,s.root===label||lab?'active':'')).join('')}</div>`).join('')}<div class="rail-footer"><div class="eyebrow">${lab?'SEPARATE WORKSPACE':'WORKSPACE'}</div>${link(lab?'evidence':'lab',`${icon(lab?'arrow':'lab')}${lab?'Open in AssetOps':'Simulator Lab'}`)}<div style="margin-top:14px">Demo workspace<br>3 sites · illustrative records</div></div></aside>`;
+ return `<aside class="rail"><div class="brand"><span class="brandmark">⌁</span>AssetOps${lab?'<small>LAB</small>':''}</div>${groups.map(([name,items])=>`<div class="rail-group"><div class="eyebrow">${name}</div>${items.map(([label,id,ico])=>link(id,`${icon(ico)}${label}`,s.root===label||lab?'active':'')).join('')}</div>`).join('')}<div class="rail-footer">${labOk?`<div class="eyebrow">${lab?'SEPARATE WORKSPACE':'WORKSPACE'}</div>${link(lab?'evidence':'lab',`${icon(lab?'arrow':'lab')}${lab?'Open in AssetOps':'Simulator Lab'}`)}`:''}<div style="margin-top:14px">Demo workspace<br>3 sites · illustrative records</div></div></aside>`;
 }
 const OBJ={'asset-overview':'BAT-001',finding:'F-104',analysis:'F-104','finding-evidence':'F-104',alternatives:'F-104',recommendation:'F-104','finding-history':'F-104','opportunity-finding':'F-109','cold-finding':'F-118','cold-recommendation':'F-118','cold-finding-excursion':'F-119','ev-finding':'F-130','ev-recommendation':'F-130',verification:'ACT-048','action-overview':'ACT-048','action-plan':'ACT-048','action-execution':'ACT-048','action-evidence':'ACT-048','action-history':'ACT-048','cold-action':'ACT-051','ev-action':'ACT-061',incident:'INC-203',workverification:'WR-019',asset:'BAT-001'};
 function breadcrumbs(s){
@@ -2857,7 +2863,7 @@ function render(){
  if(typeof IA_ROUTES!=='undefined'){IA_ROUTE_ACTIVE=!!s.ia;if(s.ia&&!new URLSearchParams(location.search).has('book')){document.title=`${s.title} · ${OPS[LS.op].name}`;$('#app').innerHTML=`${reviewBar(s)}<div id="ia-root"></div>`;iaRender(s.ia,s.ctx);afterRender(s);window.mockupReady=true;return;}}
  document.title=`AssetOps · ${s.title}${s.section?' / '+s.section:''} · Screen review`;
  if(new URLSearchParams(location.search).has('book')){
-  const pages=SCREENS.filter(x=>x.book!==false);
+  const pages=SCREENS.filter(x=>x.book!==false&&(x.root!=='Simulator Lab'||(typeof iaDev!=='function'||iaDev())));
   $('#app').innerHTML=pages.map((p,i)=>`<article class="bookpage" id="book-${p.id}"><div class="book-heading"><strong>ASSETOPS · v7.0 ARCHITECTURE SCREEN REVIEW</strong><span>ILLUSTRATIVE MOCKUP · ${String(i+1).padStart(2,'0')} / ${pages.length}</span></div>${shell(p,true)}<div class="book-caption"><strong>Canonical basis:</strong> v6.9 ${p.anchor} · <strong>Question:</strong> ${p.question}<br><strong>Preserved:</strong> ${p.preserved}<br><strong>Adapted:</strong> ${p.adapted}<br><strong>Deferred:</strong> ${p.deferred}<br><strong>Content owners:</strong> ${p.models.join(' · ')} · <strong>Prototype route:</strong> #/${p.id}</div></article>`).join('');
  } else {
   $('#app').innerHTML=`${reviewBar(s)}${shell(s)}`;
@@ -3428,10 +3434,11 @@ function brandAndListenersOnly(){if(typeof uxApplyBrand==='function')uxApplyBran
 function afterRender(s){if(typeof IA_ROUTE_ACTIVE!=='undefined'&&IA_ROUTE_ACTIVE)return brandAndListenersOnly();if(typeof uxShell==='function')uxShell(s); /* scope by data first, before words replace record keys */if(s.loop||s.opScoped||(typeof uxInProduct==='function'&&uxInProduct(s))){tagReplay(document.querySelector('.canvas'));uxScopeLine(document.querySelector('.canvas'),currentScreen());plainWords(document.querySelector('.canvas'));uxDedupeUnits(document.querySelector('.canvas'));uxFixSigns(document.querySelector('.canvas'));if(typeof uxChrome==='function')uxChrome(s);}if(typeof uxApplyBrand==='function')uxApplyBrand();if(typeof uxSearchLabel==='function')uxSearchLabel(); /* preserved v7.0 pages carry no replay figures; their numbers are left untouched */document.querySelectorAll('.scroll-region').forEach(el=>{if(el.scrollWidth>el.clientWidth+1)el.classList.add('scrolls');});}
 
 /* the page's one scope line (UI/UX guide §6, U1 and U2): the baseline evidence said once; the design-estimate caveat said once */
-function uxScopeLine(root,screen){const c=root&&(root.matches&&root.matches('.canvas')?root:root.querySelector('.canvas')),h=c&&c.querySelector('.page-heading>div');if(!h||h.querySelector('.ux-scope')||(screen&&screen.noFigures))return; /* a page with no figures has no figures note (review L2) */
+function uxScopeLine(root,screen){const c=root&&(root.matches&&root.matches('.canvas')?root:root.querySelector('.canvas')),h=c&&c.querySelector('.page-heading>div');if(!h||h.querySelector('.ux-scope'))return;const nf=!!(screen&&screen.noFigures); /* a page with no figures has no figures note (review L2); its pending notice still leaves the top bar (IA-1a review M1) */
  const pend=((c.closest&&c.closest('.shell'))||root).querySelector('.topbar .snap-pending'); /* IA-1 (P2): read from the root's own top bar */if(pend){const row=document.createElement('div');row.className='ux-pending';row.appendChild(pend);
   /* MOCK DEVIATION D2 (improvement; marked in the review bar, not in the page), owner Q7 / OD-23: figures recalculate at the daily run or when someone asks */
   row.insertAdjacentHTML('beforeend','<div class="ux-recalc-row"><button type="button" class="button ux-recalc" data-ux-recalc>Recalculate now</button></div>');c.insertBefore(row,c.firstChild);}
+ if(nf)return;
  const dv=!!c.querySelector('.dv-mark'),il=c.querySelectorAll('.illus');il.forEach(e=>e.remove());h.insertAdjacentHTML('beforeend',`<details class="ux-pop ux-prov"><summary><span aria-hidden="true">ⓘ</span> About these figures${dv?' <span class="ux-prov-dag">· † design estimates</span>':''}</summary><div class="ux-pop-menu ux-scope" role="note"><p>Figures are recorded or measured unless marked; all are simulated demo data.</p>${dv?'<p><span aria-hidden="true">†</span> Design estimate: not yet tested on your recorded data.</p>':''}${il.length?'<p>Names are illustrative.</p>':''}${[...c.querySelectorAll('.ux-prov-extra')].map(x=>`<p>${x.dataset.prov}</p>`).join('')}<p>Open any figure to see how it is worked out.</p></div></details>`);c.querySelectorAll('.ux-prov-extra').forEach(x=>x.remove());} /* wave 2: one quiet provenance control */
 /* click and change hooks */
 /* ---------- theme: follow the system, or light, or dark (top bar) ---------- */
@@ -5802,8 +5809,8 @@ function iaScopeLabel(ctx) {
 function iaItemLanded(i) { return IA_LANDED.has(i.unit); }
 function iaRailHtml(route) {
   const groups = [...new Set(IA_RAIL.map(i => i.group))];
-  const item = i => iaItemLanded(i) ? link(i.route, `${icon(i.icon)}${i.label}`, route.home === i.label ? 'active' : '')
-    : `<span class="ia-rail-unavailable" aria-label="${escapeHtml(i.label)}, Not available yet" data-rail-unavailable="${escapeHtml(i.label)}">${icon(i.icon)}<span class="ia-rail-text"><span class="ia-rail-label">${i.label}</span><span class="ia-rail-status" data-rail-status="unavailable">Not available yet</span></span></span>`;
+  const item = i => iaItemLanded(i) ? `<a class="${route.home === i.label ? 'active' : ''}" href="#/${i.route}" title="${escapeHtml(i.label)}">${icon(i.icon)}<span class="ia-rail-link-label">${i.label}</span></a>`
+    : `<span class="ia-rail-unavailable" aria-label="${escapeHtml(i.label)}, Not available yet" title="${escapeHtml(i.label)}, Not available yet" data-rail-unavailable="${escapeHtml(i.label)}">${icon(i.icon)}<span class="ia-rail-text"><span class="ia-rail-label">${i.label}</span><span class="ia-rail-status" data-rail-status="unavailable">Not available yet</span></span></span>`;
   const foot = iaDev() ? `<div class="rail-group ia-rail-foot" data-ia-footer><div class="eyebrow">Workspace</div>${link('lab', `${icon('evidence')}Simulator Lab`)}</div>` : '';
   return `<nav class="rail" aria-label="Main menu"><div class="brand"><span class="brandmark">⌁</span>AssetOps</div>${groups.map(g => `<div class="rail-group"><div class="eyebrow">${g}</div>${IA_RAIL.filter(i => i.group === g).map(item).join('')}</div>`).join('')}${foot}</nav>`;
 }

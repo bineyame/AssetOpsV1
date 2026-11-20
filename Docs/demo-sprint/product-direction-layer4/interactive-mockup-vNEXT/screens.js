@@ -965,9 +965,9 @@ function tabs(s){
  return '';
 }
 function rail(s){
- const lab=s.root==='Simulator Lab';
+ const lab=s.root==='Simulator Lab',labOk=lab||typeof iaDev!=='function'||iaDev(); /* IA-1a review L2: no Lab link with the switch off */
  const groups=lab?[['TECHNICAL PROOF',[['Gateway & Ingestion','lab','lab']]]]:[['OPERATIONS',ROOTS.slice(0,3)],['INTELLIGENCE',ROOTS.slice(3,4)],['WORK',ROOTS.slice(4,8)],['ASSURANCE',ROOTS.slice(8,9)],['BUSINESS',ROOTS.slice(9,10)],['ADMIN',ROOTS.slice(10)]];
- return `<aside class="rail"><div class="brand"><span class="brandmark">⌁</span>AssetOps${lab?'<small>LAB</small>':''}</div>${groups.map(([name,items])=>`<div class="rail-group"><div class="eyebrow">${name}</div>${items.map(([label,id,ico])=>link(id,`${icon(ico)}${label}`,s.root===label||lab?'active':'')).join('')}</div>`).join('')}<div class="rail-footer"><div class="eyebrow">${lab?'SEPARATE WORKSPACE':'WORKSPACE'}</div>${link(lab?'evidence':'lab',`${icon(lab?'arrow':'lab')}${lab?'Open in AssetOps':'Simulator Lab'}`)}<div style="margin-top:14px">Demo workspace<br>3 sites · illustrative records</div></div></aside>`;
+ return `<aside class="rail"><div class="brand"><span class="brandmark">⌁</span>AssetOps${lab?'<small>LAB</small>':''}</div>${groups.map(([name,items])=>`<div class="rail-group"><div class="eyebrow">${name}</div>${items.map(([label,id,ico])=>link(id,`${icon(ico)}${label}`,s.root===label||lab?'active':'')).join('')}</div>`).join('')}<div class="rail-footer">${labOk?`<div class="eyebrow">${lab?'SEPARATE WORKSPACE':'WORKSPACE'}</div>${link(lab?'evidence':'lab',`${icon(lab?'arrow':'lab')}${lab?'Open in AssetOps':'Simulator Lab'}`)}`:''}<div style="margin-top:14px">Demo workspace<br>3 sites · illustrative records</div></div></aside>`;
 }
 const OBJ={'asset-overview':'BAT-001',finding:'F-104',analysis:'F-104','finding-evidence':'F-104',alternatives:'F-104',recommendation:'F-104','finding-history':'F-104','opportunity-finding':'F-109','cold-finding':'F-118','cold-recommendation':'F-118','cold-finding-excursion':'F-119','ev-finding':'F-130','ev-recommendation':'F-130',verification:'ACT-048','action-overview':'ACT-048','action-plan':'ACT-048','action-execution':'ACT-048','action-evidence':'ACT-048','action-history':'ACT-048','cold-action':'ACT-051','ev-action':'ACT-061',incident:'INC-203',workverification:'WR-019',asset:'BAT-001'};
 function breadcrumbs(s){
@@ -1004,7 +1004,7 @@ function render(){
  if(typeof IA_ROUTES!=='undefined'){IA_ROUTE_ACTIVE=!!s.ia;if(s.ia&&!new URLSearchParams(location.search).has('book')){document.title=`${s.title} · ${OPS[LS.op].name}`;$('#app').innerHTML=`${reviewBar(s)}<div id="ia-root"></div>`;iaRender(s.ia,s.ctx);afterRender(s);window.mockupReady=true;return;}}
  document.title=`AssetOps · ${s.title}${s.section?' / '+s.section:''} · Screen review`;
  if(new URLSearchParams(location.search).has('book')){
-  const pages=SCREENS.filter(x=>x.book!==false);
+  const pages=SCREENS.filter(x=>x.book!==false&&(x.root!=='Simulator Lab'||(typeof iaDev!=='function'||iaDev())));
   $('#app').innerHTML=pages.map((p,i)=>`<article class="bookpage" id="book-${p.id}"><div class="book-heading"><strong>ASSETOPS · v7.0 ARCHITECTURE SCREEN REVIEW</strong><span>ILLUSTRATIVE MOCKUP · ${String(i+1).padStart(2,'0')} / ${pages.length}</span></div>${shell(p,true)}<div class="book-caption"><strong>Canonical basis:</strong> v6.9 ${p.anchor} · <strong>Question:</strong> ${p.question}<br><strong>Preserved:</strong> ${p.preserved}<br><strong>Adapted:</strong> ${p.adapted}<br><strong>Deferred:</strong> ${p.deferred}<br><strong>Content owners:</strong> ${p.models.join(' · ')} · <strong>Prototype route:</strong> #/${p.id}</div></article>`).join('');
  } else {
   $('#app').innerHTML=`${reviewBar(s)}${shell(s)}`;

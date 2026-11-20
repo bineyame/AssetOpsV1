@@ -5,9 +5,9 @@
    2 the crawl from iaStart(): every content, tab and palette href, to 6 hops, classifies good (tools/ia_crawl.cjs);
    3 the rail: an unlanded item is an unavailable root with "Not available yet" and no href; a landed item links its route;
    4 the document title is "<title> · <operator name>";
-   5 the Lab gate: off, no footer, no Lab link, no Lab option in the review select, #/lab is not-found; on, the footer reads
+   5 the Lab gate (also the empty-hash landing and ?book with the switch off): off, no footer, no Lab link, no Lab option in the review select, #/lab is not-found; on, the footer reads
      "Workspace" and "Simulator Lab" with href="#/lab", and #/lab opens the Lab.
-   Run: node tools/shape_check.cjs   Plants: SHAPE_PLANT=unlink|stub|rail|palette|primary|lab (each must fail). */
+   Run: node tools/shape_check.cjs   Plants: SHAPE_PLANT=unlink|stub|rail|palette|primary|lab|tabstop|notfound|noact|lablegacy (each must fail). */
 const { boot, classifier, identity, liveRoutes, hrefsOf, OPS, sleep } = require('./ia_crawl.cjs');
 const PLANT = process.env.SHAPE_PLANT || '';
 const fails = [], log = [];
@@ -19,7 +19,11 @@ const PLANTS = {
   rail: `iaItemLanded = () => true;`,
   palette: `iaPaletteFilter = out => out;`,
   primary: `{ const r = IA_ROUTES.find(x => x.id === iaStart()), _r = r.render; r.render = ctx => _r(ctx).replace('<div data-level="L1">', '<div data-level="L1"><button class="button primary" data-ux-act="plant">Plant</button>'); }`,
-  lab: `iaDev = () => true;`
+  lab: `iaDev = () => true;`,
+  tabstop: `{ const _r = iaRailHtml; iaRailHtml = r => _r(r).replace(/class="ia-rail-unavailable"/g, 'tabindex="0" class="ia-rail-unavailable"'); }`,
+  notfound: `{ const _u = iaUnlink; iaUnlink = root => { if (root.querySelector('[data-shape="frame"]')) return; _u(root); }; }`,
+  noact: `{ const r = IA_ROUTES.find(x => x.id === iaStart()), _r = r.render; r.render = ctx => _r(ctx).replace(/ data-(ux-)?act="[^"]*"/g, ''); }`,
+  lablegacy: `{ const _r = rail; rail = s => _r(s).replace('</aside>', '<a href="#/lab">Simulator Lab</a></aside>'); }`
 };
 if (PLANT && !PLANTS[PLANT]) { console.error(`shape_check: unknown plant ${PLANT}`); process.exit(2); }
 (async () => {
@@ -41,12 +45,14 @@ if (PLANT && !PLANTS[PLANT]) { console.error(`shape_check: unknown plant ${PLANT
       const l1 = [...f.querySelectorAll('[data-level="L1"]')], k = l1.reduce((a, e) => a + e.querySelectorAll('.ux-kpi').length, 0); if (k > 4) bad(`${tag}: ${k} tiles in L1`);
       const regions = [...f.querySelectorAll('[data-level]')]; regions.forEach(rg => { const n = [...rg.querySelectorAll('button.primary')].filter(b => b.closest('[data-level]') === rg).length; if (n > 1) bad(`${tag}: ${n} primary buttons in one ${rg.dataset.level} region`); });
       const l1act = l1.flatMap(e => [...e.querySelectorAll('button.primary')]).map(b => b.dataset.act || b.dataset.uxAct)[0];
-      f.querySelectorAll('button.primary').forEach(b => { if (b.closest('[data-level]')) return; const st = b.closest('[data-ux-sticky]'); if (!st || (b.dataset.act || b.dataset.uxAct) !== l1act) bad(`${tag}: a primary button outside every level ("${b.textContent.trim().slice(0, 30)}")`); });
+      f.querySelectorAll('button.primary').forEach(b => { if (!(b.dataset.act || b.dataset.uxAct)) bad(`${tag}: a primary button that names no action ("${b.textContent.trim().slice(0, 30)}")`); });
+      f.querySelectorAll('button.primary').forEach(b => { if (b.closest('[data-level]')) return; const st = b.closest('[data-ux-sticky]'); if (!st || l1act === undefined || (b.dataset.act || b.dataset.uxAct) !== l1act) bad(`${tag}: a primary button outside every level ("${b.textContent.trim().slice(0, 30)}")`); });
       const want = `${w.eval('currentScreen().title')} · ${B.opName}`; if (doc.title !== want) bad(`${tag}: document title "${doc.title}", not "${want}"`);
       /* 3 the rail */
       const rail = w.eval('IA_RAIL.map(i => ({ label: i.label, route: i.route, landed: IA_LANDED.has(i.unit) }))');
       for (const i of rail) { const un = f.querySelector(`.rail [data-rail-unavailable="${i.label}"]`), a = [...f.querySelectorAll('.rail a')].find(x => x.textContent.trim() === i.label);
-        if (i.landed ? !(a && a.getAttribute('href') === `#/${i.route}`) : !(un && !un.closest('a') && !un.querySelector('a') && !un.hasAttribute('href') && /Not available yet/.test(un.textContent) && !a)) bad(`${tag}: rail item "${i.label}" is not ${i.landed ? 'a link to its route' : 'an unavailable root'}`); }
+        if (i.landed ? !(a && a.getAttribute('href') === `#/${i.route}`) : !(un && !un.closest('a') && !un.querySelector('a') && !un.hasAttribute('href') && /Not available yet/.test(un.textContent) && !a && !un.matches('[tabindex],button,a') && !un.querySelector('[tabindex],button,a'))) bad(`${tag}: rail item "${i.label}" is not ${i.landed ? 'a link to its route' : 'an unavailable root'}`); }
+      if (r.notFound) for (const x of hrefsOf(doc)) { const c = cls(x); if (c !== 'good') bad(`${tag}: not-found links ${x} (${c})`); }
       log.push(`${B.opName} · #/${r.id} · ${r.notFound ? 'not-found' : r.shape} · levels ${lv.join(',') || 'none'}`);
     }
     /* 2 the crawl, from the start, with the palette's targets as start-route edges */
@@ -67,6 +73,10 @@ if (PLANT && !PLANTS[PLANT]) { console.error(`shape_check: unknown plant ${PLANT
     if (!ft || !/Workspace/.test(ft.querySelector('.eyebrow')?.textContent || '') || !fa || fa.textContent.trim() !== 'Simulator Lab' || fa.getAttribute('href') !== '#/lab') bad('Lab gate: with the switch on the footer does not read "Workspace" › "Simulator Lab" (#/lab)');
     await go('lab'); if (w.eval('currentScreen().id') !== 'lab') bad('Lab gate: #/lab does not open the Lab with the switch on');
     w.sessionStorage.removeItem('l4-dev');
+    /* L2: with the switch off, the empty-hash landing and the book view carry no Lab link and no Lab page */
+    await go(''); if (doc.querySelector('#app a[href^="#/lab"]')) bad('Lab gate: a Lab link on the empty-hash landing with the switch off');
+    const BK = await boot(op, '', { search: '?book' }); if (PLANT) BK.w.eval(PLANTS[PLANT]); await BK.go('');
+    if (BK.doc.querySelector('#book-lab')) bad('Lab gate: ?book lists the Lab with the switch off'); if (BK.doc.querySelector('#app a[href^="#/lab"]')) bad('Lab gate: a Lab link in ?book with the switch off'); BK.dom.window.close();
     if (B.errors.length) bad(`script errors: ${B.errors.slice(0, 2).join(' | ')}`);
     B.dom.window.close();
   }

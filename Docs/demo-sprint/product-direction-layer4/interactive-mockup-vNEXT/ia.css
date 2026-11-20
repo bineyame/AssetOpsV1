@@ -10,7 +10,13 @@
 .ia-frame .topbar{flex-wrap:nowrap;gap:var(--s3)}
 .ia-frame .topbar .ux-scope-sw>summary,.ia-frame .topbar .searchbox{white-space:nowrap}
 .ia-frame .topbar .right{flex-wrap:nowrap;min-width:0}
-@media (max-width:1100px){.ia-rail-status{display:none}}
+/* an unavailable item never overflows the rail and never reads as a link: the status stays in words (one line) at every width
+   the rail shows; in the 64 px icon rail (1024 to 1279) the words move to the title and the accessible name, and a dashed
+   outline marks the item, so the state is not colour alone */
+.ia-rail-unavailable{max-width:100%;overflow:hidden}
+.ia-rail-label,.ia-rail-status{overflow-wrap:anywhere}
+.ia-rail-unavailable svg{flex:none;opacity:.6}
+@media (min-width:1024px) and (max-width:1279px){.ia-rail-unavailable{width:44px;padding:6px 11px;border:1px dashed var(--rail-text-2);border-radius:var(--r1);box-sizing:border-box;white-space:nowrap}.ia-rail-unavailable .ia-rail-text{display:none}.ia-frame .rail a{padding-left:11px;padding-right:11px}.ia-rail-link-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}
 @media (max-width:760px){.ia-frame .topbar{flex-wrap:wrap}.ia-frame .topbar .right{flex-wrap:wrap}}
 .reviewbar .ux-dev-sw,.reviewbar .ux-rebuild>summary{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;font-size:var(--fs-xs);line-height:16px}
 .reviewbar .ux-dev-sw input{margin:0;width:12px;height:12px}

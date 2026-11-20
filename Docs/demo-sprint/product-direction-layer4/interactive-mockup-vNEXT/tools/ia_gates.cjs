@@ -5,7 +5,7 @@ const { spawnSync } = require('child_process'), fs = require('fs'), path = requi
 const dir = __dirname, landed = new Set((fs.readFileSync(path.join(dir, '..', 'ia-routes.js'), 'utf8').match(/const IA_LANDED = new Set\(\[([^\]]*)\]\)/) || [, ''])[1].match(/IA-\w+/g) || []);
 /* the plants each unit lands (spec §2.5) */
 const PLANTS = {
-  'IA-1a': [['shape_check', 'SHAPE_PLANT', ['unlink', 'stub', 'rail', 'palette', 'primary', 'lab']], ['click_depth_check', 'G1_PLANT', ['engine']], ['after_render_check', 'AR_PLANT', ['text', 'attr', 'late']]],
+  'IA-1a': [['shape_check', 'SHAPE_PLANT', ['unlink', 'stub', 'rail', 'palette', 'primary', 'lab', 'tabstop', 'notfound', 'noact', 'lablegacy']], ['click_depth_check', 'G1_PLANT', ['engine']], ['after_render_check', 'AR_PLANT', ['text', 'attr', 'late', 'replace']]],
   'IA-1b': [['click_depth_check', 'G1_PLANT', ['tile']]],
   'IA-1c': [['click_depth_check', 'G1_PLANT', ['inbox']]]
 };

@@ -58,7 +58,7 @@ Final build, branch head plus the last commit; logs in the evidence folder.
 ## Known deviations
 1. `MOCK DEVIATION` (implementation, IA-1a): `uxStickyTick` writes its measured offsets to `--ux-sticky-left/top` on `<html>`, not inline on the bar. Inline styles would be a mutation inside the frame (D-IA.17). Same layout.
 2. The primary rule compares `data-ux-act` (the reviewed buttons' attribute); the spec says `data-act`. The check reads either.
-3. "Still to be rebuilt: …" is inside a review-bar popover (summary "Still to be rebuilt (12)"). Shown as a line, it wrapped the review bar and pushed the first queue row below the fold at 1280 on 5 legacy pages (uxi FAIL, then fixed).
+3. WORKAROUND, awaiting a ruling (review L3): "Still to be rebuilt: …" is inside a review-bar popover whose summary "Still to be rebuilt (12)" is new copy the spec does not give. It stays until the Architect rules on the label or a layout that keeps the spec line. Shown as a line, it wrapped the review bar and pushed the first queue row below the fold at 1280 on 5 legacy pages (uxi FAIL, then fixed).
 4. r5 L-a: at 1280 the tile trend now wraps instead of an ellipsis. No copy changed; a shorter string would be new copy (spec §7).
 5. The plan's H1 and subtitle are the reviewed plan screen's own (`The plan for November and December`); the spec names no title.
 6. Branch name is `task/IA-1a-frame` as the dispatch says (the spec writes `task/ia-1a-frame`).
@@ -68,3 +68,15 @@ Final build, branch head plus the last commit; logs in the evidence folder.
 - G1 live surfaces: none until IA-1b. `IA_G1_SURFACES` and the hub tab groups are IA-1b's.
 - `audit.mjs` and `rendered_strings.cjs` were retargeted to `plan` but not run (the full audit was not scheduled).
 - The reviewer's manual P3 (devtools observer) and P9 brand-pack sweep.
+
+## Round 2 (fix round on review r1, `review-IA-1a.md`)
+Gates and shots at the fix head; each new plant shown failing (`ia_gates.cjs`: 18 runs, all as expected, 220 s).
+- **M1:** `uxScopeLine` moves the pending notice (and its Recalculate button) out of the top bar before its `noFigures` return, so not-found carries it above the heading like every page. `ia_shots.cjs` now fails any top-bar item over 40 px or any top-bar element past the window. On the old head it failed Harvest not-found at 1440, 1280 and 390; on the fix, 0 bad.
+- **M2:** rail widths 390 to 1920 are measured (126 runs: 5 sizes x light/dark, then an 11-width sweep). Outside 1024 to 1279 the words stay on one line ("Not available yet"); 1024 to 1279 the 64 px rail shows a dashed outline, a title and an accessible name; the landed link's label is visually hidden there (no clipped "P"). 1200 and 900 are in the screenshot set. Old head: 71 BAD; fix: 0; `SHOTS_PLANT=status` (words hidden): 66 BAD.
+- **M3:** after-render check asserts at idle that `getElementById('ia-root')` is the inserted root and that one navigation renders once. `AR_PLANT=replace` fails ("the frame root was replaced after insertion").
+- **L1:** shape_check item 3 asserts no tabindex, a or button in an unavailable item. `SHAPE_PLANT=tabstop` fails.
+- **L2:** the legacy rail draws no Lab footer, and `?book` omits the Lab page, with the switch off. shape_check checks the empty-hash landing and `?book`. `SHAPE_PLANT=lablegacy` fails.
+- **L3:** deviation 3 relabelled a workaround awaiting a ruling. **L4:** `walkthroughs.md` names `#/plan`.
+- **L5:** not-found's links are classified (`SHAPE_PLANT=notfound` fails); every primary button must name its action and a sticky primary needs a defined L1 act (`SHAPE_PLANT=noact` fails).
+- Existing gates on the fix head: plan_switch 781/0; shell_check 0 (`SHELL_PLANT=1` fails); design_lint exit 0 (`LINT_PLANT=1` fails); render_text, vocab, copy, hand_typed_scan 0; check_manifest 7571/0; ux_interaction_check 324 PASS, 0 FAIL.
+- Residual (Architect): the `financials` alias key collides with IA-2e's route (review r1); not touched.

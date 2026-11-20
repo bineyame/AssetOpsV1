@@ -12,7 +12,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 /* boot one operator at a hash; o.dev turns the developer switch on; o.before runs in beforeParse */
 async function boot(op, hash, o = {}) {
   const errors = [], vc = new VirtualConsole(); vc.on('jsdomError', e => errors.push(String(e.message || e).slice(0, 240)));
-  const dom = new JSDOM(html, { virtualConsole: vc, runScripts: 'dangerously', pretendToBeVisual: true, url: 'http://x/#/' + hash,
+  const dom = new JSDOM(html, { virtualConsole: vc, runScripts: 'dangerously', pretendToBeVisual: true, url: 'http://x/' + (o.search || '') + '#/' + hash,
     beforeParse(w) { w.sessionStorage.setItem('l4-op', op); if (o.dev) w.sessionStorage.setItem('l4-dev', '1'); w.matchMedia = () => ({ matches: false, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {} }); w.scrollTo = () => {}; if (o.before) o.before(w); } });
   const w = dom.window; await sleep(300);
   const go = async h => { if (w.location.hash === '#/' + h) w.eval('render()'); else w.location.hash = '#/' + h; await sleep(30); if (w.eval('LS.op') !== op) { w.eval(`setOp(${JSON.stringify(op)});render()`); await sleep(20); } };
