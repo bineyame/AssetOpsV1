@@ -155,13 +155,13 @@ def test_6_demo_env_holds_no_pg_target(monkeypatch) -> None:
 # --- 7: no caller left ----------------------------------------------------------------------------------------------
 
 #: Backlog `RC4-F1-tools` (spec §2.2): walkthrough tools guarding their own scratch names, not changed by this unit.
-BACKLOG_TOOLS = frozenset({"sweep-setup-cache.py"})
+BACKLOG_TOOLS = frozenset({"tools/sweep-setup-cache.py"})
 
 
 def _sources():
     for root in (REPO / "backend" / "assetops_backend", REPO / "tools"):
         for path in root.rglob("*.py"):
-            if path.name not in BACKLOG_TOOLS:
+            if path.relative_to(REPO).as_posix() not in BACKLOG_TOOLS:
                 yield path
 
 
@@ -183,3 +183,23 @@ def test_7_the_scan_sees_a_path_name_read() -> None:
     tree = ast.parse((REPO / "tools" / "sweep-setup-cache.py").read_text(encoding="utf-8"))
     assert any(isinstance(n, ast.Attribute) and n.attr == "database" and isinstance(n.value, ast.Call)
                and getattr(n.value.func, "id", None) == "make_url" for n in ast.walk(tree))
+
+
+# --- 8: the guard admission stays narrow (D-RC4F1.3) ----------------------------------------------------------------
+
+def test_8_admission_is_narrow() -> None:
+    path = Path(dt.__file__)
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    drivers = ("sqlalchemy", "psycopg", "alembic")
+    imports, calls = [], []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            imports += [(None, a.name) for a in node.names if a.name.split(".")[0] in drivers]
+        elif isinstance(node, ast.ImportFrom) and (node.module or "").split(".")[0] in drivers:
+            imports += [(node.module, a.name) for a in node.names]
+        elif isinstance(node, ast.Call):
+            name = getattr(node.func, "id", getattr(node.func, "attr", None))
+            if name in {"get_dialect", "create_engine", "create_connect_args", "connect"}:
+                calls.append(name)
+    assert imports == [("sqlalchemy.engine", "make_url")]
+    assert calls == []
