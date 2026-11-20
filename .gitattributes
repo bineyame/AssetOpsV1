@@ -17,3 +17,5 @@ host/fixtures/diesel-f0/* text eol=lf
 host/fixtures/diesel-d0/* text eol=lf
 # DIESEL-1-R3f: operational-action logs are hashed as LF on every host
 config/operational-actions/* text eol=lf
+# DS1a: byte-pinned world generator fixture and golden digests (R24)
+simulator/tests/world/**/*.json text eol=lf
