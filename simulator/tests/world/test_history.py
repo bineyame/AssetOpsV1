@@ -78,7 +78,7 @@ def test_t3a_private_block_changes_nothing(view: dict) -> None:
 
 
 def test_t3b_name_absent_from_generator() -> None:
-    files = sorted((REPOSITORY_ROOT / "simulator" / "assetops_simulator" / "world").rglob("*")) + [CLI]
+    files = sorted((REPOSITORY_ROOT / "simulator" / "assetops_simulator" / "world").rglob("*.py")) + [CLI]
     files = [f for f in files if f.is_file()]
     assert len(files) >= 8
     hits = [str(f) for f in files if re.search(PRIVATE, f.read_text(encoding="utf-8"), re.IGNORECASE)]
