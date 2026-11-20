@@ -1,4 +1,4 @@
-"""FUEL-1 A1 (`.agent/build-sheet-FUEL-1.md` §4.1): the pure `fuel-cost-2` model, its selection, and the declared
+"""FUEL-1 A1 (`specs/FUEL-1/` §4.1): the pure `fuel-cost-2` model, its selection, and the declared
 no-load vocabulary in the Site parser.
 
 Expected values are computed here from the inputs (hours x rate, P x hours x SFC, x 1.10), never typed from a run.

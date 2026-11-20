@@ -1,4 +1,4 @@
-"""DIESEL-K5 (`.agent/build-sheet-DIESEL-1.md` §9l.2, ruling DIESEL-1-R3l): the read behind the Fuel page's night mode,
+"""DIESEL-K5 (`specs/DIESEL-1/` §9l.2, ruling DIESEL-1-R3l): the read behind the Fuel page's night mode,
 the fuel Finding page and the Site Findings "Fuel checks" panel.
 
 Read-only. Windows and fuel Findings come through K3/K4a's `PostgresFuelBalanceStore` (`has_windows`, `windows`,

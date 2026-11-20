@@ -1,5 +1,5 @@
 /*
- * W6-01a A2: the global work pages (`.agent/W6-01-build-spec.md` section 2 wrap/clamp rules). Every heading, code,
+ * W6-01a A2: the global work pages (`specs/W6-01/` section 2 wrap/clamp rules). Every heading, code,
  * actor, notice and table cell wraps (`min-width: 0; overflow-wrap: anywhere`); each table-cell value sits in a
  * three-line clamp block (line-clamp on `td` itself does not clamp); the table scrolls inside its panel at narrow
  * widths, with the visible `Scroll table horizontally` text affordance.

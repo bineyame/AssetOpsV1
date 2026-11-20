@@ -10,7 +10,7 @@ Direction: [feature map](../.ai/FEATURE_MAP.md),
 [starter handoff](../.ai/PLANNING_HANDOFF_T020A_T023.md),
 [Lab cockpit handoff](../.ai/PLANNING_HANDOFF_LAB_COCKPIT.md),
 [v4](../Docs/simulator_design_v4.md), and
-[demo roadmap](../Docs/mini-grid-demo-architecture-and-roadmap.md).
+[demo roadmap](../Docs/archive/2026-09/mini-grid-demo-architecture-and-roadmap.md).
 The six existing starter files are replacements, not amendments.
 
 ## Order and observable checkpoints
@@ -23,7 +23,7 @@ and T034A (Portfolio-lite) are new; T025h is parked; the breadth order (rows
 26-30) was set by the Planner's T030 -> T031 dependency check
 (recommendation 6.3), which found no content coupling.
 
-Resequenced on 2026-09-24 from `Docs/queue-review-feedback-verbatim.md`, then
+Resequenced on 2026-09-24 from `Docs/archive/2026-09/queue-review-feedback-verbatim.md`, then
 adjusted again from its round-two section. See
 `D-2026-09-24-queue-resequenced-for-demo` for what moved and why.
 T022B precedes T024 under `D-2026-09-29-run-store-libyaml` and owns

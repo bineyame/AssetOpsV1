@@ -1,4 +1,4 @@
-"""DIESEL-K3 (`.agent/build-sheet-DIESEL-1.md` §9d.4): assess named nights, explicitly.
+"""DIESEL-K3 (`specs/DIESEL-1/` §9d.4): assess named nights, explicitly.
 
     python -m assetops_backend.fuel_balance.worker assess --site <code> --from <local date> --to <local date>
 

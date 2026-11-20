@@ -1,5 +1,5 @@
 /**
- * W6-01b B3: the global Maintenance root, Preventive view (`.agent/W6-01-build-spec.md` section 2, section 3.1
+ * W6-01b B3: the global Maintenance root, Preventive view (`specs/W6-01/` section 2, section 3.1
  * A2Q1-A2Q10/X1-X8/CL3-1 and the "B1-B3 pre-flight rulings" P-B3-1..11). Typed responses only: the persisted DRAFT,
  * corrected historical, zero, 503 and long-PM states are captured against the real API in `.agent/W6-01-evidence/B3/`.
  */

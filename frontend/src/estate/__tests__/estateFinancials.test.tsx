@@ -1,5 +1,5 @@
 /**
- * W3-02 commit 4 named frontend tests (`.agent/W3-02-build-spec.md` "Proof and builder handoff"): the estate
+ * W3-02 commit 4 named frontend tests (`specs/W3-02/` "Proof and builder handoff"): the estate
  * Financials root under a local MemoryRouter (Lane A mounts the shell route), against the v6.9 `globalfinancials`
  * panel structure, with every column, chip, link, note and grouping result asserted. Bodies are shaped as the
  * reviewed `estate-financials-1` wire; IDs are synthetic, and no mock Site, value or basis survives.
@@ -625,7 +625,7 @@ describe("W3-02 commit 4 measured Financials layout", () => {
     // allowance at 12 px; opened, the results list never scrolls internally, every group/diagnostic/exclusion is visible
     // and the page stays unclipped. Ruling c4b: the 12px/1.8 mock prose keeps the closed Aggregation panel within 123 (1440) / 187 (390).
     for (const state of ["positive", "partial"]) {
-      const file = `../.agent/W3-02-evidence/app-financials-${state}.json`;
+      const file = `src/estate/__tests__/fixtures/w3-02/app-financials-${state}.json`;
       const narrow = (JSON.parse(await readDisk(file)).results as Record<string, any>[]).find((r) => r.width === 390);
       expect(narrow, `${state} 390 measurement present`).toBeDefined();
       expect(narrow!.ready).toBe(true);

@@ -158,9 +158,11 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
     const after = await p.evaluate(() => ({ b: document.documentElement.getAttribute('data-brand'), bad: getComputedStyle(document.querySelector('.ux-chip.is-bad')).color, h: document.documentElement.scrollHeight, band: getComputedStyle(document.querySelector('.topbar'), '::after').backgroundImage !== 'none' }));
     await p.reload(); await p.waitForTimeout(400);
     const kept = await p.evaluate(() => document.documentElement.getAttribute('data-brand'));
-    ok(before.b === 'east-africa' && after.b === 'east-africa' && after.band && after.bad === before.bad && Math.abs(after.h - before.h) <= 32 && kept === 'east-africa', `brand: the demo operators start in East Africa (U10); the switch keeps it, motif band on, status colour unchanged, height within 32 px (${before.h} to ${after.h}), kept on reload`);
+    ok(before.b === 'east-africa' && after.b === 'east-africa' && after.band && after.bad === before.bad && kept === 'east-africa', `brand: the demo operators start in East Africa (U10); the switch keeps it, motif band on, status colour unchanged, kept on reload`);
     await p.selectOption('#ux-brand', 'neutral'); await p.waitForTimeout(150);
-    ok(await p.evaluate(() => !document.documentElement.hasAttribute('data-brand')), 'brand switch: to Neutral, the product default');
+    const neutral = await p.evaluate(() => ({ none: !document.documentElement.hasAttribute('data-brand'), h: document.documentElement.scrollHeight }));
+    ok(neutral.none, 'brand switch: to Neutral, the product default');
+    ok(Math.abs(after.h - neutral.h) <= 32, `brand packs: page height East Africa against Neutral within the 32 px budget (${after.h} against ${neutral.h})`);
     await p.context().close(); }
   // wave 2c classes: overview budget; queue alignment, titles, one primary, quiet blanks; the bridge on the gap's scale;
   // modelled weight; prose size; content in its tab; a distinguishable East Africa pack
@@ -210,13 +212,13 @@ const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}
       return out; });
     ok(!r.length, `${op} at ${w}: bridge bars inside their track, rows sum to subtotals and the gap, shares 100%, no empty due line (${r.slice(0, 3).join('; ') || 'all hold'})`);
     await p.context().close(); }
-  // on-request recalculation (owner Q7): the control is keyboard reachable and turns the notice to "Recalculated"
+  // on-request recalculation (owner Q7): the control is keyboard reachable and turns the notice to an honest, neutral request line
   { const p = await page('portfolio', { op: 'harvest' });
     const has = await p.evaluate(() => !!document.querySelector('.ux-pending [data-ux-recalc]') && /Recalculation pending/.test(document.querySelector('.ux-pending .snap-pending').textContent));
     let reached = false; for (let i = 0; i < 40 && !reached; i++) { await p.keyboard.press('Tab'); reached = await p.evaluate(() => document.activeElement?.hasAttribute('data-ux-recalc')); }
     if (reached) { await p.keyboard.press('Enter'); await p.waitForTimeout(150); }
     const after = await p.evaluate(() => { const t = document.querySelector('.ux-pending .snap-pending'); return { txt: t.textContent, status: t.getAttribute('role'), btn: !!document.querySelector('[data-ux-recalc]') }; });
-    ok(has && reached && /^Recalculated · figures as of \d{2}:\d{2}/.test(after.txt.trim()) && /Operator executive/.test(after.txt) && /unchanged/.test(after.txt) && after.status === 'status' && !after.btn, `Recalculate now: reachable by keyboard, the notice reads "${after.txt.trim().slice(0, 70)}…"`);
+    ok(has && reached && /^Recalculation requested at \d{2}:\d{2}, 6 Nov by Operator executive/.test(after.txt.trim()) && /This demo holds no recalculated values, so the figures still show 06:00\./.test(after.txt) && !/^Recalculated|Figures updated/.test(after.txt.trim()) && !/green/.test(await p.evaluate(() => document.querySelector('.ux-pending .snap-pending .badge').className)) && /as of 06:00/.test(await p.evaluate(() => document.querySelector('.topbar').textContent)) && after.status === 'status' && !after.btn, `Recalculate now: reachable by keyboard, the notice reads "${after.txt.trim().slice(0, 70)}…"`);
     await p.context().close(); }
   // the Decision page (owner, 20 Nov): question, one primary, state-aware queue buttons, the confirmation, L1 above the fold
   const STATE_BTN = { choose: 'Decide', approval: 'Awaiting approval', released: 'Review', none: 'Review' };

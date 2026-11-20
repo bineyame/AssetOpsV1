@@ -1,6 +1,6 @@
 """Pure EV charging-session correlation: `ev-session/1` (W2-06 commit 2).
 
-Authority: `.agent/W2-06-build-spec.md` "Pre-build closure" (Canonical input, Total ordering and state table,
+Authority: `specs/W2-06/rulings.md` "Pre-build closure" (Canonical input, Total ordering and state table,
 Coverage and JSON), "Run 1 rulings (q1)" R1-R12 and "Run 2 rulings (q2)" Q2-Q9, Q14 and Q15,
 and "Run 3 rulings (q3)" P1-P5.
 

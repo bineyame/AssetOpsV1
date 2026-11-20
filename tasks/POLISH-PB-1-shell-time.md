@@ -4,10 +4,10 @@ Status: in_review
 USER_REVIEW_REQUIRED: false
 Lane: B (frontend and tools). Units: 5.25 (Addendum 1 Q1). Branch `task/POLISH-PB-1-shell-time`.
 
-The spec is `.agent/build-sheet-POLISH.md`: §3 (Times rule, Shell and Portfolio/Findings rows of §3.1), §4 P-03,
+The spec is `specs/POLISH/`: §3 (Times rule, Shell and Portfolio/Findings rows of §3.1), §4 P-03,
 §5 Lane B "PB-1", §6 D-1/D-4, §7 (R650-R652), Addendum 1 Q1 (P-04 is verification only), Addendum 3 (captures),
 Addendum 5 (exemption rules) and Addendum 6 Q7 (revised D-4). This file states scope only; the sheet is the contract.
-Pre-flight answers from the coordinator are recorded in the packet `.agent/POLISH-PB-1-packet.md`.
+Pre-flight answers from the coordinator are recorded in the packet `archive/agent-history/POLISH-PB-1-packet.md`.
 
 ## Scope
 

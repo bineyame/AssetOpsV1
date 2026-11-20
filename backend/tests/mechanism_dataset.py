@@ -1,8 +1,8 @@
-"""MD-0: the mechanism test dataset (build sheet `.agent/build-sheet-MD-0.md`, rulings §1 MD0-R and §14 MD0-PF).
+"""MD-0: the mechanism test dataset (build sheet `specs/MD-0/spec.md`, rulings §1 MD0-R and §14 MD0-PF).
 
 Phase 1 (this file so far): the fixture loader with its schema rules (§2.1), the `MECHANISM_DB_ONLY` database
 guard (R2, D-AW-1), the Dn date map and the `late_fill` declared-gap refusal (§4). Seeding (`seed_database`),
-`late_fill`'s write path and `build_work` follow in later phases (`.agent/MD-0-phase-1-handoff.md`).
+`late_fill`'s write path and `build_work` follow in later phases (`archive/agent-history/MD-0-phase-1-handoff.md`).
 
 Inputs only: the fixture never carries an expected output (R3). Every write goes through an existing writer at its
 story time (R1, R4); no snapshot, thread or study row is ever inserted directly and no row is UPDATEd.

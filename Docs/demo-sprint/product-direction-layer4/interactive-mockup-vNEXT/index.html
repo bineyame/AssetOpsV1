@@ -1355,7 +1355,7 @@ details.ux-pop>summary:focus-visible{outline:2px solid var(--focus);outline-offs
 .ux-pending{display:flex;flex-direction:column;gap:var(--s2)}
 .ux-recalc-row{display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap}
 .ux-recalc.button{min-height:32px;padding:4px 14px;font-size:var(--fs-sm)}
-.ux-mockdev{font-size:var(--fs-xs);color:var(--text-2);border:1px dashed var(--line-strong);border-radius:var(--r1);padding:0 6px}
+.ux-mockdev{font-size:var(--fs-xs);color:var(--rb-text);border:1px dashed var(--rb-line);border-radius:var(--r1);padding:0 6px}
 .ux-pending{flex-direction:row;align-items:center;gap:var(--s3)}
 .ux-pending .snap-pending{flex:1;min-width:0}
 .ux-recalc-row{flex:none;flex-direction:column;align-items:flex-end;gap:2px}
@@ -3326,8 +3326,8 @@ function afterRender(s){if(s.loop||s.opScoped){tagReplay(document.querySelector(
 /* the page's one scope line (UI/UX guide §6, U1 and U2): the baseline evidence said once; the design-estimate caveat said once */
 function uxScopeLine(){const c=document.querySelector('.canvas'),h=c&&c.querySelector('.page-heading>div');if(!h||h.querySelector('.ux-scope'))return;
  const pend=document.querySelector('.topbar .snap-pending');if(pend){const row=document.createElement('div');row.className='ux-pending';row.appendChild(pend);
-  /* MOCK DEVIATION (addition), owner Q7 / OD-23: figures recalculate at the daily run or when someone asks */
-  row.insertAdjacentHTML('beforeend','<div class="ux-recalc-row"><button type="button" class="button ux-recalc" data-ux-recalc>Recalculate now</button><span class="ux-mockdev" title="Added to the mock-up: on-request recalculation (owner Q7)">MOCK DEVIATION · addition</span></div>');c.insertBefore(row,c.firstChild);}
+  /* MOCK DEVIATION D2 (improvement; marked in the review bar, not in the page), owner Q7 / OD-23: figures recalculate at the daily run or when someone asks */
+  row.insertAdjacentHTML('beforeend','<div class="ux-recalc-row"><button type="button" class="button ux-recalc" data-ux-recalc>Recalculate now</button></div>');c.insertBefore(row,c.firstChild);}
  const dv=!!c.querySelector('.dv-mark'),il=c.querySelectorAll('.illus');il.forEach(e=>e.remove());h.insertAdjacentHTML('beforeend',`<details class="ux-pop ux-prov"><summary><span aria-hidden="true">ⓘ</span> About these figures${dv?' <span class="ux-prov-dag">· † design estimates</span>':''}</summary><div class="ux-pop-menu ux-scope" role="note"><p>Figures are recorded or measured unless marked; all are simulated demo data.</p>${dv?'<p><span aria-hidden="true">†</span> Design estimate: not yet tested on your recorded data.</p>':''}${il.length?'<p>Names are illustrative.</p>':''}${[...c.querySelectorAll('.ux-prov-extra')].map(x=>`<p>${x.dataset.prov}</p>`).join('')}<p>Open any figure to see how it is worked out.</p></div></details>`);c.querySelectorAll('.ux-prov-extra').forEach(x=>x.remove());} /* wave 2: one quiet provenance control */
 /* click and change hooks */
 /* ---------- theme: follow the system, or light, or dark (top bar) ---------- */
@@ -4891,7 +4891,7 @@ function uxApplyBrand() { const b = uxBrand(); if (b === 'neutral') document.doc
 function uxBrandSwitch() {
   const rb = document.querySelector('.reviewbar .right'); if (!rb || rb.querySelector('.ux-brand-sw')) return;
   const b = uxBrand();
-  rb.insertAdjacentHTML('afterbegin', `<label class="ux-brand-sw">Brand <select id="ux-brand" aria-label="Brand pack (review tool)">${Object.entries(UX_BRANDS).map(([k, l]) => `<option value="${k}"${k === b ? ' selected' : ''}>${l}</option>`).join('')}</select></label>`);
+  rb.insertAdjacentHTML('afterbegin', `<span class="ux-mockdev" title="Added to the mock-up, not in the product: on-request recalculation (owner Q7)">MOCK DEVIATION D2 · Recalculate now</span><label class="ux-brand-sw">Brand <select id="ux-brand" aria-label="Brand pack (review tool)">${Object.entries(UX_BRANDS).map(([k, l]) => `<option value="${k}"${k === b ? ' selected' : ''}>${l}</option>`).join('')}</select></label>`);
 }
 document.addEventListener('change', e => { if (e.target.id !== 'ux-brand') return; try { localStorage.setItem('l4-brand', e.target.value); } catch (x) {} uxApplyBrand(); });
 
@@ -4900,13 +4900,15 @@ document.addEventListener('input', e => { if (!e.target.classList.contains('ux-s
 /* the top bar's search names what it searches, on every screen */
 function uxSearchLabel() { const sb = document.querySelector('.topbar [data-index]'); if (!sb) return; [...sb.childNodes].filter(n => n.nodeType === 3 && n.nodeValue.trim()).forEach(n => { n.nodeValue = 'Search sites, decisions, screens'; }); sb.setAttribute('aria-label', 'Search sites, decisions and screens (Ctrl K)'); }
 
-/* on-request recalculation (owner Q7, OD-23; MOCK DEVIATION addition): the notice turns to "Recalculated", recorded under the
+/* on-request recalculation (owner Q7, OD-23; MOCK DEVIATION D2, improvement): the notice turns to a neutral "requested" line, recorded under the
    signed-in person. The demo data holds no post-recalculation values, so no figure changes; the notice says so. */
+const UX_RECALC_TIME = '10:00';
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-ux-recalc]'); if (!b) return;
   const row = b.closest('.ux-pending'), st = row?.querySelector('.snap-pending'); if (!st) return;
-  const d = new Date(), hh = String(d.getHours()).padStart(2, '0'), mm = String(d.getMinutes()).padStart(2, '0'), who = typeof avatarName === 'function' ? avatarName() : '';
-  st.innerHTML = `<span class="badge green">Recalculated · figures as of ${hh}:${mm}, ${fdate(AS_OF)}${who ? ` · asked for by Operator executive · ${who}` : ''}. Figures updated: this demo holds no recalculated values, so the numbers shown are unchanged.</span>`;
+  const who = typeof avatarName === 'function' ? avatarName() : '', role = 'Operator executive';
+  /* story time, never the wall clock: after the 09:40 invoice on the demo date */
+  st.innerHTML = `<span class="badge">Recalculation requested at ${UX_RECALC_TIME}, ${fdate(AS_OF)} by ${role}${who ? ` · ${who}` : ''}. This demo holds no recalculated values, so the figures still show 06:00.</span>`;
   st.classList.add('is-done'); b.remove();
 });
 

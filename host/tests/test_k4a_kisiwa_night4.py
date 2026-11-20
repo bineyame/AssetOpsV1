@@ -1,4 +1,4 @@
-"""DIESEL-K4a L2 parity (`.agent/build-sheet-DIESEL-1.md` §9j.8 C): Kisiwa's night-4 unexplained-fuel Finding.
+"""DIESEL-K4a L2 parity (`specs/DIESEL-1/` §9j.8 C): Kisiwa's night-4 unexplained-fuel Finding.
 
 Needs `ASSETOPS_TEST_DATABASE_URL` naming a `*_test` database (K4: `assetops_k4_test`); skipped without it.
 

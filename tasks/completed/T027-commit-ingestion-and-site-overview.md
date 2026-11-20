@@ -199,7 +199,7 @@ simple and correct rather than production-scale.
 
 No acceptance criterion is optional (protected seam; watched for scope growth,
 not trimmed): satisfy each at the smallest honest implementation. Source: round
-two of `Docs/queue-review-feedback-verbatim.md`.
+two of `Docs/archive/2026-09/queue-review-feedback-verbatim.md`.
 
 No dispatch classification, capability declaration, capability table or claim
 ceiling yet; T028 owns them.
@@ -218,11 +218,11 @@ The owner runs the internal architecture demonstration with Lab disabled for
 the final operator inspection. The Reviewer independently exercises recovery,
 idempotence and reconstruction without simulator objects.
 Review outcome: complete. Phase 1: Claude review and re-review ACCEPT
-(`.agent/T027-phase-1-claude-review.md`, `-claude-rereview.md`); owner hands-on
+(`archive/agent-history/T027-phase-1-claude-review.md`, `-claude-rereview.md`); owner hands-on
 check successful 2026-10-03. Phase 2: Claude review, re-review and re-review 2
-ACCEPT after fix rounds 1-3 (`.agent/T027-phase-2-claude-review.md`,
+ACCEPT after fix rounds 1-3 (`archive/agent-history/T027-phase-2-claude-review.md`,
 `-claude-rereview.md`, `-claude-rereview-2.md`; round 3 verified by the
 coordinator); owner hands-on check successful 2026-10-03
-(`.agent/owner-T027-phase-2-hands-on-2026-10-03.md`). Owner ruling: "Start
+(`owner/owner-T027-phase-2-hands-on-2026-10-03.md`). Owner ruling: "Start
 Simulation" stays a disabled Quick action with its Run-setup reason. Codex
 retrospective pending for both phases.

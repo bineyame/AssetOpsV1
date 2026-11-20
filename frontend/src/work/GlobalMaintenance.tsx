@@ -2,7 +2,7 @@
  * W6-01b B2: the global Maintenance root, Corrective view (v6.9 `maintenance`), read from `GET /api/work/maintenance`
  * (`global-work-index-1`). The mock's slots, in order (`index.html:959-961`): breadcrumb, h1 and subtitle, the
  * `Corrective` / `Preventive · scheduled` view tabs, the date bar, the four cards, the `Corrective work requests`
- * panel and the blue lifecycle notice. Copy follows `.agent/W6-01-build-spec.md` section 2, section 3.1 (A2Q1,
+ * panel and the blue lifecycle notice. Copy follows `specs/W6-01/` section 2, section 3.1 (A2Q1,
  * A2Q4-A2Q7, A2Q10, X1-X8, CL3-1) and the "B1-B3 pre-flight rulings" P-B2-3..11, which supersede them.
  *
  * MOCK DEVIATION (P-B2-3..8): the lifecycle notice copy changes, because W4 has no work-outcome evaluator or

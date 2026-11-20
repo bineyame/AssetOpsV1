@@ -3,7 +3,7 @@
 Pure: `place` reads only the internal Portfolio row's facts, its exact Action (`portfolio._action_for`), the row's
 Site coverage (text only, R5.6) and the money group state of the row's line from the same call's `compare()`
 result. No query, no score: groups say where to look first, never a value ranking. The rules, reason texts and
-confidence texts are fixed by `.agent/build-spec-commercial-2026-10-27.md` "CC-R2" (with the CC-R1-Q1 ruling for
+confidence texts are fixed by `specs/Lane-C/rulings.md` "CC-R2" (with the CC-R1-Q1 ruling for
 `VERIFIED_WATCH_RETURN`) and Appendix C D5.
 """
 

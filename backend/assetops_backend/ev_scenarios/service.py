@@ -1,4 +1,4 @@
-"""W5-03b E5: authored EV scenario commands and the `ev-scenarios-1` list (`.agent/W5-03-build-spec.md` E5 card,
+"""W5-03b E5: authored EV scenario commands and the `ev-scenarios-1` list (`specs/W5-03/` E5 card,
 "E5 exact persisted schema and wire contract" and "E5 consolidated correction" P-E5-2..8).
 
 Writes, after the router's gate: the server principal (`mini_decisions.scenarios.admit`), the actor policy

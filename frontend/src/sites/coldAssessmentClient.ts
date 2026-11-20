@@ -1,6 +1,6 @@
 /**
  * Read-only client for a cold-chain Site's selected assessments (W2-03 commit 4 routes,
- * `.agent/W2-03-build-spec.md` "Commit 4 - selected reads"):
+ * `specs/W2-03/spec.md` "Commit 4 - selected reads"):
  *
  *   GET /api/sites/{code}/cold/temperature
  *   GET /api/sites/{code}/cold/backup-chain

@@ -70,7 +70,7 @@
 /* ---- q12-7: every measured region bounded to its mock-derived maximum (whole box, heading included). ----
  * A bounded panel is a flex column; its body scrolls vertically inside the budget (keyboard focusable, scroll
  * shadows as the overflow affordance). Table panels scroll inside the table region with a sticky header, keeping
- * the table's own horizontal scroll. Budgets: `.agent/W4-02-build-spec.md` Run 12 rulings, q12-7. */
+ * the table's own horizontal scroll. Budgets: `specs/W4-02/` Run 12 rulings, q12-7. */
 .mini-bound {
   display: flex;
   flex-direction: column;

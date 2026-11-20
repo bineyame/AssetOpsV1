@@ -1,7 +1,7 @@
 """W3-01 estate Finding, Action and scope reads over one authorized, read-only REPEATABLE READ snapshot.
 
 Every row, summary, cited ID, eligibility flag and selection token is computed over the full authorized selected
-set before paging (`.agent/W3-01-build-spec.md` "Final implementer dry-read", commit 2). The store's `read(work)`
+set before paging (`specs/W3-01/` "Final implementer dry-read", commit 2). The store's `read(work)`
 runs `work(snapshot)` inside its one transaction; this module holds no storage technology.
 """
 

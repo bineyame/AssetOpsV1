@@ -1,4 +1,4 @@
-"""W2-01 selected cold Foundation read (`.agent/W2-technical-design-cold.md` section 3 and the route row).
+"""W2-01 selected cold Foundation read (`archive/agent-history/W2-technical-design-cold.md` section 3 and the route row).
 
 `GET /api/sites/{site_code}/cold/foundation?at=<UTC>` - the effective Foundation revision and binding set at
 `at` (default now) of a COLDCHAIN Site: rooms with policy band, topology, bindings with the fixed

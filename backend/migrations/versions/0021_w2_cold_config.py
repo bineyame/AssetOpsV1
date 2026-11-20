@@ -1,6 +1,6 @@
 """W2-01: cold-chain configuration vocabulary anchor (no SQL change).
 
-`.agent/W2-technical-design-cold.md` migration row `0021_w2_cold_config` and section 3
+`archive/agent-history/W2-technical-design-cold.md` migration row `0021_w2_cold_config` and section 3
 (`D-2026-10-17-w2-01-answers`).
 
 The cold configuration is held entirely by structures that already exist: the effective Foundation

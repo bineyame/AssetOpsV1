@@ -1,4 +1,4 @@
-"""W2-04 commit 3: the five cold Site reads (`.agent/W2-04-build-spec.md` "Five API reads").
+"""W2-04 commit 3: the five cold Site reads (`specs/W2-04/spec.md` "Five API reads").
 
 `GET /api/sites/{code}/cold/overview`, `/cold/evidence`, `/cold/evidence/analysis`, `/cold/financials` and
 `/cold/financial-assumptions`, with optional paired strict UTC `from,to` (half-open, at most 31 days) and optional

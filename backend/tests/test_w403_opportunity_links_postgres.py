@@ -1,4 +1,4 @@
-"""W4-03 unit 5: the authored opportunity-scenario association (`.agent/W4-03-build-spec.md` closure 1 Q1-Q3,
+"""W4-03 unit 5: the authored opportunity-scenario association (`specs/W4-03/` closure 1 Q1-Q3,
 "Unit-5..12 rulings (u5)" unit 5 command paragraph): `POST /api/sites/{code}/opportunities/{id}/scenario-links`
 through the router with the injected W4-03 principal, over the persisted store.
 """

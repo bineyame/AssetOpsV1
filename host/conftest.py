@@ -23,6 +23,16 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 WORKSPACE_BASE_TEMP = REPOSITORY_ROOT / ".pytest-basetemp"
 
 
+def _heavy_slot_check():
+    """T1 (spec §5.3): tools/heavy_slot_check.py, loaded by path (tools/ is not a package)."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("heavy_slot_check", REPOSITORY_ROOT / "tools" / "heavy_slot_check.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def _is_writable(directory: Path) -> bool:
     try:
         directory.mkdir(parents=True, exist_ok=True)
@@ -35,6 +45,8 @@ def _is_writable(directory: Path) -> bool:
 
 
 def pytest_configure(config: pytest.Config) -> None:
+    # T1: a run with a database refuses to start outside the heavy-tool slot pool (xdist workers pass by ancestry).
+    if os.environ.get("ASSETOPS_TEST_DATABASE_URL"): _heavy_slot_check().require("pytest with Postgres", exit_with=pytest.exit)
     # PERF-01 R5: the field acceptance tests replay at 60x real time; they belong to the slow tier.
     config.addinivalue_line("markers", "slow: deliberate real-clock tests, the PERF-01 slow tier")
     if config.option.basetemp is not None:

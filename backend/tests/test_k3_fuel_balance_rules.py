@@ -1,4 +1,4 @@
-"""DIESEL-K3 L0 (`.agent/build-sheet-DIESEL-1.md` §9d.6 A1-A12): the `fuel-balance-1` rules, no database.
+"""DIESEL-K3 L0 (`specs/DIESEL-1/` §9d.6 A1-A12): the `fuel-balance-1` rules, no database.
 
 Each "must fail" names the mutation the test kills.
 """
@@ -21,7 +21,7 @@ from assetops_backend.fuel_balance.model import PARAMETER_VERSION, FuelBalanceRe
 from assetops_backend.work.fuel_records import FuelRecord
 
 ROOT = Path(__file__).resolve().parents[2]
-PROBE = json.loads((ROOT / ".agent" / "DIESEL-F0" / "probe-result.json").read_text(encoding="utf-8"))
+PROBE = json.loads((ROOT / "host" / "fixtures" / "diesel-f0" / "probe-result.json").read_text(encoding="utf-8"))
 PACKAGE = ROOT / "backend" / "assetops_backend" / "fuel_balance"
 
 TANK, GEN = "tank-1", "gen-1"

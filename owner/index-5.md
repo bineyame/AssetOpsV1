@@ -1,0 +1,41 @@
+# Owner feedback index, part 5 of 5 (2026-11-13 to 2026-11-18)
+
+One line per owner file (in `owner/`): date, file, topic, status (current / superseded / historical), note. The files are verbatim and never edited. Top index: `INDEX.md`.
+
+- 2026-11-13 `owner-push-and-ui-mockups-2026-11-13.md` Push branches; rebuild UP-1 on v7.2 · historical — done
+- 2026-11-13 `owner-walkthrough-4pm-2026-11-13.md` Walkthrough at 4pm; keep merging · historical — one-off schedule
+- 2026-11-13 `owner-walkthrough-in-6h-2026-11-13.md` Walkthrough in six hours · historical — one-off schedule
+- 2026-11-14 `owner-conversion-potential-request-2026-11-14.md` Four pillars value doc; page-load design · current — confirmed 19 Nov (summary Q1): not carried into the summary
+- 2026-11-14 `owner-decision-intelligence-request-2026-11-14.md` Decision intelligence mechanism document · current — confirmed 19 Nov (summary Q1): not carried into the summary; likely input to Layer 4
+- 2026-11-15 `owner-portfolio-composition-request-2026-11-15.md` Portfolio composition economic readiness review · current — confirmed 19 Nov (summary Q1): not carried into the summary; likely input to Layer 4
+- 2026-11-17 `owner-layer4-direction-feedback-2026-11-17.md` Layer 4 fundamental mechanics direction · current — open direction for Layer 4 design
+- 2026-11-18 `owner-build-pipeline-speedup-request-2026-11-18.md` Build pipeline and checks speed-up · historical — D-1 fix and PIPE-1 merged 2026-11-18
+- 2026-11-18 `owner-gtm-documents-request-2026-11-18.md` Website, conversion plan, commercial docs · current — open request; website at /opt/asseteconsite
+- 2026-11-18 `owner-product-transition-request-2026-11-18.md` Product transition and roadmap document · current — roadmap basis for Layer 4 and D11
+- 2026-11-18 `owner-repo-declutter-request-2026-11-18.md` Repo declutter; v70 + v72 style; D11 · current — declutter in progress
+- 2026-11-18 `owner-sitting1-answers-2026-11-18.md` Answers to open-question items 1-12 (D13, D14, TW23, OD-4, OD-6, TW11, TW7, C4; D1, D15 need context; TW3 after pack review) · current — sitting-1 answers in progress
+- 2026-11-18 `owner-d1-engagement-path-2026-11-18.md` D1 revised: call → alignment → deep-dive → integration pack + pilot → monitor → SaaS; file-export value early; pilot fee/credit · current — governs engagement path
+- 2026-11-19 `owner-design-regeneration-request-2026-11-19.md` Layer 4 design doc thoroughly checked and regenerated: current product is a solid core (users act on context, tracked; Findings are living outputs); Layer 4 adds boosters · current — governs the design regeneration
+- 2026-11-19 `owner-recreate-document-packs-2026-11-19.md` Recreate (not update) all document packs from the reviewed design rev 16.5 · current — governs the pack recreation
+- 2026-11-19 `owner-build-start-and-spec-handshake-2026-11-19.md` Review gate (paths to owner) before build; Architect gives implementer spec + reviewer guide; reviewer clarifies with Architect before coding; efficient execution; test-data/DB strategy round to come · current — governs build start
+- 2026-11-19 `owner-pack-questions-defaults-2026-11-19.md` Ten pack-recreation questions (sign-in, roles, finance backup, item owner, connections, crew threshold precedence, lender pack out, structure approval steps 1/3C, C2/C12/C13, C14/C15): all defaults · current
+- 2026-11-19 `owner-rules-clarification-2026-11-19.md` RULES: tests (regression/smoke/isolated, full suite at key milestones); 5490/Docker qualified (do not interfere with tests or owner validation); walkthrough on a clean, good DB; setup facts not range-bound (versioning later) · current
+- 2026-11-19 `owner-summary-confirmations-2026-11-19.md` Summary §11 answers: drop 18; commit walkthrough-notes edit; four outcome categories tie back (design + diagram, version of b); evidence classes; EMS upload/API first then edge gateway via Modbus (Modbus in emulation scope, BeagleBone test); connection profiles yes; D11 yes; Docker restart as needed; drop 5% rule; daily calculated snapshot with recalculation triggers; 10 Nov asks superseded · current
+- 2026-11-19 `owner-assure-per-brief-2026-11-19.md` Assure per brief L1.1 (A1-A5, no money of its own); collections split Optimize O3 / Grow; OD-19 reconciled with A4 · current
+- 2026-11-19 `owner-vertical-factor-map-2026-11-19.md` Vertical factor map: brief needle movers per vertical → registry factors → site/portfolio, with a check; CSV aligned; nothing retired before content moves · current
+- 2026-11-19 `owner-website-copy-pass-2026-11-19.md` Website copy pass: outcome-led, show not state differentiation, allocation and proof as hero, four categories, honesty in badges; rules and lint unchanged · current
+- 2026-11-19 `owner-decision-heading-rule-2026-11-19.md` Decision heading follows its Finding's factor (lever heading when no Finding); option effects per factor; Architect may push back or improve · current
+- 2026-11-19 `owner-freeze-and-build-sequence-2026-11-19.md` Freeze the pack after the fix round; new items to the decision queue; build sequence agreed · current — governs build start
+- 2026-11-19 `owner-data-and-build-strategy-2026-11-19.md` Data/DB strategy: scale later but foundation now; small contract-tested real-path slice; Postgres/Timescale per app needs; Q4 yes; data source configurable for speed · current — governs the data-and-build strategy
+- 2026-11-19 `owner-start-t1-2026-11-19.md` Start T1 (heavy-tool slot pool) now, during pack review, via spec handshake · current
+- 2026-11-19 `owner-uiux-guide-request-2026-11-19.md` Portfolio page judged unattractive, confusing, no progressive disclosure or intentional scalable use of space, not state of the art; Architect to write a UI/UX guide for state-of-the-art professional UI/UX · current — governs all screen work
+- 2026-11-19 `owner-playwright-and-t1-c-2026-11-19.md` Install Playwright (local headless browser for screenshot checks); T1 enforcement = C (in-tool tripwires) · current
+- 2026-11-19 `owner-produce-ui-from-guide-2026-11-19.md` Architect to produce the new UI per its UI/UX guide; owner gives views after seeing it (U1–U7 proceed on defaults pending that view) · current — governs the mock-up redesign
+- 2026-11-19 `owner-portfolio-polish-wave2-2026-11-19.md` Owner approved sending the coordinator's 8 Portfolio gaps vs top-tier SaaS (scannability, trends, leak chart, scale controls, clutter, tile visuals, nav, hero chart) to the Architect as wave-2 Portfolio polish · current
+- 2026-11-19 `owner-african-design-identity-2026-11-19.md` Add an African design identity to the UI, configurable (theme/brand pack) in case AssetEcon expands elsewhere · current — governs the visual system
+- 2026-11-19 `owner-portfolio-polish-wave2c-2026-11-19.md` Owner approved sending the coordinator's 7 post-wave-2b Portfolio gaps vs top-tier SaaS (trends, page length, queue consistency, gap chart, tile weight/density, lower-half grid, stronger East Africa identity) to the Architect as wave 2c · current
+- 2026-11-20 `owner-answers-uiux-datastrat-d7-2026-11-20.md` U9 adopt, U10 yes, U8 keep 6 groups, U7 yes; data strategy Q1–Q8 defaults except Q7 (recalc once a day + on demand, for now), Q2 switchable, Q3 combination on merit but speed now; D7 default · current
+- 2026-11-20 `owner-start-ds1-2026-11-20.md` Start data slice DS1 now (July–September history, U9) under the spec handshake, ahead of the pack/strategy review · current
+- 2026-11-20 `owner-decision-page-redesign-2026-11-20.md` Owner finds the Decide page confusing; approved sending the coordinator's 8-point Decision page redesign (question first, one primary choice, option cards, collapsed why, confirm dialog, status line, state-aware queue button) to the Architect · current
+- 2026-11-20 `owner-placeholder-gaps-routing-2026-11-20.md` Owner approved routing the placeholder-audit gaps: 1, 5, unknown-as-zero to the design Architect; 4 + wording + Site-tile wiring to the UI Architect after the Decision page; 2, 3 with DS1 · current
+- 2026-11-20 `owner-merge-wave2c-ds1-defaults-2026-11-20.md` Merge UI wave 2c to main; DS1 owner questions (D-DS1.6, Q1–Q5) on their defaults · current

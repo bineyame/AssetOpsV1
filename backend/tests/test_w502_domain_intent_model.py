@@ -1,6 +1,6 @@
 """W5-02a K1a: the pure domain Action model - closed bodies, fixed criteria, bounds, canonical digests, messages.
 
-`.agent/W5-02-build-spec.md` "Command/read wire", "Backend wire, validation and lineage (K1a-K1c)" and the
+`specs/W5-02/` "Command/read wire", "Backend wire, validation and lineage (K1a-K1c)" and the
 Architect pre-flight ruling A2. No database.
 """
 

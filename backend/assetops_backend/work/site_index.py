@@ -1,6 +1,6 @@
 """W4-01 commit 4: the Site Incident and Maintenance lists (`site-work-index-1`).
 
-`.agent/W4-01-build-spec.md` "API wire and refusals" (list body, cursor), Review closure B1/B2/B8/B9/B10/S15, closure 2
+`specs/W4-01/spec.md` "API wire and refusals" (list body, cursor), Review closure B1/B2/B8/B9/B10/S15, closure 2
 Q8/Q9/Q11, Run 5 rulings r1-r5, Run 6 rulings 1-2 and Run 7 rulings q7-1..q7-5 with the commit-4 dry-read.
 
 One read-only REPEATABLE READ snapshot (`PostgresWorkRead.snapshot`) at one fixed cutoff K selects **every**

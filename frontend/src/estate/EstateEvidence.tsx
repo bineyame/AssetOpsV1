@@ -1,6 +1,6 @@
 /**
  * W3-02 commit 2: the estate Evidence root (v6.9 `globalevidence`, `I-estate-evidence-root`) read from
- * `GET /api/estate/evidence` (`estate-evidence-1`). Copy and layout follow `.agent/W3-02-build-spec.md`: the mock
+ * `GET /api/estate/evidence` (`estate-evidence-1`). Copy and layout follow `specs/W3-02/`: the mock
  * ledger, "Refusals and UI states", closure 1 "Mock copy, navigation and measured layout", closure 2 Q27 (inert
  * example destinations and the Unlocks dictionary) and closure 5 S13 (the two panel titles). Every value is a
  * server field; the page scores nothing, builds no Site route and invents no Action. Mock numbers never render.

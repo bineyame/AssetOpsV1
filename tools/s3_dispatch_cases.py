@@ -4,7 +4,7 @@ Every public report travels the normal path - a registered KOBO-001 Lab run on
 `mini-grid` v3 published through `registered-kobo-publication` v3, the durable
 registered gateway, a sealed Batch V2 over direct TLS and central acceptance
 into Postgres - except the one labelled contradiction FAULT FIXTURE (decision
-default Q1 in `.agent/S3-01-questions-1.md`), which is a separate authenticated
+default Q1 in `archive/agent-history/S3-01-questions-1.md`), which is a separate authenticated
 Batch V2 under its own labelled epoch and never gateway output.
 
 Isolated like `tools/s2_demo_walkthrough.py` (whose `Demo` it reuses): a

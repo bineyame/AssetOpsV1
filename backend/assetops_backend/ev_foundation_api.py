@@ -1,4 +1,4 @@
-"""W2-05a selected EV Foundation read (`.agent/W2-05a-build-spec.md` "Role set, binding and selected read").
+"""W2-05a selected EV Foundation read (`specs/W2-05a/spec.md` "Role set, binding and selected read").
 
 `GET /api/sites/{site_code}/ev/foundation?at=<UTC>` - the effective Foundation revision and binding set at `at`
 (default: the existing current-selection rule) of an EV_CHARGING Site: feed and limit, chargers and connectors

@@ -1,4 +1,4 @@
-"""W2-06 commit 4: the selected EV session and Finding reads (`.agent/W2-06-build-spec.md` "Commit 4: selected
+"""W2-06 commit 4: the selected EV session and Finding reads (`specs/W2-06/` "Commit 4: selected
 reads and refusal dry-read" and "Run 5 rulings (r5)").
 
 `GET /api/sites/{code}/ev/sessions`, `/ev/sessions/{id}`, `/ev/findings` and `/ev/findings/{id}`. Lists take only

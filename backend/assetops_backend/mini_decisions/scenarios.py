@@ -1,6 +1,6 @@
 """W4-03 unit 2b: the authored mini-grid scenario commands and list read.
 
-`.agent/W4-03-build-spec.md`: "API, exact wire, ordering and errors"; closure 1 Q1-Q3 (actor, attestation, literal
+`specs/W4-03/spec.md`: "API, exact wire, ordering and errors"; closure 1 Q1-Q3 (actor, attestation, literal
 request/response shapes, canonical hash, retry), Q12-Q16 (one REPEATABLE READ snapshot, head at cutoff, list
 envelope, selection token, cursor); closure 2 Q1 (injected server principal); closure 4 S5, S9 (the W4-02 basis is
 read only through `MiniDepthRead.read_selected_renewable_basis`), S15 (optional creation-time bounds), S20

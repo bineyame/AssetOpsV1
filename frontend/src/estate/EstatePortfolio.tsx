@@ -1,6 +1,6 @@
 /*
  * PF-T (2026-11-11): Portfolio section tabs, layout `frontend/mockups/v71/portfolio-tabs.html`; proposal
- * `.agent/architect-proposal-portfolio-layout-2026-11-10.md` §6, §11.
+ * `archive/agent-history/architect-proposal-portfolio-layout-2026-11-10.md` §6, §11.
  * PF-T-1 (closed by SR-1): the Portfolio date bar is gone; the range is the shell's shared top-bar range
  *   (`shell/SharedRangeBar.tsx`, v71 Change 0b). The page keeps only the read's cutoff line under the title.
  * MOCK DEVIATION PF-T-2: the v71 coverage line above the tabs and the "Readings per site" table are card PF-C; the

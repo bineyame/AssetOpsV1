@@ -45,6 +45,8 @@ import { spawn } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir, cpus, totalmem, freemem, loadavg, release } from "node:os";
 import { join } from "node:path";
+import { assertHeavySlot } from "./heavy_slot_check.cjs";
+assertHeavySlot("browser capture"); // T1 (spec §5.4): a browser capture runs only inside the heavy-tool slot pool
 
 const args = process.argv.slice(2);
 const jsonAt = args.indexOf("--json");

@@ -642,7 +642,7 @@ function Get-OperatorRailFailures {
     }
 
     # The shell renders this inventory, and no destination outside it.
-    # W5-02c K4a (.agent/W5-02c-K4-preflight-rulings.md rulings 1-2): the call also passes the pathname-scoped
+    # W5-02c K4a (archive/agent-history/W5-02c-K4-preflight-rulings.md rulings 1-2): the call also passes the pathname-scoped
     # Actions selection, and nothing else may choose the active root.
     # SR-1 (proposal "Item 12.5", SR.3): the call also passes the shared range as the rail `search`, so the left menu
     # keeps the range; it is the shell's `railSearch` (from `rangeSearch`), never a page-only parameter.

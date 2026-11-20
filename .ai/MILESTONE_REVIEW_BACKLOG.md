@@ -25,10 +25,10 @@ Expiry: delete when the milestone review has closed it out.
 
 ### V-01b carries (2026-10-13)
 
-- Registry closeout review (`.agent/V-01b-closeout-review.md`, ACCEPT, `b680990`): evidence:2 caveat omits "outage/pressure health" (covered by `evidence:2#b`); V-01b gate note lists no carries (Q8 drawing, Stage contract only via the decision ID); `visual_acceptance.condition` on no-gap panels lab:1, lab:3, evidence-analysis:1 says "conditional on the named data gaps" (wording only).
-- Fix-4 re-review (`.agent/V-01b-fix4-rereview.md`, ACCEPT, `b8bc4ce`): C2 evidence-tool summary mixes units ("not run" counts groups, not claims); C3 the not-committed Lab state is unmeasured on a fresh store (last measured at c1, before fix 3) - a fixture creating a READY draft would close it; C4 the Stage absence claim on `[data-gateway-upload]`/`[data-gateway-receipts]` cannot fail today and its name overclaims. (C1 packet line fixed by coordinator.)
+- Registry closeout review (`archive/agent-history/V-01b-closeout-review.md`, ACCEPT, `b680990`): evidence:2 caveat omits "outage/pressure health" (covered by `evidence:2#b`); V-01b gate note lists no carries (Q8 drawing, Stage contract only via the decision ID); `visual_acceptance.condition` on no-gap panels lab:1, lab:3, evidence-analysis:1 says "conditional on the named data gaps" (wording only).
+- Fix-4 re-review (`archive/agent-history/V-01b-fix4-rereview.md`, ACCEPT, `b8bc4ce`): C2 evidence-tool summary mixes units ("not run" counts groups, not claims); C3 the not-committed Lab state is unmeasured on a fresh store (last measured at c1, before fix 3) - a fixture creating a READY draft would close it; C4 the Stage absence claim on `[data-gateway-upload]`/`[data-gateway-receipts]` cannot fail today and its name overclaims. (C1 packet line fixed by coordinator.)
 - Fix-3 re-review F2 docstring fixed in `efde403`. Q1 backend retirement of Stage upload/receipt fields and Q8 historical drawing remain open (Architect: later backend / Lab history slices; G-03 catalogues the visible gaps).
-- D1 (fix-round-2 re-review `.agent/V-01b-fix2-rereview.md`): `frontend/src/shell/RunIngestionOverview.tsx:248` - with receipts present and the execution read still loading, the strip briefly shows "Execution loading" beside "...the run's execution could not be read...". Pass `execution` into `receivedStatement`, return a loading sentence when null, add a never-resolving test. FIXED in af67dc8 (fix round 3).
+- D1 (fix-round-2 re-review `archive/agent-history/V-01b-fix2-rereview.md`): `frontend/src/shell/RunIngestionOverview.tsx:248` - with receipts present and the execution read still loading, the strip briefly shows "Execution loading" beside "...the run's execution could not be read...". Pass `execution` into `receivedStatement`, return a loading sentence when null, add a never-resolving test. FIXED in af67dc8 (fix round 3).
 - Review routing record: first review RETURN (`V-01b-review.md`), fix re-review RETURN (`V-01b-fix-rereview.md`), owner chose a second fix round (`owner-V-01b-second-return-2026-10-13.md`), fix-2 re-review ACCEPT (`V-01b-fix2-rereview.md`, `55e1cfa`). The fix-2 reviewer disclosed one mistaken run of layout-evidence at 5173 (nothing listening; gate refuses before any create).
 - Q1 (Architect): Lab Stage read for a registered run always says "Upload pending: no batch has been sent and no receipt exists" (stale S2-01b constant `contracts/assetops_contracts/gateway_stage.py:59-61`, used `backend/assetops_backend/simulator_lab_api.py:1827`) while the Commit read shows central receipts. V-01b only labels it under Advanced details; a backend slice should derive or drop `upload_state`.
 - `.action` cascade: a later generic `.action` block in `frontend/src/ui/primitives.css` overrides `.action--primary` at equal specificity. V-01b fixed only `.evidence-toolbar`; other primary buttons (CreateSiteFrame, RunSetupFrame "Create draft run", SimulatorLabFrame, SitesFrame) probably render secondary.
@@ -46,9 +46,9 @@ Expiry: delete when the milestone review has closed it out.
 
 Q37: the same-account pilot's `ISSUE_OUTCOME_UNKNOWN` halt is an operator instruction, not a durable lock; a local marker alone could be stale. R3: a failure provably before any issuance transaction currently produces the conservative unknown outcome and keeps an unissued protected file. These are safe for the supervised, single-operator S2 demo because they cannot silently expose or discard a committed secret. A bounded S2-02r follow-up should add explicit reconcile/status or durable operation tracking and distinguish never-started from ambiguous COMMIT before unattended/multi-operator rotation. Q38 is **not** accepted as a carry: its unlocked no-selector read can race late COMMIT, so S2-02r must use the gateway row lock and old-credential survival check required by `D-2026-10-09-s2-rotation-reconciliation-followup` before any non-demo/real-pilot rotation. S3-01 does not consume credential rotation.
 
-Q39/Q40 are accepted operational limits: schema-v3 comparison closes an old server until compatible restart, and a moved store root needs a new report. Neither merits a product task. See `.agent/architect-pre-S3-answers.md` for the rulings and recovery gate.
+Q39/Q40 are accepted operational limits: schema-v3 comparison closes an old server until compatible restart, and a moved store root needs a new report. Neither merits a product task. See `archive/agent-history/architect-pre-S3-answers.md` for the rulings and recovery gate.
 
-### S2-02 Architect batch-4 bounded carries (2026-10-09, `.agent/architect-batch-answers-4.md`)
+### S2-02 Architect batch-4 bounded carries (2026-10-09, `archive/agent-history/architect-batch-answers-4.md`)
 
 - The pilot gateway and provisioning CLI run under the same OS account; runtime Windows DACL verification refuses an inherited/broad file. This is safe for the isolated demo and protects the actual reader. Before a real pilot with a distinct gateway service account, provision and test an ACL granting only that account plus the authorized operator, and replace local OS-user audit context with authenticated operator identity.
 - Evidence shows a conflict at the conflicting envelope's source time; the original accepted reading's source time is retained as lineage but not yet displayed beside it. The rejection route remains inspectable, so no record is misplaced. Add a labelled original-time link when a reviewed owner path needs to compare the two times. **Closed by V-01b (2026-10-13):** Evidence › readings not accepted shows an "Original reading" column ("Original reading taken <time>", linked to the original record), proven by `v01bEvidenceVisual.test.tsx`; the walkthrough copy has 0 refused readings.
@@ -62,32 +62,32 @@ S2-01a correctly leaves a registered `mini-grid` v3 Draft blocked because the im
 
 S2-02 demo setup must publish a new-effective, provenance-labelled Foundation revision for the generator properties before using a registered generator scenario, and supply scenario-owned initial fuel and generator state. If that demo uses profile 5 or asserts capability, first declare and bind the two capability channels under a new compatible role-set version; otherwise keep their absence explicit and close this part before S3-01 candidate dispatch from registered evidence. Neither step may rewrite the old import or invent observations. See `D-2026-10-08-s2-registered-kobo-demo-configuration`.
 
-### S2-01b Codex review carries (2026-10-09, `.agent/S2-01b-codex-review.md`)
+### S2-01b Codex review carries (2026-10-09, `archive/agent-history/S2-01b-codex-review.md`)
 
 - F2: `frontend/src/shell/RunCommitPanel.tsx` `releaseBasisBlock(null)` returns null, so a committed pre-import artifact briefly shows enabled Resume/Retry release before Stage loads (and keeps it if Stage fails). Server refuses; presentation gap. Keep release controls unavailable while the basis is unknown; next Lab UI correction.
 - F3: 640 px page overflow (scrollWidth 780 vs 625, from `.app-frame`, also on a READY draft without the ledger; not baselined against S2-01a) and the full layout run stopping at 215 PASS on polluted `var/runs` state remain unverified. Run against a clean runs store and baseline the overflow at the next layout closeout. **Closed by V-01b (2026-10-13):** the Lab shell (`app-frame--lab`) now has the <640px layout; full layout run with KOBO-001 measures the Lab pages at 640 and 390 px without page overflow (398 PASS / 5 FAIL, all named preconditions).
 
-### S2-01c first review carries (2026-10-09, `.agent/S2-01c-review.md`, fresh Claude; Architect ruling `.agent/architect-S2-01c-answers-4.md`) — S2 milestone checkpoint
+### S2-01c first review carries (2026-10-09, `archive/agent-history/S2-01c-review.md`, fresh Claude; Architect ruling `archive/agent-history/architect-S2-01c-answers-4.md`) — S2 milestone checkpoint
 
 - C2: the link-loss test does not assert stored diagnostics are byte-identical across a real reconnect (AC5); proven only at service level. Add the integration assertion. **Closed in S2-02 phase 3c (`30b8cd5`).**
-- N1 (fix re-review `.agent/S2-01c-fix-rereview.md`): `gateway/tests/test_gateway_process.py:202` no longer asserts the specific refusal kind for a body without `at_instant`; assert it. **Closed in S2-02 phase 3c (`9c7ea0d`).**
+- N1 (fix re-review `archive/agent-history/S2-01c-fix-rereview.md`): `gateway/tests/test_gateway_process.py:202` no longer asserts the specific refusal kind for a body without `at_instant`; assert it. **Closed in S2-02 phase 3c (`9c7ea0d`).**
 - N2: 640 px width of the new HELD and SCHEDULE_MISSING texts is unmeasured; fold into C3's seeded full layout run.
-- N3 (fix-2 re-review `.agent/S2-01c-fix2-rereview.md`): `frontend/src/shell/GatewayPublicationPanels.tsx:60` PUBLICATION_GAP text says "the world's last boundary"; it also fires mid-run. Reword to "before the boundary the world reached". **Closed in S2-02 phase 3c (`9c7ea0d`).**
+- N3 (fix-2 re-review `archive/agent-history/S2-01c-fix2-rereview.md`): `frontend/src/shell/GatewayPublicationPanels.tsx:60` PUBLICATION_GAP text says "the world's last boundary"; it also fires mid-run. Reword to "before the boundary the world reached". **Closed in S2-02 phase 3c (`9c7ea0d`).**
 - S2-02 must take ordinary-publication completeness from the schedule state, not from Stage STAGED (STAGED speaks only of admitted reports).
 - C3: the full `tools/layout-evidence.mjs` run on an isolated store reached 222 PASS / 6 FAIL then the renderer stopped responding; the failures need scenario fixtures (optional inputs, declared reporting gap) the isolated store lacked. Re-run on a fully fixtured store; the full layout gate is unverified. S2-02 phase 3c measured its own surfaces (`.agent/S2-02-layout-evidence.txt`) but did not run the full seeded gate; still open.
 
-### S2-02 phase-2 bounded carries (2026-10-09, `.agent/S2-02-phase-2-handoff.md`) — S2 checkpoint / first real-pilot gate
+### S2-02 phase-2 bounded carries (2026-10-09, `archive/agent-history/S2-02-phase-2-handoff.md`) — S2 checkpoint / first real-pilot gate
 
 - A sealed Batch V2 shared between two Lab runs is not released by either run's single-run Commit and blocks `fully_released`; this fails closed and the single-run Kobo owner path is unaffected. Phase 3 must display `shared_batch_ids` and partial status. Before any multi-run complete-release claim, define explicit joint batch authority or deterministic run-isolated sealing and test it; do not silently assign the batch to one run.
 - The checked-in TLS private key under `gateway/tests/fixtures/` is a test-only fixture. Phase 3 owner instructions must generate separate local TLS material and never point a demo or deployed gateway at the test key; replace the static fixture with ephemeral test issuance before a real pilot if the test environment can support it.
 - The demo-only provisioning CLI records the local OS user as actor context, not a verified tenant operator. Label it that way in audit/readback and require authenticated operator identity and authorization before multi-tenant or real-pilot provisioning. The CLI remains limited to the configured development tenant in S2-02.
 
-### S2-01b fix re-review carries (2026-10-09, `.agent/S2-01b-fix-rereview.md`, fresh Claude reviewer)
+### S2-01b fix re-review carries (2026-10-09, `archive/agent-history/S2-01b-fix-rereview.md`, fresh Claude reviewer)
 
 - R1 (low): the `seal_refusal` row is keyed, deleted and looked up without outbox state (`gateway/assetops_gateway/service.py` ~661-680, ~910-920; `ledger.py` ~154); a refused READY group can have its refusal erased when the same source/epoch/snapshot STAGED group seals, so Stage says pending instead of refused. Fails safe; unreachable from valid input. Add state to the key, delete and lookup when S2-01c touches sealing/faults.
 - Layout: add a narrow-width check of the new "Sealing refused" table to the F3 layout carry.
 
-### S2-01a Codex review carries (2026-10-08, `.agent/S2-01a-codex-review.md`)
+### S2-01a Codex review carries (2026-10-08, `archive/agent-history/S2-01a-codex-review.md`)
 
 - F1: `frontend/src/shell/RunCommitPanel.tsx` applies the registered/imported Commit block only to `NOT_COMMITTED`; a pre-import YAML run committed before its Site was imported, with an unfinished release, still offers Resume/Retry release, which the server always refuses (409). No write escapes. Apply the basis block to the committed branch and test that historical case; fold into the next Lab-touching slice (S2-01b).
 - F3: the full `tools/layout-evidence.mjs` run stalled after 132 PASS / 0 FAIL (browser stopped responding; ~270 local runs suspected); the later run, cockpit and site sections were not measured on S2-01a. Re-run (or diagnose the stall) at the next layout closeout.
@@ -1586,7 +1586,7 @@ connection labels only. Checked at the owner's hands-on review.
 Found at the owner's hands-on check, 2026-09-30: T025d was accepted as
 functionally OK, but the page is poorly organised and flickers during
 playback. Routed to T025e (frontend only), guidance
-`.agent/T025e-architect-guidance.md`; not a T025d defect.
+`archive/agent-history/T025e-architect-guidance.md`; not a T025d defect.
 
 Trigger: before playback is shown externally at T028/T029, or when T026 next
 changes the run screen's refresh path, whichever comes first.
@@ -1594,7 +1594,7 @@ changes the run screen's refresh path, whichever comes first.
 ## Carried from T025e: five findings from the first review, two from the R1 re-review
 
 Claude discovery review, 2026-09-30, verdict REJECT on finding 1
-(`.agent/T025e-claude-review.md`); findings 1, 2, 4 and 5 were fixed in fix
+(`archive/agent-history/T025e-claude-review.md`); findings 1, 2, 4 and 5 were fixed in fix
 round R1. These five are carried under
 `D-2026-09-22-milestone-speed-over-purity`: each is local, reversible and
 cannot mislead an Implementer. Line anchors are as of the review commit.
@@ -1666,7 +1666,7 @@ cannot mislead an Implementer. Line anchors are as of the review commit.
 ## Carried from T025f: three findings, one decision wording, two residual risks
 
 Claude discovery review, fresh reviewer under the temporary binding, verdict
-ACCEPT WITH CARRIES (`.agent/T025f-claude-review.md`, commit `24f53f2`). Every
+ACCEPT WITH CARRIES (`archive/agent-history/T025f-claude-review.md`, commit `24f53f2`). Every
 finding is carried under `D-2026-09-22-milestone-speed-over-purity`: each is
 local, reversible and cannot mislead an Implementer. Line anchors are as of the
 review commit.
@@ -1707,7 +1707,7 @@ review commit.
 ## Carried from T025g: four findings, two residual risks
 
 Claude discovery review, verdict ACCEPT WITH CARRIES
-(`.agent/T025g-claude-review.md`, commit `3c37d60`). F1 and F5 were fixed in
+(`archive/agent-history/T025g-claude-review.md`, commit `3c37d60`). F1 and F5 were fixed in
 fix round R1 and are not carried. The rest are carried under
 `D-2026-09-22-milestone-speed-over-purity`. Line anchors are as of the review.
 
@@ -1764,7 +1764,7 @@ Recorded 2026-10-02 by the T026 Implementer after owner ruling on C1.
 
 ## Carried from T027 phase 1: three items
 
-Recorded by the T027 phase 1 fix round (review `.agent/T027-phase-1-claude-review.md`).
+Recorded by the T027 phase 1 fix round (review `archive/agent-history/T027-phase-1-claude-review.md`).
 
 - **N2: resuming a release needs the live stage, and the refusal misdescribes
   it.** `simulator_lab_api.py` (the commit POST) reads the stage even when the
@@ -1795,7 +1795,7 @@ Recorded by the T027 phase 1 fix round (review `.agent/T027-phase-1-claude-revie
 
 ## Carried from T027 phase 2: three items
 
-Recorded by the T027 phase 2 fix round (review `.agent/T027-phase-2-claude-review.md`).
+Recorded by the T027 phase 2 fix round (review `archive/agent-history/T027-phase-2-claude-review.md`).
 
 - **Generator running time is whole-interval.** `evidence/overview.py`
   (`_dispatch`) counts a measured interval as running whenever its mean output is
@@ -1812,7 +1812,7 @@ Recorded by the T027 phase 2 fix round (review `.agent/T027-phase-2-claude-revie
   "no causal runtime exists" have been false since T022. T027 extends it: the
   Runs list shows every run with its execution columns, and a committed run's
   envelopes are accepted evidence, so the "no accepted evidence" clause is
-  T027's own (corrected per `.agent/T027-phase-2-claude-rereview.md`). Safe to
+  T027's own (corrected per `archive/agent-history/T027-phase-2-claude-rereview.md`). Safe to
   carry under `D-2026-09-22-milestone-speed-over-purity`: Lab-only, gated off by
   default, outside the operator Overview. Fix in a fast-lane wording pass: say
   what a draft is without stating that nothing has run or been accepted.
@@ -1828,7 +1828,7 @@ Recorded by the T027 phase 2 fix round (review `.agent/T027-phase-2-claude-revie
 
 ## Carried from T028 Codex review: one item
 
-Recorded by the coordinator from `.agent/T028-codex-review.md` (C1).
+Recorded by the coordinator from `archive/agent-history/T028-codex-review.md` (C1).
 
 - **Unknown Finding types lose the backend display name.**
   `frontend/src/sites/FindingDetail.tsx` and `FindingsIndexes.tsx` call
@@ -1847,12 +1847,12 @@ Recorded by the coordinator from `.agent/T028-codex-review.md` (C1).
   the interim rule has no coverage row for optional inputs. The conflict is
   still named in the assessment's missing evidence. Safe to carry: needs two
   gateways disagreeing on policy, which no shipped recipe produces. Fix with
-  T028A's gap impact types (`.agent/T028-fix-round-1-claude-rereview.md`).
+  T028A's gap impact types (`archive/agent-history/T028-fix-round-1-claude-rereview.md`).
 
 ## For T029: practitioner-first presentation direction
 
 From `D-2026-10-04-practitioner-first-finding-presentation`
-(`.agent/T028-architect-audience.md`): the Planner carries the audience
+(`archive/agent-history/T028-architect-audience.md`): the Planner carries the audience
 direction into T029 before it starts. The prospect's journey begins on a
 seeded, populated site with the Lab off, not Draft creation, Commit setup or
 API inspection; the bounded fuel and maintenance consequence is added to the
@@ -1861,7 +1861,7 @@ associated candidate cost distinct from realised savings.
 
 ## Carried from T028 presentation review
 
-From `.agent/T028-presentation-claude-review.md` (Claude). Safe to carry under
+From `archive/agent-history/T028-presentation-claude-review.md` (Claude). Safe to carry under
 `D-2026-09-22-milestone-speed-over-purity`: none changes a classification,
 number or claim strength.
 
@@ -1893,7 +1893,7 @@ meanwhile. Lab surfaces are excluded.
 ## Planned follow-up: T028A, configurable analytic evidence-gap impact
 
 Assigned by the Codex Architect under `D-2026-10-04-analytic-readiness-scope-and-gap-impact`
-(record `.agent/T028-architect-readiness-decisions.md` section 2) at the owner's
+(record `archive/agent-history/T028-architect-readiness-decisions.md` section 2) at the owner's
 request (2026-10-04: defer the gap rule, make it configurable through a "gap
 impact type"). Plan after T029's point-2 feedback; unscheduled; gates nothing
 on the demo spine. Scope: a versioned backend setting per analytic evidence
@@ -1937,7 +1937,7 @@ the Lab becoming client-facing beyond the closing proof.
 Recorded 2026-10-01 by the Planner (Claude under
 `D-2026-09-30-planner-claude-until-reset`), from
 `D-2026-10-01-run-binds-scenario-to-site` and the Architect advisory
-`.agent/scenario-site-targeting-architect.md` section 3.
+`archive/agent-history/scenario-site-targeting-architect.md` section 3.
 
 The scenario store holds exactly one document per `scenario_id` (the port has
 only `list_scenarios` and `get_scenario(id)`; a duplicate id raises
@@ -1989,7 +1989,7 @@ The carried review findings above are unchanged.
 - The unassigned delivery requirements are in the feature map's Next Work And
   Unowned Requirements table. They are planned capability, not review debt.
 
-### S2-02 first review carries (2026-10-09, `.agent/S2-02-review.md`, fresh Claude)
+### S2-02 first review carries (2026-10-09, `archive/agent-history/S2-02-review.md`, fresh Claude)
 
 - F3 (low): Overview headline says "No readings were received for this period" while readings wait at the gateway; qualify it when the gateway reports a queue or contact is STALE/UNKNOWN.
 - Gateway health uses the most recently *received* diagnostic; a late backlogged diagnostic can show stale queue/pressure/offset figures beside CURRENT.
@@ -1997,27 +1997,27 @@ The carried review findings above are unchanged.
 - Chunked oversized upload (no Content-Length) is read fully into memory before 413 (authenticated callers only).
 - `PUBLICATION_REFUSED` blocker comes from in-memory session notes and is lost on host restart (gap blockers survive).
 
-### S2 Codex review carries (2026-10-09, `.agent/S2-codex-review.md`; S2-01c and S2-02 both accept with carries)
+### S2 Codex review carries (2026-10-09, `archive/agent-history/S2-codex-review.md`; S2-01c and S2-02 both accept with carries)
 
 - N3 follow-up: `frontend/src/shell/RegisteredDeliveryView.tsx:46` Commit copy still says ordinary publication stopped before the world's *last* boundary; align with "the boundary the world reached".
 - Diagnostic emission failures in the gateway ticker (`gateway/assetops_gateway/ipc.py`) are swallowed and surface only as STALE; expose the last emission error with the next gateway-operations work.
 - Before S7 health uses diagnostic facts, separate contact freshness from the age of the reported facts (backlogged diagnostic beside CURRENT).
 - Other S2-02 carries confirmed as recorded above (NO_DATA wording, Evidence read scale, chunked body limit, non-gap refusal note on restart, Q37/Q38, owner proof limits, fault-fixture sibling never S3 input).
 
-### PRE-S3-03 review carries (2026-10-11, `.agent/PRE-S3-03-review.md`, fresh Claude)
+### PRE-S3-03 review carries (2026-10-11, `archive/agent-history/PRE-S3-03-review.md`, fresh Claude)
 
-- C1: the 14 `reviewed_mapping:true` rows still say "independent review pending"; cite `.agent/PRE-S3-03-review.md` at the next registry edit.
+- C1: the 14 `reviewed_mapping:true` rows still say "independent review pending"; cite `archive/agent-history/PRE-S3-03-review.md` at the next registry edit.
 - C2: delivered portions depending on S1-02, S1-03, S2-01a, S2-01b cite only implementer packets; add the independent verdict files.
 - C3: registry text contradictions: `lab:3#a` boundary still says "awaits S2-02"; capability/claim-lineage IDs listed as superseded on `evidence:1#a` / `evidence-analysis:2#a` but live proposed gates on their `#b` portions.
 - C4: stale Readiness text ("awaiting credentials, not sending data") at `StoredFoundationViews.tsx:433-436`, `foundation_api.py:295-298`, `FoundationRevisionPanel.tsx:323-324` - user-visible since S2-02; needs an owning slice (PRE-S3-03 Q8, Architect).
 - C5: the checker never reads `delivery_plan.enables`; fail closed or implement before anyone fills it.
 
-### PRE-S3-04 review carries (2026-10-11, `.agent/PRE-S3-04-review.md`, fresh Claude)
+### PRE-S3-04 review carries (2026-10-11, `archive/agent-history/PRE-S3-04-review.md`, fresh Claude)
 
 - C2: `frontend/src/.../SiteOverview.tsx:241` "No window: no evidence has been accepted for this site." is stale since S2-02; fold into a later truthfulness sweep (S5-01 Overview work).
 - `backend/tests/test_s2_site_evidence_postgres.py:51` uses `RECEIVED` at module level but imports it only when `ASSETOPS_TEST_DATABASE_URL` is set, so a run without Postgres fails at collection instead of skipping (present on main since S2-02). Guard the module-level constants with `if URL:`.
 
-### W1 mapping review carries (2026-10-11, `.agent/W1-mapping-review.md`, fresh Claude)
+### W1 mapping review carries (2026-10-11, `archive/agent-history/W1-mapping-review.md`, fresh Claude)
 
 - C1 (Architect question): S4-03 bundles Finding Evidence/History with the Site Finding index, so those panels (and `mini:1/2/4` via S5-01) wait on undecided `A-finding-index`; accept or split.
 - C2: `mini:3#a` labelled "bounded" but is the empty/Unknown variant (Q3).
@@ -2027,9 +2027,9 @@ The carried review findings above are unchanged.
 - C6 (Architect question): S6 panels disagree on needing the S4-01 Finding closeout.
 - C7: S3-02 reviewer must verify reusing `I-sim-dispatch-cases` for the coverage fixture.
 - PRE-S3-04 fix re-review carry: `SiteConfiguration.tsx:802` devices caption says "none has reported" then that nothing states whether any device is reporting (contradictory, pre-existing); fold into the truthfulness sweep with `SiteOverview.tsx:241`.
-- C8 (`.agent/W1-mapping-fix-rereview.md`): `finding:2#a` and `recommendation:3#a` boundary labels still say "CAP" without a capability node; reword in the C3 placeholder pass (positive capability limit would be a separate portion if the Architect wants it).
+- C8 (`archive/agent-history/W1-mapping-fix-rereview.md`): `finding:2#a` and `recommendation:3#a` boundary labels still say "CAP" without a capability node; reword in the C3 placeholder pass (positive capability limit would be a separate portion if the Architect wants it).
 
-### Graph-pass review carries (2026-10-11, `.agent/graph-pass-review.md`, fresh Claude; fix at the next Planner touch)
+### Graph-pass review carries (2026-10-11, `archive/agent-history/graph-pass-review.md`, fresh Claude; fix at the next Planner touch)
 
 - G1: `v69-panel-contracts.json` still names old owners for moved panels (sitework:1 S6-01, mini:3 S5-01, sitefindings:1, finding-evidence:1-2, finding-history:1 lanes, recommendation:2 S6-01).
 - G2: templated acceptance-target text cites wrong fixtures (mini:1/2 `D-financial-basis`; recommendation:2/3 `D-action-records`); sitework:1 boundary omits the Site index.
@@ -2038,7 +2038,7 @@ The carried review findings above are unchanged.
 - G5: `I-sim-dispatch-cases` and `I-sim-verification-cases` lack acceptance targets in the registry (fix before activating the first selection's refinement).
 - Residual: S3-01 sized S may undercount Performance cutover + legacy-exception review; sitework:1 has one claim portion, so the S6-03 reviewer checks empty and positive states.
 
-### S3-01 phase 1 review carries (2026-10-11, `.agent/S3-01-phase-1-review.md`, fresh Claude)
+### S3-01 phase 1 review carries (2026-10-11, `archive/agent-history/S3-01-phase-1-review.md`, fresh Claude)
 
 - F3 (phase 2): the "late" case is late only in publication time; central receives it in one delivery in source order, so it cannot prove "late accepted record yields a new revision". Phase 2 must produce real late arrival (or per Architect Q5). Scenario header comment is wrong.
 - F4 (phase 3, needs Q1 ruling): the fault-fixture label lives only in the epoch name/manifest; central evidence has no fixture marker, so a phase-3 Evidence drill-down would show it as ordinary gateway evidence.
@@ -2046,59 +2046,59 @@ The carried review findings above are unchanged.
 - F6 (info): Foundation-UI binding edits now record roles-2 (accepted; invisible version change risk).
 - Residual: each producer `run` recreates `assetops_s3cases`, so committed manifest IDs stop existing after the next run.
 
-### S3-01 phase 2 review carries (2026-10-11, `.agent/S3-01-phase-2-review.md`, fresh Claude)
+### S3-01 phase 2 review carries (2026-10-11, `archive/agent-history/S3-01-phase-2-review.md`, fresh Claude)
 
 - F3 (phase 3; conflicts with `D-2026-10-11-s3-phase-2-selection-and-read`): `cohort.py` blends a non-overlapping fixture epoch sharing a window into the default cohort (reproduced producing Candidate); fixture isolation must be enforced in code, not by producer placement.
 - F4 (before cutover): backdated configuration and model-version changes are only picked up by a manual `reconcile`; a stale assessment would read CURRENT under the derived phase-3 read. Needs an automatic trigger or a staleness check in the read.
 - F5 (phase 3): no assessed interval in the fixture is NECESSARY (the check looks only at segments); the phase-3 reviewer path needs a Necessary interval.
 - F6 (low): an expired lease is re-leased with no attempts cap; a job that always outlives its lease never reaches FAILED.
-- S3-01 phase 2 fix re-review carry (`.agent/S3-01-phase-2-fix-rereview.md`): the contradiction fixture picks its template SOC envelope by batch walk order, so its value varies between runs; pick by minimum `(source_time, sequence)` and state in the manifest that evidence IDs are per-run (replayable by procedure + seed + verify, not byte-for-byte). The cause of the differing Lab SOC value between runs is not established; investigate in phase 3.
+- S3-01 phase 2 fix re-review carry (`archive/agent-history/S3-01-phase-2-fix-rereview.md`): the contradiction fixture picks its template SOC envelope by batch walk order, so its value varies between runs; pick by minimum `(source_time, sequence)` and state in the manifest that evidence IDs are per-run (replayable by procedure + seed + verify, not byte-for-byte). The cause of the differing Lab SOC value between runs is not established; investigate in phase 3.
 
-### S3-01 phase 3a + dispatch-3.1 review carries (2026-10-11, `.agent/S3-01-phase-3a-review.md`, fresh Claude) — fold R2/R3 into phase 3b's cutover-summary work
+### S3-01 phase 3a + dispatch-3.1 review carries (2026-10-11, `archive/agent-history/S3-01-phase-3a-review.md`, fresh Claude) — fold R2/R3 into phase 3b's cutover-summary work
 
 - R2: the gate does not check a PASSED report against the current selection; after a reassessment it would stay open on a stale classification (no live effect for KOBO-001's empty legacy set).
 - R3: unreadable report file or file-backed legacy baseline gives 500, not 503, on the cutover/window routes.
 - R4: migration 0008 does not backfill selections for runs written under 0007 (theoretical; no DB sits at 0007).
 - R5: the producer's first-run timeout looks like harness load, not a product defect (deliver_all stops after one pass; VERIFY fails safe); failed-run log not kept.
-- R1 re-review carries (`.agent/S3-01-R1-rereview.md`): C1 add a direct comparison-classification recovery test (coverage is indirect via `window_jobs`); C2 (low) FAILED-job supersession is overlap-based, so a partial-window selection clears the whole job (likely moot with daily windows).
-- S3-01 phase 3b review carries (`.agent/S3-01-phase-3b-review.md`): C3 the R2 recheck re-reads every selected interval once per classified revision on each gated read (performance); C4 the cutover route reads the comparison report twice, so the summary shown can differ from the one that opened the gate.
-- S3-01 3b fix re-review carries (`.agent/S3-01-phase-3b-fix-rereview.md`): N1 an unassessed day still says "0 accepted records behind this day's result" and "No limitation is recorded" (guide says it shows no zero); N2 demonstration notes are quoted verbatim with technical terms ("battery SOC", "Batch V2") — add a one-line plain explanation later.
+- R1 re-review carries (`archive/agent-history/S3-01-R1-rereview.md`): C1 add a direct comparison-classification recovery test (coverage is indirect via `window_jobs`); C2 (low) FAILED-job supersession is overlap-based, so a partial-window selection clears the whole job (likely moot with daily windows).
+- S3-01 phase 3b review carries (`archive/agent-history/S3-01-phase-3b-review.md`): C3 the R2 recheck re-reads every selected interval once per classified revision on each gated read (performance); C4 the cutover route reads the comparison report twice, so the summary shown can differ from the one that opened the gate.
+- S3-01 3b fix re-review carries (`archive/agent-history/S3-01-phase-3b-fix-rereview.md`): N1 an unassessed day still says "0 accepted records behind this day's result" and "No limitation is recorded" (guide says it shows no zero); N2 demonstration notes are quoted verbatim with technical terms ("battery SOC", "Batch V2") — add a one-line plain explanation later.
 
-### A-finding-episode review carries (2026-10-12, `.agent/A-finding-episode-review.md`)
+### A-finding-episode review carries (2026-10-12, `archive/agent-history/A-finding-episode-review.md`)
 
 - S3-01u (assessed-day discovery, paged evidence) exists only in the decision/answers; the Planner must create its task file and registry node.
 - S4-01 refinement: its multi-revision fixture must cover a model-upgrade revision explicitly; record the optional bridge/merge case as tested or explicitly deferred.
 
-### S4-01 phase 1 review carries (2026-10-12, `.agent/S4-01-phase-1-review.md`, fresh Claude)
+### S4-01 phase 1 review carries (2026-10-12, `archive/agent-history/S4-01-phase-1-review.md`, fresh Claude)
 
 - C2 (Q1): idempotency skips a basis matching any earlier revision, not just the latest, so an A->B->A reselection leaves the Finding showing B.
 - C3: a closed (NO_LONGER_SUPPORTED) Finding silently reopens as UNCONFIRMED/SUPPORTED (confirmed by probe) — check against the decision in the fix round; Architect question if not covered.
 - C5 (Q8): fixture publishes minimum runtime with source TEMPLATE; SITE would be honest.
 - C6: on merge the matcher prefers an episode whose anchor is inside the cluster over the earlier anchor the decision names.
 
-### S4-01 phase 1 fix re-review carries (2026-10-12, `.agent/S4-01-phase-1-fix-rereview.md`) — fold into S4-01 phases 2/3
+### S4-01 phase 1 fix re-review carries (2026-10-12, `archive/agent-history/S4-01-phase-1-fix-rereview.md`) — fold into S4-01 phases 2/3
 
 - R1 (before owner walkthrough): the gateway F01 case runs on 10-02 template runtime; use a positive multiple-of-5-minute setup control (Q15 alternative) or label the 10-02 Finding as the gateway path on template runtime.
 - R2: the gateway case should assert the opened Finding's cited evidence all comes from the gateway-sealed batches (`tools/s4_finding_cases.py:418-428`).
-- R3: packet residual-risk text (`.agent/S4-01-phase-1-review-packet.md:86-91`) is stale (cross-day recurrence, no pure tests).
+- R3: packet residual-risk text (`archive/agent-history/S4-01-phase-1-review-packet.md:87-92`) is stale (cross-day recurrence, no pure tests).
 - Phase 3 wording: an UNCONFIRMED revision replacing a NO_LONGER_SUPPORTED conclusion must not read as a new active issue (Q10 condition); a recurrence link to a now-unsupported prior Finding must not imply that issue is still active.
 - Phase 2: the "currently selected window" read must use the same window set the Finding basis uses (supported vs unsupported paths differ).
 
-### S4-01 phase 2 review carries (2026-10-12, `.agent/S4-01-phase-2-review.md`)
+### S4-01 phase 2 review carries (2026-10-12, `archive/agent-history/S4-01-phase-2-review.md`)
 
 - C5 (low): the canonical link follows only one merge; merge chains are not resolved.
 - C6 (low): `findings_over` loads every Site Finding with one query per row; an episode ending exactly at midnight counts as overlapping the next day.
 - C4 detail: OFF reports are matched by role and exact time, so another generator report at the same instant could be listed.
 
-### S4-01 phase 2 fix re-review carries (2026-10-12, `.agent/S4-01-phase-2-fix-rereview.md`)
+### S4-01 phase 2 fix re-review carries (2026-10-12, `archive/agent-history/S4-01-phase-2-fix-rereview.md`)
 
 - C7 (phase 3): a pinned audit read under a closed gate still carries `lifecycle: SUPPORTED` and Candidate minutes; the UI must lead with the closed-source, audit-only state (UI test).
 - C8: UNCONFIRMED/NO_LONGER_SUPPORTED revisions don't carry the recurrence record (read takes it from the opening revision).
 - C9 (S4-04): `finding_match_pass` gains a row every pass even when nothing is written; bound it.
 - Residual (phase 3 wording): a long stop with sparse reporting still bridges when both OFF endpoints are present and nothing contrary lies between; consider labelling in the walkthrough.
-- S4-01 phase 3 review carry C5 (`.agent/S4-01-phase-3-review.md`): the Dispatch link carrying the primary assessment revision is always attached to the first day without checking which day that revision belongs to (correct in every live case today).
+- S4-01 phase 3 review carry C5 (`archive/agent-history/S4-01-phase-3-review.md`): the Dispatch link carrying the primary assessment revision is always attached to the first day without checking which day that revision belongs to (correct in every live case today).
 
-### S4-01 fix round 4 re-review carries (2026-10-12, `.agent/S4-01-fix4-rereview.md`)
+### S4-01 fix round 4 re-review carries (2026-10-12, `archive/agent-history/S4-01-fix4-rereview.md`)
 
 - K1: guide step 4 order of the cause sentence vs "not a new issue" is reversed vs the live page.
 - K2: with the Performance source closed, a Not confirmed version still says "No record gaps or conflicts were found" (`SiteFinding.tsx:417-420`), untested.
@@ -2126,8 +2126,8 @@ The carried review findings above are unchanged.
 
 ## G-01 carries (2026-10-13)
 
-- Fix re-review (`.agent/G-01-fix-rereview.md`, ACCEPT `e79ce8b`): C9 one placement can wrap extra copy inside its own children (scan passes; exact-text tests catch it) - G-02 reviewers check each element carries only its own claim; C10 optional check that a placement's first segment matches the owning screen; C11 G-01 evidence screenshots/log live outside the repo (copied to %LOCALAPPDATA%/AssetOps/evidence/g01).
-- Architect (`.agent/architect-G-01-answers.md`): G-02 must split `GATEWAY_NOT_AVAILABLE_YET` into uptime/completeness/signal-strength placements (C5) and widen the scan with reviewed specific cues (C7); add loading-branch firmware assertion (C6); surface skipped merge-base comparison (C1).
+- Fix re-review (`archive/agent-history/G-01-fix-rereview.md`, ACCEPT `e79ce8b`): C9 one placement can wrap extra copy inside its own children (scan passes; exact-text tests catch it) - G-02 reviewers check each element carries only its own claim; C10 optional check that a placement's first segment matches the owning screen; C11 G-01 evidence screenshots/log live outside the repo (copied to %LOCALAPPDATA%/AssetOps/evidence/g01).
+- Architect (`archive/agent-history/architect-G-01-answers.md`): G-02 must split `GATEWAY_NOT_AVAILABLE_YET` into uptime/completeness/signal-strength placements (C5) and widen the scan with reviewed specific cues (C7); add loading-branch firmware assertion (C6); surface skipped merge-base comparison (C1).
 - C1: `mergeBaseBaseline()` (`missing-claim-scan.mjs`) returns null silently on any git error (shallow clone, missing local `main`, timeout); the main comparison is then skipped and only the seed ceiling holds. On `main` the merge-base is HEAD. Print when the comparison is skipped.
 - C2: a resolved gap's prerequisites must have node `status === 'resolved'` (`mock_gaps.cjs:550`); `recorded` and `pending owner` nodes would be rejected. Settle at the first resolution.
 - C3: next-work validates against screens derived from contracts, the checker against ledger IDs; identical today. Pass `screenIds` from one source if they diverge.
@@ -2142,30 +2142,30 @@ The carried review findings above are unchanged.
 - Phase 2: legacy Evidence tab browser-uncaptured (tests only); refusal panels print backend message (inherited S4-01); parity test needs `backend/` present where frontend tests run.
 - Phase 3: C1 "Only 101 of 100 versions" wording under concurrent append (untested); C2 `settled.ts:22` lost `\.` escape; C4 walkthrough variable-scope confusion; C5 duplicate `aria-current`.
 - Architect Q4: gap `review_trigger` texts for `G-finding-evidence-coverage`/`-use` corrected at registry closeout; Q5 G-04 keeps acceptance-event row and Recommendation-prepared claim; Q6 History page controls a later usability slice if needed.
-- Registry closeout review (`.agent/S4-03-closeout-review.md`, ACCEPT `a00237c`): `finding-history:1` mapping_review lacks a note of the closeout boundary edit; closeout packet Checks section stale after `e872714` (I-G-01 now resolved); finding-evidence portion evidence omits fix commits bc9a602/91dea16/6dd7823 (covered by merge a32d4bb); `finding-evidence` ledger `to_real.remaining_work` text stale; I-G-01 resolution was folded into the S4-03 closeout branch (traceability).
+- Registry closeout review (`archive/agent-history/S4-03-closeout-review.md`, ACCEPT `a00237c`): `finding-history:1` mapping_review lacks a note of the closeout boundary edit; closeout packet Checks section stale after `e872714` (I-G-01 now resolved); finding-evidence portion evidence omits fix commits bc9a602/91dea16/6dd7823 (covered by merge a32d4bb); `finding-evidence` ledger `to_real.remaining_work` text stale; I-G-01 resolution was folded into the S4-03 closeout branch (traceability).
 
 ### G-02 carries (2026-10-13)
 
-- Owner: 390 px SLD parts-table caption ("both are empty in this build…") is as wide as its table and scrolls sideways with it (pre-existing; same pattern as V-01a C1). Owner ruled after merge (verbatim "the 390 px caption is ok for now", `.agent/owner-G-02-acceptance-2026-10-13.md`): accepted as is for now; revisit only in a later UI/UX round.
-- Review (`.agent/G-02-review.md`): C-b "not available here" / "not assessed …" / "No … record here" are tagged on these screens but are not scan cues, so new untagged copy of that shape elsewhere passes; each G-03..G-05 batch repeats per-element exact-text assertions (G-01 C9). C-c `G-readiness-commissioning` typed `data_source/absent` though its copy reads as a contract gap; settle a consistent `missing_kind` rule before W1-exit allocation. C-d gated Lab entry labels vs client-facing language: release/deployment gate keeps `simulator_lab.enabled` off (Architect ruling). Residual: `readiness.sources.arrival` lives in a foundation-named component; if mounted on the Site model page it would render on a non-enrolled screen (G-01 C10 still optional).
-- Fix re-review (`.agent/G-02-fix-rereview.md`, ACCEPT): N1 scoped cue `readings? … not assessed` could match ordinary window-state copy (fails closed); N2 `(?<!dispatch )` exemption is broader than the exact "Dispatch not available here"; N3 no fixture for non-literal `as={expr}` on `MissingClaimSvg`. Tighten at the next G batch's cue review.
+- Owner: 390 px SLD parts-table caption ("both are empty in this build…") is as wide as its table and scrolls sideways with it (pre-existing; same pattern as V-01a C1). Owner ruled after merge (verbatim "the 390 px caption is ok for now", `owner/owner-G-02-acceptance-2026-10-13.md`): accepted as is for now; revisit only in a later UI/UX round.
+- Review (`archive/agent-history/G-02-review.md`): C-b "not available here" / "not assessed …" / "No … record here" are tagged on these screens but are not scan cues, so new untagged copy of that shape elsewhere passes; each G-03..G-05 batch repeats per-element exact-text assertions (G-01 C9). C-c `G-readiness-commissioning` typed `data_source/absent` though its copy reads as a contract gap; settle a consistent `missing_kind` rule before W1-exit allocation. C-d gated Lab entry labels vs client-facing language: release/deployment gate keeps `simulator_lab.enabled` off (Architect ruling). Residual: `readiness.sources.arrival` lives in a foundation-named component; if mounted on the Site model page it would render on a non-enrolled screen (G-01 C10 still optional).
+- Fix re-review (`archive/agent-history/G-02-fix-rereview.md`, ACCEPT): N1 scoped cue `readings? … not assessed` could match ordinary window-state copy (fails closed); N2 `(?<!dispatch )` exemption is broader than the exact "Dispatch not available here"; N3 no fixture for non-literal `as={expr}` on `MissingClaimSvg`. Tighten at the next G batch's cue review.
 
-### A-S4-financial carries (2026-10-13, `.agent/A-S4-financial-review.md` ACCEPT `efceff4`) — S4-02 Planner inputs
+### A-S4-financial carries (2026-10-13, `archive/agent-history/A-S4-financial-review.md` ACCEPT `efceff4`) — S4-02 Planner inputs
 
 - M1: define validity closure (future price ends an open-ended prior revision) separately from correction supersession; STALE only when the price selected for a consequence's window changes. Fixture a future price that leaves an old consequence current, and a partial-window correction.
 - M2: name the `fuel-cost-1` upper-bound source (Foundation `specific-fuel-consumption` has no uncertainty field; only legacy `SFC_UNCERTAINTY` in `analytics/dispatch.py:49`) and how upper power/duration come from accepted generator power, before S4-02b activates.
 - L1 technical design rows (single assessment/assumption ID, scalar quantity) diverge from the decision's link rows, `quantity_low/high` and basis digest: state the migration shape and note the divergence. L2 map the seven S4-02 nodes to S4-02a/S4-02b (split `I-financial-store`, `I-assumption-history-read` if needed), fix `I-S4-02` effort S and the README queue row. L3 SYSTEM publication via server-side CLI/job/fixture with a stable service principal; UI edit shows "unavailable: no authenticated operator". L4 close or re-review `G-foundation-financial-assumptions` in S4-02a. L5 visible missing states for omitted mock content on financials/assumptions (enrol in the catalogue or hand to G-05). L6 no "Scenario" wording for a point-rate alternative (prefer unavailable). L7 audit the six remaining `data_source` gaps against the new `missing_kind` rule in G-03..G-05 or at W1-exit.
 - Owner notes (informational): amounts read 0 to a modelled upper value, or unpriced/unavailable (not the mock's "KES 198–238"); price edit unavailable until an authenticated operator exists; repricing demo is a labelled system publication.
 
-### S4-02 plan carries (2026-10-13, `.agent/S4-02-plan-review.md` ACCEPT with carries; `.agent/S4-02-plan-fix-rereview.md` ACCEPT)
+### S4-02 plan carries (2026-10-13, `archive/agent-history/S4-02-plan-review.md` ACCEPT with carries; `archive/agent-history/S4-02-plan-fix-rereview.md` ACCEPT)
 
-- Plan review C1-C9 applied (Sonnet fix round); Architect Q1/C4 (`.agent/architect-S4-02-answers.md`, DECISIONS addendum) applied to S4-02b item 2. Re-review R1-R5 applied by the coordinator (INITIAL change kind, `clock_timestamp()` after lock with non-empty ranges, two-table trigger, `G-assumptions-human-edit` missing_kind build, refusal order 401→422→403/404).
+- Plan review C1-C9 applied (Sonnet fix round); Architect Q1/C4 (`archive/agent-history/architect-S4-02-answers.md`, DECISIONS addendum) applied to S4-02b item 2. Re-review R1-R5 applied by the coordinator (INITIAL change kind, `clock_timestamp()` after lock with non-empty ranges, two-table trigger, `G-assumptions-human-edit` missing_kind build, refusal order 401→422→403/404).
 - Residual (S4-02b walkthrough): fail-closed containment may leave many ordinary Findings `QUANTITY_UNAVAILABLE`; the walkthrough reports how many qualify and shows a positive amount from ordinary data, or says none did and why.
 
 ### S4-02a carries (2026-10-14)
 
-- Owner (`.agent/owner-S4-02a-acceptance-2026-10-14.md`): version 1 appears in Price history as "from 1 Jan 2026, with no end date" while the Price schedule shows it cut into shorter pieces; "not ideal but fine for now", pick up later (S4-02b or a Financials usability pass). 390 px wrapped six-tab Site row (review L2) accepted for now; the mock scrolls the row sideways.
-- Review L5 (`.agent/S4-02a-review.md`), for S4-02b: cutoff replacement times and "Show later versions" replacing rather than appending the list.
+- Owner (`owner/owner-S4-02a-acceptance-2026-10-14.md`): version 1 appears in Price history as "from 1 Jan 2026, with no end date" while the Price schedule shows it cut into shorter pieces; "not ideal but fine for now", pick up later (S4-02b or a Financials usability pass). 390 px wrapped six-tab Site row (review L2) accepted for now; the mock scrolls the row sideways.
+- Review L5 (`archive/agent-history/S4-02a-review.md`), for S4-02b: cutoff replacement times and "Show later versions" replacing rather than appending the list.
 - Phase-1 review C3, for S4-02b: v3 corrects June 2026 only, so the demo Findings stay on v1; S4-02b needs a v4 Finding-window correction step to show a price-change revision (replays safely after M1).
 - Phase-1 review L2 (deviation D2), Architect batch: a SUCCESSION exactly at the start of the open-ended assignment is refused.
 - Phase-1 residual: the L1 set-once trigger reads `max(recorded_from)` without its own lock and relies on the publisher's series lock.
@@ -2175,13 +2175,13 @@ The carried review findings above are unchanged.
 
 ### Owner: analysis input data for simulated and real Sites (2026-10-14)
 
-- Owner (verbatim, `.agent/owner-S4-02b-money-demo-2026-10-14.md`): "add a backlog item to ensure both simulated and real sites are supported to in terms of data required for the analysis".
+- Owner (verbatim, `owner/owner-S4-02b-money-demo-2026-10-14.md`): "add a backlog item to ensure both simulated and real sites are supported to in terms of data required for the analysis".
 - Trigger: S4-02b phase 1 review Q9. The simulated gateway publishes a 5-minute generator power mean only every 15 minutes, so `fuel-cost-1` sees one third coverage of Candidate time and fails closed; S4-02b's positive amount comes from an authored demo case, not from ordinary gateway data.
 - Needed: for each W1 analytic (dispatch-3.1, `fuel-cost-1`, later verification and health), state its required inputs, cadence and coverage, and make sure (a) the simulated gateway / Lab publication profile produces them and (b) the real-Site onboarding path (bindings, gateway publication profile, ingestion) requires or reports them, with an honest "analysis not possible: missing X" state where they are absent. Candidate owners: Planner (publication-profile version, readiness check), Architect if a cross-analytic input contract is needed. Re-check at W1-exit review at the latest; consider before S6-02 verification.
 
 ### S4-02b carries (2026-10-14)
 
-- Owner checkpoint items left as built (`.agent/owner-S4-02b-acceptance-2026-10-14.md`): money sentence, no-amount reasons, demonstration note, separate Out of date / Not worked out yet, version-1 history vs schedule, 390 px tab wrap, "kept for the record" figures in Fuel cost versions, price per litre under audit-only. Any may be reopened.
+- Owner checkpoint items left as built (`owner/owner-S4-02b-acceptance-2026-10-14.md`): money sentence, no-amount reasons, demonstration note, separate Out of date / Not worked out yet, version-1 history vs schedule, 390 px tab wrap, "kept for the record" figures in Fuel cost versions, price per litre under audit-only. Any may be reopened.
 - 0 of 11 ordinary Findings qualify for a fuel cost (8 POWER_MISSING, 2 FINDING_NOT_SUPPORTED, 1 F01-gateway POWER_COVERAGE_GAP: 5-minute means every 15 minutes). See "Owner: analysis input data for simulated and real Sites (2026-10-14)".
 - Slice review L5: Fuel cost versions list has no "show later versions" past 200 versions.
 - Fix re-review I1 (fail-closed spec path tested only by faking the read; point the spec path at a missing file), I2 (pointer wording "Earlier" vs "Recorded fuel cost versions"), I3 (open-episode start-in-day check untested), I4 (evidence whole-page amount count recognises only 2-decimal USD; widen for a second currency), I5 (demonstration label by Site+day, not tenant-scoped; 2026-10-23 is a real future date for KOBO-001).
@@ -2191,7 +2191,7 @@ The carried review findings above are unchanged.
 
 ### A-S5-overview review carries (2026-10-14)
 
-Review `.agent/A-S5-overview-review.md` ACCEPT with carries (`07841a19`). L1 (cp1252 dash bytes in DECISIONS.md and the answers file) fixed by the coordinator.
+Review `archive/agent-history/A-S5-overview-review.md` ACCEPT with carries (`07841a19`). L1 (cp1252 dash bytes in DECISIONS.md and the answers file) fixed by the coordinator.
 - L2: no checker reads `delivery_plan.waves.W1.exit_requires` / `real_pilot_requires`; a misspelled ID passes, and `I-stored-demo-provenance` / `I-price-equal-start-succession` never surface in next-work. Standing coordinator check at W1 exit and before any real-Site pilot until the checker validates them.
 - L3: `technical_requires` of `mini:1#a/2#a/3#a/4#a` omit `I-evidence-acceptance-consequence-work` (and `mini:3#a` omits `D-site-finding-index-rows`); scoring unaffected. Fix at the next registry edit.
 - I1: Q1/Q3 nodes are in `queue_baseline_nodes` with no scheduled task, while the assumption-history follow-on nodes are not; make consistent when packets land. I2: the owner-absent checkpoint rule was stated as standing; owner to confirm on return.
@@ -2199,12 +2199,12 @@ Review `.agent/A-S5-overview-review.md` ACCEPT with carries (`07841a19`). L1 (cp
 
 ### A-action-lifecycle review carries (2026-10-14)
 
-Review `.agent/A-action-lifecycle-review.md` ACCEPT with carries (`478b4b83`). M1 (answers, log and next-work 14e never committed) fixed by the coordinator. L1 Action created on recommendation acceptance vs `PROPOSED` state: Planner picks one model and names the idempotency key (Architect if unsettled). L2 the later `A-S6-verification` decision cites this one and gives the full outcome vocabulary incl. `Ineffective`. I1 current Foundation publish differs (no expected-revision check, multi-row writes, past `effective_from`, `FOUNDATION_NO_CHANGE` 422).
+Review `archive/agent-history/A-action-lifecycle-review.md` ACCEPT with carries (`478b4b83`). M1 (answers, log and next-work 14e never committed) fixed by the coordinator. L1 Action created on recommendation acceptance vs `PROPOSED` state: Planner picks one model and names the idempotency key (Architect if unsettled). L2 the later `A-S6-verification` decision cites this one and gives the full outcome vocabulary incl. `Ineffective`. I1 current Foundation publish differs (no expected-revision check, multi-row writes, past `effective_from`, `FOUNDATION_NO_CHANGE` 422).
 S6-01 Planner carries P1-P10 (detail in the review): P1 creation model, idempotency, `action_code`; P2 proposed reserve value source, no mock money as savings; P3 expected-revision check under Site lock, typed 409 + FAILED event; P4 change artifact records every row written, APPLIED only after commit; P5 no Action backdating of Foundation changes; retry vs `FOUNDATION_NO_CHANGE`; P6 pinned origin FindingRevision beside latest; P7 accept/apply SYSTEM demonstration commands, labelled; P8 `site_code` routes and which route shows `changes:1#a`; P9 fixtures for every state, 1440/390, owner merge hold; P10 new `action`/`action_event` columns.
 
 ### S4-02c carries (2026-10-14)
 
-- F1 (`.agent/S4-02c-review.md`): gateway-sequenced late reading -> S3 INDETERMINATE (SEQUENCE_ORDER_INVERTED / GENERATOR_SERIES_AMBIGUOUS), revised Finding still SUPPORTED with shrunk episode and only OPEN_BOUND, consequence CURRENT PRICED too low and S5-eligible. Architect request `.agent/architect-S4-02c-request.md` (Q1 cohort ordering, Q2 Finding limitation and S5 money exclusion/label, Q3 node placement); must be settled before S5-01's money read.
+- F1 (`archive/agent-history/S4-02c-review.md`): gateway-sequenced late reading -> S3 INDETERMINATE (SEQUENCE_ORDER_INVERTED / GENERATOR_SERIES_AMBIGUOUS), revised Finding still SUPPORTED with shrunk episode and only OPEN_BOUND, consequence CURRENT PRICED too low and S5-eligible. Architect request `archive/agent-history/architect-S4-02c-request.md` (Q1 cohort ordering, Q2 Finding limitation and S5 money exclusion/label, Q3 node placement); must be settled before S5-01's money read.
 - R1: S3 `process-jobs` and S4 `match-findings` remain unscheduled; money after late evidence waits for them (Architect request).
 - Phase-2 review I1 (uncapped 16-minute retry, ~90 FAILED attempts/day per permanently failing row, no terminal state or alert), I2 (hung runner: repeated "skipped" ticks are the alarm; documented, no timeout), I3 (app/DB clock skew shifts retry timing), I4 (two concurrent overlapping ingestion chunks not measured; Site lock widens a deadlock window that rolls back cleanly).
 - Pre-0012 stale consequence heads report `NO_WORK_RECORDED` with no backfill.
@@ -2214,7 +2214,7 @@ S6-01 Planner carries P1-P10 (detail in the review): P1 creation model, idempote
 
 ### S4-02c Architect closeout review carries (2026-10-14)
 
-Review `.agent/S4-02c-architect-closeout-review.md` ACCEPT with carries (`a88391f2`).
+Review `archive/agent-history/S4-02c-architect-closeout-review.md` ACCEPT with carries (`a88391f2`).
 - L1: the S5 "withhold the amount on generator-series ambiguity" rule is not in `I-site-overview-read`'s acceptance target; add it, or have the late-reading Planner define a concrete eligibility signal S5-01 must consume, named in both nodes. L2: registry `physical_peer_gate` text names only `I-stored-demo-provenance` though `real_pilot_requires` lists three nodes. I2: S4-02c residuals I1-I4 and pre-0012 `NO_WORK_RECORDED` heads have no owning node.
 - Worker-schedule Planner carries W1-W5: per-environment ownership/cadence and order (`process-jobs`, `match-findings`, consequence runner; fold or keep separate); I1 retry volume / hung-runner alarm / `NO_WORK_RECORDED` heads; prove stopped workers never look current at the projection inputs; replay Leg B without hand-run steps; record the 8.28% ranking notice in the handoff.
 - Late-reading Planner carries L-a..L-f: source-time cohort rule as a reviewed contract first (open choices to the Architect); new model version and reassessment keeping history; Finding series limit and end reason (not OPEN_BOUND alone); resolve L1; regression over run 1 and on-time-sequenced late upload; real gateway without validated clock semantics stays limited.
@@ -2222,7 +2222,7 @@ Review `.agent/S4-02c-architect-closeout-review.md` ACCEPT with carries (`a88391
 
 ### S4-02d carries (2026-10-14)
 
-Reviews `.agent/S4-02d-phase-1-review.md`, `.agent/S4-02d-phase-2-review.md`, `.agent/S4-02d-review.md` (all ACCEPT with carries; slice review `caa652ab`). F-A, F-C, F-D, phase-1 F1-F3 fixed on the branch. I4 (overlapping ingestion chunks vs an active tick) proved at the phase-2 review.
+Reviews `archive/agent-history/S4-02d-phase-1-review.md`, `archive/agent-history/S4-02d-phase-2-review.md`, `archive/agent-history/S4-02d-review.md` (all ACCEPT with carries; slice review `caa652ab`). F-A, F-C, F-D, phase-1 F1-F3 fixed on the branch. I4 (overlapping ingestion chunks vs an active tick) proved at the phase-2 review.
 - Install gate: do not install the schedule on any demo, walkthrough or pilot host. Demo/walkthrough stay CLOSED until `I-late-reading-series-and-money-limit`; pilot also on F1 and `I-stored-demo-provenance` (`tools/schedule-install-gate.py`).
 - I3: scheduled-ingestion part addressed by S4-07 (`task/S4-07-evidence-decided-at`, reviewed and merged (S4-07, 2026-10-15)): DB-time `decided_at` per chunk, new jobs due at the decision, widened PENDING jobs lifted to it; race/restart proofs in `backend/tests/test_s4_evidence_decided_at_postgres.py`. Still open: manual app-clock `process-jobs` beside the tick (stop the tick first) and configuration `recorded_at` vs `reconcile`. `S3_STALE_NO_JOB` + `requeue --day` stay as defense in depth (override-path test). R-2 skew allowance widened to 120 s in that test.
 - F-B: rule-8 schedule-writer guard is line-based; misses multi-line and non-text SQL (11 probe forms). Needs a statement-level (AST) guard; the other writer rules share the limit.
@@ -2235,7 +2235,7 @@ Reviews `.agent/S4-02d-phase-1-review.md`, `.agent/S4-02d-phase-2-review.md`, `.
 
 ### OPS-01 carries (2026-10-15)
 
-Review `.agent/OPS-01-review.md` ACCEPT (`1a987d2e`); reviewer full run on final revision `-n 2` 2129 passed in 7.6 min, node IDs exact.
+Review `archive/agent-history/OPS-01-review.md` ACCEPT (`1a987d2e`); reviewer full run on final revision `-n 2` 2129 passed in 7.6 min, node IDs exact.
 - L1: `ASSETOPS_TEST_TEMPLATE=0` under xdist would let workers reset the same DB in place; guide says serial-only but nothing enforces it. Fix: usage error in `pytest_configure` when set under xdist.
 - L2: DELETE cleanup assumes `public` lowercase table names; a future ALWAYS/TRUNCATE trigger would diverge silently. Fix: select `oid::regclass`; re-check triggers when migrations add any.
 - L3: `cleanup_run` test creates fixed DB names with no lease session; a concurrent run could sweep them (not possible under one-at-a-time policy).
@@ -2244,24 +2244,24 @@ Review `.agent/OPS-01-review.md` ACCEPT (`1a987d2e`); reviewer full run on final
 
 ### S4-06 carries (2026-10-15)
 
-Review `.agent/S4-06-review.md` ACCEPT. Residual: no test asserts the consequence-work row queued for an equal-start SUCCESSION (migration 0011 trigger unchanged, so low risk); conflict message text changed (codes unchanged).
+Review `archive/agent-history/S4-06-review.md` ACCEPT. Residual: no test asserts the consequence-work row queued for an equal-start SUCCESSION (migration 0011 trigger unchanged, so low risk); conflict message text changed (codes unchanged).
 
 ### S4-07 carries (2026-10-15)
 
-Review `.agent/S4-07-review.md` ACCEPT. L1: rename `test_s4_schedule_health_postgres.py:387` (alarm now only after the SQL restore). L2: no health signal ages a live PENDING job that keeps being missed (joins the health scan cost item). Residuals: manual app-clock `process-jobs` still mixes clocks (I3 not closed for manual CLIs; stop the tick first); `clock_timestamp()` vs `now()` reasoned not mutation-proved.
+Review `archive/agent-history/S4-07-review.md` ACCEPT. L1: rename `test_s4_schedule_health_postgres.py:387` (alarm now only after the SQL restore). L2: no health signal ages a live PENDING job that keeps being missed (joins the health scan cost item). Residuals: manual app-clock `process-jobs` still mixes clocks (I3 not closed for manual CLIs; stop the tick first); `clock_timestamp()` vs `now()` reasoned not mutation-proved.
 
 
 ### Owner W1-conclusion task: mockup-fidelity and UI/UX pass (plain language, user-focused visuals) (2026-10-15, widened 2026-10-16)
 
-Owner, accepting LR-01 and S5-01 (`.agent/owner-LR01-S501-acceptance-2026-10-15.md`): status wording such as "Not assessed", "Upstream out of date", "Pending reassessment" and visible reason codes must become plain language non-technical users understand. Schedule as one copy task at the conclusion of W1 across Overview, Financials, Finding, Evidence/Dispatch and Action screens; until then, demo speed over perfection.
+Owner, accepting LR-01 and S5-01 (`owner/owner-LR01-S501-acceptance-2026-10-15.md`): status wording such as "Not assessed", "Upstream out of date", "Pending reassessment" and visible reason codes must become plain language non-technical users understand. Schedule as one copy task at the conclusion of W1 across Overview, Financials, Finding, Evidence/Dispatch and Action screens; until then, demo speed over perfection.
 
-Widened 2026-10-16 (owner, accepting S4-04 and S6-01b, `.agent/owner-S404-S601b-acceptance-2026-10-16.md`): "communication to the user should be better user focussed and less technical(with option for advanced user to dig deeper). The visuals should be enging, clear and simple yet powerful." The task now covers user-focused copy with a dig-deeper layer for advanced users, and engaging, clear, simple visuals across the W1 screens. It runs after core W1 functions are done.
+Widened 2026-10-16 (owner, accepting S4-04 and S6-01b, `owner/owner-S404-S601b-acceptance-2026-10-16.md`): "communication to the user should be better user focussed and less technical(with option for advanced user to dig deeper). The visuals should be enging, clear and simple yet powerful." The task now covers user-focused copy with a dig-deeper layer for advanced users, and engaging, clear, simple visuals across the W1 screens. It runs after core W1 functions are done.
 
 
-Widened again 2026-10-16 (owner, accepting S4-05b, `.agent/owner-S405b-acceptance-2026-10-16.md`): "Internal sytem analysitics and vovabulary are leaked to the user in a way that is confusing. The user is not who builds the system but who the system is built for for. Everything should be shared with the user in a simple, understandable langauge and presentation format, which the mockups do very well but i am seeing drift from the mockups. This should be adderessed on the mockup fedility and UI/UX pass at teh conclusion of wave1." The task is now a **mockup-fidelity and UI/UX pass** over every W1 product screen: return to the v69 mockups' language and layout, remove internal analytics and system vocabulary from the default reading, keep detail behind a dig-deeper layer, and revisit S4-05b's interim source labels.
+Widened again 2026-10-16 (owner, accepting S4-05b, `owner/owner-S405b-acceptance-2026-10-16.md`): "Internal sytem analysitics and vovabulary are leaked to the user in a way that is confusing. The user is not who builds the system but who the system is built for for. Everything should be shared with the user in a simple, understandable langauge and presentation format, which the mockups do very well but i am seeing drift from the mockups. This should be adderessed on the mockup fedility and UI/UX pass at teh conclusion of wave1." The task is now a **mockup-fidelity and UI/UX pass** over every W1 product screen: return to the v69 mockups' language and layout, remove internal analytics and system vocabulary from the default reading, keep detail behind a dig-deeper layer, and revisit S4-05b's interim source labels.
 ### S4 deferred-match fix carries (2026-10-16)
 
-Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 downgrade refusal. L3: rewrap `test_s4_finding_episode.py:206`. Risks: health can read IDLE while a day stays pending behind an UNASSESSED neighbour (no alarm); a deferred day holds back money eligibility for unrelated matched episodes that day; the matcher fence omits the input hash, so a STALE-to-CURRENT flip with no job/selection change leaves a deferral pending (now visible as pending rather than hidden).
+Review `archive/agent-history/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 downgrade refusal. L3: rewrap `test_s4_finding_episode.py:206`. Risks: health can read IDLE while a day stays pending behind an UNASSESSED neighbour (no alarm); a deferred day holds back money eligibility for unrelated matched episodes that day; the matcher fence omits the input hash, so a STALE-to-CURRENT flip with no job/selection change leaves a deferral pending (now visible as pending rather than hidden).
 
 ### Flaky test: schedule health 1 s threshold (2026-10-16)
 
@@ -2286,7 +2286,7 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 
 - W1-F5b carry 7 (2026-10-17): legacy file-backed Site paths have no 1440/390 fidelity captures because no walkthrough tool serves a file-backed site; covered by structure tests only. Accepted for W1; add a file-backed capture fixture if legacy Sites stay in the product.
 
-- Post-all-waves UI/UX refinement pass (owner, 2026-10-18): W1 accepted conditionally as "close enough for now, will refine after all waves are complete" (`.agent/owner-W1-acceptance-2026-10-18.md`). Schedule one refinement pass over all screens after the final wave; inputs: W1 overages list (`.agent/W1-F5b-evidence/overages.json`), accepted Lows across W1/W2 reviews, F5 carries not done (legacy-Site captures).
+- Post-all-waves UI/UX refinement pass (owner, 2026-10-18): W1 accepted conditionally as "close enough for now, will refine after all waves are complete" (`owner/owner-W1-acceptance-2026-10-18.md`). Schedule one refinement pass over all screens after the final wave; inputs: W1 overages list (`.agent/W1-F5b-evidence/overages.json`), accepted Lows across W1/W2 reviews, F5 carries not done (legacy-Site captures).
 
 ## W2-03 follow-up carried Lows (merged 2026-10-19, review ACCEPT)
 
@@ -2384,7 +2384,7 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 
 ## W6-01c Lows
 - L5: C3 Technician notes cell nests a `div` inside a `p` (invalid markup). Change the `p` to a `div`.
-- Review L3/L4 notes are in `.agent/W6-01c-review.md` on the branch.
+- Review L3/L4 notes are in `archive/agent-history/W6-01c-review.md` on the branch.
 
 ## W5-F1 Lows
 - L1: the `healthHref` prop in ColdFoundationViews is now unused; remove it.
@@ -2407,7 +2407,7 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 - Manual rule-5 non-vacuity proofs accepted (ruling 5); kept in the handoff, not as committed fixtures.
 
 ## W5-02b K2 follow-up
-- Future authenticated Site-scoped product reads: add a `domain_work_access` injection seam in `create_app` and the equivalent W4 Work read seam, then prove 401/403 across both routers. K2's 403 browser evidence uses a capture-only `serve_entry.py` gate; current product read routers still use development access. Architect ruling 6 in `.agent/W5-02b-K2-rulings.md`; schedule with authentication work, not K2.
+- Future authenticated Site-scoped product reads: add a `domain_work_access` injection seam in `create_app` and the equivalent W4 Work read seam, then prove 401/403 across both routers. K2's 403 browser evidence uses a capture-only `serve_entry.py` gate; current product read routers still use development access. Architect ruling 6 in `archive/agent-history/W5-02b-K2-rulings.md`; schedule with authentication work, not K2.
 
 ## W5-02b K2 Lows
 - One window error message covers every invalid input (domainActionClient.ts:350); plain-language copy pass.
@@ -2453,4 +2453,4 @@ Review `.agent/S4-deferred-match-review.md` ACCEPT. L2: no test covers the 0018 
 
 - **Frontend load flakes (2026-10-25).** `frontend/src/**/evEnergy.test.tsx` "energy_states_table_loading" ("the store read has not settled", 14 s timeout) fails intermittently in full vitest runs that overlap captures/suites (seen in shell, W1-a, W1-b batches); passes alone. Also once: `s404SiteFindingIndex.test.tsx` "assessed empty > changing the dates writes a new window…". Make the waits deterministic (fake timers or longer per-test timeout) in a small test-hygiene slice.
 
-- **Post-W6 follow-ups for the final complete review (2026-10-25).** (a) W6 review L1: global Work row basis does not bind `site_domain`; a Site with work cases but no evidence could change type between pages without a 409 — Architect to decide. (b) W1-a Lows: cue ResizeObserver/toggle unit test; stale packet numbers. (c) R328 needs a public Finding code (backend contract slice, W4 build ruling 1). (d) R374 development_access composition gap before real principals. (e) Global error boundary slice (R386). (f) W4-mini review Lows: MiniScenarios `Refused` paragraph has no live region (INVALID_WINDOW not announced); siteWorkCases Basis repeats UTC instants when the Site zone is UTC; `siteLocalMidnightUtc` two-pass solve could land on the adjacent instant in a zone with a DST gap at midnight (not EAT/London). (g) W4 producer late gate still carries retired caps (Scenarios 348/391, Incidents 460) — update or retire in the full recapture. (h) W5-cold review Low: unmapped-code cold Action fallback "The attempt was refused." gives no next step (consider "This Action cannot be shown."); W5-cold caps not stress-probed (geometry within caps; re-measure in full recapture). (i) W5-EV review Lows: R350 probe tests cover 404 only (add 503/403); a transient probe 503 on a domain Action ID falls back to a W1 "Action not found" with no Reload (consequence of R350 ruling 1, same as the bare route; raise with the Architect only if the owner objects); fix-round evidence commits pid files and run scripts. (j) Final-review rulings backlog (`.agent/post-W6-final-review-rulings.md`): L1 converge refusal live regions on one `role="alert"` per active area across mini, cold, EV, Finding and Financials; L2 Site Work `Action {id8}` versus global Work stored `ACT-` code, a backend-contract follow-up (never derive a code from a UUID); L7 consolidate the three window controls and copied refusal/reporting blocks when their screens next change, keeping mini Site-local inclusive dates versus cold/EV UTC exclusive bounds; L10 probe verification (403/503 coverage with item (i)); L11 duplicate 760px tab-row gap declaration (`primitives.css` 0 versus `globalWork.css` 4px) in a later CSS tidy-up; app-wide Reload/Retry/Try again label convergence beyond the Action shell (M2). (k) Final-fix capture observation: with a bad cold window, the in-page Overview/Assumptions/Scenarios row, breadcrumb and Work Incidents/Maintenance tabs still carry the raw window (they land on the same explained refusal; Site tab row is gated per L5). Unreachable-by-producer states proven by unit tests only: L3 tariff-withheld sentence, M2 409 and EV 503 Action panel, L6 missing zone. (l) Recapture-fix review Low (merge 7306079d): the cold scenarios refusal correction link keeps only `known_at` and drops `scenario_at` (same as EV); the incidents scoped-503 overlay height (320px region) is arithmetic, not re-measured; `FactValue` effect re-runs on every render (perf only). Link-check captures (B18-03, B18-04, B19-12/R371) were not re-run in the final recapture. (m) Batch 01–07 clip re-scan flags (`.agent/post-W6-final-recapture/batch-01-07-clip-rescan.md`): unlabelled, non-focusable table scrollers inside closed "Technical details"/"How this was worked out" disclosures (`SiteHealth.tsx:623,772`, `FindingConsequence.tsx:455`, `SiteBattery.tsx:482`); give them the labelled focusable scroller treatment when those screens next change. Cosmetic: cold Findings table 5px desktop overflow draws a scrollbar (`ColdAssessmentViews.tsx:1293`); `word-break: break-all` splits words on the recommendation page (`primitives.css:3829`). (n) Full-vitest flake (final main d633f343, 3436/3438): `siteFindingEvidence.test.tsx` "renders Evidence as a child view whose section links keep the exact version" failed under full-suite load and passed alone (with the known evScenarios R347 tab flake); add to the timing-flake list.
+- **Post-W6 follow-ups for the final complete review (2026-10-25).** (a) W6 review L1: global Work row basis does not bind `site_domain`; a Site with work cases but no evidence could change type between pages without a 409 — Architect to decide. (b) W1-a Lows: cue ResizeObserver/toggle unit test; stale packet numbers. (c) R328 needs a public Finding code (backend contract slice, W4 build ruling 1). (d) R374 development_access composition gap before real principals. (e) Global error boundary slice (R386). (f) W4-mini review Lows: MiniScenarios `Refused` paragraph has no live region (INVALID_WINDOW not announced); siteWorkCases Basis repeats UTC instants when the Site zone is UTC; `siteLocalMidnightUtc` two-pass solve could land on the adjacent instant in a zone with a DST gap at midnight (not EAT/London). (g) W4 producer late gate still carries retired caps (Scenarios 348/391, Incidents 460) — update or retire in the full recapture. (h) W5-cold review Low: unmapped-code cold Action fallback "The attempt was refused." gives no next step (consider "This Action cannot be shown."); W5-cold caps not stress-probed (geometry within caps; re-measure in full recapture). (i) W5-EV review Lows: R350 probe tests cover 404 only (add 503/403); a transient probe 503 on a domain Action ID falls back to a W1 "Action not found" with no Reload (consequence of R350 ruling 1, same as the bare route; raise with the Architect only if the owner objects); fix-round evidence commits pid files and run scripts. (j) Final-review rulings backlog (`archive/agent-history/post-W6-final-review-rulings.md`): L1 converge refusal live regions on one `role="alert"` per active area across mini, cold, EV, Finding and Financials; L2 Site Work `Action {id8}` versus global Work stored `ACT-` code, a backend-contract follow-up (never derive a code from a UUID); L7 consolidate the three window controls and copied refusal/reporting blocks when their screens next change, keeping mini Site-local inclusive dates versus cold/EV UTC exclusive bounds; L10 probe verification (403/503 coverage with item (i)); L11 duplicate 760px tab-row gap declaration (`primitives.css` 0 versus `globalWork.css` 4px) in a later CSS tidy-up; app-wide Reload/Retry/Try again label convergence beyond the Action shell (M2). (k) Final-fix capture observation: with a bad cold window, the in-page Overview/Assumptions/Scenarios row, breadcrumb and Work Incidents/Maintenance tabs still carry the raw window (they land on the same explained refusal; Site tab row is gated per L5). Unreachable-by-producer states proven by unit tests only: L3 tariff-withheld sentence, M2 409 and EV 503 Action panel, L6 missing zone. (l) Recapture-fix review Low (merge 7306079d): the cold scenarios refusal correction link keeps only `known_at` and drops `scenario_at` (same as EV); the incidents scoped-503 overlay height (320px region) is arithmetic, not re-measured; `FactValue` effect re-runs on every render (perf only). Link-check captures (B18-03, B18-04, B19-12/R371) were not re-run in the final recapture. (m) Batch 01–07 clip re-scan flags (`.agent/post-W6-final-recapture/batch-01-07-clip-rescan.md`): unlabelled, non-focusable table scrollers inside closed "Technical details"/"How this was worked out" disclosures (`SiteHealth.tsx:623,772`, `FindingConsequence.tsx:455`, `SiteBattery.tsx:482`); give them the labelled focusable scroller treatment when those screens next change. Cosmetic: cold Findings table 5px desktop overflow draws a scrollbar (`ColdAssessmentViews.tsx:1293`); `word-break: break-all` splits words on the recommendation page (`primitives.css:3829`). (n) Full-vitest flake (final main d633f343, 3436/3438): `siteFindingEvidence.test.tsx` "renders Evidence as a child view whose section links keep the exact version" failed under full-suite load and passed alone (with the known evScenarios R347 tab flake); add to the timing-flake list.

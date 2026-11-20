@@ -16,7 +16,19 @@ Bindings: `.ai/ROLE_CONFIG.md`.
 - Demo shortcuts never silently redefine product semantics. Data without a
   source is shown as "not available yet", never invented.
 - If there is data in the selected range, every page shows output for that
-  range, the same way for every Site type (owner, 2026-11-12).
+  range, the same way for every Site type (owner, 2026-11-12). Setup facts
+  (foundation, single-line diagram) are not managed by date range for now;
+  versioning may come later and is not a priority (owner, 2026-11-19).
+- Owner product rules (confirmed 2026-11-19; sources in `owner/SUMMARY.md`):
+  - Say "unexplained fuel", never "theft".
+  - Simulated or emulated data is never shown as observed. Every figure carries
+    its evidence class. Claim only what was tested.
+  - "Not analysed yet" appears only while system work is pending.
+  - Missing data lowers confidence but still computes. A contributor of zero is
+    shown as zero.
+  - The source is a displayed data element. Ingest works for any Site.
+  - Every capability claimed as available must be demonstrable.
+  - Executive questions are never written on screen.
 
 ## 2. Roles and lanes
 
@@ -67,6 +79,9 @@ Source: `Docs/demo-sprint/product-direction-layer4/product-transition-and-roadma
   dry-reads the spec against the code before the build (every copy string,
   field, ID source, route, fixture producer, capture state, cap). Units are
   one to three commits. A slice over 6 units is split.
+  Amended by the owner 2026-11-18 (TW23, `owner/owner-sitting1-answers-2026-11-18.md`):
+  for the two-week build, four build lanes split by area, with B03 (heavy-tool slot
+  pool) merged and enforced before lanes 3 and 4 open.
 - **W5 Review depth matched to risk.** Discovery review (strongest fresh
   reviewer) for a new schema, mechanism, protected seam or any money figure.
   Verification re-review (lighter fresh reviewer) for named findings only.
@@ -87,6 +102,21 @@ Source: `Docs/demo-sprint/product-direction-layer4/product-transition-and-roadma
 Also standing: builders pre-flight a unit against `main` and the mock and batch
 every open point into one Architect request before coding; after a ruling
 round the Architect folds rulings into one current unit card.
+
+**Spec handshake before code (owner, 2026-11-19, `owner/owner-build-start-and-spec-handshake-2026-11-19.md`).** For every build unit:
+1. The Architect writes a clear spec for the Implementer and a reviewer guide for the Reviewer: what to check, how, and what counts as done.
+2. Before any coding starts, the Reviewer reads both and puts its questions to the Architect.
+3. The Architect answers in the spec. The handshake ends when the Reviewer has no open questions.
+4. Coding starts only then, so mid-implementation back-and-forth is avoided.
+5. Execution stays efficient: make progress without lowering quality.
+6. One combined round (owner, 2026-11-19). The Reviewer's questions and the
+   Implementer's pre-flight (spec against `main` and the mock) run together.
+   Both batch their questions, the Architect answers everything once in the
+   spec (`rulings.md`), and both work from the same answers.
+7. Mid-build, a question about something the spec did not fix stops only the
+   affected part. The Architect rules in `rulings.md`, and the reviewer guide is
+   updated if the done criteria change. Record the count of mid-build questions
+   in each unit's packet; a count above zero is a spec-template defect to fix.
 
 ## 5. Specs, slices and packets
 
@@ -128,32 +158,48 @@ round the Architect folds rulings into one current unit card.
   states, plain client-facing copy without system vocabulary; within demo
   speed. Defaults: `frontend/docs/architecture/ui-ux-decision-guide.md`.
 - UI/UX standard (owner, U7, 2026-11-20): `Docs/design-system/uiux-guide.md` is
-  binding on every screen spec and review. Specs cite it; reviewers apply its
-  §10 checklist and gates G1-G5 (design review separate from content checks).
-  Where it and the decision guide above differ on a vNEXT screen, the guide wins.
+  cited here beside the builder decision guide above, and its G2 to G4 gates
+  join the screen-slice review.
 
 ## 7. Tests, guards and the machine
 
 - Tests: `backend/TESTING.md`. Focused and adjacent files while building;
-  `python tools/select-tests.py --base main` picks the slice-end set. Full
-  suites only when the owner asks (owner rule from the demo sprint, still
-  applied): if asked, one at a time, on a quiet
+  `python tools/select-tests.py --base main` picks the slice-end set. The aim
+  is that expensive full runs never hold back progress (owner, 2026-11-19):
+  use isolated, smoke and regression tests while building, and run a full
+  suite at key milestones. Every full suite runs one at a time, on a quiet
   machine, with `tools/keep-awake-during-tests.ps1` started and a cap of twice
   the expected wall time (stop and report past the cap). Never a bare
   `docker compose up` for tests.
 - Guards: `pwsh -NoProfile -File tools/check-all.ps1`, plus
   `tools/check-architecture.ps1` and `tools/check-agent-workflow.ps1`; never
   with an execution-policy override. A guard you add must be shown to fail on
-  a real violation.
+  a real violation. Builders run check-all themselves (fast mode, at the end of
+  the build, before review); it takes one of 2 heavy slots machine-wide and
+  waits for a free one. The coordinator runs it on `main` after every merge, where
+  it is full by itself (the estate self-tests run there, with `-Full`, and on
+  any branch that changes the writer guard or its tests). The central queue of
+  12 Nov is ended (PIPE-1, coordinator rule).
+- Heavy tools (tsc, vitest, pytest with a database, browser captures) and
+  heavy database jobs run only through the slot pool, `tools/heavy-slot.sh --
+  <command>` (`--db` for a database job; pwsh `tools/heavy-slot.ps1`); each
+  refuses to start outside it (T1, `backend/TESTING.md`).
 - Databases: only `*_test` and `<prefix>_audit*` databases in
   `assetopsv1-postgres-1`; never others. Drop your own when done.
-- Walkthrough and demo (owner): never touch port 5490 (walkthrough server,
-  `/opt/assetecon/AssetOpsV1-walk`) or Docker during task work; never write
-  to the walkthrough DB except through its own serve; port 8990 (uvicorn
-  `lab_app`) is not ours, leave it alone. Walkthroughs run only on a clean,
-  good DB; no fallback DB.
+- Walkthrough and demo: do nothing that interferes with tests or with the
+  owner's validation (owner, 2026-11-19). In practice that means:
+  - never disturb the walkthrough server on port 5490
+    (`/opt/assetecon/AssetOpsV1-walk`), the server on port 8990
+    (uvicorn `lab_app`), or Docker while they are in use;
+  - never write to the walkthrough DB except through its own serve.
+  Walkthroughs run on a clean, good DB (owner).
 - Keep `var/sites` and the Lab data intact. Do not switch branches in a
   checkout while an agent is working in it.
+- Refused by a safety check: stop and report. Never work around it (owner).
+- Stop old walkthrough servers found running, by PID, unless they are serving
+  the owner's validation; if so, ask first (owner).
+- Tag every demo build. The deferred list is a queue, not a cut list. Estimate
+  at agent speed (owner).
 - A unit that touches shared code or schema is reviewed before the next unit
   builds on it. An implementer choice the spec did not fix is a spec defect:
   raise it, don't decide it.
@@ -169,29 +215,64 @@ round the Architect folds rulings into one current unit card.
   worktree at a time; evidence measured while another agent held the tree is
   not evidence.
 - Focused commits; stage by explicit path. Never `git add -A`, `git add .` or
-  `-f` on a directory; `git add -f` only on a named `.agent/` file. Check
+  `-f` on a directory; `git add -f` only on a file in the `.agent/` keep list
+  (`AGENT_KEEP` in `tools/checks/tracked_evidence.py`). Check
   `git diff --cached --stat` before committing.
 - Do not discard others' changes. Merge `main` into a branch; do not rebase
   published history.
 
 ## 9. Keep the repo tidy
 
-- **Where agents write.** Agent scratch and session transcripts: the session
-  scratchpad or `.agent/` (git-ignored). Packets, reviews, rulings and owner
-  files stay where they are today until declutter steps 2 and 4 give them
-  indexed homes; `.ai/NOW.md` will say when that changes.
+- **Where agents write (declutter step 4).** Agent scratch and session
+  transcripts: the session scratchpad or `.agent/` (git-ignored; the only
+  tracked files there are live coordination files and files code reads, listed
+  in `AGENT_KEEP` in `tools/checks/tracked_evidence.py`; check-all fails on any
+  other). New owner files: `owner/`, verbatim,
+  named `owner-<topic>-<date>.md`, with a row in the last `owner/index-*.md`,
+  never `.agent/`. New specs: `specs/<ID>/` (`spec.md`; rulings and pre-flight
+  answers in `rulings.md`, continued in `rulings-2.md` past the 15k cap), with a
+  row in `specs/INDEX.md`. A spec's packets, reviews (one section per round)
+  and handoffs go in its folder; work without one gets a `specs/<ID>/` folder
+  for them, never `.agent/`. Finished or
+  superseded text goes to `archive/agent-history/` or `.ai/history/` with a
+  header line; neither is a default read. Old `.agent/` paths resolve through
+  `specs/CITATION_MAP.md`.
 - **Evidence (owner O3, 2026-11-18).** Generated evidence (screenshots,
-  captures, audit JSON, logs) goes outside the repo, under
-  `/opt/assetecon/evidence/<task>/<run>/`, and is kept for 2 weeks, then
-  deleted. A packet cites the run by path with a 5-10 line summary. Evidence is
-  never committed, except a deliberate test fixture under a fixtures folder.
-  Existing in-repo evidence moves in declutter step 3; until then, files that
-  code or tests read stay in place. To confirm: whether the 2 weeks run from
-  capture or from slice acceptance.
+  captures, audit JSON, logs, transcripts) is written outside the repo, to
+  `/opt/assetecon/evidence/<task>/<run>/`, never into the tree or `.agent/`.
+  A packet cites the run by path with a 5-10 line summary. Only a deliberate
+  test fixture under a `fixtures/` or `__fixtures__/` folder is committed;
+  `tools/checks/tracked_evidence.py` (check-all) fails otherwise. The evidence
+  untracked in declutter step 3 is in
+  `/opt/assetecon/evidence/repo-untracked-2026-11-18/` (paths kept;
+  `MANIFEST.tsv` holds size, sha256, class and last commit date). Once a
+  worktree has `main` after step 3, its local `.agent/<ID>-evidence/` and
+  other untracked evidence files are gone (git removes them on merge);
+  read them at `/opt/assetecon/evidence/repo-untracked-2026-11-18/.agent/...`.
+- **Retention: 2 weeks from copy-out or capture, whichever is later.**
+  `python tools/evidence-retention.py` lists items 14 or more days old (each
+  dated max(manifest last commit date, the batch's `COPIED_AT`), else by
+  mtime) with their size; capture scripts in a batch are kept. It works only
+  under `/opt/assetecon/evidence/` and deletes only with `--delete` and a
+  typed confirmation. The coordinator asks the owner before the first purge.
 - **Caps.** AGENTS, START_HERE, NOW: 1.5k tokens each. ROLE_CONFIG: 3k.
   RULES: 4k. A role brief: 1.5k. An index: 2k. A task spec's binding part: 15k.
   A packet: 3k. A review round: a summary of at most 15 lines plus findings.
   The coordinator handoff: one current block of at most 2k, replaced.
+- **Indexed homes (declutter step 2).** Decisions: `.ai/decisions/` (month
+  files) with one line per ID in `.ai/decisions/index-*.md`; a ruling recorded
+  in a rulings file still gets its index line. Built state: new entries go to
+  the area file in `.ai/state/` plus a line in `.ai/state/index-*.md`, never to
+  the `.ai/CODE_STATE.md` stub. Specs: `specs/INDEX.md`; owner files:
+  `owner/INDEX.md`. Add the index line in the same commit;
+  `tools/check-decision-index.py` fails on an unindexed cited ID, an owner file
+  or spec folder without a row, an owner file or build sheet tracked in
+  `.agent/`, or an index over its cap; `tools/checks/tracked_evidence.py` fails
+  on evidence under `specs/`, `owner/` or `archive/`.
+- **Example IDs.** A packet, review or spec that needs an example, planted or
+  hypothetical decision ID uses the reserved forms `D-EG.<n>` or
+  `D-2099-<MM>-<DD>-<slug>` (never indexed; the guard skips exactly these), or
+  drops the `D-` prefix.
 - **Find on demand.** Read the router, then open only the sections the task
   names, by ID or heading. Grep scoped to current homes, never `.agent/`,
   `archive/`, `history/` or evidence folders. No brief says "read X fully" for
@@ -201,3 +282,16 @@ round the Architect folds rulings into one current unit card.
   and updates `.ai/START_HERE.md` if authority moved.
 - **No new process artifacts** (guide, role, checklist, handoff category)
   unless the same need appeared in two tasks or the owner asks.
+
+## 10. Owner document brief (owner, 2026-11-19)
+
+Every design, strategy or explainer document for the owner starts in this shape (`owner/owner-design-regeneration-request-2026-11-19.md`):
+1. **Existing before new.** Describe what exists today first, accurately, and credit the value it delivers. Then describe what is added on top. Never frame the new as a replacement for the old.
+2. **Mechanism to value.** Tie each mechanism or construct to the business value it delivers and to the differentiation that converts clients.
+3. **Change on merit.** Each change names the issue it fixes, measured against the objective, with code evidence. Name what stays. No silent changes and no advocacy.
+4. **Structure first.** State core concepts and how they connect before the specifics. A worked example (a mini-grid, e.g. Kobo) illustrates the structure; it does not define it. Cover the operator's whole business, never one slice.
+   **The overall objective governs every part** (owner: "i want overall objective to be considerd, not narrow slice that is detacehd"). Each section, construct and change says how it serves the overall objective; analysis that is detached from it is incomplete.
+5. **Person in the loop.** State who sees, decides, acts and tracks, and how each is recorded. The system proposes; people choose and act.
+6. **Precise concepts.** Use one name per meaning (e.g. a Finding is the living result of evaluating a condition, not the condition).
+7. **Short and illustrated.** Cover a few core topics. Put diagrams (use case, sequence, process flow) only where something changes. Move detail to appendices.
+8. **The owner decides.** Lay out each open question with context, an example and a default. Push back on the owner's view when you have reasons. Give recommendations, not option surveys.

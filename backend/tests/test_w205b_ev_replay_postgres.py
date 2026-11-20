@@ -1,6 +1,6 @@
 """W2-05b commit 5: six registered EV replays through the real chain, pinned as public manifests.
 
-`.agent/W2-05b-build-spec.md` "Commit 5: exact replay, manifest and final checks", the final commit 4-5 dry-read
+`specs/W2-05b/` "Commit 5: exact replay, manifest and final checks", the final commit 4-5 dry-read
 item 4 and "Run 6 rulings (q6), manifest table". Each case runs in a fresh private `*_test` database: install
 EV-LAB-001 -> freeze a registered EV Draft (`RegisteredLabBasis`) -> Host Lab start with the frozen re-read port
 (`StoreEvInputs`) -> a real `assetops_gateway serve` process admits the v2 reports and seals Stage -> the
@@ -619,7 +619,7 @@ def _check_types(document: dict) -> None:
 
 # --- W2-06 R12: the exact vector artifact produced from this persisted chain -------------------------------
 #
-# `.agent/W2-06-build-spec.md` "R12: exact vector artifact (Q1-Q9)". Rows come from the persisted publication ->
+# `specs/W2-06/` "R12: exact vector artifact (Q1-Q9)". Rows come from the persisted publication ->
 # batch -> disposition chain; each accepted envelope is paired to exactly one DeviceReport V2 of
 # `host.ev_publication.ev_reports` by complete report-field projection equality and to the gateway's own
 # report-admission key. `expected` is the R12 table with ID selectors expanded mechanically on `records`.

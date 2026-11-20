@@ -1,7 +1,7 @@
 /**
  * W4-01 commit 5 (`I-incident-ui`, `I-maintenance-ui`): the Site Incident and
  * Maintenance list reads, `GET /api/sites/{site}/work/{incidents|maintenance}`
- * (`site-work-index-1`, `.agent/W4-01-build-spec.md` B1/B8-B10, Run 7 q7-5).
+ * (`site-work-index-1`, `specs/W4-01/` B1/B8-B10, Run 7 q7-5).
  *
  * The client asks for five rows (`limit=5`), passes the window, an optional
  * fixed cutoff (`known_at`) and the server cursor exactly as given, and maps

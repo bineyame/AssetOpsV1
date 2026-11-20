@@ -92,7 +92,7 @@
 
 ### 10e.3 SR-4 live check and the SR-8 empty day (D-SR.64-68)
 
-Source: `AssetOpsV1-sr4` 01f4d3981 `.agent/SR-4-live-check.md`; SR-8 223783035 / 1a4d94dd5.
+Source: `AssetOpsV1-sr4` 01f4d3981 `archive/agent-history/SR-4-live-check.md`; SR-8 223783035 / 1a4d94dd5.
 
 - **F2, Cold/EV Finding detail (D-SR.64): fix in both the page and the reader.**
   - **Cause.** `ColdReadService.finding` (`postgres_assessment_store.py:2645`) and the EV `finding` (`:3672`) look the Finding up inside the requested window: the anchor must lie in `[from,to)`. SR-4 carries the range into the address, and `ColdFindingFrame` and `EvFindingFrame` pass `coldWindowFromParams(params)` to `getFinding`. So under range B the reader answers 404, and under A or Y the header shows the range as the Finding's window. Both break 10.5 N: one record, its own episode.
@@ -310,7 +310,7 @@ SR-5: `task/SR-5-range-board` 3178766d6.
 
 ### 10d.11 SR-10 builder interpretations, kill switch, rebuild test, day-kind build time (D-SR.51-54)
 
-SR-10: `task/SR-10-fuel-range` (core 7f928edb2, route 3fc8c4c23, pins 3ed855559). Packet `.agent/SR-10-packet.md`.
+SR-10: `task/SR-10-fuel-range` (core 7f928edb2, route 3fc8c4c23, pins 3ed855559). Packet `archive/agent-history/SR-10-packet.md`.
 
 | # | Ruling |
 |---|---|
@@ -330,7 +330,7 @@ SR-10: `task/SR-10-fuel-range` (core 7f928edb2, route 3fc8c4c23, pins 3ed855559)
 
 ## Revision 10c (Architect, Claude, 2026-11-12 night): range = telemetry and its consequences (D-SR.39)
 
-- Owner, verbatim (`.agent/owner-all-tabs-respect-range-2026-11-12.md`): "the data range does not affect facts such as the ones you mentioned: foundation, its views, SLD..etc. The point is relevant to telemetry data and its consequence."
+- Owner, verbatim (`owner/owner-all-tabs-respect-range-2026-11-12.md`): "the data range does not affect facts such as the ones you mentioned: foundation, its views, SLD..etc. The point is relevant to telemetry data and its consequence."
 - **Principle.** The range applies to telemetry data and what follows from it: readings, assessments, findings, money, evidence and work. Configuration and assumption facts (Foundation, its views, SLD, changes history, prices, EV assumptions, battery configuration) are not ranged. A fact is still *applied* per day where telemetry uses it.
 
 | Card | Under the principle | Verdict |
@@ -351,7 +351,7 @@ SR-10: `task/SR-10-fuel-range` (core 7f928edb2, route 3fc8c4c23, pins 3ed855559)
 ## Revision 10b (Architect, Claude, 2026-11-12 night): every tab follows the range; SR-10 to SR-14; nothing drops before Saturday
 
 - Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Rulings **D-SR.31-38** (build sheet), owner-directed, logged for owner review.
-- Owner, verbatim (`.agent/owner-all-tabs-respect-range-2026-11-12.md`): "all tabs should respect the date range without exception", and then "we have to work on the items and reassess on saturday and not limit what is in or not now".
+- Owner, verbatim (`owner/owner-all-tabs-respect-range-2026-11-12.md`): "all tabs should respect the date range without exception", and then "we have to work on the items and reassess on saturday and not limit what is in or not now".
 - **Correction to 10a.** 10a.5 said Fuel could read the chain day measure `avoidable_gen_min`. That was wrong. `avoidable_gen_min` is dispatch minutes (`chain/measure_impls.py` `DispatchMinutes`), not fuel. Fuel and Backup both get their range from the stored **hourly `mini_depth` heads** (`mini_depth_selection` with domain `fuel`/`backup`, one per Site-local hour, as `critical_served` reads the `service` heads). It is new **stored day rows**, not a new chain measure. A new MINIGRID entry in `chain/measures.py` `MEASURES` would change every day grade (`chain/read.py` `day_grade` takes the weakest grade over all the Site type's measures), and so the Portfolio, the claims and every SR-5 parity. That is ruled out.
 
 ### 10b.1 SR-10 and SR-11 shared core: two local-day period kinds (SR-10a, 0.35)
@@ -507,7 +507,7 @@ After SR-4 to SR-14 (and SR-9 if any), no data tab is left with a label instead 
 
 ## Revision 10a (Architect, Claude, 2026-11-12 evening): SR-5 and SR-6/7/8 pre-flight rulings
 
-- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Rulings **D-SR.19-30** (`build-sheet-OWN-GAPS-2026-11-08.md`), owner-delegated, logged for owner review. Inputs: `task/SR-6-health-range` 4db92b874 `.agent/SR-678-preflight.md` (Q1-Q9); `task/SR-5-range-board` 7ae69039b `.agent/SR-5-packet.md` (safe readings, (d), (f)) and the coordinator's two added questions (demo window, route classes). No new scope: every ruling below uses existing tables, functions and rows.
+- Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Rulings **D-SR.19-30** (`build-sheet-OWN-GAPS-2026-11-08.md`), owner-delegated, logged for owner review. Inputs: `task/SR-6-health-range` 4db92b874 `archive/agent-history/SR-678-preflight.md` (Q1-Q9); `task/SR-5-range-board` 7ae69039b `archive/agent-history/SR-5-packet.md` (safe readings, (d), (f)) and the coordinator's two added questions (demo window, route classes). No new scope: every ruling below uses existing tables, functions and rows.
 - **Corrections to rev 10 text.** 10.1: `daylight_headroom_kw` covers the declared **operating** hours (`chain/measures.py:49-50`), not "measured daylight hours". 10.2 step 3: the cutoff is the disposition time, not `received_at` (D-SR.19). 9.4 step 5: an unmatched selected day is STILL_PROCESSING, not NOT_ANALYSED (D-SR.28).
 
 ### 10a.1 SR-6 (lane I)
@@ -563,7 +563,7 @@ After SR-4 to SR-14 (and SR-9 if any), no data tab is left with a label instead 
 ## Revision 10 (Architect, Claude, 2026-11-12 ~14:30): SR-6, SR-7, SR-8 IN now; every range disparity fixed; lanes for today
 
 - Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Rulings **D-SR.13-18** (`build-sheet-OWN-GAPS-2026-11-08.md`), owner-directed, logged for owner review.
-- Owner, verbatim (`.agent/owner-everything-fixed-now-demo-off-2026-11-12.md`): "Everything must be fixed now, demo today is called off because of this".
+- Owner, verbatim (`owner/owner-everything-fixed-now-demo-off-2026-11-12.md`): "Everything must be fixed now, demo today is called off because of this".
 - **What this revision changes.** Rev 9's 9.3 "GAP" rows and its "Known gaps for 17 Nov" list are superseded: SR-6, SR-7 and SR-8 are **IN, starting now**. The rule stays D-SR.9. Written under a 10-minute cut (work moving to the VPS). Sections marked **TO FINISH ON VPS** are closed by the builder's pre-flight answer to the Architect, never by the builder designing.
 
 ### 10.1 Stored data every SR-6/7/8 read reuses (code on main, cited)
@@ -695,7 +695,7 @@ After SR-4 to SR-14 (and SR-9 if any), no data tab is left with a label instead 
 ## Revision 9 (Architect, Claude, 2026-11-12 ~13:30): data in the range means output for the range, on every Site type (SR-5 IN)
 
 - Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude. Rulings **D-SR.9-12** (`build-sheet-OWN-GAPS-2026-11-08.md`), owner-directed or owner-delegated, logged for owner review.
-- Owner, verbatim (`.agent/owner-range-output-rule-2026-11-12.md`): "this should not have been the case to begin with, if there is data in the range, then there should be corresponding output, why was such a site specific disparity in design introduced to being with?" Earlier: "fix it now" (`.agent/owner-site-range-fix-now-2026-11-12.md`).
+- Owner, verbatim (`owner/owner-range-output-rule-2026-11-12.md`): "this should not have been the case to begin with, if there is data in the range, then there should be corresponding output, why was such a site specific disparity in design introduced to being with?" Earlier: "fix it now" (`owner/owner-site-range-fix-now-2026-11-12.md`).
 - **What this revision changes.** Rev 8's 8.1 table and its "Honest limit" are superseded where they disagree with D-SR.9. SR-5 moves from the backlog to **IN for 17 Nov**. SR-4 (lane G) is unchanged and still ships first. SR-4d (day strip) is OUT, because SR-5's day table replaces it.
 
 ### 9.1 The rule (D-SR.9, a standing product rule)
@@ -1106,7 +1106,7 @@ Evidence: the verifier's run (`results2.json`, two ranges, 3–9 Nov and 27 Oct 
 ## Revision 7 (Architect, Claude, 2026-11-12 ~07:10): the owner's 17 Nov expectations, answered item by item
 
 - Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude (since 2026-10-27).
-- Owner, verbatim (`.agent/owner-17nov-expectations-2026-11-12.md`): "why is the ~2 sec target not done sooner than nov 17, especially with the new macine, i expect both a super modern UI and all performance related things as well as signifiant data converage to be in for client demo. i also expect client data upload and modbus to be in by then."
+- Owner, verbatim (`owner/owner-17nov-expectations-2026-11-12.md`): "why is the ~2 sec target not done sooner than nov 17, especially with the new macine, i expect both a super modern UI and all performance related things as well as signifiant data converage to be in for client demo. i also expect client data upload and modbus to be in by then."
 - Rulings **D-17N.1-7** (`build-sheet-OWN-GAPS-2026-11-08.md`), logged for owner review. Revisions 4-6 stand except where 7.8 changes the lanes, the priority and the late-merge window.
 - Units are agent-pace build units (each includes review and one fix round). Measured rate (section 0.1): about 1.75 units per lane per day, 4-8 units per calendar day across 3-4 lanes; lower on days with a prepare or a walkthrough.
 
@@ -1132,7 +1132,7 @@ Evidence: the verifier's run (`results2.json`, two ranges, 3–9 Nov and 27 Oct 
 
 **Where it stands today (cited).**
 - **Site boards: done.** ANY-1 (AR-0, AR-1, AR-2) merged `5ffe50d09`. It gates every mini-grid board day at ≤2 s cold, with parity 59/0/0. AR-6 (Cold/EV boards under 1 s) merged `ef02bd649`. The rows serve only when `ASSETOPS_PERIOD_READ_KINDS` names them. The walk7 serve sets the four `mini_depth.*` kinds; `dispatch.day` stays off until combined parity passes (handoff 06:40).
-- **Portfolio: not done.** AR-4 (`task/ANY-2-AR4`, packet `AssetOpsV1-ar4/.agent/AR-4-packet.md`). Client4, cold, store off:
+- **Portfolio: not done.** AR-4 (`task/ANY-2-AR4`, packet `AssetOpsV1-ar4/archive/agent-history/AR-4-packet.md`). Client4, cold, store off:
 
 | Request | rows off | claim + dispatch.day rows, first switch | after the second switch (D-ANY.10 item 4) |
 |---|---|---|---|
@@ -1427,9 +1427,9 @@ Evidence: the verifier's run (`results2.json`, two ranges, 3–9 Nov and 27 Oct 
 ## Revision 6 (Architect, Claude, 2026-11-12): UQ-FI, a first-impression UI pass for 17 Nov
 
 - Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude (since 2026-10-27).
-- Owner, verbatim (`.agent/owner-ui-first-impression-2026-11-12.md`): "option 1, show me the design sheet after the demo". Option 1 = UQ-1-level type, spacing and Inter across the app, plus one headline per demo page and repeated "not available" lines collapsed to one per section; own lane from Fri; starts only after the owner approves the parked v7.2 sheet; held whole if not ACCEPTed by Sat 20:00.
+- Owner, verbatim (`owner/owner-ui-first-impression-2026-11-12.md`): "option 1, show me the design sheet after the demo". Option 1 = UQ-1-level type, spacing and Inter across the app, plus one headline per demo page and repeated "not available" lines collapsed to one per section; own lane from Fri; starts only after the owner approves the parked v7.2 sheet; held whole if not ACCEPTed by Sat 20:00.
 - Supersedes revision 3's "UQ-1 out" line for this subset only. UQ-0's other parts, UQ-2 (dark), UQ-3, UQ-4 and UQ-5..8 stay in the backlog (BL-69). Rulings **D-UQFI.1-5** below, logged for owner review.
-- Basis: `.agent/architect-answer-ui-quality-2026-11-10.md` problems 1-3 (type, no headline, honesty wording crowding the page). Problems 4 (charts) and 5 (i18n) are not touched.
+- Basis: `archive/agent-history/architect-answer-ui-quality-2026-11-10.md` problems 1-3 (type, no headline, honesty wording crowding the page). Problems 4 (charts) and 5 (i18n) are not touched.
 
 ### 6.1 Scope: UQ-FI, 1.9 units (D-UQFI.1)
 
@@ -1610,7 +1610,7 @@ Evidence: the verifier's run (`results2.json`, two ranges, 3–9 Nov and 27 Oct 
 ## Revision 5 (Architect, Claude, 2026-11-12): price entry back IN, saved as "Entered by site admin"
 
 - Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude (since 2026-10-27).
-- Owner, verbatim (`.agent/owner-price-entry-in-scope-2026-11-12.md`): "yes, price entry in scope as site admin"
+- Owner, verbatim (`owner/owner-price-entry-in-scope-2026-11-12.md`): "yes, price entry in scope as site admin"
 - Supersedes revision 4's "PR-3 out" line only. AR-3+AR-6, AR-4, PR-1 and PR-2a stand as written. The attribution rule is **D-PRICE.1** (`build-sheet-OWN-GAPS-2026-11-08.md`).
 
 ### 5.1 What PR-3 is for 17 Nov (scope ruling)
@@ -1810,7 +1810,7 @@ The coordinator sends items 3, 4, 6, 7, 8, 10 and 11 to the owner in one message
 ### Dispatch brief (revision 5)
 
 **PR-3 site-admin price entry.** Opus. Wt `AssetOpsV1-pr3`, branch `task/PR-3-price-entry` from `task/PR-1-price-action` (rebase onto main after PR-1 merges, then onto PR-2a for the frontend). 1.0 unit.
-- Spec: this revision, 5.2-5.4; D-PRICE.1; `.agent/architect-answer-price-it-2026-11-10.md` §4.2 and §4.5 (form fields, change kinds); precedent `work/operational_entry.py`, `work_api.py:198-216`.
+- Spec: this revision, 5.2-5.4; D-PRICE.1; `archive/agent-history/architect-answer-price-it-2026-11-10.md` §4.2 and §4.5 (form fields, change kinds); precedent `work/operational_entry.py`, `work_api.py:198-216`.
 - Thu pm: server, migration and no-DB tests only. Postgres only on the coordinator's go, own `*_test` DB, never client4, client6 or client7.
 - Pre-flight questions (one batch, before code): the Site time-zone lookup to reuse; whether `store.snapshot` gives the current assignments the derivation needs; the migration number free at that moment.
 - Packet: the refusal table as tested, the derivation table, the Postgres flow output (the before and after money line, and as-known-at), layout evidence, and any MOCK DEVIATION labels.
@@ -1818,7 +1818,7 @@ The coordinator sends items 3, 4, 6, 7, 8, 10 and 11 to the owner in one message
 ## Revision 4 (Architect, Claude, 2026-11-11 ~18:00): any-range speed first, "price it" next
 
 - Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude.
-- Owner, verbatim (`.agent/owner-price-it-and-speed-priority-2026-11-11.md`): "i want pricing early warnings and unpriced items to be done and the speedup for any date range priortised"
+- Owner, verbatim (`owner/owner-price-it-and-speed-priority-2026-11-11.md`): "i want pricing early warnings and unpriced items to be done and the speedup for any date range priortised"
 - Tonight is unchanged (D-ANY.6, build sheet): AR-0 baseline, AR-2, prepare by 22:30. The machine is reserved 22:15 to about 03:30. HON-1 and OPEN-NOW merge after the tag.
 
 **Ruling on AR-4 and PF-O2: PF-O2 is not required.**
@@ -1848,7 +1848,7 @@ The coordinator sends items 3, 4, 6, 7, 8, 10 and 11 to the owner in one message
 ### Dispatch briefs (revision 4)
 
 **AR-3 + AR-6.** Opus. Wt `AssetOpsV1-ar3`, branch `task/ANY-2-AR3-AR6` from `task/ANY-1-rows` (rebase onto main after ANY-1 merges). 1.5 units.
-- Spec: `.agent/architect-answer-any-range-speed-2026-11-10.md` AR-3, AR-6, D-ANY.1-6.
+- Spec: `archive/agent-history/architect-answer-any-range-speed-2026-11-10.md` AR-3, AR-6, D-ANY.1-6.
 - AR-3: kind `dispatch.day` on DATA-12 graded local days (not `dispatch_days`); `coverage._mini_grid_basis` reads rows; match pass unchanged.
 - AR-6: the board's 4 work-index reads become one; Cold/EV boards under 1 s cold.
 - Kill switch: the D-ANY.6 env list (an omitted kind = old path).
@@ -1862,7 +1862,7 @@ The coordinator sends items 3, 4, 6, 7, 8, 10 and 11 to the owner in one message
 - Do not touch `estate/coverage` (AR-3's files); coordinate the shared register file by rebasing.
 
 **PR-1 + price-page draft.** Opus. Wt `AssetOpsV1-pr1`, branch `task/PR-1-price-action` from main. 0.5 unit plus the draft.
-- Spec: `.agent/architect-answer-price-it-2026-11-10.md` sections 3 and 7.
+- Spec: `archive/agent-history/architect-answer-price-it-2026-11-10.md` sections 3 and 7.
 - Tonight: a v7.1 price-page mockup draft (read-only view, history, the administrator sentence) for the owner, in `frontend/mockups/`.
 - PR-1: server `price_action` (two shapes) on every unpriced item; words server-side; frontend link to `/sites/:id/prices` with `return`. Until PR-2a lands, the target shows an honest "not available yet".
 - No write path; `HUMAN_PRINCIPAL_REQUIRED` unchanged.
@@ -1870,7 +1870,7 @@ The coordinator sends items 3, 4, 6, 7, 8, 10 and 11 to the owner in one message
 
 ## Revision 3 (Architect, Claude, 2026-11-11 evening): UI deferred, functional pull-in
 
-- Owner, verbatim (`.agent/owner-answers-17nov-scope-2026-11-11.md`): "lets depriortize the UI asepct for now in the backlog and we'll come back to it later, lets focus on the functional ones".
+- Owner, verbatim (`owner/owner-answers-17nov-scope-2026-11-11.md`): "lets depriortize the UI asepct for now in the backlog and we'll come back to it later, lets focus on the functional ones".
 - **Out of 17 Nov, to the backlog (BL-69):** UQ-0 sheet (built, branch `task/UQ-0-v72-sheet`, kept unmerged, awaits approval later), UQ-1 tokens/type/Inter, UQ-2 themes, UQ-3 states/quick wins, UQ-4..UQ-8. The session uses today's light look, English only. Lane D's C1 (PB-5/6/8, RM-1, RM-2, in review) stays IN: it is honesty and wording, not look. The C.5 collision rules about UQ-1 and UQ-2 no longer apply.
 - **Freed: about 4 units** (UQ-0 0.5 done but parked, UQ-1 1.25, UQ-3 0.5, UQ-2 1.0, plus lane D time from Thu ~13:00).
 
@@ -1902,14 +1902,14 @@ The coordinator sends items 3, 4, 6, 7, 8, 10 and 11 to the owner in one message
 - Named test files only, own `*_test` DB, no prepare. Do not touch wt `AssetOpsV1-e3d`, DB client6, ports 8990/5490, Docker until Thursday's demo ends.
 
 **OPEN-NOW Work pages "open now" line.** Opus. Wt `AssetOpsV1-opennow`, branch `task/OPEN-NOW-work-read` from main. 0.5 unit. Lane B.
-- **Spec:** `.agent/architect-proposal-portfolio-layout-2026-11-10.md` line ~581; PB-1c packet note (global Work `state_counts` are window-filtered).
+- **Spec:** `archive/agent-history/architect-proposal-portfolio-layout-2026-11-10.md` line ~581; PB-1c packet note (global Work `state_counts` are window-filtered).
 - **Backend:** add `open_now` counts (by work kind: requests, actions, as the Work pages show them) to the existing global and Site Work list responses, computed with no date filter but the same `known_at` cutoff and Site scope. No new endpoint unless the list contract cannot carry it; contract type in `contracts`.
 - **Frontend:** one line above each Work list, "Open now: 3 requests, 1 action, whatever the dates"; zero reads "Nothing open now". Words server-side or in the existing Work words file, never composed from raw codes.
 - **Tests:** backend count ignores the range but obeys `known_at`; one frontend test per Work page; revise register rows R338/S17 if found, else note in packet.
 - Same machine rules as HON-1.
 
 **AR-3 + AR-6 (ANY-2 core).** Opus. Wt `AssetOpsV1-ar3`, branch `task/ANY-2-AR3-AR6` from `task/ANY-1-rows` (bb3d7645c). 1.5 units. Lane A or C.
-- **Spec:** `.agent/architect-answer-any-range-speed-2026-11-10.md` rows AR-3, AR-6 and D-ANY.1-5. AR-3 builds on DATA-12's graded local days, not `dispatch_days` (C.5).
+- **Spec:** `archive/agent-history/architect-answer-any-range-speed-2026-11-10.md` rows AR-3, AR-6 and D-ANY.1-5. AR-3 builds on DATA-12's graded local days, not `dispatch_days` (C.5).
 - **Now:** code and non-Postgres tests only. Postgres tests only after the coordinator's go (after Thursday's demo, never beside the scratch prepare or the ANY-1 baseline).
 - **Merge:** after ANY-1 (AR-0..AR-2) merges; rebase then. Held unmerged if not ACCEPTed by Sat 20:00; the Portfolio then uses pre-built ranges.
 - Packet lists the parity cases it adds to AR-0's harness.
@@ -1917,8 +1917,8 @@ The coordinator sends items 3, 4, 6, 7, 8, 10 and 11 to the owner in one message
 ## Client demo Tue 17 Nov: cut and start order (Architect, Claude, 2026-11-11; revision 2 after the owner's answers; revision 1 is in git at 22d877b1d)
 
 - Binding checked: `.ai/ROLE_CONFIG.md` Architect = Claude since 2026-10-27.
-- Owner, verbatim (`.agent/owner-tag-optionb-client-date-2026-11-11.md`): "yes tag it and add the backlog item, lets go with option B for now. Also, lets proceed with the items for today right away, and i want my walkthrough comment items to start building. THe client demo will be on 17-Nov"
-- Owner answers, verbatim (`.agent/owner-answers-17nov-scope-2026-11-11.md`): "here is my response 1. No 2.No 3. yes 4. yes 5.I need more context on this 6. I need more context on this 7.I will start talking to different client starting with Minigrid and EV , likely executives 8.Sunday 3PM ready for walkthrough or am available finished earlier too"
+- Owner, verbatim (`owner/owner-tag-optionb-client-date-2026-11-11.md`): "yes tag it and add the backlog item, lets go with option B for now. Also, lets proceed with the items for today right away, and i want my walkthrough comment items to start building. THe client demo will be on 17-Nov"
+- Owner answers, verbatim (`owner/owner-answers-17nov-scope-2026-11-11.md`): "here is my response 1. No 2.No 3. yes 4. yes 5.I need more context on this 6. I need more context on this 7.I will start talking to different client starting with Minigrid and EV , likely executives 8.Sunday 3PM ready for walkthrough or am available finished earlier too"
 - What that means:
   - **IN for 17 Nov:** any-range speed (ANY-1 and ANY-2), the shared date range (SR), and the design foundation with light and dark themes. (Revision 3: the design foundation moved to the backlog, owner 2026-11-11.)
   - **Approved:** `portfolio-tabs.html` is the layout spec, and RM-2 is approved.
@@ -2047,7 +2047,7 @@ Moved after 17 Nov: B3 PF-O and C3 FR-B.
 
 **A5 UQ-6a server message seam.** Opus. Wt `AssetOpsV1-uq6a`, branch `task/UQ-6a-message-seam`. 0.25 unit. Lane A, after A2. **Must merge before AR-1's first commit.**
 - **Goal:** server words are stored and sent as `{key, params}` and rendered for the request locale at read; never stored as composed text.
-- **Spec:** `.agent/architect-plan-pre-client-2026-11-10.md` UQ-6a row (section 1 table) and §4.3 D-I18N.1, D-I18N.2.
+- **Spec:** `archive/agent-history/architect-plan-pre-client-2026-11-10.md` UQ-6a row (section 1 table) and §4.3 D-I18N.1, D-I18N.2.
 - **Scope now, English only:**
   - the contract type and the render function;
   - `Accept-Language` resolution falling back to `en`, and `Content-Language` on responses;
@@ -2058,7 +2058,7 @@ Moved after 17 Nov: B3 PF-O and C3 FR-B.
 - **Tests:** render of `{key, params}`; unknown locale falls back to `en`; the cache key differs by locale; `Content-Language` header; the converted body is byte-equal in English to today.
 
 **A6 AR-0 + AR-1 parity guard and read-row foundation (start of ANY-1).** Opus. Wt `AssetOpsV1-any1`, branch `task/ANY-1-rows`. 1.5 units. Lane A after A5.
-- **Spec:** `.agent/architect-answer-any-range-speed-2026-11-10.md` §4 (cards AR-0, AR-1; risks table); D-ANY.1-4 and D-MONEY.1-4 in `build-sheet-OWN-GAPS-2026-11-08.md` (the generic row contract carries money receipts); D-I18N.1 (row bodies hold keys).
+- **Spec:** `archive/agent-history/architect-answer-any-range-speed-2026-11-10.md` §4 (cards AR-0, AR-1; risks table); D-ANY.1-4 and D-MONEY.1-4 in `build-sheet-OWN-GAPS-2026-11-08.md` (the generic row contract carries money receipts); D-I18N.1 (row bodies hold keys).
 - **Order inside the slice:**
   1. The AR-0 harness: every story request plus seeded random ranges (board any day; Portfolio any from/to up to 31 days; historical `known_at`); row-based compose equals today's compose byte for byte. `perf_budget.py` arbitrary-range cases with the store off and no pre-build: board 2 s or less, Portfolio month 2 s or less.
   2. **The baseline run only after PB-4, PB-7, PB-1a and PB-1b are on main** (the coordinator confirms).
@@ -2068,7 +2068,7 @@ Moved after 17 Nov: B3 PF-O and C3 FR-B.
 
 **B4 SR-1 shared range bar and state.** Opus. Wt `AssetOpsV1-pft`, branch `task/SR-1-shared-range`. 0.5 unit. Lane B after B2.
 - **Goal:** one date range in a new top-bar row on every page; left menu unchanged.
-- **Spec:** `.agent/architect-proposal-portfolio-layout-2026-11-10.md` "Item 12.5", SR.3 and SR.4; layout: `frontend/mockups/v71/portfolio-tabs.html` Change 0b (approved spec), top bar "All pages" in `estate-outcomes-scale.html`; D-UI.2 (the range lives in the address only).
+- **Spec:** `archive/agent-history/architect-proposal-portfolio-layout-2026-11-10.md` "Item 12.5", SR.3 and SR.4; layout: `frontend/mockups/v71/portfolio-tabs.html` Change 0b (approved spec), top bar "All pages" in `estate-outcomes-scale.html`; D-UI.2 (the range lives in the address only).
 - **Files:**
   - `SharedRangeBar` in `OperatorShellLayout`; the demonstration banner stays;
   - `useSharedRange`, returning `{from, to, known_at, preset}` and reading both address forms;
@@ -2088,7 +2088,7 @@ Moved after 17 Nov: B3 PF-O and C3 FR-B.
 
 ## 0. Agent-pace plan, re-assess Thu 12 Nov morning (added 2026-11-11; replaces the working-day calendar in sections 1 and 3.2; scope, order and decisions stay)
 
-Owner, verbatim (`.agent/owner-units-by-friday-2026-11-11.md`): "the time estimates are for human developement, we should be able to do the indicated units in time for Friday" and then "let it not say which would land by Friday, we wait until Thursday morning for re-assessment".
+Owner, verbatim (`owner/owner-units-by-friday-2026-11-11.md`): "the time estimates are for human developement, we should be able to do the indicated units in time for Friday" and then "let it not say which would land by Friday, we wait until Thursday morning for re-assessment".
 
 - **You are right that my calendar was too slow.** I sized lanes at 1.5 units per *working* day. Agents run most of the 24 hours, every day of the week.
 - **This section therefore sets the lanes and the order at agent pace, starting now.** It does not forecast what lands by Friday. Progress is re-assessed Thursday morning against the actual merges.
@@ -2167,7 +2167,7 @@ Owner, verbatim (`.agent/owner-units-by-friday-2026-11-11.md`): "the time estima
 
 Owner, verbatim (same file): "on a side note, i have also obtained SD card and will get the beaglebone ready by EOD today"
 
-**Where it stands.** The spec is `.agent/build-spec-telemetry-2026-10-27.md` §TEL-08; the board ruling is `.agent/architect-beaglebone-wheezy-2026-10-29.md`.
+**Where it stands.** The spec is `specs/Lane-T/` §TEL-08; the board ruling is `.agent/architect-beaglebone-wheezy-2026-10-29.md`.
 - The field poller (`field/assetops_field`), the GX-shaped emulator and the gateway are built and proven on the laptop (TEL-01 to TEL-06).
 - TEL-08 itself was never built. `host/tests/field_bench.py` has helpers only; its `setup`, `activate` and `read` commands do not exist yet.
 - The board's own OS (Debian 7, Python 2.7) cannot run the code (requires Python 3.12+). Hence the SD card.

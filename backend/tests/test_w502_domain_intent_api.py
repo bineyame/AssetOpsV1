@@ -1,6 +1,6 @@
 """W5-02a K1a: the domain-work command routes - shared W4 gate order, wire bodies, 201/200 retry and refusals.
 
-`.agent/W5-02-build-spec.md` "Command/read wire" (refusal order) and Architect pre-flight ruling A2. The success
+`specs/W5-02/` "Command/read wire" (refusal order) and Architect pre-flight ruling A2. The success
 path uses the ordinary cold replay fixture of `test_w502_domain_intent_postgres.py`. Requires
 ASSETOPS_TEST_DATABASE_URL naming a `*_test` database.
 """

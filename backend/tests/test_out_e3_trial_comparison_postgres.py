@@ -1,4 +1,4 @@
-"""OUT-E E3: the cost check a newly inserted final outcome appends, on the real stores (`.agent/build-sheet-OUT-E.md`).
+"""OUT-E E3: the cost check a newly inserted final outcome appends, on the real stores (`specs/OUT-E/spec.md`).
 
 Each scenario builds in a child (`out_e_trial_child.py`; the S6 builders read the database URL at import) into its
 own fresh `assetops_out_e_trial_<case>_test` database, dropped afterwards (the OUT-B4 `_case_db` helper):

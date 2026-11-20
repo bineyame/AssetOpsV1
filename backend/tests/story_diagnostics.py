@@ -1,7 +1,7 @@
 """DATA-5 (D-17N.4): the story harnesses forward gateway diagnostics to the product's diagnostics ingestion.
 
 Before DATA-5 the story centrals answered a gateway's diagnostic post with `201 {}` and stored nothing, so Cold, EV and
-Kisiwa Health read "Not in the gateway's latest report · Unknown" (`.agent/architect-answer-non-kobo-sites-2026-11-10.md`
+Kisiwa Health read "Not in the gateway's latest report · Unknown" (`archive/agent-history/architect-answer-non-kobo-sites-2026-11-10.md`
 E14, K16). The ingestion is the one behind `POST /api/gateways/{gateway_id}/diagnostics`
 (`assetops_backend.gateway_api`, `DiagnosticIngestionService`); this module only routes the harness's posts to it.
 

@@ -1,6 +1,6 @@
 """W5-02a K1a: the cold domain Action root, its declared intent and its explicit W4 case link.
 
-`.agent/W5-02-build-spec.md` "K1 migration", "Backend wire, validation and lineage (K1a-K1c)" and the Architect
+`specs/W5-02/` "K1 migration", "Backend wire, validation and lineage (K1a-K1c)" and the Architect
 pre-flight ruling A1/A4. Chains to `0032_w5_cold_scenarios`. Creates three append-only tables:
 
 - `domain_action`: the immutable public root under the shared Action code namespace (`action_code_seq`, `ACT-`).

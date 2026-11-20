@@ -1,6 +1,6 @@
 """W3-01 estate request grammar, refusals, access basis, selection token and cursor (pure; no storage).
 
-Spec: `.agent/W3-01-build-spec.md` "Refusal table and cursor", Review closure B6/S12/S15, the `estate-selection/2`
+Spec: `specs/W3-01/` "Refusal table and cursor", Review closure B6/S12/S15, the `estate-selection/2`
 amendment and Run 5 ruling 4 (strict shared parser). Every estate root takes whole UTC midnight days `[from, to)`
 of at most 31 days and an optional UTC `known_at`; the later-than-read-time check happens inside the snapshot.
 """

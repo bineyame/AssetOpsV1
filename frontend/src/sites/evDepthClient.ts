@@ -1,5 +1,5 @@
 /**
- * W5-03a E2: read-only client for an EV charging Site's three selected depth reads (`.agent/W5-03-build-spec.md`
+ * W5-03a E2: read-only client for an EV charging Site's three selected depth reads (`specs/W5-03/`
  * "E1a/E1b wire payloads" and the W5-03a pre-flight rulings):
  *
  *   GET /api/sites/{site_code}/ev/availability

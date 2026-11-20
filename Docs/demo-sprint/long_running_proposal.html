@@ -177,7 +177,7 @@ details.q[open] summary{margin-bottom:6px}
 <button class="themebtn" id="themebtn" type="button">Light / dark</button>
 <h1>Long-Running Simulation Proposal</h1>
 <p class="lede">How AssetOps can simulate 91 days of a site's history in a minute or two, inside a quarter of a gigabyte, without changing any result the product already shows.</p>
-<p class="meta">AssetOps, 28 October 2026. Architect: Claude (<code>.ai/ROLE_CONFIG.md</code>, "Architect Is Claude By Default"). Branch <code>plan/commercial-capability-assessment</code>. Owner request, word for word: <code>.agent/owner-long-running-proposal-2026-10-28.md</code>. The design itself is ruled in <a href="demo-data-strategy.html#efficient">Demo Data Strategy revision 4, §13</a>; this document explains it and does not change it. Where they differ, §13 governs. Code claims were re-read at <code>069bcd61</code>. This is a plan: no code, test or measurement was run for it.</p>
+<p class="meta">AssetOps, 28 October 2026. Architect: Claude (<code>.ai/ROLE_CONFIG.md</code>, "Architect Is Claude By Default"). Branch <code>plan/commercial-capability-assessment</code>. Owner request, word for word: <code>owner/owner-long-running-proposal-2026-10-28.md</code>. The design itself is ruled in <a href="demo-data-strategy.html#efficient">Demo Data Strategy revision 4, §13</a>; this document explains it and does not change it. Where they differ, §13 governs. Code claims were re-read at <code>069bcd61</code>. This is a plan: no code, test or measurement was run for it.</p>
 </header>
 
 <h2 id="short">0 The proposal in short</h2>
@@ -611,7 +611,7 @@ for seg in segments:
 <h2 id="sources">8 Sources and checks</h2>
 <details class="q"><summary>What was read and checked for this document</summary>
 <ul>
-<li>Design authority: <a href="demo-data-strategy.html#efficient">Demo Data Strategy revision 4 §13</a> and cards DD-05a, DD-06, DD-05b, DD-05, DD-07a/b; owner-facing reply <code>.agent/architect-reply-simpler-long-run-2026-10-28.md</code>.</li>
+<li>Design authority: <a href="demo-data-strategy.html#efficient">Demo Data Strategy revision 4 §13</a> and cards DD-05a, DD-06, DD-05b, DD-05, DD-07a/b; owner-facing reply <code>archive/agent-history/architect-reply-simpler-long-run-2026-10-28.md</code>.</li>
 <li>Re-read at <code>069bcd61</code>: <code>simulator/assetops_simulator/packs/cold.py</code> (68-73, 213, 400-416), <code>packs/ev_charger.py:38</code>, <code>packs/mini_grid.py:26-35</code>, <code>kernel/execute.py</code> (34, 1278-1298), <code>observation/transform.py:214-222</code>; <code>host/lab_execution.py</code> (1888-1923, 2944-2970); <code>host/gateway_publication.py:128-153</code>; <code>host/cold_publication.py:228</code>; <code>contracts/assetops_contracts/source_envelope.py:1076-1080</code>; <code>backend/assetops_backend/evidence/publication.py:208-230</code>; <code>evidence/source_provenance.py:192-206</code>. All facts quoted in §13 held. No long-run code exists yet.</li>
 <li>Measurements are the Architect's three scratch timings from §13.1. None were rerun for this document.</li>
 <li>Precedents named are general industry practice, cited from the Architect's knowledge, not re-fetched.</li>

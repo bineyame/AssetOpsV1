@@ -1,7 +1,7 @@
 """LR-01 phase 2: the outcome table on the authored late-power fixture, end to end in Postgres.
 
 Packet `tasks/LR-01-late-reading-series-and-money-limit.md` (outcome table), decision
-`D-2026-10-15-lr01-source-time-cohort` and `.agent/architect-LR-01-answers.md` Q4. The fixture
+`D-2026-10-15-lr01-source-time-cohort` and `archive/agent-history/architect-LR-01-answers.md` Q4. The fixture
 `backend/conversions/s4-power-late-demo-cases-v1.json` is delivered through the in-process Batch V2 path,
 assessed (dispatch-3.2), matched (finding-episode-3) and recomputed (fuel-cost-1) by the durable workers; the
 consequence read is built with the production `MoneyEligibility` gate over the same stores.

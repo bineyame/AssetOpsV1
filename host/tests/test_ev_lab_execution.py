@@ -1,5 +1,5 @@
 """W2-05b commit 4: an EV run through the Host Lab - frozen re-read, one-shot window, Stage, schema-7 artifact,
-durable delayed schedule, restart and the Commit gate (`.agent/W2-05b-build-spec.md` q4 Q20-Q25).
+durable delayed schedule, restart and the Commit gate (`specs/W2-05b/` q4 Q20-Q25).
 
 A real EV Draft is frozen by `RunSetupService` over a fresh in-memory EV-LAB-001 install (corrected map), so the
 registered basis, snapshot bytes and signal mappings are the production ones; `StoreEvInputs` re-reads the same

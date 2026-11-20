@@ -1,5 +1,5 @@
 /* W4-03 unit 9b: app vs v69 mock captures at 1440 and 390 for the three W4-03 screens and both Site Work screens.
-   `.agent/W4-03-build-spec.md` "Unit-9 rulings (u9)": capture matrix, inclusive height caps and width limits.
+   `specs/W4-03/rulings-4.md` "Unit-9 rulings (u9)": capture matrix, inclusive height caps and width limits.
    Usage (through the walkthrough tool, which seeds the capture stock first):
      python tools/w403_mini_decisions_walkthrough.py --db <x_test> --work var/<dir> capture --web http://localhost:6147
    or directly: node tools/w403-mini-decisions-evidence.mjs <web> <work>/capture [positive|late]
@@ -15,6 +15,8 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { widthGuard } from "./evidence-checks.mjs";
+import { assertHeavySlot } from "./heavy_slot_check.cjs";
+assertHeavySlot("browser capture"); // T1 (spec §5.4): a browser capture runs only inside the heavy-tool slot pool
 
 const [, , WEB = "http://localhost:6147", OUT, PHASE = "late"] = process.argv;
 if (!["positive", "late"].includes(PHASE)) { console.error(`unknown phase ${PHASE}`); process.exit(2); }

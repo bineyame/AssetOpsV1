@@ -1,6 +1,6 @@
 """CC-M (owner Q14): migrations `0036_cc_mini_contribution` and `0037_cc_trial_cost_comparison` against Postgres.
 
-`.agent/build-spec-commercial-2026-10-27.md` "CC-M" gates: the chain and sole head; the exact
+`specs/Lane-C/rulings.md` "CC-M" gates: the chain and sole head; the exact
 `trial_cost_comparison_revision` catalog (columns, named CHECKs, FKs, UNIQUEs, index, trigger); the new mini scenario
 kind is admitted after 0036 and refused before it, and 0036's downgrade refuses while a row uses it; `downgrade
 0035_w5_ev_work` then `upgrade head`; the append-only trigger refuses UPDATE and DELETE; the chain CHECK refuses

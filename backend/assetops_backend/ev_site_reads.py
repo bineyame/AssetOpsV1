@@ -1,4 +1,4 @@
-"""W2-07 commit 3: the five selected EV Site reads (`.agent/W2-07-build-spec.md` "Five selected reads", "Commits 2-3",
+"""W2-07 commit 3: the five selected EV Site reads (`specs/W2-07/spec.md` "Five selected reads", "Commits 2-3",
 concrete-artifact closure section 2, the post-W2-06 reconciliation and q1-q4).
 
 A pure composition over injected collaborators: `reads` is W2-06's `EvReadService` (its own snapshot, currentness,

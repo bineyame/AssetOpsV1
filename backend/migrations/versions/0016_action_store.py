@@ -1,6 +1,6 @@
 """S6-01a phase 1: append-only Action, event, policy-change and Action-owned basis rows.
 
-`D-2026-10-15-s601-action-store-and-ui` (`.agent/architect-S6-01-answers.md` Q1-Q5, M1-M3). An Action is created
+`D-2026-10-15-s601-action-store-and-ui` (`archive/agent-history/architect-S6-01-answers.md` Q1-Q5, M1-M3). An Action is created
 on acceptance of a server-computed `reserve-trial-1` recommendation for a persisted FindingRevision; it has no
 PROPOSED state and no recommendation table (a pre-acceptance proposal is computed from persisted inputs).
 

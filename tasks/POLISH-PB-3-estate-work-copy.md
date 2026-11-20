@@ -4,7 +4,7 @@ Status: in_review
 USER_REVIEW_REQUIRED: false
 Lane: B (frontend and tools). Units: 6. Branch `task/POLISH-PB-3-estate-work-copy`.
 
-The spec is `.agent/build-sheet-POLISH.md`. The sections that apply:
+The spec is `specs/POLISH/`. The sections that apply:
 - §1.2 (P-07), §1.4 (P-09, frontend half), §1.5 (P-10).
 - The Estate, Cold, EV, Maintenance and WR rows of §3.1.
 - §5 Lane B "PB-3", and §7 (R660+; close R630).

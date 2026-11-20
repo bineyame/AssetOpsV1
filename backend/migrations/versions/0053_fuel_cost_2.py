@@ -1,4 +1,4 @@
-"""FUEL-1 A1 + A2 (`.agent/build-sheet-FUEL-1.md` §4.1, §4.2, §1.3): fuel-cost-2 and trial-fuel-comparison/2.
+"""FUEL-1 A1 + A2 (`specs/FUEL-1/` §4.1, §4.2, §1.3): fuel-cost-2 and trial-fuel-comparison/2.
 
 One migration carries both units' CHECK changes, so A2 adds none (no Alembic-head race).
 

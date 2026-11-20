@@ -1,5 +1,5 @@
 /**
- * W5-04 V2a (`.agent/W5-04-build-spec.md` V2a card, "Mock element, table cells and copy ledger"; readiness rulings 14,
+ * W5-04 V2a (`specs/W5-04/spec.md` V2a card, "Mock element, table cells and copy ledger"; readiness rulings 14,
  * 17-20, 39, 44-46): the EV_CHARGING Site > Work > Actions tab over the union Site Action index, against the v69
  * `ev-work` mock (`index.html:334-343`). Pure component fixtures shaped from the as-built V1b wire (ruling 39); no
  * producer-backed claim is made here.

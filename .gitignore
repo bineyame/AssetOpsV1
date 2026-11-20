@@ -1,4 +1,31 @@
+# Agent scratch. Tracked text in it (packets, reviews, specs, owner files) is force-added by named path;
+# generated evidence never is (tools/checks/tracked_evidence.py, in check-all, fails on it).
 .agent/
+
+# Generated evidence lives outside the repo: /opt/assetecon/evidence/<task>/<run>/ (RULES section 9).
+# Only the root evidence/ folder: backend/assetops_backend/evidence/ is source code.
+/evidence/
+**/*-captures/
+**/*-captures-*/
+**/*-evidence/
+**/*-evidence-*/
+**/*-recapture/
+**/*-screens/
+**/*-shots/
+**/*-wip/
+**/*-probe/
+*.pid
+*.err
+*.log
+*.out
+*-log.txt
+*-last.txt
+# Session transcripts; a deliberate fixture under fixtures/ or __fixtures__/ stays addable.
+*.jsonl
+!**/fixtures/**/*.jsonl
+!**/__fixtures__/**/*.jsonl
+!contract-fixtures/**/*.jsonl
+Docs/**/*.html.tmp
 
 # Writable user-authored configuration store. Site documents a user creates
 # live here at runtime; they are user data, not shipped configuration, and the
@@ -31,7 +58,11 @@ node_modules/
 node_modules
 dist/
 coverage/
+# PIPE-1 A10: tsc --incremental cache, kept inside each worktree (node_modules is shared by symlink, so not there).
+frontend/.tsbuildinfo/
 
 # Agent session state
 .codex/
 .demo/
+# T1: a refused vitest run (exit 69 at config load) leaves Vite's bundled config behind; it is harmless.
+frontend/vite.config.ts.timestamp-*

@@ -64,3 +64,90 @@ The East Africa `.rail::before` pattern covers the lower 38% of the rail, so its
 - Real Iowan/Palatino rendering: this host falls back to DejaVu Serif. Pointer-hover underline on figures (the keyboard focus indicator was checked by the gate).
 
 Screenshots: `/tmp/claude-1001/-opt-assetecon-AssetOpsV1/36691a1d-3a44-455a-947e-9acaa1af47c0/scratchpad/review-wave2c/` (scratch, not committed).
+
+## Re-review (fix round + U7–U10 + Recalculate now)
+
+Reviewer: a fresh independent Claude reviewer (wrote neither the wave nor round 1). Range b255131a5..853013d13 (85375a072, eb56b72d0, 853013d13). The gates ran on a `git archive` copy of 853013d13 in scratch; `node build.mjs` reproduced `index.html` byte for byte. The worktree was not touched.
+
+### Summary
+
+- **Verdict: ACCEPT with findings fixed on the branch**: M1 (a copy-only change to the Recalculate notice) before merge; the Lows can go with it or later.
+- M1 and L1–L6 are fixed as classes. The new checks in `ux_interaction_check` caught each of 5 planted violations (below).
+- The rulings hold on merit. Hand arithmetic for Lakeside, Harvest and Metro reconciles, and the signs agree across tile, chart, drawer and Site rows.
+- U7–U10 are applied as the owner answered. East Africa is the default for the three demo operators; Neutral is the product default; the switch works.
+- At 1280×720 the first queue row is above the fold in both packs for all three operators.
+- M1 (new): after "Recalculate now" the notice contradicts itself and the top bar.
+- Lows: the brand-height check no longer tests anything; the in-page MOCK DEVIATION chip has no category and is visible to clients; the U7 RULES text goes slightly past what was approved.
+
+### Planted violations (scratch copies; nothing to revert in the worktree)
+
+| Plant | What | Result |
+|---|---|---|
+| 1 | M1 reverted: `S = p => p`, no width clamp | FAIL harvest 1440/390 (46 / 19 px outside), metro 1440/390 |
+| 2 | L2: rows rounded on their own | FAIL lakeside: rows −826 against subtotal −827 |
+| 3 | L3: shares of the gap, rounded on their own | FAIL lakeside 101%, harvest 121%, metro 101% |
+| 4 | L1: the CSS rule for `.ux-q-due.is-empty` removed | FAIL ×3 at 390: 2 empty due lines visible |
+| 5 | Subtotals rounded on their own, +1 | FAIL ×6: subtotals against the gap (−850/−852, −768/−770, −3183/−3184) |
+
+### The rulings, checked by hand
+
+- **Lakeside.** Gap −852. Grow −25. Optimize steps −412.5, −176, −166.5, −56, −16; the floors sum to −828, so 1 is added back to the first .5 tie, giving −412, −176, −167, −56, −16 = −827. −827 − 25 = −852 ✓. Shares of 852: 48.42, 20.66, 19.54, 6.57, 2.93, 1.88. Largest remainder gives 48, 21, 19, 7, 3, 2 = 100 ✓. Note: the two .5 values round in opposite directions; the table view shows cents. That is a property of the method, not a defect.
+- **Harvest.** −620 | −197, +155 (offset), −108 = −150 | −770 ✓. Shares of 925: 67.03, 21.30, 11.68, giving 67, 21, 12 = 100 ✓. +$155 reads "offsets" ✓.
+- **Metro.** Gap −3,184.32, shown as −3,184. Steps −2,604, −600, +19.68: the floors sum to −3,185, so the .68 rounds up to +20. −3,184 ✓. Shares of 3,204: 81, 19 = 100 ✓.
+- **Signs.** For Metro: tile −$3,184 and "+$20 not attributed yet"; chart −$2,604, −$600, +$20; drawer −$2,604, −$600, +$19.68; Site rows the same ✓. Lakeside and Harvest agree as well.
+- **On merit.** Largest remainder (Hamilton) is the standard method for reconciling rounded parts. "Shares of what widens the gap", with offsets unshared, removes the 141% oddity without hiding the offset. One sign rule (effect on the headline result) is the right executive convention. Scaling the track to [min run, max run] is correct: for Harvest, October sits at 94% and the overshoot is visible inside the card.
+
+### Findings
+
+**M1 (Medium, honesty: Recalculate now).** `loop-ux.js:470`. After the press, the green notice reads: "Recalculated · figures as of 01:03, 6 Nov · asked for by Operator executive · Esther. Figures updated: this demo holds no recalculated values, so the numbers shown are unchanged." There are four problems:
+- "Figures updated" contradicts "unchanged".
+- The time comes from the wall clock on the demo date. It can come before the 06:00 snapshot and the 09:40 invoice, as it did here (01:03).
+- The top bar still says "Figures as of 06:00, 6 Nov", so the page states two different as-of times.
+- The green "Recalculated" tone implies the invoice is now reflected, and that it changed nothing.
+
+The notice does say the numbers are unchanged, but the rest of it says the opposite. Fix: word it as a request, for example "Recalculation requested at <time> by <person>. This demo holds no recalculated values, so the figures still show 06:00." Keep a neutral or info tone, keep the top bar as it is, and drop "Figures updated". Shots: `harvest-*-recalc-after.png`.
+
+**L1 (Low, gate regression).** `tools/ux_interaction_check.cjs:155-160`. Because the page now starts in East Africa, `before` and `after` are both East Africa, and the "height within 32 px" assertion compares 2264 with 2264. The 32 px pack budget (guide §4.7) is no longer asserted. Fix: measure the height in Neutral (after the switch to Neutral) against East Africa.
+
+**L2 (Low, RULES §6 label).** `loop-core.js:412`. The chip reads "MOCK DEVIATION · addition". "addition" is not one of the D1–D6 categories that RULES §6 requires (this one is D2, an improvement the owner asked for). The chip also sits in the product content, not in the review bar, so it is system vocabulary on the client-facing surface (copy_check and vocab_check do not catch it). Fix: label it D2, and mark it as review tooling (like the review bar) or keep it in the code and the guide only.
+
+**L3 (Low, U7 scope).** `.ai/RULES.md:130-133`. The diff is minimal and in the existing style. It says "gates G1-G5", where the approved U7 text says G2 to G4. It also adds a precedence rule ("the guide wins") that the owner's answer ("RULES §6 cites the UI/UX guide") did not state. Both are reasonable, but they are slightly more than was approved. Fix: match the U7 wording, or flag the two additions to the owner.
+
+### Verified
+
+- **Classes, not instances.** One rounding function serves rows, subtotals and shares. The scale is computed from every running total, so any operator with offsets is covered. The empty-due rule is a container rule on the class. The rail labels use one token in both packs. `uxPlanCard` is gone (0 references).
+- **L5.** The rail labels now measure 8.25 to 10.56:1 in both packs, light and dark. The lattice starts below the last rail item (1,309–1,491 px against 710 px) and the footer has a solid backing.
+- **U8.** The rail items and groups are unchanged; only colours changed.
+- **U10.** With no override, all three operators load in `east-africa`. The switch to Neutral removes the attribute. Neutral is the fallback in `uxBrand()`.
+- **U9.** A2 is a data contract only: the generator, the evaluator and the file shape. It invents no values, and it states correctly that the manifest declares the 2026-07..2026-10 span. `derived-values.json` has no `history`, so every slot reads "Trend not available yet" (seen in the shots).
+- **Fold at 1280×720** (bottom of the first queue row):
+
+  | Operator | Neutral, light/dark | East Africa, light | East Africa, dark |
+  |---|---|---|---|
+  | Lakeside | 650 | 668 | 674 |
+  | Harvest | 687 | 705 | 711 |
+  | Metro | 694 | 712 | 718 |
+
+  Harvest after Recalculate now: 678 (Neutral), 696 (East Africa).
+- **Recalculate now.** It is reachable by keyboard (gate) and has `role=status`. It names the person (the signed-in executive avatar). The Organisation settings copy reads "recalculated at the daily run, or at once when someone asks" ✓.
+- **No horizontal scroll.** `scrollWidth` equals the viewport on all 36 Portfolio shots, with 0 page errors.
+
+### Gates (reviewer-run, 853013d13)
+
+| Gate | Result |
+|---|---|
+| render_text | 205 renders, 0 script errors |
+| vocab_check | 0 hits |
+| copy_check | 12,841 segments, 0 hits; COPY_PLANT=1: 4 hits, exit 1 |
+| plan_switch_check | 777 passed, 0 failed |
+| design_lint (rendered) | fails [], exit 0 |
+| ux_interaction_check | 94 PASS, 0 FAIL |
+| check_manifest.py | 4,474 passed, 5 failed (the known 5: brief readable, 4 × A1) |
+
+### Residual risk
+
+- Metro in East Africa dark at 1280×720 has 2 px of fold headroom, and the fold gate runs in light only.
+- On a short page the lattice (30% of the rail, above a fixed 120 px fallback for `--rail-foot-h`) could reach the rail items; it is masked and faded.
+- The Recalculate state is not persisted: a re-render returns the notice to pending. The Metro bridge title says cost and efficiency "explain" all $3,184 while $20 is "not attributed" (this predates the wave).
+
+Shots: `/tmp/claude-1001/-opt-assetecon-AssetOpsV1/36691a1d-3a44-455a-947e-9acaa1af47c0/scratchpad/rereview-wave2c/` (scratch, not committed).

@@ -1,5 +1,5 @@
 /**
- * W6-01c C2: the work request Overview (`.agent/W6-01-build-spec.md` "C1-C3 pre-flight rulings" P-C2-1..14 and
+ * W6-01c C2: the work request Overview (`specs/W6-01/` "C1-C3 pre-flight rulings" P-C2-1..14 and
  * P-X-1..3, section 2, CL3-5 as amended). Typed responses only; the persisted positive, historical, 403, 404,
  * stress and linked-source states are captured against the real API in `.agent/W6-01-evidence/C2/`.
  */

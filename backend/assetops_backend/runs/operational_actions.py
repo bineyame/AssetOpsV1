@@ -1,6 +1,6 @@
 """DIESEL-1-R3f §9f.2 (5): operational actions frozen into a run as causes and reporting-path conditions.
 
-Owner decision, verbatim (`.agent/owner-scenario-data-2026-11-07.md`): fuel events "are injected through
+Owner decision, verbatim (`owner/owner-scenario-data-2026-11-07.md`): fuel events "are injected through
 operational actions". A fuel delivery, an unrecorded removal and the unplugged sensor are an operator's (or an
 unidentified person's) acts, never scenario entries. A run that names a log by its exact version freezes each
 effect-bearing action's physical effect here, at run setup, with `origin="OPERATIONAL_ACTION"` and an `action_ref`

@@ -1,6 +1,6 @@
 """W4-03 unit 9a: the private two-Site walkthrough for mini-grid decisions and their work connection.
 
-`.agent/W4-03-build-spec.md` "Fixture and one-run commit proof", closure 2 Q1, closure 4 B1/B2/S6/S16 and u5 9a.
+`specs/W4-03/spec.md` "Fixture and one-run commit proof", closure 2 Q1, closure 4 B1/B2/S6/S16 and u5 9a.
 
     python tools/w403_mini_decisions_walkthrough.py --db assetops_w403_walk_test --work var/w403_walk prepare
     python tools/w403_mini_decisions_walkthrough.py --db assetops_w403_walk_test --work var/w403_walk serve

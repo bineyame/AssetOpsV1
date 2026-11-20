@@ -4,7 +4,7 @@
 the fix the pass was still recorded at the Site-wide selection seq, so `match_state` called the deferring day
 matched: the S5-01 Overview read freshness CURRENT with a false ABSENT (scenario A) or the wrong chosen Finding
 (scenario B), and the S4-04 phase-1 index could claim CURRENT with zero rows (H1, same sequence as A). Sources:
-`.agent/S5-01-deferred-cluster-check.md`, `.agent/S4-04-phase-1-review.md` H1.
+`archive/agent-history/S5-01-deferred-cluster-check.md`, `archive/agent-history/S4-04-phase-1-review.md` H1.
 
 Each scenario walks the real S2 ingestion, S3 worker and S4 matcher (`CaseRunner`), reads the production S5 Overview
 (`build_site_overview_read`) and the S4 `match_state` / S4-02d upstream seam, and proves the deferral reads

@@ -1,4 +1,4 @@
-"""DIESEL-K4a (`.agent/build-sheet-DIESEL-1.md` §9j.7, ruling DIESEL-1-R3j): the unexplained-fuel Finding's client
+"""DIESEL-K4a (`specs/DIESEL-1/` §9j.7, ruling DIESEL-1-R3j): the unexplained-fuel Finding's client
 wording. Pure, no I/O.
 
 Rules H1-H5 (§8.2); owner 2026-11-07: "'Unexplained fuel', never 'theft'". Numbers are formatted here, never in the

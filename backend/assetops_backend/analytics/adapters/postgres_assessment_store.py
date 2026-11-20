@@ -1339,7 +1339,7 @@ class PostgresAssessmentStore:
         return found
 
     # --- cold_chain (W2-03): selection and the assessment/episode projection --------------------------------
-    # `.agent/W2-03-build-spec.md` commit 3. Every cold method takes the caller's connection: the cold worker owns
+    # `specs/W2-03/spec.md` commit 3. Every cold method takes the caller's connection: the cold worker owns
     # one transaction for assessment, episodes, Findings and job completion. This module alone inserts the
     # analytic and episode rows; the Finding store alone inserts Finding rows.
 
@@ -1726,7 +1726,7 @@ class PostgresAssessmentStore:
 
 
     # --- ev_charging (W2-06 commit 3): ev-session/1 on the EV worker's connection --------------------------------
-    # `.agent/W2-06-build-spec.md` commit 3, Q10-Q14 and q3 P1-P4. Every EV method takes the caller's connection:
+    # `specs/W2-06/` commit 3, Q10-Q14 and q3 P1-P4. Every EV method takes the caller's connection:
     # the EV worker owns one transaction for selection, run, assessment, sessions, Findings and job completion. This
     # module alone inserts the analytic and EV session rows; the Finding store alone inserts Finding rows.
 
@@ -2780,7 +2780,7 @@ class ColdReadService:
 
 
     # --- W2-04 commit 3: caller-connection reads for `analytics/cold_site_reads.py` ---------------------------
-    # `.agent/W2-04-build-spec.md` "Five API reads" and "How does the API keep one snapshot?": the Site read
+    # `specs/W2-04/spec.md` "Five API reads" and "How does the API keep one snapshot?": the Site read
     # composes every part on the one REPEATABLE READ connection `within` opens. All SELECT-only.
 
     def within(self, work: Callable[[Connection], Any]) -> Any:
@@ -2850,7 +2850,7 @@ class ColdReadService:
         return {"created_at": row[0], "foundations": [tuple(f) for f in foundations],
                 "bindings": [tuple(b) for b in bindings]}
 
-    #: W5-01 C1 Health: the Foundation component types a Health row reads (`.agent/W5-01-build-spec.md` Q7).
+    #: W5-01 C1 Health: the Foundation component types a Health row reads (`specs/W5-01/` Q7).
     HEALTH_COMPONENT_TYPES = ("GENERATOR", "COMPRESSOR", "TEMPERATURE_PROBE")
 
     def foundation_on(self, c: Connection, snap: dict[str, Any]) -> dict[str, Any] | None:

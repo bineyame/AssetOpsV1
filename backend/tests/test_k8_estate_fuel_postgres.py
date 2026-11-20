@@ -1,4 +1,4 @@
-"""DIESEL-K8 (`.agent/build-sheet-DIESEL-1.md` §9p.12, ruling DIESEL-1-R3p): the unexplained-fuel Finding in the estate
+"""DIESEL-K8 (`specs/DIESEL-1/` §9p.12, ruling DIESEL-1-R3p): the unexplained-fuel Finding in the estate
 Finding rows over real Postgres, and never in the estate money.
 
 Reuses `test_k4a_fuel_finding_postgres`'s `kobo` fixture (Kobo imported, the fuel Finding service on a virtual clock)

@@ -33,7 +33,7 @@ import {
 
 /**
  * W2-02: set up a Draft run from one registered cold-chain scenario. A
- * Simulator Lab surface (`.agent/W2-02-build-spec.md`, "Cold Lab setup UI
+ * Simulator Lab surface (`specs/W2-02/spec.md`, "Cold Lab setup UI
  * closure").
  *
  * The Site is chosen first, then the cold choices are read for that exact

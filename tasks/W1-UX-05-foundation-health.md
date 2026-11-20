@@ -1,6 +1,6 @@
 # W1-UX-05 — Foundation, Readiness, SLD, Health and battery presentation
 
-Status: done (merged to main 2026-10-17; review ACCEPT; owner visual acceptance in the combined W1 walkthrough); was in_review (built 2026-10-17 on `task/W1-UX-05`, both phases; packet `.agent/W1-UX-05-review-packet.md`); activated 2026-10-16 from main `b4a89314`. Branch `task/W1-UX-05` after W1-UX-01 **and reviewed/merged S7-01b**; inspect its actual files at merge. Frontend only; owner walkthrough deferred to combined W1. Scope: `foundation`, `readiness`, `sld`, `health`, `asset`. Use [umbrella](W1-UX-mockup-fidelity.md), v69 named screens/manifest, S1-01/02/03 and S7-01b packets.
+Status: done (merged to main 2026-10-17; review ACCEPT; owner visual acceptance in the combined W1 walkthrough); was in_review (built 2026-10-17 on `task/W1-UX-05`, both phases; packet `archive/agent-history/W1-UX-05-review-packet.md`); activated 2026-10-16 from main `b4a89314`. Branch `task/W1-UX-05` after W1-UX-01 **and reviewed/merged S7-01b**; inspect its actual files at merge. Frontend only; owner walkthrough deferred to combined W1. Scope: `foundation`, `readiness`, `sld`, `health`, `asset`. Use [umbrella](W1-UX-mockup-fidelity.md), v69 named screens/manifest, S1-01/02/03 and S7-01b packets.
 
 ## Visible result
 
@@ -21,4 +21,4 @@ Focused tests per phase; final full `npm.cmd test`, type check, vocabulary scan,
 
 ## Architect ruling
 
-Questions answered by `D-2026-10-16-w1-ux` in `.agent/architect-W1-ux-answers.md`. Its destination, vocabulary and honest-state boundaries govern this packet.
+Questions answered by `D-2026-10-16-w1-ux` in `archive/agent-history/architect-W1-ux-answers.md`. Its destination, vocabulary and honest-state boundaries govern this packet.

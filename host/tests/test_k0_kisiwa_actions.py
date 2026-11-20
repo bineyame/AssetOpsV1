@@ -111,7 +111,7 @@ def test_a_run_with_no_actions_is_byte_equal_to_its_pin(key: str) -> None:
 # --- 9 and 10: registered setup, kernel parity with F0r, and the Lab API readback --------------------------------
 
 URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
-REFERENCE = Path(__file__).resolve().parents[2] / ".agent" / "DIESEL-F0" / "probe-result.json"
+REFERENCE = Path(__file__).resolve().parents[2] / "host" / "fixtures" / "diesel-f0" / "probe-result.json"
 IMPORT_AT = datetime(2026, 9, 29, 9, 0, tzinfo=timezone.utc)
 INSTALL_AT = datetime(2026, 9, 29, 9, 30, tzinfo=timezone.utc)
 SETUP_AT = "2026-09-29T11:00:00Z"

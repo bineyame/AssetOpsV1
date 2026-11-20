@@ -1,6 +1,6 @@
 """OUT-D U1: the append-only `outcome_objective_revision` table (declared outcome objectives).
 
-`.agent/build-sheet-OUT-D.md` §3 U1. Chains to exactly `0035_w5_ev_work`; it uses neither 0036 nor 0037, so the
+`specs/OUT-D/spec.md` §3 U1. Chains to exactly `0035_w5_ev_work`; it uses neither 0036 nor 0037, so the
 CC-M migrations merge later through an empty merge revision (OUT-E). One row is one declared revision of the objective
 of one site-level outcome. `unit`, `measure_kind`, `comparison` and `window_rule` are fixed per measure by the pure
 `outcomes.objectives.MEASURES`; the CHECKs below bound them. A leading measure never carries money; only

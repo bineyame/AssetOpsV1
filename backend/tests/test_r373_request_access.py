@@ -1,13 +1,13 @@
 """R373 (audit B19-15, High D3): one Site-read access seam for Site Work and global Work.
 
-`.agent/post-W6-R373-rulings.md` Q2-Q6. `create_app(site_read_access=...)` passes ONE callable to the W4 Site Work
+`archive/agent-history/post-W6-R373-rulings.md` Q2-Q6. `create_app(site_read_access=...)` passes ONE callable to the W4 Site Work
 router, the domain-work `WorkGate` and the global Work router (request detail and the four lists). A denied Site
 answers W4's 403 `SITE_SCOPE_FORBIDDEN` on both request-detail routes, byte-identical for an existing linked request,
 an unknown UUID, a malformed ID and a request at another Site, so no request existence or state leaks; the global
 lists silently drop the denied Site from rows, counts, paging and the cursor scope.
 
 Every test composes the product app through `assetops_backend.main.create_app`, so removing the shared wiring from
-`main.py` fails them (non-vacuity, recorded in `.agent/post-W6-R373-packet.md`). The no-database tests run anywhere;
+`main.py` fails them (non-vacuity, recorded in `archive/agent-history/post-W6-R373-packet.md`). The no-database tests run anywhere;
 the Postgres tests need ASSETOPS_TEST_DATABASE_URL naming a `*_test` database and use the reviewed producers: the
 `tools/w601_seed.py` `detail-linked` mini request, the W5-02 cold replay with a bound domain Action, and the W5-04
 EV replay with a bound EV domain Action.

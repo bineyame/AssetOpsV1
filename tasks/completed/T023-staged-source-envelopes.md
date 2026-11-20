@@ -21,7 +21,7 @@ T027, after the electrical world and dispatch-capable gateway are present.
 The inspector stays deliberately utilitarian. Its whole value is that an
 engineer can see exactly what is about to cross the boundary. It is not a
 source-envelope debugging application, and polish spent on it is polish taken
-from the first Finding. `Docs/queue-review-feedback-verbatim.md` says so.
+from the first Finding. `Docs/archive/2026-09/queue-review-feedback-verbatim.md` says so.
 
 ## Read for detail
 

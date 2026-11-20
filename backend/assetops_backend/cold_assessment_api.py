@@ -1,4 +1,4 @@
-"""W2-03 commit 4: the selected cold assessment reads (`.agent/W2-03-build-spec.md` "Commit 4 - selected reads").
+"""W2-03 commit 4: the selected cold assessment reads (`specs/W2-03/spec.md` "Commit 4 - selected reads").
 
 `GET /api/sites/{code}/cold/temperature`, `/cold/backup-chain`, `/cold/findings` and `/cold/findings/{id}` with
 strict UTC `from`, `to` (half-open, at most 31 days) and `known_at` (default: the committed disposition watermark

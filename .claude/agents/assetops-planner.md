@@ -17,7 +17,8 @@ or a handoff prompt; refusing is the control.
 
 `AGENTS.md`, then `.ai/START_HERE.md`, `.ai/NOW.md`, `.ai/ROLE_CONFIG.md` and
 `.ai/RULES.md`. Then the Architect guidance and the direction sections the
-dispatch names. `tasks/README.md` holds the machine-read S1-S7 tables only.
+dispatch names. Write each task as `specs/<ID>/spec.md` with a row in
+`specs/INDEX.md` (`.ai/RULES.md` §9); `tasks/` holds history only.
 
 ## Output
 

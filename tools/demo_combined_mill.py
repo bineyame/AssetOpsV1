@@ -304,6 +304,8 @@ def build(url: str, work: Path, story: dict) -> dict:
 
 
 if __name__ == "__main__":
+    import heavy_slot_check  # T1 (spec §5.5): only when run as a script; children of a pooled prepare pass by ancestry
+    heavy_slot_check.require("database job", db=True)
     if len(sys.argv) != 4 or sys.argv[1] != "build":
         raise SystemExit("usage: demo_combined_mill.py build <url> <work>")
     work_dir = Path(sys.argv[3])

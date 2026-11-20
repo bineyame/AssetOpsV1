@@ -1,6 +1,6 @@
 """W4-03 unit 3: authored Alternatives on exact W1 mini dispatch Finding revisions over Postgres.
 
-`.agent/W4-03-build-spec.md`: original Alternative domain paragraph and panel ledger; closure 1 Q1-Q3, Q12-Q16;
+`specs/W4-03/`: original Alternative domain paragraph and panel ledger; closure 1 Q1-Q3, Q12-Q16;
 closure 4 B1 (KOBO-001 carries the W1 dispatch Finding), S17 (R1 -> R2 without and with carry-forward, both cutoffs),
 S20 (provenance basis), N1 (dispatch only), N2 (strict overlap, empty episode, boundary touch, point inside).
 

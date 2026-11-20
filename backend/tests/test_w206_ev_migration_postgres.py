@@ -1,6 +1,6 @@
 """W2-06 commit 1: migration `0025_w2_ev_session` against Postgres.
 
-`.agent/W2-06-build-spec.md` "Pre-build closure (2026-10-19)" 0025 DDL: four tenant/Site-scoped append-only EV session
+`specs/W2-06/rulings.md` "Pre-build closure (2026-10-19)" 0025 DDL: four tenant/Site-scoped append-only EV session
 tables, the widened `finding_domain_subject` / `finding_revision_domain_minutes` checks (mini_grid and cold_chain arms
 unchanged), and a guarded downgrade that refuses while EV rows, EV Findings or `ev_charging` jobs exist and otherwise
 restores the exact 0022 checks. Schema-level only: no analytic row here is produced by the product writer (commit 3).

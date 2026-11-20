@@ -2,12 +2,12 @@
 
 One read-only snapshot (`PostgresEvidenceMoneyRead.read`) runs the four reviewed full-scope selectors once
 (`select_finding_scope`, `select_action_scope`, `select_evidence_scope`, `select_financial_scope`) on one shared
-`scope` (`.agent/W3-03-build-spec.md` closure 4 B1/B2). It reduces F/E/M independently (closure 5 S4), assembles one
+`scope` (`specs/W3-03/` closure 4 B1/B2). It reduces F/E/M independently (closure 5 S4), assembles one
 `estate-selection/2` token from unions of each Site's full selected arrays, filters the Finding set to the
 `SUPPORTED|UNCONFIRMED` management-action membership, re-sorts it in the Portfolio order and pages it with the
 five-member marker. Run 1b adds the full-scope projections (selected lines, money, scope disclosure, five value
 cards, objectives, evidence prompt, opportunity, progress, footer, summary) from the same six selector returns,
-never from the page (`.agent/W3-03-build-spec.md` closure 1 projections, closure 2 N2/N5, r1a, r1b).
+never from the page (`specs/W3-03/` closure 1 projections, closure 2 N2/N5, r1a, r1b).
 """
 
 from __future__ import annotations

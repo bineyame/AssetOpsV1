@@ -49,7 +49,9 @@ say what you could not verify. (Old Windows-sandbox notes:
 
 ## Output
 
-A verdict: accept, accept with findings fixed on the branch, or reject. Each
+Write the review to `specs/<ID>/review.md` (a new round is a new section with
+its own summary of at most 15 lines; never `.agent/`). A verdict: accept,
+accept with findings fixed on the branch, or reject. Each
 finding has a severity, file and line, what is wrong, why it matters and what
 would fix it, and separates an acceptance gap from a preference. Report the
 checks you ran and their output, what you could not verify, and residual risk

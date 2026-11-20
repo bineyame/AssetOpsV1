@@ -1,4 +1,4 @@
-"""W4-01 commit 3: the Site-scoped work command routes (`.agent/W4-01-build-spec.md` "API wire and refusals").
+"""W4-01 commit 3: the Site-scoped work command routes (`specs/W4-01/spec.md` "API wire and refusals").
 
 Under `/api/sites/{site_code}/work` (Lane A mount in `main.py`):
 

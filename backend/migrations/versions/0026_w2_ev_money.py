@@ -1,6 +1,6 @@
 """W2-07 commit 1: authored EV tariff and append-only Site gross scenario.
 
-`.agent/W2-07-build-spec.md` "Concrete-artifact closure (2026-10-19)" section 1, as confirmed by its "Post-W2-06
+`specs/W2-07/rulings-2.md` "Concrete-artifact closure (2026-10-19)" section 1, as confirmed by its "Post-W2-06
 reconciliation (2026-10-20)" (decision D-2026-10-18-w2-06-07-buildspec). The body below is the spec's literal 0026.
 
 - `financial_assumption_revision` widens only its key/unit CHECKs for `ev_gross_tariff_per_kwh` (`currency/kWh`) and

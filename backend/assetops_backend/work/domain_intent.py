@@ -1,6 +1,6 @@
 """W5-02a K1a / W5-04a V1: the three domain Action commands (root, declared intent, explicit W4 case link).
 
-`.agent/W5-02-build-spec.md` "Command/read wire" and "Backend wire, validation and lineage (K1a-K1c)", Architect
+`specs/W5-02/` "Command/read wire" and "Backend wire, validation and lineage (K1a-K1c)", Architect
 pre-flight ruling A2/A3, and W5-04 readiness rulings 27, 28 and 30. Every command dispatches by the closed
 `domain_action.DOMAINS` contract of the declared (creation) or stored (intent, case link) domain; nothing outside it
 falls through to cold.

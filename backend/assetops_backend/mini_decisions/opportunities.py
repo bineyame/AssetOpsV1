@@ -1,6 +1,6 @@
 """W4-03 unit 5: the opportunity list/detail reads and the authored opportunity-scenario association.
 
-`.agent/W4-03-build-spec.md`: "API, exact wire, ordering and errors"; closure 1 Q1-Q3 (association command and
+`specs/W4-03/spec.md`: "API, exact wire, ordering and errors"; closure 1 Q1-Q3 (association command and
 response), Q7-Q11 (status, currentness, provenance), Q12-Q16 (one REPEATABLE READ snapshot, head at cutoff, list
 envelope, token, cursor, link bounds); closure 4 S5 (physical comparison by revision, not seq), S7, S9 (the W4-02
 basis is read only through `MiniDepthRead.read_selected_renewable_basis`), S10, S14, S20; u4b (read-side ownership)
