@@ -44,6 +44,7 @@ class IntakeResult:
     refusal_path: str | None
     outcomes: tuple[RecordOutcome, ...]
     dry_run: bool
+    basis_sha256: str | None = None  # 3A2 (D-3A2.13): the store state the decision was made against
 
 
 @dataclass(frozen=True)
@@ -139,6 +140,7 @@ class Plan:
     revisions: tuple[RevisionRow, ...]
     rejections: tuple[RejectionRow, ...]
     outcomes: tuple[RecordOutcome, ...]
+    basis_sha256: str | None = None  # 3A2 (D-3A2.13)
 
 
 @dataclass(frozen=True)
@@ -155,3 +157,81 @@ class StoreRefused(Exception):
     def __init__(self, constraint: str | None) -> None:
         super().__init__(constraint or "unnamed constraint")
         self.constraint = constraint
+
+
+# --- 3A2 (spec §2, §3.5, §4; D-3A2.4, D-3A2.13): uploads and their decisions -----------------------------------------
+
+@dataclass(frozen=True)
+class UploadRow:
+    """Every column of `commercial_upload`; arrays as tuples. `site_id` None is the organisation path."""
+    id: UUID
+    tenant_id: UUID
+    site_id: UUID | None
+    file_name: str
+    file_sha256: str
+    file_bytes: int
+    reader: str
+    source_type: str
+    source_system: str
+    provenance: str
+    batch: str
+    batch_sha256: str
+    kept_index: tuple[int, ...]
+    basis_sha256: str
+    row_map: tuple[int, ...] | None
+    record_count: int
+    new_count: int
+    revised_count: int
+    unchanged_count: int
+    refused_count: int
+    refusal_index: tuple[int, ...]
+    refusal_code: tuple[str, ...]
+    refusal_path: tuple[str, ...]
+    month_site_code: tuple[str | None, ...]
+    month_period: tuple[str, ...]
+    submitted_by: UUID
+    submitted_role: str
+    submitted_at: datetime
+
+
+@dataclass(frozen=True)
+class UploadDecisionRow:
+    """Every column of `commercial_upload_decision`."""
+    id: UUID
+    tenant_id: UUID
+    upload_id: UUID
+    decision: str  # ACCEPTED or DECLINED
+    reason: str | None
+    intake_id: UUID | None
+    decided_by: UUID
+    decided_role: str
+    decided_at: datetime
+
+
+@dataclass(frozen=True)
+class UploadRecord:
+    """One upload as read back: its row, the display names joined from `operator_account`, its decision and, when
+    accepted, the stored account of its intake."""
+    upload: UploadRow
+    submitted_by_name: str
+    decision: UploadDecisionRow | None
+    decided_by_name: str | None
+    intake: IntakeSummary | None
+
+
+@dataclass(frozen=True)
+class Acceptance:
+    """An accept of one upload: the decision row's ID, the person and role, and the basis the check recorded."""
+    decision_id: UUID
+    upload_id: UUID
+    person_id: UUID
+    role: str
+    basis_sha256: str
+
+
+class UploadAlreadyDecided(Exception):
+    """The upload already has a decision (checked under the tenant's commercial lock)."""
+
+
+class UploadStale(Exception):
+    """The store state differs from the one the check decided against (D-3A2.13); nothing was written."""

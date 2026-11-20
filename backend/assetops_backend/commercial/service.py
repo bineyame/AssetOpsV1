@@ -18,6 +18,13 @@
 The decision is made by `decide`, which the store calls under the tenant's lock with the records it re-read there
 (P2), so the reported outcome is the one applied. Nothing here logs a ref, a value or `canonical` (R13); a refusal
 carries 2a's bounded, ASCII-escaped path only.
+
+3A2 (spec §3.5; D-3A2.8, D-3A2.13): `ingest` takes two keywords whose defaults keep 3A1's behaviour. `site_scope`
+refuses a record not of that Site (`INTAKE_SITE_NOT_THIS_SITE`, portfolio-level records included). Every decision
+records `basis_sha256`, the digest of the store state it decided against (each named record's latest revision ID and
+each resolved Site); with `acceptance`, a differing basis raises `UploadStale` before planning, and an envelope or
+tenant refusal raises `UploadStale` instead of writing a REFUSED intake. The decision row is written in the intake's
+transaction.
 """
 from __future__ import annotations
 
@@ -28,8 +35,9 @@ from datetime import date, datetime
 from typing import Callable, Mapping
 from uuid import UUID, uuid4
 
-from assetops_backend.commercial.model import (ExistingRecord, IntakeResult, IntakeRow, Plan, RecordOutcome,
-                                               RecordRow, RejectionRow, RevisionRow)
+from assetops_backend.commercial.model import (Acceptance, ExistingRecord, IntakeResult, IntakeRow, Plan,
+                                               RecordOutcome, RecordRow, RejectionRow, RevisionRow, UploadDecisionRow,
+                                               UploadStale)
 from assetops_backend.commercial.store import CommercialStore
 from assetops_contracts.canonical.records_v1 import PROVENANCES
 from assetops_contracts.canonical import (KIND_SPECS, BatchResult, CanonicalRecordV1, CanonicalRefused,
@@ -102,6 +110,8 @@ class _Decision:
     batch_sha256: str
     entered_by: str
     now: datetime
+    site_scope: UUID | None = None
+    acceptance: Acceptance | None = None
     records: list[RecordRow] = field(default_factory=list)
     revisions: list[RevisionRow] = field(default_factory=list)
     rejections: list[RejectionRow] = field(default_factory=list)
@@ -128,7 +138,16 @@ class _Decision:
             supersedes_revision_id=supersedes, recorded_at=self.now,
             source_system=self.parsed.batch.source_system, source_record_id=record.source_record_id)
 
+    def basis(self, existing: Mapping[str, ExistingRecord]) -> str:
+        """D-3A2.13: the store state this decision reads: each named record's latest revision and each resolved Site."""
+        lines = sorted([f"r\x1f{key}\x1f{e.latest_revision_id}" for key, e in existing.items()]
+                       + [f"s\x1f{code}\x1f{site_id}" for code, site_id in self.sites.items()])
+        return hashlib.sha256("\n".join(lines).encode("utf-8")).hexdigest()
+
     def __call__(self, existing: Mapping[str, ExistingRecord]) -> Plan:
+        basis_sha256 = self.basis(existing)
+        if self.acceptance is not None and self.acceptance.basis_sha256 != basis_sha256:
+            raise UploadStale()
         self.records, self.revisions, self.rejections, self.outcomes = [], [], [], []
         state = {key: _Known(e.record_id, e.kind, e.site_id,
                              {v: (d, e.provenances[v]) for v, d in e.versions.items()},
@@ -149,6 +168,9 @@ class _Decision:
                 if site_id is None:
                     self.refuse(index, key, "INTAKE_SITE_UNKNOWN", "record.site_code")
                     continue
+            if self.site_scope is not None and site_id != self.site_scope:
+                self.refuse(index, key, "INTAKE_SITE_NOT_THIS_SITE", "record.site_code")
+                continue
             known = state.get(key)
             if known is not None and known.kind != record.kind:
                 self.refuse(index, key, "INTAKE_KIND_CHANGED", "record.kind")
@@ -187,7 +209,8 @@ class _Decision:
             refusal_code=None, refusal_path=None, record_count=len(self.outcomes), new_count=count["NEW"],
             revised_count=count["REVISED"], unchanged_count=count["UNCHANGED"], refused_count=count["REFUSED"],
             entered_by=self.entered_by, entered_at=self.now, **self.envelope)
-        return Plan(intake, tuple(self.records), tuple(self.revisions), tuple(self.rejections), tuple(self.outcomes))
+        return Plan(intake, tuple(self.records), tuple(self.revisions), tuple(self.rejections), tuple(self.outcomes),
+                    basis_sha256)
 
 
 class CommercialRecords:
@@ -195,7 +218,8 @@ class CommercialRecords:
         self._store = store
         self._clock = clock
 
-    def ingest(self, tenant_id: UUID, data: bytes, *, entered_by: str, dry_run: bool = False) -> IntakeResult:
+    def ingest(self, tenant_id: UUID, data: bytes, *, entered_by: str, dry_run: bool = False,
+               site_scope: UUID | None = None, acceptance: Acceptance | None = None) -> IntakeResult:
         slug = self._store.tenant_slug(tenant_id)
         if slug is None:
             raise LookupError("unknown tenant")  # R15: a programming error, not a stored intake
@@ -208,21 +232,32 @@ class CommercialRecords:
             obj = loads_canonical(data)
             parsed = parse_batch(obj)
         except CanonicalRefused as refused:
+            if acceptance is not None:  # R6: an accepted upload never writes a REFUSED intake
+                raise UploadStale() from None
             return self._refuse(tenant_id, intake_id, _envelope_of_refusal(obj, refused.path), batch_sha256,
                                 refused.code, refused.path, entered_by, now, dry_run)
         batch = parsed.batch
         envelope = {"source_type": batch.source_type, "source_system": batch.source_system,
                     "provenance": batch.provenance, "produced_at": _instant(batch.produced_at)}
         if batch.tenant_code != slug:
+            if acceptance is not None:
+                raise UploadStale()
             return self._refuse(tenant_id, intake_id, envelope, batch_sha256, "INTAKE_TENANT_MISMATCH",
                                 "batch.tenant_code", entered_by, now, dry_run)
         records = [o for o in parsed.outcomes
                    if isinstance(o, CanonicalRecordV1) and KIND_SPECS[o.kind].store_family == COMMERCIAL]
         codes = {r.site_code for r in records if r.site_code is not None}
         sites = self._store.site_ids(tenant_id, codes) if codes else {}
-        decide = _Decision(tenant_id, intake_id, parsed, sites, envelope, batch_sha256, entered_by, now)
-        plan = self._store.write_intake(tenant_id, batch.source_system, {r.source_record_id for r in records},
-                                        decide, dry_run=dry_run)
+        decide = _Decision(tenant_id, intake_id, parsed, sites, envelope, batch_sha256, entered_by, now,
+                           site_scope=site_scope, acceptance=acceptance)
+        ids = {r.source_record_id for r in records}
+        if acceptance is None:
+            plan = self._store.write_intake(tenant_id, batch.source_system, ids, decide, dry_run=dry_run)
+        else:
+            decision = UploadDecisionRow(acceptance.decision_id, tenant_id, acceptance.upload_id, "ACCEPTED", None,
+                                         intake_id, acceptance.person_id, acceptance.role, now)
+            plan = self._store.write_intake(tenant_id, batch.source_system, ids, decide, dry_run=dry_run,
+                                            decision=decision)
         return _result(plan, dry_run)
 
     def _refuse(self, tenant_id: UUID, intake_id: UUID, envelope: Mapping[str, object], batch_sha256: str, code: str,
@@ -240,4 +275,4 @@ class CommercialRecords:
 def _result(plan: Plan, dry_run: bool) -> IntakeResult:
     intake = plan.intake
     return IntakeResult(None if dry_run else intake.id, intake.state, intake.refusal_code, intake.refusal_path,
-                        plan.outcomes, dry_run)
+                        plan.outcomes, dry_run, plan.basis_sha256)

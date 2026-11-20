@@ -424,7 +424,7 @@ def test_downgrade_refused_with_a_record_then_down_and_up(world, engine) -> None
     with pytest.raises(Exception, match="refused: commercial records exist"):
         command.downgrade(cfg, script.down_revision)
     with engine.begin() as c:  # TRUNCATE is not a row DELETE; the append-only triggers do not fire on it
-        c.execute(text("TRUNCATE " + ", ".join(TABLES)))
+        c.execute(text("TRUNCATE " + ", ".join(TABLES) + " CASCADE"))
     command.downgrade(cfg, script.down_revision)
     with engine.connect() as c:
         for table in TABLES:
