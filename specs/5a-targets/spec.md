@@ -1,6 +1,6 @@
 # 5a: targets per factor, declarer recorded (implementer spec)
 
-Status: spec rev 2, handshake round 1 answered (`rulings.md` "Handshake answers (round 1)"; D-5A.13 to D-5A.15).
+Status: in_review (unit 1 built; units 2 and 3 wait for `4b1`). Spec rev 2, handshake round 1 answered (`rulings.md` "Handshake answers (round 1)"; D-5A.13 to D-5A.15).
 P5 approved by the owner on 20 Nov (`owner/owner-p5-approved-and-defaults-2026-11-20.md`), so D-5A.12 is met: no 5a
 code is written before that approval, and unit 1 starts when the handshake has no open question.
 
