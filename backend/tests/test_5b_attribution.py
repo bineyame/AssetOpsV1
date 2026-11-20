@@ -13,7 +13,7 @@ import dataclasses
 import functools
 import json
 import subprocess
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from decimal import ROUND_HALF_EVEN, Context, Decimal, localcontext
 from pathlib import Path
 
@@ -746,6 +746,7 @@ def test_8b_two_currencies_are_never_added() -> None:
     row = pb.rows["contribution"]["contribution"]
     assert (row.actual, row.target, row.gap, row.effect) == (None, None, None, None)
     assert row.note == "CURRENCY_MISMATCH:KES,USD"
+    assert dict(pb.by_home) == {}
 
 
 def test_8c_a_price_never_adds_across_sites() -> None:  # plant V17 (D-5B.11)
@@ -761,6 +762,37 @@ def test_8c_a_price_never_adds_across_sites() -> None:  # plant V17 (D-5B.11)
     litres = rows["diesel_l"]
     assert (litres.actual, litres.target, litres.gap) == (D("2360"), D("1400"), D("960"))
     money(litres.effect, "-1200.00")
+
+
+
+def test_8d_an_open_month_shows_no_figure_never_zero() -> None:  # reviewer plant R3 (k = 0 written as 0.00)
+    w = _world()
+    r = t5a.refs(w)
+    pb = bridge_read(w).portfolio(w["tid"], [r[c] for c in CODES], "2026-11")
+    rows = [row for tree in pb.rows.values() for row in tree.values()]
+    assert rows
+    for row in rows:
+        assert row.k == 0 and row.n == 3, row.key
+        assert row.effect is None and row.evidence == "NOT_AVAILABLE", row.key
+    row = pb.rows["contribution"]["contribution"]
+    assert (row.actual, row.target, row.gap, row.effect) == (None, None, None, None)
+    assert {c for c, _ in row.out} == set(CODES)
+    assert dict(pb.by_home) == {}
+
+
+def test_8e_the_builders_refuse_mismatched_parts() -> None:
+    a = _hand_site("A-001")
+    for bad in (dataclasses.replace(a, month="2026-09"), dataclasses.replace(a, structure_key="OTHER"),
+                dataclasses.replace(a, structure_version=a.structure_version + 1)):
+        with pytest.raises(StructureError):
+            portfolio_bridge({"A-001": bad}, ["A-001"], {}, None, OCT, "MINI_GRID", MG.version)
+
+
+def test_8f_a_site_bridge_refuses_another_sites_targets() -> None:
+    inputs = SiteInputs("A-001", OCT, "MINI_GRID", MG.version, leaves("actual", ACTUAL, USD), {})
+    other = SiteStructure("B-001", OCT, "MINI_GRID", MG.version, side("target"))
+    with pytest.raises(StructureError):
+        site_bridge(inputs, SiteTargets(other, None, (), USD))
 
 
 # --- test 9: the read --------------------------------------------------------------------------------------------------
@@ -805,13 +837,29 @@ def test_9b_one_instant_per_read() -> None:  # plant V19 (D-5B.13)
     src = CommercialLeafSource(w["months"], w["store"], fallback())
     actual = _Recorder(StructureRead(src, stated=src), seen)
     targets = _Recorder(TargetRead(BudgetLineReader(w["months"], w["store"]), actual), seen)
-    read = BridgeRead(actual, targets, clock=lambda: READ_AT)
+    calls: list[datetime] = []
+
+    def clock() -> datetime:  # a clock that moves on every call
+        calls.append(READ_AT + timedelta(seconds=len(calls)))
+        return calls[-1]
+
+    read = BridgeRead(actual, targets, clock=clock)
     r = t5a.refs(w)
     read.site(r[KISIWA], OCT)
+    assert len(calls) == 1
+    assert {k for n, k in seen} == {calls[0]}, seen
+    seen.clear()
     read.portfolio(w["tid"], [r[c] for c in CODES], OCT)
+    assert len(calls) == 2  # once per call, not once per Site
     names = {name for name, _ in seen}
     assert {"site_inputs", "site", "portfolio"} <= names, names
-    assert {k for _, k in seen} == {READ_AT}, seen
+    assert {k for _, k in seen} == {calls[1]}, seen
+
+
+def test_9c_a_naive_time_is_refused() -> None:
+    w = _world()
+    with pytest.raises(ValueError):
+        bridge_read(w).site(t5a.refs(w)[KISIWA], OCT, known_at=datetime(2026, 11, 1, 12, 0))
 
 
 # --- test 10: the boundaries -------------------------------------------------------------------------------------------

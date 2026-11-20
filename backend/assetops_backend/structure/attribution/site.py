@@ -38,8 +38,8 @@ class SiteBridge:
 def site_bridge(inputs: SiteInputs, targets: SiteTargets) -> SiteBridge:
     """Spec §3.2: carry, evaluate, then bridge each root against the target side."""
     ts = targets.structure
-    if (inputs.structure_key, inputs.structure_version, inputs.month) != (
-            ts.structure_key, ts.structure_version, ts.month):
+    if (inputs.site_code, inputs.structure_key, inputs.structure_version, inputs.month) != (
+            ts.site_code, ts.structure_key, ts.structure_version, ts.month):
         raise StructureError("STRUCTURE_COMPOSE", inputs.structure_key, inputs.site_code)
     reg = _registry.REGISTRIES[inputs.structure_key]
     c = carry_at_target(inputs, ts.values)
