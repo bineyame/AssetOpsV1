@@ -1,0 +1,586 @@
+{
+ "_note": "2a spec section 6.6: format fixtures, one valid record of each of the 14 kinds, in 13 batches. Copy unchanged to contracts/tests/fixtures/canonical_v1_examples.json. Values are illustrative format examples taken from the pack's traces; they are not demonstration figures and no figure check reads them.",
+ "batches": [
+  {
+   "format_version": 1,
+   "tenant_code": "lakeside-power",
+   "source_type": "billing_export",
+   "source_system": "mto-vending-export",
+   "provenance": "source-emulated",
+   "produced_at": "2026-11-02T06:00:00+03:00",
+   "records": [
+    {
+     "format_version": 1,
+     "kind": "CHARGE",
+     "source_record_id": "INV-MTO-2026-10-C0412-1",
+     "source_version": "1",
+     "site_code": "MTO-001",
+     "subject": {
+      "kind": "CUSTOMER",
+      "ref": "C-0412"
+     },
+     "clocks": {
+      "effective_from": "2026-10-01",
+      "effective_to": "2026-11-01",
+      "recognition_period": "2026-10"
+     },
+     "amount": {
+      "value": "8.40",
+      "currency": "USD"
+     },
+     "quantity": {
+      "value": "28",
+      "unit": "kWh"
+     },
+     "body": {
+      "account_ref": "C-0412",
+      "line_type": "USAGE",
+      "tariff_code": "MTO-RES",
+      "tariff_class": "STANDARD"
+     }
+    },
+    {
+     "format_version": 1,
+     "kind": "ADJUSTMENT",
+     "source_record_id": "ADJ-MTO-2026-10-CLINIC",
+     "source_version": "1",
+     "site_code": "MTO-001",
+     "subject": {
+      "kind": "CUSTOMER",
+      "ref": "C-0007"
+     },
+     "clocks": {
+      "effective_from": "2026-10-01",
+      "recognition_period": "2026-10"
+     },
+     "quantity": {
+      "value": "40",
+      "unit": "kWh"
+     },
+     "body": {
+      "reason_code": "CLINIC_ALLOWANCE",
+      "authorised_by_ref": "P-JOSEPH",
+      "applies_to": [
+       "INV-MTO-2026-10-C0007-1"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "format_version": 1,
+   "tenant_code": "lakeside-power",
+   "source_type": "mobile_money_statement",
+   "source_system": "mm-settlement-statement",
+   "provenance": "source-emulated",
+   "produced_at": "2026-11-02T18:00:00+03:00",
+   "records": [
+    {
+     "format_version": 1,
+     "kind": "RECEIPT",
+     "source_record_id": "MM-7F31",
+     "source_version": "1",
+     "site_code": "MTO-001",
+     "subject": {
+      "kind": "CUSTOMER",
+      "ref": "C-0412"
+     },
+     "clocks": {
+      "occurred_at": "2026-10-30T19:12:00+03:00",
+      "recognition_period": "2026-10"
+     },
+     "amount": {
+      "value": "60.00",
+      "currency": "USD"
+     },
+     "status": "PAID_IN_TRANSIT",
+     "body": {
+      "payer_ref": "C-0412",
+      "method": "MOBILE_MONEY",
+      "applied_to": [
+       "INV-MTO-2026-10-C0412-1"
+      ]
+     }
+    },
+    {
+     "format_version": 1,
+     "kind": "SETTLEMENT",
+     "source_record_id": "MM-SETTLE-2026-11-02",
+     "source_version": "1",
+     "site_code": "MTO-001",
+     "clocks": {
+      "settled_at": "2026-11-02T10:00:00+03:00",
+      "recognition_period": "2026-10"
+     },
+     "amount": {
+      "value": "150.00",
+      "currency": "USD"
+     },
+     "body": {
+      "provider": "mobile-money",
+      "batch_ref": "SB-1102",
+      "receipts": [
+       "MM-7F31",
+       "MM-7F44"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "format_version": 1,
+   "tenant_code": "lakeside-power",
+   "source_type": "meter_register",
+   "source_system": "mto-meter-register",
+   "provenance": "source-emulated",
+   "produced_at": "2026-10-03T12:00:00+03:00",
+   "records": [
+    {
+     "format_version": 1,
+     "kind": "METER_ASSIGNMENT",
+     "source_record_id": "MT-2201:C-0412:2026-10-03",
+     "source_version": "1",
+     "site_code": "MTO-001",
+     "subject": {
+      "kind": "METER",
+      "ref": "MT-2201"
+     },
+     "clocks": {
+      "effective_from": "2026-10-03"
+     },
+     "body": {
+      "meter_ref": "MT-2201",
+      "customer_ref": "C-0412"
+     }
+    }
+   ]
+  },
+  {
+   "format_version": 1,
+   "tenant_code": "lakeside-power",
+   "source_type": "meter_data_export",
+   "source_system": "mto-meter-data",
+   "provenance": "source-emulated",
+   "produced_at": "2026-11-01T06:00:00+03:00",
+   "records": [
+    {
+     "format_version": 1,
+     "kind": "CUSTOMER_METER_READ",
+     "source_record_id": "MT-2201:2026-10",
+     "source_version": "1",
+     "site_code": "MTO-001",
+     "subject": {
+      "kind": "METER",
+      "ref": "MT-2201"
+     },
+     "clocks": {
+      "effective_from": "2026-10-03",
+      "effective_to": "2026-11-01"
+     },
+     "quantity": {
+      "value": "31",
+      "unit": "kWh"
+     },
+     "body": {
+      "meter_ref": "MT-2201",
+      "read_type": "INTERVAL"
+     }
+    }
+   ]
+  },
+  {
+   "format_version": 1,
+   "tenant_code": "lakeside-power",
+   "source_type": "expense_ledger",
+   "source_system": "lakeside-accounts",
+   "provenance": "source-emulated",
+   "produced_at": "2026-11-05T09:00:00+03:00",
+   "records": [
+    {
+     "format_version": 1,
+     "kind": "EXPENSE",
+     "source_record_id": "Q-KIS-0091",
+     "source_version": "1",
+     "site_code": "KISIWA-001",
+     "subject": {
+      "kind": "ASSET",
+      "ref": "KIS-GEN-1"
+     },
+     "clocks": {
+      "occurred_at": "2026-11-04T15:30:00+03:00",
+      "recognition_period": "2026-11"
+     },
+     "amount": {
+      "value": "1800.00",
+      "currency": "USD"
+     },
+     "status": "QUOTE",
+     "body": {
+      "counterparty_ref": "SUP-GENSERV",
+      "category": "REPAIR",
+      "document_ref": "Q-KIS-0091.pdf"
+     }
+    },
+    {
+     "format_version": 1,
+     "kind": "EXPENSE",
+     "source_record_id": "FP-KOBO-2026-10-14",
+     "source_version": "1",
+     "site_code": "KOBO-001",
+     "clocks": {
+      "occurred_at": "2026-10-14T11:00:00+03:00",
+      "recognition_period": "2026-10"
+     },
+     "amount": {
+      "value": "500.00",
+      "currency": "USD"
+     },
+     "quantity": {
+      "value": "400",
+      "unit": "L"
+     },
+     "status": "PAID",
+     "body": {
+      "counterparty_ref": "SUP-FUEL",
+      "category": "FUEL",
+      "document_ref": "FP-KOBO-2026-10-14"
+     }
+    }
+   ]
+  },
+  {
+   "format_version": 1,
+   "tenant_code": "lakeside-power",
+   "source_type": "budget_workbook",
+   "source_system": "lakeside-budget-2026",
+   "provenance": "source-emulated",
+   "produced_at": "2026-09-28T10:00:00+03:00",
+   "records": [
+    {
+     "format_version": 1,
+     "kind": "BUDGET_LINE",
+     "source_record_id": "BUD-2026-10:KOBO-001:diesel_l",
+     "source_version": "1",
+     "site_code": "KOBO-001",
+     "clocks": {
+      "recognition_period": "2026-10"
+     },
+     "body": {
+      "factor_id": "diesel_l",
+      "value": "700",
+      "version_ref": "budget-2026-v1"
+     }
+    },
+    {
+     "format_version": 1,
+     "kind": "BUDGET_LINE",
+     "source_record_id": "BUD-2026-10:KOBO-001:diesel_price",
+     "source_version": "1",
+     "site_code": "KOBO-001",
+     "clocks": {
+      "recognition_period": "2026-10"
+     },
+     "body": {
+      "factor_id": "diesel_price",
+      "value": "1.25",
+      "currency": "USD",
+      "version_ref": "budget-2026-v1"
+     }
+    },
+    {
+     "format_version": 1,
+     "kind": "BUDGET_LINE",
+     "source_record_id": "BUD-2026-10:portfolio:staff",
+     "source_version": "1",
+     "clocks": {
+      "recognition_period": "2026-10"
+     },
+     "body": {
+      "factor_id": "staff",
+      "value": "1200.00",
+      "currency": "USD",
+      "version_ref": "budget-2026-v1",
+      "line_ref": "HQ staff"
+     }
+    }
+   ]
+  },
+  {
+   "format_version": 1,
+   "tenant_code": "lakeside-power",
+   "source_type": "contract_documents",
+   "source_system": "lakeside-contracts",
+   "provenance": "source-emulated",
+   "produced_at": "2026-10-20T09:00:00+03:00",
+   "records": [
+    {
+     "format_version": 1,
+     "kind": "CONTRACT_DOCUMENT",
+     "source_record_id": "DOC-SUNFIELD-WARRANTY",
+     "source_version": "1",
+     "site_code": "KOBO-001",
+     "subject": {
+      "kind": "ASSET",
+      "ref": "KOBO-BATT-1"
+     },
+     "clocks": {
+      "effective_from": "2024-03-14",
+      "effective_to": "2029-03-14"
+     },
+     "status": "SUBMITTED",
+     "body": {
+      "document_sha256": "4f0c3d1b9a2e7c6d5b8a9f0e1d2c3b4a5f6e7d8c9b0a1f2e3d4c5b6a7f8e9d0c",
+      "counterparty_ref": "SUNFIELD",
+      "contract_type": "WARRANTY",
+      "pages": 14,
+      "parties": [
+       "LAKESIDE",
+       "SUNFIELD"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "format_version": 1,
+   "tenant_code": "harvest-cold",
+   "source_type": "storage_ledger",
+   "source_system": "thika-storage-ledger",
+   "provenance": "source-emulated",
+   "produced_at": "2026-10-31T23:00:00+03:00",
+   "records": [
+    {
+     "format_version": 1,
+     "kind": "STORAGE_MOVEMENT",
+     "source_record_id": "B-1031:IN",
+     "source_version": "1",
+     "site_code": "COLD-THIKA",
+     "subject": {
+      "kind": "BATCH",
+      "ref": "B-1031"
+     },
+     "clocks": {
+      "occurred_at": "2026-10-12T08:15:00+03:00"
+     },
+     "quantity": {
+      "value": "120",
+      "unit": "crate"
+     },
+     "body": {
+      "batch_ref": "B-1031",
+      "direction": "IN",
+      "commodity": "tomatoes",
+      "customer_ref": "CUST-117",
+      "rate": "0.30",
+      "currency": "USD"
+     }
+    }
+   ]
+  },
+  {
+   "format_version": 1,
+   "tenant_code": "harvest-cold",
+   "source_type": "customer_invoicing",
+   "source_system": "harvest-invoicing",
+   "provenance": "source-emulated",
+   "produced_at": "2026-11-03T09:00:00+03:00",
+   "records": [
+    {
+     "format_version": 1,
+     "kind": "ADJUSTMENT",
+     "source_record_id": "CN-0412",
+     "source_version": "1",
+     "site_code": "COLD-THIKA",
+     "subject": {
+      "kind": "CUSTOMER",
+      "ref": "CUST-117"
+     },
+     "clocks": {
+      "effective_from": "2026-10-21",
+      "recognition_period": "2026-10"
+     },
+     "amount": {
+      "value": "-108.00",
+      "currency": "USD"
+     },
+     "body": {
+      "reason_code": "SPOILAGE_CREDIT",
+      "authorised_by_ref": "P-KEVIN",
+      "document_ref": "CN-0412.pdf"
+     }
+    }
+   ]
+  },
+  {
+   "format_version": 1,
+   "tenant_code": "metro-bus",
+   "source_type": "utility_invoice",
+   "source_system": "kplc-invoice-c114",
+   "provenance": "source-emulated",
+   "produced_at": "2026-11-04T08:00:00+03:00",
+   "records": [
+    {
+     "format_version": 1,
+     "kind": "CHARGE",
+     "source_record_id": "C-114:2026-10:PEAK",
+     "source_version": "1",
+     "site_code": "EV-EMB",
+     "subject": {
+      "kind": "SITE",
+      "ref": "EV-EMB"
+     },
+     "clocks": {
+      "effective_from": "2026-10-01",
+      "effective_to": "2026-11-01",
+      "recognition_period": "2026-10"
+     },
+     "amount": {
+      "value": "11457.60",
+      "currency": "USD"
+     },
+     "quantity": {
+      "value": "47740",
+      "unit": "kWh"
+     },
+     "body": {
+      "account_ref": "C-114",
+      "line_type": "USAGE",
+      "tariff_code": "C-114",
+      "band": "PEAK"
+     }
+    },
+    {
+     "format_version": 1,
+     "kind": "TARIFF_SCHEDULE",
+     "source_record_id": "C-114:rev-2",
+     "source_version": "2",
+     "site_code": "EV-EMB",
+     "clocks": {
+      "effective_from": "2026-11-01"
+     },
+     "body": {
+      "contract_ref": "C-114",
+      "currency": "USD",
+      "demand_rate": "12.00",
+      "bands": [
+       {
+        "band": "NIGHT",
+        "from": "00:00",
+        "to": "05:00",
+        "rate": "0.09",
+        "unit": "per_kWh"
+       },
+       {
+        "band": "PEAK",
+        "from": "05:00",
+        "to": "22:00",
+        "rate": "0.24",
+        "unit": "per_kWh"
+       },
+       {
+        "band": "OFFPEAK",
+        "from": "22:00",
+        "to": "24:00",
+        "rate": "0.14",
+        "unit": "per_kWh"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "format_version": 1,
+   "tenant_code": "metro-bus",
+   "source_type": "fleet_roster",
+   "source_system": "embakasi-roster",
+   "provenance": "source-emulated",
+   "produced_at": "2026-10-14T18:00:00+03:00",
+   "records": [
+    {
+     "format_version": 1,
+     "kind": "FLEET_ROSTER",
+     "source_record_id": "BUS-E07:2026-10-15",
+     "source_version": "1",
+     "site_code": "EV-EMB",
+     "subject": {
+      "kind": "VEHICLE",
+      "ref": "BUS-E07"
+     },
+     "clocks": {
+      "effective_from": "2026-10-15"
+     },
+     "body": {
+      "vehicle_ref": "BUS-E07",
+      "return_at": "2026-10-14T21:40:00+03:00",
+      "departure_at": "2026-10-15T05:30:00+03:00",
+      "required_kwh": "140",
+      "block_ref": "BLK-12"
+     }
+    }
+   ]
+  },
+  {
+   "format_version": 1,
+   "tenant_code": "metro-bus",
+   "source_type": "service_tickets",
+   "source_system": "vendor-portal",
+   "provenance": "source-emulated",
+   "produced_at": "2026-10-22T12:00:00+03:00",
+   "records": [
+    {
+     "format_version": 1,
+     "kind": "SERVICE_TICKET",
+     "source_record_id": "TCK-CH-K2-0193",
+     "source_version": "3",
+     "site_code": "EV-KAS",
+     "subject": {
+      "kind": "ASSET",
+      "ref": "CH-K2"
+     },
+     "clocks": {
+      "occurred_at": "2026-10-18T07:05:00+03:00"
+     },
+     "status": "RESTORED",
+     "body": {
+      "asset_ref": "CH-K2",
+      "counterparty_ref": "SUP-CHARGERS",
+      "acknowledged_at": "2026-10-18T09:40:00+03:00",
+      "restored_at": "2026-10-21T16:20:00+03:00"
+     }
+    }
+   ]
+  },
+  {
+   "format_version": 1,
+   "tenant_code": "metro-bus",
+   "source_type": "depot_dispatch_log",
+   "source_system": "kasarani-dispatch",
+   "provenance": "source-emulated",
+   "produced_at": "2026-10-19T08:00:00+03:00",
+   "records": [
+    {
+     "format_version": 1,
+     "kind": "DEPARTURE",
+     "source_record_id": "DEP-BUS-K03-2026-10-19",
+     "source_version": "1",
+     "site_code": "EV-KAS",
+     "subject": {
+      "kind": "VEHICLE",
+      "ref": "BUS-K03"
+     },
+     "clocks": {
+      "occurred_at": "2026-10-19T05:42:00+03:00"
+     },
+     "body": {
+      "vehicle_ref": "BUS-K03",
+      "service_day": "2026-10-19",
+      "block_met": false,
+      "soc_pct": "61.5",
+      "block_ref": "BLK-03"
+     }
+    }
+   ]
+  }
+ ]
+}
