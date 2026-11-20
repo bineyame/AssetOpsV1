@@ -35,7 +35,11 @@ def build_structure_read(database_url: str | None) -> StructureReadService:
     snapshots = build_snapshot_store(database_url)
     if snapshots is None:
         raise RuntimeError("DATABASE_URL is not set, so the structure read cannot reach its sources.")
-    prices = build_window_price_selection(database_url)
+    try:
+        prices = build_window_price_selection(database_url)
+    except BaseException:
+        snapshots.dispose()  # L1: never leak the store when the second builder raises
+        raise
 
     def dispose() -> None:
         snapshots.dispose()

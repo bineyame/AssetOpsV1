@@ -59,3 +59,14 @@ Q1 `month_sum` 5-arg form; Q2 COMPLETE day with no value; Q3 "closed" clock; Q4 
 ## Not verified
 
 Mechanism-template tests (rebuild could drop another lane's template); Docker runner.
+
+## Fix round 2 (review r1: M1, L1)
+
+- M1: `evaluate.py` `_node` names the node itself in `missing_leaves` when its value is None for a node-level cause
+  (CURRENCY_MISMATCH, ZERO_DENOMINATOR), so every ancestor and the portfolio keep a reason; `read.py` `site_count`
+  tests `code in value.excluded`. Probe (Kobo productive_tariff KES): `out == (("Kobo", ("revenue",)),)`, never
+  STRUCTURE_NOT_DECLARED. Tests: `test_m1_currency_mismatch_...`, `test_m1_zero_denominator_...` (include the
+  every-None-has-a-reason check). Plant: old evaluate.py/read.py restored -> both m1 tests fail (2 failed).
+- L1: `composition.py` disposes the snapshot store if the price builder raises; `test_l1_...` (fake store).
+- Runs (worktree module paths verified): focused 152 passed; outcome regressions 78 passed; PG file
+  (`heavy-slot.sh --db`, assetops_test) 5 passed; check-all fast: 40 guards passed (76.7 s).

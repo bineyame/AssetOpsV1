@@ -307,8 +307,11 @@ class _Evaluation:
         if value is not None and value == 0:
             value = value.copy_abs()  # P10: never -0
         evidence = NOT_AVAILABLE if value is None else weakest(part.evidence)
+        blocked_by = part.missing_leaves if value is None else ()
+        if value is None and not blocked_by:  # M1: a node-level cause names this node, so ancestors keep a reason
+            blocked_by = (factor_id,)
         return FactorValue(factor_id, value, row.unit, evidence, part.sources, _min_coverage(part.coverages),
-                           missing, part.missing_leaves if value is None else (), part.assumed_leaves,
+                           missing, blocked_by, part.assumed_leaves,
                            currencies[0] if len(currencies) == 1 else None)
 
 

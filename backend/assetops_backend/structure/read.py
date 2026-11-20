@@ -55,7 +55,10 @@ def site_count(portfolio: PortfolioStructure, factor_id: str) -> SiteCount | Non
     for code in portfolio.sites:
         if code in value.included:
             continue
-        reasons = value.excluded.get(code) or portfolio.composition.sites_excluded.get(code) or NOT_DECLARED
+        if code in value.excluded:
+            reasons = value.excluded[code]
+        else:
+            reasons = portfolio.composition.sites_excluded.get(code) or NOT_DECLARED
         out.append((code, tuple(reasons)))
     return SiteCount(len(value.included), len(portfolio.sites), tuple(out))
 

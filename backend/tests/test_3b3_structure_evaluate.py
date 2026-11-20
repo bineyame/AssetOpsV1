@@ -738,3 +738,62 @@ def test_r7_a_node_keeps_the_smallest_share_coverage_and_the_portfolio_sums_it()
     summed = compose(MG, per_site).values["delivered_kwh"].value.coverage
     assert (summed.covered, summed.expected) == (50, 62)
     assert dict(summed.grades) == {"COMPLETE": 50, "NO_DATA": 11, "PARTIAL": 1}
+
+
+# ---------------------------------------------------------------- fix round 2: M1 and L1
+
+
+def _kobo_kes_tariff():
+    leaves = pack_leaves("Kobo")
+    leaves["productive_tariff"] = dataclasses.replace(leaves["productive_tariff"], currency="KES")
+    return leaves
+
+
+def _assert_every_none_has_a_reason(values) -> None:
+    for factor_id, fv in values.items():
+        if fv.value is None:
+            assert fv.missing is not None or fv.missing_leaves, f"{factor_id}: no value and no reason"
+
+
+def test_m1_currency_mismatch_reaches_every_ancestor_and_the_portfolio():
+    values = evaluate(MG, _kobo_kes_tariff())
+    assert values["revenue"].missing.record_kind == "CURRENCY_MISMATCH:KES,USD"
+    for node in ("collected", "contribution"):
+        assert values[node].value is None and "revenue" in values[node].missing_leaves, node
+    _assert_every_none_has_a_reason(values)
+    per_site = {"Kobo": site_structure("Kobo", _kobo_kes_tariff()), "Mto": site_structure("Mto")}
+    comp = compose(MG, per_site)
+    portfolio = SimpleNamespace(composition=comp, sites=("Kobo", "Mto"))
+    count = site_count(portfolio, "contribution")
+    assert count.k == 1 and count.out == (("Kobo", ("revenue",)),)
+    for factor_id in comp.values:
+        c = site_count(portfolio, factor_id)
+        assert all(r != ("STRUCTURE_NOT_DECLARED",) for _, r in c.out), factor_id
+    alone = compose(MG, {"Kobo": per_site["Kobo"]}).values["contribution"].value
+    assert alone.value is None and any("revenue" in leaf for leaf in alone.missing_leaves)
+
+
+def test_m1_zero_denominator_reaches_every_ancestor():
+    reg, values = _shortfall("standby_kw / lost_unit_kw", "30", "0")
+    assert values["shortfall_backed"].missing.record_kind.startswith("ZERO_DENOMINATOR")
+    for node in values["shortfall_backed"].missing.blocks:
+        assert values[node].value is None and values[node].missing_leaves, node
+    assert "shortfall_backed" in values["obligation_hours_without_backup"].missing_leaves
+    _assert_every_none_has_a_reason(values)
+
+
+def test_l1_snapshot_store_is_disposed_when_the_price_builder_raises(monkeypatch):
+    import assetops_backend.chain.composition as chain_composition
+    import assetops_backend.financials.composition as fin_composition
+    from assetops_backend.structure.composition import build_structure_read
+
+    store = SimpleNamespace(disposed=0, dispose=lambda: setattr(store, "disposed", store.disposed + 1))
+    monkeypatch.setattr(chain_composition, "build_snapshot_store", lambda url: store)
+
+    def boom(url):
+        raise RuntimeError("price builder failed")
+
+    monkeypatch.setattr(fin_composition, "build_window_price_selection", boom)
+    with pytest.raises(RuntimeError, match="price builder failed"):
+        build_structure_read("postgresql://x")
+    assert store.disposed == 1
