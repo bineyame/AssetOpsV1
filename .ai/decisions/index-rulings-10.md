@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-4B.1 to D-ON1.8)
+# Decision index: Demo-sprint and later rulings (index only) (D-4B.1 to D-IA.30)
 
 One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it. Top index: `INDEX.md`.
 
@@ -42,3 +42,13 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-ON1.6` RC4 in onboarding: real only on the operator DB with the switch on; tests never touch an operator DB · live · specs/ON1-operator-tenant/rulings.md
 - `D-ON1.7` Key erasure is terminal: tombstone, no new key, 409 PSEUDONYM_KEY_ERASED · live · specs/ON1-operator-tenant/rulings.md
 - `D-ON1.8` Currency, tariff, diesel price, loss band not collected at onboarding · live · specs/ON1-operator-tenant/rulings.md
+- `D-IA.21` IA-1 drawers open in place; G1 counts openers, never links inside drawers; drawer addresses in IA-2d · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.22` Reused pages split into parts, byte-identical; levels via iaLevels, display: contents · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.23` One primary rule: any .primary, one act identity, drawers excluded · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.24` One decision set and waiting predicate; Choose keeps the row; badge counts For you; act log · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.25` Hub content per tab; overview budget by block; no self-link; no interim Act-first alias · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.26` Decision page: the reviewed page placed in levels; C17 H1; reviewed stepper; no tiles · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.27` One adverse rule; the Outcomes table and its synthetic check · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.28` Addresses within the operator; no alias key shadows a route; fixed recommendation aliases · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.29` Plants on their hosts; G3, headline and landing gates for the hub · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-IA.30` The review bar's rebuild list is a popover by design · live · specs/IA-1-shape-rebuild/rulings.md

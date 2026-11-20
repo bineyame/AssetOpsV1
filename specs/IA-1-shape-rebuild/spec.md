@@ -1,10 +1,11 @@
 # IA-1 and IA-2: rebuild the mock-up by shape (implementer spec)
 
-Status: in_review (IA-1a built on task/IA-1a-frame; IA-1b and IA-1c not started)
+Status: IA-1a merged (`e100640bf`); IA-1b and IA-1c specified, handshake answered (rev 3); not started
 
-Architect (Claude), 2026-11-20, rev 2 (handshake round 1 folded in: D-IA.15 to D-IA.20). This is the handshake format (`.ai/RULES.md` §4): this spec, `reviewer-guide.md`,
-`rulings.md` (D-IA.1 to D-IA.20, and "Handshake answers (round 1)"), `handshake.md` and
-`mid-build-questions.md`.
+Architect (Claude), 2026-11-20, rev 3 (the IA-1b/IA-1c handshake folded in: D-IA.21 to D-IA.30; rev 2 folded in round 1,
+D-IA.15 to D-IA.20). This is the handshake format (`.ai/RULES.md` §4): this spec, `reviewer-guide.md`, `rulings.md`
+(D-IA.1 to D-IA.30, "Handshake answers (round 1)" and "IA-1b/IA-1c handshake answers"), `handshake.md` and
+`mid-build-questions.md`. Where rev 3 changed a rev 2 rule, the ruling names it.
 
 **Read first:**
 - the proposal page `Docs/design-system/ia-proposal/index.html`, §2 to §6 (the screenshots beside it will do);
@@ -29,7 +30,8 @@ are folded in after the owner's G2 input (D-IA.11). No IA-2 unit starts before t
     - `task/ia-1b-hub` in `/opt/assetecon/AssetOpsV1-ia1b`;
     - `task/ia-1c-decision` in `/opt/assetecon/AssetOpsV1-ia1c`.
 
-    Each unit branches from the previous unit's merged head.
+    Each unit branches from the previous unit's merged head: IA-1b from `main` at or after the merge of
+    `task/IA-1bc-handshake-answers` (IA-1a is merged at `e100640bf`); IA-1c from IA-1b's merged head.
 - **What you may touch:**
   - `vNEXT/` only, plus its `tools/`;
   - the new files named in this spec;
@@ -52,7 +54,7 @@ are folded in after the owner's G2 input (D-IA.11). No IA-2 unit starts before t
 - the approved menu;
 - the Portfolio hub with three tabs;
 - every Site's Overview from one hub shape;
-- every decision from one decision shape;
+- every decision from one decision shape (every `DEC` entry: 15 today);
 - a "Waiting for you" inbox.
 
 **What is reachable.** Every screen reachable from the Portfolio is rendered from a shape, with nothing rewritten
@@ -146,14 +148,14 @@ table:
 | Old route | New route | Target unit |
 |---|---|---|
 | `portfolio/outcomes-by-site` | `portfolio/outcomes` | IA-1b |
-| `portfolio/act-first` | `portfolio` until IA-2b, then `decisions` | IA-1b, then IA-2b |
+| `portfolio/act-first` | `decisions` (no interim alias, D-IA.25) | IA-2b |
 | `portfolio/act-first/plan` | `plan` | IA-1a (interim, §2.6), then IA-2a |
 | `portfolio/what-changed` | `results` | IA-2d |
 | `portfolio/scope`, `globalevidence` | `evidence` | IA-2d |
 | `oprecords` | `evidence/records` | IA-2d |
-| `mini`, `cold`, `ev` | `site/kobo`, `site/thika`, `site/ruiru` | IA-1b |
-| `site/:site/economics`, `financials`, `cold-financials`, `ev-financials` | `site/:site/financials` | IA-2e |
-| `recommendation`, `alternatives`, `cold-recommendation`, `ev-recommendation` | the decision on that Finding (from `DEC[].finding`) | IA-1c |
+| `mini`, `cold`, `ev` | the operator's first Site of that group, else none (D-IA.28) | IA-1b |
+| `site/:site/economics`, `cold-financials`, `ev-financials` | `site/:site/financials` (`financials` is a reserved route, never an alias key, D-IA.28) | IA-2e |
+| `recommendation`, `alternatives` · `cold-recommendation` · `ev-recommendation` | `decision/kobo-generator` · `decision/thika-backup` · `decision/ruiru-connector` (fixed table, D-IA.28) | IA-1c |
 | `globalfinancials` | `financials` | IA-2e |
 | `settings-policies`, `settings-tenant` | `settings`, `settings/organisation` | IA-2e |
 
@@ -162,7 +164,11 @@ IA-2 units add the remaining aliases. Their full list comes from the proposal's 
 **Liveness (D-IA.16).** `iaLive(href)` is true when the href's path is a landed `IA_ROUTES` entry, or a live alias,
 or `lab` while `iaDev()` is on. Nothing else is live: not a legacy route, not a stub, not `not-found`.
 
-**The start.** `iaStart()` is `plan` until `IA_LANDED` has IA-1b, then `portfolio` (D-IA.15).
+**The start.** `iaStart()` is `plan` until `IA_LANDED` has IA-1b, then `portfolio` (D-IA.15). From IA-1b the empty hash
+renders `iaStart()` (D-IA.29).
+
+**Parameters stay in the operator** (D-IA.28): `:site` matches only `OPS[LS.op].sites`, `:dec` only those Sites'
+`DEC` entries; a typed address outside them shows not-found.
 
 **The developer switch.** `iaDev()` is `sessionStorage['l4-dev'] === '1'`; off by default (D-IA.7).
 
@@ -203,7 +209,7 @@ structure: `nav.rail` and `main.workspace > header.topbar + .canvas`. The header
    today's palette. `uxSearchLabel` is not called for IA routes. On an IA route the palette lists only entries that
    `iaLive` accepts. IA-2b extends its index.
 3. **The period chip**, from `uxPeriodMenuHtml(op)`.
-4. **Waiting for you**, with a red count badge, from IA-1c. In IA-1a the control is not drawn.
+4. **Waiting for you**, with a red count badge, from IA-1c (§4.3). In IA-1a and IA-1b the control is not drawn.
 5. **The theme toggle** (`themeToggle()`), then **the avatar**, as today.
 
 **The header.** The H1 is `route.title(ctx)`. The breadcrumb comes from `route.crumbs`. Tabs render only for routes
@@ -241,7 +247,7 @@ that have a `tab`, from the route's tab group (§3.1), and only for landed tabs.
 
 The passes may later move into components. That is allowed but not required.
 
-### 2.5 The checks (IA-1a builds them; every later unit runs them)
+### 2.5 The checks (IA-1a builds them; every later unit runs them; §2.8 changes them from IA-1b)
 
 **Shared: `tools/ia_crawl.cjs`.** The jsdom boot (as `shell_check.cjs` boots today), `go(hash)`, the crawl and the
 href classifier. The classifier reads `IA_ROUTES`, `IA_LANDED` and `IA_ALIASES` from the window and matches hrefs
@@ -271,22 +277,23 @@ Plants (`SHAPE_PLANT=<name>`, each must fail; host route `iaStart()`):
 - `stub`: `iaLive` returns true for `site/kisiwa/health`, and the host's L2 gains a link to it;
 - `rail`: the rail builder treats every item as landed;
 - `palette`: the palette's `iaLive` filter is off;
-- `primary`: the host's L1 gains a second `button.primary`;
+- `primary`: the host's L1 gains a second `button.primary` (from IA-1b: two, with distinct acts, §2.8);
 - `lab`: `iaDev()` returns true always.
+- IA-1a's round-2 plants (`tabstop`, `notfound`, `noact`, `lablegacy`) stand; `noact` runs on `plan` from IA-1b (§2.8).
 
 **`tools/click_depth_check.cjs`** (G1, D-IA.10 measured as D-IA.18):
 - **Edges.** Content edges only: header tab links, links, rows and tiles inside `[data-level]` regions, the
   "Waiting for you" control and its drawer rows. The rail, the breadcrumb, the scope menu and search are not edges.
-  A drawer opened by a link is a node (`?drawer=`).
+  A drawer is a node, reached by its opener (§2.8, D-IA.21).
 - **Origin.** `#/portfolio`. Until IA-1b lands there is no origin, so no live surface: the check prints
   `G1: origin lands in IA-1b; 0 live surfaces` and runs only its self-test.
 - **Self-test** (every unit). A fixed synthetic graph in the check (Overview, a tile, a queue row, the inbox, the
   plan, a decision, a Site, a driver drawer) with the expected depths; the BFS must reproduce them.
 - **Surfaces, per landed unit:**
-  - IA-1b: the Plan page (≤ 1); every Site Overview (≤ 2); the driver drawer of each Site's largest adverse driver
-    (≤ 3; the interim Finding surface until IA-2d);
-  - IA-1c: every decision the Overview queue shows (≤ 1 over queue edges); every decision waiting for a choice and
-    a plan in PROPOSED (≤ 2 over inbox edges only); each plan item's Decision (≤ 2).
+  - IA-1b: the Plan page (≤ 1); every Site Overview (≤ 2); the driver drawer of each Site's largest driver against
+    target, `iaLargestAdverse` (≤ 3; the interim Finding surface until IA-2d; `n/a` for a Site without one);
+  - IA-1c: every decision the Overview queue shows (≤ 1 over queue edges); every decision waiting for a choice
+    (`iaWaiting`) and a plan in PROPOSED (≤ 2 over inbox edges only); each plan item's Decision (≤ 2).
 - It prints one line per surface: `op · surface · depth · path`, and fails past a limit.
 - Plants (`G1_PLANT=<name>`): `engine` (every unit; one self-test edge removed); `tile` (from IA-1b; the Overview's
   plan tile link removed); `inbox` (from IA-1c; one waiting decision dropped from the inbox rows).
@@ -351,140 +358,282 @@ interim; it must not grow. IA-2a rebuilds it as the plan shape proper.
   - the switch label is "Developer access";
   - the line "Still to be rebuilt: " followed by the unlanded rail items, joined by " · ".
 
+### 2.8 Gate changes that land with IA-1b and IA-1c (D-IA.21 to D-IA.30)
+
+These change §2.5's checks. Each changed assertion is shown failing on its plant first (§6).
+
+**Where the new code lives.**
+- `ia-shapes.js`: `iaLevels`, `shapeHub`, `shapeDecision`, `iaOutcomeTable`, the inbox control and drawer builders,
+  and the predicates `iaDecIds(op, scope)`, `iaWaiting(id)`, `iaForYou(op)`, `iaLargestAdverse(sk)` (D-IA.24, D-IA.27).
+- `ia-routes.js`: the hub and decision routes, `IA_TAB_GROUPS`, `IA_G1_SURFACES()`, the alias changes (D-IA.28).
+- `loop-ux.js` / `loop-site.js`: the parts splits only (D-IA.22) and the act log in `uxActDo` (D-IA.24).
+- `ia.css`: `[data-shape="hub"] > [data-level], [data-shape="decision"] > [data-level], [data-ia-drawers] { display:
+  contents }`, and the inbox control (`.ia-inbox`, `.ia-badge`, the 390 rule hiding `.ia-inbox-label`).
+- `tools/count_check.cjs`, `tools/outcomes_table_check.cjs` (new); one byte-identity script, `tools/parts_identity.cjs`,
+  covering `planParts` and the three new splits (§6 item 2).
+
+**`tools/ia_crawl.cjs`.**
+- `identity()` keeps the value of `drawer`; other query keys stay key-only (D-IA.21).
+- The classifier accepts `:site` only from the booted operator's `OPS[op].sites` and `:dec` only from those Sites'
+  `DEC` entries (D-IA.28).
+
+**`tools/shape_check.cjs`.**
+- Item 1, the primary rule (D-IA.23): a primary is `a.primary` or `button.primary` outside every `.ux-drawer`; its act
+  is `data-act`, else `data-ux-act`, else `drawer:<data-ux-drawer>`, else `href:<href>`, and a primary without one
+  fails; at most one per `[data-level]` region; the page primary is the first inside a region, in document order; a
+  primary outside every region sits in `[data-ux-sticky]` with the page primary's act.
+- Item 1 runs, unplanted, in three states per operator: default; `?state=no-recommendation` (in `location.search`);
+  after one act (the operator's first waiting decision chosen with its recommendation through `uxMockSet`, where one
+  exists).
+- Item 6 (IA-1b), no self-link: no `a[href^="#/"]` inside a `[data-level]` region whose `iaCanon` href has the
+  current route's path and query.
+- Item 7 (IA-1b), reserved paths: no `IA_ALIASES` key matches an `IA_ROUTES` pattern, an `IA_RAIL` route or a route
+  of an `IA_TAB_GROUPS` entry for the operator's Sites (static).
+- Item 8 (IA-1b), the operator's own addresses: typed `#/site/<a Site of another operator>` and
+  `#/decision/<a decision of another operator>` show not-found.
+- Item 9 (IA-1b), the landing: the empty hash renders `iaStart()`.
+- Plants: `primary` now adds two `button.primary` with distinct acts to the host's L1; `noact` runs on `plan` and
+  removes the act of its page primary. New from IA-1b: `selflink`, `aliaskey`, `crossop`, `linkprimary` (two
+  `a.button.primary` in the host's L2), `landing`. New from IA-1c (host: the operator's first waiting decision; Harvest,
+  which has none, skips them): `decprimary`, `stickyact`. Each is defined in D-IA.23, D-IA.25, D-IA.28 or D-IA.29.
+
+**`tools/click_depth_check.cjs`** (D-IA.21):
+- Nodes are pages (the route) and drawers (`<route>#drawer=<element id>`). A page's edges: `a[href^="#/"]` and
+  `[data-ux-drawer]` inside its header tabs, its `[data-level]` regions and `[data-ia-inbox]`, never inside a
+  `.ux-drawer`. An opener is an edge to its drawer node. A drawer node's edges: the links and openers inside that
+  drawer element.
+- `IA_G1_SURFACES()` (in `ia-routes.js`) returns `{ op, surface, route, limit, via }`, `via` one of `any`, `queue`,
+  `inbox`. For `queue`, the check walks only the links in `portfolio`'s L2 `.ux-queue`; for `inbox`, only the
+  `[data-ia-inbox]` control and `#ia-inbox a[data-ia-row]`.
+- Self-test: the synthetic graph gains a drawer node reached by an opener; and the edge reader is tested on a fixed
+  DOM fixture (a level region with a link A and an opener to drawer D; inside the closed D, a link B), which must read
+  page → A, page → D and D → B, never page → B.
+- Plants: `tile` (IA-1b; the plan tile's link removed), `driver` (IA-1b; the Site board's driver openers lose
+  `data-ux-drawer`), `hidden` (IA-1b; the reader's `.ux-drawer` exclusion removed, failing the fixture test), `inbox`
+  (IA-1c; one waiting decision dropped from the inbox rows).
+
+**New checks, run by `ia_gates.cjs` from IA-1b:** `tools/count_check.cjs` (D-IA.24; plants `COUNT_PLANT=choose`, and
+from IA-1c `foryou`) and `tools/outcomes_table_check.cjs` (D-IA.27; plants `OUT_PLANT=cap|group|scope|sort|notarget`).
+The runner clears every `*_PLANT` variable before each run.
+
+**Hosts** (D-IA.29): a planted run visits only its plant's host; AR plants run on one route per shape per operator.
+
 ## 3. The hub shape (IA-1b)
 
 ### 3.1 The shape
 
-`shapeHub(ctx, { headline, tiles, primary, queue, explain })` returns:
+`shapeHub(ctx, { cls, sticky, l1, l2, l3, drawers })` returns `iaLevels('hub', …)` (D-IA.22):
 
 ```html
-<section data-shape="hub">
-  <div data-level="L1"> headline (≤2 lines) · up to 4 uxKpi tiles · at most one primary action </div>
-  <div data-level="L2"> the queue: uxQueue rows, top 6 at portfolio scope and top 3 at Site scope, the count of the rest; "View all" only once its home list has landed </div>
+<section data-shape="hub" class="{cls}">
+  {sticky}
+  <div data-level="L1"> headline (≤ 2 lines at 1440 and 1280) · up to 4 uxKpi tiles · at most one primary </div>
+  <div data-level="L2"> the queue or the home list's rows, capped </div>
   <div data-level="L3"> answer-titled sections, one level, in the order given </div>
+  <div data-ia-drawers> the page's top-level drawers </div>
 </section>
 ```
 
+- An empty slot omits its region. `[data-shape="hub"] > [data-level]` and `[data-ia-drawers]` are
+  `display: contents` (`ia.css`), so the reviewed layout does not move.
 - **Evidence (L4)** is reached only through drawers, from a figure (`uxOpen`).
-- **Tab groups:**
-  - Portfolio: Overview `portfolio`, Outcomes `portfolio/outcomes`, Demand & capacity `portfolio/demand-and-capacity`.
-  - Site: Overview `site/:site`, Operations `/operations`, Performance `/performance`, Financials `/financials`,
-    Evidence `/evidence`, Setup `/setup`. Only tabs whose unit has landed are drawn (D-IA.12), so IA-1b draws Overview
-    alone and the review bar lists the rest.
+- **Parts, proven byte-identical** (D-IA.22). The hub never calls the joined legacy function.
+  - `uxOverviewParts(op)` returns `{ headline, tiles, queue, actFirst, more, bridge, cats, moreTabs }`, cut from
+    today's template at its element boundaries; `queue` is a function `(actFirst, more) => html` that returns the
+    `.ux-main-aside` block with those two fragments in their places. `uxOverview(op)` returns `<div
+    class="ux-overview">` + the parts in today's order, with `queue(actFirst, more)` + `</div>`, byte for byte.
+  - `siteOverviewP(sk)` returns the `P` object `siteOverview` builds today; `siteOverview(sk)` is
+    `uxSitePage(sk, siteOverviewP(sk))`.
+  - `uxSiteParts(sk, P, qMax)` returns `{ sticky, lead, tiles, queue, secs, help, drawers }` (`queue` is the
+    `.ux-main-aside` block with the queue and "Actions in hand"; `drawers` is `B.drawers` and the "How …" drawer);
+    `uxSitePage(sk, P)` joins `uxSiteParts(sk, P, Infinity)` in today's order.
+- **Tab groups** (`IA_TAB_GROUPS`, keyed by `route.tabGroup`):
+  - `Portfolio`: Overview `portfolio`, Outcomes `portfolio/outcomes`, Demand & capacity `portfolio/demand-and-capacity`.
+  - `Site`: Overview `site/:site`, Operations `/operations`, Performance `/performance`, Financials `/financials`,
+    Evidence `/evidence`, Setup `/setup`.
+  - Only landed tabs are drawn, and a group with one landed tab draws no tab row: IA-1b draws the three Portfolio tabs
+    and no Site tab row. The review bar lists the five Site tabs (D-IA.30).
 
-### 3.2 The routes it renders
+### 3.2 The routes it renders (D-IA.25)
 
-| Route | Content (reuse) | Rules |
+| Route | H1 · crumbs | `cls` | L1 | L2 | L3 | Drawers |
+|---|---|---|---|---|---|---|
+| `portfolio` | "Portfolio" · `[['Portfolio']]` | `ux-overview` | headline; the 4 tiles | `queue('', '')`: the queue panel, top 6, without "Act first ›" and the "View all" lines | the bridge; "By outcome" | none at top level (the bridge's and headings' drawers stay inside their sections) |
+| `portfolio/outcomes` | "Outcomes" · `[['Portfolio','portfolio'],['Outcomes']]` | none | the headline (§3.3) | `iaOutcomeTable(rows, { scope })` | `uxInsight(op)` | none |
+| `portfolio/demand-and-capacity` | "Demand & capacity" · `[['Portfolio','portfolio'],['Demand & capacity']]` | none | `uxChain(op)` | none | `opportunityScreen()` | none |
+| `site/:site` (the operator's 3) | the Site name; subtitle as the legacy Site screen's · `[['Sites'],[name]]` | the legacy wrapper's, if any | the lead headline; `uxSiteTiles(sk)` | the queue (top 3) and "Actions in hand", one block | the seven sections; the help line | the driver drawers; "How …" |
+
+- `home`: "Portfolio" (three tabs), "Sites" (a Site; unlanded, so nothing lights). `tabGroup`: "Portfolio" or "Site".
+- The Site sticky comes first, outside the levels. Its "Decide" targets the queue's own primary (D-IA.22's one named
+  fix).
+- The only content link from the Overview to the plan is the plan tile's "Review the plan" (`G1_PLANT=tile`).
+- **The overview budget:** on `portfolio`, at most 6 blocks (a visible direct child of a level region, outside
+  drawers) and the hub section at most 2,500 px tall at 1440, for all three operators (5 blocks once "More in the
+  tabs" is dropped).
+- **Outcomes** (D-IA.27). One row per Site in scope, sorted by gap ascending (most adverse first), ties in
+  `OPS[op].sites` order, Sites without a target last. Capped at 10 with `uxCapNote` ("Show all {n}"). Grouped by
+  group only above 10 Sites in more than one group. Every figure reads `DERIVED`, as the Site tiles do.
+
+**The Outcomes columns** (headers exact; cells by operator kind, `OPS[op].kind`):
+
+| # | Header | Cell |
 |---|---|---|
-| `portfolio` | `uxOverview(op)`, split into the shape's slots | The overview budget (guide §2.2a): at most 6 blocks, 2,500 px at 1440. The plan tile links to `plan`. The gap tile links to `portfolio/outcomes` |
-| `portfolio/outcomes` | L1: "N of M Sites below target" and one tile per heading. L2: **one row per Site** (columns below). L3: `uxInsight(op)`, "Sites that look alike" | Sorted by gap, most adverse first. Capped at 10 with "Show all N". Grouped by vertical when the scope has more than 10 Sites. No factor tree inline (audit C5) |
-| `portfolio/demand-and-capacity` | `uxChain(op)` and the content of `opportunityScreen()` | Red only for an adverse deviation against target (audit C11) |
-| `site/:site` (all 9) | The reviewed Site page from `siteOverview(sk)` and its UI-branch sections | One template for all 9 Sites. Each driver row opens its driver drawer, which names its Finding and decision |
+| 1 | Site | `link('site/<key>', name)` |
+| 2 | Group | the group word (`IA_GROUP_WORD[iaVertical(sk)]`) |
+| 3 | Contribution (cost kind: Cost per required departure met) | "{actual} against a target of {target}", formatted as the Site's first tile (`usdW` or `fmtU(…, t.unit)`) |
+| 4 | Gap to target | the Site gap tile's own call, `figS('gap', sk, s.period.variance, usdW(…, true))` |
+| 5 | Largest driver against target | `iaLargestAdverse(sk)`: its label and `usdW(vr, true)`, then `<small>` its heading (`LENS[k][0]`); none: "No driver widens the gap" (cost kind: "No driver raises the cost") |
+| 6 | Waiting for a choice | the count of `iaDecIds(op, site)` with `iaWaiting` (0 shown as 0) |
 
-**The Outcomes columns:**
-1. Site (link to `site/<key>`)
-2. Vertical
-3. Contribution against target
-4. Gap
-5. Largest adverse driver, with its heading
-6. Open decisions (count)
-
-Every figure reads `DERIVED`, as the Overview's tiles do. The Site's gap is the same term the Site Overview's gap
-tile reads (D-IA.14, one source).
+A Site without a target reads "Not available yet" in columns 3 to 5.
 
 ### 3.3 Copy
 
-- **Tab labels:** as in §3.1.
-- **Outcomes L1 headline:** "{n} of {m} Sites are below target this month". If none is below target: "Every Site is
-  on or above target this month".
-- **The cap link:** "Show all {n} Sites".
+- **Tab labels:** as in §3.1. **H1s:** "Portfolio", "Outcomes", "Demand & capacity", the Site name.
+- **Outcomes headline** (`{month}` is the accounting period's month, "October", as the Overview's headline reads):
+  - contribution kind: "{n} of {m} Sites are below target in {month}"; none: "Every Site is on or above target in
+    {month}";
+  - cost kind: "{n} of {m} Sites are over target in {month}"; none: "Every Site is on or under target in {month}";
+  - `n` counts Sites with a negative gap; `m` counts Sites with a target.
+- **The cap link:** `uxCapNote`'s "Show all {n}".
+- **Column headers and the two "no driver" cells:** as in §3.2.
+- **Group header row** (grouped tables only): the group word and `<span class="ux-count">{k}</span>`.
 
 ## 4. The decision shape (IA-1c)
 
-### 4.1 The shape
+### 4.1 The shape (D-IA.26)
 
-`shapeDecision(ctx, { subject, state, steps, recommendation, tiles, options, sections, primary })` returns:
-- `data-shape="decision"`, with L1, L2 and L3 as in §3.1.
-- **L1:**
-  - the H1 is the decision's subject (`d.q` without a question form), from the UI branch's rule (audit C17);
-  - the state line is a stepper: Recommended › Chosen › Released › Verified, with the current step marked;
-  - the recommendation, in one line, with who decides and by when;
-  - up to 3 tiles: the 12-month value against no action, the one-off cost, and what is at stake;
-  - the primary action, "Choose this".
-- **L2:** the options compared against no action, from the UI branch's option cards.
-- **L3:** answer-titled sections, one level deep. Each section is one of today's: how each option moves its drivers,
-  limits, cover, what would change it, and the verification plan.
+`shapeDecision(ctx, { sticky, l1, l2, l3, drawers })` returns `iaLevels('decision', …)`. The parts come from
+`uxDecisionSlots(id, decisionParts(id))`, proven byte-identical (D-IA.22): `{ sticky, head, rec, cards, secs, drawers }`,
+where `drawers` is today's `dialogs + evidence + actsDrawer + howDrawer`. `decisionParts(id)` returns the `parts` object
+`decisionScreen` builds today; `decisionScreen(id)` is `uxDecisionPage(id, decisionParts(id))`, and `uxDecisionPage`
+joins the slots in today's order.
+
+| Element | Place |
+|---|---|
+| `sticky` | first, outside every level |
+| `head` (meta line, stepper, "How this works") and `rec` (the recommendation card with its acts and "Evidence and records") | L1 |
+| `cards` (the option cards) | L2 |
+| `secs` (the six answer-titled sections, today's order) | L3 |
+| the choose dialogs, Evidence and records, The Actions, How this works | `[data-ia-drawers]` |
+
+- **H1:** `iaWaiting(id) ? uxDecQuestion(d) : d.q` (C17, as reviewed). The document title follows.
+- **Stepper:** `uxDecStatus` / `uxDecSteps` as reviewed; no "Verified" step.
+- **The hero number:** the recommendation card's `ux-drec-n`, as reviewed; no `.ux-kpi` tiles.
+- **Primary:** "Choose this" (an opener) in L1 while state `choose`; the sticky repeats it with the same act.
 
 ### 4.2 Routes and wayfinding
 
-- `decision/:dec` covers all 14 `DEC` entries, through `decisionScreen`, split into the shape's
-  slots.
-- `home: 'Decisions'`. Until IA-2b lands, the Decisions rail item is unavailable, so no rail item lights.
-- The breadcrumb is `Decisions › <Site name> › <subject>`. Until IA-2b, "Decisions" is plain text, not a link.
-- "Open site" links to `site/<key>`.
-- **The acts.** Choose, and Undo, use the UI branch's single pattern (`uxChooseDialog`, `UX_ACTS`): a dialog, then
-  a toast with Undo, then the state changes on the page, in the queue and in the inbox count.
+- `decision/:dec` covers every `DEC` entry of the operator's Sites (15 across the three operators).
+- `home: 'Decisions'`, `tabGroup: null`. Until IA-2b the Decisions rail item is unavailable, so no rail item lights.
+- The breadcrumb is `[['Decisions'], [Site name, 'site/<key>'], [d.q]]`; "Decisions" is text until IA-2b. The Site
+  crumb is the way to the Site (no "Open site" link).
+- **The acts.** Choose and Undo use the reviewed pattern (`uxChooseDialog`, `uxActDo`): a dialog, a toast with Undo,
+  then the state changes on the page, in the queue row, in every waiting count and, for a For-you item, in the badge
+  (D-IA.24). The row stays in the queue with its new state.
+- **The act log:** `uxActDo` appends `{ key, op, by, at, toast }` to `uxMock().log`, newest first (D-IA.24).
 
-### 4.3 The inbox (the drawer, in its first use)
+### 4.3 The inbox (D-IA.21, D-IA.24)
 
-- **The control.** "Waiting for you", in the top bar. The count is the number of items in "For you".
-- **The drawer.** It opens through `uxDrawer`, with the address `#/<route>?drawer=inbox` (in the hash, §2.2). It has three sections:
-  1. **For you:** the plan, if it is in PROPOSED, and every decision in `choose` state whose chooser role is the
-     operator executive (`deciderOf`, design §2.6).
-  2. **In your portfolio:** every other decision in `choose` state, with who decides.
-  3. **Since you last looked:**
-     - the acts recorded in this session (`uxMock()`), newest first, each with who, what and when;
-     - the snapshot line, "Figures as of {asOf}", with "recalculation pending since {time}" when `snapOf(op).pending`.
-- **Rows.** Each row opens its Decision or the Plan. The empty state is "Nothing is waiting for you".
+- **The control,** in the top bar between the period chip and the theme toggle:
+  `<button type="button" class="ia-inbox" data-ia-inbox data-ux-drawer="ia-inbox" aria-haspopup="dialog"
+  aria-controls="ia-inbox">{icon('check')}<span class="ia-inbox-label">Waiting for you</span>{badge}</button>`.
+  `{badge}` is `<span class="ia-badge" data-ia-badge>{n}</span>` with `<span class="vh">, {n} waiting</span>`, and is
+  absent when `n` is 0. At 390 the label is visually hidden (`.vh` rules); the icon and badge stay. At 1280 the top
+  bar stays on one line.
+- **The drawer** is `uxDrawer('ia-inbox', 'Waiting for you', body, true)`, rendered closed inside the frame root, after
+  `.canvas`. It opens in place (no address until IA-2d). Esc and close shut it.
+- **Sections:**
+  1. **For you:** the plan row when `uxPlanState(op).state === 'PROPOSED'`; then each waiting decision whose chooser is
+     `OPERATOR_EXECUTIVE`.
+  2. **In your portfolio:** every other waiting decision (`iaDecIds(op, all)` with `iaWaiting`), in that order.
+  3. **Since you last looked:** the operator's entries of `uxMock().log`, newest first; then the snapshot line,
+     `snapText(op)`, and `pendingText(op)` when `snapOf(op).pending`.
+- **Rows** (`<ul class="list ia-inbox-rows">`):
+  - plan: `<a href="#/plan" data-ia-row="plan">The plan for {periodWords()} <small>{STATE_WORD[state]}: awaiting
+    approval</small></a>`;
+  - decision: `<a href="#/decision/{id}" data-ia-row="decision:{id}">{d.q} <small>{Site name} · Decides: {who(op,
+    D.p)}</small></a>`;
+  - log entry: `<a href="#/{decision/<id> or plan}" data-ia-row="log:{i}">{toast} <small>{by} · {hh:mm}</small></a>`
+    (`hhmm(at)`).
+- **Empty states:** For you: "Nothing is waiting for you"; In your portfolio: "Nothing else is waiting for a
+  choice"; Since you last looked (no entry): "No change recorded in this session", then the snapshot line.
 
 ### 4.4 Copy
 
-- The drawer's title is "Waiting for you".
-- Its section titles are "For you", "In your portfolio" and "Since you last looked".
-- The stepper words are Recommended, Chosen, Released and Verified.
+- The control's label and the drawer's title: "Waiting for you"; the badge's hidden text ", {n} waiting".
+- Section titles: "For you", "In your portfolio", "Since you last looked".
+- Row texts and empty states: as in §4.3. The plan row reuses "The plan for {periodWords()}" (the plan sticky's) and
+  "{state}: awaiting approval" (the plan tile's); the decision row reuses "Decides: " (the meta line's).
+- The stepper words are `uxDecSteps`'s, unchanged.
 
 ## 5. IA-2 (after the G2 stop; unit cards finalised after the owner's input)
 
 | Unit | Shape | Routes | Shape's own gate, beyond §6 |
 |---|---|---|---|
 | IA-2a | Plan | `plan` | The state stepper (Draft › Proposed › Approved › Closed). The budget and crew meters. Items, Left out, Review and History as tabs. `plan_switch_check.cjs` passes |
-| IA-2b | List | `decisions`, `findings`, `actions`, `sites`; "View all" goes live on the hubs; aliases `portfolio/act-first` → `decisions` and `findings-*` → `findings?heading=` | One list component. Filters, sort and scope in the address. Cap at 10 with "Show all". Count tiles equal the list length (audit C2.3). Search indexes every object |
+| IA-2b | List | `decisions`, `findings`, `actions`, `sites`; "View all {n}" goes live on the hubs (the D5 deviation of D-IA.25 closes); aliases `portfolio/act-first` → `decisions` and `findings-*` → `findings?heading=`; the Outcomes table (D-IA.27) folds into the list component | One list component. Filters, sort and scope in the address. Cap at 10 with "Show all". Count tiles equal the list length (audit C2.3). A row has one target (D-IA.9; the queue rows' D5 deviation closes). Search indexes every object. G1's "released Actions, filtered to the plan version" gets its surface |
 | IA-2c | Asset | `asset/:asset`; `assets`, `incidents` and `maintenance` as list instances; `site/:site/operations`, `/performance`, `/setup` | One timeline per asset. Each row of the Site's Operations tab has the same columns on every vertical. Performance panels follow the vertical, with the slots fixed |
-| IA-2d | Drawer and record page | The incident, maintenance, right and record drawers; `finding/:id`, `action/:id`; `results`, `evidence` (Coverage, Records, Imports); `site/:site/evidence` | Every drawer has an address and closes with Esc. G1's Finding surface moves to the Finding page |
+| IA-2d | Drawer and record page | Every drawer's address `?drawer=<kind>:<id>` (stable ids; the inbox and the driver drawers included; Back restores it); the incident, maintenance, right and record drawers; `finding/:id`, `action/:id`; `results`, `evidence` (Coverage, Records, Imports); `site/:site/evidence` | Every drawer has an address and closes with Esc. G1's drawer nodes move onto the addressed hrefs, and its Finding surface moves to the Finding page. The stepper gains "Verified" once Results holds verdicts |
 | IA-2e | Statement | `financials` (Statement, Budget & targets, Prices); `site/:site/financials`; `settings` (four tabs); the Lab's own content only (its gate is built in IA-1a, D-IA.19) | Reconciliation (the statement against the headings, all operators). Final sweep: every one of the 184 manifest routes plus `plan` resolves to a live route, an alias or not-found, and `rebase_v70.py` renders nothing routed |
 
 ## 6. Every unit's gate (D-IA.12, D-IA.14)
 
 Before review, all of these pass, with their output in the packet:
-1. `node tools/ia_gates.cjs`: `shape_check.cjs`, `click_depth_check.cjs` and `after_render_check.cjs` pass, and
-   every plant of every landed unit fails (§2.5).
-2. (IA-1a) the `planParts` byte-identity script (§2.6).
+1. `node tools/ia_gates.cjs`: `shape_check.cjs`, `click_depth_check.cjs`, `after_render_check.cjs` and (from IA-1b)
+   `count_check.cjs` and `outcomes_table_check.cjs` pass, and every plant of every landed unit fails (§2.5, §2.8).
+2. The byte-identity scripts: `planParts` (IA-1a); `uxOverviewParts` and `uxSiteParts` for every operator and Site
+   (IA-1b); `uxDecisionSlots` for every decision (IA-1c); each in the default state and under
+   `?state=no-recommendation`, with `UX_QN` reset.
 3. (IA-1b onwards) `shell_check.cjs` on `tools/ia_crawl.cjs`, with `SHELL_PLANT=1` shown failing first.
-4. `ux_interaction_check.cjs`, `shell_check.cjs`, `vocab_check.cjs`, `copy_check.cjs`, `render_text.cjs`,
-   `design_lint.cjs` (and `LINT_PLANT=1` fails), `plan_switch_check.cjs`, `hand_typed_scan.py`.
-5. `python3 ../check_manifest.py`.
-6. Screenshots at 1440 × 900, 1280 × 720 and 390 × 844, for the three operators in light and dark, of every route the
-   unit adds. They go to the evidence folder.
+4. `ux_interaction_check.cjs` (its overview budget retargeted per D-IA.25, `UXI_PLANT=block7` and `UXI_PLANT=tall`
+   shown failing first), `shell_check.cjs`, `vocab_check.cjs`, `copy_check.cjs`, `render_text.cjs` (differences
+   listed), `design_lint.cjs` (and `LINT_PLANT=1` fails), `plan_switch_check.cjs`, `hand_typed_scan.py`.
+5. (IA-1b onwards, heavy slot) `g3_trends.cjs` on the hub root, with `G3_PLANT=clip` and `G3_PLANT=root` failing;
+   `ia_shots.cjs` with the headline rule and `SHOTS_PLANT=headline` failing.
+6. `python3 ../check_manifest.py`.
+7. Screenshots at 1440 × 900, 1280 × 720 and 390 × 844, for the three operators in light and dark, of every route the
+   unit adds (IA-1c: also the inbox open, and one decision before and after Choose). They go to the evidence folder.
 
 A unit that changes an existing check shows that check failing on a planted violation first.
+
+**IA-1b is done when**, beyond the above: the empty hash opens `#/portfolio` (R34); the "Still to be rebuilt" popover
+reads as D-IA.30; the `portfolio/outcomes-by-site`, `mini`, `cold` and `ev` aliases resolve per D-IA.28; G1 prints the
+Plan (≤ 1), every Site Overview (≤ 2) and every Site's largest-driver drawer (≤ 3, or `n/a`).
+**IA-1c is done when**, beyond the above: G1 prints every queue decision (≤ 1 via queue), every waiting decision and the
+proposed plan (≤ 2 via inbox) and every plan item's decision (≤ 2); the recommendation aliases resolve per D-IA.28;
+P7 holds in its three cases.
 
 ## 7. Scope limits
 
 - No figure, manifest or evaluator change. A figure that disagrees between two screens is reported to the Architect,
   never adjusted on screen.
 - No new copy beyond §2.7, §3.3 and §4.4, plus the labels the reused functions already have. A missing string is
-  raised as a question, not invented.
+  raised as a question, not invented. The review bar is mock tooling (D-IA.30).
+- Reviewed functions change only as D-IA.22 (the parts splits and the one named sticky fix), D-IA.24 (the act log in
+  `uxActDo`) and D-IA.28 (`iaPattern`, the aliases) say.
 - No change to `frontend/src`. The live product keeps its rail (O1).
 - The old screens stay registered for the review-bar select until IA-2e. None may be linked from a live IA route.
 - `USER_REVIEW_REQUIRED: true` (UI/UX). After IA-1c, stop for the owner (D-IA.11).
+
+**Known `MOCK DEVIATION`s, decided here** (each gets its row in `.agent/mock-departure-register.md` and a line in the
+packet):
+- D2, IA-1b: the Overview drops "More in the tabs" (the frame's tabs replace it; D-IA.25).
+- D5, IA-1b, resolving IA-2b: no "Act first ›" and no "View all {n}" on the Overview queue (D-IA.25).
+- D5, IA-1b and IA-1c, resolving IA-2b: queue rows keep "Why" and the action link beside the row (D-IA.9's one-target
+  row; R26).
+- D5, IA-1c, resolving IA-2d: the inbox and every other drawer have no address (D-IA.21).
 
 ## 8. Packet
 
 Write the packet in `specs/IA-1-shape-rebuild/packet-<unit>.md`, at most 3k tokens. It holds:
 - the module-path line;
 - the checks with their real output, and `ia_gates.cjs`' table with every plant failing;
-- the G1 depth table (operator · surface · depth · path); in IA-1a, the self-test table and the line "G1: origin
-  lands in IA-1b; 0 live surfaces";
+- the byte-identity counts (§6 item 2), and the one sticky diff (D-IA.22);
+- the G1 depth table (operator · surface · depth · path), with `n/a` rows for Sites without a driver against target
+  and the line that the plan-version Actions surface is unmeasured until IA-2b (D-IA.29);
+- the overview budget per operator (blocks, px at 1440);
+- the `render_text` differences, if any (P15), and the two kept red marks on Demand & capacity (D-IA.29);
 - the screenshots' folder;
 - the count of mid-build questions (RULES §4, item 7);
 - known `MOCK DEVIATION`s, each with its category.
