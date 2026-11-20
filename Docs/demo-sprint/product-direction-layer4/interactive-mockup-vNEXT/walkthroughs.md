@@ -15,7 +15,7 @@
 - Open `index.html` in a browser; no server is needed. Or, from this folder, run `python3 -m http.server 8790 --bind 127.0.0.1` and open the local address.
 - Choose the operator in the blue review bar at the top (**Demo operator**). The review bar is review tooling, not part of the product. Its screen selector lists every screen.
 - The top bar of every screen shows the period and the snapshot's date: "October 2026 · Figures as of 06:00, 6 Nov".
-- Main routes: `#/portfolio` and its tabs (`/outcomes-by-site`, `/demand-and-capacity`, `/act-first`, `/act-first/plan`, `/what-changed`, `/scope`); `#/site/<site>`; `#/decision/<id>`.
+- Main routes: `#/plan` and `#/portfolio` with its tabs (`/outcomes-by-site`, `/demand-and-capacity`, `/act-first`, `/what-changed`, `/scope`); `#/site/<site>`; `#/decision/<id>`.
 
 **Who appears on screen.** People are shown by role title, with the Site for a Site manager, and a fictional first name, labelled illustrative. The roles are the design's five: the operator executive, the finance and commercial lead, the Site manager, the field technician and the analyst. The system recommends; a person chooses, creates the Actions and approves.
 
@@ -49,7 +49,7 @@
 - *Why it matters:* this is economic judgement a monitoring tool cannot give: the fuel saving net of its cost, under Optimize, with the service limit kept.
 - *Who:* Peter chooses and creates the Actions; Musa, the field technician, supervises the 14-day trial.
 
-**Step 6. The executive approves the plan.** Routes `#/portfolio/act-first`, then `#/portfolio/act-first/plan`.
+**Step 6. The executive approves the plan.** Routes `#/portfolio/act-first`, then `#/plan`.
 - *Sees:* first the issues needing a decision, each with who decides. Then the plan, proposed by the system for November and December: version 1, awaiting Amina's approval; $3,750.00<!--fig:plans.lakeside-power.default.spend--> of the $5,000.00<!--rec:plans.lakeside-power.budget--> budget; a modelled +$6,088.50<!--fig:plans.lakeside-power.default.value--> from the valued options only. Each item names its owner, its state and an "Effect under each heading": the Kisiwa repair under Protect, the Mto huller under Grow and Optimize. The huller is a capital item, so its Action is created only after approval.
 - *Why it matters:* the plan trades Sites against one budget and one crew, which no single Site can do, and nothing spends above the threshold until the executive approves.
 - *Who:* Amina approves or sends back the version; each item's owner (Halima, David, Peter) creates its operational Actions, and Joseph creates the notice and claim Actions.
@@ -73,7 +73,7 @@
 - *Why it matters:* the decision sits under Protect because it restores backup cover; no saving is claimed for it.
 - *Who:* Brian, Site manager at Thika, chose it and created the Action, released when created because it is within the threshold and needs no visit by a technician.
 
-**Step 3. The portfolio's plan.** Route `#/portfolio/act-first/plan`.
+**Step 3. The portfolio's plan.** Route `#/plan`.
 - *Sees:* $720.00<!--fig:plans.harvest-cold.default.spend--> of the budget and a modelled +$3,182.40<!--fig:plans.harvest-cold.default.value--> from the valued options. Switch "aggregator signs" to "No" and the Mwea contract drops out.
 - *Who:* Esther approves the version.
 
@@ -90,7 +90,7 @@
 - *Why it matters:* the decision sits under Protect because it restores departures; the penalties it avoids are money, a cost under Optimize.
 - *Who:* Mercy, Site manager at Kasarani, chose it and created the Action, released when created.
 
-**Step 3. Growth on the chargers already in place.** Routes `#/portfolio/demand-and-capacity`, then `#/portfolio/act-first/plan`.
+**Step 3. Growth on the chargers already in place.** Routes `#/portfolio/demand-and-capacity`, then `#/plan`.
 - *Sees:* Ruiru can take 6 more buses on its chargers, shown as potential beside Grow, never counted as revenue. The plan holds a spend of $1,590.00<!--fig:plans.metro-bus.default.spend--> for a modelled +$95,634.00<!--fig:plans.metro-bus.default.value-->, almost all from Embakasi's charging schedule, a design estimate.
 - *Who:* Daniel approves; Ibrahim, Site manager at Embakasi, owns the schedule.
 
@@ -104,7 +104,7 @@
 | `#/portfolio`, each operator | The four cards read as the executive's headings; Grow and Optimize explain the gap; cash stands apart; Protect shows no money of its own |
 | `#/site/kobo`, `#/site/thika`, `#/site/kasarani` | Each factor row names one heading, and the same structure serves all three Site types |
 | `#/decision/kobo-generator`, `#/decision/thika-backup`, `#/decision/kasarani-charger` | Options against doing nothing; who recommends, who chooses, who creates the Actions; each option's "Effect under each heading" |
-| `#/portfolio/act-first/plan`, each operator | Version, owner, item states and thresholds; each switch re-evaluates the plan |
+| `#/plan`, each operator | Version, owner, item states and thresholds; each switch re-evaluates the plan |
 
 **Decisions for the owner** (with their defaults, in `../decisions-register.md`):
 

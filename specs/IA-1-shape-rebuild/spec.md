@@ -1,5 +1,7 @@
 # IA-1 and IA-2: rebuild the mock-up by shape (implementer spec)
 
+Status: in_review (IA-1a built on task/IA-1a-frame; IA-1b and IA-1c not started)
+
 Architect (Claude), 2026-11-20, rev 2 (handshake round 1 folded in: D-IA.15 to D-IA.20). This is the handshake format (`.ai/RULES.md` §4): this spec, `reviewer-guide.md`,
 `rulings.md` (D-IA.1 to D-IA.20, and "Handshake answers (round 1)"), `handshake.md` and
 `mid-build-questions.md`.

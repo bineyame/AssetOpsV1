@@ -27,7 +27,7 @@ const U = 'file://' + file;
     if (op !== 'lakeside' && !id.startsWith('portfolio') && id !== 'sites' && id !== 'globalfinancials') continue;
     await p.goto('about:blank'); await p.goto(U + '#/' + id); await p.waitForFunction(() => window.mockupReady); await p.selectOption('#op-switch', op); await p.waitForTimeout(40);
     const nb = await p.locator('.ev-num').count(); for (let k = 0; k < Math.min(nb, 80); k++) { try { await p.locator('.ev-num').nth(k).click({ timeout: 1000 }); await p.keyboard.press('Escape'); } catch (e) {} }
-    if (id === 'portfolio/act-first/plan') { const sel = '.controls input, .controls select, .controls button'; const n = await p.locator(sel).count(); for (let k = 0; k < n; k++) { try { await p.locator(sel).nth(k).click({ timeout: 800 }); await grab(); } catch (e) {} } }
+    if (id === 'plan') { const sel = '.controls input, .controls select, .controls button'; const n = await p.locator(sel).count(); for (let k = 0; k < n; k++) { try { await p.locator(sel).nth(k).click({ timeout: 800 }); await grab(); } catch (e) {} } }
     await grab();
   }
   await b.close(); fs.rmSync(dir, { recursive: true, force: true });

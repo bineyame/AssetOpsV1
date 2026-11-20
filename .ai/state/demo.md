@@ -212,3 +212,14 @@ Branch `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, from m
   Site trend wiring); the period menu keeps earlier months "not available yet" (R21).
 - Open: MB7 (the compact CSS rules hide the trend line at 1280x720 and 390x844, so G3 passes only at 1440x900); MB8
   (one carried Lakeside wording change from the pack's manifest).
+
+## IA-1a - the frame and gates of the shape rebuild (merged 20 Nov; r2 ACCEPT)
+
+- Mock-up only (`interactive-mockup-vNEXT/`). New: `ia-routes.js` (IA_ROUTES, IA_ALIASES, IA_RAIL, IA_LANDED, iaParse,
+  iaLive, iaStart, iaDev), `ia-shapes.js` (iaFrame, iaUnlink, iaFinish, iaRender, iaBind, the plan interim), `ia.css`.
+- Live in IA-1a: `plan` (shape plan, interim of D-IA.20; `planParts` byte-identical) and the typed `not-found`. Every
+  other rail item is an unavailable root; links to unlanded targets are unlinked before insertion.
+- Gates: `tools/ia_gates.cjs` runs `shape_check`, `click_depth_check` (self-test only until IA-1b), `after_render_check`
+  and their 10 plants. r5 G1 and L-a carried in `ux_interaction_check.cjs` (`UXI_PLANT=container`).
+- Open: G1 live surfaces from IA-1b; the empty hash still opens the legacy Portfolio; IA-1b adds hub tabs and
+  `IA_G1_SURFACES`.
