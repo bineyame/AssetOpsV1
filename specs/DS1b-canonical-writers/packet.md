@@ -55,7 +55,7 @@ Scope (`git diff --stat b28326e48...HEAD`): only the files in reviewer guide §2
 - `.venv/bin/python tools/checks/neutral_tests.py` (T2's guard, from the worktree) exited 0 in 8 s:
   `487 passed`, `simulator/tests 481 passed`, `contracts/tests 6 passed`. The guard asserts the packages load from
   this tree.
-- `tools/heavy-slot.sh -- pwsh -NoProfile -File tools/check-all.ps1` (fast, at `3ed5f3dee`): exit 0, wall 78 s, `All 40 guards passed (blocking; 0 advisory, 0 warned)`, including `Neutral package tests (T2)`, its self-test and `Select-tests neutral cases (T2)`. Log: session scratchpad `ds1b/check-all.log`. Re-run on the finish commit: see below.
+- `tools/heavy-slot.sh -- pwsh -NoProfile -File tools/check-all.ps1` (fast, at `3ed5f3dee`): exit 0, wall 78 s, `All 40 guards passed (blocking; 0 advisory, 0 warned)`, including `Neutral package tests (T2)`, its self-test and `Select-tests neutral cases (T2)`. Log: session scratchpad `ds1b/check-all.log`. On the finish commit `4e4e22158`: `check-agent-workflow.ps1` reported `Agent workflow check passed.`; `check-architecture.ps1` (with `ASSETOPS_GUARD_PYTHON` set to the shared `.venv`, because the worktree has no `.venv`; without it the chain-structure guard refuses to run) reported `Architecture check passed.`, exit 0; `tools/check-decision-index.py` reported `OK (571 indexed decision IDs ...)`.
 - `frontend/node_modules` is a symlink to the main checkout's copy (untracked, not committed).
 
 ### Guards fail on real violations (introduced, watched fail, reverted with `git checkout`)
