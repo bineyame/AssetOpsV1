@@ -402,6 +402,13 @@ Branch `task/5a-targets` (base main `880ba4dbf`); spec `specs/5a-targets/spec.md
 - Settled: `structure/targets/lines.py` `BudgetLineReader.site/portfolio` turn 3A4's `BUDGET_LINE` lines into `TargetLine`s in rule order (two versions block every registry factor, `NOT_A_FACTOR`, `DUPLICATE_DECLARATION` never summed, `CURRENCY_MISSING`/`CURRENCY_ON_QUANTITY`), `LEAF`/`NODE` place, and the declarer from the intake of each line's latest revision (`person_id` from `person:<uuid>`; an unchanged re-upload does not re-declare). Fixture `targets_lakeside.json`.
 - Open: units 2 (target rules, `TargetRead.site`) and 3 (portfolio, composition, Postgres) wait for `4b1`; owner Q7 default (cost with no line at actual, D-5A.15) applies in unit 2.
 
+## 5a - targets per factor, units 2-3: target rules, Site and portfolio read (built 20 Nov; in_review)
+
+Branch `task/5a-targets-u23` (base main `e88641e97`); spec `specs/5a-targets/spec.md` rev 2 §3-§6, rulings D-5A.4-D-5A.15, D-4B.16, D-4B.18; packet `specs/5a-targets/packet-5a-u23.md`. New modules only (`structure/targets/{rules,read,composition}.py`); no migration, no route, nothing stored.
+
+- Settled: `TARGET_RULE`/`MAIN_OF` literals for the 31 MINI_GRID leaves; `solve_main` through `evaluate` (linear, non-zero slope). `TargetRead.site`: leaf line DECLARED, stated heading line DECLARED (D-5A.7), other node lines are `TargetCheck`s only; no line gives a labelled ESTIMATED assumption (`LEAK_ZERO`, `AT_ACTUAL` incl. costs per D-5A.15, `MAIN`) or an absent target naming `BUDGET_LINE` (blocked `NOT_CALCULATED_YET`, D-5A.13). `portfolio` composes per factor with "k of n"; operator lines only in `portfolio_lines`. `build_target_read`. Lakeside Oct 2,295.00, 3 of 3; Kisiwa −60.00 vs −65.00 check False.
+- Open: mid-build Q2 (`loader:ds3` refused by Postgres' `entered_by` check; Postgres file uses `service:ds3-loader` as a workaround) and Q3 (origins of assumptions; builder default applied). `5b` splits the gap from this read.
+
 ## 4b1 - the stated-node seam (merged 20 Nov; r2 ACCEPT + R2-1)
 
 Branch `task/4b1-money-leaves` (base main `880ba4dbf`); spec `specs/4b-money-leaves/spec.md` rev 2 §2, rulings D-4B.1, .2, .10, .11, .16, .17, .18; packet `specs/4b-money-leaves/packet-4b1.md`; reviews `review-4b1.md` (r1, r2). No migration, no route, no store.
