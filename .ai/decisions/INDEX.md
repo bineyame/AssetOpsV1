@@ -31,7 +31,7 @@ have no ID; find them by date heading (`## 2026-09-11` ...) in the parts.
 | `index-rulings-5.md` | Demo-sprint and later rulings | `D-R3.7` to `D-W1-9` (56) |
 | `index-rulings-6.md` | Demo-sprint and later rulings | `D-W1-10` to `D-DS1.14` (55) |
 | `index-rulings-7.md` | Demo-sprint and later rulings | `D-BW1.1` to `D-2A.12` (49) |
-| `index-rulings-8.md` | Demo-sprint and later rulings | `D-3A1.1` to `D-3C1.13` (34) |
+| `index-rulings-8.md` | Demo-sprint and later rulings | `D-3A1.1` to `D-3B2.5` (49) |
 
 The `index-rulings-*` lines are index-only: demo-sprint and later rulings
 (D-SR, D-E5, D-ANY, D-AW, D-W1, D-MONEY and the rest) whose text is in the
