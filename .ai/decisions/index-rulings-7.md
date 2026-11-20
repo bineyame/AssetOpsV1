@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-BW1.1 to D-T2.2)
+# Decision index: Demo-sprint and later rulings (index only) (D-BW1.1 to D-2A.12)
 
 One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it. Top index: `INDEX.md`.
 
@@ -49,3 +49,5 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-DS1B.8` One canonical record per Site, month and field · live · specs/DS1b-canonical-writers/rulings.md
 - `D-T2.1` Neutral package tests as a check-all guard; select-tests names them · live · specs/T2-neutral-package-tests/rulings.md
 - `D-T2.2` The neutral-tests guard sets PYTHONPATH so child processes import the tree · live · specs/T2-neutral-package-tests/rulings.md
+- `D-2A.11` Surrogate keys CANONICAL_REF at the container path; key text in paths ASCII-escaped and capped at 64 · live · specs/2a-canonical-format/rulings.md
+- `D-2A.12` Conditional fields report the root cause (controlling value first) · live · specs/2a-canonical-format/rulings.md
