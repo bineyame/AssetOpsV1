@@ -1,0 +1,809 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AssetOps menu proposal</title>
+<style>
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --sunk:#eef1f5; --line:#d9dee6; --line-strong:#aab3c0;
+  --text:#18212f; --muted:#5d6878; --faint:#8a94a3;
+  --ops:#2f5f98; --int:#6b4fb3; --work:#a8620a; --asr:#0f7c74; --bus:#2f7d32; --adm:#5b6575;
+  --ops-t:#e8f0fa; --int-t:#f0ebfa; --work-t:#fdf1e1; --asr-t:#e3f4f2; --bus-t:#e6f3e7; --adm-t:#eceef2;
+  --l1:#dce9fb; --l2:#fde9cc; --l3:#e7eaef; --l4:#d4efeb;
+  --kept:#5b6575; --merged:#6b4fb3; --rebuilt:#2f5f98; --retired:#b0413e; --new:#2f7d32;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11161d; --surface:#18202a; --sunk:#1f2934; --line:#2e3a48; --line-strong:#4a5868;
+    --text:#e6ebf2; --muted:#a3aebd; --faint:#7d8898;
+    --ops-t:#1c2a3c; --int-t:#261f38; --work-t:#33261a; --asr-t:#14302d; --bus-t:#1a2e1c; --adm-t:#232a33;
+    --l1:#20334d; --l2:#3d2f1a; --l3:#27313d; --l4:#173a36;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11161d; --surface:#18202a; --sunk:#1f2934; --line:#2e3a48; --line-strong:#4a5868;
+  --text:#e6ebf2; --muted:#a3aebd; --faint:#7d8898;
+  --ops-t:#1c2a3c; --int-t:#261f38; --work-t:#33261a; --asr-t:#14302d; --bus-t:#1a2e1c; --adm-t:#232a33;
+  --l1:#20334d; --l2:#3d2f1a; --l3:#27313d; --l4:#173a36;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;}
+.wrap{max-width:1360px;margin:0 auto;padding:28px 16px 48px}
+h1{font-size:26px;line-height:1.2;margin:0 0 6px;letter-spacing:-.01em}
+h2{font-size:19px;margin:0 0 4px;letter-spacing:-.005em}
+h2 .n{display:inline-block;min-width:26px;height:26px;border-radius:13px;background:var(--text);color:var(--bg);text-align:center;font-size:14px;line-height:26px;margin-right:8px;vertical-align:2px}
+h3{font-size:14px;margin:0 0 6px}
+p{margin:0 0 8px}
+.sub{color:var(--muted);font-size:13px}
+.lead{font-size:17px;max-width:980px;margin:10px 0 0}
+section{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin-top:18px}
+section > .sub{margin-bottom:14px}
+.grid{display:grid;gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:var(--surface)}
+.card.sunk{background:var(--sunk);border-color:transparent}
+ul.tight{margin:0;padding-left:18px}
+ul.tight li{margin:3px 0}
+.chip{display:inline-block;font-size:11px;font-weight:600;line-height:18px;padding:0 7px;border-radius:9px;border:1px solid currentColor;white-space:nowrap}
+.c-kept{color:var(--kept)} .c-merged{color:var(--merged)} .c-rebuilt{color:var(--rebuilt)} .c-retired{color:var(--retired)} .c-new{color:var(--new)} .c-renamed{color:var(--work)} .c-moved{color:var(--adm)}
+.obj{display:inline-block;width:20px;height:20px;border-radius:4px;font-size:11px;font-weight:700;line-height:20px;text-align:center;margin-right:2px;border:1px solid var(--line-strong);color:var(--text)}
+.obj.G{background:#e6f3e7;color:#22622a;border-color:#9cc9a0}
+.obj.O{background:#e8f0fa;color:#244c7c;border-color:#9fbbe0}
+.obj.P{background:#fdf1e1;color:#7d4a05;border-color:#e6bf86}
+.obj.A{background:#e3f4f2;color:#0b5d57;border-color:#8fcac4}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}
+.small{font-size:12px}
+.muted{color:var(--muted)}
+.cause{display:grid;grid-template-columns:28px 1fr;gap:6px;margin:6px 0}
+.cause b.k{display:inline-block;width:24px;height:24px;border-radius:5px;background:var(--retired);color:#fff;text-align:center;line-height:24px;font-size:13px}
+
+/* ---- rails ---- */
+.menu-wrap{display:grid;grid-template-columns:210px 250px minmax(0,1fr);gap:18px;align-items:start}
+.rail{background:#141b24;color:#d9e0ea;border-radius:10px;padding:12px 10px;font-size:13px}
+.rail .rt{font-size:11px;color:#8c98a8;text-transform:uppercase;letter-spacing:.08em;margin:0 6px 8px}
+.rail .grp{margin:10px 0 2px 6px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.rail .it{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:5px 8px;border-radius:6px;margin:1px 0}
+.rail .it.on{background:#25303d}
+.rail .it .tg{font-size:10px;font-weight:700;border-radius:8px;padding:0 6px;line-height:16px}
+.rail .tg.new{background:#2f7d32;color:#fff}
+.rail .tg.ren{background:#a8620a;color:#fff}
+.rail .tg.mer{background:#6b4fb3;color:#fff}
+.rail .tg.reb{background:#2f5f98;color:#fff}
+.rail .tg.mov{background:#5b6575;color:#fff}
+.rail .tg.gone{background:#b0413e;color:#fff}
+.rail .it.gone span:first-child{text-decoration:line-through;color:#7f8a99}
+.rail .foot{border-top:1px solid #2a3542;margin-top:10px;padding-top:6px}
+.gc-ops{color:#86b1e6}.gc-int{color:#b8a2ec}.gc-work{color:#f0b465}.gc-asr{color:#6fd0c6}.gc-bus{color:#8fd393}.gc-adm{color:#aab4c2}
+table{border-collapse:collapse;width:100%}
+th,td{text-align:left;vertical-align:top;padding:6px 8px;border-bottom:1px solid var(--line);font-size:12.5px}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
+td.it{font-weight:700;white-space:nowrap}
+tr.gh td{background:var(--sunk);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;padding:4px 8px}
+.topbar{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface);margin-bottom:14px;flex-wrap:wrap}
+.tb{border:1px solid var(--line);border-radius:6px;padding:4px 10px;font-size:12.5px;white-space:nowrap;background:var(--sunk)}
+.tb.grow{flex:1;min-width:220px;color:var(--muted)}
+.tb .badge{display:inline-block;background:#b0413e;color:#fff;border-radius:9px;font-size:11px;padding:0 6px;margin-left:4px;font-weight:700}
+.axes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px}
+.axis{border-left:4px solid var(--line-strong);padding:6px 10px;background:var(--sunk);border-radius:0 6px 6px 0}
+.axis b{display:block;font-size:13px}
+
+/* ---- sitemap ---- */
+.mapbox{overflow-x:auto}
+svg text{fill:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+svg .mut{fill:var(--muted)}
+svg .band{fill:var(--sunk)}
+svg .node{fill:var(--surface);stroke:var(--line-strong);stroke-width:1.2}
+svg .hub{stroke-width:2.6;stroke:var(--text)}
+svg .list{fill:var(--sunk)}
+svg .drawer{stroke-dasharray:5 4}
+svg .edge{stroke:var(--text);stroke-width:1.3;fill:none}
+svg .edge.soft{stroke:var(--muted);stroke-dasharray:3 3}
+svg .lbl{font-size:10.5px;fill:var(--muted)}
+svg .lblbg{fill:var(--surface)}
+svg .tab{fill:var(--surface);stroke:var(--line-strong);stroke-width:.8}
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:10px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:26px;height:14px;vertical-align:-2px;margin-right:5px;border:1.2px solid var(--line-strong);background:var(--surface);border-radius:2px}
+.legend i.h{border:2.6px solid var(--text)} .legend i.l{background:var(--sunk)} .legend i.d{border-style:dashed}
+.rules{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.rule{background:var(--sunk);border-radius:8px;padding:10px 12px;font-size:12.5px}
+.rule .rh{display:block;margin-bottom:2px;font-size:13px}
+
+/* ---- shapes ---- */
+.shape{border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--surface)}
+.frame{border:1px solid var(--line-strong);border-radius:5px;height:178px;position:relative;overflow:hidden;background:var(--surface);padding:5px;display:flex;flex-direction:column;gap:4px}
+.frame .hd{height:12px;background:var(--line);border-radius:2px;width:55%}
+.frame .tabs{display:flex;gap:3px}.frame .tabs span{height:7px;width:26px;background:var(--line);border-radius:2px}.frame .tabs span.on{background:var(--text)}
+.frame .row{display:flex;gap:4px}
+.b{border-radius:3px;font-size:9px;color:var(--text);padding:2px 4px;line-height:1.2;overflow:hidden}
+.L1{background:var(--l1)} .L2{background:var(--l2)} .L3{background:var(--l3)} .L4{background:var(--l4);border:1.2px dashed #0f7c74}
+.frame:not(.ov):has(.drw){padding-right:calc(26% + 6px)}
+.frame:not(.ov) .drw{width:26% !important}
+.frame .drw{position:absolute;right:0;top:0;bottom:0;width:30%;border-left:1.5px dashed #0f7c74;background:var(--l4);font-size:9px;padding:4px;opacity:.95}
+.frame .btn{height:12px;padding:0 5px;white-space:nowrap;border-radius:3px;background:var(--text);font-size:8px;color:var(--bg);text-align:center;line-height:12px;margin-left:auto}
+.frame .stp{display:flex;align-items:center;gap:2px;font-size:7.5px;white-space:nowrap;overflow:hidden;color:var(--muted)}
+.frame .stp i{width:8px;height:8px;border-radius:4px;border:1.5px solid var(--muted);display:inline-block}
+.frame .stp i.on{background:var(--text);border-color:var(--text)}
+.frame .stp em{flex:0 0 10px;height:1px;background:var(--muted)}
+.lvl{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;margin-bottom:10px}
+.lvl span{display:inline-flex;align-items:center;gap:5px}
+.lvl i{width:14px;height:12px;border-radius:2px;display:inline-block}
+.shape h3{margin-top:8px}
+.shape .use{font-size:11.5px;color:var(--muted)}
+.scale{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;margin-top:16px}
+.mini{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.mframe{border:1px solid var(--line-strong);border-radius:5px;padding:6px;font-size:10.5px;background:var(--surface)}
+.mframe .r{height:10px;background:var(--l2);border-radius:2px;margin:3px 0}
+.mframe .gt{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:4px}
+.mframe .more{font-size:10px;color:var(--rebuilt);font-weight:600;margin-top:3px}
+.mframe .flt{height:12px;border:1px solid var(--line);border-radius:3px;margin-bottom:4px;font-size:9px;color:var(--muted);padding:0 4px;line-height:11px}
+.vt{border:1px solid var(--line);border-radius:6px;padding:8px;font-size:11.5px}
+.vt .tabs2{display:flex;gap:3px;flex-wrap:wrap;margin:4px 0}
+.vt .tabs2 span{font-size:10px;border:1px solid var(--line-strong);border-radius:3px;padding:0 4px;background:var(--sunk)}
+.vt .tabs2 span.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+
+/* ---- journeys ---- */
+.jr{border-top:1px solid var(--line);padding:12px 0}
+.jr:first-of-type{border-top:0}
+.jhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px}
+.jhead b{font-size:15px}
+.steps{display:flex;gap:0;align-items:stretch;flex-wrap:nowrap}
+.step{flex:1;min-width:0;border:1px solid var(--line);border-radius:7px;padding:7px 9px;background:var(--surface);font-size:12px;position:relative}
+.step .wh{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.step .nm{font-weight:700;font-size:12.5px;margin:1px 0 3px}
+.step .lv{position:absolute;top:6px;right:7px;font-size:9.5px;font-weight:700;border-radius:3px;padding:0 4px}
+.arr{flex:0 0 18px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px}
+
+/* ---- fate ---- */
+.bar{display:flex;height:30px;border-radius:6px;overflow:hidden;margin:6px 0 4px;font-size:12px;font-weight:700;color:#fff}
+.bar div{display:flex;align-items:center;padding-left:8px;white-space:nowrap}
+.fate{display:grid;grid-template-columns:1fr 1fr;gap:0 22px;margin-top:12px}
+.fate table td{font-size:12px;padding:4px 6px}
+.fate td.n{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted);width:28px}
+.fate td.f{width:68px}
+
+/* ---- questions ---- */
+.q{border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.q .qh{font-weight:700;font-size:13.5px;margin-bottom:3px}
+.q .df{margin-top:6px;font-size:12.5px;background:var(--bus-t);border-radius:5px;padding:5px 8px}
+.q .df b{color:var(--bus)}
+.foot{margin-top:18px;font-size:11.5px;color:var(--muted)}
+@media (max-width:900px){
+  .g3,.g4,.rules,.axes,.scale,.fate,.mini{grid-template-columns:1fr}
+  .menu-wrap{grid-template-columns:1fr}
+  .steps{flex-wrap:wrap;gap:6px}.arr{display:none}.step{flex:1 1 100%}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="sub">AssetOps · app-wide menu and page organization · proposal for the owner's input · Architect · 20 Nov 2026 · nothing is built yet</div>
+  <h1>Keep the six groups and the loop they follow. Give every object one home, one shape and one way in.</h1>
+  <p class="lead">Today's menu was designed with care, and the proposal keeps its groups and order. The contradictions come from the pages under it. Each object is drawn in two or three places, the new executive objects have no home, and each screen invents its own layout. Patching a screen cannot fix that, so the proposal fixes the structure.</p>
+</header>
+
+<!-- 1. INTENT -->
+<section id="s1">
+  <h2><span class="n">1</span>What today's structure is for, and what carries over</h2>
+  <div class="sub">Read from the live product (<span class="mono">frontend/src/shell/OperatorShellLayout.tsx</span>, <span class="mono">ui/NavRail.tsx</span>, <span class="mono">shell/operatorSiteTabs.tsx</span>, <span class="mono">estate/portfolioWords.ts</span>) and the mock-up's rail.</div>
+  <div class="grid g3">
+    <div class="card">
+      <h3>What it gets right</h3>
+      <ul class="tight">
+        <li><b>The groups follow the operating loop:</b> what we run (Operations), what we learned (Intelligence), what we do (Work), how we know (Assurance), what it is worth (Business), how it is set up (Admin).</li>
+        <li><b>Truthful destinations.</b> A menu item appears only when a real page stands behind it (rail rule W1-UX-07).</li>
+        <li><b>The Site is the unit.</b> Each Site has its own address, is reached from a Sites row, and shows the same tabs whatever its type.</li>
+        <li><b>Objects with identity get pages</b> with addresses: Finding, Action, Asset, work request.</li>
+        <li><b>The Lab sits apart</b> in its own shell, so simulator truth never mixes with product evidence.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>What carries over unchanged</h3>
+      <ul class="tight">
+        <li>The six group labels and their order (owner, U8).</li>
+        <li>Portfolio first, Sites second: the money question leads.</li>
+        <li>One set of Site tabs for every vertical.</li>
+        <li>Pages with addresses for objects people work on.</li>
+        <li>The scope switch and the period in the top bar. Scope is never a role switch.</li>
+        <li>The Lab apart from the operator's menu.</li>
+        <li>"Not available yet" where data has no source.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Why patching cannot fix it</h3>
+      <div class="cause"><b class="k">A</b><div><b>Two or three homes per object.</b> The same Findings, Actions and assets are drawn by a global list, a Site tab and a Portfolio tab, each from different code. So names, statuses, counts and even operators differ (audit C1, C2, C3).</div></div>
+      <div class="cause"><b class="k">B</b><div><b>The new executive objects have no home.</b> Decisions hang under Portfolio, the plan under "Act first", and verdicts under "What changed" (C9).</div></div>
+      <div class="cause"><b class="k">C</b><div><b>Shapes are per screen, not per object.</b> Each screen sets its own levels, so pages grow with every Site and the unbuilt ones show stubs (C4, C5, C8).</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. MENU -->
+<section id="s2">
+  <h2><span class="n">2</span>The proposed menu</h2>
+  <div class="sub">The six groups stay. Three items are added, two merge, one is renamed, and the Lab moves out. Each item answers one person's question and serves one or more of the four objectives: <span class="obj G">G</span> Grow revenue, <span class="obj O">O</span> Optimize cost and efficiency, <span class="obj P">P</span> Protect asset and capital, <span class="obj A">A</span> Assure performance and returns. These questions guide the design and are never written on a screen.</div>
+
+  <div class="topbar" aria-label="Proposed top bar">
+    <span class="tb"><b>Lakeside Power</b> · All sites ▾</span>
+    <span class="tb grow">Search Sites, decisions, Findings, assets, drivers …  Ctrl K</span>
+    <span class="tb">October 2026 · compared with September ▾</span>
+    <span class="tb">Waiting for you<span class="badge">3</span></span>
+    <span class="tb">PM ▾</span>
+    <span class="small muted" style="flex-basis:100%">Top bar: one scope switch (all Sites, a group of Sites, or one Site), search across every object, the period with its comparison, and the "Waiting for you" inbox, which also holds "since you last looked". Export is one control in each page header.</span>
+  </div>
+
+  <div class="menu-wrap">
+    <nav class="rail" aria-label="Today's menu">
+      <div class="rt">Today</div>
+      <div class="grp gc-ops">Operations</div>
+      <div class="it"><span>Portfolio</span></div>
+      <div class="it"><span>Sites</span></div>
+      <div class="it"><span>Assets</span></div>
+      <div class="grp gc-int">Intelligence</div>
+      <div class="it"><span>Findings</span></div>
+      <div class="grp gc-work">Work</div>
+      <div class="it"><span>Actions</span></div>
+      <div class="it"><span>Incidents</span></div>
+      <div class="it"><span>Maintenance</span></div>
+      <div class="it gone"><span>Operational records</span><span class="tg mer">merged</span></div>
+      <div class="grp gc-asr">Assurance</div>
+      <div class="it gone"><span>Evidence</span><span class="tg mer">merged</span></div>
+      <div class="grp gc-bus">Business</div>
+      <div class="it"><span>Financials</span></div>
+      <div class="grp gc-adm">Admin</div>
+      <div class="it"><span>Settings</span></div>
+      <div class="foot"><div class="grp gc-adm">Workspace</div><div class="it"><span>Simulator Lab</span></div></div>
+    </nav>
+
+    <nav class="rail" aria-label="Proposed menu">
+      <div class="rt">Proposed</div>
+      <div class="grp gc-ops">Operations</div>
+      <div class="it on"><span>Portfolio</span></div>
+      <div class="it"><span>Sites</span></div>
+      <div class="it"><span>Assets &amp; cover</span><span class="tg ren">renamed</span></div>
+      <div class="grp gc-int">Intelligence</div>
+      <div class="it"><span>Findings</span></div>
+      <div class="it"><span>Decisions</span><span class="tg new">new</span></div>
+      <div class="grp gc-work">Work</div>
+      <div class="it"><span>Plan</span><span class="tg new">new</span></div>
+      <div class="it"><span>Actions</span></div>
+      <div class="it"><span>Incidents</span><span class="tg reb">rebuilt</span></div>
+      <div class="it"><span>Maintenance</span><span class="tg reb">rebuilt</span></div>
+      <div class="grp gc-asr">Assurance</div>
+      <div class="it"><span>Results</span><span class="tg new">new</span></div>
+      <div class="it"><span>Evidence &amp; records</span><span class="tg mer">merged</span></div>
+      <div class="grp gc-bus">Business</div>
+      <div class="it"><span>Financials</span></div>
+      <div class="grp gc-adm">Admin</div>
+      <div class="it"><span>Settings</span></div>
+      <div class="foot"><div class="grp gc-adm">Workspace · demo builds only</div><div class="it"><span>Simulator Lab</span><span class="tg mov">moved</span></div></div>
+    </nav>
+
+    <div>
+      <table>
+        <thead><tr><th>Item</th><th>Whose question</th><th>Serves</th><th>Change, and why</th></tr></thead>
+        <tbody>
+          <tr class="gh"><td colspan="4" style="color:var(--ops)">Operations · what we run</td></tr>
+          <tr><td class="it">Portfolio</td><td>Executive: am I on target this month, and what is at stake?</td><td><span class="obj G">G</span><span class="obj O">O</span><span class="obj P">P</span><span class="obj A">A</span></td><td><span class="chip c-kept">kept</span> Tabs go from 6 to 3. Its queues show the top items of the lists below, so its figures cannot drift from them.</td></tr>
+          <tr><td class="it">Sites</td><td>Executive, site manager: which Sites are off, and where do I look first?</td><td><span class="obj G">G</span><span class="obj O">O</span><span class="obj P">P</span></td><td><span class="chip c-kept">kept</span> Rebuilt as a directory that scales: search, sort, filters and Site groups.</td></tr>
+          <tr><td class="it">Assets &amp; cover</td><td>Site manager, finance lead: what do we run, is it in service, and who pays if it fails?</td><td><span class="obj P">P</span><span class="obj O">O</span></td><td><span class="chip c-renamed">renamed</span> Rights (warranty, insurance, O&amp;M contract) sit beside each asset (owner, item 1).</td></tr>
+          <tr class="gh"><td colspan="4" style="color:var(--int)">Intelligence · what we learned</td></tr>
+          <tr><td class="it">Findings</td><td>Site manager, analyst: what is off target, at risk or possible?</td><td><span class="obj G">G</span><span class="obj O">O</span><span class="obj P">P</span></td><td><span class="chip c-kept">kept</span> One store everywhere. The cost, risk and opportunity tabs become a filter by heading.</td></tr>
+          <tr><td class="it">Decisions</td><td>Executive, site manager, finance lead: what should we choose, and what is each option worth against doing nothing?</td><td><span class="obj G">G</span><span class="obj O">O</span><span class="obj P">P</span><span class="obj A">A</span></td><td><span class="chip c-new">new</span> Layer 4's main object has no home today: it hangs under Portfolio › Act first.</td></tr>
+          <tr class="gh"><td colspan="4" style="color:var(--work)">Work · what we do</td></tr>
+          <tr><td class="it">Plan</td><td>Executive: what do we commit this month, within the budget and crew visits?</td><td><span class="obj O">O</span><span class="obj P">P</span></td><td><span class="chip c-new">new</span> Today it is buried two levels down, at Portfolio › Act first › plan.</td></tr>
+          <tr><td class="it">Actions</td><td>Site manager, technician: who is doing what, and by when?</td><td><span class="obj A">A</span></td><td><span class="chip c-kept">kept</span> Reads the plan's store, so the plan's Actions are the Actions. Today they are two different sets.</td></tr>
+          <tr><td class="it">Incidents</td><td>Site manager: what failed, did it repeat, and what did it cost?</td><td><span class="obj P">P</span><span class="obj O">O</span></td><td><span class="chip c-rebuilt">rebuilt</span> Owner option B. One row per Site with its repeats; each incident opens in a drawer.</td></tr>
+          <tr><td class="it">Maintenance</td><td>Site manager, O&amp;M contractor: what is due, overdue or done, and under whose cover?</td><td><span class="obj P">P</span><span class="obj O">O</span></td><td><span class="chip c-rebuilt">rebuilt</span> A scheduled visit is a plan item; responsive work comes from a Finding.</td></tr>
+          <tr class="gh"><td colspan="4" style="color:var(--asr)">Assurance · how we know</td></tr>
+          <tr><td class="it">Results</td><td>Executive, finance lead: did the money follow what we did?</td><td><span class="obj A">A</span></td><td><span class="chip c-new">new</span> The three verdicts and the plan's review, now scattered in "What changed". Assure gets a home.</td></tr>
+          <tr><td class="it">Evidence &amp; records</td><td>Analyst, finance lead: how do we know, and what is missing or waiting to be accepted?</td><td><span class="obj A">A</span></td><td><span class="chip c-merged">merged</span> Evidence, Operational records and the Portfolio's Scope tab hold one subject.</td></tr>
+          <tr class="gh"><td colspan="4" style="color:var(--bus)">Business · Admin</td></tr>
+          <tr><td class="it">Financials</td><td>Executive, finance lead: revenue, cost to serve and contribution against budget.</td><td><span class="obj G">G</span><span class="obj O">O</span></td><td><span class="chip c-kept">kept</span> A Site's Financials tab is this same page at Site scope, so the figures match by construction.</td></tr>
+          <tr><td class="it">Settings</td><td>Executive: who may decide, and which targets, thresholds and sources apply?</td><td><span class="obj A">A</span></td><td><span class="chip c-kept">kept</span> Four tabs: Organisation and roles, Targets and thresholds, Sources, Appearance.</td></tr>
+          <tr><td class="it">Simulator Lab</td><td>The demo team only.</td><td>–</td><td><span class="chip c-moved">moved</span> Out of the operator's menu, as the live product already does.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="axes">
+    <div class="axis" style="border-color:var(--ops)"><b>The menu picks the object</b>Which list you are in. It never changes with role.</div>
+    <div class="axis" style="border-color:var(--int)"><b>The scope picks the Sites</b>All, a group or one Site. Every list obeys it, and the address keeps it.</div>
+    <div class="axis" style="border-color:var(--work)"><b>The period picks the month</b>With its comparison. Every page shows output for the range.</div>
+    <div class="axis" style="border-color:var(--asr)"><b>Tabs pick the aspect</b>Only the Portfolio, a Site, an object page and Financials have tabs.</div>
+  </div>
+</section>
+
+<!-- 3. SITEMAP -->
+<section id="s3">
+  <h2><span class="n">3</span>Page organization across the app</h2>
+  <div class="sub">Every object, whether it is a page or a drawer, its tabs, its home in the menu, and how it links to the others. Each object has one home list; any other surface shows its top three and a "View all" link that keeps the scope.</div>
+  <div class="mapbox">
+  <svg viewBox="0 0 1320 730" width="100%" role="img" aria-label="Sitemap of the proposed app">
+    <defs>
+      <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+    </defs>
+    <g style="color:var(--text)">
+    <!-- bands -->
+    <rect class="band" x="0" y="8" width="1320" height="150" rx="8"/>
+    <text x="14" y="26" class="lbl" style="font-weight:700;letter-spacing:.08em">WHERE YOU LOOK · HUBS AND THE SITES LIST</text>
+    <rect class="band" x="0" y="172" width="1320" height="200" rx="8"/>
+    <text x="1306" y="190" text-anchor="end" class="lbl" style="font-weight:700;letter-spacing:.08em">THE CHAIN · FINDING → DECISION → PLAN → ACTION</text>
+    <rect class="band" x="0" y="386" width="1320" height="186" rx="8"/>
+    <text x="14" y="404" class="lbl" style="font-weight:700;letter-spacing:.08em">OPERATIONS ON THE ASSET · AND WHAT IT PROVED</text>
+    <rect class="band" x="0" y="586" width="1320" height="136" rx="8"/>
+    <text x="14" y="604" class="lbl" style="font-weight:700;letter-spacing:.08em">HOW WE KNOW · WHAT IT IS WORTH · HOW IT IS SET UP</text>
+
+    <!-- Row A -->
+    <rect class="node hub" x="30" y="38" width="380" height="108" rx="7"/>
+    <rect x="30" y="38" width="380" height="5" fill="var(--ops)" rx="2"/>
+    <text x="44" y="62" style="font-weight:700;font-size:15px">Portfolio</text>
+    <text x="44" y="80" class="mut" style="font-size:11px">HUB page · Operations › Portfolio · all Sites or a Site group</text>
+    <g font-size="11"><rect class="tab" x="44" y="94" width="72" height="20" rx="3"/><text x="52" y="108">Overview</text>
+    <rect class="tab" x="122" y="94" width="72" height="20" rx="3"/><text x="129" y="108">Outcomes</text>
+    <rect class="tab" x="200" y="94" width="128" height="20" rx="3"/><text x="208" y="108">Demand &amp; capacity</text></g>
+    <text x="44" y="134" class="mut" style="font-size:10.5px">Overview: headline, 4 tiles, decision queue, plan tile, one chart</text>
+
+    <rect class="node hub" x="470" y="38" width="470" height="108" rx="7"/>
+    <rect x="470" y="38" width="470" height="5" fill="var(--ops)" rx="2"/>
+    <text x="484" y="62" style="font-weight:700;font-size:15px">Site</text>
+    <text x="520" y="62" class="mut" style="font-size:11px">Kobo, Thika, Ruiru … one template for every vertical</text>
+    <text x="484" y="80" class="mut" style="font-size:11px">HUB page · reached from a Sites row or any Site name</text>
+    <g font-size="11"><rect class="tab" x="484" y="94" width="66" height="20" rx="3"/><text x="491" y="108">Overview</text>
+    <rect class="tab" x="555" y="94" width="76" height="20" rx="3"/><text x="562" y="108">Operations</text>
+    <rect class="tab" x="636" y="94" width="82" height="20" rx="3"/><text x="643" y="108">Performance</text>
+    <rect class="tab" x="723" y="94" width="72" height="20" rx="3"/><text x="730" y="108">Financials</text>
+    <rect class="tab" x="800" y="94" width="66" height="20" rx="3"/><text x="807" y="108">Evidence</text>
+    <rect class="tab" x="871" y="94" width="52" height="20" rx="3"/><text x="879" y="108">Setup</text></g>
+    <text x="484" y="134" class="mut" style="font-size:10.5px">Financials and Evidence tabs are the Business and Assurance pages at this Site's scope</text>
+
+    <rect class="node list" x="1000" y="38" width="290" height="108" rx="7"/>
+    <rect x="1000" y="38" width="290" height="5" fill="var(--ops)" rx="2"/>
+    <text x="1014" y="62" style="font-weight:700;font-size:15px">Sites</text>
+    <text x="1014" y="80" class="mut" style="font-size:11px">LIST · Operations › Sites</text>
+    <text x="1014" y="100" style="font-size:11px">One row per Site: gap, open decisions, state</text>
+    <text x="1014" y="116" style="font-size:11px">Search · sort · filter · Site groups</text>
+    <text x="1014" y="132" class="mut" style="font-size:10.5px">Add site opens a dialog</text>
+
+    <!-- Row B -->
+    <rect class="node" x="30" y="204" width="250" height="114" rx="7"/>
+    <rect x="30" y="204" width="250" height="5" fill="var(--int)" rx="2"/>
+    <text x="44" y="228" style="font-weight:700;font-size:15px">Finding</text>
+    <text x="44" y="246" class="mut" style="font-size:11px">PAGE · Intelligence › Findings</text>
+    <g font-size="11"><rect class="tab" x="44" y="258" width="64" height="20" rx="3"/><text x="50" y="272">Overview</text>
+    <rect class="tab" x="113" y="258" width="62" height="20" rx="3"/><text x="119" y="272">Analysis</text>
+    <rect class="tab" x="180" y="258" width="56" height="20" rx="3"/><text x="187" y="272">History</text></g>
+    <text x="44" y="302" class="mut" style="font-size:10.5px">Pinned to its factor; takes its heading</text>
+
+    <rect class="node" x="350" y="204" width="250" height="114" rx="7"/>
+    <rect x="350" y="204" width="250" height="5" fill="var(--int)" rx="2"/>
+    <text x="364" y="228" style="font-weight:700;font-size:15px">Decision</text>
+    <text x="364" y="246" class="mut" style="font-size:11px">PAGE · Intelligence › Decisions</text>
+    <text x="364" y="268" style="font-size:11px">No tabs: the answer, options against</text>
+    <text x="364" y="283" style="font-size:11px">no action, then why (one level deep)</text>
+    <text x="364" y="302" class="mut" style="font-size:10.5px">Choose this: dialog, toast with Undo</text>
+
+    <rect class="node" x="680" y="204" width="270" height="114" rx="7"/>
+    <rect x="680" y="204" width="270" height="5" fill="var(--work)" rx="2"/>
+    <text x="694" y="228" style="font-weight:700;font-size:15px">Plan</text>
+    <text x="734" y="228" class="mut" style="font-size:11px">one per period, versioned</text>
+    <text x="694" y="246" class="mut" style="font-size:11px">PAGE · Work › Plan</text>
+    <g font-size="11"><rect class="tab" x="694" y="258" width="46" height="20" rx="3"/><text x="701" y="272">Items</text>
+    <rect class="tab" x="745" y="258" width="60" height="20" rx="3"/><text x="751" y="272">Left out</text>
+    <rect class="tab" x="810" y="258" width="56" height="20" rx="3"/><text x="817" y="272">Review</text>
+    <rect class="tab" x="871" y="258" width="58" height="20" rx="3"/><text x="878" y="272">History</text></g>
+    <text x="694" y="302" class="mut" style="font-size:10.5px">Approve or Send back: dialog, toast with Undo</text>
+
+    <rect class="node" x="1030" y="204" width="260" height="114" rx="7"/>
+    <rect x="1030" y="204" width="260" height="5" fill="var(--work)" rx="2"/>
+    <text x="1044" y="228" style="font-weight:700;font-size:15px">Action</text>
+    <text x="1044" y="246" class="mut" style="font-size:11px">PAGE · Work › Actions</text>
+    <g font-size="11"><rect class="tab" x="1044" y="258" width="62" height="20" rx="3"/><text x="1050" y="272">Overview</text>
+    <rect class="tab" x="1110" y="258" width="44" height="20" rx="3"/><text x="1117" y="272">Steps</text>
+    <rect class="tab" x="1158" y="258" width="76" height="20" rx="3"/><text x="1164" y="272">Verification</text>
+    <rect class="tab" x="1238" y="258" width="46" height="20" rx="3"/><text x="1241" y="272">History</text></g>
+    <text x="1044" y="302" class="mut" style="font-size:10.5px">Owner, due date, one origin, one plan item</text>
+
+    <!-- Row C -->
+    <rect class="node" x="30" y="418" width="270" height="108" rx="7"/>
+    <rect x="30" y="418" width="270" height="5" fill="var(--ops)" rx="2"/>
+    <text x="44" y="442" style="font-weight:700;font-size:15px">Asset</text>
+    <text x="44" y="460" class="mut" style="font-size:11px">PAGE · Operations › Assets &amp; cover</text>
+    <g font-size="11"><rect class="tab" x="44" y="472" width="62" height="20" rx="3"/><text x="50" y="486">Overview</text>
+    <rect class="tab" x="110" y="472" width="80" height="20" rx="3"/><text x="116" y="486">Performance</text>
+    <rect class="tab" x="194" y="472" width="44" height="20" rx="3"/><text x="200" y="486">Cover</text>
+    <rect class="tab" x="242" y="472" width="46" height="20" rx="3"/><text x="248" y="486">Setup</text></g>
+    <text x="44" y="512" class="mut" style="font-size:10.5px">One timeline; also from Site › Operations</text>
+
+    <rect class="node drawer" x="340" y="418" width="210" height="108" rx="7"/>
+    <rect x="340" y="418" width="210" height="5" fill="var(--ops)" rx="2"/>
+    <text x="354" y="442" style="font-weight:700;font-size:15px">Right / warranty</text>
+    <text x="354" y="460" class="mut" style="font-size:11px">DRAWER · from Assets &amp; cover</text>
+    <text x="354" y="480" style="font-size:11px">Terms, state, notice deadlines</text>
+    <text x="354" y="496" style="font-size:11px">Who pays for a repair</text>
+    <text x="354" y="512" class="mut" style="font-size:10.5px">Supplier performance (A5)</text>
+
+    <rect class="node drawer" x="590" y="418" width="210" height="108" rx="7"/>
+    <rect x="590" y="418" width="210" height="5" fill="var(--work)" rx="2"/>
+    <text x="604" y="442" style="font-weight:700;font-size:15px">Incident</text>
+    <text x="604" y="460" class="mut" style="font-size:11px">DRAWER · Work › Incidents</text>
+    <text x="604" y="480" style="font-size:11px">Failure mode, time out of service</text>
+    <text x="604" y="496" style="font-size:11px">Repeat mark; what it cost, once</text>
+    <text x="604" y="512" class="mut" style="font-size:10.5px">Links: asset, Finding, Action</text>
+
+    <rect class="node drawer" x="840" y="418" width="210" height="108" rx="7"/>
+    <rect x="840" y="418" width="210" height="5" fill="var(--work)" rx="2"/>
+    <text x="854" y="442" style="font-weight:700;font-size:15px">Maintenance</text>
+    <text x="854" y="460" class="mut" style="font-size:11px">DRAWER · Work › Maintenance</text>
+    <text x="854" y="480" style="font-size:11px">Scheduled or responsive, visit</text>
+    <text x="854" y="496" style="font-size:11px">Cost basis: fee, invoice, cover</text>
+    <text x="854" y="512" class="mut" style="font-size:10.5px">Responsive work is an Action</text>
+
+    <rect class="node list" x="1090" y="418" width="200" height="108" rx="7"/>
+    <rect x="1090" y="418" width="200" height="5" fill="var(--asr)" rx="2"/>
+    <text x="1104" y="442" style="font-weight:700;font-size:15px">Results</text>
+    <text x="1104" y="460" class="mut" style="font-size:11px">LIST · Assurance › Results</text>
+    <text x="1104" y="480" style="font-size:11px">Operational, economic and</text>
+    <text x="1104" y="496" style="font-size:11px">causal verdicts; plan review</text>
+    <text x="1104" y="512" class="mut" style="font-size:10.5px">Rows open the Action</text>
+
+    <!-- Row D -->
+    <rect class="node list" x="30" y="614" width="340" height="96" rx="7"/>
+    <rect x="30" y="614" width="340" height="5" fill="var(--asr)" rx="2"/>
+    <text x="44" y="638" style="font-weight:700;font-size:15px">Evidence &amp; records</text>
+    <text x="44" y="655" class="mut" style="font-size:11px">LIST · Assurance · each record opens a DRAWER</text>
+    <g font-size="11"><rect class="tab" x="44" y="666" width="68" height="20" rx="3"/><text x="51" y="680">Coverage</text>
+    <rect class="tab" x="116" y="666" width="60" height="20" rx="3"/><text x="123" y="680">Records</text>
+    <rect class="tab" x="180" y="666" width="62" height="20" rx="3"/><text x="187" y="680">Imports</text></g>
+    <text x="44" y="702" class="mut" style="font-size:10.5px">Every figure opens its evidence drawer, app-wide</text>
+
+    <rect class="node" x="400" y="614" width="280" height="96" rx="7"/>
+    <rect x="400" y="614" width="280" height="5" fill="var(--bus)" rx="2"/>
+    <text x="414" y="638" style="font-weight:700;font-size:15px">Financials</text>
+    <text x="414" y="655" class="mut" style="font-size:11px">PAGE · Business › Financials</text>
+    <g font-size="11"><rect class="tab" x="414" y="666" width="68" height="20" rx="3"/><text x="421" y="680">Statement</text>
+    <rect class="tab" x="486" y="666" width="110" height="20" rx="3"/><text x="493" y="680">Budget &amp; targets</text>
+    <rect class="tab" x="600" y="666" width="52" height="20" rx="3"/><text x="607" y="680">Prices</text></g>
+    <text x="414" y="702" class="mut" style="font-size:10.5px">Statement lines reconciled to the four headings</text>
+
+    <rect class="node" x="710" y="614" width="270" height="96" rx="7"/>
+    <rect x="710" y="614" width="270" height="5" fill="var(--adm)" rx="2"/>
+    <text x="724" y="638" style="font-weight:700;font-size:15px">Settings</text>
+    <text x="724" y="655" class="mut" style="font-size:11px">PAGE · Admin › Settings</text>
+    <text x="724" y="676" style="font-size:11px">Organisation &amp; roles · Targets &amp; thresholds</text>
+    <text x="724" y="692" style="font-size:11px">Sources · Appearance</text>
+
+    <line x1="1005" y1="600" x2="1005" y2="716" stroke="var(--line-strong)" stroke-dasharray="4 4"/>
+    <rect class="node drawer" x="1030" y="614" width="260" height="96" rx="7" style="stroke:var(--faint)"/>
+    <text x="1044" y="638" class="mut" style="font-weight:700;font-size:15px">Simulator Lab</text>
+    <text x="1044" y="655" class="mut" style="font-size:11px">Separate workspace · demo builds only</text>
+    <text x="1044" y="676" class="mut" style="font-size:11px">Never linked from a product page;</text>
+    <text x="1044" y="692" class="mut" style="font-size:11px">its data never shown as observed</text>
+
+    <!-- edges -->
+    <path class="edge" d="M410 88 H468" marker-end="url(#ah)"/>
+    <text x="414" y="82" class="lbl">Site row</text>
+    <path class="edge" d="M1000 88 H942" marker-end="url(#ah)"/>
+    <text x="952" y="82" class="lbl">row</text>
+
+    <path class="edge" d="M560 146 V178 H155 V202" marker-end="url(#ah)"/>
+    <path class="edge" d="M475 178 V202" marker-end="url(#ah)"/>
+    <rect class="lblbg" x="170" y="168" width="196" height="14"/>
+    <text x="174" y="179" class="lbl">queue rows open a Finding or its Decision</text>
+
+    <path class="edge" d="M330 146 V194 H800 V202" marker-end="url(#ah)"/>
+    <rect class="lblbg" x="640" y="186" width="140" height="14"/>
+    <text x="644" y="197" class="lbl">Plan tile opens the plan</text>
+
+    <path class="edge" d="M280 262 H348" marker-end="url(#ah)"/>
+    <text x="298" y="255" class="lbl">opens</text>
+    <path class="edge" d="M600 262 H678" marker-end="url(#ah)"/>
+    <text x="606" y="248" class="lbl">chosen</text><text x="606" y="259" class="lbl">option =</text><text x="606" y="282" class="lbl">plan item</text>
+    <path class="edge" d="M950 262 H1028" marker-end="url(#ah)"/>
+    <text x="956" y="248" class="lbl">approval</text><text x="956" y="259" class="lbl">releases</text>
+
+    <path class="edge" d="M100 318 V348 H1160 V320" marker-end="url(#ah)"/>
+    <rect class="lblbg" x="410" y="341" width="384" height="14"/>
+    <text x="424" y="352" class="lbl">each Action has one origin: a Finding (reactive) or a plan item (proactive)</text>
+
+    <path class="edge" d="M1200 318 V416" marker-end="url(#ah)"/>
+    <text x="1206" y="380" class="lbl">verdicts</text>
+
+    <path class="edge" d="M650 418 V368 H230 V320" marker-end="url(#ah)"/>
+    <rect class="lblbg" x="290" y="361" width="168" height="14"/>
+    <text x="294" y="372" class="lbl">a repeat failure raises a Finding</text>
+
+    <path class="edge" d="M900 418 V320" marker-end="url(#ah)"/>
+    <rect class="lblbg" x="904" y="372" width="160" height="14"/>
+    <text x="908" y="383" class="lbl">a scheduled visit is a plan item</text>
+
+    <path class="edge soft" d="M165 526 V550 H945 V528"/>
+    <path class="edge soft" d="M445 550 V528"/>
+    <path class="edge soft" d="M695 550 V528"/>
+    <rect class="lblbg" x="470" y="553" width="200" height="14"/>
+    <text x="474" y="564" class="lbl">all on the asset's one timeline</text>
+    </g>
+  </svg>
+  </div>
+  <div class="legend">
+    <span><i class="h"></i>Hub page (tabs, queue)</span>
+    <span><i></i>Object page (its own address)</span>
+    <span><i class="l"></i>Home list (one per object)</span>
+    <span><i class="d"></i>Drawer over the page (its own address, Esc closes)</span>
+    <span>Coloured top edge: the menu group that owns it</span>
+  </div>
+
+  <div class="rules">
+    <div class="rule"><b class="rh">Page or drawer: one rule</b>A <b>page</b> when people work through it over days, with a state, an owner and a history (Site, Decision, Plan, Finding, Action, Asset). A <b>drawer</b> when it is read beside its parent and acted on in one step (Incident, Maintenance, Right, Record, a figure's evidence, the inbox).</div>
+    <div class="rule"><b class="rh">One drill-down grammar</b>A row opens its object. A figure opens its evidence drawer. "View all" opens the home list, keeping the scope. Each row has one target and never holds other controls.</div>
+    <div class="rule"><b class="rh">Wayfinding</b>Breadcrumb = home list › Site › object. The menu highlights the owning item: a Decision lights Decisions, not Portfolio. Every tab, filter and drawer has an address, so Back and shared links restore the view.</div>
+    <div class="rule"><b class="rh">One store, many scopes</b>An object is read from one store and drawn by one component. A Site tab or a Portfolio queue is that component scoped. Two screens cannot disagree, because there is only one.</div>
+    <div class="rule"><b class="rh">One way to act</b>Choose, Approve, Send back, Accept and Grant: a dialog that says what happens and who is recorded, then a toast with Undo, then the state changes on the page and in History. States are shown as labels, never as buttons.</div>
+    <div class="rule"><b class="rh">Nothing unbuilt is reachable</b>A tab, column or tile without content is not drawn. A missing figure shows one "Not available yet" in its place, never a stub page.</div>
+  </div>
+</section>
+
+<!-- 4. SHAPES -->
+<section id="s4">
+  <h2><span class="n">4</span>Page shapes: one per object type</h2>
+  <div class="sub">Every surface is built from one of eight shapes, and each shape places the four levels in the same way. 184 routes today become about two dozen surfaces, each rendered from its shape.</div>
+  <div class="lvl">
+    <span><i class="L1"></i><b>L1 Glance</b> (5 s): headline, up to 4 tiles, one primary action</span>
+    <span><i class="L2"></i><b>L2 Decide</b> (30 s): the queue or the options</span>
+    <span><i class="L3"></i><b>L3 Explain</b>: charts and sections, one level deep</span>
+    <span><i class="L4" style="border:1.2px dashed #0f7c74"></i><b>L4 Evidence</b>: in a drawer, on demand</span>
+  </div>
+  <div class="grid g4">
+    <div class="shape">
+      <div class="frame">
+        <div class="hd"></div><div class="tabs"><span class="on"></span><span></span><span></span></div>
+        <div class="b L1">Headline sentence · money at stake</div>
+        <div class="row"><div class="b L1" style="flex:1">tile</div><div class="b L1" style="flex:1">tile</div><div class="b L1" style="flex:1">tile</div><div class="b L1" style="flex:1">tile</div></div>
+        <div class="b L2" style="height:38px">Queue: top items + View all</div>
+        <div class="b L3" style="flex:1">One chart (bridge or value chain)</div>
+        <div class="drw">L4 drawer from any figure</div>
+      </div>
+      <h3>1 · Hub</h3>
+      <div class="use">Portfolio, Site. Tabs hold the aspects; the Overview stays within about 2.5 screens.</div>
+    </div>
+    <div class="shape">
+      <div class="frame">
+        <div class="hd"></div>
+        <div class="row"><div class="b L1" style="flex:1">count</div><div class="b L1" style="flex:1">count</div><div class="b L1" style="flex:1">at stake</div></div>
+        <div class="b L3" style="height:12px">Filters · sort · search · scope chip</div>
+        <div class="b L2" style="height:10px"></div><div class="b L2" style="height:10px"></div><div class="b L2" style="height:10px"></div><div class="b L2" style="height:10px"></div><div class="b L2" style="height:10px"></div>
+        <div class="b" style="font-size:9px;color:var(--rebuilt)">Show all 42</div>
+        <div class="drw" style="width:22%">row → page or drawer</div>
+      </div>
+      <h3>2 · Home list</h3>
+      <div class="use">Sites, Assets &amp; cover, Findings, Decisions, Actions, Incidents, Maintenance, Results, Evidence &amp; records.</div>
+    </div>
+    <div class="shape">
+      <div class="frame">
+        <div class="row" style="align-items:center"><div class="hd" style="width:45%"></div><div class="btn">Choose</div></div>
+        <div class="stp"><i class="on"></i><em></em><i class="on"></i><em></em><i></i><em></em><i></i>&nbsp;Recommended › Chosen › Released › Verified</div>
+        <div class="b L1">Recommendation in one line · who decides · by when</div>
+        <div class="row"><div class="b L1" style="flex:1">12-month value</div><div class="b L1" style="flex:1">one-off cost</div><div class="b L1" style="flex:1">at stake</div></div>
+        <div class="b L2" style="height:40px">Options against no action</div>
+        <div class="b L3">▸ How each option moves its drivers</div>
+        <div class="b L3">▸ Limits · cover · what would change it</div>
+        <div class="drw" style="width:24%">L4 records, calculation</div>
+      </div>
+      <h3>3 · Decision</h3>
+      <div class="use">Decisions. The title names the subject; the state line carries the answer.</div>
+    </div>
+    <div class="shape">
+      <div class="frame">
+        <div class="row" style="align-items:center"><div class="hd" style="width:35%"></div><div class="btn" style="margin-left:auto">Approve</div><div class="btn" style="margin-left:3px;background:var(--line);color:var(--text)">Send back</div></div>
+        <div class="stp"><i class="on"></i><em></em><i class="on"></i><em></em><i></i><em></em><i></i>&nbsp;Draft › Proposed › Approved › Closed</div>
+        <div class="row"><div class="b L1" style="flex:1">Budget meter</div><div class="b L1" style="flex:1">Crew-visit meter</div><div class="b L1" style="flex:1">Value</div></div>
+        <div class="b L2" style="height:50px">Items: option · Site · owner · dates · spend</div>
+        <div class="b L3">Left out, and why · review against observed</div>
+        <div class="drw" style="width:22%">L4 versions</div>
+      </div>
+      <h3>4 · Plan</h3>
+      <div class="use">Plan, one per period. Each item row opens its Decision; approval releases its Actions.</div>
+    </div>
+    <div class="shape">
+      <div class="frame">
+        <div class="hd"></div><div class="tabs"><span class="on"></span><span></span><span></span></div>
+        <div class="b L1">Finding: what was seen against target · Action: owner · due · origin</div>
+        <div class="row"><div class="b L1" style="flex:1">state</div><div class="b L1" style="flex:1">at stake</div><div class="b L1" style="flex:1">since</div></div>
+        <div class="b L2" style="height:32px">Its Decision / its steps</div>
+        <div class="b L3" style="flex:1">Analysis / three verdicts</div>
+        <div class="drw" style="width:24%">L4 evidence, events</div>
+      </div>
+      <h3>5 · Record page</h3>
+      <div class="use">Finding, Action. Recommendation and Alternatives tabs move to the Decision.</div>
+    </div>
+    <div class="shape">
+      <div class="frame">
+        <div class="hd"></div><div class="tabs"><span class="on"></span><span></span><span></span><span></span></div>
+        <div class="row"><div class="b L1" style="flex:1">in service since</div><div class="b L1" style="flex:1">cover</div><div class="b L1" style="flex:1">next due</div></div>
+        <div class="b L2" style="height:52px">Timeline: incidents (repeat mark), maintenance done and due, rights deadlines</div>
+        <div class="b L3" style="flex:1">Its measures against target</div>
+        <div class="drw" style="width:26%">Incident / Right drawer</div>
+      </div>
+      <h3>6 · Asset</h3>
+      <div class="use">Asset. Everything that happened to one asset, on one timeline.</div>
+    </div>
+    <div class="shape">
+      <div class="frame ov" style="background:var(--l3)">
+        <div class="b L3" style="opacity:.6;height:60px">the page stays visible</div>
+        <div class="drw" style="width:48%;background:var(--surface)"><b style="font-size:9.5px">Drawer, 480 px</b><br>summary<br>its parent and links<br>one action<br>evidence</div>
+      </div>
+      <h3>7 · Drawer</h3>
+      <div class="use">Incident, Maintenance, Right, Record, a figure's evidence, the inbox. Full screen on a phone.</div>
+    </div>
+    <div class="shape">
+      <div class="frame">
+        <div class="hd"></div><div class="tabs"><span class="on"></span><span></span><span></span></div>
+        <div class="row"><div class="b L1" style="flex:1">revenue</div><div class="b L1" style="flex:1">cost</div><div class="b L1" style="flex:1">contribution</div></div>
+        <div class="b L2" style="height:40px">Lines most off target</div>
+        <div class="b L3" style="flex:1">Statement → headings reconciliation</div>
+        <div class="b" style="font-size:9px;color:var(--muted)">Settings: same frame, tabs of forms, no queue</div>
+      </div>
+      <h3>8 · Statement and settings</h3>
+      <div class="use">Financials (also as a Site tab), Settings.</div>
+    </div>
+  </div>
+
+  <div class="scale">
+    <div class="card sunk">
+      <h3>The same shape at 3, 30 and 300 Sites: Portfolio › Outcomes</h3>
+      <div class="mini">
+        <div class="mframe"><b>3 Sites</b><div class="flt">sort: gap</div><div class="r"></div><div class="r"></div><div class="r"></div></div>
+        <div class="mframe"><b>30 Sites</b><div class="flt">filter · sort: gap</div><div class="gt">Mini-grids · 18</div><div class="r"></div><div class="r"></div><div class="r"></div><div class="r"></div><div class="gt">Cold rooms · 7</div><div class="r"></div><div class="r"></div><div class="gt">EV depots · 5</div><div class="r"></div><div class="more">Show all 30</div></div>
+        <div class="mframe"><b>300 Sites</b><div class="flt">scope: Coast region (42) · search</div><div class="r"></div><div class="r"></div><div class="r"></div><div class="r"></div><div class="r"></div><div class="r"></div><div class="r"></div><div class="r"></div><div class="more">Show all 42</div></div>
+      </div>
+      <p class="small muted" style="margin-top:8px">One row per Site, capped at 10 rows. The page grows by one row per Site up to 10, then stops growing. A Site's factor tree opens on its own page, never stacked inline. The scope switch takes a group of Sites when one list is too long.</p>
+    </div>
+    <div class="card sunk">
+      <h3>The same Site hub for every vertical</h3>
+      <div class="grid g3" style="gap:8px">
+        <div class="vt"><b>Mini-grid</b><div class="tabs2"><span>Overview</span><span>Operations</span><span class="on">Performance</span><span>Financials</span><span>Evidence</span><span>Setup</span></div>Panels: dispatch, fuel, backup, solar</div>
+        <div class="vt"><b>Cold room</b><div class="tabs2"><span>Overview</span><span>Operations</span><span class="on">Performance</span><span>Financials</span><span>Evidence</span><span>Setup</span></div>Panels: temperature, cooling, backup</div>
+        <div class="vt"><b>EV depot</b><div class="tabs2"><span>Overview</span><span>Operations</span><span class="on">Performance</span><span>Financials</span><span>Evidence</span><span>Setup</span></div>Panels: sessions, availability, energy</div>
+      </div>
+      <p class="small muted" style="margin-top:8px">Same tabs and slots on every Site. Only the Performance panels follow the vertical. The Operations tab has the same columns everywhere: asset, what it serves, state since, cover, last incident, next maintenance.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 5. JOURNEYS -->
+<section id="s5">
+  <h2><span class="n">5</span>Three executive journeys across the structure</h2>
+  <div class="sub">Each step names the surface and the level it reaches. Kisiwa's facts come from the design (§2.10, Figure 11).</div>
+
+  <div class="jr">
+    <div class="jhead"><b>"What needs me?"</b><span class="small muted">Executive · 4 clicks to a recorded choice · entry from any page</span></div>
+    <div class="steps">
+      <div class="step"><span class="lv L1">L1</span><div class="wh">Top bar</div><div class="nm">Waiting for you · 3</div>Approve the October plan · choose Mto billing · accept 12 imported invoices</div>
+      <div class="arr">›</div>
+      <div class="step"><span class="lv L4" style="border:0">drawer</span><div class="wh">Inbox drawer</div><div class="nm">Since you last looked</div>What moved, who did what, and the 3 items waiting, newest first</div>
+      <div class="arr">›</div>
+      <div class="step"><span class="lv L2">L2</span><div class="wh">Intelligence › Decisions</div><div class="nm">Mto billing after the meter swap</div>Recommendation, options against no action, who decides</div>
+      <div class="arr">›</div>
+      <div class="step"><span class="lv L1">L1</span><div class="wh">Decision page</div><div class="nm">Choose this</div>Dialog: what happens, who is recorded. Toast with Undo; the inbox shows 2</div>
+    </div>
+  </div>
+
+  <div class="jr">
+    <div class="jhead"><b>"Why is this Site off target?"</b><span class="small muted">Executive, then site manager · from the gap to the asset in 5 clicks</span></div>
+    <div class="steps">
+      <div class="step"><span class="lv L1">L1</span><div class="wh">Operations › Portfolio</div><div class="nm">Gap tile</div>Contribution against target, split by heading</div>
+      <div class="arr">›</div>
+      <div class="step"><span class="lv L2">L2</span><div class="wh">Portfolio › Outcomes</div><div class="nm">One row per Site</div>Sorted by gap; Kisiwa near the top</div>
+      <div class="arr">›</div>
+      <div class="step"><span class="lv L3">L3</span><div class="wh">Site › Kisiwa · Overview</div><div class="nm">Bridge by driver</div>Evening hours without backup (Protect), against target</div>
+      <div class="arr">›</div>
+      <div class="step"><span class="lv L2">L2</span><div class="wh">Intelligence › Findings</div><div class="nm">Repeat failures, Generator 1</div>Linked to the genset decision</div>
+      <div class="arr">›</div>
+      <div class="step"><span class="lv L4" style="border:0">drawer</span><div class="wh">Incident drawer</div><div class="nm">Alternator fault, 14 Aug and 30 Oct</div>Repeat inside 90 days; time out of service</div>
+      <div class="arr">›</div>
+      <div class="step"><span class="lv L3">L3</span><div class="wh">Asset page</div><div class="nm">Generator 1 · Cover</div>Warranty expired; O&amp;M response late (A5)</div>
+    </div>
+  </div>
+
+  <div class="jr">
+    <div class="jhead"><b>"Approve the plan"</b><span class="small muted">Executive · review, check one item, approve and see what it released</span></div>
+    <div class="steps">
+      <div class="step"><span class="lv L1">L1</span><div class="wh">Portfolio · Plan tile, or Work › Plan</div><div class="nm">October plan · Proposed v1</div>Spend and crew visits against their limits</div>
+      <div class="arr">›</div>
+      <div class="step"><span class="lv L2">L2</span><div class="wh">Plan page · Items</div><div class="nm">Items and their meters</div>Option, Site, owner, dates and spend; Left out gives each reason</div>
+      <div class="arr">›</div>
+      <div class="step"><span class="lv L3">L3</span><div class="wh">Item row › Decision</div><div class="nm">Kisiwa evening backup</div>Options against no action; Back returns to the plan</div>
+      <div class="arr">›</div>
+      <div class="step"><span class="lv L1">L1</span><div class="wh">Plan page</div><div class="nm">Approve</div>Dialog: releases N Actions and their spend; recorded under the executive</div>
+      <div class="arr">›</div>
+      <div class="step"><span class="lv L2">L2</span><div class="wh">Work › Actions · plan: Oct v1</div><div class="nm">Released Actions</div>Each with its owner and due date; the same records the plan holds</div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. FATE -->
+<section id="s6">
+  <h2><span class="n">6</span>What happens to every existing screen</h2>
+  <div class="sub">All 184 routes in the mock-up's manifest (<span class="mono">screen-manifest-vnext.json</span>, branch <span class="mono">task/uiux-design-model</span>), plus the plan route. No screen is carried by patching. "Kept" means its place and purpose stay, and it is rendered again from its shape.</div>
+  <div class="bar" role="img" aria-label="Kept 7, merged 66, rebuilt 71, retired 40 of 184">
+    <div style="flex:7;background:var(--kept)">7</div>
+    <div style="flex:66;background:var(--merged)">Merged 66</div>
+    <div style="flex:71;background:var(--rebuilt)">Rebuilt 71</div>
+    <div style="flex:40;background:var(--retired)">Retired 40</div>
+  </div>
+  <div class="small muted">Kept 7 · Merged 66 · Rebuilt 71 · Retired 40 = 184</div>
+  <div class="fate">
+    <table>
+      <thead><tr><th class="n">#</th><th>Today</th><th>Fate</th><th>Becomes</th></tr></thead>
+      <tbody>
+        <tr><td class="n">1</td><td>Portfolio · Overview</td><td class="f"><span class="chip c-rebuilt">rebuilt</span></td><td>Portfolio hub, Overview</td></tr>
+        <tr><td class="n">1</td><td>Portfolio · Act first</td><td class="f"><span class="chip c-merged">merged</span></td><td>Intelligence › Decisions</td></tr>
+        <tr><td class="n">1</td><td>Portfolio · Act first › plan</td><td class="f"><span class="chip c-rebuilt">rebuilt</span></td><td>Work › Plan (route outside the manifest)</td></tr>
+        <tr><td class="n">1</td><td>Portfolio · Outcomes by site</td><td class="f"><span class="chip c-rebuilt">rebuilt</span></td><td>Portfolio › Outcomes, one row per Site</td></tr>
+        <tr><td class="n">1</td><td>Portfolio · Demand and capacity</td><td class="f"><span class="chip c-kept">kept</span></td><td>Portfolio › Demand &amp; capacity</td></tr>
+        <tr><td class="n">1</td><td>Portfolio · What changed</td><td class="f"><span class="chip c-merged">merged</span></td><td>Inbox "since you last looked", Results, Plan › Review</td></tr>
+        <tr><td class="n">1</td><td>Portfolio · Scope &amp; coverage</td><td class="f"><span class="chip c-merged">merged</span></td><td>Evidence &amp; records › Coverage</td></tr>
+        <tr><td class="n">1</td><td>Portfolio · Scope › pilot page</td><td class="f"><span class="chip c-retired">retired</span></td><td>Sales material; linked from Coverage's empty state</td></tr>
+        <tr><td class="n">1</td><td>Sites directory</td><td class="f"><span class="chip c-rebuilt">rebuilt</span></td><td>Sites home list</td></tr>
+        <tr><td class="n">4</td><td>Add site (form, template, batch), setup history</td><td class="f"><span class="chip c-kept">kept</span></td><td>Sites › Add site dialog; history on Site › Setup</td></tr>
+        <tr><td class="n">9</td><td>New Site overviews</td><td class="f"><span class="chip c-rebuilt">rebuilt</span></td><td>Site hub Overview, one template</td></tr>
+        <tr><td class="n">9</td><td>New Site economics</td><td class="f"><span class="chip c-merged">merged</span></td><td>Site › Financials = Financials at Site scope</td></tr>
+        <tr><td class="n">36</td><td>Site tab stubs ("Not built in this mock-up")</td><td class="f"><span class="chip c-retired">retired</span></td><td>Every Site rendered from the one template</td></tr>
+        <tr><td class="n">3</td><td>Legacy Site overviews ("earlier view")</td><td class="f"><span class="chip c-retired">retired</span></td><td>Site hub Overview</td></tr>
+        <tr><td class="n">10</td><td>Foundation, readiness, changes, single-line</td><td class="f"><span class="chip c-merged">merged</span></td><td>Site › Setup</td></tr>
+        <tr><td class="n">14</td><td>Health and Performance tabs (3 verticals)</td><td class="f"><span class="chip c-merged">merged</span></td><td>Site › Performance, vertical panels</td></tr>
+        <tr><td class="n">3</td><td>Legacy Site Findings tabs</td><td class="f"><span class="chip c-merged">merged</span></td><td>Findings at Site scope</td></tr>
+      </tbody>
+    </table>
+    <table>
+      <thead><tr><th class="n">#</th><th>Today</th><th>Fate</th><th>Becomes</th></tr></thead>
+      <tbody>
+        <tr><td class="n">9</td><td>Legacy Site Work tabs</td><td class="f"><span class="chip c-rebuilt">rebuilt</span></td><td>Site › Operations</td></tr>
+        <tr><td class="n">6</td><td>Legacy Site Evidence tabs</td><td class="f"><span class="chip c-merged">merged</span></td><td>Site › Evidence = Evidence &amp; records at Site scope</td></tr>
+        <tr><td class="n">9</td><td>Site Financials, assumptions, scenarios</td><td class="f"><span class="chip c-merged">merged</span></td><td>Site › Financials; assumptions in a drawer; scenarios become Decision options</td></tr>
+        <tr><td class="n">8</td><td>Finding pages (6 v7.0 tabs)</td><td class="f"><span class="chip c-rebuilt">rebuilt</span></td><td>Finding: Overview · Analysis · History</td></tr>
+        <tr><td class="n">4</td><td>Recommendation, Alternatives</td><td class="f"><span class="chip c-merged">merged</span></td><td>The Finding's Decision page</td></tr>
+        <tr><td class="n">14</td><td>Decision pages</td><td class="f"><span class="chip c-rebuilt">rebuilt</span></td><td>Decision shape; owned by Decisions</td></tr>
+        <tr><td class="n">8</td><td>Action pages (6 v7.0 tabs)</td><td class="f"><span class="chip c-rebuilt">rebuilt</span></td><td>Action: Overview · Steps · Verification · History</td></tr>
+        <tr><td class="n">1</td><td>Actions list</td><td class="f"><span class="chip c-rebuilt">rebuilt</span></td><td>Home list, the plan's store</td></tr>
+        <tr><td class="n">4</td><td>Findings list and its lens tabs</td><td class="f"><span class="chip c-rebuilt">rebuilt</span></td><td>Home list; lens becomes a heading filter</td></tr>
+        <tr><td class="n">2</td><td>Assets, Warranty &amp; vendors</td><td class="f"><span class="chip c-merged">merged</span></td><td>Assets &amp; cover (views: Assets · Cover)</td></tr>
+        <tr><td class="n">1</td><td>Register asset</td><td class="f"><span class="chip c-kept">kept</span></td><td>Dialog from Assets &amp; cover</td></tr>
+        <tr><td class="n">8</td><td>Asset pages (7 v7.0 tabs)</td><td class="f"><span class="chip c-rebuilt">rebuilt</span></td><td>Asset: Overview · Performance · Cover · Setup</td></tr>
+        <tr><td class="n">2</td><td>Incidents list, incident timeline page</td><td class="f"><span class="chip c-rebuilt">rebuilt</span></td><td>Incidents home list + Incident drawer</td></tr>
+        <tr><td class="n">2</td><td>Maintenance, Preventive</td><td class="f"><span class="chip c-rebuilt">rebuilt</span></td><td>Maintenance (views: Due &amp; overdue · Done)</td></tr>
+        <tr><td class="n">4</td><td>Work request pages, work verification</td><td class="f"><span class="chip c-merged">merged</span></td><td>Maintenance drawer</td></tr>
+        <tr><td class="n">2</td><td>Operational records, Evidence</td><td class="f"><span class="chip c-merged">merged</span></td><td>Evidence &amp; records (Records · Coverage)</td></tr>
+        <tr><td class="n">3</td><td>Financials, Settings (2)</td><td class="f"><span class="chip c-rebuilt">rebuilt</span></td><td>Statement and settings shape</td></tr>
+        <tr><td class="n">1</td><td>Simulator Lab</td><td class="f"><span class="chip c-kept">kept</span></td><td>Workspace footer, demo builds only</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 7. QUESTIONS -->
+<section id="s7">
+  <h2><span class="n">7</span>Questions for you, each with my default</h2>
+  <div class="sub">Defaults apply if you agree with the direction. Nothing is built in the mock-up until you have given your input.</div>
+  <div class="grid g3">
+    <div class="q"><div class="qh">1 · Decisions and Plan as menu items?</div>The design's frame rule says "no new menu items" (§2.8). Layer 4's two executive objects then have no home and hang under Portfolio tabs.<div class="df"><b>Default: yes.</b> Decisions under Intelligence, Plan at the head of Work.</div></div>
+    <div class="q"><div class="qh">2 · Portfolio from six tabs to three?</div>Act first repeats the Overview's queue, What changed is not a list of changes, and Scope repeats Evidence. Each moves to its object's home list.<div class="df"><b>Default: yes.</b> The tabs become Overview, Outcomes, and Demand &amp; capacity.</div></div>
+    <div class="q"><div class="qh">3 · Site from eight tabs to six, the same for every vertical?</div>Findings and Work become the Overview queue and the Operations tab. Health and Performance merge.<div class="df"><b>Default: yes.</b> Overview, Operations, Performance, Financials, Evidence, Setup.</div></div>
+    <div class="q"><div class="qh">4 · Incidents and Maintenance as two items, not one "Operations" entry?</div>Pushback on the design's own §2.10. You chose option B, and the two answer different questions. They share one store, so they cannot contradict each other.<div class="df"><b>Default: two items in Work</b>, plus the Site's Operations tab.</div></div>
+    <div class="q"><div class="qh">5 · A "Results" item under Assurance?</div>The executive's reason to come back, and the proof that monitoring tools cannot give. Today the verdicts are scattered across What changed and the Action pages.<div class="df"><b>Default: yes.</b> Verdicts and the plan's review, by period.</div></div>
+    <div class="q"><div class="qh">6 · Merge Evidence and Operational records?</div>Records are the sources that fill the figures; coverage is how complete those sources are. They are one subject, with imports waiting for acceptance beside them.<div class="df"><b>Default: yes</b>, as "Evidence &amp; records".</div></div>
+    <div class="q"><div class="qh">7 · Site groups in the scope switch?</div>At 300 Sites one list is too long, even capped. A group (region, vertical or contract) scopes every list and the Portfolio hub.<div class="df"><b>Default: yes.</b> Groups are set in Settings; the demo groups by vertical.</div></div>
+    <div class="q"><div class="qh">8 · Simulator Lab out of the operator's menu?</div>The live product already keeps it in its own shell; the mock-up drifted. Engineering words one click from the executive cost trust.<div class="df"><b>Default: yes</b>, in a workspace footer in demo builds only.</div></div>
+    <div class="q"><div class="qh">9 · Build by shape, not by screen?</div>Each unit builds one shape and renders every object of its type. Its gate is that every route of that type renders from the shape, with no stub reachable.<div class="df"><b>Default order:</b> List, Hub, Record page and Drawer, Decision, Plan, Asset, Statement.</div></div>
+  </div>
+  <p class="foot">Sources: owner files of 20 Nov (app-wide proposal, standing UI brief, design philosophy, eight answers, U8); the UX audit (<span class="mono">.agent/ux-audit-2026-11-20.md</span>); <span class="mono">Docs/design-system/uiux-guide.md</span> §2, §8; <span class="mono">layer4-transformation-design.md</span> §2.0, §2.3 to §2.6, §2.8, §2.10, Figures 1c and 11; the live product's navigation in <span class="mono">frontend/src</span>. No figures are shown here; the page is about structure only.</p>
+</section>
+
+</div>
+</body>
+</html>
