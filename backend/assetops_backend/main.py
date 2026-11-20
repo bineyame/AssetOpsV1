@@ -206,6 +206,10 @@ from assetops_backend.sites.ports import SiteRepository, SiteStoreUnavailable, S
 from assetops_backend.sites.foundation_records import FoundationStoreError
 from assetops_backend.reading_upload.service import ReadingUploadService
 from assetops_backend.reading_upload_api import build_reading_upload_router
+from assetops_backend.commercial.composition import (COMMERCIAL_UNAVAILABLE, build_commercial_uploads,
+                                                     commercial_upload_settings)
+from assetops_backend.commercial.uploads import CommercialUploads
+from assetops_backend.commercial_upload_api import build_commercial_upload_router
 from assetops_backend.accounts.composition import (ACCOUNTS_UNAVAILABLE, build_account_service, require_person,
                                                    session_cookie_secure)
 from assetops_backend.accounts.service import AccountService
@@ -265,6 +269,7 @@ def create_app(
     reading_uploads: ReadingUploadService | None = None,
     reading_upload_sites: frozenset[str] = frozenset(),
     accounts: AccountService | None = None,
+    commercial_uploads: CommercialUploads | None = None,
 ) -> FastAPI:
     """Build the application for a given set of feature flags.
 
@@ -337,6 +342,8 @@ def create_app(
     global Work roots (request detail and the four lists). It defaults to `development_access`, which admits the
     development operator everywhere; estate roots and other Site reads are not threaded here (R374).
     """
+    # 3A2 (D-3A2.6, RC4): the real-data switch and the operator database agree, or the app refuses to start.
+    upload_settings = commercial_upload_settings(database_url())
     resolved_flags = load_feature_flags() if flags is None else flags
     install_handle_error_hook()  # INFRA-1 (D-E5.47): the backstop that marks a connection failure mid-compose
     from assetops_backend.structure.check import check_at_start  # 3B1 (D-3B1.9): a broken structure refuses to start
@@ -670,6 +677,14 @@ def create_app(
     app.include_router(build_reading_upload_router(
         reading_uploads, registry.ledger_scope, reading_upload_sites, access=site_read_access,
         unavailable=(SiteStoreUnavailable, FoundationStoreError)))
+    # 3A2 (spec §4, §5; D-3A2.6, R8): the commercial export uploads. Off (403 COMMERCIAL_UPLOAD_OFF) unless a service
+    # is injected or ASSETOPS_PSEUDONYM_KEY_DIR is set with a DATABASE_URL.
+    if commercial_uploads is None and database_url() and upload_settings.key_dir is not None:
+        commercial_uploads = build_commercial_uploads(database_url(), upload_settings)
+    app.include_router(build_commercial_upload_router(
+        commercial_uploads, registry.ledger_scope, accounts=accounts,
+        unavailable=(*ACCOUNTS_UNAVAILABLE, *COMMERCIAL_UNAVAILABLE, SiteStoreUnavailable, FoundationStoreError),
+        access=site_read_access))
     # W5-02a K1a (ruling A2): the domain Action commands through the same W4 gate. `domain_work_principal` is the
     # server SERVICE principal for tests/host wiring; by default none is injected (as for W4), so a write is 403.
     app.include_router(build_domain_work_router(

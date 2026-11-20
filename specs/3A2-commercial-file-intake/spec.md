@@ -1,6 +1,7 @@
 # 3A2: file intake of an operator's exports (implementer spec)
 
-Status: live, spec **rev 2** (handshake round 1 answered in `rulings.md`; `.ai/RULES.md` §4).
+Status: in_review, spec **rev 2.1** (handshake round 1 and mid-build round 1 answered in `rulings.md`; `.ai/RULES.md` §4). Built on
+`task/3A2-commercial-file-intake`; packet `packet.md`; mid-build questions 2 (`mid-build-questions.md`).
 
 Architect (Claude), 2026-11-20. Lane A (sources), the deep-dive path's unit 2 (`two-week-build-plan.md` §0.1, row 2;
 D-BW1.8 to D-BW1.12; owner RC1 to RC9 accepted, `owner/owner-recut-decisions-rc1-rc9-2026-11-20.md`).
@@ -281,10 +282,11 @@ own upload; both people are recorded (D-3A2.9, queue Q1).
 |---|---|
 | `commercial/model.py` (add) | frozen `UploadRow` (every column of `commercial_upload`, arrays as tuples), `UploadDecisionRow`, `UploadRecord`, `Acceptance(decision_id, upload_id, person_id, role, basis_sha256)`, `UploadAlreadyDecided(Exception)`, `UploadStale(Exception)` |
 | `commercial/readers.py` | `ReadResult(obj, rows: tuple[int, ...] \| None, personal_paths: frozenset[tuple[str, str]])`; `SourceReader` Protocol (`id`, `media_types`, `read(data) -> ReadResult`, `field_label(path) -> str`); `CanonicalJsonReader` (`id = "canonical-json-v1"`, `media_types = frozenset({"application/json"})`, `read` is `loads_canonical`, `rows = None`, no extra paths); `READERS: Mapping[str, SourceReader]` (a `MappingProxyType`); `DEFAULT_READER = "canonical-json-v1"` |
-| `commercial/pseudonym.py` | `PERSONAL_FIELDS`, `REF_BODY_FIELDS`, `ALLOWED_EXTRA`, `cut_path(code, path)` (D-3A2.14), `pseudonym`, `pseudonymise(record, key, extra=frozenset()) -> object` (one kept record object in, a new object out; the input is not mutated), `PseudonymKeys`, `FileKeyStore`, `PseudonymKeyMissing`, `PseudonymKeyUnusable` |
-| `commercial/pseudonym_key.py` | the key command (`main(argv) -> int`) |
+| `commercial/pseudonym.py` | `PERSONAL_FIELDS`, `REF_BODY_FIELDS`, `ALLOWED_EXTRA`, `cut_path(code, path)` (D-3A2.14), `pseudonym`, `pseudonymise(record, key, extra=frozenset()) -> object` (one kept record object in, a new object out; the input is not mutated), `PseudonymKeys` (the port), `PseudonymKeyMissing`, `PseudonymKeyUnusable` |
+| `commercial/adapters/file_key_store.py` (D-3A2.17) | `FileKeyStore`, `create_key_file` (the domain's one registered file writer) |
+| `commercial/pseudonym_key.py` | the key command (`main(argv) -> int`), through the composition |
 | `commercial/uploads.py` | `CommercialUploads(records, store, keys, *, clock, real_data: bool)` with `check`, `submit`, `decide`, `get`, `list`; `UploadScope(site_id, site_code)`; `Actor(person_id, role)`; `UploadRefused(Exception)` with `status`, `code`, `params` |
-| `commercial/composition.py` (add) | `UploadSettings(key_dir: Path \| None, real_data: bool)`; `commercial_upload_settings(database_url: str \| None) -> UploadSettings`; `build_commercial_uploads(database_url, settings) -> CommercialUploads`; `COMMERCIAL_UNAVAILABLE = (OperationalError, InterfaceError)` |
+| `commercial/composition.py` (add) | `UploadSettings(key_dir: str \| None, real_data: bool)`; `commercial_upload_settings(database_url: str \| None) -> UploadSettings`; `build_commercial_uploads(database_url, settings) -> CommercialUploads`; `COMMERCIAL_UNAVAILABLE` (re-exported from the Postgres adapter, which holds `make_url` and the errors; D-3A2.17); re-exports `FileKeyStore`, `create_key_file` |
 | `commercial_upload_api.py` | `build_commercial_upload_router(uploads, scope, *, accounts, unavailable, access) -> APIRouter` |
 | `main.py` | `create_app(..., commercial_uploads: CommercialUploads \| None = None)` (last keyword); when None, `database_url()` is set and `settings.key_dir` is not None, build it; always mount the router with `registry.ledger_scope`, `accounts`, `unavailable=(*ACCOUNTS_UNAVAILABLE, *COMMERCIAL_UNAVAILABLE, SiteStoreUnavailable, FoundationStoreError)` (R8) and `access=site_read_access`. The settings check is `create_app`'s first statement |
 
@@ -330,7 +332,8 @@ first of `roles_of(command)` for which `person.has_role(role, None)`; none is 40
 **Shapes.**
 - `Preview` = `{"source_type", "source_system", "provenance", "counts": Counts, "months": [{"site_code", "period"}],
   "refusals": [Refusal, ...] (first 200 by row), "refusals_total", "words", "text"}`.
-- `Counts` = `{"records", "new", "revised", "unchanged", "refused"}`.
+- `Counts` = `{"records", "new", "revised", "unchanged", "refused", "words", "text"}`; `words` is
+  `message("commercial_upload.summary", new=, revised=, unchanged=, refused=)` (D-3A2.18).
 - `Refusal` = `{"row", "field", "code", "words", "text"}`, from the upload's refusal arrays (file index): `row` is
   `rows[index]` or `index + 1`; `field` is `reader.field_label(path)` of the cut path (D-3A2.14: for
   `CANONICAL_FORBIDDEN` and any `json.` path, `cut_path` keeps only the longest of `CUT_PARENTS = ("json", "batch",
@@ -378,8 +381,10 @@ first of `roles_of(command)` for which `person.has_role(role, None)`; none is 40
 | `commercial_upload.stale` | Records in this export changed after it was checked. Decline it and send the file again to see what it would do now. |
 | `commercial_upload.decision_invalid` | The decision is not complete: {field}. |
 | `commercial_upload.json_required` | Send the decision as JSON. |
-| `commercial_upload.person_required` | Sign in to continue. |
-| `commercial_upload.role_required` | Your role cannot do this here. |
+| `commercial_upload.site_forbidden` | No access to Site {site_code}. |
+
+401 `UNAUTHENTICATED` and `PERSON_REQUIRED` use 3C1a's `person.person_required`; 403 `PERSON_ROLE_REQUIRED` uses
+`person.person_role_required`; 403 `SITE_SCOPE_FORBIDDEN` uses `commercial_upload.site_forbidden` (D-3A2.18).
 
 Reasons (`commercial_upload.reason.<code lower>`, no parameters):
 
@@ -552,7 +557,7 @@ not a write; check the guard does not count it). Show it failing on a planted `I
 9. Is nothing changed beyond: the migration; `commercial/**`; `commercial_upload_api.py`; `main.py` (the keyword and
    mount); `accounts/permissions.py` (§3.1); `i18n/messages.py` (the `# 3A2` block); the four test files; in
    `test_3c1a_person_work.py` the `SPEC_ROLES` rows and line 478; in `test_3a1_commercial_postgres.py` line 427's
-   `CASCADE`; the guard block; the packet?
+   `CASCADE`; the guard block and the guard's `commercial` domain entry (its `Writer` line and comment, D-3A2.17); the packet?
 
 Packet: `specs/3A2-commercial-file-intake/packet.md`, with the module paths, the negative lock run and the
 mid-build question count.

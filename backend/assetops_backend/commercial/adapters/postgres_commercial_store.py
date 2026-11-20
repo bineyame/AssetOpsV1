@@ -11,19 +11,60 @@ decision is made on that state (P2). A dry run takes the lock, decides, and roll
 The engine is built with `hide_parameters=True`, and an integrity error leaves as a bare `StoreRefused` carrying only
 the constraint's name: the driver's message and DETAIL print the failing row and never survive, not as text, cause
 or context (D-2A.11's class, R13).
+
+3A2 (spec §3.5; D-3A2.2, D-3A2.4, D-3A2.16): the adapter is also the sole runtime writer of `commercial_upload` and
+`commercial_upload_decision` (one plain INSERT each). An acceptance's decision row is written inside `write_intake`'s
+transaction, after an under-lock "no decision yet" check that precedes `decide`. Every public method is wrapped by
+`_scrubbed`: a `DBAPIError` that is not a connection failure (`OperationalError`, `InterfaceError`) leaves as
+`StoreRefused(constraint)`, raised outside the handler, so no driver text, cause or context survives.
 """
 from __future__ import annotations
 
+import functools
 from datetime import datetime
-from typing import Callable, Mapping
+from typing import Callable, Mapping, TypeVar
 from uuid import UUID
 
 from sqlalchemy import create_engine, text
-from sqlalchemy.engine import Connection
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.engine import Connection, make_url
+from sqlalchemy.exc import DBAPIError, InterfaceError, OperationalError
 
 from assetops_backend.commercial.model import (ExistingRecord, IntakeRow, IntakeSummary, Plan, RejectionRow,
-                                               RevisionRow, StoreRefused)
+                                               RevisionRow, StoreRefused, UploadAlreadyDecided, UploadDecisionRow,
+                                               UploadRecord, UploadRow)
+
+_F = TypeVar("_F", bound=Callable)
+#: D-3A2.2: a connection failure is retried, not scrubbed; the routes answer 503 for these.
+UNAVAILABLE = (OperationalError, InterfaceError)
+
+
+def database_name(url: str) -> str | None:
+    """The database name of a SQLAlchemy URL (the RC4 settings check reads it)."""
+    return make_url(url).database
+
+
+def _scrubbed(method: _F) -> _F:
+    """D-3A2.16: a non-connection `DBAPIError` leaves as `StoreRefused(constraint or None)`, raised outside the
+    handler (no cause, no context). Connection failures and the service's own exceptions pass through."""
+
+    @functools.wraps(method)
+    def wrapper(*args, **kwargs):
+        failed = False
+        constraint: str | None = None
+        try:
+            return method(*args, **kwargs)
+        except (OperationalError, InterfaceError):
+            raise
+        except DBAPIError as error:
+            constraint = getattr(getattr(error.orig, "diag", None), "constraint_name", None)
+            failed = True
+        if failed:  # outside the handler: the driver's error is neither cause nor context
+            raise StoreRefused(constraint)
+        raise AssertionError("unreachable")  # pragma: no cover
+
+    wrapper.__scrubbed__ = True  # type: ignore[attr-defined]
+    return wrapper  # type: ignore[return-value]
+
 
 _LOCK = text("SELECT pg_advisory_xact_lock(hashtextextended('commercial:' || CAST(:tenant_id AS text), 0))")
 
@@ -93,12 +134,53 @@ _INTAKE = text(
 _REJECTIONS = text(
     "SELECT id, tenant_id, intake_id, record_index, source_record_id, code, path, recorded_at "
     "FROM commercial_rejection WHERE tenant_id = :t AND intake_id = :i ORDER BY record_index")
+_INSERT_UPLOAD = text(
+    "INSERT INTO commercial_upload (id, tenant_id, site_id, file_name, file_sha256, file_bytes, reader, source_type, "
+    "source_system, provenance, batch, batch_sha256, kept_index, basis_sha256, row_map, record_count, new_count, "
+    "revised_count, unchanged_count, refused_count, refusal_index, refusal_code, refusal_path, month_site_code, "
+    "month_period, submitted_by, submitted_role, submitted_at) VALUES (:id, :tenant_id, :site_id, :file_name, "
+    ":file_sha256, :file_bytes, :reader, :source_type, :source_system, :provenance, :batch, :batch_sha256, "
+    ":kept_index, :basis_sha256, :row_map, :record_count, :new_count, :revised_count, :unchanged_count, "
+    ":refused_count, :refusal_index, :refusal_code, :refusal_path, :month_site_code, :month_period, :submitted_by, "
+    ":submitted_role, :submitted_at)")
+_INSERT_DECISION = text(
+    "INSERT INTO commercial_upload_decision (id, tenant_id, upload_id, decision, reason, intake_id, decided_by, "
+    "decided_role, decided_at) VALUES (:id, :tenant_id, :upload_id, :decision, :reason, :intake_id, :decided_by, "
+    ":decided_role, :decided_at)")
+_DECIDED = text("SELECT 1 FROM commercial_upload_decision WHERE tenant_id = :t AND upload_id = :u")
+_UPLOAD_COLUMNS = (
+    "u.id, u.tenant_id, u.site_id, u.file_name, u.file_sha256, u.file_bytes, u.reader, u.source_type, "
+    "u.source_system, u.provenance, u.batch, u.batch_sha256, u.kept_index, u.basis_sha256, u.row_map, u.record_count, "
+    "u.new_count, u.revised_count, u.unchanged_count, u.refused_count, u.refusal_index, u.refusal_code, "
+    "u.refusal_path, u.month_site_code, u.month_period, u.submitted_by, u.submitted_role, u.submitted_at, "
+    "sa.display_name AS submitted_by_name, d.id AS d_id, d.decision AS d_decision, d.reason AS d_reason, "
+    "d.intake_id AS d_intake_id, d.decided_by AS d_decided_by, d.decided_role AS d_decided_role, "
+    "d.decided_at AS d_decided_at, da.display_name AS decided_by_name")
+_UPLOAD_FROM = (
+    " FROM commercial_upload u JOIN operator_account sa ON sa.tenant_id = u.tenant_id AND sa.id = u.submitted_by "
+    "LEFT JOIN commercial_upload_decision d ON d.tenant_id = u.tenant_id AND d.upload_id = u.id "
+    "LEFT JOIN operator_account da ON da.tenant_id = d.tenant_id AND da.id = d.decided_by ")
+_UPLOAD = text("SELECT " + _UPLOAD_COLUMNS + _UPLOAD_FROM + "WHERE u.tenant_id = :t AND u.id = :u")
+_UPLOADS = text(
+    "SELECT " + _UPLOAD_COLUMNS + _UPLOAD_FROM + "WHERE u.tenant_id = :t AND "
+    "((CAST(:s AS uuid) IS NULL AND u.site_id IS NULL) OR u.site_id = CAST(:s AS uuid)) "
+    "ORDER BY u.submitted_at DESC, u.id DESC LIMIT :n")
+_UPLOAD_ARRAYS = ("kept_index", "row_map", "refusal_index", "refusal_code", "refusal_path", "month_site_code",
+                  "month_period")
 _WRITTEN = text("SELECT id FROM commercial_record_revision WHERE tenant_id = :t AND intake_id = :i "
                 "ORDER BY CAST(id AS text)")
 
 
 def _values(row) -> dict:
     return dict(vars(row))
+
+
+def _upload_values(row: UploadRow) -> dict:
+    values = _values(row)
+    for name in _UPLOAD_ARRAYS:  # tuples bind as records; arrays bind from lists
+        if values[name] is not None:
+            values[name] = list(values[name])
+    return values
 
 
 def _revision(row) -> RevisionRow:
@@ -109,15 +191,18 @@ class PostgresCommercialStore:
     def __init__(self, url: str) -> None:
         self._engine = create_engine(url, pool_pre_ping=True, hide_parameters=True)
 
+    @_scrubbed
     def dispose(self) -> None:
         self._engine.dispose()
 
     # --- reads --------------------------------------------------------------------------------------------------
 
+    @_scrubbed
     def tenant_slug(self, tenant_id: UUID) -> str | None:
         with self._engine.connect() as c:
             return c.execute(_TENANT, {"t": tenant_id}).scalar()
 
+    @_scrubbed
     def site_ids(self, tenant_id: UUID, codes: set[str]) -> dict[str, UUID]:
         if not codes:
             return {}
@@ -144,10 +229,12 @@ class PostgresCommercialStore:
                 provenances={r.source_version: r.provenance for r in revs})
         return out
 
+    @_scrubbed
     def existing(self, tenant_id: UUID, source_system: str, ids: set[str]) -> dict[str, ExistingRecord]:
         with self._engine.connect() as c:
             return self._existing(c, tenant_id, source_system, ids)
 
+    @_scrubbed
     def latest_revisions(self, tenant_id: UUID, *, site_id: UUID | None = None, kind: str | None = None,
                          recognition_period: str | None = None,
                          known_at: datetime | None = None) -> tuple[RevisionRow, ...]:
@@ -156,22 +243,29 @@ class PostgresCommercialStore:
                                        "known": known_at})
             return tuple(_revision(r) for r in rows)
 
+    @_scrubbed
     def record_history(self, tenant_id: UUID, record_id: UUID) -> tuple[RevisionRow, ...]:
         with self._engine.connect() as c:
             return tuple(_revision(r) for r in c.execute(_HISTORY, {"t": tenant_id, "r": record_id}))
 
+    @_scrubbed
     def intake(self, tenant_id: UUID, intake_id: UUID) -> IntakeSummary | None:
         with self._engine.connect() as c:
-            found = c.execute(_INTAKE, {"t": tenant_id, "i": intake_id}).first()
-            if found is None:
-                return None
-            rejections = tuple(RejectionRow(**dict(r._mapping))
-                               for r in c.execute(_REJECTIONS, {"t": tenant_id, "i": intake_id}))
-            written = tuple(c.execute(_WRITTEN, {"t": tenant_id, "i": intake_id}).scalars())
+            return self._intake(c, tenant_id, intake_id)
+
+    @staticmethod
+    def _intake(c: Connection, tenant_id: UUID, intake_id: UUID) -> IntakeSummary | None:
+        found = c.execute(_INTAKE, {"t": tenant_id, "i": intake_id}).first()
+        if found is None:
+            return None
+        rejections = tuple(RejectionRow(**dict(r._mapping))
+                           for r in c.execute(_REJECTIONS, {"t": tenant_id, "i": intake_id}))
+        written = tuple(c.execute(_WRITTEN, {"t": tenant_id, "i": intake_id}).scalars())
         return IntakeSummary(IntakeRow(**dict(found._mapping)), rejections, written)
 
     # --- 3A4 reads (spec §2) --------------------------------------------------------------------------------------
 
+    @_scrubbed
     def intake_revisions(self, tenant_id: UUID,
                          intake_id: UUID) -> tuple[tuple[RevisionRow, RevisionRow | None], ...]:
         with self._engine.connect() as c:
@@ -183,21 +277,24 @@ class PostgresCommercialStore:
         return tuple((r, superseded[r.supersedes_revision_id] if r.supersedes_revision_id is not None else None)
                      for r in written)
 
+    @_scrubbed
     def site_zones(self, tenant_id: UUID) -> Mapping[UUID, str]:
         with self._engine.connect() as c:
             return dict(c.execute(_SITE_ZONES, {"t": tenant_id}).all())
 
     # --- the one write ------------------------------------------------------------------------------------------
 
+    @_scrubbed
     def write_intake(self, tenant_id: UUID, source_system: str | None, ids: set[str],
-                     decide: Callable[[Mapping[str, ExistingRecord]], Plan], *, dry_run: bool) -> Plan:
-        refused: str | None = None
-        failed = False
+                     decide: Callable[[Mapping[str, ExistingRecord]], Plan], *, dry_run: bool,
+                     decision: UploadDecisionRow | None = None) -> Plan:
         with self._engine.connect() as connection:
             c = connection.execution_options(isolation_level="READ COMMITTED")
             tx = c.begin()
             try:
                 c.execute(_LOCK, {"tenant_id": str(tenant_id)})
+                if decision is not None and not dry_run and self._decided(c, tenant_id, decision.upload_id):
+                    raise UploadAlreadyDecided()
                 plan = decide(self._existing(c, tenant_id, source_system, ids))
                 if dry_run:
                     tx.rollback()
@@ -211,14 +308,63 @@ class PostgresCommercialStore:
                     c.execute(_INSERT_REVISION, values)
                 for rejection in plan.rejections:
                     c.execute(_INSERT_REJECTION, _values(rejection))
+                if decision is not None:
+                    c.execute(_INSERT_DECISION, _values(decision))
                 tx.commit()
                 return plan
-            except IntegrityError as error:
-                refused = getattr(getattr(error.orig, "diag", None), "constraint_name", None)
-                failed = True
             finally:
                 if tx.is_active:
                     tx.rollback()
-        if failed:  # raised outside the handler, so the driver's error is neither cause nor context
-            raise StoreRefused(refused)
-        raise AssertionError("unreachable")  # pragma: no cover
+
+    @staticmethod
+    def _decided(c: Connection, tenant_id: UUID, upload_id: UUID) -> bool:
+        return c.execute(_DECIDED, {"t": tenant_id, "u": upload_id}).first() is not None
+
+    # --- 3A2: uploads and decisions -------------------------------------------------------------------------------
+
+    @_scrubbed
+    def add_upload(self, row: UploadRow) -> None:
+        with self._engine.begin() as c:
+            c.execute(_INSERT_UPLOAD, _upload_values(row))
+
+    @_scrubbed
+    def write_decline(self, row: UploadDecisionRow) -> None:
+        with self._engine.connect() as connection:
+            c = connection.execution_options(isolation_level="READ COMMITTED")
+            tx = c.begin()
+            try:
+                c.execute(_LOCK, {"tenant_id": str(row.tenant_id)})
+                if self._decided(c, row.tenant_id, row.upload_id):
+                    raise UploadAlreadyDecided()
+                c.execute(_INSERT_DECISION, _values(row))
+                tx.commit()
+            finally:
+                if tx.is_active:
+                    tx.rollback()
+
+    def _record(self, c: Connection, row) -> UploadRecord:
+        m = dict(row._mapping)
+        decision = None
+        if m["d_id"] is not None:
+            decision = UploadDecisionRow(m["d_id"], m["tenant_id"], m["id"], m["d_decision"], m["d_reason"],
+                                         m["d_intake_id"], m["d_decided_by"], m["d_decided_role"], m["d_decided_at"])
+        intake = None
+        if decision is not None and decision.intake_id is not None:
+            intake = self._intake(c, m["tenant_id"], decision.intake_id)
+        fields = {k: m[k] for k in UploadRow.__dataclass_fields__}
+        for name in _UPLOAD_ARRAYS:
+            if fields[name] is not None:
+                fields[name] = tuple(fields[name])
+        return UploadRecord(UploadRow(**fields), m["submitted_by_name"], decision, m["decided_by_name"], intake)
+
+    @_scrubbed
+    def upload(self, tenant_id: UUID, upload_id: UUID) -> UploadRecord | None:
+        with self._engine.connect() as c:
+            found = c.execute(_UPLOAD, {"t": tenant_id, "u": upload_id}).first()
+            return None if found is None else self._record(c, found)
+
+    @_scrubbed
+    def uploads_in_scope(self, tenant_id: UUID, site_id: UUID | None, limit: int) -> tuple[UploadRecord, ...]:
+        with self._engine.connect() as c:
+            rows = c.execute(_UPLOADS, {"t": tenant_id, "s": site_id, "n": limit}).all()
+            return tuple(self._record(c, r) for r in rows)

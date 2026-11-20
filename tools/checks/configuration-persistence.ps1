@@ -215,12 +215,14 @@ function Invoke-ConfigurationPersistenceCheck {
             UserRootOwner = $null
         }
         @{
-            # 3A1 (spec section 4): the commercial record store. Database-only; rule 8 confines its PostgreSQL writer
-            # ($commercialWriter). Only its composition imports the adapter.
+            # 3A1 (spec section 4): the commercial record store. Rule 8 confines its PostgreSQL writer
+            # ($commercialWriter). Only its composition imports the adapters.
+            # 3A2 (spec section 3.4; mid-build Q1): the pseudonym key files are the domain's one file writer
+            # (created once by the key command, owner-only, never replaced), as evidence's credential file is.
             Name        = "commercial"
             Package     = "$backendRoot/commercial"
             Composition = "$backendRoot/commercial/composition.py"
-            Writer      = $null
+            Writer      = @("$backendRoot/commercial/adapters/file_key_store.py")
             UserRootVar = $null
             UserRootOwner = $null
         }
@@ -969,7 +971,11 @@ function Invoke-ConfigurationPersistenceCheck {
     # parameters (no ON CONFLICT, no SELECT source), and no UPDATE, DELETE or TRUNCATE. The 0063 triggers refuse every
     # change. The advisory-lock SELECT is a read. Each shape keeps one owner statement (anti-vacuity below).
     $commercialWriter = "$backendRoot/commercial/adapters/postgres_commercial_store.py"
-    $commercialTables = @('commercial_intake', 'commercial_record', 'commercial_record_revision', 'commercial_rejection')
+    # 3A2 (spec section 7; migration 0065; D-3A2.4): the same writer also owns commercial_upload and
+    # commercial_upload_decision, with the same plain-INSERT shape. Its under-lock "no decision yet" read
+    # (SELECT 1 FROM commercial_upload_decision WHERE ...) is a read, not a write, and is not counted.
+    $commercialTables = @('commercial_intake', 'commercial_record', 'commercial_record_revision', 'commercial_rejection',
+        'commercial_upload', 'commercial_upload_decision')
     $commercialShapes = [ordered]@{}
     foreach ($table in $commercialTables) {
         $commercialShapes["$table insert"] = ('(?i)^INSERT\s+INTO\s+' + $table + '\s*\([^)]*\)\s*VALUES\s*\([^()]*\)\s*;?\s*$')

@@ -28,6 +28,9 @@ finished work are in `archive/agent-history/`.
 | 3B1 | Structure registry; page P3B | rev 2, in_review | `3B1-structure-registry/spec.md` | 15 KB |
 | 3C1 | Person on commands (3C1a, 3C1b) | rev 2; 3C1a in_review | `3C1-person-on-commands/spec.md` | 15 KB |
 | 
+| 3A2 | File intake of operator exports (pseudonymised, accepted by a person) | in_review | `3A2-commercial-file-intake/spec.md` | 39 KB |
+| 3A4 | Amounts by month; month stamps | live — spec, handshake open | `3A4-amounts-by-month/spec.md` | 19 KB |
+| 3B3 | Structure read (evaluator) | live — handshake | `3B3-structure-read/spec.md` | — |
 | 3A2 | File intake of operator exports (pseudonymised, accepted by a person) | live — spec, handshake open | `3A2-commercial-file-intake/spec.md` | 39 KB |
 | 3A4 | Amounts by month; month stamps | in_review | `3A4-amounts-by-month/spec.md` | 19 KB |
 | 3B2 | Findings pinned to factors | live — spec | `3B2-findings-pinned/spec.md` | — |
