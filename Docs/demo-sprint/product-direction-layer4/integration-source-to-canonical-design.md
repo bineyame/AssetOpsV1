@@ -48,7 +48,7 @@ Lakeside October, evaluated on observed factors: delivered 23,050 → metered 21
 
 | Place in the structure | Leaf factor | Feeds | Source fact | Canonical record (store) | Exists today? | Integration needed |
 |---|---|---|---|---|---|---|
-| Capacity | PV available power, PCS discharge capability, genset in service | usable supply by hour; headroom; dawn bound | EMS/inverter/BMS/genset registers | accepted reading of roles `pv_available_power`, `pcs_discharge_capability`, `generator_state` (`sites/binding_roles.py:91-107`) | **yes** [code-observed]: evidence ledger via field poller and gateway | none for the demo; pilot pins a real register profile |
+| Capacity | PV available power, PCS discharge capability, genset in service | usable supply by hour; headroom; dawn bound | EMS/inverter/BMS/genset registers | accepted reading of roles `pv_available_power`, `pcs_discharge_capability`, `generator_state` (`sites/binding_roles.py:91-107`) | **yes** [code-observed]: evidence ledger via field poller and gateway | none for the demo; pilot pins a real register profile. The usable-capacity stage computed from them by time window is deferred to queued slice `4c` (rev 16.13): the readings are held, the calculation is not built |
 | Service | delivered kWh | metered, loss, energy-to-cash | feeder meter / EMS energy | `feeder_demand` readings (`binding_roles.py:93`), integrated to kWh | **yes** [code-observed] | none |
 | Service | expected technical loss | metered | declared loss band per site (Mto 300 of 6,000) | site configuration [proposed declared property] | no | declared property with effective dates |
 | Chargeable | metered kWh per customer meter | metered, unexplained loss | meter-data or vending export (read per meter per period) | commercial record `CUSTOMER_METER_READ` | **no** | billing/vending export intake |
@@ -552,7 +552,15 @@ factor_value
   lineage[]           -- record revision ids, reading ranges, operational record heads
   provenance_mix      -- provenance labels of the inputs; never mixed silently in one value
   as_of               -- the recorded_at horizon the value was read at
+  missing             -- rev 16.13: null when the value rests on the leaf's own record; otherwise
+    record_kind       --   the canonical kind, reading role, document type or observer that would fill it (the leaf's filled_by)
+    source_family     --   COMMERCIAL_RECORD | READING | OPERATIONAL_RECORD | OBSERVER | DECLARED | DOCUMENT
+    cause             --   NOT_RECEIVED | NOT_CONNECTED | NOT_CALCULATED_YET
+    carried_as        --   null (value null, "Not available yet") | TARGET (value = target, Estimated) | ASSUMPTION (labelled) | RESIDUAL
+    blocks[]          --   factor IDs (or a right's ID) whose value this leaves partial, Estimated or unattributed, nearest first;
+                      --   computed from the registry's parents, never typed
 ```
+**Where `missing` comes from (rev 16.13, `structure-specification.md` §3.1).** Each registry leaf carries `filled_by` (source family and kind, or observer) and `absent` (MISSING, ZERO_WHEN_HELD, OPTION_ONLY, NEVER_EMPTY), declared in `3B1` for mini-grid and `3B6` for cold rooms and EV depots. The structure read (`3B3`) fills `missing` on each factor value: a ZERO_WHEN_HELD leaf is a recorded zero only while its source is held for the period, and is otherwise missing with cause NOT_CONNECTED or NOT_RECEIVED. The daily snapshot stores each node's `missing` unchanged (OD-23; the snapshot slice, `3B7a` in the data and build strategy). `condition_evidence` rows in state MISSING carry the same object (§6.3). The demonstration's entries are `missing-records.json`, written by `evaluate_structure.py` and checked by `check_manifest.py`.
 The structure registry (main design §8.4; the outcome map reworked into structure definitions) declares each factor's parents and the evaluation and attribution rule; the read evaluates bottom-up and states each node's deviation from its plan evaluation.
 
 ### 6.3 Rights register and claim events [proposed]
@@ -568,6 +576,8 @@ rights_occurrence          -- links an event to a contract
   id, asset_id, occurred_at, source_ref (reading, ticket, incident), description
 condition_evidence         -- per occurrence and condition term
   term_id, state MET | NOT_MET | MISSING | NOT_APPLICABLE, evidence_refs[]
+  missing                  -- rev 16.13: when state is MISSING, the §6.2 object (e.g. Kobo BAT-001 temperature: reading role
+                           -- battery_cell_temperature, NOT_CONNECTED; commissioning test: CAPACITY_TEST_REPORT, NOT_RECEIVED)
 rights_assessment          -- computed, append-only
   occurrence_id, eligibility POTENTIALLY_COVERED | EXPIRED_AND_EXCLUDED | INSUFFICIENT_EVIDENCE | REVIEW_REQUIRED | NOT_COVERED,
   deadlines, inputs_fp, statement "not a legal assessment"

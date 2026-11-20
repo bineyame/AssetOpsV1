@@ -1,0 +1,311 @@
+{
+ "as_of": "2026-11-06",
+ "method": "derived by evaluate_structure.py missing_records() from empty_states and the site records; slice and trigger are pack-only fields",
+ "sites": {
+  "lakeside-power/Kobo": [
+   {
+    "side": "plan",
+    "leaves": [
+     "delivered_kwh",
+     "technical_loss_kwh",
+     "adjustments_kwh",
+     "necessary_l",
+     "candidate_l",
+     "unexplained_l"
+    ],
+    "record_kind": "PLAN_LINE (a target line per factor)",
+    "source_family": "COMMERCIAL_RECORD",
+    "cause": "NOT_RECEIVED",
+    "carried_as": "ASSUMPTION",
+    "blocks": [
+     "metered_kwh",
+     "billed_kwh",
+     "diesel_l",
+     "revenue",
+     "fuel_cost",
+     "collected",
+     "cost_to_serve",
+     "contribution"
+    ],
+    "slice": "5a",
+    "record_words": "Targets below the site total",
+    "assumption": "Target not set below the site total: leaks and avoidable use are taken at zero, and the rest of the target on its main factor (assumption)"
+   },
+   {
+    "side": "actual",
+    "right": "BAT-001",
+    "condition": "temperature",
+    "label": "Battery cell temperature",
+    "record_kind": "battery_cell_temperature",
+    "source_family": "READING",
+    "cause": "NOT_CONNECTED",
+    "carried_as": null,
+    "blocks": [
+     "BAT-001"
+    ],
+    "slice": "9a",
+    "record_words": "Battery management system temperature log"
+   },
+   {
+    "side": "actual",
+    "right": "BAT-001",
+    "condition": "commissioning_capacity_test",
+    "label": "Commissioning capacity test",
+    "record_kind": "CAPACITY_TEST_REPORT",
+    "source_family": "DOCUMENT",
+    "cause": "NOT_RECEIVED",
+    "carried_as": null,
+    "blocks": [
+     "BAT-001"
+    ],
+    "slice": "9a",
+    "record_words": "Capacity test record"
+   },
+   {
+    "side": "actual",
+    "stage": "usable_capacity",
+    "label": "Usable capacity by time window",
+    "record_kind": "pv_available_power, pcs_discharge_capability, generator_state (held today, integration-source-to-canonical-design.md §2)",
+    "source_family": "READING",
+    "cause": "NOT_CALCULATED_YET",
+    "carried_as": null,
+    "blocks": [
+     "headroom"
+    ],
+    "slice": "4c",
+    "record_words": "Solar, battery and generator readings (already received)",
+    "trigger": "pulled from the deferral queue when a lane is free after the must-keep set (day 12); at the latest when a pilot pins a real register profile"
+   }
+  ],
+  "lakeside-power/Kisiwa": [
+   {
+    "side": "plan",
+    "leaves": [
+     "delivered_kwh",
+     "technical_loss_kwh",
+     "adjustments_kwh",
+     "necessary_l",
+     "unexplained_l"
+    ],
+    "record_kind": "PLAN_LINE (a target line per factor)",
+    "source_family": "COMMERCIAL_RECORD",
+    "cause": "NOT_RECEIVED",
+    "carried_as": "ASSUMPTION",
+    "blocks": [
+     "metered_kwh",
+     "billed_kwh",
+     "diesel_l",
+     "revenue",
+     "fuel_cost",
+     "collected",
+     "cost_to_serve",
+     "contribution"
+    ],
+    "slice": "5a",
+    "record_words": "Targets below the site total",
+    "assumption": "Target not set below the site total: leaks and avoidable use are taken at zero, and the rest of the target on its main factor (assumption)"
+   },
+   {
+    "side": "actual",
+    "leaf": "om",
+    "record_kind": "EXPENSE (OM)",
+    "source_family": "COMMERCIAL_RECORD",
+    "cause": "NOT_RECEIVED",
+    "carried_as": "TARGET",
+    "blocks": [
+     "cost_to_serve",
+     "contribution"
+    ],
+    "slice": "4b",
+    "record_words": "Service contractor invoice",
+    "note": "O&M invoice for October not received; plan amount carried as ESTIMATED"
+   },
+   {
+    "side": "actual",
+    "right": "GEN-KS-01",
+    "condition": "service_1000h",
+    "label": "1,000-hour service",
+    "record_kind": "SERVICE_TICKET (1,000-hour service)",
+    "source_family": "OPERATIONAL_RECORD",
+    "cause": "NOT_RECEIVED",
+    "carried_as": null,
+    "blocks": [
+     "GEN-KS-01"
+    ],
+    "slice": "9a",
+    "record_words": "Service log entry"
+   },
+   {
+    "side": "actual",
+    "stage": "usable_capacity",
+    "label": "Usable capacity by time window",
+    "record_kind": "pv_available_power, pcs_discharge_capability, generator_state (held today, integration-source-to-canonical-design.md §2)",
+    "source_family": "READING",
+    "cause": "NOT_CALCULATED_YET",
+    "carried_as": null,
+    "blocks": [
+     "headroom"
+    ],
+    "slice": "4c",
+    "record_words": "Solar, battery and generator readings (already received)",
+    "trigger": "pulled from the deferral queue when a lane is free after the must-keep set (day 12); at the latest when a pilot pins a real register profile"
+   }
+  ],
+  "lakeside-power/Mto": [
+   {
+    "side": "plan",
+    "leaves": [
+     "delivered_kwh",
+     "technical_loss_kwh",
+     "unexplained_loss_kwh",
+     "adjustments_kwh",
+     "unmapped_kwh",
+     "necessary_l"
+    ],
+    "record_kind": "PLAN_LINE (a target line per factor)",
+    "source_family": "COMMERCIAL_RECORD",
+    "cause": "NOT_RECEIVED",
+    "carried_as": "ASSUMPTION",
+    "blocks": [
+     "metered_kwh",
+     "billed_kwh",
+     "diesel_l",
+     "revenue",
+     "fuel_cost",
+     "collected",
+     "cost_to_serve",
+     "contribution"
+    ],
+    "slice": "5a",
+    "record_words": "Targets below the site total",
+    "assumption": "Target not set below the site total: leaks and avoidable use are taken at zero, and the rest of the target on its main factor (assumption)"
+   },
+   {
+    "side": "actual",
+    "stage": "usable_capacity",
+    "label": "Usable capacity by time window",
+    "record_kind": "pv_available_power, pcs_discharge_capability, generator_state (held today, integration-source-to-canonical-design.md §2)",
+    "source_family": "READING",
+    "cause": "NOT_CALCULATED_YET",
+    "carried_as": null,
+    "blocks": [
+     "headroom"
+    ],
+    "slice": "4c",
+    "record_words": "Solar, battery and generator readings (already received)",
+    "trigger": "pulled from the deferral queue when a lane is free after the must-keep set (day 12); at the latest when a pilot pins a real register profile"
+   }
+  ],
+  "harvest-cold/Room A · Mwea": [],
+  "harvest-cold/Room B · Thika": [
+   {
+    "side": "actual",
+    "leaf": "maint",
+    "record_kind": "EXPENSE (OM)",
+    "source_family": "COMMERCIAL_RECORD",
+    "cause": "NOT_RECEIVED",
+    "carried_as": "TARGET",
+    "blocks": [
+     "cost_to_serve",
+     "contribution"
+    ],
+    "slice": "9d",
+    "record_words": "Service contractor invoice",
+    "note": "October refrigeration service invoice not received; plan amount carried as ESTIMATED"
+   }
+  ],
+  "harvest-cold/Room C · Kirinyaga": [],
+  "metro-bus/Embakasi": [
+   {
+    "side": "plan",
+    "leaves": [
+     "kwh_2200_2400",
+     "kwh_0000_0500"
+    ],
+    "record_kind": "PLAN_LINE (a target line per factor)",
+    "source_family": "COMMERCIAL_RECORD",
+    "cause": "NOT_RECEIVED",
+    "carried_as": "ASSUMPTION",
+    "blocks": [
+     "scheduled_kwh_night",
+     "offpeak_cost",
+     "night_cost",
+     "supplied_kwh_night",
+     "energy_cost",
+     "buses_short_per_night",
+     "cost_to_serve",
+     "departures_missed",
+     "nights_below_required",
+     "cost_per_departure_met",
+     "contribution",
+     "departures_met",
+     "penalties"
+    ],
+    "slice": "5a",
+    "record_words": "Targets below the site total",
+    "assumption": "Target not set below the site total: leaks and avoidable use are taken at zero, and the rest of the target on its main factor (assumption)"
+   },
+   {
+    "side": "actual",
+    "field": "tariff.applicability",
+    "label": "Tariff applicability",
+    "record_kind": "TARIFF_SCHEDULE (applicability evidence)",
+    "source_family": "COMMERCIAL_RECORD",
+    "cause": "NOT_RECEIVED",
+    "carried_as": "ASSUMPTION",
+    "blocks": [
+     "energy_cost"
+    ],
+    "slice": "9e",
+    "record_words": "Utility invoice with time-of-use lines",
+    "assumption": "[assumption] confirmed from the utility invoice in a pilot"
+   }
+  ],
+  "metro-bus/Kasarani": [
+   {
+    "side": "actual",
+    "leaf": "maintenance",
+    "record_kind": "EXPENSE (OM)",
+    "source_family": "COMMERCIAL_RECORD",
+    "cause": "NOT_RECEIVED",
+    "carried_as": "TARGET",
+    "blocks": [
+     "cost_to_serve",
+     "cost_per_departure_met",
+     "contribution"
+    ],
+    "slice": "9e",
+    "record_words": "Service contractor invoice",
+    "note": "October maintenance invoice from the service contractor not received; plan amount carried as ESTIMATED"
+   }
+  ],
+  "metro-bus/Ruiru": [
+   {
+    "side": "plan",
+    "leaves": [
+     "kwh_2200_2400"
+    ],
+    "record_kind": "PLAN_LINE (a target line per factor)",
+    "source_family": "COMMERCIAL_RECORD",
+    "cause": "NOT_RECEIVED",
+    "carried_as": "RESIDUAL",
+    "blocks": [
+     "scheduled_kwh_night",
+     "offpeak_cost",
+     "supplied_kwh_night",
+     "energy_cost",
+     "buses_short_per_night",
+     "cost_to_serve",
+     "departures_missed",
+     "nights_below_required",
+     "cost_per_departure_met",
+     "contribution",
+     "departures_met",
+     "penalties"
+    ],
+    "slice": "5a",
+    "record_words": "Targets below the site total"
+   }
+  ]
+ }
+}

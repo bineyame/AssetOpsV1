@@ -1,4 +1,5 @@
 # AssetEcon Layer 4 — demo site and scenario manifest (proposed design, not built) · rev 12 (17 Nov 2026)
+# rev 16.13 (20 Nov): `empty_states` added (structure-specification.md §3.1): the record behind every empty leaf, usable capacity deferred to queued slice 4c, the cold occupied-to-chargeable leak a reconciled zero. No figure changed.
 # rev 12 (re-review rev 11): no typed admissibility (notice-deadline lapse + cover bound; dawn-adequacy bound over the spike-K leaf); value nets the
 # reference path's one-off; crews enforced; budget-aware least violation; one redundancy rule measured on hours with no backup supply (Q15);
 # restore dates follow rights; KAS-LOCAL evaluated; forward baseline for options; Kasarani November figures and Harvest capacity evaluated, not typed.
@@ -830,7 +831,7 @@ structures:   # rev 10 (owner, ninth to eleventh messages): the declared outcome
     asset_days_total: "major_assets * period_days"                                     # O2
     asset_days_available: "asset_days_total - asset_days_out_of_service"
   COLD_CHAIN:
-    revenue: "crate_days * rate + contract_crate_days * contract_rate"                 # occupied = chargeable (no October difference) -> invoiced
+    revenue: "crate_days * rate + contract_crate_days * contract_rate"                 # chargeable -> invoiced; occupied to chargeable is a reconciled zero in October (empty_states.chain_nodes)
     received: "revenue - outstanding"
     kwh_model: "(base_kwh + k_kwh_per_crate_day * (crate_days + contract_crate_days)) * model_factor"
     kwh: "kwh_model + excess_kwh"                                                      # physical: normalised energy + excess over model
@@ -1471,7 +1472,7 @@ home_categories:   # design rev 16.11 §2.0 (OD-21; Architect's calls): the regi
       contribution: [above]
       nights_in_period: [calendar]
   potential:   # capacity with no customer: shown beside Grow, never as Grow's actual and never added to it (owner, 1 Nov)
-    MINI_GRID: [{name: headroom, measure: "usable capacity minus delivered kWh, by time window", objective: G2, shown: "not available yet until the energy management export by time window"},
+    MINI_GRID: [{name: headroom, measure: "usable capacity minus delivered kWh, by time window", objective: G2, deferred: usable_capacity},
                 {name: letter_of_intent_demand, measure: "kWh a month a signed letter of intent names (Mto huller)", objective: G3}]
     COLD_CHAIN: [{name: idle_capacity, measure: "capacity_crate_days - occupied_total_crate_days", objective: G2}]
     EV_DEPOT_CAPTIVE: [{name: spare_deliverable_energy, measure: "deliverable_kwh_night - required_kwh_night (Ruiru: 6 more buses fit)", objective: G2}]
@@ -1563,6 +1564,155 @@ home_categories:   # design rev 16.11 §2.0 (OD-21; Architect's calls): the regi
     - {id: kasarani-charger, site: Kasarani, plan: kasarani_charger, finding: "EV interruption: charger 2 down, so deliverable energy is below what the roster needs", finding_factor: chargers_in_service, lever: departures_missed, heading: protect, chooser: SITE_MANAGER}
     - {id: ruiru-expansion, site: Ruiru, plan: ruiru_expansion, finding: "Opportunity: the city offers 6 more buses on a new route", finding_factor: spare_deliverable_energy, lever: buses, heading: grow, chooser: OPERATOR_EXECUTIVE}
     - {id: ruiru-connector, site: Ruiru, finding: "EV interruption: charger 7, connector 2 stopped on a fault on 6 Oct and has reported nothing since", finding_factor: chargers_in_service, lever: charger_days_out_of_service, heading: protect, chooser: SITE_MANAGER}
+
+empty_states:   # rev 16.13 (20 Nov; owner routed the placeholder audit's gaps 1 and 5 and the unknown-as-zero case to the Architect,
+                # owner/owner-placeholder-gaps-routing-2026-11-20.md). structure-specification.md §3.1. What fills each leaf, what its
+                # absence means, and which slice makes its source reachable, so every "not available yet" names its record and its
+                # slice, and no unknown is ever read as zero (rule R4). The product registry (3B1, 3B6) carries `family`, `kind` and
+                # `absent` on every leaf; `slice` and `trigger` are pack-only. evaluate_structure.py writes missing-records.json from
+                # this block and the records; check_manifest.py empty_states() checks it. Changes no figure.
+  # absent: MISSING        - no record means not available; the leaf has no numeric fallback on an observed side
+  #         ZERO_WHEN_HELD - zero is a recorded fact only while the source that would record the event is held for the period;
+  #                          if that source is not held, the leaf is MISSING (cause NOT_CONNECTED or NOT_RECEIVED)
+  #         OPTION_ONLY    - a factor only an option's changes move; observed sides carry its identity value (0, or 1 for a factor)
+  #         NEVER_EMPTY    - calendar
+  # family: COMMERCIAL_RECORD (integration-source-to-canonical-design.md §6.1 kinds) | READING (role) | OPERATIONAL_RECORD |
+  #         OBSERVER (a computed leaf over the named records) | DECLARED (site configuration, price or model) | DOCUMENT | CALENDAR
+  leaf_sources:
+    MINI_GRID:
+      delivered_kwh:              {family: READING, kind: feeder_demand, absent: MISSING, slice: 3B3}
+      technical_loss_kwh:         {family: DECLARED, kind: expected_technical_loss_band, absent: MISSING, slice: 4a}
+      unexplained_loss_kwh:       {family: OBSERVER, kind: "energy-to-cash@1 (feeder_demand, CUSTOMER_METER_READ)", absent: ZERO_WHEN_HELD, slice: 4a}
+      adjustments_kwh:            {family: COMMERCIAL_RECORD, kind: ADJUSTMENT, absent: ZERO_WHEN_HELD, slice: 4a}
+      unmapped_kwh:               {family: COMMERCIAL_RECORD, kind: "CUSTOMER_METER_READ (meter register with effective dates)", absent: ZERO_WHEN_HELD, slice: 4a}
+      tariff:                     {family: COMMERCIAL_RECORD, kind: TARIFF_SCHEDULE, absent: MISSING, slice: 4b}
+      productive_kwh:             {family: COMMERCIAL_RECORD, kind: "CHARGE (productive tariff class)", absent: ZERO_WHEN_HELD, slice: 4b}
+      productive_tariff:          {family: COMMERCIAL_RECORD, kind: TARIFF_SCHEDULE, absent: MISSING, slice: 4b}
+      in_transit:                 {family: COMMERCIAL_RECORD, kind: SETTLEMENT, absent: ZERO_WHEN_HELD, slice: 4b}
+      outstanding:                {family: COMMERCIAL_RECORD, kind: RECEIPT, absent: ZERO_WHEN_HELD, slice: 4b}
+      necessary_l:                {family: OBSERVER, kind: "dispatch-3.2 (generator_state, pv_available_power, battery_soc; FUEL_DELIVERY, TANK_DIP)", absent: MISSING, slice: 3B3}
+      candidate_l:                {family: OBSERVER, kind: "dispatch-3.2 (generator_state, pv_available_power, battery_soc)", absent: ZERO_WHEN_HELD, slice: 3B3}
+      unexplained_l:              {family: OBSERVER, kind: "fuel balance (FUEL_DELIVERY, TANK_DIP) minus dispatch-3.2", absent: ZERO_WHEN_HELD, slice: 3B3}
+      extra_l:                    {family: OBSERVER, kind: "forward replay (an option's extra running)", absent: OPTION_ONLY, slice: 6c}
+      diesel_price:               {family: COMMERCIAL_RECORD, kind: "EXPENSE (FUEL)", absent: MISSING, slice: 4b}
+      battery_throughput_kwh:     {family: OBSERVER, kind: "forward replay (throughput an option adds)", absent: OPTION_ONLY, slice: 6c}
+      wear_rate:                  {family: DECLARED, kind: battery_wear_rate_assumption, absent: MISSING, slice: 6c}
+      om:                         {family: COMMERCIAL_RECORD, kind: "EXPENSE (OM)", absent: MISSING, slice: 4b, words: "Service contractor invoice"}
+      staff:                      {family: COMMERCIAL_RECORD, kind: "EXPENSE (STAFF)", absent: MISSING, slice: 4b, words: "Payroll summary"}
+      collection_cost:            {family: COMMERCIAL_RECORD, kind: "EXPENSE (an option's collection cost)", absent: OPTION_ONLY, slice: 6g}
+      reduced_days:               {family: OPERATIONAL_RECORD, kind: "work case (failure and restore)", absent: ZERO_WHEN_HELD, slice: 3B3}
+      hours_per_day:              {family: OPERATIONAL_RECORD, kind: "work case (failure and restore)", absent: ZERO_WHEN_HELD, slice: 3B3}
+      major_assets:               {family: DECLARED, kind: asset_register, absent: MISSING, slice: 3B3}
+      unserved_critical_kwh:      {family: READING, kind: critical_load_delivered_power, absent: ZERO_WHEN_HELD, slice: 3B3}
+      customer_hours_interrupted: {family: READING, kind: "feeder supply-loss flag", absent: ZERO_WHEN_HELD, slice: 3B3}
+      field_visits:               {family: OPERATIONAL_RECORD, kind: "work case (field visit)", absent: ZERO_WHEN_HELD, slice: 3B3}
+      liability:                  {family: COMMERCIAL_RECORD, kind: "ADJUSTMENT (credit note)", absent: ZERO_WHEN_HELD, slice: 4b}
+      period_days:                {family: CALENDAR, kind: period_days, absent: NEVER_EMPTY, slice: 3B1}
+      standby_kw:                 {family: DECLARED, kind: "outage units (site configuration)", absent: ZERO_WHEN_HELD, slice: 3B3}
+      lost_unit_kw:               {family: DECLARED, kind: "outage units (site configuration)", absent: ZERO_WHEN_HELD, slice: 3B3}
+      dawn_days_below:            {family: READING, kind: battery_soc, absent: ZERO_WHEN_HELD, slice: 3B3}
+    COLD_CHAIN:
+      crate_days:                 {family: COMMERCIAL_RECORD, kind: "STORAGE_MOVEMENT (occupied crate-days)", absent: MISSING, slice: 9d}
+      rate:                       {family: COMMERCIAL_RECORD, kind: "TARIFF_SCHEDULE (storage rate card)", absent: MISSING, slice: 9d}
+      contract_crate_days:        {family: COMMERCIAL_RECORD, kind: "CONTRACT_DOCUMENT (an option's storage contract)", absent: OPTION_ONLY, slice: 9d}
+      contract_rate:              {family: COMMERCIAL_RECORD, kind: "CONTRACT_DOCUMENT (an option's storage contract)", absent: OPTION_ONLY, slice: 9d}
+      base_kwh:                   {family: DECLARED, kind: energy_model, absent: MISSING, slice: 9d}
+      k_kwh_per_crate_day:        {family: DECLARED, kind: energy_model, absent: MISSING, slice: 9d}
+      model_factor:               {family: DECLARED, kind: "energy_model (an option's efficiency change)", absent: OPTION_ONLY, slice: 9d}
+      excess_kwh:                 {family: OBSERVER, kind: "cold energy normalisation (CHARGE electricity bill, STORAGE_MOVEMENT)", absent: MISSING, slice: 9d}
+      elec_price:                 {family: COMMERCIAL_RECORD, kind: "CHARGE (electricity bill)", absent: MISSING, slice: 9d}
+      staff:                      {family: COMMERCIAL_RECORD, kind: "EXPENSE (STAFF)", absent: MISSING, slice: 9d, words: "Payroll summary"}
+      maint:                      {family: COMMERCIAL_RECORD, kind: "EXPENSE (OM)", absent: MISSING, slice: 9d, words: "Service contractor invoice"}
+      liability:                  {family: COMMERCIAL_RECORD, kind: "ADJUSTMENT (credit note)", absent: ZERO_WHEN_HELD, slice: 9d}
+      handling:                   {family: COMMERCIAL_RECORD, kind: "EXPENSE (an option's handling cost)", absent: OPTION_ONLY, slice: 9d}
+      outstanding:                {family: COMMERCIAL_RECORD, kind: RECEIPT, absent: ZERO_WHEN_HELD, slice: 9d}
+      uncovered_nights:           {family: OPERATIONAL_RECORD, kind: "work case (failed start, witnessed test) and the manual-start rota", absent: ZERO_WHEN_HELD, slice: 9d}
+      backup_unproven_days:       {family: OPERATIONAL_RECORD, kind: "work case (failed start, witnessed test)", absent: ZERO_WHEN_HELD, slice: 9d}
+      excursion_crates:           {family: OBSERVER, kind: "exposure (chamber temperature, STORAGE_MOVEMENT)", absent: ZERO_WHEN_HELD, slice: 9d}
+      excursion_days:             {family: OBSERVER, kind: "exposure (chamber temperature, STORAGE_MOVEMENT)", absent: ZERO_WHEN_HELD, slice: 9d}
+      batches_exposed:            {family: OBSERVER, kind: "exposure (chamber temperature, STORAGE_MOVEMENT)", absent: ZERO_WHEN_HELD, slice: 9d}
+      cooling_minutes_unavailable: {family: READING, kind: "cooling state", absent: ZERO_WHEN_HELD, slice: 9d}
+      minutes_per_day:            {family: CALENDAR, kind: minutes_per_day, absent: NEVER_EMPTY, slice: 3B6}
+      capacity_crate_days:        {family: DECLARED, kind: "room capacity (site configuration)", absent: MISSING, slice: 3B6}
+      period_days:                {family: CALENDAR, kind: period_days, absent: NEVER_EMPTY, slice: 3B6}
+    EV_DEPOT_CAPTIVE:
+      chargers_in_service:        {family: OBSERVER, kind: "charging capacity (charger register, ev_connector_state, ev_connector_fault)", absent: MISSING, slice: 9e}
+      chargers_installed:         {family: DECLARED, kind: "charger register (site configuration)", absent: MISSING, slice: 9e}
+      charger_kw:                 {family: DECLARED, kind: "charger register (site configuration)", absent: MISSING, slice: 9e}
+      import_limit_kw:            {family: DECLARED, kind: "grid connection (site configuration)", absent: MISSING, slice: 9e}
+      window_h:                   {family: COMMERCIAL_RECORD, kind: FLEET_ROSTER, absent: MISSING, slice: 9e}
+      buses:                      {family: COMMERCIAL_RECORD, kind: FLEET_ROSTER, absent: MISSING, slice: 9e}
+      kwh_per_bus_night:          {family: COMMERCIAL_RECORD, kind: FLEET_ROSTER, absent: MISSING, slice: 9e}
+      nights_in_period:           {family: CALENDAR, kind: "period nights", absent: NEVER_EMPTY, slice: 3B6}
+      peak_kwh:                   {family: COMMERCIAL_RECORD, kind: "CHARGE (utility time-of-use line)", absent: ZERO_WHEN_HELD, slice: 9e}
+      kwh_2200_2400:              {family: COMMERCIAL_RECORD, kind: "CHARGE (utility time-of-use line)", absent: MISSING, slice: 9e}
+      kwh_0000_0500:              {family: COMMERCIAL_RECORD, kind: "CHARGE (utility time-of-use line)", absent: ZERO_WHEN_HELD, slice: 9e}
+      max_kw:                     {family: COMMERCIAL_RECORD, kind: "CHARGE (utility demand line)", absent: ZERO_WHEN_HELD, slice: 9e}
+      peak_price:                 {family: COMMERCIAL_RECORD, kind: TARIFF_SCHEDULE, absent: MISSING, slice: 9e}
+      offpeak_price:              {family: COMMERCIAL_RECORD, kind: TARIFF_SCHEDULE, absent: MISSING, slice: 9e}
+      night_price:                {family: COMMERCIAL_RECORD, kind: TARIFF_SCHEDULE, absent: MISSING, slice: 9e}
+      demand_rate:                {family: COMMERCIAL_RECORD, kind: TARIFF_SCHEDULE, absent: MISSING, slice: 9e}
+      maintenance:                {family: COMMERCIAL_RECORD, kind: "EXPENSE (OM)", absent: MISSING, slice: 9e, words: "Service contractor invoice"}
+      short_nights:               {family: OBSERVER, kind: "charging capacity (FLEET_ROSTER, ev_connector_state)", absent: MISSING, slice: 9e}
+      spare_bus_nights:           {family: COMMERCIAL_RECORD, kind: FLEET_ROSTER, absent: ZERO_WHEN_HELD, slice: 9e}
+      covered_bus_nights:         {family: COMMERCIAL_RECORD, kind: "FLEET_ROSTER (an option's cover)", absent: OPTION_ONLY, slice: 9e}
+      extra_missed_departures:    {family: COMMERCIAL_RECORD, kind: "DEPARTURE (an option's extra misses)", absent: OPTION_ONLY, slice: 9e}
+      charger_out_days:           {family: OPERATIONAL_RECORD, kind: "SERVICE_TICKET (fault and restore)", absent: ZERO_WHEN_HELD, slice: 9e}
+      penalty_rate:               {family: DOCUMENT, kind: "CONTRACT_DOCUMENT (service contract penalty term)", absent: ZERO_WHEN_HELD, slice: 9e}
+  target_side:   # a leaf with no target line of its own on a Site's target side (structure-specification.md §3.1)
+    kind: "PLAN_LINE (a target line per factor)"
+    family: COMMERCIAL_RECORD
+    slice: 5a
+    words: "Targets below the site total"
+    assumption: "Target not set below the site total: leaks and avoidable use are taken at zero, and the rest of the target on its main factor (assumption)"
+  conditions:   # rights condition evidence (condition_evidence state MISSING, integration-source-to-canonical-design.md §6.3)
+    temperature:                 {family: READING, kind: battery_cell_temperature, cause: NOT_CONNECTED, slice: 9a, label: "Battery cell temperature", words: "Battery management system temperature log"}
+    commissioning_capacity_test: {family: DOCUMENT, kind: CAPACITY_TEST_REPORT, cause: NOT_RECEIVED, slice: 9a, label: "Commissioning capacity test", words: "Capacity test record"}
+    service_1000h:               {family: OPERATIONAL_RECORD, kind: "SERVICE_TICKET (1,000-hour service)", cause: NOT_RECEIVED, slice: 9a, label: "1,000-hour service", words: "Service log entry"}
+  assumptions:   # a record field the manifest marks "[assumption]": shown with its assumption label and the record that would confirm it
+    tariff.applicability:        {family: COMMERCIAL_RECORD, kind: "TARIFF_SCHEDULE (applicability evidence)", slice: 9e, label: "Tariff applicability", words: "Utility invoice with time-of-use lines", blocks: [energy_cost]}
+  chain_nodes:   # every chain_model stage and leak: the nodes or leaves that carry it, a potential entry, a deferred stage, or a reconciled zero
+    MINI_GRID:
+      usable_capacity: {deferred: usable_capacity}
+      delivered_kwh: [delivered_kwh]
+      metered_kwh: [metered_kwh]
+      billed_kwh: [billed_kwh]
+      revenue: [revenue]
+      cash: [collected]
+      delivered_to_metered: [technical_loss_kwh, unexplained_loss_kwh]
+      metered_to_billed: [adjustments_kwh, unmapped_kwh]
+      revenue_to_cash: [in_transit, outstanding]
+    COLD_CHAIN:
+      capacity_crate_days: [capacity_crate_days]
+      occupied_crate_days: [occupied_total_crate_days]
+      chargeable_crate_days: [crate_days, contract_crate_days]
+      revenue: [revenue]
+      cash: [received]
+      capacity_to_occupied: [idle_capacity]
+      occupied_to_chargeable: {reconciled: ["STORAGE_MOVEMENT (occupied crate-days)", "CHARGE (storage lines)"], absent: ZERO_WHEN_HELD, slice: 9d,
+                               note: "October's ledger and invoices agree (revenue = crate-days x rate on every room, both RECORDED), so the leak is a recorded zero; per-batch compatibility explains a difference only once one appears"}
+      revenue_to_cash: [outstanding]
+    EV_DEPOT_CAPTIVE:
+      deliverable_kwh_per_night: [deliverable_kwh_night]
+      delivered_kwh: [peak_kwh, kwh_2200_2400, kwh_0000_0500]
+      departures_required: [departures_required]
+      departures_met: [departures_met]
+      required_to_met: [departures_missed]
+  deferred_stages:   # a named stage no slice of the fortnight builds: its records, why it is empty, what it blocks, its queued slice and trigger
+    usable_capacity:
+      vertical: MINI_GRID
+      label: "Usable capacity by time window"
+      family: READING
+      kind: "pv_available_power, pcs_discharge_capability, generator_state (held today, integration-source-to-canonical-design.md §2)"
+      cause: NOT_CALCULATED_YET
+      words: "Solar, battery and generator readings (already received)"
+      blocks: [headroom]
+      slice: 4c
+      trigger: "pulled from the deferral queue when a lane is free after the must-keep set (day 12); at the latest when a pilot pins a real register profile"
+  queued_slices:   # slices declared here, outside plan_model.py's fortnight: each with its scope, units and trigger
+    4c: {name: "Capacity by time window: usable capacity and idle capacity as capacity factors (no money), from the kept headroom observer", lane: STR, units: 2.5, deps: [3B3, 0M]}
+  record_words:   # plain words for a record kind on screen, where the leaf row gives none
+    PLAN_LINE: "Targets below the site total"
 
 snapshot:   # design rev 16.11 §2.8 (OD-23): the calculated daily snapshot every screen reads, and the demo's pending recalculation.
             # A snapshot is an output: rebuilt from records, never a source. `as_of` is when it was computed; a portfolio whose

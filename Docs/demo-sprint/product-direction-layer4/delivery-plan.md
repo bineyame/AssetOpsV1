@@ -156,7 +156,7 @@ The product's registry, structure read, evaluator and proposal must reproduce `d
 | Test | Question |
 |---|---|
 | Identities | Does every Site and portfolio outcome equal its declared function of factors, for target and actual, and do the attributions plus any residual equal the deviation, to the cent? |
-| Unknown is not zero | Is every missing leaf shown as "not available yet", with the record that would fill it? |
+| Unknown is not zero | Is every missing leaf shown as "not available yet", with the record that would fill it and what it blocks, read from the value's `missing` field (never from a null alone), and is a zero shown only where its source is held? |
 | Negative controls | Do the healthy controls show no Finding and no option beyond no action: Kisiwa's necessary running, Kobo's headroom with no customer, Mto's welder? |
 | Bounds first | Is every option that breaks a hard bound rejected before any recommendation, with the bound named? |
 | Isolation | Is another operator's row refused at intake, and does no read, cache or proposal cross operators? |
@@ -166,6 +166,8 @@ The product's registry, structure read, evaluator and proposal must reproduce `d
 | The person | Is every choice, approval, creation and completion recorded under a named person, and does the system never choose, approve or create an Action? |
 | Labels | Does every figure say how it is known, does *Emulated* never read as *Recorded*, and does every figure resting on a replay that has not passed carry its design-value label? |
 | Proof | Are the three verdicts separate, and is money credited only from an economic verdict on recorded records? |
+
+**Where "Unknown is not zero" is built** (`rev 16.13`, `structure-specification.md` §3.1). `3B1` and `3B6` declare `filled_by` and `absent` on every registry leaf; `3B3` fills the `missing` field of each factor value; the daily snapshot's slice stores it on each node; the screens (`3B5`, `7g`, Scope & coverage) read it. No slice grows: each was already scoped to the rows, the read and the snapshot this field sits on. In the demonstration, `missing-records.json` holds the entries and `check_manifest.py` `empty_states()` checks that every leaf, stage, condition and missing record names its source and its slice.
 
 **The illustration's documented limits** (DA §6) stay in force. The checker does not enforce the plan-facing value fields or some rendered copies, so a reviewer reads those.
 
@@ -228,5 +230,6 @@ Simulation is a small part of that cost. The product pipeline, idle stage start-
 | 2 | Where does the origin and membership migration fall? | §2.9 widens today's one-origin check with a plan-item arm. The arm needs plan items to exist | In step 7 (slice `7a`), not 3C. Step 3C records the person only. Architect's call |
 | 3 | Is the order of steps 8 and 9 kept? | Figure 10 puts the three verdicts beside the plan, and rights after both | Kept, because D15's first change needs proof before rights |
 | 4 | Where does the daily snapshot's slice (OD-23) fall, and how big is it? | It needs the structure read (`3B3`) and today's input-change log; its storage and incremental rebuild wait for the owner's strategy conversation on the database build | A slice in step 3B after `3B3`, cut after that conversation; then `plan_model.py` is re-run. Until then the fortnight's figures leave it out, so they are optimistic by its size. Architect's call |
+| 5 | Is mini-grid usable capacity built in the fortnight? | The value chain's first stage. Its readings are held today; no slice computes it by time window, and it carries no money without a customer (N11) | No: deferred to queued slice `4c` (capacity by time window, about 2.5 units, lane 2, after `3B3` and `0M`), pulled when a lane is free after the must-keep set, at the latest when a pilot pins a real register profile. Until then the stage reads "Not available yet" with its readings named. Architect's call (`rev 16.13`) |
 
 **Pushback, for the owner.** None on the order: Figure 10 holds against the slices. One caution. Steps 5 and 7 hold the most new money logic, so they get discovery reviews and should not be compressed to make a date.

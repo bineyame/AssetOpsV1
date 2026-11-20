@@ -23,7 +23,8 @@ all the way down the structure, and holds no numbers of its own:
                 then the highest value, then the lowest spend (structure-specification.md §6). Switch cases, sensitivities, the
                 downside and owner-question variants re-run it.
 
-Writes derived-values.json (every figure with its formula). Run:  python3 evaluate_structure.py [manifest]
+Writes derived-values.json (every figure with its formula) and missing-records.json (the record behind every empty leaf,
+structure-specification.md §3.1). Run:  python3 evaluate_structure.py [manifest]
 """
 from __future__ import annotations
 
@@ -605,6 +606,110 @@ def main(path, variants=True) -> dict:
     return out
 
 
+# ---------------- Empty states: the record behind every "not available yet" (rev 16.13; structure-specification.md §3.1) --------
+def leftmost(node):
+    """The first alternative of `a | b | c`: the leaf's own record."""
+    node = node.body if isinstance(node, ast.Expression) else node
+    while isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr):
+        node = node.left
+    return node
+
+
+def ancestors(struct, leaves):
+    """Nodes whose value rests on any of `leaves`, nearest first (breadth-first up the declared structure)."""
+    refs = {n: {x.id for x in ast.walk(ast.parse(str(e), mode="eval")) if isinstance(x, ast.Name)} for n, e in struct.items()}
+    out, frontier = [], list(leaves)
+    while frontier:
+        nxt = [n for n in struct if n not in out and n not in leaves and any(f in refs[n] for f in frontier)]
+        out += nxt
+        frontier = nxt
+    return out
+
+
+def missing_records(doc) -> dict:
+    """One entry per leaf, condition, assumption or stage that is not available, with the record that would fill it (factor_value
+    `missing`, integration-source-to-canonical-design.md §6.2). Computed from empty_states and the records; holds no figure."""
+    S, FM, EV, ES = doc["structures"], doc["factor_map"], doc["evaluation"], doc["empty_states"]
+    LS, TS = ES["leaf_sources"], ES["target_side"]
+    out = {"as_of": doc["as_of"], "method": "derived by evaluate_structure.py missing_records() from empty_states and the site records; "
+           "slice and trigger are pack-only fields", "sites": {}}
+    for t in doc["tenants"]:
+        vert = "EV_DEPOT_CAPTIVE" if t["vertical"] == "EV_DEPOT" else t["vertical"]
+        for s_ in t["sites"]:
+            n, obs, ents = s_["site"], s_.get("observations", {}), []
+            sides = [("plan", s_["period"]["plan"]), ("actual", {**s_["period"]["actual"], **obs.get("october", {})})]
+            if "november_to_date" in obs:
+                sides.append(("november_to_date", obs["november_to_date"]))
+            fm = {**FM[vert], **(s_.get("factor_sources") or {})}
+            vals, own = {}, {}
+            for k, record in sides:
+                ctx = {"as_of": doc["as_of"], "record": record, "prices": t.get("prices", {}), "physical": s_.get("physical", {}), "tariff": s_.get("tariff", {}),
+                       "energy_model": t.get("energy_model", {}), "incident": s_.get("incident", {}), "entitlement": s_.get("entitlement", {}), "observations": obs,
+                       "tenant": t, "site": n, "period_days": EV["period_days"], "period_end": record.get("period_end", EV["period_end"])}
+                vals[k], own[k] = {}, set()
+                for f, x in fm.items():
+                    try:
+                        vals[k][f] = Env(S[vert], {}, ctx).expr(x)
+                    except Missing:
+                        vals[k][f] = None
+                    try:
+                        Env(S[vert], {}, ctx).ev(leftmost(ast.parse(str(x), mode="eval")))
+                        own[k].add(f)
+                    except Missing:
+                        pass
+
+            def entry(side, subject, row, cause, carried_as, blocks, **extra):
+                e = {"side": side, **subject, "record_kind": row["kind"], "source_family": row["family"], "cause": cause,
+                     "carried_as": carried_as, "blocks": blocks, "slice": row["slice"]}
+                if row.get("words"):
+                    e["record_words"] = row["words"]
+                e.update(extra)
+                return e
+            # observed sides: a leaf whose record is absent and that nothing else fills
+            for k, _ in sides[1:]:
+                gone = [f for f in fm if vals[k][f] is None]
+                for f in gone:
+                    ents.append(entry(k, {"leaf": f}, LS[vert][f], "NOT_RECEIVED", None, ancestors(S[vert], [f])))
+            # the target side: not decomposed (residual), or leaves without a target line of their own (labelled assumption)
+            row = {"kind": TS["kind"], "family": TS["family"], "slice": TS["slice"], "words": TS["words"]}
+            gone = [f for f in fm if vals["plan"][f] is None]
+            if gone:
+                ents.append(entry("plan", {"leaves": gone}, row, "NOT_RECEIVED", "RESIDUAL", ancestors(S[vert], gone)))
+            else:
+                result = doc["chain_model"][vert]["result"]   # Protect and operations measures carry their own declared targets
+                split = [f for f in fm if f not in own["plan"] and LS[vert][f]["absent"] not in ("OPTION_ONLY", "NEVER_EMPTY")
+                         and vals["actual"][f] is not None and vals["actual"][f] != vals["plan"][f] and result in ancestors(S[vert], [f])]
+                if split:
+                    ents.append(entry("plan", {"leaves": split}, row, "NOT_RECEIVED", "ASSUMPTION", ancestors(S[vert], split),
+                                      assumption=TS["assumption"]))
+            # actual lines carried at target (coverage ESTIMATED)
+            for line, state in (s_["period"].get("coverage") or {}).items():
+                if state == "ESTIMATED":
+                    ents.append(entry("actual", {"leaf": line}, LS[vert][line], "NOT_RECEIVED", "TARGET", ancestors(S[vert], [line]),
+                                      **({"note": s_["period"]["coverage_note"]} if s_["period"].get("coverage_note") else {})))
+            # rights condition evidence
+            rights = ([s_["entitlement"]] if "entitlement" in s_ else []) + s_.get("entitlements", []) + \
+                     ([s_["incident"]["entitlement"]] if isinstance(s_.get("incident", {}).get("entitlement"), dict) else [])
+            for r in rights:
+                for c, state in (r.get("evidence") or {}).items():
+                    if state == "MISSING":
+                        cr = ES["conditions"][c]
+                        ents.append(entry("actual", {"right": r["asset"], "condition": c, "label": cr["label"]}, cr, cr["cause"], None,
+                                          [r["asset"]]))
+            # record fields marked as assumptions
+            for path, ar in ES["assumptions"].items():
+                head, field = path.split(".")
+                if str((s_.get(head) or {}).get(field, "")).startswith("[assumption]"):
+                    ents.append(entry("actual", {"field": path, "label": ar["label"]}, ar, "NOT_RECEIVED", "ASSUMPTION", ar["blocks"],
+                                      assumption=s_[head][field]))
+            # stages the structure names but no slice of the fortnight builds
+            for st, dr in ES["deferred_stages"].items():
+                if dr["vertical"] == vert:
+                    ents.append(entry("actual", {"stage": st, "label": dr["label"]}, dr, dr["cause"], None, dr["blocks"], trigger=dr["trigger"]))
+            out["sites"][f"{t['tenant']}/{n}"] = ents
+    return out
+
+
 def patch_target(doc, path):
     """Resolve 'a.b[key=val].c' to (container, last key) for an owner-question patch."""
     parts = path.split(".")
@@ -626,3 +731,6 @@ if __name__ == "__main__":
     res = main(path)
     (here / "derived-values.json").write_text(json.dumps(res, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"derived-values.json written: {len(res['sites'])} sites, {len(res['options'])} options, {len(res['plans'])} plans")
+    mr = missing_records(yaml.safe_load(open(path, encoding="utf-8")))
+    (here / "missing-records.json").write_text(json.dumps(mr, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(f"missing-records.json written: {sum(len(v) for v in mr['sites'].values())} entries over {len(mr['sites'])} sites")

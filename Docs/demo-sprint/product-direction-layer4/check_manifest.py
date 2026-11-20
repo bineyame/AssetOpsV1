@@ -28,6 +28,12 @@ and the manifest alone. Against that independent recomputation the checker compa
      factors that exist in the registry (or a manifest measure or potential entry) with a heading equal to the registry's
      and a Site and a portfolio read; the traceability CSV's factor column uses the same IDs and its text passes the naming
      lint (OD-6). It proves itself on planted copies every run.
+ 10. empty_states(): every leaf names what fills it, what its absence means and the slice that makes its source reachable; no
+     leaf declared MISSING has a numeric fallback, and every numeric fallback is a held-source zero or an option's identity
+     (rule R4, "Unknown is not zero"); every value-chain stage and leak is carried by a node, a potential entry, a deferred stage
+     with its slice and trigger, or a reconciled zero; every missing condition, assumption and estimated line has its record;
+     missing-records.json names a record, a cause and a slice for each entry and covers every side derived-values.json leaves
+     not decomposed (structure-specification.md §3.1, rev 16.13). It proves itself on planted copies every run.
 Run:  python3 check_manifest.py [manifest]   Exit 0 = all pass.
 """
 from __future__ import annotations
@@ -944,6 +950,205 @@ def derived_fig_docs(root):
     return tuple(fn for fn in ca.derived_present(root) if fn not in FIG_DOCS)
 
 
+# ---------------- 10. empty states: the record behind every "not available yet" (structure-specification.md §3.1) ----------------
+FAMILIES = {"COMMERCIAL_RECORD", "READING", "OPERATIONAL_RECORD", "OBSERVER", "DECLARED", "DOCUMENT", "CALENDAR"}
+ABSENT = {"MISSING", "ZERO_WHEN_HELD", "OPTION_ONLY", "NEVER_EMPTY"}
+CAUSES = {"NOT_RECEIVED", "NOT_CONNECTED", "NOT_CALCULATED_YET"}
+CARRIED = {None, "TARGET", "ASSUMPTION", "RESIDUAL"}
+
+
+def plan_slice_ids(root):
+    return set(re.findall(r'^\s+\("(\w+)", "', (root / "plan_model.py").read_text(encoding="utf-8"), flags=re.M))
+
+
+def numeric_alternatives(expr):
+    """The number literals that are whole alternatives of `a | b | 0` (or the whole expression)."""
+    import ast
+    out, stack = [], [ast.parse(str(expr), mode="eval").body]
+    while stack:
+        n = stack.pop()
+        if isinstance(n, ast.BinOp) and isinstance(n.op, ast.BitOr):
+            stack += [n.left, n.right]
+        elif isinstance(n, ast.Constant) and isinstance(n.value, (int, float)):
+            out.append(n.value)
+    return out
+
+
+def observed_reads_literal(doc, v, f, x):
+    """Sites of vertical v whose observed side (October, November to date) has none of the record alternatives before the
+    leaf's number literal, so the literal would be read as an observed value."""
+    import ast
+    def alts(n):
+        return alts(n.left) + alts(n.right) if isinstance(n, ast.BinOp) and isinstance(n.op, ast.BitOr) else [n]
+    def fields(n):   # record.<field> paths an alternative reads
+        return [a.attr for a in ast.walk(n) if isinstance(a, ast.Attribute) and isinstance(a.value, ast.Name) and a.value.id == "record"]
+    seq = alts(ast.parse(str(x), mode="eval").body)
+    first_lit = next((i for i, a in enumerate(seq) if isinstance(a, ast.Constant)), None)
+    if first_lit is None:
+        return []
+    out = []
+    for t in doc["tenants"]:
+        if ("EV_DEPOT_CAPTIVE" if t["vertical"] == "EV_DEPOT" else t["vertical"]) != v:
+            continue
+        for s_ in t["sites"]:
+            obs = s_.get("observations", {})
+            for side, rec in [("actual", {**s_["period"]["actual"], **obs.get("october", {})})] + \
+                             ([("november_to_date", obs["november_to_date"])] if "november_to_date" in obs else []):
+                if not any(fields(a) and all(k in rec for k in fields(a)) for a in seq[:first_lit]):
+                    out.append(f"{s_['site']} {side}")
+    return out
+
+
+def empty_state_problems(doc, slices, mr, dv):
+    bad = []
+    ES = doc.get("empty_states") or {}
+    LS, CN, DS_, CO, AS = (ES.get(k) or {} for k in ("leaf_sources", "chain_nodes", "deferred_stages", "conditions", "assumptions"))
+    ok_slices = slices | set(ES.get("queued_slices") or {})
+    vert_of = {t["tenant"]: ("EV_DEPOT_CAPTIVE" if t["vertical"] == "EV_DEPOT" else t["vertical"]) for t in doc["tenants"]}
+    pot = {v: {p_["name"] for p_ in ps} for v, ps in ((doc.get("home_categories") or {}).get("potential") or {}).items()}
+    for v, fm in doc["factor_map"].items():
+        rows = LS.get(v) or {}
+        if set(rows) != set(fm):
+            bad.append(f"leaf_sources {v}: rows {sorted(set(rows) ^ set(fm))[:4]} differ from the factor map")
+        exprs = {f: [x] for f, x in fm.items()}
+        for t in doc["tenants"]:
+            if vert_of[t["tenant"]] == v:
+                for s_ in t["sites"]:
+                    for f, x in (s_.get("factor_sources") or {}).items():
+                        exprs.setdefault(f, []).append(x)
+        for f, r in rows.items():
+            r = r or {}
+            if r.get("family") not in FAMILIES or r.get("absent") not in ABSENT or not r.get("kind"):
+                bad.append(f"leaf_sources {v}/{f}: family, kind and absent must be named ({r})")
+            if r.get("slice") not in ok_slices:
+                bad.append(f"leaf_sources {v}/{f}: slice {r.get('slice')} is not a slice of plan_model.py or a queued slice")
+            if (r.get("absent") == "NEVER_EMPTY") != (r.get("family") == "CALENDAR"):
+                bad.append(f"leaf_sources {v}/{f}: only a calendar leaf is never empty")
+            for x in exprs.get(f, []):
+                lits = numeric_alternatives(x)
+                if lits and r.get("absent") == "MISSING":   # the literal may serve only the target side, under its labelled assumption
+                    for where in observed_reads_literal(doc, v, f, x):
+                        bad.append(f"leaf_sources {v}/{f}: declared MISSING but {where} reads {lits} for an absent record (unknown as zero, R4)")
+                if r.get("absent") == "ZERO_WHEN_HELD" and any(l_ != 0 for l_ in lits):
+                    bad.append(f"leaf_sources {v}/{f}: a held-source zero falls back to {lits}, not 0")
+                if lits and r.get("absent") not in ("ZERO_WHEN_HELD", "OPTION_ONLY", "NEVER_EMPTY", "MISSING"):
+                    bad.append(f"leaf_sources {v}/{f}: a numeric fallback with no declared meaning")
+    for v, cm in doc["chain_model"].items():
+        want = set(cm["stages"]) | set(cm.get("leaks") or {})
+        got = CN.get(v) or {}
+        if set(got) != want:
+            bad.append(f"chain_nodes {v}: {sorted(set(got) ^ want)} differ from chain_model's stages and leaks")
+        names = set(doc["structures"][v]) | set(doc["factor_map"][v]) | pot.get(v, set())
+        for k, m in got.items():
+            if isinstance(m, list):
+                if not m or not set(m) <= names:
+                    bad.append(f"chain_nodes {v}/{k}: {m} are not all nodes, leaves or potential entries")
+            elif isinstance(m, dict) and "deferred" in m:
+                d_ = DS_.get(m["deferred"]) or {}
+                if d_.get("vertical") != v:
+                    bad.append(f"chain_nodes {v}/{k}: deferred stage {m['deferred']} is not declared for {v}")
+            elif isinstance(m, dict) and "reconciled" in m:
+                if not m["reconciled"] or m.get("absent") != "ZERO_WHEN_HELD" or m.get("slice") not in ok_slices or not m.get("note"):
+                    bad.append(f"chain_nodes {v}/{k}: a reconciled zero names its records, ZERO_WHEN_HELD, a slice and its note")
+            else:
+                bad.append(f"chain_nodes {v}/{k}: carried by nothing")
+    for st, d_ in DS_.items():
+        need = ("vertical", "label", "family", "kind", "cause", "words", "blocks", "slice", "trigger")
+        if any(not d_.get(k) for k in need) or d_.get("cause") not in CAUSES or d_.get("family") not in FAMILIES or d_.get("slice") not in ok_slices:
+            bad.append(f"deferred stage {st}: names {need} with a known cause, family and slice")
+        names = set(doc["structures"].get(d_.get("vertical"), {})) | pot.get(d_.get("vertical"), set())
+        if not set(d_.get("blocks") or []) <= names:
+            bad.append(f"deferred stage {st}: blocks {d_.get('blocks')} are not nodes or potential entries")
+        if not any(isinstance(m, dict) and m.get("deferred") == st for m in (CN.get(d_.get("vertical")) or {}).values()):
+            bad.append(f"deferred stage {st}: no chain stage is carried by it")
+    for v, ps in ((doc.get("home_categories") or {}).get("potential") or {}).items():
+        for p_ in ps:
+            if "shown" in p_:
+                bad.append(f"potential {v}/{p_['name']}: free-text empty state; name its deferred stage instead")
+            if "deferred" in p_ and p_["deferred"] not in DS_:
+                bad.append(f"potential {v}/{p_['name']}: deferred stage {p_['deferred']} is not declared")
+    want_entries = []   # (site key, side, subject) the manifest itself says are missing
+    for t in doc["tenants"]:
+        for s_ in t["sites"]:
+            key = f"{t['tenant']}/{s_['site']}"
+            for line, state in (s_["period"].get("coverage") or {}).items():
+                if state == "ESTIMATED":
+                    want_entries.append((key, "actual", ("leaf", line)))
+            rights = ([s_["entitlement"]] if "entitlement" in s_ else []) + s_.get("entitlements", []) + \
+                     ([s_["incident"]["entitlement"]] if isinstance(s_.get("incident", {}).get("entitlement"), dict) else [])
+            for r in rights:
+                for c, state in (r.get("evidence") or {}).items():
+                    if state == "MISSING":
+                        cr = CO.get(c) or {}
+                        if not all(cr.get(k) for k in ("family", "kind", "cause", "slice", "label", "words")) or cr.get("slice") not in ok_slices:
+                            bad.append(f"condition {c} ({key}): names its record, cause, slice and words")
+                        want_entries.append((key, "actual", ("condition", c)))
+            for head, blk in s_.items():
+                if isinstance(blk, dict):
+                    for field, val in blk.items():
+                        if isinstance(val, str) and val.startswith("[assumption]"):
+                            if f"{head}.{field}" not in AS:
+                                bad.append(f"assumption {key} {head}.{field}: no record that would confirm it")
+                            want_entries.append((key, "actual", ("field", f"{head}.{field}")))
+            for side, r in (dv["sites"].get(key) or {}).items():
+                if r["status"] != "evaluated":
+                    want_entries.append((key, side, ("not decomposed", side)))
+    sites = mr.get("sites") or {}
+    for key, side, (kind, what) in want_entries:
+        es = [e for e in sites.get(key, []) if e.get("side") == side]
+        hit = {"leaf": lambda e: e.get("leaf") == what, "condition": lambda e: e.get("condition") == what,
+               "field": lambda e: e.get("field") == what, "not decomposed": lambda e: e.get("carried_as") == "RESIDUAL" or e.get("cause") == "NOT_RECEIVED" and e.get("leaf")}[kind]
+        if not any(hit(e) for e in es):
+            bad.append(f"missing-records {key} {side}: no entry for {kind} {what}")
+    for key, es in sites.items():
+        v = vert_of.get(key.split("/")[0])
+        for e in es:
+            if not e.get("record_kind") or e.get("source_family") not in FAMILIES or e.get("cause") not in CAUSES \
+                    or e.get("carried_as", "x") not in CARRIED or e.get("slice") not in ok_slices or not isinstance(e.get("blocks"), list):
+                bad.append(f"missing-records {key}: entry {e.get('leaf') or e.get('leaves') or e.get('condition') or e.get('stage') or e.get('field')} lacks a record, cause, carried-as or slice")
+            if "leaf" in e and e["leaf"] not in (LS.get(v) or {}):
+                bad.append(f"missing-records {key}: leaf {e['leaf']} is not a registry leaf")
+            if "stage" in e and e["stage"] not in DS_:
+                bad.append(f"missing-records {key}: stage {e['stage']} is not a deferred stage")
+            if e.get("carried_as") is None and "leaf" in e and (dv["sites"].get(key) or {}).get(e["side"], {}).get("status") == "evaluated":
+                bad.append(f"missing-records {key}: {e['leaf']} is shown as not available on a side that is evaluated (stale empty state)")
+    return bad
+
+
+def empty_states(root, doc):
+    import copy
+    try:
+        mr = json.loads((root / "missing-records.json").read_text(encoding="utf-8"))
+    except Exception:
+        check("empty states: missing-records.json is readable (run evaluate_structure.py)", False); return
+    dv = json.loads((root / "derived-values.json").read_text(encoding="utf-8"))
+    slices = plan_slice_ids(root)
+    bad = empty_state_problems(doc, slices, mr, dv)
+    check(f"empty states: every leaf, stage, condition and missing record names its source and its slice ({bad[:4]} x{len(bad)})", not bad)
+    n = sum(len(v) for v in (mr.get("sites") or {}).values())
+    check(f"empty states: missing-records.json covers every Site ({n} entries)", set(mr.get("sites") or {}) == set(dv["sites"]))
+
+    def planted(edit, on="doc"):
+        d2, m2 = copy.deepcopy(doc), copy.deepcopy(mr)
+        edit(d2 if on == "doc" else m2)
+        return bool(empty_state_problems(d2, slices, m2, dv))
+    first_site = next(iter(mr["sites"]))
+    plants = {
+        "a leaf with no source row": lambda d: d["empty_states"]["leaf_sources"]["MINI_GRID"].pop("om"),
+        "a zero fallback declared MISSING and read on an observed side (unknown as zero)": lambda d: d["empty_states"]["leaf_sources"]["MINI_GRID"]["unexplained_loss_kwh"].update(absent="MISSING"),
+        "an observed side losing the record a MISSING leaf reads": lambda d: d["tenants"][0]["sites"][0]["observations"]["october"].pop("major_assets"),
+        "a leaf with an unknown slice": lambda d: d["empty_states"]["leaf_sources"]["COLD_CHAIN"]["crate_days"].update(slice="99z"),
+        "a chain stage carried by nothing": lambda d: d["empty_states"]["chain_nodes"]["MINI_GRID"].pop("usable_capacity"),
+        "a free-text empty state on a potential entry": lambda d: d["home_categories"]["potential"]["MINI_GRID"][0].update(shown="needs an export"),
+        "a missing condition with no record": lambda d: d["empty_states"]["conditions"].pop("temperature"),
+        "an entry with no slice": (lambda m: m["sites"][first_site][0].pop("slice"), "mr"),
+        "an estimated line with no entry": (lambda m: m["sites"].update({k: [e for e in v if e.get("carried_as") != "TARGET"] for k, v in m["sites"].items()}), "mr"),
+    }
+    for label, p_ in plants.items():
+        fn_, on = p_ if isinstance(p_, tuple) else (p_, "doc")
+        check(f"empty states self-test: {label} is planted and fails", planted(fn_, on))
+
+
 def main(path):
     root = pathlib.Path(path).resolve().parent
     doc = yaml.safe_load(open(path, encoding="utf-8"))
@@ -956,7 +1161,7 @@ def main(path):
     def walk(o):
         if isinstance(o, dict):
             for k, v in o.items():
-                if k not in ("oracle", "evaluation", "plans", "calibration_spikes", "owner_question_variants"): walk(v)
+                if k not in ("oracle", "evaluation", "plans", "calibration_spikes", "owner_question_variants", "empty_states"): walk(v)
         elif isinstance(o, list):
             for v in o: walk(v)
         elif isinstance(o, float):   # money records are written with cents (floats); counts and days are integers
@@ -972,6 +1177,7 @@ def main(path):
     homes(doc)
     homes_selftest(doc)
     factor_map(root, doc)
+    empty_states(root, doc)
     alignment(root)
     print(f"{passes} checks passed, {len(failures)} failed")
     for f in failures:
