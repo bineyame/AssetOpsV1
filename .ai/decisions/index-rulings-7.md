@@ -30,6 +30,11 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-2A.10` Canonical tests live in backend/tests so every merge's full tier runs them · live · specs/2a-canonical-format/rulings.md
 - `D-3C0A.11` Sign-in attempts: hashed key, no person on failure, purged after 30 days · live · specs/3C0a-operator-accounts/rulings.md
 - `D-BW1.7` Three lanes (owner item 3); P2 approved (item 2); the third lane opens with DS1b · live · specs/BW1-build-wave1/rulings.md
+- `D-BW1.8` Re-cut 2: deep-dive path first (31.5 units, day 11); steps 6, 9 and other screens move out; P5 alone on day 3 · live · specs/BW1-build-wave1/rulings.md
+- `D-BW1.9` 5c is the one deep-dive screen (vNEXT month line and Assure bridge); its 3B5 and 3A5 dependencies cut · live · specs/BW1-build-wave1/rulings.md
+- `D-BW1.10` 4b no longer needs 3A3; 5a no longer needs 4b · live · specs/BW1-build-wave1/rulings.md
+- `D-BW1.11` New units 3A6, ON1, 3A7, 4d, DDR; every HELD_NOT_CALCULATED leaf has a named slice · live · specs/BW1-build-wave1/rulings.md
+- `D-BW1.12` UI lane: IA-1 to its stop, then 5c, then IA-2 · live · specs/BW1-build-wave1/rulings.md
 - `D-DS1B.1` DS1b writes month cost lines and budget lines only · live · specs/DS1b-canonical-writers/rulings.md
 - `D-DS1B.2` world/leaves.py keeps its record-field set; D-2A.8 amended · live · specs/DS1b-canonical-writers/rulings.md
 - `D-DS1B.3` Zero liability writes no row; zero cost lines do · live · specs/DS1b-canonical-writers/rulings.md

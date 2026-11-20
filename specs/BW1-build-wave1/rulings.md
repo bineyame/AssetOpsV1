@@ -114,3 +114,50 @@ Architect (Claude), 2026-11-20. The owner, 20 Nov: "yes, start the non-screen bu
 - **Item 6** ("accept default": a driver with no target line reads as a labelled assumption) needs nothing in the
   build specs. `DS1b` writes budget lines only where the operator's plan record holds them (D-DS1B.4), and the leaves
   without one are what item 6 labels.
+
+## D-BW1.8 Re-cut 2: the deep-dive path first (owner, 20 Nov)
+
+- **Ruling.** Days 2 to 14 are re-ordered around the deep-dive path (`two-week-build-plan.md` §0.1): `3B3`, `3A2`,
+  `3A4`, `3A3`, `3A6`, `ON1`, `3A7`, `4b`, `5a`, `3B7a`, `5b`, `4d`, `5c`, `DDR`; 31.5 units, landing day 11 at the
+  planning pace and day 13 at the slip pace on four agents. Steps 6 and 9, `3B5`, `1b`, `DS2`, `3B7b`, `3C0b` and
+  IA-2c to IA-2e move to the next fortnight. Page P5 is asked of the owner alone on day 3; P6 to P9 move to the day-14
+  sitting. Applied by default until the owner answers RC1.
+- **Why.** The owner: re-cut "around the deep-dive path" (`owner/owner-recut-fortnight-deep-dive-2026-11-20.md`). On
+  the day-1 ordering step 5 was not complete by day 14, so no executive could see their own gap in money in the
+  fortnight. `DS3` is not on the path: real exports go through `3A2` (D-3A1 Q2).
+
+## D-BW1.9 `5c` is the one deep-dive screen
+
+- **Ruling.** `5c` shows the month's contribution against target, the gap by heading, the bridge factor by factor and
+  cash apart, citing vNEXT `#/portfolio` "the month in one line" and Assure's "Contribution's bridge by heading"
+  (`walkthroughs.md` §2, steps 1 to 3) in the hub shape after the IA-1 stop. It applies `3A5`'s label rule on its own
+  figures. Its dependencies on `3B5` and `3A5` are cut.
+- **Why.** The board and the labels on every other screen add no money to the deep-dive, and those screens are being
+  rebuilt by shape; building them now would be reviewed twice.
+
+## D-BW1.10 Two dependency cuts on the money chain
+
+- **Ruling.** `4b` depends on `3A4` and `3B3`, not `3A3`: its tests use `DS1b`'s canonical records as fixtures. `5a`
+  depends on `3A4`, `3B3`, `3C1a` and P5, not `4b`: targets are declared on `2a`'s leaf IDs and read from stored
+  budget lines.
+- **Why.** Neither slice reads what the cut slice builds. The cuts shorten the critical chain by about two days.
+
+## D-BW1.11 Five new units; the HELD_NOT_CALCULATED sweep
+
+- **Ruling.** New: `3A6` (source profiles as data, pinned against the operator's sample, admitted by the contract test;
+  2.5), `ON1` (deep-dive tenant from one onboarding file; 1.5), `3A7` (a closed month reconciled against management
+  accounts before money reads *Recorded*; 1.5), `4d` (monthly litre split; 3), `DDR` (end-to-end rehearsal, including
+  an export of an unseen shape through a new profile with no code change; 1).
+- **Why.** Without `3A6` an operator's own export cannot be read without hand reshaping. Without `ON1` there is no
+  tenant for it. Without `3A7` the screen could show their money as recorded while it disagrees with their accounts
+  (integration design §7.2's pilot validation gate). Without `DDR` the path is not proven end to end.
+- **Class (W6).** Every leaf `3B3` lists as HELD_NOT_CALCULATED needs a named slice. The sweep: `delivered_kwh` is `4a`;
+  `necessary_l`, `candidate_l` and `unexplained_l` had none and are `4d`; `dawn_days_below` is `6b`;
+  `reduced_days`, `hours_per_day`, `customer_hours_interrupted` and `field_visits` had none and are `OPS2` and `OPSR`
+  (queued). Default until the owner says otherwise.
+
+## D-BW1.12 The UI lane after the IA-1 stop
+
+- **Ruling.** IA-1 finishes to its owner stop (day 5). The UI lane then builds `5c`, and IA-2 resumes on day 11.
+- **Why.** The shape rebuild changes the mock-up, not the live product; no operator's own data reaches a screen through
+  it. `5c` is the screen that converts, and it cites the hub shape, so it follows the stop and comes before IA-2.
