@@ -192,6 +192,29 @@ class MemoryStore:
             self.grants.append(row)
             return row
 
+    # ON1 (spec §3.3): the onboarding grant, mirroring the adapter's order under the tenant lock.
+    def person_grant_exists(self, tenant_id: UUID) -> bool:
+        return any(g.tenant_id == tenant_id and g.by_person_id is not None for g in self.grants)
+
+    def executive_of(self, tenant_id: UUID) -> UUID | None:
+        return next((g.person_id for g in sorted(self._held(tenant_id), key=lambda g: (g.at, str(g.row_id)))
+                     if g.role == EXEC), None)
+
+    def add_onboarding_grant(self, row: GrantRow) -> GrantRow:
+        with self._tenant_lock:
+            if self.person_grant_exists(row.tenant_id):
+                raise StoreConflict("ONBOARDING_CLOSED")
+            held = {g.role for g in self.held_grants(row.tenant_id, row.person_id)}
+            if (row.role == "ANALYST" and held & {"FINANCE_AND_COMMERCIAL_LEAD", EXEC}) or (
+                    row.role == "FINANCE_AND_COMMERCIAL_LEAD" and "ANALYST" in held):
+                raise StoreConflict("ROLES_SEPARATE")
+            if any(g.person_id == row.person_id and g.role == row.role and g.site_id == row.site_id
+                   for g in self._held(row.tenant_id)):
+                raise StoreConflict("ROLE_ALREADY_HELD")
+            row = replace(row, site_code=self._site_code(row.site_id))
+            self.grants.append(row)
+            return row
+
     def create_account(self, account: Account, password_hash: str, created_at: datetime, by: str,
                        executive_grant: GrantRow | None) -> None:
         with self._tenant_lock:

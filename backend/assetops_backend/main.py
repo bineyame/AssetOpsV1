@@ -135,9 +135,11 @@ from assetops_backend.analytics_api import build_analytics_router
 from assetops_backend.analytics.stored_declaration import stored_site_declaration
 from assetops_backend.config import (
     DEVELOPMENT_TENANT_SLUG,
+    ConfigurationError,
     FeatureFlags,
     database_url,
     load_feature_flags,
+    served_tenant_slug,
 )
 from assetops_backend.evidence.composition import (
     health_registration,
@@ -344,6 +346,10 @@ def create_app(
     """
     # 3A2 (D-3A2.6, RC4): the real-data switch and the operator database agree, or the app refuses to start.
     upload_settings = commercial_upload_settings(database_url())
+    # ON1 (spec §3.4; D-ON1.5): the served tenant; an operator database serves its operator's tenant, never the demo.
+    served = served_tenant_slug()
+    if upload_settings.real_data and served == DEVELOPMENT_TENANT_SLUG:
+        raise ConfigurationError("An operator database serves its operator's tenant: set ASSETOPS_TENANT_SLUG to it.")
     resolved_flags = load_feature_flags() if flags is None else flags
     install_handle_error_hook()  # INFRA-1 (D-E5.47): the backstop that marks a connection failure mid-compose
     from assetops_backend.structure.check import check_at_start  # 3B1 (D-3B1.9): a broken structure refuses to start
@@ -372,7 +378,7 @@ def create_app(
         if foundation_store is None
         else FoundationService(
             foundation_store,
-            DEVELOPMENT_TENANT_SLUG,
+            served,
             utc_now if foundation_clock is None else foundation_clock,
         )
     )
@@ -386,6 +392,7 @@ def create_app(
     # Every legacy file-backed surface below sees imported codes refused.
     repository = LegacySiteGate(legacy_repository, registry)
     app.state.legacy_site_gate = repository
+    app.state.site_registry = registry  # ON1 (R11): the served tenant, read through `served_tenant_slug`
     app.include_router(build_sites_router(product_sites))
     app.include_router(build_foundation_router(registry, legacy_repository))
 

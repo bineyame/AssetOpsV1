@@ -26,7 +26,7 @@ from assetops_backend.accounts.store import AccountStore, StoreConflict
 #: The HTTP status each store refusal answers with.
 _CONFLICT_STATUS = {"ROLE_ALREADY_HELD": 409, "GRANT_ALREADY_REMOVED": 409, "LAST_EXECUTIVE": 409,
                     "EMAIL_TAKEN": 409, "EXECUTIVE_EXISTS": 409, "ROLE_REQUIRED": 403,
-                    "ACCOUNTS_STORE_REFUSED": 422}
+                    "ACCOUNTS_STORE_REFUSED": 422, "ONBOARDING_CLOSED": 409, "ROLES_SEPARATE": 409}
 STATUSES = ("ACTIVE", "DISABLED")
 
 
@@ -202,6 +202,45 @@ class AccountService:
         except StoreConflict as conflict:
             raise _conflict(conflict) from None
         return account.id
+
+    def onboard_grant(self, tenant_slug: str, email: str, role: str, site_code: str | None) -> GrantRow:
+        """ON1 (spec §3.3; D-ON1.15): one role from an emulated onboarding file, by `service:onboarding`. The
+        executive's role comes only with their account (`onboard_create(..., executive=True)`)."""
+        tenant = self._store.tenant_by_slug(tenant_slug)
+        if tenant is None:
+            raise AccountRefused("TENANT_NOT_FOUND", 404)
+        account = self._onboard_account(email)
+        if account.tenant_id != tenant[0]:
+            raise AccountRefused("PERSON_NOT_FOUND", 404)
+        if role not in ROLES:
+            raise AccountRefused("ROLE_UNKNOWN", 422)
+        if role == EXECUTIVE:
+            raise AccountRefused("ONBOARD_EXECUTIVE_GRANT", 422)
+        if (role == SITE_ROLE) != (site_code is not None):
+            raise AccountRefused("ROLE_SITE_RULE", 422)
+        site_id = None
+        if site_code is not None:
+            site_id = self._store.site_id(tenant[0], site_code)
+            if site_id is None:
+                raise AccountRefused("SITE_NOT_FOUND", 404)
+        row_id = uuid4()
+        row = GrantRow(row_id, row_id, tenant[0], account.id, account.display_name, role, site_id, site_code,
+                       "GRANTED", None, None, ONBOARDING, self._clock())
+        try:
+            return self._store.add_onboarding_grant(row)
+        except StoreConflict as conflict:
+            raise _conflict(conflict, name=account.display_name) from None
+
+    def onboarding_may_grant(self, tenant_slug: str) -> bool:
+        """ON1 (D-ON1.15): onboarding grants are possible until a person has granted a role; an absent tenant is
+        open."""
+        tenant = self._store.tenant_by_slug(tenant_slug)
+        return tenant is None or not self._store.person_grant_exists(tenant[0])
+
+    def executive_of(self, tenant_slug: str) -> UUID | None:
+        """ON1 (R10): the person holding OPERATOR_EXECUTIVE now, or None (also for an absent tenant)."""
+        tenant = self._store.tenant_by_slug(tenant_slug)
+        return None if tenant is None else self._store.executive_of(tenant[0])
 
     def _onboard_account(self, email: str) -> Account:
         try:

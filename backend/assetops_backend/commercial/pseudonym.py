@@ -127,6 +127,10 @@ class PseudonymKeyMissing(Exception):
     """No key file for the tenant: the organisation is not set up to receive exports."""
 
 
+class PseudonymKeyErased(Exception):
+    """ON1 (D-ON1.7): the tenant's key was erased (a tombstone stands); its exports are no longer received."""
+
+
 class PseudonymKeyUnusable(Exception):
     """The key file is a symlink, not exactly 32 bytes, or readable by group or others."""
 

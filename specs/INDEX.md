@@ -22,7 +22,7 @@ finished work are in `archive/agent-history/`.
 | mockup-vnext-professional | Mock-up pass | superseded | `mockup-vnext-professional/packet.md` | small |
 | 3C1 | Person on commands (3C1a, 3C1b) | rev 2; 3C1a merged | `3C1-person-on-commands/spec.md` | 15 KB |
 | RC4-F1 | The database a URL really connects to: one resolver for every RC4 decision (0.5 unit; merges before 3A3) | in_review — spec rev 1, packet | `RC4-F1-database-name/spec.md` | 11 KB |
-| ON1 | Operator tenant from one onboarding file; emulated roles granted automatically, real files refused until ON1b; served tenant; key erasure; runbook (2.0 units) | live — spec rev 3 (re-scope), handshake answered | `ON1-operator-tenant/spec.md` | 40 KB |
+| ON1 | Operator tenant from one onboarding file; emulated roles granted automatically, real files refused until ON1b; served tenant; key erasure; runbook (2.0 units) | in_review — built on `task/ON1-operator-tenant`; mid-build Q1, Q2 open | `ON1-operator-tenant/spec.md` | 40 KB |
 | 3B2 | Findings pinned to factors | live — spec | `3B2-findings-pinned/spec.md` | — |
 | IA-1 | Menu, page organization, shape rebuild | rev 3; IA-1a merged; IA-1b/IA-1c handshake answered (D-IA.21-30), IA-1b next | `IA-1-shape-rebuild/spec.md` | 45 KB |
 | 5a | Targets per factor, declarer recorded; page P5 | rev 2; unit 1 merged; units 2-3 in review | `5a-targets/spec.md` | 24 KB |

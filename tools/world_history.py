@@ -114,7 +114,8 @@ def _exports(manifest: Path, out: Path) -> int:
     return 0
 
 
-def main(argv: list[str]) -> int:
+def build_parser() -> argparse.ArgumentParser:
+    """ON1 (spec §4): public, so the runbook test parses its command line."""
     parser = argparse.ArgumentParser(prog="world_history.py", description="DS1 world history generator")
     commands = parser.add_subparsers(dest="command", required=True)
     for name in ("view", "generate"):
@@ -130,7 +131,11 @@ def main(argv: list[str]) -> int:
     check = commands.add_parser("check")
     check.add_argument("--manifest", required=True, type=Path)
     check.add_argument("--history", required=True, type=Path)
-    args = parser.parse_args(argv)
+    return parser
+
+
+def main(argv: list[str]) -> int:
+    args = build_parser().parse_args(argv)
     if args.command == "records":
         return _records(args.manifest, args.out)
     if args.command == "exports":

@@ -1,6 +1,6 @@
 # ON1: an operator's tenant from one onboarding file (implementer spec)
 
-Status: **rev 3** (re-scope, D-ON1.15, D-ON1.16), on rev 2's handshake answers (D-ON1.9 to D-ON1.14). The owner
+Status: **in_review** (built on `task/ON1-operator-tenant`, packet `packet.md`). Spec **rev 3.1** (r1 answers D-ON1.17 to D-ON1.20 on rev 3's re-scope, D-ON1.15, D-ON1.16), on rev 2's handshake answers (D-ON1.9 to D-ON1.14). The owner
 chose option A (`owner/owner-on1-roles-executive-approves-2026-11-20.md`: "A, executive approves roles at first
 sign-in"), then allowed it to wait (`owner/owner-on1-approval-can-wait-2026-11-20.md`: "the approval step can wait if
 autoamtic approval for the demo saves us time"). Rev 3: **an emulated file's roles are granted automatically** at
@@ -95,8 +95,13 @@ is refused; duplicate keys are refused):
 
 Rules, each refusal `OnboardRefused(code, where)` (`where` a JSON path such as `sites[2].code`, never a value; no
 other field):
-- `format` exactly as above (`ONBOARD_FORMAT`); JSON that does not parse, is not an object, or is over size
-  (`ONBOARD_FILE`).
+- JSON that does not parse, is not an object, or is over size (`ONBOARD_FILE`). Then `format` is read **before any
+  other key**: absent, or not exactly as above, is `ONBOARD_FORMAT` `format` (D-ON1.18).
+- **Structure** (D-ON1.18): an unknown or missing key, a container (object or list) of the wrong JSON type, or a list
+  outside its bounds (`sites` and `people` 1 to 50, `roles` 1 to 5) is `ONBOARD_STRUCTURE`, `where` the path of the
+  object or list concerned (`sites[0]`, `people[2].roles`, `sites[1].components`; none for the top-level object). A
+  Site field of the wrong type inside a well-formed Site entry stays `ONBOARD_SITE_INVALID`; a scalar field's wrong
+  type stays that field's code (`ONBOARD_NAME`, `ONBOARD_EMAIL`, ...).
 - `data` is `emulated` or `real` (`ONBOARD_DATA`).
 - `operator.slug` fullmatches `[a-z0-9][a-z0-9-]{0,62}` and is not `demo` (`ONBOARD_SLUG`); `name` 1 to 120 characters
   after `strip()`, equal to its stripped form (`ONBOARD_NAME`); `vertical` exactly `MINI_GRID` (`ONBOARD_VERTICAL`,
@@ -152,7 +157,7 @@ command's `commercial_upload_settings`, through RC4-F1, is the one decider; R14.
    or `None`; `None` too when the tenant is absent). When `current` is not `None`, the file's executive must be that
    person (`keep` with that `person_id`), else `ONBOARD_EXECUTIVE_DIFFERS people[i]`.
 7. Roles, each non-executive (person, role, site): held now (`onboard_person.roles`, the Site ID resolved through
-   `find_site`) is `keep`, else `grant`. Any `grant` while `accounts.onboarding_open(f.slug)` is false is
+   `find_site`) is `keep`, else `grant`. Any `grant` while `accounts.onboarding_may_grant(f.slug)` is false is
    `ONBOARDING_CLOSED people[i]` (D-ON1.15: once a person has granted a role, only people grant).
 
 `apply` checks `confirmed_digest == roles_digest(f)` first (`ONBOARD_DIGEST_DIFFERS`, exit 2), runs `check`, then in
@@ -196,7 +201,7 @@ Site later does not change the others.
   class); `ROLE_ALREADY_HELD` by the existing `_HELD_SAME` read; then the existing `_INSERT_GRANT`. Returns
   `grant_row(...)` as `add_grant` does. The in-memory store (`MemoryStore` in the 3C0a tests) mirrors it in the same
   order.
-- `AccountService.onboarding_open(tenant_slug) -> bool` (store `person_grant_exists(tenant_id) -> bool`, the same
+- `AccountService.onboarding_may_grant(tenant_slug) -> bool` (store `person_grant_exists(tenant_id) -> bool`, the same
   read outside a lock; an absent tenant is open); `AccountService.executive_of(tenant_slug) -> UUID | None` (store
   `executive_of(tenant_id)`: the person of a held `OPERATOR_EXECUTIVE` grant, by the rule `held_grants` uses; an
   absent tenant is `None`).
@@ -254,7 +259,7 @@ Site later does not change the others.
 | `backend/assetops_backend/onboard_operator.py` | the command (§5), `build_parser()`, `main(argv, *, onboarding=None)` |
 | `backend/assetops_backend/sites/foundation_records.py`, `adapters/postgres_foundation_store.py` | `FoundationStore.tenant_slugs() -> tuple[str, ...]` (`SELECT slug FROM tenant ORDER BY slug`) |
 | `backend/assetops_backend/sites/foundation_service.py`, `sites/cutover.py` | `tenant_slug` and `served_tenant_slug` properties (§3.4) |
-| `backend/assetops_backend/accounts/service.py`, `store.py`, `adapters/postgres_account_store.py` | `onboard_grant`, `onboarding_open`, `executive_of`; store `add_onboarding_grant`, `person_grant_exists`, `executive_of` (§3.3). `model.py` and `accounts_api.py` unchanged |
+| `backend/assetops_backend/accounts/service.py`, `store.py`, `adapters/postgres_account_store.py` | `onboard_grant`, `onboarding_may_grant`, `executive_of`; store `add_onboarding_grant`, `person_grant_exists`, `executive_of` (§3.3). `model.py` and `accounts_api.py` unchanged |
 | `backend/assetops_backend/accounts/onboard.py` | `_parser` renamed `build_parser` (public); behaviour unchanged |
 | `backend/assetops_backend/config.py`, `main.py` | §3.4 |
 | `backend/assetops_backend/commercial/pseudonym.py`, `adapters/file_key_store.py`, `composition.py`, `pseudonym_key.py`, `uploads.py` | §3.5 |
@@ -281,6 +286,7 @@ from `build_foundation_store(url)`, `build_account_service(url)`, `FileKeyFiles(
 |---|---|
 | `ONBOARD_FILE` | The onboarding file cannot be read as JSON. |
 | `ONBOARD_FORMAT` | This is not an onboarding file of version 1. |
+| `ONBOARD_STRUCTURE` | This part of the file has a missing or unknown field, a field of the wrong kind, or too many or too few entries. |
 | `ONBOARD_DATA` | "data" must be "emulated" or "real". |
 | `ONBOARD_SLUG` | The operator code must be lower-case letters, digits and hyphens, and not "demo". |
 | `ONBOARD_NAME` | A name must be 1 to 120 characters with no surrounding spaces. |
@@ -376,6 +382,10 @@ gains `tenant_slugs`, the one edit to `foundation_fakes.py`) and a `MemoryStore`
    then refuses.
 2. `FileKeyStore.key` raises `PseudonymKeyErased` with a tombstone, also when a key file is still present, when the
    tombstone is a symlink, a dangling symlink, or a file of mode 000 (the test skips the mode case when run as root).
+   **Fail closed** (D-ON1.20): `os.lstat` monkeypatched to raise `PermissionError` for the tombstone path only (every
+   other path calls the real `os.lstat`): `key()` raises `PseudonymKeyErased`, `create_key_file` raises `KeyErased`
+   and writes nothing, `key_state` is `ERASED`. (Mode 000 does not reach this branch: `lstat` needs no permission on
+   the file itself.)
 3. 3A2 path: an upload `check` with an erased key is 409 `PSEUDONYM_KEY_ERASED` with its words; with the key missing
    it is still 409 `PSEUDONYM_KEY_MISSING`.
 4. `key_state` gives MISSING, PRESENT, ERASED, and ERASED for the dangling-symlink and mode-000 tombstones;
@@ -396,7 +406,7 @@ gains `tenant_slugs`, the one edit to `foundation_fakes.py`) and a `MemoryStore`
    at module level (no import). The ordered list of (program, sub-command) pairs must equal exactly:
    `onboard_operator digest`, `onboard_operator check`, `onboard_operator apply`, `accounts.onboard set-password`,
    `world_history exports`, `load_emulated_exports`, `commercial.pseudonym_key erase` (7 lines; a missing or extra
-   line fails). Rev 3's runbook holds the rehearsal and erasure only; `ON1b` adds the real-operator lines back. The runbook equals `runbook.md` from
+   line fails). Rev 3's runbook holds the rehearsal and erasure only; `ON1b` adds the real-operator lines back. Rev 3.1 splits step 4 into four blocks (D-ON1.19); the list, its order and the variable table are unchanged. The runbook equals `runbook.md` from
    its first heading.
 4. Demo pin: `Demo.env()` (built as `backend/tests/test_demo_combined_links.py` builds its `Demo`) with
    `ASSETOPS_TENANT_SLUG=lakeside-power`, `ASSETOPS_REAL_OPERATOR_DATA=on` and `ASSETOPS_PSEUDONYM_KEY_DIR=/k` in the
@@ -456,7 +466,7 @@ Packet: `specs/ON1-operator-tenant/packet.md`.
 | Unit | Content | Commit |
 |---|---|---|
 | 0.5 | `operator_file.py` (with `roles_digest`, separation), the fixture, file tests | 1 |
-| 1.0 | `service.py` (with step 3a), `onboard_operator.py` (`digest`, `check`, `apply`), `tenant_slugs`, `onboard_grant`, `add_onboarding_grant`, `onboarding_open`, `executive_of`, `served_tenant_slug`, accessors and `create_app`; service 1 to 10, settings 1, 2; Postgres 1 to 4; 3C0a regression | 2 |
+| 1.0 | `service.py` (with step 3a), `onboard_operator.py` (`digest`, `check`, `apply`), `tenant_slugs`, `onboard_grant`, `add_onboarding_grant`, `onboarding_may_grant`, `executive_of`, `served_tenant_slug`, accessors and `create_app`; service 1 to 10, settings 1, 2; Postgres 1 to 4; 3C0a regression | 2 |
 | 0.5 | Tombstone, `erase`, `key_state`, `directory_ok`, `PSEUDONYM_KEY_ERASED`; the demo pin; `world_history.build_parser`; key tests; the runbook copy and settings 3, 4; plants; check-all; packet | 3 |
 
 Rev 2 was 2.5 units in four commits; the 0.5 saved is rev 2's commit 3 (migration 0066, proposals, approval at

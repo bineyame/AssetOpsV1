@@ -1,7 +1,7 @@
 # ON1 rulings
 
 Architect (Claude), 2026-11-20. D-ON1.1 to D-ON1.8 are applied by `spec.md` rev 1; rev 2 applies D-ON1.9 to
-D-ON1.14 and the handshake answers below; rev 3 applies D-ON1.15 and D-ON1.16 (the re-scope). **D-ON1.3 is
+D-ON1.14 and the handshake answers below; rev 3 applies D-ON1.15 and D-ON1.16 (the re-scope); rev 3.1 applies D-ON1.17 to D-ON1.20 (r1 answers). **D-ON1.3 is
 superseded by D-ON1.9** (owner, 2026-11-20); **D-ON1.9 is deferred to the queued unit `ON1b`** for real data and
 replaced on emulated data by D-ON1.15 (owner, 2026-11-20). D-ON1.7 settles the 3A2 review's residual
 "a recreated key changes every pseudonym" (`specs/3A2-commercial-file-intake/review.md`, "Residual risk").
@@ -279,3 +279,63 @@ answered D-ON1.9 during this round (A); no question is open.
   (OD-14 seam). Spec: written from rev 2's text when queued work is pulled; no new design is needed.
 - **Why.** The owner's answer A stands as the rule for real data; only its timing moves. Keeping the design whole in
   rev 2's text makes the deferral cheap to undo.
+
+## Mid-build and review answers (r1)
+
+Architect (Claude), 2026-11-20, on `mid-build-questions.md` Q1 and Q2 and `.agent/review-ON1-r1.md` F1 to F4 (head
+`837af9aaf`). Applied by spec rev 3.1 and `runbook.md` rev 3.1. No owner input needed: all four are within the spec.
+The fix round (Sonnet) changes code and tests as below, recopies the runbook, and reruns the ON1 files and check-all.
+
+## D-ON1.17 The method is `onboarding_may_grant` (Q2, F1)
+
+- **Ruling.** `AccountService.onboarding_open` is renamed **`AccountService.onboarding_may_grant(tenant_slug) ->
+  bool`**, same meaning (true while no person-made grant exists; an absent tenant is true). Store
+  `person_grant_exists` unchanged. Five references: `accounts/service.py`, `onboarding/service.py`, the service and
+  Postgres tests, spec §3.1, §3.3, §4, §9. `tools/checks/configuration-persistence.ps1` is **not** edited.
+- **Why.** The guard's `open\(` is unanchored and appears twice (lines 318 and 412), so any name **ending in `open`**
+  fails it, including the suggested `onboarding_grants_open`. A name with no `open` in it passes without touching the
+  guard. "May grant" says what the caller asks. Class: an identifier ending in `open`, `write_text`, `mkdir`, `touch`,
+  `unlink` or `rmdir` directly before `(` in a configuration package trips the guard; name methods by their question.
+  The lookbehind narrowing is guard hygiene on its own merits and is not queued now (not demo-critical).
+
+## D-ON1.18 A structural refusal is `ONBOARD_STRUCTURE`; `format` is read first (Q1, F4)
+
+- **Ruling.** New code **`ONBOARD_STRUCTURE`**: "This part of the file has a missing or unknown field, a field of the
+  wrong kind, or too many or too few entries." It covers an unknown or missing key, a container (object or list) of
+  the wrong JSON type, and a list outside its bounds, at every level, `where` the path of that object or list (none
+  for the top-level object). `ONBOARD_FORMAT` keeps its sentence and means only "not version 1": after `ONBOARD_FILE`,
+  the parser reads `format` before checking the top-level keys, so an absent `format` or another value is
+  `ONBOARD_FORMAT format`, and only then does `_strict(doc, _TOP, None)` run. Code: `_strict`, `_list` and the
+  `components` check raise `ONBOARD_STRUCTURE`; the module docstring states this ruling. Unchanged: a Site field of
+  the wrong type is `ONBOARD_SITE_INVALID`; a scalar's wrong type is its field's code. File tests: each structural case
+  asserts `ONBOARD_STRUCTURE` and its `where`; one case with `format` absent and an extra top-level key asserts
+  `ONBOARD_FORMAT format`.
+- **Why.** The reviewer's reason holds: for `people[2].roles` with six entries the file *is* version 1, so "not an
+  onboarding file of version 1" tells the analyst something false (RULES §10, plain and honest words). Reading
+  `format` first keeps that sentence true for a future version's file, whose keys will differ. One code, one row.
+
+## D-ON1.19 Runbook step 4 is four blocks; the test's command list is unchanged (F3)
+
+- **Ruling.** Step 4 becomes: (a) `FILE=...` and `digest`, at top level (it needs no settings); prose sets `DIGEST`
+  from the printed value; (b) `check` in its own subshell, with "the roles digest must equal `DIGEST`"; (c) `apply` in
+  its own subshell; (d) a per-person block, `EMAIL=amina@...` then `set-password` in a subshell, with prose to rerun
+  it for Wanjiru and Joseph. Text in `runbook.md` rev 3.1; the build recopies it verbatim to
+  `Docs/engineering/operator-deep-dive-runbook.md`.
+- **Test.** Settings 3's ordered list is **unchanged**: the same 7 (program, sub-command) pairs in the same order,
+  each once (the per-person block holds one `set-password` line). No new variable (`DIGEST`, `EMAIL` are declared).
+  The digest line sits at depth 0, which is allowed (only `export` at depth 0 fails). Only the copy changes, and the
+  test's equality with `runbook.md` follows.
+- **Why.** The old block ran `apply` before a person could set `DIGEST` (it failed safe, `ONBOARD_DIGEST_DIFFERS`)
+  and ran `set-password` once for three people. A parser cannot see order-of-reading defects; the class is "a block
+  that needs a value printed inside it", fixed by ending a block wherever a person must read and act.
+
+## D-ON1.20 The fail-closed branch of `_tombstoned` gets its own test (F2, confirmed)
+
+- **Ruling.** Confirmed. Keys test 2 gains a case: `os.lstat` monkeypatched to raise `PermissionError` for the
+  tombstone path only (other paths call the real `os.lstat`); `FileKeyStore.key` raises `PseudonymKeyErased`,
+  `create_key_file` raises `KeyErased` and writes no file, `key_state` is `ERASED`. The mode-000 cases stay (they
+  prove a tombstone of any mode counts), but they are not this branch's proof.
+- **Why.** D-ON1.14 says any `OSError` other than `FileNotFoundError` means erased; the reviewer's plant A (fail
+  open) survived all 86 tests, so the rule was unproved. Spec-template note: a planted condition must be checked to
+  reach the branch it claims (`lstat` needs no permission on the file itself).
+
