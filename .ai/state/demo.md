@@ -233,6 +233,10 @@ Branch `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, from m
 - New: `iaDecIds`, `iaWaiting`, `iaLargestAdverse`, `iaOutcomeTable` (pure, synthetic check), `IA_G1_SURFACES`; addresses
   stay in the operator (D-IA.28); aliases `portfolio/outcomes-by-site`, `mini`/`cold`/`ev` live.
 - Gates: G1 measured (plan 1, Site Overviews 2, largest-driver drawers 3 or n/a); `count_check`,
-  `outcomes_table_check`; shape_check items 6-9; 34 runs in `ia_gates.cjs`.
+  `outcomes_table_check`; shape_check items 6-9; 42 runs in `ia_gates.cjs`.
+- Fix round (r1, D-IA.31 to D-IA.35): the drawer trap reads `uxTabbable` (what Tab reaches); G1 counts a closed
+  `<details>` as a click (`<owner>#details=<k>` nodes) and the hub Site Overview opens "What is driving the gap" (R752);
+  capped queues (`iaQueueCap`, `iaCapMore`) keep every waiting decision and say "And N more" (R749, R751); one scope
+  filter (`iaOutcomeScope`), foreign scopes read as all; `table.ux-stack` stacks Outcomes at 390; checks on live routes.
 - Open: decision links render as text until IA-1c; the Overview is not filtered by the scope switch (only Outcomes is);
-  "View all", the row grammar and the Site tabs wait for IA-2.
+  "View all", the row grammar and the Site tabs wait for IA-2; the other wide tables take `ux-stack` in IA-2b.

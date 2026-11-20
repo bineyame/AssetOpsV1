@@ -99,6 +99,7 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
     await p.context().close(); }
   // D-IA.31 sweep: every visible drawer opener of the hub, one per drawer id, the same walk, then Escape returns focus to the opener
   for (const op of ['lakeside', 'harvest', 'metro']) { const first = await (async () => { const q = await page('portfolio', { op }); const k = await q.evaluate(op => OPS[op].sites[0], op); await q.context().close(); return k; })();
+    let total = 0;
     for (const r of ['portfolio', 'portfolio/outcomes', 'portfolio/demand-and-capacity', `site/${first}`]) { const p = await page(r, { op });
       const ids = await p.evaluate(() => { const seen = new Set(), out = []; document.querySelectorAll('#app [data-ux-drawer]').forEach(e => { const id = e.dataset.uxDrawer; if (seen.has(id) || !e.getClientRects().length || e.closest('details:not([open]) > :not(summary)')) return; seen.add(id); e.setAttribute('data-gx-sweep', out.length); out.push(id); }); return out; });
       let leak = null;
@@ -106,7 +107,8 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
         const w = await walk(p, `#${ids[i]}`); if (w) { leak = `${ids[i]}: ${w}`; break; }
         await p.keyboard.press('Escape'); await p.waitForTimeout(200);
         const back = await p.evaluate(sel => document.activeElement === document.querySelector(sel), sel); if (!back) leak = `${ids[i]}: Escape did not return focus to its opener`; }
-      ok(ids.length > 0 && !leak, `drawer trap sweep: ${op} #/${r}: ${ids.length} drawers${leak ? `; first leak ${leak}` : ' hold'}`); await p.context().close(); } }
+      total += ids.length; ok(!leak, `drawer trap sweep: ${op} #/${r}: ${ids.length} drawer${ids.length === 1 ? '' : 's'}${leak ? `; first leak ${leak}` : ' hold'}`); await p.context().close(); }
+    ok(total > 0, `drawer trap sweep: ${op}: ${total} drawers measured across the four routes (a sweep that finds none proves nothing)`); }
   // D-IA.31 the class: the last link unlinked and a closed disclosure last; the walk stays inside, and Shift+Tab from Close lands on that summary
   { const p = await page('portfolio'); const u = await unlinkedLast(p); ok(!u.leak && u.onSummary, `drawer trap unlinked last: ${u.leak || (u.onSummary ? 'the walk holds and Shift+Tab from Close lands on the last summary' : 'Shift+Tab from Close does not land on the last summary')}`); await p.context().close(); }
   { const p = await page('portfolio');

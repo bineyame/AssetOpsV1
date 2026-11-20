@@ -63,3 +63,55 @@ Seen: layout identical; Site pages are about 80 px shorter (top-3 queue); decisi
 5. Scope filters Outcomes only; the Overview is unchanged by it (spec silent). A Site page's scope label reads that Site.
 6. Portfolio and Site subtitles are the legacy screens' own; Outcomes and Demand & capacity have none.
 7. `#/mini|cold|ev` with no such group stays legacy (D-IA.28); the legacy page switches the operator.
+
+## Fix round r1 (D-IA.31 to D-IA.35; review `review-IA-1b.md`; commit `e1b222ee9` and this one)
+Merged `task/IA-1b-midbuild-answers` (rulings-2.md). Mid-build question Q1 is closed by D-IA.31. `index.html` rebuilt.
+Built: `uxTabbable` and the Tab branch (D-IA.31); `iaQueueCap`/`iaCapMore`, `uxOverviewParts(op, rank)`, `uxSiteParts` (D-IA.34);
+`uxSecA(open)` and `uxSiteParts(..., openFirst)` (D-IA.33); G1 reader `<owner>#details=<k>` (D-IA.32); `iaOutcomeScope`, scope
+parser, "No Site in this scope has a target" (D-IA.35 L4); `ux-stack` class on the options and Outcomes tables (L5); register
+R749 amended, R751, R752 (`.agent/mock-departure-register.md`).
+
+### Results (final head)
+- `ia_gates.cjs`: 42 runs, all as expected, 471 s (jsdom checks plus 27 plants).
+- uxi (heavy slot, 484 s): **384 PASS, 0 FAIL** (was 359/1). New: every Overview drawer on all three operators, each press asserted;
+  drawer trap sweep (lakeside 15, harvest 12, metro 10+ drawers across the four routes; Outcomes and Demand & capacity hold none,
+  the per-operator total proves the set non-empty); drawer trap unlinked last; EV board on `#/portfolio/demand-and-capacity`.
+- ia_shots 234 measured, 0 bad (184 s). G3 36 of 36. plan_switch 785/0. shell_check, design_lint, vocab, copy, hand_typed,
+  render_text: 0 findings, script errors 0. `check_manifest.py`: 7571 passed, 1 failed (H9 baseline 4502; fixed on main by
+  `d5af18b80`, not on this branch). `check-agent-workflow` passes; `check-architecture` fails here only on its environment
+  (no `.venv`/ASSETOPS_GUARD_PYTHON for the chain-structure guard; rule 8 vacuity text), as on a worktree without a venv.
+- Layout evidence: not run (needs a served URL; ports off limits). `ia_shots` measures.
+
+### New plants (each fails; first failing line)
+| plant | first failing line |
+|---|---|
+| UXI_PLANT=trap | `FAIL plant trap: drawer trap unlinked last: Tab press 3 left the drawer for button.` and `... overview drawer assure walk: Tab press 2 left the drawer for button.` (exit 1; 3 if either passed) |
+| G1_PLANT=details | `edge reader: missing page -> page#details=0` |
+| G1_PLANT=closed | `Lakeside Power · the plan: depth 2 > 1` |
+| G1_PLANT=siteclosed | `Lakeside Power · Kobo largest driver against target (Candidate running): depth 4 > 3` |
+| COUNT_PLANT=capsel | `Overview queue: waiting decision mto-losses is hidden by the cap` |
+| COUNT_PLANT=capmore | `Overview queue: 6 rows shown + 0 on the line = 6, the heading counts 8` |
+| COUNT_PLANT=adverse | `Outcomes: kobo column 5 reads "Generator needed −$38 ...", expected "Candidate running" and −$412` (demo Sites have two adverse drivers, so it bites) |
+| PS_PLANT=resid | `metro ruiru Site page: "What is driving the gap" says "+$20 not attributed yet" (No measured driver moved the result)` |
+| UXI_PLANT=evrev | `FAIL EV board: Metro ... has 0 Revenue row reading "charging is a cost centre" and "Not applicable"` |
+| UXI_PLANT=expiry | drill-down, drivers and queue-primary FAIL on all three operators that have them (8 FAIL lines) |
+| OUT_PLANT=headline | `live: the headline "3 of 3 Sites are below target in October" counts Sites outside the 1 rendered row(s)` |
+| OUT_PLANT=scope | now rewrites `iaOutcomeScope`: `C: 12 rows at group:cold, expected the 7 cold Sites` |
+| SHAPE_PLANT=foreignscope | `foreign scope: #/portfolio/outcomes?scope=group:cold renders 0 rows, expected 3` |
+| SHOTS_PLANT=stack | `lakeside #/portfolio/outcomes 390x844 light: ... stacked table does not fit: table wider than its container` (6 bad) |
+The jsdom plants are in `ia_gates.cjs`; trap, evrev, expiry, stack and resid are browser or heavy and were run by hand.
+
+### G1 before D-IA.33 (the new reader, `G1_PLANT=siteclosed`)
+Plan 1, every Site Overview 2, only the largest-driver surfaces moved (4, all Sites with a driver); nothing else past a limit.
+After D-IA.33: plan 1, Site Overviews 2, every driver surface 3 (Kobo, Kisiwa, Mto, Mwea, Thika, Kirinyaga, Embakasi).
+
+### Seen (own screenshots, scratchpad `own/`, 1440 and 390)
+Mto Site Overview: "What is driving the gap" open with its board, six sections closed, queue shows 3 rows and "And 1 more: 1 awaiting
+approval." Lakeside Overview: "And 2 more: 2 awaiting approval." Both read cleanly at 390. Note: at 390 the Overview's existing
+phone CSS shows 3 queue rows of 6 (R749 phone rule), so the line's count refers to the rows beyond the six, not beyond the three seen.
+
+### Known deviations (added)
+- D-IA.34's line says "And N more" against the cap (6 or 3); the phone's CSS cut to 3 rows on the Overview is IA-2b's list work.
+- D-IA.34's inbox opener on the line applies from IA-1c (coded behind `IA_LANDED.has('IA-1c')`, not exercised yet).
+- The sweep's Outcomes and Demand & capacity routes have no drawer openers; the sweep asserts the per-operator total instead.
+- Queued to IA-2b by D-IA.35 L5: the other wide data tables take `ux-stack`.
