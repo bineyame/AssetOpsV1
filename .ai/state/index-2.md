@@ -61,3 +61,4 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 147. `3B1` the structure registry, mini-grid · data.md
 148. `3A1` commercial record store (migration 0063, ingest service) · data.md
 149. `3C1a` the signed-in person on work and domain commands · work.md
+150. `3B3` the structure read and evaluator, mini-grid · data.md

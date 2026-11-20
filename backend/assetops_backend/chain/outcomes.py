@@ -83,6 +83,25 @@ def _dec(value: Any) -> Decimal | None:
     return None if value is None else Decimal(str(value))
 
 
+def month_sum(rows: Any, measure: str, lo: date, hi: date, key: str
+              ) -> tuple[Decimal | None, GradeCounts, tuple[date, ...]]:
+    """3B3 (P1): the sum of `value[key]` over the COMPLETE and PARTIAL days of `measure`'s authoritative rows in the
+    Site-local days `[lo, hi]`, and those days' `GradeCounts` (the one day rule). LOW days are counted in the grades
+    and never totalled; no counted day gives None. The third element is the counted days stating no `key` (D-3B3.17).
+    Extracted from `_month_reading`, which calls it with "kwh"."""
+    rows = tuple(r for r in rows if r.measure == measure and AUTHORITY.get(r.evidence_class, False)
+                 and lo <= r.local_day <= hi)
+    grades = day_grades(rows)
+    counted = {d for d, g in grades.items() if g in COUNTED}
+    stated = [r for r in rows if r.local_day in counted and r.grade in COUNTED and r.value
+              and r.value.get(key) is not None]
+    amounts = [Decimal(str(r.value[key])) for r in stated]
+    value = sum(amounts, Decimal(0)) if counted else None
+    # D-3B3.17: a counted day with no counted row stating `key` is unknown; the caller decides what that means.
+    unstated = tuple(sorted(counted - {r.local_day for r in stated}))
+    return value, counts(rows, lo, hi, [measure]), unstated
+
+
 class OutcomeEvaluator:
     def __init__(self, contributions: tuple[OutcomeContribution, ...] = CONTRIBUTIONS,
                  strategies: Registry = REGISTRY) -> None:
@@ -111,16 +130,12 @@ class OutcomeEvaluator:
         hi = inp.window[1]
         lo = hi.replace(day=1)
         rows = self._rows(inp, measure, lo, hi)
-        grades = day_grades(rows)
-        counted = {d for d, g in grades.items() if g in COUNTED}
-        kwh = [Decimal(str(r.value["kwh"])) for r in rows
-               if r.local_day in counted and r.grade in COUNTED and r.value and r.value.get("kwh") is not None]
-        value = sum(kwh, Decimal(0)) if counted else None
-        checked = sum(1 for g in grades.values() if g == COMPLETE)
+        value, days, _ = month_sum(rows, measure, lo, hi, "kwh")
+        checked = days.complete
         elapsed = (hi - lo).days + 1
         month_days = calendar.monthrange(hi.year, hi.month)[1]
         reading = Reading(value, elapsed == month_days and checked == month_days, None, checked, elapsed, month_days)
-        return reading, counts(rows, lo, hi, [measure]), (lo, hi)   # R4 M1: month to date is the judged span
+        return reading, days, (lo, hi)   # R4 M1: month to date is the judged span
 
     def _reading(self, inp: NodeInputs, o: ObjectiveFact
                  ) -> tuple[Reading | None, GradeCounts | None, tuple[date, date] | None]:

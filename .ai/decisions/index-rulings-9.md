@@ -41,3 +41,4 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-IA.18` G1 over content edges, per entry (clarifies D-IA.10) · live · specs/IA-1-shape-rebuild/rulings.md
 - `D-IA.19` Lab gate lands in IA-1a (amends D-IA.12) · live · specs/IA-1-shape-rebuild/rulings.md
 - `D-IA.20` Plan interim split, output byte-identical · live · specs/IA-1-shape-rebuild/rulings.md
+- `D-3B3.17` A counted day that does not state the summed value is unknown, not zero · live · specs/3B3-structure-read/rulings.md

@@ -29,7 +29,7 @@ __all__ = ["Appended", "AssumptionStoreUnavailable", "ConsequenceStoreUnavailabl
            "build_consequence_history_service", "build_consequence_read_service", "build_consequence_store", "build_recompute_worker",
            "build_cold_consequence_store", "build_cold_consequence_worker", "build_ev_consequence_store",
            "build_ev_consequence_worker", "build_trial_comparison_ports", "TrialComparisonPorts",
-           "build_productive_price_selection",
+           "build_productive_price_selection", "build_window_price_selection", "WindowPriceSelection",
            "CONSEQUENCE_UNAVAILABLE"]
 
 # Store failures the consequence read and the recompute worker report as typed unavailable.
@@ -171,3 +171,27 @@ def build_productive_price_selection(database_url: str | None,
                                              unit=unit_for(PRODUCTIVE_PRICE_KEY))
 
     return productive_price
+
+
+@dataclass(frozen=True)
+class WindowPriceSelection:
+    """3B3 (P2): the declared price of any assumption key over `[start, end)`, on one assumption store."""
+    select: Callable[[UUID, UUID, str, datetime, datetime, "datetime | None"], Any]
+    dispose: Callable[[], None]
+
+
+def build_window_price_selection(database_url: str | None) -> WindowPriceSelection:
+    """`select(tenant, site, key, start, end, known_at)`: `PriceSelection` from the assignments and revisions known at
+    `known_at` (`fuel_cost.select_window_price` with `key` and its stored unit); `dispose()` releases the one store."""
+    from assetops_backend.financials import fuel_cost
+    from assetops_backend.financials.assumptions import unit_for
+
+    prices = PostgresAssumptionStore(database_url)
+
+    def select(tenant_id: UUID, site_id: UUID, key: str, start: datetime, end: datetime,
+               known_at: datetime | None):
+        snap = prices.snapshot(tenant_id, site_id, key, known_at, 0, 1)
+        return fuel_cost.select_window_price(snap["timeline"], snap["cited"], start, end, key=key,
+                                             unit=unit_for(key))
+
+    return WindowPriceSelection(select, prices.dispose)
