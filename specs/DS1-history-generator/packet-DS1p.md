@@ -11,7 +11,15 @@ Not merged anywhere. `USER_REVIEW_REQUIRED: true` (spec header: new figures, see
 | `8375504a7` | Merge of `main`. Two append-only conflicts, in `.ai/decisions/2026-11.md` and `index-2026-11-1.md`: both entries kept in date order (uiux-guide, then l4-empty-states). The empty-states anchor was recomputed to `:152` (coordinator-approved). `check-decision-index.py`: OK. START_HERE, NOW and RULES merged with no conflict. |
 | `92a1c018b` | **Checks first (W2, R25c).** §5 `history:` block appended verbatim; `history.json`; `.gitattributes` (R24); `independent_model.compute_history()`; `check_manifest.history_checks()` H1-H11; `documents()` skips `history`. |
 | `3938f2294` | Evaluator: `observe_side`; `leaf_values`, `unreceived_leaves` and `missing_entry` (the per-side part of `missing_records()`); `load_history`; `evaluate_history`; `__main__` writes `res["history"]`; regenerated `derived-values.json`; MB3-MB5. |
-| (this) | Packet. |
+| `673525b87` | Packet. |
+| `e9e6ab8a5` | Merge of `main` (`56f974357`): rulings for MB3-MB5 and review round 1, spec H12/H13, the DS1a follow-up. No conflict. |
+| `2b00b837b` | **Fix round 1** (review `.agent/review-DS1p-r1.md`, M1 and L1-L2; MB5 amended):
+  - shared helpers `target_side_entries`, `field_assumption_entries` and `deferred_stage_entries`;
+  - history plan sides get RESIDUAL or ASSUMPTION; actual sides get the unreceived leaves, the field assumptions and the deferred stages; both sides get NOT_IN_HISTORY. Everything uses the `missing-records.json` shape;
+  - `compute_history` computes the same entries its own way;
+  - H4b, H12 and H13 added; H2's text follows MB3; the stale comment is fixed;
+  - MB6 opened. |
+| (this) | Packet update. |
 
 `git diff --stat 8375504a7..HEAD` lists only spec §3's DS1p files, plus `mid-build-questions.md` and this packet.
 
@@ -21,7 +29,8 @@ Not merged anywhere. `USER_REVIEW_REQUIRED: true` (spec header: new figures, see
 | --- | --- | --- | --- |
 | Base after merge, in place (`8375504a7`) | **4465 passed, 0 failed** | 114 / 0 | ok |
 | `92a1c018b` (checks only) | 4746 passed (281 history), **460 failed**: H2 54, H3 159, H4 138, H5 21, H6 85, H7 3 | – | – |
-| Head | **7153 passed (2688 history checks), 0 failed**; 7153 − 2688 = 4465 | 114 / 0 | ok |
+| `3938f2294` | 7153 passed (2688 history checks), 0 failed | 114 / 0 | ok |
+| Head (`2b00b837b`) | **7319 passed (2854 history checks), 0 failed**; 7319 − 2854 = 4465 | 114 / 0 | ok |
 
 H1, H8, H9, H10 and H11 already passed at `92a1c018b`, because their inputs were already correct. Each one was shown
 failing on a planted case instead (below).
@@ -43,6 +52,10 @@ The clean run has 0 failures. Each plant fails its own check:
 | H9 | 4464 checks passed before the history checks | `4464 … == 4465` |
 | H10 | `as_of` changed by one byte before `history:` | `before history: has the base SHA-256 (8d34644aaa12)` |
 | H11 | Mwea July occupancy 0.56 → 0.57, not regenerated | `view_digest 029c6978b65d == meta.view_digest caf1a5e6cac9` |
+| H4b | Ruiru July plan's RESIDUAL entry removed | `missing entries == independent (… only there [('plan', '{"leaves": ["kwh_2200_2400"]}' …` and `Ruiru's plan carries carried_as RESIDUAL` |
+| H12 | `NOT_IN_HISTORY` planted in `missing-records.json` (Kobo `usable_capacity`) | `missing-records.json causes are main causes only (bad ['NOT_IN_HISTORY'])` |
+| H13 | Embakasi August actual's tariff assumption dropped | `entries == October's same side less TARGET and conditions, plus NOT_IN_HISTORY (… only October [` |
+| H13 (MB6 off) | leaf lists keyed whole | 3 failures, Mto plan in July, August and September (`unmapped_kwh` is split only in October) |
 
 Evaluator refusals, each on one plant:
 
@@ -70,7 +83,8 @@ refactor, I regenerated both files and both were unchanged.
 - `history.json`: `9cb1b6bfecd6b1cec0d10974c037161e2e454f7dac3694791a584bfd173fd4c9`, equal to `golden.file_sha256`.
 - `view_digest`: `caf1a5e6…c819c7779`, also recomputed independently by H11.
 - `PY tools/world_history.py check --manifest … --history …` (main's tool, at this branch): exit 0.
-- Head `derived-values.json`: `3fcf7984…3ef541`.
+- Head `derived-values.json`: `f8cd54b7…16d732e3ac6`. The October part is still `bfe2cbc5…`, `missing-records.json`
+  is still `b8d3bcbc…`, and `history.json` is still `9cb1b6bf…`. Fix round 1 did not touch the manifest.
 
 ## Sample trend values (portfolio, Jul / Aug / Sep / Oct; October equals the October figures)
 
@@ -85,7 +99,13 @@ Story Sites:
 - Kirinyaga: 639.40 / 635.40 / 515.60 / 504.00.
 - Embakasi's cost rises 20285.76 / 21194.88 / 21499.20 / 22744.80 (peak creep).
 
-All 186 `missing` entries carry `NOT_IN_HISTORY`. Example: Thika's `not_observed` is `cooling_available_minutes`,
+History `missing` entries, by cause and `carried_as`:
+- NOT_IN_HISTORY with null: 186;
+- NOT_RECEIVED with ASSUMPTION: 15 (Kobo, Kisiwa, Mto and Embakasi plans; Embakasi actual tariff);
+- NOT_CALCULATED_YET with null: 9 (mini-grid `usable_capacity`);
+- NOT_RECEIVED with RESIDUAL: 3 (Ruiru plan, each month).
+
+Example: Thika's `not_observed` is `cooling_available_minutes`,
 `crate_days_without_excursion`, `days_backup_start_unproven` and `nights_without_backup_cover`.
 
 ## Done criteria
@@ -99,17 +119,18 @@ All 186 `missing` entries carry `NOT_IN_HISTORY`. Example: Thika's `not_observed
 | `load_history`, `evaluate_history`, refusals | the refusal plants above |
 | `missing` and `not_observed` (D-DS1.12, R7) | H4 passes; 186 `NOT_IN_HISTORY` entries |
 | `compute_history` shares no code with the evaluator (R12) | it uses only `independent_model`'s own `Model`, `_parse` and `Env` |
-| H1-H11, each failing on a plant | tables above |
+| H1-H13 and H4b, each failing on a plant | tables above |
+| History entries = October's same side less TARGET and conditions (M1, MB5) | H13 and H4b pass |
 | Simulated label (R8) | H7 passes; no `Recorded` in `history.json` or `derived["history"]` |
 | Tests | `PY -m pytest simulator/tests/world -q`: 90 passed in 3.07 s |
-| Fast check-all (heavy slot) | `All 37 guards passed`, 58 s wall, at `3938f2294` |
+| Fast check-all (heavy slot) | `All 37 guards passed`, 58 s wall, at `3938f2294`. Not rerun after fix round 1, which changed pack files only. |
 
-## Mid-build questions: 3 (MB3-MB5, DS1p; 5 in the folder)
+## Mid-build questions: 4 from DS1p (MB3-MB6; 6 in the folder)
 
-All three are in `mid-build-questions.md`. Each is built to its stated default, pending a ruling:
-- **MB3:** literal H2 fails on EV `kwh`, the rule base of `share` and `rest`. The exemption is limited to rule bases.
-- **MB4:** observation leaves are also dropped from `nodes`, so none reads 0.
-- **MB5:** (a) applies to both sides; (b) applies to the actual side only.
+- MB3, MB4 and MB5 are ruled; the build follows the rulings.
+- **MB6 is open, from the fix round.** H13 keys a target-side `leaves` subject by its kind, because the helper computes
+  the list from each month's records. Mto's October list has `unmapped_kwh` from the incident and history does not.
+  H4b compares the full list against the independent model.
 
 ## Not verified or not done
 
@@ -117,4 +138,3 @@ All three are in `mid-build-questions.md`. Each is built to its stated default, 
   list (R8 probe). The coordinator places them.
 - I ran `world_history.py check` from this worktree, which carries main's tool, and not from a separate DS1a worktree.
 - No full suites (policy). DS1m is not built.
-- `NOT_IN_HISTORY` still awaits the design Architect's confirmation (D-DS1.12).
