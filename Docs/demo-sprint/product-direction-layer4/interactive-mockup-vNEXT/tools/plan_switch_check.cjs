@@ -343,7 +343,9 @@ for (const op of ['lakeside', 'harvest', 'metro']) { const dom = boot(op, 'portf
   dom.window.close(); }
 for (const op of ['lakeside', 'harvest', 'metro']) { const dom = boot(op, 'portfolio'); ok(Array.isArray(dom.window.FIND_GAPS) && dom.window.FIND_GAPS.length === 0, `${op} overview: FIND_GAPS empty (${(dom.window.FIND_GAPS || ['no list']).join(', ')})`); dom.window.close(); }
 // the money residual column on "Outcomes by site" only where the data has a residuals row (Metro Bus: Ruiru's bill total); never Lakeside or Harvest
-for (const op of ['lakeside', 'harvest', 'metro']) { const dom = boot(op, 'portfolio/outcomes-by-site'), d = dom.window.document, tb = d.querySelector('[aria-label="Portfolio composition"] table') || d.querySelector('table'), hd = [...tb.querySelectorAll('thead th')].map(x => squash(x.textContent)), has = !!HC.residuals?.[VK[op]];
+/* IA-1b: #/portfolio/outcomes-by-site is now an alias of the hub's Outcomes tab (D-IA.28), so the reviewed table is read from its own
+   builder (outcomesBySiteScreen), kept for the review select's legacy screens; the assertion is unchanged */
+for (const op of ['lakeside', 'harvest', 'metro']) { const dom = boot(op, 'plan'), d = dom.window.document, box = d.createElement('div'); box.innerHTML = dom.window.eval('outcomesBySiteScreen()'); const tb = box.querySelector('[aria-label="Portfolio composition"] table') || box.querySelector('table'), hd = [...tb.querySelectorAll('thead th')].map(x => squash(x.textContent)), has = !!HC.residuals?.[VK[op]];
   const ru = [...tb.querySelectorAll('tbody tr')].find(r => /Ruiru/.test(r.cells[0].textContent)), rv = DV.sites[`${T[op]}/Ruiru`];
   ok(hd.some(h => /^Of which/.test(h)) === has && (!has || (hd[hd.length - 1] === 'Of which not attributed yet' && ru && ru.cells.length === hd.length && /\$[\d,.]+/.test(ru.cells[ru.cells.length - 1].textContent))) && (has || [...tb.querySelectorAll('tr')].every(r => r.cells.length === 4)), `${op} outcomes by site: residual column ${has ? 'present, "Of which not attributed yet", with Ruiru’s figure' : 'absent'} (${hd.join(' | ')})`);
   dom.window.close(); }

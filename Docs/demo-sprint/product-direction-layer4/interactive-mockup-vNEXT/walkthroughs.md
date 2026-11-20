@@ -15,7 +15,7 @@
 - Open `index.html` in a browser; no server is needed. Or, from this folder, run `python3 -m http.server 8790 --bind 127.0.0.1` and open the local address.
 - Choose the operator in the blue review bar at the top (**Demo operator**). The review bar is review tooling, not part of the product. Its screen selector lists every screen.
 - The top bar of every screen shows the period and the snapshot's date: "October 2026 · Figures as of 06:00, 6 Nov".
-- Main routes: `#/plan` and `#/portfolio` with its tabs (`/outcomes-by-site`, `/demand-and-capacity`, `/act-first`, `/what-changed`, `/scope`); `#/site/<site>`; `#/decision/<id>`.
+- Main routes: `#/plan` and `#/portfolio` with its three tabs (Overview, `/outcomes`, `/demand-and-capacity`; IA-1b, the empty address opens `#/portfolio`); `#/site/<site>`; `#/decision/<id>`. The old `#/portfolio/outcomes-by-site` opens `#/portfolio/outcomes`; `/act-first`, `/what-changed` and `/scope` are kept for the review select until their units land (IA-2b, IA-2d).
 
 **Who appears on screen.** People are shown by role title, with the Site for a Site manager, and a fictional first name, labelled illustrative. The roles are the design's five: the operator executive, the finance and commercial lead, the Site manager, the field technician and the analyst. The system recommends; a person chooses, creates the Actions and approves.
 
@@ -35,7 +35,7 @@
 - *Who:* Peter, Site manager at Kobo, owns the litres; Joseph, the finance and commercial lead, owns collection.
 
 **Step 3. What is at risk, and how sure we are: Protect and Assure.** Same screen, the last two cards.
-- *Sees:* Protect lists measures in their own units, such as 30<!--fig:portfolio.lakeside-power.actual.sums.obligation_hours_without_redundancy--> obligation hours without redundancy in October (by Site on `#/portfolio/outcomes-by-site`: 10<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.obligation_hours_without_redundancy--> evening hours at Kisiwa, 20<!--fig:sites.lakeside-power/Mto.actual.nodes.obligation_hours_without_redundancy--> daytime hours at Mto), and lists the warranty values at stake beside them, never added. Assure opens "Contribution's bridge by heading", shows how much of the cost rests on records, the decisions compared with doing nothing, the Actions and their three verdicts (none reached yet), and the contract deadlines, such as Mto's inverter warranty notice due 27 Nov.
+- *Sees:* Protect lists measures in their own units, such as 30<!--fig:portfolio.lakeside-power.actual.sums.obligation_hours_without_redundancy--> obligation hours without redundancy in October (by Site under "Service and assets" on each `#/site/<site>` page: 10<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.obligation_hours_without_redundancy--> evening hours at Kisiwa, 20<!--fig:sites.lakeside-power/Mto.actual.nodes.obligation_hours_without_redundancy--> daytime hours at Mto), and lists the warranty values at stake beside them, never added. Assure opens "Contribution's bridge by heading", shows how much of the cost rests on records, the decisions compared with doing nothing, the Actions and their three verdicts (none reached yet), and the contract deadlines, such as Mto's inverter warranty notice due 27 Nov.
 - *Why it matters:* Protect is the limit a decision must respect, not a saving. Assure is why an executive can trust the money figures above it.
 - *Who:* Amina tracks; Joseph files the notice.
 

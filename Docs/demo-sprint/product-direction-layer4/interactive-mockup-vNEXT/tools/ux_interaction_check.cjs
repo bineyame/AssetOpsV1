@@ -28,6 +28,36 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
       await p.evaluate(() => { for (const sh of document.styleSheets) for (let i = sh.cssRules.length - 1; i >= 0; i--) { const r = sh.cssRules[i]; if (r.constructor.name === 'CSSContainerRule' && r.containerName === 'uxitems') sh.deleteRule(i); } }); await p.waitForTimeout(150);
       const lay = await p.evaluate(PLAN_LAYOUT); ok(lay.rows > 0 && !lay.bad.length, `plant container: ${op} plan at ${w}: ${lay.rows} rows${lay.bad.length ? `, ${lay.bad.join('; ')}` : ''}`); await p.context().close(); }
     await b.close(); console.log(out.join('\n')); process.exit(out.some(l => l.startsWith('FAIL')) ? 1 : 0); }
+  /* IA-1b (D-IA.16): on an IA route the palette lists only live entries, so "kobo gen" finds nothing until decisions land (IA-1c);
+     "kisiwa" finds the Site and Enter opens it. Retargeted from "kobo gen opens the decision"; UXI_PLANT=palette (filter off) must fail. */
+  async function paletteTest(p) {
+    await p.keyboard.press('Control+k'); await p.waitForTimeout(150);
+    const op1 = await p.evaluate(() => document.getElementById('ux-cmd')?.dataset.open === 'true' && document.activeElement.classList.contains('ux-cmd-in'));
+    await p.keyboard.type('kobo gen'); await p.waitForTimeout(100);
+    const kg = await p.evaluate(() => document.querySelector('#ux-cmd-list [aria-selected="true"]')?.textContent || '');
+    await p.fill('.ux-cmd-in', 'kisiwa'); await p.waitForTimeout(100);
+    const first = await p.evaluate(() => document.querySelector('#ux-cmd-list [aria-selected="true"]')?.textContent || '');
+    await p.keyboard.press('Enter'); await p.waitForTimeout(400);
+    const at = await p.evaluate(() => location.hash);
+    ok(op1 && !/Kobo generator/.test(kg) && /Kisiwa/.test(first) && at === '#/site/kisiwa', `command search: Ctrl+K opens, "kobo gen" finds ${kg ? `"${kg}"` : 'nothing live'}, "kisiwa" finds "${first}", Enter opens ${at}`);
+    if (at !== '#/portfolio') { await p.goto(base + '#/portfolio'); await p.waitForTimeout(400); }
+  }
+  if (PLANT === 'palette') { const p = await page('portfolio'); await p.evaluate(() => { iaPaletteFilter = out => out; }); await paletteTest(p); await b.close(); console.log(out.join('\n')); process.exit(out.some(l => l.startsWith('FAIL')) ? 1 : 0); }
+  /* IA-1b plants (spec §6 item 4, P16): block7 adds two blocks to the Overview's L3 (seven), tall one block that takes the hub past
+     2,500 px, viewall puts the "View all" line back on the phone queue; each must fail its retargeted assertion */
+  if (['block7', 'tall', 'viewall'].includes(PLANT)) {
+    for (const op of ['lakeside', 'harvest', 'metro']) { const p = await page('portfolio', PLANT === 'viewall' ? { op, w: 390, h: 844 } : { op });
+      const r = await p.evaluate(pl => { const l3 = document.querySelector('[data-shape="hub"] > [data-level="L3"]');
+        if (pl === 'block7') l3.insertAdjacentHTML('beforeend', '<div style="height:20px">plant</div><div style="height:20px">plant</div>');
+        if (pl === 'tall') { const hub = document.querySelector('[data-shape="hub"]'); l3.insertAdjacentHTML('beforeend', `<div style="height:${Math.max(200, 2501 - Math.round(hub.getBoundingClientRect().height))}px">plant</div>`); }
+        if (pl === 'viewall') document.querySelector('[data-shape="hub"] .ux-queue-panel').insertAdjacentHTML('beforeend', '<p class="ux-more">View all</p>');
+        const hub = document.querySelector('[data-shape="hub"]'), blocks = [...hub.querySelectorAll(':scope > [data-level] > *')].filter(e => !e.closest('.ux-drawer, [data-ia-drawers]') && getComputedStyle(e).display !== 'none' && e.getBoundingClientRect().height > 0).length;
+        const shown = [...document.querySelectorAll('.ux-overview .ux-queue>li')].filter(e => e.offsetParent !== null).length + ' / ' + ([...document.querySelectorAll('.ux-overview .ux-more')].some(e => e.offsetParent) ? 'link' : 'no link');
+        return { blocks, h: Math.round(hub.getBoundingClientRect().height), shown }; }, PLANT);
+      if (PLANT === 'viewall') ok(r.shown === '3 / no link', `plant viewall: ${op} phone overview: top 3 queue items, no "View all" (${r.shown})`);
+      else ok(r.blocks <= 6 && r.h <= 2500, `plant ${PLANT}: ${op} overview budget: ${r.blocks} blocks, ${r.h} px at 1440`);
+      await p.context().close(); }
+    await b.close(); console.log(out.join('\n')); process.exit(out.some(l => l.startsWith('FAIL')) ? 1 : 0); }
   // 1 drawers on the Overview: open, focus, trap, Esc, return focus
   { const p = await page('portfolio');
     for (const k of ['grow', 'optimize', 'protect', 'assure']) {
@@ -62,14 +92,14 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
     await p.context().close(); }
   // 3 phone Section menu
   { const p = await page('portfolio', { w: 390, h: 844 });
-    const vis = await p.evaluate(() => { const m = document.querySelector('.ux-tabmenu summary'), t = document.querySelector('.ux-tabs>.tabs'); return m.offsetParent !== null && getComputedStyle(t).display === 'none'; });
-    await p.click('.ux-tabmenu summary'); await p.waitForTimeout(150); await p.click('.ux-tabmenu nav a[href="#/portfolio/act-first"]'); await p.waitForTimeout(400);
+    /* IA-1b: the Portfolio has three tabs, so uxTabs draws the row itself (the Section menu is for more than four); the row fits and navigates */
+    const vis = await p.evaluate(() => { const t = document.querySelector('#ia-root .tabs'); return !!t && !document.querySelector('#ia-root .ux-tabmenu') && t.offsetParent !== null && t.scrollWidth <= t.clientWidth + 1; });
+    await p.click('#ia-root .tabs a[href="#/portfolio/outcomes"]'); await p.waitForTimeout(400);
     const at = await p.evaluate(() => location.hash);
-    const top3 = await p.evaluate(() => { const li = [...document.querySelectorAll('.ux-queue>li')]; return li.length; });
-    ok(vis && at === '#/portfolio/act-first', 'phone: Section menu replaces the tab row and navigates');
+    ok(vis && at === '#/portfolio/outcomes', 'phone: the three Portfolio tabs fit on one row and navigate');
     await p.goto(base + '#/portfolio'); await p.waitForTimeout(400);
     const shown = await p.evaluate(() => [...document.querySelectorAll('.ux-overview .ux-queue>li')].filter(e => e.offsetParent !== null).length + ' / ' + ([...document.querySelectorAll('.ux-overview .ux-more')].some(e => e.offsetParent) ? 'link' : 'no link'));
-    ok(shown === '3 / link', `phone overview: top 3 queue items and "View all" (${shown})`);
+    ok(shown === '3 / no link', `phone overview: top 3 queue items, no "View all" until IA-2b (MOCK DEVIATION D5, D-IA.25) (${shown})`);
     const opt = await (async () => { await p.goto(base + '#/decision/kobo-generator'); await p.waitForTimeout(400); await openAll(p); await p.waitForTimeout(100); return p.evaluate(() => { const tr = document.querySelector('table.ux-opts tbody tr'); return getComputedStyle(tr).display === 'block' && document.documentElement.scrollWidth <= innerWidth; }); })();
     ok(opt, 'phone decision: options as stacked cards, no sideways page scroll');
     await p.context().close(); }
@@ -142,13 +172,7 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
     await p.keyboard.press('Escape'); await p.waitForTimeout(100);
     const pc = await p.evaluate(() => !document.querySelector('.ux-prov').open && document.activeElement === document.querySelector('.ux-prov>summary'));
     ok(pv && pc, 'provenance: About these figures opens with the † meaning; Esc closes it and returns focus');
-    await p.keyboard.press('Control+k'); await p.waitForTimeout(150);
-    const op1 = await p.evaluate(() => document.getElementById('ux-cmd')?.dataset.open === 'true' && document.activeElement.classList.contains('ux-cmd-in'));
-    await p.keyboard.type('kobo gen'); await p.waitForTimeout(100);
-    const first = await p.evaluate(() => document.querySelector('#ux-cmd-list [aria-selected="true"]')?.textContent);
-    await p.keyboard.press('Enter'); await p.waitForTimeout(400);
-    const at = await p.evaluate(() => location.hash);
-    ok(op1 && /Kobo generator stop setting/.test(first || '') && at === '#/decision/kobo-generator', `command search: Ctrl+K opens, "kobo gen" finds "${first}", Enter opens ${at}`);
+    await paletteTest(p);
     await p.click('.topbar [data-index]'); await p.waitForTimeout(150);
     const op2 = await p.evaluate(() => document.getElementById('ux-cmd').dataset.open === 'true');
     await p.keyboard.press('Escape'); await p.waitForTimeout(100);
@@ -216,9 +240,11 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
     await p.context().close(); }
   // wave 2c classes: overview budget; queue alignment, titles, one primary, quiet blanks; the bridge on the gap's scale;
   // modelled weight; prose size; content in its tab; a distinguishable East Africa pack
+  /* IA-1b (D-IA.25): a block is a visible direct child of a [data-level] region of the hub, outside .ux-drawer and [data-ia-drawers];
+     at most 6, and the hub section at most 2,500 px tall at 1440 */
   for (const op of ['lakeside', 'harvest', 'metro']) { const p = await page('portfolio', { op });
     const r = await p.evaluate(() => {
-      const ov = document.querySelector('.ux-overview'), blocks = [...ov.children].filter(e => e.offsetParent !== null && e.getBoundingClientRect().height > 0).length;
+      const hub = document.querySelector('[data-shape="hub"]'), blocks = hub ? [...hub.querySelectorAll(':scope > [data-level] > *')].filter(e => !e.closest('.ux-drawer, [data-ia-drawers]') && getComputedStyle(e).display !== 'none' && e.getBoundingClientRect().height > 0).length : 99;
       const rows = [...document.querySelectorAll('.ux-overview .ux-queue>li.ux-q')];
       const ragged = rows.filter(li => Math.abs(li.querySelector('.ux-q-title').getBoundingClientRect().left - li.querySelector('.ux-q-top').getBoundingClientRect().left) > 1).length;
       const repeat = rows.filter(li => li.querySelector('.ux-q-title').textContent.trim().toLowerCase().startsWith(li.querySelector('.ux-q-site').textContent.replace('Site: ', '').trim().toLowerCase())).length;
@@ -228,7 +254,7 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
       const groups = document.querySelectorAll('.ux-wf-gapscale .ux-wf-group').length, perRowHeading = [...document.querySelectorAll('.ux-wf-gapscale .ux-wf-h')].length;
       const fs = e => parseFloat(getComputedStyle(e).fontSize), mod = document.querySelector('.ux-kpi.is-modelled .ux-kpi-v'), act = document.querySelector('.ux-kpi:not(.is-modelled) .ux-kpi-v');
       const small = [...document.querySelectorAll('.ux-overview .ux-kpi-s:not(:has(.ux-trend)), .ux-overview .ux-q-why, .ux-overview .panel-head p, .ux-overview .ux-q-title')].filter(e => fs(e) < 14).length;
-      return { blocks, h: document.documentElement.scrollHeight, ragged, repeat, prim, firstPrim, blankDue, brk, minStep: Math.min(...steps), groups, perRowHeading, modW: mod && act ? fs(mod) < fs(act) && getComputedStyle(mod).color !== getComputedStyle(act).color : false, small, leaks: !!document.querySelector('[id^="uxv-h-"]') };
+      return { blocks, h: hub ? Math.round(hub.getBoundingClientRect().height) : 99999, ragged, repeat, prim, firstPrim, blankDue, brk, minStep: Math.min(...steps), groups, perRowHeading, modW: mod && act ? fs(mod) < fs(act) && getComputedStyle(mod).color !== getComputedStyle(act).color : false, small, leaks: !!document.querySelector('[id^="uxv-h-"]') };
     });
     ok(r.blocks <= 6 && r.h <= 2500 && !r.leaks, `${op} overview budget: ${r.blocks} blocks, ${r.h} px at 1440, value leaks not here`);
     ok(r.ragged === 0 && r.repeat === 0 && r.prim <= 1 && r.firstPrim === 1 && r.blankDue, `${op} queue: titles aligned (${r.ragged} ragged), no title repeats its Site (${r.repeat}), at most one primary: the first decision waiting for a choice, no "No deadline" noise`);
