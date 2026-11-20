@@ -11,3 +11,4 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-11-20 `owner-merge-wave2c-ds1-defaults-2026-11-20.md` Merge UI wave 2c to main; DS1 owner questions (D-DS1.6, Q1–Q5) on their defaults · current
 - 2026-11-20 `owner-roadmap-replace-2026-11-20.md` Replace the stale product-transition-and-roadmap (rev 4.2, 18 Nov) with a short current roadmap linking to the design, register and build plan; rev 4.2 to history; router to point at the design and register · current
 - 2026-11-20 `owner-queue-site-plan-pages-2026-11-20.md` Queue the Site and plan pages for the UI Architect after the Decision page (coordinator UI opinion: Portfolio ~7.5, Decision ~6 until fixed, rest ~4) · current
+- 2026-11-20 `owner-portfolio-click-consistency-2026-11-20.md` Portfolio: one drill-down behaviour (gap steps and outcome tiles open the same side drawer, explicit "Open decision →"); By outcome stops restating Grow/Optimize · current
