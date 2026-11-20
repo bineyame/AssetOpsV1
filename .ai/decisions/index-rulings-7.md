@@ -29,3 +29,12 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-3C0A.10` Standard-library scrypt; no new dependency · live · specs/3C0a-operator-accounts/rulings.md
 - `D-2A.10` Canonical tests live in backend/tests so every merge's full tier runs them · live · specs/2a-canonical-format/rulings.md
 - `D-3C0A.11` Sign-in attempts: hashed key, no person on failure, purged after 30 days · live · specs/3C0a-operator-accounts/rulings.md
+- `D-L4OPS.1` Site Operations tab on all 9 Sites; asset page; incident, maintenance, right drawers; five rail lists become one Operations entry, one row per Site · live · specs/L4-OPS/rulings.md
+- `D-L4OPS.2` Incident: failure mode, out-of-service interval; consequences counted once on their nodes; cost a cut, never a leaf · live · specs/L4-OPS/rulings.md
+- `D-L4OPS.3` Repeat = same asset, same mode inside the window; repeat_failures (P2, Protect) raises a Finding linked to the asset's decision · live · specs/L4-OPS/rulings.md
+- `D-L4OPS.4` Repeat window 90 days, an operator setting; tolerance per OD-3 (0) · live · specs/L4-OPS/rulings.md
+- `D-L4OPS.5` Maintenance scheduled or responsive; visit; cost basis; leaf = fees in force + invoices; schedule occurrence with crew visit or spend = plan item · live · specs/L4-OPS/rulings.md
+- `D-L4OPS.6` Rights register 9a0 before extraction 9a; right states derived from terms and claims · live · specs/L4-OPS/rulings.md
+- `D-L4OPS.7` Operations slices queued (26 units) after the must-keep set; fortnight unchanged · live · specs/L4-OPS/rulings.md
+- `D-L4OPS.8` Kasarani service fee = maintenance leaf 300; data lane corrects the SLA text · live · specs/L4-OPS/rulings.md
+- `D-L4OPS.9` Tie line "Unbilled energy" (OD-28), industry-standard term; replaces D-RECON.2's words · live · specs/L4-OPS/rulings.md

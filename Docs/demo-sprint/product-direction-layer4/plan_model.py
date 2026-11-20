@@ -195,7 +195,25 @@ QUEUED = [("4c", "4", "B1", "Mini-grid usable capacity by time window, the value
            "pulled when a lane is free after the must-keep set, at the latest when a pilot pins a real register profile (decisions-register call 23, rev 16.13)"),
           ("DS7", "D", "B3", "Pipeline speed: matcher watermark, skipping idle stages, parallel Sites, larger batches", "SRC", 4, ["DS4"],
            "only if DS4's re-benchmark measures the L2 template build above 45 minutes (data and build strategy §4, §9); up to 4 units")]
-assert all(d in BY for q in QUEUED for d in q[6]), "unknown queued dependency"
+# OD-26 (owner, 20 Nov) and design rev 16.16 §2.10; rulings D-L4OPS.1 to D-L4OPS.8 (specs/L4-OPS/rulings.md). Queued, not
+# scheduled, so the approved fortnight is unchanged (D-L4OPS.7): added to SLICES they displaced a committed slice. Pulled in
+# order when a lane is free after the must-keep set; the screen slices (marked "screen") also wait for the UI review.
+OPS_TRIGGER = "pulled in order when a lane is free after the must-keep set (D-L4OPS.7)"
+OPS_SCREEN_TRIGGER = "screen: pulled after OPSR, once the Site page passes UI review (D-L4OPS.7)"
+QUEUED += [
+    ("DS8", "O", "B3", "Non-screen. Operations history in the generated world: registry, rights, schedules, incidents with their repeats and maintenance records for all 9 Sites, July to October and November to date, from manifest operations, through the canonical writers and the bulk loader into today's stores", "SRC", 2.5, ["DS1b", "DS3"], OPS_TRIGGER),
+    ("OPS1", "O", "B1", "Non-screen. Registry rows and fields: what each asset serves; failure mode and out-of-service interval on incidents; kind, visit and cost basis on maintenance records; the measures repeat failures, overdue schedules and scheduled share", "STR", 3, ["3B1"], OPS_TRIGGER),
+    ("9a0", "O", "B3", "Non-screen. Rights register: a right on an asset or a Site (warranty, insurance, O&M or service contract) with its terms, its state derived from terms and claims; typed or loaded, no extraction (9a then adds extraction)", "SRC", 2, ["3A1", "OPS1"], OPS_TRIGGER),
+    ("OPS2", "O", "CH1", "Non-screen. Repeat observer: same asset and failure mode inside the operator's window raises a Finding on repeat failures through the structure observer; incident consequences counted once on their nodes; the incident's cost as a cut", "STR", 2.5, ["OPS1", "3B4"], OPS_TRIGGER),
+    ("OPS3a", "O", "B1", "Non-screen. Maintenance money: the O&M or maintenance leaf as the fees in force plus invoices, reconciled each month; work under a right's cover carries no operator cost", "SRC", 2.5, ["OPS1", "9a0", "3A4"], OPS_TRIGGER),
+    ("OPS3b", "O", "P", "Non-screen. A schedule occurrence that uses a crew visit or spends becomes a proactive plan item; responsive work stays an Action on a Finding", "STR", 1.5, ["OPS3a", "7a"], OPS_TRIGGER),
+    ("OPSR", "O", "B1", "Non-screen. Operations read, Site and portfolio: assets with state and cover, incidents and repeats, schedules with due state, measures against target, records coverage; scoped by Site key; served through the daily snapshot", "STR", 2.5, ["OPS2", "OPS3a", "9a0", "3B7a"], OPS_TRIGGER),
+    ("OPS4", "O", "CH5", "Screen. Site Operations tab on all 9 Sites: glance line, what needs action, measures against target, the asset table, the incident, maintenance and right drawers, the records behind the figures", "SCR", 4, ["OPSR", "3B5"], OPS_SCREEN_TRIGGER),
+    ("OPS5", "O", "CH5", "Screen. Asset page: state, rights, incidents and repeats on one timeline, maintenance done and due, measures", "SCR", 2.5, ["OPS4"], OPS_SCREEN_TRIGGER),
+    ("OPS6", "O", "CH5", "Screen. Portfolio Operations entry in place of the five earlier lists: incidents, maintenance, assets and cover, records; one row per Site opening to its items", "SCR", 3, ["OPS4"], OPS_SCREEN_TRIGGER),
+]
+QUEUED_IDS = {q[0] for q in QUEUED}
+assert all(d in BY or d in QUEUED_IDS for q in QUEUED for d in q[6]), "unknown queued dependency"
 MUST_KEEP = {"T1", "1a", "1b", "2a", "3A1", "3A2", "3A3", "3A4", "3B1", "3B2", "3B3", "3C0a", "3C1", "3C2", "WK"}   # land by day 12 (WK by 14)
 
 
