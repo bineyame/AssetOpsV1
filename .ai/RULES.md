@@ -128,9 +128,8 @@ round the Architect folds rulings into one current unit card.
   states, plain client-facing copy without system vocabulary; within demo
   speed. Defaults: `frontend/docs/architecture/ui-ux-decision-guide.md`.
 - UI/UX standard (owner, U7, 2026-11-20): `Docs/design-system/uiux-guide.md` is
-  binding on every screen spec and review. Specs cite it; reviewers apply its
-  §10 checklist and gates G1-G5 (design review separate from content checks).
-  Where it and the decision guide above differ on a vNEXT screen, the guide wins.
+  cited here beside the builder decision guide above, and its G2 to G4 gates
+  join the screen-slice review.
 
 ## 7. Tests, guards and the machine
 
