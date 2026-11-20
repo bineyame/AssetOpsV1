@@ -157,6 +157,9 @@ round the Architect folds rulings into one current unit card.
   Carbon, NN/g), strong 390 px behaviour, purposeful loading/empty/error
   states, plain client-facing copy without system vocabulary; within demo
   speed. Defaults: `frontend/docs/architecture/ui-ux-decision-guide.md`.
+- UI/UX standard (owner, U7, 2026-11-20): `Docs/design-system/uiux-guide.md` is
+  cited here beside the builder decision guide above, and its G2 to G4 gates
+  join the screen-slice review.
 
 ## 7. Tests, guards and the machine
 

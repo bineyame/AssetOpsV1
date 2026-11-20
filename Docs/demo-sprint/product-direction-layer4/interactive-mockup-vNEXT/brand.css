@@ -1,0 +1,78 @@
+/* brand.css: brand packs (UI/UX guide §4.7). A pack changes only brand tokens: surfaces' warmth, the interactive accent, the
+   rail, the brand mark and the motif accents (a header band, the brand mark, empty and loading states). It never changes
+   status colours, chart series meaning, type sizes, spacing or layout, and a motif never sits behind data. Default: neutral
+   (no attribute, or data-brand="neutral"). To add a pack: copy the three "east-africa" blocks with a new name and register it in
+   UX_BRANDS (loop-ux.js); nothing else changes. Contrast is checked in light and dark for every pack. */
+:root{--motif-band:none;--brand-mark:var(--rail-text-2);--brand-mark-bg:transparent;--font-heading:inherit;--brand-band-h:6px}
+
+/* East Africa: a warm, sunlit palette (sand, terracotta, ochre, deep indigo, earth) and accents from the region: kikoi and
+   kanga stripe bands, Maasai beadwork rows and the chain geometry of Swahili-coast carved doors, used sparingly.
+   Regional packs share this structure: copy these three blocks as data-brand="west-africa", "southern-africa" and so on. */
+:root[data-brand="east-africa"]{
+  --bg:#f6f1e8; --surface:#fffdf9; --surface-2:#f8f2e8; --surface-3:#efe6d6;
+  --text:#221d17; --text-2:#5c5244; --line:#e7dccb; --line-strong:#d4c3a8;
+  --accent:#2f3e9e; --accent-solid:#2f3e9e; --accent-soft:#e8eaf7; --accent-line:#bcc3ec; --focus:#2f3e9e;
+  --rail-bg:#1d1b3a; --rail-hover:#2c2954; --series-1:#5b6189; --series-total:#a39a8a; --hatch:#d6c9b4;
+  --brand-terracotta:#b4532a; --brand-ochre:#c98b1e; --brand-indigo:#2f3e9e; --brand-earth:#5b3a22;
+  --brand-mark:#c98b1e; --brand-mark-bg:#2c2954;
+  --font-heading:"Iowan Old Style","Palatino Linotype","Book Antiqua",Palatino,"DejaVu Serif",Georgia,serif;
+  --brand-h1:#1d1b3a; --brand-h1-rule:#c98b1e; --brand-tab:#9c4220;
+  --brand-rail-pattern:radial-gradient(circle at 12px 12px,#c98b1e40 2.5px,transparent 3px) 0 0/24px 24px,linear-gradient(45deg,transparent 46%,#b4532a2e 46% 54%,transparent 54%) 0 0/24px 24px,linear-gradient(-45deg,transparent 46%,#b4532a2e 46% 54%,transparent 54%) 0 0/24px 24px;
+  --brand-band-h:12px; --rail-text-2:#c4bedf;
+  --motif-band:repeating-linear-gradient(90deg,#b23a2e 0 6px,#f4ead8 6px 8px,#2f5aa8 8px 14px,#f4ead8 14px 16px,#d9822b 16px 22px,#f4ead8 22px 24px,#2e7d4f 24px 30px,#f4ead8 30px 32px) 0 0/100% 3px no-repeat,repeating-linear-gradient(90deg,#1d1b3a 0 22px,#b4532a 22px 25px,#c98b1e 25px 28px,#1d1b3a 28px 46px,#c98b1e 46px 48px) 0 3px/100% 3px no-repeat;
+}
+@media screen and (prefers-color-scheme:dark){
+  :root[data-brand="east-africa"]:not([data-theme="light"]){
+    --bg:#14110d; --surface:#1c1813; --surface-2:#221d17; --surface-3:#2c251d;
+    --text:#efe7da; --text-2:#b9ab97; --line:#342b21; --line-strong:#4a3d2e;
+    --accent:#a9b4ff; --accent-solid:#4153c4; --accent-soft:#232642; --accent-line:#3d4680; --focus:#a9b4ff;
+    --rail-bg:#110f22; --rail-hover:#1f1c3a; --series-1:#9aa0cf; --series-total:#6b6152; --hatch:#4a3d2e;
+    --brand-mark:#e0a83a; --brand-mark-bg:#1f1c3a;
+  --font-heading:"Iowan Old Style","Palatino Linotype","Book Antiqua",Palatino,"DejaVu Serif",Georgia,serif;
+  --brand-h1:#f3e6cf; --brand-h1-rule:#e0a83a; --brand-tab:#e08a5c;
+  --brand-rail-pattern:radial-gradient(circle at 12px 12px,#e0a83a38 2.5px,transparent 3px) 0 0/24px 24px,linear-gradient(45deg,transparent 46%,#c0643a2e 46% 54%,transparent 54%) 0 0/24px 24px,linear-gradient(-45deg,transparent 46%,#c0643a2e 46% 54%,transparent 54%) 0 0/24px 24px;
+  --brand-band-h:12px; --rail-text-2:#c4bedf;
+    --motif-band:repeating-linear-gradient(90deg,#d0574a 0 6px,#3a3226 6px 8px,#5d86d6 8px 14px,#3a3226 14px 16px,#e89a4a 16px 22px,#3a3226 22px 24px,#4fa374 24px 30px,#3a3226 30px 32px) 0 0/100% 3px no-repeat,repeating-linear-gradient(90deg,#110f22 0 22px,#c0643a 22px 25px,#e0a83a 25px 28px,#110f22 28px 46px,#e0a83a 46px 48px) 0 3px/100% 3px no-repeat;
+  }
+}
+:root[data-brand="east-africa"][data-theme="dark"]{
+  --bg:#14110d; --surface:#1c1813; --surface-2:#221d17; --surface-3:#2c251d;
+  --text:#efe7da; --text-2:#b9ab97; --line:#342b21; --line-strong:#4a3d2e;
+  --accent:#a9b4ff; --accent-solid:#4153c4; --accent-soft:#232642; --accent-line:#3d4680; --focus:#a9b4ff;
+  --rail-bg:#110f22; --rail-hover:#1f1c3a; --series-1:#9aa0cf; --series-total:#6b6152; --hatch:#4a3d2e;
+  --brand-mark:#e0a83a; --brand-mark-bg:#1f1c3a;
+  --font-heading:"Iowan Old Style","Palatino Linotype","Book Antiqua",Palatino,"DejaVu Serif",Georgia,serif;
+  --brand-h1:#f3e6cf; --brand-h1-rule:#e0a83a; --brand-tab:#e08a5c;
+  --brand-rail-pattern:radial-gradient(circle at 12px 12px,#e0a83a38 2.5px,transparent 3px) 0 0/24px 24px,linear-gradient(45deg,transparent 46%,#c0643a2e 46% 54%,transparent 54%) 0 0/24px 24px,linear-gradient(-45deg,transparent 46%,#c0643a2e 46% 54%,transparent 54%) 0 0/24px 24px;
+  --brand-band-h:12px; --rail-text-2:#c4bedf;
+  --motif-band:repeating-linear-gradient(90deg,#d0574a 0 6px,#3a3226 6px 8px,#5d86d6 8px 14px,#3a3226 14px 16px,#e89a4a 16px 22px,#3a3226 22px 24px,#4fa374 24px 30px,#3a3226 30px 32px) 0 0/100% 3px no-repeat,repeating-linear-gradient(90deg,#110f22 0 22px,#c0643a 22px 25px,#e0a83a 25px 28px,#110f22 28px 46px,#e0a83a 46px 48px) 0 3px/100% 3px no-repeat;
+}
+
+/* where a pack's accents may appear (and nowhere else) */
+.topbar{position:relative}
+:root[data-brand="east-africa"] .topbar::after{content:"";position:absolute;left:0;right:0;bottom:calc(-1 * var(--brand-band-h));height:var(--brand-band-h);background:var(--motif-band);pointer-events:none;z-index:1}
+.rail .brandmark{color:var(--brand-mark)}
+:root[data-brand="east-africa"] .rail .brandmark{display:inline-grid;place-items:center;width:28px;height:28px;margin-right:var(--s2);border-radius:var(--r1);background:var(--brand-mark-bg);box-shadow:inset 0 -3px 0 var(--brand-terracotta)}
+:root[data-brand="east-africa"] .rail-footer{border-top:4px solid transparent;border-image:repeating-linear-gradient(90deg,var(--brand-terracotta) 0 14px,var(--brand-ochre) 14px 16px,var(--brand-indigo) 16px 30px,var(--brand-ochre) 30px 32px) 4}
+:root[data-brand="east-africa"] .ux-empty::before{content:"";display:inline-block;width:20px;height:10px;margin-right:var(--s2);vertical-align:middle;background:radial-gradient(circle at 5px 5px,var(--brand-ochre) 2px,transparent 2.5px) 0 0/10px 10px,linear-gradient(90deg,transparent 4px,var(--brand-terracotta) 4px 6px,transparent 6px) 0 0/10px 10px} /* Swahili-door chain: studs and links */
+:root[data-brand="east-africa"] .ux-skel-row{background:linear-gradient(90deg,var(--surface-2),var(--surface-3),var(--surface-2));background-size:200% 100%}
+:root[data-brand="east-africa"] .rail a.active{background:var(--brand-indigo);box-shadow:inset 3px 0 0 var(--brand-ochre)}
+:root[data-brand="east-africa"][data-theme="dark"] .rail a.active{background:var(--accent-solid)}
+/* the review-bar switch (mock tooling) */
+.ux-brand-sw{display:inline-flex;align-items:center;gap:var(--s1);font-size:var(--fs-xs)}
+
+/* wave 2c: a clearer, still professional East Africa expression. A pack may set the heading typeface, the heading colour and
+   a short accent rule, the active-tab colour and a textile band; and it may pattern the rail's empty lower part. Never data. */
+:root[data-brand="east-africa"] .canvas h1,:root[data-brand="east-africa"] .canvas h2{font-family:var(--font-heading);letter-spacing:0}
+:root[data-brand="east-africa"] .page-heading h1{color:var(--brand-h1)}
+:root[data-brand="east-africa"] .page-heading h1::after{content:"";display:block;width:40px;height:4px;margin-top:6px;border-radius:2px;background:linear-gradient(90deg,var(--brand-h1-rule) 0 60%,var(--brand-terracotta) 60% 80%,var(--brand-indigo) 80%)}
+:root[data-brand="east-africa"] .tabs a.active{color:var(--brand-tab);border-bottom-color:var(--brand-tab)}
+:root[data-brand="east-africa"] .canvas{padding-top:calc(var(--s5) + var(--brand-band-h))}
+:root[data-brand="east-africa"] .rail{position:relative;isolation:isolate}
+:root[data-brand="east-africa"] .rail::before{content:"";position:absolute;left:0;right:0;bottom:var(--rail-foot-h,120px);height:30%;z-index:-1;pointer-events:none;background:var(--brand-rail-pattern);-webkit-mask-image:linear-gradient(to top,black 35%,transparent);mask-image:linear-gradient(to top,black 35%,transparent)} /* Swahili-door studs and lattice in the rail's empty lower part */
+:root[data-brand="east-africa"] .ux-headline{font-family:var(--font-heading);font-weight:600}
+/* a short laptop keeps the first decision above the fold: the pack's band and title rule step back */
+@media (min-width:1024px) and (max-height:820px){
+  :root[data-brand="east-africa"]{--brand-band-h:6px}
+  :root[data-brand="east-africa"] .page-heading h1::after{display:none}
+}

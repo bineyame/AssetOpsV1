@@ -1,0 +1,44 @@
+portfolio.js: hook 'href="previews/portfolio-previous.png"'
+portfolio.js: name 'GreenHarvest' -> 'Thika' x2
+portfolio.js: name '(?<!Westfield )\\bDepot\\b(?! auxiliary| attendant)' -> 'Ruiru' x3
+outcomes.js: hook ",['Cash collected',`${NAY} · no billing or payment records`,"
+outcomes.js: hook "contrib:[['Generator use','30 min avoidable, 30 min unclear'"
+outcomes.js: hook "const CAT_OF={'MG-1':'grow','MG-3':'grow','MG-6':'grow',"
+outcomes.js: name 'GreenHarvest' -> 'Thika' x14
+outcomes.js: name '(?<!Westfield )\\bDepot\\b(?! auxiliary| attendant)' -> 'Ruiru' x15
+screens.js: hook 'function currentScreen(){return SCREENS.find(s=>s.id===locat'
+screens.js: hook 'function siteSwitch(s){'
+screens.js: hook 'function siteRoutes(domain){'
+screens.js: hook 'function tabs(s){\n if(s.gtabs)'
+screens.js: hook 'function breadcrumbs(s){\n'
+screens.js: hook 'const global=!s.section||!!s.gtabs,lab='
+screens.js: hook "const body=(fid?affectsLine(fid):'')+"
+screens.js: hook "${lab?'Simulator Lab · MG-DEMO-01':'Bineyame Operations'} <s"
+screens.js: hook '${rangePicker(global?null:s.domain)}'
+screens.js: hook "${s.root==='Sites'&&s.section&&!s.gtabs?provTag(s.domain):''"
+screens.js: hook "${!global&&!lab&&s.root!=='Sites'?btn(SITES[s.domain].overvi"
+screens.js: hook '<strong>ARCHITECTURE REVIEW</strong><span>Interactive mockup'
+screens.js: hook '${SCREENS.map(p=>`<option value="${p.id}" ${p.id===s.id?\'sel'
+screens.js: hook '<button data-notes>Review notes</button><a href="AssetOps-v7'
+screens.js: hook ' window.mockupReady=true;\n}'
+screens.js: hook "(s.id==='portfolio'?portfolioDesignNotes():'')"
+screens.js: hook 'href="../../docs/architecture/assetops-v69-pivot-recommendat'
+screens.js: hook "document.addEventListener('click',e=>{\n"
+screens.js: hook "document.addEventListener('change',e=>{"
+screens.js: hook '<span>Illustrative mockup data · proposal for implementation'
+screens.js: hook '<span class="avatar">BY</span>'
+screens.js: hook "function settingsTenant(){return status(badge('Admin','blue'"
+screens.js: hook "['Organisation','Bineyame Operations']"
+screens.js: hook "'Deployment-wide','Admin only. "
+screens.js: hook " panel('Users and roles',table(['User','Role','Can'],[['B. Y"
+screens.js: hook 'window.mockupManifest=SCREENS.map(({render,...meta})=>meta);'
+screens.js: name 'GreenHarvest Cold Room' -> 'Thika cold room' x14
+screens.js: name 'GreenHarvest' -> 'Thika' x27
+screens.js: name 'Depot Charging Hub' -> 'Ruiru depot' x12
+screens.js: name 'Depot charging hub' -> 'Ruiru depot' x1
+screens.js: name '(?<!Westfield )\\bDepot\\b(?! auxiliary| attendant)' -> 'Ruiru' x15
+screens.js: name 'MG-DEMO-01' -> 'KOBO-001' x8
+screens.js: name 'CR-DEMO-01' -> 'COLD-THIKA' x2
+screens.js: name 'EV-DEMO-01' -> 'EV-RUI' x2
+screens.js: name "'B\\. Yohannes'" -> 'avatarName()' x3
+screens.js: name 'Tenant configuration' -> 'Organisation settings' x2
