@@ -16,7 +16,7 @@ from assetops_simulator.world.history import generate_history
 from assetops_simulator.world.months import MONTH_ABBR, day_class, days_in, period_end
 from assetops_simulator.world.view import ManifestView
 
-from .conftest import REPOSITORY_ROOT
+from .conftest import REPOSITORY_ROOT, scope_blocks
 
 WORLD = REPOSITORY_ROOT / "simulator" / "assetops_simulator" / "world"
 
@@ -122,6 +122,7 @@ GREPS = [
     r"^\s*(import|from)\s+(random|time|secrets)\b",
     r"\.(now|today|utcnow)\(",
     r"os\.environ|getenv",
+    r"\b31\b",  # R25a: the literal 31 never appears; d0 is days_in(anchor_period)
 ]
 
 
@@ -160,3 +161,41 @@ def test_t7_generated_blocks_carry_calendar(view: dict) -> None:
         for months in sites.values():
             assert {m: (b["period_days"], b["period_end"]) for m, b in months.items()} == {
                 "2026-07": (31, "2026-07-31"), "2026-08": (31, "2026-08-31"), "2026-09": (30, "2026-09-30")}
+
+
+# ---- rounding is half to even (spec §4.4) ------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "value, want",
+    [(Fraction(5, 2), 2), (Fraction(7, 2), 4), (Fraction(1, 2), 0), (Fraction(3, 2), 2), (Fraction(-5, 2), -2),
+     (Fraction(-7, 2), -4), (Fraction(24999, 10000), 2), (Fraction(25001, 10000), 3), (Fraction(9243, 2), 4622)],
+)
+def test_round_half_even(value: Fraction, want: int) -> None:
+    from assetops_simulator.world.history import _round_half_even
+
+    assert _round_half_even(value) == want
+
+
+# ---- d0 is the anchor's own length (R25a) ------------------------------------------
+
+
+def test_anchor_month_of_30_days(view: dict) -> None:
+    """History Jun-Aug, anchor September (30 days): `per_day` is `O * d / 30`."""
+    from assetops_simulator.world.history import generate_history
+
+    h = view["history"]
+    h["months"] = {"2026-06": 30, "2026-07": 31, "2026-08": 31}
+    h["anchor_period"] = "2026-09"
+    h["seasons"] = {"2026-06": "cool_dry", "2026-07": "cool_dry", "2026-08": "cool_dry", "2026-09": "warm_dry"}
+    from assetops_simulator.world.history import _round_half_even
+
+    site = next(s for t in view["tenants"] if t["tenant"] == "harvest-cold" for s in t["sites"]
+                if s["site"].endswith("Thika"))
+    october = Fraction(str(site["period"]["plan"]["kwh"]))
+    blocks = scope_blocks(generate_history(view))
+    for month, days in (("2026-06", 30), ("2026-07", 31), ("2026-08", 31)):
+        block = blocks[f"harvest-cold/{site['site']}/{month}"]
+        assert block["period_days"] == days
+        assert block["plan"]["kwh"] == _round_half_even(october * days / 30)
+    assert october * 31 / 30 != october * 31 / 31  # the 30-day anchor makes July differ from a /31 reading

@@ -42,11 +42,20 @@ def _refuse(code: str, key: str, leaf: str) -> ValueError:
     return ValueError(f"{code} {key} {leaf}")
 
 
-def _number(text) -> Fraction:
-    """A view number (int, or decimal text) as an exact rational."""
+def _number(text, key: str, field: str) -> Fraction:
+    """A view number (int, or decimal text) as an exact rational.
+
+    Anything else (text that is not a decimal, NaN, Infinity) is `HISTORY_NUMBER`.
+    """
     if isinstance(text, bool) or not isinstance(text, (int, str)):
-        raise InvalidOperation(text)
-    return Fraction(Decimal(str(text)))
+        raise _refuse("HISTORY_NUMBER", key, field)
+    try:
+        decimal = Decimal(str(text))
+    except InvalidOperation:
+        raise _refuse("HISTORY_NUMBER", key, field) from None
+    if not decimal.is_finite():
+        raise _refuse("HISTORY_NUMBER", key, field)
+    return Fraction(decimal)
 
 
 def _round_half_even(value: Fraction) -> int:
@@ -60,9 +69,22 @@ def _round_half_even(value: Fraction) -> int:
 # ---- validation of the history block ------------------------------------------------
 
 
+REQUIRED_FIELDS = (
+    "version", "months", "anchor_period", "shape_source", "money_leaves", "label",
+    "missing_cause", "seasons", "day_classes", "families", "rules",
+)
+
+
+def _validate_fields(history: dict) -> None:
+    for name in REQUIRED_FIELDS:
+        if name not in history:
+            raise _refuse("HISTORY_FIELD", "history", name)
+
+
 def _validate_months(history: dict) -> list[str]:
-    months = history.get("months")
-    if not isinstance(months, dict) or not months:
+    months = history["months"]
+    # the three-value lists are read by position over exactly three months (review L3)
+    if not isinstance(months, dict) or len(months) != 3:
         raise _refuse("HISTORY_MONTHS", "history", "months")
     ordered = sorted(months)
     for i, month in enumerate(ordered):
@@ -78,26 +100,32 @@ def _validate_months(history: dict) -> list[str]:
     anchor = history.get("anchor_period")
     if anchor in months or anchor != next_month(ordered[-1]):
         raise _refuse("HISTORY_MONTHS", "history", "anchor_period")
-    seasons = history.get("seasons", {})
+    seasons = history["seasons"]
+    if not isinstance(seasons, dict):
+        raise _refuse("HISTORY_MONTHS", "history", "seasons")
     for month in ordered + [anchor]:
         if month not in seasons:
             raise _refuse("HISTORY_MONTHS", "history", "seasons")
-    classes = history.get("day_classes", {})
-    weekdays = sorted(day for days in classes.values() for day in days)
+    classes = history["day_classes"]
+    if not isinstance(classes, dict) or not all(isinstance(d, list) for d in classes.values()):
+        raise _refuse("HISTORY_MONTHS", "history", "day_classes")
+    weekdays = sorted(day for days in classes.values() for day in days if isinstance(day, int))
     if weekdays != [1, 2, 3, 4, 5, 6, 7]:
         raise _refuse("HISTORY_MONTHS", "history", "day_classes")
     return ordered
 
 
 def _validate_families(history: dict) -> None:
-    for name, family in sorted(history.get("families", {}).items()):
+    families = history["families"]
+    if not isinstance(families, dict):
+        raise _refuse("HISTORY_FAMILY_UNKNOWN", "history", "families")
+    for name, family in sorted(families.items()):
         try:
-            for weights in (family["season"], family["day"]):
-                for weight in weights.values():
-                    _number(weight)
-            _number(family["jitter"])
-        except (KeyError, TypeError, AttributeError, InvalidOperation):
+            weights = [*family["season"].values(), *family["day"].values(), family["jitter"]]
+        except (KeyError, TypeError, AttributeError):
             raise _refuse("HISTORY_FAMILY_UNKNOWN", "history", name) from None
+        for weight in weights:
+            _number(weight, "history", name)
 
 
 def _validate_overrides(view: dict) -> None:
@@ -108,7 +136,8 @@ def _validate_overrides(view: dict) -> None:
 
 
 def _validate_money(history: dict) -> None:
-    if set(history.get("money_leaves", [])) != MONEY_LEAVES:
+    leaves = history["money_leaves"]
+    if not isinstance(leaves, list) or set(leaves) != MONEY_LEAVES:
         raise _refuse("HISTORY_MONEY_LEAVES", "history", "money_leaves")
 
 
@@ -139,10 +168,7 @@ class _Scope:
         values = self.site["period"].get(side, {})
         if leaf not in values:
             raise _refuse(code, self.key, leaf)
-        try:
-            value = _number(values[leaf])
-        except InvalidOperation:
-            raise _refuse("HISTORY_RULE_REF", self.key, leaf) from None
+        value = _number(values[leaf], self.key, leaf)
         return value * 100 if is_money(leaf) else value
 
     def tenant_number(self, path: tuple[str, ...], leaf: str, code: str) -> Fraction:
@@ -151,13 +177,13 @@ class _Scope:
             if not isinstance(node, dict) or part not in node:
                 raise _refuse(code, self.key, leaf)
             node = node[part]
-        return _number(node)
+        return _number(node, self.key, leaf)
 
     def physical(self, name: str, leaf: str) -> Fraction:
         physical = self.site.get("physical")
         if not isinstance(physical, dict) or name not in physical:
             raise _refuse("HISTORY_RULE_REF", self.key, leaf)
-        return _number(physical[name])
+        return _number(physical[name], self.key, leaf)
 
     # seasonality (§6.2)
     def _family(self, name: str, leaf: str) -> dict:
@@ -173,7 +199,7 @@ class _Scope:
             raise _refuse("HISTORY_MONTHS", self.key, leaf)
         if season not in family["season"]:
             raise _refuse("HISTORY_FAMILY_UNKNOWN", self.key, leaf)
-        season_weight = _number(family["season"][season])
+        season_weight = _number(family["season"][season], self.key, leaf)
         total = Fraction(0)
         for day in dates_of(month):
             cls = day_class(day, self.history.get("day_classes", {}))
@@ -181,13 +207,13 @@ class _Scope:
                 raise _refuse("HISTORY_MONTHS", self.key, leaf)
             if cls not in family["day"]:
                 raise _refuse("HISTORY_FAMILY_UNKNOWN", self.key, leaf)
-            total += season_weight * _number(family["day"][cls])
+            total += season_weight * _number(family["day"][cls], self.key, leaf)
         return total
 
     def _jitter(self, name: str, leaf: str) -> Fraction:
         if not self.jitter:
             return Fraction(1)
-        amplitude = _number(self._family(name, leaf)["jitter"])
+        amplitude = _number(self._family(name, leaf)["jitter"], self.key, leaf)
         return 1 + amplitude * unit_interval(seed(self.digest, self.key, name))
 
     def _ratio(self, name: str, leaf: str) -> tuple[Fraction, Fraction]:
@@ -234,10 +260,7 @@ def _parse(scope: _Scope, leaf: str, rule) -> list[str]:
         for token in tokens[-3:]:
             if token == ANCHOR and word in ANCHORABLE:
                 continue
-            try:
-                _number(token)
-            except InvalidOperation:
-                raise _refuse("HISTORY_RULE_UNKNOWN", scope.key, leaf) from None
+            _number(token, scope.key, leaf)
     return tokens
 
 
@@ -280,18 +303,18 @@ def _value(scope: _Scope, side: str, leaf: str, tokens: list[str], made: dict[st
     if word == "scale":
         return scope.october(side, leaf) * scope.volume(tokens[1], leaf)
     if word == "trend":
-        return scope.october(side, leaf) * _number(scope.listed(tokens, leaf)) * scope.volume(tokens[1], leaf)
+        return scope.october(side, leaf) * _number(scope.listed(tokens, leaf), key, leaf) * scope.volume(tokens[1], leaf)
     if word == "level":
-        return scope.october(side, leaf) * _number(scope.listed(tokens, leaf)) * scope.shape(tokens[1], leaf)
+        return scope.october(side, leaf) * _number(scope.listed(tokens, leaf), key, leaf) * scope.shape(tokens[1], leaf)
     if word == "occupancy":
-        capacity = scope.tenant_number(("capacity_crates_per_room",), leaf, "HISTORY_ANCHOR_ZERO")
+        capacity = scope.tenant_number(("capacity_crates_per_room",), leaf, "HISTORY_RULE_REF")
         if capacity == 0:
             raise _refuse("HISTORY_ANCHOR_ZERO", key, leaf)
         entry = scope.listed(tokens, leaf)
         if entry == ANCHOR:
             occupancy = scope.october(side, "crate_days") / (capacity * scope.anchor_days)
         else:
-            occupancy = _number(entry)
+            occupancy = _number(entry, key, leaf)
         if occupancy > 1:
             raise _refuse("HISTORY_BOUND", key, leaf)
         return occupancy * capacity * scope.days
@@ -301,7 +324,7 @@ def _value(scope: _Scope, side: str, leaf: str, tokens: list[str], made: dict[st
         model = base + slope * made["crate_days"]
         entry = scope.listed(tokens, leaf)
         if entry != ANCHOR:
-            return model * _number(entry)
+            return model * _number(entry, key, leaf)
         october_model = base + slope * scope.october(side, "crate_days")
         if october_model == 0:
             raise _refuse("HISTORY_ANCHOR_ZERO", key, leaf)
@@ -320,7 +343,7 @@ def _value(scope: _Scope, side: str, leaf: str, tokens: list[str], made: dict[st
                 raise _refuse("HISTORY_ANCHOR_ZERO", key, leaf)
             fraction = scope.october(side, leaf) / denominator
         else:
-            fraction = _number(entry)
+            fraction = _number(entry, key, leaf)
         if fraction < 0 or fraction > 1:
             raise _refuse("HISTORY_BOUND", key, leaf)
         return Fraction(allocate(made[tokens[1]], [fraction, 1 - fraction])[0])
@@ -366,9 +389,20 @@ def _find(view: dict, tenant: str, site: str, month: str) -> tuple[dict, dict]:
     raise _refuse("HISTORY_RULE_UNKNOWN", scope_key(tenant, site, month), "site")
 
 
-def generate_scope(view: dict, tenant: str, site: str, month: str, *, jitter: bool = True) -> dict:
-    """One Site's month. It does not check that the month is in the history's set."""
-    view = ManifestView.from_document(view)
+def _validate(view: dict) -> list[str]:
+    """The checks made before any scope; returns the sorted month set."""
+    history = view.get("history")
+    if not isinstance(history, dict):
+        raise _refuse("HISTORY_MONTHS", "history", "history")
+    _validate_fields(history)
+    months = _validate_months(history)
+    _validate_families(history)
+    _validate_money(history)
+    _validate_overrides(view)
+    return months
+
+
+def _scope_block(view: dict, tenant: str, site: str, month: str, jitter: bool) -> dict:
     tenant_doc, site_doc = _find(view, tenant, site, month)
     scope = _Scope(view, tenant_doc, site_doc, month, jitter)
     block = {
@@ -382,22 +416,25 @@ def generate_scope(view: dict, tenant: str, site: str, month: str, *, jitter: bo
     return block
 
 
+def generate_scope(view: dict, tenant: str, site: str, month: str, *, jitter: bool = True) -> dict:
+    """One Site's month. It runs the same validation as `generate_history`, except that
+    it does not check that the month is in the history's set."""
+    view = ManifestView.from_document(view)
+    _validate(view)
+    return _scope_block(view, tenant, site, month, jitter)
+
+
 def generate_history(view: dict) -> dict:
     """The history file (§7.1) for every tenant and Site, in view order, and every month."""
     view = ManifestView.from_document(view)
-    history = view.get("history")
-    if not isinstance(history, dict):
-        raise _refuse("HISTORY_MONTHS", "history", "history")
-    months = _validate_months(history)
-    _validate_families(history)
-    _validate_money(history)
-    _validate_overrides(view)
+    months = _validate(view)
+    history = view["history"]
     tenants: dict = {}
     for tenant_doc in view.get("tenants", []):
         sites = tenants.setdefault(tenant_doc["tenant"], {})
         for site_doc in tenant_doc.get("sites", []):
             sites[site_doc["site"]] = {
-                month: generate_scope(view, tenant_doc["tenant"], site_doc["site"], month) for month in months
+                month: _scope_block(view, tenant_doc["tenant"], site_doc["site"], month, True) for month in months
             }
     meta = {
         "schema": SCHEMA,

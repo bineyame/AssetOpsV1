@@ -78,10 +78,10 @@ def test_t3a_private_block_changes_nothing(view: dict) -> None:
 
 
 def test_t3b_name_absent_from_generator() -> None:
-    files = sorted((REPOSITORY_ROOT / "simulator" / "assetops_simulator" / "world").rglob("*.py")) + [CLI]
-    files = [f for f in files if f.is_file()]
+    world = REPOSITORY_ROOT / "simulator" / "assetops_simulator" / "world"
+    files = [f for f in sorted(world.rglob("*")) if f.is_file() and "__pycache__" not in f.parts] + [CLI]
     assert len(files) >= 8
-    hits = [str(f) for f in files if re.search(PRIVATE, f.read_text(encoding="utf-8"), re.IGNORECASE)]
+    hits = [str(f) for f in files if re.search(PRIVATE.encode(), f.read_bytes(), re.IGNORECASE)]
     assert hits == []
 
 
@@ -204,7 +204,11 @@ def _p_zero_season(v):
 
 
 def _p_months_gap(v):
-    v["history"]["months"] = {"2026-07": 31, "2026-09": 30}
+    v["history"]["months"] = {"2026-07": 31, "2026-09": 30, "2026-10": 31}
+
+
+def _p_months_two(v):
+    v["history"]["months"] = {"2026-08": 31, "2026-09": 30}
 
 
 def _p_months_days(v):
@@ -223,44 +227,124 @@ def _p_no_plan_value(v):
     del site_of(v, "harvest-cold", "Room A · Mwea")["period"]["plan"]["maint"]
 
 
+def _p_missing_capacity(v):
+    del tenant_of(v, "harvest-cold")["capacity_crates_per_room"]
+
+
+def _p_missing_energy_model(v):
+    del tenant_of(v, "harvest-cold")["energy_model"]
+
+
+def _p_missing_october_leaf(v):
+    del site_of(v, "harvest-cold", "Room A · Mwea")["period"]["actual"]["crate_days"]
+
+
+def _p_nan_weight(v):
+    v["history"]["families"]["demand"]["season"]["short_rains"] = "NaN"
+
+
+def _p_infinite_jitter(v):
+    v["history"]["families"]["demand"]["jitter"] = "Infinity"
+
+
+def _p_text_weight(v):
+    v["history"]["families"]["flat"]["day"]["SA"] = "heavy"
+
+
+def _p_nan_token(v):
+    _override(v, "lakeside-power/Kobo", "actual")["unexplained_l"] = "trend generator NaN 1 1"
+
+
+def _p_text_token(v):
+    _override(v, "lakeside-power/Kobo", "actual")["unexplained_l"] = "trend generator 1 1 anchor"
+
+
+def _p_nan_leaf(v):
+    site_of(v, "lakeside-power", "Kobo")["period"]["actual"]["staff"] = "NaN"
+
+
+def _p_nan_capacity(v):
+    tenant_of(v, "harvest-cold")["capacity_crates_per_room"] = "Infinity"
+
+
+def _p_missing_field(field):
+    def plant(v):
+        del v["history"][field]
+    plant.__name__ = f"_p_missing_{field}"
+    return plant
+
+
+REQUIRED = ["version", "months", "anchor_period", "shape_source", "money_leaves", "label",
+            "missing_cause", "seasons", "day_classes", "families", "rules"]
+
+KOBO, MWEA, EMBAKASI = "lakeside-power/Kobo/2026-07", "harvest-cold/Room A · Mwea/2026-07", "metro-bus/Embakasi/2026-07"
+
 REFUSALS = [
-    ("HISTORY_RULE_UNKNOWN", _p_unknown_word),
-    ("HISTORY_RULE_UNKNOWN", _p_unknown_vertical),
-    ("HISTORY_RULE_UNKNOWN", _p_unknown_site),
-    ("HISTORY_RULE_ARITY", _p_arity),
-    ("HISTORY_RULE_REF", _p_ref),
-    ("HISTORY_RULE_CYCLE", _p_cycle),
-    ("HISTORY_FAMILY_UNKNOWN", _p_family),
-    ("HISTORY_BOUND", _p_bound_negative),
-    ("HISTORY_BOUND", _p_bound_occupancy),
-    ("HISTORY_ANCHOR_ZERO", _p_zero_occupancy),
-    ("HISTORY_ANCHOR_ZERO", _p_zero_cold_kwh),
-    ("HISTORY_ANCHOR_ZERO", _p_zero_ratio),
-    ("HISTORY_ANCHOR_ZERO", _p_zero_share),
-    ("HISTORY_ANCHOR_ZERO", _p_zero_season),
-    ("HISTORY_MONTHS", _p_months_gap),
-    ("HISTORY_MONTHS", _p_months_days),
-    ("HISTORY_MONTHS", _p_months_anchor),
-    ("HISTORY_MONEY_LEAVES", _p_money),
-    ("HISTORY_NO_PLAN_VALUE", _p_no_plan_value),
-]
+    ("HISTORY_RULE_UNKNOWN", _p_unknown_word, f"{KOBO} om"),
+    ("HISTORY_RULE_UNKNOWN", _p_unknown_vertical, f"{EMBAKASI} EV_DEPOT"),
+    ("HISTORY_RULE_UNKNOWN", _p_unknown_site, "harvest-cold/Room Z sites"),
+    ("HISTORY_RULE_ARITY", _p_arity, f"{KOBO} unexplained_l"),
+    ("HISTORY_RULE_REF", _p_ref, f"{MWEA} outstanding"),
+    ("HISTORY_RULE_REF", _p_missing_capacity, f"{MWEA} crate_days"),
+    ("HISTORY_RULE_REF", _p_missing_energy_model, f"{MWEA} kwh"),
+    ("HISTORY_RULE_REF", _p_missing_october_leaf, f"{MWEA} kwh"),
+    ("HISTORY_RULE_CYCLE", _p_cycle, f"{EMBAKASI} kwh_0000_0500"),
+    ("HISTORY_FAMILY_UNKNOWN", _p_family, f"{KOBO} delivered_kwh"),
+    ("HISTORY_BOUND", _p_bound_negative, f"{KOBO} staff"),
+    ("HISTORY_BOUND", _p_bound_occupancy, f"{MWEA} crate_days"),
+    ("HISTORY_ANCHOR_ZERO", _p_zero_occupancy, f"{MWEA} crate_days"),
+    ("HISTORY_ANCHOR_ZERO", _p_zero_cold_kwh, f"{MWEA} kwh"),
+    ("HISTORY_ANCHOR_ZERO", _p_zero_ratio, f"{MWEA} outstanding"),
+    ("HISTORY_ANCHOR_ZERO", _p_zero_share, f"{EMBAKASI} peak_kwh"),
+    ("HISTORY_ANCHOR_ZERO", _p_zero_season, f"{KOBO} adjustments_kwh"),
+    ("HISTORY_MONTHS", _p_months_gap, "history 2026-09"),
+    ("HISTORY_MONTHS", _p_months_two, "history months"),
+    ("HISTORY_MONTHS", _p_months_days, "history 2026-09"),
+    ("HISTORY_MONTHS", _p_months_anchor, "history anchor_period"),
+    ("HISTORY_MONEY_LEAVES", _p_money, "history money_leaves"),
+    ("HISTORY_NO_PLAN_VALUE", _p_no_plan_value, f"{MWEA} maint"),
+    ("HISTORY_NUMBER", _p_nan_weight, "history demand"),
+    ("HISTORY_NUMBER", _p_infinite_jitter, "history demand"),
+    ("HISTORY_NUMBER", _p_text_weight, "history flat"),
+    ("HISTORY_NUMBER", _p_nan_token, f"{KOBO} unexplained_l"),
+    ("HISTORY_NUMBER", _p_text_token, f"{KOBO} unexplained_l"),
+    ("HISTORY_NUMBER", _p_nan_leaf, f"{KOBO} staff"),
+    ("HISTORY_NUMBER", _p_nan_capacity, f"{MWEA} crate_days"),
+] + [("HISTORY_FIELD", _p_missing_field(f), f"history {f}") for f in REQUIRED]
 
 
-@pytest.mark.parametrize("code, plant", REFUSALS, ids=[p.__name__[3:] for _, p in REFUSALS])
-def test_t8_refusals(view: dict, code: str, plant) -> None:
+@pytest.mark.parametrize("code, plant, text", REFUSALS, ids=[p.__name__[3:] for _, p, _ in REFUSALS])
+def test_t8_refusals(view: dict, code: str, plant, text: str) -> None:
     generate_history(view)  # the unplanted view generates
     plant(view)
     with pytest.raises(ValueError) as caught:
         generate_history(view)
-    message = str(caught.value)
-    assert message.split(" ")[0] == code, message
-    assert len(message.split(" ")) >= 3, message  # "<CODE> <scope_key> <leaf>"
+    assert str(caught.value) == f"{code} {text}"  # the full "<CODE> <scope> <leaf>" text
 
 
-def test_t8_scope_refusal_names_scope_and_leaf(view: dict) -> None:
-    _p_unknown_word(view)
-    with pytest.raises(ValueError, match=r"^HISTORY_RULE_UNKNOWN lakeside-power/Kobo/2026-07 om$"):
+def test_t8_missing_label_is_a_field_refusal(view: dict) -> None:
+    del view["history"]["label"]
+    with pytest.raises(ValueError, match=r"^HISTORY_FIELD history label$"):
         generate_history(view)
+
+
+def test_t8_nan_float_refused_by_the_view() -> None:
+    for bad in (float("nan"), float("inf")):
+        with pytest.raises(ValueError, match=r"^VIEW_TYPE tenants\[0\]\.prices\.a$"):
+            ManifestView.from_document({"tenants": [{"tenant": "t", "prices": {"a": bad}}]})
+
+
+def test_t8_generate_scope_alone_validates(view: dict) -> None:
+    del view["history"]["families"]["generator"]["jitter"]
+    with pytest.raises(ValueError, match=r"^HISTORY_FAMILY_UNKNOWN history generator$"):
+        generate_scope(view, "lakeside-power", "Kobo", "2026-10", jitter=False)
+    del view["history"]["label"]
+    with pytest.raises(ValueError, match=r"^HISTORY_FIELD history label$"):
+        generate_scope(view, "lakeside-power", "Kobo", "2026-10", jitter=False)
+
+
+def test_t8_generate_scope_does_not_check_month_membership(view: dict) -> None:
+    assert generate_scope(view, "lakeside-power", "Kobo", "2026-10", jitter=False)["period_days"] == 31
 
 
 def test_t8_unknown_leaf_skipped(view: dict) -> None:

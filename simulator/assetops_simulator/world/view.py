@@ -9,6 +9,7 @@ refused. Applying the view to a view returns it unchanged.
 
 from __future__ import annotations
 
+import math
 from typing import Any
 
 from .canonical import canonical_bytes, sha256_hex
@@ -25,6 +26,8 @@ def _value(item: Any, path: str) -> Any:
     if isinstance(item, int):
         return item
     if isinstance(item, float):
+        if not math.isfinite(item):
+            raise ValueError(f"VIEW_TYPE {path}")
         return repr(item)
     if isinstance(item, str):
         return item
