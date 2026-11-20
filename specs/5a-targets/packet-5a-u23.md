@@ -68,3 +68,15 @@ text conflicts at merge: `.ai/state/data.md` and `.ai/state/index-2.md` (both la
 
 Q3's origin rule; that `AT_ACTUAL` costs (D-5A.15) read ESTIMATED up to `contribution` while stated headings stay
 DECLARED; that `TargetCheck` never replaces a computed value.
+
+## Fix round 1 (review `review-5a-u23.md`, ACCEPT with F1)
+
+- Merged `task/5a-u23-midbuild-answers` (spec rev 3, D-5A.16). Q2 as ruled: step-1 declarer is `service:ds3-loader` in
+  `backend/tests/fixtures/targets_lakeside.json` and `test_5a_targets.py`; `PG_LOADER` removed from the Postgres file
+  (spec §5 already carries the literal from rev 3). Parity test passes.
+- F1: `test_8d_two_currencies_leave_the_money_leaks_unknown` (Kobo `fuel_cost` re-declared in EUR): `currency` None,
+  `in_transit`/`outstanding`/`liability` absent `TARGET_CURRENCY_UNKNOWN`, `technical_loss_kwh` still 0 ESTIMATED.
+  Plant (guard removed, money leak hard-codes USD) fails it: `assert Decimal('0') is None` for `in_transit`.
+- Origin plants re-shown, failing output in `/opt/assetecon/evidence/5a-u23/plants-fixround.log`: MAIN without the
+  parts under its heading and LEAK_ZERO tagged `source-emulated` each fail `test_3a_origins_of_assumptions`. Tree clean.
+- Regression set (7 files) **290 passed**; Postgres 4 passed (`pg-3.log`); fast check-all: all guards passed, 81 s (`check-all-r2.log`).
