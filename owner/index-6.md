@@ -29,3 +29,4 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-11-20 `owner-claude-usage-efficiency-2026-11-20.md` Claude usage not efficient: fix it (coordinator tightened the dispatch rules in .ai/ROLE_CONFIG.md) · current — governs dispatch
 - 2026-11-20 `owner-k-of-n-sites-2026-11-20.md` Portfolio totals add the Sites that have the figure and show "k of n sites" with the missing ones named (confirms D-3B3.13; display for 3B5) · current
 - 2026-11-20 `owner-website-refresh-2026-11-20.md` Queue the website recommendation and copy-deck refresh (operations, missing-data honesty, new app structure); recommendation role only · current
+- 2026-11-20 `owner-no-in-build-wording-2026-11-20.md` Prospect-facing copy never says the product is being built (erodes confidence); claim nothing untrue; the Demo data badge stays · current — governs website and pitch copy
