@@ -5,8 +5,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
-import time
+import subprocess
+import sys
 from decimal import Decimal
 from fractions import Fraction
 
@@ -345,11 +347,30 @@ def test_t8_refusals(view: dict, code: str, plant, text: str) -> None:
 
 @pytest.mark.parametrize("plant", [_p_huge_leaf, _p_tiny_weight], ids=["1e999999999", "1e-999999999"])
 def test_t8_extreme_exponent_refuses_fast(view: dict, plant) -> None:
+    """DS1p L4: each planted call runs in a child process under a 1-second timeout, so an
+    unbounded exponent fails the test instead of hanging the suite."""
     plant(view)
-    started = time.monotonic()
-    with pytest.raises(ValueError, match=r"^HISTORY_NUMBER "):
-        generate_history(view)
-    assert time.monotonic() - started < 1.0
+    child = (
+        "import json, sys\n"
+        "from assetops_simulator.world.history import generate_history\n"
+        "try:\n"
+        "    generate_history(json.load(sys.stdin))\n"
+        "except ValueError as error:\n"
+        "    print(error)\n"
+    )
+    try:
+        done = subprocess.run(
+            [sys.executable, "-c", child],
+            input=json.dumps(view),
+            capture_output=True,
+            text=True,
+            timeout=1,
+            env=os.environ.copy(),
+        )
+    except subprocess.TimeoutExpired:
+        pytest.fail("the planted exponent did not refuse within 1 second")
+    assert done.returncode == 0, done.stderr
+    assert done.stdout.startswith("HISTORY_NUMBER "), done.stdout
 
 
 def test_t8_missing_label_is_a_field_refusal(view: dict) -> None:
