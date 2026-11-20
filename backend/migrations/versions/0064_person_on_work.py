@@ -15,14 +15,14 @@ Upgrade: lock the nine tables child-first in ACCESS EXCLUSIVE mode (P2), then re
 (such a row has no person). Downgrade: the same lock, refused while any `person_id` is set; otherwise it drops what
 the upgrade added and re-adds the exact 0033 kind checks under their names.
 
-Numbered by D-3A1.12: whichever of 3C1a and 3A1 merges first keeps 0063; tests read `revision` and `down_revision`
-from this module.
+Numbered by D-3A1.12: 3A1 merged first and kept 0063, so this is 0064 (down_revision 0063_commercial_records); tests
+read `revision` and `down_revision` from this module.
 """
 
 from alembic import op
 
-revision = "0063_person_on_work"
-down_revision = "0062_operator_accounts"
+revision = "0064_person_on_work"
+down_revision = "0063_commercial_records"
 branch_labels = None
 depends_on = None
 
@@ -33,8 +33,8 @@ DOMAIN_TABLES = ("domain_action_case_link", "domain_action_intent", "domain_acti
 #: The 0033 definition each domain kind check must have before it is widened, as `pg_get_constraintdef` prints it.
 SERVICE_ONLY = "CHECK ((actor_kind = 'SERVICE'::text))"
 UPGRADE_REFUSED = "Upgrade refused: USER rows without a person exist in"
-DOWNGRADE_REFUSED = "Downgrade of 0063_person_on_work refused: person rows exist in"
-DISCOVERY_FAILED = "0063_person_on_work: unexpected actor kind check on"
+DOWNGRADE_REFUSED = f"Downgrade of {revision} refused: person rows exist in"
+DISCOVERY_FAILED = f"{revision}: unexpected actor kind check on"
 
 LOCK = f"LOCK TABLE {', '.join(TABLES)} IN ACCESS EXCLUSIVE MODE;\n"
 

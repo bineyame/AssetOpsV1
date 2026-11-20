@@ -19,7 +19,7 @@ import pytest
 URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 
-_PATH = Path(__file__).resolve().parents[1] / "migrations" / "versions" / "0063_person_on_work.py"
+_PATH = next((Path(__file__).resolve().parents[1] / "migrations" / "versions").glob("*_person_on_work.py"))
 _SPEC = importlib.util.spec_from_file_location("m3c1a", _PATH)
 MIG = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(MIG)
@@ -146,9 +146,16 @@ def _all_nine(c0) -> dict:
 
 # ---- the migration's shape -------------------------------------------------------------------------------------
 
-def test_the_migration_is_the_head_and_chains_from_accounts() -> None:
-    assert MIG.revision == pg_harness.alembic_head()
-    assert MIG.down_revision == "0062_operator_accounts"
+def test_the_migration_chains_from_accounts_through_the_script_directory() -> None:
+    from alembic.script import ScriptDirectory
+
+    directory = ScriptDirectory.from_config(pg_harness._alembic("postgresql://unused/unused_test"))
+    pg_harness.alembic_head()  # one head, whichever it is
+    script = directory.get_revision(MIG.revision)
+    assert script is not None and script.down_revision == MIG.down_revision
+    assert directory.get_revision(MIG.down_revision) is not None
+    accounts = next(r for r in directory.walk_revisions() if Path(r.path).name.endswith("_operator_accounts.py"))
+    assert accounts.revision in {r.revision for r in directory.iterate_revisions(MIG.revision, "base")}
     assert MIG.TABLES == TABLES  # child-first lock order (P2)
 
 
@@ -328,7 +335,7 @@ def test_downgrade_refused_with_a_person_row_then_down_up_and_the_upgrade_refusa
             assert _constraint(engine, table, f"{table}_person_fk") is None
         for table in DOMAIN:  # the exact 0033 checks, under their names
             assert _constraint(engine, table, f"{table}_actor_kind_check") == SERVICE_ONLY, table
-        with engine.begin() as c:  # at 0062 a USER work row without a person is still possible: plant one
+        with engine.begin() as c:  # before this migration a USER work row without a person is still possible: plant one
             c.execute(text(
                 "INSERT INTO work_event (id, tenant_id, site_id, case_id, kind, payload, occurred_at, actor_kind, "
                 "actor_id, authorization_basis, attestation, idempotency_key, payload_sha256) VALUES (:id, :t, :s, "

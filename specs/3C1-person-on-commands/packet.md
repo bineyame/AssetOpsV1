@@ -7,7 +7,7 @@ ruled.
 
 ## Commits
 
-- `e1527f0e6` person step, `PersonActor`, migration `0063_person_on_work`, adapters, `create_app` wiring, both test files.
+- `e1527f0e6` person step, `PersonActor`, migration `0064_person_on_work`, adapters, `create_app` wiring, both test files.
 - `b1c90c80a` routers pass `person=` only on the person path (today's service calls are unchanged; found by the
   `test_own_g3_operational_entry.py` fake).
 - Docs commit: state entry, index line, spec status, `specs/INDEX.md`, `mid-build-questions.md` Q1, this packet.

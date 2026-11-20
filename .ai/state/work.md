@@ -138,7 +138,7 @@ decision `D-2026-10-31-board-action-refresh-lineage`; packet `archive/agent-hist
 - The server composes `PersonActor`: `USER`, `person:<id>`, `person_id`, attestation
   `person=<id>;session=<sid>;role=<role>`, basis `PERSON_ROLE:<role>` on the W4 tables only. The hash holds
   `{kind, id}` (R1); SERVICE hashes are unchanged. Person shapes carry no `actor`.
-- Migration `0063_person_on_work` (D-3A1.12 numbering): `person_id`, `<t>_person_fk` (tenant FK) and
+- Migration `0064_person_on_work` (D-3A1.12 numbering; 3A1 kept 0063): `person_id`, `<t>_person_fk` (tenant FK) and
   `<t>_person_actor` (R8) on nine tables; the three domain kind checks widened to SERVICE/USER under their names.
 - The switch is read once in `create_app` and ships off; `3C0b` turns it on.
 - Open: trial actions (`3C1b`); names in reads (`3C2`, `3C3`); turning the switch on (`3C0b`).
