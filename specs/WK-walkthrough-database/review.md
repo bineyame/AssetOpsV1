@@ -142,3 +142,48 @@ The live serve against the walk database and the real npm/Vite group under `stop
 
 - `stop` still sets `serve` to null when a child was refused, so `drop` relies on the session check alone (as in round 1).
 - A member that calls `setsid` leaves the group and outlives `stop`. Vite does not do this today.
+
+## Round 3 (verification, fresh Claude reviewer, 2026-11-21)
+
+**Summary.**
+- Verdict: **ACCEPT.** M3, L5 and L6 are closed, and the zombie-member fix is safe. One new Low (L7, test gap only: the leader guards in `track` are untested). It does not block the merge.
+- Reviewed: `task/WK-walk-world` at `b90646b8d`, fix diff `8aa89fd5c..b90646b8d` (code in `a1994f3d8`, `d4955166c`, `709611c8a`).
+- M3: with the leader gone, a signal needs every live member of the group to be a `[pid, start_time]` pair recorded by `track` while our leader held the group id. The round-2 attack is refused (`group_unverified`, no `killpg`) on real `Procs`.
+- L5: a zombie leader with the recorded start time is `gone`, and the recorded-member fallback applies. A zombie with another start time is refused `start_time`.
+- L6: removing the session check fails `refuses_a_recorded_member_in_another_session`.
+- Checks: WK+DS4 `173 passed in 5.62s`; fast check-all `All 42 guards passed` (exit 0). Q1, Q2, Q4-Q7 spot-checked; each fails as the packet says. Of my 4 plants, 1 is caught and 3 survive (L7).
+
+### Findings
+
+**L7 (Low, test gap; not an acceptance gap).** `tools/walk_world.py:478-479` and `:486-487` (the leader checks in `Procs.track`).
+- **What is wrong.** `track` records a member only while the recorded leader exists with the recorded start time and group (`:478`), and re-checks the leader after the scan (`:486`). These two checks are the root of the M3 guard. With the leader PID reused by a foreign session leader, they stop `track` from adopting the foreign group as ours. No test covers them. My plants RV-C (first check reduced to `lead is None`), RV-F (re-check removed) and RV-CF (both) each leave all 93 WK tests passing. RV-D (no session filter in `track`) also survives, but in a real kernel a group never spans sessions, so that one is redundant rather than a gap.
+- **Code is correct.** Probe on real `Procs`: a live `sh -c "sleep 30 & exec sleep 30"` session leader, recorded with start time minus 5. `track` leaves `members` `[]`, and `signal` returns `start_time` with no `killpg`.
+- **Why it matters.** A later edit could drop both checks without any test failing. The fallback would then trust members of a foreign group recorded under a reused leader PID: M3 again, one step earlier.
+- **Fix (optional, on the branch or later).** Add a T9 case. The leader PID is present with another start time, and its group holds a process in that session. After `track`, `members` stays empty, and `stop` reports `WALK_PID_REUSED <pid> start_time` with no signal.
+
+### Closed (verified)
+
+1. **M3.** `track` (`:472-489`) runs at the top of every serve-wait iteration (`:973-974`) and once after readiness (`:991-992`). It merges pairs, so a member that exits stays a pair that only it can match. `members` (`:491-504`) puts a live process in `ok` only if it is in session `pgid` and its exact `(pid, start_time)` pair is recorded. `signal` (`:515-530`) refuses on any `bad`, and returns `gone` when there is no `ok`.
+   - (a) **The round-2 attack.** A reaped `sh -c "sleep 30 & exit 0"` (`start_new_session=True`) leaves a foreign group whose id is the recorded PID; the record has an older start time and `members: []`. Result: `checked` `gone`, `members` `([], [sleep])`, `alive` False, `signal` `group_unverified`, and the recording `killpg` is never called. Recorded with the sleep's PID but another start time: the same refusal. `track` with the leader gone adds nothing (`lead is None`).
+   - (b) **A member recorded while waiting whose PID is later reused.** Its live start time differs from the recorded one, so it lands in `bad` and nothing is signalled. A false match needs a PID reused within the same clock tick as the original start, after that member exited; that is not reachable in practice. Covered by `test_t9_stop_refuses_a_recorded_pid_with_another_start_time` (Q1 and RV-E fail it).
+   - (c) **A zombie leader with the right start time and a foreign process in the group.** While the zombie exists its `struct pid` holds the number. No other process can create a group with that id, and `setpgid` into it needs the same session, which only our leader's descendants have. So a foreign member cannot appear. If one did (injected), it is unrecorded, so it is `bad` and refused. Probe: zombie leader plus a live unrecorded `sleep`, `signal` `group_unverified`, no `killpg`. After `track` recorded it while the zombie held the group, `signal` sent SIGTERM to that group only.
+2. **L5.** `checked` `:460-463`: the start-time check runs before the `Z` test, so a zombie with another start time is `start_time` (probe B3 and `test_t9_stop_zombie_with_another_start_time_is_refused`). With the recorded start time it is `gone`. `members` skips the zombie, so with only the zombie left, `alive` is False and `stop` returns None (`test_t9_only_a_zombie_leader_left_is_not_alive`).
+3. **L6.** Q2 (session check removed from `members`) fails `test_t9_stop_refuses_a_recorded_member_in_another_session` (`backend/tests/test_wk_walk_world.py:1049`).
+4. **Zombie members are skipped (`:501`).** The skip removes a process from both `ok` and `bad`, and only when its own state is `Z`, so it never reclassifies a live process. A live foreign member still reads `R`/`S`/`D`/`T` and lands in `bad`. A zombie takes no signal and holds no resource. Before the fix, the unreaped npm leader counted as live, so `stop` waited 10 s and sent SIGKILL (packet, live check A). The skip removed that wait and widens nothing.
+5. **Members Vite starts after readiness.** These are unrecorded. While the npm leader lives, `checked` passes and `killpg` covers the whole group, late members included. Only when npm is already gone does the fallback refuse with `group_unverified`. That leaks processes rather than killing the wrong one, the same direction as round 2's `setsid` residual. Acceptable. Two costs: the message is `WALK_PID_REUSED <leader pid> group_unverified`, which names neither the surviving PIDs nor the pgid, and `cmd_stop` still nulls `serve` (`:1067`). The operator must find the leftovers with `ps -g <pgid>`, and a leftover holding 5491 makes the next serve fail its port check. Vite starts its esbuild service before it reports ready, so this case is not expected today.
+6. **Plants** (in the worktree's tool file one at a time, restored after; tree clean after each): Q1 → 2 failed, Q2 → 1, Q4 → 2, Q5 → 1, Q6 → 1, Q7 → 1, each on the test the packet names. Q3 was not rerun. Mine: RV-E (`signal` refuses only when nothing is `ok`) → 2 failed. RV-C, RV-F, RV-CF → 0 failed (L7). RV-D → 0 failed (redundant check, see L7).
+
+### Checks run (by this reviewer, at `b90646b8d`)
+
+- `tools/heavy-slot.sh --wait-seconds 3000 -- .venv/bin/python -m pytest backend/tests/test_wk_walk_world.py backend/tests/test_ds4_world.py backend/tests/test_ds4_batch_days.py -q`: `173 passed in 5.62s`.
+- `bash tools/heavy-slot.sh --wait-seconds 3000 -- pwsh -NoProfile -File tools/check-all.ps1`: `check-all: 145.5 s wall (0.2 s waiting for a slot), 4 jobs at once. All 42 guards passed (blocking; 0 advisory, 0 warned).`, exit 0.
+- The probes used real `Procs` with a recording `killpg` on scratch `sh`/`sleep` children (`start_new_session=True`). They opened no port and touched no database, server, Docker, walk tree or keys. Every probe group was SIGKILLed after, and none were left.
+
+### Not verifiable here
+
+As in round 2: the live serve against the walk database, and the real npm/Vite group under `stop`. Those wait for the coordinator's §5 run.
+
+### Residual risk not in the packet
+
+- The `group_unverified` report names the dead leader's PID, not the survivors or the pgid. With `serve` nulled, a refused stop leaves no record to retry from (item 5).
+- `signal` reads the group and then calls `killpg`. Between the two, every recorded member would have to exit and a foreign group take the id after a full PID wrap. That race is not reachable in practice and is inherent to `killpg`.
