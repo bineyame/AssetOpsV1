@@ -1,7 +1,7 @@
 # 5c mid-build questions
 
-Questions raised during the build about something the spec did not fix. Count: 0 (reset at spec rev 2,
-2026-11-20).
+Questions raised during the build about something the spec did not fix. Count: 1 (reset at spec rev 2,
+2026-11-20; MBQ1 at unit 2).
 
 ## Pre-flight batch (implementer, 2026-11-21, before code; none blocking, each proceeds on its default)
 
@@ -23,3 +23,9 @@ the mid-build count. The Architect confirms them at review.
 | PF10 | World H's 4d helper is `LakesideInputs` (`test_4d_litre_split.py:560`), not `FakeInputs` | Use `LakesideInputs` (KOBO-OCT `kobo()`, V11 `v10(kobo())`). |
 | PF11 | `MoneyStanding.text`/`details` and 3C2's `state_words` arrive already rendered by SC-1 | Passed through as given strings. |
 | PF12 | SITE_SETUP words: §2.3 "one … one of each"; D-SC1.21 rewording | "a generator and a fuel tank declared in the Site's setup (litres are worked out for each)" (World H). |
+
+## Mid-build (implementer, unit 2, 2026-11-21)
+
+| # | Point | Default applied |
+|---|---|---|
+| MBQ1 | Spec 3.5 World A's standing text ends "within 1%." (unit 1's injected `NOT_MATCHED`, the fixture's `standing.text` and Assure drawer line). 3A7's `CommercialReconciliation.standing` on the Postgres world words the organisation standing with the statement's evidence: "... within 1% (Recorded)." (and "Reconciled: ... within 1% (Recorded)." for B). | The view passes 3A7's words through (PF11); nothing in 5c rewords them. Test 9 asserts 3A7's real literal and compares the rest of the payload with the fixture after that one substitution (`test_5c_deep_dive_postgres.py` `A_TEXT`). Unit 1's fixture and test 8 keep the spec literal, since their standing is injected. The Architect decides whether spec 3.5 and the fixture take "(Recorded)"; no screen code depends on it. |

@@ -4,11 +4,15 @@ codes and the two plain-code helpers (month codes, the ISO instant) the view nee
 """
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping, Sequence
 from datetime import datetime, timezone
 from types import MappingProxyType
 
 SCHEMA = "deep-dive-month-1"
+#: Unit 2 (spec section 4.2): the route and its cache header (`deep_dive_api.py`).
+ROUTE = "/api/portfolio/month"
+NO_STORE: Mapping[str, str] = MappingProxyType({"Cache-Control": "no-store"})
 MINI_GRID = "MINI_GRID"
 ROOT = "contribution"
 CASH = "collected"
@@ -67,6 +71,10 @@ UNTRACKED_SEP = ":"
 CURRENCY_SEP = ","
 #: Section 3.2: a residual row's key in the portfolio rows.
 RESIDUAL_PREFIX = "residual:"
+
+
+#: Spec section 4.1: the only month the read accepts (fullmatch).
+MONTH_PATTERN = re.compile(r"[0-9]{4}-(0[1-9]|1[0-2])")
 
 
 def month_code(year: int, month: int) -> str:

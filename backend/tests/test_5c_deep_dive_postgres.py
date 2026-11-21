@@ -47,6 +47,11 @@ def at(hour: int, minute: int = 0) -> datetime:
 
 #: Keys of the payload that name the read's instants; every other key is World A's fixture.
 TIMED = ("as_of", "as_of_text", "status_line")
+#: 3A7's organisation standing as `CommercialReconciliation.standing` words it on this database: it names the evidence
+#: of the statement it compares ("(Recorded)"); unit 1's injected literal (spec section 3.5) has no evidence (MBQ1).
+A_FIXTURE_TEXT = "Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1%."
+A_TEXT = ("Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1% "
+          "(Recorded).")
 A_WORDS = ["Estimated, not yet reconciled", "Estimated, not yet reconciled", None, None,
            "Emulated, not yet reconciled", "Emulated, not yet reconciled", "Estimated, not yet reconciled",
            "Emulated, not yet reconciled", "Estimated, not yet reconciled", "Emulated, not yet reconciled",
@@ -99,7 +104,9 @@ def test_9_the_standing_is_read_at_the_snapshots_instant(lakeside) -> None:  # p
     x = lakeside
     record(x, at(10), revenue="9700.00", fuel="5100.00")  # S1, the finance lead
     build(x, at(11))
-    fixture = json.loads(FIXTURE.read_text(encoding="utf-8"))
+    raw = FIXTURE.read_text(encoding="utf-8")
+    assert raw.count(A_FIXTURE_TEXT) == 2  # the standing and the Assure drawer's first line
+    fixture = json.loads(raw.replace(A_FIXTURE_TEXT, A_TEXT))
 
     # (a) read at 11:30: World A's standing and money words, as of the build.
     a = read(x, at(11, 30))
@@ -109,7 +116,7 @@ def test_9_the_standing_is_read_at_the_snapshots_instant(lakeside) -> None:  # p
                                 "accounts. Kisiwa's budget disagrees with its own lines.")
     assert a["standing"] == {
         "reconciled": False, "reason": "THIS_MONTH_NOT_MATCHED",
-        "text": "Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1%.",
+        "text": A_TEXT,
         "details": ["Fuel cost (Recorded and Emulated): the accounts say $5,100.00 and the records say $4,995.00, "
                     "$105.00 less (2.06%), beyond the $51.00 allowed (1%)."]}
     assert money_words(a) == A_WORDS
@@ -129,7 +136,9 @@ def test_9_the_standing_is_read_at_the_snapshots_instant(lakeside) -> None:  # p
     assert c["status_line"] == ("Figures as of 19 November 2026, 13:00 UTC. Reconciled with the management accounts. "
                                 "Kisiwa's budget disagrees with its own lines.")
     assert money_words(c) == B_WORDS
-    assert c["outcomes"][3]["value"] == "Reconciled"
+    assert c["standing"]["text"] == ("Reconciled: October 2026 (the organisation) matches the management accounts "
+                                     "within 1% (Recorded).")
+    assert (c["outcomes"][3]["value"], c["outcomes"][3]["drawer"]["lines"]) == ("Reconciled", [c["standing"]["text"]])
 
 
 def test_9_the_composition_reads_the_database(lakeside) -> None:

@@ -13,14 +13,13 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
 from assetops_backend.accounts.principal import person_from_request
-from assetops_backend.deep_dive.read import BAD_MONTH, DeepDiveRead
+from assetops_backend.deep_dive.read import BAD_MONTH, BadMonth, DeepDiveRead
+from assetops_backend.deep_dive.tables import NO_STORE, ROUTE
 from assetops_backend.i18n import State, message, render
 
 if TYPE_CHECKING:
     from assetops_backend.accounts.service import AccountService
 
-ROUTE = "/api/portfolio/month"
-NO_STORE = {"Cache-Control": "no-store"}
 UNAVAILABLE_CODE = "DEEP_DIVE_UNAVAILABLE"
 PERSON_REQUIRED = "PERSON_REQUIRED"
 
@@ -37,7 +36,7 @@ def _person_required() -> JSONResponse:
     return _refusal(401, PERSON_REQUIRED, render(message("person.person_required")))
 
 
-def build_deep_dive_router(read: DeepDiveRead | None, *, accounts: "AccountService | None", real_data: bool,
+def build_deep_dive_router(read: DeepDiveRead | None, *, accounts: AccountService | None, real_data: bool,
                            unavailable: tuple[type[BaseException], ...]) -> APIRouter:
     router = APIRouter()
 
@@ -58,10 +57,8 @@ def build_deep_dive_router(read: DeepDiveRead | None, *, accounts: "AccountServi
                     return _person_required()
             names = {s.site_code: s.name for s in registry.imported_sites()}
             body = read.month(tenant, month, names)
-        except ValueError as error:
-            if error.args == (BAD_MONTH,):
-                return _refused(422, BAD_MONTH)
-            raise
+        except BadMonth:
+            return _refused(422, BAD_MONTH)
         except unavailable:
             return _refused(503, UNAVAILABLE_CODE)
         return JSONResponse(status_code=200, content=body, headers=NO_STORE)
