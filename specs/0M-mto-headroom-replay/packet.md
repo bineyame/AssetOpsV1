@@ -51,14 +51,11 @@ failed (). Baseline fuel 590.314 L (= the site run). Unserved energy: 0 in every
 | Huller at 25 kW (vs reduced) | 22 days, 640 kWh beyond, 367.75 L | - |
 | Welder at 25 kW (vs reduced) | 22 days, 660 kWh beyond, 124.73 L | - |
 
-Plain reasons for the gaps. **Days and kWh:** the season's declared weather is overcast every fourth day (7-8 a
-month), so more weekdays lack headroom than the design's 3; the design's 225 kWh is 3 days x 75 kWh, the study's 384 is the
-step-level shortfall on its 6 days. **Huller litres:** the replay also counts the diesel spent refilling
-the battery the huller drew from on days that had headroom (PV that would have charged the battery counts as headroom,
-D-0M.6); the design's 68 L does not. **Welder:** the battery carries about half of the evening kWh before the
-generator starts at 35 %, so 636.7 generator kWh (at 0.33 L/kWh) serve 1,320 customer kWh in the window. **Reduced:**
-with loads halved, PV above 25 kW occurs only near noon on clear days and most of it would have charged the battery;
-the generator makes 43.75 kWh more in 61 days. Nothing was tuned.
+Plain reasons for the gaps (all from the simulated season, not a real Site; per-day readings of the 8-day replay and the 61-day month totals). Note first: "kWh beyond headroom" is a same-step reading (customer kWh at steps where PV is not above the load) and ignores the battery moving energy in time, so it is not the diesel figure; it sits below the diesel figure for the huller and above it for the welder.
+- **Days and kWh.** The season's declared weather is overcast every fourth day (7-8 a month), so 6 weekdays in October lack headroom against the design's 3; the design's 225 kWh is 3 days x 75 kWh, the study's 384 is the step-level shortfall on its 6 days.
+- **Huller litres (157 L against 68 L).** Per day the huller adds 0 kWh of generator energy on clear days (the battery still fills to 100 %) and about its whole day on an overcast weekday: 76.6 kWh of generator energy for 75 customer kWh, because the PV that counted as headroom was charging a battery that never fills (PV peaks at 16.5 kW, battery tops out at 69.8 %). That is the design's own logic (a day without headroom costs the whole day in diesel), applied to 6 days not 3, and 26.1 L a day in both Sep and Oct. The study counts twice the bad days because its simulated weather is overcast every fourth day.
+- **Welder litres (0.18 L per kWh against 0.33).** Per day the welder adds 0 kWh on clear days (the battery carries the evening and spilled PV refills it next day) and about 2.3 times its kWh on overcast weekdays (68.8 kWh for 30 customer kWh: the generator starts at 35 % and runs to 90 %; 9 extra starts in 61 days). So 0.18 is an average of 0 and about 0.7 L per kWh. The 1,320 of 1,320 kWh beyond headroom is true by construction: the season has no PV from 18:00 local, so same-step headroom is 0 for an 18:00-21:00 customer whatever the weather, as the design also assumed; it is not a finding of the replay.
+- **Reduced capacity (0.24 L a day against 5).** The 25 kW limit costs almost nothing: on clear days the battery still fills to 100 % so most of the 100 kWh of PV clipped above 25 kW would have been spilled anyway, and on overcast days PV peaks at 16.5 kW and never reaches the limit. The small cost (about 2.9 kWh, the 5th Sep case) falls on the clear day after an overcast day; the generator makes 43.75 kWh more in 61 days. Nothing was tuned.
 
 **Dawn (D-0K2.17, D-0M.22).** Baseline: FAIL, 15 of 61 dawns below 35 % (5 Sep and every 4th day to 31 Oct, the day
 after each overcast day), worst 30.72. Cause as D-0K2.17: Mto keeps the template's start 35 / reserve 30, and the
