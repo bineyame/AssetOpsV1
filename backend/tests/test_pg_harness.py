@@ -193,3 +193,62 @@ class TestAgainstPostgres:
                         admin.execute(text(f'DROP DATABASE IF EXISTS "{name}"'))
         finally:
             eng.dispose()
+
+
+def _exists_database(name: str) -> bool:
+    from sqlalchemy import text
+
+    return pg_harness._admin().execute(text("SELECT count(*) FROM pg_database WHERE datname = :n"),
+                                       {"n": name}).scalar_one() == 1
+
+
+@pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
+class TestCloneDatabase:
+    """DS3 (D-DS3.14): the public clone helper registers what it clones, and the harness drops it."""
+
+    def test_a_clone_is_a_registered_run_owned_test_database_and_drop_unregisters_it(self) -> None:
+        import os
+
+        from sqlalchemy.engine import make_url
+
+        url = pg_harness.clone_database("ds3hone")
+        name = make_url(url).database
+        try:
+            stem = make_url(os.environ[pg_harness.BASE_ENV]).database[: -len("_test")]
+            match = pg_harness._owned_pattern(stem).match(name)
+            assert match and match.group(1) == os.environ[pg_harness.RUN_ENV] and match.group(2) == "ds3hone"
+            assert _exists_database(name) and name in pg_harness.registered_clones()
+        finally:
+            pg_harness.drop_database(url)
+        assert not _exists_database(name) and name not in pg_harness.registered_clones()
+
+    def test_cloning_a_source_with_an_open_session_fails_naming_the_count(self) -> None:
+        from sqlalchemy import create_engine
+        from sqlalchemy.engine import make_url
+
+        source = pg_harness.clone_database("ds3hsrc")
+        eng = create_engine(source)
+        try:
+            with eng.connect():
+                with pytest.raises(AssertionError, match=r"it has 1 open session\(s\)"):
+                    pg_harness.clone_database("ds3hdst", source)
+            assert make_url(source).database in pg_harness.registered_clones()
+        finally:
+            eng.dispose()
+            pg_harness.drop_database(source)
+
+    def test_cleanup_drops_a_clone_still_registered(self, monkeypatch) -> None:
+        from sqlalchemy.engine import make_url
+
+        url = pg_harness.clone_database("ds3hleft")
+        name = make_url(url).database
+        # Keep this run's worker and template: cleanup drops ghost names instead, and the template marker comes back.
+        monkeypatch.setattr(pg_harness, "_names", lambda: ("ds3_ghost_tpl_test", "ds3_ghost_main_test"))
+        if "template" in pg_harness._state:
+            monkeypatch.setitem(pg_harness._state, "template", pg_harness._state["template"])
+        try:
+            pg_harness.cleanup()
+            assert not _exists_database(name)
+            assert name not in pg_harness.registered_clones()
+        finally:
+            pg_harness.drop_database(url)
