@@ -84,6 +84,50 @@ _REREAD_SESSION_SQL = (
 #: Collision precedence (design section 2; rule 8 pins this exact line): message, then event, then session.
 _REREAD_ORDER = (_REREAD_MESSAGE_SQL, _REREAD_EVENT_SQL, _REREAD_SESSION_SQL)
 
+# DS3 (D-DS3.1): the bulk admission's three set-based statements, one literal each, inside this one writer. No COPY,
+# no staging table, no upsert: only the existing DO NOTHING arbiters. `_BULK_EVIDENCE_SQL` names `_persist`'s 42
+# columns in the same order; per-ordinal values arrive as arrays, the batch's own values as scalars.
+_BULK_BATCH_SQL = text(
+    "INSERT INTO ingestion_batch (id, tenant_id, site_id, gateway_id, source_id, external_batch_id, "
+    "payload_sha256, schema_version, source_mode, foundation_revision_id, binding_set_revision_id, "
+    "snapshot_sha256, batch_text, status, total_count, processed_count, accepted_count, duplicate_count, "
+    "rejected_count, conflict_count, received_at, completed_at) "
+    "VALUES (:id, :t, :site, :g, :src, :b, :sha, 2, :mode, :f, :bs, :snap, :body, 'COMPLETED', :total, :total, "
+    ":total, 0, 0, 0, :at, :done_at) ON CONFLICT ON CONSTRAINT ingestion_batch_external_unique DO NOTHING RETURNING id"
+)
+_BULK_EVIDENCE_SQL = text(
+    "INSERT INTO accepted_evidence (id, tenant_id, site_id, batch_id, ordinal, gateway_id, source_id, "
+    "message_id, sequence_epoch, sequence, device_id, signal_id, asset_id, role, family, measurement, "
+    "source_time, published_at, received_at, interval_start, interval_end, quality, unavailable_reason, "
+    "original_value_text, original_unit, normalized_value_text, normalized_unit, conversion_kind, "
+    "envelope_sha256, envelope_text, foundation_revision_id, binding_set_revision_id, "
+    "binding_revision_id, configuration_outdated, source_mode, record_kind, event_id, correlation_id, "
+    "session_id, connector_id, actor, outcome) "
+    "SELECT s.id, CAST(:t AS uuid), CAST(:site AS uuid), CAST(:b AS uuid), s.ordinal, CAST(:g AS uuid), "
+    "CAST(:src AS uuid), s.m, s.epoch, s.seq, s.dev, s.sig, s.asset, s.role, s.family, s.measurement, s.st, s.pub, "
+    "CAST(:recv AS timestamptz), s.istart, s.iend, s.q, s.ur, s.ov, s.ou, s.nv, s.nu, s.ck, s.sha, s.body, "
+    "CAST(:f AS uuid), CAST(:bs AS uuid), s.br, s.outdated, CAST(:mode AS text), s.rk, s.eid, s.cid, s.sess, "
+    "s.conn, s.actor, s.outcome "
+    "FROM unnest(CAST(:id AS uuid[]), CAST(:o AS integer[]), CAST(:m AS text[]), CAST(:epoch AS text[]), "
+    "CAST(:seq AS bigint[]), CAST(:dev AS text[]), CAST(:sig AS text[]), CAST(:asset AS uuid[]), "
+    "CAST(:role AS text[]), CAST(:family AS text[]), CAST(:measurement AS text[]), CAST(:st AS timestamptz[]), "
+    "CAST(:pub AS timestamptz[]), CAST(:is AS timestamptz[]), CAST(:ie AS timestamptz[]), CAST(:q AS text[]), "
+    "CAST(:ur AS text[]), CAST(:ov AS text[]), CAST(:ou AS text[]), CAST(:nv AS text[]), CAST(:nu AS text[]), "
+    "CAST(:ck AS text[]), CAST(:sha AS text[]), CAST(:body AS text[]), CAST(:br AS uuid[]), "
+    "CAST(:outdated AS boolean[]), CAST(:rk AS text[]), CAST(:eid AS text[]), CAST(:cid AS text[]), "
+    "CAST(:sess AS text[]), CAST(:conn AS text[]), CAST(:actor AS text[]), CAST(:outcome AS text[])) "
+    "AS s(id, ordinal, m, epoch, seq, dev, sig, asset, role, family, measurement, st, pub, istart, iend, q, ur, ov, "
+    "ou, nv, nu, ck, sha, body, br, outdated, rk, eid, cid, sess, conn, actor, outcome) "
+    "ON CONFLICT ON CONSTRAINT accepted_evidence_message_unique DO NOTHING RETURNING id"
+)
+_BULK_DISPOSITION_SQL = text(
+    "INSERT INTO ingestion_disposition (batch_id, ordinal, tenant_id, site_id, message_id, decision, "
+    "accepted_evidence_id, rejection_id, decided_at) "
+    "SELECT CAST(:b AS uuid), s.ordinal, CAST(:t AS uuid), CAST(:site AS uuid), s.m, 'ACCEPTED', s.e, NULL, "
+    "CAST(:at AS timestamptz) "
+    "FROM unnest(CAST(:o AS integer[]), CAST(:m AS text[]), CAST(:e AS uuid[])) AS s(ordinal, m, e)"
+)
+
 
 def _constraint(error: IntegrityError) -> str | None:
     return getattr(getattr(error.orig, "diag", None), "constraint_name", None)
