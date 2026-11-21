@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings, continued (index only) (D-0K1.10 to D-0K1.21, D-DS3.9 to D-DS3.19)
+# Decision index: Demo-sprint and later rulings, continued (index only) (D-0K1.10 to D-0K1.21, D-DS3.9 to D-DS3.23)
 
 - `D-0K1.10` Test reader emits loads in reverse sorted order; load series pairwise unequal (a positional match must fail) · live · specs/0K1-forward-replay-port/rulings.md
 - `D-0K1.11` K-RES: no setting is the baseline anchor; reserve_source asserted from the request · live · specs/0K1-forward-replay-port/rulings.md
@@ -20,6 +20,10 @@
 - `D-DS3.17` Test 6 may seal with seal_batch_v2 and use S4-05's publication helper · live · specs/DS3-bulk-loader/rulings.md
 - `D-DS3.18` Persistence guard is a first-commit gate run for real (check-architecture.ps1) · live · specs/DS3-bulk-loader/rulings.md
 - `D-DS3.19` DS3 re-sized to 4.0 units, no split · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.20` v4 parity slice is three shapes the real path accepts; v4.delta is a test-6 BULK_REJECTED_ORDINAL case; xfail removed · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.21` event_outbox parity is the per-(Site, source, type) subject cover, groups equal, bulk count at most real; xfail removed · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.22` permitted_database allows only _audit* and harness clones and denies walk|serve, refusing the walkthrough DB (plants P24, P25) · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.23` The 11 pre-existing test failures identical on main do not block DS3 · live · specs/DS3-bulk-loader/rulings.md
 - `D-0K1.19` T10 is P2's test; no per-load projection field · live · specs/0K1-forward-replay-port/rulings.md
 - `D-0K1.20` T10 stands for P4; T4 adds K-RES at 32 (22 kernel runs) · live · specs/0K1-forward-replay-port/rulings.md
 - `D-0K1.21` T1 compares per-load served power with the kernel's (recording execute_fn) · live · specs/0K1-forward-replay-port/rulings.md

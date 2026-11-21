@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Callable, Sequence
 from uuid import UUID, uuid4
@@ -38,7 +39,10 @@ from assetops_backend.evidence.ledger import (
     RECOMPUTE_DOMAIN,
     Accepted,
     AcceptedAsBasis,
+    BULK_REFUSALS,
     BatchHandle,
+    BulkAdmissionRefused,
+    BulkAdmitted,
     Decision,
     GatewayPrincipal,
     LedgerUnavailable,
@@ -83,6 +87,50 @@ _REREAD_SESSION_SQL = (
 )
 #: Collision precedence (design section 2; rule 8 pins this exact line): message, then event, then session.
 _REREAD_ORDER = (_REREAD_MESSAGE_SQL, _REREAD_EVENT_SQL, _REREAD_SESSION_SQL)
+
+# DS3 (D-DS3.1): the bulk admission's three set-based statements, one literal each, inside this one writer. No COPY,
+# no staging table, no upsert: only the existing DO NOTHING arbiters. `_BULK_EVIDENCE_SQL` names `_persist`'s 42
+# columns in the same order; per-ordinal values arrive as arrays, the batch's own values as scalars.
+_BULK_BATCH_SQL = text(
+    "INSERT INTO ingestion_batch (id, tenant_id, site_id, gateway_id, source_id, external_batch_id, "
+    "payload_sha256, schema_version, source_mode, foundation_revision_id, binding_set_revision_id, "
+    "snapshot_sha256, batch_text, status, total_count, processed_count, accepted_count, duplicate_count, "
+    "rejected_count, conflict_count, received_at, completed_at) "
+    "VALUES (:id, :t, :site, :g, :src, :b, :sha, 2, :mode, :f, :bs, :snap, :body, 'COMPLETED', :total, :total, "
+    ":total, 0, 0, 0, :at, :done_at) ON CONFLICT ON CONSTRAINT ingestion_batch_external_unique DO NOTHING RETURNING id"
+)
+_BULK_EVIDENCE_SQL = text(
+    "INSERT INTO accepted_evidence (id, tenant_id, site_id, batch_id, ordinal, gateway_id, source_id, "
+    "message_id, sequence_epoch, sequence, device_id, signal_id, asset_id, role, family, measurement, "
+    "source_time, published_at, received_at, interval_start, interval_end, quality, unavailable_reason, "
+    "original_value_text, original_unit, normalized_value_text, normalized_unit, conversion_kind, "
+    "envelope_sha256, envelope_text, foundation_revision_id, binding_set_revision_id, "
+    "binding_revision_id, configuration_outdated, source_mode, record_kind, event_id, correlation_id, "
+    "session_id, connector_id, actor, outcome) "
+    "SELECT s.id, CAST(:t AS uuid), CAST(:site AS uuid), CAST(:b AS uuid), s.ordinal, CAST(:g AS uuid), "
+    "CAST(:src AS uuid), s.m, s.epoch, s.seq, s.dev, s.sig, s.asset, s.role, s.family, s.measurement, s.st, s.pub, "
+    "CAST(:recv AS timestamptz), s.istart, s.iend, s.q, s.ur, s.ov, s.ou, s.nv, s.nu, s.ck, s.sha, s.body, "
+    "CAST(:f AS uuid), CAST(:bs AS uuid), s.br, s.outdated, CAST(:mode AS text), s.rk, s.eid, s.cid, s.sess, "
+    "s.conn, s.actor, s.outcome "
+    "FROM unnest(CAST(:id AS uuid[]), CAST(:o AS integer[]), CAST(:m AS text[]), CAST(:epoch AS text[]), "
+    "CAST(:seq AS bigint[]), CAST(:dev AS text[]), CAST(:sig AS text[]), CAST(:asset AS uuid[]), "
+    "CAST(:role AS text[]), CAST(:family AS text[]), CAST(:measurement AS text[]), CAST(:st AS timestamptz[]), "
+    "CAST(:pub AS timestamptz[]), CAST(:is AS timestamptz[]), CAST(:ie AS timestamptz[]), CAST(:q AS text[]), "
+    "CAST(:ur AS text[]), CAST(:ov AS text[]), CAST(:ou AS text[]), CAST(:nv AS text[]), CAST(:nu AS text[]), "
+    "CAST(:ck AS text[]), CAST(:sha AS text[]), CAST(:body AS text[]), CAST(:br AS uuid[]), "
+    "CAST(:outdated AS boolean[]), CAST(:rk AS text[]), CAST(:eid AS text[]), CAST(:cid AS text[]), "
+    "CAST(:sess AS text[]), CAST(:conn AS text[]), CAST(:actor AS text[]), CAST(:outcome AS text[])) "
+    "AS s(id, ordinal, m, epoch, seq, dev, sig, asset, role, family, measurement, st, pub, istart, iend, q, ur, ov, "
+    "ou, nv, nu, ck, sha, body, br, outdated, rk, eid, cid, sess, conn, actor, outcome) "
+    "ON CONFLICT ON CONSTRAINT accepted_evidence_message_unique DO NOTHING RETURNING id"
+)
+_BULK_DISPOSITION_SQL = text(
+    "INSERT INTO ingestion_disposition (batch_id, ordinal, tenant_id, site_id, message_id, decision, "
+    "accepted_evidence_id, rejection_id, decided_at) "
+    "SELECT CAST(:b AS uuid), s.ordinal, CAST(:t AS uuid), CAST(:site AS uuid), s.m, 'ACCEPTED', s.e, NULL, "
+    "CAST(:at AS timestamptz) "
+    "FROM unnest(CAST(:o AS integer[]), CAST(:m AS text[]), CAST(:e AS uuid[])) AS s(ordinal, m, e)"
+)
 
 
 def _constraint(error: IntegrityError) -> str | None:
@@ -132,6 +180,46 @@ def _site_type_on(c: Connection, tenant_id: UUID, site_id: UUID) -> str:
     if site_type is None:
         raise LedgerUnavailable("the batch's tenant/Site was not found, so no ordinal was decided")
     return site_type
+
+
+@dataclass(frozen=True)
+class _BatchScope:
+    tenant_id: UUID
+    site_id: UUID
+
+
+def _bulk_evidence_params(tenant_id, site_id, batch_id, gateway_id, source_id, received_at, basis: AcceptedAsBasis,
+                          source_mode: str, decisions: Sequence[Accepted], ids: Sequence[UUID]) -> dict:
+    """`_persist`'s parameter values, one array per per-ordinal column, the batch's own values as scalars."""
+    envelopes = [d.envelope for d in decisions]
+
+    def column(get) -> list:
+        return [get(d, e) for d, e in zip(decisions, envelopes)]
+
+    return {
+        "t": tenant_id, "site": site_id, "b": batch_id, "g": gateway_id, "src": source_id, "recv": received_at,
+        "f": basis.foundation_revision_id, "bs": basis.binding_set_revision_id, "mode": source_mode,
+        "id": list(ids), "o": column(lambda d, e: d.ordinal), "m": column(lambda d, e: e.message_id),
+        "epoch": column(lambda d, e: e.sequence_epoch), "seq": column(lambda d, e: e.sequence),
+        "dev": column(lambda d, e: e.device_id), "sig": column(lambda d, e: e.signal_id),
+        "asset": column(lambda d, e: d.binding.asset_id), "role": column(lambda d, e: d.binding.role),
+        "family": column(lambda d, e: e.family), "measurement": column(lambda d, e: e.measurement),
+        "st": column(lambda d, e: d.source_time), "pub": column(lambda d, e: d.published_at),
+        "is": column(lambda d, e: d.interval_start), "ie": column(lambda d, e: d.interval_end),
+        "q": column(lambda d, e: e.quality), "ur": column(lambda d, e: e.unavailable_reason),
+        "ov": column(lambda d, e: e.value), "ou": column(lambda d, e: e.unit),
+        "nv": column(lambda d, e: d.normalized_value_text), "nu": column(lambda d, e: d.normalized_unit),
+        "ck": column(lambda d, e: d.conversion_kind), "sha": column(lambda d, e: d.envelope_sha256),
+        "body": column(lambda d, e: d.envelope_text), "br": column(lambda d, e: d.binding.binding_revision_id),
+        "outdated": column(lambda d, e: d.configuration_outdated),
+        "rk": column(lambda d, e: getattr(e, "record_kind", None)),
+        "eid": column(lambda d, e: getattr(e, "event_id", None)),
+        "cid": column(lambda d, e: getattr(e, "correlation_id", None)),
+        "sess": column(lambda d, e: getattr(e, "session_id", None)),
+        "conn": column(lambda d, e: getattr(e, "connector_id", None)),
+        "actor": column(lambda d, e: getattr(e, "actor", None)),
+        "outcome": column(lambda d, e: getattr(e, "outcome", None)),
+    }
 
 
 class PostgresEvidenceLedger:
@@ -467,24 +555,14 @@ class PostgresEvidenceLedger:
             # already behind it), inside the transaction that writes the dispositions and the recompute job.
             decided_at = self._decision_instant(c)
             tally = {"ACCEPTED": 0, "DUPLICATE": 0, "REJECTED": 0, "CONFLICT": 0}
-            accepted: list[Accepted] = []
-            first_new: UUID | None = None
-            cold: list[Accepted] = []
-            first_cold: UUID | None = None
+            admitted: list[tuple[Accepted, UUID]] = []
             for ordinal in range(start, end):
                 decision = decide_one(ordinal, envelopes[ordinal])
                 outcome, evidence_id, rejection_id = self._persist(c, row, decision, decided_at)
                 tally[outcome] += 1
-                # W2-00 ruling 5: only accepted v3 measurements enqueue the dispatch job; no worker reads v4 yet.
-                if outcome == "ACCEPTED" and not decision.is_v4:  # type: ignore[union-attr]
-                    accepted.append(decision)  # type: ignore[arg-type]
-                    first_new = first_new or evidence_id
-                # W2-03: only a new accepted v4 record bound to a cold role enqueues cold work (a late one too);
-                # a duplicate, conflict or rejected ordinal is never ACCEPTED here and enqueues nothing.
-                if (outcome == "ACCEPTED" and site_type == "COLDCHAIN" and decision.is_v4  # type: ignore[union-attr]
-                        and decision.binding.role in COLD_ROLE_NAMES):  # type: ignore[union-attr]
-                    cold.append(decision)  # type: ignore[arg-type]
-                    first_cold = first_cold or evidence_id
+                # A duplicate, conflict or rejected ordinal is never ACCEPTED here and enqueues nothing.
+                if outcome == "ACCEPTED":
+                    admitted.append((decision, evidence_id))  # type: ignore[arg-type]
                 c.execute(
                     text(
                         "INSERT INTO ingestion_disposition (batch_id, ordinal, tenant_id, site_id, message_id, "
@@ -511,14 +589,126 @@ class PostgresEvidenceLedger:
                     "done_at": completed_at if done else None, "id": row.id,
                 },
             )
-            window = recompute_window(accepted)
-            if window is not None:
-                self._coalesce_job(c, row.tenant_id, row.site_id, window, first_new, decided_at)
-            cold_window = recompute_window(cold)
-            if cold_window is not None:
-                self._coalesce_job(c, row.tenant_id, row.site_id, cold_window, first_cold, decided_at,
-                                   domain=COLD_RECOMPUTE_DOMAIN)
+            self._enqueue_admitted(c, row, site_type, admitted, decided_at)
             return "COMPLETED" if done else "IN_PROGRESS"
+
+        return self._run(work, write=True)
+
+    def _enqueue_admitted(self, c: Connection, row, site_type: str, admitted: Sequence[tuple[Accepted, UUID]],
+                          decided_at: datetime) -> None:
+        """The one enqueue rule for newly accepted ordinals (DS3 §2.3): `decide_chunk` calls it once per chunk,
+        `bulk_admit` once per batch. `row` carries the batch's `tenant_id` and `site_id`."""
+        accepted: list[Accepted] = []
+        first_new: UUID | None = None
+        cold: list[Accepted] = []
+        first_cold: UUID | None = None
+        for decision, evidence_id in admitted:
+            # W2-00 ruling 5: only accepted v3 measurements enqueue the dispatch job; no worker reads v4 yet.
+            if not decision.is_v4:
+                accepted.append(decision)
+                first_new = first_new or evidence_id
+            # W2-03: only a new accepted v4 record bound to a cold role enqueues cold work (a late one too).
+            if site_type == "COLDCHAIN" and decision.is_v4 and decision.binding.role in COLD_ROLE_NAMES:
+                cold.append(decision)
+                first_cold = first_cold or evidence_id
+        window = recompute_window(accepted)
+        if window is not None:
+            self._coalesce_job(c, row.tenant_id, row.site_id, window, first_new, decided_at)
+        cold_window = recompute_window(cold)
+        if cold_window is not None:
+            self._coalesce_job(c, row.tenant_id, row.site_id, cold_window, first_cold, decided_at,
+                               domain=COLD_RECOMPUTE_DOMAIN)
+
+    # --- DS3 bulk admission ---------------------------------------------------
+
+    def gateway_principal(self, site_id: UUID, gateway_id: UUID) -> GatewayPrincipal | None:
+        """The registered gateway as a principal, for the trusted bulk load (DS3). No disabled filter: a disabled
+        gateway is refused by the claims check as `GATEWAY_DISABLED` (D-DS3.9)."""
+        def work(c: Connection) -> GatewayPrincipal | None:
+            row = c.execute(text("SELECT tenant_id, site_id, id, mode FROM gateway WHERE site_id = :site AND id = :g"),
+                            {"site": site_id, "g": gateway_id}).first()
+            return None if row is None else GatewayPrincipal(row.tenant_id, row.site_id, row.id, row.mode)
+
+        return self._run(work)
+
+    def bulk_admit(
+        self,
+        principal: GatewayPrincipal,
+        *,
+        external_batch_id: str,
+        payload_sha256: str,
+        source_id: str,
+        source_mode: str,
+        basis: AcceptedAsBasis,
+        batch_text: str,
+        decisions: Sequence[Accepted],
+        received_at: datetime,
+        completed_at: datetime,
+    ) -> BulkAdmitted:
+        """Admit one clean, fully decided batch in one transaction with one set-based statement per table (DS3
+        §2.2). Refusals are raised before any write; the caller (`evidence/bulk_load.py`) has decided every
+        ordinal with the same pure `decide` the real path uses."""
+        tenant_id, site_id = principal.tenant_id, principal.site_id
+
+        def refused(code: str, detail: str) -> BulkAdmissionRefused:
+            return BulkAdmissionRefused(code, external_batch_id, detail)
+
+        def work(c: Connection) -> BulkAdmitted:
+            _lock_slot(c, tenant_id, site_id, external_batch_id)
+            published = c.execute(
+                text("SELECT id FROM evidence_publication "
+                     "WHERE tenant_id = :t AND site_id = :site AND external_batch_id = :b"),
+                {"t": tenant_id, "site": site_id, "b": external_batch_id},
+            ).first()
+            if published is not None:
+                raise refused("BULK_PUBLISHED_BATCH",
+                              "this batch ID is published for a registered run; it is admitted by the real path only")
+            existing = c.execute(
+                text("SELECT payload_sha256, status FROM ingestion_batch "
+                     "WHERE tenant_id = :t AND site_id = :site AND external_batch_id = :b"),
+                {"t": tenant_id, "site": site_id, "b": external_batch_id},
+            ).first()
+            if existing is not None:
+                if existing.payload_sha256 != payload_sha256:
+                    raise refused("BATCH_ID_CONFLICT",
+                                  "this batch ID was received with different bytes; the stored batch is unchanged")
+                if existing.status == "COMPLETED":
+                    return BulkAdmitted(external_batch_id, len(decisions), True)
+                raise refused("BULK_BATCH_IN_PROGRESS", "this batch is being admitted by the real path")
+            decided_at = self._decision_instant(c)
+            site_type = _site_type_on(c, tenant_id, site_id)
+            if site_type != "MINIGRID":
+                raise refused("BULK_SITE_TYPE_UNPROVEN",
+                              f"bulk admission is proved by parity for MINIGRID Sites only, not {site_type}")
+            batch_id = uuid4()
+            inserted = c.execute(_BULK_BATCH_SQL, {
+                "id": batch_id, "t": tenant_id, "site": site_id, "g": principal.gateway_id,
+                "src": UUID(source_id), "b": external_batch_id, "sha": payload_sha256, "mode": source_mode,
+                "f": basis.foundation_revision_id, "bs": basis.binding_set_revision_id, "snap": basis.snapshot_sha256,
+                "body": batch_text, "total": len(decisions), "at": received_at, "done_at": completed_at,
+            }).first()
+            if inserted is None:
+                raise refused("BULK_BATCH_IN_PROGRESS", "the batch slot was taken while this batch was admitted")
+            ids = [uuid4() for _ in decisions]
+            try:
+                returned = c.execute(_BULK_EVIDENCE_SQL, _bulk_evidence_params(
+                    tenant_id, site_id, batch_id, principal.gateway_id, UUID(source_id), received_at, basis,
+                    source_mode, decisions, ids)).all()
+            except IntegrityError as error:
+                if _constraint(error) not in _COLLISION_INDEXES:
+                    raise  # D-DS3.15: a foreign key or CHECK failure is a build defect, never a collision
+                raise refused("BULK_MESSAGE_COLLISION",
+                              f"an event or session identity is already accepted ({_constraint(error)})") from None
+            if len(returned) != len(decisions):
+                raise refused("BULK_MESSAGE_COLLISION",
+                              f"{len(decisions) - len(returned)} message ID(s) of this batch are already accepted")
+            c.execute(_BULK_DISPOSITION_SQL, {
+                "b": batch_id, "t": tenant_id, "site": site_id, "at": decided_at,
+                "o": [d.ordinal for d in decisions], "m": [d.envelope.message_id for d in decisions], "e": ids,
+            })
+            self._enqueue_admitted(c, _BatchScope(tenant_id, site_id), site_type, list(zip(decisions, ids)),
+                                   decided_at)
+            return BulkAdmitted(external_batch_id, len(decisions), False)
 
         return self._run(work, write=True)
 

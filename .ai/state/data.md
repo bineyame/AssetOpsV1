@@ -482,12 +482,32 @@ Branch `task/3B2-findings-pinned` (base main `c69e72f61`); spec `specs/3B2-findi
 - Settled: `structure/pins.py` (`PINS`: GENERATOR_SUPPORT_CANDIDATE -> MINI_GRID/`candidate_l`, UNEXPLAINED_FUEL -> MINI_GRID/`unexplained_l`; `PENDING_PINS` for the two cold and one EV mechanism; `pinned_category` from the row's home at call time; `parity()` in the pin's own domain); `check.check_pins` and `PIN_CODES` (STRUCTURE_PIN, _TOTAL, _DUPLICATE, _UNKNOWN, _MISSING), run by `check_all()` on the start-up path only. The outcome map's wire is unchanged; the one ruled difference is UNEXPLAINED_FUEL (Protect in the literal, Optimize in the registry, D-3B2.4).
 - Open: `3B5` switches the wire to the pins applying D-3B2.4; `3B6` moves the pending pins onto their registries; the `-` structure key in `STRUCTURE_PIN_MISSING`'s text is for review.
 
+## DS3 - the bulk loader (in review, 21 Nov)
+
+Branch `task/DS3-bulk-loader` (base main `8eff70625`); spec `specs/DS3-bulk-loader/spec.md` rev 3, rulings D-DS3.1-23; packet `packet.md`; mid-build Q1-Q3 answered, 0 open. No migration, no route, no screen, no guard change.
+
+- Settled: `PostgresEvidenceLedger.bulk_admit` (one transaction per batch, `_BULK_BATCH_SQL`/`_BULK_EVIDENCE_SQL`/`_BULK_DISPOSITION_SQL` set-based `INSERT ... SELECT FROM unnest`, only the existing DO NOTHING arbiters; refusals BULK_PUBLISHED_BATCH, BATCH_ID_CONFLICT, BULK_BATCH_IN_PROGRESS, BULK_SITE_TYPE_UNPROVEN (MINIGRID only), BULK_MESSAGE_COLLISION; other integrity errors propagate); `gateway_principal`; `BatchIngestionService.admit` and `_enqueue_admitted` extracted unchanged; `evidence/bulk_load.py` (`BulkEvidenceLoad`, SIMULATED only, `permitted_database`: audit names and harness clones only, host and port); `python -m assetops_backend.load_world_inputs` (commercial through `load_emulated_exports`, telemetry in bulk; exits 0/2/3/4); `pg_harness.clone_database`/`drop_database`. Parity on two Kobo days: equal evidence, batch and disposition rows, recompute-job rules, census.
+- Open: nothing from the mid-build questions (answered). DS4 lifts BULK_SITE_TYPE_UNPROVEN per Site type with that type's parity slice, and checks the event cover for gap days (D-DS3.21).
 ## 0K1 - the forward replay port and its host adapter (in review, 21 Nov)
 
 Branch `task/0K1-forward-replay` (base main `3bdf3c81d`); spec `specs/0K1-forward-replay-port/spec.md` rev 2, rulings D-0K1.1-18; packet `packet.md`. No database, no route, no served text.
 
 - Settled: `assetops_contracts/forward_replay.py` (request, projection, `FORWARD_REPLAY_REFUSALS`, Fraction-only fields); `runs/replay_port.py` `ForwardReplayPort` (one method; `LabExecutionPort` unchanged); `host/forward_replay.py` `HostForwardReplay`, `replay_inputs` (spec §2.4 order), `project`, `REPLAY_MODELS` mini-grid v5-v7. Replays of K-BASE (v5, v6, v7), K-START, K-STOP, K-RES and K-CLIP equal the kernel's own trajectories exactly.
 - Open: mid-build Q1 (P2 is caught by T10, not T1: the projection depends on loads only through their sum) and Q2 (P4 is caught by T10, not T4); defaults applied. Calibration, the 61-day window, gap fill and composing the port are `0K2`/`6c`.
+
+## 4a - Energy to cash, where the kWh went (in review, 21 Nov)
+
+Branch `task/4a-energy-to-cash` (base main `aa3ebefe8`); spec `specs/4a-energy-to-cash/spec.md` rev 2, rulings D-4A.1-26; packet `packet.md`; mid-build Q1-Q2 (defaults applied). No migration, no guard edit, no route, no screen, no served text.
+
+- Settled: MINI_GRID registry v4 (`metered_kwh` stated by customer meter reads, `billed_kwh` by the billing export); `structure/energy/` (pure `rules.month_energy` for the eight energy factors, `StoreEnergyInputs`, `EnergyLeafSource` as the fifth builder in `build_structure_read`); `MiniDepthRead.feeder_month` (roles-4 `feeder_demand`, SELECT only); the `technical-loss-band` LOAD property (below 100); 5a `MAIN_OF` tuples (`delivered_kwh` under `billed_kwh`, then `revenue`). Every absence is "Not available yet" with a cause and note, never 0.
+- Open: 5c's record keys wait on 5c and SC-1a (D-4A.12, D-4A.20); `R-ABSENT-META` (`unexplained_loss_kwh` keeps `ZERO_WHEN_HELD`, unread; manifest change queued with D-4A.10); stored v3 snapshots read `REBUILD_NEEDED` until 3B7a rebuilds them (D-4A.25).
+
+## 3B6 - Cold-room and captive-EV structures (in review, 21 Nov)
+
+Branch `task/3B6-cold-ev` (base main `22dc0bbf3`); spec `specs/3B6-cold-ev/spec.md` rev 2, rulings D-3B6.1-24; packet `packet.md`; mid-build 0. No migration, no guard edit, no served text.
+
+- Settled: `COLD_CHAIN` v1 (36 rows) and `EV_DEPOT_CAPTIVE` v1 (42 rows, `not_applicable=("revenue",)`) in `REGISTRIES`; `registry.applicability()` (APPLIES / NOT_APPLICABLE / NOT_IN_STRUCTURE; no caller outside tests); `STRUCTURE_NOT_APPLICABLE` (last per-registry code, plus a cross-registry pass) and the L2 key check in `check_all`; three cold and EV pins, `PENDING_PINS` empty; `SITE_TYPE_TO_STRUCTURE` maps COLDCHAIN and EV_CHARGING; `read.sites_excluded` (NOT_DECLARED / `STRUCTURE_OTHER_KEY`) used by every portfolio reader; `StructureRead.portfolio(structure_key=)`; `KEY_NOT_READ` refusals in `TargetRead.site` and `SnapshotRead.site`; `BridgeRead.site` reads targets first; `SOURCE_STATE` for both keys (calendar PROVIDED, HELD only with a stored record); `sources.COMMERCIAL_KEYS` gate in `CommercialLeafSource.leaf`.
+- Open: cold and EV intake (9d, 9e), target sides and snapshots for cold and EV, a cross-structure total and the portfolio `cost_per_departure_met` (R-CROSS-KEY), a public-charging structure (R-EV-PUBLIC); stored snapshots read rebuild-needed after merge.
 
 ## 3B4 units 1-3 - the structure observer (in review, 21 Nov; partial)
 

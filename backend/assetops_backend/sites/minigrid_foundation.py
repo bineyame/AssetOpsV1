@@ -30,6 +30,8 @@ def validate_minigrid_properties(foundation: SiteFoundation, *, source: str,
                         f"({component.component_type}), in {source}.")
             if prop.property_key in MINIGRID_STRICTLY_POSITIVE_PROPERTIES and not float(prop.value) > 0:
                 invalid(f"{prop.property_key} on {component.component_id} must be greater than zero in {source}.")
+            if prop.property_key == "technical-loss-band" and not float(prop.value) < 100:  # 4a (D-4A.3)
+                invalid(f"technical-loss-band on {component.component_id} must be below 100 in {source}.")
 
 
 __all__ = ["validate_minigrid_properties"]

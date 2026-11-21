@@ -107,5 +107,14 @@
 - Residual: `pinned_category` raises KeyError when a pin's structure has no registry (should be a coded refusal).
 - Residual: nothing checks that a pin's own mechanism matches its key.
 
-## Pre-existing failures on main (found by DS3, 2026-11-21; D-DS3.23: own task)
+## Pre-existing failures on main (found by DS3, 2026-11-21; DS3 mid-build ruling: own task)
 - `test_s4_evidence_decided_at_postgres` (10 tests) and `test_s2_rejection_placement` (1) fail identically on main 8eff70625. Route to their own task; check whether environmental first.
+
+## From the 3B6 review (2026-11-21, ACCEPT)
+- L1: test 5c checks a cited record's name in a file, not the record itself (deleting the ev_connector_* roles still passes via the cadence map).
+- L2: packet says read.py names no cold or EV key; it does (site-type map, as the spec requires). Fix the packet text.
+- L3: test 6c covers only `staff` for the COMMERCIAL_KEYS guard; add `outstanding`.
+
+## From the SC-1a round-3 review (2026-11-21, ACCEPT)
+- Low: the I18N_BYPASS scan misses assignment aliases (`r = i18n.render; r.formats`), an aliased parent (`import assetops_backend as ab; ab.i18n.formats`), getattr and sys.modules.
+- Spec §3.12's number-word list extended by fix round r2 (doubling, tripling, quadrupling, halving, per cent, zeroes, nought): Architect to write it into the spec.
