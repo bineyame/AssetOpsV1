@@ -276,3 +276,86 @@ Logs are in `/opt/assetecon/evidence/DS4/review-u3/`.
   linear Sites × days model is therefore weakest exactly where DS7 would act.
 - The B5 figures in this review come from load 7 to 12. My ticks were as slow as the bench's, so contention is in
   both.
+
+## Round 3 (verification re-review, W5/W6): unit 3 fix round at `2d340a5ac` (code `af567a668`, bench at `68449e49d`)
+
+Reviewer (fresh Claude), 2026-11-21. Read: round 2; D-DS4.28 to D-DS4.33; spec §4 and §5 T10; packet "Unit 3 fix
+round"; the `337ae633b..af567a668` code diff and the `68449e49d..2d340a5ac` text diff; the evidence in
+`/opt/assetecon/evidence/DS4/unit3-fix-2026-11-21/`.
+
+**Summary (verdict ACCEPT WITH FIXES, text-only fixes on the branch; no rerun needed).**
+- M1 is closed. B5 runs the mini-depth step as D-DS4.29 says. `bench.json` shows 686 jobs, all `DONE`, in 2 passes
+  (`DRAINED`), with N read after the step (`n` 17). The drain is `done` in 4 ticks and every `end_counts` field is 0.
+- D-DS4.30 holds. (37.492 + 37.686 + 113.782) / 14 = 13.497, with `per_site_day_includes` naming the three parts.
+  The packet gives it as one figure with its breakdown and does not call it a bound.
+- D-DS4.28 holds. `ds7.triggered` is false on the measured L2 (9.322 s), and `ds7.projection` is
+  `INFORMATION_ONLY` with `exceeds_threshold` true and `input_drain` `done`.
+- L1 to L3 are closed. T10e to T10i are present, and my own 4 plants each failed a test.
+- M2 is only partly closed (R3-M1). The "lower bound" sentence is still in the packet's residual-risk list.
+- The state line says the fix-round figures were measured at the old revision (R3-L1).
+- The kept ladder holds only the three new templates, and `_l2_` has `check_passed: true`.
+- The statement catalogue exits 0. Fast check-all failed 1 of 42 guards, a timing test outside DS4 (see Checks).
+
+### Findings
+
+**R3-M1 (Medium, M2 / D-DS4.31 not fully applied).** `specs/DS4-template-ladder/packet.md:261-263`. The old
+residual-risk bullet is kept with a "Run 1 (superseded ...)" prefix, and it still ends "so it is a lower bound on the
+real drain cost". D-DS4.31 withdraws that reading and says the bullet is *replaced*. A reader skimming the risk
+list gets the withdrawn claim. The cause line at `:149` and the new bullet at `:241` are right.
+*Fix:* delete the bullet at `:261-263`. The run-1 line at `:149` already carries the cause in D-DS4.31's words.
+
+**R3-L1 (Low, the state labels the wrong revision).** `.ai/state/data.md:559` (and `:555`):
+- The line says "Real runs at `58bb50809`: ladder L0 4.4 s, L1 7.4 s, L2 8.9 s", then gives the fix-round figures
+  (13.497 s, L2 9.322 s, 7,419 s) from the `68449e49d` run.
+- So one line carries two L2 figures (8.9 s and 9.322 s) from two runs, against the one-figure rule.
+- `:555` still says "unit 3 `58bb50809`" and "rulings D-DS4.1-27".
+
+*Fix:* state the `68449e49d` run's ladder (4.3, 7.7 and 9.3 s) and clone figures, or label the 58bb50809 figures as
+run 1. Update `:555` to D-DS4.1-33.
+
+**R3-L2 (Low, stale names in the packet).** `specs/DS4-template-ladder/packet.md:178-184` still lists the dropped
+`_l0_35467c68d361`, `_l1_5d26f14268f5` and `_l2_ca818e745fd9` as "The kept ladder", with nothing marking them
+superseded. `:267` says "keyed to `58bb50809`". Row 36's copy must use `_l2_1906a5d074a0`, and the old name is the
+first one a reader meets. *Fix:* mark that table "run 1, dropped", or point it to `:237`.
+
+**R3-L3 (Low, a size nit).** `packet.md:237` and `data.md:559` give the kept L0 as 18.4 MB "as B1". The live kept L0
+is 18,559,459 bytes (18.6 MB); the bench L0 was 18,444,771. L1 (19,591,651) and L2 (19,927,523) match. *Fix:* quote
+the kept sizes from `pg_database_size`.
+
+Not a finding:
+- `packet.md:227` writes "7,419.253 = 9.322 + 13.497 x 9 x 61". With the rounded 13.497, that product gives
+  7,419.175. The report multiplies the unrounded 13.4971 instead (`tools/world.py` `assemble_bench`), which is right.
+  A reader redoing the sum may want an "(unrounded)" note.
+
+### Verification of each item
+
+| Item | Seen |
+|---|---|
+| M1 / D-DS4.29 | `test_ds4_bench_pipeline_postgres.py` `mini_depth_step` matches §4: `run-pending --limit 500`, last parsable `[` line, asserts on a broken worker, exit code not asserted, FAILED counted, at most 20 passes. It runs between `enrol` and the first tick, and N comes from `counts` after the step. `bench.json` `pipeline.measured` has `mini_depth_seconds` 37.686, `mini_depth` {passes 2, jobs 686, by_status DONE 686, DRAINED}, `n` 17, `start_counts` (snapshots_pending 2830, others 0) and `end_counts` (all five fields 0). The verdict is `done`, "all counts are 0", and `marker` is `PARSED`. |
+| D-DS4.30 | 188.960 / 14 = 13.497, the same as `projection.per_site_day_seconds`. The packet's sentence is in the ruling's words, and neither "bound" nor a second figure appears in the fix-round section. |
+| D-DS4.28 | `ds7` = {reading MEASURED_L2, measured 9.322, triggered false, decide_at FIRST_WORLD_TELEMETRY, projection {INFORMATION_ONLY, input_drain done, 7419.253, exceeds_threshold true}}. The format is `/2`. |
+| M2 / D-DS4.31 | The new residual-risk bullet (`packet.md:241`) and the state line (`data.md:559`) carry the D-DS4.33 step 7 text with X, Z and P filled in. Run 1 is marked superseded (`:149`). There is one leftover (R3-M1). |
+| L1-L3 | T10e (both boundaries), T10f, T10g, T10h (PARSED, MISSING, MALFORMED) and T10i (fake `cmd_bench`, raising late record, rung drops after the clone drops, no `bench.json`) are present as the spec gives them. `pipeline_line` catches `ValueError` and rejects a line that is not a dict. `pipeline.marker` is in `cmd_bench`. |
+| Kept templates | `world list` (read-only) shows only `assetops_world_audit_l0_53988be3439c`, `_l1_6e55fb8dc4b3` and `_l2_1906a5d074a0`, all `exists: true`, with `_l2_` `check_passed: true`. A read-only `pg_database` query finds no other `assetops_world%` database. The evidence `check.out` has `ALL` PASS and C4 `fails: []`, and `drop.out` shows the three stale names dropped (L1 `keys_left` 0). |
+
+### Checks run (this review)
+
+| Check | Result |
+|---|---|
+| `heavy-slot.sh -- pytest test_ds4_world.py test_ds4_batch_days.py` (no DB) | 80 passed in 3.21 s |
+| Plants (a throwaway `git archive` copy in scratch, each alone, reverted and `cmp`-checked) | `>=` on `exceeds_threshold`: 1 failed (T10e). `swept["after"] = []`: 1 failed (T10i). The `try/except` removed from `pipeline_line`: 1 failed (T10h). `triggered` on the projection: 3 failed. |
+| `python3 tools/checks/statement_catalogue.py` | exit 0, "OK statement catalogue" |
+| `heavy-slot.sh --wait-seconds 3000 -- pwsh -File tools/check-all.ps1` at `2d340a5ac` | "Check failed: 1 of 42 blocking guards", 163.5 s wall. The one failure is T2 `test_3a6_profiles.py::test_n3_r5_b1...`, 4.47 s against a 3.0 s wall bound at load about 18. It is the same test as in round 2, outside DS4's diff. One rerun failed at load 17, and the next passed (8 passed). The branch lacks `main`'s load-aware fix (`2fa41fdb1`, merged at `66fc18011`). Merge `main` before landing. Not a DS4 finding. The implementer's run at `68449e49d` was 42 of 42 (`check-all.out`). |
+
+### Could not verify
+
+- I did not rerun the bench, `build` or `check`. I relied on `bench.json`, `check.out`, `drop.out` and `list.out`,
+  and confirmed the kept templates live, read-only.
+- I could not plant the mini-depth step itself (a DB test), so I checked it by reading against §4 and the evidence.
+
+### Residual risk the packet does not name
+
+- The mini-depth step costs as much as the bulk load (about 37.7 s each for 14 Site-days). Its scaling with Sites
+  is the least known of the three parts, because it comes from one commissioning backlog of 686 jobs.
+- The kept templates go stale again when `main` is merged before landing, if `main` has touched a key part since
+  `68449e49d`. Check `world list` for `check_stale` after that merge.
