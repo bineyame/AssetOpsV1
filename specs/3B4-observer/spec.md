@@ -1,6 +1,6 @@
 # 3B4: the structure observer, deviations stored as Findings (implementer spec)
 
-Status: rev 1 (handshake pending), Architect (Claude), 2026-11-21, written on the owner's delegation
+Status: rev 2 (handshake round 1 answered, D-3B4.16 to D-3B4.26; coding may start under §0), Architect (Claude), 2026-11-21, written on the owner's delegation
 (`owner/owner-away-architect-decides-2026-11-21.md`; pull order `specs/OWNER-AWAY/decisions-2026-11-21.md` row 4; the
 owner-level calls made here are rows 27 and 28 there). `delivery-plan.md` §2 row `3B4`: "Structure observer: deviations
 stored as Findings under the owner's rule and outside the factor's tolerance (OD-3)" (step 3B, CH1, lane 2, 2.5 units,
@@ -37,24 +37,25 @@ does not hold it). `USER_REVIEW_REQUIRED: false`.
   `_insert_fuel_finding`, `_insert_fuel_revision` as the pattern), the assessment store
   (`analytics/adapters/postgres_assessment_store.py` `transaction`, `fuel_balance_persist` as the pattern), `3C0a`/`3C1a`
   (`accounts/permissions.py` `COMMAND_ROLES`, `roles_of`, `FINANCE`, `SITE_MANAGER`; `AccountService.onboard_person`,
-  whose `roles` are `(role, site_id)` pairs; `tenant_by_slug` from `3A6`), `commercial/months.py` `month_bounds`.
+  whose `roles` are `(role, site_id)` pairs, 3A3), `structure_snapshot/store.py` `tenant_sites` and `get`,
+  `commercial/months.py` `month_bounds`. Nothing from `3A6` or `3A7` (D-3B4.22).
 - **Not what the brief assumed.** (1) Today's Finding store is not mechanism-neutral: two CHECKs admit four domains
   only, every Finding cites an analytic run and an assessment revision, and the chain-event trigger of `0044`
   feeds every new revision to the threads stage, whose `finding_source` raises `KeyError` on an unmapped domain and
-  would block that Site's event queue (sweep, §5.4). (2) A tolerance "declared by the Site" (3B1 R12) has no record
+  would block that Site's event queue (sweep, §4.4). (2) A tolerance "declared by the Site" (3B1 R12) has no record
   yet. Both are built here; neither is deferred.
-- **Decisions:** `rulings.md` (D-3B4.1 to D-3B4.15). **Reviewer guide:** `reviewer-guide.md`. **Handshake:**
+- **Decisions:** `rulings.md` (D-3B4.1 to D-3B4.26; rev 2 answers are under "Handshake answers (round 1)"). **Reviewer guide:** `reviewer-guide.md`. **Handshake:**
   `handshake.md`.
 
 ## 0. Before you start (gates; each is a hard stop)
 
-- **Start, unit 1 (pure, new files plus one function in `check.py`):** the handshake has no open question **and**
-  `4a` and `3B6` have merged (both edit `structure/check.py`; 3B6 also `check_all`). Check with
-  `git merge-base --is-ancestor <merge> main` for each and say so in the packet. Until both merge, unit 1 may write
-  only its new files (`structure/observe/`) and their tests; the `check.py` edit (§2.3) waits and is the last commit of
-  unit 1. 3B4 never edits `structure/registry.py`, any row file or `structure/sources.py` (D-3B4.2), so it cannot
-  collide with 4a's or 3B6's rows, registry versions or sources.
-- **Start, unit 2 (gate A, the migration number):** read `main`'s head (`git show main:backend/migrations/versions/`,
+- **Start (D-3B4.25):** the handshake has no open question; units 1 to 3 then start, with no wait for `4a` or `3B6`
+  (3B4 never edits `structure/registry.py`, any row file or `structure/sources.py`, D-3B4.2). Only the `check.py` edit
+  (§2.3: `OBSERVE_CODES`, `check_observed`, its call in `check_all`) and the tests that need it (1, 1b, 3) wait for
+  both to merge (`git merge-base --is-ancestor <merge> main` for each; say so in the packet): one commit, the last of
+  the build, before unit 4. Until then unit 1 writes `structure/observe/` and tests 2 and 4 to 9. No gate on `3A6` or
+  `3A7` (D-3B4.22).
+- **Unit 2 (gate A, the migration number):** read `main`'s head (`git show main:backend/migrations/versions/`,
   the highest file and its `revision`); the file is `00NN_structure_finding.py`, NN the next number, `down_revision`
   that head (D-3C2.9's rule). 0067 to 0070 are taken; if all four have merged this is `0071` on `0070`. **Gate B (merge
   preparation):** if `main`'s head moved, renumber on top of it and run `alembic heads` (one head); log it in the
@@ -77,9 +78,9 @@ does not hold it). `USER_REVIEW_REQUIRED: false`.
   `test_5b_attribution.py:420-520`.
 - **Pre-flight (report in the handshake):** (a) compute the structural signs of §2.2 for `MINI_GRID` and print, per
   leaf, its sign set; every leaf of `OBSERVED` must agree with §2.1's direction (a disagreement is a handshake
-  question, not a fix). (b) Run the sweep of §5.4 again on `main` (`grep -rn "FROM finding\b\|JOIN finding \|FROM
-  finding_revision\|JOIN finding_revision" backend/assetops_backend`) and list any reader not in §5.4's table with its
-  class. (c) In the 5b test world (`test_5b_attribution._world()`), print Kobo's October actual and target values and
+  question, not a fix). (b) Run the sweep of §4.4 again (and over the child tables `finding_revision_assessment`, `finding_revision_evidence`, `finding_merge`, D-3B4.23) on `main` (`grep -rn "FROM finding\b\|JOIN finding \|FROM
+  finding_revision\|JOIN finding_revision" backend/assetops_backend`) and list any reader not in §4.4's table with its
+  class. (c) In the 5b test world (`test_5b_attribution._world()`, pure; `READ_AT` is imported there from `test_3a4_commercial_months`), print Kobo's October actual and target values and
   evidence for the 19 observed leaves; §6 fixture F2 states what is expected.
 
 ## 1. Outcome and why
@@ -173,6 +174,8 @@ NOT_COMPUTED = ("ACTUAL_NOT_AVAILABLE", "TARGET_NOT_AVAILABLE", "CURRENCY_MISMAT
 def in_force(registry, factor_id, site_declaration: ToleranceInForce | None) -> ToleranceInForce
 def observe(actual: SiteStructure, target: SiteStructure,
             declarations: Mapping[str, ToleranceInForce]) -> tuple[FactorObservation, ...]
+def observe_site(site: SiteMonthSnapshot, declarations: Mapping[str, ToleranceInForce]) -> tuple[FactorObservation, ...]
+    # = observe(site.actual, site.targets.structure, declarations): the one place the actual side is chosen (D-3B4.26)
 def basis(o: FactorObservation, structure_key: str, month: str) -> str   # sha256 hex
 ```
 
@@ -185,15 +188,16 @@ def basis(o: FactorObservation, structure_key: str, month: str) -> str   # sha25
 - The state, first match wins, every step in `Context(prec=34, rounding=ROUND_HALF_EVEN)`, nothing quantised:
   1. actual value `None`: `ACTUAL_NOT_AVAILABLE`; 2. target value `None`: `TARGET_NOT_AVAILABLE`; 3. money unit and
   the two currencies differ: `CURRENCY_MISMATCH`; 4. `gap == 0`: `NO_GAP`; 5. `UP` and `gap < 0`, or `DOWN` and
-  `gap > 0`: `FAVOURABLE`; 6. band: `NONE` gives `Decimal(0)`; otherwise `pct / 100 * abs(actual[of_factor].value)`,
-  and an `of_factor` actual of `None` is `TOLERANCE_NOT_AVAILABLE`; 7. `abs(gap) <= band`: `INSIDE_TOLERANCE`; 8.
+  `gap > 0`: `FAVOURABLE`; 6. band: `NONE` gives `Decimal(0)`; a tolerance with `pct == 0` gives `Decimal(0)` without reading `of_factor`
+  (D-3B4.19); otherwise `pct / 100 * abs(actual[of_factor].value)`, and an `of_factor` actual of `None` is
+  `TOLERANCE_NOT_AVAILABLE`; 7. `abs(gap) <= band`: `INSIDE_TOLERANCE`; 8.
   `RAISED`. Strictly outside: a gap equal to its band is inside.
 - The target side is 5a's as given (a declared line, or a labelled assumption such as leak at zero); it is never
-  replaced. The actual side is the un-carried actual (`snapshot.actual`), so a cost line not received reads
+  replaced. The actual side is the un-carried actual (`site.actual`, never `site_bridge(...).actual`), so a cost line not received reads
   `ACTUAL_NOT_AVAILABLE`, never a gap against its own budget line (D-3B4.5).
 - `basis`: `codec.digest(codec.canonical({...}))` over `structure_key`, `month`, `factor_id`, `direction`, `kind`,
   `state`, `unit`, `currency`, `actual`, `target`, `gap`, `band` (decimals as `format(d, "f")`, `None` as null),
-  `tolerance` (`source`, `of_factor`, `pct`; never its id), `actual_evidence`, `target_evidence`, `sources`, `origins`.
+  `tolerance` (`source`, `of_factor`, `pct` normalised so `5` and `5.00` agree; never its id), `actual_evidence`, `target_evidence`, `sources`, `origins`.
   No instant and no snapshot id enter it, so a rebuilt snapshot with the same figures has the same basis.
 
 ### 2.3 The start-up check (`check.py`; D-3B4.2; the last commit of unit 1, after 4a and 3B6 merge)
@@ -201,19 +205,22 @@ def basis(o: FactorObservation, structure_key: str, month: str) -> str   # sha25
 Add `OBSERVE_CODES = ("STRUCTURE_OBSERVE_KEY", "STRUCTURE_OBSERVE_COVER", "STRUCTURE_OBSERVE_LEAF",
 "STRUCTURE_OBSERVE_SOURCE", "STRUCTURE_OBSERVE_DIRECTION", "STRUCTURE_OBSERVE_KIND")` and
 `check_observed(observed=None, not_observed=None, registries=None) -> None` (a `None` reads the real table at call
-time, as `check_pins`; this module imports `structure.observe.rules` as a module, and `rules` never imports `check`).
+time, as `check_pins`; this module imports `structure.observe.rules` as a module at the top; `check_observed` reads `TARGET_RULE` through a
+function-local import of `structure.targets.rules`; `observe/rules.py` imports only `registry`, `expressions` and
+`attribution.rules`, never `check`, `evaluate`, `targets.rules` or `observe.observe`, and `observe/__init__.py` holds a
+docstring only: D-3B4.20, test 1b).
 `check_all()` with no argument calls it after `check_pins()`; `check_all(registries=X)` does not. Code-major, each
 over keys in `OBSERVED` order, then leaves in table order; the error names `(code, key, leaf)`:
 - `KEY`: a key of `OBSERVED` absent from `REGISTRIES`, `BRIDGE_ROOTS` or `TARGET_RULE`, or `OBSERVED` and
   `NOT_OBSERVED` with different keys (leaf `-`);
-- `COVER`: a leaf of the registry in neither table or in both, an entry that is not a leaf ID of the registry, or a
-  reason not in `REASONS`;
-- `LEAF`: an `OBSERVED` entry whose row is a node;
-- `SOURCE`: an `OBSERVED` leaf whose family is `DECLARED` or `CALENDAR`, or whose `absent` is `OPTION_ONLY` or
-  `NEVER_EMPTY`;
+- `COVER`: a leaf of the registry in neither table or in both, an entry of either table that is no row of the registry,
+  a `NOT_OBSERVED` entry that is a node, or a reason not in `REASONS`;
+- `LEAF`: an `OBSERVED` entry whose row is a node (so a node is `LEAF`'s, never `COVER`'s, D-3B4.16);
+- `SOURCE`: an `OBSERVED` leaf whose `row.filled_by.family` is `DECLARED` or `CALENDAR`, or whose `row.absent` is
+  `OPTION_ONLY` or `NEVER_EMPTY`;
 - `DIRECTION`: a direction not in `(UP, DOWN)`; or `reached` gives `{-1}` and the direction is `DOWN`, `{1}` and
   `UP`, or both signs;
-- `KIND`: a leaf `reached` does not name whose home category is not `HOMES["protect"]`.
+- `KIND`: a leaf `reached` does not name whose `row.home` (may be `None`) is not in `HOMES["protect"]`.
 
 ## 3. Unit 1: the pin (D-3B4.1)
 
@@ -231,9 +238,8 @@ Finding's category is its leaf's home category (OD-21), read at call time from `
 - Recreate `finding_domain_subject` and `finding_revision_domain_minutes` exactly as `0056` left them
   (`DOMAIN_SUBJECT_0056`, `DOMAIN_MINUTES_0056`, copied as literals) plus one arm each:
   `OR (domain = 'structure' AND subject_asset_id IS NULL AND generator_asset_id IS NULL)` and
-  `OR (domain = 'structure' AND candidate_minutes IS NULL AND necessary_minutes IS NULL AND indeterminate_minutes IS NULL)`;
-  add `finding_revision_structure_bounds CHECK (domain <> 'structure' OR (episode_start IS NOT NULL AND episode_end IS
-  NOT NULL))`. 0056's `_domain_checks` shape.
+  `OR (domain = 'structure' AND candidate_minutes IS NULL AND necessary_minutes IS NULL AND indeterminate_minutes IS NULL)`.
+  0056's `_domain_checks` shape. No bounds CHECK: `episode_start` and `episode_end` are already `NOT NULL` (D-3B4.24).
 - The tolerance declarations, append-only:
 
 ```sql
@@ -260,7 +266,7 @@ CREATE TRIGGER structure_tolerance_immutable BEFORE UPDATE OR DELETE ON structur
 ```
 - Downgrade: lock `finding, finding_revision, structure_tolerance`; refuse (`"00NN downgrade requires no structure
   Findings or tolerance declarations"`) while any `domain = 'structure'` Finding or revision or any tolerance row
-  exists; else drop the trigger, index and table and restore the two 0056 CHECKs (dropping the bounds CHECK).
+  exists; else drop the trigger, index and table and restore the two 0056 CHECKs.
 
 ### 4.2 The assessment store: `structure_persist` (D-3B4.7)
 
@@ -283,7 +289,7 @@ str, as_of: datetime, factor_id: str, result: dict, basis: str, now) -> dict` on
 Key: `KEY_PATTERN = r"structure:(?P<key>[A-Z][A-Z_]+):(?P<factor>[a-z][a-z0-9_]*):(?P<month>[0-9]{4}-[0-9]{2}):(?P<dir>UP|DOWN)"`,
 written `f"structure:{key}:{factor}:{month}:{direction}"`.
 
-`structure_apply(c, tenant_id, site_id, structure_key, month, window, observation, *, basis, claim, persist, now) ->
+`structure_apply(c, tenant_id, site_id, structure_key, month, window, observation, *, basis, claim, input_evidence_sha256, persist, now) ->
 UUID | None`: `persist` is a callable `(c) -> {"revision_id", "run_id"}` the service binds to `structure_persist`, called
 only when a revision is written. The latest revision of the key's Finding (`structure_held`: `(finding_id, lifecycle,
 basis_sha256)` or None) and the observation's state decide, first match wins:
@@ -310,12 +316,15 @@ basis_sha256)` or None) and the observation's state decide, first match wins:
   and `analytic_run_id` from `persist`, `window_assessment_revision_id` NULL, `episode_start`/`episode_end` = `window`,
   the three minutes NULL, `claim` (below), `limitations` `'[]'`, `basis_sha256` = `basis`, `support_sha256` =
   `sha256_json(list(observation.sources))`, `cited_evidence_sha256` = `sha256_json([])`, `input_evidence_sha256` = the
-  snapshot's `payload_sha256`; one `finding_revision_assessment` row (`'WINDOW'`, primary). No
+  Site snapshot row's `payload_sha256`, read by the service through `store.get(tenant_id, [site.snapshot_id])` and
+  passed in (D-3B4.21; never in `basis`); one `finding_revision_assessment` row (`'WINDOW'`, primary). No
   `finding_revision_evidence` row.
 - `claim` (`format` 1; decimals as strings in plain notation): `structure_key`, `structure_version`, `factor_id`,
   `home` (category code), `objective`, `kind`, `month`, `direction`, `state`, `unit`, `currency`, `actual`, `target`,
   `gap`, `band`, `tolerance` (`source`, `of_factor`, `pct`, `declaration_id`), `actual_evidence`, `target_evidence`,
-  `sources`, `origins`, `also_pinned`, `snapshot_id`, `snapshot_as_of`, `tolerance_known_at`. No money effect.
+  `sources`, `origins`, `also_pinned`, `snapshot_id`, `snapshot_as_of`, `tolerance_known_at`: exactly these 25 keys with `format` (D-3B4.18). "No money" means no
+  bridge value, no effect of acting and no priced line; a money-unit leaf's own `actual`, `target`, `gap` and `band`, in
+  its unit and currency, are the condition and stay.
 - Tolerances: `tolerance_append(row) -> UUID` (one plain INSERT; `recorded_at` from the store's `clock_timestamp()`);
   `tolerances(tenant_id, site_id) -> tuple[ToleranceRow, ...]` every row `ORDER BY recorded_at, id`. The service picks,
   per leaf, the latest row with `valid_from <= month` and `recorded_at <= known_at`; `SET` gives a `SITE`
@@ -328,12 +337,11 @@ basis_sha256)` or None) and the observation's state decide, first match wins:
 | `chain/adapters/postgres_thread_sources.py` `_FINDING_SOURCES` (and `_FINDING_SOURCES_BY_ID`, built from it) | `finding_source` raises `KeyError` (`SUBJECT_COLUMN`); the `finding.revised` event from `0044` is never consumed and blocks the Site's later events; the backfill aborts | add `AND f.domain <> 'structure'` before the `ORDER BY`; the event is consumed with nothing placed |
 | `analytics/adapters/postgres_finding_store.py` `_fence` (revision count) | an observer write moves the dispatch fence: a spurious re-plan and `SELECTION_MOVED_DURING_READ` | count `WHERE ... AND domain <> 'structure'` |
 | `postgres_finding_store.py` `finding_detail` | `GET /api/sites/{site_code}/findings/{id}` renders it as a dispatch Finding (minutes "None", the code as title) | the first `SELECT * FROM finding` adds `AND domain <> 'structure'` (the route answers its not-found) |
-| `postgres_finding_store.py` `rows` (CLI `finding-rows`, `finding-reads`) | dumped; `finding-reads` would read each through `finding_detail` and fail on None | the `finding` and `finding_revision` selects add `AND domain <> 'structure'` |
+| `postgres_finding_store.py` `rows` (CLI `finding-rows`, `finding-reads`), five selects | dumped; `finding-reads` would read each through `finding_detail` and fail on None; the Site-wide `finding_revision_assessment` list would hold links to revisions the other list removed | `finding` and `finding_revision` add `AND domain <> 'structure'`; `finding_revision_assessment`, `finding_revision_evidence` and `finding_merge` add `AND finding_revision_id IN (SELECT id FROM finding_revision WHERE tenant_id = :t AND site_id = :s AND domain <> 'structure')` (D-3B4.23) |
 
-`lifecycle_inputs` (`_FINDING_LIFECYCLE`) loads the row and never uses it, and `work/adapters/postgres_work_read.py`
+`thread_sources._FINDING_LIFECYCLE` (a whole-Site scan consumed only through a thread's occurrences, which a structure Finding never has) loads the row and never uses it, and `work/adapters/postgres_work_read.py`
 `_pin` degrades to no pin; both are left unchanged (named in the packet). Every other read is by id, by a named
-domain, mechanism or analytic, or by an Action's origin (the sweep's class A, 57 statements). The two consequence
-triggers fire for `mini_grid` and `cold_chain` only; the EV assessment trigger for `ev-session/1` only.
+domain, mechanism or analytic, or by an Action's origin (the sweep's class A, 57 statements). The `financial_consequence_dirty` trigger is narrowed to `mini_grid` (0022, not widened by 0056), the cold one is its own trigger; the EV assessment trigger for `ev-session/1` only.
 
 ### 4.5 The guard (one line)
 
@@ -345,7 +353,7 @@ guard edit.
 
 ### 5.1 `structure/observe/service.py`
 
-`StructureObserver(snapshots: SnapshotRead, findings, assessments, clock)` with
+`StructureObserver(snapshots: SnapshotRead, store: StructureSnapshotStore, findings, assessments, clock)` with
 `run(tenant_id, month) -> RunResult` (`RunResult(month, snapshot_id, as_of, sites: Mapping[str, SiteResult],
 excluded: Mapping[str, tuple[str, ...]])`, `SiteResult(states: Mapping[str, str], written: tuple[Written, ...])`,
 `Written(factor_id, transition, finding_id, revision_id)`):
@@ -353,13 +361,16 @@ excluded: Mapping[str, tuple[str, ...]])`, `SiteResult(states: Mapping[str, str]
    `NO_SNAPSHOT` (state `NO_SNAPSHOT`), `REBUILD_NEEDED` (state `REBUILD_NEEDED`), `SNAPSHOT_NOT_CURRENT`
    (`freshness.current` false), `MONTH_OPEN` (the portfolio row or any Site snapshot has `closed_at_build` false).
 2. `known_at = clock()` once (UTC). Per Site in `served.snapshot.asked` order that is in `served.snapshot.sites`: read
-   its tolerances (`findings.tolerances`), `observe(site.actual, site.targets.structure, declarations)`, then in one
+   its tolerances (`findings.tolerances`), `observe_site(site, declarations)`, then in one
    `assessments.transaction()`: `pg_advisory_xact_lock(hashtext('structure-observe:' || site_id || ':' || month))`,
    then `findings.structure_apply` per observation, in `OBSERVED` order. One Site's failure rolls back that Site only and
    propagates after the earlier Sites committed.
+   A Site whose `site.actual.structure_key` is not a key of `OBSERVED` is not observed: it is returned in `excluded`
+   with `("STRUCTURE_NOT_OBSERVED",)` and nothing is written for it (D-3B4.25).
 3. Sites in `served.snapshot.sites_excluded` are returned in `excluded` with their reasons, unchanged.
 
-`structure/observe/composition.py` `build_structure_observer(database_url) -> (StructureObserver, dispose)`: the
+`structure/observe/composition.py` `build_structure_observer(database_url) -> Wiring` (`Wiring(observer, store,
+findings, dispose)`; the commands use `store.tenant_sites` and `findings.tolerances`): the
 snapshot service from `structure_snapshot.composition.build_structure_snapshot`, `analytics.composition`
 `build_finding_store` and `build_postgres_assessment_store` (as `fuel_balance/composition.py` does), the clock
 `datetime.now(timezone.utc)`; a failure disposes what was built.
@@ -367,7 +378,7 @@ snapshot service from `structure_snapshot.composition.build_structure_snapshot`,
 ### 5.2 `python -m assetops_backend.observe_structure run --tenant SLUG --month YYYY-MM`
 
 `build_parser()` public; `main(argv, *, observer=None, accounts=None)`. Exit 2 before any work: `NO_DATABASE`,
-`BAD_MONTH`, `UNKNOWN_TENANT` (`AccountService.tenant_by_slug`); exit 3 an `ObserveRefused` (its code); exit 0 one JSON
+`BAD_MONTH`, `UNKNOWN_TENANT` (`store.tenant_sites(slug)` is `None`, as `build_structure_snapshot.py:79`; no `AccountService` call, D-3B4.22); exit 3 an `ObserveRefused` (its code); exit 0 one JSON
 line `{"month", "snapshot_id", "as_of", "sites": {code: {"states": {factor: state}, "written": [{"factor_id",
 "transition", "finding_id", "revision_id"}]}}, "excluded": {code: [reasons]}}`. stderr carries the code alone (no
 sentence, D-3B4.13). Runbook line (in the packet): after `build_structure_snapshot build` for a closed month, run
@@ -381,11 +392,11 @@ sentence, D-3B4.13). Runbook line (in the packet): after `build_structure_snapsh
 - Refusals, exit 2, nothing written, in this order: `NO_DATABASE`, `UNKNOWN_TENANT`, `SITE_UNKNOWN` (not the tenant's,
   or its type has no structure), `FACTOR_NOT_OBSERVED` (not in `OBSERVED[key]`), `OF_FACTOR_UNIT` (`--of` not a row of
   the registry, or its unit differs from the leaf's: 3B1's `STRUCTURE_TOLERANCE` rule), `PCT_INVALID` (not
-  `^[0-9]{1,3}(\.[0-9]{1,2})?$`, or not `0 < pct <= 100`), `BAD_MONTH`, `PERSON_NOT_FOUND` (no active person of the
-  tenant with that email), `PERSON_ROLE_REQUIRED`: the command key is `structure.tolerance.money` when the leaf's unit
+  `^[0-9]{1,3}(\.[0-9]{1,2})?$`, or not `0 <= pct <= 100`; 0 is accepted and gives band 0, D-3B4.19), `BAD_MONTH`, `PERSON_NOT_FOUND` (`AccountService.onboard_person(email)` is `None`, not `active`, or its `tenant_id` is not the
+  tenant's; D-3B4.22), `PERSON_ROLE_REQUIRED`: the command key is `structure.tolerance.money` when the leaf's unit
   has a money dimension (`outstanding`, `in_transit`, `om`, `staff`, `tariff`, `productive_tariff`, `diesel_price`),
-  else `structure.tolerance.operational`; the admitting role is the first of `roles_of(key)` the person holds, and a
-  `SITE_MANAGER` grant admits only when its `site_id` is this Site's.
+  else `structure.tolerance.operational`; the admitting role is the first of `roles_of(key)` for which `OnboardPerson.roles` holds a `(role, site_id)` pair,
+  and a `SITE_MANAGER` pair counts only when its `site_id` is this Site's.
 - `accounts/permissions.py` `COMMAND_ROLES` gains, at the end: `"structure.tolerance.money": (FINANCE,)` and
   `"structure.tolerance.operational": (SITE_MANAGER,)`.
 - Success, exit 0: `{"state": "SET"|"CLEARED", "declaration_id", "factor_id", "of_factor", "pct", "valid_from",
@@ -405,31 +416,46 @@ sentence, D-3B4.13). Runbook line (in the packet): after `build_structure_snapsh
 | Kisiwa | `adjustments_kwh` 30; `outstanding` 270 CASH; `necessary_l` 80; `reduced_days` 2 PROTECT | `delivered_kwh` (+450) | `unexplained_l` 20 (band 48) |
 | Mto | `unexplained_loss_kwh` 120, `adjustments_kwh` 40, `unmapped_kwh` 140, `necessary_l` 20 BOTTOM_LINE; `in_transit` 150, `outstanding` 120 CASH; `reduced_days` 4 PROTECT | `delivered_kwh` (+400) | none |
 
-- **F2, the 5b test world (pure, real reads).** `test_5b_attribution._world()` and its `reads`; Kobo October at
+- **F2, the 5b test world (pure, real reads; a memory store, no database).** `test_5b_attribution._world()` and its `reads` (`READ_AT` is imported there from `test_3a4_commercial_months`); Kobo October at
   `READ_AT`: `outstanding` `RAISED`, gap `278.00`, kind `CASH`; every observed leaf whose actual the world does not
   supply reads `ACTUAL_NOT_AVAILABLE`, never `RAISED` (pre-flight (c) lists which; a difference from this is a
   handshake question).
 - **F3, the Postgres world.** One tenant, one MINIGRID Site `KOBO-001` (Africa/Nairobi), months `2026-10` and
   `2026-11`, a fake `SnapshotRead` returning F1's Kobo sides as `SiteMonthSnapshot`s (`closed_at_build` true,
-  `freshness.current` true), a fixed clock; one FINANCE person and one SITE_MANAGER bound to `KOBO-001`, one
+  `freshness.current` true) and a fake `StructureSnapshotStore` whose `get` returns a `SnapshotRow` with a known
+  `payload_sha256` per Site snapshot id (the portfolio row's differs), a fixed clock; one FINANCE person and one SITE_MANAGER bound to `KOBO-001`, one
   SITE_MANAGER bound to another Site.
 
 ## 7. Tests (written first)
 
 `backend/tests/test_3b4_observer.py` (no database):
-1. `OBSERVED` and `NOT_OBSERVED` equal the test's own literal tables of §2.1; `check_all()` passes (no argument).
+1. `OBSERVED` and `NOT_OBSERVED` equal the test's own literal tables of §2.1; `check_all()` passes (no argument) (waits
+   for 4a and 3B6, §0).
+1b. Import order (waits with 1): three fresh interpreters, `python -I -c "import assetops_backend.structure.check"`, then
+   `...structure.observe.rules`, then `...structure.evaluate`, each first; all exit 0 (D-3B4.20). With 3B6 merged, `check_all()`
+   still passes though `REGISTRIES` holds keys `OBSERVED` does not name.
 2. `signs` on MINI_GRID gives `{-1}` for every UP leaf of the table reached from a root and `{1}` for every DOWN leaf,
    from a literal expected map; the four Protect leaves and `hours_per_day` are not reached.
-3. Each `check_observed` code fires on one planted table (one per code; `KIND` with `field_visits` added as UP).
+3. Each `check_observed` code fires on one planted table and on no earlier code (one per code: `KEY` an `OBSERVED` key
+   with no registry; `COVER` `dawn_days_below` removed from both, and a `NOT_OBSERVED` entry that is no row; `LEAF`
+   `billed_kwh` added to `OBSERVED`; `SOURCE` `technical_loss_kwh` moved to `OBSERVED`; `DIRECTION` `outstanding` DOWN;
+   `KIND` `field_visits` added as UP).
 4. F1: every Site's states, gaps and kinds as §6's table; `band` 23.6 and 48 exact; no `RAISED` observation has
    `FAVOURABLE` direction (the rule's halves both asserted).
 5. Tolerance: Kobo `necessary_l` with a SITE `ToleranceInForce(of_factor="diesel_l", pct=5)` is `INSIDE_TOLERANCE`
    (band 59), with `pct=2` `RAISED` (23.6); Kisiwa `unexplained_l` with `of_factor="unexplained_l", pct=100` (band
    20 = gap) is `INSIDE_TOLERANCE`; Mto with `delivered_kwh` actual removed and `unexplained_loss_kwh` declared
-   `of_factor="delivered_kwh", pct=1` is `TOLERANCE_NOT_AVAILABLE`; a SITE declaration beats the row's default.
+   `of_factor="delivered_kwh", pct=1` is `TOLERANCE_NOT_AVAILABLE`; a SITE declaration beats the row's default;
+   `pct=0` (D-3B4.19): Kobo `necessary_l` gives band 0 and `RAISED` (gap 30), also with its `diesel_l` actual removed
+   (band known, not `TOLERANCE_NOT_AVAILABLE`); Kisiwa `unexplained_l` with `pct=0` over the row's 2 % is `RAISED` (gap 20,
+   band 0).
 6. Unknown is not zero: Kobo with `om` actual removed reads `ACTUAL_NOT_AVAILABLE` (not a gap of −600); a target
    `None` reads `TARGET_NOT_AVAILABLE`; a currency pair `USD`/`KES` reads `CURRENCY_MISMATCH`.
-7. `basis` ignores instants and snapshot ids and changes with any listed field (one field at a time).
+6b. The un-carried actual (D-3B4.26): `observe_site` on a `SiteMonthSnapshot` built from Kisiwa's real inputs and targets
+   (`test_5b_attribution._kisiwa()`, where `om` is carried by `site_bridge`) reads `om` `ACTUAL_NOT_AVAILABLE`, while
+   `site_bridge(inputs, targets).actual` holds a value for it.
+7. `basis` ignores instants and snapshot ids and changes with any listed field (one field at a time); `pct` `5` and
+   `5.00` give one basis.
 8. F2 as §6.
 9. `pin_of_key` round-trips a written key and refuses three malformed ones; the claim's `also_pinned` for
    `candidate_l` and `unexplained_l` as §3; `check_pins()` unchanged.
@@ -438,18 +464,21 @@ sentence, D-3B4.13). Runbook line (in the packet): after `build_structure_snapsh
 10. The migration: the two CHECKs equal 0056's plus the arms (the `test_k4a_fuel_finding_postgres.py:205` shape);
     a structure row with a subject asset is refused; downgrade refuses with a row and succeeds without.
 11. Lifecycle: October run opens 5 Findings (OPENED/SUPPORTED) with the claim of §4.3; a second run writes nothing;
-    a rebuilt snapshot with the same figures (new `as_of`, new id) writes nothing; `candidate_l` 340 gives
+    a rebuilt snapshot with the same figures (new `as_of`, new id, new row digest) writes nothing; `candidate_l` 340 gives
     SUPPORT_CHANGED; a SITE tolerance on `necessary_l` (5 % of `diesel_l`) gives NO_LONGER_SUPPORTED; `clear` then
     re-run gives REOPENED; `outstanding` actual removed gives UNCONFIRMED; November's `candidate_l` Finding has
-    `recurs_after_finding_id` = October's.
+    `recurs_after_finding_id` = October's; each revision's `input_evidence_sha256` equals the Site row's `payload_sha256`
+    (not the portfolio's); each claim's key set equals §4.3's 25 keys exactly (a literal set).
 12. Each run writes one `analytic_run` per Site-month basis and one `assessment_revision` per revision written.
 13. Readers: with structure Findings stored, the threads stage (`scheduling/stages.py` `chain_threads`) consumes the
     `finding.revised` events, places nothing and raises nothing; `finding_detail` returns None for a structure id;
-    `rows` lists none; `_fence`'s revision count is unchanged by an observer run.
+    `rows()` holds no structure row or link in any of its five lists (`findings`, `revisions`, `assessments`, `evidence`,
+    `merges`, each asserted); `_fence`'s revision count is unchanged by an observer run (one assertion per reader
+    predicate, D-3B4.17).
 14. Refusals: `NO_SNAPSHOT`, `REBUILD_NEEDED`, `SNAPSHOT_NOT_CURRENT`, `MONTH_OPEN`, each writing nothing.
 15. Tolerance command: FINANCE sets `outstanding`; FINANCE on `necessary_l` is `PERSON_ROLE_REQUIRED`; the bound
     SITE_MANAGER sets `necessary_l`; the other Site's SITE_MANAGER is `PERSON_ROLE_REQUIRED`; each other refusal of
-    §5.3 once; `show` reads the declaration in force; the row is insert-only (an UPDATE raises).
+    §5.3 once (`PCT_INVALID` for `100.5`, `abc` and `-1`; `0` accepted); `show` reads the declaration in force; the row is insert-only (an UPDATE raises).
 
 Regression, run in the build: `test_3b1_structure_registry.py`, `test_3b2_findings_pinned.py`,
 `test_3b3_structure_evaluate.py`, `test_5b_attribution.py`, `test_k4a_fuel_finding_postgres.py`, the chain threads
@@ -459,12 +488,12 @@ tests (`python tools/select-tests.py --base main` names them), and the 3B7a snap
 
 | Unit | Content | Commits |
 |---|---|---|
-| 1 (1.0) | §2, §3; pre-flight (a); tests 1 to 9 (the `check.py` edit last, after 4a and 3B6 merge) | 2 |
-| 2 (1.25) | §4 (migration, two stores, the four readers, the guard line); pre-flight (b); tests 10 to 13 | 2 |
+| 1 (1.0) | §2, §3; pre-flight (a); tests 2, 4 to 9 now; tests 1, 1b, 3 and the `check.py` edit last, after 4a and 3B6 merge | 2 |
+| 2 (1.25) | §4 (migration, two stores, the four readers with their five `rows()` selects, the guard line); pre-flight (b); tests 10 to 13 | 2 |
 | 3 (0.75) | §5 (service, composition, two commands, two roles); tests 14, 15; pre-flight (c) and test 8 if not done | 1 to 2 |
-| 4 (0.5) | regression; plants (reviewer guide); check-all; packet | 1 |
+| 4 (0.5) | the `check.py` commit if not yet made; regression; plants (reviewer guide, 23); check-all; packet | 1 |
 
-Total 3.5 (D-3B4.15). Packet `specs/3B4-observer/packet.md`: the sweep table of §4.4 re-run, gate A/B numbers, the
+Total 3.5 (D-3B4.15; re-estimated after the handshake, unchanged). Packet `specs/3B4-observer/packet.md`: the sweep table of §4.4 re-run, gate A/B numbers, the
 plants run, the runbook line, residual risks `R-FENCE-FUEL` (D-3B4.9), `R-NO-OPPORTUNITY` (D-3B4.4), `R-ASSUMED-TARGET`
 (D-3B4.5), the mid-build count.
 
@@ -479,8 +508,8 @@ plants run, the runbook line, residual risks `R-FENCE-FUEL` (D-3B4.9), `R-NO-OPP
 4. Does a re-run on unchanged figures write nothing, even from a rebuilt snapshot, and does each change write exactly
    the transition of §4.3's table (test 11)?
 5. Is each Finding in today's store, domain `structure`, pinned by its key to one registry leaf, with its claim in the
-   leaf's unit and no money (tests 9, 11)?
-6. Does no reader of today's Findings show, count or choke on a structure Finding (test 13, §4.4 re-run)?
+   leaf's unit and no money (tests 9, 11; the claim's key set a literal)?
+6. Does no reader of today's Findings show, count or choke on a structure Finding, `rows()` included in all five lists (test 13, §4.4 re-run)?
 7. Is a tolerance declared only by the finance lead (money) or the Site's manager (operational), recorded with person
    and time, and read by month and as known (test 15)?
 8. Are the only guard change `$findingTables`' new name, the only migration `00NN_structure_finding`, and no served
