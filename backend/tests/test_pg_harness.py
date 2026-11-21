@@ -160,7 +160,7 @@ class TestAgainstPostgres:
                 raw = c.connection.dbapi_connection
                 raw.add_notice_handler(lambda diag: notices.append(diag.message_primary or ""))
                 tx = c.begin()
-                c.execute(text("SET LOCAL session_replication_role = replica"))  # 0069's TRUNCATE trigger is skipped
+                c.execute(text("SET LOCAL session_replication_role = replica"))  # 0070's TRUNCATE trigger is skipped
                 c.execute(text(f"TRUNCATE {', '.join(ROOTS)} CASCADE"))
                 tx.rollback()
                 cascaded = {m.split('"')[1] for m in notices if m.startswith("truncate cascades to table")}

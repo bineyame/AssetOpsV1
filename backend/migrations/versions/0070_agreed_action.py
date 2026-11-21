@@ -6,18 +6,19 @@ agreed at the end of the deep-dive, recorded by people as an Action with its own
   DELETE, and a statement trigger refuses TRUNCATE (0050's precedent). `agreed_action_once` is the identity of a
   re-run (NULLS NOT DISTINCT for the Site and the factor).
 
-Numbering (D-3C2.9): built on the 3A6 branch, whose head is `0067_source_profile`; `0068` is taken by 3A7, which
-merges first. At gate B this file revises `0068_commercial_reconciliation` (or the live head then), and test 6's
-hand pair moves with it.
+Numbering (D-3C2.9, renumbered 2026-11-21 at the merge of main `e5a283228`): main ends at `0068_structure_finding`;
+`0069` is taken by 3A7 (`0069_commercial_reconciliation`), which merges first. Until then this file revises
+`0068_structure_finding`; at 3A7's merge it revises `0069_commercial_reconciliation` (or the live head then), and
+test 6's hand pair moves with it.
 
-Revision ID: 0069_agreed_action
-Revises: 0067_source_profile
+Revision ID: 0070_agreed_action
+Revises: 0068_structure_finding
 Create Date: 2026-11-21
 """
 from alembic import op
 
-revision = "0069_agreed_action"
-down_revision = "0067_source_profile"
+revision = "0070_agreed_action"
+down_revision = "0068_structure_finding"
 branch_labels = None
 depends_on = None
 
@@ -57,7 +58,7 @@ REFUSE_IF_USED = (
     "LOCK TABLE agreed_action IN ACCESS EXCLUSIVE MODE;\n"
     "DO $$\nBEGIN\n"
     "    IF EXISTS (SELECT 1 FROM agreed_action) THEN\n"
-    "        RAISE EXCEPTION 'Downgrade of 0069_agreed_action refused: agreed Actions exist';\n"
+    "        RAISE EXCEPTION 'Downgrade of 0070_agreed_action refused: agreed Actions exist';\n"
     "    END IF;\nEND;\n$$;\n"
 )
 

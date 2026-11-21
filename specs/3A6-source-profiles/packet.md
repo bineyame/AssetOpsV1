@@ -324,3 +324,144 @@ bounds; it needs SC-1 text and an Architect ruling after SC-1a merges.
 - Fast check-all: `All 41 guards passed` (239.7 s; the first attempt timed out waiting for a heavy slot held by other lanes, exit 75, and was rerun).
 - Evidence: `/opt/assetecon/evidence/3A6/2026-11-21/r4/` (run logs, plant script and log, probe script and log,
   both differentials).
+
+## Fix round r5 (review r5 N8, N9, N10; D-3A6.23 to D-3A6.28)
+
+Commit 1 `3134d35c6` (the envelope, D-3A6.23, .25, .26) and commit 2 `ba6eaee85` (the N8 to N10 bounds, D-3A6.24),
+on `db04616ac` (the r5 answers merged, main in). Spec §2.12.
+
+**The envelope** (`backend/assetops_backend/commercial/envelope.py`):
+- `ParseEnvelope.read(reader, data, context, *, split=False) -> BoundedRead` runs each parse in a fresh child forked
+  by a forkserver that preloads `assetops_contracts.native` only. The child sets RLIMIT_AS 512 MiB, RLIMIT_CPU 6 s
+  (hard 7), RLIMIT_FSIZE 0 and RLIMIT_CORE 0 before reading a byte, rebuilds the reader from `reader_spec` (a
+  registered reader by ID, a profile reader from its text and version, refusing to run when the rebuilt ID
+  differs), and sends one pickled answer, checked against 32 MiB in the child and by `recv_bytes(maxlength)`.
+- The parent holds one of 2 slots (`BoundedSemaphore`; a waiting upload is never refused), waits 12 s, then kills.
+  Memory, CPU (SIGXCPU, or SIGKILL past the CPU time), wall, result size and a child that dies without answering
+  each raise `CanonicalRefused("NATIVE_TOO_LARGE", "json")` after one WARNING on `assetops.commercial.envelope`
+  with `cause`, `reader`, `bytes`, `tenant` and nothing else. A reader's own refusal crosses back as its code and
+  path; any other child exception is `RuntimeError("parse failed in the envelope: <name>")` (a 500, as before).
+- Wired: `CommercialUploads._check` and `SourceProfiles` step 4 (one read with `split=True` replaces `reader.read`
+  and `split_file`). Both take an optional `envelope`; omitted, both use the process's one `default_envelope()`,
+  built from `DEFAULT_LIMITS` (the only production construction, no setting or variable). `LayoutReader` gains
+  `profile=(text, version)`; `SourceProfiles.reader` and admission pass it.
+- Pre-flight (spec §2.12 step 3): 2a's `parse_batch` refuses a count past `MAX_RECORDS` before it walks the records
+  (`records_v1.py:780`), so the verdict is already safe; but the parent would still unpickle the list. The child
+  therefore answers a `records` list longer than `MAX_RECORDS + 1` with what `parse_batch` says of its first
+  10,001 records (an envelope field's refusal first, else `CANONICAL_RANGE batch.records`): test E8, a million `{}`.
+- S1-DYN: an attribute call `set_forkserver_preload` is `S1-DYN` outside the allowlist, which gains `envelope.py`;
+  its list elements are checked for `S1-DYN-COMMERCIAL`. Plants `p-env` and `p-env-c`.
+- D-3A6.25: `_too_large()` replaces `_workbook_error()` at the declared-size pre-check, the inflated member and total
+  caps, `_WORK_MAX`, `_CHAR_MAX` and `_PAD_BUDGET`; format refusals keep `NATIVE_WORKBOOK`. Words: catalogue key
+  `commercial_upload.reason.native_too_large` in 3A6's `# 3A6` block of `i18n/messages.py` (D-SC1.27 scope, so no
+  mid-build question; it joins the legacy baseline at 3A6's merge). The 3A3 word pin gains the code.
+
+**The bounds** (D-3A6.24, each `NATIVE_TOO_LARGE`): `_ATTR_RUN_MAX` 4,096 `=` in a `[^<]+` run, scanned only when a
+member holds more than 4,096 `=`; `_ATTR_NAMES_MAX` 512 distinct attribute names, one set across the four parses,
+checked in `_Target.start`; `_Workbook.date1904` alone; `_directory_check` before `zipfile.ZipFile` (256 entries,
+256 KiB, from the end record, or from the zip64 record whenever a locator precedes it, at both places `zipfile`
+looks; no end record is `NATIVE_WORKBOOK`); CSV `_ROW_CHARS_MAX` 1 Mi characters a logical row, path
+`row.{line_num + 1}`, counted per physical line by a generator the loop resets after each row.
+
+**Every resource and its bound** (r4's table, rewritten):
+
+| Resource | XLSX bound | CSV bound |
+|---|---|---|
+| **The whole parse (r5)** | **child process: 512 MiB address space, 6 s CPU, 12 s wall, 32 MiB result, 2 at once; any breach `NATIVE_TOO_LARGE`** | same |
+| Upload bytes | 8 MiB, profile sample 1 MiB, before any read | same |
+| Zip directory (r5, N10) | 256 entries and 256 KiB, before `zipfile` decodes it | n/a |
+| Members read | four named ones | n/a |
+| Inflated bytes | 16 MiB a member, 64 MiB in total, counted as inflated | n/a |
+| XML elements | `_WORK_MAX` 500,000 starts | n/a |
+| Attributes (r5, N8) | 4,096 `=` between two `<`; 512 distinct names a workbook | n/a |
+| Characters delivered by cells | `_CHAR_MAX` 16 Mi, every reference | the decoded upload |
+| One logical row (r5, N9) | elements, under `_WORK_MAX` | 1 Mi characters, quoted newlines included |
+| One field | member size | 131,072 (`NATIVE_ROW`) |
+| Kept rows; cells kept a row | `MAX_RECORDS` + 1; width + 1 | same |
+| Padding | `_PAD_BUDGET` 2,000,000 | n/a |
+| The parent after the read | the result (at most 32 MiB pickled), `parse_batch` over at most 10,001 records | same |
+
+**Measured** (Python 3.12.16, this host under the other lanes' load; `/opt/assetecon/evidence/3A6/2026-11-21/r6/`,
+`measure.log`, `breaches.log`; probe files deleted after measuring):
+
+| File, in the envelope at `DEFAULT_LIMITS` | Upload | Child CPU | Child VmPeak (max RSS) | Result | Wall |
+|---|---|---|---|---|---|
+| Worst legitimate: 10,000 kobo rows padded to 8 MiB | 8,300 kB | 1.06 s | 104 MiB (88) | 4.3 MiB | 1.12-1.20 s |
+| 10,000 kobo rows | 820 kB | 0.83 s | 84 MiB (68) | 3.3 MiB | 0.92-0.94 s |
+
+Headroom at the worst legitimate file: 4.9x memory, 5.7x CPU, 10x wall, 7x result. A parse of the 4-row fixture
+costs about 25 ms (fork, import, read); the forkserver starts once per process (about 0.45 s).
+
+| Breach (E1 to E4's files and limits) | Upload | Outcome, logged cause | Time to the refusal | Parent RSS | Next upload |
+|---|---|---|---|---|---|
+| E1 memory 80 MiB | 8,300 kB | `NATIVE_TOO_LARGE`, memory | 1.25 s | 94 -> 94 MiB | reads (4 records) |
+| E2 CPU 1 s | 6 kB (499,000 `<row/>`) | `NATIVE_TOO_LARGE`, cpu | 2.22 s (loaded host: 1 s of CPU) | 94 -> 94 MiB | reads |
+| E3 wall 0.2 s | 8,300 kB | `NATIVE_TOO_LARGE`, wall | 0.24 s | 94 -> 96 MiB | reads |
+| E4 result 1 MiB | 820 kB | `NATIVE_TOO_LARGE`, result | 0.89 s | 96 -> 96 MiB | reads |
+
+The r5 probes after the bounds (in process, `contracts/tests` "N3 r5"): the four attribute probes refuse under 1.0 s
+and 60 MB; the cp1252 one-line and the quoted 90-line CSV rows refuse in 0.03 s and 0.06 s at 25 MB and 38 MB
+traced; 125 entries with 64 KiB extra fields refuse under 0.2 s.
+
+**Tests.** `backend/tests/test_3a6_parse_envelope.py` (19, no database): E0 (limits pinned, zero and negative
+refused; one production construction, no setting), E1 to E5 as the spec states, E6 after each of E1 to E4 plus a
+child killed by hand (`SIGKILL`, cause `crash`) and an admission breach (`ADMIT_SAMPLE_FILE` with the words), E7
+(AST scan, with three planted parses it sees), E8 (the four illustrative goldens, both fixtures with and without
+`split`, `canonical-json-v1` on 3A2's fixture; refusals cross back unchanged; a million `{}`; `reader_spec`; a
+rebuilt ID that differs does not run), E9 (the record's extra is exactly the four fields; the sentinel in the file is
+nowhere in the message, args, extra or captured text). `contracts/tests/test_3a6_profiles.py` "N3 r5" (14): B1 to B3
+as the spec states, plus the windowed line reader equal to `StringIO`'s lines (3,000 random texts, windows 2 to 8).
+
+**Plants** (applied, run, reverted with `git checkout`, tree clean after each; `plants_c1.log`, `plants_c2.log`):
+V33 `reader.read` in `_check` → E7 fails; V34 no RLIMIT_AS → E1 fails; V35 `poll(None)` → E3 fails (8.4 s, inside the
+10 s timeout); V36 no result check and no `maxlength` → E4 fails; V37 `RuntimeError` for a breach → E1, E3, E4 fail;
+V38 no `=` run scan → all four B1 probes fail; V39 counter reset per physical line → B2 fails; V40 no
+`_directory_check` → the three B3 tests fail.
+
+**Known deviations:**
+- E7's scan allows `loads_canonical` in three places that parse text the server wrote, never upload bytes:
+  `commercial/months.py` and `structure/targets/lines.py` (stored canonical rows) and `commercial/service.py`
+  (`CommercialRecords.ingest`, which reads the batch `_check` re-serialised from the envelope's bounded result). The
+  spec's literal E7 would fail on them; the allowance is exact (the test fails if one disappears).
+- `_Launcher` overrides the stdlib's `popen_forkserver.Popen._launch` (copied from 3.12) to drop the parent's
+  `__main__` from the preparation data; `_Child._Popen` is assigned, and the launch pipe written through
+  `io.FileIO`, because `configuration-persistence.ps1`'s storage pattern `open\(` (case-insensitive) matched
+  `_Popen(`, `set_spawning_popen(` and `open(w, ...)` in the first fast check-all (2 of 41 failed). This is
+  process launch, not storage; the guard is unchanged. Without it every parse child re-runs the parent's main script (pytest's
+  or uvicorn's) before its target. A stdlib change to `_launch` would surface in E1 to E8.
+- `_invisible_class()` is built when `layouts_v1` loads, so the forkserver builds it once (about 0.4 s a process)
+  instead of every child.
+- Commit split: the code switch to `NATIVE_TOO_LARGE` and the r3 and r4 test literal changes landed in commit 1 (so
+  commit 1 is green), not commit 2 as D-3A6.28 lists.
+- Zip64: the record is read whenever a locator precedes the end record (as `zipfile` does), not only behind a
+  sentinel; the plain end record's sentinels count only when no zip64 record is found.
+- CSV lines are read a window of 1 Mi + 2 characters at a time (a `StringIO` of the whole text is 4 bytes a
+  character and took the B2 probes to 67 MB); 8 Mi bare CRs now take 2.5 s in process (1.56 s at r4), inside the
+  envelope.
+- Two existing tests (3A2 `test_16_reader_paths`, 3A3 `test_s5_...store_fault`) use stub readers the child cannot
+  rebuild; they set a test double (`StubEnvelope`) on their service. Production has no in-process path.
+- One r3 literal change beyond the spec's list: `test_n3_r3_many_members_are_listed_in_bounded_time` (20,000 empty
+  members) is now `NATIVE_TOO_LARGE` (the 256-entry bound), not `ok 3`.
+- E1's padded file puts its padding mostly in the unread Phone column (Supplier at 120 characters), so its result is
+  4.3 MiB, not the ruling's 10.9 MB; the memory breach and the full read hold as stated.
+
+**Not changed (out of scope):** `reading_upload_api.py` (meter-reading CSVs) still parses in the server process;
+queued as `ENV-1` (D-3A6.23). **3A7 and 3C2 (D-3A6.26):** this round adds only optional keywords
+(`LayoutReader(..., profile=)`, `envelope=` on the two services and builders) and leaves migration 0067 alone, so
+their base at `166942e7d` does not move.
+
+**Differential** (`diff_r6.py`, review r5's generator, seed 2026, 600 cases, every 25th at 9,990 to 10,011 rows; each
+case read in process and through the envelope at `DEFAULT_LIMITS`, then `parse_batch`; digest of records, rows,
+refusals, personal paths and batch outcome): **0 mismatches**; 563 read, 37 whole-file refusals. Wall 951 s.
+
+**Checks at r5** (code and tests at `ba6eaee85`; logs in `/opt/assetecon/evidence/3A6/2026-11-21/r6/`):
+- Non-DB, `heavy-slot.sh -- pytest` over contracts/tests, the 3A6 envelope, service and command files, 3A3 contract,
+  single writer and loader, run-store loader, 3A2 service and API, 3B7a seam and snapshot, ON1 (4 files), RC4-F1:
+  `718 passed in 177.66s` (wall 179 s).
+- Postgres, `heavy-slot.sh --db -- pwsh tools/run-host-tests.ps1` (routed `*_test`): 3A6, 3A3 loader, 3A2, ON1,
+  3B7a snapshot: `59 passed in 53.65s`, none skipped.
+- `python3 tools/check-decision-index.py`: OK after the r5-answers merge.
+- Fast check-all at `ba6eaee85`+packet: 2 of 41 failed (configuration-persistence's `open\(` pattern on the launch
+  code, and the estate self-tests that rerun it); fixed in `203f3f4ac` (names only). After it: envelope and S1 files
+  `63 passed`, plants V33 to V37 rerun (each still fails its test), and fast check-all `All 41 guards passed`
+  (553.2 s wall, 276.4 s waiting for a slot). The non-DB and Postgres runs above are at `ba6eaee85`.

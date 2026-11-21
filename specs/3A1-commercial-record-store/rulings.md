@@ -113,6 +113,8 @@ proposed answer is the ruling. The estimate stays at 3 units.
   - The store holds only refs as the adapter sent them. The adapter (`3A2`, `3A3`) must pseudonymise them.
   - No raw bytes are stored.
   - No ref or record value is logged or put into an error.
+  - Amended by D-3A6.29: the `commercial/` package holds no logging at all (R13); a cause code and byte count for an
+    envelope breach is logged by the upload API, outside the package.
   - Erasure is a pilot residual, done by destroying the pseudonym key upstream.
 - **Why.** The tables are append-only by design (D-3A1.4), so what enters them must already be safe to keep.
 

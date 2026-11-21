@@ -129,7 +129,9 @@ class PostgresFindingStore:
         # Finding state is part of the fence: a pass planned before another pass committed (whose episodes
         # are stale) must re-plan instead of opening a second Finding for the same episode. Revisions are
         # append-only, so their count only grows.
-        revisions = c.execute(text("SELECT count(*) FROM finding_revision WHERE tenant_id = :t AND site_id = :s"),
+        # 3B4 (D-3B4.9): an observer revision never moves the dispatch fence.
+        revisions = c.execute(text("SELECT count(*) FROM finding_revision WHERE tenant_id = :t AND site_id = :s "
+                                   "AND domain <> 'structure'"),
                               {"t": tenant_id, "s": site_id}).scalar_one()
         return Fence(int(seq), int(count), marker, int(revisions))
 
@@ -262,17 +264,21 @@ class PostgresFindingStore:
         """Every Finding and revision of a Site, for verification and the phase-2 read."""
         def work(c: Connection) -> dict[str, Any]:
             p = {"t": tenant_id, "s": site_id}
+            # 3B4 (D-3B4.9, D-3B4.23): structure Findings stay out of all five lists.
+            kept = (" AND finding_revision_id IN (SELECT id FROM finding_revision WHERE tenant_id = :t "
+                    "AND site_id = :s AND domain <> 'structure')")
             findings = [dict(r._mapping) for r in c.execute(text(
-                "SELECT * FROM finding WHERE tenant_id = :t AND site_id = :s ORDER BY anchor_start, id"), p)]
+                "SELECT * FROM finding WHERE tenant_id = :t AND site_id = :s AND domain <> 'structure' "
+                "ORDER BY anchor_start, id"), p)]
             revisions = [dict(r._mapping) for r in c.execute(text(
-                "SELECT * FROM finding_revision WHERE tenant_id = :t AND site_id = :s "
+                "SELECT * FROM finding_revision WHERE tenant_id = :t AND site_id = :s AND domain <> 'structure' "
                 "ORDER BY finding_id, revision_no"), p)]
             cites = [dict(r._mapping) for r in c.execute(text(
-                "SELECT * FROM finding_revision_assessment WHERE tenant_id = :t AND site_id = :s"), p)]
+                "SELECT * FROM finding_revision_assessment WHERE tenant_id = :t AND site_id = :s" + kept), p)]
             evidence = [dict(r._mapping) for r in c.execute(text(
-                "SELECT * FROM finding_revision_evidence WHERE tenant_id = :t AND site_id = :s"), p)]
+                "SELECT * FROM finding_revision_evidence WHERE tenant_id = :t AND site_id = :s" + kept), p)]
             merges = [dict(r._mapping) for r in c.execute(text(
-                "SELECT * FROM finding_merge WHERE tenant_id = :t AND site_id = :s"), p)]
+                "SELECT * FROM finding_merge WHERE tenant_id = :t AND site_id = :s" + kept), p)]
             return {"findings": findings, "revisions": revisions, "assessments": cites, "evidence": evidence,
                     "merges": merges}
         return self._read(work)
@@ -284,7 +290,9 @@ class PostgresFindingStore:
         revisions (and their runs), and the stored relations. None for a foreign or unknown ID."""
         def work(c: Connection) -> dict[str, Any] | None:
             p = {"t": tenant_id, "s": site_id, "f": finding_id}
-            row = c.execute(text("SELECT * FROM finding WHERE tenant_id = :t AND site_id = :s AND id = :f"), p).first()
+            # 3B4 (D-3B4.9): a structure Finding has no dispatch detail; the route answers its not-found.
+            row = c.execute(text("SELECT * FROM finding WHERE tenant_id = :t AND site_id = :s AND id = :f "
+                                 "AND domain <> 'structure'"), p).first()
             if row is None:
                 return None
             revisions = [dict(r._mapping) for r in c.execute(text(
@@ -953,3 +961,113 @@ class PostgresFindingStore:
                            "site_id) VALUES (:r, :e, :t, :s)"),
                       [{"r": rid, "e": e, "t": t, "s": s} for e in support])
         return rid
+
+    # --- structure (3B4, spec §4.3; D-3B4.7, D-3B4.8, D-3B4.11): the observer's Findings and the tolerance record ----
+    # This module alone inserts the structure `finding`, `finding_revision` and `finding_revision_assessment` rows, on
+    # the caller's transaction, and the `structure_tolerance` rows (plain INSERT, append-only). A structure Finding
+    # carries `domain='structure'`, NULL `generator_asset_id` and `subject_asset_id`, NULL dispatch minutes, and its leaf
+    # in its key (D-3B4.1); its claim is the condition in the leaf's unit, never money (D-3B4.18).
+
+    @staticmethod
+    def _structure_held(c: Connection, tenant_id: UUID, site_id: UUID, key: str) -> tuple[UUID, str, str] | None:
+        row = c.execute(text(
+            "SELECT f.id, r.lifecycle, r.basis_sha256 FROM finding f JOIN LATERAL (SELECT lifecycle, basis_sha256 "
+            "FROM finding_revision x WHERE x.finding_id = f.id ORDER BY x.revision_no DESC LIMIT 1) r ON true "
+            "WHERE f.tenant_id = :t AND f.site_id = :s AND f.domain = 'structure' AND f.finding_key = :k"),
+            {"t": tenant_id, "s": site_id, "k": key}).first()
+        return None if row is None else (row[0], row[1], row[2])
+
+    @staticmethod
+    def structure_lock(c: Connection, site_id: UUID, month: str) -> None:
+        """Spec §5.1: the Site-month's observer lock, held to the end of the caller's transaction."""
+        c.execute(text("SELECT pg_advisory_xact_lock(hashtext('structure-observe:' || :s || ':' || :m))"),
+                  {"s": str(site_id), "m": month})
+
+    @staticmethod
+    def structure_held(c: Connection, tenant_id: UUID, site_id: UUID, structure_key: str, factor_id: str,
+                       month: str, direction: str) -> tuple[UUID, str, str] | None:
+        """`(finding_id, lifecycle, basis_sha256)` of the key's Finding's latest revision, or None."""
+        from assetops_backend.structure.observe import rules
+        key = rules.finding_key(structure_key, factor_id, month, direction)
+        return PostgresFindingStore._structure_held(c, tenant_id, site_id, key)
+
+    def structure_apply(self, c: Connection, tenant_id: UUID, site_id: UUID, structure_key: str, month: str,
+                        window: tuple[datetime, datetime], observation: Any, *, basis: str, claim: dict[str, Any],
+                        input_evidence_sha256: str, persist: Any, now: datetime) -> tuple[str, UUID, UUID] | None:
+        """Spec §4.3's table: open, revise, withdraw or leave the key's Finding. `persist(c)` writes the run and the
+        assessment revision only when a revision is written. Returns `(transition, finding_id, revision_id)` or None."""
+        from assetops_backend.structure.observe import rules
+
+        key = rules.finding_key(structure_key, observation.factor_id, month, observation.direction)
+        held = self._structure_held(c, tenant_id, site_id, key)
+        decided = rules.transition(None if held is None else held[1], None if held is None else held[2],
+                                   observation.state, basis)
+        if decided is None:
+            return None
+        move, lifecycle = decided
+        persisted = persist(c)
+        if held is None:
+            prior = self._structure_held(c, tenant_id, site_id, rules.finding_key(
+                structure_key, observation.factor_id, rules.previous_month(month), observation.direction))
+            fid = uuid4()
+            c.execute(text(
+                "INSERT INTO finding (id, tenant_id, site_id, finding_key, domain, mechanism, analytic_id, "
+                "generator_asset_id, subject_asset_id, anchor_start, anchor_assessment_revision_id, cohort_sha256, "
+                "matcher_version, recurs_after_finding_id, split_from_finding_id, opened_at, created_at) VALUES "
+                "(:id, :t, :s, :k, 'structure', :m, :a, NULL, NULL, :anchor, :anchor_rev, NULL, :mv, :recurs, NULL, "
+                ":now, :now)"),
+                {"id": fid, "t": tenant_id, "s": site_id, "k": key, "m": rules.MECHANISM, "a": rules.OBSERVER_ANALYTIC,
+                 "anchor": window[0], "anchor_rev": persisted["revision_id"], "mv": rules.OBSERVER_MATCHER,
+                 "recurs": prior[0] if prior is not None and prior[1] == "SUPPORTED" else None, "now": now})
+        else:
+            fid = held[0]
+        n = c.execute(text("SELECT coalesce(max(revision_no), 0) + 1 FROM finding_revision WHERE finding_id = :f"),
+                      {"f": fid}).scalar_one()
+        rid = uuid4()
+        c.execute(text(
+            "INSERT INTO finding_revision (id, tenant_id, site_id, finding_id, domain, revision_no, transition, "
+            "lifecycle, claim_level, title, mechanism, matcher_version, analytic_id, model_version, "
+            "assessment_revision_id, analytic_run_id, window_assessment_revision_id, episode_start, episode_end, "
+            "candidate_minutes, necessary_minutes, indeterminate_minutes, claim, limitations, basis_sha256, "
+            "support_sha256, cited_evidence_sha256, input_evidence_sha256, created_at) VALUES (:id, :t, :s, :f, "
+            "'structure', :n, :tr, :life, 'COMPLETE', :title, :m, :mv, :a, :model, :ar, :run, NULL, :es, :ee, "
+            "NULL, NULL, NULL, CAST(:claim AS jsonb), '[]'::jsonb, :b, :sup, :cited, :input, :now)"),
+            {"id": rid, "t": tenant_id, "s": site_id, "f": fid, "n": n, "tr": move, "life": lifecycle,
+             "title": rules.MECHANISM, "m": rules.MECHANISM, "mv": rules.OBSERVER_MATCHER, "a": rules.OBSERVER_ANALYTIC,
+             "model": rules.OBSERVER_MODEL, "ar": persisted["revision_id"], "run": persisted["run_id"],
+             "es": window[0], "ee": window[1], "claim": json.dumps(claim), "b": basis,
+             "sup": sha256_json(list(observation.sources)), "cited": sha256_json([]), "input": input_evidence_sha256,
+             "now": now})
+        c.execute(text(
+            "INSERT INTO finding_revision_assessment (finding_revision_id, assessment_revision_id, tenant_id, site_id, "
+            "analytic_run_id, scope, is_primary) VALUES (:r, :a, :t, :s, :run, 'WINDOW', true)"),
+            {"r": rid, "a": persisted["revision_id"], "t": tenant_id, "s": site_id, "run": persisted["run_id"]})
+        return move, fid, rid
+
+    def tolerance_append(self, row: Any) -> UUID:
+        """One plain INSERT of a `structure_tolerance` row; `recorded_at` is the store's `clock_timestamp()`."""
+        def work(c: Connection) -> UUID:
+            c.execute(text(
+                "INSERT INTO structure_tolerance (id, tenant_id, site_id, structure_key, factor_id, state, of_factor, "
+                "pct, valid_from, recorded_at, recorded_by, recorded_role, recorded_by_script) VALUES (:id, :t, :s, "
+                ":key, :f, :state, :of, :pct, :from, clock_timestamp(), :by, :role, :script)"),
+                {"id": row.id, "t": row.tenant_id, "s": row.site_id, "key": row.structure_key, "f": row.factor_id,
+                 "state": row.state, "of": row.of_factor, "pct": row.pct, "from": row.valid_from,
+                 "by": row.recorded_by, "role": row.recorded_role, "script": row.recorded_by_script})
+            return row.id
+        try:
+            with self._connect().begin() as c:
+                return work(c)
+        except (OperationalError, ProgrammingError) as error:
+            raise FindingStoreUnavailable(f"The Finding store failed: {error.orig}") from error
+
+    def tolerances(self, tenant_id: UUID, site_id: UUID) -> tuple[Any, ...]:
+        """Every declaration of the Site, `ORDER BY recorded_at, id`."""
+        from assetops_backend.structure.observe.rules import ToleranceRow
+
+        def work(c: Connection) -> tuple[Any, ...]:
+            return tuple(ToleranceRow(**dict(r._mapping)) for r in c.execute(text(
+                "SELECT id, tenant_id, site_id, structure_key, factor_id, state, of_factor, pct, valid_from, "
+                "recorded_at, recorded_by, recorded_role, recorded_by_script FROM structure_tolerance "
+                "WHERE tenant_id = :t AND site_id = :s ORDER BY recorded_at, id"), {"t": tenant_id, "s": site_id}))
+        return self._read(work)

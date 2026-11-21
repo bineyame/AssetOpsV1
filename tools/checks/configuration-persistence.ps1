@@ -751,7 +751,7 @@ function Invoke-ConfigurationPersistenceCheck {
         $opportunityCoalesce)
     $findingWriter = "$backendRoot/analytics/adapters/postgres_finding_store.py"
     $findingTables = @('finding', 'finding_revision', 'finding_revision_assessment', 'finding_revision_evidence',
-        'finding_merge', 'finding_match_pass')
+        'finding_merge', 'finding_match_pass', 'structure_tolerance')
     # S4-02a adds the sixth writer, the financial assumption store: it inserts its two tables and its only
     # UPDATE closes an assignment's set-once recorded_to. No other module writes either table.
     $assumptionWriter = "$backendRoot/financials/adapters/postgres_assumption_store.py"
@@ -1001,9 +1001,9 @@ function Invoke-ConfigurationPersistenceCheck {
     $structureSnapshotTables = @('structure_snapshot')
     $structureSnapshotInsert = '(?i)^INSERT\s+INTO\s+structure_snapshot\s*\([^)]*\)\s*VALUES\s*\([^()]*\)\s*;?\s*$'
     $structureSnapshotInsertsSeen = 0
-    # 3C2 (spec section 2.6; migration 0069; D-3C2.3, D-3C2.13): the agreed-change store is the sole runtime writer of
+    # 3C2 (spec section 2.6; migration 0070; D-3C2.3, D-3C2.13): the agreed-change store is the sole runtime writer of
     # agreed_action, and it runs exactly one plain INSERT INTO agreed_action (...) VALUES (...), binding plain
-    # parameters (no ON CONFLICT, no SELECT source), and no UPDATE, DELETE or TRUNCATE. The 0069 triggers refuse every
+    # parameters (no ON CONFLICT, no SELECT source), and no UPDATE, DELETE or TRUNCATE. The 0070 triggers refuse every
     # change. The advisory-lock and identity SELECTs are reads. HELD FOR THE OWNER at merge (owner-away row 5).
     $agreedActionWriter = "$backendRoot/actions/adapters/postgres_agreed_action_store.py"
     $agreedActionTables = @('agreed_action')

@@ -400,7 +400,7 @@ def empty_tables(engine, roots: tuple[str, ...]) -> None:
     sequences are not reset by either. Row triggers
     and FK checks are bypassed with `session_replication_role = replica`
     because TRUNCATE bypasses them too (append-only guards refuse DELETE). The truncate mode also runs in replica
-    mode: 3C2's migration 0069 puts a TRUNCATE trigger on `agreed_action`, which replica mode skips (test cleanup only).
+    mode: 3C2's migration 0070 puts a TRUNCATE trigger on `agreed_action`, which replica mode skips (test cleanup only).
     `ASSETOPS_TEST_CLEANUP=truncate` restores the TRUNCATE statement.
     """
     from sqlalchemy import text
@@ -413,7 +413,7 @@ def empty_tables(engine, roots: tuple[str, ...]) -> None:
     roots = roots + tuple(t for t in RESPONSE_TABLES if t not in roots and _exists(engine, t))
     if os.environ.get(CLEANUP_ENV, "delete") == "truncate":
         with engine.begin() as connection:
-            connection.execute(text("SET LOCAL session_replication_role = replica"))  # skips 0069's TRUNCATE trigger
+            connection.execute(text("SET LOCAL session_replication_role = replica"))  # skips 0070's TRUNCATE trigger
             connection.execute(text(f"TRUNCATE {', '.join(roots)} CASCADE"))
         return
     with engine.begin() as connection:

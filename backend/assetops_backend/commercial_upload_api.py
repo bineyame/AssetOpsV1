@@ -18,6 +18,7 @@ The file name travels in a header, never the query string, and is never logged (
 from __future__ import annotations
 
 import json
+import logging
 import urllib.parse
 from typing import TYPE_CHECKING, Any, Callable
 from uuid import UUID
@@ -44,6 +45,9 @@ DECISION_KEYS = frozenset({"decision", "reason"})
 NO_STORE = {"Cache-Control": "no-store"}
 SITE_BASE = "/api/sites/{site_code}/commercial-uploads"
 ORGANISATION_BASE = "/api/organisation/commercial-uploads"
+
+
+_LOG = logging.getLogger("assetops.commercial_upload")
 
 
 def _refusal(status: int, code: str, words: Message, params: dict[str, Any] | None = None) -> JSONResponse:
@@ -138,10 +142,15 @@ def build_commercial_upload_router(uploads: CommercialUploads | None, scope: Sco
         return _refusal(403, "PERSON_ROLE_REQUIRED", message("person.person_role_required"),
                         {"roles": list(roles)})
 
-    async def run(work: Callable[[], dict[str, Any]], status: int) -> JSONResponse:
+    async def run(work: Callable[[], dict[str, Any]], status: int,
+                  logged: tuple[str, int, UUID] | None = None) -> JSONResponse:
         try:
             body = await run_in_threadpool(work)
         except UploadRefused as refused:
+            if refused.cause is not None and logged is not None and uploads is not None:  # D-3A6.29: codes and numbers
+                _LOG.warning("upload parse refused by the envelope",
+                             extra={"cause": refused.cause, "reader": logged[0], "bytes": logged[1],
+                                    "tenant": uploads.tenant_code(logged[2])})
             return _refusal(refused.status, refused.code, refused.words, refused.params)
         except StoreRefused:  # D-3A2.2: a bug, not a user error; no constraint name or driver text leaves
             return _refusal(500, "COMMERCIAL_STORE_FAULT", message("commercial_upload.store_fault"))
@@ -176,11 +185,12 @@ def build_commercial_upload_router(uploads: CommercialUploads | None, scope: Sco
         if data is None:
             refused = UploadRefused(413, "FILE_TOO_LARGE", {"limit_mb": MAX_UPLOAD_BYTES // 2**20})
             return _refusal(refused.status, refused.code, refused.words, refused.params)
+        logged = (uploads.reader_id(reader_id), len(data), tenant_id)
         if dry == "true":
             return await run(lambda: uploads.check(tenant_id, upload_scope, actor, data, reader_id=reader_id,
-                                                   media_type=media_type), 200)
+                                                   media_type=media_type), 200, logged)
         return await run(lambda: uploads.submit(tenant_id, upload_scope, actor, data, file_name=file_name,
-                                                reader_id=reader_id, media_type=media_type), 201)
+                                                reader_id=reader_id, media_type=media_type), 201, logged)
 
     async def post_decision(request: Request, opened: tuple[UUID, UploadScope, Actor] | JSONResponse,
                             upload_id: str) -> JSONResponse:

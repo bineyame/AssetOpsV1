@@ -322,8 +322,36 @@ def _invisible_class() -> re.Pattern:
     return re.compile("[" + "".join(f"\\U{a:08x}-\\U{b:08x}" for a, b in spans) + "]")
 
 
+# Fix round r5 (spec §2.12): built when the module loads, so the parse envelope's forkserver (which preloads this
+# package) builds it once and every parse child inherits it, instead of each child spending about 0.4 s on it.
+_invisible_class()
+
+
 def _invisible(cell: str) -> bool:
     return _invisible_class().search(cell) is not None
+
+
+#: Fix round r5 (D-3A6.24, N9): the characters of one logical CSV row (its physical lines, quoted newlines included),
+#: refused `NATIVE_TOO_LARGE` before `csv` splits it. Legitimate rows are a few hundred characters.
+_ROW_CHARS_MAX = 1_048_576
+
+
+def _physical_lines(text: str, window: int = _ROW_CHARS_MAX + 2):
+    """`io.StringIO(text, newline="")`'s lines, read a window of whole lines at a time so no buffer holds more than
+    `window` characters (a `StringIO` of the whole text is four bytes a character). A window with no line end in it
+    is yielded as one piece of at least `window` characters, which the row cap refuses before `csv` sees it."""
+    pos, n = 0, len(text)
+    while pos < n:
+        end = min(n, pos + window)
+        if end < n:
+            cut = max(text.rfind("\n", pos, end), text.rfind("\r", pos, end))
+            if cut < 0:
+                cut = end - 1
+            elif text[cut] == "\r" and text[cut + 1] == "\n":  # a CR LF split by the window stays one line end
+                cut += 1
+            end = cut + 1
+        yield from io.StringIO(text[pos:end], newline="")
+        pos = end
 
 
 def split_file(layout: Layout, data: bytes) -> tuple[list[str], list[tuple[int, list[str]]]]:
@@ -361,7 +389,16 @@ def split_file(layout: Layout, data: bytes) -> tuple[list[str], list[tuple[int, 
         text = raw.decode(rules.encoding, errors="strict")
     except UnicodeDecodeError:
         raise CanonicalRefused("NATIVE_ENCODING", "json") from None
-    reader = csv.reader(io.StringIO(text, newline=""), dialect="excel", delimiter=rules.delimiter, strict=True)
+    row_chars = [0]  # the current logical row's characters so far; the loop below sets it back after each row
+
+    def lines():
+        for line in _physical_lines(text):
+            row_chars[0] += len(line)
+            if row_chars[0] > _ROW_CHARS_MAX:
+                raise CanonicalRefused("NATIVE_TOO_LARGE", f"row.{reader.line_num + 1}")
+            yield line
+
+    reader = csv.reader(lines(), dialect="excel", delimiter=rules.delimiter, strict=True)
     # Fix round r4 (N7): rows are kept as they come and the read stops one kept row past `MAX_RECORDS` (the batch
     # refuses that count, `CANONICAL_RANGE batch.records`); each kept row holds at most the layout's width plus one
     # cell (a longer row is a count mismatch either way), so nothing past the ceiling is materialised.
@@ -371,6 +408,7 @@ def split_file(layout: Layout, data: bytes) -> tuple[list[str], list[tuple[int, 
     seen = 0
     try:
         for cells in reader:
+            row_chars[0] = 0
             seen += 1
             if seen == rules.header_row:
                 header = cells[:keep]

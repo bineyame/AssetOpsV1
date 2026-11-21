@@ -30,8 +30,8 @@ from assetops_backend.commercial.uploads import UploadRefused, reason_words
 from assetops_backend.i18n import message, render
 from assetops_contracts.canonical import SOURCE_TYPES
 from source_contracts import CONTRACT_CASES, PROFILE_CASES, ContractCase, assert_coded_probes
-from test_3a2_commercial_upload_service import (CANONICAL_CODES, KEY, T_SUBMIT, encode, envelope, make_world,
-                                                people, receipt, refused)
+from test_3a2_commercial_upload_service import (CANONICAL_CODES, KEY, T_SUBMIT, StubEnvelope, encode, envelope,
+                                                make_world, people, receipt, refused)
 from test_3a6_source_profiles import make_world as profile_world
 
 __all__ = ["people"]  # the module-scoped People fixture, shared with 3A2's file
@@ -44,6 +44,8 @@ NATIVE_WORDS = {
     "NATIVE_ROW": "this row cannot be read: its cells do not line up with the headings.",
     "NATIVE_VALUE": "this value is not one this layout knows.",
     "NATIVE_CHARACTER": "this row holds a character that is not text (such as a NUL byte or an invisible mark).",
+    "NATIVE_TOO_LARGE": (  # 3A6 fix round r5 (D-3A6.25)
+        "this file is too large or too complex to read in one upload; split it and upload the parts."),
 }
 #: Spec §3.4's table for the kinds these layouts carry, written out: (path, class, condition).
 PERSONAL = {
@@ -393,6 +395,7 @@ def test_s5_reader_refusal_outside_the_records_is_a_store_fault(w, monkeypatch) 
             return path
 
     monkeypatch.setattr(uploads_module, "READERS", {**READERS, "stub": Stub()})
+    monkeypatch.setattr(w.svc, "_envelope", StubEnvelope())  # 3A6 r5: a stub reader is read by the test double
     case = CASES["billing-illustrative-1"]
     error = refused(lambda: w.svc.check(w.tid, w.org, w.ana, golden(case), reader_id="stub", media_type="text/csv"))
     assert (error.status, error.code) == (500, "COMMERCIAL_STORE_FAULT")

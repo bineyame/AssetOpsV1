@@ -1,4 +1,4 @@
-"""3C2 (spec §5 tests 6 to 8; D-3C2.3, D-3C2.7, D-3C2.9, D-3C2.13): migration 0069, the Postgres store of agreed
+"""3C2 (spec §5 tests 6 to 8; D-3C2.3, D-3C2.7, D-3C2.9, D-3C2.13): migration 0070, the Postgres store of agreed
 changes, the command end to end on ON1's Lakeside tenant, and the "once" rule held by the lock and the index each.
 
 Needs `ASSETOPS_TEST_DATABASE_URL` naming a `*_test` database (the harness routes the run to its own clone); skipped
@@ -37,7 +37,7 @@ if URL:
 
 TABLE = "agreed_action"
 #: Gate A's hand pair (D-3C2.9): built on the 3A6 head; renumbered at gate B with the file.
-HAND_PAIR = ("0069_agreed_action", "0067_source_profile")
+HAND_PAIR = ("0070_agreed_action", "0068_structure_finding")
 VERSIONS = Path(__file__).resolve().parents[1] / "migrations" / "versions"
 SLUG = "lakeside-power"
 
@@ -129,7 +129,7 @@ def test_6_chain_triggers_checks_and_refused_downgrade(lake, engine) -> None:  #
                    _params(_row(lake, created_at=datetime(2026, 11, 20, 9, 30, 0, 5, tzinfo=timezone.utc))),
                    "check constraint")
     lake["adapter"].dispose()
-    with pytest.raises(Exception, match="Downgrade of 0069_agreed_action refused: agreed Actions exist"):
+    with pytest.raises(Exception, match="Downgrade of 0070_agreed_action refused: agreed Actions exist"):
         command.downgrade(cfg, script.down_revision)
     with engine.begin() as c:  # the test empties the table the only way the triggers allow
         c.execute(text("SET LOCAL session_replication_role = replica"))

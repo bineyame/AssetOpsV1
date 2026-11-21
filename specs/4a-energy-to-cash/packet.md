@@ -106,3 +106,15 @@ the sweep rows above are every changed literal (`git diff aa3ebefe8 -- backend/t
 ## Follow-up
 
 D-4A.27-29 (task/4a-followup): tests only. Added V9d (duplicate M-2204 assignment: unmapped 140, billed 5425), V27 (Kobo feeders at 4/5/6: technical 486) and V18b (conflict on the assignment's body_meter_ref) to `test_4a_energy_to_cash.py` (103 passed); plants P28 (customer join takes the first of several), P29 (fixed 5% band) and P30 (assignment-side ref check removed) each failed exactly V9d, V27, V18b, then were reverted. The Postgres file already holds the Q1 dates and PG1(e)'s D-4A.28 reasons; unchanged.
+
+## Adjustments fix
+
+D-DS4.25 / amended D-4A.8 (branch `fix/4a-adjustments-blank`, about 0.25 unit). `energy/rules.py` `adjustments` now gates
+on the ADJUSTMENT kind held in any month (`held`, as `money.py` step 1), not on CHARGE: never held is NOT_CONNECTED
+`NEEDS:ADJUSTMENT` (new note, added to `NOTES`); held with a closed month and charges but no adjustment line is a stated
+0. `billed_kwh`, `unmapped_kwh` and `tariff` are computed from charges and reads, not from this leaf, so none reads a
+blank as 0 (V28 asserts billed 5400 and unmapped 140 beside the blank). Tests: V28 (never sent: blank), V29 (sent before,
+none this month: 0); V17 (CHARGE not held, ADJUSTMENT held) now reads NOT_RECEIVED `NEEDS:CHARGE`; step 1 moves to V28.
+Worked figures unchanged (Kobo +38.00, Mto PG1b; both Sites hold ADJUSTMENT). Plants, each failing V28 and step 1: return
+0 for never-sent, and gate on CHARGE again. 4a, 3B3/3B6/3B7a/4b/5b tests and the 4a/3B3/3B7a/4b/5b Postgres files pass
+(20 PG, 360 unit). `C4_KNOWN_FINDINGS` entries for D-DS4.25 are emptied by the DS4 merge, not here.

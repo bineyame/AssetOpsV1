@@ -73,10 +73,12 @@ MEDIA_TYPES = MappingProxyType({"csv": frozenset({"text/csv"}), "xlsx": frozense
 
 class LayoutReader:
     """One native layout (spec §2.4): an illustrative CSV layout or a compiled source profile (3A6). Provenance
-    follows the database (D-3A3.10); the media types follow the layout's file format."""
+    follows the database (D-3A3.10); the media types follow the layout's file format. Fix round r5 (spec §2.12): a
+    profile reader keeps `profile` (its profile text and version), from which the parse envelope's child rebuilds it."""
 
-    def __init__(self, layout: Layout) -> None:
+    def __init__(self, layout: Layout, *, profile: tuple[str, int] | None = None) -> None:
         self.layout = layout
+        self.profile = profile
         self.id = layout.id
         self.media_types = MEDIA_TYPES[layout.file.format]
 

@@ -36,7 +36,11 @@ def test_the_lab_port_is_unchanged() -> None:
 
 
 def test_nothing_else_in_the_backend_names_the_replay() -> None:
-    allowed = {PORT.resolve(), Path(__file__).resolve()}
+    allowed = {PORT.resolve(), Path(__file__).resolve(),
+               (BACKEND / "assetops_backend" / "runs" / "replay_study.py").resolve(),
+               (BACKEND / "tests" / "test_0k2_replay_study.py").resolve(),
+               (BACKEND / "assetops_backend" / "runs" / "headroom_replay.py").resolve(),
+               (BACKEND / "tests" / "test_0m_headroom_replay.py").resolve()}
     scanned = 0
     offenders = []
     for path in BACKEND.rglob("*"):

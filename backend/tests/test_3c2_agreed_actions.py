@@ -29,7 +29,7 @@ from test_3c0a_accounts_service import PW, MemoryStore
 BACKEND = Path(__file__).resolve().parents[1]
 PKG = BACKEND / "assetops_backend"
 ADAPTER = PKG / "actions" / "adapters" / "postgres_agreed_action_store.py"
-MIGRATION = BACKEND / "migrations" / "versions" / "0069_agreed_action.py"
+MIGRATION = BACKEND / "migrations" / "versions" / "0070_agreed_action.py"
 
 SLUG = "lakeside-power"
 EXEC, FIN, ANALYST, SM, TECH = ("OPERATOR_EXECUTIVE", "FINANCE_AND_COMMERCIAL_LEAD", "ANALYST", "SITE_MANAGER",

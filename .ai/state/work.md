@@ -145,7 +145,7 @@ decision `D-2026-10-31-board-action-refresh-lineage`; packet `archive/agent-hist
 
 ## 3C2 commit 1: the agreed change recorded as an Action, codes only (2026-11-21, `task/3C2-agreed-change`, in review)
 
-- Migration `0069_agreed_action` (built on the 3A6 head `0067_source_profile`; revises 3A7's `0068` at gate B):
+- Migration `0070_agreed_action` (renumbered at the merge of main `e5a283228`; revises `0068_structure_finding`, and 3A7's `0069_commercial_reconciliation` once 3A7 merges):
   `agreed_action`, append-only (row trigger and TRUNCATE trigger), identity index `agreed_action_once` (NULLS NOT
   DISTINCT), whole-second `created_at`, FKs to `operator_account` and `site` by tenant. Apart from the S6-01a Actions.
 - `actions/agreed.py`: `AgreedActionService.record` (the §2.3 rule order; re-run found before the due check) and
