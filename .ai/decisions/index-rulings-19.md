@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-0M.1 to D-0M.11, D-DS4.16 to D-DS4.25)
+# Decision index: Demo-sprint and later rulings (index only) (D-0M.1 to D-0M.22, D-DS4.16 to D-DS4.25, D-0K2.17 to D-0K2.29)
 
 - `D-0M.1` 0M starts on 0K2's merge and reuses its helpers; amends the delivery plan's 0K1-only dependency · live · specs/0M-mto-headroom-replay/rulings.md
 - `D-0M.2` Mto plant: Kobo template edited to the manifest's Mto facts; one 50 kW (or 25 kW) inverter limit · live · specs/0M-mto-headroom-replay/rulings.md
@@ -21,3 +21,27 @@
 - `D-DS4.23` T4 adds prefix assetops_opx and labels observe, reserve · live · specs/DS4-template-ladder/rulings.md
 - `D-DS4.24` size 3.5 units in three units, no split; amends D-DS4.14 · live · specs/DS4-template-ladder/rulings.md
 - `D-DS4.25` adjustments_kwh blank (NEEDS:ADJUSTMENT) unless the ADJUSTMENT kind is held; Z class withdrawn; amends D-4A.8 and D-DS4.16; 4a fix round routed · live · specs/DS4-template-ladder/rulings.md
+- `D-0K2.17` dawn bound: nothing moved to pass; dispatch-law cause stated; new/cleared dawn dates vs no action; admissibility to owner (row 42) · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.18` position tested against the site trajectory (T11 with self-shift precondition, T12 publication pins, T1 start) · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.19` kernel-backed month boundary (T13, 27 Sep-4 Oct); base_run takes a start · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.20` labels on Calibration and CaseOutcome; *_site not *_observed; CALIBRATED is adapter fidelity; no adopting word; amends D-0K2.12 · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.21` design figures on their basis (per month; 150 kWh a month is throughput, not capacity); throughput and starts by month · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.22` overcast evening reserve override left out, stated beside the reserve figures · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.23` 6c reads CaseOutcome.starts (one rule); projection.starts is diagnostic · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.24` --time-one before the 61-day run; cap max(25, 2x measured) · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.25` tank check: step fuel_start_l or projection fuel_end_l · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.26` LATE_WINDOWS pinned by a stated row mapping · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.27` seam scan: both new backend files allowed; scan count in packet · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.28` kernel test file cached per module · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.29` grid ids and values checked before any port call (STUDY_GRID_INVALID; None written site); amends D-0K2.9 · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0M.12` M8 asserts 44 customer days and 1,650 kWh a month; P2 against M1/M8 · live · specs/0M-mto-headroom-replay/rulings.md
+- `D-0M.13` demand sample is admissible days of the window; 27/28 boundary in M5 · live · specs/0M-mto-headroom-replay/rulings.md
+- `D-0M.14` labels on DemandOutcome and CapacityOutcome; plant note; no adopting word; row 37 wording · live · specs/0M-mto-headroom-replay/rulings.md
+- `D-0M.15` month splits for customer kWh, kWh beyond headroom, days without headroom · live · specs/0M-mto-headroom-replay/rulings.md
+- `D-0M.16` H5 per-load request, H4 reduced fields (P18), window edge steps · live · specs/0M-mto-headroom-replay/rulings.md
+- `D-0M.17` dependency on 0K2's merge stands; no stacking · live · specs/0M-mto-headroom-replay/rulings.md
+- `D-0M.18` customer and reduced case ids checked before any port call (<= 32 chars) · live · specs/0M-mto-headroom-replay/rulings.md
+- `D-0M.19` reduced run checked against frozen inverter-ac-limit and other needs before any port call · live · specs/0M-mto-headroom-replay/rulings.md
+- `D-0M.20` mto_site starts from season_site; H1 asserts READY · live · specs/0M-mto-headroom-replay/rulings.md
+- `D-0M.21` complete list of edited and kept values; one derivation (load scale) · live · specs/0M-mto-headroom-replay/rulings.md
+- `D-0M.22` Mto dawn read as D-0K2.17: absolute verdict plus new/cleared dates · live · specs/0M-mto-headroom-replay/rulings.md

@@ -1,5 +1,7 @@
 # 0K2 handshake (one combined round, RULES §4 items 6-7)
 
+**Answered (round 1), 2026-11-21:** every question below is answered once in `rulings.md` "Handshake answers (round 1)" and folded into `spec.md` rev 2 and `reviewer-guide.md` rev 2. No question is open.
+
 The Reviewer, after reading `spec.md`, `reviewer-guide.md` and `rulings.md`, and the Implementer, after a
 pre-flight of `spec.md` against `main`, write their questions here in one batch. Number them R1, R2 ... and
 I1, I2 .... Each question cites the spec section, says what is unclear and what answer the writer expects, and is
