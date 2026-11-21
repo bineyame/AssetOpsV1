@@ -12,6 +12,7 @@
 """
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from datetime import date, datetime
 from decimal import Decimal
@@ -316,6 +317,32 @@ class ToleranceRow:
     owner_ref: str
     owner_ref_sha256: str
     set_at: datetime
+
+
+#: The two tables' value forms (spec §2.4, §2.5; the migration's CHECKs hold the same), ASCII digits only. The service
+#: validates against these before it writes, so a refusal names its field instead of a constraint.
+PERIOD_FORM = re.compile(r"[0-9]{4}-(0[1-9]|1[0-2])", re.ASCII)
+CURRENCY_FORM = re.compile(r"[A-Z]{3}", re.ASCII)
+AMOUNT_FORM = re.compile(r"(0|[1-9][0-9]{0,11})\.[0-9]{2}", re.ASCII)
+TOLERANCE_FORM = re.compile(r"0\.[0-9]{1,4}", re.ASCII)
+OWNER_REF_FORM = re.compile(r"owner/owner-[a-z0-9-]+\.md", re.ASCII)
+
+
+def percent_token(tolerance: Decimal) -> str:
+    """§2.4: the tolerance as the owner file may write it as a percentage (`2%`, `0.5%`); a token, never shown."""
+    return format((tolerance * 100).normalize(), "f") + "%"
+
+
+def cites_figure(text: str, figure: str) -> bool:
+    """§2.4: `figure` appears in `text` as a whole token: not preceded by a digit or `.`, not followed by a digit
+    (`12%` does not cite `2%`)."""
+    return re.search(r"(?<![0-9.])" + re.escape(figure) + r"(?![0-9])", text) is not None
+
+
+def cites_slug(text: str, slug: str) -> bool:
+    """§2.4: the tenant's slug appears in `text` as a whole token, joined to no other slug character on either side
+    (`lakeside-power-north` does not cite `lakeside-power`; review L2)."""
+    return re.search(r"(?<![a-z0-9-])" + re.escape(slug) + r"(?![a-z0-9-])", text) is not None
 
 
 @dataclass(frozen=True)

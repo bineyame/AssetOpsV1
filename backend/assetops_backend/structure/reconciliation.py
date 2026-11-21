@@ -1,6 +1,6 @@
-"""3A7 (spec `specs/3A7-month-reconciled/spec.md` §2; rulings D-3A7.1 to D-3A7.13; mid-build Q2: under `structure`,
-not `commercial`, because the commercial package never imports `structure`, D-3A4.8): one closed month reconciled
-against the operator's own management accounts.
+"""3A7 (spec `specs/3A7-month-reconciled/spec.md` §2; rulings D-3A7.1 to D-3A7.15): one closed month reconciled
+against the operator's own management accounts. A reading of the structure over commercial records, so it lives under
+`structure` (D-3A7.14; the commercial package never imports `structure`, D-3A4.8).
 
 The finance lead records a closed month's revenue and fuel cost from the management accounts, for one mini-grid Site
 or the organisation. Each read compares them, exactly and at its instant `k`, with the money the screen shows (4b's
@@ -10,29 +10,35 @@ against recorded lines matches (it *opens* the gate, D-3A7.8) and no statement c
 be compared (D-3A7.2); otherwise it is not yet reconciled. A missing figure is never 0: a heading with no used line
 matches only where the accounts themselves state 0.00, and that never opens the gate.
 
-Commit 1 of D-SC1.28: the checks and the standing as codes and `Decimal`s. The sentences of §2.7 (`words`, `text`)
-and `money_word` come in commit 2, as SC-1 statements.
+Every sentence is an SC-1 statement (`i18n/statements/en/reconciliation.py`, D-SC1.28): this module hands the composer
+typed facts and keeps no word of its own (it is in the statement guard's `ADOPTED`). The record forms it validates
+against live with the rows (`commercial/model.py`).
 """
 from __future__ import annotations
 
 import hashlib
-import re
 from dataclasses import dataclass
 from datetime import datetime
-from decimal import Context, Decimal, Inexact, InvalidOperation, Rounded, localcontext
+from decimal import (Context, Decimal, DivisionByZero, Inexact, InvalidOperation, Overflow, Rounded, localcontext)
 from typing import Any, Callable, Iterable, Mapping, Sequence
 from uuid import UUID, uuid4
 
 from assetops_backend.accounts.permissions import roles_of
-from assetops_backend.commercial.model import SiteRow, StatementRow, ToleranceRow
-from assetops_backend.commercial.months import CommercialMonths, MonthAmounts, MonthLine
+from assetops_backend.commercial.model import (AMOUNT_FORM, CURRENCY_FORM, OWNER_REF_FORM, PERIOD_FORM, TOLERANCE_FORM,
+                                               SiteRow, StatementRow, ToleranceRow, cites_figure, cites_slug,
+                                               percent_token)
+from assetops_backend.commercial.months import CommercialMonths, MonthAmounts
 from assetops_backend.commercial.store import CommercialStore
 from assetops_backend.commercial.uploads import Actor, has_control_character
-from assetops_backend.structure.evaluate import ORIGIN_ORDER
-from assetops_backend.structure.money import COST_STATUSES
+from assetops_backend.i18n import (Absent, Count, Evidence, Items, Message, Money, Month, Name, Percent, State, Word,
+                                   message, render)
+from assetops_backend.structure.evaluate import weakest_origin
+from assetops_backend.structure.money import line_origins, line_sources, used_lines
 from assetops_backend.structure.read import SITE_TYPE_TO_STRUCTURE
 
-HEADINGS = ("revenue", "fuel_cost")
+#: The headings, in order (spec §2.1), each with its key in the `heading` vocabulary.
+HEADING_WORDS = {"revenue": "REVENUE", "fuel_cost": "FUEL_COST"}
+HEADINGS = tuple(HEADING_WORDS)
 DEFAULT_TOLERANCE = Decimal("0.01")
 MATCHED, NOT_MATCHED, NOT_COMPARABLE = "MATCHED", "NOT_MATCHED", "NOT_COMPARABLE"
 ZERO_STATED, MONTH_OPEN, NOT_RECEIVED, CURRENCY_MISMATCH = ("NONE_RECORDED_ZERO_STATED", "MONTH_OPEN",
@@ -43,12 +49,19 @@ COMMAND = "commercial.accounts_statement"
 MINI_GRID = "MINI_GRID"
 #: D-3A4.9: 200 digits, and any rounding is an error. The comparison is made only here (D-3A7.10).
 EXACT = Context(prec=200, traps=[Inexact, Rounded, InvalidOperation])
-
-_PERIOD = re.compile(r"[0-9]{4}-(0[1-9]|1[0-2])", re.ASCII)
-_CURRENCY = re.compile(r"[A-Z]{3}", re.ASCII)
-_AMOUNT = re.compile(r"(0|[1-9][0-9]{0,11})\.[0-9]{2}", re.ASCII)
-_TOLERANCE = re.compile(r"0\.[0-9]{1,4}", re.ASCII)
-_OWNER_REF = re.compile(r"owner/owner-[a-z0-9-]+\.md", re.ASCII)
+#: D-3A7.10: the share is computed for display only; the formats round it.
+DISPLAY = Context(prec=34, traps=[InvalidOperation, DivisionByZero, Overflow])
+#: The evidence of the finance lead's figures and of the tolerance: declared from the operator's own accounts or by
+#: the owner (RC8), so "Recorded" on the page (D-SC1.18).
+FINANCIAL = "observed-financial"
+DECLARED = Evidence("DECLARED", FINANCIAL)
+#: A heading's state as the heading statement names it: its reason where it has one.
+_WORD_STATE = {ZERO_STATED: "ZERO_STATED"}
+#: The statement refusals that have a sentence (`set-tolerance`'s refusals are codes only, spec §5).
+REFUSALS = ("RECON_ROLE", "RECON_PERIOD", "RECON_SITE_UNKNOWN", "RECON_SITE_TYPE", "RECON_CURRENCY", "RECON_AMOUNT",
+            "RECON_SOURCE_REF", "RECON_MONTH_OPEN")
+#: The standing reasons whose sentence names this month's own statement.
+_NAMES_THIS_MONTH = (THIS_MONTH_NOT_MATCHED, THIS_MONTH_NOT_COMPARABLE)
 _MAX_TOLERANCE = Decimal("0.05")
 _SOURCE_REF_MAX = 200
 
@@ -74,6 +87,8 @@ class HeadingCheck:
     record_currencies: tuple[str, ...]
     sources: tuple[str, ...]
     origins: tuple[str, ...]
+    words: Message
+    text: str
 
 
 @dataclass(frozen=True)
@@ -91,6 +106,8 @@ class StatementCheck:
     recorded_at: datetime
     recorded_by_script: bool
     source_ref: str
+    words: Message
+    text: str
 
 
 @dataclass(frozen=True)
@@ -104,6 +121,12 @@ class MoneyStanding:
     this_month: StatementCheck | None  # | NONE_MATCHED
     cited: StatementCheck | None     # the month that reconciled the money (RECONCILED only)
     tolerance: Decimal
+    words: Message                   # the standing sentence
+    text: str
+    #: D-3A7.13: for THIS_MONTH_NOT_MATCHED and THIS_MONTH_NOT_COMPARABLE, the `text` of each of `this_month`'s
+    #: headings that is not MATCHED, in heading order; otherwise empty. Each is its own rendered sentence: the
+    #: composer joins no sentences, so a reader shows them after `text` (packet, Known deviations D1).
+    details: tuple[str, ...]
 
 
 # --- pure rules -----------------------------------------------------------------------------------------------
@@ -115,33 +138,121 @@ def _compare(accounts: Decimal, recorded: Decimal, tolerance: Decimal) -> str:
         return MATCHED if abs(recorded - accounts) <= tolerance * accounts else NOT_MATCHED
 
 
-def _dim(line: MonthLine, name: str) -> str | None:
-    return dict(line.dims).get(name)
+def _month(period: str) -> Month:
+    return Month(int(period[:4]), int(period[5:]))
 
 
-def _used(heading: str, line: MonthLine) -> bool:
-    """§2.1: 4b's revenue and fuel-cost rows (D-3A7.1)."""
-    if line.measure != "AMOUNT":
-        return False
-    if heading == "revenue":
-        return line.kind == "CHARGE"
-    return line.kind == "EXPENSE" and _dim(line, "category") == "FUEL" and _dim(line, "status") in COST_STATUSES
+def _scope(site_code: str | None) -> dict[str, Any]:
+    """SC-1 §5.4's `reconciliation.scope` facts: a Site by its code, or the organisation."""
+    if site_code is None:
+        return {"scope": State("ORGANISATION"), "site": Absent("ORGANISATION")}
+    return {"scope": State("SITE"), "site": Name(site_code, "site.code")}
 
 
-def _heading(heading: str, accounts: Decimal, tolerance: Decimal, currency: str,
+def _tolerance(tolerance: Decimal) -> Percent:
+    return Percent(tolerance, DECLARED)
+
+
+def heading_words(heading: str, state: str, reason: str | None, accounts: Decimal, recorded: Decimal | None,
+                  tolerance: Decimal, currency: str, period: str, record_currencies: Sequence[str], *,
+                  origins: Sequence[str] = ()) -> Message:
+    """§2.7 as SC-1 §5.1's `reconciliation.heading`. The facts are computed here, exactly, and handed over; the
+    statement chooses the sentence, the rounding and whether the share shows. The records' figures carry the weakest
+    origin of the used lines (`origins`; none named reads "Estimated"); the difference and the share derive from
+    them and the accounts, so they carry that origin too (the accounts' origin is the strongest)."""
+    origin = weakest_origin(origins)
+    with localcontext(EXACT):
+        allowed = tolerance * accounts
+    facts: dict[str, Any] = {
+        "state": State(_WORD_STATE.get(reason, reason or state)),
+        "heading": Word("heading", HEADING_WORDS[heading]),
+        "records": Word("record_noun", HEADING_WORDS[heading]),
+        "accounts": Money(accounts, currency, DECLARED),
+        "allowed": Money(allowed, currency, Evidence("DERIVED", FINANCIAL)),
+        "tolerance": _tolerance(tolerance),
+        "month": _month(period),
+        "currency": Name(currency, "statement.currency"),
+    }
+    if record_currencies:
+        facts["record_currencies"] = Items(tuple(Name(c, "record.currency") for c in record_currencies))
+    if recorded is not None:
+        with localcontext(EXACT):
+            difference = recorded - accounts
+        facts["recorded"] = Money(recorded, currency, Evidence("RECORDED", origin))
+        facts["difference"] = Money(difference, currency, Evidence("DERIVED", origin))
+        facts["share"] = Absent("ACCOUNTS_ZERO") if accounts == 0 else _share(difference, accounts, origin)
+    return message("reconciliation.heading", **facts)
+
+
+def _share(difference: Decimal, accounts: Decimal, origin: str | None) -> Percent:
+    """D-3A7.10: the gap as a fraction of the accounts' figure, for display (the format rounds it up)."""
+    with localcontext(DISPLAY):
+        return Percent(abs(difference) / accounts, Evidence("DERIVED", origin))
+
+
+def statement_words(state: str, period: str, site_code: str | None, tolerance: Decimal) -> Message:
+    """§2.7's statement sentence: one statement's live check."""
+    return message("reconciliation.statement", state=State(state), month=_month(period), **_scope(site_code),
+                   tolerance=_tolerance(tolerance))
+
+
+def standing_words(reason: str, shown: StatementCheck | None, site_code: str | None, tolerance: Decimal) -> Message:
+    """§2.7's standing sentence. `shown` is the month the sentence names (the cited month, or this month's
+    statement); with none, the scope is the standing's own and no month is named."""
+    facts: dict[str, Any] = {"reason": State(reason), "tolerance": _tolerance(tolerance)}
+    if shown is None:
+        facts.update(_scope(site_code))
+    else:
+        facts.update(_scope(shown.site_code), month=_month(shown.period))
+    return message("reconciliation.standing", **facts)
+
+
+def money_word(figure: Money, standing: MoneyStanding) -> str:
+    """§2.3 through the shared evidence format (D-SC1.16): the figure's own evidence word, with "not yet reconciled"
+    while the standing is not reconciled. `figure` is the money the reader shows, with its own evidence."""
+    marked = Evidence(figure.evidence.evidence, figure.evidence.origin, standing.reconciled)
+    return render(message("reconciliation.money_word", figure=Money(figure.value, figure.currency, marked)))
+
+
+#: A refusal's params as the refusal statement's facts.
+_REFUSAL_FACTS: Mapping[str, Callable[[str], dict[str, Any]]] = {
+    "site": lambda value: {"site": Name(value, "site.code")},
+    "heading": lambda value: {"heading": Word("heading", HEADING_WORDS[value])},
+    "period": lambda value: {"month": _month(value)},
+}
+
+
+def refusal_words(refused: ReconRefused) -> Message:
+    """§2.5's refusal sentence for a refused statement; `KeyError` for a code that has none (`set-tolerance`'s)."""
+    if refused.code not in REFUSALS:
+        raise KeyError(refused.code)
+    facts: dict[str, Any] = {"code": State(refused.code), "limit": Count(_SOURCE_REF_MAX, "character")}
+    for name, value in refused.params.items():
+        facts.update(_REFUSAL_FACTS[name](value))
+    return message("reconciliation.refused", **facts)
+
+
+def _compare(accounts: Decimal, recorded: Decimal, tolerance: Decimal) -> str:
+    """§2.2 rule 4, exact: `abs(recorded - accounts) <= tolerance * accounts`."""
+    with localcontext(EXACT):
+        return MATCHED if abs(recorded - accounts) <= tolerance * accounts else NOT_MATCHED
+
+
+def _heading(heading: str, accounts: Decimal, tolerance: Decimal, currency: str, period: str,
              months: Sequence[MonthAmounts]) -> HeadingCheck:
-    lines = [line for month in months for line in month.lines if _used(heading, line)]
+    lines = [line for month in months for line in used_lines(heading, month.lines)]
     currencies = tuple(sorted({line.currency for line in lines if line.currency is not None}))
-    sources = tuple(sorted({f"commercial:{s}" for line in lines for s in line.source_systems}))
-    held = {line.provenance for line in lines}
-    origins = tuple(o for o in ORIGIN_ORDER if o in held)
+    sources = line_sources(lines)
+    origins = line_origins(lines)
     with localcontext(EXACT):
         allowed = tolerance * accounts
 
     def made(state: str, reason: str | None, recorded: Decimal | None = None,
              difference: Decimal | None = None) -> HeadingCheck:
+        words = heading_words(heading, state, reason, accounts, recorded, tolerance, currency, period, currencies,
+                              origins=origins)
         return HeadingCheck(heading, state, reason, accounts, recorded, difference, allowed, currencies, sources,
-                            origins)
+                            origins, words, render(words))
 
     if any(not month.closed for month in months):
         return made(NOT_COMPARABLE, MONTH_OPEN)
@@ -182,17 +293,6 @@ def _current(rows: Sequence[StatementRow], k: datetime) -> dict[tuple[UUID | Non
     return {key: _latest(group, lambda r: r.recorded_at) for key, group in groups.items()}
 
 
-def percentage(tolerance: Decimal) -> str:
-    """§2.7: the tolerance as a percentage (`1%`, `0.5%`)."""
-    with localcontext(EXACT):
-        return format((tolerance * 100).normalize(), "f") + "%"
-
-
-def _cites(text: str, token: str) -> bool:
-    """§2.4: `token` appears as a whole token (not preceded by a digit or `.`, not followed by a digit)."""
-    return re.search(r"(?<![0-9.])" + re.escape(token) + r"(?![0-9])", text) is not None
-
-
 class _Read:
     """One call's view (handshake R9): the Sites, the tolerance and the months, each read at most once."""
 
@@ -223,15 +323,18 @@ class _Read:
     def check(self, row: StatementRow) -> StatementCheck:
         if row.id not in self._checks:
             months = [self.month(sid, row.period) for sid in self.scope(row.site_id)]
-            headings = tuple(_heading(name, Decimal(amount), self.tolerance, row.currency, months)
-                             for name, amount in (("revenue", row.revenue), ("fuel_cost", row.fuel_cost)))
+            amounts = {"revenue": row.revenue, "fuel_cost": row.fuel_cost}
+            headings = tuple(_heading(name, Decimal(amounts[name]), self.tolerance, row.currency, row.period, months)
+                             for name in HEADINGS)
             state = _statement_state(headings)
             opens = state == MATCHED and all(h.reason is None for h in headings)
+            code = self.codes.get(row.site_id) if row.site_id else None
+            words = statement_words(state, row.period, code, self.tolerance)
             self._checks[row.id] = StatementCheck(
-                statement_id=row.id, site_id=row.site_id, site_code=self.codes.get(row.site_id) if row.site_id else None,
+                statement_id=row.id, site_id=row.site_id, site_code=code,
                 period=row.period, currency=row.currency, tolerance=self.tolerance, state=state, opens=opens,
                 headings=headings, recorded_by=row.recorded_by, recorded_at=row.recorded_at,
-                recorded_by_script=row.recorded_by_script, source_ref=row.source_ref)
+                recorded_by_script=row.recorded_by_script, source_ref=row.source_ref, words=words, text=render(words))
         return self._checks[row.id]
 
     def cited_order(self, current: Iterable[StatementRow]) -> list[StatementRow]:
@@ -244,13 +347,18 @@ class CommercialReconciliation:
     def __init__(self, months: CommercialMonths, store: CommercialStore, *,
                  owner_file: Callable[[str], bytes | None] | None = None) -> None:
         """`owner_file(owner_ref)` returns the bytes of that file under the owner root, or None when it is absent
-        (§2.4; the composition builds it from the repository root, tests from a temporary folder). Without it no
-        tolerance can be set and 1 in 100 stands. It is a port: this module touches no file (the persistence guard)."""
+        (§2.4, D-3A7.15; the command builds it from the owner root and the composition passes it through, tests use
+        an in-memory reader). Without it no tolerance can be set and 1 in 100 stands. It is a port: this module
+        touches no file (the persistence guard)."""
         self._months = months
         self._store = store
         self._owner_file = owner_file
 
     # --- reads ----------------------------------------------------------------------------------------------------
+
+    def site(self, tenant_id: UUID, site_code: str) -> SiteRow | None:
+        """The tenant's Site with this code (any case, as `record` matches it), or None."""
+        return next((s for s in self._store.site_rows(tenant_id) if s.site_code.lower() == site_code.lower()), None)
 
     def tolerance(self, tenant_id: UUID, *, known_at: datetime | None = None) -> Decimal:
         k = known_at if known_at is not None else self._months.clock()
@@ -279,8 +387,12 @@ class CommercialReconciliation:
 
         def made(reconciled: bool, reason: str, this_month: StatementCheck | None,
                  cited: StatementCheck | None = None) -> MoneyStanding:
+            shown = cited if reconciled else (this_month if reason in _NAMES_THIS_MONTH else None)
+            words = standing_words(reason, shown, read.codes.get(site_id) if site_id else None, read.tolerance)
+            details = (tuple(h.text for h in this_month.headings if h.state != MATCHED)
+                       if this_month is not None and reason in _NAMES_THIS_MONTH else ())
             return MoneyStanding(tenant_id, site_id, period, known_at, reconciled, reason, this_month, cited,
-                                 read.tolerance)
+                                 read.tolerance, words, render(words), details)
 
         for state, reason in ((NOT_MATCHED, THIS_MONTH_NOT_MATCHED), (NOT_COMPARABLE, THIS_MONTH_NOT_COMPARABLE)):
             for check in checks:
@@ -299,7 +411,7 @@ class CommercialReconciliation:
         """§2.5: refusals in order, nothing written; then the live check and one statement row."""
         if actor.role not in roles_of(COMMAND):
             raise ReconRefused("RECON_ROLE")
-        if not isinstance(period, str) or _PERIOD.fullmatch(period) is None:
+        if not isinstance(period, str) or PERIOD_FORM.fullmatch(period) is None:
             raise ReconRefused("RECON_PERIOD")
         read = _Read(self._months, self._store, tenant_id, None)
         site_id: UUID | None = None
@@ -310,10 +422,11 @@ class CommercialReconciliation:
             if SITE_TYPE_TO_STRUCTURE.get(found[0].site_type) != MINI_GRID:
                 raise ReconRefused("RECON_SITE_TYPE", {"site": site_code})
             site_id = found[0].site_id
-        if not isinstance(currency, str) or _CURRENCY.fullmatch(currency) is None:
+        if not isinstance(currency, str) or CURRENCY_FORM.fullmatch(currency) is None:
             raise ReconRefused("RECON_CURRENCY")
-        for heading, amount in (("revenue", revenue), ("fuel_cost", fuel_cost)):
-            if not isinstance(amount, str) or _AMOUNT.fullmatch(amount) is None:
+        amounts = {"revenue": revenue, "fuel_cost": fuel_cost}
+        for heading in HEADINGS:
+            if not isinstance(amounts[heading], str) or AMOUNT_FORM.fullmatch(amounts[heading]) is None:
                 raise ReconRefused("RECON_AMOUNT", {"heading": heading})
         if (not isinstance(source_ref, str) or not 1 <= len(source_ref) <= _SOURCE_REF_MAX
                 or source_ref != source_ref.strip() or has_control_character(source_ref)):
@@ -326,20 +439,20 @@ class CommercialReconciliation:
         row = StatementRow(id=uuid4(), tenant_id=tenant_id, site_id=site_id, period=period, currency=currency,
                            revenue=revenue, fuel_cost=fuel_cost, source_ref=source_ref, recorded_at=read.k,
                            recorded_by=actor.person_id, recorded_role=actor.role, recorded_by_script=by_script,
-                           result_at_record=NOT_COMPARABLE, tolerance_at_record=format(read.tolerance, "f"))
+                           result_at_record=NOT_COMPARABLE, tolerance_at_record=str(read.tolerance))
         check = read.check(row)
         self._store.add_accounts_statement(StatementRow(**{**vars(row), "result_at_record": check.state}))
         return check
 
-    def set_tolerance(self, tenant_id: UUID, tolerance: str, owner_ref: str) -> None:
+    def set_tolerance(self, tenant_id: UUID, tolerance: str, owner_ref: str) -> ToleranceRow:
         """§2.4: `0 < tolerance <= 0.05`, at most four decimals, citing an owner file under the owner root whose
         text names the tenant's slug and the figure (as written or as its percentage), each as a whole token."""
-        if not isinstance(tolerance, str) or _TOLERANCE.fullmatch(tolerance) is None:
+        if not isinstance(tolerance, str) or TOLERANCE_FORM.fullmatch(tolerance) is None:
             raise ReconRefused("TOLERANCE_INVALID")
         value = Decimal(tolerance)
         if not Decimal(0) < value <= _MAX_TOLERANCE:
             raise ReconRefused("TOLERANCE_INVALID")
-        if not isinstance(owner_ref, str) or _OWNER_REF.fullmatch(owner_ref) is None:
+        if not isinstance(owner_ref, str) or OWNER_REF_FORM.fullmatch(owner_ref) is None:
             raise ReconRefused("OWNER_REF_INVALID")
         slug = self._store.tenant_slug(tenant_id)
         data = self._owner_file(owner_ref) if self._owner_file is not None else None
@@ -349,12 +462,10 @@ class CommercialReconciliation:
             text = data.decode("utf-8")
         except UnicodeDecodeError:
             text = ""
-        if not (_cites(text, slug) and (_cites(text, tolerance) or _cites(text, percentage(value)))):
+        if not (cites_slug(text, slug) and (cites_figure(text, tolerance) or cites_figure(text, percent_token(value)))):
             raise ReconRefused("OWNER_REF_INVALID")
-        self._store.add_tolerance(ToleranceRow(id=uuid4(), tenant_id=tenant_id, tolerance=tolerance,
-                                               owner_ref=owner_ref, owner_ref_sha256=hashlib.sha256(data).hexdigest(),
-                                               set_at=self._months.clock()))
+        row = ToleranceRow(id=uuid4(), tenant_id=tenant_id, tolerance=tolerance, owner_ref=owner_ref,
+                           owner_ref_sha256=hashlib.sha256(data).hexdigest(), set_at=self._months.clock())
+        self._store.add_tolerance(row)
+        return row
 
-
-__all__ = ["CURRENCY_MISMATCH", "DEFAULT_TOLERANCE", "EXACT", "HEADINGS", "CommercialReconciliation",
-           "HeadingCheck", "MoneyStanding", "ReconRefused", "StatementCheck", "percentage"]
