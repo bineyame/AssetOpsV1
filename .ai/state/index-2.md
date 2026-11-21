@@ -1,4 +1,4 @@
-# Built-state index, part 2 of 2
+# Built-state index, part 2 of 3
 
 One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original order: number, slice ID, summary, file in this folder. Open the file and jump to the slice's `## ` heading. Top index: `INDEX.md`.
 
@@ -90,4 +90,3 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 176. `DS4` template ladder and world check (units 1-2): world tool build/clone/reset/list/drop/check, C4 contract oracle, bulk-load cover rule · data.md
 177. `0M` Mto's demand-on-headroom replay (headroom_study over ForwardReplayPort on 0K2's helpers, reduced-capacity run, refusals before the port; simulated 61-day Mto season; no database) · data.md
 178. `SC-1a` the statement composer: facts, formats, conditions, load check, render/served, wire; statement guard, ratchets · data.md
-179. `3A7` one closed month reconciled: store, standing, SC-1 statements, composition, reconcile_month command (migration 0069) · data.md
