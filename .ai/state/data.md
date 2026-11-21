@@ -549,3 +549,10 @@ Branch `task/0M-mto-headroom` (base main `6c33395ef`, after the 0K2 merge `3b4f0
 - Settled: `runs/headroom_replay.py` `headroom_study` adds a customer's kW to one Site load at its local weekday steps and replays the whole window beside the no-customer replay (full, and a second base run frozen at a reduced inverter limit fed `min(PV, limit)`); headroom days and kWh from the series; extra litres, generator, unserved, starts, month splits, dawn new/cleared dates; every customer id and the reduced run's frozen limit and other needs refused before any port call. Reuses 0K2's helpers only. `host/tests/mto.py`: the Kobo template edited to Mto's manifest facts, loads halved.
 - 61-day SIMULATED/MODELLED figures beside the design values in the packet (huller Oct 6 days, 384 kWh, 156.7 L vs 3, 225, 68; reduced 0.24 L a day vs 5); design values unchanged (row 37).
 - Open: replacing design values is the owner's (row 37); dawn admissibility and money are `6g`.
+
+## ENV1 - every upload parse under hard limits (in review, 21 Nov)
+
+Branch `task/ENV1-parse-limits` (base main `e9d6cdfb1`); spec `specs/ENV1-parse-limits/spec.md` rev 2, rulings D-ENV1.1-17; packet `packet.md`. No migration, no database, no served text, no guard change.
+
+- Settled: `parse_slots.py` (abstract Unix socket names, `commercial` 2 and `reading` 2 per network namespace, `ASSETOPS_PARSE_SLOT_NAMESPACE`; tests set their own per process); the envelope holds a host slot at each read; the field process sets its limits before it reads (`CHECK_LIMITS` 512 MiB/30/60, `SEND_LIMITS` 896 MiB/120/240, measured on the real gateway by D-ENV1.10); breaches are `ParseLimitBreach` (slot, wall, cpu, memory, killed, crashed) answered with the existing 503 words and logged once; a 5,000-digit cell is `INVALID_VALUE`; the loader reads at most 8 MiB + 1 per file, sizes first, JSON only in the envelope.
+- Open: words for `cpu`/`memory`/`crashed` after SC-1a (row 49); waiting-request cap (D-ENV1.12); JSON API body bounds (`financial_api.py`, backlog); limits are per host class (re-measure on a slower one).

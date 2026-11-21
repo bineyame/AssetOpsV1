@@ -89,3 +89,4 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 175. `0K2` the Kobo replay study (replay_study over ForwardReplayPort, calibration, dawn dates, month splits; simulated 61-day season fixture; no database) · data.md
 176. `DS4` template ladder and world check (units 1-2): world tool build/clone/reset/list/drop/check, C4 contract oracle, bulk-load cover rule · data.md
 177. `0M` Mto's demand-on-headroom replay (headroom_study over ForwardReplayPort on 0K2's helpers, reduced-capacity run, refusals before the port; simulated 61-day Mto season; no database) · data.md
+178. `ENV1` every upload parse under hard limits: abstract-socket parse slots per network namespace, the reading upload's field process limited and coded, bounded loader reads, measured margins · data.md

@@ -1,6 +1,6 @@
 # ENV-1: every upload parse under hard limits, bounded per network namespace (implementer spec)
 
-Status: spec rev 2, handshake round 1 answered (`rulings.md` D-ENV1.8 to D-ENV1.17). Architect (Claude), 2026-11-21, on the owner's delegation
+Status: in_review (built on `task/ENV1-parse-limits`, packet `packet.md`); spec rev 2, handshake round 1 answered (`rulings.md` D-ENV1.8 to D-ENV1.17). Architect (Claude), 2026-11-21, on the owner's delegation
 (`owner/owner-away-architect-decides-2026-11-21.md`). Queued by D-3A6.23 ("Outside 3A6") and the 3A6 round-6 review
 (`specs/3A6-source-profiles/review.md` "Residual risk", R1 and R2). **1.0 unit** (queued as 0.25; 0.75 at rev 1; the
 handshake added the real-send measurement, `crashed` and the margin method, D-ENV1.17). Discovery review (W5): a protected
