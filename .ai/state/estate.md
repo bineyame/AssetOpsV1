@@ -202,3 +202,13 @@ plus Addendum 1. Packet `archive/agent-history/COV-PARTIAL-packet.md`. Decision 
   Grow stays Unknown (R636: no sales records). Frontend fixtures still carry the old "exposure in this hour"
   headline (Lane B, PB-2). The S+1 Readings chip still shows readiness "Unknown" beside "readings complete".
 
+
+## 1a - Optimize card states its day and scope (built, in_review; merge held for the owner's walkthrough)
+
+- Settled: the Portfolio Optimize card's figure stays one lead issue's stored cost (pinned: `window_day` rule 3,
+  `summary_window` DAY, `lead_finding`, the card's keys). `_summary` fills `CostScope` per Site (claim day: the
+  DAY board day, a one-day PERIOD window's day, else None; window days); `_optimize_card(..., scope=)` adds the last
+  key `scope_text`, the SC-1 statement `portfolio_card.cost_scope` (six variants, D-1A.9; `noun.day`). The face shows
+  it in v70's `oc-pfdays` slot (`data-portfolio-card-scope`, Optimize only; MD-1A-1, register R757).
+- Left open: the period's cost figure (`7g`); the site board's hidden fields (`1b`); cold-chain and EV cost claims are
+  not priced yet (the statement covers them).

@@ -1,6 +1,6 @@
 # 1a: the Optimize card states its day and scope (implementer spec)
 
-Status: rev 2, Architect (Claude), 2026-11-21, on the owner's delegation
+Status: in_review (built 2026-11-21 on `task/1a-optimize-card-scope`, packet `packet.md`). Spec rev 2, Architect (Claude), 2026-11-21, on the owner's delegation
 (`owner/owner-away-architect-stands-in-2026-11-21b.md`; owner-away rows 52 and 58 for the owner-level calls); handshake
 answered (D-1A.9 to D-1A.11), build-ready. Lane A
 (`two-week-build-plan.md` §0.2 days 10 to 12; §0.3 "Lands: ... `1a`"). `delivery-plan.md` §2 row `1a`: "Pin the
