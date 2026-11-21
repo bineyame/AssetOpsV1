@@ -3,7 +3,8 @@
 `xlsx_rows` returns `(row number, cells)` pairs in sheet order. A numeric cell is an `XlsxNumber` (Excel's 15
 significant digits, plain notation); a cell that cannot be read (an error or ISO-date cell, a value that is not a
 finite decimal) is an `XlsxBad("")` marker, judged by `read_rows` only in a column that writes a path. A whole-file
-problem raises `CanonicalRefused(NATIVE_WORKBOOK | NATIVE_SHEET, "json")`.
+problem raises `CanonicalRefused(NATIVE_WORKBOOK | NATIVE_SHEET, "json")`; a workbook past a resource bound raises
+`CanonicalRefused(NATIVE_TOO_LARGE, "json")` (fix round r5, D-3A6.25).
 """
 
 from __future__ import annotations
@@ -37,7 +38,13 @@ class XlsxBad(str):
 
 
 def _workbook_error() -> CanonicalRefused:
+    """A format problem: not a workbook this reader can read."""
     return CanonicalRefused("NATIVE_WORKBOOK", "json")
+
+
+def _too_large() -> CanonicalRefused:
+    """Fix round r5 (D-3A6.25): past a resource bound; the file may be well formed but is too much to read."""
+    return CanonicalRefused("NATIVE_TOO_LARGE", "json")
 
 
 def _number(v: str) -> str:
@@ -69,7 +76,7 @@ _MAX_ROW = 1_048_576  # Excel's last row
 _PAD_BUDGET = 2_000_000  # total padded cells `xlsx_rows` may build
 # Fix round r3, the one work bound: every XML element the reader parses, in every member it reads, costs one unit
 # (rows and cells are elements, so rows plus cells visited never pass it). Members are parsed by event with no tree
-# kept, and every later loop runs over what the parse kept. A workbook past the bound is `NATIVE_WORKBOOK`.
+# kept, and every later loop runs over what the parse kept. A workbook past the bound is `NATIVE_TOO_LARGE` (r5).
 _WORK_MAX = 500_000
 # Fix round r4 (review N5, N6): bounds on what the element count cannot see. Member bytes are counted as they are
 # inflated (a member's declared size is the uploader's word), and the characters every cell delivers are charged to
@@ -139,7 +146,7 @@ class _Target:
     def start(self, tag: str, attrib: dict) -> None:
         self.work[0] -= 1
         if self.work[0] < 0:
-            raise _workbook_error()
+            raise _too_large()
         parent = self.open[-1] if self.open else None
         if parent is not None:
             parent[3] = False
@@ -276,7 +283,7 @@ class _Sheet(_Target):
             value = cell.value(self.shared)
             self.chars -= len(value)  # fix round r4 (N6): every delivered character, a shared one each time
             if self.chars < 0:
-                raise _workbook_error()
+                raise _too_large()
             row[0][index] = value
             row[1] = max(row[1], index + 1)  # one past the widest cell so far
         elif role == _IN_ROW:
@@ -308,7 +315,7 @@ def _member(z: zipfile.ZipFile, name: str, left: list[int]) -> bytes:
         while chunk := f.read(_CHUNK):  # `ZipExtFile.read(n)` gives the decompressor `n` as its output limit
             size += len(chunk)
             if size > cap:
-                raise _workbook_error()
+                raise _too_large()
             chunks.append(chunk)
     left[0] -= size
     return b"".join(chunks)
@@ -332,7 +339,7 @@ def _read(data: bytes, sheet: str, after: int = 0, keep: int | None = None) -> l
     z = zipfile.ZipFile(io.BytesIO(bytes(data)))
     infos = z.infolist()
     if any(i.file_size > _MEMBER_MAX for i in infos) or sum(i.file_size for i in infos) > _TOTAL_MAX:
-        raise _workbook_error()
+        raise _too_large()
     work, left = [_WORK_MAX], [_TOTAL_MAX]
     workbook = _parse(z, "xl/workbook.xml", _Workbook(work), left)
     if workbook.pr is not None and (workbook.pr.get("date1904") or "").strip().lower() in ("1", "true"):
@@ -367,13 +374,13 @@ def xlsx_sparse_rows(data: bytes, sheet: str, *, after: int = 0,
 
 def xlsx_rows(data: bytes, sheet: str) -> list[tuple[int, list[str]]]:
     """Spec §2.3. Rows of the one sheet named `sheet`, as `(r, cells)`, padded to each row's last cell under a
-    total budget (a workbook past it is `NATIVE_WORKBOOK`)."""
+    total budget (a workbook past it is `NATIVE_TOO_LARGE`)."""
     out: list[tuple[int, list[str]]] = []
     total = 0
     for number, sparse in xlsx_sparse_rows(data, sheet):
         width = max(sparse) + 1 if sparse else 0
         total += width
         if total > _PAD_BUDGET:
-            raise _workbook_error()
+            raise _too_large()
         out.append((number, [sparse.get(i, "") for i in range(width)]))
     return out

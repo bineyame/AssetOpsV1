@@ -322,6 +322,11 @@ def _invisible_class() -> re.Pattern:
     return re.compile("[" + "".join(f"\\U{a:08x}-\\U{b:08x}" for a, b in spans) + "]")
 
 
+# Fix round r5 (spec §2.12): built when the module loads, so the parse envelope's forkserver (which preloads this
+# package) builds it once and every parse child inherits it, instead of each child spending about 0.4 s on it.
+_invisible_class()
+
+
 def _invisible(cell: str) -> bool:
     return _invisible_class().search(cell) is not None
 

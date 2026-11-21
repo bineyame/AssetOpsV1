@@ -432,7 +432,7 @@ def test_n3_r3_many_empty_rows_under_the_bound_read_as_before() -> None:
 
 def test_n3_r3_empty_rows_past_the_bound_are_refused(monkeypatch) -> None:
     monkeypatch.setattr(_xlsx, "_WORK_MAX", _SMALL)
-    assert _bounded(_workbook(b"<row/>" * (_SMALL + 10)), 1.0, 30) == "NATIVE_WORKBOOK"
+    assert _bounded(_workbook(b"<row/>" * (_SMALL + 10)), 1.0, 30) == "NATIVE_TOO_LARGE"
 
 
 def test_n3_r3_near_member_cap_sheet_is_refused_in_bounded_time_and_memory() -> None:
@@ -458,14 +458,14 @@ def test_n3_r3_cells_without_r_take_the_next_index_in_linear_time() -> None:
 def test_n3_r3_repeated_cell_references_count_against_the_budget(monkeypatch) -> None:
     monkeypatch.setattr(_xlsx, "_WORK_MAX", _SMALL)
     data = _workbook(b'<row r="600">' + b'<c r="A600"><v>1</v></c>' * (_SMALL // 2 + 10) + b"</row>")
-    assert _bounded(data, 1.0, 30) == "NATIVE_WORKBOOK"
+    assert _bounded(data, 1.0, 30) == "NATIVE_TOO_LARGE"
 
 
 def test_n3_r3_shared_strings_count_against_the_budget(monkeypatch) -> None:
     monkeypatch.setattr(_xlsx, "_WORK_MAX", _SMALL)
     sst = (b'<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
            + b"<si><t>a</t></si>" * (_SMALL // 2 + 10) + b"</sst>")
-    assert _bounded(_workbook(members={"xl/sharedStrings.xml": sst}), 1.0, 30) == "NATIVE_WORKBOOK"
+    assert _bounded(_workbook(members={"xl/sharedStrings.xml": sst}), 1.0, 30) == "NATIVE_TOO_LARGE"
 
 
 def test_n3_r3_many_sheets_count_against_the_budget(monkeypatch) -> None:
@@ -473,7 +473,7 @@ def test_n3_r3_many_sheets_count_against_the_budget(monkeypatch) -> None:
     book = zip_members(budget_bytes())["xl/workbook.xml"]
     at = book.index(b"</sheets>")
     book = book[:at] + b'<sheet name="z" sheetId="9" r:id="rId9"/>' * (_SMALL + 10) + book[at:]
-    assert _bounded(_workbook(members={"xl/workbook.xml": book}), 1.0, 30) == "NATIVE_WORKBOOK"
+    assert _bounded(_workbook(members={"xl/workbook.xml": book}), 1.0, 30) == "NATIVE_TOO_LARGE"
 
 
 def test_n3_r3_many_members_are_listed_in_bounded_time() -> None:
@@ -526,16 +526,16 @@ def test_n3_r4_a_member_whose_declared_size_lies_is_inflated_only_to_that_size()
 
 def test_n3_r4_inflated_bytes_are_counted_against_the_member_and_total_caps(monkeypatch) -> None:
     """The caps hold on the bytes actually inflated: a member past the member cap, and members together past the
-    total, are `NATIVE_WORKBOOK` (caps lowered so the members stay small)."""
+    total, are `NATIVE_TOO_LARGE` since r5, D-3A6.25 (caps lowered so the members stay small)."""
     real = len(zip_members(budget_bytes())[_SHEET])
     monkeypatch.setattr(_xlsx, "_MEMBER_MAX", real - 1)
-    assert _outcome(budget_bytes()) == "NATIVE_WORKBOOK"
+    assert _outcome(budget_bytes()) == "NATIVE_TOO_LARGE"
     monkeypatch.setattr(_xlsx, "_MEMBER_MAX", 16 * 2**20)
     total = sum(len(v) for k, v in zip_members(budget_bytes()).items()
                 if k in ("xl/workbook.xml", "xl/_rels/workbook.xml.rels", _SHEET))
     monkeypatch.setattr(_xlsx, "_TOTAL_MAX", total - 1)
     monkeypatch.setattr(zipfile.ZipFile, "infolist", lambda self: [])  # pass the declared-size pre-check
-    assert _outcome(budget_bytes()) == "NATIVE_WORKBOOK"
+    assert _outcome(budget_bytes()) == "NATIVE_TOO_LARGE"
     monkeypatch.setattr(_xlsx, "_TOTAL_MAX", total)
     assert _outcome(budget_bytes()) == "ok 3"
 
@@ -563,7 +563,7 @@ def test_n3_r4_a_shared_string_is_charged_on_every_reference() -> None:
     4). Each reference charges its length to the 16 Mi-character budget, so the parse stops at the 17th row."""
     data = _workbook(_shared_rows(1_000), members={"xl/sharedStrings.xml": _SST_LONG})
     assert len(data) < 40_000
-    assert _bounded(data, 1.0, 60) == "NATIVE_WORKBOOK"
+    assert _bounded(data, 1.0, 60) == "NATIVE_TOO_LARGE"
 
 
 def test_n3_r4_delivered_characters_under_the_budget_read_as_before() -> None:
@@ -574,7 +574,7 @@ def test_n3_r4_delivered_characters_under_the_budget_read_as_before() -> None:
 def test_n3_r4_inline_characters_count_against_the_same_budget(monkeypatch) -> None:
     monkeypatch.setattr(_xlsx, "_CHAR_MAX", 1_000)
     one = b'<row r="9"><c r="E9" t="inlineStr"><is><t>' + b"x" * 1_001 + b"</t></is></c></row>"
-    assert _outcome(_workbook(one)) == "NATIVE_WORKBOOK"
+    assert _outcome(_workbook(one)) == "NATIVE_TOO_LARGE"
     monkeypatch.setattr(_xlsx, "_CHAR_MAX", 10_000)
     assert _outcome(_workbook(one)) == "ok 4"
 

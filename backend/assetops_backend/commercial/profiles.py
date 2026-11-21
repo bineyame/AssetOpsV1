@@ -26,13 +26,14 @@ from uuid import UUID, uuid4
 
 from assetops_backend.commercial.model import ProfileRow, StoreRefused
 from assetops_backend.commercial.pseudonym import ALLOWED_EXTRA, CLASSES, cut_path
+from assetops_backend.commercial.envelope import ParseEnvelope, default_envelope
 from assetops_backend.commercial.readers import LayoutReader, ReadContext
 from assetops_backend.commercial.store import CommercialStore
 from assetops_backend.commercial.uploads import Actor, UploadRefused, reason_words
 from assetops_backend.i18n import Message, message, render
 from assetops_contracts.canonical import CanonicalRefused, parse_batch
 from assetops_contracts.native import (Layout, ProfileInvalid, TransformFailed, XlsxNumber, compile_profile,
-                                       run_probes, split_file, transform)
+                                       run_probes, transform)
 
 MAX_PROFILE_BYTES = 64 * 1024
 MAX_SAMPLE_BYTES = 2**20
@@ -163,8 +164,10 @@ def _coverage(layout: Layout, rows: list[tuple[int, list[str]]]) -> None:
 
 
 class SourceProfiles:
-    def __init__(self, store: CommercialStore, *, clock: Callable[[], datetime], real_data: bool) -> None:
+    def __init__(self, store: CommercialStore, *, clock: Callable[[], datetime], real_data: bool,
+                 envelope: ParseEnvelope | None = None) -> None:
         self._store = store
+        self._envelope = envelope if envelope is not None else default_envelope()  # spec §2.12: never in process
         self._clock = clock
         self._real_data = bool(real_data)
 
@@ -214,7 +217,7 @@ class SourceProfiles:
             raise ProfileRefused("PROFILE_SOURCE_SYSTEM_TAKEN", {"system": system})
         # 4. the sample
         layout = compile_profile(obj, version)
-        reader = LayoutReader(layout)
+        reader = LayoutReader(layout, profile=(profile.decode("utf-8"), version))
         if len(sample) > MAX_SAMPLE_BYTES:
             raise ProfileRefused("ADMIT_SAMPLE_FILE", {"code": "FILE_TOO_LARGE"},
                                  message("source_profile.admit_sample_file",
@@ -225,12 +228,13 @@ class SourceProfiles:
         now = self._clock()
         refused: CanonicalRefused | None = None
         try:
-            read = reader.read(sample, context=ReadContext(slug, now, self._real_data))
+            bounded = self._envelope.read(reader, sample, ReadContext(slug, now, self._real_data), split=True)
+            read = bounded.result
             records = read.obj["records"]
             if len(records) not in SAMPLE_ROWS:
                 raise ProfileRefused("ADMIT_SAMPLE_SIZE", {"rows": len(records)})
             parsed = parse_batch(read.obj)
-            header, data_rows = split_file(layout, sample)
+            header, data_rows = bounded.split
         except CanonicalRefused as error:
             refused = error
         if refused is not None:  # outside the handler: no driver or parser text survives
@@ -325,7 +329,7 @@ class SourceProfiles:
             layout = compile_profile(json.loads(row.profile_json), row.version)
         except (ValueError, ProfileInvalid):
             raise UploadRefused(500, "COMMERCIAL_STORE_FAULT") from None
-        return LayoutReader(layout)
+        return LayoutReader(layout, profile=(row.profile_json, row.version))
 
     def latest(self, tenant_id: UUID) -> tuple[ProfileRow, ...]:
         return self._store.source_profiles_latest(tenant_id)

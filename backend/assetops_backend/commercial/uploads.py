@@ -28,6 +28,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any, Callable
 from uuid import UUID, uuid4
 
+from assetops_backend.commercial.envelope import ParseEnvelope, default_envelope
 from assetops_backend.commercial.model import (Acceptance, HeldUpload, UploadAlreadyDecided, UploadDecisionRow,
                                                UploadRecord, UploadRow, UploadSourceSwitched, UploadStale)
 from assetops_backend.commercial.pseudonym import (PseudonymKeyErased, PseudonymKeyMissing, PseudonymKeys,
@@ -147,8 +148,10 @@ def _with_text(words: Message) -> dict[str, Any]:
 
 class CommercialUploads:
     def __init__(self, records: CommercialRecords, store: CommercialStore, keys: PseudonymKeys, *,
-                 clock: Callable[[], datetime], real_data: bool, profiles: SourceProfiles | None = None) -> None:
+                 clock: Callable[[], datetime], real_data: bool, profiles: SourceProfiles | None = None,
+                 envelope: ParseEnvelope | None = None) -> None:
         self._records = records
+        self._envelope = envelope if envelope is not None else default_envelope()  # spec §2.12: never in process
         self._profiles = profiles
         self._store = store
         self._keys = keys
@@ -184,7 +187,7 @@ class CommercialUploads:
             raise UploadRefused(422, "UPLOAD_TENANT_MISMATCH")
         refused: CanonicalRefused | None = None
         try:
-            read: ReadResult = reader.read(data, context=ReadContext(slug, self._clock(), self._real_data))
+            read: ReadResult = self._envelope.read(reader, data, ReadContext(slug, self._clock(), self._real_data)).result
             parsed = parse_batch(read.obj)
         except CanonicalRefused as error:
             refused = error

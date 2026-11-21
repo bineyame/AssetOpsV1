@@ -196,6 +196,8 @@ CATALOGUE: dict[str, dict[str, str]] = {
         "commercial_upload.reason.native_format": (
             "this value is not written the way this layout reads it (for example, a date in another order)."),
         "commercial_upload.reason.native_workbook": "this is not an Excel workbook this layout can read.",
+        "commercial_upload.reason.native_too_large": (  # fix round r5 (D-3A6.25)
+            "this file is too large or too complex to read in one upload; split it and upload the parts."),
         "commercial_upload.reason.native_sheet": (
             "the workbook must hold exactly one sheet, with the sheet name this layout reads."),
         "commercial_upload.reader_superseded": "That file layout has a newer version: use {latest}.",
