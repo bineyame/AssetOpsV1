@@ -2,7 +2,8 @@
    heading order, reduced motion, empty and loading states. Needs /opt/assetecon/tools/pw/env.sh sourced.
    Run: node tools/ux_interaction_check.cjs "$PWD/index.html" <folder for the two state screenshots>
    IA-1b fix round: D-IA.31 drawer walks (every press stays inside; sweep; unlinked last), D-IA.35 L1/L2 (EV board on its live route; text-accepting retargets
-   expire with IA-1c). Plants (each must fail): container, x5, palette, block7, tall, viewall, trap (D-IA.31), evrev, expiry (D-IA.35). */
+   expire with IA-1c). Plants (each must fail): container, x5, palette, block7, tall, viewall, trap (D-IA.31), evrev. expiry (D-IA.35) is retired with IA-1c:
+   its decision links are live, so the three evaluations pass on the real links and TEXT_OK is false whatever the plant. */
 const { chromium } = require(process.env.PW);
 const base = 'file://' + process.argv[2];
 const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}`);
@@ -18,7 +19,7 @@ const PLAN_LAYOUT = () => { const bad = [], inter = (a, b) => Math.min(a.right, 
         const box = (s.closest('.panel, .ux-items') || s).getBoundingClientRect(), last = rc.filter(r => r.width > 0).pop(); if (last && last.right > box.right + 1) bad.push(`${s.parentElement.dataset.row}: last cell ends at ${Math.round(last.right)}, past its card at ${Math.round(box.right)}`); });
       return { rows, card, bad: [...new Set(bad)].slice(0, 3) }; };
 let TEXT_OK = null; /* D-IA.35 L2: the text form of an unbuilt decision link counts only until IA-1c lands; expiry forces landed */
-const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list's container query removed; the layout gate must fail at 1440 and 1280 */
+const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=anchor: (D-IA.36) iaInPage returns false, the in-page link lands on not-found; UXI_PLANT=container: the item list's container query removed; the layout gate must fail at 1440 and 1280 */
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.CHROME });
   /* D-IA.31: after every one of 30 Tab and 30 Shift+Tab presses the focus is inside the open drawer; returns the first leak or null */
@@ -42,17 +43,21 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
       const lay = await p.evaluate(PLAN_LAYOUT); ok(lay.rows > 0 && !lay.bad.length, `plant container: ${op} plan at ${w}: ${lay.rows} rows${lay.bad.length ? `, ${lay.bad.join('; ')}` : ''}`); await p.context().close(); }
     await b.close(); console.log(out.join('\n')); process.exit(out.some(l => l.startsWith('FAIL')) ? 1 : 0); }
   /* IA-1b (D-IA.16): on an IA route the palette lists only live entries, so "kobo gen" finds nothing until decisions land (IA-1c);
-     "kisiwa" finds the Site and Enter opens it. Retargeted from "kobo gen opens the decision"; UXI_PLANT=palette (filter off) must fail. */
+     "kisiwa" finds the Site and Enter opens it. Retargeted from "kobo gen opens the decision"; UXI_PLANT=palette (filter off) must fail.
+     IA-1c: decisions are live, so "kobo gen" finds the decision; the filter is then proven by "findings" (Findings is IA-2b's), which must
+     find nothing live. */
   async function paletteTest(p) {
     await p.keyboard.press('Control+k'); await p.waitForTimeout(150);
     const op1 = await p.evaluate(() => document.getElementById('ux-cmd')?.dataset.open === 'true' && document.activeElement.classList.contains('ux-cmd-in'));
     await p.keyboard.type('kobo gen'); await p.waitForTimeout(100);
-    const kg = await p.evaluate(() => document.querySelector('#ux-cmd-list [aria-selected="true"]')?.textContent || '');
+    const kg = await p.evaluate(() => document.querySelector('#ux-cmd-list [aria-selected="true"]')?.textContent || ''), decLive = await p.evaluate(() => IA_LANDED.has('IA-1c'));
+    await p.fill('.ux-cmd-in', 'findings'); await p.waitForTimeout(100);
+    const fd = await p.evaluate(() => document.querySelector('#ux-cmd-list [aria-selected="true"]')?.textContent || '');
     await p.fill('.ux-cmd-in', 'kisiwa'); await p.waitForTimeout(100);
     const first = await p.evaluate(() => document.querySelector('#ux-cmd-list [aria-selected="true"]')?.textContent || '');
     await p.keyboard.press('Enter'); await p.waitForTimeout(400);
     const at = await p.evaluate(() => location.hash);
-    ok(op1 && !/Kobo generator/.test(kg) && /Kisiwa/.test(first) && at === '#/site/kisiwa', `command search: Ctrl+K opens, "kobo gen" finds ${kg ? `"${kg}"` : 'nothing live'}, "kisiwa" finds "${first}", Enter opens ${at}`);
+    ok(op1 && (decLive ? /Kobo generator/.test(kg) : !/Kobo generator/.test(kg)) && !fd && /Kisiwa/.test(first) && at === '#/site/kisiwa', `command search: Ctrl+K opens, "kobo gen" finds ${kg ? `"${kg}"` : 'nothing live'}, "findings" finds ${fd ? `"${fd}"` : 'nothing live'}, "kisiwa" finds "${first}", Enter opens ${at}`);
     if (at !== '#/portfolio') { await p.goto(base + '#/portfolio'); await p.waitForTimeout(400); }
   }
   const evBoard = async () => { const p = await page('portfolio/demand-and-capacity', { op: 'metro' }); /* D-IA.35 L1: the live route, not the legacy builder */
@@ -86,6 +91,18 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=container: the item list
       else ok(r.blocks <= 6 && r.h <= 2500, `plant ${PLANT}: ${op} overview budget: ${r.blocks} blocks, ${r.h} px at 1440`);
       await p.context().close(); }
     await b.close(); console.log(out.join('\n')); process.exit(out.some(l => l.startsWith('FAIL')) ? 1 : 0); }
+  /* IA-1c r1 (D-IA.36): an in-page link scrolls on the page it is on; Metro's no-recommendation decision, 1440 and 390 */
+  const anchorTest = async () => { for (const w of [1440, 390]) { const p = await page('decision/ruiru-connector', { op: 'metro', q: '?state=no-recommendation', w, h: w === 390 ? 844 : 900 });
+      if (PLANT === 'anchor') await p.evaluate(() => { iaInPage = () => false; });
+      if (PLANT === 'stickyh') await p.evaluate(() => { (0, eval)('iaInPage = ' + iaInPage.toString().replace('${hh}px', '0px')); }); /* D-IA.42: --ia-sticky-h forced to 0px; the section heading then lies under the sticky bar */
+      const before = await p.evaluate(() => location.hash.split('?')[0]);
+      await p.locator('#app a', { hasText: 'See the options' }).first().click(); await p.waitForTimeout(700);
+      const r = await p.evaluate(() => { const h = document.querySelector('#app h1'), sec = document.getElementById('uxcards-ruiru-connector'), h2 = sec && sec.querySelector('h2'), sb = document.querySelector('.ux-dsticky.is-on'), sbBottom = sb && sb.getBoundingClientRect().top < innerHeight / 2 ? sb.getBoundingClientRect().bottom : 0, t = h2 ? h2.getBoundingClientRect().top : -1;
+        return { path: location.hash.split('?')[0], h1: h ? h.textContent.trim() : '', nf: /Page not found/.test(document.getElementById('ia-root').innerText), focus: document.activeElement && document.activeElement.id, top: t, sbBottom, inView: t >= 0 && t < innerHeight, below: t >= sbBottom - 1 }; });
+      ok(r.path === before && r.path === '#/decision/ruiru-connector' && !r.nf && r.h1 !== 'Page not found' && r.focus === 'uxcards-ruiru-connector' && r.below && r.inView, `in-page link at ${w}: "See the options" stays on #/decision/ruiru-connector (${r.path}), H1 "${r.h1.slice(0, 40)}", focus on ${r.focus || 'nothing'}, options heading at ${Math.round(r.top)} px (sticky bar bottom ${Math.round(r.sbBottom)}), not-found ${r.nf}`);
+      await p.context().close(); } };
+  if (PLANT === 'anchor' || PLANT === 'stickyh') { await anchorTest(); await b.close(); console.log(out.join('\n')); process.exit(out.some(l => l.startsWith('FAIL')) ? 1 : 0); }
+  await anchorTest(); if (process.env.UXI_ONLY === 'anchor') { await b.close(); console.log(out.join('\n')); process.exit(out.some(l => l.startsWith('FAIL')) ? 1 : 0); }
   // 1 drawers on the Overview: open, focus, trap (every press, D-IA.31), Esc, return focus; all three operators
   for (const op of ['lakeside', 'harvest', 'metro']) { const p = await page('portfolio', { op });
     for (const k of ['grow', 'optimize', 'protect', 'assure']) {

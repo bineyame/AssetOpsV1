@@ -35,6 +35,9 @@
 - `D-3B7A.10` Seam is 3B7a unit 0, its own commit, merged to main alone before 3B7a unit 1 and 5b unit 2 · live · specs/3B7a-structure-snapshot/rulings.md
 - `D-3B7A.11` Snapshot carries the build code's import-closure digest; a different running digest is RULES · live · specs/3B7a-structure-snapshot/rulings.md
 - `D-3B7A.12` Record kinds a Site holds frozen per row, compared on serve (RECORDS, changed_kinds) · live · specs/3B7a-structure-snapshot/rulings.md
+- `D-3B7A.13` Code digest is an adapter (structure_snapshot/adapters/code_digest.py); guard rule 2 unchanged · live · specs/3B7a-structure-snapshot/rulings.md
+- `D-3B7A.14` Migration tests assert their own chain link, never "is head" (from 3C1 Q1) · live · specs/3B7a-structure-snapshot/rulings.md
+- `D-3B7A.15` Portfolio n is every Site asked; Lakeside asks three; 3B7a fixture's THIKA-001 synthetic (n = 4) · live · specs/3B7a-structure-snapshot/rulings.md
 - `D-5B.1` Gap = actual − target, both valued, one currency; budget contribution line never the target · live · specs/5b-attribution/rulings.md
 - `D-5B.2` Split rules: exact sums (AR1); products volume at target price, then price at actual volume (AR2) · live · specs/5b-attribution/rulings.md
 - `D-5B.3` Effects pushed down by scale; a quantity's parts priced at target price · live · specs/5b-attribution/rulings.md

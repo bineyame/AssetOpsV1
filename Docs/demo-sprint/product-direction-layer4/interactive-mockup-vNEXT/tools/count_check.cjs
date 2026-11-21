@@ -8,12 +8,14 @@
    Site page's board, one source (the most negative non-residual vr from uxSiteDriversShown). Synthetic: iaQueueCap on Mto's ids with cap = 1.
    M4 (r2): a 390 pass in Chromium (needs PW and CHROME from /opt/assetecon/tools/pw/env.sh): the rows ON SCREEN equal the capped rows, every waiting decision is on screen or counted on a visible line, and "And N more" equals what is truly off screen.
    Run: node tools/count_check.cjs   Plants: COUNT_PLANT=choose (iaWaiting drops "none"), capsel (the cap takes the first in reviewed order), capmore (iaCapMore = ''), phone (restores the phone rule that hides Overview queue rows 4-6 at 390, Chromium pass only),
-   adverse (iaLargestAdverse picks the smallest adverse driver), foryou (IA-1c; "For you" drops the plan). */
+   adverse (iaLargestAdverse picks the smallest adverse driver), foryou (IA-1c; "For you" drops the plan), nolog (IA-1c r1, D-IA.39; the act writes no log entry: the inbox's "Since you last looked" must hold one log:0 row to #/decision/<id> after Choose and none after Undo). */
 const { boot, OPS } = require('./ia_crawl.cjs');
 const PLANT = process.env.COUNT_PLANT || '';
 const PLANTS = { choose: `iaWaiting = id => uxDecState(id).key === 'choose';`, capsel: `iaQueueCap = (ids, cap) => ({ shown: ids.slice(0, cap), hidden: ids.slice(cap) });`,
   capmore: `iaCapMore = () => '';`,
   phone: '0',
+  /* IA-1c r1 (D-IA.39): the act log loses the entry the act wrote */
+  nolog: `{ const _a = uxActDo; uxActDo = key => { _a(key); const m = uxMock(); m.log = m.log.slice(1); uxMockSet(m); render(); }; }`,
   adverse: `iaLargestAdverse = sk => { let best = null; uxSiteDriversShown(sk).forEach(r => { if (!r.s.st.residual && r.vr < 0 && (!best || r.vr > best.vr)) best = r; }); return best; };`,
   foryou: `typeof iaForYou === 'function' && (() => { const _f = iaForYou; iaForYou = op => _f(op).filter(x => x !== 'plan' && !(x && x.plan)); })();` };
 if (PLANT && !PLANTS[PLANT]) { console.error(`count_check: unknown plant ${PLANT}`); process.exit(2); }
@@ -43,9 +45,19 @@ const waitingIn = txt => { const m = String(txt || '').match(/(\d+) waiting for 
       return { ids, waiting: ids.filter(wait), first: ids.find(id => wait(id) && uxRec(decById(id))) || null,
         sites: OPS[op].sites.map(sk => ({ sk, n: site(sk).length, waiting: site(sk).filter(wait).length })),
         chooser: Object.fromEntries((HC.decisions || []).map(d => [d.id, d.chooser])) }; })()`);
-    let E = X();
+    let E = X(), E0 = null;
     if (state === 'after one act') { if (!E.first) { log.push(`${B.opName} · after one act: no waiting decision with a recommendation`); B.dom.window.close(); continue; }
-      w.eval(`uxMockSet({ chosen: { ${JSON.stringify(E.first)}: uxRec(decById(${JSON.stringify(E.first)})) } })`); E = X(); }
+      E0 = E; const act = () => w.eval(`uxActDo('choose:${E0.first}:' + uxRec(decById(${JSON.stringify(E0.first)})))`), sets = sec => [...doc.querySelectorAll(`#ia-inbox [data-ia-section="${sec}"] a[data-ia-row]`)].map(a => a.dataset.iaRow.replace(/^decision:/, '')).sort().join(','), logs = () => [...doc.querySelectorAll('#ia-inbox [data-ia-section="since"] a[data-ia-row^="log:"]')];
+      const fy0 = sets('for-you'), pt0 = sets('portfolio'), id0 = E0.first; act();
+      /* D-IA.39: the act log after Choose, and after Undo (the toast goes with the next navigation, so both are read here) */
+      { const l = logs(); if (l.length !== 1 || l[0].dataset.iaRow !== 'log:0' || l[0].getAttribute('href') !== `#/decision/${id0}`) bad(`act log after Choose: ${l.length} rows (${l.map(a => `${a.dataset.iaRow} ${a.getAttribute('href')}`).join('; ') || 'none'}), expected one log:0 to #/decision/${id0}`);
+        for (const sec of ['for-you', 'portfolio']) if (sets(sec).split(',').includes(id0)) bad(`after Choose: ${id0} is still in "${sec}"`);
+        const ub = doc.querySelector('.ux-toast [data-ux-undo]'); if (!ub) bad('after Choose: no Undo on the toast'); else {
+          ub.click(); await new Promise(r => setTimeout(r, 30));
+          const left = logs().filter(a => a.getAttribute('href') === `#/decision/${id0}`); if (left.length) bad(`act log after Undo: ${left.length} log row(s) still name ${id0}`);
+          if (sets('for-you') !== fy0 || sets('portfolio') !== pt0) bad(`after Undo the sets are not restored: For you ${sets('for-you') || 'nothing'} (was ${fy0 || 'nothing'}), In your portfolio ${sets('portfolio') || 'nothing'} (was ${pt0 || 'nothing'})`);
+          act(); } }
+      E = X(); }
     /* the Overview */
     await go('portfolio');
     const n = +(doc.querySelector('#uxq-h .ux-count')?.textContent.replace(/\D/g, '') ?? -1), split = waitingIn(doc.querySelector('#uxq-h [data-ux-split]')?.textContent);
@@ -78,7 +90,7 @@ const waitingIn = txt => { const m = String(txt || '').match(/(\d+) waiting for 
       const plan = w.eval(`uxPlanState(${JSON.stringify(op)}).state === 'PROPOSED'`), forYou = [...(plan ? ['plan'] : []), ...E.waiting.filter(id => E.chooser[id] === 'OPERATOR_EXECUTIVE')], port = E.waiting.filter(id => E.chooser[id] !== 'OPERATOR_EXECUTIVE');
       const badge = +(doc.querySelector('[data-ia-inbox] .ia-badge')?.textContent.replace(/\D/g, '') || 0);
       if (badge !== forYou.length) bad(`the badge reads ${badge}, expected ${forYou.length}`);
-      const rows = sec => [...doc.querySelectorAll(`#ia-inbox [data-ia-section="${sec}"] a[data-ia-row]`)].map(a => a.dataset.iaRow).sort().join(',');
+      const rows = sec => [...doc.querySelectorAll(`#ia-inbox [data-ia-section="${sec}"] a[data-ia-row]`)].map(a => a.dataset.iaRow.replace(/^decision:/, '')).sort().join(',');
       if (rows('for-you') !== [...forYou].sort().join(',')) bad(`"For you" holds ${rows('for-you') || 'nothing'}, expected ${forYou.join(',') || 'nothing'}`);
       if (rows('portfolio') !== [...port].sort().join(',')) bad(`"In your portfolio" holds ${rows('portfolio') || 'nothing'}, expected ${port.join(',') || 'nothing'}`);
     }
@@ -92,7 +104,10 @@ const waitingIn = txt => { const m = String(txt || '').match(/(\d+) waiting for 
     const want = S.wait[0], d = B.doc.createElement('div'); d.innerHTML = S.more;
     if (S.shown.length !== 1 || S.shown[0] !== want) fails.push(`synthetic: iaQueueCap(Mto, 1) shows ${S.shown.join(',')}, expected the first waiting id ${want}`);
     if (S.hidden.length !== S.ids.length - 1 || S.hidden.includes(want)) fails.push(`synthetic: iaQueueCap(Mto, 1) hides ${S.hidden.join(',')}`);
-    const wantT = `And ${S.ids.length - 1} more: ${partsOf(w, S.ids.filter(id => id !== want))}.`; if (d.textContent.trim() !== wantT) fails.push(`synthetic: iaCapMore reads "${d.textContent.trim()}", expected "${wantT}"`);
+    /* from IA-1c the line ends with the inbox opener when it hides a waiting decision (D-IA.34) */
+    const hidW = S.hidden.some(id => S.wait.includes(id)), opener = w.eval('IA_LANDED.has("IA-1c")') && hidW;
+    const wantT = `And ${S.ids.length - 1} more: ${partsOf(w, S.ids.filter(id => id !== want))}.${opener ? ' Open Waiting for you' : ''}`; if (d.textContent.trim() !== wantT) fails.push(`synthetic: iaCapMore reads "${d.textContent.trim()}", expected "${wantT}"`);
+    if (opener !== !!d.querySelector('[data-ux-drawer="ia-inbox"]')) fails.push(`synthetic: iaCapMore ${opener ? 'lacks' : 'carries'} the inbox opener`);
     log.push(`synthetic · Mto cap 1 · shown ${S.shown.join(',')} · "${d.textContent.trim()}"`); B.dom.window.close(); }
   /* M4: the same counts as rendered at 390 (the media rules are in force only in a browser) */
   if (!process.env.PW) { console.error('count_check: PW is not set (source /opt/assetecon/tools/pw/env.sh)'); process.exit(2); }

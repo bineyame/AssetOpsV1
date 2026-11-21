@@ -226,6 +226,16 @@ function Invoke-ConfigurationPersistenceCheck {
             UserRootVar = $null
             UserRootOwner = $null
         }
+        @{
+            # 3B7a (spec section 4.2; migration 0066; D-3B7A.9): the structure snapshot store. Rule 8 confines its
+            # PostgreSQL writer ($structureSnapshotWriter). Only its composition imports the adapters.
+            Name        = "structure_snapshot"
+            Package     = "$backendRoot/structure_snapshot"
+            Composition = "$backendRoot/structure_snapshot/composition.py"
+            Writer      = $null
+            UserRootVar = $null
+            UserRootOwner = $null
+        }
     )
 
     foreach ($domain in $domains) {
@@ -982,6 +992,14 @@ function Invoke-ConfigurationPersistenceCheck {
     }
     $commercialShapesSeen = @{}
     foreach ($shape in $commercialShapes.Keys) { $commercialShapesSeen[$shape] = 0 }
+    # 3B7a (spec section 4.2; migration 0066; D-3B7A.9): the structure snapshot store is the sole runtime writer of
+    # structure_snapshot, and it runs exactly one plain INSERT INTO structure_snapshot (...) VALUES (...), binding plain
+    # parameters (no ON CONFLICT, no SELECT source), and no UPDATE, DELETE or TRUNCATE. The 0066 trigger refuses every
+    # change. Its own names: $snapshotWriter (the chain day-snapshot writer) is a different rule, untouched.
+    $structureSnapshotWriter = "$backendRoot/structure_snapshot/adapters/postgres_structure_snapshot_store.py"
+    $structureSnapshotTables = @('structure_snapshot')
+    $structureSnapshotInsert = '(?i)^INSERT\s+INTO\s+structure_snapshot\s*\([^)]*\)\s*VALUES\s*\([^()]*\)\s*;?\s*$'
+    $structureSnapshotInsertsSeen = 0
     # CH-1b (build sheet CH-1b section 7; migration 0044; ruling CH1b-R Q2): the event store is the sole runtime writer of
     # the event tables, and it runs exactly four statement shapes: INSERT INTO event_consumption (insert-only, no
     # ON CONFLICT); the snapshot_dirty mark (INSERT ... ON CONFLICT (pk) DO UPDATE SET marked_at = clock_timestamp(),
@@ -1044,6 +1062,7 @@ function Invoke-ConfigurationPersistenceCheck {
         $responseWriter, $fuelBalanceWriter, $trialComparisonWriter, $periodWriter, $uploadWriter)
     $pgWriters += $accountWriter  # 3C0a: kept on its own line so the estate self-test anchors on the list above hold
     $pgWriters += $commercialWriter  # 3A1: on its own line, as the account writer
+    $pgWriters += $structureSnapshotWriter  # 3B7a: on its own line, as the account writer
     # W4-01 Run 3 ruling 7: the work read adapter is a named reader (no write; the work store stays the sole writer).
     $pgReaders = @("$backendRoot/estate/adapters/postgres_estate_read.py", "$backendRoot/estate/adapters/postgres_evidence_money_read.py",
         "$backendRoot/work/adapters/postgres_work_read.py",
@@ -1568,6 +1587,22 @@ function Invoke-ConfigurationPersistenceCheck {
                     $failures.Add(("Only $commercialWriter writes commercial table '$target'; " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
+                # 3B7a: the structure snapshot store runs only its one plain INSERT; no other module writes the table.
+                if ($module.Path -eq $structureSnapshotWriter) {
+                    if ($null -ne $target -and $structureSnapshotTables -contains $target -and
+                            $line -match $structureSnapshotInsert) {
+                        $structureSnapshotInsertsSeen++
+                    } else {
+                        $failures.Add(("The structure snapshot store runs only one plain INSERT INTO structure_snapshot " +
+                            "(no UPDATE, DELETE, TRUNCATE, upsert, SELECT source or other table); " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    }
+                }
+                if ($null -ne $target -and $structureSnapshotTables -contains $target -and
+                        $module.Path -ne $structureSnapshotWriter) {
+                    $failures.Add(("Only $structureSnapshotWriter writes structure snapshot table '$target'; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
                 if ($module.Path -eq $eventWriter) {
                     $eventShape = $null
                     foreach ($shape in $eventShapes.Keys) {
@@ -1909,6 +1944,11 @@ function Invoke-ConfigurationPersistenceCheck {
             $failures.Add(("Rule 8 found no $shape statement in $commercialWriter, so the declared commercial-store " +
                 "statement check is vacuous. Update the check, do not delete it.")) | Out-Null
         }
+    }
+    # 3B7a: anti-vacuity for the structure snapshot writer's one INSERT.
+    if ($extractorRan -and $structureSnapshotInsertsSeen -lt 1) {
+        $failures.Add(("Rule 8 found no INSERT INTO structure_snapshot statement in $structureSnapshotWriter, so the " +
+            "structure snapshot writer check is vacuous. Update the check, do not delete it.")) | Out-Null
     }
     foreach ($shape in $eventShapes.Keys) {
         if ($extractorRan -and $eventShapesSeen[$shape] -lt 1) {

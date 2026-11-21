@@ -1511,6 +1511,54 @@ h2 .ux-split{font-size:var(--fs-sm);font-weight:400;color:var(--text-2)}
 [data-shape="hub"]>[data-level],[data-shape="decision"]>[data-level],[data-ia-drawers]{display:contents}
 .ia-outcomes td small{display:block;color:var(--text-2);font-weight:400}
 .table-wrap:has(>.ia-outcomes){margin-bottom:var(--s4,16px)}
+/* IA-1c (spec §4.3): the "Waiting for you" control in the top bar, sized with the theme toggle; at 390 its label is visually hidden and the
+   icon and badge stay */
+.ia-inbox{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px;border:1px solid var(--line-strong);border-radius:var(--r1);background:var(--surface);color:var(--text);font-size:var(--fs-xs);font-weight:550;white-space:nowrap;cursor:pointer;flex:none}
+.ia-inbox:hover{background:var(--surface-2)}
+.ia-inbox svg,.ia-inbox .icon{width:14px;height:14px;flex:none}
+.ia-badge{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--accent-solid);color:var(--on-accent);font-size:12px;font-weight:650;line-height:1}
+.ia-inbox-sec+.ia-inbox-sec{margin-top:var(--s5,24px)}
+.ia-inbox-sec h3{margin:0 0 var(--s2,8px);font-size:var(--fs-sm);color:var(--text-2)}
+.ia-inbox-rows{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.ia-inbox-rows>li{margin:0;padding:0;border-bottom:1px solid var(--line)}
+.ia-inbox-rows>li::marker{content:none}
+.ia-inbox-rows a{display:block;padding:10px var(--s2,8px);color:var(--text);font-weight:550;border-radius:var(--r1)}
+.ia-inbox-rows a:hover{background:var(--surface-2);text-decoration:none}
+.ia-inbox-rows small{display:block;margin-top:2px;color:var(--text-2);font-size:var(--fs-sm);font-weight:400}
+.ia-inbox-rows small .who{font-size:inherit}
+.ia-inbox-sec h3{text-transform:none}
+@media (max-width:760px){.ia-inbox-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.ia-inbox{padding:0 8px}}
+/* at phone width the inbox and the theme toggle share the first row with the scope switch; the period chip takes the next row */
+@media (max-width:760px){.ia-frame .topbar .right{display:contents}.ia-frame .topbar .ia-inbox{margin-left:auto}.ia-frame .topbar .ux-period{order:1}}
+/* IA-1c: with the inbox control in the top bar, the search box gives way first (its words end in an ellipsis) and the period chip stays on
+   one line, so the bar holds on one line at 1280 */
+.ia-frame .topbar .ux-period,.ia-frame .topbar .ux-period>summary,.ia-frame .topbar .period-chip,.ia-frame .topbar .avatar{flex:none;white-space:nowrap}
+/* D-IA.37: from 761 px up the bar is one row and nothing shrinks; iaFitTopbar sets data-fit on the bar: 0 all full, 1 the search as its icon,
+   2 also the inbox label hidden (icon and badge stay), 3 also the avatar hidden */
+@media (min-width:761px){.ia-frame .topbar{flex-wrap:nowrap}.ia-frame .topbar .right{flex-wrap:nowrap}.ia-frame .topbar>*,.ia-frame .topbar .right>*{flex:none}.ia-frame .topbar .searchbox{display:flex}}
+.ia-frame .topbar[data-fit="1"] .ia-search-t,.ia-frame .topbar[data-fit="2"] .ia-search-t,.ia-frame .topbar[data-fit="3"] .ia-search-t,.ia-frame .topbar[data-fit="2"] .ia-inbox-label,.ia-frame .topbar[data-fit="3"] .ia-inbox-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ia-frame .topbar[data-fit="1"] .searchbox,.ia-frame .topbar[data-fit="2"] .searchbox,.ia-frame .topbar[data-fit="3"] .searchbox,.ia-frame .topbar[data-fit="2"] .ia-inbox,.ia-frame .topbar[data-fit="3"] .ia-inbox{padding:0 8px}
+.ia-frame .topbar[data-fit="3"] .avatar{display:none}
+/* D-IA.38: a drill-down page (decision, record, asset) has only its crumbs as the way up, so they stay at every size */
+.ia-frame .canvas[data-ia-crumbs="keep"] .breadcrumbs{display:flex}
+@media (max-width:600px){.ia-frame .canvas[data-ia-crumbs="keep"] .breadcrumbs{margin-bottom:var(--s1)}}
+/* D-IA.36: an in-page target stays below the sticky bar after the scroll (iaInPage sets --ia-sticky-h to the shown bar's bottom edge; the gap is the --s2 token) */
+.ux-ocards{scroll-margin-top:calc(var(--ia-sticky-h,0px) + var(--s2))}
+/* D-IA.41: fit levels 4 and 5. 4: the period as "October 2026" only (its sentence is in the period menu). 5 (final, every width below 761 too): two rows,
+   the phone's arrangement; the scope switch may shrink and wrap between words; search stays as its icon at every width */
+.ia-frame .topbar[data-fit="4"] .ia-period-asof,.ia-frame .topbar[data-fit="5"] .ia-period-asof{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ia-frame .topbar[data-fit="4"] .ia-search-t,.ia-frame .topbar[data-fit="5"] .ia-search-t,.ia-frame .topbar[data-fit="4"] .ia-inbox-label,.ia-frame .topbar[data-fit="5"] .ia-inbox-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ia-frame .topbar[data-fit="4"] .searchbox,.ia-frame .topbar[data-fit="5"] .searchbox,.ia-frame .topbar[data-fit="4"] .ia-inbox,.ia-frame .topbar[data-fit="5"] .ia-inbox{padding:0 8px}
+.ia-frame .topbar[data-fit="4"] .avatar,.ia-frame .topbar[data-fit="5"] .avatar{display:none}
+.ia-frame .topbar[data-fit="5"]{flex-wrap:wrap;height:auto;min-height:54px}
+.ia-frame .topbar[data-fit="5"] .right{display:contents}
+.ia-frame .topbar[data-fit="5"] .ia-inbox{margin-left:auto}
+.ia-frame .topbar[data-fit="5"] .ux-period{order:1;flex:0 0 100%}
+.ia-frame .topbar[data-fit="5"] .ux-period .ux-pop-menu{left:0;right:auto}
+.ia-frame .topbar[data-fit="5"] .searchbox{display:flex}
+.ia-frame .topbar[data-fit="5"] .ux-scope-sw{flex:1 1 0;min-width:0;max-width:max-content}
+.ia-frame .topbar[data-fit="5"] .ux-scope-sw>summary{white-space:normal;overflow-wrap:normal;word-break:normal}
+.ia-frame .topbar[data-fit="5"] .searchbox::after{display:none}
 
 /* brand.css: brand packs (UI/UX guide §4.7). A pack changes only brand tokens: surfaces' warmth, the interactive accent, the
    rail, the brand mark and the motif accents (a header band, the brand mark, empty and loading states). It never changes
@@ -4639,7 +4687,9 @@ function whoDecides(id){const d=decById(id),op=SK[d.site].op,D=deciderOf(id),inP
  else{const R=rec?uxReleaseFor(op,rec):null;relTxt=R?`<b>${R.path==='none'?'Not a plan item':R.path==='capital'?'Waits for the executive':R.path==='at'?'Released when created':'Waits for the plan’s approval'}</b><small data-release-text>${R.text}.</small>`:`<b>Nothing chosen yet</b><small>The release rule follows the option chosen.</small>`;} /* r3 M3: the same rule as the status line and the dialog */
  return `<section class="panel who-decides" aria-labelledby="wd-h-${id}"><h2 id="wd-h-${id}" class="vh">Who decides</h2><ol class="wd-steps">
  <li><span class="wd-k">1 · AssetOps recommends</span>${recTxt}</li><li><span class="wd-k">2 · Who chooses</span>${chooseTxt}</li><li><span class="wd-k">3 · Actions created</span>${actTxt}</li><li><span class="wd-k">4 · Release</span>${relTxt}</li></ol>${ILLUS}</section>`;}
-function decisionScreen(id){const d=decById(id),sk=d.site,T=decText(d),n=d.node?findNode(sk,d.node):null,chosenId=deciderOf(id).item;
+/* D-IA.22: the parts decisionScreen builds, extracted; decisionScreen joins them through uxDecisionPage as before */
+function decisionScreen(id){return uxDecisionPage(id,decisionParts(id));}
+function decisionParts(id){const d=decById(id),sk=d.site,T=decText(d),n=d.node?findNode(sk,d.node):null,chosenId=deciderOf(id).item;
  const rows=d.opts.map(oid=>{const x=OPT[oid],[cv,cn]=optCost(x),[ev,en]=optEffect(x);const recd=oid===uxRec(d);
   const detail=`<dl class="ux-optd"><div><dt>${BASIS_LABEL[isNoAction(oid)?decBasis(d):optBasis(oid)]}</dt><dd>${ev} <small>${en}</small> ${/^Not /.test(ev)?'':ec(optClass(x))}</dd></div><div><dt>Effect under each heading</dt><dd>${x.kind==='NO_ACTION'&&decBasis(d)==='NO_ACTION'?'<span class="muted">The reference</span>':byHeading(oid)}</dd></div><div><dt>Limits</dt><dd class="ux-obl">${obligations(x)}</dd></div><div><dt>Condition</dt><dd>${fx(x.condition)||'None'}</dd></div><div><dt>Status and reason</dt><dd>${uxDispBadge(d,oid)} ${optWhy(x)}</dd></div></dl>`;
   return `<tr data-opt="${oid}" class="${recd?'rec':''} ${x.disposition==='REJECTED'?'rej':''}"><th scope="row">${optLabel(oid)}<small>${OPT_KIND[x.kind]||''}</small></th><td data-label="${BASIS_LABEL[isNoAction(oid)?decBasis(d):optBasis(oid)]}"><div class="ux-cell">${x._synthetic&&x.kind==='NO_ACTION'?ev:fig(`opt:${oid}:effect`,ev)}<small class="cellnote">${en}</small>${/^Not /.test(ev)?'':ec(optClass(x))}${DV_OPT[oid]&&!/^Not /.test(ev)?dvTag(DV_OPT[oid]):''}</div></td><td data-label="Limits"><div class="ux-cell">${uxOblSummary(obligations(x))}</div></td><td data-label="One-off cost · who pays"><div class="ux-cell">${x.kind==='NO_ACTION'?cv:fig(`opt:${oid}:cost`,cv)}<small class="cellnote">${whoPays(x)}</small></div></td><td data-label="Status"><div class="ux-cell">${chosenId===oid?`<span class="status-pill is-approved">Chosen</span><small class="cellnote">${recd?'Recommended by the system':''}</small>`:x.kind==='NO_ACTION'&&decBasis(d)==='NO_ACTION'?`${badge('No change','outline')}<small class="cellnote">The reference</small>`:uxDispBadge(d,oid)}</div></td><td data-label="Details"><div class="ux-cell">${uxOpener(`uxo-${oid}`,`Details<span class="vh">: ${optLabel(oid)}</span>`,'ux-optgo')}${uxDrawer(`uxo-${oid}`,optLabel(oid),detail,true)}</div></td></tr>`;}).join('');
@@ -4650,7 +4700,7 @@ function decisionScreen(id){const d=decById(id),sk=d.site,T=decText(d),n=d.node?
   comp:region('Options compared',comp),cf:region('What each option changes',cf),protective:protectiveChoice(id),bound:boundTable(id),restore:restoreTable(id),
   cover:rightsCoverTable(id),costs:costLinesTable(id),capacity:capacityTable(id),protect:protectEffectsFor(id).length?protectEffectsPanel(id):'',
   verify:`<div class="verdicts">${T.verify.map(([k,v])=>`<article><div class="eyebrow">${k} verdict</div>${badge('Not yet','amber')}<p>${v}</p></article>`).join('')}</div><p class="note">Three separate verdicts. A finished job does not prove the money arrived; money arriving does not prove the change caused it. Not proven yet is a verdict, not a pass.</p>`};
- return uxDecisionPage(id,parts);} /* the page itself: loop-ux.js uxDecisionPage */
+ return parts;} /* the page itself: loop-ux.js uxDecisionPage */
 
 /* ---------- review drawer: what changed in this mock-up ---------- */
 function loopChanges(){drawer('What changed in this mock-up',`<p class="prose">The v7.0 shell and left menu are kept. The Portfolio keeps its six owner-approved tabs; their content now reads outcomes through their declared factors. Decisions open as drill-down pages. The demo operator selector sits in this review bar, not in the product. Every v7.0 screen stays reachable: names re-based (GreenHarvest is Thika, the Depot is Ruiru); the separate site Financials, Assumptions and Scenarios pages are merged into each site’s economics.</p>${table(['Status','Screens'],['Added','Changed','Merged','Preserved'].map(st=>[st,String(SCREENS.filter(s=>REG_STATUS(s)===st).length)]))}<p class="note">Full register: CHANGE-REGISTER.md in this folder. Not approved: awaits owner inspection.</p>`,true);}
@@ -5346,7 +5396,9 @@ function uxChooseDialog(id, oid) {
 /* Confirm the choice uses the one feedback pattern (uxActDo): toast with Undo, then the decision's state changes on the page */
 function uxChooseAct(id, oid) { return { title: `Choose: ${optLabel(oid)}`, primary: 'Confirm the choice', body: '', apply: () => ({ chosen: { [id]: oid } }), toast: `${optLabel(oid)} chosen` }; }
 
-function uxDecisionPage(id, parts) {
+/* D-IA.22: the page's slots; uxDecisionPage joins them in today's order, and the decision shape places them in levels */
+function uxDecisionPage(id, parts) { const S = uxDecisionSlots(id, parts); return `${S.sticky}${S.head}${S.rec}${S.cards}${S.secs}${S.drawers}`; }
+function uxDecisionSlots(id, parts) {
   const d = decById(id), op = SK[d.site].op, D = deciderOf(id), st = uxDecState(id), rec = uxRec(d), x = rec ? OPT[rec] : null, T = decText(d);
   const due = ATTN[op].filter(r => r[4] === id).map(r => uxDueIso(id, r[3])).filter(Boolean).sort()[0] || '';
   const ex = execOf(op), chosen = D.item || uxMock().chosen?.[id] || null;
@@ -5420,7 +5472,7 @@ function uxDecisionPage(id, parts) {
      state and the primary action; on a phone it sits at the bottom */
   const stickyAct = st.key === 'choose' ? uxOpener(`uxc-${id}-${rec}`, 'Choose this', 'button primary') : st.key === 'approval' ? link('portfolio/act-first/plan', 'Review the plan', 'button') : st.key === 'released' ? uxOpener(`uxacts-${id}`, 'See the Actions', 'button') : '';
   const sticky = `<div class="ux-dsticky" role="region" aria-label="This decision" data-ux-sticky><span class="ux-dsticky-t">${d.q}</span><span class="ux-dsticky-n">${x ? (money(ev) ? `${wholeText(ev)} <small>${uxQual(rec)}</small>` : `<small>${plain(ev)}</small>`) : ''}</span><span class="status-pill is-${st.key === 'released' ? 'approved' : st.key === 'approval' ? 'waiting' : 'proposed'}">${st.label}</span>${stickyAct}</div>`;
-  return `${sticky}${head}${recCard}${cardsSec}${why}${dialogs}${evidence}${actsDrawer}${howDrawer}`;
+  return { sticky, head, rec: recCard, cards: cardsSec, secs: why, drawers: `${dialogs}${evidence}${actsDrawer}${howDrawer}` };
 }
 /* lists are capped at 7 rows, then "Show all" (the long-page standard); option comparisons are tables and are never cut */
 function uxCapLists(root) { root.querySelectorAll('ul.list').forEach((ul, i) => { if (ul.closest('.ux-drawer')) return; const li = [...ul.children].filter(x => x.tagName === 'LI'); if (li.length <= 7) return;
@@ -5701,6 +5753,10 @@ function uxActDo(key) {
   if (A.valid && !A.valid()) return; /* a required answer is missing: nothing is recorded */
   const patch = A.apply();
   const next = { ...before, plan: { ...(before.plan || {}), ...(patch.plan || {}) }, chosen: { ...(before.chosen || {}), ...(patch.chosen || {}) } };
+  /* D-IA.24: the act log ("Since you last looked"), newest first; by is who the act is recorded under (the decider for a choice, the
+     executive for the plan), at the wall-clock time; Undo restores the state before, so the entry goes with it */
+  const z = n => String(n).padStart(2, '0'), t = new Date(), by = name === 'choose' ? (deciderOf(args[0]).p || {}).name || '' : (execOf(LS.op) || {}).name || '';
+  next.log = [{ key, op: LS.op, by, at: `${t.getFullYear()}-${z(t.getMonth() + 1)}-${z(t.getDate())}T${z(t.getHours())}:${z(t.getMinutes())}:${z(t.getSeconds())}`, toast: A.toast }, ...(before.log || [])];
   uxMockSet(next); document.getElementById('uxact')?.remove(); document.querySelectorAll('.ux-drawer[data-open="true"]').forEach(d => uxClose(d));
   render(); uxFocusState(); uxToast(`${A.toast}. Shown in this demonstration only.`, () => { uxMockSet(before); render(); uxToast('Undone.'); uxFocusAction(key); });
 }
@@ -5731,7 +5787,7 @@ function uxPlanSticky(op, P, budget) { return `<div class="ux-dsticky" role="reg
 
 /* ===== IA-1 (spec §2.2, D-IA.15 to D-IA.20): the route, alias and rail registry. One liveness rule (iaLive), applied before
    insertion by iaUnlink (ia-shapes.js) and by the palette. A unit adds its ID to IA_LANDED in its last commit. ===== */
-const IA_LANDED = new Set(['IA-1a', 'IA-1b']);
+const IA_LANDED = new Set(['IA-1a', 'IA-1b', 'IA-1c']);
 const IA_SHAPES = ['frame', 'hub', 'list', 'decision', 'plan', 'record', 'asset', 'drawer', 'statement'];
 let IA_ROUTE_ACTIVE = false;
 /* the reviewed plan page's own labels (spec §2.6: the interim reuses them, no new copy) */
@@ -5751,7 +5807,12 @@ const IA_ROUTES = [
   { id: 'portfolio/demand-and-capacity', shape: 'hub', object: 'portfolio', home: 'Portfolio', unit: 'IA-1b', tab: 'Demand & capacity', tabGroup: 'Portfolio',
     title: ctx => 'Demand & capacity', crumbs: ctx => [['Portfolio', 'portfolio'], ['Demand & capacity']], render: ctx => shapeHubDemand(ctx) },
   { id: 'site/:site', shape: 'hub', object: 'site', home: 'Sites', unit: 'IA-1b', tab: 'Overview', tabGroup: 'Site',
-    title: ctx => SK[ctx.site].name, subtitle: ctx => iaLegacy(`site/${ctx.site}`).subtitle, crumbs: ctx => [['Sites'], [SK[ctx.site].name]], render: ctx => shapeHubSite(ctx) }
+    title: ctx => SK[ctx.site].name, subtitle: ctx => iaLegacy(`site/${ctx.site}`).subtitle, crumbs: ctx => [['Sites'], [SK[ctx.site].name]], render: ctx => shapeHubSite(ctx) },
+  /* IA-1c (spec §4, D-IA.26): the decision shape, every DEC entry of the operator's Sites. The H1 is the question while the decision waits
+     for a choice and its subject once chosen (C17, as reviewed); "Decisions" is text until IA-2b; the Site crumb is the way to the Site */
+  { id: 'decision/:dec', shape: 'decision', object: 'decision', home: 'Decisions', unit: 'IA-1c', tab: null, tabGroup: null,
+    title: ctx => { const d = decById(ctx.params.dec); return iaWaiting(d.id) ? uxDecQuestion(d) : d.q; },
+    crumbs: ctx => { const d = decById(ctx.params.dec); return [['Decisions'], [SK[d.site].name, `site/${d.site}`], [d.q]]; }, render: ctx => shapeDecisionPage(ctx) }
 ];
 /* the hub tab groups (spec §3.1), keyed by route.tabGroup; only landed tabs are drawn, and a group with one landed tab draws none */
 const IA_TAB_GROUPS = {
@@ -5851,12 +5912,22 @@ function IA_G1_SURFACES() {
     OPS[op].sites.forEach(sk => { const r = iaLargestAdverse(sk);
       out.push(r ? { op, surface: `${SK[sk].name} largest driver against target (${r.s.lab})`, route: `site/${sk}#drawer=${r.id}`, limit: 3, via: 'any' }
         : { op, surface: `${SK[sk].name} largest driver against target`, route: null, limit: 3, via: 'any', na: 'no driver against target' }); });
+    if (!IA_LANDED.has('IA-1c')) continue;
+    /* IA-1c (spec §6): every queue decision (1, via the Overview queue), every waiting decision and the proposed plan (2, via the inbox),
+       every plan item's decision (2) */
+    const q = d => decById(d).q;
+    iaQueueCap(uxMergeRows(ATTN[op]).map(m => m.d), 6).shown.forEach(d => out.push({ op, surface: `queue: ${q(d)}`, route: `decision/${d}`, limit: 1, via: 'queue' }));
+    iaDecIds(op, { kind: 'all' }).filter(iaWaiting).forEach(d => out.push({ op, surface: `waiting: ${q(d)}`, route: `decision/${d}`, limit: 2, via: 'inbox' }));
+    if (uxPlanState(op).state === 'PROPOSED') out.push({ op, surface: 'the proposed plan', route: 'plan', limit: 2, via: 'inbox' });
+    [...new Set(planCase(op).ids.map(id => DEC_SEE_ALSO[id] || (decOf(id) || {}).id).filter(Boolean))].forEach(d => out.push({ op, surface: `plan item: ${q(d)}`, route: `decision/${d}`, limit: 2, via: 'any' }));
   }
   return out;
 }
 /* the context every route renders from */
+/* D-IA.40: the Site a route's object belongs to (a Site page's :site, a decision's Site); IA-2 adds its object parameters here */
+function iaParamSite(params) { if (!params) return null; if (params.site) return params.site; if (params.dec) { const d = decById(params.dec); return d ? d.site : null; } return null; }
 function iaCtx(path, params, query) {
-  const q = query || {}, sc = String(q.scope || (params && params.site ? `site:${params.site}` : 'all')), /* a Site's page is scoped to that Site */ [kind, id] = sc.includes(':') ? sc.split(':') : [sc, null];
+  const q = query || {}, ps = iaParamSite(params), sc = String(q.scope || (ps ? `site:${ps}` : 'all')), /* a Site's page is scoped to that Site */ [kind, id] = sc.includes(':') ? sc.split(':') : [sc, null];
   const sites = OPS[LS.op].sites, ok = kind === 'group' ? sites.some(k => iaVertical(k) === id) : kind === 'site' ? sites.includes(id) : false; /* D-IA.35 L4: a scope that matches no Site of this operator is all */
   return { op: LS.op, scope: ok ? { kind, id } : { kind: 'all', id: null }, site: params && params.site || null, params: params || {}, query: q, path };
 }
@@ -5867,6 +5938,41 @@ function iaScreen(route, path) {
 }
 /* the palette lists only what is live, at its canonical address (R9) */
 function iaPaletteFilter(out) { return out.filter(([, , id]) => iaLive(id)).map(([l, k, id]) => [l, k, iaCanon(id).replace(/^#\//, '')]); }
+
+/* D-IA.36: an in-page link (#<id>) scrolls to that element on the page it is on; it is never a route */
+function iaInPage(a) {
+  const href = a.getAttribute('href') || '';
+  if (!href.startsWith('#') || href === '#' || href.startsWith('#/')) return false;
+  let id; try { id = decodeURIComponent(href.slice(1)); } catch (e) { return false; }
+  const el = document.getElementById(id), app = document.getElementById('app');
+  if (!el || !app || !app.contains(el)) return false;
+  /* the sticky decision bar is shown only once the page is scrolled past the recommendation: measure its height now, so the target stops below it (top of the view, wide screens only; on a phone the bar is at the bottom) */
+  const sb = document.querySelector('[data-ux-sticky]'); let hh = 0;
+  if (sb && innerWidth > 600) { const was = sb.classList.contains('is-on'); sb.classList.add('is-on'); hh = Math.ceil(sb.getBoundingClientRect().bottom); if (!was) sb.classList.remove('is-on'); }
+  document.documentElement.style.setProperty('--ia-sticky-h', `${hh}px`);
+  const calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ block: 'start', behavior: calm ? 'auto' : 'smooth' });
+  if (!el.matches('a[href],button,input,select,textarea,[tabindex]')) el.setAttribute('tabindex', '-1');
+  el.focus({ preventScroll: true });
+  return true;
+}
+document.addEventListener('click', e => {
+  if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+  const a = e.target && e.target.closest && e.target.closest('a[href^="#"]');
+  if (a && iaInPage(a)) e.preventDefault();
+}, true);
+/* D-IA.37: the top bar is one row from 761 px up; controls collapse in a fixed order (search to its icon, the inbox label, the avatar) and never truncate */
+function iaFitTopbar() {
+  const tb = document.querySelector('.ia-frame .topbar'); if (!tb) return;
+  if (innerWidth < 761) { tb.dataset.fit = '5'; return; } /* D-IA.41: the phone is the final form, keyed the same way */
+  const fits = () => tb.scrollWidth <= tb.clientWidth + 1;
+  tb.dataset.fit = '0'; for (let n = 1; n <= 4 && !fits(); n++) tb.dataset.fit = String(n);
+  if (!fits()) tb.dataset.fit = '5'; /* 5 is final: two rows, no test */
+}
+(function () {
+  let raf = 0; window.addEventListener('resize', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => iaFitTopbar()); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => iaFitTopbar());
+})();
 
 /* ===== IA-1 (spec §2.3, §2.4, §2.6): the frame, the one render path and the shapes. The markup is built as a string, finished on
    a detached fragment (iaFinish) and inserted once; after insertion only listeners, focus and the sticky bar's layout tick run
@@ -5902,7 +6008,7 @@ function iaTabsHtml(route, ctx) {
 function iaFrame(route, ctx, body) {
   const title = route.title(ctx), sub = route.subtitle ? route.subtitle(ctx) : '';
   const crumbs = `<div class="breadcrumbs">${route.crumbs(ctx).map(([t, id]) => id ? link(id, t) : escapeHtml(t)).join('<span>›</span>')}</div>`;
-  return `<div class="shell ia-frame" id="ia-root">${iaRailHtml(route)}<main class="workspace"><header class="topbar">${uxScopeSwitchHtml(iaScopeEntries(ctx), iaScopeLabel(ctx))}<div class="right"><button class="searchbox" data-index aria-label="Search Sites, decisions and Findings (Ctrl K)">${icon('search')}Search Sites, decisions and Findings</button>${uxPeriodMenuHtml(ctx.op)}${themeToggle()}<span class="avatar" title="${avatarName()}, illustrative operator executive">${avatarInitial()}</span></div></header><div class="canvas">${crumbs}<div class="page-heading"><div><div class="title-row"><h1>${title}</h1></div>${sub ? `<p>${sub}</p>` : ''}</div></div>${iaTabsHtml(route, ctx)}${body}${footer()}</div></main></div>`;
+  return `<div class="shell ia-frame" id="ia-root">${iaRailHtml(route)}<main class="workspace"><header class="topbar">${uxScopeSwitchHtml(iaScopeEntries(ctx), iaScopeLabel(ctx))}<div class="right"><button class="searchbox" data-index aria-label="Search Sites, decisions and Findings (Ctrl K)">${icon('search')}<span class="ia-search-t">Search Sites, decisions and Findings</span></button>${iaPeriodHtml(ctx.op)}${IA_LANDED.has('IA-1c') ? iaInboxControl(ctx.op) : ''}${themeToggle()}<span class="avatar" title="${avatarName()}, illustrative operator executive">${avatarInitial()}</span></div></header><div class="canvas"${["decision", "record", "asset"].includes(route.shape) ? ' data-ia-crumbs="keep"' : ''}>${crumbs}<div class="page-heading"><div><div class="title-row"><h1>${title}</h1></div>${sub ? `<p>${sub}</p>` : ''}</div></div>${iaTabsHtml(route, ctx)}${body}${footer()}</div>${IA_LANDED.has('IA-1c') ? iaInboxDrawer(ctx.op) : ''}</main></div>`;
 }
 /* D-IA.16: every link whose target is not live becomes text (its trailing arrow dropped); a tab to it is removed; a live alias
    gets its target's canonical address. Runs first, on the detached fragment. */
@@ -5930,6 +6036,7 @@ function iaRender(route, ctx) {
   iaFinish(frag, route);
   const slot = document.getElementById('ia-root'); if (!slot) return; slot.replaceWith(frag);
   const root = document.getElementById('ia-root');
+  iaFitTopbar(); /* D-IA.37: measured once inserted, before the after-render guard observes the frame */
   if (typeof window.__iaInserted === 'function') window.__iaInserted(root);
   iaBind(route);
 }
@@ -6021,6 +6128,46 @@ function shapeHubDemand(ctx) { return shapeHub(ctx, { l1: uxChain(ctx.op), l3: o
 function shapeHubSite(ctx) {
   const sk = ctx.site, X = uxSiteParts(sk, siteOverviewP(sk), 3, true);
   return shapeHub(ctx, { sticky: X.sticky, l1: `${X.lead}${X.tiles}`, l2: X.queue, l3: `${X.secs}${X.help}`, drawers: X.drawers });
+}
+
+/* ---- IA-1c: the decision shape and the "Waiting for you" inbox (spec §4, D-IA.21, D-IA.24, D-IA.26) ---- */
+function shapeDecision(ctx, slots) { return iaLevels('decision', slots); }
+/* the reviewed page's slots placed in levels: the sticky first; head and recommendation L1; the option cards L2; the six answer-titled
+   sections L3; the dialogs, Evidence and records, The Actions and How this works in [data-ia-drawers] */
+function shapeDecisionPage(ctx) {
+  const id = ctx.params.dec, S = uxDecisionSlots(id, decisionParts(id));
+  return shapeDecision(ctx, { sticky: S.sticky, l1: `${S.head}${S.rec}`, l2: S.cards, l3: S.secs, drawers: S.drawers });
+}
+/* who decides: the executive's own items are "For you" (the plan while proposed, then every waiting decision the executive chooses);
+   every other waiting decision is "In your portfolio". The badge counts "For you" (D-IA.24, OQ-IA.2) */
+const iaExecChooses = id => uxChooserRole(decById(id)) === 'OPERATOR_EXECUTIVE';
+function iaForYou(op) { return [...(uxPlanState(op).state === 'PROPOSED' ? ['plan'] : []), ...iaDecIds(op, { kind: 'all' }).filter(id => iaWaiting(id) && iaExecChooses(id))]; }
+function iaInPortfolio(op) { return iaDecIds(op, { kind: 'all' }).filter(id => iaWaiting(id) && !iaExecChooses(id)); }
+/* the control, in the top bar between the period chip and the theme toggle; the badge is absent at 0 */
+function iaInboxControl(op) {
+  const n = iaForYou(op).length;
+  return `<button type="button" class="ia-inbox" data-ia-inbox data-ux-drawer="ia-inbox" aria-haspopup="dialog" aria-controls="ia-inbox">${icon('check')}<span class="ia-inbox-label">Waiting for you</span>${n ? `<span class="ia-badge" data-ia-badge>${num(n)}</span><span class="vh">, ${num(n)} waiting</span>` : ''}</button>`;
+}
+/* the drawer, rendered closed in the frame after .canvas; it opens in place (its address is IA-2d's) */
+function iaInboxDrawer(op) {
+  const S = uxPlanState(op), L = (uxMock().log || []).filter(e => e.op === op);
+  const row = (href, key, text, small) => `<li><a href="#/${href}" data-ia-row="${key}">${text} <small>${small}</small></a></li>`;
+  const item = x => { if (x === 'plan') return row('plan', 'plan', `The plan for ${periodWords()}`, `${STATE_WORD[S.state]}: awaiting approval`);
+    const d = decById(x); return row(`decision/${x}`, `decision:${x}`, d.q, `${SK[d.site].name} · Decides: ${who(op, deciderOf(x).p)}`); };
+  const logRow = (e, i) => { const [n, id] = String(e.key).split(':'); return row(n === 'choose' ? `decision/${id}` : 'plan', `log:${i}`, e.toast, `${e.by} · ${hhmm(e.at) || ''}`); };
+  const list = (rows, empty) => rows.length ? `<ul class="list ia-inbox-rows">${rows.join('')}</ul>` : `<p class="ux-note ia-inbox-empty">${empty}</p>`;
+  const sec = (k, title, body) => `<section class="ia-inbox-sec" data-ia-section="${k}" aria-labelledby="ia-inbox-${k}"><h3 id="ia-inbox-${k}">${title}</h3>${body}</section>`;
+  const snap = `<p class="ux-note">${snapText(op)}</p>${snapOf(op).pending ? `<p class="ux-note">${pendingText(op)}</p>` : ''}`;
+  return uxDrawer('ia-inbox', 'Waiting for you', `${sec('for-you', 'For you', list(iaForYou(op).map(item), 'Nothing is waiting for you'))}${sec('portfolio', 'In your portfolio', list(iaInPortfolio(op).map(item), 'Nothing else is waiting for a choice'))}${sec('since', 'Since you last looked', `${list(L.map(logRow), 'No change recorded in this session')}${snap}`)}`, true);
+}
+
+/* D-IA.41: the period chip split so its sentence can be hidden at fit level 4 (text content identical to periodChip) and stated in the period menu */
+function iaPeriodChip(op) {
+  const S = snapOf(op);
+  return `<span class="period-chip" data-snapshot="${S.asOf || S.books}">${icon('clock')}October 2026<span class="ia-period-asof"> · ${snapText(op)}</span></span>${S.pending ? ` <span class="snap-pending" role="status" data-op="${op}">${badge(pendingText(op), 'amber')}</span>` : ''}`;
+}
+function iaPeriodHtml(op) {
+  return uxPeriodMenuHtml(op, iaPeriodChip(op)).replace('<small>current period</small>', `<small>current period · ${snapText(op)}</small>`);
 }
 
 /* ===== Layer 4 rev 4 mock-up · screen registration, change status, initial render ===== */

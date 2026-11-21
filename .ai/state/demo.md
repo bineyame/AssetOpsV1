@@ -240,3 +240,17 @@ Branch `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, from m
   filter (`iaOutcomeScope`), foreign scopes read as all; `table.ux-stack` stacks Outcomes at 390; checks on live routes.
 - Open: decision links render as text until IA-1c; the Overview is not filtered by the scope switch (only Outcomes is);
   "View all", the row grammar and the Site tabs wait for IA-2; the other wide tables take `ux-stack` in IA-2b.
+
+## IA-1c - the decision shape and the "Waiting for you" inbox (in review 20 Nov)
+
+- Mock-up only. Live: `decision/:dec`, every `DEC` entry of the operator's Sites (15), shape `decision`: the reviewed page's slots
+  (`decisionParts`, `uxDecisionSlots`, byte-identical 30 of 30) placed sticky, L1 head and recommendation, L2 option cards, L3 the six
+  sections, drawers apart. H1 the question while waiting, the subject once chosen; crumbs Decisions (text) › Site › subject.
+- The inbox: a top-bar control (badge = "For you": Lakeside and Harvest 1, Metro 2) opening a drawer in place: For you, In your
+  portfolio, Since you last looked (the act log `uxMock().log`, written by `uxActDo`; Undo removes it). Decision links are live.
+- Gates: G1 adds queue decisions (1), waiting decisions and the plan via the inbox (2), plan items' decisions (≤ 2); plants
+  `decprimary`, `stickyact`, `inbox`, `foryou`; uxi's text-accepting retargets expired (plant `expiry` retired).
+- Open: Q2 (the decision's Site crumb is hidden at 390 and 1280×720 by the reviewed rule); "See the options" under
+  `?state=no-recommendation` jumps to not-found (pre-existing on main); drawer addresses are IA-2d's (R753). G2 stop: the owner sees
+  the hub and decision shapes before IA-2.
+
