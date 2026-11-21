@@ -10,7 +10,7 @@
 - `D-0M.8` reduced capacity: a second base run fed min(PV, limit) · live · specs/0M-mto-headroom-replay/rulings.md
 - `D-0M.9` customer evidence carried, not judged; NO_CUSTOMER_EVIDENCE is 6g's · live · specs/0M-mto-headroom-replay/rulings.md
 - `D-0M.10` 28 admissible days; 0K2's calibration on the baseline; reduced runs not calibrated · live · specs/0M-mto-headroom-replay/rulings.md
-- `D-0M.11` no money, no calculation record, no served text, no migration · live · specs/0M-mto-headroom-replay/rulings.md
+- `D-0M.11` no money, no calculation record, no served text, no migration · amended D-0K4.11 · specs/0M-mto-headroom-replay/rulings.md
 - `D-DS4.16` C4 checks a total contract: all 47 factors per side classed E, Z or B (spec §2.1); nine telemetry blanks named (row 41) · live · specs/DS4-template-ladder/rulings.md
 - `D-DS4.17` batch-cover rule at step 7a: envelopes' resolved days (local and UTC, chain.events functions) equal the cover's; BULK_BATCH_TIME_UNREADABLE; amends D-DS4.9 · live · specs/DS4-template-ladder/rulings.md
 - `D-DS4.18` unit 1 starts with a spike on an onboarding-only tenant; any difference stops the unit for the Architect · live · specs/DS4-template-ladder/rulings.md
@@ -21,7 +21,7 @@
 - `D-DS4.23` T4 adds prefix assetops_opx and labels observe, reserve · live · specs/DS4-template-ladder/rulings.md
 - `D-DS4.24` size 3.5 units in three units, no split; amends D-DS4.14 · live · specs/DS4-template-ladder/rulings.md
 - `D-DS4.25` adjustments_kwh blank (NEEDS:ADJUSTMENT) unless the ADJUSTMENT kind is held; Z class withdrawn; amends D-4A.8 and D-DS4.16; 4a fix round routed · live · specs/DS4-template-ladder/rulings.md
-- `D-0K2.17` dawn bound: nothing moved to pass; dispatch-law cause stated; new/cleared dawn dates vs no action; admissibility to owner (row 42) · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.17` dawn bound: nothing moved to pass; dispatch-law cause stated; new/cleared dawn dates vs no action; row 42 · settled D-0K4.9 · specs/0K2-kobo-replay-study/rulings.md
 - `D-0K2.18` position tested against the site trajectory (T11 with self-shift precondition, T12 publication pins, T1 start) · live · specs/0K2-kobo-replay-study/rulings.md
 - `D-0K2.19` kernel-backed month boundary (T13, 27 Sep-4 Oct); base_run takes a start · live · specs/0K2-kobo-replay-study/rulings.md
 - `D-0K2.20` labels on Calibration and CaseOutcome; *_site not *_observed; CALIBRATED is adapter fidelity; no adopting word; amends D-0K2.12 · live · specs/0K2-kobo-replay-study/rulings.md
@@ -36,7 +36,7 @@
 - `D-0K2.29` grid ids and values checked before any port call (STUDY_GRID_INVALID; None written site); amends D-0K2.9 · live · specs/0K2-kobo-replay-study/rulings.md
 - `D-0M.12` M8 asserts 44 customer days and 1,650 kWh a month; P2 against M1/M8 · live · specs/0M-mto-headroom-replay/rulings.md
 - `D-0M.13` demand sample is admissible days of the window; 27/28 boundary in M5 · live · specs/0M-mto-headroom-replay/rulings.md
-- `D-0M.14` labels on DemandOutcome and CapacityOutcome; plant note; no adopting word; row 37 wording · live · specs/0M-mto-headroom-replay/rulings.md
+- `D-0M.14` labels on DemandOutcome and CapacityOutcome; plant note; no adopting word; row 37 wording · amended D-0K4.11 · specs/0M-mto-headroom-replay/rulings.md
 - `D-0M.15` month splits for customer kWh, kWh beyond headroom, days without headroom · live · specs/0M-mto-headroom-replay/rulings.md
 - `D-0M.16` H5 per-load request, H4 reduced fields (P18), window edge steps · live · specs/0M-mto-headroom-replay/rulings.md
 - `D-0M.17` dependency on 0K2's merge stands; no stacking · live · specs/0M-mto-headroom-replay/rulings.md

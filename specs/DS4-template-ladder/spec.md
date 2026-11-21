@@ -1,6 +1,6 @@
 # DS4: the template ladder, the world commands and the re-benchmark (implementer spec)
 
-Status: in_review (units 1 and 2; unit 3 held for owner row 40). Rev 3, handshake round 1 answered (D-DS4.16 to D-DS4.25); mid-build MBQ-1 answered (D-DS4.26, D-DS4.27). Architect (Claude), 2026-11-21, on the owner's delegation
+Status: in_review (units 1 to 3; unit 3's real runs done after owner row 40). Rev 3, handshake round 1 answered (D-DS4.16 to D-DS4.25); mid-build MBQ-1 answered (D-DS4.26, D-DS4.27). Architect (Claude), 2026-11-21, on the owner's delegation
 (`owner/owner-away-architect-decides-2026-11-21.md`; pull order `specs/OWNER-AWAY/decisions-2026-11-21.md` row 4;
 rows 33 to 36, 40, 41 and 43 for the calls made here). `delivery-plan.md` §2 row `DS4`: "Template ladder, the world commands and the
 build manifest; the stage-by-stage re-benchmark of the build cost (delivery §5)" (2.5 units; depends on `DS3`; feeds

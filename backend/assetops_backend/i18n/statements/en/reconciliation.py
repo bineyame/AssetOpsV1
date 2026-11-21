@@ -114,7 +114,7 @@ STATEMENTS = {
     "reconciliation.money_word": {
         "slots": {"figure": {"type": "money", "evidence": {"with": "word"}},
                   "word": {"type": "evidence", "of": ["figure"], "money": True}},
-        "variants": [{"id": "word", "text": "{word}"}],
+        "variants": [{"id": "word", "requires": {"present": "figure"}, "text": "{word}"}],
     },
     # Spec section 2.5's refusals of a statement (`reconciliation.refused.<code lower>`), one variant per code.
     "reconciliation.refused": {

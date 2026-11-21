@@ -22,3 +22,24 @@
 - `D-SC1F.4` Logger = name stem log/logger/logging after stripping underscores, or bound to getLogger in the module (owner item 8a) · live · specs/SC-1f-declared-word/rulings.md
 - `D-SC1F.5` P55 allow helper merges into the real allow file; profiles.py date tokens move to it as CODE; upload _LOG line needs none (owner item 8b) · live · specs/SC-1f-declared-word/rulings.md
 - `D-SC1F.6` SC-1f 1.0 unit, two commits, one build; "Declared" seen at the 5c walkthrough, not merge-blocking · live · specs/SC-1f-declared-word/rulings.md
+- `D-SC1F.7` A `with` basis counts only the `of` figures its variant prints or reads; a statement wording a figure printed elsewhere (`money_word`) reads it with `requires: present` (review L1, KD1) · live · specs/SC-1f-declared-word/rulings.md
+- `D-1A.1` Optimize card = one lead issue's stored cost on the window's last day; pinned by tests first · live · specs/1a-optimize-card-scope/rulings.md
+- `D-1A.2` Correct by day and scope, not a period figure (owner-away row 52) · live · specs/1a-optimize-card-scope/rulings.md
+- `D-1A.3` Scope line on the card face in v70's days slot; amends D-UQFI.7 for this card · live · specs/1a-optimize-card-scope/rulings.md
+- `D-1A.4` Words one SC-1 statement; legacy texts and guards unchanged · live · specs/1a-optimize-card-scope/rulings.md
+- `D-1A.5` Class sweep: DAY and PERIOD bases both stated; site board is 1b's · live · specs/1a-optimize-card-scope/rulings.md
+- `D-1A.6` SC-1 day format (MOCK DEVIATION MD-1A-1) · live · specs/1a-optimize-card-scope/rulings.md
+- `D-1A.7` 1.75 units, two commits; UI merge held for the owner · live · specs/1a-optimize-card-scope/rulings.md
+- `D-1A.8` Vocabulary noun "day" · live · specs/1a-optimize-card-scope/rulings.md
+- `D-1A.9` scope line wording "Cost of {site}'s lead issue on {day} ..." (no number word); amends row 52's example (owner-away row 58) · live · specs/1a-optimize-card-scope/rulings.md
+- `D-1A.10` handshake tests: S7 whole decimal tokens, S5b/S5c, S9 signature, contract golden one key, face hooks · live · specs/1a-optimize-card-scope/rulings.md
+- `D-1A.11` size unchanged 1.75 u; build-ready, merge held for walkthrough · live · specs/1a-optimize-card-scope/rulings.md
+- `D-WK.1` One coordinator-only walk tool over DS4's world; never touches a rung · live · specs/WK-walkthrough-database/rulings.md
+- `D-WK.2` Parent = L2 at today's key, check passed on today's inputs (current_l2, check_state) · live · specs/WK-walkthrough-database/rulings.md
+- `D-WK.3` Adds two emulated statements and one rebuild; no Action (owner-away row 53) · live · specs/WK-walkthrough-database/rulings.md
+- `D-WK.4` Clean and good for the copy = W1-W7 · live · specs/WK-walkthrough-database/rulings.md
+- `D-WK.5` Serve in the 13 Nov shape on 8991/5491; no key or switches (owner-away row 54) · live · specs/WK-walkthrough-database/rulings.md
+- `D-WK.6` A walk serves exactly its copy commit; newer main = new label · live · specs/WK-walkthrough-database/rulings.md
+- `D-WK.7` Teardown on the owner's word: stop by PID, drop without FORCE, remove worktree · live · specs/WK-walkthrough-database/rulings.md
+- `D-WK.8` 1.25 units, one commit; standard review · live · specs/WK-walkthrough-database/rulings.md
+- `D-WK.9` WK needs 5c's route (units 1-2), not its screen · live · specs/WK-walkthrough-database/rulings.md

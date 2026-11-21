@@ -6,4 +6,5 @@ One line per slice, continuing `index-2.md` (number, slice ID, summary, file in 
 181. `3A7` one closed month reconciled: store, standing, SC-1 statements, composition, reconcile_month command (migration 0069) · data.md
 182. `3C2` the agreed change recorded as an Action (migration 0070, `record_action`, owner by role; state words and refusal sentences as SC-1 statements, `actions/agreed.py` ADOPTED) · work.md
 183. `3C1b` the signed-in person on trial actions (accept, apply, observe; migration 0071) · work.md
-184. `5c` unit 3: "The month" screen (Portfolio tab, hub shape, drawers, gates script with eight plants; in_review) · estate.md
+184. `SC-1f` "Declared" evidence word, stated-figure basis, logger stems and bindings, P55 allow merge · data.md
+185. `5c` unit 3: "The month" screen (Portfolio tab, hub shape, drawers, gates script with eight plants; in_review) · estate.md

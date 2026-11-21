@@ -17,8 +17,8 @@ from assetops_backend.database_target import PG_TARGET_ENV
 from test_3a7_reconciliation import ANA, FIONA, OWNER_REF, S1_AT, load, t2_world, two_sites_world
 
 URL = "postgresql+psycopg://u:p@rc4.invalid:1/assetops_test"
-T2_FUEL = ("Fuel cost (Recorded and Emulated): the accounts say $505.00 and the records say $512.50, $7.50 more "
-           "(1.49%), beyond the $5.05 allowed (1%).")
+T2_FUEL = ("Fuel cost (Recorded, Emulated and Declared): the accounts say $505.00 and the records say $512.50, $7.50 "
+           "more (1.49%), beyond the $5.05 allowed (1%).")
 
 
 @pytest.fixture(autouse=True)
@@ -74,7 +74,7 @@ def test_m1_record_prints_the_statement(capsys) -> None:
         None, "2026-10", "USD", "0.01", "MATCHED", True)
     assert (line["recorded_by"], line["recorded_at"], line["recorded_by_script"]) == (
         str(FIONA.person_id), "2026-11-05T10:00:00+00:00", True)
-    assert line["text"] == "October 2026 (the organisation) matches the management accounts within 1% (Recorded)."
+    assert line["text"] == "October 2026 (the organisation) matches the management accounts within 1% (Declared)."
     fuel = line["headings"][1]
     assert list(fuel) == ["heading", "state", "reason", "accounts", "recorded", "difference", "allowed",
                           "record_currencies", "sources", "origins", "text"]
@@ -82,8 +82,8 @@ def test_m1_record_prints_the_statement(capsys) -> None:
         "heading": "fuel_cost", "state": "MATCHED", "reason": None, "accounts": "505.00", "recorded": "500.00",
         "difference": "-5.00", "allowed": "5.0500"}
     assert (fuel["record_currencies"], fuel["origins"]) == (["USD"], ["source-emulated"])
-    assert fuel["text"] == ("Fuel cost (Recorded and Emulated): the accounts say $505.00 and the records say $500.00, "
-                            "$5.00 less, within the $5.05 allowed (1%).")
+    assert fuel["text"] == ("Fuel cost (Recorded, Emulated and Declared): the accounts say $505.00 and the records "
+                            "say $500.00, $5.00 less, within the $5.05 allowed (1%).")
 
 
 def test_m2_the_analyst_is_refused_before_anything_is_written(capsys) -> None:
@@ -116,7 +116,7 @@ def test_m4_show_prints_the_standing_and_reads_at_an_instant(capsys) -> None:
     assert (line["site_code"], line["known_at"], line["reconciled"], line["reason"], line["cited"]) == (
         "KOBO-001", None, False, "THIS_MONTH_NOT_MATCHED", None)
     assert line["text"] == ("Not yet reconciled: October 2026 (the organisation) does not match the management "
-                            "accounts within 1% (Recorded).")
+                            "accounts within 1% (Declared).")
     assert line["details"] == [T2_FUEL]
     assert line["this_month"]["statement_id"] == str(w["s1"].statement_id)
     code, (line,), _ = run(capsys, w, "show", "--tenant", "lakeside-power", "--period", "2026-10", "--site",
@@ -124,7 +124,7 @@ def test_m4_show_prints_the_standing_and_reads_at_an_instant(capsys) -> None:
     assert (code, line["reason"], line["known_at"], line["details"]) == (0, "RECONCILED", "2026-11-06T00:00:00+00:00",
                                                                          [])
     assert line["text"] == ("Reconciled: October 2026 (the organisation) matches the management accounts within 1% "
-                            "(Recorded).")
+                            "(Declared).")
     for bad in ("2026-11-06", "2026-11-06T00:00:00", "yesterday"):
         code, lines, err = run(capsys, w, "show", "--tenant", "lakeside-power", "--period", "2026-10",
                                "--known-at", bad)

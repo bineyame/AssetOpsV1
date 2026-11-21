@@ -52,8 +52,8 @@
 - `D-0K2.9` grid stop 90-60 x reserve 30, 25; (90, 30) must equal the baseline · live · specs/0K2-kobo-replay-study/rulings.md
 - `D-0K2.10` litres from tank stock differences; an empty tank is TANK_BOUND_MET · live · specs/0K2-kobo-replay-study/rulings.md
 - `D-0K2.11` battery throughput is discharge at the stock, from declared capacity · live · specs/0K2-kobo-replay-study/rulings.md
-- `D-0K2.12` no money in the spike; litres to money is 6c's; avoided_l_on is the CANDIDATE hook · live · specs/0K2-kobo-replay-study/rulings.md
-- `D-0K2.13` results carry input class; replacing design values held for owner (owner-away row 37) · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.12` no money in the spike; litres to money is 6c's; avoided_l_on is the CANDIDATE hook · live; amended by D-0K4.11 · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.13` results carry input class; replacing design values held for owner (owner-away row 37) · live; amended by D-0K4.11, D-0K4.12 (one figure, no design value) · specs/0K2-kobo-replay-study/rulings.md
 - `D-0K2.14` 0K1 seam test allow-list grows by the two new backend files · live · specs/0K2-kobo-replay-study/rulings.md
 - `D-0K2.15` no served text, no migration, no guard change · live · specs/0K2-kobo-replay-study/rulings.md
 - `D-0K2.16` the study steps are public helpers (spec §2.5) so 0M reuses one rule of each · live · specs/0K2-kobo-replay-study/rulings.md

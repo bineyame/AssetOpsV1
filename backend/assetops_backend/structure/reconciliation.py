@@ -51,10 +51,12 @@ MINI_GRID = "MINI_GRID"
 EXACT = Context(prec=200, traps=[Inexact, Rounded, InvalidOperation])
 #: D-3A7.10: the share is computed for display only; the formats round it.
 DISPLAY = Context(prec=34, traps=[InvalidOperation, DivisionByZero, Overflow])
-#: The evidence of the finance lead's figures and of the tolerance: declared from the operator's own accounts or by
-#: the owner (RC8), so "Recorded" on the page (D-SC1.18).
+#: The evidence of each figure, chosen per figure (D-SC1F.1, .2). A value a person sets or states as a choice is
+#: `DECLARED` ("Declared", whatever its origin): the tolerance, the owner's or RC8's. A figure taken from a system of
+#: record is `RECORDED`, even when a person types it in: the management accounts, the finance lead's transcription.
 FINANCIAL = "observed-financial"
-DECLARED = Evidence("DECLARED", FINANCIAL)
+ACCOUNTS = Evidence("RECORDED", FINANCIAL)
+SETTING = Evidence("DECLARED", FINANCIAL)
 #: A heading's state as the heading statement names it: its reason where it has one.
 _WORD_STATE = {ZERO_STATED: "ZERO_STATED"}
 #: The statement refusals that have a sentence (`set-tolerance`'s refusals are codes only, spec §5).
@@ -150,7 +152,7 @@ def _scope(site_code: str | None) -> dict[str, Any]:
 
 
 def _tolerance(tolerance: Decimal) -> Percent:
-    return Percent(tolerance, DECLARED)
+    return Percent(tolerance, SETTING)
 
 
 def heading_words(heading: str, state: str, reason: str | None, accounts: Decimal, recorded: Decimal | None,
@@ -167,7 +169,7 @@ def heading_words(heading: str, state: str, reason: str | None, accounts: Decima
         "state": State(_WORD_STATE.get(reason, reason or state)),
         "heading": Word("heading", HEADING_WORDS[heading]),
         "records": Word("record_noun", HEADING_WORDS[heading]),
-        "accounts": Money(accounts, currency, DECLARED),
+        "accounts": Money(accounts, currency, ACCOUNTS),
         "allowed": Money(allowed, currency, Evidence("DERIVED", FINANCIAL)),
         "tolerance": _tolerance(tolerance),
         "month": _month(period),
