@@ -33,6 +33,10 @@ ASSET = {"gen": UUID(int=21), "bat": UUID(int=22), "pv": UUID(int=23), "pcs": UU
 FOUNDATION = UUID(int=41)
 BSET = UUID(int=42)
 ROLES_BY_SET = {s: tuple(roles_for(s)) for s in (ROLE_SET_MINIGRID_1, ROLE_SET_MINIGRID_2)}
+#: 0K4e: PV that alone covers the 30 kW load with 10 % headroom. Four cases reached `dispatch-3.2`'s battery-support
+#: branch (PV 20 + PCS 20 kW) for a rule that is not the battery's; `dispatch-3.3` adds the energy walk there
+#: (`test_0k4e_energy_to_cover.py`), so they read PV alone and keep testing their own rule.
+PV_ALONE = "40"
 
 
 def at(h: int, m: int = 0) -> datetime:
@@ -111,7 +115,7 @@ def run_interval(feed: Feed, h0: int, h1: int, **values) -> Feed:
 
 
 def test_two_capability_candidate_is_bounded_to_candidate_segments():
-    inputs, result = run(run_interval(Feed(), 5, 6))
+    inputs, result = run(run_interval(Feed(), 5, 6, pv=PV_ALONE))
     assert inputs.cohort.status == "SELECTED_UNIQUE"
     [interval] = result.intervals
     assert interval.claim_level == d3.CANDIDATE
@@ -153,7 +157,7 @@ def test_contradictory_same_role_readings_are_indeterminate():
 
 
 def test_minimum_runtime_withholds_candidate_but_claims_no_policy_necessary():
-    _, result = run(run_interval(Feed(), 5, 6), ctrl=controls(runtime="30"))
+    _, result = run(run_interval(Feed(), 5, 6, pv=PV_ALONE), ctrl=controls(runtime="30"))
     [interval] = result.intervals
     segments = interval.result["segments"]
     early = [s for s in segments if s["start"] < "2026-10-02T05:30"]
@@ -224,7 +228,7 @@ def test_out_of_order_reading_marks_its_span():
 
 
 def test_inverted_span_inside_an_interval_makes_that_segment_indeterminate():
-    feed = run_interval(Feed(), 5, 6)
+    feed = run_interval(Feed(), 5, 6, pv=PV_ALONE)
     feed.add("bat", "battery_soc", "bat", at(6, 15), "80", mean=False, epoch="e1", seq=10_000)
     feed.add("bat", "battery_soc", "bat", at(5, 50), "80", mean=False, epoch="e1", seq=10_001)
     _, result = run(feed)
@@ -276,7 +280,7 @@ def test_wrong_model_version_is_refused():
 
 
 def test_window_names_the_span_where_a_capability_role_is_unbound():
-    feed = run_interval(Feed(), 14, 15)
+    feed = run_interval(Feed(), 14, 15, pv=PV_ALONE)
     query = EvidenceQuery(UUID(int=7), UUID(int=8), "dispatch", WINDOW, at(23))
     late_bound = tuple(replace(b, valid_from=at(12)) if b.role in ("pv_available_power", "pcs_discharge_capability")
                        else b for b in bindings())
@@ -314,15 +318,15 @@ def test_open_bound_interval_makes_window_limited_and_names_it():
     assert any(x.startswith("INTERVAL_LIMITED:") and "OPEN_BOUND" in x for x in result.result["limitations"])
 
 
-def test_corrected_rules_publish_as_dispatch_3_2_and_refuse_older_input_sets():
+def test_corrected_rules_publish_as_dispatch_3_3_and_refuse_older_input_sets():
     """D-2026-10-11-s3-phase-3a-version-and-cutover and D-2026-10-15-lr01-source-time-cohort: each rule change
     (the 3.1 multi-epoch default and limitation lift, then the LR-01 cohort-4 clock rules) is a new model version,
     never a silent change of a stored one."""
-    assert d3.MODEL_VERSION == "dispatch-3.2"
+    assert d3.MODEL_VERSION == "dispatch-3.3"
     inputs, result = run(run_interval(Feed(), 5, 6))
-    assert result.result["model_version"] == "dispatch-3.2"
-    assert all(i.result["model_version"] == "dispatch-3.2" for i in result.intervals)
+    assert result.result["model_version"] == "dispatch-3.3"
+    assert all(i.result["model_version"] == "dispatch-3.3" for i in result.intervals)
     assert result.result["cohort"]["rules"] == "cohort-4" and result.result["cohort"]["clock_basis"] == []
-    for older in ("dispatch-3", "dispatch-3.1"):
-        with pytest.raises(ValueError, match="not dispatch-3.2"):
+    for older in ("dispatch-3", "dispatch-3.1", "dispatch-3.2"):
+        with pytest.raises(ValueError, match="not dispatch-3.3"):
             d3.assess(replace(inputs, model_version=older))
