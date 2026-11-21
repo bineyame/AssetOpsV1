@@ -60,9 +60,9 @@ Taper start 95: 80 to 90 % takes 9 steps; 90 to 100 % takes 20. Taper start 100:
 - `tools/checks/statement_catalogue.py`: `OK statement catalogue: load, coverage, legacy, scan (2 adopted), keys,
   imports`; allowed entries 2 (unchanged).
 - `tools/select-tests.py --base main`: 474 of 587 backend files selected (`models.py`, `profiles.py` are widely
-  imported). The non-Postgres part of that selection: SELECTED_NONPG. The Postgres part was not run (full-suite scale;
+  imported). The non-Postgres part of that selection: 252 files at `b17977d87`, `-n 2`: `8 failed, 6696 passed, 154 skipped in 266.87s`. Two failures were this unit's (exact-set tests, KD3; fixed, `111 passed`). The other six fail the same way on the main checkout at `e39a5d2fa`, without this branch: `test_demo_combined_finish_rows` kis8, `test_k7_kisiwa_story` test_8, `test_s1_cutover` analytics 503, two in `test_w302_evidence_api` ('Opens this range'), and one in `test_w302_money_api` (log `backend-selected-nonpg.txt`). The Postgres part was not run (full-suite scale;
   coordinator's call).
-- check-all (fast): CHECKALL.
+- check-all (fast), at `b17977d87`: `All 42 guards passed (blocking; 0 advisory, 0 warned).` (log `check-all.txt`). The KD3 test-only edits came after it; none of the 42 guards reads them.
 - Tests first: the new backend and host test files fail at collection against `main`'s implementation (imports
   missing), checked by restoring `main`'s files in the worktree and putting them back.
 
@@ -95,15 +95,19 @@ Taper start 95: 80 to 90 % takes 9 steps; 90 to 100 % takes 20. Taper start 100:
 - **KD2. One `60`, two uses.** Spec §2.1 writes `output_cap_kw` with `slope * minutes / 60`, and also says the
   module's only `60` is the slope's. The module defines `MINUTES_PER_HOUR = Fraction(60)` once. Both the slope and
   the cap's kWh in a step use it. The no-load rate is never converted (F11 and P4 prove it).
-- **KD3. A file not in the Files list.** `backend/tests/test_sc1_statements.py` T8 lists the shipped statement and
-  vocabulary keys, and adopters add theirs (3A7 and 3C2 did). It gains `foundation.property_name`,
-  `model_profile.need` and `foundation_property`. Without that, T8 fails.
+- **KD3. Three test files not in the Files list. Each pins an exact set the new keys join.**
+  - `test_sc1_statements.py` T8 lists the shipped statement and vocabulary keys, and adopters add theirs (3A7 and
+    3C2 did). It gains `foundation.property_name`, `model_profile.need` and `foundation_property`.
+  - `test_w205a_ev_vocabulary.py` pins `STATE_PROPERTY_VALUES`. It gains the two basis sets.
+  - `test_w402_roles_properties.py` pins the mini-grid units, kinds and carriers. It gains the four rows.
+
+  Every addition is a hand literal.
 
 ## Mid-build questions (3; each resolved by its default, nothing blocked)
 
 1. P1-P3 parser. Default: `parse_site_document` (KD1).
 2. The `/60` in `output_cap_kw`. Default: one named constant (KD2).
-3. T8's key list. Default: add the three keys (KD3).
+3. Exact-set tests outside the Files list. Default: extend them with hand literals (KD3).
 
 ## Residual risk and review focus
 
