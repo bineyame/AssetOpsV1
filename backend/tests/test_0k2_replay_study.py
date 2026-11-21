@@ -525,7 +525,7 @@ def _string_constants(path: Path) -> list[str]:
             if isinstance(node, ast.Constant) and isinstance(node.value, str) and id(node) not in docstrings]
 
 
-@pytest.mark.parametrize("path", [STUDY], ids=["replay_study"])
+@pytest.mark.parametrize("path", [STUDY, TOOL], ids=["replay_study", "kobo_replay_study"])
 def test_b13_no_adopting_word(path: Path) -> None:
     strings = _string_constants(path)
     assert len(strings) > 10, "vacuous: almost no string constants"
