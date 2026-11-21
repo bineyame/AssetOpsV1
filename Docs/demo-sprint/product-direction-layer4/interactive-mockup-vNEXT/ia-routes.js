@@ -195,3 +195,20 @@ function iaFitTopbar() {
   let raf = 0; window.addEventListener('resize', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => iaFitTopbar()); });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => iaFitTopbar());
 })();
+/* D-IA.55: a tab switch shows its tab. On a hash change between two routes of one tab group, in a frame after render (after screens.js's
+   scrollTo(0,0)): when the tab content's first box starts below the fold (top > innerHeight - 48), scroll the tab strip to the top; then,
+   if focus is on body, the active tab takes focus. First load and deep links are not switches. */
+function iaTabSwitch(oldURL, newURL) {
+  const path = u => { const h = String(u || '').split('#')[1] || ''; return h.replace(/^\//, '').split('?')[0]; };
+  const a = iaMatch(path(oldURL)), b = iaMatch(path(newURL));
+  if (!a || !b || !a.route.tabGroup || a.route.tabGroup !== b.route.tabGroup) return;
+  requestAnimationFrame(() => {
+    const strip = document.querySelector('[data-ia-tabs]'), first = strip && strip.firstElementChild, L2 = document.querySelector('[data-level="L2"]') || document.querySelector('[data-level]');
+    if (!first || !L2) return;
+    const box = [L2, ...L2.querySelectorAll('*')].find(e => e.getClientRects().length), y = window.scrollY;
+    if (box && box.getBoundingClientRect().top + y > window.innerHeight - 48) window.scrollTo({ top: first.getBoundingClientRect().top + y, behavior: 'instant' });
+    if (document.activeElement === document.body || !document.activeElement) { const t = [...strip.querySelectorAll('a.active, .ux-tabmenu summary')].find(e => e.getClientRects().length); if (t) t.focus({ preventScroll: true }); }
+  });
+}
+/* a tab with no L2 (Portfolio Demand & capacity) starts at its first level box */
+window.addEventListener('hashchange', e => iaTabSwitch(e.oldURL, e.newURL));

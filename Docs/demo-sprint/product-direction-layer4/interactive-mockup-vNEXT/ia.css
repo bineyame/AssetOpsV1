@@ -81,3 +81,9 @@
 .ia-plan-case{margin:var(--s2,8px) 0 0}
 
 .ia-plan-released{margin:var(--s2,8px) 0 0}
+[data-ia-tabs]{display:contents}
+/* D-IA.56: a tile row fills its row; below 1280 two tracks and an odd last tile spans the row */
+@media (min-width:1280px){.ia-frame .heroes.ux-kpis:has(>:last-child:nth-child(3)){grid-template-columns:repeat(3,minmax(0,1fr))}.ia-frame .heroes.ux-kpis:has(>:last-child:nth-child(2)){grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:1279px){.ia-frame .heroes.ux-kpis>:last-child:nth-child(odd){grid-column:1/-1}}
+/* D-IA.55: on a phone the plan's L1 notes sit closer, so the tab's content still starts inside a viewport once the strip is at the top */
+@media (max-width:600px){.ia-plan-released,.ia-plan-rules,.ia-plan-case{margin-top:var(--s1,4px)}.ia-plan-rules{margin-top:0}}

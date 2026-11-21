@@ -27,7 +27,7 @@ function iaRailHtml(route) {
 function iaTabsHtml(route, ctx) {
   const g = route.tab && IA_TAB_GROUPS[route.tabGroup || route.home]; if (!g) return '';
   const tabs = g(ctx).filter(([, id]) => { const m = iaMatch(id); return m && IA_LANDED.has(m.route.unit); });
-  return tabs.length > 1 ? uxTabs(tabs, ctx.path) : '';
+  return tabs.length > 1 ? `<div data-ia-tabs>${uxTabs(tabs, ctx.path)}</div>` : '';
 }
 function iaFrame(route, ctx, body) {
   const title = route.title(ctx), sub = route.subtitle ? route.subtitle(ctx) : '';
