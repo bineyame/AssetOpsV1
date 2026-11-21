@@ -1,6 +1,6 @@
 # 3C2: the agreed change recorded as an Action (implementer spec)
 
-Status: rev 2, Architect (Claude), 2026-11-20, after handshake round 1 (`handshake.md`; answers in `rulings.md`
+Status: in_review (commit 1, codes only, D-3C2.14; `packet.md`, `handoff.md` for commit 2). Spec rev 2, Architect (Claude), 2026-11-20, after handshake round 1 (`handshake.md`; answers in `rulings.md`
 "Handshake answers (round 1)"). Lane C (`two-week-build-plan.md` §0.2, days 5 and 6). **1.5 units.** Discovery review
 (W5): a new schema and a person rule. `USER_REVIEW_REQUIRED: false` (no screen; 5c shows the Action).
 - **What it is.** RC9: the first change agreed at the end of the deep-dive is recorded by people as an Action with its
