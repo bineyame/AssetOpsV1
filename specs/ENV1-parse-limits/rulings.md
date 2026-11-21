@@ -258,3 +258,99 @@ figures into a method; D-ENV1.11 amends D-ENV1.4's cause list. Owner-level parts
 
 - Unit 1 0.4 (sockets, lazy envelope, two-pass loader, conftests); unit 2 0.6 (the field limits, `crashed`, the
   route's logs, the measured method and H6s through a real gateway).
+
+## Review answers (round 1)
+
+Architect (Claude), 2026-11-21, on the owner's delegation. Answers `review.md` round 1 (on `task/ENV1-parse-limits`,
+`a7ff78ed1`), checked against `main` (`c76111132`) and the branch head. Folded into `spec.md` rev 3 and
+`reviewer-guide.md` rev 3. D-ENV1.18 amends D-ENV1.3 and D-ENV1.10; D-ENV1.20 amends D-ENV1.11; D-ENV1.21 amends
+D-ENV1.13; D-ENV1.24 amends D-ENV1.17. The owner-level part is row 50 of `specs/OWNER-AWAY/decisions-2026-11-21.md`.
+
+### D-ENV1.18 Sends run one at a time per network namespace, and the send wall has its own rule (M1)
+
+- **Ruling.** A third pool, `reading-send`, of **1** slot. `send` takes it; `check` keeps `reading` (2). The send's
+  `wall_seconds` is no longer `2 x cpu_seconds`: it is the next multiple of 30 s at or above **twice the largest send
+  wall measured in the production shape** (one send at a time into one gateway, the ledger on disk, D-ENV1.19). The
+  300 s stop bound stands. `slot_wait_seconds` stays 60 for both steps. The check's limits are unchanged.
+- **Why not a wall of its own at about 390 s.** The upload request is synchronous; 390 s breaks the stop bound the
+  handshake set for that reason, and the request would already wait up to 60 + 60 + 60 s before it (two slot waits
+  and the check). A wider wall only moves the breach; it does not remove the shared gateway that causes it.
+- **Why not a named residual at 1.24x.** D-ENV1.9 names the send's limit as the one whose breach costs data (unreleased
+  admissions, no `reading_upload` row). The thinnest margin of the eight constants cannot sit on the one limit that
+  costs data, on a host whose load was 3 to 4.5 during the review.
+- **Why a pool of 1.** It moves the failure from the class that costs data to the class that costs nothing. A second
+  concurrent send now waits at most 60 s for the slot and then answers `slot`: its child never started, nothing was
+  admitted, and "could not be sent just now, nothing was saved; try again" is exactly true. The first send runs in the
+  shape it was measured in (124.0 s solo against 192.8 s and 194.2 s shared, review M1). Legitimate files are small
+  (a day of readings sends in seconds); only two 2 MiB worst-case files at once meet the wait.
+- **Worst case per network namespace (replaces D-ENV1.3's figure).** 2 x 512 MiB (commercial) + 2 x 512 MiB (check)
+  + 1 x the send's `memory_bytes` (896 MiB today) = 2,944 MiB of child address space and 5 cores, whatever the worker
+  count. The host has 22 GB and 8 cores.
+- **Residual, stated.** The pool bounds sends from this network namespace only. Another writer into the same gateway
+  (a lab replay, a server in another namespace) can still slow a send; the 2x wall over a measured worst is the
+  margin for that, and a breach is logged at WARNING `wall` with the step, so the operator sees it.
+- **Reversal.** Set `POOLS["reading-send"]` to 2 and re-measure the pair wall; or drop the pool and take the reading
+  slot again. One constant, its tests (S0, H0, H8).
+
+### D-ENV1.19 What the fix round measures, and the ledger-growth residual (M1, review residual risk)
+
+- **Ruling.** The fix round re-runs pre-flight (c) in the production shape, before code, through the slot pool
+  (`tools/heavy-slot.sh`), with production `SEND_LIMITS` memory and CPU and `wall_seconds` 600 s, the bench directory
+  on disk (never `/tmp`; stop if the disk has under 15 GB free; delete it after):
+  - **(c1) solo, fresh ledger:** three sends each of F1 and F2, one at a time, each in a fresh bench.
+  - **(c2) ledger growth:** one bench, four F2 sends in sequence of four distinct files (F2 with every timestamp moved
+    by `k` times the file's span, `k = 0..3`, so none is `ALREADY_ADMITTED`); after each send, the ledger's size in
+    bytes (`gateway.sqlite3` plus its `-wal`) and its `envelope_outbox` row count.
+  - Record each run's parent-side wall (around `run_field`), CPU, `admitted + held`, and `os.getloadavg()` before and
+    after; plus the reviewer's shared-gateway pair (192.8 s, 194.2 s) as the reason for the pool.
+- **Arithmetic.** `W` = the largest wall of (c1) and (c2). `SEND_LIMITS.wall_seconds` = next multiple of 30 at or
+  above `2 x W`. Memory and CPU are re-derived by D-ENV1.10 from (c1) plus the existing runs and stay as built unless
+  the method gives a new value. Expected: `W` about 125 to 135 s, giving 270 s.
+- **Stop and ask (before code):** `W` above 150 s (the wall would pass 300 s); the fourth (c2) send's wall more than
+  10% above the first's (ledger growth matters at this size and needs its own ruling); any (c1) or (c2) send that does
+  not admit plus hold every cell.
+- **Residual, stated (review residual risk).** Production's ledger persists and grows; (c2) gives the slope over four
+  2 MiB sends. Inside 10% it is named in the packet with the measured slope, and retuning re-runs (c2) on a copy of the
+  production ledger's size class. The ledger's growth is the gateway's, not ENV-1's.
+
+### D-ENV1.20 The logged-503 class is the field process's answers, not every 503 of the route (L2; amends D-ENV1.11)
+
+- **Ruling.** The wording narrows to: **every 503 that `run` answers** (a parse limit, a gateway outcome, or a field
+  answer that is neither preview nor refusal) is logged once at the API layer as codes and numbers. The site-scope 503
+  (`READING_UPLOAD_UNAVAILABLE`, `reading_upload_api.py:92`, the scope store unavailable) and the template 503
+  (`READING_UPLOAD_TEMPLATE_UNAVAILABLE`, `:180`, a configured file missing) are outside it. No code change.
+- **Why.** D-ENV1.11's class is "a field child that ends without a logged cause", which D-3A6.29's rule exists for.
+  The other two 503s start no child: one is a database outage that its store's own errors report, the other a missing
+  install file. Logging every 503 of every route is a request-level observability class across the API, not a parse
+  limit; widening ENV-1 into it would be a bolt-on. Recorded for the backlog with `financial_api.py`'s body bound.
+- **Reversal.** Add one log line to each branch (WARNING, `cause "store"` / `"template"`) and a case to A2.
+
+### D-ENV1.21 The namespace line is the second statement, after T1's heavy-slot require (L3; amends D-ENV1.13)
+
+- **Ruling.** Ratified as built (`backend/tests/conftest.py:141-146`, `host/conftest.py:48-54`): the first statement
+  of each `pytest_configure` is T1's one-line `if ...: require(...)`, which `tools/checks/test_heavy_slot_inventory.mjs`
+  requires first; the namespace line is the second, before every early `return`. `require` either exits or falls
+  through and touches no parse slot, so the order changes nothing the namespace protects. The packet's mid-build count
+  becomes **1** (a spec-template defect: the spec contradicted a guard, `.ai/RULES.md` §4 point 7).
+- **Why.** The guard is not changed (no guard change in ENV-1), and the spec, not the guard, was wrong.
+
+### D-ENV1.22 Plant V5 fails in seconds: the waits are bounded in a thread (L1)
+
+- **Ruling.** Confirmed as the reviewer proposes. A test that expects a wait to expire runs it in a daemon thread,
+  `join(5)`, and fails if the thread is still alive ("hold ignored its timeout") before asserting the outcome:
+  H5 (`check` with `slot_wait_seconds 0.2`, then `cause == "slot"`), H8 (D-ENV1.18), and each `hold(0.2)` of S2 that
+  must raise `SlotWaitExpired`. S2b's waits on its children use `timeout=10`, not 60. Under V5 each fails in under
+  10 s. No `pytest-timeout` is added (a dependency, not needed for this).
+
+### D-ENV1.23 M2 recorded (the coordinator's call)
+
+- ENV-1's new strings are new code, so they are not rebaselined as SC-1 debt. The fix round renames `_LOG` in
+  `reading_upload_api.py` to `LOG` (in `statement_catalogue.py`'s `LOG_NAMES`; the form 11 backend modules use), and
+  raises `SlotWaitExpired("PARSE_SLOT_WAIT_EXPIRED")` at `parse_slots.py:73` (a code, no English; nothing serves it,
+  `run_field` turns it into cause `slot`). The `.ai/state/index-2.md` conflict is resolved at the merge of `main`,
+  keeping both entries within the index cap. No guard change.
+
+### D-ENV1.24 Fix round size: 0.35 unit; ENV-1 1.35 units (amends D-ENV1.17)
+
+- M1 0.25 (the pool, the send wall, H8, S0/H0, the (c1)/(c2) runs and their arithmetic); M2 0.05; L1 0.05; L2 and
+  L3 are text (spec, packet). One fix round, a fresh implementer, one to two commits.

@@ -1,11 +1,11 @@
 # ENV-1: every upload parse under hard limits, bounded per network namespace (implementer spec)
 
-Status: spec rev 2, handshake round 1 answered (`rulings.md` D-ENV1.8 to D-ENV1.17). Architect (Claude), 2026-11-21, on the owner's delegation
+Status: fix round (review round 1 ACCEPT WITH FIXES, answered by `rulings.md` D-ENV1.18 to D-ENV1.24; build in §0a); spec rev 3 (rev 2: handshake round 1, D-ENV1.8 to D-ENV1.17). Architect (Claude), 2026-11-21, on the owner's delegation
 (`owner/owner-away-architect-decides-2026-11-21.md`). Queued by D-3A6.23 ("Outside 3A6") and the 3A6 round-6 review
-(`specs/3A6-source-profiles/review.md` "Residual risk", R1 and R2). **1.0 unit** (queued as 0.25; 0.75 at rev 1; the
-handshake added the real-send measurement, `crashed` and the margin method, D-ENV1.17). Discovery review (W5): a protected
+(`specs/3A6-source-profiles/review.md` "Residual risk", R1 and R2). **1.35 units** (queued as 0.25; 0.75 at rev 1; 1.0 at rev 2, the
+handshake added the real-send measurement, `crashed` and the margin method, D-ENV1.17; the review's fix round 0.35, D-ENV1.24). Discovery review (W5): a protected
 seam (upload parsing). Non-screen. No migration, no database, no served text, no guard change.
-`USER_REVIEW_REQUIRED: false`. Decisions: `rulings.md` (D-ENV1.1 to D-ENV1.17). Reviewer guide: `reviewer-guide.md`.
+`USER_REVIEW_REQUIRED: false`. Decisions: `rulings.md` (D-ENV1.1 to D-ENV1.24). Review: `review.md` (on the build branch). Reviewer guide: `reviewer-guide.md`.
 Handshake: `handshake.md`.
 
 - **What it is.** D-3A6.23's class, applied to every path that parses upload bytes: the parse runs in a child
@@ -63,6 +63,21 @@ Handshake: `handshake.md`.
   `simulator/`, `gateway/`, `config/`, `frontend/` or any guard; no i18n key added or changed.
 - **No user-facing text** (D-ENV1.5): every answer reuses an existing code's existing words. D-SC1.28 does not apply.
 
+## 0a. Fix round (rev 3; D-ENV1.18 to D-ENV1.24; 0.35 unit; fresh implementer, 1 to 2 commits)
+
+On `task/ENV1-parse-limits` in `/opt/assetecon/AssetOpsV1-env1`. Read `review.md` and `rulings.md` "Review answers".
+1. **Merge `main` first.** Resolve `.ai/state/index-2.md` keeping both entries within its cap, and this spec's status
+   line by taking `main`'s (rev 3). Then `python tools/checks/statement_catalogue.py` must name only the 5 lines of M2.
+2. **Measure before code (D-ENV1.19):** (c1) and (c2), the arithmetic, and the stop conditions, as that ruling states.
+   Packet §1 gains a "Production shape (rev 3)" table: every (c1)/(c2) run, the ledger sizes, the reviewer's pair.
+3. **Code.** `POOLS` gains `"reading-send": 1` (§2.1); `run_field`'s default slots by step (§2.3); `SEND_LIMITS`
+   wall from (2); `_LOG` becomes `LOG`; `SlotWaitExpired("PARSE_SLOT_WAIT_EXPIRED")` (D-ENV1.23).
+4. **Tests.** S0, H0 and H5 as amended; H8 new; S2 and S2b bounded (D-ENV1.22). Plants V5 (re-run: each named test
+   fails in under 10 s), V20 and V21 (reviewer guide rev 3).
+5. **Checks.** The four focused files, `-m slow` H6s (production memory and CPU), `statement_catalogue.py` exit 0
+   after the merge, `check-architecture.ps1` (with `ASSETOPS_GUARD_PYTHON`), `check-agent-workflow.ps1`, fast
+   check-all. Packet: the new worst case (§5), mid-build count 1 (D-ENV1.21), the residuals of §7.
+
 ## 1. Outcome and gate questions
 
 Is every upload parse (commercial, profile admission, reading upload check and send, the loader's JSON look-up) run
@@ -82,7 +97,7 @@ No logging, no file system call of any kind (the persistence guard's rule 4 hold
 ```python
 NAMESPACE_ENV = "ASSETOPS_PARSE_SLOT_NAMESPACE"
 DEFAULT_NAMESPACE = "assetops-parse"
-POOLS = MappingProxyType({"commercial": 2, "reading": 2})      # pinned by test S0
+POOLS = MappingProxyType({"commercial": 2, "reading": 2, "reading-send": 1})   # pinned by S0 (D-ENV1.18)
 POLL_SECONDS = 0.05
 
 class SlotWaitExpired(Exception):          # the wait passed its timeout; no slot was taken
@@ -106,7 +121,8 @@ def host_slots(pool: str) -> HostSlots        # production: POOLS[pool] slots in
 - `hold(timeout)`: `timeout` is `None` (wait without end) or a number `> 0` (`ValueError` otherwise). Loop: for `i` in
   `0 .. count-1`, `sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)`, then `sock.bind(name_i)`; an `OSError`
   with `errno == errno.EADDRINUSE` closes `sock` and tries the next; any other `OSError` closes it and propagates. If
-  none is free: past the deadline (`time.monotonic()` at entry plus `timeout`) raise `SlotWaitExpired`; else sleep
+  none is free: past the deadline (`time.monotonic()` at entry plus `timeout`) raise
+  `SlotWaitExpired("PARSE_SLOT_WAIT_EXPIRED")` (a code, no English; D-ENV1.23); else sleep
   `POLL_SECONDS` and loop. On success yield `i`; in `finally`, `sock.close()`. Every hold binds its own socket, so
   two threads of one process exclude each other; the kernel frees the name when the descriptor closes, so a process
   that dies (`SIGKILL` included) releases its slot. Sockets are non-inheritable (PEP 446): no child holds a slot.
@@ -172,7 +188,8 @@ class FieldLimits:
     # __post_init__: each an int or float (not bool) > 0, memory_bytes and cpu_seconds int, else ValueError
 
 CHECK_LIMITS = FieldLimits(512 * 2**20, 30, 60.0, 60.0)     # D-ENV1.10's method on pre-flight (b); pinned by H0
-SEND_LIMITS = FieldLimits(<m>, <c>, <2c>, 60.0)            # D-ENV1.10's method on pre-flight (c); pinned by H0
+SEND_LIMITS = FieldLimits(<m>, <c>, <w>, 60.0)             # m, c: D-ENV1.10 on pre-flight (c); w: D-ENV1.18/19
+STEP_POOLS = MappingProxyType({"check": "reading", "send": "reading-send"})   # pinned by H0
 EXIT_LIMIT = 7                                             # equal to the field module's (test H0 compares them)
 ```
 
@@ -180,7 +197,7 @@ EXIT_LIMIT = 7                                             # equal to the field 
   `PYTHONDONTWRITEBYTECODE=1`.
 - `run_field(argv, data, runner=subprocess.run, *, limits: FieldLimits, step: str, slots: HostSlots | None = None)
   -> tuple[int, dict]`: `step` in `("check", "send")` (`ValueError`). `slots` defaults to
-  `host_slots("reading")`. Order:
+  `host_slots(STEP_POOLS[step])`: a check takes a `reading` slot, a send the one `reading-send` slot (D-ENV1.18). Order:
   1. `with slots.hold(limits.slot_wait_seconds)`; `SlotWaitExpired` raises `ParseLimitBreach("slot", step)`.
   2. Inside the hold: the temp file as today; the command is `[sys.executable, "-m", "assetops_field.csv_upload",
      "--limit-memory-bytes", str(limits.memory_bytes), "--limit-cpu-seconds", str(limits.cpu_seconds), *argv,
@@ -213,7 +230,7 @@ written (the service writes the row only after `send` returns).
 
 **API (`reading_upload_api.py`; D-ENV1.5).**
 
-- `_LOG = logging.getLogger("assetops.reading_upload")`.
+- `LOG = logging.getLogger("assetops.reading_upload")` (named `LOG`, in the SC-1 guard's `LOG_NAMES`; D-ENV1.23).
 - `run(work, *, site: str | None = None, size: int | None = None)`: a new `except ParseLimitBreach as breach:`
   before `except GatewayUnavailable` logs once with `extra={"cause": breach.cause, "step": breach.step, "bytes":
   size, "site": site}`: a cause in `LOAD_CAUSES` at WARNING, `"reading upload parse stopped by load"`; any other at
@@ -224,7 +241,8 @@ written (the service writes the row only after `send` returns).
 - The class (D-ENV1.11): the existing `except GatewayUnavailable` logs once at WARNING, `"reading upload send
   unavailable"`, `cause "gateway"`, `step "send"`; the existing `except RuntimeError` logs once at ERROR, `"reading
   upload check failed without an answer"`, `cause "error"`, `step "check"`; same `bytes` and `site` fields. Their
-  codes and words are unchanged. Every 503 of the route is now logged exactly once.
+  codes and words are unchanged. Every 503 that `run` answers is now logged exactly once (D-ENV1.20: the site-scope
+  503 and the template 503 start no child and stay unlogged).
 - `post_upload` calls `run(..., site=site_code.upper(), size=len(data))`; `get_upload` is unchanged (it parses
   nothing). The module docstring's refusal list gains one sentence: "A parse stopped by a limit answers 503 with the
   check's or the send's unavailable words (ENV-1)."
@@ -250,7 +268,8 @@ written (the service writes the row only after `send` returns).
 
 ### 2.5 Test isolation of the host slots (`backend/tests/conftest.py`, `host/conftest.py`)
 
-The **first statement** of each `pytest_configure` (before the heavy-slot check and every early `return`; it runs
+The **second statement** of each `pytest_configure`, directly after T1's one-line heavy-slot `if ...: require(...)`
+(which `test_heavy_slot_inventory.mjs` requires first; D-ENV1.21), and before every early `return` (it runs
 in every xdist worker and in a plain run) sets `os.environ["ASSETOPS_PARSE_SLOT_NAMESPACE"] =
 f"assetops-test-{os.getpid()}-{secrets.token_hex(4)}"` unconditionally (a worker overrides the controller's value;
 D-ENV1.13). Nothing is created, so there is no `pytest_unconfigure`. Each test process then has its own pools, as
@@ -272,18 +291,19 @@ used only outside tests.
 
 `backend/tests/test_env1_parse_slots.py` (new, no database):
 Each test uses its own namespace `ns = f"t-{uuid4().hex[:12]}"`.
-- **S0** `POOLS == {"commercial": 2, "reading": 2}`; `NAMESPACE_ENV`, `DEFAULT_NAMESPACE`; `host_slots("x")` is
+- **S0** `POOLS == {"commercial": 2, "reading": 2, "reading-send": 1}`; `NAMESPACE_ENV`, `DEFAULT_NAMESPACE`; `host_slots("x")` is
   `KeyError`.
 - **S1** One process: a `HostSlots(ns, "t", 2)`; three threads each hold 0.3 s; peak concurrent holders is 2 and the
   third starts only after one releases. During a hold, every descriptor in `/proc/self/fd` that was not there before
   it has `os.get_inheritable(fd) is False`.
 - **S2** Across processes: a child process (`subprocess` running `python -c` that holds both slots of
-  `HostSlots(ns, "t", 2)` and prints `held`, then sleeps 1 s); the parent's `hold(0.2)` raises `SlotWaitExpired`;
+  `HostSlots(ns, "t", 2)` and prints `held`, then sleeps 1 s); the parent's `hold(0.2)` raises `SlotWaitExpired`
+  (each such wait run in a daemon thread, `join(5)`, failing if still alive; D-ENV1.22);
   after the child exits, `hold(1.0)` succeeds. Then a child killed by `SIGKILL` while holding: the parent's
   `hold(1.0)` succeeds (the name died with it).
 - **S2b** (R1) Through `host_slots()` itself: two children started with `ASSETOPS_PARSE_SLOT_NAMESPACE=ns` each run
   `host_slots("reading").hold(None)`, print the slot index and sleep; a third with `ns` sees `hold(0.2)` raise
-  `SlotWaitExpired`; one started with another namespace takes slot 0 at once.
+  `SlotWaitExpired`; one started with another namespace takes slot 0 at once. Child waits use `timeout=10`.
 - **S3** `slot_namespace`: unset and `""` give `DEFAULT_NAMESPACE`; `"a-1"` gives itself; `"A"`, `"a b"`, `"a/b"`,
   `"-a"` and 49 characters each raise `ValueError` whose message names `ASSETOPS_PARSE_SLOT_NAMESPACE` and not the
   value; a `ParseEnvelope()` built while a bad value is set does not raise, and its first `read` does (D-ENV1.14).
@@ -308,7 +328,8 @@ Each test uses its own namespace `ns = f"t-{uuid4().hex[:12]}"`.
   digits"`; and `CsvCollector.reports_from_bytes(F3)` raises `CsvRefused` (not `ValueError`).
 
 `host/tests/test_up1_reading_upload_process.py` (added; existing tests change only to pass `limits=` and `step=`):
-- **H0** `CHECK_LIMITS` and `SEND_LIMITS` field by field as the packet's D-ENV1.10 arithmetic gives them; `up.EXIT_LIMIT == csv_upload.EXIT_LIMIT` (host
+- **H0** `CHECK_LIMITS` and `SEND_LIMITS` field by field as the packet's arithmetic gives them (the send wall by
+  D-ENV1.18/19); `STEP_POOLS == {"check": "reading", "send": "reading-send"}`; `up.EXIT_LIMIT == csv_upload.EXIT_LIMIT` (host
   tests may import `field/`); `TIMEOUT_SECONDS` is gone.
 - **H1** A fake runner records argv: the four limit arguments follow `-m assetops_field.csv_upload` exactly, before
   the subcommand, with `CHECK_LIMITS` for `ProcessFileChecker` and `SEND_LIMITS` for `ProcessReadingSender`; the env
@@ -322,7 +343,11 @@ Each test uses its own namespace `ns = f"t-{uuid4().hex[:12]}"`.
   `"crashed"`; a sender whose runner returns 7 or `-11` raises `ParseLimitBreach(step="send")` and its `deliver` is
   never called.
 - **H5** Slots: a test-held `HostSlots(ns, "r", 1)` and `slot_wait_seconds=0.2` → `cause == "slot"`, and the runner
-  was never called.
+  was never called. The `check` runs in a daemon thread, `join(5)`; still alive fails (D-ENV1.22).
+- **H8** (D-ENV1.18) With the test holding `host_slots("reading-send")` (the test namespace), a
+  `ProcessReadingSender` with no `slots` and `slot_wait_seconds=0.2` raises `ParseLimitBreach("slot", "send")`, its
+  runner and `deliver` never called (bounded as H5); while it is held, a `ProcessFileChecker` with no `slots` runs its
+  runner (the check's pool is separate).
 - **H6** (`slow`) Production memory and CPU hold the legitimate worst case: with `limits =
   dataclasses.replace(CHECK_LIMITS, wall_seconds=600.0, slot_wait_seconds=600.0)` (D-ENV1.16, I5),
   `ProcessFileChecker(limits=limits).check(F2)` returns a `Preview` with `rows == 80655`, and F1 `rows == 51147`.
@@ -368,10 +393,11 @@ five package-scan files.
 |---|---|---|
 | 1 (0.4) | §2.1, §2.2, §2.4, §2.5; S0-S6, L10-L12 (L10b); regression of the 3A6 files and the package scans; guards | 1 |
 | 2 (0.6) | §0 pre-flight measurement and its arithmetic; §2.3 (field, host, service, API); FL1-FL4, H0-H7, H6s, A1-A2; select-tests set; check-all; packet | 1 to 2 |
+| Fix (0.35) | §0a: merge `main`; (c1)/(c2) and the send wall; `reading-send` pool; M2's two renames; H8, S0, H0, H5, S2, S2b; plants V5, V20, V21; packet | 1 to 2 |
 
 Packet `specs/ENV1-parse-limits/packet.md`: the host class and the pre-flight figures (every run, min and max); the
 D-ENV1.10 arithmetic giving each constant; the worst case per network namespace under §2 (2 × 512 MiB commercial +
-2 × the send's `memory_bytes` reading, and 4 cores, whatever the worker count; a container counts as another host);
+2 × 512 MiB check + 1 × the send's `memory_bytes` (rev 3, D-ENV1.18), and 5 cores, whatever the worker count; a container counts as another host);
 the H6 and H6s timings; the tests that build a server environment by hand (D-ENV1.13); the residuals of §7; each
 plant of the reviewer guide with the test that failed; the mid-build count.
 
@@ -381,7 +407,7 @@ plant of the reviewer guide with the test that failed; the mid-build count.
    read, with a bounded wall time, and is there no path that turns a limit off in production?
 2. Does each breach (memory, CPU, wall, slot, killed, crashed) answer 503 with an existing code and words, never a
    500 or a hang, and does the next upload read normally?
-3. Is every 503 of the reading route logged once, at the API layer, as codes and numbers only, at ERROR for a cause
+3. Is every 503 that the reading route's `run` answers logged once, at the API layer, as codes and numbers only, at ERROR for a cause
    that is not load, with the file's content and name absent?
 4. Are the parse children bounded per network namespace across processes, through `host_slots()` itself (S2b), and
    does a dead holder free its slot?
@@ -391,7 +417,10 @@ plant of the reviewer guide with the test that failed; the mid-build count.
 6. Does the loader read at most 8 MiB + 1 byte per file, hold one file at a time, refuse an over-cap file before any
    submission, and parse JSON only in the envelope?
 7. Are 3A6's E0 to E9 and the package-scan tests green, with no change to their files?
-8. Does each plant of `reviewer-guide.md` fail its named test, and is the mid-build count 0?
+8. Does each plant of `reviewer-guide.md` fail its named test in bounded time, and is the mid-build count 1
+   (D-ENV1.21)?
+9. Does a send run alone per network namespace, with a wall at least twice the largest production-shape send wall
+   measured, a fresh ledger and a grown one (D-ENV1.18, D-ENV1.19)?
 
 ## 7. Out of scope
 
@@ -403,7 +432,9 @@ package-scan tests to fast check-all (held for the owner, row 30); cgroup or con
 requests (D-ENV1.12). **Residuals, stated:** threadpool threads parked in the slot poll under an upload burst, and a
 polled wait that is not first come first served (D-ENV1.12); any process in the network namespace can hold the slot
 names (D-ENV1.8, row 49); a `cpu`, `memory` or `crashed` breach is served "try again" until SC-1a (D-ENV1.10, row 49);
-a loader file that grows past the cap during a run stops it at its turn (D-ENV1.15).
+a loader file that grows past the cap during a run stops it at its turn (D-ENV1.15). Rev 3: a second concurrent send answers `slot` after 60 s (nothing admitted; D-ENV1.18, row 50); another writer
+into the same gateway can still slow a send (D-ENV1.18); the production ledger grows, its measured slope named in the
+packet (D-ENV1.19).
 
 ## 8. Decision queue (W3; defaults applied)
 
@@ -411,7 +442,9 @@ a loader file that grows past the cap during a run stops it at its turn (D-ENV1.
 |---|---|---|
 | Q1 | Route the reading upload through `ParseEnvelope`? | No: the field process is already the child (D4 forbids the import); it gets the same class of limits (D-ENV1.1) |
 | Q2 | The reading path's limits | By a stated margin method on measured runs, the send through a real gateway: check 512 MiB / 30 s / 60 s, send from pre-flight (c) (D-ENV1.2, D-ENV1.9, D-ENV1.10) |
-| Q3 | Per-process or per-host slots | Per network namespace, two pools of 2, by abstract socket names (D-ENV1.3, D-ENV1.8; row 49) |
+| Q3 | Per-process or per-host slots | Per network namespace, by abstract socket names: commercial 2, check 2, send 1 (D-ENV1.3, D-ENV1.8, D-ENV1.18; rows 49, 50) |
+| Q10 | The send wall when sends share a gateway (review M1) | Sends one at a time; wall 2x the measured production-shape wall, stop bound 300 s (D-ENV1.18, D-ENV1.19; row 50) |
+| Q11 | Which 503s are logged | Those `run` answers; site-scope and template 503s are outside (D-ENV1.20) |
 | Q4 | Words for a breach | The existing check or send "unavailable" words; no new text (D-ENV1.5; owner-away row 47, owner to weigh in) |
 | Q5 | A send stopped mid-way | Answered as the send's unavailable words; partial admission stays today's residual (D-ENV1.4) |
 | Q6 | A cell that crashed the child | `INVALID_VALUE` (D-ENV1.6) |
