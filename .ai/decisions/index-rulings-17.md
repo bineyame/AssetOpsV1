@@ -1,8 +1,8 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-4A.1 to D-4A.14)
+# Decision index: Demo-sprint and later rulings (index only) (D-4A.1 to D-4A.26)
 
 - `D-4A.1` Billing export states billed kWh, meter reads state metered kWh; stated rule admits kWh (registry v4) · live · specs/4a-energy-to-cash/rulings.md
 - `D-4A.2` Delivered kWh: every bound feeder every day, one binding set; SIMULATED readings are demo-simulated · live · specs/4a-energy-to-cash/rulings.md
-- `D-4A.3` Expected technical loss declared in the Site's setup per feeder (Foundation property, with basis); ON1 unchanged · live · specs/4a-energy-to-cash/rulings.md
+- `D-4A.3` Expected technical loss declared in the Site's setup per feeder (Foundation property); ON1 unchanged; basis dropped by D-4A.18 · live · specs/4a-energy-to-cash/rulings.md
 - `D-4A.4` Technical loss is Modelled; with no band both loss figures are Not available yet, never 0 · live · specs/4a-energy-to-cash/rulings.md
 - `D-4A.5` Losses beyond expected: delivered less technical less metered, signed; priced only as unexplained fuel is · live · specs/4a-energy-to-cash/rulings.md
 - `D-4A.6` Tariff is billed money over billed kWh (Calculated); tariff sheet reader queued · live · specs/4a-energy-to-cash/rulings.md
@@ -14,3 +14,15 @@
 - `D-4A.12` 4a serves codes only; 5c record keys amended (METER_READS, LOSS_BAND) as SC-1 statements · live · specs/4a-energy-to-cash/rulings.md
 - `D-4A.13` No migration, no guard change; feeder read is a SELECT on the named mini-depth reader · live · specs/4a-energy-to-cash/rulings.md
 - `D-4A.14` One commercial read per Site-month at one cutoff; one energy read per ReadContext · live · specs/4a-energy-to-cash/rulings.md
+- `D-4A.15` R1: Mto's 300 and 120 from real feeder readings and a Foundation band (PG1b, producer world) · live · specs/4a-energy-to-cash/rulings.md
+- `D-4A.16` R2: every step of the energy rules has a named variant; table test checks the map is whole · live · specs/4a-energy-to-cash/rulings.md
+- `D-4A.17` R3: never 0 asserted on the evaluated structure; registry absent metadata unchanged and unread · live · specs/4a-energy-to-cash/rulings.md
+- `D-4A.18` R4: the band's basis property dropped from this slice (no reader) · live · specs/4a-energy-to-cash/rulings.md
+- `D-4A.19` R5: V9b/V9c exercise the customer join's negative case · live · specs/4a-energy-to-cash/rulings.md
+- `D-4A.20` R6: adjustments_kwh names the billing export; BILLING_ADJUSTMENTS leaves 5c records · live · specs/4a-energy-to-cash/rulings.md
+- `D-4A.21` I1: Kobo billed-kWh budget line uses version budget-2026-v1 · live · specs/4a-energy-to-cash/rulings.md
+- `D-4A.22` I2: PG1 harness is the Kobo producer world (roles-4 set), hourly interval readings · live · specs/4a-energy-to-cash/rulings.md
+- `D-4A.23` I3: live read passes no cutoff to the reads; refusals and outages propagate · live · specs/4a-energy-to-cash/rulings.md
+- `D-4A.24` I4: meter is subject.ref; a differing body.meter_ref blocks metered kWh (METER_REF_CONFLICT) · live · specs/4a-energy-to-cash/rulings.md
+- `D-4A.25` I5: class sweep adds seam and property pins; stored v3 snapshots read REBUILD_NEEDED, no migration · live · specs/4a-energy-to-cash/rulings.md
+- `D-4A.26` Size 4.0 units in three units, no split · live · specs/4a-energy-to-cash/rulings.md

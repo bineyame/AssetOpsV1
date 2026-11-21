@@ -51,6 +51,7 @@ change, no database, no purchase.
   they have no feeder to read either; a band field there would be collected with no reader (D-ON1.8's own reason).
   The assumption store is a price store (currency required), so it is not the home.
 - **Reverse.** Move the declaration to a per-Site field; `feeder_month`'s band step changes, nothing else.
+- **Amended by D-4A.18 (handshake):** no basis property in this slice.
 
 ## D-4A.4 Technical loss is Modelled; with no band, both loss figures are "Not available yet"
 
@@ -151,7 +152,9 @@ change, no database, no purchase.
   `METER_READS_INCOMPLETE`, `NEEDS:CUSTOMER_METER_READ` (METER_READS); `NEEDS:METER_ASSIGNMENT` (METER_REGISTER);
   `NEEDS:CHARGE` (BILLING). The words are SC-1 statements (D-SC1.28). Who builds it: if 5c has not merged when 4a
   starts, 5c's builder takes this amendment (a line in `specs/5c-deep-dive-screen/rulings.md` points here); if it has,
-  4a's last commit adds it, after SC-1a's merge.
+  4a's last commit adds it, after SC-1a's merge. **Amended by D-4A.20 and D-4A.24 (handshake):** `adjustments_kwh`
+  (BILLING), `BILLING_ADJUSTMENTS` leaves `RECORDS`; `NOTE_KEYS` gains `METER_REF_CONFLICT` (METER_READS,
+  METER_REGISTER).
 - **Why.** D-SC1.28: no hand-built served text. 5c's current keys conflate the meter register with the meter reads
   and name a tariff sheet 4a does not read; leaving them would name the wrong record on screen.
 
@@ -170,3 +173,182 @@ change, no database, no purchase.
   `EnergyLeafSource` reads once per `ReadContext` object (D-4B.12).
 - **Why.** 3A4's months carry no subjects, which the unmapped join needs; one call keeps every energy figure on one
   snapshot of the store, and 3B7a's pinned reads (`known_at` set) reproduce.
+
+## Handshake answers (round 1)
+
+Architect (Claude), 2026-11-21, on the owner's delegation. One answer per question of `handshake.md` (R1 to R6,
+I1 to I5), each checked against `main` at `8eff70625`; all are folded into `spec.md` rev 2 and `reviewer-guide.md`
+rev 2. D-4A.18 and D-4A.20 change what the owner was told or what the screen will name, so each is logged in
+`specs/OWNER-AWAY/decisions-2026-11-21.md` (rows 19 and 20). No authorisation is widened: no migration, no guard
+change, no database touched by this answer, no new external reader.
+
+## D-4A.15 (R1) Mto's 300 and 120 run from real readings and a real Foundation band (PG1b)
+
+- **Ruling.** A new Postgres test PG1b joins feeder rows → `feeder_month` → the Foundation band → technical →
+  unexplained. World: the Kobo producer world of D-4A.22 (three feeders `load-clinic`, `load-res`, `load-mill`; a
+  `minigrid-roles-4` set in force over all of October). Readings, hourly `INTERVAL_MEAN` in kW, GOOD, every
+  Site-local day: clinic 2 kW every hour (48 kWh a day); res 4 kW every hour (96); mill 2 kW for 23 hours and 4 kW
+  for the 18:00-19:00 local hour (50) on days 1 to 30, 1.5 kW every hour (36) on day 31. Totals: clinic 1488, res
+  2976, mill 1536, delivered **6000** (Mto's figure, 194 a day on days 1 to 30 and 180 on day 31). Band: 5 on each
+  LOAD (published as in D-4A.22), so technical **300** (74.4 + 148.8 + 76.8). `StoreEnergyInputs.read` at `known_at`
+  2026-11-02T00:00Z gives delivered 6000 MEASURED, coverage (31, 31), origins (`demo-simulated`,), technical 300
+  MODELLED; this Site holds no commercial record, so metered is NOT_CONNECTED. The test then feeds the same
+  `EnergyInputs` with its commercial fields replaced by test 1's §5.1 literals (`dataclasses.replace`: `held`,
+  `charges`, `adjustments`, `reads`, `assignments`) to `month_energy`: metered 5580, unexplained **120**. Done
+  question 1 keeps its words; its evidence becomes tests 1, PG1b and PG2.
+- **Why.** The reviewer is right that no test joined the chain; a band read from a hand-written `EnergyInputs` proves
+  nothing about the Foundation read. Three feeders with literals that sum to Mto's numbers prove both the "every
+  bound feeder" rule and the band per feeder, on the only world on `main` with a `minigrid-roles-4` feeder set.
+  Hourly readings (2,232) keep the test small; the envelope contract sets no maximum interval
+  (`source_envelope_v3.py:282-289`) and `productive_energy` integrates any interval.
+- **Reverse.** Drop PG1b and reword done question 1 to "from `EnergyInputs`".
+
+## D-4A.16 (R2) Every step of §2.4 has a named variant, and a table test proves the map is whole
+
+- **Ruling.** Spec §5.4 gains V18 to V26 and V9b/V9c (D-4A.19, D-4A.24) and a step map (§5.4b): every (factor,
+  step) of §2.4 names the variant that reaches it, plus the two ordering checks (delivered step 2 before 3: V26;
+  technical step 2 before 3: V21). Test 2b is table-driven over the map: for each row it asserts cause, note and
+  `value is None`; a second assertion compares the map's keys with a hand literal `STEPS` of §2.4 (every step
+  once). Coverage on delivered is set only when the feeders are `ONE_SET` (an empty feeder list would otherwise
+  cover every day vacuously). With `BINDINGS_CHANGED` the feeder list is empty, so delivered step 4 cannot apply
+  after step 3; V26 covers the order that can fail.
+- **Why.** Each step is an honesty path; a step no test reaches can turn into a 0 unseen. The map makes "each step
+  is hit" checkable by the reviewer (guide item 2).
+- **Reverse.** None needed.
+
+## D-4A.17 (R3) "Never 0" is asserted on the evaluated structure; the registry's `absent` stays and is unread
+
+- **Ruling.** PG3(a) asserts, on Kobo through `build_structure_read(URL).read.site` (no feeders bound in the
+  commercial world): `delivered_kwh`, `technical_loss_kwh` and `unexplained_loss_kwh` value None, NOT_AVAILABLE,
+  cause NOT_CONNECTED, note `FEEDER_NOT_BOUND`; `metered_kwh` stated 8690 RECORDED with `computed` None;
+  `adjustments_kwh` 45, `unmapped_kwh` 0. PG1(e) asserts the band's own absence through the same read on the
+  producer Site before the band is published: `technical_loss_kwh` and `unexplained_loss_kwh` value None,
+  NOT_AVAILABLE, `LOSS_BAND_NOT_DECLARED`. The `absent` metadata of `unexplained_loss_kwh` (`ZERO_WHEN_HELD`) is
+  **not** changed: it mirrors the manifest (`test_3b1_structure_registry.py:113`, parity), and the evaluator reads
+  `absent` only for `OPTION_ONLY` (`evaluate.py:200`). Test 8 adds: no module under `structure/energy/` reads an
+  `absent` attribute (`ast`). Residual risk `R-ABSENT-META` in the packet: the row says zero-when-held where the
+  product says "Not available yet"; the fix is a manifest change queued with D-4A.10's (owner, P3B).
+- **Why.** The reviewer's point holds: only the pure layer was tested. The correction to the question: in the
+  commercial world Kobo has no feeders, so the read gives `FEEDER_NOT_BOUND` (technical step 1 precedes the band),
+  and metered is stated (reads and register are held), so `metered_kwh` is present with `computed` None, not
+  absent. `LOSS_BAND_NOT_DECLARED` through the real read needs bound feeders, hence PG1(e).
+- **Reverse.** Change the row's `absent` to `MISSING` with the manifest when the owner approves the structure change.
+
+## D-4A.18 (R4) The band's basis is dropped from this slice
+
+- **Ruling.** Only `technical-loss-band` is added (§4.1). `technical-loss-band-basis`, its `STATE_PROPERTY_VALUES`
+  entry and test 9's basis cases are removed; `test_w205a_ev_vocabulary.py:131` therefore does not move. D-4A.3
+  stands otherwise (Foundation property on the LOAD component, per feeder, ON1 unchanged).
+- **Why.** D-4A.3 refused an ON1 field because it would have no reader; the basis is the same case: no step of §2.4,
+  no `LeafValue` field and no 4a screen reads it, and the evidence class MODELLED already says the figure rests on a
+  declared rate. A basis becomes useful when the band's tolerance is judged (the Finding's, spec §9); that slice adds
+  it with its reader. Logged as OWNER-AWAY row 20 (row 15 told the owner "with its basis").
+- **Reverse.** Add the basis property with the slice that reads it (one property, one state set).
+
+## D-4A.19 (R5) The customer join's negative case: V9b and V9c
+
+- **Ruling.** Two variants on §5.1. **V9b:** add a USAGE STANDARD charge with no subject, account `C-0415`, 25 kWh,
+  10.00 USD: unmapped **115** (the `M-2204` read, 25 kWh, is charged through its customer), billed 5425, tariff
+  0.4 (2170.00 / 5425). **V9c:** V9b with the `M-2204` assignment removed: unmapped **140** (the read has no
+  customer; nothing names its meter), billed 5425. Plant P20 (the account route matches a customer the meter was
+  ever assigned to, ignoring the read's span) fails V9c; P6 names V9b as well as test 1.
+- **Why.** In §5.1 the six new meters are uncharged whatever the register says, so V9 cannot fail on the join. The
+  pair shows the account route both reaching a read and losing it with its assignment.
+- **Reverse.** None needed.
+
+## D-4A.20 (R6) `adjustments_kwh` names the billing export; `BILLING_ADJUSTMENTS` leaves 5c's records
+
+- **Ruling.** In D-4A.12's amendment to 5c §2.3: `RECORD_KEYS` `adjustments_kwh` becomes (BILLING), and
+  `BILLING_ADJUSTMENTS` ("billing adjustments (credit notes)") leaves `RECORDS` (no other leaf names it; checked in
+  `specs/5c-deep-dive-screen/spec.md`). 5c's rulings line that points to D-4A.12 names this answer. Logged as
+  OWNER-AWAY row 19 (a record name on the screen changes).
+- **Why.** 4a reads ADJUSTMENT lines with a kWh quantity, which arrive in the billing export (`billing_export`
+  batch); its absence note is `NEEDS:CHARGE`, which maps to BILLING. Asking an executive for credit notes to fill a
+  kWh figure would name a record that cannot fill it (D-4A.8: credit notes are not kWh).
+- **Reverse.** Restore the key with words naming authorised kWh allowances, if a separate allowance register appears.
+
+## D-4A.21 (I1) The Kobo billed-kWh budget line is version `budget-2026-v1`
+
+- **Ruling.** §5.5 step 4: `version_ref` `budget-2026-v1`, `line_ref` `billed_kwh`, `source_record_id`
+  `BUD-2026-10:KOBO-001:billed_kwh`, no currency, batch `budget_workbook` as 5a's Kobo lines. PG3(a) also asserts
+  that Kobo's revenue, fuel cost, O&M and staff targets are still used (no `BUDGET_VERSIONS` unused line).
+- **Why.** Confirmed: every Kobo line in `targets_lakeside.json` is `budget-2026-v1`, and `lines.py` `_classify`
+  rule 1 blocks every line of the month when two versions meet (D-5A.1). `B-2026` was a spec slip that would have
+  removed every Kobo target. Rule 4 passes: `billed_kwh` is not money and the line carries no currency.
+- **Reverse.** None needed.
+
+## D-4A.22 (I2) PG1's harness: the Kobo producer world with a roles-4 set, hourly interval readings
+
+- **Ruling.** PG1 and PG1b share one world built as `test_walk1_productive_producer_postgres.py` builds it
+  (`pgb.imported`, `pgb.convert`, `producer.configure_at`) but with `IMPORT_AT` 2026-08-31T06:00Z and `INSTALL_AT`
+  2026-09-01T06:00Z, so the `minigrid-roles-4` set (install + 27 min) covers all of October; Site zone
+  `Africa/Addis_Ababa` (UTC+3, no daylight saving; the month window is Nairobi's). Readings go through central
+  ingestion with a helper local to the test, `interval_envelope(kit, device, seq, end, kw)`, built on
+  `test_s4_consequence_store_postgres.py:100`'s `INTERVAL_MEAN` shape (interval one hour, ending at `source_time`),
+  sealed against the roles-4 set revision (the `Kit` class pointed at that revision's id), gateway mode SIMULATED.
+  One batch per feeder per Site-local day, day `d`'s batches received at 2026-10-`(d+1)`T00:30Z (day 31's at 2026-11-01T00:30Z) (one
+  `ingestion` service per receipt instant). Order: days 1 to 3; PG1's assertions; the band published with the
+  Foundation service clock at 2026-10-04T01:00Z, effective `INSTALL_AT` + 28 min, on each LOAD
+  (`{"property_key": "technical-loss-band", "value": 5, "unit": "%", "source": "SITE", "source_version": 1}`, as
+  `declare_supply_uses` does); days 4 to 31; PG1b. The `Kit` world of `test_s2_evidence_ledger_postgres.py` is not
+  used (its set is `minigrid-roles-1`, `kobo-001-bindings.json:5`, and `Kit.envelope` writes `STATE_AT_INSTANT`
+  with no interval, line 100). Pre-flight (d), a hard stop: seal one feeder batch after a Foundation change and
+  print its disposition; if it is not ACCEPTED, a mid-build question before PG1b is written.
+- **Why.** The only `main` world with a `minigrid-roles-4` feeder set is the producer's (`demo_combined_kobo.py:123`);
+  the Foundation service splits only the revision in force at the change (`foundation_service.py:557-600`), so a
+  band published at + 28 min carries over the month and is invisible to a cutoff before its recorded time, which
+  PG1b(c) uses as the band's own cutoff check (P24).
+- **Reverse.** None needed.
+
+## D-4A.23 (I3) A live read passes no cutoff to the reads; a refusal or an outage propagates
+
+- **Ruling.** `EnergyInputsPort.read(site, month, known_at: datetime | None, now: datetime)`. `EnergyLeafSource`
+  passes `ctx.known_at` (None for a live read) and `self._now()`. `StoreEnergyInputs.read`: `closed = hi <= (known_at
+  or now)`; `feeder_month(..., known_at=known_at)` (None: the reader's own database read time) and
+  `latest_revisions(..., known_at=known_at)` (None: no filter). `MiniReadRefused` and `MiniReadUnavailable` are not
+  caught anywhere in `structure/energy/`: they propagate as 4d's litre reads do (no `except` in `structure/litres/`
+  or `structure/read.py`). Test 6b (no database): a fake reader records the `known_at` it receives (None for a live
+  context, the pinned instant otherwise) and, set to raise `MiniReadUnavailable`, the error leaves
+  `EnergyLeafSource.leaf` unchanged (`pytest.raises`). Plants P22 and P23.
+- **Why.** `_readonly` refuses a `known_at` later than `clock_timestamp()` (`read.py:415-416`); the application
+  clock may run ahead of it, so a live read must not invent a cutoff. A refusal or outage is a bug or an outage,
+  never a figure and never 0; turning it into an absence would show "Not available yet" naming a record the
+  operator already sent.
+- **Reverse.** None needed.
+
+## D-4A.24 (I4) The meter is `subject.ref`; a record whose `body.meter_ref` differs blocks metered kWh
+
+- **Ruling.** For reads, assignments and charges the meter is `subject.ref` (required on reads and assignments by
+  2a, `records_v1.py:230-246`; the only meter field of a charge). `MeterRead` and `Assignment` gain `body_meter_ref:
+  str`. New metered step 4: a read meeting the month, or an assignment whose span meets `[first, next_first)`, with
+  `meter_ref != body_meter_ref`: NOT_CALCULATED_YET, note `METER_REF_CONFLICT` (unmapped and unexplained follow
+  metered). `NOTES` gains it after `LOSS_BAND_CHANGED`; 5c `NOTE_KEYS` maps it to (METER_READS, METER_REGISTER).
+  V18 and plant P21.
+- **Why.** 2a does not require the two fields equal; picking one silently would be a silent choice on a record that
+  contradicts itself. The case is rare (pseudonyms are per tenant and class, so equal refs stay equal), and the cost
+  is one step and one note.
+- **Reverse.** Treat a mismatch as out of scope and read `subject.ref` only (drop the step).
+
+## D-4A.25 (I5) The sweep, by class; stored v3 snapshots read "rebuild needed" until 3B7a rebuilds them
+
+- **Ruling.** §6.4 is rewritten as a class sweep (W6): every test asserting the MINI_GRID version, the stated rows,
+  the state tables, the property tables, or a revenue `NOT_SPLIT`. Named pins found on `main` and missing from rev 1:
+  `test_3b7a_site_inputs_seam.py:49` (`["revenue", "fuel_cost"]` → `["metered_kwh", "billed_kwh", "revenue",
+  "fuel_cost"]`, registry row order), `test_4b_money_leaves.py:526` `STATED_TABLE`, and
+  `test_w402_roles_properties.py:91-109` (the definitions table and `MINIGRID_PROPERTY_CARRIERS`, each gaining
+  `technical-loss-band`). Stored snapshots: a 3B7a snapshot built at structure version 3 is served
+  `REBUILD_NEEDED` with freshness reason `STRUCTURE_VERSION` (`test_3b7a_structure_snapshot.py:440`), never as
+  version 4 and never with a figure. 4a writes no migration and touches no stored snapshot; 3B7a's own build
+  rebuilds them, and the walkthrough database is rebuilt at the clean-database step (coordinator), not by 4a. The
+  packet states this.
+- **Why.** The rev 1 sweep listed instances; the class rule finds the seam pin and the property-table pins the
+  implementer and this check found. The snapshot store already refuses a version it was not built for, which is the
+  honest behaviour (a v3 snapshot lacks the stated kWh nodes).
+- **Reverse.** None needed.
+
+## D-4A.26 Size: 4.0 units in three units, no split
+
+- **Ruling.** Unit 1 1.5 (rev 1's 1.25, plus the step map, V18 to V26, V9b/V9c, the conflict step, test 6b); unit 2
+  1.5 (rev 1's 1.0, plus the producer harness, 2,232 readings, the band publication, PG1(e) and PG1b; less the
+  basis); unit 3 1.0 (rev 1's 0.75, plus PG3(a)'s added assertions and plants P19 to P27). Under 6 units: no split.
+- **Why.** The answers add tests and one rule step, no new mechanism.
