@@ -69,7 +69,7 @@ are `BLOCKED`, since `kobo_site` stamps 2026-09-01, after the window start. The 
 - **I2 (done)** (§2.1 `ReducedCapacity`, §2.2 step 5). `inverter_limit_kw` is the caller's and nothing ties it to
   `reduced.run`'s frozen `inverter-ac-limit`, which the port does not expose. Given 25 on a run frozen at 50, the
   study replays a full-limit plant with PV clipped to 25 and labels it reduced; given 30 on a run frozen at 25, the
-  port refuses `REPLAY_SERIES_INVALID` (51 > 25 never; 30 > 25) only after the baseline and `k` customers have run.
+  port refuses `REPLAY_SERIES_INVALID` (PV 30 above the run's 25) only after the baseline and `k` customers have run.
   Nor is it checked that `reduced.run` differs from `run` only in the limit. Expected: after the `reduced` call,
   `clipped_offsets` must equal the offsets where `pv_r == inverter_limit_kw`, else `REDUCED_CAPACITY_INVALID`
   (an M4 stub case and an H1 case with a mismatched limit), and the packet's pre-flight print of both runs'
