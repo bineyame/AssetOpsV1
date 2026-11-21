@@ -48,6 +48,24 @@ below, under "Handshake answers (round 1)".
 - **Why.** The dependency runs from the screen to the domain, never back; 3C2 unit 1 can merge before 5c exists, and
   the one-line connection lands when both do (D-5C.8).
 
+## D-3C2.14 The state words and refusal sentences are SC-1 statements, written after SC-1a merges (D-SC1.28)
+
+Decided 2026-11-21 on the owner's behalf (`specs/OWNER-AWAY/decisions-2026-11-21.md`, row 2).
+
+- **Ruling.** Gate A is unchanged and code starts on it. Commit 1 builds §2 with no served text: `STATE_OPEN,
+  STATE_OVERDUE` become the codes `"OPEN"`, `"OVERDUE"` (`state_code(due_on, today)`, the same rule as
+  `state_words`); every refusal is its code and exit code; tests 1 to 8 assert codes, exits and stored rows. Commit 2,
+  after SC-1a merges and `main` is merged in: vocabulary `action_state` (`OPEN` → "Open", `OVERDUE` → "Overdue") and
+  `i18n/statements/en/agreed_action.py` with one statement `agreed_action.refused.<code in lower case>` per §4
+  refusal, carrying §4's exact sentence (reworded only where D-SC1.21 forbids a number word; any name, date or count
+  through a slot); `state_words` and the stderr sentence render those statements; the success line's `state` is the
+  rendered word; `actions/agreed.py` joins `ADOPTED`; the exact-string assertions of tests 2 and 3 land here. The 5c
+  contract (`AgreedAction.state_words: str`) is unchanged. The epilog is static chrome (SC-1 §3.8 (g)).
+- **Merge order.** 3A7 merges before 3C2; 3C2 renumbers on 3A7's migration at gate B, as §0 provides.
+- **Why.** "Open" and "Overdue" reach the deep-dive screen; written as constants they are the hand-built words the
+  owner ruled out. The non-text work is most of the unit, so it builds now.
+- **Reverse.** Withdraw with D-SC1.28: commit 1's codes stay, and the words are written in `agreed.py` as §2.2 had them.
+
 ## Handshake answers (round 1)
 
 Architect (Claude), 2026-11-20, on `handshake.md` round 1 (R1 to R15, P1 to P11). Spec moves to rev 2. New rulings

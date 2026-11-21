@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-SC1.1 to D-SC1.27)
+# Decision index: Demo-sprint and later rulings (index only) (D-SC1.1 to D-SC1.28, D-3C2.14)
 
 - `D-SC1.1` Extend the i18n message seam; i18n.render stays the one renderer · live · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.2` Typed facts; every figure carries its evidence; absence is Absent, never None or 0 · live · specs/SC-1-statement-composer/rulings.md
@@ -25,5 +25,7 @@
 - `D-SC1.23` Absent carries a declared reason; reason operator in conditions · live · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.24` Tiny always on for every figure type: a non-zero figure never reads as zero · live · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.25` Price fact and format (2 or 4 places, per unit) · live · specs/SC-1-statement-composer/rulings.md
-- `D-SC1.26` 3A7 and 5c code starts after SC-1a merges; legacy fallback withdrawn (amends D-SC1.14) · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.26` 3A7 and 5c code starts after SC-1a merges; legacy fallback withdrawn (amends D-SC1.14) · live; amended by D-SC1.28 · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.27` Legacy baseline pins each template by hash (LEGACY_CHANGED) · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.28` Text waits for SC-1a, code does not: non-text commit first, statements after SC-1a merges, merge after SC-1a (amends D-SC1.26; owner away) · live · specs/SC-1-statement-composer/rulings.md
+- `D-3C2.14` 3C2 state words and refusal sentences as SC-1 statements in a commit after SC-1a; 3A7 merges first (D-SC1.28) · live · specs/3C2-agreed-change-action/rulings.md
