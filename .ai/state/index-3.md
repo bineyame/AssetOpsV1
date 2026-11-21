@@ -8,3 +8,4 @@ One line per slice, continuing `index-2.md` (number, slice ID, summary, file in 
 183. `3C1b` the signed-in person on trial actions (accept, apply, observe; migration 0071) · work.md
 184. `SC-1f` "Declared" evidence word, stated-figure basis, logger stems and bindings, P55 allow merge · data.md
 185. `0K4b` fuel curve and charge taper module, three Foundation properties, assumed Kobo fixture, `served_text` seam · data.md
+186. `0K4c` declared season v2 (overcast spells, varying load, Sunday mill), canonical inputs digest, v1 and v2 pinned · data.md
