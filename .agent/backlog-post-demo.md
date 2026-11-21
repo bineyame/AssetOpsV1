@@ -118,3 +118,10 @@
 ## From the SC-1a round-3 review (2026-11-21, ACCEPT)
 - Low: the I18N_BYPASS scan misses assignment aliases (`r = i18n.render; r.formats`), an aliased parent (`import assetops_backend as ab; ab.i18n.formats`), getattr and sys.modules.
 - Spec §3.12's number-word list extended by fix round r2 (doubling, tripling, quadrupling, halving, per cent, zeroes, nought): Architect to write it into the spec.
+
+## From the 3A6 round-6 review (2026-11-21, ACCEPT; merged)
+- HELD FOR OWNER (guard change): configuration-persistence's `open\(` pattern has no word boundary (it hit `_Popen(` and `set_spawning_popen(`). Reviewer recommends: tighten the pattern, add `FileIO\(`/`fdopen\(`, one explicit reasoned exemption for envelope.py's launch-pipe line, and restore the stdlib `open` there. Until then envelope.py uses io.FileIO (disclosed, judged a genuine false positive).
+- L1: E7 misses an aliased `split_file as _sf` call; its 3 allowances are per file, not per call.
+- L3: raw io.FileIO.write ignores short writes (theoretical).
+- ENV-1 (0.25 unit): reading_upload_api.py still parses uploads in the server process; the loader CLI parses JSON unbounded in its own process; parse slots are per uvicorn worker.
+- NATIVE_TOO_LARGE's words (in the messages catalogue) and D-3A6.26 are in the owner queue (owner-away row 29).
