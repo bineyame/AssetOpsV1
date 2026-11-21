@@ -40,7 +40,7 @@ function plantSource(w, block) {
   if (PLANT === 'own') { const d = w.eval("typeof IA_LIST_DEFS === 'object' ? IA_LIST_DEFS.findings : null"); if (!d || typeof d.items !== 'function') no('no IA_LIST_DEFS.findings.items'); const o = d.items; d.items = op => o(op).slice(0, -1); }
   if (PLANT === 'stakesort') { const ok = w.eval("typeof IA_LIST_DEFS === 'object' && Array.isArray(IA_LIST_DEFS.decisions?.sorts) ? (IA_LIST_DEFS.decisions.sorts.push({ key: 'stake', word: 'At stake', cmp: (a, b) => 0 }), true) : false"); if (!ok) no('no IA_LIST_DEFS.decisions.sorts array'); }
   if (PLANT === 'notarget') { const why = w.eval(`(() => { const op = LS.op, names = OPS[op].sites.map(k => SK[k].name), f = (HC.findings || []).find(f => f.decision && decById(f.decision) && names.includes(String(f.site).replace(/^Room [A-C] · /, '')));
-    if (!f) return 'no Finding of ' + op + ' with a decision'; DEC.splice(DEC.findIndex(d => d.id === f.decision), 1); return ''; })()`); if (why) no(why); }
+    if (!f) return 'no Finding of ' + op + ' with a decision'; f.decision = 'removed-' + f.decision; return ''; })()`); if (why) no(why); } /* the Finding's link to its decision removed (the decision stays: other stores still point to it) */
   w.eval('render()');
 }
 const PLANT_HITS = { n: 0 };
