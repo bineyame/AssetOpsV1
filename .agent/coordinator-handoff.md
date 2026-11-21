@@ -15,7 +15,7 @@ One current block, at most 2k tokens, replaced rather than appended (`.ai/RULES.
 ## In flight (branch · worktree · state)
 
 - 3A6 `task/3A6-source-profiles` · `-3a6` · review round 5 running (rounds 1-4 each found an xlsx/CSV resource-exhaustion route; r4 bounds every resource). Merge unblocks 3A7 and 3C2 code (gate A).
-- SC-1a `task/SC-1a-composer` · `-sc1a` · fix round 2 (M4 package import route, L6, L7) running; then merge needs OWNER approval of its two check-all lines (owner-away rows 5, 23, 24; one-page note atop SC-1 rulings "Review answers (round 1)"). Reviewer owner line: stops 14/20 backend merges, ~2% false alarms, +20 s per check-all.
+- SC-1a `task/SC-1a-composer` · `-sc1a` · head 987d36ca7, review round 3 ACCEPT; READY, merge needs OWNER approval of its two check-all lines (owner-away rows 5, 23, 24; one-page note atop SC-1 rulings "Review answers (round 1)"). Reviewer owner line: stops 14/20 backend merges, ~2% false alarms, +20 s per check-all.
 - DS3 `task/DS3-bulk-loader` · `-ds3` · discovery review running. permitted_database now refuses walk/serve DBs.
 - 3C1b `task/3C1b-person-actions` · `-3c1b` · review ACCEPT (Lows L1-L3) but HOLD: merge with its SC-1 text commit after SC-1a (stored publish note says "SYSTEM demonstration"). Migration 0070 provisional.
 - 3B6 `task/3B6-cold-ev` · `-3b6` · build running (4a merged, all parts open).
