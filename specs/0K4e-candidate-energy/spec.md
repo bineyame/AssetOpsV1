@@ -242,8 +242,8 @@ Percent(Decimal(_num(CAPABILITY_HEADROOM)), Evidence("DECLARED"))` (a fraction: 
 `problem=Word("reading_problem", ...)` and `at=Instant(gap_at)` for `GAP`; `at=Instant(range_end)` for
 `NOT_REACHED`; `controls=Items(tuple(Word("dispatch_input", k) for k in entry["controls"]))` for `NOT_CONFIGURED`.
 Rendered for E1's figures, `short` reads "Battery support was not counted: the battery's 95 kWh above its minimum
-reserve does not cover the 120 kWh needed until solar power covers site demand with 10% headroom (Estimated)." (the
-evidence word is the format's, D-SC1.10).
+reserve does not cover the 120 kWh needed until solar power covers site demand with 10% headroom (Estimated and Declared)." on `main` after
+SC-1f (the evidence words are the format's; the case literal follows `main` at build time).
 
 Readers:
 - `plain._segment(s)`: `lead` = the segment's `energy_cover` entry first by `NOT_CONFIGURED`, `GAP`, `NOT_REACHED`,
