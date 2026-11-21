@@ -381,6 +381,7 @@ def test_t10_common_cases_render_the_same_after_the_wire():
     {"key": "k", "params": {"x": {"fact": "percent", "value": "1", "evidence": {"evidence": "DERIVED"}}}},
     {"key": "k", "params": {"x": None}},
     {"key": "k"},
+    pytest.param({"key": "k", "params": {"m": {"fact": ["money"]}}}, id="P40b-unhashable-fact-name"),
 ])
 def test_t10_from_wire_is_strict(obj):
     with pytest.raises(WireError) as e:
@@ -476,10 +477,14 @@ def test_t12_schema_sets_equal_the_spec():
     assert schema.FORMAT_VOCABULARIES == ("format", "unit", "noun", "month", "evidence")
     assert schema.FORMAT_WORDS == ("less_than", "more_than", "and", "of", "per", "utc")
     assert schema.NUMBER_WORDS == {"en": (
-        "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve",
-        "twenty", "thirty", "forty", "fifty", "hundred", "thousand", "million", "billion", "half", "halves", "quarter",
-        "twice", "thrice", "once", "double", "triple", "both", "dozen", "first", "second", "third", "fourth", "fifth",
-        "single", "pair", "percent")}
+        (("zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve",
+          "hundred", "thousand", "million", "billion", "trillion"), ("", "s", "th", "ths", "fold")),
+        (("thir", "four", "fif", "six", "seven", "eigh", "nine"), ("teen", "teens", "teenth", "teenths")),
+        (("twen", "thir", "for", "fif", "six", "seven", "eigh", "nine"), ("ty", "ties", "tieth", "tieths", "tyfold")),
+        (("first", "second", "third", "fifth", "eighth", "ninth", "twelfth"), ("", "s")),
+        (("once", "twice", "thrice", "single", "both", "pair", "couple", "dozen", "half", "quarter", "percent"),
+         ("", "s")),
+        (("double", "triple", "quadruple", "halve"), ("", "s", "d")))}
     assert schema.UNSERVED == ("ValueError", "TypeError", "KeyError", "LookupError", "RuntimeError", "AssertionError",
                                "NotImplementedError", "StatementError", "CatalogueError", "WireError")
     assert schema.SYMBOLS == ("", " ", ", ", "$", "−", "+", "%", ",", ".", "(", ")", " (", "{", "}", ":", "-",
@@ -487,6 +492,42 @@ def test_t12_schema_sets_equal_the_spec():
     assert schema.SYSTEM == ("STATEMENTS", "VOCABULARY", "statements", "vocabulary", "utf-8", "en", "USD", "OMITTED",
                              "ABSENT")
     assert "money" in schema.TOKENS and "less_than" in schema.TOKENS and "$" not in schema.TOKENS
+    # D-SC1.32: `TOKENS` no longer holds `NUMBER_WORDS`; no root or suffix is in it unless another set holds it.
+    others = set()
+    for group in (schema.TYPES, schema.FIELDS, schema.OPERATORS, schema.COMPARATORS, schema.SIGNS, schema.MODES,
+                  schema.REPHRASE, schema.EVIDENCES, schema.EVIDENCE_ORDER, schema.ORIGINS,
+                  schema.FORMAT_VOCABULARIES, schema.FORMAT_WORDS, schema.UNSERVED, schema.SYSTEM):
+        others.update(group)
+    for kind, opts in schema.OPTIONS.items():
+        others.add(kind)
+        for name, allowed in opts.items():
+            others.add(name)
+            others.update(v for v in allowed if isinstance(v, str))
+    parts = {x for roots, suffixes in schema.NUMBER_WORDS["en"] for x in (*roots, *suffixes)}
+    assert schema.TOKENS == frozenset(others)
+    assert not (parts & schema.TOKENS) - others and "s" not in schema.TOKENS and "teen" not in schema.TOKENS
+    words = schema.number_words("en")
+    assert {"sixty", "thirteen", "tenth", "hundreds", "dozens", "doubled", "twelfth", "trillionths"} <= words
+    assert {"fourth", "ones", "seconds"} <= words and not {"tend", "often", "s", "teen", "ty"} & words
+
+
+# --- T12b number words (D-SC1.32) ------------------------------------------------------------------------------------
+
+T12B_REFUSED = ("sixty days", "Ninety", "thirteen sites", "the tenth site", "hundreds of sites", "dozens",
+                "a couple of sites", "twenty-five", "two-thirds", "tenfold", "doubled", "halved", "Seventieth",
+                "millionths", "fourteenth", "eleventh")
+T12B_LOADS = ("tend", "often", "attend", "tone", "someone", "everyone", "forth", "content", "tenant", "coupled",
+              "secondary", "quarterly", "several", "doubt")
+
+
+@pytest.mark.parametrize("text", T12B_REFUSED)
+def test_t12b_p28b_number_words_are_refused(text):
+    assert load_code(statement(text)) == "LITERAL_NUMBER_WORD"
+
+
+@pytest.mark.parametrize("text", T12B_LOADS)
+def test_t12b_n_t12_words_that_hold_a_number_root_load(text):
+    build(statement(text))
 
 
 # --- load plants ---------------------------------------------------------------------------------------------------

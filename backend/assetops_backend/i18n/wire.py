@@ -15,6 +15,9 @@ from assetops_backend.i18n.facts import (Absent, Count, Day, Evidence, Fact, Fla
                                          Month, Name, Percent, Price, Quantity, State, Word)
 from assetops_backend.i18n.messages import Message
 
+#: The public surface (D-SC1.36): a name outside this list is private to `i18n` (`I18N_BYPASS`).
+__all__ = ["WireError", "from_wire", "to_wire"]
+
 _KEY, _PARAMS = Message.__annotations__
 
 
@@ -129,7 +132,8 @@ def _object(cls, codecs, value, path):
 
 
 def _decode(value, path):
-    if not isinstance(value, dict) or value.get(_FACT) not in _BY_NAME:
+    # The fact name is checked to be a `str` first: an unhashable name fails `WIRE_FORM`, never `TypeError` (L4).
+    if not isinstance(value, dict) or not isinstance(value.get(_FACT), str) or value[_FACT] not in _BY_NAME:
         _fail(path)
     cls, codecs = _BY_NAME[value[_FACT]]
     rest = {k: v for k, v in value.items() if k != _FACT}

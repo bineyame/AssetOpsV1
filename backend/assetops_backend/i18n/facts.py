@@ -17,6 +17,10 @@ from decimal import Decimal
 
 from assetops_backend.i18n import schema
 
+#: The public surface (D-SC1.36): a name outside this list is private to `i18n` (`I18N_BYPASS`).
+__all__ = ["Absent", "Count", "Day", "Evidence", "Flag", "Instant", "Items", "KOfN", "Money", "Month", "Name",
+           "Percent", "Price", "Quantity", "State", "Word"]
+
 _UPPER = frozenset(string.ascii_uppercase)
 
 

@@ -60,11 +60,23 @@ EVIDENCES = EVIDENCE_ORDER[:-1]
 FORMAT_VOCABULARIES = ("format", "unit", "noun", "month", "evidence")
 FORMAT_WORDS = ("less_than", "more_than", "and", "of", "per", "utc")
 
-#: D-SC1.21: number words per locale, refused as whole words (case-folded) in any template or vocabulary literal.
-NUMBER_WORDS = {"en": ("zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
-                       "eleven", "twelve", "twenty", "thirty", "forty", "fifty", "hundred", "thousand", "million",
-                       "billion", "half", "halves", "quarter", "twice", "thrice", "once", "double", "triple", "both",
-                       "dozen", "first", "second", "third", "fourth", "fifth", "single", "pair", "percent")}
+#: D-SC1.21, D-SC1.32: number words per locale as `(roots, suffixes)` pairs. A number word is a root joined to a
+#: suffix of its own pair, and nothing else; the load refuses one (case-folded) as a token of any template or
+#: vocabulary literal split on non-letters, so compounds ("twenty-five", "two-thirds") fail by their parts.
+NUMBER_WORDS = {"en": (
+    (("zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve",
+      "hundred", "thousand", "million", "billion", "trillion"), ("", "s", "th", "ths", "fold")),
+    (("thir", "four", "fif", "six", "seven", "eigh", "nine"), ("teen", "teens", "teenth", "teenths")),
+    (("twen", "thir", "for", "fif", "six", "seven", "eigh", "nine"), ("ty", "ties", "tieth", "tieths", "tyfold")),
+    (("first", "second", "third", "fifth", "eighth", "ninth", "twelfth"), ("", "s")),
+    (("once", "twice", "thrice", "single", "both", "pair", "couple", "dozen", "half", "quarter", "percent"), ("", "s")),
+    (("double", "triple", "quadruple", "halve"), ("", "s", "d")),
+)}
+
+
+def number_words(locale: str) -> frozenset:
+    """Every number word of `locale`: each root joined to each suffix of its pair (D-SC1.32)."""
+    return frozenset(root + suffix for roots, suffixes in NUMBER_WORDS[locale] for root in roots for suffix in suffixes)
 
 #: Section 3.8.4: exception types whose text is never served (their `raise` arguments are exempt from the scan).
 UNSERVED = ("ValueError", "TypeError", "KeyError", "LookupError", "RuntimeError", "AssertionError",
@@ -87,11 +99,9 @@ def _tokens() -> frozenset:
         for name, allowed in opts.items():
             out.add(name)
             out.update(v for v in allowed if isinstance(v, str))
-    for locale, words in NUMBER_WORDS.items():
-        out.add(locale)
-        out.update(words)
     return frozenset(out)
 
 
-#: The union of every set above except `SYMBOLS`.
+#: The union of every set above except `SYMBOLS` and `NUMBER_WORDS` (D-SC1.32: a suffix such as `s` must never be a
+#: legal mechanism constant).
 TOKENS = _tokens()

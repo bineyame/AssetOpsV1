@@ -1,5 +1,5 @@
 """SC-1 spec section 3.8: the statement catalogue guard's rules on source strings, its run on the real tree and its
-self-test (every guard plant fails with its code, N1 to N4 pass).
+self-test (every guard plant fails with its code, N1 to N13 pass).
 
     python -m pytest tools/checks/test_statement_catalogue.py -q
 """
@@ -101,6 +101,91 @@ def test_imports():
     assert guard.import_hits(rel, "from assetops_backend.i18n import message, render\n") == []
     assert guard.import_hits(rel, "from assetops_backend.i18n.messages import CATALOGUE\n") == []
     assert guard.import_hits(rel, "from .i18n.formats import money\n")[0].startswith("I18N_BYPASS")
+
+
+#: Fix round 1 (D-SC1.33, D-SC1.37): the narrowed ratchet still catches these (P57a-d) and passes the replay's code
+#: strings (N5-N12), each alone in a ratchet-scope module.
+NARROWED_CATCHES = {
+    "P57a": ('LABELS = ("PV array",)\n', "g"),
+    "P57b": ('def f(k):\n    return f"Unknown change_kind {k!r}."\n', "a"),
+    "P57c": ('def f(ok):\n    return "Yes" if ok else "No"\n', "f"),
+    "P57d": ('def f(day_texts):\n    return ", ".join(day_texts)\n', "e"),
+    "deferred": ('def f(d):\n    return " (deferred)" if d else ""\n', "f"),
+}
+NARROWED_PASSES = {
+    "N5": '_COLUMNS = "id, tenant_id"\nQ = text("SELECT " + _COLUMNS + " FROM structure_snapshot WHERE tenant_id = :t '
+          'AND site_id IS NULL ")\n',
+    "N6": 'Q = "u.id, u.tenant_id, u.file_name, u.reader, " + " FROM commercial_upload u JOIN operator_account sa ON '
+          'sa.tenant_id = u.tenant_id "\n',
+    "N7": 'import hashlib\ndef f(lines):\n    return hashlib.sha256("\\n".join(lines).encode("utf-8"))\n',
+    "N8": 'def f(r, j, k):\n    return ("LIVE" if r else "SIMULATED", "application/json" if j else "text/csv", '
+          '"keep" if k else "grant")\n',
+    "N9": 'class C:\n    def f(self, n):\n        self.logger.info(f"loaded {n} rows from the file")\n',
+    "N9b": 'import logging\nlogging.getLogger(__name__).warning(f"loaded {n} rows from the file")\n',
+    "N10": 'ORDER = "episode_start desc nulls last, site_code_key asc"\n',
+    "N11": 'def f():\n    raise ValueError("expression is not text")\n',
+    "N12": 'def f(known):\n    return " AND e.recorded_at <= :k" if known else ""\n',
+}
+
+
+@pytest.mark.parametrize("name", sorted(NARROWED_CATCHES))
+def test_narrowed_ratchet_still_catches(name):
+    source, rule = NARROWED_CATCHES[name]
+    assert [f.split(":")[0] for f, _ in guard.ratchet_hits("x.py", source, UNSERVED)] == [rule]
+
+
+@pytest.mark.parametrize("name", sorted(NARROWED_PASSES))
+def test_narrowed_ratchet_passes_code_strings(name):
+    assert guard.ratchet_hits("x.py", NARROWED_PASSES[name], UNSERVED) == []
+
+
+def test_prose_by_class():
+    assert guard.prose("Duplicate site_id in") and guard.prose("the readings(s) are late")
+    assert not guard.prose("site_id is") and not guard.prose("NOT_MATCHED x")  # identifier beside a short word: hole
+    assert not guard.prose("(SELECT 1)") and not guard.prose(" AND x = 1") and not guard.prose("a, b")
+
+
+def test_word_map_is_one_fingerprint_per_entry():
+    one = guard.ratchet_hits("x.py", 'M = {"A": "Recorded", "B": "Measured"}\n', UNSERVED)
+    two = guard.ratchet_hits("x.py", 'M = {"A": "Recorded", "B": "Measured", "C": "Shut"}\n', UNSERVED)
+    assert len(one) == 2 and len(two) == 3 and set(f for f, _ in one) < set(f for f, _ in two)
+
+
+def test_catalogue_templates_are_left_to_the_legacy_ratchet():
+    path = f"{guard.I18N}/messages.py"
+    src = 'CATALOGUE = {"en": {"a.b": "A new sentence here.", "c.d": "Recorded", "e.f": "Measured"}}\n'
+    assert guard.ratchet_hits(path, src, UNSERVED) == []
+    assert guard.ratchet_hits(path, src + 'def f(x):\n    return f"the message {x} is late"\n', UNSERVED)
+    assert len(guard.ratchet_hits("backend/assetops_backend/other.py", src, UNSERVED)) == 3
+
+
+def test_unserved_served():
+    src = ('def f(g):\n    try:\n        g()\n    except PlantRefused as e:\n        return {"detail": e.args[0]}\n')
+    assert guard.unserved_served("x.py", src, ("PlantRefused",)) == ["UNSERVED_SERVED x.py:5 PlantRefused"]
+    quiet = ('def f(g):\n    try:\n        g()\n    except PlantRefused as e:\n        logger.info("x %s", e)\n'
+             '        if isinstance(e, KeyError):\n            pass\n        raise RuntimeError("X") from e\n')
+    assert guard.unserved_served("x.py", quiet, ("PlantRefused",)) == []
+
+
+def test_i18n_files_are_all_classified():
+    kinds = {rel.split("/i18n/")[1]: kind for rel, _, kind in guard.i18n_files(ROOT)}
+    assert kinds["render.py"] == "mechanism" and kinds["messages.py"] == "legacy"
+    assert kinds["statements/__init__.py"] == "marker" and kinds["statements/en/__init__.py"] == "marker"
+    assert kinds["statements/en/common.py"] == "data" and "unscoped" not in kinds.values()
+
+
+def test_public_surfaces_and_bypass_through_them():
+    surfaces, lines = guard.public_surfaces(ROOT)
+    assert lines == [] and "formats" not in surfaces["render"] and "render" in surfaces["render"]
+    rel = "backend/assetops_backend/x.py"
+    for src in ("from assetops_backend.i18n.render import formats\n",
+                "import assetops_backend.i18n.render as r\nr.formats.money(1)\n",
+                "from assetops_backend.i18n import render\nrender.formats\n",
+                "import assetops_backend.i18n.render\nassetops_backend.i18n.render.schema\n",
+                "from .i18n.facts import schema\n"):
+        assert [h.split()[0] for h in guard.import_hits(rel, src, surfaces)] == ["I18N_BYPASS"], src
+    assert guard.import_hits(rel, "from assetops_backend.i18n.render import served\n", surfaces) == []  # N13
+    assert guard.import_hits(rel, "from assetops_backend.i18n import locale\nlocale.current_locale()\n", surfaces) == []
 
 
 def test_site_tokens_hold_the_real_site_codes():

@@ -128,7 +128,7 @@ def check_literal(text, locale: str, key=None, detail=None, *, superscripts: boo
     for c in text:
         if unicodedata.category(c).upper() == "SC" or c in _PERCENTS:
             raise CatalogueError("LITERAL_SYMBOL", key, detail)
-    banned = schema.NUMBER_WORDS[locale]
+    banned = schema.number_words(locale)  # D-SC1.32: roots joined to the suffixes of their pair
     for w in _words(text):
         if w.casefold() in banned:
             raise CatalogueError("LITERAL_NUMBER_WORD", key, detail)

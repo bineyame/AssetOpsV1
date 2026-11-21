@@ -14,6 +14,9 @@ from assetops_backend.i18n.facts import BY_TYPE, FIGURES, Absent, Evidence, Fact
 from assetops_backend.i18n.locale import DEFAULT_LOCALE, current_locale
 from assetops_backend.i18n.messages import Message
 
+#: The public surface (D-SC1.36): a name outside this list is private to `i18n` (`I18N_BYPASS`).
+__all__ = ["Served", "render", "served"]
+
 _KEY, _PARAMS = Message.__annotations__
 _RANK = {e: i for i, e in enumerate(schema.EVIDENCE_ORDER)}
 _ORIGIN_RANK = {o: i for i, o in enumerate(schema.ORIGIN_ORDER)}

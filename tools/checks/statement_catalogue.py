@@ -1,20 +1,22 @@
-"""SC-1 statement catalogue guard (spec section 3.8; D-SC1.12, D-SC1.17, D-SC1.27, D-SC1.29).
+"""SC-1 statement catalogue guard (spec section 3.8; D-SC1.12, D-SC1.17, D-SC1.27, D-SC1.29, D-SC1.32 to D-SC1.37).
 
 Checks, in order: (1) the shipped catalogue loads; (2) every variant of every structured statement has a hand-written
 case in `backend/tests/statement_cases/`; (3) the legacy ratchet (`statement-legacy-baseline.json`); (4) the
-hand-built text scan in three scopes (mechanism, `ADOPTED`, ratchet with `statement-handbuilt-baseline.json`);
-(5) no Site code in a statement key, variant id or vocabulary key; and no module outside `i18n` reaches a private
-name or a private module of `i18n`.
+hand-built text scan in three scopes (mechanism, every file under `i18n/` classified; `ADOPTED`; ratchet with
+`statement-handbuilt-baseline.json` and the classed allow file `statement-handbuilt-allow.json`), and no handler shows
+the text of a backend `UNSERVED` class; (5) no Site code in a statement key, variant id or vocabulary key; and no
+module outside `i18n` reaches a private name of `i18n` or a name outside a public module's `__all__`.
 
     python tools/checks/statement_catalogue.py                   # exit 1 and one line per failure
-    python tools/checks/statement_catalogue.py --self-test       # every guard plant fails with its code, N1-N4 pass
+    python tools/checks/statement_catalogue.py --self-test       # every guard plant fails with its code, N1-N13 pass
     python tools/checks/statement_catalogue.py --write-baseline  # writes a missing baseline (BASELINE_EXISTS else)
-    python tools/checks/statement_catalogue.py --prune           # removes stale baseline entries, never adds
+    python tools/checks/statement_catalogue.py --prune           # removes stale baseline and allow entries, never adds
     options: --root <tree> (scan another tree), --adopt <repo path> (treat a path as ADOPTED; plants only)
 """
 from __future__ import annotations
 
 import ast
+import builtins
 import hashlib
 import importlib
 import json
@@ -49,8 +51,13 @@ PUBLIC_MODULES = ("messages", "locale", "render", "facts", "wire")
 IMPORT_ROOTS = ("backend", "tools", "simulator", "contracts", "gateway", "host", "field")
 SKIP_PARTS = {"__pycache__", ".venv", "venv", "node_modules", "archive", ".git"}
 
+ALLOW = "tools/checks/statement-handbuilt-allow.json"
+#: D-SC1.34: the classes a code string the scan misreads may be allowed under (served English has none).
+ALLOW_CLASSES = ("SQL", "HASH", "CODE")
+ALLOW_WHY_MAX = 200
+
 LOG_METHODS = {"debug", "info", "warning", "error", "exception", "critical", "log"}
-LOG_NAMES = {"logger", "log", "logging", "_log", "_logger", "LOG"}
+LOG_NAMES = {"logger", "log", "logging", "_log", "_logger", "_LOGGER", "LOG"}
 KEY_CALLS = {"message", "Word", "Count", "KOfN", "Quantity", "Price", "Absent", "State", "Evidence"}
 CHROME_CALLS = {"add_argument", "ArgumentParser", "add_parser", "APIRouter", "FastAPI"}
 CHROME_KEYWORDS = {"help", "description", "epilog", "usage", "summary"}
@@ -61,11 +68,30 @@ FORMAT_SPEC = re.compile(r"^,?(\.\d+)?[fd]?$")
 CODE_FORM = re.compile(r"^[A-Za-z0-9_.\-]*$")
 CAP_LOWER = re.compile(r"[A-Z][a-z]")
 LOWER_WORD = re.compile(r"^[a-z]+$")
-PROSE = re.compile(r"(?<![A-Za-z])(?=([A-Za-z]{2,}\s+[A-Za-z]{2,}))")
-SQL_START = re.compile(r"^\s*(SELECT|INSERT|UPDATE|DELETE|WITH|CREATE|ALTER|DROP)\b")
 LETTER = re.compile(r"[A-Za-z]")
 LETTER_OR_SPACE = re.compile(r"[A-Za-z\s]")
 WORD_MAP_VALUE = re.compile(r"^[A-Z][a-z]")
+
+#: D-SC1.33 rule 2: a string whose first word (after spaces and an optional `(`) is one of these is SQL, not prose.
+SQL_LEAD = re.compile(r"^\s*\(?\s*(SELECT|INSERT|UPDATE|DELETE|WITH|CREATE|ALTER|DROP|FROM|WHERE|AND|OR|JOIN|LEFT"
+                      r"|INNER|ORDER|GROUP|SET|VALUES|RETURNING|ON|LIMIT|OFFSET|CASE|HAVING|UNION)\b")
+#: D-SC1.33 rule 1: upper-case SQL keywords are not words (and `asc`, `desc`, `nulls` in any case).
+SQL_WORDS = frozenset(
+    "SELECT FROM WHERE JOIN LEFT RIGHT INNER OUTER FULL CROSS ON USING AND OR NOT NULL IS IN AS BY ORDER GROUP HAVING "
+    "LIMIT OFFSET DISTINCT INSERT INTO VALUES UPDATE SET DELETE RETURNING WITH CREATE ALTER DROP TABLE INDEX CASE WHEN "
+    "THEN ELSE END EXISTS ANY ALL UNION BETWEEN LIKE ILIKE ASC DESC CONFLICT DO NOTHING CAST COALESCE COUNT SUM MIN MAX "
+    "FOR SKIP LOCKED NULLS FIRST LAST INTERVAL TRUE FALSE PRIMARY KEY REFERENCES DEFAULT UNIQUE CONSTRAINT LATERAL "
+    "OVER PARTITION FILTER".split())
+SQL_ANY_CASE = frozenset({"asc", "desc", "nulls"})
+#: A word: letters (inner `'` or `-`), opening quotes or brackets and closing quotes, brackets and `.,;:!?` stripped.
+_WORD = re.compile(r"^[(\"'“‘]?([A-Za-z][A-Za-z'’\-]*[A-Za-z])[)\"'”’.,;:!?]*$")
+#: An identifier: letters and digits joined by `_` or `.` (`site_id`, `u.reader`), the same stripping applied.
+_IDENT = re.compile(r"^[(\"'`“‘]?([A-Za-z][A-Za-z0-9]*(?:[_.][A-Za-z0-9]+)+)[)\"'`”’.,;:!?]*$")
+_PLURAL = re.compile(r"\(s\)$")
+_ENDS_PUNCT = re.compile(r"[)\"'”’.,;:!?]$")
+#: Rule (f)'s code form: also `/`, `+` and `:` (media types, `LIVE`/`SIMULATED`), no capital before a lower case.
+CODE_FORM_F = re.compile(r"^[A-Za-z0-9_.\-/+:]*$")
+TWO_LOWER = re.compile(r"[a-z]{2}")
 
 
 # --- helpers ---------------------------------------------------------------------------------------------------------
@@ -75,11 +101,54 @@ def _str(node) -> bool:
     return isinstance(node, ast.Constant) and isinstance(node.value, str)
 
 
+def _token(raw: str):
+    """("W", word) or ("I", identifier) or None (D-SC1.33 rule 1)."""
+    raw = re.sub(r"\(s\)(?=[)\"'.,;:!?]*$)", "", raw)
+    m = _WORD.match(raw)
+    if m:
+        w = m.group(1)
+        return None if w in SQL_WORDS or w.lower() in SQL_ANY_CASE else ("W", w)
+    m = _IDENT.match(raw)
+    return ("I", m.group(1)) if m else None
+
+
 def prose(text) -> bool:
-    """Spec section 3.8.4 (3): two words of two or more letters, a lower-case letter among them, not SQL."""
-    if not isinstance(text, str) or SQL_START.match(text):
+    """Spec section 3.8.4 (3), D-SC1.33: not led by SQL, and two adjacent whitespace tokens, the first not ending in
+    punctuation, that are both words with a lower-case letter in either, or a word of three or more letters with a
+    lower-case letter beside an identifier."""
+    if not isinstance(text, str) or SQL_LEAD.match(text):
         return False
-    return any(re.search(r"[a-z]", m.group(1)) for m in PROSE.finditer(text))
+    toks = text.split()
+    for a, b in zip(toks, toks[1:]):
+        if _ENDS_PUNCT.search(_PLURAL.sub("", a)) and not _PLURAL.search(a):
+            continue
+        ta, tb = _token(a), _token(b)
+        if not (ta and tb):
+            continue
+        kinds = ta[0] + tb[0]
+        if kinds == "WW" and (re.search(r"[a-z]", ta[1]) or re.search(r"[a-z]", tb[1])):
+            return True
+        if kinds in ("WI", "IW"):
+            w = ta[1] if ta[0] == "W" else tb[1]
+            if re.search(r"[a-z]", w) and len(w) >= 3:
+                return True
+    return False
+
+
+def _display_form(s: str) -> bool:
+    """Rule (f): a conditional branch is a display form when it is prose, or holds two adjacent lower-case letters,
+    is not code-form (`CODE_FORM_F`, no capital before a lower case) and does not lead with SQL (D-SC1.33 rule 4)."""
+    if prose(s):
+        return True
+    code = bool(CODE_FORM_F.match(s)) and not CAP_LOWER.search(s)
+    return bool(TWO_LOWER.search(s)) and not code and not SQL_LEAD.match(s)
+
+
+def _logger(receiver) -> bool:
+    """D-SC1.33 rule 5: a name or attribute in `LOG_NAMES`, or a `logging.getLogger(...)` call."""
+    return (isinstance(receiver, ast.Name) and receiver.id in LOG_NAMES) \
+        or (isinstance(receiver, ast.Attribute) and receiver.attr in LOG_NAMES) \
+        or _attr_call(receiver, "getLogger")
 
 
 def _call_name(call: ast.Call) -> str | None:
@@ -99,6 +168,21 @@ def _subtree_ids(nodes) -> set[int]:
     out: set[int] = set()
     for n in nodes:
         out.update(id(m) for m in ast.walk(n))
+    return out
+
+
+def _catalogue_templates(tree: ast.Module) -> set[int]:
+    """D-SC1.37: the node ids of the plain-string template values of `messages.CATALOGUE[locale]` and of their
+    enclosing dicts. Each template is judged by key and hash by the legacy ratchet alone; keys, any other value and
+    any code elsewhere in `messages.py` stay in scope (3)."""
+    out: set[int] = set()
+    for n in tree.body:
+        targets = n.targets if isinstance(n, ast.Assign) else [n.target] if isinstance(n, ast.AnnAssign) else []
+        if any(isinstance(t, ast.Name) and t.id == "CATALOGUE" for t in targets) and isinstance(n.value, ast.Dict):
+            for loc in n.value.values:
+                if isinstance(loc, ast.Dict):
+                    out.add(id(loc))
+                    out.update(id(v) for v in loc.values if _str(v))
     return out
 
 
@@ -130,7 +214,7 @@ class Tree:
             if isinstance(n, ast.Expr) and _str(n.value):
                 exempt.append(n.value)
             elif isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and n.func.attr in LOG_METHODS \
-                    and isinstance(n.func.value, ast.Name) and n.func.value.id in LOG_NAMES:
+                    and _logger(n.func.value):
                 exempt += n.args + [k.value for k in n.keywords]
             elif isinstance(n, ast.Raise) and isinstance(n.exc, ast.Call) and _call_name(n.exc) in unserved:
                 exempt += n.exc.args + [k.value for k in n.exc.keywords]
@@ -140,8 +224,19 @@ class Tree:
                 self.format_specs.update(id(v) for v in ast.walk(n.format_spec) if isinstance(v, ast.Constant))
             elif isinstance(n, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "__all__" for t in n.targets):
                 self.all_values |= _subtree_ids([n.value])
-        self.exempt = _subtree_ids(exempt)
+        if path == f"{I18N}/messages.py":  # D-SC1.37: the legacy ratchet alone judges these templates
+            catalogue = _catalogue_templates(self.tree)
+        else:
+            catalogue = set()
+        self.exempt = _subtree_ids(exempt) | catalogue
         self.fstring_parts -= self.format_specs
+
+    def assigned(self, name: str) -> set[int]:
+        """The node ids of the value of a module-level assignment to `name`."""
+        return _subtree_ids([n.value for n in self.tree.body if isinstance(n, (ast.Assign, ast.AnnAssign))
+                             and n.value is not None
+                             and any(isinstance(t, ast.Name) and t.id == name
+                                     for t in (n.targets if isinstance(n, ast.Assign) else [n.target]))])
 
     def live(self):
         return (n for n in self.nodes if id(n) not in self.exempt)
@@ -169,9 +264,12 @@ class Tree:
 
 def mechanism_hits(path: str, source: str, schema, instances: set, branch: bool) -> list[str]:
     t = Tree(path, source, schema.UNSERVED)
+    # D-SC1.32: `schema.NUMBER_WORDS` is the spec's literal of roots and suffixes (T12 pins it); its strings are not
+    # in `TOKENS` (a suffix must never be a legal constant elsewhere), so the literal itself is read as data here.
+    data = t.assigned("NUMBER_WORDS") if path == f"{I18N}/schema.py" else set()
     out = []
     for n in t.live():
-        if _str(n) and id(n) not in t.all_values:
+        if _str(n) and id(n) not in t.all_values and id(n) not in data:
             s = n.value
             if id(n) in t.format_specs:
                 ok = bool(FORMAT_SPEC.match(s))
@@ -297,13 +395,11 @@ def ratchet_rules(n, t: Tree, chrome: set[int]) -> str | None:
                 and ((_str(n.value) and prose(n.value.value)) or _prose_fstring(n.value))):
         return "d"
     if _attr_call(n, "join") and (
-            (_str(n.func.value) and LETTER_OR_SPACE.search(n.func.value.value))
+            (_str(n.func.value) and LETTER_OR_SPACE.search(n.func.value.value) and not _encoded(n, t))
             or (n.args and isinstance(n.args[0], (ast.List, ast.Tuple))
                 and any(_str(e) and LETTER.search(e.value) for e in n.args[0].elts))):
         return "e"
-    if isinstance(n, ast.IfExp) and (
-            (_str(n.body) and _str(n.orelse) and LETTER.search(n.body.value) and LETTER.search(n.orelse.value))
-            or any(_str(b) and prose(b.value) for b in (n.body, n.orelse))):
+    if isinstance(n, ast.IfExp) and any(_str(b) and _display_form(b.value) for b in (n.body, n.orelse)):
         return "f"
     if _str(n) and prose(n.value) and id(n) not in t.fstring_parts and id(n) not in chrome:
         return "g"
@@ -311,9 +407,30 @@ def ratchet_rules(n, t: Tree, chrome: set[int]) -> str | None:
             or ((_attr_call(n, "replace") or _module_call(n, "re", "sub", "subn")) and len(n.args) >= 2
                 and _str(n.args[1]) and LETTER_OR_SPACE.search(n.args[1].value)):
         return "h"
-    if isinstance(n, ast.Dict) and sum(1 for v in n.values if _str(v) and WORD_MAP_VALUE.match(v.value)) >= 2:
-        return "i"
     return None
+
+
+def _encoded(n, t: Tree) -> bool:
+    """Rule (e): the join's result is immediately `.encode(...)`d (bytes are never shown, D-SC1.33 rule 3)."""
+    parent = t.parent.get(id(n))
+    return isinstance(parent, ast.Attribute) and parent.attr == "encode" and _attr_call(t.parent.get(id(parent)),
+                                                                                         "encode")
+
+
+def word_map_entries(n, t: Tree):
+    """Rule (i), D-SC1.37: in a dict literal with two or more string values matching `^[A-Z][a-z]` (a word map), each
+    such value that is not prose (rule (g) reads those), one fingerprint per entry: the sha1 of the entry's key
+    source, a NUL and its value."""
+    if not isinstance(n, ast.Dict):
+        return
+    entries = [(k, v) for k, v in zip(n.keys, n.values) if _str(v) and WORD_MAP_VALUE.match(v.value)]
+    if len(entries) < 2:
+        return
+    for k, v in entries:
+        if not prose(v.value):
+            digest = hashlib.sha1((ast.unparse(k) if k is not None else "**").encode("utf-8") + b"\0"
+                                  + v.value.encode("utf-8")).hexdigest()[:12]
+            yield f"i:{t.qual.get(id(n), '<module>')}:{digest}", v.lineno
 
 
 def ratchet_hits(path: str, source: str, unserved: tuple) -> list[tuple[str, int]]:
@@ -347,6 +464,7 @@ def _ratchet_scan(path: str, source: str, unserved: tuple) -> list[tuple[str, in
         rule = ratchet_rules(n, t, chrome)
         if rule:
             out.append(fingerprint(rule, n))
+        out += word_map_entries(n, t)
     out += [fingerprint("j", n) for n in t.served_exception_text()]
     return out
 
@@ -364,19 +482,60 @@ def _resolve(rel: str, node: ast.ImportFrom) -> str:
     return ".".join(base + ([node.module] if node.module else []))
 
 
-def import_hits(rel: str, source: str) -> list[str]:
+def _declared_all(source: str):
+    """The literal `__all__` of a module, or None when it declares none."""
+    for n in ast.parse(source).body:
+        if isinstance(n, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "__all__" for t in n.targets):
+            try:
+                return frozenset(ast.literal_eval(n.value))
+            except ValueError:
+                return frozenset()
+    return None
+
+
+def public_surfaces(root: Path) -> tuple[dict, list[str]]:
+    """D-SC1.36: each public module's `__all__` (`I18N_SURFACE module` when it declares none), and `i18n.__all__`
+    under the key `""`."""
+    out: dict[str, frozenset] = {}
+    lines = []
+    for name in ("__init__", *PUBLIC_MODULES):
+        p = root / I18N / f"{name}.py"
+        declared = _declared_all(p.read_text(encoding="utf-8")) if p.exists() else None
+        if declared is None:
+            lines.append(f"I18N_SURFACE {name}")
+        out["" if name == "__init__" else name] = declared or frozenset()
+    return out, lines
+
+
+def _repo_surfaces() -> dict:
+    return public_surfaces(REPO)[0]
+
+
+def import_hits(rel: str, source: str, surfaces: dict | None = None) -> list[str]:
+    """`I18N_PRIVATE` (a `_` name of `i18n`) and `I18N_BYPASS` (a private module, or a name reached through a public
+    module that is in neither its `__all__` nor `i18n.__all__`: imported from it, read as an attribute of a name
+    bound to it, or by its full dotted path; D-SC1.22, D-SC1.36)."""
+    surfaces = surfaces if surfaces is not None else _repo_surfaces()
+    package_all = surfaces.get("", frozenset())
     tree = ast.parse(source, filename=rel)
-    out, bound = [], set()
+    out: list[str] = []
+    bound: dict[str, str | None] = {}  # local name -> public module it names (None: another i18n module)
     package = "assetops_backend.i18n"
+
+    def surface_ok(module: str, name: str) -> bool:
+        return name.startswith("__") or name in surfaces.get(module, frozenset()) or name in package_all
+
     for n in ast.walk(tree):
         if isinstance(n, ast.Import):
             for a in n.names:
                 if a.name.startswith(package + "."):
-                    sub = a.name[len(package) + 1:].split(".")[0]
-                    if sub not in PUBLIC_MODULES:
+                    path = a.name[len(package) + 1:].split(".")
+                    if path[0] not in PUBLIC_MODULES:
+                        out.append(f"I18N_BYPASS {rel}:{n.lineno} {a.name}")
+                    elif len(path) > 1 and not surface_ok(path[0], path[1]):
                         out.append(f"I18N_BYPASS {rel}:{n.lineno} {a.name}")
                     if a.asname:
-                        bound.add(a.asname)
+                        bound[a.asname] = path[0] if path[0] in PUBLIC_MODULES and len(path) == 1 else None
         elif isinstance(n, ast.ImportFrom):
             module = _resolve(rel, n)
             if module == package:
@@ -386,18 +545,29 @@ def import_hits(rel: str, source: str) -> list[str]:
                     elif a.name in MECHANISM + ("statements",) and a.name not in PUBLIC_MODULES:
                         out.append(f"I18N_BYPASS {rel}:{n.lineno} {package}.{a.name}")
                     if a.name in MECHANISM + LEGACY_I18N + ("statements",):
-                        bound.add(a.asname or a.name)
+                        bound[a.asname or a.name] = a.name if a.name in PUBLIC_MODULES else None
             elif module.startswith(package + "."):
-                sub = module[len(package) + 1:].split(".")[0]
-                if sub not in PUBLIC_MODULES:
+                path = module[len(package) + 1:].split(".")
+                if path[0] not in PUBLIC_MODULES or len(path) > 1:
                     out.append(f"I18N_BYPASS {rel}:{n.lineno} {module}")
-                out += [f"I18N_PRIVATE {rel}:{n.lineno} {a.name}" for a in n.names
-                        if a.name.startswith("_") and not a.name.startswith("__")]
+                    continue
+                for a in n.names:
+                    if a.name.startswith("_") and not a.name.startswith("__"):
+                        out.append(f"I18N_PRIVATE {rel}:{n.lineno} {a.name}")
+                    elif a.name != "*" and not surface_ok(path[0], a.name):
+                        out.append(f"I18N_BYPASS {rel}:{n.lineno} {module}.{a.name}")
     for n in ast.walk(tree):
-        if isinstance(n, ast.Attribute) and n.attr.startswith("_") and not n.attr.startswith("__"):
-            owner = ast.unparse(n.value)
-            if owner in bound or owner.startswith(package + "."):
+        if not isinstance(n, ast.Attribute) or n.attr.startswith("__"):
+            continue
+        owner = ast.unparse(n.value)
+        dotted = owner[len(package) + 1:] if owner.startswith(package + ".") else None
+        if n.attr.startswith("_"):
+            if owner in bound or dotted is not None:
                 out.append(f"I18N_PRIVATE {rel}:{n.lineno} {owner}.{n.attr}")
+            continue
+        module = bound.get(owner) if owner in bound else dotted if dotted in PUBLIC_MODULES else None
+        if module and not surface_ok(module, n.attr):
+            out.append(f"I18N_BYPASS {rel}:{n.lineno} {owner}.{n.attr}")
     return out
 
 
@@ -515,6 +685,100 @@ def coverage(root: Path, cat, render_internal, message, worked_keys: set) -> lis
     return out
 
 
+# --- i18n files, allow file, unserved classes (D-SC1.34, D-SC1.35) -----------------------------------------------
+
+
+def i18n_files(root: Path):
+    """(repo path, path, kind) for every `i18n/**/*.py` (D-SC1.35): `mechanism` (directly in `i18n/`, stem in
+    `MECHANISM`), `legacy` (directly in `i18n/`, `LEGACY_I18N`; scope (3)), `marker` (`statements/__init__.py`,
+    `statements/<locale>/__init__.py`), `data` (directly in `statements/<locale>/` for a package the loader reads;
+    the load proves it, `NOT_DATA`), else `unscoped`, at any depth."""
+    i18n = root / I18N
+    for p in sorted(i18n.rglob("*.py")):
+        parts = p.relative_to(i18n).parts
+        if "__pycache__" in parts:
+            continue
+        rel = p.relative_to(root).as_posix()
+        if len(parts) == 1:
+            kind = "mechanism" if p.stem in MECHANISM else "legacy" if p.stem in LEGACY_I18N else "unscoped"
+        elif parts == ("statements", "__init__.py"):
+            kind = "marker"
+        elif len(parts) == 3 and parts[0] == "statements" and (i18n / "statements" / "__init__.py").exists() \
+                and (i18n / "statements" / parts[1] / "__init__.py").exists():
+            kind = "marker" if parts[2] == "__init__.py" else "data"
+        else:
+            kind = "unscoped"
+        yield rel, p, kind
+
+
+def _allow_valid(entry) -> bool:
+    why = entry.get("why") if isinstance(entry, dict) else None
+    return isinstance(entry, dict) and entry.get("class") in ALLOW_CLASSES and isinstance(entry.get("fingerprint"), str) \
+        and isinstance(why, str) and why.strip() != "" and "\n" not in why and len(why) <= ALLOW_WHY_MAX
+
+
+def _allow_live(path: str, entry, hits) -> bool:
+    return isinstance(entry, dict) and any(f == entry.get("fingerprint") for f, _ in hits.get(path, []))
+
+
+def _allow(allow, hits, adopted) -> tuple[dict, list[str]]:
+    """D-SC1.34: `{path: [{"fingerprint", "class", "why"}]}`. An allowed fingerprint counts as baselined. Reports
+    `ALLOW_CLASS` (a class outside `ALLOW_CLASSES`, or an empty, multi-line or over-long `why`), `ALLOW_STALE` (no
+    hit) and `ALLOW_SCOPE` (an `ADOPTED` or `i18n/` path; mechanism and adopted code never needs one)."""
+    allowed: dict[str, Counter] = {}
+    lines: list[str] = []
+    for path, entries in sorted((allow or {}).items()):
+        if path in adopted or path.startswith(I18N + "/"):
+            lines.append(f"ALLOW_SCOPE {path}")
+            continue
+        for entry in entries if isinstance(entries, list) else [entries]:
+            f = entry.get("fingerprint") if isinstance(entry, dict) else None
+            if not _allow_valid(entry):
+                lines.append(f"ALLOW_CLASS {path} {f}")
+            elif not _allow_live(path, entry, hits):
+                lines.append(f"ALLOW_STALE {path} {f}")
+            else:
+                allowed.setdefault(path, Counter())[f] += 1
+    return allowed, lines
+
+
+def _handled(handler: ast.ExceptHandler) -> set[str]:
+    types = handler.type.elts if isinstance(handler.type, ast.Tuple) else [handler.type] if handler.type else []
+    return {t.id if isinstance(t, ast.Name) else t.attr if isinstance(t, ast.Attribute) else "" for t in types}
+
+
+def unserved_served(path: str, source: str, classes: tuple) -> list[str]:
+    """D-SC1.34: for each backend class in `UNSERVED`, a handler naming it whose body reads the caught name other
+    than in `raise ... from e`, `isinstance(e, ...)` or a logging call is `UNSERVED_SERVED path:line class`."""
+    tree = ast.parse(source, filename=path)
+    out = []
+    for h in ast.walk(tree):
+        if not isinstance(h, ast.ExceptHandler) or not h.name:
+            continue
+        named = sorted(_handled(h) & set(classes))
+        if not named:
+            continue
+        allowed: set[int] = set()
+        for stmt in h.body:
+            for n in ast.walk(stmt):
+                if isinstance(n, ast.Raise) and n.cause is not None:
+                    allowed |= _subtree_ids([n.cause])
+                elif isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id == "isinstance" and n.args:
+                    allowed |= _subtree_ids([n.args[0]])
+                elif isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and n.func.attr in LOG_METHODS \
+                        and _logger(n.func.value):
+                    allowed |= _subtree_ids(n.args + [k.value for k in n.keywords])
+        for stmt in h.body:
+            for n in ast.walk(stmt):
+                if isinstance(n, ast.Name) and n.id == h.name and id(n) not in allowed:
+                    out += [f"UNSERVED_SERVED {path}:{n.lineno} {c}" for c in named]
+                    break
+            else:
+                continue
+            break
+    return out
+
+
 # --- the run ---------------------------------------------------------------------------------------------------------
 
 
@@ -562,22 +826,32 @@ def run(root: Path, adopted: tuple, mode: str | None) -> list[str]:
     # (4): the scan
     i18n = root / I18N
     instances = instance_codes([*cat.statements.values(), worked.WORKED], cat.vocabulary.values())
-    for p in sorted(i18n.glob("*.py")):
-        rel = p.relative_to(root).as_posix()
-        if p.stem in MECHANISM:
+    for rel, p, kind in i18n_files(root):
+        if kind == "mechanism":
             out += mechanism_hits(rel, p.read_text(encoding="utf-8"), schema, instances, p.stem in MECH_BRANCH_FILES)
-        elif p.stem not in LEGACY_I18N:
+        elif kind == "marker":
+            out += mechanism_hits(rel, p.read_text(encoding="utf-8"), schema, instances, False)
+        elif kind == "unscoped":
             out.append(f"MECH_UNSCOPED {rel}")
+    backend_classes = tuple(c for c in schema.UNSERVED if not isinstance(getattr(builtins, c, None), type))
     for rel in adopted:
         if (root / rel).exists():
-            out += adopted_hits(rel, (root / rel).read_text(encoding="utf-8"), schema.UNSERVED)
+            text = (root / rel).read_text(encoding="utf-8")
+            out += adopted_hits(rel, text, schema.UNSERVED)
+            out += unserved_served(rel, text, backend_classes)
     hits: dict[str, list[tuple[str, int]]] = {}
     for rel, p in _ratchet_paths(root, adopted):
-        found = ratchet_hits(rel, p.read_text(encoding="utf-8"), schema.UNSERVED)
+        text = p.read_text(encoding="utf-8")
+        found = ratchet_hits(rel, text, schema.UNSERVED)
         if found:
             hits[rel] = found
+        if backend_classes:
+            out += unserved_served(rel, text, backend_classes)
     handbuilt_path = root / HANDBUILT_BASELINE
     baseline = _read_json(handbuilt_path)
+    allow_path = root / ALLOW
+    allow = _read_json(allow_path)
+    allowed, allow_lines = _allow(allow, hits, adopted)
 
     if mode == "--write-baseline":
         for path, data in ((legacy_path, hashes), (handbuilt_path, {k: sorted(f for f, _ in v) for k, v in hits.items()})):
@@ -587,6 +861,10 @@ def run(root: Path, adopted: tuple, mode: str | None) -> list[str]:
                 _write_json(path, data)
         return [o for o in out if o.startswith("BASELINE_EXISTS")]
     if mode == "--prune":
+        if allow is not None:
+            _write_json(allow_path, {path: [e for e in entries if _allow_live(path, e, hits)]
+                                     for path, entries in allow.items()
+                                     if any(_allow_live(path, e, hits) for e in entries)})
         if legacy is not None:
             _write_json(legacy_path, {k: v for k, v in legacy.items() if hashes.get(k) == v})
         if baseline is not None:
@@ -613,7 +891,7 @@ def run(root: Path, adopted: tuple, mode: str | None) -> list[str]:
                 if path in baseline:
                     out.append(f"HAND_BUILT_STALE {path} (ADOPTED)")
                 continue
-            have = Counter(f for f, _ in hits.get(path, []))
+            have = Counter(f for f, _ in hits.get(path, [])) - allowed.get(path, Counter())
             want = Counter(baseline.get(path, []))
             extra = have - want
             for f, line in hits.get(path, []):
@@ -621,6 +899,7 @@ def run(root: Path, adopted: tuple, mode: str | None) -> list[str]:
                     extra[f] -= 1
                     out.append(f"HAND_BUILT_NEW {path}:{line} {f}")
             out += [f"HAND_BUILT_STALE {path} {f}" for f in sorted((want - have).elements())]
+    out += allow_lines
 
     # (5): Site codes in keys; private i18n reached from outside
     tokens = site_tokens(root)
@@ -639,16 +918,19 @@ def run(root: Path, adopted: tuple, mode: str | None) -> list[str]:
             if seg in tokens and (owner, name, seg) not in seen:
                 seen.add((owner, name, seg))
                 out.append(f"KEY_INSTANCE {owner} {name} {seg}")
+    surfaces, surface_lines = public_surfaces(root)
+    out += surface_lines
     for rel, p in _import_files(root):
         text = p.read_text(encoding="utf-8")
         if "i18n" in text:
-            out += import_hits(rel, text)
+            out += import_hits(rel, text, surfaces)
     return out
 
 
 # --- self-test -------------------------------------------------------------------------------------------------------
 
-_COPY = (PKG, "backend/tests/statement_cases", "config", "backend/conversions", LEGACY_BASELINE, HANDBUILT_BASELINE)
+_COPY = (PKG, "backend/tests/statement_cases", "config", "backend/conversions", LEGACY_BASELINE, HANDBUILT_BASELINE,
+         ALLOW)
 _PLANT = f"{PKG}/_sc1_plant.py"
 
 
@@ -705,13 +987,12 @@ def _plants(base: Path) -> list[tuple]:
             "    Case(\"common.budget_lines\", \"one\", {\"factors\": Items((Word(\"factor\", \"om\"),))}, "
             "\"a budget line for O&M\"),  # B1\n", "")}, [], "CASE_MISSING", {"CASE_MISSING"}),
         ("P14", {msgs: _replace_once("    \"en\": {\n", "    \"en\": {\n        \"sc1.p14\": \"{count}\",\n")},
-         [], "LEGACY_NEW", {"LEGACY_NEW", "HAND_BUILT_NEW", "HAND_BUILT_STALE"}),  # (i): `CATALOGUE` is a word map
+         [], "LEGACY_NEW", {"LEGACY_NEW"}),  # D-SC1.37: the legacy ratchet alone judges `CATALOGUE`
         ("P17", {common: _replace_once("STATEMENTS = {\n", "STATEMENTS = {\n    \"reconciliation.kobo_heading\": "
                                        "{\"slots\": {}, \"variants\": [{\"id\": \"plain\", \"text\": \"Heading.\"}]},\n"),
                  cases: _append("CASES.append(Case(\"reconciliation.kobo_heading\", \"plain\", {}, \"Heading.\"))\n")},
          [], "KEY_INSTANCE", {"KEY_INSTANCE"}),
-        ("P42", {msgs: lambda s: _edit_template(s, first_legacy)}, [], "LEGACY_CHANGED",
-         {"LEGACY_CHANGED", "HAND_BUILT_NEW", "HAND_BUILT_STALE"}),
+        ("P42", {msgs: lambda s: _edit_template(s, first_legacy)}, [], "LEGACY_CHANGED", {"LEGACY_CHANGED"}),
         ("P43", {leaf: _append("def _p43(x):\n    return f\"the gap is {x} today\"\n")}, [], "HAND_BUILT_NEW",
          {"HAND_BUILT_NEW"}),
         ("P44", {leaf: lambda s: ""}, [], "HAND_BUILT_STALE", {"HAND_BUILT_STALE"}),
@@ -727,13 +1008,97 @@ def _plants(base: Path) -> list[tuple]:
         ("P52", {f"{I18N}/conditions.py": _append("_P52 = \"const\"\n")}, [], "MECH_LITERAL", {"MECH_LITERAL"}),
         ("P52b", {f"{I18N}/conditions.py": _append("_P52 = {\"params\": 1}\n")}, [], "MECH_LITERAL", {"MECH_LITERAL"}),
         ("P53", {msgs: _replace_once("    \"en\": {\n", "    \"en\": {\n        \"sc1.p53\": \"A new sentence here.\",\n")},
-         [], "HAND_BUILT_NEW", {"HAND_BUILT_NEW", "HAND_BUILT_STALE", "LEGACY_NEW"}),
+         [], "LEGACY_NEW", {"LEGACY_NEW"}),
+        ("P53a", {msgs: _append("def _p53a(x):\n    return f\"the message {x} is not known\"\n")}, [], "HAND_BUILT_NEW",
+         {"HAND_BUILT_NEW"}),
         ("P53b", {loc: _append("def _p53(x):\n    return f\"the locale {x} is not known\"\n")}, [], "HAND_BUILT_NEW",
          {"HAND_BUILT_NEW"}),
         ("P53c", {msgs: lambda s: _edit_template(s, list((_read_json(base / LEGACY_BASELINE) or {}))[-1])}, [],
-         "LEGACY_CHANGED", {"LEGACY_CHANGED", "HAND_BUILT_NEW", "HAND_BUILT_STALE"}),
+         "LEGACY_CHANGED", {"LEGACY_CHANGED"}),
         ("N4", {leaf: _append("def _n4(p):\n    return f\"SELECT id FROM site WHERE code = {p}\"\n")}, [], None,
          None),
+    ]
+    out += _plants_r1(base, leaf, adopt)
+    return out
+
+
+def _word_map_plant(base: Path):
+    """P57e: (path, edit) adding `"SHUT": "Shut"` as the first entry of a real word map in a ratchet-scope module."""
+    for rel, p in _ratchet_paths(base, ()):
+        source = p.read_text(encoding="utf-8")
+        if '"SHUT"' in source:
+            continue
+        t = Tree(rel, source, ())
+        for n in t.live():
+            if isinstance(n, ast.Dict) and len(list(word_map_entries(n, t))) >= 2 \
+                    and all(_str(k) for k in n.keys):
+                line, col = n.lineno, n.col_offset
+
+                def edit(s, line=line, col=col):
+                    lines = s.split("\n")
+                    assert lines[line - 1][col] == "{"
+                    lines[line - 1] = lines[line - 1][:col + 1] + '"SHUT": "Shut", ' + lines[line - 1][col + 1:]
+                    return "\n".join(lines)
+                return rel, edit
+    raise AssertionError("no word map to plant P57e in")
+
+
+def _plants_r1(base: Path, leaf: str, adopt: list) -> list[tuple]:
+    """Fix round 1 plants (D-SC1.33 to D-SC1.37): P49a-d, P51a-d, P53a (above), P55a-c, P56, P57a-e and N5-N13."""
+    i18n_init = f"{I18N}/statements/en/__init__.py"
+    prose_fn = "def f(x):\n    return f\"the gap is {x} today\"\n"
+    leaf_prints = (_read_json(base / HANDBUILT_BASELINE) or {}).get(leaf, [])
+    fp = leaf_prints[0] if leaf_prints else "g:<module>:000000000000"
+
+    def allow(entry, path=leaf):
+        return {ALLOW: json.dumps({path: [entry]})}
+
+    wm_path, wm_edit = _word_map_plant(base)
+    ratchet = {
+        "P57a": "LABELS = (\"PV array\",)\n",
+        "P57b": "def f(k):\n    return f\"Unknown change_kind {k!r}.\"\n",
+        "P57c": "def f(ok):\n    return \"Yes\" if ok else \"No\"\n",
+        "P57d": "def f(day_texts):\n    return \", \".join(day_texts)\n",
+        "N5": "_COLUMNS = \"id, tenant_id\"\nQ = text(\"SELECT \" + _COLUMNS + \" FROM structure_snapshot WHERE tenant_id = :t AND \"\n"
+              "         \"site_id IS NULL \")\n",
+        "N6": "Q = \"u.id, u.tenant_id, u.file_name, u.reader, \" + \" FROM commercial_upload u JOIN operator_account sa ON \" \\\n"
+              "    \"sa.tenant_id = u.tenant_id \"\n",
+        "N7": "import hashlib\n\n\ndef f(lines):\n    return hashlib.sha256(\"\\n\".join(lines).encode(\"utf-8\")).hexdigest()\n",
+        "N8": "def f(real, j, kept):\n    return (\"LIVE\" if real else \"SIMULATED\", \"application/json\" if j else \"text/csv\",\n"
+              "            \"keep\" if kept else \"grant\")\n",
+        "N9": "class C:\n    def f(self, n):\n        self.logger.info(f\"loaded {n} rows from the file\")\n",
+        "N10": "ORDER = \"episode_start desc nulls last, site_code_key asc\"\n",
+        "N11": "def f():\n    raise ValueError(\"expression is not text\")\n",
+        "N12": "def f(known):\n    return \" AND e.recorded_at <= :k\" if known else \"\"\n",
+        "N13": "from assetops_backend.i18n.render import served\n\n\ndef f(m):\n    return served(m)\n",
+    }
+    out = [(name, {_PLANT: body}, [], None if name.startswith("N") else "HAND_BUILT_NEW",
+            None if name.startswith("N") else {"HAND_BUILT_NEW"}) for name, body in ratchet.items()]
+    out += [
+        ("P49a", {_PLANT: "from assetops_backend.i18n.render import formats\n"}, [], "I18N_BYPASS", {"I18N_BYPASS"}),
+        ("P49b", {_PLANT: "import assetops_backend.i18n.render as r\n\n\ndef f(x):\n    return r.formats.money(x)\n"},
+         [], "I18N_BYPASS", {"I18N_BYPASS"}),
+        ("P49c", {_PLANT: "from assetops_backend.i18n import render\n\n\ndef f():\n    return render.formats\n"}, [],
+         "I18N_BYPASS", {"I18N_BYPASS"}),
+        ("P49d", {f"{I18N}/render.py": lambda s: re.sub(r"\n__all__ = \[[^\]]*\]\n", "\n", s, count=1)}, [],
+         "I18N_SURFACE", {"I18N_SURFACE", "I18N_BYPASS"}),  # without a surface every outside import is a bypass
+        ("P51a", {f"{I18N}/helpers/words.py": prose_fn}, [], "MECH_UNSCOPED", {"MECH_UNSCOPED"}),
+        ("P51b", {f"{I18N}/statements/words.py": prose_fn}, [], "MECH_UNSCOPED", {"MECH_UNSCOPED"}),
+        ("P51c", {f"{I18N}/statements/en/extra/words.py": prose_fn}, [], "MECH_UNSCOPED", {"MECH_UNSCOPED"}),
+        ("P51d", {i18n_init: _append("X = \"Not available here\"\n")}, [], "MECH_LITERAL", {"MECH_LITERAL"}),
+        ("P55a", allow({"fingerprint": fp, "class": "SERVED", "why": "a sentence"}), [], "ALLOW_CLASS",
+         {"ALLOW_CLASS"}),
+        ("P55a2", allow({"fingerprint": fp, "class": "SQL", "why": " "}), [], "ALLOW_CLASS", {"ALLOW_CLASS"}),
+        ("P55b", allow({"fingerprint": "g:<module>:000000000000", "class": "SQL", "why": "a fragment"}), [],
+         "ALLOW_STALE", {"ALLOW_STALE"}),
+        ("P55c", {**allow({"fingerprint": fp, "class": "CODE", "why": "code"}, _PLANT), _PLANT: "X = 1\n"}, adopt,
+         "ALLOW_SCOPE", {"ALLOW_SCOPE"}),
+        ("P56", {f"{I18N}/schema.py": _replace_once("\"CatalogueError\", \"WireError\")",
+                                                 "\"CatalogueError\", \"WireError\", \"PlantRefused\")"),
+                 _PLANT: "class PlantRefused(ValueError):\n    pass\n\n\ndef f(g):\n    try:\n        return g()\n"
+                         "    except PlantRefused as e:\n        return {\"detail\": e.args[0]}\n"}, [],
+         "UNSERVED_SERVED", {"UNSERVED_SERVED", "HAND_BUILT_NEW"}),  # (j) reads `e.args` too
+        ("P57e", {wm_path: wm_edit}, [], "HAND_BUILT_NEW", {"HAND_BUILT_NEW"}),
     ]
     return out
 
@@ -802,6 +1167,8 @@ def self_test() -> int:
                 ok = code == 0
             else:
                 ok = code != 0 and required in codes and codes <= allowed
+                if name == "P57e":  # D-SC1.37: one new word-map entry is exactly one fingerprint
+                    ok = ok and len(lines) == 1
             shutil.rmtree(root, ignore_errors=True)
             return name, ok, required, lines
 
