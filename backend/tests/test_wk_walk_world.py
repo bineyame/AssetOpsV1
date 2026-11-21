@@ -1345,8 +1345,11 @@ def test_t9_track_and_stop_with_a_reused_leader_pid(env, capsys):
     web = rec["pid"]
     env.procs.table[web]["start"] = rec["start_time"] + 9
     fresh = {k: v for k, v in rec.items() if k != "members"}
+    scans, real = [], env.procs.pids
+    env.procs.pids = lambda: scans.append(1) or real()
     env.procs.track(fresh)
-    assert "members" not in fresh
+    env.procs.pids = real
+    assert "members" not in fresh and scans == []   # no members, and the group was not even scanned
     capsys.readouterr()
     assert env.main("stop") == 4
     assert all(p != web for p, _ in env.procs.signals)
