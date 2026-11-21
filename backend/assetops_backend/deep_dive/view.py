@@ -275,16 +275,49 @@ class _View:
         return W.out_text(self.name(code), "NEEDS", keys, target,
                           W.money(own, self.cur) if own is not None else None)
 
-    def descendants(self, step: str) -> set[str]:
-        out: set[str] = set()
+    def descendants(self, step: str) -> dict[str, str]:
+        """Each registry descendant of `step` with its registry parent (the first reached, breadth first)."""
+        out: dict[str, str] = {}
         todo = [step]
         while todo:
-            f = todo.pop()
+            f = todo.pop(0)
             for child in self.reg.row(f).children:
-                if child not in out:
-                    out.add(child)
+                if child not in out and child != step:
+                    out[child] = f
                     todo.append(child)
         return out
+
+    def drivers(self, step: str) -> list[dict]:
+        """Spec section 3.2, D-5C.21: the step's direct parts, each with its own parts in `children`. A driver's parent
+        is its nearest registry ancestor that is the step or has a driver row; `residual:<x>` is the last child of
+        `x`; within a level, `pb.rows` order."""
+        below = self.descendants(step)
+        keys = []
+        for key in self.rows:
+            x = key[len(T.RESIDUAL_PREFIX):] if key.startswith(T.RESIDUAL_PREFIX) else None
+            if key in below or (x is not None and (x == step or x in below)):
+                keys.append(key)
+        held = set(keys)
+
+        def parent(key: str) -> str:
+            up = key[len(T.RESIDUAL_PREFIX):] if key.startswith(T.RESIDUAL_PREFIX) else below[key]
+            while up != step and up not in held:
+                up = below[up]
+            return up
+        kids: dict[str, list[str]] = {}
+        for key in keys:  # `pb.rows` order; then each residual last among its parent's children
+            kids.setdefault(parent(key), []).append(key)
+        for level in kids.values():
+            level.sort(key=lambda k: k.startswith(T.RESIDUAL_PREFIX))
+
+        def node(key: str) -> dict:
+            r = self.rows[key]
+            x = key[len(T.RESIDUAL_PREFIX):] if key.startswith(T.RESIDUAL_PREFIX) else None
+            return {"key": key, "label": W.factor_label(key if x is None else x),
+                    "value": W.amount(r.effect, self.cur, "SIGNED"), "sites": W.sites(r.k, self.n),
+                    "detail": self.driver_detail(key, r), "word": self.word(r),
+                    "children": [node(k) for k in kids.get(key, [])]}
+        return [node(k) for k in kids.get(step, [])]
 
     def driver_detail(self, key: str, row) -> str | None:
         if row.actual is None or row.target is None or key.startswith(T.RESIDUAL_PREFIX):
@@ -320,14 +353,7 @@ class _View:
         out = [self.out_line(c, reasons) for c, reasons in row.out]
         lines_org = [W.portfolio_line(W.money(line.value, line.currency or self.cur), line.factor_id)
                      for line in self._portfolio_lines() if line.factor_id == step]
-        below = self.descendants(step)
-        drivers = []
-        for key, r in self.rows.items():
-            parent = key[len(T.RESIDUAL_PREFIX):] if key.startswith(T.RESIDUAL_PREFIX) else None
-            if key in below or (parent is not None and (parent == step or parent in below)):
-                drivers.append({"label": W.factor_label(key) if parent is None else W.factor_label(parent),
-                                "value": W.amount(r.effect, self.cur, "SIGNED"), "sites": W.sites(r.k, self.n),
-                                "detail": self.driver_detail(key, r), "word": self.word(r)})
+        drivers = self.drivers(step)
         return {"title": W.factor_label(step), "lines": lines, "sites": site_rows, "carried": carried, "out": out,
                 "lines_org": lines_org, "drivers": drivers}
 

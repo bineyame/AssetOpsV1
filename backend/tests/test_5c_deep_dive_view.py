@@ -399,20 +399,22 @@ def test_4_h_kobo_litres() -> None:
             f"and {SETUP}.")
     assert [(r["site"], r["value"], r["text"]) for r in fuel["sites"]] == [
         ("Kobo", "−$600.00", None), ("Kisiwa", "−$130.00", stop), ("Mto", "−$25.00", stop)]
-    assert fuel["drivers"] == [  # plant P13
-        {"label": "Diesel used", "value": "−$600.00", "sites": "1 of 3 Sites", "detail": "Actual 1,180 L · Target 700 L",
-         "word": "Modelled, not yet reconciled"},
-        {"label": "Diesel not shown to be avoidable", "value": "−$37.50", "sites": "1 of 3 Sites",
-         "detail": "Actual 730 L · Target 700 L", "word": "Modelled, not yet reconciled"},
-        {"label": "Diesel run while solar and battery could carry the load", "value": "−$412.50", "sites": "1 of 3 Sites",
-         "detail": "Actual 330 L · Target 0 L", "word": "Modelled, not yet reconciled"},
-        {"label": "Unexplained fuel", "value": "−$150.00", "sites": "1 of 3 Sites", "detail": "Actual 120 L · Target 0 L",
-         "word": "Modelled, not yet reconciled"},
-        # Known deviation KD1: a price does not sum across Sites (composes NONE), so the portfolio row has no actual
-        # or target and section 3.2's rule ("detail when both are present") gives null; its effect is the Modelled
-        # litres times the price difference, so its word is Modelled (spec 3.5 H's literal said Emulated).
-        {"label": "Diesel price", "value": "$0.00", "sites": "1 of 3 Sites", "detail": None,
-         "word": "Modelled, not yet reconciled"}]
+    word = "Modelled, not yet reconciled"
+    assert fuel["drivers"] == [  # plants P13, P24 (D-5C.21: nested; a flattened list fails)
+        {"key": "diesel_l", "label": "Diesel used", "value": "−$600.00", "sites": "1 of 3 Sites",
+         "detail": "Actual 1,180 L · Target 700 L", "word": word, "children": [
+             {"key": "necessary_l", "label": "Diesel not shown to be avoidable", "value": "−$37.50",
+              "sites": "1 of 3 Sites", "detail": "Actual 730 L · Target 700 L", "word": word, "children": []},
+             {"key": "candidate_l", "label": "Diesel run while solar and battery could carry the load",
+              "value": "−$412.50", "sites": "1 of 3 Sites", "detail": "Actual 330 L · Target 0 L", "word": word,
+              "children": []},
+             {"key": "unexplained_l", "label": "Unexplained fuel", "value": "−$150.00", "sites": "1 of 3 Sites",
+              "detail": "Actual 120 L · Target 0 L", "word": word, "children": []}]},
+        # D-5C.24 (was KD1): a price does not sum across Sites (composes NONE), so the portfolio row has no actual or
+        # target and section 3.2's rule gives no detail; its effect is the Modelled litres times the price
+        # difference, so its word is Modelled.
+        {"key": "diesel_price", "label": "Diesel price", "value": "$0.00", "sites": "1 of 3 Sites", "detail": None,
+         "word": word, "children": []}]
     untracked = ("Not checked for later changes: Diesel not shown to be avoidable (Kobo), Diesel run while solar and "
                  "battery could carry the load (Kobo) and Unexplained fuel (Kobo).")
     assert v["fresh"]["untracked_text"] == untracked
