@@ -6,10 +6,9 @@ figure's word carries the organisation's standing, read by the caller at `served
 """
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
-from collections.abc import Sequence
 from decimal import ROUND_HALF_EVEN, Context, Decimal, localcontext
 from typing import Any
 

@@ -745,8 +745,10 @@ def test_1_driver_units_have_words() -> None:  # PF1: every driver a MINI_GRID s
     for f in sorted(reachable):
         unit = MG.row(f).unit
         others = [n for n, _ in unit.exponents if n != "MONEY"]
-        if unit.is_money or len(others) != 1:
+        if unit.is_money:
             continue
+        # review L2: driver_detail reads UNIT_WORDS[others[0]], so a unit with two non-money dimensions must fail here
+        assert len(others) == 1, (f, others)
         seen.add(others[0])
         assert T.UNIT_WORDS[others[0]] in VOCABULARY["unit"]["entries"], f
         assert v.driver_detail(f, SimpleNamespace(actual=D("2"), target=D("1"), currency="USD"))
