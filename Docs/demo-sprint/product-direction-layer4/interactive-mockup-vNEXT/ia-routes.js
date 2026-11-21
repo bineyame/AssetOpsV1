@@ -162,15 +162,19 @@ function iaScreen(route, path) {
 function iaPaletteFilter(out) { return out.filter(([, , id]) => iaLive(id)).map(([l, k, id]) => [l, k, iaCanon(id).replace(/^#\//, '')]); }
 
 /* D-IA.36: an in-page link (#<id>) scrolls to that element on the page it is on; it is never a route */
+/* the sticky decision bar is shown only once the page is scrolled past the recommendation: measure its height now, so a scroll target stops below it (top of the view, wide screens only; on a phone the bar is at the bottom). One measure, used by in-page links and by the tab switch (D-IA.36, D-IA.58) */
+function iaStickyH() {
+  const sb = document.querySelector('[data-ux-sticky]'); let hh = 0;
+  if (sb && innerWidth > 600) { const was = sb.classList.contains('is-on'); sb.classList.add('is-on'); hh = Math.ceil(sb.getBoundingClientRect().bottom); if (!was) sb.classList.remove('is-on'); }
+  return hh;
+}
 function iaInPage(a) {
   const href = a.getAttribute('href') || '';
   if (!href.startsWith('#') || href === '#' || href.startsWith('#/')) return false;
   let id; try { id = decodeURIComponent(href.slice(1)); } catch (e) { return false; }
   const el = document.getElementById(id), app = document.getElementById('app');
   if (!el || !app || !app.contains(el)) return false;
-  /* the sticky decision bar is shown only once the page is scrolled past the recommendation: measure its height now, so the target stops below it (top of the view, wide screens only; on a phone the bar is at the bottom) */
-  const sb = document.querySelector('[data-ux-sticky]'); let hh = 0;
-  if (sb && innerWidth > 600) { const was = sb.classList.contains('is-on'); sb.classList.add('is-on'); hh = Math.ceil(sb.getBoundingClientRect().bottom); if (!was) sb.classList.remove('is-on'); }
+  const hh = iaStickyH();
   document.documentElement.style.setProperty('--ia-sticky-h', `${hh}px`);
   const calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   el.scrollIntoView({ block: 'start', behavior: calm ? 'auto' : 'smooth' });
@@ -195,18 +199,21 @@ function iaFitTopbar() {
   let raf = 0; window.addEventListener('resize', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => iaFitTopbar()); });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => iaFitTopbar());
 })();
-/* D-IA.55: a tab switch shows its tab. On a hash change between two routes of one tab group, in a frame after render (after screens.js's
-   scrollTo(0,0)): when the tab content's first box starts below the fold (top > innerHeight - 48), scroll the tab strip to the top; then,
-   if focus is on body, the active tab takes focus. First load and deep links are not switches. */
+/* D-IA.55, D-IA.58: a tab switch shows its tab's content. On a hash change between two routes of one tab group, in a frame after render
+   (after screens.js's scrollTo(0,0)): when the content's first box starts below the fold (top > innerHeight - 48), the frame scrolls so that
+   box sits just under the sticky bar (iaStickyH + var(--s2)); otherwise it stays at 0. Then, if focus is on body, the active tab takes focus.
+   First load and deep links are not switches. */
 function iaTabSwitch(oldURL, newURL) {
   const path = u => { const h = String(u || '').split('#')[1] || ''; return h.replace(/^\//, '').split('?')[0]; };
   const a = iaMatch(path(oldURL)), b = iaMatch(path(newURL));
   if (!a || !b || !a.route.tabGroup || a.route.tabGroup !== b.route.tabGroup) return;
   requestAnimationFrame(() => {
-    const strip = document.querySelector('[data-ia-tabs]'), first = strip && strip.firstElementChild, L2 = document.querySelector('[data-level="L2"]') || document.querySelector('[data-level]');
-    if (!first || !L2) return;
+    const strip = document.querySelector('[data-ia-tabs]'), L2 = document.querySelector('[data-level="L2"]') || document.querySelector('[data-level]');
+    if (!strip || !L2) return;
     const box = [L2, ...L2.querySelectorAll('*')].find(e => e.getClientRects().length), y = window.scrollY;
-    if (box && box.getBoundingClientRect().top + y > window.innerHeight - 48) window.scrollTo({ top: first.getBoundingClientRect().top + y, behavior: 'instant' });
+    if (box && box.getBoundingClientRect().top + y > window.innerHeight - 48) {
+      const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--s2')) || 8;
+      window.scrollTo({ top: Math.max(0, box.getBoundingClientRect().top + y - iaStickyH() - gap), behavior: 'instant' }); }
     if (document.activeElement === document.body || !document.activeElement) { const t = [...strip.querySelectorAll('a.active, .ux-tabmenu summary')].find(e => e.getClientRects().length); if (t) t.focus({ preventScroll: true }); }
   });
 }

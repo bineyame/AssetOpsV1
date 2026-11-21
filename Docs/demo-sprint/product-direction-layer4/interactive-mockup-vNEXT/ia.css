@@ -80,7 +80,7 @@
 .ia-plan-rules{margin:var(--s2,8px) 0 0}
 .ia-plan-case{margin:var(--s2,8px) 0 0}
 
-.ia-plan-released{margin:var(--s2,8px) 0 0}
+.ia-plan-released{margin:var(--s2,8px) 0 0;font-size:var(--fs-sm);color:var(--text-2)} /* D-IA.60 L6: the release line's type (.approval-releases) */
 [data-ia-tabs]{display:contents}
 /* D-IA.56: a tile row fills its row; below 1280 two tracks and an odd last tile spans the row */
 @media (min-width:1280px){.ia-frame .heroes.ux-kpis:has(>:last-child:nth-child(3)){grid-template-columns:repeat(3,minmax(0,1fr))}.ia-frame .heroes.ux-kpis:has(>:last-child:nth-child(2)){grid-template-columns:repeat(2,minmax(0,1fr))}}

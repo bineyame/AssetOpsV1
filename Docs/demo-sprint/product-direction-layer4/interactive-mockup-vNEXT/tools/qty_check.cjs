@@ -6,13 +6,17 @@
    the release line has no money and the clause alone is at most the total; totals of one key are equal across the routes of a scenario; a
    QTY row whose selector finds nothing on a route it names fails (never dormant). The sweep's pairs are listed in the packet.
    Run: node tools/qty_check.cjs   Plants: QTY_PLANT=clause (the released-at-creation clause omitted), wait (the clause sums the waiting
-   items instead). Both must fail on all three operators. */
+   items instead). Both must fail on all three operators. D-IA.60: QTY_PLANT=gap (the $25 removed from the Overview gap tile) and items (one valued item row dropped) must fail too (gap: Lakeside only has a Grow part). */
 const { boot, OPS, liveRoutes } = require('./ia_crawl.cjs');
 const PLANT = process.env.QTY_PLANT || '';
 const PLANTS = {
   clause: 'iaPlanReleased = () => "";',
   wait: 'iaPlanReleased = function (op) { const ids = planCaseIds(op).filter(id => !releaseOf(op, id).at); return ids.length ? `<p class="ia-plan-released" data-qty="plan-spend" data-qty-role="part">Waiting: ${ids.map(id => `${itemProse(op, id)} (${usd(releaseOf(op, id).spend)})`).join("; ")}.</p>` : ""; };' };
-if (PLANT && !PLANTS[PLANT]) { console.error(`qty_check: unknown plant ${PLANT}`); process.exit(2); }
+/* DOM plants, applied after each route renders (D-IA.60): gap removes the $25 part from the Overview gap tile; items drops one valued item row */
+const DOM_PLANTS = {
+  gap: d => { const k = [...d.querySelectorAll('.ux-kpi')].find(e => /^Gap to target/.test(e.textContent.trim())), x = k && k.querySelector('.ux-kpi-s'); if (x) x.textContent = x.textContent.replace(/Grow\s*[−-]\$25\s*·\s*/, ''); },
+  items: d => { const r = [...d.querySelectorAll('.ux-itemrow')].find(e => [...e.querySelectorAll('.ux-it-c.ux-num')].slice(1).some(c => /^[+−-]\$/.test(c.textContent.trim()))); if (r) r.remove(); } };
+if (PLANT && !PLANTS[PLANT] && !DOM_PLANTS[PLANT]) { console.error(`qty_check: unknown plant ${PLANT}`); process.exit(2); }
 const MONEY = /[−-]?\$[\d,]+(?:\.\d+)?/g;
 const num = s => { const m = String(s).replace(/,/g, ''); return (/^[−-]/.test(m) ? -1 : 1) * parseFloat(m.replace(/^[−-]?\$/, '')); };
 const moneys = t => (String(t).match(MONEY) || []).map(num);
@@ -21,6 +25,11 @@ const PLAN_ROUTES = ['plan', 'plan/left-out', 'plan/review', 'plan/history'];
 const QTY = [
   { key: 'plan-spend', role: 'total', routes: PLAN_ROUTES, sel: '.ux-planband .ux-kpi-v', pick: t => moneys(t).slice(0, 1) },
   { key: 'plan-spend', role: 'part', routes: PLAN_ROUTES, sel: '.approval-releases', pick: t => { const m = t.match(/([−-]?\$[\d,]+(?:\.\d+)?) of one-off spend/); return m ? [num(m[1])] : []; } },
+  /* D-IA.60 L5: the Overview gap ($852 = $827 + $25) and the Items sum ("$1,520 in all" = the valued item rows' one-off costs), each its own key (D-IA.54) */
+  { key: 'overview-gap', role: 'total', routes: ['portfolio'], sel: '.ux-kpi', text: /^Gap to target/, within: '.ux-kpi-v', pick: t => moneys(t).slice(0, 1) },
+  { key: 'overview-gap', role: 'part', routes: ['portfolio'], sel: '.ux-kpi', text: /^Gap to target/, within: '.ux-kpi-s', pick: t => moneys(t) },
+  { key: 'plan-items', role: 'total', routes: ['plan'], sel: '*', text: /in all/, pick: t => { const m = t.match(/([−-]?\$[\d,]+(?:\.\d+)?) in all/); return m ? [num(m[1])] : []; } },
+  { key: 'plan-items', role: 'part', routes: ['plan'], sel: '.ux-itemrow', all: true, pickRow: row => { const c = [...row.querySelectorAll('.ux-it-c.ux-num')].map(e => e.textContent.trim()); return c.slice(1).some(x => /^[+−-]\$/.test(x)) ? moneys(c[0]).slice(0, 1) : []; } },
   { key: 'plan-spend', role: 'total', routes: ['portfolio'], sel: '.ux-kpi', text: /^Plan spend/, within: '.ux-kpi-v', pick: t => moneys(t).slice(0, 1) }];
 const PICK = { lakeside: [['sw-budget', '6500'], ['sw-loi', 'no']], harvest: [['sw-agg', 'no']], metro: [['sw-tou', 'no']] };
 const fails = []; let screens = 0, figs = 0;
@@ -29,7 +38,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   const t0 = Date.now();
   for (const op of OPS) for (const nd of [false, true]) for (const st of ['proposed', 'approved', 'sent back']) {
     const B = await boot(op, 'plan'), { w, doc } = B, tag = `${B.opName} · ${nd ? 'non-default case' : 'default case'} · ${st}`;
-    if (PLANT) { w.eval(PLANTS[PLANT]); w.eval('render()'); await sleep(20); }
+    if (PLANT && PLANTS[PLANT]) { w.eval(PLANTS[PLANT]); w.eval('render()'); await sleep(20); }
     const click = async sel => { const e = doc.querySelector(sel); if (!e) return false; e.click(); await sleep(20); return true; };
     if (nd) for (const [name, val] of PICK[op]) { const r = doc.querySelector(`input[name="${name}"][value="${val}"]`); if (!r) { fails.push(`${tag}: no switch ${name}=${val}`); continue; } r.checked = true; r.dispatchEvent(new w.Event('change', { bubbles: true })); await sleep(10); }
     if (st === 'approved' && !(await click('.ux-planband [data-ux-act="approve-plan"]') && await click('#uxact [data-ux-act-go]'))) { fails.push(`${tag}: Approve did not run`); continue; }
@@ -41,11 +50,12 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
       if (!await click('#uxact [data-ux-act-go]')) { fails.push(`${tag}: Send back did not run`); continue; } }
     const totalsOf = {};
     for (const r of liveRoutes(w, op)) {
-      await B.go(r.id); screens++;
+      await B.go(r.id); screens++; if (DOM_PLANTS[PLANT]) DOM_PLANTS[PLANT](doc);
       const at = `${tag} · ${r.id}`, root = doc.querySelector('#app') || doc.body, by = {};
       const add = (key, role, vals) => { (by[key] = by[key] || { total: [], part: [], shown: 0 })[role].push(...vals); figs += vals.length; };
       root.querySelectorAll('[data-qty]').forEach(e => add(e.dataset.qty, e.dataset.qtyRole === 'total' ? 'total' : 'part', moneys(e.textContent)));
       for (const q of QTY) { if (!q.routes.includes(r.id)) continue;
+        if (q.all) { const rows = [...root.querySelectorAll(q.sel)]; if (!rows.length) { fails.push(`${at}: QTY row ${q.key}/${q.role} selector "${q.sel}" finds nothing`); continue; } add(q.key, q.role, rows.flatMap(q.pickRow)); continue; }
         const hit = [...root.querySelectorAll(q.sel)].find(e => !q.text || q.text.test(e.textContent.trim()));
         if (!hit) { fails.push(`${at}: QTY row ${q.key}/${q.role} selector "${q.sel}" finds nothing`); continue; }
         add(q.key, q.role, q.pick((q.within ? hit.querySelector(q.within) || { textContent: '' } : hit).textContent)); }

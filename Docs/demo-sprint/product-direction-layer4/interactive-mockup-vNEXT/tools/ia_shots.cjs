@@ -30,7 +30,7 @@
 */
 const { chromium } = require(process.env.PW), fs = require('fs');
 const base = 'file://' + process.argv[2], out = process.argv[3]; fs.mkdirSync(out, { recursive: true });
-const PLANT = process.env.SHOTS_PLANT || '', LAST = {}; let SW_ORDER = false, IA2A_ON = false, tilesN = 0;
+const PLANT = process.env.SHOTS_PLANT || '', LAST = {}; let relN = 0, SW_ORDER = false, IA2A_ON = false, tilesN = 0;
 const path = require('path'), IA2A_FORCED = String(process.env.IA_FORCE_LANDED || '').split(',').map(x => x.trim()).includes('IA-2a');
 const PLAN_STUB = fs.readFileSync(path.join(__dirname, 'fixtures', 'plan_stub.js'), 'utf8');
 const measure = () => { const tb = document.querySelector('.ia-frame .topbar'), kids = tb ? [...tb.querySelectorAll(':scope > *, :scope > .right > *')].filter(e => e.getBoundingClientRect().height > 0) : [];
@@ -67,6 +67,7 @@ const measure = () => { const tb = document.querySelector('.ia-frame .topbar'), 
     if (act === 'case') { await p.evaluate(() => { for (const [n, v] of [['sw-budget', '6500'], ['sw-loi', 'no']]) { const i = document.querySelector(`input[name="${n}"][value="${v}"]`); i.checked = true; i.dispatchEvent(new Event('change', { bubbles: true })); } location.hash = '#/plan/left-out'; }); await p.waitForTimeout(300); }
     if (PLANT === 'approvefold') await p.evaluate(() => { const b = document.querySelector('[data-shape="plan"] .ux-planband'); if (b) b.insertAdjacentHTML('beforebegin', '<div data-plant="approvefold" style="height:900px"></div>'); });
     if (PLANT === 'tilefill') await p.evaluate(() => { const del = l => { for (let i = l.length - 1; i >= 0; i--) { const r = l[i]; if (r.cssRules && r.type !== CSSRule.STYLE_RULE) del(r.cssRules); else if (/heroes\.ux-kpis[^{]*last-child/.test(r.selectorText || '') && /ia-frame/.test(r.selectorText)) (r.parentRule || r.parentStyleSheet).deleteRule(i); } }; for (const sh of document.styleSheets) del(sh.cssRules); });
+    if (PLANT === 'releasedtype') await p.addStyleTag({ content: '.ia-plan-released{font-size:1rem!important;color:#c00!important}' }); /* D-IA.60 L6: the rule removed */
     if (PLANT === 'status') await p.addStyleTag({ content: '.ia-rail-status{display:none!important}' });
     if (PLANT === 'fit') await p.evaluate(() => { iaFitTopbar = () => {}; render(); });
     if (PLANT === 'truncate') await p.addStyleTag({ content: '.ia-frame .topbar .searchbox{max-width:140px;overflow:hidden}.ia-frame .topbar .ia-search-t{overflow:hidden;text-overflow:ellipsis}' });
@@ -92,6 +93,8 @@ const measure = () => { const tb = document.querySelector('.ia-frame .topbar'), 
     if (r.startsWith('plan') && !act && (w === 1440 || w === 1280) && IA2A_ON) { if (!fold) why.push('no band Approve measured (approvefold)'); else if (fold.b > fold.h || fold.y) why.push(`the band's Approve ends at ${fold.b} past the first viewport ${fold.h} (approvefold)`); else m.fold = fold.b; }
     if (act === 'thresholds' && !(await p.evaluate(() => (document.getElementById('ia-plan-thresholds') || {}).dataset?.open === 'true'))) why.push('the thresholds drawer did not open');
     if (act === 'approved' && !(await p.evaluate(() => /approved/i.test((document.querySelector('.ux-toast') || {}).textContent || '')))) why.push('no approval toast');
+    if (r === 'plan' && !act && IA2A_ON) { const t = await p.evaluate(() => { const a = document.querySelector('.ia-plan-released'), b = document.querySelector('.approval-releases'); if (!a || !b) return null; const x = getComputedStyle(a), y = getComputedStyle(b); return { same: x.fontSize === y.fontSize && x.color === y.color && x.fontWeight === y.fontWeight, a: `${x.fontSize} ${x.fontWeight} ${x.color}`, b: `${y.fontSize} ${y.fontWeight} ${y.color}` }; });
+      if (t) { relN++; if (!t.same) why.push(`the already-released clause reads ${t.a}, the release line ${t.b} (releasedtype)`); } }
     if (!m.frame) why.push('no frame'); if (m.hscroll) why.push('sideways scroll'); if (m.tall.length) why.push(`tall top-bar item ${m.tall[0]}`); if (m.past.length) why.push(`top bar runs past the window (${m.past[0]})`);
     if (m.reach.length && !act) why.push(`${m.reach[0]} (reach)`); if (m.trunc.length) why.push(`truncated control (${m.trunc[0]})`); if (m.mw) why.push(`the scope label breaks inside a word or ends in an ellipsis (${m.mw}) (midword)`);
     if (w < 761 && m.fit !== '5') why.push(`data-fit ${m.fit}, not 5 below 761 (rows)`);
@@ -120,6 +123,7 @@ const measure = () => { const tb = document.querySelector('.ia-frame .topbar'), 
   else if (!ONLY || ONLY === 'plan') { for (const op of Object.keys(SITES)) for (const [w, h] of [[1440, 900], [1280, 720], [390, 844]]) for (const dark of [false, true]) for (const r of ['plan', 'plan/left-out', 'plan/review', 'plan/history']) await run(op, w, h, dark, r, !PLANT);
     if (!PLANT) { for (const op of Object.keys(SITES)) for (const [w, h] of [[1440, 900], [390, 844]]) { for (const a of ['dialog', 'approved', 'sentback', 'thresholds']) await run(op, w, h, false, 'plan', true, a); }
       await run('lakeside', 1440, 900, false, 'plan', true, 'case'); }
+    if (!relN) { lines.push('BAD no already-released clause measured (releasedtype)'); bad++; } lines.push(`releasedtype: ${relN} clauses measured`);
     if (ONLY === 'plan') { await b.close(); console.log(lines.join('\n') + `\ntile rows measured: ${tilesN}`); console.log(`shots: ${lines.length} measured, ${bad} bad`); process.exit(bad ? 1 : 0); } }
 
   /* D-IA.55: a tab switch shows its tab. Every group with more than one landed tab (Portfolio; Plan; Site on one Site of each type) x the operator x
@@ -127,29 +131,37 @@ const measure = () => { const tb = document.querySelector('.ia-frame .topbar'), 
      the content's first box has at least 48 px inside the viewport; the active tab is wholly in view; after a click focus is on the active tab (or the
      phone menu's summary); on the plan routes at 1440 and 1280 scrollY is 0. Plants tabnoscroll (no listener), tabscrollall (no fold test). */
   if (IA2A_ON && (!ONLY || ONLY === 'tabs')) {
+    const CFGS = ['proposed', 'approved', 'sent back'].flatMap(st => [false, true].map(nd => [st, nd])); /* D-IA.58: every plan state x the default and the non-default case (D-IA.50) */
     const GROUPS = op => [['Portfolio', 'portfolio'], ['Plan', 'plan'], ['Site', `site/${SITES[op][0]}`]];  /* a group with one landed tab draws no tabs and has no switch: reported, not measured */ let tabN = 0, tabBad = 0;
-    for (const op of Object.keys(SITES)) for (const [w, h] of [[390, 844], [1280, 720], [1440, 900]]) for (const [g, start] of GROUPS(op)) {
+    for (const op of Object.keys(SITES)) for (const [w, h] of [[390, 844], [1280, 720], [1440, 900]]) for (const [g, start] of GROUPS(op)) for (const [state, cs] of (g === 'Plan' ? CFGS : [['proposed', false]])) {
       const ctx = await b.newContext({ viewport: { width: w, height: h } }); await ctx.addInitScript(v => { try { sessionStorage.setItem('l4-op', v); } catch (e) {} }, op);
       const p = await ctx.newPage(); await p.goto(`${base}#/${start}`); await p.waitForTimeout(400);
       if (IA2A_FORCED) await p.evaluate(src => { IA_LANDED.add('IA-2a'); if (typeof shapePlan !== 'function') (0, eval)(src); render(); }, PLAN_STUB);
+      if (cs) await p.evaluate(() => { for (const [n, v] of (({ lakeside: [['sw-budget', '6500'], ['sw-loi', 'no']], harvest: [['sw-agg', 'no']], metro: [['sw-tou', 'no']] })[sessionStorage.getItem('l4-op')] || [])) { const i = document.querySelector(`input[name="${n}"][value="${v}"]`); if (i) { i.checked = true; i.dispatchEvent(new Event('change', { bubbles: true })); } } });
+      if (state !== 'proposed') { await p.click('[data-shape="plan"] .ux-planband [data-ux-act="' + (state === 'sent back' ? 'send-back' : 'approve-plan') + '"]'); await p.waitForTimeout(300);
+        if (state === 'sent back') await p.evaluate(() => { const t = document.getElementById('ux-sb-reason'), s = document.getElementById('ux-sb-way'); t.value = 'The crew cannot do both visits'; s.value = [...s.options].find(o => o.value).value; for (const e of [t, s]) for (const k of ['input', 'change']) e.dispatchEvent(new Event(k, { bubbles: true })); });
+        await p.click('#uxact [data-ux-act-go]'); await p.waitForTimeout(400); }
+      if (PLANT === 'tabstrip') await p.evaluate(() => { iaTabSwitch = () => requestAnimationFrame(() => { const s = document.querySelector('[data-ia-tabs]'), L2 = document.querySelector('[data-level="L2"]') || document.querySelector('[data-level]'), box = L2 && [L2, ...L2.querySelectorAll('*')].find(e => e.getClientRects().length); if (s && box && box.getBoundingClientRect().top + scrollY > innerHeight - 48) window.scrollTo({ top: s.firstElementChild.getBoundingClientRect().top + scrollY, behavior: 'instant' }); }); }); /* the D-IA.55 rule: strip to the top */
       if (PLANT === 'tabnoscroll') await p.evaluate(() => { iaTabSwitch = () => {}; });
       if (PLANT === 'tabscrollall') await p.evaluate(() => { iaTabSwitch = () => requestAnimationFrame(() => { const s = document.querySelector('[data-ia-tabs]'); if (s) window.scrollTo({ top: s.firstElementChild.getBoundingClientRect().top + scrollY, behavior: 'instant' }); }); });
       const hrefs = await p.evaluate(() => [...document.querySelectorAll('[data-ia-tabs] nav.tabs a[href^="#/"]')].map(a => a.getAttribute('href'))), seq = [...hrefs.slice(1), hrefs[0]];
       if (hrefs.length < 2) { if (g === 'Site') lines.push(`ok  ${op} ${g} ${w}x${h}: one landed tab, no tab switch (not measured)`); else { lines.push(`BAD ${op} ${g} ${w}x${h}: fewer than 2 tabs measured`); bad++; tabBad++; } await ctx.close(); continue; }
       const check = async (label, click) => { await p.waitForTimeout(150);
         const m = await p.evaluate(() => { const strip = document.querySelector('[data-ia-tabs]'), L2 = document.querySelector('[data-level="L2"]') || document.querySelector('[data-level]'), box = L2 && [L2, ...L2.querySelectorAll('*')].find(e => e.getClientRects().length), act = strip && [...strip.querySelectorAll('a.active, .ux-tabmenu summary')].find(e => e.getClientRects().length), r = act && act.getBoundingClientRect(), f = document.activeElement;
-          return { inside: box ? innerHeight - box.getBoundingClientRect().top : null, tabIn: !!r && r.top >= -1 && r.bottom <= innerHeight + 1, focus: !!act && f === act, y: scrollY }; });
+          const bar = document.querySelector('[data-ux-sticky]'), br = bar && bar.classList.contains('is-on') ? bar.getBoundingClientRect() : null, barTop = br && br.top > innerHeight / 2 ? br.top : innerHeight, barBottom = br && br.top <= innerHeight / 2 ? br.bottom : 0, bt = box ? box.getBoundingClientRect().top : null;
+          return { under: bt !== null && scrollY > 0 && bt < barBottom - 1 ? Math.round(barBottom - bt) : 0, inside: box ? barTop - bt : null, tabIn: !!r && r.top >= -1 && r.bottom <= innerHeight + 1, focus: !!act && f === act, y: scrollY }; });
         const why = []; tabN++;
         if (m.inside === null || m.inside < 48) why.push(`the tab's content starts ${m.inside === null ? 'nowhere' : `${Math.round(m.inside)} px inside`} the viewport, under 48`);
-        if (!m.tabIn) why.push('the active tab is not wholly in view'); if (click && !m.focus) why.push('focus is not on the active tab');
-        if (g === 'Plan' && (w === 1440 || w === 1280) && m.y) why.push(`scrollY ${Math.round(m.y)}, not 0 (tabscrollall)`);
-        if (why.length) { bad++; tabBad++; lines.push(`BAD ${op} ${g} ${w}x${h} ${label}: ${why.join('; ')}`); } };
+        if (m.under) why.push(`the tab's content starts ${m.under} px under the sticky bar`);
+        if (!m.tabIn && !m.y) why.push('the active tab is not wholly in view'); if (click && !m.focus) why.push('focus is not on the active tab');
+        if (g === 'Plan' && (w === 1440 || w === 1280) && !cs && state === 'proposed' && m.y) why.push(`scrollY ${Math.round(m.y)}, not 0 (tabscrollall)`);
+        if (why.length) { bad++; tabBad++; lines.push(`BAD ${op} ${g}${g === 'Plan' ? ` ${state}${cs ? ' non-default' : ''}` : ''} ${w}x${h} ${label}: ${why.join('; ')}`); } };
       for (const hr of seq) { await p.evaluate(h2 => { const a = [...document.querySelectorAll('[data-ia-tabs] nav.tabs a')].find(x => x.getAttribute('href') === h2), vis = a && a.getClientRects().length ? a : null;
           if (vis) vis.click(); else { const d = document.querySelector('[data-ia-tabs] .ux-tabmenu'); if (d) d.open = true; const l = d && [...d.querySelectorAll('nav a')].find(x => x.getAttribute('href') === h2); if (l) l.click(); else location.hash = h2; } }, hr);
         await check(`click ${hr}`, true); }
       await p.goBack(); await check('Back', false);
       await ctx.close(); }
-    lines.push(`${tabBad ? 'BAD' : 'ok '} tab switches: ${tabN} switches measured (3 operators x 3 widths x 3 groups), ${tabBad} bad`);
+    lines.push(`${tabBad ? 'BAD' : 'ok '} tab switches: ${tabN} switches measured (3 operators x 3 widths x the groups; Plan x 3 states x 2 cases), ${tabBad} bad`);
     if (!tabN) { lines.push('BAD no tab switch measured'); bad++; }
     if (ONLY === 'tabs') { await b.close(); console.log(lines.join('\n') + `\ntile rows measured: ${tilesN}`); console.log(`shots: ${lines.length} measured, ${bad} bad`); process.exit(bad ? 1 : 0); } }
   if (ONLY !== 'hub') for (const op of Object.keys(SITES)) for (const [w, h] of [[1440, 900], [1280, 720], [390, 844]]) for (const dark of [false, true]) {

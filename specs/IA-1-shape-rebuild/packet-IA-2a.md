@@ -62,8 +62,7 @@ renumbered 172).
 - `ia_shots` full: **601 measured, 0 bad** (505 s; approvefold measured live). `parts_identity` against `main`'s build: **282 cases,
   282 byte-identical** (10 s). uxi **386 PASS, 0 FAIL** (574 s). count_check PASS (61 s). G3 36 of 36. plan_switch **793 passed,
   0 failed**. shell_check 0 fails (45 routes crawled). design_lint 0 fails. render_text 237 renders, 0 script errors. vocab 0 hits.
-  copy: IA-2a block 4802 strings, 0 stray. hand_typed exit 0, 1 hit, pre-existing on `main` (`loop-portfolio.js` "Rights measures by
-  contract and period (as of 6 Nov)", main line 589; not in this diff). check_manifest 7572 passed, 0 failed.
+  copy: IA-2a block 4802 strings, 0 stray. hand_typed exit 0, 1 hit when first run (`rightsM`, "Rights measures by contract and period (as of 6 Nov)", a typed date in this diff); fixed in code in r1 (`fdate(AS_OF)`), count 0 now. check_manifest 7572 passed, 0 failed.
   check-architecture and check-agent-workflow pass. After the merge: `check-decision-index.py` OK; `specs/INDEX.md` 7949 bytes;
   fast check-all at `af7847ac2`: **All 40 guards passed** (82 s wall; 615 s with the slot wait).
 - Layout evidence (`tools/layout-evidence.mjs`): not run, needs a served URL (no server started, by brief); `ia_shots` measures.
