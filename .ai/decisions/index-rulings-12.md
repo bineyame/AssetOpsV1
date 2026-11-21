@@ -46,5 +46,3 @@
 - `D-IA.46` Byte-identical: planParts, approvalParts, uxPlanBandParts, whatChangedParts in three plan states; untouched list; screens.js docTitle line · live · specs/IA-1-shape-rebuild/rulings-2.md
 - `D-IA.47` Review is What changed's plan review (R759 D1); History from the act log and manifest (R760 D5); no plan list capped by position · live · specs/IA-1-shape-rebuild/rulings-2.md
 - `D-IA.48` IA-2a gates and plants; dormant checks until landed; short-tab sticky rule; 3 units, clean stop at any commit before the flip · live · specs/IA-1-shape-rebuild/rulings-2.md
-- `D-3A7.14` Reconciliation service lives in structure/ (reads commercial records; builder structure/reconciliation_composition.py); D-3A4.8 stands · live · specs/3A7-month-reconciled/rulings.md
-- `D-3A7.15` Owner file via the owner_file port; the command builds the reader, composition takes it as a parameter · live · specs/3A7-month-reconciled/rulings.md
