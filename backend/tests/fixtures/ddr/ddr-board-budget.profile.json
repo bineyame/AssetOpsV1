@@ -1,0 +1,22 @@
+{
+  "schema": "assetops.source-profile",
+  "schema_version": 1,
+  "profile_id": "ddr-board-budget",
+  "status": "ILLUSTRATIVE",
+  "source_type": "budget_workbook",
+  "source_system": "lakeside-board-pack",
+  "file": {"format": "xlsx", "sheet": "Board pack FY26", "header_row": 3},
+  "values": {"decimal_mark": ".", "thousands_mark": ",", "negative": "parentheses", "date_format": "DD/MM/YYYY",
+             "time_format": "HH:MM", "month_format": "Month YYYY", "timezone": "Africa/Nairobi"},
+  "version": {"from": "constant", "value": "1"},
+  "columns": [
+    {"header": "Line ID", "paths": [{"path": "source_record_id", "type": "text"}]},
+    {"header": "Site", "paths": [{"path": "site_code", "type": "text"}]},
+    {"header": "Period", "paths": [{"path": "clocks.recognition_period", "type": "month"}]},
+    {"header": "Budget line", "paths": [{"path": "body.factor_id", "type": "text", "map": {"Revenue": "revenue", "Fuel": "fuel_cost", "O&M": "om", "Salaries": "staff", "Contribution": "contribution"}}, {"path": "body.line_ref", "type": "text"}]},
+    {"header": "Amount", "paths": [{"path": "body.value", "type": "number"}]},
+    {"header": "Ccy", "paths": [{"path": "body.currency", "type": "text"}]}
+  ],
+  "constants": {"kind": "BUDGET_LINE", "body.version_ref": "board-budget-fy26"},
+  "personal": []
+}
