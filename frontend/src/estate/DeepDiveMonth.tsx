@@ -186,11 +186,11 @@ function Drawer({ id, title, api, children }: { id: string; title: string; api: 
       if (focusable.length === 0) return;
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
-      const inside = panel.current.contains(document.activeElement);
-      if (event.shiftKey && (!inside || document.activeElement === first)) {
+      const out = !focusable.includes(document.activeElement as HTMLElement);
+      if (event.shiftKey && (out || document.activeElement === first)) {
         event.preventDefault();
         last.focus();
-      } else if (!event.shiftKey && (!inside || document.activeElement === last)) {
+      } else if (!event.shiftKey && (out || document.activeElement === last)) {
         event.preventDefault();
         first.focus();
       }
@@ -327,6 +327,10 @@ function StepDrawer({ step, api }: { step: DeepDiveStep; api: DrawerApi }) {
 
 function MonthTable({ table, labelledBy }: { table: DeepDiveTable; labelledBy: string }) {
   const [all, setAll] = useState(false);
+  const firstNewRow = useRef<HTMLTableRowElement>(null);
+  useEffect(() => {
+    if (all) firstNewRow.current?.focus();
+  }, [all]);
   const rows = all ? table.rows : table.rows.slice(0, SITE_CAP);
   return (
     <>
@@ -342,7 +346,7 @@ function MonthTable({ table, labelledBy }: { table: DeepDiveTable; labelledBy: s
         </thead>
         <tbody>
           {rows.map((row, r) => (
-            <tr key={r}>
+            <tr key={r} {...(all && r === SITE_CAP ? { ref: firstNewRow, tabIndex: -1 } : {})}>
               {row.map((cell, i) => (i === 0 ? <th key={i} scope="row">{cell}</th> : <td key={i}>{cell}</td>))}
             </tr>
           ))}

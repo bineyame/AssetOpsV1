@@ -278,6 +278,8 @@ describe("5c test 11: drawers keep and return focus; drivers carry their words",
     const bridge = screen.getByRole("heading", { name: "Where the gap comes from" }).closest("section")!;
     fireEvent.click(within(bridge as HTMLElement).getByRole("button", { name: "Show all 12" }));
     expect(table.querySelectorAll("tr").length).toBe(12);
+    expect(document.activeElement).toBe(table.querySelectorAll("tr")[10]);
+    expect((document.activeElement as HTMLElement).tabIndex).toBe(-1);
     expect(view.container.querySelectorAll(".dd-gaps__row").length).toBe(8);
     fireEvent.click(screen.getByRole("button", { name: "Show all 9" }));
     expect(view.container.querySelectorAll(".dd-gaps__row").length).toBe(9);
@@ -612,6 +614,11 @@ describe("5c rev 4 screen fix: bars and scale (D-5C.27), the mute rule (D-5C.26)
     expect(document.activeElement).toBe(rows[10]);
     expect(rows[10].tabIndex).toBe(-1);
     expect(rows[10].textContent).toContain("Site 11");
+    // Focus on a row (tabindex -1, outside the cycle): Tab wraps to the first control instead of leaving the dialog.
+    const cycle = [...dialog.querySelectorAll<HTMLElement>("button, a[href], summary, [tabindex='0']")];
+    fireEvent.keyDown(document.activeElement as HTMLElement, { key: "Tab" });
+    expect(document.activeElement).toBe(cycle[0]);
+    expect(dialog.contains(document.activeElement)).toBe(true);
     // Focus lost to the page: Tab brings it back into the dialog, Escape on the document still closes.
     (document.activeElement as HTMLElement).blur();
     expect(document.activeElement).toBe(document.body);
