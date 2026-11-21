@@ -60,6 +60,25 @@ then stops and drops. No database was created, opened or dropped while building.
 
 Layout evidence: not run. The tool adds no layout. The smoke PNGs come from the coordinator's §5 run.
 
+## Fix round 1 checks (revision `e9d5cd992`; code `7218b2835`)
+
+- `pytest -q tests/test_wk_walk_world.py tests/test_ds4_world.py tests/test_ds4_batch_days.py` (no database): 164 passed
+  in 5.52 s. WK alone: 84 passed.
+- Plants (each removal restored after; the WK file run each time): P1 start-time check removed, 1 failed
+  (`reused_pid_with_another_start_time`). P2 leader check removed, 2 failed (`not_leading_its_group`, L3 unverified).
+  P3 recorded-group check removed, 1 failed. P4 cmdline check removed, 5 failed (vim plus the four wrappers). P5 npm
+  title form removed, 2 failed (`stops_npm_retitled`, `cmdline_matches`). P6 round-0 loose tail match restored, 3
+  failed (`bash -c`, `timeout` wrappers, `cmdline_matches`). P7 L4 member start-time check removed, 1 failed. P8 L4
+  group fallback removed, 1 failed. P9 smoke `require` removed, 2 failed (T8 both). P10 L1 range removed, 3 failed.
+  P11 L1 inequality removed, 2 failed. P12 L2 mode removed, 2 failed. P13 L2 `lstat` to `stat`, 2 failed. P14 L2
+  owner removed, 1 failed. P15 L3 first child not stopped, 2 failed.
+- Live stop check (this round only): the tool's exact web argv through the real `Procs.spawn` in a scratch package
+  whose dev script is `sleep 30 #` (no port opened; 5491 probe `busy False`). npm 11.19.1, node v24.22.3. Recorded
+  `start_time` 84479973, `pgid` = pid. `/proc` cmdline `["npm run dev --port 5491 --strictPort --host 127.0.0.1"]`;
+  group of 3 (npm, sh, sleep). `checked` None, `alive` True; `stop_child` None; after it the only group entry was the
+  unreaped zombie leader (`alive` False, then `exited` True). 2.9 s.
+- `pwsh -NoProfile -File tools/check-all.ps1` (fast): All 42 guards passed (474.8 s wall, 286.4 s waiting for a slot).
+
 ## Known deviations
 
 1. **Branch** `task/WK-walk-world`, as the dispatch names it (spec §0 names `task/WK-walkthrough-database`).
