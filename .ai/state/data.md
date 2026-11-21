@@ -474,3 +474,10 @@ Branch `task/3B7a-snapshot` (base main `264d7d6a7`, unit 0's seam merged); spec 
 
 - Settled: `structure_snapshot/` (model, canonical codec with digest, `untracked`, `rules_digest` import closure, `StoreHeldKinds`, memory and Postgres stores, `SnapshotBuilder.build`/`verify` at one instant, `SnapshotRead` serving frozen values with `RECORDS`/`MONTH_CLOSED`/`RULES` or `REBUILD_NEEDED`, composition); `python -m assetops_backend.build_structure_snapshot build|verify`; table `structure_snapshot` (append-only trigger, per-scope instant uniqueness).
 - Open: the persistence-guard block awaits owner approval (Q6/R2; text in the packet); mid-build Q1 (`rules_digest.py` trips rule 2's `pathlib` pattern once the domain is registered), Q2 (3A2's migration test asserts 0065 is head), Q3 (verify's unknown-id code, default `UNKNOWN_SNAPSHOT`); `3B7b` triggers and daily run; `5b`/`5c` consumers.
+
+## 3B2 - Findings pinned to their factors (in review, 21 Nov)
+
+Branch `task/3B2-findings-pinned` (base main `c69e72f61`); spec `specs/3B2-findings-pinned/spec.md` rev 2, rulings D-3B2.1-15; packet `packet.md`. No migration, no route, no screen, no served text.
+
+- Settled: `structure/pins.py` (`PINS`: GENERATOR_SUPPORT_CANDIDATE -> MINI_GRID/`candidate_l`, UNEXPLAINED_FUEL -> MINI_GRID/`unexplained_l`; `PENDING_PINS` for the two cold and one EV mechanism; `pinned_category` from the row's home at call time; `parity()` in the pin's own domain); `check.check_pins` and `PIN_CODES` (STRUCTURE_PIN, _TOTAL, _DUPLICATE, _UNKNOWN, _MISSING), run by `check_all()` on the start-up path only. The outcome map's wire is unchanged; the one ruled difference is UNEXPLAINED_FUEL (Protect in the literal, Optimize in the registry, D-3B2.4).
+- Open: `3B5` switches the wire to the pins applying D-3B2.4; `3B6` moves the pending pins onto their registries; the `-` structure key in `STRUCTURE_PIN_MISSING`'s text is for review.
