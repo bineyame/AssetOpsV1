@@ -751,7 +751,7 @@ rehearsed Lakeside tenant (DDR), served by the coordinator, then decides the mer
 
 ## 11. Rev 4 fix scopes (D-5C.26 to D-5C.28)
 
-**Backend fix** (new branch off `main`, about 0.5 unit, one commit; Sonnet per the fix-round rule; files in
+**Backend fix** (Status: in_review, 2026-11-21, branch `fix/5c-backend-r5`, `packet-backend-fix-r5.md`) (new branch off `main`, about 0.5 unit, one commit; Sonnet per the fix-round rule; files in
 `backend/` only):
 1. `deep_dive/view.py` `shares()`: return `{}` when `self.R.effect` is None or 0; delete `or Decimal(0)` (D-5C.28).
 2. `view.py` `figure_word(value, currency, ev, origins)`: None when `value` or `currency` is None, else `W.word(ev,

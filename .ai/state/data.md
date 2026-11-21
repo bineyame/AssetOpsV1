@@ -615,3 +615,10 @@ Branch `task/0K4a-dispatch-v8` (base main `b96d5e978`, 0K4b merged in); spec `sp
 
 - Settled: simulator `mini-grid` v8 (`decide_v8` ranks a running generator ahead of the battery; `_resolve_cycle` is v7's resolve with the RUNNING allocation by `cycle_charge_split`, 0K4b's fuel curve with a `generator-fuel` balance and tank account at 10 kWh/L, and the charge taper; `_checked_curve` and `_fuel_cap_kw` guard the curve's divisions); v1-v7 byte-identical (N9), v8 pinned by N12 `d6add2a3...5371f11`; backend `MINI_GRID_V8_MODEL` with SC-1 `model_profile.description`/`model_profile.state` served through `served_text` in `run_profile_summary`; `EXECUTABLE_MODELS` and `REPLAY_MODELS` take v8 (N11).
 - Open: no world runs v8 yet (0K4f); calibration is 0K4d's; five mid-build readings for the Architect (packet: N7 37 % run, N13 window, N13b, two test-pin edits).
+
+## 5c-fix-r5 - the deep-dive's rev 4 backend fix: no word beside no figure, step bars, no share without a gap (in review, 21 Nov)
+
+Branch `fix/5c-backend-r5` (base main `4b13c0afe`); spec `specs/5c-deep-dive-screen/spec.md` rev 4 §11 "Backend fix", rulings D-5C.26 to D-5C.28; packet `packet-backend-fix-r5.md`. No migration, no screen, no guard change; schema stays `deep-dive-month-1`.
+
+- Settled: `_View.figure_word` builds every figure slot's word and the headline's evidence, None exactly when the figure's value or currency is absent (L9's card word and `words.NO_CURRENCY` gone; `W.word` takes `currency: str`); a heading's word is the weakest of the steps its sum adds; `shares()` returns nothing when R's effect is None or 0; module-level `bridge_bars(effects, gap)` serves each step's `bar` (`left`, `width`, `tone`) and `bridge.scale` as two-place track percentages (A: revenue 0.00/11.38, fuel cost 11.38/88.62). `backend/tests/deep_dive_worlds.py` holds `world_h`, `world_x`, `in_kes`, `gone`.
+- Open: the screen fix (§11, `task/5c-unit3-screen`: generator on `deep_dive_worlds`, `dd-na`, track and scale, L1-L5); a gap of exactly 0 with a non-zero rest raises in `tile_rest` (pre-existing, not in this scope).
