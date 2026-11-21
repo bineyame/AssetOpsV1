@@ -207,6 +207,9 @@ CATALOGUE: dict[str, dict[str, str]] = {
             "A profile for an operator's real export must be PINNED; one for emulated data, ILLUSTRATIVE."),
         "source_profile.profile_lineage": (
             "A new version cannot change the source type or the source system. Give it a new profile name."),
+        "source_profile.profile_lineage_personal": (
+            "This profile already read accepted files, so who counts as a person cannot change under the same source. "
+            "Records already stored would keep the old values. Ask for the migration, or keep the declaration as it is."),
         "source_profile.profile_source_system_taken": "Another profile already reads the source system {system}.",
         "source_profile.profile_already_admitted": "This profile is already admitted.",
         "source_profile.upload_tenant_mismatch": "This organisation is not known here.",

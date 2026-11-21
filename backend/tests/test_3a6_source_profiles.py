@@ -208,6 +208,26 @@ def test_a2_new_version_supersedes_and_lineage_holds(w) -> None:
     assert (taken.code, taken.params) == ("PROFILE_SOURCE_SYSTEM_TAKEN", {"system": "lakeside-purchases-ledger"})
 
 
+def test_a2b_personal_change_refused_once_data_is_accepted(w) -> None:
+    ref, subject = ["body.counterparty_ref", "P"], ["subject.ref", "P"]
+    admit(w)
+    waiting = upload(w)
+    assert admit(w, profile_with(personal=[ref, subject])).version == 2  # a waiting upload does not count
+    assert w.store.held_uploads(w.tid) and all(h.waiting for h in w.store.held_uploads(w.tid))
+    accept(w, upload(w, reader=V2))
+    assert waiting["state"] == "WAITING"
+    before = list(w.store.profiles)
+    for personal in ([ref], [], [ref, subject, ["source_record_id", "P"]]):
+        e = refusal(lambda: admit(w, profile_with(personal=personal)))
+        assert (e.code, e.params) == ("PROFILE_LINEAGE", {"where": "personal"})
+        assert render(e.words) == (
+            "This profile already read accepted files, so who counts as a person cannot change under the same "
+            "source. Records already stored would keep the old values. Ask for the migration, or keep the "
+            "declaration as it is.")
+    assert w.store.profiles == before  # nothing written
+    assert admit(w, profile_with(personal=[subject, ref])).version == 3  # same set, other order
+
+
 def test_a3_status_follows_the_database(people) -> None:
     real = make_world(people, real_data=True)
     assert refusal(lambda: admit(real)).code == "PROFILE_STATUS"
@@ -227,6 +247,12 @@ def test_a4_sample_refusals(w) -> None:
                                                        "path": "record.quantity.value"})
     assert render(e.words) == ("Row 4 of the sample is refused: Litres: this value is not written the way this "
                                "layout reads it (for example, a date in another order).")
+    def short(n, cells):
+        if n == 5:
+            del cells[-1]
+    e = refusal(lambda: admit(w, sample=kobo_rows(short)))  # F2: never an IndexError
+    assert (e.code, e.params["row"], e.params["code"]) == ("ADMIT_SAMPLE_ROW", "5", "NATIVE_ROW")
+    assert render(e.words).startswith("Row 5 of the sample is refused")
     renamed = KOBO_SAMPLE.replace(b"Net (USD)", b"Net USD")
     e = refusal(lambda: admit(w, sample=renamed))
     assert (e.code, e.params) == ("ADMIT_SAMPLE_FILE", {"code": "NATIVE_HEADER"})
@@ -305,9 +331,8 @@ def test_a8_nothing_of_the_sample_is_stored(w) -> None:
 
 def test_a9_coverage(w) -> None:
     obj = json.loads(KOBO_PROFILE)
-    # Mid-build Q1: the spec's literal `"Quote": "INVOICED"` is not one to one, which `check_layout` (3A3) refuses
-    # at compile (`PROFILE_INVALID`); a one-to-one map with an uncovered key exercises step 4b the same way.
-    obj["columns"][cell("State")]["paths"][0]["map"] = {"Invoiced": "INVOICED", "Paid": "PAID", "Quote": "DRAFT"}
+    # D-3A6.19: maps stay one to one (`check_layout`); `QUOTE` is an expense status; 4b fires on the uncovered key.
+    obj["columns"][cell("State")]["paths"][0]["map"] = {"Invoiced": "INVOICED", "Paid": "PAID", "Quote": "QUOTE"}
     e = refusal(lambda: admit(w, json.dumps(obj).encode()))
     assert (e.code, e.params) == ("ADMIT_MAP_UNCOVERED", {"header": "State", "value": "Quote"})
 

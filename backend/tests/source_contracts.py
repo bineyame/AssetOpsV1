@@ -106,7 +106,7 @@ PROFILE_CASES: tuple[ContractCase, ...] = (
         "profile.kobo-ledger-expenses.v1", FIXTURES_3A6 / "kobo-ledger-expenses.csv",
         FIXTURES_3A6 / "kobo-ledger-expenses.expected.json",
         required_headers=("Ref", "Txn Date", "Site", "Account", "Supplier", "Litres", "Net (USD)", "State"),
-        amount_header="Net (USD)", clock_header="Txn Date", bad_clock="2026-10-11T09:00:00", revision_header=None,
+        amount_header="Net (USD)", clock_header="Txn Date", bad_clock="2026-10-11 09:00", revision_header=None,
         coded=(("Account", "Fuel"), ("State", "Draft")), personal_raw=("STAFF-07", "0712000001", "0712000777"),
         encoding="cp1252", delimiter=";", header_row=3, line_end="\r\n", bad_number=("12.5", "NATIVE_FORMAT"),
         bad_clock_code="NATIVE_FORMAT", versioning="digest", changed_amount="999,00",

@@ -126,6 +126,7 @@ def _swap_day_month(fmt: str) -> str:
 def _coverage(layout: Layout, rows: list[tuple[int, list[str]]]) -> None:
     """Step 4a to 4c (D-3A6.11), on `split_file`'s rows; the first failure only."""
     columns = list(enumerate(layout.columns))
+    rows = [r for r in rows if len(r[1]) == len(columns)]  # a short or long row is refused by its own verdict
     for i, column in columns:  # 4a
         if column.paths and not any(cells[i] != "" for _, cells in rows):
             raise ProfileRefused("ADMIT_COLUMN_EMPTY", {"header": column.header})
@@ -201,6 +202,13 @@ class SourceProfiles:
             if any(r.source_type != source_type or r.source_system != system for r in rows):
                 raise ProfileRefused("PROFILE_LINEAGE")
             version = max((r.version for r in rows), default=0) + 1
+            if rows:
+                latest = max(rows, key=lambda r: r.version)
+                before = {tuple(p) for p in json.loads(latest.profile_json)["personal"]}
+                if before != {tuple(p) for p in obj["personal"]} and any(
+                        not h.waiting and h.source_system == system for h in self._store.held_uploads(tenant_id)):
+                    raise ProfileRefused("PROFILE_LINEAGE", {"where": "personal"},
+                                         message("source_profile.profile_lineage_personal"))
         if any(r.profile_id != profile_id and r.source_system == system
                for r in self._store.source_profiles_latest(tenant_id)):
             raise ProfileRefused("PROFILE_SOURCE_SYSTEM_TAKEN", {"system": system})

@@ -58,7 +58,7 @@ spec-template defect.
 
 - `test_3a2_commercial_upload_service.py`: `UploadMemoryStore` gains `held_uploads` (3A3's mirror moved there, plus
   `source_system`, `site_codes`). §2.6 makes every check call `held_uploads`, and without it every 3A2, 3A3, 3A4 and
-  ON1 world fails. Done 11 allows only the `reader` signature. `HeldMemoryStore` now only subclasses it.
+  ON1 world fails. Done 11 allows only the `reader` signature (amended, D-3A6.20: it also lists `held_uploads` on `UploadMemoryStore` and the `code_digest.py` allowlist entry). `HeldMemoryStore` now only subclasses it.
 - `DYNAMIC_IMPORT_ALLOWED` adds `structure_snapshot/adapters/code_digest.py` (3B7a, merged after rev 2 listed seven;
   `find_spec("assetops_contracts")`). The exactness test needs it.
 - Coverage (4a to 4c) runs before the per-row verdict of step 4. A9 (b) (every `Litres` emptied) expects
@@ -83,3 +83,23 @@ spec-template defect.
 
 `profiles.py` step order and `_coverage`; the `_SWITCHED` SQL and its memory mirror; `uploads._refuse_switch` and
 `_stored_reader`; loader steps 5c/mixed/5b; S1 `_aliases`/`_qual`; `source_contracts.coded_headers`.
+
+## Fix round r1 (review `review.md`; D-3A6.18 to D-3A6.22), revision `c727f97dd` plus this packet commit
+
+- F1 `xlsx.py`: rows kept sparse (`xlsx_sparse_rows`); `split_file` pads only to the header's width and turns any
+  non-empty cell past it into one extra cell (a count mismatch, `NATIVE_ROW` for that row); column index above 16,383
+  is `NATIVE_WORKBOOK`; `xlsx_rows` (kept) pads under a 2 M cell budget. Test `test_n3_far_right_cells_...`: 2,000
+  rows with a cell at XFD, peak under 20 MB and under 3 s; plus XFE and a `²` row number.
+- F2 `_coverage` judges only rows of header width; a short CSV row is `ADMIT_SAMPLE_ROW` row 5 `NATIVE_ROW` (A4).
+- F3 / D-3A6.18: `PROFILE_LINEAGE {where: "personal"}` when `personal` (as a set) differs from the latest version's
+  and an accepted upload of the system exists (`held_uploads`, `not waiting`); words `profile_lineage_personal`.
+  A2b (memory) and Q2b (Postgres) cover it, including a waiting upload not counting and reordering admitted.
+- F4 formula without cached value is `XlsxBad`; F5 ASCII-digit row numbers only (`²` is `NATIVE_WORKBOOK`); F6 S1
+  flags references to `DYNAMIC_CALLS`/`EVAL_CALLS` and `from assetops_backend import commercial` (plants p26 to p28);
+  F7/D-3A6.19 `QUOTE`; F8 `bad_clock` literal `2026-10-11 09:00`; F9 loader disposes the profile store in `finally`.
+- Plants (applied, run, reverted): V33 personal comparison dropped fails A2b and Q2b; V34 order-sensitive compare fails
+  A2b; V35 waiting uploads counted fails A2b; V36 old dense padding fails the F1 test; F2 guard removed fails A4;
+  S1 reference clause removed fails p26 and p27; commercial-import clause removed fails p28.
+- Checks: focused + regression, no DB: `562 passed in 70.93s` (revision `f8118b65f`); Postgres set (3A1, 3A2, 3A3
+  loader, 3A3b7a, ON1, 3A6): `71 passed in 55.58s`; fast check-all: `All 41 guards passed` (236.7 s). Re-run after resume at `c727f97dd`: 562 passed in 68.31s; Postgres 71 passed in 52.69s; plants V33, V35, V36 re-seen failing.
+- Residuals: D-3A6.21; the 3A6b migration is queued.

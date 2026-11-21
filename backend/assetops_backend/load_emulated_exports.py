@@ -176,7 +176,8 @@ def _write_line(line: dict[str, Any]) -> None:
     sys.stdout.write(json.dumps(line, sort_keys=False) + "\n")
 
 
-def _run(args: argparse.Namespace, uploads: Any, accounts: Any, profiles: Any = None) -> int:
+def _run(args: argparse.Namespace, uploads: Any, accounts: Any, profiles: Any = None,
+         disposers: list[Any] | None = None) -> int:
     url = os.environ.get("DATABASE_URL")
     if not url:
         raise _Stop(2, "DATABASE_URL_REQUIRED")
@@ -196,7 +197,9 @@ def _run(args: argparse.Namespace, uploads: Any, accounts: Any, profiles: Any = 
         uploads = uploads if uploads is not None else build_commercial_uploads(url, settings)
         accounts = accounts if accounts is not None else build_account_service(url)
         if profiles is None:
-            profiles = build_source_profiles(url)[0]
+            profiles, dispose_profiles = build_source_profiles(url)
+            if disposers is not None:
+                disposers.append(dispose_profiles)  # D-3A6.20 F9: called in `main`'s finally
     files = _files(args.dir, args.tenant)
     submitter, submit_role = _person(accounts, args.submit_as, args.tenant, "commercial.upload")
     acceptor = None
@@ -256,12 +259,16 @@ def main(argv: Sequence[str] | None = None, *, uploads: Any = None, accounts: An
          profiles: Any = None) -> int:
     """Injected services (tests) skip step 3 and the composition; steps 1, 2 and 4 always run."""
     args = build_parser().parse_args(list(argv) if argv is not None else None)
+    disposers: list[Any] = []
     try:
-        return _run(args, uploads, accounts, profiles)
+        return _run(args, uploads, accounts, profiles, disposers)
     except _Stop as stop:
         detail = f" {stop.detail}" if stop.detail else ""
         sys.stderr.write(f"{stop.code}{detail} {stop.sentence}".rstrip() + "\n")
         return stop.exit_code
+    finally:
+        for dispose in disposers:
+            dispose()
 
 
 if __name__ == "__main__":

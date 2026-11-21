@@ -25,7 +25,7 @@ from typing import Mapping, Sequence
 from zoneinfo import ZoneInfo
 
 from assetops_contracts.canonical import SOURCE_TYPES, CanonicalRefused
-from assetops_contracts.native.xlsx import XlsxBad, XlsxNumber, xlsx_rows
+from assetops_contracts.native.xlsx import XlsxBad, XlsxNumber, xlsx_sparse_rows
 
 _BOM = b"\xef\xbb\xbf"
 _OBJECTS = ("subject", "amount", "quantity", "body", "clocks")
@@ -311,21 +311,22 @@ def split_file(layout: Layout, data: bytes) -> tuple[list[str], list[tuple[int, 
     `NATIVE_HEADER json`; the header's comparison is `read_rows`' first step."""
     rules = layout.file
     if rules.format == "xlsx":
-        sheet_rows = xlsx_rows(data, rules.sheet or "")
+        sheet_rows = xlsx_sparse_rows(data, rules.sheet or "")
         header: list[str] = []
-        for number, cells in sheet_rows:
+        for number, sparse in sheet_rows:
             if number == rules.header_row:
-                header = list(cells)
+                header = [sparse.get(i, "") for i in range(max(sparse) + 1)] if sparse else []
         while header and header[-1] == "":
             header.pop()
+        width = len(header)
         rows: list[tuple[int, list[str]]] = []
-        for number, cells in sheet_rows:
-            if number <= rules.header_row or all(c == "" for c in cells):
+        for number, sparse in sheet_rows:
+            if number <= rules.header_row or all(c == "" for c in sparse.values()):
                 continue
-            cells = list(cells)
-            while len(cells) > len(header) and cells[-1] == "":
-                cells.pop()
-            cells.extend([""] * (len(header) - len(cells)))
+            cells = [sparse.get(i, "") for i in range(width)]
+            over = [v for i, v in sorted(sparse.items()) if i >= width and v != ""]
+            if over:
+                cells.append(over[0])  # one extra cell: a count mismatch, refused by the row verdict
             rows.append((number, cells))
         return header, rows
     raw = bytes(data)

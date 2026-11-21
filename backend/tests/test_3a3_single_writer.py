@@ -112,6 +112,9 @@ def _imports_package(tree: ast.AST) -> bool:
         if isinstance(node, ast.ImportFrom) and node.module and (node.module == PACKAGE
                                                                  or node.module.startswith(PACKAGE + ".")):
             return True
+        if (isinstance(node, ast.ImportFrom) and node.module == PACKAGE.rsplit(".", 1)[0] and node.level == 0
+                and any(a.name == PACKAGE.rsplit(".", 1)[1] for a in node.names)):  # D-3A6.20 F6
+            return True
         if isinstance(node, ast.Import) and any(a.name == PACKAGE or a.name.startswith(PACKAGE + ".")
                                                 for a in node.names):
             return True
@@ -191,6 +194,10 @@ def violations(rel: str, source: str, *, dynamic_allowed: frozenset[str] = DYNAM
             qual = _qual(node, aliases)
             if qual == "sys.modules" and rel not in sys_modules_allowed:
                 add("S1-SYSMOD", node, "sys.modules")
+            if qual in DYNAMIC_CALLS and rel not in dynamic_allowed:  # a reference, not only a call (D-3A6.20 F6)
+                add("S1-DYN", node, qual)
+            if qual in EVAL_CALLS and rel.startswith(EVAL_ROOTS):
+                add("S1-EVAL", node, qual)
             if attr_scope and qual in OPERATOR_NAMES:
                 add("S1-OPERATOR", node, qual)
     return found
@@ -282,6 +289,9 @@ PLANTED_TAGGED = (
     ("p23", BACKEND + "commercial/planted.py", "exec(s)\n", {"S1-EVAL"}),
     ("p24", BACKEND + "commercial/planted.py", "x = compile(s, \"f\", \"exec\")\n", {"S1-EVAL"}),
     ("p25", "contracts/assetops_contracts/native/planted.py", "import builtins\nx = builtins.exec(s)\n", {"S1-EVAL"}),
+    ("p26", "tools/planted.py", "import importlib\nim = importlib.import_module\nm = im(name)\n", {"S1-DYN"}),
+    ("p27", BACKEND + "commercial/planted.py", "e = eval\ne(s)\n", {"S1-EVAL"}),
+    ("p28", "tools/planted.py", "from assetops_backend import commercial\nf = getattr(svc, name)\n", {"S1-ATTR"}),
     ("n1", BACKEND + "commercial/planted.py", "import re\nx = re.compile(s)\n", set()),
     ("n2", "tools/planted.py", "x = getattr(obj, name)\n", set()),  # no commercial import: the stated residual
     ("n3", "tools/mechanism_dataset.py", "import importlib\nm = importlib.import_module(name)\n", set()),  # allowlisted

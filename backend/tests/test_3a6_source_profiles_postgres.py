@@ -22,7 +22,7 @@ if URL:
 
     import pg_harness
     from assetops_backend.commercial.adapters.postgres_commercial_store import PostgresCommercialStore
-    from assetops_backend.commercial.profiles import SourceProfiles
+    from assetops_backend.commercial.profiles import ProfileRefused, SourceProfiles
     from assetops_backend.commercial.service import CommercialRecords
     from assetops_backend.commercial.uploads import Actor, CommercialUploads, UploadRefused, UploadScope
     from test_3a1_commercial_postgres import Seeder
@@ -118,6 +118,24 @@ def test_q2_admit_two_versions_and_read_back(w) -> None:
         assert getattr(store.source_profile_latest(tid, "kobo-ledger-expenses"), f.name) == getattr(v2, f.name)
     assert _admit(w) == v1  # already admitted: nothing written
     assert _count(w["store"]._engine, TABLE) == 2
+
+
+def test_q2b_personal_change_refused_once_data_is_accepted(w, engine) -> None:  # noqa: F811
+    ref, subject = ["body.counterparty_ref", "P"], ["subject.ref", "P"]
+    _admit(w)
+    assert _admit(w, profile_with(personal=[ref, subject])).version == 2  # no accepted upload yet
+    answer = _upload(w, reader=V2)
+    store, tid = w["store"], w["tid"]
+    assert answer["state"] == "WAITING"
+    assert _admit(w, profile_with(personal=[ref])).version == 3  # waiting uploads do not count
+    _accept(w, _upload(w, reader="profile.kobo-ledger-expenses.v3"))
+    rows = _count(engine, TABLE)
+    with pytest.raises(ProfileRefused) as raised:
+        _admit(w, profile_with(personal=[subject]))
+    assert (raised.value.code, raised.value.params) == ("PROFILE_LINEAGE", {"where": "personal"})
+    assert _count(engine, TABLE) == rows  # nothing written
+    assert _admit(w, profile_with(personal=[ref])).version == 3  # the same bytes again: already admitted
+    assert store.source_profile_latest(tid, "kobo-ledger-expenses").version == 3
 
 
 # --- Q3: U1 end to end, then U3's race ------------------------------------------------------------------------------

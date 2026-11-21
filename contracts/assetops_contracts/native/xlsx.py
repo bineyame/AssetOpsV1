@@ -82,6 +82,8 @@ def _cell(c: ElementTree.Element, shared: list[str]) -> str:
     t = c.get("t")
     v_node = c.find(f"{_MAIN}v")
     v = None if v_node is None else (v_node.text or "")
+    if v_node is None and c.find(f"{_MAIN}f") is not None:
+        return XlsxBad("")  # a formula with no cached value
     if t == "s":
         try:
             return shared[int(v or "")]
@@ -98,7 +100,11 @@ def _cell(c: ElementTree.Element, shared: list[str]) -> str:
     return XlsxBad("")  # "e", "d" and anything else
 
 
-def _read(data: bytes, sheet: str) -> list[tuple[int, list[str]]]:
+_MAX_COLUMN = 16383  # Excel's XFD
+_PAD_BUDGET = 2_000_000  # total padded cells `xlsx_rows` may build
+
+
+def _read(data: bytes, sheet: str) -> list[tuple[int, dict[int, str]]]:
     z = zipfile.ZipFile(io.BytesIO(bytes(data)))
     infos = z.infolist()
     if any(i.file_size > _MEMBER_MAX for i in infos) or sum(i.file_size for i in infos) > _TOTAL_MAX:
@@ -120,31 +126,43 @@ def _read(data: bytes, sheet: str) -> list[tuple[int, list[str]]]:
     if "xl/sharedStrings.xml" in z.namelist():
         shared = [_text(si) for si in _member(z, "xl/sharedStrings.xml").findall(f"{_MAIN}si")]
     root = _member(z, path)
-    out: list[tuple[int, list[str]]] = []
+    out: list[tuple[int, dict[int, str]]] = []
     previous = 0
     for row in root.iter(f"{_MAIN}row"):
         r = row.get("r")
-        number = int(r) if r and r.isdigit() else previous + 1
+        if r and not re.fullmatch(r"[0-9]+", r, re.ASCII):
+            raise _workbook_error()
+        number = int(r) if r else previous + 1
         previous = number
-        cells: list[str] = []
+        cells: dict[int, str] = {}
         for c in row.findall(f"{_MAIN}c"):
             match = _REF.fullmatch(c.get("r") or "")
-            index = _column_index(match.group(1)) if match else len(cells)
-            while len(cells) < index:
-                cells.append("")
-            value = _cell(c, shared)
-            if index < len(cells):
-                cells[index] = value
-            else:
-                cells.append(value)
+            index = _column_index(match.group(1)) if match else (max(cells) + 1 if cells else 0)
+            if index > _MAX_COLUMN:
+                raise _workbook_error()
+            cells[index] = _cell(c, shared)
         out.append((number, cells))
     return out
 
 
-def xlsx_rows(data: bytes, sheet: str) -> list[tuple[int, list[str]]]:
-    """Spec §2.3. Rows of the one sheet named `sheet`, as `(r, cells)`."""
+def xlsx_sparse_rows(data: bytes, sheet: str) -> list[tuple[int, dict[int, str]]]:
+    """Spec §2.3. Rows of the one sheet as `(r, {column index: cell})`; nothing is padded."""
     try:
         return _read(data, sheet)
     except (zipfile.BadZipFile, zipfile.LargeZipFile, zlib.error, NotImplementedError, RuntimeError, EOFError,
             KeyError, UnicodeDecodeError, ElementTree.ParseError):
         raise _workbook_error() from None
+
+
+def xlsx_rows(data: bytes, sheet: str) -> list[tuple[int, list[str]]]:
+    """Spec §2.3. Rows of the one sheet named `sheet`, as `(r, cells)`, padded to each row's last cell under a
+    total budget (a workbook past it is `NATIVE_WORKBOOK`)."""
+    out: list[tuple[int, list[str]]] = []
+    total = 0
+    for number, sparse in xlsx_sparse_rows(data, sheet):
+        width = max(sparse) + 1 if sparse else 0
+        total += width
+        if total > _PAD_BUDGET:
+            raise _workbook_error()
+        out.append((number, [sparse.get(i, "") for i in range(width)]))
+    return out

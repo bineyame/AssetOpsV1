@@ -215,6 +215,57 @@ def test_n3_dropped_note_column_is_never_judged() -> None:
     assert result.obj["records"] == expected(BUDGET)
 
 
+def _sheet_with(rows_xml: bytes) -> bytes:
+    members = zip_members(budget_bytes())
+    sheet = members["xl/worksheets/sheet1.xml"]
+    a, b = sheet.index(b"</row>") + len(b"</row>"), sheet.index(b"</sheetData>")
+    members["xl/worksheets/sheet1.xml"] = sheet[:a] + sheet[a:b] + rows_xml + sheet[b:]
+    return rezip(members)
+
+
+def test_n3_far_right_cells_are_read_in_bounded_memory_and_time() -> None:
+    """F1: a tiny workbook with a cell at XFD on thousands of rows must not be padded to 16,384 cells a row."""
+    import time
+    import tracemalloc
+    far = b"".join(b'<row r="%d"><c r="XFD%d" t="inlineStr"><is><t>x</t></is></c></row>' % (n, n)
+                   for n in range(500, 2500))
+    data = _sheet_with(far)
+    assert len(data) < 400_000
+    tracemalloc.start()
+    started = time.perf_counter()
+    result = read(profile(BUDGET), data)
+    elapsed = time.perf_counter() - started
+    _, peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+    assert peak < 20_000_000 and elapsed < 3.0, (peak, elapsed)
+    assert len(result.refused) == 2000  # each far cell is a count mismatch, refused for its row alone
+    assert {code for code, _ in result.refused.values()} == {"NATIVE_ROW"}
+
+
+def test_n3_column_past_xfd_is_a_workbook_refusal() -> None:
+    data = _sheet_with(b'<row r="900"><c r="XFE900" t="inlineStr"><is><t>x</t></is></c></row>')
+    assert refused_file(profile(BUDGET), data) == "NATIVE_WORKBOOK"
+
+
+def test_n3_formula_without_cached_value_refuses_its_row() -> None:
+    members = zip_members(budget_bytes())
+    sheet = members["xl/worksheets/sheet1.xml"].decode("utf-8")
+    import re as _re
+    m = _re.search(r'<c r="D3"[^>]*>.*?</c>', sheet)
+    assert m
+    members["xl/worksheets/sheet1.xml"] = sheet.replace(m.group(0), '<c r="D3"><f>SUM(B1:B9)</f></c>').encode("utf-8")
+    result = read(profile(BUDGET), rezip(members))
+    assert dict(result.refused) == {1: ("NATIVE_FORMAT", "record.body.value")}
+
+
+def test_n3_unicode_digit_row_number_is_a_workbook_refusal() -> None:
+    members = zip_members(budget_bytes())
+    sheet = members["xl/worksheets/sheet1.xml"]
+    assert b'<row r="3"' in sheet
+    members["xl/worksheets/sheet1.xml"] = sheet.replace(b'<row r="3"', '<row r="\u00b2"'.encode("utf-8"), 1)
+    assert refused_file(profile(BUDGET), rezip(members)) == "NATIVE_WORKBOOK"
+
+
 # --- N4 transforms -----------------------------------------------------------------------------------------------
 
 from assetops_contracts.native import transform  # noqa: E402
