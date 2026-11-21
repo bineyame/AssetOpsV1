@@ -135,3 +135,7 @@
 - L1: packet calls the replay row "site" and gives the design values in a paragraph, not a column.
 - L2: new/cleared dawn dates proven only on the stub (neither kernel season changes a date).
 - L3: packet gives no reason for the gap with the design; the review's "Design values beside the study" section is the owner-facing explanation.
+
+- SC-1 guard: LOG_NAMES exempts only listed logger names; `_LOG.warning(...)` in commercial_upload_api.py:151 was allow-listed as CODE at SC-1a merge. Add `_LOG` (or match logger objects by class) — guard change, needs owner approval.
+- SC-1b/SC-1c debt grew at SC-1a merge: 91 hand-built prints + 27 messages.py keys rebaselined from 3A6, 3B4, 3B6, DS3, DS4, 0K2, 0M (precedent r2).
+- SC-1 self-test: P55 plants' allow() helper (tools/checks/statement_catalogue.py ~1168) overwrites the real allow file, so real allow lines break the self-test; 3 CODE prints went into the baseline instead. Make allow() merge into the existing file. Guard change, needs owner approval.
