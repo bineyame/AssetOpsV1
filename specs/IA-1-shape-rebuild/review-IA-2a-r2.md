@@ -106,3 +106,83 @@ run `layout-evidence.mjs` (the packet records it as not run).
 - L1 height at phone width grows with state (the case line, the notice, a longer release line), so D-IA.55's headroom is a few px in
   the default case (M3).
 - `qty_check` knows one key. Any other total-beside-part pair on a live route is unguarded until it has a row (L5).
+
+---
+
+# IA-2a review, round 3 (verification, W5/W6): fix round r2
+
+Reviewer: a fresh Claude reviewer who did not author the work. Branch `task/IA-2a-plan`, head `30d8b7b82`. The code is in `25decf048`, and main
+was merged at `b2fb5de65`. I checked M3 and L5 to L7 against D-IA.58 and D-IA.60, and D-IA.59's deferral. Evidence:
+`/opt/assetecon/evidence/IA-2a/r2-verify/` (`summary.txt`, per-run logs, `probe.cjs`, `shots/`).
+
+## Summary (round 3)
+
+- **Verdict: READY FOR WALKTHROUGH.** No High or Medium findings. There are three Lows (L8 to L10), none blocking; each can be fixed on the
+  branch before the merge. The merge stays held for the owner's walkthrough.
+- **M3 / D-IA.58 is closed.** I wrote my own probe with real mouse clicks on the visible tab: 3 operators × 390/1280/1440 × 3 states × the
+  default and the non-default case, 216 switches, 0 bad, no page errors. At 390 in Lakeside 6500/No the content's first box is at 8 to 9 px
+  from the top on Items, Left out and Review, in every state, and the bottom sticky bar covers none of it. History is short and its scroll is
+  clamped, so its content is at about 455 to 475 px, still in view. At 1440 and 1280 the default proposed case stays at scroll 0.
+  `ia_shots` tabs: 306 switches, 0 bad.
+- **The plants fail on their own assertions**, which I checked line by line, not only by count. `tabstrip`: the content is at −116 px
+  (proposed) and −26 px (approved) on all four tabs and Back, in Lakeside non-default at 390. `tabnoscroll`: 120 content failures.
+  `tabscrollall`: 40 `scrollY` failures. See L9 for why the totals are inflated.
+- **L5 is closed:** `overview-gap` and `plan-items` are in `QTY`, and `qty_check` passes (270 screens). `QTY_PLANT=gap` fails on Lakeside, the
+  only operator with a Grow part. `items` fails on all three operators. `clause` and `wait` still fail.
+- **L6 is closed:** 18 clauses are measured, with the same size, weight and colour as the release line in light and dark. The `releasedtype`
+  plant fails all 18.
+- **L7 is closed**, except for one leftover sentence (L8).
+- **D-IA.59 is consistent:** the ruling puts it in IA-2e, and spec rev 7 (§5 note, line 584) says so.
+- **Builder's caveat:** both plants complete on their own and fail on their own assertions, with no stall. `planwait`: rc 1 in 625 s,
+  3 FAIL. `planans`: rc 1 in 593 s, 9 FAIL.
+
+## Findings
+
+### L8 (Low, packet accuracy, D-IA.60 L5): the r1 sentence still claims "+$6,089 / Net" is registered
+
+`specs/IA-1-shape-rebuild/packet-IA-2a.md:123-124` still reads "Items '+$6,089' (tile) against 'Net +$6,088.50' … both registered, not
+changed". It is not registered; it waits for D-IA.59 in IA-2e. Line 148 corrects this in the r2 section, but the original sentence stands
+unmarked, and the ruling asked for the sentence itself to be corrected. **Fix:** a one-line edit at :123-124, for example "both waiting for
+D-IA.59 (IA-2e)". This is an acceptance gap, though a trivial one.
+
+### L9 (Low, gate signal): the three tab plants also remove the focus step, so most of their failures are the focus assertion
+
+`Docs/demo-sprint/product-direction-layer4/interactive-mockup-vNEXT/tools/ia_shots.cjs:144-146` replaces `iaTabSwitch` wholesale. None of the
+three replacements focuses the active tab, so almost every click fails "focus is not on the active tab". For example, `tabstrip` shows 245 bad,
+but only 10 of those are content failures. A plant that only fails on focus would still "fail" if the content assertion broke, so the plant's
+exit code does not prove the D-IA.58 assertion. I confirmed by reading the logs that it does fail today. The packet's "tabstrip 245 of 306
+bad (Lakeside … content 116 px below the fold)" reads as if 245 were content failures. **Fix:** let each plant keep the focus line (copy it from
+`iaTabSwitch`), so that each plant fails only on its target assertion, and restate the counts. This is gate quality, not product behaviour.
+
+### L10 (Low, plant registry, W6): the new `qty_check` plants are not in `ia_gates`
+
+`tools/ia_gates.cjs:18` registers `qty_check` plants `['clause', 'wait']` only. `gap` and `items` (D-IA.60) were run by hand, but the gate
+runner that "runs every plant of every landed unit" does not run them, so a future change that makes them pass would go unseen. **Fix:**
+add `'gap', 'items'` to that list (2 more runs, about 2 minutes).
+
+## Checks run (by me, head `30d8b7b82`, heavy slot, pw env)
+
+- `node build.mjs`: it rebuilds `index.html` byte-identical to the commit (no diff).
+- `probe.cjs` (mine): 216 real-click switches, 0 bad. The screenshots of Lakeside non-default in all 3 states at 390, and each operator's
+  default at 390, are in `shots/`.
+- `ia_shots` with `SHOTS_ONLY=tabs`: 306 switches, 0 bad. `tabstrip` rc 1 (245 bad), `tabnoscroll` rc 1 (266), `tabscrollall` rc 1 (251).
+- `qty_check`: PASS. `gap`, `items`, `clause` and `wait` each rc 1.
+- `ia_shots` with `SHOTS_ONLY=plan`: 98 measured, 0 bad, 18 clauses. `releasedtype` rc 1, with 18 bad.
+- uxi with `UXI_PLANT=planwait` alone: rc 1, 383 PASS and 3 FAIL ("plan/history after Approve … awaiting approval"). With `planans` alone: rc 1,
+  377 PASS and 9 FAIL ("Left out … NOT all answered"). All other uxi assertions pass in both runs, including the in-page anchor paths that
+  use the extracted `iaStickyH`, so the refactor of `iaInPage` shows no regression.
+- `check-architecture.ps1` passed. `check-agent-workflow.ps1` passed.
+
+## Not verified by me
+
+I did not rerun the full `ia_shots` (612), the full `ia_gates` (79), G3, render_text, check_manifest, parts_identity or check-all. For those I
+cite the builder's runs at `25decf048`; `30d8b7b82` touches only the packet. The builder's first G3 run (`gates/g3.log`) crashed when called
+with no arguments, and the rerun with arguments (`g3b.log`) gives 36 of 36. I did not run `layout-evidence.mjs`, for the same reason as the
+packet: it needs a served URL.
+
+## Residual risk
+
+- On a phone, a tab switch now lands about 1,000 to 1,250 px down the page, and the tab strip is out of sight above it. D-IA.58 accepts this
+  and rejects a sticky strip. Name it at the walkthrough in case the owner finds the strip "lost" (the ruling's W1 reconsideration).
+- The IA-2e row in spec §5 (table, line 580) does not list D-IA.59; only the rev 7 note carries it. The Architect should add it to IA-2e's
+  scope when that unit is specced.
