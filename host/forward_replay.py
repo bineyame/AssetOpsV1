@@ -294,13 +294,108 @@ def replay_inputs(run: SimulationRun, request: ForwardReplayRequest) -> ReplayPl
     return ReplayPlan(inputs=replay, model=model, plant=plant, stop=stop, reserve=reserve, clipped_offsets=clipped)
 
 
+def _measured(boundary, key: str) -> Fraction:
+    value = boundary.interval_measurement(key)
+    if value is None:
+        raise RuntimeError(f"the kernel recorded no {key} at offset {boundary.offset_minutes}; a defect, not a refusal")
+    return value
+
+
+def project(plan: ReplayPlan, trajectory: PrivateTrajectory, run: SimulationRun,
+            request: ForwardReplayRequest) -> ForwardReplayProjection:
+    """The neutral projection of one replay's trajectory (spec §2.5).
+
+    `fuel_burned_l` is the tank identity: start - end + declared increases - declared decreases. It is exact only
+    while the tank never meets its capacity or empty bound; a run whose tank causes could clip is outside 0K1's proof
+    (0K2) (D-0K1.14).
+    """
+    plant = plan.plant
+    soc = f"{_SOC}{plant.battery}"
+    tank = f"{_TANK}{plant.tank}"
+    generator = f"{_GEN}{plant.generator}"
+    output = f"generator-output-power@{plant.generator}"
+    boundaries = trajectory.boundaries
+    n = len(plan.inputs.interval.step_starts)
+    clipped = set(plan.clipped_offsets)
+    steps = []
+    for i in range(min(len(boundaries) - 1, n)):
+        here, after = boundaries[i], boundaries[i + 1]
+        unserved = sum(
+            (_measured(after, f"load-requested-power@{load}") - _measured(after, f"load-served-power@{load}")
+             for load in plant.loads),
+            Fraction(0),
+        )
+        steps.append(ReplayStep(
+            offset_minutes=here.offset_minutes,
+            generator_state=here.discrete_state_for_step(generator),
+            generator_kwh=_measured(after, output),
+            unserved_kwh=unserved,
+            soc_start_pct=here.stock(soc),
+            fuel_start_l=here.stock(tank),
+            pv_clipped=here.offset_minutes in clipped,
+        ))
+    completed = trajectory.outcome == "COMPLETED"
+    soc_end = boundaries[n].stock(soc) if completed else None
+    fuel_end = boundaries[n].stock(tank) if completed else None
+    fuel_burned = None
+    if completed:
+        declared = sum(
+            (cause.quantity if cause.direction == "INCREASE" else -cause.quantity
+             for cause in plan.inputs.causes if cause.address == tank),
+            Fraction(0),
+        )
+        fuel_burned = boundaries[0].stock(tank) - fuel_end + declared
+    failure = trajectory.failure
+    return ForwardReplayProjection(
+        base_run_id=run.run_id,
+        case_id=request.case_id,
+        status=trajectory.outcome,
+        model_profile_id=plan.model.model_profile_id,
+        model_profile_version=plan.model.model_profile_version,
+        interval_start=plan.inputs.interval.start_time,
+        timestep_minutes=plan.inputs.interval.timestep_minutes,
+        stop_soc_pct=plan.stop[0],
+        stop_source=plan.stop[1],
+        reserve_soc_pct=plan.reserve[0],
+        reserve_source=plan.reserve[1],
+        steps=tuple(steps),
+        soc_end_pct=soc_end,
+        fuel_end_l=fuel_end,
+        min_soc_pct=min(b.stock(soc) for b in boundaries),
+        generator_kwh=sum((s.generator_kwh for s in steps), Fraction(0)),
+        unserved_kwh=sum((s.unserved_kwh for s in steps), Fraction(0)),
+        starts=sum(1 for t in trajectory.discrete_transitions
+                   if t.address == generator and t.previous == "STOPPED" and t.next == "STARTING"),
+        running_steps=sum(1 for s in steps if s.generator_state == "RUNNING"),
+        fuel_burned_l=fuel_burned,
+        clipped_offsets=plan.clipped_offsets,
+        replay_identity=trajectory.inputs_identity,
+        failure_kind=failure.kind if failure is not None else None,
+        failure_subject=failure.subject if failure is not None else None,
+    )
+
+
+class HostForwardReplay:
+    """The host's `ForwardReplayPort`."""
+
+    def __init__(self, *, execute_fn: Callable[[FrozenWorldInputs, ModelSpec], PrivateTrajectory] = execute) -> None:
+        self._execute = execute_fn
+
+    def forward_replay(self, run: SimulationRun, request: ForwardReplayRequest) -> ForwardReplayProjection:
+        plan = replay_inputs(run, request)
+        trajectory = self._execute(plan.inputs, plan.model)
+        return project(plan, trajectory, run, request)
+
+
 __all__ = [
     "REPLAY_MODELS",
     "RESERVE_OVERRIDE_FIELDS",
     "STEP_HOURS",
     "STOP_OVERRIDE_FIELDS",
+    "HostForwardReplay",
     "OverrideFields",
     "ReplayPlan",
     "ReplayPlant",
+    "project",
     "replay_inputs",
 ]
