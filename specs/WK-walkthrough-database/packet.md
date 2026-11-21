@@ -154,3 +154,18 @@ and a C4 FAIL on the new L2 stops at §5 step 1 (D-WK.10). The one-figure read (
 
 `walk_url` and `walk_name_ok` (§3.1). The census judge's expected counts. `judge_month`'s `as_of` comparison
 (build `isoformat()` against the view's `iso_z`). The serve env builders. Deviations 2, 6 and 8.
+
+## Round 4 (review round 3: L7 and the retryable stop)
+
+- L7: `test_t9_track_and_stop_with_a_reused_leader_pid` (leader PID present with another start time, one group member:
+  `track` records no members and does not scan the group; `stop` refuses with `start_time`, `killpg` never called) and
+  `test_t9_track_records_nothing_when_the_leader_changes_during_the_scan` (the re-check).
+- Plants, each restored after (WK file run each time): RV-C (first check cut to `lead is None`) 1 failed, the reused
+  leader case; RV-F (re-check removed) 1 failed, the scan case; RV-CF (both removed) 2 failed. The first version of the
+  reused-leader case passed under RV-C alone (the re-check masks it); it now also asserts no group scan.
+- Retryable stop: a refused `stop` (any `WALK_PID_REUSED` reason) keeps the serve record and exits 4; the record is
+  cleared only when every child is confirmed stopped or gone. The refusal line is
+  `WALK_PID_REUSED <pid> <check> pgid=<g> live=<pid,pid>` (codes and numbers only). Tests:
+  `test_t9_refused_stop_keeps_the_serve_record_and_exits_non_zero` (retry succeeds once the process is ours),
+  `test_t9_refusal_line_names_the_group_and_live_pids`. Eleven existing refusal tests now expect exit 4.
+- No database: WK 97 passed, DS4 (`test_ds4_batch_days`, `test_ds4_world`) 80 passed.
