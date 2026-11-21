@@ -45,6 +45,7 @@ collects, and takes its temp directory from the controller (xdist passes
 from __future__ import annotations
 
 import os
+import secrets
 import tempfile
 from pathlib import Path
 
@@ -139,6 +140,10 @@ SLOW_MARKER = ('slow: deliberate real-clock tests, the PERF-01 slow tier (backen
 def pytest_configure(config: pytest.Config) -> None:
     # T1: a run with a database refuses to start outside the heavy-tool slot pool (xdist workers pass by ancestry).
     if os.environ.get("ASSETOPS_TEST_DATABASE_URL"): _heavy_slot_check().require("pytest with Postgres", exit_with=pytest.exit)
+    # ENV-1 (D-ENV1.13): right after the T1 heavy-slot require (which T1's tripwire keeps first) and before every early
+    # return; each process (xdist worker included) gets its own parse-slot pools, so suites, workers and lanes never
+    # wait on each other's slots or on a running server's.
+    os.environ["ASSETOPS_PARSE_SLOT_NAMESPACE"] = f"assetops-test-{os.getpid()}-{secrets.token_hex(4)}"
     config.addinivalue_line("markers", SLOW_MARKER)
     refuse_template_opt_out_under_xdist(config)
     workerinput = _workerinput(config)

@@ -27,6 +27,7 @@ from multiprocessing.context import set_spawning_popen as _spawning
 from types import MappingProxyType
 
 from assetops_backend.commercial.readers import READERS, LayoutReader, ReadContext, ReadResult, SourceReader
+from assetops_backend.parse_slots import HostSlots, host_slots
 from assetops_contracts.canonical import CanonicalRefused
 from assetops_contracts.canonical.records_v1 import MAX_RECORDS
 
@@ -140,12 +141,15 @@ def _child(conn, spec: tuple, data: bytes, context: ReadContext, split: bool, li
 class ParseEnvelope:
     """One per server process (`default_envelope()`); tests may build one with lower limits."""
 
-    def __init__(self, limits: EnvelopeLimits = DEFAULT_LIMITS) -> None:
+    def __init__(self, limits: EnvelopeLimits = DEFAULT_LIMITS, slots: HostSlots | None = None) -> None:
         if not sys.platform.startswith("linux"):
             raise RuntimeError("the parse envelope needs Linux (resource limits and a forkserver)")
         if not isinstance(limits, EnvelopeLimits):
             raise TypeError("limits must be EnvelopeLimits")
+        if slots is not None and not isinstance(slots, HostSlots):
+            raise TypeError("slots must be HostSlots or None")
         self.limits = limits
+        self._slots_given = slots  # ENV-1 D-ENV1.14: resolved at each read, never here
         self._slots = threading.BoundedSemaphore(limits.concurrent)
         self._count = threading.Lock()
         self._active = 0
@@ -159,7 +163,9 @@ class ParseEnvelope:
                 self._active += 1
                 self.peak_active = max(self.peak_active, self._active)
             try:
-                answer, cause = self._run(spec, reader.id, data, context, split)
+                host = self._slots_given or host_slots("commercial")  # ENV-1: per network namespace, at each read
+                with host.hold(None):  # D-3A6.23 unchanged: an upload waits; it is never refused for waiting
+                    answer, cause = self._run(spec, reader.id, data, context, split)
             finally:
                 with self._count:
                     self._active -= 1

@@ -1,4 +1,4 @@
-# Built-state index, part 2 of 2
+# Built-state index, part 2 of 3
 
 One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original order: number, slice ID, summary, file in this folder. Open the file and jump to the slice's `## ` heading. Top index: `INDEX.md`.
 
