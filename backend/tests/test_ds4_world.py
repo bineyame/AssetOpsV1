@@ -979,3 +979,70 @@ def test_t11_world_tool_seams():
     bulk = (backend / "evidence/bulk_load.py").read_text()
     for banned in ("assetops_simulator", "assetops_backend.host", "assetops_backend.commercial"):
         assert banned not in bulk
+
+
+# --- T10 bench assembly (pure) -----------------------------------------------------------------------------------------
+
+def _ladder(l0: float, l1: float, l2: float) -> list[dict]:
+    return [{"rung": r, "database": f"assetops_worldbench_audit_{r.lower()}_0123456789ab", "key12": "0123456789ab",
+             "seconds": s, "steps_seconds": s, "size_bytes": 1, "steps": []} for r, s in (("L0", l0), ("L1", l1), ("L2", l2))]
+
+
+PROJECTION = {"sites": 9, "days": 61, "basis": "nine Sites, 61 days"}
+CLONES = [{"label": "b1", "seconds": 0.4, "size_bytes": 1}, {"label": "b2", "seconds": 0.5, "size_bytes": 1},
+          {"label": "b3", "seconds": 0.45, "size_bytes": 1}]
+
+
+@pytest.mark.parametrize("load, ticks, per, projected, triggered", [
+    (7.0, 700.0, 50.5, 27744.5, True),   # (7 + 700) / 14 = 50.5 s per Site-day; 20 + 50.5 * 9 * 61
+    (0.7, 13.3, 1.0, 569.0, False),      # (0.7 + 13.3) / 14 = 1.0; 20 + 1.0 * 549
+])
+def test_t10_bench_projection_and_ds7(load, ticks, per, projected, triggered):
+    line = ("noise\nDS4_PIPELINE " + json.dumps({"site_days": 14, "batches": 70, "envelopes": 6720, "load_seconds": load,
+                                                "ticks": 9, "tick_wall_seconds": ticks, "stage_ms": {"s3": 1},
+                                                "drain": {"verdict": "done", "reason": "all counts are 0"}}) + "\n1 passed\n")
+    measured = world.pipeline_line(line)
+    assert measured["site_days"] == 14
+    report = world.assemble_bench({"commit": "x"}, _ladder(2.0, 10.0, 20.0), CLONES, None,
+                                  {"exit": 0, "tail": "1 passed", "measured": measured}, PROJECTION)
+    assert report["format"] == "assetops.world-bench/1"
+    assert set(report) >= {"start", "ladder", "clones", "changes", "pipeline", "projection", "ds7", "targets"}
+    assert report["projection"]["kind"] == "PROJECTION_NOT_MEASUREMENT"
+    assert report["projection"]["per_site_day_seconds"] == per
+    assert report["projection"]["projected_l2_seconds"] == projected
+    assert report["ds7"] == {"threshold_seconds": 2700, "measured_l2_seconds": 20.0, "projected_l2_seconds": projected,
+                             "triggered": triggered, "basis": "nine Sites, 61 days"}
+    assert report["changes"]["not_built"] == [{"kind": "option_change", "state": "NOT_BUILT", "unit": "6a"},
+                                              {"kind": "contract_term_edit", "state": "NOT_BUILT", "unit": "9a0"}]
+    targets = {t["operation"]: t for t in report["targets"]}
+    assert list(targets) == ["load_inputs", "run_pipeline_l2", "run_database", "one_option_change", "advance_one_day"]
+    assert targets["load_inputs"]["measured_seconds"] == 10.0
+    assert targets["run_pipeline_l2"]["projected_seconds"] == projected
+    assert targets["run_database"]["measured_seconds"] == 0.5
+    assert targets["one_option_change"]["state"] == targets["advance_one_day"]["state"] == "NOT_BUILT"
+
+
+def test_t10_bench_without_a_pipeline_line_projects_nothing():
+    assert world.pipeline_line("1 failed\n") is None
+    report = world.assemble_bench({}, _ladder(1.0, 1.0, 1.0), CLONES, None, {"exit": 1, "tail": "", "measured": None},
+                                  PROJECTION)
+    assert report["projection"]["projected_l2_seconds"] is None and report["ds7"]["triggered"] is None
+
+
+def test_t10_bench_evidence_inside_the_repository_is_refused(tmp_path, capsys):
+    with pytest.raises(world.Refused) as r:
+        world.bench_evidence_dir(ROOT / "evidence-here")
+    assert r.value.code == "WORLD_EVIDENCE_IN_REPO"
+    assert world.bench_evidence_dir(tmp_path / "ev") == (tmp_path / "ev").resolve()
+    code = world.main(["bench", "--key-root", str(tmp_path), "--evidence", str(ROOT / "evidence-here")],
+                      deps=world.Deps(require=lambda *a, **k: None, admin=lambda *a, **k: pytest.fail("admin")))
+    assert code == 2
+    assert capsys.readouterr().err.startswith("WORLD_EVIDENCE_IN_REPO ")
+    assert not (ROOT / "evidence-here").exists()
+
+
+def test_t10_late_record_file(tmp_path):
+    src = tmp_path / "lakeside-power.billing.csv"
+    src.write_text("Invoice no,Revision,Site,Amount\nA,1,KISIWA-001,1.00\nB,1,KOBO-001,86.80\nC,1,KOBO-001,5.00\n")
+    world._late_csv(src, tmp_path / "out.csv")
+    assert (tmp_path / "out.csv").read_text() == "Invoice no,Revision,Site,Amount\nB,2,KOBO-001,96.80\n"

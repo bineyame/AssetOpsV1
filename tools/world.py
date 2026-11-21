@@ -6,6 +6,7 @@
     python tools/world.py check                     the world check on a check clone (C1 to C7)
     python tools/world.py list                      the manifests and whether each database exists
     python tools/world.py drop --database NAME      one database the tool built, children first
+    python tools/world.py bench --key-root DIR --evidence DIR   the re-benchmark (spec §4); every bench database dropped
 
 Common options: --definition, --state, --prefix, --cap-seconds. Every write into a world goes through the product's
 own commands, run as subprocesses; this tool runs only the admin statements of spec §3.5. Exits: 0 done; 2 refused
@@ -434,9 +435,13 @@ class World:
         self.definition_rel = args.definition
         self.out: list[str] = []
         self.ladder_inputs: tuple[str, Path, dict] | None = None
+        self.quiet = False  # bench: the rung lines are kept in `out`, stdout carries only the report line
 
     # output
     def emit(self, obj: Mapping[str, Any]) -> None:
+        if self.quiet:
+            self.out.append(json.dumps(obj, sort_keys=True))
+            return
         sys.stdout.write(json.dumps(obj, sort_keys=True) + "\n")
 
     # environment (§3.5)
@@ -679,6 +684,12 @@ def _rung(world: World, rung: str, k: str, parts: dict, parent: str | None, body
 def cmd_build(world: World) -> int:
     key_root = _private_dir(Path(world.args.key_root), "WORLD_KEY_ROOT_INVALID")
     world.prepare()
+    _build(world, key_root)
+    return 0
+
+
+def _build(world: World, key_root: Path) -> list[dict]:
+    """§3.2 L0, L1, L2 in order, reusing current rungs; returns the three manifests."""
     d = world.definition
     parts, keys, (digest, inputs_dir, files) = world.ladder_parts()
 
@@ -730,8 +741,8 @@ def cmd_build(world: World) -> int:
                                log=steps)
         return {k: m1[k] for k in ("inputs_dir", "inputs", "key_dir", "tenants")} | {"snapshots": snaps}
 
-    _rung(world, "L2", keys[2], parts[2], m1["database"], l2)
-    return 0
+    m2 = _rung(world, "L2", keys[2], parts[2], m1["database"], l2)
+    return [m0, m1, m2]
 
 
 # --- clone, reset, list, drop (§3.4) ---------------------------------------------------------------------------------
@@ -1153,8 +1164,248 @@ def cmd_check(world: World) -> int:
     return 0 if passed else 4
 
 
+# --- bench (§4; D-DS4.11, D-DS4.12) ----------------------------------------------------------------------------------
+
+BENCH_PREFIX = "assetops_worldbench"
+FORMAT_BENCH = "assetops.world-bench/1"
+BENCH_CLONES = ("b1", "b2", "b3")
+LATE_LABEL = "bl"
+LATE_SITE = "KOBO-001"
+LATE_PLUS = Decimal("10.00")
+PIPELINE_TEST = "backend/tests/test_ds4_bench_pipeline_postgres.py"
+PIPELINE_MARK = "DS4_PIPELINE "
+DS7_THRESHOLD_SECONDS = 2700
+NOT_BUILT_CHANGES = ({"kind": "option_change", "state": "NOT_BUILT", "unit": "6a"},
+                     {"kind": "contract_term_edit", "state": "NOT_BUILT", "unit": "9a0"})
+#: What every figure is (§4 "What the numbers mean"); codes, the packet states them in words.
+BENCH_MEANING = {"clock": "WALL_ONE_RUN_THIS_VPS", "includes": ["SUBPROCESS_START", "PYTHON_IMPORTS"],
+                 "synchronous_commit": "SERVER_DEFAULT", "samples": 1, "noise_below": "10_IN_100",
+                 "world": "ONE_TENANT_THREE_SITES_ONE_MONTH_NO_TELEMETRY"}
+
+
+def bench_evidence_dir(path: str | Path) -> Path:
+    """`--evidence` resolves under `/opt/assetecon/evidence/` or outside the repository, never inside it."""
+    resolved = Path(path).resolve()
+    if resolved.is_relative_to(REPO.resolve()):
+        raise Refused("WORLD_EVIDENCE_IN_REPO", str(path))
+    return resolved
+
+
+def pipeline_line(stdout: str) -> dict | None:
+    """The last `DS4_PIPELINE {json}` line of B5's output, parsed; None when there is none."""
+    found = None
+    for line in (stdout or "").splitlines():
+        line = line.strip()
+        if line.startswith(PIPELINE_MARK):
+            found = json.loads(line[len(PIPELINE_MARK):])
+    return found
+
+
+def assemble_bench(start: Mapping[str, Any], ladder: Sequence[Mapping[str, Any]], clones: Sequence[Mapping[str, Any]],
+                   late: Mapping[str, Any] | None, pipeline: Mapping[str, Any] | None,
+                   projection: Mapping[str, Any]) -> dict:
+    """The report (§4): B1 to B6, `ds7` and the five strategy targets. Pure: T10 feeds it literals."""
+    totals = {r["rung"]: float(r["seconds"]) for r in ladder}
+    l1, l2 = totals.get("L1"), totals.get("L2")
+    measured = pipeline.get("measured") if pipeline else None
+    proj: dict = {"kind": "PROJECTION_NOT_MEASUREMENT", "sites": projection["sites"], "days": projection["days"],
+                  "basis": projection["basis"], "per_site_day_seconds": None, "projected_l2_seconds": None}
+    if measured and measured.get("site_days") and l2 is not None:
+        per = (float(measured["load_seconds"]) + float(measured["tick_wall_seconds"])) / int(measured["site_days"])
+        proj["per_site_day_seconds"] = round(per, 3)
+        proj["projected_l2_seconds"] = round(l2 + per * int(projection["sites"]) * int(projection["days"]), 3)
+    projected = proj["projected_l2_seconds"]
+    ds7 = {"threshold_seconds": DS7_THRESHOLD_SECONDS, "measured_l2_seconds": l2, "projected_l2_seconds": projected,
+           "triggered": None if projected is None else projected > DS7_THRESHOLD_SECONDS, "basis": projection["basis"]}
+    clone_seconds = [float(c["seconds"]) for c in clones]
+    targets = [
+        {"operation": "load_inputs", "target": "under 1 min", "against": "B1.L1", "measured_seconds": l1},
+        {"operation": "run_pipeline_l2", "target": "under 45 min", "against": "B1.L2+B6", "measured_seconds": l2,
+         "projected_seconds": projected},
+        {"operation": "run_database", "target": "under 10 s", "against": "B2",
+         "measured_seconds": max(clone_seconds) if clone_seconds else None},
+        {"operation": "one_option_change", "target": "about 2 min", "state": "NOT_BUILT", "unit": "6a"},
+        {"operation": "advance_one_day", "target": "under 1 min", "state": "NOT_BUILT", "unit": "DS6"},
+    ]
+    return {"format": FORMAT_BENCH, "meaning": BENCH_MEANING, "start": dict(start), "ladder": list(ladder),
+            "clones": list(clones), "changes": {"late_commercial": late, "not_built": list(NOT_BUILT_CHANGES)},
+            "pipeline": pipeline, "projection": proj, "ds7": ds7, "targets": targets}
+
+
+def _bench_sweep(world: World) -> list[str]:
+    """Drop every bench database, children before parents: the tool's own drop for each manifest, then any
+    partial of the prefix without one. Returns the names dropped."""
+    order = {"CLONE": 0, "L2": 1, "L1": 2, "L0": 3}
+    dropped = []
+    mine = [m for m in world.manifests() if _drop_pattern(world.prefix).fullmatch(m.get("database", ""))]
+    for m in sorted(mine, key=lambda x: order.get(x.get("rung"), 9)):
+        _drop(world, m["database"])
+        dropped.append(m["database"])
+    pattern = _drop_pattern(world.prefix)
+    partials = sorted((r[0] for r in world.admin("SELECT datname FROM pg_database") if pattern.fullmatch(r[0])),
+                      key=lambda n: 0 if "_audit_c_" in n else (1 if "_audit_l2_" in n else (2 if "_audit_l1_" in n else 3)))
+    for name in partials:
+        if not world.wait_idle(name):
+            raise Refused("WORLD_DATABASE_IN_USE", name)
+        world.drop_db(name)
+        dropped.append(name)
+    return dropped
+
+
+def _rung_row(m: Mapping[str, Any], line: Mapping[str, Any] | None) -> dict:
+    steps = [{"step": s["step"], "seconds": s["seconds"], "exit": s["exit"]} for s in m.get("steps") or []]
+    return {"rung": m["rung"], "database": m["database"], "key12": m["key"][:12],
+            "seconds": (line or {}).get("seconds", round(sum(s["seconds"] for s in steps), 3)),
+            "steps_seconds": round(sum(s["seconds"] for s in steps), 3), "size_bytes": m.get("size_bytes"),
+            "steps": steps}
+
+
+def _late_csv(source: Path, target: Path) -> None:
+    """B3's file: the generated billing file's header and its first `KOBO-001` row, `Revision` 2, `Amount` + 10.00."""
+    import csv
+    import io
+
+    with source.open(newline="") as f:
+        rows = list(csv.reader(f))
+    header = rows[0]
+    site, rev, amount = header.index("Site"), header.index("Revision"), header.index("Amount")
+    row = list(next(r for r in rows[1:] if r[site] == LATE_SITE))
+    row[rev] = "2"
+    row[amount] = str((Decimal(row[amount]) + LATE_PLUS).quantize(Decimal("0.01")))
+    buf = io.StringIO()
+    csv.writer(buf, lineterminator="\n").writerows([header, row])
+    target.write_text(buf.getvalue())
+
+
+def _revenue(world: World, clone: str, tenant_id: str, snapshot_ids: Sequence[str]) -> list:
+    """`actual.revenue` of each snapshot id on the bench clone, through the snapshot store (C4's read)."""
+    from uuid import UUID
+
+    url = rung_url(clone, world.environ)
+    if world.deps.snapshots is not None:
+        service = world.deps.snapshots(url)
+    else:
+        from assetops_backend.structure_snapshot.composition import build_structure_snapshot
+
+        service = build_structure_snapshot(url)
+    from assetops_backend.structure_snapshot import codec
+
+    try:  # `get` returns the rows in the order given
+        rows = [codec.payload_of(r) for r in service.store.get(UUID(tenant_id), [UUID(x) for x in snapshot_ids])]
+    finally:
+        service.dispose()
+    out = []
+    for p in rows:
+        entry = (p.get("actual") or {}).get("revenue")
+        out.append(entry.get("value") if isinstance(entry, Mapping) else None)
+    return out
+
+
+def _late_record(world: World, l2_name: str, l2: Mapping[str, Any]) -> dict:
+    """B3: one late commercial record on clone `bl`, end to end; a refusal or another delta is recorded as found."""
+    d = world.definition
+    t = d.tenants[0]
+    month = d.months[-1]
+    kd = l2.get("key_dir")
+    clone = _clone(world, LATE_LABEL, l2_name, l2)["database"]
+    env = world.env(clone, t.slug, kd)
+    late_dir = world.state / "tmp" / f"late-{os.getpid()}"
+    steps: list = []
+    found: dict = {"clone": clone, "steps": steps, "revenue_delta": None, "expected_delta": str(LATE_PLUS),
+                   "state": "FOUND"}
+    try:
+        late_dir.mkdir(mode=0o700)
+        _late_csv(Path(l2["inputs_dir"]) / t.slug / "commercial" / f"{t.slug}.billing.csv",
+                  late_dir / f"{t.slug}.billing.csv")
+        plan = [("B3.load", ["-m", "assetops_backend.load_emulated_exports", "--dir", str(late_dir), "--tenant", t.slug,
+                             "--submit-as", t.submit_as, "--accept-as", t.accept_as]),
+                ("B3.snapshot", ["-m", L2_STEPS[0][1], L2_STEPS[0][2], "--tenant", t.slug, "--month", month,
+                                 "--by", d.built_by]),
+                ("B3.observe", ["-m", L2_STEPS[1][1], L2_STEPS[1][2], "--tenant", t.slug, "--month", month])]
+        new_sites: dict = {}
+        for step, argv in plan:
+            rc, _, rec = world.run_step(clone, step, argv, env, log=steps, fail=False)
+            if step == "B3.snapshot":
+                new_sites = (rec["out"] or {}).get("sites") or {}
+            if rc != 0:
+                found["refused_at"] = step
+                break
+        found["seconds"] = round(sum(s["seconds"] for s in steps), 3)
+        old_id = ((l2.get("snapshots") or {}).get(f"{t.slug}:{month}") or {}).get("sites", {}).get(LATE_SITE)
+        new_id = new_sites.get(LATE_SITE)
+        if "refused_at" not in found and old_id and new_id:
+            old, new = _revenue(world, clone, (l2.get("tenants") or {})[t.slug], [old_id, new_id])
+            if old is not None and new is not None:
+                delta = (Decimal(str(new)) - Decimal(str(old))).quantize(Decimal("0.01"))
+                found["revenue_delta"] = str(delta)
+                found["state"] = "AS_EXPECTED" if delta == LATE_PLUS else "FOUND"
+            found["old_snapshot"], found["new_snapshot"] = old_id, new_id
+    finally:
+        shutil.rmtree(late_dir, ignore_errors=True)
+        _drop(world, clone)
+    for s in steps:
+        s.pop("argv", None)
+    return found
+
+
+def _bench_start(world: World) -> dict:
+    load = list(os.getloadavg())
+    try:
+        done = world.deps.runner(["bash", "tools/heavy-slot.sh", "--status"], str(REPO), world.env(None), 30.0)
+        lines = (done.stdout or done.stderr or "").strip().splitlines()
+        slot = lines[0] if lines else ""
+    except (OSError, subprocess.TimeoutExpired) as error:
+        slot = f"unread {type(error).__name__}"
+    return {"loadavg": load, "slot": slot, "commit": world.git.head(), "at": _now_iso(world)}
+
+
+def cmd_bench(world: World) -> int:
+    evidence = bench_evidence_dir(world.args.evidence)
+    key_root = _private_dir(Path(world.args.key_root), "WORLD_KEY_ROOT_INVALID")
+    if world.prefix == DEFAULT_PREFIX:
+        world.prefix = BENCH_PREFIX
+    world.prepare()
+    start = _bench_start(world)
+    world.quiet = True
+    ladder: list = []
+    clones: list = []
+    late = pipeline = None
+    swept: dict = {}
+    try:
+        swept["before"] = _bench_sweep(world)
+        manifests = _build(world, key_root)
+        lines = {json.loads(x)["rung"]: json.loads(x) for x in world.out}
+        ladder = [_rung_row(m, lines.get(m["rung"])) for m in manifests]
+        l2 = manifests[2]
+        made = []
+        try:
+            for label in BENCH_CLONES:
+                m = _clone(world, label, l2["database"], l2)
+                made.append(m["database"])
+                size = world.admin("SELECT pg_database_size(:n)", {"n": m["database"]})
+                clones.append({"label": label, "database": m["database"], "seconds": m["seconds"],
+                               "size_bytes": int(size[0][0]) if size else None})
+        finally:
+            for name in made:
+                _drop(world, name)
+        late = _late_record(world, l2["database"], l2)
+        code, out = harness_run(world, "b5", PIPELINE_TEST, {"ASSETOPS_DS4_BENCH": "1"}, args=("-s",))
+        tail = out.strip().splitlines()[-1] if out.strip() else ""
+        pipeline = {"exit": code, "tail": tail[:300], "measured": pipeline_line(out)}
+    finally:
+        swept["after"] = _bench_sweep(world)
+        world.quiet = False
+    report = assemble_bench(start, ladder, clones, late, pipeline, world.definition.projection)
+    report["dropped"] = swept
+    evidence.mkdir(parents=True, exist_ok=True)
+    path = evidence / "bench.json"
+    path.write_text(json.dumps(report, indent=1, sort_keys=True) + "\n")
+    world.emit({"report": str(path), "ds7": report["ds7"]})
+    return 0
+
+
 COMMANDS = {"build": cmd_build, "clone": cmd_clone, "reset": cmd_reset, "list": cmd_list, "drop": cmd_drop,
-            "check": cmd_check}
+            "check": cmd_check, "bench": cmd_bench}
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -1166,8 +1417,10 @@ def build_parser() -> argparse.ArgumentParser:
         p.add_argument("--state", default=DEFAULT_STATE)
         p.add_argument("--prefix", default=DEFAULT_PREFIX)
         p.add_argument("--cap-seconds", type=float, default=7200.0 if name == "bench" else 3600.0)
-        if name == "build":
+        if name in ("build", "bench"):
             p.add_argument("--key-root", required=True)
+        if name == "bench":
+            p.add_argument("--evidence", required=True)
         if name in ("clone", "reset"):
             p.add_argument("--label", required=True)
         if name == "drop":
