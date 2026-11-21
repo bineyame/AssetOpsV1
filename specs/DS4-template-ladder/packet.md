@@ -88,3 +88,26 @@ change); P28 T8 (d)(e) and T16b; P29 T8 (f); P30 T8 (g); P31 T8 (5 of 7 unreadab
 **Closing results.** Fast `check-all.ps1` at `9eff83776`: "All 40 guards passed (blocking; 0 advisory, 0 warned)",
 121 s (580 s wall with slot wait). P33 on Postgres: T12 FAILED with three `new` C4 lines at KISIWA-001
 (`actual.om`, `actual.cost_to_serve`, `actual.contribution`, `class=E product=None`); `plant-p33-t12.log`.
+
+## Fix round r1 (review round 1: ACCEPT WITH FIXES)
+
+Branch head after the round is in the commit log (`DS4 fix r1`); main merged first at `a8a30426a` (5a F1).
+
+- **M1 fixed.** `site_set_fails` (tools/world.py) compares the Sites judged with the definition's Sites per
+  snapshot of the tenant: FAIL lines `site_missing <slug>/<code>`, `site_duplicate <slug>/<code>`,
+  `site_undeclared <slug>/<code>` (new FAIL line forms in §3.6; Architect to note). `_c4` passes the snapshot counts.
+  Tests: `test_t9_c4_judges_exactly_the_declared_sites` (missing, duplicate, both, undeclared, two snapshots) and
+  `test_t9_c4_site_set_through_the_command`.
+- **M2 fixed.** `harness_run` builds from `world.env(None)` plus `HARNESS_ENV_ALLOW`; T9's C5 test plants
+  `DATABASE_URL`, `ASSETOPS_TEST_DATABASE_BASE_URL`, `ASSETOPS_TENANT_SLUG`, `ASSETOPS_PSEUDONYM_KEY_DIR`, `LANG`,
+  an unrelated variable and asserts the child's keys are exactly the allow-list.
+- **F1 follow-up.** `C4_KNOWN_FINDINGS` is `()`; a test pins it empty. T12 on the merged branch: C4 PASS, `fails: []`,
+  `ALL` PASS, exit 0 (see Checks).
+- **L1** closing `{"check": "ALL", "state"}` line, asserted in T9. **L2** tests: `_equal` no tolerance, manifest
+  staleness through `clone`. (c) (C6 gap report) stays covered by T8/T15-T17 only. **L3** `known` only when
+  `product=None` (test). **L4** current-key manifest without its database is `WORLD_NO_TEMPLATE ... (database
+  missing)`. **L5** a clone that stays in use after the wait is a coded `WORLD_DATABASE_IN_USE` (lines emitted, clone
+  left for `drop`), not a traceback. **L6** not changed (spec asks no erase): unit 3 runbook line needed: a partial L1
+  that failed after `onboard apply` leaves its tenant key file live until the coordinator removes the key directory.
+- **Plants (throwaway worktree, removed):** M2 inherit-parent (`env = dict(world.environ)`) fails 1; M1 site check
+  dropped fails 2; `_equal` 0.01 tolerance fails 1; `ALL` line dropped fails 2. Each reverted.
