@@ -74,24 +74,40 @@ Layout evidence: not run. The tool adds no layout. The smoke PNGs come from the 
    comes from `resolve_tenant` (the `:172` query), and `names` from `list_sites` filtered by `import_record` (as
    `CutoverSiteRegistry.imported_sites`). The store's engine is disposed through its `_engine`.
 5. **`serve --port/--web-port`** (optional overrides) exist so that T8's "on the command line" refusal has a command line.
-6. **`stop` and `serving` match cmdlines loosely.** They accept an interpreter-run or retitled cmdline with the same
-   tail (`cmdline_matches`): `npm` is a node script, so its `/proc` cmdline is not literally `["npm", ...]`. This is
-   unverified against a live Vite. Risk: a mismatch reports `WALK_PID_REUSED` and leaves the child.
+6. **`stop`, `serving` and `status` identify a child by start time and group (fix round 1, H1/M1/L4).** Spec §3.6
+   says "if `/proc/<pid>/cmdline` still equals its recorded `argv`". At spawn (`start_new_session=True`) the manifest
+   records `pid`, `argv`, `start_time` (`/proc/<pid>/stat` field 22) and `pgid`. Before any signal, `Procs.checked`
+   requires the recorded start time, `getpgid(pid) == pid` and the recorded group, then (secondary) a cmdline match
+   exact on every token: the argv itself, `node <path>/npm ...`, or one retitled string, including npm 11's
+   `npm run dev --port 5491 --strictPort --host 127.0.0.1` (no `--`). Wrappers (`bash -c`, `sh -c`, `timeout`) never
+   match. Any failed check reports `WALK_PID_REUSED <pid> <check>` (`start_time`, `not_leader`, `pgid`, `cmdline`,
+   `unrecorded`, `group_unverified`) and sends no signal. L4: with the leader gone, the recorded group is signalled
+   only when every live member is in the recorded session and started at or after the recorded start time; else
+   `group_unverified`. A failed serve uses the same checks with SIGKILL once. Live check (scratch package, dev script
+   `sleep 30 #`, no port opened): npm 11.19.1 retitled to that string, `checked` passed and `stop_child` stopped the
+   group (npm, sh, sleep) in 2.9 s.
 7. **Small additions.** `WALK_CAP_EXCEEDED` (exit 5). A refusal raised inside a check (a stale parent in W1) becomes
    that check's FAIL line. `drop` skips the `DROP` when the database is already gone, and removes the manifest.
    Statement and snapshot steps run through `World.run_step` with `World.env(None, ...)` plus the walk URL, so
    `rung_url` is called only in `walk_url`.
-8. **The smoke script has no `assertHeavySlot`.** I3 gives `node` exactly six names, so the slot marker cannot reach
-   it. The browser runs inside the slot that `tools/heavy-slot.sh -- python tools/walk_world.py smoke` holds (§5
-   step 8). The inventory check (`test_heavy_slot_inventory.mjs`) does not list the file, because it loads the engine
-   through `require(process.env.PW)` and names no launcher word. The reviewer should judge whether this needs a ruling.
+8. **`smoke` takes a heavy-tool slot (fix round 1, M2): deviation from spec §3.1, for the Architect to ratify.**
+   §3.1 says `serve, smoke, stop and status do not` call `require`. `smoke` now calls
+   `heavy_slot_check.require("walk-smoke")` (no `db`) before S3 launches Chromium, so outside a slot it exits 69 and
+   no browser starts (T8 `test_t8_smoke_requires_a_slot_before_chromium`). The node child still gets exactly the six
+   I3 names; the slot is asserted by the Python process `heavy-slot.sh` wraps. The smoke script itself still has no
+   `assertHeavySlot` and is not in the inventory listing (it names no launcher word).
 9. **I5 notes.** The upload key check is at `main.py:693`. Exit 69 passes through `require`. `ASSETOPS_LIVE_FIELD_*`
    stays on the deny list. The Vite child is WK's own (`demo_combined.py serve` only prints that command).
+10. **Fix round 1 small codes (L1-L3).** `--port`/`--web-port` outside 1024-65535, or equal, refuse with
+    `WALK_PORT_INVALID <port>` / `WALK_PORT_INVALID <port> = <web_port>` (a new code, not in §3.1's list). An existing
+    `walks/` folder that is a symlink, not a folder, not the user's, or group/world accessible (`mode & 0o077`)
+    refuses with `WORLD_STATE_INVALID <path>`. If the web spawn raises, the API child gets the safe stop (SIGKILL after
+    the checks) and the run fails `WALK_SERVE_FAILED web spawn <error>` (exit 4).
 
 ## Residual risk
 
 The real adapters are exercised only by the coordinator's §5 run: `Admin`'s `LIKE` lookup, `Procs`, the deep-dive
-read's JSON, and the npm cmdline form. They are not tested against a database. W5 calls `world.c4_oracle` unchanged,
+read's JSON. The npm title form and the stop of npm's group were checked live once (deviation 6). They are not tested against a database. W5 calls `world.c4_oracle` unchanged,
 and a C4 FAIL on the new L2 stops at §5 step 1 (D-WK.10). The one-figure read (D-WK.12) waits for the smoke PNGs.
 
 ## Review focus
