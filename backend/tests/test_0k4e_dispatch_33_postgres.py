@@ -149,8 +149,10 @@ def _record(payload: dict) -> None:
     print("0K4E", json.dumps(payload, default=str))
 
 
-def test_e9_e11_dispatch_3_3_reassesses_3_2_history(store, engine) -> None:  # noqa: F811
+def test_e9_e11_dispatch_3_3_reassesses_3_2_history(store, engine, monkeypatch) -> None:  # noqa: F811
     model_3_2 = Timed(_model_3_2())
+    # Before the deploy: the reads judge a selection CURRENT against the live model's version (`derive_status`).
+    monkeypatch.setattr(dispatch_v3, "MODEL_VERSION", "dispatch-3.2")
     runner = CaseRunner(store, engine, model=model_3_2)
     assess = PostgresAssessmentStore(URL)
     try:
@@ -169,6 +171,7 @@ def test_e9_e11_dispatch_3_3_reassesses_3_2_history(store, engine) -> None:  # n
         heads = _heads(assess, runner)
         assert heads and set(heads.values()) == {"dispatch-3.2"}
         before = _selected_segments(assess, runner, k)
+        assert PLANTED_DAY in before
         count_32, minutes_32 = _candidate(before)
         support = [s for s in before[PLANTED_DAY] if s["classification"] == "CANDIDATE_AVOIDABLE"
                    and BATTERY_SUPPORT in s["reasons"]]
@@ -179,6 +182,12 @@ def test_e9_e11_dispatch_3_3_reassesses_3_2_history(store, engine) -> None:  # n
         history = _snapshot_3_2(engine, runner)
         assert history["runs"] and history["revisions"]
         seconds_32, calls_32 = model_3_2.seconds, model_3_2.calls
+
+        monkeypatch.undo()                                     # the deploy: dispatch-3.3 is the live model
+        assert dispatch_v3.MODEL_VERSION == "dispatch-3.3"
+        stale = assess.dispatch_spans(runner.tenant, runner.site, datetime(2026, 10, 23, tzinfo=UTC),
+                                      datetime(2026, 10, 24, tzinfo=UTC), runner.tick())[0]
+        assert stale["status"] == "STALE_PROJECTION"           # 3.2's selection reads stale until reassessed
 
         # --- E11: the reconcile pass enqueues every window whose last default selection is 3.2, and only those ---
         model_3_3 = Timed(dispatch_v3)
