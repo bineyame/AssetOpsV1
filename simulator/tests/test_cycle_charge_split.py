@@ -61,3 +61,46 @@ def test_s9_a_float_or_a_negative_argument_raises(position, bad) -> None:
     args[position] = bad
     with pytest.raises((TypeError, ValueError)):
         cycle_charge_split(*args)
+
+
+# --- 0K4b review notes: v8 never hands the curve a value it cannot take (commit 3) ---------------------------------
+#
+# `generator_curve.fuel_curve` does not refuse a rating at or below 0 (it would divide by it), and
+# `generator_curve.output_cap_kw` divides by the segment's minutes. v8 calls both only through these two guards.
+
+
+@pytest.mark.parametrize("rated", [F(0), F(-40)], ids=["zero", "negative"])
+def test_g1_a_rating_at_or_below_zero_is_refused_before_the_curve(rated) -> None:
+    from assetops_simulator.kernel.model import CouplingRefused
+    from assetops_simulator.packs.mini_grid import _checked_curve
+
+    with pytest.raises(CouplingRefused) as refused:
+        _checked_curve("generator", F(3, 10), F(11, 200), rated)
+    assert refused.value.kind == "PHYSICAL_RESOLUTION_FAILURE"
+    assert refused.value.subject == "generator-rated-power@generator"
+
+
+def test_g1_a_positive_rating_reaches_the_curve() -> None:
+    from assetops_simulator.packs.mini_grid import _checked_curve
+
+    curve = _checked_curve("generator", F(3, 10), F(11, 200), F(40))
+    assert (curve.no_load_l_per_min, curve.slope_l_per_kwh) == (F(11, 200), F(2175, 10000))
+
+
+@pytest.mark.parametrize("minutes", [F(0), F(-5)], ids=["zero", "negative"])
+def test_g2_the_fuel_cap_refuses_a_segment_of_no_length(minutes) -> None:
+    from assetops_simulator.kernel.model import CouplingRefused
+    from assetops_simulator.packs.mini_grid import _checked_curve, _fuel_cap_kw
+
+    curve = _checked_curve("generator", F(3, 10), F(11, 200), F(40))
+    with pytest.raises(CouplingRefused) as refused:
+        _fuel_cap_kw(curve, F(100), minutes, "fuel-tank-volume@fuel-tank")
+    assert refused.value.kind == "PHYSICAL_RESOLUTION_FAILURE"
+
+
+def test_g2_the_fuel_cap_over_a_real_segment() -> None:
+    from assetops_simulator.packs.mini_grid import _checked_curve, _fuel_cap_kw
+
+    curve = _checked_curve("generator", F(3, 10), F(11, 200), F(40))
+    # 1 L over 5 min: idle 11/40 L, the rest 29/40 L at 2175/10000 L/kWh over 1/12 h (hand arithmetic).
+    assert _fuel_cap_kw(curve, F(1), F(5), "fuel-tank-volume@fuel-tank") == F(29, 40) / (F(2175, 10000) / 12)

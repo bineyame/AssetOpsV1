@@ -356,7 +356,9 @@ class ModelProfile:
     model_profile_id: str
     model_profile_version: int
     display_name: str
-    statement: str
+    #: D-0K4.19: a legacy `str`, or an SC-1 `Message` for a profile added from 0K4a on; the lab's
+    #: `run_profile_summary` reads it through `served_text`.
+    statement: str | Message
     supported_states: tuple[SupportedState, ...]
     #: T024, Option C (`D-2026-09-29-t024-option-c-and-reserve-override`).
     #: The Foundation values this model's laws need whether or not a scenario
@@ -1411,6 +1413,24 @@ MINI_GRID_V7_MODEL = replace(
     ),
 )
 
+#: 0K4a (spec §2.5, D-0K4.19): `mini-grid` v8, the generator takes the load. Its words are SC-1 statements
+#: (`model_profile.description`, `model_profile.state`), served through `served_text`; it adds 0K4b's three curve
+#: needs. Kobo and every world stay on their versions (0K4f).
+MINI_GRID_V8_MODEL = replace(
+    MINI_GRID_V7_MODEL,
+    model_profile_version=8,
+    statement=message("model_profile.description", profile=State("MINI_GRID_V8")),
+    supported_states=tuple(
+        replace(item, statement=message("model_profile.state", state=State("FUEL_TANK_VOLUME_CURVE")))
+        if item.state_key == "fuel-tank-volume"
+        else item
+        for item in MINI_GRID_V7_MODEL.supported_states
+    )
+    + GENERATOR_CURVE_NEEDS,
+    foundation_needs=MINI_GRID_V7_MODEL.foundation_needs
+    + ("generator-no-load-fuel-rate", "generator-minimum-load", "battery-charge-taper-start"),
+)
+
 #: The publication profile the Lab publishes through.
 #:
 #: It declares the three things nothing else may supply: how often a device
@@ -2216,6 +2236,7 @@ MODEL_PROFILES: tuple[ModelProfile, ...] = (
     MINI_GRID_V5_MODEL,
     MINI_GRID_V6_MODEL,
     MINI_GRID_V7_MODEL,
+    MINI_GRID_V8_MODEL,
     COLD_THERMAL_MODEL,
     EV_CHARGER_MODEL,
 )
