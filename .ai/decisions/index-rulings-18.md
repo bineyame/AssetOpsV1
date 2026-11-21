@@ -1,0 +1,17 @@
+# Decision index: Demo-sprint and later rulings (index only) (D-3B4.1 to D-3B4.15)
+
+- `D-3B4.1` one mechanism STRUCTURE_DEVIATION; the leaf in the key is the pin · live · specs/3B4-observer/rulings.md
+- `D-3B4.2` declared adverse direction per leaf in observe/rules.py, checked against bridge signs · live · specs/3B4-observer/rulings.md
+- `D-3B4.3` MINI_GRID observes 19 evidenced leaves, never nodes · live · specs/3B4-observer/rulings.md
+- `D-3B4.4` kind derived: bottom line, cash, Protect; no opportunity yet · live · specs/3B4-observer/rulings.md
+- `D-3B4.5` raise iff adverse and strictly outside the band; unknown band raises nothing · live · specs/3B4-observer/rulings.md
+- `D-3B4.6` Site declaration in force by month and as known, else the row default · live · specs/3B4-observer/rulings.md
+- `D-3B4.7` today's Finding store, domain structure; run and assessment per revision · live · specs/3B4-observer/rulings.md
+- `D-3B4.8` lifecycle table and month-to-month recurrence link · live · specs/3B4-observer/rulings.md
+- `D-3B4.9` four readers leave the structure domain out · live · specs/3B4-observer/rulings.md
+- `D-3B4.10` input: served current snapshot of a closed month · live · specs/3B4-observer/rulings.md
+- `D-3B4.11` structure_tolerance record under the Finding store; set by command naming the person · live · specs/3B4-observer/rulings.md
+- `D-3B4.12` claim in the leaf's unit, no money; basis without instants · live · specs/3B4-observer/rulings.md
+- `D-3B4.13` no served text; words as SC-1 statements later · live · specs/3B4-observer/rulings.md
+- `D-3B4.14` sequencing after 4a and 3B6; no registry edit · live · specs/3B4-observer/rulings.md
+- `D-3B4.15` size 3.5 units, no split · live · specs/3B4-observer/rulings.md
