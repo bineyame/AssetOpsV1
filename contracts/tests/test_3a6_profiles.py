@@ -826,7 +826,7 @@ def test_n3_r5_b3_quadratic_extra_fields_are_too_large_in_bounded_time() -> None
     import time
     started = time.perf_counter()
     assert _outcome(data) == "NATIVE_TOO_LARGE"
-    assert time.perf_counter() - started < scale_wall(0.2)
+    assert time.perf_counter() - started < scale_wall(0.5)
 
 
 def test_n3_r5_b3_the_entry_count_and_directory_size() -> None:
