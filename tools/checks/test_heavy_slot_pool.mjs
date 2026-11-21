@@ -725,7 +725,7 @@ $w = [Diagnostics.Stopwatch]::StartNew()
 $h = Enter-HeavySlot -SlotDir $d -WaitSeconds 5 -Label a11
 $ms = $w.Elapsed.TotalMilliseconds
 Exit-HeavySlot $h
-"{0:N1}" -f $ms
+"{0:F1}" -f $ms
 `);
       assert.equal(out.code, 0, out.stderr);
       // The wait loop sleeps up to 2000 ms per poll (_heavy_slot.ps1), so a free slot must return well under one poll;
