@@ -473,25 +473,53 @@ line of `tools/heavy-slot.sh --status`, `git rev-parse HEAD`), then:
 | B3 | One late commercial record on a clone `bl`: a one-row `lakeside-power.billing.csv` in a fresh directory (the generated file's header and its first `KOBO-001` row with `Revision` `2` and `Amount` plus `10.00`, two decimals), submitted and accepted by `load_emulated_exports` (Wanjiru, Joseph), then `build_structure_snapshot build` and `observe_structure run` for 2026-10 | seconds per step and in total; `revenue_delta` = the new Kobo snapshot's `actual.revenue` less the L2 one's (expected `10.00`; any other value or a refusal is recorded as found and goes to the Architect) |
 | B4 | An option change; a contract-term edit | not built: rows `{"kind": "option_change", "state": "NOT_BUILT", "unit": "6a"}` and `{"kind": "contract_term_edit", "state": "NOT_BUILT", "unit": "9a0"}` |
 | B5 | The telemetry pipeline on the bench slice: `harness_run("backend/tests/test_ds4_bench_pipeline_postgres.py", {"ASSETOPS_DS4_BENCH": "1"})` with the pytest argument `-s` (§3.5, base `assetops_wb5_pt<hex>_base_test`), its `DS4_PIPELINE {json}` line parsed | below |
-| B6 | Projection and DS7 | `per_site_day_seconds = (load_seconds + tick_wall_seconds) / site_days` from B5; `projected_l2_seconds = <B1 L2 total> + per_site_day_seconds × projection.sites × projection.days`; `ds7 = {"threshold_seconds": 2700, "measured_l2_seconds", "projected_l2_seconds", "triggered": projected > 2700, "basis": projection.basis}` |
+| B6 | Projection and DS7 (D-DS4.28, D-DS4.30, D-DS4.32) | `per_site_day_seconds = (load_seconds + tick_wall_seconds) / site_days` from B5 and `per_site_day_with_mini_seconds = (load_seconds + mini_depth_seconds + tick_wall_seconds) / site_days` (`null` when B5 has no `mini_depth_seconds`); `projected_l2_seconds = <B1 L2 total> + per_site_day_seconds × projection.sites × projection.days`, and `projected_l2_with_mini_seconds` the same with the with-mini figure; both rounded to 3 places. `ds7` is read literally on B1's L2 (below) |
 
 Finally every bench database is dropped (`finally`), and the report goes to `<evidence>/bench.json` (format
-`assetops.world-bench/1`: `start`, `ladder`, `clones`, `changes`, `pipeline`, `projection`, `ds7`, and `targets`, one row
+`assetops.world-bench/2`, D-DS4.28; `/1` was unit 3's first run: `start`, `ladder`, `clones`, `changes`, `pipeline`, `projection`, `ds7`, and `targets`, one row
 per strategy §4 operation: inputs "under 1 min" against B1's L1 total; L2 "under 45 min" against B1's L2 total and the
 projection; a run's database "under 10 s" against B2; a one-option change "about 2 min" `NOT_BUILT`; advance one day
 `NOT_BUILT` (`DS6`)). The report carries `key_dir` paths only, never a file name under them (D-DS4.19).
+
+**The projection and `ds7` blocks (format `/2`; D-DS4.28, D-DS4.30, D-DS4.32 L3).** With `m` = `pipeline.measured`
+(or `None`) and `> ` strict everywhere (a value of exactly 2700 is not over):
+
+```
+"projection": {"kind": "PROJECTION_NOT_MEASUREMENT", "role": "INFORMATION_ONLY", "sites", "days", "basis",
+               "input_drain": m.drain.verdict | null,
+               "per_site_day_seconds", "per_site_day_includes": ["BULK_LOAD", "TICKS"], "projected_l2_seconds",
+               "per_site_day_with_mini_seconds", "projected_l2_with_mini_seconds"},
+"ds7": {"threshold_seconds": 2700, "reading": "MEASURED_L2", "measured_l2_seconds": <B1 L2> | null,
+        "triggered": measured_l2 > 2700 | null, "decide_at": "FIRST_WORLD_TELEMETRY", "basis": projection.basis,
+        "projection": {"role": "INFORMATION_ONLY", "input_drain": <as above>,
+                       "projected_l2_seconds", "exceeds_threshold": projected > 2700 | null,
+                       "projected_l2_with_mini_seconds", "with_mini_exceeds_threshold": with_mini > 2700 | null}}
+```
+
+The `run_pipeline_l2` target row adds `"projected_with_mini_seconds"`. `pipeline` gains `"marker"`:
+`pipeline_marker(stdout)` returns `PARSED` (the last `DS4_PIPELINE ` line parses), `MALFORMED` (it does not) or
+`MISSING` (there is none). `pipeline_line` returns `None` for a malformed line and never raises. The report is
+always written.
 
 **The pipeline bench (`test_ds4_bench_pipeline_postgres.py`; marked `slow`, skipped unless `ASSETOPS_DS4_BENCH=1`).**
 `seed, kit, _ = seed_database("ds4pseed", relabel=True)` (DS3's seed, relabelled `minigrid-roles-4` so mini-domain
 jobs exist); `pipe = clone_database("ds4ppipe", seed)`; `batches = kobo_days(kit, [DAY6 + timedelta(days=d) for d in
 range(14)])`; time `BulkEvidenceLoad(build_evidence_ledger(pipe)).load(batches)`; enrol the Site (`-m
 assetops_backend.scheduling.run enrol --tenant-id T --site-id S --by service:ds4-bench`, subprocess, `DATABASE_URL`
-`pipe`); then ticks, each `tools/demo_combined.py`'s `TICK` arguments plus `--no-prebuild`, as a subprocess: after each,
-`demo_combined_drain.counts(pipe)`, with `n = n_for(<counts before the first tick>)` and `step(history, ticks, n)`
+`pipe`); **then the mini-depth step (D-DS4.29)**, timed with `perf_counter` over the whole loop as
+`mini_depth_seconds`: run `[sys.executable, "-m", "assetops_backend.mini_depth.worker", "run-pending", "--limit",
+"500"]` (env `child_env(pipe)`, cwd the repository, output captured). Take the last stdout line that starts with `[`
+as the outcome list. If no such line parses, assert, with the stderr's last 500 characters, because a broken worker is
+not a measurement. The exit code is not asserted (the worker exits 1 when any outcome is `FAILED`). Count outcomes
+by `status`. Repeat while a pass returns 500 outcomes, at most 20 passes (`MINI_PASS_CAP`). Then ticks, each `tools/demo_combined.py`'s `TICK` arguments plus `--no-prebuild`, as a subprocess: after each,
+`demo_combined_drain.counts(pipe)`, with `n = n_for(<counts before the first tick, after the mini-depth step>)` and `step(history, ticks, n)`
 deciding; stop on `done` or `fail`, or after 200 ticks (`fail`, "tick cap"). Per tick: wall seconds and the stderr
 `assetops.perf {json}` line's per-stage `elapsed_ms` for the Site, summed per stage. Prints `DS4_PIPELINE ` + canonical
-JSON `{"site_days": 14, "batches", "envelopes", "load_seconds", "ticks", "tick_wall_seconds", "stage_ms": {stage: ms},
-"drain": {"verdict", "reason"}}`; drops both clones in `finally`. It asserts nothing about time; a `fail` verdict is
+JSON `{"site_days": 14, "batches", "envelopes", "load_seconds", "mini_depth_seconds", "mini_depth": {"passes", "jobs",
+"by_status": {status: n}, "stopped": "DRAINED" | "PASS_CAP"}, "n", "start_counts", "end_counts", "ticks",
+"tick_wall_seconds", "stage_ms": {stage: ms}, "drain": {"verdict", "reason"}}`. `start_counts` and `end_counts` are
+`demo_combined_drain.counts` before the first tick and after the last one, each Site (by code) cut to
+`demo_combined_drain.FIELDS` (no `pending_ids`); drops both clones in `finally`. It asserts nothing about time; a `fail` verdict is
 reported, not hidden.
 
 **What the numbers mean** (the packet states each). Seconds are wall clock of one run on this VPS, subprocess start-up
@@ -499,7 +527,8 @@ and Python imports included, `synchronous_commit` at the server default; one sam
 (Appendix A's repeat agreed within 10 in 100, so read differences under that as noise). They describe this world:
 one tenant, three Sites, one month, no telemetry; L1 and L2 here are not the strategy's full world. B5 is a flat
 fixture Kobo with hand rows, not the world's physics; its stage split shows where time goes, its total gives the
-per-Site-day figure. B6's projection is arithmetic on a measurement, never a measurement: it is labelled so in the
+per-Site-day figure (bulk load and ticks), and the mini-depth step gives the second, labelled figure (D-DS4.30);
+neither is a bound. B6's projection is arithmetic on a measurement, never a measurement: it is labelled so in the
 report and the packet. Nothing in §4 is a gate; no test asserts a time.
 
 ## 5. Tests (written first)
@@ -577,6 +606,23 @@ report and the packet. Nothing in §4 is a gate; no test asserts a time.
 - **T10 bench assembly (pure).** From literal stage records and a literal `DS4_PIPELINE` line, the report's
   `projection` and `ds7` equal hand-computed numbers (one case above 2700 s, one below); the two `NOT_BUILT` rows and
   the five `targets` rows are present; an evidence directory inside the repository is refused.
+  **Fix round (D-DS4.33), format `/2`:** the existing T10 cases keep their numbers; their old `triggered` value moves
+  to `ds7.projection.exceeds_threshold`, and `ds7.triggered` is the measured-L2 comparison. **T10e (boundary, L2):**
+  `projection` `{"sites": 1, "days": 1, "basis": "t"}`, L2 2600.0, `m` `{"site_days": 1, "load_seconds": 40.0,
+  "tick_wall_seconds": 60.0, ...}`: projected 2700.0, `exceeds_threshold` false; with `tick_wall_seconds` 60.001:
+  2700.001, true. L2 2700.0: `ds7.triggered` false; L2 2700.001: true. **T10f (with mini):** sites 9, days 61, L2 8.0,
+  `m` site_days 14, load 14.0, mini_depth 14.0, ticks 14.0: `per_site_day_seconds` 2.0, projected 1106.0;
+  `per_site_day_with_mini_seconds` 3.0, `projected_l2_with_mini_seconds` 1655.0; the same `m` without
+  `mini_depth_seconds`: both with-mini fields `null`. **T10g (input drain):** `m.drain.verdict` `fail` gives
+  `projection.input_drain` and `ds7.projection.input_drain` `fail`; no `m` gives `null` for both, and every projected
+  field `null`. **T10h (marker):** stdout whose last `DS4_PIPELINE ` line is `{` gives `pipeline_line` `None` and
+  `pipeline_marker` `MALFORMED`; no marker gives `MISSING`; a good line gives `PARSED`. **T10i (L1, the sweep):**
+  `cmd_bench` under the `env` fixture (`FakeAdmin`, `FakeRunner`), with `world._late_record` monkeypatched to raise
+  `RuntimeError("plant")`: the error propagates, `FakeAdmin`'s log holds a `DROP DATABASE` for each of the three
+  bench rung names after the clones' drops, and no `bench.json` is written. If the fixture cannot run `_build` for
+  `bench`, monkeypatch `world._build` to return three manifests named under `BENCH_PREFIX`, which `FakeAdmin` lists
+  in `pg_database`. Plants (each must fail a test): `>=` for `>` (T10e); `swept["after"] = []` (T10i);
+  `input_drain` dropped (T10g); `triggered` on the projection (T10 and T10e).
 - **T11 seams (an `ast` and text scan).** `tools/world.py` holds no `INSERT`, `UPDATE`, `DELETE`, `COPY`, `TRUNCATE`
   or `FORCE` literal, and every SQL literal matches one of §3.5's shapes; it imports no `*_api` module and no
   adapter module; no `main.py` or `*_api.py` imports `bulk_load`; `bulk_load.py` still imports no simulator, host or
@@ -624,6 +670,7 @@ batch and the Kobo days pass the cover rule), `test_pg_harness.py`, the ON1, 3A3
 | 1 (1.5) | **First, the spike (D-DS4.18, about 0.25):** below, before any code. Then §3.1 to §3.5: the definition file, keys, names, directories, the admin and runner, `build`, `clone`, `reset`, `drop`, `list`, manifests; T1 to T7 (T6 without staleness), T11, T12 (without its `check` call), T13, T14 | 2 |
 | 2 (1.25) | §3.6 `check` with `C4_CONTRACT` and `harness_run`; the `check_inputs` block and staleness in `clone` and `list`; §3.7 the cover rule and `site_timezone`; T6's staleness, T8, T9, T9b, T12's `check`, T15 to T17; regression | 1 |
 | 3 (0.75) | §4 `bench` and the pipeline bench; T10; the real runs (below, held for row 40); check-all; packet | 1 |
+| 3 fix (0.5) | D-DS4.33: format `/2` (D-DS4.28), the mini-depth step (D-DS4.29, D-DS4.30), T10e to T10i (D-DS4.32); the bench rerun alone, then one `build` and `check` of the kept ladder; packet and state (D-DS4.31) | 1 |
 
 Total 3.5 (plan 2.5; D-DS4.24: +0.25 gap rule and pipeline bench, +0.25 spike, +0.5 the total contract, the cover
 rule, the harness base and staleness). **The spike.** Through `tools/heavy-slot.sh --db`, on

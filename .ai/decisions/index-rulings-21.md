@@ -1,7 +1,7 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-SC1.32 to D-SC1.39)
+# Decision index: Demo-sprint and later rulings (index only) (D-SC1.32 to D-SC1.39, D-3A7.14 to D-3A7.15, D-DS4.28 to D-DS4.33, D-SC1F.1 to D-SC1F.6)
 
 - `D-SC1.32` Number words are roots joined to suffixes (cardinals, teens, tens, ordinals, multipliers, plurals, compounds); TOKENS excludes them · live · specs/SC-1-statement-composer/rulings.md
-- `D-SC1.33` Served text defined; the scan tells it from code by prose pairs, SQL lead, spacing joins, display conditionals, any logger · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.33` Served text defined; the scan tells it from code by prose pairs, SQL lead, spacing joins, display conditionals, any logger · live; rule 5 amended by D-SC1F.4 · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.34` New strings: served English to statements; misread code strings to a classed allow file; exception classes unserved only by spec, proved · live · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.35` Every file under i18n/ is classified; anything else at any depth is MECH_UNSCOPED (M1) · live · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.36` Public i18n modules declare __all__; anything else reached through them is I18N_BYPASS (M2) · live · specs/SC-1-statement-composer/rulings.md
@@ -10,3 +10,15 @@
 - `D-SC1.39` SC-1a fix round 0.75 units (SC-1a 4.25); L4 fixed, L2 not adopted · live · specs/SC-1-statement-composer/rulings.md
 - `D-3A7.14` Reconciliation service lives in structure/ (reads commercial records; builder structure/reconciliation_composition.py); D-3A4.8 stands · live · specs/3A7-month-reconciled/rulings.md
 - `D-3A7.15` Owner file via the owner_file port; the command builds the reader, composition takes it as a parameter · live · specs/3A7-month-reconciled/rulings.md
+- `D-DS4.28` DS7 read literally on the measured L2 (owner row 35 B); the bench's projection is information only; format world-bench/2 (amends D-DS4.12) · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.29` B5 drains the mini-depth jobs with the worker before the ticks, as drain_mini does; reports mini_depth_seconds, start/end counts (M1) · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.30` Per-Site-day = bulk load + ticks; a second labelled figure adds the mini-depth step; neither is a bound · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.31` "Lower bound" withdrawn; packet and state give the cause; run 1 kept as superseded (M2) · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.32` L1 sweep test and L2 boundary test adopted; L3 input_drain and malformed-marker fixed in world.py · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.33` Unit 3 fix round 0.5 unit: world.py edit costs no extra rebuild (main merge stales the kept ladder anyway); bench rerun alone, then build and check · live · specs/DS4-template-ladder/rulings.md
+- `D-SC1F.1` Declared settings read "Declared", step 1 of evidence_word, any origin (owner item 7; amends SC-1 §3.5, D-3A7.17) · live · specs/SC-1f-declared-word/rulings.md
+- `D-SC1F.2` 3A7 accounts figure RECORDED, tolerance DECLARED (class sweep: the only SC-1 Evidence producer) · live · specs/SC-1f-declared-word/rulings.md
+- `D-SC1F.3` A with-basis evidence word counts only figures its variant prints or reads (two-pass fill) · live · specs/SC-1f-declared-word/rulings.md
+- `D-SC1F.4` Logger = name stem log/logger/logging after stripping underscores, or bound to getLogger in the module (owner item 8a) · live · specs/SC-1f-declared-word/rulings.md
+- `D-SC1F.5` P55 allow helper merges into the real allow file; profiles.py date tokens move to it as CODE; upload _LOG line needs none (owner item 8b) · live · specs/SC-1f-declared-word/rulings.md
+- `D-SC1F.6` SC-1f 1.0 unit, two commits, one build; "Declared" seen at the 5c walkthrough, not merge-blocking · live · specs/SC-1f-declared-word/rulings.md
