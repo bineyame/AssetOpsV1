@@ -8,7 +8,9 @@
   quota incident 05:30-05:40; rerun pending.
 - Uncommitted: walkthroughs.md (plan tabs), register R757-R760, `.ai/state/demo.md` + index line 168. The flip is prepared in
   `<scratch>/ia2a-r2/flip/` (IA_LANDED + IA-2a, plan renders shapePlan, shapePlanInterim deleted).
-- Next: forced ia_gates green at 3(a) -> flip commit (copy flip files, build) -> normal ia_gates, ia_shots full, parts_identity,
+- Forced ia_gates at 3(a): 76 runs, all as expected (3805 s). Clean stop taken here; packet-IA-2a.md has the stop line.
+- 3(b) prep: `/opt/assetecon/evidence/IA-2a/3a/3b-prep.patch` (git apply) and `flip.py <vNEXT dir>`.
+- Next: -> flip commit (copy flip files, build) -> normal ia_gates, ia_shots full, parts_identity,
   G3, shell, lint, render_text, vocab, copy, hand_typed, check_manifest -> packet-IA-2a.md, spec Status in_review.
 
 # IA-2a handoff (partial: unit 1 done, unit 2 started)

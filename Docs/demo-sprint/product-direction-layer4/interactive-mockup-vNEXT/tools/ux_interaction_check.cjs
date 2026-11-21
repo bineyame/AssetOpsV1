@@ -689,7 +689,7 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=anchor: (D-IA.36) iaInPa
     const p = await page('portfolio', { q: `?state=${st}` });
     const r = await p.evaluate(st => { const e = document.querySelector('.ux-queue-panel [role="status"]'); return e ? e.textContent.trim().slice(0, 60) || (st === 'loading' && e.querySelectorAll('.ux-skel-row').length + ' skeleton rows') : null; }, st);
     ok(!!r, `state=${st}: the queue shows its ${st} state (${r})`);
-    await p.screenshot({ path: process.argv[3] + `/state-${st}-1440.png` }); await p.context().close(); }
+    if (process.argv[3]) await p.screenshot({ path: process.argv[3] + `/state-${st}-1440.png` }); /* no out dir (ia_gates): no shot */ await p.context().close(); }
   // 8 trends (DS1m, R20; D-DS1.15): the 3 Portfolio overviews and all 9 Site pages. 8a form, 8b source and headline, 8c stated change
   const sweep = []; for (const op of ['lakeside', 'harvest', 'metro']) { sweep.push({ op, sk: null }); }
   const sitesOf = await (async () => { const p = await page('portfolio'); const m = await p.evaluate(() => Object.fromEntries(Object.keys(OPS).map(o => [o, OPS[o].sites]))); await p.context().close(); return m; })();
