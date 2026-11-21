@@ -42,7 +42,13 @@ the routes fixture (test plumbing the guards require).
 - Plants, each failing as named: gates `block`, `headline`, `levels`, `height`, `fold`, `status`, `scroll`, `lint`
   (`plant-*.jsonl`, `gates-summary.txt`: exit 1 each, world A exit 0). Frontend: P5 fails test 10, P8 fails test 10
   (two cases; it survived the first draft, so test 10 was strengthened), P12 fails test 11 (`plants-frontend.txt`).
-- `check-architecture.ps1`: passed. `check-agent-workflow.ps1`: passed. check-all: see "check-all" below.
+- `check-architecture.ps1`: passed. `check-agent-workflow.ps1`: passed.
+- check-all (fast), once: `bash tools/heavy-slot.sh --wait-seconds 3000 -- pwsh -NoProfile -File tools/check-all.ps1`
+  at b5db599d8, 146.8 s wall: 40 of 42 blocking guards passed; failed "Missing-claim orphan scan" and its fixtures:
+  the literal heading "What is not available yet" (`DeepDiveMonth.tsx:39`). Fixed at 3c3183d84 by a named exemption
+  (`DD_NOT_AVAILABLE_TITLE`, decision spec §5.2, D-5C.11, D-5C.14) in `missing-claim-scan.mjs`: scan passed, fixture
+  tests 26/26; a planted "Not available yet" literal in the page still fails the scan. Review point: a guard
+  exemption added by the builder. Log `/opt/assetecon/evidence/5c/unit3/check-all.log`.
 - `chainScreenRoutes.test.ts` fails on this branch before and after 5c: App registers `/sites/:siteId/uploads`, which
   the routes fixture lacks (not a 5c route; left for its owner).
 
@@ -50,7 +56,9 @@ the routes fixture (test plumbing the guards require).
 
 Shots (`shots/`): `A-1440x900-{light,dark}.png`, `A-1280x720-…`, `A-390x844-…`, `A-with-D-headline-…`,
 `A-390x844-{light,dark}-fuel-cost-drawer.png`. `measure_screen.jsonl`: six views, 0 errors, under12 0, width =
-viewport, "Where the gap comes from" above the fold at 1440 and 1280. Served from the World A fixture, not from a
+viewport, "Where the gap comes from" above the fold at 1440 and 1280; lowContrast 14 per view, all in shared parts
+(the shell's demonstration bar 4.12:1 and the shared `DataTable` header cells 4.35:1), none in the page's own CSS.
+`H-390x844-light-fuel-cost-drawer-nested.png`: World H's parts nested under Diesel used. Served from the World A fixture, not from a
 `_test` database (MBQ6). Dark shots render the light theme: the live product has no dark theme (MBQ3).
 
 ## Known deviations
