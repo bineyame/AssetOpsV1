@@ -1,17 +1,18 @@
 # 3B2: Findings pinned to their factors (implementer spec)
 
-Architect (Claude), 2026-11-20. Rev 1, spec handshake step 1.
+Architect (Claude), 2026-11-20. Rev 2, 2026-11-21 (handshake round 1 answered: D-3B2.6 to D-3B2.15).
 
 - **Lane:** B. The schedule order is `3B1`, `3B3`, then `3B2`.
 - **Structure:** P3B (approved 20 Nov) and `decision-loop-specification.md` §4 ("The pin").
-- **Decisions:** `rulings.md` (D-3B2.1 to D-3B2.5).
+- **Decisions:** `rulings.md` (D-3B2.1 to D-3B2.15).
 - **Reviewer guide:** `reviewer-guide.md`.
 
-Non-screen. 2.5 units. Discovery review (W5), because this is a mechanism on a protected seam.
+Non-screen. 2.5 units. **Served text: none** (D-3B2.8): no `messages.CATALOGUE` key, no sentence, no word map; a diff that adds
+any is a High finding, and D-SC1.28 does not apply to this unit. Discovery review (W5), because this is a mechanism on a protected seam.
 
 ## 0. Before you start
 
-- **Branch.** `task/3B2-findings-pinned` off `main`. It depends only on `3B1` (merged). Worktree:
+- **Branch.** `task/3B2-findings-pinned` off current `main` (3B1, 3B3, 3B7a, 4b and 5a/5b are merged). Worktree:
   `/opt/assetecon/AssetOpsV1-3b2`. Code starts when the handshake has no open question.
 - **Python.** The shared `.venv` imports `main`. Set this tree first and check the module paths:
   ```bash
@@ -31,8 +32,9 @@ Non-screen. 2.5 units. Discovery review (W5), because this is a mechanism on a p
   - `specs/3B1-structure-registry/rulings.md` (D-3B1.7 to D-3B1.9 and "Review round 1 answers").
 - **Databases.** None: nothing here reads a store.
 - **Collisions.**
-  - `3B3` (lane B, before this unit) adds `structure/evaluate.py` and the read. This unit adds `structure/pins.py` and
-    extends `check.py`. Merge `main` after `3B3` merges.
+  - `structure/` now also holds `evaluate.py`, `read.py`, `litres/`, `attribution/`, `targets/` and `money.py`
+    (merged); `registry.py` is v3 (stated nodes). This unit adds `structure/pins.py` and extends `check.py`; nothing
+    else there changes.
   - Lanes A and C do not touch `structure/` or `outcomes/`.
 
 ## 1. Outcome and why
@@ -53,6 +55,8 @@ registry row?
 ## 2. The pins (`structure/pins.py`)
 
 Pin is a frozen dataclass: `Pin(mechanism: str, structure_key: str, factor_id: str)`.
+`DOMAIN_OF_STRUCTURE` is a literal map (D-3B2.7): `MINI_GRID` -> `mini_grid`, `COLD_CHAIN` -> `cold_chain`,
+`EV_DEPOT_CAPTIVE` -> `ev_charging` (the `catalogue.py` domain values).
 `PINS: Mapping[str, Pin]` is a `MappingProxyType` that holds today's stored mechanisms on structures that have a
 registry:
 
@@ -65,6 +69,8 @@ registry:
 says which slice pins them: `COLD_START_FAILURE` and `COLD_EXCURSION` (COLD_CHAIN), and `EV_INTERRUPTION`
 (EV_DEPOT_CAPTIVE). `3B6` moves them into `PINS` (D-3B2.2).
 
+Names stay as written (D-3B2.15); the test imports `from assetops_backend.structure import pins`.
+
 Functions:
 - `pin_of(mechanism) -> Pin | None`.
 - `pinned_category(mechanism) -> str | None`: the home category of the pinned factor's row.
@@ -74,8 +80,15 @@ Functions:
 
 ## 3. The start-up check (extends `structure/check.py`)
 
-`check_pins(pins=None, registries=None)` is called by `check_all()` after every registry passes. It reads
-`pins.PINS` and `registry.REGISTRIES` at call time.
+`check_pins(pins=None, registries=None, pending=None, entries=None)` reads `pins.PINS`, `registry.REGISTRIES`,
+`pins.PENDING_PINS` and `outcome_map.ENTRIES` at call time when an argument is `None` (D-3B2.10).
+`check_all()` calls it after every registry passes **only when `registries is None`** (the start-up path);
+`check_all(registries=X)` checks `X` alone and runs no pin check, so 3B1's planted-registry tests are unchanged.
+T2 calls `check_pins` directly with planted copies.
+
+**Layering (D-3B2.11).** `pins.py` and `check.py` import `assetops_backend.outcomes.outcome_map` at module level, read
+only, and read `outcome_map.ENTRIES` through the module at call time. `tools/check-architecture.ps1` passes with the
+import (verified); no cycle. `pins.py` never imports `check.py`.
 
 It raises `StructureError` with text `"<CODE> <structure_key>/<factor_id>"`. For a mechanism-level fault the factor
 position holds the mechanism: `STRUCTURE_PIN <key>/<mechanism>`. The checks run in this order:
@@ -83,18 +96,22 @@ position holds the mechanism: `STRUCTURE_PIN <key>/<mechanism>`. The checks run 
 | Code | When |
 |---|---|
 | `STRUCTURE_PIN` | the pin's structure key has no registry, or its factor has no row |
-| `STRUCTURE_PIN_TOTAL` | the pinned row is a node whose expression is only a sum or difference of factors (`Bin` with `+` or `-` over `Ref`s and literals all the way down): "never a parent total whose change its children explain" |
+| `STRUCTURE_PIN_TOTAL` | the pinned row is a node whose parsed expression holds only `Bin` `+`/`-`, `Neg`, `Ref` and `Num` (a bare `Ref` counts); any `Call`, `*` or `/` makes it pinnable, and a leaf is pinnable (D-3B2.12): "never a parent total whose change its children explain" |
 | `STRUCTURE_PIN_DUPLICATE` | a mechanism appears in both `PINS` and `PENDING_PINS` |
 | `STRUCTURE_PIN_UNKNOWN` | a mechanism of `PINS` or `PENDING_PINS` is not a key of `outcome_map.ENTRIES` (as `FINDING:<m>`) |
 | `STRUCTURE_PIN_MISSING` | a `FINDING:` key of `ENTRIES` is in neither `PINS` nor `PENDING_PINS` (`FINDING:UNMAPPED` excepted) |
 
-These are the last two checks of `check_all()`, so `check_at_start()` refuses the process on any of them.
+These five codes are exported as `PIN_CODES`, not added to `CODES` (D-3B2.13). They are the last checks of the start-up
+`check_all()`, so `check_at_start()` refuses the process on any of them. `FINDING:UNMAPPED` is not an `ENTRIES` key
+today; the exception stays for safety.
 
 ## 4. The parity report (`structure/pins.py`)
 
-`parity() -> tuple[Divergence, ...]` produces one entry per pinned mechanism and Site domain. `Divergence(mechanism,
+`parity() -> tuple[Divergence, ...]` produces one entry per pinned mechanism, in the pin's own domain only
+(`DOMAIN_OF_STRUCTURE[pin.structure_key]`, D-3B2.7). `Divergence(mechanism,
 literal_category, registry_category, literal_lens, registry_lens)` compares two readings:
-- `literal_category` is the category of `outcome_roles("FINDING:<m>", domain)[0][0]`, as today;
+- `literal_category` is the category of the first outcome of `outcome_roles("FINDING:<m>", domain)[0][0]` (its
+  `OUTCOME_BY_KEY[...].category`), as today;
 - `registry_category` is `pinned_category(m)`;
 - the lenses come from `LENS_OF_CATEGORY` for each category.
 
@@ -123,21 +140,26 @@ All in `backend/tests/test_3b2_findings_pinned.py`; no database.
 - **T1 Pins against the design and the manifest.**
   - `PINS` equals the design §4 table above, which the test writes as its own literal.
   - Each pinned factor appears as the `factor` of some `home_categories.findings` row whose `heading` maps to the same
-    category. This is read from YAML, and the test uses its own map: `grow` → GROW_REVENUE, and so on.
+    category, and whose `site` maps to the pin's structure key (D-3B2.9). This is read from YAML, and the test uses its
+    own maps: `grow` → GROW_REVENUE, and so on; `Kobo`, `Kisiwa`, `Mto` → `MINI_GRID`.
 - **T2 Start-up check.** Each §3 code is raised with its full text on a planted copy:
   - a pin to a missing factor;
   - a pin to `diesel_l`, which is a sum: `STRUCTURE_PIN_TOTAL MINI_GRID/diesel_l`;
   - a duplicate between `PINS` and `PENDING_PINS`;
   - a mechanism not in `ENTRIES`;
-  - an `ENTRIES` `FINDING:` key left unpinned.
+  - an `ENTRIES` `FINDING:` key left unpinned;
+  - a product row (`fuel_cost`) pinned: accepted.
 
-  The real data passes `check_all()`. `create_app()` with a planted bad pin raises `ConfigurationError`.
+  Each is planted through `check_pins(...)` arguments and iterated over `PIN_CODES`. `check_all(registries=planted)`
+  still raises no pin code (3B1's tests unchanged). The real data passes `check_all()`. `create_app()` with a planted bad pin raises `ConfigurationError`.
 - **T3 Parity.** `parity()` equals the expected-differences literal of §4 exactly. A new difference, or a vanished
   one, fails the test until the Architect rules on it (W2: the expectation is the ruling, not the code).
 - **T4 No wire change.**
   - `categories_for` and `lens_flags` for every `FINDING:` key and domain give the same output before and after.
-  - The test compares against a JSON snapshot written by the test file from `ENTRIES` at import, so this is not
-    circular: it pins today's function output.
+  - The test compares against a snapshot that is a literal committed in the test file, written once from `main` at
+    39e1682de (D-3B2.6); it is never built from `ENTRIES`. It covers every `FINDING:` key and `FINDING:UNMAPPED` over
+    the three domains.
+  - `git diff main -- backend/assetops_backend/outcomes/` is empty.
   - `test_out_a1_outcome_map.py` passes unchanged.
 - **T5 `pinned_category`.**
   - It returns `OPTIMIZE_COST` for both mini mechanisms.
@@ -159,8 +181,7 @@ python3 tools/select-tests.py --base main
 4. Is every byte of today's wire unchanged?
 5. Is nothing changed outside these files and the finish bookkeeping?
    - `structure/pins.py`
-   - `structure/check.py` (two calls)
-   - `structure/__init__.py` (docstring)
+   - `structure/check.py` (the import of `pins`, the call from `check_all`, `check_pins`, `PIN_CODES`)
    - the test file
 
 Packet: `specs/3B2-findings-pinned/packet.md`, with the module-path output and the mid-build question count.
