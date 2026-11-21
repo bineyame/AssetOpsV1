@@ -676,7 +676,7 @@ def _cross_field(spec: KindSpec, amount, quantity, body: dict, context: dict) ->
         elif rule == "budget_currency":
             factor = LEAF_FACTORS.get(body["factor_id"])
             if factor is not None:
-                needs = any(d == "MONEY" for d, _ in factor.unit.exponents)
+                needs = factor.unit.has_money_dimension
                 if needs != ("currency" in body):
                     _fail("CANONICAL_FACTOR", "record.body.currency")
         elif rule == "bands_overlap":

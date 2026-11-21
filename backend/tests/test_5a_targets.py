@@ -794,3 +794,65 @@ def test_composition_disposes_the_first_when_the_second_fails(monkeypatch) -> No
     with pytest.raises(RuntimeError, match="second"):
         build_target_read("postgresql://unused")
     assert disposed == ["actual"]
+
+
+# --- Fix F1 (D-DS4.27): price budget lines are read; one money-dimension predicate ------------------------------------
+
+from assetops_backend.structure.targets.lines import _classify  # noqa: E402
+from assetops_contracts.canonical import LEAF_FACTORS  # noqa: E402
+from assetops_contracts.canonical.records_v1 import CanonicalRefused, parse_record  # noqa: E402
+from assetops_contracts.canonical.units import parse_unit  # noqa: E402
+
+
+def _ml(factor: str, value: str, currency: str | None, version: str = V1):
+    from assetops_backend.commercial.months import MonthLine
+    return MonthLine("BUDGET_LINE", (("factor_id", factor), ("version_ref", version), ("line_ref", factor)), "AMOUNT",
+                     D(value), currency, None, E, 1, "", (BUD,), None)
+
+
+def test_f1_1_classify_price_lines() -> None:
+    used, blocked = _classify(REG, [_ml("tariff", "0.55", USD), _ml("diesel_price", "1.30", USD),
+                                    _ml("om", "700.00", USD), _ml("diesel_l", "2300", None)])[2:4]
+    assert sorted(line_.dims[0][1] for line_ in used) == ["diesel_l", "diesel_price", "om", "tariff"]
+    assert blocked == {}
+    assert _classify(REG, [_ml("tariff", "0.55", None)])[3] == {"tariff": "CURRENCY_MISSING"}
+    assert _classify(REG, [_ml("diesel_l", "2300", USD)])[3] == {"diesel_l": "CURRENCY_ON_QUANTITY"}
+
+
+def test_f1_2_kisiwa_kobo_mto_necessary_l() -> None:
+    w = lakeside()
+    for code, tariff, price, fuel in (("KISIWA-001", "0.55", "1.30", "2990.00"), ("KOBO-001", "0.40", "1.25", "875.00"),
+                                      ("MTO-001", "0.40", "1.25", "375.00")):
+        ingest(w, STEP_3_AT, PERSON_1, budget_batch([
+            budget_line(code, f"BUD-2026-10:{code}:tariff", "tariff", tariff),
+            budget_line(code, f"BUD-2026-10:{code}:diesel_price", "diesel_price", price)]), outcomes=("NEW", "REVISED"))
+    expect = {"KISIWA-001": D("2300"), "KOBO-001": D("700"), "MTO-001": D("300")}
+    for code in CODES:
+        st = read_site(w, code)
+        v = st.structure.values
+        assert dict(st.lines.blocked) == {}, code
+        assert (v["tariff"].value, v["tariff"].evidence, v["tariff"].currency) == (
+            D({"KISIWA-001": "0.55"}.get(code, "0.40")), "DECLARED", USD)
+        assert v["diesel_price"].evidence == "DECLARED" and v["diesel_price"].currency == USD
+        assert v["necessary_l"].value == expect[code], code
+        assert v["necessary_l"].evidence == "ESTIMATED"
+        assert v["necessary_l"].sources == ("assumption:main-factor:fuel_cost",)
+
+
+def test_f1_3_the_class_budget_record_and_classify_agree_on_every_leaf() -> None:
+    for leaf, factor in LEAF_FACTORS.items():
+        if "MINI_GRID" not in factor.structures:
+            continue
+        for currency in (USD, None):
+            record = budget_line("KOBO-001", f"x:{leaf}", leaf, "1", currency=currency)
+            try:
+                parse_record(record)
+                parses = True
+            except CanonicalRefused:
+                parses = False
+            used = not _classify(REG, [_ml(leaf, "1", currency)])[3]
+            assert parses == used, (leaf, currency)
+    p = parse_unit
+    assert p("MONEY/KWH").has_money_dimension and p("MONEY").has_money_dimension
+    assert not p("L").has_money_dimension and not p("KWH").has_money_dimension
+    assert not p("MONEY/KWH").is_money
