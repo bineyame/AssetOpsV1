@@ -151,14 +151,14 @@ const waitingIn = txt => { const m = String(txt || '').match(/(\d+) waiting for 
       if (waitingIn(pill) !== s.waiting) bad(`${s.sk}: the sticky pill reads "${pill}", expected ${s.waiting} waiting`); }
     /* Outcomes column 6 */
     await go('portfolio/outcomes');
-    for (const s of E.sites) { const tr = doc.querySelector(`.ia-outcomes tr[data-site="${s.sk}"]`), v = tr ? +tr.children[5].textContent.replace(/\D/g, '') : -1;
+    for (const s of E.sites) { const tr = doc.querySelector(`table.ia-list tbody tr[data-row="${s.sk}"]`), v = tr ? +tr.children[5].textContent.replace(/\D/g, '') : -1;
       if (v !== s.waiting) bad(`Outcomes: ${s.sk} "Waiting for a choice" reads ${v}, expected ${s.waiting}`); }
     /* D-IA.35 L3: column 5 against the board, one source (computed here, not through iaLargestAdverse) */
     for (const s of E.sites) {
       const V = w.eval(`(() => { const sk = ${JSON.stringify(s.sk)}; if (tree(sk).plan == null) return { target: false }; let best = null; uxSiteDriversShown(sk).forEach(r => { if (!r.s.st.residual && r.vr < 0 && (!best || r.vr < best.vr)) best = r; }); return { target: true, lab: best ? plainText(best.s.lab) : null, vr: best ? best.vr : null, fmt: best ? usdW(best.vr, true) : null }; })()`);
       if (!V.target) continue;
       await go(`site/${s.sk}`); const board = [...doc.querySelectorAll('[data-board-v]')].map(e => ({ v: +e.dataset.boardV, t: (e.closest('tr')?.querySelector('.ux-board-go')?.textContent || '').replace(/: what is behind it/, '').trim() }));
-      await go('portfolio/outcomes'); const c5 = doc.querySelector(`.ia-outcomes tr[data-site="${s.sk}"]`)?.children[4].textContent.replace(/\s+/g, ' ').trim() || '';
+      await go('portfolio/outcomes'); const c5 = doc.querySelector(`table.ia-list tbody tr[data-row="${s.sk}"]`)?.children[4].textContent.replace(/\s+/g, ' ').trim() || '';
       if (V.lab === null) { if (board.some(b => b.v < 0)) bad(`${s.sk}: no adverse driver by the check, but the board has a negative data-board-v`); if (!/No driver (widens the gap|raises the cost)/.test(c5)) bad(`Outcomes: ${s.sk} column 5 reads "${c5}", expected the "no driver" cell`); }
       else { if (!board.some(b => b.v === V.vr && b.t.includes(V.lab))) bad(`${s.sk}: the board has no opener "${V.lab}" with data-board-v ${V.vr}`);
         if (!c5.includes(V.lab) || !c5.includes(V.fmt)) bad(`Outcomes: ${s.sk} column 5 reads "${c5}", expected "${V.lab}" and ${V.fmt}`); }

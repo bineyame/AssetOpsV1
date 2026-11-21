@@ -142,7 +142,10 @@ async function blockD(fails, log) {
   const s = await at(B, 'sites', 'sites30');
   const heads = [...s.querySelectorAll('tr.ia-list-group th')].map(t => t.textContent.replace(/\s+/g, ' ').trim()), hn = heads.map(h => +(h.match(/(\d+)$/) || [])[1]);
   const tileV = k => { const t = [...s.querySelectorAll('[data-level="L1"] .ux-kpi')].find(e => e.querySelector('.ux-kpi-l')?.textContent.trim() === k); return t ? t.querySelector('.ux-kpi-v').textContent.trim() : null; };
-  if (heads.join(' | ') !== 'Mini-grids 18 | Cold rooms 7 | EV depots 5') fails.push(`D sites30: group heads "${heads.join(' | ')}", expected "Mini-grids 18 | Cold rooms 7 | EV depots 5"`);
+  /* groups in order of first appearance in the sort (spec §3.1 step 7), computed here from the fixture's own gaps (has a target first, gap ascending) */
+  const fx = B.w.__iaFixture.map((x, i) => [x, i]).sort(([a, i], [b, j]) => (a.hasTarget !== b.hasTarget ? (a.hasTarget ? -1 : 1) : a.hasTarget ? a.gap - b.gap : 0) || i - j).map(([x]) => x);
+  const N = { mini: 18, cold: 7, ev: 5 }, wantHeads = [...new Set(fx.map(x => x.group))].map(g => `${GROUPW[g]} ${N[g]}`).join(' | ');
+  if (heads.join(' | ') !== wantHeads) fails.push(`D sites30: group heads "${heads.join(' | ')}", expected "${wantHeads}" (first appearance in the gap sort)`);
   if (hn.reduce((a, b) => a + b, 0) !== +tileV('Sites')) fails.push(`D sites30: the group heads sum to ${hn.reduce((a, b) => a + b, 0)}, tile 1 is ${tileV('Sites')}`);
   const more = [...s.querySelectorAll('a')].filter(a => /^Show all \d+$/.test(a.textContent.trim()));
   if (more.length !== 1 || more[0].textContent.trim() !== 'Show all 30') fails.push(`D sites30: ${more.length} "Show all" link(s) (${more.map(a => a.textContent.trim()).join(', ')}), expected one "Show all 30"`);

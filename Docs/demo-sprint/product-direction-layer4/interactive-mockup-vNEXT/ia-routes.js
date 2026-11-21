@@ -27,12 +27,15 @@ const IA_ROUTES = [
   { id: 'portfolio/demand-and-capacity', shape: 'hub', object: 'portfolio', home: 'Portfolio', unit: 'IA-1b', tab: 'Demand & capacity', tabGroup: 'Portfolio',
     title: ctx => 'Demand & capacity', crumbs: ctx => [['Portfolio', 'portfolio'], ['Demand & capacity']], render: ctx => shapeHubDemand(ctx) },
   { id: 'site/:site', shape: 'hub', object: 'site', home: 'Sites', unit: 'IA-1b', tab: 'Overview', tabGroup: 'Site',
-    title: ctx => SK[ctx.site].name, subtitle: ctx => iaLegacy(`site/${ctx.site}`).subtitle, crumbs: ctx => [['Sites'], [SK[ctx.site].name]], render: ctx => shapeHubSite(ctx) },
+    title: ctx => SK[ctx.site].name, subtitle: ctx => iaLegacy(`site/${ctx.site}`).subtitle, crumbs: ctx => [['Sites', 'sites'], [SK[ctx.site].name]], render: ctx => shapeHubSite(ctx) },
   /* IA-1c (spec §4, D-IA.26): the decision shape, every DEC entry of the operator's Sites. The H1 is the question while the decision waits
-     for a choice and its subject once chosen (C17, as reviewed); "Decisions" is text until IA-2b; the Site crumb is the way to the Site */
+     for a choice and its subject once chosen (C17, as reviewed); "Decisions" links to the Decisions list once IA-2b1 lands (a crumb to an unlanded route is text, iaFrame); the Site crumb is the way to the Site */
   { id: 'decision/:dec', shape: 'decision', object: 'decision', home: 'Decisions', unit: 'IA-1c', tab: null, tabGroup: null,
     title: ctx => { const d = decById(ctx.params.dec); return iaWaiting(d.id) ? uxDecQuestion(d) : d.q; },
-    crumbs: ctx => { const d = decById(ctx.params.dec); return [['Decisions'], [SK[d.site].name, `site/${d.site}`], [d.q]]; }, render: ctx => shapeDecisionPage(ctx) }
+    crumbs: ctx => { const d = decById(ctx.params.dec); return [['Decisions', 'decisions'], [SK[d.site].name, `site/${d.site}`], [d.q]]; }, render: ctx => shapeDecisionPage(ctx) },
+  /* IA-2b1 (spec-IA-2b §4, D-IA.63): the four home lists, one shape and one component; H1 and document title are the menu label */
+  ...[['decisions', 'decision', 'Decisions'], ['findings', 'finding', 'Findings'], ['actions', 'action', 'Actions'], ['sites', 'site', 'Sites']].map(([key, object, home]) => ({
+    id: key, shape: 'list', object, home, unit: 'IA-2b1', tab: null, tabGroup: null, title: ctx => home, crumbs: ctx => [[home]], render: ctx => shapeList(ctx, key) }))
 ];
 /* the hub tab groups (spec §3.1), keyed by route.tabGroup; only landed tabs are drawn, and a group with one landed tab draws none */
 const IA_TAB_GROUPS = {
@@ -62,12 +65,12 @@ const IA_ALIASES = {
 /* the menu (D-IA.1), in its order and with its labels; an item whose unit has not landed is an unavailable root */
 const IA_RAIL = [
   { group: 'Operations', label: 'Portfolio', route: 'portfolio', unit: 'IA-1b', icon: 'grid' },
-  { group: 'Operations', label: 'Sites', route: 'sites', unit: 'IA-2b', icon: 'site' },
+  { group: 'Operations', label: 'Sites', route: 'sites', unit: 'IA-2b1', icon: 'site' },
   { group: 'Operations', label: 'Assets & cover', route: 'assets', unit: 'IA-2c', icon: 'asset' },
-  { group: 'Intelligence', label: 'Findings', route: 'findings', unit: 'IA-2b', icon: 'finding' },
-  { group: 'Work', label: 'Decisions', route: 'decisions', unit: 'IA-2b', icon: 'finding' },
+  { group: 'Intelligence', label: 'Findings', route: 'findings', unit: 'IA-2b1', icon: 'finding' },
+  { group: 'Work', label: 'Decisions', route: 'decisions', unit: 'IA-2b1', icon: 'finding' },
   { group: 'Work', label: 'Plan', route: 'plan', unit: 'IA-1a', icon: 'action' },
-  { group: 'Work', label: 'Actions', route: 'actions', unit: 'IA-2b', icon: 'action' },
+  { group: 'Work', label: 'Actions', route: 'actions', unit: 'IA-2b1', icon: 'action' },
   { group: 'Work', label: 'Incidents', route: 'incidents', unit: 'IA-2c', icon: 'incident' },
   { group: 'Work', label: 'Maintenance', route: 'maintenance', unit: 'IA-2c', icon: 'work' },
   { group: 'Assurance', label: 'Results', route: 'results', unit: 'IA-2d', icon: 'evidence' },
@@ -175,7 +178,14 @@ function iaScreen(route, path) {
   return { id: path, ia: route, ctx, title: route.title(ctx), docTitle: route.docTitle ? route.docTitle(ctx) : route.title(ctx), root: route.home || '', section: '', loop: true, opScoped: true, noFigures: !!route.noFigures, book: false, question: '', anchor: '' };
 }
 /* the palette lists only what is live, at its canonical address (R9) */
-function iaPaletteFilter(out) { return out.filter(([, , id]) => iaLive(id)).map(([l, k, id]) => [l, k, iaCanon(id).replace(/^#\//, '')]); }
+/* IA-2b1 (spec-IA-2b §5): from IA-2b1 the index also holds each Finding and each Action at its row's target, then Decisions and Sites */
+function iaPaletteFilter(out) {
+  const op = LS.op, add = !IA_LANDED.has('IA-2b1') ? [] : [
+    ...uxFindingRows(op).map(x => [x.text, `Finding · ${x.site}`, x.d ? `decision/${x.d.id}` : `decision/${x.f.decision}`]),
+    ...(WF(op).actions || []).map(a => { const d = iaActionDec(op, a), p = personOf(op, a.owner); return [a.action, `Action · ${p ? p.name : a.owner}`, d ? `decision/${d.id}` : 'plan']; }),
+    ['Decisions', 'Go to', 'decisions'], ['Sites', 'Go to', 'sites']];
+  return [...out, ...add].filter(([, , id]) => iaLive(id)).map(([l, k, id]) => [l, k, iaCanon(id).replace(/^#\//, '')]);
+}
 
 /* D-IA.36: an in-page link (#<id>) scrolls to that element on the page it is on; it is never a route */
 /* the sticky decision bar is shown only once the page is scrolled past the recommendation: measure its height now, so a scroll target stops below it (top of the view, wide screens only; on a phone the bar is at the bottom). One measure, used by in-page links and by the tab switch (D-IA.36, D-IA.58) */
