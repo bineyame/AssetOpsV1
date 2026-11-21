@@ -84,4 +84,4 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 170. `4a` energy to cash, where the kWh went (registry v4 stated kWh nodes, feeder delivered kWh, declared loss band, eight energy leaves; no migration) · data.md
 171. `3B6` cold-room and captive-EV structures (two registries, revenue declared not applicable, other-structure exclusion, three pins; no migration) · data.md
 172. `DS3` bulk loader: set-based bulk admission in the ledger writer, bulk service, world command, parity and census · data.md
-173. `3B4` the structure observer, units 1-3 (observed leaves and rule, structure Finding domain and tolerance record, migration 0071, observer and two commands) · data.md
+173. `3B4` the structure observer (observed leaves and rule, start-up table check, structure Finding domain and tolerance record, migration 0071, observer and two commands) · data.md

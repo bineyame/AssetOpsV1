@@ -1,9 +1,8 @@
-# 3B4 review packet (units 1-3; partial)
+# 3B4 review packet
 
 Task: `specs/3B4-observer/spec.md` rev 2 (rulings D-3B4.1-26, reviewer guide rev 2). Branch `task/3B4-observer`, base
-main `17775a4d5`. **Stopped at the end of unit 3; the `check.py` edit (spec §2.3: `OBSERVE_CODES`,
-`check_observed`, its call in `check_all`), tests 1, 1b and 3, and unit 4 wait for 4a and 3B6 to merge** (D-3B4.25;
-neither is an ancestor of `main` yet). `USER_REVIEW_REQUIRED: false`.
+main `17775a4d5`, then main `2ef8e9769` (4a, 3B6, DS3) merged in at `5aa5b0e0f`. Units 1-4 built; the `check.py`
+commit (spec §2.3) made after both 4a and 3B6 merged (D-3B4.25). `USER_REVIEW_REQUIRED: false`.
 
 ## Outcome
 
@@ -22,7 +21,10 @@ is empty).
 | `acd4b18b4` | 1: `structure/observe/rules.py`, `observe.py`; tests 2, 4-9 (pure) |
 | `9a76b83d6` | 2: migration `0071_structure_finding`, `structure_persist`, `structure_held`/`structure_apply`/tolerances, the four reader predicates, the one guard name |
 | `8dad430c7` | 3: `service.py`, `composition.py`, `observe_structure.py`, `declare_tolerance.py`, two `COMMAND_ROLES` keys, `structure_lock`; Postgres tests 10-15 |
-| (this commit) | packet, spec status, `specs/INDEX.md` row, built-state entry |
+| `f605f4524` | packet (units 1-3), spec status, `specs/INDEX.md` row, built-state entry |
+| `5aa5b0e0f`, `f1d73aac0` | merge of main (4a, 3B6, DS3); fixture follows 3B6's excluded reason (`STRUCTURE_OTHER_KEY`) |
+| `552b58d79` | 1 (held): `check.py` `OBSERVE_CODES`, `check_observed`, its call in `check_all` after `check_pins`; tests 1, 1b, 3 |
+| (this commit) | 4: packet refreshed, spec status, `specs/INDEX.md` row, built-state entry |
 
 ## Gates
 
@@ -30,14 +32,21 @@ is empty).
   the file is `0071_structure_finding` with `down_revision = "0066_structure_snapshot"` (self-contained: it reads
   nothing of 0067-0070). **Gate B at merge:** if `main`'s head moved, renumber on top of it and run `alembic heads`
   (one head); `test_10_single_head_on_0066` pins the parent and fails until it is updated.
-- **Gate 4a/3B6.** `git merge-base --is-ancestor` is false for both today; the `check.py` commit is not made.
+- **Gate B now.** `main` has not moved past `2ef8e9769` (`git log HEAD..main` empty); 0071 on 0066 still holds.
+- **Gate 4a/3B6.** `git merge-base --is-ancestor <c> HEAD` is true for 4a (`22dc0bbf3`, follow-up `b97b43340`) and
+  3B6 (`4a6c6eba9`); the `check.py` commit `552b58d79` is written on top of 3B6's `check_all` (key check, `check`,
+  not-applicable sweep, then `check_pins`, then `check_observed`).
+- **Registry v4 coverage.** 4a's registry (version 4) has 31 MINI_GRID leaves; `OBSERVED` (19, in registry leaf order)
+  and `NOT_OBSERVED` (12) cover each exactly once (none uncovered, none in both, no extra entry). 4a's stated kWh rows
+  are nodes, not leaves, so no mid-build question arose. `REGISTRIES` also holds `COLD_CHAIN` and `EV_DEPOT_CAPTIVE`,
+  which `OBSERVED` does not name: not a fault (`KEY` runs over `OBSERVED`'s keys, D-3B4.25; test 1b).
 
 ## Acceptance (spec §9)
 
 1. Raised only when adverse and strictly outside tolerance (tests 4, 5, 11): yes; every other state writes nothing
    (test 11's re-run, rebuilt and tolerance steps).
-2. Directions agree with the bridge's signs (test 2): yes. Start-up refusal of planted tables (test 3): **pending the
-   `check.py` commit**.
+2. Directions agree with the bridge's signs (test 2): yes. Start-up refuses a planted disagreement, an observed node,
+   a declared or option-only leaf, an unplaced kind and an uncovered leaf (test 3, one plant per code; P1-P5): yes.
 3. Unknown is not zero (tests 5, 6, 6b): yes; `grep -n "or Decimal(0)\|or 0" backend/assetops_backend/structure/observe/`
    is empty.
 4. Re-run and rebuilt snapshot write nothing; each change writes exactly the table's transition (test 11): yes.
@@ -45,7 +54,7 @@ is empty).
 6. No reader shows, counts or chokes on a structure Finding (test 13, sweep below): yes.
 7. Tolerance only by the finance lead (money) or the Site's manager (operational), with person and time, read by
    month and as known (test 15): yes.
-8. One guard name, one migration, no served text: yes. Plants: see below. Mid-build count: 0.
+8. One guard name, one migration, no served text: yes. Plants: all 23 fail their named test (below). Mid-build count: 0.
 
 ## The §4.4 sweep, re-run on the branch
 
@@ -102,22 +111,34 @@ Each plant applied alone to a scratch copy at `8dad430c7` (pure ones in a copied
 
 Logs: `/opt/assetecon/evidence/3B4-observer/units1-3/plants.out`, `plants-pg.out`.
 
-P1-P5 and P21: **pending the `check.py` commit** (they need `check_observed` and test 1b).
+P1-P5 and P21, at `552b58d79`, each alone on a throwaway `git worktree` (removed after), `test_3b4_observer.py` plus
+the start-up call `check_at_start()`; log `/opt/assetecon/evidence/3B4-observer/unit4/plants.out`:
+
+| Plant | Test | First failing assertion |
+|---|---|---|
+| P1 `outstanding` `DOWN` | 1, 3 | test 1 literal; start-up `STRUCTURE_OBSERVE_DIRECTION MINI_GRID/outstanding`; test 3's `KIND` plant raises `DIRECTION` |
+| P2 `billed_kwh` in `OBSERVED` | 3 | start-up `STRUCTURE_OBSERVE_LEAF MINI_GRID/billed_kwh` (not `COVER`); test 3's `SOURCE`/`DIRECTION`/`KIND` plants raise `LEAF` |
+| P3 `technical_loss_kwh` moved to `OBSERVED` | 3 | start-up `STRUCTURE_OBSERVE_SOURCE MINI_GRID/technical_loss_kwh`; later plants raise `SOURCE` |
+| P4 `field_visits` moved as UP | 3 | start-up `STRUCTURE_OBSERVE_KIND MINI_GRID/field_visits`; test 1 and `test_3_codes_are_the_spec_order` |
+| P5 `dawn_days_below` removed from both | 3 | start-up `STRUCTURE_OBSERVE_COVER MINI_GRID/dawn_days_below`; every later test 3 plant raises `COVER` |
+| P21 top-level `targets.rules` import in `observe/rules.py` | 1b | fresh `import structure.check` and `structure.evaluate` exit 1 (`ImportError ... circular import`); the test file fails to collect |
 
 ## Tests run
 
-All at `8dad430c7` (k4a's fix after it), `ASSETOPS_TEST_PYTHON` = the shared venv, through
-`tools/heavy-slot.sh --db -- pwsh -NoProfile -File tools/run-host-tests.ps1 -- <files>`; logs under
-`/opt/assetecon/evidence/3B4-observer/units1-3/`.
+Unit 4, at `552b58d79` (main `2ef8e9769` merged in), `ASSETOPS_TEST_PYTHON` = `/opt/assetecon/AssetOpsV1/.venv/bin/python`,
+Postgres through `/opt/assetecon/AssetOpsV1/tools/heavy-slot.sh --db -- pwsh -NoProfile -File tools/run-host-tests.ps1
+-- <files>` (harness `*_test` databases only); logs under `/opt/assetecon/evidence/3B4-observer/unit4/`.
 
 | Run | Files | Wall | Result |
 |---|---|---|---|
-| Focused | `test_3b4_observer.py`, `test_3c1a_person_work.py` (pure) | 14 s | 161 passed, 13 skipped (the Postgres file without a URL) |
-| Focused Postgres | `test_3b4_observer_postgres.py` | 18 s | 13 passed |
-| Regression | 30 files: 3B4, 3C1a, the 12 S4 Finding/money files, 3B1, 3B2, 3B3, 5b, k4a, 3B7a x3, ch1b x3, ch2 x2, ch3, ch5a1 | 1078 s | 684 passed, 11 failed, 1 skipped |
-| Baseline | the 4 failing files on a throwaway worktree of `main` `17775a4d5` | 470 s | the same 10 fail on main: `test_s4_schedule_tick` (4), `test_s4_schedule_health` (3), `test_ch1b_outbox` (1), `test_ch1b_fix` (2), environmental ("No product database is configured" in the schedule stages); pre-existing, not 3B4 |
-| Branch re-run | the same 4 + k4a, after the k4a fix | 481 s | the same 10, k4a all pass |
-| Guards | `check-architecture.ps1` (98 s) pass; `check-agent-workflow.ps1` pass; `check-all.ps1` fast (252 s): 1 of 41 failed: `specs/INDEX.md` over its 8000-byte cap (fixed: row shortened, 7976 bytes) and `D-DS3.23` unresolved in `.agent/backlog-post-demo.md` (on `main` since `17775a4d5`, not 3B4) |
+| Focused (pure) | `test_3b4_observer.py` (tests 1-9, with 1, 1b, 3 new) | 1 s | 27 passed |
+| Structure pure | 3B1, 3B2, 3B3 (evaluate, window price), 3B6, 5b | 6 s | 331 passed, 1 skipped |
+| Regression | 38 files: 3B4 x2, 3C1a x2, 13 S4 Finding/consequence/schedule files (the Finding-store and read tests, `_fence`/`finding_detail`/`rows()`), 3B1, 3B2, 3B3 x2, 3B6, 3B7a x3, 4a x2, 5b x2, k4a x2, ch1b x3, ch2 x2 (thread sources), ch3, ch5a1 reader | 1248 s (906 s in pytest; rest queued on the slot) | 916 passed, 10 failed, 1 skipped |
+| Known environmental | the 10 failures: `test_s4_schedule_tick` (4), `test_s4_schedule_health` (3), `test_ch1b_fix` (2), `test_ch1b_outbox` (1); "No product database is configured" in the schedule stages | - | identical assertion text to the `main` baseline of units 1-3 (`units1-3/base-main.log`); not 3B4 |
+| Guards | `check-architecture.ps1` pass (150 s); `check-agent-workflow.ps1` pass; `python3 tools/check-decision-index.py` OK; `check-all.ps1` fast (311 s): 41 passed, 0 failed, 1 skipped (heavy-slot pool self-test: no pool file changed); `D-DS3.23` no longer fails |
+
+Units 1-3 runs (at `8dad430c7`, logs `units1-3/`): focused Postgres 13 passed; regression 684 passed, 11 failed (the
+10 above plus k4a's `test_b1`, fixed, deviation 11).
 
 The 11th regression failure was 3B4's: `test_k4a_fuel_finding_postgres.py::test_b1_migration_up_down_up_on_empty_tables`
 compared head's CHECKs with 0055's plus the fuel arm; 0071's structure arm breaks that at head (deviation 11).
@@ -154,6 +175,9 @@ After `build_structure_snapshot build --tenant <slug> --month <YYYY-MM> --by per
    (unchanged), so a command's Finding-store engine ends with the process.
 11. `test_k4a_fuel_finding_postgres.py` `test_b1`: 0056's widening is now compared at 0056 (`command.upgrade(config,
    MIGRATION)` after the downgrade), then head; it compared at head, which 0071 widens again.
+12. Test 1b's fresh interpreters run `python -I -c "import sys; sys.path[:0] = [...]; import <module>"`: `-I` ignores
+   `PYTHONPATH`, and the shared venv's editable install can point at another checkout, so the test's own `sys.path`
+   is placed first inside the interpreter before the one import under test.
 
 ## Residual risks
 
@@ -161,7 +185,7 @@ After `build_structure_snapshot build --tenant <slug> --month <YYYY-MM> --by per
 - **R-NO-OPPORTUNITY** (D-3B4.4): no opportunity Findings (no record of a customer's opportunity exists).
 - **R-ASSUMED-TARGET** (D-3B4.5): with no tolerance set, every adverse deviation against 5a's target is raised,
   including assumed targets (leak at zero); the operator narrows it by tolerance (owner Q1, OWNER-AWAY row 27).
-- Snapshots will serve with reason `RULES` once `check.py` changes (code digest), so analysts rebuild after merge.
+- `check.py` changed at `552b58d79`, so served snapshots read reason `RULES` (code digest) until rebuilt after merge.
 
 ## Review focus
 
