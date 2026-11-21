@@ -1,10 +1,10 @@
-# 3A7 packet: commit 1 of 2 (one closed month reconciled, codes and Decimals; D-SC1.28)
+# 3A7 packet: commits 1 and 2 (one closed month reconciled; D-SC1.28)
 
-`USER_REVIEW_REQUIRED: false` for commit 1: there is no screen and no served text. Commit 2 adds the words and lists
-each string for the walkthrough. **Two mid-build questions need an Architect ruling** (`mid-build-questions.md` Q1, Q2
-High); both are applied on their defaults. Branch `task/3A7-month-reconciled` (worktree `/opt/assetecon/AssetOpsV1-3a7`),
-off `task/3A6-source-profiles` `166942e7d` (D-3A6.26). Commits `cb862a7bf`, `5e51b7a7c`, plus this docs commit. Not
-merged: the merge waits for 3A6 and SC-1a.
+`USER_REVIEW_REQUIRED: true` for commit 2: it adds served text (every sentence below), held for the owner's combined
+walkthrough; there is still no screen (5c shows the standing). Branch `task/3A7-month-reconciled` (worktree
+`/opt/assetecon/AssetOpsV1-3a7`). Commit 1 `cb862a7bf`, `5e51b7a7c` (reviewed ACCEPT, `review-c1.md`); commit 2 merges
+`main` `e5a283228` (SC-1a, 3B4) and `task/3A7-midbuild-answers` (D-3A7.14, D-3A7.15), then `7db25a8b9` and a docs
+commit. Not merged to `main`. Mid-build Q1 and Q2 are answered (D-3A7.15, D-3A7.14).
 
 ## Outcome
 
@@ -53,15 +53,74 @@ a current statement opens the gate (both headings matched against recorded lines
   these IDs; the 3A6 base does not. Merging `main` in (commit 2) resolves it. Estate guard self-tests 17 passed.
   581 s wall.
 
-## Known deviations
+## Known deviations (commit 1)
 
-- Q1: the owner file is read through an injected `owner_file` port. `pathlib` in the service fails the persistence
-  guard.
-- Q2: the service lives in `structure/`, not `commercial/` (D-3A4.8, which the 3A4 and 4b tests enforce).
-- The dataclasses have no `words` or `text` yet. `money_word`, `heading_words` and R6 come in commit 2.
+- Q1 and Q2 are now rulings: the owner file reaches the service through the `owner_file` port, which the command
+  builds (D-3A7.15); the service lives in `structure/` (D-3A7.14).
 - A NOT_COMPARABLE heading carries `recorded` and `difference` as None.
 
 ## Review focus
 
 `structure/reconciliation.py` `_heading` (rule order), `standing` (covering first, then the gate walk in cited order)
 and `_Read` (memo per call). The tie on `recorded_at` is broken by `id` text. Handoff: `handoff.md`.
+
+## Commit 2: the words, the composition, the command
+
+### Outcome
+
+- `i18n/statements/en/reconciliation.py`: SC-1 §5.1's `reconciliation.heading`, `.gap`, `.share` and §5.4's
+  `.scope` exactly (a test compares them with `worked.py`'s copies), plus `.statement`, `.standing`, `.money_word`
+  and `.refused`. Vocabulary `noun` gains `character` (the refusal's length limit is a `Count`).
+- `structure/reconciliation.py` hands the composer typed facts and holds no word: it is in the guard's `ADOPTED`
+  (D-3A7.14), and the scan passes with nothing added to the hand-built baseline or the allow file. `HeadingCheck`,
+  `StatementCheck` and `MoneyStanding` gain `words` and `text`; `MoneyStanding` also `details` (D1). New:
+  `heading_words` (the spec's signature plus `origins`), `statement_words`, `standing_words`,
+  `money_word(figure, standing)` (D2), `refusal_words`, `site()`; `set_tolerance` returns its row.
+- Evidence (D-SC1.18): the accounts and the tolerance are `DECLARED`, origin `observed-financial` ("Recorded"); the
+  records are `RECORDED` with the used lines' weakest origin ("Emulated" for §6's fixtures; none named reads
+  "Estimated"); the difference, allowed amount and share are `DERIVED` from them.
+- To keep the adopted module code-form, the record forms (the five patterns the migration's CHECKs mirror) and the
+  owner-file citation rule moved to `commercial/model.py`, and the used lines, sources and origins are read from
+  `structure/money.py` (three public helpers over 4b's own row filters, D-3A7.1) instead of restating them.
+- Review L2: a slug cites only as a whole slug (`lakeside-power-north` no longer cites `lakeside-power`).
+- `structure/reconciliation_composition.py::build_commercial_reconciliation(database_url, *, owner_file=None)` on
+  `commercial.composition.build_commercial_reads` (D-3A7.14, D-3A7.15). `reconcile_month.py` (§5): `record`, `show`,
+  `set-tolerance`; the owner-file reader is built from the owner root (default the repository root).
+- Migration renumbered `0069_commercial_reconciliation`, revising 3B4's `0068_structure_finding`.
+
+### Every served string (for the walkthrough), and what changed from spec §2.7 and §6
+
+| Where | Now reads | Change and rule |
+|---|---|---|
+| Heading, all money | `$505.00` | was `505.00 USD` (D-SC1.10) |
+| Heading, matched / not matched | `Fuel cost (Recorded and Emulated): the accounts say $505.00 and the records say $512.50, $7.50 more (1.49%), beyond the $5.05 allowed (1%).` | the evidence word after the heading name (D-SC1.18); "less than $0.01 more" for a tiny gap |
+| Heading, zero stated / not received | `Fuel cost (Recorded): the accounts say $0.00 and no fuel invoices are recorded.` · `... $40.00, but no fuel invoices are recorded for October 2026.` | evidence word; `$0.00` from the figure, not a literal (D-SC1.9) |
+| Heading, currency / month open | `Revenue: the accounts are in EUR, but the records are in USD.` · `Revenue: November 2026 is not closed yet.` | none |
+| Statement | `October 2026 (KOBO-001) matches the management accounts within 1% (Recorded).` (and "does not match", "cannot be compared ... yet") | the tolerance carries its evidence inline (D-SC1.18; D4) |
+| Standing | `Reconciled: October 2026 (the organisation) matches the management accounts within 1% (Recorded).`; the two "Not yet reconciled: ..." month forms; `Not yet reconciled: no closed month has been compared with the management accounts.`; `Not yet reconciled: no month's recorded revenue and fuel cost match the management accounts within 1% (Recorded) yet.` | "both" dropped (D-SC1.21); tolerance evidence (D4); failing headings in `details`, not in `text` (D1) |
+| `money_word` | `Recorded` · `Recorded, not yet reconciled` · `Emulated, not yet reconciled` | through the shared evidence format (D-SC1.16) |
+| Refusals | `Only the finance lead records the management accounts.` · `Write the month as YYYY-MM, like 2026-10.` · `This Site is not this organisation's: NOPE-001.` · `Only mini-grid Sites are compared with the management accounts for now: FRZ-001.` · `Write the currency as its code in capital letters, like USD.` · `Write the revenue as digits with a decimal point and no separators, like 1200.00.` · `Say where the figures come from, in at most 200 characters.` · `November 2026 is not closed yet: record a closed month.` · new: `This organisation has no mini-grid Site to compare with the management accounts.` | number words reworded (D-SC1.21: "not one of", "three capital letters", "two decimals"); the open month by name, not `2026-11`; a sentence for the code commit 1 raised without a Site |
+
+### Known deviations (commit 2)
+
+- **D1 (needs an Architect ruling).** D-3A7.13 makes the standing's `text` its sentence plus the failing headings'
+  sentences joined by a space. SC-1 has no way to join rendered sentences (a part shares its parent's facts, so two
+  headings cannot both be parts; `Items` holds facts, not messages), and any join in code is hand-built text (the
+  adopted rule; in the ratchet a new `HAND_BUILT_NEW`). Built: `text` is the standing sentence and
+  `details: tuple[str, ...]` holds each failing heading's sentence in heading order (JSON `"details"`); V19 fails on
+  it. Options: keep the list (5c shows the sentences one per line), or SC-1 grows a sentence-sequence slot and
+  `text` returns to D-3A7.13's form.
+- **D2.** `money_word(figure: Money, standing)`, not `(base: str, standing)`: the word comes from the figure's own
+  evidence through the shared format (D-SC1.16), so 5c passes the money it shows.
+- **D3.** `CONFIGURATION` prints the code alone (exit 2); printing the `ConfigurationError`'s text would be served
+  exception text (a new fingerprint).
+- **D4 (wording, owner).** The statement and standing sentences state the tolerance, a figure, so it carries its
+  evidence: "within 1% (Recorded)". `reconciliation.scope` is an inline statement (§5.4), so its parents cannot be
+  `served` and move the word to a chip.
+- **D5 (scope beyond §3's files).** `structure/money.py` (three helpers), `i18n/statements/en/vocabulary.py`
+  (`noun.character`), `tools/checks/statement_catalogue.py` (`ADOPTED`, D-3A7.14), `test_sc1_statements.py` T8's
+  shipped-key set, `statement_cases/worked.py` (docstring), new `statement_cases/reconciliation.py` and the three new
+  test files.
+- **D6.** `show` refuses a malformed period (`RECON_PERIOD`) and an unknown Site (`RECON_SITE_UNKNOWN`) with exit 2;
+  the spec names no code. `set-tolerance` refusals stay codes (exit 2, no sentence).
+- Order of work: the statements module was written just before its word tests, in the same commit.

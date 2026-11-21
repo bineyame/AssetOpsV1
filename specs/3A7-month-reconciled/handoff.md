@@ -1,4 +1,4 @@
-# 3A7 handoff: commit 1 done, commit 2 next (partial by design, D-SC1.28)
+# 3A7 handoff: commits 1 and 2 done (D-SC1.28); the unit is in review
 
 Branch `task/3A7-month-reconciled`, worktree `/opt/assetecon/AssetOpsV1-3a7`, based on `task/3A6-source-profiles`
 `166942e7d` (D-3A6.26). Commit 1 is `cb862a7bf` plus `5e51b7a7c` (module moved, mid-build Q2). Merge waits for 3A6 and SC-1a.
@@ -17,17 +17,12 @@ Branch `task/3A7-month-reconciled`, worktree `/opt/assetecon/AssetOpsV1-3a7`, ba
 - Fixture `backend/tests/fixtures/3a7/reconciliation_two_sites.json`; `backend/tests/test_3a7_reconciliation.py` R1-R5,
   R7-R10 on states, reasons and exact Decimals, plus `set_tolerance` cases (M5's rules, service side).
 
-## Next (commit 2, after SC-1a merges and `main` is merged in)
+## Done (commit 2, after `main` (SC-1a) and `task/3A7-midbuild-answers` were merged in)
 
-1. §2.7 as SC-1 statements in `i18n/statements/en/reconciliation.py` (rulings "Amendment (SC-1)": D-SC1.14, .16,
-   .18, .19, .21, .26). SC-1a mid-build ruling (its ID is in the index once SC-1a merges): the records slot has `"form": "in_sentence"`. Money reads `$505.00` (D-SC1.10).
-   Add `words`/`text` to the three dataclasses, `heading_words`, `money_word` (R6), the refusal words, and join the
-   guard's `ADOPTED`. Display rounding (D-3A7.10: `DISPLAY` context, ROUND_UP/DOWN per table) lives with the words.
-2. Word assertions: every T-case sentence of §6 (by SC-1's rules), R3's sentences (share omitted at 0, 5.01
-   allowed, "less than 0.01 more", `1,234,567.89`), R6. Plants V12, V15, V19 then fail their named tests.
-3. `build_commercial_reconciliation` in `structure/reconciliation_composition.py` (D-3A7.14), taking `owner_file` as a parameter (D-3A7.15; the command builds the reader from the owner root); `reconcile_month.py` (§5) and M1-M5; `test_3a7_reconciliation_postgres.py` Q1-Q3 (chain link, triggers,
-   downgrade, tolerance CHECKs, Q2 routed T1/T2/T4, Q3 FK).
-4. Packet: list each changed string for the walkthrough; P4 residual (structure in the composition's import closure).
+Items 1 to 4 of the former "Next" are built: statements in `i18n/statements/en/reconciliation.py`, the service in
+`ADOPTED`, words and word assertions, `structure/reconciliation_composition.py` (D-3A7.14, D-3A7.15; no P4 digest
+residual, D-3A7.14 voids it), `reconcile_month.py`, M1-M5, Q1-Q3. Migration renumbered to 0069 on 3B4's 0068.
+See `packet.md` "Commit 2" for the changed strings and the open deviations (D1: the standing's failing headings).
 
 ## Anchors
 

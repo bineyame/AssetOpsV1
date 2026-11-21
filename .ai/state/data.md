@@ -535,12 +535,12 @@ Branch `task/3A6-source-profiles` (main `26dd65e60` merged in); spec `specs/3A6-
 - Fix round r5 (the class, D-3A6.23-26): every upload parse (both readers, canonical JSON, admission's split) runs in a fresh forkserver child (`commercial/envelope.py`) under RLIMIT_AS 512 MiB, CPU 6 s, wall 12 s, a 32 MiB result, 2 at once per process; any breach is `NATIVE_TOO_LARGE` (its own words), logged with no content; the resource bounds switched to that code; N8-N10 bounds (attribute runs and names, 1 Mi characters a CSV row, a 256-entry/256 KiB zip directory). E0-E9, B1-B3.
 - Open: the reading-upload intake (`reading_upload_api.py`) still parses in process (queued `ENV-1`); mid-build Q1 (A9 a's many-to-one map vs `check_layout`'s one-to-one rule); queue Q1 (moving a Site's source type to another system) and Q6 (Sites named, not coded) on their defaults; a v2 that changes `personal` turns that profile's corrections into version conflicts (packet risk); 3A7 next on the same files.
 
-## 3A7 commit 1 - one closed month reconciled, codes and Decimals (in review, 21 Nov)
+## 3A7 - one closed month reconciled (in review, commits 1 and 2, 21 Nov)
 
-Branch `task/3A7-month-reconciled` off `task/3A6-source-profiles` 166942e7d (D-3A6.26); spec `specs/3A7-month-reconciled/spec.md` rev 2, D-SC1.28 split; packet and `handoff.md`. Migration 0069 (revises 3B4's 0068; renumbered at the commit 2 main merge).
+Branch `task/3A7-month-reconciled` (main `e5a283228` and the mid-build answers merged in); spec `specs/3A7-month-reconciled/spec.md` rev 2, rulings D-3A7.1-15, D-SC1.28 split; packet `packet.md`. Migration `0069_commercial_reconciliation` on 3B4's 0068.
 
-- Settled: tables `commercial_accounts_statement` and `commercial_reconciliation_tolerance` (append-only); `structure/reconciliation.py` (`record`, `check`, `statements`, `standing` at `known_at`, `set_tolerance` citing an owner file by slug and figure); money reconciles only through a current opener with no covering mismatch; missing is never 0.
-- Open: commit 2 (SC-1 words, `money_word`, composition, `reconcile_month` command, M1-M5, Postgres Q1-Q3) after SC-1a; mid-build Q1 (owner-file port) and Q2 (module under `structure/`, builder home) await the Architect.
+- Settled: tables `commercial_accounts_statement` and `commercial_reconciliation_tolerance` (append-only); `structure/reconciliation.py` (`record`, `check`, `statements`, `standing` at `known_at`, `set_tolerance` citing an owner file by slug and figure) in the statement guard's `ADOPTED`; its sentences are SC-1 statements (`i18n/statements/en/reconciliation.py`: heading, gap, share, scope, statement, standing, money_word, refused); `structure/reconciliation_composition.py`; command `reconcile_month record|show|set-tolerance`; money reconciles only through a current opener with no covering mismatch; missing is never 0.
+- Open: D1 (the standing's failing headings are a `details` list, not joined into `text`: SC-1 joins no sentences), D4 (tolerance evidence wording); the screen is 5c's.
 
 ## 3B4 - the structure observer (in review, 21 Nov)
 
