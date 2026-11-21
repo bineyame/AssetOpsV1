@@ -578,3 +578,158 @@ times at no cost to legitimate files.
 - The profile admission path reads the sample twice, through `reader.read` and then `split_file`. Every cost above
   doubles there.
 - Concurrency: every figure is per request, and nothing limits parallel uploads per tenant.
+
+## Round 5 (fresh adversarial re-review at 37d24ceb6, code at bc0c57ecf, tests at 72bc785cd; verdict REVISE)
+
+### Summary (verdict: REVISE)
+
+- Every row in the r4 table holds on my own probes: the size lie, the character budget, the row ceilings on both
+  paths, the compression methods and the width-plus-one cut. Each bound is enforced before the work it limits.
+- The table is not complete. Two resources it does not list cost more than the stated worst cases:
+  - **N8 Medium.** XML attributes are not counted. In a 6.6 MB upload, 1.45 M distinct attribute names on
+    `workbookPr` and on one sheet element took **6.30 s and 671 MB**, then read `ok 3`.
+  - **N9 Medium.** The CSV worst case is not 253 MB. One row of 4.2 M one-character cp1252 fields (`\x80;`)
+    peaks at **404 MB**. A row split over physical lines by quoted newlines gets past any cap on line length.
+    Fields per row should be capped before splitting.
+- **N10 Low.** The stdlib zip parser decodes each extra field in quadratic time: 8.3 MB of central directory
+  took 3.10 s.
+- The r3 near-member-cap test change to `ok 10001` is correct and is not a weaker test.
+- My differential (pre-r4 tree against r4, 600 cases, 24 at or past the ceiling) gave 0 mismatches.
+- Tests: 177 passed (contracts plus 3A6, non-DB). 3A6 Postgres: 4 passed.
+
+### N8 Medium: attributes are outside every bound (`xlsx.py:139` `_Target.start`, `:192` `self.pr = dict(attrib)`, `:326` `parser.feed`)
+
+- **Wrong.** `_WORK_MAX` charges one unit for each element start, but an element's attributes cost nothing. Expat
+  and `_elementtree` build the attribute dict before `start` runs. Every distinct attribute name also stays in
+  the parser's name cache until that member's parse ends. Only the member cap (16 MiB inflated) limits this.
+  `_Workbook` also keeps `workbookPr`'s whole dict alive through the sheet parse. That doubles the peak.
+- **Seen** (fresh process; max RSS includes about 25 MB of baseline):
+
+  | Probe | Upload | Outcome | Time | Max RSS |
+  |---|---|---|---|---|
+  | one sheet element, 1.45 M attributes (member just under 16 MiB) | 3,299 kB | `ok 3` | 3.41 s | 532 MB |
+  | the same names spread 14,500 to an element over 100 elements | 3,300 kB | `ok 3` | 2.73 s | 431 MB |
+  | 1 M namespaced attributes (`p:aN`) | 2,365 kB | `ok 3` | 2.95 s | 409 MB |
+  | `workbookPr` plus a sheet element, 1.45 M each | 6,596 kB | `ok 3` | **6.30 s** | **671 MB** |
+
+- **Why it matters.** This is the class round 4 asked to close: a resource that the table does not list costs
+  more than its stated worst case (1.56 s, 253 MB). It is Medium rather than High because the member and total
+  caps hold it under 1 GB. At the 1 MiB profile sample cap it is about 5 times smaller.
+- **Fix.** Bound the attributes before the parse. The spread row shows that a cap on attributes per element is
+  not enough alone, because the name cache grows across elements. One option:
+  - In `_parse`, before `feed`, refuse any member whose markup holds more than a fixed number of attribute
+    assignments. A linear count of `="` and `='` in the decoded text is a safe upper bound, for example 1 M per
+    workbook, charged against a running budget.
+  - Also refuse any start tag longer than a few KiB. Excel's tags are short.
+  - Keep only `date1904` from `workbookPr`, not `dict(attrib)`.
+
+  Add a test like the probes above, bounded on time and peak memory, and a plant that removes the pre-check.
+
+### N9 Medium: one CSV row is split in full before it is cut (`layouts_v1.py:373`, `for cells in reader`)
+
+- **Wrong.** `cells[:keep]` runs after `csv.reader` has built the whole row. The row is limited only by the
+  upload. The packet's worst case (253 MB) used two-character fields. One-character Latin-1 fields are cached
+  singletons and cost little, but a one-character field outside Latin-1 is a new object each time. In cp1252
+  (the kobo profile), `\x80` decodes to U+20AC, so `\x80;` is 2 bytes for each field.
+- **Seen:**
+
+  | Probe | Upload | Outcome | Time | Max RSS |
+  |---|---|---|---|---|
+  | 2.7 M two-digit fields, one line (the builder's probe) | 8,100 kB | `ok 1` | 0.38 s | 254 MB |
+  | 4.2 M `\x80` fields, one line | 8,385 kB | `ok 1` | 0.56 s | **404 MB** |
+  | 2.7 M fields over 90 lines joined by quoted newlines | 8,101 kB | `ok 1` | 0.39 s | 246 MB |
+
+- **Judgement asked (is 253 MB acceptable?).** No. The real worst case is 404 MB, which is over the few-hundred-MB
+  line. The quoted-line row shows that a cap on physical line length does not bound the fields in a logical
+  row. Cap the row before it is split.
+- **Fix.** Pass `csv.reader` a generator over the physical lines that counts the characters of the current
+  logical row. The loop body resets the count after each row it receives. Refuse `NATIVE_ROW row.N` past a fixed
+  bound, for example 1 Mi characters; legitimate kobo rows are a few hundred. That holds the worst case to about
+  50 MB. Add a test with both shapes above (one line, and quoted lines), bounded on peak memory, and a plant.
+  Update the table's "cells in one physical row" line: the resource is the logical row.
+
+### N10 Low: the zip parser's extra-field decode is quadratic (`xlsx.py:332`, `zipfile.ZipFile(...)`)
+
+- **Wrong.** On Python 3.12, `ZipInfo._decodeExtra` re-slices the extra field after every record. A
+  central-directory entry whose 65,535-byte extra field holds 16,383 empty records costs about 25 ms. Here
+  125 such entries were added to the budget workbook. This happens inside the `ZipFile` constructor, before
+  any check of ours.
+- **Seen.** 8,332 kB upload, `ok 3`, **3.10 s**, 59 MB. The plain forms are bounded:
+  - 175 k empty entries: 1.27 s, 119 MB.
+  - 128 entries with 64 KiB names: 0.41 s, 59 MB.
+- **Fix (recommended, does not block).** Before `ZipFile`, read the end-of-central-directory record from the
+  upload's tail. Refuse a directory above, for example, 1 MiB or more than 1,000 entries. A workbook has about 10.
+  This also makes the "zip members listed" row a real bound rather than "inside the upload".
+
+### Table rows confirmed by my own probes
+
+| Resource | Probe | Upload | Outcome | Time | Max RSS |
+|---|---|---|---|---|---|
+| Inflated bytes | 1,000 MiB size lie | 1,021 kB | `ok 3` | 0.33 s | 37 MB |
+| Characters | 15 Mi-character shared string (`€`), 10,000 references | 68.6 kB | `NATIVE_WORKBOOK` | 0.20 s | 101 MB |
+| Kept rows (XLSX) | 50,000 rows of a 300-digit number | 103 kB | read 10,001, batch `CANONICAL_RANGE` | 0.79 s | 82 MB |
+| Skipped rows (XLSX) | 499 k `<row/>`; 249 k `<row><c/></row>`; 166 k empty shared; 166 k `#N/A` | 6–19 kB | `ok 3` | 1.74–1.75 s | 98–122 MB |
+| Shared-string count | 499 k `<si/>` | 5.6 kB | `ok 3` | 0.94 s | 46 MB |
+| Number text | shared index of 15 Mi digits | 17.1 kB | `ok 3` | 0.52 s | 81 MB |
+| Rels target | 15 MiB of `../` | 17.1 kB | `NATIVE_WORKBOOK` | 0.44 s | 141 MB |
+| CSV field length | one 8 MiB quoted field | 8,388 kB | `NATIVE_ROW` | 0.09 s | 100 MB |
+| CSV quoting | 1.2 M `"a""b"` fields | 8,388 kB | `ok 1` | 0.27 s | 164 MB |
+| CSV line endings | 8 Mi bare `\r` | 8,388 kB | `ok 0` | 1.56 s | 91 MB |
+
+- Hunted without a finding:
+  - `_invisible`: building the class takes 0.39 s once per process (24 spans), and a search over 16 Mi
+    characters takes 0.32 s.
+  - Regexes on cells: they are linear, and their formats are enumerated choices in the profile.
+  - `int()` on a long shared index: the 4,300-digit limit raises at once.
+  - `Decimal` on long numbers: linear.
+  - Encodings: only `utf-8` and `cp1252`, and the BOM is stripped once.
+  - `header_row`: at most 20.
+  - `field_size_limit`: nothing in the repository changes it from the stdlib default.
+  - The 1 MiB sample check runs before either read.
+  - Styles: `styles.xml` is never read.
+
+### The r3 test change (`ok 10001`)
+
+- It is correct. Each row of that sheet holds a non-empty inline `x`. Under r4 the parse stops at the 10,001st
+  kept row, after about 40 k elements, long before the 500 k work bound. The read returns 10,001 records, and the
+  batch refuses `CANONICAL_RANGE`, which `num_many_long` above confirms.
+- The test still holds its 3.0 s and 120 MB bounds. The work bound itself stays covered by
+  `test_n3_r3_empty_rows_past_the_bound_are_refused`, and empty rows never count toward the ceiling.
+- Not weakened. A Low note: it asserts the read count only, not the batch refusal. One `parse_batch` assertion
+  would pin the end-to-end outcome.
+- An unlisted deviation (Low, documentation): on XLSX as well as CSV, a workbook error past the ceiling is now
+  `CANONICAL_RANGE` instead of `NATIVE_WORKBOOK`. Examples are a falling row number or the character budget.
+  Unparsed XML past the ceiling is never checked for being well formed. Both outcomes refuse the file.
+
+### Differential (my own)
+
+- `diff_r5.py`, seed 2026, 600 cases. Each case was read by `read_layout` from the pre-r4 tree (`ed9bd5f0c`) and
+  from r4, then given to `parse_batch`. The comparison is a digest of records, row numbers, refusals and the
+  batch outcome.
+- This sample differs from the builder's. Every 25th case sits at 9,990 to 10,011 data rows. It includes LF,
+  CRLF and bare CR endings, quoted multi-line fields, rows of 1, 8 to 11 and 30 fields, delimiter-only rows,
+  and XLSX empty, `#N/A`-only and empty-string rows, plus rows without `r`.
+- Result: **0 mismatches**. 12 cases were past the ceiling, and both trees end `CANONICAL_RANGE`. 37 were whole-file
+  refusals; the rest read.
+
+### Checks run (worktree on `PYTHONPATH`)
+
+- `heavy-slot.sh -- pytest contracts/tests backend/tests/test_3a6_source_profiles.py backend/tests/test_3a6_source_profile_command.py -q`:
+  177 passed in 35.03 s.
+- `heavy-slot.sh --db -- pwsh tools/run-host-tests.ps1 backend/tests/test_3a6_source_profiles_postgres.py -q`:
+  4 passed in 5.78 s.
+- Probes and differential: `/opt/assetecon/evidence/3A6/2026-11-21/r5/` holds the scripts and logs. Probe files
+  were deleted after measuring. Each probe ran in a fresh process under `ulimit -v 6 GB`, pooled.
+
+### Not verified
+
+- The full suite and the 41 guards: I relied on the implementer's r4 run at `72bc785cd`.
+- The r4 plants were not re-run.
+- An end-to-end HTTP upload. The probes call the reader directly, and the API reads the body only up to the
+  8 MiB cap before that.
+
+### Residual risk
+
+- Every figure is per request, and nothing limits parallel uploads per tenant. With N8 and N9 fixed, the worst
+  single request I found would be about 3 s (N10) and about 170 MB (zip directory and skipped XLSX rows).
+- The profile admission path still reads the sample twice, at 1 MiB.
