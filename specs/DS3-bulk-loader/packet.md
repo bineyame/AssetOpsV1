@@ -108,3 +108,12 @@ Cover limit (D-DS3.21): an event_outbox cover is a least start and a greatest en
   most real, equal subject cover; named in the census as a second per-statement table; xfail removed.
 - Run (host tests inside `heavy-slot.sh --db`, harness clones only, all dropped): DS3 tests, test_s2_evidence_ledger_postgres,
   test_pg_harness, 3A2 and 3A3 files: 309 passed, 0 xfail, 99.7 s.
+
+## Fix round r1 (review ACCEPT WITH FIXES, F1 to F6)
+
+- F1: test 1's host, port and no-port cases now use the permitted name `assetops_ds3_audit1121` (`10.0.0.5:55432`, `127.0.0.1:5432`, no port: false), plus a true case on `localhost:55432`; the `?dbname=` case also uses a permitted name. Each refusal case is now refused only by the rule it targets (the name-rule cases are refused by the name rule on any host). P21 re-planted (host and port check removed): 3 failed, 16 passed in `-k permitted`.
+- F6: `pg_harness.drop_database` and `clone_database(template_url=...)` assert `permitted_database` (clones and `_audit*`, walk|serve deny); new test refuses the run template, the walkthrough database and walk/serve names. Plant (clone guard off): that test fails. The drop guard was not planted: with it off the test would drop `assetops_test`.
+- F5: `_cover` fails on a subject key outside `_COVER_KEYS`; plant (`roles` removed from the set) fails the parity test.
+- F2 to F4: packet, state and command text moved to rev 3 (0 open, no xfail, audit names and harness clones); state-index line renumbered 171 (main has 169 0K1, 170 4a); cover limit stated under Residual risk.
+- Plants P10 (cold enqueue dropped): `test_w203_cold_replay_postgres` fails. P14 is covered by `test_3a3_single_writer` in the regression run (passes unplanted); P20 not rerun (caught by P6, as the review noted).
+- Runs (host tests inside `heavy-slot.sh --db`, harness clones only): DS3 four files + pg_harness 69 passed, 49 s; regression (3A2, 3A3, s2 ledger, w203 cold) 299 passed, 203 s. Merged main (`b97b43340`..`04da33fac`) with no conflicts; `check-decision-index.py` OK; `specs/INDEX.md` 7965 bytes.
