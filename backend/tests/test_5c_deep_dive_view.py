@@ -627,13 +627,14 @@ def test_4_i_currency_card_word_beside_no_figure(monkeypatch) -> None:  # review
 
     def site_bridge(inputs, targets):
         sb = real(inputs, targets)
-        if sb.site_code == "MTO-001":  # Mto stays in USD, so O&M and staff mix KES and USD
+        if sb.site_code == "MTO-001":  # fuel cost is KES (Kobo, Kisiwa), O&M is USD (Mto), staff mixes both
             return replace(sb, roots={**sb.roots, T.ROOT: _gone(sb.roots[T.ROOT], "fuel_cost")})
-        return replace(sb, roots={k: _in_kes(r) for k, r in sb.roots.items()})
+        return replace(sb, roots={**{k: _in_kes(r) for k, r in sb.roots.items()},
+                                  T.ROOT: _in_kes(_gone(sb.roots[T.ROOT], "om"))})
     monkeypatch.setattr(V, "site_bridge", site_bridge)
     v = view(standing=RECONCILED)
     card = next(c for c in v["outcomes"] if c["label"] == "Optimize cost and efficiency")
-    assert any(s["value"] != "Not available yet" for s in (step(v, "fuel_cost"),))  # a step still has a figure
+    assert step(v, "fuel_cost")["value"] != "Not available yet"  # a step still has a figure
     assert (card["value"], card["word"]) == ("Not available yet", "Not available yet"), card
 
 
