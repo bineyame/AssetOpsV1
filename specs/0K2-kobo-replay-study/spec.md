@@ -21,7 +21,7 @@ mechanism whose litres feed a money figure (design §4.2). Non-screen. No migrat
   `simulator/assetops_simulator/kernel/execute.py:1893` (`execute`); `host/tests/kobo.py` (`kobo_draft`,
   `set_property`); `contracts/assetops_contracts/world_inputs.py` (`FrozenWorldInputs`, `ForcingInput`,
   `FrozenInterval`). None of 0K1's types changes (0K1 spec, "Who uses it next").
-- **Decisions:** `rulings.md` (D-0K2.1 to D-0K2.15). **Reviewer guide:** `reviewer-guide.md`. **Handshake:**
+- **Decisions:** `rulings.md` (D-0K2.1 to D-0K2.16). **Reviewer guide:** `reviewer-guide.md`. **Handshake:**
   `handshake.md`.
 
 ## 0. Before you start (gates; each is a hard stop)
@@ -225,6 +225,29 @@ With `A` the admissible steps (every step of every admissible day) and `p` the b
 - `avoided_l_on(b, p, offsets) = Σ_{i: p.steps[i].offset_minutes ∈ offsets} (burn_b,i − burn_p,i)`; `ValueError`
   if the two projections' `interval_start` or step offsets differ.
 
+### 2.5 Public helpers (`0M` calls them; D-0K2.16)
+
+`replay_study` is composed of these, each public and in `__all__`, so `0M` reuses one rule rather than writing a
+second:
+
+```python
+@dataclass(frozen=True)
+class StudyDay:
+    local_date: str; first: int; end: int              # steps [first, end) of one local day
+def study_days(observed: ObservedSeries, frame: StudyFrame) -> tuple[StudyDay, ...]      # §2.2 steps 1-2 (refusals)
+def admissible_days(observed: ObservedSeries, days: tuple[StudyDay, ...]) -> tuple[StudyDay, ...]   # step 3
+def start_state(observed: ObservedSeries) -> ReplayStartState                            # step 4 (refusals)
+def checked(projection: ForwardReplayProjection, observed: ObservedSeries, case_id: str) -> ForwardReplayProjection
+    # step 5's three checks in order (REPLAY_FAILED, STUDY_WINDOW_INVALID "run", TANK_BOUND_MET); returns it
+def calibrate(observed, baseline: ForwardReplayProjection, admissible: tuple[StudyDay, ...]) -> Calibration  # §2.3
+def count_starts(states: tuple[str | None, ...], first_previous: str, indices: frozenset[int] | None = None) -> int
+def burns(projection: ForwardReplayProjection) -> tuple[Fraction, ...]                   # §2.4 per-step burn
+def step_local_times(observed: ObservedSeries, frame: StudyFrame) -> tuple[datetime, ...]  # aware, the frame's zone
+def by_month(values: tuple[Fraction, ...], local_times: tuple[datetime, ...]) -> tuple[MonthFigure, ...]
+def dawn_outcome(projection, days, local_times, frame) -> tuple[tuple[DawnReading, ...], int, Fraction, str]
+    # (readings, days below, worst, verdict), §2.4
+```
+
 ## 3. The simulated season (`host/tests/kobo_season.py`; a declared test fixture, D-0K2.1 to D-0K2.3)
 
 No Kobo series longer than a day exists in any store (DS3 loads two Kobo days; DS2's generated telemetry is next
@@ -355,7 +378,7 @@ HostForwardReplay` fails `tools/checks/dependency-direction.ps1` (packet: exit c
 
 | Unit | Content | Commits |
 |---|---|---|
-| 1 (1.5) | §2.1 types, §2.2 steps 1-6, §2.3; B1, B2, B6, B7, B8 (baseline half), B11, B12; the seam-test edit | 1 |
+| 1 (1.5) | §2.1 types, §2.2 steps 1-6, §2.3, the §2.5 helpers they use; B1, B2, B6, B7, B8 (baseline half), B11, B12; the seam-test edit | 1 |
 | 2 (1.5) | §2.2 steps 7-8, §2.4, `avoided_l_on`; B3-B5, B8 (grid half), B9, B10; §3 fixture; T1-T10 | 1 |
 | 3 (1.0) | the tool and the 61-day run; regression; guard failing; check-all; packet | 0 to 1 |
 

@@ -41,3 +41,4 @@
 - `D-0K2.13` results carry input class; replacing design values held for owner (owner-away row 31) · live · specs/0K2-kobo-replay-study/rulings.md
 - `D-0K2.14` 0K1 seam test allow-list grows by the two new backend files · live · specs/0K2-kobo-replay-study/rulings.md
 - `D-0K2.15` no served text, no migration, no guard change · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.16` the study steps are public helpers (spec §2.5) so 0M reuses one rule of each · live · specs/0K2-kobo-replay-study/rulings.md

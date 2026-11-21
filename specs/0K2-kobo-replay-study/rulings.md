@@ -1,7 +1,7 @@
 # 0K2 rulings
 
 Architect (Claude), 2026-11-21, on the owner's delegation (`owner/owner-away-architect-decides-2026-11-21.md`).
-D-0K2.1 to D-0K2.15 are applied by `spec.md` rev 1. Checked against `main` (`a53a77a2e`) by running the kernel on an
+D-0K2.1 to D-0K2.16 are applied by `spec.md` rev 1 (D-0K2.16 added with the 0M spec, before the handshake). Checked against `main` (`a53a77a2e`) by running the kernel on an
 8- and a 14-day season through `HostForwardReplay`. Owner-level calls are logged in
 `specs/OWNER-AWAY/decisions-2026-11-21.md` rows 31 (held for the owner) and 32.
 
@@ -132,3 +132,12 @@ D-0K2.1 to D-0K2.15 are applied by `spec.md` rev 1. Checked against `main` (`a53
   number is taken.
 - **Why.** D-SC1.28 governs served text and there is none; the design's calibration replays "need no migration"
   (`reuse-and-gap-matrix.md`, calibration replays K, M and E).
+
+## D-0K2.16 The study's steps are public helpers (`spec.md` §2.5)
+
+- **Ruling.** `study_days`, `admissible_days`, `start_state`, `checked`, `calibrate`, `count_starts`, `burns`,
+  `step_local_times`, `by_month` and `dawn_outcome`, with `StudyDay`, are public with the signatures of §2.5, and
+  `replay_study` is composed of them.
+- **Why.** `0M` replays demand through the same port with the same window, sample, calibration, start rule, months
+  and dawn bound (`specs/0M-mto-headroom-replay/spec.md`). Naming them here keeps one rule of each and leaves `0M`
+  nothing to design; the helper names were otherwise the implementer's (RULES §5).
