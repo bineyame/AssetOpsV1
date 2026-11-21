@@ -271,3 +271,13 @@ reviewer guide (rev 2) that fails it.
   row 5). With B the guard is green on the adapter-import line without any change.
 - **Code change that follows (builder, 3C2 branch).** Move the two definitions; make `agreed_composition.py`
   re-exports; retarget test 5's importer set to `{"actions/composition.py"}` plus the two assertions above.
+
+## D-3C2.16 Unit 2 is built now, first on day 14, as specified in §3 (DDR R13 and I2; D-WK.14)
+
+- **Ruling.** Unit 2 is fully specified (spec §3, tests 9(d) and 9(e), plant P16). Its handshake was round 1 (R13,
+  P8), and gate C holds on `main`. It is pulled first on day 14: 0.25 unit, one commit, a verification review. The
+  composition change is exact: build the agreed-action service, append its `dispose`, wrap its `service` in
+  `StoreAgreedActions` (spec §3). `NotConnectedActions` stays for the in-memory tests. It merges before WK's world build.
+- **Why.** DDR's G10 and S11 read the screen's "Actions in hand", and WK's walk database must show a change agreed live.
+  Both need unit 2 on `main`. It changes `backend/assetops_backend`, which is part of the world key, so merging it
+  before the L2 build avoids a second build.

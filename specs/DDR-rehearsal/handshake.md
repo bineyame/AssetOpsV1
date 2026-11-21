@@ -84,6 +84,8 @@ stated figures to 9,688.00 revenue and 4,995.00 fuel cost.
 
 ## Round 2 (pre-build, after the 21 Nov merges)
 
+Answered: `rulings.md`, "Handshake answers (round 2)" (D-DDR.11 to D-DDR.15, D-WK.12, D-WK.14), folded into spec rev 3.
+
 Fresh Claude reviewer and pre-flight in one pass, 2026-11-21, on `main` 08f3bf86c (5c units 1-2, DS4, 3A7, 4d, 5b,
 ON1, 3C2 unit 1, 0K4b/0K4c/0K4e, SC-1f merged). Read-only; no database opened. Severity as round 1. Each item names
 the file:line it rests on and the default that applies if the Architect does not answer.

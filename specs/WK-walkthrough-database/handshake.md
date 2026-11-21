@@ -8,6 +8,8 @@ was run from the main checkout and the world manifests in `/opt/assetecon/worlds
 build; Medium needs a ruling; Low is the Architect's call. Each item gives the file:line it rests on and the default
 that applies if the Architect does not answer.
 
+Answered: `rulings.md`, "Handshake answers (round 1)" (D-WK.10 to D-WK.14), folded into spec rev 2.
+
 ## The kept L2 is stale at today's key
 
 `world list` (main checkout, 08f3bf86c) prints `assetops_world_audit_l2_1906a5d074a0`, `exists: true`,

@@ -1,6 +1,6 @@
 # DDR reviewer guide
 
-Architect (Claude), 2026-11-20, rev 2 (handshake round 1 answered). Verification review for the checker and the tests; discovery for the store
+Architect (Claude), 2026-11-20, rev 2 (handshake round 1 answered); rev 3, 2026-11-21 (round 2: D-DDR.11 to D-DDR.15, D-WK.12). Verification review for the checker and the tests; discovery for the store
 read (D-DDR.6). Read `spec.md`, `rulings.md`, the runbook, then the diff. Done means every question in spec §7 answers
 yes with evidence and every plant below fails its named test.
 
@@ -19,6 +19,16 @@ yes with evidence and every plant below fails its named test.
 5. **The runbook.** Sections 7 to 11 exist with spec §6's content; every command in spec §1 appears in it exactly as
    the test runs it; "Erase" renumbered and the intro updated.
 6. **Machine rules.** No database created or dropped by code or test outside the pooled `*_test` harness.
+7. **Base (D-DDR.14).** The reviewed base holds 3C2 unit 2: `git grep -n StoreAgreedActions --
+   backend/assetops_backend/deep_dive/composition.py` shows a line; test 1 runs whole (S11 and S12 included).
+8. **Codes, not English (D-DDR.11).** Every gate line and refusal is §2.1's JSON or a code; `rehearsal_check.py` holds no
+   prose literal (test 8(g) runs the SC-1 catalogue check); no statement, baseline or allow-list file in the diff.
+9. **Names and runbook (D-DDR.12, D-DDR.15).** `git grep -n "assetops_rehearsal"` in the diff: every line ends `_test`
+   (template `assetops_rehearsal_${REHEARSAL}_test`). The runbook admits before it writes and loads, both copies are
+   identical, and ON1's runbook test changes only in its section 3 table (test 9).
+10. **One figure (D-WK.12).** Read the expectation file's `screen`: no quantity is shown twice except Kisiwa's budget
+    notice, plan against actual, and (in the S7 read only) the statement against the records. Kobo's stop-70 litres and
+    value read "Not available yet". Report a breach as a product finding; it is not fixed in DDR.
 
 ## Planted violations (each must fail the named test; the builder shows each failing once, in a scratch copy)
 
@@ -38,4 +48,7 @@ yes with evidence and every plant below fails its named test.
 | P12 | G6 or G8 ignores who built the snapshot | test 4(b) and test 8(b) |
 | P13 | G4 without the cash leaves | test 8(d) |
 | P14 | `make_board_budget.py` stamps the clock's time in the zip | test 7 |
+| P15 | one gate's FAIL carries an English sentence instead of its code | test 8(g) |
+| P16 | the runbook's admit section placed after the load (rev 2's order) | test 9 (ON1's `EXPECTED` order) |
+| P17 | G1 passes with an erased key | test 8(f) |
 

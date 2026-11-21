@@ -1,12 +1,15 @@
 # WK: the walkthrough database, copied from the checked world (implementer spec and coordinator runbook)
 
-Status: rev 1, Architect (Claude), 2026-11-21, on the owner's delegation
-(`owner/owner-away-architect-stands-in-2026-11-21b.md`; owner-away rows 36 (owner: option b), 53 and 54).
+Status: rev 2, Architect (Claude), 2026-11-21: handshake round 1 answered (`rulings.md`, "Handshake answers (round 1)",
+D-WK.10 to D-WK.14); rev 1 the same day, on the owner's delegation
+(`owner/owner-away-architect-stands-in-2026-11-21b.md`; owner-away rows 36 (owner: option b), 53, 54, 66 and 67).
 `delivery-plan.md` §2 row `WK`: "Prepare the clean day-14 walkthrough database at main" (1 unit; structure page
 DAY13; non-screen). `two-week-build-plan.md` §0.2 day 13, §0.3 ("`DS3`, `DS4` and the walkthrough database `WK`").
-**1.25 units, one commit plus the coordinator's run** (D-WK.8). Standard review (W5): it reuses DS4's reviewed
-meaning of clean and good, adds only product-command writes, and serves the way the 13 Nov walkthrough is served.
-**Decisions:** `rulings.md` (D-WK.1 to D-WK.9). **Reviewer guide:** `reviewer-guide.md`.
+**1.4 units, one commit plus the coordinator's run** (D-WK.8; rev 2 adds 0.15: the walk name guard D-WK.11, the
+after-serve census D-WK.13, the smoke's browser env and `WalkDeps`). Day-14 order (D-WK.14): 3C2 unit 2, then the world
+build and check (§5 step 1), then WK's run, then DDR. Standard review (W5): it reuses DS4's reviewed meaning of clean
+and good, adds only product-command writes, and serves the way the 13 Nov walkthrough is served.
+**Decisions:** `rulings.md` (D-WK.1 to D-WK.14). **Reviewer guide:** `reviewer-guide.md`.
 
 - **What it is.** One coordinator-only tool, `tools/walk_world.py`. It copies the current checked L2 world template
   into `assetops_polish_walk<label>_test` with `CREATE DATABASE ... TEMPLATE` (owner row 36, option b). On top of the
@@ -18,14 +21,15 @@ meaning of clean and good, adds only product-command writes, and serves the way 
   `CENSUS_TABLES`, `TENANTS`, `read_definition`, `c4_oracle`, `canonical`, `Deps`); `3A7` (`reconcile_month`); `3B7a`
   (`build_structure_snapshot build|verify`, `structure_snapshot.composition.build_structure_snapshot`, `codec`); 5c
   units 1 and 2 (`deep_dive.composition.build_deep_dive_read`, `GET /api/portfolio/month`); `ON1` (served tenant,
-  `ASSETOPS_TENANT_SLUG`); `RC4-F1` (`database_target`, `is_operator_name`); `T1`
+  `ASSETOPS_TENANT_SLUG`); `RC4-F1` (`database_target`, `is_operator_name`, `OPERATOR_PREFIX`); `T1`
   (`tools/heavy_slot_check.py` `require`); the 13 Nov serve (`tools/demo_combined.py` `serve`, `_serve_api`,
   `_kill_tree`: the shape WK copies, D-WK.5).
 
 ## 0. Before you start (gates; each is a hard stop)
 
-- **Build:** DS4 merged, including D-DS4.33, and 5c units 1 and 2 merged. Branch `task/WK-walkthrough-database` off
-  `main`; worktree `/opt/assetecon/AssetOpsV1-wk`; symlink `frontend/node_modules` from the main checkout.
+- **Build:** DS4 merged, including D-DS4.33, and 5c units 1 and 2 merged (both hold now). Branch
+  `task/WK-walkthrough-database` off `main`; worktree `/opt/assetecon/AssetOpsV1-wk`; symlink `frontend/node_modules`
+  from the main checkout. The build does not wait for 3C2 unit 2; the coordinator's run does (§5 step 0).
 - **Read:** `rulings.md`; DS4 `spec.md` §3.2 to §3.6 and `tools/world.py` (the names above, whole functions);
   `tools/demo_combined.py:1-70`, `:830-875`, `:1791-1880`; `host/lab_app.py:1-140`; `backend/assetops_backend/main.py:680-700`
   (the commercial upload router: off without a key folder); `build_structure_snapshot.py`; `reconcile_month.py:40-70`;
@@ -102,20 +106,36 @@ No key in this file is `site_id` or `site_code` (SC-1's `KEY_INSTANCE` scans `ba
   day). The database is `assetops_polish_walk<label>_test`. `PROTECTED_DATABASES = ("assetops_polish_walk1113_test",)`;
   a label giving a protected name: `WALK_PROTECTED`. Else `WALK_LABEL_INVALID`. The name must pass RC4-F1's
   `database_target` and not `is_operator_name`.
+- **The walk URL (D-WK.11; I2).** Every connection to the walk database goes through one function,
+  `walk_url(label, environ) -> str`, and nothing else in the tool builds a URL or opens a connection naming the walk
+  database. `World.census`, `World.exists` and `check_name` are never called on the walk name (`check_name` refuses any
+  name holding `walk` or `serve`, `evidence/bulk_load.py:47`, which is right for the world tool and stays). In order:
+  (1) `label` fullmatches `[0-9]{4}[a-z]?`, else `WALK_LABEL_INVALID`; (2) `name =
+  f"assetops_polish_walk{label}_test"`; `name in PROTECTED_DATABASES` gives `WALK_PROTECTED`; (3) `walk_name_ok(name)`
+  is true, else `WALK_NAME_REFUSED <name>`: it fullmatches `assetops_polish_walk[0-9]{4}[a-z]?_test`, is not in
+  `PROTECTED_DATABASES`, `is_operator_name(name)` is false (any case of `assetops_op`, `database_target.py:22,68`), and
+  it does not start `assetops_world` (a rung is never a walk); (4) `url = world.rung_url(name, environ)`;
+  `database_target(url, environ)` raises nothing (`DatabaseTargetUnclear` gives `WALK_TARGET_UNCLEAR <reason>`), its
+  `name` equals `name`, its host is `127.0.0.1` or `localhost`, and its port equals `ASSETOPS_PG_PORT` (default
+  `55432`), else `WALK_TARGET_UNCLEAR <field>`. Counts and lookups on the walk database run through `world.rung_query`
+  on that URL; `pg_database` lookups are plain `Admin` `SELECT`s with a bound name. `wait_idle(l2_name)` and
+  `check_state` stay on `World` (they name the L2, not the walk).
 - Common options: `--definition` (default `backend/conversions/world-layer4-v1.json`), `--walk-definition` (default
   `backend/conversions/walk-layer4-v1.json`), `--state` (default `/opt/assetecon/worlds`), `--prefix` (default
   `assetops_world`), `--cap-seconds` (default 900). `main(argv, *, deps=None) -> int`; `deps` (tests only) replaces
   the world object, the admin connection, the subprocess runner, the git reader, the clock, `require`, the HTTP getter
-  and the process table.
+  and the process table, as `WalkDeps(world: world.Deps, http, procs, world_factory)` (I4): `world_factory(namespace,
+  deps.world)` builds the `World` (tests inject a fake), and the copy's one DDL goes through `deps.world.admin`.
 - **Walk manifests:** `<state>/walks/<database>.json`, created 0700 by the tool under the existing state folder,
   written atomically, canonical JSON (`world.canonical`). They hold names, keys, ids, counts, PIDs and paths, never key
   content and never a file name under `key_dir` (D-DS4.19). The tool reads the world's manifests only through `World`.
 - `copy`, `prepare`, `check` and `drop` first call `heavy_slot_check.require("walk", db=True)`; `serve`, `smoke`,
   `stop` and `status` do not (a serve is not a heavy job; the smoke's browser runs through the slot pool, §5).
 - **Exits:** 0 done; 2 refused before any change (`<CODE> <detail>` on stderr); 3 a product step failed
-  (`STEP_FAILED <database> <step> <exit>`); 4 a check or smoke FAIL; 5 the cap was reached. A world refusal passes
+  (`STEP_FAILED <database> <step> <exit>`); 4 a check or smoke FAIL; 5 the cap was reached; 69 passes through from
+  `heavy_slot_check.require` (`tools/heavy_slot_check.py:161-171`, as `tools/world.py:13` documents). A world refusal passes
   through with its own code (`WORLD_NO_TEMPLATE`, `WORLD_TEMPLATE_STALE`, `WORLD_TREE_DIRTY`, ...). WK codes:
-  `WALK_LABEL_INVALID`, `WALK_PROTECTED`, `WALK_DEFINITION_INVALID`, `WALK_NOT_CHECKED`, `WALK_CHECK_FAILED`,
+  `WALK_LABEL_INVALID`, `WALK_PROTECTED`, `WALK_NAME_REFUSED`, `WALK_TARGET_UNCLEAR`, `WALK_DEFINITION_INVALID`, `WALK_NOT_CHECKED`, `WALK_CHECK_FAILED`,
   `WALK_CHECK_STALE`, `WALK_EXISTS`, `WALK_UNKNOWN`, `WALK_COMMIT_MOVED`, `WALK_PREPARED`, `WALK_NOT_PREPARED`,
   `WALK_NOT_PASSED`, `WALK_TREE_MISMATCH`, `WALK_PORT_PROTECTED`, `WALK_PORT_BUSY`, `WALK_SERVING`, `WALK_NOT_SERVING`,
   `WALK_PID_REUSED`, `WALK_DATABASE_IN_USE`, `WALK_SERVE_FAILED`. Diagnostics for the coordinator only; nothing is
@@ -128,13 +148,14 @@ No key in this file is `site_id` or `site_code` (SC-1's `KEY_INSTANCE` scans `ba
    `passed, stale = world.check_state(l2)`. `stale` not None: `WALK_CHECK_STALE <part>`. `passed is None`:
    `WALK_NOT_CHECKED`. `passed is False`: `WALK_CHECK_FAILED`. This is the same test `world list` prints as
    `check_passed` (D-WK.2).
-2. The walk name exists in `pg_database` or has a walk manifest: `WALK_EXISTS`.
+2. The walk name (from `walk_url`'s checks) exists in `pg_database` (an `Admin` `SELECT` with the bound name) or has a
+   walk manifest: `WALK_EXISTS`. The same `SELECT` lists every `assetops_polish_walk%` name, kept as `walks_before`.
 3. `world.wait_idle(l2_name)` false: `WALK_DATABASE_IN_USE <l2_name>`. Then exactly one admin statement:
    `CREATE DATABASE "<walk>" TEMPLATE "<l2_name>" STRATEGY FILE_COPY`. No other DDL, and no `ALTER` on the L2.
 4. Write the walk manifest: `{"format": "assetops.walk-build/1", "database", "label", "parent": l2_name,
    "parent_key": l2["key"], "commit": git HEAD, "copied_at": UTC ISO seconds, "seconds", "tenants": l2["tenants"],
    "key_dir": l2["key_dir"], "parent_census": l2["census"], "parent_snapshots": l2["snapshots"], "steps": [],
-   "snapshots": null, "check": null, "serve": null}`.
+   "walks_before", "snapshots": null, "check": null, "serve": null}`.
 5. Stdout: `{"database", "parent", "parent_key12", "seconds"}`.
 
 ### 3.3 `prepare`
@@ -167,15 +188,16 @@ then `{"check": "ALL", "state"}`, and exits 0 or 4. The checks run in this order
 |---|---|
 | W1 lineage | `world.current_l2()` returns the manifest's `parent` with the same `key`; `world.check_state` of it is `(True, None)`; HEAD equals the manifest's `commit` |
 | W2 rebuild | per `snapshots` entry, `build_structure_snapshot verify --tenant <slug> --snapshot <portfolio_snapshot_id>` on the walk database exits 0 with `"matches": true` |
-| W3 census | the walk census (`world.CENSUS_TABLES`, then a count per table, as `World.census` does, on the walk URL) equals `parent_census` table by table, except: `commercial_accounts_statement` is exactly `+ len(statements)`, and `structure_snapshot` is exactly `+ Σ (1 + len(sites))` over `snapshots`. Every other difference FAILs, naming the table and both counts |
-| W4 served | `build_deep_dive_read(url).month(tenant, expect.month, names)` (names: the tenant's Sites from the world definition): `state` SERVED, `as_of` equals the walk's newest snapshot `as_of`, `fresh.current` true, `fresh.untracked_text` null, `standing.reconciled` equal to `expect.reconciled`, and the `contribution` tile's `bar` `{"actual", "target"}` equal to `expect` as `Decimal`s. Read with `ASSETOPS_TENANT_SLUG` unset in-process; the tenant comes from `TENANTS` on the walk database |
-| W5 oracle | `world.c4_oracle(rows, definition, derived_values, counts)` over the walk snapshots' Site rows (read through `structure_snapshot.composition.build_structure_snapshot(url).store.get` and `codec.payload_of`, as DS4's `_c4`) is PASS, with no line marked `new` and no line marked `known` |
-| W6 isolation | the walk name passes §3.1; the parent L2's `datallowconn` is still false; the walk database's tenants (`TENANTS`) are exactly the manifest's `tenants`; no `pg_database` name starting `assetops_polish_walk` other than this one was created by this run (compare the list before `copy`, kept in the manifest as `walks_before`, with today's, less this name) |
+| W3 census | the walk census (`world.CENSUS_TABLES`, then a count per table through `world.rung_query` on `walk_url`'s URL; never `World.census`, I2) equals `parent_census` table by table, except: `commercial_accounts_statement` is exactly `+ len(statements)`, and `structure_snapshot` is exactly `+ Σ (1 + len(sites))` over `snapshots`. Every other difference FAILs, naming the table and both counts |
+| W4 served | `read, dispose = build_deep_dive_read(url)` (disposed in `finally`; I1); `read.month(TenantRef(id, slug, name), expect.month, names)`, the `TenantRef` from `SELECT id, slug, name FROM tenant WHERE slug = :s` on the walk URL (as `sites/adapters/postgres_foundation_store.py:172`) and `names` from the Foundation's imported Sites as the route does (`deep_dive_api.py:58`), never from the world definition: `state` SERVED, `as_of` equals the walk's newest snapshot `as_of`, `fresh.current` true, `fresh.untracked_text` null, `standing.reconciled` equal to `expect.reconciled`, and the `contribution` tile's `bar` `{"actual", "target"}` equal to `expect` as `Decimal`s. Read with `ASSETOPS_TENANT_SLUG` unset in-process; the tenant comes from `TENANTS` on the walk database |
+| W5 oracle | `world.c4_oracle(rows, definition, derived_values, counts)` over the walk snapshots' Site rows (read through `structure_snapshot.composition.build_structure_snapshot(url).store.get` and `codec.payload_of`, as DS4's `_c4`) is PASS, with no line marked `new` and no line marked `known`. The oracle is used unchanged; WK never edits `C4_CONTRACT` or `C4_KNOWN_FINDINGS` (D-WK.10) |
+| W6 isolation | the walk name passes `walk_url`'s checks (§3.1); the parent L2's `datallowconn` is still false; the walk database's tenants (`TENANTS`) are exactly the manifest's `tenants`; no `pg_database` name starting `assetops_polish_walk` other than this one was created by this run (compare the list before `copy`, kept in the manifest as `walks_before`, with today's, less this name) |
 | W7 steps | every recorded step has exit 0, and the statement and snapshot step counts equal the definitions' |
 
 ### 3.5 `serve`
 
-`--tree DIR` is required. Refused unless the manifest's `check.passed` is true and `check.commit` equals the
+`--tree DIR` is required; `DIR` resolving (`os.path.realpath`) to `/opt/assetecon/AssetOpsV1-walk` or below it is
+`WALK_TREE_MISMATCH` before anything else (R6). Refused unless the manifest's `check.passed` is true and `check.commit` equals the
 manifest's `commit` (`WALK_NOT_PASSED`); `git -C DIR rev-parse HEAD` equals the manifest's `commit`
 (`WALK_TREE_MISMATCH`); `serve` is null or its PIDs are gone (`WALK_SERVING`); either port is in `PROTECTED_PORTS`
 (`WALK_PORT_PROTECTED`) or accepts a TCP connection on 127.0.0.1 (`WALK_PORT_BUSY`). Then, as `demo_combined.py serve`
@@ -186,7 +208,7 @@ does (D-WK.5), each child with `start_new_session=True`, stdout and stderr to `D
   `DIR/gateway`, `DIR/simulator`, `DIR/host` joined by `os.pathsep`; `DATABASE_URL` the walk URL;
   `ASSETOPS_TENANT_SLUG` the definition's `serve.tenant`; `ASSETOPS_PG_PORT`, `ASSETOPS_PG_PASSWORD` when set;
   `PYTHONUNBUFFERED=1`. Never set, whatever the parent holds: `ASSETOPS_PSEUDONYM_KEY_DIR` (commercial uploads stay
-  off, `main.py:690`), `ASSETOPS_REAL_OPERATOR_DATA`, `ASSETOPS_OPERATIONAL_ENTRY`, any `ASSETOPS_READING_UPLOAD_*`,
+  off, `main.py:693`), `ASSETOPS_REAL_OPERATOR_DATA`, `ASSETOPS_OPERATIONAL_ENTRY`, any `ASSETOPS_READING_UPLOAD_*`,
   `ASSETOPS_GATEWAY_*` or `ASSETOPS_LIVE_FIELD_*` name, `ASSETOPS_PERIOD_READ_KINDS`, or a `PG_TARGET_ENV` name
   (`PGDATABASE` and the rest).
 - **Web:** `["npm", "run", "dev", "--", "--port", <web_port>, "--strictPort", "--host", "127.0.0.1"]`,
@@ -202,12 +224,17 @@ does (D-WK.5), each child with `start_new_session=True`, stdout and stderr to `D
 - **`smoke`** (refused when not serving: `WALK_NOT_SERVING`): S1 `GET /api/health` is 200. S2 `GET
   /api/portfolio/month?month=<expect.month>` is 200 and its body meets W4's conditions (served through the real app
   this time). S3 runs `node tools/walk_world_smoke.cjs --base http://127.0.0.1:<web_port> --pages <JSON list>
-  --out /opt/assetecon/evidence/WK/<label>/` with `PW` and `CHROME` from `/opt/assetecon/tools/pw/env.sh`, where the
+  --out /opt/assetecon/evidence/WK/<label>/`. Its env (I3): `env.sh` is sourced in a `bash -c` child that prints the
+  values, and `node` gets exactly `PATH`, `HOME`, `PW`, `CHROME`, `FONTCONFIG_FILE` and
+  `LD_LIBRARY_PATH=<AUDIT_LD_LIBRARY_PATH>` (`/opt/assetecon/tools/pw/env.sh:4-5`), nothing else. The
   list is `smoke_pages(walk_definition, world_definition)`: each page in order, `{code}` expanded to each world
   Site code in definition order. The script opens each page at 1440 × 900, waits for network idle (cap 30 s), and
   records every response whose path starts `/api/`. A page FAILs on a status of 500 or more, a failed request, a
   `pageerror`, or the cap. It saves one full-page PNG per page and `report.json` (`[{"page", "api", "fail": [{"url",
-  "status"}], "errors"}]`). Exit 0 when every page passes, else 1. `smoke` prints S1 to S3 and `ALL` and exits 0 or 4.
+  "status"}], "errors"}]`). Exit 0 when every page passes, else 1. S4 (D-WK.13; R3), after S3: W3's census judge
+  re-run read-only on `walk_url`'s URL against the manifest's `parent_census` plus the declared deltas; any other
+  difference FAILs naming the table and both counts (a read that wrote a row). `smoke` prints S1 to S4 and `ALL` and
+  exits 0 or 4.
 - **`stop`:** for each recorded child, if `/proc/<pid>/cmdline` still equals its recorded `argv`, send SIGTERM to its
   process group, wait 10 s, then SIGKILL. Otherwise report `WALK_PID_REUSED <pid>` and leave it. Set `serve` to null.
 - **`status`:** prints the manifest's `database`, `parent`, `check.passed`, `serve` and whether each PID is alive.
@@ -219,18 +246,18 @@ does (D-WK.5), each child with `start_new_session=True`, stdout and stderr to `D
 
 | # | Test |
 |---|---|
-| T1 | Names: `1123` gives `assetops_polish_walk1123_test`; `1123b` is accepted; `1113` is `WALK_PROTECTED`; `abc`, `11234`, `1123B` are `WALK_LABEL_INVALID`; every accepted name is at most 63 bytes and not an operator name |
+| T1 | Names: `1123` gives `assetops_polish_walk1123_test`; `1123b` is accepted; `1113` is `WALK_PROTECTED`; `abc`, `11234`, `1123B` are `WALK_LABEL_INVALID`; every accepted name is at most 63 bytes and not an operator name. `walk_name_ok` refuses `assetops_polish_walk1113_test`, `assetops_op_lakeside`, `ASSETOPS_OP_X`, `assetops_opx_test`, `assetops_world_audit_l2_1906a5d074a0` and `assetops_polish_walk1123`; `walk_url` with `ASSETOPS_PG_PORT=5490` or a host other than 127.0.0.1 is `WALK_TARGET_UNCLEAR` (D-WK.11) |
 | T2 | `copy` refusals in order, on a fake world: `current_l2` raising `WORLD_TEMPLATE_STALE` passes through (exit 2); `check_state` `(None, "manifest")` gives `WALK_CHECK_STALE manifest`; `(None, None)` gives `WALK_NOT_CHECKED`; `(False, None)` gives `WALK_CHECK_FAILED`; an existing name gives `WALK_EXISTS`; a busy L2 gives `WALK_DATABASE_IN_USE`. No admin DDL is issued in any of them |
 | T3 | `copy` success: the fake admin's statements are exactly one `CREATE DATABASE "assetops_polish_walk1123_test" TEMPLATE "<l2>" STRATEGY FILE_COPY` plus `SELECT`s; the manifest has every §3.2 field |
 | T4 | `prepare`: the argv of all three steps equals §3.3 exactly (from the committed walk definition); `E` has exactly the listed keys when the parent environment also holds `PGDATABASE`, `ASSETOPS_REAL_OPERATOR_DATA` and `ASSETOPS_OPERATIONAL_ENTRY`; `WALK_COMMIT_MOVED`, `WALK_PREPARED`, `WALK_UNKNOWN`; a failed second step gives exit 3, two step records, `snapshots` null |
-| T5 | Census judge: equal plus the two declared deltas is PASS; `+1` in any other table FAILs naming it with both counts; a statement delta of 1 FAILs; the snapshot delta is computed from the build lines' `sites` |
+| T5 | Census judge: equal plus the two declared deltas is PASS; `+1` in any other table FAILs naming it with both counts; a statement delta of 1 FAILs; the snapshot delta is computed from the build lines' `sites`; the same judge as smoke S4 FAILs on a row added after the serve (D-WK.13) |
 | T6 | `check` runs W1 to W7 even after W1 FAILs; exit 4; the manifest's `check.passed` is false; all PASS gives exit 0 |
 | T7 | W4 and S2 judge: SERVED, current, reconciled, 1443.00 and 2295.00 is PASS; each of `REBUILD_NEEDED`, `fresh.current` false, `reconciled` false, actual `1443.01` FAILs with its reason |
-| T8 | `serve` env: the API env has exactly the listed keys when the parent holds every forbidden name; the web env has exactly its four; port 8990 or 5490 in the walk definition is `WALK_DEFINITION_INVALID` and on the command line `WALK_PORT_PROTECTED`; serve is refused for an unchecked manifest, a mismatched tree HEAD, a busy port |
+| T8 | `serve` env: the API env has exactly the listed keys when the parent holds every forbidden name; the web env has exactly its four; the smoke's `node` env has exactly its six (I3); `--tree /opt/assetecon/AssetOpsV1-walk` (and a symlink to it) is `WALK_TREE_MISMATCH`; port 8990 or 5490 in the walk definition is `WALK_DEFINITION_INVALID` and on the command line `WALK_PORT_PROTECTED`; serve is refused for an unchecked manifest, a mismatched tree HEAD, a busy port |
 | T9 | `stop`: a PID whose cmdline matches is signalled (fake process table); a reused PID is left and reported |
 | T10 | `drop`: refused while serving and with sessions; issues `DROP DATABASE "<walk>"`, never `FORCE`; removes only the walk manifest; issues nothing naming the L2 |
 | T11 | `smoke_pages`: the committed definitions expand to 10 pages, the three Site pages in definition order (Kisiwa, Kobo, Mto as the world definition lists them) |
-| T12 | Static: `tools/walk_world.py`'s source names `assetops_polish_walk1113_test`, `8990` and `5490` only inside `PROTECTED_DATABASES` and `PROTECTED_PORTS`, and never calls `World.create`, `World.drop_db`, `World.freeze` or `check_name` on the walk name |
+| T12 | Static: `tools/walk_world.py`'s source names `assetops_polish_walk1113_test`, `8990` and `5490` only inside `PROTECTED_DATABASES` and `PROTECTED_PORTS`, names `/opt/assetecon/AssetOpsV1-walk` only in the tree refusal and `/opt/assetecon/keys` nowhere (R6); it never calls `World.create`, `World.drop_db`, `World.freeze`, `World.census`, `World.exists` or `check_name`, and `rung_url` is called only inside `walk_url` (D-WK.11) |
 
 Run: `tools/heavy-slot.sh -- <host tests> backend/tests/test_wk_walk_world.py` (no `--db`). Fast check-all green.
 `node tools/walk_world_smoke.cjs --help` exits 0 (the reviewer runs the real smoke only through the coordinator).
@@ -241,9 +268,17 @@ Run in `/opt/assetecon/AssetOpsV1` after `git -C /opt/assetecon/AssetOpsV1 branc
 `<L>` is the label (for example `1203`); `<C>` is the commit the walk manifest records. Machine quiet: no other
 heavy database job (`tools/heavy-slot.sh --status`), keep-awake started (RULES §7).
 
+0. **Start condition (D-WK.14).** 3C2 unit 2 is merged (`git -C /opt/assetecon/AssetOpsV1 grep -n StoreAgreedActions
+   main -- backend/assetops_backend/deep_dive/composition.py` shows a line) and WK is merged. From step 1 to step 5 no
+   merge into `backend/assetops_backend`, `contracts/assetops_contracts`, `simulator/assetops_simulator`,
+   `tools/world.py` or `tools/world_history.py` (it stales the L2, D-WK.6); from step 3 to step 5 no merge to `main` at
+   all (`prepare` and W1 require HEAD to equal the copy's commit). DDR merges after step 5.
 1. `tools/heavy-slot.sh --db --label wk -- python tools/world.py build --key-root /opt/assetecon/keys/world --cap-seconds 900`.
-   Three lines. If the L2 line says `"reused": false`, run
-   `tools/heavy-slot.sh --db --label wk -- python tools/world.py check --cap-seconds 900` (it must exit 0).
+   Three lines. The kept L2 is stale (R1): expect `"reused": false` for L1 and L2 (L0 reused); then run
+   `tools/heavy-slot.sh --db --label wk -- python tools/world.py check --cap-seconds 900` (it must exit 0). The kept
+   `assetops_world_audit_l2_1906a5d074a0` is never copied. **If C4 FAILs** (D-WK.10): stop. Do not copy, do not edit the
+   contract or the known findings, and send the C4 lines to the Architect as a DS4 finding. The one expected change,
+   the honesty list naming `dispatch-3.3` where it named `dispatch-3.2`, is not judged by C4 and cannot fail it.
 2. `python tools/world.py list`. The L2 line at the key that step 1 printed must show `"exists": true` and
    `"check_passed": true`. Note its database name.
 3. `tools/heavy-slot.sh --db --label wk -- python tools/walk_world.py copy --label <L>`. Its `parent` must equal step 2's
@@ -288,9 +323,11 @@ If `main` moves after step 3 and the walkthrough should show the newer code, mak
 | §2 definition and reader; §3.1 to §3.3 copy and prepare; T1 to T5 | 0.5 |
 | §3.4 check W1 to W7; T6, T7 | 0.35 |
 | §3.5, §3.6 serve, smoke script, stop, status, drop; T8 to T12; packet | 0.4 |
+| Rev 2 (R1 to R6, I1 to I5): `walk_url` and its guard, `WalkDeps`, smoke env and S4, tree refusal; T1, T5, T8, T12 additions | 0.15 |
+| **Total** | **1.4** |
 
-One commit. Then the coordinator's run (§5), about 15 minutes when L2 is current, plus about 11 minutes if step 1 must
-check a new L2 (DS4's measured check).
+One commit. Then the coordinator's run (§5): about 26 minutes this time (step 1 builds and checks a new L2, R1), about
+15 when L2 is current.
 
 ## 8. Out of scope
 
@@ -306,3 +343,6 @@ DDR's rehearsal; any product change; a second tenant (the world has one).
 | Q3 | Prepare's builder identity | `service:world-build`, as the world's own snapshots |
 | Q4 | Whether the serve gets the pseudonym key folder | No: nothing on the walkthrough uploads (least privilege) |
 | Q5 | Whether 5c's screen must be in the served tree | No. S2 needs only 5c's route (units 1 and 2). If the screen is not merged, `/portfolio/month` shows the live product's fallback page, and the owner walks the screen as 5c's spec says (D-WK.9) |
+| Q6 | The new L2's C4 after 0K4a, 0K4b and 0K4e | A stop if it FAILs; never absorbed by the oracle (D-WK.10) |
+| Q7 (owner) | Two figures for one quantity on the served pages | Only plan against actual, Kisiwa's budget notice, and statement against records while unmatched (D-WK.12; owner-away row 66) |
+| Q8 (owner) | Day-14 order | 3C2 unit 2, world build and check, WK, then DDR (D-WK.14; owner-away row 67) |
