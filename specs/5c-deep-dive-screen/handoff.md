@@ -27,3 +27,26 @@ Builder (Claude), 2026-11-21, branch `task/5c-deep-dive-screen`, head 37e823259 
 
 ## Next
 - Unit 2 (spec section 4; tests 8, 9), then unit 3 (section 5; tests 10 to 15), then the packet.
+
+## Unit 2: done (head after this commit; code at b7a3e3a9f)
+- `deep_dive/read.py` (`DeepDiveRead.month` :43; organisation standing at `known_at=served.as_of` :52; `BadMonth`, a
+  `ValueError("BAD_MONTH")`, :25), `deep_dive/actions.py` (`AgreedActionsPort`, `NotConnectedActions`),
+  `deep_dive/composition.py` (`build_deep_dive_read` :32; the actions line :39), `deep_dive_api.py` (router :39;
+  real-data person check :52; 422 :60; store fault 503 :62), `main.py:699` (after the commercial upload router;
+  disposed on shutdown). Refusals `{"code","text"}`: statement `deep_dive.refused` (`i18n/statements/en/deep_dive.py:434`,
+  PF5 `month_example` slot) and `person.person_required`. `ROUTE`, `NO_STORE`, `MONTH_PATTERN` in `deep_dive/tables.py`
+  (PF9). `read.py` and `deep_dive_api.py` joined `ADOPTED` (`tools/checks/statement_catalogue.py:43`).
+- 3C2's `actions/agreed.py` is on this branch, but mapping its views to `AgreedAction` is more than one line, so
+  `NotConnectedActions()` stays (spec 4.3 leaves `StoreAgreedActions` and test 9(d) to 3C2's unit 2).
+- Tests: `backend/tests/test_5c_deep_dive_api.py` (test 8, 17 cases; also the composition's dispose and `create_app`
+  mounting the route) and `backend/tests/test_5c_deep_dive_postgres.py` (test 9 (a)-(c) plus the real composition).
+  Failing first (tests only, at cf2d1db1a): both files error at collection. Plants P3 (test 9) and P10 (test 8) fail:
+  `/opt/assetecon/evidence/5c/unit2/plants.txt`.
+- How to run test 9: `bash tools/heavy-slot.sh --db --wait-seconds 3000 -- bash -c 'cd backend && export
+  ASSETOPS_TEST_DATABASE_URL=postgresql+psycopg://assetops:assetops-local-dev@127.0.0.1:55432/assetops_test;
+  PYTHONPATH=$PWD:$PWD/../contracts:$PWD/../simulator /opt/assetecon/AssetOpsV1/.venv/bin/python -m pytest
+  -p no:cacheprovider tests/test_5c_deep_dive_postgres.py -q'` (the harness clones a run-owned `_test` database).
+  `check-architecture.ps1` needs `ASSETOPS_GUARD_PYTHON=/opt/assetecon/AssetOpsV1/.venv/bin/python` in a worktree.
+- Risks: MBQ1 (`mid-build-questions.md`): 3A7's real standing words end "within 1% (Recorded)."; spec 3.5 and the
+  unit-1 fixture say "within 1%."; test 9 asserts 3A7's words, the Architect settles 3.5. With a `DATABASE_URL`,
+  `create_app` now builds the snapshot composition (the rules digest reads files once per app).
