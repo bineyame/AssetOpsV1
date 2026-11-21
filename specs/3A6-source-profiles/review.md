@@ -344,3 +344,95 @@ None found.
 ### Fix round r2 outcome
 
 N1, N2, N3 fixed in the commit after 3fb8ed114 (see packet.md "Fix round r2"). N1 probe after the fix: header cell XFD1 over 2,000 one-cell rows refuses NATIVE_HEADER in 0.15 s, under the 20 MB bound; the old order peaks at 274.6 MB.
+
+## Round 3 (verification re-review at a141bab51; verdict REVISE)
+
+### Summary (verdict: REVISE)
+
+- N1 is fixed for the case it named: a header cell at XFD now refuses `NATIVE_HEADER` before any data row is
+  built, and data rows pad only to the layout's width. The plant (old order) fails the new test.
+- The same class is still reachable one step earlier: the header row itself is padded to the file's widest cell,
+  and it is rebuilt once for every row numbered `header_row`. Duplicate `r="1"` rows make that a CPU bomb (N4, High).
+- N2 and N3 are fixed as ruled. Legitimate files read as before.
+- Checks: contracts suite plus 3A6 backend, 139 passed; 3A6 Postgres, 4 passed; the N1 plant fails.
+
+### N4 High: the header row is padded to an unchecked width, once per duplicate row (`contracts/assetops_contracts/native/layouts_v1.py:316-318`)
+
+- **Wrong.** `split_file` loops over every sheet row and, for each one numbered `header_row`, builds
+  `[sparse.get(i, "") for i in range(max(sparse) + 1)]`. `_read` does not refuse repeated or decreasing row
+  numbers, so a sheet of N rows `<row r="1"><c r="XFD1"><v>1</v></c></row>` builds N lists of 16,384 cells
+  before the new check runs. Memory stays flat, because each list is discarded, but the time grows with N.
+- **Seen** (no tracemalloc; deflated as an upload would be):
+  - 1,000 rows: 0.95 s. 10,000 rows: 9.68 s. 40,000 rows: 37.8 s (the parse alone is 0.41 s). The file is 6.6 kB.
+  - A member at the cap holds 409,200 such rows and deflates to 49 kB, which is under the 1 MB sample cap and the
+    8 MB upload cap. That is about 6.5 minutes of CPU for each request.
+  - The last duplicate wins: 10,000 rows of `r="1"` holding an empty XFD1 cell, then a valid header, read as `ok`
+    after 9.2 s.
+- **Why it matters.** This is the cost F1 and N1 were ruled High for, through the same upload and admission paths.
+  The bound is now on memory but not on time.
+- **Fix.** Do either or both of these:
+  - Build the header without padding past the layout. Compare the non-empty sparse cells with the layout's headers,
+    or pad to `len(layout.columns)` and refuse if any non-empty cell lies past that width.
+  - Take the first row numbered `header_row` and stop there, or refuse repeated or non-increasing row numbers in
+    `_read` as `NATIVE_WORKBOOK`.
+
+  Add a test with a few thousand duplicate `r="1"` rows holding XFD1, bounded on time like the N1 test, and a plant
+  that restores `range(max(sparse) + 1)` for the header.
+
+### Probes (scratch, at a141bab51; peak memory from tracemalloc unless stated)
+
+- **P0, golden budget workbook.** 3 records, rows (2, 3, 4), no refusals.
+- **P1, header XFD1 plus one-cell rows.**
+  - 2,000 rows: `NATIVE_HEADER`, 2.6 MB, 0.11 s.
+  - 20,000 rows: 26.2 MB, 1.07 s.
+  - 200,000 rows (14.2 MB sheet): 263 MB, 11.4 s.
+
+  The cost is linear in the parse and the same as a parse with no far cell (see residual risk).
+- **P2, a far cell in an otherwise valid header.**
+  - An empty `<c r="XFD1"/>` or an empty inline string reads `ok`, 3 records, which is unchanged.
+  - XFD1 = "x" gives `NATIVE_HEADER`.
+- **P3, a valid header plus 20,000 data rows at XFD.** 20,003 records with `NATIVE_ROW` on the far rows, 26.9 MB,
+  1.86 s. Data rows pad only to the layout's width.
+- **P4, duplicate header-numbered rows.** See N4.
+- **Plant: N1 check removed (old order).** `test_n3_far_right_header_cell_is_refused_in_bounded_memory_and_time`
+  FAILED.
+
+**Sweep for padding.** The remaining padding sites are these:
+- `layouts_v1.py:318` (the header, N4).
+- `:329` (rows, bounded by the layout).
+- `xlsx.py:167` (`xlsx_rows`, under the 2 M cell budget; it has no caller outside contracts).
+
+The only caller of `split_file` outside contracts is `commercial/profiles.py:233`, which comes after
+`reader.read` and so after the same refusal.
+
+### N2, N3
+
+- **N2.** Fixed. A2b now admits a sample-only change as v4.
+- **N3.** Fixed. The residual matches the text in D-3A6.18, and the V34 and V35 labels follow the ruling.
+
+### Legitimate verdicts
+
+- The suite passes the kobo and budget goldens, the formula-cell, row-number and row-count tests, and the
+  illustrative goldens.
+- In the probes, a trailing empty header cell still trims, and `NATIVE_HEADER json` is the same code and path as
+  before. It is now raised in `split_file` rather than `read_rows`, and `read_rows` keeps its own check for CSV.
+
+### Checks run
+
+- Non-DB: `heavy-slot.sh -- pytest contracts/tests backend/tests/test_3a6_source_profiles.py` gave 139 passed in
+  4.47 s, with the worktree's backend, contracts and simulator on `PYTHONPATH`.
+- Postgres: `heavy-slot.sh --db -- pytest backend/tests/test_3a6_source_profiles_postgres.py` gave 4 passed in
+  5.45 s, against `.../assetops_test`; the harness runs on its own clone.
+
+### Not verified
+
+- The full suite and the guards: I relied on the implementer's r2 run (495 non-DB, 59 Postgres, 41 guards).
+
+### Residual risk
+
+- The sparse parse itself costs about 19 times the sheet size in peak memory (P1 at 200k rows: 263 MB for a
+  14 MB member). It is bounded by `_MEMBER_MAX` and was accepted in round 2.
+- Under the 8 MB upload cap, repeated rows deflate well, so a member near the cap is reachable. Consider refusing
+  on the header row before parsing the rest of the sheet if this matters at the host's memory size.
+- Duplicate data-row numbers are kept as separate rows that share one number, so row-numbered messages can repeat.
+  The N4 fix that refuses non-increasing numbers would close this too.
