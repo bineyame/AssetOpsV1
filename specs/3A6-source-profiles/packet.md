@@ -461,4 +461,7 @@ refusals, personal paths and batch outcome): **0 mismatches**; 563 read, 37 whol
 - Postgres, `heavy-slot.sh --db -- pwsh tools/run-host-tests.ps1` (routed `*_test`): 3A6, 3A3 loader, 3A2, ON1,
   3B7a snapshot: `59 passed in 53.65s`, none skipped.
 - `python3 tools/check-decision-index.py`: OK after the r5-answers merge.
-- Fast check-all: see the line below.
+- Fast check-all at `ba6eaee85`+packet: 2 of 41 failed (configuration-persistence's `open\(` pattern on the launch
+  code, and the estate self-tests that rerun it); fixed in `203f3f4ac` (names only). After it: envelope and S1 files
+  `63 passed`, plants V33 to V37 rerun (each still fails its test), and fast check-all `All 41 guards passed`
+  (553.2 s wall, 276.4 s waiting for a slot). The non-DB and Postgres runs above are at `ba6eaee85`.
