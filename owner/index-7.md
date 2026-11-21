@@ -13,3 +13,4 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-11-21 `owner-approve-key-folders-2026-11-21.md` Create /opt/assetecon/keys, keys/world, worlds (0700) and start DS4 unit 3 · current — settles owner-away row 40
 - 2026-11-21 `owner-3a7-merge-on-accept-2026-11-21.md` 3A7 merges on review ACCEPT; its wording is reviewed at the 5c walkthrough · current
 - 2026-11-21 `owner-decisions-list-2026-11-21.md` Answers rows 35 (B), 36 (b), 37 (a, explain), 42 (review the model), 50 (default), 51 (own word for settings); IA-2b defaults need business context; approves SC-1 guard fixes 8a/8b · current
+- 2026-11-21 `owner-ia2b-defaults-2026-11-21.md` Accepts IA-2b defaults: no hub-row Decide, no summed at-stake tile; sticky Decide and count-plus-largest judged at the walkthrough · current
