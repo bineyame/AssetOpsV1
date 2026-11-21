@@ -146,11 +146,14 @@ class _View:
                 sums[home] = (sums[home] if sums[home] is not None else Decimal(0)) + row.effect
         return sums
 
+    def heading_evidence(self, category: str) -> tuple[str, tuple[str, ...]]:
+        """The weakest evidence of a heading's steps: the evidence its sum, its card and the headline carry."""
+        return W.weakest_of(self.rows[s] for s in self.steps if s in self.rows and self.home(s) == category)
+
     def big(self, category: str | None):
         if category is None:
             return None
-        steps = [self.rows[s] for s in self.steps if s in self.rows and self.home(s) == category]
-        ev, origins = W.weakest_of(steps)
+        ev, origins = self.heading_evidence(category)
         return W.money(self.group_sums()[category], self.cur, W.evidence(ev, origins))
 
     def headline(self) -> tuple[dict, str | None]:
@@ -160,6 +163,14 @@ class _View:
         gap = self.money(R.effect, R) if R.effect is not None else None
         big = self.big(subject)
         head = W.headline(gap, big, subject, self.month, R.k, self.n)
+        # D-5C.20: each figure the headline states carries the payload's own word for it (through `money_word`, with
+        # the standing): the gap R's, the named heading its steps' weakest. `served`'s unmarked words are replaced.
+        words = []
+        if gap is not None:
+            words.append(self.word(R))
+            if big is not None:
+                words.append(W.word(*self.heading_evidence(subject), self.standing, self.cur))
+        head["evidence"] = list(dict.fromkeys(words))
         title = W.bridge_title(gap, big, subject) if gap is not None else None
         return head, title
 
@@ -505,7 +516,7 @@ def _outcomes(v: _View, standing: Standing, fresh: dict) -> list[dict]:
         card: dict[str, Any] = {"key": T.OUTCOME_KEYS[category], "label": W.heading_label(category)}
         steps = [v.rows[s] for s in v.steps if s in v.rows and v.home(s) == category]
         if category in (T.GROW, T.OPTIMIZE):
-            ev, origins = W.weakest_of(steps)
+            ev, origins = v.heading_evidence(category)
             card["value"] = W.amount(sums[category], v.cur, "SIGNED")
             card["word"] = W.word(ev, origins, standing, v.cur)
             card["line"] = (W.grow_line(steps[0].k if steps else 0, v.n) if category == T.GROW

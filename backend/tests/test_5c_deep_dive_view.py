@@ -172,7 +172,7 @@ def test_3_world_a_key_by_key_and_whole() -> None:
     assert v["as_of_text"] == "Figures as of 20 November 2026, 08:00 UTC."
     assert v["fresh"] == {"current": True, "text": None, "untracked_text": None}
     assert v["headline"] == {"text": "Contribution is $852.00 below target in October; cost and efficiency explain "
-                                      "$755.00 of it.", "evidence": ["Estimated"]}
+                                      "$755.00 of it.", "evidence": ["Estimated, not yet reconciled"]}  # D-5C.20
     assert v["status_line"] == ("Figures as of 20 November 2026, 08:00 UTC. Not yet reconciled with the management "
                                 "accounts. Kisiwa's budget disagrees with its own lines.")
     t0, t1, t2, t3_ = v["tiles"]
@@ -265,6 +265,41 @@ def test_3_world_a_key_by_key_and_whole() -> None:
     assert v == json.loads(FIXTURE.read_text(encoding="utf-8"))
 
 
+# --- test 3 (class form, D-5C.20): the headline's evidence is the payload's own word for each figure it states ----
+
+def _lead_world(monkeypatch, gap: str, grow: str, opt: str) -> None:
+    """World A's portfolio with R's, revenue's and fuel cost's effects set to a lead vector (O&M and staff 0)."""
+    real = V.portfolio_bridge
+    effects = {T.ROOT: gap, T.REVENUE: grow, "fuel_cost": opt, "om": "0.00", "staff": "0.00"}
+
+    def portfolio_bridge(*args, **kwargs):
+        pb = real(*args, **kwargs)
+        rows = dict(pb.rows[T.ROOT])
+        for key, value in effects.items():
+            rows[key] = replace(rows[key], effect=D(value))
+        return replace(pb, rows={**pb.rows, T.ROOT: rows})
+    monkeypatch.setattr(V, "portfolio_bridge", portfolio_bridge)
+
+
+@pytest.mark.parametrize("case", ["A", "B", "D", "L1", "L2", "L3", "L4"])
+def test_3_headline_evidence_is_the_figures_words(case, monkeypatch) -> None:  # plant P22
+    if case.startswith("L"):
+        gap, grow, opt = LEAD[int(case[1]) - 1][:3]
+        _lead_world(monkeypatch, gap, grow, opt)
+    v = view("D" if case == "D" else "A", standing=RECONCILED if case == "B" else NOT_MATCHED)
+    want = {v["tiles"][1]["word"]}
+    text = v["headline"]["text"]
+    if case.startswith("L"):
+        assert text == LEAD[int(case[1]) - 1][3]
+    named = {"cost and efficiency explain": 1, "Grow revenue explains": 0}
+    for phrase, card in named.items():
+        if phrase in text:
+            want.add(v["outcomes"][card]["word"])
+    assert set(v["headline"]["evidence"]) == want
+    if case == "L2":  # Grow named: R's word and Grow's (Emulated) differ, so both are served
+        assert want == {"Estimated, not yet reconciled", "Emulated, not yet reconciled"}
+
+
 # --- test 4: the other worlds -----------------------------------------------------------------------------------
 
 def test_4_a2_a_budget_that_cannot_be_added(monkeypatch) -> None:
@@ -285,6 +320,7 @@ def test_4_b_reconciled() -> None:
     assert v["status_line"] == ("Figures as of 20 November 2026, 08:00 UTC. Reconciled with the management accounts. "
                                 "Kisiwa's budget disagrees with its own lines.")
     assert v["tiles"][0]["word"] == "Estimated" and step(v, "revenue")["word"] == "Emulated"
+    assert v["headline"]["evidence"] == ["Estimated"]  # D-5C.20
     assure = v["outcomes"][3]
     assert (assure["value"], assure["drawer"]["lines"]) == ("Reconciled", [RECONCILED.text])
 
