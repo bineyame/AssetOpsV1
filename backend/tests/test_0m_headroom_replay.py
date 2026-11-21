@@ -265,6 +265,7 @@ def test_m4_reduced_runs_on_clipped_pv_against_the_reduced_baseline() -> None:
 
 @pytest.mark.parametrize("reduced_run, limit, full_run", [
     (stand_in("r", 50.0), F(25), RUN),  # the reduced run's frozen limit is 50, not the stated 25
+    (stand_in("r", 25.0), F(30), RUN),  # frozen 25, stated 30: only the stated-limit rule refuses it
     (stand_in("r", 25.0), F(25), stand_in("f", 25.0)),  # the full run is not above
     (stand_in("r", 25.0, battery=200.0), F(25), RUN),  # another need differs
     (stand_in("r", 25.0, extra=(need("inverter-ac-limit", 25.0),)), F(25), RUN),  # two limit rows
@@ -274,7 +275,7 @@ def test_m4_reduced_runs_on_clipped_pv_against_the_reduced_baseline() -> None:
         model_needs=(need("inverter-ac-limit", 25.0, unit="W"), need("pv-rated-power", 50.0, component="pv-array"),
                      need("battery-energy-capacity", 150.0, "kWh", "battery")), interval="2026-09-01/61d")),
      F(25), RUN),  # a unit other than kW
-], ids=["limit-mismatch", "full-not-above", "battery-differs", "two-limit-rows", "no-limit-row", "interval",
+], ids=["limit-mismatch", "stated-not-frozen", "full-not-above", "battery-differs", "two-limit-rows", "no-limit-row", "interval",
         "unit-not-kw"])
 def test_m4_reduced_run_checked_against_its_frozen_foundation(reduced_run, limit, full_run) -> None:
     observed = series(2)
