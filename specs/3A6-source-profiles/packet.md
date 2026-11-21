@@ -110,3 +110,107 @@ spec-template defect.
 - N2: A2b asserts a sample-only change (same content, new profile bytes, new sample) is admitted as v4.
 - N3: residual text restored in full; V34/V35 labels follow D-3A6.18 (V34 = waiting uploads counted, V35 = ordered compare).
 - Checks at r2: 3A6 + contracts + 3A2/3A3/ON1/RC4-F1/3B7a non-DB: 495 passed in 51.66s; Postgres (3A6, 3A3, 3A2, ON1, 3B7a) 59 passed in 50.05s; fast check-all: All 41 guards passed (245.2 s).
+
+## Fix round r3 (review N4; the class, not the instance)
+
+The class: a small, well-compressed XLSX making the reader do work out of proportion to what it carries. Rounds 1
+and 2 closed padding instances; r3 bounds the reader as a whole.
+
+**What changed** (`contracts/assetops_contracts/native/xlsx.py`, `layouts_v1.py` `split_file`):
+- **One work bound.** Every member the reader reads (`workbook.xml`, its rels, `sharedStrings.xml`, the sheet) is
+  parsed by event through an `XMLParser` target; no tree is built. Every element start costs one unit of a single
+  workbook-wide budget, `_WORK_MAX = 500,000`; past it the file is `NATIVE_WORKBOOK json`, raised inside the parse.
+  Rows and cells are elements, so rows plus cells visited never pass it, and every later loop runs over what the
+  parse kept.
+- **Row numbers rise strictly.** A row whose `r` is not above the previous row's number (duplicate, decreasing, `0`)
+  or is past 1,048,576 is `NATIVE_WORKBOOK`; a `<row>` without `r` takes the previous number plus one (§2.3), so it
+  always rises; an `r` longer than seven significant digits is refused before `int` (which raises `ValueError` past
+  4,300 digits; a leak of the same kind as F5).
+- **No padding past a checked width.** The header is the one row numbered `header_row`; a non-empty cell at or past
+  the layout's column count refuses it (`NATIVE_HEADER json`) before the header list is built, and the list is the
+  layout's width only. Same verdicts as before (an empty far cell still trims, a far value still refuses).
+- **A cell without `r`** takes one past the widest index so far, kept as a running value (was `max(cells)` per
+  cell: quadratic in a row of 16,000 cells without `r`). Same index as before.
+- **Found in the sweep, same class:** a numeric cell `<v>1E+999999</v>` (11 bytes) became a 1,000,000-character
+  plain-notation string, and `1E+9999999` let `decimal.Overflow` out. A non-zero number whose adjusted exponent is
+  outside -324..308 (a double's range; Excel holds doubles) is now `XlsxBad("")`, judged by the row verdict as any
+  unreadable cell; zero reads `0` whatever its exponent.
+
+**The cap and why it covers legitimate exports.** 500,000 elements. A batch holds at most 10,000 records
+(`MAX_RECORDS`), so 500,000 covers that ceiling at up to 24 numeric or shared-string columns (2 elements a cell)
+or 16 inline-string columns (3 a cell), and a 60-column profile to about 4,000 rows. The plan's real files are a
+few dozen rows of 5 to 12 columns (the budget golden: 4 rows, 5 columns, 63 elements in its sheet). A file past the
+bound gets the workbook words ("not an Excel workbook this layout can read"); a dedicated "too large" reason would
+be a new code (open point for the coordinator, not built).
+
+**Audit of every pad, rebuild and loop** (why each is bounded):
+
+| Site | Work | Bound |
+|---|---|---|
+| `xlsx._read` infolist `any`/`sum` | one pass over the zip's central directory | the directory is part of the upload bytes (8 MiB cap; 20,000 empty members read in under 1.5 s, tested) |
+| `xlsx._parse` decode + `<!DOCTYPE` scan | linear in one member | member cap 16 MiB, total 64 MiB (unchanged) |
+| `XMLParser` feed, target `start`/`data`/`end` | O(1) per event; `data` appends only to the open `<v>`/`<t>` being read | every start is one unit of `_WORK_MAX`; text length is within the member |
+| `_Workbook` sheets, `_Rels` relationships | count; keep the first | elements, under the budget |
+| `_Shared` strings list | one string per `<si>` | `<si>` elements, under the budget |
+| `_Text.value` join of runs | linear in runs | runs are elements, under the budget |
+| `_Sheet` row: `r` regex, length check, `int` | linear in the attribute, `int` on at most 7 significant digits | member size |
+| `_Sheet` cell: `_REF` match, `_column_index`, running next index | O(1) (letters 1 to 3) | was quadratic; now one step a cell |
+| `_number` | `Decimal` parse linear in digits (5 M digits: 0.05 s), result at most 309 + 324 characters | exponent range check |
+| `xlsx_rows` padding (no caller outside contracts) | pads each row to its last cell | `_PAD_BUDGET` 2,000,000 cells total (unchanged) |
+| `split_file` header | one row found (row numbers are unique), cells past width scanned, list of the layout's width | rows and cells parsed, under the budget; width at most 60 |
+| `split_file` data rows | per row: all-empty test, list of the layout's width, `min` over cells past width (was `sorted`) | rows and cells under the budget; width at most 60 |
+| `read_rows` (and `commercial/profiles.py` `_coverage`, after `split_file`) | per row: the layout's columns | rows under the budget (XLSX); for CSV, rows within the 8 MiB upload, as before |
+
+**Adversarial tests** (`contracts/tests/test_3a6_profiles.py`, section "N3 r3"; each bounded on time in a plain
+run and on peak memory in a traced run; builders after the reviewer's r3 probes): duplicate header rows with XFD1
+(5,000), duplicate data rows, decreasing rows, row 0 and row past Excel, rows without `r`, a 5,000-digit row number,
+far header cells compared without padding, far data cells (F1, kept), far header (N1, kept), 100,000 empty rows
+under the bound read as before, empty rows past the bound, a near-member-cap sheet (just under 16 MiB, at the real
+bound), 2 rows of 16,000 cells without `r`, repeated cell references, shared strings and sheets counted against the
+bound, 20,000 members, and numbers past a double (4 cases) plus numbers inside it read as before. Past-the-bound
+cases other than the near-member-cap one run with the bound lowered to 100,000 by `monkeypatch`, so the traced run
+stays short; `test_n3_r3_the_bound_is_the_stated_one` pins the real value.
+
+**Plants** (applied, run with `-k "r3 or far_right"`, reverted; tree clean after each):
+- Pa, row-number check removed: 5 fail (duplicate header, duplicate data, decreasing, row 0/past Excel, rows without `r`).
+- Pb, Pa plus the header padded to the file's widest cell, last match (round-2 shape): the same 5 fail; the run took
+  131 s against 26 s, the duplicate-header case carrying the time. With row numbers unique, header padding alone is
+  not observable (one row padded once), so the row check is the guard for N4 and the width rule is defence in depth.
+- Pc, work bound disabled: 5 fail (empty rows past the bound, near member cap, repeated references, shared strings,
+  sheets).
+- Pd, next index found by rescanning the row: the cells-without-`r` case fails on time.
+- Pe, the whole round-2 reader restored (tree parse, no bound): 12 fail.
+- Pf, data rows padded to the widest cell (F1): the F1 test fails.
+- Pg, exponent range check removed: the numbers-past-a-double run did not finish inside a 900 s timeout (bound
+  1.5 s; 2,000 cells of a million characters each, every one scanned by the row verdict).
+- Ph, row-number length check removed: the 5,000-digit case fails with `ValueError: Exceeds the limit (4300 digits)`.
+
+**Legitimate verdicts.** A differential fuzz of the round-2 reader against the new one (3,000 random sheets: shared
+and inline strings, rich-text runs, phonetic runs, `<t>` with a child, `<v>` with a child, nested `<c>`, formulas,
+errors, booleans, cells and rows without `r`, out-of-order cells) gave 0 mismatches; inputs with repeated or falling
+row numbers were counted only when the new reader refused them `NATIVE_WORKBOOK`. The existing row-count, formula,
+row-number, `NATIVE_HEADER`, kobo and budget golden tests pass unchanged.
+
+**Measurements** (scratch probes, host shared with other lanes, so timings are upper-ish):
+- N4 itself: 40,000 duplicate `r="1"` rows with XFD1, 37.8 s at round 3, now `NATIVE_WORKBOOK` in 0.04 s; a
+  member-cap sheet of them (409,000 rows, 50.6 kB deflated) in 0.38 s.
+- Worst found, at the bound: 249,000 rows `<row><c t="b"/></row>` (each a non-empty `FALSE` row, two elements),
+  14.5 kB, read `ok 249003` in 4.55 s, max RSS 171 MB; 251,000 rows refuse in 1.27 s. Almost all of the 4.55 s is
+  `read_rows` building one record a row, the same per-row cost as CSV: a 2.75 MB kobo CSV of 250,000 minimal rows
+  took 3.99 s (max RSS 261 MB), and CSV rows are bounded by the 8 MiB upload cap, not by this slice.
+- Parse residual (item 5): the event parse keeps no tree. P1 (200,000 one-cell rows, 14 MB sheet) parse peak
+  94 MB under tracemalloc, was 263 MB; what remains is the output rows themselves (one tuple and dict a row), so
+  peak parse memory follows the work bound, not the member size: 990,000 empty rows peaked at 173 MB when the bound
+  was 1,000,000; at 500,000 the bound halves that. Lowering the 16 MiB member cap is no longer needed for memory and
+  would refuse a legitimate 10,000-row wide export, so it stays.
+
+**Checks at r3** (code at `c8a6d23c1`; this packet commit adds docs only):
+- Non-DB, `heavy-slot.sh -- pytest contracts/tests` plus 3A6 service and command, 3A3 contract, single writer,
+  loader, 3A2 service and API, 3B7a seam and snapshot, ON1 (4 files), RC4-F1: `584 passed in 91.15s` (wall 150 s).
+- Postgres, `heavy-slot.sh --db -- pwsh tools/run-host-tests.ps1` (routed `*_test`): 3A6, 3A3 loader, 3A2, ON1,
+  3B7a snapshot: `59 passed in 49.85s`, none skipped.
+- Fast check-all: `All 41 guards passed` (244.1 s).
+- Evidence: `/opt/assetecon/evidence/3A6/2026-11-21/r3/` (run logs, plant log, probes, the differential fuzz).
+
+**Open point for the coordinator:** the budget refusal reuses `NATIVE_WORKBOOK` and its words; a dedicated reason
+(for example "this file holds more than this layout reads at once") would need a new code and catalogue entry.
