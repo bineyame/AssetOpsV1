@@ -109,6 +109,7 @@ their commands and shows the checker's first failing gate move G2 -> G3 -> G5 ->
 - L4: G3 checks SUBMITTER and ACCEPTER on every accepted upload of a reader; `test_l4_...` (plant: first upload only)
   fails.
 - r5's `bridge.scale` and step `bar` added to the expectation file's `screen` by hand from 5c's updated World A fixture.
-- No-DB: 27 passed. Postgres full file and the faithful P1 re-plant: chain3, log
-  `/tmp/claude-1001/-opt-assetecon-AssetOpsV1/b41e22f5-3892-40aa-b0a6-08516de67e3b/scratchpad/ddr2/chain3.log`
-  (pending at handback). Check-all: not rerun after these fixes.
+- No-DB: 27 passed. Postgres full file (heavy slot, `--db`): 12 passed in 140.62 s. Faithful P1 (G3 passes when records of
+  each reader's kind exist and never reads uploads): test 4a fails (no gate fails at all, so G3 is the only gate that sees
+  the fault). M1 closed, coordinator-verified. Log `/opt/assetecon/evidence/DDR-rehearsal/build-2026-11-21/chain3.log`.
+  Check-all: All 42 guards passed (blocking; 0 advisory, 0 warned)..
