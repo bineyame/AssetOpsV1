@@ -112,3 +112,9 @@ PNGs and 12 viewport PNGs, `{one,two}-{390,1280,1440}-{light,dark}-{card,page}.p
 
 The face order and the hooks (F1, F3, captures), the golden's one-line diff, and the `CostScope` day rule for a
 one-day PERIOD window (`wd[0]`).
+
+## Review lows round (L1, L2, L3)
+
+- L3: main merged (28d0856bf); index-3 line 186, INDEX rows both kept, T8 is the union of statements.
+- L1: test S8b (cold-chain `SiteRef`, PERIOD, through `summary()`): 7 days reads `one_latest`, one UTC day reads `one_day`. Plant (a) one-day day None and plant (b) `wd[-1]` as the day each fail S8b; reverted.
+- L2 choice: the spec's wording (D-1A.9 `one_latest` / `each_differ` variants, "names no last day") supports a variant over a refusal, so `summary()` states a DAY Site's day only when it equals `window_days[-1]` (or the window is one day); otherwise the day is None and the line reads `one_latest` (one Site) or `each_differ` (several). Test `test_l2_a_mixed_frame_window_names_no_last_day` (Nairobi 1 Oct local to 31 Oct UTC); plant (the guard removed) fails it.
