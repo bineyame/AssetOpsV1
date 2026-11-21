@@ -64,3 +64,8 @@ into a `*_test` database. **Default:**
 
 **Default:** no code change for (a), (b) and (d). §5 and the packet state (a) and (d), and E10 asserts (d). (c) stays
 as it is (it names the rule family) and is classed "history" in the sweep.
+
+## Architect answers (2026-11-21)
+
+Answered in the spec's rev 2 and the rulings (`specs/0K4-dispatch-model-review/rulings.md` for 0K4, `rulings.md` for
+1a). I1 default (D-0K4.23). I2 D-0K4.23 (`_num`, on the stored figures). I3 D-0K4.19 and D-0K4.24: no baseline entry; the outcome is stored as facts and rendered by SC-1 statements in `plain.py` and `finding_read.py` (spec §2.5, +0.75 unit). I4 D-0K4.23 (memo, merged with R5). I5 default (D-0K4.23). I6 (a), (b), (d) defaults; (c) D-0K4.23: the version token is corrected (one listed fingerprint swap).

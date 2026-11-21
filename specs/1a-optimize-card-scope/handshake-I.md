@@ -49,3 +49,8 @@ keep `onCard` exactly.
 
 **Default:** call `coh17_optimize("1a", summary, [], {})` and assert `[]`. S7 compares whole maximal runs
 (`re.findall(r"\d+", ...)`), not substrings.
+
+## Architect answers (2026-11-21)
+
+Answered in the spec's rev 2 and the rulings (`specs/0K4-dispatch-model-review/rulings.md` for 0K4, `rulings.md` for
+1a). I1 D-1A.9 (owner-level, row 58): "Cost of {site}'s lead issue on {day}[, the last of the {days} shown, not their total]"; `each_differ` "Cost at each Site of its lead issue in the days it shows, not their total". I2 default (D-1A.10). I3 S9 default (D-1A.10); S7 by R1's rule instead.

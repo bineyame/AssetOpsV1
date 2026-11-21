@@ -1,10 +1,11 @@
-# 0K4 rulings (D-0K4.1 to D-0K4.18)
+# 0K4 rulings (D-0K4.1 to D-0K4.25)
 
 Architect (Claude), 2026-11-21. Builds the 0K4 path the owner accepted the same day
 (`owner/owner-one-figure-loyal-to-operating-world-2026-11-21.md`: "Accept all (Recommended)", and the one-figure rule).
 Review: `review-for-owner.md`. Unit specs: `specs/0K4a-dispatch-v8/`, `specs/0K4b-fuel-curve-taper/`,
 `specs/0K4c-declared-season/`, `specs/0K4d-rerun-restate/`, `specs/0K4e-candidate-energy/`. Change list:
-`one-figure-change-list.md`. Operator request: `operator-request.md`. Owner-level call: owner-away row 56.
+`one-figure-change-list.md`. Operator request: `operator-request.md`. Owner-level calls: owner-away rows 56 and 57. Handshake answers (rev 2 of
+0K4a, 0K4b and 0K4e): D-0K4.19 to D-0K4.25.
 
 ## D-0K4.1 Units, sizes, order and lanes
 
@@ -242,6 +243,276 @@ Review: `review-for-owner.md`. Unit specs: `specs/0K4a-dispatch-v8/`, `specs/0K4
   and Kobo's five items with what each settles and which assumed value it replaces.
 - **Why.** Owner default 4.
 
+## Handshake answers (rev 2 of 0K4a, 0K4b, 0K4e; 2026-11-21)
+
+Architect (Claude), on the owner's delegation (`owner/owner-away-architect-stands-in-2026-11-21b.md`). The questions
+are in `handshake.md` (reviewer, R) and `handshake-I.md` (implementer, I) in each unit's folder. Where the two sides
+ask the same thing, it is answered once. Every question is answered either by a D-ID below or by accepting its
+default, as the table says. Owner-level call: row 57 (D-0K4.19).
+
+| Unit | Question | Answer |
+|---|---|---|
+| 0K4b | I1 | D-0K4.19 (class) |
+| 0K4b | R1 | D-0K4.21: F11 runs the contract's own conversion; P4 and guide check 2 reworded |
+| 0K4b | R2 | D-0K4.20: F12 pins the constants (default accepted) |
+| 0K4b | R3 = I2 | D-0K4.20: the run is unchanged, plus a trajectory comparison with and without `assumed_site` |
+| 0K4b | R4 | default accepted (D-0K4.21) |
+| 0K4b | R5 | D-0K4.21: inline parse in `backend/tests`, plus host test P5; no `sys.path` edit |
+| 0K4b | R6 = I4 | D-0K4.21: local `_share_of_rating` |
+| 0K4b | I3 | defaults accepted, except the third point (superseded by R5) |
+| 0K4a | I5 | D-0K4.19 (class) |
+| 0K4a | R1 = I1 | default accepted (D-0K4.22): `host/tests/kobo.py` added to Files |
+| 0K4a | R2 = I2 | D-0K4.22: no `ValueError`; `below_minimum` tightened; S10 |
+| 0K4a | R3 | D-0K4.22: N3 restated as three assertions |
+| 0K4a | R4 | D-0K4.22: N5's reader takes the model's whole `C` |
+| 0K4a | R5 | D-0K4.20: N12 pins the v8 digest |
+| 0K4a | R6 | D-0K4.22: view-bound rule kept, note added, N13 |
+| 0K4a | I3 | D-0K4.20: one digest helper, owned by 0K4a |
+| 0K4a | I4 | default accepted (D-0K4.22) |
+| 0K4a | I6 | default accepted (D-0K4.22) |
+| 0K4e | I3 | D-0K4.19 (class), applied by D-0K4.24 |
+| 0K4e | R1 = I1 | default accepted (D-0K4.23): `energy_to_cover(t)` |
+| 0K4e | R2 | D-0K4.23: E5b redesigned (the reviewer's case cannot fail), plant P10 |
+| 0K4e | R3 = I6(d) | default accepted (D-0K4.23): role coverage stays per instant; readiness queued (Q10) |
+| 0K4e | R4 = I5 | D-0K4.23: I5's `CaseRunner` world, in R4's run-owned database |
+| 0K4e | R5 = I4 | D-0K4.23: a memoised per-slot recurrence (covers both) |
+| 0K4e | I2 | D-0K4.23: `_num`, applied to the stored figures |
+| 0K4e | I6 (a)-(c) | D-0K4.23: (a) and (b) as proposed; (c) the version token is corrected |
+
+## D-0K4.19 New served text is composed, never added to the hand-built baseline (class; owner-away row 57)
+
+- **Question.** 0K4b I1, 0K4a I5 and 0K4e I3 all report the same thing. The units add served English, which the SC-1
+  ratchet reports as `HAND_BUILT_NEW`: four Foundation property names, three profile need statements, v8's profile
+  statement and its restated fuel-tank statement, and four dispatch reason and missing texts. The implementer
+  proposed a ruling naming these strings for `statement-handbuilt-baseline.json` under D-SC1.34's exception.
+- **Ruling: no.** D-SC1.34's exception stays unused ("none is foreseen"). No 0K4 unit adds a fingerprint to the
+  hand-built baseline or an entry to `statement-handbuilt-allow.json`. Each new string goes by its kind:
+  1. **Served words** become SC-1 statements or vocabulary entries (D-SC1.28). They are rendered by the read that
+     serves them.
+  2. **A new string that joins a legacy family served through one field.** The field's type widens to
+     `str | Message`. The family's serving read renders the field through one helper, `served_text(value) -> str` in
+     the new module `backend/assetops_backend/served_text.py`: a `str` passes through unchanged, and a `Message` is
+     rendered by `i18n.render` for the request's locale. The legacy strings stay as baselined debt, and nothing new
+     joins them. Two families are touched:
+     - Foundation property names: `PropertyDefinition.display_name`, served by `sites_api.py`. This is 0K4b's.
+     - Model-profile and supported-state statements: `ModelProfile.statement` and `SupportedState.statement`,
+       served by `simulator_lab_api.run_profile_summary`. 0K4b creates the need statements and 0K4a adds the seam.
+  3. **Outcome text that a later reader parses back.** Dispatch segment `reasons` and `missing` are read back by
+     `plain.py`, `finding_read.py` and `claim_limit_read.py`. They are not extended. The new outcome is stored as
+     codes and figures in its own payload field, and each reader that explains it renders an SC-1 statement from
+     those facts (D-0K4.24).
+  4. **Text no person reads** becomes a code, or its exception class goes to `schema.UNSERVED` through the unit's
+     spec (D-SC1.34). No such string arises in 0K4.
+  5. **A baselined string whose only change is the version code it names** may be edited. This is a fingerprint swap,
+     not new English: the old fingerprint is pruned, its replacement takes its place, and the count does not change.
+     The packet lists each swap with its old and new fingerprint, and the reviewer checks that the diff is the
+     version token only. 0K4e has one swap (D-0K4.23, I6 (c)).
+  6. **Simulator texts.** The SC-1 scan does not read `simulator/` (`PKG = backend/assetops_backend`), so simulator
+     refusal and note texts keep the package's existing form. Widening the scan would be a guard change, which the
+     delegation holds for the owner.
+- **Cost per unit.** 0K4b +0.5: the vocabulary `foundation_property`, the statements `foundation.property_name` and
+  `model_profile.need`, their cases, `served_text.py` and the `sites_api` seam. 0K4a +0.25: the statements
+  `model_profile.description` and `model_profile.state`, their cases and the lab seam. 0K4e +0.75: the structured
+  `energy_cover` field, two statements, two vocabularies, their cases, and the `plain.py` and `finding_read.py`
+  readers. +1.5 in all.
+- **Checked.** Every statement and vocabulary literal named in the three specs was loaded in a scratch copy of the
+  `i18n` package and rendered from the specs' facts. Each one loads: no `LITERAL_DIGIT`, no `LITERAL_NUMBER_WORD`, no
+  `EVIDENCE_UNSHOWN`.
+- **Why.** The owner's rule of 2026-11-21 (`owner/owner-text-composition-clean-2026-11-21.md`) is that product text
+  is composed cleanly, "not brittle hard coding and if else mess". SC-1a baselined only text that was already
+  merged, as debt to pay down. Adding new English to that debt is what the rule forbids. A reason string that a
+  second module parses back by its prefix (dispatch `missing`) is the brittle form itself, so extending it is
+  refused. One typed seam per family is the declared migration point, not a branch per string. Each family's whole
+  migration is queued (Q9), and that migration deletes the `str` branch.
+- **Not accepted:**
+  - Rendering at import into a `str`: that binds the reference locale into a constant, against D-I18N.1's
+    render-at-read.
+  - Moving the whole property-name family now: two existing names hold a digit and a number word ("PV rated power at
+    1000 W/m2", "PCS one-way conversion efficiency") and would need rewording the owner can see.
+  - New labels in `dispatch_v3.LABELS`: each would be a per-entry fingerprint (D-SC1.37), and a reader would still
+    parse them.
+- **Reverse by:** naming the strings in the baseline per D-SC1.34 (the implementer's proposal) and dropping the seams.
+
+## D-0K4.20 v8 is pinned against silent change, and one trajectory digest helper serves both pins
+
+- **0K4b R2.** F12 asserts the module's constants as literals: `DIESEL_ENERGY_KWH_PER_L == Fraction(10)`,
+  `MIN_SFC_L_PER_KWH == Fraction(1, 10)` and `TAPER_FLOOR_SHARE == Fraction(1, 20)`. The module docstring says:
+  "these are `mini-grid` v8's physics: changing one is a new model version, never an edit".
+- **0K4a I3.** No kernel trajectory digest helper exists. 0K4a commit 1 adds `host/tests/trajectory_digest.py` with
+  `trajectory_digest(result) -> str`. It returns the sha256 hex of a canonical UTF-8 text with one line per
+  boundary. Each line holds the offset in minutes, then sorted `key=value` pairs for stocks, interval measurements and
+  discrete states. Exact values are written as `str(Fraction(v))` and states as their code. N9 pins, as a literal,
+  the v7 8-day season digest computed on `main` at pre-flight (`base_run(8)` with the default `site_edit=season_site`,
+  and `season_inputs(run, 8)`).
+- **0K4a R5.** N12 pins, as a literal, the v8 8-day season digest (`base_run(8, version=8, site_edit=site)` and
+  `season_inputs(run, 8)`), and the packet prints it. The test docstring says: "a change here is a new model version,
+  never an edit".
+- **0K4b R3 = I2.** The pre-flight runs `host/tests/test_registered_kobo_execution.py` unchanged and records it green.
+  It then compares a v7 `kobo_draft(...)` run with and without `site_edit=assumed_site`, boundary by boundary:
+  stocks, interval measurements and discrete states. The packet says equal, or which values differ and why (whether
+  the frozen Foundation carries every Site property or only the model's needs). No existing file is edited. 0K4b does
+  not use the helper: 0K4b merges first, and the helper is 0K4a's.
+- **Why.** Simulator-version reproducibility. 0K4d's SIMULATED litres and admission results come from v8. A later
+  edit to the module or to `_resolve_cycle` must fail a test rather than move those figures under the same identity.
+
+## D-0K4.21 0K4b's test-path answers
+
+- **R1.** A new test, F11, runs the frozen-record path: `value, unit, _ = frozen_canonical_value(3.3, "L/h")`
+  (`contracts/assetops_contracts/execution_contract.py:1743`), then `rate = normalize_authored_float(value)`. It
+  asserts `unit == "L/min"` and `rate == Fraction(11, 200)`, and that a 5-minute STARTING step burns exactly
+  `Fraction(11, 40)` L (0.275). The /60 is never written by hand in a test. Plant P4 becomes "`fuel_litres`
+  multiplies the rate by `minutes / 60` (reads the L/min input as L/h)", and it must fail F4 and F11. Guide check 2
+  becomes "the only 60 in the module is the slope's `60 x no_load / rated`".
+- **R4.** In the packet's F3 table, the 0 % row's litres-per-kWh cell reads "not defined (no output)", and its
+  litres-an-hour cell reads 3.3. The table is headed "assumed (GENERIC_DEFAULT)", with no design value beside it.
+- **R5.** P1-P3 render the Kobo template into a site document (`render_site_document(site_from_template(...))`, as
+  `host/tests/kobo.py:kobo_site` does). They append the six rows inline, as the test's own literal (W2), and parse
+  with `sites/foundation_parsing.py:parse_foundation_content`. A new host test, `host/tests/test_0k4b_kobo_assumed.py`
+  (P5), checks that `assumed_site` writes exactly those six rows on their components and raises `KeyError` on a key
+  already present. `backend/tests` gets no `sys.path` edit (this supersedes I3's third point).
+- **R6 = I4.** `generator_curve.py` gets a local `_share_of_rating(v)`. It refuses a value outside `[0, 100]` with
+  `PhysicallyUnacceptable("a minimum generator load of {v} % is not a share of the generator's rating")`. F10
+  asserts that text. `packs/minigrid.py` stays untouched. This is simulator text, outside the scan (D-0K4.19 item 6).
+- **I3.** Accepted: `_need` is at `runs/profiles.py:953`, and the module also imports `dataclasses` and
+  `kernel.model.StateHandler`.
+
+## D-0K4.22 0K4a's dispatch answers
+
+- **R1 = I1.** Commit 3 adds the backend `MINI_GRID_V8_MODEL` to `kobo_draft`'s profile tuple
+  (`host/tests/kobo.py:131-141`), as a fixture edit listed in §0 Files. v7 callers do not change.
+- **R2 = I2.** `cycle_charge_split` raises no `ValueError` for `M > R`. `g` is always capped by `R`, so that case is
+  legal everywhere. The function sets `below_minimum = D + C < M and D + C < R`, which is true only when the `D + C`
+  cap binds below the minimum. S8 enumerates every combination, `M > R` included. A new case, S10 (`D 5, A 15, R 0,
+  C 2, M 12, dis 0`), expects PV `5, 2, 8`, generator `0, 0`, battery `0, 0`, unserved `0`, and below minimum "no".
+  S9 checks a float argument and a negative one. Step 5's rerun with `generator_kw = 0` therefore never notes "below
+  minimum load": the fuel note names the cause.
+- **R3.** N3 makes three assertions:
+  - (a) precondition: v7's 05:00 local SOC on day 1 is below 35;
+  - (b) let `s0` be v8's SOC at the boundary that ends night 1's STARTING step; every boundary from that one to 05:00
+    has SOC at least `s0`;
+  - (c) v8's 05:00 SOC is above v7's.
+
+  The packet shows both 05:00 readings as the model-change reconciliation.
+- **R4.** N5's reader computes `C = min(A + 40 - D, 30 x f(soc), (200 - stored) / (95/100 x 5/60))` from its own SOC,
+  with `f(soc) = 1` at or below 95 and `max(1/20, (100 - soc) / 5)` above it. The exact `1` kWh assertion applies on
+  every RUNNING step where `D + C - A < 12 <= D + C`. The "at least 1 kWh unless the step notes below minimum load"
+  assertion stays. Precondition: at least one exact step exists.
+- **R6.** The view-bound rule is kept: it is v7's, and the physics need no change. When a RUNNING step's view asked
+  for charge (`requested <= 0`) but a segment has `D > A + R`, `limited` gains v7's "differed from the view at T" note
+  (the same text as `mini_grid.py:849-851`). A new test, N13, runs `run8(1)` from start SOC 34, with res 25 and
+  clinic 10 kW all night and the mill at 40 kW over offsets `[62, 90)`, the windows cut as N4 cuts them. On the step
+  `[60, 65)`: unserved energy is exactly `35 x 3/60 = 7/4` kWh, the battery AC energy is at most 0, and the step's
+  `limited` notes hold the "differed from the view" text. On each step of `[65, 90)`, N4's per-step figures hold.
+- **I4.** N11 builds `ForwardReplayRequest(BASELINE, observed.pv_available_kw, observed.loads,
+  start_state(observed), ...)` as `runs/replay_study.py:516` does, with `observed = kobo_season.observed_series(<N1's
+  trajectory>, 576)`. It asserts that the request is not refused, the result has 576 steps, and `generator_kwh` is
+  within 1 % of the site run's. v8 is not added to T1, whose hand anchors are v7's linear law. `REPLAY_MODELS`'
+  comment cites N11 for v8.
+- **I6.** Build by the content §2.4 describes, using the line anchors I6 lists for `main`. v8's notes are
+  `(CURVE_FUEL_NOTE,)` alone, replacing `LINEAR_FUEL_NOTE`. v7's "RUNNING with nothing to absorb" note stays where v7
+  sets it.
+
+## D-0K4.23 0K4e's dispatch-3.3 answers
+
+- **R1 = I1.** The walk takes one argument, `energy_to_cover(t)`, and re-reads the feeders at each slot
+  (`self.assets(LOAD, s)`), so a feeder bound later in the night counts from its binding on. The decision table's 3.3
+  row says so.
+- **R5 = I4.** A memoised per-slot recurrence on `_Index`, built once per `assess()` and keyed by slot instant:
+  - `cover(s) = END(read_range.end)` when `s > read_range.end`;
+  - `cover(s) = GAP(role, problem, s)` when a load or PV lookup at `s` fails after the interval fallback;
+  - `cover(s) = REACHED` when `pv(s) >= load(s) x (1 + CAPABILITY_HEADROOM)`;
+  - otherwise `need(s) = (load(s) - pv(s)) x 5/60 + need(s + 5 min)`, where `GAP` and `END` propagate unchanged.
+
+  It is computed iteratively: walk forward until a memo hit or a terminal, then fill the memo backward. Arithmetic is
+  exact `Fraction`. Each slot's lookups run once per assessment, however many points reach the branch. The figures
+  equal §2.2's walk, so E1-E6 decide it. The packet reports E9's `assess()` wall time on 3.2 and on 3.3. A ratio
+  above 2x is a mid-build question.
+- **R2.** The reviewer's E5b cannot fail. `lookup_asset` reads a reading that ends exactly at `s` before any
+  fallback, so the fallback's inequality matters only at a slot that starts a mean's interval with no reading ending
+  at it. E5b is redesigned to hit that slot:
+  - the point at 18:00, with E2's SOC, reserve, capacity and efficiency;
+  - load as 5-minute means ending 18:00, 18:05 and 18:10 (10 kW), no load reading ending 18:15, and one 15-minute load
+    mean over `(18:15, 18:30]` of 20 kW;
+  - PV 0 at every slot to 18:30, and 30 kW from 18:35.
+
+  Expected, under the spec's convention: `energy_cover` state `GAP`, input `feeder_demand`, problem `MISSING`, at
+  18:15. Plant P10 swaps the fallback to `interval_start <= s < interval_end`. It then reads 20 kW at 18:15, reaches
+  cover at 18:35 with need `55/6` kWh, and fails E5b. E5 (constant values) stays.
+- **R3 = I6(d).** Role coverage stays per instant, and no role is added. D-0K4.24 stores the energy-cover outcomes
+  outside `missing`, so `segment_roles` never sees them. E10 asserts that a 3.3 segment Indeterminate for `SHORT`,
+  `GAP` or `NOT_CONFIGURED`, whose own instant inputs are whole, reads every role COVERED. The decision table's 3.3
+  row says that an energy-cover Indeterminate is a limit of the rule, not an input-role gap. Having readiness name it
+  is queued (Q10).
+- **R4 = I5.** E9-E11 run on the `CaseRunner` world (`backend/tests/test_4d_litre_split_postgres.py:17`) plus one
+  planted night of battery-support points. Precondition, on 3.2: at least one Candidate segment reaches the
+  battery-support branch, so E9's "at most" is proved on a set that is not empty. The database is run-owned, named
+  per `backend/TESTING.md` (`..._pt<run>_<tag>_test`) and reached through `tools/heavy-slot.sh --db`; the packet
+  names it. Pre-flight item 3's counts cover that fixture's days and are labelled so, not as "1-31 Oct".
+- **I2.** Use the module's `_num`, with no new formatter. The stored figures read `"95"`, `"120"` and `"133"`.
+- **I6.**
+  - (a) §5 and the packet state that a verification whose baseline days mix model versions refuses
+    (`VERIFICATION_MODEL_NOT_COMPARABLE`) from deploy until the reconcile pass ends. The coordinator runs the pass
+    straight after deploy.
+  - (b) No code change: the S3 lineage and performance reads follow `MODEL_VERSION`. The sweep classes them as *pins
+    a version (follows the constant)*.
+  - (c) `structure/rows_mini_grid.py:62-67` names the analytic behind three factor sources, and after 3.3 the token
+    `dispatch-3.2` there is false. The two code-form sources (`necessary_l`, `candidate_l`; not prose, so not
+    fingerprinted) are edited to `dispatch-3.3`. The prose source of `unexplained_l` ("fuel balance (FUEL_DELIVERY,
+    TANK_DIP) minus dispatch-3.2") is edited the same way as a fingerprint swap (D-0K4.19 item 5). The sweep classes
+    all three as *pins a version*.
+
+## D-0K4.24 0K4e stores the energy-cover outcome as facts and renders it by statement
+
+- **Ruling.** The new branch adds no English to `reasons` or `missing`. Each evaluated point that reaches the
+  battery-support test carries one `energy_cover` entry. It holds codes and exact decimal strings only:
+  `{"at", "state", "held_kwh", "need_kwh", "input", "problem", "gap_at", "range_end", "controls"}`, where `state` is
+  one of `COVERED`, `SHORT`, `GAP`, `NOT_REACHED` or `NOT_CONFIGURED`, and the fields a state does not use are
+  `null` (`controls` is `[]`). A segment's payload gains `"energy_cover"`: its points' entries, deduplicated and
+  sorted by `at`. The key is omitted when the list is empty, so a segment that never reaches the branch is
+  byte-equal to 3.2's form (E8). A Candidate keeps 3.2's existing reason string, unchanged. Two readers explain the
+  entries through the new statements in `i18n/statements/en/dispatch.py`:
+  - `plain._segment`: a segment's reason is `dispatch.energy_cover` rendered for its lead entry. The order is
+    `NOT_CONFIGURED`, `GAP`, `NOT_REACHED`, `SHORT`, `COVERED`, then the earliest `at`. This applies when the segment
+    is Candidate with a `COVERED` entry, or Indeterminate with no legacy `missing` text and a non-`COVERED` entry.
+    Otherwise the existing branches apply, because a record gap in the legacy texts wins.
+  - `finding_read.portion_cause(missing, cover=())`: a `GAP` or `NOT_CONFIGURED` entry makes the portion
+    `RECORD_GAP`. A `SHORT` or `NOT_REACHED` entry adds the fragment `dispatch.energy_cover_cause` to the `MODELLING`
+    words.
+
+  `claim_limit_read` and `stored_declaration` are unchanged, apart from `SUPPORTED_MODELS`.
+- **Why.** This is D-0K4.19 item 3. The facts are stored once, and the words come from the catalogue at read time, so
+  no reader parses English. If `plain.py` and `finding_read.py` did not learn the field, a 3.3 Indeterminate segment
+  would read "too close to decide" or "does not say why", which is false.
+- **Reverse by:** dropping the field and the statements, and appending rev 1's texts to `missing` with D-0K4.19
+  reversed.
+
+## D-0K4.25 Sizes and lane order after the handshake (amends D-0K4.1)
+
+| Unit | Rev 1 | Rev 2 | Why it moved |
+|---|---|---|---|
+| `0K4a` | 2.0 | 2.5 | +0.25 SC-1 statements and the lab seam (D-0K4.19); +0.25 N12, N13, S10 and the digest helper |
+| `0K4b` | 1.5 | 2.0 | +0.5 SC-1 names, need statements and the `sites_api` seam (D-0K4.19); F11, F12 and P5 absorbed |
+| `0K4c` | 1.0 | 1.0 | not in this round |
+| `0K4d` | 1.5 | 1.5 | not in this round |
+| `0K4e` | 2.0 | 2.75 | +0.75 structured `energy_cover`, two statements, two readers (D-0K4.24); E5b and the memo absorbed |
+| `0K4m` | 0.75 | 0.75 | |
+
+- **Total 10.5 units** (was 8.75).
+- **Lane order, checked.**
+  - Lane 2: 0K4b, then 0K4c.
+  - Lane 1: 0K4a, then 0K4d. 0K4a's commits 1-2 come to 1.5 (the digest helper and S10 go in commit 1), and its
+    SC-1 part goes in commit 3, because it uses 0K4b's `served_text.py`. That leaves 0K4b (2.0) finishing about 0.5
+    after commits 1-2. Lane 1 fills the gap with
+    0K4d's commit 1 (0.75; `main` only, stub-tested), then takes 0K4a's commit 3 once 0K4b is on `main`, then 0K4d's
+    commits 2-3 once 0K4a and 0K4c are both merged.
+  - The critical path is now about 4.0 units (was 3.5): 1.5 + 0.75 + 1.0 + 0.75, with no idle wait.
+  - 0K4e is independent. It runs in a third slot as soon as one is free, or in lane 2 after 0K4c if only two lanes
+    run. Its reassessment is a heavy database job, one at a time.
+  - Shared files: 0K4b, 0K4e and 1a each append to `i18n/statements/en/vocabulary.py`, a trivial merge; the
+    statement modules are separate files.
+- **Ready to build:** 0K4b and 0K4e now. 0K4a now for commits 1-2, and commit 3 after 0K4b merges. Each still needs
+  its reviewer to confirm that no question is open (RULES §4, handshake step 3).
+
 ## Decision queue (W3; defaults applied)
 
 | # | Question | Default |
@@ -254,3 +525,5 @@ Review: `review-for-owner.md`. Unit specs: `specs/0K4a-dispatch-v8/`, `specs/0K4
 | Q6 | Battery warranty floor | Recorded in the operator request; shown as information only, not an admission part (owner's rule names four parts) |
 | Q7 | KIS-BATT60's 150 L | "Not available yet" until a Kisiwa battery replay exists; not in 0K4 |
 | Q8 | An interim pack and mock pass before 0K4d | No (D-0K4.15) |
+| Q9 | When do the three legacy text families move to SC-1 whole (Foundation property names, of which two need rewording; model-profile and supported-state statements; dispatch segment texts with their readers)? | One queued unit per family after the walkthrough; each deletes its `served_text` branch or its parsing reader (D-0K4.19) |
+| Q10 | Should readiness (`stored_declaration`, AP-1) name an energy-cover Indeterminate? | Not in 0K4e; queued. The `energy_cover` field makes it a read-only change (D-0K4.23) |

@@ -59,3 +59,8 @@ run-refusal detail.
 *Default:* add a `_generator_share` acceptor to `generator_curve.py`, with the same `0..100` rule and the text "a
 minimum generator load of {v} % is not a share of the generator's rating". F10 asserts that text. `packs/minigrid.py`
 stays untouched.
+
+## Architect answers (2026-11-21)
+
+Answered in the spec's rev 2 and the rulings (`specs/0K4-dispatch-model-review/rulings.md` for 0K4, `rulings.md` for
+1a). R1 D-0K4.21 (F11; P4 and check 2 reworded). R2 D-0K4.20 (F12, default). R3 D-0K4.20 (with I2: run unchanged plus a with/without `assumed_site` comparison). R4 default (D-0K4.21). R5 D-0K4.21 (inline parse; host test P5). R6 D-0K4.21 (`_share_of_rating`).

@@ -57,3 +57,8 @@ allocation-and-charging block is `mini_grid.py:705-731` (cited as "744-772"). Th
 and the "RUNNING with nothing to absorb" note :852-853. **Default:** build by the content §2.4 describes. v8's notes
 are `(CURVE_FUEL_NOTE,)` alone: it replaces `LINEAR_FUEL_NOTE` (:909) and is not appended beside it. v7's
 nothing-to-absorb note is kept.
+
+## Architect answers (2026-11-21)
+
+Answered in the spec's rev 2 and the rulings (`specs/0K4-dispatch-model-review/rulings.md` for 0K4, `rulings.md` for
+1a). I1 default (D-0K4.22). I2 D-0K4.22 (with R2). I3 D-0K4.20 (`host/tests/trajectory_digest.py`, commit 1). I4 default (D-0K4.22). I5 D-0K4.19: no baseline entry; v8's backend words are SC-1 statements behind `served_text` (spec §2.7, +0.25 unit). I6 default (D-0K4.22).

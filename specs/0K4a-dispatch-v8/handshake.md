@@ -65,3 +65,8 @@ reserve. v7 also gates discharge on `requested > 0`, so this is not new. But `en
 the view at T" note (`mini_grid.py:851`) to `limited`. A case in the decide/resolve tests pins the note and the
 unserved amount. N4's load windows sit on step boundaries, as the spec already makes them, so the case never arises
 there.
+
+## Architect answers (2026-11-21)
+
+Answered in the spec's rev 2 and the rulings (`specs/0K4-dispatch-model-review/rulings.md` for 0K4, `rulings.md` for
+1a). R1 default (D-0K4.22). R2 D-0K4.22 (no `ValueError`; `below_minimum = D + C < M and D + C < R`; S10). R3 D-0K4.22 (N3 in three parts). R4 D-0K4.22 (the reader's whole `C`). R5 D-0K4.20 (N12). R6 D-0K4.22 (note kept, N13).

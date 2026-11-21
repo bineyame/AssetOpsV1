@@ -53,3 +53,8 @@ roughly points x slots x rows, inside a reconcile pass that §5 hands to the coo
 the suffix sum of need, exact in `Fraction`. `energy_to_cover(t)` then reads it in constant time. The packet reports
 E9's assessment wall time on 3.2 and on 3.3. A ratio above 2x is a mid-build question. The same exact figures are
 required, so E1 to E6 decide it.
+
+## Architect answers (2026-11-21)
+
+Answered in the spec's rev 2 and the rulings (`specs/0K4-dispatch-model-review/rulings.md` for 0K4, `rulings.md` for
+1a). R1 default (D-0K4.23). R2 D-0K4.23: E5b redesigned (the proposed case cannot fail: a reading ending at a slot is read before any fallback), plant P10. R3 default (D-0K4.23; E14; readiness queued Q10). R4 D-0K4.23 (I5's `CaseRunner` world in R4's run-owned database). R5 D-0K4.23 (memoised per-slot recurrence).

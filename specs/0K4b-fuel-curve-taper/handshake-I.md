@@ -46,3 +46,8 @@ discrete states). The packet records it. No edit to the existing file.
 bad value would read "a minimum generator load of 120 % is not a share of a battery". **Default:** add a local
 accept function `_share_of_rating` in `generator_curve.py` that refuses outside [0, 100] with "a minimum generator
 load of {v} % is not a share of the generator's rating". F10 asserts that text. `minigrid.py` is not touched.
+
+## Architect answers (2026-11-21)
+
+Answered in the spec's rev 2 and the rulings (`specs/0K4-dispatch-model-review/rulings.md` for 0K4, `rulings.md` for
+1a). I1 D-0K4.19: no baseline entry; the names and need statements are SC-1 (spec §2.6, +0.5 unit). I2 D-0K4.20 (merged with R3). I3 defaults, except the third point (D-0K4.21: no `sys.path` edit; P1-P3 inline, P5 on the host). I4 D-0K4.21 (`_share_of_rating`).

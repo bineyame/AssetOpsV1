@@ -43,3 +43,8 @@ build cards with `_optimize_card`, not summaries, and `coh17_optimize` reads a s
 (`sites[].rows[OPTIMIZE_COST].nodes.earnings` plus `cards`).
 *Default:* S9 runs on S8's two summaries (one priced Site, 30 days and 1 day). It also runs on a third summary from the
 same recording fake board with two priced Sites. All three return `[]`.
+
+## Architect answers (2026-11-21)
+
+Answered in the spec's rev 2 and the rulings (`specs/0K4-dispatch-model-review/rulings.md` for 0K4, `rulings.md` for
+1a). R1 D-1A.10 (whole decimal tokens). R2 default (D-1A.10). R3 D-1A.10 (S5b, S5c, with D-1A.9's `each_differ`). R4 default (D-1A.10, with I3's signature).
