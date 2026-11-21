@@ -288,6 +288,6 @@ estimates for lines not received (D-DS3.8); disorder tests on telemetry (real pa
 | # | Question | Default |
 |---|---|---|
 | Q1 (owner) | `COPY` into staging, as the strategy says, or set-based `INSERT ... SELECT FROM unnest` in the one writer? | The latter (D-DS3.1; OWNER-AWAY row 10): no guard change; the same one-statement-per-table property |
-| Q2 (owner) | Bulk commercial writes? | No: the intake loader (D-DS3.2; row 10; D-3A3.1) |
+| Q2 (owner) | Bulk commercial writes? | No: the intake loader (D-DS3.2; row 11; D-3A3.1) |
 | Q3 | The "field gateway" half of the real-path slice | Central ingestion of the gateway's own Batch V2 bytes here; the field gateway's sealing stays proved by the Modbus and TEL acceptance tests (OD-22); DS4's world build runs the Lab gateway for its slice |
-| Q4 (owner) | Lines the generated world marks `ESTIMATED_NOT_RECEIVED` | Not loaded and not estimated: "Not available yet" naming the record (D-DS3.8; row 11) until a declared-estimate unit is queued |
+| Q4 (owner) | Lines the generated world marks `ESTIMATED_NOT_RECEIVED` | Not loaded and not estimated: "Not available yet" naming the record (D-DS3.8; row 12) until a declared-estimate unit is queued |
