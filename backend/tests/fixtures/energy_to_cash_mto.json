@@ -1,0 +1,1076 @@
+{
+ "_note": "4a spec \u00a75.5: Mto's register, reads and billing (\u00a75.1), Kobo's register, reads and adjustment (\u00a75.2), and one Kobo billed_kwh budget line (D-4A.21, version budget-2026-v1). File order 1, 2, 3, 2b, 3b, 4 (step 2b is two batches); `at` every 10 minutes from 2026-11-07T09:00Z, `produced_at` an hour before. Pseudonymised; tests assert figures only.",
+ "steps": [
+  {
+   "step": "1",
+   "at": "2026-11-07T09:00:00+00:00",
+   "entered_by": "service:test-4a",
+   "batch": {
+    "format_version": 1,
+    "tenant_code": "lakeside-power",
+    "source_type": "meter_register",
+    "source_system": "lakeside-mdm",
+    "provenance": "source-emulated",
+    "produced_at": "2026-11-07T08:00:00+00:00",
+    "records": [
+     {
+      "format_version": 1,
+      "kind": "METER_ASSIGNMENT",
+      "source_record_id": "M-0001:C-3001:2026-01-01",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-0001"
+      },
+      "clocks": {
+       "effective_from": "2026-01-01"
+      },
+      "body": {
+       "meter_ref": "M-0001",
+       "customer_ref": "C-3001"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "METER_ASSIGNMENT",
+      "source_record_id": "M-0099:C-0099:2026-01-01",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-0099"
+      },
+      "clocks": {
+       "effective_from": "2026-01-01"
+      },
+      "body": {
+       "meter_ref": "M-0099",
+       "customer_ref": "C-0099"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "METER_ASSIGNMENT",
+      "source_record_id": "M-OLD-1:C-0412:2023-05-01",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-OLD-1"
+      },
+      "clocks": {
+       "effective_from": "2023-05-01",
+       "effective_to": "2026-10-03"
+      },
+      "body": {
+       "meter_ref": "M-OLD-1",
+       "customer_ref": "C-0412"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "METER_ASSIGNMENT",
+      "source_record_id": "M-OLD-2:C-0413:2023-05-01",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-OLD-2"
+      },
+      "clocks": {
+       "effective_from": "2023-05-01",
+       "effective_to": "2026-10-03"
+      },
+      "body": {
+       "meter_ref": "M-OLD-2",
+       "customer_ref": "C-0413"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "METER_ASSIGNMENT",
+      "source_record_id": "M-OLD-3:C-0414:2023-05-01",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-OLD-3"
+      },
+      "clocks": {
+       "effective_from": "2023-05-01",
+       "effective_to": "2026-10-03"
+      },
+      "body": {
+       "meter_ref": "M-OLD-3",
+       "customer_ref": "C-0414"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "METER_ASSIGNMENT",
+      "source_record_id": "M-OLD-4:C-0415:2023-05-01",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-OLD-4"
+      },
+      "clocks": {
+       "effective_from": "2023-05-01",
+       "effective_to": "2026-10-03"
+      },
+      "body": {
+       "meter_ref": "M-OLD-4",
+       "customer_ref": "C-0415"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "METER_ASSIGNMENT",
+      "source_record_id": "M-OLD-5:C-0416:2023-05-01",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-OLD-5"
+      },
+      "clocks": {
+       "effective_from": "2023-05-01",
+       "effective_to": "2026-10-03"
+      },
+      "body": {
+       "meter_ref": "M-OLD-5",
+       "customer_ref": "C-0416"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "METER_ASSIGNMENT",
+      "source_record_id": "M-OLD-6:C-0417:2023-05-01",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-OLD-6"
+      },
+      "clocks": {
+       "effective_from": "2023-05-01",
+       "effective_to": "2026-10-03"
+      },
+      "body": {
+       "meter_ref": "M-OLD-6",
+       "customer_ref": "C-0417"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "METER_ASSIGNMENT",
+      "source_record_id": "M-2201:C-0412:2026-10-03",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-2201"
+      },
+      "clocks": {
+       "effective_from": "2026-10-03"
+      },
+      "body": {
+       "meter_ref": "M-2201",
+       "customer_ref": "C-0412"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "METER_ASSIGNMENT",
+      "source_record_id": "M-2202:C-0413:2026-10-03",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-2202"
+      },
+      "clocks": {
+       "effective_from": "2026-10-03"
+      },
+      "body": {
+       "meter_ref": "M-2202",
+       "customer_ref": "C-0413"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "METER_ASSIGNMENT",
+      "source_record_id": "M-2203:C-0414:2026-10-03",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-2203"
+      },
+      "clocks": {
+       "effective_from": "2026-10-03"
+      },
+      "body": {
+       "meter_ref": "M-2203",
+       "customer_ref": "C-0414"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "METER_ASSIGNMENT",
+      "source_record_id": "M-2204:C-0415:2026-10-03",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-2204"
+      },
+      "clocks": {
+       "effective_from": "2026-10-03"
+      },
+      "body": {
+       "meter_ref": "M-2204",
+       "customer_ref": "C-0415"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "METER_ASSIGNMENT",
+      "source_record_id": "M-2205:C-0416:2026-10-03",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-2205"
+      },
+      "clocks": {
+       "effective_from": "2026-10-03"
+      },
+      "body": {
+       "meter_ref": "M-2205",
+       "customer_ref": "C-0416"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "METER_ASSIGNMENT",
+      "source_record_id": "M-2206:C-0417:2026-10-03",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-2206"
+      },
+      "clocks": {
+       "effective_from": "2026-10-03"
+      },
+      "body": {
+       "meter_ref": "M-2206",
+       "customer_ref": "C-0417"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "step": "2",
+   "at": "2026-11-07T09:10:00+00:00",
+   "entered_by": "service:test-4a",
+   "batch": {
+    "format_version": 1,
+    "tenant_code": "lakeside-power",
+    "source_type": "meter_data_export",
+    "source_system": "lakeside-mdm",
+    "provenance": "source-emulated",
+    "produced_at": "2026-11-07T08:10:00+00:00",
+    "records": [
+     {
+      "format_version": 1,
+      "kind": "CUSTOMER_METER_READ",
+      "source_record_id": "M-0001:2026-10:2026-10-01",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-0001"
+      },
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-11-01"
+      },
+      "quantity": {
+       "value": "5400",
+       "unit": "kWh"
+      },
+      "body": {
+       "meter_ref": "M-0001",
+       "read_type": "INTERVAL"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CUSTOMER_METER_READ",
+      "source_record_id": "M-0099:2026-10:2026-10-01",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-0099"
+      },
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-11-01"
+      },
+      "quantity": {
+       "value": "40",
+       "unit": "kWh"
+      },
+      "body": {
+       "meter_ref": "M-0099",
+       "read_type": "INTERVAL"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CUSTOMER_METER_READ",
+      "source_record_id": "M-OLD-1:2026-10:2026-10-01",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-OLD-1"
+      },
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-10-03"
+      },
+      "quantity": {
+       "value": "0",
+       "unit": "kWh"
+      },
+      "body": {
+       "meter_ref": "M-OLD-1",
+       "read_type": "INTERVAL"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CUSTOMER_METER_READ",
+      "source_record_id": "M-OLD-2:2026-10:2026-10-01",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-OLD-2"
+      },
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-10-03"
+      },
+      "quantity": {
+       "value": "0",
+       "unit": "kWh"
+      },
+      "body": {
+       "meter_ref": "M-OLD-2",
+       "read_type": "INTERVAL"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CUSTOMER_METER_READ",
+      "source_record_id": "M-OLD-3:2026-10:2026-10-01",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-OLD-3"
+      },
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-10-03"
+      },
+      "quantity": {
+       "value": "0",
+       "unit": "kWh"
+      },
+      "body": {
+       "meter_ref": "M-OLD-3",
+       "read_type": "INTERVAL"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CUSTOMER_METER_READ",
+      "source_record_id": "M-OLD-4:2026-10:2026-10-01",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-OLD-4"
+      },
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-10-03"
+      },
+      "quantity": {
+       "value": "0",
+       "unit": "kWh"
+      },
+      "body": {
+       "meter_ref": "M-OLD-4",
+       "read_type": "INTERVAL"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CUSTOMER_METER_READ",
+      "source_record_id": "M-OLD-5:2026-10:2026-10-01",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-OLD-5"
+      },
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-10-03"
+      },
+      "quantity": {
+       "value": "0",
+       "unit": "kWh"
+      },
+      "body": {
+       "meter_ref": "M-OLD-5",
+       "read_type": "INTERVAL"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CUSTOMER_METER_READ",
+      "source_record_id": "M-OLD-6:2026-10:2026-10-01",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-OLD-6"
+      },
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-10-03"
+      },
+      "quantity": {
+       "value": "0",
+       "unit": "kWh"
+      },
+      "body": {
+       "meter_ref": "M-OLD-6",
+       "read_type": "INTERVAL"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CUSTOMER_METER_READ",
+      "source_record_id": "M-2201:2026-10:2026-10-03",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-2201"
+      },
+      "clocks": {
+       "effective_from": "2026-10-03",
+       "effective_to": "2026-11-01"
+      },
+      "quantity": {
+       "value": "31",
+       "unit": "kWh"
+      },
+      "body": {
+       "meter_ref": "M-2201",
+       "read_type": "INTERVAL"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CUSTOMER_METER_READ",
+      "source_record_id": "M-2202:2026-10:2026-10-03",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-2202"
+      },
+      "clocks": {
+       "effective_from": "2026-10-03",
+       "effective_to": "2026-11-01"
+      },
+      "quantity": {
+       "value": "27",
+       "unit": "kWh"
+      },
+      "body": {
+       "meter_ref": "M-2202",
+       "read_type": "INTERVAL"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CUSTOMER_METER_READ",
+      "source_record_id": "M-2203:2026-10:2026-10-03",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-2203"
+      },
+      "clocks": {
+       "effective_from": "2026-10-03",
+       "effective_to": "2026-11-01"
+      },
+      "quantity": {
+       "value": "22",
+       "unit": "kWh"
+      },
+      "body": {
+       "meter_ref": "M-2203",
+       "read_type": "INTERVAL"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CUSTOMER_METER_READ",
+      "source_record_id": "M-2204:2026-10:2026-10-03",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-2204"
+      },
+      "clocks": {
+       "effective_from": "2026-10-03",
+       "effective_to": "2026-11-01"
+      },
+      "quantity": {
+       "value": "25",
+       "unit": "kWh"
+      },
+      "body": {
+       "meter_ref": "M-2204",
+       "read_type": "INTERVAL"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CUSTOMER_METER_READ",
+      "source_record_id": "M-2205:2026-10:2026-10-03",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-2205"
+      },
+      "clocks": {
+       "effective_from": "2026-10-03",
+       "effective_to": "2026-11-01"
+      },
+      "quantity": {
+       "value": "18",
+       "unit": "kWh"
+      },
+      "body": {
+       "meter_ref": "M-2205",
+       "read_type": "INTERVAL"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CUSTOMER_METER_READ",
+      "source_record_id": "M-2206:2026-10:2026-10-03",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-2206"
+      },
+      "clocks": {
+       "effective_from": "2026-10-03",
+       "effective_to": "2026-11-01"
+      },
+      "quantity": {
+       "value": "17",
+       "unit": "kWh"
+      },
+      "body": {
+       "meter_ref": "M-2206",
+       "read_type": "INTERVAL"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "step": "3",
+   "at": "2026-11-07T09:20:00+00:00",
+   "entered_by": "service:test-4a",
+   "batch": {
+    "format_version": 1,
+    "tenant_code": "lakeside-power",
+    "source_type": "billing_export",
+    "source_system": "mto-vending",
+    "provenance": "source-emulated",
+    "produced_at": "2026-11-07T08:20:00+00:00",
+    "records": [
+     {
+      "format_version": 1,
+      "kind": "CHARGE",
+      "source_record_id": "MTO-CH-M-0001",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-0001"
+      },
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-11-01",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "2160.00",
+       "currency": "USD"
+      },
+      "quantity": {
+       "value": "5400",
+       "unit": "kWh"
+      },
+      "body": {
+       "account_ref": "C-3001",
+       "line_type": "USAGE",
+       "tariff_code": "T-MTO",
+       "tariff_class": "STANDARD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CHARGE",
+      "source_record_id": "MTO-CH-M-0099",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-0099"
+      },
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-11-01",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "0.00",
+       "currency": "USD"
+      },
+      "quantity": {
+       "value": "0",
+       "unit": "kWh"
+      },
+      "body": {
+       "account_ref": "C-0099",
+       "line_type": "USAGE",
+       "tariff_code": "T-MTO",
+       "tariff_class": "STANDARD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CHARGE",
+      "source_record_id": "MTO-CH-M-OLD-1",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-OLD-1"
+      },
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-11-01",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "0.00",
+       "currency": "USD"
+      },
+      "quantity": {
+       "value": "0",
+       "unit": "kWh"
+      },
+      "body": {
+       "account_ref": "C-0412",
+       "line_type": "USAGE",
+       "tariff_code": "T-MTO",
+       "tariff_class": "STANDARD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CHARGE",
+      "source_record_id": "MTO-CH-M-OLD-2",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-OLD-2"
+      },
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-11-01",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "0.00",
+       "currency": "USD"
+      },
+      "quantity": {
+       "value": "0",
+       "unit": "kWh"
+      },
+      "body": {
+       "account_ref": "C-0413",
+       "line_type": "USAGE",
+       "tariff_code": "T-MTO",
+       "tariff_class": "STANDARD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CHARGE",
+      "source_record_id": "MTO-CH-M-OLD-3",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-OLD-3"
+      },
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-11-01",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "0.00",
+       "currency": "USD"
+      },
+      "quantity": {
+       "value": "0",
+       "unit": "kWh"
+      },
+      "body": {
+       "account_ref": "C-0414",
+       "line_type": "USAGE",
+       "tariff_code": "T-MTO",
+       "tariff_class": "STANDARD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CHARGE",
+      "source_record_id": "MTO-CH-M-OLD-4",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-OLD-4"
+      },
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-11-01",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "0.00",
+       "currency": "USD"
+      },
+      "quantity": {
+       "value": "0",
+       "unit": "kWh"
+      },
+      "body": {
+       "account_ref": "C-0415",
+       "line_type": "USAGE",
+       "tariff_code": "T-MTO",
+       "tariff_class": "STANDARD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CHARGE",
+      "source_record_id": "MTO-CH-M-OLD-5",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-OLD-5"
+      },
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-11-01",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "0.00",
+       "currency": "USD"
+      },
+      "quantity": {
+       "value": "0",
+       "unit": "kWh"
+      },
+      "body": {
+       "account_ref": "C-0416",
+       "line_type": "USAGE",
+       "tariff_code": "T-MTO",
+       "tariff_class": "STANDARD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CHARGE",
+      "source_record_id": "MTO-CH-M-OLD-6",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-OLD-6"
+      },
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-11-01",
+       "recognition_period": "2026-10"
+      },
+      "amount": {
+       "value": "0.00",
+       "currency": "USD"
+      },
+      "quantity": {
+       "value": "0",
+       "unit": "kWh"
+      },
+      "body": {
+       "account_ref": "C-0417",
+       "line_type": "USAGE",
+       "tariff_code": "T-MTO",
+       "tariff_class": "STANDARD"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "ADJUSTMENT",
+      "source_record_id": "ADJ-MTO-2026-10-CLINIC",
+      "source_version": "1",
+      "site_code": "MTO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-0099"
+      },
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "recognition_period": "2026-10"
+      },
+      "quantity": {
+       "value": "40",
+       "unit": "kWh"
+      },
+      "body": {
+       "reason_code": "ADJ-CLINIC-ALLOW",
+       "authorised_by_ref": "P-OPS-1",
+       "applies_to": []
+      }
+     }
+    ]
+   }
+  },
+  {
+   "step": "2b",
+   "at": "2026-11-07T09:30:00+00:00",
+   "entered_by": "service:test-4a",
+   "batch": {
+    "format_version": 1,
+    "tenant_code": "lakeside-power",
+    "source_type": "meter_register",
+    "source_system": "lakeside-mdm",
+    "provenance": "source-emulated",
+    "produced_at": "2026-11-07T08:30:00+00:00",
+    "records": [
+     {
+      "format_version": 1,
+      "kind": "METER_ASSIGNMENT",
+      "source_record_id": "M-1:C-1001:2026-01-01",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-1"
+      },
+      "clocks": {
+       "effective_from": "2026-01-01"
+      },
+      "body": {
+       "meter_ref": "M-1",
+       "customer_ref": "C-1001"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "METER_ASSIGNMENT",
+      "source_record_id": "M-2:C-1002:2026-01-01",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-2"
+      },
+      "clocks": {
+       "effective_from": "2026-01-01"
+      },
+      "body": {
+       "meter_ref": "M-2",
+       "customer_ref": "C-1002"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "step": "2b",
+   "at": "2026-11-07T09:40:00+00:00",
+   "entered_by": "service:test-4a",
+   "batch": {
+    "format_version": 1,
+    "tenant_code": "lakeside-power",
+    "source_type": "meter_data_export",
+    "source_system": "lakeside-mdm",
+    "provenance": "source-emulated",
+    "produced_at": "2026-11-07T08:40:00+00:00",
+    "records": [
+     {
+      "format_version": 1,
+      "kind": "CUSTOMER_METER_READ",
+      "source_record_id": "M-1:2026-10:2026-10-01",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-1"
+      },
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-11-01"
+      },
+      "quantity": {
+       "value": "5045",
+       "unit": "kWh"
+      },
+      "body": {
+       "meter_ref": "M-1",
+       "read_type": "INTERVAL"
+      }
+     },
+     {
+      "format_version": 1,
+      "kind": "CUSTOMER_METER_READ",
+      "source_record_id": "M-2:2026-10:2026-10-01",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "subject": {
+       "kind": "METER",
+       "ref": "M-2"
+      },
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "effective_to": "2026-11-01"
+      },
+      "quantity": {
+       "value": "3645",
+       "unit": "kWh"
+      },
+      "body": {
+       "meter_ref": "M-2",
+       "read_type": "INTERVAL"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "step": "3b",
+   "at": "2026-11-07T09:50:00+00:00",
+   "entered_by": "service:test-4a",
+   "batch": {
+    "format_version": 1,
+    "tenant_code": "lakeside-power",
+    "source_type": "billing_export",
+    "source_system": "kobo-vending",
+    "provenance": "source-emulated",
+    "produced_at": "2026-11-07T08:50:00+00:00",
+    "records": [
+     {
+      "format_version": 1,
+      "kind": "ADJUSTMENT",
+      "source_record_id": "ADJ-KOBO-2026-10-STAFF",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "subject": {
+       "kind": "CUSTOMER",
+       "ref": "C-1001"
+      },
+      "clocks": {
+       "effective_from": "2026-10-01",
+       "recognition_period": "2026-10"
+      },
+      "quantity": {
+       "value": "45",
+       "unit": "kWh"
+      },
+      "body": {
+       "reason_code": "ADJ-STAFF",
+       "authorised_by_ref": "P-OPS-1",
+       "applies_to": []
+      }
+     }
+    ]
+   }
+  },
+  {
+   "step": "4",
+   "at": "2026-11-07T10:00:00+00:00",
+   "entered_by": "service:test-4a",
+   "batch": {
+    "format_version": 1,
+    "tenant_code": "lakeside-power",
+    "source_type": "budget_workbook",
+    "source_system": "lakeside-budget-2026",
+    "provenance": "source-emulated",
+    "produced_at": "2026-11-07T09:00:00+00:00",
+    "records": [
+     {
+      "format_version": 1,
+      "kind": "BUDGET_LINE",
+      "source_record_id": "BUD-2026-10:KOBO-001:billed_kwh",
+      "source_version": "1",
+      "site_code": "KOBO-001",
+      "clocks": {
+       "recognition_period": "2026-10"
+      },
+      "body": {
+       "factor_id": "billed_kwh",
+       "value": "8550",
+       "version_ref": "budget-2026-v1",
+       "line_ref": "billed_kwh"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

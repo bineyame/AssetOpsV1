@@ -106,3 +106,6 @@
 - L1: record the `STRUCTURE_PIN_MISSING -/<mechanism>` text ("-" in the key position, 3B1's format) in 3B2 spec §3 or rulings.
 - Residual: `pinned_category` raises KeyError when a pin's structure has no registry (should be a coded refusal).
 - Residual: nothing checks that a pin's own mechanism matches its key.
+
+## Pre-existing failures on main (found by DS3, 2026-11-21; DS3 mid-build ruling: own task)
+- `test_s4_evidence_decided_at_postgres` (10 tests) and `test_s2_rejection_placement` (1) fail identically on main 8eff70625. Route to their own task; check whether environmental first.

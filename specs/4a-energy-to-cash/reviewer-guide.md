@@ -14,7 +14,7 @@ unless a finding needs it; cite the builder's gate run at the same commit (`.ai/
    `NOT_AVAILABLE`, the stated cause and note; the only zeros are `adjustments_kwh`, `unmapped_kwh` and `billed_kwh`
    with the month's billing held (ZERO_WHEN_HELD, and its sources named). Evidence: each step of §2.4 is hit by the
    variant §5.4b names (test 2b, whose map keys equal its `STEPS` literal), and "never 0" holds on the evaluated
-   structure (PG1(e), PG3(a); D-4A.17). The registry's `absent` for `unexplained_loss_kwh` is unchanged and unread
+   structure (PG1(e): technical `LOSS_BAND_NOT_DECLARED`, unexplained `FEEDER_READINGS_GAP`; PG3(a); D-4A.17, D-4A.28). The registry's `absent` for `unexplained_loss_kwh` is unchanged and unread
    by 4a (test 8); the packet carries `R-ABSENT-META`.
 3. **Leaks keep their names.** Unmapped kWh is a join (D-4A.7), never `metered − adjustments − billed`; V12 is the
    check. Unexplained losses are not clamped (V12) and carry MODELLED.
@@ -67,6 +67,9 @@ unless a finding needs it; cite the builder's gate run at the same commit (`.ai/
 | P25 | billed 0 when the month has no charge (billed step 3 dropped) | test 2b V24 |
 | P26 | `BINDINGS_CHANGED` feeders summed anyway | test 2b V19 |
 | P27 | coverage given when the feeders are not `ONE_SET` | test 2b V26 |
+| P28 | the first of several assignments taken as the read's customer | test 2 V9d (D-4A.29) |
+| P29 | the largest band applied to total delivered instead of each feeder's own | test 2 V27 (486, not 6 x total) (D-4A.29) |
+| P30 | the assignment half of the `METER_REF_CONFLICT` step dropped | test 2 V18b (D-4A.29) |
 
 ## Not findings
 

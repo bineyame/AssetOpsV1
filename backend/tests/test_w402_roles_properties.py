@@ -98,7 +98,8 @@ class TestTypedProperties:
                        "generator-no-load-fuel-rate": ("L/h", "PHYSICAL"),  # FUEL-1 A1
                        "generator-no-load-fuel-rate-basis": ("state", "PHYSICAL"),
                        "fuel-level-sensor-accuracy": ("L", "PHYSICAL"),  # DIESEL-1 K1
-                       "fuel-level-sensor-accuracy-basis": ("state", "PHYSICAL")}
+                       "fuel-level-sensor-accuracy-basis": ("state", "PHYSICAL"),
+                       "technical-loss-band": ("%", "PHYSICAL")}  # 4a (D-4A.3)
         assert MINIGRID_PROPERTY_CARRIERS == {"pv-available-uncertainty": "INVERTER",
                                               "renewable-retained-margin": "AC_BUS",
                                               "backup-recovery-target": "AC_BUS",
@@ -106,7 +107,8 @@ class TestTypedProperties:
                                               "generator-no-load-fuel-rate": "GENERATOR",
                                               "generator-no-load-fuel-rate-basis": "GENERATOR",
                                               "fuel-level-sensor-accuracy": "FUEL_TANK",
-                                              "fuel-level-sensor-accuracy-basis": "FUEL_TANK"}
+                                              "fuel-level-sensor-accuracy-basis": "FUEL_TANK",
+                                              "technical-loss-band": "LOAD"}  # 4a (D-4A.3)
 
     @pytest.mark.parametrize(("component", "key", "value"), [
         ("pv-inverter", "pv-available-uncertainty", 0.0),
