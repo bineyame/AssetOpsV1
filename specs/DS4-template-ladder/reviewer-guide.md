@@ -1,6 +1,6 @@
 # DS4 reviewer guide
 
-Architect (Claude), 2026-11-21, rev 2 (handshake round 1: D-DS4.16 to D-DS4.24). Discovery review (W5): a new mechanism that decides what a "clean, good"
+Architect (Claude), 2026-11-21, rev 2 (handshake round 1: D-DS4.16 to D-DS4.25). Discovery review (W5): a new mechanism that decides what a "clean, good"
 database is, and one edit in the bulk load's seam. Read `spec.md`, `rulings.md`, then the diff. Done means every
 question of spec §7 answers yes with evidence and every plant below fails its named test. Run nothing heavy yourself
 unless a finding needs it; cite the builder's runs at the same commit (`.ai/ROLE_CONFIG.md`).
@@ -26,8 +26,8 @@ unless a finding needs it; cite the builder's runs at the same commit (`.ai/ROLE
 6. **The check is independent (W2) and total (D-DS4.16).** C4 reads `derived-values.json` and the snapshot payload
    directly; the expected values are never computed by product code; `C4_CONTRACT` equals spec §2.1 cell for cell
    (read the literal against the table yourself); every payload factor is judged (no `unchecked`), `E` by exact
-   equality with `None` never equal, `Z` at exactly 0, `B` blank with its record; `C4_KNOWN_FINDINGS` is empty unless
-   an Architect ruling filled it, and a known finding is still a FAIL. The spike's printout in the packet matches
+   equality with `None` never equal, `B` blank with its record (no zero class: D-DS4.25); `C4_KNOWN_FINDINGS` holds only the three
+   D-DS4.25 lines until 4a's fix merges, then nothing, and a known finding is still a FAIL. The spike's printout in the packet matches
    §2.1, or each difference has an Architect ruling. T1b and T9b read the manifest YAML and the derived values
    themselves, not through the tool. C2 compares the clone with the manifest's census recorded at build, not with
    itself. `check_passed` is reported only while `check_inputs` are unchanged (D-DS4.21).
@@ -70,7 +70,7 @@ unless a finding needs it; cite the builder's runs at the same commit (`.ai/ROLE
 | P17 | The check clone is not dropped when a check raises | T9 |
 | P18 | One factor removed from `C4_CONTRACT` | T9 (`uncontracted`), T9b |
 | P19 | C4 passes a `B` factor whatever its value | T9 |
-| P20 | C4 compares a `Z` factor with the pack's value | T9 (a `Z` at 0 against pack 45 fails) |
+| P20 | `adjustments_kwh` classed `E` or zero in `C4_CONTRACT` | T9b (counts and the B row) |
 | P21 | C4 skips factors that are absent from the derived values or the payload (rev 1's `unchecked`) | T9 (`uncontracted`, `not_in_product`) |
 | P22 | `harness_run` passes the parent's `ASSETOPS_TEST_DATABASE_URL` | T9 (the runner sees `assetops_test`) |
 | P23 | `harness_run` does not drop its base | T9 (no `DROP DATABASE` of the base) |

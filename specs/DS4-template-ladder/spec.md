@@ -1,6 +1,6 @@
 # DS4: the template ladder, the world commands and the re-benchmark (implementer spec)
 
-Status: rev 2, handshake round 1 answered (D-DS4.16 to D-DS4.24). Architect (Claude), 2026-11-21, on the owner's delegation
+Status: rev 2, handshake round 1 answered (D-DS4.16 to D-DS4.25). Architect (Claude), 2026-11-21, on the owner's delegation
 (`owner/owner-away-architect-decides-2026-11-21.md`; pull order `specs/OWNER-AWAY/decisions-2026-11-21.md` row 4;
 rows 33 to 36, 40 and 41 for the calls made here). `delivery-plan.md` §2 row `DS4`: "Template ladder, the world commands and the
 build manifest; the stage-by-stage re-benchmark of the build cost (delivery §5)" (2.5 units; depends on `DS3`; feeds
@@ -29,7 +29,7 @@ machine-wide (row 4), every database command through `tools/heavy-slot.sh --db`.
   `n_for`, `step`), `tools/heavy_slot_check.py` (`require`), `backend/tests/pg_harness.py` (`clone_database`,
   `drop_database`), `backend/tests/test_ds3_bulk_load_postgres.py` (`seed_database`, `kobo_days`, `DAY6`, `census`),
   `backend/tests/test_ds3_parity_postgres.py`, `Docs/demo-sprint/product-direction-layer4/derived-values.json`.
-- **Decisions:** `rulings.md` (D-DS4.1 to D-DS4.24). **Reviewer guide:** `reviewer-guide.md`. **Handshake:**
+- **Decisions:** `rulings.md` (D-DS4.1 to D-DS4.25). **Reviewer guide:** `reviewer-guide.md`. **Handshake:**
   `handshake.md`.
 
 ## 0. Before you start (gates; each is a hard stop)
@@ -111,21 +111,20 @@ tick, drain) join the ladder with the first world telemetry, and §4 measures th
 
 These are the classes of all 47 mini-grid factors in each Site snapshot of this world, the same at Kisiwa, Kobo and Mto,
 because every Site carries the same record kinds. They are held as the literal `C4_CONTRACT` in `tools/world.py`.
-`E`: must equal `derived-values.json` exactly. `Z`: must be exactly 0 (the world's record is in no native layout, and
-the product reads the held kind as a recorded zero). `B`: must be blank ("Not available yet"). `Src` says why a
+`E`: must equal `derived-values.json` exactly. `B`: must be blank ("Not available yet"). `Src` says why a
 factor is blank: **T** needs telemetry (no gateway, sources or binding set at the world's Sites); **R** needs a record
 that no native layout carries; **S** is blank on every database today (`structure/sources.py` `SOURCE_STATE`
 NOT_CONNECTED or HELD_NOT_CALCULATED, or no assumption published); **D** is a node blank because a part is blank.
 Unit 1's spike confirms the table (D-DS4.18). Cells marked † are the ones to read first if the spike differs.
 
-**Actual side** (`payload["actual"]`): 18 E, 1 Z, 28 B.
+**Actual side** (`payload["actual"]`): 18 E, 29 B.
 
 | Factor | Class | Src | Why (the record it names when blank) |
 |---|---|---|---|
 | `delivered_kwh` | B | T | `feeder_demand` readings; FEEDER_NOT_BOUND (`energy/rules.py` `delivered`) |
 | `technical_loss_kwh` | B | T | the declared band applied to feeder readings; FEEDER_NOT_BOUND |
 | `unexplained_loss_kwh` | B | T | `energy-to-cash@1` over feeder readings and meter reads |
-| `adjustments_kwh` | Z | R | ADJUSTMENT is in no layout (`unwritten.json`); the held CHARGE kind reads as zero (D-4A.8). Pack: 45 / 30 / 40 |
+| `adjustments_kwh` | B | R | ADJUSTMENT: no native layout carries it (NOT_CONNECTED, NEEDS:ADJUSTMENT; D-DS4.25). Pack: 45 / 30 / 40. Until 4a's fix merges, `main` reads 0: a known finding |
 | `unmapped_kwh` | B | R | CUSTOMER_METER_READ and METER_ASSIGNMENT are in no layout (NEEDS:METER_ASSIGNMENT) |
 | `tariff` | E | | billed money over billed kWh |
 | `productive_kwh` | E | | 0: CHARGE held, no productive line |
@@ -176,8 +175,8 @@ revenue, fuel_cost, om, staff, billed_kwh, diesel_l, tariff, diesel_price): 36 E
 | `obligation_hours_without_redundancy`, `obligation_hours_without_backup`, `shortfall_backed`, `asset_days_total`, `asset_days_available` | B | D: a part is blank |
 
 The money line the owner sees is whole: revenue, collected, fuel cost, O&M, staff, cost to serve and contribution are
-`E` on both sides. Kobo's fuel split (necessary, candidate, unexplained litres) is blank, as D-DS4.1 says. One figure
-differs from the pack and is not blank: `adjustments_kwh` reads 0 (row 41, owner to weigh in).
+`E` on both sides. Kobo's fuel split (necessary, candidate, unexplained litres) is blank, as D-DS4.1 says. No
+figure differs from the pack without being blank (row 41).
 
 ## 3. Design
 
@@ -402,20 +401,20 @@ or 4.
 `store.get(tenant_id, <the manifest's Site snapshot ids>)`, `codec.payload_of(row)` per row. For each Site row, with
 `name = definition.sites[payload["site_code"]]`, `expected = derived_values["sites"][f"{slug}/{name}"]`, judge side
 `actual` (`payload["actual"]`, expected `expected["actual"]["nodes"]`) and side `plan` (`payload["targets"]["values"]`,
-expected `expected["plan"]["nodes"]`). `C4_CONTRACT = {"actual": {factor: "E"|"Z"|"B"}, "plan": {...}}` is §2.1 as
+expected `expected["plan"]["nodes"]`). `C4_CONTRACT = {"actual": {factor: "E"|"B"}, "plan": {...}}` is §2.1 as
 a literal, 47 factors per side. For each factor `f` of the union of the payload side's keys and the contract side's
 keys, with `v` the product value (`None` when absent or null):
 - `f` is not in the contract: FAIL `uncontracted`. `f` is in the contract but not in the payload: FAIL `not_in_product`.
 - `E`: PASS only when `v is not None` and `Decimal(v) == Decimal(repr(expected[f]))`, with no tolerance. A `None` is
   never equal to anything, zero included: unknown is not zero.
-- `Z`: PASS only when `v is not None` and `Decimal(v) == 0`. The pack's value is printed beside it as `pack=<x>`.
 - `B`: PASS only when `v is None` and the entry carries `missing` (a leaf) or a non-empty `missing_leaves` (a node).
   The detail prints the `missing.record_kind`, or the missing leaves.
 C4 is PASS only when no factor FAILs; a known finding is still a FAIL. `C4_KNOWN_FINDINGS` (a literal tuple of
-`"<slug>/<code> <side>.<f> <finding id>"`, empty in rev 2, filled only by the Architect, D-DS4.16) changes no state: C4
+`"<slug>/<code> <side>.<f> <finding id>"`, filled only by the Architect, D-DS4.16; in rev 2 it holds the three
+`actual.adjustments_kwh D-DS4.25` lines until 4a's fix merges, then is emptied) changes no state: C4
 marks each FAIL line that it names `known` and every other FAIL line `new`, and T12 asserts that there are no `new`
 lines and that every known one appears. Detail: per Site and side, the
-E, Z and B counts; every FAIL as `<slug>/<code> <side>.<f> class=<c> product=<v> expected=<x>`; then the blank list
+E and B counts; every FAIL as `<slug>/<code> <side>.<f> class=<c> product=<v> expected=<x>`; then the blank list
 `<slug>/<code> <side>.<f> <record>`, the honesty list the packet shows. The portfolio row is not compared (it is
 composed from the Sites; the stated limit).
 
@@ -555,11 +554,11 @@ report and the packet. Nothing in §4 is a gate; no test asserts a time.
 - **T9 check.** With fakes for the check clone: a changed input file fails C1 naming it; a census differing in one
   table fails C2 naming it with both counts; `verify` exiting 4 fails C3; the oracle on hand payloads: equal values
   pass; a plan-side `E` mismatch fails (named); a `None` product value on an `E` factor whose expected value is `0.0`
-  fails (never equal); a `B` factor carrying a value fails; a `Z` factor reading 5 fails, and one reading 0 passes though the pack says 45; a payload factor not in the
+  fails (never equal); a `B` factor carrying a value fails; a payload factor not in the
   contract fails `uncontracted`, and a contract factor missing from the payload fails `not_in_product`; a payload
   that is all blank fails (its `E` factors). **T9b (independent, W2):** `C4_CONTRACT` read from the module has, for
   each side, exactly the keys of `derived_values["sites"]["lakeside-power/Kobo"][side]["nodes"]` read with `json`, with
-  §2.1's counts (actual 18 E, 1 Z, 28 B; plan 36 E, 11 B). **C5 (D-DS4.20):** with the parent's
+  §2.1's counts (actual 18 E, 29 B; plan 36 E, 11 B). **C5 (D-DS4.20):** with the parent's
   `ASSETOPS_TEST_DATABASE_URL` set to `.../assetops_test`, the runner receives `ASSETOPS_TEST_DATABASE_URL` naming the
   created `assetops_wc5_pt<hex>_base_test`, no `DATABASE_URL`, `ASSETOPS_TENANT_SLUG` or `ASSETOPS_PSEUDONYM_KEY_DIR`,
   and the heavy-slot markers; the recording admin saw `CREATE DATABASE` of the base before the run and `DROP DATABASE`
@@ -585,7 +584,7 @@ a module `finally` drops, through the tool, every database with the prefix, chil
   4 (three Sites and the portfolio row) and the observe step's exit 0. A second `build` creates nothing. `clone
   --label t1`: its census equals L2's. `check`: C1, C2, C3, C6 and C7 PASS; C4 PASS, or, when `C4_KNOWN_FINDINGS` is
   non-empty, FAIL with no `new` line (D-DS4.16; a difference here is a finding for the Architect, never a loosened
-  rule or an edited contract). C4's blank list equals §2.1's `B` rows for each Site.
+  rule or an edited contract). C4's blank list equals §2.1's `B` rows for each Site, less any factor `C4_KNOWN_FINDINGS` names.
 - **T13 drop order.** Dropping L0 is refused while L1 exists; dropping the clone, L2, L1 (its tenant's key file is
   erased: `key_state` reports it so; `keys_left` 0) and L0 leaves no database and no manifest with the prefix.
 - **T14 in use.** With a session open on clone `t2`, `drop` exits 2 `WORLD_DATABASE_IN_USE` and the database still
@@ -643,7 +642,7 @@ with their keys and sizes, the check's lines, the clones made and dropped, the m
 3. Is a template frozen before its manifest exists, never connected to afterwards, and dropped only without
    descendants or sessions, with its tenants' keys erased first (T5, T12 to T14)?
 4. Does `check` fail on each of: a changed input, a dirtied census, a snapshot that does not rebuild, a factor that
-   breaks §2.1's contract (an `E` unequal or blank, a `Z` not zero, a `B` with a value, a factor missing on either
+   breaks §2.1's contract (an `E` unequal or blank, a `B` with a value, a factor missing on either
    side), a parity break; does C5 run under its own base, never `assetops_test`; does a clone stop reporting
    `check_passed: true` once the derived values or the check code change; and does the real world pass, or fail only
    on Architect-recorded known findings (T6, T9, T9b, T12)?
@@ -676,4 +675,4 @@ replaced by the coordinator's pack change from the packet's numbers).
 | Q6 | The real-path slice in every world build (strategy §4) | Inside `world check` (C5) at the harness Site, never in the world (D-DS4.7) |
 | Q7 | Which tenants the world builds this fortnight | Those with an onboarding file: Lakeside only; Harvest Cold and Metro Bus listed `NO_ONBOARDING_FILE` (RC5: mini-grid first) (D-DS4.6) |
 | Q8 (owner, held) | May the coordinator create `/opt/assetecon/keys`, `/opt/assetecon/keys/world` and `/opt/assetecon/worlds` (0700) on the server? | **Held** (D-DS4.19; row 40). Units 1 and 2 proceed on temporary directories; unit 3's real runs wait |
-| Q9 (owner) | The world walkthrough shows the blanks of §2.1 and `adjustments_kwh` 0 where the pack says 45 / 30 / 40 | As §2.1: the billing layout carries no adjustment, and the product reads the held billing kind as zero (D-4A.8); C4 holds it to that (D-DS4.16; row 41; owner to weigh in) |
+| Q9 | The world walkthrough's blanks, and `adjustments_kwh` (pack 45 / 30 / 40) with no adjustments record | As §2.1: every blank names its record; `adjustments_kwh` is blank naming ADJUSTMENT, never 0, and D-4A.8 is amended on `main` (D-DS4.16, D-DS4.25; row 41) |

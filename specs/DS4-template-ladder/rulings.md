@@ -337,3 +337,27 @@ Rows 40 (held) and 41 of `specs/OWNER-AWAY/decisions-2026-11-21.md` log the owne
 - **Ruling.** Unit 1 is 1.5 (+0.25: the spike). Unit 2 is 1.25 (+0.2 for the total C4 contract and its tests, +0.1
   for the cover rule and the unreadable-time refusal, +0.1 for `harness_run`, +0.1 for check staleness). Unit 3 stays
   0.75. That is under the 6-unit rule.
+
+## D-DS4.25 `adjustments_kwh` is blank unless the operator sends adjustments; D-4A.8 amended on `main` (coordinator follow-up on row 41)
+
+- **Ruling.** Case (b). The billing layout (`layouts_v1.py` `billing-illustrative-1`) has kind CHARGE as a constant
+  and no adjustment column, and no native layout carries ADJUSTMENT. So the world has no adjustments record, and its
+  `adjustments_kwh` reads "Not available yet" naming ADJUSTMENT. It is never 0. This amends D-DS4.16. The class `Z` is
+  withdrawn, `adjustments_kwh` becomes a named `B` (Src R) on the actual side, and the actual side is now 18 E and
+  29 B. The plan side is unchanged (its LEAK_ZERO 0 is a labelled assumption).
+- **It affects 4a on `main` too.** D-4A.8's "zero when the month's billing is held and carries none" lets the CHARGE
+  kind stand in for the ADJUSTMENT record. `energy/rules.py` `adjustments` checks only `has_charge_kind`. D-4A.8 is
+  amended as follows: `adjustments_kwh` is NOT_CONNECTED, note `NEEDS:ADJUSTMENT`, unless the tenant holds the
+  ADJUSTMENT kind in any month (the connected rule of `money.py` step 1, D-4B.5). When it is held, a closed month with
+  charges and no adjustment line is a recorded 0: the operator sends adjustments and sent none.
+- **Sweep (W6).** I checked every ZERO_WHEN_HELD leaf against the kind its gate tests. `unmapped_kwh` tests its own
+  three kinds. `productive_kwh`, `in_transit` and `outstanding` test CHARGE and RECEIPT, which are their own records.
+  The litre and work-case leaves are blank. `adjustments_kwh` is the only breach.
+- **Routing.** This is finding `D-DS4.25` on 4a's leaf: a fix round of about 0.25 unit, separate from DS4 (a Sonnet
+  fix round). It touches `structure/energy/inputs.py` (`has_adjustment_kind` from the held kinds), `rules.py`
+  `adjustments`, 4a's tests that expect 0 with no ADJUSTMENT kind, and one new test: CHARGE held, ADJUSTMENT never
+  held, so NOT_CONNECTED `NEEDS:ADJUSTMENT`. Plant: gate on CHARGE again, and the new test fails. Until that fix
+  merges, `C4_KNOWN_FINDINGS` holds `lakeside-power/<code> actual.adjustments_kwh D-DS4.25` for KISIWA-001, KOBO-001
+  and MTO-001. It is emptied in the commit that merges after the fix.
+- **Why.** The owner's standing rule: a figure that needs a record the operator did not send reads "Not available
+  yet" and names that record. It is never 0.
