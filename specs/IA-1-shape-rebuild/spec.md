@@ -2,7 +2,7 @@
 
 Status: IA-1a, IA-1b, IA-1c merged (`bf9428ca3`); G2 seen by the owner ("UI looks ok for now", 21 Nov); IA-2a in_review (§5.1, `packet-IA-2a.md`)
 
-Architect (Claude), 2026-11-21, rev 5: IA-2a handshake folded in (D-IA.49 to D-IA.53, `rulings-3.md`); rev 4: IA-2a's full design (§5.1; D-IA.43 to D-IA.48 in `rulings-2.md`). Rev 3, 2026-11-20
+Architect (Claude), 2026-11-21, rev 6: IA-2a review round 1 answered (D-IA.54 to D-IA.57, `rulings-4.md`); rev 5: IA-2a handshake folded in (D-IA.49 to D-IA.53, `rulings-3.md`); rev 4: IA-2a's full design (§5.1; D-IA.43 to D-IA.48 in `rulings-2.md`). Rev 3, 2026-11-20
 (the IA-1b/IA-1c handshake folded in: D-IA.21 to D-IA.30; rev 2 folded in round 1,
 D-IA.15 to D-IA.20). This is the handshake format (`.ai/RULES.md` §4): this spec, `reviewer-guide.md`, `rulings.md`
 (D-IA.1 to D-IA.30, "Handshake answers (round 1)" and "IA-1b/IA-1c handshake answers"), `handshake.md` and
@@ -579,7 +579,9 @@ joins the slots in today's order.
 | IA-2d | Drawer and record page | Every drawer's address `?drawer=<kind>:<id>` (stable ids; the inbox and the driver drawers included; Back restores it); the incident, maintenance, right and record drawers; `finding/:id`, `action/:id`; `results`, `evidence` (Coverage, Records, Imports); `site/:site/evidence` | Every drawer has an address and closes with Esc. G1's drawer nodes move onto the addressed hrefs, and its Finding surface moves to the Finding page. The stepper gains "Verified" once Results holds verdicts |
 | IA-2e | Statement | `financials` (Statement, Budget & targets, Prices); `site/:site/financials`; `settings` (four tabs); the Lab's own content only (its gate is built in IA-1a, D-IA.19) | Reconciliation (the statement against the headings, all operators). Final sweep: every one of the 184 manifest routes plus `plan` resolves to a live route, an alias or not-found, and `rebase_v70.py` renders nothing routed |
 
-### 5.1 IA-2a: the plan shape (rev 5; D-IA.43 to D-IA.48 in `rulings-2.md`, D-IA.49 to D-IA.53 in `rulings-3.md`)
+### 5.1 IA-2a: the plan shape (rev 6; D-IA.43 to D-IA.48 in `rulings-2.md`, D-IA.49 to D-IA.53 in `rulings-3.md`, D-IA.54 to D-IA.57 in `rulings-4.md`)
+
+**Rev 6 (review round 1) overrides rev 5 where they differ; read `rulings-4.md` "IA-2a review answers (round 1)".** In short: L1 gains the already-released clause and every live route's figures for one quantity reconcile, checked by `qty_check.cjs` (D-IA.54); a tab switch whose content would start below the fold moves the tab strip to the top, on every tab group (D-IA.55); an IA tile row fills its row (D-IA.56); the `rightsM` date comes from `fdate(AS_OF)`, and the case link's `#sw-h` is ratified (D-IA.57).
 
 **Rev 5 overrides rev 4 where they differ; read `rulings-3.md` "IA-2a handshake answers" with this section.** In short: checks run forced (`IA_FORCE_LANDED=IA-2a`, D-IA.49); the recommended stop is the end of 3(a); `crew` and `listed` are full width; L1 gains the case line (D-IA.51); `parts_identity` sets plan states (D-IA.50); the plan item's decision depth is 3 and reported only (D-IA.53); `ia_gates` runs `plan_switch_check` and uxi plants.
 
@@ -662,7 +664,7 @@ and for Review and History (no side panel; their content does not depend on the 
 #### 5.1.3 L1: the plan's header (D-IA.44, D-IA.45)
 
 `iaPlanHead(op, p)` returns
-`${iaPlanStepper(op)}${iaPlanBand(op, p.P, p.budget)}${p.ap.releases}${p.ap.notice}{case line, D-IA.51}<p class="ia-plan-rules">${uxOpener('ia-plan-thresholds', 'Release thresholds', 'ux-link')}</p>`.
+`${iaPlanStepper(op)}${iaPlanBand(op, p.P, p.budget)}${p.ap.releases}${iaPlanReleased(op)}${p.ap.notice}{case line, D-IA.51; its link `#sw-h` on Items and Left out, `#/plan` on Review and History, D-IA.57}<p class="ia-plan-rules">${uxOpener('ia-plan-thresholds', 'Release thresholds', 'ux-link')}</p>`.
 
 - **The stepper.** `const IA_PLAN_STEPS = ['DRAFT', 'PROPOSED', 'APPROVED', 'CLOSED']`. `iaPlanSteps(state)` (pure)
   returns `{ steps: IA_PLAN_STEPS.map(s => STATE_WORD[s]), cur }`, `cur` = 1 for `REVISED`, else
@@ -721,6 +723,9 @@ Untouched (no line of the diff): `uxPlanSticky`, `uxPlanStateChip`, `uxPlanActio
   {limit}"; meter name "{used} of {limit} {crew word}" or "… in {Month}".
 - Opener and drawer title: "Release thresholds".
 - Case line (only when the case is not the proposal): "Showing the case you chose: {label}. Change the case" (D-IA.51).
+- Already-released clause (only when the case holds an item released at creation): "Already released when its Action
+  was created, within the release thresholds: {item} ({$})." or, for several, "… when their Actions were created …"
+  with "{item} ({$})" joined by "; " (D-IA.54).
 - History: title "Versions and approvals"; sub "Version {n}, {state word in lower case}"; rows "Version {n} proposed",
   "Opened within the executive’s limits", "The system · {date}"; note "Changes made here are shown in this demonstration
   only."
@@ -737,7 +742,9 @@ plan row (`#/plan`), the badge rule, the Overview's plan tile and its "Review th
 **Changes:** the IA `plan` page (the interim, §2.6) becomes the plan shape; three tab routes; the L1 gains the stepper
 and one crew meter per month; the approval panel leaves the page (R757); Left out, Listed beside and the returned
 Actions move to the Left out tab; "The plan's review" appears on Review; History is new; tabbed routes may set
-`docTitle`; `ia.css` gains `.ia-plan-steps{margin:0 0 var(--s3,12px)}` and `.ia-plan-rules{margin:var(--s2,8px) 0 0}` only.
+`docTitle`; `ia.css` gains `.ia-plan-steps{margin:0 0 var(--s3,12px)}` and `.ia-plan-rules{margin:var(--s2,8px) 0 0}`,
+and from rev 6 `.ia-plan-released{margin:var(--s2,8px) 0 0}`, `[data-ia-tabs]{display:contents}` and the two tile-row
+rules of D-IA.56 (every IA tile row). The frame gains the tab-switch scroll (D-IA.55, every tab group).
 
 #### 5.1.8 Gates and plants that must fail (D-IA.48)
 
@@ -751,6 +758,8 @@ Actions move to the Left out tab; "The plan's review" appears on Review; History
 | `click_depth_check.cjs` | new surfaces `plan tab: Left out`, `Review`, `History`, each ≤ 2 via `any` | `G1_PLANT=plantabs` (the Plan group returns Items only) |
 | `plan_switch_check.cjs` (retargeted, §2.1) | the budget figure from L1's spend tile; one crew tile with one meter per month with a stated limit, used of limit as the evaluator's; the release line from L1; Actions from `plan` and `plan/left-out` under the same switches | `PSW_PLANT=crewtile` (the last month's tile dropped; host Lakeside), `release` (the line of the default case), `leftout` (no `p.returned`); hosts of the last two: Lakeside 6500/No, Harvest No, Metro No |
 | `ux_interaction_check.cjs` | the plan block's `r.n >= 4` becomes `>= 2` on `plan`, plus `plan/left-out` with at least 2 answer-titled sections, each answered; the M1 "every page agrees after Approve" routes gain the three tabs; on a tab too short to scroll the band away, the band's Approve stays in view (D-IA.48) | `UXI_PLANT=planans` (Left out's answers emptied), `planwait` (History's sub says "awaiting approval" after Approve) |
+| `tools/qty_check.cjs` (new, jsdom, run by `ia_gates.cjs`; rev 6, D-IA.54) | on every live route × operator × plan state × case, figures of one key (`data-qty` in IA markup, the `QTY` table for reviewed markup) reconcile: parts sum to the total, totals agree; a `QTY` row that finds nothing where named fails | `QTY_PLANT=clause` (clause omitted), `wait` (clause sums the waiting items) |
+| `ia_shots.cjs` tab switch and tile rows (rev 6, D-IA.55, D-IA.56) | every tab group × operator × 390, 1280 × 720, 1440: after a switch the tab content shows ≥ 48 px in view, the active tab is in view and focused; `scrollY` 0 on plan routes at 1440 and 1280; every IA tile row's last tile ends at the row's right edge (± 2 px) | `SHOTS_PLANT=tabnoscroll`, `tabscrollall`, `tilefill` |
 | `ia_shots.cjs` (heavy slot) | the four routes join its route list (fit, truncate and crumbs clauses, D-IA.37 to D-IA.41); at 1440 × 900 and 1280 × 720 the band's Approve is inside the first viewport | `SHOTS_PLANT=approvefold` (a 900 px block before the band) |
 
 `after_render_check` and `shape_check` items 1 to 9 cover the new routes by construction (every live route).
@@ -782,7 +791,9 @@ discovery review. 5c touches no `vNEXT/` file, so neither lane waits on the othe
 three plants failing; `parts_identity.cjs` reports every `planScreen` and `whatChangedScreen` case byte-identical; G1
 prints the plan (≤ 1), each plan tab (≤ 2), the plan item's decision (3, reported, D-IA.53) and the proposed plan via the inbox (≤ 2);
 the Approve journey reads dialog, toast with Undo, stepper on Approved, badge down by one, History's new first row, on
-every tab; every new plant fails in `ia_gates.cjs`' table.
+every tab; every new plant fails in `ia_gates.cjs`' table. Rev 6: on every plan route and state the spend tile equals the
+release line plus the already-released clause (`qty_check`); at 390 every tab switch shows its tab's content; the
+packet carries the D-IA.54 sweep list, the D-IA.56 changed-row list and the template-date count (D-IA.57).
 
 **`MOCK DEVIATION`s** (rows in `.agent/mock-departure-register.md`, a line each in the packet):
 - **R757** D2: the approval panel is not on the plan page; its parts are placed once (§5.1.2).

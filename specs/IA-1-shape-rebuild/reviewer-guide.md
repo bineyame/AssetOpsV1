@@ -1,4 +1,4 @@
-# IA-1 reviewer guide (rev 4: the IA-2a section added at the end; rev 3 after the IA-1b/IA-1c handshake; review each unit separately)
+# IA-1 reviewer guide (rev 5: IA-2a round 2 added; rev 4: the IA-2a section added at the end; rev 3 after the IA-1b/IA-1c handshake; review each unit separately)
 
 You are the fresh Reviewer.
 - **At the handshake:** read `spec.md`, `rulings.md` and this guide, plus the proposal page
@@ -172,6 +172,15 @@ Read `spec.md` §5.1, §6 to §8 and `rulings-2.md` D-IA.43 to D-IA.48, plus the
 - **Q6 Phone and laptop.** At 390: no sideways scroll, the four tabs reachable, the sticky bar with Approve, the
   thresholds drawer opens and Esc closes it with focus back on its opener. At 1280 × 720 the top bar keeps its D-IA.41
   form.
+
+**Round 2 (rev 6, `rulings-4.md` D-IA.54 to D-IA.57).** Verification depth. Check: (a) on each operator, tile spend
+= release-line spend + clause, in the three states and a non-default case; the two `QTY_PLANT`s fail; (b) the packet's
+sweep list of screens that show one quantity twice, and look yourself at the Overview and one Site hub; (c) at 390,
+switch each tab of Plan and Portfolio: the tab's content is on the first screen, the active tab focused; at 1440 and
+1280 × 720 nothing scrolls and Approve stays in view; the three `SHOTS_PLANT`s fail; (d) Harvest and Metro's three tiles
+fill the row at 1440 and 390, and the packet's list of other IA rows that changed; (e) `hand_typed_scan` count 0 on the
+branch, `parts_identity` 282/282; (f) the case link `href` asserted per tab; (g) no change outside D-IA.54 to D-IA.57.
+Class sweep added: any total shown beside a part of it, on any live route, without the rest stated.
 
 **Class sweeps (W6).** One fragment placed twice or not at all (the placement table against the rendered four tabs).
 One state read outside `uxPlanState` (the grep above). One meter form other than `uxMeterBar` on an IA plan route. One
