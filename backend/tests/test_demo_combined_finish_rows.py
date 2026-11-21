@@ -885,8 +885,14 @@ def test_kis8_protect_passes_on_the_node_line_and_fails_otherwise() -> None:
         rows.kis8_protect(_kis8_summary(line_text="something else"), date(2026, 10, 14))
     with pytest.raises(AssertionError):
         rows.kis8_protect(_kis8_summary(), date(2026, 10, 15))
+    # c80af21be (2026-11-13): low + high of ONE fuel range is not a combined total, so it no longer fails UF1.
+    rows.kis8_protect(_kis8_summary(amount_detail="199.50 USD in all"), date(2026, 10, 14))
+    # A fuel amount added to ANOTHER amount (here the Optimize earnings claim) still fails: 76.55 + 10.00.
+    other = _kis8_summary(amount_detail="86.55 USD in all")
+    other["sites"][0]["rows"].append({"category": "OPTIMIZE_COST", "nodes": {"earnings": {
+        "value": {"currency": "USD", "amount": "10.00"}}}})
     with pytest.raises(AssertionError):
-        rows.kis8_protect(_kis8_summary(amount_detail="199.50 USD in all"), date(2026, 10, 14))  # low + high
+        rows.kis8_protect(other, date(2026, 10, 14))
 
 
 # ---- DIESEL-K9: COH-10's Kisiwa fuel thread (DIESEL-1-R3p §9p.7 item 5) ------------------------------------------------
