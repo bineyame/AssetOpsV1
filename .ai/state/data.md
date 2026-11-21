@@ -495,3 +495,10 @@ Branch `task/0K1-forward-replay` (base main `3bdf3c81d`); spec `specs/0K1-forwar
 
 - Settled: `assetops_contracts/forward_replay.py` (request, projection, `FORWARD_REPLAY_REFUSALS`, Fraction-only fields); `runs/replay_port.py` `ForwardReplayPort` (one method; `LabExecutionPort` unchanged); `host/forward_replay.py` `HostForwardReplay`, `replay_inputs` (spec §2.4 order), `project`, `REPLAY_MODELS` mini-grid v5-v7. Replays of K-BASE (v5, v6, v7), K-START, K-STOP, K-RES and K-CLIP equal the kernel's own trajectories exactly.
 - Open: mid-build Q1 (P2 is caught by T10, not T1: the projection depends on loads only through their sum) and Q2 (P4 is caught by T10, not T4); defaults applied. Calibration, the 61-day window, gap fill and composing the port are `0K2`/`6c`.
+
+## 4a - Energy to cash, where the kWh went (in review, 21 Nov)
+
+Branch `task/4a-energy-to-cash` (base main `aa3ebefe8`); spec `specs/4a-energy-to-cash/spec.md` rev 2, rulings D-4A.1-26; packet `packet.md`; mid-build Q1-Q2 (defaults applied). No migration, no guard edit, no route, no screen, no served text.
+
+- Settled: MINI_GRID registry v4 (`metered_kwh` stated by customer meter reads, `billed_kwh` by the billing export); `structure/energy/` (pure `rules.month_energy` for the eight energy factors, `StoreEnergyInputs`, `EnergyLeafSource` as the fifth builder in `build_structure_read`); `MiniDepthRead.feeder_month` (roles-4 `feeder_demand`, SELECT only); the `technical-loss-band` LOAD property (below 100); 5a `MAIN_OF` tuples (`delivered_kwh` under `billed_kwh`, then `revenue`). Every absence is "Not available yet" with a cause and note, never 0.
+- Open: 5c's record keys wait on 5c and SC-1a (D-4A.12, D-4A.20); `R-ABSENT-META` (`unexplained_loss_kwh` keeps `ZERO_WHEN_HELD`, unread; manifest change queued with D-4A.10); stored v3 snapshots read `REBUILD_NEEDED` until 3B7a rebuilds them (D-4A.25).

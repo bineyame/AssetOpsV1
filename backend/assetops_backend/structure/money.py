@@ -24,6 +24,7 @@ from assetops_backend.structure.evaluate import ORIGIN_ORDER, LeafValue, Missing
 from assetops_backend.structure.read import SITE_TYPE_TO_STRUCTURE
 from assetops_backend.structure.registry import FilledBy
 from assetops_backend.structure.sources import (
+    ENERGY_STATED,
     PROVIDED,
     PROVIDED_ELSE_ASSUMED,
     SOURCE_STATE,
@@ -171,6 +172,8 @@ class CommercialLeafSource:
         return self._fallback.leaf(ctx, factor_id)
 
     def stated(self, ctx: ReadContext, factor_id: str) -> LeafValue:
+        if factor_id in ENERGY_STATED:  # 4a: read without the energy source, the node folds from its expression
+            return _absent(_MG.row(factor_id).stated_by, "NOT_CONNECTED")
         key = SITE_TYPE_TO_STRUCTURE.get(ctx.site.site_type)
         if key is None or STATED_STATE.get(key, {}).get(factor_id) != PROVIDED or factor_id not in _ROWS:
             raise StructureError("STRUCTURE_STATED", str(key), factor_id)

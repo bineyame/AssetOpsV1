@@ -85,7 +85,7 @@ def test_t1_own_home_map_categories_are_the_catalogue_codes():
 
 
 def test_t1_47_rows_31_leaves_16_nodes():
-    assert MG.structure_key == "MINI_GRID" and MG.version == 3
+    assert MG.structure_key == "MINI_GRID" and MG.version == 4  # 4a (D-4A.1)
     assert len(MG.rows) == 47
     assert sum(r.is_leaf for r in MG.rows) == 31
     assert sum(not r.is_leaf for r in MG.rows) == 16

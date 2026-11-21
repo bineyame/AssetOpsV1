@@ -42,9 +42,10 @@ TARGET_RULE: Mapping[str, Mapping[str, str]] = MappingProxyType({
     ),
 })
 
-#: Structure key -> MAIN leaf -> its stated heading.
-MAIN_OF: Mapping[str, Mapping[str, str]] = MappingProxyType({
-    "MINI_GRID": MappingProxyType({"delivered_kwh": "revenue", "necessary_l": "fuel_cost"}),
+#: Structure key -> MAIN leaf -> its stated headings, nearest first. 4a (D-4A.9): the main leaf is solved under the
+#: first heading whose stated target has a value.
+MAIN_OF: Mapping[str, Mapping[str, tuple[str, ...]]] = MappingProxyType({
+    "MINI_GRID": MappingProxyType({"delivered_kwh": ("billed_kwh", "revenue"), "necessary_l": ("fuel_cost",)}),
 })
 
 

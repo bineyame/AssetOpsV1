@@ -11,6 +11,10 @@ snapshots and the prices; `CommercialLeafSource` serves the money leaves and the
 
 4d (spec §4.3): the litre inputs (`structure.litres.composition.build_litre_inputs`) are built fourth;
 `LitreLeafSource` serves the three litre leaves between the commercial source and `ProductLeafSource`.
+
+4a (spec §4.3): the energy inputs (`structure.energy.composition.build_energy_inputs`, over the commercial store
+already built) are built fifth; `EnergyLeafSource` serves the energy leaves and the stated kWh nodes in front of the
+commercial source.
 """
 
 from __future__ import annotations
@@ -38,6 +42,8 @@ def build_structure_read(database_url: str | None) -> StructureReadService:
     from assetops_backend.chain.reader import SnapshotReader
     from assetops_backend.commercial.composition import build_commercial_reads
     from assetops_backend.financials.composition import build_window_price_selection
+    from assetops_backend.structure.energy.composition import build_energy_inputs
+    from assetops_backend.structure.energy.source import EnergyLeafSource
     from assetops_backend.structure.litres.composition import build_litre_inputs
     from assetops_backend.structure.litres.source import LitreLeafSource
     from assetops_backend.structure.money import CommercialLeafSource
@@ -64,16 +70,26 @@ def build_structure_read(database_url: str | None) -> StructureReadService:
         prices.dispose()
         reads.dispose()
         raise
+    try:
+        energy_inputs = build_energy_inputs(database_url, reads.store)
+    except BaseException:
+        snapshots.dispose()  # L1, 4a: the fifth builder's failure disposes the four before it
+        prices.dispose()
+        reads.dispose()
+        litres.dispose()
+        raise
 
     def dispose() -> None:
         snapshots.dispose()
         prices.dispose()
         reads.dispose()
         litres.dispose()
+        energy_inputs.dispose()
 
     fallback = ProductLeafSource(SnapshotReader(snapshots), prices.select, _utc_now)
     source = CommercialLeafSource(reads.months, reads.store, LitreLeafSource(litres.inputs, fallback, _utc_now))
-    return StructureReadService(StructureRead(source, stated=source), dispose)
+    energy = EnergyLeafSource(energy_inputs.inputs, source, _utc_now)
+    return StructureReadService(StructureRead(energy, stated=energy), dispose)
 
 
 __all__ = ["StructureReadService", "build_structure_read"]

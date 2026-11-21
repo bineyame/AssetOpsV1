@@ -288,6 +288,11 @@ COMPONENT_PROPERTY_DEFINITIONS: dict[str, PropertyDefinition] = {
     "fuel-level-sensor-accuracy-basis": PropertyDefinition(
         unit="state", kind="PHYSICAL", display_name="Fuel level sensor accuracy basis"
     ),
+    # 4a (D-4A.3): the share of a feeder's delivered energy expected to be lost before a customer meter; read by
+    # structure/energy.
+    "technical-loss-band": PropertyDefinition(
+        unit="%", kind="PHYSICAL", display_name="Expected technical loss"
+    ),
 }
 
 #: W2-05a: the component type that must carry each EV property.
@@ -344,6 +349,7 @@ MINIGRID_PROPERTY_CARRIERS: dict[str, str] = {
     "generator-no-load-fuel-rate-basis": "GENERATOR",  # FUEL-1 A1
     "fuel-level-sensor-accuracy": "FUEL_TANK",  # DIESEL-1 K1
     "fuel-level-sensor-accuracy-basis": "FUEL_TANK",  # DIESEL-1 K1
+    "technical-loss-band": "LOAD",  # 4a (D-4A.3): per feeder
 }
 #: W4-02 closure 4 N2: the mini-grid depth properties that must be strictly positive (the other two are
 #: nonnegative, which the shared parser already enforces for every unsigned unit). DIESEL-1 K1: an accuracy of

@@ -29,6 +29,7 @@ from assetops_backend.structure.expressions import (
 )
 from assetops_backend.structure.registry import ABSENT, COMPOSES, FAMILIES, HOMES, Registry
 from assetops_contracts.canonical.factors import LEAF_FACTORS, STRUCTURE_KEYS, leaves_of
+from assetops_contracts.canonical.units import KWH
 
 _ABOVE, _CALENDAR = HOMES["above"], HOMES["calendar"]
 _PLACEMENTS = frozenset({_ABOVE, _CALENDAR})
@@ -183,11 +184,12 @@ def _composes(ctx: _Context) -> None:
 
 
 def _stated(ctx: _Context) -> None:
-    """4b1 (D-4B.1, D-4B.17): a record states only a summed money node's total, and is a commercial record."""
+    """4b1 (D-4B.1, D-4B.17), 4a (D-4A.1): a record states only a summed money or kWh node's total, and is a
+    commercial record."""
     for row in ctx.reg.rows:
         stated = row.stated_by
         if stated is not None and (row.is_leaf or stated.family != "COMMERCIAL_RECORD" or row.composes != "SUM"
-                                   or not row.unit.is_money):
+                                   or not (row.unit.is_money or row.unit == KWH)):
             raise ctx.refuse("STRUCTURE_STATED", row.factor_id)
 
 
