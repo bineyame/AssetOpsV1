@@ -1,8 +1,10 @@
 # ENV-1 review packet
 
-Branch `task/ENV1-parse-limits` (base `main` `e9d6cdfb1`): unit 1 `a001d6835`, unit 2 `2cc9a941d`, packet commit after.
+Branch `task/ENV1-parse-limits` (base `main` `e9d6cdfb1`): unit 1 `a001d6835`, unit 2 `2cc9a941d`, packet `351e1df92`,
+conftest order and index cap `2a4d93cae`.
 Spec `spec.md` rev 2, rulings D-ENV1.1-17. `USER_REVIEW_REQUIRED: false`. Mid-build questions: 0.
-Evidence: `/opt/assetecon/evidence/ENV1/2026-11-21-preflight/` (every pre-flight run as JSON lines, the plants log, the slow log).
+Evidence: `/opt/assetecon/evidence/ENV1/2026-11-21-preflight/` (every pre-flight run as JSON lines, the plants log, the
+slow log) and `.../2026-11-21-checks/` (Postgres, check-all, reruns).
 
 ## 1. Pre-flight (spec §0, on `main` `e9d6cdfb1` in a detached checkout, scratch launcher deleted)
 
@@ -66,8 +68,9 @@ New: `backend/assetops_backend/parse_slots.py`, `backend/tests/test_env1_parse_s
 - `field/tests/test_field_csv_upload.py` 24 passed; `host/tests/test_up1_reading_upload_process.py -m "not slow"` 29
   passed; `backend/tests/test_up1_reading_upload.py` 53 passed.
 - Slow (`-m slow`, H6 + H6s, revision `2cc9a941d`): 3 passed in 212.9 s.
-- UP-1 Postgres (`run-host-tests.ps1` via `heavy-slot --db`): see section 8.
-- `check-architecture.ps1`: pass. `check-agent-workflow.ps1` and fast `check-all.ps1`: section 8.
+- UP-1 Postgres (`run-host-tests.ps1` via `heavy-slot --db`; `test_up1_reading_upload_flow_postgres.py` with the real
+  field process and gateway, `test_up1_reading_upload_postgres.py`): 8 passed in 172 s.
+- `check-architecture.ps1`: pass. `check-agent-workflow.ps1`: pass. Fast `check-all.ps1`: section 8.
 - `select-tests.py --base main`: "full (574 of 574)" because both conftests changed; the full suite is the
   coordinator's to schedule (not run).
 
@@ -79,6 +82,11 @@ V16 A2; V17 S2b; V18 H0 and H6s F2 (384 MiB); V19 L10b.
 
 ## 7. Known deviations and residuals
 
+- **Conftest order (guard-forced).** Spec §2.5 and D-ENV1.13 say the namespace line is the *first* statement of each
+  `pytest_configure`; T1's heavy-slot tripwire (`tools/checks/test_heavy_slot_inventory.mjs`) fails unless the first
+  statement is the heavy-slot `require(`, and no guard change is allowed. The line is the second statement, right
+  after that one-line `require` (which either exits pytest or continues) and before every early `return`, so the
+  ruling's purpose holds: S6 passes plain and under `-n 2`; plant V15 (after the worker `return`) still fails S6.
 - Existing host test `test_send_reads_the_field_summary` asserted `argv[3] == "send"`; the four limit arguments move it
   to `argv[7]` (an index change beside the `limits=`/`step=` edits the spec allows).
 - `open_site`'s 503 `READING_UPLOAD_UNAVAILABLE` (the Site scope's store unavailable) is not a parse 503 and is not
@@ -91,4 +99,6 @@ V16 A2; V17 S2b; V18 H0 and H6s F2 (384 MiB); V19 L10b.
 
 ## 8. Late checks
 
-(filled below)
+Fast check-all at `351e1df92`: 2 of 40 failed (T1 tripwire, see section 7; `.ai/state/index-2.md` 8,060 bytes over
+the 8,000 cap, fixed by a shorter line, 7,976). After `2a4d93cae`: 40 of 40 blocking guards pass, exit 0, 750 s wall (slot wait included).
+Reruns at `2a4d93cae`: `test_env1_parse_slots.py -n 2` 8 passed; host UP-1 file 29 passed (1 slow deselected).
