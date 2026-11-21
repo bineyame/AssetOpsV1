@@ -25,7 +25,7 @@
 - `D-DDR.2` The unseen shape is the board budget XLSX, replacing the emulated budget · live · specs/DDR-rehearsal/rulings.md
 - `D-DDR.3` Each gate reads its own step's records, never another gate's output · live · specs/DDR-rehearsal/rulings.md
 - `D-DDR.4` "Not yet reconciled" shown before "reconciled" (a mismatching first statement) · live · specs/DDR-rehearsal/rulings.md
-- `D-DDR.5` DDR waits for 3C2 · live · specs/DDR-rehearsal/rulings.md
+- `D-DDR.5` DDR waits for 3C2 · live; amended by D-DDR.14 · specs/DDR-rehearsal/rulings.md
 - `D-DDR.6` One read added to the snapshot store: portfolio_history · live · specs/DDR-rehearsal/rulings.md
 - `D-4D.10` Generator readings checked day by day (held); none, or a day without, is Not available yet, never 0 L · live · specs/4d-litre-split/rulings.md
 - `D-4D.11` necessary_l = all generator litres of the month less candidate; unclassified running counts as necessary · live · specs/4d-litre-split/rulings.md

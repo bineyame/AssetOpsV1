@@ -81,3 +81,91 @@ stated figures to 9,688.00 revenue and 4,995.00 fuel cost.
   holds it under 3C0a's role table, or S5 exits 2 `PERSON_ROLE_REQUIRED`.
 - **P3 (Low) The fuel text depends on 4d unit 3** (`LitreLeafSource` wired in `build_structure_read`) and on 3B7a's
   payload keeping `Missing.note` (3B7a `MISSING` has `note`): both hold by the specs.
+
+## Round 2 (pre-build, after the 21 Nov merges)
+
+Answered: `rulings.md`, "Handshake answers (round 2)" (D-DDR.11 to D-DDR.15, D-WK.12, D-WK.14), folded into spec rev 3.
+
+Fresh Claude reviewer and pre-flight in one pass, 2026-11-21, on `main` 08f3bf86c (5c units 1-2, DS4, 3A7, 4d, 5b,
+ON1, 3C2 unit 1, 0K4b/0K4c/0K4e, SC-1f merged). Read-only; no database opened. Severity as round 1. Each item names
+the file:line it rests on and the default that applies if the Architect does not answer.
+
+### Reviewer questions (R)
+
+- **R12 (High, coordinator's call recorded) The rehearsal database's name is outside the authorised names.**
+  `spec.md:24`, `spec.md:195`, `rulings.md:10` and `Docs/engineering/operator-deep-dive-runbook.md:33-36,46,132` name
+  `assetops_rehearsal_ddr1`; the owner authorises only `*_test` and `<prefix>_audit*` (memory rule; `.ai/RULES.md`
+  §7). **Recorded: the coordinator renames it `assetops_rehearsal_ddr1_test`.** Default: fix the class, not the
+  instance: the runbook's template becomes `assetops_rehearsal_${REHEARSAL}_test` in every line that names it
+  (steps 2, 3's `KEY_DIR`, 4, 6 and the erase step), the example stays `REHEARSAL=ddr1`, and spec §0, §5 and
+  D-DDR.1 read `assetops_rehearsal_ddr1_test`. The reviewer checks that no line in the runbook or spec names a
+  rehearsal database without the `_test` suffix.
+- **R13 (High) G10's screen half cannot pass on `main`: 3C2 unit 2 is not merged.**
+  `backend/assetops_backend/deep_dive/composition.py:40` still composes `NotConnectedActions()` ("3C2's unit 2
+  replaces this line"); `deep_dive/actions.py:18-22` returns `AgreedActions(False, ())`, so `actions.rows[0]`
+  (`spec.md:70`, D-DDR.9) never exists. Default: D-DDR.5 and Q1 (`spec.md:235`) hold as written: DDR's build starts
+  after 3C2 unit 2 merges (3C2 `spec.md:33-34`, gate C, is now open). The reviewer checks the build base contains
+  `StoreAgreedActions` in `deep_dive/composition.py`.
+- **R14 (Medium) §3.4's screen literals predate today's merges.** `spec.md:151-157` quotes the setup gap as "one
+  generator and one fuel tank declared in the Site's setup (litres are worked out for one of each)"; `main` renders
+  "a generator and a fuel tank declared in the Site's setup (litres are worked out for each)"
+  (`i18n/statements/en/vocabulary.py:85`; `backend/tests/test_5c_deep_dive_view.py:48`). 0K4b, 0K4e and SC-1f also
+  merged after rev 2. Default: the expectation file's `screen` literals are re-transcribed by hand from 5c's merged
+  World B test literals (`test_5c_deep_dive_view.py:46-58,176-177,324`) plus §3.4's listed differences, never from a
+  run (W2); every other wording drift found is a mid-build question, not a silent edit.
+- **R15 (Medium) Who serves the rehearsed tenant for the owner's 5c walk, and on which ports.** `spec.md:198` says
+  the served tenant on the rehearsal database is what the owner walks, but nothing in DDR serves it. 8990/5490 belong
+  to the 13 Nov serve and 8991/5491 to WK (`specs/WK-walkthrough-database/rulings.md` D-WK.5), and
+  `tools/walk_world.py` serves only walk manifests. Default: DDR adds no serve; the coordinator serves the rehearsal
+  database by the 13 Nov shape (uvicorn `lab_app:app`, Vite dev, env built without `ASSETOPS_PSEUDONYM_KEY_DIR` or
+  any real-data, entry or upload switch) on 8992/5492, an Architect call logged before §5 runs.
+- **R16 (Medium) The owner's one-figure rule on the rehearsed screen.**
+  `owner/owner-one-figure-loyal-to-operating-world-2026-11-21.md`: two figures for one quantity only where they set up
+  something to act on or reconcile. G9 compares the whole `notices`, `tiles`, `bridge`, `cash` and `outcomes`
+  (`spec.md:143-146`). Default: the two-figure places allowed are Kisiwa's budget notice (−60.00 against −65.00, a
+  reconcile) and plan against actual; the reviewer reads the expectation file's `screen` for any other quantity shown
+  twice, and Kobo's stop-70 litres and value read "Not available yet" (no EMS export in this world). A breach is a
+  product finding for the Architect, not fixed inside DDR (no product code, `spec.md:27-28`).
+- **R17 (Low) G1 reads the pseudonym key, but §2.1 reads only `DATABASE_URL`.** `spec.md:53,61`. Default: the checker
+  also reads `ASSETOPS_PSEUDONYM_KEY_DIR` (exit 2 `NO_KEY_DIR` before any read), checks the key through 3A2's
+  `PseudonymKeys` port (`commercial/pseudonym.py:126-138`: missing, erased or unusable is a G1 FAIL), and prints no
+  path under it and no key content (D-DS4.19's rule).
+
+### Implementer questions (I)
+
+- **I1 (High) `rehearsal_check.py` adds English to the SC-1 package.** `spec.md:55` (`DDR_GATE_FAILED G<n> <text>`)
+  and the per-gate `text`; `tools/checks/statement_catalogue.py:35` scans all of `backend/assetops_backend`, and a
+  prose literal there is `HAND_BUILT_NEW` (`statement_catalogue.py:426-427`, rule g). D-0K4.19 forbids new baseline
+  entries. Default (D-0K4.19 kind 4, text no person on screen reads): each gate's `text` is a code plus facts, e.g.
+  `{"gate": "G5", "state": "FAIL", "code": "STATEMENT_MISSING", "facts": {"period": "2026-10"}}`, and stderr is
+  `DDR_GATE_FAILED G<n> <CODE>`; exit-2 refusals are codes only. No statement, no baseline or allow-list edit.
+- **I2 (High) S11 and G10 need 3C2 unit 2** (R13). `record_action` (`record_action.py:34-40,70`) and
+  `build_agreed_actions(url).service.for_tenant(tenant_id)` (`actions/composition.py:220-239`;
+  `actions/agreed.py:262`, newest first, takes the tenant's UUID) exist on `main`; the screen does not read them.
+  Default: wait for 3C2 unit 2; if it slips past day 9, build S1 to S10 and G1 to G9, and leave G10 and test 1's last
+  line as the one open item (Q1).
+- **I3 (Medium) The composition returns tuples, not services.** `deep_dive/composition.py:32` returns
+  `(DeepDiveRead, dispose)`; `actions/composition.py:220-223,229` returns `AgreedActionsService(service, dispose)`;
+  `DeepDiveRead.month` takes a `TenantRef(id, slug, name)` (`deep_dive/read.py:43`;
+  `sites/foundation_records.py:49-52`). Default: G9 unpacks `read, dispose = build_deep_dive_read(url)`, builds the
+  `TenantRef` and `names` through `ImportedSiteRegistry` (`sites/cutover.py:50,71,90`) as the route does
+  (`deep_dive_api.py:49,58`), and disposes every store in `finally`.
+- **I4 (Medium) The setup and fuel-text literals** (R14): same evidence; default as R14. Also: `G4`'s Kisiwa check is
+  a five-field `TargetCheck("contribution", -60.00, <lines>, "USD", False)` on `main`
+  (`test_5c_deep_dive_view.py:313`), not the triple at `spec.md:67`; default: compare `stated`, the lines' sum and
+  `agrees` by field name.
+- **I5 (Low) Cited names checked and found.** `source_profile admit --tenant --profile --sample --expected --as`
+  printing `admitted_by` (`source_profile.py:60-66,124`); `load_emulated_exports` `KEYS`, `<slug>.profile.<id>.xlsx`,
+  `EXPORT_PATHS_MIXED`, `PROFILE_NOT_ADMITTED` (`load_emulated_exports.py:50-62,82-85`); `reconcile_month record`
+  options and default tolerance 1 in 100 (`reconcile_month.py:48-64`; `structure/reconciliation.py:7,137-140`; the
+  latest statement per scope supersedes, `:380-402`); `build_structure_snapshot build|verify` and `BUILT_BY`
+  accepting `person:<uuid>` (`build_structure_snapshot.py:50-56`; `structure_snapshot/model.py:24-25`);
+  `AccountService.tenant_by_slug` (`accounts/service.py:129`); `pg_harness.empty_tables(engine, roots)`
+  (`tests/pg_harness.py:392`, it takes the root tables); `build_workbook` (`tests/fixtures/3a6/make_budget_xlsx.py:72`);
+  `tests/fixtures/targets_lakeside.json`; `held_uploads` (`commercial/store.py:64`). Default: none needed; the
+  builder names `empty_tables`' roots in the packet.
+- **I6 (Low) `portfolio_history` sits beside `latest_portfolio`** in the port, memory store and Postgres adapter
+  (`structure_snapshot/store.py:30,69`; `adapters/postgres_structure_snapshot_store.py:90`). It also changes
+  `backend/assetops_backend`'s tree, which is part of DS4's L1 key (`tools/world.py:39-40,223-225`), so DDR's merge
+  makes the world stale again (WK). Default: as round 1 R11; the coordinator rebuilds (S9) after DDR merges and
+  before §5, and WK's run follows DDR's merge, not the other way round.

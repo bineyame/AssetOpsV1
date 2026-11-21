@@ -1,7 +1,8 @@
 # 5c rulings
 
 Architect (Claude), 2026-11-20; rev 2 the same day (D-5C.13 to D-5C.18, D-5C.4 amended, handshake answers below);
-rev 3 on 2026-11-21 (D-5C.19 to D-5C.25, review round 1 answers, at the end).
+rev 3 on 2026-11-21 (D-5C.19 to D-5C.25, review round 1 answers); rev 4 the same day (D-5C.26 to D-5C.28,
+unit 3 review round 1 answers, at the end).
 Each ruling is indexed in `.ai/decisions/index-rulings-13.md` (D-5C.19 on: `index-rulings-22.md`).
 
 ## D-5C.1 The one deep-dive screen is a Portfolio tab, "The month", in the hub shape
@@ -352,3 +353,68 @@ Its litres (330 L, −$412.50, 730 L, −$37.50) come from 4d's KOBO-OCT test in
 ### Flag (b)
 
 "Target 0 L" is kept as it is (5a's `LEAK_ZERO` rule, plan against actual, which the owner's rule allows).
+
+## Unit 3 review round 1 answers (2026-11-21, rev 4)
+
+Architect (Claude), standing in for the owner (`owner/owner-away-architect-stands-in-2026-11-21b.md`), on the review at
+`task/5c-unit3-screen` bc2df265f (`review.md`, "Unit 3 round 1"). Folded into `spec.md` rev 4. Owner-level calls are
+OWNER-AWAY rows 68 and 69. Scopes: §11 of `spec.md` (backend fix, off `main`; screen fix, on `task/5c-unit3-screen`
+after the backend fix merges).
+
+## D-5C.26 (item 6, L3) A figure slot with no figure states "Not available yet" once, as its value, with no word
+
+- **Ruling.** A *figure slot* is a served object that prints one figure in `value` and its evidence in `word`: tiles
+  `contribution` and `gap`, bridge steps, drawer drivers (every level), outcome cards `grow` and `optimize`, and `cash`
+  (its figure is the collected root's actual, printed in `text`). The plan tiles and the Protect card are figure slots
+  that never have a figure. Server: a slot's `word` is null **exactly when its figure is absent** (the figure's value
+  or its currency is None); otherwise it is the §2.4 word through `money_word`. One view method,
+  `figure_word(value, currency, ev, origins)`, builds every slot's word and the headline's `evidence` (D-5C.20), and
+  returns None for an absent figure. This **revises L9's fix**: a card over mixed currencies serves `word` null, not
+  "Not available yet". `W.word` takes `currency: str`; `NO_CURRENCY` ("XXX") is deleted (no caller reaches it).
+  The Assure card is not a figure slot: its `value` is the standing's statement and it opens a drawer; its `word`
+  stays null and it is never muted. Page: a figure slot's value is muted (one modifier class, `dd-na`) when its
+  `word` is null; for an outcome card, when `word` is null and `drawer` is null. No key or text test (`startsWith`
+  goes; L3 closed).
+- **Why.** The owner's rule: one figure, one statement. "Not available yet" twice (as the value and as its chip) is
+  one fact stated twice, and a chip is an evidence class, which an absent figure does not have. The headline already
+  follows this (D-5C.20: `evidence` [] when it states no figure); the plan tiles did too. A word built only when the
+  figure is present makes the null the server's statement, so the page reads the shape (D-5C.2), and it retires the
+  "XXX" carrier L9 left.
+- **Tests.** Class case over A, B, D, G, H, World X and every 4 i currency world: in every figure slot `word is None`
+  if and only if the slot's figure is absent (`value` "Not available yet"; cash: its root's actual is None); no
+  served `word` anywhere equals "Not available yet". Plants that fail it: L9's card word restored; World X's
+  contribution tile served `word` "Not available yet". Test 3's class form compares the non-null words. Unit 3: World
+  X renders no word chip reading "Not available yet"; its contribution and gap tiles, revenue step, Optimize card are
+  muted; the Assure card is not.
+- **Reverse.** Serve "Not available yet" as the word again (L9); the page mutes by the same shape rule.
+
+## D-5C.27 (item 7, MD11, MBQ5) The bridge draws each step as a bar on the gap's scale, positioned by the server
+
+- **Ruling.** As the mock (`uxBridge`, `.ux-wf-bar` on the gap's scale, `.ux-wf-scale` marks): each step gains
+  `bar`, null or `{"left", "width", "tone"}`; `bridge` gains `scale`, null or `{"target_at", "actual_at"}`. Every
+  position is a percentage of the step track, a plain decimal string with two places, computed by one pure function
+  `bridge_bars(effects, gap)` in `view.py` (spec §3.2). `tone` is "lowers" (effect below 0) or "raises". A step's
+  `bar` is null when its row is absent, its effect is None or 0, or its row's currency is not R's; every `bar` and
+  `scale` are null when R's effect is None or 0. The page sets `left` and `width` from the strings
+  (`` `${bar.left}%` ``) and maps `tone` to a class: no arithmetic, so **D-5C.2 stands as written** (the tile bar
+  stays its one exception); the reviewer's one-line extension is not needed. The scale's marks are labelled with the
+  served `totals` strings (`{target_label} {target}`, `{actual_label} {actual}`). Bars and marks are `aria-hidden`:
+  the row's text states the value and share. MD11 is closed (R767 resolved).
+- **Why.** The mock is the layout spec and this waterfall is the overview's one chart (guide §9) and the visual of
+  walkthrough step 2; rows without bars drop it with no honesty or scale reason. Serving positions keeps one place for
+  Decimal arithmetic. About 0.25 unit across the view and the page, inside the walkthrough's window.
+- **Tests.** Pure vectors (spec §3.5 "Bars") and World A's literal; H equals A; World X all null. Unit 3: A's revenue
+  bar at left 0.00 % width 11.38 %, fuel cost at 11.38 % and 88.62 %, O&M and staff with an empty track; X has no bar
+  and no scale.
+- **Reverse.** Drop `bar` and `scale`; MD11 open again (rows without bars).
+
+## D-5C.28 (M1) No gap, no share: a step's share is null when R's effect is None or 0
+
+- **Ruling (confirmed; fix on `main`).** `shares()` returns no share when `R.effect` is None or 0, so every step's
+  `share` is null and the page omits it; `gap = self.R.effect or Decimal(0)` goes. With a non-zero gap the rule is
+  §3.2's, unchanged (A: 11 %, 89 %, "No effect" twice).
+- **Why.** A share is a part of the gap; with no gap known, "Offsets it" states a direction against a figure that is
+  not there (World X: a KES 600 overspend read as offsetting). Zero is the same class: nothing widens a gap of 0.
+- **Tests.** 4 i on World X: every step `share` null and "Offsets it" nowhere in the payload; a vector with R's
+  effect 0 and steps +5.00 and −5.00: both shares null. A plant restoring `or Decimal(0)` fails both.
+- **Reverse.** None sensible; a "not compared" share word would be a second statement of the absent gap.

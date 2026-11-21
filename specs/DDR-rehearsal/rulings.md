@@ -1,13 +1,15 @@
 # DDR rulings
 
-Architect (Claude), 2026-11-20; rev 2 the same day (D-DDR.7 to D-DDR.10, handshake answers below). Each ruling is
-indexed in `.ai/decisions/index-rulings-13.md`.
+Architect (Claude), 2026-11-20; rev 2 the same day (D-DDR.7 to D-DDR.10, handshake answers below); rev 3 on
+2026-11-21 (D-DDR.11 to D-DDR.15, "Handshake answers (round 2)"; owner-away delegation
+`owner/owner-away-architect-stands-in-2026-11-21b.md`). Each ruling is indexed in `.ai/decisions/index-rulings-13.md`
+(D-DDR.1 to D-DDR.10) or `.ai/decisions/index-rulings-23.md` (D-DDR.11 on).
 
 ## D-DDR.1 The rehearsal is the runbook run as written, with a checker of what each step leaves
 
 - **Ruling.** DDR is twelve runbook steps (spec §1) and `rehearsal_check`, which reads the records each step leaves
   and fails at the first missing one. The automated test runs the same steps; the coordinator then runs them on
-  `assetops_rehearsal_ddr1` with an agent that has only the runbook.
+  `assetops_rehearsal_ddr1_test` (D-DDR.12) with an agent that has only the runbook.
 - **Why.** "Proven end to end" means a person can do it from the runbook, not that a test harness can; the checker
   makes a skipped or bypassed step visible after the fact.
 
@@ -34,7 +36,7 @@ indexed in `.ai/decisions/index-rulings-13.md`.
 - **Why.** Risk 2 of the plan: most operators' first comparison fails; the screen must say so plainly, and the owner
   should rehearse that conversation (3A7).
 
-## D-DDR.5 DDR waits for 3C2
+## D-DDR.5 DDR waits for 3C2 (amended by D-DDR.14: DDR builds beside 3C2 unit 2 and is reviewed on a base holding it)
 
 - **Ruling.** S11 and G10 need 3C2's `record_action` and `build_agreed_actions` (3C2 spec, rev 1, written in this
   round; 5c spec §4.3); DDR builds after 3C2's two units merge.
@@ -79,6 +81,62 @@ indexed in `.ai/decisions/index-rulings-13.md`.
 - **Why.** `lakeside-power` and its emails can be onboarded once per database (handshake R4); the owner's test
   policy keeps full runs for milestones. "No S11" is test 1's state after S10, so it needs no run of its own.
 
+## D-DDR.11 The checker speaks in codes and facts, never English (I1)
+
+- **Ruling.** Each gate line is `{"gate", "step", "state", "code", "facts"}`; a FAIL's code and facts are spec §2.4's;
+  stderr is `DDR_GATE_FAILED G<n> <CODE>`; an exit-2 refusal is its code alone. No statement is written, and no SC-1
+  baseline or allow-list entry is added. Facts hold identifiers, codes, plain-string figures, UTC times and JSON paths,
+  never a screen string.
+- **Why.** `rehearsal_check.py` sits in SC-1's scanned package (`tools/checks/statement_catalogue.py:35`), where a prose
+  literal is `HAND_BUILT_NEW`; D-0K4.19 forbids new baseline entries. Its output is read by the coordinator and the
+  tests, never by a person on screen (D-0K4.19 kind 4), so codes carry everything it must say.
+
+## D-DDR.12 Every rehearsal database is `assetops_rehearsal_${REHEARSAL}_test` (R12; the coordinator's call, as a class)
+
+- **Ruling.** The runbook template, its key folder (`/opt/assetecon/keys/assetops_rehearsal_${REHEARSAL}_test`), spec
+  §0 and §5, D-DDR.1, both runbook copies and ON1's runbook test value use the `_test` name; the example stays
+  `REHEARSAL=ddr1`, so the rehearsal runs on `assetops_rehearsal_ddr1_test`.
+- **Sweep (W6), `git grep assetops_rehearsal` on the answers branch:** `Docs/engineering/operator-deep-dive-runbook.md`
+  lines 34, 36, 46, 67, 79, 95, 114, 132; `specs/ON1-operator-tenant/runbook.md` lines 35, 37, 47, 68, 80, 96, 115,
+  133; `backend/tests/test_on1_served_tenant.py:90`; this spec's §0 and §5 and D-DDR.1 (fixed here). The first three
+  are DDR's build edits (spec §6); `specs/ON1-operator-tenant/rulings.md:191` is ON1's history and stays.
+- **Why.** The owner authorises only `*_test` and `<prefix>_audit*` databases on the test container. One template
+  fixes every future rehearsal, not this one.
+
+## D-DDR.13 The coordinator serves the rehearsal database on 8992 and 5492 for the owner's walk (R15; owner-level)
+
+- **Ruling.** Spec §5.2: the coordinator serves it in the 13 Nov shape (uvicorn `lab_app:app` from `host/`, Vite dev),
+  with WK §3.5's environment list built by `env -i`, on API 8992 and web 5492, from a detached worktree
+  `/opt/assetecon/AssetOpsV1-ddrserve` at the 5c unit 3 branch's reviewed head (else `main`) holding 3C2 unit 2 and the
+  rehearsal database's migrations. No key folder, no real-data, entry, upload or gateway switch. It is stopped by
+  checked PID before the erase. DDR adds no serve code. Logged as owner-away row 65.
+- **Why.** The owner walks 5c's unmerged screen on the rehearsed tenant (5c §9). 8990/5490 belong to the 13 Nov serve
+  and 8991/5491 to WK (D-WK.5), so the next free pair keeps the three serves apart. WK §3.5's list is already reviewed,
+  so the hand-run serve repeats a checked environment rather than a new one.
+- **Reversible.** Stop the two PIDs; serve on other ports by the same steps; no code depends on the ports.
+
+## D-DDR.14 DDR builds now, beside 3C2 unit 2; it is reviewed and merged on a base holding unit 2 (R13, I2; amends D-DDR.5)
+
+- **Ruling.** 3C2 unit 2 is already specified (3C2 spec §3 and test 9, 0.25 unit, handshake round 1 covered it; gate C
+  is open since 5c units 1 and 2 merged). It is pulled first on day 14 (D-3C2.16). DDR's branch starts from `main`
+  now: S1 to S10, G1 to G9 and tests 3 to 8 first; G10 and test 1's S11 and S12 lines are written to the spec and run
+  once `main` holds unit 2 and is merged in. The review starts only from such a base. G10 is not left open, and Q1's
+  slip clause is retired.
+- **Why.** The owner wants the deep-dive rehearsed before the 5c walkthrough. Unit 2 is one class and one composition
+  line, so waiting for it costs hours. Dropping G10 would leave RC9 (the agreed change as an Action) unproved, and
+  building in parallel keeps the fortnight's DDR on time.
+
+## D-DDR.15 The runbook admits the layout before receiving the exports, and ON1's runbook test grows with it (Architect pre-flight A1)
+
+- **Ruling.** Spec §6: new section 6 (admit), then 7 (write, replace, load: three blocks), 8 to 11, and 12 (erase).
+  Both runbook copies are edited identically. `backend/tests/test_on1_served_tenant.py`'s section 3 table gets the
+  twelve-command `EXPECTED`, five more parsers and five more `VALUES`, with `KEY_DIR` on the `_test` name.
+- **Why.** Rev 2 put the admission after the section that writes and loads the exports in one block. An analyst with
+  only the runbook would then load before admitting (`PROFILE_NOT_ADMITTED`) and could not swap the budget file.
+  ON1's test 3 requires exactly the listed commands, a parser for each program, every declared variable, and identical
+  copies (D-ON1.13, D-ON1.19). Without the edit, DDR's runbook breaks ON1's tests at review, which would be a
+  mid-build question.
+
 ## Handshake answers (round 1)
 
 Architect (Claude), 2026-11-20, on `task/4d-5c-DDR-handshake` 8ce960a64. Every answer is folded into `spec.md`
@@ -121,3 +179,40 @@ rev 2. Each gate named here has a plant in `reviewer-guide.md` rev 2 that fails 
   3C2's spec exists now.
 - **P2 (Low).** Confirmed: 3A7 gives `commercial.accounts_statement` to FINANCE_AND_COMMERCIAL_LEAD; Joseph holds it.
 - **P3 (Low).** Confirmed: the fuel text needs 4d unit 3 and 3B7a keeping `Missing.note`; both hold by their specs.
+
+## Handshake answers (round 2)
+
+Architect (Claude), 2026-11-21, on `task/DDR-WK-handshake-answers` (questions at 99b1d8279; `main` 83419e876 merged in).
+Folded into `spec.md` rev 3 and `reviewer-guide.md` rev 3.
+
+### Reviewer
+
+- **R12 (High).** Accepted as a class: D-DDR.12 (sweep listed there).
+- **R13 (High).** D-DDR.14: 3C2 unit 2 first on day 14, DDR built beside it, reviewed on a base holding
+  `StoreAgreedActions` (the reviewer checks it with `git grep`).
+- **R14 (Medium).** Accepted: §3.4 now quotes `main`'s wording ("a generator and a fuel tank declared in the Site's
+  setup (litres are worked out for each)") and says the literals are transcribed by hand from 5c's merged World B test
+  literals. Any other drift is a mid-build question.
+- **R15 (Medium).** D-DDR.13, spec §5.2 (owner-away row 65).
+- **R16 (Medium).** Accepted: D-WK.12 (one ruling for both units; owner-away row 66). The allowed pairs are Kisiwa's
+  budget notice, plan against actual, and the statement against the records only while they do not match. Kobo's
+  stop-70 litres and value read "Not available yet". A breach is a product finding for the Architect.
+- **R17 (Low).** Accepted: `NO_KEY_DIR` (exit 2), G1 through `PseudonymKeys` (`KEY_STATE`), no key path or content
+  printed; test 8(f).
+
+### Implementer
+
+- **I1 (High).** D-DDR.11; spec §2.4's code table; test 8(g).
+- **I2 (High).** D-DDR.14 (the slip clause is retired).
+- **I3 (Medium).** Accepted: G9 unpacks and disposes, builds `TenantRef` and `names` through `ImportedSiteRegistry` as
+  the route does.
+- **I4 (Medium).** Accepted: the literals as R14; G4 compares `TargetCheck` by field name (`factor_id`, `stated`,
+  `computed`, `currency`, `agrees`).
+- **I5 (Low).** No change; the packet names `empty_tables`' roots.
+- **I6 (Low).** Order reversed by D-WK.14: WK's run (steps 1 to 5) comes before DDR's merge, because WK copies the world
+  at its commit and DDR adds nothing served. DDR's merge makes the world stale for the *next* WK, which is expected
+  (D-WK.6). The rehearsal (§5.1) runs after DDR's merge, so its S9 is already after the deploy.
+
+### Architect pre-flight
+
+- **A1 (High).** D-DDR.15: the runbook order and ON1's runbook test (spec §6, test 9).
