@@ -2,8 +2,9 @@
  * 5c unit 3 (spec §5): "The month", the one deep-dive screen, at `/portfolio/month?month=YYYY-MM`.
  *
  * The page renders the server's JSON (`deep-dive-month-1`) as given: it never formats, adds or compares a figure
- * (D-5C.2). The one piece of arithmetic is the bar's width, `actual / max(|actual|, |target|)` (spec §5.3). Every word
- * chip shows the JSON's own word as text, never colour alone.
+ * (D-5C.2). The one piece of arithmetic is the tile bar's width, `actual / max(|actual|, |target|)` (spec §5.3); the
+ * step bars and the scale marks are served positions, drawn as given (D-5C.27). A figure slot with no word is muted with
+ * `dd-na` (D-5C.26). Every word chip shows the JSON's own word as text, never colour alone.
  *
  * Layout: IA-1b's hub shape (D-5C.14). `data-level` regions L1 (the lead and the four tiles), L2 (one queue block) and
  * L3 (three answer-titled sections): six blocks. Drawers stay inside their sections. MOCK DEVIATION rows MD1 to MD10
@@ -21,6 +22,7 @@ import {
   type DeepDiveMonthClient,
   type DeepDiveResult,
   type DeepDiveStep,
+  type DeepDiveStepBar,
   type DeepDiveTable,
 } from "./deepDiveMonthClient";
 import { queryFromParams } from "./estateShared";
@@ -100,6 +102,39 @@ function Bar({ bar, label }: { bar: { actual: string; target: string }; label: s
   );
 }
 
+/** D-5C.26: a figure slot whose `word` is null holds no figure; its value is muted (`dd-na`). The shape, never a key. */
+function mute(word: string | null, className: string): string {
+  return word === null ? `${className} dd-na` : className;
+}
+
+/**
+ * D-5C.27: the step's track (vNEXT `.ux-wf-track`) and, when served, its bar at the served `left` and `width` (strings,
+ * used as given: no arithmetic). A null bar leaves the track empty. Decorative: the row's text carries the figure.
+ */
+function StepTrack({ bar }: { bar: DeepDiveStepBar | null }) {
+  return (
+    <span className="dd-wf__track" aria-hidden="true">
+      {bar !== null ? <span className={`dd-wf__bar dd-wf__bar--${bar.tone}`} style={{ left: `${bar.left}%`, width: `${bar.width}%` }} /> : null}
+    </span>
+  );
+}
+
+/** D-5C.27: the target and actual marks above the step tracks, at the served `target_at` and `actual_at`. */
+function Scale({ scale, totals }: { scale: { target_at: string; actual_at: string }; totals: NonNullable<DeepDiveMonthBody["bridge"]>["totals"] }) {
+  return (
+    <div className="dd-wf__scalerow" aria-hidden="true">
+      <div className="dd-wf__scale">
+        <span className="dd-wf__mark" style={{ left: `${scale.target_at}%` }}>
+          {totals.target_label} {totals.target}
+        </span>
+        <span className="dd-wf__mark dd-wf__mark--end" style={{ left: `${scale.actual_at}%` }}>
+          {totals.actual_label} {totals.actual}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- drawers (vNEXT `uxOpen`/`uxClose`: dialog, focus to Close, Escape and scrim close, focus returns) ---------- */
 
 interface DrawerApi {
@@ -133,34 +168,45 @@ function Drawer({ id, title, api, children }: { id: string; title: string; api: 
   const panel = useRef<HTMLDivElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   const shown = api.openId === id;
+  const { close } = api;
+  // Rev 4 (L1, L2; vNEXT `uxOpen`): while open, Escape and the Tab cycle are handled on `document`, so they hold
+  // wherever focus is (also after "Show all" replaced the focused button), and `body` carries `dd-locked`.
   useEffect(() => {
-    if (shown) closeButton.current?.focus();
-  }, [shown]);
+    if (!shown) return undefined;
+    closeButton.current?.focus();
+    document.body.classList.add("dd-locked");
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        close();
+        return;
+      }
+      if (event.key !== "Tab" || panel.current === null) return;
+      const focusable = [...panel.current.querySelectorAll<HTMLElement>("button, a[href], summary, [tabindex='0']")];
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const inside = panel.current.contains(document.activeElement);
+      if (event.shiftKey && (!inside || document.activeElement === first)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (!inside || document.activeElement === last)) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.classList.remove("dd-locked");
+    };
+  }, [shown, close]);
   if (!shown) return null;
   const titleId = `${id}-title`;
-  const onKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === "Escape") {
-      event.preventDefault();
-      api.close();
-      return;
-    }
-    if (event.key !== "Tab" || panel.current === null) return;
-    const focusable = [...panel.current.querySelectorAll<HTMLElement>("button, a[href], summary, [tabindex='0']")];
-    if (focusable.length === 0) return;
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
-  };
   return (
     <div className="dd-drawer" data-dd-drawer={id}>
       <div className="dd-drawer__scrim" data-dd-scrim onClick={api.close} />
-      <div className="dd-drawer__panel" role="dialog" aria-modal="true" aria-labelledby={titleId} ref={panel} onKeyDown={onKeyDown}>
+      <div className="dd-drawer__panel" role="dialog" aria-modal="true" aria-labelledby={titleId} ref={panel}>
         <div className="dd-drawer__head">
           <h2 id={titleId}>{title}</h2>
           <button type="button" className="dd-button" ref={closeButton} onClick={api.close}>
@@ -184,13 +230,30 @@ function Lines({ lines, className }: { lines: string[]; className?: string }) {
   );
 }
 
-/** A list capped at `cap` items, then "Show all {n}" (D-5C.12: scales to 300 Sites). */
-function Capped<T>({ items, cap, render }: { items: T[]; cap: number; render: (item: T, i: number) => ReactNode }) {
+/**
+ * A list capped at `cap` items, then "Show all {n}" (D-5C.12: scales to 300 Sites). The click moves focus to the first
+ * newly shown row (rev 4, L1), which takes `tabIndex={-1}`, so focus stays where the reader was.
+ */
+function Capped<T>({ items, cap, className, render }: { items: T[]; cap: number; className: string; render: (item: T) => ReactNode }) {
   const [all, setAll] = useState(false);
+  const firstNew = useRef<HTMLLIElement>(null);
+  useEffect(() => {
+    if (all) firstNew.current?.focus();
+  }, [all]);
   const shown = all ? items : items.slice(0, cap);
   return (
     <>
-      {shown.map(render)}
+      {shown.map((item, i) =>
+        all && i === cap ? (
+          <li key={i} className={className} ref={firstNew} tabIndex={-1}>
+            {render(item)}
+          </li>
+        ) : (
+          <li key={i} className={className}>
+            {render(item)}
+          </li>
+        ),
+      )}
       {!all && items.length > cap ? (
         <li className="dd-showall">
           <button type="button" className="dd-link" onClick={() => setAll(true)}>
@@ -211,7 +274,7 @@ function DriverList({ drivers, parent }: { drivers: DeepDiveDriver[]; parent?: s
     <ul className={parent === undefined ? "dd-drivers" : "dd-drivers dd-drivers--parts"} aria-label={parent === undefined ? undefined : DD_COPY.partsOf(parent)}>
       {drivers.map((driver) => (
         <li key={driver.key} className="dd-driver" data-dd-driver>
-          <span className="dd-driver__label">{driver.label}</span> <span className="dd-num">{driver.value}</span> <Word word={driver.word} />
+          <span className="dd-driver__label">{driver.label}</span> <span className={mute(driver.word, "dd-num")}>{driver.value}</span> <Word word={driver.word} />
           <span className="dd-driver__meta">
             {driver.sites}
             {driver.detail !== null ? ` · ${driver.detail}` : ""}
@@ -238,11 +301,12 @@ function StepDrawer({ step, api }: { step: DeepDiveStep; api: DrawerApi }) {
             <Capped
               items={d.sites}
               cap={SITE_CAP}
-              render={(s, i) => (
-                <li key={i} className="dd-site">
+              className="dd-site"
+              render={(s) => (
+                <>
                   <span className="dd-site__name">{s.site}</span> <span className="dd-num">{s.value}</span>
                   {s.text !== null ? <p className="dd-site__stop">{s.text}</p> : null}
-                </li>
+                </>
               )}
             />
           </ul>
@@ -325,7 +389,7 @@ function Tiles({ body }: { body: DeepDiveMonthBody }) {
       {body.tiles!.map((tile) => (
         <div key={tile.key} className="dd-kpi" data-dd-tile={tile.key}>
           <span className="dd-kpi__label">{tile.label}</span>
-          <span className={tile.word === null && tile.bar === null && tile.key.startsWith("plan") ? "dd-kpi__value dd-kpi__value--na" : "dd-kpi__value"}>
+          <span className={mute(tile.word, "dd-kpi__value")}>
             {tile.value}
           </span>
           <Word word={tile.word} />
@@ -389,6 +453,7 @@ function Bridge({ body, api }: { body: DeepDiveMonthBody; api: DrawerApi }) {
           </span>
         </div>
       </div>
+      {bridge.scale !== null ? <Scale scale={bridge.scale} totals={bridge.totals} /> : null}
       <ol className="dd-wf">
         {bridge.groups.map((group) => (
           <li key={group.key} className="dd-wf__group">
@@ -405,9 +470,10 @@ function Bridge({ body, api }: { body: DeepDiveMonthBody; api: DrawerApi }) {
                     data-dd-step={step.key}
                     onClick={(e) => api.open(`dd-step-${step.key}`, e.currentTarget)}
                   >
-                    <span className="dd-wf__label">{step.label}</span> <span className="dd-wf__value dd-num">{step.value}</span>{" "}
+                    <span className="dd-wf__label">{step.label}</span> <span className={mute(step.word, "dd-wf__value dd-num")}>{step.value}</span>{" "}
                     <span className="dd-wf__share">{step.share}</span> <Word word={step.word} />{" "}
                     <span className="dd-wf__sites">{step.sites}</span>
+                    <StepTrack bar={step.bar} />
                   </button>
                 </li>
               ))}
@@ -457,7 +523,8 @@ function Outcomes({ body, api }: { body: DeepDiveMonthBody; api: DrawerApi }) {
                 {card.value}
               </button>
             ) : (
-              <span className="dd-card__value">{card.value}</span>
+              // D-5C.26: a card with no drawer and no word holds no figure (Assure always has its drawer).
+              <span className={mute(card.word, "dd-card__value")}>{card.value}</span>
             )}
             <Word word={card.word} />
             <span className="dd-card__line">{card.line}</span>
@@ -465,16 +532,17 @@ function Outcomes({ body, api }: { body: DeepDiveMonthBody; api: DrawerApi }) {
         ))}
       </div>
       <h3 id="dd-na-h">{DD_COPY.notAvailable}</h3>
-      <ul className="dd-na" aria-labelledby="dd-na-h">
+      <ul className="dd-gaps" aria-labelledby="dd-na-h">
         <Capped
           items={na.rows}
           cap={NOT_AVAILABLE_CAP}
-          render={(row, i) => (
-            <li key={i} className="dd-na__row">
-              <span className="dd-na__needs">{row.needs}</span>
-              <span className="dd-na__fills">{row.fills}</span>
-              <span className="dd-na__sites">{row.sites}</span>
-            </li>
+          className="dd-gaps__row"
+          render={(row) => (
+            <>
+              <span className="dd-gaps__needs">{row.needs}</span>
+              <span className="dd-gaps__fills">{row.fills}</span>
+              <span className="dd-gaps__sites">{row.sites}</span>
+            </>
           )}
         />
       </ul>

@@ -46,7 +46,15 @@ export interface DeepDiveStep {
   share: string | null;
   word: string | null;
   sites: string;
+  /** D-5C.27: the step's place on the gap's scale, served as percentages ("0.00" to "100.00"); null draws no bar. */
+  bar: DeepDiveStepBar | null;
   drawer: DeepDiveStepDrawer;
+}
+
+export interface DeepDiveStepBar {
+  left: string;
+  width: string;
+  tone: "lowers" | "raises";
 }
 
 export interface DeepDiveGroup {
@@ -98,6 +106,8 @@ export interface DeepDiveMonthBody {
   bridge?: {
     title: string;
     totals: { actual_label: string; actual: string; target_label: string; target: string };
+    /** D-5C.27: where the target (0) and the actual (100) sit on the step track; null when there is no gap. */
+    scale: { target_at: string; actual_at: string } | null;
     groups: DeepDiveGroup[];
     by_site: DeepDiveTable;
   };

@@ -34,7 +34,7 @@ const worldX = (): DeepDiveMonthBody => JSON.parse(WORLD_X_TEXT) as DeepDiveMont
 const MONEY = /[−+]?(?:\$|[A-Z]{3} )\d[\d,]*(?:\.\d+)?/g;
 
 /** Keys whose values are codes or numbers for the page, not words for the reader. */
-const NOT_SHOWN = new Set(["schema", "month", "nav", "state", "as_of", "reason", "reconciled", "key", "bar", "connected", "more", "standing"]);
+const NOT_SHOWN = new Set(["schema", "month", "nav", "state", "as_of", "reason", "reconciled", "key", "bar", "scale", "connected", "more", "standing"]);
 // `fresh.untracked_text` is read in the Assure drawer (its last line), not on the page itself.
 NOT_SHOWN.add("untracked_text");
 
@@ -278,9 +278,9 @@ describe("5c test 11: drawers keep and return focus; drivers carry their words",
     const bridge = screen.getByRole("heading", { name: "Where the gap comes from" }).closest("section")!;
     fireEvent.click(within(bridge as HTMLElement).getByRole("button", { name: "Show all 12" }));
     expect(table.querySelectorAll("tr").length).toBe(12);
-    expect(view.container.querySelectorAll(".dd-na__row").length).toBe(8);
+    expect(view.container.querySelectorAll(".dd-gaps__row").length).toBe(8);
     fireEvent.click(screen.getByRole("button", { name: "Show all 9" }));
-    expect(view.container.querySelectorAll(".dd-na__row").length).toBe(9);
+    expect(view.container.querySelectorAll(".dd-gaps__row").length).toBe(9);
     fireEvent.click(screen.getByRole("button", { name: /^Revenue / }));
     const dialog = screen.getByRole("dialog", { name: "Revenue" });
     expect(dialog.querySelectorAll(".dd-site").length).toBe(10);
@@ -353,10 +353,10 @@ describe("5c test 11: the served worlds (backend-written H and the currency mism
       expect(el.querySelector(".dd-kpi__value")!.textContent).toBe(tile.value);
       expect(el.querySelector(".dd-bar")).toBeNull();
     }
-    // L9: the Optimize heading would add KES to USD: its card reads Not available yet for figure and word.
+    // D-5C.26 (revises L9): the Optimize heading would add KES to USD: its card states Not available yet once, no word.
     const card = view.container.querySelector('[data-dd-outcome="optimize"]')!;
     expect(card.querySelector(".dd-card__value")!.textContent).toBe("Not available yet");
-    expect(card.querySelector("[data-dd-word]")!.textContent).toBe("Not available yet");
+    expect(card.querySelector("[data-dd-word]")).toBeNull();
     const optimize = x.bridge!.groups.find((g) => g.key === "OPTIMIZE_COST")!;
     expect(optimize.value).toBe("Not available yet");
     const rows = [...view.container.querySelectorAll(".dd-wf__grouprow")].map((r) => r.textContent);
@@ -506,5 +506,116 @@ describe("5c test 13: the tab row moves to PortfolioTabs.tsx unchanged", () => {
     expect(row.querySelector("[data-pf-tab-count]")).toBeNull();
     const overview = within(row as HTMLElement).getByRole("link", { name: "Overview" });
     expect(overview.getAttribute("href")).toMatch(/^\/portfolio\?from=/);
+  });
+});
+
+describe("5c rev 4 screen fix: bars and scale (D-5C.27), the mute rule (D-5C.26), drawers (L1, L2)", () => {
+  const track = (root: ParentNode, key: string) => root.querySelector(`[data-dd-step="${key}"] .dd-wf__track`) as HTMLElement;
+
+  it("World A: each step's served bar on its track, O&M and staff tracks empty, the two scale marks", async () => {
+    const a = worldA();
+    const view = renderMonth(clientOf(() => ({ status: "loaded", body: a })));
+    await settled();
+    const bar = (key: string) => track(view.container, key).querySelector(".dd-wf__bar") as HTMLElement | null;
+    // jsdom's CSSOM writes the served "0.00%" as "0%"; the served string is the source (fixture literal, spec §6).
+    expect(a.bridge!.groups[0].steps[0].bar).toEqual({ left: "0.00", width: "11.38", tone: "lowers" });
+    expect(bar("revenue")!.style.left).toBe("0%");
+    expect(bar("revenue")!.style.width).toBe("11.38%");
+    expect(bar("revenue")!.classList.contains("dd-wf__bar--lowers")).toBe(true);
+    expect(bar("fuel_cost")!.style.left).toBe("11.38%");
+    expect(bar("fuel_cost")!.style.width).toBe("88.62%");
+    expect(bar("om")).toBeNull();
+    expect(bar("staff")).toBeNull();
+    for (const step of a.bridge!.groups.flatMap((g) => g.steps)) {
+      expect(track(view.container, step.key).getAttribute("aria-hidden")).toBe("true");
+    }
+    const scale = view.container.querySelector(".dd-wf__scale")!;
+    expect(scale.closest("[aria-hidden='true']")).not.toBeNull();
+    const marks = [...scale.querySelectorAll<HTMLElement>(".dd-wf__mark")];
+    const t = a.bridge!.totals;
+    expect(marks.map((m) => [m.textContent, m.style.left])).toEqual([
+      [`${t.target_label} ${t.target}`, "0%"],
+      [`${t.actual_label} ${t.actual}`, "100%"],
+    ]);
+    expect(marks[1].classList.contains("dd-wf__mark--end")).toBe(true);
+    expect(a.bridge!.scale).toEqual({ target_at: "0.00", actual_at: "100.00" });
+  });
+
+  it("World X: no bar, no scale, no chip reads Not available yet; no-figure slots carry dd-na, Assure does not", async () => {
+    const x = worldX();
+    const view = renderMonth(clientOf(() => ({ status: "loaded", body: x })));
+    await settled();
+    expect(view.container.querySelector(".dd-wf__bar")).toBeNull();
+    expect(view.container.querySelector(".dd-wf__scale")).toBeNull();
+    expect(view.container.querySelectorAll(".dd-wf__track").length).toBe(x.bridge!.groups.flatMap((g) => g.steps).length);
+    expect([...view.container.querySelectorAll("[data-dd-word]")].map((c) => c.textContent)).not.toContain("Not available yet");
+    const muted = (sel: string) => view.container.querySelector(sel)!.classList.contains("dd-na");
+    expect(muted('[data-dd-tile="contribution"] .dd-kpi__value')).toBe(true);
+    expect(muted('[data-dd-tile="gap"] .dd-kpi__value')).toBe(true);
+    expect(muted('[data-dd-step="revenue"] .dd-wf__value')).toBe(true);
+    expect(muted('[data-dd-step="fuel_cost"] .dd-wf__value')).toBe(false);
+    expect(muted('[data-dd-outcome="optimize"] .dd-card__value')).toBe(true);
+    expect(muted('[data-dd-outcome="assure"] .dd-card__value')).toBe(false);
+  });
+
+  it("the mute follows the served shape, never a key: word null mutes, a word unmutes, on any tile, step or driver", async () => {
+    const a = worldA();
+    a.tiles![0].word = null; // contribution with no word: muted
+    a.tiles![2].word = "Recorded"; // a plan tile with a word: not muted
+    const fuel = a.bridge!.groups[1].steps[0];
+    fuel.word = null;
+    a.bridge!.groups[0].steps[0].drawer.drivers = [
+      { key: "kwh", label: "Energy sold", value: "−$10.00", sites: "1 of 3 Sites", detail: null, word: null, children: [] },
+    ];
+    const view = renderMonth(clientOf(() => ({ status: "loaded", body: a })));
+    await settled();
+    const muted = (sel: string) => view.container.querySelector(sel)!.classList.contains("dd-na");
+    expect(muted('[data-dd-tile="contribution"] .dd-kpi__value')).toBe(true);
+    expect(muted(`[data-dd-tile="${a.tiles![2].key}"] .dd-kpi__value`)).toBe(false);
+    expect(muted(`[data-dd-tile="${a.tiles![3].key}"] .dd-kpi__value`)).toBe(true);
+    expect(muted('[data-dd-step="fuel_cost"] .dd-wf__value')).toBe(true);
+    expect(muted('[data-dd-step="revenue"] .dd-wf__value')).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: /^Revenue / }));
+    expect(openDialog().querySelector("[data-dd-driver] > .dd-num")!.classList.contains("dd-na")).toBe(true);
+  });
+
+  it("L1: after Show all 12 focus is on row 11 inside the dialog; Escape and Tab work wherever focus is", async () => {
+    const a = worldA();
+    const revenue = a.bridge!.groups[0].steps[0].drawer;
+    revenue.sites = Array.from({ length: 12 }, (_, i) => ({ ...revenue.sites[i % 3], site: `Site ${i + 1}` }));
+    renderMonth(clientOf(() => ({ status: "loaded", body: a })));
+    await settled();
+    const opener = screen.getByRole("button", { name: /^Revenue / });
+    opener.focus();
+    fireEvent.click(opener);
+    const dialog = screen.getByRole("dialog", { name: "Revenue" });
+    fireEvent.click(within(dialog).getByRole("button", { name: "Show all 12" }));
+    const rows = dialog.querySelectorAll<HTMLElement>(".dd-site");
+    expect(document.activeElement).toBe(rows[10]);
+    expect(rows[10].tabIndex).toBe(-1);
+    expect(rows[10].textContent).toContain("Site 11");
+    // Focus lost to the page: Tab brings it back into the dialog, Escape on the document still closes.
+    (document.activeElement as HTMLElement).blur();
+    expect(document.activeElement).toBe(document.body);
+    fireEvent.keyDown(document.body, { key: "Tab" });
+    expect(dialog.contains(document.activeElement)).toBe(true);
+    (document.activeElement as HTMLElement).blur();
+    fireEvent.keyDown(document.body, { key: "Escape" });
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(document.activeElement).toBe(opener);
+  });
+
+  it("L2: body carries dd-locked while a drawer is open, not after it closes or the page unmounts", async () => {
+    const view = renderMonth(clientOf(() => ({ status: "loaded", body: worldA() })));
+    await settled();
+    expect(document.body.classList.contains("dd-locked")).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: /^Revenue / }));
+    expect(document.body.classList.contains("dd-locked")).toBe(true);
+    fireEvent.click(within(openDialog()).getByRole("button", { name: "Close" }));
+    expect(document.body.classList.contains("dd-locked")).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: /^Revenue / }));
+    expect(document.body.classList.contains("dd-locked")).toBe(true);
+    view.unmount();
+    expect(document.body.classList.contains("dd-locked")).toBe(false);
   });
 });

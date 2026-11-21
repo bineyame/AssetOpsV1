@@ -7,6 +7,13 @@
 :root {
   --dd-overlay: rgb(15 23 42 / 40%);
   --dd-shadow-drawer: 0 8px 24px rgb(15 23 42 / 18%);
+  /* D-5C.27: the step track column, the same width in every step row and in the scale row above them */
+  --dd-track: 30%;
+}
+
+/* Rev 4 (L2): the page behind an open drawer does not scroll (vNEXT `ux-locked`). */
+body.dd-locked {
+  overflow: hidden;
 }
 
 [data-shape="hub"] > [data-level] {
@@ -124,11 +131,14 @@
   font-weight: var(--weight-semibold);
   font-variant-numeric: tabular-nums;
 }
-.dd-kpi__value--na {
-  font-size: var(--font-size-400);
-  line-height: 24px;
+/* D-5C.26: a figure slot with no figure (its word null) states "Not available yet" once, muted. */
+.dd-na {
   font-weight: var(--weight-medium);
   color: var(--text-secondary);
+}
+.dd-kpi__value.dd-na {
+  font-size: var(--font-size-400);
+  line-height: 24px;
 }
 .dd-kpi__lines {
   margin: 0;
@@ -278,7 +288,7 @@
 }
 .dd-wf__step {
   display: grid;
-  grid-template-columns: minmax(120px, 1.1fr) minmax(76px, auto) minmax(0, 1.2fr) auto minmax(0, auto);
+  grid-template-columns: minmax(120px, 1.1fr) minmax(76px, auto) minmax(0, 1.2fr) auto minmax(0, auto) var(--dd-track);
   align-items: center;
   gap: var(--space-3);
   width: 100%;
@@ -314,6 +324,62 @@
 .dd-wf__share,
 .dd-wf__sites {
   color: var(--text-secondary);
+}
+/* D-5C.27: vNEXT .ux-wf-track, .ux-wf-bar and the wave 2c .ux-wf-scale marks, under dd- names; positions served. */
+.dd-wf__track {
+  grid-column: -2 / -1;
+  position: relative;
+  height: 20px;
+  border-left: 1px solid var(--border-strong);
+}
+.dd-wf__bar {
+  position: absolute;
+  top: 4px;
+  height: 12px;
+  border-radius: 2px;
+}
+.dd-wf__bar--lowers {
+  background: var(--status-red-text);
+}
+.dd-wf__bar--raises {
+  background: var(--status-green-text);
+}
+.dd-wf__scalerow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--dd-track);
+  gap: var(--space-3);
+  padding: 0 var(--space-2);
+}
+.dd-wf__scale {
+  grid-column: 2;
+  position: relative;
+  height: 20px;
+  border-bottom: 1px solid var(--border-strong);
+  font-size: var(--font-size-100);
+  line-height: 16px;
+  color: var(--text-secondary);
+}
+.dd-wf__mark {
+  position: absolute;
+  bottom: 4px;
+  white-space: nowrap;
+}
+.dd-wf__mark--end {
+  transform: translateX(-100%);
+}
+.dd-wf__mark::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  height: 6px;
+  border-left: 1px solid var(--text-secondary);
+}
+.dd-wf__mark--end::after {
+  left: auto;
+  right: 0;
+  border-left: 0;
+  border-right: 1px solid var(--text-secondary);
 }
 
 .dd-details {
@@ -383,12 +449,12 @@
   line-height: 18px;
   color: var(--text-secondary);
 }
-.dd-na {
+.dd-gaps {
   margin: 0;
   padding: 0;
   list-style: none;
 }
-.dd-na__row {
+.dd-gaps__row {
   display: grid;
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 0.6fr);
   gap: var(--space-3);
@@ -397,8 +463,8 @@
   line-height: 18px;
   border-top: 1px solid var(--border-subtle);
 }
-.dd-na__fills,
-.dd-na__sites {
+.dd-gaps__fills,
+.dd-gaps__sites {
   color: var(--text-secondary);
 }
 .dd-showall {
@@ -540,7 +606,14 @@
     grid-column: 1 / -1;
     justify-self: start;
   }
-  .dd-na__row {
+  .dd-wf__track,
+  .dd-wf__scale {
+    grid-column: 1 / -1;
+  }
+  .dd-wf__scalerow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dd-gaps__row {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-1);
   }
