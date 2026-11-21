@@ -22,8 +22,8 @@ import pytest
 URL = os.environ.get("ASSETOPS_TEST_DATABASE_URL")
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 
-MIGRATION, PREVIOUS = "0071_structure_finding", "0066_structure_snapshot"
-REFUSED = "0071 downgrade requires no structure Findings or tolerance declarations"
+MIGRATION, PREVIOUS = "0068_structure_finding", "0067_source_profile"
+REFUSED = "0068 downgrade requires no structure Findings or tolerance declarations"
 UTC = timezone.utc
 OCT, NOV = "2026-10", "2026-11"
 SLUG = "lakeside"
@@ -238,7 +238,7 @@ def _tolerance_table(engine) -> bool:  # noqa: F811
         return c.execute(text("SELECT to_regclass('structure_tolerance') IS NOT NULL")).scalar_one()
 
 
-def test_10_single_head_on_0066() -> None:
+def test_10_single_head_on_0067() -> None:
     from alembic.script import ScriptDirectory
 
     script = ScriptDirectory.from_config(_alembic())

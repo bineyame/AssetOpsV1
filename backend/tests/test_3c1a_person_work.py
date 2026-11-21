@@ -49,6 +49,7 @@ SPEC_ROLES = {
     "domain.create": (SM, FIN), "domain.intent": (SM, FIN), "domain.case_link": (SM,),
     "commercial.upload": ("ANALYST", FIN), "commercial.upload_decision": (FIN, "OPERATOR_EXECUTIVE"),
     "commercial.upload_read": ("ANALYST", FIN, "OPERATOR_EXECUTIVE", SM),
+    "commercial.profile_admit": ("ANALYST", FIN),
     # 3B4 (spec §5.3): the tolerance command's two keys (a command line, no route).
     "structure.tolerance.money": (FIN,), "structure.tolerance.operational": (SM,),
 }

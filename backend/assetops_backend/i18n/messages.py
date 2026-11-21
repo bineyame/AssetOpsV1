@@ -185,12 +185,55 @@ CATALOGUE: dict[str, dict[str, str]] = {
         "commercial_upload.key_erased": (
             "This organisation's customer identities were erased, so its exports are no longer received."),
         # 3A3 (spec §3): the native layout readers' own refusals.
-        "commercial_upload.reason.native_encoding": "the file is not UTF-8 text.",
+        "commercial_upload.reason.native_encoding": "the file is not text in the character encoding this layout reads.",
         "commercial_upload.reason.native_header": (
             "the column headings are not the ones this layout reads, in this order."),
         "commercial_upload.reason.native_row": "this row cannot be read: its cells do not line up with the headings.",
         "commercial_upload.reason.native_value": "this value is not one this layout knows.",
         "commercial_upload.reason.native_character": (
-            "this row holds a character that is not text (such as a NUL byte)."),
+            "this row holds a character that is not text (such as a NUL byte or an invisible mark)."),
+        # 3A6 (spec §2.11): source profiles, their admission, and the intake's two new refusals.
+        "commercial_upload.reason.native_format": (
+            "this value is not written the way this layout reads it (for example, a date in another order)."),
+        "commercial_upload.reason.native_workbook": "this is not an Excel workbook this layout can read.",
+        "commercial_upload.reason.native_too_large": (  # fix round r5 (D-3A6.25)
+            "this file is too large or too complex to read in one upload; split it and upload the parts."),
+        "commercial_upload.reason.native_sheet": (
+            "the workbook must hold exactly one sheet, with the sheet name this layout reads."),
+        "commercial_upload.reader_superseded": "That file layout has a newer version: use {latest}.",
+        "commercial_upload.source_switched": (
+            "These Sites already send this kind of export from another system. Use that system's export, or ask for "
+            "the switch to be set up."),
+        "source_profile.profile_invalid": "The profile is not valid at {where}.",
+        "source_profile.profile_status": (
+            "A profile for an operator's real export must be PINNED; one for emulated data, ILLUSTRATIVE."),
+        "source_profile.profile_lineage": (
+            "A new version cannot change the source type or the source system. Give it a new profile name."),
+        "source_profile.profile_lineage_personal": (
+            "This profile already read accepted files, so who counts as a person cannot change under the same source. "
+            "Records already stored would keep the old values. Ask for the migration, or keep the declaration as it is."),
+        "source_profile.profile_source_system_taken": "Another profile already reads the source system {system}.",
+        "source_profile.profile_already_admitted": "This profile is already admitted.",
+        "source_profile.upload_tenant_mismatch": "This organisation is not known here.",
+        "source_profile.admit_sample_file": "The sample cannot be read: {reason}",
+        "source_profile.admit_sample_size": "The sample must hold 3 to 200 rows; it holds {rows}.",
+        "source_profile.admit_sample_row": "Row {row} of the sample is refused: {field}: {reason}",
+        "source_profile.admit_sample_row_whole": "Row {row} of the sample is refused: {reason}",
+        "source_profile.admit_column_empty": (
+            "No row of the sample has a value in {header}, so the profile's reading of it cannot be checked. Add a "
+            "row that fills it."),
+        "source_profile.admit_map_uncovered": (
+            "No row of the sample has {value} in {header}, so its meaning cannot be checked. Add such a row, or "
+            "remove {value} from the profile."),
+        "source_profile.admit_date_ambiguous": (
+            "The sample cannot show which way round dates are written: add a row whose day is after the 12th."),
+        "source_profile.admit_number_ambiguous": (
+            "The sample cannot show which mark is the decimal mark: add a row with an amount written with its "
+            "decimals."),
+        "source_profile.admit_expected_file": "The expected records must be a JSON list of records.",
+        "source_profile.admit_expected_count": (
+            "The expected file holds {expected} records; the sample gives {records}."),
+        "source_profile.admit_expected": "Row {row} does not read as its expected record: {where} differs.",
+        "source_profile.admit_probe": "The profile does not refuse what it must ({probe}, {where}).",
     },
 }

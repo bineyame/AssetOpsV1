@@ -384,3 +384,4 @@ def test_9_pin_of_key_and_also_pinned() -> None:
                                                                               "MONEY", "USD", "278.0")
     assert set(c) == CLAIM_KEYS
     check_pins()
+

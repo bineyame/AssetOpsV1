@@ -7,23 +7,23 @@ per-Site tolerance declarations.
 - `structure_tolerance`: append-only declarations of a Site's tolerance on an observed leaf, written only by the
   Finding store with a plain INSERT (joins `$findingTables`).
 
-Self-contained: it reads nothing of 0067 to 0070 (unmerged branches); gate B renumbers it on main's head at merge.
+Self-contained: it reads nothing of 0067 (it revises it); renumbered from 0071 at merge.
 Downgrade refuses while any `structure` Finding/revision or tolerance row exists; otherwise it drops the trigger,
 index and table and restores the two 0056 CHECKs.
 
-Revision ID: 0071_structure_finding
-Revises: 0066_structure_snapshot
+Revision ID: 0068_structure_finding
+Revises: 0067_source_profile
 Create Date: 2026-11-21
 """
 from alembic import op
 from sqlalchemy import text
 
-revision = "0071_structure_finding"
-down_revision = "0066_structure_snapshot"
+revision = "0068_structure_finding"
+down_revision = "0067_source_profile"
 branch_labels = None
 depends_on = None
 
-REFUSED = "0071 downgrade requires no structure Findings or tolerance declarations"
+REFUSED = "0068 downgrade requires no structure Findings or tolerance declarations"
 
 # The 0056 definitions, copied as literals and restored exactly by the downgrade.
 DOMAIN_SUBJECT_0056 = """(
@@ -47,8 +47,8 @@ STRUCTURE_SUBJECT_ARM = "OR (domain = 'structure' AND subject_asset_id IS NULL A
 STRUCTURE_MINUTES_ARM = ("OR (domain = 'structure' AND candidate_minutes IS NULL AND necessary_minutes IS NULL"
                          " AND indeterminate_minutes IS NULL)")
 
-DOMAIN_SUBJECT_0071 = DOMAIN_SUBJECT_0056[:-1] + "\n        " + STRUCTURE_SUBJECT_ARM + ")"
-DOMAIN_MINUTES_0071 = DOMAIN_MINUTES_0056[:-1] + "\n        " + STRUCTURE_MINUTES_ARM + ")"
+DOMAIN_SUBJECT_0068 = DOMAIN_SUBJECT_0056[:-1] + "\n        " + STRUCTURE_SUBJECT_ARM + ")"
+DOMAIN_MINUTES_0068 = DOMAIN_MINUTES_0056[:-1] + "\n        " + STRUCTURE_MINUTES_ARM + ")"
 
 
 def _domain_checks(subject: str, minutes: str) -> str:
@@ -93,7 +93,7 @@ DROP TABLE structure_tolerance;
 
 
 def upgrade() -> None:
-    op.execute(_domain_checks(DOMAIN_SUBJECT_0071, DOMAIN_MINUTES_0071))
+    op.execute(_domain_checks(DOMAIN_SUBJECT_0068, DOMAIN_MINUTES_0068))
     op.execute(TOLERANCE_TABLE)
 
 
