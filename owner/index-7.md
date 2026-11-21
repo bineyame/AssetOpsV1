@@ -16,3 +16,4 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-11-21 `owner-ia2b-defaults-2026-11-21.md` Accepts IA-2b defaults: no hub-row Decide, no summed at-stake tile; sticky Decide and count-plus-largest judged at the walkthrough · current
 - 2026-11-21 `owner-one-figure-loyal-to-operating-world-2026-11-21.md` One figure per quantity, model-computed and source-labelled; no design value beside it; fix model faults in the model; stop-70 reads Not available yet until 0K4; 0K4 defaults accepted · current — supersedes row 37 (a)
 - 2026-11-21 `owner-approve-load-aware-timing-tests-2026-11-21.md` Approves load-aware bounds for the T1 P4b and 3A6 n3_r5_b1 timing tests · current
+- 2026-11-21 `owner-away-architect-stands-in-2026-11-21b.md` Owner away several hours from ~18:00 UTC; the Architect stands in; push to complete the two-week plan · current
