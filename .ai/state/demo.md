@@ -254,3 +254,17 @@ Branch `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, from m
   `?state=no-recommendation` jumps to not-found (pre-existing on main); drawer addresses are IA-2d's (R753). G2 stop: the owner sees
   the hub and decision shapes before IA-2.
 
+
+## IA-2a - the plan shape: four tabs, stepper, crew tiles, History (in review 21 Nov)
+
+- Mock-up only. Live: `plan` (Items), `plan/left-out`, `plan/review`, `plan/history`, one shape `shapePlan(ctx, tab)`. L1, identical
+  on every tab: the stepper (Draft › Proposed › Approved › Closed), the band (spend with the budget meter, one crew tile per month with
+  a stated limit, value; Approve and Send back in its act row), the release line, the version notice, the case line when the case is
+  not the proposal (D-IA.51), "Release thresholds" (a drawer). The approval panel left the page (R757); History lists the act log's
+  plan entries, the proposal and the opening (R760). Tabbed routes may set `docTitle`.
+- Byte identity: `planParts`, `approvalParts`, `uxPlanBandParts`, `whatChangedParts` splits; `planScreen` and `whatChangedScreen` in
+  three plan states.
+- Gates: `plan_shape_check` (new), the `count_check` plan block (60 combinations), `shape_check` item 14 (distinct titles per tab
+  group), G1 plan tabs (2) and plan items' decisions (reported at 3), the `copy_check` plan block, `ia_shots` approvefold; plants under
+  `IA_FORCE_LANDED=IA-2a` before the flip; after it, an IA-2a check that prints "dormant" fails `ia_gates`.
+- Open: R758 (Approve in the band, not the title row) and R759 (Review "Not yet") revisit at the IA-2 walkthrough and IA-2d.

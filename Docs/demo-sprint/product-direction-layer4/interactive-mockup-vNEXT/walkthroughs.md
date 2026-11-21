@@ -15,7 +15,7 @@
 - Open `index.html` in a browser; no server is needed. Or, from this folder, run `python3 -m http.server 8790 --bind 127.0.0.1` and open the local address.
 - Choose the operator in the blue review bar at the top (**Demo operator**). The review bar is review tooling, not part of the product. Its screen selector lists every screen.
 - The top bar of every screen shows the period and the snapshot's date: "October 2026 · Figures as of 06:00, 6 Nov".
-- Main routes: `#/plan` and `#/portfolio` with its three tabs (Overview, `/outcomes`, `/demand-and-capacity`; IA-1b, the empty address opens `#/portfolio`); `#/site/<site>`; `#/decision/<id>` (IA-1c: every decision of the operator, its crumbs Decisions › its Site). "Waiting for you" in the top bar opens the inbox in place: For you (the plan version awaiting approval and the decisions the executive chooses; the badge counts these), In your portfolio, and Since you last looked (the choices and approvals made in this tab). The old `#/portfolio/outcomes-by-site` opens `#/portfolio/outcomes`; `/act-first`, `/what-changed` and `/scope` are kept for the review select until their units land (IA-2b, IA-2d).
+- Main routes: `#/plan` with its four tabs (Items, `/left-out`, `/review`, `/history`; IA-2a: the stepper, the spend, crew and value tiles, the release line and Approve or Send back on every tab) and `#/portfolio` with its three tabs (Overview, `/outcomes`, `/demand-and-capacity`; IA-1b, the empty address opens `#/portfolio`); `#/site/<site>`; `#/decision/<id>` (IA-1c: every decision of the operator, its crumbs Decisions › its Site). "Waiting for you" in the top bar opens the inbox in place: For you (the plan version awaiting approval and the decisions the executive chooses; the badge counts these), In your portfolio, and Since you last looked (the choices and approvals made in this tab). The old `#/portfolio/outcomes-by-site` opens `#/portfolio/outcomes`; `/act-first`, `/what-changed` and `/scope` are kept for the review select until their units land (IA-2b, IA-2d).
 
 **Who appears on screen.** People are shown by role title, with the Site for a Site manager, and a fictional first name, labelled illustrative. The roles are the design's five: the operator executive, the finance and commercial lead, the Site manager, the field technician and the analyst. The system recommends; a person chooses, creates the Actions and approves.
 
@@ -53,7 +53,7 @@
 - *Sees:* first the issues needing a decision, each with who decides. Then the plan, proposed by the system for November and December: version 1, awaiting Amina's approval; $3,750.00<!--fig:plans.lakeside-power.default.spend--> of the $5,000.00<!--rec:plans.lakeside-power.budget--> budget; a modelled +$6,088.50<!--fig:plans.lakeside-power.default.value--> from the valued options only. Each item names its owner, its state and an "Effect under each heading": the Kisiwa repair under Protect, the Mto huller under Grow and Optimize. The huller is a capital item, so its Action is created only after approval.
 - *Why it matters:* the plan trades Sites against one budget and one crew, which no single Site can do, and nothing spends above the threshold until the executive approves.
 - *Who:* Amina approves or sends back the version; each item's owner (Halima, David, Peter) creates its operational Actions, and Joseph creates the notice and claim Actions.
-- *Try:* under "What if", switch the budget to $6,500.00<!--rec:plans.lakeside-power.switches.budget[1]--> and the letter of intent to "No"; the plan shows its new spend and value, and the four-case table shows each result.
+- *Try:* under "What if", switch the budget to $6,500.00<!--rec:plans.lakeside-power.switches.budget[1]--> and the letter of intent to "No"; the plan shows its new spend and value, and the four-case table shows each result. The line "Showing the case you chose" then stays on every tab, and Left out lists the Actions that return to their creator. Approve: the dialog, the toast with Undo, the stepper on Approved, the badge down by one and a new first row under History.
 
 **Step 7. Who is doing what.** Route `#/portfolio/what-changed`.
 - *Sees:* every Action with its creator, owner, due date and whether it is released or waiting; the plan's review; and the three verdicts on each chosen change, all "not yet".
@@ -104,7 +104,8 @@
 | `#/portfolio`, each operator | The four cards read as the executive's headings; Grow and Optimize explain the gap; cash stands apart; Protect shows no money of its own |
 | `#/site/kobo`, `#/site/thika`, `#/site/kasarani` | Each factor row names one heading, and the same structure serves all three Site types |
 | `#/decision/kobo-generator`, `#/decision/thika-backup`, `#/decision/kasarani-charger` | Options against doing nothing; who recommends, who chooses, who creates the Actions; each option's "Effect under each heading" |
-| `#/plan`, each operator | Version, owner, item states and thresholds; each switch re-evaluates the plan |
+| `#/plan`, each operator | Version, owner, item states; the thresholds open from "Release thresholds"; each switch re-evaluates the plan |
+| `#/plan/left-out`, `#/plan/review`, `#/plan/history`, each operator | The same header as Items; what is left out and why; the plan's review ("Not yet" while the period is open); versions and approvals, newest first |
 
 **Decisions for the owner** (with their defaults, in `../decisions-register.md`):
 

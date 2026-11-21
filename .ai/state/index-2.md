@@ -79,3 +79,4 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 165. `4d` the monthly litre split: necessary, candidate and unexplained litres (Modelled) from dispatch-3.2 at the fuel curve and the dip balance · data.md
 166. `IA-1c` mock-up decision shape and the "Waiting for you" inbox (IA-1 shape rebuild) · demo.md
 167. `3B7a` the frozen monthly structure snapshot, units 1-3 (store, served read with freshness, build/verify command, migration 0066) · data.md
+168. `IA-2a` mock-up plan shape: four tabs, stepper, crew tiles, History (IA-1 shape rebuild) · demo.md
