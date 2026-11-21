@@ -1,6 +1,6 @@
 # 0K4c: Kobo's declared season v2, with weather spells and a varying load (implementer spec)
 
-Status: live, rev 2 (Architect, Claude, 2026-11-21; handshake answered by D-0K4.26, D-0K4.30). **1.0 unit.** Verification-depth review is enough
+Status: in_review, rev 2 (Architect, Claude, 2026-11-21; handshake answered by D-0K4.26, D-0K4.30). **1.0 unit.** Verification-depth review is enough
 for the fixture, but it feeds a money figure, so a discovery reviewer reads it (W5). Non-screen. No migration. No
 database. `USER_REVIEW_REQUIRED: false`. Rulings: `specs/0K4-dispatch-model-review/rulings.md` (D-0K4.8, D-0K4.7, D-0K4.26).
 Reviewer guide: `reviewer-guide.md`.

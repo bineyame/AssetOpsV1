@@ -63,8 +63,10 @@ from assetops_backend.analytics.ev_reads import (
 )
 from assetops_backend.analytics.assessment_inputs import (
     BRACKET,
+    CONTROL_BATTERY_CAPACITY,
     CONTROL_BATTERY_RESERVE,
     CONTROL_MINIMUM_RUNTIME,
+    CONTROL_PCS_EFFICIENCY,
     AcceptedReading,
     ControlValue,
     EvidenceQuery,
@@ -331,6 +333,15 @@ class PostgresAssessmentStore:
                 else:
                     controls.append(ControlValue(CONTROL_MINIMUM_RUNTIME, minutes, "min", valid_from, valid_to,
                                                  rev_id, f"{runtime.get('source')} v{runtime.get('source_version')}"))
+            # 0K4e (dispatch-3.3): the energy-to-cover inputs; absent, nothing is added (the analytic names it).
+            for key, kind, name, unit in ((CONTROL_BATTERY_CAPACITY, "BATTERY", "battery-energy-capacity", "kWh"),
+                                          (CONTROL_PCS_EFFICIENCY, "POWER_CONVERSION_SYSTEM",
+                                           "pcs-conversion-efficiency", "%")):
+                found = _property(content, kind, name)
+                if found is not None and found.get("value") is not None:
+                    controls.append(ControlValue(key, format(Decimal(str(found["value"])), "f"), unit, valid_from,
+                                                 valid_to, rev_id,
+                                                 f"{found.get('source')} v{found.get('source_version')}"))
         ordered = sorted(foundations, key=lambda r: r[2])
         for a, b in zip(ordered, ordered[1:]):
             if a[3] is None or a[3] > b[2]:

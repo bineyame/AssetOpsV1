@@ -102,7 +102,9 @@
     {"case_id": "F05", "label": "limitation-and-closure", "day": "2026-10-21",
      "steps": [
        {"do": "deliver", "decided": "2026-10-30T15:00:00Z", "blocks": [
-         {"from": "2026-10-21T08:00:00Z", "to": "2026-10-21T09:00:00Z", "pv": "29", "dis": "20", "soc": "50", "stop_before": true, "stop_after": true}]},
+         {"from": "2026-10-21T08:00:00Z", "to": "2026-10-21T09:00:00Z", "pv": "29", "dis": "20", "soc": "50", "stop_before": true, "stop_after": true},
+         {"from": "2026-10-21T09:05:00Z", "to": "2026-10-21T09:30:00Z", "pv": "29", "only": ["load", "pv"], "note": "0K4e (dispatch-3.3): load and PV go on after the run until PV alone covers the load, so the battery's energy to solar cover is evidenced"},
+         {"from": "2026-10-21T09:35:00Z", "to": "2026-10-21T09:45:00Z", "pv": "40", "only": ["load", "pv"]}]},
        {"do": "assess"},
        {"do": "match", "expect": [{"anchor": "2026-10-21T08:00:00Z", "new": true, "transition": "OPENED", "lifecycle": "SUPPORTED"}]},
        {"do": "runtime", "value": 120, "effective_from": "2026-10-21T00:00:00Z", "decided": "2026-10-30T15:10:00Z"},

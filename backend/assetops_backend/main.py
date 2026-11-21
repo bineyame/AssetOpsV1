@@ -212,6 +212,8 @@ from assetops_backend.commercial.composition import (COMMERCIAL_UNAVAILABLE, bui
                                                      commercial_upload_settings)
 from assetops_backend.commercial.uploads import CommercialUploads
 from assetops_backend.commercial_upload_api import build_commercial_upload_router
+from assetops_backend.deep_dive.composition import build_deep_dive_read
+from assetops_backend.deep_dive_api import build_deep_dive_router
 from assetops_backend.accounts.composition import (ACCOUNTS_UNAVAILABLE, build_account_service, require_person,
                                                    session_cookie_secure)
 from assetops_backend.accounts.service import AccountService
@@ -694,6 +696,14 @@ def create_app(
         commercial_uploads, registry.ledger_scope, accounts=accounts,
         unavailable=(*ACCOUNTS_UNAVAILABLE, *COMMERCIAL_UNAVAILABLE, SiteStoreUnavailable, FoundationStoreError),
         access=site_read_access))
+    # 5c (spec §4.2; D-5C.7): the month explained, over 3B7a's snapshot read and 3A7's standing; 503 with no database.
+    deep_dive_read = None
+    if database_url():
+        deep_dive_read, deep_dive_dispose = build_deep_dive_read(database_url())
+        app.router.on_shutdown.append(deep_dive_dispose)
+    app.include_router(build_deep_dive_router(
+        deep_dive_read, accounts=accounts, real_data=upload_settings.real_data,
+        unavailable=(*ACCOUNTS_UNAVAILABLE, *COMMERCIAL_UNAVAILABLE, SiteStoreUnavailable, FoundationStoreError)))
     # W5-02a K1a (ruling A2): the domain Action commands through the same W4 gate. `domain_work_principal` is the
     # server SERVICE principal for tests/host wiring; by default none is injected (as for W4), so a write is 403.
     app.include_router(build_domain_work_router(

@@ -7,7 +7,7 @@ the two ingredients are stored reads, both in one REPEATABLE READ snapshot:
 - whether each declared input has a usable accepted record: one latest-GOOD-reading probe per bound role
   (`role_presence`), or a configured Foundation control for a policy row. A row with no mapping, or a kind the
   stored model does not record (stop threshold, operator override), fails closed: not available.
-- the coverage of the selected dispatch-3.2 interval revisions (`selected_intervals_on`), adapted by
+- the coverage of the selected dispatch-3.2/3.3 interval revisions (`selected_intervals_on`), adapted by
   `v3_assessment_view` from `claim_limit_read.segment_roles`, so the panel and the claim-limit section read the same
   per-role status of the same stored segments. Configured capability is never counted as observed (S3-02a rule).
 """
@@ -42,7 +42,7 @@ ROLE_OF_REQUIREMENT: dict[str, tuple[str, str | None]] = {
     "Operator override": (NOT_STORED, None),
 }
 
-#: The coverage inputs of a stored dispatch-3.2 revision: the claim-limit rule's required roles besides generator
+#: The coverage inputs of a stored dispatch-3.2/3.3 revision: the claim-limit rule's required roles besides generator
 #: state, labelled as the stored segments' `missing` texts name them.
 COVERAGE_ROLES = (dispatch_v3.LOAD, dispatch_v3.PV_AVAILABLE, dispatch_v3.DISCHARGE, dispatch_v3.SOC)
 
@@ -136,7 +136,7 @@ def _unobserved(segments: list[dict[str, Any]]) -> list[dict[str, str]]:
 
 
 def v3_assessment_view(revision: dict[str, Any]) -> dict[str, Any]:
-    """One stored dispatch-3.2 INTERVAL revision as the dict `score_readiness` reads: per-input usable vs evaluated
+    """One stored dispatch-3.2/3.3 INTERVAL revision as the dict `score_readiness` reads: per-input usable vs evaluated
     (observed) segments from `segment_roles` (unknown problem text is not covered), the generator-state unobserved
     spans, each segment's `missing` labels, and an `assessed_window` (first segment start to last segment end) so
     `in_window` applies unchanged. Any other model is refused."""
