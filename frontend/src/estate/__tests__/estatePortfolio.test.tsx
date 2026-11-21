@@ -2199,7 +2199,7 @@ describe("PL-1: a lens change keeps the page and loads the panel only", () => {
  */
 describe("PF-T Portfolio section tabs", () => {
   const WINDOW_QUERY = "from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-10-07T00:05:00Z";
-  const TAB_NAMES = ["Overview", "Act first", "Outcomes by site", "Opportunity", "What changed", "Scope & coverage"];
+  const TAB_NAMES = ["Overview", "The month", "Act first", "Outcomes by site", "Opportunity", "What changed", "Scope & coverage"];
 
   function renderTabs(entry: string, client: EstateClient) {
     return render(
@@ -2228,17 +2228,18 @@ describe("PF-T Portfolio section tabs", () => {
   it("every tab link carries from, to and known_at", async () => {
     renderTabs(`/portfolio?${WINDOW_QUERY}`, portfolioClient(loadedPortfolio(portfolioBody())));
     await settledScreen();
-    for (const a of tabLinks()) {
+    // 5c (spec §5.1): "The month" is the plain path, its state `?month=`; every other tab carries the window.
+    for (const a of tabLinks().filter((l) => pathOf(l) !== "/portfolio/month")) {
       const p = paramsOf(a);
       expect([p.get("from"), p.get("to"), p.get("known_at")]).toEqual(["2026-10-06T00:00:00Z", "2026-10-07T00:00:00Z", "2026-10-07T00:05:00Z"]);
     }
-    expect(tabLinks().map(pathOf)).toEqual(["/portfolio", "/portfolio/act-first", "/portfolio/outcomes", "/portfolio/opportunity", "/portfolio/changes", "/portfolio/scope"]);
+    expect(tabLinks().map(pathOf)).toEqual(["/portfolio", "/portfolio/month", "/portfolio/act-first", "/portfolio/outcomes", "/portfolio/opportunity", "/portfolio/changes", "/portfolio/scope"]);
   });
 
   it("lens travels on the Act first link only", async () => {
     renderTabs(`/portfolio/act-first?${WINDOW_QUERY}&lens=cost`, portfolioClient(loadedPortfolio(portfolioBody({ lens: "cost" }))));
     await settledScreen();
-    expect(tabLinks().map((a) => paramsOf(a).get("lens"))).toEqual([null, "cost", null, null, null, null]);
+    expect(tabLinks().map((a) => paramsOf(a).get("lens"))).toEqual([null, null, "cost", null, null, null, null]);
   });
 
   it("an unknown count shows no badge, never 0", async () => {
@@ -2255,7 +2256,7 @@ describe("PF-T Portfolio section tabs", () => {
     const body = portfolioBody({ total_count: 6, summary: { ...base.summary, opportunity_count: 1, accepted_action_count: 3 } });
     renderTabs(`/portfolio?${WINDOW_QUERY}`, portfolioClient(loadedPortfolio(body)));
     await settledScreen();
-    expect(tabLinks().map((a) => a.querySelector("[data-pf-tab-count]")?.textContent ?? null)).toEqual([null, "6", null, "1", "3", null]);
+    expect(tabLinks().map((a) => a.querySelector("[data-pf-tab-count]")?.textContent ?? null)).toEqual([null, null, "6", null, "1", "3", null]);
   });
 
   it("a tab change keeps the page mounted, reads nothing again and moves focus to the panel heading", async () => {

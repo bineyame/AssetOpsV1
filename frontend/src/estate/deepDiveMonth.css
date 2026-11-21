@@ -1,0 +1,546 @@
+/*
+ * 5c unit 3 (spec §5.2, §5.3): "The month" in IA-1b's hub shape. Layout values of vNEXT ux.css (.ux-kpis, .ux-kpi,
+ * .ux-wf*, .ux-drawer*, .ux-headline) carried over under dd- names, on the live product's tokens (ui/tokens.css).
+ * Font sizes only from the guide's scale (12, 13, 14, 16, 20, 24 px); colours only through tokens. The two values
+ * the live token set has no name for (the drawer's scrim and shadow) are tokens in the block below.
+ */
+:root {
+  --dd-overlay: rgb(15 23 42 / 40%);
+  --dd-shadow-drawer: 0 8px 24px rgb(15 23 42 / 18%);
+}
+
+[data-shape="hub"] > [data-level] {
+  display: contents;
+}
+
+.dd-month {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 1280px;
+  min-width: 0;
+  color: var(--text-primary);
+}
+
+/* ---------- header ---------- */
+.dd-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.dd-head__title {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+}
+.dd-head h1 {
+  margin: 0;
+  font-size: var(--font-size-700);
+  line-height: 32px;
+  font-weight: var(--weight-semibold);
+}
+.dd-operator {
+  margin: 0;
+  font-size: var(--font-size-300);
+  line-height: 20px;
+  color: var(--text-secondary);
+}
+.dd-nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  font-size: var(--font-size-300);
+  line-height: 20px;
+}
+.dd-nav__link {
+  color: var(--accent);
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+.dd-nav__link:disabled {
+  color: var(--text-secondary);
+  cursor: default;
+}
+.dd-nav__current {
+  font-weight: var(--weight-semibold);
+}
+
+/* ---------- L1: the lead and the tiles ---------- */
+.dd-lead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+.dd-headline {
+  margin: 0;
+  max-width: 90ch;
+  font-size: var(--font-size-600);
+  line-height: 28px;
+  font-weight: var(--weight-semibold);
+}
+.dd-status,
+.dd-fresh {
+  margin: 0;
+  font-size: var(--font-size-300);
+  line-height: 20px;
+  color: var(--text-secondary);
+}
+.dd-fresh {
+  color: var(--status-amber-text);
+}
+
+.dd-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+.dd-kpi {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+.dd-kpi__label {
+  font-size: var(--font-size-200);
+  line-height: 18px;
+  font-weight: var(--weight-medium);
+  color: var(--text-secondary);
+}
+.dd-kpi__value {
+  font-size: var(--font-size-700);
+  line-height: 32px;
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+.dd-kpi__value--na {
+  font-size: var(--font-size-400);
+  line-height: 24px;
+  font-weight: var(--weight-medium);
+  color: var(--text-secondary);
+}
+.dd-kpi__lines {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--font-size-200);
+  line-height: 18px;
+  color: var(--text-secondary);
+}
+
+.dd-chip {
+  display: inline-block;
+  padding: 0 var(--space-2);
+  font-size: var(--font-size-100);
+  line-height: 18px;
+  font-weight: var(--weight-medium);
+  color: var(--status-neutral-text);
+  background: var(--status-neutral-bg);
+  border: 1px solid var(--status-neutral-border);
+  border-radius: var(--radius-md);
+  white-space: nowrap;
+}
+.dd-chip--headline {
+  vertical-align: 3px;
+}
+
+.dd-bar {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  margin: var(--space-1) 0;
+  background: var(--surface-sunken);
+  border-radius: 2px;
+}
+.dd-bar__actual {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background: var(--text-primary);
+  border-radius: 2px;
+}
+.dd-bar__target {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 0;
+  border-left: 2px dashed var(--text-secondary);
+}
+
+/* ---------- L2: the queue ---------- */
+.dd-queue {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+.dd-panel,
+.dd-section {
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-300);
+  line-height: 20px;
+}
+.dd-panel h2,
+.dd-section h2 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-400);
+  line-height: 24px;
+  font-weight: var(--weight-semibold);
+}
+.dd-panel p,
+.dd-section p {
+  margin: 0 0 var(--space-2);
+}
+.dd-section h3 {
+  margin: var(--space-4) 0 var(--space-2);
+  font-size: var(--font-size-300);
+  line-height: 20px;
+  font-weight: var(--weight-semibold);
+}
+.dd-actions {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dd-action {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--border-subtle);
+}
+.dd-action__title {
+  font-weight: var(--weight-medium);
+}
+.dd-action__meta,
+.dd-more,
+.dd-meta {
+  font-size: var(--font-size-200);
+  line-height: 18px;
+  color: var(--text-secondary);
+}
+
+/* ---------- L3: the bridge ---------- */
+.dd-section__title {
+  color: var(--text-secondary);
+}
+.dd-notice {
+  padding: var(--space-2) var(--space-3);
+  background: var(--attention-bg);
+  border: 1px solid var(--status-amber-border);
+  border-radius: var(--radius-md);
+}
+.dd-totals {
+  margin: var(--space-2) 0;
+}
+.dd-totals__line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  font-size: var(--font-size-200);
+  line-height: 18px;
+}
+.dd-num {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.dd-wf,
+.dd-wf__steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dd-wf__group + .dd-wf__group {
+  margin-top: var(--space-3);
+}
+.dd-wf__grouprow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 6px 0;
+  font-weight: var(--weight-semibold);
+  border-bottom: 1px solid var(--border-strong);
+}
+.dd-wf__step {
+  display: grid;
+  grid-template-columns: minmax(120px, 1.1fr) minmax(76px, auto) minmax(0, 1.2fr) auto minmax(0, auto);
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: 6px var(--space-2);
+  font: inherit;
+  font-size: var(--font-size-200);
+  line-height: 18px;
+  text-align: left;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+}
+.dd-wf__step:hover {
+  background: var(--surface-hover);
+}
+.dd-wf__step:focus-visible,
+.dd-button:focus-visible,
+.dd-link:focus-visible,
+.dd-nav__link:focus-visible,
+.dd-details summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.dd-wf__label {
+  color: var(--accent);
+  font-weight: var(--weight-medium);
+}
+.dd-wf__value {
+  text-align: right;
+}
+.dd-wf__share,
+.dd-wf__sites {
+  color: var(--text-secondary);
+}
+
+.dd-details {
+  margin-top: var(--space-3);
+}
+.dd-details summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-size: var(--font-size-200);
+  line-height: 18px;
+}
+.dd-details[open] summary {
+  margin-bottom: var(--space-2);
+}
+
+.dd-link,
+.dd-button {
+  font: inherit;
+  cursor: pointer;
+}
+.dd-link {
+  padding: 0;
+  color: var(--accent);
+  background: none;
+  border: 0;
+  text-align: left;
+}
+.dd-button {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--font-size-300);
+  line-height: 20px;
+  color: var(--text-primary);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+}
+
+/* ---------- L3: by outcome ---------- */
+.dd-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+.dd-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+.dd-card__label {
+  font-size: var(--font-size-200);
+  line-height: 18px;
+  font-weight: var(--weight-medium);
+  color: var(--text-secondary);
+}
+.dd-card__value {
+  font-size: var(--font-size-400);
+  line-height: 24px;
+  font-weight: var(--weight-semibold);
+}
+.dd-card__line {
+  font-size: var(--font-size-200);
+  line-height: 18px;
+  color: var(--text-secondary);
+}
+.dd-na {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dd-na__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 0.6fr);
+  gap: var(--space-3);
+  padding: 6px 0;
+  font-size: var(--font-size-200);
+  line-height: 18px;
+  border-top: 1px solid var(--border-subtle);
+}
+.dd-na__fills,
+.dd-na__sites {
+  color: var(--text-secondary);
+}
+.dd-showall {
+  padding: 6px 0;
+  font-size: var(--font-size-200);
+  line-height: 18px;
+}
+.dd-state {
+  margin: 0;
+  font-size: var(--font-size-300);
+  line-height: 20px;
+}
+.dd-state p {
+  margin: 0 0 var(--space-2);
+}
+
+/* ---------- drawers (vNEXT .ux-drawer*) ---------- */
+.dd-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+}
+.dd-drawer__scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--dd-overlay);
+}
+.dd-drawer__panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  width: min(480px, 100%);
+  background: var(--surface-raised);
+  box-shadow: var(--dd-shadow-drawer);
+  border-radius: 12px 0 0 12px;
+}
+.dd-drawer__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.dd-drawer__head h2 {
+  margin: 0;
+  font-size: var(--font-size-400);
+  line-height: 24px;
+  font-weight: var(--weight-semibold);
+}
+.dd-drawer__body {
+  flex: 1;
+  overflow: auto;
+  padding: var(--space-5);
+  font-size: var(--font-size-300);
+  line-height: 20px;
+}
+.dd-drawer__body h3 {
+  margin: var(--space-4) 0 var(--space-2);
+  font-size: var(--font-size-300);
+  line-height: 20px;
+  font-weight: var(--weight-semibold);
+}
+.dd-drawer__word {
+  margin: var(--space-2) 0;
+}
+.dd-lines,
+.dd-sites,
+.dd-drivers {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dd-lines li + li {
+  margin-top: var(--space-1);
+}
+.dd-lines--note {
+  margin-top: var(--space-3);
+  color: var(--text-secondary);
+}
+.dd-site,
+.dd-driver {
+  padding: var(--space-2) 0;
+  border-top: 1px solid var(--border-subtle);
+}
+.dd-site__name,
+.dd-driver__label {
+  font-weight: var(--weight-medium);
+}
+.dd-site__stop,
+.dd-driver__meta {
+  display: block;
+  margin: var(--space-1) 0 0;
+  font-size: var(--font-size-200);
+  line-height: 18px;
+  color: var(--text-secondary);
+}
+
+/* ---------- widths (spec §5.3) ---------- */
+@media (max-width: 1279px) {
+  .dd-kpis,
+  .dd-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 1023px) {
+  .dd-queue {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .dd-kpis,
+  .dd-cards {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+  .dd-headline {
+    font-size: var(--font-size-400);
+    line-height: 24px;
+  }
+  .dd-wf__step {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .dd-wf__share,
+  .dd-wf__sites {
+    grid-column: 1 / -1;
+  }
+  .dd-na__row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1);
+  }
+  .dd-drawer__panel {
+    width: 100%;
+    border-radius: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dd-drawer__scrim,
+  .dd-drawer__panel {
+    transition: none;
+  }
+}
