@@ -1813,10 +1813,6 @@
  "backend/assetops_backend/commercial/months.py": [
   "e:_digest:4255c43c9e09"
  ],
- "backend/assetops_backend/commercial/profiles.py": [
-  "h:_swap_day_month:052fded502f9",
-  "h:_swap_day_month:d40e38ccee22"
- ],
  "backend/assetops_backend/commercial/pseudonym_key.py": [
   "f:main:04112b7ce720",
   "g:<module>:a749344e542b",
@@ -1829,9 +1825,6 @@
   "g:CanonicalJsonReader.field_label:f0e5665b47a1",
   "g:LayoutReader.field_label:2ac52aeb2993",
   "g:LayoutReader.field_label:f0e5665b47a1"
- ],
- "backend/assetops_backend/commercial_upload_api.py": [
-  "g:build_commercial_upload_router.run:395904969735"
  ],
  "backend/assetops_backend/config.py": [
   "a:load_feature_flags:3a5c80a9144f",
@@ -1929,9 +1922,6 @@
   "e:mini_grid_lines:7a8b7a4ba4e1",
   "e:windowed_lines:3041cf99ffcd",
   "g:<module>:ccacbf2aac73"
- ],
- "backend/assetops_backend/estate/index.py": [
-  "g:opportunity_read:693eaf7b776b"
  ],
  "backend/assetops_backend/estate/money_invariants.py": [
   "a:double_count_violations:e1b74498cfe2"
