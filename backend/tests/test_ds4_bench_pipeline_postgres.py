@@ -5,7 +5,8 @@ slice. Opt-in and slow; `world bench` runs it under a base database of its own:
         backend/tests/test_ds4_bench_pipeline_postgres.py -s
 
 DS3's seed relabelled `minigrid-roles-4` (so mini-domain jobs exist), cloned once; fourteen Kobo days (6 to 19
-October) bulk-loaded; the Site enrolled; then ticks (`tools/demo_combined.py`'s `TICK` plus `--no-prebuild`) until
+October) bulk-loaded; the Site enrolled; the mini-depth step (the worker's `run-pending --limit 500` until a pass
+returns fewer than 500, at most 20 passes: D-DS4.29, as every product drain runs it first); then ticks (`tools/demo_combined.py`'s `TICK` plus `--no-prebuild`) until
 `demo_combined_drain.step` says `done` or `fail`, or 200 ticks. Prints one `DS4_PIPELINE {json}` line. It asserts
 nothing about time; a `fail` verdict is reported, not hidden. Both clones are dropped in `finally`.
 """
@@ -29,6 +30,8 @@ ROOT = Path(__file__).resolve().parents[2]
 DAYS = 14
 TICK_CAP = 200
 PERF = "assetops.perf "
+MINI_LIMIT = 500
+MINI_PASS_CAP = 20
 
 pytestmark = [
     pytest.mark.slow,
@@ -71,6 +74,36 @@ def perf_stages(stderr: str) -> dict[str, int]:
     return out
 
 
+def mini_depth_step(env: dict[str, str]) -> dict:
+    """The mini-depth jobs drained with the worker's own CLI, as `demo_combined.drain_mini` does. FAILED outcomes
+    are counted, not raised; a pass with no parsable outcome list is a broken worker, not a measurement."""
+    passes, jobs, by_status, stopped = 0, 0, {}, "PASS_CAP"
+    while passes < MINI_PASS_CAP:
+        done = subprocess.run([sys.executable, "-m", "assetops_backend.mini_depth.worker", "run-pending", "--limit",
+                               str(MINI_LIMIT)], cwd=str(ROOT), env=env, capture_output=True, text=True)
+        outcomes = None
+        for line in reversed([x for x in done.stdout.splitlines() if x.startswith("[")]):
+            try:
+                outcomes = json.loads(line)
+            except ValueError:
+                continue
+            break
+        assert outcomes is not None, done.stderr[-500:]
+        passes += 1
+        jobs += len(outcomes)
+        for o in outcomes:
+            status = str(o.get("status"))
+            by_status[status] = by_status.get(status, 0) + 1
+        if len(outcomes) < MINI_LIMIT:
+            stopped = "DRAINED"
+            break
+    return {"passes": passes, "jobs": jobs, "by_status": dict(sorted(by_status.items())), "stopped": stopped}
+
+
+def cut(counts: dict) -> dict:
+    return {code: {f: site[f] for f in drain.FIELDS} for code, site in counts.items()}
+
+
 def test_pipeline_on_fourteen_kobo_days() -> None:
     seed, kit, _ = seed_database("ds4pseed", relabel=True)
     urls = [seed]
@@ -88,8 +121,12 @@ def test_pipeline_on_fourteen_kobo_days() -> None:
                                 "--tenant-id", str(kit.principal.tenant_id), "--site-id", str(kit.principal.site_id),
                                 "--by", "service:ds4-bench"], cwd=str(ROOT), env=env, capture_output=True, text=True)
         assert enrol.returncode == 0, enrol.stderr[-500:]
+        t0 = time.perf_counter()
+        mini = mini_depth_step(env)
+        mini_seconds = time.perf_counter() - t0
         history: list[dict] = []
-        n = drain.n_for(drain.counts(pipe))
+        first = drain.counts(pipe)
+        n = drain.n_for(first)
         ticks, wall, stage_ms = 0, 0.0, {}
         verdict, reason = "fail", "tick cap"
         while ticks < TICK_CAP:
@@ -106,7 +143,9 @@ def test_pipeline_on_fourteen_kobo_days() -> None:
                 verdict, reason = state, why
                 break
         result = {"site_days": DAYS, "batches": loaded.batches, "envelopes": loaded.envelopes,
-                  "load_seconds": round(load_seconds, 3), "ticks": ticks, "tick_wall_seconds": round(wall, 3),
+                  "load_seconds": round(load_seconds, 3), "mini_depth_seconds": round(mini_seconds, 3),
+                  "mini_depth": mini, "n": n, "start_counts": cut(first), "end_counts": cut(history[-1]),
+                  "ticks": ticks, "tick_wall_seconds": round(wall, 3),
                   "stage_ms": dict(sorted(stage_ms.items())), "drain": {"verdict": verdict, "reason": reason}}
         print("\nDS4_PIPELINE " + json.dumps(result, sort_keys=True, separators=(",", ":")))
     finally:

@@ -1167,7 +1167,7 @@ def cmd_check(world: World) -> int:
 # --- bench (§4; D-DS4.11, D-DS4.12) ----------------------------------------------------------------------------------
 
 BENCH_PREFIX = "assetops_worldbench"
-FORMAT_BENCH = "assetops.world-bench/1"
+FORMAT_BENCH = "assetops.world-bench/2"
 BENCH_CLONES = ("b1", "b2", "b3")
 LATE_LABEL = "bl"
 LATE_SITE = "KOBO-001"
@@ -1191,14 +1191,27 @@ def bench_evidence_dir(path: str | Path) -> Path:
     return resolved
 
 
+def _pipeline_lines(stdout: str) -> list[str]:
+    return [x.strip() for x in (stdout or "").splitlines() if x.strip().startswith(PIPELINE_MARK)]
+
+
 def pipeline_line(stdout: str) -> dict | None:
-    """The last `DS4_PIPELINE {json}` line of B5's output, parsed; None when there is none."""
-    found = None
-    for line in (stdout or "").splitlines():
-        line = line.strip()
-        if line.startswith(PIPELINE_MARK):
-            found = json.loads(line[len(PIPELINE_MARK):])
-    return found
+    """The last `DS4_PIPELINE {json}` line of B5's output, parsed; None when there is none or it is malformed."""
+    lines = _pipeline_lines(stdout)
+    if not lines:
+        return None
+    try:
+        found = json.loads(lines[-1][len(PIPELINE_MARK):])
+    except ValueError:
+        return None
+    return found if isinstance(found, dict) else None
+
+
+def pipeline_marker(stdout: str) -> str:
+    """`PARSED` (the last marker line parses), `MALFORMED` (it does not) or `MISSING` (there is none)."""
+    if not _pipeline_lines(stdout):
+        return "MISSING"
+    return "PARSED" if pipeline_line(stdout) is not None else "MALFORMED"
 
 
 def assemble_bench(start: Mapping[str, Any], ladder: Sequence[Mapping[str, Any]], clones: Sequence[Mapping[str, Any]],
@@ -1208,15 +1221,22 @@ def assemble_bench(start: Mapping[str, Any], ladder: Sequence[Mapping[str, Any]]
     totals = {r["rung"]: float(r["seconds"]) for r in ladder}
     l1, l2 = totals.get("L1"), totals.get("L2")
     measured = pipeline.get("measured") if pipeline else None
-    proj: dict = {"kind": "PROJECTION_NOT_MEASUREMENT", "sites": projection["sites"], "days": projection["days"],
-                  "basis": projection["basis"], "per_site_day_seconds": None, "projected_l2_seconds": None}
-    if measured and measured.get("site_days") and l2 is not None:
-        per = (float(measured["load_seconds"]) + float(measured["tick_wall_seconds"])) / int(measured["site_days"])
+    drain = ((measured or {}).get("drain") or {}).get("verdict")
+    proj: dict = {"kind": "PROJECTION_NOT_MEASUREMENT", "role": "INFORMATION_ONLY", "sites": projection["sites"],
+                  "days": projection["days"], "basis": projection["basis"], "input_drain": drain,
+                  "per_site_day_seconds": None, "per_site_day_includes": ["BULK_LOAD", "MINI_DEPTH", "TICKS"],
+                  "projected_l2_seconds": None}
+    if measured and measured.get("site_days") and measured.get("mini_depth_seconds") is not None and l2 is not None:
+        per = (float(measured["load_seconds"]) + float(measured["mini_depth_seconds"])
+               + float(measured["tick_wall_seconds"])) / int(measured["site_days"])
         proj["per_site_day_seconds"] = round(per, 3)
         proj["projected_l2_seconds"] = round(l2 + per * int(projection["sites"]) * int(projection["days"]), 3)
     projected = proj["projected_l2_seconds"]
-    ds7 = {"threshold_seconds": DS7_THRESHOLD_SECONDS, "measured_l2_seconds": l2, "projected_l2_seconds": projected,
-           "triggered": None if projected is None else projected > DS7_THRESHOLD_SECONDS, "basis": projection["basis"]}
+    ds7 = {"threshold_seconds": DS7_THRESHOLD_SECONDS, "reading": "MEASURED_L2", "measured_l2_seconds": l2,
+           "triggered": None if l2 is None else l2 > DS7_THRESHOLD_SECONDS, "decide_at": "FIRST_WORLD_TELEMETRY",
+           "basis": projection["basis"],
+           "projection": {"role": "INFORMATION_ONLY", "input_drain": drain, "projected_l2_seconds": projected,
+                          "exceeds_threshold": None if projected is None else projected > DS7_THRESHOLD_SECONDS}}
     clone_seconds = [float(c["seconds"]) for c in clones]
     targets = [
         {"operation": "load_inputs", "target": "under 1 min", "against": "B1.L1", "measured_seconds": l1},
@@ -1391,7 +1411,8 @@ def cmd_bench(world: World) -> int:
         late = _late_record(world, l2["database"], l2)
         code, out = harness_run(world, "b5", PIPELINE_TEST, {"ASSETOPS_DS4_BENCH": "1"}, args=("-s",))
         tail = out.strip().splitlines()[-1] if out.strip() else ""
-        pipeline = {"exit": code, "tail": tail[:300], "measured": pipeline_line(out)}
+        pipeline = {"exit": code, "tail": tail[:300], "marker": pipeline_marker(out),
+                    "measured": pipeline_line(out)}
     finally:
         swept["after"] = _bench_sweep(world)
         world.quiet = False
