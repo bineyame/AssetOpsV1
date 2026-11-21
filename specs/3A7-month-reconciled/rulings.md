@@ -176,3 +176,14 @@ gate named here has a plant in `reviewer-guide.md` rev 2 that fails it.
 - **P4 (Low).** Residual for the packet: `build_commercial_reconciliation` adds `structure` to
   `commercial.composition`'s import closure, so 3B7a's code digest changes (as 3A6's P9).
 - **P5.** Noted; K's fuel share changes to 2.25% under D-3A7.10, every other figure stands.
+
+## Amendment (SC-1, 2026-11-21): words as statements (D-SC1.14)
+
+If `SC-1a` (`specs/SC-1-statement-composer/spec.md`) has merged when this unit's code starts, §2.7 is written as
+structured statements in `i18n/statements/en/reconciliation.py`, not flat `messages.py` entries: the heading sentence
+exactly as SC-1 §5.1 (states as an `exhaustive` variant set, `{gap}` and `{share}` as parts, D-3A7.10's rounding as
+variant options, "less than 0.01" as the money format's `tiny`); the statement, standing and refusal sentences by the
+same rules (refusal examples as `example` slots); `money_word` applies the shared `evidence` format (D-SC1.16);
+`commercial/reconciliation.py` joins the guard's `ADOPTED`; every variant gets a case. Money reads in SC-1's one form
+(D-SC1.10): `$505.00`, not `505.00 USD`; this unit's expected strings change by that rule only. Otherwise §2.7 ships as
+written, its keys join the legacy baseline, and SC-1b converts them. Either way nothing waits.

@@ -202,3 +202,13 @@ rev 2. Each gate named here has a plant in `reviewer-guide.md` rev 2 that fails 
 - **P4 (Low).** `build_deep_dive_read(url)` builds 3B7a's snapshot read, 3A7's `(reconciliation, dispose)` and the
   actions port, and disposes all three; test 9 injects 3A7's months clock.
 - **P5 (Low).** MD7's note says the live Portfolio's six tabs against vNEXT's three predate 5c; "The month" makes seven.
+
+## Amendment (SC-1, 2026-11-21): words as statements (D-SC1.14)
+
+If `SC-1a` (`specs/SC-1-statement-composer/spec.md`) has merged when unit 1 starts, §2.5 is written as structured
+statements in `i18n/statements/en/deep_dive.py` (the headline exactly as SC-1 §5.2; every other row by the same rules:
+`{below|above}` and similar as picks, "appended when k < n" and optional fragments as parts, one / two or three / more
+Sites as variants, `{a|an}` as the factor vocabulary's declared article); §2.1's formats are SC-1's formats (identical
+by D-SC1.10); §2.2 to §2.4 are read from SC-1's shared vocabulary; `deep_dive/words.py` keeps only the functions that
+build facts (which heading is named, `needs` keys), and it and `deep_dive/view.py` join the guard's `ADOPTED`; every
+variant gets a case. Otherwise §2 ships as written, its keys join the legacy baseline, and SC-1b converts them.
