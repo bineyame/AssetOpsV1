@@ -1,6 +1,6 @@
 # SC-1 rulings
 
-Architect (Claude), 2026-11-21, rev 2 (handshake round 1 answered: D-SC1.17 to D-SC1.27). Each ruling states the decision and its reason. Index lines:
+Architect (Claude), 2026-11-21, rev 2 (handshake round 1 answered: D-SC1.17 to D-SC1.27); D-SC1.28 added 2026-11-21 (owner away). Each ruling states the decision and its reason. Index lines:
 `.ai/decisions/index-rulings-15.md`. Owner words: `owner/owner-text-composition-clean-2026-11-21.md`.
 
 ## D-SC1.1 Extend the existing message seam; one renderer
@@ -234,6 +234,8 @@ Architect (Claude), 2026-11-21, rev 2 (handshake round 1 answered: D-SC1.17 to D
 
 ## D-SC1.26 3A7 and 5c adopt; their code starts after SC-1a merges (amends D-SC1.14; R18)
 
+**Amended by D-SC1.28 (owner away, 2026-11-21): code starts on the unit's other gates; only the text, and the merge, wait for SC-1a.**
+
 - **Ruling.** The legacy fallback of D-SC1.14 is withdrawn. 3A7's code starts when both 3A6 and SC-1a have merged;
   5c's unit 1 when SC-1a has (its other gates stand). The coordinator checks `git merge-base --is-ancestor <SC-1a merge>
   main` when dispatching each and says so in the builder's brief. If 3A6 merges first, SC-1a takes the next free lane
@@ -249,6 +251,41 @@ Architect (Claude), 2026-11-21, rev 2 (handshake round 1 answered: D-SC1.17 to D
   template. A changed template is `LEGACY_CHANGED`; a new key `LEGACY_NEW`. Keys 3A6 adds join the baseline in 3A6's
   merge (or SC-1a's, whichever is later, from `main` at that merge); no other unit adds one.
 - **Reason.** A ratchet by name alone lets a legacy template take a digit or a new field unseen.
+
+## D-SC1.28 Text waits for SC-1a; code does not (amends D-SC1.26; owner away, Architect on the owner's behalf)
+
+Decided 2026-11-21 under `owner/owner-away-architect-decides-2026-11-21.md`; logged as row 1 of
+`specs/OWNER-AWAY/decisions-2026-11-21.md` for the owner's review. This answers decision queue Q6.
+
+- **Scope.** Every unit not merged when SC-1a merges whose code adds served text: a sentence, a display word, a
+  refusal sentence or a message key. Today: 3A7, 3C2 (D-3C2.14) and 5c; any tail unit that starts before SC-1a merges
+  (3B2, 3C1b, 4a, 3B4 and the rest). 3A6 keeps D-SC1.27.
+- **Code starts on the unit's other gates.** Until SC-1a has merged, the branch adds no served text in any form: no
+  `messages.CATALOGUE` key, no prose constant, f-string sentence, word map, `.join` of words or placeholder. What will
+  be shown leaves the service as codes and typed values (`Decimal`, a state code such as `OPEN`, a refusal code), and
+  the tests assert those, never words.
+- **The text commit.** After SC-1a merges, the branch merges `main` first, then writes all of its text as SC-1
+  structured statements (by that unit's SC-1 amendment) in its own last commit: its modules join `ADOPTED`, every
+  variant has a hand-written case (D-SC1.12), and SC-1a's guard reports no `HAND_BUILT_NEW` and no `LEGACY_NEW` for
+  the unit. Word and exact-string assertions are written in that commit.
+- **3A7's split.** Commit 1: migration 0068, store and adapter, `reconciliation.py`'s standing as codes and
+  `Decimal`s (§2.1 to §2.6), the guard's table list, R1 to R10 without word assertions. Commit 2 (after SC-1a):
+  §2.7 as statements (its SC-1 amendment), composition, the command, M1 to M5, Q1 to Q3, the word assertions,
+  check-all, packet. 5c is unchanged in effect: its unit 1 already needs 3A7 merged.
+- **Merge and review.** The unit merges only after SC-1a (the coordinator checks
+  `git merge-base --is-ancestor <SC-1a merge> main` at the text commit's dispatch and at merge). One review of the
+  whole unit, after the text commit.
+- **Agents.** The builder stops after the non-text commit with a handoff, freeing its slot; the text commit is a
+  fresh builder from that handoff.
+- **Reason.** The owner asked for text composed "the clean way ... not brittle hard coding and if else mess"
+  (`owner/owner-text-composition-clean-2026-11-21.md`) and, for the absence, that "nothing is stuck". The fallback
+  ships hand-built text and converts it later, which is what the owner ruled out. Strict-on-code idles lane A on the
+  critical chain (3A6 → 3A7 → 5c → DDR) for most of SC-1a's 3.5 units. Gating the text, not the code, keeps every
+  served word composed by SC-1 from the first line that reaches any branch, and moves about one lane-day of 3A7 and
+  3C2 into SC-1a's build time. The non-text commit does not depend on SC-1a, so a change in SC-1a's review touches
+  only the text commit.
+- **Reverse.** Withdraw this ruling and D-SC1.26 stands again; a non-text commit already made stays valid under it
+  (it is the first part of the same unit, made earlier).
 
 ## Handshake answers (round 1)
 

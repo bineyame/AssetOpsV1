@@ -222,3 +222,6 @@ DEVIATION** (category: honesty rule, every figure carries its evidence class). T
 notice are SC-1 §5.4's shapes; prices use SC-1's `price` format. Every template or vocabulary word holding a number
 word is reworded to drop it (D-SC1.21): `SITE_SETUP` reads "a generator and a fuel tank declared in the Site's setup
 (litres are worked out for each)". This unit's expected strings change by these rules only; the packet lists each.
+
+**Amended (owner away, 2026-11-21; D-SC1.28 replaces D-SC1.26's start rule above).** Code starts on its gates (3B7a and 3A7 merged; 3A7 now merges only after SC-1a, so unit 1 still starts after SC-1a); only the
+text waits: no 5c code writes served text outside SC-1 statements (D-SC1.28). The unit merges only after SC-1a.
