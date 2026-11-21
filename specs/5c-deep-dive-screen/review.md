@@ -573,3 +573,183 @@ statements).
 ACCEPT WITH FIXES. Fix M3 (the literal and dropping the reference, Architect to confirm) and M4 (the all-KES test) on
 the branch before units 1 and 2 merge. A verification round then checks those two only. L7's reword and L9 are
 recommended, not blocking; the Architect logs the L7 literal decision.
+
+## Unit 3 round 1: the screen "The month", discovery review (W5)
+
+Reviewer (Claude, fresh; did not author the work), 2026-11-21. Branch `task/5c-unit3-screen` at 4beb26c09, diffed
+against `main` (units 1 and 2 at 08f3bf86c).
+
+**Summary (verdict READY FOR WALKTHROUGH).**
+- No figure is computed in the browser. Every tile, step, cell and KES amount is the served string. The only
+  arithmetic is the bar ratio; the month-link labels are made from `nav` codes (labels, not figures).
+- D-5C.20, .21, .22, .23 and World X's currency lines render as ruled.
+- The gates pass on worlds A, X and H. I ran the `fold` and `scroll` plants myself and both fail as named.
+- The page's own colours have a contrast of at least 4.56:1. No text is under 12 px. At 390 px the page width is 390.
+- The `DD_NOT_AVAILABLE_TITLE` exemption is narrow. A planted "Not available yet" still fails the scan.
+- check-all (fast) at 4beb26c09: all 42 blocking guards passed.
+- One Medium finding is in unit 1's view on `main`, outside this diff. When the gap is not available, every step reads
+  "Offsets it". It does not show on the single-currency walkthrough tenant, so it is routed, not blocking.
+- Five Lows: focus after "Show all" in a drawer, no background lock, a mute keyed by tile key, no freshness check on
+  the generated fixtures, and `--world` only labels the run.
+- Items 6 and 7 are recommendations for the Architect.
+
+### Checks run (4beb26c09)
+
+- `bash tools/heavy-slot.sh --wait-seconds 3000 -- pwsh -NoProfile -File tools/check-all.ps1`: "check-all: 147.8 s
+  wall … All 42 guards passed (blocking; 0 advisory, 0 warned)." It covers the architecture seams, the agent
+  workflow, and the missing-claim scan ("passed: 44 tagged placement use(s), 10 baselined legacy occurrence(s)").
+  The builder's run was at 915d42288. HEAD adds only the packet.
+- Vitest, through the slot, on `DeepDiveMonth.test.tsx`, `estatePortfolio.test.tsx` and
+  `estatePortfolioRoutes.test.tsx`: 3 files, 115 passed. `tsc --noEmit`: exit 0. `vite build`: built, exit 0.
+- `vite preview` on 127.0.0.1:5583 (stopped after). `tools/deep_dive_gates.cjs` on world A
+  (`backend/tests/fixtures/5c/deep_dive_lakeside_2026-10.json`), X and H: each exit 0, 9 lines each (lint plus 8
+  views), 0 failures.
+  - A: 6 blocks. Headline 1 line at 1440 and 2 at 1280 (2 at both with D's headline). L1 ends at 511 px (1440 × 900)
+    and 575 px (1280 × 720). Headline and status end at 513 px at 390 × 844. Hub 1,738 px at 1440. Width 390 at 390.
+    0 texts under 12 px, 0 page errors.
+  - X: L1 ends at 455 and 459 px. Hub 1,642 px.
+- Plants, mine. `fold`: exit 1 on every view ("L1 ends at 1315 px, below the 900 px fold"; at 390: "the headline and
+  status end at 1317 px"). `scroll`: exit 1 ("page width 616 px at a 390 px viewport"). The builder's eight plants are
+  in `evidence/5c/unit3b/gates-summary.txt`, each exit 1.
+- Fixture drift: I ran `make_screen_worlds.py` into scratch. Both outputs are byte-identical to the committed
+  `deep_dive_world_h.json` and `deep_dive_currency_mismatch.json`.
+- Missing-claim scan, planted in memory through `analyze()` with the real registry, mirror and baseline:
+  - clean tree: 0 errors;
+  - a JSX `<p>Not available yet</p>` in the page: `untagged_copy DeepDiveMonth.tsx:481`;
+  - a new const `"Not available yet"`: `untagged_copy :58`;
+  - a second const holding the exempt title text: `untagged_copy :58`;
+  - the exempt const's text changed: `untagged_copy :34`.
+- Contrast from `ui/tokens.css` for the page's own pairs:
+  - text-secondary on raised 5.03, on page 4.69, on sunken 4.56;
+  - chip 6.92; accent 6.70; amber on page 5.51.
+- Shots read: `evidence/5c/unit3b/shots/` A and X at 1440, A at 390, and H's fuel-cost drawer at 390. The mock read:
+  vNEXT `loop-ux.js` `uxOverviewParts` and `uxBridge`, and `walkthroughs.md` §2 steps 1 to 3.
+
+Not verified:
+- The screen served from a real `_test` database (MBQ6: fixtures through `page.route`).
+- A screen reader pass.
+- Dark captures: they render the light theme (MBQ3).
+
+### Judged
+
+1. **Nothing computed in the browser: holds.**
+   - `DeepDiveMonth.tsx` has no `toFixed`, `toLocaleString`, `Intl` or `parseFloat`. `Number(` appears only in
+     `barWidths` (`:76-82`). `parseInt` is used only on month codes, for link labels (`:62-71`).
+   - Test 10 pins each tile and step value in place.
+   - The per-text-node money check (`moneyIn`) runs on A, on X, and on every X drawer.
+   - Plant X1 is recorded as failing.
+2. **The rev 3 rulings, rendered.**
+   - D-5C.21: nested `<ul>` inside the driver's `<li>` (`:209-224`). The H shot shows the indent and rule.
+   - D-5C.22: caps of 10 Sites in the drawer `sites`, `by_site` and the cash table, and 8 not-available rows, with
+     "Show all n" (`:187-203`, `:264-299`). Tested at 12 and at 9.
+   - D-5C.20: the headline chip (`:306-313`), "Estimated, not yet reconciled" in the A shot. X has none
+     (`evidence` []).
+   - D-5C.23: Kisiwa's O&M cell is checked against the served row.
+   - World X: Mto's line is asserted in every step drawer, and "−KES 600.00" is printed with no "$".
+3. **Gates.** Every check in spec §5.3 and §5.4 is implemented, and each plant names its check.
+   - The 390 fold covers the headline and status, as the spec says.
+   - `--world` is sound as a label, but it is no more than a label (L5).
+4. **Accessibility and modern UI.**
+   - Drawers are `role=dialog`, `aria-modal`, labelled by their h2. Focus moves to Close and the Tab cycle stays in the
+     drawer. Escape, the scrim and Close all close it, and focus returns to the opener. Gaps: L1 and L2.
+   - Nothing is under 12 px, and sizes are on the scale.
+   - The 4.12:1 and 4.35:1 contrasts are the shell's demonstration bar and the shared `DataTable` header. Both were
+     there before this slice, so they are not 5c findings (residual risk).
+   - At 390 px: one column; the step rows wrap the share, chip and Sites under the label; the tab row scrolls inside
+     its own box; width 390.
+5. **`DD_NOT_AVAILABLE_TITLE` (`tools/checks/missing-claim-scan.mjs:84-90`).** The exemption is justified. It is
+   keyed by file, const name and exact text, and it cites spec §5.2, D-5C.11 and D-5C.14. The title names a section
+   of served claims and is not a claim itself. Every plant above still fails the scan.
+
+### Findings
+
+**M1 (Medium; unit 1's view on `main`, outside this diff; surfaced by World X). A step reads "Offsets it" when the gap
+is not available.**
+- **Where:** `backend/assetops_backend/deep_dive/view.py:274`, `gap = self.R.effect or Decimal(0)`, then `:284-285`.
+- **What is wrong:** when `R.effect` is None, the gap is taken as 0, so every non-zero step gets share −1, worded
+  "Offsets it". World X shows "Fuel cost −KES 600.00 Offsets it" beside a gap of "Not available yet". A fuel-cost
+  overspend that would widen the gap is stated as offsetting a gap that is not known. That is a wrong claim on an
+  executive figure.
+- **Why it does not block the walkthrough:** the rehearsed Lakeside tenant is single-currency, so R is available. Any
+  tenant whose R is not available (mixed currencies, or no target) shows it.
+- **Fix:** when `R.effect` is None, `share` is null for every step (the page already omits a null share), or a "not
+  compared" share word if the Architect prefers. Add a 4 i case asserting no "Offsets it" when R has no effect.
+  Rerun `make_screen_worlds.py` so World X follows.
+
+**L1 (Low). After "Show all" inside a drawer, focus leaves the dialog.**
+- **Where:** `DeepDiveMonth.tsx:194-198` (the button unmounts on click) and `:141-159` (Escape and the Tab trap
+  listen on the panel only).
+- **What happens:** focus drops to `<body>`. Escape then does nothing and Tab walks the page behind the modal. It only
+  happens with more than 10 Sites.
+- **Fix:** move focus to the first newly shown row (tabIndex −1) or to the list, and listen for Escape on `document`
+  while a drawer is open, as vNEXT's `uxOpen` does.
+
+**L2 (Low). The page behind an open drawer still scrolls, and is not inert.**
+- **Where:** `:160-172`. vNEXT adds `ux-locked` to `body`.
+- **Fix:** lock body scroll while a drawer is open. `inert` on the hub siblings is optional.
+
+**L3 (Low; tied to item 6). The tile mute is keyed by tile key.**
+- **Where:** `:328`, `tile.key.startsWith("plan")`. The page styles by key, so a Contribution tile with no figure is
+  not muted (the builder's open point).
+- **Fix:** with item 6's rule, mute on `word === null && bar === null`, which is a served shape and not a key.
+
+**L4 (Low). The generated screen fixtures have no freshness check.**
+- **Where:** `backend/tests/fixtures/5c/make_screen_worlds.py`.
+  - It imports private helpers from a test module (`t._in_kes`, `t._gone`, `t.view`).
+  - It monkeypatches `V.site_bridge` with a copy of `test_4_i_currency_card_word_beside_no_figure`'s world.
+  - The committed JSON is current today (I regenerated it byte-identical).
+- **Risk:** a later backend wording change leaves `deep_dive_currency_mismatch.json` stale while the frontend tests
+  stay green. World H is partly guarded by the hand-written comparison; World X is not guarded at all.
+- **Fix:** a no-database backend test that builds both worlds in memory and compares them with the committed files,
+  failing with "rerun make_screen_worlds.py". Move the World X patch into one helper shared by that test and 4 i.
+
+**L5 (Low). `--world` names the run, nothing more.**
+- **Where:** `tools/deep_dive_gates.cjs:27-31`, `:156-161`.
+- **What happens:** the name is not checked against the fixture. For X and H, the two "with-D-headline" views paste
+  Lakeside's USD D headline into another world, yet are named `X-with-D-headline…`. That is harmless as a line-count
+  gate, but the shot names mislead.
+- **Fix:** run the D-headline views for world A only, or name them `…-longest-headline`.
+
+### Item 6: World X's Contribution and Gap tiles (recommendation for the Architect)
+
+The tile states "Not available yet" twice: as the value at full figure size, and as the chip. The plan tiles state it
+once, muted. The headline already follows the owner's one-statement rule (D-5C.20: `evidence` [] when it states no
+figure).
+
+Recommend one class rule: **a figure slot with no figure states "Not available yet" once, as its value, muted, with
+no chip.**
+- Server (`view.py`): serve `word` null wherever the value is the not-available statement. This covers tiles, outcome
+  cards (it revises L9's "word too"), steps (X's Revenue step shows the same pair) and the cash word.
+- Page: mute on `word === null && bar === null`, and drop the key test (L3).
+
+This keeps D-5C.2: the page reads the shape, not words. If the Architect keeps L9's chip, the page should still mute
+the value; the duplication would then remain.
+
+### Item 7: MBQ5 (no per-step bars)
+
+**Yes, it is a gap from the mock.**
+- vNEXT `uxBridge` draws each step as `.ux-wf-bar` on the gap's scale (`s.pos`).
+- That waterfall is the overview's one chart (guide §9) and the visual of walkthrough step 2.
+- It is labelled (MD11, R767, open), so it is not a High.
+
+Recommendation: the server serves each step's position as plain decimals, as it does for the tile's `bar`. For
+example `bar: {"from", "to"}` on the target-to-actual scale, `null` for a step with no effect or a mixed currency. The
+page maps them to percentages, as `barWidths` does.
+- This needs one Architect line extending D-5C.2's "one ratio" to served positions.
+- It is about 0.25 unit across unit 1 and the page.
+- If it does not land before the walkthrough, the owner should be told that the bridge shows rows without bars.
+
+### Residual risk the packet does not name
+
+- Any tenant whose R is not available shows "Offsets it" (M1).
+- At 390 px, A's headline runs 3 lines. This is not gated (the spec gates 1440 and 1280), but it is on the phone path.
+- Shared parts below 4.5:1 (the demonstration bar and the `DataTable` header) appear on this screen. They belong to the
+  UI lane.
+
+### Disposition
+
+READY FOR WALKTHROUGH.
+- Nothing in this diff is High or Medium.
+- M1 goes to unit 1's owner. It does not appear on the walkthrough tenant, but should be fixed before 5c merges.
+- L1 to L5 are recommended on the branch; none blocks.
+- Items 6 and 7 go to the Architect.
