@@ -228,5 +228,10 @@ def _now() -> datetime:
 
 def build_agreed_actions(database_url: str, *, clock: Callable[[], datetime] = _now) -> AgreedActionsService:
     store = PostgresAgreedActionStore(database_url)
-    return AgreedActionsService(AgreedActionService(store, build_account_service(database_url), clock=clock),
-                                store.dispose)
+    accounts = build_account_service(database_url)
+
+    def dispose() -> None:  # both pools: the agreed store's and the accounts store's
+        store.dispose()
+        accounts._store.dispose()
+
+    return AgreedActionsService(AgreedActionService(store, accounts, clock=clock), dispose)

@@ -228,14 +228,16 @@ def test_7c_the_advisory_lock_serialises_the_identity_read(lake, engine) -> None
     assert _count(engine) == 1
 
 
-def test_7d_the_site_lookup_folds_case(lake) -> None:
+def test_7d_the_site_lookup_folds_case(lake, engine) -> None:  # noqa: F811
     assert lake["adapter"].site(lake["tenant"], "kobo-001") == (lake["sites"]["KOBO-001"], "MINIGRID", "KOBO-001")
     assert lake["adapter"].site(lake["tenant"], "NOPE-001") is None
+    other_op = seed_tenant(engine, "other-op")  # F2: a Site code another tenant does not own is not found
+    assert lake["adapter"].site(other_op, "KOBO-001") is None
 
 
 # --- test 8: the read over the adapter ----------------------------------------------------------------------------
 
-def test_8_the_read_is_newest_first_with_names(lake) -> None:
+def test_8_the_read_is_newest_first_with_names(lake, engine) -> None:  # noqa: F811
     ids = iter((1, 2, 3, 5, 4))
     clock = Clock(T_R1)
     service = AgreedActionService(lake["adapter"], build_account_service(URL), clock=clock,
@@ -270,3 +272,22 @@ def test_8_the_read_is_newest_first_with_names(lake) -> None:
     finally:
         composed.dispose()
     assert [(v.action_id.int, v.title, v.owner_name, v.site_code) for v in read] == expected
+
+
+def test_8b_the_read_is_tenant_scoped(lake, engine) -> None:  # noqa: F811
+    """F2: an agreed change in a second tenant never shows in Lakeside's read, and Lakeside's never in theirs."""
+    other = seed_tenant(engine, "other-op")
+    accounts = build_account_service(URL)
+    try:
+        zara_id = accounts.onboard_create("other-op", "zara@other-op.example", "Zara", PW, executive=True)
+    finally:
+        accounts._store.dispose()
+    service = AgreedActionService(lake["adapter"], build_account_service(URL), clock=Clock(T_R1))
+    service.record(tenant_slug=SLUG, as_email=email("amina"), title=TITLE, owner_email=email("peter"),
+                   due_on=date(2026, 12, 15), site_code="KOBO-001", factor_id=None)
+    service.record(tenant_slug="other-op", as_email="zara@other-op.example", title="Zara change",
+                   owner_email="zara@other-op.example", due_on=date(2026, 12, 15), site_code=None, factor_id=None)
+    assert [v.title for v in service.for_tenant(lake["tenant"])] == [TITLE]
+    theirs = service.for_tenant(other)
+    assert [(v.title, v.owner_name) for v in theirs] == [("Zara change", "Zara")]
+    assert zara_id
