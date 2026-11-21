@@ -856,3 +856,45 @@ def test_f1_3_the_class_budget_record_and_classify_agree_on_every_leaf() -> None
     assert p("MONEY/KWH").has_money_dimension and p("MONEY").has_money_dimension
     assert not p("L").has_money_dimension and not p("KWH").has_money_dimension
     assert not p("MONEY/KWH").is_money
+
+
+# --- F1 review: each money-unit call site fails a revert to `is_money` (price units: MONEY/KWH) -----------------------
+
+def test_f1_4_solve_main_probes_a_price_main_leaf_with_the_currency() -> None:  # rules.py solve_main
+    leaves = _toy_leaves("0.40")
+    leaves["x"] = LeafValue(D("100"), "RECORDED", ("x",), None, None, None, (E,))
+    leaves["p"] = LeafValue(None, "NOT_AVAILABLE", (), None, Missing("p", "DECLARED", "NOT_RECEIVED", None, (), None,
+                                                                     None), None)
+    assert target_rules.solve_main(_toy("x * p"), leaves, "y", "p", D("25"), currency=USD) == (D("0.25"), None)
+
+
+def _patched_rules(monkeypatch, **leaf_rules: str) -> None:
+    from types import MappingProxyType
+    from assetops_backend.structure.targets import read as target_read
+    patched = MappingProxyType({MG: MappingProxyType({**target_rules.TARGET_RULE[MG], **leaf_rules})})
+    monkeypatch.setattr(target_read, "TARGET_RULE", patched)
+
+
+def test_f1_5_a_price_leaf_taken_at_zero_carries_the_currency(monkeypatch) -> None:  # read.py LEAK_ZERO site
+    _patched_rules(monkeypatch, tariff=target_rules.LEAK_ZERO)
+    v = read_site(lakeside(), "KOBO-001").structure.values
+    assert (v["tariff"].value, v["tariff"].currency) == (D("0"), USD)
+    w = lakeside()
+    ingest(w, STEP_3_AT, PERSON_1, budget_batch([
+        budget_line("KOBO-001", "BUD-2026-10:KOBO-001:fuel_cost", "fuel_cost", "875.00", currency="EUR",
+                    source_version="2")]))
+    v = read_site(w, "KOBO-001").structure.values
+    assert v["tariff"].value is None
+    assert_missing(v["tariff"], X_("TARGET_CURRENCY_UNKNOWN"))
+
+
+def test_f1_6_a_solved_price_main_leaf_carries_the_currency(monkeypatch) -> None:  # read.py MAIN site
+    from assetops_backend.structure.targets import read as target_read
+    _patched_rules(monkeypatch, tariff=target_rules.MAIN, delivered_kwh=target_rules.AT_ACTUAL,
+                   necessary_l=target_rules.AT_ACTUAL)
+    monkeypatch.setattr(
+        target_read, "MAIN_OF", {MG: {"tariff": ("revenue",)}})
+    over = {"KOBO-001": {"delivered_kwh": LeafValue(D("8550"), "RECORDED", ("x",), None, None, None, (E,)),
+                         "productive_tariff": actual_assumed("productive_tariff", "0.30")}}
+    v = read_site(lakeside(), "KOBO-001", over).structure.values
+    assert (v["tariff"].value, v["tariff"].currency) == (D("0.4"), USD)

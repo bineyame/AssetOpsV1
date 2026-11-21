@@ -233,7 +233,7 @@ def test_s11a_every_valued_part_with_empty_origins_is_refused(key, factor_id, st
     assert err.factor_id == factor_id
 
 
-    from assetops_backend.structure.evaluate import _check_leaf
+def test_s11a_the_registry_yields_money_and_non_money_leaves():
     from assetops_backend.structure.registry import REGISTRIES
     rows = [REGISTRIES[p.values[0]].row(p.values[1]) for p in _valued_cases() if not p.values[2]]
     assert any(r.unit.has_money_dimension for r in rows) and any(not r.unit.has_money_dimension for r in rows)
