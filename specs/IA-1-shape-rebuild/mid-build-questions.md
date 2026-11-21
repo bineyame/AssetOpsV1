@@ -26,5 +26,7 @@ IA-2's wayfinding pass? Default if unanswered: as built (crumbs hidden where the
 
 ## IA-2a
 
+Reset to 0 after the IA-2a handshake (spec rev 5, 2026-11-21).
+
 Count: **0**. Write each question as Q1, Q2 … (the unit, the section of `spec.md` §5.1, what is stopped, what is built,
 what you ask). The Architect rules in `rulings-2.md`.
