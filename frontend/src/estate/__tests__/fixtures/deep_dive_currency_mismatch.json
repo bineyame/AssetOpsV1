@@ -34,7 +34,7 @@
       "key": "contribution",
       "label": "Contribution",
       "value": "Not available yet",
-      "word": "Not available yet",
+      "word": null,
       "lines": [
         "2 of 3 Sites"
       ],
@@ -44,7 +44,7 @@
       "key": "gap",
       "label": "Gap to target",
       "value": "Not available yet",
-      "word": "Not available yet",
+      "word": null,
       "lines": [],
       "bar": null
     },
@@ -80,6 +80,7 @@
       "target_label": "Target",
       "target": "Not available yet"
     },
+    "scale": null,
     "groups": [
       {
         "key": "GROW_REVENUE",
@@ -91,8 +92,9 @@
             "label": "Revenue",
             "value": "Not available yet",
             "share": null,
-            "word": "Not available yet",
+            "word": null,
             "sites": "2 of 3 Sites",
+            "bar": null,
             "drawer": {
               "title": "Revenue",
               "lines": [
@@ -129,9 +131,10 @@
             "key": "fuel_cost",
             "label": "Fuel cost",
             "value": "−KES 600.00",
-            "share": "Offsets it",
+            "share": null,
             "word": "Emulated, not yet reconciled",
             "sites": "1 of 3 Sites",
+            "bar": null,
             "drawer": {
               "title": "Fuel cost",
               "lines": [
@@ -206,9 +209,10 @@
             "key": "om",
             "label": "O&M",
             "value": "$0.00",
-            "share": "No effect",
+            "share": null,
             "word": "Estimated, not yet reconciled",
             "sites": "1 of 3 Sites",
+            "bar": null,
             "drawer": {
               "title": "O&M",
               "lines": [
@@ -238,9 +242,10 @@
             "key": "staff",
             "label": "Staff",
             "value": "$0.00",
-            "share": "No effect",
+            "share": null,
             "word": "Emulated, not yet reconciled",
             "sites": "1 of 3 Sites",
+            "bar": null,
             "drawer": {
               "title": "Staff",
               "lines": [
@@ -327,7 +332,7 @@
   "cash": {
     "title": "Cash collected, outside the contribution gap",
     "text": "Cash collected in October is not available yet.",
-    "word": "Not available yet",
+    "word": null,
     "sites": "2 of 3 Sites",
     "table": {
       "columns": [
@@ -374,7 +379,7 @@
       "key": "grow",
       "label": "Grow revenue",
       "value": "Not available yet",
-      "word": "Not available yet",
+      "word": null,
       "line": "Revenue against target, 2 of 3 Sites",
       "drawer": null
     },
@@ -382,7 +387,7 @@
       "key": "optimize",
       "label": "Optimize cost and efficiency",
       "value": "Not available yet",
-      "word": "Not available yet",
+      "word": null,
       "line": "Fuel, O&M and staff against target; cash collected is shown apart",
       "drawer": null
     },

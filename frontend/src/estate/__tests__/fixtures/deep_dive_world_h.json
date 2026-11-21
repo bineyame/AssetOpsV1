@@ -90,6 +90,10 @@
       "target_label": "Target",
       "target": "$2,295.00"
     },
+    "scale": {
+      "target_at": "0.00",
+      "actual_at": "100.00"
+    },
     "groups": [
       {
         "key": "GROW_REVENUE",
@@ -103,6 +107,11 @@
             "share": "11% of what widens the gap",
             "word": "Emulated, not yet reconciled",
             "sites": "3 of 3 Sites",
+            "bar": {
+              "left": "0.00",
+              "width": "11.38",
+              "tone": "lowers"
+            },
             "drawer": {
               "title": "Revenue",
               "lines": [
@@ -147,6 +156,11 @@
             "share": "89% of what widens the gap",
             "word": "Emulated, not yet reconciled",
             "sites": "3 of 3 Sites",
+            "bar": {
+              "left": "11.38",
+              "width": "88.62",
+              "tone": "lowers"
+            },
             "drawer": {
               "title": "Fuel cost",
               "lines": [
@@ -231,6 +245,7 @@
             "share": "No effect",
             "word": "Estimated, not yet reconciled",
             "sites": "3 of 3 Sites",
+            "bar": null,
             "drawer": {
               "title": "O&M",
               "lines": [
@@ -270,6 +285,7 @@
             "share": "No effect",
             "word": "Emulated, not yet reconciled",
             "sites": "3 of 3 Sites",
+            "bar": null,
             "drawer": {
               "title": "Staff",
               "lines": [
