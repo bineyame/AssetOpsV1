@@ -89,7 +89,7 @@ def test_t1_47_rows_31_leaves_16_nodes():
     assert len(MG.rows) == 47
     assert sum(r.is_leaf for r in MG.rows) == 31
     assert sum(not r.is_leaf for r in MG.rows) == 16
-    assert set(REGISTRIES) == {"MINI_GRID"}
+    assert set(REGISTRIES) == {"MINI_GRID", "COLD_CHAIN", "EV_DEPOT_CAPTIVE"}  # 3B6 (D-3B6.1)
 
 
 def test_t1_nodes_and_expressions_equal_the_manifest_structure():
