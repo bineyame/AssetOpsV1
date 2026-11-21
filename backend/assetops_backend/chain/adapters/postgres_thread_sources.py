@@ -29,6 +29,7 @@ _FINDING_SOURCES = (
     "AND f.id = r.finding_id JOIN site s ON s.tenant_id = r.tenant_id AND s.id = r.site_id "
     "WHERE r.tenant_id = :t AND (CAST(:s AS uuid) IS NULL OR r.site_id = CAST(:s AS uuid)) "
     "AND (CAST(:after AS timestamptz) IS NULL OR r.created_at > CAST(:after AS timestamptz)) "
+    "AND f.domain <> 'structure' "  # 3B4 (D-3B4.9): no thread source; its event is consumed with nothing placed
     "ORDER BY r.created_at, r.id")
 
 _OPPORTUNITY_SOURCES = (

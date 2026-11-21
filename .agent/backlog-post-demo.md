@@ -101,3 +101,41 @@
 | BL-70 | **Keep a build's working files out of its frozen code copy.** A demo build runs from `var/<work>/tree`, a copy of its commit, but some run-time outputs live inside it (e.g. the file-backed legacy S2 comparison report), which is why replacing `tree` once broke the Kobo overview (R6.3) and why the copy may never be touched. Move every run-time output to `var/<work>/` outside `tree` (or the DB), make `tree` read-only after `prepare`, and record the build's commit + tag in `story.json`. Then a reviewed one-file change to check code is safe and auditable. | Owner 2026-11-11 (tag + backlog item); coordinator explanation of R6.3 | Not visible to a client; the current rule (fresh prepare for new code) is safe meanwhile | Architect to size (est. 0.5–1.0) |
 | BL-71 | **Connection budget and degraded reads beyond the stored routes** (D-E5.47 remainder). One shared engine factory with a capped pool (`ASSETOPS_DB_POOL_SIZE`/`MAX_OVERFLOW`) in place of about 20 per-adapter `create_engine` default pools. The prebuild calls the running serve over HTTP instead of a second in-process `create_app`. Non-stored routes answer 503 `TEMPORARILY_UNAVAILABLE` on a transient read failure instead of PARTIAL. | Architect D-E5.47, 2026-11-11 (E3d outcome-summary defect) | INFRA-1 covers every stored route and the prebuild; ops rules (no suites during builds/demos, `max_connections=300`) cover the rest for the demo | 0.75 |
 | BL-72 | **Continuous Cold stream and a weekday EV depot** (D-E5.48 remainder). The Cold producer attests per run instead of once per epoch, so a Cold Site can be one continuous recording stream. EV-LAB-001 declares weekday charging hours (not Tuesday only), with an EV story backfill of ordinary weekdays across every story week so that no expected day is left empty. | Architect D-E5.48, 2026-11-11 (DATA-11 / PB-3 report) | For 17 Nov, daily Cold uploads are faithful, and EV-HB records the full declared Tuesday hours | 1.0 |
+
+## From the 3B2 review (2026-11-21, ACCEPT)
+- L1: record the `STRUCTURE_PIN_MISSING -/<mechanism>` text ("-" in the key position, 3B1's format) in 3B2 spec §3 or rulings.
+- Residual: `pinned_category` raises KeyError when a pin's structure has no registry (should be a coded refusal).
+- Residual: nothing checks that a pin's own mechanism matches its key.
+
+## Pre-existing failures on main (found by DS3, 2026-11-21; DS3 mid-build ruling: own task)
+- `test_s4_evidence_decided_at_postgres` (10 tests) and `test_s2_rejection_placement` (1) fail identically on main 8eff70625. Route to their own task; check whether environmental first.
+
+## From the 3B6 review (2026-11-21, ACCEPT)
+- L1: test 5c checks a cited record's name in a file, not the record itself (deleting the ev_connector_* roles still passes via the cadence map).
+- L2: packet says read.py names no cold or EV key; it does (site-type map, as the spec requires). Fix the packet text.
+- L3: test 6c covers only `staff` for the COMMERCIAL_KEYS guard; add `outstanding`.
+
+## From the SC-1a round-3 review (2026-11-21, ACCEPT)
+- Low: the I18N_BYPASS scan misses assignment aliases (`r = i18n.render; r.formats`), an aliased parent (`import assetops_backend as ab; ab.i18n.formats`), getattr and sys.modules.
+- Spec §3.12's number-word list extended by fix round r2 (doubling, tripling, quadrupling, halving, per cent, zeroes, nought): Architect to write it into the spec.
+
+## From the 3A6 round-6 review (2026-11-21, ACCEPT; merged)
+- HELD FOR OWNER (guard change): configuration-persistence's `open\(` pattern has no word boundary (it hit `_Popen(` and `set_spawning_popen(`). Reviewer recommends: tighten the pattern, add `FileIO\(`/`fdopen\(`, one explicit reasoned exemption for envelope.py's launch-pipe line, and restore the stdlib `open` there. Until then envelope.py uses io.FileIO (disclosed, judged a genuine false positive).
+- L1: E7 misses an aliased `split_file as _sf` call; its 3 allowances are per file, not per call.
+- L3: raw io.FileIO.write ignores short writes (theoretical).
+- ENV-1 (0.25 unit): reading_upload_api.py still parses uploads in the server process; the loader CLI parses JSON unbounded in its own process; parse slots are per uvicorn worker.
+- NATIVE_TOO_LARGE's words (in the messages catalogue) and D-3A6.26 are in the owner queue (owner-away row 29).
+- Low (3A6 log fix review): E9 doesn't assert EnvelopeBreach.cause is in the closed set for every forced breach.
+
+## From the 4a adjustments review (2026-11-21, ACCEPT; merged)
+- Low: no in-repo Postgres assertion pins the evaluated-level blank for never-sent adjustments.
+- Low (Architect): a Site whose only ADJUSTMENT records are money-only credit notes reads a stated 0 kWh (D-DS4.25 gates on the kind). Decide whether money-only credit notes should count as "ever sent" for kWh.
+
+## From the 0K2 review (2026-11-21, ACCEPT; merged)
+- L1: packet calls the replay row "site" and gives the design values in a paragraph, not a column.
+- L2: new/cleared dawn dates proven only on the stub (neither kernel season changes a date).
+- L3: packet gives no reason for the gap with the design; the review's "Design values beside the study" section is the owner-facing explanation.
+
+- SC-1 guard: LOG_NAMES exempts only listed logger names; `_LOG.warning(...)` in commercial_upload_api.py:151 was allow-listed as CODE at SC-1a merge. Add `_LOG` (or match logger objects by class) — guard change, needs owner approval.
+- SC-1b/SC-1c debt grew at SC-1a merge: 91 hand-built prints + 27 messages.py keys rebaselined from 3A6, 3B4, 3B6, DS3, DS4, 0K2, 0M (precedent r2).
+- SC-1 self-test: P55 plants' allow() helper (tools/checks/statement_catalogue.py ~1168) overwrites the real allow file, so real allow lines break the self-test; 3 CODE prints went into the baseline instead. Make allow() merge into the existing file. Guard change, needs owner approval.

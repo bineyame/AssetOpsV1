@@ -23,7 +23,7 @@ acceptance re-checks, under the lock after the "no decision yet" check, that no 
 sends the same source type from another source system for a Site in common (`UploadSourceSwitched`).
 
 3A7 (spec §4; D-3A7.5, D-3A7.12): the sole runtime writer of `commercial_accounts_statement` and
-`commercial_reconciliation_tolerance` too (one plain INSERT each; the 0068 triggers refuse every change). The reads
+`commercial_reconciliation_tolerance` too (one plain INSERT each; the 0069 triggers refuse every change). The reads
 return every row of the tenant; the service picks the one current at its instant.
 """
 from __future__ import annotations

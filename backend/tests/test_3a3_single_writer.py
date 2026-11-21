@@ -54,6 +54,8 @@ DYNAMIC_IMPORT_ALLOWED = frozenset({
     # 3B7a, merged after spec rev 2 listed the seven above (packet: Known Deviations): locates the contracts package
     # (find_spec runs none of its code) so the code digest covers it
     BACKEND + "structure_snapshot/adapters/code_digest.py",
+    # 3A6 fix round r5 (spec §2.12): the forkserver preloads the pure contracts package
+    BACKEND + "commercial/envelope.py",
 })
 SYS_MODULES_ALLOWED = frozenset({
     "tools/mechanism_dataset.py",  # registers the modules it loads by name
@@ -100,6 +102,15 @@ def _qual(node: ast.AST, aliases: dict[str, str]) -> str | None:
 
 def _string_args(node: ast.Call) -> list[str]:
     values = list(node.args) + [k.value for k in node.keywords]
+    return [v.value for v in values if isinstance(v, ast.Constant) and isinstance(v.value, str)]
+
+
+def _preload_strings(node: ast.Call) -> list[str]:
+    """r5 (spec §2.12): the module names a `set_forkserver_preload` call names, inside a list or tuple too."""
+    values = list(node.args) + [k.value for k in node.keywords]
+    for v in list(values):
+        if isinstance(v, (ast.List, ast.Tuple)):
+            values.extend(v.elts)
     return [v.value for v in values if isinstance(v, ast.Constant) and isinstance(v.value, str)]
 
 
@@ -161,6 +172,11 @@ def violations(rel: str, source: str, *, dynamic_allowed: frozenset[str] = DYNAM
                     add("S1-DYN", node, qual)
                 if any(_commercial_string(v) for v in _string_args(node)):
                     add("S1-DYN-COMMERCIAL", node, qual)
+            if isinstance(node.func, ast.Attribute) and node.func.attr == "set_forkserver_preload":  # r5, §2.12
+                if rel not in dynamic_allowed:
+                    add("S1-DYN", node, "set_forkserver_preload")
+                if any(_commercial_string(v) for v in _preload_strings(node)):
+                    add("S1-DYN-COMMERCIAL", node, "set_forkserver_preload")
             if (isinstance(node.func, ast.Attribute) and node.func.attr in SYS_MODULES_METHODS
                     and _qual(node.func.value, aliases) == "sys.modules" and node.args
                     and isinstance(node.args[0], ast.Constant) and isinstance(node.args[0].value, str)
@@ -292,6 +308,11 @@ PLANTED_TAGGED = (
     ("p26", "tools/planted.py", "import importlib\nim = importlib.import_module\nm = im(name)\n", {"S1-DYN"}),
     ("p27", BACKEND + "commercial/planted.py", "e = eval\ne(s)\n", {"S1-EVAL"}),
     ("p28", "tools/planted.py", "from assetops_backend import commercial\nf = getattr(svc, name)\n", {"S1-ATTR"}),
+    ("p-env", "tools/planted.py",
+     "import multiprocessing as mp\nmp.get_context(\"forkserver\").set_forkserver_preload([name])\n", {"S1-DYN"}),
+    ("p-env-c", BACKEND + "commercial/envelope.py",
+     "import multiprocessing as mp\nmp.set_forkserver_preload([\"assetops_backend.commercial.service\"])\n",
+     {"S1-DYN-COMMERCIAL"}),
     ("n1", BACKEND + "commercial/planted.py", "import re\nx = re.compile(s)\n", set()),
     ("n2", "tools/planted.py", "x = getattr(obj, name)\n", set()),  # no commercial import: the stated residual
     ("n3", "tools/mechanism_dataset.py", "import importlib\nm = importlib.import_module(name)\n", set()),  # allowlisted

@@ -111,16 +111,16 @@ def people() -> People:
     return People()
 
 
-def make_world(people: People, *, real_data: bool = False) -> SimpleNamespace:
+def make_world(people: People, *, real_data: bool = False, envelope=None) -> SimpleNamespace:
     names = {pid: name.title() for name, pid in people.ids.items()}
     store = ProfileMemoryStore(names)
     store.slugs[people.acme] = "acme"
     store.sites[(people.acme, KOBO.lower())] = people.kobo
     store.sites[(people.acme, KISIWA.lower())] = people.kisiwa
     clock = Clock(T_SUBMIT)
-    profiles = SourceProfiles(store, clock=clock, real_data=real_data)
+    profiles = SourceProfiles(store, clock=clock, real_data=real_data, envelope=envelope)
     svc = CommercialUploads(CommercialRecords(store, clock=clock), store, Keys({people.acme: KEY}), clock=clock,
-                            real_data=real_data, profiles=profiles)
+                            real_data=real_data, profiles=profiles, envelope=envelope)
     return SimpleNamespace(store=store, profiles=profiles, svc=svc, clock=clock, tid=people.acme,
                            org=UploadScope(None, None),
                            ana=Actor(people.ids["ana"], ANALYST), fiona=Actor(people.ids["fiona"], FIN))

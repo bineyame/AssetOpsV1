@@ -222,11 +222,11 @@ def _valued_cases():
 
 @pytest.mark.parametrize("key, factor_id, stated", _valued_cases())
 def test_s11a_every_valued_part_with_empty_origins_is_refused(key, factor_id, stated):
-    from assetops_backend.structure.evaluate import _check_leaf, _check_stated, _money_dimension
+    from assetops_backend.structure.evaluate import _check_leaf, _check_stated
     from assetops_backend.structure.registry import REGISTRIES
     reg = REGISTRIES[key]
     row = reg.row(factor_id)
-    currency = "USD" if _money_dimension(row.unit) else None
+    currency = "USD" if row.unit.has_money_dimension else None
     leaf = LeafValue(Decimal("1.00"), "MEASURED", ("x",), None, None, currency, ())
     err = _raises("STRUCTURE_ORIGIN", _check_stated, reg, {factor_id: leaf}) if stated else _raises(
         "STRUCTURE_ORIGIN", _check_leaf, reg, factor_id, leaf)
@@ -234,10 +234,9 @@ def test_s11a_every_valued_part_with_empty_origins_is_refused(key, factor_id, st
 
 
 def test_s11a_the_registry_yields_money_and_non_money_leaves():
-    from assetops_backend.structure.evaluate import _money_dimension
     from assetops_backend.structure.registry import REGISTRIES
     rows = [REGISTRIES[p.values[0]].row(p.values[1]) for p in _valued_cases() if not p.values[2]]
-    assert any(_money_dimension(r.unit) for r in rows) and any(not _money_dimension(r.unit) for r in rows)
+    assert any(r.unit.has_money_dimension for r in rows) and any(not r.unit.has_money_dimension for r in rows)
     assert any(p.values[2] for p in _valued_cases())
 
 
@@ -288,9 +287,11 @@ def test_s7_compose_carries_detail_missing_and_origins():
 
 
 def test_s8_registry_version_and_stated_rows():
-    assert MG.version == 3
+    assert MG.version == 4  # 4a (D-4A.1)
     stated = {r.factor_id: r.stated_by for r in MG.rows if r.stated_by is not None}
     assert stated == {
+        "metered_kwh": FilledBy("COMMERCIAL_RECORD", "CUSTOMER_METER_READ", "Customer meter reads for the month"),
+        "billed_kwh": FilledBy("COMMERCIAL_RECORD", "CHARGE (USAGE kWh)", "Billing export: the month's billed kWh"),
         "revenue": FilledBy("COMMERCIAL_RECORD", "CHARGE", "Billing export: the month's charges"),
         "fuel_cost": FilledBy("COMMERCIAL_RECORD", "EXPENSE (FUEL)", "Fuel invoices for the month"),
     }
@@ -358,6 +359,9 @@ class _Stated:
         self.asked.append(factor_id)
         if factor_id == "revenue":
             return _stated_revenue()
+        if factor_id in ("metered_kwh", "billed_kwh"):  # 4a: nothing to read, the expression stands
+            return LeafValue(None, "NOT_AVAILABLE", (), None,
+                             Missing("X", "COMMERCIAL_RECORD", "NOT_CONNECTED", None, (), None, None, None), None)
         return LeafValue(Decimal("1475.00"), "RECORDED", ("commercial:kobo-fuel",), None, None, "USD",
                          ("source-emulated",))
 
@@ -366,7 +370,7 @@ def test_s9_the_read_asks_each_stated_node_once():
     leaves = pack_leaves("Kobo")
     fake = _Stated()
     result = StructureRead(_Leaves(leaves), stated=fake).site(KOBO, "2026-10")
-    assert tuple(fake.asked) == ("revenue", "fuel_cost")
+    assert tuple(fake.asked) == ("metered_kwh", "billed_kwh", "revenue", "fuel_cost")  # 4a: two stated kWh nodes
     assert result.values["revenue"].value == Decimal("3458.00") and result.values["revenue"].stated is True
     assert result.values["fuel_cost"].value == Decimal("1475.00") and result.values["fuel_cost"].stated is True
 
@@ -376,7 +380,7 @@ def test_s9_without_a_stated_source_the_read_is_3b3s():
     fake = _Stated()
     result = StructureRead(_Leaves(leaves)).site(KOBO, "2026-10")
     assert fake.asked == []
-    assert result == SiteStructure("KOBO-001", "2026-10", "MINI_GRID", 3, evaluate(MG, leaves))
+    assert result == SiteStructure("KOBO-001", "2026-10", "MINI_GRID", 4, evaluate(MG, leaves))  # 4a: v4
     assert not any(v.stated for v in result.values.values())
 
 

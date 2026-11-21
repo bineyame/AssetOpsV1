@@ -8,14 +8,14 @@
 - No column defaults: every value and time comes from the service. The 0005 `ledger_append_only()` trigger refuses
   UPDATE and DELETE on both.
 
-Revision ID: 0068_commercial_reconciliation
-Revises: 0067_source_profile
+Revision ID: 0069_commercial_reconciliation
+Revises: 0068_structure_finding
 Create Date: 2026-11-21
 """
 from alembic import op
 
-revision = "0068_commercial_reconciliation"
-down_revision = "0067_source_profile"
+revision = "0069_commercial_reconciliation"
+down_revision = "0068_structure_finding"
 branch_labels = None
 depends_on = None
 

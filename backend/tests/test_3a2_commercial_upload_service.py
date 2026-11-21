@@ -606,12 +606,22 @@ class ExtraReader(CanonicalJsonReader):
         return ReadResult(loads_canonical(data), None, self.extra)
 
 
+class StubEnvelope:
+    """3A6 r5 (spec §2.12): the parse envelope's child rebuilds only registered and profile readers, so a test's own
+    stub reader is read through this double, which a test sets on its service; production has no such path."""
+
+    def read(self, reader, data, context, *, split=False):
+        from assetops_backend.commercial.envelope import BoundedRead
+        return BoundedRead(reader.read(data, context=context), None)
+
+
 def test_16_reader_paths(w, monkeypatch) -> None:
     for extra in ({("body.amount", "C")}, {("source_record_id", "X")}):
         with pytest.raises(ValueError):
             pseudonymise(charge(), KEY, frozenset(extra))
     monkeypatch.setattr("assetops_backend.commercial.uploads.READERS",
                         {**READERS, "canonical-json-extra": ExtraReader(frozenset({("source_record_id", "C")}))})
+    monkeypatch.setattr(w.svc, "_envelope", StubEnvelope())
     call = dict(reader_id="canonical-json-extra")
     accept(w, w.svc.submit(w.tid, w.kobo, w.ana, encode(b_bill()), file_name="x.json", **call))
     stored = {r.source_record_id for r in w.store.records}

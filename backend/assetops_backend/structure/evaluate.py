@@ -180,10 +180,6 @@ def blocks_of(registry: Registry, leaves: Sequence[str]) -> tuple[str, ...]:
 # ---------------------------------------------------------------- leaf-value checks (spec §2.2; R6)
 
 
-def _money_dimension(unit: Unit) -> bool:
-    return any(d == "MONEY" and e != 0 for d, e in unit.exponents)
-
-
 def _check_leaf(registry: Registry, factor_id: str, leaf: LeafValue) -> None:
     key = registry.structure_key
     row = registry.row(factor_id)
@@ -199,7 +195,7 @@ def _check_leaf(registry: Registry, factor_id: str, leaf: LeafValue) -> None:
             or (leaf.value is None and leaf.evidence != NOT_AVAILABLE)
             or (leaf.evidence == NEUTRAL and (row.absent != "OPTION_ONLY" or leaf.value != row.neutral))):
         raise StructureError("STRUCTURE_EVIDENCE", key, factor_id)
-    if (_money_dimension(row.unit) and leaf.value is not None and leaf.currency is None
+    if (row.unit.has_money_dimension and leaf.value is not None and leaf.currency is None
             and leaf.evidence != NEUTRAL):
         raise StructureError("STRUCTURE_CURRENCY", key, factor_id)
     origins = leaf.origins

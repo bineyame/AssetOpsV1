@@ -5,7 +5,7 @@ Branch `task/3A7-month-reconciled`, worktree `/opt/assetecon/AssetOpsV1-3a7`, ba
 
 ## Done (commit 1)
 
-- Migration `0068_commercial_reconciliation` (revises `0067_source_profile`): both tables, append-only triggers,
+- Migration `0069_commercial_reconciliation` (revises `0068_structure_finding` (renumbered from 0068 at the commit 2 main merge)): both tables, append-only triggers,
   downgrade refused with a row (0065's form).
 - `commercial/model.py` `StatementRow`, `ToleranceRow`, `SiteRow`; `store.py` and the Postgres adapter
   `add_accounts_statement`, `accounts_statements`, `add_tolerance`, `tolerances`, `site_rows`. The guard's

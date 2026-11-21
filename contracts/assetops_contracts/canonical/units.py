@@ -63,6 +63,12 @@ class Unit:
         """True only for exactly `MONEY^1`."""
         return self.exponents == (("MONEY", 1),)
 
+    @property
+    def has_money_dimension(self) -> bool:
+        """True when `MONEY` appears at any non-zero exponent (`MONEY`, `MONEY/KWH`, `MONEY/L`): the unit needs a
+        currency. The one shared rule (D-DS4.27); `is_money` stays exactly `MONEY^1`."""
+        return any(d == "MONEY" and e != 0 for d, e in self.exponents)
+
     def __str__(self) -> str:
         if not self.exponents:
             return "1"

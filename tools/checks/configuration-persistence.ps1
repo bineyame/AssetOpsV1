@@ -751,7 +751,7 @@ function Invoke-ConfigurationPersistenceCheck {
         $opportunityCoalesce)
     $findingWriter = "$backendRoot/analytics/adapters/postgres_finding_store.py"
     $findingTables = @('finding', 'finding_revision', 'finding_revision_assessment', 'finding_revision_evidence',
-        'finding_merge', 'finding_match_pass')
+        'finding_merge', 'finding_match_pass', 'structure_tolerance')
     # S4-02a adds the sixth writer, the financial assumption store: it inserts its two tables and its only
     # UPDATE closes an assignment's set-once recorded_to. No other module writes either table.
     $assumptionWriter = "$backendRoot/financials/adapters/postgres_assumption_store.py"

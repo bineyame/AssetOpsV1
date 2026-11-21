@@ -22,10 +22,19 @@ from assetops_backend.structure.evaluate import Composition, LeafValue, SiteStru
 if TYPE_CHECKING:
     from assetops_backend.structure.sources import LeafSource, StatedSource
 
-#: R10: the Site types with a declared structure. Cold-room and EV Sites need `3B6`.
-SITE_TYPE_TO_STRUCTURE: Mapping[str, str] = MappingProxyType({"MINIGRID": "MINI_GRID"})
+#: R10: the Site types with a declared structure. 3B6 (D-3B6.6, D-3B6.7) added cold rooms and EV Sites; an
+#: `EV_CHARGING` Site takes the captive-depot structure, the only EV structure declared (owner row 21).
+SITE_TYPE_TO_STRUCTURE: Mapping[str, str] = MappingProxyType({
+    "MINIGRID": "MINI_GRID",
+    "COLDCHAIN": "COLD_CHAIN",
+    "EV_CHARGING": "EV_DEPOT_CAPTIVE",
+})
 #: The reason a Site of a type with no structure is left out of a portfolio whole.
 NOT_DECLARED = ("STRUCTURE_NOT_DECLARED",)
+#: 3B6 (D-3B6.6): the reason a Site declared under another structure is left out of a portfolio of this one.
+OTHER_STRUCTURE = ("STRUCTURE_OTHER_KEY",)
+#: 3B6 (D-3B6.6): the code a Site-level reader that supports only some structures raises for any other.
+KEY_NOT_READ = "STRUCTURE_KEY_NOT_READ"
 _MONTH = re.compile(r"[0-9]{4}-(0[1-9]|1[0-2])", re.ASCII)
 
 
@@ -61,6 +70,19 @@ def site_count(portfolio: PortfolioStructure, factor_id: str) -> SiteCount | Non
             reasons = portfolio.composition.sites_excluded.get(code) or NOT_DECLARED
         out.append((code, tuple(reasons)))
     return SiteCount(len(value.included), len(portfolio.sites), tuple(out))
+
+
+def sites_excluded(sites: Sequence[SiteRef], structure_key: str) -> Mapping[str, tuple[str, ...]]:
+    """Every Site not composed under `structure_key`, in the order given: NOT_DECLARED for a type with no
+    structure, OTHER_STRUCTURE for a type declared under another key. A MappingProxyType (3B6, D-3B6.6)."""
+    out: dict[str, tuple[str, ...]] = {}
+    for site in sites:
+        key = SITE_TYPE_TO_STRUCTURE.get(site.site_type)
+        if key is None:
+            out[site.site_code] = NOT_DECLARED
+        elif key != structure_key:
+            out[site.site_code] = OTHER_STRUCTURE
+    return MappingProxyType(out)
 
 
 def _month(month: str) -> str:
@@ -114,10 +136,13 @@ class StructureRead:
         return evaluate_inputs(self.site_inputs(site, month, known_at))
 
     def portfolio(self, tenant_id: UUID, sites: Sequence[SiteRef], month: str,
-                  known_at: datetime | None = None) -> PortfolioStructure:
-        """The MINI_GRID Sites composed factor by factor; any other type left out whole (R10, P10)."""
+                  known_at: datetime | None = None, *, structure_key: str = "MINI_GRID") -> PortfolioStructure:
+        """The Sites of `structure_key` composed factor by factor; every other Site left out whole and named
+        (R10, P10; 3B6 D-3B6.6, D-3B6.8: one composition per structure, no cross-structure total)."""
         _month(month)
-        key = SITE_TYPE_TO_STRUCTURE["MINIGRID"]
+        key = structure_key
+        if key not in _registry.REGISTRIES:
+            raise StructureError(NOT_DECLARED[0], str(key), "-")
         reg = _registry.REGISTRIES[key]
         seen: set[object] = set()
         for site in sites:
@@ -126,12 +151,11 @@ class StructureRead:
             seen.update((site.site_code, site.site_id))
         per_site = {s.site_code: self.site(s, month, known_at) for s in sites
                     if SITE_TYPE_TO_STRUCTURE.get(s.site_type) == key}
-        excluded = MappingProxyType({s.site_code: NOT_DECLARED for s in sites
-                                     if SITE_TYPE_TO_STRUCTURE.get(s.site_type) is None})
+        excluded = sites_excluded(sites, key)
         composition = replace(compose(reg, per_site), sites_excluded=excluded)
         return PortfolioStructure(month, reg.structure_key, reg.version, composition,
                                   tuple(s.site_code for s in sites))
 
 
-__all__ = ["NOT_DECLARED", "SITE_TYPE_TO_STRUCTURE", "PortfolioStructure", "SiteCount", "SiteInputs", "StructureRead",
-           "evaluate_inputs", "site_count"]
+__all__ = ["KEY_NOT_READ", "NOT_DECLARED", "OTHER_STRUCTURE", "SITE_TYPE_TO_STRUCTURE", "PortfolioStructure",
+           "SiteCount", "SiteInputs", "StructureRead", "evaluate_inputs", "site_count", "sites_excluded"]

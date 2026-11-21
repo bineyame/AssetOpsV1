@@ -24,6 +24,8 @@ from assetops_backend.structure.evaluate import ORIGIN_ORDER, LeafValue, Missing
 from assetops_backend.structure.read import SITE_TYPE_TO_STRUCTURE
 from assetops_backend.structure.registry import FilledBy
 from assetops_backend.structure.sources import (
+    COMMERCIAL_KEYS,
+    ENERGY_STATED,
     PROVIDED,
     PROVIDED_ELSE_ASSUMED,
     SOURCE_STATE,
@@ -166,11 +168,14 @@ class CommercialLeafSource:
         state = SOURCE_STATE.get(key, {}).get(factor_id) if key is not None else None
         if factor_id == DIESEL_PRICE and state == PROVIDED_ELSE_ASSUMED:
             return self._diesel_price(ctx)
-        if factor_id in _ROWS and state == PROVIDED:
+        # 3B6 (D-3B6.18): `_ROWS` are mini-grid rows keyed by a factor ID other structures share (`staff`).
+        if factor_id in _ROWS and state == PROVIDED and key in COMMERCIAL_KEYS:
             return self._judge(ctx, factor_id)
         return self._fallback.leaf(ctx, factor_id)
 
     def stated(self, ctx: ReadContext, factor_id: str) -> LeafValue:
+        if factor_id in ENERGY_STATED:  # 4a: read without the energy source, the node folds from its expression
+            return _absent(_MG.row(factor_id).stated_by, "NOT_CONNECTED")
         key = SITE_TYPE_TO_STRUCTURE.get(ctx.site.site_type)
         if key is None or STATED_STATE.get(key, {}).get(factor_id) != PROVIDED or factor_id not in _ROWS:
             raise StructureError("STRUCTURE_STATED", str(key), factor_id)

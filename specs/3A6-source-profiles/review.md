@@ -733,3 +733,183 @@ times at no cost to legitimate files.
 - Every figure is per request, and nothing limits parallel uploads per tenant. With N8 and N9 fixed, the worst
   single request I found would be about 3 s (N10) and about 170 MB (zip directory and skipped XLSX rows).
 - The profile admission path still reads the sample twice, at 1 MiB.
+
+## Round 6 (verification re-review of fix round r5 at c56da5243, closed list D-3A6.27; verdict ACCEPT)
+
+### Summary (round 6)
+
+- Verdict **ACCEPT**. All six closed-list checks hold on my own probes; no High or Medium finding.
+- Exclusive: every upload parse (both readers, `canonical-json-v1`, admission's `split=True`) goes through
+  `ParseEnvelope.read`; no in-process fallback; `DEFAULT_LIMITS` is the only production construction.
+- Bounded: memory, CPU, wall, result and a hand `kill -9` each answered 422 `NATIVE_TOO_LARGE` through the HTTP
+  route, the logged cause right, the next upload 200, the parent's RSS flat after warm-up over 12 repeats.
+- Faithful: my own 120-comparison differential (seed 4242, plus JSON and `split` cases) has 0 mismatches.
+- Plants V33 to V40 fail their tests in my copy, plus 2 variants I added. One plant of my own passed E7 (L1).
+- Guard integrity (203f3f4ac): **(a) a genuine false positive**, not routing around the guard. It should still be an
+  explicit, reasoned exemption plus a pattern-precision fix, held for the owner, not a rename (L2).
+- Known deviations E7-allowance, the copied `_launch`, the 20,000-member literal and `StubEnvelope`: each
+  acceptable as disclosed.
+- Findings: 3 Low (L1 to L3), none blocking. Residuals below.
+
+### Checks I ran (worktree at c56da5243, Python 3.12.16, PYTHONPATH backend:contracts:simulator)
+
+- `heavy-slot.sh -- pytest backend/tests/test_3a6_parse_envelope.py test_3a6_source_profiles.py
+  test_3a6_source_profile_command.py contracts/tests -q`: **237 passed** in 98.6 s.
+- `heavy-slot.sh --db -- pwsh tools/run-host-tests.ps1 backend/tests/test_3a6_source_profiles_postgres.py`:
+  **4 passed** in 6.96 s.
+- `check-architecture.ps1` with `ASSETOPS_GUARD_PYTHON` set: **passed**. (Without it, the chain-structure guard
+  stops on "no Python interpreter" in the worktree; that is the environment, not the slice.)
+  `check-agent-workflow.ps1`: **passed**.
+- Not rerun: the fast check-all (41 guards) and the 718-test non-DB set. I cite the implementer's runs. check-all
+  ran at `203f3f4ac`+packet ("All 41 guards passed"). The non-DB and Postgres sets ran at `ba6eaee85`, before the
+  launch rename; my envelope run covers the renamed code.
+
+**1. Exclusive.**
+- My grep of `backend/assetops_backend/` (`read_layout`, `split_file`, `xlsx_rows`, `xlsx_sparse_rows`,
+  `loads_canonical`, `.read(…context=)`, `parse_batch`, `ZipFile`, `csv.reader`, `json.loads`) finds parses only
+  inside `commercial/envelope.py` and `readers.py`, apart from E7's three server-text sites.
+- I traced both `ingest` calls. `uploads.py:229` passes `data2`, re-serialised from the bounded result.
+  `uploads.py:308` passes the stored `upload.batch`.
+- Composition (`build_commercial_uploads`, `build_source_profiles`), `main.py`, `source_profile.py` and the loader
+  never pass an `envelope`, so all of them use `default_envelope()`. No setting or environment variable reads the
+  limits.
+- Other `json.loads` hits are small API bodies, cursors or stored rows, apart from the loader CLI (R1 below).
+
+**2. Bounded.** Probe `r7/probe_http.py`: the FastAPI router over the 3A6 world, analyst, `dry_run=true`.
+
+| Breach | Answer | Cause | Time | Parent RSS | Next |
+|---|---|---|---|---|---|
+| memory 80 MiB, 8.3 MB kobo | 422 `NATIVE_TOO_LARGE` | memory | 1.30 s | 96 -> 104 MiB | 200 |
+| CPU 1 s, 499,000 `<row/>` | 422 `NATIVE_TOO_LARGE` | cpu | 2.21 s | 104 -> 104 | 200 |
+| wall 0.2 s | 422 `NATIVE_TOO_LARGE` | wall | 0.29 s | 104 -> 112 | 200 |
+| result 1 MiB, 820 kB kobo | 422 `NATIVE_TOO_LARGE` | result | 0.94 s | 112 -> 112 | 200 |
+| `kill -9` from a shell, DEFAULT_LIMITS | 422 `NATIVE_TOO_LARGE` | crash | 0.37 s | 112 -> 128 | 200 |
+
+- RSS repeat test (`probe_rss.py`), 12 breaches each, values in MiB:
+  - wall: 104, 112, 120, then flat at 120.
+  - memory: flat at 120, one step to 128, then flat.
+  - result: flat at 128.
+  - This is the allocator's high-water mark from the 8 MiB bodies, not growth per breach.
+- Eight legitimate 8.3 MB reads climb 138 to 162 MiB and level off (161, 162).
+- At DEFAULT_LIMITS:
+  - The padded 10,000-row file reads: 200, 10,000 new.
+  - Four concurrent uploads all answered 200 in 11.3 s, with `peak_active` 2.
+- A forkserver killed with `kill -9` is restarted on the next upload, which answers 200 (`probe_fs.py`).
+- No 500, no hang.
+- Words: the route renders "This file cannot be read: the file. this file is too large or too complex to read in
+  one upload; split it and upload the parts." This is 3A2's existing `file_refused` template with D-3A6.25's reason
+  verbatim. E6's admission test pins the `ADMIT_SAMPLE_FILE` words.
+
+**3. Faithful.**
+- `r7/mydiff.py` reuses r6's generator with my seed (4242, 100 cases, every 25th at 9,990 to 10,011 rows). It adds
+  33 `canonical-json-v1` cases (schema, envelope extras, truncation, BOM, about 10,000 records) and 20 kobo
+  `split=True` comparisons against `split_file`.
+- **0 mismatches** in 120 comparisons. The run covered reads, whole-file refusals and the 10,000-record edge.
+
+**4. Pinned and logged.**
+- E0 and E9 pass.
+- `EnvelopeLimits()` defaults are 512 MiB, 6 s (hard 7), 12 s, 32 MiB and 2. `__post_init__` refuses zero,
+  negative and bool values.
+- The log record's extra is cause, reader, bytes and tenant only.
+
+**5. Plants.**
+- `r7/plants.py` plants in a `git archive` copy of c56da5243; the worktree was untouched. Each plant was applied,
+  its named test run, then reverted. Results:
+  - V33 (in admission this time, not the intake): E7 fails.
+  - V34: E1 fails.
+  - V35: E3 fails.
+  - V36 (both checks removed): E4 fails.
+  - V37: E1, E3 and E4 fail.
+  - My V37 variant (crash raises): E6 fails.
+  - V38: 4 B1 tests fail.
+  - V39: B2 fails.
+  - V40: 3 B3 tests fail.
+- Two of my plants pass:
+  - The child-side result check removed alone: E4 still passes, correctly, because the parent's
+    `recv_bytes(maxlength)` still refuses (defence in depth).
+  - An aliased `split_file as _sf` call in admission: E7 misses it (L1).
+
+### Findings (round 6)
+
+- **L1 (Low, test robustness; not an acceptance gap).** `backend/tests/test_3a6_parse_envelope.py:263-286`, E7.
+  - The scan matches the call's own name, so `from assetops_contracts.native import split_file as _sf; _sf(...)`
+    passes (planted, missed).
+  - `SERVER_TEXT` allows `loads_canonical` per file, not per call. A new upload-bytes `loads_canonical` in
+    `service.py`, `months.py` or `lines.py` would pass.
+  - A positional `reader.read(data, ctx)` call is also unseen.
+  - No such call exists today (my grep). Fix: resolve `ImportFrom` aliases to their original names; pin the three
+    allowances by enclosing function (`CommercialRecords.ingest`, the two row readers); match `.read(` with two
+    positional arguments on a `SourceReader`-typed name, or ban `.read(` on reader objects outside the two homes.
+- **L2 (Low, guard hygiene; held for the owner).** `envelope.py:227-241, 273-282` and
+  `tools/checks/configuration-persistence.ps1:328`. Judged below.
+- **L3 (Low, residual robustness).** `envelope.py:239`:
+  `with io.FileIO(w, "wb", closefd=True) as f: f.write(buf.getbuffer())`.
+  - `FileIO.write` is a raw write that returns a count, and that count is ignored. The stdlib's `open(w, "wb")` is
+    a `BufferedWriter`, which loops until every byte is written.
+  - The launch buffer carries the upload, up to 8 MiB through a 64 KiB pipe. A signal that interrupts the write
+    after a partial transfer would truncate the launch. The child would then die and a legitimate file would be
+    refused `NATIVE_TOO_LARGE` (cause crash).
+  - I could not trigger it: 15 reads of the 8.3 MB file under a SIGUSR1 storm were all 200 (`probe_sig.py`).
+    Python's handlers run on the main thread and the write runs in a worker, so it is theoretical.
+  - Fix: write in a loop until the buffer is drained, or go back to the stdlib's buffered `open` under the
+    exemption L2 recommends.
+
+### Guard integrity (203f3f4ac): (a), a genuine false positive, not routing around the guard
+
+- **What the guard checks.** Rule 2 of `configuration-persistence.ps1` bans storage technology ("direct file
+  opening") above a configuration package's adapters. `commercial/` is such a package, and `envelope.py` sits
+  outside `commercial/adapters/`.
+- **What the three hits were.**
+  - `_Popen(` and `set_spawning_popen(` matched only because `open\(` has no word boundary. They are pure regex
+    imprecision.
+  - `open(w, "wb")` writes an anonymous pipe fd returned by `forkserver.connect_to_new_process`, copied verbatim
+    from the stdlib's `_launch`. It names no path, persists nothing, and the child runs under `RLIMIT_FSIZE 0`.
+  - None of the three is configuration storage, which is what the rule protects. The guard was not edited, and the
+    packet discloses the change.
+- **Why the method is still not the right shape.**
+  - The rename contorts the code to dodge a pattern: `_Child._Popen = staticmethod(...)`, "so no call site spells
+    it", a `set_spawning_popen as _spawning` alias, and a raw `FileIO` that is subtly unlike the stdlib (L3).
+  - It leaves the guard with a blind spot that it always had but that this slice now relies on:
+    `io.FileIO(path, "wb")` on a real path in a configuration package passes rule 2 unflagged.
+- **Recommendation, held for the owner (guard change).**
+  1. Tighten the pattern to `(?<![\w.])(?:io\.)?open\(` and add `FileIO\(` and `fdopen\(`. This removes the
+     substring false positives as a class and closes the `FileIO` gap.
+  2. Add one explicit, reasoned exemption: `commercial/envelope.py`, the launch-pipe write only, matched by line
+     text, failing if it disappears (like E7's allowance), with the reason "a process-launch pipe fd, not storage".
+  3. Restore the stdlib's `open(w, "wb", closefd=True)` and `_Popen` naming.
+  Until the owner rules, the current code is acceptable: the behaviour is correct (L3 aside) and disclosed.
+
+### Other known deviations, judged
+
+- **E7 allows `loads_canonical` in 3 places: acceptable.** I traced each one. `months.py:151` and `lines.py:151`
+  read stored canonical rows. `service.py:232` is `CommercialRecords.ingest`, whose only callers pass `data2`
+  (re-serialised from the bounded result) or the stored `upload.batch`. Narrow the allowance per L1.
+- **The copied stdlib `_launch`: acceptable.** I diffed it against 3.12.16's `popen_forkserver.Popen._launch`. It is
+  identical except for the two `prep_data.pop(...)` calls and `FileIO` (L3). Dropping `init_main_from_*` is the
+  stated reason, and the risk is a stdlib drift, which E1 to E8 would catch. Residual: a Python minor upgrade
+  should re-diff it.
+- **The 20,000-member r3 test now refused: acceptable.** It is a direct consequence of D-3A6.24's 256-entry bound,
+  and 20,000 empty members is no operator export. Residual: a workbook with more than about 120 sheets, or many
+  embedded media files, would exceed 256 entries and be refused `NATIVE_TOO_LARGE`. That is honest words, not a
+  failure; record it as a Low residual.
+- **`StubEnvelope` in 2 tests: acceptable.** It lives only in `test_3a2_commercial_upload_service.py:609` and is
+  set by monkeypatch in two tests whose stub readers the child cannot rebuild. Production has no in-process path:
+  `reader_spec` raises `TypeError` for an unregistered reader.
+
+### Residual risk the packet does not name
+
+- **R1.** The loader CLI's `_source_system` (`load_emulated_exports.py:151`) runs `json.loads(path.read_bytes())`
+  with no size bound, in the loader's own process (3A6 commit 3). It is local files and not the server, and the
+  submission itself still goes through the envelope. It is outside D-3A6.27's list; queue it beside ENV-1 if the
+  loader will ever read operator-supplied files.
+- **R2.** The 2-slot cap is per server process. With N uvicorn workers the host carries 2N children, about 1.4 GB
+  for every 2 slots. Size worker counts with that in mind.
+
+### Could not verify
+
+- check-all and the 718-test non-DB set at the final head (I cite the implementer's runs).
+- A real uvicorn server: I used `TestClient` over the real router, since the brief excludes touching servers.
+- L3 under real signal timing.
+
+Probe scripts and the archived plant tree were deleted from `/opt/assetecon/evidence/3A6/2026-11-21/r7/` after
+measuring; no `/tmp` scratch was left.

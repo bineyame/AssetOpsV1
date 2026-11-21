@@ -1,8 +1,8 @@
 # 3A6: source profiles as data (implementer spec)
 
-Status: **in_review**, rev 3 amendments from review r1 (D-3A6.18 to D-3A6.22; `rulings.md` "Review answers (r1)") (built on rev 2, 21 Nov; packet `packet.md`). Handshake round 1 answered (`rulings.md`).
-Questions during the build: `mid-build-questions.md`. Reviewer: `reviewer-guide.md` rev 2. Decisions with reasons:
-`rulings.md` (D-3A6.1 to D-3A6.22).
+Status: **in_review** (fix round r5 built: commit 1 the envelope `3134d35c6`, commit 2 the bounds `ba6eaee85`; packet "Fix round r5"), rev 4 amendments from review r5 (D-3A6.23 to D-3A6.28, §2.12: the parse envelope, +1.25 units, two commits), rev 3 from review r1 (D-3A6.18 to D-3A6.22; `rulings.md` "Review answers (r1)") (built on rev 2, 21 Nov; packet `packet.md`). Handshake round 1 answered (`rulings.md`).
+Questions during the build: `mid-build-questions.md`. Reviewer: `reviewer-guide.md` rev 3 (round 6 stop rule). Decisions with reasons:
+`rulings.md` (D-3A6.1 to D-3A6.28).
 
 Architect (Claude), 2026-11-20. Lane A (sources), the deep-dive path's unit 5 (`two-week-build-plan.md` §0.1 row 5;
 D-BW1.8, D-BW1.11; owner RC2 "build 3A6; hand reshaping stays the fallback", RC4 real data only in its own database
@@ -184,7 +184,7 @@ The four illustrative layouts, their goldens and 3A3's E7 SHA-256 pins must not 
 `contracts/assetops_contracts/native/xlsx.py`: `xlsx_rows(data: bytes, sheet: str) -> list[tuple[int, list[str]]]`,
 `XlsxNumber(str)` (a marker subclass for numeric cells), `XlsxBad(str)` (a marker for a cell that cannot be read;
 its value is `""`). `zipfile` and `xml.etree.ElementTree` only. File refusals (`CanonicalRefused(<code>, "json")`):
-- `NATIVE_WORKBOOK`: not a zip; a member's declared uncompressed size over 16 MiB or a total over 64 MiB; a member
+- `NATIVE_WORKBOOK`: not a zip; a member
   `xl/workbook.xml`, `xl/_rels/workbook.xml.rels` or the sheet's target missing; a read member that does not decode
   strict UTF-8 (a leading UTF-8 BOM dropped; a UTF-16 member is refused); any decoded member containing `<!DOCTYPE`
   or `<!ENTITY`; XML that does not parse; `workbookPr` with `date1904` true (`"1"` or `"true"`). Every
@@ -192,6 +192,8 @@ its value is `""`). `zipfile` and `xml.etree.ElementTree` only. File refusals (`
   `RuntimeError` (encryption), `EOFError`, `KeyError`, `UnicodeDecodeError` and `ElementTree.ParseError` raised inside
   `xlsx_rows` is `NATIVE_WORKBOOK`; nothing else is caught (D-3A6.13 e).
 - `NATIVE_SHEET`: the workbook does not hold exactly one `<sheet>` element, or its `name` is not `sheet`.
+- `NATIVE_TOO_LARGE` (rev 4, D-3A6.25): every resource bound (the member and total sizes, declared or inflated, the
+  element, character, padding, attribute and zip-directory bounds) and every envelope breach (§2.12).
 
 Cells: `<c r="B7" t="...">`. Column index from the letters of `r` (`A` = 0; a cell without `r` takes the next index).
 `t="s"`: shared string `int(v)` (`<si>` text: its `<t>`, or its `<r><t>` runs concatenated); `t="inlineStr"`: the `<is>`
@@ -488,6 +490,7 @@ non-constant name; a non-test tool named `test_*.py` (the filter hides `tools/ch
 |---|---|
 | `commercial_upload.reason.native_format` | this value is not written the way this layout reads it (for example, a date in another order). |
 | `commercial_upload.reason.native_workbook` | this is not an Excel workbook this layout can read. |
+| `commercial_upload.reason.native_too_large` (rev 4) | this file is too large or too complex to read in one upload; split it and upload the parts. |
 | `commercial_upload.reason.native_sheet` | the workbook must hold exactly one sheet, with the sheet name this layout reads. |
 | `commercial_upload.reason.native_encoding` (changed) | the file is not text in the character encoding this layout reads. |
 | `commercial_upload.reason.native_character` (changed) | this row holds a character that is not text (such as a NUL byte or an invisible mark). |
@@ -516,6 +519,153 @@ non-constant name; a non-test tool named `test_*.py` (the filter hides `tools/ch
 cut path starts `record.`; a row-level path (`row.<n>`) uses `admit_sample_row_whole` (handshake R12). `_WORDS` in
 `uploads.py` gains `UPLOAD_READER_SUPERSEDED`, `UPLOAD_SOURCE_SWITCHED`.
 
+### 2.12 The parse envelope and the last bounds (fix round r5; D-3A6.23 to D-3A6.28)
+
+**Module** `backend/assetops_backend/commercial/envelope.py` (new). It holds:
+
+```python
+@dataclass(frozen=True)
+class EnvelopeLimits:
+    memory_bytes: int = 512 * 2**20   # RLIMIT_AS, soft = hard
+    cpu_seconds: int = 6              # RLIMIT_CPU soft; hard = soft + 1
+    wall_seconds: float = 12.0        # parent's wait, then SIGKILL
+    result_bytes: int = 32 * 2**20    # the pickled answer, checked in the child and by recv_bytes(maxlength)
+    concurrent: int = 2               # children at once per ParseEnvelope (one per server process)
+    # __post_init__: every field > 0, else ValueError
+
+DEFAULT_LIMITS = EnvelopeLimits()
+
+@dataclass(frozen=True)
+class BoundedRead:
+    result: ReadResult                                     # `refused` back as MappingProxyType
+    split: tuple[list[str], list[tuple[int, list[str]]]] | None   # admission only
+
+class ParseEnvelope:
+    def __init__(self, limits: EnvelopeLimits = DEFAULT_LIMITS) -> None   # RuntimeError off Linux
+    def read(self, reader: SourceReader, data: bytes, context: ReadContext, *, split: bool = False) -> BoundedRead
+    peak_active: int    # the most children alive at once so far (for E5)
+
+def reader_spec(reader: SourceReader) -> tuple: ...
+```
+
+- **Reader spec (what the child rebuilds).**
+  - `("builtin", reader.id)` when `READERS.get(reader.id) is reader`.
+  - `("profile", profile_json, version)` for a `LayoutReader` built with `profile=`.
+  - Any other reader is a `TypeError`.
+  - `LayoutReader.__init__(self, layout, *, profile: tuple[str, int] | None = None)` keeps `profile`.
+    `ProfileService.reader` passes `(row.profile_json, row.version)`. Admission passes the uploaded profile's UTF-8
+    text and its version.
+  - The child rebuilds `LayoutReader(compile_profile(json.loads(text), version))` and refuses to run (an `error`
+    answer) if the rebuilt `id` differs from `reader.id`.
+- **The child** is `_child(conn, spec, data, context, split, limits)`, a module-level function.
+  1. Before anything else: `setrlimit(RLIMIT_AS, (m, m))`, `RLIMIT_CPU (c, c + 1)`, `RLIMIT_FSIZE (0, 0)`,
+     `RLIMIT_CORE (0, 0)`.
+  2. Rebuild the reader. Call `reader.read(data, context=context)`. With `split`, also call
+     `split_file(reader.layout, data)`.
+  3. Count the records. For the JSON reader, a `records` list longer than `MAX_RECORDS + 1` answers
+     `("refused", "CANONICAL_RANGE", "batch.records")`. This applies only if 2a's `parse_batch` does not already
+     refuse the count before walking the records; the builder states which one holds in pre-flight, with a test of
+     1,000,000 `{}` records.
+  4. Answer with one `conn.send_bytes(pickle.dumps(answer, protocol=5))`:
+     - `("ok", obj, rows, dict(refused), sorted(personal_paths), split_or_None)` on success;
+     - `("refused", code, path)` for a `CanonicalRefused`;
+     - `("breach", "memory")` for a `MemoryError`;
+     - `("breach", "result")` when the pickle is longer than `result_bytes`;
+     - `("error", type(e).__name__)` for any other exception.
+  The child holds no database handle, no key and no store.
+  No reader catches `MemoryError` (D-3A6.13 e already lists what is caught), so a breach in the C parsers reaches
+  the child's handler.
+- **The parent** (`ParseEnvelope.read`, in the request's worker thread). Inside `with self._slots:` (a
+  `threading.BoundedSemaphore(concurrent)`; an upload waits for a slot and is never refused for waiting):
+  1. Start the child: `ctx = multiprocessing.get_context("forkserver")`, created once under a lock with
+     `ctx.set_forkserver_preload(["assetops_contracts.native"])`. Then `ctx.Pipe(duplex=False)` and
+     `ctx.Process(target=_child, args=..., daemon=True).start()`, and close the child's end.
+  2. Wait: `if not conn.poll(limits.wall_seconds)` → `kill()`, cause `wall`. Otherwise
+     `conn.recv_bytes(maxlength=limits.result_bytes + 4096)`:
+     - `OSError` (too long) → cause `result`;
+     - `EOFError` → cause from the exit code: `-SIGXCPU` or `-SIGKILL` after the CPU hard limit → `cpu`, otherwise
+       `crash`.
+  3. Clean up, always: `join(1)`, `kill()` and `join()` if still alive, `close()` both.
+  4. Map the answer:
+     - `ok` → `BoundedRead`;
+     - `refused` → raise `CanonicalRefused(code, path)`, as the in-process read did;
+     - `breach` or any cause above → raise `EnvelopeBreach` (a `CanonicalRefused("NATIVE_TOO_LARGE", "json")` with
+       `cause` set to the closed cause code; D-3A6.29). The envelope logs nothing (R13); the upload API logs
+       `assetops.commercial_upload` WARNING `"upload parse refused by the envelope"`, with `extra` `cause`,
+       `reader` (id), `bytes` (length) and `tenant` (code), and nothing else from the file;
+     - `error` → raise `RuntimeError(f"parse failed in the envelope: {name}")`, a 500 as an unexpected reader
+       exception is today.
+- **Wiring.**
+  - `CommercialUploads._check`: `read = self._envelope.read(reader, data, context).result` replaces `reader.read`.
+  - `ProfileService` step 4: one `self._envelope.read(reader, sample, context, split=True)` replaces `reader.read`
+    and `split_file`. The rest of step 4 (`parse_batch`, `_coverage`, the row verdicts, `run_probes`) runs on the
+    returned rows in the parent. Those rows are at most 200 after `ADMIT_SAMPLE_SIZE`.
+  - `build_commercial_uploads` and `build_source_profiles` take an optional `envelope`. The default is one shared
+    `ParseEnvelope(DEFAULT_LIMITS)` per process. Tests may pass a lower-limit envelope.
+- **S1.** `S1-DYN` adds any attribute call named `set_forkserver_preload`. `DYNAMIC_IMPORT_ALLOWED` gains
+  `backend/assetops_backend/commercial/envelope.py` ("the forkserver preloads the pure contracts package"), plus a
+  plant `p-env` (`import multiprocessing as mp\nmp.get_context("forkserver").set_forkserver_preload([name])\n` →
+  `{S1-DYN}`).
+- **The bounds** (D-3A6.24), each `NATIVE_TOO_LARGE`:
+  - `xlsx.py` `_ATTR_RUN_MAX = 4096`: in `_parse` after the DTD check, only when `text.count("=") > 4096`, any
+    `[^<]+` match holding more than 4,096 `=`.
+  - `xlsx.py` `_ATTR_NAMES_MAX = 512`: distinct attribute names per workbook. One set is shared by the four parses
+    through the targets' constructor, and `_Target.start` checks it after adding `attrib`'s keys.
+  - `xlsx.py` `_Workbook.date1904`: a string or None, which replaces `pr`.
+  - `xlsx.py` `_directory_check(data)`, before `zipfile.ZipFile`: at most 256 entries and a 256 KiB directory, from
+    the end record, or the zip64 end record when a field holds its sentinel. No end record → `NATIVE_WORKBOOK`.
+  - `layouts_v1.py` `_ROW_CHARS_MAX = 1_048_576`: the CSV line generator (D-3A6.24, N9), path
+    `row.{reader.line_num + 1}`.
+- **Code switch** (D-3A6.25): `_too_large()` (`CanonicalRefused("NATIVE_TOO_LARGE", "json")`) replaces
+  `_workbook_error()` at the declared-size pre-check, the inflated member and total caps, `_WORK_MAX`, `_CHAR_MAX` and
+  `_PAD_BUDGET`. Every format refusal keeps `_workbook_error()`.
+- **Words** (§2.11 row): `commercial_upload.reason.native_too_large`. The 3A3 contract word pin gains the code.
+
+**Tests** (new file `backend/tests/test_3a6_parse_envelope.py`, no database; each upload goes through
+`CommercialUploads.check` with the kobo profile admitted in memory unless stated):
+- E0 `DEFAULT_LIMITS == EnvelopeLimits(512 * 2**20, 6, 12.0, 32 * 2**20, 2)`. A zero or negative field is a
+  `ValueError`.
+- E1 Memory: `memory_bytes=80 * 2**20` and the kobo fixture padded to 10,000 rows in about 8 MiB (VmPeak 104 MB) →
+  `NATIVE_TOO_LARGE`, logged cause `memory` or `crash`. The same file under `DEFAULT_LIMITS` reads all 10,000
+  records.
+- E2 CPU: `cpu_seconds=1`, `wall_seconds=30`, the 499,000 `<row/>` workbook through the lakeside profile → refused,
+  cause `cpu`. Precondition first: the same read in process takes at least 1.3 s of `process_time`. If the machine is
+  faster, the builder scales the rows; the test is never skipped.
+- E3 Wall: `wall_seconds=0.2` and E1's file → refused, cause `wall`, and the request returns within 2 s.
+- E4 Result: `result_bytes=1 * 2**20` and the 10,000-row 788 kB file (3.2 MB result) → refused, cause `result`.
+- E5 Concurrency: `concurrent=1`, two threads each checking E1's file → both read, and `peak_active == 1`.
+- E6 Survival: after each of E1 to E4 on the same envelope, the kobo fixture reads to its expected records.
+- E7 Exclusive: an AST scan of `backend/assetops_backend/` finds `read_layout`, `split_file`, `xlsx_rows`,
+  `xlsx_sparse_rows`, `loads_canonical` calls and `.read(...)` calls with a `context=` keyword only in
+  `commercial/envelope.py` and `commercial/readers.py`.
+- E8 Faithful: for the four illustrative goldens, both fixtures and `canonical-json-v1` on 3A2's fixture,
+  `envelope.read(...)` equals `reader.read(...)` in process (obj, rows, refused, personal paths). Admission's `split`
+  equals `split_file`.
+- E9 Logged without content: E1's file carries a sentinel string in a text column. No log record's message, args or
+  extra contains it (captured at the upload API). The record holds `cause`, `reader`, `bytes` and `tenant`.
+
+Contracts (`contracts/tests/test_3a6_profiles.py`, section "N3 r5", in process; time bounded in a plain run, peak
+memory in a traced run):
+- B1 N8: review r5's four attribute probes each give `NATIVE_TOO_LARGE` under 1.0 s and 60 MB: one element with
+  1.45 M names; 14,500 names an element over 100 elements; 1 M `p:aN`; `workbookPr` plus a sheet element. A text run
+  of 4,097 `=` is refused, and one of 4,096 reads. 513 distinct names over elements of 10 are refused; 512 read. The
+  lakeside fixture and a 10,000-row, 20-column budget workbook (about 600,000 `=`, so the scan runs) read as before.
+- B2 N9: one line of 4.2 M `\x80;` (cp1252), and 2.7 M fields over 90 quoted lines, each give `NATIVE_TOO_LARGE`
+  under 0.5 s and 60 MB. A row of exactly 1,048,576 characters is not refused by the cap. The kobo fixture is
+  unchanged.
+- B3 N10: 125 entries, each with a 65,535-byte extra field of empty records (review r5), give `NATIVE_TOO_LARGE`
+  under 0.2 s. 257 empty entries are refused; a 10-entry workbook reads. The zip64 path is exercised by a workbook
+  written with zip64 end records (`zipfile` with `force_zip64=True` on a member).
+- The r3 and r4 tests that expect `NATIVE_WORKBOOK` for a budget breach now expect `NATIVE_TOO_LARGE` (listed literal
+  change).
+
+**Plants** (reviewer guide V33 to V40). **Packet:**
+- the bounds table rewritten with the envelope as its first row and the N8 to N10 rows;
+- E1 to E4's measured costs;
+- a 600-case differential of in-process against envelope reads (seed 2026, review r5's generator), with 0
+  mismatches required;
+- the 3A7 and 3C2 note of D-3A6.26.
+
 ## 3. Code
 
 | File | Holds |
@@ -525,7 +675,8 @@ cut path starts `record.`; a row-level path (`row.<n>`) uses `admit_sample_row_w
 | `backend/migrations/versions/0067_source_profile.py` | §5 |
 | `backend/assetops_backend/commercial/model.py`, `store.py`, `adapters/postgres_commercial_store.py` | `ProfileRow`, `UploadSourceSwitched`; `source_profiles_all`, `source_profile_latest`, `source_profiles_latest`, `add_source_profile`; `HeldUpload` fields; `write_intake`'s acceptance re-check (§2.6) |
 | `backend/assetops_backend/commercial/profiles.py` | §2.5 |
-| `backend/assetops_backend/commercial/readers.py` | media types by format |
+| `backend/assetops_backend/commercial/readers.py` | media types by format; `LayoutReader(..., profile=)` (§2.12) |
+| `backend/assetops_backend/commercial/envelope.py` (rev 4, new) | §2.12: `EnvelopeLimits`, `DEFAULT_LIMITS`, `BoundedRead`, `ParseEnvelope`, `reader_spec`, `_child` |
 | `backend/assetops_backend/commercial/uploads.py`, `commercial_upload_api.py` | §2.6 |
 | `backend/assetops_backend/commercial/composition.py` | `build_commercial_uploads` passes profiles; `build_source_profiles` |
 | `backend/assetops_backend/source_profile.py` | §2.7 |
@@ -798,6 +949,12 @@ Postgres files; `test_3a4_commercial_months.py`; `test_on1_*`; check-all.
     `test_3c1a_person_work.py` (`SPEC_ROLES` gains `"commercial.profile_admit": (ANALYST, FINANCE)`, one line), and the
     packet?
 
+12. (rev 4) Is every upload's parse inside the envelope (E7), is each breach a `NATIVE_TOO_LARGE` refusal after which
+    the next upload reads (E1 to E6), are legitimate verdicts unchanged (E8 and the packet's differential), and are
+    the limits pinned and the log free of content (E0, E9)? D-3A6.24's bounds (B1 to B3) are checked but do not block
+    the merge (D-3A6.26). Question 11's list gains `commercial/envelope.py`, `test_3a6_parse_envelope.py`, and the
+    S1 test's `S1-DYN` addition and plant.
+
 Packet: `specs/3A6-source-profiles/packet.md` (module paths, fixture SHA-256s, plants, mid-build count, S1 residual).
 
 ## 8. Units
@@ -807,6 +964,8 @@ Packet: `specs/3A6-source-profiles/packet.md` (module paths, fixture SHA-256s, p
 | 1 | Engine growth (§2.2), `xlsx.py`, transforms, `profiles_v1.py` with `run_probes`, the coded rule, fixtures and `make_budget_xlsx.py`, N1 to N9 (no migration; may start before 3B7a merges, D-3A6.12) | 1 |
 | 1 | Migration 0067 (base holds 0066), store and adapter with the acceptance re-check, `profiles.py` with coverage (4a to 4c), the intake changes (§2.6), `tenant_by_slug`, words, guard, A1 to A10, U1 to U6, Q1 to Q3 | 2 |
 | 0.75 | The command, the loader (§2.8), S1 (§2.9), the suite changes (§2.10), L5 to L9, K1 to K4; check-all; packet | 3 |
+| 0.75 | Fix round r5 (rev 4): the envelope (§2.12), wiring, `LayoutReader` profile source, `NATIVE_TOO_LARGE` and words, S1-DYN addition, E0 to E9, V33 to V37 | r5-1 |
+| 0.5 | Fix round r5: N8 to N10 bounds, B1 to B3, V38 to V40, the code switch in the r3/r4 tests, packet (table, differential) | r5-2 |
 
 ## 9. Out of scope
 
@@ -825,3 +984,4 @@ reconciliation (`3A7`).
 | Q4 | Encodings | UTF-8 and cp1252 only; another is reshaped or converted by the analyst, timed |
 | Q5 | Where real profiles live | In the operator's own database, with only the sample's and expected file's SHA-256 (RC4); the illustrative fixtures alone are in the repository |
 | Q6 | An export naming Sites by name (`Kobo`) rather than code (handshake R15) | Not this unit: no map on `site_code`; such an export goes to the reshaping fallback (RC2), timed; the DDR runbook picks an unseen shape that carries Site codes. **Owner to weigh in** only if the first operator's export names Sites by name |
+| Q7 | (rev 4) Merge with the N8 to N10 bounds still under review? | The envelope blocks the merge; the three bounds are built in the same round but a defect in one is a Low follow-up unless it refuses a legitimate file (D-3A6.26, owner-away row 29). **Owner to weigh in** on return if the merge should have waited for every bound |

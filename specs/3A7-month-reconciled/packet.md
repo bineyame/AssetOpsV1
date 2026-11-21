@@ -8,7 +8,7 @@ merged: the merge waits for 3A6 and SC-1a.
 
 ## Outcome
 
-Migration 0068 (two append-only tables). The store port, the memory mirror and the Postgres adapter. The
+Migration 0069 (renumbered from 0068 at the commit 2 main merge; two append-only tables). The store port, the memory mirror and the Postgres adapter. The
 `structure/reconciliation.py` service: `record` (refusals §2.5 in order, nothing written), `check`, `statements`,
 `standing` (§2.3 at `known_at`, one memo per call), `tolerance` and `set_tolerance` (§2.4). Money reconciles only when
 a current statement opens the gate (both headings matched against recorded lines, within the tolerance at `k`: 1 in
@@ -17,7 +17,7 @@ a current statement opens the gate (both headings matched against recorded lines
 
 ## Files
 
-`backend/migrations/versions/0068_commercial_reconciliation.py`; `commercial/model.py`, `store.py`,
+`backend/migrations/versions/0069_commercial_reconciliation.py`; `commercial/model.py`, `store.py`,
 `adapters/postgres_commercial_store.py`, `months.py` (read-only `clock`); `structure/reconciliation.py`;
 `accounts/permissions.py` (`commercial.accounts_statement: (FINANCE,)`); `tools/checks/configuration-persistence.ps1`
 (both tables joined `$commercialTables`, nothing more); `backend/tests/test_3c1a_person_work.py` (one line);
