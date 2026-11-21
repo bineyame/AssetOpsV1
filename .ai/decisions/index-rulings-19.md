@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-0M.1 to D-0M.22, D-DS4.16 to D-DS4.25, D-0K2.17 to D-0K2.29)
+# Decision index: Demo-sprint and later rulings (index only) (D-0M.1 to D-0M.22, D-DS4.16 to D-DS4.25, D-0K2.17 to D-0K2.29, D-IA.61 to D-IA.66)
 
 - `D-0M.1` 0M starts on 0K2's merge and reuses its helpers; amends the delivery plan's 0K1-only dependency · live · specs/0M-mto-headroom-replay/rulings.md
 - `D-0M.2` Mto plant: Kobo template edited to the manifest's Mto facts; one 50 kW (or 25 kW) inverter limit · live · specs/0M-mto-headroom-replay/rulings.md
@@ -47,3 +47,9 @@
 - `D-0M.22` Mto dawn read as D-0K2.17: absolute verdict plus new/cleared dates · live · specs/0M-mto-headroom-replay/rulings.md
 - `D-DS4.26` Kisiwa actual om/cost_to_serve/contribution blank (October O&M invoice not received, GAP-1); §2.1 amended; C4_SITE_CLASSES; amends D-DS4.16 · live · specs/DS4-template-ladder/rulings.md
 - `D-DS4.27` plan price targets blank from 5a lines.py rule 4 (is_money vs money dimension); defect on main; 5a fix F1 (0.25 unit); 12 C4_KNOWN_FINDINGS until it merges · live · specs/DS4-template-ladder/rulings.md
+- `D-IA.61` IA-2b is the list shape only, split 2b1/2b2; 2b2 waits for the owner's IA-2a walkthrough · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.62` One list component; filters, sort, search, show-all in the address; focus keep · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.63` Four lists: stores, one-target rows, facets, count tiles; no at-stake sum (D2) · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.64` Outcomes fold, aliases with a query, crumbs, search index · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.65` 2b2: hub queues as the list, View all, no Decide button, plan link · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.66` IA-2b gates written first, dormant until landed, plants · live · specs/IA-1-shape-rebuild/rulings-5.md
