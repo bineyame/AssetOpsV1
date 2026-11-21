@@ -219,7 +219,7 @@ ALL PASS
   `WORLD_EVIDENCE_IN_REPO`); the late-record file.
 - Plants (each alone, reverted with `git checkout`): the projection without `/ site_days` failed T10 twice. Dropping
   the `contract_term_edit` `NOT_BUILT` row failed T10 twice.
-- Fast check-all: see the closing line below.
+- Fast check-all at `088e93f9d`: "All 42 guards passed (blocking; 0 advisory, 0 warned)", 123.5 s (1,052 s wall with slot wait); `check-all-fast.log`.
 
 ### Mid-build count, deviations, residual risk
 
