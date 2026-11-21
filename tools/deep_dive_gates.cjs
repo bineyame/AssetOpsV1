@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // 5c (spec §5.3, §5.4; D-5C.14): the hub gates of "The month", checked on the built React page.
 //
-// usage: node tools/deep_dive_gates.cjs <base-url> <fixture.json> [--plant NAME] [--shots DIR]
+// usage: node tools/deep_dive_gates.cjs <base-url> <fixture.json> [--plant NAME] [--shots DIR] [--world NAME]
+// `--world` names the views and shots (default "A"; "X" for the currency-mismatch world).
 // Needs /opt/assetecon/tools/pw/env.sh sourced (PW, CHROME) and LD_LIBRARY_PATH=$AUDIT_LD_LIBRARY_PATH; runs inside
 // the heavy-tool slot pool. The script answers `/api/portfolio/month*` with the fixture through `page.route`, opens
 // `<base-url>/portfolio/month?month=2026-10` at 1440 x 900, 1280 x 720 and 390 x 844, each light and dark, plus A with
@@ -22,12 +23,13 @@ const PLANTS = ["block", "headline", "levels", "height", "fold", "status", "scro
 const CSS_PATH = path.join(__dirname, "..", "frontend", "src", "estate", "deepDiveMonth.css");
 
 function parseArgs(argv) {
-  const out = { base: argv[0], fixture: argv[1], plant: null, shots: null };
+  const out = { base: argv[0], fixture: argv[1], plant: null, shots: null, world: "A" };
   for (let i = 2; i < argv.length; i += 1) {
     if (argv[i] === "--plant") out.plant = argv[++i];
     else if (argv[i] === "--shots") out.shots = argv[++i];
+    else if (argv[i] === "--world") out.world = argv[++i];
   }
-  if (!out.base || !out.fixture) throw new Error("usage: deep_dive_gates.cjs <base-url> <fixture.json> [--plant NAME] [--shots DIR]");
+  if (!out.base || !out.fixture) throw new Error("usage: deep_dive_gates.cjs <base-url> <fixture.json> [--plant NAME] [--shots DIR] [--world NAME]");
   if (out.plant !== null && !PLANTS.includes(out.plant)) throw new Error(`unknown plant ${out.plant}`);
   return out;
 }
@@ -152,10 +154,10 @@ async function checkView(browser, args, fixture, view) {
   const browser = await chromium.launch({ executablePath: process.env.CHROME });
   const views = [];
   for (const [w, h] of [[1440, 900], [1280, 720], [390, 844]]) {
-    for (const dark of [false, true]) views.push({ name: `A-${w}x${h}-${dark ? "dark" : "light"}`, w, h, dark, dHeadline: false });
+    for (const dark of [false, true]) views.push({ name: `${args.world}-${w}x${h}-${dark ? "dark" : "light"}`, w, h, dark, dHeadline: false });
   }
-  views.push({ name: "A-with-D-headline-1440x900-light", w: 1440, h: 900, dark: false, dHeadline: true });
-  views.push({ name: "A-with-D-headline-1280x720-light", w: 1280, h: 720, dark: false, dHeadline: true });
+  views.push({ name: `${args.world}-with-D-headline-1440x900-light`, w: 1440, h: 900, dark: false, dHeadline: true });
+  views.push({ name: `${args.world}-with-D-headline-1280x720-light`, w: 1280, h: 720, dark: false, dHeadline: true });
   try {
     for (const view of views) {
       const r = await checkView(browser, args, fixture, view);
