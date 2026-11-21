@@ -36,8 +36,8 @@ have no ID; find them by date heading (`## 2026-09-11` ...) in the parts.
 | `index-rulings-10.md` | Demo-sprint and later rulings | `D-4B.1` to `D-IA.31` (51) |
 | `index-rulings-11.md` | Demo-sprint and later rulings | `D-ON1.9` to `D-5B.14` (49) |
 | `index-rulings-12.md` | Demo-sprint and later rulings | `D-5B.15` to `D-IA.48` (44) |
-| `index-rulings-13.md` | IA rulings, continued | `D-IA.49` to `D-IA.53` (5) |
 | `index-rulings-13.md` | Demo-sprint and later rulings | `D-4D.1` to `D-3C2.13` (56) |
+| `index-rulings-14.md` | Demo-sprint and later rulings | `D-IA.49` to `D-IA.53` (5) |
 
 The `index-rulings-*` lines are index-only: demo-sprint and later rulings
 (D-SR, D-E5, D-ANY, D-AW, D-W1, D-MONEY and the rest) whose text is in the

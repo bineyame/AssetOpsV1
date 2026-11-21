@@ -1,7 +1,58 @@
-# Decision index: IA rulings, continued (index only) (D-IA.49 to D-IA.53)
+# Decision index: Demo-sprint and later rulings (index only) (D-4D.1 to D-3C2.13)
 
-- `D-IA.49` IA_FORCE_LANDED=IA-2a runs unit 2 checks on a stub, plants at 3(a); no IA-2a check dormant after the flip; stop moves to end of 3(a); runner rows · live · specs/IA-1-shape-rebuild/rulings-3.md
-- `D-IA.50` parts_identity sets plan states (default and non-default approved) with PI_PLANT; counts 48+12 boots; planver plant; focus and REVISED tests · live · specs/IA-1-shape-rebuild/rulings-3.md
-- `D-IA.51` L1 case line on all four tabs when the case is not the proposal; Approve of another case is never unseen · live · specs/IA-1-shape-rebuild/rulings-3.md
-- `D-IA.52` Plant and fingerprint rules: cap asserted on History, selectors, own constants, period check, doc titles per Site, approve-fold metric, copy list · live · specs/IA-1-shape-rebuild/rulings-3.md
-- `D-IA.53` G1 origins and depths (item decision 3, reported), crew and listed full width, commit plan · live · specs/IA-1-shape-rebuild/rulings-3.md
+- `D-4D.1` No new intake: litres read existing readings (dispatch-3.2), TANK_DIP/FUEL_DELIVERY records and the Foundation fuel curve · live · specs/4d-litre-split/rulings.md
+- `D-4D.2` A litre is a running slot's measured output at the fuel curve; any gap in output gives no month figure · live · specs/4d-litre-split/rulings.md
+- `D-4D.3` INDETERMINATE litres count as necessary, never candidate; kept as indeterminate_l · live · specs/4d-litre-split/rulings.md
+- `D-4D.4` A slot takes the class of the segment holding its start; overlapping segments are not analysed · live · specs/4d-litre-split/rulings.md
+- `D-4D.5` The month's fuel balance runs between tank dips within 24 h of the month's ends (closing half-open); dips only · live · specs/4d-litre-split/rulings.md
+- `D-4D.6` Exact Fraction arithmetic, one rounding to 0.001 L at the end · live · specs/4d-litre-split/rulings.md
+- `D-4D.7` Unexplained litres may be negative · live · specs/4d-litre-split/rulings.md
+- `D-4D.8` Litres are MODELLED with origin unknown · live · specs/4d-litre-split/rulings.md
+- `D-4D.9` Litre sources name the dispatch runs, the curve revisions and the fuel records used · live · specs/4d-litre-split/rulings.md
+- `D-5C.1` The deep-dive screen is a Portfolio tab "The month" in the hub shape (MD7, D5 until IA-2) · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.2` The server writes every figure and word; the browser only renders · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.3` The evidence word on this screen (3A5's rule, scoped); emulated never Recorded · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.4` Every money figure carries the organisation's 3A7 standing read at the snapshot's as_of (amended rev 2) · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.5` Waterfall steps are the heading rows; drivers in the step drawer; by_home not shown · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.6` n is the Sites asked; each figure its own k of n; a Site left out named with its own target · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.7` On a real-data server the screen needs a signed-in person of the tenant · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.8` The agreed change is read through AgreedActionsPort; contract binding on 3C2 · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.9` Every stop worded by one rule: why, then the records that would fill it · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.10` Budget disagreements shown in the bridge section, never only in a drawer · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.11` "What is not available yet" groups missing records by kind, with the Sites · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.12` Caps that scale to 300 Sites (10 Sites, 8 rows, 3 Actions) · live · specs/5c-deep-dive-screen/rulings.md
+- `D-DDR.1` The rehearsal is the runbook as written plus a checker of what each step leaves · live · specs/DDR-rehearsal/rulings.md
+- `D-DDR.2` The unseen shape is the board budget XLSX, replacing the emulated budget · live · specs/DDR-rehearsal/rulings.md
+- `D-DDR.3` Each gate reads its own step's records, never another gate's output · live · specs/DDR-rehearsal/rulings.md
+- `D-DDR.4` "Not yet reconciled" shown before "reconciled" (a mismatching first statement) · live · specs/DDR-rehearsal/rulings.md
+- `D-DDR.5` DDR waits for 3C2 · live · specs/DDR-rehearsal/rulings.md
+- `D-DDR.6` One read added to the snapshot store: portfolio_history · live · specs/DDR-rehearsal/rulings.md
+- `D-4D.10` Generator readings checked day by day (held); none, or a day without, is Not available yet, never 0 L · live · specs/4d-litre-split/rulings.md
+- `D-4D.11` necessary_l = all generator litres of the month less candidate; unclassified running counts as necessary · live · specs/4d-litre-split/rulings.md
+- `D-4D.12` Only a CURRENT dispatch selection is analysed; stale or failed runs are not analysed yet · live · specs/4d-litre-split/rulings.md
+- `D-4D.13` A segment class 4d does not know stops the month (SPAN_CLASS_UNKNOWN) · live · specs/4d-litre-split/rulings.md
+- `D-4D.14` The fuel curve must be in force over the whole dip window for unexplained litres · live · specs/4d-litre-split/rulings.md
+- `D-4D.15` indeterminate_l stays inside 4d; 5c labels necessary_l "Diesel not shown to be avoidable" · live · specs/4d-litre-split/rulings.md
+- `D-5C.13` The portfolio shows only the bridge's figure; gate literals 1,693.00 (A) and 883.00 (D) · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.14` The live page honours the hub shape (regions, 6 blocks, 2-line headline, fold), checked by deep_dive_gates.cjs · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.15` The headline names only a heading that widens the gap, and says when it exceeds the gap · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.16` Every driver carries its evidence word; necessary_l is "Diesel not shown to be avoidable" · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.17` Actions in hand lists agreed Actions only, newest first · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.18` The bridge's own rules are outside the snapshot freshness this fortnight; rebuild after deploy · live · specs/5c-deep-dive-screen/rulings.md
+- `D-DDR.7` G9 compares the screen's figures and words, never its clock · live · specs/DDR-rehearsal/rulings.md
+- `D-DDR.8` Each gate checks who did its step (admitter, builder) · live · specs/DDR-rehearsal/rulings.md
+- `D-DDR.9` G10 reads 3C2's store, then the screen's first row · live · specs/DDR-rehearsal/rulings.md
+- `D-DDR.10` Each DDR test case starts from empty tables; progress folded into the one full run · live · specs/DDR-rehearsal/rulings.md
+- `D-3C2.1` An agreed change is its own append-only record (0069), apart from the S6-01a finding Actions · live · specs/3C2-agreed-change-action/rulings.md
+- `D-3C2.2` Only the executive agrees a change; the owner's role must cover where it applies (amended by D-3C2.6) · live · specs/3C2-agreed-change-action/rulings.md
+- `D-3C2.3` record_action records in the agreeing person's name, once (idempotent) · live · specs/3C2-agreed-change-action/rulings.md
+- `D-3C2.4` State words Open and Overdue by the UTC date at the read · live · specs/3C2-agreed-change-action/rulings.md
+- `D-3C2.5` 3C2 adopts 5c's contract; domain read in actions/, the screen mapping in deep_dive/ · live · specs/3C2-agreed-change-action/rulings.md
+- `D-3C2.6` Owner rule by role (OWNER_COVER): executive and finance lead all, Site manager own Site only, others none · live · specs/3C2-agreed-change-action/rulings.md
+- `D-3C2.7` A re-run is recognised before the due check; the agreed_action_once violation is caught · live · specs/3C2-agreed-change-action/rulings.md
+- `D-3C2.8` A factor must belong to the registry of its Site's type (FACTOR_SITE_TYPE) · live · specs/3C2-agreed-change-action/rulings.md
+- `D-3C2.9` Migration numbered at the live head (D-3A1.12); 3A6 merged is the build gate; 5c unit 2 gates unit 2 · live · specs/3C2-agreed-change-action/rulings.md
+- `D-3C2.10` One clock read per call, whole seconds; a re-run prints the stored created_at · live · specs/3C2-agreed-change-action/rulings.md
+- `D-3C2.11` Title kept as typed: U+0020 stripped, controls refused, no normalisation · live · specs/3C2-agreed-change-action/rulings.md
+- `D-3C2.12` record_action is a trusted act, not a sign-in (residual risk R-AUTH) · live · specs/3C2-agreed-change-action/rulings.md
+- `D-3C2.13` TRUNCATE on agreed_action is refused (statement trigger) · live · specs/3C2-agreed-change-action/rulings.md
