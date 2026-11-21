@@ -810,7 +810,7 @@ def test_9a_the_portfolio_read_refuses_as_the_target_read_does() -> None:
     seen = 0
     for tree in pb.rows.values():
         for key, row in tree.items():
-            assert row.n == 2 and (KISIWA, ("STRUCTURE_NOT_DECLARED",)) in row.out, key
+            assert row.n == 2 and (KISIWA, ("STRUCTURE_OTHER_KEY",)) in row.out, key
             seen += 1
     assert seen > 0
 

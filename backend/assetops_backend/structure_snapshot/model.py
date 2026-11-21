@@ -74,7 +74,7 @@ class PortfolioMonthSnapshot:
     closed_at_build: bool
     stamps: tuple[MonthStamp, ...]                  # its own portfolio stamp only
     asked: tuple[str, ...]                          # every Site code built for, in the order given
-    sites_excluded: Mapping[str, tuple[str, ...]]   # a type with no structure: NOT_DECLARED
+    sites_excluded: Mapping[str, tuple[str, ...]]   # a type with no structure: NOT_DECLARED; another: OTHER_STRUCTURE
     sites: Mapping[str, SiteMonthSnapshot]          # the MINI_GRID Sites, in `asked` order
     portfolio_lines: BudgetLines
 

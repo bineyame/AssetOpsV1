@@ -231,7 +231,7 @@ def test_2_portfolio_round_trip() -> None:
     r = fresh(w)
     pl = r.lines.portfolio(w["tid"], OCT, structure_key=MG, known_at=AS_OF)
     asked = [s.site_code for s in refs(w)]
-    excluded = {"THIKA-001": ("STRUCTURE_NOT_DECLARED",)}
+    excluded = {"THIKA-001": ("STRUCTURE_OTHER_KEY",)}
     payload = codec.encode_portfolio(w["tid"], OCT, MG, REGISTRIES[MG].version, AS_OF, asked, excluded, pl)
     row = SnapshotRow(UUID(int=9), w["tid"], None, OCT, MG, REGISTRIES[MG].version, SNAPSHOT_FORMAT, AS_OF, BY, True,
                       RULES_A, (), (pl.stamp,), payload, codec.digest(payload), ())
@@ -282,7 +282,7 @@ def check_3_build_and_serve(w, store=None) -> SimpleNamespace:
     assert pf.freshness.untracked == ("MTO-001:diesel_price",)
     p = pf.snapshot
     assert p.snapshot_id == result.portfolio_snapshot_id and p.asked == tuple(c.site_code for c in sites)
-    assert p.sites_excluded == {"THIKA-001": ("STRUCTURE_NOT_DECLARED",)} and list(p.sites) == list(CODES)
+    assert p.sites_excluded == {"THIKA-001": ("STRUCTURE_OTHER_KEY",)} and list(p.sites) == list(CODES)
     assert p.stamps == (w["months"].portfolio_month(w["tid"], OCT, known_at=AS_OF).stamp,)
     assert p.closed_at_build is True
     act, tgt = p.actual(), p.targets()
@@ -540,7 +540,7 @@ def test_10_grep() -> None:
         assert "float(" not in f.read_text(encoding="utf-8"), f
     imports = _imports(pkg / "read.py")
     assert sorted(n for m, n in imports if m == "assetops_backend.structure.read") == [
-        "NOT_DECLARED", "SITE_TYPE_TO_STRUCTURE", "SiteInputs"]
+        "KEY_NOT_READ", "NOT_DECLARED", "SITE_TYPE_TO_STRUCTURE", "SiteInputs"]  # 3B6: KEY_NOT_READ (D-3B6.6)
     assert [n for m, n in imports if m == "assetops_backend.structure.check"] == ["StructureError"]
     assert {n for m, n in imports if m == "assetops_backend.structure.targets.read"} <= {
         "SiteTargets", "PortfolioTargets", "TargetCheck"}

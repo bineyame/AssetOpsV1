@@ -53,3 +53,13 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-3A3.6` Emulated loading refuses any assetops_op* database before connecting (3A2 R4) · live · specs/3A3-emulators-contract-test/rulings.md
 - `D-3A3.7` One path per source type per tenant (DS1b canonical or emulated native, never both) · live · specs/3A3-emulators-contract-test/rulings.md
 - `D-3A3.8` Cross-Site waiting list for the finance lead comes with the upload screen, not now · live · specs/3A3-emulators-contract-test/rulings.md
+- `D-3B2.6` T4's snapshot is a committed literal; the diff of `outcomes/` is empty · live · specs/3B2-findings-pinned/rulings.md
+- `D-3B2.7` A pin has one domain; parity compares only that one · live · specs/3B2-findings-pinned/rulings.md
+- `D-3B2.8` 3B2 adds no served text (D-SC1.28 does not bite) · live · specs/3B2-findings-pinned/rulings.md
+- `D-3B2.9` T1 also checks the manifest row's structure · live · specs/3B2-findings-pinned/rulings.md
+- `D-3B2.10` Pin checks run only on the start-up path of `check_all` · live · specs/3B2-findings-pinned/rulings.md
+- `D-3B2.11` `structure/` may import `outcome_map` (guard passes, no cycle) · live · specs/3B2-findings-pinned/rulings.md
+- `D-3B2.12` Which expressions are totals · live · specs/3B2-findings-pinned/rulings.md
+- `D-3B2.13` `PIN_CODES` is separate from `CODES` · live · specs/3B2-findings-pinned/rulings.md
+- `D-3B2.14` Stale spec text corrected; pins on stated nodes allowed · live · specs/3B2-findings-pinned/rulings.md
+- `D-3B2.15` Keep the name `pin_of` · live · specs/3B2-findings-pinned/rulings.md

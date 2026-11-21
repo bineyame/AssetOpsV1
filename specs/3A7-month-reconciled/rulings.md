@@ -176,3 +176,27 @@ gate named here has a plant in `reviewer-guide.md` rev 2 that fails it.
 - **P4 (Low).** Residual for the packet: `build_commercial_reconciliation` adds `structure` to
   `commercial.composition`'s import closure, so 3B7a's code digest changes (as 3A6's P9).
 - **P5.** Noted; K's fuel share changes to 2.25% under D-3A7.10, every other figure stands.
+
+## Amendment (SC-1, 2026-11-21): words as statements (D-SC1.14)
+
+If `SC-1a` (`specs/SC-1-statement-composer/spec.md`) has merged when this unit's code starts, §2.7 is written as
+structured statements in `i18n/statements/en/reconciliation.py`, not flat `messages.py` entries: the heading sentence
+exactly as SC-1 §5.1 (states as an `exhaustive` variant set, `{gap}` and `{share}` as parts, D-3A7.10's rounding as
+variant options, "less than 0.01" as the money format's `tiny`); the statement, standing and refusal sentences by the
+same rules (refusal examples as `example` slots); `money_word` applies the shared `evidence` format (D-SC1.16);
+`commercial/reconciliation.py` joins the guard's `ADOPTED`; every variant gets a case. Money reads in SC-1's one form
+(D-SC1.10): `$505.00`, not `505.00 USD`; this unit's expected strings change by that rule only. Otherwise §2.7 ships as
+written, its keys join the legacy baseline, and SC-1b converts them. Either way nothing waits.
+
+**Amended (SC-1 handshake, 2026-11-21; D-SC1.26 replaces the "otherwise" above).** This unit's code starts when both
+3A6 and SC-1a have merged; the coordinator checks SC-1a's merge at dispatch and says so in the brief. There is no flat
+fallback. The heading reads as SC-1 §5.1 rev 2, with the evidence word of the figures it states (`Revenue
+(Recorded): the accounts say ...`, D-SC1.18), the difference, allowed amount and share declared `derived_from`; the
+scope is SC-1 §5.4's `reconciliation.scope` (a `State` and a `Name`). Every template holding a number word is
+reworded to drop it (D-SC1.21): `standing.none_matched` reads "Not yet reconciled: no month's recorded revenue and
+fuel cost match the management accounts within {tolerance} yet." The command's printed sentences render the same
+statements; any message the command stores or prints as JSON params goes through `i18n.to_wire` (D-SC1.19). This
+unit's expected strings change by these rules only; the packet lists each changed string for the walkthrough.
+
+**Amended (owner away, 2026-11-21; D-SC1.28 replaces D-SC1.26's start rule above).** Code starts on 3A6's merge; only the
+text waits: commit 1 is migration 0068, store, adapter and the standing as codes and `Decimal`s, R1 to R10 without word assertions; commit 2, after SC-1a merges and `main` is merged in, is §2.7 as statements, composition, the command, M1 to M5, Q1 to Q3 and the word assertions (D-SC1.28). The unit merges only after SC-1a.
