@@ -13,9 +13,11 @@ only.
 from __future__ import annotations
 
 import csv
+import functools
 import hashlib
 import io
 import re
+import sys
 import unicodedata
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta, timezone
@@ -25,6 +27,7 @@ from typing import Mapping, Sequence
 from zoneinfo import ZoneInfo
 
 from assetops_contracts.canonical import SOURCE_TYPES, CanonicalRefused
+from assetops_contracts.canonical.records_v1 import MAX_RECORDS
 from assetops_contracts.native.xlsx import XlsxBad, XlsxNumber, xlsx_sparse_rows
 
 _BOM = b"\xef\xbb\xbf"
@@ -301,9 +304,26 @@ def transform(type_: str, cell: str, values: ValueRules, *, scale: str | None = 
 
 # --- reading (spec §2.2) ----------------------------------------------------------------------------------------
 
+def _flagged(ch: str) -> bool:
+    return ch not in _TEXT_CONTROLS and (ord(ch) in _CONTROL or unicodedata.category(ch) in _INVISIBLE_CATEGORIES)
+
+
+@functools.cache
+def _invisible_class() -> re.Pattern:
+    """Fix round r4 (N6): `_flagged` over every code point, as one character class, so a cell is scanned at the
+    regex engine's speed rather than a Python call a character. Built once, on first use."""
+    spans: list[list[int]] = []
+    for cp in range(sys.maxunicode + 1):
+        if _flagged(chr(cp)):
+            if spans and spans[-1][1] == cp - 1:
+                spans[-1][1] = cp
+            else:
+                spans.append([cp, cp])
+    return re.compile("[" + "".join(f"\\U{a:08x}-\\U{b:08x}" for a, b in spans) + "]")
+
+
 def _invisible(cell: str) -> bool:
-    return any(ch not in _TEXT_CONTROLS and (ord(ch) in _CONTROL or unicodedata.category(ch) in _INVISIBLE_CATEGORIES)
-               for ch in cell)
+    return _invisible_class().search(cell) is not None
 
 
 def split_file(layout: Layout, data: bytes) -> tuple[list[str], list[tuple[int, list[str]]]]:
@@ -311,7 +331,8 @@ def split_file(layout: Layout, data: bytes) -> tuple[list[str], list[tuple[int, 
     `NATIVE_HEADER json`; the header's comparison is `read_rows`' first step."""
     rules = layout.file
     if rules.format == "xlsx":
-        sheet_rows = xlsx_sparse_rows(data, rules.sheet or "")  # row numbers rise strictly, under one work bound
+        # row numbers rise strictly, under one work bound; stops one kept row past the batch ceiling (r4, N7)
+        sheet_rows = xlsx_sparse_rows(data, rules.sheet or "", after=rules.header_row, keep=MAX_RECORDS)
         # Fix round r3: nothing is padded past the layout's width. The header row is the one row numbered
         # `header_row`; a non-empty cell past the layout's last column refuses it before any list is built.
         width = len(layout.columns)
@@ -341,16 +362,27 @@ def split_file(layout: Layout, data: bytes) -> tuple[list[str], list[tuple[int, 
     except UnicodeDecodeError:
         raise CanonicalRefused("NATIVE_ENCODING", "json") from None
     reader = csv.reader(io.StringIO(text, newline=""), dialect="excel", delimiter=rules.delimiter, strict=True)
-    all_rows: list[tuple[int, list[str]]] = []
+    # Fix round r4 (N7): rows are kept as they come and the read stops one kept row past `MAX_RECORDS` (the batch
+    # refuses that count, `CANONICAL_RANGE batch.records`); each kept row holds at most the layout's width plus one
+    # cell (a longer row is a count mismatch either way), so nothing past the ceiling is materialised.
+    keep = len(layout.columns) + 1
+    header: list[str] | None = None
+    rows: list[tuple[int, list[str]]] = []
+    seen = 0
     try:
         for cells in reader:
-            all_rows.append((reader.line_num, cells))
+            seen += 1
+            if seen == rules.header_row:
+                header = cells[:keep]
+            elif seen > rules.header_row and cells:
+                rows.append((reader.line_num, cells[:keep]))
+                if len(rows) > MAX_RECORDS:
+                    break
     except csv.Error:
         raise CanonicalRefused("NATIVE_ROW", f"row.{reader.line_num}") from None
-    if len(all_rows) < rules.header_row:
+    if header is None:
         raise CanonicalRefused("NATIVE_HEADER", "json")
-    header = all_rows[rules.header_row - 1][1]
-    return header, [(n, cells) for n, cells in all_rows[rules.header_row:] if cells]
+    return header, rows
 
 
 def read_rows(layout: Layout, header: Sequence[str], rows: Sequence[tuple[int, Sequence[str]]], *, tenant_code: str,

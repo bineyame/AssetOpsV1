@@ -71,6 +71,11 @@ _PAD_BUDGET = 2_000_000  # total padded cells `xlsx_rows` may build
 # (rows and cells are elements, so rows plus cells visited never pass it). Members are parsed by event with no tree
 # kept, and every later loop runs over what the parse kept. A workbook past the bound is `NATIVE_WORKBOOK`.
 _WORK_MAX = 500_000
+# Fix round r4 (review N5, N6): bounds on what the element count cannot see. Member bytes are counted as they are
+# inflated (a member's declared size is the uploader's word), and the characters every cell delivers are charged to
+# one workbook-wide budget, so a shared string referenced from every row costs its length each time.
+_CHUNK = 64 * 1024
+_CHAR_MAX = 16 * 1024 * 1024
 _ROW, _C, _V, _F, _IS, _T, _R, _SI = (f"{_MAIN}{n}" for n in ("row", "c", "v", "f", "is", "t", "r", "si"))
 _OTHER, _SHEETS, _IN_ROW, _IN_CELL, _IN_V, _IN_IS, _IN_RUN, _T_DIRECT, _T_RUN = range(9)  # element roles
 
@@ -223,11 +228,13 @@ class _Shared(_Target):
 
 
 class _Sheet(_Target):
-    def __init__(self, work: list[int], shared: list[str]) -> None:
+    def __init__(self, work: list[int], shared: list[str], after: int = 0, keep: int | None = None) -> None:
         super().__init__(work)
         self.shared = shared
         self.rows: list[tuple[int, dict[int, str]]] = []
         self.previous = 0
+        self.chars = _CHAR_MAX
+        self.after, self.keep, self.kept = after, keep, 0
 
     def role(self, tag: str, attrib: dict, parent: list | None) -> tuple:
         if tag == _ROW:
@@ -240,7 +247,7 @@ class _Sheet(_Target):
             self.previous = number
             cells: dict[int, str] = {}
             self.rows.append((number, cells))
-            return _IN_ROW, [cells, 0], None, False  # the row's cells and the index a cell without `r` takes
+            return _IN_ROW, [cells, 0, number], None, False  # cells, the index a cell without `r` takes, `r`
         if parent is None:
             return _NONE
         role = parent[0]
@@ -266,8 +273,19 @@ class _Sheet(_Target):
             index = _column_index(match.group(1)) if match else row[1]
             if index > _MAX_COLUMN:
                 raise _workbook_error()
-            row[0][index] = cell.value(self.shared)
+            value = cell.value(self.shared)
+            self.chars -= len(value)  # fix round r4 (N6): every delivered character, a shared one each time
+            if self.chars < 0:
+                raise _workbook_error()
+            row[0][index] = value
             row[1] = max(row[1], index + 1)  # one past the widest cell so far
+        elif role == _IN_ROW:
+            # fix round r4 (N7): past `keep` non-empty rows after row `after`, the parse stops (the caller's ceiling)
+            cells, number = entry[1][0], entry[1][2]
+            if self.keep is not None and number > self.after and any(v != "" for v in cells.values()):
+                self.kept += 1
+                if self.kept > self.keep:
+                    raise _Enough
         elif role == _IN_V:
             if entry[1].v is None:
                 entry[1].v = "".join(entry[2])
@@ -275,8 +293,29 @@ class _Sheet(_Target):
             self.text_ended(entry)
 
 
-def _parse(z: zipfile.ZipFile, name: str, target: _Target) -> _Target:
-    raw = z.read(name)  # KeyError when missing
+class _Enough(Exception):
+    """The sheet parse has kept one row past the caller's ceiling."""
+
+
+def _member(z: zipfile.ZipFile, name: str, left: list[int]) -> bytes:
+    """Fix round r4 (N5): a member's bytes, inflated a chunk at a time and counted as they come, refused past the
+    member cap or past what is left of the total; the declared size is not trusted."""
+    info = z.getinfo(name)  # KeyError when missing
+    if info.compress_type not in (zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED):
+        raise _workbook_error()  # bzip2 and lzma inflate a whole read at once; Excel writes deflate only
+    cap, size, chunks = min(_MEMBER_MAX, left[0]), 0, []
+    with z.open(info) as f:
+        while chunk := f.read(_CHUNK):  # `ZipExtFile.read(n)` gives the decompressor `n` as its output limit
+            size += len(chunk)
+            if size > cap:
+                raise _workbook_error()
+            chunks.append(chunk)
+    left[0] -= size
+    return b"".join(chunks)
+
+
+def _parse(z: zipfile.ZipFile, name: str, target: _Target, left: list[int]) -> _Target:
+    raw = _member(z, name, left)
     if raw.startswith(_BOM):
         raw = raw[len(_BOM):]
     text = raw.decode("utf-8", errors="strict")
@@ -289,31 +328,38 @@ def _parse(z: zipfile.ZipFile, name: str, target: _Target) -> _Target:
     return target
 
 
-def _read(data: bytes, sheet: str) -> list[tuple[int, dict[int, str]]]:
+def _read(data: bytes, sheet: str, after: int = 0, keep: int | None = None) -> list[tuple[int, dict[int, str]]]:
     z = zipfile.ZipFile(io.BytesIO(bytes(data)))
     infos = z.infolist()
     if any(i.file_size > _MEMBER_MAX for i in infos) or sum(i.file_size for i in infos) > _TOTAL_MAX:
         raise _workbook_error()
-    work = [_WORK_MAX]
-    workbook = _parse(z, "xl/workbook.xml", _Workbook(work))
+    work, left = [_WORK_MAX], [_TOTAL_MAX]
+    workbook = _parse(z, "xl/workbook.xml", _Workbook(work), left)
     if workbook.pr is not None and (workbook.pr.get("date1904") or "").strip().lower() in ("1", "true"):
         raise _workbook_error()
     if workbook.sheets != 1 or workbook.first[0] != sheet:
         raise CanonicalRefused("NATIVE_SHEET", "json")
-    target = _parse(z, "xl/_rels/workbook.xml.rels", _Rels(work, workbook.first[1])).target
+    target = _parse(z, "xl/_rels/workbook.xml.rels", _Rels(work, workbook.first[1]), left).target
     if not target:
         raise _workbook_error()
     path = target.lstrip("/") if target.startswith("/") else _normpath(_join("xl", target))
     shared: list[str] = []
     if "xl/sharedStrings.xml" in z.namelist():
-        shared = _parse(z, "xl/sharedStrings.xml", _Shared(work)).strings
-    return _parse(z, path, _Sheet(work, shared)).rows
-
-
-def xlsx_sparse_rows(data: bytes, sheet: str) -> list[tuple[int, dict[int, str]]]:
-    """Spec §2.3. Rows of the one sheet as `(r, {column index: cell})`; nothing is padded."""
+        shared = _parse(z, "xl/sharedStrings.xml", _Shared(work), left).strings
+    rows = _Sheet(work, shared, after, keep)
     try:
-        return _read(data, sheet)
+        _parse(z, path, rows, left)
+    except _Enough:
+        pass  # the rows so far end with the one past the ceiling
+    return rows.rows
+
+
+def xlsx_sparse_rows(data: bytes, sheet: str, *, after: int = 0,
+                     keep: int | None = None) -> list[tuple[int, dict[int, str]]]:
+    """Spec §2.3. Rows of the one sheet as `(r, {column index: cell})`; nothing is padded. With `keep`, the read
+    stops at the first row past `keep` non-empty rows numbered above `after` (that row is the last one returned)."""
+    try:
+        return _read(data, sheet, after, keep)
     except (zipfile.BadZipFile, zipfile.LargeZipFile, zlib.error, NotImplementedError, RuntimeError, EOFError,
             KeyError, UnicodeDecodeError, ElementTree.ParseError):
         raise _workbook_error() from None

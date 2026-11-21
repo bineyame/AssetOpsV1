@@ -435,7 +435,8 @@ def test_n3_r3_empty_rows_past_the_bound_are_refused(monkeypatch) -> None:
 
 def test_n3_r3_near_member_cap_sheet_is_refused_in_bounded_time_and_memory() -> None:
     """The reviewer's P5 at the real bound: a sheet member just under 16 MiB of one-cell rows (263 MB and 11 s at
-    round 3). The bound stops the parse after 100,000 rows."""
+    round 3). Since r4 the row ceiling stops the parse first: one kept row past `MAX_RECORDS` (10,001 records, which
+    the batch refuses as `CANONICAL_RANGE`); the work bound alone stopped it after 100,000 rows."""
     target, parts, size, r = _xlsx._MEMBER_MAX - 10_000, [], 0, 500
     while size < target:
         parts.append(_ONE % (r, r))
@@ -443,7 +444,7 @@ def test_n3_r3_near_member_cap_sheet_is_refused_in_bounded_time_and_memory() -> 
     data = _workbook(b"".join(parts[:-1]))
     assert max(len(v) for v in zip_members(data).values()) > _xlsx._MEMBER_MAX - 20_000
     assert len(data) < 8 * 2**20  # under the upload cap
-    assert _bounded(data, 3.0, 120) == "NATIVE_WORKBOOK"
+    assert _bounded(data, 3.0, 120) == "ok 10001"
 
 
 def test_n3_r3_cells_without_r_take_the_next_index_in_linear_time() -> None:
