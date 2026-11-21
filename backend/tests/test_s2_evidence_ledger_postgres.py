@@ -87,7 +87,8 @@ class Kit:
                     if b["device_id"] == device_id and signal_id in (None, b["signal_id"]))
 
     def envelope(self, device_id, seq, minutes, value, *, signal_id=None, unit=None, epoch="epoch-1",
-                 source_time=None, published=None, version=None, bound_signal=None) -> str:
+                 source_time=None, published=None, version=None, bound_signal=None, interval_start=None) -> str:
+        """`interval_start` (DS4 T16b) makes an `INTERVAL_MEAN` over `[interval_start, source_time]`."""
         b = self.binding(device_id, bound_signal)
         source = source_time or _z(self.start + timedelta(minutes=minutes))
         e = SourceEnvelopeV3(
@@ -97,8 +98,9 @@ class Kit:
             site_id=self.doc["site"]["site_id"], gateway_id=b["gateway_id"], source_id=b["source_id"],
             device_id=device_id, signal_id=signal_id or b["signal_id"],
             binding_set_id=self.doc["mapping"]["binding_set_id"], binding_version=version or self.doc["mapping"]["version"],
-            source_time=source, published_at=published or source, interval_start=None, interval_end=None,
-            family="MEASUREMENT", measurement="STATE_AT_INSTANT", value=value,
+            source_time=source, published_at=published or source, interval_start=interval_start,
+            interval_end=None if interval_start is None else source, family="MEASUREMENT",
+            measurement="STATE_AT_INSTANT" if interval_start is None else "INTERVAL_MEAN", value=value,
             unit=unit or b["source_unit"], quality="GOOD", unavailable_reason=None,
         )
         return canonical_envelope_v3_text(e)
