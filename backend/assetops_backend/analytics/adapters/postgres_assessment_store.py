@@ -1676,6 +1676,51 @@ class PostgresAssessmentStore:
                   {"r": run_id, "a": revision_id, "t": t, "s": s})
         return {"revision_id": revision_id, "run_id": run_id, "basis": window.input_sha256}
 
+    @staticmethod
+    def structure_persist(c: Connection, tenant_id: UUID, site_id: UUID, month: str,
+                          window: tuple[datetime, datetime], run_basis: str, as_of: datetime, factor_id: str,
+                          result: dict[str, Any], basis: str, now: datetime) -> dict[str, Any]:
+        """3B4 (spec §4.2; D-3B4.7): the `structure-observer-1` run of one Site-month (reused by its basis,
+        `analytic_run_basis_unique`) and one assessment revision per Finding revision written, on the caller's
+        connection. No `analytic_run_evidence` row: the observer cites a snapshot, not evidence."""
+        from assetops_backend.structure.observe import rules
+
+        analytic, model = rules.OBSERVER_ANALYTIC, rules.OBSERVER_MODEL
+        reused = c.execute(text(
+            "SELECT id FROM analytic_run WHERE site_id = :s AND analytic_id = :a AND model_version = :m "
+            "AND window_start = :ws AND window_end = :we AND input_sha256 = :b"),
+            {"s": site_id, "a": analytic, "m": model, "ws": window[0], "we": window[1], "b": run_basis}).first()
+        if reused is not None:
+            run_id = reused[0]
+        else:
+            run_id = uuid4()
+            c.execute(text(
+                "INSERT INTO analytic_run (id, tenant_id, site_id, analytic_id, model_version, window_start, "
+                "window_end, knowledge_cutoff, input_sha256, cohort_status, cohort_sha256, cohort, "
+                "configuration_sha256, foundation_revision_ids, binding_set_revision_ids, role_coverage, "
+                "watermarks, selection, job_id, status, started_at, completed_at) VALUES (:id, :t, :s, :a, :m, "
+                ":ws, :we, :k, :b, 'COMPLETE', :cohort_sha, '[]'::jsonb, :b, '[]'::jsonb, '[]'::jsonb, "
+                "'{}'::jsonb, '{}'::jsonb, 'EXPLICIT', NULL, 'COMPLETED', :now, :now)"),
+                {"id": run_id, "t": tenant_id, "s": site_id, "a": analytic, "m": model, "ws": window[0],
+                 "we": window[1], "k": as_of, "b": run_basis, "cohort_sha": sha256_json([]), "now": now})
+        key = f"{factor_id}:{month}"
+        n = c.execute(text(
+            "SELECT coalesce(max(revision_no), 0) + 1 FROM assessment_revision WHERE site_id = :s "
+            "AND analytic_id = :a AND assessment_key = :key"), {"s": site_id, "a": analytic, "key": key}).scalar_one()
+        revision_id = uuid4()
+        c.execute(text(
+            "INSERT INTO assessment_revision (id, tenant_id, site_id, analytic_id, model_version, "
+            "assessment_key, revision_no, analytic_run_id, window_start, window_end, claim_level, result, "
+            "evidence_ids, basis_sha256, created_at) VALUES (:id, :t, :s, :a, :m, :key, :n, :run, :ws, :we, "
+            "'COMPLETE', CAST(:result AS jsonb), '[]'::jsonb, :b, :now)"),
+            {"id": revision_id, "t": tenant_id, "s": site_id, "a": analytic, "m": model, "key": key, "n": n,
+             "run": run_id, "ws": window[0], "we": window[1], "result": json.dumps(result), "b": basis,
+             "now": now})
+        c.execute(text("INSERT INTO analytic_run_assessment (run_id, assessment_revision_id, tenant_id, site_id, "
+                       "scope) VALUES (:r, :a, :t, :s, 'WINDOW')"),
+                  {"r": run_id, "a": revision_id, "t": tenant_id, "s": site_id})
+        return {"revision_id": revision_id, "run_id": run_id}
+
     def cold_episodes(self, c: Connection, inputs: cold.ColdInputs, assessment: cold.ColdAssessment,
                       persisted: dict[str, Any], now: datetime) -> list[dict[str, Any]]:
         """Episodes of one new assessment revision: an excursion per confirmed crossing, a chain per start
