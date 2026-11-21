@@ -18,22 +18,35 @@ or Action (apply/observe) 404, scoped capability for that fixture record 403, ma
 or expected Foundation revision 404, then domain 409/422. A refused command writes nothing.
 The development composition admits the caller exactly as the Finding read does; the authority to run a command is
 the server's scoped SYSTEM demonstration grant, which a client cannot supply.
+
+3C1b (`specs/3C1-person-on-commands/spec.md` §2, §5): after the open scope (access, unknown Site, store), accept,
+apply and observe run the person step (`accounts/permissions.py`), before the Finding or Action 404 and the grant
+403. A signed-in person is recorded under their own actor (`USER`, `person:<id>`, channel `PERSON_API`, basis
+`PERSON_ROLE:<role>`), composed by the server; the body still carries no actor. The grant file still scopes the
+command and supplies `triggering_fixture` (R3). With no person and `ASSETOPS_REQUIRE_PERSON` off, the path is today's,
+byte for byte; on, it is 401 `PERSON_REQUIRED`. The verification commands keep their SYSTEM path (D-3C1.3).
 """
 
 from __future__ import annotations
 
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Request
 
-from assetops_backend.actions.lifecycle import OBSERVATION_CODE, SelectorConflict, selector
+from assetops_backend.accounts.permissions import PersonRefused, person_step
+from assetops_backend.actions.lifecycle import OBSERVATION_CODE, PersonEventActor, SelectorConflict, selector
 from assetops_backend.actions.ports import ActionRefused, ActionStoreUnavailable
 from assetops_backend.actions.service import ActionService
 from assetops_backend.actions.verification import VerificationService
 from assetops_backend.finding_api import ACCESS_BASIS, Access, Gate, Scope, development_access, no_gate
+from assetops_backend.i18n.messages import message
+from assetops_backend.i18n.render import render
+
+if TYPE_CHECKING:
+    from assetops_backend.accounts.service import AccountService
 
 ACCEPT_FIELDS = ("revision_id", "recommendation_key", "foundation_revision_id", "proposed_value", "idempotency_key")
 OBSERVE_FIELDS = ("observation_code", "occurred_at", "idempotency_key")
@@ -63,9 +76,34 @@ def _instant(value: str, name: str) -> datetime:
 
 def build_action_router(service: ActionService | None, scope: Scope, unavailable: tuple[type, ...] = (),
                         access: Access = development_access, command_access: Access = development_access,
-                        gate: Gate = no_gate, access_basis: str = ACCESS_BASIS) -> APIRouter:
+                        gate: Gate = no_gate, access_basis: str = ACCESS_BASIS, *,
+                        accounts: "AccountService | None" = None, require_person: bool = False,
+                        accounts_unavailable: tuple[type, ...] = ()) -> APIRouter:
     router = APIRouter()
     down = (ActionStoreUnavailable, *unavailable)
+
+    def person_of(request: Request, site_code: str, tenant_id: UUID, site_id: UUID,
+                  command: str) -> PersonEventActor | None:
+        """3C1b (spec §2): the person step, answered in this API's own codes (R9). The feature gate of a trial action
+        is its grant (D-3C1.11), checked next by the service, so the step itself is always enabled."""
+        try:
+            grant = person_step(request, accounts, required=require_person, unavailable=accounts_unavailable,
+                                tenant_id=tenant_id, site_id=site_id, command=command, enabled=True)
+        except PersonRefused as refused:
+            if refused.reason == "UNAVAILABLE":
+                raise _refuse(503, "ACTION_STORE_UNAVAILABLE", str(refused.__cause__)) from refused
+            if refused.reason == "TENANT":  # D-3C1.6: byte-equal to the unknown-Site 404 in `open_scope`
+                raise HTTPException(status_code=404,
+                                    detail=f"No imported Site {site_code!r} in this tenant.") from refused
+            if refused.reason == "PERSON_REQUIRED":
+                raise _refuse(401, "PERSON_REQUIRED", render(message("person.person_required"))) from refused
+            raise _refuse(403, "PERSON_ROLE_REQUIRED", render(message("person.person_role_required")),
+                          params=refused.params) from refused
+        return None if grant is None else PersonEventActor(grant.person_id, grant.role)
+
+    def as_person(actor: PersonEventActor | None) -> dict[str, Any]:
+        """The service keyword for the person path only: today's path calls the service exactly as before (P6)."""
+        return {} if actor is None else {"actor": actor}
 
     def open_scope(request: Request, site_code: str, check: Access) -> tuple[str, UUID, UUID]:
         refusal = check(request, site_code)
@@ -152,6 +190,7 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
     @router.post("/api/sites/{site_code}/findings/{finding_id}/recommendation/accept")
     async def accept(request: Request, site_code: str, finding_id: UUID) -> Any:
         code, tenant_id, site_id = open_scope(request, site_code, command_access)
+        actor = person_of(request, site_code, tenant_id, site_id, "action.accept")
         run(lambda: service.authorize_accept(tenant_id, site_id, code, finding_id))
         raw = await body_of(request, ACCEPT_FIELDS)
         try:
@@ -166,12 +205,14 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
                    "recommendation_key": str(raw["recommendation_key"]), "proposed_value": proposed,
                    "idempotency_key": raw["idempotency_key"]}
         opened = source_open(code, tenant_id, site_id)
-        status, body = run(lambda: service.accept(tenant_id, site_id, code, finding_id, command, opened))
+        status, body = run(lambda: service.accept(tenant_id, site_id, code, finding_id, command, opened,
+                                                  **as_person(actor)))
         return _respond(status, body)
 
     @router.post("/api/sites/{site_code}/actions/{action_id}/apply")
     async def apply(request: Request, site_code: str, action_id: UUID) -> Any:
         code, tenant_id, site_id = open_scope(request, site_code, command_access)
+        actor = person_of(request, site_code, tenant_id, site_id, "action.apply")
         run(lambda: service.authorize_action(tenant_id, site_id, code, "APPLY", action_id))
         raw = await body_of(request, APPLY_FIELDS)
         try:
@@ -183,7 +224,7 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
         command = {"expected_foundation_revision_id": uuid_field(raw, "expected_foundation_revision_id"),
                    "value": value, "effective_from": _instant(str(raw["effective_from"]), "effective_from"),
                    "idempotency_key": raw["idempotency_key"]}
-        status, body = run(lambda: service.apply(tenant_id, site_id, code, action_id, command))
+        status, body = run(lambda: service.apply(tenant_id, site_id, code, action_id, command, **as_person(actor)))
         return _respond(status, body)
 
     @router.get("/api/sites/{site_code}/foundation/changes/{change_id}")
@@ -199,6 +240,7 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
     @router.post("/api/sites/{site_code}/actions/{action_id}/observations")
     async def observe(request: Request, site_code: str, action_id: UUID) -> Any:
         code, tenant_id, site_id = open_scope(request, site_code, command_access)
+        actor = person_of(request, site_code, tenant_id, site_id, "action.observe")
         run(lambda: service.authorize_action(tenant_id, site_id, code, "OBSERVE", action_id))
         raw = await body_of(request, OBSERVE_FIELDS)
         if raw["observation_code"] != OBSERVATION_CODE:
@@ -206,7 +248,8 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
                           fields=["observation_code"])
         command = {"occurred_at": _instant(str(raw["occurred_at"]), "occurred_at"),
                    "idempotency_key": raw["idempotency_key"]}
-        status, body = run(lambda: service.observe(tenant_id, site_id, code, action_id, command))
+        status, body = run(lambda: service.observe(tenant_id, site_id, code, action_id, command,
+                                                   **as_person(actor)))
         return _respond(status, body)
 
     @router.get("/api/sites/{site_code}/actions/{action_id}")

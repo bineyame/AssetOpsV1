@@ -25,6 +25,7 @@ from assetops_backend.actions.lifecycle import (
     RESOLUTION_WITHDRAWN,
     RESOLVED,
     SYSTEM_DEMO,
+    PersonEventActor,
     Selector,
     UnknownEvent,
     reduce,
@@ -218,9 +219,25 @@ def _wire(value: Any) -> Any:
     return value
 
 
+def system_label(actor_kind: str) -> str | None:
+    """3C1b (R7, Q-3C1b-1): SYSTEM rows keep today's label byte for byte; a USER row's wording waits for the SC-1 text
+    commit (D-SC1.28), so it is None until then."""
+    return SYSTEM_DEMO.label if actor_kind == SYSTEM_DEMO.actor_kind else None
+
+
+def _person_kwargs(actor: PersonEventActor | None) -> dict[str, Any]:
+    """The store keyword for the person path only: today's path calls the store exactly as before (P6)."""
+    return {} if actor is None else {"actor": actor}
+
+
+def _with_actor(payload: dict[str, Any], actor: PersonEventActor | None) -> dict[str, Any]:
+    """R2: on the person path only, the actor ID joins the command's digest payload; SYSTEM digests are unchanged."""
+    return payload if actor is None else {**payload, "actor_id": actor.actor_id}
+
+
 def event_wire(event: dict[str, Any]) -> dict[str, Any]:
     out = _wire(event)
-    out["actor"] = {"kind": event["actor_kind"], "id": event["actor_id"], "label": SYSTEM_DEMO.label,
+    out["actor"] = {"kind": event["actor_kind"], "id": event["actor_id"], "label": system_label(event["actor_kind"]),
                     "source_channel": event["source_channel"], "authorization_basis": event["authorization_basis"],
                     "triggering": {"service": event["triggering_service"], "job": event["triggering_job"],
                                    "command": event["triggering_command"], "fixture": event["triggering_fixture"]}}
@@ -388,16 +405,16 @@ class ActionService:
     # ---- accept ------------------------------------------------------------------------------------------
 
     def accept(self, tenant_id: UUID, site_id: UUID, site_code: str, finding_id: UUID, command: dict[str, Any],
-               source_open: bool) -> tuple[int, dict[str, Any]]:
+               source_open: bool, actor: PersonEventActor | None = None) -> tuple[int, dict[str, Any]]:
         granted = self.authorize_accept(tenant_id, site_id, site_code, finding_id)
         revision_id = command["revision_id"]
         if self.currentness(tenant_id, site_id, finding_id, revision_id, source_open) is None:
             raise ActionRefused(404, "FINDING_NOT_FOUND", "No such Finding or revision for this Site.")
-        payload = {"command": "ACCEPT", "finding_id": str(finding_id), "revision_id": str(revision_id),
-                   "recommendation_key": command["recommendation_key"],
-                   "foundation_revision_id": str(command["foundation_revision_id"]),
-                   "proposed_value": reserve_trial.text_of(command["proposed_value"]),
-                   "idempotency_key": command["idempotency_key"]}
+        payload = _with_actor({"command": "ACCEPT", "finding_id": str(finding_id), "revision_id": str(revision_id),
+                               "recommendation_key": command["recommendation_key"],
+                               "foundation_revision_id": str(command["foundation_revision_id"]),
+                               "proposed_value": reserve_trial.text_of(command["proposed_value"]),
+                               "idempotency_key": command["idempotency_key"]}, actor)
         digest = reserve_trial.sha(payload)
         existing = self.store.action_for_recommendation(tenant_id, site_id, command["recommendation_key"])
         if existing is not None:
@@ -427,7 +444,7 @@ class ActionService:
         action, event, replayed = self.store.accept(
             tenant_id, site_id, proposal, payload_sha256=digest, payload=payload,
             idempotency_key=command["idempotency_key"], fixture_id=granted.fixture_id or "",
-            recorded_at=self.clock(), guard=guard)
+            recorded_at=self.clock(), guard=guard, **_person_kwargs(actor))
         if replayed:
             return self._replay(action, digest, site_code)
         return 201, self._accepted_body(action, event, site_code, replayed=False)
@@ -463,11 +480,12 @@ class ActionService:
     # ---- observe (state-neutral demo note) ---------------------------------------------------------------
 
     def observe(self, tenant_id: UUID, site_id: UUID, site_code: str, action_id: UUID,
-                command: dict[str, Any]) -> tuple[int, dict[str, Any]]:
+                command: dict[str, Any], actor: PersonEventActor | None = None) -> tuple[int, dict[str, Any]]:
         granted, _action = self.authorize_action(tenant_id, site_id, site_code, "OBSERVE", action_id)
         occurred: datetime = command["occurred_at"].astimezone(timezone.utc)  # one digest per instant (review L5)
-        payload = {"command": "OBSERVE", "action_id": str(action_id), "observation_code": OBSERVATION_CODE,
-                   "occurred_at": occurred.isoformat(), "idempotency_key": command["idempotency_key"]}
+        payload = _with_actor({"command": "OBSERVE", "action_id": str(action_id), "observation_code": OBSERVATION_CODE,
+                               "occurred_at": occurred.isoformat(), "idempotency_key": command["idempotency_key"]},
+                              actor)
         digest = reserve_trial.sha(payload)
         events = self.store.events(tenant_id, site_id, action_id)
         prior = next((e for e in events if e["idempotency_key"] == command["idempotency_key"]), None)
@@ -484,12 +502,13 @@ class ActionService:
         event, replayed = self.store.observe(tenant_id, site_id, action_id, occurred_at=occurred,
                                              idempotency_key=command["idempotency_key"], payload=payload,
                                              payload_sha256=digest, fixture_id=granted.fixture_id or "",
-                                             recorded_at=recorded)
+                                             recorded_at=recorded, **_person_kwargs(actor))
         if replayed:
             return self._observed(event, digest)
         return 201, {"replayed": False, "event": event_wire(event),
-                     "statement": "A state-neutral SYSTEM demonstration note; it changes no application or "
-                                  "verification state and claims no effect."}
+                     "statement": None if actor is not None else (  # Q-3C1b-1: a person's note waits for SC-1a
+                         "A state-neutral SYSTEM demonstration note; it changes no application or "
+                         "verification state and claims no effect.")}
 
     @staticmethod
     def _observed(event: dict[str, Any], digest: str) -> tuple[int, dict[str, Any]]:
@@ -502,16 +521,17 @@ class ActionService:
     # ---- apply (Action lock -> S1 publish under the Site lock -> artifact + APPLIED, one commit) ----------
 
     def apply(self, tenant_id: UUID, site_id: UUID, site_code: str, action_id: UUID,
-              command: dict[str, Any]) -> tuple[int, dict[str, Any]]:
+              command: dict[str, Any], actor: PersonEventActor | None = None) -> tuple[int, dict[str, Any]]:
         granted, _action = self.authorize_action(tenant_id, site_id, site_code, "APPLY", action_id)
         if self.publish is None:
             raise ActionRefused(503, "ACTION_PUBLISH_UNAVAILABLE", "No Foundation publish is composed.")
         value: Decimal = command["value"]
         effective: datetime = command["effective_from"].astimezone(timezone.utc)
         expected: UUID = command["expected_foundation_revision_id"]
-        payload = {"command": "APPLY", "action_id": str(action_id), "expected_foundation_revision_id": str(expected),
-                   "value": reserve_trial.text_of(value), "effective_from": effective.isoformat(),
-                   "idempotency_key": command["idempotency_key"]}
+        payload = _with_actor({"command": "APPLY", "action_id": str(action_id),
+                               "expected_foundation_revision_id": str(expected), "value": reserve_trial.text_of(value),
+                               "effective_from": effective.isoformat(), "idempotency_key": command["idempotency_key"]},
+                              actor)
         digest = reserve_trial.sha(payload)
         recorded = self.clock()
         publish = self.publish
@@ -536,7 +556,8 @@ class ActionService:
 
         out = self.store.apply(tenant_id, site_id, action_id, idempotency_key=command["idempotency_key"],
                                payload=payload, payload_sha256=digest, fixture_id=granted.fixture_id or "",
-                               recorded_at=recorded, expected_foundation_revision_id=expected, attempt=attempt)
+                               recorded_at=recorded, expected_foundation_revision_id=expected, attempt=attempt,
+                               **_person_kwargs(actor))
         outcome = out["outcome"]
         if outcome == "NOT_FOUND":
             raise ActionRefused(404, "ACTION_NOT_FOUND", "No such Action for this Site.")
@@ -563,13 +584,17 @@ class ActionService:
         change = out.get("change")
         return (200 if outcome == "REPLAY" else 201), {
             "replayed": outcome == "REPLAY", "event": event_wire(event),
-            "change": None if change is None else self._change_wire(tenant_id, site_id, site_code, change),
+            "change": None if change is None else self._change_wire(tenant_id, site_id, site_code, change,
+                                                                    event["actor_kind"]),
             "outcome": OUTCOME_PENDING}
 
     # ---- change artifact ---------------------------------------------------------------------------------
 
     def _change_wire(self, tenant_id: UUID, site_id: UUID, site_code: str,
-                     change: dict[str, Any]) -> dict[str, Any]:
+                     change: dict[str, Any], actor_kind: str = SYSTEM_DEMO.actor_kind) -> dict[str, Any]:
+        """`actor_kind` is the APPLIED event's (R7): SYSTEM keeps today's label and statement; a person's apply has
+        None for both until the SC-1 text commit (Q-3C1b-1)."""
+        system = actor_kind == SYSTEM_DEMO.actor_kind
         ids = [change[k] for k in ("expected_foundation_revision_id", "superseded_foundation_revision_id",
                                    "new_foundation_revision_id", "split_foundation_revision_id") if change[k]]
         revisions = [_wire(r) for r in self.store.foundation_revisions(tenant_id, site_id, ids)]
@@ -590,9 +615,9 @@ class ActionService:
                                    if b["relation"] == relation] for relation in ("SUPERSEDED", "INSERTED")},
             "effective_from": change["effective_from"].isoformat(),
             "recorded_at": change["recorded_at"].isoformat(),
-            "validity": change["validity"], "label": SYSTEM_DEMO.label, "outcome": OUTCOME_PENDING,
-            "statement": "The Site Foundation reserve was changed by a SYSTEM demonstration command. No measured "
-                         "effect, saving or verification is claimed.",
+            "validity": change["validity"], "label": system_label(actor_kind), "outcome": OUTCOME_PENDING,
+            "statement": ("The Site Foundation reserve was changed by a SYSTEM demonstration command. No measured "
+                          "effect, saving or verification is claimed.") if system else None,
             "links": {"self": f"/api/sites/{site_code}/foundation/changes/{change['id']}",
                       "action": action_base,
                       "applied_event": f"{action_base}/events?event_id={change['applied_event_id']}",
@@ -603,7 +628,14 @@ class ActionService:
         change = self.store.change(tenant_id, site_id, change_id)
         if change is None:
             return None
-        return {"site_code": site_code, "change": self._change_wire(tenant_id, site_id, site_code, change)}
+        return {"site_code": site_code, "change": self._change_wire(
+            tenant_id, site_id, site_code, change, self._applied_kind(tenant_id, site_id, change))}
+
+    def _applied_kind(self, tenant_id: UUID, site_id: UUID, change: dict[str, Any],
+                      events: list[dict[str, Any]] | None = None) -> str:
+        """The actor kind of the change's APPLIED event (3C1b, R7)."""
+        rows = self.store.events(tenant_id, site_id, change["action_id"]) if events is None else events
+        return next(e["actor_kind"] for e in rows if e["id"] == change["applied_event_id"])
 
     def _change_in(self, tenant_id: UUID, site_id: UUID, site_code: str, action: dict[str, Any],
                    prefix: list[dict[str, Any]]) -> dict[str, Any] | None:
@@ -611,7 +643,8 @@ class ActionService:
         if not any(e["kind"] == APPLIED for e in prefix):
             return None
         change = self.store.change_for_action(tenant_id, site_id, action["id"])
-        return None if change is None else self._change_wire(tenant_id, site_id, site_code, change)
+        return None if change is None else self._change_wire(
+            tenant_id, site_id, site_code, change, self._applied_kind(tenant_id, site_id, change, prefix))
 
     def _application_basis(self, tenant_id: UUID, site_id: UUID, action: dict[str, Any]) -> dict[str, Any]:
         now = self.clock()

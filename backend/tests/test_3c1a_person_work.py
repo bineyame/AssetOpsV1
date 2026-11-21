@@ -49,6 +49,8 @@ SPEC_ROLES = {
     "domain.create": (SM, FIN), "domain.intent": (SM, FIN), "domain.case_link": (SM,),
     "commercial.upload": ("ANALYST", FIN), "commercial.upload_decision": (FIN, "OPERATOR_EXECUTIVE"),
     "commercial.upload_read": ("ANALYST", FIN, "OPERATOR_EXECUTIVE", SM),
+    # 3C1b (spec §3): the trial actions.
+    "action.accept": (SM,), "action.apply": (SM,), "action.observe": (SM, FT),
 }
 
 
@@ -477,7 +479,7 @@ def detail(response) -> dict:
 
 def test_command_roles_is_the_spec_table() -> None:
     assert COMMAND_ROLES == SPEC_ROLES
-    assert set(COMMANDS) == {k for k in SPEC_ROLES if not k.startswith("commercial.")}
+    assert set(COMMANDS) == {k for k in SPEC_ROLES if not k.startswith(("commercial.", "action."))}
     for other in ("work.case_event.VERIFIED", "work.case_event.CREATED", "work.case_event.?"):
         assert roles_of(other) == (SM,)
 
