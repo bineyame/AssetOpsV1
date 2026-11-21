@@ -39,7 +39,10 @@ from assetops_backend.evidence.ledger import (
     RECOMPUTE_DOMAIN,
     Accepted,
     AcceptedAsBasis,
+    BULK_REFUSALS,
     BatchHandle,
+    BulkAdmissionRefused,
+    BulkAdmitted,
     Decision,
     GatewayPrincipal,
     LedgerUnavailable,
@@ -177,28 +180,6 @@ def _site_type_on(c: Connection, tenant_id: UUID, site_id: UUID) -> str:
     if site_type is None:
         raise LedgerUnavailable("the batch's tenant/Site was not found, so no ordinal was decided")
     return site_type
-
-
-#: DS3 (D-DS3.9, D-DS3.11): the bulk admission's own refusals, plus the real path's `BATCH_ID_CONFLICT`.
-BULK_REFUSALS = frozenset({"BULK_PUBLISHED_BATCH", "BULK_BATCH_IN_PROGRESS", "BULK_MESSAGE_COLLISION",
-                           "BULK_SITE_TYPE_UNPROVEN"})
-
-
-@dataclass(frozen=True)
-class BulkAdmitted:
-    external_batch_id: str
-    total: int
-    already_loaded: bool
-
-
-class BulkAdmissionRefused(Exception):
-    """`bulk_admit` wrote nothing: `code` is in `BULK_REFUSALS` or is `BATCH_ID_CONFLICT`."""
-
-    def __init__(self, code: str, external_batch_id: str, detail: str) -> None:
-        super().__init__(f"{code} {external_batch_id} {detail}")
-        self.code = code
-        self.external_batch_id = external_batch_id
-        self.detail = detail
 
 
 @dataclass(frozen=True)

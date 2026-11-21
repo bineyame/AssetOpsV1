@@ -23,8 +23,6 @@ import sys
 from pathlib import Path
 from typing import Any, Callable, Sequence
 
-from sqlalchemy.exc import SQLAlchemyError
-
 from assetops_backend.evidence.ledger import LedgerUnavailable
 
 COMMERCIAL = "commercial"
@@ -78,9 +76,9 @@ def _run(args: argparse.Namespace, ledger: Any, load_exports: Callable[..., int]
 
         load_exports = load_emulated_exports.main
     if ledger is None:
-        from assetops_backend.evidence.adapters.postgres_evidence_ledger import PostgresEvidenceLedger
+        from assetops_backend.evidence.composition import build_evidence_ledger
 
-        ledger = PostgresEvidenceLedger(url)
+        ledger = build_evidence_ledger(url)
     for tenant in tenants:
         slug = tenant.name
         commercial_exit = None
@@ -115,9 +113,16 @@ def main(argv: Sequence[str] | None = None, *, ledger: Any = None,
     except _Refused as refused:
         sys.stderr.write(f"{refused.code} {refused.batch or '-'} {refused.detail}\n")
         return 2
-    except (SQLAlchemyError, LedgerUnavailable) as error:
+    except Exception as error:  # noqa: BLE001 - a database error is exit 3; anything else is a defect and raises
+        if not (isinstance(error, LedgerUnavailable) or _is_database_error(error)):
+            raise
         sys.stderr.write(f"DATABASE_ERROR {type(error).__name__}\n")
         return 3
+
+
+def _is_database_error(error: BaseException) -> bool:
+    """SQLAlchemy's and the driver's errors, by their package (this module imports no database driver)."""
+    return any(c.__module__.split(".")[0] in {"sqlalchemy", "psycopg"} for c in type(error).__mro__)
 
 
 if __name__ == "__main__":

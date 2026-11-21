@@ -9,7 +9,8 @@ bulk load is a build defect reported by the command, never product evidence).
 
 Residual risk `R-TRUST`: there is no gateway credential here. What keeps the path off live and operator data is the
 SIMULATED refusal and `permitted_database` (test and audit databases on the test container only), checked by the
-command before any connection. No HTTP module imports this module.
+command before any connection. No HTTP module imports this module. The ledger is the PostgreSQL adapter
+(`gateway_principal`, `bulk_admit`), composed by the caller through `evidence/composition.py`.
 """
 from __future__ import annotations
 
@@ -21,12 +22,14 @@ from typing import Callable, Sequence
 from uuid import UUID
 
 from assetops_backend.database_target import DatabaseTargetUnclear, database_target, is_operator_name
-from assetops_backend.evidence.adapters.postgres_evidence_ledger import (
+from assetops_backend.evidence.ledger import (
     BULK_REFUSALS,
+    Accepted,
     BulkAdmissionRefused,
-    PostgresEvidenceLedger,
+    EvidenceLedger,
+    Rejected,
+    decide,
 )
-from assetops_backend.evidence.ledger import Accepted, Rejected, decide
 from assetops_backend.evidence.ledger_service import BatchIngestionService, BatchRefused, utc_now
 from assetops_contracts.ingestion_batch_v2 import MAX_BATCH_BYTES, BatchRejected, parse_canonical_batch_v2_text
 
@@ -68,7 +71,7 @@ def _uuid(value: str) -> UUID | None:
 
 
 class BulkEvidenceLoad:
-    def __init__(self, ledger: PostgresEvidenceLedger, *, clock: Callable[[], datetime] = utc_now) -> None:
+    def __init__(self, ledger: EvidenceLedger, *, clock: Callable[[], datetime] = utc_now) -> None:
         self.ledger = ledger
         self.clock = clock
         self._service = BatchIngestionService(ledger, clock)

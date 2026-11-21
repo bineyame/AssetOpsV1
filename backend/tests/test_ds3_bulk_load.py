@@ -12,6 +12,7 @@ import pytest
 
 from assetops_backend import load_world_inputs
 from assetops_backend.evidence import bulk_load
+from assetops_backend.evidence import composition
 from assetops_backend.evidence.adapters import postgres_evidence_ledger as adapter
 from assetops_backend.evidence.bulk_load import BulkLoaded, permitted_database
 
@@ -83,7 +84,7 @@ def world(tmp_path, monkeypatch):
         def __init__(self, url) -> None:
             built.append(url)
 
-    monkeypatch.setattr(adapter, "PostgresEvidenceLedger", Ledger)
+    monkeypatch.setattr(composition, "PostgresEvidenceLedger", Ledger)
     monkeypatch.setattr(bulk_load, "BulkEvidenceLoad", FakeLoad)
     FakeLoad.loads = []
     monkeypatch.setenv("DATABASE_URL", f"{HOST}/assetops_ds3_audit1121")
