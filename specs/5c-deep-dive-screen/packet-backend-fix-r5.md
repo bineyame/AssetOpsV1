@@ -56,7 +56,11 @@ mock's waterfall with no arithmetic (D-5C.2 stands).
     `test_bars_vectors[V2]`).
   - P-d the crash restored (rest line at gap 0): `1 failed, 182 passed` (`test_bars_gap_zero_whole_payload`).
 - After KD2 (at `0b8210ac6`): focused `380 passed, 1 skipped, 1 warning in 6.71s`; view file `183 passed`; test 9
-  TEST9_R2; check-all (fast) CHECKALL_R2.
+  superseded by the PF1 line below.
+  - P-e PF1 undone (registry name as the unit): `2 failed, 183 passed` (`test_4_h_driver_detail_kwh`,
+    `test_1_driver_units_have_words`).
+- After KD2 and PF1 (at `9280e866f`): focused `382 passed, 1 skipped, 1 warning in 6.66s`; view file `185 passed`;
+  catalogue OK; test 9 TEST9_R3; check-all (fast) CHECKALL_R3.
 - `python3 tools/checks/statement_catalogue.py` (before and after KD2): `OK statement catalogue: load, coverage, legacy, scan (6 adopted),
   keys, imports` (exit 0).
 - check-all (fast, through the slot, at `435a71c87`): `All 42 guards passed (blocking; 0 advisory, 0 warned).` (142.8 s; estate and pool self-tests skipped as unchanged).
@@ -75,6 +79,17 @@ mock's waterfall with no arithmetic (D-5C.2 stands).
   only when R's effect is not None and not 0 (commit `0b8210ac6`). Test `test_bars_gap_zero_whole_payload` builds the
   whole payload through the view (lead world gap 0.00, steps +5.00 and -5.00): it renders, the gap tile's lines are
   only "Grow +$5.00 · Optimize −$5.00", no "Offsets it", no share, no bar, no scale.
+
+- PF1 **fixed in this round** (DDR finding, coordinator, 2026-11-21): with the emulated `budget.csv` loaded the route
+  answered 500, `StatementError VOCABULARY_UNKNOWN deep_dive.driver_detail actual_quantity` (`words.py` `detail`,
+  from `view.py` `driver_detail`; on main). Cause: `driver_detail` passed the registry's dimension name (`KWH`) as
+  the unit, and the SC-1 `unit` vocabulary's key is `kWh` (`L` matched by chance). Reproduced directly
+  (`delivered_kwh` quantity and `tariff` price both raised) and in a view world. Fix: `tables.UNIT_WORDS` (`KWH` ->
+  `kWh`, `L` -> `L`), used by `driver_detail`; no vocabulary or baseline entry added (commit `9280e866f`). Tests:
+  `test_4_h_driver_detail_kwh` (World A with revenue's `delivered_kwh` 8,550 against 9,000 and a `tariff` row: the
+  payload renders, "Actual 8,550 kWh · Target 9,000 kWh", and the price form "Actual $0.27 per kWh · Target $0.25 per
+  kWh"); `test_1_driver_units_have_words` (every single-dimension unit reachable from the MINI_GRID roots has a
+  vocabulary word and renders). Not re-run on the DDR rehearsal database itself (not touched by this brief).
 
 ## Residual risk and review focus
 
