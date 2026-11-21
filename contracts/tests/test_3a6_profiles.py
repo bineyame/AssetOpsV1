@@ -370,6 +370,31 @@ def test_n3_r3_row_zero_and_rows_past_excel_are_workbook_refusals() -> None:
     assert _outcome(_deflated(m)) == "NATIVE_WORKBOOK"
 
 
+def test_n3_r3_a_row_number_of_thousands_of_digits_is_a_workbook_refusal() -> None:
+    """`int` refuses strings past 4,300 digits with a `ValueError`; the reader refuses first."""
+    digits = "9" * 5000
+    rows = f'<row r="{digits}"><c r="A{digits}"><v>1</v></c></row>'.encode()
+    assert _outcome(_workbook(rows)) == "NATIVE_WORKBOOK"
+
+
+@pytest.mark.parametrize("value", ["1E+999999", "1E-999999", "1E+9999999", "-1E+400"])
+def test_n3_r3_a_number_past_a_double_is_unreadable_not_expanded(value: str) -> None:
+    """A short exponent must not become a million-character cell (or an `Overflow`): the cell is unreadable and
+    refuses its row alone, in bounded time and memory."""
+    rows = b"".join(b'<row r="%d"><c r="A%d" t="inlineStr"><is><t>x</t></is></c><c r="D%d"><v>%s</v></c></row>'
+                    % (n, n, n, value.encode()) for n in range(5, 2005))
+    data = _workbook(rows)
+    assert _bounded(data, 1.5, 40) == "ok 2003"
+    result = read(profile(BUDGET), data)
+    assert len(result.refused) == 2000
+
+
+def test_n3_r3_numbers_inside_a_double_read_as_before() -> None:
+    from assetops_contracts.native.xlsx import _number
+    assert [_number(v) for v in ("0E+999999", "1E+308", "4.9E-324", "874.99999999999989", "-0")] == [
+        "0", "1" + "0" * 308, "0." + "0" * 323 + "49", "875", "0"]
+
+
 def test_n3_r3_rows_without_r_follow_the_previous_row() -> None:
     """§2.3: a `<row>` without `r` takes the previous row's number plus one, so it rises by itself; a numbered row
     after it must still rise past it."""

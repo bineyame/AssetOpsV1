@@ -47,6 +47,12 @@ def _number(v: str) -> str:
         return XlsxBad("")
     if not d.is_finite():
         return XlsxBad("")
+    if d.is_zero():
+        return XlsxNumber("0")
+    if not -324 <= d.adjusted() <= 308:
+        # fix round r3: past a double's range (Excel holds doubles); plain notation of `1E+999999` is a million
+        # characters from eleven bytes, and `1E+9999999` overflows the context
+        return XlsxBad("")
     plain = format(_EXCEL.plus(d).normalize(_EXCEL), "f")
     return XlsxNumber("0" if plain in ("-0", "0") else plain)
 
@@ -226,8 +232,8 @@ class _Sheet(_Target):
     def role(self, tag: str, attrib: dict, parent: list | None) -> tuple:
         if tag == _ROW:
             r = attrib.get("r")
-            if r and not re.fullmatch(r"[0-9]+", r, re.ASCII):
-                raise _workbook_error()
+            if r and (not re.fullmatch(r"[0-9]+", r, re.ASCII) or len(r.lstrip("0")) > 7):
+                raise _workbook_error()  # past `_MAX_ROW` by its length, before `int` meets thousands of digits
             number = int(r) if r else self.previous + 1  # a row without `r` follows the previous one (§2.3)
             if number <= self.previous or number > _MAX_ROW:
                 raise _workbook_error()  # row numbers rise strictly, as the format requires (fix round r3)
