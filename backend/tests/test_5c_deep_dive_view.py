@@ -7,6 +7,7 @@ Every English literal below is written by hand from spec section 3.5, changed on
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import replace
 from datetime import date, datetime, timezone
 from decimal import Decimal as D
@@ -22,6 +23,7 @@ from assetops_backend.deep_dive import words as W
 from assetops_backend.deep_dive import view as V
 from assetops_backend.deep_dive.view import AgreedAction, AgreedActions, month_view
 from assetops_backend.structure.attribution.bridge import bridge
+from assetops_backend.structure.attribution.portfolio import PortfolioRow
 from assetops_backend.outcomes.catalogue import CATEGORIES
 from assetops_backend.structure.expressions import names as expr_names
 from assetops_backend.structure.registry import REGISTRIES
@@ -237,8 +239,8 @@ def test_3_world_a_key_by_key_and_whole() -> None:
     assert b["by_site"]["total"] == ["3 of 3 Sites", "$1,443.00", "$2,295.00", "−$852.00", "−$97.00", "−$755.00",
                                      "$0.00", "$0.00"]
     c = v["cash"]
-    assert c["text"] == ("In October, $8,870.00 was collected against $9,785.00 expected; $668.00 is still outstanding "
-                         "and $150.00 is paid but in transit.")
+    assert c["text"] == ("Of $9,688.00 billed for October, $8,870.00 has been collected, $150.00 is paid but in "
+                         "transit and $668.00 is still outstanding.")
     assert (c["word"], c["sites"]) == ("Estimated, not yet reconciled", "3 of 3 Sites")
     assert c["table"]["rows"] == [["Kobo", "$3,458.00", "$3,180.00", "$0.00", "$278.00"],
                                   ["Kisiwa", "$4,070.00", "$3,800.00", "$0.00", "$270.00"],
@@ -622,6 +624,11 @@ def test_4_i_currency_one_currency_subset(monkeypatch) -> None:  # review H3, pr
     cash = v["cash"]
     assert cash["sites"] == "2 of 3 Sites" and "KES" in cash["text"] and "$" not in cash["text"], cash["text"]
     assert all("KES" in x for x in cash["table"]["total"][2:]), cash["table"]["total"]
+    assert cash["text"] == ("Of KES 7,528.00 billed for October, KES 6,980.00 has been collected, KES 0.00 is paid but "
+                            "in transit and KES 548.00 is still outstanding."), cash["text"]  # D-5C.29, plant C3
+    assert cash["table"]["total"] == ["2 of 3 Sites", "KES 7,528.00", "KES 6,980.00", "KES 0.00", "KES 548.00"]
+    assert cash["table"]["rows"][2] == ["Mto", "Not available yet", "$1,890.00", "Not available yet",
+                                        "Not available yet"]  # plant C4
     mto = b["by_site"]["rows"][2]
     assert mto[0] == "Mto" and "$" in mto[1] and "$" in mto[2], mto  # Mto's own figures in its own USD
     # Across the whole payload: no amount prints in a currency other than its rows'.
@@ -1063,3 +1070,71 @@ def test_16_word_null_iff_figure_absent(name, monkeypatch) -> None:  # D-5C.26; 
     words = list(_words(v))
     assert words and "Not available yet" not in words
     assert None not in v["headline"]["evidence"]
+
+
+# --- D-5C.29: the cash sentence states the bills and their three parts ---------------------------------------------
+
+MONEY = re.compile(r"(?:KES |\$)[\d,]+\.\d\d")
+SIDES_SENTENCE = ("Of $7,528.00 billed for October, $6,980.00 has been collected, $0.00 is paid but in transit and "
+                  "$548.00 is still outstanding.")
+
+
+@pytest.mark.parametrize("name", ["A", "D", "E", "G", "H", "X", *CURRENCY_WORLDS])
+def test_cash_sentence_reconciles(name, monkeypatch) -> None:  # D-5C.29; plants C1, C2
+    if name == "X":
+        v = world_x()
+    elif name in CURRENCY_WORLDS:
+        change, base, standing = CURRENCY_WORLDS[name]
+        _patch(monkeypatch, change)
+        v = view(base, standing=globals()[standing])
+    else:
+        v = view(name)
+    cash = v["cash"]
+    tokens = MONEY.findall(cash["text"])
+    total = cash["table"]["total"]
+    na = "Not available yet"
+    assert len(tokens) in (0, 1, 4), cash["text"]
+    if len(tokens) == 4:
+        figures = [D(t.replace("KES ", "").replace("$", "").replace(",", "")) for t in tokens]
+        assert figures[0] == figures[1] + figures[2] + figures[3], cash["text"]
+        assert total[1:5] == tokens, (total, tokens)
+    else:
+        assert [total[1], total[3], total[4]] == [na] * 3, total
+    assert "expected" not in json.dumps(cash).lower()
+    assert "expected" not in cash["text"]
+
+
+def test_cash_sentence_literals(monkeypatch) -> None:  # D-5C.29
+    d = view("D")["cash"]
+    assert d["text"] == SIDES_SENTENCE
+    assert d["table"]["total"] == ["2 of 3 Sites", "$7,528.00", "$6,980.00", "$0.00", "$548.00"]
+    _patch(monkeypatch, _sides_differ)
+    sides = view("A", standing=RECONCILED)["cash"]
+    assert sides["text"] == SIDES_SENTENCE
+    assert sides["table"]["total"][1:] == ["$7,528.00", "$6,980.00", "$0.00", "$548.00"]
+
+
+def _row(key, actual, currency="USD", sites=("K", "L")):
+    return PortfolioRow(key=key, kind="TERM", actual=None if actual is None else D(actual), target=None, gap=None,
+                        effect=None, currency=currency, note=None, evidence="RECONCILED", origins=(), k=len(sites),
+                        n=len(sites), out=tuple((c, ()) for c in sites), carried=())
+
+
+def _parts(change=None, collected="100", revenue="120", transit="0", owed="20"):
+    rows = {T.CASH: _row(T.CASH, collected), T.REVENUE: _row(T.REVENUE, revenue),
+            T.IN_TRANSIT: _row(T.IN_TRANSIT, transit), T.OUTSTANDING: _row(T.OUTSTANDING, owed)}
+    for key, row in (change or {}).items():
+        if row is None:
+            rows.pop(key)
+        else:
+            rows[key] = row
+    return rows
+
+
+def test_cash_parts_vectors() -> None:  # D-5C.29 (d); plant C2
+    assert V.cash_parts(_parts(owed="10")) is None  # 100 != 120 - 0 - 10
+    rows = _parts()
+    assert V.cash_parts(rows) == (rows[T.REVENUE], rows[T.IN_TRANSIT], rows[T.OUTSTANDING])
+    assert V.cash_parts(_parts({T.OUTSTANDING: _row(T.OUTSTANDING, "20", sites=("K", "L", "M"))})) is None
+    assert V.cash_parts(_parts({T.REVENUE: _row(T.REVENUE, "120", currency="KES")})) is None
+    assert V.cash_parts(_parts({T.IN_TRANSIT: None})) is None
