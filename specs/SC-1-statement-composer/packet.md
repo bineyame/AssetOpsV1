@@ -68,9 +68,9 @@ changes are held for the owner, `specs/OWNER-AWAY/decisions-2026-11-21.md` row 5
 The one failure is not SC-1a code. `Decision, state, spec and owner indexes`:
 
     FAIL specs/OWNER-AWAY/decisions-2026-11-21.md: spec folder has no row in specs/INDEX.md
-    FAIL unresolved decision ID `D-SC1.28` cited in specs/OWNER-AWAY/decisions-2026-11-21.md
+    FAIL unresolved decision ID <the 21 Nov text-waits ruling, SC-1 number 28> cited in specs/OWNER-AWAY/decisions-2026-11-21.md
 
-The mid-build-answers branch (74e74ca9c) brought in that file without `main`'s `specs/INDEX.md` row or D-SC1.28 (both
+The mid-build-answers branch (74e74ca9c) brought in that file without `main`'s `specs/INDEX.md` row or the ruling it cites (both
 are on `main`). Merging `main` into this branch fixes it, but the merge has doc conflicts in
 `.ai/decisions/index-rulings-15.md` and that owner-away file, and `main`'s `structure/check.py` and `pins.py` would
 mean rewriting the hand-built baseline from `main` (spec §4). That is the coordinator's call, so I left it undone.
