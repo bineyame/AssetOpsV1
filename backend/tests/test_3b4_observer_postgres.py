@@ -61,6 +61,7 @@ if URL:
     from assetops_backend.structure.evaluate import LeafValue, SiteStructure, evaluate
     from assetops_backend.structure.observe import rules
     from assetops_backend.structure.observe.service import ObserveRefused, StructureObserver
+    from assetops_backend.structure.read import OTHER_STRUCTURE
     from assetops_backend.structure.targets.read import SiteTargets
     from assetops_backend.structure_snapshot.model import (Freshness, PortfolioMonthSnapshot, Served,
                                                            SiteMonthSnapshot, SnapshotRow)
@@ -174,7 +175,7 @@ class World:
         site = SiteMonthSnapshot(sid, self.t, self.ref, month, as_of, "service:test", site_closed, (), None,
                                  _side("Kobo", "actual", month, drop=drop, values=values), targets)
         snap = PortfolioMonthSnapshot(pid, self.t, month, as_of, "service:test", closed, (),
-                                      ("KOBO-001", "COLD-001"), MappingProxyType({"COLD-001": ("NOT_DECLARED",)}),
+                                      ("KOBO-001", "COLD-001"), MappingProxyType({"COLD-001": OTHER_STRUCTURE}),
                                       MappingProxyType({"KOBO-001": site}), None)
         sd, pd = _digest(f"site:{sid}"), _digest(f"portfolio:{pid}")
         self.rows[sid] = _row(sid, self.t, self.s, month, as_of, sd)
@@ -303,7 +304,7 @@ def test_11_lifecycle(world, capsys) -> None:
     oct1 = world.put()
     first = world.run()
     assert sorted(_written(first)) == sorted((f, "OPENED") for f in KOBO_RAISED)
-    assert first.excluded == {"COLD-001": ("NOT_DECLARED",)}
+    assert first.excluded == {"COLD-001": ("STRUCTURE_OTHER_KEY",)}   # 3B6: cold has its own structure
     digests = {}   # revision id -> the Site row digest of the build it came from
     for w in first.sites["KOBO-001"].written:
         digests[w.revision_id] = oct1.site_digest
@@ -487,7 +488,7 @@ def test_14_command_line(world, capsys, monkeypatch) -> None:
     line = json.loads(out)
     assert err == "" and set(line) == {"month", "snapshot_id", "as_of", "sites", "excluded"}
     assert sorted(w["transition"] for w in line["sites"]["KOBO-001"]["written"]) == ["OPENED"] * 5
-    assert line["excluded"] == {"COLD-001": ["NOT_DECLARED"]}
+    assert line["excluded"] == {"COLD-001": ["STRUCTURE_OTHER_KEY"]}
 
 
 # --- test 15: the tolerance command ----------------------------------------------------------------------------------
@@ -517,7 +518,7 @@ def test_15_tolerance_command(world, capsys, monkeypatch) -> None:
     refusals = [
         (_set("necessary_l", "diesel_l", "5", "sam", tenant="nobody"), "UNKNOWN_TENANT"),
         (_set("necessary_l", "diesel_l", "5", "sam", site="NOPE-001"), "SITE_UNKNOWN"),
-        (_set("necessary_l", "diesel_l", "5", "sam", site="COLD-001"), "SITE_UNKNOWN"),
+        (_set("necessary_l", "diesel_l", "5", "sam", site="COLD-001"), "FACTOR_NOT_OBSERVED"),  # 3B6: COLD_CHAIN, unobserved
         (_set("billed_kwh", "billed_kwh", "5", "sam"), "FACTOR_NOT_OBSERVED"),
         (_set("technical_loss_kwh", "delivered_kwh", "5", "sam"), "FACTOR_NOT_OBSERVED"),
         (_set("necessary_l", "outstanding", "5", "sam"), "OF_FACTOR_UNIT"),

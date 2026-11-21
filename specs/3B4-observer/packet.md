@@ -150,10 +150,10 @@ After `build_structure_snapshot build --tenant <slug> --month <YYYY-MM> --by per
    one raw `finding_merge` and one raw `finding_revision_evidence` row on structure revisions (the latter with
    `session_replication_role = replica`, no evidence row existing) so the last two `rows()` lists are not vacuous.
 9. `observe_structure.main` takes `accounts` for the spec's signature and does not read it (the run names no person).
-11. `test_k4a_fuel_finding_postgres.py` `test_b1`: 0056's widening is now compared at 0056 (`command.upgrade(config,
-   MIGRATION)` after the downgrade), then head; it compared at head, which 0071 widens again.
 10. `Wiring.dispose` disposes the snapshot service and the assessment store; `PostgresFindingStore` has no `dispose`
    (unchanged), so a command's Finding-store engine ends with the process.
+11. `test_k4a_fuel_finding_postgres.py` `test_b1`: 0056's widening is now compared at 0056 (`command.upgrade(config,
+   MIGRATION)` after the downgrade), then head; it compared at head, which 0071 widens again.
 
 ## Residual risks
 
