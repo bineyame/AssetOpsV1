@@ -187,3 +187,13 @@ same rules (refusal examples as `example` slots); `money_word` applies the share
 `commercial/reconciliation.py` joins the guard's `ADOPTED`; every variant gets a case. Money reads in SC-1's one form
 (D-SC1.10): `$505.00`, not `505.00 USD`; this unit's expected strings change by that rule only. Otherwise §2.7 ships as
 written, its keys join the legacy baseline, and SC-1b converts them. Either way nothing waits.
+
+**Amended (SC-1 handshake, 2026-11-21; D-SC1.26 replaces the "otherwise" above).** This unit's code starts when both
+3A6 and SC-1a have merged; the coordinator checks SC-1a's merge at dispatch and says so in the brief. There is no flat
+fallback. The heading reads as SC-1 §5.1 rev 2, with the evidence word of the figures it states (`Revenue
+(Recorded): the accounts say ...`, D-SC1.18), the difference, allowed amount and share declared `derived_from`; the
+scope is SC-1 §5.4's `reconciliation.scope` (a `State` and a `Name`). Every template holding a number word is
+reworded to drop it (D-SC1.21): `standing.none_matched` reads "Not yet reconciled: no month's recorded revenue and
+fuel cost match the management accounts within {tolerance} yet." The command's printed sentences render the same
+statements; any message the command stores or prints as JSON params goes through `i18n.to_wire` (D-SC1.19). This
+unit's expected strings change by these rules only; the packet lists each changed string for the walkthrough.
