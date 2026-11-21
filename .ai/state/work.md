@@ -142,3 +142,23 @@ decision `D-2026-10-31-board-action-refresh-lineage`; packet `archive/agent-hist
   `<t>_person_actor` (R8) on nine tables; the three domain kind checks widened to SERVICE/USER under their names.
 - The switch is read once in `create_app` and ships off; `3C0b` turns it on.
 - Open: trial actions (`3C1b`); names in reads (`3C2`, `3C3`); turning the switch on (`3C0b`).
+
+## 3C2: the agreed change recorded as an Action (2026-11-21, `task/3C2-agreed-change`, in review; commits 1 and 2)
+
+- Migration `0070_agreed_action` (renumbered at the merge of main `e5a283228`; revises `0068_structure_finding`, and 3A7's `0069_commercial_reconciliation` once 3A7 merges):
+  `agreed_action`, append-only (row trigger and TRUNCATE trigger), identity index `agreed_action_once` (NULLS NOT
+  DISTINCT), whole-second `created_at`, FKs to `operator_account` and `site` by tenant. Apart from the S6-01a Actions.
+- `actions/agreed.py`: `AgreedActionService.record` (the §2.3 rule order; re-run found before the due check) and
+  `for_tenant` (newest first by `(created_at, id)`), one clock read per call; `OWNER_COVER` (D-3C2.6);
+  `MemoryAgreedActionStore`. The adapter locks the tenant and catches `agreed_action_once`.
+  `build_agreed_actions(url).service.for_tenant(tenant)` (DDR G10). `python -m assetops_backend.record_action`.
+- `accounts/permissions.py`: `"action.agree": (EXECUTIVE,)`.
+- Codes only (D-3C2.14): state `OPEN`/`OVERDUE`, refusals as `<CODE>` on stderr. Open: commit 2 (SC-1 statements,
+  after SC-1a); unit 2 (5c's `StoreAgreedActions`, gate C); the guard writer block held for the owner; mid-build MB1
+  (the adapter-import rule names one composition per package).
+- Commit 2 (text, D-3C2.14): `i18n/statements/en/agreed_action.py` (`agreed_action.state` over vocabulary
+  `action_state` Open/Overdue; `agreed_action.refused`, one exhaustive state slot over the 14 codes, spec §2.5's
+  sentences, title bounds as counts, due example as an `example` slot); noun `character`; `agreed.py` in `ADOPTED`
+  (`state_words`, `refusal_sentence`; view gains `state_words`); stderr `<CODE> <sentence>`, success `state` the word.
+  Writer block approved by the owner (2026-11-21); MB1 answered (D-3C2.15). Open: unit 2 (gate C); re-point 0070 on
+  3A7's `0069_commercial_reconciliation` when 3A7 merges; packet Q1 (upper-cased category codes).

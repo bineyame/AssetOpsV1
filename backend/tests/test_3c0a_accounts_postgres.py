@@ -423,7 +423,10 @@ def test_downgrade_refused_with_an_account_then_down_and_up(world, engine) -> No
         command.downgrade(cfg, "0061_reading_upload")
     upload = uuid4()
     with engine.begin() as c:  # TRUNCATE is not a row DELETE; the append-only triggers do not fire on it
+        # 3C2 (D-3C2.13): the cascade reaches agreed_action, whose TRUNCATE trigger refuses; replica mode skips it.
+        c.execute(text("SET LOCAL session_replication_role = replica"))
         c.execute(text("TRUNCATE " + ", ".join(TABLES) + " CASCADE"))
+        c.execute(text("SET LOCAL session_replication_role = origin"))
         c.execute(text(
             "INSERT INTO reading_upload (id, tenant_id, site_id, file_name, file_sha256, profile_sha256, state, "
             "period_start, period_end, entered_by) VALUES (:id, :t, :s, 'k.csv', :h, :h, 'SENT', :a, :b, "
