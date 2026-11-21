@@ -362,10 +362,15 @@ def test_5_agreed_imports_no_adapter_and_no_s6_action_module() -> None:
                 or m.startswith("assetops_backend.actions.verification")}
 
 
-def test_5_only_the_agreed_composition_imports_the_adapter() -> None:
+def test_5_only_actions_composition_imports_the_adapter() -> None:
     importers = {p.relative_to(PKG).as_posix() for p in PKG.rglob("*.py")
                  if "assetops_backend.actions.adapters.postgres_agreed_action_store" in _imports(p)}
-    assert importers == {"actions/agreed_composition.py"}
+    assert importers == {"actions/composition.py"}
+    shim = Path(PKG / "actions/agreed_composition.py")
+    tree = ast.parse(shim.read_text(encoding="utf-8"))
+    assert not [m for m in _imports(shim) if ".adapters" in m]
+    assert [type(n) for n in tree.body if not (isinstance(n, ast.Expr) and isinstance(n.value, ast.Constant))] \
+        == [ast.ImportFrom, ast.Assign]
 
 
 def test_5_the_adapter_reads_only_its_three_tables() -> None:
