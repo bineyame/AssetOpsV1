@@ -6,19 +6,17 @@ agreed at the end of the deep-dive, recorded by people as an Action with its own
   DELETE, and a statement trigger refuses TRUNCATE (0050's precedent). `agreed_action_once` is the identity of a
   re-run (NULLS NOT DISTINCT for the Site and the factor).
 
-Numbering (D-3C2.9, renumbered 2026-11-21 at the merge of main `e5a283228`): main ends at `0068_structure_finding`;
-`0069` is taken by 3A7 (`0069_commercial_reconciliation`), which merges first. Until then this file revises
-`0068_structure_finding`; at 3A7's merge it revises `0069_commercial_reconciliation` (or the live head then), and
-test 6's hand pair moves with it.
+Numbering (D-3C2.9, renumbered 2026-11-21 at the merge of main after 3A7): `0069` is 3A7's
+(`0069_commercial_reconciliation`), so this file revises it, and test 6's hand pair is the same pair.
 
 Revision ID: 0070_agreed_action
-Revises: 0068_structure_finding
+Revises: 0069_commercial_reconciliation
 Create Date: 2026-11-21
 """
 from alembic import op
 
 revision = "0070_agreed_action"
-down_revision = "0068_structure_finding"
+down_revision = "0069_commercial_reconciliation"
 branch_labels = None
 depends_on = None
 

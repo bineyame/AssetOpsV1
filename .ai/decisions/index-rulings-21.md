@@ -8,3 +8,5 @@
 - `D-SC1.37` messages.CATALOGUE judged by the legacy ratchet alone; word maps fingerprinted per entry (L1, now) · live · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.38` D-SC1.30 wording: names need not be absent from TOKENS (L3) · live · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.39` SC-1a fix round 0.75 units (SC-1a 4.25); L4 fixed, L2 not adopted · live · specs/SC-1-statement-composer/rulings.md
+- `D-3A7.14` Reconciliation service lives in structure/ (reads commercial records; builder structure/reconciliation_composition.py); D-3A4.8 stands · live · specs/3A7-month-reconciled/rulings.md
+- `D-3A7.15` Owner file via the owner_file port; the command builds the reader, composition takes it as a parameter · live · specs/3A7-month-reconciled/rulings.md

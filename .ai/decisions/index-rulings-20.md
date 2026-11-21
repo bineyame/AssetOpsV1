@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-0K3.1 to D-0K3.20, D-ENV1.8 to D-ENV1.17)
+# Decision index: Demo-sprint and later rulings (index only) (D-0K3.1 to D-0K3.20, D-ENV1.8 to D-ENV1.24)
 
 - `D-0K3.1` 0K3 builds the reader and refusals now on harness fixtures; a study on stored readings waits (amends D-0K2.1) · live · specs/0K3-replay-series-reader/rulings.md
 - `D-0K3.2` readings placed by own interval/instant; 5-minute tiling exact; coarser (15 min) refused, never split (row 48) · live · specs/0K3-replay-series-reader/rulings.md
@@ -30,3 +30,10 @@
 - `D-ENV1.15` loader checks every size first and holds one file at a time · live · specs/ENV1-parse-limits/rulings.md
 - `D-ENV1.16` ENV-1 confirmations: one launcher, slow H6/H6s with long wall, guard rule stands · live · specs/ENV1-parse-limits/rulings.md
 - `D-ENV1.17` ENV-1 size 1.0 unit · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.18` sends one at a time (pool reading-send of 1); send wall 2x the measured production-shape wall (review M1; row 50) · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.19` fix round measures solo sends and ledger growth before code; stop above 150 s or 10% growth · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.20` logged 503s are those run answers; site-scope and template 503s outside (amends D-ENV1.11) · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.21` namespace line second, after T1's heavy-slot require; mid-build count 1 (amends D-ENV1.13) · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.22` expiring slot waits bounded in a thread so plant V5 fails in seconds · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.23` M2: _LOG renamed LOG, SlotWaitExpired takes a code; no rebaseline, no guard change · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.24` ENV-1 fix round 0.35 unit; ENV-1 1.35 units (amends D-ENV1.17) · live · specs/ENV1-parse-limits/rulings.md

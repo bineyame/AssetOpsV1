@@ -51,6 +51,7 @@ SPEC_ROLES = {
     "commercial.upload_read": ("ANALYST", FIN, "OPERATOR_EXECUTIVE", SM),
     "commercial.profile_admit": ("ANALYST", FIN),
     "action.agree": ("OPERATOR_EXECUTIVE",),  # 3C2 (spec §2.2; D-3C2.2): a command, not a work route
+    "commercial.accounts_statement": (FIN,),
     # 3B4 (spec §5.3): the tolerance command's two keys (a command line, no route).
     "structure.tolerance.money": (FIN,), "structure.tolerance.operational": (SM,),
 }

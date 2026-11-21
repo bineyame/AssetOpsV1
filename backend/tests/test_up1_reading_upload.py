@@ -438,3 +438,75 @@ def test_a_cell_too_large_is_a_plain_refusal():
     client, *_ = _client(FakeChecker(FileRefusal("INVALID_VALUE", "", "FIELD_TOO_LARGE", "")))
     answer = _post(client)
     assert answer.status_code == 422 and "far too long" in answer.json()["message"]
+
+
+# --- ENV-1 A1, A2 (spec §2.3 "API"; D-ENV1.5, D-ENV1.11): a breach is a coded 503, logged once at the API layer --
+
+import logging  # noqa: E402
+
+from assetops_backend.reading_upload.service import LOAD_CAUSES, PARSE_LIMIT_CAUSES, ParseLimitBreach  # noqa: E402
+
+SENTINEL = "SENTINEL-ENV1-QX9"
+CAUSES = ("slot", "wall", "cpu", "memory", "killed", "crashed")
+UNAVAILABLE = {"check": ("READING_UPLOAD_CHECK_UNAVAILABLE", "reading_upload.check_unavailable"),
+               "send": ("READING_UPLOAD_GATEWAY_UNAVAILABLE", "reading_upload.gateway_unavailable")}
+
+
+class RaisingService:
+    def __init__(self, error: BaseException) -> None:
+        self.error = error
+
+    def upload(self, *args, **kwargs):
+        raise self.error
+
+
+def _raising_client(error: BaseException) -> TestClient:
+    app = FastAPI()
+    app.add_middleware(LocaleMiddleware)
+    app.include_router(build_reading_upload_router(RaisingService(error), SITES.get, frozenset({"KOBO-001"})))
+    return TestClient(app)
+
+
+def _records(caplog) -> list[logging.LogRecord]:
+    return [r for r in caplog.records if r.name == "assetops.reading_upload"]
+
+
+def test_a1_each_breach_is_a_coded_503_with_existing_words():
+    assert set(CAUSES) == PARSE_LIMIT_CAUSES and LOAD_CAUSES == {"slot", "wall"}
+    for step in ("check", "send"):
+        for cause in CAUSES:
+            answer = _post(_raising_client(ParseLimitBreach(cause, step)), dry="true" if step == "check" else "false")
+            code, key = UNAVAILABLE[step]
+            assert answer.status_code == 503, (cause, step, answer.text)
+            assert (answer.json()["code"], answer.json()["words"]["key"]) == (code, key)
+            assert key in CATALOGUE["en"] and answer.json()["message"]  # an existing key, rendered
+    for bad in (("disk", "check"), ("wall", "admit")):
+        with pytest.raises(ValueError):
+            ParseLimitBreach(*bad)
+
+
+def test_a2_every_503_logs_once_as_codes_and_numbers(caplog):
+    body = f"timestamp_utc\n{SENTINEL}\n".encode("ascii")
+    name = f"{SENTINEL}.csv"
+    caplog.set_level(logging.DEBUG)
+    cases = [(ParseLimitBreach(c, s), c, s, logging.WARNING if c in LOAD_CAUSES else logging.ERROR)
+             for s in ("check", "send") for c in CAUSES]
+    cases += [(GatewayUnavailable("down"), "gateway", "send", logging.WARNING),
+              (RuntimeError("no json"), "error", "check", logging.ERROR)]
+    for error, cause, step, level in cases:
+        caplog.clear()
+        answer = _post(_raising_client(error), dry="false", body=body, name=name)
+        assert answer.status_code == 503
+        records = _records(caplog)
+        assert len(records) == 1, (cause, step, records)
+        record = records[0]
+        assert (record.levelno, record.cause, record.step, record.site) == (level, cause, step, "KOBO-001")
+        assert type(record.bytes) is int and record.bytes == len(body)
+        for value in (record.getMessage(), repr(record.args), *map(repr, vars(record).values())):
+            assert SENTINEL not in value, (cause, value)
+    caplog.clear()  # no other answer of the route logs
+    client = _client()[0]
+    assert _post(client).status_code == 200
+    assert _post(client, body=b"x" * (MAX_BYTES + 1)).status_code == 413
+    assert client.get(URL).status_code == 200
+    assert _records(caplog) == []

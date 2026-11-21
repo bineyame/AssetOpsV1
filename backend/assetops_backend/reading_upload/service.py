@@ -46,6 +46,24 @@ class GatewayUnavailable(Exception):
     """The demo upload gateway (or its process) did not answer; nothing was recorded."""
 
 
+#: ENV-1 (D-ENV1.4, D-ENV1.10, D-ENV1.11): why the field process was stopped. `slot` and `wall` are load.
+PARSE_LIMIT_CAUSES = frozenset({"slot", "wall", "cpu", "memory", "killed", "crashed"})
+LOAD_CAUSES = frozenset({"slot", "wall"})
+
+
+class ParseLimitBreach(Exception):
+    """ENV-1: the field process of `step` (`check` or `send`) was stopped by a limit, or died without an answer.
+    Carries the closed cause code only; the service does not catch it (nothing is written)."""
+
+    def __init__(self, cause: str, step: str) -> None:
+        if cause not in PARSE_LIMIT_CAUSES:
+            raise ValueError(f"unknown parse limit cause {cause!r}")
+        if step not in ("check", "send"):
+            raise ValueError(f"unknown parse step {step!r}")
+        super().__init__(f"{step}: {cause}")
+        self.cause, self.step = cause, step
+
+
 @dataclass(frozen=True)
 class FileRefusal:
     code: str

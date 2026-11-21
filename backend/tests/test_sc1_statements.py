@@ -316,8 +316,12 @@ def test_t7_legacy_refuses_facts_and_structured_refuses_text():
 
 def test_t8_shipped_catalogue_loads():
     cat = catalogue._load()
-    # Adopters add their area's statements and vocabularies (3C2: `agreed_action.*`, `action_state`; D-3C2.14).
+    # Adopters add their area's statements and vocabularies (3A7: `reconciliation.*`, D-SC1.28; 3C2: `agreed_action.*`,
+    # `action_state`, D-3C2.14).
     assert set(cat.statements["en"]) == {"common.not_available", "common.budget_lines",
+                                         "reconciliation.heading", "reconciliation.gap", "reconciliation.share",
+                                         "reconciliation.scope", "reconciliation.statement", "reconciliation.standing",
+                                         "reconciliation.money_word", "reconciliation.refused",
                                          "agreed_action.state", "agreed_action.refused"}
     assert set(cat.vocabulary["en"]) == {"factor", "heading", "headline_subject", "record", "record_noun",
                                          "evidence", "unit", "noun", "month", "format", "action_state"}
@@ -489,7 +493,7 @@ def test_t12_schema_sets_equal_the_spec():
         (("doubl", "tripl", "quadrupl", "halv"), ("e", "es", "ed", "ing")),
         (("zero", "nought"), ("", "s", "es")))}
     assert schema.UNSERVED == ("ValueError", "TypeError", "KeyError", "LookupError", "RuntimeError", "AssertionError",
-                               "NotImplementedError", "StatementError", "CatalogueError", "WireError")
+                               "SeriesRefused", "NotImplementedError", "StatementError", "CatalogueError", "WireError")
     assert schema.SYMBOLS == ("", " ", ", ", "$", "−", "+", "%", ",", ".", "(", ")", " (", "{", "}", ":", "-",
                               "T")
     assert schema.SYSTEM == ("STATEMENTS", "VOCABULARY", "statements", "vocabulary", "utf-8", "en", "USD", "OMITTED",

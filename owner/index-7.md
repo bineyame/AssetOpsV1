@@ -10,3 +10,5 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-11-21 `owner-text-composition-clean-2026-11-21.md` Product text composed repeatably by a clean mechanism (data-driven templates over computed facts), never brittle hard-coding or if/else chains · current — Architect to specify
 - 2026-11-21 `owner-away-architect-decides-2026-11-21.md` Owner away ~12 h; the Architect decides on the owner's behalf from the product direction and the owner's philosophy so nothing is stuck · current — log in `specs/OWNER-AWAY/decisions-2026-11-21.md`
 - 2026-11-21 `owner-approve-sc1a-3c2-guards-2026-11-21.md` Approves SC-1a's two check-all lines (scan + self-test) and 3C2's agreed_action writer block · current — settles owner-away row 5
+- 2026-11-21 `owner-approve-key-folders-2026-11-21.md` Create /opt/assetecon/keys, keys/world, worlds (0700) and start DS4 unit 3 · current — settles owner-away row 40
+- 2026-11-21 `owner-3a7-merge-on-accept-2026-11-21.md` 3A7 merges on review ACCEPT; its wording is reviewed at the 5c walkthrough · current

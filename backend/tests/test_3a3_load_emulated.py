@@ -368,3 +368,111 @@ def test_parser_is_public() -> None:
 
 def test_environment_untouched() -> None:
     assert os.environ["DATABASE_URL"] == URL
+
+
+# --- ENV-1 L10 to L12 (spec §2.4; D-ENV1.7, D-ENV1.15): bounded reads, one file held at a time, JSON in the envelope --
+
+from assetops_backend.commercial.readers import DEFAULT_READER, READERS  # noqa: E402
+from assetops_backend.commercial.uploads import MAX_UPLOAD_BYTES  # noqa: E402
+
+OVER_CAP_JSON = b" " * (MAX_UPLOAD_BYTES - 1) + b"{}"
+
+
+def _submit_spy(w, monkeypatch) -> list[str]:
+    calls: list[str] = []
+    real = w.svc.submit
+
+    def submit(*args, **kwargs):
+        calls.append(kwargs.get("file_name", ""))
+        return real(*args, **kwargs)
+
+    monkeypatch.setattr(w.svc, "submit", submit)
+    return calls
+
+
+def test_l10_over_cap_json_stops_before_any_submission(w, tmp_path, emulated, capsys, monkeypatch) -> None:
+    directory = write_files(tmp_path / "x", emulated)  # four valid files, sorted before the JSON
+    (directory / "acme.tariff_sheet.json").write_bytes(OVER_CAP_JSON)
+    assert len(OVER_CAP_JSON) == MAX_UPLOAD_BYTES + 1
+    calls = _submit_spy(w, monkeypatch)
+    code, lines, err = run(w, directory, capsys=capsys)
+    from assetops_backend.commercial.uploads import UploadRefused
+    from assetops_backend.i18n import render
+    words = render(UploadRefused(413, "FILE_TOO_LARGE", {"limit_mb": 8}).words)
+    assert (code, lines, calls) == (2, [], [])
+    assert err.startswith("FILE_TOO_LARGE acme.tariff_sheet.json ") and words in err, err
+    assert w.store.uploads == []
+
+
+def test_l10b_size_pass_first_and_one_file_held_at_a_time(w, tmp_path, emulated, capsys, monkeypatch) -> None:
+    directory = tmp_path / "x"
+    directory.mkdir()
+    (directory / "acme.billing.csv").write_bytes(render_layout(LAYOUTS["billing-illustrative-1"], emulated["billing"]))
+    (directory / "acme.collections.csv").write_bytes(b"x" * (MAX_UPLOAD_BYTES + 1))
+    calls = _submit_spy(w, monkeypatch)
+    seen: list[tuple[str, int]] = []
+    real = loader._bytes
+
+    def recorder(path: Path) -> bytes:
+        try:
+            data = real(path)
+        except loader._Stop:
+            seen.append((path.name, -1))
+            raise
+        seen.append((path.name, len(data)))
+        return data
+
+    monkeypatch.setattr(loader, "_bytes", recorder)
+    code, lines, err = run(w, directory, capsys=capsys)
+    assert (code, lines, calls) == (2, [], []) and err.startswith("FILE_TOO_LARGE acme.collections.csv ")
+    assert [name for name, _ in seen[:2]] == ["acme.billing.csv", "acme.collections.csv"]
+    assert seen[1][1] == -1
+    import ast
+    import inspect
+    tree = ast.parse(inspect.getsource(loader._run))
+
+    def holds_bytes(node: ast.AST) -> bool:
+        return isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "_bytes"
+
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.ListComp, ast.SetComp, ast.GeneratorExp)):
+            assert not holds_bytes(node.elt), ast.unparse(node)
+        if isinstance(node, ast.DictComp):
+            assert not holds_bytes(node.value) and not holds_bytes(node.key), ast.unparse(node)
+        if isinstance(node, (ast.List, ast.Tuple, ast.Set)):
+            assert not any(holds_bytes(e) for e in node.elts), ast.unparse(node)
+        if isinstance(node, ast.Dict):
+            assert not any(holds_bytes(v) for v in node.values), ast.unparse(node)
+
+
+def test_l11_json_look_up_goes_through_the_envelope(w, tmp_path, generated, capsys, monkeypatch) -> None:
+    reads: list[tuple[object, bool]] = []
+    real_default = loader.default_envelope
+
+    class Recorder:
+        def read(self, reader, data, context, **kwargs):
+            reads.append((reader, context.real_data))
+            return real_default().read(reader, data, context, **kwargs)
+
+    monkeypatch.setattr(loader, "default_envelope", Recorder)
+    batch = (generated / "records" / "lakeside-power.budget_workbook.json").read_bytes()
+    assert loader._source_system(batch, DEFAULT_READER, {}, "lakeside-power") is not None
+    assert reads == [(READERS[DEFAULT_READER], False)]
+    reads.clear()
+    assert loader._source_system(b"{not json", DEFAULT_READER, {}, "acme") is None
+    assert reads == [(READERS[DEFAULT_READER], False)]
+    directory = tmp_path / "x"
+    directory.mkdir()
+    (directory / "acme.budget_workbook.json").write_bytes(b"{not json")
+    calls = _submit_spy(w, monkeypatch)
+    code, lines, err = run(w, directory, capsys=capsys)
+    assert code == 3 and calls == ["acme.budget_workbook.json"], err  # the submission refuses it, as before
+
+
+def test_l12_no_json_loads_in_the_loader() -> None:
+    import ast
+    import inspect
+    tree = ast.parse(inspect.getsource(loader))
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+            assert node.func.attr != "loads", ast.unparse(node)

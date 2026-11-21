@@ -37,7 +37,7 @@ if URL:
 
 TABLE = "agreed_action"
 #: Gate A's hand pair (D-3C2.9): built on the 3A6 head; renumbered at gate B with the file.
-HAND_PAIR = ("0070_agreed_action", "0068_structure_finding")
+HAND_PAIR = ("0070_agreed_action", "0069_commercial_reconciliation")
 VERSIONS = Path(__file__).resolve().parents[1] / "migrations" / "versions"
 SLUG = "lakeside-power"
 

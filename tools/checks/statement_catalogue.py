@@ -37,8 +37,8 @@ I18N = f"{PKG}/i18n"
 LEGACY_BASELINE = "tools/checks/statement-legacy-baseline.json"
 HANDBUILT_BASELINE = "tools/checks/statement-handbuilt-baseline.json"
 
-#: Scope (2): repo paths whose text is statements only (3A7 adds `commercial/reconciliation.py`, 5c `deep_dive/...`).
-ADOPTED: tuple[str, ...] = ("backend/assetops_backend/actions/agreed.py",)
+#: Scope (2): repo paths whose text is statements only (3A7's service, D-3A7.14; 3C2's agreed change; 5c adds `deep_dive/...`).
+ADOPTED: tuple[str, ...] = (f"{PKG}/structure/reconciliation.py", f"{PKG}/actions/agreed.py")
 #: Scope (1): the modules SC-1 writes (D-SC1.29). `MECH_BRANCH` reads the four that dispatch by table.
 MECHANISM = ("__init__", "schema", "facts", "formats", "conditions", "catalogue", "render", "wire")
 MECH_BRANCH_FILES = ("formats", "conditions", "render", "wire")

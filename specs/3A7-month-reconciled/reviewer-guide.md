@@ -6,7 +6,7 @@ For the fresh Reviewer: first at the handshake (read `spec.md`, `rulings.md` and
 ## First checks
 
 1. **Scope.** The diff holds only spec §8 question 9's list.
-2. **Migration.** One new head, `0068_commercial_reconciliation`, revising `0067_source_profile` (D-3A6.12; its test
+2. **Migration.** One new head, `0069_commercial_reconciliation`, revising `0068_structure_finding` (renumbered from 0068 at the commit 2 main merge) (D-3A6.12; its test
    asserts the chain link);
    both tables append-only; downgrade refused with a row.
 3. **Built on 3A6.** The branch's base holds 3A6's merge.
