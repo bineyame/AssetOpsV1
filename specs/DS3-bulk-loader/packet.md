@@ -94,3 +94,18 @@ and the SIMULATED refusal. Q3: the walkthrough database `assetops_polish_walk111
 
 `bulk_admit`'s order and transaction; `_bulk_evidence_params` against `_persist`; the census and the two held tests;
 Q1-Q3.
+
+## Mid-build answers applied (D-DS3.20 to D-DS3.23)
+
+- Merged `task/DS3-midbuild-answers` and main (`caaaa1174`); `check-decision-index.py` passes.
+- D-DS3.22: `permitted_database` allows only `_audit*` names and harness clones (`..._pt<hex>_<tag>_test`) with a
+  `walk|serve` deny. Test 1 refuses `assetops_test`, `assetops_polish_walk1113_test`, `assetops_walk_audit1121`,
+  `assetops_other_test`. No other test relied on a bare `_test` name. P24 (allow widened to `_test`): test 1 fails (2
+  cases). P25 (deny removed): test 1 fails on `assetops_walk_audit1121`.
+- D-DS3.20: the v4 slice is event, start, point (963 envelopes in all, 3 in the v4 batch); xfail removed. `v4.delta` is
+  test-6 case `v4_delta`: `BULK_REJECTED_ORDINAL`, `MAPPING_INCOMPATIBLE` in the detail, counts and batches unchanged.
+  P15 (event_id/correlation_id swapped in the bulk statement) fails the v4 parity test.
+- D-DS3.21: `event_outbox` parity is the event cover per (tenant, site, source, type): equal groups, bulk count at
+  most real, equal subject cover; named in the census as a second per-statement table; xfail removed.
+- Run (host tests inside `heavy-slot.sh --db`, harness clones only, all dropped): DS3 tests, test_s2_evidence_ledger_postgres,
+  test_pg_harness, 3A2 and 3A3 files: 309 passed, 0 xfail, 99.7 s.
