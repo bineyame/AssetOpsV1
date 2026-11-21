@@ -602,6 +602,29 @@ def test_4_i_currency_one_currency_subset(monkeypatch) -> None:  # review H3, pr
     assert [p for p, x, mine in _owned(v) if not mine and "KES" in x]
 
 
+def test_4_i_currency_a_heading_over_two_currencies(monkeypatch) -> None:  # review H3, plant C3
+    """Fuel cost sums Kobo and Kisiwa in KES (Mto's is missing) and O&M sums Mto alone in USD (Kobo's and Kisiwa's
+    are missing): each step prints in its own currency, and the Optimize heading, which would add KES to USD, has no
+    figure ("Not available yet"), nor has its card."""
+    real = V.site_bridge
+
+    def site_bridge(inputs, targets):
+        sb = real(inputs, targets)
+        root = sb.roots[T.ROOT]
+        if sb.site_code == "MTO-001":
+            return replace(sb, roots={**sb.roots, T.ROOT: _gone(root, "fuel_cost")})
+        return replace(sb, roots={**{k: _in_kes(r) for k, r in sb.roots.items()}, T.ROOT: _in_kes(_gone(root, "om"))})
+    monkeypatch.setattr(V, "site_bridge", site_bridge)
+    v = view(standing=RECONCILED)
+    fuel, om = step(v, "fuel_cost"), step(v, "om")
+    assert "KES" in fuel["value"] and "$" not in fuel["value"], fuel["value"]
+    assert om["value"].startswith(("$", "−$", "+$")) and om["sites"] == "1 of 3 Sites", om
+    opt = next(g for g in v["bridge"]["groups"] if g["key"] == T.OPTIMIZE)
+    assert opt["value"] == "Not available yet"
+    card = next(c for c in v["outcomes"] if c["label"] == "Optimize cost and efficiency")
+    assert card["value"] == "Not available yet"
+
+
 def test_4_i_currency_a_sites_own_sides_differ(monkeypatch) -> None:  # review H3, M3, probe cur2 (5b case (h))
     """Mto's actual is in KES and its target in USD: Mto prints each side in its own currency (never the portfolio's),
     and is out of every portfolio figure with the currency reason, not "not a mini-grid Site"."""
@@ -631,6 +654,16 @@ def test_4_i_currency_a_sites_own_sides_differ(monkeypatch) -> None:  # review H
     assert kes == [p for p, x, _ in _owned(v) if x.startswith("Mto: its figures are in KES")]
     mto_usd = [p for p, x, mine in _owned(v) if mine and "$" in x and not p.startswith(".notices")]
     assert mto_usd == [".bridge.by_site.rows[2][2]"], mto_usd
+
+
+def test_4_h_driver_detail_in_its_rows_currency() -> None:  # review H3, plant C7
+    """A driver's detail prints its money or price in its own row's currency (World H's drivers are litres only)."""
+    v = V._View.__new__(V._View)
+    v.reg = MG
+    kes = SimpleNamespace(actual=D("4595"), target=D("3865"), currency="KES")
+    for key in ("om", "diesel_price"):
+        said = v.driver_detail(key, kes)
+        assert "KES" in said and "$" not in said, (key, said)
 
 
 def test_4_h_residual_is_last_of_its_parent() -> None:  # review L8, D-5C.21, plant RP4
