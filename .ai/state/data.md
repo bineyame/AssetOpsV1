@@ -615,3 +615,10 @@ Branch `task/0K4a-dispatch-v8` (base main `b96d5e978`, 0K4b merged in); spec `sp
 
 - Settled: simulator `mini-grid` v8 (`decide_v8` ranks a running generator ahead of the battery; `_resolve_cycle` is v7's resolve with the RUNNING allocation by `cycle_charge_split`, 0K4b's fuel curve with a `generator-fuel` balance and tank account at 10 kWh/L, and the charge taper; `_checked_curve` and `_fuel_cap_kw` guard the curve's divisions); v1-v7 byte-identical (N9), v8 pinned by N12 `d6add2a3...5371f11`; backend `MINI_GRID_V8_MODEL` with SC-1 `model_profile.description`/`model_profile.state` served through `served_text` in `run_profile_summary`; `EXECUTABLE_MODELS` and `REPLAY_MODELS` take v8 (N11).
 - Open: no world runs v8 yet (0K4f); calibration is 0K4d's; five mid-build readings for the Architect (packet: N7 37 % run, N13 window, N13b, two test-pin edits).
+
+## 0K4d - the admission rule, the rerun on v8 and season v2, MG-T restated (in review, 21 Nov)
+
+Branch `task/0K4d-rerun-restate`; spec `specs/0K4d-rerun-restate/spec.md` rev 2, rulings D-0K4.9, D-0K4.16, D-0K4.26-30; packet `packet.md`. No migration, database, screen or guard change.
+
+- Settled: `runs/admission.py` (four parts, absolute-then-relative fallback, dawn as `DawnInformation` only) and `admission_measures` on `CaseOutcome`; both study tools take `--model-version {7,8}` and `--season {v1,v2}` (mixed pair `STUDY_FLAGS_INVALID`, exit 2; defaults reproduce 0K2 and 0M), headers carry commit, model, season, S9's inputs digest, site trajectory digest and D-0K4.27's assumption strings (`ASSUMED_DERIVATION`, `MTO_ASSUMED_DERIVATION`, `mto_site_v2`); the 61-day v8/v2 figures: Kobo stop 70 212.75 L a month, reserve 25 59.73, both admitted (all 14 cases admitted); Mto huller 153.88 L a month, reduced inverter 0 L a day; §4.2's Kobo option text restated to one figure per quantity.
+- Open: `6c` values the options; the manifest and derived values (0K4m; `check_manifest` H9 counts 6 fewer anchors); the pack's line 5 and §4.3 still name design values; the reduced-inverter 0 is for review.

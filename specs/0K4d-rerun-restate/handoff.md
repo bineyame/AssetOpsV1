@@ -1,4 +1,8 @@
-# 0K4d handoff after commit 1 (partial: commits 2 and 3 not built)
+# 0K4d handoff (superseded: commits 2 and 3 built, see `packet.md`)
+
+Commits 2 and 3 are built and the slice is `in_review`; `packet.md` holds the figures and checks. The text below is the handoff after commit 1, kept for its record.
+
+## After commit 1
 
 Implementer (Claude), 2026-11-21, branch `task/0K4d-rerun-restate`, worktree `/opt/assetecon/AssetOpsV1-0k4d`, off
 `main` at `d90cb2853`. Spec rev 2; every R and I question answered (rulings table "Handshake answers (rev 2 of 0K4c
