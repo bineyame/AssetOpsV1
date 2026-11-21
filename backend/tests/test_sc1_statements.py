@@ -430,6 +430,25 @@ def test_t12_schema_parity_with_structure_evaluate():
     assert schema.ORIGINS == schema.ORIGIN_ORDER == evaluate.ORIGIN_ORDER
 
 
+def test_t12_names_read_as_identifiers():
+    """Spec section 3.12, "Names read as identifiers" (D-SC1.30): read from code, never in `TOKENS`."""
+    from assetops_backend.i18n import facts, messages, wire
+    assert tuple(conditions._Operand.__annotations__) == ("abs", "const")
+    assert tuple(messages.Message.__annotations__) == ("key", "params")
+    assert tuple(wire._Envelope.__annotations__) == ("fact",)
+    assert {cls.__name__: cls.__slots__ for cls in (
+        facts.Evidence, facts.Money, facts.Price, facts.Quantity, facts.Percent, facts.Count, facts.KOfN, facts.Month,
+        facts.Day, facts.Instant, facts.Word, facts.Name, facts.State, facts.Flag, facts.Absent, facts.Items)} == {
+        "Evidence": ("evidence", "origin", "reconciled"), "Money": ("value", "currency", "evidence"),
+        "Price": ("value", "currency", "unit", "evidence"), "Quantity": ("value", "unit", "evidence"),
+        "Percent": ("value", "evidence"), "Count": ("n", "noun"), "KOfN": ("k", "n", "noun"),
+        "Month": ("year", "month"), "Day": ("day",), "Instant": ("at",), "Word": ("vocabulary", "key"),
+        "Name": ("text", "source"), "State": ("value",), "Flag": ("value",), "Absent": ("reason",),
+        "Items": ("items",)}
+    # `abs` and `key` are also option names (money `abs`, part `key`), so they sit in TOKENS by that route.
+    assert not {"const", "params", "fact"} & schema.TOKENS
+
+
 def test_t12_schema_sets_equal_the_spec():
     assert schema.TYPES == ("money", "price", "quantity", "percent", "count", "k_of_n", "month", "day", "instant",
                             "word", "name", "items", "evidence", "pick", "part", "example", "state", "flag")

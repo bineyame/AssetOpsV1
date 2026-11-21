@@ -20,11 +20,15 @@ from assetops_backend.i18n import schema
 _UPPER = frozenset(string.ascii_uppercase)
 
 
+#: The constructor's name, read as an identifier (D-SC1.30): the mechanism holds no string outside `schema.py`.
+_INIT = object.__init__.__name__
+
+
 class _FactMeta(type):
     def __new__(mcls, name, bases, namespace):
-        init = namespace.get("__init__")
-        code = getattr(init, "__code__", None)
-        namespace["__slots__"] = () if code is None else code.co_varnames[1:code.co_argcount]
+        init = namespace.get(_INIT)
+        code = None if init is None else init.__code__
+        namespace.update(__slots__=() if code is None else code.co_varnames[1:code.co_argcount])
         return super().__new__(mcls, name, bases, namespace)
 
 
