@@ -985,8 +985,10 @@ function Invoke-ConfigurationPersistenceCheck {
     # commercial_upload_decision, with the same plain-INSERT shape. Its under-lock "no decision yet" read
     # (SELECT 1 FROM commercial_upload_decision WHERE ...) is a read, not a write, and is not counted.
     # 3A6 (spec section 3; migration 0067; D-3A6.2): the same writer owns commercial_source_profile, same shape.
+    # 3A7 (spec section 3; migration 0068): and commercial_accounts_statement, commercial_reconciliation_tolerance.
     $commercialTables = @('commercial_intake', 'commercial_record', 'commercial_record_revision', 'commercial_rejection',
-        'commercial_upload', 'commercial_upload_decision', 'commercial_source_profile')
+        'commercial_upload', 'commercial_upload_decision', 'commercial_source_profile',
+        'commercial_accounts_statement', 'commercial_reconciliation_tolerance')
     $commercialShapes = [ordered]@{}
     foreach ($table in $commercialTables) {
         $commercialShapes["$table insert"] = ('(?i)^INSERT\s+INTO\s+' + $table + '\s*\([^)]*\)\s*VALUES\s*\([^()]*\)\s*;?\s*$')

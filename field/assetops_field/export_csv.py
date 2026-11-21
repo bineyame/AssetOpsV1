@@ -125,7 +125,10 @@ class CsvCollector:
             return None
         if _DECIMAL.fullmatch(cell) is None:
             raise self._refuse("INVALID_VALUE", field, f"{cell!r} is not a decimal with '.' as separator")
-        value = Fraction(cell)
+        try:
+            value = Fraction(cell)
+        except ValueError as error:  # ENV-1 (D-ENV1.6): past Python's integer digit limit
+            raise self._refuse("INVALID_VALUE", field, "the number has too many digits") from error
         if (value / row.output_resolution).denominator != 1:
             raise self._refuse("INVALID_VALUE", field,
                                f"{cell} is not a multiple of the output resolution {row.output_resolution}")

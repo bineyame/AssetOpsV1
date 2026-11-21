@@ -1,0 +1,39 @@
+# Decision index: Demo-sprint and later rulings (index only) (D-0K3.1 to D-0K3.20, D-ENV1.8 to D-ENV1.24)
+
+- `D-0K3.1` 0K3 builds the reader and refusals now on harness fixtures; a study on stored readings waits (amends D-0K2.1) · live · specs/0K3-replay-series-reader/rulings.md
+- `D-0K3.2` readings placed by own interval/instant; 5-minute tiling exact; coarser (15 min) refused, never split (row 48) · live · specs/0K3-replay-series-reader/rulings.md
+- `D-0K3.3` instants read only on a step start; off-grid counted; no state carried forward · live · specs/0K3-replay-series-reader/rulings.md
+- `D-0K3.4` pv_power never read as pv_available_power; Kobo needs that binding (row 48, owner to weigh in) · live · specs/0K3-replay-series-reader/rulings.md
+- `D-0K3.5` loads are feeder_demand by asset code; load_role stated · live · specs/0K3-replay-series-reader/rulings.md
+- `D-0K3.6` input class from source mode: LIVE as RECORDED, SIMULATED; a mix refused · live · specs/0K3-replay-series-reader/rulings.md
+- `D-0K3.7` order: request, Site, query, bindings, cohort, readings; cohort status named · live · specs/0K3-replay-series-reader/rulings.md
+- `D-0K3.8` 0K1 seam allow-list grows by the reader and its test · live · specs/0K3-replay-series-reader/rulings.md
+- `D-0K3.9` 0K3: no served text, no migration, no guard change · live · specs/0K3-replay-series-reader/rulings.md
+- `D-0K3.10` interval_start in the study's instant form (strftime, not iso); B11 runs study_days · live · specs/0K3-replay-series-reader/rulings.md
+- `D-0K3.11` pv_power bound and read in B7b, G1b, G4a so the no-output-as-available rule can fail · live · specs/0K3-replay-series-reader/rulings.md
+- `D-0K3.12` Kobo's own readings meet a readings refusal (G4b); 15-minute mean proven at W402 only · live · specs/0K3-replay-series-reader/rulings.md
+- `D-0K3.13` no carry-forward tested on all three instant roles; B6b every-third-step · live · specs/0K3-replay-series-reader/rulings.md
+- `D-0K3.14` MAX_DAYS 92, size stated; the cohort's EMPTY is the only empty answer · live · specs/0K3-replay-series-reader/rulings.md
+- `D-0K3.15` G1's load codes are R0's (checked in the W402 binding file) · live · specs/0K3-replay-series-reader/rulings.md
+- `D-0K3.16` the study does not depend on load order · live · specs/0K3-replay-series-reader/rulings.md
+- `D-0K3.17` the last step's mean ending at window.end is read; tested · live · specs/0K3-replay-series-reader/rulings.md
+- `D-0K3.18` a local day not of 24 hours refused before the query (day:<date>) · live · specs/0K3-replay-series-reader/rulings.md
+- `D-0K3.19` seam allow-list needs no more names; host tests run by pwsh · live · specs/0K3-replay-series-reader/rulings.md
+- `D-0K3.20` 0K3 size 2.5 units · live · specs/0K3-replay-series-reader/rulings.md
+- `D-ENV1.8` slots are abstract socket names, one pool per network namespace (amends D-ENV1.3; row 49) · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.9` send limits measured on the real send through a real gateway; H6s · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.10` limits by a stated margin method for a stated host class; cause at ERROR; words after SC-1a (row 49) · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.11` a child dying without an answer is crashed; every 503 of the route logged · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.12` waiting requests: stated residual, no cap · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.13` test slot namespace set as the first statement of each pytest_configure · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.14` the envelope resolves host slots at each read · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.15` loader checks every size first and holds one file at a time · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.16` ENV-1 confirmations: one launcher, slow H6/H6s with long wall, guard rule stands · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.17` ENV-1 size 1.0 unit · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.18` sends one at a time (pool reading-send of 1); send wall 2x the measured production-shape wall (review M1; row 50) · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.19` fix round measures solo sends and ledger growth before code; stop above 150 s or 10% growth · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.20` logged 503s are those run answers; site-scope and template 503s outside (amends D-ENV1.11) · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.21` namespace line second, after T1's heavy-slot require; mid-build count 1 (amends D-ENV1.13) · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.22` expiring slot waits bounded in a thread so plant V5 fails in seconds · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.23` M2: _LOG renamed LOG, SlotWaitExpired takes a code; no rebaseline, no guard change · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.24` ENV-1 fix round 0.35 unit; ENV-1 1.35 units (amends D-ENV1.17) · live · specs/ENV1-parse-limits/rulings.md

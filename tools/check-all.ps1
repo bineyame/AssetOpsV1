@@ -329,6 +329,8 @@ try {
     Add-Guard "Event register guard (CH-1b)" $Python @("-m", "pytest", "tools/checks/test_event_register.py", "-q", "-p", "no:cacheprovider")
     # DIESEL-1 H4 (K9): served copy never says theft, stolen, stole, siphon or pilfer (self-test plus repository scan).
     Add-Guard "Fuel wording guard (DIESEL-1 H4)" $Python @("-m", "pytest", "tools/checks/test_fuel_wording.py", "-q", "-p", "no:cacheprovider")
+    Add-Guard "Statement catalogue (SC-1)" $Python @("tools/checks/statement_catalogue.py")
+    Add-Guard "Statement catalogue self-test (SC-1)" $Python @("tools/checks/statement_catalogue.py", "--self-test")
     # T2 (DS1b R8; D-T2.1, D-T2.2): simulator/tests and contracts/tests on every branch and on main after every merge,
     # in-process and in child processes.
     Add-Guard "Neutral package tests (T2)" $Python @("tools/checks/neutral_tests.py")

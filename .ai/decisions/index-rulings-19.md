@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-0M.1 to D-0M.22, D-DS4.16 to D-DS4.25, D-0K2.17 to D-0K2.29)
+# Decision index: Demo-sprint and later rulings (index only) (D-0M.1 to D-0M.22, D-DS4.16 to D-DS4.25, D-0K2.17 to D-0K2.29, D-ENV1.1 to D-ENV1.7)
 
 - `D-0M.1` 0M starts on 0K2's merge and reuses its helpers; amends the delivery plan's 0K1-only dependency · live · specs/0M-mto-headroom-replay/rulings.md
 - `D-0M.2` Mto plant: Kobo template edited to the manifest's Mto facts; one 50 kW (or 25 kW) inverter limit · live · specs/0M-mto-headroom-replay/rulings.md
@@ -47,3 +47,10 @@
 - `D-0M.22` Mto dawn read as D-0K2.17: absolute verdict plus new/cleared dates · live · specs/0M-mto-headroom-replay/rulings.md
 - `D-DS4.26` Kisiwa actual om/cost_to_serve/contribution blank (October O&M invoice not received, GAP-1); §2.1 amended; C4_SITE_CLASSES; amends D-DS4.16 · live · specs/DS4-template-ladder/rulings.md
 - `D-DS4.27` plan price targets blank from 5a lines.py rule 4 (is_money vs money dimension); defect on main; 5a fix F1 (0.25 unit); 12 C4_KNOWN_FINDINGS until it merges · live · specs/DS4-template-ladder/rulings.md
+- `D-ENV1.1` every upload parse in a limited child; reading upload already a field process, not routed via the envelope · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.2` reading limits measured: check 512 MiB/30 s/60 s, send 1 GiB/90 s/120 s · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.3` parse children bounded per host: pools commercial 2, reading 2 (amended by D-ENV1.8) · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.4` breach causes slot/wall/cpu/memory/killed; a send stopped mid-way is today's residual · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.5` breach answered with existing unavailable words, cause logged at the API (row 47) · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.6` a 4,300+ digit cell is INVALID_VALUE, not a crash · live · specs/ENV1-parse-limits/rulings.md
+- `D-ENV1.7` loader reads at most 8 MiB + 1 per file; JSON look-up in the envelope · live · specs/ENV1-parse-limits/rulings.md

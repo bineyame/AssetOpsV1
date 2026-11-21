@@ -474,6 +474,15 @@ Branch `task/3B7a-snapshot` (base main `264d7d6a7`, unit 0's seam merged); spec 
 
 - Settled: `structure_snapshot/` (model, canonical codec with digest, `untracked`, `rules_digest` import closure, `StoreHeldKinds`, memory and Postgres stores, `SnapshotBuilder.build`/`verify` at one instant, `SnapshotRead` serving frozen values with `RECORDS`/`MONTH_CLOSED`/`RULES` or `REBUILD_NEEDED`, composition); `python -m assetops_backend.build_structure_snapshot build|verify`; table `structure_snapshot` (append-only trigger, per-scope instant uniqueness).
 - Open: the persistence-guard block awaits owner approval (Q6/R2; text in the packet); mid-build Q1 (`rules_digest.py` trips rule 2's `pathlib` pattern once the domain is registered), Q2 (3A2's migration test asserts 0065 is head), Q3 (verify's unknown-id code, default `UNKNOWN_SNAPSHOT`); `3B7b` triggers and daily run; `5b`/`5c` consumers.
+## SC-1a - the statement composer, units 1-3 (built, in_review, 21 Nov)
+
+Branch `task/SC-1a-composer` (base main `8805ee169`); spec `specs/SC-1-statement-composer/spec.md` rev 2, rulings D-SC1.1-D-SC1.31; packet `specs/SC-1-statement-composer/packet.md`. Non-screen; no migration, no route.
+
+- Settled: `backend/assetops_backend/i18n/` gains typed facts, one format per slot type, one condition evaluator, the load check, `render`/`served` over structured statements (legacy entries unchanged), the wire form, the English vocabulary and `common.*`; worked statements for 3A7 and 5c live in the test catalogue (`backend/tests/statement_cases/`). Guard `tools/checks/statement_catalogue.py` (+ `--self-test`, 40 plants): load, a case per variant, legacy hash ratchet (123 keys), three-scope hand-built scan (mechanism positive, `ADOPTED` positive and empty, ratchet baseline 320 paths / 5,900 fingerprints from main), `KEY_INSTANCE`, `I18N_PRIVATE`/`I18N_BYPASS`, `MECH_UNSCOPED`.
+- Fix round r1 (D-SC1.32-39): number words are roots joined to suffixes (`schema.number_words`), `TOKENS` no longer holds them; the ratchet reads prose by word pairs with SQL lead, encoded joins, display conditionals and any logger exempt; `messages.CATALOGUE` templates left to the legacy ratchet; word maps one fingerprint per entry; classed allow file `statement-handbuilt-allow.json` (empty); `UNSERVED_SERVED`; every `i18n/**` file classified; the five public modules declare `__all__` (`I18N_SURFACE`, bypass through them); `from_wire` L4. Baselines regenerated from main: 300 paths / 5,185 fingerprints, 123 legacy keys; self-test 68 plants.
+- Fix round r2 (review round 2): the guard binds the `i18n` package object to surface `""` and chains attributes into the public modules (M4; a literal `import_module`/`__import__` counts as an import); `NUMBER_WORDS` adds the `-ing` forms, `cent` and the zero forms `zeroes`/`nought` (L6, D-SC1.32's class; extends spec §3.12's literal); each live allow entry prints `ALLOWED path:line class fingerprint | source` (L7).
+- Owner approved both check-all lines, 2026-11-21 (`owner/owner-approve-sc1a-3c2-guards-2026-11-21.md`).
+- Open: review round 3 ACCEPT; merge; 3A7 and 5c adopt (`ADOPTED`), SC-1b converts the legacy templates and the 229 served-exception handlers.
 
 ## 3B2 - Findings pinned to their factors (in review, 21 Nov)
 
@@ -526,6 +535,13 @@ Branch `task/3A6-source-profiles` (main `26dd65e60` merged in); spec `specs/3A6-
 - Fix round r5 (the class, D-3A6.23-26): every upload parse (both readers, canonical JSON, admission's split) runs in a fresh forkserver child (`commercial/envelope.py`) under RLIMIT_AS 512 MiB, CPU 6 s, wall 12 s, a 32 MiB result, 2 at once per process; any breach is `NATIVE_TOO_LARGE` (its own words), logged with no content; the resource bounds switched to that code; N8-N10 bounds (attribute runs and names, 1 Mi characters a CSV row, a 256-entry/256 KiB zip directory). E0-E9, B1-B3.
 - Open: the reading-upload intake (`reading_upload_api.py`) still parses in process (queued `ENV-1`); mid-build Q1 (A9 a's many-to-one map vs `check_layout`'s one-to-one rule); queue Q1 (moving a Site's source type to another system) and Q6 (Sites named, not coded) on their defaults; a v2 that changes `personal` turns that profile's corrections into version conflicts (packet risk); 3A7 next on the same files.
 
+## 3A7 - one closed month reconciled (in review, commits 1 and 2, 21 Nov)
+
+Branch `task/3A7-month-reconciled` (main `e5a283228` and the mid-build answers merged in); spec `specs/3A7-month-reconciled/spec.md` rev 2, rulings D-3A7.1-15, D-SC1.28 split; packet `packet.md`. Migration `0069_commercial_reconciliation` on 3B4's 0068.
+
+- Settled: tables `commercial_accounts_statement` and `commercial_reconciliation_tolerance` (append-only); `structure/reconciliation.py` (`record`, `check`, `statements`, `standing` at `known_at`, `set_tolerance` citing an owner file by slug and figure) in the statement guard's `ADOPTED`; its sentences are SC-1 statements (`i18n/statements/en/reconciliation.py`: heading, gap, share, scope, statement, standing, money_word, refused); `structure/reconciliation_composition.py`; command `reconcile_month record|show|set-tolerance`; money reconciles only through a current opener with no covering mismatch; missing is never 0.
+- Open: D1 (the standing's failing headings are a `details` list, not joined into `text`: SC-1 joins no sentences), D4 (tolerance evidence wording); the screen is 5c's.
+
 ## 3B4 - the structure observer (in review, 21 Nov)
 
 Branch `task/3B4-observer` (main `2ef8e9769` merged in: 4a, 3B6, DS3); spec `specs/3B4-observer/spec.md` rev 2, rulings D-3B4.1-26; packet `packet.md`. Migration `0068_structure_finding` on 0066 (renumber at merge, gate B); no route, no screen, no served text.
@@ -541,3 +557,25 @@ Branch `task/DS4-template-ladder` (`9eff83776`); spec `specs/DS4-template-ladder
 - Settled: `tools/world.py` builds the L0/L1/L2 ladder by key (migrations; definition, inputs, onboarding, code; L2 steps), frozen rungs, manifests, `clone`/`reset`/`list`/`drop` (keys erased before an L1 drops), and `check` C1-C7 with the total C4 oracle (`C4_CONTRACT` = §2.1, Kisiwa's O&M overrides, `C4_KNOWN_FINDINGS`), `harness_run` under its own base, and `check_passed` only while the check inputs are unchanged.
 - Settled: the bulk load refuses a batch whose envelopes resolve other days than its cover (Site-local and UTC grains, step 7a; `BULK_BATCH_GAP_DAYS`, `BULK_BATCH_TIME_UNREADABLE`); `PostgresEvidenceLedger.site_timezone`.
 - Open: the real world's C4 fails only on the 12 known D-DS4.27 plan cells until 5a F1 merges; unit 3 (bench, the real `assetops_world` build and check) waits for owner row 40.
+
+## 0M - Mto's demand-on-headroom replay (in review, 21 Nov)
+
+Branch `task/0M-mto-headroom` (base main `6c33395ef`, after the 0K2 merge `3b4f06052`); spec `specs/0M-mto-headroom-replay/spec.md` rev 2, rulings D-0M.1-22; packet `packet.md`. No database, no migration, no served text, no money.
+
+- Settled: `runs/headroom_replay.py` `headroom_study` adds a customer's kW to one Site load at its local weekday steps and replays the whole window beside the no-customer replay (full, and a second base run frozen at a reduced inverter limit fed `min(PV, limit)`); headroom days and kWh from the series; extra litres, generator, unserved, starts, month splits, dawn new/cleared dates; every customer id and the reduced run's frozen limit and other needs refused before any port call. Reuses 0K2's helpers only. `host/tests/mto.py`: the Kobo template edited to Mto's manifest facts, loads halved.
+- 61-day SIMULATED/MODELLED figures beside the design values in the packet (huller Oct 6 days, 384 kWh, 156.7 L vs 3, 225, 68; reduced 0.24 L a day vs 5); design values unchanged (row 37).
+- Open: replacing design values is the owner's (row 37); dawn admissibility and money are `6g`.
+
+## ENV1 - every upload parse under hard limits (in review after fix round 1, 21 Nov)
+
+Branch `task/ENV1-parse-limits` (base main `e9d6cdfb1`); spec `specs/ENV1-parse-limits/spec.md` rev 3, rulings D-ENV1.1-24; packet `packet.md`. No migration, no database, no served text, no guard change.
+
+- Settled: `parse_slots.py` (abstract Unix socket names, `commercial` 2, `reading` 2 (checks) and `reading-send` 1 (sends, one at a time; D-ENV1.18) per network namespace, `ASSETOPS_PARSE_SLOT_NAMESPACE`; tests set their own per process); the envelope holds a host slot at each read; the field process sets its limits before it reads (`CHECK_LIMITS` 512 MiB/30/60, `SEND_LIMITS` 896 MiB/120/270, the send wall 2x the 129.2 s production-shape send, D-ENV1.19); breaches are `ParseLimitBreach` (slot, wall, cpu, memory, killed, crashed) answered with the existing 503 words and logged once; a 5,000-digit cell is `INVALID_VALUE`; the loader reads at most 8 MiB + 1 per file, sizes first, JSON only in the envelope.
+- Open: words for `cpu`/`memory`/`crashed` after SC-1a (row 49); waiting-request cap (D-ENV1.12); JSON API body bounds (`financial_api.py`, backlog); limits are per host class (re-measure on a slower one); the gateway ledger's growth slows a send (+1.73 s per 2 MiB send, about 4.5 s per GB; retune on the production ledger's size class); another writer into the same gateway is not bounded by the send pool.
+
+## 0K3 - the replay series reader from stored readings (in review, 21 Nov)
+
+Branch `task/0K3-replay-reader` (base main `e9d6cdfb1`); spec `specs/0K3-replay-series-reader/spec.md` rev 2, rulings D-0K3.1-20; packet `packet.md`. No migration, no served text, no consumer change.
+
+- Settled: `runs/replay_series.py` `SeriesReader.read` (built by `runs/composition.build_series_reader`) turns a Site's accepted readings over whole local days into 0K2's `ObservedSeries` or refuses with a code and subject: configuration before readings, 15-minute means refused never split, `pv_power` never read as available PV, instants only at step starts (off-grid counted), nothing carried, clock-change days refused before the query, `MAX_DAYS` 92, input class from source mode. Proven on R0 (no database), MG-W402-001 and DS3 Kobo in Postgres, and 0K2's 8-day season read back field by field with the same calibration.
+- Open: no study on stored readings until a 61-day 5-minute series, Kobo's `pv_available_power` binding (row 48) and `6c`; mid-build Q1 (Kobo's zone is Addis Ababa, not Nairobi).
