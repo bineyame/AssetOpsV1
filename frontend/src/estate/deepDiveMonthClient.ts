@@ -19,14 +19,14 @@ export interface DeepDiveTile {
 }
 
 export interface DeepDiveDriver {
-  key?: string;
+  key: string;
   label: string;
   value: string;
   sites: string;
   detail: string | null;
   word: string | null;
-  /** D-5C.21: the driver's own parts, same shape, recursively; `[]` for a leaf (absent in payloads before rev 3). */
-  children?: DeepDiveDriver[];
+  /** D-5C.21: the driver's own parts, same shape, recursively; `[]` for a leaf. */
+  children: DeepDiveDriver[];
 }
 
 export interface DeepDiveStepDrawer {

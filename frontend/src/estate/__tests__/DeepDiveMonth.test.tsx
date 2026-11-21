@@ -1,7 +1,10 @@
 /**
  * 5c unit 3 (spec §6 tests 10 to 13): "The month" renders the server's JSON as given (D-5C.2). World A is the
  * hand-written fixture of spec §3.5 (`backend/tests/fixtures/5c/deep_dive_lakeside_2026-10.json`); World H is A with
- * §3.5 H's changes written here by hand (with unit 1's KD1 for the Diesel price driver).
+ * §3.5 H's changes written here by hand (D-5C.24 for the Diesel price driver), checked against the backend's own World H
+ * (`fixtures/deep_dive_world_h.json`). World X (`fixtures/deep_dive_currency_mismatch.json`) is the backend's view with
+ * Kobo in KES, Kisiwa in USD and Mto's actual in KES against a USD target. Both JSON files are written by
+ * `backend/tests/fixtures/5c/make_screen_worlds.py`, never by hand.
  */
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
@@ -19,12 +22,21 @@ import { fakeClient, findingsBody, loaded } from "./estateFixtures";
 import { loadedPortfolio, portfolioBody } from "./portfolioFixtures";
 import FIXTURE_TEXT from "../../../../backend/tests/fixtures/5c/deep_dive_lakeside_2026-10.json?raw";
 import TABS_BEFORE from "./fixtures/portfolioTabsOverview.before.html?raw";
+import WORLD_H_TEXT from "./fixtures/deep_dive_world_h.json?raw";
+import WORLD_X_TEXT from "./fixtures/deep_dive_currency_mismatch.json?raw";
 import PAGE_SOURCE from "../DeepDiveMonth.tsx?raw";
 
 const worldA = (): DeepDiveMonthBody => JSON.parse(FIXTURE_TEXT) as DeepDiveMonthBody;
+const servedH = (): DeepDiveMonthBody => JSON.parse(WORLD_H_TEXT) as DeepDiveMonthBody;
+const worldX = (): DeepDiveMonthBody => JSON.parse(WORLD_X_TEXT) as DeepDiveMonthBody;
+
+/** Every money figure in a text: a sign, a currency ("$" or an ISO code) and digits. */
+const MONEY = /[−+]?(?:\$|[A-Z]{3} )\d[\d,]*(?:\.\d+)?/g;
 
 /** Keys whose values are codes or numbers for the page, not words for the reader. */
 const NOT_SHOWN = new Set(["schema", "month", "nav", "state", "as_of", "reason", "reconciled", "key", "bar", "connected", "more", "standing"]);
+// `fresh.untracked_text` is read in the Assure drawer (its last line), not on the page itself.
+NOT_SHOWN.add("untracked_text");
 
 function strings(value: unknown, out: string[] = []): string[] {
   if (typeof value === "string") out.push(value);
@@ -54,17 +66,19 @@ function worldH(): DeepDiveMonthBody {
   ];
   const m = "Modelled, not yet reconciled";
   // D-5C.21: Diesel used holds its three parts; Diesel price is its sibling (D-5C.24: no detail, Modelled).
-  const leaf = (label: string, value: string, detail: string | null) => ({ label, value, sites: "1 of 3 Sites", detail, word: m, children: [] });
+  const leaf = (key: string, label: string, value: string, detail: string | null): DeepDiveDriver => ({
+    key, label, value, sites: "1 of 3 Sites", detail, word: m, children: [],
+  });
   fuel.drivers = [
     {
-      ...leaf("Diesel used", "−$600.00", "Actual 1,180 L · Target 700 L"),
+      ...leaf("diesel_l", "Diesel used", "−$600.00", "Actual 1,180 L · Target 700 L"),
       children: [
-        leaf("Diesel not shown to be avoidable", "−$37.50", "Actual 730 L · Target 700 L"),
-        leaf("Diesel run while solar and battery could carry the load", "−$412.50", "Actual 330 L · Target 0 L"),
-        leaf("Unexplained fuel", "−$150.00", "Actual 120 L · Target 0 L"),
+        leaf("necessary_l", "Diesel not shown to be avoidable", "−$37.50", "Actual 730 L · Target 700 L"),
+        leaf("candidate_l", "Diesel run while solar and battery could carry the load", "−$412.50", "Actual 330 L · Target 0 L"),
+        leaf("unexplained_l", "Unexplained fuel", "−$150.00", "Actual 120 L · Target 0 L"),
       ],
     },
-    leaf("Diesel price", "$0.00", null),
+    leaf("diesel_price", "Diesel price", "$0.00", null),
   ];
   h.fresh = { current: true, text: null, untracked_text: untracked };
   h.outcomes![3].drawer!.lines = [...h.outcomes![3].drawer!.lines, untracked];
@@ -188,6 +202,7 @@ describe("5c test 10: World A renders", () => {
   it("World B: no 'not yet reconciled' suffix is added by the page", async () => {
     const b = worldA();
     const strip = (s: string) => s.replace(", not yet reconciled", "");
+    b.headline!.evidence = b.headline!.evidence.map(strip);
     b.tiles!.forEach((t) => (t.word = t.word === null ? null : strip(t.word)));
     b.status_line = "Figures as of 20 November 2026, 08:00 UTC. Reconciled with the management accounts. Kisiwa's budget disagrees with its own lines.";
     b.bridge!.groups.forEach((g) => g.steps.forEach((s) => (s.word = s.word === null ? null : strip(s.word))));
@@ -295,6 +310,98 @@ describe("5c test 11: drawers keep and return focus; drivers carry their words",
     const items = within(openDialog()).getAllByRole("listitem").map((li) => li.textContent);
     expect(items).toEqual(h.outcomes![3].drawer!.lines);
     expect(items[items.length - 1]).toBe(h.fresh!.untracked_text);
+  });
+});
+
+describe("5c test 11: the served worlds (backend-written H and the currency mismatch X)", () => {
+  /** The money figures a text shows; each must be one the JSON serves, in its own currency, never re-formatted. */
+  const money = (text: string) => text.match(MONEY) ?? [];
+  /** The money figures shown under `root`, one text node at a time (adjacent cells never run together). */
+  const moneyIn = (root: Element) => {
+    const out: string[] = [];
+    const walk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    for (let n = walk.nextNode(); n !== null; n = walk.nextNode()) out.push(...money(n.textContent ?? ""));
+    return out;
+  };
+  const served = (body: unknown) => new Set(money(JSON.stringify(body)));
+
+  it("the hand-written World H equals the backend's World H wherever it is drawn", () => {
+    const h = worldH();
+    const b = servedH();
+    expect(h.tiles).toEqual(b.tiles);
+    expect(h.bridge).toEqual(b.bridge);
+    expect(h.fresh).toEqual(b.fresh);
+    expect(h.outcomes).toEqual(b.outcomes);
+    expect(h.headline).toEqual(b.headline);
+  });
+
+  it("World X: the headline, tiles and cards read Not available yet as served; each figure in its own currency", async () => {
+    const x = worldX();
+    const view = renderMonth(clientOf(() => ({ status: "loaded", body: x })));
+    await settled();
+    fireEvent.click(screen.getByRole("button", { name: `Show all ${x.not_available!.rows.length}` }));
+    const text = view.container.textContent ?? "";
+    for (const s of strings(x)) expect(text, s).toContain(s);
+    // L7: the headline is the served sentence; no evidence chip beside a sentence with no figure.
+    expect(x.headline!.text).toBe("Contribution for October is not available yet: the Sites' figures are in different currencies.");
+    const headline = view.container.querySelector(".dd-headline")!;
+    expect(headline.textContent!.trim()).toBe(x.headline!.text);
+    expect(headline.querySelector("[data-dd-word]")).toBeNull();
+    // No bar is drawn for a tile with no figure.
+    for (const tile of x.tiles!) {
+      const el = view.container.querySelector(`[data-dd-tile="${tile.key}"]`)!;
+      expect(el.querySelector(".dd-kpi__value")!.textContent).toBe(tile.value);
+      expect(el.querySelector(".dd-bar")).toBeNull();
+    }
+    // L9: the Optimize heading would add KES to USD: its card reads Not available yet for figure and word.
+    const card = view.container.querySelector('[data-dd-outcome="optimize"]')!;
+    expect(card.querySelector(".dd-card__value")!.textContent).toBe("Not available yet");
+    expect(card.querySelector("[data-dd-word]")!.textContent).toBe("Not available yet");
+    const optimize = x.bridge!.groups.find((g) => g.key === "OPTIMIZE_COST")!;
+    expect(optimize.value).toBe("Not available yet");
+    const rows = [...view.container.querySelectorAll(".dd-wf__grouprow")].map((r) => r.textContent);
+    expect(rows).toContain(`${optimize.label} Not available yet`);
+    // Each step prints in its own currency, character for character (fuel cost KES, O&M USD).
+    for (const step of x.bridge!.groups.flatMap((g) => g.steps)) {
+      expect(view.container.querySelector(`[data-dd-step="${step.key}"] .dd-wf__value`)!.textContent).toBe(step.value);
+    }
+    expect(view.container.querySelector('[data-dd-step="fuel_cost"] .dd-wf__value')!.textContent).toBe("−KES 600.00");
+    // Every money figure on the page is one the JSON serves (the page never puts "$" on a KES figure).
+    const shown = moneyIn(view.container);
+    expect(shown.some((m) => m.includes("KES"))).toBe(true);
+    const ok = served(x);
+    expect(shown.filter((m) => !ok.has(m))).toEqual([]);
+  });
+
+  it("World X: each step drawer names Mto's currency mismatch and keeps every figure in its served currency", async () => {
+    const x = worldX();
+    renderMonth(clientOf(() => ({ status: "loaded", body: x })));
+    await settled();
+    const line = "Mto: not compared: its actual and its target are in different currencies (KES and USD).";
+    for (const step of x.bridge!.groups.flatMap((g) => g.steps)) {
+      fireEvent.click(screen.getByRole("button", { name: new RegExp(`^${step.label.replace(/[&]/g, "\\$&")} `) }));
+      const dialog = openDialog();
+      const dtext = dialog.textContent ?? "";
+      for (const s of strings(step.drawer)) expect(dtext, s).toContain(s);
+      expect(within(dialog).getByText(line)).toBeTruthy();
+      const ok = served(step);
+      expect(moneyIn(dialog).filter((m) => !ok.has(m))).toEqual([]);
+      fireEvent.keyDown(dialog, { key: "Escape" });
+    }
+    fireEvent.click(screen.getByRole("button", { name: /^Fuel cost / }));
+    const drivers = openDialog().querySelectorAll("[data-dd-driver] > .dd-num");
+    expect(drivers.length).toBeGreaterThan(0);
+    for (const d of drivers) expect(d.textContent).not.toContain("$");
+  });
+
+  it("World A: every money figure on the page is one the JSON serves", async () => {
+    const a = worldA();
+    const view = renderMonth(clientOf(() => ({ status: "loaded", body: a })));
+    await settled();
+    const shown = moneyIn(view.container);
+    expect(shown.length).toBeGreaterThan(0);
+    const ok = served(a);
+    expect(shown.filter((m) => !ok.has(m))).toEqual([]);
   });
 });
 

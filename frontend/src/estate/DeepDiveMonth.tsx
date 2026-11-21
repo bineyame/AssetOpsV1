@@ -209,14 +209,14 @@ function Capped<T>({ items, cap, render }: { items: T[]; cap: number; render: (i
 function DriverList({ drivers, parent }: { drivers: DeepDiveDriver[]; parent?: string }) {
   return (
     <ul className={parent === undefined ? "dd-drivers" : "dd-drivers dd-drivers--parts"} aria-label={parent === undefined ? undefined : DD_COPY.partsOf(parent)}>
-      {drivers.map((driver, i) => (
-        <li key={driver.key ?? i} className="dd-driver" data-dd-driver>
+      {drivers.map((driver) => (
+        <li key={driver.key} className="dd-driver" data-dd-driver>
           <span className="dd-driver__label">{driver.label}</span> <span className="dd-num">{driver.value}</span> <Word word={driver.word} />
           <span className="dd-driver__meta">
             {driver.sites}
             {driver.detail !== null ? ` · ${driver.detail}` : ""}
           </span>
-          {driver.children !== undefined && driver.children.length > 0 ? <DriverList drivers={driver.children} parent={driver.label} /> : null}
+          {driver.children.length > 0 ? <DriverList drivers={driver.children} parent={driver.label} /> : null}
         </li>
       ))}
     </ul>
