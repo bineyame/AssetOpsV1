@@ -2,6 +2,8 @@
    process. Exits non-zero if a check fails or a plant passes. One line per run: check · plant · expected · got.
    IA-2a (D-IA.49): --force IA-2a sets IA_FORCE_LANDED=IA-2a for every child and treats the unit as landed here, so its checks and plants
    run before the flip; once IA-2a is in IA_LANDED, an IA-2a check whose output says "dormant" is BAD.
+   IA-2b (spec-IA-2b §8, D-IA.66, D-IA.79): the same for IA-2b1 and IA-2b2 (--force IA-2b1). A check is BAD as dormant only when its
+   output says "<unit> not landed; dormant" for a unit that is landed and owns it (a check shared by two units prints the line per unit).
    Run: node tools/ia_gates.cjs [--force IA-2a]   (GATES_ONLY=<check> runs one check and its plants only) */
 const { spawnSync } = require('child_process'), fs = require('fs'), path = require('path');
 const fi = process.argv.indexOf('--force'), force = fi > 0 ? String(process.argv[fi + 1] || '').split(',').filter(Boolean) : [];
@@ -15,17 +17,23 @@ const PLANTS = {
   /* spec §5.1.8, D-IA.49 to D-IA.52 */
   'IA-2a': [['plan_shape_check', 'PLAN_PLANT', ['tabs', 'place', 'l1', 'approval', 'thr', 'stepdone', 'cap', 'revised', 'sticky']], ['count_check', 'COUNT_PLANT', ['planstep', 'planhist', 'planver']],
     ['shape_check', 'SHAPE_PLANT', ['doctitle']], ['click_depth_check', 'G1_PLANT', ['plantabs']], ['plan_switch_check', 'PS_PLANT', ['crewtile', 'release', 'leftout']],
-    ['ux_interaction_check', 'UXI_PLANT', ['planans', 'planwait']], ['copy_check', 'COPY_PLANT', ['plan']], ['qty_check', 'QTY_PLANT', ['clause', 'wait', 'gap', 'items']]]
+    ['ux_interaction_check', 'UXI_PLANT', ['planans', 'planwait']], ['copy_check', 'COPY_PLANT', ['plan']], ['qty_check', 'QTY_PLANT', ['clause', 'wait', 'gap', 'items']]],
+  /* spec-IA-2b §8 (2b1 rows), D-IA.66 to D-IA.80; the OUT_PLANT set stays in IA-1b's row and, with IA-2b1 landed, bites the component */
+  'IA-2b1': [['list_shape_check', 'LIST_PLANT', ['cap', 'keep', 'scope', 'search', 'sort', 'invalid', 'group', 'canon', 'tier', 'tile', 'rowctl', 'restore', 'own', 'stakesort', 'notarget', 'scopemenu', 'remainder']],
+    ['shape_check', 'SHAPE_PLANT', ['aliasq', 'deccrumb']], ['click_depth_check', 'G1_PLANT', ['listrail']], ['copy_check', 'COPY_PLANT', ['list']],
+    ['qty_check', 'QTY_PLANT', ['counts', 'tilecount', 'sitegap', 'listcents', 'gapnet']]]
 };
 /* the checks of a unit whose output must not say "dormant" once the unit is landed (D-IA.49) */
-const OWN = { 'IA-2a': ['plan_shape_check', 'count_check', 'shape_check', 'click_depth_check', 'plan_switch_check', 'ux_interaction_check', 'copy_check', 'qty_check'] };
-const runs = [['shape_check', null, null], ['click_depth_check', null, null], ['after_render_check', null, null], ...(landed.has('IA-1b') ? [['count_check', null, null], ['outcomes_table_check', null, null]] : []), ...(landed.has('IA-2a') ? [['plan_shape_check', null, null], ['plan_switch_check', null, null], ['ux_interaction_check', null, null], ['copy_check', null, null], ['qty_check', null, null]] : [])];
+const OWN = { 'IA-2a': ['plan_shape_check', 'count_check', 'shape_check', 'click_depth_check', 'plan_switch_check', 'ux_interaction_check', 'copy_check', 'qty_check'],
+  'IA-2b1': ['list_shape_check', 'outcomes_table_check', 'shape_check', 'qty_check', 'click_depth_check', 'copy_check'],
+  'IA-2b2': ['count_check', 'parts_identity', 'click_depth_check', 'qty_check'] };
+const runs = [['shape_check', null, null], ['click_depth_check', null, null], ['after_render_check', null, null], ...(landed.has('IA-1b') ? [['count_check', null, null], ['outcomes_table_check', null, null]] : []), ...(landed.has('IA-2a') ? [['plan_shape_check', null, null], ['plan_switch_check', null, null], ['ux_interaction_check', null, null], ['copy_check', null, null], ['qty_check', null, null], ['list_shape_check', null, null]] : [])];
 for (const [unit, list] of Object.entries(PLANTS)) if (landed.has(unit)) for (const [check, env, names] of list) for (const n of names) runs.push([check, env, n]);
 let bad = 0; const t0 = Date.now(); const ONLY = process.env.GATES_ONLY || ''; /* GATES_ONLY=<check>: run only that check and its plants (a partial run, not the gate) */
 for (const [check, env, plant] of runs) {
   if (ONLY && check !== ONLY) continue;
   const r = spawnSync(process.execPath, [path.join(dir, `${check}.cjs`)], { env: { ...Object.fromEntries(Object.entries(process.env).filter(([k]) => !/_PLANT$/.test(k) && k !== 'IA_FORCE_LANDED')), ...(force.length ? { IA_FORCE_LANDED: force.join(',') } : {}), ...(env ? { [env]: plant } : {}) }, encoding: 'utf8', maxBuffer: 1 << 24 });
-  const dormant = /dormant/.test(r.stdout || '') && Object.entries(OWN).some(([u, cs]) => landed.has(u) && cs.includes(check));
+  const dormant = Object.entries(OWN).some(([u, cs]) => landed.has(u) && cs.includes(check) && (r.stdout || '').includes(`${u} not landed; dormant`));
   const got = dormant ? 'dormant' : r.status === 0 ? 'pass' : r.status === 1 ? 'fail' : `error ${r.status}`, want = plant ? 'fail' : 'pass', ok = got === want;
   if (!ok) bad++;
   const why = got === 'fail' ? ((r.stdout.split('\n').find(l => /FAIL$/.test(l)) ? r.stdout.split('\n')[r.stdout.split('\n').findIndex(l => /FAIL$/.test(l)) + 1] : '') || '').trim().slice(0, 110) : '';
