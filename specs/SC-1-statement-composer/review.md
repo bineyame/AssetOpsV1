@@ -313,3 +313,35 @@ at merge.
 **For the owner, in plain words:** over the last 90 merges, the guard would have stopped 14 of 20 backend merges,
 almost all for real English written straight into code. It raised 2 false alarms in 112 flags (about 2%), roughly
 one one-line allow entry every seven backend merges. It adds about 20 seconds to each check-all.
+
+## Round 3: verification re-review (M4, L6, L7), head 94906070a (code c19525123)
+
+Reviewer: fresh Claude reviewer, 2026-11-21. Diff: `git diff 3d82bd510..94906070a`, SC-1a's files only.
+
+**Summary (verdict: ACCEPT).**
+- M4 closed. The package object is bound (aliased, unaliased dotted, `from assetops_backend import i18n`, relative
+  `from . import i18n`) and chained; literal `import_module` / `__import__` is read as an import. P49e-h fail with
+  `I18N_BYPASS`; public forms (`i18n.render.served`, `i18n.message`) pass; `i18n._x` is `I18N_PRIVATE`.
+- My own plants: `import assetops_backend.i18n` then `.formats`, `from assetops_backend.i18n import formats`,
+  `import ...i18n.render as r; r.formats`, `m = importlib.import_module("...i18n.render"); m.formats` all give
+  `I18N_BYPASS`. (`__import__("...i18n.facts")` passes correctly: `facts` is a public module.)
+- Practical hole, Low, not blocking: an assignment alias is not followed (`r = i18n.render` then `r.formats` passes), nor
+  an aliased parent (`import assetops_backend as ab; ab.i18n.formats`), nor `getattr` / `sys.modules`. All are the same
+  deliberate-evasion class as the declared out-of-scope forms; a static-import slip is what the guard targets, and those
+  are closed. Optional: follow `name = <bound expr>` one step.
+- L6 closed: `number_words("en")` holds `doubling tripling quadrupling halving cent zeroes nought noughts doubles
+  halves`; `centre recent century percentage doubtful` are not in it. The real catalogue loads (guard `OK ... load`).
+- L7 closed: each live entry prints `ALLOWED path:line class fingerprint | source`, plus `ALLOWED entries: N`; the real
+  tree prints `ALLOWED entries: 0`. The pass/fail logic is unchanged (the diff only adds notes; `_allow` returns the same
+  values; the unit test checks baselined and stale still behave).
+- Baseline: the diff is exactly five added fingerprints (`minigrid_foundation.py` 1, `models.py` 4), nothing removed.
+  Main's 4a diff adds the `technical-loss-band` definition, its dimension row and the `invalid(...)` message at those
+  files. Backend outside `i18n/` is identical to main 22dc0bbf3 (empty diff).
+
+### Checks (worktree, PYTHONPATH backend, backend/tests, contracts, simulator; through heavy-slot)
+- Guard on the real tree: `OK statement catalogue: load, coverage, legacy, scan (0 adopted), keys, imports`.
+- `--self-test`: `OK ... 72 of 72 plants behave`.
+- Regression on the final tree, non-Postgres files only (uq6a, on1, up1, 3a3, 3a2 api and service, 3c1a person work):
+  **408 passed, 1 warning**. Not rerun: the two `_postgres` files and `test_sc1_statements.py` (I did not touch
+  databases; the builder's 794 and 449 passed predate the baseline commit, which those tests do not read).
+- Not run: `check-architecture.ps1`, `check-agent-workflow.ps1`, full check-all (the builder's run is cited).
