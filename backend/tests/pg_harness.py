@@ -47,6 +47,7 @@ from __future__ import annotations
 import os
 import re
 import secrets
+import time
 from pathlib import Path
 
 ENV = "ASSETOPS_TEST_DATABASE_URL"
@@ -324,6 +325,59 @@ def fresh_database() -> str:
     return url_text
 
 
+def clone_database(tag: str, template_url: str | None = None) -> str:
+    """DS3 (D-DS3.14): create `<stem>_pt<run>_<tag>_test` from this run's template, or from `template_url`'s
+    database, register it for `cleanup()` and return its URL. The source must have no open session (CREATE
+    DATABASE ... TEMPLATE needs that); the count is named when it has one."""
+    from sqlalchemy import text
+    from sqlalchemy.engine import make_url
+
+    assert routed(), "clone_database needs a routed run (ASSETOPS_TEST_TEMPLATE on, a *_test base URL)"
+    base = make_url(os.environ[BASE_ENV])
+    # Under xdist every worker shares the run id: the worker tag keeps two workers' clones apart.
+    name = database_name(_stem(base.database), os.environ[RUN_ENV], tag + (os.environ[TAG_ENV] if _shared() else ""))
+    if template_url:
+        assert _permitted(template_url), f"refusing to clone from a database that is not a harness clone or _audit*: {template_url!r}"
+    source = make_url(template_url).database if template_url else _ensure_template()
+    assert source and source.endswith("_test"), f"refusing to clone a database not named *_test: {source!r}"
+    admin = _admin()
+    # A disposed engine's backends exit asynchronously; wait as CREATE DATABASE itself does (about 5 s), then name them.
+    for _ in range(50):
+        sessions = admin.execute(text("SELECT count(*) FROM pg_stat_activity WHERE datname = :d"),
+                                 {"d": source}).scalar_one()
+        if sessions == 0:
+            break
+        time.sleep(0.1)
+    assert sessions == 0, f"cannot clone {source}: it has {sessions} open session(s); dispose its engines first"
+    admin.execute(text(f"DROP DATABASE IF EXISTS {_quote(name)} WITH (FORCE)"))
+    _create(name, source)
+    _state.setdefault("extra", set()).add(name)
+    return base.set(database=name).render_as_string(hide_password=False)
+
+
+def _permitted(url: str) -> bool:
+    """The DS3 rule (D-DS3.6, D-DS3.12, D-DS3.22): harness clones and `<prefix>_audit*`, never walk or serve names."""
+    from assetops_backend.evidence.bulk_load import permitted_database
+
+    return permitted_database(url)
+
+
+def drop_database(url: str) -> None:
+    """Drop a database `clone_database` made (WITH (FORCE)) and unregister it."""
+    from sqlalchemy import text
+    from sqlalchemy.engine import make_url
+
+    name = make_url(url).database
+    _guard(url)
+    assert _permitted(url), f"refusing to drop a database that is not a harness clone or _audit*: {name!r}"
+    _admin().execute(text(f"DROP DATABASE IF EXISTS {_quote(name)} WITH (FORCE)"))
+    _state.get("extra", set()).discard(name)
+
+
+def registered_clones() -> frozenset[str]:
+    return frozenset(_state.get("extra", ()))
+
+
 CLEANUP_ENV = "ASSETOPS_TEST_CLEANUP"  # "delete" (default) or "truncate"
 _CASCADE_CLOSURE = """
 WITH RECURSIVE closure(oid) AS (
@@ -408,6 +462,8 @@ def cleanup() -> None:
     admin = _state["admin"]
     template, worker = _names()
     try:
+        for name in sorted(_state.pop("extra", set())):  # DS3 (D-DS3.14): clones still registered
+            admin.execute(text(f"DROP DATABASE IF EXISTS {_quote(name)} WITH (FORCE)"))
         for name in (worker,) if _shared() else (worker, template):
             admin.execute(text(f"DROP DATABASE IF EXISTS {_quote(name)} WITH (FORCE)"))
     finally:

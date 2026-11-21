@@ -28,9 +28,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Callable
+from typing import Any, Callable
 
 from assetops_backend.evidence.ledger import (
+    AcceptedAsBasis,
     BatchHandle,
     ConfigurationRefused,
     EvidenceLedger,
@@ -72,6 +73,21 @@ class Submitted:
     receipt: IngestionReceiptV2
 
 
+#: Builds the exception a refusal raises: (principal, external_batch_id, digest, received_at, status, kind, field,
+#: detail). `submit` passes `_refuse` (records a `batch_refusal` row); the DS3 bulk load passes one that records nothing.
+Refuse = Callable[[GatewayPrincipal, "str | None", str, datetime, int, str, str, str], Exception]
+
+
+@dataclass(frozen=True)
+class Admission:
+    """A batch past steps 2 to 5: parsed, claims checked, configuration resolved; `existing` is its stored batch."""
+
+    batch: Any
+    text: str
+    basis: AcceptedAsBasis
+    existing: BatchHandle | None
+
+
 class SimulatedCrash(RuntimeError):
     """Test hook: the process 'dies' after a committed chunk."""
 
@@ -98,50 +114,8 @@ class BatchIngestionService:
 
     def submit(self, principal: GatewayPrincipal, raw: bytes) -> Submitted:
         received_at = self.clock()
-        digest = sha256_hex(raw)
-        if len(raw) > MAX_BATCH_BYTES:
-            raise self._refuse(principal, None, digest, received_at, 413, "TOO_LARGE", "batch",
-                               f"more than {MAX_BATCH_BYTES} bytes")
-        try:
-            text = raw.decode("utf-8")
-            batch = parse_canonical_batch_v2_text(text)
-        except UnicodeDecodeError:
-            raise self._refuse(principal, None, digest, received_at, 422, "MALFORMED_TEXT", "batch",
-                               "the body is not UTF-8") from None
-        except BatchRejected as error:
-            raise self._refuse(principal, None, digest, received_at, 422, error.kind, error.field,
-                               error.detail) from None
-
-        self._check_claims(principal, batch.site_id, batch.gateway_id, batch.source_mode, batch.source_id)
-
-        existing = self.ledger.find_batch(principal, batch.batch_id)
-        if existing is not None and existing.payload_sha256 != batch.payload_sha256:
-            raise self._refuse(principal, batch.batch_id, batch.payload_sha256, received_at, 409,
-                               "BATCH_ID_CONFLICT", "batch_id",
-                               "this batch ID was received with different bytes; the stored batch is unchanged")
-
-        stored = self.ledger.binding_set(principal, batch.binding_set_id, batch.binding_version)
-        if stored is None:
-            raise self._refuse(principal, batch.batch_id, batch.payload_sha256, received_at, 422,
-                               "CONFIGURATION_UNREGISTERED", "mapping",
-                               f"binding set {batch.binding_set_id} v{batch.binding_version} is not registered "
-                               "for this Site")
-        try:
-            basis = basis_from_snapshot(
-                stored,
-                foundation_version=batch.foundation_version,
-                foundation_valid_from=batch.foundation_valid_from,
-                binding_set_id=batch.binding_set_id,
-                binding_version=batch.binding_version,
-                snapshot_sha256=batch.snapshot_sha256,
-            )
-        except ConfigurationRefused as error:
-            raise self._refuse(principal, batch.batch_id, batch.payload_sha256, received_at, 422,
-                               error.kind, error.field, error.detail) from None
-        if basis.gateway_id != str(principal.gateway_id):
-            raise self._refuse(principal, batch.batch_id, batch.payload_sha256, received_at, 422,
-                               "CONFIGURATION_MISMATCH", "mapping",
-                               "the referenced binding set was published for another gateway")
+        admission = self.admit(principal, raw, received_at, self._refuse)
+        batch, text, basis, existing = admission.batch, admission.text, admission.basis, admission.existing
 
         try:
             handle = existing or self.ledger.open_batch(
@@ -168,6 +142,55 @@ class BatchIngestionService:
         receipt = self.ledger.receipt(principal, batch.batch_id)
         assert receipt is not None
         return Submitted(200 if receipt.status == "COMPLETED" else 202, receipt)
+
+    def admit(self, principal: GatewayPrincipal, raw: bytes, received_at: datetime, refuse: Refuse) -> Admission:
+        """Steps 2 to 5 (size, parse, claims, batch-ID conflict, binding set, basis), shared by `submit` and the
+        DS3 bulk load. `refuse` builds the exception each refusal raises; `_check_claims` raises its own."""
+        digest = sha256_hex(raw)
+        if len(raw) > MAX_BATCH_BYTES:
+            raise refuse(principal, None, digest, received_at, 413, "TOO_LARGE", "batch",
+                         f"more than {MAX_BATCH_BYTES} bytes")
+        try:
+            text = raw.decode("utf-8")
+            batch = parse_canonical_batch_v2_text(text)
+        except UnicodeDecodeError:
+            raise refuse(principal, None, digest, received_at, 422, "MALFORMED_TEXT", "batch",
+                         "the body is not UTF-8") from None
+        except BatchRejected as error:
+            raise refuse(principal, None, digest, received_at, 422, error.kind, error.field,
+                         error.detail) from None
+
+        self._check_claims(principal, batch.site_id, batch.gateway_id, batch.source_mode, batch.source_id)
+
+        existing = self.ledger.find_batch(principal, batch.batch_id)
+        if existing is not None and existing.payload_sha256 != batch.payload_sha256:
+            raise refuse(principal, batch.batch_id, batch.payload_sha256, received_at, 409,
+                         "BATCH_ID_CONFLICT", "batch_id",
+                         "this batch ID was received with different bytes; the stored batch is unchanged")
+
+        stored = self.ledger.binding_set(principal, batch.binding_set_id, batch.binding_version)
+        if stored is None:
+            raise refuse(principal, batch.batch_id, batch.payload_sha256, received_at, 422,
+                         "CONFIGURATION_UNREGISTERED", "mapping",
+                         f"binding set {batch.binding_set_id} v{batch.binding_version} is not registered "
+                         "for this Site")
+        try:
+            basis = basis_from_snapshot(
+                stored,
+                foundation_version=batch.foundation_version,
+                foundation_valid_from=batch.foundation_valid_from,
+                binding_set_id=batch.binding_set_id,
+                binding_version=batch.binding_version,
+                snapshot_sha256=batch.snapshot_sha256,
+            )
+        except ConfigurationRefused as error:
+            raise refuse(principal, batch.batch_id, batch.payload_sha256, received_at, 422,
+                         error.kind, error.field, error.detail) from None
+        if basis.gateway_id != str(principal.gateway_id):
+            raise refuse(principal, batch.batch_id, batch.payload_sha256, received_at, 422,
+                         "CONFIGURATION_MISMATCH", "mapping",
+                         "the referenced binding set was published for another gateway")
+        return Admission(batch, text, basis, existing)
 
     def receipt(self, principal: GatewayPrincipal, external_batch_id: str) -> IngestionReceiptV2 | None:
         return self.ledger.receipt(principal, external_batch_id)
