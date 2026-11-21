@@ -82,7 +82,7 @@ def number_words(locale: str) -> frozenset:
 
 #: Section 3.8.4: exception types whose text is never served (their `raise` arguments are exempt from the scan).
 UNSERVED = ("ValueError", "TypeError", "KeyError", "LookupError", "RuntimeError", "AssertionError",
-            "NotImplementedError", "StatementError", "CatalogueError", "WireError", "SeriesRefused")
+            "SeriesRefused", "NotImplementedError", "StatementError", "CatalogueError", "WireError")
 
 #: The punctuation the formats and the template filler may write.
 SYMBOLS = ("", " ", ", ", "$", "−", "+", "%", ",", ".", "(", ")", " (", "{", "}", ":", "-", "T")
