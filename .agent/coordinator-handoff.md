@@ -22,7 +22,7 @@ One current block, at most 2k tokens, replaced rather than appended (`.ai/RULES.
 - 3B4 `task/3B4-observer` · `-3b4` · units 1-3 build running; migration 0071 provisional; check.py commit after 3B6 merges.
 - IA-2a `task/IA-2a-plan` · `-ia2a` · build (mock-up) running; 5c pre-empts the UI lane when it can start.
 
-- IA-2a `task/IA-2a-plan` · `-ia2a` · fix round r2 (D-IA.58, D-IA.60) running; then verification; merge held for owner walkthrough. IA-2b spec `task/IA-2b-spec` (d789117f3) cites IA-2a rulings: merge it only AFTER IA-2a merges (a premature merge was reverted). IA-2b2 waits for the owner's IA-2a walkthrough; two owner defaults: no hub Decide button, no 'at stake' tile on Decisions/Findings/Actions.
+- IA-2a `task/IA-2a-plan` · `-ia2a` · fix round r2 (the round-2 review answers) running; then verification; merge held for owner walkthrough. IA-2b spec `task/IA-2b-spec` (d789117f3) cites IA-2a rulings: merge it only AFTER IA-2a merges (a premature merge was reverted). IA-2b2 waits for the owner's IA-2a walkthrough; two owner defaults: no hub Decide button, no 'at stake' tile on Decisions/Findings/Actions.
 - 0M `task/0M-mto-headroom` · `-0m` · build running.
 
 ## Next (pull order after these)
