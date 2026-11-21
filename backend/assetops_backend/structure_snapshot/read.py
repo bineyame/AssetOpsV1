@@ -15,7 +15,7 @@ from uuid import UUID
 from assetops_backend.chain.ports import SiteRef
 from assetops_backend.commercial.months import PORTFOLIO_ZONE, month_bounds
 from assetops_backend.structure.check import StructureError
-from assetops_backend.structure.read import NOT_DECLARED, SITE_TYPE_TO_STRUCTURE, SiteInputs
+from assetops_backend.structure.read import KEY_NOT_READ, NOT_DECLARED, SITE_TYPE_TO_STRUCTURE, SiteInputs
 from assetops_backend.structure.registry import REGISTRIES
 from assetops_backend.structure_snapshot import codec
 from assetops_backend.structure_snapshot.kinds import HeldKinds
@@ -54,8 +54,11 @@ class SnapshotRead:
         self._clock = clock
 
     def site(self, tenant_id: UUID, site: SiteRef, month: str) -> Served:
-        if SITE_TYPE_TO_STRUCTURE.get(site.site_type) is None:
+        key = SITE_TYPE_TO_STRUCTURE.get(site.site_type)
+        if key is None:
             raise StructureError(NOT_DECLARED[0], str(site.site_type), site.site_code)
+        if key != SITE_TYPE_TO_STRUCTURE["MINIGRID"]:  # 3B6 (D-3B6.6): snapshots are built for MINI_GRID only
+            raise StructureError(KEY_NOT_READ, key, site.site_code)
         _check_month(month)
         row = self._store.latest_site(tenant_id, site.site_id, month)
         if row is None:

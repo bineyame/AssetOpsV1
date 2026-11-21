@@ -67,6 +67,59 @@ SOURCE_STATE: Mapping[str, Mapping[str, str]] = MappingProxyType({
         "lost_unit_kw": NOT_CONNECTED,
         "dawn_days_below": HELD_NOT_CALCULATED,     # battery state of charge
     }),
+    # 3B6 (D-3B6.10, D-3B6.13), as of 21 Nov 2026: a HELD leaf names a record stored today (with an intake) that is
+    # not calculated from yet; every other record-fed leaf is NOT_CONNECTED until 9d.
+    "COLD_CHAIN": MappingProxyType({
+        "outstanding": NOT_CONNECTED,
+        "staff": NOT_CONNECTED,
+        "liability": NOT_CONNECTED,
+        "period_days": PROVIDED,
+        "crate_days": NOT_CONNECTED,
+        "rate": NOT_CONNECTED,
+        "contract_crate_days": OPTION_ONLY,
+        "contract_rate": OPTION_ONLY,
+        "base_kwh": NOT_CONNECTED,
+        "k_kwh_per_crate_day": NOT_CONNECTED,
+        "model_factor": OPTION_ONLY,
+        "excess_kwh": NOT_CONNECTED,
+        "elec_price": NOT_CONNECTED,
+        "maint": NOT_CONNECTED,
+        "handling": OPTION_ONLY,
+        "uncovered_nights": NOT_CONNECTED,          # a work case has no failed-start or witnessed-test field
+        "backup_unproven_days": NOT_CONNECTED,      # likewise
+        "excursion_crates": NOT_CONNECTED,
+        "excursion_days": NOT_CONNECTED,
+        "batches_exposed": NOT_CONNECTED,
+        "cooling_minutes_unavailable": HELD_NOT_CALCULATED,  # role compressor_state (sites/binding_roles.py)
+        "minutes_per_day": PROVIDED,
+        "capacity_crate_days": NOT_CONNECTED,       # D-3B6.10: no room-capacity property yet
+    }),
+    # 3B6 (D-3B6.13), as of 21 Nov 2026; every record-fed leaf is NOT_CONNECTED until 9e.
+    "EV_DEPOT_CAPTIVE": MappingProxyType({
+        "chargers_in_service": HELD_NOT_CALCULATED,  # roles ev_connector_state, ev_connector_fault
+        "chargers_installed": HELD_NOT_CALCULATED,   # the EV_CHARGER components of the declared Foundation
+        "charger_kw": NOT_CONNECTED,                # per-charger rating only; no rule for one Site rating
+        "import_limit_kw": HELD_NOT_CALCULATED,      # property ev-site-import-limit (sites/ev_foundation.py)
+        "window_h": NOT_CONNECTED,
+        "buses": NOT_CONNECTED,
+        "kwh_per_bus_night": NOT_CONNECTED,
+        "nights_in_period": PROVIDED,
+        "peak_kwh": NOT_CONNECTED,
+        "kwh_2200_2400": NOT_CONNECTED,
+        "kwh_0000_0500": NOT_CONNECTED,
+        "max_kw": NOT_CONNECTED,
+        "peak_price": NOT_CONNECTED,
+        "offpeak_price": NOT_CONNECTED,
+        "night_price": NOT_CONNECTED,
+        "demand_rate": NOT_CONNECTED,
+        "maintenance": NOT_CONNECTED,
+        "short_nights": NOT_CONNECTED,
+        "spare_bus_nights": NOT_CONNECTED,
+        "covered_bus_nights": OPTION_ONLY,
+        "extra_missed_departures": OPTION_ONLY,
+        "charger_out_days": NOT_CONNECTED,          # no ticket record with fault and restore times
+        "penalty_rate": NOT_CONNECTED,
+    }),
 })
 
 #: 4b2 (spec §3.2, D-4B.1): the nodes a record states, and their state. `CommercialLeafSource` serves the PROVIDED ones.
@@ -77,6 +130,10 @@ STATED_STATE: Mapping[str, Mapping[str, str]] = MappingProxyType({
 #: 4b2: the PROVIDED leaves whose only provider is `structure.money.CommercialLeafSource`. Read alone (no commercial
 #: source wired), `ProductLeafSource` gives them NOT_CONNECTED naming their `filled_by`.
 COMMERCIAL_LEAVES = frozenset({"productive_kwh", "in_transit", "outstanding", "om", "staff"})
+#: 3B6 (D-3B6.18, R-SHARED-ID): the structure keys whose PROVIDED leaves `CommercialLeafSource` may judge with its
+#: rows. Factor IDs are shared across structures (`staff`, `outstanding`), so a leaf of any other key falls back.
+#: `9d` adds its structure here together with its own rows.
+COMMERCIAL_KEYS = frozenset({"MINI_GRID"})
 #: 4d (spec §3.1): the PROVIDED leaves whose only provider is `structure.litres.source.LitreLeafSource`; read alone,
 #: `ProductLeafSource` gives them NOT_CONNECTED naming their `filled_by`, exactly as `COMMERCIAL_LEAVES`.
 LITRE_LEAVES = frozenset({"necessary_l", "candidate_l", "unexplained_l"})
@@ -162,6 +219,10 @@ class ProductLeafSource:
             return _absent(fb, "NOT_CONNECTED")
         if factor_id == "period_days":
             return self._period_days(ctx)
+        if factor_id == "minutes_per_day":  # 3B6 (D-3B6.11): the calendar's minutes in a day
+            return LeafValue(Decimal(1440), "DERIVED", ("calendar",), None, None, None)
+        if factor_id == "nights_in_period":  # 3B6 (D-3B6.11): the Site-local days of the month
+            return self._period_days(ctx)
         if factor_id == "unserved_critical_kwh":
             return self._unserved_critical(ctx, fb)
         if factor_id in PRICE_KEYS and state in (ASSUMED, PROVIDED_ELSE_ASSUMED):  # 4b2: the fallback's answer
@@ -212,7 +273,7 @@ class ProductLeafSource:
 
 
 __all__ = [
-    "ASSUMPTION_WORDS", "COMMERCIAL_LEAVES", "ENERGY_LEAVES", "ENERGY_STATED", "LITRE_LEAVES", "PRICE_KEYS",
+    "ASSUMPTION_WORDS", "COMMERCIAL_KEYS", "COMMERCIAL_LEAVES", "ENERGY_LEAVES", "ENERGY_STATED", "LITRE_LEAVES", "PRICE_KEYS",
     "PROVIDED_ELSE_ASSUMED", "SOURCE_STATE",
     "STATED_STATE", "STATES", "LeafSource", "ProductLeafSource", "ReadContext",
     "StatedSource", "month_window",

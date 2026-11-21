@@ -17,7 +17,7 @@ from uuid import UUID, uuid4
 from assetops_backend.chain.ports import SiteRef
 from assetops_backend.commercial.months import PORTFOLIO_ZONE, month_bounds
 from assetops_backend.structure.check import StructureError
-from assetops_backend.structure.read import NOT_DECLARED, SITE_TYPE_TO_STRUCTURE, StructureRead, evaluate_inputs
+from assetops_backend.structure.read import SITE_TYPE_TO_STRUCTURE, StructureRead, evaluate_inputs, sites_excluded
 from assetops_backend.structure.registry import REGISTRIES
 from assetops_backend.structure.targets.lines import BudgetLineReader
 from assetops_backend.structure.targets.read import TargetRead
@@ -91,9 +91,10 @@ class SnapshotBuilder:
         rows: list[SnapshotRow] = []
         built: dict[str, UUID] = {}
         excluded: dict[str, tuple[str, ...]] = {}
+        reasons = sites_excluded(sites, key)  # 3B6 (D-3B6.6): NOT_DECLARED or OTHER_STRUCTURE, by name
         for site in sites:
             if SITE_TYPE_TO_STRUCTURE.get(site.site_type) != key:
-                excluded[site.site_code] = NOT_DECLARED
+                excluded[site.site_code] = reasons[site.site_code]
                 continue
             payload, targets = self._site_payload(tenant_id, site, month, as_of)
             row = SnapshotRow(

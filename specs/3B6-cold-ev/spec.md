@@ -1,6 +1,6 @@
 # 3B6: cold-room and captive-EV structures, declared and tested from the start (implementer spec)
 
-Status: rev 2 (handshake round 1 answered, `rulings.md` D-3B6.13 to D-3B6.24), Architect (Claude), 2026-11-21, written on the owner's delegation
+Status: in_review (built 21 Nov on `task/3B6-cold-ev`, packet `packet.md`); rev 2 (handshake round 1 answered, `rulings.md` D-3B6.13 to D-3B6.24), Architect (Claude), 2026-11-21, written on the owner's delegation
 (`owner/owner-away-architect-decides-2026-11-21.md`; pull order `specs/OWNER-AWAY/decisions-2026-11-21.md` row 4; the
 owner-level calls made here are logged there as rows 21, 22 and 26). `delivery-plan.md` §2 row `3B6`: "Cold-room and
 captive-EV structures declared and tested from the start (revenue not applicable, never zero)" (step 3B, construct

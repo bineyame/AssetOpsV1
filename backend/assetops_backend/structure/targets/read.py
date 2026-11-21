@@ -25,7 +25,9 @@ from assetops_backend.chain.ports import SiteRef
 from assetops_backend.structure.check import StructureError
 from assetops_backend.structure.evaluate import ORIGIN_ORDER, ORIGIN_UNKNOWN, LeafValue, Missing, SiteStructure, \
     blocks_of, compose, evaluate
-from assetops_backend.structure.read import NOT_DECLARED, SITE_TYPE_TO_STRUCTURE, PortfolioStructure, StructureRead
+from assetops_backend.structure.read import (
+    KEY_NOT_READ, NOT_DECLARED, SITE_TYPE_TO_STRUCTURE, PortfolioStructure, StructureRead, sites_excluded,
+)
 from assetops_backend.structure.registry import REGISTRIES, Registry
 from assetops_backend.structure.targets.lines import LEAF, NODE, BudgetLineReader, BudgetLines, TargetLine
 from assetops_backend.structure.targets.rules import AT_ACTUAL, AT_ACTUAL_TEXT, CALENDAR, LEAK_TEXT, LEAK_ZERO, MAIN, \
@@ -104,6 +106,8 @@ class TargetRead:
         key = SITE_TYPE_TO_STRUCTURE.get(site.site_type)
         if key is None:
             raise StructureError(NOT_DECLARED[0], str(site.site_type), site.site_code)
+        if key not in TARGET_RULE:  # 3B6 (D-3B6.6): target sides are MINI_GRID only; refused before any read
+            raise StructureError(KEY_NOT_READ, key, site.site_code)
         _month(month)
         reg = REGISTRIES[key]
         bl = self._lines.site(site.tenant_id, site.site_id, month, structure_key=key, known_at=known_at)
@@ -200,8 +204,7 @@ class TargetRead:
             seen.update((s.site_code, s.site_id))
         per_site = {s.site_code: self.site(s, month, known_at) for s in sites
                     if SITE_TYPE_TO_STRUCTURE.get(s.site_type) == key}
-        excluded = MappingProxyType({s.site_code: NOT_DECLARED for s in sites
-                                     if SITE_TYPE_TO_STRUCTURE.get(s.site_type) is None})
+        excluded = sites_excluded(sites, key)  # 3B6 (D-3B6.6): every other Site named
         composition = replace(compose(reg, {code: t.structure for code, t in per_site.items()}),
                               sites_excluded=excluded)
         structure = PortfolioStructure(month, key, reg.version, composition, tuple(s.site_code for s in sites))
