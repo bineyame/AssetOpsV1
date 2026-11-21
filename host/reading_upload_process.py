@@ -27,6 +27,7 @@ import tempfile
 import time
 from dataclasses import astuple, dataclass, fields
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any, Mapping
 
 from assetops_backend.config import ConfigurationError
@@ -62,9 +63,13 @@ class FieldLimits:
 
 
 #: D-ENV1.10's method on the pre-flight runs (packet): memory the next 128 MiB at or above 2x the largest floor, CPU
-#: the next 10 s at or above 3x the largest run, wall 2x CPU, slot wait 60 s (a policy). Pinned by test H0.
+#: the next 10 s at or above 3x the largest run, check wall 2x CPU, slot wait 60 s (a policy). The send wall is the next
+#: 30 s at or above 2x the largest send wall measured in the production shape (one send at a time into one gateway,
+#: D-ENV1.18/19: 129.2 s -> 270 s). Pinned by test H0.
 CHECK_LIMITS = FieldLimits(512 * 2**20, 30, 60.0, 60.0)
-SEND_LIMITS = FieldLimits(896 * 2**20, 120, 240.0, 60.0)
+SEND_LIMITS = FieldLimits(896 * 2**20, 120, 270.0, 60.0)
+#: The host slot pool of each step (D-ENV1.18): sends run one at a time per network namespace. Pinned by test H0.
+STEP_POOLS = MappingProxyType({"check": "reading", "send": "reading-send"})
 #: D-UP.2 (d): the host's delivery after a send; the gateway's 60 s upload interval is the backstop.
 DELIVER_BOUND_SECONDS, DELIVER_BATCHES = 30.0, 50
 
@@ -116,14 +121,14 @@ def template_csv(profile: Path = PROFILE) -> bytes:
 
 def run_field(argv: list[str], data: bytes, runner: Any = subprocess.run, *, limits: FieldLimits, step: str,
               slots: HostSlots | None = None) -> tuple[int, dict]:
-    """Hold a `reading` host slot; write `data` to a private temp file; run the field process under `limits` with
-    `--file <it>`; its exit code and JSON line. A limit, a lost slot wait or a death without an answer raises
+    """Hold the step's host slot (`STEP_POOLS`); write `data` to a private temp file; run the field process under
+    `limits` with `--file <it>`; its exit code and JSON line. A limit, a lost slot wait or a death without an answer raises
     `ParseLimitBreach(cause, step)`."""
     if step not in ("check", "send"):
         raise ValueError(f"unknown parse step {step!r}")
     if not isinstance(limits, FieldLimits):
         raise TypeError("limits must be FieldLimits")
-    slots = slots if slots is not None else host_slots("reading")
+    slots = slots if slots is not None else host_slots(STEP_POOLS[step])
     try:
         with slots.hold(limits.slot_wait_seconds):
             handle, name = tempfile.mkstemp(prefix="reading-upload-", suffix=".csv")

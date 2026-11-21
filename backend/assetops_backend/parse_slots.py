@@ -23,7 +23,7 @@ from typing import Iterator, Mapping
 
 NAMESPACE_ENV = "ASSETOPS_PARSE_SLOT_NAMESPACE"
 DEFAULT_NAMESPACE = "assetops-parse"
-POOLS = MappingProxyType({"commercial": 2, "reading": 2})
+POOLS = MappingProxyType({"commercial": 2, "reading": 2, "reading-send": 1})  # D-ENV1.18: one send at a time
 POLL_SECONDS = 0.05
 
 _NAMESPACE = re.compile(r"[a-z0-9][a-z0-9-]{0,47}")
@@ -70,7 +70,7 @@ class HostSlots:
                     sock.close()
                 return
             if deadline is not None and time.monotonic() >= deadline:
-                raise SlotWaitExpired(f"no {self.pool} parse slot came free within {timeout} s")
+                raise SlotWaitExpired("PARSE_SLOT_WAIT_EXPIRED")
             time.sleep(POLL_SECONDS)
 
 

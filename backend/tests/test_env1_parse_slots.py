@@ -60,6 +60,24 @@ def _first_line(process: subprocess.Popen, timeout: float = 30.0) -> str:
     return box[0].strip()
 
 
+def _expires(slots: HostSlots, timeout: float) -> None:
+    """D-ENV1.22: a wait that must expire runs in a daemon thread, bounded by `join(5)`."""
+    box: list[str] = []
+
+    def wait() -> None:
+        try:
+            with slots.hold(timeout):
+                box.append("held")
+        except SlotWaitExpired as expired:
+            box.append(str(expired))
+
+    thread = threading.Thread(target=wait, daemon=True)
+    thread.start()
+    thread.join(5)
+    assert not thread.is_alive(), "hold ignored its timeout"
+    assert box == ["PARSE_SLOT_WAIT_EXPIRED"]
+
+
 def _read_in_thread(envelope: ParseEnvelope, reader: LayoutReader) -> tuple[threading.Thread, list]:
     box: list = []
     thread = threading.Thread(target=lambda: box.append(envelope.read(reader, KOBO_SAMPLE, CTX)), daemon=True)
@@ -70,7 +88,7 @@ def _read_in_thread(envelope: ParseEnvelope, reader: LayoutReader) -> tuple[thre
 # --- S0 ---------------------------------------------------------------------------------------------------------------
 
 def test_s0_pools_and_names_are_pinned() -> None:
-    assert dict(POOLS) == {"commercial": 2, "reading": 2}
+    assert dict(POOLS) == {"commercial": 2, "reading": 2, "reading-send": 1}
     assert (NAMESPACE_ENV, DEFAULT_NAMESPACE) == ("ASSETOPS_PARSE_SLOT_NAMESPACE", "assetops-parse")
     with pytest.raises(KeyError):
         host_slots("x")
@@ -129,9 +147,7 @@ def test_s2_slots_exclude_across_processes_and_a_killed_holder_frees_them() -> N
     child = _spawn(_HOLD_BOTH.format(ns=ns, sleep=1.0), _child_env())
     try:
         assert _first_line(child) == "held"
-        with pytest.raises(SlotWaitExpired):
-            with HostSlots(ns, "t", 2).hold(0.2):
-                pass
+        _expires(HostSlots(ns, "t", 2), 0.2)
         assert child.wait(30) == 0
         with HostSlots(ns, "t", 2).hold(1.0) as index:
             assert index in (0, 1)
@@ -141,9 +157,7 @@ def test_s2_slots_exclude_across_processes_and_a_killed_holder_frees_them() -> N
     killed = _spawn(_HOLD_BOTH.format(ns=ns, sleep=60.0), _child_env())
     try:
         assert _first_line(killed) == "held"
-        with pytest.raises(SlotWaitExpired):
-            with HostSlots(ns, "t", 2).hold(0.2):
-                pass
+        _expires(HostSlots(ns, "t", 2), 0.2)
         killed.send_signal(signal.SIGKILL)
         killed.wait(30)
         with HostSlots(ns, "t", 2).hold(1.0):
@@ -177,10 +191,10 @@ def test_s2b_host_slots_through_the_environment() -> None:
     try:
         assert sorted(_first_line(h) for h in holders) == ["0", "1"]
         third = subprocess.run([sys.executable, "-c", _TRY_READING], capture_output=True, text=True,
-                               env=_child_env(ns), timeout=60)
+                               env=_child_env(ns), timeout=10)
         assert third.stdout.strip() == "expired", third.stderr
         other = subprocess.run([sys.executable, "-c", _TRY_READING], capture_output=True, text=True,
-                               env=_child_env(_ns()), timeout=60)
+                               env=_child_env(_ns()), timeout=10)
         assert other.stdout.strip() == "0", other.stderr
     finally:
         for holder in holders:

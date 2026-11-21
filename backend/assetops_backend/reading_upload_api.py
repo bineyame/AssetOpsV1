@@ -37,7 +37,7 @@ from assetops_backend.reading_upload.service import (LOAD_CAUSES, MAX_BYTES, Gat
 #: D-UP.5: `file_name` is display-only (never a path) and at most 200 characters.
 MAX_FILE_NAME = 200
 #: ENV-1 (D-ENV1.5, D-ENV1.11; the D-3A6.29 pattern): every 503 of the service logs once, as codes and numbers.
-_LOG = logging.getLogger("assetops.reading_upload")
+LOG = logging.getLogger("assetops.reading_upload")
 
 
 def _refusal(status: int, code: str, words: Message, **extra: Any) -> JSONResponse:
@@ -109,9 +109,9 @@ def build_reading_upload_router(service: ReadingUploadService | None, scope: Sco
         except ParseLimitBreach as breach:  # ENV-1: before the two below; no file name, content or reading logged
             extra = {"cause": breach.cause, "step": breach.step, "bytes": size, "site": site}
             if breach.cause in LOAD_CAUSES:
-                _LOG.warning("reading upload parse stopped by load", extra=extra)
+                LOG.warning("reading upload parse stopped by load", extra=extra)
             else:
-                _LOG.error("reading upload parse stopped by its CPU, memory or crash limit; a file within the upload "
+                LOG.error("reading upload parse stopped by its CPU, memory or crash limit; a file within the upload "
                            "cap should not reach it: re-measure FieldLimits for this host (ENV-1 section 0)",
                            extra=extra)
             if breach.step == "send":
@@ -119,11 +119,11 @@ def build_reading_upload_router(service: ReadingUploadService | None, scope: Sco
                                 message("reading_upload.gateway_unavailable"))
             return _refusal(503, "READING_UPLOAD_CHECK_UNAVAILABLE", message("reading_upload.check_unavailable"))
         except GatewayUnavailable:
-            _LOG.warning("reading upload send unavailable",
+            LOG.warning("reading upload send unavailable",
                          extra={"cause": "gateway", "step": "send", "bytes": size, "site": site})
             return _refusal(503, "READING_UPLOAD_GATEWAY_UNAVAILABLE", message("reading_upload.gateway_unavailable"))
         except RuntimeError:  # a field process that printed no JSON: said in words, never a bare 500
-            _LOG.error("reading upload check failed without an answer",
+            LOG.error("reading upload check failed without an answer",
                        extra={"cause": "error", "step": "check", "bytes": size, "site": site})
             return _refusal(503, "READING_UPLOAD_CHECK_UNAVAILABLE", message("reading_upload.check_unavailable"))
         if status == 422 and "refusal" in body:

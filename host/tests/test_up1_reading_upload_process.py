@@ -127,7 +127,9 @@ import time  # noqa: E402
 from datetime import timedelta  # noqa: E402
 from uuid import uuid4  # noqa: E402
 
-from assetops_backend.parse_slots import HostSlots  # noqa: E402
+import threading  # noqa: E402
+
+from assetops_backend.parse_slots import HostSlots, host_slots  # noqa: E402
 from assetops_field import csv_upload  # noqa: E402
 
 MIB = 2**20
@@ -171,7 +173,8 @@ def _after_a_breach_the_next_check_reads() -> None:
 def test_h0_the_limits_are_pinned():
     assert (len(F1), F1.count(b"\r\n") - 1, len(F2), F2.count(b"\r\n") - 1) == (2_097_137, F1_ROWS, 2_097_140, F2_ROWS)
     assert up.CHECK_LIMITS == up.FieldLimits(512 * MIB, 30, 60.0, 60.0)
-    assert up.SEND_LIMITS == up.FieldLimits(896 * MIB, 120, 240.0, 60.0)
+    assert up.SEND_LIMITS == up.FieldLimits(896 * MIB, 120, 270.0, 60.0)  # wall: D-ENV1.18/19 (129.2 s measured)
+    assert dict(up.STEP_POOLS) == {"check": "reading", "send": "reading-send"}
     assert up.EXIT_LIMIT == csv_upload.EXIT_LIMIT == 7
     assert not hasattr(up, "TIMEOUT_SECONDS")
     for field in ("memory_bytes", "cpu_seconds", "wall_seconds", "slot_wait_seconds"):
@@ -273,12 +276,50 @@ def test_h5_a_slot_wait_past_its_bound_is_coded():
         return SimpleNamespace(returncode=0, stdout='{"ok": true}', stderr="")
 
     with slots.hold(1.0):
-        started = time.monotonic()
-        with pytest.raises(svc.ParseLimitBreach) as raised:
-            up.ProcessFileChecker(runner=runner, limits=_limits(wait=0.2), slots=slots).check(b"data")
-        assert time.monotonic() - started < 5
-    assert (raised.value.cause, raised.value.step, ran) == ("slot", "check", [])
+        raised = _bounded(lambda: up.ProcessFileChecker(runner=runner, limits=_limits(wait=0.2),
+                                                        slots=slots).check(b"data"))
+    assert isinstance(raised, svc.ParseLimitBreach), raised
+    assert (raised.cause, raised.step, ran) == ("slot", "check", [])
     _after_a_breach_the_next_check_reads()
+
+
+def _bounded(call) -> BaseException | None:
+    """D-ENV1.22: a call whose slot wait must expire runs in a daemon thread, bounded by `join(5)`; its exception."""
+    box: list = []
+
+    def run() -> None:
+        try:
+            call()
+            box.append(None)
+        except BaseException as caught:  # noqa: BLE001 - handed back to the test
+            box.append(caught)
+
+    thread = threading.Thread(target=run, daemon=True)
+    thread.start()
+    thread.join(5)
+    assert not thread.is_alive(), "hold ignored its timeout"
+    return box[0]
+
+
+def test_h8_sends_run_one_at_a_time_in_their_own_pool():
+    """D-ENV1.18: the send takes the one `reading-send` slot by default; the check's `reading` pool is separate."""
+    ran: list = []
+    delivered: list = []
+
+    def runner(argv, **kw):
+        ran.append(argv)
+        return SimpleNamespace(returncode=2, stdout=json.dumps({"ok": False, "refusal": {
+            "code": "EMPTY_FILE", "field": "", "detail": "", "profile_sha256": ""}}), stderr="")
+
+    sender = up.ProcessReadingSender({k: "x" for k in up.GATEWAY_KEYS}, runner=runner, deliver=delivered.append,
+                                     limits=dataclasses.replace(up.SEND_LIMITS, slot_wait_seconds=0.2))
+    with host_slots("reading-send").hold(1.0):
+        raised = _bounded(lambda: sender.send(b"data"))
+        assert isinstance(raised, svc.ParseLimitBreach), raised
+        assert (raised.cause, raised.step, ran, delivered) == ("slot", "send", [], [])
+        up.ProcessFileChecker(runner=runner, limits=dataclasses.replace(up.CHECK_LIMITS, slot_wait_seconds=0.2)
+                              ).check(b"data")
+        assert len(ran) == 1
 
 
 @pytest.mark.slow
