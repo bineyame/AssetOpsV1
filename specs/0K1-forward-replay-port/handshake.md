@@ -69,3 +69,9 @@ the packet records the interpreter command used instead, and that is not a mid-b
 **I5. §2.1 `generator_state` not checked at construction.** Consistent with step 9, but the contract test list has no
 case for it. Expected: the contract test asserts `ReplayStartState(..., generator_state="RUNNING")` constructs and the
 adapter test T6 refuses it, so both halves are pinned.
+
+## Answers (round 1)
+
+All ten answered in `rulings.md` "Handshake answers (round 1)": R1 D-0K1.10, R2 D-0K1.11, R3 D-0K1.12, R4 D-0K1.13,
+R5 D-0K1.14, I1 D-0K1.15, I2 D-0K1.16, I3 D-0K1.17, I4 and I5 D-0K1.18. Spec rev 2 and guide rev 2 apply them. No question
+is open; coding may start.

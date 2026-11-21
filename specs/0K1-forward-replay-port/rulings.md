@@ -83,3 +83,85 @@ D-0K1.1 to D-0K1.9 are applied by `spec.md` rev 1. None is an owner-level call (
 - **Why.** The kernel is exact ("there is no tolerance anywhere", `minigrid.py:38-39`); accepting a float would put
   an unstated rounding at the seam that T1's equality could not see. The caller (`0K2`) converts its stored decimal
   text with `Fraction(text)`.
+
+## Handshake answers (round 1)
+
+Architect (Claude), 2026-11-21, on the owner's delegation. Each question answered once; applied by `spec.md` rev 2 and
+`reviewer-guide.md` rev 2. Checked against `main` (`f04648a3d`) by running the kernel on the shipped Kobo scenarios.
+No owner-level call arises (nothing is logged in `specs/OWNER-AWAY/decisions-2026-11-21.md`; no authorisation widened).
+The handshake has no open question after this.
+
+## D-0K1.10 (R1) The test reader emits loads in reverse sorted order, so a positional match fails
+
+- **Ruling.** The kernel keys its load measurements in sorted order (`mini_grid.py:1058` sorts `interval_energies`), the
+  plant's loads are sorted, so a request in the reader's natural order would pass a positional match. The reader in the
+  test file returns `loads` in reverse sorted `load_id` order for every case (T1 to T5, T6's base request). K-BASE's
+  three load series are asserted pairwise unequal (printed on `main`: 3 distinct), so a mix-up changes the result.
+  P2 fails T1 and the guide's P2 row says so.
+- **Why.** A plant that cannot fail is no check (W2). Both preconditions are asserted in the test, not assumed.
+
+## D-0K1.11 (R2) K-RES: no setting is the baseline anchor; `reserve_source` is asserted from the request
+
+- **Ruling.** "The replay at reserve 30" is the replay of the unedited reserve-trial request with **no** setting
+  (baseline 30), not `Fraction(30)`. K-RES's own replay (setting 25) is compared with the kernel run on a 25 baseline
+  only on step fields, `starts`, `running_steps`, SOC and fuel; `reserve_soc_pct == 25` and `reserve_source ==
+  "SETTING"` are asserted from the request, since the kernel run's source is a baseline.
+- **Why.** The two paths (baseline, setting) are different code; each is exercised once, and no field is compared with
+  a value that differs by design.
+
+## D-0K1.12 (R3) v6 stays admitted; T1 runs v5, v6 and v7
+
+- **Ruling.** `REPLAY_MODELS` keeps v6. T1 replays K-BASE under v5, v6 and v7. T2 to T5 run at v7 (the shipped one).
+- **Why.** v6 replaces only `resolve` (adds the `battery-charge-requested-power@battery` measurement, `mini_grid.py:1211-1243`),
+  so nothing replay-affecting is expected, but "expected" is not proved; on `main` K-BASE gives `starts 1, running_steps
+  66` under all three, and T1 makes that a test (three runs of 96 steps, cheap). Dropping v6 would refuse a shipped
+  version for no gain.
+
+## D-0K1.13 (R4) Five cases on three scenarios; the run count
+
+- **Ruling.** The summary reads "five cases drawn from three shipped scenarios" (overcast only pins T10's constant). The
+  packet records the count: about 20 kernel executions of 96 steps (8 kernel runs for expected values, 8 replays, 1 in T7,
+  3 in T8; T6 and T10 execute none).
+- **Why.** The review counts the right thing; the count lets the reviewer see no run is skipped.
+
+## D-0K1.14 (R5) A tank cause is out of 0K1's proof
+
+- **Ruling.** `fuel_burned_l`'s identity is exact only while the tank meets neither bound. A run with a tank refill that
+  could clip is outside 0K1 (`0K2`'s concern, where Kobo refills appear). The adapter's docstring says so in one line; no
+  test; spec §7 and the guide's "Not findings" say so; the guide's item 7b has the reviewer check the line.
+- **Why.** No 0K1 case has a cause (printed: `causes 0` for all three scenarios); a test would invent a case. The hand
+  anchor `fuel_burned_l == 3/10 x generator_kwh` cross-checks the identity on the no-cause runs.
+
+## D-0K1.15 (I1) Component ids are the printed ones
+
+- **Ruling.** `pv-array`, `pv-inverter`, `battery-pcs`, `battery`, `generator`, `fuel-tank`, `load-res`, `load-clinic`,
+  `load-mill`. Printed boundary keys on `main`: `pv-available-power@pv-inverter`, `generator-output-power@generator`,
+  `load-requested-power@<load>`, `load-served-power@<load>`; stocks `battery-state-of-charge@battery`,
+  `fuel-tank-volume@fuel-tank`. The reader uses those keys (a missing key is a `KeyError` that fails the test); the
+  pre-flight prints B[1]'s measurement keys.
+- **Why.** The kernel keys PV-available by the inverter (`mini_grid.py:1063`).
+
+## D-0K1.16 (I2) T4 is the acceptance proof of the reserve row; T10's pin is a drift guard
+
+- **Ruling.** `RESERVE_OVERRIDE_FIELDS` stays pinned to the overcast run's reserve row (the only shipped one; the
+  reserve-trial run has no reserve forcing, printed). T4 proves the mini-grid models accept it; T10 only catches drift,
+  and the spec says so. A plant that changes the constant's dimension fails T10 (P20).
+- **Why.** Honest naming of what each test proves; no new shipped fixture for a pin.
+
+## D-0K1.17 (I3) A whole-interval window is aligned at any step size
+
+- **Ruling.** Confirmed: the stop-60 run's row is offset 0, duration 480 at 5-minute steps (printed); the replay window
+  is `[0, duration)` with `duration` the interval, so it starts and ends on every step boundary and
+  `_stop_threshold_at`'s alignment refusal cannot fire. A replay on a 15-minute step is untested and out of scope
+  (spec §7). T10 keeps the stop-60 anchor; T3 proves acceptance.
+- **Why.** The check in the kernel is per step; the window is the whole interval, so it is a property of the form.
+
+## D-0K1.18 (I4, I5) Test commands and the generator-state split
+
+- **Ruling.** (I4) The wrapper puts `contracts/` and `backend/` on `PYTHONPATH` and takes any file path; the backend
+  conftest routes Postgres tests by file name only, and neither new file is one. The packet's first section records both
+  commands and exit lines; if a file is out of the wrapper's reach it records the interpreter command and carries on
+  (not a mid-build question). (I5) The contract test asserts `ReplayStartState(Fraction(40), Fraction(300), "RUNNING")`
+  constructs; T6's `generator` case asserts the refusal. A plant that validates it at construction fails the contract
+  test (P21).
+- **Why.** Both halves of the split are pinned, so neither can move without a test failing.
