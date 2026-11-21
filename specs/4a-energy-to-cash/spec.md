@@ -1,6 +1,6 @@
 # 4a: energy to cash, where the kWh went (implementer spec)
 
-Status: rev 2 (handshake round 1 answered: D-4A.15 to D-4A.26), Architect (Claude), 2026-11-21, written on the owner's delegation (`owner/owner-away-architect-decides-2026-11-21.md`;
+Status: in_review (built 2026-11-21, `packet.md`); rev 2 (handshake round 1 answered: D-4A.15 to D-4A.26), Architect (Claude), 2026-11-21, written on the owner's delegation (`owner/owner-away-architect-decides-2026-11-21.md`;
 pull order `specs/OWNER-AWAY/decisions-2026-11-21.md` row 4; rows 14 to 20 for the calls made here). `delivery-plan.md`
 §2 row `4a`: "Energy-to-cash observer: delivered, metered, billed, collected, with named leaks" (step 4, construct B1,
 2.5 units, depends on `3A4`, `3B3`, non-screen). Off the deep-dive path (`two-week-build-plan.md` §0.1, "Not on the

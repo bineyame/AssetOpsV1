@@ -153,5 +153,6 @@ from assetops_backend.structure.rows_mini_grid import ROWS as _MINI_GRID_ROWS  #
 #: Read at call time by `check.check_all` (P3). `3B6` adds COLD_CHAIN and EV_DEPOT_CAPTIVE.
 REGISTRIES: Mapping[str, Registry] = MappingProxyType({
     # 3B3 (D-3B3.9): v2, rows gained neutral and composes. 4b1 (D-4B.10): v3, revenue and fuel_cost gained stated_by.
-    "MINI_GRID": Registry("MINI_GRID", 3, _MINI_GRID_ROWS),
+    # 4a (D-4A.1): v4, metered_kwh and billed_kwh gained stated_by.
+    "MINI_GRID": Registry("MINI_GRID", 4, _MINI_GRID_ROWS),
 })

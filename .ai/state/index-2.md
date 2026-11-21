@@ -81,3 +81,4 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 167. `3B7a` the frozen monthly structure snapshot, units 1-3 (store, served read with freshness, build/verify command, migration 0066) · data.md
 168. `3B2` Findings pinned to their factors (pins, start-up pin check, parity report; no wire change) · data.md
 169. `0K1` the forward replay port and its host adapter (contract, port, adapter; exact parity with the kernel) · data.md
+170. `4a` energy to cash, where the kWh went (registry v4 stated kWh nodes, feeder delivered kWh, declared loss band, eight energy leaves; no migration) · data.md
