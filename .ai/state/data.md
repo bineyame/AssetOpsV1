@@ -484,6 +484,13 @@ Branch `task/SC-1a-composer` (base main `8805ee169`); spec `specs/SC-1-statement
 - Owner approved both check-all lines, 2026-11-21 (`owner/owner-approve-sc1a-3c2-guards-2026-11-21.md`).
 - Open: review round 3 ACCEPT; merge; 3A7 and 5c adopt (`ADOPTED`), SC-1b converts the legacy templates and the 229 served-exception handlers.
 
+## SC-1f - "Declared", stated-figure basis, two guard fixes (built, in_review, 21 Nov)
+
+Branch `task/SC-1f-declared-word` (base main `fa13f254f`); spec `specs/SC-1f-declared-word/spec.md` rev 1, rulings D-SC1F.1-6; packet `packet.md`. Non-screen.
+
+- Settled: `DECLARED` reads "Declared" for every origin (step 1 of `evidence_word`); 3A7's accounts are `RECORDED`, its tolerance `DECLARED`; a `with` basis names only the figures its variant prints or reads (two-pass fill in `render._statement`), so 3A7's statement and standing read "within 1% (Declared)" and its matched/not-matched headings "(Recorded[, Emulated] and Declared)". The statement guard's logger rule is a stem (`LOG_STEMS`) or a `getLogger` binding; P55 plants merge into the real allow file, which now holds the two `profiles.py` `CODE` lines; baseline lost exactly four fingerprints.
+- Open: review; KD1 (a variant that states no figure, `money_word`, keeps wording all its `of` figures) for Architect confirmation; owner sees "Declared" at the 5c walkthrough.
+
 ## 3B2 - Findings pinned to their factors (in review, 21 Nov)
 
 Branch `task/3B2-findings-pinned` (base main `c69e72f61`); spec `specs/3B2-findings-pinned/spec.md` rev 2, rulings D-3B2.1-15; packet `packet.md`. No migration, no route, no screen, no served text.
@@ -580,3 +587,18 @@ Branch `task/0K3-replay-reader` (base main `e9d6cdfb1`); spec `specs/0K3-replay-
 
 - Settled: `runs/replay_series.py` `SeriesReader.read` (built by `runs/composition.build_series_reader`) turns a Site's accepted readings over whole local days into 0K2's `ObservedSeries` or refuses with a code and subject: configuration before readings, 15-minute means refused never split, `pv_power` never read as available PV, instants only at step starts (off-grid counted), nothing carried, clock-change days refused before the query, `MAX_DAYS` 92, input class from source mode. Proven on R0 (no database), MG-W402-001 and DS3 Kobo in Postgres, and 0K2's 8-day season read back field by field with the same calibration.
 - Open: no study on stored readings until a 61-day 5-minute series, Kobo's `pv_available_power` binding (row 48) and `6c`; mid-build Q1 (Kobo's zone is Addis Ababa, not Nairobi).
+
+## 0K4b - the generator's fuel curve and the battery's charge taper (in review, 21 Nov)
+
+Branch `task/0K4b-fuel-curve` (base main `b96d5e978`); spec `specs/0K4b-fuel-curve-taper/spec.md` rev 2, rulings D-0K4.5-7, D-0K4.19-21; packet `packet.md`. No migration, no database, no screen, no guard or template change.
+
+- Settled: pure `packs/generator_curve.py` (fuel line through the no-load rate and SFC x rating, ordered refusals, fuel cap, taper to a 1/20 floor, three handlers; v8's physics, pinned by F12), imported by nothing until 0K4a; Foundation keys `generator-minimum-load`, `battery-charge-taper-start` and their bases on GENERATOR and BATTERY; `GENERATOR_CURVE_NEEDS` on no profile; `host/tests/kobo_assumed.py` (GENERIC_DEFAULT); the first `str | Message` legacy-family seam, `served_text.py`, with the `foundation_property` vocabulary and the `foundation.property_name` and `model_profile.need` statements.
+- Open: 0K4a wires the module and the needs into v8 and adds the lab seam (`run_profile_summary`); the rest of each family's migration (Q9); Kobo's real curve and taper values (operator request).
+
+## 0K4c - Kobo's declared season v2 (in review, 21 Nov)
+
+Branch `task/0K4c-declared-season` (base main `ec8e64d3f`); spec `specs/0K4c-declared-season/spec.md` rev 2, rulings D-0K4.8, D-0K4.26; packet `packet.md`. Host test fixture only: no migration, database, screen or guard change.
+
+- Settled: season v2 beside an unchanged v1 in `host/tests/kobo_season.py` (`OVERCAST_V2` 21 days in spells of 1-4, `load_multiplier_v2` 17/20-23/20 on res and clinic, `mill_on_v2` off on Sundays, `season_site_v2` with 0K4b's assumed rows); `season_inputs(..., overcast=None, season=)`; the canonical `inputs_digest` and `windows_digest`; v1 pinned (59d6456b, f2f0088e) and v2 pinned (465ab6e0). Declared and SIMULATED, never a Kobo record.
+- Open: 0K4a was not on main, so S7's frozen half and the S8 v8 smoke are 0K4d's V0; 0K4d's `study.json` records the v2 digest.
+

@@ -31,7 +31,7 @@ finished work are in `archive/agent-history/`.
 | DDR | The deep-dive rehearsed end to end on emulated exports by the runbook, the board budget through a new profile with no code change, and a checker that fails on any skipped step (1.25 units) | live — spec rev 2, handshake round 1 answered | `DDR-rehearsal/spec.md` | 21 KB |
 | 3C2 | The agreed change as an Action with creator, owner, due date; `record_action`; migration 0070 (1.5 u) | merged | `3C2-agreed-change-action/spec.md` | 20 KB |
 | SC-1 | The statement composer: every server sentence composed from typed facts by a data catalogue through the one renderer, checked at load and by a guard (case per variant, legacy ratchet, hand-built sentence scan); 3A7 and 5c adopt (SC-1a 3.5 units) | in_review — SC-1a r3 ACCEPT; owner approved the two check-all lines | `SC-1-statement-composer/spec.md` | 89 KB |
-| SC-1f | "Declared" word, stated-figure basis, logger stems, P55 allow merge (1.0 unit) | live — rev 1 | `SC-1f-declared-word/spec.md` | 10 KB |
+| SC-1f | "Declared" word, stated-figure basis, logger stems, P55 allow merge (1.0 unit) | in_review — rev 1 built, packet r1 | `SC-1f-declared-word/spec.md` | 10 KB |
 | 0K1, 0K2, 0M | Spikes K, M: replay port (merged, `0K1-forward-replay-port/`); Kobo study (4.5 u); Mto headroom (4 u, after 0K2) | specs | `0K2-kobo-replay-study/`, `0M-mto-headroom-replay/` | 43, 30 KB |
 | DS3 | Bulk loader: set-based admission in the ledger writer, MINIGRID only, parity with central ingestion (4 units) | merged | `DS3-bulk-loader/spec.md` | 36 KB |
 | DS4 | Template ladder, world commands and check, re-benchmark (3.5 units) | in_review — unit 3 fix round D-DS4.33 | `DS4-template-ladder/spec.md` | 64 KB |
@@ -40,10 +40,9 @@ finished work are in `archive/agent-history/`.
 | 3B4 | Structure observer | in review | `3B4-observer/spec.md` | 40 KB |
 | ENV1 | Upload parses under limits, per-host slots (1.35 units) | merged | `ENV1-parse-limits/spec.md` | 38 KB |
 | 0K3 | Replay series from stored readings (2.5 units) | merged | `0K3-replay-series-reader/spec.md` | 25 KB |
-| 0K4 | Dispatch model review for the owner (row 42): generator takes load, fuel curve, weather season, rerun (0K4a-d proposed, 5.5 u) | for the owner | `0K4-dispatch-model-review/review-for-owner.md` | 12 KB |
 | IA-2b | Four home lists, one component | 2b1 building | `IA-1-shape-rebuild/spec-IA-2b.md` | 24 KB |
-| 0K4 | Dispatch model path (owner OK 21 Nov): v8 dispatch 2 u, fuel curve 1.5, season 1, admission and rerun 1.5, dispatch-3.3 2; 0K4m, 0K4f queued; one-figure list; operator request | live — specs rev 1, handshakes next | `0K4-dispatch-model-review/rulings.md`; a-e: `0K4a-dispatch-v8/`, `0K4b-fuel-curve-taper/`, `0K4c-declared-season/`, `0K4d-rerun-restate/`, `0K4e-candidate-energy/` | 130 KB |
-| 1a | Optimize card states its day and scope: SC-1 line on the face, pin first (1.75 u) | live — spec rev 1, handshake next | `1a-optimize-card-scope/spec.md` | 18 KB |
+| 0K4 | Dispatch model path (owner accepted 21 Nov): a 2.5 u, b 2, c 1, d 2.25, e 2.75 (11.25 u with 0K4m); 0K4f queued; one-figure list; operator request | live — b merged; c in review; a, d, e rev 2, build-ready | `0K4-dispatch-model-review/rulings.md`; a-e: `0K4a-dispatch-v8/`, `0K4b-fuel-curve-taper/`, `0K4c-declared-season/`, `0K4d-rerun-restate/`, `0K4e-candidate-energy/` | 130 KB |
+| 1a | Optimize card states its day and scope: SC-1 line on the face, pin first (1.75 u) | live — rev 2, build-ready; merge held for walkthrough | `1a-optimize-card-scope/spec.md` | 18 KB |
 | WK | Walkthrough DB: checked L2 copied to `assetops_polish_walk<label>_test`, two statements, rebuild, W1-W7, serve 8991/5491, teardown (1.25 u) | live — spec rev 1, handshake next | `WK-walkthrough-database/spec.md` | 27 KB |
 | OWNER-AWAY | Decisions made for the owner during a delegated absence (21 Nov, ~12 h) | live — owner reviews on return | `OWNER-AWAY/decisions-2026-11-21.md` | 1 KB |
 

@@ -31,8 +31,8 @@ if URL:
 
 MIGRATION, PREVIOUS = "0069_commercial_reconciliation", "0068_structure_finding"
 T0 = datetime(2026, 11, 1, tzinfo=timezone.utc)
-T2_FUEL = ("Fuel cost (Recorded and Emulated): the accounts say $505.00 and the records say $512.50, $7.50 more "
-           "(1.49%), beyond the $5.05 allowed (1%).")
+T2_FUEL = ("Fuel cost (Recorded, Emulated and Declared): the accounts say $505.00 and the records say $512.50, $7.50 "
+           "more (1.49%), beyond the $5.05 allowed (1%).")
 
 
 def _tenant(engine, slug: str) -> UUID:  # noqa: F811
@@ -132,14 +132,14 @@ def test_q2_t1_t2_t4_give_r2s_literals(w) -> None:
     assert (row.id, row.result_at_record, row.tolerance_at_record, row.site_id) == (s1.statement_id, "MATCHED",
                                                                                     "0.01", None)
     assert standing(w, "KOBO-001").text == ("Reconciled: October 2026 (the organisation) matches the management "
-                                            "accounts within 1% (Recorded).")
+                                            "accounts within 1% (Declared).")
     load(w, "C")
     assert only(w).headings[1].text == T2_FUEL
     st = standing(w, "MTO-001")
     assert (st.reason, st.details) == ("THIS_MONTH_NOT_MATCHED", (T2_FUEL,))
     record(w, S2_AT, site=None, revenue="755.00", fuel="510.00")
-    assert only(w).headings[1].text == ("Fuel cost (Recorded and Emulated): the accounts say $510.00 and the records "
-                                        "say $512.50, $2.50 more, within the $5.10 allowed (1%).")
+    assert only(w).headings[1].text == ("Fuel cost (Recorded, Emulated and Declared): the accounts say $510.00 and "
+                                        "the records say $512.50, $2.50 more, within the $5.10 allowed (1%).")
     assert standing(w, "KOBO-001").reason == "RECONCILED"
     assert [r.site_code for r in w["store"].site_rows(w["tid"])] == ["FRZ-001", "KOBO-001", "MTO-001"]
 

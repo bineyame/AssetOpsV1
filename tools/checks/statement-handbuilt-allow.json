@@ -1,1 +1,14 @@
-{}
+{
+ "backend/assetops_backend/commercial/profiles.py": [
+  {
+   "fingerprint": "h:_swap_day_month:052fded502f9",
+   "class": "CODE",
+   "why": "date-format tokens DD and MM swapped in a layout's format string; not served"
+  },
+  {
+   "fingerprint": "h:_swap_day_month:d40e38ccee22",
+   "class": "CODE",
+   "why": "date-format tokens DD and MM swapped in a layout's format string; not served"
+  }
+ ]
+}
