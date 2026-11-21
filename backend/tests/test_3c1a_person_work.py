@@ -50,6 +50,7 @@ SPEC_ROLES = {
     "commercial.upload": ("ANALYST", FIN), "commercial.upload_decision": (FIN, "OPERATOR_EXECUTIVE"),
     "commercial.upload_read": ("ANALYST", FIN, "OPERATOR_EXECUTIVE", SM),
     "commercial.profile_admit": ("ANALYST", FIN),
+    "commercial.accounts_statement": (FIN,),
 }
 
 

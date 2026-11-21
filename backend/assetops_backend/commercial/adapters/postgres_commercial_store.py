@@ -21,6 +21,10 @@ transaction, after an under-lock "no decision yet" check that precedes `decide`.
 3A6 (spec §2.6, §5; D-3A6.15): the sole runtime writer of `commercial_source_profile` too (one plain INSERT). An
 acceptance re-checks, under the lock after the "no decision yet" check, that no other accepted upload of the tenant
 sends the same source type from another source system for a Site in common (`UploadSourceSwitched`).
+
+3A7 (spec §4; D-3A7.5, D-3A7.12): the sole runtime writer of `commercial_accounts_statement` and
+`commercial_reconciliation_tolerance` too (one plain INSERT each; the 0068 triggers refuse every change). The reads
+return every row of the tenant; the service picks the one current at its instant.
 """
 from __future__ import annotations
 
@@ -34,9 +38,9 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.exc import DBAPIError, InterfaceError, OperationalError
 
 from assetops_backend.commercial.model import (ExistingRecord, HeldUpload, IntakeRow, IntakeSummary, Plan,
-                                               ProfileRow, RejectionRow, RevisionRow, StoreRefused,
-                                               UploadAlreadyDecided, UploadDecisionRow, UploadRecord, UploadRow,
-                                               UploadSourceSwitched)
+                                               ProfileRow, RejectionRow, RevisionRow, SiteRow, StatementRow,
+                                               StoreRefused, ToleranceRow, UploadAlreadyDecided, UploadDecisionRow,
+                                               UploadRecord, UploadRow, UploadSourceSwitched)
 
 _F = TypeVar("_F", bound=Callable)
 #: D-3A2.2: a connection failure is retried, not scrubbed; the routes answer 503 for these.
@@ -196,6 +200,22 @@ _INSERT_PROFILE = text(
     "admitted_at, admitted_by, admitted_role) VALUES (:profile_row_id, :tenant_id, :profile_id, :version, :reader, "
     ":status, :source_type, :source_system, :file_format, :profile_json, :profile_sha256, :sample_sha256, "
     ":expected_sha256, :sample_rows, :admitted_at, :admitted_by, :admitted_role)")
+_STATEMENT_COLUMNS = (
+    "id, tenant_id, site_id, period, currency, revenue, fuel_cost, source_ref, recorded_at, recorded_by, "
+    "recorded_role, recorded_by_script, result_at_record, tolerance_at_record")
+_STATEMENTS = text("SELECT " + _STATEMENT_COLUMNS + " FROM commercial_accounts_statement WHERE tenant_id = :t "
+                   "ORDER BY recorded_at, id")
+_INSERT_STATEMENT = text(
+    "INSERT INTO commercial_accounts_statement (id, tenant_id, site_id, period, currency, revenue, fuel_cost, "
+    "source_ref, recorded_at, recorded_by, recorded_role, recorded_by_script, result_at_record, "
+    "tolerance_at_record) VALUES (:id, :tenant_id, :site_id, :period, :currency, :revenue, :fuel_cost, :source_ref, "
+    ":recorded_at, :recorded_by, :recorded_role, :recorded_by_script, :result_at_record, :tolerance_at_record)")
+_TOLERANCES = text("SELECT id, tenant_id, tolerance, owner_ref, owner_ref_sha256, set_at "
+                   "FROM commercial_reconciliation_tolerance WHERE tenant_id = :t ORDER BY set_at, id")
+_INSERT_TOLERANCE = text(
+    "INSERT INTO commercial_reconciliation_tolerance (id, tenant_id, tolerance, owner_ref, owner_ref_sha256, "
+    "set_at) VALUES (:id, :tenant_id, :tolerance, :owner_ref, :owner_ref_sha256, :set_at)")
+_SITE_ROWS = text("SELECT id AS site_id, site_code, site_type FROM site WHERE tenant_id = :t ORDER BY site_code")
 _UPLOAD_ARRAYS = ("kept_index", "row_map", "refusal_index", "refusal_code", "refusal_path", "month_site_code",
                   "month_period")
 _WRITTEN = text("SELECT id FROM commercial_record_revision WHERE tenant_id = :t AND intake_id = :i "
@@ -440,3 +460,30 @@ class PostgresCommercialStore:
         with self._engine.connect() as c:
             rows = c.execute(_UPLOADS, {"t": tenant_id, "s": site_id, "n": limit}).all()
             return tuple(self._record(c, r) for r in rows)
+
+    # --- 3A7 (spec §4): the management accounts and the tolerance ---------------------------------------------
+
+    @_scrubbed
+    def add_accounts_statement(self, row: StatementRow) -> None:
+        with self._engine.begin() as c:
+            c.execute(_INSERT_STATEMENT, _values(row))
+
+    @_scrubbed
+    def accounts_statements(self, tenant_id: UUID) -> tuple[StatementRow, ...]:
+        with self._engine.connect() as c:
+            return tuple(StatementRow(**dict(r._mapping)) for r in c.execute(_STATEMENTS, {"t": tenant_id}))
+
+    @_scrubbed
+    def add_tolerance(self, row: ToleranceRow) -> None:
+        with self._engine.begin() as c:
+            c.execute(_INSERT_TOLERANCE, _values(row))
+
+    @_scrubbed
+    def tolerances(self, tenant_id: UUID) -> tuple[ToleranceRow, ...]:
+        with self._engine.connect() as c:
+            return tuple(ToleranceRow(**dict(r._mapping)) for r in c.execute(_TOLERANCES, {"t": tenant_id}))
+
+    @_scrubbed
+    def site_rows(self, tenant_id: UUID) -> tuple[SiteRow, ...]:
+        with self._engine.connect() as c:
+            return tuple(SiteRow(**dict(r._mapping)) for r in c.execute(_SITE_ROWS, {"t": tenant_id}))

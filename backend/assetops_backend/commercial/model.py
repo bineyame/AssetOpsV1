@@ -283,3 +283,44 @@ class ProfileRow:
     admitted_at: datetime
     admitted_by: UUID
     admitted_role: str
+
+
+# --- 3A7 (spec §3, §4; D-3A7.5, D-3A7.11, D-3A7.12): the management accounts and the tolerance ---------------------
+
+@dataclass(frozen=True)
+class StatementRow:
+    """Every column of `commercial_accounts_statement`. `site_id` None is the organisation's accounts. The money
+    columns keep the text the finance lead gave (two decimals), never a float."""
+    id: UUID
+    tenant_id: UUID
+    site_id: UUID | None
+    period: str
+    currency: str
+    revenue: str
+    fuel_cost: str
+    source_ref: str
+    recorded_at: datetime
+    recorded_by: UUID
+    recorded_role: str
+    recorded_by_script: bool
+    result_at_record: str
+    tolerance_at_record: str
+
+
+@dataclass(frozen=True)
+class ToleranceRow:
+    """Every column of `commercial_reconciliation_tolerance` (the owner's choice for one tenant, D-3A7.12)."""
+    id: UUID
+    tenant_id: UUID
+    tolerance: str
+    owner_ref: str
+    owner_ref_sha256: str
+    set_at: datetime
+
+
+@dataclass(frozen=True)
+class SiteRow:
+    """One Site of the tenant: its ID, code and type (D-3A7.11)."""
+    site_id: UUID
+    site_code: str
+    site_type: str
