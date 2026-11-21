@@ -479,6 +479,22 @@ def test_4_i_nothing_compared(monkeypatch) -> None:  # review H1
     own = (".bridge.by_site.rows[", ".cash.table.rows[")
     zeros = [p for p, s in _paths(v) if "$0.00" in s]
     assert zeros and all(p.startswith(own) or ".drawer.sites[" in p for p in zeros), zeros
+    # Currency (fix round 2): each Site's own figures print in its own currency, the portfolio's in the portfolio's.
+    mto = b["by_site"]["rows"][2]
+    assert mto[0] == "Mto" and all("KES" in c and "$" not in c for c in mto[1:3]), mto
+    own_cells = [c for c in mto[1:] if c != "Not available yet"]
+    assert own_cells and all("KES" in c and "$" not in c for c in own_cells), mto
+    for row in (r for r in b["by_site"]["rows"] if r[0] != "Mto"):
+        assert all("KES" not in c for c in row), row
+    cash_mto = v["cash"]["table"]["rows"][2]
+    assert cash_mto[0] == "Mto" and all("KES" in c and "$" not in c for c in cash_mto[1:]), cash_mto
+    mto_drawer = [s for g in b["groups"] for st in g["steps"] for s in st["drawer"]["sites"] if s["site"] == "Mto"]
+    assert mto_drawer and all("KES" in s["value"] and "$" not in s["value"] for s in mto_drawer), mto_drawer
+    # No KES amount is printed with "$", and Kobo's and Kisiwa's figures never carry KES, anywhere in the payload.
+    assert [p for p, s in _paths(v) if "KES" in s and "$" in s] == []
+    kes = [p for p, s in _paths(v) if "KES" in s]
+    assert kes and all(".by_site.rows[2]" in p or ".cash.table.rows[2]" in p or ".drawer." in p or ".out" in p
+                       for p in kes), kes
     # A residual with no figure is left out of the stops (`effect or 0` printed "$0.00").
     side, absent, stated = t5b.side, t5b._absent, t5b.stated
     gone = {"delivered_kwh": absent("delivered_kwh", "NOT_RECEIVED")}
@@ -488,7 +504,8 @@ def test_4_i_nothing_compared(monkeypatch) -> None:  # review H1
     res = next(r for r in V.lowest(row) if r.kind == "RESIDUAL")
     v7 = V._View.__new__(V._View)
     v7.cur = "USD"
-    v7.sb = {"KOBO-001": SimpleNamespace(actual=SimpleNamespace(values=a),
+    v7.sb = {"KOBO-001": SimpleNamespace(roots={T.ROOT: SimpleNamespace(currency="USD")},
+                                         actual=SimpleNamespace(values=a),
                                          targets=SimpleNamespace(structure=SimpleNamespace(values=t)))}
     assert v7.stop("KOBO-001", res) is not None
     assert v7.stop("KOBO-001", replace(res, effect=None)) is None
@@ -590,7 +607,7 @@ def _stop(a, t, root: str):
     row = bridge(MG, a, t, root)
     v = V._View.__new__(V._View)
     v.cur = "USD"
-    v.sb = {"KOBO-001": SimpleNamespace(actual=SimpleNamespace(values=a),
+    v.sb = {"KOBO-001": SimpleNamespace(roots={T.ROOT: SimpleNamespace(currency="USD")}, actual=SimpleNamespace(values=a),
                                         targets=SimpleNamespace(structure=SimpleNamespace(values=t)))}
     return row, v.stops("KOBO-001", row)
 

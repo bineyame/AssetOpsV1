@@ -86,9 +86,14 @@ class _View:
     def name(self, code: str) -> str:
         return self.names.get(code, code)
 
-    def money(self, value: Decimal, row=None):
+    def money(self, value: Decimal, row=None, cur: str | None = None):
         ev = W.evidence(row.evidence, row.origins) if row is not None and row.evidence != "NOT_AVAILABLE" else None
-        return W.money(value, self.cur, ev)
+        return W.money(value, cur or self.cur, ev)
+
+    def own_cur(self, code: str, row=None) -> str:
+        """The currency a Site's own figure prints in: the row's, else the Site's root's, else the portfolio's. The
+        portfolio's `self.cur` is only for portfolio figures (fix round 2)."""
+        return (row.currency if row is not None else None) or self.sb[code].roots[T.ROOT].currency or self.cur
 
     def word(self, row) -> str:
         return W.word(row.evidence, row.origins, self.standing, self.cur)
@@ -113,7 +118,7 @@ class _View:
     def stop(self, code: str, r: BridgeRow) -> str | None:
         keys = W.actual_keys(r.unobserved_actual, self.notes(code))
         if r.kind == "RESIDUAL":  # no figure, no line (review H1)
-            return (W.residual_text(r.parent, self.money(r.effect, r), keys, r.unobserved_target)
+            return (W.residual_text(r.parent, self.money(r.effect, r, self.own_cur(code, r)), keys, r.unobserved_target)
                     if r.effect is not None else None)
         if r.split != "NOT_SPLIT":
             return None
@@ -128,7 +133,7 @@ class _View:
             for side, values in (("ACTUAL", sb.actual.values), ("TARGET", sb.targets.structure.values)):
                 v = values.get(r.factor_id)
                 if v is not None and v.stated and v.computed is not None and v.computed != v.value:
-                    parts.append(W.differ_text(side, W.money(v.value, self.cur), W.money(v.computed, self.cur)))
+                    parts.append(W.differ_text(side, W.money(v.value, self.own_cur(code)), W.money(v.computed, self.own_cur(code))))
             return W.sentences(parts)
         if reason in T.NO_RULE:
             return W.stop_text("NO_RULE", (), ())
@@ -273,7 +278,7 @@ class _View:
         own = self.sb[code].roots[T.ROOT].target
         keys = W.actual_keys(actual, self.notes(code))
         return W.out_text(self.name(code), "NEEDS", keys, target,
-                          W.money(own, self.cur) if own is not None else None)
+                          W.money(own, self.own_cur(code)) if own is not None else None)
 
     def descendants(self, step: str) -> dict[str, str]:
         """Each registry descendant of `step` with its registry parent (the first reached, breadth first)."""
@@ -346,7 +351,7 @@ class _View:
             own = _find(self.sb[code].roots[T.ROOT], step)
             stops = self.stops(code, own) if own is not None else []
             site_rows.append({"site": self.name(code),
-                              "value": W.amount(own.effect if own is not None else None, self.cur,
+                              "value": W.amount(own.effect if own is not None else None, self.own_cur(code, own),
                                                 T.CELL_FORM[own is not None and own.carried]),
                               "text": W.sentences(stops) if stops else None})
         carried = [W.carried(self.name(c), step) for c in row.carried if step in T.CARRIED_STATE]
@@ -391,15 +396,17 @@ class _View:
             if code not in self.sb:
                 continue
             root = self.sb[code].roots[T.ROOT]
-            cells = [self.name(code), W.amount(root.actual, self.cur), W.amount(root.target, self.cur)]
+            c = self.own_cur(code, root)
+            cells = [self.name(code), W.amount(root.actual, c), W.amount(root.target, c)]
             if code in out:
                 cells.extend(W.not_compared() for _ in range(1 + len(self.steps)))
             else:
-                cells.append(W.amount(root.gap, self.cur, "SIGNED"))
+                cells.append(W.amount(root.gap, c, "SIGNED"))
                 for s in self.steps:
                     own = _find(root, s)
                     carried = own is not None and own.carried
-                    cells.append(W.amount(own.effect if own is not None else None, self.cur, T.CELL_FORM[carried]))
+                    cells.append(W.amount(own.effect if own is not None else None, self.own_cur(code, own),
+                                          T.CELL_FORM[carried]))
             rows.append(cells)
         total = [W.sites(self.R.k, self.n), W.amount(self.R.actual, self.cur), W.amount(self.R.target, self.cur),
                  W.amount(self.R.effect, self.cur, "SIGNED"),
@@ -425,10 +432,11 @@ class _View:
             rev = _find(self.sb[code].roots[T.ROOT], T.REVENUE)
             t = _find(cash_root, T.IN_TRANSIT)
             o = _find(cash_root, T.OUTSTANDING)
-            table_rows.append([self.name(code), W.amount(rev.actual if rev is not None else None, self.cur),
-                               W.amount(cash_root.actual, self.cur),
-                               W.amount(t.actual if t is not None else None, self.cur),
-                               W.amount(o.actual if o is not None else None, self.cur)])
+            table_rows.append([self.name(code),
+                               W.amount(rev.actual if rev is not None else None, self.own_cur(code, rev)),
+                               W.amount(cash_root.actual, self.own_cur(code, cash_root)),
+                               W.amount(t.actual if t is not None else None, self.own_cur(code, t)),
+                               W.amount(o.actual if o is not None else None, self.own_cur(code, o))])
         total = [W.sites(root.k, self.n), W.amount(revenue.actual if revenue is not None else None, self.cur),
                  W.amount(root.actual, self.cur), W.amount(transit.actual if transit is not None else None, self.cur),
                  W.amount(owed.actual if owed is not None else None, self.cur)]
