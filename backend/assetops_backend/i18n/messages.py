@@ -9,8 +9,14 @@ from __future__ import annotations
 
 from typing import Mapping, TypedDict, Union
 
-#: A typed message parameter. Formatting numbers, dates and money by locale (Babel) comes with UQ-4.
-Param = Union[str, int, float]
+from assetops_backend.i18n.facts import Fact
+
+#: The public surface (D-SC1.36): a name outside this list is private to `i18n` (`I18N_BYPASS`).
+__all__ = ["CATALOGUE", "Message", "message"]
+
+#: A message parameter: a legacy entry takes `str`/`int`/`float` (already text); a structured statement takes
+#: typed facts only (SC-1 spec section 3.6). The two never mix.
+Param = Union[str, int, float, Fact]
 
 
 class Message(TypedDict):
