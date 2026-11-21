@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-DDR.11 to D-DDR.15, D-WK.10 to D-WK.14, D-3C2.16, D-5C.26 to D-5C.29)
+# Decision index: Demo-sprint and later rulings (index only) (D-DDR.11 to D-DDR.15, D-WK.10 to D-WK.14, D-3C2.16, D-5C.26 to D-5C.29, D-0K4.31 to D-0K4.37)
 
 - `D-DDR.11` (I1) rehearsal_check speaks codes and facts, never English; no statement or baseline entry · live · specs/DDR-rehearsal/rulings.md
 - `D-DDR.12` (R12) every rehearsal database is assetops_rehearsal_${REHEARSAL}_test; runbook, key folder, ON1 test swept · live · specs/DDR-rehearsal/rulings.md
@@ -15,3 +15,10 @@
 - `D-5C.27` (item 7, MD11) step bars on the gap's scale as served track percentages (bridge_bars); D-5C.2 unchanged; MD11 closed (owner-away row 69) · live · specs/5c-deep-dive-screen/rulings.md
 - `D-5C.28` (M1) no share when R's effect is None or 0; no "Offsets it" without a gap · live · specs/5c-deep-dive-screen/rulings.md
 - `D-5C.29` (DDR cash) cash sentence "Of {billed} billed for {month}, {collected} …, {in_transit} … and {outstanding} …"; "expected" (revenue target) dropped; all cash figures from the cash tree; parts together only when they reconcile (owner-away row 70) · live · specs/5c-deep-dive-screen/rulings.md
+- `D-0K4.31` 0K4m: pack numbers of four kinds; replay inputs via committed `replay-studies.json`; `unavailable()` gap form; no `design_value` · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.32` money on SIMULATED v8 litres is the pack evaluator's figure; amends D-0K4.29 Value cells (owner-away row 71) · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.33` admission bound replaces the dawn bound in the pack; dawn as option information · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.34` Mto litres = litres per customer kWh x declared kWh; amends D-0K4.28 I6 for the pack (owner-away row 72) · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.35` world view not edited; Kobo candidate split Not available yet via factor_sources; generator_l (owner-away row 73) · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.36` Embakasi departures from the energy check, per-bus timing NAY; KIS-BATT60 NAY (owner-away row 74) · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.37` 0K4m 2.75 u in three units; unit 3 merge held for owner; 0K4 total 13.25 u; amends D-0K4.1 · live · specs/0K4-dispatch-model-review/rulings-2.md
