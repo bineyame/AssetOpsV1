@@ -155,7 +155,7 @@ answered; this file answers it first.
   slice that has it; saying which operations do not exist yet is the "claim only what was tested" rule.
 - **Reverse.** Re-run `world bench` at the first world telemetry and replace the projection with the measurement.
 
-## D-DS4.12 DS7's trigger is read on the projection, reported to the owner
+## D-DS4.12 DS7's trigger is read on the projection, reported to the owner (amended by D-DS4.28: read literally)
 
 - **Ruling.** DS7 ("only if DS4's re-benchmark measures the L2 template build above 45 minutes") is triggered when
   `projected_l2_seconds > 2700`, reported in the packet as a projection with its basis; it is re-read by `world
@@ -165,6 +165,8 @@ answered; this file answers it first.
   13 Nov figure (62 s per mini-grid Site-day) projects hours for the strategy's world. Owner-level (it changes how an
   owner-accepted trigger is read): row 35, **owner to weigh in**.
 - **Reverse.** Read the trigger literally, on B1's L2 total, and decide DS7 at the first world with telemetry.
+- **Amended (owner row 35, option B, 2026-11-21): D-DS4.28.** The trigger is read literally, on B1's L2 total; DS7 is
+  decided at the first world telemetry; the projection is reported as information only.
 
 ## D-DS4.13 Serving a world database: held for the owner
 
@@ -431,3 +433,119 @@ row 43). Answers MBQ-1 (`mid-build-questions.md`): unit 1's spike (D-DS4.18) dif
   merge before the world walkthrough.
 - **Why.** The operator sent these figures. Reading them is the product's job. The blank was honest about what the
   product *read*, not about what the operator *sent*.
+
+## Review answers (unit 3, round 2)
+
+Architect (Claude), 2026-11-21, owner in session. Answers `review.md` "Round 2" (M1, M2, L1 to L3) at DS4 `848471afe`,
+and the owner's row 35 answer (`owner/owner-decisions-list-2026-11-21.md` item 5, "option B"). Read: spec §4,
+`backend/tests/test_ds4_bench_pipeline_postgres.py`, `tools/world.py` `pipeline_line`/`assemble_bench`/`cmd_bench`,
+`tools/demo_combined.py` `drain_mini`/`settle`, `tools/demo_combined_drain.py`, `scheduling/tick.py` `TickLimits`.
+The fix round is D-DS4.33; spec §4 carries the amended text.
+
+## D-DS4.28 DS7's trigger is read literally; the bench reports the projection as information only (owner row 35 B; amends D-DS4.12)
+
+- **Ruling.** DS7 is triggered only by a *measured* L2 template build above 2,700 s (B1's L2 total). It is decided at
+  the first world with telemetry, from that world's `world bench`. The bench keeps the projection, labelled
+  `INFORMATION_ONLY`: it triggers nothing and no plan reads it as a trigger. The report's `ds7` block takes the shape
+  in spec §4 (format `assetops.world-bench/2`): `triggered` compares the measured L2; the projection's comparisons
+  sit under `ds7.projection` as `exceeds_threshold`, with the drain verdict of their input.
+- **Why.** The owner chose option B. Under format `/1`, `ds7.triggered` compared the projection, so the evidence file
+  would say "triggered: true" where the owner's reading says it is not. A report must not state what the owner ruled
+  otherwise (RULES §1, honesty). This is a `tools/world.py` edit, and it costs no extra rebuild: D-DS4.33 says why.
+- **Reverse.** D-DS4.12 as first written (the trigger read on the projection).
+
+## D-DS4.29 B5 runs the mini-depth step that every product drain runs first (M1)
+
+- **Ruling.** Between `enrol` and the first tick, the pipeline bench drains the mini-depth jobs with the worker's own
+  CLI, as `demo_combined.drain_mini` does. It reads N after that step, then ticks as before. It reports the step's
+  time and the counts at both ends (spec §4 gives the exact loop and fields). FAILED outcomes are counted and
+  reported, not raised: the bench measures, it does not stop a demo build.
+- **Why.** The reviewer's trace shows it. The relabelled seed queues 686 mini jobs at commissioning. The tick takes
+  at most `mini_jobs_per_site = 10`, and `n_for` counts only dirty rows and pending snapshots, because the product's
+  drains (`settle`, `drain_mini` before every R8 drain) run the mini step first. Without it the `fail` past 2N is
+  certain and says nothing about the pipeline. With it, the bench measures the product's own sequence, and
+  `end_counts` lets a reader tell a moving drain from a stuck one.
+- **Reverse.** None sensible: without the step the verdict is an artifact.
+
+## D-DS4.30 The per-Site-day figure is the product's whole sequence: bulk load, mini-depth step and ticks
+
+- **Ruling.** `per_site_day_seconds = (load_seconds + mini_depth_seconds + tick_wall_seconds) / site_days`, labelled
+  `per_site_day_includes: ["BULK_LOAD", "MINI_DEPTH", "TICKS"]`. It is one figure. Its three parts stay in
+  `pipeline.measured` as a breakdown, like `stage_ms`, and are not a second figure. A B5 line without
+  `mini_depth_seconds` projects nothing (`null`), because its input is incomplete. The packet states the figure
+  and its parts in plain words, "X s per Site-day (bulk load a, mini-depth step b, ticks c, over 14 Site-days)". It
+  does not call the figure a bound.
+- **Why.** The product never drains without the mini step (`settle`, `drain_mini`), so a figure loyal to the
+  operating world includes it. The owner's rule from the same session is one figure per quantity, loyal to the
+  operating world (`owner/owner-one-figure-loyal-to-operating-world-2026-11-21.md`). Reporting a with-mini and a
+  without-mini figure side by side would be two numbers for one quantity with nothing to act on. The backlog's
+  growth with Sites and days is not measured, but neither is the load's or the ticks'. The projection's linear
+  Sites × days assumption covers all three parts alike, and the report already labels it a projection.
+- **Reverse.** Exclude the mini step from the figure, if a world bench shows that its backlog is a one-off of
+  commissioning rather than a cost per Site-day.
+
+## D-DS4.31 "Lower bound" is withdrawn; the packet and the state say the cause (M2)
+
+- **Ruling.** The packet's residual-risk bullet and `.ai/state/data.md`'s "pipeline 19.6 s per Kobo Site-day" are
+  replaced, after the rerun, by the exact text in D-DS4.33 step 7. The first run's figures stay in the packet as
+  "run 1 (superseded)", with the cause in one line: "`fail` was the bench's: 686 mini jobs at 10 a tick, no
+  mini-depth step (D-DS4.29); 19.6 s mixed 4 ticks of pipeline with 9 ticks of mini backlog cut off by N".
+- **Why.** 19.6 s was a truncation of a drain cut off by an N that did not count the backlog. It is not a bound on
+  anything. The report's own fields were honest, but the reading of them was not.
+
+## D-DS4.32 L1 and L2 are adopted as tests; L3 is fixed in `tools/world.py`
+
+- **L1 (adopted).** A no-DB test drives `cmd_bench` with a late record that raises, and asserts that every bench
+  database is dropped in `finally` (T10i, spec §5 T10). Plant: `swept["after"] = []` fails it.
+- **L2 (adopted as a boundary test, `>` kept).** T10e puts a case at exactly 2,700 s, on both the measured and the
+  projected comparisons. Plant: `>=` fails it.
+- **L3 (adopted, in `tools/world.py`).** (a) The projection and `ds7.projection` carry `input_drain`, the B5 drain
+  verdict, or `null` with no B5 line. (b) A malformed `DS4_PIPELINE` line no longer raises. `pipeline_line` returns
+  `None` for it, and the new `pipeline_marker(stdout)` returns `PARSED`, `MISSING` or `MALFORMED`, recorded as
+  `pipeline.marker`. The report is always written.
+- **Why.** L1 and L2 make code that is right today stay right. L3(a) is the honesty point: a reader of `ds7` alone
+  must see that its input did not drain. L3 costs nothing extra once `tools/world.py` changes for D-DS4.28.
+
+## D-DS4.33 The unit 3 fix round: 0.5 unit, one commit plus the runs (a Sonnet fix round)
+
+- **Why `tools/world.py` is edited after all (said plainly).** The brief preferred a test-file-only fix, to keep the
+  three kept templates current. That cannot hold either way. DS4's merge base is `c76111132`, and `main` has since
+  changed 20 files in the ladder's key parts (`backend/assetops_backend`, `backend/migrations` 0069; 3A7 and others).
+  DS4 must merge `main` before it lands, so `assetops_world_audit_l0_35467c68d361`, `_l1_5d26f14268f5` and
+  `_l2_ca818e745fd9` go stale at that merge, whatever this round touches. One rebuild and one check (about 36 s and
+  about 620 s) are owed anyway. Putting the `tools/world.py` edits (D-DS4.28, D-DS4.32 L3) before that one rebuild
+  adds no extra rebuild. The rerun then measures the code that lands. Row 36's copy must wait for the new checked L2
+  and use its new name, not `_l2_ca818e745fd9`.
+- **Steps, in order** (one commit for 1 to 3; the runs one at a time):
+  1. Merge `main` into `task/DS4-template-ladder` (this ruling, 3A7, migration 0069).
+  2. Tests first, in `backend/tests/test_ds4_world.py`: update T10 to format `/2`, and add T10e to T10i (spec §5 T10).
+     Run them red, then edit `tools/world.py` (`FORMAT_BENCH`, `assemble_bench`, `pipeline_line`, `pipeline_marker`,
+     `cmd_bench`'s `pipeline` dict) until they pass. Then edit `backend/tests/test_ds4_bench_pipeline_postgres.py`
+     (the mini-depth step and the new fields, spec §4).
+  3. `tools/heavy-slot.sh -- <host tests> backend/tests/test_ds4_world.py backend/tests/test_ds4_batch_days.py` (no
+     DB), and the plants of D-DS4.32 (each alone, reverted, logged). Commit.
+  4. **`world bench` alone, on a quiet DB slot.** Start only when `tools/heavy-slot.sh --status` shows no other job
+     in any slot. Record `uptime` beside the start (the report records `os.getloadavg()`). Run `tools/heavy-slot.sh
+     --db --label ds4 --wait-seconds 3000 -- python tools/world.py bench --key-root /opt/assetecon/keys/world
+     --evidence /opt/assetecon/evidence/DS4/unit3-fix-2026-11-21 --cap-seconds 3600`. Nothing else may run in a
+     slot until it exits. If another lane's job takes a slot meanwhile, say so in the packet, because the figures
+     then carry that contention.
+  5. Then, each alone in the slot: `python tools/world.py build --key-root /opt/assetecon/keys/world --cap-seconds
+     600`, then `python tools/world.py check --cap-seconds 600` (`ALL` PASS, C4 `fails: []` except the D-DS4.27
+     known lines while F1 is unmerged). Then `world drop` each of the three stale names above (D-DS4.19), and `world
+     list` to confirm.
+  6. Fast check-all (`tools/heavy-slot.sh -- pwsh -File tools/check-all.ps1`).
+  7. Packet: a section "Unit 3 fix round" that replaces the B5, B6 and `ds7` rows with the rerun's figures and
+     their §4 meaning. It states the per-Site-day figure and its parts in the D-DS4.30 words, and moves the first run's figures
+     under "run 1 (superseded)" (D-DS4.31). The residual-risk bullet becomes: "B5 now runs the mini-depth step
+     first, as the product does (D-DS4.29). The per-Site-day figure covers the bulk load, the mini-depth step and
+     the ticks (D-DS4.30). It is not a bound, and the projection assumes it grows linearly with Sites and days,
+     which no run has measured. DS7 is read literally (owner row 35): measured L2 Z s against 2,700 s, so not
+     triggered. It is decided at the first world telemetry, and the projection (P s) is information only." The state line in `.ai/state/data.md` becomes: "pipeline X s per Kobo Site-day (bulk load,
+     mini-depth step and ticks); DS7 not triggered (read literally, owner row 35; L2 Z s); projection P
+     s, information only". It names the three new kept template names, keys and sizes.
+- **Stop rule (W9).** If B5's verdict is still `fail`, report `end_counts` and the reason, and stop: no third fix
+  without the Architect. If only `mini_deferred` is left, that is a finding about the tick's mini bound. If other
+  counts are left, it is a pipeline finding. A failed `check` or a non-empty C4 beyond the known lines also stops.
+- **Review.** A verification re-review by a fresh Claude reviewer (Sonnet), on M1, M2, L1 to L3 and the D-DS4.28
+  shape. No discovery review: the bench code was reviewed in round 2.

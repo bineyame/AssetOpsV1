@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-IA.49 to D-IA.57)
+# Decision index: Demo-sprint and later rulings (index only) (D-IA.49 to D-IA.60, D-3C2.15)
 
 One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it. Top index: `INDEX.md`.
 
@@ -14,3 +14,4 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-IA.58` A tab switch lands the tab's content just under the sticky bar when it would start below the fold (amends D-IA.55); tab gate runs every case and state; plant tabstrip; sticky strip rejected · live · specs/IA-1-shape-rebuild/rulings-4.md
 - `D-IA.59` One rendered form per quantity per screen and its drawers; qty_check format assertion; lands in IA-2e, noted for IA-2b · live · specs/IA-1-shape-rebuild/rulings-4.md
 - `D-IA.60` QTY registry made true (overview-gap, plan-items), clause takes release line's type, packet corrections (L5-L7) · live · specs/IA-1-shape-rebuild/rulings-4.md
+- `D-3C2.15` Agreed-action composition lives in actions/composition.py, agreed_composition.py re-exports; no guard change (MB1) · live · specs/3C2-agreed-change-action/rulings.md
