@@ -1,6 +1,6 @@
 # 0K2 reviewer guide
 
-Architect (Claude), 2026-11-21, rev 1. Discovery review (W5): a new mechanism whose litres feed a money figure. Read
+Architect (Claude), 2026-11-21, rev 2 (handshake round 1, D-0K2.17 to D-0K2.29). Discovery review (W5): a new mechanism whose litres feed a money figure. Read
 `spec.md`, `rulings.md`, then the diff. Done means every question of spec §6 answers yes with evidence and every plant
 below fails its named test.
 
@@ -23,9 +23,20 @@ below fails its named test.
    allow-list grows by exactly two names; the packet shows the guard failing on the scratch copy.
 7. **Exactness.** No `float(` and no `round(` on a value in `replay_study.py`; the fixture's rounding is on
    `Fraction`s (half-even).
-8. **Labels.** `input_class` and `evidence_class` on every result; nothing served; no design value or label edited
-   anywhere in the diff (D-0K2.13).
-9. **Packet.** The 61-day table beside the design values, the calibration figures, run count and wall time.
+8. **Labels.** `input_class` and `evidence_class` on `StudyResult`, `Calibration` and every `CaseOutcome`; no field,
+   printed line or JSON key says "observed" of the season; no adopting word (B13; also read `study.json` and the tool's
+   stdout); nothing served; no design value or label edited anywhere in the diff (D-0K2.13, D-0K2.20).
+9. **Packet.** The 61-day table beside the design values, each on its basis (per month, scaled to 30 days, of 61), with
+   no verdict word between the columns; the calibration figures; seconds per replay, cap, run count and wall time.
+10. **The dawn finding (D-0K2.17).** The packet states the dispatch law (battery before generator; generator charging
+   only while the battery is not discharging; limit equal to the effective start, above the reserve) as the cause; lists
+   each failing dawn per case with date, SOC, generator state and class; gives the least passing reading and margin; and
+   says plainly if every case, the baseline included, fails the absolute bound. Any change to the bound, the reserve,
+   the start charge, the calendar or the frame made to move a verdict is High. A packet that reads a FAIL as the
+   setting's effect, or a PASS as admissibility, is High.
+11. **Position (D-0K2.18).** T11's self-shift precondition is asserted in the test, not only argued; T12 reads `B`
+   itself, at the spec's indices.
+12. **Refusals before the port.** Step 4a precedes step 5; a grid refusal shows zero port calls (B7).
 
 ## Planted violations (each must fail the named test; the builder shows each failing once, in a scratch copy)
 
@@ -34,7 +45,7 @@ below fails its named test.
 | P1 | tolerance taken relative to the replayed side | B1 (obs 100, rep 95 must pass) |
 | P2 | calibration over all days, not admissible ones | B2 |
 | P3 | the dawn step taken at 05:00 UTC | B3, T3 |
-| P4 | months by UTC date | B4 (the 31 Aug 21:00Z hours) |
+| P4 | months by UTC date | B4 (the 31 Aug 21:00Z hours), T13 |
 | P5 | throughput counting charge as well as discharge | B5, T3 |
 | P6 | starts counted as RUNNING steps | B6, T1 |
 | P7 | one replay per day | T7, B12 |
@@ -51,10 +62,24 @@ below fails its named test.
 | P18 | a clipped day excluded from the admissible days | T1 (every day admissible) |
 | P19 | `ForwardReplayRefused` caught and re-raised as `StudyRefused` | B8 |
 | P20 | the (90, 30) case named `baseline` or skipped | T2 |
+| P21 | the fixture publishes PV or a load from `B[i]` (one step early) | T12, T11 |
+| P22 | the fixture publishes SOC or the generator state from `B[i+1]` | T12 |
+| P23 | the start state read from step 1 | T1 (request start), T11 |
+| P24 | `new_dawn_days_below` as baseline minus case (new and cleared swapped) | B3, T3 |
+| P25 | the dawn reading's generator state taken from the next step | B3, T3 |
+| P26 | grid ids formed after the baseline call, or a `None` written as the baseline's number | B7 (zero calls; `stop-70-reserve-site`) |
+| P27 | throughput or starts by month from the case's own values, not differences against the baseline | B5, T13 |
+| P28 | the tank check ignores the projection's `fuel_end_l` | B9 (second case) |
+| P29 | `CaseOutcome` or `Calibration` built without `input_class`, or with `evidence_class` not checked | B11 |
+| P30 | a printed or written line saying "reproduces" or "confirms" | B13 |
+| P31 | day 0 (the window's first dawn) excluded from the dawn readings | T3 (reader counts every date), T6 |
+| P32 | T11 written without its self-shift precondition | review item 11 (High) |
 
 ## Not findings
 
 No money, no price, no option choice, no CANDIDATE share computed (spec §7, D-0K2.12). No reader from accepted
 readings (D-0K2.1, `0K3`). No gap fill (D-0K2.6). No zone with a clock change (D-0K2.7). The dawn bound failing under
-no action is a result, not a defect (D-0K2.8). Throughput excludes PCS losses (D-0K2.11). Design values unchanged
+no action, on the after-overcast nights and on day 0, is the shipped dispatch law on the Site's settings, reported as
+such, not a defect (D-0K2.8, D-0K2.17); every case failing the absolute bound is a result. The overcast day's evening
+reserve override is left out, stated (D-0K2.22). Throughput excludes PCS losses (D-0K2.11). Design values unchanged
 (D-0K2.13).

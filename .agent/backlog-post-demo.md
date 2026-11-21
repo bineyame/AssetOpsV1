@@ -126,3 +126,7 @@
 - ENV-1 (0.25 unit): reading_upload_api.py still parses uploads in the server process; the loader CLI parses JSON unbounded in its own process; parse slots are per uvicorn worker.
 - NATIVE_TOO_LARGE's words (in the messages catalogue) and D-3A6.26 are in the owner queue (owner-away row 29).
 - Low (3A6 log fix review): E9 doesn't assert EnvelopeBreach.cause is in the closed set for every forced breach.
+
+## From the 4a adjustments review (2026-11-21, ACCEPT; merged)
+- Low: no in-repo Postgres assertion pins the evaluated-level blank for never-sent adjustments.
+- Low (Architect): a Site whose only ADJUSTMENT records are money-only credit notes reads a stated 0 kWh (D-DS4.25 gates on the kind). Decide whether money-only credit notes should count as "ever sent" for kWh.

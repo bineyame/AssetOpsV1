@@ -29,6 +29,9 @@ Migrations on main: 0067 3A6, 0068 3B4. Unmerged, renumber at merge in merge ord
 
 ## For the owner on return
 
+- IMPORTANT, row 42: by the shipped dispatch law no reserve-30 Kobo case can keep dawn at or above 35%, contradicting the pack's stop-70 "0 of 61 / dawn PASS" (MG-T2, 2,916.00). 0K2 reports figures as they come; owner decides the claim/admissibility (via 6c).
+- Row 41 fixed honestly: adjustments kWh reads "Not available yet" when the export never carried them (4a fix branch fix/4a-adjustments-blank).
+- Held: rows 36 and 40 (walkthrough serve of a DS4 world; creating /opt/assetecon/keys and /opt/assetecon/worlds).
 - Approve or decline SC-1a's two check-all lines.
 - Review owner-away rows marked "owner to weigh in" (17, 18, 21, 22, 26, 27, 28 and others in the log).
 - Demo DB needs a 3B7a snapshot rebuild after 4a (else "rebuild needed" on every page); walkthrough DB untouched.
