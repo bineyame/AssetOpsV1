@@ -216,3 +216,77 @@ changes. The rev 1 index lines for D-DS3.1, .2 and .8 cited rows 9 to 11; the ro
 - **Ruling.** Unit 1 2.0 (extractions, `bulk_admit`, the service, the harness helper, tests 3 to 7), unit 2 1.5 (the
   command, tests 1 and 2, parity with census and v4 slice), unit 3 0.5 (measurement, check-all, packet). Under the
   6-unit split rule.
+
+## Mid-build answers (round 1; spec rev 3)
+
+Architect (Claude), 2026-11-21, on the owner's delegation. Answers `mid-build-questions.md` Q1 to Q3. No owner approval
+is needed: Q1 trims a fixture to what the real path accepts, Q2 states a parity rule, Q3 narrows a permission.
+
+## D-DS3.20 The v4 slice is the three shapes the real path accepts; a refused `v4.delta` is a refusal case, not a slice member (Q1)
+
+- **Ruling.** Option (a). `V = kit.seal([v4.event(100001, "START_RESULT", "evt-1", "FAILED"), v4.start(100002,
+  "start-1"), v4.point(100003)])`: three ordinals, all accepted on the real path (asserted). The slice exists to prove
+  the seven v4-only columns; those are all carried by these three. No EV connector channel is bound: a connector-meter
+  energy channel belongs to EV Sites, and bulk loading is MINIGRID-only (D-DS3.11). "Both paths refuse identically"
+  is not available as a parity assertion: the real path stores a rejection and accepts the rest of the batch, the bulk
+  path refuses the whole batch and writes nothing (D-DS3.5), so a `v4.delta` batch is a refusal case in test 6: a batch
+  `[v4.delta(...)]` on the MINIGRID Site raises `BulkLoadRefused(BULK_REJECTED_ORDINAL)` with the ordinal and
+  `MAPPING_INCOMPATIBLE` in its detail, and the ledger holds no row for it (counts unchanged). Test 6 does not call
+  the real path for this case.
+- **The xfail goes.** `..._with_the_v4_slice` loses its `xfail`; its body becomes the single parity test's v4 half
+  (or stays a second test; builder's choice) and must pass. P15 is shown failing as soon as the slice is in.
+- **Why.** The spec's own rule ("if not, a mid-build question, not a change of shapes") sent this here; the builder
+  was right to ask. A permanent xfail would stand in for this decision, and the dropped shape adds no column.
+
+## D-DS3.21 `event_outbox` parity is the event cover, not the row count (Q2)
+
+- **Ruling.** `event_outbox` joins `chain_input_change` as the census's second per-statement table. Over the rows new
+  since the baseline, grouped by `(tenant_id, site_id, source, type)`, on both paths: (1) the set of groups equal;
+  (2) bulk count at most real; (3) the subject cover equal per group, where the cover is computed by the test from
+  the JSON by its own query: the union of every `roles`, `asset_ids`, `analytic_ids` array; the set of every `domain`,
+  `status`, `key` scalar; the least start and greatest end over `span`, `window`, `valid` and each pair of `windows`.
+  The idempotency key and the payload are not compared (they hold per-statement min, max and count by design,
+  `0044_chain_events.py:2-3, 36`). A non-equal cover fails the test with the group's name and both covers; it is
+  never loosened to pass: it goes to the Architect as a High finding (a consumer would then miss a day or a measure).
+  The recompute-job and `chain_input_change` rules are unchanged. `test_the_census_names_every_table_the_load_writes`
+  loses its `xfail` and now passes with this rule.
+- **Do downstream consumers see a difference that matters?** No, if (3) holds. The consumers (`chain/events.py`
+  `resolve`, read through `postgres_event_store.py`) turn an event into (day, measure) pairs from `subject` only
+  (roles, asset ids, domain, span, windows, valid) and select by `(site, type)`; none reads the key or a row count,
+  and the processed-record is per event id. One event with the union span resolves to the same (day, measure) set as
+  many events whose spans it covers, provided one batch's span has no gap days; a batch spanning a gap would make
+  bulk resolve a day the real path did not. A cover is the least and greatest, so the test cannot see a gap; the
+  Kobo days have none, and the loader's input batches are one device-day (the world generator's shape, DS1). The
+  limit is stated in the packet; a world batch spanning more than one day is DS4's to check against this rule.
+- **Why.** Equal row counts cannot hold by construction (D-DS3.10's reason). What a consumer takes from the table
+  is the set of Sites, types and subjects, so that is what parity compares.
+
+## D-DS3.22 `permitted_database` refuses the walkthrough database, by a narrower allow and an explicit deny (Q3)
+
+- **Ruling.** Two layers, both in `permitted_database` (spec §2.4); the first is the control, the second a tripwire
+  that keeps the property if the allow pattern is ever widened. A name is permitted only if, with the host and port
+  rule (D-DS3.12) and `not is_operator_name`, it (i) is not denied: `re.search(r"walk|serve", name)` refuses; and (ii)
+  matches one of: `re.fullmatch(r"[a-z0-9_]+_audit[a-z0-9_]*", name)`, or `re.fullmatch(r"[a-z0-9_]+_pt[0-9a-f]+_[a-z0-9]+_test",
+  name)` (a name `pg_harness.database_name` makes: DS3's own clones). A bare `*_test` name is no longer permitted, so
+  `assetops_test` (the shared run template) and `assetops_polish_walk1113_test` are both refused, and so is any other
+  database in the container. The command's own target is `assetops_ds4_audit<MMDD>` (DS4); tests use clones.
+- **Test 1 (changed).** `assetops_test` false; `assetops_polish_walk1113_test` false (the live walkthrough database,
+  `.ai/NOW.md` §3); `assetops_polish_walk1113` false; `assetops_walk_audit1121` false (the deny layer); `assetops_other_test` false;
+  `assetops_pt1a_ds3bulk_test` true; `assetops_ds3_audit1121` true; `assetops_ds4_audit1125` true; the existing host,
+  port, operator and unclear-target cases unchanged. Builder updates any other test that relied on a bare
+  `_test` name being permitted.
+- **Plants.** P24: the allow pattern widened back to "ends `_test`": test 1 fails on `assetops_polish_walk1113_test`.
+  P25: the deny removed: test 1 fails on `assetops_walk_audit1121`.
+- **Why.** The standing rule (RULES §7, and the coordinator's instruction) is that the walkthrough worktree and its
+  database are not touched without the coordinator; a name rule that admits it is a safety hole, and "writes only to
+  databases it owns or is named for" (a clone pattern or `_audit`) is the narrow form of the allow. This narrows
+  what the command may do; it widens nothing, and the held DS4 question (D-DS3.12) is unchanged.
+
+## D-DS3.23 The 11 pre-existing failures do not block DS3
+
+- **Ruling.** `test_s4_evidence_decided_at_postgres` (10) and `test_s2_rejection_placement` (1) fail identically on
+  `main` at `8eff70625` (`base-main.log`) and are outside DS3's files (`git diff main...HEAD`): they are not a DS3
+  finding and do not hold review or merge. The coordinator routes them to their own task; the reviewer counts them as
+  "11 failed, same as main" and checks no new failure beyond them.
+- **Why.** Blocking a slice on failures it did not cause stops progress for no safety gain, and the identical
+  failing set on `main` is the evidence that DS3 did not introduce them.

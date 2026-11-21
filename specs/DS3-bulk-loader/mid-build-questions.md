@@ -1,8 +1,8 @@
 # DS3 mid-build questions
 
-Questions raised during the build about something the spec did not fix (spec rev 2). Count: 3 (open; Q1 and Q2 each hold one test, Q3 stops nothing).
+Questions raised during the build about something the spec did not fix (spec rev 2). Count: 3, all answered (rulings D-DS3.20 to D-DS3.22, spec rev 3; D-DS3.23 notes the 11 pre-existing failures).
 
-## Q1 (open): the v4 slice's fourth shape is refused by the real path
+## Q1 (ANSWERED, D-DS3.20): the v4 slice's fourth shape is refused by the real path
 
 - **Spec.** §3 "v4 slice (D-DS3.11)": one batch `V = kit.seal([v4.event(100001, "START_RESULT", "evt-1", "FAILED"),
   v4.start(100002, "start-1"), v4.point(100003), v4.delta(100004)])`; "The real path must accept all four ordinals
@@ -22,7 +22,7 @@ Questions raised during the build about something the spec did not fix (spec rev
   override binding an EV connector-meter energy channel so a delta is accepted; (c) another shape of your choice.
   The builder's default if asked to choose: (a), the smallest change, with no new fixture.
 
-## Q2 (open): the census meets a third per-statement table, `event_outbox`
+## Q2 (ANSWERED, D-DS3.21): the census meets a third per-statement table, `event_outbox`
 
 - **Spec.** §3 "Census" and D-DS3.10: every table's delta is equal on both paths except `recompute_job` and
   `chain_input_change`; "a table with a non-zero delta that the test does not name fails with its name". Reverse:
@@ -42,7 +42,7 @@ Questions raised during the build about something the spec did not fix (spec rev
   (b) compare its aggregated subjects (roles, asset ids, span) per Site and type; (c) other. Builder's default if
   asked: (a).
 
-## Q3 (open, nothing stopped): the walkthrough database's name passes `permitted_database`
+## Q3 (ANSWERED, D-DS3.22): the walkthrough database's name passes `permitted_database`
 
 - **Spec.** §2.4 `permitted_database`: a name ending `_test` (or `<prefix>_audit*`), not an operator's, on
   `127.0.0.1`/`localhost` and the container port; D-DS3.12: "the world command never loads the served
@@ -51,3 +51,9 @@ Questions raised during the build about something the spec did not fix (spec rev
   and so is permitted by the rule as specified, on the same container. Nothing in DS3 refuses it by name.
 - **Built as specified**; no part is stopped. Options: (a) refuse names matching the walkthrough pattern
   (`*_walk*`) explicitly, with a test-1 case; (b) leave it to RULES §7 and DS4's held question (D-DS3.12).
+
+## Answers
+
+- Q1: D-DS3.20. Option (a), no new fixture; a refused `v4.delta` is a test-6 case.
+- Q2: D-DS3.21. Option (b) in the form of a per-group subject cover, with set equality and bulk count at most real.
+- Q3: D-DS3.22. Both: a narrower allow and an explicit deny.
