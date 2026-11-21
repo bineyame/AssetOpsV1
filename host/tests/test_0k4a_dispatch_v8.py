@@ -146,13 +146,13 @@ def n1_run(version: int = 8, stop=None):
 
 @cache
 def night_support(mill_from: int):
-    """Start SOC 34; N4 (mill from 60): res 25, clinic 10, mill 40 kW over [60, 90). N13 (mill from 62): res 25 and
-    clinic 10 kW over the whole night [0, 360), the mill 40 kW over [62, 90)."""
+    """Start SOC 34; res 25 and clinic 10 kW over [60, 90), the mill 40 kW from `mill_from` to 90 (N4: 60; N13: 62).
+
+    N13 reads "res 25 and clinic 10 kW all night" as the night's support window [60, 90), N4's SOC history (packet,
+    mid-build question): forced over [0, 360) the battery charges at only 5 kW before 01:00 and reaches its reserve
+    inside the window (01:20, battery AC 3019/1600 kWh), so N4's per-step figures cannot hold there."""
     run = _run(1, 8, site)
-    if mill_from == 60:
-        windows = ((RES, 60, 90, 25), (CLINIC, 60, 90, 10), (MILL, 60, 90, 40))
-    else:
-        windows = ((RES, 0, 360, 25), (CLINIC, 0, 360, 10), (MILL, mill_from, 90, 40))
+    windows = ((RES, 60, 90, 25), (CLINIC, 60, 90, 10), (MILL, mill_from, 90, 40))
     return _execute(run, _windows(_start_soc(season_inputs(run, 1), 34), windows))
 
 
