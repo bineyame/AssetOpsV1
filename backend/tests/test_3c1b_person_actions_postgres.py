@@ -225,7 +225,8 @@ def test_accept_apply_and_observe_are_stored_under_the_person(runner) -> None:
         assert made.status_code == 201, made.text
         assert made.json()["event"]["actor"]["label"] is None  # Q-3C1b-1
         second = h.signed(sam_token).post(path, json=body)  # R2: never a replay of Peter's event
-        assert second.status_code == 409 and second.json()["detail"]["code"] == "ACTION_ACCEPTANCE_CONFLICT"
+        assert second.status_code == 409, second.text
+        assert second.json()["detail"]["code"] == "ACTION_ACCEPTANCE_CONFLICT"
         action_id = made.json()["action"]["action_id"]
         h.clock.at = T_APPLY
         expected = current_foundation(h, action_id)
@@ -272,7 +273,7 @@ def test_create_app_wires_the_person_step_into_the_action_routes(store, engine, 
     other = People(engine, _seed_tenant(engine, f"beta-{uuid4().hex[:6]}"))
     try:
         _, peter_token = people.person("SITE_MANAGER", "KOBO-001")
-        _, stranger_token = other.person("SITE_MANAGER", None)
+        _, stranger_token = other.person("FIELD_TECHNICIAN", None)
         monkeypatch.setenv("DATABASE_URL", URL)
         monkeypatch.delenv("ASSETOPS_REQUIRE_PERSON", raising=False)
         path = f"/api/sites/KOBO-001/findings/{uuid4()}/recommendation/accept"
