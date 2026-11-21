@@ -1,6 +1,6 @@
 # 3A7: one month reconciled against the operator's own accounts (implementer spec)
 
-Status: **spec rev 2, handshake round 1 answered** (`rulings.md` "Handshake answers (round 1)"; coding may start once
+Status: **in_review (commit 1 of 2, D-SC1.28; commit 2 waits for SC-1a: `handoff.md`)**; spec rev 2, handshake round 1 answered (`rulings.md` "Handshake answers (round 1)"; coding may start once
 3A6 has merged). Questions during the build: `mid-build-questions.md`. Reviewer: `reviewer-guide.md` rev 2. Decisions
 with reasons: `rulings.md` (D-3A7.1 to D-3A7.13).
 

@@ -80,3 +80,4 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 166. `IA-1c` mock-up decision shape and the "Waiting for you" inbox (IA-1 shape rebuild) · demo.md
 167. `3B7a` the frozen monthly structure snapshot, units 1-3 (store, served read with freshness, build/verify command, migration 0066) · data.md
 168. `3A6` source profiles as data: admitted JSON profiles, single-sheet XLSX, one source system per Site, tagged S1, migration 0067 · data.md
+169. `3A7` commit 1: one closed month reconciled as codes and Decimals (migration 0068, store, standing) · data.md
