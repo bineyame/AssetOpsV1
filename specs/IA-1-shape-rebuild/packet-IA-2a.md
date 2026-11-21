@@ -1,8 +1,7 @@
-# IA-2a packet: the plan shape (partial: clean stop at the end of 3(a))
+# IA-2a packet: the plan shape (in review)
 
-**Stopped after 3(a) at the packet commit (after `dfaeef262`); resume at 3(b), the flip. `IA_LANDED` has no IA-2a: every
-screen is as on `main`.** Stopped on the builder's context budget (standing brief), not on a coordinator stop. Not reviewable as
-IA-2a yet: 3(b) and the discovery review remain.
+**Complete: units 1 to 3 built; 3(b) flipped at `a4737f102` (`IA_LANDED` has IA-2a); `main` merged at `af7847ac2`. Ready for the
+discovery review.** The earlier clean stop after 3(a) (`dfaeef262`, builder's context budget) is resolved; 3(b) was built by builder 3.
 
 Branch `task/IA-2a-plan` (worktree `/opt/assetecon/AssetOpsV1-ia2a`). Module path:
 `Docs/demo-sprint/product-direction-layer4/interactive-mockup-vNEXT/`. Evidence: `/opt/assetecon/evidence/IA-2a/` (`unit2/`, `3a/`).
@@ -11,7 +10,9 @@ spec's "shape_check item 10" is item 14 (items 10 to 13 exist).
 
 Commits: `554863783` unit 1 (splits, `parts_identity` states) · `c5af13ced` unit 2 (checks, stub, forced runs) · `ef7d098ad` 3(a)
 builders, routes, `docTitle`, `ia.css` · `76b739121` uxi page default and M1 route order · `ce3d81d16` `ia_gates` names a crash's
-error line · `dfaeef262` handoff.
+error line · `dfaeef262` handoff. · `8f9067bca` 3(b) prep (walkthroughs, R757 to R760, state entry) · `a4737f102` **the flip** (IA_LANDED gains
+IA-2a, `plan` renders `shapePlan`, `shapePlanInterim` deleted; built) · `af7847ac2` merge of `main` (`index-2.md`: both sides kept, IA-2a
+renumbered 172).
 
 ## Built
 - Unit 2: `plan_shape_check.cjs` (new) and `tools/fixtures/plan_stub.js`; `count_check` plan block (60 combinations, 15 boots;
@@ -54,10 +55,40 @@ error line · `dfaeef262` handoff.
   count plan block 60/60; G1 plan tabs 2 each, plan items reported (1 or 2 measured, under 3); plan_switch 793/0; uxi PASS;
   copy block 4802 strings, 0 stray (new strings per list entry: tab 108, step 96, stepper name 36, crew value 48, crew meter 48,
   case line 48, History 63). `ia_shots SHOTS_ONLY=plan` forced on the stub: 97 measured, 0 bad; band Approve bottom 590 at 1440.
-- Not run at this stop: unforced `ia_gates`, full `ia_shots`, `parts_identity` against main's build, G3, shell_check, design_lint,
-  render_text, vocab, hand_typed, check_manifest, check-architecture, check-agent-workflow; screenshots of the four tabs (3(b)).
+## 3(b): after the flip (unforced, at `a4737f102`, heavy slot, pw env; logs `/opt/assetecon/evidence/IA-2a/3b/`)
+- **`ia_gates`: `76 runs, landed IA-1a, IA-1b, IA-1c, IA-2a, all as expected (3575.6 s)`**, 0 BAD, no "dormant" line (`gates.log`).
+  Every IA-2a plant still fails after the flip, with the same first lines as the table above (PLAN 9 of 9, COUNT 3, SHAPE doctitle,
+  G1 plantabs, PS 3, UXI 2, COPY plan); every earlier unit's plant fails too.
+- `ia_shots` full: **601 measured, 0 bad** (505 s; approvefold measured live). `parts_identity` against `main`'s build: **282 cases,
+  282 byte-identical** (10 s). uxi **386 PASS, 0 FAIL** (574 s). count_check PASS (61 s). G3 36 of 36. plan_switch **793 passed,
+  0 failed**. shell_check 0 fails (45 routes crawled). design_lint 0 fails. render_text 237 renders, 0 script errors. vocab 0 hits.
+  copy: IA-2a block 4802 strings, 0 stray. hand_typed exit 0, 1 hit, pre-existing on `main` (`loop-portfolio.js` "Rights measures by
+  contract and period (as of 6 Nov)", main line 589; not in this diff). check_manifest 7572 passed, 0 failed.
+  check-architecture and check-agent-workflow pass. After the merge: `check-decision-index.py` OK; `specs/INDEX.md` 7949 bytes;
+  fast check-all at `af7847ac2`: **All 40 guards passed** (82 s wall; 615 s with the slot wait).
+- Layout evidence (`tools/layout-evidence.mjs`): not run, needs a served URL (no server started, by brief); `ia_shots` measures.
 
-## Notes for 3(b) and review
+## Shots against the owner's standing UI brief (`owner/owner-ui-standing-brief-2026-11-20.md`)
+Looked at, in `/opt/assetecon/evidence/IA-2a/3b/shots/`: Lakeside's four tabs at 1440, Items at 1280 and Items and History at 390,
+Harvest Items 1440, Metro Left out 1440. One grammar holds: tabs switch content, the stepper and tiles are read-only, Approve and
+Send back are buttons, the thresholds a drawer link. For the reviewer and the IA-2 walkthrough:
+1. **Tabs change nothing in the first screen at 390 and at 1280 × 720** (`lakeside-plan-390-light.png`,
+   `lakeside-plan-history-390-light.png`, `lakeside-plan-1280-light.png`). L1 (stepper, 4 tiles, act row, release line) fills the
+   viewport, so a tab switch only moves the underline; the tab body starts below the fold. This is spec §5.1.2's "same L1 on every
+   tab". Possible follow-up: compact L1 on the non-Items tabs, or scroll to the tab body on a switch.
+2. **Two spend figures side by side without saying why they differ** (honest numbers): tile "$3,750 of $5,000" against the release
+   line "$3,660 of one-off spend" (Lakeside), $720 against $620 (Harvest `harvest-plan-1440-light.png`), $1,590 against $1,500
+   (Metro). Both are reviewed copy (parts reused byte for byte), not new; worth one line or a footnote naming the difference.
+3. **Three tiles leave an empty fourth column** at 1440 for Harvest and Metro (one crew limit), so the row looks unfinished
+   (`harvest-plan-1440-light.png`, `metro-plan-left-out-1440-light.png`).
+4. Smaller: Review shows "Not yet" as plain text under Observed change and as a chip under Review (`lakeside-plan-review-1440-light.png`);
+   History rows run the actor into the label ("Version 1 proposed The system · 6 Nov", `lakeside-plan-history-1440-light.png`); the
+   Items L2 heading repeats the H1 ("The plan for November and December: items and their Actions"); at 1280 × 720 the crumb and the
+   "version 1, proposed" subtitle are hidden by the IA-1c fit rule (the chip in the act row still carries the version).
+None blocks the spec's acceptance; 1 and 2 are judgement calls for the owner.
+
+
+## Notes for review
 - `IA_FORCE_LANDED` re-renders after load (the bundle ends in `render();`, so "before the first render" needs a product change).
 - D-IA.51: the Approve dialog has no case-label function; `iaPlanCaseLabel` uses the reviewed switches' own legends and checked
   options from `switches(op)`.
@@ -65,11 +96,10 @@ error line · `dfaeef262` handoff.
 - uxi needed two runner fixes: a default page path and no state shots without an out dir (`ia_gates` passes no arguments; the
   second is in the packet commit, after the gate run, which left a stray `undefined/` folder, deleted).
 - Two forced uxi runs crashed with "Target crashed" during the /tmp quota incident (05:30 to 05:40 UTC); the rerun passed.
-- 3(b) prep is saved, not committed: `/opt/assetecon/evidence/IA-2a/3a/3b-prep.patch` (walkthroughs.md, register R757 to R760,
-  `.ai/state/demo.md` entry and index line 168) and `/opt/assetecon/evidence/IA-2a/3a/flip.py` (IA_LANDED gains IA-2a, plan renders
-  `shapePlan`, `shapePlanInterim` deleted). Then build, unforced `ia_gates` (every IA-2a plant must fail; no "dormant"), the rest.
+- The 3(b) prep patch applied cleanly at `fcaf77399`; `.agent/` is gitignored but the register is tracked (staged by path).
+- Done-when item 1 says IA-2a is added "in the last commit": the flip is the last product commit; the merge and this packet follow.
 
-`MOCK DEVIATION`s (rows written in the patch, land in 3(b)): R757 D2 (no approval panel), R758 D2 (Approve in the band's act row),
+`MOCK DEVIATION`s (register rows, `8f9067bca`): R757 D2 (no approval panel), R758 D2 (Approve in the band's act row),
 R759 D1 (Review "Not yet"), R760 D5 (History: no per-version drawer, no address per entry).
 
-`USER_REVIEW_REQUIRED`: not at this stop (nothing visible changed); the IA-2 walkthrough follows 3(b).
+`USER_REVIEW_REQUIRED: true` (UI/UX: the plan page changed shape). Hold the merge for the owner's IA-2 walkthrough after review.

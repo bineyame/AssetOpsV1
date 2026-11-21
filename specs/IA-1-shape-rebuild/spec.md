@@ -1,6 +1,6 @@
 # IA-1 and IA-2: rebuild the mock-up by shape (implementer spec)
 
-Status: IA-1a, IA-1b, IA-1c merged (`bf9428ca3`); G2 seen by the owner ("UI looks ok for now", 21 Nov); IA-2a specified (§5.1), handshake next
+Status: IA-1a, IA-1b, IA-1c merged (`bf9428ca3`); G2 seen by the owner ("UI looks ok for now", 21 Nov); IA-2a in_review (§5.1, `packet-IA-2a.md`)
 
 Architect (Claude), 2026-11-21, rev 5: IA-2a handshake folded in (D-IA.49 to D-IA.53, `rulings-3.md`); rev 4: IA-2a's full design (§5.1; D-IA.43 to D-IA.48 in `rulings-2.md`). Rev 3, 2026-11-20
 (the IA-1b/IA-1c handshake folded in: D-IA.21 to D-IA.30; rev 2 folded in round 1,

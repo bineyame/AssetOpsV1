@@ -1,3 +1,8 @@
+# Done (builder 3, 2026-11-21): 3(b) complete
+
+- Flip `a4737f102`; merge of `main` `af7847ac2`; packet-IA-2a.md finished (in review). Logs `/opt/assetecon/evidence/IA-2a/3b/`.
+  Nothing left to resume; the notes below are history.
+
 # Resume note (builder 2, 2026-11-21, 05:45 UTC)
 
 - Unit 2 committed `c5af13ced`; 3(a) committed `ef7d098ad` (builders, routes, docTitle, ia.css; not live), `76b739121` (uxi page
