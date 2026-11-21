@@ -117,3 +117,8 @@ snapshot built at version 3 a version mismatch (`test_3b7a_structure_snapshot.py
 snapshot already stored in a demo database is refused until rebuilt. Expected: the sweep names the seam test; the
 packet states that stored v3 snapshots are rebuilt by 3B7a's own build and that 4a does not touch them (no
 migration), or the spec says what serves a v3 row.
+
+## Answers
+
+Round 1 answered in `rulings.md` "Handshake answers (round 1)" (D-4A.15 to D-4A.26) and folded into `spec.md` rev 2
+and `reviewer-guide.md` rev 2. No question is open.
