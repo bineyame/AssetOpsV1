@@ -45,8 +45,15 @@ def render_month(code: str) -> str:
     return render(message("deep_dive.month_words", month=month_of(code)))
 
 
+#: Section 2.4 (D-5C.3, D14) on this screen: a declared figure reads by its weakest origin, as a recorded one does
+#: ("Emulated", "Simulated", "Estimated", else "Recorded"). The shared vocabulary reads `DECLARED` "Declared" for
+#: every origin (D-SC1F.1, written for a declared setting); this screen's figures never take that word.
+SCREEN_EVIDENCE = {"DECLARED": "RECORDED"}
+
+
 def evidence(ev: str, origins: Sequence[str]) -> Evidence:
-    return Evidence(ev, weakest_origin(origins))
+    """A figure's evidence in section 2.4's order (`SCREEN_EVIDENCE`), for every word and served figure here."""
+    return Evidence(SCREEN_EVIDENCE.get(ev, ev), weakest_origin(origins))
 
 
 def money(value: Decimal, currency: str | None, ev: Evidence | None = None) -> Money:
@@ -65,7 +72,8 @@ def not_compared() -> str:
 
 
 def word(ev: str, origins: Sequence[str], standing: Standing, currency: str | None) -> str:
-    """Section 2.4 for a money figure: "Not available yet", else the evidence word with 3A7's money suffix."""
+    """Section 2.4 for a money figure: "Not available yet", else the evidence word (section 2.4's order, `evidence`)
+    with 3A7's money suffix."""
     if ev == "NOT_AVAILABLE":
         return text("NOT_AVAILABLE")
     return money_word(Money(Decimal(0), currency or "USD", evidence(ev, origins)), standing)

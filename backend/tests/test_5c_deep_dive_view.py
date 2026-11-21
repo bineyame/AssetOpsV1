@@ -488,6 +488,8 @@ WORDS = [  # (evidence, origins, word)
     ("MEASURED", ("demo-simulated",), "Simulated"), ("RECORDED", ("unknown",), "Estimated"),
     ("RECORDED", (), "Estimated"), ("RECORDED", ("observed-financial",), "Recorded"),
     ("DECLARED", ("field-integrated",), "Recorded"), ("MEASURED", ("bench-tested",), "Measured"),
+    ("DECLARED", ("source-emulated",), "Emulated"), ("DECLARED", ("demo-simulated",), "Simulated"),  # review H2
+    ("DECLARED", ("observed-financial", "source-emulated"), "Emulated"), ("DECLARED", (), "Estimated"),
     ("DERIVED", ("observed-financial",), "Calculated"), ("RECORDED", ("observed-financial", "source-emulated"),
                                                          "Emulated"),  # plant P9
 ]
