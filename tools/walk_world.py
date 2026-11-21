@@ -498,8 +498,8 @@ class Procs:
         ok, bad = [], []
         for p in self.pids():
             st = self.stat(p)
-            if st is None or st["pgrp"] != pgid:
-                continue
+            if st is None or st["pgrp"] != pgid or st["state"] == "Z":
+                continue  # a zombie holds nothing and takes no signal; a live leader is checked by `checked`
             (ok if st["session"] == pgid and (p, st["start_time"]) in recorded else bad).append(p)
         return ok, bad
 

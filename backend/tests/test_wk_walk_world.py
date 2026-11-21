@@ -1073,6 +1073,21 @@ def test_t9_stop_zombie_leader_uses_the_recorded_members(env, capsys):
     assert "WALK_PID_REUSED" not in capsys.readouterr().err
 
 
+def test_t9_only_a_zombie_leader_left_is_not_alive(env, capsys):
+    """L5: after SIGTERM the group is empty but npm is not yet reaped: not alive, and no second signal (live check A
+    waited the full 10 s and sent SIGKILL before zombies were skipped)."""
+    m, rec, kids = _vite_served(env)
+    web = rec["pid"]
+    for p in kids:
+        del env.procs.table[p]
+    env.procs.table[web].update(state="Z", cmd=[])
+    capsys.readouterr()
+    assert env.main("status") == 0
+    (line,), _ = _lines(capsys)
+    assert line["alive"]["web"] is False
+    assert env.main("stop") == 0
+    assert all(p != web for p, _ in env.procs.signals) and "WALK_PID_REUSED" not in capsys.readouterr().err
+
 def test_t9_stop_zombie_with_another_start_time_is_refused(env, capsys):
     m, rec, kids = _vite_served(env)
     web = rec["pid"]
