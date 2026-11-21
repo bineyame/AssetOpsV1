@@ -537,3 +537,47 @@ figures. Hunting further XML, CSV or zip shapes is out of scope for round 6.
 - **Who.** A fresh Opus implementer, since this is new process code and not a fix against a written list
   (ROLE_CONFIG). The verification review uses D-3A6.27's list.
 - **Spec.** `spec.md` §2.12 holds the exact design. The spec's status line records the round, at +1.25 units.
+
+### D-3A6.29 The envelope's cause log moves out of `commercial/`; R13 keeps no exception (owner-level; logged, row 30)
+
+- **The conflict.** `envelope.py` logs a breach's cause (D-3A6.25: "the log names the cause with no file content").
+  `test_no_log_call_in_the_commercial_package` (R13, D-3A1.10) forbids `import logging`, `getLogger`, `logger.` and
+  `print(` anywhere under `commercial/`. The fast check-all does not run that test, so the merge at `9cd24c8c8` put
+  main red unseen.
+- **Ruling: option (a), one rule, no exception.** The package stays log-free. The cause is data, logged by the one
+  caller outside the package.
+  - `envelope.py` loses `import logging`, `_LOG` and the `_LOG.warning` call. It raises `EnvelopeBreach`, a subclass
+    of `CanonicalRefused` with code `NATIVE_TOO_LARGE`, path `json`, and one extra field `cause`: a member of the
+    closed set the envelope already produces (the wall-time, memory, output-size and child-death causes). Nothing
+    else rides on it: no file content, no ref, no value. Every existing `except CanonicalRefused` still catches it,
+    so the served refusal (D-3A6.25) is unchanged.
+  - `uploads.py` passes the cause on: where it turns the refusal into `UploadRefused`, it copies `cause` onto it
+    (`None` for every other refusal).
+  - `commercial_upload_api.py` (outside `commercial/`) logs once, when it handles an `UploadRefused` whose `cause` is
+    set: logger `assetops.commercial_upload`, level WARNING, fields `cause`, `reader` (the profile ID), `bytes` (an
+    integer) and `tenant` (the tenant code). All four are codes and numbers.
+- **Why not (b).** A test exception for `envelope.py` makes R13 a rule with a list, and the next author adds to the
+  list. The cause is known to the envelope but costs nothing to carry: it is a short code on an exception that is
+  already raised. The cause log is not needed where only the envelope knows it.
+- **Check that the logged fields are codes and numbers (new test, in `test_3a6_parse_envelope.py`).**
+  - Plant a marker string in an uploaded file's content, ref and tenant-visible text; force each breach cause; assert
+    the marker is in no captured log record (message, args or extras) and that `cause` is in the closed set,
+    `bytes` is an `int`, `reader` is a known profile ID.
+  - Assert `EnvelopeBreach.cause` is in that closed set for every breach the existing adversarial tests force.
+- **D-3A1.10 amended** (one line in its ruling): "No ref or record value is logged or put into an error; the
+  `commercial/` package holds no logging at all (R13); a cause code and byte count for an envelope breach is logged
+  by the upload API, outside the package (D-3A6.29)."
+- **Other tests broken by the 3A6 merge.** None found. The tests that scan the package are R3 (`float(`, in
+  `test_3a1`), `test_3a4` test 12 and `test_4b` 11a (structure imports), and `test_3a3_single_writer` (single writer,
+  `eval`/`exec`/`compile`). A search of the package finds no `float(`, no structure import and no bare
+  `eval(`/`exec(` outside `re.compile`; these were read, not run (no pytest in this checkout). The implementer runs
+  those four files and the R13 test on the fix branch as the proof.
+- **Should the fast check-all run package rules like R13?** Yes, the package-scan tests (R3, R13, 3A4-12, 4B-11a,
+  3A3 single-writer) are file scans taking milliseconds, and a rule that the fast check does not run is a rule the
+  next merge breaks unseen. Adding them to check-all is a change to a guard, so it is **held for the owner** and
+  added to the held-guard backlog beside the 3A6 pattern-tightening. Until then, a builder of any commercial/ change
+  runs those test files by hand, and the reviewer's packet check names them.
+- **Code change that follows (one small commit, a Sonnet implementer, on a branch off main).** The four edits above
+  (`envelope.py`, `uploads.py`, `commercial_upload_api.py`, the new test), the D-3A6.25 sentence in spec §2.12 reading
+  "the upload API logs the cause" instead of "the log", and the five package-scan files run green. No served text,
+  no migration.

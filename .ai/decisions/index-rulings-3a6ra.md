@@ -1,4 +1,4 @@
-# Decision index: 3A6 review r1 and r5 rulings (index only) (D-3A6.18 to D-3A6.28)
+# Decision index: 3A6 review r1 and r5 rulings (index only) (D-3A6.18 to D-3A6.29)
 
 - `D-3A6.18` A change to personal is refused once data is accepted; migration is queued unit 3A6b · live · specs/3A6-source-profiles/rulings.md
 - `D-3A6.19` Profile maps stay one to one; A9 (a) uses QUOTE (Q1) · live · specs/3A6-source-profiles/rulings.md
@@ -11,3 +11,4 @@
 - `D-3A6.26` The envelope blocks the merge; N8 to N10 bounds do not; 3A7 and 3C2 commit 1 may start from the 3A6 branch head (owner away, row 29) · live · specs/3A6-source-profiles/rulings.md
 - `D-3A6.27` Review stop rule: round 6 checks exclusive, bounded, faithful, pinned, plants; a new contained route is Low · live · specs/3A6-source-profiles/rulings.md
 - `D-3A6.28` Fix round r5: about 1.25 units, two commits, a fresh Opus implementer · live · specs/3A6-source-profiles/rulings.md
+- `D-3A6.29` The envelope cause log moves out of commercial/ (R13 keeps no exception); package-scan tests into fast check-all held for owner (row 30) · live · specs/3A6-source-profiles/rulings.md
