@@ -128,7 +128,7 @@ class _View:
                 v = values.get(r.factor_id)
                 if v is not None and v.stated and v.computed is not None and v.computed != v.value:
                     parts.append(W.differ_text(side, W.money(v.value, self.cur), W.money(v.computed, self.cur)))
-            return T.spaced(parts)
+            return W.sentences(parts)
         if reason in T.NO_RULE:
             return W.stop_text("NO_RULE", (), ())
         return None
@@ -297,7 +297,7 @@ class _View:
             stops = self.stops(code, own) if own is not None else []
             site_rows.append({"site": self.name(code),
                               "value": W.amount(own.effect if own is not None else None, self.cur, "SIGNED"),
-                              "text": T.spaced(stops) if stops else None})
+                              "text": W.sentences(stops) if stops else None})
         carried = [W.carried(self.name(c), step) for c in row.carried if step in T.CARRIED_STATE]
         out = [self.out_line(c, reasons) for c, reasons in row.out]
         lines_org = [W.portfolio_line(W.money(line.value, line.currency or self.cur), line.factor_id)

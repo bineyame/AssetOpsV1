@@ -78,8 +78,3 @@ def month_code(year: int, month: int) -> str:
 def iso_z(at: datetime) -> str:
     """The instant in UTC, ISO with `Z` (`2026-11-20T08:00:00Z`)."""
     return at.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
-def spaced(sentences: Sequence[str]) -> str:
-    """Finished sentences, each already a rendered statement, one after another (section 3.2's drawer text)."""
-    return " ".join(sentences)

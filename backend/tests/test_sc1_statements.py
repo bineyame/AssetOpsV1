@@ -21,6 +21,7 @@ from assetops_backend.i18n.catalogue import CatalogueError
 from assetops_backend.i18n.statements.en.vocabulary import VOCABULARY
 from statement_cases import common as common_cases
 from statement_cases import worked
+from assetops_backend.i18n.statements.en.deep_dive import STATEMENTS as DEEP_DIVE_STATEMENTS  # 5c (D-SC1.28)
 
 FIN, EMU = worked.FIN, worked.EMU
 DECLARED = Evidence("DECLARED", FIN)
@@ -320,7 +321,7 @@ def test_t8_shipped_catalogue_loads():
                                          # 3A7 (D-SC1.28): its statements, SC-1 sections 5.1 and 5.4 among them
                                          "reconciliation.heading", "reconciliation.gap", "reconciliation.share",
                                          "reconciliation.scope", "reconciliation.statement", "reconciliation.standing",
-                                         "reconciliation.money_word", "reconciliation.refused"}
+                                         "reconciliation.money_word", "reconciliation.refused"} | set(DEEP_DIVE_STATEMENTS)
     assert set(cat.vocabulary["en"]) == {"factor", "heading", "headline_subject", "record", "record_noun",
                                          "evidence", "unit", "noun", "month", "format"}
 

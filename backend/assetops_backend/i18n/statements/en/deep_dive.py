@@ -272,17 +272,26 @@ STATEMENTS = {
         "variants": [{"id": "line", "text": "The organisation's budget also states {value} for {factor} that no Site "
                                             "carries; it is listed, not added."}],
     },
-    # Section 2.3 `needs`: the records in `RECORDS` order, then the budget-lines phrase, joined as one list.
+    # Section 2.3 `needs`: the records in `RECORDS` order (all but the last as a comma chain, then the last), then the
+    # budget-lines phrase, as one list: "a, b, c and budget lines for x".
+    "deep_dive.record_chain": {
+        "slots": {"head": {"type": "word", "vocabulary": "record", "form": "in_sentence"},
+                  "rest": {"type": "name", "optional": True}},
+        "variants": [{"id": "one", "when": {"absent": "rest"}, "text": "{head}"},
+                     {"id": "more", "text": "{head}, {rest}"}],
+    },
     "deep_dive.needs": {
         "evidence": "served",
         "part_only": True,
-        "slots": {"records": {"type": "items", "of": {"type": "word", "vocabulary": "record", "form": "in_sentence"},
-                              "order": "vocabulary", "optional": True},
+        "slots": {"records": {"type": "name", "optional": True},
                   "last": {"type": "word", "vocabulary": "record", "form": "in_sentence", "optional": True},
                   "factors": {"type": "items", "of": {"type": "word", "vocabulary": "factor", "form": "in_sentence"},
                               "order": "vocabulary", "optional": True}},
         "variants": [
-            {"id": "records", "when": {"absent": "factors"}, "requires": {"present": "records"}, "text": "{records}"},
+            {"id": "last_only", "when": {"all": [{"absent": "factors"}, {"absent": "records"}]},
+             "requires": {"present": "last"}, "text": "{last}"},
+            {"id": "records_last", "when": {"absent": "factors"}, "requires": {"present": "last"},
+             "text": "{records} and {last}"},
             {"id": "budget_one", "when": {"all": [{"absent": "last"}, {"cmp": ["factors.count", "==", {"const": 1}]}]},
              "text": "a budget line for {factors}"},
             {"id": "budget", "when": {"absent": "last"}, "text": "budget lines for {factors}"},
@@ -462,5 +471,11 @@ STATEMENTS = {
     "deep_dive.names": {
         "slots": {"sites": {"type": "items", "of": {"type": "name"}, "order": "given"}},
         "variants": [{"id": "names", "text": "{sites}"}],
+    },
+    # Finished sentences one after another (a drawer cell): folded from the right, so any number joins.
+    "deep_dive.sentences": {
+        "slots": {"head": {"type": "name"}, "rest": {"type": "name", "optional": True}},
+        "variants": [{"id": "one", "when": {"absent": "rest"}, "text": "{head}"},
+                     {"id": "more", "text": "{head} {rest}"}],
     },
 }

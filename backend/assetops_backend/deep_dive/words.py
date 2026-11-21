@@ -145,19 +145,30 @@ def record_keys(leaf: str, note: str | None) -> tuple[str, ...]:
     return (*T.RECORD_KEYS.get(leaf, ()), *added)
 
 
+def record_chain(keys: Sequence[str]) -> Name:
+    """The records as a comma list, built from the right (`deep_dive.record_chain`); a Name of its finished text."""
+    out: Name | None = None
+    for key in reversed(keys):
+        facts: dict[str, Any] = {"head": Word("record", key)}
+        if out is not None:
+            facts["rest"] = out
+        out = Name(render(message("deep_dive.record_chain", **facts)), "deep_dive.record_chain")
+    return out
+
+
 def needs_facts(keys: Iterable[str], target_leaves: Sequence[str]) -> dict:
-    """`deep_dive.needs`'s facts: the distinct records in `RECORDS` order, then the budget lines of `target_leaves`."""
+    """`deep_dive.needs`'s facts: the distinct records in `RECORDS` order (the last apart), then the budget lines of
+    `target_leaves`."""
     held = set(keys)
     records = [k for k in T.RECORDS if k in held]
     facts: dict[str, Any] = {}
     factors = list(dict.fromkeys(target_leaves))
     if factors:
         facts["factors"] = Items(tuple(Word("factor", f) for f in factors))
-        if records:
-            facts["last"] = Word("record", records[-1])
-            records = records[:-1]
     if records:
-        facts["records"] = Items(tuple(Word("record", k) for k in records))
+        facts["last"] = Word("record", records[-1])
+        if len(records) > 1:
+            facts["records"] = record_chain(records[:-1])
     return facts
 
 
@@ -343,3 +354,14 @@ def detail(row_unit_kind: str, actual: Decimal, target: Decimal, currency: str |
     else:
         facts = {"actual_money": Money(actual, currency, ev), "target_money": Money(target, currency, ev)}
     return figure_text(message("deep_dive.driver_detail", **facts))
+
+
+def sentences(parts: Sequence[str]) -> str:
+    """Finished sentences, each already a rendered statement, one after another (section 3.2's drawer text)."""
+    out = ""
+    for index, part in enumerate(reversed(parts)):
+        facts: dict[str, Any] = {"head": Name(part, "deep_dive.sentence")}
+        if index:
+            facts["rest"] = Name(out, "deep_dive.sentence")
+        out = render(message("deep_dive.sentences", **facts))
+    return out
