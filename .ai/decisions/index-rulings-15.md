@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-SC1.1 to D-SC1.28, D-3C2.14, D-0K1.1 to D-0K1.9)
+# Decision index: Demo-sprint and later rulings (index only) (D-SC1.1 to D-SC1.28, D-3C2.14, D-0K1.1 to D-0K1.9, D-DS3.1 to D-DS3.8)
 
 - `D-SC1.1` Extend the i18n message seam; i18n.render stays the one renderer · live · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.2` Typed facts; every figure carries its evidence; absence is Absent, never None or 0 · live · specs/SC-1-statement-composer/rulings.md
@@ -38,3 +38,11 @@
 - `D-0K1.7` Proof is exact equality with the kernel's own trajectory; calibration is 0K2's · live · specs/0K1-forward-replay-port/rulings.md
 - `D-0K1.8` 0K1 has no user-facing text (D-SC1.28 not engaged) · live · specs/0K1-forward-replay-port/rulings.md
 - `D-0K1.9` Exact numbers only at the port (Fraction; float refused) · live · specs/0K1-forward-replay-port/rulings.md
+- `D-DS3.1` Bulk evidence load is set-based INSERT ... SELECT FROM unnest in the ledger's one writer, not COPY into staging (owner away, row 9) · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.2` Commercial records keep one path, 3A2's intake via the existing loader; no commercial parity half (row 10) · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.3` Parity is row equality on the input tables; recompute jobs compared by coverage · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.4` A batch already published for a registered run is refused in bulk · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.5` The bulk path admits clean batches only (rejection or collision refuses the batch) · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.6` Bulk load: SIMULATED batches and *_test or <prefix>_audit* databases only · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.7` DS3 has no user-facing text · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.8` Lines not received are not estimated by DS3; Not available yet until a declared-estimate unit (row 11) · live · specs/DS3-bulk-loader/rulings.md
