@@ -1,7 +1,8 @@
 # 5c rulings
 
-Architect (Claude), 2026-11-20; rev 2 the same day (D-5C.13 to D-5C.18, D-5C.4 amended, handshake answers below).
-Each ruling is indexed in `.ai/decisions/index-rulings-13.md`.
+Architect (Claude), 2026-11-20; rev 2 the same day (D-5C.13 to D-5C.18, D-5C.4 amended, handshake answers below);
+rev 3 on 2026-11-21 (D-5C.19 to D-5C.25, review round 1 answers, at the end).
+Each ruling is indexed in `.ai/decisions/index-rulings-13.md` (D-5C.19 on: `index-rulings-22.md`).
 
 ## D-5C.1 The one deep-dive screen is a Portfolio tab, "The month", in the hub shape
 
@@ -232,3 +233,122 @@ states (`specs/4a-energy-to-cash/rulings.md`): `METER_READS` and `LOSS_BAND` add
 builder takes it; if it has, 4a's last commit does. Words as SC-1 statements (D-SC1.28). 4a's handshake adds:
 `adjustments_kwh` (BILLING) and `BILLING_ADJUSTMENTS` removed from `RECORDS` (D-4A.20); `NOTE_KEYS` gains
 `METER_REF_CONFLICT` (METER_READS, METER_REGISTER) (D-4A.24).
+
+## Review round 1 answers (units 1-2; 2026-11-21)
+
+Architect (Claude), standing in for the owner (`owner/owner-away-architect-stands-in-2026-11-21b.md`), on the review at
+`task/5c-deep-dive-screen` 519c8a305 (`review.md`, round 1). Folded into `spec.md` rev 3. Owner-level calls are
+OWNER-AWAY rows 59 to 62 (`specs/OWNER-AWAY/decisions-2026-11-21.md`). H1, M1 and L1 are in the running fix round as
+the review states; L1's words are D-5C.23's. L4 and L6 need no action.
+
+## D-5C.19 (H2) Spec §2.4 governs this screen's evidence words, after SC-1f too
+
+- **Ruling (the coordinator's, recorded here).** On the deep-dive every figure's word follows §2.4's order:
+  NOT_AVAILABLE, ESTIMATED, MODELLED first; otherwise the weakest origin when it is not observed (`source-emulated`
+  "Emulated", `demo-simulated` "Simulated", `unknown` or none "Estimated"); otherwise by evidence, with `DECLARED`
+  read as "Recorded". So an emulated figure reads "Emulated" after SC-1f. `word()` applies this order before it
+  calls the shared vocabulary (the review's H2 fix): for an observed origin it hands `DECLARED` over as `RECORDED`.
+  §2.4's table gains the rows `DECLARED` with `source-emulated` "Emulated" and with `demo-simulated` "Simulated".
+  Text another unit renders and 5c passes through unchanged (3A7's `standing.text` and `details`, where SC-1f's
+  "(Declared)" words the tolerance itself) keeps that unit's words.
+- **Why.** D-SC1F.1 words a declared *setting* shown as such (a tolerance). A step's figure is an actual set against
+  a declared target; its weakest part is its origin, and D14 says an emulated figure is never shown as if it were
+  real. "Declared" on revenue −$97.00 would hide that the records are emulated.
+- **Reverse.** Drop the mapping in `word()`: the step words become "Declared, not yet reconciled" (the scratch
+  merge's output); §3.5's literals follow.
+
+## D-5C.20 (M2) One figure, one evidence statement: the headline's words carry the standing
+
+- **Ruling.** PF8 is confirmed: `headline` is `{"text", "evidence"}` and the screen shows `evidence` beside it as
+  the tiles show `word` (MD10). Every evidence word 5c serves for a money figure goes through the one 5c function
+  that words the tiles (`word()` then `money_word(word, standing)`), the headline's `evidence` included: World A
+  `["Estimated, not yet reconciled"]`, World B `["Estimated"]`, `headline_na` `[]`. The headline's facts carry the
+  same evidence the payload's own figures carry: the gap R's, the named heading's the weakest of its steps'.
+  Test 3 (class form): for A, B, D and vectors L1 to L4, `set(headline.evidence)` equals the set of `tiles[1].word`
+  and, when a heading is named, that outcome card's `word`. A plant serving `served()`'s words unmapped fails it.
+- **Why.** The owner's rule: one figure carries one evidence statement wherever it appears. The status line states
+  the standing for the page, but the tile beside the headline words the same −$852.00 with it, so the headline's
+  chip without it is a second statement of one figure.
+- **Class beyond 5c (queue Q10).** SC-1 words a figure's evidence on three paths: `with` (honours `money` and
+  `Evidence.reconciled`), inline and `served` (both ignore `reconciled`). No producer sets `reconciled` on an inline
+  or served figure today (only `reconciliation.py`'s `with` slot), so nothing reads wrong now; Q10 makes
+  `figure_word` the one path in SC-1's next unit.
+- **Reverse.** Serve `served()`'s words unmapped and record in §3.5 that the status line states the headline's
+  standing.
+
+## D-5C.21 (L2) Drivers are nested: each driver holds its own parts
+
+- **Ruling.** A step drawer's `drivers` lists the step's direct parts only. Each driver is `{"key", "label",
+  "value", "sites", "detail", "word", "children"}`; `children` has the same shape, recursively, and is `[]` for a
+  leaf. A driver's parent is its nearest registry ancestor that is the step or has a driver row; `residual:<x>` is
+  the last child of `x` (of the step when `x` is the step). Order within a level is `pb.rows` order. World H's fuel-cost drivers: Diesel used
+  (children: Diesel not shown to be avoidable, Diesel run while solar and battery could carry the load, Unexplained
+  fuel; each `children` []) and Diesel price (`children` []). Screen: one `<ul>` per level, a driver's children in a
+  nested `<ul>` inside its `<li>`, indented by one spacing token; no control (the drawer shows every level; World H
+  has two). The page adds nothing (D-5C.2).
+- **Why.** Siblings at one level add to their parent's effect (5b's attribution, D-5B.12). A flat list puts −$600.00
+  beside its three parts, which invites adding them to −$1,200.00. Nesting makes the grouping the sum's grouping;
+  a `depth` field would leave the grouping to the page to rebuild.
+- **Tests.** Test 4(H) asserts the nested literal (spec §3.5); a plant that flattens it fails. Unit 3: a frontend
+  test renders H's fuel-cost drawer and finds the three part rows inside Diesel used's list item.
+- **Reverse.** A flat list with `depth` and `parent` keys; the screen indents by `depth`.
+
+## D-5C.22 (L3) The JSON holds every Site row; the screen applies the caps
+
+- **Ruling.** Lists bounded by the Sites asked ship whole: drawer `sites`, `by_site.rows` and `not_available.rows`
+  have no `more` key. The screen shows the first 10 (8 for not-available rows) and a button "Show all {n}", `n` the
+  array's length, which shows the rest in place. `actions` keeps its server cap (3 rows and `more`): the Actions
+  port is not bounded by the Sites and grows with time.
+- **Why.** At most 300 Sites keeps each list small enough to send whole, and a server cap would need a second fetch
+  for "Show all". Counting rows is not figure arithmetic, so D-5C.2 holds. §3.4 already said "the JSON holds all".
+- **Tests.** Unit 3: A's fixture with `by_site.rows` and the revenue drawer's `sites` repeated in memory to 12 shows
+  10 and "Show all 12", then 12 after the click; `not_available.rows` at 9 shows 8 and "Show all 9".
+- **Reverse.** Cap at the server with `more`, and fetch the full list on "Show all".
+
+## D-5C.23 (flag (a), L1) A carried step's cell names its source: "(at budget)"
+
+- **Ruling.** The suffix on a carried Site's step value is " (at budget)", in the by-Site cell and in that step
+  drawer's per-Site row (one form, `CELL_FORM[carried]`, L1). World A: Kisiwa's O&M cell and its O&M drawer row read
+  "$0.00 (at budget)". The `carried` sentence, the not-available row's "(taken at its budget line meanwhile)" and the
+  step's word ("Estimated, not yet reconciled") are unchanged. 5b's carry rule (`CARRY_AT_TARGET`) is unchanged.
+- **Why.** The owner's rule: one figure per quantity, labelled by its source. $0.00 is one figure, the effect of an
+  actual taken at its budget line by 5b's explicit rule, and a part of the $1,443.00 total and of Kisiwa's −$185.00
+  row; "Not available yet" there would break the row's sum and contradict the total. "(estimate)" said how strong
+  it is (the chip already does) but not where it came from.
+- **Reverse.** Restore " (estimate)"; or carry nothing in 5b (then the total reads k = 2 for O&M), which changes
+  5b's served totals and needs its own review.
+
+## D-5C.24 (KD1) World H's diesel price: no detail, "Modelled"
+
+- **Ruling.** §3.5 H's Diesel price driver is {"Diesel price", "$0.00", "1 of 3 Sites", detail null, "Modelled, not
+  yet reconciled"}. A price composes NONE, so its portfolio row has no actual or target and §3.2's rule gives no
+  detail; its effect is the Modelled litres times the price difference.
+- **Why.** A price does not add across Sites; printing one Site's price as the portfolio's would be a second figure.
+- **Reverse.** A Site-level price detail when k = 1 (a later refinement, not needed).
+
+## D-5C.25 (L5) Record words name what is missing in a record already received, and hold no comma
+
+- **Ruling (fix now, in 5c).** In the shared `record` vocabulary: `BILLING` reads "the billing export with each
+  line's kWh and tariff"; `LOSS_BAND` reads "each feeder's expected technical loss as declared in the Site's setup".
+  Class rule, with a statement case over every `record` entry: a record's words hold no comma outside brackets,
+  because `needs` joins records with commas. World A's revenue stop becomes "Not split further until the billing
+  export with each line's kWh and tariff, a feeder meter export, a meter register with change dates, the customer
+  meter reads for the month, each feeder's expected technical loss as declared in the Site's setup, the
+  productive-use tariff and budget lines for energy delivered, tariff and productive-use price."; its not-available
+  rows' `needs` follow. 5c takes it because it carries D-4A.12's record change (PF2) and has not merged.
+- **Why.** Revenue is read from the billing export; what is missing is the kWh and tariff on its lines, so asking
+  for "the billing export" asks for a record already sent. The comma inside LOSS_BAND's words made the list
+  unparseable. The revenue drawer is on the walkthrough's path, and the change is a vocabulary edit and literals
+  (about 0.25 unit).
+- **Reverse.** Restore the two entries; drop the case.
+
+### Flag (c): 0K4e's sweep names test 4(H)
+
+`specs/0K4e-candidate-energy/spec.md` §0 now names `backend/tests/test_5c_deep_dive_view.py::test_4_h_kobo_litres`.
+Its litres (330 L, −$412.50, 730 L, −$37.50) come from 4d's KOBO-OCT test inputs. If those inputs are literals that
+0K4e does not change, the test is left and the packet says so. If 0K4e moves them, the literals are updated by hand
+(W2). Whichever of 5c and 0K4e merges second runs the test.
+
+### Flag (b)
+
+"Target 0 L" is kept as it is (5a's `LEAK_ZERO` rule, plan against actual, which the owner's rule allows).
