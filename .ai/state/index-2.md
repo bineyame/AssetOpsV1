@@ -82,3 +82,4 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 168. `3B2` Findings pinned to their factors (pins, start-up pin check, parity report; no wire change) · data.md
 169. `0K1` the forward replay port and its host adapter (contract, port, adapter; exact parity with the kernel) · data.md
 170. `4a` energy to cash, where the kWh went (registry v4 stated kWh nodes, feeder delivered kWh, declared loss band, eight energy leaves; no migration) · data.md
+171. `3B6` cold-room and captive-EV structures (two registries, revenue declared not applicable, other-structure exclusion, three pins; no migration) · data.md
