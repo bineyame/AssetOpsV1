@@ -391,13 +391,18 @@ function uxOblSummary(html) {
 }
 
 /* ---------- The plan: an L1 band with the approval actions, and one line per item (review finding 6) ---------- */
-function uxPlanBand(op, P, budget) {
+function uxPlanBandParts(op, P, budget) {
   const o = OPS[op], S = uxPlanState(op), val = op === 'lakeside' ? P.value : op === 'harvest' ? harvestValue() : derivedPlan('metro').value, ms = crewByMonth(op, P);
+  return { spend: uxKpi('Plan spend', `${usdW(P.spend)} <small>of ${usdW(budget)}</small> ${uxMark('QUOTE')}`, [], uxMeterBar(P.spend, budget, `${usdW(P.spend)} of ${usdW(budget)} budget`)), crew: uxKpi(cap(o.crewWord), ms.length ? `${num(ms[0].used)} <small>of ${num(ms[0].limit)} in ${ms[0].month}</small>` : '—', ms.slice(1).map(m => `${num(m.used)} of ${num(m.limit)} in ${m.month}`)), value: uxKpi(PLAN_TOTAL_TITLE, `${val ? usdW(val, true) : '$0'} ${uxMark('MODELLED')}`, [planRestoreNote(op) || 'Not realised until records show it']), act: `<div class="ux-planact">${uxPlanStateChip(op)}${uxPlanActions(op)}<span class="ux-note">Proposed by the system on ${fdate(S.proposed)} · approver ${who(op, execOf(op))}</span></div>` };
+}
+/* D-IA.46: the band in its parts; uxPlanBand() joins them into exactly the reviewed string */
+function uxPlanBand(op, P, budget) {
+  const B = uxPlanBandParts(op, P, budget);
   return `<section class="ux-planband" aria-label="The plan at a glance"><div class="heroes ux-kpis">
- ${uxKpi('Plan spend', `${usdW(P.spend)} <small>of ${usdW(budget)}</small> ${uxMark('QUOTE')}`, [], uxMeterBar(P.spend, budget, `${usdW(P.spend)} of ${usdW(budget)} budget`))}
- ${uxKpi(cap(o.crewWord), ms.length ? `${num(ms[0].used)} <small>of ${num(ms[0].limit)} in ${ms[0].month}</small>` : '—', ms.slice(1).map(m => `${num(m.used)} of ${num(m.limit)} in ${m.month}`))}
- ${uxKpi(PLAN_TOTAL_TITLE, `${val ? usdW(val, true) : '$0'} ${uxMark('MODELLED')}`, [planRestoreNote(op) || 'Not realised until records show it'])}
- </div><div class="ux-planact">${uxPlanStateChip(op)}${uxPlanActions(op)}<span class="ux-note">Proposed by the system on ${fdate(S.proposed)} · approver ${who(op, execOf(op))}</span></div></section>`;
+ ${B.spend}
+ ${B.crew}
+ ${B.value}
+ </div>${B.act}</section>`;
 }
 /* the plan's state, version, who proposed it and who approves it, and the approver's two actions (one feedback pattern) */
 function uxPlanStateChip(op) { const S = uxPlanState(op); return `<span class="status-pill is-${S.state === 'PROPOSED' ? 'proposed' : S.state === 'APPROVED' ? 'approved' : 'waiting'}" data-plan-state="${S.state}">${S.state === 'DRAFT' && S.by ? `Draft, sent back by ${S.by}` : `${STATE_WORD[S.state]}${S.by ? ` by ${S.by}` : ''}`} · version ${num(S.version)}</span>`; }
