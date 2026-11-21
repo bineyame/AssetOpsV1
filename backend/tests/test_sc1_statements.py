@@ -316,9 +316,19 @@ def test_t7_legacy_refuses_facts_and_structured_refuses_text():
 
 def test_t8_shipped_catalogue_loads():
     cat = catalogue._load()
-    assert set(cat.statements["en"]) == {"common.not_available", "common.budget_lines"}
+    # Adopters add their area's statements and vocabularies (3A7: `reconciliation.*`, D-SC1.28; 3C2: `agreed_action.*`,
+    # `action_state`, D-3C2.14).
+    assert set(cat.statements["en"]) == {"common.not_available", "common.budget_lines",
+                                         "reconciliation.heading", "reconciliation.gap", "reconciliation.share",
+                                         "reconciliation.scope", "reconciliation.statement", "reconciliation.standing",
+                                         "reconciliation.money_word", "reconciliation.refused",
+                                         "agreed_action.state", "agreed_action.refused",
+                                         # 3C1b (D-SC1.28): the trial action's actor words.
+                                         "action.actor_label", "action.observe_note", "action.change_statement",
+                                         "action.publish_note", "action.client_authority_forbidden",
+                                         "action.unknown_site"}
     assert set(cat.vocabulary["en"]) == {"factor", "heading", "headline_subject", "record", "record_noun",
-                                         "evidence", "unit", "noun", "month", "format"}
+                                         "evidence", "unit", "noun", "month", "format", "action_state"}
 
 
 def test_t8_a_module_with_a_docstring_loads_by_its_assignment_value():
@@ -487,7 +497,7 @@ def test_t12_schema_sets_equal_the_spec():
         (("doubl", "tripl", "quadrupl", "halv"), ("e", "es", "ed", "ing")),
         (("zero", "nought"), ("", "s", "es")))}
     assert schema.UNSERVED == ("ValueError", "TypeError", "KeyError", "LookupError", "RuntimeError", "AssertionError",
-                               "NotImplementedError", "StatementError", "CatalogueError", "WireError")
+                               "SeriesRefused", "NotImplementedError", "StatementError", "CatalogueError", "WireError")
     assert schema.SYMBOLS == ("", " ", ", ", "$", "−", "+", "%", ",", ".", "(", ")", " (", "{", "}", ":", "-",
                               "T")
     assert schema.SYSTEM == ("STATEMENTS", "VOCABULARY", "statements", "vocabulary", "utf-8", "en", "USD", "OMITTED",

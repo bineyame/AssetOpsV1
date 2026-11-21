@@ -283,6 +283,8 @@ word; else (3) `observed_by_evidence[evidence]`. `VOCABULARY_SCHEMA` proves the 
 `by_evidence_first` and `observed_by_evidence` keys partition `schema.EVIDENCES`; `by_origin` keys and the three
 observed origins partition `schema.ORIGINS`; no word reads "Verified" (5c §2.4). A figure whose origin is None or
 `unknown` reads "Estimated" whatever its evidence: a figure whose source cannot be named is not claimed as recorded.
+**Amended by SC-1f (D-SC1F.1):** `DECLARED` sits in `by_evidence_first` as "Declared", whatever its origin; and a
+`with` basis counts only the figures its sentence prints or reads (D-SC1F.3). `specs/SC-1f-declared-word/spec.md`.
 `NOT_AVAILABLE` has no word here: an absent figure is worded by `common.not_available`.
 
 ### 3.6 Render (`i18n/render.py`; one function, two return shapes; D-SC1.1, D-SC1.18)

@@ -1,4 +1,4 @@
-# Built-state index, part 2 of 2
+# Built-state index, part 2 of 3
 
 One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original order: number, slice ID, summary, file in this folder. Open the file and jump to the slice's `## ` heading. Top index: `INDEX.md`.
 
@@ -89,4 +89,5 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 175. `0K2` the Kobo replay study (replay_study over ForwardReplayPort, calibration, dawn dates, month splits; simulated 61-day season fixture; no database) · data.md
 176. `DS4` template ladder, world check, re-bench (units 1-3): world tool, C4 oracle, cover rule, bench + ds7; checked `assetops_world` L2 · data.md
 177. `0M` Mto's demand-on-headroom replay (headroom_study over ForwardReplayPort on 0K2's helpers, reduced-capacity run, refusals before the port; simulated 61-day Mto season; no database) · data.md
-178. `SC-1a` the statement composer: facts, formats, conditions, load check, render/served, wire; statement guard, ratchets · data.md
+178. `SC-1a` statement composer, statement guard, ratchets · data.md
+179. `0K3` replay series reader (grid, refusals, no fill) · data.md

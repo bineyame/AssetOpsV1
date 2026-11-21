@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import Any, Callable, Protocol
 from uuid import UUID
 
+from assetops_backend.actions.lifecycle import SYSTEM_DEMO, EventActor
 from assetops_backend.actions.reserve_trial import RuleInputs
 
 
@@ -34,6 +35,9 @@ class ApplyFailed(Exception):
 
 
 class ActionStore(Protocol):
+    """3C1b (P3): `accept`, `observe` and `apply` take the event actor (SYSTEM_DEMO when omitted); every event they
+    write, FAILED included, carries it."""
+
     def rule_inputs(self, tenant_id: UUID, site_id: UUID, finding_id: UUID, finding_revision_id: UUID,
                     *, is_latest: bool, claim_is_current: bool, at: datetime) -> RuleInputs | None: ...
 
@@ -50,11 +54,12 @@ class ActionStore(Protocol):
 
     def accept(self, tenant_id: UUID, site_id: UUID, proposal: dict[str, Any], *, payload_sha256: str,
                payload: dict[str, Any], idempotency_key: str, fixture_id: str, recorded_at: datetime,
-               guard: Callable[[list[dict[str, Any]]], None]) -> tuple[dict[str, Any], dict[str, Any], bool]: ...
+               guard: Callable[[list[dict[str, Any]]], None],
+               actor: EventActor = SYSTEM_DEMO) -> tuple[dict[str, Any], dict[str, Any], bool]: ...
 
     def observe(self, tenant_id: UUID, site_id: UUID, action_id: UUID, *, occurred_at: datetime,
                 idempotency_key: str, payload: dict[str, Any], payload_sha256: str, fixture_id: str,
-                recorded_at: datetime) -> tuple[dict[str, Any], bool]: ...
+                recorded_at: datetime, actor: EventActor = SYSTEM_DEMO) -> tuple[dict[str, Any], bool]: ...
 
     def action(self, tenant_id: UUID, site_id: UUID, action_id: UUID) -> dict[str, Any] | None: ...
 
@@ -62,7 +67,8 @@ class ActionStore(Protocol):
 
     def apply(self, tenant_id: UUID, site_id: UUID, action_id: UUID, *, idempotency_key: str,
               payload: dict[str, Any], payload_sha256: str, fixture_id: str, recorded_at: datetime,
-              expected_foundation_revision_id: UUID, attempt: Callable[..., None]) -> dict[str, Any]: ...
+              expected_foundation_revision_id: UUID, attempt: Callable[..., None],
+              actor: EventActor = SYSTEM_DEMO) -> dict[str, Any]: ...
 
     def change(self, tenant_id: UUID, site_id: UUID, change_id: UUID) -> dict[str, Any] | None: ...
 

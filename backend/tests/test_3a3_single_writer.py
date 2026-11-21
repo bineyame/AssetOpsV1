@@ -1,6 +1,7 @@
 """3A3 S1 (spec §2.1, §5; D-3A3.1, D-3A3.12): one writer of commercial records.
 
-An AST scan of `backend/assetops_backend`, `tools`, `host`, `simulator`, `gateway` and `field` (tests excluded):
+An AST scan of `backend/assetops_backend`, `tools`, `host`, `simulator`, `gateway` and `field` (tests and the guard tooling under `tools/checks/` excluded: check scripts load their own subjects by name and
+write no commercial record):
 
 - `CommercialRecords(` is called only in `commercial/composition.py`;
 - in a module that imports from `assetops_backend.commercial`, other than `commercial/uploads.py` and
@@ -46,8 +47,6 @@ PACKAGE = "assetops_backend.commercial"
 DYNAMIC_IMPORT_ALLOWED = frozenset({
     BACKEND + "chain/adapters/file_chain_config.py",  # loads a chain configuration module named in its file
     BACKEND + "chain/adapters/file_inputs.py",  # loads the named chain input adapter
-    "tools/checks/import_root_probe.py",  # probes where each package imports from (the module-path record)
-    "tools/checks/neutral_tests.py",  # the neutral runner imports each test module it runs
     "tools/mechanism_dataset.py",  # loads the simulator's mechanism modules by name
     "tools/validate-test-selection.py",  # imports the selection rules it validates
     "host/conftest.py",  # the host suite's plugin loading
@@ -219,6 +218,9 @@ def violations(rel: str, source: str, *, dynamic_allowed: frozenset[str] = DYNAM
     return found
 
 
+GUARD_TOOLING = "tools/checks/"
+
+
 def _scanned() -> list[tuple[str, Path]]:
     out = []
     for root in ROOTS:
@@ -226,6 +228,8 @@ def _scanned() -> list[tuple[str, Path]]:
             rel = path.relative_to(TREE).as_posix()
             parts = rel.split("/")
             if "tests" in parts or parts[-1].startswith("test_") or "node_modules" in parts:
+                continue
+            if rel.startswith(GUARD_TOOLING):  # check scripts are guard tooling, not runtime code
                 continue
             out.append((rel, path))
     return out
@@ -315,6 +319,8 @@ PLANTED_TAGGED = (
      {"S1-DYN-COMMERCIAL"}),
     ("n1", BACKEND + "commercial/planted.py", "import re\nx = re.compile(s)\n", set()),
     ("n2", "tools/planted.py", "x = getattr(obj, name)\n", set()),  # no commercial import: the stated residual
+    ("p-rt", BACKEND + "chain/adapters/planted_runtime.py", "import importlib\nm = importlib.import_module(name)\n",
+     {"S1-DYN"}),  # runtime code still fails on a dynamic import
     ("n3", "tools/mechanism_dataset.py", "import importlib\nm = importlib.import_module(name)\n", set()),  # allowlisted
 )
 
@@ -332,3 +338,11 @@ def test_s1_allowlists_are_exact() -> None:
                          ("S1-RUNPY", RUNPY_ALLOWED)):
         holders = {rel for rel, found in open_scan.items() if any(v.split(" ", 1)[0] == tag for v in found)}
         assert holders == set(allowed), (tag, sorted(holders ^ set(allowed)))
+
+
+def test_s1_guard_tooling_under_tools_checks_is_out_of_scope() -> None:
+    on_disk = [p for p in (TREE / "tools/checks").rglob("*.py")
+               if "importlib.import_module" in p.read_text(encoding="utf-8")]
+    assert on_disk, "no guard tool uses a dynamic import: the exclusion is untested"
+    assert not any(rel.startswith(GUARD_TOOLING) for rel, _ in _scanned())
+    assert any(rel.startswith("tools/") for rel, _ in _scanned())  # the rest of tools/ stays in scope

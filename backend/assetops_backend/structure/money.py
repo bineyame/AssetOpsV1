@@ -152,6 +152,22 @@ def _origins(lines: Sequence[MonthLine]) -> tuple[str, ...]:
     return tuple(o for o in ORIGIN_ORDER if o in held)
 
 
+def used_lines(factor_id: str, lines: Sequence[MonthLine]) -> list[MonthLine]:
+    """The lines this module sums into a money row (`revenue`, `fuel_cost`, ...): 3A7 reconciles the same lines
+    the screen shows (D-3A7.1), so it reads them here rather than restating the filter."""
+    return [line for line in lines if _ROWS[factor_id].plus(line)]
+
+
+def line_sources(lines: Sequence[MonthLine]) -> tuple[str, ...]:
+    """The lines' sources as this module names them (`commercial:<system>`, sorted, distinct)."""
+    return _sources(lines)
+
+
+def line_origins(lines: Sequence[MonthLine]) -> tuple[str, ...]:
+    """The lines' distinct provenances, in `ORIGIN_ORDER`."""
+    return _origins(lines)
+
+
 class CommercialLeafSource:
     """Implements `LeafSource` and `StatedSource` (spec §3.1)."""
 

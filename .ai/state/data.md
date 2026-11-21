@@ -535,6 +535,13 @@ Branch `task/3A6-source-profiles` (main `26dd65e60` merged in); spec `specs/3A6-
 - Fix round r5 (the class, D-3A6.23-26): every upload parse (both readers, canonical JSON, admission's split) runs in a fresh forkserver child (`commercial/envelope.py`) under RLIMIT_AS 512 MiB, CPU 6 s, wall 12 s, a 32 MiB result, 2 at once per process; any breach is `NATIVE_TOO_LARGE` (its own words), logged with no content; the resource bounds switched to that code; N8-N10 bounds (attribute runs and names, 1 Mi characters a CSV row, a 256-entry/256 KiB zip directory). E0-E9, B1-B3.
 - Open: the reading-upload intake (`reading_upload_api.py`) still parses in process (queued `ENV-1`); mid-build Q1 (A9 a's many-to-one map vs `check_layout`'s one-to-one rule); queue Q1 (moving a Site's source type to another system) and Q6 (Sites named, not coded) on their defaults; a v2 that changes `personal` turns that profile's corrections into version conflicts (packet risk); 3A7 next on the same files.
 
+## 3A7 - one closed month reconciled (in review, commits 1 and 2, 21 Nov)
+
+Branch `task/3A7-month-reconciled` (main `e5a283228` and the mid-build answers merged in); spec `specs/3A7-month-reconciled/spec.md` rev 2, rulings D-3A7.1-15, D-SC1.28 split; packet `packet.md`. Migration `0069_commercial_reconciliation` on 3B4's 0068.
+
+- Settled: tables `commercial_accounts_statement` and `commercial_reconciliation_tolerance` (append-only); `structure/reconciliation.py` (`record`, `check`, `statements`, `standing` at `known_at`, `set_tolerance` citing an owner file by slug and figure) in the statement guard's `ADOPTED`; its sentences are SC-1 statements (`i18n/statements/en/reconciliation.py`: heading, gap, share, scope, statement, standing, money_word, refused); `structure/reconciliation_composition.py`; command `reconcile_month record|show|set-tolerance`; money reconciles only through a current opener with no covering mismatch; missing is never 0.
+- Open: D1 (the standing's failing headings are a `details` list, not joined into `text`: SC-1 joins no sentences), D4 (tolerance evidence wording); the screen is 5c's.
+
 ## 3B4 - the structure observer (in review, 21 Nov)
 
 Branch `task/3B4-observer` (main `2ef8e9769` merged in: 4a, 3B6, DS3); spec `specs/3B4-observer/spec.md` rev 2, rulings D-3B4.1-26; packet `packet.md`. Migration `0068_structure_finding` on 0066 (renumber at merge, gate B); no route, no screen, no served text.
@@ -559,3 +566,17 @@ Branch `task/0M-mto-headroom` (base main `6c33395ef`, after the 0K2 merge `3b4f0
 - Settled: `runs/headroom_replay.py` `headroom_study` adds a customer's kW to one Site load at its local weekday steps and replays the whole window beside the no-customer replay (full, and a second base run frozen at a reduced inverter limit fed `min(PV, limit)`); headroom days and kWh from the series; extra litres, generator, unserved, starts, month splits, dawn new/cleared dates; every customer id and the reduced run's frozen limit and other needs refused before any port call. Reuses 0K2's helpers only. `host/tests/mto.py`: the Kobo template edited to Mto's manifest facts, loads halved.
 - 61-day SIMULATED/MODELLED figures beside the design values in the packet (huller Oct 6 days, 384 kWh, 156.7 L vs 3, 225, 68; reduced 0.24 L a day vs 5); design values unchanged (row 37).
 - Open: replacing design values is the owner's (row 37); dawn admissibility and money are `6g`.
+
+## ENV1 - every upload parse under hard limits (in review after fix round 1, 21 Nov)
+
+Branch `task/ENV1-parse-limits` (base main `e9d6cdfb1`); spec `specs/ENV1-parse-limits/spec.md` rev 3, rulings D-ENV1.1-24; packet `packet.md`. No migration, no database, no served text, no guard change.
+
+- Settled: `parse_slots.py` (abstract Unix socket names, `commercial` 2, `reading` 2 (checks) and `reading-send` 1 (sends, one at a time; D-ENV1.18) per network namespace, `ASSETOPS_PARSE_SLOT_NAMESPACE`; tests set their own per process); the envelope holds a host slot at each read; the field process sets its limits before it reads (`CHECK_LIMITS` 512 MiB/30/60, `SEND_LIMITS` 896 MiB/120/270, the send wall 2x the 129.2 s production-shape send, D-ENV1.19); breaches are `ParseLimitBreach` (slot, wall, cpu, memory, killed, crashed) answered with the existing 503 words and logged once; a 5,000-digit cell is `INVALID_VALUE`; the loader reads at most 8 MiB + 1 per file, sizes first, JSON only in the envelope.
+- Open: words for `cpu`/`memory`/`crashed` after SC-1a (row 49); waiting-request cap (D-ENV1.12); JSON API body bounds (`financial_api.py`, backlog); limits are per host class (re-measure on a slower one); the gateway ledger's growth slows a send (+1.73 s per 2 MiB send, about 4.5 s per GB; retune on the production ledger's size class); another writer into the same gateway is not bounded by the send pool.
+
+## 0K3 - the replay series reader from stored readings (in review, 21 Nov)
+
+Branch `task/0K3-replay-reader` (base main `e9d6cdfb1`); spec `specs/0K3-replay-series-reader/spec.md` rev 2, rulings D-0K3.1-20; packet `packet.md`. No migration, no served text, no consumer change.
+
+- Settled: `runs/replay_series.py` `SeriesReader.read` (built by `runs/composition.build_series_reader`) turns a Site's accepted readings over whole local days into 0K2's `ObservedSeries` or refuses with a code and subject: configuration before readings, 15-minute means refused never split, `pv_power` never read as available PV, instants only at step starts (off-grid counted), nothing carried, clock-change days refused before the query, `MAX_DAYS` 92, input class from source mode. Proven on R0 (no database), MG-W402-001 and DS3 Kobo in Postgres, and 0K2's 8-day season read back field by field with the same calibration.
+- Open: no study on stored readings until a 61-day 5-minute series, Kobo's `pv_available_power` binding (row 48) and `6c`; mid-build Q1 (Kobo's zone is Addis Ababa, not Nairobi).

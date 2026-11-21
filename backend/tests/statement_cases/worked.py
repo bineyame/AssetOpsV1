@@ -1,6 +1,7 @@
 """SC-1 spec sections 5.1, 5.2 and 5.4: the worked statements 3A7 and 5c adopt, copied into a test catalogue, with
-their hand-computed cases (W2). 3A7 and 5c write these statements in their own modules (D-SC1.26); until then the
-guard's coverage skips keys absent from the shipped catalogue, and T9 renders these cases through `catalogue()`.
+their hand-computed cases (W2). 3A7 and 5c write these statements in their own modules (D-SC1.26); 3A7's have
+shipped (`i18n/statements/en/reconciliation.py`, so these cases cover them in the guard); the guard's coverage skips
+keys still absent from the shipped catalogue, and T9 renders these cases through `catalogue()`.
 """
 from __future__ import annotations
 

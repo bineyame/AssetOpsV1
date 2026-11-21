@@ -639,8 +639,10 @@ def create_app(
     # S6-01a: reserve-trial recommendation, SYSTEM demonstration acceptance/observation and exact Action reads.
     actions = (build_action_service(database_url(), finding_reads, registry=registry)
                if finding_reads is not None else None)
+    # 3C1b (spec §5): accept, apply and observe read the signed-in person (the same inputs as 3C1a's routes).
     app.include_router(build_action_router(
-        actions, registry.ledger_scope, (*finding_store_unavailable(), ACTION_UNAVAILABLE), gate=performance_gate))
+        actions, registry.ledger_scope, (*finding_store_unavailable(), ACTION_UNAVAILABLE), gate=performance_gate,
+        **person_inputs))
     # S6-03: the Site Work Action index over the same Action store (D-2026-10-16-a-action-index).
     action_index = ActionIndexService(actions.store, clock=actions.clock) if actions is not None else None
     app.include_router(build_action_index_router(
