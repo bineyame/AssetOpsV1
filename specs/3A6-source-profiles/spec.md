@@ -1,6 +1,6 @@
 # 3A6: source profiles as data (implementer spec)
 
-Status: **in_review**, rev 4 amendments from review r5 (D-3A6.23 to D-3A6.28, §2.12: the parse envelope, +1.25 units, two commits), rev 3 from review r1 (D-3A6.18 to D-3A6.22; `rulings.md` "Review answers (r1)") (built on rev 2, 21 Nov; packet `packet.md`). Handshake round 1 answered (`rulings.md`).
+Status: **in_review** (fix round r5 built: commit 1 the envelope `3134d35c6`, commit 2 the bounds `ba6eaee85`; packet "Fix round r5"), rev 4 amendments from review r5 (D-3A6.23 to D-3A6.28, §2.12: the parse envelope, +1.25 units, two commits), rev 3 from review r1 (D-3A6.18 to D-3A6.22; `rulings.md` "Review answers (r1)") (built on rev 2, 21 Nov; packet `packet.md`). Handshake round 1 answered (`rulings.md`).
 Questions during the build: `mid-build-questions.md`. Reviewer: `reviewer-guide.md` rev 3 (round 6 stop rule). Decisions with reasons:
 `rulings.md` (D-3A6.1 to D-3A6.28).
 
