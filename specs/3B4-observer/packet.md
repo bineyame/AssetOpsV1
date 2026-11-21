@@ -19,7 +19,7 @@ is empty).
 | Commit | Unit |
 |---|---|
 | `acd4b18b4` | 1: `structure/observe/rules.py`, `observe.py`; tests 2, 4-9 (pure) |
-| `9a76b83d6` | 2: migration `0071_structure_finding`, `structure_persist`, `structure_held`/`structure_apply`/tolerances, the four reader predicates, the one guard name |
+| `9a76b83d6` | 2: migration `0068_structure_finding`, `structure_persist`, `structure_held`/`structure_apply`/tolerances, the four reader predicates, the one guard name |
 | `8dad430c7` | 3: `service.py`, `composition.py`, `observe_structure.py`, `declare_tolerance.py`, two `COMMAND_ROLES` keys, `structure_lock`; Postgres tests 10-15 |
 | `f605f4524` | packet (units 1-3), spec status, `specs/INDEX.md` row, built-state entry |
 | `5aa5b0e0f`, `f1d73aac0` | merge of main (4a, 3B6, DS3); fixture follows 3B6's excluded reason (`STRUCTURE_OTHER_KEY`) |
@@ -29,7 +29,7 @@ is empty).
 ## Gates
 
 - **Gate A.** `main`'s head is `0066_structure_snapshot`; 0067-0070 are held by unmerged 3A6, 3A7, 3C2 and 3C1b, so
-  the file is `0071_structure_finding` with `down_revision = "0066_structure_snapshot"` (self-contained: it reads
+  the file is `0068_structure_finding` with `down_revision = "0066_structure_snapshot"` (self-contained: it reads
   nothing of 0067-0070). **Gate B at merge:** if `main`'s head moved, renumber on top of it and run `alembic heads`
   (one head); `test_10_single_head_on_0066` pins the parent and fails until it is updated.
 - **Gate B now.** `main` has not moved past `2ef8e9769` (`git log HEAD..main` empty); 0071 on 0066 still holds.
@@ -49,11 +49,16 @@ is empty).
    a declared or option-only leaf, an unplaced kind and an uncovered leaf (test 3, one plant per code; P1-P5): yes.
 3. Unknown is not zero (tests 5, 6, 6b): yes; `grep -n "or Decimal(0)\|or 0" backend/assetops_backend/structure/observe/`
    is empty.
-4. Re-run and rebuilt snapshot write nothing; each change writes exactly the table's transition (test 11): yes.
+4. Re-run and rebuilt snapshot write nothing (test 11's re-run and rebuilt steps); every cell of the table writes
+   exactly its transition (the pure walk `test_11_transition_walks_every_cell_of_the_table` over every held lifecycle,
+   same or changed basis, and state, against a literal table, plus the named UNCONFIRMED rows): yes, since fix round r1.
+   Before r1 test 11 itself never left `UNCONFIRMED` (review L1); the Postgres test 11 still does not.
 5. Domain `structure`, pinned by key, claim in the leaf's unit, the 25-key set a literal (tests 9, 11): yes.
 6. No reader shows, counts or chokes on a structure Finding (test 13, sweep below): yes.
-7. Tolerance only by the finance lead (money) or the Site's manager (operational), with person and time, read by
-   month and as known (test 15): yes.
+7. Tolerance only by the finance lead (money) or the Site's manager (operational), with person and time: test 15
+   (other-tenant and disabled people refused `PERSON_NOT_FOUND` since r1). Read by month: test 15's `2026-09` show.
+   Read as known: `test_15_tolerance_read_is_as_known`, a pure test of `tolerance_in_force` over literal rows (a
+   row recorded after `known_at` is not seen); the Postgres test does not exercise it: yes, since fix round r1.
 8. One guard name, one migration, no served text: yes. Plants: all 23 fail their named test (below). Mid-build count: 0.
 
 ## The §4.4 sweep, re-run on the branch
@@ -191,3 +196,27 @@ After `build_structure_snapshot build --tenant <slug> --month <YYYY-MM> --by per
 
 The lifecycle table first-match (`rules.transition`), the basis never over the claim (`service._site`), the Site-row
 digest (D-3B4.21), the five `rows()` selects, the SITE_MANAGER binding in `declare_tolerance.admitting_role`.
+
+## Fix round r1 (review L1-L4, 21 Nov)
+
+- **L1** `test_11_transition_walks_every_cell_of_the_table` (4 held states x 2 basis cases x 8 states) against a
+  literal expected function, and `test_11_the_named_rows` (UNCONFIRMED to REOPENED and to NO_LONGER_SUPPORTED, the
+  write-nothing rows). **L2** `test_15_tolerance_read_is_as_known` (pure, in `test_3b4_observer.py`). **L3** test 15
+  adds a FINANCE person of a second tenant and a DISABLED FINANCE person of this one: both `PERSON_NOT_FOUND`, nothing
+  written. **L4** acceptance items 4 and 7 above now claim only what the tests show.
+- **Plants re-run** on a throwaway worktree at the fix head, each alone and reverted: R1 (UNCONFIRMED + RAISED writes
+  nothing) fails `test_11_transition_walks_every_cell_of_the_table[RAISED-*-UNCONFIRMED]`; R2 (UNCONFIRMED not
+  withdrawn) fails `[NO_GAP-*-UNCONFIRMED]`; R7 (drop `recorded_at <= known_at`) fails
+  `test_15_tolerance_read_is_as_known`; R9 (drop the tenant check) and R10 (drop `active`) each fail `test_15_tolerance_command` (the other-tenant
+  FINANCE person `zed@elsewhere.example`, the disabled one). The pure plant runs are in `test_3b4_observer.py`.
+- **Migration.** `main` moved to `0067_source_profile` (3A6 merged). Main merged in; the migration is renumbered
+  `0068_structure_finding` (file, revision, `down_revision = "0067_source_profile"`, `REFUSED` text, test 10's parent
+  pin, `test_10_single_head_on_0067`, k4a comment). `.ai/state` conflicts kept both sides; the state-index line is 174.
+  Other unmerged branches holding 0068-0070 renumber when they merge.
+- **Operational note.** After this merges, every served structure snapshot reads `freshness.current = false`
+  (reason `RULES`: `structure/check.py` is in the code digest) and `observe_structure run` refuses with
+  `SNAPSHOT_NOT_CURRENT` until `build_structure_snapshot build --tenant <slug> --month <YYYY-MM> --by person:<id>` is
+  rerun for each served tenant-month on each database holding snapshots (the walkthrough DB included).
+- **Runs.** Pure `test_3b4_observer.py` 93 passed; Postgres `test_3b4_observer_postgres.py` 13 passed, with
+  `test_k4a_fuel_finding_postgres.py` and the pure file 119 passed (harness `*_test` DB only); `check-all` fast: all 41
+  guards passed; `check-agent-workflow` and `check-decision-index.py` pass; `specs/INDEX.md` 7990 bytes.
