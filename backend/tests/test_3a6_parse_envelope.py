@@ -33,7 +33,7 @@ __all__ = ["people"]  # the module-scoped People fixture, shared with 3A6's file
 BACKEND = Path(__file__).resolve().parents[1] / "assetops_backend"
 LAKESIDE = "profile.lakeside-budget.v1"
 SENTINEL = "SENTINEL-E9-QX7"
-LOGGER = "assetops.commercial.envelope"
+CAUSES = {"wall", "memory", "cpu", "result", "crash"}
 CTX = ReadContext("acme", T_SUBMIT, False)
 
 
@@ -102,10 +102,10 @@ def check(w, data: bytes, reader: str = V1, media: str = "text/csv") -> dict:
     return w.svc.check(w.tid, w.org, w.ana, data, reader_id=reader, media_type=media)
 
 
-def too_large(w, data: bytes, caplog, reader: str = V1, media: str = "text/csv") -> logging.LogRecord:
-    """The check refuses `NATIVE_TOO_LARGE` (422, its words) and logs exactly one envelope record: returned."""
+def too_large(w, data: bytes, caplog, reader: str = V1, media: str = "text/csv") -> UploadRefused:
+    """The check refuses `NATIVE_TOO_LARGE` (422, its words), carries the cause, and logs nothing (D-3A6.29): returned."""
     caplog.clear()
-    with caplog.at_level(logging.WARNING, logger=LOGGER):
+    with caplog.at_level(logging.DEBUG):
         with pytest.raises(UploadRefused) as raised:
             check(w, data, reader, media)
     e = raised.value
@@ -113,9 +113,8 @@ def too_large(w, data: bytes, caplog, reader: str = V1, media: str = "text/csv")
         e.status, e.code, e.params)
     assert e.words["params"]["reason"] == (
         "this file is too large or too complex to read in one upload; split it and upload the parts.")
-    records = [r for r in caplog.records if r.name == LOGGER]
-    assert len(records) == 1
-    return records[0]
+    assert not [r for r in caplog.records if r.name.startswith("assetops.commercial")]
+    return e
 
 
 def survives(w) -> None:
@@ -235,12 +234,12 @@ def test_e6_admission_refuses_a_breach_with_the_same_words(people, caplog) -> No
     from assetops_backend.commercial.profiles import ProfileRefused
     from assetops_backend.i18n import render
     w = make_world(people, envelope=ParseEnvelope(replace(DEFAULT_LIMITS, wall_seconds=0.001)))
-    with caplog.at_level(logging.WARNING, logger=LOGGER), pytest.raises(ProfileRefused) as raised:
+    with caplog.at_level(logging.WARNING), pytest.raises(ProfileRefused) as raised:
         w.profiles.check(w.tid, KOBO_PROFILE, KOBO_SAMPLE, KOBO_EXPECTED)
     assert (raised.value.code, raised.value.params) == ("ADMIT_SAMPLE_FILE", {"code": "NATIVE_TOO_LARGE"})
     assert render(raised.value.words) == ("The sample cannot be read: this file is too large or too complex to read "
                                           "in one upload; split it and upload the parts.")
-    assert [r.cause for r in caplog.records if r.name == LOGGER] == ["wall"]
+    assert not [r for r in caplog.records if r.name.startswith("assetops.commercial")]
     w = make_world(people)
     assert w.profiles.check(w.tid, KOBO_PROFILE, KOBO_SAMPLE, KOBO_EXPECTED).sample_rows == 4
 
@@ -363,14 +362,36 @@ def test_e8_a_rebuilt_reader_whose_id_differs_does_not_run() -> None:
 
 # --- E9 --------------------------------------------------------------------------------------------------------------
 
-def test_e9_logged_without_content(people, big, caplog) -> None:
+def test_e9_the_api_logs_codes_and_numbers_and_the_envelope_logs_nothing(people, big, caplog) -> None:
+    """D-3A6.29: a breach reaches the log only from the upload API; the marker in the file reaches no record."""
+    from test_3a2_commercial_upload_api import SITE, as_, client
+    from test_3c1a_person_work import People
+    people = People()  # the API's own signed-in analyst, as 3A2's API tests have it
+    people.sign("ana")
     w = world(people, replace(DEFAULT_LIMITS, memory_bytes=80 * 2**20))
-    record = too_large(w, big, caplog)
+    c = client(people, world=w)
+    caplog.clear()
+    with caplog.at_level(logging.DEBUG):
+        r = c.post(f"{SITE}?dry_run=true&reader={V1}", content=big,
+                   headers=as_(people, "ana", **{"x-file-name": f"{SENTINEL}.csv", "content-type": "text/csv"}))
+    assert (r.status_code, r.json()["code"]) == (422, "UPLOAD_FILE_REFUSED")
+    assert not [r for r in caplog.records if r.name.startswith("assetops.commercial.")]
+    records = [r for r in caplog.records if r.name == "assetops.commercial_upload"]
+    assert len(records) == 1
+    record = records[0]
     standard = set(vars(logging.LogRecord("n", logging.INFO, "p", 1, "m", (), None))) | {"message", "asctime"}
     extra = {k: v for k, v in vars(record).items() if k not in standard}
     assert set(extra) == {"cause", "reader", "bytes", "tenant"}
+    assert extra["cause"] in CAUSES and isinstance(extra["bytes"], int) and type(extra["bytes"]) is int
     assert (extra["reader"], extra["bytes"], extra["tenant"]) == (V1, len(big), "acme")
     assert record.getMessage() == "upload parse refused by the envelope" and record.args == ()
     for text in [record.getMessage(), repr(record.args), *map(repr, extra.values()), caplog.text]:
         assert SENTINEL not in text
     assert record.exc_info is None
+
+
+def test_e9_an_envelope_breach_is_a_canonical_refusal_with_a_closed_cause() -> None:
+    from assetops_backend.commercial.envelope import EnvelopeBreach
+    breach = EnvelopeBreach("wall")
+    assert isinstance(breach, CanonicalRefused) and (breach.code, breach.path, breach.cause) == (
+        "NATIVE_TOO_LARGE", "json", "wall")

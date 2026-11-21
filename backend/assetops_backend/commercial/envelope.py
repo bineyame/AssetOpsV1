@@ -5,7 +5,7 @@ The step that turns upload bytes into rows or a batch object (`SourceReader.read
 included, and admission's `split_file`) runs only here, in a short-lived child forked from a forkserver that has
 preloaded the pure contracts package. The child sets `RLIMIT_AS`, `RLIMIT_CPU`, `RLIMIT_FSIZE` and `RLIMIT_CORE`
 before it reads a byte; the parent waits a bounded wall time and takes a bounded result back. Any breach refuses the
-file with `NATIVE_TOO_LARGE`, and the log names the cause with no file content. There is no in-process mode and no
+file with `NATIVE_TOO_LARGE`, and the breach carries its cause code (the upload API logs it). There is no in-process mode and no
 setting that turns the envelope off: production builds it from `DEFAULT_LIMITS` only (tests may lower the limits).
 Linux only (`resource`, forkserver); elsewhere the constructor raises.
 """
@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import io
 import json
-import logging
 import multiprocessing
 import os
 import pickle
@@ -31,7 +30,12 @@ from assetops_backend.commercial.readers import READERS, LayoutReader, ReadConte
 from assetops_contracts.canonical import CanonicalRefused
 from assetops_contracts.canonical.records_v1 import MAX_RECORDS
 
-_LOG = logging.getLogger("assetops.commercial.envelope")
+class EnvelopeBreach(CanonicalRefused):
+    """A breach of the envelope's limits (D-3A6.29): `NATIVE_TOO_LARGE`, with the closed cause code. No content."""
+
+    def __init__(self, cause: str) -> None:
+        super().__init__("NATIVE_TOO_LARGE", "json")
+        self.cause = cause
 
 
 @dataclass(frozen=True)
@@ -162,10 +166,7 @@ class ParseEnvelope:
         if cause is None and answer[0] == "breach":
             cause = answer[1]
         if cause is not None:
-            _LOG.warning("upload parse refused by the envelope",
-                         extra={"cause": cause, "reader": reader.id, "bytes": len(data),
-                                "tenant": context.tenant_code})
-            raise CanonicalRefused("NATIVE_TOO_LARGE", "json")
+            raise EnvelopeBreach(cause)
         if answer[0] == "refused":
             raise CanonicalRefused(answer[1], answer[2])
         if answer[0] == "ok":
