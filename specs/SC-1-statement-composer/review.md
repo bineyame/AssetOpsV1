@@ -172,3 +172,144 @@ change the paragraph to "need not be in `TOKENS`" or list the two exceptions. (P
 one-line Architect ruling extending §3.12, then the matching `schema.py` and T12 change. The Lows are optional (L1
 before SC-1b). A verification re-review checks M1 to M3 and their sweeps. The owner approves the two check-all lines
 at merge with the cost above in view.
+
+## Round 2: verification re-review (W5/W6), head 11cda9de3 (code 33115e055)
+
+Reviewer: fresh Claude reviewer (did not author the work), 2026-11-21. Diff: `git diff e641526e0..11cda9de3 --
+':!specs/OWNER-AWAY'`, SC-1a's own files only. Judged against D-SC1.32 to D-SC1.39, spec rev 3, reviewer guide rev 3.
+
+**Summary (verdict: ACCEPT WITH FIXES).**
+- M1 closed: every `i18n/**/*.py` is classified; my plants at depths 2 to 4 give `MECH_UNSCOPED`.
+- M3 closed: `NUMBER_WORDS` equals §3.12's pairs; every word the dispatch named fails.
+- L1 closed: rule (i) is one fingerprint per entry; `CATALOGUE` is judged by the legacy ratchet alone.
+- M2 is closed for the forms D-SC1.36 lists, but not for the package itself. `import assetops_backend.i18n as i;
+  i.render.formats` and `from assetops_backend import i18n; i18n.formats` pass (**M4**, Medium, a small guard fix).
+- Replay rerun with the shipped guard: **112 new fingerprints, 14 failing merges, 2 code strings**, as claimed.
+  Baselines regenerated: byte-identical (300 paths, 5,185 fingerprints, 123 legacy keys).
+- The three deviations are accepted. Lows: L6 (number words still loading) and L7 (the allow file is held by the
+  reviewer alone). Neither blocks.
+
+### Findings
+
+**M4 (Medium; M2's sweep, an acceptance gap against D-SC1.36: "anything else reached through them is a bypass").
+The `i18n` package object is not tracked.** In `tools/checks/statement_catalogue.py:526-571`, `import_hits` binds
+names only for `assetops_backend.i18n.<module>` imports and for names imported *from* the package. A binding of the
+package itself is never recorded, and an attribute on `assetops_backend.i18n` is not read as a dotted path, because
+`dotted` needs the `package + "."` prefix. These plants passed, each in a backend module (scratch copy, `--root`):
+- `import assetops_backend.i18n as i` then `i.render.formats.money(x)`;
+- the same with `i.formats.money(x)` (reachable once `render` has been imported);
+- `from assetops_backend import i18n` then `i18n.formats.money(x)`;
+- `from . import i18n` then `i18n.formats`.
+
+By reading the code, `import assetops_backend.i18n` then `assetops_backend.i18n.formats` passes too.
+These are ordinary static imports, the same class as P49b and P49c. Why it matters: `formats.money` reached this way
+is the second renderer D-SC1.22 forbids. Fix: bind the package (aliased, unaliased dotted, `from assetops_backend
+import i18n`, relative) to the surface `""`. An attribute whose name is in `PUBLIC_MODULES` then chains to that
+module's surface; any other name must be in `i18n.__all__`. Add plants P49e to P49g.
+Also passing, and Low: dynamic access by `importlib.import_module("assetops_backend.i18n.formats")`, `__import__(...)`,
+`getattr(render, "formats")` and `sys.modules[...]`. These count as deliberate evasion, not a slip. A string-literal
+`import_module` or `__import__` is cheap to treat as an `Import`, so add it with the fix.
+What does hold: `from ...i18n.render import formats` (P49a), the dotted `assetops_backend.i18n.render.formats`, `from
+...i18n.facts import schema`, the relative `from .i18n.render import formats`, and public names (`render.served`,
+`messages.message`), which pass.
+
+**L6 (Low; spec, for the Architect). Number words that still load.** Each of these loads alone in a template:
+- `doubling`, `tripling`, `quadrupling`, `halving`: the verbs' `-ing` form. The ruling refuses `doubled`, and this
+  is the same class.
+- `per cent`: the spaced synonym of `percent`.
+- `zeroes`.
+- `nought`.
+
+Accepted as stated, or harmless: `Firstly` and `secondly` (enumeration), `quintuple`, `fortnight` and `quarterly`
+(period words, stated), and `percentage`, `several` and `umpteen` (no number stated). Fix: add the `-ing` forms (for
+example roots `doubl tripl quadrupl halv` with `e es ed ing`), `cent` (or the pair `per cent`), `zeroes` and
+`nought`. Then update T12 and T12b.
+
+**L7 (Low; preference, on D-SC1.33/34). The allow file is held by the reviewer alone.** My plant put a served
+sentence in a backend module, `{"detail": f"Site {site} has no budget yet"}`, and gave its fingerprint an allow
+entry with `"class": "CODE", "why": "internal code string"`. The guard passed it. Without the entry it fails with
+`HAND_BUILT_NEW`. `_allow_valid` (`:714`) checks that the entry has the right form, not that its class is true. So
+what stops a builder laundering a sentence is the reviewer guide's item 10, which treats a served string in the
+allow file as High, read against the allow file's diff. A hand edit to the baseline JSON is held the same way. This
+is the ruling as written ("the reviewer checks each new entry's class is true"), so it is not an acceptance gap.
+Cheap structural tightening (optional):
+- `SQL` only when the hit's node holds an `SQL_WORDS` token;
+- `HASH` only for a rule (e) hit under `hashlib` or `.encode`;
+- `CODE` never for a rule (a), (b) or (g) node whose text is `prose`;
+- the guard prints each allowed entry's source line, so the reviewer reads the text, not a hash.
+
+### Judging the builder's three deviations
+
+1. **`schema.NUMBER_WORDS` read as data (accepted).** The exemption is the value of one module-level assignment in
+   `schema.py` only (`mechanism_hits`, `t.assigned("NUMBER_WORDS")`), and T12 pins that literal exactly. Keeping
+   the roots and suffixes out of `TOKENS` is what D-SC1.32 requires. Without the exemption, the spec's own literal
+   would be `MECH_LITERAL`. This is the narrowest way to reconcile the two.
+2. **`"policy_version required"` caught (accepted; stricter than the rulings' list).** D-SC1.33 rule 1 makes a
+   three-letter word next to an identifier prose, so the guard follows the rule over the "does not catch" summary.
+   That errs toward catching. The baseline was regenerated under the shipped rule, so nothing drifts. The Architect
+   should correct the summary line in "Review answers (round 1)" (wording only).
+3. **P49d also gives `I18N_BYPASS` (accepted).** With `__all__` removed, render's surface is empty, so every outside
+   name imported from it is correctly a bypass. The allowed set names both codes, and the required code is still
+   `I18N_SURFACE`.
+
+### Checks run (worktree, head 11cda9de3; Python `/opt/assetecon/AssetOpsV1/.venv/bin/python`; PYTHONPATH worktree `backend:backend/tests:contracts:simulator`; all through `tools/heavy-slot.sh`)
+
+- `statement_catalogue.py` on the real tree: `OK statement catalogue: load, coverage, legacy, scan (0 adopted), keys,
+  imports`.
+- `--self-test`: `OK ... 68 of 68 plants behave`.
+- `pytest backend/tests/test_sc1_statements.py tools/checks/test_statement_catalogue.py -q`: **418 passed** in 63s
+  (370 plus 48, as the packet says; the run was slow because the machine was busy).
+- **M1 plants:**
+  - `i18n/helpers/deep/words.py`, `i18n/statements/en/x/y/words.py`, and the pair `helpers/__init__.py` plus
+    `helpers/sub/__init__.py`: each gives `MECH_UNSCOPED`.
+  - A stray constant in `statements/en/stray.py`, and a new `statements/fr/` locale: each gives `LOAD NOT_DATA`.
+    That is a failure, not silence.
+- **M2 plants:** as in M4 above.
+- **M3 probes:** `catalogue.check_literal`, on about 90 words.
+  - Refused: "sixty", "Sixty", "SIXTY", "thirteenth", "Thirteenth", "hundreds", "twice", "Twice", "dozen",
+    "dozens", "a couple of", "half", "halves", "a half", "sixty-one", "twenty-first", "ninety-ninth",
+    "one-and-a-half", "fortieth", "eightieth", "sixtieth", "twelfths", "tens", "nineties", "threefold", "zeroth",
+    "once-weekly", "first-ever", "one's", "seconds".
+  - All of these should fail, and do.
+  - Ordinary words load: "someone", "often", "tone".
+  - The words that load but should not are in L6.
+- **Replay.** `replay.py` was not in the scratchpad (only another lane's `plants/` and `3a6-r4/` were there), so I
+  wrote an independent one. It used the shipped `ratchet_hits` on `main`'s 90 first-parent commits from
+  `43433bea8`, counting the new fingerprints per changed ratchet path (old to new multiset).
+  - Result: **112 new fingerprints; 14 of the 20 backend-touching merges fail**. By merge: 3B7a 9, 5b 1, ON1 40,
+    3A3 13, 4b2 2, RC4-F1 3, 5a 5, 4b1 2, 3A2 6, 3A4 1, 3B3 4, 3C1a 2, 3A1 1, 3B1 23.
+  - I read every hit. The **2 code strings** are the packet's two: `months.py:125` `"\n".join` (hashed) and
+    `evaluate.py:223` `", ".join` (expression code).
+  - The rest are served or person-facing English: CLI refusal tables, `*_TEXT` notes, source descriptions,
+    `ConfigurationError` text and exception messages.
+- **Baselines:**
+  - Backend outside `i18n/`, `config` and `conversions` equal `main` 12a0c6356 (`git diff --quiet`). SC-1a's
+    tree was copied with both baselines removed, then regenerated with `--write-baseline --root`.
+  - Both files are **byte-identical** to the branch's.
+  - The baseline holds no `i18n/` path. SC-1a adds no backend file outside `i18n/`, so nothing that SC-1a should
+    convert is baselined: the 5,185 are `main`'s debt.
+- `check-architecture.ps1` (ASSETOPS_GUARD_PYTHON set) and `check-agent-workflow.ps1`: `Architecture check passed.`, `Agent workflow check passed.`
+- Not rerun: fast check-all and the regression set. The packet gives them at this code revision (43 of 43 guards;
+  778 passed).
+
+### Could not verify
+
+- The builder's recreated replay script itself, which was absent. My independent script gives the same totals.
+
+### Residual risk the packet does not name
+
+- The `.encode()` exemption for joins (rule 3) assumes bytes are never shown. A CSV or text download body built as
+  `" and ".join(names).encode()` would be served. Today the only hit is a hash input.
+- The logging exemption is name-based on attributes (`self.log.info`). An object named `log` whose entries a page
+  shows would be exempt. That is unlikely today.
+
+### Verdict
+
+**ACCEPT WITH FIXES.** Fix M4 on the branch: track the package object in `import_hits`, plus string-literal
+`import_module` and `__import__`, with plants P49e to P49g. A verification re-review checks M4 and its plants only.
+L6 is an Architect spec line (fix now or in SC-1b); L7 is optional. The owner still approves the two check-all lines
+at merge.
+
+**For the owner, in plain words:** over the last 90 merges, the guard would have stopped 14 of 20 backend merges,
+almost all for real English written straight into code. It raised 2 false alarms in 112 flags (about 2%), roughly
+one one-line allow entry every seven backend merges. It adds about 20 seconds to each check-all.
