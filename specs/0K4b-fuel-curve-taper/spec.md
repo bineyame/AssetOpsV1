@@ -1,6 +1,6 @@
 # 0K4b: the generator's fuel curve and the battery's charge taper (implementer spec)
 
-Status: live, rev 2 (Architect, Claude, 2026-11-21): handshake answered (D-0K4.19 to D-0K4.21, D-0K4.25), build-ready.
+Status: in_review (built on `task/0K4b-fuel-curve`, packet `packet.md`, 2026-11-21); rev 2 (Architect, Claude, 2026-11-21): handshake answered (D-0K4.19 to D-0K4.21, D-0K4.25).
 **2.0 units.**
 Discovery review (W5): a new physical law whose litres feed a money figure. Non-screen. No migration. No database.
 `USER_REVIEW_REQUIRED: false` (the four new names reach the Foundation read only for a Site

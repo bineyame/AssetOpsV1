@@ -1,4 +1,4 @@
-"""Mini-grid dispatch analytic, model `dispatch-3.2` (pure; S3-01 phase 2, version bumps phase 3a and LR-01).
+"""Mini-grid dispatch analytic, model `dispatch-3.3` (pure; S3-01 phase 2, version bumps phase 3a, LR-01 and 0K4e).
 
 Input: one `AnalyticInputSet` (selected public cohort, selected Foundation
 controls, selected role bindings). Output: a window assessment plus one
@@ -22,8 +22,10 @@ from fractions import Fraction
 from typing import Any
 
 from assetops_backend.analytics.assessment_inputs import (
+    CONTROL_BATTERY_CAPACITY,
     CONTROL_BATTERY_RESERVE,
     CONTROL_MINIMUM_RUNTIME,
+    CONTROL_PCS_EFFICIENCY,
     AcceptedReading,
     AnalyticInputSet,
     CohortLimit,
@@ -32,6 +34,7 @@ from assetops_backend.analytics.assessment_inputs import (
     sha256_json,
 )
 from assetops_backend.analytics.dispatch import ANALYTIC_ID, CANDIDATE, INDETERMINATE, NECESSARY
+from assetops_backend.i18n import Evidence, Instant, Items, Message, Percent, Quantity, State, Word, message
 
 #: `dispatch-3.1` (D-2026-10-11-s3-phase-3a-version-and-cutover) = `dispatch-3` plus the stricter
 #: default multi-epoch cohort (Q9) and interval limitations lifted into the window list (Q13).
@@ -39,7 +42,9 @@ from assetops_backend.analytics.dispatch import ANALYTIC_ID, CANDIDATE, INDETERM
 #: `dispatch-3.2` (LR-01, D-2026-10-15-lr01-source-time-cohort) = `dispatch-3.1` over the cohort-4 rules: an
 #: attested source clock orders a late arrival by source time, and every refused span names its clock reason
 #: and attestation versions. Stored `dispatch-3.1` runs, selections and revisions stay unchanged history.
-MODEL_VERSION = "dispatch-3.2"
+#: `dispatch-3.3` (0K4e, D-0K4.10) = `dispatch-3.2` plus the energy-to-cover test on the battery-support Candidate
+#: branch. Stored `dispatch-3.2` runs, selections and revisions stay unchanged history.
+MODEL_VERSION = "dispatch-3.3"
 
 CONTINUITY_TOLERANCE = timedelta(minutes=20)
 INSTANT_TOLERANCE = timedelta(minutes=10)
@@ -47,6 +52,8 @@ CAPABILITY_HEADROOM = Fraction(1, 10)
 SOC_HEADROOM_POINTS = Fraction(10)
 STRONG_MARGIN = Fraction(1, 4)
 TRANSITION_LIMIT = timedelta(minutes=15)
+#: The energy-to-cover walk's slot (0K4e): each slot adds (load - PV) x 5/60 h until PV alone covers the load.
+COVER_WALK_STEP = timedelta(minutes=5)
 
 GEN_STATE = "generator_state"
 GEN_POWER = "generator_power"
@@ -102,6 +109,8 @@ class Point:
     ids: set[str]
     margin: Fraction | None = None
     load: Fraction | None = None
+    #: 0K4e: the energy-cover entry of a point that reached the battery-support test (codes and figures only).
+    cover: dict[str, Any] | None = None
 
 
 @dataclass
@@ -116,6 +125,7 @@ class Segment:
     ids: set[str] = field(default_factory=set)
     margin: Fraction | None = None
     load: Fraction | None = None
+    covers: list[dict[str, Any]] = field(default_factory=list)
 
     @property
     def seconds(self) -> int:
@@ -126,7 +136,23 @@ class Segment:
                 "observed": self.observed, "classification": self.classification,
                 "binding_constraint": self.binding, "reasons": sorted(set(self.reasons)),
                 "missing": sorted(set(self.missing)), "margin_kw": _num(self.margin), "load_kw": _num(self.load),
-                "evidence_ids": sorted(self.ids)}
+                "evidence_ids": sorted(self.ids), **({"energy_cover": self.covers} if self.covers else {})}
+
+
+@dataclass(frozen=True)
+class Cover:
+    """The energy-to-cover walk from one slot (0K4e, D-0K4.23): `REACHED` with the `need` (kWh) until PV alone covers
+    the load with the headroom; `GAP` naming the failing role, its lookup code and the slot; `END` at the read range's
+    end."""
+
+    state: str
+    need: Fraction | None = None
+    input: str | None = None
+    problem: str | None = None
+    at: datetime | None = None
+
+
+REACHED, GAP, END = "REACHED", "GAP", "END"
 
 
 @dataclass(frozen=True)
@@ -159,6 +185,7 @@ class _Index:
         for limit in inputs.cohort.limits:
             self.limits[(limit.role, limit.asset_id)].append(limit)
         self.digest = {str(r.evidence_id): r.envelope_sha256 for r in inputs.readings}
+        self.covers: dict[datetime, Cover] = {}
 
     def assets(self, role: str, at: datetime) -> list[str]:
         return sorted({str(b.asset_id) for b in self.inputs.bindings if b.role == role and b.effective(at)})
@@ -199,6 +226,69 @@ class _Index:
             return Lookup(None, ids, "CONFLICTING")
         return Lookup(values.pop(), ids, None)
 
+    def held_value(self, role: str, asset: str, at: datetime) -> tuple[Fraction | None, str | None]:
+        """A walk reading: `lookup_asset`, else (only when MISSING) the value of a GOOD interval reading with
+        `interval_start < at <= interval_end`; a mean holds over its own interval only, never beyond it."""
+        found = self.lookup_asset(role, asset, at)
+        if found.problem != "MISSING":
+            return found.value, found.problem
+        values = {_fraction(r.value) for r in self.by_channel.get((role, asset), [])
+                  if r.interval_start is not None and r.interval_end is not None
+                  and r.interval_start < at <= r.interval_end and r.quality == "GOOD" and r.value is not None}
+        if not values:
+            return None, "MISSING"
+        if len(values) > 1 or None in values:
+            return None, "CONFLICTING"
+        return values.pop(), None
+
+    def _slot(self, s: datetime) -> tuple[Fraction, Fraction] | Cover:
+        """(load, PV) at slot `s`, the feeders re-read at `s`; a `GAP` cover when either cannot be read."""
+        feeders = self.assets(LOAD, s)
+        if not feeders:
+            return Cover(GAP, input=LOAD, problem="UNBOUND", at=s)
+        load = Fraction(0)
+        for asset in feeders:
+            value, problem = self.held_value(LOAD, asset, s)
+            if problem:
+                return Cover(GAP, input=LOAD, problem=problem, at=s)
+            load += value
+        panels = self.assets(PV_AVAILABLE, s)
+        if len(panels) != 1:
+            return Cover(GAP, input=PV_AVAILABLE, problem="UNBOUND" if not panels else "MULTIPLE_BINDINGS", at=s)
+        pv, problem = self.held_value(PV_AVAILABLE, panels[0], s)
+        if problem:
+            return Cover(GAP, input=PV_AVAILABLE, problem=problem, at=s)
+        return load, pv
+
+    def energy_to_cover(self, t: datetime) -> Cover:
+        """The memoised per-slot recurrence (D-0K4.23), built once per `assess()`: walk forward until a memo hit or a
+        terminal, then fill the memo backward. Each slot's lookups run once however many points reach the branch."""
+        end = self.inputs.read_range.end
+        path: list[tuple[datetime, Fraction]] = []
+        s = t
+        while True:
+            if s in self.covers:
+                cover = self.covers[s]
+                break
+            if s > end:
+                cover = Cover(END, at=end)
+                break
+            read = self._slot(s)
+            if isinstance(read, Cover):
+                cover = self.covers[s] = read
+                break
+            load, pv = read
+            if pv >= load * (1 + CAPABILITY_HEADROOM):
+                cover = self.covers[s] = Cover(REACHED, need=Fraction(0))
+                break
+            path.append((s, (load - pv) * Fraction(COVER_WALK_STEP // timedelta(seconds=1), 3600)))
+            s += COVER_WALK_STEP
+        for slot, need in reversed(path):
+            if cover.state == REACHED:
+                cover = Cover(REACHED, need=need + cover.need)
+            self.covers[slot] = cover
+        return cover
+
     def control(self, key: str, at: datetime) -> tuple[Fraction | None, ControlValue | None, str | None]:
         found = [c for c in self.inputs.controls if c.key == key and c.effective(at)]
         if not found:
@@ -217,6 +307,37 @@ _PROBLEM_TEXT = {
     "AMBIGUOUS_SERIES": "reports out of sequence order or overlapping (cohort limit)",
     "NOT_CONFIGURED": "not configured",
 }
+
+
+def cover_entry(at: datetime, state: str, *, held: Fraction | None = None, need: Fraction | None = None,
+                input: str | None = None, problem: str | None = None, gap_at: datetime | None = None,
+                range_end: datetime | None = None, controls=()) -> dict[str, Any]:
+    """One point's energy-cover outcome (D-0K4.24): codes and exact decimal strings only; unused fields are null."""
+    return {"at": iso(at), "state": state, "held_kwh": _num(held), "need_kwh": _num(need), "input": input,
+            "problem": problem, "gap_at": iso(gap_at), "range_end": iso(range_end), "controls": sorted(controls)}
+
+
+def _instant(text: str) -> datetime:
+    return datetime.fromisoformat(text.replace("Z", "+00:00"))
+
+
+def cover_message(entry: dict[str, Any]) -> Message:
+    """The `dispatch.energy_cover` statement for one stored entry (spec §2.5): the words come from the catalogue at
+    read time, never from the stored record (D-0K4.24)."""
+    facts: dict[str, Any] = {"state": State(entry["state"])}
+    for name in ("held", "need"):
+        if entry.get(f"{name}_kwh") is not None:
+            facts[name] = Quantity(Decimal(entry[f"{name}_kwh"]), "kWh", Evidence("DERIVED"))
+    if entry["state"] in ("COVERED", "SHORT"):
+        facts["headroom"] = Percent(Decimal(_num(CAPABILITY_HEADROOM)), Evidence("DECLARED"))
+    if entry["state"] == "GAP":
+        facts.update(input=Word("dispatch_input", entry["input"]), problem=Word("reading_problem", entry["problem"]),
+                     at=Instant(_instant(entry["gap_at"])))
+    if entry["state"] == "NOT_REACHED":
+        facts["at"] = Instant(_instant(entry["range_end"]))
+    if entry["state"] == "NOT_CONFIGURED":
+        facts["controls"] = Items(tuple(Word("dispatch_input", k) for k in entry["controls"]))
+    return message("dispatch.energy_cover", **facts)
 
 
 def _missing(role: str, problem: str) -> str:
@@ -299,8 +420,9 @@ def _evaluate(index: _Index, t_meas: datetime, t_ctrl: datetime, t_rt: datetime,
             result = point(INDETERMINATE, None)
             result.missing.append("battery inside the 10-point SOC headroom over reserve; battery support not counted")
         elif pv + dis >= load * (1 + CAPABILITY_HEADROOM):
-            result = point(CANDIDATE, None, pv + dis - load)
-            reasons.append("PV available plus PCS discharge capability covers load with 10 % headroom")
+            result = _battery_support(index, t_meas, t_ctrl, soc, reserve, point, pv + dis - load)
+            if result.classification == CANDIDATE:
+                reasons.append("PV available plus PCS discharge capability covers load with 10 % headroom")
         else:
             result = point(INDETERMINATE, None)
             result.missing.append("capability margin inside the declared 10 % headroom")
@@ -309,31 +431,67 @@ def _evaluate(index: _Index, t_meas: datetime, t_ctrl: datetime, t_rt: datetime,
     if result.classification == CANDIDATE:
         runtime, runtime_control, _ = index.control(CONTROL_MINIMUM_RUNTIME, t_ctrl)
         if runtime is not None and (t_rt - first_on) < timedelta(minutes=float(runtime)):
-            result = Point(INDETERMINATE, None, reasons, list(missing), ids, None, load)
+            result = Point(INDETERMINATE, None, reasons, list(missing), ids, None, load, result.cover)
             result.missing.append(
                 f"possibly within the configured minimum runtime ({runtime_control.value} min from the first "
                 f"ON report); Candidate withheld, no policy Necessary claimed")
     return result
 
 
+def _battery_support(index: _Index, t_meas: datetime, t_ctrl: datetime, soc: Fraction, reserve: Fraction,
+                     point, margin: Fraction) -> Point:
+    """`dispatch-3.3`'s battery-support branch (spec §2.3): Candidate only when the battery's energy above the reserve,
+    at the PCS efficiency, covers with the headroom the load PV does not cover until PV alone covers it."""
+    capacity, _, cap_problem = index.control(CONTROL_BATTERY_CAPACITY, t_ctrl)
+    efficiency, _, eff_problem = index.control(CONTROL_PCS_EFFICIENCY, t_ctrl)
+    if cap_problem or eff_problem:
+        result = point(INDETERMINATE, None)
+        result.cover = cover_entry(t_meas, "NOT_CONFIGURED", controls=[k for k, p in (
+            (CONTROL_BATTERY_CAPACITY, cap_problem), (CONTROL_PCS_EFFICIENCY, eff_problem)) if p])
+        return result
+    walk = index.energy_to_cover(t_meas)
+    held = (soc - reserve) / 100 * capacity * efficiency / 100
+    if walk.state == GAP:
+        result = point(INDETERMINATE, None)
+        result.cover = cover_entry(t_meas, "GAP", held=held, input=walk.input, problem=walk.problem, gap_at=walk.at)
+    elif walk.state == END:
+        result = point(INDETERMINATE, None)
+        result.cover = cover_entry(t_meas, "NOT_REACHED", held=held, range_end=walk.at)
+    elif held >= walk.need * (1 + CAPABILITY_HEADROOM):
+        result = point(CANDIDATE, None, margin)
+        result.cover = cover_entry(t_meas, "COVERED", held=held, need=walk.need)
+    else:
+        result = point(INDETERMINATE, None)
+        result.cover = cover_entry(t_meas, "SHORT", held=held, need=walk.need)
+    return result
+
+
+def _covers(a: Point, b: Point) -> list[dict[str, Any]]:
+    """The two ends' energy-cover entries, deduplicated and sorted by `at` (D-0K4.24)."""
+    found = {sha256_json(c): c for c in (a.cover, b.cover) if c is not None}
+    return sorted(found.values(), key=lambda c: (c["at"], sha256_json(c)))
+
+
 def _combine(a: Point, b: Point, start: datetime, end: datetime) -> Segment:
     ids = a.ids | b.ids
     reasons, missing = a.reasons + b.reasons, a.missing + b.missing
+    covers = _covers(a, b)
     if a.classification == CANDIDATE and b.classification == CANDIDATE:
         return Segment(start, end, True, CANDIDATE, None, reasons, missing, ids, min(a.margin, b.margin),
-                       a.load if a.load is not None else b.load)
+                       a.load if a.load is not None else b.load, covers)
     for p in (a, b):
         if p.classification == NECESSARY:
-            return Segment(start, end, True, NECESSARY, p.binding, reasons, missing, ids, None, p.load)
+            return Segment(start, end, True, NECESSARY, p.binding, reasons, missing, ids, None, p.load, covers)
     if a.classification == CANDIDATE or b.classification == CANDIDATE:
         missing = missing + ["transition inside the segment: Candidate only when both ends are Candidate"]
-    return Segment(start, end, True, INDETERMINATE, None, reasons, missing, ids)
+    return Segment(start, end, True, INDETERMINATE, None, reasons, missing, ids, covers=covers)
 
 
 def _control_changes(inputs: AnalyticInputSet, lo: datetime, hi: datetime) -> list[datetime]:
     edges = set()
     for c in inputs.controls:
-        if c.key in (CONTROL_BATTERY_RESERVE, CONTROL_MINIMUM_RUNTIME):
+        if c.key in (CONTROL_BATTERY_RESERVE, CONTROL_MINIMUM_RUNTIME, CONTROL_BATTERY_CAPACITY,
+                     CONTROL_PCS_EFFICIENCY):
             for edge in (c.valid_from, c.valid_to):
                 if edge is not None and lo < edge < hi:
                     edges.add(edge)
@@ -512,7 +670,7 @@ _NOT_EVIDENCE_GAPS = ("transition inside the segment", "possibly within the conf
 
 
 def assess(inputs: AnalyticInputSet) -> WindowAssessment:
-    """The `dispatch-3.2` window and interval assessments for one input set."""
+    """The `dispatch-3.3` window and interval assessments for one input set."""
     if inputs.model_version != MODEL_VERSION:
         raise ValueError(f"input set is for {inputs.model_version}, not {MODEL_VERSION}")
     index = _Index(inputs)

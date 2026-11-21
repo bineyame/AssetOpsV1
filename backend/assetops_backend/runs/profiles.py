@@ -66,6 +66,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 
+from assetops_backend.i18n import Message, State, message
+
 from assetops_backend.runs.models import (
     FrozenObservationBinding,
     FrozenPublicationIdentity,
@@ -163,7 +165,9 @@ class SupportedState:
     scope: str
     supported_roles: frozenset[str]
     foundation_binding: FoundationBinding | None
-    statement: str
+    #: A legacy statement is a `str` (baselined debt); one added since D-0K4.19 is an SC-1 `Message`, rendered at
+    #: read through `served_text`.
+    statement: str | Message
     #: T024. The kind of component a COMPONENT state with no Foundation
     #: binding is carried on - a load's demand is a fact about a LOAD. Without
     #: it an explicitly addressed reference could name any component at all,
@@ -352,7 +356,9 @@ class ModelProfile:
     model_profile_id: str
     model_profile_version: int
     display_name: str
-    statement: str
+    #: D-0K4.19: a legacy `str`, or an SC-1 `Message` for a profile added from 0K4a on; the lab's
+    #: `run_profile_summary` reads it through `served_text`.
+    statement: str | Message
     supported_states: tuple[SupportedState, ...]
     #: T024, Option C (`D-2026-09-29-t024-option-c-and-reserve-override`).
     #: The Foundation values this model's laws need whether or not a scenario
@@ -955,7 +961,7 @@ def _need(
     component_type: str,
     property_key: str,
     unit: str,
-    statement: str,
+    statement: str | Message,
 ) -> SupportedState:
     return SupportedState(
         state_key=state_key,
@@ -968,6 +974,17 @@ def _need(
         ),
         statement=statement,
     )
+
+
+#: 0K4b (D-0K4.4 to D-0K4.6): the three Foundation needs `mini-grid` v8 adds. 0K4a puts them on MINI_GRID_V8_MODEL.
+GENERATOR_CURVE_NEEDS: tuple[SupportedState, ...] = (
+    _need("generator-no-load-fuel-rate", "GENERATOR", "generator-no-load-fuel-rate", "L/h",
+          message("model_profile.need", need=State("GENERATOR_NO_LOAD_FUEL_RATE"))),
+    _need("generator-minimum-load", "GENERATOR", "generator-minimum-load", "%",
+          message("model_profile.need", need=State("GENERATOR_MINIMUM_LOAD"))),
+    _need("battery-charge-taper-start", "BATTERY", "battery-charge-taper-start", "%",
+          message("model_profile.need", need=State("BATTERY_CHARGE_TAPER_START"))),
+)
 
 
 #: The daytime mini-grid model T024 adds (map A, first electrical world).
@@ -1394,6 +1411,24 @@ MINI_GRID_V7_MODEL = replace(
         else item
         for item in MINI_GRID_V6_MODEL.supported_states
     ),
+)
+
+#: 0K4a (spec §2.5, D-0K4.19): `mini-grid` v8, the generator takes the load. Its words are SC-1 statements
+#: (`model_profile.description`, `model_profile.state`), served through `served_text`; it adds 0K4b's three curve
+#: needs. Kobo and every world stay on their versions (0K4f).
+MINI_GRID_V8_MODEL = replace(
+    MINI_GRID_V7_MODEL,
+    model_profile_version=8,
+    statement=message("model_profile.description", profile=State("MINI_GRID_V8")),
+    supported_states=tuple(
+        replace(item, statement=message("model_profile.state", state=State("FUEL_TANK_VOLUME_CURVE")))
+        if item.state_key == "fuel-tank-volume"
+        else item
+        for item in MINI_GRID_V7_MODEL.supported_states
+    )
+    + GENERATOR_CURVE_NEEDS,
+    foundation_needs=MINI_GRID_V7_MODEL.foundation_needs
+    + ("generator-no-load-fuel-rate", "generator-minimum-load", "battery-charge-taper-start"),
 )
 
 #: The publication profile the Lab publishes through.
@@ -2201,6 +2236,7 @@ MODEL_PROFILES: tuple[ModelProfile, ...] = (
     MINI_GRID_V5_MODEL,
     MINI_GRID_V6_MODEL,
     MINI_GRID_V7_MODEL,
+    MINI_GRID_V8_MODEL,
     COLD_THERMAL_MODEL,
     EV_CHARGER_MODEL,
 )

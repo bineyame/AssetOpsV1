@@ -587,3 +587,31 @@ Branch `task/0K3-replay-reader` (base main `e9d6cdfb1`); spec `specs/0K3-replay-
 
 - Settled: `runs/replay_series.py` `SeriesReader.read` (built by `runs/composition.build_series_reader`) turns a Site's accepted readings over whole local days into 0K2's `ObservedSeries` or refuses with a code and subject: configuration before readings, 15-minute means refused never split, `pv_power` never read as available PV, instants only at step starts (off-grid counted), nothing carried, clock-change days refused before the query, `MAX_DAYS` 92, input class from source mode. Proven on R0 (no database), MG-W402-001 and DS3 Kobo in Postgres, and 0K2's 8-day season read back field by field with the same calibration.
 - Open: no study on stored readings until a 61-day 5-minute series, Kobo's `pv_available_power` binding (row 48) and `6c`; mid-build Q1 (Kobo's zone is Addis Ababa, not Nairobi).
+
+## 0K4b - the generator's fuel curve and the battery's charge taper (in review, 21 Nov)
+
+Branch `task/0K4b-fuel-curve` (base main `b96d5e978`); spec `specs/0K4b-fuel-curve-taper/spec.md` rev 2, rulings D-0K4.5-7, D-0K4.19-21; packet `packet.md`. No migration, no database, no screen, no guard or template change.
+
+- Settled: pure `packs/generator_curve.py` (fuel line through the no-load rate and SFC x rating, ordered refusals, fuel cap, taper to a 1/20 floor, three handlers; v8's physics, pinned by F12), imported by nothing until 0K4a; Foundation keys `generator-minimum-load`, `battery-charge-taper-start` and their bases on GENERATOR and BATTERY; `GENERATOR_CURVE_NEEDS` on no profile; `host/tests/kobo_assumed.py` (GENERIC_DEFAULT); the first `str | Message` legacy-family seam, `served_text.py`, with the `foundation_property` vocabulary and the `foundation.property_name` and `model_profile.need` statements.
+- Open: 0K4a wires the module and the needs into v8 and adds the lab seam (`run_profile_summary`); the rest of each family's migration (Q9); Kobo's real curve and taper values (operator request).
+
+## 0K4c - Kobo's declared season v2 (in review, 21 Nov)
+
+Branch `task/0K4c-declared-season` (base main `ec8e64d3f`); spec `specs/0K4c-declared-season/spec.md` rev 2, rulings D-0K4.8, D-0K4.26; packet `packet.md`. Host test fixture only: no migration, database, screen or guard change.
+
+- Settled: season v2 beside an unchanged v1 in `host/tests/kobo_season.py` (`OVERCAST_V2` 21 days in spells of 1-4, `load_multiplier_v2` 17/20-23/20 on res and clinic, `mill_on_v2` off on Sundays, `season_site_v2` with 0K4b's assumed rows); `season_inputs(..., overcast=None, season=)`; the canonical `inputs_digest` and `windows_digest`; v1 pinned (59d6456b, f2f0088e) and v2 pinned (465ab6e0). Declared and SIMULATED, never a Kobo record.
+- Open: 0K4a was not on main, so S7's frozen half and the S8 v8 smoke are 0K4d's V0; 0K4d's `study.json` records the v2 digest.
+
+## 0K4e - dispatch-3.3: a battery-support Candidate needs the energy to reach solar cover (in review, 21 Nov)
+
+Branch `task/0K4e-candidate-energy` (base main `b96d5e978`); spec `specs/0K4e-candidate-energy/spec.md` rev 2, rulings D-0K4.10, D-0K4.11, D-0K4.19, D-0K4.23-25; packet `packet.md`. No migration (a model version is data).
+
+- Settled: `dispatch_v3.MODEL_VERSION = "dispatch-3.3"`; row 5b keeps a Candidate only when (SOC - reserve) x capacity x PCS efficiency covers, with 10 % headroom, the load PV does not cover until PV alone covers it (memoised 5-minute walk on `_Index.energy_to_cover(t)`, means held over their own interval only, read range = window +/- 6 h); else Indeterminate `SHORT`/`GAP`/`NOT_REACHED`/`NOT_CONFIGURED`, stored as the segment's `energy_cover` codes and figures (never `reasons`/`missing` text). Foundation `battery-energy-capacity` and `pcs-conversion-efficiency` are controls (`_configuration`). `plain._segment` and `finding_read.portion_cause` render `dispatch.energy_cover` / `dispatch.energy_cover_cause` (SC-1). `claim_limit_read.SUPPORTED_MODELS` holds 3.2 and 3.3; role coverage stays per instant. One baseline swap (`rows_mini_grid` `unexplained_l` source). S4 fixture F05 continues load and PV to 09:45 so its battery-support Candidate holds (mid-build Q1, default applied).
+- Open: Q1's ruling on F05; the md0 mechanism template rebuild (`TEMPLATE_STALE`); the reconcile pass on any demo or telemetry database (coordinator; verifications mixing model versions refuse until it ends); readiness naming an energy-cover Indeterminate (Q10); the dispatch texts' move to SC-1 (Q9); 5c's `test_4_h_kobo_litres` literals follow whichever merges second.
+
+## 0K4a - `mini-grid` v8, the generator takes the load (in review, 21 Nov)
+
+Branch `task/0K4a-dispatch-v8` (base main `b96d5e978`, 0K4b merged in); spec `specs/0K4a-dispatch-v8/spec.md` rev 2, rulings D-0K4.2-4, D-0K4.19, D-0K4.20, D-0K4.22; packet `packet.md`. No migration, no database, no screen, no guard change.
+
+- Settled: simulator `mini-grid` v8 (`decide_v8` ranks a running generator ahead of the battery; `_resolve_cycle` is v7's resolve with the RUNNING allocation by `cycle_charge_split`, 0K4b's fuel curve with a `generator-fuel` balance and tank account at 10 kWh/L, and the charge taper; `_checked_curve` and `_fuel_cap_kw` guard the curve's divisions); v1-v7 byte-identical (N9), v8 pinned by N12 `d6add2a3...5371f11`; backend `MINI_GRID_V8_MODEL` with SC-1 `model_profile.description`/`model_profile.state` served through `served_text` in `run_profile_summary`; `EXECUTABLE_MODELS` and `REPLAY_MODELS` take v8 (N11).
+- Open: no world runs v8 yet (0K4f); calibration is 0K4d's; five mid-build readings for the Architect (packet: N7 37 % run, N13 window, N13b, two test-pin edits).

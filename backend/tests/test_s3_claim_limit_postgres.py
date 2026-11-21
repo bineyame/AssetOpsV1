@@ -296,7 +296,7 @@ class TestLaterStates:
 
     def test_failed_recompute_keeps_the_prior_selection_as_non_current(self, built) -> None:
         class Broken:
-            ANALYTIC_ID, MODEL_VERSION = "dispatch", "dispatch-3.2"
+            ANALYTIC_ID, MODEL_VERSION = "dispatch", "dispatch-3.3"
 
             @staticmethod
             def assess(_inputs):

@@ -2,7 +2,7 @@
 
 A litre is the generator's measured output in a 5-minute slot at the declared fuel curve (A2's slot rule, through
 `LitreInputs.use`). `necessary_l` is every litre of the month less the CANDIDATE spans' litres (D-4D.11), so running
-dispatch-3.2 could not judge or did not classify is never candidate (D-4D.3). `unexplained_l` is the tank's fuel
+the selected dispatch model could not judge or did not classify is never candidate (D-4D.3). `unexplained_l` is the tank's fuel
 between two dips (opening plus deliveries less closing) less the modelled litres of the dip window (D-4D.5, D-4D.7).
 Exact in `Fraction` until one rounding to the millilitre at the end (D-4D.6). Anything missing gives no figure, named
 by its note in `NOTES` order; unknown is never zero.
@@ -21,7 +21,7 @@ from typing import Any
 from assetops_backend.structure.evaluate import ORIGIN_UNKNOWN, LeafValue, Missing
 
 LITRE_ORDER = ("necessary_l", "candidate_l", "unexplained_l")        # registry order (P4)
-CLAIMS = ("NECESSARY", "CANDIDATE_AVOIDABLE", "INDETERMINATE")       # dispatch-3.2's strings (D-4D.13; test 9)
+CLAIMS = ("NECESSARY", "CANDIDATE_AVOIDABLE", "INDETERMINATE")       # dispatch-3.2/3.3 strings (D-4D.13; test 9)
 NECESSARY, CANDIDATE, INDETERMINATE = CLAIMS
 EDGE = timedelta(hours=24)                 # how far outside the month a dip may lie (D-4D.5)
 SLOT = timedelta(minutes=5)                # A2's slot (fuel_balance.rules)
@@ -47,7 +47,7 @@ _EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
 
 @dataclass(frozen=True)
-class RunSpan:            # one dispatch-3.2 segment: [start, end), UTC
+class RunSpan:            # one dispatch segment: [start, end), UTC
     start: datetime
     end: datetime
     claim: str            # one of CLAIMS, or anything else (D-4D.13)

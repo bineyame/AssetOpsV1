@@ -182,6 +182,8 @@ class ControlValue:
 #: Control keys the repository resolves from Foundation content.
 CONTROL_BATTERY_RESERVE = "battery_reserve_soc"
 CONTROL_MINIMUM_RUNTIME = "generator_minimum_runtime"
+CONTROL_BATTERY_CAPACITY = "battery_energy_capacity"    # kWh (0K4e, dispatch-3.3)
+CONTROL_PCS_EFFICIENCY = "pcs_conversion_efficiency"     # % (0K4e, dispatch-3.3)
 
 
 @dataclass(frozen=True)

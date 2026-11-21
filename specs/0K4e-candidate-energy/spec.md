@@ -1,6 +1,6 @@
 # 0K4e: `dispatch-3.3`, a battery-support Candidate needs the energy to reach solar cover (implementer spec)
 
-Status: live, rev 2 (Architect, Claude, 2026-11-21): handshake answered (D-0K4.19, D-0K4.23, D-0K4.24, D-0K4.25),
+Status: in_review (built on `task/0K4e-candidate-energy`, packet `packet.md`, 2026-11-21). Rev 2 (Architect, Claude, 2026-11-21): handshake answered (D-0K4.19, D-0K4.23, D-0K4.24, D-0K4.25),
 build-ready. **2.75 units.** Discovery review (W5): a change to
 a served classification that bounds money (fuel-cost-1) and litres (4d). No migration (a model version is data).
 `USER_REVIEW_REQUIRED: true` (served candidate litres and Findings move). Rulings: `specs/0K4-dispatch-model-review/
@@ -345,6 +345,8 @@ times, the database name, the fingerprint swap (old, new), the regression output
 - **Verifications (I6 (a)):** a verification whose baseline days mix model versions refuses
   (`VERIFICATION_MODEL_NOT_COMPARABLE`) from deploy until the reconcile pass ends; the coordinator runs the pass
   straight after deploy. The S3 lineage and performance reads follow `MODEL_VERSION` (I6 (b); no code change).
+- **Recency:** a battery-support run whose post-run records have not arrived yet reads GAP, so its Finding opens late,
+  until a later delivery reassesses the window. A Finding-level case for this is queued as a backlog item.
 - **Readiness (I6 (d)):** per-instant role coverage reads COVERED on an energy-cover Indeterminate (E14); naming it
   in readiness is queued (Q10).
 - **Databases:** the 5c walkthrough world has no telemetry (D-DS4.1) and does not move. The 13 Nov demo database and

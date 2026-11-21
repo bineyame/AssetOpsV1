@@ -87,7 +87,7 @@ Review: `review-for-owner.md`. Unit specs: `specs/0K4a-dispatch-v8/`, `specs/0K4
   `generator-fuel`: `fuel_energy = generator_output + generator_conversion_loss`.
   Kobo's assumed values: `r = 3.3` L/h basis `GENERIC_DEFAULT` (the owner's value of 2026-11-07, already declared in
   `tools/demo_combined_kobo.py:NO_LOAD`) and `SFC = 0.3` (the template's), so `s = 0.2175` L/kWh: 3.3 L/h idle,
-  about 0.54 L/kWh at a quarter load, 0.38 at half and 0.30 at full. Labelled assumed until Kobo's fuel sheet arrives.
+  0.5475 L/kWh at a quarter load, 0.3825 at half and 0.30 at full (exact on the curve; corrected at the 0K4b review, L4). Labelled assumed until Kobo's fuel sheet arrives.
 - **Why.** Review §2 point 5 and §3 row 4. The product already declares a no-load rate with a basis; reusing it keeps
   one value per fact. A curve fixed by two declared points needs no new key. The energy constant lets the kernel's
   exact stock check stay whole now that litres are not proportional to output.
@@ -547,7 +547,7 @@ Owner-level call: row 63 (D-0K4.27, Mto's assumed no-load rate).
 - **Digest form (R2, used by S6, S9 and 0K4d).** `inputs_digest(inputs)` lives in `host/tests/kobo_season.py`
   (0K4c). It is the sha256 hex of a UTF-8 text with one line per forcing, sorted, each holding every `ForcingInput`
   field in declaration order as `name=value` joined by `|` (numbers as `str(Fraction)`). Then come the initial values,
-  one line each: `initial|<address>|<str(value)>|<unit>`. The test recomputes it with its own loop, written beside the
+  one line each: `initial|<address>|<str(value)>|<unit>`, in the inputs' frozen order, not sorted (clarified at the 0K4c review, L2). The test recomputes it with its own loop, written beside the
   literal. A second digest covers `day_windows(d)` for d = 0 to 60 (v1), in the same line form. S6 pins both v1
   digests as literals. The packet calls this "v1 inputs unchanged".
 - **S9 (R1).** `inputs_digest(season_inputs(base_run(61), 61, season="v2"))` equals a literal recorded in the
