@@ -142,3 +142,18 @@ decision `D-2026-10-31-board-action-refresh-lineage`; packet `archive/agent-hist
   `<t>_person_actor` (R8) on nine tables; the three domain kind checks widened to SERVICE/USER under their names.
 - The switch is read once in `create_app` and ships off; `3C0b` turns it on.
 - Open: trial actions (`3C1b`); names in reads (`3C2`, `3C3`); turning the switch on (`3C0b`).
+
+## 3C1b: the signed-in person on trial actions (2026-11-21, `task/3C1b-person-actions`, in review)
+
+- `action_api.py`: accept, apply and observe run `person_step` after the open scope and before the Finding/Action
+  404 and the grant 403 (`COMMAND_ROLES`: `action.accept`/`action.apply` SITE_MANAGER, `action.observe` SITE_MANAGER,
+  FIELD_TECHNICIAN). Refusals in the route's own codes; other tenant = the unknown-Site 404.
+- `PersonEventActor` (`actions/lifecycle.py`): `USER`, `person:<id>`, channel `PERSON_API`, basis
+  `PERSON_ROLE:<role>`; the grant file still scopes and supplies `triggering_fixture` (R3). The store takes the actor
+  through all four writes (ACCEPTED, OBSERVED, APPLIED, FAILED) and writes `person_id`, kept out of `EVENT_COLUMNS`.
+  On the person path only, `actor_id` joins the digest payloads (R2).
+- Migration `0070_person_on_actions` (provisional number; down_revision 0066): `person_id`, FK, `person_actor`,
+  `person_coupling`; kind, id and channel checks widened under their names, restored exactly on downgrade.
+- Open: USER label, observe note and change statement are `null` until the SC-1 text commit (D-SC1.28,
+  Q-3C1b-1); the Action read label and the stored publish note still say "SYSTEM demonstration" (Q-3C1b-2);
+  renumber at merge; the switch (`3C0b`); names in reads (`3C2`).
