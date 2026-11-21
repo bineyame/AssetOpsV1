@@ -83,7 +83,7 @@ Revision `79434e411`; logs in `regression/`, all through the slot pool and `run-
   `from host.forward_replay import HostForwardReplay` fails `check-architecture.ps1` exit 1, "Banned import of the
   composition leaf in ./backend/assetops_backend/runs/replay_study_scratch.py:33" (`plants/guard-failing.log`).
 - `check-architecture.ps1` passed (with `ASSETOPS_GUARD_PYTHON`; without it the chain guard refuses, by design);
-  `check-agent-workflow.ps1` passed; check-all (fast): CHECKALL. `select-tests.py --base main`: "full (568 of 568)
+  `check-agent-workflow.ps1` passed; check-all (fast, `1f2f3f2be`): all 40 guards passed, 2 m 01 s (`checkall/run.log`). `select-tests.py --base main`: "full (568 of 568)
   because tools/kobo_replay_study.py"; the full suite is the coordinator's to schedule.
 - Plants (`plants/run.log`, throwaway worktree, removed): P1-P31 each fail a named test, except P24, which fails B3
   but not T3 (no case on the 8-day kernel season adds or clears a dawn date, so a swap is invisible there), and P27,
