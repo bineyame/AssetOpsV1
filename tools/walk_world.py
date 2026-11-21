@@ -22,6 +22,7 @@ import os
 import re
 import signal
 import socket
+import stat
 import subprocess
 import sys
 from dataclasses import dataclass, field
@@ -339,60 +340,193 @@ def _real_http(url: str, timeout: float) -> tuple[int, bytes]:
         return 0, b""
 
 
+INTERPRETERS = ("node", "nodejs")
+
+
 def cmdline_matches(cmdline: Sequence[str] | None, argv: Sequence[str]) -> bool:
-    """`/proc/<pid>/cmdline` against a recorded argv: equal, or the same command run by its interpreter or retitled by
-    it (`npm` is a node script: its cmdline is `node <path>/npm run dev ...`, or one retitled string)."""
+    """Secondary check of `/proc/<pid>/cmdline` against a recorded argv, exact on every token (so exact on the port).
+
+    Accepted: the argv itself; the argv run by its interpreter (`node <path>/npm run dev ...`, the script's basename
+    equal to `argv[0]`'s, or `npm-cli.js` for `npm`); one retitled string equal to the argv joined, or, for `npm`,
+    joined without its `--` (npm 11 sets its title to `npm run dev --port 5491 --strictPort --host 127.0.0.1`). A
+    wrapper (`bash -c ...`, `sh -c ...`, `timeout ...`) never matches."""
     if not cmdline or not argv:
         return False
-    if list(cmdline) == list(argv):
-        return True
-    seen, want = " ".join(cmdline), " ".join(argv)
+    seen, want = [str(c) for c in cmdline], [str(a) for a in argv]
     if seen == want:
         return True
-    tail = " ".join(argv[1:])
-    if not tail or not seen.endswith(" " + tail):
+    if len(seen) == 1:
+        title = seen[0].rstrip()
+        if title == " ".join(want):
+            return True
+        if os.path.basename(want[0]) == "npm" and "--" in want:
+            cut = want.index("--")
+            return title == " ".join(want[:cut] + want[cut + 1:])
         return False
-    head = seen[:-len(tail) - 1].split()
-    return any(os.path.basename(h) == os.path.basename(argv[0]) for h in head)
+    if os.path.basename(seen[0]) in INTERPRETERS:
+        names = {os.path.basename(want[0])} | ({"npm-cli.js"} if os.path.basename(want[0]) == "npm" else set())
+        return os.path.basename(seen[1]) in names and seen[2:] == want[1:]
+    return False
+
+
+def _read_proc(path: str) -> bytes | None:
+    try:
+        return Path(path).read_bytes()
+    except (OSError, ValueError):
+        return None
+
+
+def _getpgid(pid: int) -> int | None:
+    try:
+        return os.getpgid(int(pid))
+    except (OSError, ValueError):
+        return None
+
+
+def _list_pids() -> list[int]:
+    try:
+        return [int(n) for n in os.listdir("/proc") if n.isdigit()]
+    except OSError:
+        return []
+
+
+def _killpg(pgid: int, sig: int) -> None:
+    try:
+        os.killpg(int(pgid), sig)
+    except (ProcessLookupError, PermissionError):
+        pass
+
+
+def parse_stat(raw: bytes | None) -> dict | None:
+    """`/proc/<pid>/stat`: the fields after `(comm)`; field 5 pgrp, 6 session, 22 starttime (clock ticks since boot)."""
+    if not raw:
+        return None
+    text = raw.decode("utf-8", "replace")
+    close = text.rfind(")")
+    rest = text[close + 1:].split() if close >= 0 else []
+    try:
+        return {"pgrp": int(rest[2]), "session": int(rest[3]), "start_time": int(rest[19])}
+    except (IndexError, ValueError):
+        return None
 
 
 class Procs:
-    """The process table: spawn a child in its own session, read a PID's cmdline, signal its group, probe a port."""
+    """The process table. A child is spawned in its own session and group, and recorded by PID, start time and group.
 
-    def __init__(self) -> None:
-        self._children: dict[int, subprocess.Popen] = {}
+    Before any signal, all three must hold: `/proc/<pid>` exists with the recorded start time, the PID still leads its
+    own group (`getpgid(pid) == pid`), and that group is the recorded one. The cmdline match is secondary. Only then is
+    the group signalled. The `/proc` reader, `getpgid`, the PID list, `killpg` and `popen` are injected for tests."""
 
-    def spawn(self, argv: Sequence[str], cwd: str, env: Mapping[str, str], log: Path) -> int:
+    def __init__(self, *, read: Callable[[str], bytes | None] = _read_proc,
+                 getpgid: Callable[[int], int | None] = _getpgid, pids: Callable[[], list[int]] = _list_pids,
+                 killpg: Callable[[int, int], None] = _killpg, popen: Callable[..., Any] = subprocess.Popen) -> None:
+        self.read, self.getpgid, self.pids, self._killpg, self.popen = read, getpgid, pids, killpg, popen
+        self._children: dict[int, Any] = {}
+
+    def spawn(self, argv: Sequence[str], cwd: str, env: Mapping[str, str], log: Path) -> dict:
         out = open(log, "w", encoding="utf-8")
         try:
-            child = subprocess.Popen(list(argv), cwd=cwd, env=dict(env), stdout=out, stderr=subprocess.STDOUT,
-                                     start_new_session=True)
+            child = self.popen(list(argv), cwd=cwd, env=dict(env), stdout=out, stderr=subprocess.STDOUT,
+                               start_new_session=True)
         finally:
             out.close()
         self._children[child.pid] = child
-        return child.pid
+        st = self.stat(child.pid)
+        return {"pid": child.pid, "argv": list(argv), "start_time": st["start_time"] if st else None,
+                "pgid": self.getpgid(child.pid)}
 
     def exited(self, pid: int) -> bool:
         child = self._children.get(pid)
         return child is not None and child.poll() is not None
 
+    def stat(self, pid: int) -> dict | None:
+        return parse_stat(self.read(f"/proc/{int(pid)}/stat"))
+
     def cmdline(self, pid: int) -> list[str] | None:
-        try:
-            raw = Path(f"/proc/{int(pid)}/cmdline").read_bytes()
-        except (OSError, ValueError):
+        raw = self.read(f"/proc/{int(pid)}/cmdline")
+        if raw is None:
             return None
         return [p.decode("utf-8", "replace") for p in raw.split(b"\0") if p] or None
 
-    def killpg(self, pid: int, sig: int) -> None:
-        try:
-            os.killpg(os.getpgid(pid), sig)
-        except (ProcessLookupError, PermissionError):
-            pass
+    def checked(self, rec: Mapping[str, Any]) -> str | None:
+        """None when the recorded child is still ours and leads its recorded group; else the failed check, or `gone`."""
+        pid, start, pgid = rec.get("pid"), rec.get("start_time"), rec.get("pgid")
+        if not all(isinstance(v, int) and not isinstance(v, bool) for v in (pid, start, pgid)):
+            return "unrecorded"
+        st = self.stat(pid)
+        if st is None:
+            return "gone"
+        if st["start_time"] != start:
+            return "start_time"
+        if self.getpgid(pid) != pid:
+            return "not_leader"
+        if pgid != pid:
+            return "pgid"
+        if not cmdline_matches(self.cmdline(pid), rec.get("argv") or []):
+            return "cmdline"
+        return None
+
+    def members(self, rec: Mapping[str, Any]) -> tuple[list[int], list[int]]:
+        """L4: the live processes in the recorded group, split into those in the recorded session that started at or
+        after the recorded start time (ours: a member cannot predate its leader) and any other (not provably ours)."""
+        pgid, start = rec.get("pgid"), rec.get("start_time")
+        if not isinstance(pgid, int) or not isinstance(start, int):
+            return [], []
+        ok, bad = [], []
+        for p in self.pids():
+            st = self.stat(p)
+            if st is None or st["pgrp"] != pgid:
+                continue
+            (ok if st["session"] == pgid and st["start_time"] >= start else bad).append(p)
+        return ok, bad
+
+    def alive(self, rec: Mapping[str, Any]) -> bool:
+        reason = self.checked(rec)
+        if reason is None:
+            return True
+        if reason == "gone":
+            ok, bad = self.members(rec)
+            return bool(ok) and not bad
+        return False
+
+    def signal(self, rec: Mapping[str, Any], sig: int) -> str | None:
+        """Signal the recorded group only after the checks. With the leader gone (L4), only when every surviving member
+        passes the start-time check. Returns None when signalled, `gone` when nothing is left, else the failed check."""
+        reason = self.checked(rec)
+        if reason == "gone":
+            ok, bad = self.members(rec)
+            if bad:
+                return "group_unverified"
+            if not ok:
+                return "gone"
+            reason = None
+        if reason is not None:
+            return reason
+        self._killpg(rec["pgid"], sig)
+        return None
 
     def port_busy(self, port: int) -> bool:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.settimeout(1.0)
             return s.connect_ex(("127.0.0.1", int(port))) == 0
+
+
+def stop_child(procs: Procs, rec: Mapping[str, Any], clock: Any, first: int = signal.SIGTERM) -> str | None:
+    """SIGTERM the recorded group, wait up to 10 s for it to empty, then SIGKILL; each signal is re-checked. A failed
+    serve passes `first=SIGKILL` and signals once. Returns None when stopped or already gone, else the check that
+    refused the signal."""
+    reason = procs.signal(rec, first)
+    if reason == "gone":
+        return None
+    if reason is not None or first == signal.SIGKILL:
+        return reason
+    end = clock.monotonic() + STOP_WAIT_SECONDS
+    while procs.alive(rec) and clock.monotonic() < end:
+        clock.sleep(0.25)
+    if procs.alive(rec):
+        reason = procs.signal(rec, signal.SIGKILL)
+        return None if reason == "gone" else reason
+    return None
 
 
 @dataclass
@@ -434,9 +568,12 @@ class Walk:
 
     def walks_dir(self) -> Path:
         d = self.state_root() / "walks"
-        if not d.exists():
+        if not os.path.lexists(d):
             os.mkdir(d, 0o700)
             os.chmod(d, 0o700)
+        st = os.lstat(d)  # L2: an existing folder must be a real, private folder of this user
+        if (not stat.S_ISDIR(st.st_mode) or st.st_uid != os.getuid() or st.st_mode & 0o077):
+            raise Refused("WORLD_STATE_INVALID", str(d))
         return d
 
     def manifest_path(self) -> Path:
@@ -504,7 +641,7 @@ class Walk:
         s = m.get("serve")
         if not s:
             return False
-        return any(cmdline_matches(self.deps.procs.cmdline(s[w]["pid"]), s[w]["argv"]) for w in ("api", "web"))
+        return any(self.deps.procs.alive(s[w]) for w in ("api", "web"))
 
 
 # --- copy (§3.2) -----------------------------------------------------------------------------------------------------
@@ -784,6 +921,11 @@ def cmd_serve(walk: Walk) -> int:
     for p in (port, web_port):
         if p in PROTECTED_PORTS:
             raise Refused("WALK_PORT_PROTECTED", str(p))
+    for p in (port, web_port):  # L1: the definition reader's range, and two different ports
+        if not 1024 <= p <= 65535:
+            raise Refused("WALK_PORT_INVALID", str(p))
+    if port == web_port:
+        raise Refused("WALK_PORT_INVALID", f"{port} = {web_port}")
     for p in (port, web_port):
         if walk.deps.procs.port_busy(p):
             raise Refused("WALK_PORT_BUSY", str(p))
@@ -793,8 +935,14 @@ def cmd_serve(walk: Walk) -> int:
     web_argv = ["npm", "run", "dev", "--", "--port", str(web_port), "--strictPort", "--host", "127.0.0.1"]
     api_log, web_log = logs / f"api-{port}.log", logs / f"web-{web_port}.log"
     procs, clock = walk.deps.procs, walk.deps.world.clock
-    api = procs.spawn(api_argv, str(tree / "host"), api_env(tree, walk.environ, wd.serve["tenant"], walk.url), api_log)
-    web = procs.spawn(web_argv, str(tree / "frontend"), web_env(walk.environ, port), web_log)
+    api_rec = procs.spawn(api_argv, str(tree / "host"), api_env(tree, walk.environ, wd.serve["tenant"], walk.url),
+                          api_log)
+    try:
+        web_rec = procs.spawn(web_argv, str(tree / "frontend"), web_env(walk.environ, port), web_log)
+    except OSError as error:  # L3: the API child is stopped (safely), never left running unrecorded
+        _report_refused([(api_rec, stop_child(procs, api_rec, clock, signal.SIGKILL))])
+        raise Failed("WALK_SERVE_FAILED", f"web spawn {type(error).__name__}") from None
+    api, web = api_rec["pid"], web_rec["pid"]
     end = clock.monotonic() + SERVE_WAIT_SECONDS
     failed = None
     while True:
@@ -812,11 +960,9 @@ def cmd_serve(walk: Walk) -> int:
             break
         clock.sleep(0.5)
     if failed is not None:
-        for pid in (api, web):
-            procs.killpg(pid, signal.SIGKILL)
+        _report_refused([(rec, stop_child(procs, rec, clock, signal.SIGKILL)) for rec in (api_rec, web_rec)])
         raise Failed("WALK_SERVE_FAILED", f"{failed[0]} {failed[1]}")
-    m["serve"] = {"tree": str(tree), "port": port, "web_port": web_port, "api": {"pid": api, "argv": api_argv},
-                  "web": {"pid": web, "argv": web_argv}, "started_at": W._now_iso(walk.world)}
+    m["serve"] = {"tree": str(tree), "port": port, "web_port": web_port, "api": api_rec, "web": web_rec, "started_at": W._now_iso(walk.world)}
     walk.write_manifest(m)
     walk.emit({"api": f"http://127.0.0.1:{port}", "web": f"http://127.0.0.1:{web_port}", "api_pid": api,
                "web_pid": web})
@@ -829,6 +975,7 @@ def cmd_smoke(walk: Walk) -> int:
     m = walk.need_manifest()
     if not walk.serving(m):
         raise Refused("WALK_NOT_SERVING", walk.name)
+    walk.deps.world.require("walk-smoke")  # M2: S3 launches Chromium; this process is the one heavy-slot.sh wraps
     s, wd = m["serve"], walk.walk_definition()
     base = f"http://127.0.0.1:{s['port']}"
     lines = []
@@ -873,29 +1020,21 @@ def _s3(walk: Walk, s: Mapping[str, Any], wd: WalkDefinition) -> dict:
     return _line("S3", done.returncode == 0, f"exit {done.returncode} {len(pages)} pages {out}/report.json")
 
 
+def _report_refused(results: Sequence[tuple[Mapping[str, Any], str | None]]) -> list:
+    """`WALK_PID_REUSED <pid> <check>` on stderr for each child whose group was not signalled."""
+    refused = [rec.get("pid") for rec, reason in results if reason is not None]
+    for rec, reason in results:
+        if reason is not None:
+            sys.stderr.write(f"WALK_PID_REUSED {rec.get('pid')} {reason}\n")
+    return refused
+
+
 def cmd_stop(walk: Walk) -> int:
     m = walk.need_manifest()
     s = m.get("serve")
     procs, clock = walk.deps.procs, walk.deps.world.clock
-    reused = []
-    for which in ("api", "web"):
-        if not s:
-            break
-        pid, argv = s[which]["pid"], s[which]["argv"]
-        cmdline = procs.cmdline(pid)
-        if cmdline is None:
-            continue  # already gone
-        if not cmdline_matches(cmdline, argv):
-            reused.append(pid)
-            continue
-        procs.killpg(pid, signal.SIGTERM)
-        end = clock.monotonic() + STOP_WAIT_SECONDS
-        while cmdline_matches(procs.cmdline(pid), argv) and clock.monotonic() < end:
-            clock.sleep(0.25)
-        if cmdline_matches(procs.cmdline(pid), argv):
-            procs.killpg(pid, signal.SIGKILL)
-    for pid in reused:
-        sys.stderr.write(f"WALK_PID_REUSED {pid}\n")
+    results = [(s[w], stop_child(procs, s[w], clock)) for w in ("api", "web")] if s else []
+    reused = _report_refused(results)
     m["serve"] = None
     walk.write_manifest(m)
     walk.emit({"database": walk.name, "stopped": bool(s), "reused": reused})
@@ -907,7 +1046,7 @@ def cmd_status(walk: Walk) -> int:
     s = m.get("serve")
     alive = None
     if s:
-        alive = {w: cmdline_matches(walk.deps.procs.cmdline(s[w]["pid"]), s[w]["argv"]) for w in ("api", "web")}
+        alive = {w: walk.deps.procs.alive(s[w]) for w in ("api", "web")}
     walk.emit({"database": m["database"], "parent": m["parent"], "check_passed": (m.get("check") or {}).get("passed"),
                "serve": s, "alive": alive})
     return 0

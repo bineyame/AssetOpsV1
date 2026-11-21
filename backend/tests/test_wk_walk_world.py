@@ -138,29 +138,52 @@ class FakeRunner:
         return [c for c in self.calls if c[0][:1] == [sys.executable]]
 
 
-class FakeProcs:
-    def __init__(self) -> None:
-        self.next, self.spawned, self.cmd, self.signals, self.busy, self.dead = 4000, [], {}, [], set(), set()
-        self.ignore_term = set()
+class FakeProcs(WK.Procs):
+    """The real `Procs` over an injected process table: `/proc/<pid>/stat` and `cmdline`, `getpgid`, the PID list,
+    `killpg` and `popen` are fakes. `table[pid]` is `{"cmd", "start", "pgrp", "sid"}`."""
 
-    def spawn(self, argv, cwd, env, log):
+    def __init__(self) -> None:
+        super().__init__(read=self._read, getpgid=self._getpgid, pids=lambda: sorted(self.table),
+                         killpg=self._kill, popen=self._popen)
+        self.next, self.spawned, self.table, self.signals, self.busy, self.dead = 4000, [], {}, [], set(), set()
+        self.ignore_term, self.spawn_error = set(), None
+        self.clock = 1000
+
+    def _popen(self, argv, cwd, env, stdout, stderr, start_new_session):
+        assert start_new_session is True
+        if self.spawn_error and argv[:1] == [self.spawn_error]:
+            raise FileNotFoundError(argv[0])
         self.next += 1
-        self.spawned.append({"pid": self.next, "argv": list(argv), "cwd": cwd, "env": dict(env), "log": str(log)})
-        self.cmd[self.next] = list(argv)
+        self.clock += 7
+        pid = self.next
+        self.table[pid] = {"cmd": list(argv), "start": self.clock, "pgrp": pid, "sid": pid}
+        self.spawned.append({"pid": pid, "argv": list(argv), "cwd": cwd, "env": dict(env), "log": stdout.name})
         if argv[:1] == ["npm"]:
             self.busy.add(int(argv[argv.index("--port") + 1]))
-        return self.next
+        return SimpleNamespace(pid=pid, poll=lambda: 1 if pid in self.dead else None)
 
-    def exited(self, pid):
-        return pid in self.dead
+    def _read(self, path):
+        _, _, pid, leaf = path.split("/")
+        t = self.table.get(int(pid))
+        if t is None:
+            return None
+        if leaf == "cmdline":
+            return b"".join(c.encode() + b"\0" for c in t["cmd"])
+        fields = ["S", "1", str(t["pgrp"]), str(t["sid"])] + ["0"] * 15 + [str(t["start"]), "0"]
+        return f"{pid} (x y) {' '.join(fields)}\n".encode()
 
-    def cmdline(self, pid):
-        return self.cmd.get(pid)
+    def _getpgid(self, pid):
+        t = self.table.get(pid)
+        return None if t is None else t["pgrp"]
 
-    def killpg(self, pid, sig):
-        self.signals.append((pid, sig))
-        if sig == signal.SIGKILL or pid not in self.ignore_term:
-            self.cmd.pop(pid, None)
+    def _kill(self, pgid, sig):
+        self.signals.append((pgid, sig))
+        for p in [p for p, t in self.table.items() if t["pgrp"] == pgid]:
+            if sig == signal.SIGKILL or p not in self.ignore_term:
+                del self.table[p]
+
+    def set_cmd(self, pid, cmd):
+        self.table[pid]["cmd"] = list(cmd)
 
     def port_busy(self, port):
         return port in self.busy
@@ -763,6 +786,22 @@ def test_t8_smoke_node_env_is_exactly_six(env, capsys):
                     "FONTCONFIG_FILE": "/pw/fonts.conf", "LD_LIBRARY_PATH": "/pw/lib"}
     assert argv[:4] == ["node", "tools/walk_world_smoke.cjs", "--base", "http://127.0.0.1:5491"]
     assert len(json.loads(argv[5])) == 10 and argv[7] == "/opt/assetecon/evidence/WK/1123/"
+    assert ("walk-smoke", False) in env.required                       # M2: smoke takes a heavy-tool slot
+
+
+def test_t8_smoke_requires_a_slot_before_chromium(env, capsys):
+    """M2: outside a heavy-tool slot, `require` exits 69 and S3 never launches the browser."""
+    env.served()
+
+    def require(tool, db=False):
+        env.required.append((tool, db))
+        raise SystemExit(69)
+    env.deps.world.require = require
+    capsys.readouterr()
+    with pytest.raises(SystemExit) as stop:
+        env.main("smoke")
+    assert stop.value.code == 69 and env.required[-1] == ("walk-smoke", False)
+    assert not [c for c in env.runner.calls if c[0][:1] in (["node"], ["bash"])]
 
 
 def test_t8_tree_refusal(env, capsys, tmp_path):
@@ -824,14 +863,25 @@ def test_t8_smoke_refused_when_not_serving(env, capsys):
 
 # --- T9 stop ----------------------------------------------------------------------------------------------------------
 
+NPM_TITLE = ["npm run dev --port 5491 --strictPort --host 127.0.0.1"]   # npm 11.19.1's retitle, observed (H1)
+
+
+def test_t9_serve_records_start_time_and_group(env):
+    s = env.served()["serve"]
+    for w in ("api", "web"):
+        rec = s[w]
+        t = env.procs.table[rec["pid"]]
+        assert rec["start_time"] == t["start"] and rec["pgid"] == rec["pid"] and rec["argv"] == t["cmd"]
+
+
 def test_t9_stop_signals_matching_pids_and_leaves_reused(env, capsys):
     m = env.served()
     api, web = m["serve"]["api"]["pid"], m["serve"]["web"]["pid"]
-    env.procs.cmd[web] = ["/usr/bin/vim", "notes"]   # the web PID was reused
+    env.procs.set_cmd(web, ["/usr/bin/vim", "notes"])   # same start time, other command: secondary check refuses
     capsys.readouterr()
     assert env.main("stop") == 0
     assert (api, signal.SIGTERM) in env.procs.signals and all(p != web for p, _ in env.procs.signals)
-    assert f"WALK_PID_REUSED {web}" in capsys.readouterr().err
+    assert f"WALK_PID_REUSED {web} cmdline" in capsys.readouterr().err
     assert env.manifest()["serve"] is None
 
 
@@ -843,16 +893,221 @@ def test_t9_stop_kills_after_the_wait(env):
     assert [s for p, s in env.procs.signals if p == api] == [signal.SIGTERM, signal.SIGKILL]
 
 
+def test_t9_stop_stops_npm_retitled(env, capsys):
+    """H1: npm rewrites its cmdline to one title without the `--`; the web child is still recognised and stopped."""
+    m = env.served()
+    web = m["serve"]["web"]["pid"]
+    env.procs.set_cmd(web, NPM_TITLE)
+    capsys.readouterr()
+    assert env.main("status") == 0
+    (line,), _ = _lines(capsys)
+    assert line["alive"] == {"api": True, "web": True}
+    assert env.main("stop") == 0
+    assert (web, signal.SIGTERM) in env.procs.signals and web not in env.procs.table
+    out = capsys.readouterr()
+    assert "WALK_PID_REUSED" not in out.err and json.loads(out.out)["reused"] == []
+
+
+@pytest.mark.parametrize("wrapper", [
+    ["bash", "-c", "npm run dev -- --port 5491 --strictPort --host 127.0.0.1"],
+    ["sh", "-c", "npm run dev --port 5491 --strictPort --host 127.0.0.1"],
+    ["timeout", "60", "npm", "run", "dev", "--", "--port", "5491", "--strictPort", "--host", "127.0.0.1"],
+    ["bash -c npm run dev --port 5491 --strictPort --host 127.0.0.1"],
+])
+def test_t9_stop_refuses_a_wrapper_on_the_same_port(env, capsys, wrapper):
+    m = env.served()
+    web = m["serve"]["web"]["pid"]
+    env.procs.set_cmd(web, wrapper)
+    capsys.readouterr()
+    assert env.main("stop") == 0
+    assert all(p != web for p, _ in env.procs.signals) and web in env.procs.table
+    assert f"WALK_PID_REUSED {web} cmdline" in capsys.readouterr().err
+
+
+def test_t9_stop_refuses_a_reused_pid_with_another_start_time(env, capsys):
+    m = env.served()
+    web = m["serve"]["web"]["pid"]
+    env.procs.table[web]["start"] += 99          # same PID and cmdline, a different process
+    env.procs.set_cmd(web, NPM_TITLE)
+    capsys.readouterr()
+    assert env.main("stop") == 0
+    assert all(p != web for p, _ in env.procs.signals) and web in env.procs.table
+    assert f"WALK_PID_REUSED {web} start_time" in capsys.readouterr().err
+
+
+def test_t9_stop_refuses_a_child_not_leading_its_group(env, capsys):
+    m = env.served()
+    web = m["serve"]["web"]["pid"]
+    env.procs.table[web]["pgrp"] = 77            # M1: the matching PID sits in someone else's group
+    capsys.readouterr()
+    assert env.main("stop") == 0
+    assert all(p not in (web, 77) for p, _ in env.procs.signals) and web in env.procs.table
+    assert f"WALK_PID_REUSED {web} not_leader" in capsys.readouterr().err
+
+
+def test_t9_stop_refuses_a_group_other_than_the_recorded_one(env, capsys):
+    m = env.served()
+    web = m["serve"]["web"]["pid"]
+    m["serve"]["web"]["pgid"] = web + 1
+    env.write_manifest(m)
+    capsys.readouterr()
+    assert env.main("stop") == 0
+    assert all(p not in (web, web + 1) for p, _ in env.procs.signals)
+    assert f"WALK_PID_REUSED {web} pgid" in capsys.readouterr().err
+
+
+def test_t9_stop_refuses_an_unrecorded_child(env, capsys):
+    m = env.served()
+    api = m["serve"]["api"]["pid"]
+    del m["serve"]["api"]["start_time"]
+    env.write_manifest(m)
+    capsys.readouterr()
+    assert env.main("stop") == 0
+    assert all(p != api for p, _ in env.procs.signals)
+    assert f"WALK_PID_REUSED {api} unrecorded" in capsys.readouterr().err
+
+
+def test_t9_stop_group_survives_its_leader(env, capsys):
+    """L4: npm died, Vite lives on in the recorded group: the group is stopped after the members' start-time check."""
+    m = env.served()
+    rec = m["serve"]["web"]
+    web = rec["pid"]
+    env.procs.table[9001] = {"cmd": ["node", "vite"], "start": rec["start_time"] + 1, "pgrp": web, "sid": web}
+    del env.procs.table[web]
+    capsys.readouterr()
+    assert env.main("status") == 0
+    (line,), _ = _lines(capsys)
+    assert line["alive"]["web"] is True
+    assert env.main("stop") == 0
+    assert (web, signal.SIGTERM) in env.procs.signals and 9001 not in env.procs.table
+    assert "WALK_PID_REUSED" not in capsys.readouterr().err
+
+
+def test_t9_stop_refuses_a_group_member_older_than_the_leader(env, capsys):
+    m = env.served()
+    rec = m["serve"]["web"]
+    web = rec["pid"]
+    env.procs.table[9001] = {"cmd": ["sh"], "start": rec["start_time"] - 1, "pgrp": web, "sid": web}
+    del env.procs.table[web]
+    capsys.readouterr()
+    assert env.main("stop") == 0
+    assert all(p != web for p, _ in env.procs.signals) and 9001 in env.procs.table
+    assert f"WALK_PID_REUSED {web} group_unverified" in capsys.readouterr().err
+
+
+def test_t9_stop_with_both_gone_signals_nothing(env, capsys):
+    m = env.served()
+    for w in ("api", "web"):
+        del env.procs.table[m["serve"][w]["pid"]]
+    capsys.readouterr()
+    assert env.main("stop") == 0
+    assert env.procs.signals == [] and "WALK_PID_REUSED" not in capsys.readouterr().err
+
+
+def test_t9_parse_stat_reads_field_22_past_a_comm_with_spaces():
+    raw = b"123 (a) b (c)) S 1 123 123 0 -1 0 0 0 0 0 0 0 0 0 20 0 1 0 987654 0 0\n"
+    assert WK.parse_stat(raw) == {"pgrp": 123, "session": 123, "start_time": 987654}
+    assert WK.parse_stat(None) is None and WK.parse_stat(b"1 (x) S") is None
+
+
 def test_t9_cmdline_matches():
-    argv = ["npm", "run", "dev", "--", "--port", "5491"]
+    argv = ["npm", "run", "dev", "--", "--port", "5491", "--strictPort", "--host", "127.0.0.1"]
     assert WK.cmdline_matches(argv, argv)
-    assert WK.cmdline_matches(["node", "/usr/lib/node_modules/npm/bin/npm-cli.js", "run", "dev", "--", "--port",
-                               "5491"], ["npm-cli.js", "run", "dev", "--", "--port", "5491"])
-    assert WK.cmdline_matches(["node", "/usr/bin/npm", "run", "dev", "--", "--port", "5491"], argv)
-    assert WK.cmdline_matches(["npm run dev -- --port 5491"], argv)
-    assert not WK.cmdline_matches(["node", "/usr/bin/npm", "run", "dev", "--", "--port", "5492"], argv)
-    assert not WK.cmdline_matches(["vim", "run", "dev", "--", "--port", "5491"], argv)
+    assert WK.cmdline_matches(NPM_TITLE, argv)
+    assert WK.cmdline_matches(["npm run dev -- --port 5491 --strictPort --host 127.0.0.1"], argv)
+    assert WK.cmdline_matches(["node", "/usr/lib/node_modules/npm/bin/npm-cli.js", *argv[1:]], argv)
+    assert WK.cmdline_matches(["node", "/usr/bin/npm", *argv[1:]], argv)
+    assert not WK.cmdline_matches(["npm run dev --port 5492 --strictPort --host 127.0.0.1"], argv)
+    assert not WK.cmdline_matches(["npm run dev --port 54911 --strictPort --host 127.0.0.1"], argv)
+    assert not WK.cmdline_matches(["node", "/usr/bin/npm", "run", "dev", "--", "--port", "5492", "--strictPort",
+                                   "--host", "127.0.0.1"], argv)
+    assert not WK.cmdline_matches(["vim", *argv[1:]], argv)
+    assert not WK.cmdline_matches(["timeout", "60", *argv], argv)
+    assert not WK.cmdline_matches(["bash", "-c", " ".join(argv)], argv)
     assert not WK.cmdline_matches(None, argv)
+    api = ["/v/bin/python", "-m", "uvicorn", "lab_app:app", "--host", "127.0.0.1", "--port", "8991"]
+    assert WK.cmdline_matches(api, api)
+    assert not WK.cmdline_matches(["timeout", "60", *api], api)
+    assert not WK.cmdline_matches(["bash", "-c", "cd x && " + " ".join(api)], api)
+    assert not WK.cmdline_matches(["/v/bin/python -m uvicorn lab_app:app --host 127.0.0.1 --port 8991"], [
+        "npm", "run", "dev", "--", "--port", "8991"])
+
+
+# --- L1, L2, L3 ---------------------------------------------------------------------------------------------------------
+
+@pytest.mark.parametrize("flags, detail", [
+    (("--port", "80"), "80"),
+    (("--web-port", "70000"), "70000"),
+    (("--port", "0"), "0"),
+    (("--port", "5491"), "5491 = 5491"),
+    (("--web-port", "8991"), "8991 = 8991"),
+])
+def test_l1_port_overrides_in_range_and_different(env, capsys, flags, detail):
+    env.checked()
+    capsys.readouterr()
+    assert env.main("serve", "--tree", str(env.tree), *flags) == 2
+    assert _refusal(capsys) == f"WALK_PORT_INVALID {detail}"
+    assert env.procs.spawned == []
+
+
+@pytest.mark.parametrize("make", ["symlink", "group_writable", "world_writable", "file"])
+def test_l2_walks_folder_must_be_private(env, capsys, tmp_path, make):
+    d = env.state / "walks"
+    if make == "symlink":
+        real = tmp_path / "elsewhere"
+        os.mkdir(real, 0o700)
+        d.symlink_to(real)
+    elif make == "file":
+        d.write_text("")
+    else:
+        os.mkdir(d, 0o700)
+        os.chmod(d, 0o770 if make == "group_writable" else 0o707)
+    assert env.main("copy") == 2
+    assert _refusal(capsys) == f"WORLD_STATE_INVALID {d}"
+
+
+def test_l2_walks_folder_of_another_user(env, capsys, monkeypatch):
+    d = env.state / "walks"
+    os.mkdir(d, 0o700)
+    real = os.lstat
+
+    def lstat(path, *a, **k):
+        st = real(path, *a, **k)
+        if Path(path) == d:
+            return os.stat_result((st.st_mode, st.st_ino, st.st_dev, st.st_nlink, st.st_uid + 1, *tuple(st)[5:10]))
+        return st
+    monkeypatch.setattr(WK.os, "lstat", lstat)
+    assert env.main("copy") == 2
+    assert _refusal(capsys) == f"WORLD_STATE_INVALID {env.state / 'walks'}"
+
+
+def test_l3_second_spawn_fails_stops_the_first(env, capsys):
+    env.checked()
+    env.procs.spawn_error = "npm"
+    capsys.readouterr()
+    assert env.main("serve", "--tree", str(env.tree)) == 4
+    assert _refusal(capsys) == "WALK_SERVE_FAILED web spawn FileNotFoundError"
+    (api,) = env.procs.spawned
+    assert env.procs.signals == [(api["pid"], signal.SIGKILL)] and api["pid"] not in env.procs.table
+    assert env.manifest()["serve"] is None
+
+
+def test_l3_second_spawn_fails_first_unverified_is_reported(env, capsys):
+    env.checked()
+    env.procs.spawn_error = "npm"
+    real_popen = env.procs.popen
+
+    def popen(argv, **kw):
+        child = real_popen(argv, **kw)
+        env.procs.table[child.pid]["pgrp"] = 77      # the API child does not lead its group: no signal
+        return child
+    env.procs.popen = popen
+    capsys.readouterr()
+    assert env.main("serve", "--tree", str(env.tree)) == 4
+    err = capsys.readouterr().err
+    (api,) = env.procs.spawned
+    assert f"WALK_PID_REUSED {api['pid']} not_leader" in err and "WALK_SERVE_FAILED web spawn" in err
+    assert env.procs.signals == []
 
 
 # --- T10 drop ---------------------------------------------------------------------------------------------------------
