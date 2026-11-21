@@ -467,19 +467,22 @@ The fix round is D-DS4.33; spec §4 carries the amended text.
   `end_counts` lets a reader tell a moving drain from a stuck one.
 - **Reverse.** None sensible: without the step the verdict is an artifact.
 
-## D-DS4.30 The per-Site-day figure covers the bulk load and the ticks; the mini-depth step is a second, labelled figure
+## D-DS4.30 The per-Site-day figure is the product's whole sequence: bulk load, mini-depth step and ticks
 
-- **Ruling.** `per_site_day_seconds` stays `(load_seconds + tick_wall_seconds) / site_days`, labelled
-  `includes: ["BULK_LOAD", "TICKS"]`. A second figure, `per_site_day_with_mini_seconds = (load_seconds +
-  mini_depth_seconds + tick_wall_seconds) / site_days`, is computed beside it, with its own projection. The packet
-  states both in plain words: "pipeline: X s per Site-day (bulk load and ticks); with the mini-depth step: Y s".
-  Neither is called a bound.
-- **Why.** The mini backlog on this slice comes from commissioning a relabelled binding set. The bench does not
-  measure how that backlog grows with Sites and days, so dividing it by 14 Site-days and calling the result *the*
-  per-Site-day cost would assert a scaling never tested. Leaving it out silently would hide a real cost, which M1
-  showed no one has measured. Two labelled figures say what each one is. Under D-DS4.28 neither figure triggers
-  anything, so the choice changes only how the figures read, and both readings are on the page.
-- **Reverse.** Fold the mini time into the one figure, once a world bench shows how the backlog scales.
+- **Ruling.** `per_site_day_seconds = (load_seconds + mini_depth_seconds + tick_wall_seconds) / site_days`, labelled
+  `per_site_day_includes: ["BULK_LOAD", "MINI_DEPTH", "TICKS"]`. It is one figure. Its three parts stay in
+  `pipeline.measured` as a breakdown, like `stage_ms`, and are not a second figure. A B5 line without
+  `mini_depth_seconds` projects nothing (`null`), because its input is incomplete. The packet states the figure
+  and its parts in plain words, "X s per Site-day (bulk load a, mini-depth step b, ticks c, over 14 Site-days)". It
+  does not call the figure a bound.
+- **Why.** The product never drains without the mini step (`settle`, `drain_mini`), so a figure loyal to the
+  operating world includes it. The owner's rule from the same session is one figure per quantity, loyal to the
+  operating world (`owner/owner-one-figure-loyal-to-operating-world-2026-11-21.md`). Reporting a with-mini and a
+  without-mini figure side by side would be two numbers for one quantity with nothing to act on. The backlog's
+  growth with Sites and days is not measured, but neither is the load's or the ticks'. The projection's linear
+  Sites × days assumption covers all three parts alike, and the report already labels it a projection.
+- **Reverse.** Exclude the mini step from the figure, if a world bench shows that its backlog is a one-off of
+  commissioning rather than a cost per Site-day.
 
 ## D-DS4.31 "Lower bound" is withdrawn; the packet and the state say the cause (M2)
 
@@ -533,14 +536,13 @@ The fix round is D-DS4.33; spec §4 carries the amended text.
      list` to confirm.
   6. Fast check-all (`tools/heavy-slot.sh -- pwsh -File tools/check-all.ps1`).
   7. Packet: a section "Unit 3 fix round" that replaces the B5, B6 and `ds7` rows with the rerun's figures and
-     their §4 meaning. It states both per-Site-day figures in the D-DS4.30 words, and moves the first run's figures
+     their §4 meaning. It states the per-Site-day figure and its parts in the D-DS4.30 words, and moves the first run's figures
      under "run 1 (superseded)" (D-DS4.31). The residual-risk bullet becomes: "B5 now runs the mini-depth step
-     first (D-DS4.29). The per-Site-day figure covers the bulk load and the ticks. The with-mini figure adds the
-     mini-depth step's time over the same 14 Site-days. Neither is a bound: how the mini backlog grows with Sites
-     and days is not measured. DS7 is read literally (owner row 35): measured L2 Z s against 2,700 s, so not
-     triggered. It is decided at the first world telemetry, and the projection (P s; P' s with the mini step) is
-     information only." The state line in `.ai/state/data.md` becomes: "pipeline X s per Kobo Site-day (bulk load
-     and ticks; Y s with the mini-depth step); DS7 not triggered (read literally, owner row 35; L2 Z s); projection P
+     first, as the product does (D-DS4.29). The per-Site-day figure covers the bulk load, the mini-depth step and
+     the ticks (D-DS4.30). It is not a bound, and the projection assumes it grows linearly with Sites and days,
+     which no run has measured. DS7 is read literally (owner row 35): measured L2 Z s against 2,700 s, so not
+     triggered. It is decided at the first world telemetry, and the projection (P s) is information only." The state line in `.ai/state/data.md` becomes: "pipeline X s per Kobo Site-day (bulk load,
+     mini-depth step and ticks); DS7 not triggered (read literally, owner row 35; L2 Z s); projection P
      s, information only". It names the three new kept template names, keys and sizes.
 - **Stop rule (W9).** If B5's verdict is still `fail`, report `end_counts` and the reason, and stop: no third fix
   without the Architect. If only `mini_deferred` is left, that is a finding about the tick's mini bound. If other

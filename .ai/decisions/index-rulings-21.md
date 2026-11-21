@@ -12,7 +12,7 @@
 - `D-3A7.15` Owner file via the owner_file port; the command builds the reader, composition takes it as a parameter · live · specs/3A7-month-reconciled/rulings.md
 - `D-DS4.28` DS7 read literally on the measured L2 (owner row 35 B); the bench's projection is information only; format world-bench/2 (amends D-DS4.12) · live · specs/DS4-template-ladder/rulings.md
 - `D-DS4.29` B5 drains the mini-depth jobs with the worker before the ticks, as drain_mini does; reports mini_depth_seconds, start/end counts (M1) · live · specs/DS4-template-ladder/rulings.md
-- `D-DS4.30` Per-Site-day = bulk load + ticks; a second labelled figure adds the mini-depth step; neither is a bound · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.30` Per-Site-day = bulk load + mini-depth step + ticks (the product's sequence), one figure, parts as breakdown; not a bound · live · specs/DS4-template-ladder/rulings.md
 - `D-DS4.31` "Lower bound" withdrawn; packet and state give the cause; run 1 kept as superseded (M2) · live · specs/DS4-template-ladder/rulings.md
 - `D-DS4.32` L1 sweep test and L2 boundary test adopted; L3 input_drain and malformed-marker fixed in world.py · live · specs/DS4-template-ladder/rulings.md
 - `D-DS4.33` Unit 3 fix round 0.5 unit: world.py edit costs no extra rebuild (main merge stales the kept ladder anyway); bench rerun alone, then build and check · live · specs/DS4-template-ladder/rulings.md
