@@ -1,6 +1,6 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-0K4.1 to D-0K4.18)
+# Decision index: Demo-sprint and later rulings (index only) (D-0K4.1 to D-0K4.25)
 
-- `D-0K4.1` 0K4 units, sizes, order and lanes (8.75 units; critical path 0K4a then 0K4d) · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.1` 0K4 units, sizes, order and lanes (8.75 units; critical path 0K4a then 0K4d) · live; amended by D-0K4.25 · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.2` one new simulator version mini-grid v8 holds both physics corrections; v1-v7 untouched · live · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.3` the generator takes the load: cycle charging, generator support only above PV plus rating · live · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.4` minimum generator load as a Foundation property (Kobo 30 %, GENERIC_DEFAULT); charge, then curtail PV · live · specs/0K4-dispatch-model-review/rulings.md
@@ -18,3 +18,10 @@
 - `D-0K4.16` reserve breaches, most starts in a day and full-charge days read from replay steps · live · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.17` one combined handshake per unit; 0K4a and 0K4b share one · live · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.18` operator request created: general asks by reference plus Kobo's five items · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.19` new served text composed, never baselined (class): SC-1, `served_text` seam, stored facts; version-token swap; +1.5 u (owner-away row 57) · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.20` v8 pinned: F12 constants, N12 digest, one trajectory digest helper (0K4a); 0K4b assumed-site comparison · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.21` 0K4b answers: F11 frozen path, F3 zero cell, inline parse plus host P5, `_share_of_rating` · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.22` 0K4a answers: kobo.py tuple, no ValueError and tightened below-minimum (S10), N3, N5, N11, N13 · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.23` 0K4e answers: one-argument memoised walk, E5b redesigned, roles per instant, CaseRunner fixture, I6 · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.24` 0K4e energy-cover outcome stored as facts, explained by SC-1 statements in plain and finding reads · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.25` sizes after the handshake (10.5 u; critical path about 4.0) and lane order; amends D-0K4.1 · live · specs/0K4-dispatch-model-review/rulings.md

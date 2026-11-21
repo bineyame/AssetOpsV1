@@ -31,6 +31,9 @@
 - `D-1A.6` SC-1 day format (MOCK DEVIATION MD-1A-1) · live · specs/1a-optimize-card-scope/rulings.md
 - `D-1A.7` 1.75 units, two commits; UI merge held for the owner · live · specs/1a-optimize-card-scope/rulings.md
 - `D-1A.8` Vocabulary noun "day" · live · specs/1a-optimize-card-scope/rulings.md
+- `D-1A.9` scope line wording "Cost of {site}'s lead issue on {day} ..." (no number word); amends row 52's example (owner-away row 58) · live · specs/1a-optimize-card-scope/rulings.md
+- `D-1A.10` handshake tests: S7 whole decimal tokens, S5b/S5c, S9 signature, contract golden one key, face hooks · live · specs/1a-optimize-card-scope/rulings.md
+- `D-1A.11` size unchanged 1.75 u; build-ready, merge held for walkthrough · live · specs/1a-optimize-card-scope/rulings.md
 - `D-WK.1` One coordinator-only walk tool over DS4's world; never touches a rung · live · specs/WK-walkthrough-database/rulings.md
 - `D-WK.2` Parent = L2 at today's key, check passed on today's inputs (current_l2, check_state) · live · specs/WK-walkthrough-database/rulings.md
 - `D-WK.3` Adds two emulated statements and one rebuild; no Action (owner-away row 53) · live · specs/WK-walkthrough-database/rulings.md
