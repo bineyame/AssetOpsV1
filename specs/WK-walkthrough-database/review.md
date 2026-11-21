@@ -87,3 +87,58 @@
 - The npm title form may differ under another npm version. H1's fix removes the dependence.
 - `stop` nulls `serve` even when it leaves a child, so a later `drop` relies on the 5 s session check alone.
 - D-WK.12 and S3 depend on the coordinator reading the PNGs.
+
+## Round 2 (verification, fresh Claude reviewer, 2026-11-21)
+
+**Summary.**
+- Verdict: **ACCEPT WITH FIXES.** H1, M1, M2 and L1-L3 are closed. The L4 group fallback opens one new wrong-signal path (M3). Fix it on the branch, then a short verification of M3 only. L5 and L6 are optional.
+- Reviewed: `task/WK-walk-world` at `8e71a10d0`, the fix diff `a736d9bc3..8e71a10d0` (code in `7218b2835`).
+- H1: the npm 11 title (no `--`) is matched exactly, and identity rests on start time and group, not the cmdline.
+- M1: a wrapper never matches, and no signal goes out unless the PID leads its own recorded group with the recorded start time.
+- M3 (new, Medium): with the leader gone, `members` accepts any group whose id is the recorded pgid. After a PID wrap, a foreign process can own that id. Reproduced on real `Procs` with a recording `killpg`.
+- The 13 Nov serve cannot be signalled on any path. Its processes predate the record, and its group id can never equal ours.
+- Checks: WK+DS4 `149 passed in 5.50s`; fast check-all `All 42 guards passed` (exit 0). 7 of 15 plants spot-checked, all fail their tests. Of my 2 plants, 1 survives (L6).
+
+### Findings
+
+**M3 (Medium, safety: a new path from the L4 fix).** `tools/walk_world.py:469-481` (`members`), used at `:486-490` and `:495-501`.
+- **What is wrong.** The fallback is used when `/proc/<pid>` is absent. It then signals the recorded pgid if every process in that group is in session `pgid` and started at or after the recorded start time. Our group can empty: Vite exits, or the box runs on after a crash. The kernel then frees the PID, and after a wrap (`pid_max` here is 4194304) another process can take it. If that process calls `setsid`, forks and exits, its children have pgrp = session = the recorded pgid and a later start time. This is the usual daemonise pattern, and also `Popen(start_new_session=True)` around a shell that backgrounds a job. They pass both member checks, and `stop` sends SIGTERM and then SIGKILL to that foreign group. `status` and `serving` also report it alive.
+- **Reproduced** (scratch, no port, no server): a `sh -c "sleep 20 & exit 0"` started with `start_new_session=True`, reaped, then a record naming its PID with an older start time. `checked` = `gone`, `members` = `([sleep], [])`, `alive` True, `signal` returned None and called `killpg(<that pgid>, SIGTERM)` on the recording stub.
+- **Why it matters.** Round 1 never signalled once the leader was gone. The fix added a path that can hit another agent's process tree, so the guard again depends on luck (the M1 class). The odds are small: an exact PID reuse after a wrap, plus that pattern. The 13 Nov serve is still safe.
+- **Fix.** Bound membership by what was ours. The kernel keeps a group id reserved while any member lives, so a process recorded as a member stays ours for as long as it lives. When serve succeeds, record the group's live members as `[pid, start_time]`. In the fallback, signal only when every live member of the pgid is one of those recorded pairs; anything else is `group_unverified`. Two other ways also work: record the boot-tick time at which serve succeeded and require `start_time <= ready_ticks`, or drop the fallback (L4 was optional) and report `WALK_GROUP_LEFT <pgid> <pids>`. Add a T9 case: leader gone, and a member with a later start time that was not recorded gets no signal.
+
+**L5 (Low, residual; fail-safe).** `tools/walk_world.py:451-467`. An unreaped zombie leader still has `/proc/<pid>/stat` (same start time, `getpgid` works) but its cmdline is empty. `checked` therefore returns `cmdline`. The result is no signal, a wrong `WALK_PID_REUSED <pid> cmdline` label, `alive` False, and live members left running (probe: zombie plus a live `sleep` in the group). In the real `stop` the leader's parent is init or a subreaper, which reaps it, so this matters only while a parent holds it. That was the case in the packet's live check, where the leader ended as a zombie. While the leader is a zombie its PID stays reserved, so the group is provably ours. Read the state field (`Z`), treat it as `gone`, and let the M3-bounded fallback run.
+
+**L6 (Low, test gap).** `tools/walk_world.py:480`. My plant RV-A removed `st["session"] == pgid and`, and no test fails. Add a member whose session differs to `test_t9_stop_refuses_a_group_member_older_than_the_leader`, or fold this into M3's test.
+
+### Closed (verified)
+
+1. **H1, M1, L4.** `Procs.spawn` (`:426-437`) passes `start_new_session=True` and records pid, argv, start time (field 22, `parse_stat` `:400-411` parses after the last `)`) and pgid. `checked` (`:451-467`) requires, in this order: all three are ints; `/proc` is present; the start time is unchanged; `getpgid(pid) == pid`; the recorded pgid equals pid; an exact cmdline. Only then does `signal` call `killpg(rec["pgid"])`. `cmdline_matches` (`:346-367`) accepts the argv, `node <path>/{npm,npm-cli.js} <exact tail>`, or one title equal to the argv joined (npm: joined without `--`). `bash -c`, `sh -c`, `timeout`, a one-string wrapper, a port change and `54911` are refused (T9).
+   - Attacks:
+     - (a) A reused PID with a matching start time but another group: refused `not_leader`. A start-time tie needs PID reuse within one clock tick.
+     - (b) A process that calls `setsid` itself: as a reused leader, refused by start time. As one of our members, it leaves the group and is not signalled (a leak, not a wrong kill).
+     - (c) A zombie leader: fail-safe, see L5.
+     - (d) The leader gone and its PID reused by a session leader that exited: M3.
+   - The live stop evidence (packet `:75-79`) matches the code. It records start time and pgid, the npm 11 title passes `checked`, `stop_child` empties the group of 3, and the zombie that remains is the harness's own child.
+   - The 13 Nov serve (8990/5490, started 13 Nov) fails the start-time check as a leader, falls into `bad` as a member, and its group id cannot be ours. It is never signalled.
+2. **M2.** `cmd_smoke` `:978` calls `walk.deps.world.require("walk-smoke")` after `WALK_NOT_SERVING` and before S1-S3. `world._real_require` reaches `heavy_slot_check.require`, which calls `sys.exit(69)`. T8 `test_t8_smoke_requires_a_slot_before_chromium` asserts exit 69 and no `node`/`bash` call. Packet deviation 8 still needs the Architect's ratification.
+3. **L1** `:924-928`: the range is 1024-65535 and the two ports must differ (T `test_l1_*`, 5 cases). **L2** `:569-577`: `lexists`, then `lstat` must show a directory, our uid and `mode & 0o077 == 0`; a symlink, a file, group or world access, or another owner is refused. **L3** `:940-944`: an `OSError` from the web spawn SIGKILLs the API child after the same checks and fails `WALK_SERVE_FAILED web spawn <type>`. If the checks refuse, it reports `WALK_PID_REUSED`.
+4. **No regression.** `walk_url`, `walk_name_ok`, the copy path and `refuse_walk_tree` are untouched by the diff. The `WALK_PORT_PROTECTED` refusal still runs before the new range check. T1-T3, T8 port refusals and T12 (AST) pass.
+5. **Plants** (scratch copy; T4's PYTHONPATH baseline failure excluded):
+   - P1 → 1 failed, P2 → 2, P4 → 5, P8 → 1, P9 → 2, P12 → 2, P15 → 2. Each matches the packet.
+   - Mine: RV-B (`stop_child` swallows `group_unverified`) → 1 failed (`older_than_the_leader`). RV-A (session check removed) → 0 failed (L6).
+
+### Checks run (by this reviewer, at `8e71a10d0`)
+
+- `tools/heavy-slot.sh --wait-seconds 3000 -- .venv/bin/python -m pytest backend/tests/test_wk_walk_world.py backend/tests/test_ds4_world.py -q`: `149 passed in 5.50s`.
+- `bash tools/heavy-slot.sh --wait-seconds 3000 -- pwsh -NoProfile -File tools/check-all.ps1`: `check-all: 144.5 s wall (0.2 s waiting for a slot), 4 jobs at once. All 42 guards passed (blocking; 0 advisory, 0 warned).`, exit 0.
+- The probes used real `Procs` with a recording `killpg` on `sh -c "sleep 20 & exit 0"` children in scratch. They touched no database, port, server, Docker, walk tree or keys. The probes' own `sleep` groups were killed after.
+
+### Not verifiable here
+
+The live serve against the walk database and the real npm/Vite group under `stop`, apart from the scratch `sleep` stand-in. Those wait for the coordinator's §5 run.
+
+### Residual risk not in the packet
+
+- `stop` still sets `serve` to null when a child was refused, so `drop` relies on the session check alone (as in round 1).
+- A member that calls `setsid` leaves the group and outlives `stop`. Vite does not do this today.
