@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-0M.1 to D-0M.11)
+# Decision index: Demo-sprint and later rulings (index only) (D-0M.1 to D-0M.11, D-DS4.16 to D-DS4.25)
 
 - `D-0M.1` 0M starts on 0K2's merge and reuses its helpers; amends the delivery plan's 0K1-only dependency · live · specs/0M-mto-headroom-replay/rulings.md
 - `D-0M.2` Mto plant: Kobo template edited to the manifest's Mto facts; one 50 kW (or 25 kW) inverter limit · live · specs/0M-mto-headroom-replay/rulings.md
@@ -11,3 +11,13 @@
 - `D-0M.9` customer evidence carried, not judged; NO_CUSTOMER_EVIDENCE is 6g's · live · specs/0M-mto-headroom-replay/rulings.md
 - `D-0M.10` 28 admissible days; 0K2's calibration on the baseline; reduced runs not calibrated · live · specs/0M-mto-headroom-replay/rulings.md
 - `D-0M.11` no money, no calculation record, no served text, no migration · live · specs/0M-mto-headroom-replay/rulings.md
+- `D-DS4.16` C4 checks a total contract: all 47 factors per side classed E, Z or B (spec §2.1); nine telemetry blanks named (row 41) · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.17` batch-cover rule at step 7a: envelopes' resolved days (local and UTC, chain.events functions) equal the cover's; BULK_BATCH_TIME_UNREADABLE; amends D-DS4.9 · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.18` unit 1 starts with a spike on an onboarding-only tenant; any difference stops the unit for the Architect · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.19` key root and state directories: contents, secrecy, modes, cleanup; creation held for the owner (row 40); amends D-DS4.10 · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.20` C5 and B5 run under their own harness base database, never assetops_test (harness_run) · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.21` check_passed holds only while derived values, manifest and check code are unchanged (check_inputs) · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.22` every subprocess on a rung or clone gets that L1's key directory; C5 and B5 none · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.23` T4 adds prefix assetops_opx and labels observe, reserve · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.24` size 3.5 units in three units, no split; amends D-DS4.14 · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.25` adjustments_kwh blank (NEEDS:ADJUSTMENT) unless the ADJUSTMENT kind is held; Z class withdrawn; amends D-4A.8 and D-DS4.16; 4a fix round routed · live · specs/DS4-template-ladder/rulings.md

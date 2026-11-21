@@ -187,3 +187,177 @@ answered; this file answers it first.
 
 - **Ruling.** Every output is a code or a JSON line for the coordinator; nothing is served; D-SC1.28 does not hold
   DS4.
+
+## Handshake answers (round 1)
+
+Architect (Claude), 2026-11-21, on the owner's delegation. Each answer was checked against `main` at `5a3987dcd`
+(read only; no database touched). D-DS4.16 to D-DS4.24 are applied by `spec.md` rev 2 and `reviewer-guide.md` rev 2.
+Rows 40 (held) and 41 of `specs/OWNER-AWAY/decisions-2026-11-21.md` log the owner-level parts.
+
+## D-DS4.16 C4 checks a total contract: every factor of every side is named equal, recorded zero or blank (R1, R2)
+
+- **Ruling.** Spec §2.1 gives a table of all 47 mini-grid factors for each side (actual, plan), the same at Kisiwa,
+  Kobo and Mto, each one class: `E` (must equal `derived-values.json` exactly), `Z` (must be exactly 0: the world's
+  record is not carried by any native layout and the product reads the held kind as zero) or `B` (must be blank:
+  value `None`, with a `missing` for a leaf or non-empty `missing_leaves` for a node). Actual: 18 `E`, 1 `Z`
+  (`adjustments_kwh`), 28 `B`; plan: 36 `E`, 11 `B`. `tools/world.py` holds it as the literal `C4_CONTRACT`. C4 FAILs
+  on: an `E` not equal (a `None` is never equal), a `Z` not 0, a `B` with a value, a payload factor the contract
+  lacks, or a contract factor the payload lacks. There is no `unchecked` and no "at least one equal". The detail lists
+  every `B` factor with the record its `missing` names, which is the honesty list the packet shows the owner. The
+  nine telemetry-fed blanks are `delivered_kwh`, `technical_loss_kwh`, `unexplained_loss_kwh`, `metered_kwh`,
+  `necessary_l`, `candidate_l`, `unexplained_l`, `diesel_l` and `unserved_critical_kwh`. `dawn_days_below` and the
+  other obligation and asset-day factors are blank on every database today, telemetry or not.
+- **What the code shows (corrections to the question).** `cost_to_serve` and `contribution` keep their values.
+  `fuel_cost` is stated by the fuel invoices (`rows_mini_grid.py`, `stated_by` EXPENSE (FUEL)), and a stated value
+  governs its expression (`evaluate.py` `_stated_node` row 1, D-4B.1), so a blank `diesel_l` does not reach them.
+  `battery_wear` is 0 because a neutral throughput times anything is 0 (`neutral_zero`). `metered_kwh` is not stated:
+  no layout carries `CUSTOMER_METER_READ`, so it falls back to its expression on `delivered_kwh` and is blank.
+  `adjustments_kwh` reads 0 against the pack's 45 / 30 / 40, because the billing layout carries no ADJUSTMENT
+  (`records.py` has no writer for it; `unwritten.json`) and `energy/rules.py` `adjustments` takes the held CHARGE
+  kind as a recorded zero (D-4A.8). That is the `Z` class, and row 41 reports it to the owner.
+- **Confirmation and turnaround (R2).** The table is my reading of the code. Unit 1's spike (D-DS4.18) prints the real
+  class of every factor before C4 is coded. Any difference stops the builder, and the coordinator sends it to the
+  Architect, who answers in the same working session in one of two ways. (a) The table was wrong: a spec edit that
+  cites the code line. (b) The product is wrong: a finding with an ID, routed to its unit, and added to
+  `C4_KNOWN_FINDINGS` (empty by default; only the Architect adds to it). The builder never edits either list. Unit 2
+  closes on T9's fakes and T12. T12 asserts that C4 PASSes, or, when `C4_KNOWN_FINDINGS` is non-empty, that C4's FAIL
+  lines are exactly the known ones. A known finding is still a FAIL, so while one is open the real world's
+  `check_passed` stays false and WK does not start from it.
+- **Why.** Blanks that are named make the honesty claim testable (the owner's "unknown is not zero"). A contract that
+  covers every factor cannot be passed by a silent extra blank or by an unearned number. One table holds for all three
+  Sites because every Site carries the same record kinds.
+- **Reverse.** When DS2's telemetry lands, the nine `T` rows become `E` (the contract is versioned with the definition).
+
+## D-DS4.17 The batch-cover rule compares the envelopes' resolved days with the cover's, using the consumer's own day functions (R3, I1, I6; amends D-DS4.9)
+
+- **Ruling.** The new step **7a** runs in `BulkEvidenceLoad._one` after step 7 (every ordinal accepted) and before
+  step 8 (the write). Each accepted envelope gives a span `[interval_start or source_time, interval_end or
+  source_time]`, read from `Accepted.envelope` (`envelope_span`). `cover_gap` then checks two grains, each with
+  `chain.events`'s own functions. Site-local: `local_days(start, end, tz)`. UTC with the S3 bracket:
+  `local_days(start - S3_BRACKET, max(end, start) + S3_BRACKET, "UTC")`. For each grain, the union of the envelopes'
+  day sets must equal the day set of the cover `(min start, max end)` that the outbox statement event carries
+  (`0044_chain_events.py`: min of `COALESCE(interval_start, source_time)`, max of `COALESCE(interval_end,
+  source_time)`, one event per tenant and Site per statement). If they differ, the batch is refused with
+  `BULK_BATCH_GAP_DAYS <batch id> "<grain> cover <first>..<last> differs at <day>"`. An instant that does not parse,
+  or that has no offset, is refused with `BULK_BATCH_TIME_UNREADABLE <batch id> "ordinal <n> <field>"`, never a
+  traceback. Both codes join `BULK_LOAD_REFUSALS`. `PostgresEvidenceLedger.site_timezone(site_id) -> str` uses
+  `scalar_one()`, with no cache and no `None` branch (I6: after step 3 the Site exists and `site.timezone` is NOT NULL).
+- **What it settles.** (a) A multi-day interval with another envelope inside it passes, because its span covers those
+  days. (b) An interval across local midnight counts both days. (c) An envelope that step 7 rejects is refused as
+  `BULK_REJECTED_ORDINAL` first, because 7a runs later. (d) A batch already COMPLETED returns `already_loaded` at
+  step 6, before 7a. And a new case the question did not name: a point reading exactly at local midnight as the
+  batch's last instant. The cover's end is exclusive, so the cover misses that day while the real path resolves it.
+  That batch is refused: bulk would leave the day unmarked. Step 7 writes nothing (`admit` and `decide` only read),
+  so 7a after it still writes and records nothing.
+- **Why.** D-DS3.21's condition is "the cover resolves the same days as the real path's events". The exact test is to
+  compare the two day sets with the functions the consumer uses. A rule of its own, such as a start day or a UTC day,
+  would be a second definition that can disagree with the consumer (W6). The UTC grain is included because `s3_day`
+  measures resolve UTC days (`events.py` `_s3_days`). A zone more than 6 hours from UTC can open a UTC gap inside
+  contiguous local days.
+- **Reverse.** Split such batches by day instead of refusing them, once a writer produces multi-day batches.
+
+## D-DS4.18 Unit 1 starts with a spike on an onboarding-only tenant; any surprise stops the unit (I2)
+
+- **Ruling.** Before any code, the builder runs the L1 and L2 steps by hand, through `tools/heavy-slot.sh --db`, on
+  the scratch database `assetops_ds4t<8 hex>_audit_spike`, with a temporary 0700 key directory and the exports in a
+  temporary directory. It records each exit code, `structure_snapshot` = 4, the observe exit, and every factor's class
+  on each side for each Site, compared with spec §2.1. It also checks that a second hand-built L1, made after
+  `pseudonym_key erase` of the first tenant into the same key directory, still applies (a new tenant id; a tombstone
+  does not block it). Both databases are dropped. The builder stops and asks the Architect, without adapting the L2
+  steps or the table, if `build` raises, `observe` exits non-zero, the count is not 4, a class differs, or the second
+  apply fails. The Architect answers within the session (D-DS4.16's turnaround). Meanwhile the builder may go on with
+  §3.1 to §3.4, which do not depend on L2. The spike's printout goes into the packet. About 0.25 unit.
+- **Why.** No test on `main` builds a snapshot or runs the observer over a Site with no gateway, sources or binding set
+  (the reviewer's and the implementer's reading, confirmed: only the ON1 tests use the Lakeside file). The ladder is
+  only worth building if that holds.
+
+## D-DS4.19 The key root and the state directory: contents, secrecy, creation and cleanup (R4, I3; amends D-DS4.10)
+
+- **Ruling.** `/opt/assetecon/keys` and `/opt/assetecon/keys/world` (mode 0700) hold, for each L1 database, a directory
+  `<L1 database>/` (0700). It contains one `<tenant_id>.key` per tenant (0600, 32 random bytes, written by onboarding
+  through `create_key_file`) and, after an erase, that tenant's tombstone. Each key is a secret even though the data
+  is synthetic, because it re-links pseudonyms to customer identifiers in that world (the runbook step 3 rule). It is
+  never committed (it lives outside the repository, and the tool refuses a root inside it), never copied (clones share
+  the directory), never opened by the tool (the tool only creates the directory, checks its mode and owner, and passes
+  the path), and never printed or logged. Stdout, stderr, manifests, the bench report, evidence and the packet carry
+  the `key_dir` path only, never a file name under it or any content. `/opt/assetecon/worlds` (0700) is `--state`.
+  The tool creates `manifests/`, `inputs/` and `tmp/` in it (0700) under an existing directory, and refuses a missing
+  one, one inside the repository, or one with mode `& 0o077` set (`WORLD_STATE_INVALID`). It holds no secret, but
+  nothing in it is committed. An existing `<L1 database>/` directory is accepted only if its mode is 0700 and the user
+  running the tool owns it, else `WORLD_KEY_ROOT_INVALID`. It may hold tombstones from a dropped L1 of the same name.
+  **Cleanup:** `drop` of an L1 erases each tenant's key, then reports `key_dir` and `"keys_left": 0` (a count of
+  `*.key`, no names). The tool removes `tmp/exports-<pid>` in `finally`. Only the coordinator removes a key directory
+  (`rm -r`), and only once `world list` shows no manifest that names it. It may prune `inputs/<digest12>` folders that
+  no manifest names. **Creation:** only the coordinator creates the three directories (`install -d -m 700
+  /opt/assetecon/keys /opt/assetecon/keys/world /opt/assetecon/worlds`), and only with the owner's say-so. This is
+  **held for the owner** (row 40). Units 1 and 2 go ahead on temporary directories. Unit 3's real runs wait for it.
+- **Why.** Creating a key root is a new secret-bearing place on the server, which is the owner's call. The tool never
+  needs to read a key, so it is given no way to leak one.
+- **Reverse.** One key root per world instead of per L1 (D-DS4.10's reverse).
+
+## D-DS4.20 C5 and B5 run DS3's tests under a base database of their own, never the shared `assetops_test` (I4)
+
+- **Ruling.** One helper, `harness_run(test, extra_env)`, serves both C5 and B5. It creates an empty
+  `assetops_w<c5|b5>_pt<8 hex>_base_test` (`CREATE DATABASE`, no template). The name passes `permitted_database`
+  (the harness-clone form) and fits in 63 bytes with the harness's own `_pt<run>_<tag>_test` suffix. The helper runs
+  `pwsh -NoProfile -File tools/run-host-tests.ps1 -- <test>` with this child environment: `E` without `DATABASE_URL`,
+  `ASSETOPS_TENANT_SLUG` or `ASSETOPS_PSEUDONYM_KEY_DIR`; plus `ASSETOPS_TEST_DATABASE_URL` (that base), and
+  `ASSETOPS_TEST_PYTHON`, `ASSETOPS_HEAVY_SLOT` and `ASSETOPS_HEAVY_DB` copied when they are set. The harness migrates
+  its own template under the base. When the child is done, the helper drops any
+  `assetops_w<..>_pt<hex>_base_pt[0-9a-f]+_[a-z0-9]+_test` left behind and then the base, with no sessions and never
+  `FORCE`. A leftover that is still in use makes C5 FAIL with its name. `pwsh` is not on `E["PATH"]`: C5 FAILs with
+  `pwsh not found` (B5 records it). The heavy-slot markers are the same ones the tool's own `require` passed, so the
+  nested run sits inside the same slot.
+- **Why.** The harness uses its base for its lease, its advisory lock and a sweep of orphans, so the shared
+  `assetops_test` would be touched and other runs' orphans swept. A base of its own keeps the check self-contained,
+  and the existing `*_test` authorisation covers it, so nothing is widened.
+
+## D-DS4.21 `check_passed` holds only while everything the check read is unchanged (R5)
+
+- **Ruling.** The L2 `check` block records `check_inputs`: the blob ids (`git rev-parse HEAD:<p>`) of the derived
+  values, the manifest, and the check code (`tools/world.py`, `backend/tests/test_ds3_parity_postgres.py`,
+  `backend/tests/test_ds3_bulk_load_postgres.py`, `backend/tests/pg_harness.py`, `tools/run-host-tests.ps1`), in that
+  order. `clone`, `reset` and `list` report `check_passed` as `check.passed` only when today's ids equal them.
+  Otherwise they report `null` with `check_stale: "<first differing part>"`. The clean-tree check (§3.2) covers these
+  paths for every command that computes a key. Everything else the check reads is already in the L2 key.
+- **Why.** "Clean, good" is exactly that flag. It must not outlive a change to the oracle or to the check itself.
+
+## D-DS4.22 Every subprocess on a rung or a clone gets that L1's key directory (I5)
+
+- **Ruling.** Yes. Every L1 and L2 step, C3's `verify`, and B3's steps on clone `bl` get the manifest's `key_dir` as
+  `ASSETOPS_PSEUDONYM_KEY_DIR`. C4 reads payloads in-process and needs no key. C5 and B5 get none (D-DS4.20).
+
+## D-DS4.23 T4 adds the operator prefix and the substring labels (R6)
+
+- **Ruling.** Prefix `assetops_opx` (`is_operator_name`) and labels `observe` and `reserve` (substring `serve`) are
+  refused with `WORLD_NAME_NOT_PERMITTED` before any admin statement.
+
+## D-DS4.24 Size: 3.5 units in three units, no split (amends D-DS4.14)
+
+- **Ruling.** Unit 1 is 1.5 (+0.25: the spike). Unit 2 is 1.25 (+0.2 for the total C4 contract and its tests, +0.1
+  for the cover rule and the unreadable-time refusal, +0.1 for `harness_run`, +0.1 for check staleness). Unit 3 stays
+  0.75. That is under the 6-unit rule.
+
+## D-DS4.25 `adjustments_kwh` is blank unless the operator sends adjustments; D-4A.8 amended on `main` (coordinator follow-up on row 41)
+
+- **Ruling.** Case (b). The billing layout (`layouts_v1.py` `billing-illustrative-1`) has kind CHARGE as a constant
+  and no adjustment column, and no native layout carries ADJUSTMENT. So the world has no adjustments record, and its
+  `adjustments_kwh` reads "Not available yet" naming ADJUSTMENT. It is never 0. This amends D-DS4.16. The class `Z` is
+  withdrawn, `adjustments_kwh` becomes a named `B` (Src R) on the actual side, and the actual side is now 18 E and
+  29 B. The plan side is unchanged (its LEAK_ZERO 0 is a labelled assumption).
+- **It affects 4a on `main` too.** D-4A.8's "zero when the month's billing is held and carries none" lets the CHARGE
+  kind stand in for the ADJUSTMENT record. `energy/rules.py` `adjustments` checks only `has_charge_kind`. D-4A.8 is
+  amended as follows: `adjustments_kwh` is NOT_CONNECTED, note `NEEDS:ADJUSTMENT`, unless the tenant holds the
+  ADJUSTMENT kind in any month (the connected rule of `money.py` step 1, D-4B.5). When it is held, a closed month with
+  charges and no adjustment line is a recorded 0: the operator sends adjustments and sent none.
+- **Sweep (W6).** I checked every ZERO_WHEN_HELD leaf against the kind its gate tests. `unmapped_kwh` tests its own
+  three kinds. `productive_kwh`, `in_transit` and `outstanding` test CHARGE and RECEIPT, which are their own records.
+  The litre and work-case leaves are blank. `adjustments_kwh` is the only breach.
+- **Routing.** This is finding `D-DS4.25` on 4a's leaf: a fix round of about 0.25 unit, separate from DS4 (a Sonnet
+  fix round). It touches `structure/energy/inputs.py` (`has_adjustment_kind` from the held kinds), `rules.py`
+  `adjustments`, 4a's tests that expect 0 with no ADJUSTMENT kind, and one new test: CHARGE held, ADJUSTMENT never
+  held, so NOT_CONNECTED `NEEDS:ADJUSTMENT`. Plant: gate on CHARGE again, and the new test fails. Until that fix
+  merges, `C4_KNOWN_FINDINGS` holds `lakeside-power/<code> actual.adjustments_kwh D-DS4.25` for KISIWA-001, KOBO-001
+  and MTO-001. It is emptied in the commit that merges after the fix.
+- **Why.** The owner's standing rule: a figure that needs a record the operator did not send reads "Not available
+  yet" and names that record. It is never 0.
