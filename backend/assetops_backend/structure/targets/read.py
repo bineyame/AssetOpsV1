@@ -133,11 +133,11 @@ class TargetRead:
                 a = act[f]
                 leaves[f] = LeafValue(a.value, a.evidence, ("calendar",), None, None, None, a.origins)
             elif rule[f] == LEAK_ZERO:
-                if row.money and currency is None:
+                if row.unit.has_money_dimension and currency is None:
                     leaves[f] = _absent(NOT_RECEIVED, TARGET_CURRENCY_UNKNOWN)
                 else:
                     leaves[f] = _assumption(Decimal("0"), LEAK_TEXT, "assumption:zero",
-                                            currency if row.money else None, (ORIGIN_UNKNOWN,))
+                                            currency if row.unit.has_money_dimension else None, (ORIGIN_UNKNOWN,))
             elif rule[f] == AT_ACTUAL:
                 a = act[f]
                 if a.value is None:
@@ -177,7 +177,7 @@ class TargetRead:
                 continue
             under = (leaves[g].origins for g in leaves if g != f and heading in blocks_of(reg, (g,)))
             leaves[f] = _assumption(value, MAIN_TEXT, f"assumption:main-factor:{heading}",
-                                    target.currency if reg.row(f).money else None,
+                                    target.currency if reg.row(f).unit.has_money_dimension else None,
                                     _origin_union(target.origins, *under))
 
         values = evaluate(reg, leaves, stated)
