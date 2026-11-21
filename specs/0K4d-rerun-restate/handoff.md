@@ -55,3 +55,9 @@ of spec §3, `python tools/select-tests.py --base main`, check-all fast once, `c
 - `admit` reads the dawn from `case.dawn` against `dawn_limit_pct` (default 35), not from `case.dawn_days_below`
   (which uses the frame's limit); equal while the frame keeps 35.
 - 6c must import `admit`; the `Admission` record has no served English (D-0K4.19).
+
+## Carried from 0K4c's review (coordinator, 21 Nov)
+- V0 also asserts that a passed `overcast` function overrides the season's calendar (0K4c L1, `kobo_season.py:180-181`).
+- Hash the v7-base inputs for the `study.json` digest, as S9 does (`inputs_digest(season_inputs(base_run(61), 61, season="v2"))`), not the v8 run's own inputs, or it will not match S9's `465ab6e0...`.
+- `dawn_class` needs a season-name to overcast-calendar map; nothing provides one yet.
+- The digest covers forcings and initial values only, not the rest of `FrozenWorldInputs`; state it in the packet's residual risk.
