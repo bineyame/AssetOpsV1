@@ -1583,6 +1583,8 @@ h2 .ux-split{font-size:var(--fs-sm);font-weight:400;color:var(--text-2)}
 .ia-list th small,.ia-list td small{display:block;color:var(--text-2);font-weight:400}
 .ia-list .ia-list-group th{background:var(--surface-2);font-weight:600}
 .table-wrap:has(>.ia-list){margin-bottom:var(--s4,16px)}
+/* IA-2b1 unit 4 (ia_shots S1, D-IA.35 L5): the stacked row title and state pill wrap; the global th{white-space:nowrap} (mockups.css) and the pill's nowrap (theme.css) clipped them at 390 */
+@media (max-width:760px){.ia-list tbody th{white-space:normal;overflow-wrap:break-word}.ia-list td .status-pill{white-space:normal;max-width:100%;height:auto;min-height:22px;padding-block:3px;line-height:1.25}}
 
 /* brand.css: brand packs (UI/UX guide §4.7). A pack changes only brand tokens: surfaces' warmth, the interactive accent, the
    rail, the brand mark and the motif accents (a header band, the brand mark, empty and loading states). It never changes

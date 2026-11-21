@@ -27,12 +27,15 @@
    and 390 light: the Approve dialog open, after Approve, after Send back; the thresholds drawer at 1440 and 390; Lakeside 6500/No on Left out at
    1440. SHOTS_ONLY=plan runs only this set; otherwise it prints "IA-2a not landed; dormant". Plant SHOTS_PLANT=approvefold (a 900 px block
    before the band) must fail.
+   IA-2b1 (D-IA.72): the list set S1 to S9 (listSet, below), SHOTS_ONLY=lists; plants listkeep, listwrap, emptytools.
 */
 const { chromium } = require(process.env.PW), fs = require('fs');
 const base = 'file://' + process.argv[2], out = process.argv[3]; fs.mkdirSync(out, { recursive: true });
 const PLANT = process.env.SHOTS_PLANT || '', LAST = {}; let relN = 0, SW_ORDER = false, IA2A_ON = false, tilesN = 0;
 const path = require('path'), IA2A_FORCED = String(process.env.IA_FORCE_LANDED || '').split(',').map(x => x.trim()).includes('IA-2a');
 const PLAN_STUB = fs.readFileSync(path.join(__dirname, 'fixtures', 'plan_stub.js'), 'utf8');
+const IA2B1_FORCED = String(process.env.IA_FORCE_LANDED || '').split(',').map(x => x.trim()).includes('IA-2b1'); let IA2B1_ON = false;
+const LIST_FX = fs.readFileSync(path.join(__dirname, 'list_fixture.cjs'), 'utf8');
 const measure = () => { const tb = document.querySelector('.ia-frame .topbar'), kids = tb ? [...tb.querySelectorAll(':scope > *, :scope > .right > *')].filter(e => e.getBoundingClientRect().height > 0) : [];
   const cs = kids.map(e => { const r = e.getBoundingClientRect(); return (r.top + r.bottom) / 2; }), oneLine = Math.max(...cs) - Math.min(...cs) <= 8;
   const fit5 = !!tb && tb.dataset.fit === '5', tall = kids.filter(e => !(fit5 && e.matches('.ux-scope-sw')) && e.getBoundingClientRect().height > 40).map(e => e.className || e.tagName), past = tb ? [...tb.querySelectorAll('*')].filter(e => { const r = e.getBoundingClientRect(); return r.width > 0 && !e.closest('details:not([open]) > :not(summary)') && (r.right > innerWidth + 1 || r.left < -1); }).map(e => e.className || e.tagName) : [];
@@ -59,6 +62,131 @@ const measure = () => { const tb = document.querySelector('.ia-frame .topbar'), 
   const tiles = [...document.querySelectorAll('.ia-frame .heroes.ux-kpis')].filter(e => e.getClientRects().length && e.children.length).map(e => { const r = e.getBoundingClientRect(), pr = parseFloat(getComputedStyle(e).paddingRight) || 0, last = e.lastElementChild.getBoundingClientRect(); return { n: e.children.length, gap: Math.round(r.right - pr - last.right) }; });
   return { tiles, reach, bandN: bands.length, mw, stackN: st.length, stackBad: [...new Set(stackBad)], hlLines, fit: tb ? tb.dataset.fit || null : null, trunc, crumb, frame: !!document.querySelector('#ia-root.ia-frame'), oneLine, kids: kids.length, tall, past, hscroll: document.documentElement.scrollWidth > innerWidth + 1, rail: !!rr, railPast: rp, un };
 };
+/* IA-2b1 (D-IA.72, spec-IA-2b §8 row ia_shots): the list set. Runs when IA-2b1 is in IA_LANDED or IA_FORCE_LANDED=IA-2b1 (each page then adds
+   the unit and renders again), else prints "IA-2b1 not landed; dormant". SHOTS_ONLY=lists runs only this set. Classes (each printed with its count):
+   S1 the four lists x 3 operators at 390x844, 1280x720, 1440x900, light and dark; S2 each facet value with at least 1 row, by address (chip);
+   S3 each non-default sort; S4 q=zzqx (the empty state, with the tier's sort and the search kept); S5 scope=site:<first Site> (chip);
+   S6 Actions after Approve and after Send back (on #/plan) per operator, and Lakeside 6500/No (Returned); S7 Metro #/actions (2 rows, no
+   controls); S2 to S7 at 390 and 1440 light. S8 the fixture (tools/list_fixture.cjs, installed in the page): sites30 default, show=all,
+   target=below&q=fixture, q=zzqx, and decisions25 at state=draft after a Send back; 390 and 1440, light and dark. S9 keeps place at 390:
+   Lakeside #/decisions sort (live), sites30 target select and search submit: the control scrolled to half the viewport's height, changed as a
+   user would (focus, then change or the form submitted), then its top within 4 px of before and focus on it. A case whose page cannot scroll
+   that far prints its place clause skipped with the reason and still asserts focus. In every shot: no sideways scroll; every element of the
+   tools and chips rows ends inside the page and each tools control keeps its own width (not squeezed by a row that cannot wrap); tilefill; at 390 table.ia-list.ux-stack is stacked (thead hidden, cells block or grid) and fits
+   (D-IA.35 L5). Plants (SHOTS_PLANT): listkeep (iaListRestore not registered; fails S9), listwrap (nowrap on the tools and chips rows; fails S8
+   at 390), emptytools (the empty state drawn without its chips and tools; fails S4 on every operator). */
+const LISTS = ['decisions', 'findings', 'actions', 'sites'], LOPS = ['lakeside', 'harvest', 'metro'], LSITE = { lakeside: 'kobo', harvest: 'mwea', metro: 'embakasi' };
+const listMeasure = () => { const W = innerWidth, past = [], L = document.querySelector('section[data-shape="list"]'), txt = e => (e ? e.textContent : '').replace(/\s+/g, ' ').trim();
+  document.querySelectorAll('.ia-list-tools, .ia-list-chips').forEach(row => [row, ...row.querySelectorAll('*')].forEach(e => { const r = e.getBoundingClientRect(); if (r.width > 0 && (r.right > W + 1 || r.left < -1)) past.push(`${e.tagName.toLowerCase()}${e.getAttribute('name') ? `[name=${e.getAttribute('name')}]` : e.classList.length ? '.' + e.classList[0] : ''} ends at ${Math.round(r.right)} > ${W}`); }));
+  /* each control of the tools row keeps its own width (its clone, unconstrained, beside it; capped at the row's width): a row that cannot wrap squeezes them */
+  const squeezed = []; document.querySelectorAll('.ia-list-tools select, .ia-list-tools input, .ia-list-tools button').forEach(e => { const c = e.cloneNode(true); c.removeAttribute('name'); c.removeAttribute('id'); c.style.cssText = 'position:absolute;visibility:hidden;width:auto;max-width:none;min-width:0;flex:none;left:0;top:0';
+    e.parentElement.appendChild(c); const nat = c.getBoundingClientRect().width; c.remove(); const fw = e.closest('.ia-list-tools').clientWidth, w = e.getBoundingClientRect().width;
+    if (w < Math.min(nat, fw) - 1) squeezed.push(`${e.tagName.toLowerCase()}${e.getAttribute('name') ? `[name=${e.getAttribute('name')}]` : ''} ${Math.round(w)} px, its own width ${Math.round(nat)}`); });
+  const tabs = [...document.querySelectorAll('table.ia-list.ux-stack')].map(t => { const th = t.querySelector('thead'), td = t.querySelector('tbody td'); return { head: th ? getComputedStyle(th).display : 'none', td: td ? getComputedStyle(td).display : null }; });
+  const q = s => L && L.querySelector(s);
+  return { past: [...new Set(past)], squeezed, tabs, list: !!L, rows: L ? L.querySelectorAll('tr[data-row]').length : 0, tools: !!q('form[data-ia-list-tools]'), sort: (q('[data-ia-list-tools] select[name="sort"]') || {}).value || null,
+    qv: q('[data-ia-list-tools] input[name="q"]') ? q('[data-ia-list-tools] input[name="q"]').value : null, chips: L ? [...L.querySelectorAll('.ia-list-chips .ia-chip')].map(txt) : [], empty: txt(q('.ux-empty')), more: txt(q('.ux-more')),
+    states: L ? [...L.querySelectorAll('tr[data-row] .status-pill')].map(txt) : [] }; };
+async function listPlant(p) {
+  if (PLANT === 'listwrap') await p.addStyleTag({ content: '.ia-list-tools,.ia-list-chips{flex-wrap:nowrap!important}' });
+  if (PLANT === 'listkeep') await p.evaluate(() => window.removeEventListener('hashchange', iaListRestore));
+  if (PLANT === 'emptytools') await p.evaluate(() => { const o = iaListBody; iaListBody = function (...a) { const h = o.apply(this, a); return /Nothing matches these filters\./.test(h) ? h.replace(/<p class="ia-list-chips"[\s\S]*?<\/p>/, '').replace(/<form class="ia-list-tools"[\s\S]*?<\/form>/, '') : h; }; render(); });
+}
+const fxInstall = (p, name) => p.evaluate(([src, n]) => { if (!window.__F) { const module = { exports: {} }; new Function('module', 'require', src)(module, () => ({})); window.__F = module.exports; } return window.__F.install(window, n).length; }, [LIST_FX, name]);
+async function planAct(p, how) { /* the plan sets' flow (run(): approved, sentback, case) */
+  if (how === 'nd') { await p.evaluate(() => { for (const [n, v] of [['sw-budget', '6500'], ['sw-loi', 'no']]) { const i = document.querySelector(`input[name="${n}"][value="${v}"]`); i.checked = true; i.dispatchEvent(new Event('change', { bubbles: true })); } }); await p.waitForTimeout(300); return; }
+  await p.click('[data-shape="plan"] .ux-planband [data-ux-act="' + (how === 'sentback' ? 'send-back' : 'approve-plan') + '"]'); await p.waitForTimeout(300);
+  if (how === 'sentback') await p.evaluate(() => { const t = document.getElementById('ux-sb-reason'), s = document.getElementById('ux-sb-way'); t.value = 'The crew cannot do both visits'; s.value = [...s.options].find(o => o.value).value; for (const e of [t, s]) for (const k of ['input', 'change']) e.dispatchEvent(new Event(k, { bubbles: true })); });
+  await p.click('#uxact [data-ux-act-go]'); await p.waitForTimeout(400); }
+async function listSet(b, lines) {
+  let bad = 0; const CN = {}, cnt = (c, ok) => { CN[c] = CN[c] || { n: 0, bad: 0 }; CN[c].n++; if (!ok) { CN[c].bad++; bad++; } };
+  const open = async (op, w, h, dark, start) => { const ctx = await b.newContext({ viewport: { width: w, height: h }, colorScheme: dark ? 'dark' : 'light' }); await ctx.addInitScript(v => { try { sessionStorage.setItem('l4-op', v); } catch (e) {} }, op);
+    const p = await ctx.newPage(), errs = []; p.on('pageerror', e => errs.push(e.message)); await p.goto(`${base}#/${start}`); await p.waitForTimeout(400);
+    if (IA2B1_FORCED) await p.evaluate(() => { IA_LANDED.add('IA-2b1'); render(); }); await listPlant(p); return { ctx, p, errs }; };
+  const common = (m, lm, w, errs) => { const why = [];
+    if (!m.frame) why.push('no frame'); if (!lm.list) why.push('no list section'); if (m.hscroll) why.push('sideways scroll'); if (errs.length) why.push(`page error ${errs[0].slice(0, 80)}`);
+    if (lm.past.length) why.push(`the tools or chips row runs past the page (${lm.past[0]})`);
+    if (lm.squeezed.length) why.push(`the tools row squeezes a control (${lm.squeezed[0]}) (listwrap)`);
+    for (const t of m.tiles) { tilesN++; if (Math.abs(t.gap) > 2) why.push(`a ${t.n}-tile row stops ${t.gap} px short of its row's right edge (tilefill)`); }
+    if (w === 390) { lm.tabs.forEach(t => { if (t.head !== 'none' || (t.td && !['block', 'grid'].includes(t.td))) why.push(`table.ia-list not stacked (thead ${t.head}, td ${t.td})`); }); if (m.stackBad.length) why.push(`stacked table does not fit: ${m.stackBad[0]}`); }
+    return why; };
+  /* o: { cls, op, w, dark, hash, start (default hash), pre(p), fx, check(p, lm) -> reasons, tag } */
+  const lrun = async o => { const h = o.w === 390 ? 844 : o.w === 1280 ? 720 : 900, { ctx, p, errs } = await open(o.op, o.w, h, o.dark, o.start || o.hash);
+    if (o.pre) await o.pre(p);
+    if ((o.start && o.start !== o.hash) || o.fx) { await p.evaluate(x => { location.hash = '#/' + x; }, o.hash); await p.waitForTimeout(300); if (o.fx) { await p.evaluate(() => render()); await p.waitForTimeout(100); } }
+    const m = await p.evaluate(measure), lm = await p.evaluate(listMeasure), why = [...common(m, lm, o.w, errs), ...(o.check ? await o.check(p, lm) : [])]; cnt(o.cls, !why.length);
+    const th = o.dark ? 'dark' : 'light', tag = o.tag ? ` (${o.tag})` : '';
+    if (!PLANT) await p.screenshot({ path: `${out}/lists-${o.cls}-${o.op}-${(o.tag ? o.tag + '-' : '') + o.hash.replace(/[\/?&=:]+/g, '-')}-${o.w}-${th}.png`, fullPage: true });
+    lines.push(`${why.length ? 'BAD' : 'ok '} ${o.cls} ${o.op} #/${o.hash}${tag} ${o.w}x${h} ${th}: ${lm.rows} rows, tools ${lm.tools ? `sort ${lm.sort}${lm.qv !== null ? `, search "${lm.qv}"` : ''}` : 'none'}${lm.chips.length ? `, chips ${lm.chips.map(c => `[${c}]`).join(' ')}` : ''}${lm.empty ? `, empty "${lm.empty}"` : ''}${why.length ? ' · ' + why.join('; ') : ''}`);
+    await ctx.close(); };
+  /* each operator's lists as the page sees them: tier, sorts, facet values with at least 1 row, the first Site's name */
+  const INFO = {};
+  for (const op of LOPS) { const { ctx, p } = await open(op, 1440, 900, false, 'decisions');
+    INFO[op] = await p.evaluate(() => Object.fromEntries(Object.entries(IA_LIST_DEFS).map(([k, d]) => { const it = d.items(LS.op), m = iaListModel(d, it, {}, { kind: 'all' });
+      return [k, { tier: m.tier, sorts: d.sorts.map(s => s.key), facets: (d.facets || []).flatMap(f => f.options().map(([v, w]) => ({ f: f.key, v: String(v), w: iaListText(w), n: it.filter(x => String(f.of(x)) === String(v)).length }))).filter(x => x.n) }]; })));
+    INFO[op].siteName = await p.evaluate(s => SK[s].name, LSITE[op]); await ctx.close(); }
+  const W2 = [390, 1440];
+  /* S1 default */
+  for (const op of LOPS) for (const w of [390, 1280, 1440]) for (const dark of [false, true]) for (const key of LISTS) await lrun({ cls: 'S1', op, w, dark, hash: key });
+  /* S2 each facet value with at least 1 row, by address: the rows are that value's, and the chip names it (the tier draws no facet select live) */
+  for (const op of LOPS) for (const key of LISTS) for (const f of INFO[op][key].facets) for (const w of W2) await lrun({ cls: 'S2', op, w, dark: false, hash: `${key}?${f.f}=${encodeURIComponent(f.v)}`,
+    check: async (p, lm) => { const why = []; if (lm.rows !== Math.min(f.n, 10)) why.push(`${lm.rows} rows, the store has ${f.n} with ${f.f}=${f.v}`);
+      if (INFO[op][key].tier < 2 && !lm.chips.some(c => c.toLowerCase().startsWith(f.w))) why.push(`no chip reading "${f.w} · …"`); return why; } });
+  /* S3 each non-default sort */
+  for (const op of LOPS) for (const key of LISTS) for (const s of INFO[op][key].sorts.slice(1)) for (const w of W2) await lrun({ cls: 'S3', op, w, dark: false, hash: `${key}?sort=${s}`,
+    check: async (p, lm) => (INFO[op][key].tier >= 1 && lm.sort !== s ? [`the sort select reads ${lm.sort}, not ${s}`] : []) });
+  /* S4 a search with no result: the empty state, the tier's sort (its default) and the search kept (the chip below tier 2, the box at 2) */
+  for (const op of LOPS) for (const key of LISTS) for (const w of W2) await lrun({ cls: 'S4', op, w, dark: false, hash: `${key}?q=zzqx`,
+    check: async (p, lm) => { const why = [], t = INFO[op][key].tier; if (!/^Nothing matches these filters\./.test(lm.empty)) why.push(`no "Nothing matches these filters." state (got "${lm.empty}")`);
+      if (t >= 1 && lm.sort !== INFO[op][key].sorts[0]) why.push(`the tier-${t} sort is not drawn (sort ${lm.sort}) (emptytools)`);
+      if (t < 2 && !lm.chips.includes('Matching “zzqx” · Clear search')) why.push('the search chip "Matching “zzqx” · Clear search" is not drawn (emptytools)');
+      if (t === 2 && lm.qv !== 'zzqx') why.push('the search box does not keep "zzqx" (emptytools)'); return why; } });
+  /* S5 scope = the operator's first Site */
+  for (const op of LOPS) for (const key of LISTS) for (const w of W2) await lrun({ cls: 'S5', op, w, dark: false, hash: `${key}?scope=site:${LSITE[op]}`,
+    check: async (p, lm) => (lm.chips.includes(`${INFO[op].siteName} · All sites`) ? [] : [`no chip "${INFO[op].siteName} · All sites"`]) });
+  /* S6 Actions after Approve and after Send back; Lakeside 6500/No (Returned) */
+  for (const op of LOPS) for (const how of ['approved', 'sentback', ...(op === 'lakeside' ? ['nd'] : [])]) for (const w of W2) await lrun({ cls: 'S6', op, w, dark: false, start: 'plan', hash: 'actions', tag: how === 'nd' ? '6500-no' : how,
+    pre: p => planAct(p, how), check: async (p, lm) => { const why = [], st = await p.evaluate(() => uxPlanState(LS.op).state);
+      if (how === 'approved' && st !== 'APPROVED') why.push(`the plan is ${st} after Approve`); if (how === 'sentback' && st !== 'DRAFT') why.push(`the plan is ${st} after Send back`);
+      if (how === 'nd' && !lm.states.includes('Returned')) why.push('no Returned row in the 6500/No case'); if (!lm.rows) why.push('no rows'); return why; } });
+  /* S7 no controls: Metro Actions, 2 rows */
+  for (const w of W2) await lrun({ cls: 'S7', op: 'metro', w, dark: false, hash: 'actions', check: async (p, lm) => [...(lm.tools ? ['the tools are drawn'] : []), ...(lm.rows !== 2 ? [`${lm.rows} rows, not 2`] : []), ...(lm.chips.length ? ['chips drawn'] : [])] });
+  /* S8 the fixture. decisions25 is cloned from the booted operator's decisions, so its draft rows exist only after the plan is sent back */
+  const drafted = await (async () => { const { ctx, p } = await open('lakeside', 1440, 900, false, 'plan'); await planAct(p, 'sentback'); await fxInstall(p, 'decisions25');
+    const n = await p.evaluate(() => IA_LIST_DEFS.decisions.items(LS.op).filter(x => iaDecStateKey(x) === 'draft').length); await ctx.close(); return n; })();
+  const DST = drafted ? 'draft' : 'approval'; lines.push(`S8 decisions25 after Send back: ${drafted} rows in state draft${drafted ? '' : '; none, so the case uses state=approval'}`);
+  const S8 = [['sites30', 'sites', null, (p, lm) => (lm.rows !== 10 || !/Show all 30/.test(lm.more) ? [`${lm.rows} rows, more "${lm.more}" (expected 10 and Show all 30)`] : [])],
+    ['sites30', 'sites?show=all', null, (p, lm) => (lm.rows !== 30 ? [`${lm.rows} rows, not 30`] : [])],
+    ['sites30', 'sites?target=below&q=fixture', null, (p, lm) => (!lm.rows || lm.qv !== 'fixture' ? [`${lm.rows} rows, search "${lm.qv}"`] : [])],
+    ['sites30', 'sites?q=zzqx', null, (p, lm) => (!/^Nothing matches these filters\./.test(lm.empty) || !lm.tools || lm.qv !== 'zzqx' ? [`empty "${lm.empty}", tools ${lm.tools}, search "${lm.qv}"`] : [])],
+    ['decisions25', `decisions?state=${DST}`, 'sentback', (p, lm) => (!lm.rows ? ['no rows'] : [])]];
+  for (const [fx, hash, how, ck] of S8) for (const w of W2) for (const dark of [false, true]) await lrun({ cls: 'S8', op: 'lakeside', w, dark, fx, start: how ? 'plan' : 'sites', hash, tag: fx,
+    pre: async p => { if (how) await planAct(p, how); await fxInstall(p, fx); }, check: async (p, lm) => ck(p, lm) });
+  /* S9 keeps place at 390 */
+  const S9 = [['Lakeside #/decisions sort (live)', 'decisions', null, 'sort', 'select', 'due'], ['sites30 target select', 'sites', 'sites30', 'target', 'select', 'below'], ['sites30 search submit', 'sites', 'sites30', 'q', 'search', 'fixture']];
+  for (const [label, start, fx, name, kind, val] of S9) { const { ctx, p, errs } = await open('lakeside', 390, 844, false, start);
+    if (fx) { await fxInstall(p, fx); await p.evaluate(() => render()); await p.waitForTimeout(100); }
+    const why = [], pos = await p.evaluate(n => { const e = document.querySelector(`[data-ia-list-tools] [name="${n}"]`); if (!e) return null; const top = e.getBoundingClientRect().top + scrollY; return { top: Math.round(top), want: Math.round(top - innerHeight / 2), maxY: document.documentElement.scrollHeight - innerHeight, half: innerHeight / 2 }; }, name);
+    let note = '';
+    if (!pos) why.push(`no control [name=${name}]`); else {
+      const reach = pos.want >= 0 && pos.want <= pos.maxY;
+      if (reach) { await p.evaluate(y => window.scrollTo({ top: y, behavior: 'instant' }), pos.want); await p.waitForTimeout(100); }
+      else note = `place skipped: the control's top is ${pos.top} px at scroll 0${pos.want < 0 ? `, above half the viewport (${pos.half})` : `, and the page scrolls only ${pos.maxY} px`}, so it cannot sit at half height; measured from scroll 0, focus asserted`;
+      const before = await p.evaluate(([n, kind, v]) => { const e = document.querySelector(`[data-ia-list-tools] [name="${n}"]`), t = e.getBoundingClientRect().top, h0 = location.hash; e.focus();
+        if (kind === 'select') { e.value = v; e.dispatchEvent(new Event('change', { bubbles: true })); } else { e.value = v; e.form.requestSubmit(); } return { t, h0 }; }, [name, kind, val]);
+      await p.waitForTimeout(500);
+      const a = await p.evaluate(n => { const e = document.querySelector(`[data-ia-list-tools] [name="${n}"]`); return { t: e ? e.getBoundingClientRect().top : null, focus: !!e && document.activeElement === e, hash: location.hash, y: scrollY }; }, name);
+      if (a.hash === before.h0) why.push('the change wrote no address');
+      if (a.t === null || Math.abs(a.t - before.t) > 4) why.push(`the control's top moved ${Math.round(before.t)} -> ${a.t === null ? 'gone' : Math.round(a.t)} (listkeep)`);
+      if (!a.focus) why.push('focus is not on the control (listkeep)');
+      note = `${note ? note + '; ' : ''}top ${Math.round(before.t)} -> ${a.t === null ? '-' : Math.round(a.t)}, focus ${a.focus}, ${a.hash}`; }
+    const m = await p.evaluate(measure), lm = await p.evaluate(listMeasure); why.push(...common(m, lm, 390, errs)); cnt('S9', !why.length);
+    if (!PLANT) await p.screenshot({ path: `${out}/lists-S9-${label.replace(/[^a-z0-9]+/gi, '-').replace(/-+$/, '').toLowerCase()}-390-light.png` });
+    lines.push(`${why.length ? 'BAD' : 'ok '} S9 ${label} 390x844 light: ${note}${why.length ? ' · ' + why.join('; ') : ''}`); await ctx.close(); }
+  const NAMES = { S1: 'default', S2: 'facet values by address', S3: 'non-default sorts', S4: 'no-result search', S5: 'scope first Site', S6: 'Actions after Approve / Send back / 6500-No', S7: 'no controls', S8: 'fixture', S9: 'keeps place' };
+  for (const c of Object.keys(NAMES)) lines.push(`${CN[c] && !CN[c].bad ? 'ok ' : 'BAD'} ${c} ${NAMES[c]}: ${CN[c] ? CN[c].n : 0} shots, ${CN[c] ? CN[c].bad : 0} bad`);
+  for (const c of Object.keys(NAMES)) if (!CN[c]) bad++;
+  return bad; }
 (async () => { const b = await chromium.launch({ executablePath: process.env.CHROME }); const lines = []; let bad = 0;
   const run = async (op, w, h, dark, r, shot, act) => {
     const ctx = await b.newContext({ viewport: { width: w, height: h }, colorScheme: dark ? 'dark' : 'light' }); await ctx.addInitScript(v => { try { sessionStorage.setItem('l4-op', v); } catch (e) {} }, op);
@@ -117,6 +245,11 @@ const measure = () => { const tb = document.querySelector('.ia-frame .topbar'), 
   /* IA-1c: every decision of each operator, and the inbox open */
   const DECS = await (async () => { const ctx = await b.newContext(), p = await ctx.newPage(); await p.goto(`${base}#/plan`); await p.waitForTimeout(300);
     const x = await p.evaluate(() => Object.fromEntries(Object.keys(OPS).map(op => [op, DEC.filter(d => OPS[op].sites.includes(d.site)).map(d => d.id)]))); const L = await p.evaluate(() => Object.fromEntries(Object.keys(OPS).map(op => [op, DEC.filter(d => OPS[op].sites.includes(d.site)).sort((a, b) => SK[b.site].name.length - SK[a.site].name.length)[0].id]))); await ctx.close(); x.longest = L; return x; })();
+  /* IA-2b1 (D-IA.72, spec-IA-2b §8 row ia_shots): the list set, S1 to S9, each class printed with its count */
+  { const ctx = await b.newContext(), p = await ctx.newPage(); await p.goto(`${base}#/plan`); await p.waitForTimeout(300); IA2B1_ON = IA2B1_FORCED || await p.evaluate(() => IA_LANDED.has('IA-2b1')); await ctx.close(); }
+  if (!IA2B1_ON) { lines.push('IA-2b1 not landed; dormant'); if (ONLY === 'lists') { await b.close(); console.log(lines.join('\n')); process.exit(0); } }
+  else if (!ONLY || ONLY === 'lists') { const r2 = await listSet(b, lines); bad += r2;
+    if (ONLY === 'lists') { await b.close(); console.log(lines.join('\n') + `\ntile rows measured: ${tilesN}`); console.log(`shots: ${lines.filter(l => /^(ok |BAD)/.test(l)).length} measured, ${bad} bad`); process.exit(bad ? 1 : 0); } }
   /* IA-2a: the four plan routes (landed, or forced) */
   { const ctx = await b.newContext(), p = await ctx.newPage(); await p.goto(`${base}#/plan`); await p.waitForTimeout(300); IA2A_ON = IA2A_FORCED || await p.evaluate(() => IA_LANDED.has('IA-2a')); await ctx.close(); }
   if (!IA2A_ON) { lines.push('IA-2a not landed; dormant'); if (ONLY === 'plan') { await b.close(); console.log(lines.join('\n') + `\ntile rows measured: ${tilesN}`); process.exit(0); } }
