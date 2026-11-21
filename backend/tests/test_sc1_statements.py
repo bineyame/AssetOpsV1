@@ -348,7 +348,9 @@ def test_t8_shipped_catalogue_loads():
                                          # 3C1b (D-SC1.28): the trial action's actor words.
                                          "action.actor_label", "action.observe_note", "action.change_statement",
                                          "action.publish_note", "action.client_authority_forbidden",
-                                         "action.unknown_site"}
+                                         "action.unknown_site",
+                                         # 1a (D-1A.9): the Optimize card's day and scope.
+                                         "portfolio_card.cost_scope"}
     assert set(cat.vocabulary["en"]) == {"factor", "heading", "headline_subject", "record", "record_noun",
                                          "evidence", "unit", "noun", "month", "format", "action_state"}
 

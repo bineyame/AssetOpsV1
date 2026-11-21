@@ -719,6 +719,8 @@ export interface EstatePortfolioCard {
   /** DIESEL-1-R3j (Protect only): one server line per unexplained-fuel Finding, never added; and its clause. */
   fuel_lines?: string[];
   fuel_note?: string | null;
+  /** 1a (D-1A.3): the Optimize card's day and scope, server text. */
+  scope_text?: string | null;
 }
 
 export interface EstateClient {

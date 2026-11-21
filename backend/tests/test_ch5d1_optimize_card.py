@@ -33,7 +33,7 @@ def test_no_priced_site_reads_not_known() -> None:
     card = _optimize_card([_site("K", "Kobo", _claim(None)), _site("D", "Depot", None)])
     assert card == {"value": {"text": "Not known yet", "small": None}, "missing": False,
                     "detail": "No cost worked out yet at any site", "basis_text": "A cost needs a priced record",
-                    "days_line": None, "tone": "neutral", "claim": None}
+                    "days_line": None, "tone": "neutral", "claim": None, "scope_text": None}
     assert _optimize_card([]) == card
 
 
@@ -43,7 +43,7 @@ def test_one_priced_site_shows_its_claim_text_byte_equal() -> None:
     assert claim["text"] == "3.31 USD"
     assert card == {"value": {"text": claim["text"], "small": "possible extra fuel cost"}, "missing": False,
                     "detail": "At Kobo · not added across sites", "basis_text": BASIS_MONEY, "days_line": None,
-                    "tone": "amber", "claim": claim}
+                    "tone": "amber", "claim": claim, "scope_text": None}
     assert card["value"]["text"].encode() == claim["text"].encode()   # ONE-SOURCE: byte-equal
 
 
@@ -62,7 +62,7 @@ def test_two_priced_sites_list_each_and_never_sum() -> None:
     card = _optimize_card([_site("K", "Kobo", a), _site("D", "Depot", b)])
     assert card == {"value": {"text": "Costs at 2 sites", "small": None}, "missing": False,
                     "detail": "Kobo: 3.31 USD possible extra fuel cost · Depot: 1.20 USD possible extra fuel cost",
-                    "basis_text": BASIS_MONEY, "days_line": None, "tone": "amber", "claim": None}
+                    "basis_text": BASIS_MONEY, "days_line": None, "tone": "amber", "claim": None, "scope_text": None}
     total = Decimal("3.31") + Decimal("1.20")
     flat = repr(card)
     for form in (str(total), v.money2(total), v.money_text(total, None, "USD")):
