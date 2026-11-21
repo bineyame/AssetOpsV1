@@ -56,6 +56,9 @@ COMMAND_ROLES: dict[str, tuple[str, ...]] = {
     "commercial.upload": (ANALYST, FINANCE),
     "commercial.upload_decision": (FINANCE, EXECUTIVE),
     "commercial.upload_read": (ANALYST, FINANCE, EXECUTIVE, SITE_MANAGER),
+    # 3B4 (spec §5.3, D-3B4.11): a Site's tolerance on an observed leaf; the command names the person (`--as`).
+    "structure.tolerance.money": (FINANCE,),
+    "structure.tolerance.operational": (SITE_MANAGER,),
 }
 #: §3: a case event kind not listed above (any other kind) admits the Site manager only.
 OTHER_EVENT_ROLES: tuple[str, ...] = (SITE_MANAGER,)

@@ -978,6 +978,12 @@ class PostgresFindingStore:
         return None if row is None else (row[0], row[1], row[2])
 
     @staticmethod
+    def structure_lock(c: Connection, site_id: UUID, month: str) -> None:
+        """Spec §5.1: the Site-month's observer lock, held to the end of the caller's transaction."""
+        c.execute(text("SELECT pg_advisory_xact_lock(hashtext('structure-observe:' || :s || ':' || :m))"),
+                  {"s": str(site_id), "m": month})
+
+    @staticmethod
     def structure_held(c: Connection, tenant_id: UUID, site_id: UUID, structure_key: str, factor_id: str,
                        month: str, direction: str) -> tuple[UUID, str, str] | None:
         """`(finding_id, lifecycle, basis_sha256)` of the key's Finding's latest revision, or None."""
