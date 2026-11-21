@@ -36,7 +36,7 @@ SCHEMA = "assetops.s3-claim-limit-read"
 SCHEMA_VERSION = 1
 RULE_ID = "s3-claim-limit-1"
 #: Model versions whose stored segment vocabulary this rule maps. Any other model is refused, never guessed.
-SUPPORTED_MODELS = ("dispatch-3.2",)
+SUPPORTED_MODELS = ("dispatch-3.2", "dispatch-3.3")
 HISTORICAL = "HISTORICAL"
 COVERED, MISSING, POOR, CONFLICTED, NOT_EVALUATED = (
     "COVERED", "MISSING", "POOR_QUALITY", "CONFLICTED", "NOT_EVALUATED")
@@ -44,7 +44,7 @@ GEN = dispatch_v3.GEN_STATE
 LOAD, PV, DIS, SOC = dispatch_v3.LOAD, dispatch_v3.PV_AVAILABLE, dispatch_v3.DISCHARGE, dispatch_v3.SOC
 #: Required roles of the rule: generator state plus every role an evaluated point reads.
 REQUIRED_ROLES = (GEN, LOAD, PV, DIS, SOC)
-#: Problem text (dispatch-3.2 `_PROBLEM_TEXT`) -> coverage status. Unknown text is not COVERED (fail closed).
+#: Problem text (dispatch-3.2/3.3 `_PROBLEM_TEXT`) -> coverage status. Unknown text is not COVERED (fail closed).
 _PROBLEM_STATUS = (
     ("not bound in the selected role set", MISSING), ("bound to more than one asset", MISSING),
     ("no accepted reading", MISSING), ("not configured", MISSING), ("reading not GOOD quality", POOR),
@@ -52,7 +52,7 @@ _PROBLEM_STATUS = (
     ("SEQUENCE_ORDER_INVERTED", CONFLICTED), ("REPORTS_OVERLAP", CONFLICTED),
 )
 _LABEL_ROLE = {label: role for role, label in dispatch_v3.LABELS.items() if role in REQUIRED_ROLES}
-#: Roles each Candidate branch of dispatch-3.2 needs (`_evaluate`): PV alone, or PV plus PCS with SOC.
+#: Roles each Candidate branch of dispatch-3.2/3.3 needs (`_evaluate`): PV alone, or PV plus PCS with SOC.
 _CANDIDATE_ROLES = {"PV available alone": (LOAD, PV, DIS), "PV available plus PCS": (LOAD, PV, DIS, SOC)}
 NOT_INFERRED = ("No physical capacity is inferred: configured capability (Foundation or binding values) is not "
                 "observed capability, and only the selected revision's accepted public readings are used.")
@@ -100,7 +100,7 @@ def _status_of(text: str) -> str:
 
 
 def segment_roles(segment: dict[str, Any], evidence: Evidence) -> dict[str, tuple[str, list[str], list[str]]]:
-    """Per required role: (status, problem texts, evidence IDs) for one stored dispatch-3.2 segment. Generator state
+    """Per required role: (status, problem texts, evidence IDs) for one stored dispatch-3.2/3.3 segment. Generator state
     readings are interval-level in the stored result, so they are matched to the segment by their placed time."""
     out: dict[str, tuple[str, list[str], list[str]]] = {}
     lo, hi = _t(segment["start"]), _t(segment["end"])

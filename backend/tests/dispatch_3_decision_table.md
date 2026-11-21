@@ -1,6 +1,6 @@
-# Dispatch analytic decision table (S3-01, model `dispatch-3.1`)
+# Dispatch analytic decision table (S3-01, model `dispatch-3.3`)
 
-Authority: `D-2026-10-11-s3-dispatch-interval-assessment`, `D-2026-10-11-s3-phase-1-fixture-and-late-evidence`, task `tasks/S3-01-dispatch-assessment.md` ("`dispatch-3` comparison table"). Baseline: `backend/tests/dispatch_decision_table.md` (`dispatch-2`, kept unchanged and readable for historical file-backed revisions). Version bump: `D-2026-10-11-s3-phase-3a-version-and-cutover`.
+Authority: `D-2026-10-11-s3-dispatch-interval-assessment`, `D-2026-10-11-s3-phase-1-fixture-and-late-evidence`, task `tasks/S3-01-dispatch-assessment.md` ("`dispatch-3` comparison table"). Baseline: `backend/tests/dispatch_decision_table.md` (`dispatch-2`, kept unchanged and readable for historical file-backed revisions). Version bumps: `D-2026-10-11-s3-phase-3a-version-and-cutover`, `D-2026-10-15-lr01-source-time-cohort`, `D-0K4.10` (0K4e).
 
 Analytic: `backend/assetops_backend/analytics/dispatch_v3.py` (pure). Inputs: `analytics/assessment_inputs.py` (`EvidenceQuery`, `AnalyticInputSet`). Cohort: `analytics/cohort.py`. Tests: `backend/tests/test_s3_dispatch_v3_analytic.py`, `test_s3_dispatch_assessment_postgres.py`. Every threshold below is a named constant; changing one is a new model version and therefore new revisions.
 
@@ -9,9 +9,11 @@ Analytic: `backend/assetops_backend/analytics/dispatch_v3.py` (pure). Inputs: `a
 | Version | Differs from the previous version | Status |
 | --- | --- | --- |
 | `dispatch-3` | first durable model (phase 2) | historical: stored runs, revisions and URLs stay unchanged and readable; a pinned run/revision carries `model_note: OLDER_RULE_RESULT ...`; never selected as CURRENT under `dispatch-3.1` |
-| `dispatch-3.1` | (Q9) two or more sequence epochs of one source in a UTC window give a default `AMBIGUOUS` cohort even when the spans do not overlap ("Successive epochs"); (Q13) every interval limitation is lifted into the window list as `INTERVAL_LIMITED: ...`, so a `LIMITED` window always names its reason ("Claims") | current. The worker's reconcile pass enqueues every window whose last DEFAULT selection used another version and reassesses it through the normal job path; explicit cohort selections are point-in-time choices and are not remapped |
+| `dispatch-3.1` | (Q9) two or more sequence epochs of one source in a UTC window give a default `AMBIGUOUS` cohort even when the spans do not overlap ("Successive epochs"); (Q13) every interval limitation is lifted into the window list as `INTERVAL_LIMITED: ...`, so a `LIMITED` window always names its reason ("Claims") | historical: stored runs, revisions and URLs stay unchanged and readable; a pinned run/revision carries `model_note: OLDER_RULE_RESULT ...`; never selected as CURRENT under `dispatch-3.3` |
+| `dispatch-3.2` | (LR-01) the cohort-4 rules: an attested source clock orders a late arrival by source time, and every refused span names its clock reason and attestation versions | historical: stored runs, revisions and URLs stay unchanged and readable; a pinned run/revision carries `model_note: OLDER_RULE_RESULT ...`; never selected as CURRENT under `dispatch-3.3` |
+| `dispatch-3.3` | (0K4e) row 5b, the battery-support Candidate branch, also needs the battery's energy above the reserve, at the PCS efficiency, to cover the load PV does not cover until PV alone covers it with the 10 % headroom; otherwise Indeterminate naming the shortfall or the missing record. Inputs gain the Foundation's battery energy capacity and PCS efficiency ("Energy to solar cover" below) | current. The worker's reconcile pass enqueues every window whose last DEFAULT selection used another version and reassesses it through the normal job path; explicit cohort selections are point-in-time choices and are not remapped |
 
-Every rule, threshold and branch below is the `dispatch-3.1` rule. The model version is in every `input_sha256` and `basis_sha256`, so a version change always appends new revisions under the same keys.
+Every rule, threshold and branch below is the `dispatch-3.3` rule (the `dispatch-3.1` rules plus LR-01's cohort-4 clocks and 0K4e's energy to solar cover). The model version is in every `input_sha256` and `basis_sha256`, so a version change always appends new revisions under the same keys.
 
 ## Inputs (accepted public evidence and selected public configuration only)
 
@@ -24,6 +26,8 @@ Every rule, threshold and branch below is the `dispatch-3.1` rule. The model ver
 | Battery SOC | role `battery_soc` (instant) | device/signal | re-keyed |
 | Battery reserve | selected Foundation control `reserve-state-of-charge` effective at t, known at the run's cutoff | POLICY record or reserve override | changed: Foundation control only; no POLICY reading is invented |
 | Minimum runtime | selected Foundation generator property `minimum-runtime` | POLICY record | changed (row 2 below) |
+| Battery energy capacity | selected Foundation BATTERY property `battery-energy-capacity` (kWh), control `battery_energy_capacity` | none | new in `dispatch-3.3` (row 5b) |
+| PCS conversion efficiency | selected Foundation POWER_CONVERSION_SYSTEM property `pcs-conversion-efficiency` (%), control `pcs_conversion_efficiency` | none | new in `dispatch-3.3` (row 5b) |
 | Operator override | none (S2 V3 is measurement-only) | OPERATIONAL_RECORD | removed: alternative stated unavailable |
 | Fuel level, SFC | not used | SFC for indicative fuel | removed: no fuel or money in S3 (Q6) |
 
@@ -64,8 +68,17 @@ Each point uses interval means ending at t, or the latest instant in `(t - INSTA
 | 3 | SOC <= reserve + 10 and load > PV available → Necessary `BATTERY_AT_RESERVE` / `BATTERY_NEAR_RESERVE` | same, with the reserve from the Foundation control | carried |
 | 4 | load > PV available + discharge capability → Necessary `CAPABILITY_SHORTFALL` | same | carried |
 | 5a | PV available >= load × 1.1 with discharge capability usable → Candidate | same; both capability roles must be bound and accepted | carried |
-| 5b | SOC > reserve + 10 and PV + discharge >= load × 1.1 → Candidate; SOC inside headroom → Indeterminate | same | carried |
+| 5b | SOC > reserve + 10 and PV + discharge >= load × 1.1 → Candidate; SOC inside headroom → Indeterminate | same, and (`dispatch-3.3`) the energy to solar cover below must be held; otherwise Indeterminate with an `energy_cover` entry | changed in `dispatch-3.3` |
 | 6 | otherwise Indeterminate, naming each missing, conflicting or headroom reason | same, plus `missing role` (unbound in the selected role set), `NOT_GOOD` (UNAVAILABLE quality, Q2) and `AMBIGUOUS_SERIES` | carried, extended |
+
+### Energy to solar cover (row 5b, `dispatch-3.3`, D-0K4.10, D-0K4.23, D-0K4.24)
+
+- **held** = (SOC - reserve) / 100 × capacity × efficiency / 100 kWh, at the point.
+- **need**: from the point, in `COVER_WALK_STEP` 5-minute slots, the sum of (load - PV) × 5/60 h until the first slot where PV alone covers the load with the 10 % headroom (that slot excluded). The feeders are re-read at each slot, so a feeder bound later counts from its binding on. A reading missing at a slot takes the value of a GOOD interval mean with `interval_start < slot <= interval_end` (a mean holds over its own interval only, never beyond it). Exact fractions; the walk is memoised per slot for one assessment.
+- Candidate iff held >= need × 1.1 (`COVERED`); otherwise Indeterminate: `SHORT` (held below), `GAP` (a load or PV reading the walk needs has a lookup problem; the role, code and slot are stored), `NOT_REACHED` (PV does not cover the load before the read range's end, the window plus 6 hours: conservative, an evening point whose cover lies later is never Candidate) or `NOT_CONFIGURED` (capacity or efficiency absent at the point's control time).
+- The outcome is stored as codes and figures in the segment's `energy_cover` list (`at`, `state`, `held_kwh`, `need_kwh`, `input`, `problem`, `gap_at`, `range_end`, `controls`), never as `reasons` or `missing` text; the key is absent when no end reached row 5b. A Candidate keeps the row-5b reason string. The readers render `dispatch.energy_cover` (plain segment reason) and `dispatch.energy_cover_cause` (Finding portion cause).
+- Role coverage is per instant: an energy-cover Indeterminate is a limit of the rule, not an input-role gap, so per-instant role coverage reads COVERED when the instant's own inputs are whole (R3; naming it in readiness is queued, Q10).
+- The minimum-runtime withholding (row 2) still applies after row 5b; a withheld point keeps its entry. A change of either new control strictly inside a segment splits it, as the reserve does.
 
 Segments use the both-ends rule: Candidate only if both ends are Candidate; Necessary if either end is; otherwise Indeterminate. This is carried. A segment is split where the reserve or minimum-runtime control takes or leaves effect strictly inside it. The ends use the reports' own measurements and the part's control, as in `dispatch-2` (carried, now for Foundation controls). A segment touched by a cohort limit on a point role is Indeterminate and names the limit (new). A gap or unobserved segment is Indeterminate and counts only in the upper bound (carried).
 

@@ -158,6 +158,31 @@ VOCABULARY = {
             "OVERDUE": {"label": "Overdue"},
         },
     },
+    # 0K4e (spec §2.5, D-0K4.24): the inputs and lookup problems an energy-cover entry names.
+    "dispatch_input": {
+        "forms": ["label", "in_sentence"],
+        "order": ["feeder_demand", "pv_available_power", "battery_energy_capacity", "pcs_conversion_efficiency"],
+        "entries": {
+            "feeder_demand": {"label": "Load", "in_sentence": "the load"},
+            "pv_available_power": {"label": "Solar available power", "in_sentence": "solar available power"},
+            "battery_energy_capacity": {"label": "Battery energy capacity",
+                                        "in_sentence": "the battery energy capacity"},
+            "pcs_conversion_efficiency": {"label": "PCS conversion efficiency",
+                                          "in_sentence": "the PCS conversion efficiency"},
+        },
+    },
+    "reading_problem": {
+        "forms": ["in_sentence"],
+        "order": ["MISSING", "NOT_GOOD", "CONFLICTING", "AMBIGUOUS_SERIES", "UNBOUND", "MULTIPLE_BINDINGS"],
+        "entries": {
+            "MISSING": {"in_sentence": "no accepted reading"},
+            "NOT_GOOD": {"in_sentence": "a reading not of good quality"},
+            "CONFLICTING": {"in_sentence": "contradictory readings"},
+            "AMBIGUOUS_SERIES": {"in_sentence": "readings out of sequence order or overlapping"},
+            "UNBOUND": {"in_sentence": "no bound asset"},
+            "MULTIPLE_BINDINGS": {"in_sentence": "several bound assets"},
+        },
+    },
     # 0K4b (D-0K4.19, spec section 2.6): the Foundation property names a model reads, by property key in lower snake.
     "foundation_property": {
         "forms": ["label", "in_sentence"],
