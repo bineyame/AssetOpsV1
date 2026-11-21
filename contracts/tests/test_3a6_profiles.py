@@ -242,6 +242,33 @@ def test_n3_far_right_cells_are_read_in_bounded_memory_and_time() -> None:
     assert {code for code, _ in result.refused.values()} == {"NATIVE_ROW"}
 
 
+def test_n3_far_right_header_cell_is_refused_in_bounded_memory_and_time() -> None:
+    """N1: a header cell at XFD must refuse the header before any data row is padded to 16,384 cells."""
+    import time
+    import tracemalloc
+    members = zip_members(budget_bytes())
+    sheet = members["xl/worksheets/sheet1.xml"]
+    a = sheet.index(b"</row>")
+    members["xl/worksheets/sheet1.xml"] = sheet[:a] + b'<c r="XFD1" t="inlineStr"><is><t>x</t></is></c>' + sheet[a:]
+    data = _sheet_with_members(members, b"".join(
+        b'<row r="%d"><c r="A%d" t="inlineStr"><is><t>x</t></is></c></row>' % (n, n) for n in range(500, 2500)))
+    tracemalloc.start()
+    started = time.perf_counter()
+    code = refused_file(profile(BUDGET), data)
+    elapsed = time.perf_counter() - started
+    _, peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+    assert code == "NATIVE_HEADER"
+    assert peak < 20_000_000 and elapsed < 3.0, (peak, elapsed)
+
+
+def _sheet_with_members(members: dict, rows_xml: bytes) -> bytes:
+    sheet = members["xl/worksheets/sheet1.xml"]
+    b = sheet.index(b"</sheetData>")
+    members["xl/worksheets/sheet1.xml"] = sheet[:b] + rows_xml + sheet[b:]
+    return rezip(members)
+
+
 def test_n3_column_past_xfd_is_a_workbook_refusal() -> None:
     data = _sheet_with(b'<row r="900"><c r="XFE900" t="inlineStr"><is><t>x</t></is></c></row>')
     assert refused_file(profile(BUDGET), data) == "NATIVE_WORKBOOK"

@@ -318,6 +318,9 @@ def split_file(layout: Layout, data: bytes) -> tuple[list[str], list[tuple[int, 
                 header = [sparse.get(i, "") for i in range(max(sparse) + 1)] if sparse else []
         while header and header[-1] == "":
             header.pop()
+        if header != [c.header for c in layout.columns]:
+            # refused before any row is built: padding to an unchecked header width costs the file's choice of column
+            raise CanonicalRefused("NATIVE_HEADER", "json")
         width = len(header)
         rows: list[tuple[int, list[str]]] = []
         for number, sparse in sheet_rows:

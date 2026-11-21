@@ -226,6 +226,8 @@ def test_a2b_personal_change_refused_once_data_is_accepted(w) -> None:
             "declaration as it is.")
     assert w.store.profiles == before  # nothing written
     assert admit(w, profile_with(personal=[subject, ref])).version == 3  # same set, other order
+    recut = json.dumps(json.loads(profile_with(personal=[subject, ref])), indent=4).encode("utf-8")  # same content, new bytes
+    assert admit(w, recut, sample=KOBO_SAMPLE + b"\r\n").version == 4  # N2: a sample-only change is still admitted
 
 
 def test_a3_status_follows_the_database(people) -> None:
