@@ -239,3 +239,197 @@ and they will break on SC-1f. The larger break on SC-1f is the evidence word (H2
 ACCEPT WITH FIXES. Fix H1 and H2 on the branch. H2's fix needs the Architect's one-line confirmation that §2.4
 governs. Then merge `main` (with SC-1f), fix M1's literals, rerun the focused 5c tests and test 9 (`--db`), and run
 check-all once. M2 and L1 to L3 go to the Architect, with the defaults above. L4 to L6 need no action.
+
+## Round 2 (verification): units 1 and 2 (backend), fix rounds 1 and 2
+
+Reviewer: Claude (fresh; did not author the work), 2026-11-21. Branch `task/5c-deep-dive-screen` at `b47ef1003`
+(worktree `AssetOpsV1-5cbe`), against round 1 at `519c8a305` and rulings D-5C.19 to D-5C.25 (spec rev 3). Depth W5/W6:
+the named findings, their sweeps, and the new per-row currency change, which I read whole. One new class found
+(H3), so this round escalates past a plain re-check.
+
+**Summary (verdict: ACCEPT WITH FIXES)**
+- H1, H2, M1, M2, L1, L2, L3, L5 and KD3 are closed as ruled. Every plant named in the guide fails its test.
+- In World A every remaining "$0.00" is a real figure: O&M and staff, which match their targets, and in-transit cash.
+- **H3 (new, High).** The currency fix covers the Site rows only. Portfolio rows still print in R's currency (USD
+  when R has none), so a KES sum prints as "−$730.00". A Site whose own actual and target differ in currency prints
+  its figures in the portfolio's currency.
+- **M3 (new, Medium).** That same Site's `out` line says "not a mini-grid Site, not included". The sentence is false.
+- L7 (the currency mismatch is never stated) and L8 (D-5C.21's residual placement is untested) are Low.
+- Totals across currencies do not exist, and that is right: 5b returns None and the screen reads "Not available
+  yet". A one-currency partial total is a real figure, though, and must print in its own currency (H3).
+- check-all: 42 of 42 guards pass. The statement guard passes with 6 files adopted, and its self-test passes 78 of 78.
+
+### Checks run (b47ef1003)
+
+- `bash tools/heavy-slot.sh --wait-seconds 3000 -- pwsh -NoProfile -File tools/check-all.ps1` (with
+  `ASSETOPS_GUARD_PYTHON` set): "check-all: 145.3 s wall (0.2 s waiting for a slot), 4 jobs at once. All 42 guards
+  passed (blocking; 0 advisory, 0 warned)." It includes "Statement catalogue (SC-1): OK … scan (6 adopted)" and
+  "self-test: 78 of 78 plants behave".
+- Focused (`test_5c_deep_dive_view.py`, `test_5c_deep_dive_api.py`, `test_sc1_statements.py`): 562 passed.
+- Test 9 (`--db`, `assetops_test` clone): `test_5c_deep_dive_postgres.py`: "2 passed, 2 warnings in 9.37 s" (it ran after the plants had been restored).
+- Plants. Each was planted in the worktree, run against the view and SC-1 tests, and then restored. The tree was
+  clean afterwards.
+  - P6a, "(at budget)" dropped from the cell: fails test 3.
+  - P6b, the same in the drawer row: fails test 3.
+  - P22, the headline served unmapped: 7 fail (test 3, and the class test for A, D and L1 to L4).
+  - P23, `SCREEN_EVIDENCE = {}`: 11 fail (test 3, the class test L2, 4 b, and test 5's DECLARED rows).
+  - P24, drivers flattened: fails 4(H).
+  - P26, ANALYSING's comma restored: fails the no-comma case.
+  - Currency plants: PC1 (`own_cur` returns the portfolio's currency), PC2 (the by-Site row uses `self.cur`) and
+    PC3 (the residual stop uses `self.cur`). Each fails 4 i.
+  - Mine:
+    - RP3, a group value of `sum or 0`: fails 4 i.
+    - RP4, the residual-last sort removed: **survives** (L8).
+  - P25 is unit 3's (test 11). On the backend, test 3 asserts that there is no `more` key.
+- Probes, in a scratch test that imports the view tests' helpers (`rv-5cbe2/probe`, since deleted):
+  - cur1: Kobo and Kisiwa in KES, Mto in USD, Mto's fuel cost not available;
+  - cur2: Mto's own root with actual and target in different currencies, the row `bridge.py:202` builds
+    (`currency` None, actual and target kept, `CURRENCY_MISMATCH:KES,USD`).
+
+Not verified: unit 3. I did not rerun the full backend suite. These findings are in 5c's view, and no shared code
+changed in the fix rounds apart from the two record words.
+
+### Round 1 findings
+
+- **H1, closed.**
+  - `view.py:144-151`: `group_sums` carries None.
+  - `:221-224`: the tile split and rest appear only when R has an effect.
+  - `:346-347`: no drawer effect line without an effect.
+  - `:120-122`: no residual stop without a figure.
+  - `:385`: the group value.
+  - `test_4_i_nothing_compared` (`test_5c_deep_dive_view.py:450`) asserts:
+    - the headline `[]`;
+    - tile 2 "Not available yet" with no lines;
+    - every group and step "Not available yet", and every drawer `["3 of 3 Sites"]`;
+    - both cards;
+    - the by-Site total;
+    - "$0.00" left only in Sites' own rows;
+    - the residual stop.
+  - In World A's fixture the 22 "$0.00" strings are O&M and staff (actual equals target, at the portfolio and every
+    Site), their drawer lines, Kisiwa's carried "$0.00 (at budget)", and in-transit cash for Kobo and Kisiwa.
+    Each is a real zero.
+- **H2 / D-5C.19, closed.**
+  - `words.py:48-56`: `SCREEN_EVIDENCE` maps DECLARED to RECORDED before `money_word`, so §2.4's origin-first order
+    decides.
+  - Test 5 (`:530-536`) has DECLARED with observed-financial and bench-tested ("Recorded"), source-emulated
+    ("Emulated"), demo-simulated ("Simulated"), unknown and no origin ("Estimated"), and mixed ("Emulated").
+  - 3A7's `standing.text` and `details` pass through untouched: test 9 asserts SC-1f's "(Declared)" in them, while
+    the money words read Emulated and Estimated.
+- **M1, closed.** `test_5c_deep_dive_postgres.py:51-58` holds A_TEXT "(Declared)" and A_DETAIL "Fuel cost (Recorded,
+  Emulated and Declared): ". `:113-114` maps unit 1's injected literals and asserts each occurs twice. `:141` holds
+  B's text.
+- **M2 / D-5C.20, closed.**
+  - `view.py:166-178`: the gap's word is R's. When a heading is named, it adds that heading's weakest word through
+    `W.word`.
+  - `test_3_headline_evidence_is_the_figures_words` (`:289`) runs over A, B, D and L1 to L4. In L2, where Grow is
+    named, it asserts both words.
+  - The headline reads `["Estimated, not yet reconciled"]` in A, `["Estimated"]` in B and `[]` when nothing is
+    compared.
+- **L1 / D-5C.23, closed.** `tables.py:91-93`'s `CELL_FORM[True]` is "AT_BUDGET". The cell (`view.py:421-422`) and
+  the drawer row (`:355-356`) share it. The `carried` sentence keeps "(estimate)", as ruled.
+- **L2 / D-5C.21, closed.**
+  - `view.py:292-325`: drivers are nested with `key` and `children`. Test 4(H) asserts the §3.5 literal.
+  - One gap remains: no world holds a residual driver (L8).
+- **L3 / D-5C.22, closed.** Test 3 asserts there is no `more` key on `by_site`, `not_available` or the drawer
+  `sites`. `actions` keeps its cap.
+- **L5 / D-5C.25, closed.** `vocabulary.py`: BILLING and LOSS_BAND are reworded, and World A's revenue stop and
+  not-available rows follow. `test_5_record_words_hold_no_comma_outside_brackets` covers every `record` entry.
+- **KD3, closed.** ANALYSING reads "the running record's analysis (still in progress)" in both the vocabulary and
+  spec §2.3's table, which has a note.
+
+### New findings
+
+**H3 (High; acceptance gap, honest numbers: "no amount with the wrong currency"). Portfolio figures print in R's
+currency, not their own. A Site with a currency mismatch prints in the portfolio's currency.**
+- **Where:**
+  - `view.py:81`: `self.cur = self.R.currency or "USD"`.
+  - Every portfolio figure is printed with `self.cur`, whatever its row's currency:
+    - `:380` the step values;
+    - `:385` and `:162` the group values and the headline's named sum;
+    - `:344-347` the drawer lines;
+    - `:339` the driver details;
+    - `:322` the driver values;
+    - `:411-413` the by-Site total;
+    - `:424-442` the cash sentence and total;
+    - `:554` the cards.
+  - `:93-96`: `own_cur` falls back to `self.cur` when a Site's own root has no currency, which is exactly the case
+    when that Site's actual and target differ in currency (`bridge.py:202`).
+  - `:144-151`: `group_sums` adds steps' effects without checking that they share a currency.
+- **Probe cur1.** Kobo and Kisiwa are in KES, Mto in USD, and Mto's fuel cost is not available. R is a mismatch, so
+  `self.cur` falls back to "USD". 5b's fuel cost row sums Kobo and Kisiwa in KES (`currency` "KES", k = 2), and the
+  screen prints it as "−$730.00" in all of these places:
+  - the Optimize group;
+  - the fuel cost step;
+  - the drawer lines ("Actual $4,595.00 · Target $3,865.00 · Difference +$730.00");
+  - the by-Site total;
+  - the Optimize card.
+- **Probe cur2.** Mto's own root has its actual and target in different currencies (5b §5's case (h)). Mto's by-Site
+  row prints its actual and target as "$810.00" and "$915.00", in the portfolio's currency. In real data one side
+  would be KES, printed with "$".
+- **Why it matters.**
+  - It is the class the coordinator named: a KES amount printed with "$". Test 4 i does not reach it, because there
+    every portfolio row is a mismatch and so reads "Not available yet".
+  - Both states are designed. 5b sums a one-currency subset with k < n, and §5 (h) tests a Site's own mismatch.
+- **Fix (5c only).**
+  - Print each portfolio figure in its own row's currency (`row.currency`), falling back to `self.cur` only where
+    the value is None. In `cash`, use the cash rows' currency.
+  - `group_sums`: a heading whose steps' effects are in more than one currency is None, reading "Not available
+    yet".
+  - `own_cur`: when the Site's root currency is None, print the actual in the actual side's currency and the target
+    in the target side's (`sb.actual.values[root].currency`, `sb.targets.structure.values[root].currency`), or read
+    "Not compared". Never use the portfolio's currency.
+  - Tests: add cur1 and cur2 as 4 i variants, asserting no "$" on a KES figure anywhere in the payload.
+
+**M3 (Medium; a false sentence, spec gap). A mini-grid Site out of k for a currency mismatch reads "not a mini-grid
+Site, not included."**
+- **Where:**
+  - `view.py:270-277` `out_line`: with no `actual:` or `target:` reasons it falls to `NOT_MINI_GRID`;
+  - `portfolio.py:104-107`: a Site whose root effect is None gives `()` when nothing is unobserved, which is the
+    currency mismatch case.
+- **Probe cur2.** The revenue drawer's `out` reads ["Mto: not a mini-grid Site, not included."].
+- **Why it matters.** Mto is a mini-grid Site, so an executive is told something untrue about it. §2.5 has no `out`
+  wording for this case.
+- **Fix.**
+  - Use `NOT_MINI_GRID` only when the code is not in `self.sb`, or for 5b's `NOT_DECLARED` and `sites_excluded`
+    reasons.
+  - For a Site whose own row stops on a currency mismatch, use a currency `out` variant. The Architect supplies the
+    literal, for example "{site}: not compared: the actual and the target are in different currencies (KES and
+    USD).", reusing the §2.5 stop.
+  - Add a test.
+
+**L7 (Low; spec question). The portfolio's currency mismatch is never stated.**
+- **Where:** 5b's `PortfolioRow.note` (`CURRENCY_MISMATCH:KES,USD`) is read nowhere in `view.py`.
+- **What happens.** In 4 i the headline reads "Contribution for October is not available yet.", and nothing on the
+  page says why, although the reason is in the payload's inputs.
+- **Fix.** The Architect decides whether `headline_na` (or a notice) names the currencies. This is not blocking.
+
+**L8 (Low; test gap). D-5C.21's residual placement is not exercised.**
+- **Where:** `view.py:306-316`.
+- **What happens.** My plant RP4 (the residual-last sort removed) survives. No test world has a `residual:<x>` row
+  under a step, so nothing checks a residual's parent or its last-place order.
+- **Fix.** Add a small case: a step with a split child and its residual, asserting the residual is the last child
+  of its parent.
+
+### Answer to the coordinator's question: totals across currencies
+
+They should not exist, and they do not. 5b's `_row` returns no sums and no effect when the included Sites hold two
+currencies (5b spec §2, "sums and effect None"). 5c then prints "Not available yet" for R, the groups, the steps,
+the cards and the by-Site and cash totals, as 4 i asserts. That is honest: no figure is invented, and none is shown
+as 0.
+
+A total over one currency's Sites (k < n) is a real figure, labelled with its "k of n Sites". It must print in its
+own currency (H3). Spec §3.2's `total` ("R's actual, target, effect") and §3.3 ("total from the portfolio rows")
+assume one portfolio currency. The fix keeps them true by printing each row in its own currency.
+
+### Residual risk
+
+- With H3 fixed, a page can show a KES step beside a USD step, with the headline "not available yet". That is honest,
+  but the mix is easy to misread, and L7's wording would help.
+- Unit 3's fixture must carry H3's and M3's results only if the screen's tests use a mixed-currency world. World A
+  is USD and is unaffected.
+
+### Disposition
+
+ACCEPT WITH FIXES. H3 and M3 are fixed on the branch before units 1 and 2 merge, with M3's literal from the
+Architect. Then a verification round checks H3 and M3 only. L7 goes to the Architect. L8 is fixed with H3's tests
+or recorded.
