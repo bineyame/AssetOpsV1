@@ -64,3 +64,10 @@ two P4 trajectories are identical. Defaults applied (T10 is the catching test); 
 - Risk: the backend seam test was not run in the container tier.
 
 Review focus: `host/forward_replay.py` `replay_inputs` against §2.4; T10's load check (Q1).
+
+## 6. Follow-up (D-0K1.19-21), test-only, `host/tests/test_0k1_forward_replay.py`
+
+T4 adds K-RES at reserve 32 (`res-32`; step parity, `running_steps == 46`; kernel runs 8 to 10, run count 20 to 22);
+T1[v7] compares per-load `load-served-power@<load>` with the kernel's through a recording `execute_fn` (no extra run).
+Plants on the committed tree, reverted: P2 (loads zipped by position) fails T1[7] and T10 (everything-not-replaced);
+P4 (reserve override dropped) fails T4 and T10 (one-whole-interval-override). Host file: 34 passed.

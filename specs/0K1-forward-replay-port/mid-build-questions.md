@@ -3,7 +3,7 @@
 Questions raised during the build about something the spec did not fix (spec rev 2). Count: 2. Both concern which
 test catches a plant, not what is built; the build is complete and nothing waits on them.
 
-## Q1 P2 (loads matched by position) cannot fail T1
+## Q1 P2 (loads matched by position) cannot fail T1 (ANSWERED: D-0K1.19, D-0K1.21)
 
 - **Found.** Planted in the committed tree, P2 passes T1 (`test_t1...[7]`: 1 passed). The reader's reverse order of
   three loads swaps `load-clinic` and `load-res` and leaves `load-mill` in place. Every projected field that
@@ -16,7 +16,7 @@ test catches a plant, not what is built; the build is complete and nothing waits
 - **Question for the Architect.** Accept T10 as P2's test (guide row P2: "T10, not T1"), or is a per-load field
   wanted in the projection (a type change, out of 0K1's scope as written)? Default if no answer: T10.
 
-## Q2 P4 (reserve applied to the start threshold) fails T10, not T4
+## Q2 P4 (reserve applied to the start threshold) fails T10, not T4 (ANSWERED: D-0K1.20)
 
 - **Found.** Planted, P4 passes T4 and fails T10. With the reserve setting written into the start threshold (25)
   and the reserve left at its baseline (30), v5 starts at min(25, 30 + 5) = 25; the kernel's own run starts at
