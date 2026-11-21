@@ -127,8 +127,11 @@ class StudyFrame:
     dawn_min_soc_pct: Fraction = Fraction(35)
     min_litre_days: int = MIN_LITRE_DAYS
     min_dawn_days: int = MIN_DAWN_DAYS
+    assumptions: tuple[str, ...] = ()  # the assumed values the run rests on, each with basis and derivation (D-0K4.27)
 
     def __post_init__(self) -> None:
+        if not isinstance(self.assumptions, tuple) or not all(isinstance(a, str) for a in self.assumptions):
+            raise TypeError("STUDY_ASSUMPTIONS_INVALID")
         if not isinstance(self.timezone, str):
             raise TypeError("timezone must be a str")
         try:
@@ -181,6 +184,9 @@ class DawnReading:
 
 @dataclass(frozen=True)
 class CaseOutcome:
+    """One case's figures over the window. `dawn_verdict` and the other dawn fields are information, never a gate:
+    whether a setting is admitted is `runs/admission.py`'s, from the four admission measures (D-0K4.9, D-0K4.16)."""
+
     case_id: str  # "baseline" or "stop-<s>-reserve-<r>"
     stop_soc_pct: Fraction
     stop_source: str
@@ -203,10 +209,14 @@ class CaseOutcome:
     dawn: tuple[DawnReading, ...]
     dawn_days_below: int
     worst_dawn_soc_pct: Fraction
-    dawn_verdict: str
+    dawn_verdict: str  # information beside the admission rule, never a gate (D-0K4.9)
     new_dawn_days_below: tuple[str, ...]  # local dates below the limit here and not in the baseline
     cleared_dawn_days_below: tuple[str, ...]  # below in the baseline and not here; both () for the baseline
     clipped_steps: int
+    reserve_breach_steps: int  # steps whose start SOC is below this case's own reserve (D-0K4.16)
+    max_starts_in_a_day: int  # most starts in one local day, by `start_steps` (D-0K4.28)
+    full_charge_dates: tuple[str, ...]  # local dates on which the battery reaches 100 %, ascending
+    longest_days_without_full_charge: int  # longest run of consecutive window dates not in full_charge_dates
     input_class: str  # copied from the series
     evidence_class: str = EVIDENCE_CLASS
 
@@ -231,6 +241,7 @@ class StudyResult:
     baseline: CaseOutcome | None  # set only when CALIBRATED
     cases: tuple[CaseOutcome, ...]  # grid order; () unless CALIBRATED
     projections: tuple[ForwardReplayProjection, ...]  # baseline first, then the grid; (baseline,) when NOT_CALIBRATED
+    assumptions: tuple[str, ...]  # copied from the frame (D-0K4.27)
     evidence_class: str = EVIDENCE_CLASS
 
     def __post_init__(self) -> None:
@@ -463,6 +474,33 @@ def _differences(case: tuple, base: tuple) -> tuple[Fraction, ...]:
     return tuple(Fraction(c) - Fraction(b) for c, b in zip(case, base, strict=True))
 
 
+def admission_measures(p: ForwardReplayProjection, local_times: tuple[datetime, ...], first_previous: str
+                       ) -> tuple[int, int, tuple[str, ...], int]:
+    """(reserve_breach_steps, max_starts_in_a_day, full_charge_dates, longest_days_without_full_charge), D-0K4.16 as
+    corrected by D-0K4.28: a breach is a step whose start SOC is below `p.reserve_soc_pct` (the case's own reserve); a
+    start is `start_steps`' mark, counted in the local date of its step's start; a date is a full-charge date when a
+    step's start SOC on it, or the window's end SOC on the last date, is at least 100; the longest run is over the
+    window's consecutive local dates. Counts and comparisons only."""
+    if len(local_times) != len(p.steps):
+        raise ValueError("ADMISSION_MEASURES_MISALIGNED")
+    breaches = sum(1 for step in p.steps if step.soc_start_pct < p.reserve_soc_pct)
+    marks = start_steps(tuple(step.generator_state for step in p.steps), first_previous)
+    dates = tuple(moment.date().isoformat() for moment in local_times)
+    starts: dict[str, int] = {}
+    full: set[str] = set()
+    for date, mark, step in zip(dates, marks, p.steps, strict=True):
+        starts[date] = starts.get(date, 0) + mark
+        if step.soc_start_pct >= 100:
+            full.add(date)
+    if dates and p.soc_end_pct is not None and p.soc_end_pct >= 100:
+        full.add(dates[-1])
+    longest = run = 0
+    for date in sorted(starts):
+        run = 0 if date in full else run + 1
+        longest = max(longest, run)
+    return breaches, max(starts.values(), default=0), tuple(sorted(full)), longest
+
+
 def _outcome(case_id: str, p: ForwardReplayProjection, b: ForwardReplayProjection, observed: ObservedSeries,
              days: tuple[StudyDay, ...], local: tuple[datetime, ...], frame: StudyFrame,
              first_previous: str) -> CaseOutcome:
@@ -474,6 +512,7 @@ def _outcome(case_id: str, p: ForwardReplayProjection, b: ForwardReplayProjectio
     base_readings = dawn_outcome(b, days, local, frame)[0]
     here, there = set(dates_below(readings, frame)), set(dates_below(base_readings, frame))
     throughput = sum(p_through, Fraction(0))
+    breaches, most_starts, full_dates, longest = admission_measures(p, local, first_previous)
     return CaseOutcome(
         case_id=case_id,
         stop_soc_pct=p.stop_soc_pct, stop_source=p.stop_source,
@@ -493,6 +532,8 @@ def _outcome(case_id: str, p: ForwardReplayProjection, b: ForwardReplayProjectio
         new_dawn_days_below=tuple(sorted(here - there)),
         cleared_dawn_days_below=tuple(sorted(there - here)),
         clipped_steps=len(p.clipped_offsets),
+        reserve_breach_steps=breaches, max_starts_in_a_day=most_starts, full_charge_dates=full_dates,
+        longest_days_without_full_charge=longest,
         input_class=observed.input_class,
     )
 
@@ -504,7 +545,8 @@ def replay_study(port: ForwardReplayPort, run: SimulationRun, observed: Observed
     admissible = admissible_days(observed, days)  # step 3
 
     def result(status: str, **fields) -> StudyResult:
-        values = dict(calibration=None, baseline=None, cases=(), projections=(), clipped_days=())
+        values = dict(calibration=None, baseline=None, cases=(), projections=(), clipped_days=(),
+                      assumptions=frame.assumptions)
         values.update(fields)
         return StudyResult(base_run_id=run.run_id, status=status, input_class=observed.input_class,
                            window_start=observed.interval_start, days=len(days), **values)
@@ -573,6 +615,7 @@ __all__ = [
     "StudyRefused",
     "StudyResult",
     "admissible_days",
+    "admission_measures",
     "avoided_l_on",
     "burns",
     "by_month",

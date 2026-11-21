@@ -1,6 +1,6 @@
 # 0K4 rulings (D-0K4.1 to D-0K4.30)
 
-Architect (Claude), 2026-11-21. Builds the 0K4 path the owner accepted the same day
+Architect (Claude), 2026-11-21. Continued in `rulings-2.md` (D-0K4.31 to D-0K4.37, 0K4m). Builds the 0K4 path the owner accepted the same day
 (`owner/owner-one-figure-loyal-to-operating-world-2026-11-21.md`: "Accept all (Recommended)", and the one-figure rule).
 Review: `review-for-owner.md`. Unit specs: `specs/0K4a-dispatch-v8/`, `specs/0K4b-fuel-curve-taper/`,
 `specs/0K4c-declared-season/`, `specs/0K4d-rerun-restate/`, `specs/0K4e-candidate-energy/`. Change list:

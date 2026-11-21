@@ -1,6 +1,6 @@
 # WK: the walkthrough database, copied from the checked world (implementer spec and coordinator runbook)
 
-Status: rev 2, Architect (Claude), 2026-11-21: handshake round 1 answered (`rulings.md`, "Handshake answers (round 1)",
+Status: in_review (built on `task/WK-walk-world`, packet `packet.md`); rev 2, Architect (Claude), 2026-11-21: handshake round 1 answered (`rulings.md`, "Handshake answers (round 1)",
 D-WK.10 to D-WK.14); rev 1 the same day, on the owner's delegation
 (`owner/owner-away-architect-stands-in-2026-11-21b.md`; owner-away rows 36 (owner: option b), 53, 54, 66 and 67).
 `delivery-plan.md` §2 row `WK`: "Prepare the clean day-14 walkthrough database at main" (1 unit; structure page

@@ -880,3 +880,92 @@ No acceptance gap. Each of §11 items 1 to 6 holds as the packet states:
 ### Disposition
 
 ACCEPT. L1 and L2 are optional and do not block. The merge can go ahead under the screen fix's own gates.
+
+## Cash fix r6 (verification, D-5C.29, spec rev 5 §12)
+
+Branch `fix/5c-cash-r6` at `d71457123`, diff against `ecaf49f5a` (merge base). Fresh reviewer, verification depth
+(W5) on spec rev 5 §12, ruling D-5C.29 and `packet-backend-fix-r6.md` with its deviations.
+
+**Summary (verdict: ACCEPT).**
+- The sentence is D-5C.29's exact text, in the table's column order. In A, D, E, G, H and the five currency worlds,
+  billed = collected + in transit + outstanding, and the total's cells [1:5] are the sentence's four strings.
+- Every cash figure comes from the cash tree. `cash_parts` (`view.py:98-113`) gates the total. Each Site's Billed is
+  `_find(cash_root, T.REVENUE)` (`view.py:554`). `self.rows` and `root.target` are no longer read in `cash()`.
+- The `collected_only` fallback is correct: with `cash_parts` forced to None on A, the total reads Not available yet /
+  $8,870.00 / Not available yet / Not available yet, never 0. No view test pins this (L1).
+- "Expected" is gone from the cash section, the code and the fixture. Scoping the assert to the section is honest.
+- Deviation 1 (`when`) and the "2 of 3 Sites" in World D are both correct (below). Plants C1-C4 reproduce. Of my two
+  own plants, one is caught. The other is the L1 gap.
+- One Low finding, which does not block. Every check is green.
+
+### Checks run (from the worktree, through the slot and `tools/run-host-tests.ps1`)
+
+- Focused tests, test 9 and the catalogue in one run (`--db`): `test_5c_deep_dive_view.py`, `test_5c_deep_dive_api.py`,
+  `test_5c_deep_dive_postgres.py`, `test_sc1_statements.py`, `test_5b_attribution{,_postgres}.py` and all
+  `test_3a7_*.py`. Result: `795 passed, 1 skipped, 7 warnings in 20.52s`. That is the packet's 792 + 3 for test 9.
+- Imports: the wrapper refuses a run when any package imports from outside the worktree. Separately, a probe with
+  the worktree's `backend/` on PYTHONPATH printed the new sentence. A probe under `python -I` imported main's
+  checkout and printed the old one. So the branch's code is what the tests ran.
+- Check-all, fast, through the slot: `All 42 guards passed (blocking; 0 advisory, 0 warned).` It took 145.8 s wall (0.2 s waiting for a slot), exit 0.
+
+### The checks the dispatch asked for
+
+1. **Sentence and table.** Probed values: A and H give $9,688.00 = 8,870.00 + 150.00 + 668.00. D gives $7,528.00 =
+   6,980.00 + 0.00 + 548.00. G is the same as A. The subset world gives the same figures in KES, and its Billed total
+   is now KES 7,528.00 (before the fix it read Not available yet). Each Site's row adds up in A (3,458 = 3,180 + 0 +
+   278, and so on).
+2. **`collected_only`.** `cash_parts` returns None when the currency, the Site set or the identity fails (vectors
+   1-5). The else branch (`view.py:563`) prints `a(None)`, which is Not available yet, for Billed, In transit and
+   Outstanding. When a Site's own part row is missing, its cell reads Not available yet, not 0 (Mto in the subset
+   world, and World X).
+3. **"Expected".** Across the A, D, E, G and H payloads, every remaining "expected" is the loss-band needs text
+   ("each feeder's expected technical loss as declared in the Site's setup"), which is unrelated to cash. `deep_dive/`
+   has no "expected" left, and neither does `deep_dive.cash`. The section-scoped assert (`test_5c_deep_dive_view.py`,
+   in `test_cash_sentence_reconciles`) is therefore an honest reading of §12.7(b) and of the Done question.
+4. **Deviation 3, World D "2 of 3 Sites".** This is a correct figure and an existing label, not a wrong count. World
+   D is `served_world(with_mto=False)`: the operator asks for 3 Sites, and Mto has no records. The cash table lists
+   Mto with every cell Not available yet, and the bridge's by-Site total in D also reads "2 of 3 Sites". Spec §12.7(c)
+   writes that same literal. The premise that "D has 2 Sites" is wrong: D has 3 asked Sites, and 2 of them are
+   compared.
+5. **Deviation 1, `when` and not `requires`.** This keeps the stated condition, and it is the only form that works.
+   The catalogue refuses a non-last variant without `when` (`catalogue.py:370`, VARIANT_ID). `render.py:195-202`
+   chooses by `when` and then raises REQUIRES_FAILED if `requires` fails. So a `requires`-only `cash` variant would
+   never fall through to `collected_only`. §12.4 itself says "`cash`, when billed, in_transit and outstanding are all
+   present". Cosmetic only: the continuation line at `deep_dive.py:384` is indented for the old `requires` key.
+6. **Plants** (each applied to the source, run on the view file, then reverted with `git checkout`; the tree is clean
+   afterwards):
+   - C1, billed fed `root.target`: 11 failed. Same as the packet.
+   - C3, total Billed from `self.rows.get(T.REVENUE)`: 2 failed. Same as the packet.
+   - C4, per-Site Billed from the contribution tree: 1 failed (`test_4_i_currency_one_currency_subset`). Same as the
+     packet.
+   - Own P5, the Site-coverage check dropped from `cash_parts`: 1 failed (`test_cash_parts_vectors`). Caught.
+   - Own P6, `words.cash` swaps in_transit and outstanding: 11 failed. Caught, because the sentence and the total
+     differ.
+   - Own P7, the fallback total prints `0.00` in the root's currency, not Not available yet: **199 passed. Not
+     caught.** See L1.
+
+### Findings
+
+- **L1 (Low, missing test; not an acceptance gap).** `backend/tests/test_5c_deep_dive_view.py:1083-1105`. The
+  reconciles test's "Not available yet" branch is reached only by World X. X takes `not_available`, and its root has
+  no currency, so `W.amount` prints Not available yet whatever the code passes. No test drives `cash()` through
+  `collected_only` with a collected figure present, and plant P7 (zeros in the fallback total, `view.py:563`)
+  survives. Why it matters: the ruling says only a plant reaches `collected_only`, so the "never 0" half of D-5C.29.4
+  has no test at view level. The code is correct by reading and by the forced probe above. Fix: one test that
+  monkeypatches `V.cash_parts` to return None on World A, then asserts the `collected_only` sentence and the total
+  `["3 of 3 Sites", "Not available yet", "$8,870.00", "Not available yet", "Not available yet"]`. §12.7 does not ask
+  for this test, so it is optional.
+
+### Not verified, and residual risk
+
+- **Layout evidence: not applicable.** No frontend file changed. The screen branch regenerates its two frontend
+  fixtures with `make_screen_worlds.py` when it next merges `main`. Until then it carries the old sentence.
+- **Per-Site rows are not gated by an identity check.** Only the total goes through `cash_parts`. A Site row adds up
+  because 5b's cash tree defines collected as revenue - in transit - outstanding, not because the view checks it. That
+  is fine today, but a change to `rows_mini_grid.py:112` would not be caught at the row level.
+- **Existing, outside this slice:** World X shows "2 of 3 Sites" beside "Cash collected in October is not available
+  yet." (the currencies are mixed). That is unchanged from main.
+
+### Disposition
+
+ACCEPT. L1 is optional and does not block.
