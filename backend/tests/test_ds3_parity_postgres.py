@@ -31,15 +31,15 @@ if URL:
     from assetops_backend.evidence.ledger_service import BatchIngestionService
     from assetops_contracts.ingestion_batch_v2 import parse_canonical_batch_v2_text
 
-#: Hand counts (spec §3): 5 devices x 2 days, 96 envelopes per device per day; the v4 slice adds one batch of four.
+#: Hand counts (spec §3): 5 devices x 2 days, 96 envelopes per device per day; the v4 slice adds one batch of three (D-DS3.20).
 KOBO_BATCHES, KOBO_ENVELOPES = 10, 960
-V4_ENVELOPES = 4
+V4_ENVELOPES = 3
 #: Tables a load writes on this seed besides the two with their own rules: the delta on both paths (literals, W2).
 #: `recompute_job` and `chain_input_change` hold per-statement or per-chunk rows and are compared by their rules.
 EQUAL_DELTAS = {"ingestion_batch": KOBO_BATCHES, "accepted_evidence": KOBO_ENVELOPES,
                 "ingestion_disposition": KOBO_ENVELOPES}
 V4_EQUAL_DELTAS = {"ingestion_batch": 1, "accepted_evidence": V4_ENVELOPES, "ingestion_disposition": V4_ENVELOPES}
-OWN_RULES = ("recompute_job", "chain_input_change")
+OWN_RULES = ("recompute_job", "chain_input_change", "event_outbox")
 #: D-DS3.10's stated limit: no Finding or assessment revision exists on the seed, so nothing is written here.
 ZERO_BY_LIMIT = ("financial_consequence_work", "ev_consequence_work", "evidence_rejection", "batch_refusal",
                  "batch_publication_link")
@@ -94,11 +94,40 @@ def _change_scopes(c, baseline_ids):
     return {(r.tenant_id, r.site_id, r.table_name) for r in new}, len(new)
 
 
+def _cover(subjects) -> dict:
+    """D-DS3.21: what a consumer reads from event subjects (roles, asset and analytic ids, domain, status, key, and the
+    least start and greatest end over span, window, valid and each pair of windows), computed from the JSON here."""
+    sets: dict[str, set] = {name: set() for name in ("roles", "asset_ids", "analytic_ids", "domain", "status", "key")}
+    starts, ends = [], []
+    for s in subjects:
+        for name in ("roles", "asset_ids", "analytic_ids"):
+            sets[name] |= set(s.get(name) or ())
+        for name in ("domain", "status", "key"):
+            if s.get(name) is not None:
+                sets[name].add(s[name])
+        pairs = [s[k] for k in ("span", "window", "valid") if s.get(k)] + list(s.get("windows") or ())
+        for start, end in pairs:
+            if start is not None:
+                starts.append(start)
+            if end is not None:
+                ends.append(end)
+    return {**{k: sorted(v) for k, v in sets.items()}, "start": min(starts, default=None), "end": max(ends, default=None)}
+
+
+def _outbox_groups(c, baseline_ids) -> dict:
+    rows = c.execute(text("SELECT event_id, tenant_id, site_id, source, type, subject FROM event_outbox")).all()
+    groups: dict = {}
+    for r in rows:
+        if r.event_id not in baseline_ids:
+            groups.setdefault((r.tenant_id, r.site_id, r.source, r.type), []).append(r.subject)
+    return groups
+
+
 def _v4_batch(kit, monkeypatch) -> bytes:
-    """Spec §3's v4 slice: test_w200's four v4 shapes, with `patched_v4` active for both loads."""
+    """D-DS3.20: the v4 slice is the three shapes the real path accepts (a refused `v4.delta` is a test-6 case)."""
     v4 = patched_v4(kit, monkeypatch)
     return kit.seal([v4.event(100001, "START_RESULT", "evt-1", "FAILED"), v4.start(100002, "start-1"),
-                     v4.point(100003), v4.delta(100004)]).encode("utf-8")
+                     v4.point(100003)]).encode("utf-8")
 
 
 def run_parity(monkeypatch, *, with_v4: bool) -> str:
@@ -112,6 +141,7 @@ def run_parity(monkeypatch, *, with_v4: bool) -> str:
         urls.append(bulk)
         with _engine(seed) as c:
             baseline_changes = set(c.execute(text("SELECT change_id FROM chain_input_change")).scalars())
+            baseline_events = set(c.execute(text("SELECT event_id FROM event_outbox")).scalars())
 
         batches = kobo_days(kit, [DAY6, DAY7])
         assert (len(batches), sum(len(_envelopes(b)) for b in batches)) == (KOBO_BATCHES, KOBO_ENVELOPES)
@@ -145,7 +175,7 @@ def run_parity(monkeypatch, *, with_v4: bool) -> str:
             assert len(real_evidence) == expected["accepted_evidence"]
             assert b.execute(text(EVIDENCE_SQL)).all() == real_evidence
             if with_v4:
-                assert sum(1 for row in real_evidence if row.record_kind is not None) == 2  # the v4 columns compared
+                assert sum(1 for row in real_evidence if row.record_kind is not None) == 2  # the v4 columns compared (event, start; the point has none)
             assert b.execute(text(BATCH_SQL)).all() == r.execute(text(BATCH_SQL)).all()
             assert b.execute(text(DISPOSITION_SQL)).all() == r.execute(text(DISPOSITION_SQL)).all()
 
@@ -176,10 +206,15 @@ def run_parity(monkeypatch, *, with_v4: bool) -> str:
             assert real_scopes and bulk_scopes == real_scopes and bulk_count <= real_count
             print("\nDS3 parity census deltas (real/bulk): " + ", ".join(
                 f"{t}={delta_real[t]}/{delta_bulk[t]}" for t in sorted(delta_real) if delta_real[t] or delta_bulk[t]))
-            outbox = {name: sorted(c.execute(text(
-                "SELECT source, type, count(*) FROM event_outbox GROUP BY source, type")).all()) for name, c in
-                (("real", r), ("bulk", b))}
-            print(f"DS3 parity event_outbox (source, type, rows): {outbox}")
+            # event_outbox (D-DS3.21): the event cover per (Site, source, type); never loosened to pass.
+            real_groups, bulk_groups = _outbox_groups(r, baseline_events), _outbox_groups(b, baseline_events)
+            assert real_groups and set(bulk_groups) == set(real_groups)
+            for key, subjects in real_groups.items():
+                assert len(bulk_groups[key]) <= len(subjects), key
+                real_cover, bulk_cover = _cover(subjects), _cover(bulk_groups[key])
+                assert bulk_cover == real_cover, f"event cover differs for {key[2:]}: real {real_cover} bulk {bulk_cover}"
+            print("DS3 parity event_outbox (source, type: real/bulk rows): " + ", ".join(
+                f"{k[2]} {k[3]}: {len(v)}/{len(bulk_groups[k])}" for k, v in sorted(real_groups.items(), key=str)))
             return unnamed_text
     finally:
         for url in urls:
@@ -191,17 +226,11 @@ def test_the_bulk_path_stores_the_rows_central_ingestion_stores_for_two_kobo_day
     run_parity(monkeypatch, with_v4=False)
 
 
-@pytest.mark.xfail(strict=True, raises=AssertionError,
-                   reason="held: specs/DS3-bulk-loader/mid-build-questions.md Q2 (event_outbox holds one row per "
-                          "statement and Site, like chain_input_change, and the census names no rule for it)")
 def test_the_census_names_every_table_the_load_writes(monkeypatch) -> None:
     unnamed = run_parity(monkeypatch, with_v4=False)
     assert not unnamed, f"tables written by the load that the census does not name: {unnamed}"
 
 
-@pytest.mark.xfail(strict=True, raises=AssertionError,
-                   reason="held: specs/DS3-bulk-loader/mid-build-questions.md Q1 (the real path refuses v4.delta's "
-                          "INTERVAL_DELTA on charger-controller/session-event, an EVENT channel)")
 def test_the_bulk_path_stores_the_rows_central_ingestion_stores_with_the_v4_slice(monkeypatch) -> None:
     unnamed = run_parity(monkeypatch, with_v4=True)
     assert not unnamed, f"tables written by the load that the census does not name: {unnamed}"

@@ -25,7 +25,10 @@ HOST = "postgresql+psycopg://u:p@127.0.0.1:55432"
 
 
 @pytest.mark.parametrize(("url", "environ", "expected"), [
-    (f"{HOST}/assetops_test", {}, True),
+    (f"{HOST}/assetops_test", {}, False),  # the shared run template (D-DS3.22)
+    (f"{HOST}/assetops_polish_walk1113_test", {}, False),  # the live walkthrough database
+    (f"{HOST}/assetops_walk_audit1121", {}, False),  # the deny layer over the audit allow
+    (f"{HOST}/assetops_other_test", {}, False),
     (f"{HOST}/assetops_pt1a_ds3bulk_test", {}, True),
     (f"{HOST}/assetops_ds3_audit1121", {}, True),
     (f"{HOST}/assetops_ds4_audit1125", {}, True),
@@ -38,7 +41,7 @@ HOST = "postgresql+psycopg://u:p@127.0.0.1:55432"
     ("postgresql+psycopg://u:p@10.0.0.5:55432/assetops_test", {}, False),
     ("postgresql+psycopg://u:p@127.0.0.1:5432/assetops_test", {}, False),
     ("postgresql+psycopg://u:p@127.0.0.1/assetops_test", {}, False),
-    ("postgresql+psycopg://u:p@127.0.0.1:55433/assetops_test", {"ASSETOPS_PG_PORT": "55433"}, True),
+    ("postgresql+psycopg://u:p@127.0.0.1:55433/assetops_ds3_audit1121", {"ASSETOPS_PG_PORT": "55433"}, True),
 ])
 def test_permitted_database(url, environ, expected) -> None:
     assert permitted_database(url, environ) is expected

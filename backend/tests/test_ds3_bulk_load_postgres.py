@@ -271,6 +271,16 @@ def case_rejected_ordinal(db):
     return lambda: db.load([body]), "BULK_REJECTED_ORDINAL"
 
 
+def case_v4_delta(db):
+    """D-DS3.20: the real path stores a rejection for `v4.delta` (INTERVAL_DELTA on an EVENT channel) and accepts
+    the rest; bulk refuses the whole batch. Test 6 does not call the real path for this case."""
+    from test_w200_source_events_postgres import patched_v4
+
+    v4 = patched_v4(db.kit, db.monkeypatch)
+    body = db.kit.seal([v4.delta(100004)]).encode()
+    return lambda: db.load([body]), "BULK_REJECTED_ORDINAL"
+
+
 def case_batch_id_conflict(db):
     db.load([db.kit.seal(db.kit.pv(2)).encode()])
     changed = db.kit.seal(db.kit.pv(2, value="9.9")).encode()
@@ -325,12 +335,13 @@ def case_malformed(db):
 
 
 CASES = [case_live, case_unknown_gateway, case_gateway_disabled, case_source_disabled, case_rejected_ordinal,
-         case_batch_id_conflict, case_lost_race, case_published, case_coldchain_site, case_message_collision,
+         case_v4_delta, case_batch_id_conflict, case_lost_race, case_published, case_coldchain_site, case_message_collision,
          case_foreign_key, case_malformed]
 
 
 @pytest.mark.parametrize("case", CASES, ids=[c.__name__[5:] for c in CASES])
-def test_a_refusal_writes_and_records_nothing(db, case) -> None:
+def test_a_refusal_writes_and_records_nothing(db, case, monkeypatch) -> None:
+    db.monkeypatch = monkeypatch
     act, expected = case(db)
     before = db.counts()
     batches = db.rows("SELECT external_batch_id FROM ingestion_batch")
@@ -348,6 +359,8 @@ def test_a_refusal_writes_and_records_nothing(db, case) -> None:
         assert raised.value.code == expected, raised.value
         if case is case_rejected_ordinal:
             assert raised.value.detail.startswith("ordinal 3 ")
+        if case is case_v4_delta:
+            assert raised.value.detail.startswith("ordinal 0 ") and "MAPPING_INCOMPATIBLE" in raised.value.detail
     assert db.counts() == before
     assert db.rows("SELECT external_batch_id FROM ingestion_batch") == batches  # one transaction: no batch row left
     assert db.counts()["batch_refusal"] == 0

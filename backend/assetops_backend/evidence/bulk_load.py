@@ -8,7 +8,7 @@ slot or Site type parity has not proved refuses the whole batch with nothing wri
 bulk load is a build defect reported by the command, never product evidence).
 
 Residual risk `R-TRUST`: there is no gateway credential here. What keeps the path off live and operator data is the
-SIMULATED refusal and `permitted_database` (test and audit databases on the test container only), checked by the
+SIMULATED refusal and `permitted_database` (audit databases and harness clones on the test container only), checked by the
 command before any connection. No HTTP module imports this module. The ledger is the PostgreSQL adapter
 (`gateway_principal`, `bulk_admit`), composed by the caller through `evidence/composition.py`.
 """
@@ -39,6 +39,10 @@ BULK_LOAD_REFUSALS = frozenset({"BULK_NOT_SIMULATED", "BULK_UNKNOWN_GATEWAY", "B
 DEFAULT_PG_PORT = "55432"
 _LOCAL_HOSTS = frozenset({"127.0.0.1", "localhost"})
 _AUDIT_NAME = re.compile(r"[a-z0-9_]+_audit[a-z0-9_]*")
+#: A name `pg_harness.database_name` makes (DS3's own clones); a bare `*_test` name is not permitted (D-DS3.22).
+_CLONE_NAME = re.compile(r"[a-z0-9_]+_pt[0-9a-f]+_[a-z0-9]+_test")
+#: Tripwire over the allow: the walkthrough and serve databases are refused even if the allow is ever widened.
+_DENIED_NAME = re.compile(r"walk|serve")
 
 
 class BulkLoadRefused(Exception):
@@ -151,8 +155,8 @@ class _Outcome:
 
 
 def permitted_database(url: str, environ: Mapping[str, str] | None = None) -> bool:
-    """A `*_test` or `<prefix>_audit*` database, never an operator's, on the test container's host and port
-    (D-DS3.6, D-DS3.12). Decided from the URL alone; no connection."""
+    """A `<prefix>_audit*` database or a harness clone (`..._pt<hex>_<tag>_test`), never an operator's, never one
+    named walk or serve, on the test container's host and port (D-DS3.6, D-DS3.12, D-DS3.22). Decided from the URL alone; no connection."""
     import os
 
     env = os.environ if environ is None else environ
@@ -160,7 +164,8 @@ def permitted_database(url: str, environ: Mapping[str, str] | None = None) -> bo
         target = database_target(url, env)
     except DatabaseTargetUnclear:
         return False
-    name_ok = target.name.endswith("_test") or _AUDIT_NAME.fullmatch(target.name) is not None
+    name_ok = (_DENIED_NAME.search(target.name) is None
+               and (_AUDIT_NAME.fullmatch(target.name) is not None or _CLONE_NAME.fullmatch(target.name) is not None))
     try:
         port = int(env.get("ASSETOPS_PG_PORT", DEFAULT_PG_PORT))
     except ValueError:
