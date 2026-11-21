@@ -1,6 +1,6 @@
 # 0K4e: `dispatch-3.3`, a battery-support Candidate needs the energy to reach solar cover (implementer spec)
 
-Status: live, rev 2 (Architect, Claude, 2026-11-21): handshake answered (D-0K4.19, D-0K4.23, D-0K4.24, D-0K4.25),
+Status: in_review (built on `task/0K4e-candidate-energy`, packet `packet.md`, 2026-11-21). Rev 2 (Architect, Claude, 2026-11-21): handshake answered (D-0K4.19, D-0K4.23, D-0K4.24, D-0K4.25),
 build-ready. **2.75 units.** Discovery review (W5): a change to
 a served classification that bounds money (fuel-cost-1) and litres (4d). No migration (a model version is data).
 `USER_REVIEW_REQUIRED: true` (served candidate litres and Findings move). Rulings: `specs/0K4-dispatch-model-review/
