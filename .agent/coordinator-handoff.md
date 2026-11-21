@@ -15,12 +15,15 @@ One current block, at most 2k tokens, replaced rather than appended (`.ai/RULES.
 ## In flight (branch · worktree · state)
 
 - 3A6 `task/3A6-source-profiles` · `-3a6` · review round 5 running (rounds 1-4 each found an xlsx/CSV resource-exhaustion route; r4 bounds every resource). Merge unblocks 3A7 and 3C2 code (gate A).
-- SC-1a `task/SC-1a-composer` · `-sc1a` · head 987d36ca7, review round 3 ACCEPT; at merge its .ai/decisions/index-rulings-19.md collides with main's (0M): rename SC-1a's to the next free number; READY, merge needs OWNER approval of its two check-all lines (owner-away rows 5, 23, 24; one-page note atop SC-1 rulings "Review answers (round 1)"). Reviewer owner line: stops 14/20 backend merges, ~2% false alarms, +20 s per check-all.
+- SC-1a `task/SC-1a-composer` · `-sc1a` · head 987d36ca7, review round 3 ACCEPT; at merge its .ai/decisions/index-rulings-19.md collides with main's (0M; and -20 is 0K3's): rename SC-1a's to the next free number (21+); READY, merge needs OWNER approval of its two check-all lines (owner-away rows 5, 23, 24; one-page note atop SC-1 rulings "Review answers (round 1)"). Reviewer owner line: stops 14/20 backend merges, ~2% false alarms, +20 s per check-all.
 - DS3 `task/DS3-bulk-loader` · `-ds3` · discovery review running. permitted_database now refuses walk/serve DBs.
 - 3C1b `task/3C1b-person-actions` · `-3c1b` · review ACCEPT (Lows L1-L3) but HOLD: merge with its SC-1 text commit after SC-1a (stored publish note says "SYSTEM demonstration"). Migration 0070 provisional.
 - 3B6 `task/3B6-cold-ev` · `-3b6` · build running (4a merged, all parts open).
 - 3B4 `task/3B4-observer` · `-3b4` · units 1-3 build running; migration 0071 provisional; check.py commit after 3B6 merges.
 - IA-2a `task/IA-2a-plan` · `-ia2a` · build (mock-up) running; 5c pre-empts the UI lane when it can start.
+
+- IA-2a `task/IA-2a-plan` · `-ia2a` · fix round r2 (the round-2 review answers) running; then verification; merge held for owner walkthrough. IA-2b spec `task/IA-2b-spec` (d789117f3) cites IA-2a rulings: merge it only AFTER IA-2a merges (a premature merge was reverted). Answers on task/IA-2b-handshake-answers (590da9d75): at merge renumber its owner-away row 47 to the next free (main's 47-48 are ENV-1/0K3) and its index-rulings-20.md to the next free index file (main's -20 is 0K3). IA-2b1 (4 units) builds off IA-2a's head once IA-2a r2 is verified. IA-2b2 waits for the owner's IA-2a walkthrough; two owner defaults: no hub Decide button, no 'at stake' tile on Decisions/Findings/Actions.
+- 0M `task/0M-mto-headroom` · `-0m` · build running.
 
 ## Next (pull order after these)
 

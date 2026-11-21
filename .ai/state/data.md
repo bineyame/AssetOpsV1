@@ -534,6 +534,14 @@ Branch `task/3B4-observer` (main `2ef8e9769` merged in: 4a, 3B6, DS3); spec `spe
 - Settled (unit 4): `check.check_observed` (`OBSERVE_CODES` KEY, COVER, LEAF, SOURCE, DIRECTION, KIND) runs in `check_all()` after `check_pins`, over `OBSERVED`'s keys only (COLD/EV registries not a fault); registry v4's 31 MINI_GRID leaves covered once (19 observed, 12 not).
 - Open: owner Q1/Q2 (rows 27-28); residual R-FENCE-FUEL, R-NO-OPPORTUNITY, R-ASSUMED-TARGET; words and a screen come with 3B5/5c.
 
+## DS4 - the template ladder and world check, units 1-2 (in review, 21 Nov)
+
+Branch `task/DS4-template-ladder` (`9eff83776`); spec `specs/DS4-template-ladder/spec.md` rev 3, rulings D-DS4.1-27; packet `packet.md`.
+
+- Settled: `tools/world.py` builds the L0/L1/L2 ladder by key (migrations; definition, inputs, onboarding, code; L2 steps), frozen rungs, manifests, `clone`/`reset`/`list`/`drop` (keys erased before an L1 drops), and `check` C1-C7 with the total C4 oracle (`C4_CONTRACT` = §2.1, Kisiwa's O&M overrides, `C4_KNOWN_FINDINGS`), `harness_run` under its own base, and `check_passed` only while the check inputs are unchanged.
+- Settled: the bulk load refuses a batch whose envelopes resolve other days than its cover (Site-local and UTC grains, step 7a; `BULK_BATCH_GAP_DAYS`, `BULK_BATCH_TIME_UNREADABLE`); `PostgresEvidenceLedger.site_timezone`.
+- Open: the real world's C4 fails only on the 12 known D-DS4.27 plan cells until 5a F1 merges; unit 3 (bench, the real `assetops_world` build and check) waits for owner row 40.
+
 ## 0M - Mto's demand-on-headroom replay (in review, 21 Nov)
 
 Branch `task/0M-mto-headroom` (base main `6c33395ef`, after the 0K2 merge `3b4f06052`); spec `specs/0M-mto-headroom-replay/spec.md` rev 2, rulings D-0M.1-22; packet `packet.md`. No database, no migration, no served text, no money.
