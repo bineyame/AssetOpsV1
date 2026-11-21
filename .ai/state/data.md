@@ -487,3 +487,10 @@ Branch `task/3B2-findings-pinned` (base main `c69e72f61`); spec `specs/3B2-findi
 
 - Settled: `structure/pins.py` (`PINS`: GENERATOR_SUPPORT_CANDIDATE -> MINI_GRID/`candidate_l`, UNEXPLAINED_FUEL -> MINI_GRID/`unexplained_l`; `PENDING_PINS` for the two cold and one EV mechanism; `pinned_category` from the row's home at call time; `parity()` in the pin's own domain); `check.check_pins` and `PIN_CODES` (STRUCTURE_PIN, _TOTAL, _DUPLICATE, _UNKNOWN, _MISSING), run by `check_all()` on the start-up path only. The outcome map's wire is unchanged; the one ruled difference is UNEXPLAINED_FUEL (Protect in the literal, Optimize in the registry, D-3B2.4).
 - Open: `3B5` switches the wire to the pins applying D-3B2.4; `3B6` moves the pending pins onto their registries; the `-` structure key in `STRUCTURE_PIN_MISSING`'s text is for review.
+
+## 0K1 - the forward replay port and its host adapter (in review, 21 Nov)
+
+Branch `task/0K1-forward-replay` (base main `3bdf3c81d`); spec `specs/0K1-forward-replay-port/spec.md` rev 2, rulings D-0K1.1-18; packet `packet.md`. No database, no route, no served text.
+
+- Settled: `assetops_contracts/forward_replay.py` (request, projection, `FORWARD_REPLAY_REFUSALS`, Fraction-only fields); `runs/replay_port.py` `ForwardReplayPort` (one method; `LabExecutionPort` unchanged); `host/forward_replay.py` `HostForwardReplay`, `replay_inputs` (spec §2.4 order), `project`, `REPLAY_MODELS` mini-grid v5-v7. Replays of K-BASE (v5, v6, v7), K-START, K-STOP, K-RES and K-CLIP equal the kernel's own trajectories exactly.
+- Open: mid-build Q1 (P2 is caught by T10, not T1: the projection depends on loads only through their sum) and Q2 (P4 is caught by T10, not T4); defaults applied. Calibration, the 61-day window, gap fill and composing the port are `0K2`/`6c`.

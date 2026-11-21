@@ -1,6 +1,6 @@
 # SC-1a review packet
 
-Branch `task/SC-1a-composer`, built off `main` 8805ee169; main merged in through 8eff70625 (3B2, 0K1, DS3, 4a docs; owner-away row for the Q1 ruling is now row 19); head is the commit that updates this packet. Spec rev 2 with mid-build
+Branch `task/SC-1a-composer`, built off `main` 8805ee169; main merged in through 8eff70625 (3B2, 0K1, DS3, 4a docs; owner-away row for the Q1 ruling is now row 21); head is the commit that updates this packet. Spec rev 2 with mid-build
 answers D-SC1.29 to D-SC1.31 (merged from `task/SC-1a-midbuild-answers` 74e74ca9c). Non-screen.
 `USER_REVIEW_REQUIRED: false` (spec header). **Owner approval needed at merge:** the two new check-all lines (guard
 changes are held for the owner, `specs/OWNER-AWAY/decisions-2026-11-21.md` row 5).

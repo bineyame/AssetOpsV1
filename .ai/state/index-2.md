@@ -81,3 +81,4 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 167. `3B7a` the frozen monthly structure snapshot, units 1-3 (store, served read with freshness, build/verify command, migration 0066) · data.md
 168. `SC-1a` the statement composer: facts, formats, conditions, load check, render/served, wire; statement guard with ratchets (units 1-3) · data.md
 169. `3B2` Findings pinned to their factors (pins, start-up pin check, parity report; no wire change) · data.md
+170. `0K1` the forward replay port and its host adapter (contract, port, adapter; exact parity with the kernel) · data.md
