@@ -209,3 +209,24 @@ Evidence: `/opt/assetecon/evidence/5c/unit3c/`. Main (backend fix r5, 27b9fcd2a)
   seams, agent workflow, missing-claim scan included). Log `/opt/assetecon/evidence/5c/unit3c/check-all.log`.
 - `USER_REVIEW_REQUIRED: true`: next is a fresh re-review at verification depth on these items, then the owner's
   walkthrough before merge.
+
+## Screen fix, after D-5C.29 (cash fix r6 on main), 2026-11-21
+
+Evidence: `/opt/assetecon/evidence/5c/unit3c/r6/`. Main (8bac2bed4) merged at ebb25e162. Two conflicts: index-3
+(main's rows 190, 191 kept, 5c renumbered 192) and the spec status line (rev 5, in_review).
+- **Worlds.** `make_screen_worlds.py` rerun: World H's cash text now reads the D-5C.29 sentence (one line changed);
+  World X unchanged ("Cash collected in October is not available yet."). Test 17 passes again.
+- **Cash on screen.** No page change: the sentence and table are printed as served. New vitest case (D-5C.29): A's
+  cash `<p>` is "Of $9,688.00 billed for October, $8,870.00 has been collected, $150.00 is paid but in transit and
+  $668.00 is still outstanding.", the head row equals `columns` (Billed second), rows and total equal the JSON, and
+  the cash section holds no "expected". Plant (page drops " billed" from the sentence): exit 1, 2 failed (this case
+  and test 10) (`plant-cash-text.txt`). Browser (`a-shots.jsonl`, 1440/768/390): the same sentence, head row
+  Site, Billed, Collected, In transit, Outstanding, total "$9,688.00 · $8,870.00 · $150.00 · $668.00".
+- **Tests.** `tools/run-host-tests.ps1 -- backend/tests/test_5c_screen_worlds_fresh.py
+  backend/tests/test_5c_deep_dive_view.py`: 201 passed. Vitest (3 Portfolio files): 121 passed. `tsc` exit 0;
+  `vite build` exit 0.
+- **Gates** (`vite preview` 127.0.0.1:5577, stopped after): A exit 0 (9 lines), X exit 0 (7), H exit 0 (7); figures
+  as in the previous section (A hub 1,758 px at 1440, L1 511/575 px, width = viewport, 0 under 12 px, 0 errors).
+- **A shots** (`r6/shots/`): the gate views `A-{1440x900,1280x720,390x844}-{light,dark}.png`, the two D-headline
+  views, and `A-{1440x900,768x1024,390x844}-light-full.png` (cash table open) and `-fuel-cost-drawer.png`. The full-page
+  shot shows the shell's sticky header partway down where the page scrolled (a capture artefact).
