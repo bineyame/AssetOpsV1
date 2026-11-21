@@ -204,3 +204,8 @@ Evidence: `/opt/assetecon/evidence/5c/unit3c/`. Main (backend fix r5, 27b9fcd2a)
   `A-with-D-headline-{1440x900,1280x720}-light.png`, and `{A,H,X}-{1440x900,768x1024,390x844}-light-bridge.png` and
   `-fuel-cost-drawer.png`. Dark renders light (MBQ3).
 - **Not verified:** a screen reader pass; the screen served from a real `_test` database (MBQ6).
+- **check-all (fast), once:** `bash tools/heavy-slot.sh --wait-seconds 3000 -- pwsh -NoProfile -File
+  tools/check-all.ps1` at c4053336c, 144 s wall: "All 42 guards passed (blocking; 0 advisory, 0 warned)" (architecture
+  seams, agent workflow, missing-claim scan included). Log `/opt/assetecon/evidence/5c/unit3c/check-all.log`.
+- `USER_REVIEW_REQUIRED: true`: next is a fresh re-review at verification depth on these items, then the owner's
+  walkthrough before merge.
