@@ -214,3 +214,113 @@ row-number, `NATIVE_HEADER`, kobo and budget golden tests pass unchanged.
 
 **Open point for the coordinator:** the budget refusal reuses `NATIVE_WORKBOOK` and its words; a dedicated reason
 (for example "this file holds more than this layout reads at once") would need a new code and catalogue entry.
+
+## Fix round r4 (review N5, N6, N7; bounds by resource)
+
+The r3 element budget held for what it counts. r4 bounds every other resource an upload can consume, each before
+the work it limits (`xlsx.py`, `layouts_v1.py` `split_file` and `_invisible`).
+
+**What changed:**
+- **N5, inflated bytes.** Every member is read through `_member`: `z.open(info)` and `read(64 KiB)` in a loop
+  (`ZipExtFile.read(n)` gives the decompressor `n` as its output limit), with a running count refused past
+  `min(_MEMBER_MAX, what is left of _TOTAL_MAX)`. The declared size is no longer trusted (the infolist pre-check
+  stays as a cheap first filter). A lying header now inflates only to its declared size: the trailing stream is
+  never inflated. Members compressed with bzip2 or lzma are `NATIVE_WORKBOOK` (their decompressors in `zipfile`
+  take no output limit; Excel writes deflate only).
+- **N6, characters.** Every cell value the sheet parse delivers charges its length to one workbook-wide budget,
+  `_CHAR_MAX = 16 Mi` characters (shared strings on every reference, inline strings, numbers, booleans); past it
+  `NATIVE_WORKBOOK`, raised inside the parse. `_invisible` is now one precompiled regex character class built once
+  from the per-character rule (`_flagged`) over every code point; a test proves the class flags exactly the rule's
+  code points, so verdicts are unchanged and the per-character cost is the regex engine's.
+- **N7, rows and cells.** `split_file` stops one kept row past `MAX_RECORDS` (10,001 rows; the batch then refuses
+  `CANONICAL_RANGE batch.records`, as it did for any longer file), on CSV by breaking the reader loop and on XLSX
+  inside the parse (`xlsx_sparse_rows(..., after=header_row, keep=MAX_RECORDS)`). CSV rows are kept as they come,
+  each cut to the layout's width plus one cell (a longer row is a count mismatch either way), and the header row to
+  the same width plus one (a longer header mismatches either way).
+
+**Every resource and its bound** (both paths):
+
+| Resource | XLSX bound | CSV bound |
+|---|---|---|
+| Upload bytes | 8 MiB (`MAX_UPLOAD_BYTES`), profile sample 1 MiB; checked before any read | same |
+| Zip members listed | central directory inside the upload (a 17.9 MB directory of empty members, twice the cap, lists in 1.49 s, 166 MB) | n/a |
+| Members read | four named ones only | n/a |
+| Inflated bytes | counted as inflated: 16 MiB a member, 64 MiB in total (N5) | n/a |
+| Compression method | stored or deflate only | n/a |
+| XML elements (rows, cells, `<si>`, sheets, nesting) | `_WORK_MAX` 500,000 starts across members (r3) | n/a |
+| DTD/entities | refused (r3) | n/a |
+| Characters delivered by cells | `_CHAR_MAX` 16 Mi a workbook, charged per reference (N6) | at most the decoded upload (8 Mi characters) |
+| Characters in one field | member size | `csv.field_size_limit` 131,072 (stdlib default; a longer field is `NATIVE_ROW`) |
+| Kept data rows | `MAX_RECORDS` + 1, stops the parse (N7) | `MAX_RECORDS` + 1, stops the reader (N7) |
+| Cells kept a row | the layout's width plus one (r3) | the layout's width plus one (N7) |
+| Cells in one physical row (transient) | elements, under `_WORK_MAX` | the upload bytes: one 8 MiB row of 2.7 M fields peaks at 253 MB RSS, then is cut |
+| Blank or skipped rows | elements, under `_WORK_MAX` | the upload bytes: 8 Mi blank lines read in 1.56 s, 91 MB (none kept) |
+| Row numbers, column letters, numbers | rise strictly, at most 1,048,576; XFD; a double's exponent range (r3) | n/a |
+| Padding | `_PAD_BUDGET` 2,000,000 (`xlsx_rows` only) | n/a |
+| Per-row work after the read (`read_rows`, `_coverage`, `run_probes`, digests) | kept rows times layout width, characters under `_CHAR_MAX` | kept rows times layout width, characters under the upload |
+
+**Adversarial tests** (`contracts/tests/test_3a6_profiles.py`, section "N3 r4", 12 tests, each bounded on time in a
+plain run and on peak memory in a traced run where it matters): a 200 MiB size lie (about 200 kB upload) reads
+`ok 3` under 1.0 s and 30 MB; inflated bytes counted against the member and total caps; bzip2 and lzma refused; a
+1,000,000-character shared string referenced from 1,000 rows refused under 1.0 s and 60 MB; 10 references under
+the budget read as before; inline characters charged to the same budget; the stated bounds pinned; the regex class
+equal to the per-character rule over every code point; 1,048,576 CSV rows stop at 10,001 under 1.0 s and 40 MB;
+a CSV at exactly 10,000 rows reads every row; CSV rows of 100,000 fields kept at width plus one under 50 MB; 100,000
+non-empty XLSX rows stop at 10,001. The 21 r3 adversarial tests are kept; one changes its expected outcome:
+`test_n3_r3_near_member_cap_sheet_...` now ends at the row ceiling (`ok 10001`, refused by the batch) before the
+work bound (was `NATIVE_WORKBOOK`), still under its 3.0 s and 120 MB bounds.
+
+**Plants** (applied, run with `-k r4` under `ulimit -v 6 GB`, reverted with `git checkout`; tree clean after each;
+log `plants.log`):
+- P1 `z.read` restored: 3 fail (size lie, caps, bzip2/lzma).
+- P2 character charge removed: 2 fail (shared-string references; inline characters); the run took 61 s.
+- P3 CSV row ceiling removed: the CSV ceiling test fails (44 s run).
+- P4 CSV width-plus-one cut removed: the wide-row test fails.
+- P5 XLSX row ceiling removed: the XLSX ceiling test fails.
+- P6 compression-method check removed: the bzip2/lzma test fails.
+- P7 total-bytes count removed: the caps test fails.
+
+**Measurements** (fresh process per probe, max RSS includes about 25 MB baseline; files built into the evidence
+folder and deleted after measuring; `probes.log`):
+
+| Probe | Upload | Outcome | Time | Max RSS |
+|---|---|---|---|---|
+| N5: 1,000 MiB size lie (2,024 MB, 3.69 s at review) | 1,021 kB | `ok 3` | 0.33 s | 37 MB |
+| N6: 1 M-character shared string, 100 rows (17.4 s at review) | 4.4 kB | `NATIVE_WORKBOOK` | 0.03 s | 43 MB |
+| N6: same, 10,000 rows | 55.2 kB | `NATIVE_WORKBOOK` | 0.04 s | 43 MB |
+| N6: 16 MiB shared string, 10,000 rows | 69.6 kB | `NATIVE_WORKBOOK` | 0.19 s | 83 MB |
+| N7: 8 MiB of `x\n` (11.8 s, 2,536 MB at review) | 8,388 kB | 10,001 read, batch `CANONICAL_RANGE` | 0.09 s | 93 MB |
+| N7: 8 MiB of `;;;;;;;;\n` (11.36 s, 551 MB at review) | 8,388 kB | 10,001 read, batch `CANONICAL_RANGE` | 0.50 s | 93 MB |
+| CSV: 8 Mi blank lines | 8,389 kB | `ok 0` | 1.56 s | 91 MB |
+| CSV: one row of 2.7 M fields | 8,100 kB | `ok 1` (row refused) | 0.39 s | 253 MB |
+| XLSX: 249k `<row><c t="b"/></row>` (4.54 s at review) | 14.5 kB | 10,001 read, batch `CANONICAL_RANGE` | 0.63 s | 50 MB |
+| XLSX: 17.9 MB directory of empty members (over the cap) | 17,899 kB | `ok 3` | 1.49 s | 166 MB |
+
+Worst found: time 1.56 s (8 Mi blank CSV lines), memory 253 MB (one CSV row of 2.7 M fields); both bounded by the
+8 MiB upload cap and only transient. The profile admission path reads the sample twice, at 1 MiB.
+
+**Legitimate verdicts.** The r3 differential (round-2 reader `a141bab51` against `xlsx_sparse_rows`, 3,000 random
+sheets, seed 7): 0 mismatches. A new read-level differential (`diff_read.py`: 1,500 random kobo CSVs and budget
+XLSXs under the ceiling, with blank lines, short, long and 30-field rows, multi-line quoted fields, invisible
+characters, missing headers, an unterminated quote; read by `read_layout` from the pre-r4 tree `ed9bd5f0c` and
+from r4): 0 mismatches (1,301 read with refused rows, 96 clean, 64 `NATIVE_HEADER`, 39 `NATIVE_ROW`).
+
+**Known deviations:**
+- A file past 10,000 data rows now gets `CANONICAL_RANGE` even when a malformed CSV row (formerly `NATIVE_ROW`)
+  sits past row 10,001; both refuse the file.
+- A profile sample past 10,000 rows is refused `ADMIT_SAMPLE_SIZE` with `rows: 10001` (meaning more than 10,000),
+  not its full count.
+
+**Follow-up (not built, no new served text):** the bounds refuse with `NATIVE_WORKBOOK` and its words. A dedicated
+`NATIVE_TOO_LARGE` ("this file holds more than one upload can take") would cover the element, character and row
+bounds; it needs SC-1 text and an Architect ruling after SC-1a merges.
+
+**Checks at r4** (code and tests at `72bc785cd`):
+- Non-DB, `heavy-slot.sh -- pytest contracts/tests` plus 3A6 service and command, 3A3 contract, single writer and
+  loader, run-store loader, 3A2 service and API, 3B7a seam and snapshot, ON1 (4 files), RC4-F1: `656 passed in
+  104.91s` (wall 214 s).
+- Postgres, `heavy-slot.sh --db -- pwsh tools/run-host-tests.ps1` (routed `*_test`): 3A6, 3A3 loader, 3A2, ON1,
+  3B7a snapshot: `59 passed in 50.25s`, none skipped.
+- Fast check-all: `All 41 guards passed` (239.7 s; the first attempt timed out waiting for a heavy slot held by other lanes, exit 75, and was rerun).
+- Evidence: `/opt/assetecon/evidence/3A6/2026-11-21/r4/` (run logs, plant script and log, probe script and log,
+  both differentials).
