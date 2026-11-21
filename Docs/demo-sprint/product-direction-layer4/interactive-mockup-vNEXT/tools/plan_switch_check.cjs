@@ -342,11 +342,18 @@ for (const op of ['lakeside', 'harvest', 'metro']) { const dom = boot(op, 'portf
     ok(got.length === 1 && got[0] === exp, `metro overview: linked Finding ${fid} "${title}" at ${site} under its own heading ${exp} (got ${got.join(', ') || 'none'})`); }
   dom.window.close(); }
 for (const op of ['lakeside', 'harvest', 'metro']) { const dom = boot(op, 'portfolio'); ok(Array.isArray(dom.window.FIND_GAPS) && dom.window.FIND_GAPS.length === 0, `${op} overview: FIND_GAPS empty (${(dom.window.FIND_GAPS || ['no list']).join(', ')})`); dom.window.close(); }
-// the money residual column on "Outcomes by site" only where the data has a residuals row (Metro Bus: Ruiru's bill total); never Lakeside or Harvest
-for (const op of ['lakeside', 'harvest', 'metro']) { const dom = boot(op, 'portfolio/outcomes-by-site'), d = dom.window.document, tb = d.querySelector('[aria-label="Portfolio composition"] table') || d.querySelector('table'), hd = [...tb.querySelectorAll('thead th')].map(x => squash(x.textContent)), has = !!HC.residuals?.[VK[op]];
-  const ru = [...tb.querySelectorAll('tbody tr')].find(r => /Ruiru/.test(r.cells[0].textContent)), rv = DV.sites[`${T[op]}/Ruiru`];
-  ok(hd.some(h => /^Of which/.test(h)) === has && (!has || (hd[hd.length - 1] === 'Of which not attributed yet' && ru && ru.cells.length === hd.length && /\$[\d,.]+/.test(ru.cells[ru.cells.length - 1].textContent))) && (has || [...tb.querySelectorAll('tr')].every(r => r.cells.length === 4)), `${op} outcomes by site: residual column ${has ? 'present, "Of which not attributed yet", with Ruiru’s figure' : 'absent'} (${hd.join(' | ')})`);
-  dom.window.close(); }
+// the residual only where the data has a residuals row (Metro Bus: Ruiru's bill total); never Lakeside or Harvest.
+/* D-IA.35 L1: read on a live route. Ruiru's Site page (#/site/ruiru), the "What is driving the gap" summary answer holds "{residual} not attributed yet",
+   the residual computed here as before (the Site's gap, which no bridge explains); the other operators' Site pages never say it.
+   PS_PLANT=resid: in the page, uxSiteBoard strips "; ... not attributed yet" from its answer; the check must fail. */
+const PS_PLANT = process.env.PS_PLANT || '';
+if (PS_PLANT && PS_PLANT !== 'resid') { console.error(`plan_switch_check: unknown plant ${PS_PLANT}`); process.exit(2); }
+for (const op of ['lakeside', 'harvest', 'metro']) { const has = !!HC.residuals?.[VK[op]];
+  for (const [i, sk] of SITES[op].entries()) { if (has && sk !== 'ruiru') continue; /* the data's residual belongs to Ruiru alone */
+    const dom = boot(op, `site/${sk}`), w = dom.window; if (PS_PLANT === 'resid') w.eval(`{ const _b = uxSiteBoard; uxSiteBoard = sk => { const r = _b(sk); return { ...r, answer: r.answer.replace(/; [^;]*not attributed yet/, '') }; }; } render()`);
+    const ans = squash(w.document.querySelector('.ux-ans-sec .ux-ans')?.textContent), want = has ? `${w.eval(`usdW(${r2c(dvGap(op, i))}, true)`)} not attributed yet` : null;
+    ok(want ? ans.includes(want) : !/not attributed yet/.test(ans), `${op} ${sk} Site page: "What is driving the gap" ${want ? `says "${want}"` : 'does not say "not attributed yet"'} (${ans})`);
+    dom.window.close(); } }
 // MTO-BILLING: an Optimize money line for the restored charges, "listed, not added"
 { const dom = boot('lakeside', 'decision/mto-billing'), tr = dom.window.document.querySelector('tr[data-opt="MTO-BILLING"]'), li = tr?.querySelector('[data-heading="optimize"]'), tx = squash(li?.textContent);
   ok(li && /listed, not added/.test(tx) && /\$\d/.test(tx), `mto-billing: MTO-BILLING Optimize money line "listed, not added" (${tx})`); dom.window.close(); }

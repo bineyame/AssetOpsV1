@@ -223,3 +223,34 @@ Branch `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, from m
   and their 10 plants. r5 G1 and L-a carried in `ux_interaction_check.cjs` (`UXI_PLANT=container`).
 - Open: G1 live surfaces from IA-1b; the empty hash still opens the legacy Portfolio; IA-1b adds hub tabs and
   `IA_G1_SURFACES`.
+
+## IA-1b - the hub shape: Portfolio tabs and Site Overviews (in review 20 Nov)
+
+- Mock-up only. Live: `portfolio`, `portfolio/outcomes`, `portfolio/demand-and-capacity`, `site/:site` (the operator's
+  Sites), all shape `hub` (`iaLevels`, `[data-level]` is `display: contents`); the empty hash opens `#/portfolio`.
+- Reused pages are split into parts proven byte-identical (`uxOverviewParts`, `uxSiteParts`, `siteOverviewP`;
+  `tools/parts_identity.cjs`); the one sticky fix (D-IA.22) shows only under `?state=no-recommendation` (Kisiwa).
+- New: `iaDecIds`, `iaWaiting`, `iaLargestAdverse`, `iaOutcomeTable` (pure, synthetic check), `IA_G1_SURFACES`; addresses
+  stay in the operator (D-IA.28); aliases `portfolio/outcomes-by-site`, `mini`/`cold`/`ev` live.
+- Gates: G1 measured (plan 1, Site Overviews 2, largest-driver drawers 3 or n/a); `count_check`,
+  `outcomes_table_check`; shape_check items 6-9; 42 runs in `ia_gates.cjs`.
+- Fix round (r1, D-IA.31 to D-IA.35): the drawer trap reads `uxTabbable` (what Tab reaches); G1 counts a closed
+  `<details>` as a click (`<owner>#details=<k>` nodes) and the hub Site Overview opens "What is driving the gap" (R752);
+  capped queues (`iaQueueCap`, `iaCapMore`) keep every waiting decision and say "And N more" (R749, R751); one scope
+  filter (`iaOutcomeScope`), foreign scopes read as all; `table.ux-stack` stacks Outcomes at 390; checks on live routes.
+- Open: decision links render as text until IA-1c; the Overview is not filtered by the scope switch (only Outcomes is);
+  "View all", the row grammar and the Site tabs wait for IA-2; the other wide tables take `ux-stack` in IA-2b.
+
+## IA-1c - the decision shape and the "Waiting for you" inbox (in review 20 Nov)
+
+- Mock-up only. Live: `decision/:dec`, every `DEC` entry of the operator's Sites (15), shape `decision`: the reviewed page's slots
+  (`decisionParts`, `uxDecisionSlots`, byte-identical 30 of 30) placed sticky, L1 head and recommendation, L2 option cards, L3 the six
+  sections, drawers apart. H1 the question while waiting, the subject once chosen; crumbs Decisions (text) › Site › subject.
+- The inbox: a top-bar control (badge = "For you": Lakeside and Harvest 1, Metro 2) opening a drawer in place: For you, In your
+  portfolio, Since you last looked (the act log `uxMock().log`, written by `uxActDo`; Undo removes it). Decision links are live.
+- Gates: G1 adds queue decisions (1), waiting decisions and the plan via the inbox (2), plan items' decisions (≤ 2); plants
+  `decprimary`, `stickyact`, `inbox`, `foryou`; uxi's text-accepting retargets expired (plant `expiry` retired).
+- Open: Q2 (the decision's Site crumb is hidden at 390 and 1280×720 by the reviewed rule); "See the options" under
+  `?state=no-recommendation` jumps to not-found (pre-existing on main); drawer addresses are IA-2d's (R753). G2 stop: the owner sees
+  the hub and decision shapes before IA-2.
+

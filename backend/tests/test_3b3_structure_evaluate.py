@@ -71,9 +71,9 @@ NONE = ("tariff", "productive_tariff", "diesel_price", "wear_rate", "hours_per_d
 #: records, the diesel price PROVIDED_ELSE_ASSUMED.
 STATE_TABLE = {
     "PROVIDED": {"period_days", "unserved_critical_kwh", "productive_kwh", "in_transit", "outstanding", "om",
-                 "staff"},
+                 "staff", "necessary_l", "candidate_l", "unexplained_l"},  # 4d: the three litre leaves
     "ASSUMED": {"productive_tariff"},
-    "HELD_NOT_CALCULATED": {"delivered_kwh", "necessary_l", "candidate_l", "unexplained_l", "reduced_days",
+    "HELD_NOT_CALCULATED": {"delivered_kwh", "reduced_days",
                             "hours_per_day", "customer_hours_interrupted", "field_visits", "dawn_days_below"},
     "NOT_CONNECTED": {"technical_loss_kwh", "unexplained_loss_kwh", "adjustments_kwh",
                       "unmapped_kwh", "tariff", "wear_rate",
@@ -85,7 +85,8 @@ STATE_TABLE = {
 #: these five, so each is NOT_CONNECTED naming its `filled_by`; the others PROVIDED keep NOT_RECEIVED.
 PROVIDED_CAUSE = {"unserved_critical_kwh": "NOT_RECEIVED", "productive_kwh": "NOT_CONNECTED",
                   "in_transit": "NOT_CONNECTED", "outstanding": "NOT_CONNECTED", "om": "NOT_CONNECTED",
-                  "staff": "NOT_CONNECTED"}
+                  "staff": "NOT_CONNECTED", "necessary_l": "NOT_CONNECTED", "candidate_l": "NOT_CONNECTED",
+                  "unexplained_l": "NOT_CONNECTED"}  # 4d: read alone, the litre leaves are not connected
 
 
 def _cent(x) -> Decimal:

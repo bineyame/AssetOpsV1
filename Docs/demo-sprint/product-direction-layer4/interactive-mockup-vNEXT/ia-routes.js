@@ -1,6 +1,6 @@
 /* ===== IA-1 (spec §2.2, D-IA.15 to D-IA.20): the route, alias and rail registry. One liveness rule (iaLive), applied before
    insertion by iaUnlink (ia-shapes.js) and by the palette. A unit adds its ID to IA_LANDED in its last commit. ===== */
-const IA_LANDED = new Set(['IA-1a']);
+const IA_LANDED = new Set(['IA-1a', 'IA-1b', 'IA-1c']);
 const IA_SHAPES = ['frame', 'hub', 'list', 'decision', 'plan', 'record', 'asset', 'drawer', 'statement'];
 let IA_ROUTE_ACTIVE = false;
 /* the reviewed plan page's own labels (spec §2.6: the interim reuses them, no new copy) */
@@ -10,22 +10,42 @@ const IA_ROUTES = [
     title: ctx => iaLegacy('portfolio/act-first/plan').title, subtitle: ctx => iaLegacy('portfolio/act-first/plan').subtitle,
     crumbs: ctx => [['Plan']], render: ctx => shapePlanInterim(ctx) },
   { id: 'not-found', shape: 'frame', object: null, home: null, unit: 'IA-1a', tab: null, noFigures: true,
-    title: ctx => iaLegacy('not-found').title, crumbs: ctx => [['Page not found']], render: ctx => shapeNotFound(ctx) }
+    title: ctx => iaLegacy('not-found').title, crumbs: ctx => [['Page not found']], render: ctx => shapeNotFound(ctx) },
+  /* IA-1b (spec §3, D-IA.25): the hub shape. The three Portfolio tabs and every Site's Overview; titles and subtitles are the
+     reviewed screens' own */
+  { id: 'portfolio', shape: 'hub', object: 'portfolio', home: 'Portfolio', unit: 'IA-1b', tab: 'Overview', tabGroup: 'Portfolio',
+    title: ctx => 'Portfolio', subtitle: ctx => iaLegacy('portfolio').subtitle, crumbs: ctx => [['Portfolio']], render: ctx => shapeHubOverview(ctx) },
+  { id: 'portfolio/outcomes', shape: 'hub', object: 'portfolio', home: 'Portfolio', unit: 'IA-1b', tab: 'Outcomes', tabGroup: 'Portfolio',
+    title: ctx => 'Outcomes', crumbs: ctx => [['Portfolio', 'portfolio'], ['Outcomes']], render: ctx => shapeHubOutcomes(ctx) },
+  { id: 'portfolio/demand-and-capacity', shape: 'hub', object: 'portfolio', home: 'Portfolio', unit: 'IA-1b', tab: 'Demand & capacity', tabGroup: 'Portfolio',
+    title: ctx => 'Demand & capacity', crumbs: ctx => [['Portfolio', 'portfolio'], ['Demand & capacity']], render: ctx => shapeHubDemand(ctx) },
+  { id: 'site/:site', shape: 'hub', object: 'site', home: 'Sites', unit: 'IA-1b', tab: 'Overview', tabGroup: 'Site',
+    title: ctx => SK[ctx.site].name, subtitle: ctx => iaLegacy(`site/${ctx.site}`).subtitle, crumbs: ctx => [['Sites'], [SK[ctx.site].name]], render: ctx => shapeHubSite(ctx) },
+  /* IA-1c (spec §4, D-IA.26): the decision shape, every DEC entry of the operator's Sites. The H1 is the question while the decision waits
+     for a choice and its subject once chosen (C17, as reviewed); "Decisions" is text until IA-2b; the Site crumb is the way to the Site */
+  { id: 'decision/:dec', shape: 'decision', object: 'decision', home: 'Decisions', unit: 'IA-1c', tab: null, tabGroup: null,
+    title: ctx => { const d = decById(ctx.params.dec); return iaWaiting(d.id) ? uxDecQuestion(d) : d.q; },
+    crumbs: ctx => { const d = decById(ctx.params.dec); return [['Decisions'], [SK[d.site].name, `site/${d.site}`], [d.q]]; }, render: ctx => shapeDecisionPage(ctx) }
 ];
-/* old route -> new route; a value may be a function of the parameters. Live only once its target is a landed route. */
-const iaRecDecision = route => () => { const fid = OBJ[route], d = typeof DEC !== 'undefined' && DEC.find(x => x.finding === fid); return d ? `decision/${d.id}` : null; };
+/* the hub tab groups (spec §3.1), keyed by route.tabGroup; only landed tabs are drawn, and a group with one landed tab draws none */
+const IA_TAB_GROUPS = {
+  Portfolio: ctx => [['Overview', 'portfolio'], ['Outcomes', 'portfolio/outcomes'], ['Demand & capacity', 'portfolio/demand-and-capacity']],
+  Site: ctx => [['Overview', `site/${ctx.site}`], ['Operations', `site/${ctx.site}/operations`], ['Performance', `site/${ctx.site}/performance`], ['Financials', `site/${ctx.site}/financials`], ['Evidence', `site/${ctx.site}/evidence`], ['Setup', `site/${ctx.site}/setup`]]
+};
+/* old route -> new route; a value may be a function of the parameters. Live only once its target is a landed route. An alias key never
+   matches a reserved path: an IA_ROUTES pattern, an IA_RAIL route or a tab route (D-IA.28; shape_check item 7). */
+const iaFirstOfGroup = g => () => { const k = OPS[LS.op].sites.find(x => iaVertical(x) === g); return k ? `site/${k}` : null; };
 const IA_ALIASES = {
   'portfolio/outcomes-by-site': 'portfolio/outcomes',
-  'portfolio/act-first': () => IA_LANDED.has('IA-2b') ? 'decisions' : 'portfolio',
   'portfolio/act-first/plan': 'plan',
   'portfolio/what-changed': 'results',
   'portfolio/scope': 'evidence', globalevidence: 'evidence',
   oprecords: 'evidence/records',
-  mini: 'site/kobo', cold: 'site/thika', ev: 'site/ruiru',
+  mini: iaFirstOfGroup('mini'), cold: iaFirstOfGroup('cold'), ev: iaFirstOfGroup('ev'),
   'site/:site/economics': p => `site/${p.site}/financials`,
-  financials: 'site/kobo/financials', 'cold-financials': 'site/thika/financials', 'ev-financials': 'site/ruiru/financials',
-  recommendation: iaRecDecision('recommendation'), alternatives: iaRecDecision('alternatives'),
-  'cold-recommendation': iaRecDecision('cold-recommendation'), 'ev-recommendation': iaRecDecision('ev-recommendation'),
+  'cold-financials': 'site/thika/financials', 'ev-financials': 'site/ruiru/financials',
+  recommendation: 'decision/kobo-generator', alternatives: 'decision/kobo-generator',
+  'cold-recommendation': 'decision/thika-backup', 'ev-recommendation': 'decision/ruiru-connector',
   globalfinancials: 'financials',
   'settings-policies': 'settings', 'settings-tenant': 'settings/organisation'
 };
@@ -51,15 +71,24 @@ function iaParse(hash) {
   const m = iaMatch(path);
   return { path, params: m ? m.params : {}, query: Object.fromEntries(new URLSearchParams(qs)) };
 }
-/* a pattern against a path; a parameter is a known Site (:site) or decision (:dec) */
-function iaPattern(pat, path) {
+/* a pattern against a path; a parameter is one of the operator's Sites (:site) or one of their decisions (:dec) (D-IA.28) */
+function iaSiteOk(k) { return !!SK[k] && OPS[LS.op].sites.includes(k); }
+function iaDecOk(id) { const d = typeof DEC !== 'undefined' && DEC.find(x => x.id === id); return !!d && iaSiteOk(d.site); }
+function iaPattern(pat, path, any = false) {
   const ps = pat.split('/'), xs = path.split('/'); if (ps.length !== xs.length) return null; const params = {};
   for (let i = 0; i < ps.length; i++) {
-    if (ps[i] === ':site') { if (!SK[xs[i]]) return null; params.site = xs[i]; }
-    else if (ps[i] === ':dec') { if (!(typeof DEC !== 'undefined' && DEC.some(d => d.id === xs[i]))) return null; params.dec = xs[i]; }
+    if (ps[i] === ':site') { if (!(any ? !!SK[xs[i]] : iaSiteOk(xs[i]))) return null; params.site = xs[i]; }
+    else if (ps[i] === ':dec') { if (!(any ? typeof DEC !== 'undefined' && DEC.some(d => d.id === xs[i]) : iaDecOk(xs[i]))) return null; params.dec = xs[i]; }
     else if (ps[i] !== xs[i]) return null;
   }
   return params;
+}
+/* another operator's Site or decision typed on an IA address (site/<k>, site/<k>/..., decision/<id>): it shows not-found (D-IA.28) */
+function iaForeign(path) {
+  const [a, b] = String(path).split('/');
+  if (a === 'site' && SK[b]) return !iaSiteOk(b);
+  if (a === 'decision' && typeof DEC !== 'undefined' && DEC.some(d => d.id === b)) return !iaDecOk(b);
+  return false;
 }
 function iaMatch(path) { for (const route of IA_ROUTES) { const params = iaPattern(route.id, path); if (params) return { route, params }; } return null; }
 /* a landed route (never not-found: it is reached only by a typed address) */
@@ -83,10 +112,37 @@ function iaCanon(href) {
   return t ? `#/${t}${i < 0 ? '' : h.slice(i)}` : String(href);
 }
 function iaStart() { return IA_LANDED.has('IA-1b') ? 'portfolio' : 'plan'; }
+/* the empty hash renders iaStart() from IA-1b (D-IA.29) */
+function iaLanding() { return IA_LANDED.has('IA-1b') ? iaStart() : null; }
+/* G1's surfaces per landed unit (spec §2.5, D-IA.21): { op, surface, route, limit, via }. A Site without a driver against target has no
+   driver surface: it is listed with route null and printed n/a. */
+function IA_G1_SURFACES() {
+  const out = [];
+  for (const op of Object.keys(OPS)) {
+    if (!IA_LANDED.has('IA-1b')) continue;
+    out.push({ op, surface: 'the plan', route: 'plan', limit: 1, via: 'any' });
+    OPS[op].sites.forEach(sk => out.push({ op, surface: `${SK[sk].name} Overview`, route: `site/${sk}`, limit: 2, via: 'any' }));
+    OPS[op].sites.forEach(sk => { const r = iaLargestAdverse(sk);
+      out.push(r ? { op, surface: `${SK[sk].name} largest driver against target (${r.s.lab})`, route: `site/${sk}#drawer=${r.id}`, limit: 3, via: 'any' }
+        : { op, surface: `${SK[sk].name} largest driver against target`, route: null, limit: 3, via: 'any', na: 'no driver against target' }); });
+    if (!IA_LANDED.has('IA-1c')) continue;
+    /* IA-1c (spec §6): every queue decision (1, via the Overview queue), every waiting decision and the proposed plan (2, via the inbox),
+       every plan item's decision (2) */
+    const q = d => decById(d).q;
+    iaQueueCap(uxMergeRows(ATTN[op]).map(m => m.d), 6).shown.forEach(d => out.push({ op, surface: `queue: ${q(d)}`, route: `decision/${d}`, limit: 1, via: 'queue' }));
+    iaDecIds(op, { kind: 'all' }).filter(iaWaiting).forEach(d => out.push({ op, surface: `waiting: ${q(d)}`, route: `decision/${d}`, limit: 2, via: 'inbox' }));
+    if (uxPlanState(op).state === 'PROPOSED') out.push({ op, surface: 'the proposed plan', route: 'plan', limit: 2, via: 'inbox' });
+    [...new Set(planCase(op).ids.map(id => DEC_SEE_ALSO[id] || (decOf(id) || {}).id).filter(Boolean))].forEach(d => out.push({ op, surface: `plan item: ${q(d)}`, route: `decision/${d}`, limit: 2, via: 'any' }));
+  }
+  return out;
+}
 /* the context every route renders from */
+/* D-IA.40: the Site a route's object belongs to (a Site page's :site, a decision's Site); IA-2 adds its object parameters here */
+function iaParamSite(params) { if (!params) return null; if (params.site) return params.site; if (params.dec) { const d = decById(params.dec); return d ? d.site : null; } return null; }
 function iaCtx(path, params, query) {
-  const q = query || {}, sc = String(q.scope || 'all'), [kind, id] = sc.includes(':') ? sc.split(':') : [sc, null];
-  return { op: LS.op, scope: kind === 'group' || kind === 'site' ? { kind, id } : { kind: 'all', id: null }, site: params && params.site || null, params: params || {}, query: q, path };
+  const q = query || {}, ps = iaParamSite(params), sc = String(q.scope || (ps ? `site:${ps}` : 'all')), /* a Site's page is scoped to that Site */ [kind, id] = sc.includes(':') ? sc.split(':') : [sc, null];
+  const sites = OPS[LS.op].sites, ok = kind === 'group' ? sites.some(k => iaVertical(k) === id) : kind === 'site' ? sites.includes(id) : false; /* D-IA.35 L4: a scope that matches no Site of this operator is all */
+  return { op: LS.op, scope: ok ? { kind, id } : { kind: 'all', id: null }, site: params && params.site || null, params: params || {}, query: q, path };
 }
 /* resolveScreen's view of a landed route: the screen object the review bar and the legacy helpers read */
 function iaScreen(route, path) {
@@ -95,3 +151,38 @@ function iaScreen(route, path) {
 }
 /* the palette lists only what is live, at its canonical address (R9) */
 function iaPaletteFilter(out) { return out.filter(([, , id]) => iaLive(id)).map(([l, k, id]) => [l, k, iaCanon(id).replace(/^#\//, '')]); }
+
+/* D-IA.36: an in-page link (#<id>) scrolls to that element on the page it is on; it is never a route */
+function iaInPage(a) {
+  const href = a.getAttribute('href') || '';
+  if (!href.startsWith('#') || href === '#' || href.startsWith('#/')) return false;
+  let id; try { id = decodeURIComponent(href.slice(1)); } catch (e) { return false; }
+  const el = document.getElementById(id), app = document.getElementById('app');
+  if (!el || !app || !app.contains(el)) return false;
+  /* the sticky decision bar is shown only once the page is scrolled past the recommendation: measure its height now, so the target stops below it (top of the view, wide screens only; on a phone the bar is at the bottom) */
+  const sb = document.querySelector('[data-ux-sticky]'); let hh = 0;
+  if (sb && innerWidth > 600) { const was = sb.classList.contains('is-on'); sb.classList.add('is-on'); hh = Math.ceil(sb.getBoundingClientRect().bottom); if (!was) sb.classList.remove('is-on'); }
+  document.documentElement.style.setProperty('--ia-sticky-h', `${hh}px`);
+  const calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  el.scrollIntoView({ block: 'start', behavior: calm ? 'auto' : 'smooth' });
+  if (!el.matches('a[href],button,input,select,textarea,[tabindex]')) el.setAttribute('tabindex', '-1');
+  el.focus({ preventScroll: true });
+  return true;
+}
+document.addEventListener('click', e => {
+  if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+  const a = e.target && e.target.closest && e.target.closest('a[href^="#"]');
+  if (a && iaInPage(a)) e.preventDefault();
+}, true);
+/* D-IA.37: the top bar is one row from 761 px up; controls collapse in a fixed order (search to its icon, the inbox label, the avatar) and never truncate */
+function iaFitTopbar() {
+  const tb = document.querySelector('.ia-frame .topbar'); if (!tb) return;
+  if (innerWidth < 761) { tb.dataset.fit = '5'; return; } /* D-IA.41: the phone is the final form, keyed the same way */
+  const fits = () => tb.scrollWidth <= tb.clientWidth + 1;
+  tb.dataset.fit = '0'; for (let n = 1; n <= 4 && !fits(); n++) tb.dataset.fit = String(n);
+  if (!fits()) tb.dataset.fit = '5'; /* 5 is final: two rows, no test */
+}
+(function () {
+  let raf = 0; window.addEventListener('resize', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => iaFitTopbar()); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => iaFitTopbar());
+})();

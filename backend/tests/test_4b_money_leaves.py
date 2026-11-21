@@ -54,9 +54,9 @@ READ_AS = {
 #: Test 10's own literal state tables (W2; spec §3.2).
 STATE_TABLE = {
     "PROVIDED": {"period_days", "unserved_critical_kwh", "productive_kwh", "in_transit", "outstanding", "om",
-                 "staff"},
+                 "staff", "necessary_l", "candidate_l", "unexplained_l"},  # 4d: the three litre leaves
     "ASSUMED": {"productive_tariff"},
-    "HELD_NOT_CALCULATED": {"delivered_kwh", "necessary_l", "candidate_l", "unexplained_l", "reduced_days",
+    "HELD_NOT_CALCULATED": {"delivered_kwh", "reduced_days",
                             "hours_per_day", "customer_hours_interrupted", "field_visits", "dawn_days_below"},
     "NOT_CONNECTED": {"technical_loss_kwh", "unexplained_loss_kwh", "adjustments_kwh", "unmapped_kwh", "tariff",
                       "wear_rate", "major_assets", "liability", "standby_kw", "lost_unit_kw"},

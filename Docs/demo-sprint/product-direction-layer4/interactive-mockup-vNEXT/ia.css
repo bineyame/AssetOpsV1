@@ -23,3 +23,55 @@
 .reviewbar .ux-rebuild{position:relative;display:inline-block;line-height:16px}
 .reviewbar .ux-rebuild>summary{padding:0 4px;min-height:0;height:auto;border:0;background:none}
 .reviewbar .ux-rebuild .ux-pop-menu{right:0;left:auto;max-width:420px;white-space:normal}
+/* IA-1b (D-IA.22): levels are structure only, so the reviewed layout does not move */
+[data-shape="hub"]>[data-level],[data-shape="decision"]>[data-level],[data-ia-drawers]{display:contents}
+.ia-outcomes td small{display:block;color:var(--text-2);font-weight:400}
+.table-wrap:has(>.ia-outcomes){margin-bottom:var(--s4,16px)}
+/* IA-1c (spec §4.3): the "Waiting for you" control in the top bar, sized with the theme toggle; at 390 its label is visually hidden and the
+   icon and badge stay */
+.ia-inbox{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px;border:1px solid var(--line-strong);border-radius:var(--r1);background:var(--surface);color:var(--text);font-size:var(--fs-xs);font-weight:550;white-space:nowrap;cursor:pointer;flex:none}
+.ia-inbox:hover{background:var(--surface-2)}
+.ia-inbox svg,.ia-inbox .icon{width:14px;height:14px;flex:none}
+.ia-badge{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--accent-solid);color:var(--on-accent);font-size:12px;font-weight:650;line-height:1}
+.ia-inbox-sec+.ia-inbox-sec{margin-top:var(--s5,24px)}
+.ia-inbox-sec h3{margin:0 0 var(--s2,8px);font-size:var(--fs-sm);color:var(--text-2)}
+.ia-inbox-rows{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.ia-inbox-rows>li{margin:0;padding:0;border-bottom:1px solid var(--line)}
+.ia-inbox-rows>li::marker{content:none}
+.ia-inbox-rows a{display:block;padding:10px var(--s2,8px);color:var(--text);font-weight:550;border-radius:var(--r1)}
+.ia-inbox-rows a:hover{background:var(--surface-2);text-decoration:none}
+.ia-inbox-rows small{display:block;margin-top:2px;color:var(--text-2);font-size:var(--fs-sm);font-weight:400}
+.ia-inbox-rows small .who{font-size:inherit}
+.ia-inbox-sec h3{text-transform:none}
+@media (max-width:760px){.ia-inbox-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.ia-inbox{padding:0 8px}}
+/* at phone width the inbox and the theme toggle share the first row with the scope switch; the period chip takes the next row */
+@media (max-width:760px){.ia-frame .topbar .right{display:contents}.ia-frame .topbar .ia-inbox{margin-left:auto}.ia-frame .topbar .ux-period{order:1}}
+/* IA-1c: with the inbox control in the top bar, the search box gives way first (its words end in an ellipsis) and the period chip stays on
+   one line, so the bar holds on one line at 1280 */
+.ia-frame .topbar .ux-period,.ia-frame .topbar .ux-period>summary,.ia-frame .topbar .period-chip,.ia-frame .topbar .avatar{flex:none;white-space:nowrap}
+/* D-IA.37: from 761 px up the bar is one row and nothing shrinks; iaFitTopbar sets data-fit on the bar: 0 all full, 1 the search as its icon,
+   2 also the inbox label hidden (icon and badge stay), 3 also the avatar hidden */
+@media (min-width:761px){.ia-frame .topbar{flex-wrap:nowrap}.ia-frame .topbar .right{flex-wrap:nowrap}.ia-frame .topbar>*,.ia-frame .topbar .right>*{flex:none}.ia-frame .topbar .searchbox{display:flex}}
+.ia-frame .topbar[data-fit="1"] .ia-search-t,.ia-frame .topbar[data-fit="2"] .ia-search-t,.ia-frame .topbar[data-fit="3"] .ia-search-t,.ia-frame .topbar[data-fit="2"] .ia-inbox-label,.ia-frame .topbar[data-fit="3"] .ia-inbox-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ia-frame .topbar[data-fit="1"] .searchbox,.ia-frame .topbar[data-fit="2"] .searchbox,.ia-frame .topbar[data-fit="3"] .searchbox,.ia-frame .topbar[data-fit="2"] .ia-inbox,.ia-frame .topbar[data-fit="3"] .ia-inbox{padding:0 8px}
+.ia-frame .topbar[data-fit="3"] .avatar{display:none}
+/* D-IA.38: a drill-down page (decision, record, asset) has only its crumbs as the way up, so they stay at every size */
+.ia-frame .canvas[data-ia-crumbs="keep"] .breadcrumbs{display:flex}
+@media (max-width:600px){.ia-frame .canvas[data-ia-crumbs="keep"] .breadcrumbs{margin-bottom:var(--s1)}}
+/* D-IA.36: an in-page target stays below the sticky bar after the scroll (iaInPage sets --ia-sticky-h to the shown bar's bottom edge; the gap is the --s2 token) */
+.ux-ocards{scroll-margin-top:calc(var(--ia-sticky-h,0px) + var(--s2))}
+/* D-IA.41: fit levels 4 and 5. 4: the period as "October 2026" only (its sentence is in the period menu). 5 (final, every width below 761 too): two rows,
+   the phone's arrangement; the scope switch may shrink and wrap between words; search stays as its icon at every width */
+.ia-frame .topbar[data-fit="4"] .ia-period-asof,.ia-frame .topbar[data-fit="5"] .ia-period-asof{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ia-frame .topbar[data-fit="4"] .ia-search-t,.ia-frame .topbar[data-fit="5"] .ia-search-t,.ia-frame .topbar[data-fit="4"] .ia-inbox-label,.ia-frame .topbar[data-fit="5"] .ia-inbox-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ia-frame .topbar[data-fit="4"] .searchbox,.ia-frame .topbar[data-fit="5"] .searchbox,.ia-frame .topbar[data-fit="4"] .ia-inbox,.ia-frame .topbar[data-fit="5"] .ia-inbox{padding:0 8px}
+.ia-frame .topbar[data-fit="4"] .avatar,.ia-frame .topbar[data-fit="5"] .avatar{display:none}
+.ia-frame .topbar[data-fit="5"]{flex-wrap:wrap;height:auto;min-height:54px}
+.ia-frame .topbar[data-fit="5"] .right{display:contents}
+.ia-frame .topbar[data-fit="5"] .ia-inbox{margin-left:auto}
+.ia-frame .topbar[data-fit="5"] .ux-period{order:1;flex:0 0 100%}
+.ia-frame .topbar[data-fit="5"] .ux-period .ux-pop-menu{left:0;right:auto}
+.ia-frame .topbar[data-fit="5"] .searchbox{display:flex}
+.ia-frame .topbar[data-fit="5"] .ux-scope-sw{flex:1 1 0;min-width:0;max-width:max-content}
+.ia-frame .topbar[data-fit="5"] .ux-scope-sw>summary{white-space:normal;overflow-wrap:normal;word-break:normal}
+.ia-frame .topbar[data-fit="5"] .searchbox::after{display:none}

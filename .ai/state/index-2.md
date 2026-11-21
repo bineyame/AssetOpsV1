@@ -73,4 +73,9 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 159. `4b2` money leaves from records (CommercialLeafSource, READ_AS, diesel price from invoices) · data.md
 160. `3A3` emulated native exports, layout readers, source contract test, emulated-export loader · data.md
 161. `ON1` operator tenant from one onboarding file (check/apply, emulated grants, real refused, served tenant, key erasure, runbook) · data.md
-162. `3B7a` the frozen monthly structure snapshot, units 1-3 (store, served read with freshness, build/verify command, migration 0066) · data.md
+162. `5b` attribution unit 1: the split rules (AR1, AR2, scale, residual, 1E-12) · data.md
+163. `5b` attribution units 2-3: carrying at the budget line, Site and portfolio bridges (k of n, SUM-only), pinned read · data.md
+164. `IA-1b` mock-up hub shape: Portfolio tabs and Site Overviews (IA-1 shape rebuild) · demo.md
+165. `4d` the monthly litre split: necessary, candidate and unexplained litres (Modelled) from dispatch-3.2 at the fuel curve and the dip balance · data.md
+166. `IA-1c` mock-up decision shape and the "Waiting for you" inbox (IA-1 shape rebuild) · demo.md
+167. `3B7a` the frozen monthly structure snapshot, units 1-3 (store, served read with freshness, build/verify command, migration 0066) · data.md

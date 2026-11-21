@@ -447,7 +447,28 @@ Branch `task/ON1-operator-tenant` (base main `8fddb2bba`); spec `specs/ON1-opera
 - Settled: `onboarding/operator_file.py` (`assetops.operator-onboarding/1`, strict; `roles_digest`; submitter never accepter) and `onboarding/service.py` `OperatorOnboarding.check`/`apply` (tenant, Sites through `import_site`, accounts, roles by `service:onboarding`, key); `python -m assetops_backend.onboard_operator digest|check|apply`. A real file is refused before any write (`ONBOARD_REAL_AWAITS_APPROVAL`, until `ON1b`). `AccountService.onboard_grant`/`onboarding_may_grant`/`executive_of`; store `add_onboarding_grant` under the role lock (ONBOARDING_CLOSED, ROLES_SEPARATE, ROLE_ALREADY_HELD). `FoundationStore.tenant_slugs`. `config.served_tenant_slug()` (`ASSETOPS_TENANT_SLUG`) in `create_app`; `app.state.site_registry.served_tenant_slug`. Key tombstone (`_tombstoned` by lstat), `erase_key_file`, `key_state`, `directory_ok`, `pseudonym_key erase`, 409 `PSEUDONYM_KEY_ERASED`. `Demo.env()` pins `demo`. Runbook `Docs/engineering/operator-deep-dive-runbook.md` tested line by line.
 - Open: mid-build Q1 (structural refusal code, default `ONBOARD_FORMAT`) and Q2 (`onboarding_may_grant` trips the persistence guard's `open\(` pattern); `ON1b` (executive approval, real operators); Q5 grant-API separation (carried to `3C0b`).
 
-## 3B7a units 1-3 - the frozen monthly structure snapshot (in review, 20 Nov)
+## 5b - attribution, unit 1: the split rules (in review, 20 Nov)
+
+Branch `task/5b-attribution` (base main `8a2900bc4`); spec `specs/5b-attribution/spec.md` rev 2 §2, rulings D-5B.1-14; packet `packet-u1.md`. Pure; no migration, no route, no screen; no diff in `structure/read.py`.
+
+- Settled: `structure/attribution/rules.py` (`BRIDGE_ROOTS`, kinds, splits, reasons, `SOLVE_TOLERANCE` 1E-12, `agree`) and `bridge.py` (`BridgeRow`, `bridge`, `by_home`, `lowest`): AR1 signed sums, AR2 volume at target price then price at actual volume (price chosen by unit), money pushed down by `scale`, neutral terms give no row, a RESIDUAL only beside a stated heading's unobserved terms, record-vs-factors and children-vs-parent judged within 1E-12. Kobo §5.1: −562.00 = +38.00 − 600.00; AT-1 to AT-3 to the cent.
+- Closed since: Q1 ruled D-5B.15 (`NOT_SPLIT`/`DETAIL_NOT_AVAILABLE`, now asserted); the seam is on `main`; units 2-3 below.
+
+## 5b - attribution, units 2-3: carrying, Site and portfolio bridges, the read (in review, 20 Nov)
+
+Branch `task/5b-attribution-u23` (base main `fb6d248d3`); spec rev 2 §3, §4, §5.2; rulings D-5B.1-15; packet `packet-u23.md`. Pure plus one wiring module; no migration, no route, no screen; no diff in `structure/read.py`.
+
+- Settled: `carry.py` (`om`/`staff` at their own budget line, ESTIMATED, `carried_as` TARGET, never for an open month, an unconnected source, an assumed target or a heading); `site.py` (`SiteBridge`: contribution and cash trees from the carried inputs); `portfolio.py` (k of n over one Site set per row, values added only for `SUM` factors, effects always, currencies never, `carried` Sites named, repeated key refused, disagreements kept); `read.py` (`BridgeRead`, one UTC instant per call); `composition.py` (`build_bridge_read`, the only `commercial` import). Lakeside October: 1,443.00 against 2,295.00, −852.00, 3 of 3, ESTIMATED; without Mto's billing −747.00, 2 of 3.
+- Open: owner Q1 (carry a heading) and Q5 (also show the 3-of-3 target) on their defaults; `5c` words every stop and disagreement (D-5B.10, D-5B.12); pack fix for summed prices queued (handshake R1).
+
+## 4d - the monthly litre split (in review, 20 Nov)
+
+Branch `task/4d-litre-split` (base main `b8b812f23`); spec `specs/4d-litre-split/spec.md` rev 2, rulings D-4D.1-15; packet `packet.md`. No migration, no intake, no route, no screen; 5b unchanged.
+
+- Settled: `structure/litres/rules.py` (`month_litres`: `necessary_l = T(month) − candidate`, `candidate_l` = CANDIDATE spans' litres, `unexplained_l` = dips and deliveries in the dip window less `T(window)`; every litre MODELLED, origin `unknown`; one rounding to 0.001 L; twelve notes in precedence, never 0); `source.py` (`LitreLeafSource`, pinned reads memoised, at most 16); `inputs.py` (`day_state`: only a CURRENT selection is ASSESSED; `StoreLitreInputs` over K3's curve choice, K2's dips and A2's slot rule); `PostgresFuelBalanceStore.read_at`, `PostgresAssessmentStore.dispatch_spans` and `dispose`; the structure read's fourth builder. `SOURCE_STATE` makes the three leaves PROVIDED (`LITRE_LEAVES`). Kobo KOBO-OCT: 730.000 / 330.000 / 120.000 L; its −600.00 fuel gap splits −37.50 / −412.50 / −150.00 through 5b.
+- Open: mid-build Q1 (5b's litre-row effects carry five places, `−600.00000`; 5c to format money); 3B7a lists valued litre leaves `untracked` (R13); `5c` words the notes (spec §2.4) and the label "Diesel not shown to be avoidable".
+
+## 3B7a units 1-3 - the frozen monthly structure snapshot (merged 21 Nov; r1 accept-with-fixes, fix round 2)
 
 Branch `task/3B7a-snapshot` (base main `264d7d6a7`, unit 0's seam merged); spec `specs/3B7a-structure-snapshot/spec.md` rev 2, rulings D-3B7A.1-12; packet `packet.md`. Migration 0066; no route, no screen.
 

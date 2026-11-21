@@ -1,6 +1,6 @@
 # 5b: attribution, the gap explained by its drivers (implementer spec)
 
-Status: rev 2, handshake round 1 answered (`rulings.md` "Handshake answers (round 1)", D-5B.11 to D-5B.14).
+Status: rev 2, handshake round 1 answered; unit 1 merged (`packet-u1.md`, review ACCEPT); units 2-3 in_review (`packet-u23.md`) (`rulings.md` "Handshake answers (round 1)", D-5B.11 to D-5B.15).
 Architect (Claude), 2026-11-20. Lane B, on the deep-dive path's critical chain (`5a` → `5b` → `5c`;
 `two-week-build-plan.md` §0.1 row 11; D-BW1.8, D-BW1.10). **3.25 units** (rev 1: 3; +0.25 for the SUM-only rule,
 `carried`, the pinned instant and the tolerance). Discovery review (W5):

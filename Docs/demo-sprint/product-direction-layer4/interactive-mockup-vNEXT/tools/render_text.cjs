@@ -48,7 +48,7 @@ for (const op of ONLY) for (const s of manifest) {
   CUR = s.id; const dom = boot(op, s.id); const w = dom.window, d = w.document;
   if (!d.querySelector('#app .canvas')) { errors.push({ op, id: s.id, e: 'no canvas' }); w.close(); continue; }
   const chrome = [...d.querySelectorAll('#app .rail, #app .topbar, #app footer, #app .tabs, #app .slim-banner')].map(words).join(' ').replace(/\s+/g, ' ');
-  const rec = { op, id: s.id, status: s.layer4_status, loop: !!(s.loop || s.opScoped || w.eval('typeof uxInProduct==="function"&&uxInProduct(currentScreen())')) /* review H4: every navigable screen is held to the product's words */, text: visible(d), chrome, drawers: [], segments: segments(d.querySelector('#app')) };
+  const rec = { op, id: s.id, status: s.layer4_status, loop: !!(s.loop || s.opScoped || w.eval(`typeof uxInProduct==="function"&&uxInProduct(document.getElementById('ia-root')?currentScreen():(SCREENS.find(x=>x.id===${JSON.stringify(s.id)})||currentScreen()))`)) /* review H4: every navigable screen is held to the product's words; IA-1b: judged on the screen rendered, not on what the address means after a legacy screen switched the operator (#/cold under Lakeside) */, text: visible(d), chrome, drawers: [], segments: segments(d.querySelector('#app')) };
   const nums = [...d.querySelectorAll('.ev-num')].slice(0, 4);
   for (const n of nums) { try { n.dispatchEvent(new w.MouseEvent('click', { bubbles: true })); const dr = d.querySelector('#overlay .drawer, .drawer'); if (dr) { const c = dr.cloneNode(true); c.querySelectorAll('details.tech').forEach(x => x.remove()); rec.drawers.push(words(c).replace(/\s+/g, ' ')); rec.segments.push(...segments(dr)); } d.querySelector('#overlay').innerHTML = ''; } catch (e) {} }
   out.push(rec); w.close();

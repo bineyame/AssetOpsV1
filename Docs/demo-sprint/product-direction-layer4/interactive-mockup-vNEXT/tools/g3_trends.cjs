@@ -1,6 +1,10 @@
 /* DS1m G3 capture (D-DS1.15, supersedes spec 9.4 and MB7): Portfolio overview (3 operators) and Site (Kobo, Thika, Ruiru)
    x {1440x900, 1280x720, 390x844} x {light, dark} = 36 shots. Asserts what the trend slots say and that it is visible, by width.
-   Usage (through tools/heavy-slot.sh, env.sh sourced): node tools/g3_trends.cjs <index.html> <outdir> */
+   IA-1b (D-IA.29): the root is the hub's L1 region, #app [data-shape="hub"] [data-level="L1"], and a page without it fails (no body
+   fallback); every .ux-trend keeps t.scrollWidth <= t.clientWidth at 390, 1280 and 1440.
+   Usage (through tools/heavy-slot.sh, env.sh sourced): node tools/g3_trends.cjs <index.html> <outdir>
+   Plants: G3_PLANT=clip (CSS clips .ux-trend at 390), G3_PLANT=root (the L1 region renamed); each must fail. */
+const PLANT = process.env.G3_PLANT || '';
 const { chromium } = require(process.env.PW); const fs = require('fs'), path = require('path');
 const [idx, out] = process.argv.slice(2); fs.mkdirSync(out, { recursive: true });
 const PAGES = [['lakeside', 'portfolio'], ['harvest', 'portfolio'], ['metro', 'portfolio'], ['lakeside', 'site/kobo'], ['harvest', 'site/thika'], ['metro', 'site/ruiru']];
@@ -11,8 +15,10 @@ const VP = [[1440, 900], [1280, 720], [390, 844]];
     await ctx.addInitScript(([o, t]) => { try { sessionStorage.setItem('l4-op', o); localStorage.setItem('l4-theme', t); } catch (e) {} }, [op, theme]);
     const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
     await p.goto('file://' + path.resolve(idx) + '#/' + route); await p.waitForTimeout(700);
+    if (PLANT === 'clip' && w === 390) await p.addStyleTag({ content: '.ux-trend{display:block;width:60px;overflow:hidden;white-space:nowrap}' });
+    if (PLANT === 'root') await p.evaluate(() => document.querySelectorAll('[data-shape="hub"] [data-level="L1"]').forEach(e => e.setAttribute('data-level', 'L1-renamed')));
     const m = await p.evaluate(([w, h, route]) => { const H = innerHeight, site = route.startsWith('site/'), cost = OPS[sessionStorage.getItem('l4-op')].kind === 'cost';
-      const root = document.querySelector(site ? '#app .ux-kpis' : '#app .ux-overview') || document.body, tiles = [...root.querySelectorAll('.ux-kpi')].filter(k => k.querySelector('.ux-trend'));
+      const root = document.querySelector('#app [data-shape="hub"] [data-level="L1"]'); if (!root) return { noRoot: true, slots: [], clipped: [], trendClip: [] }; const tiles = [...root.querySelectorAll('.ux-kpi')].filter(k => k.querySelector('.ux-trend'));
       const inside = (a, c) => a.left >= c.left - 0.5 && a.right <= c.right + 0.5 && a.top >= c.top - 0.5 && a.bottom <= c.bottom + 0.5;
       const slots = [...root.querySelectorAll('.ux-kpi .ux-trend')].map((t, i) => { const text = t.textContent.trim(), r = t.getBoundingClientRect(), k = t.closest('.ux-kpi'), sub = t.closest('.ux-kpi-s') || t, sr = sub.getBoundingClientRect(), cs = getComputedStyle(sub);
         const mm = text.match(/[−+]?\$[\d,]+/); let fr = null;
@@ -25,8 +31,9 @@ const VP = [[1440, 900], [1280, 720], [390, 844]];
           subUnclipped: sub.scrollWidth <= sub.clientWidth, figInSub: !!fr && fr.width > 0 && fr.left >= sr.left - 0.5 && fr.right <= sr.right + 0.5 && fr.top >= sr.top - 0.5 && fr.bottom <= sr.bottom + 0.5, endsSep: /against Sep$/.test(text) }; });
       return { theme: document.documentElement.getAttribute('data-theme'), slots,
         clipped: [...document.querySelectorAll('.ux-kpi')].flatMap(k => { const kr = k.getBoundingClientRect(); return [...k.querySelectorAll('*')].filter(e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== 'hidden' && !inside(r, kr); }).map(e => e.className || e.tagName); }),
+        trendClip: [...root.querySelectorAll('.ux-trend')].filter(t => t.scrollWidth > t.clientWidth).map(t => t.textContent.trim().slice(0, 40)),
         hScroll: document.documentElement.scrollWidth > innerWidth }; }, [w, h, route]);
-    const reasons = []; if (errs.length) reasons.push('page errors ' + errs.length); if (m.theme !== theme) reasons.push(`theme ${m.theme}`); if (m.clipped.length) reasons.push('clipped ' + m.clipped.join(',')); if (m.hScroll) reasons.push('sideways scroll');
+    const reasons = []; if (m.noRoot) reasons.push('no hub L1 region (#app [data-shape="hub"] [data-level="L1"])'); if (m.trendClip.length) reasons.push(`trend clipped (scrollWidth > clientWidth): ${m.trendClip[0]}`); if (errs.length) reasons.push('page errors ' + errs.length); if (m.theme !== theme) reasons.push(`theme ${m.theme}`); if (m.clipped.length) reasons.push('clipped ' + m.clipped.join(',')); if (m.hScroll) reasons.push('sideways scroll');
     if (m.slots.length !== 2 || !m.slots.every(s => s.form)) reasons.push(`form: ${m.slots.length} slots, ${m.slots.filter(s => !s.form).length} not in an 8a form`);
     m.slots.forEach((s, i) => { const f = c => { if (!c) reasons.push(`slot ${i + 1}: ${c === false ? '' : ''}`); };
       const need = (c, what) => { if (!c) reasons.push(`slot ${i + 1} ${what}`); };
