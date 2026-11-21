@@ -11,3 +11,6 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-IA.55` A tab switch whose content would start below the fold moves the tab strip to the top, every tab group; ia_shots clause and plants · live · specs/IA-1-shape-rebuild/rulings-4.md
 - `D-IA.56` Every IA tile row fills its row (3 or 2 tracks from 1280, odd last tile spans below); tilefill plant · live · specs/IA-1-shape-rebuild/rulings-4.md
 - `D-IA.57` rightsM date from fdate(AS_OF), scanner gap to backlog; case link #sw-h ratified; state index DS3 172, IA-2a 173 · live · specs/IA-1-shape-rebuild/rulings-4.md
+- `D-IA.58` A tab switch lands the tab's content just under the sticky bar when it would start below the fold (amends D-IA.55); tab gate runs every case and state; plant tabstrip; sticky strip rejected · live · specs/IA-1-shape-rebuild/rulings-4.md
+- `D-IA.59` One rendered form per quantity per screen and its drawers; qty_check format assertion; lands in IA-2e, noted for IA-2b · live · specs/IA-1-shape-rebuild/rulings-4.md
+- `D-IA.60` QTY registry made true (overview-gap, plan-items), clause takes release line's type, packet corrections (L5-L7) · live · specs/IA-1-shape-rebuild/rulings-4.md

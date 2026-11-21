@@ -182,6 +182,8 @@ fill the row at 1440 and 390, and the packet's list of other IA rows that change
 branch, `parts_identity` 282/282; (f) the case link `href` asserted per tab; (g) no change outside D-IA.54 to D-IA.57.
 Class sweep added: any total shown beside a part of it, on any live route, without the rest stated.
 
+**Round 3 (rev 7, `rulings-4.md` D-IA.58 to D-IA.60).** Verification depth, M3 and L5 to L7 only. Check: (a) at 390 in Lakeside 6500/No, and approved and sent back, on every group's tabs: each switch shows the tab's content below the sticky bar, not under it, the active tab focused; at 1440 and 1280 x 720 the as-proposed default case still scrolls 0 with Approve in view; `tabnoscroll`, `tabscrollall`, `tabstrip` fail; (b) `qty_check` has the `overview-gap` and `plan-items` rows, each failing its plant, and the packet's registry sentence matches the table; (c) the clause has the release line's size and colour (`releasedtype` plant fails); (d) the three packet corrections; (e) no change outside these. Class sweep: any scroll target aimed at a box other than the one the user needs to see. Not in this round: the figure-format rule (D-IA.59, IA-2e).
+
 **Class sweeps (W6).** One fragment placed twice or not at all (the placement table against the rendered four tabs).
 One state read outside `uxPlanState` (the grep above). One meter form other than `uxMeterBar` on an IA plan route. One
 tabbed route sharing a document title (shape_check item 10 on every tab group). One plan list capped by position.

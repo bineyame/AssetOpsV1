@@ -73,3 +73,72 @@ and 390). The packet lists every IA route whose row changed, with a shot.
 **Fix size.** One round, about 1 unit, 2 commits: (1) D-IA.54 clause, `qty_check` and its sweep; D-IA.57 L2 and L3;
 (2) D-IA.55 listener and D-IA.56 rules with their `ia_shots` clauses and plants (heavy slot). A continuation builder on
 Sonnet; a fresh Claude reviewer at verification depth. Merge still held for the owner's walkthrough.
+
+## IA-2a review answers (round 2)
+
+Architect (Claude), 2026-11-21, owner away (delegated; owner-away row 45). Answers `review-IA-2a-r2.md` M3, the figure-format
+note, L5 to L7; spec §5.1 rev 7. Brief: one interaction grammar, honest numbers, deliberate hierarchy; W6 (the class, then the sweep).
+
+### D-IA.58 A tab switch puts the tab's content on the screen, whatever L1's height: land the content, not the strip (M3; amends D-IA.55)
+
+- **Why D-IA.55's rule fails.** "Strip to the top" assumes the content is one short L1 below the strip. L1 grows with state (case
+  line, notice, a longer release line, the clause); in Lakeside 6500/No at 390 it is taller than the screen, so the content is 140 px
+  below the fold with the strip at the top. No scroll target *at the strip* can work; the target must be the content.
+- **Rule (every tab group, every width, every case and state).** L1 stays identical. The fold test is unchanged: if the content's
+  first box (D-IA.55's definition) at scroll 0 starts above `innerHeight − 48`, scroll stays 0 (1440 and 1280 × 720 keep Approve in view).
+  Otherwise the frame scrolls (instant) so the first box's top sits at `stickyBottom + var(--s2)`, where `stickyBottom` is the
+  bottom edge the fixed context bar (`.ux-dsticky`) will have once scrolled, measured as `iaInPage` measures it (D-IA.36: one
+  measure, reused; not a new constant). The strip is then above the screen, one swipe up; the active tab keeps focus
+  (`preventScroll`), the sticky bar names the page. This replaces "scrolls so the tab strip's top is at the viewport's top"; the rest of
+  D-IA.55 (markup, wrapper, focus, first load not a switch) stands.
+- **Rejected: a sticky tab strip under 760 px** (the reviewer's suggestion). It stacks a second fixed layer under `.ux-dsticky`
+  (two bars eat about 110 px of a 844 px phone), needs its own offset for in-page scrolls (D-IA.36) and every other fixed element,
+  and adds a header form for one page type. Reconsider at the W1 UI pass if the owner finds the strip lost on a phone; the
+  rule above does not depend on it. **Rejected:** compact L1 (D-IA.55); shortening Lakeside's L1 (it grows again with the next note).
+- **Check (`ia_shots`, heavy slot), widened from the default case to every case and state.** The tab set runs every group with more
+  than one landed tab × 3 operators × 390 × 844, 1280 × 720, 1440 × 900 × **the plan states (as proposed, approved, sent back) × the
+  default and the non-default cases of D-IA.50** (Portfolio and Site have one state each). Per switch, after two frames: the content's
+  first box has at least 48 px inside the viewport **and its top is not under the sticky bar**; the active tab is focused after a click;
+  at 1440 and 1280 `scrollY` is 0 on the plan's default case in the as-proposed state. The packet's "81 switches" count is re-stated.
+  Plants: `tabnoscroll` and `tabscrollall` stay and still fail; new `SHOTS_PLANT=tabstrip` (the D-IA.55 strip-to-top
+  rule): fails at 390 in Lakeside 6500/No on all four tabs. Class sweep (W6): any scroll target in `ia-routes.js` that aims at a box
+  other than the one the user needs to see; the builder lists them.
+- **Fix size.** About 0.3 unit: one listener edit, the gate's case loop and one plant (below).
+
+### D-IA.59 One rendered form per quantity on a screen and in its drawers and definitions (figure-format rule; "+$6,089" vs "Net +$6,088.50")
+
+- **Rule (class: every money, count and percentage quantity on every live route).** A quantity has one precision per screen, shared by
+  its total, its parts, its definition text and any drawer or collapsed detail on that screen. Money: whole dollars when every figure of
+  the quantity is whole dollars; if any part has cents, cents appear on every figure of that quantity there, the total included
+  (the tile reads "+$6,088.50"). Rounding parts to fit a rounded total is not allowed unless the rounded parts still sum to the
+  rounded total, and then it is applied to all of them. The sign or label ("Net", "+") is not part of the form.
+- **Enforcement.** `qty_check.cjs` gains a second assertion, **format**: for each `QTY` key on each screen, the rendered strings
+  of every figure of the key (read from `textContent`, so collapsed and hidden definitions count) have the same number of decimals.
+  Strings are compared, not values. A plant `QTY_PLANT=cents` (cents stripped from the tile) fails on every operator with such a part.
+  IA-built markup declares `data-qty` from the start; reviewed markup is registered by selector.
+- **Where it lands: not IA-2a.** The two figures are reviewed bytes on `main` (the tile's `def`, `planGroups`); changing them moves
+  `parts_identity`'s baseline and is a reviewed-bytes change under D-IA.54. They sit in hidden content and are not a wrong number
+  (they agree once rounded). **Unit: IA-2e**, in its reconciliation gate and final sweep, with the registration of the plan pair
+  (`plan-gain`: tile, `planGroups` Net) and the sweep of every other quantity on a live route that shows more than one form. The
+  owner may be told at the walkthrough if they open that definition.
+- **For IA-2b (note for its spec).** The list component's figures (row sums, "View all" counts, the Outcomes table's totals against
+  the hub tiles) follow this rule from the start, with `data-qty` on each, and its `qty_check` rows (format included) land in IA-2b.
+  Only the reviewed-bytes registration waits for IA-2e.
+
+### D-IA.60 The lows: QTY registration, the clause's type, the packet (L5 to L7)
+
+- **L5: the registry is made true now.** `qty_check` `QTY` gains rows for the Overview gap (`overview-gap`: $852 = $827 + $25, its own
+  key, per D-IA.54) and the Items sum (`plan-items`: the "in all" total against the item rows, a separate key; Harvest's "$620 in all"
+  is the same key on Harvest). Each row fails if its selector finds nothing on a route it names (never dormant); plants
+  `QTY_PLANT=gap` (the $25 removed) and `items` (one row dropped). The "+$6,089 / Net" pair waits for D-IA.59 (IA-2e). The packet's
+  "registered in `qty_check`'s QTY table" sentence is corrected to what is there.
+- **L6: hierarchy.** `.ia-plan-released` takes the release line's type (size, weight, colour tokens copied from
+  `.approval-releases`), no copy change. `ia_shots` plan clause `releasedtype`: its computed font-size and colour equal the release
+  line's at 390 and 1440; plant `SHOTS_PLANT=releasedtype` (rule removed) fails.
+- **L7: the packet.** Three corrections: line 65's "pre-existing on `main`" (fixed in code, count 0); the one-off count of typed
+  dates inside templates in `vNEXT/` that D-IA.57 asked for; the D-IA.56 list of changed tile rows names a shot each.
+
+**Fix size.** One small round, about 0.5 unit, 1 commit (M3 listener and widened gate with `tabstrip`; D-IA.60 rows, rule and
+plants; packet corrections), a Sonnet continuation builder, heavy slot for `ia_shots` tabs and plan clauses. A fresh Claude reviewer at
+verification depth reads M3 and L5 to L7 only. Merge still held for the owner's walkthrough; name M3's old state as closed only after
+Lakeside 6500/No at 390 passes on all four tabs.
