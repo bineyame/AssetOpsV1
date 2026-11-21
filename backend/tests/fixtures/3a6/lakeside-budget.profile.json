@@ -1,0 +1,22 @@
+{
+  "schema": "assetops.source-profile",
+  "schema_version": 1,
+  "profile_id": "lakeside-budget",
+  "status": "ILLUSTRATIVE",
+  "source_type": "budget_workbook",
+  "source_system": "lakeside-budget-workbook",
+  "file": {"format": "xlsx", "sheet": "Budget 2026", "header_row": 1},
+  "values": {"decimal_mark": ",", "thousands_mark": ".", "negative": "minus", "date_format": "DD/MM/YYYY",
+             "time_format": "HH:MM", "month_format": "Mon-YYYY", "timezone": "Africa/Nairobi"},
+  "version": {"from": "row_digest"},
+  "record_id_join": ["Site", "Month", "Line"],
+  "columns": [
+    {"header": "Site", "paths": [{"path": "site_code", "type": "text"}]},
+    {"header": "Month", "paths": [{"path": "clocks.recognition_period", "type": "month"}]},
+    {"header": "Line", "paths": [{"path": "body.line_ref", "type": "text"}, {"path": "body.factor_id", "type": "text", "map": {"Revenue": "revenue", "Diesel": "fuel_cost", "kWh sold": "billed_kwh"}}]},
+    {"header": "Amount", "paths": [{"path": "body.value", "type": "number"}]},
+    {"header": "Currency", "paths": [{"path": "body.currency", "type": "text"}]}
+  ],
+  "constants": {"kind": "BUDGET_LINE", "body.version_ref": "lakeside-budget-2026"},
+  "personal": []
+}

@@ -66,14 +66,19 @@ class CanonicalJsonReader:
         return path
 
 
-class LayoutReader:
-    """One native CSV layout (spec §2.4). Provenance follows the database (D-3A3.10)."""
+#: 3A6 (spec §3): the media types a layout reader takes, by its file format.
+XLSX_MEDIA_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+MEDIA_TYPES = MappingProxyType({"csv": frozenset({"text/csv"}), "xlsx": frozenset({XLSX_MEDIA_TYPE})})
 
-    media_types = frozenset({"text/csv"})
+
+class LayoutReader:
+    """One native layout (spec §2.4): an illustrative CSV layout or a compiled source profile (3A6). Provenance
+    follows the database (D-3A3.10); the media types follow the layout's file format."""
 
     def __init__(self, layout: Layout) -> None:
         self.layout = layout
         self.id = layout.id
+        self.media_types = MEDIA_TYPES[layout.file.format]
 
     def read(self, data: bytes, *, context: ReadContext) -> ReadResult:
         produced_at = context.received_at.astimezone(timezone.utc).replace(microsecond=0).isoformat()

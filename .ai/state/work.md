@@ -142,3 +142,17 @@ decision `D-2026-10-31-board-action-refresh-lineage`; packet `archive/agent-hist
   `<t>_person_actor` (R8) on nine tables; the three domain kind checks widened to SERVICE/USER under their names.
 - The switch is read once in `create_app` and ships off; `3C0b` turns it on.
 - Open: trial actions (`3C1b`); names in reads (`3C2`, `3C3`); turning the switch on (`3C0b`).
+
+## 3C2 commit 1: the agreed change recorded as an Action, codes only (2026-11-21, `task/3C2-agreed-change`, in review)
+
+- Migration `0069_agreed_action` (built on the 3A6 head `0067_source_profile`; revises 3A7's `0068` at gate B):
+  `agreed_action`, append-only (row trigger and TRUNCATE trigger), identity index `agreed_action_once` (NULLS NOT
+  DISTINCT), whole-second `created_at`, FKs to `operator_account` and `site` by tenant. Apart from the S6-01a Actions.
+- `actions/agreed.py`: `AgreedActionService.record` (the §2.3 rule order; re-run found before the due check) and
+  `for_tenant` (newest first by `(created_at, id)`), one clock read per call; `OWNER_COVER` (D-3C2.6);
+  `MemoryAgreedActionStore`. The adapter locks the tenant and catches `agreed_action_once`.
+  `build_agreed_actions(url).service.for_tenant(tenant)` (DDR G10). `python -m assetops_backend.record_action`.
+- `accounts/permissions.py`: `"action.agree": (EXECUTIVE,)`.
+- Codes only (D-3C2.14): state `OPEN`/`OVERDUE`, refusals as `<CODE>` on stderr. Open: commit 2 (SC-1 statements,
+  after SC-1a); unit 2 (5c's `StoreAgreedActions`, gate C); the guard writer block held for the owner; mid-build MB1
+  (the adapter-import rule names one composition per package).

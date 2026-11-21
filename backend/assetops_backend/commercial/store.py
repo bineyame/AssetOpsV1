@@ -5,8 +5,8 @@ from datetime import datetime
 from typing import Callable, Mapping, Protocol
 from uuid import UUID
 
-from assetops_backend.commercial.model import (ExistingRecord, HeldUpload, IntakeSummary, Plan, RevisionRow,
-                                               UploadDecisionRow, UploadRecord, UploadRow)
+from assetops_backend.commercial.model import (ExistingRecord, HeldUpload, IntakeSummary, Plan, ProfileRow,
+                                               RevisionRow, UploadDecisionRow, UploadRecord, UploadRow)
 
 
 class CommercialStore(Protocol):
@@ -26,7 +26,12 @@ class CommercialStore(Protocol):
         call `decide`, insert the plan's rows unless `dry_run`, and return the plan applied (P2).
 
         3A2: with `decision` and not a dry run, first (under the lock, before `decide`) refuse with
-        `UploadAlreadyDecided` when the upload has a decision; after the plan's rows, insert the decision."""
+        `UploadAlreadyDecided` when the upload has a decision; after the plan's rows, insert the decision.
+
+        3A6 (spec §2.6; D-3A6.15): with an ACCEPTED `decision` and not a dry run, after that check and before
+        `decide`, refuse with `UploadSourceSwitched(system)` when another accepted upload of the tenant has the
+        deciding upload's source type, another source system and a `month_site_code` value in common (NULL equal to
+        NULL); `system` is the smallest such source system. Nothing is written."""
 
     def latest_revisions(self, tenant_id: UUID, *, site_id: UUID | None = None, kind: str | None = None,
                          recognition_period: str | None = None,
@@ -55,7 +60,8 @@ class CommercialStore(Protocol):
         """Exactly that Site's uploads, or the organisation's (`site_id IS NULL`); newest first by (submitted_at, id)."""
 
     def held_uploads(self, tenant_id: UUID) -> tuple[HeldUpload, ...]:
-        """3A3 (spec §2.8): every upload of the tenant with no decision or an ACCEPTED one, by upload id."""
+        """3A3 (spec §2.8): every upload of the tenant with no decision or an ACCEPTED one, by upload id. 3A6: with
+        its source system and its distinct `month_site_code` values (None first, then sorted)."""
 
     def intake_revisions(self, tenant_id: UUID,
                          intake_id: UUID) -> tuple[tuple[RevisionRow, RevisionRow | None], ...]:
@@ -64,3 +70,17 @@ class CommercialStore(Protocol):
 
     def site_zones(self, tenant_id: UUID) -> Mapping[UUID, str]:
         """3A4: the tenant's Sites and their time zones."""
+
+    # --- 3A6 (spec §5; D-3A6.2, D-3A6.8): admitted source profiles ---------------------------------------------
+
+    def source_profiles_all(self, tenant_id: UUID, profile_id: str) -> tuple[ProfileRow, ...]:
+        """Every admitted version of one profile, by version."""
+
+    def source_profile_latest(self, tenant_id: UUID, profile_id: str) -> ProfileRow | None:
+        """The highest admitted version of one profile, or None."""
+
+    def source_profiles_latest(self, tenant_id: UUID) -> tuple[ProfileRow, ...]:
+        """The latest version of each of the tenant's profiles, by profile_id."""
+
+    def add_source_profile(self, row: ProfileRow) -> None:
+        """Insert one admitted version; a unique key refuses with `StoreRefused(<key name>)`."""

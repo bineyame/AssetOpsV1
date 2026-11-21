@@ -1,0 +1,22 @@
+[
+  {"format_version": 1, "kind": "EXPENSE", "source_record_id": "PL-1001", "source_version": "r7a74ac02930cf9bd",
+   "site_code": "KOBO-001", "subject": {"kind": "SITE", "ref": "KOBO-001"},
+   "clocks": {"occurred_at": "2026-10-11T09:00:00+03:00", "recognition_period": "2026-10"},
+   "quantity": {"value": "400", "unit": "L"}, "amount": {"value": "500.00", "currency": "USD"}, "status": "INVOICED",
+   "body": {"category": "FUEL", "counterparty_ref": "fuel-co", "document_ref": "PL-1001"}},
+  {"format_version": 1, "kind": "EXPENSE", "source_record_id": "PL-1002", "source_version": "rb02e46e3dd180e63",
+   "site_code": "KOBO-001", "subject": {"kind": "SITE", "ref": "KOBO-001"},
+   "clocks": {"occurred_at": "2026-10-21T09:00:00+03:00", "recognition_period": "2026-10"},
+   "quantity": {"value": "380", "unit": "L"}, "amount": {"value": "475.00", "currency": "USD"}, "status": "PAID",
+   "body": {"category": "FUEL", "counterparty_ref": "fuel-co", "document_ref": "PL-1002"}},
+  {"format_version": 1, "kind": "EXPENSE", "source_record_id": "PL-1003", "source_version": "r45ba3a14daa3c051",
+   "site_code": "KOBO-001", "subject": {"kind": "SITE", "ref": "KOBO-001"},
+   "clocks": {"occurred_at": "2026-10-31T17:00:00+03:00", "recognition_period": "2026-10"},
+   "amount": {"value": "1200.00", "currency": "USD"}, "status": "PAID",
+   "body": {"category": "OM", "counterparty_ref": "om-contractor", "document_ref": "PL-1003"}},
+  {"format_version": 1, "kind": "EXPENSE", "source_record_id": "PL-1004", "source_version": "rf609c71589ac443d",
+   "site_code": "KOBO-001", "subject": {"kind": "SITE", "ref": "KOBO-001"},
+   "clocks": {"occurred_at": "2026-10-31T17:30:00+03:00", "recognition_period": "2026-10"},
+   "amount": {"value": "450.00", "currency": "USD"}, "status": "PAID",
+   "body": {"category": "STAFF", "counterparty_ref": "STAFF-07", "document_ref": "PL-1004"}}
+]

@@ -984,8 +984,9 @@ function Invoke-ConfigurationPersistenceCheck {
     # 3A2 (spec section 7; migration 0065; D-3A2.4): the same writer also owns commercial_upload and
     # commercial_upload_decision, with the same plain-INSERT shape. Its under-lock "no decision yet" read
     # (SELECT 1 FROM commercial_upload_decision WHERE ...) is a read, not a write, and is not counted.
+    # 3A6 (spec section 3; migration 0067; D-3A6.2): the same writer owns commercial_source_profile, same shape.
     $commercialTables = @('commercial_intake', 'commercial_record', 'commercial_record_revision', 'commercial_rejection',
-        'commercial_upload', 'commercial_upload_decision')
+        'commercial_upload', 'commercial_upload_decision', 'commercial_source_profile')
     $commercialShapes = [ordered]@{}
     foreach ($table in $commercialTables) {
         $commercialShapes["$table insert"] = ('(?i)^INSERT\s+INTO\s+' + $table + '\s*\([^)]*\)\s*VALUES\s*\([^()]*\)\s*;?\s*$')
@@ -1000,6 +1001,14 @@ function Invoke-ConfigurationPersistenceCheck {
     $structureSnapshotTables = @('structure_snapshot')
     $structureSnapshotInsert = '(?i)^INSERT\s+INTO\s+structure_snapshot\s*\([^)]*\)\s*VALUES\s*\([^()]*\)\s*;?\s*$'
     $structureSnapshotInsertsSeen = 0
+    # 3C2 (spec section 2.6; migration 0069; D-3C2.3, D-3C2.13): the agreed-change store is the sole runtime writer of
+    # agreed_action, and it runs exactly one plain INSERT INTO agreed_action (...) VALUES (...), binding plain
+    # parameters (no ON CONFLICT, no SELECT source), and no UPDATE, DELETE or TRUNCATE. The 0069 triggers refuse every
+    # change. The advisory-lock and identity SELECTs are reads. HELD FOR THE OWNER at merge (owner-away row 5).
+    $agreedActionWriter = "$backendRoot/actions/adapters/postgres_agreed_action_store.py"
+    $agreedActionTables = @('agreed_action')
+    $agreedActionInsert = '(?i)^INSERT\s+INTO\s+agreed_action\s*\([^)]*\)\s*VALUES\s*\([^()]*\)\s*;?\s*$'
+    $agreedActionInsertsSeen = 0
     # CH-1b (build sheet CH-1b section 7; migration 0044; ruling CH1b-R Q2): the event store is the sole runtime writer of
     # the event tables, and it runs exactly four statement shapes: INSERT INTO event_consumption (insert-only, no
     # ON CONFLICT); the snapshot_dirty mark (INSERT ... ON CONFLICT (pk) DO UPDATE SET marked_at = clock_timestamp(),
@@ -1063,6 +1072,7 @@ function Invoke-ConfigurationPersistenceCheck {
     $pgWriters += $accountWriter  # 3C0a: kept on its own line so the estate self-test anchors on the list above hold
     $pgWriters += $commercialWriter  # 3A1: on its own line, as the account writer
     $pgWriters += $structureSnapshotWriter  # 3B7a: on its own line, as the account writer
+    $pgWriters += $agreedActionWriter  # 3C2: on its own line, as the account writer
     # W4-01 Run 3 ruling 7: the work read adapter is a named reader (no write; the work store stays the sole writer).
     $pgReaders = @("$backendRoot/estate/adapters/postgres_estate_read.py", "$backendRoot/estate/adapters/postgres_evidence_money_read.py",
         "$backendRoot/work/adapters/postgres_work_read.py",
@@ -1603,6 +1613,22 @@ function Invoke-ConfigurationPersistenceCheck {
                     $failures.Add(("Only $structureSnapshotWriter writes structure snapshot table '$target'; " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
+                # 3C2: the agreed-change store runs only its one plain INSERT; no other module writes the table.
+                if ($module.Path -eq $agreedActionWriter) {
+                    if ($null -ne $target -and $agreedActionTables -contains $target -and
+                            $line -match $agreedActionInsert) {
+                        $agreedActionInsertsSeen++
+                    } else {
+                        $failures.Add(("The agreed-change store runs only one plain INSERT INTO agreed_action " +
+                            "(no UPDATE, DELETE, TRUNCATE, upsert, SELECT source or other table); " +
+                            "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    }
+                }
+                if ($null -ne $target -and $agreedActionTables -contains $target -and
+                        $module.Path -ne $agreedActionWriter) {
+                    $failures.Add(("Only $agreedActionWriter writes agreed-change table '$target'; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
                 if ($module.Path -eq $eventWriter) {
                     $eventShape = $null
                     foreach ($shape in $eventShapes.Keys) {
@@ -1949,6 +1975,11 @@ function Invoke-ConfigurationPersistenceCheck {
     if ($extractorRan -and $structureSnapshotInsertsSeen -lt 1) {
         $failures.Add(("Rule 8 found no INSERT INTO structure_snapshot statement in $structureSnapshotWriter, so the " +
             "structure snapshot writer check is vacuous. Update the check, do not delete it.")) | Out-Null
+    }
+    # 3C2: anti-vacuity for the agreed-change writer's one INSERT.
+    if ($extractorRan -and $agreedActionInsertsSeen -lt 1) {
+        $failures.Add(("Rule 8 found no INSERT INTO agreed_action statement in $agreedActionWriter, so the " +
+            "agreed-change writer check is vacuous. Update the check, do not delete it.")) | Out-Null
     }
     foreach ($shape in $eventShapes.Keys) {
         if ($extractorRan -and $eventShapesSeen[$shape] -lt 1) {

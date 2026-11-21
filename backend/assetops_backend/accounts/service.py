@@ -126,6 +126,11 @@ class AccountService:
         """(slug, name) of the principal's tenant (MB2)."""
         return self._store.tenant(principal.tenant_id)
 
+    def tenant_by_slug(self, slug: str) -> UUID | None:
+        """3A6 (D-3A6.17): the ID of the tenant with this slug, or None; the commands' one tenant lookup."""
+        found = self._store.tenant_by_slug(slug)
+        return None if found is None else found[0]
+
     # --- Organisation reads -----------------------------------------------------------------------------------------
 
     def people(self, principal: PersonPrincipal) -> tuple[PersonView, ...]:

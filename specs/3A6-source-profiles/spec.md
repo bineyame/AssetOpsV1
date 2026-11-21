@@ -1,8 +1,8 @@
 # 3A6: source profiles as data (implementer spec)
 
-Status: **spec rev 2, handshake round 1 answered** (`rulings.md` "Handshake answers (round 1)"; coding may start).
+Status: **in_review**, rev 3 amendments from review r1 (D-3A6.18 to D-3A6.22; `rulings.md` "Review answers (r1)") (built on rev 2, 21 Nov; packet `packet.md`). Handshake round 1 answered (`rulings.md`).
 Questions during the build: `mid-build-questions.md`. Reviewer: `reviewer-guide.md` rev 2. Decisions with reasons:
-`rulings.md` (D-3A6.1 to D-3A6.17).
+`rulings.md` (D-3A6.1 to D-3A6.22).
 
 Architect (Claude), 2026-11-20. Lane A (sources), the deep-dive path's unit 5 (`two-week-build-plan.md` §0.1 row 5;
 D-BW1.8, D-BW1.11; owner RC2 "build 3A6; hand reshaping stays the fallback", RC4 real data only in its own database
@@ -260,7 +260,8 @@ expected_sha256, already: ProfileRow | None)`. `check` and `admit` run the same 
 3. **Lineage and version.** `rows = store.source_profiles_all(tenant_id, profile_id)` (every version). If one has
    `profile_sha256` equal to the file's: `already` is that row (`admit` returns it, writes nothing; the command says
    `ALREADY_ADMITTED`). Else a row whose `source_type` or `source_system` differs from the file's is
-   `PROFILE_LINEAGE`; `version = max(versions) + 1` or 1. Another `profile_id` of the tenant whose latest row has the
+   `PROFILE_LINEAGE`; a file whose `personal` differs from the latest row's, while the tenant holds an ACCEPTED upload
+   with this `source_system`, is `PROFILE_LINEAGE {where: "personal"}` (rev 3, D-3A6.18); `version = max(versions) + 1` or 1. Another `profile_id` of the tenant whose latest row has the
    same `source_system` is `PROFILE_SOURCE_SYSTEM_TAKEN {system}`.
 4. **Sample.** At most 1 MiB. `reader = LayoutReader(compile_profile(obj, version))`; `read = reader.read(sample,
    context=ReadContext(slug, clock(), real_data))` (`slug = store.tenant_slug(tenant_id)`; None is
@@ -703,7 +704,11 @@ mirrors them.
 - A2 Changed profile (rev 2: v1 plus `personal` `[["body.counterparty_ref", "P"]]`; same sample and expected file)
   admits as v2; uploads naming v1 are 422
   `UPLOAD_READER_SUPERSEDED` with `latest` v2; a v2 with `source_system` changed is `PROFILE_LINEAGE`; a new
-  `profile_id` with the same `source_system` is `PROFILE_SOURCE_SYSTEM_TAKEN`.
+  `profile_id` with the same `source_system` is `PROFILE_SOURCE_SYSTEM_TAKEN`. (Rev 3: this v2 is admitted only while no
+  upload with the system is accepted; A2b below.)
+- A2b Personal change after data (D-3A6.18): after U1's accepted upload, the v2 of A2 is `PROFILE_LINEAGE {where:
+  "personal"}` with the words in D-3A6.18, nothing written; a v2 that changes only the sample, or `personal` listed in
+  another order, is admitted; the same v2 before any accepted upload is admitted (A2).
 - A3 Status: ILLUSTRATIVE with `real_data=True` is `PROFILE_STATUS`; PINNED with `real_data=False` is
   `PROFILE_STATUS`.
 - A4 Sample: 2 data rows is `ADMIT_SAMPLE_SIZE` (2); a row with `Litres` `4OO` is `ADMIT_SAMPLE_ROW` row 4
@@ -718,7 +723,7 @@ mirrors them.
   (d) writes the raw cell on a bad date, (e) writes `"0"` for a blank amount, (f) ignores the header's order. Each
   gives `ADMIT_PROBE` P2, P3, P4, P5, P6, P1 respectively; the true `read_rows` passes all six.
 - A9 Coverage (D-3A6.11): (a) the kobo profile with `State` map `{"Invoiced": "INVOICED", "Paid": "PAID", "Quote":
-  "INVOICED"}` is `ADMIT_MAP_UNCOVERED {header: "State", value: "Quote"}`; (b) the kobo sample with every `Litres` cell
+  "QUOTE"}` (rev 3, D-3A6.19: one to one; `QUOTE` is an expense status) is `ADMIT_MAP_UNCOVERED {header: "State", value: "Quote"}`; (b) the kobo sample with every `Litres` cell
   emptied is `ADMIT_COLUMN_EMPTY {header: "Litres"}`.
 - A10 Ambiguity (D-3A6.11): (a) the kobo sample with `Txn Date` `11/10/2026 09:00`, `12/10/2026 09:00`,
   `10/10/2026 17:00`, `09/10/2026 17:30` is `ADMIT_DATE_AMBIGUOUS`; (b) the kobo sample with `Net (USD)` `500`, `475`,

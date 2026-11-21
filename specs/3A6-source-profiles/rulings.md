@@ -312,3 +312,68 @@ section numbers below are rev 2's. A gate named here has a plant in `reviewer-gu
   so snapshots built before these merges read stale; that is the digest working. The coordinator rebuilds any demo
   snapshots after 3A7 merges.
 - **P10.** Noted; the digests and literals stand (kobo's new digests are in §4.1).
+
+## Review answers (r1) (review `.agent/review-3A6-r1.md`, head f3ccbd0b1; Architect, 2026-11-21)
+
+F1 (XLSX padding, High) and F2 (short CSV row, Medium) are straight fixes, no ruling; the reviewer's fixes stand
+(sparse rows `{index: value}` with an N3 case at `XFD` and a plant; `_coverage` judges only rows of header width, A4 gains
+the short-row case, `ADMIT_SAMPLE_ROW NATIVE_ROW`).
+
+### D-3A6.18 A change to `personal` is refused once data is accepted; a migration step is a queued unit (F3; amends D-3A6.16, spec §2.5 step 3)
+
+- **Ruling.** Step 3 refuses a new version whose `personal` set (compared as a set of `[path, class]`, order ignored)
+  differs from the latest version's, when the tenant holds an ACCEPTED upload whose `source_system` is the profile's
+  (`PROFILE_LINEAGE {where: "personal"}`, exit and HTTP as the other lineage refusals, nothing written). Before any
+  accepted upload the change is admitted, as in A2. Words: "This profile already read accepted files, so who counts as a
+  person cannot change under the same source. Records already stored would keep the old values. Ask for the migration, or
+  keep the declaration as it is." The residual in `packet.md` is replaced (see below). The store answers the question through
+  the existing `held_uploads(tenant, source_system)` (accepted only; no new port), in both the memory and Postgres mirrors.
+- **Why.** The three ways out are all unsound today: the row digest ignores `personal`, so unchanged rows would conflict
+  (INTAKE_VERSION_CONFLICT) on every upload; a new `profile_id` is closed by D-3A6.5's one-system rule, rightly; and
+  folding `personal` into the digest revises every record, which stores a second copy while the raw first copy stays
+  (the leak PII-1 forbids), and cannot cover `column` or `constant` versioning. A refusal that says so is honest and
+  loses nothing: before data, the analyst fixes `personal` freely, and that is the moment the mistake is cheapest.
+- **Queued, not built (owner RC4 gate: real data needs it first).** Unit `3A6b` "personal migration": a profile version
+  on the same system where pseudonymisation applies forward; every already-stored raw value of the newly personal
+  paths is listed for erasure (path, record ID, count; never the value); unchanged rows are matched by row digest
+  of the normalised row (taken before pseudonymisation) and reported UNCHANGED, not conflicted. Default: Architect specs
+  it when the owner names real data for a tenant; not demo-critical (illustrative data only).
+- **Tests and plants.** A2b above (accepted upload refuses; unaccepted, set-equal, sample-only change admit); the
+  Postgres file gains the same case (refusal reads the accepted row, nothing written). Plants: V33 (the check removed:
+  A2b fails); V34 (counts waiting uploads too: A2's v2 before any acceptance fails, because U1 is only waiting there);
+  V35 (compares `personal` as an ordered list: A2b's reordered case fails).
+- **Packet residual, replaced.** "A change to `personal` after accepted data is refused (D-3A6.18); the migration is unit
+  3A6b. Until then raw values from before the declaration cannot arise, because the declaration is fixed before the first
+  accepted upload."
+
+### D-3A6.19 Q1: profile maps stay one to one; A9 (a) uses `QUOTE` (mid-build Q1; F7)
+
+- **Ruling.** Confirmed: the substitution stands, with `"Quote": "QUOTE"` in place of `DRAFT` (`QUOTE`, `INVOICED`, `PAID`
+  are the expense statuses, `records_v1.py:205`). Spec A9 (a) amended to that literal; the test follows. Maps stay one to
+  one for every layout (`check_layout` unchanged).
+- **Why.** 4b fires on the uncovered key before any value is judged, so the value cannot change the test; one to one
+  keeps 3A3's rule single. Many to one ("Paid", "Paid in full") is a real operator need, but it is a change to the
+  shared `check_layout` and its rendering; queued with 3A6b, ruled when an operator export needs it.
+
+### D-3A6.20 The Lows (F4 to F9) and the deviations
+
+- **F4 confirmed.** A cell with `<f>` and no `<v>` becomes `XlsxBad("")`, so a written column refuses `NATIVE_FORMAT`; N3 case plus plant.
+- **F5 confirmed.** Row number read with `re.fullmatch(r"[0-9]+", r, re.ASCII)`; `²` is `NATIVE_WORKBOOK`; N3 case plus plant.
+- **F6 confirmed.** Flag any load reference (not only calls) to a name in `DYNAMIC_CALLS` or `EVAL_CALLS`, and count
+  `ImportFrom("assetops_backend", names ∋ "commercial")` as importing the package; two plants, each failing only its clause.
+- **F8 confirmed.** Use the spec's literal `2026-10-11 09:00` for `bad_clock`.
+- **F9 confirmed.** The loader keeps `dispose` from `build_source_profiles` and calls it in `finally`.
+- **Deviations.** 5 (`held_uploads` on `UploadMemoryStore`; done 11 lists it), 6 (`code_digest.py` allowlisted) and 7
+  (coverage before row refusals, with F2's guard) accepted.
+
+### D-3A6.21 Residuals recorded (reviewer's sweep)
+
+Not fixed here, named in the packet: an interior U+00A0, U+3000 or U+034F inside a ref is not refused (Zs, Mn) and can
+split a pseudonym (class: ref normalisation, queue with 3A6b); `fold=0` picks the first of a repeated DST hour (profiles
+state a fixed-offset zone today; a DST zone needs its own ruling); the profile reader trusts admission and upload to
+share one database.
+
+### D-3A6.22 Fix round for the builder
+
+F1, F2, F4, F5, F6, F8, F9, A2b with Postgres twin, A9 (a) `QUOTE`, the packet residual and done 11 wording; a Sonnet
+fix round (ROLE_CONFIG), then a fresh Claude re-review.

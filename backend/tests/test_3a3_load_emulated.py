@@ -64,16 +64,8 @@ def test_no_connect_fixture_holds() -> None:
 # --- the in-memory world ---------------------------------------------------------------------------------------------
 
 class HeldMemoryStore(UploadMemoryStore):
-    """3A2's in-memory upload store plus spec §2.8's `held_uploads`, mirroring the adapter's query."""
-
-    def held_uploads(self, tenant_id: UUID) -> tuple[HeldUpload, ...]:
-        out = []
-        for u in sorted((u for u in self.uploads if u.tenant_id == tenant_id), key=lambda u: str(u.id)):
-            found = [d for d in self.decisions if d.tenant_id == tenant_id and d.upload_id == u.id]
-            if found and found[0].decision != "ACCEPTED":
-                continue
-            out.append(HeldUpload(u.id, u.source_type, u.reader, u.file_sha256, not found, u.submitted_by))
-        return tuple(out)
+    """3A2's in-memory upload store; spec §2.8's `held_uploads` mirror moved into it with 3A6 (its intake reads
+    `held_uploads` on every check)."""
 
 
 @pytest.fixture(scope="module")
@@ -304,13 +296,69 @@ def test_l5_path_is_the_reader_id(w, tmp_path, emulated, capsys) -> None:
     """F6: a held expenses upload read by another reader (`profile-x`) refuses the illustrative layout."""
     directory = write_files(tmp_path / "x", emulated)
     assert run(w, directory, accept=None, capsys=capsys)[0] == 0
-    w.store.uploads = [dataclasses.replace(u, reader="profile-x") if u.source_type == "expense_ledger" else u
-                       for u in w.store.uploads]
+    w.store.uploads = [dataclasses.replace(u, reader="profile-x", source_system="profile-x-system")  # 3A6 (§6)
+                       if u.source_type == "expense_ledger" else u for u in w.store.uploads]
     assert any(u.reader == "profile-x" for u in w.store.uploads)
     before = len(w.store.uploads)
     code, lines, err = run(w, directory, accept=None, capsys=capsys)
     assert (code, lines) == (2, []) and err.startswith("EXPORT_PATH_SWITCHED expense_ledger ")
     assert len(w.store.uploads) == before
+
+
+# --- 3A6 L7 to L9 (spec §2.8, §6 "Loader, no database"): admitted source profiles --------------------------------
+
+def profiled(people, *, admitted: bool = True) -> SimpleNamespace:
+    from test_3a6_source_profiles import KOBO_EXPECTED, KOBO_PROFILE, KOBO_SAMPLE, make_world as profile_world
+
+    w = profile_world(people)
+    w.accounts = people.svc
+    if admitted:
+        w.profiles.admit(w.tid, w.ana, KOBO_PROFILE, KOBO_SAMPLE, KOBO_EXPECTED)
+    w.kobo_sample = KOBO_SAMPLE
+    return w
+
+
+def run_profiled(w, directory: Path, capsys) -> tuple[int, list[dict], str]:
+    argv = ["--dir", str(directory), "--tenant", "acme", "--submit-as", "ana@acme.example", "--accept-as",
+            "fiona@acme.example"]
+    code = loader.main(argv, uploads=w.svc, accounts=w.accounts, profiles=w.profiles)
+    out, err = capsys.readouterr()
+    return code, [json.loads(line) for line in out.splitlines()], err
+
+
+def test_l7_profile_file_loads_beside_a_template_file(people, tmp_path, emulated, capsys) -> None:
+    w = profiled(people)
+    directory = tmp_path / "x"
+    directory.mkdir()
+    (directory / "acme.billing.csv").write_bytes(render_layout(LAYOUTS["billing-illustrative-1"], emulated["billing"]))
+    (directory / "acme.profile.kobo-ledger-expenses.csv").write_bytes(w.kobo_sample)
+    code, lines, err = run_profiled(w, directory, capsys)
+    assert code == 0, err
+    assert [(l["file"], l["state"]) for l in lines] == [("acme.billing.csv", "ACCEPTED"),
+                                                       ("acme.profile.kobo-ledger-expenses.csv", "ACCEPTED")]
+    assert {u.reader for u in w.store.uploads} == {"billing-illustrative-1", "profile.kobo-ledger-expenses.v1"}
+
+
+def test_l8_profile_not_admitted(people, tmp_path, capsys) -> None:
+    w = profiled(people)
+    directory = tmp_path / "x"
+    directory.mkdir()
+    (directory / "acme.profile.nope.csv").write_bytes(w.kobo_sample)
+    code, lines, err = run_profiled(w, directory, capsys)
+    assert (code, lines) == (2, []) and err.startswith("PROFILE_NOT_ADMITTED acme.profile.nope.csv ")
+    assert w.store.uploads == []
+
+
+def test_l9_template_beside_profile_of_one_source_type_is_mixed(people, tmp_path, emulated, capsys) -> None:
+    w = profiled(people)
+    directory = tmp_path / "x"
+    directory.mkdir()
+    (directory / "acme.expenses.csv").write_bytes(render_layout(LAYOUTS["expenses-illustrative-1"],
+                                                                emulated["expenses"]))
+    (directory / "acme.profile.kobo-ledger-expenses.csv").write_bytes(w.kobo_sample)
+    code, lines, err = run_profiled(w, directory, capsys)
+    assert (code, lines) == (2, []) and err.startswith("EXPORT_PATHS_MIXED expense_ledger ")
+    assert w.store.uploads == []
 
 
 def test_parser_is_public() -> None:

@@ -22,3 +22,5 @@ simulator/tests/world/**/*.json text eol=lf
 # DS1p (R24): the pack history file and its manifest are byte-pinned (check H10, tools/world_history.py check)
 Docs/demo-sprint/product-direction-layer4/history.json text eol=lf
 Docs/demo-sprint/product-direction-layer4/demo-site-scenario-manifest.yaml text eol=lf
+# 3A6: byte-pinned source-profile fixtures (CRLF and cp1252 kept)
+backend/tests/fixtures/3a6/* -text
