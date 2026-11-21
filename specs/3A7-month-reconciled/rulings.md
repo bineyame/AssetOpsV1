@@ -159,6 +159,9 @@ Architect (Claude), 2026-11-20. Applied by default; open questions with defaults
   word such as "Set" is a vocabulary class question for SC-1, raised at the walkthrough; changing it there changes this
   sentence with no 3A7 code change.
 
+- **Amended (owner item 7, 2026-11-21): D-SC1F.1, D-SC1F.2.** The tolerance reads "within 1% (Declared)"; the
+  accounts figure is `RECORDED` (one 3A7 constant). Specified in `specs/SC-1f-declared-word/spec.md`.
+
 ## Handshake answers (round 1)
 
 Architect (Claude), 2026-11-20, on `task/3A6-3A7-handshake` c01baa35a. Every answer is folded into `spec.md` rev 2. A
