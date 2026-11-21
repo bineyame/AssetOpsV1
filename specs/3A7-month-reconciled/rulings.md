@@ -218,7 +218,7 @@ structured statements in `i18n/statements/en/reconciliation.py`, not flat `messa
 exactly as SC-1 §5.1 (states as an `exhaustive` variant set, `{gap}` and `{share}` as parts, D-3A7.10's rounding as
 variant options, "less than 0.01" as the money format's `tiny`); the statement, standing and refusal sentences by the
 same rules (refusal examples as `example` slots); `money_word` applies the shared `evidence` format (D-SC1.16);
-`commercial/reconciliation.py` joins the guard's `ADOPTED`; every variant gets a case. Money reads in SC-1's one form
+`structure/reconciliation.py` (D-3A7.14) joins the guard's `ADOPTED`; every variant gets a case. Money reads in SC-1's one form
 (D-SC1.10): `$505.00`, not `505.00 USD`; this unit's expected strings change by that rule only. Otherwise §2.7 ships as
 written, its keys join the legacy baseline, and SC-1b converts them. Either way nothing waits.
 
@@ -234,3 +234,38 @@ unit's expected strings change by these rules only; the packet lists each change
 
 **Amended (owner away, 2026-11-21; D-SC1.28 replaces D-SC1.26's start rule above).** Code starts on 3A6's merge; only the
 text waits: commit 1 is migration 0068, store, adapter and the standing as codes and `Decimal`s, R1 to R10 without word assertions; commit 2, after SC-1a merges and `main` is merged in, is §2.7 as statements, composition, the command, M1 to M5, Q1 to Q3 and the word assertions (D-SC1.28). The unit merges only after SC-1a.
+
+## Mid-build answers (RULES §4 item 7; Architect, owner away, 2026-11-21)
+
+### D-3A7.14 Reconciliation is a structure read over commercial records; the service lives in `structure/` (Q2, High)
+
+- **Ruling.** The service is `structure/reconciliation.py`; the records stay in `commercial/` (statement and tolerance
+  rows, store, adapter, migration 0068). Dependency direction: `structure` imports `commercial`, never the reverse.
+  Its builder is `structure/reconciliation_composition.py::build_commercial_reconciliation(database_url, *,
+  owner_file=None) -> (CommercialReconciliation, dispose)`; it reaches the store only through
+  `commercial.composition.build_commercial_reads` (which exposes `months` and `store`), so it imports no adapter and
+  the persistence guard needs no change. `commercial/composition.py` gains nothing. D-3A4.8 stands unchanged.
+- **Why.** Reconciliation compares commercial records against the structure's vocabulary (`COST_STATUSES`,
+  `ORIGIN_ORDER`, `SITE_TYPE_TO_STRUCTURE`) to decide what may be called reconciled: it is a reading of the structure
+  over records, like `structure/money.py`, not a record. D-3A4.8 exists to keep `commercial` free of `structure`
+  (cycle with 4b's provider); moving the service honours it, weakening it would not. P4 of the handshake (digest of
+  3B7a changes) no longer applies: `commercial.composition` is untouched.
+- **Readers.** 5c and DDR name `build_commercial_reconciliation`, `CommercialReconciliation`, `MoneyStanding` and
+  `money_word` by name, never by path (checked: 5c spec lines 21, 193; DDR spec line 13); they import from
+  `assetops_backend.structure.reconciliation` and `...reconciliation_composition`. No 5c or DDR text changes.
+  The SC-1 amendment's `ADOPTED` join is the existing list with the new path, not a guard change.
+
+### D-3A7.15 The owner file reaches the service through the `owner_file` port; the command builds the reader (Q1)
+
+- **Ruling.** Confirmed: `CommercialReconciliation(months, store, *, owner_file=None)`, `owner_file(owner_ref) ->
+  bytes | None`; the service keeps every §2.4 rule and the SHA-256 of the bytes; None means no tolerance can be set
+  (1% stands). Correction to the default: the builder does not open files either. `build_commercial_reconciliation`
+  takes `owner_file` as a parameter; `reconcile_month.py` (§5) builds the reader from `owner_root` (pathlib there) and
+  passes it. Tests inject an in-memory port.
+- **Why.** One seam, no storage technology in the service or its composition, so no guard exemption. A guard change
+  beyond joining an existing list stays with the owner; none is needed.
+
+### Other
+
+The fast check-all failure (decision-index cannot find `D-SC1.*`) is the 3A6 base predating those IDs; merging main
+clears it, no ruling. Q1 and Q2 are answered; the count stays 2 (a spec-template defect: §3 did not check D-3A4.8).

@@ -103,11 +103,12 @@ VOCABULARY = {
     },
     "noun": {
         "forms": ["one", "other"],
-        "order": ["site", "budget_disagreement", "reading"],
+        "order": ["site", "budget_disagreement", "reading", "character"],
         "entries": {
             "site": {"one": "Site", "other": "Sites"},
             "budget_disagreement": {"one": "budget disagreement", "other": "budget disagreements"},
             "reading": {"one": "reading", "other": "readings"},
+            "character": {"one": "character", "other": "characters"},  # 3A7: a refusal's length limit
         },
     },
     "month": {

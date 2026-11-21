@@ -316,7 +316,11 @@ def test_t7_legacy_refuses_facts_and_structured_refuses_text():
 
 def test_t8_shipped_catalogue_loads():
     cat = catalogue._load()
-    assert set(cat.statements["en"]) == {"common.not_available", "common.budget_lines"}
+    assert set(cat.statements["en"]) == {"common.not_available", "common.budget_lines",
+                                         # 3A7 (D-SC1.28): its statements, SC-1 sections 5.1 and 5.4 among them
+                                         "reconciliation.heading", "reconciliation.gap", "reconciliation.share",
+                                         "reconciliation.scope", "reconciliation.statement", "reconciliation.standing",
+                                         "reconciliation.money_word", "reconciliation.refused"}
     assert set(cat.vocabulary["en"]) == {"factor", "heading", "headline_subject", "record", "record_noun",
                                          "evidence", "unit", "noun", "month", "format"}
 

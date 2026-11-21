@@ -1,4 +1,5 @@
-"""3A1 (spec §4.1; R4, R6, R7, P2, P7): the commercial record store port. 3A2 (spec §3.5): uploads and decisions."""
+"""3A1 (spec §4.1; R4, R6, R7, P2, P7): the commercial record store port. 3A2 (spec §3.5): uploads and decisions.
+3A7 (spec §4): the management accounts' statements, the tolerance rows and the Site rows."""
 from __future__ import annotations
 
 from datetime import datetime
@@ -6,7 +7,8 @@ from typing import Callable, Mapping, Protocol
 from uuid import UUID
 
 from assetops_backend.commercial.model import (ExistingRecord, HeldUpload, IntakeSummary, Plan, ProfileRow,
-                                               RevisionRow, UploadDecisionRow, UploadRecord, UploadRow)
+                                               RevisionRow, SiteRow, StatementRow, ToleranceRow, UploadDecisionRow,
+                                               UploadRecord, UploadRow)
 
 
 class CommercialStore(Protocol):
@@ -84,3 +86,20 @@ class CommercialStore(Protocol):
 
     def add_source_profile(self, row: ProfileRow) -> None:
         """Insert one admitted version; a unique key refuses with `StoreRefused(<key name>)`."""
+
+    # --- 3A7 (spec §4; D-3A7.5, D-3A7.11, D-3A7.12): the management accounts and the tolerance -------------------
+
+    def add_accounts_statement(self, row: StatementRow) -> None:
+        """Insert one statement (append-only)."""
+
+    def accounts_statements(self, tenant_id: UUID) -> tuple[StatementRow, ...]:
+        """Every statement of the tenant, by (recorded_at, id)."""
+
+    def add_tolerance(self, row: ToleranceRow) -> None:
+        """Insert one tolerance row (append-only)."""
+
+    def tolerances(self, tenant_id: UUID) -> tuple[ToleranceRow, ...]:
+        """Every tolerance row of the tenant, by (set_at, id)."""
+
+    def site_rows(self, tenant_id: UUID) -> tuple[SiteRow, ...]:
+        """Every Site of the tenant (ID, code, type), by site_code."""
