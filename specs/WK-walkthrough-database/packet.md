@@ -60,6 +60,23 @@ then stops and drops. No database was created, opened or dropped while building.
 
 Layout evidence: not run. The tool adds no layout. The smoke PNGs come from the coordinator's §5 run.
 
+## Fix round 2 checks (code `709611c8a`)
+
+- `pwsh -NoProfile -File tools/check-all.ps1` (fast) at `709611c8a`: All 42 guards passed (141.6 s wall).
+
+- `pytest -q tests/test_wk_walk_world.py tests/test_ds4_world.py tests/test_ds4_batch_days.py` (no database): 173 passed
+  in 5.72 s. WK alone: 93 passed.
+- Plants (WK file each time, restored after): Q1 round-1 fallback restored (session and start >= leader), 2 failed
+  (`refuses_a_foreign_group_after_a_pid_wrap`, `refuses_a_recorded_pid_with_another_start_time`). Q2 RV-A session check
+  removed, 1 failed (`refuses_a_recorded_member_in_another_session`). Q3 recorded start time ignored, 1 failed. Q4
+  zombie leader not gone, 2 failed. Q5 no tracking during the wait, 1 failed (`failed_serve_stops_members_seen_while_waiting`).
+  Q6 no tracking at success, 1 failed (`records_a_member_started_at_readiness`). Q7 zombie members counted live, 1 failed.
+- Live stop check (scratch package, dev script `sleep 30 #`, 5491 probe `busy False`, npm 11.19.1, node v24.22.3).
+  A, normal stop: 3 members recorded, `checked` None, `stop_child` None, group empty but the unreaped leader, `alive`
+  False, 2.7 s. B, npm SIGKILLed and left a zombie: `checked` gone, `members` = the 2 live recorded members, `stop_child`
+  None, group emptied, 2.8 s. The first run of A took 12.6 s: the zombie leader counted as a live member, so stop
+  waited 10 s and sent SIGKILL. Zombie members are now skipped (Q7).
+
 ## Fix round 1 checks (revision `e9d5cd992`; code `7218b2835`)
 
 - `pytest -q tests/test_wk_walk_world.py tests/test_ds4_world.py tests/test_ds4_batch_days.py` (no database): 164 passed
@@ -100,9 +117,13 @@ Layout evidence: not run. The tool adds no layout. The smoke PNGs come from the 
    exact on every token: the argv itself, `node <path>/npm ...`, or one retitled string, including npm 11's
    `npm run dev --port 5491 --strictPort --host 127.0.0.1` (no `--`). Wrappers (`bash -c`, `sh -c`, `timeout`) never
    match. Any failed check reports `WALK_PID_REUSED <pid> <check>` (`start_time`, `not_leader`, `pgid`, `cmdline`,
-   `unrecorded`, `group_unverified`) and sends no signal. L4: with the leader gone, the recorded group is signalled
-   only when every live member is in the recorded session and started at or after the recorded start time; else
-   `group_unverified`. A failed serve uses the same checks with SIGKILL once. Live check (scratch package, dev script
+   `unrecorded`, `group_unverified`) and sends no signal. L4, bounded in fix round 2 (M3): during the serve wait and
+   once at success, `Procs.track` records every process in the child's group and session as `members: [[pid,
+   start_time], ...]`, only while the recorded leader still holds the group id. With the leader gone, or an unreaped
+   zombie with the recorded start time (L5), the recorded group is signalled only when every live (non-zombie)
+   member is a recorded `[pid, start_time]` pair in the recorded session (L6); any other member gives
+   `group_unverified`. A member Vite starts after serve succeeds is unrecorded, so with the leader gone it refuses
+   (fail-safe). A failed serve uses the same checks with SIGKILL once. Live check (scratch package, dev script
    `sleep 30 #`, no port opened): npm 11.19.1 retitled to that string, `checked` passed and `stop_child` stopped the
    group (npm, sh, sleep) in 2.9 s.
 7. **Small additions.** `WALK_CAP_EXCEEDED` (exit 5). A refusal raised inside a check (a stale parent in W1) becomes
