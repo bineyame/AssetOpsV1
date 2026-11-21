@@ -116,6 +116,12 @@ Evidence: `/opt/assetecon/evidence/5c/unit3b/`.
   eight plants on A each exit 1 (`gates-summary.txt`, `plant-*.jsonl`). 0 page errors, 0 texts under 12 px.
 - **Shots** (`shots/`): `{A,H,X}-{1440x900,1280x720,390x844}-{light,dark}.png` and the D-headline views; drawer shots
   `{X,H}-{390x844,1440x900}-light-fuel-cost-drawer.png` (`drawer-shots.jsonl`). Dark renders light (MBQ3).
+- **Drawer shots** at 390 and 1440: World X's fuel-cost drawer shows drivers "−KES 600.00", "−KES 37.50", "−KES 412.50",
+  "−KES 150.00", "KES 0.00" and the out-lines "Kisiwa: not split this far." and Mto's currency line; focus on Close,
+  0 errors, width = viewport.
+- **check-all (fast), once:** `bash tools/heavy-slot.sh --wait-seconds 3000 -- pwsh -NoProfile -File
+  tools/check-all.ps1` at 915d42288, 313 s wall: all 42 blocking guards passed (missing-claim scan passed with the
+  exemption unchanged). `check-architecture.ps1` and `check-agent-workflow.ps1`: passed. Log `check-all.log`.
 - **Guard (for the reviewer).** The missing-claim scan exemption `DD_NOT_AVAILABLE_TITLE`
   (`tools/checks/missing-claim-scan.mjs:86`) stays as it was: a builder-added named exemption for the section title
   "What is not available yet" (spec §5.2, D-5C.11, D-5C.14). Review point unchanged.
