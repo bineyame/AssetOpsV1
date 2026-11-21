@@ -197,3 +197,6 @@ reworded to drop it (D-SC1.21): `standing.none_matched` reads "Not yet reconcile
 fuel cost match the management accounts within {tolerance} yet." The command's printed sentences render the same
 statements; any message the command stores or prints as JSON params goes through `i18n.to_wire` (D-SC1.19). This
 unit's expected strings change by these rules only; the packet lists each changed string for the walkthrough.
+
+**Amended (owner away, 2026-11-21; D-SC1.28 replaces D-SC1.26's start rule above).** Code starts on 3A6's merge; only the
+text waits: commit 1 is migration 0068, store, adapter and the standing as codes and `Decimal`s, R1 to R10 without word assertions; commit 2, after SC-1a merges and `main` is merged in, is §2.7 as statements, composition, the command, M1 to M5, Q1 to Q3 and the word assertions (D-SC1.28). The unit merges only after SC-1a.

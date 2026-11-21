@@ -480,3 +480,10 @@ Branch `task/SC-1a-composer` (base main `8805ee169`); spec `specs/SC-1-statement
 
 - Settled: `backend/assetops_backend/i18n/` gains typed facts, one format per slot type, one condition evaluator, the load check, `render`/`served` over structured statements (legacy entries unchanged), the wire form, the English vocabulary and `common.*`; worked statements for 3A7 and 5c live in the test catalogue (`backend/tests/statement_cases/`). Guard `tools/checks/statement_catalogue.py` (+ `--self-test`, 40 plants): load, a case per variant, legacy hash ratchet (123 keys), three-scope hand-built scan (mechanism positive, `ADOPTED` positive and empty, ratchet baseline 320 paths / 5,900 fingerprints from main), `KEY_INSTANCE`, `I18N_PRIVATE`/`I18N_BYPASS`, `MECH_UNSCOPED`.
 - Open: the two check-all lines await owner approval at merge (owner-away row 5); the index-check failure the mid-build branch brought in (fixed by merging `main`, which also means rewriting the hand-built baseline from `main`); 3A7 and 5c adopt (`ADOPTED`), SC-1b converts the legacy templates.
+
+## 3B2 - Findings pinned to their factors (in review, 21 Nov)
+
+Branch `task/3B2-findings-pinned` (base main `c69e72f61`); spec `specs/3B2-findings-pinned/spec.md` rev 2, rulings D-3B2.1-15; packet `packet.md`. No migration, no route, no screen, no served text.
+
+- Settled: `structure/pins.py` (`PINS`: GENERATOR_SUPPORT_CANDIDATE -> MINI_GRID/`candidate_l`, UNEXPLAINED_FUEL -> MINI_GRID/`unexplained_l`; `PENDING_PINS` for the two cold and one EV mechanism; `pinned_category` from the row's home at call time; `parity()` in the pin's own domain); `check.check_pins` and `PIN_CODES` (STRUCTURE_PIN, _TOTAL, _DUPLICATE, _UNKNOWN, _MISSING), run by `check_all()` on the start-up path only. The outcome map's wire is unchanged; the one ruled difference is UNEXPLAINED_FUEL (Protect in the literal, Optimize in the registry, D-3B2.4).
+- Open: `3B5` switches the wire to the pins applying D-3B2.4; `3B6` moves the pending pins onto their registries; the `-` structure key in `STRUCTURE_PIN_MISSING`'s text is for review.

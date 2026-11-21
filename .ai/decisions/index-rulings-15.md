@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-SC1.1 to D-SC1.27)
+# Decision index: Demo-sprint and later rulings (index only) (D-SC1.1 to D-SC1.28, D-3C2.14, D-0K1.1 to D-0K1.9, D-DS3.1 to D-DS3.8)
 
 - `D-SC1.1` Extend the i18n message seam; i18n.render stays the one renderer · live · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.2` Typed facts; every figure carries its evidence; absence is Absent, never None or 0 · live · specs/SC-1-statement-composer/rulings.md
@@ -25,8 +25,27 @@
 - `D-SC1.23` Absent carries a declared reason; reason operator in conditions · live · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.24` Tiny always on for every figure type: a non-zero figure never reads as zero · live · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.25` Price fact and format (2 or 4 places, per unit) · live · specs/SC-1-statement-composer/rulings.md
-- `D-SC1.26` 3A7 and 5c code starts after SC-1a merges; legacy fallback withdrawn (amends D-SC1.14) · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.26` 3A7 and 5c code starts after SC-1a merges; legacy fallback withdrawn (amends D-SC1.14) · live; amended by D-SC1.28 · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.27` Legacy baseline pins each template by hash (LEGACY_CHANGED) · live · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.29` Legacy `i18n` modules (`messages.py`, `locale.py`) sit in the ratchet, named and pinned; new i18n files must be in scope (`MECH_UNSCOPED`) · live · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.30` Mechanism names (`const`, `params`, `fact`, fact fields) read as identifiers, not added to `SYSTEM`; listed in §3.12 · live · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.31` §5.1 `records` slot reads `in_sentence`; 3A7 transcribes it so · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.28` Text waits for SC-1a, code does not: non-text commit first, statements after SC-1a merges, merge after SC-1a (amends D-SC1.26; owner away) · live · specs/SC-1-statement-composer/rulings.md
+- `D-3C2.14` 3C2 state words and refusal sentences as SC-1 statements in a commit after SC-1a; 3A7 merges first (D-SC1.28) · live · specs/3C2-agreed-change-action/rulings.md
+- `D-0K1.1` A separate one-method ForwardReplayPort; LabExecutionPort untouched · live · specs/0K1-forward-replay-port/rulings.md
+- `D-0K1.2` A replay is the base run's frozen world with the request's series, start and settings; settings as kernel overrides · live · specs/0K1-forward-replay-port/rulings.md
+- `D-0K1.3` Only mini-grid v5 to v7 replay · live · specs/0K1-forward-replay-port/rulings.md
+- `D-0K1.4` PV-available inverted to irradiance exactly; a clipped step flagged, not refused · live · specs/0K1-forward-replay-port/rulings.md
+- `D-0K1.5` A gap in a series is refused (INPUT_GAP); no fill rule in 0K1 · live · specs/0K1-forward-replay-port/rulings.md
+- `D-0K1.6` Projection neutral and MODELLED; a kernel failure is a FAILED projection, not a refusal · live · specs/0K1-forward-replay-port/rulings.md
+- `D-0K1.7` Proof is exact equality with the kernel's own trajectory; calibration is 0K2's · live · specs/0K1-forward-replay-port/rulings.md
+- `D-0K1.8` 0K1 has no user-facing text (D-SC1.28 not engaged) · live · specs/0K1-forward-replay-port/rulings.md
+- `D-0K1.9` Exact numbers only at the port (Fraction; float refused) · live · specs/0K1-forward-replay-port/rulings.md
+- `D-DS3.1` Bulk evidence load is set-based INSERT ... SELECT FROM unnest in the ledger's one writer, not COPY into staging (owner away, row 9) · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.2` Commercial records keep one path, 3A2's intake via the existing loader; no commercial parity half (row 10) · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.3` Parity is row equality on the input tables; recompute jobs compared by coverage · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.4` A batch already published for a registered run is refused in bulk · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.5` The bulk path admits clean batches only (rejection or collision refuses the batch) · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.6` Bulk load: SIMULATED batches and *_test or <prefix>_audit* databases only · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.7` DS3 has no user-facing text · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.8` Lines not received are not estimated by DS3; Not available yet until a declared-estimate unit (row 11) · live · specs/DS3-bulk-loader/rulings.md
