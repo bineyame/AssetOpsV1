@@ -161,11 +161,12 @@ class TargetRead:
                 stated[f] = _absent(NOT_RECEIVED, None)
 
         for f in mains:
-            heading = MAIN_OF[key][f]
-            target = stated[heading]
-            if target.value is None:
-                leaves[f] = _absent(NOT_RECEIVED, f"MAIN_FACTOR_UNSOLVED:{heading}")
+            headings = MAIN_OF[key][f]  # 4a (D-4A.9): the nearest heading whose stated target has a value
+            heading = next((h for h in headings if stated[h].value is not None), None)
+            if heading is None:
+                leaves[f] = _absent(NOT_RECEIVED, f"MAIN_FACTOR_UNSOLVED:{headings[-1]}")
                 continue
+            target = stated[heading]
             value, note = solve_main(reg, leaves, heading, f, target.value, currency=target.currency)
             if value is None:
                 leaves[f] = _absent(NOT_RECEIVED, note)

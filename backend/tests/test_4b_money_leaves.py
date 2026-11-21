@@ -54,21 +54,30 @@ READ_AS = {
 #: Test 10's own literal state tables (W2; spec §3.2).
 STATE_TABLE = {
     "PROVIDED": {"period_days", "unserved_critical_kwh", "productive_kwh", "in_transit", "outstanding", "om",
-                 "staff", "necessary_l", "candidate_l", "unexplained_l"},  # 4d: the three litre leaves
+                 "staff", "necessary_l", "candidate_l", "unexplained_l",  # 4d: the three litre leaves
+                 "delivered_kwh", "technical_loss_kwh", "unexplained_loss_kwh", "adjustments_kwh", "unmapped_kwh",
+                 "tariff"},  # 4a: energy-to-cash@1
     "ASSUMED": {"productive_tariff"},
-    "HELD_NOT_CALCULATED": {"delivered_kwh", "reduced_days",
+    "HELD_NOT_CALCULATED": {"reduced_days",
                             "hours_per_day", "customer_hours_interrupted", "field_visits", "dawn_days_below"},
-    "NOT_CONNECTED": {"technical_loss_kwh", "unexplained_loss_kwh", "adjustments_kwh", "unmapped_kwh", "tariff",
-                      "wear_rate", "major_assets", "liability", "standby_kw", "lost_unit_kw"},
+    "NOT_CONNECTED": {"wear_rate", "major_assets", "liability", "standby_kw", "lost_unit_kw"},
     "OPTION_ONLY": {"extra_l", "battery_throughput_kwh", "collection_cost"},
     "PROVIDED_ELSE_ASSUMED": {"diesel_price"},
 }
-STATED_TABLE = {"MINI_GRID": {"revenue": "PROVIDED", "fuel_cost": "PROVIDED"}}
-MTO_MISSING = ("adjustments_kwh", "candidate_l", "delivered_kwh", "fuel_cost", "necessary_l", "productive_kwh",
-               "productive_tariff", "revenue", "tariff", "technical_loss_kwh", "unexplained_l",
-               "unexplained_loss_kwh", "unmapped_kwh")
-REVENUE_NINE = ("adjustments_kwh", "delivered_kwh", "productive_kwh", "productive_tariff", "revenue", "tariff",
-                "technical_loss_kwh", "unexplained_loss_kwh", "unmapped_kwh")
+STATED_TABLE = {"MINI_GRID": {"revenue": "PROVIDED", "fuel_cost": "PROVIDED",
+                              "metered_kwh": "PROVIDED", "billed_kwh": "PROVIDED"}}  # 4a: the stated kWh nodes
+#: 4a: read without the energy source, the stated kWh nodes have nothing to read and no expression value, so each
+#: names itself among the missing (registry v4, D-4A.1).
+MTO_MISSING = ("adjustments_kwh", "billed_kwh", "candidate_l", "delivered_kwh", "fuel_cost", "metered_kwh",
+               "necessary_l", "productive_kwh", "productive_tariff", "revenue", "tariff", "technical_loss_kwh",
+               "unexplained_l", "unexplained_loss_kwh", "unmapped_kwh")
+REVENUE_NINE = ("adjustments_kwh", "billed_kwh", "delivered_kwh", "metered_kwh", "productive_kwh",
+                "productive_tariff", "revenue", "tariff", "technical_loss_kwh", "unexplained_loss_kwh", "unmapped_kwh")
+#: 4a: what the two stated kWh nodes name when absent (their `stated_by`).
+ENERGY_READ_AS = {
+    "metered_kwh": ("CUSTOMER_METER_READ", CR, "Customer meter reads for the month"),
+    "billed_kwh": ("CHARGE (USAGE kWh)", CR, "Billing export: the month's billed kWh"),
+}
 
 
 # ---------------------------------------------------------------- the world and the reader
@@ -142,7 +151,7 @@ def assert_read_as(rec: Recording) -> int:
         if got.value is not None:
             continue
         m = got.missing
-        want = READ_AS[factor_id]
+        want = READ_AS[factor_id] if factor_id in READ_AS else ENERGY_READ_AS[factor_id]  # 4a
         if isinstance(want, dict):
             kind = m.note.split(":", 1)[1] if m.note and m.note.startswith("NEEDS:") else "RECEIPT"
             want = want[kind]
