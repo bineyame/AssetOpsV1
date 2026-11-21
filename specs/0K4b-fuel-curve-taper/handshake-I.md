@@ -15,7 +15,7 @@ the F6 cap and the F7 taper values all recomputed).
 
 **I1. The new catalogue and profile strings fail the SC-1 hand-built ratchet.** §2.3's four `display_name` literals
 (`sites/models.py`) and §2.4's three `_need` statements (`runs/profiles.py`) are prose (rule g,
-`tools/checks/statement_catalogue.py:398-399`); I ran `ratchet_hits` on those exact literals and each one gives a
+`tools/checks/statement_catalogue.py:404-405`); I ran `ratchet_hits` on those exact literals and each one gives a
 fingerprint, so each would be a `HAND_BUILT_NEW` (:965-970). The allow file takes only `SQL`, `HASH` or `CODE` (:56).
 D-SC1.34 (`specs/SC-1-statement-composer/rulings.md:524-526`) lets a fingerprint into the baseline only when "the
 unit's spec names the text and the reason with a D-ID". The spec names neither. **Default:** a ruling (for example
