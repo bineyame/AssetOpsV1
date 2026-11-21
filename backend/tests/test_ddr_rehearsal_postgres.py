@@ -47,8 +47,7 @@ SLUG = "lakeside-power"
 WANJIRU, JOSEPH = "wanjiru@lakeside-power.example", "joseph@lakeside-power.example"
 TITLE = "Lower the generator stop setting at Kobo to 70% battery charge"
 STEPS = ("S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12")
-#: 3C2 unit 2 (D-DDR.14): until `main` holds `StoreAgreedActions`, the screen's Actions are not connected and G10 stays
-#: FAIL `SCREEN_NOT_CONNECTED` after S11. PENDING: once unit 2 is merged in, S11 and S12 must give exit 0.
+#: D-DDR.14: the base holds 3C2 unit 2 (`StoreAgreedActions` in `deep_dive/composition.py`), so S11 and S12 run whole.
 UNIT2 = "StoreAgreedActions" in (BACKEND / "assetops_backend" / "deep_dive" / "composition.py").read_text(
     encoding="utf-8")
 #: Test 1 (spec §4): the first failing gate after each step; None is exit 0 and ten PASS lines.
@@ -222,10 +221,8 @@ def test_1_the_rehearsal_with_progress(rehearsal) -> None:  # plants P5, P6, P9,
         getattr(r, step.lower())()
         assert r.exits[step] == 0, (step, r.errors.get(step))
         seen[step] = r.check()
+    assert UNIT2, "D-DDR.14: review only from a base holding 3C2 unit 2"
     want = dict(PROGRESS)
-    if not UNIT2:  # PENDING (D-DDR.14): G10's screen half needs 3C2 unit 2's `StoreAgreedActions`
-        want.update(S11="G10", S12="G10")
-        assert seen["S11"].failed == {"G10": ("SCREEN_NOT_CONNECTED", {})}
     assert {s: c.first for s, c in seen.items()} == want, {s: c.failed for s, c in seen.items()}
     assert seen["S9"].failed["G10"] == ("ACTION_MISSING", {})  # "no S11 -> G10" (D-DDR.10)
 
@@ -241,10 +238,8 @@ def test_1_the_rehearsal_with_progress(rehearsal) -> None:  # plants P5, P6, P9,
     # S10: reconciled; every compared key is the file's (G9 passed above).
     assert s10["standing"]["reconciled"] is True and money_words(s10) == money_words(screen)
     assert not [w for w in money_words(s10) if w and "not yet reconciled" in w]
-    if UNIT2:
-        assert s12["actions"]["rows"][0]["title"] == TITLE
-    else:
-        assert s12["actions"]["connected"] is False
+    assert s12["actions"]["connected"] is True and s12["actions"]["rows"][0]["title"] == TITLE  # the Action first
+    assert s10["actions"]["connected"] is True and s10["actions"]["rows"] == []
 
 
 # --- test 3: skips (each a fresh case, every step but the one named) --------------------------------------------------
