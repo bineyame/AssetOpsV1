@@ -198,6 +198,7 @@ body.dd-locked {
 .dd-panel,
 .dd-section {
   min-width: 0;
+  container-type: inline-size;
   padding: var(--space-4);
   background: var(--surface-raised);
   border: 1px solid var(--border-subtle);
@@ -620,6 +621,31 @@ body.dd-locked {
   .dd-drawer__panel {
     width: 100%;
     border-radius: 0;
+  }
+}
+/*
+ * D-5C.27: the six-column step row needs about 720 px of section. In a narrower section (the 768 px viewport beside
+ * the shell's navigation leaves about 490 px) the row takes the <=600 px layout, so the track never overflows the page.
+ */
+@container (max-width: 720px) {
+  .dd-wf__step {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .dd-wf__share,
+  .dd-wf__sites,
+  .dd-wf__step .dd-chip,
+  .dd-wf__track,
+  .dd-wf__scale {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+  }
+  .dd-wf__share,
+  .dd-wf__sites,
+  .dd-wf__step .dd-chip {
+    justify-self: start;
+  }
+  .dd-wf__scalerow {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 @media (prefers-reduced-motion: reduce) {
