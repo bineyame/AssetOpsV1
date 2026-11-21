@@ -64,16 +64,8 @@ def test_no_connect_fixture_holds() -> None:
 # --- the in-memory world ---------------------------------------------------------------------------------------------
 
 class HeldMemoryStore(UploadMemoryStore):
-    """3A2's in-memory upload store plus spec §2.8's `held_uploads`, mirroring the adapter's query."""
-
-    def held_uploads(self, tenant_id: UUID) -> tuple[HeldUpload, ...]:
-        out = []
-        for u in sorted((u for u in self.uploads if u.tenant_id == tenant_id), key=lambda u: str(u.id)):
-            found = [d for d in self.decisions if d.tenant_id == tenant_id and d.upload_id == u.id]
-            if found and found[0].decision != "ACCEPTED":
-                continue
-            out.append(HeldUpload(u.id, u.source_type, u.reader, u.file_sha256, not found, u.submitted_by))
-        return tuple(out)
+    """3A2's in-memory upload store; spec §2.8's `held_uploads` mirror moved into it with 3A6 (its intake reads
+    `held_uploads` on every check)."""
 
 
 @pytest.fixture(scope="module")

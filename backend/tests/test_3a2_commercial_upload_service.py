@@ -19,8 +19,8 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from assetops_backend.commercial.model import (IntakeSummary, UploadAlreadyDecided, UploadDecisionRow, UploadRecord,
-                                               UploadRow)
+from assetops_backend.commercial.model import (HeldUpload, IntakeSummary, UploadAlreadyDecided, UploadDecisionRow,
+                                               UploadRecord, UploadRow)
 from assetops_backend.commercial.composition import FileKeyStore
 from assetops_backend.commercial.pseudonym import (ALLOWED_EXTRA, REF_BODY_FIELDS, PseudonymKeyMissing,
                                                    PseudonymKeyUnusable, pseudonymise)
@@ -113,6 +113,20 @@ class UploadMemoryStore(MemoryCommercialStore):
         rows = [u for u in self.uploads if u.tenant_id == tenant_id and u.site_id == site_id]
         rows.sort(key=lambda u: (u.submitted_at, str(u.id)), reverse=True)
         return tuple(self._record(u) for u in rows[:limit])
+
+    def held_uploads(self, tenant_id: UUID) -> tuple[HeldUpload, ...]:
+        """3A3 (spec §2.8) and 3A6 (spec §2.6): the adapter's `_HELD`, mirrored (moved here from 3A3's loader test
+        when 3A6's intake began calling it on every check)."""
+        out = []
+        for u in sorted((u for u in self.uploads if u.tenant_id == tenant_id), key=lambda u: str(u.id)):
+            found = [d for d in self.decisions if d.tenant_id == tenant_id and d.upload_id == u.id]
+            if found and found[0].decision != "ACCEPTED":
+                continue
+            codes = set(u.month_site_code)
+            site_codes = ((None,) if None in codes else ()) + tuple(sorted(c for c in codes if c is not None))
+            out.append(HeldUpload(u.id, u.source_type, u.reader, u.file_sha256, not found, u.submitted_by,
+                                  u.source_system, site_codes))
+        return tuple(out)
 
     def stored_strings(self) -> list[str]:
         """Every string of every stored row (uploads, decisions, intakes, records, revisions, rejections)."""

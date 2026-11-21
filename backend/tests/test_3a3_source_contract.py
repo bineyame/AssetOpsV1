@@ -29,11 +29,11 @@ __all__ = ["people"]  # the module-scoped People fixture, shared with 3A2's file
 
 CASES = {c.reader_id: c for c in CONTRACT_CASES}
 NATIVE_WORDS = {
-    "NATIVE_ENCODING": "the file is not UTF-8 text.",
+    "NATIVE_ENCODING": "the file is not text in the character encoding this layout reads.",  # 3A6 §2.11
     "NATIVE_HEADER": "the column headings are not the ones this layout reads, in this order.",
     "NATIVE_ROW": "this row cannot be read: its cells do not line up with the headings.",
     "NATIVE_VALUE": "this value is not one this layout knows.",
-    "NATIVE_CHARACTER": "this row holds a character that is not text (such as a NUL byte).",
+    "NATIVE_CHARACTER": "this row holds a character that is not text (such as a NUL byte or an invisible mark).",
 }
 #: Spec §3.4's table for the kinds these layouts carry, written out: (path, class, condition).
 PERSONAL = {

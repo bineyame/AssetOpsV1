@@ -56,6 +56,7 @@ COMMAND_ROLES: dict[str, tuple[str, ...]] = {
     "commercial.upload": (ANALYST, FINANCE),
     "commercial.upload_decision": (FINANCE, EXECUTIVE),
     "commercial.upload_read": (ANALYST, FINANCE, EXECUTIVE, SITE_MANAGER),
+    "commercial.profile_admit": (ANALYST, FINANCE),  # 3A6 (spec §2.7; queue Q2)
 }
 #: §3: a case event kind not listed above (any other kind) admits the Site manager only.
 OTHER_EVENT_ROLES: tuple[str, ...] = (SITE_MANAGER,)

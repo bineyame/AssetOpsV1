@@ -165,9 +165,13 @@ def build_commercial_upload_router(uploads: CommercialUploads | None, scope: Sco
         reader_id = request.query_params.get("reader")
         media_type = request.headers.get("content-type")
         try:
-            uploads.reader(reader_id, media_type)
+            await run_in_threadpool(uploads.reader, tenant_id, reader_id, media_type)
         except UploadRefused as refused:
             return _refusal(refused.status, refused.code, refused.words, refused.params)
+        except StoreRefused:  # 3A6: a profile reader reads the store
+            return _refusal(500, "COMMERCIAL_STORE_FAULT", message("commercial_upload.store_fault"))
+        except unavailable:
+            return _unavailable()
         data = await _body_within(request, MAX_UPLOAD_BYTES)
         if data is None:
             refused = UploadRefused(413, "FILE_TOO_LARGE", {"limit_mb": MAX_UPLOAD_BYTES // 2**20})
