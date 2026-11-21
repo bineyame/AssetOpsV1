@@ -37,10 +37,12 @@ HOST = "postgresql+psycopg://u:p@127.0.0.1:55432"
     (f"{HOST}/assetops_op_kobo_test", {}, False),
     (f"{HOST}/_audit", {}, False),
     (f"{HOST}/assetops_testbed", {}, False),  # contains "test" without the suffix
-    (f"{HOST}/assetops_test?dbname=assetops_op_kobo", {}, False),
-    ("postgresql+psycopg://u:p@10.0.0.5:55432/assetops_test", {}, False),
-    ("postgresql+psycopg://u:p@127.0.0.1:5432/assetops_test", {}, False),
-    ("postgresql+psycopg://u:p@127.0.0.1/assetops_test", {}, False),
+    (f"{HOST}/assetops_ds3_audit1121?dbname=assetops_op_kobo", {}, False),  # a query key names another database
+    # Host and port cases use a permitted name, so only the host and port rule can refuse them (D-DS3.12).
+    ("postgresql+psycopg://u:p@10.0.0.5:55432/assetops_ds3_audit1121", {}, False),
+    ("postgresql+psycopg://u:p@127.0.0.1:5432/assetops_ds3_audit1121", {}, False),
+    ("postgresql+psycopg://u:p@127.0.0.1/assetops_ds3_audit1121", {}, False),
+    ("postgresql+psycopg://u:p@localhost:55432/assetops_ds3_audit1121", {}, True),
     ("postgresql+psycopg://u:p@127.0.0.1:55433/assetops_ds3_audit1121", {"ASSETOPS_PG_PORT": "55433"}, True),
 ])
 def test_permitted_database(url, environ, expected) -> None:

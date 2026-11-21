@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import pytest
 
+import os
+
 import pg_harness
 
 BASE = "postgresql+psycopg://assetops:pw@127.0.0.1:55432/assetops_test"
@@ -236,6 +238,19 @@ class TestCloneDatabase:
         finally:
             eng.dispose()
             pg_harness.drop_database(source)
+
+    def test_drop_and_clone_refuse_a_database_that_is_not_a_clone_or_audit(self) -> None:
+        """F6: the same permitted_database rule as the world command, so the run template, the live walkthrough
+        database and a serve or walk name cannot be dropped or cloned from, whatever the caller passes."""
+        from sqlalchemy.engine import make_url
+
+        base = make_url(os.environ[pg_harness.BASE_ENV])
+        for name in (base.database, "assetops_polish_walk1113_test", "assetops_walk_audit1121_test", "assetops_serve_test"):
+            url = base.set(database=name).render_as_string(hide_password=False)
+            with pytest.raises(AssertionError, match="refusing to drop"):
+                pg_harness.drop_database(url)
+            with pytest.raises(AssertionError, match="refusing to clone from"):
+                pg_harness.clone_database("ds3hdeny", url)
 
     def test_cleanup_drops_a_clone_still_registered(self, monkeypatch) -> None:
         from sqlalchemy.engine import make_url

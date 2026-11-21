@@ -94,12 +94,18 @@ def _change_scopes(c, baseline_ids):
     return {(r.tenant_id, r.site_id, r.table_name) for r in new}, len(new)
 
 
+_COVER_KEYS = frozenset({"roles", "asset_ids", "analytic_ids", "domain", "status", "key", "span", "window", "valid",
+                         "windows"})
+
+
 def _cover(subjects) -> dict:
     """D-DS3.21: what a consumer reads from event subjects (roles, asset and analytic ids, domain, status, key, and the
     least start and greatest end over span, window, valid and each pair of windows), computed from the JSON here."""
     sets: dict[str, set] = {name: set() for name in ("roles", "asset_ids", "analytic_ids", "domain", "status", "key")}
     starts, ends = [], []
     for s in subjects:
+        unknown = set(s) - _COVER_KEYS
+        assert not unknown, f"subject key(s) {sorted(unknown)} are outside the D-DS3.21 cover: add them to _cover or rule them out"
         for name in ("roles", "asset_ids", "analytic_ids"):
             sets[name] |= set(s.get(name) or ())
         for name in ("domain", "status", "key"):

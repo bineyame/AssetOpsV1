@@ -4,8 +4,7 @@ Builder (Claude), 2026-11-21. Branch `task/DS3-bulk-loader` off `main` `8eff7062
 `efb706103` (unit 1), `3dc53aef8` (unit 2), `149c77f7b` (test 3 binding check), `2ff3ab41a` (xdist clone
 names), `68d022b3c` (unit 3), `64a2868e1` (docs), `a7f7e7547` (guard placement fix; head). Spec rev 2, rulings
 D-DS3.1-19, reviewer guide rev 2. Evidence: `/opt/assetecon/evidence/DS3-bulk-loader/2026-11-21-build/`.
-`USER_REVIEW_REQUIRED: false` (non-screen, no served text; D-DS3.7). **Mid-build questions: 3 open** (Q1, Q2 each
-hold one xfail(strict) test; Q3 stops nothing): `mid-build-questions.md`.
+`USER_REVIEW_REQUIRED: false` (non-screen, no served text; D-DS3.7). **Mid-build questions: 0 open** (Q1 to Q3 answered, D-DS3.20 to D-DS3.22; no xfail): `mid-build-questions.md`.
 
 ## Outcome
 
@@ -27,8 +26,7 @@ New: `evidence/bulk_load.py`, `load_world_inputs.py`, tests `test_ds3_bulk_load.
 1. Parity: yes for two Kobo days (10 batches, 960 envelopes): `accepted_evidence`, `ingestion_batch`,
    `ingestion_disposition` equal; dispatch coverage and mini-domain jobs equal. Census deltas real/bulk:
    accepted_evidence 960/960, ingestion_batch 10/10, ingestion_disposition 960/960, recompute_job 102/100,
-   chain_input_change 4408/1526 (scopes equal), **event_outbox 1062/110** (Q2: per statement, no rule named; that
-   assertion is held). **The v4 slice is held** (Q1: the real path refuses `v4.delta`).
+   chain_input_change 4408/1526 (scopes equal), **event_outbox 1062/110** (Q2, D-DS3.21: event_outbox per statement, equal subject cover). The v4 slice of three shapes runs and passes (Q1, D-DS3.20).
 2. Refusals before writes, one code each, nothing recorded: yes, test 6 (12 cases, counts and batch rows unchanged,
    `batch_refusal` 0).
 3. Re-run loads nothing: yes, tests 5 and 7.
@@ -38,7 +36,7 @@ New: `evidence/bulk_load.py`, `load_world_inputs.py`, tests `test_ds3_bulk_load.
 6. S2, S3, W2-03 unchanged after the extractions: yes (regression below); the 11 failures there fail identically
    on `main` `8eff70625` (`base-main.log`), so they are not DS3's.
 7. Non-MINIGRID refused, unlisted integrity errors propagate: yes, test 6 `coldchain_site`, `foreign_key`.
-8. Plants: all 24 fail a test (P1, P9, P15 after strengthening, below); P15 also needs the held v4 slice to show in
+8. Plants: all 24 fail a test (P1, P9, P15 after strengthening, below); P15 also needs the v4 slice to show in
    test 8. Plants were run before `a7f7e7547`'s placement fix (it moves types, not the planted lines).
 
 ## Checks (real output)
@@ -50,7 +48,7 @@ New: `evidence/bulk_load.py`, `load_world_inputs.py`, tests `test_ds3_bulk_load.
 - Focused and regression at `a7f7e7547` (`regress.sh`, `-n 4`, slot `ds3-final`, 189 s): ds3 x4, pg_harness, s2_*, s3
   dispatch, w203_*, w200, s405, s4 decided_at, 3a2_*, 3a3_*: **11 failed, 568 passed, 1 skipped, 2 xfailed**. The 11
   (`test_s4_evidence_decided_at_postgres` 10 race/restart cases, `test_s2_rejection_placement` 1) also fail on
-  `main` at `8eff70625` in a detached worktree (11 failed, 1 passed; `base-main.log`): pre-existing. 2 xfailed = Q1, Q2.
+  `main` at `8eff70625` in a detached worktree (11 failed, 1 passed; `base-main.log`): pre-existing. The 2 xfails of that run were removed by D-DS3.20/21.
 - Measurement (§5, `bench.log`, slot `ds3-bench`; the other heavy slot was busy, so not an idle machine): 14 Kobo
   days, 70 batches, 6,720 envelopes. Real: 48.3 s; statements accepted_evidence 6720, ingestion_disposition 6720,
   ingestion_batch 210, recompute_job 140; rows event_outbox 6748, chain_input_change 20538. Bulk: 20.5 s (wall
@@ -88,12 +86,13 @@ the strengthening below.
 ## Residual risk
 
 `R-TRUST`: the command admits batches with no gateway credential, behind `permitted_database` (name, host, port)
-and the SIMULATED refusal. Q3: the walkthrough database `assetops_polish_walk1113_test` passes the name rule.
+and the SIMULATED refusal. The walkthrough database no longer passes (D-DS3.22: audit names and harness clones only).
+
+Cover limit (D-DS3.21): an event_outbox cover is a least start and a greatest end, so a batch spanning gap days would resolve days the real path did not; checking that is DS4's. The cover test fails on a subject key it does not read (F5).
 
 ## Review focus
 
-`bulk_admit`'s order and transaction; `_bulk_evidence_params` against `_persist`; the census and the two held tests;
-Q1-Q3.
+`bulk_admit`'s order and transaction; `_bulk_evidence_params` against `_persist`; the census and the cover test.
 
 ## Mid-build answers applied (D-DS3.20 to D-DS3.23)
 

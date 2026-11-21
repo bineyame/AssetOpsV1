@@ -336,6 +336,8 @@ def clone_database(tag: str, template_url: str | None = None) -> str:
     base = make_url(os.environ[BASE_ENV])
     # Under xdist every worker shares the run id: the worker tag keeps two workers' clones apart.
     name = database_name(_stem(base.database), os.environ[RUN_ENV], tag + (os.environ[TAG_ENV] if _shared() else ""))
+    if template_url:
+        assert _permitted(template_url), f"refusing to clone from a database that is not a harness clone or _audit*: {template_url!r}"
     source = make_url(template_url).database if template_url else _ensure_template()
     assert source and source.endswith("_test"), f"refusing to clone a database not named *_test: {source!r}"
     admin = _admin()
@@ -353,6 +355,13 @@ def clone_database(tag: str, template_url: str | None = None) -> str:
     return base.set(database=name).render_as_string(hide_password=False)
 
 
+def _permitted(url: str) -> bool:
+    """The DS3 rule (D-DS3.6, D-DS3.12, D-DS3.22): harness clones and `<prefix>_audit*`, never walk or serve names."""
+    from assetops_backend.evidence.bulk_load import permitted_database
+
+    return permitted_database(url)
+
+
 def drop_database(url: str) -> None:
     """Drop a database `clone_database` made (WITH (FORCE)) and unregister it."""
     from sqlalchemy import text
@@ -360,6 +369,7 @@ def drop_database(url: str) -> None:
 
     name = make_url(url).database
     _guard(url)
+    assert _permitted(url), f"refusing to drop a database that is not a harness clone or _audit*: {name!r}"
     _admin().execute(text(f"DROP DATABASE IF EXISTS {_quote(name)} WITH (FORCE)"))
     _state.get("extra", set()).discard(name)
 

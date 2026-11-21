@@ -5,7 +5,7 @@
 `DIR` holds one directory per tenant slug, each with at most `commercial/` (the tenant's DS1b canonical files, loaded
 through 3A2's intake by `load_emulated_exports`, the one commercial path) and `telemetry/` (Batch V2 files
 `*.batch.json`, loaded in sorted name order by the bulk evidence load). Before any connection: `DATABASE_URL` must
-be set and name a permitted database (a `*_test` or `<prefix>_audit*` database on the test container, never an
+be set and name a permitted database (a `<prefix>_audit*` database or a harness clone on the test container, never an
 operator's), and every selected tenant directory must hold nothing else.
 
 One JSON line per tenant on stdout: `{"tenant", "commercial_exit", "batches", "already_loaded", "envelopes"}`.
@@ -69,7 +69,7 @@ def _run(args: argparse.Namespace, ledger: Any, load_exports: Callable[..., int]
         raise _Refused("NO_DATABASE", None, "set DATABASE_URL to a permitted test or audit database")
     if not permitted_database(url):
         raise _Refused("BULK_DATABASE_NOT_PERMITTED", None,
-                       "only a *_test or <prefix>_audit* database on the test container is loaded")
+                       "only a <prefix>_audit* database or a harness clone on the test container is loaded")
     tenants = _tenants(args.world, args.tenant)
     if load_exports is None:
         from assetops_backend import load_emulated_exports
