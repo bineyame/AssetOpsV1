@@ -323,7 +323,7 @@ is 18,559,459 bytes (18.6 MB); the bench L0 was 18,444,771. L1 (19,591,651) and 
 the kept sizes from `pg_database_size`.
 
 Not a finding:
-- `packet.md:227` writes "7,419.253 = 9.322 + 13.497 x 9 x 61". With the rounded 13.497, that product gives
+- `packet.md:225` writes "7,419.253 = 9.322 + 13.497 x 9 x 61". With the rounded 13.497, that product gives
   7,419.175. The report multiplies the unrounded 13.4971 instead (`tools/world.py` `assemble_bench`), which is right.
   A reader redoing the sum may want an "(unrounded)" note.
 
