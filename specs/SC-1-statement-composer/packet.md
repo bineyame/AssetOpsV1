@@ -1,6 +1,6 @@
 # SC-1a review packet
 
-Branch `task/SC-1a-composer`, base `main` 8805ee169, head is the commit that adds this packet. Spec rev 2 with mid-build
+Branch `task/SC-1a-composer`, built off `main` 8805ee169; main merged in through 8eff70625 (3B2, 0K1, DS3, 4a docs; owner-away row for the Q1 ruling is now row 19); head is the commit that updates this packet. Spec rev 2 with mid-build
 answers D-SC1.29 to D-SC1.31 (merged from `task/SC-1a-midbuild-answers` 74e74ca9c). Non-screen.
 `USER_REVIEW_REQUIRED: false` (spec header). **Owner approval needed at merge:** the two new check-all lines (guard
 changes are held for the owner, `specs/OWNER-AWAY/decisions-2026-11-21.md` row 5).
@@ -33,9 +33,10 @@ changes are held for the owner, `specs/OWNER-AWAY/decisions-2026-11-21.md` row 5
 - Mid-build questions: **3** (all ruled: D-SC1.29 to D-SC1.31; the builder's choices stood).
 - `ADOPTED`: **empty** (proved on plants through `--adopt`, a test-only flag).
 - Hand-built baseline: **320 paths, 5,900 fingerprints** (rules g 3214, a 1722, f 309, j 229, d 146, e 117, i 108,
-  h 55). Legacy baseline: **123 keys**. Both written by `--write-baseline --root <scratch>` on `git archive 8805ee169
+  h 55). Legacy baseline: **123 keys**. Both written by `--write-baseline --root <scratch>` on `git archive 8eff70625
   backend config` with SC-1's new mechanism files and `statement_cases/` laid over (main's own `messages.py` and
-  `locale.py` kept). Re-run that to compare.
+  `locale.py` kept). Re-run that to compare. Re-taken from main 8eff70625 after the merge: before 320 paths / 5,900 fingerprints / 123 keys, after 320 / 5,900 / 123, byte-identical, no path or key changed status (main's later changes added no served text under backend or config except 3B2's `structure/` code).
+- After merge: guard OK; self-test 40 of 40 plants (P12-P53, N1-N4); SC-1 + guard + i18n/refusal/3A2/3C1a tests 588 passed, 46 skipped; check-architecture and check-agent-workflow pass; fast check-all 43 of 43 passed; `check-decision-index.py` OK.
 - `KEY_INSTANCE` tokens from config and conversions: `cold`, `kisiwa`, `kobo`, `lab`. No shipped or worked key holds one.
 
 ## Known deviations and choices (each small; none changes a seam)
