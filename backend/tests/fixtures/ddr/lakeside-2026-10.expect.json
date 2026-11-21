@@ -1,0 +1,587 @@
+{
+  "format": "ddr-rehearsal-expect-1",
+  "source": "Hand-written (spec DDR §3.4, 3A3 E2-E5; screen from 5c's World A fixture with §3.4's and World B's edits)",
+  "tenant": "lakeside-power",
+  "month": "2026-10",
+  "sites": [
+    "KISIWA-001:MINIGRID",
+    "KOBO-001:MINIGRID",
+    "MTO-001:MINIGRID"
+  ],
+  "grants": {
+    "OPERATOR_EXECUTIVE": {
+      "exactly": [
+        "amina@lakeside-power.example"
+      ]
+    },
+    "FINANCE_AND_COMMERCIAL_LEAD": {
+      "at_least": [
+        "joseph@lakeside-power.example"
+      ]
+    },
+    "ANALYST": {
+      "at_least": [
+        "wanjiru@lakeside-power.example"
+      ]
+    }
+  },
+  "granted_by": "service:onboarding",
+  "analyst": "wanjiru@lakeside-power.example",
+  "profile": {
+    "profile_id": "ddr-board-budget",
+    "status": "ADMITTED",
+    "version": 1,
+    "admitted_by": "wanjiru@lakeside-power.example",
+    "profile_sha256": "3752d604dbffefabf46095b2d45810273b8ba38eb23217d6ed6c4c4539ec82ff",
+    "sample_sha256": "2f629a1fc77a087932dbf565969b67ddd290395dcfb010a214782dd62576ad75"
+  },
+  "readers": {
+    "accepted": [
+      "billing-illustrative-1",
+      "collections-illustrative-1",
+      "expenses-illustrative-1",
+      "profile.ddr-board-budget.v1"
+    ],
+    "absent": [
+      "budget-illustrative-1"
+    ],
+    "submitted_by": "wanjiru@lakeside-power.example",
+    "accepted_by": "joseph@lakeside-power.example"
+  },
+  "stated": {
+    "KISIWA-001": {
+      "revenue": "4070.00",
+      "fuel_cost": "3120.00",
+      "om": null,
+      "staff": "500.00",
+      "collected": "3800.00",
+      "in_transit": "0.00"
+    },
+    "KOBO-001": {
+      "revenue": "3458.00",
+      "fuel_cost": "1475.00",
+      "om": "600.00",
+      "staff": "500.00",
+      "collected": "3180.00",
+      "in_transit": "0.00"
+    },
+    "MTO-001": {
+      "revenue": "2160.00",
+      "fuel_cost": "400.00",
+      "om": "500.00",
+      "staff": "450.00",
+      "collected": "1890.00",
+      "in_transit": "150.00"
+    }
+  },
+  "absent_causes": {
+    "KISIWA-001": {
+      "om": "NOT_RECEIVED"
+    }
+  },
+  "target_contribution": {
+    "KISIWA-001": "-65.00",
+    "KOBO-001": "1445.00",
+    "MTO-001": "915.00"
+  },
+  "target_checks": {
+    "KISIWA-001": {
+      "factor_id": "contribution",
+      "stated": "-60.00",
+      "computed": "-65.00",
+      "currency": "USD",
+      "agrees": false
+    }
+  },
+  "statements": [
+    {
+      "revenue": "9700.00",
+      "fuel_cost": "5100.00",
+      "recorded_by": "joseph@lakeside-power.example",
+      "result": "NOT_MATCHED"
+    },
+    {
+      "revenue": "9700.00",
+      "fuel_cost": "5000.00",
+      "recorded_by": "joseph@lakeside-power.example"
+    }
+  ],
+  "asked": [
+    "KISIWA-001",
+    "KOBO-001",
+    "MTO-001"
+  ],
+  "action": {
+    "title": "Lower the generator stop setting at Kobo to 70% battery charge",
+    "created_by_name": "Amina",
+    "owner_name": "Peter",
+    "due_on": "2026-12-15",
+    "site_code": "KOBO-001",
+    "factor_id": "candidate_l"
+  },
+  "screen": {
+    "schema": "deep-dive-month-1",
+    "operator": "Lakeside Power",
+    "month": "2026-10",
+    "month_words": "October 2026",
+    "state": "SERVED",
+    "standing": {
+      "reconciled": true,
+      "reason": "RECONCILED",
+      "text": "Reconciled: October 2026 (the organisation) matches the management accounts within 1% (Declared).",
+      "details": []
+    },
+    "headline": {
+      "text": "Contribution is $852.00 below target in October; cost and efficiency explain $755.00 of it.",
+      "evidence": [
+        "Estimated"
+      ]
+    },
+    "status_line": "Reconciled with the management accounts. Kisiwa mini-grid's budget disagrees with its own lines.",
+    "tiles": [
+      {
+        "key": "contribution",
+        "label": "Contribution",
+        "value": "$1,443.00",
+        "word": "Estimated",
+        "lines": [
+          "Target $2,295.00 · 63% of target",
+          "3 of 3 Sites",
+          "91.5% of cost from figures received"
+        ],
+        "bar": {
+          "actual": "1443.00",
+          "target": "2295.00"
+        }
+      },
+      {
+        "key": "gap",
+        "label": "Gap to target",
+        "value": "−$852.00",
+        "word": "Estimated",
+        "lines": [
+          "Grow −$97.00 · Optimize −$755.00",
+          "$852.00 of it not split to its drivers yet"
+        ],
+        "bar": null
+      },
+      {
+        "key": "plan_spend",
+        "label": "Plan spend",
+        "value": "Not available yet",
+        "word": null,
+        "lines": [
+          "No plan has been made yet"
+        ],
+        "bar": null
+      },
+      {
+        "key": "plan_value",
+        "label": "Plan value, 12 months",
+        "value": "Not available yet",
+        "word": null,
+        "lines": [
+          "Each change is valued against doing nothing when decisions are recorded"
+        ],
+        "bar": null
+      }
+    ],
+    "notices": [
+      "Kisiwa mini-grid's budget states a contribution of −$60.00; its budget lines add to −$65.00. The target used is −$65.00."
+    ],
+    "bridge": {
+      "title": "Cost and efficiency explain $755.00 of the $852.00 gap. Open a step for what is behind it.",
+      "totals": {
+        "actual_label": "Contribution, October",
+        "actual": "$1,443.00",
+        "target_label": "Target",
+        "target": "$2,295.00"
+      },
+      "groups": [
+        {
+          "key": "GROW_REVENUE",
+          "label": "Grow revenue",
+          "value": "−$97.00",
+          "steps": [
+            {
+              "key": "revenue",
+              "label": "Revenue",
+              "value": "−$97.00",
+              "share": "11% of what widens the gap",
+              "word": "Emulated",
+              "sites": "3 of 3 Sites",
+              "drawer": {
+                "title": "Revenue",
+                "lines": [
+                  "Actual $9,688.00 · Target $9,785.00 · Difference −$97.00",
+                  "Effect on contribution −$97.00",
+                  "3 of 3 Sites"
+                ],
+                "sites": [
+                  {
+                    "site": "Kisiwa mini-grid",
+                    "value": "−$55.00",
+                    "text": "Not split further until the billing export with each line's kWh and tariff, a feeder meter export, a meter register with change dates, the customer meter reads for the month, each feeder's expected technical loss as declared in the Site's setup, the productive-use tariff and budget lines for energy delivered, tariff and productive-use price."
+                  },
+                  {
+                    "site": "Kobo mini-grid",
+                    "value": "+$38.00",
+                    "text": "Not split further until the billing export with each line's kWh and tariff, a feeder meter export, a meter register with change dates, the customer meter reads for the month, each feeder's expected technical loss as declared in the Site's setup, the productive-use tariff and budget lines for energy delivered, tariff and productive-use price."
+                  },
+                  {
+                    "site": "Mto mini-grid",
+                    "value": "−$80.00",
+                    "text": "Not split further until the billing export with each line's kWh and tariff, a feeder meter export, a meter register with change dates, the customer meter reads for the month, each feeder's expected technical loss as declared in the Site's setup, the productive-use tariff and budget lines for energy delivered, tariff and productive-use price."
+                  }
+                ],
+                "carried": [],
+                "out": [],
+                "lines_org": [],
+                "drivers": []
+              }
+            }
+          ]
+        },
+        {
+          "key": "OPTIMIZE_COST",
+          "label": "Optimize cost and efficiency",
+          "value": "−$755.00",
+          "steps": [
+            {
+              "key": "fuel_cost",
+              "label": "Fuel cost",
+              "value": "−$755.00",
+              "share": "89% of what widens the gap",
+              "word": "Emulated",
+              "sites": "3 of 3 Sites",
+              "drawer": {
+                "title": "Fuel cost",
+                "lines": [
+                  "Actual $4,995.00 · Target $4,240.00 · Difference +$755.00",
+                  "Effect on contribution −$755.00",
+                  "3 of 3 Sites"
+                ],
+                "sites": [
+                  {
+                    "site": "Kisiwa mini-grid",
+                    "value": "−$130.00",
+                    "text": "Not split further until the EMS interval export (generator running and output, solar available power, battery charge), the generator's fuel curve (litres per kWh; litres per hour idle), tank dips at the start and end of the month, fuel delivery notes and a generator and a fuel tank declared in the Site's setup (litres are worked out for each)."
+                  },
+                  {
+                    "site": "Kobo mini-grid",
+                    "value": "−$600.00",
+                    "text": "Not split further until the EMS interval export (generator running and output, solar available power, battery charge), the generator's fuel curve (litres per kWh; litres per hour idle), tank dips at the start and end of the month, fuel delivery notes and a generator and a fuel tank declared in the Site's setup (litres are worked out for each)."
+                  },
+                  {
+                    "site": "Mto mini-grid",
+                    "value": "−$25.00",
+                    "text": "Not split further until the EMS interval export (generator running and output, solar available power, battery charge), the generator's fuel curve (litres per kWh; litres per hour idle), tank dips at the start and end of the month, fuel delivery notes and a generator and a fuel tank declared in the Site's setup (litres are worked out for each)."
+                  }
+                ],
+                "carried": [],
+                "out": [],
+                "lines_org": [],
+                "drivers": []
+              }
+            },
+            {
+              "key": "om",
+              "label": "O&M",
+              "value": "$0.00",
+              "share": "No effect",
+              "word": "Estimated",
+              "sites": "3 of 3 Sites",
+              "drawer": {
+                "title": "O&M",
+                "lines": [
+                  "Actual $1,800.00 · Target $1,800.00 · Difference $0.00",
+                  "Effect on contribution $0.00",
+                  "3 of 3 Sites"
+                ],
+                "sites": [
+                  {
+                    "site": "Kisiwa mini-grid",
+                    "value": "$0.00 (at budget)",
+                    "text": null
+                  },
+                  {
+                    "site": "Kobo mini-grid",
+                    "value": "$0.00",
+                    "text": null
+                  },
+                  {
+                    "site": "Mto mini-grid",
+                    "value": "$0.00",
+                    "text": null
+                  }
+                ],
+                "carried": [
+                  "Kisiwa mini-grid: no service contractor invoice received; taken at its budget line for the month (estimate)."
+                ],
+                "out": [],
+                "lines_org": [],
+                "drivers": []
+              }
+            },
+            {
+              "key": "staff",
+              "label": "Staff",
+              "value": "$0.00",
+              "share": "No effect",
+              "word": "Emulated",
+              "sites": "3 of 3 Sites",
+              "drawer": {
+                "title": "Staff",
+                "lines": [
+                  "Actual $1,450.00 · Target $1,450.00 · Difference $0.00",
+                  "Effect on contribution $0.00",
+                  "3 of 3 Sites"
+                ],
+                "sites": [
+                  {
+                    "site": "Kisiwa mini-grid",
+                    "value": "$0.00",
+                    "text": null
+                  },
+                  {
+                    "site": "Kobo mini-grid",
+                    "value": "$0.00",
+                    "text": null
+                  },
+                  {
+                    "site": "Mto mini-grid",
+                    "value": "$0.00",
+                    "text": null
+                  }
+                ],
+                "carried": [],
+                "out": [],
+                "lines_org": [
+                  "The organisation's budget also states $1,200.00 for staff that no Site carries; it is listed, not added."
+                ],
+                "drivers": []
+              }
+            }
+          ]
+        }
+      ],
+      "by_site": {
+        "columns": [
+          "Site",
+          "Contribution",
+          "Target",
+          "Gap",
+          "Revenue",
+          "Fuel cost",
+          "O&M",
+          "Staff"
+        ],
+        "rows": [
+          [
+            "Kisiwa mini-grid",
+            "−$250.00",
+            "−$65.00",
+            "−$185.00",
+            "−$55.00",
+            "−$130.00",
+            "$0.00 (at budget)",
+            "$0.00"
+          ],
+          [
+            "Kobo mini-grid",
+            "$883.00",
+            "$1,445.00",
+            "−$562.00",
+            "+$38.00",
+            "−$600.00",
+            "$0.00",
+            "$0.00"
+          ],
+          [
+            "Mto mini-grid",
+            "$810.00",
+            "$915.00",
+            "−$105.00",
+            "−$80.00",
+            "−$25.00",
+            "$0.00",
+            "$0.00"
+          ]
+        ],
+        "total": [
+          "3 of 3 Sites",
+          "$1,443.00",
+          "$2,295.00",
+          "−$852.00",
+          "−$97.00",
+          "−$755.00",
+          "$0.00",
+          "$0.00"
+        ]
+      }
+    },
+    "cash": {
+      "title": "Cash collected, outside the contribution gap",
+      "text": "In October, $8,870.00 was collected against $9,785.00 expected; $668.00 is still outstanding and $150.00 is paid but in transit.",
+      "word": "Estimated",
+      "sites": "3 of 3 Sites",
+      "table": {
+        "columns": [
+          "Site",
+          "Billed",
+          "Collected",
+          "In transit",
+          "Outstanding"
+        ],
+        "rows": [
+          [
+            "Kisiwa mini-grid",
+            "$4,070.00",
+            "$3,800.00",
+            "$0.00",
+            "$270.00"
+          ],
+          [
+            "Kobo mini-grid",
+            "$3,458.00",
+            "$3,180.00",
+            "$0.00",
+            "$278.00"
+          ],
+          [
+            "Mto mini-grid",
+            "$2,160.00",
+            "$1,890.00",
+            "$150.00",
+            "$120.00"
+          ]
+        ],
+        "total": [
+          "3 of 3 Sites",
+          "$9,688.00",
+          "$8,870.00",
+          "$150.00",
+          "$668.00"
+        ]
+      }
+    },
+    "outcomes": [
+      {
+        "key": "grow",
+        "label": "Grow revenue",
+        "value": "−$97.00",
+        "word": "Emulated",
+        "line": "Revenue against target, 3 of 3 Sites",
+        "drawer": null
+      },
+      {
+        "key": "optimize",
+        "label": "Optimize cost and efficiency",
+        "value": "−$755.00",
+        "word": "Estimated",
+        "line": "Fuel, O&M and staff against target; cash collected is shown apart",
+        "drawer": null
+      },
+      {
+        "key": "protect",
+        "label": "Protect asset and capital",
+        "value": "Not available yet",
+        "word": null,
+        "line": "Limits, warranties and rights are not set up yet",
+        "drawer": null
+      },
+      {
+        "key": "assure",
+        "label": "Assure performance and returns",
+        "value": "Reconciled",
+        "word": null,
+        "line": "1 budget disagreement · 91.5% of cost from figures received",
+        "drawer": {
+          "title": "Reconciliation with the management accounts",
+          "lines": [
+            "Reconciled: October 2026 (the organisation) matches the management accounts within 1% (Declared)."
+          ]
+        }
+      }
+    ],
+    "decisions": {
+      "title": "Decisions",
+      "text": "Not available yet: no decision has been valued against doing nothing."
+    },
+    "not_available": {
+      "rows": [
+        {
+          "needs": "the billing export with each line's kWh and tariff",
+          "fills": "Billing adjustments, Energy on unmapped meters and Tariff",
+          "sites": "Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid"
+        },
+        {
+          "needs": "a feeder meter export",
+          "fills": "Energy delivered, Technical losses and Unexplained losses",
+          "sites": "Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid"
+        },
+        {
+          "needs": "a meter register with change dates",
+          "fills": "Unexplained losses and Energy on unmapped meters",
+          "sites": "Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid"
+        },
+        {
+          "needs": "the customer meter reads for the month",
+          "fills": "Unexplained losses and Energy on unmapped meters",
+          "sites": "Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid"
+        },
+        {
+          "needs": "each feeder's expected technical loss as declared in the Site's setup",
+          "fills": "Technical losses and Unexplained losses",
+          "sites": "Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid"
+        },
+        {
+          "needs": "the productive-use tariff",
+          "fills": "Productive-use price",
+          "sites": "Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid"
+        },
+        {
+          "needs": "the EMS interval export (generator running and output, solar available power, battery charge)",
+          "fills": "Diesel not shown to be avoidable, Diesel run while solar and battery could carry the load and Unexplained fuel",
+          "sites": "Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid"
+        },
+        {
+          "needs": "the generator's fuel curve (litres per kWh; litres per hour idle)",
+          "fills": "Diesel not shown to be avoidable, Diesel run while solar and battery could carry the load and Unexplained fuel",
+          "sites": "Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid"
+        },
+        {
+          "needs": "tank dips at the start and end of the month",
+          "fills": "Unexplained fuel",
+          "sites": "Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid"
+        },
+        {
+          "needs": "fuel delivery notes",
+          "fills": "Unexplained fuel",
+          "sites": "Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid"
+        },
+        {
+          "needs": "the service contractor's invoices",
+          "fills": "O&M (taken at its budget line meanwhile)",
+          "sites": "Kisiwa mini-grid"
+        },
+        {
+          "needs": "a generator and a fuel tank declared in the Site's setup (litres are worked out for each)",
+          "fills": "Diesel not shown to be avoidable, Diesel run while solar and battery could carry the load and Unexplained fuel",
+          "sites": "Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid"
+        },
+        {
+          "needs": "budget lines for energy delivered, tariff and productive-use price",
+          "fills": "Energy delivered, Tariff and Productive-use price",
+          "sites": "Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid"
+        }
+      ],
+      "not_built": "Not built yet: the value of each change against doing nothing, and the limits, warranties and rights under Protect."
+    },
+    "fresh": {
+      "current": true,
+      "text": null,
+      "untracked_text": null
+    }
+  }
+}

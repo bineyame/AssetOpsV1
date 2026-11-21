@@ -1,6 +1,6 @@
 # DDR mid-build questions
 
-Questions raised during the build about something the spec did not fix. Count: 1 (reset at spec rev 2,
+Questions raised during the build about something the spec did not fix. Count: 1, answered (reset at spec rev 2,
 2026-11-20).
 
 ## MB1 (Medium) `source_profile admit` does not print `admitted_by`
@@ -14,3 +14,5 @@ Questions raised during the build about something the spec did not fix. Count: 1
   after `admit` and says to copy the `ddr-board-budget` line's `admitted_by`; ON1's `EXPECTED` holds thirteen commands
   (`"source_profile list"` after `"source_profile admit"`). Alternatives for the Architect: (a) keep this; (b) a
   one-key product change in `_report` (adds `admitted_by` to the admit line), outside DDR's file list.
+- **Answer (coordinator, 2026-11-21): default accepted.** Runbook section 6 runs `source_profile list` after `admit`;
+  ON1's `EXPECTED` keeps its thirteen entries. No product change.
