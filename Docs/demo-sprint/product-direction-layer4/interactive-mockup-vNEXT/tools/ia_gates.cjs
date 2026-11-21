@@ -15,11 +15,11 @@ const PLANTS = {
   /* spec §5.1.8, D-IA.49 to D-IA.52 */
   'IA-2a': [['plan_shape_check', 'PLAN_PLANT', ['tabs', 'place', 'l1', 'approval', 'thr', 'stepdone', 'cap', 'revised', 'sticky']], ['count_check', 'COUNT_PLANT', ['planstep', 'planhist', 'planver']],
     ['shape_check', 'SHAPE_PLANT', ['doctitle']], ['click_depth_check', 'G1_PLANT', ['plantabs']], ['plan_switch_check', 'PS_PLANT', ['crewtile', 'release', 'leftout']],
-    ['ux_interaction_check', 'UXI_PLANT', ['planans', 'planwait']], ['copy_check', 'COPY_PLANT', ['plan']]]
+    ['ux_interaction_check', 'UXI_PLANT', ['planans', 'planwait']], ['copy_check', 'COPY_PLANT', ['plan']], ['qty_check', 'QTY_PLANT', ['clause', 'wait']]]
 };
 /* the checks of a unit whose output must not say "dormant" once the unit is landed (D-IA.49) */
-const OWN = { 'IA-2a': ['plan_shape_check', 'count_check', 'shape_check', 'click_depth_check', 'plan_switch_check', 'ux_interaction_check', 'copy_check'] };
-const runs = [['shape_check', null, null], ['click_depth_check', null, null], ['after_render_check', null, null], ...(landed.has('IA-1b') ? [['count_check', null, null], ['outcomes_table_check', null, null]] : []), ...(landed.has('IA-2a') ? [['plan_shape_check', null, null], ['plan_switch_check', null, null], ['ux_interaction_check', null, null], ['copy_check', null, null]] : [])];
+const OWN = { 'IA-2a': ['plan_shape_check', 'count_check', 'shape_check', 'click_depth_check', 'plan_switch_check', 'ux_interaction_check', 'copy_check', 'qty_check'] };
+const runs = [['shape_check', null, null], ['click_depth_check', null, null], ['after_render_check', null, null], ...(landed.has('IA-1b') ? [['count_check', null, null], ['outcomes_table_check', null, null]] : []), ...(landed.has('IA-2a') ? [['plan_shape_check', null, null], ['plan_switch_check', null, null], ['ux_interaction_check', null, null], ['copy_check', null, null], ['qty_check', null, null]] : [])];
 for (const [unit, list] of Object.entries(PLANTS)) if (landed.has(unit)) for (const [check, env, names] of list) for (const n of names) runs.push([check, env, n]);
 let bad = 0; const t0 = Date.now();
 for (const [check, env, plant] of runs) {

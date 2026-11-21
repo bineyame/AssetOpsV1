@@ -82,7 +82,9 @@ function iaPlanBand(op, P, budget) { const B = uxPlanBandParts(op, P, budget); r
    fieldset's legend and its checked option, from switches(op) */
 function iaPlanCaseLabel(op) { const t = document.createElement('template'); t.innerHTML = switches(op); return [...t.content.querySelectorAll('fieldset')].map(f => `${f.querySelector('legend').textContent}: ${((f.querySelector('input[checked]') || {}).parentNode || { textContent: '' }).textContent.trim()}`).join('; '); }
 function iaPlanCaseLine(op, here) { return DEFAULT_CASE(op) ? '' : `<p class="ia-plan-case">Showing the case you chose: ${escapeHtml(iaPlanCaseLabel(op))}. <a href="${here ? '#sw-h' : '#/plan'}">Change the case</a></p>`; }
-function iaPlanHead(op, p, here) { return `${iaPlanStepper(op)}${iaPlanBand(op, p.P, p.budget)}${p.ap.releases}${p.ap.notice}${iaPlanCaseLine(op, here)}<p class="ia-plan-rules">${uxOpener('ia-plan-thresholds', 'Release thresholds', 'ux-link')}</p>`; }
+/* D-IA.54: the part of the plan's spend that was released at creation, stated beside the waiting part so the figures add up */
+function iaPlanReleased(op) { const ids = planCaseIds(op).filter(id => releaseOf(op, id).at); return ids.length ? `<p class="ia-plan-released" data-qty="plan-spend" data-qty-role="part">Already released when ${ids.length === 1 ? 'its Action was' : 'their Actions were'} created, within the release thresholds: ${ids.map(id => `${itemProse(op, id)} (${usd(releaseOf(op, id).spend)})`).join('; ')}.</p>` : ''; }
+function iaPlanHead(op, p, here) { return `${iaPlanStepper(op)}${iaPlanBand(op, p.P, p.budget)}${p.ap.releases}${iaPlanReleased(op)}${p.ap.notice}${iaPlanCaseLine(op, here)}<p class="ia-plan-rules">${uxOpener('ia-plan-thresholds', 'Release thresholds', 'ux-link')}</p>`; }
 /* History (§5.1.4): the act log's plan entries newest first, then the proposal and the opening (PSTATE: no act changes them) */
 function iaPlanHistory(op) {
   const S = uxPlanState(op), S0 = PSTATE(), L = (uxMock().log || []).filter(e => e.op === op && (e.key === 'approve-plan' || e.key === 'send-back'));
