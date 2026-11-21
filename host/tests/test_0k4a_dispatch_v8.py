@@ -156,6 +156,11 @@ def night_support(mill_from: int, res: int = 25, clinic: int = 10):
     return _execute(run, _windows(_start_soc(season_inputs(run, 1), 34), windows))
 
 
+def all_night_support_inputs(run):
+    windows = ((RES, 0, 360, 25), (CLINIC, 0, 360, 10), (MILL, 60, 90, 40))
+    return _windows(_start_soc(season_inputs(run, 1), 34), windows)
+
+
 @cache
 def soc_80(version: int, site_edit):
     run = _run(1, version, site_edit)
@@ -244,6 +249,52 @@ def test_n4_generator_support_is_exact() -> None:
         assert energy(t, i, BAT_AC) == F(5, 2), i
         assert demand(t, i) - served(t, i) == F(5, 12), i
     assert soc(t, 18) > 30
+
+
+@cache
+def all_night_support():
+    """N4b: res 25 and clinic 10 kW over [0, 360), the mill 40 kW over [60, 90), start SOC 34. The charge before 60
+    leaves the battery just above its reserve, so the reserve binds inside the window (0K4a review L1)."""
+    run = _run(1, 8, site)
+    windows = ((RES, 0, 360, 25), (CLINIC, 0, 360, 10), (MILL, 60, 90, 40))
+    return _execute(run, _windows(_start_soc(season_inputs(run, 1), 34), windows))
+
+
+def test_n4b_generator_support_respects_the_reserve() -> None:
+    t = all_night_support()
+    for i in range(12, 15):  # [60, 75): the PCS limit binds, the reserve does not
+        assert energy(t, i, BAT_AC) == F(5, 2), i
+        assert soc(t, i + 1) > 30, i
+    # [75, 80): the energy above the reserve is all that is left: (soc - 30) x 2 kWh a percent x 95/100.
+    assert energy(t, 15, BAT_AC) == (soc(t, 15) - 30) * 2 * F(95, 100) == F(1667, 960)
+    assert soc(t, 16) == 30
+    for i in range(16, 18):  # [80, 90): at the reserve, nothing from the battery; the shortfall is unserved
+        assert energy(t, i, BAT_AC) == 0, i
+        assert soc(t, i) == 30, i
+        assert demand(t, i) - served(t, i) == F(35, 12), i
+    for i in range(12, 18):
+        assert state(t, i) == "RUNNING" and energy(t, i, GEN_OUT) == F(10, 3), i
+
+
+def test_l2_a_fuel_limited_running_segment_is_partial_and_the_tank_ends_at_zero() -> None:
+    """A tank of 2 L under N4b's load (0K4a review L2): STARTING burns the no-load rate, the next steps run on what
+    is left. The step the tank cannot fill gives the curve's partial output, the tank is then 0 (never below)."""
+    run = _run(1, 8, site)
+    inputs = all_night_support_inputs(run)
+    inputs = dataclasses.replace(inputs, initial_values=tuple(
+        dataclasses.replace(row, value=F(2)) if row.address == TANK else row for row in inputs.initial_values))
+    t = _execute(run, inputs)  # COMPLETED
+    noload_step = NO_LOAD_L_PER_MIN * 5
+    fuel = t.boundaries[2].stock(TANK)  # the start of the step [10, 15)
+    assert state(t, 2) == "RUNNING" and 0 < fuel < 1
+    partial = (fuel - noload_step) / SLOPE_L_PER_KWH  # kWh over the step; the full 10/3 would burn more than `fuel`
+    assert partial < F(10, 3)
+    assert energy(t, 2, GEN_OUT) == partial == F(60, 29)
+    assert t.boundaries[3].stock(TANK) == 0
+    assert all(t.boundaries[i].stock(TANK) == 0 for i in range(3, len(t.boundaries)))
+    assert energy(t, 3, GEN_OUT) == 0
+    limits = [x for c in accepted(t, 2).controls for x in c.limited_by]
+    assert any("fuel in tank" in x for x in limits), limits
 
 
 def _acceptance_kw(t, i):

@@ -114,7 +114,7 @@ NEED_SENTENCES = {
 }
 
 
-def test_p4_the_curve_needs_are_declared_and_on_no_profile_yet():
+def test_p4_the_curve_needs_are_declared_and_and_v8_alone_declares_them():
     assert [(n.state_key, n.foundation_binding.property_key, n.foundation_binding.unit,
              n.foundation_binding.component_type) for n in GENERATOR_CURVE_NEEDS] == [
         ("generator-no-load-fuel-rate", "generator-no-load-fuel-rate", "L/h", "GENERATOR"),
