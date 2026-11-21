@@ -150,7 +150,7 @@ Returns the check.
 
 ### 2.6 The service
 
-`backend/assetops_backend/commercial/reconciliation.py`:
+`backend/assetops_backend/structure/reconciliation.py` (D-3A7.14):
 
 ```python
 HEADINGS = ("revenue", "fuel_cost")
@@ -249,8 +249,8 @@ name); scope: the Site code, or `the organisation`; heading names `Revenue`, `Fu
 |---|---|
 | `backend/migrations/versions/0068_commercial_reconciliation.py` | §4 |
 | `backend/assetops_backend/commercial/model.py`, `store.py`, `adapters/postgres_commercial_store.py` | `StatementRow`, `ToleranceRow`, `SiteRow`; `add_accounts_statement`, `accounts_statements`, `add_tolerance`, `tolerances`, `site_rows` |
-| `backend/assetops_backend/commercial/reconciliation.py` | §2.1 to §2.6 |
-| `backend/assetops_backend/commercial/composition.py` | `build_commercial_reconciliation(database_url) -> (CommercialReconciliation, dispose)`, on `build_commercial_reads` |
+| `backend/assetops_backend/structure/reconciliation.py` | §2.1 to §2.6 (D-3A7.14) |
+| `backend/assetops_backend/structure/reconciliation_composition.py` | `build_commercial_reconciliation(database_url, *, owner_file=None) -> (CommercialReconciliation, dispose)`, on `commercial.composition.build_commercial_reads` (D-3A7.14, D-3A7.15) |
 | `backend/assetops_backend/reconcile_month.py` | §5 |
 | `backend/assetops_backend/accounts/permissions.py` | `"commercial.accounts_statement": (FINANCE,)` |
 | `backend/assetops_backend/i18n/messages.py` | §2.7 |
