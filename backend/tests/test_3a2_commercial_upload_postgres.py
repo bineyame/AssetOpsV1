@@ -277,7 +277,7 @@ def test_6_downgrade_refused_with_an_upload_then_down_and_up(w, engine) -> None:
 
     cfg = pg_harness._alembic(URL)
     script = _this_migration(cfg)
-    assert script.revision == ScriptDirectory.from_config(cfg).get_current_head()
+    assert (script.revision, script.down_revision) == ("0065_commercial_upload", "0064_person_on_work")
     assert isinstance(script.down_revision, str) and script.down_revision != script.revision
     _submit(w)
     w["store"].dispose()
