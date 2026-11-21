@@ -1,8 +1,8 @@
 # 3C2 mid-build questions
 
-Questions raised during the build about something the spec did not fix (spec rev 2). Count: 1 (open).
+Questions raised during the build about something the spec did not fix (spec rev 2). Count: 1 (answered).
 
-## MB1 (open). The adapter-isolation rule admits only `actions/composition.py` as the importer of `actions/adapters/`
+## MB1 (answered, D-3C2.15: alternative B). The adapter-isolation rule admits only `actions/composition.py` as the importer of `actions/adapters/`
 
 - **What.** Spec §2.4 makes `actions/agreed_composition.py` "the only importer of the adapter", and test 5 asserts it.
   `tools/checks/configuration-persistence.ps1` (the domain table, `Name = "actions"`, and the adapter-import rule
@@ -20,3 +20,5 @@ Questions raised during the build about something the spec did not fix (spec rev
   `build_agreed_actions(url).service.for_tenant(tenant)[0]` and 9(e)'s import rule hold. Test 5's "only
   `agreed_composition.py` imports the adapter" becomes "only `actions/composition.py`"; importing the composition
   then loads the S6-01a composition's modules too (no call into them).
+
+- **Answer.** B, no guard change: `D-3C2.15` in `rulings.md`. Spec rev 3, reviewer guide, handoff and packet amended. The held writer block (`42de02e06`) is still needed and stays held for the owner.

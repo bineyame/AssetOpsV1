@@ -10,13 +10,13 @@ Branch `task/3C2-agreed-change` (worktree `/opt/assetecon/AssetOpsV1-3c2`), off 
   `clean_title`, `owner_covers`, `OWNER_COVER`, `REFUSAL_EXIT`, `AgreedActionRefused(code)` (`.code`, `.exit`),
   `StoreUnavailable`, `AgreedActionService.record` / `.for_tenant`, `MemoryAgreedActionStore`.
   `AgreedActionView.state_code` holds the code (the spec's `state_words` field arrives in commit 2).
-- `actions/adapters/postgres_agreed_action_store.py`, `actions/agreed_composition.py`
-  (`build_agreed_actions(url, *, clock=...)` -> `AgreedActionsService(service, dispose)`).
+- `actions/adapters/postgres_agreed_action_store.py`, `actions/composition.py` (agreed block appended, D-3C2.15):
+  `build_agreed_actions(url, *, clock=...)` -> `AgreedActionsService(service, dispose)`, re-exported by `actions/agreed_composition.py`.
 - `backend/assetops_backend/record_action.py`: refusal writes `"<CODE>\n"` to stderr; success line `state` is the
   code; the epilog is static chrome.
 - `accounts/permissions.py`: `"action.agree": (EXECUTIVE,)`.
 - Tests: `backend/tests/test_3c2_agreed_actions.py` (1 to 5), `backend/tests/test_3c2_agreed_actions_postgres.py`
-  (6 to 8). Guard writer block in its own commit, held for the owner. Mid-build MB1 open.
+  (6 to 8). Guard writer block in its own commit, held for the owner. MB1 answered (D-3C2.15): code change to B follows.
 
 ## Next (commit 2, after SC-1a merges and `main` is merged in)
 
@@ -41,7 +41,7 @@ Branch `task/3C2-agreed-change` (worktree `/opt/assetecon/AssetOpsV1-3c2`), off 
 
 ## Risks
 
-- MB1 (adapter-import rule) must be answered before merge; the guard fails on that one line until then.
+- MB1: the guard fails on the adapter-import line until the code moves to B (D-3C2.15).
 - The guard writer block needs the owner's approval at merge (owner-away row 5).
 - `ASSETOPS_TEST_CLEANUP=truncate` would hit `agreed_action_no_truncate` (as `chain_input_change` already does);
   the default DELETE cleanup is unaffected.

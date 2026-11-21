@@ -17,7 +17,7 @@ Branch `task/3C2-agreed-change` (worktree `/opt/assetecon/AssetOpsV1-3c2`), off 
 
 | Commit | What |
 |---|---|
-| `ec47d56fa` | migration, `actions/agreed.py`, adapter, `agreed_composition.py`, `record_action.py`, permission line, tests 1 to 8 |
+| `ec47d56fa` | migration, `actions/agreed.py`, adapter, `agreed_composition.py` (moves to `actions/composition.py`, re-export left, D-3C2.15), `record_action.py`, permission line, tests 1 to 8 |
 | `42de02e06` | **HELD FOR OWNER at merge (owner-away row 5):** the `agreed_action` writer block in `configuration-persistence.ps1`, nothing else |
 | `be9efbaab` | 3C1a's role-table test lists `action.agree` (as 3A6 listed its command) |
 | docs commit | spec folder from `main`, Status `in_review`, MB1, handoff, built state |
@@ -75,8 +75,7 @@ raise), P24 (catch removed: test 7b returns nothing), P25 (lock removed: test 7c
 
 ## Open
 
-- **MB1** (`mid-build-questions.md`): the adapter-import rule names one composition per package. Count 1, open,
-  proposed default A (admit `actions/agreed_composition.py` in the held guard change). Needs an answer before merge.
+- **MB1 answered, B (D-3C2.15):** composition moves into `actions/composition.py`, re-exported by `agreed_composition.py`; test 5 retargeted; no guard change beyond the writer block. Code not yet moved.
 - **Owner approval at merge:** the writer block (`42de02e06`), owner-away row 5.
 - **R-AUTH** (residual): `record_action` is a trusted act, not a sign-in; `--as` names the person, `created_by_script`
   true; a person records on screen once 3C3 lands (D-3C2.12).
