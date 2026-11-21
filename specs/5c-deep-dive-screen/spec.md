@@ -117,9 +117,11 @@ D-4A.12, D-4A.20, D-4A.24 and D-5C.25 (`BILLING` "the billing export with each l
 | OM_INVOICES | the service contractor's invoices |
 | PAYROLL | payroll lines |
 | SITE_SETUP | one generator and one fuel tank declared in the Site's setup (litres are worked out for one of each) |
-| ANALYSING | the running record's analysis, still in progress |
+| ANALYSING | the running record's analysis (still in progress) |
 | MONTH_CLOSE | the month to close |
 | BUDGET_LINES | (built: `"a budget line for " + x` or `"budget lines for " + join(xs)`, `xs` the leaves' `lower(label)`) |
+
+ANALYSING reads "(still in progress)" in brackets, not after a comma: a record word holds no comma outside brackets (D-5C.25, the no-comma case; fix round 1, KD3).
 
 `RECORD_KEYS`: `revenue`, `billed_kwh` (BILLING); `adjustments_kwh` (BILLING_ADJUSTMENTS); `delivered_kwh`
 (FEEDER_METER); `technical_loss_kwh`, `unexplained_loss_kwh` (FEEDER_METER, METER_REGISTER); `unmapped_kwh`

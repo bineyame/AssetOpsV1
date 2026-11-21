@@ -65,12 +65,12 @@ VOCABULARY = {
         "forms": ["in_sentence"],
         "order": ["BILLING", "FEEDER_METER", "METER_REGISTER", "METER_READS", "LOSS_BAND", "PRODUCTIVE_LINES", "PRODUCTIVE_TARIFF", "SETTLEMENTS", "RECEIPTS", "EMS", "FUEL_CURVE", "TANK_DIPS", "FUEL_DELIVERIES", "FUEL_INVOICES", "OM_INVOICES", "PAYROLL", "SITE_SETUP", "ANALYSING", "MONTH_CLOSE"],
         "entries": {
-            "BILLING": {"in_sentence": "the billing export"},
+            "BILLING": {"in_sentence": "the billing export with each line's kWh and tariff"},  # D-5C.25
             "FEEDER_METER": {"in_sentence": "a feeder meter export"},
             "METER_REGISTER": {"in_sentence": "a meter register with change dates"},
             # D-4A.12 (5c takes it): the customer meter reads and the declared loss band, after the register.
             "METER_READS": {"in_sentence": "the customer meter reads for the month"},
-            "LOSS_BAND": {"in_sentence": "the expected technical loss of each feeder, declared in the Site's setup"},
+            "LOSS_BAND": {"in_sentence": "each feeder's expected technical loss as declared in the Site's setup"},  # D-5C.25
             "PRODUCTIVE_LINES": {"in_sentence": "productive-use lines in the billing export"},
             "PRODUCTIVE_TARIFF": {"in_sentence": "the productive-use tariff"},
             "SETTLEMENTS": {"in_sentence": "the mobile-money settlement statement"},
@@ -83,7 +83,7 @@ VOCABULARY = {
             "OM_INVOICES": {"in_sentence": "the service contractor's invoices"},
             "PAYROLL": {"in_sentence": "payroll lines"},
             "SITE_SETUP": {"in_sentence": "a generator and a fuel tank declared in the Site's setup (litres are worked out for each)"},
-            "ANALYSING": {"in_sentence": "the running record's analysis, still in progress"},
+            "ANALYSING": {"in_sentence": "the running record's analysis (still in progress)"},  # D-5C.25 class rule: no bare comma
             "MONTH_CLOSE": {"in_sentence": "the month to close"},
         },
     },
@@ -159,6 +159,46 @@ VOCABULARY = {
         "entries": {
             "OPEN": {"label": "Open"},
             "OVERDUE": {"label": "Overdue"},
+        },
+    },
+    # 0K4e (spec §2.5, D-0K4.24): the inputs and lookup problems an energy-cover entry names.
+    "dispatch_input": {
+        "forms": ["label", "in_sentence"],
+        "order": ["feeder_demand", "pv_available_power", "battery_energy_capacity", "pcs_conversion_efficiency"],
+        "entries": {
+            "feeder_demand": {"label": "Load", "in_sentence": "the load"},
+            "pv_available_power": {"label": "Solar available power", "in_sentence": "solar available power"},
+            "battery_energy_capacity": {"label": "Battery energy capacity",
+                                        "in_sentence": "the battery energy capacity"},
+            "pcs_conversion_efficiency": {"label": "PCS conversion efficiency",
+                                          "in_sentence": "the PCS conversion efficiency"},
+        },
+    },
+    "reading_problem": {
+        "forms": ["in_sentence"],
+        "order": ["MISSING", "NOT_GOOD", "CONFLICTING", "AMBIGUOUS_SERIES", "UNBOUND", "MULTIPLE_BINDINGS"],
+        "entries": {
+            "MISSING": {"in_sentence": "no accepted reading"},
+            "NOT_GOOD": {"in_sentence": "a reading not of good quality"},
+            "CONFLICTING": {"in_sentence": "contradictory readings"},
+            "AMBIGUOUS_SERIES": {"in_sentence": "readings out of sequence order or overlapping"},
+            "UNBOUND": {"in_sentence": "no bound asset"},
+            "MULTIPLE_BINDINGS": {"in_sentence": "several bound assets"},
+        },
+    },
+    # 0K4b (D-0K4.19, spec section 2.6): the Foundation property names a model reads, by property key in lower snake.
+    "foundation_property": {
+        "forms": ["label", "in_sentence"],
+        "order": ["generator_minimum_load", "generator_minimum_load_basis", "battery_charge_taper_start",
+                  "battery_charge_taper_start_basis"],
+        "entries": {
+            "generator_minimum_load": {"label": "Generator minimum load", "in_sentence": "generator minimum load"},
+            "generator_minimum_load_basis": {"label": "Generator minimum load basis",
+                                             "in_sentence": "generator minimum load basis"},
+            "battery_charge_taper_start": {"label": "Battery charge taper start",
+                                           "in_sentence": "battery charge taper start"},
+            "battery_charge_taper_start_basis": {"label": "Battery charge taper start basis",
+                                                 "in_sentence": "battery charge taper start basis"},
         },
     },
 }

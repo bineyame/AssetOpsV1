@@ -37,6 +37,7 @@ from assetops_backend.analytics.dispatch import CANDIDATE
 from assetops_backend.analytics.dispatch_read import CURRENT, FAILED, PENDING, STALE, UNASSESSED, DispatchReadService
 from assetops_backend.analytics.dispatch_v3 import _NOT_EVIDENCE_GAPS
 from assetops_backend.evidence.provenance_read import finding_provenance
+from assetops_backend.i18n import State, message, render
 from assetops_backend.outcomes.catalogue import MINI
 from assetops_backend.outcomes.outcome_map import categories_for, finding_signal_key
 
@@ -199,9 +200,13 @@ RECORD_GAP, MODELLING, UNSTATED = "RECORD_GAP", "MODELLING", "UNSTATED"
 RECORD_GAP_SENTENCE = "Some records it needs are missing or conflict over part of the period."
 
 
-def portion_cause(missing: list[str]) -> tuple[str, list[str]]:
-    """(kind, plain fragments) for one Indeterminate portion's `missing` list."""
+def portion_cause(missing: list[str], cover=()) -> tuple[str, list[str]]:
+    """(kind, plain fragments) for one Indeterminate portion's `missing` list and its stored dispatch-3.3
+    `energy_cover` entries (0K4e, D-0K4.24): a `GAP` or `NOT_CONFIGURED` entry is a record gap; a `SHORT` or
+    `NOT_REACHED` entry adds the `dispatch.energy_cover_cause` fragment to the modelling words."""
     if any(not m.startswith(_NOT_EVIDENCE_GAPS) for m in missing):
+        return RECORD_GAP, []
+    if any(e["state"] in ("GAP", "NOT_CONFIGURED") for e in cover):
         return RECORD_GAP, []
     words: list[str] = []
     for m in missing:
@@ -209,6 +214,9 @@ def portion_cause(missing: list[str]) -> tuple[str, list[str]]:
         runtime = _RUNTIME.search(m)
         words.append(_MODELLING_WORDS[prefix].format(
             runtime=f"{runtime.group(1)}-minute " if runtime else ""))
+    for e in cover:
+        if e["state"] in ("SHORT", "NOT_REACHED"):
+            words.append(render(message("dispatch.energy_cover_cause", state=State(e["state"]))))
     return (MODELLING, list(dict.fromkeys(words))) if words else (UNSTATED, [])
 
 
@@ -326,10 +334,12 @@ class FindingReadService:
             for seg in segments:
                 if seg.get("classification") == "INDETERMINATE":
                     missing = list(seg.get("missing") or [])
-                    kind, plain = portion_cause(missing)
+                    cover = list(seg.get("energy_cover") or [])
+                    kind, plain = portion_cause(missing, cover)
                     out.append({"assessment_revision_id": str(cite["assessment_revision_id"]),
                                 "start": seg.get("start"), "end": seg.get("end"), "kind": kind, "plain": plain,
-                                "reasons": list(seg.get("reasons") or []), "missing": missing})
+                                "reasons": list(seg.get("reasons") or []), "missing": missing,
+                                "energy_cover": cover})
         return out
 
     def _currentness(self, tenant_id: UUID, site_id: UUID, rev: dict[str, Any]) -> dict[str, Any]:

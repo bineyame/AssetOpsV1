@@ -13,11 +13,16 @@ STATEMENTS = {
             "subject": {"type": "word", "vocabulary": "headline_subject", "form": "in_sentence", "optional": True},
             "month": {"type": "month", "form": "month"},
             "sites": {"type": "k_of_n"},
+            "cause": {"type": "state", "values": ["CURRENCIES"], "optional": True},
             "direction": {"type": "pick", "on": {"sign": "gap"}, "domain": ["negative", "positive"],
                           "words": {"negative": "below", "positive": "above"}},
             "compared": {"type": "part", "key": "deep_dive.compared"},
         },
         "variants": [
+            # Review L7 (round 4): R's Sites hold different currencies, so no portfolio figure sums. No number word
+            # (LITERAL_NUMBER_WORD, D-SC1.32).
+            {"id": "currencies_differ", "when": {"is": ["cause", "CURRENCIES"]},
+             "text": "Contribution for {month} is not available yet: the Sites' figures are in different currencies."},
             {"id": "not_available", "when": {"absent": "gap"}, "text": "Contribution for {month} is not available yet."},
             {"id": "on_target", "when": {"sign": ["gap", "zero"]}, "text": "Contribution is on target in {month}.{compared}"},
             {"id": "gap_only", "when": {"absent": "big"},
@@ -86,15 +91,16 @@ STATEMENTS = {
     "deep_dive.money": {
         "evidence": "served",
         "slots": {"value": {"type": "money", "absent": ["NOT_AVAILABLE", "NOT_COMPARED"]},
-                  "form": {"type": "state", "values": ["PLAIN", "SIGNED", "ESTIMATE"]}},
+                  "form": {"type": "state", "values": ["PLAIN", "SIGNED", "AT_BUDGET"]}},
         "variants": [
             {"id": "not_available", "when": {"reason": ["value", "NOT_AVAILABLE"]}, "text": "Not available yet"},
             {"id": "not_compared", "when": {"reason": ["value", "NOT_COMPARED"]}, "text": "Not compared"},
             {"id": "plain", "when": {"is": ["form", "PLAIN"]}, "text": "{value}"},
             {"id": "signed", "when": {"is": ["form", "SIGNED"]}, "options": {"value": {"signed": True}},
              "text": "{value}"},
-            {"id": "estimate", "requires": {"is": ["form", "ESTIMATE"]}, "options": {"value": {"signed": True}},
-             "text": "{value} (estimate)"},
+            # D-5C.23: a carried Site's step value names its source.
+            {"id": "at_budget", "requires": {"is": ["form", "AT_BUDGET"]}, "options": {"value": {"signed": True}},
+             "text": "{value} (at budget)"},
         ],
     },
     # The fixed words of the screen, one variant per piece.
@@ -346,12 +352,18 @@ STATEMENTS = {
     "deep_dive.out": {
         "evidence": "served",
         "slots": {"site": {"type": "name"},
-                  "reason": {"type": "state", "values": ["NOT_MINI_GRID", "NOT_SPLIT", "NEEDS"]},
+                  "reason": {"type": "state", "values": ["NOT_MINI_GRID", "NOT_SPLIT", "NEEDS", "CURRENCY_MISMATCH"]},
                   "needs": {"type": "part", "key": "deep_dive.needs"},
-                  "target": {"type": "money", "optional": True}},
+                  "target": {"type": "money", "optional": True},
+                  "currency": {"type": "items", "of": {"type": "name"}, "order": "given", "optional": True}},
         "variants": [
             {"id": "not_mini_grid", "when": {"is": ["reason", "NOT_MINI_GRID"]},
              "text": "{site}: not a mini-grid Site, not included."},
+            # Review M3 (round 4, spec.md:184's stop literal): a mini-grid Site whose own actual and target are in
+            # different currencies; `currency` is both sides' currencies.
+            {"id": "currency_mismatch", "when": {"is": ["reason", "CURRENCY_MISMATCH"]},
+             "requires": {"present": "currency"},
+             "text": "{site}: not compared: its actual and its target are in different currencies ({currency})."},
             {"id": "not_split", "when": {"is": ["reason", "NOT_SPLIT"]}, "text": "{site}: not split this far."},
             {"id": "needs_target", "when": {"present": "target"},
              "text": "{site}: not compared until {needs}; its own target is {target}."},

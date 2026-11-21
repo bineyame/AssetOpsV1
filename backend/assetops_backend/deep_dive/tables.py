@@ -88,5 +88,6 @@ def iso_z(at: datetime) -> str:
     return at.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-#: A by-Site step cell's amount form: a carried row reads as an estimate (spec section 3.2).
-CELL_FORM = {True: "ESTIMATE", False: "SIGNED"}
+#: A by-Site step cell's and its drawer row's amount form: a carried row names its source, " (at budget)"
+#: (spec section 3.2, D-5C.23).
+CELL_FORM = {True: "AT_BUDGET", False: "SIGNED"}

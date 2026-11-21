@@ -50,3 +50,48 @@ Builder (Claude), 2026-11-21, branch `task/5c-deep-dive-screen`, head 37e823259 
 - Risks: MBQ1 (`mid-build-questions.md`): 3A7's real standing words end "within 1% (Recorded)."; spec 3.5 and the
   unit-1 fixture say "within 1%."; test 9 asserts 3A7's words, the Architect settles 3.5. With a `DATABASE_URL`,
   `create_app` now builds the snapshot composition (the rules digest reads files once per app).
+
+## Fix round 1 (units 1-2; review round 1 and rulings D-5C.19 to D-5C.25), 2026-11-21
+- Branch `task/5c-deep-dive-screen` in worktree `AssetOpsV1-5cbe`; `main` merged twice (SC-1f at 28cb8e449, the
+  rev-3 rulings at 3d2760637), both clean.
+- **H1.** `group_sums` carries None; the tile split, a step drawer's effect line and a residual stop are left out
+  when there is no figure; group and outcome values read "Not available yet". Test 4 i (Mto's records in KES, so
+  nothing compares) asserts every place.
+- **H2 / D-5C.19.** `words.SCREEN_EVIDENCE` hands `DECLARED` to the shared vocabulary as `RECORDED` (section 2.4's
+  order); test 5 has a DECLARED row for each origin. 3A7's passed-through text keeps its own words.
+- **M1.** Test 9 asserts 3A7's post-SC-1f words ("(Declared)", "Fuel cost (Recorded, Emulated and Declared)") and maps
+  unit 1's injected fuel-cost detail to them.
+- **M2 / D-5C.20.** The headline's `evidence` is `word()` (through `money_word`) of R and of the named heading; class
+  test `test_3_headline_evidence_is_the_figures_words` over A, B, D, L1 to L4.
+- **L2 / D-5C.21.** `drivers` nested with `key` and `children`; test 4(H) asserts section 3.5's literal.
+- **L3 / D-5C.22.** No `more` outside Actions (already so); test 3 asserts it.
+- **L1, flag (a) / D-5C.23.** `CELL_FORM[True]` is `AT_BUDGET` (" (at budget)"; the `deep_dive.money` variant renamed
+  `at_budget`), used by the cell and the drawer row.
+- **L5 / D-5C.25.** BILLING and LOSS_BAND reworded; `test_5_record_words_hold_no_comma_outside_brackets`.
+- **Known deviation KD3 (Architect to confirm).** The no-comma case also caught `ANALYSING` ("the running record's
+  analysis, still in progress", spec section 2.3's table). It now reads "the running record's analysis (still in
+  progress)". The coordinator accepted it; spec section 2.3's table row now reads this way (fix round 2).
+- **Unit 3 follows.** The screen's own fixture or tests need to carry: "(at budget)", the nested `drivers`, the
+  headline's evidence "Estimated, not yet reconciled", and the two record words.
+- Plants: `/opt/assetecon/evidence/5c/fixround1/plants.txt`.
+
+## Fix round 3 (review round 2: H3, M3, L7, L8), 2026-11-21
+- **H3.** `_View.cur` is gone. Each portfolio figure prints in its own row's currency: steps, drivers and their
+  details, drawer lines, the by-Site total, cash sentence and total, and R's figures in `R.currency`. A heading and its
+  card take the currency of their steps; `group_totals` returns (None, None) when the steps hold more than one
+  currency, so the heading reads "Not available yet" and the tile split is left out. `own_cur(code, row, side)`
+  returns the row's currency, else (5b case (h)) that side's own currency; never the portfolio's. A budget line with
+  no currency is not listed. `W.word` carries ISO "XXX" when the word's figure has no single currency, because the word
+  prints no amount.
+- **M3.** `deep_dive.out` variant `currency_mismatch` (reason `CURRENCY_MISMATCH`): "{site}: its figures are in
+  {currency}, not {portfolio_currency}, so it is not included." `currency` lists the Site's currencies other than the
+  reference, which is the step row's currency, else R's, else the other Sites', else the Site's own target's.
+- **L7.** `deep_dive.text` piece `CURRENCIES_DIFFER`: "Not available yet: the Sites' figures are in different
+  currencies." This is the headline when R notes a currency mismatch. **Known deviation:** the brief's "more than one
+  currency" is refused by LITERAL_NUMBER_WORD (D-SC1.32). The Architect confirms both literals.
+- **L8.** `test_4_h_residual_is_last_of_its_parent`.
+- Tests: `test_4_i_currency_one_currency_subset` (cur1, on world H for drivers),
+  `test_4_i_currency_a_heading_over_two_currencies`, `test_4_i_currency_a_sites_own_sides_differ` (cur2) and
+  `test_4_h_driver_detail_in_its_rows_currency`. Notices and organisation budget lines print in their budget's own
+  currency, which the patched worlds do not change, so cur1's whole-payload check leaves them out.
+- Plants (16; each fails): `/opt/assetecon/evidence/5c/fixround3/plants.txt`.

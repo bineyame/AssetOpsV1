@@ -1,4 +1,4 @@
-# 0K4 rulings (D-0K4.1 to D-0K4.25)
+# 0K4 rulings (D-0K4.1 to D-0K4.30)
 
 Architect (Claude), 2026-11-21. Builds the 0K4 path the owner accepted the same day
 (`owner/owner-one-figure-loyal-to-operating-world-2026-11-21.md`: "Accept all (Recommended)", and the one-figure rule).
@@ -87,7 +87,7 @@ Review: `review-for-owner.md`. Unit specs: `specs/0K4a-dispatch-v8/`, `specs/0K4
   `generator-fuel`: `fuel_energy = generator_output + generator_conversion_loss`.
   Kobo's assumed values: `r = 3.3` L/h basis `GENERIC_DEFAULT` (the owner's value of 2026-11-07, already declared in
   `tools/demo_combined_kobo.py:NO_LOAD`) and `SFC = 0.3` (the template's), so `s = 0.2175` L/kWh: 3.3 L/h idle,
-  about 0.54 L/kWh at a quarter load, 0.38 at half and 0.30 at full. Labelled assumed until Kobo's fuel sheet arrives.
+  0.5475 L/kWh at a quarter load, 0.3825 at half and 0.30 at full (exact on the curve; corrected at the 0K4b review, L4). Labelled assumed until Kobo's fuel sheet arrives.
 - **Why.** Review §2 point 5 and §3 row 4. The product already declares a no-load rate with a basis; reusing it keeps
   one value per fact. A curve fixed by two declared points needs no new key. The energy constant lets the kernel's
   exact stock check stay whole now that litres are not proportional to output.
@@ -109,8 +109,8 @@ Review: `review-for-owner.md`. Unit specs: `specs/0K4a-dispatch-v8/`, `specs/0K4
   golden test stays as it is. The assumed values enter through a fixture, `host/tests/kobo_assumed.py`
   (`ASSUMED_PROPERTIES`, `assumed_site(document)`), which appends each property with its basis `GENERIC_DEFAULT` and
   `source: "SITE"` (0K4b). Every study result made on v8 carries `assumptions`: the tuple of
-  `"<property key> <value> <unit> (<basis>)"` strings read from the run's frozen Foundation for the five properties of
-  D-0K4.4 to D-0K4.6 (0K4d). The template, the product world and DS2's telemetry writer adopt v8 and these properties in
+  `"<property key> <value> <unit> (<basis>)"` strings read from the run's frozen Foundation for the four properties of
+  D-0K4.4 to D-0K4.6 and SFC, each with its basis and derivation (0K4d; amended by D-0K4.27). The template, the product world and DS2's telemetry writer adopt v8 and these properties in
   0K4f (D-0K4.13).
 - **Why.** "Labelled assumed until Kobo's sheets arrive" (owner default 3): the basis is the label, carried as data,
   never as product copy (as FUEL-1 A1 did for the no-load rate).
@@ -223,7 +223,7 @@ Review: `review-for-owner.md`. Unit specs: `specs/0K4a-dispatch-v8/`, `specs/0K4
 ## D-0K4.16 Reserve breaches, starts and full charge are read from the replay steps
 
 - **Ruling.** In `CaseOutcome` (0K4d): `reserve_breach_steps` = steps whose `soc_start_pct` is below the case's
-  `reserve_soc_pct`; `max_starts_in_a_day` = the largest count of STOPPED/FAILED to STARTING/RUNNING transitions
+  `reserve_soc_pct`; `max_starts_in_a_day` = the largest count of STOPPED to STARTING/RUNNING transitions (corrected by D-0K4.28)
   (0K2's start rule, D-0K2.23) in one local day; `full_charge_dates` = local dates on which any step's
   `soc_start_pct`, or the window's end SOC on its last date, is at least 100; `longest_days_without_full_charge` =
   the longest run of consecutive local dates of the window not in `full_charge_dates`. The model's reserve law keeps
@@ -512,6 +512,184 @@ default, as the table says. Owner-level call: row 57 (D-0K4.19).
     statement modules are separate files.
 - **Ready to build:** 0K4b and 0K4e now. 0K4a now for commits 1-2, and commit 3 after 0K4b merges. Each still needs
   its reviewer to confirm that no question is open (RULES §4, handshake step 3).
+
+## Handshake answers (rev 2 of 0K4c and 0K4d; 2026-11-21)
+
+Architect (Claude), on the owner's delegation (`owner/owner-away-architect-stands-in-2026-11-21b.md`). The questions
+are in each unit's `handshake.md` (branch `task/0K4cd-handshake`, `0aa2cb3fb`). Each is answered once, by a D-ID or by
+accepting its default. Where the two units ask the same thing, the first row answers it and the second points to it.
+Owner-level call: row 63 (D-0K4.27, Mto's assumed no-load rate).
+
+| Unit | Question | Answer |
+|---|---|---|
+| 0K4c | R1 | D-0K4.26: S9 pins the v2 inputs digest (default accepted, in R2's canonical form); plant P8 |
+| 0K4c | R2 | default accepted (D-0K4.26): one canonical digest form for S6, S9 and 0K4d's header |
+| 0K4c | R3 | D-0K4.26: both, an own `yaml.safe_load` reader and the night literals; plus the `load_scale` case |
+| 0K4c | I1 (blocks) | D-0K4.26: default accepted, with an ancestor check deciding the split; V0 in 0K4d commit 2 |
+| 0K4c | I2 | default accepted (D-0K4.26); it now serves 0K4d's V0 and D-0K4.27's values |
+| 0K4c | I3 | default accepted: `season_inputs(..., overcast=None)`; unknown season `ValueError` |
+| 0K4c | I4 | default accepted: two 61-character rows (weather, Sundays) |
+| 0K4d | R1 (blocks) | D-0K4.28: default accepted; V5 in-process with no flags against `main`'s recorded literals |
+| 0K4d | R2 | D-0K4.29: every figure in §4.2 is classed, and each design value or dawn gate has its replacement |
+| 0K4d | R3 | = 0K4c R1, plus default accepted (D-0K4.28): the `study.json` identity header |
+| 0K4d | R4 | default accepted (D-0K4.28) |
+| 0K4d | R5 | default accepted (D-0K4.28) |
+| 0K4d | R6 | default accepted (D-0K4.28) |
+| 0K4d | I1 | = 0K4c I1 for the order; default accepted (D-0K4.28): the pre-flight opens commit 2; Mto `--time-one` |
+| 0K4d | I2 | D-0K4.28: `start_steps` unchanged; D-0K4.16's "/FAILED" corrected |
+| 0K4d | I3 | default accepted (D-0K4.28): public `admission_measures`; AD7 with reserves 30 and 25 |
+| 0K4d | I4 | D-0K4.27 (class): four Site strings, each with its basis and derivation; Mto 2.4 L/h by the generic rule |
+| 0K4d | I5 | default accepted (D-0K4.28); the mixed-pair refusal is a code |
+| 0K4d | I6 | D-0K4.28: anchors by text, and the figure definitions as proposed |
+
+## D-0K4.26 0K4c's answers: one digest form, independent readers, and the split of S7 and S8
+
+- **Digest form (R2, used by S6, S9 and 0K4d).** `inputs_digest(inputs)` lives in `host/tests/kobo_season.py`
+  (0K4c). It is the sha256 hex of a UTF-8 text with one line per forcing, sorted, each holding every `ForcingInput`
+  field in declaration order as `name=value` joined by `|` (numbers as `str(Fraction)`). Then come the initial values,
+  one line each: `initial|<address>|<str(value)>|<unit>`, in the inputs' frozen order, not sorted (clarified at the 0K4c review, L2). The test recomputes it with its own loop, written beside the
+  literal. A second digest covers `day_windows(d)` for d = 0 to 60 (v1), in the same line form. S6 pins both v1
+  digests as literals. The packet calls this "v1 inputs unchanged".
+- **S9 (R1).** `inputs_digest(season_inputs(base_run(61), 61, season="v2"))` equals a literal recorded in the
+  pre-flight. It is a v7 base: inputs only, with no kernel run, so it does not need v8. Its docstring says "a change here is a new
+  season, never an edit". Plant P8: `mill_on_v2` returns `True` from day 41 onwards (S4 stays green, S9 fails). 0K4d
+  records the same digest in each `study.json` header (D-0K4.28).
+- **Independent expected values (R3).** S3 and S4 read the day-type YAML files `kobo_season` loads with the test's
+  own `yaml.safe_load` loop, never through `_series_events` or `day_windows`. S3 also asserts the night literals of
+  day 9: res 3 kW to 21/8 and clinic 2 kW to 7/4. S3 adds a `load_scale=Fraction(1, 2)` case on day 9: res and clinic
+  equal the file times 1/2 times 7/8, and the mill equals the file times 1/2 (0K4d's Mto path).
+- **The split (I1).** At 0K4c's start, `git merge-base --is-ancestor <0K4a merge> main` decides it. If 0K4a is not
+  on `main`, 0K4c builds S1-S6, S9 and S7's document half: `kobo_site(season_site_v2)` carries the three basis rows
+  `GENERIC_DEFAULT` and the 20,000 L tank (P7 fails it). S7's frozen half and S8 become **V0** in 0K4d commit 2.
+  V0 is a 1-day `base_run(1, version=8, site_edit=season_site_v2)` whose `frozen_world_inputs(run).initial_values`
+  hold `model-need:generator-no-load-fuel-rate` `11/200`, `model-need:generator-minimum-load` `30` and
+  `model-need:battery-charge-taper-start` `95` (I2), plus a 2-day v2 season on v8 that executes COMPLETED. If 0K4a is
+  on `main`, 0K4c keeps S7 and S8 whole and V0 is dropped from 0K4d. The packet says which applied.
+- **Why.** A season named v2 must mean one input set, as a model version does (D-0K4.20's class). An expected value
+  read through the code under test proves nothing (W2). The split keeps lane 2 from waiting on lane 1.
+
+## D-0K4.27 Every assumed value carries its basis and its derivation (class; owner-away row 63)
+
+- **Ruling.** An assumed value is labelled as an assumption, with its basis code and one line saying where the
+  number comes from. It is never a bare value with a code. The study's `assumptions` are four strings in this order:
+  `generator-no-load-fuel-rate`, `generator-minimum-load`, `battery-charge-taper-start`, `specific-fuel-consumption`.
+  Each reads `"<key> <value> <unit> (<label>, <BASIS>: <derivation>)"`, where the label is `assumed` or `declared`. The
+  value and unit are the frozen `model_needs`' authored form. The basis and derivation come from a per-Site constant
+  beside the value in its fixture: `ASSUMED_DERIVATION` in `host/tests/kobo_assumed.py` and `MTO_ASSUMED_DERIVATION`
+  in `host/tests/mto.py`, both added in 0K4d commit 2. A key with no entry is `KeyError`, never a blank.
+  - Kobo: no-load `3.3 L/h (assumed, GENERIC_DEFAULT: the owner's value of 2026-11-07 for a 40 kW set; the generic
+    rule of about 0.08 L/h per kW of rating gives 3.2)`. Minimum load `30 % (assumed, GENERIC_DEFAULT: a typical
+    diesel controller setting, until Kobo's controller settings)`. Taper start `95 % (assumed, GENERIC_DEFAULT: a
+    lithium iron phosphate battery, until Kobo's battery sheet)`. SFC `0.3 L/kWh (assumed, TEMPLATE: the Kobo
+    template's value, read as consumption at rated output, until Kobo's fuel sheet)`.
+  - Mto: no-load `2.4 L/h (assumed, GENERIC_DEFAULT: the generic rule of 0.08 L/h per kW of rating x 30 kW; no owner
+    value for Mto)`. Minimum load and taper start as Kobo's, with the same words. SFC `0.33 L/kWh (declared, MANIFEST:
+    Mto's physical line, read as consumption at rated output)`.
+  - The admission rule's two limits are assumed values too. The Kobo tool writes them in the JSON header as
+    `admission_rule`, as two strings in the same form: `max-starts-per-day 6 per day (assumed, GENERIC_DEFAULT: a
+    typical maker's limit, until Kobo's generator sheet)` and `full-charge-every-days 7 days (assumed,
+    GENERIC_DEFAULT: lithium iron phosphate, until Kobo's battery sheet)`. The words live in the tool, never in
+    `admission.py` (D-0K4.28, R6).
+- **Mto's no-load value.** 2.4 L/h, by the stated generic rule. It is not scaled from Kobo's 3.3: that is the owner's
+  rounded value for one set, not a per-kW rule, and scaling it (2.475) would claim a precision nobody declared. The
+  two Sites' values differ by their stated bases, and each says why.
+- **Amends** D-0K4.7: "the five properties" reads "the four properties of D-0K4.4 to D-0K4.6 and SFC". The admission
+  limits travel separately. `HeadroomResult` does not change. The Mto JSON header carries `assumptions`.
+- **Why.** The owner's one-figure rule: a figure stays loyal to the operating world, so a reader must see what each
+  input stands on. "Assumed" plus a code says how weak a number is, but not where it came from. The handshake found
+  the spec's "same rule as Kobo's" untrue, which is exactly the slip a derivation line exposes.
+
+## D-0K4.28 0K4d's answers: reproducibility, identity, missing values, and the definitions
+
+- **V5 (R1).** In commit 2's pre-flight, before the tool is edited, `main`'s `tools/kobo_replay_study.py --days 8`
+  runs, and each case's `avoided_l` is recorded exactly. V5 calls the edited tool's `main([...])` in-process with no
+  model or season flag and asserts those literals and the header `model=mini-grid/7 season=v1`. P7 fails both.
+- **Identity (R3).** Each `study.json` header holds `git rev-parse HEAD`, the model id and version, the season, the
+  season's `inputs_digest` (D-0K4.26) and each site run's `trajectory_digest` (0K4a's helper). The packet prints them,
+  and the reviewer's reproduction quotes them.
+- **Missing values (R4).** A v7 cell with no measure reads "not computed on v7". A study that is not calibrated prints
+  `admission not available (<status>)`, and its MG-T cells read "Not available yet (replay not calibrated)". The cause
+  column reads "model v7 to v8 and season v1 to v2 together (not separated)". No separating run is added.
+- **Grep (R5) and SC-1 (R6).** Guide check 5 is the regex pair of R5's default, each hit listed with its class.
+  `admission.py` and the `replay_study.py` additions raise only built-in exceptions and hold codes, never English. The
+  packet records the statement-catalogue check (no `HAND_BUILT_NEW`), and both baseline files are untouched.
+- **Order (I1).** Commit 1 has no pre-flight beyond B1-B13 green. Commit 2 opens by merging `main` (0K4a and 0K4c on
+  it), then runs V5's literals, `--time-one` on both tools, and the caps. The Mto tool gains `--time-one` in
+  D-0K2.24's form, with cap `max(25, ceil(2 x (site + 6 x replay) / 60))` minutes.
+- **Start rule (I2).** `max_starts_in_a_day` reuses `start_steps(states, start.generator_state)` unchanged, grouped
+  by each step's local start date. D-0K4.16's "STOPPED/FAILED" was a slip for "STOPPED" (0K2's B6: FAILED to RUNNING
+  is not a start).
+- **Measures (I3).** Public pure `admission_measures(p, local_times, first_previous)` in `replay_study.py` and its
+  `__all__`. It reads `p.reserve_soc_pct`, and `_outcome` calls it. AD7's stubs: baseline reserve 30, case reserve 25,
+  one step at SOC 27; the case counts 0 and the baseline 1.
+- **Flags (I5).** Only (7, v1) and (8, v2) run. A mixed pair exits 2 with `STUDY_FLAGS_INVALID model=<v> season=<s>`
+  on stderr. v8 uses `season_site_v2` and `mto_site_v2`, the reduced Mto run included. `dawn_class` takes the
+  season's overcast function. `mto_base_run(days, *, inverter_limit_kw, version=7, site=mto_site)` and `mto_season(run,
+  days, season="v1")`. Every line and header carries `model=` and `season=`; on (7, v1) no figure changes.
+- **Definitions (I6).** Anchor by text. A month is `scaled_to_30_days` (window x 30 / 61). Starts is `added_starts`
+  scaled the same way, with `max_starts_in_a_day` in the admission cell. Stop 70 is `stop-70-reserve-30` and reserve 25
+  is `stop-90-reserve-25`. Dawn margin is `worst - 35`. Huller is `mto-huller` `extra_fuel_l` x 30 / 61. Reduced
+  inverter is `extra_fuel_l_per_day`.
+- **Why.** Each figure going to the option card must be reproducible by its recorded command and identity, and must
+  say "not available" rather than show 0. Every definition is fixed before the run, so no figure picks its own.
+
+## D-0K4.29 The MG-T restatement as a class: every figure in §4.2 is one of four kinds
+
+- **Ruling.** After 0K4d, each number in `domain-and-decision-models.md` §4.2's Kobo option text (from the `F(π)`
+  block to the vectors line) is one of four kinds. Anything else is removed:
+  1. a declared setting or record fact (reserve 30 and 25, start 35 %, stop 90 and 70, 60 kW PV on 50 kW AC, the
+     error-mode thresholds, the proposed grid);
+  2. a v8 study figure, labelled SIMULATED with its definition (D-0K4.28);
+  3. "Not available yet (<record or unit>)";
+  4. a rule in `runs/admission.py`, or information beside it.
+  The packet lists every numeral of the restated text with its kind. The reviewer checks the list against the text.
+- **The places (R2).**
+  - The `dawn_ok(π) ... → bound` line becomes `admitted(π) = admit(baseline, π)  → runs/admission.py (four parts)`
+    and `dawn(π) = min_d SOC_π(d, 05:00) − 35 → information, never a bound`.
+  - "Design values:" before the table becomes "Figures from the v8 study (SIMULATED, MODELLED; assumptions as listed
+    in the study):".
+  - The table's "Bound result" column carries "admitted" or "not admitted (<first failing part>)". The dawn column is
+    headed "Dawn (information)". Both rows' Value cells read "Not available yet (`6c` values it)"; "REJECTED" goes.
+  - Stop 70's cell loses "of the 330 candidate L (120 L of candidate running remain needed)": candidate litres are
+    another quantity. A line under the table reads "Kobo's candidate running litres: Not available yet (dispatch-3.3
+    on Kobo's October telemetry; 0K4e, 4d)". The Calibration paragraph's "The 120 L residual" becomes "The residual
+    (candidate litres no setting avoids)".
+  - "lowest charge 30% ≥ warranty floor 10%" becomes the study's `min_soc_pct`, SIMULATED, with "warranty floor: Not
+    available yet (Kobo's battery sheet)" as information (Q6). "wear costed 12.00" and the formula
+    `(262.50 − 12.00) × 12 − 90.00 = 2,916.00` go. Wear and value read "Not available yet (`6c`)".
+  - "Choose the highest value that passes every hard bound with the worst replayed day at least 2 points above the dawn
+    limit" becomes "`6c` chooses among the settings `runs/admission.py` admits; the dawn margin is shown and never
+    gates". The 10 % tie rule stays as `6c`'s.
+  - "Design values as calibration-spike inputs" becomes four of the five inputs as the v8 studies' figures (stop 70 and
+    reserve 25 from Kobo; the huller and the reduced inverter from Mto), SIMULATED, with the assumptions of
+    D-0K4.27. KIS-BATT60's 150 L and its 195.00 read "Not available yet (a Kisiwa battery replay; queue Q7)".
+  - "Minimum sample: 61 days for the dawn bound (…rule of three…)" becomes "the dawn information is read over the
+    study's 61 days; ≥ 14 days for the litres". With no dawn bound, the rule-of-three claim has nothing to bound.
+  - "Sensitivity / break-even" (2,286.00, 2,166.00, 15.6 L/month, 1.70/kWh) reads "Not available yet (`6c`)".
+  - Vectors: MG-T1 and MG-T2 carry the study's litres, the admission result and the dawn information. MG-T2's value
+    reads "Not available yet (`6c`)". MG-T3 reads "Not available yet (`6c`)", and MG-T4 is unchanged.
+  - Each `<!--fig:...-->` anchor on a removed figure goes with it. `check_manifest.py`'s output goes in the packet,
+    and the manifest is 0K4m's.
+- **Why.** The owner's rule: no design value beside the model's figure, and the dawn margin is information (owner
+  default 1). Listing the places one by one leaves the next one unfound. A rule of four kinds, checked numeral by
+  numeral, finds every place (W6).
+
+## D-0K4.30 Sizes and lane order after the 0K4c and 0K4d handshake (amends D-0K4.25)
+
+| Unit | Rev 1 | Rev 2 | Why it moved |
+|---|---|---|---|
+| `0K4c` | 1.0 | 1.0 | +0.1 S9, the canonical digest and R3's readers; −0.1 S7's frozen half and S8 to 0K4d V0 |
+| `0K4d` | 1.5 | 2.25 | commit 1 0.75 (unchanged; `admission_measures` absorbed); commit 2 0.5 to 1.0 (V0, Mto `--time-one`, flag pairs, V5 literals, identity header, derivations); commit 3 0.25 to 0.5 (the classed restatement, R4's cells) |
+
+- **Total 11.25 units** (was 10.5). The critical path is about 4.75 units (was 4.0), all on lane 1: 0K4a commits 1-2
+  (1.5), 0K4d commit 1 (0.75), 0K4a commit 3 (1.0), 0K4d commits 2-3 (1.5).
+- **Lane order, confirmed.**
+  - Lane 2: 0K4b (2.0), then 0K4c (1.0), done at about 3.0.
+  - Lane 1: 0K4a commits 1-2, then 0K4d commit 1, which needs only `main` and can start now. Next, 0K4a commit 3
+    once 0K4b is on `main` (about 2.0; lane 1 reaches it at 2.25). Then 0K4d commits 2-3, once 0K4a and 0K4c are both
+    on `main` (about 3.0 and 3.25; lane 1 reaches it at 3.25). No idle wait.
+- **Ready to build:** 0K4d commit 1 now, and 0K4c once 0K4b merges. Each still needs its reviewer to confirm that no
+  question is open (RULES §4, handshake step 3).
 
 ## Decision queue (W3; defaults applied)
 

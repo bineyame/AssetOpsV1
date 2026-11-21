@@ -27,7 +27,7 @@
   "headline": {
     "text": "Contribution is $852.00 below target in October; cost and efficiency explain $755.00 of it.",
     "evidence": [
-      "Estimated"
+      "Estimated, not yet reconciled"
     ]
   },
   "status_line": "Figures as of 20 November 2026, 08:00 UTC. Not yet reconciled with the management accounts. Kisiwa's budget disagrees with its own lines.",
@@ -114,17 +114,17 @@
                 {
                   "site": "Kobo",
                   "value": "+$38.00",
-                  "text": "Not split further until the billing export, a feeder meter export, a meter register with change dates, the customer meter reads for the month, the expected technical loss of each feeder, declared in the Site's setup, the productive-use tariff and budget lines for energy delivered, tariff and productive-use price."
+                  "text": "Not split further until the billing export with each line's kWh and tariff, a feeder meter export, a meter register with change dates, the customer meter reads for the month, each feeder's expected technical loss as declared in the Site's setup, the productive-use tariff and budget lines for energy delivered, tariff and productive-use price."
                 },
                 {
                   "site": "Kisiwa",
                   "value": "−$55.00",
-                  "text": "Not split further until the billing export, a feeder meter export, a meter register with change dates, the customer meter reads for the month, the expected technical loss of each feeder, declared in the Site's setup, the productive-use tariff and budget lines for energy delivered, tariff and productive-use price."
+                  "text": "Not split further until the billing export with each line's kWh and tariff, a feeder meter export, a meter register with change dates, the customer meter reads for the month, each feeder's expected technical loss as declared in the Site's setup, the productive-use tariff and budget lines for energy delivered, tariff and productive-use price."
                 },
                 {
                   "site": "Mto",
                   "value": "−$80.00",
-                  "text": "Not split further until the billing export, a feeder meter export, a meter register with change dates, the customer meter reads for the month, the expected technical loss of each feeder, declared in the Site's setup, the productive-use tariff and budget lines for energy delivered, tariff and productive-use price."
+                  "text": "Not split further until the billing export with each line's kWh and tariff, a feeder meter export, a meter register with change dates, the customer meter reads for the month, each feeder's expected technical loss as declared in the Site's setup, the productive-use tariff and budget lines for energy delivered, tariff and productive-use price."
                 }
               ],
               "carried": [],
@@ -199,7 +199,7 @@
                 },
                 {
                   "site": "Kisiwa",
-                  "value": "$0.00",
+                  "value": "$0.00 (at budget)",
                   "text": null
                 },
                 {
@@ -287,7 +287,7 @@
           "−$185.00",
           "−$55.00",
           "−$130.00",
-          "$0.00 (estimate)",
+          "$0.00 (at budget)",
           "$0.00"
         ],
         [
@@ -412,7 +412,7 @@
   "not_available": {
     "rows": [
       {
-        "needs": "the billing export",
+        "needs": "the billing export with each line's kWh and tariff",
         "fills": "Billing adjustments, Energy on unmapped meters and Tariff",
         "sites": "Kobo, Kisiwa and Mto"
       },
@@ -432,7 +432,7 @@
         "sites": "Kobo, Kisiwa and Mto"
       },
       {
-        "needs": "the expected technical loss of each feeder, declared in the Site's setup",
+        "needs": "each feeder's expected technical loss as declared in the Site's setup",
         "fills": "Technical losses and Unexplained losses",
         "sites": "Kobo, Kisiwa and Mto"
       },

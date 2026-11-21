@@ -45,8 +45,15 @@ def render_month(code: str) -> str:
     return render(message("deep_dive.month_words", month=month_of(code)))
 
 
+#: Section 2.4 (D-5C.3, D14) on this screen: a declared figure reads by its weakest origin, as a recorded one does
+#: ("Emulated", "Simulated", "Estimated", else "Recorded"). The shared vocabulary reads `DECLARED` "Declared" for
+#: every origin (D-SC1F.1, written for a declared setting); this screen's figures never take that word.
+SCREEN_EVIDENCE = {"DECLARED": "RECORDED"}
+
+
 def evidence(ev: str, origins: Sequence[str]) -> Evidence:
-    return Evidence(ev, weakest_origin(origins))
+    """A figure's evidence in section 2.4's order (`SCREEN_EVIDENCE`), for every word and served figure here."""
+    return Evidence(SCREEN_EVIDENCE.get(ev, ev), weakest_origin(origins))
 
 
 def money(value: Decimal, currency: str | None, ev: Evidence | None = None) -> Money:
@@ -64,11 +71,17 @@ def not_compared() -> str:
     return figure_text(message("deep_dive.money", value=Absent("NOT_COMPARED"), form=State("PLAIN")))
 
 
+#: ISO 4217's "no currency" code: the carrier `money_word` needs when a word's figure has no single currency. The word
+#: prints no amount, so no currency is ever shown from it (review H3: nothing defaults to USD).
+NO_CURRENCY = "XXX"
+
+
 def word(ev: str, origins: Sequence[str], standing: Standing, currency: str | None) -> str:
-    """Section 2.4 for a money figure: "Not available yet", else the evidence word with 3A7's money suffix."""
+    """Section 2.4 for a money figure: "Not available yet", else the evidence word (section 2.4's order, `evidence`)
+    with 3A7's money suffix."""
     if ev == "NOT_AVAILABLE":
         return text("NOT_AVAILABLE")
-    return money_word(Money(Decimal(0), currency or "USD", evidence(ev, origins)), standing)
+    return money_word(Money(Decimal(0), currency or NO_CURRENCY, evidence(ev, origins)), standing)
 
 
 def weakest_of(rows: Iterable[Any]) -> tuple[str, tuple[str, ...]]:
@@ -98,12 +111,13 @@ def names_of(codes: Sequence[str], names: Mapping[str, str]) -> Items:
 
 # --- the headline (D-5C.15) -----------------------------------------------------------------------------------------
 
-def named(gap: Decimal | None, grow: Decimal, optimize: Decimal) -> tuple[str | None, Decimal | None]:
-    """Of Grow and Optimize, those whose sum has the gap's sign (zero has none); the larger in magnitude, ties to
-    Optimize; (None, None) when none."""
+def named(gap: Decimal | None, grow: Decimal | None, optimize: Decimal | None) -> tuple[str | None, Decimal | None]:
+    """Of Grow and Optimize, those whose sum has the gap's sign (zero and a missing sum have none); the larger in
+    magnitude, ties to Optimize; (None, None) when none."""
     if gap is None or gap == 0:
         return None, None
-    same = [(h, v) for h, v in ((T.OPTIMIZE, optimize), (T.GROW, grow)) if v != 0 and (v < 0) == (gap < 0)]
+    same = [(h, v) for h, v in ((T.OPTIMIZE, optimize), (T.GROW, grow))
+            if v is not None and v != 0 and (v < 0) == (gap < 0)]
     if not same:
         return None, None
     best = same[0]
@@ -113,8 +127,11 @@ def named(gap: Decimal | None, grow: Decimal, optimize: Decimal) -> tuple[str | 
     return best
 
 
-def headline_facts(gap: Money | None, big: Money | None, subject: str | None, month: str, k: int, n: int) -> dict:
+def headline_facts(gap: Money | None, big: Money | None, subject: str | None, month: str, k: int, n: int,
+                   currencies_differ: bool = False) -> dict:
     facts: dict[str, Any] = {"month": month_of(month), "sites": KOfN(k, n, "site")}
+    if currencies_differ:
+        facts["cause"] = State("CURRENCIES")
     if gap is not None:
         facts["gap"] = gap
     if big is not None:
@@ -123,8 +140,10 @@ def headline_facts(gap: Money | None, big: Money | None, subject: str | None, mo
     return facts
 
 
-def headline(gap: Money | None, big: Money | None, subject: str | None, month: str, k: int, n: int) -> dict:
-    return served_words(message("deep_dive.headline", **headline_facts(gap, big, subject, month, k, n)))
+def headline(gap: Money | None, big: Money | None, subject: str | None, month: str, k: int, n: int,
+             currencies_differ: bool = False) -> dict:
+    return served_words(message("deep_dive.headline",
+                                **headline_facts(gap, big, subject, month, k, n, currencies_differ)))
 
 
 def bridge_title(gap: Money, big: Money | None, subject: str | None) -> str:
@@ -204,8 +223,10 @@ def needs_row(keys: Iterable[str], target_leaves: Sequence[str]) -> str:
 
 
 def out_text(site: str, reason: str, keys: Iterable[str] = (), target_leaves: Sequence[str] = (),
-             target: Money | None = None) -> str:
+             target: Money | None = None, currencies: Sequence[str] = ()) -> str:
     facts: dict[str, Any] = {"site": Name(site, "site.name"), "reason": State(reason)}
+    if currencies:
+        facts["currency"] = Items(tuple(Name(c, "row.currency") for c in currencies))
     if reason == "NEEDS":
         facts.update(needs_facts(keys, target_leaves))
     if target is not None:
