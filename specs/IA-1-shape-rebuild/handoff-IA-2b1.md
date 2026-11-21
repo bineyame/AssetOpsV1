@@ -1,62 +1,76 @@
-# IA-2b1 handoff (PARTIAL), 2026-11-21
+# IA-2b1 handoff (units 1 and 2 done; units 3 and 4 next), 2026-11-21
 
-Status: unit 1 is partly built. I stopped because of the context budget. Nothing is live, and every gate is green with IA-2b1 not landed.
-Branch `task/IA-2b1-lists`, worktree `/opt/assetecon/AssetOpsV1-ia2b1`.
+Status: units 1 and 2 are built and committed. Nothing is live. With IA-2b1 not landed, every touched gate is green or dormant.
+Branch `task/IA-2b1-lists`, worktree `/opt/assetecon/AssetOpsV1-ia2b1`. Main d615685d5 is merged in (owner docs only, no conflict).
+Mid-build questions: `mid-build-questions.md` § IA-2b1, Q1 to Q4, each built on its default (Q1 waits for the Architect at review).
 
 ## Done
-- **Base.** It holds IA-2a (f9430112e), the IA-2b spec (d789117f3), the handshake answers (590da9d75) and main at fa13f254f.
-  - Merge 993177c9d resolved the index conflicts as unions. IA-2a's state line moved from 182 to 184 in `index-3.md`. The
-    `index-rulings-14` row now reads `D-IA.49`–`D-IA.60`, `D-3C2.15`. In `specs/INDEX.md`, the duplicate
-    `mockup-vnext-categories-snapshot` row is gone, which brings the file under the 8000-byte cap.
-  - Earlier: owner-away row 47 became 52, and `index-rulings-20` became `index-rulings-22` (ea7716e4a).
-  - `check-decision-index.py`: OK.
-  - main has since moved to d615685d5 (the owner delegation, docs only). It is not merged.
-- **`ia_gates.cjs`.**
-  - The IA-2b1 PLANTS row is in.
-  - The `OWN` map covers IA-2b1 and IA-2b2.
-  - A check counts as dormant only when it prints "`<unit> not landed; dormant`" for a landed unit that owns it.
-  - `list_shape_check` is added to the runs.
-- **`tools/list_fixture.cjs`.** It provides `sites30` and `decisions25`, injected through `IA_LIST_DEFS[key].items`.
-- **`tools/list_shape_check.cjs`.**
-  - Blocks A, C and D are written. Block B is a stub that fails while IA-2b1 is landed, so the gate cannot pass without it.
-  - Not landed, it prints "IA-2b1 not landed; dormant", and ia_gates shows "ok". Forced, it errors, because the component is
-    not built yet.
+- **Unit 1 (the checks, all dormant until IA-2b1 is landed or forced with `IA_FORCE_LANDED=IA-2b1`).**
+  - `tools/list_shape_check.cjs`: blocks A, B, C and D. B is written (spec §8 row 2, D-IA.69/70/73). Forced now, it runs 136 views over
+    10 scenario boots. Its own store reads give the live sizes of spec §1 (Decisions 8/3/4, Findings 9/4/7, Actions 6/3/2, Sites 3/3/3),
+    every store item has a live target, and its word tables match the product, except `IA_DEC_STATE_WORD`, which does not exist yet
+    (unit 3/4). `LIST_VERBOSE=1` prints every failure.
+  - The B plants are in `plantSource`: `tile` (SRC rule), and `rowctl`, `restore`, `own`, `stakesort` and `notarget` (window plants).
+  - `shape_check`:
+    - item 7 reads alias values with its own split (plant `aliasq`);
+    - item 12 expects the "Decisions" crumb to be a link to `#/decisions` once IA-2b1 is landed (plant `deccrumb`, decision-hosted);
+    - item 15 checks that no list view links its own address;
+    - item 10's row selector also reads `table.ia-list tbody tr[data-row]` (the Outcomes fold).
+  - `click_depth_check`: each list is at 1 via the rail (`nav.rail a[href="#/<list>"]`, landed, labelled with the list's name). Plant
+    `listrail`.
+  - `copy_check`: a new IA-2b1 block (spec §7, `LIST_COPY`). It reads the list section outside the row cells. Plant `COPY_PLANT=list`.
+- **Unit 2 (`qty_check`):** the count mode (`data-qty-kind="count"`), the format mode (one number of decimals per screen and key; keys
+  with a QTY-table member are printed as deferred to IA-2e), `EQUAL` `[['sites:gap:', 'overview-gap']]`, and the five DOM plants. Each plant
+  exits 2 if it finds nothing.
 
-## Next
-1. **Finish unit 1.**
-   - Write block B (spec §8 row 2, D-IA.73 independence) and its plants: `tile`, `rowctl`, `restore`, `own`, `stakesort` and
-     `notarget`. Wire them in `plantSource`.
-   - Add the check rows to `shape_check` (items 7, 12 and 15; plants `aliasq` and `deccrumb`), to `click_depth`
-     (`listrail`) and to `copy_check` (an IA-2b1 block; `COPY_PLANT=list`).
-   - Commit.
-2. **Unit 2:** the `qty_check` count mode, format mode and `EQUAL` table, with five plants.
-3. **Unit 3:** the component. It must contain the exact rule strings in `list_shape_check.cjs` `SRC`, because the source plants
-   rewrite them. Those are `iaListModel`, `iaListHref`, `iaListTier`, the `IA_LIST_CAP` constant and the `iaScopeEntries`
-   list branch.
-4. **Unit 4:** units 4(a) and 4(b) per spec §9.
+## Next: unit 3 (the component), then unit 4
+The component must match these seams exactly, because the checks rewrite or wrap them:
+- **`SRC` rule strings** (`list_shape_check.cjs` top):
+  - `iaListModel` holds `rank.slice(0, IA_LIST_CAP)`,
+    `def.keep ? [...rows.filter(def.keep), ...rows.filter(it => !def.keep(it))] : rows`,
+    `items.filter(it => iaInScope(def.site(it), scope))`, `words.every(x => t.includes(x))`, `sort.cmp(a, b) || i - j`,
+    `f.options().some(([o]) => String(o) === String(v))` and `n > IA_LIST_CAP && gs.length > 1`;
+  - `iaListHref` holds `v.sort !== def.sorts[0].key`;
+  - `iaListTier` holds `ns <= IA_LIST_CAP ? 1 : 2`;
+  - **new:** `iaListTiles(def, m, ctx)` holds `const n = m.n;` (plant `tile`);
+  - `iaScopeEntries` holds `route && route.shape === 'list'`.
+- **Window plants (Q4).**
+  - `shapeList` and `iaListModel` are top-level `function` declarations (the plants assign `w.shapeList` and `w.iaListModel`).
+  - `IA_LIST_KEEP` is a top-level `let`.
+  - `IA_LIST_DEFS.decisions.sorts` is an array, and `IA_LIST_DEFS.findings.items` is a function.
+  - The `remainder` plant sets `IA_LIST_DEFS.sites.more = () => ''`, so the Sites remainder line comes from `def.more`.
+- **Markup B reads (spec §3.2):**
+  - `section[data-shape="list"][data-ia-list]`, with tiles as `.ux-kpi` whose `.ux-kpi-l` is the list title;
+  - rows `tbody tr[data-row]` with one `a.ia-row-go`, and chips `.ia-list-chips .ia-chip`;
+  - the form `[data-ia-list-tools]` with `select[name]`, `input[name=q]` and `button[type=submit]`;
+  - "Show all n" as a link, and `.ux-empty[role=status]`.
+  - The sort `<option>` values and texts must equal B's literals in order.
+  - Facet option texts must equal B's word tables.
+- **Sort orders B computes (Q3):**
+  - Decisions: `priority` = the ATTN order; `due` = the earliest `uxDueIso` over the decision's ATTN rows, no date last.
+  - Findings: `priority` = the `HC.findings` order; `site` = by Site name, `localeCompare`.
+  - Actions: `due` = by `a.due`, no date last; `item` = by the index in `planItemsV1(op)`, items not in it last.
+  - Sites: `gap` = D-IA.27 (Sites with a target first, gap ascending); `name` = `localeCompare`.
+  - All sorts are stable.
+- **Restore (D-IA.73 a):** the L2 `innerHTML` after an in-page Sort change must be byte-identical to a fresh boot at that address. Do not put
+  render counters (such as `UX_QN`-style ids) in list markup.
+- **Actions facets:** `state` takes the keys `released`, `waiting` and `returned`. B derives them from `planCaseIds` and `releaseShown(op,
+  item).at`, which is `actionState`'s rule. `version` keeps the Actions of `planApprovedIds` when the plan is Approved, else those of
+  `planItemsV1`.
+- **Facet options:** `heading` lists the `LENS` keys present in the operator's Findings. Every other facet has a fixed vocabulary. A select is
+  drawn at tier 2 when at least 2 options are present in scope.
+- **Unit 4:**
+  - `outcomes_table_check` is still to be retargeted (spec §9 unit 4(a)); it is not touched yet.
+  - Item 12 of `shape_check` also suits the Site hub's "Sites" crumb, which is not asserted yet (spec §5). Add it with unit 4(a) if wanted.
 
-## Design choices already fixed by the written checks
-- **Def interface.**
-  - `{ key, site(it), text(it), keep?(it), group?(it), items(op), facets: [{ key, label, all, options() → [[value, word]] (the fixed vocabulary), of(it) }], sorts: [{ key, word, cmp }] }`.
-  - B will also need `cells` / `title` / `target` / `rowKey` / `tiles` / `more` for rows, tiles and the remainder line.
-- **Facet values.** A value is valid when it is in `options()`, otherwise it is ignored. A select is drawn when at least 2
-  options are present in scope.
-- **`iaListHref`.**
-  - It returns the address without `#/`.
-  - Values are `encodeURIComponent`-ed. Block A compares them decoded, and C compares `scope=site:k` decoded.
-  - Invalid facet values and the default sort are dropped.
-- **Block D.** At tier 2, "Clear filters" sits in the chips row even when no chip is drawn (two filters set, both drawn as
-  controls).
-
-## Open pre-flight questions (default used)
-- **Q1.** `resolveScreen` (loop-core.js, a reviewed function) writes `'#/' + iaLiveAlias(id) + the typed query`. That drops an
-  alias's own query (`findings-cost` → `findings?heading=optimize`).
-  - Default: leave loop-core untouched. `iaLiveAlias` notes the alias it last resolved (reset on every call). `iaScreen` then
-    merges that query and replaces the history entry with the canonical address.
-  - The Architect should confirm.
-- **Q2.** In the 4(a) re-scope, the group and Site scope of a fixture with fake Site keys (`fx..`) is undefined.
-  - Default: block D uses scope `all` only.
+## Proofs still owed (cannot run before the component exists)
+- Every IA-2b1 plant fails under `node tools/ia_gates.cjs --force IA-2b1`. Today they exit 2 (no component). That is slow, so run it in the
+  background.
+- Item 15 and the copy and qty list blocks were not seen failing on a real violation. After unit 4, introduce one, watch it fail, then
+  revert.
+- `qty_check`'s `EQUAL` is dormant until IA-2b1 lands. It expects Lakeside −$852, Harvest −$770 and Metro −$3,184.
 
 ## Risks
-- The forced `ia_gates --force IA-2b1` run is slow (more than 2 minutes) while the component is absent, because every plant
-  errors. Run it in the background.
+- `copy_check` needs `tools/rendered-text.json`, which is ignored by git. Run `node tools/render_text.cjs` first.
+- The forced `list_shape_check` takes about 35 s now, and longer once B renders real lists. That covers 24+ boots plus 12 fresh-boot
+  comparisons.
