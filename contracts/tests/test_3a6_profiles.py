@@ -13,6 +13,7 @@ import json
 import struct
 import sys
 import zipfile
+import zlib
 from dataclasses import replace
 from pathlib import Path
 from types import MappingProxyType
@@ -32,6 +33,7 @@ from assetops_contracts.native import (
     compile_profile,
     read_layout,
     render_layout,
+    split_file,
 )
 from assetops_contracts.native.xlsx import XlsxNumber
 
@@ -478,6 +480,172 @@ def test_n3_r3_many_members_are_listed_in_bounded_time() -> None:
     """The reader lists the members (sizes, names) and reads only four: 20,000 empty members cost the listing."""
     data = _workbook(members={f"xl/media/m{i}.bin": b"" for i in range(20_000)})
     assert _bounded(data, 1.5, 60) == "ok 3"
+
+
+# --- N3 r4: bounds by resource (fix round r4, review N5, N6, N7) ------------------------------------------------
+# Every resource an upload can consume has a bound enforced before the work: inflated member bytes (N5), characters
+# delivered by cells (N6), and kept rows and cells on the CSV path as on the XLSX one (N7).
+
+from assetops_contracts.native import layouts_v1 as _layouts  # noqa: E402
+from assetops_contracts.canonical.records_v1 import MAX_RECORDS  # noqa: E402
+
+_SHEET = "xl/worksheets/sheet1.xml"
+
+
+def _size_lie(pad_mib: int) -> bytes:
+    """The budget workbook whose sheet member declares the real sheet's size and CRC, but whose deflate stream goes
+    on for `pad_mib` MiB of spaces (review N5). Written by hand, the stream a MiB at a time (about a kB a MiB)."""
+    parts, central, offset = [], [], 0
+    for name, raw in zip_members(budget_bytes()).items():
+        deflate = zlib.compressobj(9, zlib.DEFLATED, -15)
+        stream = [deflate.compress(raw)]
+        if name == _SHEET:
+            mib = b" " * 2**20
+            stream += [deflate.compress(mib) for _ in range(pad_mib)]
+        comp = b"".join(stream) + deflate.flush()
+        crc, size, encoded = zlib.crc32(raw), len(raw), name.encode()
+        parts.append(struct.pack("<4s5H3L2H", b"PK\x03\x04", 20, 0, 8, 0, 33, crc, len(comp), size,
+                                 len(encoded), 0) + encoded + comp)
+        central.append(struct.pack("<4s6H3L5H2L", b"PK\x01\x02", 20, 20, 0, 8, 0, 33, crc, len(comp), size,
+                                   len(encoded), 0, 0, 0, 0, 0, offset) + encoded)
+        offset += len(parts[-1])
+    directory = b"".join(central)
+    end = struct.pack("<4s4H2LH", b"PK\x05\x06", 0, 0, len(central), len(central), len(directory), offset, 0)
+    return b"".join(parts) + directory + end
+
+
+def test_n3_r4_a_member_whose_declared_size_lies_is_inflated_only_to_that_size() -> None:
+    """Review N5: 200 MiB behind a declared few kB (a 200 kB upload took 422 MB at round 4). The member is inflated
+    a chunk at a time and the read stops at the declared size, so the trailing stream is never inflated."""
+    data = _size_lie(200)
+    assert len(data) < 400_000
+    with zipfile.ZipFile(io.BytesIO(data)) as z:
+        assert z.getinfo(_SHEET).file_size == len(zip_members(budget_bytes())[_SHEET])
+    assert _bounded(data, 1.0, 30) == "ok 3"
+
+
+def test_n3_r4_inflated_bytes_are_counted_against_the_member_and_total_caps(monkeypatch) -> None:
+    """The caps hold on the bytes actually inflated: a member past the member cap, and members together past the
+    total, are `NATIVE_WORKBOOK` (caps lowered so the members stay small)."""
+    real = len(zip_members(budget_bytes())[_SHEET])
+    monkeypatch.setattr(_xlsx, "_MEMBER_MAX", real - 1)
+    assert _outcome(budget_bytes()) == "NATIVE_WORKBOOK"
+    monkeypatch.setattr(_xlsx, "_MEMBER_MAX", 16 * 2**20)
+    total = sum(len(v) for k, v in zip_members(budget_bytes()).items()
+                if k in ("xl/workbook.xml", "xl/_rels/workbook.xml.rels", _SHEET))
+    monkeypatch.setattr(_xlsx, "_TOTAL_MAX", total - 1)
+    monkeypatch.setattr(zipfile.ZipFile, "infolist", lambda self: [])  # pass the declared-size pre-check
+    assert _outcome(budget_bytes()) == "NATIVE_WORKBOOK"
+    monkeypatch.setattr(_xlsx, "_TOTAL_MAX", total)
+    assert _outcome(budget_bytes()) == "ok 3"
+
+
+def test_n3_r4_bzip2_and_lzma_members_are_workbook_refusals() -> None:
+    for method in (zipfile.ZIP_BZIP2, zipfile.ZIP_LZMA):
+        out = io.BytesIO()
+        with zipfile.ZipFile(out, "w") as z:
+            for name, raw in zip_members(budget_bytes()).items():
+                z.writestr(name, raw, compress_type=method if name == _SHEET else zipfile.ZIP_DEFLATED)
+        assert _outcome(out.getvalue()) == "NATIVE_WORKBOOK"
+
+
+_SST_LONG = (b'<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><si><t>'
+             + "\u00e9".encode() * 1_000_000 + b"</t></si></sst>")
+
+
+def _shared_rows(count: int) -> bytes:
+    """`count` rows whose written Currency cell is shared string 0 (review N6)."""
+    return b"".join(b'<row r="%d"><c r="E%d" t="s"><v>0</v></c></row>' % (r, r) for r in range(10, 10 + count))
+
+
+def test_n3_r4_a_shared_string_is_charged_on_every_reference() -> None:
+    """Review N6: one 1,000,000-character shared string referenced from 1,000 rows (17.4 s for 100 rows at round
+    4). Each reference charges its length to the 16 Mi-character budget, so the parse stops at the 17th row."""
+    data = _workbook(_shared_rows(1_000), members={"xl/sharedStrings.xml": _SST_LONG})
+    assert len(data) < 40_000
+    assert _bounded(data, 1.0, 60) == "NATIVE_WORKBOOK"
+
+
+def test_n3_r4_delivered_characters_under_the_budget_read_as_before() -> None:
+    data = _workbook(_shared_rows(10), members={"xl/sharedStrings.xml": _SST_LONG})
+    assert _bounded(data, 2.0, 60) == "ok 13"  # 10 million characters, scanned once each
+
+
+def test_n3_r4_inline_characters_count_against_the_same_budget(monkeypatch) -> None:
+    monkeypatch.setattr(_xlsx, "_CHAR_MAX", 1_000)
+    one = b'<row r="9"><c r="E9" t="inlineStr"><is><t>' + b"x" * 1_001 + b"</t></is></c></row>"
+    assert _outcome(_workbook(one)) == "NATIVE_WORKBOOK"
+    monkeypatch.setattr(_xlsx, "_CHAR_MAX", 10_000)
+    assert _outcome(_workbook(one)) == "ok 4"
+
+
+def test_n3_r4_the_character_bound_is_the_stated_one() -> None:
+    assert _xlsx._CHAR_MAX == 16 * 2**20 and _xlsx._MEMBER_MAX == 16 * 2**20 and _xlsx._TOTAL_MAX == 64 * 2**20
+
+
+def test_n3_r4_the_invisible_class_is_the_per_character_rule() -> None:
+    """The one-pass class flags exactly the code points the per-character rule flags."""
+    pattern = _layouts._invisible_class()
+    every = "".join(chr(cp) for cp in range(sys.maxunicode + 1))
+    flagged = {m.start() for m in pattern.finditer(every)}
+    assert flagged == {cp for cp in range(sys.maxunicode + 1) if _layouts._flagged(chr(cp))}
+    assert 0x200B in flagged and 0x0D not in flagged and ord("A") not in flagged
+
+
+def _kobo_head() -> bytes:
+    return b"".join(kobo_bytes().splitlines(keepends=True)[:3])
+
+
+def _kobo_outcome(data: bytes) -> str:
+    try:
+        return f"ok {len(read(profile(KOBO), data).obj['records'])}"
+    except CanonicalRefused as refused:
+        return refused.code
+
+
+def _kobo_bounded(data: bytes, seconds: float, megabytes: float) -> str:
+    import time
+    import tracemalloc
+    started = time.perf_counter()
+    outcome = _kobo_outcome(data)
+    elapsed = time.perf_counter() - started
+    tracemalloc.start()
+    try:
+        assert _kobo_outcome(data) == outcome
+        _, peak = tracemalloc.get_traced_memory()
+    finally:
+        tracemalloc.stop()
+    assert elapsed < seconds and peak < megabytes * 1e6, (outcome, elapsed, peak)
+    return outcome
+
+
+def test_n3_r4_csv_rows_stop_one_past_the_batch_ceiling() -> None:
+    """Review N7: 2 MiB of `x` rows (1,048,576 rows; 8 MiB took 11.8 s and 2.5 GB at round 4). The read keeps
+    10,001 rows and stops; the batch refuses that count (`CANONICAL_RANGE batch.records`)."""
+    data = _kobo_head() + b"x\n" * 2**20
+    assert _kobo_bounded(data, 1.0, 40) == f"ok {MAX_RECORDS + 1}"
+
+
+def test_n3_r4_csv_at_the_ceiling_reads_every_row() -> None:
+    row = kobo_bytes().splitlines(keepends=True)[3]
+    header, rows = split_file(compile_profile(profile(KOBO), 1), _kobo_head() + row * MAX_RECORDS)
+    assert len(rows) == MAX_RECORDS and rows[-1][0] == 3 + MAX_RECORDS
+
+
+def test_n3_r4_csv_wide_rows_keep_the_width_plus_one() -> None:
+    """A row of 100,000 fields keeps the layout's width plus one cell (a count mismatch either way)."""
+    wide = b";".join(b"%02d" % (i % 100) for i in range(100_000)) + b"\n"
+    data = _kobo_head() + wide * 10
+    assert len(data) < 8 * 2**20
+    assert _kobo_bounded(data, 1.5, 50) == "ok 10"  # the decoded text and its reader buffer, about 30 MB
+    _, rows = split_file(compile_profile(profile(KOBO), 1), data)
+    assert {len(cells) for _, cells in rows} == {10}
+
+
+def test_n3_r4_xlsx_rows_stop_one_past_the_batch_ceiling() -> None:
+    """The same ceiling on the XLSX path: 100,000 non-empty rows stop at 10,001 kept (the work bound allows them)."""
+    data = _workbook(b"".join(b'<row r="%d"><c r="E%d" t="b"/></row>' % (r, r) for r in range(10, 100_010)))
+    assert _bounded(data, 1.5, 60) == f"ok {MAX_RECORDS + 1}"
 
 
 # --- N4 transforms -----------------------------------------------------------------------------------------------
