@@ -53,22 +53,24 @@ VOCABULARY = {
         },
     },
     "headline_subject": {
-        "forms": ["in_sentence"],
+        "forms": ["label", "in_sentence"],
         "order": ["OPTIMIZE_COST", "GROW_REVENUE"],
         "entries": {
-            "OPTIMIZE_COST": {"in_sentence": "cost and efficiency explain"},
-            "GROW_REVENUE": {"in_sentence": "Grow revenue explains"},
+            # `label` opens 5c's bridge title (5c section 2.5 `bridge_title`, "{Subject} {verb}").
+            "OPTIMIZE_COST": {"label": "Cost and efficiency explain", "in_sentence": "cost and efficiency explain"},
+            "GROW_REVENUE": {"label": "Grow revenue explains", "in_sentence": "Grow revenue explains"},
         },
     },
     "record": {
         "forms": ["in_sentence"],
-        "order": ["BILLING", "BILLING_ADJUSTMENTS", "FEEDER_METER", "METER_REGISTER", "TARIFF_SHEET", "PRODUCTIVE_LINES", "PRODUCTIVE_TARIFF", "SETTLEMENTS", "RECEIPTS", "EMS", "FUEL_CURVE", "TANK_DIPS", "FUEL_DELIVERIES", "FUEL_INVOICES", "OM_INVOICES", "PAYROLL", "SITE_SETUP", "ANALYSING", "MONTH_CLOSE"],
+        "order": ["BILLING", "FEEDER_METER", "METER_REGISTER", "METER_READS", "LOSS_BAND", "PRODUCTIVE_LINES", "PRODUCTIVE_TARIFF", "SETTLEMENTS", "RECEIPTS", "EMS", "FUEL_CURVE", "TANK_DIPS", "FUEL_DELIVERIES", "FUEL_INVOICES", "OM_INVOICES", "PAYROLL", "SITE_SETUP", "ANALYSING", "MONTH_CLOSE"],
         "entries": {
-            "BILLING": {"in_sentence": "the billing export"},
-            "BILLING_ADJUSTMENTS": {"in_sentence": "billing adjustments (credit notes)"},
+            "BILLING": {"in_sentence": "the billing export with each line's kWh and tariff"},  # D-5C.25
             "FEEDER_METER": {"in_sentence": "a feeder meter export"},
             "METER_REGISTER": {"in_sentence": "a meter register with change dates"},
-            "TARIFF_SHEET": {"in_sentence": "the tariff sheet"},
+            # D-4A.12 (5c takes it): the customer meter reads and the declared loss band, after the register.
+            "METER_READS": {"in_sentence": "the customer meter reads for the month"},
+            "LOSS_BAND": {"in_sentence": "each feeder's expected technical loss as declared in the Site's setup"},  # D-5C.25
             "PRODUCTIVE_LINES": {"in_sentence": "productive-use lines in the billing export"},
             "PRODUCTIVE_TARIFF": {"in_sentence": "the productive-use tariff"},
             "SETTLEMENTS": {"in_sentence": "the mobile-money settlement statement"},
@@ -81,7 +83,7 @@ VOCABULARY = {
             "OM_INVOICES": {"in_sentence": "the service contractor's invoices"},
             "PAYROLL": {"in_sentence": "payroll lines"},
             "SITE_SETUP": {"in_sentence": "a generator and a fuel tank declared in the Site's setup (litres are worked out for each)"},
-            "ANALYSING": {"in_sentence": "the running record's analysis, still in progress"},
+            "ANALYSING": {"in_sentence": "the running record's analysis (still in progress)"},  # D-5C.25 class rule: no bare comma
             "MONTH_CLOSE": {"in_sentence": "the month to close"},
         },
     },
@@ -103,13 +105,14 @@ VOCABULARY = {
     },
     "noun": {
         "forms": ["one", "other"],
-        "order": ["site", "budget_disagreement", "reading", "character"],
+        "order": ["site", "budget_disagreement", "reading", "character", "month"],
         "entries": {
             "site": {"one": "Site", "other": "Sites"},
             "budget_disagreement": {"one": "budget disagreement", "other": "budget disagreements"},
             "reading": {"one": "reading", "other": "readings"},
             # 3C2 (D-3C2.14): the agreed change's title length, in its refusal sentence.
             "character": {"one": "character", "other": "characters"},
+            "month": {"one": "month", "other": "months"},  # 5c: the plan value's horizon (D-SC1.21)
         },
     },
     "month": {
