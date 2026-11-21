@@ -152,3 +152,7 @@ to a new `index-3.md` (`INDEX.md` lists it; headers say "of 3").
   (guard `HAND_BUILT_NEW`), P8 a variant without a case (guard `CASE_MISSING`). The L2 DB plant was not planted
   separately: the copied row differs from an admitted person row only in its kind, so only the kind clause can
   refuse it on the coupling.
+- **check-all** at `cd8acf7ea` (`heavy-slot.sh --wait-seconds 3000`): **All 42 guards passed** (blocking; 0 advisory,
+  0 warned), 132 s check-all wall (about 28 min waiting for the heavy slot), including `Statement catalogue (SC-1)`
+  and its self-test (72 of 72 plants). The first run at `8c945689a` failed one guard (`index-2.md` over its cap),
+  fixed in `cd8acf7ea` (`check-all-2.log`, `check-all.log`).
