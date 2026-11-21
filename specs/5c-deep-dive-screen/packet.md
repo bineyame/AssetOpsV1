@@ -129,3 +129,78 @@ Evidence: `/opt/assetecon/evidence/5c/unit3b/`.
 - **Review point.** In World X the Contribution and Gap tiles show "Not available yet" at full figure size beside a
   "Not available yet" chip (both served); the plan tiles mute theirs by key. The page does not read words to style
   them; whether the tile should mute a value with no figure is a served-shape question for the Architect.
+
+## Screen fix (spec rev 4 §11 "Screen fix"; D-5C.26 to D-5C.28, L1 to L5), 2026-11-21
+
+Evidence: `/opt/assetecon/evidence/5c/unit3c/`. Main (backend fix r5, 27b9fcd2a) merged at eb73d2c0a.
+
+- **Merge.** Four conflicts, all docs: `.ai/state/index-3.md` (main's rows 188, 189 kept, 5c's row renumbered 190),
+  `specs/INDEX.md` (5c row kept in_review, DDR row from main), `spec.md` status line (main's rev 4 with in_review),
+  `review.md` (both sections kept: unit 3 round 1, then backend fix r5).
+- **Generator (§11 1).** `make_screen_worlds.py` imports only `deep_dive_worlds.world_h` and `world_x` (no
+  `test_5c_deep_dive_view` import, no private helper, no patch of its own; `self.word`, `NO_CURRENCY`, `t._in_kes`,
+  `t._gone` gone). Both fixtures regenerated: H gains the bars and scale; X loses its chips beside no figure, its
+  shares, and serves `bar`/`scale` null.
+- **L4 (§11 2, test 17).** `backend/tests/test_5c_screen_worlds_fresh.py` (no database) builds both worlds through
+  the generator's `worlds()` and compares bytes with the committed files; on a mismatch it fails with "<name> is
+  stale: rerun make_screen_worlds.py". Plant: World X's "−KES 600.00" changed to "−KES 601.00" → `1 failed, 1 passed`
+  with that message (`plant-L4-stale-world.txt`); file restored by `git checkout`.
+- **D-5C.26 (§11 3).** `mute(word, className)` adds `dd-na` when `word` is null: tile values, step values, driver
+  values, and an outcome card's value in its no-drawer branch (so a card with a drawer, Assure, is never muted). The
+  `startsWith("plan")` test is gone; no key or text test remains. The not-available list's own classes moved from
+  `dd-na`/`dd-na__*` to `dd-gaps`/`dd-gaps__*` so `dd-na` means one thing. `.dd-kpi__value.dd-na` keeps the old
+  tile size.
+- **D-5C.27 (§11 4).** Each step button ends in `.dd-wf__track` (aria-hidden, 20 px, 1 px left rule
+  `--border-strong`, pinned to the last grid column `--dd-track: 30%`; at ≤600 px a full-width row). A served `bar`
+  draws `.dd-wf__bar--{tone}` at `left: {bar.left}%`, `width: {bar.width}%` (12 px, top 4 px, radius 2 px; lowers
+  `--status-red-text`, raises `--status-green-text`). A served `scale` draws `.dd-wf__scalerow` (aria-hidden) above
+  the `<ol>`, same grid and padding as the step rows, with the target mark at `target_at` and the actual end mark at
+  `actual_at` (`translateX(-100%)`), ux.css `:597-601` under `dd-` names. The served strings go straight into `style`;
+  no `Number(`, `parseFloat` or arithmetic was added. Types: `DeepDiveStep.bar`, `DeepDiveStepBar`, `bridge.scale`.
+  Register R767 set to resolved.
+- **L1, L2 (§11 5).** The drawer's Escape and Tab cycle moved from the panel's `onKeyDown` to a `document` listener
+  while open; Tab from outside the panel goes to its first (Shift: last) control. `Capped` owns its `<li>` and, after
+  "Show all {n}", focuses the first newly shown row (`tabIndex={-1}`). `body.dd-locked` (`overflow: hidden`) is added
+  on open and removed on close and unmount (effect cleanup).
+- **L5 (§11 5).** `deep_dive_gates.cjs` adds the two D-headline views only for `--world A` (named `A-with-D-…`).
+- **Tests (§6 rev 4, unit 3).** New describe in `DeepDiveMonth.test.tsx`, 5 cases: A's bars (revenue 0.00 / 11.38
+  lowers, fuel cost 11.38 / 88.62, O&M and staff tracks empty, every track aria-hidden) and the two scale marks with
+  their served texts; World X no bar, no scale, no chip "Not available yet", `dd-na` on contribution, gap, revenue
+  step and Optimize card, not on Assure or fuel cost; the mute follows the shape (a contribution tile with word null
+  mutes, a plan tile with a word does not, a driver with word null mutes); L1 (A's revenue drawer at 12 Sites: after
+  "Show all 12" focus is on row 11, `tabIndex` −1; with focus on `body`, Tab returns into the dialog and Escape on
+  `document` closes and returns focus to the opener); L2 (lock while open, not after Close, not after unmount). World
+  X's card test now asserts no word chip (revises L9). jsdom writes a served "0.00%" as "0%"; the test asserts the
+  served bar object and the style together.
+- **Plants (vitest; each run of `DeepDiveMonth.test.tsx` exits 1, file restored after each; `plants.txt`):** mute by
+  key restored (2 failed), card not muted (1), step not muted (2), driver not muted (1), bar width from `left` (1),
+  no scale (1), no focus after Show all (1), keys on the panel (1), no body lock (1), lock kept after close (1).
+- **Vitest** (`DeepDiveMonth.test.tsx`, `estatePortfolio.test.tsx`, `estatePortfolioRoutes.test.tsx`): 3 files, 120
+  passed (25 in the 5c file). `tsc --noEmit`: exit 0. `vite build`: exit 0 (`vite-build.txt`). Backend
+  `test_5c_screen_worlds_fresh.py` + `test_5c_deep_dive_view.py`: 187 passed.
+- **Gates** (`vite preview` of this build on 127.0.0.1:5577, stopped after): World A exit 0 (9 lines: lint plus 8
+  views), World X exit 0 and World H exit 0 (7 lines each: lint plus 6 views; L5). A: 6 blocks; headline 1 line at
+  1440, 2 at 1280 (2 at both with D's); L1 ends 511 px (1440 × 900) and 575 px (1280 × 720); hub 1,758 px at 1440
+  (+20 px for the scale row; was 1,738); page width 390 at 390; 0 errors; 0 texts under 12 px. X: L1 ends 441 / 459
+  px; hub 1,602 px. The eight gate plants on A each exit 1 (`plant-*.jsonl`).
+- **Known deviation KD4 (layout; for the reviewer).** Spec §5.3 places the track as the last grid column "at widths
+  above 600 px". At a 768 px viewport the shell's navigation leaves the hub 488 px, and the six-column row (120 + 76
+  + chip 188 + track 30% + gaps) widened the page to 852 px (measured: `.dd-wf__track` right edge 848 to 852 px). The
+  step row now also takes the ≤600 px layout when its section is under 720 px wide (`@container`, `.dd-section`
+  `container-type: inline-size`); the viewport rule at 600 px is unchanged. After the fix: no element past the
+  viewport at 768 except the tab row and by-Site table, which scroll in their own boxes (as before); at 1280 the row
+  has six columns (track 285 px); at 1024 it stacks (section 744 px).
+- **D-5C.29 (coordinator heads-up).** The cash sentence rewrite is on `fix/5c-cash-r6`. The page prints the served
+  text and table as given, so no screen change; once r6 merges, merge `main` here and rerun `make_screen_worlds.py`
+  (test 17 fails until then on any drift).
+- **Gates rerun after KD4** (same build served on 127.0.0.1:5577, stopped after): A, X, H exit 0 with the figures
+  above unchanged; the eight plants exit 1 again (`gates-world*.jsonl`, `plant-*.jsonl`).
+- **Bars and drawers in the browser** (`drawer-shots.jsonl`, scratch script; worlds A, X, H at 1440 × 900, 768 × 1024
+  and 390 × 844): every step track has the same left edge and width, and the scale's box equals it (A at 1440: tracks
+  and scale at x 1050, 333 px wide; at 768: 273, 438; at 390: 41, 308); A's bars at 1440: revenue 37.8 px from the
+  track start, fuel cost from 1088.8 px, 294.2 px wide; X: no bar, no scale. Page width equals the viewport in all
+  nine. Opening fuel cost: `body.dd-locked` true, focus on Close; Escape closes and the lock is gone; 0 page errors.
+- **Shots** (`/opt/assetecon/evidence/5c/unit3c/shots/`): `{A,H,X}-{1440x900,1280x720,390x844}-{light,dark}.png`,
+  `A-with-D-headline-{1440x900,1280x720}-light.png`, and `{A,H,X}-{1440x900,768x1024,390x844}-light-bridge.png` and
+  `-fuel-cost-drawer.png`. Dark renders light (MBQ3).
+- **Not verified:** a screen reader pass; the screen served from a real `_test` database (MBQ6).

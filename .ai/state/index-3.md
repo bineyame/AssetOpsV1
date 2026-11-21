@@ -12,4 +12,4 @@ One line per slice, continuing `index-2.md` (number, slice ID, summary, file in 
 187. `0K4e` dispatch-3.3: battery-support Candidate needs stored energy to solar cover; `energy_cover` facts rendered by SC-1 statements · data.md
 188. `0K4a` `mini-grid` v8: cycle charging, minimum load, fuel curve and taper wired in; v8 profile words via SC-1; replay port takes v8 · data.md
 189. `5c-fix-r5` deep-dive rev 4 backend: `figure_word` (no word beside no figure), `bridge_bars` step bars and scale, no share without a gap · data.md
-190. `5c` unit 3: "The month" screen (Portfolio tab, hub shape, drawers, gates script with eight plants; in_review) · estate.md
+190. `5c` unit 3: "The month" screen (Portfolio tab, hub shape, drawers, gates script with eight plants; rev 4 screen fix: served step bars and scale, `dd-na` mute, drawer focus and lock; in_review) · estate.md

@@ -217,5 +217,11 @@ plus Addendum 1. Packet `archive/agent-history/COV-PARTIAL-packet.md`. Decision 
 - On the merged backend (fix rounds 1-4): drivers typed with `key` and `children`; screen fixtures World H and the
   currency-mismatch World X are written by `backend/tests/fixtures/5c/make_screen_worlds.py` from the backend view;
   every figure renders in its served currency (tests check each shown money figure is a served one).
-- Open: MD11 (R767) step bars need a served position; dark theme; `StoreAgreedActions` (3C2 unit 2); the
-  pre-existing `chainScreenRoutes` failure (`/sites/:siteId/uploads` missing from the routes fixture).
+- Screen fix (rev 4, main's backend fix r5 merged): each step draws its served `bar` on a track column and the
+  bridge's served `scale` marks above (D-5C.27, R767 resolved; no page arithmetic); a value whose `word` is null is
+  muted with `dd-na`, a card when its word and drawer are null (D-5C.26; no key test); drawer keys on `document`,
+  focus to the first newly shown row after "Show all", `body.dd-locked` while open (L1, L2); D-headline gate views
+  for World A only (L5). `make_screen_worlds.py` uses `tests/deep_dive_worlds.py` only;
+  `test_5c_screen_worlds_fresh.py` fails on a stale committed world (L4).
+- Open: dark theme; `StoreAgreedActions` (3C2 unit 2); "Show all" in the by-Site tables (outside drawers) still drops
+  focus; the pre-existing `chainScreenRoutes` failure (`/sites/:siteId/uploads` missing from the routes fixture).
