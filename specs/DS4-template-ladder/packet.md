@@ -111,3 +111,4 @@ Branch head after the round is in the commit log (`DS4 fix r1`); main merged fir
   that failed after `onboard apply` leaves its tenant key file live until the coordinator removes the key directory.
 - **Plants (throwaway worktree, removed):** M2 inherit-parent (`env = dict(world.environ)`) fails 1; M1 site check
   dropped fails 2; `_equal` 0.01 tolerance fails 1; `ALL` line dropped fails 2. Each reverted.
+- **Checks (r1):** DS4 no-DB + DS3 bulk-load unit: 99 passed. T12-T17 via `heavy-slot.sh --db`: 8 passed in 42.2 s; T12 C1-C3, C5-C7 PASS, C4 PASS (`fails: []`), `ALL` PASS, exit 0. DS3 bulk_load/parity/pg_harness Postgres: 40 passed in 47.0 s. Fast check-all: "All 40 guards passed" (150 s).
