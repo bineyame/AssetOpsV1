@@ -2,7 +2,7 @@
 
 Status: IA-1a, IA-1b, IA-1c merged (`bf9428ca3`); G2 seen by the owner ("UI looks ok for now", 21 Nov); IA-2a specified (§5.1), handshake next
 
-Architect (Claude), 2026-11-21, rev 4: IA-2a's full design (§5.1; D-IA.43 to D-IA.48 in `rulings-2.md`). Rev 3, 2026-11-20
+Architect (Claude), 2026-11-21, rev 5: IA-2a handshake folded in (D-IA.49 to D-IA.53, `rulings-3.md`); rev 4: IA-2a's full design (§5.1; D-IA.43 to D-IA.48 in `rulings-2.md`). Rev 3, 2026-11-20
 (the IA-1b/IA-1c handshake folded in: D-IA.21 to D-IA.30; rev 2 folded in round 1,
 D-IA.15 to D-IA.20). This is the handshake format (`.ai/RULES.md` §4): this spec, `reviewer-guide.md`, `rulings.md`
 (D-IA.1 to D-IA.30, "Handshake answers (round 1)" and "IA-1b/IA-1c handshake answers"), `handshake.md` and
@@ -579,7 +579,9 @@ joins the slots in today's order.
 | IA-2d | Drawer and record page | Every drawer's address `?drawer=<kind>:<id>` (stable ids; the inbox and the driver drawers included; Back restores it); the incident, maintenance, right and record drawers; `finding/:id`, `action/:id`; `results`, `evidence` (Coverage, Records, Imports); `site/:site/evidence` | Every drawer has an address and closes with Esc. G1's drawer nodes move onto the addressed hrefs, and its Finding surface moves to the Finding page. The stepper gains "Verified" once Results holds verdicts |
 | IA-2e | Statement | `financials` (Statement, Budget & targets, Prices); `site/:site/financials`; `settings` (four tabs); the Lab's own content only (its gate is built in IA-1a, D-IA.19) | Reconciliation (the statement against the headings, all operators). Final sweep: every one of the 184 manifest routes plus `plan` resolves to a live route, an alias or not-found, and `rebase_v70.py` renders nothing routed |
 
-### 5.1 IA-2a: the plan shape (rev 4; D-IA.43 to D-IA.48, `rulings-2.md`)
+### 5.1 IA-2a: the plan shape (rev 5; D-IA.43 to D-IA.48 in `rulings-2.md`, D-IA.49 to D-IA.53 in `rulings-3.md`)
+
+**Rev 5 overrides rev 4 where they differ; read `rulings-3.md` "IA-2a handshake answers" with this section.** In short: checks run forced (`IA_FORCE_LANDED=IA-2a`, D-IA.49); the recommended stop is the end of 3(a); `crew` and `listed` are full width; L1 gains the case line (D-IA.51); `parts_identity` sets plan states (D-IA.50); the plan item's decision depth is 3 and reported only (D-IA.53); `ia_gates` runs `plan_switch_check` and uxi plants.
 
 The owner reviewed G2 ("UI looks ok for now", `owner/owner-snapshot-guard-and-g2-2026-11-21.md`) and asked to start
 IA-2a while the UI lane waits for 5c (`owner/owner-start-ia2a-2026-11-21.md`). 5c takes the lane the moment 3A7
@@ -660,7 +662,7 @@ and for Review and History (no side panel; their content does not depend on the 
 #### 5.1.3 L1: the plan's header (D-IA.44, D-IA.45)
 
 `iaPlanHead(op, p)` returns
-`${iaPlanStepper(op)}${iaPlanBand(op, p.P, p.budget)}${p.ap.releases}${p.ap.notice}<p class="ia-plan-rules">${uxOpener('ia-plan-thresholds', 'Release thresholds', 'ux-link')}</p>`.
+`${iaPlanStepper(op)}${iaPlanBand(op, p.P, p.budget)}${p.ap.releases}${p.ap.notice}{case line, D-IA.51}<p class="ia-plan-rules">${uxOpener('ia-plan-thresholds', 'Release thresholds', 'ux-link')}</p>`.
 
 - **The stepper.** `const IA_PLAN_STEPS = ['DRAFT', 'PROPOSED', 'APPROVED', 'CLOSED']`. `iaPlanSteps(state)` (pure)
   returns `{ steps: IA_PLAN_STEPS.map(s => STATE_WORD[s]), cur }`, `cur` = 1 for `REVISED`, else
@@ -718,6 +720,7 @@ Untouched (no line of the diff): `uxPlanSticky`, `uxPlanStateChip`, `uxPlanActio
 - Crew tiles: label "{Crew word} used" or "{Crew word} used, {Month}" (`crewMeters`' own label); value "{used} of
   {limit}"; meter name "{used} of {limit} {crew word}" or "… in {Month}".
 - Opener and drawer title: "Release thresholds".
+- Case line (only when the case is not the proposal): "Showing the case you chose: {label}. Change the case" (D-IA.51).
 - History: title "Versions and approvals"; sub "Version {n}, {state word in lower case}"; rows "Version {n} proposed",
   "Opened within the executive’s limits", "The system · {date}"; note "Changes made here are shown in this demonstration
   only."
@@ -764,21 +767,20 @@ at 1440 (the returned Actions).
 | Unit | Commits | Content | Visible change |
 |---|---|---|---|
 | 1 | 1 | The four parts splits (§5.1.5); `parts_identity.cjs` gains the plan states and `whatChangedScreen` | none |
-| 2 | 1 to 2 | The checks first (W2): `plan_shape_check.cjs`, the `count_check` plan block, `shape_check` item 10, the G1 surfaces, the `ia_shots` clause, the runner's rows; each new assertion is dormant (prints `IA-2a not landed; dormant`) until `IA_LANDED` has IA-2a, and item 10 runs at once (the Portfolio group passes) | none |
+| 2 | 1 to 2 | The checks first (W2): `plan_shape_check.cjs`, the `count_check` plan block, `shape_check` item 10, the G1 surfaces, the `ia_shots` clause, the runner's rows; each new assertion is dormant by default (prints `IA-2a not landed; dormant`), runs under `IA_FORCE_LANDED=IA-2a` against a stub (D-IA.49), and `ia_gates` fails any `dormant` output after the flip, and item 10 runs at once (the Portfolio group passes) | none |
 | 3 | 2 | (a) The builders (§5.1.2 to §5.1.4), the three routes with `unit: 'IA-2a'`, `docTitle`, `IA_TAB_GROUPS.Plan`, `ia.css`: not live, so nothing shows. (b) The flip: `plan` renders `shapePlan(ctx, 'items')`, `shapePlanInterim` deleted, `'IA-2a'` added to `IA_LANDED`; `plan_switch_check` and uxi retargeted with their plants shown failing first; `walkthroughs.md` (the plan's tabs); register rows R757 to R760; screenshots; packet | the plan shape |
 
 **The clean stop.** Every commit boundary before 3(b) leaves `main`'s screens as they are and every gate green, so the
 branch can pause there. If 3A7 merges during IA-2a: finish the commit in hand (never stop inside one), run the fast
 check-all, push, and write `Stopped after <unit/commit> at <sha>; resume at <next>` at the top of `packet-IA-2a.md`.
-The lane then goes to 5c. The recommended stop is the end of unit 2 (structure proven identical, checks written). Units 1
-and 2 may merge alone after a verification review if the pause is long; 3(b) never merges without unit 3(a) and the
+The lane then goes to 5c. The recommended stop is the end of 3(a) (rev 5, D-IA.49: plants can only fail once the builders exist; unit 2 is "written and mutation-tested"). Unit 2 never merges alone; unit 1 alone may, after a verification review. The stop line names the next-resume sha and says `IA_LANDED` has no IA-2a. 3(b) never merges without unit 3(a) and the
 discovery review. 5c touches no `vNEXT/` file, so neither lane waits on the other's merge.
 
 #### 5.1.10 Done, deviations, packet
 
 **IA-2a is done when**, beyond §6: the four plan routes are live from one shape; `plan_switch_check` passes with its
 three plants failing; `parts_identity.cjs` reports every `planScreen` and `whatChangedScreen` case byte-identical; G1
-prints the plan (≤ 1), each plan tab (≤ 2), every plan item's decision (≤ 2) and the proposed plan via the inbox (≤ 2);
+prints the plan (≤ 1), each plan tab (≤ 2), the plan item's decision (3, reported, D-IA.53) and the proposed plan via the inbox (≤ 2);
 the Approve journey reads dialog, toast with Undo, stepper on Approved, badge down by one, History's new first row, on
 every tab; every new plant fails in `ia_gates.cjs`' table.
 
