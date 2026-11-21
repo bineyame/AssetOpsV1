@@ -1,16 +1,18 @@
 # 0K4m reviewer guide
 
-Architect (Claude), 2026-11-21, rev 1. Discovery review (W5): new evaluator semantics and money figures. Read `spec.md`,
-then D-0K4.9, D-0K4.11, D-0K4.13, D-0K4.27 to D-0K4.29 and D-0K4.31 to D-0K4.37 in
-`specs/0K4-dispatch-model-review/rulings.md`, then the diff and `/opt/assetecon/evidence/0K4m/`. **Done** means every
+Architect (Claude), 2026-11-21, rev 2 (handshake answered, `handshake.md`). Discovery review (W5): new evaluator
+semantics and money figures. Read `spec.md` (rev 2), then D-0K4.9, D-0K4.11, D-0K4.13 and D-0K4.27 to D-0K4.29 in
+`specs/0K4-dispatch-model-review/rulings.md` and D-0K4.31 to D-0K4.39 in `specs/0K4-dispatch-model-review/rulings-2.md`,
+then the diff and `/opt/assetecon/evidence/0K4m/`. **Done** means every
 question in spec §5 is answered yes with evidence, every plant in §6 fails its named check, and the sweep is complete.
 Review units 1-2 together. Review unit 3 on its own, after units 1-2.
 
 ## What to check, and how
 
 1. **Checker first, and independent (W2).**
-   - `git show <commit 1>` must touch only `extract_replay_studies.py`, `replay-studies.json`, `independent_model.py`
-     and `check_manifest.py`, and must fail on the unrestated manifest.
+   - Commit 1a must touch only `check_manifest.py` and print main's count line. Commit 1b must touch only
+     `extract_replay_studies.py`, `replay-studies.json`, `independent_model.py` and `check_manifest.py`, and must fail
+     on the unrestated manifest.
    - `independent_model.py` and `evaluate_structure.py` must share no helper or list, and no expected figure. Compare
      the two N1 implementations side by side. A shared import or a copied block is High.
 2. **The extract is the study.**
@@ -19,9 +21,12 @@ Review units 1-2 together. Review unit 3 on its own, after units 1-2.
    - Pick three fields by hand (KOB-STOPSOC `avoided_l`, MTO-HULLER `litres_per_customer_kwh`, KOB-RESERVE
      `dawn_days_below`), read each in `study.json` yourself, and compare it with the manifest's value rounded per N2.
 3. **The world is untouched (D-0K4.35).**
-   - `sha256sum history.json` equals `9cb1b6bf…`. The view file from `tools/world_history.py view` equals the
-     pre-flight hash. `git diff main -- <manifest>` shows no hunk inside a site's `site`, `code`, `physical`, `tariff`
-     or `period`.
+   - Rerun the boundary proof (spec §0 item 3) at every commit: (a) the view hash equals the pre-flight hash;
+     (b) `world_history.py check` exits 0; (c) no changed line of the manifest, comment lines included, maps to
+     `period.plan`, `period.actual`, `period.coverage` or a TOP, TENANT or SITE key the view copies (`view.py:17-20`).
+     Lines under `period:` outside those three (bridge rows, `variance`) are expected.
+   - `VIEW_HELD` lists exactly the four view paths in spec §1.2, K1 exempts only its string entry, and K11's skip of
+     the `MANIFEST` literal is guarded by its equality check.
    - Run the simulator world tests (`simulator/tests/world/`) through the slot pool. Any failure is High.
 4. **Every number is one of four kinds.** Walk the manifest diff place by place against spec §2.3. Each changed number
    should be one of:
@@ -31,19 +36,21 @@ Review units 1-2 together. Review unit 3 on its own, after units 1-2.
    - the admission line or `information`.
    A typed money figure left on a replay option is High.
 5. **Money by hand.**
-   - Recompute KOB-STOPSOC's monthly change from the extract and the declared prices:
-     `avoided_l x diesel price − added_throughput_kwh x wear rate`, then x 12, less the one-off.
-   - Recompute MTO-HULLER's the same way: `litres_per_kwh x 1,650 kWh x price`, revenue, collection, one-off.
+   - KOB-STOPSOC and KOB-RESERVE: `value` null with their words, never chosen, and no K8 amount (`scaled_to_30_days.*`)
+     read by any `changes` expression (K12; spec §1.3).
+   - Recompute MTO-HULLER's monthly change by hand: `litres_per_kwh x 1,650 kWh x price`, revenue, collection, one-off.
    - Compare both with `derived-values.json`. Reproduce one Lakeside plan figure from the option values. Do not check
      against any figure in this guide or the spec: there is none (figures are outputs).
 6. **Not available, not zero (R4).**
    - Kobo's `candidate_l` and `necessary_l` are `null` with their words on the October side and the history months.
      Kobo's contribution, variance and `GENERATOR_RUNNING` row still evaluate, and the fuel group still adds to its line.
    - KIS-BATT60 has `value: null` and `not_available`, is never chosen, and is listed under the plan's `not_available`.
+   - Each null is a present key, never an absent one (P16), and `unavailable("x") | 0` is not 0 (P17).
    - `missing-records.json` holds the `MODEL_PENDING` entries.
 7. **H9 is earned, not set.**
-   - Read the ledger from 4502 and add it up. Run `check_manifest.py` on `main` and on the branch, and diff the check
-     names: each added or removed check is in the ledger.
+   - Read the ledger from 4502 and add it up. Run commit 1a's `check_manifest.py` with `CHECK_LABELS` on main's
+     manifest and the branch's on the branch, and take the per-section multiset diff: each added or removed check is
+     in the ledger.
    - H11 passes with the digest unchanged.
 8. **Plants.** Read the builder's plant evidence (§6). Make two plants of your own on a scratch copy, never in the
    worktree:

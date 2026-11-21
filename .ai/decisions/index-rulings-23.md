@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-DDR.11 to D-DDR.15, D-WK.10 to D-WK.14, D-3C2.16, D-5C.26 to D-5C.29, D-0K4.31 to D-0K4.37)
+# Decision index: Demo-sprint and later rulings (index only) (D-DDR.11 to D-DDR.15, D-WK.10 to D-WK.14, D-3C2.16, D-5C.26 to D-5C.29, D-0K4.31 to D-0K4.39)
 
 - `D-DDR.11` (I1) rehearsal_check speaks codes and facts, never English; no statement or baseline entry · live · specs/DDR-rehearsal/rulings.md
 - `D-DDR.12` (R12) every rehearsal database is assetops_rehearsal_${REHEARSAL}_test; runbook, key folder, ON1 test swept · live · specs/DDR-rehearsal/rulings.md
@@ -22,3 +22,5 @@
 - `D-0K4.35` world view not edited; Kobo candidate split Not available yet via factor_sources; generator_l (owner-away row 73) · live · specs/0K4-dispatch-model-review/rulings-2.md
 - `D-0K4.36` Embakasi departures from the energy check, per-bus timing NAY; KIS-BATT60 NAY (owner-away row 74) · live · specs/0K4-dispatch-model-review/rulings-2.md
 - `D-0K4.37` 0K4m 2.75 u in three units; unit 3 merge held for owner; 0K4 total 13.25 u; amends D-0K4.1 · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.38` world-month rule: study figures only as rates on an option's own quantity; Kobo settings NAY until 0K4f (owner-away row 75) · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.39` 0K4m handshake answers; 3.5 u (1.75/0.75/1.0), unit 1 first; 0K4 total 14.0 u; amends D-0K4.37 · live · specs/0K4-dispatch-model-review/rulings-2.md
