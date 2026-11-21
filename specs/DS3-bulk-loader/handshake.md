@@ -78,7 +78,7 @@ connected, nothing was run against Postgres).
   generator status (96 per day as well)" is muddled; the sum is right.) `MAX_BATCH_ENVELOPES` is 256 and
   `MAX_BATCH_BYTES` 1 MiB (`ingestion_batch_v2.py:63-64`), so 96-envelope batches fit.
 - **Seams that match `main`:** `_persist` is `postgres_evidence_ledger.py:530-584` with exactly 42 insert columns;
-  `open_batch` `:297-360`; `decide_chunk` `:440-523` (the enqueue block to extract is `:507-521`); `_lock_slot`
+  `open_batch` `:297-360`; `decide_chunk` `:440-523` (the enqueue lines to extract are `:478-488` and `:512-520`); `_lock_slot`
   `:108`; `unnest(CAST(:ids AS uuid[]))` already at `:1200`; `ledger_service.py` is 238 lines with `submit` at `:99`;
   `database_target.is_operator_name` is a case-insensitive `assetops_op` prefix. The guard's extractor
   (`tools/checks/sql_statements.py`) reads module-level `text("...")` constants (I ran it on a scratch copy holding
@@ -115,7 +115,7 @@ the file list and the "harness drops them" sentence.
 
 **I3 (done). Which `IntegrityError`s are collisions (§2.2 step 6, test 6, P5).** The spec maps "any `IntegrityError` on
 any unique index" to `BULK_MESSAGE_COLLISION`. `_persist` treats only `_COLLISION_INDEXES` as typed and re-raises
-every other violation (`postgres_evidence_ledger.py:567-572`); a foreign-key or CHECK failure (for instance
+every other violation (`postgres_evidence_ledger.py:575-578`); a foreign-key or CHECK failure (for instance
 `ingestion_batch_counts`, whose `processed = accepted + ...` and `COMPLETED <=> completed_at` constraints the one-row
 `COMPLETED` insert must satisfy at once) is a build defect, not a collision. Expected: `_constraint(error) in
 _COLLISION_INDEXES` becomes `BULK_MESSAGE_COLLISION`, anything else propagates unchanged and is asserted by a test of
