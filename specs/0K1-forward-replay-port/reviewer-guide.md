@@ -27,9 +27,9 @@ below fails its named test.
 | # | Plant | Fails |
 |---|---|---|
 | P1 | irradiance from the inverter limit instead of the rated power | T1 (steps with PV below the limit) |
-| P2 | load series matched by position, not `load_id` (the test reader emits loads in reverse sorted order and K-BASE's three load series are pairwise unequal, D-0K1.10) | T1 (unserved energy and state) |
+| P2 | load series matched by position, not `load_id` (the test reader emits loads in reverse sorted order and K-BASE's three load series are pairwise unequal, D-0K1.10) | T10 (per-load forcing by id) and T1 (per-load served power, D-0K1.19, D-0K1.21) |
 | P3 | the stop setting ignored | T3 |
-| P4 | the reserve setting applied to the start threshold instead of the reserve forcing | T4 and T10 |
+| P4 | the reserve setting applied to the start threshold instead of the reserve forcing | T4 (K-RES at 32, D-0K1.20) and T10 |
 | P20 | `RESERVE_OVERRIDE_FIELDS.dimension` changed | T10 (drift guard only; T4 is the acceptance proof, D-0K1.16) |
 | P21 | `generator_state` validated in `ReplayStartState.__post_init__` | contract test (`"RUNNING"` constructs) and T6 (a refusal code is expected) |
 | P5 | the base run's start SOC kept | T2 |

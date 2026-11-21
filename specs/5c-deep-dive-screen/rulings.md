@@ -229,4 +229,6 @@ text waits: no 5c code writes served text outside SC-1 statements (D-SC1.28). Th
 **Amended (4a spec, 2026-11-21; D-4A.12).** `RECORDS`, `RECORD_KEYS` and `NOTE_KEYS` of spec §2.3 change as D-4A.12
 states (`specs/4a-energy-to-cash/rulings.md`): `METER_READS` and `LOSS_BAND` added after `METER_REGISTER`,
 `TARIFF_SHEET` removed, the energy leaves' keys and 4a's notes mapped. If 5c has not merged when 4a starts, the 5c
-builder takes it; if it has, 4a's last commit does. Words as SC-1 statements (D-SC1.28).
+builder takes it; if it has, 4a's last commit does. Words as SC-1 statements (D-SC1.28). 4a's handshake adds:
+`adjustments_kwh` (BILLING) and `BILLING_ADJUSTMENTS` removed from `RECORDS` (D-4A.20); `NOTE_KEYS` gains
+`METER_REF_CONFLICT` (METER_READS, METER_REGISTER) (D-4A.24).

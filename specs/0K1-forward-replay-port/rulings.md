@@ -165,3 +165,30 @@ The handshake has no open question after this.
   constructs; T6's `generator` case asserts the refusal. A plant that validates it at construction fails the contract
   test (P21).
 - **Why.** Both halves of the split are pinned, so neither can move without a test failing.
+
+## Mid-build answers (Q1, Q2 of `mid-build-questions.md`; review F1, F2)
+
+## D-0K1.19 (Q1) T10 is P2's test; no per-load field in the projection
+
+- **Ruling.** Confirmed. The kernel serves loads by their total (`mini_grid.py:706-719`), so no projected field can
+  see a position swap; T10's per-load forcing check (each `load-demand@<id>` carries that load's own series, by id)
+  is the proof. Guide row P2 reads "T10". No type change; the projection stays as specced.
+- **Why.** A per-load output would widen the contract for one test's benefit; the input-level check is the real proof.
+
+## D-0K1.20 (Q2) T10 stands for P4; K-RES at 32 added to T4
+
+- **Ruling.** Corrected from "T10 alone" to the reviewer's F1. T10 stands. T4 adds `res-32`: a kernel run
+  `_mini(TRIAL, site_edit=_reserve(32))` and the replay of the unedited run's request with `reserve_soc_pct=Fraction(32)`,
+  step parity and `running_steps == 46`. P4 gives 0 there, so P4 fails T4 and T10 (guide row P4 unchanged: "T4 and T10").
+  Run count 20 to 22 (kernel runs for expected values 8 to 10: K-RES at 25, 30 and 32).
+- **Why.** At 25 the right and wrong versions match; D-0K1.16 makes T4 the acceptance proof of the reserve row, so it
+  must be able to fail on the wrong path. Two cheap runs.
+
+## D-0K1.21 (F2) An output-level per-load check in T1
+
+- **Ruling.** Adopted. In one T1 case (K-BASE, v7) the test wraps `execute` in a recording `execute_fn` and compares the
+  replay trajectory's `load-served-power@<load>` series, per load, with the kernel's. No type change, no extra run.
+  P2 then fails T1 as D-0K1.10 intended, as well as T10.
+- **Why.** Cheap, and puts the plant's "a mix-up changes the result" at the output. Q1's "no per-load field" stands:
+  this reads the kernel trajectory, not the projection.
+

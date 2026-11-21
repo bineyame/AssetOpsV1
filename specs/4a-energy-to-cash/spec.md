@@ -1,10 +1,11 @@
 # 4a: energy to cash, where the kWh went (implementer spec)
 
-Status: rev 1, Architect (Claude), 2026-11-21, written on the owner's delegation (`owner/owner-away-architect-decides-2026-11-21.md`;
-pull order `specs/OWNER-AWAY/decisions-2026-11-21.md` row 4; rows 14 to 18 for the calls made here). `delivery-plan.md`
+Status: rev 2 (handshake round 1 answered: D-4A.15 to D-4A.26), Architect (Claude), 2026-11-21, written on the owner's delegation (`owner/owner-away-architect-decides-2026-11-21.md`;
+pull order `specs/OWNER-AWAY/decisions-2026-11-21.md` row 4; rows 14 to 20 for the calls made here). `delivery-plan.md`
 §2 row `4a`: "Energy-to-cash observer: delivered, metered, billed, collected, with named leaks" (step 4, construct B1,
 2.5 units, depends on `3A4`, `3B3`, non-screen). Off the deep-dive path (`two-week-build-plan.md` §0.1, "Not on the
-path": 4a explains *where* kWh leaked, not the money gap). **3.0 units** (0.5 over the plan, D-4A.1). Discovery
+path": 4a explains *where* kWh leaked, not the money gap). **4.0 units** (0.5 over the plan for D-4A.1, 1.0 for
+the handshake answers, D-4A.26; no split). Discovery
 review (W5): a new mechanism on the structure read, a change to the stated-node rule, kWh under a money heading.
 Non-screen; adds no user-facing text (D-SC1.28; D-4A.12). `USER_REVIEW_REQUIRED: false` (the screen is `5c`'s).
 
@@ -43,7 +44,7 @@ Non-screen; adds no user-facing text (D-SC1.28; D-4A.12). `USER_REVIEW_REQUIRED:
   `parse_record`; kinds `CHARGE`, `ADJUSTMENT`, `CUSTOMER_METER_READ`, `METER_ASSIGNMENT`).
 - **Not what the brief assumed.** `ON1` does **not** declare a tariff or a loss band (D-ON1.8: "the expected technical
   loss band waits for `4a`"; the tariff "arrive[s] as the operator's own records"). 4a places both (D-4A.3, D-4A.6).
-- **Decisions:** `rulings.md` (D-4A.1 to D-4A.14). **Reviewer guide:** `reviewer-guide.md`. **Handshake:**
+- **Decisions:** `rulings.md` (D-4A.1 to D-4A.26). **Reviewer guide:** `reviewer-guide.md`. **Handshake:**
   `handshake.md`.
 
 ## 0. Before you start (gates; each is a hard stop)
@@ -58,21 +59,22 @@ Non-screen; adds no user-facing text (D-SC1.28; D-4A.12). `USER_REVIEW_REQUIRED:
   and `:375-420`; `structure/check.py:175-195`; `structure/composition.py`; `structure/litres/source.py`;
   `structure/targets/read.py:100-190`, `structure/targets/rules.py:30-55`; `mini_depth/read.py:386-460`;
   `mini_depth/store.py:255-325`; `site_outcomes/productive_use.py`; `commercial/months.py:100-160`;
-  `sites/models.py:100-360`; `5b-attribution/spec.md` §5.1; `5c-deep-dive-screen/spec.md` §2.3.
-- **Pre-flight (handshake, before code).** (a) Run `pwsh -NoProfile -File tools/check-architecture.ps1` on a scratch
-  branch where `structure/energy/composition.py` imports `assetops_backend.mini_depth.read` and
-  `structure/energy/inputs.py` imports `assetops_backend.site_outcomes.productive_use`: if refused, it is a handshake
-  question (no guard edit; D-4A.13). (b) Print the role set of the Kobo `Kit` binding set in
-  `backend/tests/test_s2_evidence_ledger_postgres.py` and its `feeder_demand` bindings: if it is not
-  `minigrid-roles-4`, a handshake question. (c) Print the Kit's clock and the `received_at` it gives readings: test
-  PG1 needs a `known_at` after 2026-11-01T00:00+03:00 that is not before the readings' receipt.
+  `sites/models.py:100-360`; `5b-attribution/spec.md` §5.1; `5c-deep-dive-screen/spec.md` §2.3;
+  `tests/test_walk1_productive_producer_postgres.py:1-100`, `tools/demo_combined_kobo.py:60-140`,
+  `tests/test_s4_consequence_store_postgres.py:85-105`, `tests/test_s2_evidence_ledger_postgres.py:60-135`,
+  `sites/foundation_service.py:505-620` (the PG1 harness, D-4A.22).
+- **Pre-flight (done at the handshake).** (a) passed (`check-architecture.ps1` accepts both imports; set
+  `ASSETOPS_GUARD_PYTHON` in a fresh worktree). (b) and (c) answered by D-4A.22 (the Kobo `Kit` set is
+  `minigrid-roles-1`; PG1 uses the producer world). **(d), a hard stop before PG1b is written:** in the D-4A.22
+  world, seal one feeder batch after a Foundation change and print its disposition; not ACCEPTED is a mid-build
+  question.
 - **Files.** New package `backend/assetops_backend/structure/energy/` (`__init__.py`, `rules.py`, `inputs.py`,
   `source.py`, `composition.py`); tests `backend/tests/test_4a_energy_to_cash.py` (no database),
   `backend/tests/test_4a_energy_to_cash_postgres.py`; fixture `backend/tests/fixtures/energy_to_cash_mto.json`.
   Edited, and only these: `structure/rows_mini_grid.py` (two `stated_by`, §2.1), `structure/registry.py` (version
   4), `structure/check.py` (`_stated`, §2.1), `structure/sources.py` (§2.2), `structure/money.py` (one branch in
   `stated`, §2.2), `structure/composition.py` (the fifth builder, §4.3), `structure/targets/rules.py` and
-  `targets/read.py` (`MAIN_OF`, §2.3), `sites/models.py` and `sites/minigrid_foundation.py` (two properties, §4.1),
+  `targets/read.py` (`MAIN_OF`, §2.3), `sites/models.py` and `sites/minigrid_foundation.py` (one property, §4.1, D-4A.18),
   `mini_depth/read.py` (one read method, §4.2), and the test lines the W6 sweep names (§6.4).
 
 ## 1. Outcome and why
@@ -165,7 +167,8 @@ class FeederMonth:
 @dataclass(frozen=True)
 class Charge:          # a CHARGE revision placed in the month (recognition_period == month)
     line_type: str; tariff_class: str | None; kwh: Decimal | None; amount: Decimal; currency: str
-    subject: tuple[str, str] | None; account_ref: str; provenance: str; source_system: str
+    subject: tuple[str, str] | None         # (kind, ref); the meter of a charge is subject.ref when kind is METER
+    account_ref: str; provenance: str; source_system: str
 
 @dataclass(frozen=True)
 class Adjustment:      # an ADJUSTMENT revision placed in the month with a kWh quantity
@@ -173,11 +176,13 @@ class Adjustment:      # an ADJUSTMENT revision placed in the month with a kWh q
 
 @dataclass(frozen=True)
 class MeterRead:       # a CUSTOMER_METER_READ revision whose [effective_from, effective_to) meets the month
-    meter_ref: str; start: date; end: date; kwh: Decimal; provenance: str; source_system: str
+    meter_ref: str          # subject.ref (D-4A.24)
+    body_meter_ref: str     # body.meter_ref
+    start: date; end: date; kwh: Decimal; provenance: str; source_system: str
 
 @dataclass(frozen=True)
 class Assignment:      # every METER_ASSIGNMENT revision of the Site
-    meter_ref: str; customer_ref: str; start: date; end: date | None
+    meter_ref: str; body_meter_ref: str; customer_ref: str; start: date; end: date | None   # as MeterRead
 
 @dataclass(frozen=True)
 class EnergyInputs:
@@ -207,12 +212,12 @@ Each factor is judged in the order written; the first step that applies gives th
 
 | Factor | Steps (cause, note) | Value, evidence, sources, origins |
 |---|---|---|
-| `delivered_kwh` | 1. feeders `NOT_BOUND`: NOT_CONNECTED, `FEEDER_NOT_BOUND`. 2. not `closed`: NOT_RECEIVED, `MONTH_OPEN`. 3. `BINDINGS_CHANGED`: NOT_CALCULATED_YET, `FEEDER_BINDINGS_CHANGED`. 4. any day with some feeder's `day_kwh` None: NOT_RECEIVED, `FEEDER_READINGS_GAP` | Σ over feeders and days; MEASURED; `("readings:feeder_demand",)`; union of feeders' origins. **Coverage** on every value and on steps 2 and 4: `Coverage(covered, days, {"COMPLETE": covered, "NO_DATA": days - covered})`, a day covered when every feeder covers it |
+| `delivered_kwh` | 1. feeders `NOT_BOUND`: NOT_CONNECTED, `FEEDER_NOT_BOUND`. 2. not `closed`: NOT_RECEIVED, `MONTH_OPEN`. 3. `BINDINGS_CHANGED`: NOT_CALCULATED_YET, `FEEDER_BINDINGS_CHANGED`. 4. any day with some feeder's `day_kwh` None: NOT_RECEIVED, `FEEDER_READINGS_GAP` | Σ over feeders and days; MEASURED; `("readings:feeder_demand",)`; union of feeders' origins. **Coverage** on every value and on steps 2 and 4, only when the feeders are `ONE_SET` (else None, D-4A.16): `Coverage(covered, days, {"COMPLETE": covered, "NO_DATA": days - covered})`, a day covered when every feeder covers it |
 | `technical_loss_kwh` | 1. as delivered step 1. 2. any feeder `NOT_DECLARED`: NOT_CONNECTED, `LOSS_BAND_NOT_DECLARED`. 3. any `CHANGED`: NOT_CALCULATED_YET, `LOSS_BAND_CHANGED`. 4. delivered absent: delivered's cause and note | Σ_f (Σ_d day_kwh) × band_pct / 100; MODELLED; `("readings:feeder_demand", "foundation:technical-loss-band")`; delivered's origins |
-| `metered_kwh` (stated) | 1. `CUSTOMER_METER_READ` not in `held`: NOT_CONNECTED, None. 2. not `closed`: NOT_RECEIVED, `MONTH_OPEN`. 3. `METER_ASSIGNMENT` not in `held`: NOT_CONNECTED, `NEEDS:METER_ASSIGNMENT`. 4. a read meeting the month not inside `[first, next_first)`: NOT_CALCULATED_YET, `METER_READ_STRADDLES`. 5. two reads of one meter overlapping: NOT_CALCULATED_YET, `METER_READS_OVERLAP`. 6. an assignment whose span inside the month is not covered by its meter's reads: NOT_RECEIVED, `METER_READS_INCOMPLETE`. 7. no read inside the month: NOT_RECEIVED, None | Σ read kWh of the reads inside the month; RECORDED; `commercial:<source_system>` sorted; their provenances in ORIGIN_ORDER |
+| `metered_kwh` (stated) | 1. `CUSTOMER_METER_READ` not in `held`: NOT_CONNECTED, None. 2. not `closed`: NOT_RECEIVED, `MONTH_OPEN`. 3. `METER_ASSIGNMENT` not in `held`: NOT_CONNECTED, `NEEDS:METER_ASSIGNMENT`. 4. a read meeting the month, or an assignment whose span meets `[first, next_first)`, with `meter_ref != body_meter_ref`: NOT_CALCULATED_YET, `METER_REF_CONFLICT` (D-4A.24). 5. a read meeting the month not inside `[first, next_first)`: NOT_CALCULATED_YET, `METER_READ_STRADDLES`. 6. two reads of one meter overlapping: NOT_CALCULATED_YET, `METER_READS_OVERLAP`. 7. an assignment whose span inside the month is not covered by its meter's reads: NOT_RECEIVED, `METER_READS_INCOMPLETE`. 8. no read inside the month: NOT_RECEIVED, None | Σ read kWh of the reads inside the month; RECORDED; `commercial:<source_system>` sorted; their provenances in ORIGIN_ORDER |
 | `unexplained_loss_kwh` | 1. delivered absent: its cause, note. 2. technical absent: its cause, note. 3. metered absent: its cause, note | delivered − technical − metered (may be negative, D-4A.5); MODELLED; union of the three's sources; union of their origins |
 | `adjustments_kwh` | 1. `CHARGE` not in `held`: NOT_CONNECTED, `NEEDS:CHARGE`. 2. not `closed`: `MONTH_OPEN`. 3. no charge in the month: NOT_RECEIVED, `NEEDS:CHARGE` | Σ adjustment kWh (0 when none: the month's billing is held, ZERO_WHEN_HELD); RECORDED; sources and origins of the adjustments, else of the month's charges |
-| `unmapped_kwh` | 1. `METER_ASSIGNMENT` not in `held`: NOT_CONNECTED, `NEEDS:METER_ASSIGNMENT`. 2. `CUSTOMER_METER_READ` not held: NOT_CONNECTED, `NEEDS:CUSTOMER_METER_READ`. 3. `CHARGE` not held: NOT_CONNECTED, `NEEDS:CHARGE`. 4. not `closed`: `MONTH_OPEN`. 5. metered absent at its steps 4 to 7: metered's cause and note. 6. no charge in the month: NOT_RECEIVED, `NEEDS:CHARGE` | Σ read kWh of the month's reads that are **not charged** (below); 0 when every read is charged; DERIVED; sources and origins of the reads and charges used |
+| `unmapped_kwh` | 1. `METER_ASSIGNMENT` not in `held`: NOT_CONNECTED, `NEEDS:METER_ASSIGNMENT`. 2. `CUSTOMER_METER_READ` not held: NOT_CONNECTED, `NEEDS:CUSTOMER_METER_READ`. 3. `CHARGE` not held: NOT_CONNECTED, `NEEDS:CHARGE`. 4. not `closed`: `MONTH_OPEN`. 5. metered absent at its steps 4 to 8: metered's cause and note. 6. no charge in the month: NOT_RECEIVED, `NEEDS:CHARGE` | Σ read kWh of the month's reads that are **not charged** (below); 0 when every read is charged; DERIVED; sources and origins of the reads and charges used |
 | `billed_kwh` (stated) | 1. `CHARGE` not held: NOT_CONNECTED, None. 2. not `closed`: `MONTH_OPEN`. 3. no charge in the month: NOT_RECEIVED, None | Σ kwh of `S` (0 when `S` is empty: a recorded zero); RECORDED; sources and origins of `S`, else of the month's charges |
 | `tariff` | 1. `CHARGE` not held: NOT_CONNECTED, `NEEDS:CHARGE`. 2. not `closed`: `MONTH_OPEN`. 3. `S` empty: NOT_RECEIVED, `NEEDS:CHARGE`. 4. two or more currencies in `S`: NOT_CALCULATED_YET, `CURRENCY_MISMATCH:<sorted codes joined by ",">`. 5. Σ kwh of `S` is 0: NOT_CALCULATED_YET, `ZERO_DENOMINATOR:billed_kwh` | Σ amount of `S` / Σ kwh of `S`; DERIVED; currency the one code; sources and origins of `S` |
 
@@ -224,7 +229,7 @@ None is open) contains `[r.start, r.end)`; with no such assignment, or more than
 
 **Notes, in one list** (`NOTES`, this order; `5c` maps each to a record, D-4A.12): `FEEDER_NOT_BOUND`,
 `FEEDER_BINDINGS_CHANGED`, `FEEDER_READINGS_GAP`, `LOSS_BAND_NOT_DECLARED`, `LOSS_BAND_CHANGED`,
-`METER_READ_STRADDLES`, `METER_READS_OVERLAP`, `METER_READS_INCOMPLETE`, `NEEDS:METER_ASSIGNMENT`,
+`METER_REF_CONFLICT` (D-4A.24), `METER_READ_STRADDLES`, `METER_READS_OVERLAP`, `METER_READS_INCOMPLETE`, `NEEDS:METER_ASSIGNMENT`,
 `NEEDS:CUSTOMER_METER_READ`, `NEEDS:CHARGE`, `MONTH_OPEN`, and the two parametrised forms `CURRENCY_MISMATCH:` and
 `ZERO_DENOMINATOR:billed_kwh` (4b's spellings).
 
@@ -232,7 +237,7 @@ None is open) contains `[r.start, r.end)`; with no such assignment, or more than
 
 ```python
 class EnergyInputsPort(Protocol):
-    def read(self, site: SiteRef, month: str, known_at: datetime) -> EnergyInputs: ...
+    def read(self, site: SiteRef, month: str, known_at: datetime | None, now: datetime) -> EnergyInputs: ...
 
 class EnergyLeafSource:          # implements LeafSource and StatedSource
     def __init__(self, inputs: EnergyInputsPort, fallback: Any, now: Callable[[], datetime]) -> None
@@ -242,20 +247,20 @@ class EnergyLeafSource:          # implements LeafSource and StatedSource
 `leaf`: `factor_id in ENERGY_LEAVES` and `SOURCE_STATE[key][factor_id] == PROVIDED`: `self._month(ctx).values[f]`;
 else `fallback.leaf(ctx, factor_id)`. `stated`: `factor_id in ENERGY_STATED` and `STATED_STATE[key][f] == PROVIDED`:
 the same; else `fallback.stated(ctx, factor_id)`. `_month(ctx)`: once per `ReadContext` **object** (`self._last[0] is
-ctx`, D-4B.12's rule): `month_energy(inputs.read(ctx.site, ctx.month, ctx.known_at or now()), NAMES)` with `NAMES` the
+ctx`, D-4B.12's rule): `month_energy(inputs.read(ctx.site, ctx.month, ctx.known_at, now()), NAMES)` (a live read passes `known_at`
+None, D-4A.23) with `NAMES` the
 MINI_GRID rows' `filled_by` (leaves) and `stated_by` (the two nodes). A Site that is not MINI_GRID never reaches here
-(3B3 refuses it first).
+(3B3 refuses it first). Nothing in `structure/energy/` catches `MiniReadRefused` or `MiniReadUnavailable`: a
+refusal or an outage propagates, never a figure and never an absence (D-4A.23, as 4d's litre reads).
 
 ## 4. Unit 2: the inputs
 
 ### 4.1 The declared loss band, per feeder (`sites/models.py`, `sites/minigrid_foundation.py`; D-4A.3)
 
 - `COMPONENT_PROPERTY_DEFINITIONS` gains `"technical-loss-band": PropertyDefinition(unit="%", kind="PHYSICAL",
-  display_name="Expected technical loss")` and `"technical-loss-band-basis": PropertyDefinition(unit="state",
-  kind="PHYSICAL", display_name="Expected technical loss basis")`, each with a comment `# 4a (D-4A.3): the share of a
-  feeder's delivered energy expected to be lost before a customer meter; read by structure/energy.`
-- `STATE_PROPERTY_VALUES["technical-loss-band-basis"] = frozenset({"GENERIC_DEFAULT", "DESIGN_STUDY",
-  "METERED_HISTORY"})`. `MINIGRID_PROPERTY_CARRIERS` gains both keys → `"LOAD"`.
+  display_name="Expected technical loss")`, with a comment `# 4a (D-4A.3): the share of a feeder's delivered
+  energy expected to be lost before a customer meter; read by structure/energy.` `MINIGRID_PROPERTY_CARRIERS`
+  gains `"technical-loss-band": "LOAD"`. No basis property (D-4A.18); `STATE_PROPERTY_VALUES` is unchanged.
 - `validate_minigrid_properties`: a `technical-loss-band` of 100 or more is refused: message
   `f"technical-loss-band on {component.component_id} must be below 100 in {source}."` (developer text of the
   Foundation parser, as its neighbours; not served to the executive). The shared parser already refuses a negative.
@@ -282,8 +287,9 @@ those sets; the Site's assets; Foundation revisions with `_KNOWN` and `_OVERLAPS
 constant `_ACCEPTED_FEEDERS` in `read.py`, built from `store._COLUMNS`; `_ACCEPTED` itself is not edited). Only rows
 with `interval_start` and `interval_end` set are returned.
 
-**`StoreEnergyInputs(mini, store).read(site, month, known_at) -> EnergyInputs`** (`structure/energy/inputs.py`):
-`lo, hi, first, last = month_window(month, site.timezone)`; `closed = hi <= known_at`.
+**`StoreEnergyInputs(mini, store).read(site, month, known_at, now) -> EnergyInputs`** (`structure/energy/inputs.py`):
+`lo, hi, first, last = month_window(month, site.timezone)`; `closed = hi <= (known_at or now)`; `known_at` (None for a
+live read) is passed unchanged to `feeder_month` and `latest_revisions` (D-4A.23).
 - **FeederMonth** (pure helper `feeder_month(rows, lo, hi, first, last, tz) -> FeederMonth`, tested alone). No
   binding set, or sets with no feeder binding: `NOT_BOUND`. More than one set, or one set or binding not covering
   `[lo, hi)` whole (`valid_from <= lo` and `valid_to` None or `>= hi`): `BINDINGS_CHANGED`. Else `ONE_SET`, feeders
@@ -300,6 +306,8 @@ with `interval_start` and `interval_end` set are returned.
   `RuntimeError("stored canonical does not parse")`). CHARGE and ADJUSTMENT: placed when `row.recognition_period ==
   month` (D-3A4.2); an ADJUSTMENT counts only with a `kWh` quantity, its value signed as recorded (D-4A.8). Reads:
   kept when `effective_from < next_first` and `effective_to > first` (dates, Site-local by 2a). Assignments: all.
+  For reads and assignments `meter_ref` is `subject.ref` and `body_meter_ref` is `body.meter_ref`; a charge's meter
+  is its `subject` (D-4A.24).
   `known_at` is the one cutoff for every read (D-3A4.7).
 
 ### 4.3 The composition (`structure/energy/composition.py`; `structure/composition.py`)
@@ -364,6 +372,8 @@ D-3B3.15), so revenue stays NOT_SPLIT: test PG3(b).
 | V7 | a second `M-0099` read 10-15→11-01 | `METER_READS_OVERLAP` on metered, unmapped, unexplained |
 | V8 | `M-0099` read removed | `METER_READS_INCOMPLETE` on the same three |
 | V9 | the `M-2203` assignment removed | unmapped 140 (its read has no customer and no charge names it) |
+| V9b | a USAGE STANDARD charge with no subject, account `C-0415`, 25 kWh, 10.00 | unmapped 115 (the `M-2204` read is charged through its customer); billed 5425; tariff 0.4 (2170.00/5425) (D-4A.19) |
+| V9c | V9b and the `M-2204` assignment removed | unmapped 140 (the read has no customer); billed 5425 |
 | V10 | a charge with subject METER `M-2201`, 31 kWh, 12.40 | unmapped 109; billed 5431; tariff 2172.40/5431 |
 | V11 | `M-2201` assignment removed and V10 | unmapped 109 (charged through its meter despite the register gap) |
 | V12 | `M-0001` read 5,570 | metered 5750; unexplained −50 (not clamped); unmapped 140 (a billing shortfall on a charged meter is not unmapped) |
@@ -372,13 +382,35 @@ D-3B3.15), so revenue stays NOT_SPLIT: test PG3(b).
 | V15 | `M-0001` as a REGISTER read 1,000 → 6,400 | metered 5580 (6,400 − 1,000) |
 | V16 | every charge 0 kWh, 0.00 | billed 0; tariff `ZERO_DENOMINATOR:billed_kwh` |
 | V17 | no CHARGE held | billed NOT_CONNECTED (None note); tariff, adjustments, unmapped `NEEDS:CHARGE` |
+| V18 | the `M-0099` read's `body_meter_ref` `M-0098` | metered, unmapped, unexplained NOT_CALCULATED_YET `METER_REF_CONFLICT`; billed 5400 |
+| V19 | feeders `BINDINGS_CHANGED` (no feeders) | delivered, technical, unexplained NOT_CALCULATED_YET `FEEDER_BINDINGS_CHANGED`, coverage None |
+| V20 | the band `NOT_DECLARED` | technical, unexplained NOT_CONNECTED `LOSS_BAND_NOT_DECLARED`; delivered 6000; metered 5580 |
+| V21 | on §5.2: `clinic-meter` NOT_DECLARED, `mill-meter` CHANGED, `residential-meter` DECLARED 5 | technical, unexplained NOT_CONNECTED `LOSS_BAND_NOT_DECLARED` (step 2 before 3) |
+| V22 | no `CUSTOMER_METER_READ` held, no reads | metered NOT_CONNECTED (None note); unmapped NOT_CONNECTED `NEEDS:CUSTOMER_METER_READ`; unexplained as metered; technical 300; billed 5400 |
+| V23 | no reads (the kind still held); assignments only `M-OLD-1`, 2023-05-01 to 2026-09-01 | metered, unmapped, unexplained NOT_RECEIVED (None note) |
+| V24 | no charge and no adjustment in the month (`CHARGE` still held) | adjustments, tariff, unmapped NOT_RECEIVED `NEEDS:CHARGE`; billed NOT_RECEIVED (None note); metered 5580 |
+| V25 | every §5.1 charge FIXED, `kwh` None, amounts kept | billed 0 (a recorded zero); tariff NOT_RECEIVED `NEEDS:CHARGE`; unmapped 5580 (no usage line charges a read); adjustments 40 |
+| V26 | V19 and `closed` False | delivered NOT_RECEIVED `MONTH_OPEN`, coverage None (step 2 before 3) |
+
+### 5.4b Step map (D-4A.16; test 2b runs it and compares its keys with a hand literal `STEPS` of §2.4)
+| Factor | Step → variant |
+|---|---|
+| `delivered_kwh` | 1 V2 · 2 V1 · 3 V19 · 4 V3 · order 2<3 V26 |
+| `technical_loss_kwh` | 1 V2 · 2 V20 (and §5.2) · 3 V4 · 4 V3 · order 2<3 V21 |
+| `metered_kwh` | 1 V22 · 2 V1 · 3 V5 · 4 V18 · 5 V6 · 6 V7 · 7 V8 · 8 V23 |
+| `unexplained_loss_kwh` | 1 V3 · 2 V4 · 3 V5 |
+| `adjustments_kwh` | 1 V17 · 2 V1 · 3 V24 |
+| `unmapped_kwh` | 1 V5 · 2 V22 · 3 V17 · 4 V1 · 5 V6 · 6 V24 |
+| `billed_kwh` | 1 V17 · 2 V1 · 3 V24 |
+| `tariff` | 1 V17 · 2 V1 · 3 V25 · 4 V14 · 5 V16 |
 
 ### 5.5 Postgres fixture `energy_to_cash_mto.json`
 Shape of 4b's `money_leaves_lakeside.json` (`_note`, `steps` of `{at, entered_by, batch}`), entered by
 `service:test-4a`, tenant `lakeside-power`, Site `MTO-001`: step 1 `meter_register` (§5.1's 14 assignments as
 METER_ASSIGNMENT), step 2 `meter_data_export` (§5.1's 14 reads, INTERVAL), step 3 `billing_export` (§5.1's 8
 charges and the adjustment), step 4 `budget_workbook` (one BUDGET_LINE: Site `KOBO-001`, `factor_id` `billed_kwh`,
-value `8550`, `version_ref` `B-2026`, period 2026-10); step 2b `meter_register` and `meter_data_export` for
+value `8550`, `version_ref` `budget-2026-v1`, `line_ref` `billed_kwh`, `source_record_id`
+`BUD-2026-10:KOBO-001:billed_kwh`, no currency, period 2026-10; D-4A.21: one version with 5a's Kobo lines); step 2b `meter_register` and `meter_data_export` for
 `KOBO-001` (§5.2's register and reads) and step 3b `billing_export` for `KOBO-001` with §5.2's adjustment only (its
 charges are 4b's). File order 1, 2, 3, 2b, 3b, 4; `at` 2026-11-07T09:00:00+00:00 and every 10 minutes after, in file
 order; `produced_at` an hour before each. PG2 and PG3(a) load all steps; PG3(b) all but step 4.
@@ -388,7 +420,9 @@ Pseudonymised at intake; the tests assert figures only.
 
 ### 6.1 No database (`test_4a_energy_to_cash.py`)
 1. §5.1 and §5.2 through `month_energy`, every value, evidence, cause, note, coverage and origin.
-2. §5.4 V1 to V17, one test each (parametrised), asserting only the named factors.
+2. §5.4 V1 to V26 with V9b and V9c, one test each (parametrised), asserting only the named factors. **2b.** The
+   step map (§5.4b), table-driven: each row asserts its factor's cause, note and `value is None`; the map's keys
+   equal a hand literal `STEPS` listing every step of §2.4 once (D-4A.16).
 3. `feeder_month`: no set → NOT_BOUND; two sets → BINDINGS_CHANGED; a binding from 10-15 → BINDINGS_CHANGED; one
    feeder with a GOOD reading missing for 15 minutes on day 5 → that day None; two overlapping readings of one feeder
    on day 6 → day None (`conflict_assets`); a LIVE reading → origin `unknown`; band in two revisions 5 and 5 →
@@ -399,27 +433,46 @@ Pseudonymised at intake; the tests assert figures only.
 5. `ProductLeafSource` alone gives every `ENERGY_LEAVES` factor NOT_CONNECTED naming its `filled_by`;
    `CommercialLeafSource.stated` for `metered_kwh` and `billed_kwh` gives NOT_CONNECTED naming the `stated_by`.
 6. `EnergyLeafSource` over a fake port: one `read` per `ReadContext` object for ten calls (eight energy factors, two
-   other leaves passed to the fallback); a second context reads again.
+   other leaves passed to the fallback); a second context reads again. **6b** (D-4A.23): `StoreEnergyInputs` over a
+   fake mini reader and a fake store: a live context passes `known_at` None to both and `closed` follows `now`; a
+   pinned context passes its instant; the fake set to raise `MiniReadUnavailable` (and, separately,
+   `MiniReadRefused`) makes `EnergyLeafSource.leaf` raise the same error.
 7. 5a `MAIN_OF`: with a billed budget line 8550, `delivered_kwh` is solved under `billed_kwh`; without it, under
    `revenue`; with neither, `MAIN_FACTOR_UNSOLVED:revenue`.
 8. Seams (`ast`): `structure/energy/` imports no `simulator`, `host`, `commercial.adapters` or `*_api` module;
    `rules.py` imports nothing outside `structure.evaluate`, `structure.registry`, the standard library and
-   `assetops_contracts`.
-9. The Foundation: a Site document with `technical-loss-band` 5 and basis `DESIGN_STUDY` on a LOAD parses; on a
-   GENERATOR is refused; 100 is refused; basis `GUESS` is refused.
+   `assetops_contracts`; no module under `structure/energy/` reads an attribute named `absent` (D-4A.17).
+9. The Foundation: a Site document with `technical-loss-band` 5 on a LOAD parses; on a GENERATOR is refused; 100 is
+   refused; 99.9 parses (D-4A.18: no basis property).
 
 ### 6.2 Postgres (`test_4a_energy_to_cash_postgres.py`)
-- **PG1 (feeders):** the Kobo `Kit` world of `test_s2_evidence_ledger_postgres.py`; seal through central ingestion 3
-  days (1 to 3 October) of the three feeders at 10 kW every 15 minutes (`Kit.seal`, one batch per feeder per day,
-  SIMULATED); `MiniDepthRead.feeder_month` returns one set, the three feeder bindings and 864 readings with
-  `source_mode` SIMULATED; a `known_at` before the third day's batches drops them; `StoreEnergyInputs.read(..., known_at
-  after 2026-11-01)` gives delivered NOT_RECEIVED `FEEDER_READINGS_GAP` with coverage (3, 31).
+- **World for PG1 and PG1b** (D-4A.22): the Kobo producer world (`pgb.imported`, `pgb.convert`,
+  `producer.configure_at`) with `IMPORT_AT` 2026-08-31T06:00Z, `INSTALL_AT` 2026-09-01T06:00Z; feeders `load-clinic`,
+  `load-res`, `load-mill` of the `minigrid-roles-4` set; hourly `INTERVAL_MEAN` kW readings through central ingestion
+  (helper `interval_envelope`, local), one batch per feeder per Site-local day `d`, received at 2026-10-`(d+1)`T00:30Z (day 31: 11-01T00:30Z);
+  profile of D-4A.15 (clinic 2, res 4, mill 2 with 4 at 18:00-19:00 local; day 31 mill 1.5). Order: days 1-3, PG1,
+  the band (clock 2026-10-04T01:00Z, effective `INSTALL_AT` + 28 min, 5 on each LOAD), days 4-31, PG1b.
+- **PG1 (feeders, after days 1-3):** (a) `MiniDepthRead.feeder_month` returns one set, the three feeder bindings and
+  216 readings, `source_mode` SIMULATED; (b) at `known_at` 2026-10-03T12:00Z the third day's readings are absent
+  (144); (c) `StoreEnergyInputs.read(..., known_at 2026-11-02T00:00Z, now)` gives delivered NOT_RECEIVED
+  `FEEDER_READINGS_GAP`, coverage (3, 31); (d) technical NOT_CONNECTED `LOSS_BAND_NOT_DECLARED` (no band yet);
+  (e) the same through `build_structure_read(URL).read.site(<producer Site>, "2026-10", known_at)`:
+  `technical_loss_kwh` and `unexplained_loss_kwh` value None, NOT_AVAILABLE, `LOSS_BAND_NOT_DECLARED` (D-4A.17; if
+  the structure read refuses this Site for a reason outside 4a, a mid-build question).
+- **PG1b (the chain, after days 4-31; D-4A.15):** (a) at `known_at` 2026-11-02T00:00Z: delivered 6000 MEASURED,
+  coverage (31, 31), origins (`demo-simulated`,); technical 300 MODELLED; metered NOT_CONNECTED (no commercial
+  record at this Site). (b) The same `EnergyInputs` with `held`, `charges`, `adjustments`, `reads`, `assignments`
+  replaced by test 1's §5.1 literals, through `month_energy`: metered 5580, unexplained 120 MODELLED. (c) At
+  `known_at` 2026-10-04T00:45Z (before the band was recorded): technical NOT_CONNECTED `LOSS_BAND_NOT_DECLARED`.
 - **PG2 (commercial, end to end):** `pgworld` (3A4); 4b's fixture steps, 5a's `targets_lakeside.json`, then §5.5;
   `build_structure_read(URL).read.site(MTO, "2026-10")`: metered 5580 and billed 5400 stated RECORDED, unmapped 140,
   adjustments 40, tariff 0.4, delivered NOT_CONNECTED `FEEDER_NOT_BOUND`, revenue 2160.00 stated; with `known_at`
   2026-11-07T09:05:00+00:00 (after the Mto register, before the reads) metered NOT_CONNECTED.
-- **PG3 (the bridge):** (a) §5.3 through the real reads (`build_structure_read`, `TargetRead`, `bridge`); (b) the
-  same without step 4: revenue NOT_SPLIT.
+- **PG3 (the bridge):** (a) §5.3 through the real reads (`build_structure_read`, `TargetRead`, `bridge`), and on
+  Kobo's evaluated structure (D-4A.17): `delivered_kwh`, `technical_loss_kwh`, `unexplained_loss_kwh` value None,
+  NOT_AVAILABLE, NOT_CONNECTED `FEEDER_NOT_BOUND`; `metered_kwh` stated 8690 RECORDED, `computed` None;
+  `adjustments_kwh` 45; `unmapped_kwh` 0; Kobo's revenue, fuel cost, O&M and staff targets still used, no
+  `BUDGET_VERSIONS` unused line (D-4A.21); (b) the same without step 4: revenue NOT_SPLIT.
 
 ### 6.3 Regression
 `test_3b1_*`, `test_3b3_*`, `test_4b*`, `test_4d*`, `test_5a*`, `test_5b*`, `test_3b7a*`, `test_3a4*`,
@@ -427,36 +480,48 @@ Pseudonymised at intake; the tests assert figures only.
 suites (`select-tests --base main` names them); check-all once at the end.
 
 ### 6.4 The W6 sweep (pins that change by design; the packet lists each with its old and new literal)
-`MG.version == 3` (`test_3b1_structure_registry.py:88`, `test_3b3_structure_evaluate.py:376`,
-`test_4b1_stated_nodes.py:291`); the state tables (`test_3b3_structure_evaluate.py:76-79`, `test_4b_money_leaves.py`
-`STATE_TABLE` and `REVENUE_NINE`, `:214`); `test_5b_attribution.py:434` `REVENUE_UNOBSERVED` and the e2e literals of
-`test_5b_attribution_postgres.py` (Kobo, Kisiwa, Mto revenue now split as far as billed kWh and tariff are
-observed); `test_w205a_ev_vocabulary.py:131` (`STATE_PROPERTY_VALUES`); any `3B7a`, `5c` or `DDR` test on `main` at
-build start that pins a revenue `NOT_SPLIT` or the v3 version (grep `version == 3`, `NOT_SPLIT`,
-`unobserved_actual`). A changed literal is replaced by the new computed one only when the packet shows why it moved
-(the stated kWh nodes or the derived tariff); any other change is a mid-build question.
+By class (D-4A.25): every test on `main` at build start that asserts the MINI_GRID version, the rows with
+`stated_by`, `SOURCE_STATE`/`STATED_STATE`, the component property tables, or a revenue `NOT_SPLIT` /
+`unobserved_actual` (grep `version == 3`, `stated`, `STATE_TABLE`, `STATED_TABLE`, `MINIGRID_PROPERTY_CARRIERS`,
+`COMPONENT_PROPERTY_DEFINITIONS`, `NOT_SPLIT`, `unobserved_actual`). Found at the handshake: `MG.version == 3`
+(`test_3b1_structure_registry.py:88`, `test_3b3_structure_evaluate.py:376`, `test_4b1_stated_nodes.py:291`); the
+state tables (`test_3b3_structure_evaluate.py:76-79`, `test_4b_money_leaves.py` `STATE_TABLE`, `STATED_TABLE`
+`:526`, `REVENUE_NINE`, `:214`); `test_3b7a_site_inputs_seam.py:49` (`["revenue", "fuel_cost"]` →
+`["metered_kwh", "billed_kwh", "revenue", "fuel_cost"]`); `test_w402_roles_properties.py:91-109` (the definitions
+table and `MINIGRID_PROPERTY_CARRIERS` gain `technical-loss-band`); `test_5b_attribution.py:434` `REVENUE_UNOBSERVED`
+and the e2e literals of `test_5b_attribution_postgres.py` (Kobo, Kisiwa, Mto revenue now split as far as billed kWh
+and tariff are observed); any `3B7a`, `5c` or `DDR` test of the same class. `test_w205a_ev_vocabulary.py:131` does
+not move (no basis, D-4A.18). A changed literal is replaced by the new computed one only when the packet shows why
+it moved (the stated kWh nodes, the derived tariff, registry v4, the new property); any other change is a mid-build
+question. **Stored snapshots:** a 3B7a snapshot built at version 3 is served `REBUILD_NEEDED`
+(`STRUCTURE_VERSION`) until 3B7a's build rebuilds it; 4a writes no migration and touches no stored snapshot; the
+packet says so (D-4A.25).
 
 ## 7. Units
 
 | Unit | Content | Commits |
 |---|---|---|
-| 1 (1.25) | §2 (registry v4, `_stated`, sources, `money.py` branch, `MAIN_OF`), §2.4 rules, §3 provider; tests 1, 2, 4 to 8; the unit-test pins of §6.4 | 1 to 2 |
-| 2 (1.0) | §4.1 properties, §4.2 reads (`feeder_month`, `StoreEnergyInputs`), §4.3 composition; tests 3, 9, PG1, PG2 | 1 |
-| 3 (0.75) | PG3; the e2e pins of §6.4; plants (reviewer guide); check-all; packet; the 5c record keys if 5c has merged (D-4A.12, after SC-1a's merge) | 1 |
+| 1 (1.5) | §2 (registry v4, `_stated`, sources, `money.py` branch, `MAIN_OF`), §2.4 rules, §3 provider; tests 1, 2, 2b, 4 to 8, 6b; the unit-test pins of §6.4 | 1 to 2 |
+| 2 (1.5) | §4.1 property, §4.2 reads (`feeder_month`, `StoreEnergyInputs`), §4.3 composition; pre-flight (d); tests 3, 9, PG1, PG1b, PG2 | 1 to 2 |
+| 3 (1.0) | PG3; the e2e pins of §6.4; plants (reviewer guide P1 to P27); check-all; packet; the 5c record keys if 5c has merged (D-4A.12, D-4A.20, D-4A.24; after SC-1a's merge) | 1 |
 
-Total 3.0. Packet `specs/4a-energy-to-cash/packet.md`: the sweep table, the plants run, residual risks `R-PRODUCTIVE`
-(D-4A.10), `R-TARIFF` (D-4A.6), the mid-build count.
+Total 4.0 (D-4A.26). Packet `specs/4a-energy-to-cash/packet.md`: the sweep table, the stored-snapshot statement
+(D-4A.25), the plants run, residual risks `R-PRODUCTIVE` (D-4A.10), `R-TARIFF` (D-4A.6), `R-ABSENT-META` (D-4A.17),
+the mid-build count.
 
 ## 8. Done (questions; each can fail)
 
 1. Does Mto's chain read 6000, 300, 5580, 120, 40, 140, 5400 and 0.4 from feeder readings, a declared band and the
-   operator's records, with the 140 on unmapped meters and not on loss (tests 1, PG2)?
+   operator's records, with the 140 on unmapped meters and not on loss (tests 1, PG1b, PG2)?
 2. Do Kobo's technical and unexplained losses read "Not available yet" naming the band (`LOSS_BAND_NOT_DECLARED`),
-   never 0, and is Kobo's unmapped 0 with a full register (test 1)?
-3. Does every absence name its record by cause and note, and does each variant of §5.4 give exactly its row (test 2)?
+   never 0, on the pure layer and on the evaluated structure, and is Kobo's unmapped 0 with a full register (tests 1,
+   PG1(e), PG3(a))?
+3. Does every absence name its record by cause and note, does each variant of §5.4 give exactly its row, and is
+   every step of §2.4 reached by the variant §5.4b names (tests 2, 2b)?
 4. With billing and a budget that states billed kWh, does Kobo's revenue gap split into kWh billed +38.00 and price
    0.00, and without the budget line stay unsplit (PG3)?
-5. Is a simulated reading labelled `demo-simulated`, never observed (tests 3, PG1)?
+5. Is a simulated reading labelled `demo-simulated`, never observed (tests 3, PG1, PG1b)? Does a live read pass no
+   cutoff to the reads, and does a refusal or outage propagate (test 6b)?
 6. Do the stated kWh nodes keep their expressions as `computed`, so a record the factors do not explain shows as a
    disagreement and never as a split (tests 1, PG3)?
 7. Is the persistence guard unchanged and passing, with no migration and no user-facing text added?
@@ -476,9 +541,11 @@ snapshot of feeder energy (`3B7a` serves the read); cold-room and EV chains (`9d
 | # | Question | Default |
 |---|---|---|
 | Q1 (owner) | Should the billing export and the meter reads state billed and metered kWh, as invoices state revenue? | Yes (D-4A.1; OWNER-AWAY row 14): the revenue gap splits from billing alone |
-| Q2 (owner) | Where is the expected loss declared? | In the Site's setup, per feeder, with its basis (D-4A.3; row 15); not the onboarding file |
+| Q2 (owner) | Where is the expected loss declared? | In the Site's setup, per feeder (D-4A.3; row 15); not the onboarding file; no basis this slice (D-4A.18; row 20) |
 | Q3 (owner) | The tariff from a tariff sheet, or billed money over billed kWh? | Billed money over billed kWh, *Calculated* (D-4A.6; row 16); the sheet reader is queued |
 | Q4 (owner) | Are unexplained losses priced in the bridge? | As unexplained fuel is (gate 5): an effect at the target tariff, never money to recover (D-4A.5; row 17) |
 | Q5 (owner) | Productive-class kWh sit inside metered kWh but outside billed kWh | Registry unchanged this fortnight; such a Site shows billed kWh's disagreement (D-4A.10; row 18) |
 | Q6 | Partial-month feeder data | No figure: delivered needs every day of every feeder (D-4A.2) |
 | Q7 | Telemetry origins beyond SIMULATED | LIVE reads `unknown` ("Estimated" on 5c) until a field-provenance rule exists (D-4A.2) |
+| Q8 (owner) | Which record fills billing adjustments on 5c? | The billing export (D-4A.20; row 19); "credit notes" leaves the list |
+| Q9 | A meter record whose two meter fields differ | Metered kWh is not calculated, naming the conflict (D-4A.24) |

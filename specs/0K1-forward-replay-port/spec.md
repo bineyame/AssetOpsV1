@@ -1,6 +1,6 @@
 # 0K1: the forward replay port and its host adapter (implementer spec)
 
-Status: rev 2 (handshake round 1 folded in: D-0K1.10 to D-0K1.18), Architect (Claude), 2026-11-21, written on the owner's delegation (`owner/owner-away-architect-decides-2026-11-21.md`;
+Status: in_review (built on `task/0K1-forward-replay`; packet `packet.md`). Rev 2 (handshake round 1 folded in: D-0K1.10 to D-0K1.18), Architect (Claude), 2026-11-21, written on the owner's delegation (`owner/owner-away-architect-decides-2026-11-21.md`;
 pull order `specs/OWNER-AWAY/decisions-2026-11-21.md` row 4). Spike K, part 1 (`delivery-plan.md` §2 row `0K1`: "the
 forward replay port method and its host adapter, proven by replaying a recorded run to the kernel's own trajectory";
 lane C in `two-week-build-plan.md` §0.2, days 6 to 8). **3 units.** Discovery review (W5): a new port across a
@@ -276,11 +276,11 @@ reaches v5's 30% start); K-CLIP `clipped_offsets == tuple(range(240, 480, 5))`; 
 - **T1 parity, K-BASE (V = 5, 6 and 7):** `HostForwardReplay().forward_replay(run, request)`; for every step `i`, each
   `ReplayStep` field equals the value read from the kernel trajectory by the test's own reader (state, generator kWh,
   unserved kWh, SOC, fuel); `starts`, `running_steps`, `soc_end_pct`, `fuel_end_l`, `min_soc_pct` equal the
-  trajectory's; status COMPLETED; the hand anchors.
+  trajectory's; status COMPLETED; the hand anchors; in the K-BASE v7 case also the per-load `load-served-power@<load>` series equal the kernel's through a recording `execute_fn` (D-0K1.21).
 - **T2 parity, K-START; T3 parity, K-STOP; T4 parity, K-RES; T5 parity and clipping, K-CLIP:** as T1 against each
   case's own kernel trajectory; T3 also `stop_source == "SETTING"`, `stop_soc_pct == 60`; T4 `reserve_source ==
   "SETTING"` and `reserve_soc_pct == 25` asserted from the request, and only the step fields, `starts`, `running_steps`, SOC and fuel
-  compared with the kernel run (whose reserve is a baseline, so `reserve_source` cannot match it; D-0K1.11); the anchors of §3.
+  compared with the kernel run (whose reserve is a baseline, so `reserve_source` cannot match it; D-0K1.11); the anchors of §3. T4 adds K-RES at 32 (D-0K1.20): kernel run `site_edit` reserve 32 against the replay of the unedited request at 32, step parity, `running_steps == 46`.
 - **T6 refusals**, each its own case on K-BASE's run and request with one change, asserting `code` and `subject`:
   95 PV values (`REPLAY_SERIES_MISALIGNED`, `pv`); `load-mill` left out (`REPLAY_ADDRESS_UNKNOWN`, `load-mill`); an
   extra `load-pump` (`REPLAY_ADDRESS_UNKNOWN`, `load-pump`); `load-res` twice (`REPLAY_ADDRESS_UNKNOWN`, `load-res`);
@@ -321,7 +321,7 @@ status `FAILED` and no `failure_kind`, or `COMPLETED` with one, raises `ValueErr
 "gateway_diagnostics", "release_registered", "registered_delivery"}` (unchanged, D-0K1.1); no file under `backend/`
 names `forward_replay` outside `runs/replay_port.py` and this test.
 
-**Run count (packet records it; D-0K1.13):** about 20 kernel executions of 96 steps: 8 kernel runs for the expected values (K-BASE x3, K-START, K-STOP, K-RES at 25 and at 30, K-CLIP), 8 replays, 1 in T7, 3 in T8; T6 and T10 execute none.
+**Run count (packet records it; D-0K1.13):** about 22 kernel executions of 96 steps: 10 kernel runs for the expected values (K-BASE x3, K-START, K-STOP, K-RES at 25, 30 and 32, K-CLIP), 8 replays, 1 in T7, 3 in T8; T6 and T10 execute none.
 
 **Regression:** `host/tests/test_mini_grid_v5.py`, `host/tests/test_lab_execution.py`, `backend/tests/test_run_execution_api.py`;
 the dependency-direction guard; check-all (fast) once at the end; `python tools/select-tests.py --base main` before
