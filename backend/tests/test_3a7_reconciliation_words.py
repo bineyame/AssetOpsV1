@@ -171,6 +171,12 @@ def test_mixed_origin_lines_read_the_weakest_origin() -> None:
     assert words("500.00", "505.50", origins=(EMU, FIN)).startswith("Revenue (Recorded and Emulated):")
 
 
+def test_mixed_origin_lines_read_the_weakest_origin() -> None:
+    """Review L1: used lines of financial and emulated origin read "(Recorded and Emulated)" (D-4B.2: the weakest)."""
+    assert words("500.00", "505.50", origins=(FIN, EMU)).startswith("Revenue (Recorded and Emulated):")
+    assert words("500.00", "505.50", origins=(EMU, FIN)).startswith("Revenue (Recorded and Emulated):")
+
+
 @pytest.mark.parametrize("accounts, recorded, english", [
     ("0.00", "3.00", "Revenue (Recorded): the accounts say $0.00 and the records say $3.00, $3.00 more, beyond the "
                      "$0.00 allowed (1%)."),  # no share for a zero figure (V12)
