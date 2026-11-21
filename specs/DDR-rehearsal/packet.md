@@ -49,18 +49,18 @@ their commands and shows the checker's first failing gate move G2 -> G3 -> G5 ->
   backend/tests/test_ddr_rehearsal_postgres.py`, at `e128707a6`: 10 passed, 2 failed in 122.15 s (module wall time;
   cap 245 s). The two failures were test-side and are fixed in `00a1d5002`: test 4a asserted `ACCEPTED` where 3A1
   answers `STORED`, and the emulated-budget skip case raised the screen's 500 (PF1 below) out of `TestClient`.
-  Rerun of those two cases at `00a1d5002`: RESULT_F.
+  Rerun of those two cases at `00a1d5002`: 2 passed, 10 deselected (`-k "emulated_budget or test_4a"`), in the heavy slot; log `/opt/assetecon/evidence/DDR-rehearsal/build-2026-11-21/F.log`.
 - `tools/check-architecture.ps1` (with `ASSETOPS_GUARD_PYTHON`): passed. `tools/check-agent-workflow.ps1`: passed.
 - `tools/checks/statement_catalogue.py`: OK (no `HAND_BUILT_NEW`; the module is not in the baseline or allow file).
-- Fast check-all: CHECK_ALL.
+- Fast check-all: All 42 guards passed (blocking; 0 advisory, 0 warned); log `/opt/assetecon/evidence/DDR-rehearsal/build-2026-11-21/check-all.log`.
 - Logs: `/opt/assetecon/evidence/DDR-rehearsal/build-2026-11-21/`.
 
 ## Plants (each applied, its test run, reverted)
 
 | # | Result |
 |---|---|
-| P1 | RESULT_P1 |
-| P2, P3, P4 | test 3 fails: no S5, no S6, no S9 cases each FAIL (first gate None/other) |
+| P1 | test 4a fails (rc 1). Note for the reviewer: the first failing gate under P1 was G4 `FIGURE` (KISIWA-001 revenue), not G3 `READER_MISSING` as the test asserts. The test fails, so the plant is caught, but G3 itself may not see P1's fault; log `G.log` |
+| P2, P3, P4 | test 3 fails: the no-S5, no-S6 and no-S9 cases each fail their assertion (no step skipped is detected otherwise) |
 | P5 | test 1 fails (two lines, not ten); test 8(a) fails |
 | P6 | test 1 fails (progress: S4 -> G4, `TARGET`) |
 | P7 | test 1 fails: S4 exit 2 `EXPORT_PATHS_MIXED` |
