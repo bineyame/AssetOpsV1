@@ -97,6 +97,10 @@ class TestTypedProperties:
                        "supply-use": ("state", "PHYSICAL"),  # WALK1-3 §4.2
                        "generator-no-load-fuel-rate": ("L/h", "PHYSICAL"),  # FUEL-1 A1
                        "generator-no-load-fuel-rate-basis": ("state", "PHYSICAL"),
+                       "generator-minimum-load": ("%", "CONTROL"),  # 0K4b (D-0K4.4)
+                       "generator-minimum-load-basis": ("state", "CONTROL"),
+                       "battery-charge-taper-start": ("%", "PHYSICAL"),  # 0K4b (D-0K4.6)
+                       "battery-charge-taper-start-basis": ("state", "PHYSICAL"),
                        "fuel-level-sensor-accuracy": ("L", "PHYSICAL"),  # DIESEL-1 K1
                        "fuel-level-sensor-accuracy-basis": ("state", "PHYSICAL"),
                        "technical-loss-band": ("%", "PHYSICAL")}  # 4a (D-4A.3)
@@ -106,6 +110,10 @@ class TestTypedProperties:
                                               "supply-use": "LOAD",
                                               "generator-no-load-fuel-rate": "GENERATOR",
                                               "generator-no-load-fuel-rate-basis": "GENERATOR",
+                                              "generator-minimum-load": "GENERATOR",  # 0K4b
+                                              "generator-minimum-load-basis": "GENERATOR",
+                                              "battery-charge-taper-start": "BATTERY",
+                                              "battery-charge-taper-start-basis": "BATTERY",
                                               "fuel-level-sensor-accuracy": "FUEL_TANK",
                                               "fuel-level-sensor-accuracy-basis": "FUEL_TANK",
                                               "technical-loss-band": "LOAD"}  # 4a (D-4A.3)

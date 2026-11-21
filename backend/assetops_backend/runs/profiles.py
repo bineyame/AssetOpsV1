@@ -66,6 +66,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, replace
 
+from assetops_backend.i18n import Message, State, message
+
 from assetops_backend.runs.models import (
     FrozenObservationBinding,
     FrozenPublicationIdentity,
@@ -163,7 +165,9 @@ class SupportedState:
     scope: str
     supported_roles: frozenset[str]
     foundation_binding: FoundationBinding | None
-    statement: str
+    #: A legacy statement is a `str` (baselined debt); one added since D-0K4.19 is an SC-1 `Message`, rendered at
+    #: read through `served_text`.
+    statement: str | Message
     #: T024. The kind of component a COMPONENT state with no Foundation
     #: binding is carried on - a load's demand is a fact about a LOAD. Without
     #: it an explicitly addressed reference could name any component at all,
@@ -955,7 +959,7 @@ def _need(
     component_type: str,
     property_key: str,
     unit: str,
-    statement: str,
+    statement: str | Message,
 ) -> SupportedState:
     return SupportedState(
         state_key=state_key,
@@ -968,6 +972,17 @@ def _need(
         ),
         statement=statement,
     )
+
+
+#: 0K4b (D-0K4.4 to D-0K4.6): the three Foundation needs `mini-grid` v8 adds. 0K4a puts them on MINI_GRID_V8_MODEL.
+GENERATOR_CURVE_NEEDS: tuple[SupportedState, ...] = (
+    _need("generator-no-load-fuel-rate", "GENERATOR", "generator-no-load-fuel-rate", "L/h",
+          message("model_profile.need", need=State("GENERATOR_NO_LOAD_FUEL_RATE"))),
+    _need("generator-minimum-load", "GENERATOR", "generator-minimum-load", "%",
+          message("model_profile.need", need=State("GENERATOR_MINIMUM_LOAD"))),
+    _need("battery-charge-taper-start", "BATTERY", "battery-charge-taper-start", "%",
+          message("model_profile.need", need=State("BATTERY_CHARGE_TAPER_START"))),
+)
 
 
 #: The daytime mini-grid model T024 adds (map A, first electrical world).

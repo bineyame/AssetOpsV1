@@ -1,6 +1,6 @@
 # 5c reviewer guide
 
-Architect (Claude), 2026-11-20, rev 2 (handshake round 1 answered). Discovery review (W5): money figures on the screen the executive sees. Read
+Architect (Claude), 2026-11-20, rev 2 (handshake round 1 answered); rev 3 2026-11-21 (review round 1 answers, D-5C.19 to D-5C.25: P6 reworded, P22 to P26 added). Discovery review (W5): money figures on the screen the executive sees. Read
 `spec.md`, `rulings.md`, 5b `rulings.md` D-5B.10 to D-5B.15, then the diff. Done means every question in spec §8
 answers yes with evidence, every plant below fails its named test, and the G2 to G4 gates of
 `Docs/design-system/uiux-guide.md` pass on the captures.
@@ -40,7 +40,7 @@ answers yes with evidence, every plant below fails its named test, and the G2 to
 | P3 | the standing read live (`known_at` None) | test 9(b) (B's words at 12:30Z) |
 | P4 | the suffix added to a "Not available yet" money figure | test 5 |
 | P5 | the disagreement only inside a drawer | test 10 |
-| P6 | a carried O&M shown without "(estimate)" | tests 3, 10 |
+| P6 | a carried O&M shown without "(at budget)", in the cell or its drawer row (D-5C.23) | tests 3, 10 |
 | P7 | (dropped in rev 2: the two paths cannot differ for one currency; handshake R5) | — |
 | P8 | the browser formats a figure (`toFixed`) | grep in check 5 and test 10 (strings differ) |
 | P9 | "Recorded" for an emulated figure | test 5 |
@@ -56,6 +56,11 @@ answers yes with evidence, every plant below fails its named test, and the G2 to
 | P19 | a seventh block in a level region | test 15 (gates `block`) |
 | P20 | a headline over 2 lines, L1 below the fold, or the hub over 2,500 px | test 15 (gates `headline`, `fold`, `height`) |
 | P21 | a level region missing, horizontal scroll at 390, or a font size off the scale | test 15 (gates `levels`, `scroll`, `lint`) |
+| P22 | the headline's `evidence` served without `money_word` (D-5C.20) | test 3 |
+| P23 | `DECLARED` with an emulated origin handed to the shared vocabulary unmapped ("Declared"; D-5C.19) | test 5 (on `main` with SC-1f) |
+| P24 | World H's drivers flattened (D-5C.21) | tests 4(H), 11 |
+| P25 | the screen shows every row, or the JSON holds 10 and `more` (D-5C.22) | test 11 (caps) |
+| P26 | a `record` entry with a comma outside brackets (D-5C.25) | test 5 (statement case) |
 
 ## Not findings
 

@@ -587,3 +587,11 @@ Branch `task/0K3-replay-reader` (base main `e9d6cdfb1`); spec `specs/0K3-replay-
 
 - Settled: `runs/replay_series.py` `SeriesReader.read` (built by `runs/composition.build_series_reader`) turns a Site's accepted readings over whole local days into 0K2's `ObservedSeries` or refuses with a code and subject: configuration before readings, 15-minute means refused never split, `pv_power` never read as available PV, instants only at step starts (off-grid counted), nothing carried, clock-change days refused before the query, `MAX_DAYS` 92, input class from source mode. Proven on R0 (no database), MG-W402-001 and DS3 Kobo in Postgres, and 0K2's 8-day season read back field by field with the same calibration.
 - Open: no study on stored readings until a 61-day 5-minute series, Kobo's `pv_available_power` binding (row 48) and `6c`; mid-build Q1 (Kobo's zone is Addis Ababa, not Nairobi).
+
+## 0K4b - the generator's fuel curve and the battery's charge taper (in review, 21 Nov)
+
+Branch `task/0K4b-fuel-curve` (base main `b96d5e978`); spec `specs/0K4b-fuel-curve-taper/spec.md` rev 2, rulings D-0K4.5-7, D-0K4.19-21; packet `packet.md`. No migration, no database, no screen, no guard or template change.
+
+- Settled: pure `packs/generator_curve.py` (fuel line through the no-load rate and SFC x rating, ordered refusals, fuel cap, taper to a 1/20 floor, three handlers; v8's physics, pinned by F12), imported by nothing until 0K4a; Foundation keys `generator-minimum-load`, `battery-charge-taper-start` and their bases on GENERATOR and BATTERY; `GENERATOR_CURVE_NEEDS` on no profile; `host/tests/kobo_assumed.py` (GENERIC_DEFAULT); the first `str | Message` legacy-family seam, `served_text.py`, with the `foundation_property` vocabulary and the `foundation.property_name` and `model_profile.need` statements.
+- Open: 0K4a wires the module and the needs into v8 and adds the lab seam (`run_profile_summary`); the rest of each family's migration (Q9); Kobo's real curve and taper values (operator request).
+
