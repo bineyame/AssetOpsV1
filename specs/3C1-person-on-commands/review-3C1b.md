@@ -133,3 +133,119 @@ All against the router built as in `test_3c1b_person_actions.py`, 12 passed:
 - **3C0b.** Once the switch is on, every trial action needs a SITE_MANAGER (or FT for observe) signed in at the
   Site; the demo walkthrough's scripted accept/apply must then sign in. Nothing else reads the switch.
 - **The full pooled regression list at `ab993e2e9`** was not rerun by me (cited above).
+
+## Round 2 (text commit, W5 discovery of the new commits): `task/3C1b-person-actions` at `e2daa4c5c`
+
+Reviewer (Claude, fresh), 2026-11-21. Scope: `163611071..e2daa4c5c`: the main merge `c328a4094` (migration renamed
+0071 on 0068), the text commit `8c945689a`, and the docs commits `cd8acf7ea` and `e2daa4c5c`.
+
+### Summary
+
+- **Verdict: ACCEPT.** No High or Medium findings. Four Lows, none blocking, plus two merge notes (migration re-point
+  and the `index-3.md` conflict).
+- The six `action.*` statements: each SYSTEM variant is byte-identical to `main`. I rendered them against `main`'s
+  literals, and the unknown-Site 404 against `f"{code!r}"` for 11 codes with quotes, backslashes, braces, a tab,
+  U+200B, U+202E and an empty string. No USER variant names a person. No hand-built English is added on the
+  changed paths: the guard is OK and the five baseline entries were pruned, none added.
+- Q-3C1b-2's merge condition is met. A person's apply stores the person's note (pg test reads `change_note`). The
+  Action read's `label` follows the ACCEPTED event. The capability block and the 403 body state the caller's actor.
+- Q1 accept (L4 records the process gap). Q2 agree. Q3 is safe; see below and L1/L2.
+- L2's test catches the plant. With `'RESOLVED'` added to the coupling's kind list in a throwaway worktree, the test
+  fails at `test_3c1b_person_actions_postgres.py:228` (`DID NOT RAISE`). Every other test still passed under that
+  plant, including the definitions test, so this block is the only guard on the kind clause.
+- check-all at `e2daa4c5c`: **All 42 guards passed** (blocking; 0 advisory, 0 warned), 164.9 s wall.
+
+### Findings
+
+**L1 (Low; test gap, Q3).** `backend/tests/test_3c1b_person_actions.py` (the recommendation-read capability
+parametrization) and the Action read.
+- **What is wrong.** The packet says that when the account store is down, a read succeeds with null actor fields.
+  No test covers this. The parametrization covers switch-off unsigned, a person, FT, switch-on unsigned and another
+  tenant, but not the store being down. The per-caller Action read block is pinned only in the Postgres test.
+- **Evidence (my probe, throwaway worktree).** With `BrokenAccounts` and peter's cookie, the recommendation read gives
+  200 with `actor_kind`, `actor_id` and `label` all null and `allowed: true`. The same caller's accept gives 503.
+- **Fix.** Add one row, `("peter", store down) -> none`, using the existing `BrokenAccounts`/`Down`.
+
+**L2 (Low; residual risk on Q3, a preference).** `backend/assetops_backend/action_api.py:118-128` (`would_record`).
+- **What is wrong.** Before this commit the reads never touched the account store. Now each recommendation read calls
+  `person_step` once, and each Action read calls it twice (APPLY, OBSERVE). With a cookie, that is up to five
+  account-store queries per call. `person_step` turns only the `accounts_unavailable` types into a refusal. Any other
+  exception from the account store (for example a programming error) now turns a read that used to succeed into a
+  500.
+- **Why it is still safe.** Without a cookie, `AccountService.resolve(None)` returns before any store query, so the
+  unsigned path (today's bytes) cannot be affected. There is no auth bypass: `would_record` only feeds the block, and
+  every command re-runs `person_of`. There is no leak: the only difference a caller sees is about their own cookie
+  (null instead of SYSTEM), and nothing about another tenant.
+- **Fix (optional).** Resolve the person once per read and derive both commands' actors from that one principal.
+
+**L3 (Low; honesty edges of the null block).** Three places:
+- `frontend/src/sites/actionClient.ts:36-45`: `SystemDemoCapability` still types `actor_kind`, `actor_id` and
+  `label` as non-null `string`. No screen reads them today, so nothing breaks.
+- `frontend/src/sites/actionPresentation.tsx:198` (`granted()`): gates the control on `allowed` only. A caller whose
+  command would refuse (null actor, `allowed: true`) still sees the control. This predates the commit; the block is
+  now more honest than before (it used to claim SYSTEM). The screen slice that closes round-1 L1 should gate on
+  `actor_kind !== null` and fix the types.
+- `backend/assetops_backend/actions/service.py:718`: `accepted_by` falls back to SYSTEM when no ACCEPTED event is
+  found. That cannot happen today, because every Action is written with its ACCEPTED event. A silent SYSTEM default
+  would mislabel rather than fail. `next(...)` without a default (as `change()` does at `:649`) is the stricter form.
+
+**L4 (Low; process, Q1).** `specs/SC-1-statement-composer/rulings.md` D-SC1.28 ("its modules join `ADOPTED`").
+- **What is wrong.** `action_api.py`, `service.py` and `capability.py` are not adopted. That departs from the letter of
+  D-SC1.28. The departure was accepted as a coordinator default, not by an Architect ruling.
+- **Why it is acceptable.** Adopting these modules would convert older baselined text (SC-1b/c scope). The backend
+  ratchet still refuses any new hand-built text in them: the packet's P7 plant gave `HAND_BUILT_NEW`, and the guard
+  is OK at head.
+- **Fix.** One line in the owner-away decisions log (or an Architect note) so SC-1b/c knows these three modules are
+  theirs to adopt.
+
+### Q2 (honesty clauses): agree
+
+Spec §5.5's "Recorded by a signed-in person" is the label, and it is used as the label everywhere. The observe note
+and the change statement keep their "changes no ... state / claims no effect" and "No measured effect, saving or
+verification is claimed" clauses. Dropping those would weaken the no-claim statement on exactly the person's acts.
+
+### Merge notes (not findings)
+
+- **Migration 0071.** `backend/migrations/versions/0071_person_on_actions.py:31` has
+  `down_revision = "0068_structure_finding"`. Both siblings also point at 0068: 3A7's
+  `0069_commercial_reconciliation` and 3C2's `0070_agreed_action` (3C2's own state line already plans to re-point
+  0070 onto 0069). At 3C1b's merge, set `down_revision` to the single `alembic heads` value on `main` at that moment:
+  `"0070_agreed_action"` if both have merged, otherwise whichever one has. Keep the file name and
+  `revision = "0071_person_on_actions"`; no message or test changes (both are built from `revision` or found by
+  glob). Update the stale numbering prose too: the module docstring (`:22-23`) and the `.ai/state/work.md` line
+  ("down_revision 0068 until ..."). Neither sibling touches `action_event`, so 0071's `_assert_check` "before"
+  texts still hold. Then confirm a single head and run the 3C1b Postgres file plus `test_3b4_observer_postgres.py`
+  (its downgrade to 0067 passes through 0071's downgrade).
+- **`index-3.md` conflict.** All three branches create `.ai/state/index-3.md`, so expect add/add conflicts:
+  - 3C1b and 3A7 (`task/3A7-month-reconciled`) split the same way. Both keep `index-2.md` through 178, both start
+    `index-3.md` at line 179 (3C1b and 3A7 respectively), and their header prose differs.
+  - 3C2 (`task/3C2-agreed-change`) moved lines 160-178 out of `index-2.md` into `index-3.md` (its 179 is 3C2), and
+    cut `index-2.md` to 5,286 bytes. Against 3C1b that is a modify/modify conflict on `index-2.md` (header "of 3" and
+    the moved block) plus an add/add on `index-3.md`.
+  - `INDEX.md` and `index-1.md` get the same one-line edit on every branch, so they merge clean.
+  - `.ai/state/work.md` gets an append-at-end conflict with 3C2.
+  - Resolve by keeping whichever split lands first and appending each later slice as the next number (180, 181) with
+    that file's header. Re-check the 8,000-byte cap afterwards.
+
+### Checks run (evidence `/opt/assetecon/evidence/3C1b/review-text/`)
+
+- `heavy-slot.sh --wait-seconds 3000 -- pwsh -NoProfile -File tools/check-all.ps1` at `e2daa4c5c` (clean tree):
+  `All 42 guards passed (blocking; 0 advisory, 0 warned)`, 164.9 s wall. This includes
+  `Statement catalogue (SC-1)` OK (0 adopted) and its self-test (72 of 72 plants). Log: `check-all.log`.
+- **L2 plant.** Detached throwaway worktree at `e2daa4c5c` (removed after), `heavy-slot.sh --db`, `assetops_test`
+  routed by the harness. 0071's kind list gained `'RESOLVED'`. Result:
+  `test_each_planted_actor_fails_on_its_constraint` FAILED at `:228` `DID NOT RAISE DBAPIError`;
+  `test_the_constraints_exist_with_their_definitions` passed. Log: `l2-plant-and-q3-probe.log`.
+- **Q3 probe** (same run, no database): the recommendation read with the store down gives 200 and a null block, and
+  the accept gives 503. My Action-read half failed on my own fake-store wiring (`KeyError`), so it proves nothing
+  either way. The Action read uses the same `would_record`.
+- **Byte check** (no database, the shared venv with this worktree first on `sys.path`): the SYSTEM variants and the
+  publish note equal `main`'s literals; the 404 equals `f"{c!r}"` for all 11 codes.
+- Not rerun: the builder's no-DB 663 and Postgres 61 counts at `8c945689a`. The Postgres log was lost, as the packet
+  says; check-all at head covers the guards.
+
+### Not verified, and residual risk
+
+- The re-pointed migration and the merged index files can only be checked at merge time (see the merge notes).
+- Frontend words ("Accept trial (SYSTEM demonstration)") still say SYSTEM for a signed-in person. This is round-1 L1,
+  listed open in the packet, and belongs to a screen slice.
