@@ -487,6 +487,14 @@
   padding: var(--space-2) 0;
   border-top: 1px solid var(--border-subtle);
 }
+.dd-drivers--parts {
+  margin: var(--space-2) 0 0 var(--space-3);
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--border-strong);
+}
+.dd-drivers--parts .dd-driver:first-child {
+  border-top: 0;
+}
 .dd-site__name,
 .dd-driver__label {
   font-weight: var(--weight-medium);
@@ -526,8 +534,10 @@
     grid-template-columns: minmax(0, 1fr) auto;
   }
   .dd-wf__share,
-  .dd-wf__sites {
+  .dd-wf__sites,
+  .dd-wf__step .dd-chip {
     grid-column: 1 / -1;
+    justify-self: start;
   }
   .dd-na__row {
     grid-template-columns: minmax(0, 1fr);

@@ -202,6 +202,25 @@ describe("5c test 11: drawers keep and return focus; drivers carry their words",
     expect(document.activeElement).toBe(opener);
   });
 
+  it("a driver with a depth nests inside its parent, never beside it (coordinator note L2)", async () => {
+    const h = worldH();
+    const drivers = h.bridge!.groups[1].steps[0].drawer.drivers;
+    drivers.forEach((d, i) => (d.depth = i >= 1 && i <= 3 ? 1 : 0));
+    renderMonth(clientOf(() => ({ status: "loaded", body: h })));
+    await settled();
+    fireEvent.click(screen.getByRole("button", { name: /^Fuel cost / }));
+    const dialog = screen.getByRole("dialog", { name: "Fuel cost" });
+    const top = dialog.querySelectorAll(".dd-drivers:not(.dd-drivers--parts) > [data-dd-driver]");
+    expect([...top].map((li) => li.querySelector(".dd-driver__label")!.textContent)).toEqual(["Diesel used", "Diesel price"]);
+    const parts = within(dialog).getByRole("list", { name: "Parts of Diesel used" });
+    expect(parts.closest("[data-dd-driver]")!.querySelector(".dd-driver__label")!.textContent).toBe("Diesel used");
+    expect(within(parts).getAllByRole("listitem").map((li) => li.querySelector(".dd-driver__label")!.textContent)).toEqual([
+      "Diesel not shown to be avoidable",
+      "Diesel run while solar and battery could carry the load",
+      "Unexplained fuel",
+    ]);
+  });
+
   it("the scrim and Close close the drawer and return focus (P12)", async () => {
     renderMonth(clientOf(() => ({ status: "loaded", body: worldH() })));
     await settled();

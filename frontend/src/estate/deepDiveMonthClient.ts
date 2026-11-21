@@ -24,6 +24,12 @@ export interface DeepDiveDriver {
   sites: string;
   detail: string | null;
   word: string | null;
+  /**
+   * Pending the Architect's driver-hierarchy ruling (coordinator note L2): a driver's depth under its step (0 = a
+   * direct driver) when the server sends it. A deeper row nests inside the row above it, so a parent's parts are never
+   * shown as its siblings. Absent: depth 0.
+   */
+  depth?: number;
 }
 
 export interface DeepDiveStepDrawer {
