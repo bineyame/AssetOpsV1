@@ -77,3 +77,142 @@ strategy text says, so each is logged for the owner in `specs/OWNER-AWAY/decisio
   *Estimated* where the operator states an estimate, never 0" (build plan §0.4) holds: no estimate has been stated
   through any path, so "Not available yet" is the honest reading.
 - **Reverse.** Queue the declared-estimate unit ahead of WK; DS3 needs no change.
+
+## Handshake answers (round 1)
+
+Architect (Claude), 2026-11-21, answering `handshake.md` R1-R5 and I1-I5, each checked against `main` `3bdf3c81d`.
+Folded into `spec.md` rev 2 and `reviewer-guide.md` rev 2. D-DS3.11 narrows what DS4 can bulk-load, so it is logged
+for the owner (`specs/OWNER-AWAY/decisions-2026-11-21.md` row 13). Nothing here widens an authorisation; no guard
+changes. The rev 1 index lines for D-DS3.1, .2 and .8 cited rows 9 to 11; the rows are 10 to 12 (corrected).
+
+## D-DS3.9 One refusal order, one code per condition; the real path's claim refusals pass through (R1, R2)
+
+- **Ruling.** The bulk path checks in one fixed order (spec §2.4 table) and names each condition once.
+  "Same batch ID, other bytes" is `BATCH_ID_CONFLICT` wherever it is found: from `admit`'s unlocked check (the
+  normal case, test 6) and from `bulk_admit`'s recheck under the slot lock (the lost race, tested by calling
+  `bulk_admit` directly). `BULK_BATCH_EXISTS_DIFFERENT` is dropped. `_check_claims` raises `BatchRefused` without
+  calling `refuse` (`ledger_service.py:194-215`); `BulkEvidenceLoad.load` catches `BatchRefused` around `admit` and
+  raises `BulkLoadRefused(code=error.kind, external_batch_id=batch.batch_id, detail=error.detail)`, recording
+  nothing. `gateway_principal` drops `disabled_at IS NULL`: a disabled gateway gets its principal and
+  `registered_scope` names the real reason, `GATEWAY_DISABLED` (`postgres_evidence_ledger.py:179-199`).
+  `BULK_UNKNOWN_GATEWAY` then means only "no such gateway at that Site". An `existing` COMPLETED batch with the same
+  digest is `already_loaded` without deciding; `existing` IN_PROGRESS is `BULK_BATCH_IN_PROGRESS`.
+- **Why.** Two codes for one condition make a test depend on timing and a reader guess which check spoke. Reusing
+  the real path's code keeps one vocabulary for one fact. Reading `registered_scope` gives the true cause for free,
+  where a filter in `gateway_principal` would hide it.
+
+## D-DS3.10 The bulk statements target three ledger tables and `recompute_job`; triggers fire as on the real path, and parity counts every table (R3)
+
+- **Ruling.** Spec §7 item 4 is restated: the bulk statements target only `ingestion_batch`, `accepted_evidence`,
+  `ingestion_disposition`, and `recompute_job` through `_coalesce_job`; the database triggers fire on them exactly
+  as on the real path. Those triggers on `main` are: `enqueue_mini_depth` (deferred, `0048`; `recompute_job` in the
+  mini domains), `enqueue_ev_assessment` (deferred, `0025`; EV `recompute_job`), `ev_consequence_dirty_accepted`
+  (`0026`; EV consequence work), `financial_consequence_dirty_on_evidence` (`0012:129`; `financial_consequence_work`)
+  and the statement-level `*_cic_ins` change-log triggers (`0047`; `chain_input_change`). Parity covers them as a
+  class, not one by one: test 8 takes a **census** of every base table of the schema (row count after the load
+  minus the seed's) on both databases. Every table's delta is equal on both paths, except two whose rows are, by
+  design, per statement or per chunk: `recompute_job`, compared per domain (dispatch and cold by D-DS3.3's coverage
+  rule; every other domain, written per Site-local hour or per window by a trigger, by the exact set of
+  `(domain, window_start, window_end, status)`), and `chain_input_change`, compared by its set of distinct
+  `(tenant_id, site_id, table_name)` with the bulk count at most the real one. A table with a non-zero delta that
+  the test does not name fails with its name. The parity seed's binding sets are relabelled `minigrid-roles-4`
+  (test-only, as `test_w200_source_events_postgres.v4_roles4` does) so the mini-depth trigger writes jobs on both
+  paths and the comparison is not empty. `financial_consequence_work` and the EV consequence work need Finding or
+  assessment revisions, which the seed has none of: their deltas are 0 on both paths, asserted by the census; the
+  limit is stated, not hidden. Tests 4, 5 and 6 count `recompute_job` with `domain = 'dispatch'`, as `Kit.counts`
+  does.
+- **Why.** Listing today's triggers would go stale with the next migration; the census catches a new one the day
+  it lands (W6). Change-log and chunk-coalesced rows legitimately differ in count (one per statement or chunk);
+  what the readers need, the scopes invalidated and the windows covered, is compared exactly.
+- **Reverse.** Name a further table in the census's per-table rules when a trigger with per-statement rows is added.
+
+## D-DS3.11 Bulk loading is proved for MINIGRID Sites, v3 and v4; other Site types are refused until their parity slice exists (R4)
+
+- **Ruling.** Test 8 adds a v4 slice at the parity Site: one batch of test_w200's v4 shapes (a `START_RESULT`
+  event, an `EV_SESSION_START`, a chamber-probe point and an EV interval delta, through `patched_v4`), compared by
+  the same equal-rows lists; the seven v4-only columns are therefore compared. The cold enqueue branch needs a
+  `COLDCHAIN` Site, which no ledger-only fixture on `main` provides (W2-03's cold Sites come through the gateway
+  chain and registered publications, which D-DS3.4 refuses in bulk). So `bulk_admit` refuses a batch at a Site
+  whose `_site_type_on` is not `MINIGRID`: `BULK_SITE_TYPE_UNPROVEN`, before any write. The cold branch stays in the
+  shared `_enqueue_admitted` (W2-03 regression covers it through `decide_chunk`). DS4 lifts the refusal per Site
+  type by adding that type's parity slice (a seed, a slice, the census), never by deleting the check.
+- **Why.** The bulk path should load only what parity proves (owner, 2026-11-13: the walkthrough runs only on a
+  clean, good database). Building a cold and an EV ledger seed now adds a fixture DS4 must build anyway with the
+  world's real Sites. Until then cold and EV telemetry reach the walkthrough through the real path, slower, not
+  wrong. Owner-level because it shapes DS4's build time: OWNER-AWAY row 13.
+- **Reverse.** Add the COLDCHAIN and EV_CHARGING parity slices in DS3 (about +0.75 unit) and drop the refusal.
+
+## D-DS3.12 Name and place: the permitted database is also on the container's host and port; the world command never loads the served walkthrough database (R5)
+
+- **Ruling.** `permitted_database(url, environ=None)` also requires `target.host` in `{"127.0.0.1", "localhost"}` and
+  `target.port == int(env.get("ASSETOPS_PG_PORT", "55432"))` (the port `docker-compose.yml:21` publishes for
+  `assetopsv1-postgres-1`); a missing port is false. The command is not the tool that loads the served walkthrough
+  database: DS4 builds into `assetops_ds4_audit<MMDD>` (permitted by name, host and port). Whether the walkthrough
+  serve may point at a built `_audit` database, or a copy is made into its name, is DS4's question to the owner; it
+  is **held**, not decided here.
+- **Why.** RULES §7 names the databases *in `assetopsv1-postgres-1`*; the name alone does not say which server. The
+  check costs one line and closes the gap. Writing to the walkthrough database outside its own serve is forbidden
+  (RULES §7), so the build target must be an `_audit` name.
+
+## D-DS3.13 World layout: `commercial/` and `telemetry/` as sibling folders; the command's exit codes are its own (I1)
+
+- **Ruling.** `<world>/<tenant>/commercial/` (passed as `--dir` to `load_emulated_exports.main`) and
+  `<world>/<tenant>/telemetry/` (`*.batch.json`); each step runs when its folder exists; anything else in a tenant
+  directory is `WORLD_LAYOUT_UNKNOWN` (exit 2), checked for every tenant before any connection. Exit codes: 0 done;
+  2 a refusal of this command (`NO_DATABASE`, `BULK_DATABASE_NOT_PERMITTED`, `WORLD_LAYOUT_UNKNOWN`, any
+  `BulkLoadRefused`); 3 a database error; **4 the commercial step failed**, with stderr
+  `COMMERCIAL_EXIT <tenant> <loader exit>` after the loader's own lines; telemetry is not loaded for that tenant or
+  later ones.
+- **Why.** `_files` refuses a subdirectory (`load_emulated_exports.py:87`), so one folder cannot hold both. Passing
+  the loader's 2 and 3 through would make 2 and 3 mean two things; one code for "the commercial step failed" plus
+  its exit on stderr keeps both facts.
+
+## D-DS3.14 `pg_harness` gets a public clone helper and drops what it clones (I2)
+
+- **Ruling.** `pg_harness.py` gains `clone_database(tag, template_url=None) -> str` (a `*_test` name from
+  `database_name(stem, run, tag)`, created from the run template or from `template_url`'s database, registered in
+  `_state["extra"]`; asserts zero sessions on the source first, naming the count) and `drop_database(url)` (DROP
+  ... WITH (FORCE), unregisters). `cleanup()` also drops every registered extra. `test_pg_harness.py` gains the
+  create, register, drop and cleanup cases. DS3's Postgres tests take URLs only from module fixtures built on
+  `clone_database`, never the module `URL` (used only for the skip), and build their own engine, store, ledger and
+  service per URL; the seed's engines are disposed before cloning from it.
+- **Why.** Tests calling private helpers would couple to internals; a public helper with registered cleanup makes
+  "the harness drops them" true serially as well as under xdist (`cleanup_run` already drops by the owned pattern).
+
+## D-DS3.15 Only listed unique indexes are collisions; any other integrity failure propagates (I3)
+
+- **Ruling.** In `bulk_admit`, fewer ids returned than decisions, or `_constraint(error) in _COLLISION_INDEXES`, is
+  `BULK_MESSAGE_COLLISION`; any other `IntegrityError` (a foreign key, a CHECK) propagates unchanged after the
+  rollback (the command's exit 3). Tested by calling `bulk_admit` with one decision whose
+  `binding.binding_revision_id` is a random UUID (`accepted_evidence_binding_fk`): an `IntegrityError`, not a
+  `BulkAdmissionRefused`, and every table's row count unchanged.
+- **Why.** The same rule as `_persist` (`postgres_evidence_ledger.py:575-578`): a build defect must not read as clean
+  data's collision. A foreign-key case is reachable without a plant; a miscounted batch row is not.
+
+## D-DS3.16 The measurement is a committed, opt-in test module (I4)
+
+- **Ruling.** `backend/tests/test_ds3_bench_postgres.py`, marked `slow` and skipped unless `ASSETOPS_DS3_BENCH=1`;
+  run through `tools/heavy-slot.sh --db -- pwsh -NoProfile -File tools/run-host-tests.ps1 -- <file>` with `-s`. URLs
+  from `clone_database` (tags `ds3bseed`, `ds3breal`, `ds3bbulk`), dropped in `finally`; numbers printed as one JSON
+  line, copied into the packet with the slot label. It asserts nothing about time.
+- **Why.** The harness routes only under pytest, and a committed module lets DS4 re-run the same measurement.
+
+## D-DS3.17 Test 6 may seal with `seal_batch_v2` and use S4-05's publication helper (I5)
+
+- **Ruling.** Yes, for the unknown-gateway and foreign-source cases, and `test_s405_publication_postgres.py`'s
+  publication helper for `BULK_PUBLISHED_BATCH`. No spec change beyond naming them.
+
+## D-DS3.18 The persistence guard is a first-commit gate, run for real
+
+- **Ruling.** The first commit holds the three `_BULK_*` constants. Before any Postgres test, the builder runs
+  `pwsh -NoProfile -File tools/check-architecture.ps1` in the branch worktree and records its exit and the
+  Configuration-persistence line in the packet. A non-zero exit stops the build and goes to the Architect; any
+  guard change is held for the owner (OWNER-AWAY row 5), never made in DS3.
+- **Why.** The pre-flight read the guard on a scratch copy outside git; only the real run on the branch proves
+  "no guard change".
+
+## D-DS3.19 Size 4.0 units, no split
+
+- **Ruling.** Unit 1 2.0 (extractions, `bulk_admit`, the service, the harness helper, tests 3 to 7), unit 2 1.5 (the
+  command, tests 1 and 2, parity with census and v4 slice), unit 3 0.5 (measurement, check-all, packet). Under the
+  6-unit split rule.
