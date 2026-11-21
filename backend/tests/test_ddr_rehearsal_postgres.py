@@ -152,9 +152,11 @@ class Rehearsal:
         from fastapi.testclient import TestClient
 
         from assetops_backend.main import create_app
-        response = TestClient(create_app()).get("/api/portfolio/month?month=2026-10")
+        # A skip case may leave a month the screen cannot show (packet, product finding PF1): a 500 is recorded as
+        # the step's exit, never raised, so the checker still runs.
+        response = TestClient(create_app(), raise_server_exceptions=False).get("/api/portfolio/month?month=2026-10")
         self.exits[step] = 0 if response.status_code == 200 else response.status_code
-        self.bodies[step] = response.json()
+        self.bodies[step] = response.json() if response.status_code == 200 else {}
 
     def s7(self) -> None:
         self._read("S7")
@@ -285,7 +287,7 @@ def test_4a_records_written_without_an_upload_fail_g3(rehearsal, tmp_path) -> No
         svc = CommercialRecords(reads.store, clock=lambda: datetime.now(timezone.utc))
         result = svc.ingest(tid, (records / f"{SLUG}.expense_ledger.json").read_bytes(),
                             entered_by=f"person:{r.admitted_by}")
-        assert result.state == "ACCEPTED", result
+        assert result.state == "STORED" and result.outcomes, result  # records written, no upload
     finally:
         accounts._store.dispose()
         reads.dispose()
