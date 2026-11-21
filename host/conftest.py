@@ -46,11 +46,12 @@ def _is_writable(directory: Path) -> bool:
 
 
 def pytest_configure(config: pytest.Config) -> None:
-    # ENV-1 (D-ENV1.13): first statement, before every early return; each process (xdist worker included) gets its
-    # own parse-slot pools, so suites, workers and lanes never wait on each other's slots or on a running server's.
-    os.environ["ASSETOPS_PARSE_SLOT_NAMESPACE"] = f"assetops-test-{os.getpid()}-{secrets.token_hex(4)}"
     # T1: a run with a database refuses to start outside the heavy-tool slot pool (xdist workers pass by ancestry).
     if os.environ.get("ASSETOPS_TEST_DATABASE_URL"): _heavy_slot_check().require("pytest with Postgres", exit_with=pytest.exit)
+    # ENV-1 (D-ENV1.13): right after the T1 heavy-slot require (which T1's tripwire keeps first) and before every early
+    # return; each process (xdist worker included) gets its own parse-slot pools, so suites, workers and lanes never
+    # wait on each other's slots or on a running server's.
+    os.environ["ASSETOPS_PARSE_SLOT_NAMESPACE"] = f"assetops-test-{os.getpid()}-{secrets.token_hex(4)}"
     # PERF-01 R5: the field acceptance tests replay at 60x real time; they belong to the slow tier.
     config.addinivalue_line("markers", "slow: deliberate real-clock tests, the PERF-01 slow tier")
     if config.option.basetemp is not None:
