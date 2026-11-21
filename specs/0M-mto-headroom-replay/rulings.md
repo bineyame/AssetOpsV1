@@ -89,6 +89,9 @@ with 0K2), row 39 and row 42 (shared with 0K2).
 
 ## D-0M.11 No money, no record, no served text, no migration
 
+- **Amended 2026-11-21 by D-0K4.11:** replacing a design value is no longer held; the huller's 68 L and Mto's 5 L a day
+  become the v8 study's figures (0K4d) or "Not available yet" until then.
+
 - **Ruling.** No tariff, price, collection cost or connection cost; no PRODUCTIVE_LOAD calculation record; nothing
   served; no migration. Every result carries its input class and MODELLED; replacing a design value is held for the
   owner (owner-away row 37, as D-0K2.13).
@@ -118,6 +121,9 @@ finding is owner-away row 42 (shared with 0K2); nothing else here is owner-level
   weather, so of days, not of customer days.
 
 ## D-0M.14 (R3) Labels on every outcome; no adopting word
+
+- **Amended 2026-11-21 by D-0K4.11:** the packet's "design value, unchanged" column is withdrawn for later packets (the
+  0M packet stays as the record); the labels ruled here stand.
 
 - **Ruling.** `DemandOutcome` and `CapacityOutcome` carry `input_class` and `evidence_class = "MODELLED"`, copied and
   validated as D-0K2.20. The tool prefixes each line and the JSON header with both, and writes `plant` = `MTO_PLANT_NOTE`

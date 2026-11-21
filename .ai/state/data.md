@@ -484,6 +484,13 @@ Branch `task/SC-1a-composer` (base main `8805ee169`); spec `specs/SC-1-statement
 - Owner approved both check-all lines, 2026-11-21 (`owner/owner-approve-sc1a-3c2-guards-2026-11-21.md`).
 - Open: review round 3 ACCEPT; merge; 3A7 and 5c adopt (`ADOPTED`), SC-1b converts the legacy templates and the 229 served-exception handlers.
 
+## SC-1f - "Declared", stated-figure basis, two guard fixes (built, in_review, 21 Nov)
+
+Branch `task/SC-1f-declared-word` (base main `fa13f254f`); spec `specs/SC-1f-declared-word/spec.md` rev 1, rulings D-SC1F.1-6; packet `packet.md`. Non-screen.
+
+- Settled: `DECLARED` reads "Declared" for every origin (step 1 of `evidence_word`); 3A7's accounts are `RECORDED`, its tolerance `DECLARED`; a `with` basis names only the figures its variant prints or reads (two-pass fill in `render._statement`), so 3A7's statement and standing read "within 1% (Declared)" and its matched/not-matched headings "(Recorded[, Emulated] and Declared)". The statement guard's logger rule is a stem (`LOG_STEMS`) or a `getLogger` binding; P55 plants merge into the real allow file, which now holds the two `profiles.py` `CODE` lines; baseline lost exactly four fingerprints.
+- Open: review; KD1 (a variant that states no figure, `money_word`, keeps wording all its `of` figures) for Architect confirmation; owner sees "Declared" at the 5c walkthrough.
+
 ## 3B2 - Findings pinned to their factors (in review, 21 Nov)
 
 Branch `task/3B2-findings-pinned` (base main `c69e72f61`); spec `specs/3B2-findings-pinned/spec.md` rev 2, rulings D-3B2.1-15; packet `packet.md`. No migration, no route, no screen, no served text.
@@ -550,13 +557,14 @@ Branch `task/3B4-observer` (main `2ef8e9769` merged in: 4a, 3B6, DS3); spec `spe
 - Settled (unit 4): `check.check_observed` (`OBSERVE_CODES` KEY, COVER, LEAF, SOURCE, DIRECTION, KIND) runs in `check_all()` after `check_pins`, over `OBSERVED`'s keys only (COLD/EV registries not a fault); registry v4's 31 MINI_GRID leaves covered once (19 observed, 12 not).
 - Open: owner Q1/Q2 (rows 27-28); residual R-FENCE-FUEL, R-NO-OPPORTUNITY, R-ASSUMED-TARGET; words and a screen come with 3B5/5c.
 
-## DS4 - the template ladder and world check, units 1-2 (in review, 21 Nov)
+## DS4 - the template ladder, world check and re-benchmark, units 1-3 (in review, 21 Nov)
 
-Branch `task/DS4-template-ladder` (`9eff83776`); spec `specs/DS4-template-ladder/spec.md` rev 3, rulings D-DS4.1-27; packet `packet.md`.
+Branch `task/DS4-template-ladder` (unit 3 `58bb50809`, fix round `68449e49d`); spec `specs/DS4-template-ladder/spec.md` rev 3, rulings D-DS4.1-27; packet `packet.md`.
 
 - Settled: `tools/world.py` builds the L0/L1/L2 ladder by key (migrations; definition, inputs, onboarding, code; L2 steps), frozen rungs, manifests, `clone`/`reset`/`list`/`drop` (keys erased before an L1 drops), and `check` C1-C7 with the total C4 oracle (`C4_CONTRACT` = §2.1, Kisiwa's O&M overrides, `C4_KNOWN_FINDINGS`), `harness_run` under its own base, and `check_passed` only while the check inputs are unchanged.
 - Settled: the bulk load refuses a batch whose envelopes resolve other days than its cover (Site-local and UTC grains, step 7a; `BULK_BATCH_GAP_DAYS`, `BULK_BATCH_TIME_UNREADABLE`); `PostgresEvidenceLedger.site_timezone`.
-- Open: the real world's C4 fails only on the 12 known D-DS4.27 plan cells until 5a F1 merges; unit 3 (bench, the real `assetops_world` build and check) waits for owner row 40.
+- Settled (unit 3): `world bench` (B1-B6, `ds7`, five strategy targets; every bench database dropped). Run 1 at `58bb50809` (superseded, its ladder dropped): L0 4.4 s, L1 7.4 s, L2 8.9 s; clone 0.24-0.28 s at 19.7 MB; late billing row +10.00 end to end 9.8 s. Fix round at `68449e49d` (D-DS4.28-33): ladder L0 4.268 s, L1 7.665 s, L2 9.322 s; pipeline 13.497 s per Kobo Site-day (bulk load, mini-depth step and ticks); DS7 not triggered (read literally, owner row 35; L2 9.322 s); projection 7,419 s, information only. Kept and checked (`ALL` PASS, C4 `fails: []`): `assetops_world_audit_l0_53988be3439c` (18,559,459 bytes, 18.6 MB), `_l1_6e55fb8dc4b3` (19.6 MB), `_l2_1906a5d074a0` (19.9 MB); keys under `/opt/assetecon/keys/world/<database>`; manifests in `/opt/assetecon/worlds`.
+- Open: DS7 is decided at the first world telemetry (owner row 35); serving a world is row 36 (held).
 
 ## 0M - Mto's demand-on-headroom replay (in review, 21 Nov)
 
