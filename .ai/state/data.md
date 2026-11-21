@@ -484,6 +484,13 @@ Branch `task/SC-1a-composer` (base main `8805ee169`); spec `specs/SC-1-statement
 - Owner approved both check-all lines, 2026-11-21 (`owner/owner-approve-sc1a-3c2-guards-2026-11-21.md`).
 - Open: review round 3 ACCEPT; merge; 3A7 and 5c adopt (`ADOPTED`), SC-1b converts the legacy templates and the 229 served-exception handlers.
 
+## SC-1f - "Declared", stated-figure basis, two guard fixes (built, in_review, 21 Nov)
+
+Branch `task/SC-1f-declared-word` (base main `fa13f254f`); spec `specs/SC-1f-declared-word/spec.md` rev 1, rulings D-SC1F.1-6; packet `packet.md`. Non-screen.
+
+- Settled: `DECLARED` reads "Declared" for every origin (step 1 of `evidence_word`); 3A7's accounts are `RECORDED`, its tolerance `DECLARED`; a `with` basis names only the figures its variant prints or reads (two-pass fill in `render._statement`), so 3A7's statement and standing read "within 1% (Declared)" and its matched/not-matched headings "(Recorded[, Emulated] and Declared)". The statement guard's logger rule is a stem (`LOG_STEMS`) or a `getLogger` binding; P55 plants merge into the real allow file, which now holds the two `profiles.py` `CODE` lines; baseline lost exactly four fingerprints.
+- Open: review; KD1 (a variant that states no figure, `money_word`, keeps wording all its `of` figures) for Architect confirmation; owner sees "Declared" at the 5c walkthrough.
+
 ## 3B2 - Findings pinned to their factors (in review, 21 Nov)
 
 Branch `task/3B2-findings-pinned` (base main `c69e72f61`); spec `specs/3B2-findings-pinned/spec.md` rev 2, rulings D-3B2.1-15; packet `packet.md`. No migration, no route, no screen, no served text.

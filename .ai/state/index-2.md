@@ -91,3 +91,4 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 177. `0M` Mto's demand-on-headroom replay (headroom_study over ForwardReplayPort on 0K2's helpers, reduced-capacity run, refusals before the port; simulated 61-day Mto season; no database) · data.md
 178. `SC-1a` statement composer, statement guard, ratchets · data.md
 179. `0K3` replay series reader (grid, refusals, no fill) · data.md
+180. `SC-1f` "Declared" evidence word, stated-figure basis, logger stems and bindings, P55 allow merge · data.md
