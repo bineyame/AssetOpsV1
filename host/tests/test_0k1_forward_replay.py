@@ -118,6 +118,7 @@ def run_for(label: str):
         "stop": lambda: _mini(STOP_60),
         "res-25": lambda: _mini(TRIAL, site_edit=_reserve(25)),
         "res-30": lambda: _mini(TRIAL),
+        "res-32": lambda: _mini(TRIAL, site_edit=_reserve(32)),
         "clip": lambda: _mini(PROLONGED, document_edit=_irradiance_4_at_900),
         "v4": lambda: _mini(PROLONGED, 4),
         "daytime": lambda: kobo_draft("kobo-daytime"),
@@ -212,6 +213,9 @@ def base_request(version: int = 7) -> ForwardReplayRequest:
     return recorded_request(kernel(f"base-{version}"), "baseline")
 
 
+REPLAYED: dict = {}  # label -> the trajectory the adapter's own kernel call produced (D-0K1.21)
+
+
 @cache
 def replay(label: str) -> ForwardReplayProjection:
     """Each replay executed once and shared between the tests that read it (spec §4 run count)."""
@@ -227,10 +231,18 @@ def replay(label: str) -> ForwardReplayProjection:
         "res-25": (lambda: run_for("res-30"), lambda: recorded_request(
             kernel("res-30"), "reserve-25", ReplaySettings(reserve_soc_pct=Fraction(25)))),
         "res-30": (lambda: run_for("res-30"), lambda: recorded_request(kernel("res-30"), "reserve-baseline")),
+        "res-32": (lambda: run_for("res-30"), lambda: recorded_request(
+            kernel("res-30"), "reserve-32", ReplaySettings(reserve_soc_pct=Fraction(32)))),
         "clip": (lambda: run_for("clip"), lambda: recorded_request(kernel("clip"), "k-clip")),
     }
     run, request = cases[label]
-    return HostForwardReplay().forward_replay(run(), request())
+
+    def recording(inputs, model):
+        trajectory = execute(inputs, model)
+        REPLAYED[label] = trajectory
+        return trajectory
+
+    return HostForwardReplay(execute_fn=recording).forward_replay(run(), request())
 
 
 # --- T1 to T5: parity -----------------------------------------------------------------------------------------
@@ -247,6 +259,13 @@ def test_t1_k_base_replays_to_the_kernels_own_trajectory(version: int) -> None:
     assert len(set(series)) == 3
     projection = replay(f"base-{version}")
     assert_parity(projection, trajectory)
+    if version == 7:  # D-0K1.21: the output-level per-load check, on the kernel trajectory (not the projection)
+        got, want = REPLAYED["base-7"].boundaries, trajectory.boundaries
+        assert len(got) == len(want) == 97
+        for load in LOADS:
+            key = f"load-served-power@{load}"
+            assert [dict(b.interval_measurements)[key] for b in got[1:]] == \
+                [dict(b.interval_measurements)[key] for b in want[1:]]
     # Hand anchors (spec §3), independent of the kernel and the adapter.
     assert projection.fuel_burned_l == Fraction(3, 10) * projection.generator_kwh
     assert projection.starts == 1
@@ -290,6 +309,12 @@ def test_t4_k_res_equals_the_kernels_run_on_a_25_reserve() -> None:
     # From the request, not the kernel run (whose reserve is a baseline; D-0K1.11).
     assert (projection.reserve_source, projection.reserve_soc_pct) == ("SETTING", Fraction(25))
     assert projection.running_steps == 0
+    # D-0K1.20: at 32 the right and wrong reserve paths differ (at 25 they match).
+    p32 = replay("res-32")
+    t32 = kernel("res-32")
+    assert projected_steps(p32) == kernel_steps(t32)
+    assert (p32.reserve_source, p32.reserve_soc_pct) == ("SETTING", Fraction(32))
+    assert p32.running_steps == kernel_totals(t32)["running_steps"] == 46
     anchor = replay("res-30")  # the same series with NO setting: the baseline-30 path
     assert_parity(anchor, kernel("res-30"))
     assert (anchor.reserve_source, anchor.reserve_soc_pct) == ("BASELINE", Fraction(30))
