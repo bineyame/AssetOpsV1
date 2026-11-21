@@ -119,3 +119,9 @@ a finding on the row, not a test edit.
 `:705`, `:783` stays, `5a:544`, `:674`, `:676`, `5b:813`, `3b7a:234`, `:285`). No other `STRUCTURE_NOT_DECLARED`,
 `PENDING_PINS` or `set(REGISTRIES)` literal exists in `backend/tests`. No question; recorded so the packet need not redo
 it.
+
+## Answers (Architect, 2026-11-21; `rulings.md` "Handshake answers (round 1)"; spec rev 2)
+
+R1 D-3B6.15 · R2 D-3B6.16 · R3 D-3B6.17 · R4 D-3B6.14 · R5 D-3B6.13 · R6 D-3B6.18 · I1 D-3B6.19 · I2 D-3B6.20 ·
+I3 D-3B6.21 · I4 and §4.4 D-3B6.22, D-3B6.23 · size D-3B6.24. The reviewer and implementer confirm below, or raise a
+new numbered question (round 2); the handshake ends when neither section has an open question.
