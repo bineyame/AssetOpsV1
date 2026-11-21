@@ -516,6 +516,17 @@ def test_the_recommendation_read_capability_states_whom_an_accept_records(people
     assert block["allowed"] is True  # the grant still decides `allowed` (R3)
 
 
+def test_a_read_with_a_cookie_while_the_account_store_is_down_is_200_with_null_actor_fields(people) -> None:
+    """Review L1 (Q3): the capability block never fails a read; with the store down it states no actor, while the same
+    caller's accept is the route's 503."""
+    api = Api(people, accounts=BrokenAccounts(), unavailable=(Down,))
+    read = api.client.get(f"/api/sites/{KOBO}/findings/{api.granted}/recommendation", headers=people.cookie("peter"))
+    assert read.status_code == 200, read.text
+    block = read.json()["system_demo_capability"]
+    assert (block["actor_kind"], block["actor_id"], block["label"]) == (None, None, None)
+    assert block["allowed"] is True
+
+
 def test_the_unknown_site_404_is_todays_text(people) -> None:
     api = Api(people, scope={})
     refused = api.client.post(f"/api/sites/{KOBO}/findings/{uuid4()}/recommendation/accept", json={})

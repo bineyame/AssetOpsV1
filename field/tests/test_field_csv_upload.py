@@ -139,3 +139,82 @@ def test_send_never_admits_a_refused_file(tmp_path):
     with pytest.raises(CsvRefused):
         csv_upload.send(PROFILE, _write(tmp_path, REFUSED_FILES["DUPLICATE_ROW"]), publisher)
     assert link.calls == []
+
+
+# --- ENV-1 FL1 to FL4 (spec §2.3, §4; D-ENV1.2, D-ENV1.6, D-ENV1.16) ---------------------------------------------------
+
+import os  # noqa: E402
+import signal  # noqa: E402
+import subprocess  # noqa: E402
+from datetime import datetime, timedelta, timezone  # noqa: E402
+
+from assetops_field.export_csv import CsvCollector  # noqa: E402
+
+MIB = 2**20
+CRLF_HEADER = HEADER.encode("ascii") + b"\r\n"
+
+
+def two_mib(tail: str) -> bytes:
+    """F1 / F2 by hand (spec §3): rows every 15 minutes from 2026-01-01T00:15:00Z, as many as fit in 2 MiB."""
+    out, size, t = [CRLF_HEADER], len(CRLF_HEADER), datetime(2026, 1, 1, 0, 15, tzinfo=timezone.utc)
+    while True:
+        row = f"{t:%Y-%m-%dT%H:%M:%SZ}{tail}\r\n".encode("ascii")
+        if size + len(row) > 2 * MIB:
+            return b"".join(out)
+        out.append(row)
+        size += len(row)
+        t += timedelta(minutes=15)
+
+
+F3 = CRLF_HEADER + b"2026-01-01T00:15:00Z," + b"1" * 5000 + b",1,1,1\r\n"
+
+
+def _module(tmp_path: Path, data: bytes, *flags: str) -> subprocess.CompletedProcess:
+    """The module as a process (never `_entry` in-process: it would limit this test process)."""
+    path = tmp_path / "upload.csv"
+    path.write_bytes(data)
+    env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1",
+               PYTHONPATH=os.pathsep.join([str(ROOT / "field"), str(ROOT / "gateway"), str(ROOT / "contracts"),
+                                           os.environ.get("PYTHONPATH", "")]))
+    return subprocess.run([sys.executable, "-m", "assetops_field.csv_upload", *flags, "check", "--profile",
+                           str(PROFILE_PATH), "--file", str(path)], capture_output=True, text=True, env=env,
+                          cwd=str(ROOT), timeout=300)
+
+
+@pytest.mark.parametrize("flags", [
+    (),
+    ("--limit-cpu-seconds", "30", "--limit-memory-bytes", str(512 * MIB)),
+    ("--limit-memory-bytes", "0", "--limit-cpu-seconds", "30"),
+    ("--limit-memory-bytes", str(512 * MIB), "--limit-cpu-seconds", "-5"),
+], ids=["none", "wrong-order", "zero", "negative"])
+def test_fl1_the_limits_are_required(tmp_path, flags):
+    done = _module(tmp_path, FIXTURE.read_bytes(), *flags)
+    assert done.returncode == csv_upload.EXIT_CONFIG == 3, done.stderr
+    assert json.loads(done.stdout.splitlines()[-1])["error"] == "CONFIGURATION"
+
+
+def test_fl2_memory_limit_is_exit_7_and_a_small_file_passes_under_it(tmp_path):
+    flags = ("--limit-memory-bytes", str(96 * MIB), "--limit-cpu-seconds", "30")
+    done = _module(tmp_path, two_mib(",,,,"), *flags)
+    assert done.returncode == csv_upload.EXIT_LIMIT == 7, done.stderr[-400:]
+    assert json.loads(done.stdout.splitlines()[-1])["error"] == "LIMIT"
+    done = _module(tmp_path, FIXTURE.read_bytes(), *flags)
+    assert done.returncode == 0, done.stderr[-400:]
+    assert json.loads(done.stdout.splitlines()[-1])["preview"]["rows"] == 49
+
+
+def test_fl3_cpu_limit_is_sigxcpu(tmp_path):
+    done = _module(tmp_path, two_mib(",12.5,3.25,1.5,7.75"), "--limit-memory-bytes", str(512 * MIB),
+                   "--limit-cpu-seconds", "1")
+    assert done.returncode == -signal.SIGXCPU, (done.returncode, done.stderr[-400:])
+
+
+def test_fl4_a_number_with_too_many_digits_is_invalid_value(tmp_path, capsys):
+    path = tmp_path / "f3.csv"
+    path.write_bytes(F3)
+    code, document = _run(capsys, "check", "--profile", str(PROFILE_PATH), "--file", str(path))
+    assert code == 2
+    assert (document["refusal"]["code"], document["refusal"]["detail"]) == ("INVALID_VALUE",
+                                                                            "the number has too many digits")
+    with pytest.raises(CsvRefused):
+        CsvCollector(PROFILE, None).reports_from_bytes(F3)  # type: ignore[arg-type]

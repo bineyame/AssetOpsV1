@@ -1,6 +1,6 @@
 # 3A7: one month reconciled against the operator's own accounts (implementer spec)
 
-Status: **spec rev 2, handshake round 1 answered** (`rulings.md` "Handshake answers (round 1)"; coding may start once
+Status: **in_review (commits 1 and 2 built, D-SC1.28; packet `packet.md`)**; spec rev 2, handshake round 1 answered (`rulings.md` "Handshake answers (round 1)"; coding may start once
 3A6 has merged). Questions during the build: `mid-build-questions.md`. Reviewer: `reviewer-guide.md` rev 2. Decisions
 with reasons: `rulings.md` (D-3A7.1 to D-3A7.13).
 
@@ -31,8 +31,9 @@ Non-screen. **1.75 units, two commits** (rev 2: +0.25 for `known_at`, the opener
   `commercial/adapters/postgres_commercial_store.py`; `load_emulated_exports.py` (the person checks to copy);
   `backend/tests/test_3a4_commercial_months.py` (`MonthsMemoryStore`) and `test_4b_money_leaves.py` (its world).
 - **Databases:** `*_test` only, through the harness; Postgres runs `tools/heavy-slot.sh --db -- <command>`.
-- **Migration (D-3A6.12)** `0068_commercial_reconciliation` revises `0067_source_profile` (3A6, which follows 3B7a's
-  0066); no renumbering. Q1 asserts the chain link `("0068_commercial_reconciliation", "0067_source_profile")`, never
+- **Migration (D-3A6.12; renumbered at the main merge for commit 2)** `0069_commercial_reconciliation` revises
+  `0068_structure_finding` (3B4 took 0068 on main first). Q1 asserts the chain link
+  `("0069_commercial_reconciliation", "0068_structure_finding")`, never
   "is head" (D-3B7A.14).
 - **Collisions.** `5c` (UI lane) reads this unit's service; it adds its own route, and passes the shown snapshot's
   `as_of` as `known_at` (D-3A7.9; 5c's spec must cite it). `3B7a` does not snapshot the standing (D-3A7.6).
@@ -150,7 +151,7 @@ Returns the check.
 
 ### 2.6 The service
 
-`backend/assetops_backend/commercial/reconciliation.py`:
+`backend/assetops_backend/structure/reconciliation.py` (D-3A7.14):
 
 ```python
 HEADINGS = ("revenue", "fuel_cost")
@@ -247,16 +248,16 @@ name); scope: the Site code, or `the organisation`; heading names `Revenue`, `Fu
 
 | File | Holds |
 |---|---|
-| `backend/migrations/versions/0068_commercial_reconciliation.py` | §4 |
+| `backend/migrations/versions/0069_commercial_reconciliation.py` | §4 |
 | `backend/assetops_backend/commercial/model.py`, `store.py`, `adapters/postgres_commercial_store.py` | `StatementRow`, `ToleranceRow`, `SiteRow`; `add_accounts_statement`, `accounts_statements`, `add_tolerance`, `tolerances`, `site_rows` |
-| `backend/assetops_backend/commercial/reconciliation.py` | §2.1 to §2.6 |
-| `backend/assetops_backend/commercial/composition.py` | `build_commercial_reconciliation(database_url) -> (CommercialReconciliation, dispose)`, on `build_commercial_reads` |
+| `backend/assetops_backend/structure/reconciliation.py` | §2.1 to §2.6 (D-3A7.14) |
+| `backend/assetops_backend/structure/reconciliation_composition.py` | `build_commercial_reconciliation(database_url, *, owner_file=None) -> (CommercialReconciliation, dispose)`, on `commercial.composition.build_commercial_reads` (D-3A7.14, D-3A7.15) |
 | `backend/assetops_backend/reconcile_month.py` | §5 |
 | `backend/assetops_backend/accounts/permissions.py` | `"commercial.accounts_statement": (FINANCE,)` |
 | `backend/assetops_backend/i18n/messages.py` | §2.7 |
 | `tools/checks/configuration-persistence.ps1` | both new tables join `$commercialTables` (same writer, plain-INSERT shape) |
 
-## 4. Migration `0068_commercial_reconciliation`
+## 4. Migration `0069_commercial_reconciliation`
 
 ```sql
 CREATE TABLE commercial_accounts_statement (
@@ -453,7 +454,7 @@ Packet: `specs/3A7-month-reconciled/packet.md`.
 
 | Unit | Content | Commit |
 |---|---|---|
-| 1 | Migration 0068, store and adapter, `reconciliation.py`, words, guard, R1 to R10 | 1 |
+| 1 | Migration 0069, store and adapter, `reconciliation.py`, words, guard, R1 to R10 | 1 |
 | 0.75 | Composition, the command, M1 to M5, Q1 to Q3; check-all; packet | 2 |
 
 ## 10. Out of scope

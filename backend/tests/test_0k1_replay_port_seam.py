@@ -40,7 +40,9 @@ def test_nothing_else_in_the_backend_names_the_replay() -> None:
                (BACKEND / "assetops_backend" / "runs" / "replay_study.py").resolve(),
                (BACKEND / "tests" / "test_0k2_replay_study.py").resolve(),
                (BACKEND / "assetops_backend" / "runs" / "headroom_replay.py").resolve(),
-               (BACKEND / "tests" / "test_0m_headroom_replay.py").resolve()}
+               (BACKEND / "tests" / "test_0m_headroom_replay.py").resolve(),
+               (BACKEND / "assetops_backend" / "runs" / "replay_series.py").resolve(),
+               (BACKEND / "tests" / "test_0k3_replay_series.py").resolve()}
     scanned = 0
     offenders = []
     for path in BACKEND.rglob("*"):

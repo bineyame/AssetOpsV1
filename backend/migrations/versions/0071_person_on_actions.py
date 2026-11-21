@@ -19,8 +19,7 @@ Upgrade: lock `action_event` in ACCESS EXCLUSIVE mode (P2), then refuse while an
 no person). Downgrade: the same lock, refused while any `person_id` is set; otherwise it drops what the upgrade added
 and re-adds the exact 0016/0019 texts under their names, so 0019's own downgrade still finds them.
 
-Numbering (D-3A1.12): 0071. 3A7 holds 0069 and 3C2 holds 0070; the head on `main` at this merge is 0068, so
-`down_revision` points at 0068 and is re-pointed at merge preparation to whichever of 0069/0070 has merged. The module is self-contained: renumbering changes only the file name,
+Numbering (D-3A1.12): 0071. 3A7 holds 0069 and 3C2 holds 0070, both merged; `down_revision` points at 0070. The module is self-contained: renumbering changes only the file name,
 `revision` and `down_revision` (every message is built from `revision`, and the tests find this module by
 `*_person_on_actions.py` and read both ids from it).
 """
@@ -28,7 +27,7 @@ Numbering (D-3A1.12): 0071. 3A7 holds 0069 and 3C2 holds 0070; the head on `main
 from alembic import op
 
 revision = "0071_person_on_actions"
-down_revision = "0068_structure_finding"
+down_revision = "0070_agreed_action"
 branch_labels = None
 depends_on = None
 

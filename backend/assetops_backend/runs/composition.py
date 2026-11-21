@@ -10,11 +10,16 @@ Swapping the store is therefore one new adapter module plus one line here.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from assetops_backend.runs.adapters.json_commit_store import JsonCommitStore
 from assetops_backend.runs.adapters.yaml_run_store import YamlRunStore
 from assetops_backend.runs.commit_ports import CommittedArtifactStore
 from assetops_backend.runs.adapters.yaml_operational_action_log import YamlOperationalActionLog
 from assetops_backend.runs.ports import OperationalActionLogPort, SimulationRunRepository
+
+if TYPE_CHECKING:
+    from assetops_backend.runs.replay_series import SeriesReader
 
 
 def build_run_repository() -> SimulationRunRepository:
@@ -35,3 +40,12 @@ def build_operational_action_log() -> OperationalActionLogPort:
 def build_commit_store() -> CommittedArtifactStore:
     """Choose the adapter that files sealed Commit artifacts (T027, D4)."""
     return JsonCommitStore()
+
+
+def build_series_reader(database_url: str) -> "SeriesReader":
+    """The replay series reader (0K3) over the product's evidence query and Foundation store."""
+    from assetops_backend.analytics.composition import build_postgres_assessment_store
+    from assetops_backend.runs.replay_series import SeriesReader
+    from assetops_backend.sites.composition import build_foundation_store
+
+    return SeriesReader(build_postgres_assessment_store(database_url), build_foundation_store(database_url))

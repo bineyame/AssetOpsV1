@@ -152,12 +152,31 @@ decision `D-2026-10-31-board-action-refresh-lineage`; packet `archive/agent-hist
   `PERSON_ROLE:<role>`; the grant file still scopes and supplies `triggering_fixture` (R3). The store takes the actor
   through all four writes (ACCEPTED, OBSERVED, APPLIED, FAILED) and writes `person_id`, kept out of `EVENT_COLUMNS`.
   On the person path only, `actor_id` joins the digest payloads (R2).
-- Migration `0071_person_on_actions` (renumbered at the SC-1a merge; down_revision 0068 until 3A7 0069 and 3C2 0070 land): `person_id`, FK, `person_actor`,
+- Migration `0071_person_on_actions` (renumbered at the SC-1a merge; down_revision `0070_agreed_action`, re-pointed at merge preparation after 3A7 0069 and 3C2 0070 merged): `person_id`, FK, `person_actor`,
   `person_coupling`; kind, id and channel checks widened under their names, restored exactly on downgrade.
 - Text commit (D-SC1.28, after SC-1a): six `action.*` SC-1 statements (`i18n/statements/en/action.py`) for the
   actor label, observe note, change statement, stored publish note, `CLIENT_AUTHORITY_FORBIDDEN` and the
   unknown-Site 404; SYSTEM variants are the old bytes, USER variants name no person. The capability block states
   whom the command records for the caller (null when the command would refuse); the Action read label is its
   accepting actor. The modules are not `ADOPTED` (their older text is SC-1b/SC-1c debt).
-- Open: the frontend `SYSTEM_DEMONSTRATION` button words (review L1; a screen slice); re-point `down_revision`
-  to 0069/0070 at merge preparation; the switch (`3C0b`); names in reads (`3C2`).
+- Open: the frontend `SYSTEM_DEMONSTRATION` button words (review L1; a screen slice); the switch (`3C0b`); names in reads (`3C2`).
+
+## 3C2: the agreed change recorded as an Action (2026-11-21, `task/3C2-agreed-change`, in review; commits 1 and 2)
+
+- Migration `0070_agreed_action` (renumbered at the merge of main `e5a283228`; revises `0068_structure_finding`, and 3A7's `0069_commercial_reconciliation` once 3A7 merges):
+  `agreed_action`, append-only (row trigger and TRUNCATE trigger), identity index `agreed_action_once` (NULLS NOT
+  DISTINCT), whole-second `created_at`, FKs to `operator_account` and `site` by tenant. Apart from the S6-01a Actions.
+- `actions/agreed.py`: `AgreedActionService.record` (the §2.3 rule order; re-run found before the due check) and
+  `for_tenant` (newest first by `(created_at, id)`), one clock read per call; `OWNER_COVER` (D-3C2.6);
+  `MemoryAgreedActionStore`. The adapter locks the tenant and catches `agreed_action_once`.
+  `build_agreed_actions(url).service.for_tenant(tenant)` (DDR G10). `python -m assetops_backend.record_action`.
+- `accounts/permissions.py`: `"action.agree": (EXECUTIVE,)`.
+- Codes only (D-3C2.14): state `OPEN`/`OVERDUE`, refusals as `<CODE>` on stderr. Open: commit 2 (SC-1 statements,
+  after SC-1a); unit 2 (5c's `StoreAgreedActions`, gate C); the guard writer block held for the owner; mid-build MB1
+  (the adapter-import rule names one composition per package).
+- Commit 2 (text, D-3C2.14): `i18n/statements/en/agreed_action.py` (`agreed_action.state` over vocabulary
+  `action_state` Open/Overdue; `agreed_action.refused`, one exhaustive state slot over the 14 codes, spec §2.5's
+  sentences, title bounds as counts, due example as an `example` slot); noun `character`; `agreed.py` in `ADOPTED`
+  (`state_words`, `refusal_sentence`; view gains `state_words`); stderr `<CODE> <sentence>`, success `state` the word.
+  Writer block approved by the owner (2026-11-21); MB1 answered (D-3C2.15). Open: unit 2 (gate C); re-point 0070 on
+  3A7's `0069_commercial_reconciliation` when 3A7 merges; packet Q1 (upper-cased category codes).
