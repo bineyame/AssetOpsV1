@@ -78,7 +78,7 @@ Actual: 1 site run + 6 replays of 17,568 steps (the reduced base run is frozen, 
   `test_0k1_forward_replay.py`, `test_0m_headroom_replay.py`, `test_0k2_replay_study.py`,
   `test_0k1_replay_port_seam.py`: **121 passed in 119.8 s**.
 - Contracts through `tools/run-host-tests.ps1` (files listed; the wrapper refuses a directory): **190 passed in 66.8 s**.
-- `check-architecture.ps1`: passed. `check-agent-workflow.ps1`: passed. Fast check-all: see the closing note below.
+- `check-architecture.ps1`: passed. `check-agent-workflow.ps1`: passed. Fast check-all at `5a424ce6e`: **all 40 guards passed**, 125.4 s (`check-all.log`).
 - `select-tests.py --base main`: full mode (569 files) because a tool changed; the full suite was not scheduled.
 - **Guard shown failing** (`guard-plant.log`): `headroom_replay.py` importing `host.forward_replay` fails
   `check-architecture` ("Banned import of the composition leaf ... headroom_replay.py:31"); reverted.
