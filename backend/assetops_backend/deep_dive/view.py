@@ -356,8 +356,8 @@ class _View:
                 cells.append(W.amount(root.gap, self.cur, "SIGNED"))
                 for s in self.steps:
                     own = _find(root, s)
-                    form = "ESTIMATE" if own is not None and own.carried else "SIGNED"
-                    cells.append(W.amount(own.effect if own is not None else None, self.cur, form))
+                    carried = own is not None and own.carried
+                    cells.append(W.amount(own.effect if own is not None else None, self.cur, T.CELL_FORM[carried]))
             rows.append(cells)
         total = [W.sites(self.R.k, self.n), W.amount(self.R.actual, self.cur), W.amount(self.R.target, self.cur),
                  W.amount(self.R.effect, self.cur, "SIGNED"),

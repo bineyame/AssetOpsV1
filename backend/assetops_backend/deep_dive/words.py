@@ -285,9 +285,8 @@ def cash(month: str, collected: Money | None, expected: Money | None, outstandin
          in_transit: Money | None) -> str:
     facts: dict[str, Any] = {"month": month_of(month),
                              "collected": collected if collected is not None else Absent("NOT_AVAILABLE")}
-    for slot, value in (("expected", expected), ("outstanding", outstanding), ("in_transit", in_transit)):
-        if value is not None:
-            facts[slot] = value
+    given = {"expected": expected, "outstanding": outstanding, "in_transit": in_transit}
+    facts.update({slot: value for slot, value in given.items() if value is not None})
     return figure_text(message("deep_dive.cash", **facts))
 
 

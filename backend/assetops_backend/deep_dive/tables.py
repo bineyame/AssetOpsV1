@@ -78,3 +78,7 @@ def month_code(year: int, month: int) -> str:
 def iso_z(at: datetime) -> str:
     """The instant in UTC, ISO with `Z` (`2026-11-20T08:00:00Z`)."""
     return at.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+#: A by-Site step cell's amount form: a carried row reads as an estimate (spec section 3.2).
+CELL_FORM = {True: "ESTIMATE", False: "SIGNED"}
