@@ -158,3 +158,24 @@ synthetic plant `group`, or defer groups (R1) and delete step 6 until a store re
 (Architect: answer each once here, under "Handshake answers (round 1)" in `rulings-5.md`; fold into `spec-IA-2b.md` and
 `reviewer-guide-IA-2b.md`. A question marked **(done)** that is answered without changing the "done" list is a ruling not to
 change it, stated as such.)
+
+**Answered, round 1 (Architect, 2026-11-21):** in `rulings-5.md` under "Handshake answers (round 1)", folded into
+`spec-IA-2b.md` rev 2 and `reviewer-guide-IA-2b.md` rev 2. No question is open.
+
+| Q | Ruling | Changes "done"? |
+|---|---|---|
+| R1 | D-IA.67: the controls grow with the list (none under 3, Sort to 10, the full toolbar above), as in the mock's 3/30/300 figure; the scale case is proven by a fixture (block D, S8) | yes |
+| R2 | D-IA.68: the gap tile stays, as the operator's own gap (`EQUAL` with `overview-gap`); hidden rows become a remainder part; the cents fallback is fixture-only | yes |
+| R3 | D-IA.69: the stake sort is dropped; no list sorts or sums a figure that cannot be added | yes |
+| R4 | D-IA.70: chips name every state that no control shows; 0 rows without a target, so the branch is deleted and the check fails on one; several rows to one target are stated | yes |
+| R5, I2 | D-IA.71: `qty_check` gains its count and format modes now, as unit 2, with plants on live numbers | yes |
+| R6 | D-IA.72: classes S1 to S9, counts per class, plants `listkeep`, `listwrap`, `emptytools` | yes |
+| R7 | D-IA.73: fresh boot against the in-page path; S9 with the router present; B's literal tables | ruling only |
+| R8 | D-IA.74: confirmed; the re-rule list grows | ruling only |
+| I1 | D-IA.75: `iaListRestore` after the router's `hashchange`, keyed to its hash and cleared on every change | yes |
+| I3 | D-IA.76: list cells hold text only; the explainers stay on the Site hub | yes |
+| I4 | D-IA.77: `iaDecStateKey`, `iaActionStateKey`, `iaFindingSite` | yes |
+| I5 | D-IA.78: `iaAliasTarget` | ruling only |
+| I6 | D-IA.79: the rail units are renamed in unit 4(a); the `OWN` rows | ruling only |
+| I7 | D-IA.80: one cap per list, groups as the display (amends D-IA.27's per-group cap) | yes |
+| size | D-IA.81: from 5 units to 6 (about 10 commits); the split and the stop hold | — |
