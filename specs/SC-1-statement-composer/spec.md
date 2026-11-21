@@ -1,6 +1,7 @@
 # SC-1: the statement composer (implementer spec)
 
-Status: **rev 2, handshake round 1 answered** (`rulings.md` "Handshake answers (round 1)"; D-SC1.17 to D-SC1.27).
+Status: **in_review** (SC-1a built, units 1-3; `packet.md`). Rev 2, handshake round 1 answered (D-SC1.17 to
+D-SC1.27); mid-build answers D-SC1.29 to D-SC1.31.
 Code starts when the handshake has no open question. Questions during the build: `mid-build-questions.md`.
 Reviewer: `reviewer-guide.md` rev 2. Decisions with reasons: `rulings.md` (D-SC1.1 to D-SC1.27).
 
