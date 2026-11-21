@@ -232,3 +232,115 @@ an artefact of the copy, not a finding.
   operator's export would.
 - The profile reader does not check `status` against the database at upload time. It relies on admission and upload
   happening on the same database, which holds today.
+
+
+## Round 2 (verification re-review at 3fb8ed114; verdict REVISE)
+
+### Summary (verdict: REVISE)
+
+- F1 is fixed for far-right cells in data rows, but not for the same class one row up. A far-right
+  cell in the header row sets `width` to 16,384, and `split_file` then pads every data row to that width before
+  `read_rows` compares the header. The blow-up is still there (N1, High).
+- F2, F3/D-3A6.18 (memory and Postgres), Q1/D-3A6.19 (QUOTE), F4, F5, F6, F8 and F9 are fixed as ruled. I found no
+  regression in row-count verdicts, formula cells or row numbers.
+- Two Lows: (N2) a sample-only change after acceptance has no test, and (N3) the packet's wording and plant labels
+  differ from the ruling.
+- Checks: 180 non-DB tests passed, 4 Postgres tests passed, and the F1 padding plant fails its test.
+
+### Findings
+
+### N1 High: the F1 class is still open through the header row (`contracts/assetops_contracts/native/layouts_v1.py:318-325`)
+
+- **Wrong.** `header` is padded densely to its last non-empty cell (`range(max(sparse) + 1)`), so a header cell
+  at XFD gives `width = 16384`. Every data row is then built as `[sparse.get(i, "") for i in range(width)]`. All of
+  this happens inside `split_file`, before `read_rows:356` refuses the header as `NATIVE_HEADER json`. The cap
+  `_MAX_COLUMN` and the sparse reader keep each row small, but this padding brings the cost back.
+- **Seen.** I took the budget workbook and added one header cell `XFD1` plus N one-cell rows:
+  - N=100: peak 14.4 MB, 2.35 s.
+  - N=1,000: peak 137.6 MB, 22.9 s, ending in `NATIVE_HEADER`.
+  - The cost grows linearly. A sheet member under `_MEMBER_MAX` holds about 341k such rows, which is 5.6e9 padded
+    cells. Uploads are capped at 8 MB (`uploads.py:44`) and identical rows deflate to almost nothing, so one small
+    upload or profile sample can exhaust the host. The F1 test only puts far cells in data rows, so it cannot see
+    this.
+- **Why it matters.** This is the same risk F1 was ruled High for, reachable through the upload and admission paths.
+- **Fix.** Bound the padding by the layout, not the file:
+  - In `split_file`, refuse `NATIVE_HEADER json` as soon as the trimmed header differs from
+    `[c.header for c in layout.columns]`, before any row is built; or
+  - pad to `len(layout.columns)`, keeping the one-extra-cell rule.
+
+  Then add an N3 case with a header cell at XFD over a few thousand rows, bounded the same way as the F1 test, and
+  a plant that restores header-width padding.
+
+### N2 Low: no test for a sample-only change after acceptance (`backend/tests/test_3a6_source_profiles.py:211`)
+
+- **Wrong.** D-3A6.18 and spec A2b say that once an upload is accepted, a v2 that changes only the sample is still
+  admitted. A2b covers the reordered-set case but not the sample-only case.
+- **Why it matters.** The code path is the same one the reordered case exercises, so the risk is small.
+- **Fix.** Add one assertion.
+
+### N3 Low: the packet wording differs from the ruling (`specs/3A6-source-profiles/packet.md`, "Fix round r1")
+
+- **Wrong.** The residual is shortened from the text D-3A6.18 gives.
+- **Wrong.** The plant labels are swapped. The ruling has V34 = waiting uploads counted and V35 = ordered compare;
+  the packet has V34 = order-sensitive and V35 = waiting.
+- **Why it matters.** It is documentation only.
+
+### Finding by finding
+
+- **F1.** Fixed for data rows:
+  - Rows are kept sparse and the column index is capped (`XFE` gives `NATIVE_WORKBOOK`).
+  - 5,000 rows at XFC, 1,000 rows apart, took 6.8 MB and 0.44 s.
+  - 5,000 rows holding only an empty XFD cell are skipped: 6.8 MB and 0.32 s.
+  - The plant restoring dense padding in `_read` fails `test_n3_far_right_cells...`, after a 182 s run.
+
+  Still open through the header row: see N1.
+- **F2.** Fixed. `_coverage` keeps only rows of header width, and A4's short row 5 gives `ADMIT_SAMPLE_ROW`
+  `NATIVE_ROW`. One side effect: if a map key appears only in a short row, the refusal is `ADMIT_MAP_UNCOVERED`, not
+  the row's own verdict. This follows from deviation 7, which was accepted, so it is not a finding.
+- **F3 / D-3A6.18.** Fixed:
+  - `personal` is compared as a set.
+  - `held_uploads` returns uploads with no decision or an accepted one, so `not h.waiting` means accepted.
+  - The system is filtered, nothing is written, and the words match.
+  - Q2b, the Postgres twin, covers a waiting upload not counting and the refusal writing nothing.
+- **Q1 / D-3A6.19.** Fixed: A9 (a) uses `QUOTE`, in both the spec and the test.
+- **F4.** Fixed: a formula with no `<v>` becomes `XlsxBad`, which gives `NATIVE_FORMAT` on a written column (test
+  present).
+- **F5.** Fixed: the row number is checked with an ASCII `fullmatch`, and `²` gives `NATIVE_WORKBOOK`.
+- **F6.** Fixed: references to `DYNAMIC_CALLS` and `EVAL_CALLS` are now flagged, `from assetops_backend import
+  commercial` counts as importing the package, and plants p26 to p28 cover these.
+- **F8.** Fixed: the literal is `2026-10-11 09:00`.
+- **F9.** Fixed: the loader's disposers run in `main`'s `finally`.
+
+**Regressions checked.**
+- Row counts: rows with extra non-empty cells past the header are still `NATIVE_ROW`, and rows with only trailing
+  empty cells are still equal to the header width.
+- Cells without a ref take the next index, which is the same as before.
+- `xlsx_rows` keeps its padded shape under a 2 M cell budget.
+
+None found.
+
+### Checks run (at `3fb8ed114`)
+
+- Non-DB: 180 passed in 19.25 s, with the worktree's backend, contracts and simulator on `PYTHONPATH`. Command:
+  `heavy-slot.sh -- pytest contracts/tests/test_3a6_profiles.py backend/tests/test_3a6_source_profiles.py
+  backend/tests/test_3a3_single_writer.py contracts/tests`.
+- Postgres: 4 passed in 5.67 s. Command: `heavy-slot.sh --db -- pytest backend/tests/test_3a6_source_profiles_postgres.py`,
+  with `ASSETOPS_TEST_DATABASE_URL` set to `.../assetops_test`; the harness runs on its own clone.
+- Probes: header-far, sparse-rows and wide-empty workbooks (in the scratchpad), with the results above.
+- Plant: dense padding restored in a scratch copy of `contracts`. The F1 test failed.
+
+### Not verified
+
+- The full suite and the architecture and workflow guards: I relied on the implementer's run at `c727f97dd`.
+  `3fb8ed114` adds only the packet commit on top.
+- I did not re-run the S1 plants p26 to p28 one by one beyond the suite passing.
+
+### Residual risk
+
+- After N1 is fixed, the cost is bounded by the layout's column count times the rows, both of which the member cap
+  limits.
+- D-3A6.21's residuals stand as recorded.
+
+### Fix round r2 outcome
+
+N1, N2, N3 fixed in the commit after 3fb8ed114 (see packet.md "Fix round r2"). N1 probe after the fix: header cell XFD1 over 2,000 one-cell rows refuses NATIVE_HEADER in 0.15 s, under the 20 MB bound; the old order peaks at 274.6 MB.

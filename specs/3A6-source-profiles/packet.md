@@ -72,7 +72,7 @@ spec-template defect.
 
 ## Residual risk
 
-- A change to `personal` after accepted data is refused (D-3A6.18); the migration is queued unit 3A6b. Review r1 residuals: D-3A6.21.
+- A change to `personal` after accepted data is refused (D-3A6.18); the migration is unit 3A6b. Until then raw values from before the declaration cannot arise, because the declaration is fixed before the first accepted upload. Review r1 residuals: D-3A6.21.
 - S1 still misses (D-3A6.14): unimported services handed in, `__getattribute__`, `vars(obj)[name]`, tools named
   `test_*.py`.
 - Commit 1's risk stands: a CSV with a bad header and a later syntax error reports `NATIVE_ROW`.
@@ -97,9 +97,16 @@ spec-template defect.
 - F4 formula without cached value is `XlsxBad`; F5 ASCII-digit row numbers only (`²` is `NATIVE_WORKBOOK`); F6 S1
   flags references to `DYNAMIC_CALLS`/`EVAL_CALLS` and `from assetops_backend import commercial` (plants p26 to p28);
   F7/D-3A6.19 `QUOTE`; F8 `bad_clock` literal `2026-10-11 09:00`; F9 loader disposes the profile store in `finally`.
-- Plants (applied, run, reverted): V33 personal comparison dropped fails A2b and Q2b; V34 order-sensitive compare fails
-  A2b; V35 waiting uploads counted fails A2b; V36 old dense padding fails the F1 test; F2 guard removed fails A4;
+- Plants (applied, run, reverted): V33 personal comparison dropped fails A2b and Q2b; V34 waiting uploads counted fails
+  A2b; V35 order-sensitive compare fails A2b; V36 old dense padding fails the F1 test; F2 guard removed fails A4;
   S1 reference clause removed fails p26 and p27; commercial-import clause removed fails p28.
 - Checks: focused + regression, no DB: `562 passed in 70.93s` (revision `f8118b65f`); Postgres set (3A1, 3A2, 3A3
   loader, 3A3b7a, ON1, 3A6): `71 passed in 55.58s`; fast check-all: `All 41 guards passed` (236.7 s). Re-run after resume at `c727f97dd`: 562 passed in 68.31s; Postgres 71 passed in 52.69s; plants V33, V35, V36 re-seen failing.
 - Residuals: D-3A6.21; the 3A6b migration is queued.
+
+## Fix round r2
+
+- N1: `split_file` refuses `NATIVE_HEADER json` before any data row is built (`layouts_v1.py`); rows pad only to the layout's width. Test `test_n3_far_right_header_cell_is_refused_in_bounded_memory_and_time` (header cell XFD1, 2,000 rows): passes; plant V37 (old order restored) fails it at 274.6 MB peak.
+- N2: A2b asserts a sample-only change (same content, new profile bytes, new sample) is admitted as v4.
+- N3: residual text restored in full; V34/V35 labels follow D-3A6.18 (V34 = waiting uploads counted, V35 = ordered compare).
+- Checks at r2: 3A6 + contracts + 3A2/3A3/ON1/RC4-F1/3B7a non-DB: 495 passed in 51.66s; Postgres (3A6, 3A3, 3A2, ON1, 3B7a) 59 passed in 50.05s; fast check-all: All 41 guards passed (245.2 s).
