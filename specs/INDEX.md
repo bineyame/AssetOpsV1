@@ -38,7 +38,7 @@ finished work are in `archive/agent-history/`.
 | 4a | Energy to cash: delivered, losses, billed kWh, tariff (4 units) | merged — review ACCEPT; Q1-Q2, F1-F3 follow | `4a-energy-to-cash/spec.md` | 48 KB |
 | 3B6 | Cold, EV structures | spec | `3B6-cold-ev/spec.md` | 39 KB |
 | 3B4 | Structure observer | in review | `3B4-observer/spec.md` | 40 KB |
-| ENV1 | Upload parses under limits, per-host slots (0.75 unit) | spec | `ENV1-parse-limits/spec.md` | 26 KB |
+| ENV1 | Upload parses under limits, per-host slots (1.35 units; fix round) | spec | `ENV1-parse-limits/spec.md` | 38 KB |
 | 0K3 | Replay series from stored readings (2 units) | spec | `0K3-replay-series-reader/spec.md` | 25 KB |
 | OWNER-AWAY | Decisions made for the owner during a delegated absence (21 Nov, ~12 h), each with reason and reversal | live — owner reviews on return | `OWNER-AWAY/decisions-2026-11-21.md` | 1 KB |
 
