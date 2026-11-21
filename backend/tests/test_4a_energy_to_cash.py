@@ -239,6 +239,8 @@ VARIANTS = {
     "V9": lambda: _assignments(mto(), "M-2203"),
     "V9b": lambda: _r(mto(), charges=mto().charges + (V9B_CHARGE,)),
     "V9c": lambda: _assignments(_r(mto(), charges=mto().charges + (V9B_CHARGE,)), "M-2204"),
+    "V9d": lambda: _r(_r(mto(), charges=mto().charges + (V9B_CHARGE,)),
+                      assignments=mto().assignments + (assign("M-2204", "C-0415", d(10, 3)),)),
     "V10": lambda: _r(mto(), charges=mto().charges + (V10_CHARGE,)),
     "V11": lambda: _assignments(_r(mto(), charges=mto().charges + (V10_CHARGE,)), "M-2201"),
     "V12": lambda: _reads(mto(), keep=lambda r: r.meter_ref != "M-0001", add=[read("M-0001", FIRST, NEXT, "5570")]),
@@ -250,6 +252,8 @@ VARIANTS = {
     "V17": lambda: _r(mto(), held=HELD - {"CHARGE"}, charges=()),
     "V18": lambda: _reads(mto(), keep=lambda r: r.meter_ref != "M-0099",
                           add=[read("M-0099", FIRST, NEXT, "40", body="M-0098")]),
+    "V18b": lambda: _r(mto(), assignments=tuple(
+        dataclasses.replace(a, body_meter_ref="M-0098") if a.meter_ref == "M-0001" else a for a in mto().assignments)),
     "V19": lambda: _r(mto(), feeders=FeederMonth("BINDINGS_CHANGED", (), 31)),
     "V20": lambda: _feeders(mto(), band_state="NOT_DECLARED", band_pct=None),
     "V21": _v21,
@@ -285,6 +289,7 @@ EXPECT = {
     "V9": {"unmapped_kwh": ("140",)},
     "V9b": {"unmapped_kwh": ("115",), "billed_kwh": ("5425",), "tariff": ("0.4", "USD")},
     "V9c": {"unmapped_kwh": ("140",), "billed_kwh": ("5425",)},
+    "V9d": {"unmapped_kwh": ("140",), "billed_kwh": ("5425",)},
     "V10": {"unmapped_kwh": ("109",), "billed_kwh": ("5431",), "tariff": ("0.4", "USD")},
     "V11": {"unmapped_kwh": ("109",)},
     "V12": {"metered_kwh": ("5750",), "unexplained_loss_kwh": ("-50",), "unmapped_kwh": ("140",)},
@@ -296,6 +301,8 @@ EXPECT = {
             "unmapped_kwh": (A, NC, "NEEDS:CHARGE")},
     "V18": {**{f: (A, NCY, "METER_REF_CONFLICT") for f in ("metered_kwh", "unmapped_kwh", "unexplained_loss_kwh")},
             "billed_kwh": ("5400",)},
+    "V18b": {**{f: (A, NCY, "METER_REF_CONFLICT") for f in ("metered_kwh", "unmapped_kwh", "unexplained_loss_kwh")},
+             "billed_kwh": ("5400",)},
     "V19": {f: (A, NCY, "FEEDER_BINDINGS_CHANGED") for f in ("delivered_kwh", "technical_loss_kwh",
                                                               "unexplained_loss_kwh")},
     "V20": {"technical_loss_kwh": (A, NC, "LOSS_BAND_NOT_DECLARED"),
@@ -414,6 +421,14 @@ def test_2b_each_step_is_reached(factor, step):
     cause, note = STEPS[(factor, step)]
     assert lv.value is None and lv.evidence == "NOT_AVAILABLE"
     assert (lv.missing.cause, lv.missing.note) == (cause, note), lv
+
+
+def test_2_v27_kobo_feeders_at_bands_4_5_6():
+    k = kobo()
+    fs = tuple(dataclasses.replace(f, band_state="DECLARED", band_pct=D(p))
+               for f, p in zip(k.feeders.feeders, (4, 5, 6)))
+    v = run(_r(k, feeders=FeederMonth("ONE_SET", fs, 31)))
+    assert v["technical_loss_kwh"].value == D(486) and v["technical_loss_kwh"].evidence == "MODELLED"
 
 
 def test_2b_the_kobo_band_is_step_2():

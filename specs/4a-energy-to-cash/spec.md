@@ -373,6 +373,7 @@ D-3B3.15), so revenue stays NOT_SPLIT: test PG3(b).
 | V8 | `M-0099` read removed | `METER_READS_INCOMPLETE` on the same three |
 | V9 | the `M-2203` assignment removed | unmapped 140 (its read has no customer and no charge names it) |
 | V9b | a USAGE STANDARD charge with no subject, account `C-0415`, 25 kWh, 10.00 | unmapped 115 (the `M-2204` read is charged through its customer); billed 5425; tariff 0.4 (2170.00/5425) (D-4A.19) |
+| V9d | V9b and a second `M-2204` assignment to another customer over the same span (D-4A.29) | unmapped 140 (REGISTER_GAP: ambiguous customer, no customer); billed 5425 |
 | V9c | V9b and the `M-2204` assignment removed | unmapped 140 (the read has no customer); billed 5425 |
 | V10 | a charge with subject METER `M-2201`, 31 kWh, 12.40 | unmapped 109; billed 5431; tariff 2172.40/5431 |
 | V11 | `M-2201` assignment removed and V10 | unmapped 109 (charged through its meter despite the register gap) |
@@ -383,6 +384,7 @@ D-3B3.15), so revenue stays NOT_SPLIT: test PG3(b).
 | V16 | every charge 0 kWh, 0.00 | billed 0; tariff `ZERO_DENOMINATOR:billed_kwh` |
 | V17 | no CHARGE held | billed NOT_CONNECTED (None note); tariff, adjustments, unmapped `NEEDS:CHARGE` |
 | V18 | the `M-0099` read's `body_meter_ref` `M-0098` | metered, unmapped, unexplained NOT_CALCULATED_YET `METER_REF_CONFLICT`; billed 5400 |
+| V18b | the `M-0099` assignment's `body_meter_ref` `M-0098` (reads agree) (D-4A.29) | same as V18 |
 | V19 | feeders `BINDINGS_CHANGED` (no feeders) | delivered, technical, unexplained NOT_CALCULATED_YET `FEEDER_BINDINGS_CHANGED`, coverage None |
 | V20 | the band `NOT_DECLARED` | technical, unexplained NOT_CONNECTED `LOSS_BAND_NOT_DECLARED`; delivered 6000; metered 5580 |
 | V21 | on §5.2: `clinic-meter` NOT_DECLARED, `mill-meter` CHANGED, `residential-meter` DECLARED 5 | technical, unexplained NOT_CONNECTED `LOSS_BAND_NOT_DECLARED` (step 2 before 3) |
@@ -391,6 +393,7 @@ D-3B3.15), so revenue stays NOT_SPLIT: test PG3(b).
 | V24 | no charge and no adjustment in the month (`CHARGE` still held) | adjustments, tariff, unmapped NOT_RECEIVED `NEEDS:CHARGE`; billed NOT_RECEIVED (None note); metered 5580 |
 | V25 | every §5.1 charge FIXED, `kwh` None, amounts kept | billed 0 (a recorded zero); tariff NOT_RECEIVED `NEEDS:CHARGE`; unmapped 5580 (no usage line charges a read); adjustments 40 |
 | V26 | V19 and `closed` False | delivered NOT_RECEIVED `MONTH_OPEN`, coverage None (step 2 before 3) |
+| V27 | Kobo's three feeders DECLARED at 4, 5, 6 (D-4A.29) | technical 486 (62 + 145 + 279; each feeder at its own band) |
 
 ### 5.4b Step map (D-4A.16; test 2b runs it and compares its keys with a hand literal `STEPS` of §2.4)
 | Factor | Step → variant |
@@ -420,7 +423,7 @@ Pseudonymised at intake; the tests assert figures only.
 
 ### 6.1 No database (`test_4a_energy_to_cash.py`)
 1. §5.1 and §5.2 through `month_energy`, every value, evidence, cause, note, coverage and origin.
-2. §5.4 V1 to V26 with V9b and V9c, one test each (parametrised), asserting only the named factors. **2b.** The
+2. §5.4 V1 to V27 with V9b, V9c, V9d and V18b, one test each (parametrised), asserting only the named factors. **2b.** The
    step map (§5.4b), table-driven: each row asserts its factor's cause, note and `value is None`; the map's keys
    equal a hand literal `STEPS` listing every step of §2.4 once (D-4A.16).
 3. `feeder_month`: no set → NOT_BOUND; two sets → BINDINGS_CHANGED; a binding from 10-15 → BINDINGS_CHANGED; one
@@ -447,7 +450,7 @@ Pseudonymised at intake; the tests assert figures only.
 
 ### 6.2 Postgres (`test_4a_energy_to_cash_postgres.py`)
 - **World for PG1 and PG1b** (D-4A.22): the Kobo producer world (`pgb.imported`, `pgb.convert`,
-  `producer.configure_at`) with `IMPORT_AT` 2026-08-31T06:00Z, `INSTALL_AT` 2026-09-01T06:00Z; feeders `load-clinic`,
+  `producer.configure_at`) with `IMPORT_AT` 2026-09-29T12:00Z, `INSTALL_AT` 2026-09-30T06:00Z (D-4A.27; after the Kobo Foundation `valid_from` 2026-09-29T11:57Z; gateway and sources enabled after `configure_at`); feeders `load-clinic`,
   `load-res`, `load-mill` of the `minigrid-roles-4` set; hourly `INTERVAL_MEAN` kW readings through central ingestion
   (helper `interval_envelope`, local), one batch per feeder per Site-local day `d`, received at 2026-10-`(d+1)`T00:30Z (day 31: 11-01T00:30Z);
   profile of D-4A.15 (clinic 2, res 4, mill 2 with 4 at 18:00-19:00 local; day 31 mill 1.5). Order: days 1-3, PG1,
@@ -457,7 +460,8 @@ Pseudonymised at intake; the tests assert figures only.
   (144); (c) `StoreEnergyInputs.read(..., known_at 2026-11-02T00:00Z, now)` gives delivered NOT_RECEIVED
   `FEEDER_READINGS_GAP`, coverage (3, 31); (d) technical NOT_CONNECTED `LOSS_BAND_NOT_DECLARED` (no band yet);
   (e) the same through `build_structure_read(URL).read.site(<producer Site>, "2026-10", known_at)`:
-  `technical_loss_kwh` and `unexplained_loss_kwh` value None, NOT_AVAILABLE, `LOSS_BAND_NOT_DECLARED` (D-4A.17; if
+  `technical_loss_kwh` value None, NOT_AVAILABLE, `LOSS_BAND_NOT_DECLARED`; `unexplained_loss_kwh` value None,
+  NOT_AVAILABLE, `FEEDER_READINGS_GAP` (delivered is absent first, §2.4; D-4A.17 as amended by D-4A.28; if
   the structure read refuses this Site for a reason outside 4a, a mid-build question).
 - **PG1b (the chain, after days 4-31; D-4A.15):** (a) at `known_at` 2026-11-02T00:00Z: delivered 6000 MEASURED,
   coverage (31, 31), origins (`demo-simulated`,); technical 300 MODELLED; metered NOT_CONNECTED (no commercial
