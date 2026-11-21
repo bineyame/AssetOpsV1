@@ -1,6 +1,6 @@
 # DS3: the bulk loader for the generated world's inputs (implementer spec)
 
-Status: rev 2, Architect (Claude), 2026-11-21, on the owner's delegation (`owner/owner-away-architect-decides-2026-11-21.md`;
+Status: in_review (built on `task/DS3-bulk-loader`; mid-build Q1-Q3 open). Rev 2, Architect (Claude), 2026-11-21, on the owner's delegation (`owner/owner-away-architect-decides-2026-11-21.md`;
 pull order `specs/OWNER-AWAY/decisions-2026-11-21.md` row 4, rows 10 to 13 for the calls made here). Rev 2 folds the
 handshake answers D-DS3.9 to D-DS3.19 (`rulings.md` "Handshake answers (round 1)"); the handshake is closed. `delivery-plan.md`
 §2 row `DS3`: "Bulk loader: COPY into staging, set-based writes into input stores, the table allowlist and label

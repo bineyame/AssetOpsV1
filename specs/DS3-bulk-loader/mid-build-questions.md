@@ -1,6 +1,6 @@
 # DS3 mid-build questions
 
-Questions raised during the build about something the spec did not fix (spec rev 2). Count: 2 (open).
+Questions raised during the build about something the spec did not fix (spec rev 2). Count: 3 (open; Q1 and Q2 each hold one test, Q3 stops nothing).
 
 ## Q1 (open): the v4 slice's fourth shape is refused by the real path
 
@@ -41,3 +41,13 @@ Questions raised during the build about something the spec did not fix (spec rev
   source, type)` among new rows equal, bulk count at most real (the readers consume events per Site and type);
   (b) compare its aggregated subjects (roles, asset ids, span) per Site and type; (c) other. Builder's default if
   asked: (a).
+
+## Q3 (open, nothing stopped): the walkthrough database's name passes `permitted_database`
+
+- **Spec.** §2.4 `permitted_database`: a name ending `_test` (or `<prefix>_audit*`), not an operator's, on
+  `127.0.0.1`/`localhost` and the container port; D-DS3.12: "the world command never loads the served
+  walkthrough database". Test 1 lists `assetops_polish_walk1113` as false.
+- **Found.** The walkthrough database is named `assetops_polish_walk1113_test` (`.ai/NOW.md` §3), which ends `_test`
+  and so is permitted by the rule as specified, on the same container. Nothing in DS3 refuses it by name.
+- **Built as specified**; no part is stopped. Options: (a) refuse names matching the walkthrough pattern
+  (`*_walk*`) explicitly, with a test-1 case; (b) leave it to RULES §7 and DS4's held question (D-DS3.12).
