@@ -1,6 +1,6 @@
 # 0M: Mto's demand-on-headroom replay through the same port (implementer spec)
 
-Status: spec rev 2, handshake round 1 answered (D-0M.12 to D-0M.22; `rulings.md` "Handshake answers (round 1)"). Architect (Claude), 2026-11-21, on the owner's delegation
+Status: in_review (built on `task/0M-mto-headroom`, packet `packet.md`). Spec rev 2, handshake round 1 answered (D-0M.12 to D-0M.22; `rulings.md` "Handshake answers (round 1)"). Architect (Claude), 2026-11-21, on the owner's delegation
 (`owner/owner-away-architect-decides-2026-11-21.md`; pull order `specs/OWNER-AWAY/decisions-2026-11-21.md` row 4).
 Spike M (`delivery-plan.md` §2 row `0M`: "Mto's demand-on-headroom replay through the same adapter"; lane C,
 `two-week-build-plan.md` §0.2 days 10 to 12). **4 units** (rev 1: 3.5). Discovery review (W5): a new mechanism whose litres and
@@ -46,7 +46,7 @@ kWh feed a money figure (design §4.3). Non-screen. No migration. No database. `
 - **Heavy tools** through the slot pool only, as 0K2 §0: host tests on `host/tests/test_0m_mto_headroom.py`, backend
   tests on `backend/tests/test_0m_headroom_replay.py` and `backend/tests/test_0k1_replay_port_seam.py`; the 61-day
   run with `--label 0M-season`, its cap set as 0K2's (D-0K2.24) from 0K2's measured seconds per 61-day replay:
-  `max(12, ceil(2 × (2 site runs + 7 replays) × measured / 60))` minutes, recorded in the packet. No database, no ports 5490 or 8990, no Docker.
+  `max(12, ceil(2 × (1 site run + 6 replays) × measured / 60))` minutes, recorded in the packet. No database, no ports 5490 or 8990, no Docker.
 - **Files.** New: `backend/assetops_backend/runs/headroom_replay.py`, `backend/tests/test_0m_headroom_replay.py`,
   `host/tests/mto.py`, `host/tests/test_0m_mto_headroom.py`, `tools/mto_headroom_study.py`. Edited:
   `backend/tests/test_0k1_replay_port_seam.py` (the allow-list gains the two new backend files, as D-0K2.14).
@@ -298,7 +298,7 @@ loop.
 and site run, the observed series, `headroom_study` with `(HULLER, WELDER)`, the reduced run at 25 kW and the default
 `min_days`; one JSON (`"p/q"` and a 3-decimal reading; header `input_class`, `evidence_class`, `plant` =
 `MTO_PLANT_NOTE`) to `/opt/assetecon/evidence/0M/<run>/study.json`; one line per case, each prefixed
-`input_class=SIMULATED evidence_class=MODELLED` (D-0M.14). Two site runs and 7 replays of 17,568 steps; time from
+`input_class=SIMULATED evidence_class=MODELLED` (D-0M.14). One site run and 6 replays of 17,568 steps; time from
 0K2's measured seconds (§0). Exit 0 done, 2 refused.
 
 **Regression:** 0K2's `host/tests/test_0k2_kobo_season.py` and `backend/tests/test_0k2_replay_study.py`, the 0K1

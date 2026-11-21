@@ -541,3 +541,11 @@ Branch `task/DS4-template-ladder` (`9eff83776`); spec `specs/DS4-template-ladder
 - Settled: `tools/world.py` builds the L0/L1/L2 ladder by key (migrations; definition, inputs, onboarding, code; L2 steps), frozen rungs, manifests, `clone`/`reset`/`list`/`drop` (keys erased before an L1 drops), and `check` C1-C7 with the total C4 oracle (`C4_CONTRACT` = §2.1, Kisiwa's O&M overrides, `C4_KNOWN_FINDINGS`), `harness_run` under its own base, and `check_passed` only while the check inputs are unchanged.
 - Settled: the bulk load refuses a batch whose envelopes resolve other days than its cover (Site-local and UTC grains, step 7a; `BULK_BATCH_GAP_DAYS`, `BULK_BATCH_TIME_UNREADABLE`); `PostgresEvidenceLedger.site_timezone`.
 - Open: the real world's C4 fails only on the 12 known D-DS4.27 plan cells until 5a F1 merges; unit 3 (bench, the real `assetops_world` build and check) waits for owner row 40.
+
+## 0M - Mto's demand-on-headroom replay (in review, 21 Nov)
+
+Branch `task/0M-mto-headroom` (base main `6c33395ef`, after the 0K2 merge `3b4f06052`); spec `specs/0M-mto-headroom-replay/spec.md` rev 2, rulings D-0M.1-22; packet `packet.md`. No database, no migration, no served text, no money.
+
+- Settled: `runs/headroom_replay.py` `headroom_study` adds a customer's kW to one Site load at its local weekday steps and replays the whole window beside the no-customer replay (full, and a second base run frozen at a reduced inverter limit fed `min(PV, limit)`); headroom days and kWh from the series; extra litres, generator, unserved, starts, month splits, dawn new/cleared dates; every customer id and the reduced run's frozen limit and other needs refused before any port call. Reuses 0K2's helpers only. `host/tests/mto.py`: the Kobo template edited to Mto's manifest facts, loads halved.
+- 61-day SIMULATED/MODELLED figures beside the design values in the packet (huller Oct 6 days, 384 kWh, 156.7 L vs 3, 225, 68; reduced 0.24 L a day vs 5); design values unchanged (row 37).
+- Open: replacing design values is the owner's (row 37); dawn admissibility and money are `6g`.
