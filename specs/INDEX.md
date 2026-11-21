@@ -17,9 +17,6 @@ finished work are in `archive/agent-history/`.
 | BW1 | Non-screen build start: re-cut, waves, re-cut 2 (D-BW1.1-12) | live | `BW1-build-wave1/rulings.md` | small |
 | T2 | Neutral package tests (check-all) | live — rev 2 | `T2-neutral-package-tests/spec.md` | small |
 | L4-OPS | Operations in the structure (OD-26, OD-28) | live — design rev 16.16 §2.10 | `L4-OPS/rulings.md` | 10 KB |
-| mockup-vnext-categories-snapshot | Mock-up headings, as-of | finished | `mockup-vnext-categories-snapshot/packet.md` | small |
-| mockup-vnext-demo-items | Mock-up demo items | finished | `mockup-vnext-demo-items/packet.md` | small |
-| mockup-vnext-professional | Mock-up pass | superseded | `mockup-vnext-professional/packet.md` | small |
 | 3C1 | Person on commands (3C1a, 3C1b) | rev 2; 3C1a merged; 3C1b in_review | `3C1-person-on-commands/spec.md` | 15 KB |
 | RC4-F1 | The database a URL really connects to: one resolver for every RC4 decision (0.5 unit; merges before 3A3) | in_review — spec rev 1, packet | `RC4-F1-database-name/spec.md` | 11 KB |
 | ON1 | Operator tenant from one onboarding file; emulated roles granted automatically, real files refused until ON1b; served tenant; key erasure; runbook (2.0 units) | in_review — built on `task/ON1-operator-tenant`; mid-build Q1, Q2 open | `ON1-operator-tenant/spec.md` | 40 KB |
@@ -45,6 +42,7 @@ finished work are in `archive/agent-history/`.
 | 0K4m | Pack and mock restated from 0K4d's v8 figures; 2.75 u | live — handshake | `0K4m-pack-restate/` | 39 KB |
 | 1a | Optimize card states its day and scope: SC-1 line on the face, pin first (1.75 u) | live — rev 2, build-ready; merge held for walkthrough | `1a-optimize-card-scope/spec.md` | 18 KB |
 | WK | Walkthrough DB: checked L2 copied to `assetops_polish_walk<label>_test`, two statements, rebuild, W1-W7, serve 8991/5491, teardown (1.4 u) | live — spec rev 2, handshake round 1 answered | `WK-walkthrough-database/spec.md` | 27 KB |
+| 6a, 6c | Decisions valued against doing nothing: records, one-offs, choice (6a, 3 u); evaluator ranking admitted settings (6c, 3 u); P6 proposal | draft: awaiting owner P6 | `6-decision-valued/P6-proposal.md`; `6a-decision-records/spec.md`; `6c-option-evaluator/spec.md` | 6, 39, 33 KB |
 | OWNER-AWAY | Decisions made for the owner during a delegated absence (21 Nov, ~12 h), each with reason and reversal | live — owner reviews on return | `OWNER-AWAY/decisions-2026-11-21.md` | 1 KB |
 
 Finished, merged or superseded (folder kept as the record): `3B7a-structure-snapshot/`, `5b-attribution/`, `4d-litre-split/`, `3A3-emulators-contract-test/`, `4b-money-leaves/`, `2a-canonical-format/`, `3A1-commercial-record-store/`, `3A2-commercial-file-intake/`, `3A4-amounts-by-month/`, `3B1-structure-registry/`, `3B3-structure-read/`, `DS1b-canonical-writers/`, `3C0a-operator-accounts/`, `CH-0/`, `CH-1a/`, `CH-1b/`, `CH-2/`, `CH-3/`, `CH-4/`, `CH-5a/`, `CH-5b/`, `CH-5c/`, `CH-5d/`, `CH-6/`, `CH-9/`, `CH-9b/`, `COV-PARTIAL/`, `DD-1/`, `DEMO-COMBINED/`, `DEMO-SPARSE/`, `FIX-COLD-DRAIN/`, `FUEL-1/`, `IDX-GAPS/`, `LINK-LINEAGE/`, `Lane-C/`, `Lane-T/`, `MD-0/`, `OUT-C/`, `OUT-D/`, `OUT-E/`, `OUT-W/`, `POLISH/`, `RECON-1/`, `SCN/`, `T1-heavy-tool-slot-pool/`, `TEST-drift/`, `W2-02/`, `W2-03/`, `W2-04/`, `W2-05a/`, `W2-05b/`, `W2-06/`, `W2-07/`, `W2-F/`, `W3-01/`, `W3-02/`, `W3-03/`, `W4-01/`, `W4-02/`, `W4-03/`, `W5-01/`, `W5-02/`, `W5-03/`, `W5-04/`, `W5-F1/`, `W6-01/`, `WALK1/`, `mockup-vnext-categories-snapshot/`, `mockup-vnext-demo-items/`, `mockup-vnext-professional/`.
