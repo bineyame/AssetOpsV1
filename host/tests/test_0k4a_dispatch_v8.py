@@ -326,6 +326,10 @@ def test_n7_the_start_and_stop_rules_are_v5s() -> None:
     assert starts >= 1 and stops >= 1
     starts, _ = _starts_and_stops(n1_run(8, F(100)), F(100))
     assert starts >= 1
+    # A stop of 37 % is reached within two running steps of a start at 35, so here the minimum runtime is what holds
+    # the generator on (in N1's and N5's runs the charge takes hours and the runtime never binds).
+    starts, stops = _starts_and_stops(n1_run(8, F(37)), F(37))
+    assert starts >= 1 and stops >= 1
 
 
 def test_n8_the_tank_follows_the_curve() -> None:
