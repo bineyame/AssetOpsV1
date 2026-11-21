@@ -595,3 +595,10 @@ Branch `task/0K4b-fuel-curve` (base main `b96d5e978`); spec `specs/0K4b-fuel-cur
 - Settled: pure `packs/generator_curve.py` (fuel line through the no-load rate and SFC x rating, ordered refusals, fuel cap, taper to a 1/20 floor, three handlers; v8's physics, pinned by F12), imported by nothing until 0K4a; Foundation keys `generator-minimum-load`, `battery-charge-taper-start` and their bases on GENERATOR and BATTERY; `GENERATOR_CURVE_NEEDS` on no profile; `host/tests/kobo_assumed.py` (GENERIC_DEFAULT); the first `str | Message` legacy-family seam, `served_text.py`, with the `foundation_property` vocabulary and the `foundation.property_name` and `model_profile.need` statements.
 - Open: 0K4a wires the module and the needs into v8 and adds the lab seam (`run_profile_summary`); the rest of each family's migration (Q9); Kobo's real curve and taper values (operator request).
 
+
+## 0K4a - `mini-grid` v8, the generator takes the load (in review, 21 Nov)
+
+Branch `task/0K4a-dispatch-v8` (base main `b96d5e978`, 0K4b merged in); spec `specs/0K4a-dispatch-v8/spec.md` rev 2, rulings D-0K4.2-4, D-0K4.19, D-0K4.20, D-0K4.22; packet `packet.md`. No migration, no database, no screen, no guard change.
+
+- Settled: simulator `mini-grid` v8 (`decide_v8` ranks a running generator ahead of the battery; `_resolve_cycle` is v7's resolve with the RUNNING allocation by `cycle_charge_split`, 0K4b's fuel curve with a `generator-fuel` balance and tank account at 10 kWh/L, and the charge taper; `_checked_curve` and `_fuel_cap_kw` guard the curve's divisions); v1-v7 byte-identical (N9), v8 pinned by N12 `d6add2a3...5371f11`; backend `MINI_GRID_V8_MODEL` with SC-1 `model_profile.description`/`model_profile.state` served through `served_text` in `run_profile_summary`; `EXECUTABLE_MODELS` and `REPLAY_MODELS` take v8 (N11).
+- Open: no world runs v8 yet (0K4f); calibration is 0K4d's; five mid-build readings for the Architect (packet: N7 37 % run, N13 window, N13b, two test-pin edits).

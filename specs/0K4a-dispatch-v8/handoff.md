@@ -1,5 +1,7 @@
 # 0K4a handoff: commits 1 and 2 built (partial; commit 3 waits for 0K4b)
 
+**Superseded 2026-11-21: commit 3 is built; see `packet.md`.**
+
 Implementer (Claude), 2026-11-21. Branch `task/0K4a-dispatch-v8`, worktree `/opt/assetecon/AssetOpsV1-0k4a`, base
 `main` `b96d5e978`. Status stays `live` until commit 3 and the packet.
 
