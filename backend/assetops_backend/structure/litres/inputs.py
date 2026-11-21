@@ -2,7 +2,7 @@
 
 `StoreLitreInputs.read` takes the Site's one generator and one fuel tank, K3's choice of the fuel curve over the month,
 the tank's dips and deliveries, the generator's readings (A2's slot rule bound into `use`, D-4D.10's `held`), and the
-dispatch-3.2 facts of every UTC day meeting `[lo - EDGE, hi + EDGE)`, whose state `day_state` decides (D-4D.12).
+selected dispatch facts (dispatch-3.3 since 0K4e) of every UTC day meeting `[lo - EDGE, hi + EDGE)`, whose state `day_state` decides (D-4D.12).
 The stores are ports here; their adapters are reached only through `structure.litres.composition`.
 """
 

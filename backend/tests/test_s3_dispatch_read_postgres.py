@@ -209,7 +209,7 @@ class TestDispatchRead:
     def test_stored_dispatch_3_windows_are_reassessed_under_the_current_model_and_kept_as_history(
             self, site, monkeypatch) -> None:
         """D-2026-10-11-s3-phase-3a-version-and-cutover: a stored default `dispatch-3` window reads stale,
-        the normal worker pass reconciles and reassesses it under the current model (`dispatch-3.1`, now `dispatch-3.2`), and the `dispatch-3`
+        the normal worker pass reconciles and reassesses it under the current model (`dispatch-3.1`, now `dispatch-3.3`), and the `dispatch-3`
         run and revisions stay unchanged and addressable, marked as an older rule result."""
         from assetops_backend.analytics import dispatch_v3
 

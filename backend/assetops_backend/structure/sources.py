@@ -45,8 +45,8 @@ SOURCE_STATE: Mapping[str, Mapping[str, str]] = MappingProxyType({
         "productive_tariff": ASSUMED,
         "in_transit": PROVIDED,
         "outstanding": PROVIDED,
-        "necessary_l": PROVIDED,                    # 4d: dispatch-3.2 slots at the fuel curve
-        "candidate_l": PROVIDED,                    # 4d: dispatch-3.2 slots at the fuel curve
+        "necessary_l": PROVIDED,                    # 4d: dispatch-3.3 slots at the fuel curve
+        "candidate_l": PROVIDED,                    # 4d: dispatch-3.3 slots at the fuel curve
         "unexplained_l": PROVIDED,                  # 4d: dips and deliveries less the modelled litres
         "extra_l": OPTION_ONLY,
         "diesel_price": PROVIDED_ELSE_ASSUMED,
