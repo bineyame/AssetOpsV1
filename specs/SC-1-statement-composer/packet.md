@@ -5,6 +5,43 @@ answers D-SC1.29 to D-SC1.31 (merged from `task/SC-1a-midbuild-answers` 74e74ca9
 `USER_REVIEW_REQUIRED: false` (spec header). **Owner approval needed at merge:** the two new check-all lines (guard
 changes are held for the owner, `specs/OWNER-AWAY/decisions-2026-11-21.md` row 5).
 
+## Fix round r2 (review round 2: M4, L6, L7)
+
+Head: the commit that adds this section (code `c19525123`; `main` 22dc0bbf3 (4a) merged at `b1a55974c`, keeping both
+sides of `.ai/state/index-2.md`: SC-1a 168, 3B2 169, 0K1 170, 4a 171; SC-1a's owner-away rows stay **23 and 24**;
+`check-decision-index.py` OK, 1,072 IDs). **Owner approval still needed at merge: the two check-all lines** (rows 5, 24).
+
+- **M4.** `import_hits` binds the package object to the surface `""`: `import assetops_backend.i18n as i`, the
+  unaliased dotted `assetops_backend.i18n.<x>`, `from assetops_backend import i18n [as j]`, and relative `from . import
+  i18n`. Attributes resolve as a chain: on the package, a public module name chains into that module's surface, a
+  mechanism module is `I18N_BYPASS`, any other name must be in `i18n.__all__`; on a public module, the name must be in
+  its surface or `i18n.__all__`; a `_` name is `I18N_PRIVATE`. A string-literal `importlib.import_module(...)`,
+  `import_module(...)` or `__import__(...)` is checked as an `import` (and binds its assigned name). Plants **P49e**
+  (`i.render.formats.money`), **P49f** (`from assetops_backend import i18n; i18n.formats`), **P49g** (`from . import
+  i18n; i18n.formats`) and **P49h** (`importlib.import_module("assetops_backend.i18n.formats")`) each give
+  `I18N_BYPASS`; the round-2 guard (3d82bd510) passed all four (run on the same sources). P49a-d and every round-1
+  form still fail. `getattr(...)` and `sys.modules[...]` stay out of scope (the review's "deliberate evasion").
+  Guard tests: 10 bypass forms and 4 public forms through the package.
+- **L6.** `NUMBER_WORDS["en"]` gains `cent` (row 5: `cent`, `cents`, so `per cent`), the `-ing` forms (row 6 is now
+  roots `doubl tripl quadrupl halv` with `e es ed ing`, a superset of the old row) and a zero row (`zero nought` with
+  `"" s es`: `zeroes`, `nought`, `noughts`). T12 pins the new literal; T12b refuses `doubling tripling quadrupling
+  halving`, `per cent`, `ten per cent`, `zeroes`, `nought`, `noughts`, `doubles`, `halves`, and loads `percentage`,
+  `centre`, `recent`, `century`, `doubtful`. No word of the shipped catalogue is refused (the catalogue loads; a grep
+  of `i18n/` for the new words is empty). **Deviation:** this extends spec §3.12's literal; the Architect should fold
+  it into the spec text (all within D-SC1.32's class, no judgement beyond it).
+- **L7.** Each live allow entry prints `ALLOWED <path>:<line> <class> <fingerprint> | <source line>`, then
+  `ALLOWED entries: N`, on every plain run (pass or fail). Notes never fail a run; the self-test filters them. The
+  allow file is empty, so the real tree prints `ALLOWED entries: 0`; a guard test proves a live entry prints its line
+  and still counts as baselined, and a stale one still fails `ALLOW_STALE`.
+- **Baseline.** Main's 4a added five hand-built fingerprints in ratchet paths (`minigrid_foundation.py:34`,
+  `models.py:294`, `rows_mini_grid.py:107/109`×2), so `--write-baseline` regenerated the hand-built baseline: **300
+  paths, 5,190 fingerprints**, exactly those five added, none removed (backend outside `i18n/` and `config` equal
+  `main` 22dc0bbf3). Legacy 123 keys, unchanged.
+- **Gates** (worktree, code c19525123 + merge b1a55974c + baseline; Python `.venv`; all through `heavy-slot.sh`): guard
+  on the real tree `OK` (8s); `--self-test` **72 of 72** (61s); `test_sc1_statements.py` + guard tests **449 passed**
+  (70.6s); i18n/refusal/3A2/3C1a regression (same 8 files) **794 passed, 1 warning** (28.0s); `check-architecture.ps1`
+  passed (ASSETOPS_GUARD_PYTHON set, 100s); `check-agent-workflow.ps1` passed; fast check-all 06:59-07:20 UTC, 1,253s wall (1,138s waiting for a heavy slot, 114.9s run): **all 43 guards passed**, SC-1 lines `OK` and self-test 72 of 72. The regression ran on the merged code before the baseline commit (the baseline is not read by those tests).
+
 ## Fix round r1 (D-SC1.32 to D-SC1.39; spec rev 3)
 
 Head: the commit that adds this section (code `33115e055`, main merged at `55aa7d6ac`: `task/SC-1a-review-answers`
