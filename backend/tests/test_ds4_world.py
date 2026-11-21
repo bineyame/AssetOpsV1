@@ -22,6 +22,9 @@ DERIVED = ROOT / "Docs/demo-sprint/product-direction-layer4/derived-values.json"
 MANIFEST = ROOT / "Docs/demo-sprint/product-direction-layer4/demo-site-scenario-manifest.yaml"
 MARKER = "KEY-MARKER-7f3a"
 TID = "11111111-2222-4333-8444-555555555555"
+PORTFOLIO = "00000000-0000-4000-8000-000000000000"
+SITE_IDS = {"KISIWA-001": "00000000-0000-4000-8000-000000000001", "KOBO-001": "00000000-0000-4000-8000-000000000002",
+            "MTO-001": "00000000-0000-4000-8000-000000000003"}
 
 
 # --- fakes -----------------------------------------------------------------------------------------------------------
@@ -92,10 +95,16 @@ class FakeClock:
 class FakeRunner:
     def __init__(self, log: list) -> None:
         self.log, self.envs, self.fail_on, self.timeout_on = log, [], None, None
+        self.harness_exit, self.verify_exit, self.harness_hook = 0, 0, None
 
     def __call__(self, argv, cwd, env, timeout):
         args = list(argv[1:])
         self.envs.append((args, dict(env)))
+        if str(argv[0]).endswith("pwsh"):
+            self.log.append(("step", "harness"))
+            if self.harness_hook:
+                self.harness_hook(env)
+            return subprocess.CompletedProcess(argv, self.harness_exit, "1 passed\n", "")
         label = self._label(args)
         self.log.append(("step", label))
         if self.timeout_on and self.timeout_on in label:
@@ -117,7 +126,12 @@ class FakeRunner:
         elif "assetops_backend.load_world_inputs" in args:
             out = json.dumps({"tenant": "lakeside-power", "commercial_exit": 0, "batches": 0})
         elif "assetops_backend.build_structure_snapshot" in args and "build" in args:
-            out = json.dumps({"portfolio_snapshot_id": "p-1", "sites": {"KOBO-001": "s-1"}})
+            out = json.dumps({"portfolio_snapshot_id": PORTFOLIO, "sites": SITE_IDS})
+        elif "assetops_backend.build_structure_snapshot" in args and "verify" in args:
+            if self.timeout_on == "verify":
+                raise subprocess.TimeoutExpired(argv, timeout)
+            out = json.dumps({"matches": self.verify_exit == 0, "differences": [] if self.verify_exit == 0 else ["x"]})
+            return subprocess.CompletedProcess(argv, self.verify_exit, out + "\n", "")
         elif "erase" in args:
             kd = Path(args[args.index("--dir") + 1])
             (kd / f"{TID}.key").unlink(missing_ok=True)
@@ -165,7 +179,34 @@ class Env:
                         "ASSETOPS_REAL_OPERATOR_DATA": "on", "ASSETOPS_PG_PORT": "55432"}
         self.deps = world.Deps(admin=self.admin, query=fake_query(self.log), runner=self.runner, git=self.git,
                                clock=FakeClock(), require=lambda tool, db=False: self.required.append((tool, db)),
-                               environ=self.environ)
+                               environ=self.environ, which=lambda name, path=None: "/opt/pw/bin/pwsh",
+                               snapshots=self.snapshot_service)
+        self.payloads = {code: hand_payload(code) for code in SITE_IDS}
+        self.snapshot_error = None
+        self.disposed = 0
+
+    def snapshot_service(self, url):
+        from types import SimpleNamespace
+
+        from assetops_backend.structure_snapshot import codec
+
+        env = self
+
+        def get(tenant_id, ids):
+            if env.snapshot_error:
+                raise env.snapshot_error
+            assert str(tenant_id) == TID
+            codes = {v: k for k, v in SITE_IDS.items()}
+            rows = []
+            for i in ids:
+                text = json.dumps(env.payloads[codes[str(i)]])
+                rows.append(SimpleNamespace(payload=text, payload_sha256=codec.digest(text)))
+            return tuple(rows)
+
+        def dispose():
+            env.disposed += 1
+
+        return SimpleNamespace(store=SimpleNamespace(get=get), dispose=dispose)
 
     def main(self, *argv, capsys=None, prefix="assetops_ds4tfake"):
         common = ["--state", str(self.state), "--prefix", prefix]
@@ -178,6 +219,23 @@ class Env:
 
     def manifests(self):
         return {p.stem: json.loads(p.read_text()) for p in (self.state / "manifests").glob("*.json")}
+
+
+def hand_payload(code, over=None):
+    """A Site payload that meets the contract exactly, from `derived-values.json` read with `json`."""
+    derived = json.loads(DERIVED.read_text())
+    name = {"KISIWA-001": "Kisiwa", "KOBO-001": "Kobo", "MTO-001": "Mto"}[code]
+    exp = derived["sites"][f"lakeside-power/{name}"]
+    sides = {}
+    for side in ("actual", "plan"):
+        out = {}
+        for f, x in exp[side]["nodes"].items():
+            if world.site_class(code, side, f) == "E":
+                out[f] = {"value": str(x), "missing": None, "missing_leaves": []}
+            else:
+                out[f] = {"value": None, "missing": {"record_kind": "REC"}, "missing_leaves": []}
+        sides[side] = out
+    return {"site_code": code, "actual": sides["actual"], "targets": {"values": sides["plan"]}}
 
 
 @pytest.fixture
@@ -411,7 +469,7 @@ def test_t5_cold_build_then_reuse(env, capsys):
             assert f in m
         assert m["telemetry"] == {"source": "none", "reason": "DS2_NOT_BUILT"}
     assert l1["tenants"] == {"lakeside-power": TID} and l1["key_dir"] == str(env.keys / names["L1"])
-    assert l2["snapshots"] == {"lakeside-power:2026-10": {"portfolio_snapshot_id": "p-1", "sites": {"KOBO-001": "s-1"}}}
+    assert l2["snapshots"] == {"lakeside-power:2026-10": {"portfolio_snapshot_id": PORTFOLIO, "sites": SITE_IDS}}
     assert l2["check"] is None and l1["parent"] == names["L0"] and l2["parent"] == names["L1"]
     assert l1["census"] == {"site": 3, "tenant": 1}
     # freeze before the manifest: every frozen database has its manifest, and the order in the log is ALTER then nothing
@@ -559,6 +617,234 @@ def test_t6_list_reports_manifests(env, capsys):
     assert sorted(x["rung"] for x in lines) == ["L0", "L1", "L2"] and all(x["exists"] for x in lines)
 
 
+def _checked(env, capsys):
+    """A build, then a check that passes on hand payloads; returns the rung names."""
+    assert env.build() == 0
+    names = {x["rung"]: x["database"] for x in _lines(capsys)[0]}
+    assert env.main("check") == 0, capsys.readouterr()
+    capsys.readouterr()
+    return names
+
+
+def test_t6_staleness_of_a_passed_check(env, capsys):
+    names = _checked(env, capsys)
+    assert env.manifests()[names["L2"]]["check"]["passed"] is True
+    assert env.main("clone", "--label", "same") == 0
+    (line,), _ = _lines(capsys)
+    assert (line["check_passed"], line["check_stale"]) == (True, None)
+    env.git.ids["Docs/demo-sprint/product-direction-layer4/derived-values.json"] = "new-blob"
+    assert env.main("clone", "--label", "dv") == 0
+    (line,), _ = _lines(capsys)
+    assert (line["check_passed"], line["check_stale"]) == (None, "derived_values")
+    m = env.manifests()["assetops_ds4tfake_audit_c_dv"]
+    assert (m["check_passed"], m["check_stale"]) == (None, "derived_values")
+    del env.git.ids["Docs/demo-sprint/product-direction-layer4/derived-values.json"]
+    env.git.ids["backend/tests/pg_harness.py"] = "new-blob"
+    assert env.main("clone", "--label", "code") == 0
+    (line,), _ = _lines(capsys)
+    assert (line["check_passed"], line["check_stale"]) == (None, "code.backend/tests/pg_harness.py")
+    del env.git.ids["backend/tests/pg_harness.py"]
+    # tools/world.py is also a key part: `clone` refuses the template as stale, and `list` names the check part.
+    env.git.ids["tools/world.py"] = "new-blob"
+    assert env.main("list") == 0
+    lines, _ = _lines(capsys)
+    l2 = next(x for x in lines if x["rung"] == "L2")
+    assert (l2["check_passed"], l2["check_stale"]) == (None, "code.tools/world.py")
+    assert all((x["check_passed"], x["check_stale"]) == (None, "code.tools/world.py")
+               for x in lines if x["rung"] == "CLONE")
+    del env.git.ids["tools/world.py"]
+    assert env.main("list") == 0
+    lines, _ = _lines(capsys)
+    assert all((x["check_passed"], x["check_stale"]) == (True, None) for x in lines if x["rung"] in ("L2", "CLONE"))
+
+
+# --- T9 check ----------------------------------------------------------------------------------------------------------
+
+def _check(env, capsys):
+    code = env.main("check")
+    lines, err = _lines(capsys)
+    return code, {x["check"]: x for x in lines}, err
+
+
+def test_t9_all_checks_pass_and_the_clone_is_dropped(env, capsys):
+    assert env.build() == 0
+    names = {x["rung"]: x["database"] for x in _lines(capsys)[0]}
+    env.log.clear()
+    code, by, _ = _check(env, capsys)
+    assert code == 0 and sorted(by) == [f"C{n}" for n in range(1, 8)]
+    assert all(x["state"] == "PASS" for x in by.values()), by
+    assert by["C6"]["detail"] == "0 batches (telemetry none)"
+    assert by["C4"]["detail"]["fails"] == [] and len(by["C4"]["detail"]["sites"]) == 6
+    clone = "assetops_ds4tfake_audit_c_check"
+    ddl = [w for k, w in env.log if k == "admin" and w[:4] in ("CREA", "DROP")]
+    assert ddl[0] == f'CREATE DATABASE "{clone}" TEMPLATE "{names["L2"]}" STRATEGY FILE_COPY'
+    assert f'DROP DATABASE "{clone}"' in ddl and clone not in env.admin.dbs
+    block = env.manifests()[names["L2"]]["check"]
+    assert block["passed"] is True and len(block["checks"]) == 7
+    assert set(block["check_inputs"]["code"]) == set(world.CHECK_CODE) and env.disposed == 1
+
+
+def test_t9_c1_c2_c3_fail_naming_what_differs(env, capsys):
+    assert env.build() == 0
+    names = {x["rung"]: x["database"] for x in _lines(capsys)[0]}
+    l1 = env.manifests()[names["L1"]]
+    l1["inputs"]["lakeside-power/commercial/lakeside-power.billing.csv"] = "0" * 64
+    (env.state / "manifests" / f"{names['L1']}.json").write_text(world.canonical(l1))
+    l2 = env.manifests()[names["L2"]]
+    l2["census"]["site"] = 4
+    (env.state / "manifests" / f"{names['L2']}.json").write_text(world.canonical(l2))
+    env.runner.verify_exit = 4
+    code, by, _ = _check(env, capsys)
+    assert code == 4
+    assert by["C1"]["state"] == "FAIL" and "lakeside-power/commercial/lakeside-power.billing.csv" in by["C1"]["detail"]
+    assert by["C2"]["state"] == "FAIL" and by["C2"]["detail"] == "site 4 != 3"
+    assert by["C3"]["state"] == "FAIL" and "exit=4" in by["C3"]["detail"]
+    assert env.manifests()[names["L2"]]["check"]["passed"] is False
+    assert env.main("clone", "--label", "after") == 0
+    (line,), _ = _lines(capsys)
+    assert line["check_passed"] is False
+
+
+def _oracle(payloads):
+    d = world.read_definition(DEFINITION)
+    derived = json.loads(DERIVED.read_text())
+    return world.c4_oracle([("lakeside-power", p) for p in payloads], d, derived)
+
+
+def _fail_lines(result):
+    return [f["line"] for f in result["detail"]["fails"]]
+
+
+def test_t9_oracle_on_hand_payloads():
+    good = [hand_payload(c) for c in SITE_IDS]
+    assert _oracle(good)["state"] == "PASS"
+    # a plan-side E mismatch
+    p = hand_payload("KOBO-001")
+    p["targets"]["values"]["revenue"]["value"] = "1.00"
+    assert _fail_lines(_oracle([p])) == ["lakeside-power/KOBO-001 plan.revenue class=E product=1.00 expected=3420.0"]
+    # None on an E factor whose expected value is 0.0: never equal
+    p = hand_payload("KOBO-001")
+    p["actual"]["extra_l"] = {"value": None, "missing": {"record_kind": "X"}, "missing_leaves": []}
+    assert _fail_lines(_oracle([p])) == ["lakeside-power/KOBO-001 actual.extra_l class=E product=None expected=0.0"]
+    # a B factor carrying a value, and a B factor blank without its record
+    p = hand_payload("KOBO-001")
+    p["actual"]["adjustments_kwh"] = {"value": "0", "missing": None, "missing_leaves": []}
+    p["actual"]["delivered_kwh"] = {"value": None, "missing": None, "missing_leaves": []}
+    assert _fail_lines(_oracle([p])) == [
+        "lakeside-power/KOBO-001 actual.adjustments_kwh class=B product=0 expected=45.0",
+        "lakeside-power/KOBO-001 actual.delivered_kwh class=B product=None expected=" +
+        str(json.loads(DERIVED.read_text())["sites"]["lakeside-power/Kobo"]["actual"]["nodes"]["delivered_kwh"])]
+    # uncontracted and not_in_product
+    p = hand_payload("KOBO-001")
+    p["actual"]["new_factor"] = {"value": "1", "missing": None, "missing_leaves": []}
+    del p["targets"]["values"]["staff"]
+    lines = _fail_lines(_oracle([p]))
+    assert any(x.startswith("lakeside-power/KOBO-001 actual.new_factor class=uncontracted") for x in lines)
+    assert any(x.startswith("lakeside-power/KOBO-001 plan.staff class=not_in_product") for x in lines)
+    # all blank: every E factor fails
+    p = hand_payload("KOBO-001")
+    for side in (p["actual"], p["targets"]["values"]):
+        for f in side:
+            side[f] = {"value": None, "missing": {"record_kind": "X"}, "missing_leaves": []}
+    assert len(_fail_lines(_oracle([p]))) == 18 + 36
+    # Kisiwa's three actual cells are judged by C4_SITE_CLASSES; Kobo's om blank fails
+    p = hand_payload("KOBO-001")
+    p["actual"]["om"] = {"value": None, "missing": {"record_kind": "EXPENSE"}, "missing_leaves": []}
+    assert _fail_lines(_oracle([p]))[0].startswith("lakeside-power/KOBO-001 actual.om class=E product=None")
+    p = hand_payload("KISIWA-001")
+    assert p["actual"]["om"]["value"] is None and _oracle([p])["state"] == "PASS"
+
+
+def test_t9_known_findings_are_marked_and_still_fail():
+    p = hand_payload("MTO-001")
+    p["targets"]["values"]["tariff"] = {"value": None, "missing": {"record_kind": "BUDGET_LINE"}, "missing_leaves": []}
+    p["actual"]["staff"]["value"] = "1"
+    r = _oracle([p])
+    assert r["state"] == "FAIL"
+    marks = {f["line"].split(" class=")[0]: f["mark"] for f in r["detail"]["fails"]}
+    assert marks == {"lakeside-power/MTO-001 plan.tariff": "known D-DS4.27", "lakeside-power/MTO-001 actual.staff": "new"}
+
+
+def test_t9_c4_and_raising_checks_through_the_command(env, capsys):
+    assert env.build() == 0
+    capsys.readouterr()
+    env.payloads["KOBO-001"]["targets"]["values"]["om"]["value"] = "1"
+    env.snapshot_error = None
+    code, by, _ = _check(env, capsys)
+    assert code == 4 and by["C4"]["state"] == "FAIL"
+    assert [f["mark"] for f in by["C4"]["detail"]["fails"]] == ["new"]
+    env.snapshot_error = RuntimeError("store down")
+    code, by, _ = _check(env, capsys)
+    assert code == 4 and by["C4"]["state"] == "FAIL" and "store down" in by["C4"]["detail"]
+    assert "assetops_ds4tfake_audit_c_check" not in env.admin.dbs
+    env.runner.timeout_on = "verify"
+    assert env.main("check") == 5
+    assert "assetops_ds4tfake_audit_c_check" not in env.admin.dbs
+    assert capsys.readouterr().err.startswith("WORLD_CAP_EXCEEDED")
+
+
+def test_t9_c5_runs_under_its_own_base(env, capsys):
+    env.environ.update({"ASSETOPS_TEST_DATABASE_URL": "postgresql+psycopg://a:b@127.0.0.1:55432/assetops_test",
+                        "ASSETOPS_HEAVY_SLOT": "1", "ASSETOPS_HEAVY_DB": "1"})
+    assert env.build() == 0
+    capsys.readouterr()
+    seen = {}
+
+    def hook(e):
+        seen.update(e)
+        stem = e["ASSETOPS_TEST_DATABASE_URL"].rsplit("/", 1)[1][: -len("_test")]
+        env.admin.dbs.add(f"{stem}_pt0a1b_tpl_test")   # a harness clone left behind
+
+    env.runner.harness_hook = hook
+    env.log.clear()
+    code, by, _ = _check(env, capsys)
+    assert code == 0 and by["C5"]["state"] == "PASS"
+    base = seen["ASSETOPS_TEST_DATABASE_URL"].rsplit("/", 1)[1]
+    assert re.fullmatch(r"assetops_wc5_pt[0-9a-f]{8}_base_test", base)
+    assert not {"DATABASE_URL", "ASSETOPS_TENANT_SLUG", "ASSETOPS_PSEUDONYM_KEY_DIR"} & set(seen)
+    assert seen["ASSETOPS_HEAVY_SLOT"] == "1" and seen["ASSETOPS_HEAVY_DB"] == "1"
+    steps = [w for _, w in env.log]
+    i_create = steps.index(f'CREATE DATABASE "{base}"')
+    i_run = steps.index("harness")
+    i_drop = steps.index(f'DROP DATABASE "{base}"')
+    assert i_create < i_run < i_drop
+    assert f'DROP DATABASE "{base[: -len("_test")]}_pt0a1b_tpl_test"' in steps
+    assert not any("assetops_test" in w and "_base_test" not in w and "pt0a1b" not in w for w in steps)
+    assert not any(w.endswith("[assetops_test]") or '"assetops_test"' in w for w in steps)
+    env.runner.harness_exit = 1
+    code, by, _ = _check(env, capsys)
+    assert code == 4 and by["C5"]["state"] == "FAIL"
+    env.runner.harness_exit = 0
+    env.deps.which = lambda name, path=None: None
+    env.log.clear()
+    code, by, _ = _check(env, capsys)
+    assert code == 4 and by["C5"]["state"] == "FAIL" and "pwsh not found" in by["C5"]["detail"]
+    assert "harness" not in [w for _, w in env.log]
+
+
+def test_t9b_contract_against_derived_values_and_manifest():
+    derived = json.loads(DERIVED.read_text())
+    for side, (e, b) in (("actual", (18, 29)), ("plan", (36, 11))):
+        keys = set(derived["sites"]["lakeside-power/Kobo"][side]["nodes"])
+        assert set(world.C4_CONTRACT[side]) == keys and len(keys) == 47
+        classes = list(world.C4_CONTRACT[side].values())
+        assert (classes.count("E"), classes.count("B")) == (e, b), side
+    assert world.C4_CONTRACT["actual"]["adjustments_kwh"] == "B"
+    assert world.C4_SITE_CLASSES == {"KISIWA-001": {"actual": {"om": "B", "cost_to_serve": "B", "contribution": "B"}}}
+    manifest = yaml.safe_load(MANIFEST.read_text())
+    assert manifest["accounting_period"] == "2026-10"   # each Site's `period` block is October
+    (lake,) = [t for t in manifest["tenants"] if t["tenant"] == "lakeside-power"]
+    assert lake["vertical"] == "MINI_GRID"
+    estimated = {(site["code"], f) for site in lake["sites"]
+                 for f, c in site["period"]["coverage"].items() if c == "ESTIMATED"}
+    assert estimated == {("KISIWA-001", "om")}
+    for code, (e, b) in (("KISIWA-001", (15, 32)), ("KOBO-001", (18, 29)), ("MTO-001", (18, 29))):
+        cls = [world.site_class(code, "actual", f) for f in world.C4_CONTRACT["actual"]]
+        assert (cls.count("E"), cls.count("B")) == (e, b), code
+        cls = [world.site_class(code, "plan", f) for f in world.C4_CONTRACT["plan"]]
+        assert (cls.count("E"), cls.count("B")) == (36, 11), code
+
+
 # --- T7 slot -----------------------------------------------------------------------------------------------------------
 
 @pytest.mark.parametrize("argv", [["build", "--key-root", "/nonexistent"], ["clone", "--label", "t1"],
@@ -583,6 +869,7 @@ def test_t7_list_does_not_require(env):
 # --- T11 seams ---------------------------------------------------------------------------------------------------------
 
 SQL_SHAPES = [
+    r"SELECT timezone FROM site WHERE id = '\{site\}'",
     r'CREATE DATABASE "\{[a-z_]+\}"( TEMPLATE "\{[a-z_]+\}" STRATEGY FILE_COPY)?',
     r'ALTER DATABASE "\{[^}]+\}" WITH ALLOW_CONNECTIONS false',
     r'DROP DATABASE "\{[^}]+\}"',

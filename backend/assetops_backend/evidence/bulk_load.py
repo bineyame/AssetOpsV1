@@ -21,6 +21,7 @@ from datetime import datetime
 from typing import Callable, Sequence
 from uuid import UUID
 
+from assetops_backend.chain.events import S3_BRACKET, local_days
 from assetops_backend.database_target import DatabaseTargetUnclear, database_target, is_operator_name
 from assetops_backend.evidence.ledger import (
     BULK_REFUSALS,
@@ -34,7 +35,8 @@ from assetops_backend.evidence.ledger_service import BatchIngestionService, Batc
 from assetops_contracts.ingestion_batch_v2 import MAX_BATCH_BYTES, BatchRejected, parse_canonical_batch_v2_text
 
 BULK_LOAD_REFUSALS = frozenset({"BULK_NOT_SIMULATED", "BULK_UNKNOWN_GATEWAY", "BULK_REJECTED_ORDINAL",
-                                "BULK_DATABASE_NOT_PERMITTED"}) | BULK_REFUSALS
+                                "BULK_DATABASE_NOT_PERMITTED", "BULK_BATCH_GAP_DAYS",
+                                "BULK_BATCH_TIME_UNREADABLE"}) | BULK_REFUSALS
 #: The container `assetopsv1-postgres-1` publishes on this port (`docker-compose.yml`); D-DS3.12.
 DEFAULT_PG_PORT = "55432"
 _LOCAL_HOSTS = frozenset({"127.0.0.1", "localhost"})
@@ -43,6 +45,58 @@ _AUDIT_NAME = re.compile(r"[a-z0-9_]+_audit[a-z0-9_]*")
 _CLONE_NAME = re.compile(r"[a-z0-9_]+_pt[0-9a-f]+_[a-z0-9]+_test")
 #: Tripwire over the allow: the walkthrough and serve databases are refused even if the allow is ever widened.
 _DENIED_NAME = re.compile(r"walk|serve")
+
+
+class BatchTimeUnreadable(ValueError):
+    """An envelope instant that is not an offset-bearing ISO string; `field` names which (D-DS4.17)."""
+
+    def __init__(self, field: str) -> None:
+        super().__init__(field)
+        self.field = field
+
+
+def _instant(value: object, field: str) -> datetime:
+    if not isinstance(value, str):
+        raise BatchTimeUnreadable(field)
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        raise BatchTimeUnreadable(field) from None
+    if parsed.tzinfo is None:
+        raise BatchTimeUnreadable(field)
+    return parsed
+
+
+def envelope_span(source_time: object, interval_start: object, interval_end: object) -> tuple[datetime, datetime]:
+    """The envelope's `[COALESCE(interval_start, source_time), COALESCE(interval_end, source_time)]`, as the outbox's
+    `reading.accepted` producer reads it (`0044_chain_events.py`; D-DS4.17)."""
+    start = (_instant(interval_start, "interval_start") if interval_start is not None
+             else _instant(source_time, "source_time"))
+    end = (_instant(interval_end, "interval_end") if interval_end is not None
+           else _instant(source_time, "source_time"))
+    return start, end
+
+
+def _days_local(timezone: str) -> Callable[[datetime, datetime], list]:
+    return lambda a, b: local_days(a, b, timezone)
+
+
+def _days_utc(a: datetime, b: datetime) -> list:
+    return local_days(a - S3_BRACKET, max(b, a) + S3_BRACKET, "UTC")
+
+
+def cover_gap(spans: Sequence[tuple[datetime, datetime]], timezone: str) -> str | None:
+    """The first grain (`local`, then `utc`) where the envelopes' resolved days differ from the cover's days, using
+    `chain.events`'s own day functions; `None` when both agree (D-DS4.17)."""
+    if not spans:
+        return None
+    lo, hi = min(s for s, _ in spans), max(e for _, e in spans)
+    for grain, days in (("local", _days_local(timezone)), ("utc", _days_utc)):
+        union = set().union(*(days(s, e) for s, e in spans))
+        cover = set(days(lo, hi))
+        if union != cover:
+            return f"{grain} cover {min(cover)}..{max(cover)} differs at {min(union ^ cover)}"
+    return None
 
 
 class BulkLoadRefused(Exception):
@@ -129,6 +183,19 @@ class BulkEvidenceLoad:
             raise BulkLoadRefused("BULK_REJECTED_ORDINAL", batch.batch_id,
                                   f"ordinal {rejected.ordinal} {rejected.kind}: {rejected.detail}")
         accepted: list[Accepted] = decisions  # type: ignore[assignment]
+        # 7a. The cover the statement event carries resolves the same days as the envelopes (D-DS4.17).
+        timezone = self.ledger.site_timezone(site_id)
+        spans = []
+        for a in accepted:
+            try:
+                spans.append(envelope_span(a.envelope.source_time, a.envelope.interval_start,
+                                           a.envelope.interval_end))
+            except BatchTimeUnreadable as error:
+                raise BulkLoadRefused("BULK_BATCH_TIME_UNREADABLE", batch.batch_id,
+                                      f"ordinal {a.ordinal} {error.field}") from None
+        gap = cover_gap(spans, timezone)
+        if gap is not None:
+            raise BulkLoadRefused("BULK_BATCH_GAP_DAYS", batch.batch_id, gap)
         # 8. One transaction, one set-based statement per table.
         try:
             admitted = self.ledger.bulk_admit(

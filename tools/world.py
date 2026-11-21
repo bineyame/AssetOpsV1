@@ -433,6 +433,7 @@ class World:
         self.definition: Definition | None = None
         self.definition_rel = args.definition
         self.out: list[str] = []
+        self.ladder_inputs: tuple[str, Path, dict] | None = None
 
     # output
     def emit(self, obj: Mapping[str, Any]) -> None:
@@ -603,7 +604,7 @@ class World:
         return [p0, p1, p2], [k0, k1, key(p2)], inputs
 
     def current_l2(self) -> tuple[str, dict]:
-        parts, keys, _ = self.ladder_parts()
+        parts, keys, self.ladder_inputs = self.ladder_parts()
         name = check_name(name_for(self.prefix, "L2", keys[2][:12]), self.environ)
         m = self.read_manifest(name)
         if m is not None and m.get("key") == keys[2] and self.exists(name):
@@ -832,10 +833,294 @@ def cmd_drop(world: World) -> int:
     return 0
 
 
-# --- check (§3.6) and bench (§4): unit 2 and unit 3 -----------------------------------------------------------------
+# --- check (§3.6; D-DS4.8, D-DS4.16, D-DS4.20, D-DS4.21, D-DS4.26) -------------------------------------------------
+
+# §2.1 as a literal: the classes of the 47 mini-grid factors per side, as they hold at Kobo and Mto (D-DS4.16).
+C4_CONTRACT = {
+    "actual": {
+        "metered_kwh": "B", "billed_kwh": "E", "revenue": "E", "collected": "E", "diesel_l": "B", "fuel_cost": "E",
+        "battery_wear": "E", "cost_to_serve": "E", "contribution": "E", "obligation_hours_without_redundancy": "B",
+        "shortfall_backed": "B", "obligation_hours_without_backup": "B", "replayed_dawn_days_below_safeguard": "B",
+        "asset_days_out_of_service": "B", "asset_days_total": "B", "asset_days_available": "B", "delivered_kwh": "B",
+        "technical_loss_kwh": "B", "unexplained_loss_kwh": "B", "adjustments_kwh": "B", "unmapped_kwh": "B",
+        "tariff": "E", "productive_kwh": "E", "productive_tariff": "B", "in_transit": "E", "outstanding": "E",
+        "necessary_l": "B", "candidate_l": "B", "unexplained_l": "B", "extra_l": "E", "diesel_price": "E",
+        "battery_throughput_kwh": "E", "wear_rate": "B", "om": "E", "staff": "E", "collection_cost": "E",
+        "reduced_days": "B", "hours_per_day": "B", "major_assets": "B", "unserved_critical_kwh": "B",
+        "customer_hours_interrupted": "B", "field_visits": "B", "liability": "B", "period_days": "E",
+        "standby_kw": "B", "lost_unit_kw": "B", "dawn_days_below": "B"},
+    "plan": {
+        "metered_kwh": "E", "billed_kwh": "E", "revenue": "E", "collected": "E", "diesel_l": "E", "fuel_cost": "E",
+        "battery_wear": "E", "cost_to_serve": "E", "contribution": "E", "obligation_hours_without_redundancy": "B",
+        "shortfall_backed": "B", "obligation_hours_without_backup": "B", "replayed_dawn_days_below_safeguard": "E",
+        "asset_days_out_of_service": "E", "asset_days_total": "B", "asset_days_available": "B", "delivered_kwh": "E",
+        "technical_loss_kwh": "E", "unexplained_loss_kwh": "E", "adjustments_kwh": "E", "unmapped_kwh": "E",
+        "tariff": "E", "productive_kwh": "E", "productive_tariff": "B", "in_transit": "E", "outstanding": "E",
+        "necessary_l": "E", "candidate_l": "E", "unexplained_l": "E", "extra_l": "E", "diesel_price": "E",
+        "battery_throughput_kwh": "E", "wear_rate": "B", "om": "E", "staff": "E", "collection_cost": "E",
+        "reduced_days": "E", "hours_per_day": "B", "major_assets": "B", "unserved_critical_kwh": "E",
+        "customer_hours_interrupted": "E", "field_visits": "E", "liability": "E", "period_days": "E",
+        "standby_kw": "B", "lost_unit_kw": "B", "dawn_days_below": "E"},
+}
+# Kisiwa's October O&M invoice was not received: three actual cells are blank there (D-DS4.26).
+C4_SITE_CLASSES = {"KISIWA-001": {"actual": {"om": "B", "cost_to_serve": "B", "contribution": "B"}}}
+# Filled only by the Architect (D-DS4.16). D-DS4.27: until 5a fix F1 merges; then emptied.
+C4_KNOWN_FINDINGS = (
+    "lakeside-power/KISIWA-001 plan.tariff D-DS4.27", "lakeside-power/KISIWA-001 plan.diesel_price D-DS4.27",
+    "lakeside-power/KISIWA-001 plan.necessary_l D-DS4.27", "lakeside-power/KISIWA-001 plan.diesel_l D-DS4.27",
+    "lakeside-power/KOBO-001 plan.tariff D-DS4.27", "lakeside-power/KOBO-001 plan.diesel_price D-DS4.27",
+    "lakeside-power/KOBO-001 plan.necessary_l D-DS4.27", "lakeside-power/KOBO-001 plan.diesel_l D-DS4.27",
+    "lakeside-power/MTO-001 plan.tariff D-DS4.27", "lakeside-power/MTO-001 plan.diesel_price D-DS4.27",
+    "lakeside-power/MTO-001 plan.necessary_l D-DS4.27", "lakeside-power/MTO-001 plan.diesel_l D-DS4.27",
+)
+CHECK_CLONE_LABEL = "check"
+SITE_TIMEZONE = "SELECT timezone FROM site WHERE id = '{site}'"
+
+
+def site_class(code: str, side: str, factor: str) -> str | None:
+    """A Site's class for a factor on a side: its override when present, else the contract's (D-DS4.26)."""
+    override = C4_SITE_CLASSES.get(code, {}).get(side, {})
+    return override[factor] if factor in override else C4_CONTRACT[side].get(factor)
+
+
+def _equal(v: Any, x: Any) -> bool:
+    if v is None or x is None or isinstance(x, bool):
+        return False  # unknown is never equal to anything, zero included
+    try:
+        return Decimal(str(v)) == Decimal(repr(x))
+    except (ArithmeticError, ValueError):
+        return False
+
+
+def judge_side(slug: str, code: str, side: str, product: Mapping[str, Any], expected: Mapping[str, Any]) -> dict:
+    """C4 on one Site and side: every factor of the union of the payload's and the contract's keys is judged."""
+    contract = C4_CONTRACT[side]
+    counts, fails, blanks = {"E": 0, "B": 0}, [], []
+    for f in sorted(set(product) | set(contract)):
+        where = f"{slug}/{code} {side}.{f}"
+        entry = product.get(f)
+        v = entry.get("value") if isinstance(entry, Mapping) else None
+        if f not in contract:
+            fails.append(f"{where} class=uncontracted product={v} expected={expected.get(f)}")
+            continue
+        c = site_class(code, side, f)
+        counts[c] += 1
+        if not isinstance(entry, Mapping):
+            fails.append(f"{where} class=not_in_product product=None expected={expected.get(f)}")
+            continue
+        x = expected.get(f)
+        missing, leaves = entry.get("missing"), list(entry.get("missing_leaves") or ())
+        blank = v is None and bool(missing or leaves)
+        if blank:  # the honesty list: every blank cell with the record it names, whatever its class
+            record = missing.get("record_kind") if isinstance(missing, Mapping) else None
+            blanks.append(f"{where} {record if record else 'leaves=' + ','.join(leaves)}")
+        if c == "E" and not _equal(v, x):
+            fails.append(f"{where} class=E product={v} expected={x}")
+        elif c == "B" and not blank:
+            fails.append(f"{where} class=B product={v} expected={x}")
+    return {"site": f"{slug}/{code}", "side": side, "E": counts["E"], "B": counts["B"], "fails": fails,
+            "blanks": blanks}
+
+
+def c4_oracle(rows: Sequence[tuple[str, Mapping[str, Any]]], definition: Definition, derived: Mapping[str, Any]) -> dict:
+    """C4 over `(slug, payload)` Site rows: PASS only when no factor FAILs; a known finding is still a FAIL."""
+    names = {t.slug: t.sites for t in definition.tenants}
+    known = {" ".join(k.split(" ")[:2]): k.split(" ")[2] for k in C4_KNOWN_FINDINGS}
+    sides, fails, blanks = [], [], []
+    for slug, payload in sorted(rows, key=lambda r: (r[0], r[1].get("site_code", ""))):
+        code = payload["site_code"]
+        expected = derived["sites"][f"{slug}/{names[slug][code]}"]
+        for side, product, exp in (("actual", payload.get("actual") or {}, expected["actual"]["nodes"]),
+                                   ("plan", (payload.get("targets") or {}).get("values") or {},
+                                    expected["plan"]["nodes"])):
+            j = judge_side(slug, code, side, product, exp)
+            sides.append({k: j[k] for k in ("site", "side", "E", "B")})
+            for line in j["fails"]:
+                head = " ".join(line.split(" ")[:2])
+                fails.append({"line": line, "mark": f"known {known[head]}" if head in known else "new"})
+            blanks += j["blanks"]
+    return {"state": "FAIL" if fails or not rows else "PASS",
+            "detail": {"sites": sides, "fails": fails, "blanks": blanks}}
+
+
+def harness_run(world: World, which: str, test: str, extra_env: Mapping[str, str],
+                args: Sequence[str] = ()) -> tuple[int, str]:
+    """C5 and B5 (D-DS4.20): DS3's tests under a base of their own, never the parent's test database."""
+    env = world.env(None)
+    pwsh = world.deps.which("pwsh", path=env.get("PATH"))
+    if pwsh is None:
+        return 127, "pwsh not found"
+    base = check_name(harness_base_name(which), world.environ)
+    stem = base[: -len("_test")]
+    env["ASSETOPS_TEST_DATABASE_URL"] = rung_url(base, world.environ)
+    for k in ("ASSETOPS_TEST_PYTHON", "ASSETOPS_HEAVY_SLOT", "ASSETOPS_HEAVY_DB"):
+        if k in world.environ:
+            env[k] = world.environ[k]
+    env.update(extra_env)
+    world.create(base)
+    code, out, leftovers = 1, "", []
+    try:
+        try:
+            done = world.deps.runner([pwsh, "-NoProfile", "-File", "tools/run-host-tests.ps1", "--", test, *args],
+                                     str(REPO), env, world.left(f"harness:{test}"))
+        except subprocess.TimeoutExpired:
+            raise CapExceeded(f"harness:{test}") from None
+        code, out = done.returncode, done.stdout or ""
+    finally:
+        pattern = re.compile(rf"^{re.escape(stem)}_pt[0-9a-f]+_[a-z0-9]+_test$")
+        for (name,) in world.admin("SELECT datname FROM pg_database"):
+            if pattern.match(name):
+                if world.wait_idle(name):
+                    world.drop_db(name)
+                else:
+                    leftovers.append(name)
+        if world.wait_idle(base):
+            world.drop_db(base)
+        else:
+            leftovers.append(base)
+    if leftovers:
+        return (code or 1), f"{out.strip().splitlines()[-1] if out.strip() else ''} in use: {' '.join(leftovers)}"
+    return code, out
+
+
+def _line(check: str, ok: bool, detail: Any) -> dict:
+    return {"check": check, "state": "PASS" if ok else "FAIL", "detail": detail}
+
+
+def _c1(world: World, l1: Mapping[str, Any]) -> dict:
+    files = world.ladder_inputs[2] if world.ladder_inputs else world.inputs()[2]
+    recorded = l1.get("inputs") or {}
+    diff = [f"differs {p}" for p in sorted(set(files) & set(recorded)) if files[p] != recorded[p]]
+    diff += [f"missing {p}" for p in sorted(set(recorded) - set(files))]
+    diff += [f"extra {p}" for p in sorted(set(files) - set(recorded))]
+    return _line("C1", not diff, "; ".join(diff) or f"{len(files)} files")
+
+
+def _c2(world: World, clone: str, l2: Mapping[str, Any]) -> dict:
+    census, _ = world.census(clone)
+    recorded = l2.get("census") or {}
+    diff = [f"{t} {recorded.get(t)} != {census.get(t)}" for t in sorted(set(census) | set(recorded))
+            if census.get(t) != recorded.get(t)]
+    return _line("C2", not diff, "; ".join(diff) or f"{len(census)} tables")
+
+
+def _c3(world: World, clone: str, l2: Mapping[str, Any]) -> dict:
+    bad = []
+    for key_, snap in sorted((l2.get("snapshots") or {}).items()):
+        slug = key_.split(":")[0]
+        rc, last, rec = world.run_step(clone, f"check.verify:{key_}",
+                                       ["-m", "assetops_backend.build_structure_snapshot", "verify", "--tenant", slug,
+                                        "--snapshot", str(snap.get("portfolio_snapshot_id"))],
+                                       world.env(clone, slug, l2.get("key_dir")), fail=False)
+        out = rec["out"] if isinstance(rec["out"], dict) else {}
+        if rc != 0 or out.get("matches") is not True:
+            bad.append(f"{key_} exit={rc} differences={out.get('differences')}")
+    return _line("C3", not bad, "; ".join(bad) or f"{len(l2.get('snapshots') or {})} snapshots match")
+
+
+def _c4(world: World, clone: str, l2: Mapping[str, Any]) -> dict:
+    from uuid import UUID
+
+    derived = json.loads((REPO / world.definition.derived_values).read_text())
+    url = rung_url(clone, world.environ)
+    if world.deps.snapshots is not None:
+        service = world.deps.snapshots(url)
+    else:
+        from assetops_backend.structure_snapshot.composition import build_structure_snapshot
+
+        service = build_structure_snapshot(url)
+    from assetops_backend.structure_snapshot import codec
+
+    rows: list = []
+    try:
+        for key_, snap in sorted((l2.get("snapshots") or {}).items()):
+            slug = key_.split(":")[0]
+            tid = UUID((l2.get("tenants") or {})[slug])
+            ids = [UUID(x) for _, x in sorted((snap.get("sites") or {}).items())]
+            rows += [(slug, codec.payload_of(r)) for r in service.store.get(tid, ids)]
+    finally:
+        service.dispose()
+    result = c4_oracle(rows, world.definition, derived)
+    return _line("C4", result["state"] == "PASS", result["detail"])
+
+
+def _c5(world: World) -> dict:
+    code, out = harness_run(world, "c5", "backend/tests/test_ds3_parity_postgres.py", {})
+    tail = out.strip().splitlines()[-1] if out.strip() else ""
+    return _line("C5", code == 0 and " in use: " not in out, f"exit {code} {tail}".strip())
+
+
+def _c6(world: World, clone: str, l1: Mapping[str, Any]) -> dict:
+    from uuid import UUID
+
+    from assetops_backend.evidence.bulk_load import BatchTimeUnreadable, cover_gap, envelope_span
+    from assetops_contracts.ingestion_batch_v2 import parse_canonical_batch_v2_text
+    from assetops_contracts.source_envelope_v4 import parse_canonical_source_envelope_text
+
+    files = sorted(Path(l1.get("inputs_dir") or "/nonexistent").rglob("*.batch.json"))
+    if not files:
+        return _line("C6", True, "0 batches (telemetry none)")
+    url, bad = rung_url(clone, world.environ), []
+    for f in files:
+        batch = parse_canonical_batch_v2_text(f.read_text(encoding="utf-8"))
+        ((tz,),) = world.deps.query(url, [SITE_TIMEZONE.format(site=UUID(batch.site_id))])[0]
+        try:
+            spans = []
+            for e in batch.envelopes:
+                env = parse_canonical_source_envelope_text(e)
+                spans.append(envelope_span(env.source_time, env.interval_start, env.interval_end))
+            gap = cover_gap(spans, tz)
+        except BatchTimeUnreadable as u:
+            gap = f"time unreadable {u.field}"
+        if gap is not None:
+            bad.append(f"{f.name} {gap}")
+    return _line("C6", not bad, "; ".join(bad) or f"{len(files)} batches")
+
+
+def _c7(manifests: Sequence[Mapping[str, Any]]) -> dict:
+    bad = [f"{m['database']} {s['step']} exit {s['exit']}" for m in manifests for s in m.get("steps") or []
+           if s.get("exit") != 0]
+    return _line("C7", not bad, "; ".join(bad) or f"{sum(len(m.get('steps') or []) for m in manifests)} steps")
+
+
+def _guard(name: str, fn: Callable[[], dict]) -> dict:
+    try:
+        return fn()
+    except (Refused, StepFailed, CapExceeded):
+        raise
+    except Exception as error:  # a check that raises is a FAIL; the others still run
+        return _line(name, False, f"raised {type(error).__name__}: {error}")
+
 
 def cmd_check(world: World) -> int:
-    raise Refused("WORLD_NO_TEMPLATE", "check is unit 2")
+    world.prepare()
+    l2_name, l2 = world.current_l2()
+    l1 = world.read_manifest(l2["parent"]) or {}
+    l0 = world.read_manifest(l1.get("parent", "")) or {}
+    clone = check_label(world.prefix, CHECK_CLONE_LABEL, world.environ)
+    if world.exists(clone):  # a leftover, under drop's rules: never while in use
+        if world.sessions(clone) != 0:
+            raise Refused("WORLD_DATABASE_IN_USE", clone)
+        world.drop_db(clone)
+    if world.read_manifest(clone) is not None:
+        world.manifest_path(clone).unlink()
+    world.create(clone, l2_name)
+    try:
+        lines = [_guard("C1", lambda: _c1(world, l1)), _guard("C2", lambda: _c2(world, clone, l2)),
+                 _guard("C3", lambda: _c3(world, clone, l2)), _guard("C4", lambda: _c4(world, clone, l2)),
+                 _guard("C5", lambda: _c5(world)), _guard("C6", lambda: _c6(world, clone, l1)),
+                 _guard("C7", lambda: _c7([l0, l1, l2]))]
+    finally:
+        world.wait_idle(clone)
+        world.drop_db(clone)
+    passed = all(x["state"] == "PASS" for x in lines)
+    l2 = dict(l2)
+    l2["check"] = {"at": _now_iso(world), "commit": world.git.head(), "check_inputs": world.check_inputs(),
+                   "passed": passed, "checks": lines}
+    world.write_manifest(l2_name, l2)
+    for x in lines:
+        world.emit(x)
+    return 0 if passed else 4
 
 
 COMMANDS = {"build": cmd_build, "clone": cmd_clone, "reset": cmd_reset, "list": cmd_list, "drop": cmd_drop,
