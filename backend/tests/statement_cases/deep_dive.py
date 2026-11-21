@@ -196,10 +196,13 @@ CASES = [Case("deep_dive.text", variant, text(piece), english) for variant, piec
     Case("deep_dive.cash", "not_available", {"month": OCT, "collected": Absent("NOT_AVAILABLE")},
          "Cash collected in October is not available yet.", []),
     Case("deep_dive.cash", "cash",
-         {"month": OCT, "collected": usd("9000.00"), "expected": usd("9700.00"), "outstanding": usd("500.00"),
-          "in_transit": usd("200.00")},
-         "In October, $9,000.00 was collected against $9,700.00 expected; $500.00 is still outstanding and "
-         "$200.00 is paid but in transit.", EV),
+         {"month": OCT, "collected": usd("9000.00"), "billed": usd("9700.00"), "in_transit": usd("200.00"),
+          "outstanding": usd("500.00")},
+         "Of $9,700.00 billed for October, $9,000.00 has been collected, $200.00 is paid but in transit and "
+         "$500.00 is still outstanding.", EV),
+    Case("deep_dive.cash", "collected_only", {"month": OCT, "collected": usd("9000.00")},
+         "$9,000.00 has been collected on the bills for October; the amounts billed, in transit and still "
+         "outstanding are not available for the same Sites yet.", EV),
     Case("deep_dive.fresh", "all",
          {"records": Flag(True), "closed": Flag(True), "rules": Flag(True), "at": AT, "sites": names("Kisiwa")},
          "These figures are out of date: records have arrived since they were prepared for Kisiwa; the month has "

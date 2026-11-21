@@ -298,12 +298,12 @@ def totals_label(month: str) -> str:
     return render(message("deep_dive.totals_label", month=month_of(month)))
 
 
-def cash(month: str, collected: Money | None, expected: Money | None, outstanding: Money | None,
-         in_transit: Money | None) -> str:
+def cash(month: str, collected: Money | None, parts: tuple[Money, Money, Money] | None) -> str:
+    """`parts` is (billed, in_transit, outstanding), given together or not at all (D-5C.29)."""
     facts: dict[str, Any] = {"month": month_of(month),
                              "collected": collected if collected is not None else Absent("NOT_AVAILABLE")}
-    given = {"expected": expected, "outstanding": outstanding, "in_transit": in_transit}
-    facts.update({slot: value for slot, value in given.items() if value is not None})
+    if parts is not None:
+        facts.update(billed=parts[0], in_transit=parts[1], outstanding=parts[2])
     return figure_text(message("deep_dive.cash", **facts))
 
 

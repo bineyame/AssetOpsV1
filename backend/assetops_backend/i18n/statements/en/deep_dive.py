@@ -374,16 +374,19 @@ STATEMENTS = {
         "evidence": "served",
         "slots": {"month": {"type": "month", "form": "month"},
                   "collected": {"type": "money", "absent": ["NOT_AVAILABLE"]},
-                  "expected": {"type": "money", "optional": True},
-                  "outstanding": {"type": "money", "optional": True},
-                  "in_transit": {"type": "money", "optional": True}},
+                  "billed": {"type": "money", "optional": True},
+                  "in_transit": {"type": "money", "optional": True},
+                  "outstanding": {"type": "money", "optional": True}},
         "variants": [
             {"id": "not_available", "when": {"absent": "collected"},
              "text": "Cash collected in {month} is not available yet."},
-            {"id": "cash", "requires": {"all": [{"present": "expected"}, {"present": "outstanding"},
-                                                {"present": "in_transit"}]},
-             "text": "In {month}, {collected} was collected against {expected} expected; {outstanding} is still "
-                     "outstanding and {in_transit} is paid but in transit."},
+            {"id": "cash", "when": {"all": [{"present": "billed"}, {"present": "in_transit"},
+                                                {"present": "outstanding"}]},
+             "text": "Of {billed} billed for {month}, {collected} has been collected, {in_transit} is paid but in "
+                     "transit and {outstanding} is still outstanding."},
+            {"id": "collected_only",
+             "text": "{collected} has been collected on the bills for {month}; the amounts billed, in transit and "
+                     "still outstanding are not available for the same Sites yet."},
         ],
     },
     "deep_dive.fresh_records": {
