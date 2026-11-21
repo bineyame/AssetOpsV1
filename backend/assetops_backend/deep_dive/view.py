@@ -297,7 +297,7 @@ class _View:
         if R.effect is not None and sums[T.GROW] is not None and sums[T.OPTIMIZE] is not None:
             gap_lines.append(W.tile_split(W.money(sums[T.GROW], self.group_cur(T.GROW)),
                                           W.money(sums[T.OPTIMIZE], self.group_cur(T.OPTIMIZE))))
-        if R.effect is not None:
+        if R.effect is not None and R.effect != 0:  # KD2 ruling: a gap of 0 has no rest line (nothing to offset)
             gap_lines.append(W.tile_rest(W.money(self.rest(), cur), W.money(R.effect, cur)))
         gap = {"key": T.TILE_KEYS[1], "label": W.text("GAP_TO_TARGET"), "value": W.amount(R.effect, cur, "SIGNED"),
                "word": self.figure_word(R.effect, cur, R.evidence, R.origins), "lines": gap_lines, "bar": None}

@@ -933,6 +933,22 @@ def test_bars_gap_zero_no_share() -> None:  # D-5C.28; plant `or Decimal(0)`
     assert set(v.shares()) == {"revenue", "fuel_cost"}
 
 
+def test_bars_gap_zero_whole_payload(monkeypatch) -> None:  # KD2 ruling (coordinator, 2026-11-21); plant: rest at 0
+    """R's gap exactly 0 (steps +5.00 and -5.00, O&M and staff 0): the payload renders; the gap tile has no rest line
+    (nothing to offset); no step reads "Offsets it"; no share, no bar, no scale."""
+    _lead_world(monkeypatch, "0.00", "5.00", "-5.00")
+    v = view()
+    gap = v["tiles"][1]
+    assert gap["value"] == "$0.00" and gap["word"] is not None  # D-5C.26: a figure, so a word
+    assert not [x for x in gap["lines"] if "not split to its drivers" in x or "offsetting" in x], gap["lines"]
+    assert gap["lines"] == ["Grow +$5.00 · Optimize −$5.00"], gap["lines"]
+    steps = [s for g in v["bridge"]["groups"] for s in g["steps"]]
+    assert [s["value"] for s in steps] == ["+$5.00", "−$5.00", "$0.00", "$0.00"]
+    assert [s["share"] for s in steps] == [None] * 4
+    assert not [x for x in strings(v) if "Offsets it" in x]
+    assert [s["bar"] for s in steps] == [None] * 4 and v["bridge"]["scale"] is None
+
+
 def _words(obj):
     """Every served word: each `word` key's value, and the headline's evidence."""
     if isinstance(obj, dict):
