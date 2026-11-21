@@ -281,14 +281,18 @@ def test_b5_throughput_counts_discharge_only() -> None:
 
 def test_b5_month_splits_sum_to_their_totals() -> None:
     n = 15 * DAY
-    observed = series(15, start=LATE_SEP)
+    site_states = ["STOPPED"] * n
+    site_states[200] = "RUNNING"  # the baseline starts once, in September
+    observed = series(15, start=LATE_SEP, states=site_states)
     case_soc = [F(50) if i % 2 == 0 else F(49) for i in range(n)]  # a 1-point drop every other step
     case_states = list(observed.generator_state)
     for i in (100, 3000):  # one added start in each month
         case_states[i] = "RUNNING"
 
+    base_soc = [F(50) if i % 4 else F(49) for i in range(n)]  # the baseline discharges too, less often
+
     def base(r):
-        return proj(r.case_id, n, start=LATE_SEP)
+        return proj(r.case_id, n, start=LATE_SEP, soc=base_soc, states=site_states)
 
     def case(r):
         return proj(r.case_id, n, start=LATE_SEP, soc=case_soc, states=case_states)
@@ -296,9 +300,10 @@ def test_b5_month_splits_sum_to_their_totals() -> None:
     result = replay_study(Stub({"baseline": base, "*": case}), RUN, observed, FRAME, grid=(S(80, 30),))
     out = result.cases[0]
     assert all(m.value != 0 for m in out.added_throughput_kwh_by_month)
-    assert all(m.value != 0 for m in out.added_starts_by_month)
     assert sum((m.value for m in out.added_throughput_kwh_by_month), F(0)) == out.added_throughput_kwh
+    assert all(m.value != 0 for m in out.added_starts_by_month)
     assert sum((m.value for m in out.added_starts_by_month), F(0)) == out.added_starts == 2
+    assert result.baseline.starts == 1 and result.baseline.throughput_kwh > 0
     assert out.throughput_kwh - result.baseline.throughput_kwh == out.added_throughput_kwh
 
 
