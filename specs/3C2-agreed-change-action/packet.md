@@ -75,7 +75,14 @@ raise), P24 (catch removed: test 7b returns nothing), P25 (lock removed: test 7c
 
 ## Open
 
-- **MB1 answered, B (D-3C2.15):** composition moves into `actions/composition.py`, re-exported by `agreed_composition.py`; test 5 retargeted; no guard change beyond the writer block. Code not yet moved.
+- **MB1 answered, B (D-3C2.15):** composition moves into `actions/composition.py`, re-exported by `agreed_composition.py`; test 5 retargeted; no guard change beyond the writer block. Code moved in the D-3C2.15 commit: `build_agreed_actions` and `AgreedActionsService` appended to `actions/composition.py` (calls no S6-01a code); `agreed_composition.py` is two lines (a re-export) and imports no adapter. Test 5 retargeted to "only `actions/composition.py` imports the agreed adapter; `agreed_composition.py` imports none and defines nothing else".
 - **Owner approval at merge:** the writer block (`42de02e06`), owner-away row 5.
 - **R-AUTH** (residual): `record_action` is a trusted act, not a sign-in; `--as` names the person, `created_by_script`
   true; a person records on screen once 3C3 lands (D-3C2.12).
+
+## Checks after D-3C2.15 (head: see git log)
+
+- Unit `test_3c2_agreed_actions.py`: 54 passed (9.6 s).
+- Postgres (`heavy-slot.sh --db` + `run-host-tests.ps1`): 3C2 + 3C1a + 3C0a accounts files, 30 passed (52.7 s test time; 13 m wall, queued behind another db job).
+- Test 5 plants, each fails the retargeted test: adapter import added to `agreed_composition.py`; a second definition added there; adapter import removed from `composition.py`. All reverted.
+- Fast `check-all` (5 m 55 s): all 41 guards passed, including the decision index (D-SC1.* resolve after the merge) and the configuration-persistence guard. The held writer block commit `42de02e06` is not on this branch, so its guard lines are not exercised here; they stay held for the owner.
