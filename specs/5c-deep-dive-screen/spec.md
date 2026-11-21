@@ -1,7 +1,11 @@
 # 5c: the month, explained (the one deep-dive screen; implementer spec)
 
-Status: rev 2, Architect (Claude), 2026-11-20, re-scoped by D-BW1.9 and D-BW1.12; handshake round 1 answered
-(`rulings.md`, "Handshake answers"). UI lane, after the IA-1 stop (RC6). **3.5 units.** `USER_REVIEW_REQUIRED: true` (the screen the
+Status: rev 3, Architect (Claude), 2026-11-21 (rev 2 2026-11-20, re-scoped by D-BW1.9 and D-BW1.12; handshake round 1
+answered, `rulings.md` "Handshake answers"). **Rev 3** folds in review round 1 of units 1-2 (`rulings.md` D-5C.19 to
+D-5C.25): §2.4 after SC-1f (D-5C.19), the headline's evidence (D-5C.20), nested drivers (D-5C.21), caps on the screen
+(D-5C.22), "(at budget)" (D-5C.23), World H's price (D-5C.24) and two record words (D-5C.25). §3.5's literals below
+are rev 3's where these rulings touch them; D-4A.12/.20's record changes (PF2) also apply to every A literal that
+lists records. UI lane, after the IA-1 stop (RC6). **3.5 units.** `USER_REVIEW_REQUIRED: true` (the screen the
 executive sees). Discovery review (W5): money figures on screen.
 - **Structure:** P5 (`specs/5a-targets/structure-page-P5.md`, approved 20 Nov) rules 2, 7 and 8; D-5B.10, D-5B.12,
   D-5B.15 (5c inherits them); D-3A7.9 (the standing at the snapshot's "as of"); 3B7a ruling 15 on
@@ -90,6 +94,10 @@ wear · `battery_throughput_kwh` Battery throughput · `wear_rate` Battery wear 
 
 ### 2.3 The records that fill a gap (`RECORDS`, this order; `RECORD_KEYS` per leaf; `NOTE_KEYS` per 4d note)
 
+Rev 3: the table below is rev 2's; the records and words served are SC-1's `record` vocabulary as amended by
+D-4A.12, D-4A.20, D-4A.24 and D-5C.25 (`BILLING` "the billing export with each line's kWh and tariff", `LOSS_BAND`
+"each feeder's expected technical loss as declared in the Site's setup").
+
 | Key | Words |
 |---|---|
 | BILLING | the billing export |
@@ -133,7 +141,10 @@ BUDGET_LINES phrase over them in registry order; all joined with `join`.
 `word(evidence, origins)`: `NOT_AVAILABLE` → "Not available yet"; `ESTIMATED` → "Estimated"; `MODELLED` →
 "Modelled"; otherwise by `weakest_origin(origins)`: `source-emulated` → "Emulated"; `demo-simulated` → "Simulated";
 `unknown` or none → "Estimated"; `observed-financial`, `field-integrated`, `bench-tested` → by evidence: `RECORDED`,
-`DECLARED` "Recorded", `MEASURED` "Measured", `DERIVED` "Calculated". A **money** figure's word is
+`DECLARED` "Recorded", `MEASURED` "Measured", `DERIVED` "Calculated". **Rev 3 (D-5C.19):** this order governs
+after SC-1f: `DECLARED` with `source-emulated` is "Emulated", with `demo-simulated` "Simulated"; `word()` hands an
+observed-origin `DECLARED` to the shared vocabulary as `RECORDED`. Text 5c passes through (3A7's standing) keeps its
+own words. A **money** figure's word is
 `money_word(word, standing)` (3A7, the organisation's standing for every figure, D-5C.4) unless it is "Not available
 yet". Every step, driver (D-5C.16), tile and card value is money. A figure never shows "Verified".
 
@@ -229,7 +240,8 @@ together with the neutral terms they are all of them). A step's group is its row
 | `as_of`, `as_of_text` | ISO `Z`; `as_of` sentence |
 | `fresh` | `{"current", "text", "untracked_text"}`: `text` per `fresh` when not current, else null; Sites from `changed_kinds` codes and `stale_stamps` with a `site_id` (mapped through `snap.sites`), in `asked` order; `untracked_text` from `freshness.untracked` (`"<code>:<leaf>"`), null when empty |
 | `standing` | `{"reconciled", "reason", "text"}` of `standing` |
-| `headline` | §2.5 from the root row `R = pb.rows["contribution"]["contribution"]`; `grow` = the GROW_REVENUE steps' effects summed, `optimize` the OPTIMIZE_COST ones; the named heading per D-5C.15 |
+| `headline` | `{"text", "evidence"}` (SC-1 `served`; each evidence word through `money_word` with the standing,
+as the tiles' words, D-5C.20) §2.5 from the root row `R = pb.rows["contribution"]["contribution"]`; `grow` = the GROW_REVENUE steps' effects summed, `optimize` the OPTIMIZE_COST ones; the named heading per D-5C.15 |
 | `status_line` | §2.5 `status_line`: `as_of_text`, `standing_short`, `status_disagreement` (D-5C.14) |
 | `tiles` | four objects `{"key", "label", "value", "word", "lines", "bar"}`: `contribution` (R's actual; lines tile1_target, `sites(R.k, n)`, tile1_cost; bar `{"actual", "target"}` plain decimals), `gap` (R's effect signed; lines tile2_split, tile2_rest), `plan_spend`, `plan_value` (word null, bar null) |
 | `notices` | one `disagreement` sentence per `pb.disagreements` entry, `asked` order |
@@ -254,18 +266,20 @@ the gap (§2.5, D-5C.15).
   the row is absent or its effect None), "share", "word", "sites", "drawer"}`; `share` against the steps whose effect
   has the gap's sign (`round(|e| / Σ|those| × 100)` half even); `word` §2.4 (money).
 - `drawer`: `{"title", "lines", "sites", "carried", "out", "lines_org", "drivers"}`: `lines` drawer_values (when it
-  applies), drawer_effect, `sites(k, n)`; `sites` one entry per included Site in `asked` order (at most 10, then
-  `"more"`): `{"site", "value": that Site's row effect signed, "text": the stop sentence of that row or of its
+  applies), drawer_effect, `sites(k, n)`; `sites` one entry per included Site in `asked` order (every Site; the screen caps, D-5C.22): `{"site", "value": that Site's row effect signed, "text": the stop sentence of that row or of its
   lowest descendants that stop (each once, in tree order, joined by a space), null when none}`; `carried` §2.5 per
   `PortfolioRow.carried` Site; `out` §2.5 per `PortfolioRow.out` entry (target from that Site's own root when it has
-  one); `lines_org` `portfolio_line` per `pb.portfolio_lines` line whose factor is the step; `drivers`: the
-  portfolio rows whose key is a registry descendant of the step (and `residual:<x>` rows under it), in `pb.rows`
-  order: `{"label", "value", "sites", "detail", "word"}` with `value` the row's effect signed, `detail` "Actual {a} ·
+  one); `lines_org` `portfolio_line` per `pb.portfolio_lines` line whose factor is the step; `drivers` (nested, D-5C.21): the
+  step's direct parts among the portfolio rows whose key is a registry descendant of the step (and `residual:<x>` rows
+  under it), each with its own parts in `children`, a driver's parent being its nearest registry ancestor that is the
+  step or has a driver row, `residual:<x>` last among `x`'s children, `pb.rows` order within a level:
+  `{"key", "label", "value", "sites", "detail", "word", "children"}` with `value` the row's effect signed, `detail` "Actual {a} ·
   Target {t}" (qty, price or money by unit) when both are present, else null, and `word` §2.4 of the row through
   `money_word` (D-5C.16).
 - `by_site`: `{"columns": ["Site", "Contribution", "Target", "Gap", <step labels>], "rows", "total"}`: per asked Site
-  (at most 10 shown first; `"more"` the rest) its root actual (unsigned), target, gap and step effects (signed), a step
-  cell suffixed `" (estimate)"` when that Site's row is `carried`; only MINI_GRID Sites have rows; a Site not in R's k
+  (every Site; the screen shows 10, then "Show all {n}", D-5C.22) its root actual (unsigned), target, gap and step effects (signed), a step
+  cell suffixed `" (at budget)"` when that Site's row is `carried` (D-5C.23; the step drawer's per-Site row takes the
+  same suffix); only MINI_GRID Sites have rows; a Site not in R's k
   reads its root actual or "Not available yet", its own target, then "Not compared" in the other cells; no cell
   carries a word (the section's word is the organisation's, D-5C.4); `total`: `sites(R.k, n)`, R's actual,
   target, effect, then each step's effect.
@@ -302,7 +316,8 @@ against recorded 9,688.00 and 4,995.00); `actions` `AgreedActions(False, ())`.
 **Expected A** (every string exact):
 - `nav` {"previous": "2026-09", "next": null}; `state` SERVED; `as_of_text` "Figures as of 20 November 2026, 08:00
   UTC."; `fresh` {"current": true, "text": null, "untracked_text": null} (`untracked` is () in this world).
-- `headline` "Contribution is $852.00 below target in October; cost and efficiency explain $755.00 of it."
+- `headline` {"text": "Contribution is $852.00 below target in October; cost and efficiency explain $755.00 of it.",
+  "evidence": ["Estimated, not yet reconciled"]} (D-5C.20).
 - `status_line` "Figures as of 20 November 2026, 08:00 UTC. Not yet reconciled with the management accounts. Kisiwa's
   budget disagrees with its own lines."
 - `tiles[0]` Contribution, "$1,443.00", word "Estimated, not yet reconciled", lines ["Target $2,295.00 · 63% of
@@ -320,20 +335,22 @@ against recorded 9,688.00 and 4,995.00); `actions` `AgreedActions(False, ())`.
   "Emulated, not yet reconciled"; om "$0.00", "No effect", "Estimated, not yet reconciled"; staff "$0.00", "No
   effect", "Emulated, not yet reconciled"; each "3 of 3 Sites".
 - revenue drawer lines ["Actual $9,688.00 · Target $9,785.00 · Difference −$97.00", "Effect on contribution −$97.00",
-  "3 of 3 Sites"]; sites Kobo "+$38.00", Kisiwa "−$55.00", Mto "−$80.00", each text "Not split further until billing
-  adjustments (credit notes), a feeder meter export, a meter register with change dates, the tariff sheet, the
-  productive-use tariff and budget lines for energy delivered, tariff and productive-use price."; drivers [].
+  "3 of 3 Sites"]; sites Kobo "+$38.00", Kisiwa "−$55.00", Mto "−$80.00", each text "Not split further until the billing
+  export with each line's kWh and tariff, a feeder meter export, a meter register with change dates, the customer
+  meter reads for the month, each feeder's expected technical loss as declared in the Site's setup, the
+  productive-use tariff and budget lines for energy delivered, tariff and productive-use price." (D-4A.12/.20,
+  D-5C.25); drivers [].
 - fuel_cost drawer lines ["Actual $4,995.00 · Target $4,240.00 · Difference +$755.00", "Effect on contribution
   −$755.00", "3 of 3 Sites"]; sites Kobo "−$600.00", Kisiwa "−$130.00", Mto "−$25.00", each "Not split further until
   the EMS interval export (generator running and output, solar available power, battery charge), the generator's fuel
   curve (litres per kWh; litres per hour idle), tank dips at the start and end of the month and fuel delivery notes.";
   drivers [].
 - om drawer lines ["Actual $1,800.00 · Target $1,800.00 · Difference $0.00", "Effect on contribution $0.00", "3 of 3
-  Sites"]; carried ["Kisiwa: no service contractor invoice received; taken at its budget line for the month
+  Sites"]; sites Kobo "$0.00", Kisiwa "$0.00 (at budget)", Mto "$0.00" (D-5C.23); carried ["Kisiwa: no service contractor invoice received; taken at its budget line for the month
   (estimate)."]. staff drawer lines ["Actual $1,450.00 · Target $1,450.00 · Difference $0.00", …]; lines_org ["The
   organisation's budget also states $1,200.00 for staff that no Site carries; it is listed, not added."].
 - by_site rows: Kobo "$883.00", "$1,445.00", "−$562.00", "+$38.00", "−$600.00", "$0.00", "$0.00"; Kisiwa "−$250.00",
-  "−$65.00", "−$185.00", "−$55.00", "−$130.00", "$0.00 (estimate)", "$0.00"; Mto "$810.00", "$915.00", "−$105.00",
+  "−$65.00", "−$185.00", "−$55.00", "−$130.00", "$0.00 (at budget)", "$0.00"; Mto "$810.00", "$915.00", "−$105.00",
   "−$80.00", "−$25.00", "$0.00", "$0.00"; total "3 of 3 Sites", "$1,443.00", "$2,295.00", "−$852.00", "−$97.00",
   "−$755.00", "$0.00", "$0.00".
 - cash text "In October, $8,870.00 was collected against $9,785.00 expected; $668.00 is still outstanding and $150.00
@@ -346,10 +363,12 @@ against recorded 9,688.00 and 4,995.00); `actions` `AgreedActions(False, ())`.
   figures received", drawer {"title": "Reconciliation with the management accounts", "lines": [A's standing text]}.
 - `actions` {"title": "Actions in hand", "connected": false, "text": "Not available yet: an agreed change is recorded as
   an Action with its owner and due date.", "rows": [], "more": 0}.
-- `not_available.rows` (needs · fills · sites; all three Sites unless named): billing adjustments (credit notes) ·
-  Billing adjustments; a feeder meter export · Energy delivered, Technical losses and Unexplained losses; a meter
-  register with change dates · Technical losses, Unexplained losses and Energy on unmapped meters; the tariff sheet ·
-  Tariff; the productive-use tariff · Productive-use price; the EMS interval export (…) · Diesel not shown to be
+- `not_available.rows` (needs · fills · sites; all three Sites unless named; rev 3 with D-4A.12/.20 and D-5C.25):
+  the billing export with each line's kWh and tariff · Billing adjustments, Energy on unmapped meters and Tariff; a
+  feeder meter export · Energy delivered, Technical losses and Unexplained losses; a meter register with change dates
+  · Unexplained losses and Energy on unmapped meters; the customer meter reads for the month · Unexplained losses and
+  Energy on unmapped meters; each feeder's expected technical loss as declared in the Site's setup · Technical losses
+  and Unexplained losses; the productive-use tariff · Productive-use price; the EMS interval export (…) · Diesel not shown to be
   avoidable, Diesel run while solar and battery could carry the load and Unexplained fuel; the generator's fuel curve
   (…) · the same three; tank dips at the start and end of the month · Unexplained fuel; fuel delivery notes ·
   Unexplained fuel; the service contractor's invoices · O&M (taken at its budget line meanwhile) · Kisiwa; budget lines
@@ -360,7 +379,7 @@ against recorded 9,688.00 and 4,995.00); `actions` `AgreedActions(False, ())`.
 Decimal("-60.00"), None, "USD", False)`: `notices` ["Kisiwa's budget states a contribution of −$60.00; its budget lines
 do not add up to a figure yet, so the two cannot be compared."]; `status_line` unchanged.
 **B (reconciled).** A with `standing` `reconciled` True, `RECONCILED`, "Reconciled: October 2026 (the organisation)
-matches the management accounts within 1%.": every ", not yet reconciled" suffix gone; `status_line` "Figures as of 20
+matches the management accounts within 1%.": every ", not yet reconciled" suffix gone (the headline's `evidence` ["Estimated"]); `status_line` "Figures as of 20
 November 2026, 08:00 UTC. Reconciled with the management accounts. Kisiwa's budget disagrees with its own lines.";
 assure "Reconciled", its drawer lines [B's text].
 **C (an agreed change).** A with `AgreedActions(True, (AgreedAction("A-1", "Lower the generator stop setting at Kobo to
@@ -391,12 +410,14 @@ key equals A's except:
   generator's fuel curve (litres per kWh; litres per hour idle), tank dips at the start and end of the month, fuel
   delivery notes and one generator and one fuel tank declared in the Site's setup (litres are worked out for one of
   each)."
-- fuel_cost drawer `drivers`, in `pb.rows` order: {"Diesel used", "−$600.00", "1 of 3 Sites", "Actual 1,180 L · Target
-  700 L", "Modelled, not yet reconciled"}; {"Diesel not shown to be avoidable", "−$37.50", "1 of 3 Sites", "Actual 730 L
-  · Target 700 L", "Modelled, not yet reconciled"}; {"Diesel run while solar and battery could carry the load",
-  "−$412.50", "1 of 3 Sites", "Actual 330 L · Target 0 L", "Modelled, not yet reconciled"}; {"Unexplained fuel",
-  "−$150.00", "1 of 3 Sites", "Actual 120 L · Target 0 L", "Modelled, not yet reconciled"}; {"Diesel price", "$0.00",
-  "1 of 3 Sites", "Actual $1.25 per L · Target $1.25 per L", "Emulated, not yet reconciled"}.
+- fuel_cost drawer `drivers` (nested, D-5C.21; each {key, label, value, sites, detail, word, children}): [{"diesel_l",
+  "Diesel used", "−$600.00", "1 of 3 Sites", "Actual 1,180 L · Target 700 L", "Modelled, not yet reconciled", children
+  [{"necessary_l", "Diesel not shown to be avoidable", "−$37.50", "1 of 3 Sites", "Actual 730 L · Target 700 L",
+  "Modelled, not yet reconciled", []}, {"candidate_l", "Diesel run while solar and battery could carry the load",
+  "−$412.50", "1 of 3 Sites", "Actual 330 L · Target 0 L", "Modelled, not yet reconciled", []}, {"unexplained_l",
+  "Unexplained fuel", "−$150.00", "1 of 3 Sites", "Actual 120 L · Target 0 L", "Modelled, not yet reconciled", []}]},
+  {"diesel_price", "Diesel price", "$0.00", "1 of 3 Sites", null, "Modelled, not yet reconciled", []}] (D-5C.24: a
+  price does not add across Sites, so no detail; its effect is Modelled litres times the price difference).
 - `fresh.untracked_text` "Not checked for later changes: Diesel not shown to be avoidable (Kobo), Diesel run while
   solar and battery could carry the load (Kobo) and Unexplained fuel (Kobo)." (labels in registry order), which is
   also the assure drawer's second line.
@@ -523,8 +544,11 @@ assetops_backend.record_action --tenant SLUG --as EMAIL --title TEXT --owner EMA
   within it at 390 × 844; the hub at most 2,500 px tall at 1440 with every drawer and `<details>` closed; the status
   line visible and holding `status_line`'s text; at 390 the page width equals the viewport; 0 page errors; no visible
   text under 12 px; every font size on the guide's scale (12, 13, 14, 16, 20, 24, 32 px).
-- Caps (scales to 300 Sites): drawer Site lists and by-Site tables show 10 rows, then "Show all {n}"; not-available
-  rows 8; Actions 3.
+- Caps (scales to 300 Sites; D-5C.22): the JSON holds every Site row; the screen shows drawer Site lists and by-Site
+  tables 10 rows, then a button "Show all {n}" (`n` the array's length) that shows the rest in place; not-available
+  rows 8; Actions 3 (capped by the server, `more`).
+- Drivers (D-5C.21): one `<ul>` per level; a driver's `children` in a nested `<ul>` inside its `<li>`, indented one
+  spacing token; every level shown, no control.
 - Styling: `deepDiveMonth.css` with the live product's tokens (`frontend/mockups/v72/foundation-sheet.html`); layout
   values of vNEXT `ux.css`'s `.ux-kpis`, `.ux-kpi`, `.ux-wf*`, `.ux-drawer*` and `.ux-headline` carried over under
   `dd-` names; font sizes on the scale; no colour literal outside the token blocks (G2).
@@ -552,9 +576,14 @@ plant must make the script exit 1 naming its check.
    terms they are all of `cost_to_serve`'s terms; `NOTE_KEYS` covers every 4d `NOTES` entry.
 2. Formats: `money` of −852, 38, 0 (USD and KES), 1234567.891 (signed and not); `qty` 1180.000 → "1,180 L"; `pct0`
    1443/2295 → 63%, target ≤ 0 → none; `pct1` 0.91510 → 91.5%; `join` of 1, 2, 3 items.
-3. World A against the hand-written JSON, key by key and whole.
-4. A2, B, C (connected empty, C4), D, E, F, G, H and the lead vectors: every literal of §3.5.
-5. Words: §2.4 table, every row; a "Not available yet" money figure gets no suffix.
+3. World A against the hand-written JSON, key by key and whole. Rev 3: the headline's `evidence` is the payload's own
+   word for each figure it states: for A, B, D and L1 to L4, `set(headline.evidence)` equals {`tiles[1].word`} plus the
+   named heading's outcome card `word` when one is named (D-5C.20).
+4. A2, B, C (connected empty, C4), D, E, F, G, H and the lead vectors: every literal of §3.5 (rev 3: H's drivers
+   nested, D-5C.21; a flattened list fails).
+5. Words: §2.4 table, every row (rev 3: the `DECLARED` rows with each origin, run on `main` with SC-1f, D-5C.19); a
+   "Not available yet" money figure gets no suffix. Statement case (D-5C.25): no `record` entry holds a comma outside
+   brackets.
 6. One contribution (D-5C.13): World A's JSON holds no "$1,693.00"; World D's `tiles`, `headline`, `bridge.totals` and
    `outcomes` hold no "$883.00"; both equal R; `month_view` never calls `actual()` or `targets()` (spies).
 7. Stops: one bridge per reason of 5b §2.1 (built from 5b's unit-1 vectors and test 3's cases), each worded per §2.5.
@@ -574,7 +603,10 @@ plant must make the script exit 1 naming its check.
 10. Renders World A's fixture: every string of §3.5 appears; the notice is visible with every drawer closed; the
     status line has role status and names Kisiwa; the Assure card opens its drawer with A's standing text.
 11. A step button opens its drawer (dialog, labelled), focus moves to Close, Escape closes and returns focus; the
-    fuel-cost drawer of World H's JSON (A with §3.5 H's changes, written by hand) shows each driver's word chip.
+    fuel-cost drawer of World H's JSON (A with §3.5 H's changes, written by hand) shows each driver's word chip, and
+    the three parts of Diesel used sit inside its list item (D-5C.21). Caps (D-5C.22): A with `by_site.rows` and the
+    revenue drawer's `sites` repeated in memory to 12 shows 10 and "Show all 12", then 12 after the click;
+    `not_available.rows` at 9 shows 8 and "Show all 9".
 12. NO_SNAPSHOT, REBUILD_NEEDED, 503 and 401 states; the month links set `?month=`.
 13. The Overview's tab row markup (with counts) is unchanged by the move to `PortfolioTabs.tsx` (outerHTML before and
     after on the existing Portfolio fixture); "The month" is the second tab and links to `/portfolio/month`.
@@ -647,3 +679,5 @@ rehearsed Lakeside tenant (DDR), served by the coordinator, then decides the mer
 | Q7 (owner) | L1 carries a status line (as of, reconciliation, budget disagreements) and the full reconciliation sentence moves to the Assure drawer (MD8) | Yes (D-5C.14): the executive sees the three facts before scrolling within the hub budget |
 | Q8 | Site-level reconciliation words on the by-Site rows | No: one organisation standing for the screen (D-5C.4 amended); Site statements are not part of the deep-dive |
 | Q9 | A 5b or 5c rule change marking served figures out of date | Not this fortnight (D-5C.18): rebuild after every deploy; 3B7b adds the roots |
+| Q10 | SC-1's inline and `served` paths ignore `Evidence.reconciled` (only `with` honours it) | Queued to SC-1's next unit: `figure_word` becomes the one path. Nothing reads wrong today (no producer sets `reconciled` on an inline or served figure); 5c maps its own words (D-5C.20) |
+| Q11 (owner) | The carried cell's label | " (at budget)" (D-5C.23; OWNER-AWAY row 61); 5b's carry rule unchanged |
