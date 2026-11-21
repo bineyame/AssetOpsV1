@@ -146,6 +146,8 @@ Every figure here is the wall clock of one run on this VPS, with subprocess star
 are noise. The figures describe this world: one tenant, three Sites, one month, no telemetry. L1 and L2 here are not
 the strategy's full world. The machine was loaded, as stated above.
 
+**Run 1 (superseded by "Unit 3 fix round" below; D-DS4.31).** `fail` was the bench's: 686 mini jobs at 10 a tick, no mini-depth step (D-DS4.29); 19.6 s mixed 4 ticks of pipeline with 9 ticks of mini backlog cut off by N. The B5, B6 and `ds7` rows here are run 1's.
+
 | # | Figure | Meaning |
 |---|---|---|
 | B1 L0 | 4.37 s total (`L0.migrate` 3.92 s); 18,264,547 bytes | create + `alembic upgrade head` + census + freeze |
@@ -212,6 +214,32 @@ ALL PASS
   `assetops_wb5%`, `assetops_wc5%` and `%ds4p%`. No walk, serve or `assetops_op*` database was touched, and nothing
   was served or copied (row 36 held).
 
+## Unit 3 fix round (D-DS4.28 to D-DS4.33; head `68449e49d`, evidence `/opt/assetecon/evidence/DS4/unit3-fix-2026-11-21/`)
+
+Bench format `assetops.world-bench/2`. `world bench` ran alone in the slot (slots free at start; `uptime` 17:28:45 load average 3.01, 6.14, 7.04; the report's `start.loadavg` agrees). Another lane's job took a slot later, during the drops, not during the bench.
+
+| # | Rerun figure | Meaning |
+|---|---|---|
+| B1 | L0 4.268 s (18,444,771 bytes); L1 7.665 s (19,575,267); L2 9.322 s (19,927,523) | the ladder on the code that lands (main merged, migration 0069) |
+| B5 | exit 0 ("1 passed in 198.26s"); 14 Site-days, 70 batches, 6,720 envelopes; mini-depth step 37.686 s (686 jobs, all DONE, 2 passes, DRAINED); bulk load 37.492 s; 4 ticks, 113.782 s tick wall; drain verdict **`done`** ("all counts are 0"); `end_counts` all 0; marker `PARSED` | the product's own sequence: bulk load, mini-depth step, ticks (D-DS4.29) |
+| B6 | `per_site_day_seconds` **13.497** = (37.492 + 37.686 + 113.782) / 14; `projected_l2_seconds` 7,419.253 = 9.322 + 13.497 x 9 x 61 | a projection, `INFORMATION_ONLY`, `input_drain: done` |
+
+The per-Site-day figure: 13.497 s per Site-day (bulk load 37.492 s, mini-depth step 37.686 s, ticks 113.782 s, over 14 Site-days).
+
+The `ds7` block (format /2, read literally, owner row 35):
+
+```json
+{"threshold_seconds": 2700, "reading": "MEASURED_L2", "measured_l2_seconds": 9.322, "triggered": false,
+ "decide_at": "FIRST_WORLD_TELEMETRY",
+ "projection": {"role": "INFORMATION_ONLY", "input_drain": "done", "projected_l2_seconds": 7419.253, "exceeds_threshold": true}}
+```
+
+Kept and checked: `assetops_world_audit_l0_53988be3439c`, `_l1_6e55fb8dc4b3`, `_l2_1906a5d074a0` (sizes as B1: 18.4, 19.6, 19.9 MB; the bench builds the same content). `world build` 4.3 s, 8.1 s, 10.5 s; `world check` `ALL` PASS, C4 `fails: []`, C5 3 passed; `world list` shows `check_passed: true` on the L2. The three stale templates (`_l0_35467c68d361`, `_l1_5d26f14268f5`, `_l2_ca818e745fd9`) were dropped, children first. Row 36's copy must use `_l2_1906a5d074a0`.
+
+Tests: fast check-all: "All 42 guards passed" (193.9 s wall). `test_ds4_world.py` + `test_ds4_batch_days.py` (no DB) 80 passed. Plants, each failed then reverted: `>=` on `triggered`; `swept["after"] = []`; mini term dropped from the figure; `input_drain: None`; `pipeline_marker` always `PARSED`.
+
+Residual risk (replaces the first run's bullet, D-DS4.31): B5 now runs the mini-depth step first, as the product does (D-DS4.29). The per-Site-day figure covers the bulk load, the mini-depth step and the ticks (D-DS4.30). It is not a bound, and the projection assumes it grows linearly with Sites and days, which no run has measured. DS7 is read literally (owner row 35): measured L2 9.322 s against 2,700 s, so not triggered. It is decided at the first world telemetry, and the projection (7,419.253 s) is information only.
+
 ### Checks (unit 3)
 
 - `test_ds4_world.py` + `test_ds4_batch_days.py` (no DB): 75 passed. T10 has four tests: the projection and `ds7`
@@ -230,7 +258,7 @@ ALL PASS
   - `start.slot` records the first line of `heavy-slot.sh --status` (slot-1, ours), not the DB lock line.
   - The bench's drop lines are not copied into the report, so the bench L1's `keys_left` is not recorded; `drop` erased each tenant key as in T13.
 - Residual risk:
-  - **B5's drain did not settle.** The verdict was `fail` (past 2N, 13 ticks, N=6) on the fixture slice. It is
+  - **Run 1 (superseded, see the fix round): B5's drain did not settle.** The verdict was `fail` (past 2N, 13 ticks, N=6) on the fixture slice. It is
     reported, not hidden, and it goes to the Architect. The per-Site-day figure therefore covers 13 ticks of a pipeline
     that had not drained, so it is a lower bound on the real drain cost.
   - The machine was loaded (load 5-7, other lanes in the slots), so every figure includes that contention.
