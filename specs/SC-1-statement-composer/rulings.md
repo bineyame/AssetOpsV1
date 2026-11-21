@@ -423,7 +423,7 @@ row that fails the gate.
 Answered 2026-11-21 (Architect, owner away, under `owner/owner-away-architect-decides-2026-11-21.md`) against
 `review.md` at e641526e0. Spec rev 3 and reviewer guide rev 3 fold every answer in. Nothing here widens an
 authorisation: the two check-all lines stay held for the owner at merge (owner-away row 5); the definition of served
-text is logged as owner-away row 22.
+text is logged as owner-away row 24.
 
 **For the owner: the two check-all lines in one read.**
 
