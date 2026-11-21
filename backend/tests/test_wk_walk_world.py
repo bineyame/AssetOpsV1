@@ -883,10 +883,10 @@ def test_t9_stop_signals_matching_pids_and_leaves_reused(env, capsys):
     api, web = m["serve"]["api"]["pid"], m["serve"]["web"]["pid"]
     env.procs.set_cmd(web, ["/usr/bin/vim", "notes"])   # same start time, other command: secondary check refuses
     capsys.readouterr()
-    assert env.main("stop") == 0
+    assert env.main("stop") == 4
     assert (api, signal.SIGTERM) in env.procs.signals and all(p != web for p, _ in env.procs.signals)
     assert f"WALK_PID_REUSED {web} cmdline" in capsys.readouterr().err
-    assert env.manifest()["serve"] is None
+    assert env.manifest()["serve"] is not None
 
 
 def test_t9_stop_kills_after_the_wait(env):
@@ -923,7 +923,7 @@ def test_t9_stop_refuses_a_wrapper_on_the_same_port(env, capsys, wrapper):
     web = m["serve"]["web"]["pid"]
     env.procs.set_cmd(web, wrapper)
     capsys.readouterr()
-    assert env.main("stop") == 0
+    assert env.main("stop") == 4
     assert all(p != web for p, _ in env.procs.signals) and web in env.procs.table
     assert f"WALK_PID_REUSED {web} cmdline" in capsys.readouterr().err
 
@@ -934,7 +934,7 @@ def test_t9_stop_refuses_a_reused_pid_with_another_start_time(env, capsys):
     env.procs.table[web]["start"] += 99          # same PID and cmdline, a different process
     env.procs.set_cmd(web, NPM_TITLE)
     capsys.readouterr()
-    assert env.main("stop") == 0
+    assert env.main("stop") == 4
     assert all(p != web for p, _ in env.procs.signals) and web in env.procs.table
     assert f"WALK_PID_REUSED {web} start_time" in capsys.readouterr().err
 
@@ -944,7 +944,7 @@ def test_t9_stop_refuses_a_child_not_leading_its_group(env, capsys):
     web = m["serve"]["web"]["pid"]
     env.procs.table[web]["pgrp"] = 77            # M1: the matching PID sits in someone else's group
     capsys.readouterr()
-    assert env.main("stop") == 0
+    assert env.main("stop") == 4
     assert all(p not in (web, 77) for p, _ in env.procs.signals) and web in env.procs.table
     assert f"WALK_PID_REUSED {web} not_leader" in capsys.readouterr().err
 
@@ -955,7 +955,7 @@ def test_t9_stop_refuses_a_group_other_than_the_recorded_one(env, capsys):
     m["serve"]["web"]["pgid"] = web + 1
     env.write_manifest(m)
     capsys.readouterr()
-    assert env.main("stop") == 0
+    assert env.main("stop") == 4
     assert all(p not in (web, web + 1) for p, _ in env.procs.signals)
     assert f"WALK_PID_REUSED {web} pgid" in capsys.readouterr().err
 
@@ -966,7 +966,7 @@ def test_t9_stop_refuses_an_unrecorded_child(env, capsys):
     del m["serve"]["api"]["start_time"]
     env.write_manifest(m)
     capsys.readouterr()
-    assert env.main("stop") == 0
+    assert env.main("stop") == 4
     assert all(p != api for p, _ in env.procs.signals)
     assert f"WALK_PID_REUSED {api} unrecorded" in capsys.readouterr().err
 
@@ -1029,7 +1029,7 @@ def test_t9_stop_refuses_a_foreign_group_after_a_pid_wrap(env, capsys):
     assert env.main("status") == 0
     (line,), _ = _lines(capsys)
     assert line["alive"]["web"] is False
-    assert env.main("stop") == 0
+    assert env.main("stop") == 4
     assert all(p != web for p, _ in env.procs.signals) and 9001 in env.procs.table
     assert f"WALK_PID_REUSED {web} group_unverified" in capsys.readouterr().err
 
@@ -1041,7 +1041,7 @@ def test_t9_stop_refuses_a_recorded_pid_with_another_start_time(env, capsys):
     del env.procs.table[web]
     env.procs.table[kids[0]]["start"] += 900
     capsys.readouterr()
-    assert env.main("stop") == 0
+    assert env.main("stop") == 4
     assert all(p != web for p, _ in env.procs.signals)
     assert f"WALK_PID_REUSED {web} group_unverified" in capsys.readouterr().err
 
@@ -1053,7 +1053,7 @@ def test_t9_stop_refuses_a_recorded_member_in_another_session(env, capsys):
     del env.procs.table[web]
     env.procs.table[kids[0]]["sid"] = 55
     capsys.readouterr()
-    assert env.main("stop") == 0
+    assert env.main("stop") == 4
     assert all(p != web for p, _ in env.procs.signals) and kids[0] in env.procs.table
     assert f"WALK_PID_REUSED {web} group_unverified" in capsys.readouterr().err
 
@@ -1093,7 +1093,7 @@ def test_t9_stop_zombie_with_another_start_time_is_refused(env, capsys):
     web = rec["pid"]
     env.procs.table[web].update(state="Z", cmd=[], start=rec["start_time"] + 3)
     capsys.readouterr()
-    assert env.main("stop") == 0
+    assert env.main("stop") == 4
     assert all(p != web for p, _ in env.procs.signals)
     assert f"WALK_PID_REUSED {web} start_time" in capsys.readouterr().err
 
@@ -1124,7 +1124,7 @@ def test_t9_stop_refuses_a_group_member_older_than_the_leader(env, capsys):
     env.procs.table[9001] = {"cmd": ["sh"], "start": rec["start_time"] - 1, "pgrp": web, "sid": web}
     del env.procs.table[web]
     capsys.readouterr()
-    assert env.main("stop") == 0
+    assert env.main("stop") == 4
     assert all(p != web for p, _ in env.procs.signals) and 9001 in env.procs.table
     assert f"WALK_PID_REUSED {web} group_unverified" in capsys.readouterr().err
 
@@ -1334,3 +1334,57 @@ def test_t12_no_world_write_or_name_check_on_the_walk():
     assert calls == [("walk_url", "rung_url")], calls
     text = SOURCE.read_text()
     assert "World.census" not in text and "World.exists" not in text and "check_name" not in text
+
+
+# --- WK round 3: L7 track leader checks, and a refused stop stays retryable ---------------------------------------------
+
+def test_t9_track_and_stop_with_a_reused_leader_pid(env, capsys):
+    """L7: the leader PID is present with another start time and has a group member. `track` records no members
+    (the first check) and `stop` refuses with `start_time` without a killpg."""
+    m, rec, kids = _vite_served(env)
+    web = rec["pid"]
+    env.procs.table[web]["start"] = rec["start_time"] + 9
+    fresh = {k: v for k, v in rec.items() if k != "members"}
+    env.procs.track(fresh)
+    assert "members" not in fresh
+    capsys.readouterr()
+    assert env.main("stop") == 4
+    assert all(p != web for p, _ in env.procs.signals)
+    assert f"WALK_PID_REUSED {web} start_time" in capsys.readouterr().err
+
+
+def test_t9_track_records_nothing_when_the_leader_changes_during_the_scan(env):
+    """L7: the leader passes the first check, then its PID is reused while the group is scanned (the re-check)."""
+    m, rec, kids = _vite_served(env)
+    web = rec["pid"]
+    fresh = {k: v for k, v in rec.items() if k != "members"}
+    real = env.procs.pids
+
+    def pids():
+        env.procs.table[web]["start"] = rec["start_time"] + 9
+        return real()
+    env.procs.pids = pids
+    env.procs.track(fresh)
+    assert "members" not in fresh
+
+
+def test_t9_refused_stop_keeps_the_serve_record_and_exits_non_zero(env, capsys):
+    m = env.served()
+    web = m["serve"]["web"]["pid"]
+    env.procs.set_cmd(web, ["/usr/bin/vim", "notes"])
+    capsys.readouterr()
+    assert env.main("stop") == 4
+    assert env.manifest()["serve"] is not None
+    env.procs.set_cmd(web, m["serve"]["web"]["argv"])   # the retry once the process is ours again
+    assert env.main("stop") == 0
+    assert env.manifest()["serve"] is None
+
+
+def test_t9_refusal_line_names_the_group_and_live_pids(env, capsys):
+    m, rec, kids = _vite_served(env)
+    web = rec["pid"]
+    env.procs.table[web]["start"] = rec["start_time"] + 9
+    capsys.readouterr()
+    assert env.main("stop") == 4
+    live = ",".join(str(p) for p in sorted([web, *kids]))
+    assert f"WALK_PID_REUSED {web} start_time pgid={web} live={live}\n" in capsys.readouterr().err

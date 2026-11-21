@@ -503,6 +503,17 @@ class Procs:
             (ok if st["session"] == pgid and (p, st["start_time"]) in recorded else bad).append(p)
         return ok, bad
 
+    def group_live(self, pgid: Any) -> list[int]:
+        """The live (not zombie) PIDs in the group, for the refusal line."""
+        if not isinstance(pgid, int):
+            return []
+        out = []
+        for p in self.pids():
+            st = self.stat(p)
+            if st is not None and st["pgrp"] == pgid and st["state"] != "Z":
+                out.append(p)
+        return sorted(out)
+
     def alive(self, rec: Mapping[str, Any]) -> bool:
         reason = self.checked(rec)
         if reason is None:
@@ -964,7 +975,7 @@ def cmd_serve(walk: Walk) -> int:
     try:
         web_rec = procs.spawn(web_argv, str(tree / "frontend"), web_env(walk.environ, port), web_log)
     except OSError as error:  # L3: the API child is stopped (safely), never left running unrecorded
-        _report_refused([(api_rec, stop_child(procs, api_rec, clock, signal.SIGKILL))])
+        _report_refused(procs, [(api_rec, stop_child(procs, api_rec, clock, signal.SIGKILL))])
         raise Failed("WALK_SERVE_FAILED", f"web spawn {type(error).__name__}") from None
     api, web = api_rec["pid"], web_rec["pid"]
     end = clock.monotonic() + SERVE_WAIT_SECONDS
@@ -986,7 +997,7 @@ def cmd_serve(walk: Walk) -> int:
             break
         clock.sleep(0.5)
     if failed is not None:
-        _report_refused([(rec, stop_child(procs, rec, clock, signal.SIGKILL)) for rec in (api_rec, web_rec)])
+        _report_refused(procs, [(rec, stop_child(procs, rec, clock, signal.SIGKILL)) for rec in (api_rec, web_rec)])
         raise Failed("WALK_SERVE_FAILED", f"{failed[0]} {failed[1]}")
     for rec in (api_rec, web_rec):
         procs.track(rec)  # M3: the members recorded once both children are ready
@@ -1049,12 +1060,15 @@ def _s3(walk: Walk, s: Mapping[str, Any], wd: WalkDefinition) -> dict:
     return _line("S3", done.returncode == 0, f"exit {done.returncode} {len(pages)} pages {out}/report.json")
 
 
-def _report_refused(results: Sequence[tuple[Mapping[str, Any], str | None]]) -> list:
-    """`WALK_PID_REUSED <pid> <check>` on stderr for each child whose group was not signalled."""
-    refused = [rec.get("pid") for rec, reason in results if reason is not None]
+def _report_refused(procs: Any, results: Sequence[tuple[Mapping[str, Any], str | None]]) -> list:
+    """`WALK_PID_REUSED <pid> <check> pgid=<g> live=<pid,pid>` on stderr for each child whose group was not signalled;
+    codes and numbers only."""
+    refused = []
     for rec, reason in results:
         if reason is not None:
-            sys.stderr.write(f"WALK_PID_REUSED {rec.get('pid')} {reason}\n")
+            refused.append(rec.get("pid"))
+            live = ",".join(str(p) for p in procs.group_live(rec.get("pgid")))
+            sys.stderr.write(f"WALK_PID_REUSED {rec.get('pid')} {reason} pgid={rec.get('pgid')} live={live}\n")
     return refused
 
 
@@ -1063,7 +1077,10 @@ def cmd_stop(walk: Walk) -> int:
     s = m.get("serve")
     procs, clock = walk.deps.procs, walk.deps.world.clock
     results = [(s[w], stop_child(procs, s[w], clock)) for w in ("api", "web")] if s else []
-    reused = _report_refused(results)
+    reused = _report_refused(procs, results)
+    if reused:  # a refused stop stays retryable: the serve record is kept and the exit is non-zero
+        walk.emit({"database": walk.name, "stopped": False, "reused": reused})
+        return 4
     m["serve"] = None
     walk.write_manifest(m)
     walk.emit({"database": walk.name, "stopped": bool(s), "reused": reused})
