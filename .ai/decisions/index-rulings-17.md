@@ -26,3 +26,15 @@
 - `D-4A.24` I4: meter is subject.ref; a differing body.meter_ref blocks metered kWh (METER_REF_CONFLICT) · live · specs/4a-energy-to-cash/rulings.md
 - `D-4A.25` I5: class sweep adds seam and property pins; stored v3 snapshots read REBUILD_NEEDED, no migration · live · specs/4a-energy-to-cash/rulings.md
 - `D-4A.26` Size 4.0 units in three units, no split · live · specs/4a-energy-to-cash/rulings.md
+- `D-3B6.1` Two registries (COLD_CHAIN 36 rows, EV_DEPOT_CAPTIVE 42 rows) on the shared records, v1 · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.2` No cold or EV row states a total · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.3` Not applicable is a declared registry list read by applicability(); EV declares revenue · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.4` REGISTRIES key must equal structure_key (3B1 L2) · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.5` Cold and EV Findings pin to leaves under Protect; PENDING_PINS empty · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.6` One exclusion rule (STRUCTURE_OTHER_KEY); mini-grid-only Site readers refuse STRUCTURE_KEY_NOT_READ · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.7` EV_CHARGING Sites take the captive-depot structure (owner row 21) · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.8` One composition per structure; no cross-structure total or depot ratio (owner row 22) · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.9` No tolerances on cold or EV rows · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.10` capacity_crate_days declared, NOT_CONNECTED; its property goes with 9d · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.11` minutes_per_day 1440; nights_in_period the month's local days · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.12` Size 2.5 units in three units; no user-facing text · live · specs/3B6-cold-ev/rulings.md
