@@ -316,3 +316,46 @@ def test_8g_the_checker_holds_no_prose(env) -> None:  # plant P15
     baseline = json.loads((REPO / guard.HANDBUILT_BASELINE).read_text(encoding="utf-8"))
     allow = json.loads((REPO / guard.ALLOW).read_text(encoding="utf-8"))
     assert rel not in baseline and rel not in allow
+
+
+# --- review round 1: L1 (G9's keys are §3.4's), L3 (rehearsal database names), L4 (every accepted upload) ---------
+
+#: Spec §3.4, "Compared keys", in its order; `fresh` carries `fresh.current`, `fresh.text` and `fresh.untracked_text`.
+SPEC_SCREEN_KEYS = ("schema", "operator", "month", "month_words", "state", "standing", "headline", "status_line",
+                    "tiles", "notices", "bridge", "cash", "outcomes", "decisions", "not_available", "fresh")
+#: Spec §3.4, "Ignored" (D-DDR.7): never compared.
+SPEC_IGNORED = ("as_of", "as_of_text", "nav", "state_text", "actions")
+
+
+def test_l1_g9_compares_exactly_the_spec_keys() -> None:
+    assert check.SCREEN_KEYS == SPEC_SCREEN_KEYS
+    assert not set(SPEC_IGNORED) & set(check.SCREEN_KEYS)
+    assert tuple(EXPECT["screen"]) == SPEC_SCREEN_KEYS  # the file holds every compared key and nothing else
+
+
+RUNBOOKS = (REPO / "Docs" / "engineering" / "operator-deep-dive-runbook.md",
+            REPO / "specs" / "ON1-operator-tenant" / "runbook.md")
+
+
+def test_l3_every_rehearsal_database_line_is_a_test_name() -> None:  # spec §4 test 9, third clause (D-DDR.12)
+    named = 0
+    for path in RUNBOOKS:
+        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            for name in re.findall(r"assetops_rehearsal[A-Za-z0-9_${}]*", line):
+                named += 1
+                assert name == "assetops_rehearsal_${REHEARSAL}_test", (path.name, number, line)
+    assert named >= 16  # every section that names the database or its key folder, in both copies
+
+
+def test_l4_g3_checks_every_accepted_upload_of_a_reader(env, capsys) -> None:
+    reads = Reads()
+    other = uuid4()
+    first = reads.held_uploads
+
+    def held(tid):
+        return first(tid) + (NS(upload_id="second", reader="billing-illustrative-1", waiting=False,
+                                submitted_by=other),)
+    reads.held_uploads = held
+    _, lines, _ = run(reads, capsys)
+    assert failed(lines) == {"G3": ("SUBMITTER", {"reader": "billing-illustrative-1", "expected": str(WANJIRU),
+                                                  "found": str(other)})}

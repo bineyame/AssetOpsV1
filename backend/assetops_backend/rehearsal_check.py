@@ -335,10 +335,10 @@ class Run:
     def g3(self) -> None:
         want = self.x["readers"]
         held = self.s.held_uploads(self.tid)
-        accepted = {}
+        accepted: dict[str, list] = {}
         for h in held:
             if not h.waiting:
-                accepted.setdefault(h.reader, h)
+                accepted.setdefault(h.reader, []).append(h)
         for reader in want["accepted"]:
             if reader not in accepted:
                 raise Fail("READER_MISSING", reader=reader)
@@ -347,16 +347,17 @@ class Run:
             if reader in present:
                 raise Fail("READER_PRESENT", reader=reader)
         submitter = self.person(want["submitted_by"])
-        for reader in want["accepted"]:
-            if accepted[reader].submitted_by != submitter:
-                raise Fail("SUBMITTER", reader=reader, expected=_id(submitter),
-                           found=_id(accepted[reader].submitted_by))
+        for reader in want["accepted"]:  # every accepted upload of the reader, not one of them
+            for h in accepted[reader]:
+                if h.submitted_by != submitter:
+                    raise Fail("SUBMITTER", reader=reader, expected=_id(submitter), found=_id(h.submitted_by))
         accepter = self.person(want["accepted_by"])
         for reader in want["accepted"]:
-            record = self.s.upload(self.tid, accepted[reader].upload_id)
-            found = None if record is None or record.decision is None else record.decision.decided_by
-            if found != accepter:
-                raise Fail("ACCEPTER", reader=reader, expected=_id(accepter), found=_id(found))
+            for h in accepted[reader]:
+                record = self.s.upload(self.tid, h.upload_id)
+                found = None if record is None or record.decision is None else record.decision.decided_by
+                if found != accepter:
+                    raise Fail("ACCEPTER", reader=reader, expected=_id(accepter), found=_id(found))
 
     # G4 (S4)
     def g4(self) -> None:

@@ -257,6 +257,7 @@ def test_3_a_skipped_step_fails_its_gate(rehearsal, skip, gate, code) -> None:  
 def test_3_the_emulated_budget_loaded_fails_g3(rehearsal) -> None:  # plant P7
     c = rehearsal.run(S3={"replace": False})
     assert c.first == "G3" and c.failed["G3"] == ("READER_MISSING", {"reader": "profile.ddr-board-budget.v1"})
+    assert rehearsal.exits["S7"] == 0 and rehearsal.exits["S10"] == 0  # PF1 fixed by 5c's r5: the screen answers 200
 
 
 def test_3_no_admission_stops_the_load_and_fails_g2(rehearsal) -> None:
@@ -267,34 +268,47 @@ def test_3_no_admission_stops_the_load_and_fails_g2(rehearsal) -> None:
 
 # --- test 4: shortcuts ------------------------------------------------------------------------------------------------
 
-def test_4a_records_written_without_an_upload_fail_g3(rehearsal, tmp_path) -> None:  # plant P1
+def test_4a_records_written_without_an_upload_fail_g3(rehearsal) -> None:  # plant P1 (review M1)
+    """S4 replaced by the same records written through 3A1's service: S4's files are submitted (no acceptance), each
+    upload's own batch (the records S4's acceptance would write, pseudonymised) is ingested directly, and the uploads
+    are then declined, so the tenant holds every record S4 leaves and no held upload."""
     from assetops_backend.accounts.composition import build_account_service
-    from assetops_backend.commercial.composition import build_commercial_reads
+    from assetops_backend.commercial.composition import (build_commercial_reads, build_commercial_uploads,
+                                                         commercial_upload_settings)
     from assetops_backend.commercial.service import CommercialRecords
 
     r = rehearsal
     r.s1()
     r.s2()
     r.s3()
-    records = tmp_path / "records"
-    run = subprocess.run([sys.executable, str(REPO / "tools" / "world_history.py"), "records", "--manifest",
-                          str(MANIFEST), "--out", str(records)], capture_output=True, text=True, timeout=300)
-    assert run.returncode == 0, run.stderr
+    r._main("S4", loader.main, ["--dir", str(r.dir), "--tenant", SLUG, "--submit-as", WANJIRU])
+    assert r.exits["S4"] == 0, r.errors["S4"]
     accounts = build_account_service(URL)
     reads = build_commercial_reads(URL)
     try:
         tid = accounts.tenant_by_slug(SLUG)
+        joseph = accounts.onboard_person(JOSEPH)
+        uploads = build_commercial_uploads(URL, commercial_upload_settings(URL))
         svc = CommercialRecords(reads.store, clock=lambda: datetime.now(timezone.utc))
-        result = svc.ingest(tid, (records / f"{SLUG}.expense_ledger.json").read_bytes(),
-                            entered_by=f"person:{r.admitted_by}")
-        assert result.state == "STORED" and result.outcomes, result  # records written, no upload
+        held = reads.store.held_uploads(tid)
+        assert sorted(h.reader for h in held) == sorted(EXPECT["readers"]["accepted"]) and all(h.waiting for h in held)
+        for h in held:
+            batch = reads.store.upload(tid, h.upload_id).upload.batch
+            result = svc.ingest(tid, batch.encode("utf-8"), entered_by=f"person:{r.admitted_by}")
+            assert result.state == "STORED" and result.outcomes, result  # records written, no acceptance
+            uploads.decide(tid, loader.ORGANISATION, loader.Actor(joseph.person_id, "FINANCE_AND_COMMERCIAL_LEAD"),
+                           str(h.upload_id), "DECLINE", reason="shortcut")
+        assert reads.store.held_uploads(tid) == ()
+        kinds = {row.kind for row in reads.store.latest_revisions(tid)}
+        assert {"CHARGE", "RECEIPT", "EXPENSE", "BUDGET_LINE"} <= kinds, kinds  # every reader's records exist
     finally:
         accounts._store.dispose()
         reads.dispose()
     for step in STEPS[4:]:
         getattr(r, step.lower())()
     c = r.check()
-    assert c.first == "G3" and c.failed["G3"][0] == "READER_MISSING", c.failed
+    assert c.first == "G3" and c.failed["G3"] == ("READER_MISSING", {"reader": "billing-illustrative-1"}), c.failed
+    assert "G4" not in c.failed  # the record set is complete: only the uploads are missing
 
 
 def test_4b_a_snapshot_built_by_a_service_fails_g6(rehearsal) -> None:  # plant P12
