@@ -434,6 +434,7 @@
   "a:FindingPinRefused.__init__:3d44b58d5480",
   "a:PostgresFindingStore._read:bbc6709947d3",
   "a:PostgresFindingStore.apply:bbc6709947d3",
+  "a:PostgresFindingStore.tolerance_append:bbc6709947d3",
   "g:<module>:106203227f99",
   "g:<module>:48c8bc3fba12",
   "g:<module>:c40d1de0bbfb",
@@ -1817,6 +1818,10 @@
  "backend/assetops_backend/commercial/months.py": [
   "e:_digest:4255c43c9e09"
  ],
+ "backend/assetops_backend/commercial/profiles.py": [
+  "h:_swap_day_month:052fded502f9",
+  "h:_swap_day_month:d40e38ccee22"
+ ],
  "backend/assetops_backend/commercial/pseudonym_key.py": [
   "f:main:04112b7ce720",
   "g:<module>:a749344e542b",
@@ -1829,6 +1834,9 @@
   "g:CanonicalJsonReader.field_label:f0e5665b47a1",
   "g:LayoutReader.field_label:2ac52aeb2993",
   "g:LayoutReader.field_label:f0e5665b47a1"
+ ],
+ "backend/assetops_backend/commercial_upload_api.py": [
+  "g:build_commercial_upload_router.run:395904969735"
  ],
  "backend/assetops_backend/config.py": [
   "a:load_feature_flags:3a5c80a9144f",
@@ -2247,6 +2255,9 @@
  ],
  "backend/assetops_backend/evidence/adapters/postgres_evidence_ledger.py": [
   "a:PostgresEvidenceLedger._run:d62e790475ef",
+  "a:PostgresEvidenceLedger.bulk_admit.work:39d85c31a476",
+  "a:PostgresEvidenceLedger.bulk_admit.work:616da9411abe",
+  "a:PostgresEvidenceLedger.bulk_admit.work:6472a5018ed4",
   "a:PostgresEvidenceLedger.register_publication.work:0f4253dccb50",
   "a:PostgresEvidenceLedger.register_publication.work:753008ad62d1",
   "a:PostgresEvidenceLedger.register_publication.work:7c89fe549522",
@@ -2256,6 +2267,10 @@
   "g:PostgresEvidenceLedger._collision:70dce90d4031",
   "g:PostgresEvidenceLedger._collision:ca12ab69d242",
   "g:PostgresEvidenceLedger._connect_engine:3dc25d61203a",
+  "g:PostgresEvidenceLedger.bulk_admit.work:23589671beda",
+  "g:PostgresEvidenceLedger.bulk_admit.work:274709193646",
+  "g:PostgresEvidenceLedger.bulk_admit.work:66a686c4ded3",
+  "g:PostgresEvidenceLedger.bulk_admit.work:6b04a5b324b8",
   "g:PostgresEvidenceLedger.open_batch.work:76a5f30b29f8",
   "g:PostgresEvidenceLedger.register_publication.work:12078fb09465",
   "g:PostgresEvidenceLedger.register_publication.work:d31fa2f60462",
@@ -2268,6 +2283,14 @@
   "a:PostgresGatewayAccess._source_enabled:e1e405e4217e",
   "a:PostgresGatewayAccess.source_health_snapshot:e5b6519a63f0",
   "g:PostgresGatewayAccess._connect_engine:167fd006f229"
+ ],
+ "backend/assetops_backend/evidence/bulk_load.py": [
+  "a:BulkEvidenceLoad._one:051acb646277",
+  "a:BulkEvidenceLoad._one:1490b1c159e7",
+  "a:cover_gap:49034e4ee95a",
+  "g:BulkEvidenceLoad._one:06b73eb0923d",
+  "g:BulkEvidenceLoad._one:489b0367ce7f",
+  "g:BulkEvidenceLoad._one:66a686c4ded3"
  ],
  "backend/assetops_backend/evidence/gateway_access.py": [
   "a:DiagnosticIngestionService.submit:25d1d5bd51b4",
@@ -2329,17 +2352,17 @@
  "backend/assetops_backend/evidence/ledger_service.py": [
   "a:BatchIngestionService._check_claims:c5983216619a",
   "a:BatchIngestionService._drive:16b6701109bf",
-  "a:BatchIngestionService.submit:051acb646277",
-  "a:BatchIngestionService.submit:fbd90b70c0ad",
+  "a:BatchIngestionService.admit:051acb646277",
+  "a:BatchIngestionService.admit:fbd90b70c0ad",
   "g:BatchIngestionService._check_claims:003a5d55aa7e",
   "g:BatchIngestionService._check_claims:12078fb09465",
   "g:BatchIngestionService._check_claims:1b85c7f861e4",
   "g:BatchIngestionService._check_claims:3a507e1caaf8",
   "g:BatchIngestionService._check_claims:d76169983206",
-  "g:BatchIngestionService.submit:06b73eb0923d",
-  "g:BatchIngestionService.submit:23589671beda",
-  "g:BatchIngestionService.submit:23589671beda",
-  "g:BatchIngestionService.submit:4b3e8baa8c10"
+  "g:BatchIngestionService.admit:06b73eb0923d",
+  "g:BatchIngestionService.admit:23589671beda",
+  "g:BatchIngestionService.admit:4b3e8baa8c10",
+  "g:BatchIngestionService.submit:23589671beda"
  ],
  "backend/assetops_backend/evidence/legacy_comparison.py": [
   "a:compare:0b2a6b76e71f",
@@ -3092,17 +3115,25 @@
   "g:build_global_work_router.no_store:808383f3de53"
  ],
  "backend/assetops_backend/load_emulated_exports.py": [
-  "g:<module>:1ee9aab9c6df",
   "g:<module>:2ad1a4e11b45",
   "g:<module>:4357c2da6d6b",
-  "g:<module>:51522a42578c",
+  "g:<module>:46780940c16d",
+  "g:<module>:66729a6c35af",
   "g:<module>:77c5ba2f0437",
   "g:<module>:7b7286607467",
   "g:<module>:862bf1d1ceb8",
   "g:<module>:93ad22954c96",
+  "g:<module>:e793709a00da",
   "g:<module>:f81f9bcb6e9e",
   "g:<module>:ff3d9f6d83a2",
   "j:_run:d0bac1208c82"
+ ],
+ "backend/assetops_backend/load_world_inputs.py": [
+  "a:_tenants:4188cd667a28",
+  "a:_tenants:e5f878159248",
+  "g:_run:9eb0e56a8680",
+  "g:_run:f99e01e8a010",
+  "g:_tenants:0201452d80c3"
  ],
  "backend/assetops_backend/main.py": [
   "g:create_app.performance_gate:a41bd3a9f310",
@@ -3599,6 +3630,21 @@
   "a:YamlRunStore.create_run:d258ebe01159",
   "a:YamlRunStore.get_run:6d667c39557c"
  ],
+ "backend/assetops_backend/runs/headroom_replay.py": [
+  "a:_check_customers:4dc412599d10",
+  "a:_check_customers:57e0ca723994",
+  "a:_check_customers:63778698cffb",
+  "a:_check_customers:8244a77bd66e",
+  "a:_check_customers:95a5f5304604",
+  "a:_check_customers:db3c5f45c121",
+  "a:_check_reduced:37e0d205cbbe",
+  "a:_check_reduced:5e19c536ee58",
+  "a:_check_reduced:5f08e2c1f1f0",
+  "a:_check_reduced:e4501d24392a",
+  "a:_check_reduced:e553a78edabd",
+  "a:_limit_need:18852a61bbf3",
+  "a:_limit_need:8be0008a7e06"
+ ],
  "backend/assetops_backend/runs/identity.py": [
   "a:validate_run_id:859ac3f8f6b1",
   "a:validate_run_id:ce53ca0678a9",
@@ -3937,6 +3983,23 @@
  "backend/assetops_backend/runs/registered_release.py": [
   "a:RegisteredRunPublisher.publish:e9ffdda7bd15",
   "g:publisher_for.ledger:e3be722fa60d"
+ ],
+ "backend/assetops_backend/runs/replay_study.py": [
+  "a:_case_ids:5bb3a7ae763e",
+  "a:_id_part:47fbde108030",
+  "a:_start_instant:b858f1a181d3",
+  "a:_start_instant:f5c0ebb5f808",
+  "a:checked:69efd67babfe",
+  "a:checked:968f97814cc5",
+  "a:study_days:19ae6130f21f",
+  "a:study_days:6c21c1f8e1ab",
+  "a:study_days:af05fc2888b2",
+  "a:study_days:b5f3ba2f8156",
+  "a:study_days:bf2edacceeab",
+  "g:checked:8d71e79f7fa2",
+  "g:start_state:23aafe6132d0",
+  "g:start_state:5270ff2dbc13",
+  "g:study_days:3e0746420a89"
  ],
  "backend/assetops_backend/runs/service.py": [
   "a:RunSetupService._create_cold_draft:2aff2e0e5647",
@@ -5551,6 +5614,14 @@
   "j:build_source_health_router.source_health:d0bac1208c82",
   "j:build_source_health_router.source_health:d0bac1208c82"
  ],
+ "backend/assetops_backend/source_profile.py": [
+  "g:<module>:4714ef970413",
+  "g:<module>:7b8a6b58029b",
+  "g:<module>:8271f63bd237",
+  "g:<module>:f81f9bcb6e9e",
+  "g:<module>:ff3d9f6d83a2",
+  "j:_run:d0bac1208c82"
+ ],
  "backend/assetops_backend/state_refs.py": [
   "a:parse_state_ref:062a5e9bd128",
   "a:parse_state_ref:0bdcb702ad30",
@@ -5583,6 +5654,40 @@
  "backend/assetops_backend/structure/money.py": [
   "g:<module>:4953a9c71ca1",
   "g:<module>:49ace3214569"
+ ],
+ "backend/assetops_backend/structure/rows_cold_chain.py": [
+  "g:<module>:04b323843188",
+  "g:<module>:29a3d408f4ad",
+  "g:<module>:29a3d408f4ad",
+  "g:<module>:37a919bc0444",
+  "g:<module>:37a919bc0444",
+  "g:<module>:37a919bc0444",
+  "g:<module>:3a1f1568a00c",
+  "g:<module>:479f1fe6be88",
+  "g:<module>:4919b894e95a",
+  "g:<module>:4eba13944345",
+  "g:<module>:5c25806a2f39",
+  "g:<module>:6821994160af",
+  "g:<module>:691dbb18963c",
+  "g:<module>:ae655d88789b",
+  "g:<module>:b96640c591c7",
+  "g:<module>:c841cc66a4fe",
+  "g:<module>:d766731b54b1",
+  "g:<module>:dd24f9388ec9"
+ ],
+ "backend/assetops_backend/structure/rows_ev_depot.py": [
+  "g:<module>:10dd077c3111",
+  "g:<module>:2c8fcea87b8e",
+  "g:<module>:62378cef40e3",
+  "g:<module>:65d3fa4904fb",
+  "g:<module>:75f98c5e3b98",
+  "g:<module>:77d5a7a7584f",
+  "g:<module>:964182cf2bf9",
+  "g:<module>:9dadc4390464",
+  "g:<module>:ae655d88789b",
+  "g:<module>:b7b9ba4428d2",
+  "g:<module>:e16216c7f824",
+  "g:<module>:f5badbb46e5c"
  ],
  "backend/assetops_backend/structure/rows_mini_grid.py": [
   "g:<module>:27f48805a0d5",
