@@ -103,3 +103,61 @@ raise), P24 (catch removed: test 7b returns nothing), P25 (lock removed: test 7c
   triggers include migrations 0067 and 0069 and the 3a6 fixtures. Subset run (policy: no full suite here): 3C2 unit
   and Postgres, `test_pg_harness.py`, 3C0a accounts and onboard Postgres, 3C1a Postgres: 108 passed in 80 s
   (heavy-slot --db, run-host-tests.ps1). Full suite is the merge-gate job.
+
+## Commit 2: the text through SC-1 statements (D-3C2.14, D-SC1.28, D-SC1.34)
+
+**Merges.** `main` at `e5ba699cc` (SC-1a merge `fcb655f2c`, owner-away row 5 `e5a283228`) merged in as `6de329dc4`.
+Bookkeeping conflicts resolved keeping both sides: `.ai/state/data.md` (main's newer 3A6 r5 and SC-1a/3B4/DS4/0M
+blocks), `.ai/state/index-2.md` (3C2's line renumbered 179), `accounts/permissions.py` and
+`test_3c1a_person_work.py` (`action.agree` beside 3B4's `structure.tolerance.*`; the command filter excludes
+`commercial.`, `action.`, `structure.`). `task/3C2-midbuild-answers` (D-3C2.15) was already an ancestor ("Already up
+to date"); `42de02e06` (the owner-approved writer block) is an ancestor.
+
+**Gate B renumber.** Main ends at `0068_structure_finding`; 3A7 takes `0069` (`0069_commercial_reconciliation`) and
+merges first. The file is now `0070_agreed_action.py`, `revision = "0070_agreed_action"`, `down_revision =
+"0068_structure_finding"` (the live head on this branch); `HAND_PAIR`, test 5's path, the downgrade message, the
+harness and guard comments and `work.md` follow. `ScriptDirectory.get_heads()`: `['0070_agreed_action']`.
+**When 3A7 merges:** `down_revision` and `HAND_PAIR` become `0069_commercial_reconciliation`.
+
+**Text added** (commit `ac6a5d4ec`; nothing in the hand-built baseline, the allow file or the legacy baseline):
+
+- `i18n/statements/en/agreed_action.py`: `agreed_action.state` (`{state}`, a `word` slot over vocabulary
+  `action_state`) and `agreed_action.refused` (a `state` slot `code` over the 14 refusal codes, `exhaustive`,
+  one variant per code carrying §2.5's exact sentence; `BAD_TITLE` is "Write a title of {least} to {most}." with
+  `least` a bare count and `most` a count of noun `character`, so it reads "1 to 200 characters"; `BAD_DUE`'s date
+  is an `example` slot `2026-12-15`).
+- Vocabulary: `action_state` (`OPEN` "Open", `OVERDUE` "Overdue"); noun `character` (character / characters).
+- `actions/agreed.py` joins `ADOPTED`: `state_words(due_on, today)` and `refusal_sentence(code)` render the two
+  statements; `AgreedActionView` gains `state_words` (5c's mapping reads it) beside `state_code`.
+- `record_action.py`: stderr `<CODE> <sentence>\n`; the JSON `state` is the word; the epilog is written inline in
+  `ArgumentParser(epilog=...)` (static chrome, §3.8.4 (g); as a module constant the ratchet reported it
+  `HAND_BUILT_NEW`).
+- Cases: `backend/tests/statement_cases/agreed_action.py`, one per variant (16), hand literals.
+
+**Tests.** Tests 1 to 3 and 8 assert §4's words and §2.5's sentences exactly. New: each sentence through the
+composer and through `refusal_sentence`; the state slot's values equal `REFUSAL_EXIT`; each hand case renders its
+English; `agreed.py` is in `ADOPTED` and the adopted scan finds nothing. Plants that must fail (each asserted): six
+hand-built strings appended to `agreed.py` (a word, an f-string, a `+` join, a sentence constant, a display
+conditional, a `.join`) are adopted-scan hits; the spec's `"Cc"` literal form is a hit; a digit template
+`LITERAL_DIGIT`; "one to" `LITERAL_NUMBER_WORD`; a dropped variant `NOT_EXHAUSTIVE`; a three-segment key
+`KEY_FORM`; a dropped state word `VOCABULARY_SCHEMA`; an unknown state word `VOCABULARY_UNKNOWN`; a missing bound
+`FACT_MISSING`; a raw string code `FACT_TYPE`; a missing case `CASE_MISSING` from the guard's coverage.
+
+**Known Deviations (commit 2).**
+
+- **Key form.** D-3C2.14 names one statement `agreed_action.refused.<code>` per refusal; SC-1's `KEY_FORM` allows
+  two segments only (planted: it fails the load). Built as one statement `agreed_action.refused` with one variant per
+  code (variant id = the code in lower case), exhaustive over the code. Same sentences, same coverage.
+- **Unicode categories (Q1 below).** `TITLE_REFUSED_CATEGORIES` holds `{"CC", "CF", "ZL", "ZP"}` and
+  `clean_title` compares `unicodedata.category(c).upper()`: the spec's `"Cc"` form is not code form in an
+  `ADOPTED` module, and `ALLOW_SCOPE` refuses an allow entry for an adopted path. A test walks all 0x110000 code
+  points and proves the refused set is unchanged.
+- `test_sc1_statements.py` T8 (the shipped key and vocabulary sets) lists the adopter's keys and `action_state`;
+  3A7 and 5c will add theirs the same way.
+- `AgreedActionView` keeps `state_code` and adds `state_words` (spec §2.2 lists `state_words` only).
+
+**Question for the coordinator.** Q1: the category codes are code strings the adopted scan misreads. Built with
+the upper-cased form (no baseline or allow entry). Alternative: keep `"Cc"` and the spec's literal by taking
+`agreed.py` out of `ADOPTED` or by a guard change. Reversal is two lines.
+
+**Checks (commit 2).**

@@ -1,5 +1,7 @@
 # 3C2 handoff: commit 1 done, commit 2 (the statements) next
 
+**Superseded 2026-11-21: commit 2 is built; see `packet.md` "Commit 2". Kept for the record.**
+
 Branch `task/3C2-agreed-change` (worktree `/opt/assetecon/AssetOpsV1-3c2`), off `task/3A6-source-profiles` at
 `166942e7d`. Commit 1 is complete for its scope; this is not a partial phase.
 

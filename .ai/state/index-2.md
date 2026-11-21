@@ -90,4 +90,4 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 176. `DS4` template ladder and world check (units 1-2): world tool build/clone/reset/list/drop/check, C4 contract oracle, bulk-load cover rule · data.md
 177. `0M` Mto's demand-on-headroom replay (headroom_study over ForwardReplayPort on 0K2's helpers, reduced-capacity run, refusals before the port; simulated 61-day Mto season; no database) · data.md
 178. `SC-1a` the statement composer: facts, formats, conditions, load check, render/served, wire; statement guard, ratchets · data.md
-179. `3C2` commit 1: the agreed change recorded as an Action, codes only (migration 0070, `record_action`, owner by role; text in commit 2) · work.md
+179. `3C2` the agreed change recorded as an Action (migration 0070, `record_action`, owner by role; state words and refusal sentences as SC-1 statements, `actions/agreed.py` ADOPTED) · work.md
