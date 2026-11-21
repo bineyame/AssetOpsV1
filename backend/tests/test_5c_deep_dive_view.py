@@ -262,6 +262,10 @@ def test_3_world_a_key_by_key_and_whole() -> None:
         ("the service contractor's invoices", "O&M (taken at its budget line meanwhile)", "Kisiwa"),
         ("budget lines for energy delivered, tariff and productive-use price",
          "Energy delivered, Tariff and Productive-use price", ALL)]
+    # D-5C.22 (L3): lists bounded by the Sites asked ship whole; the screen caps them. Only Actions has `more`.
+    assert "more" not in b["by_site"] and "more" not in v["not_available"]
+    assert all(set(s) == {"site", "value", "text"} for g in b["groups"] for st in g["steps"]
+               for s in st["drawer"]["sites"])
     assert v == json.loads(FIXTURE.read_text(encoding="utf-8"))
 
 
