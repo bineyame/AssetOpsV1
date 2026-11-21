@@ -48,10 +48,11 @@ def at(hour: int, minute: int = 0) -> datetime:
 #: Keys of the payload that name the read's instants; every other key is World A's fixture.
 TIMED = ("as_of", "as_of_text", "status_line")
 #: 3A7's organisation standing as `CommercialReconciliation.standing` words it on this database: it names the evidence
-#: of the statement it compares ("(Recorded)"); unit 1's injected literal (spec section 3.5) has no evidence (MBQ1).
+#: of the statement it compares, in the shared vocabulary after SC-1f (D-SC1F.1: the accounts statement is Declared);
+#: unit 1's injected literal (spec section 3.5) has no evidence (MBQ1). The view passes it through unchanged (PF11).
 A_FIXTURE_TEXT = "Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1%."
 A_TEXT = ("Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1% "
-          "(Recorded).")
+          "(Declared).")
 A_WORDS = ["Estimated, not yet reconciled", "Estimated, not yet reconciled", None, None,
            "Emulated, not yet reconciled", "Emulated, not yet reconciled", "Estimated, not yet reconciled",
            "Emulated, not yet reconciled", "Estimated, not yet reconciled", "Emulated, not yet reconciled",
@@ -117,7 +118,7 @@ def test_9_the_standing_is_read_at_the_snapshots_instant(lakeside) -> None:  # p
     assert a["standing"] == {
         "reconciled": False, "reason": "THIS_MONTH_NOT_MATCHED",
         "text": A_TEXT,
-        "details": ["Fuel cost (Recorded and Emulated): the accounts say $5,100.00 and the records say $4,995.00, "
+        "details": ["Fuel cost (Recorded, Emulated and Declared): the accounts say $5,100.00 and the records say $4,995.00, "
                     "$105.00 less (2.06%), beyond the $51.00 allowed (1%)."]}
     assert money_words(a) == A_WORDS
     assert {k: v for k, v in a.items() if k not in TIMED} == {k: v for k, v in fixture.items() if k not in TIMED}
@@ -137,7 +138,7 @@ def test_9_the_standing_is_read_at_the_snapshots_instant(lakeside) -> None:  # p
                                 "Kisiwa's budget disagrees with its own lines.")
     assert money_words(c) == B_WORDS
     assert c["standing"]["text"] == ("Reconciled: October 2026 (the organisation) matches the management accounts "
-                                     "within 1% (Recorded).")
+                                     "within 1% (Declared).")
     assert (c["outcomes"][3]["value"], c["outcomes"][3]["drawer"]["lines"]) == ("Reconciled", [c["standing"]["text"]])
 
 
