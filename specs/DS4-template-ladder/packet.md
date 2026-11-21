@@ -175,7 +175,7 @@ measured and 10,760.8 s projected; a run's database "under 10 s" against B2's wo
 Read on the projection, DS7 is triggered: about 3.0 h projected against 45 min. Read literally on B1's L2 (8.9 s),
 it is not. This is the owner's call (row 35).
 
-### The kept ladder (`assetops_world`, built at `58bb50809`; manifests in `/opt/assetecon/worlds/manifests/`)
+### Run 1's ladder, DROPPED and superseded (`assetops_world`, built at `58bb50809`; manifests in `/opt/assetecon/worlds/manifests/`)
 
 | Rung | Database | Key | `size_bytes` |
 |---|---|---|---|
@@ -234,7 +234,7 @@ The `ds7` block (format /2, read literally, owner row 35):
  "projection": {"role": "INFORMATION_ONLY", "input_drain": "done", "projected_l2_seconds": 7419.253, "exceeds_threshold": true}}
 ```
 
-Kept and checked: `assetops_world_audit_l0_53988be3439c`, `_l1_6e55fb8dc4b3`, `_l2_1906a5d074a0` (sizes as B1: 18.4, 19.6, 19.9 MB; the bench builds the same content). `world build` 4.3 s, 8.1 s, 10.5 s; `world check` `ALL` PASS, C4 `fails: []`, C5 3 passed; `world list` shows `check_passed: true` on the L2. The three stale templates (`_l0_35467c68d361`, `_l1_5d26f14268f5`, `_l2_ca818e745fd9`) were dropped, children first. Row 36's copy must use `_l2_1906a5d074a0`.
+Kept and checked: `assetops_world_audit_l0_53988be3439c` (18,559,459 bytes, 18.6 MB), `_l1_6e55fb8dc4b3` (19.6 MB), `_l2_1906a5d074a0` (19.9 MB) (the bench's own L0 was 18,444,771; the bench builds the same content). `world build` 4.3 s, 8.1 s, 10.5 s; `world check` `ALL` PASS, C4 `fails: []`, C5 3 passed; `world list` shows `check_passed: true` on the L2. The three stale templates (`_l0_35467c68d361`, `_l1_5d26f14268f5`, `_l2_ca818e745fd9`) were dropped, children first. Row 36's copy must use `_l2_1906a5d074a0`.
 
 Tests: fast check-all: "All 42 guards passed" (193.9 s wall). `test_ds4_world.py` + `test_ds4_batch_days.py` (no DB) 80 passed. Plants, each failed then reverted: `>=` on `triggered`; `swept["after"] = []`; mini term dropped from the figure; `input_drain: None`; `pipeline_marker` always `PARSED`.
 
@@ -258,12 +258,9 @@ Residual risk (replaces the first run's bullet, D-DS4.31): B5 now runs the mini-
   - `start.slot` records the first line of `heavy-slot.sh --status` (slot-1, ours), not the DB lock line.
   - The bench's drop lines are not copied into the report, so the bench L1's `keys_left` is not recorded; `drop` erased each tenant key as in T13.
 - Residual risk:
-  - **Run 1 (superseded, see the fix round): B5's drain did not settle.** The verdict was `fail` (past 2N, 13 ticks, N=6) on the fixture slice. It is
-    reported, not hidden, and it goes to the Architect. The per-Site-day figure therefore covers 13 ticks of a pipeline
-    that had not drained, so it is a lower bound on the real drain cost.
   - The machine was loaded (load 5-7, other lanes in the slots), so every figure includes that contention.
   - The projection assumes the per-Site-day cost is linear in Sites × days and the same for every Site type. It is
     arithmetic only, to be replaced by `world bench` at the first world telemetry (D-DS4.11 reverse).
-  - The kept ladder is keyed to `58bb50809`. Any later change to the code paths makes it stale, and `clone` then
+  - The kept ladder (`_l0_53988be3439c`, `_l1_6e55fb8dc4b3`, `_l2_1906a5d074a0`) is keyed to the fix-round code (`68449e49d`; the run 1 ladder at `58bb50809` is dropped). Any later change to the code paths makes it stale, and `clone` then
     refuses with `WORLD_TEMPLATE_STALE`. WK rebuilds with `world build` (about 20 s).
 - `USER_REVIEW_REQUIRED: false` for the tool. DS7's trigger (row 35) and serving (row 36) are the owner's, as before.
