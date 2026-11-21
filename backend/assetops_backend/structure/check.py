@@ -9,8 +9,9 @@ row is judged on its own `home`.
 4b1 added `STRUCTURE_STATED` (D-4B.1, D-4B.17); `evaluate` raises it at run time too, for a stated key on a row
 without `stated_by`.
 
-Deferred (D-3B1.6): observer existence (3B4), and mechanism
-pins and levers (3B2, step 6).
+3B2 added `check_pins` (D-3B2.10 to D-3B2.13): mechanism pins, run by `check_all()` on the start-up path only.
+
+Deferred (D-3B1.6): observer existence (3B4), and levers (step 6).
 """
 
 from __future__ import annotations
@@ -20,8 +21,12 @@ from collections.abc import Callable, Mapping
 from decimal import Decimal
 
 from assetops_backend.config import ConfigurationError
+from assetops_backend.outcomes import outcome_map as _outcome_map
+from assetops_backend.structure import pins as _pins
 from assetops_backend.structure import registry as _registry
-from assetops_backend.structure.expressions import Expr, ExpressionError, UnitError, names, parse, unit_of
+from assetops_backend.structure.expressions import (
+    Bin, Expr, ExpressionError, Neg, Num, Ref, UnitError, names, parse, unit_of,
+)
 from assetops_backend.structure.registry import ABSENT, COMPOSES, FAMILIES, HOMES, Registry
 from assetops_contracts.canonical.factors import LEAF_FACTORS, STRUCTURE_KEYS, leaves_of
 
@@ -242,10 +247,66 @@ def check(reg: Registry) -> None:
         run(ctx)
 
 
+#: 3B2 (D-3B2.13): the pin codes in the order they run; separate from the per-registry `CODES`.
+PIN_CODES = ("STRUCTURE_PIN", "STRUCTURE_PIN_TOTAL", "STRUCTURE_PIN_DUPLICATE", "STRUCTURE_PIN_UNKNOWN",
+             "STRUCTURE_PIN_MISSING")
+_FINDING = "FINDING:"
+_UNMAPPED_KEY = _FINDING + _outcome_map.UNMAPPED
+#: STRUCTURE_PIN_MISSING names no structure: the mechanism has none (the "-" of `STRUCTURE_CATALOGUE`).
+_NO_KEY = "-"
+
+
+def _is_total(expr: Expr) -> bool:
+    """D-3B2.12: only `+`/`-`, `Neg`, `Ref` and `Num` (a bare `Ref` counts); any `Call`, `*` or `/` is not."""
+    if isinstance(expr, (Ref, Num)):
+        return True
+    if isinstance(expr, Neg):
+        return _is_total(expr.operand)
+    if isinstance(expr, Bin):
+        return expr.op in ("+", "-") and _is_total(expr.left) and _is_total(expr.right)
+    return False
+
+
+def check_pins(pins: Mapping[str, "_pins.Pin"] | None = None, registries: Mapping[str, Registry] | None = None,
+               pending: Mapping[str, str] | None = None,
+               entries: Mapping[str, object] | None = None) -> None:
+    """3B2 (spec §3): raise the first pin fault, code by code in `PIN_CODES` order. A `None` argument reads the real
+    `PINS`, `REGISTRIES`, `PENDING_PINS` or `outcome_map.ENTRIES` at call time (D-3B2.10)."""
+    pins = _pins.PINS if pins is None else pins
+    registries = _registry.REGISTRIES if registries is None else registries
+    pending = _pins.PENDING_PINS if pending is None else pending
+    entries = _outcome_map.ENTRIES if entries is None else entries
+    for pin in pins.values():
+        reg = registries.get(pin.structure_key)
+        if reg is None or all(row.factor_id != pin.factor_id for row in reg.rows):
+            raise StructureError("STRUCTURE_PIN", pin.structure_key, pin.factor_id)
+    for pin in pins.values():
+        row = registries[pin.structure_key].row(pin.factor_id)
+        if not row.is_leaf and _is_total(_registry.parsed_text(row.expression)):
+            raise StructureError("STRUCTURE_PIN_TOTAL", pin.structure_key, pin.factor_id)
+    for mechanism, pin in pins.items():
+        if mechanism in pending:
+            raise StructureError("STRUCTURE_PIN_DUPLICATE", pin.structure_key, mechanism)
+    named = [(m, p.structure_key) for m, p in pins.items()] + list(pending.items())
+    for mechanism, structure_key in named:
+        if _FINDING + mechanism not in entries:
+            raise StructureError("STRUCTURE_PIN_UNKNOWN", structure_key, mechanism)
+    for key in entries:
+        if key.startswith(_FINDING) and key != _UNMAPPED_KEY:
+            mechanism = key[len(_FINDING):]
+            if mechanism not in pins and mechanism not in pending:
+                raise StructureError("STRUCTURE_PIN_MISSING", _NO_KEY, mechanism)
+
+
 def check_all(registries: Mapping[str, Registry] | None = None) -> None:
-    """Check every registry; `registry.REGISTRIES` is read at call time (P3). Nothing is cached (R6)."""
+    """Check every registry; `registry.REGISTRIES` is read at call time (P3). Nothing is cached (R6).
+
+    3B2 (D-3B2.10): with no argument (the start-up path) the pins are checked last; `check_all(registries=X)` checks
+    `X` alone and runs no pin check."""
     for reg in (_registry.REGISTRIES if registries is None else registries).values():
         check(reg)
+    if registries is None:
+        check_pins()
 
 
 def check_at_start() -> None:
@@ -256,4 +317,4 @@ def check_at_start() -> None:
         raise ConfigurationError(str(error)) from error
 
 
-__all__ = ["CODES", "StructureError", "check", "check_all", "check_at_start"]
+__all__ = ["CODES", "PIN_CODES", "StructureError", "check", "check_all", "check_at_start", "check_pins"]

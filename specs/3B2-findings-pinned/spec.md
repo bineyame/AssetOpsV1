@@ -2,6 +2,8 @@
 
 Architect (Claude), 2026-11-20. Rev 2, 2026-11-21 (handshake round 1 answered: D-3B2.6 to D-3B2.15).
 
+Status: in_review (built on `task/3B2-findings-pinned`; packet `packet.md`).
+
 - **Lane:** B. The schedule order is `3B1`, `3B3`, then `3B2`.
 - **Structure:** P3B (approved 20 Nov) and `decision-loop-specification.md` §4 ("The pin").
 - **Decisions:** `rulings.md` (D-3B2.1 to D-3B2.15).
