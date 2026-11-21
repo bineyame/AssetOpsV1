@@ -28,7 +28,7 @@ for (const [check, env, plant] of runs) {
   const got = dormant ? 'dormant' : r.status === 0 ? 'pass' : r.status === 1 ? 'fail' : `error ${r.status}`, want = plant ? 'fail' : 'pass', ok = got === want;
   if (!ok) bad++;
   const why = got === 'fail' ? ((r.stdout.split('\n').find(l => /FAIL$/.test(l)) ? r.stdout.split('\n')[r.stdout.split('\n').findIndex(l => /FAIL$/.test(l)) + 1] : '') || '').trim().slice(0, 110) : '';
-  console.log(`${ok ? 'ok ' : 'BAD'} ${check} · ${plant || '-'} · expected ${want} · got ${got}${why ? ` · ${why}` : ''}${!ok && r.stderr ? ` · ${r.stderr.trim().split('\n')[0].slice(0, 120)}` : ''}`);
+  console.log(`${ok ? 'ok ' : 'BAD'} ${check} · ${plant || '-'} · expected ${want} · got ${got}${why ? ` · ${why}` : ''}${!ok && r.stderr ? ` · ${(r.stderr.trim().split('\n').find(l => /Error|error:/.test(l)) || r.stderr.trim().split('\n')[0]).trim().slice(0, 200)}` : ''}`);
 }
 console.log(`ia_gates: ${runs.length} runs, landed ${[...real].join(', ')}${force.length ? `, forced ${force.join(', ')}` : ''}, ${bad ? `${bad} BAD` : 'all as expected'} (${((Date.now() - t0) / 1000).toFixed(1)} s)`);
 process.exit(bad ? 1 : 0);
