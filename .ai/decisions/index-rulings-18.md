@@ -26,3 +26,18 @@
 - `D-3B4.24` bounds CHECK dropped (columns already NOT NULL) · live · specs/3B4-observer/rulings.md
 - `D-3B4.25` only the check.py edit waits for 4a and 3B6; non-observed structures are excluded, not errors · live · specs/3B4-observer/rulings.md
 - `D-3B4.26` pre-flight notes accepted; observe_site is the one place the actual side is chosen · live · specs/3B4-observer/rulings.md
+- `D-0K2.1` simulated series are a declared season fixture; reader from accepted readings queued as 0K3 · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.2` season: 61 local days of shipped Kobo day types, every 4th overcast, one continuous site run, large tank · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.3` the fixture publishes at stated decimals (0.01 kW, 0.001 kWh, 0.1 point, 0.1 L) · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.4` every replay covers the whole window in one port call · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.5` calibration: 5% generator kWh, 10% starts, 5-point SOC MAE, on admissible days, relative to observed · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.6` an input gap is the port's INPUT_GAP; no fill rule; clipped days kept · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.7` whole local days of 288 steps; a zone with a clock change is refused · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.8` dawn bound absolute and local, on every case incl. no action; verdict only on 61 days · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.9` grid stop 90-60 x reserve 30, 25; (90, 30) must equal the baseline · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.10` litres from tank stock differences; an empty tank is TANK_BOUND_MET · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.11` battery throughput is discharge at the stock, from declared capacity · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.12` no money in the spike; litres to money is 6c's; avoided_l_on is the CANDIDATE hook · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.13` results carry input class; replacing design values held for owner (owner-away row 31) · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.14` 0K1 seam test allow-list grows by the two new backend files · live · specs/0K2-kobo-replay-study/rulings.md
+- `D-0K2.15` no served text, no migration, no guard change · live · specs/0K2-kobo-replay-study/rulings.md
