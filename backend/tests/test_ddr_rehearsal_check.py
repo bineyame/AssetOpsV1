@@ -123,7 +123,7 @@ class Reads:
 
     def profile(self, tid, profile_id):
         p = self.x["profile"]
-        return NS(status="ADMITTED", version=1, admitted_by=self.admitted_by, profile_sha256=p["profile_sha256"],
+        return NS(status=p["status"], version=1, admitted_by=self.admitted_by, profile_sha256=p["profile_sha256"],
                   sample_sha256=p["sample_sha256"])
 
     def held_uploads(self, tid):

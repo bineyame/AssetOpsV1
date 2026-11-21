@@ -29,7 +29,7 @@
   "analyst": "wanjiru@lakeside-power.example",
   "profile": {
     "profile_id": "ddr-board-budget",
-    "status": "ADMITTED",
+    "status": "ILLUSTRATIVE",
     "version": 1,
     "admitted_by": "wanjiru@lakeside-power.example",
     "profile_sha256": "3752d604dbffefabf46095b2d45810273b8ba38eb23217d6ed6c4c4539ec82ff",
@@ -221,17 +221,17 @@
                   {
                     "site": "Kisiwa mini-grid",
                     "value": "−$55.00",
-                    "text": "Not split further until the billing export with each line's kWh and tariff, a feeder meter export, a meter register with change dates, the customer meter reads for the month, each feeder's expected technical loss as declared in the Site's setup, the productive-use tariff and budget lines for energy delivered, tariff and productive-use price."
+                    "text": "Not split further until the billing export with each line's kWh and tariff, a feeder meter export, a meter register with change dates, the customer meter reads for the month, each feeder's expected technical loss as declared in the Site's setup, the productive-use tariff and budget lines for energy delivered and productive-use price."
                   },
                   {
                     "site": "Kobo mini-grid",
                     "value": "+$38.00",
-                    "text": "Not split further until the billing export with each line's kWh and tariff, a feeder meter export, a meter register with change dates, the customer meter reads for the month, each feeder's expected technical loss as declared in the Site's setup, the productive-use tariff and budget lines for energy delivered, tariff and productive-use price."
+                    "text": "Not split further until the billing export with each line's kWh and tariff, a feeder meter export, a meter register with change dates, the customer meter reads for the month, each feeder's expected technical loss as declared in the Site's setup, the productive-use tariff and budget lines for energy delivered and productive-use price."
                   },
                   {
                     "site": "Mto mini-grid",
                     "value": "−$80.00",
-                    "text": "Not split further until the billing export with each line's kWh and tariff, a feeder meter export, a meter register with change dates, the customer meter reads for the month, each feeder's expected technical loss as declared in the Site's setup, the productive-use tariff and budget lines for energy delivered, tariff and productive-use price."
+                    "text": "Not split further until the billing export with each line's kWh and tariff, a feeder meter export, a meter register with change dates, the customer meter reads for the month, each feeder's expected technical loss as declared in the Site's setup, the productive-use tariff and budget lines for energy delivered and productive-use price."
                   }
                 ],
                 "carried": [],
@@ -512,7 +512,7 @@
       "rows": [
         {
           "needs": "the billing export with each line's kWh and tariff",
-          "fills": "Billing adjustments, Energy on unmapped meters and Tariff",
+          "fills": "Billing adjustments and Energy on unmapped meters",
           "sites": "Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid"
         },
         {
@@ -571,8 +571,8 @@
           "sites": "Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid"
         },
         {
-          "needs": "budget lines for energy delivered, tariff and productive-use price",
-          "fills": "Energy delivered, Tariff and Productive-use price",
+          "needs": "budget lines for energy delivered and productive-use price",
+          "fills": "Energy delivered and Productive-use price",
           "sites": "Kisiwa mini-grid, Kobo mini-grid and Mto mini-grid"
         }
       ],
