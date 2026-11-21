@@ -190,7 +190,7 @@ def test_9d_the_composition_reads_the_agreed_change(lakeside, monkeypatch, capsy
         served = read_.month(x["tenant"], "2026-10", NAMES)
     finally:
         dispose()
-    state = "Open" if date.today() <= date(2026, 12, 15) else "Overdue"
+    state = "Open" if datetime.now(timezone.utc).date() <= date(2026, 12, 15) else "Overdue"  # UTC, as state_code (review L1)
     assert served["actions"] == {
         "title": "Actions in hand", "connected": True, "text": None, "more": 0, "rows": [
             {"title": "Lower the generator stop setting at Kobo to 70% battery charge",
