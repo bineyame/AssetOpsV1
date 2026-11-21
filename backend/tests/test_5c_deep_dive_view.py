@@ -509,6 +509,17 @@ def test_4_i_nothing_compared(monkeypatch) -> None:  # review H1
                                          targets=SimpleNamespace(structure=SimpleNamespace(values=t)))}
     assert v7.stop("KOBO-001", res) is not None
     assert v7.stop("KOBO-001", replace(res, effect=None)) is None
+    # A Site's stop prints its figure in the Site's own currency, whatever the portfolio's (fix round 2).
+    kes = v7.stop("KOBO-001", replace(res, currency="KES"))
+    assert "KES" in kes and "$" not in kes, kes
+    vals = {"fuel_cost": SimpleNamespace(stated=True, value=D("5100"), computed=D("4995"), missing=None)}
+    v7.sb["KOBO-001"] = SimpleNamespace(roots={T.ROOT: SimpleNamespace(currency="KES")},
+                                        actual=SimpleNamespace(values=vals),
+                                        targets=SimpleNamespace(structure=SimpleNamespace(values={})))
+    differ = SimpleNamespace(kind="FACTOR", split="NOT_SPLIT", reason="RECORD_AND_FACTORS_DIFFER",
+                             factor_id="fuel_cost", unobserved_actual=(), unobserved_target=())
+    said = v7.stop("KOBO-001", differ)
+    assert said and "KES" in said and "$" not in said, said
 
 
 LEAD = [  # (gap, grow, optimize, headline, title)

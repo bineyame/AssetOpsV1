@@ -70,7 +70,7 @@ Builder (Claude), 2026-11-21, branch `task/5c-deep-dive-screen`, head 37e823259 
 - **L5 / D-5C.25.** BILLING and LOSS_BAND reworded; `test_5_record_words_hold_no_comma_outside_brackets`.
 - **Known deviation KD3 (Architect to confirm).** The no-comma case also caught `ANALYSING` ("the running record's
   analysis, still in progress", spec section 2.3's table). It now reads "the running record's analysis (still in
-  progress)". The spec table row is unchanged.
+  progress)". The coordinator accepted it; spec section 2.3's table row now reads this way (fix round 2).
 - **Unit 3 follows.** The screen's own fixture or tests need to carry: "(at budget)", the nested `drivers`, the
   headline's evidence "Estimated, not yet reconciled", and the two record words.
 - Plants: `/opt/assetecon/evidence/5c/fixround1/plants.txt`.
