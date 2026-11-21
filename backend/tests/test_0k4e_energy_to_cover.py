@@ -329,3 +329,39 @@ def test_e8_a_segment_that_never_reaches_the_branch_carries_no_entry():
                 seen.add(seg["classification"])
                 assert "energy_cover" not in seg, seg
     assert seen == {d3.CANDIDATE, d3.NECESSARY, d3.INDETERMINATE}
+
+
+def test_l1_the_fifteen_minute_fallback_runs_only_on_a_missing_reading():
+    # Two 5-minute means ending 18:20 disagree (10 and 11 kW: an ambiguous series) while a GOOD 15-minute mean (18:15, 18:30] of 10 kW
+    # holds over 18:20. Fallback on any problem would take 10 kW and walk on; it must run only on MISSING, so the
+    # slot is an AMBIGUOUS_SERIES gap.
+    night = Night().generator(at(18), at(18), soc="100")
+    for t in (at(18), at(18, 5), at(18, 10), at(18, 15)):
+        night.mean("feeder_demand", t, "10")
+    night.mean("feeder_demand", at(18, 20), "10").mean("feeder_demand", at(18, 20), "11")
+    night.mean("feeder_demand", at(18, 30), "10", 15)
+    night.series("pv_available_power", at(18), at(18, 40), lambda t: "30" if t >= at(18, 35) else "0")
+    seg = only_segment(run(night))
+    assert seg["classification"] == d3.INDETERMINATE
+    assert seg["energy_cover"] == [entry("GAP", held_kwh="133", input="feeder_demand", problem="AMBIGUOUS_SERIES",
+                                         gap_at=stamp(18, 20))]
+
+
+def test_l2_the_feeders_are_re_read_at_each_slot():
+    # The meter's feeder is f1 until 20:00 and f2 from 20:00 (a binding change); each reads 10 kW. Read once at the
+    # first slot, the feeders are [f1] throughout and 20:00 onward is a MISSING gap; read at each slot it is E1's
+    # night: need 120 kWh, held 95 kWh.
+    from dataclasses import replace
+    f2 = UUID(int=32)
+    night = one_point_night(soc="80")
+    readings = tuple(replace(r, asset_id=f2) if r.role == "feeder_demand" and r.source_time >= at(20) else r
+                     for r in night.readings())
+    bound = tuple(b for b in bindings() if b.role != "feeder_demand")
+    feeder = [b for b in bindings() if b.role == "feeder_demand"][0]
+    bound += (replace(feeder, valid_to=at(20)), replace(feeder, asset_id=f2, valid_from=at(20)))
+    query = EvidenceQuery(UUID(int=7), UUID(int=8), "dispatch", WINDOW, at(23), cohort=None)
+    result = EvidenceQueryResult(query, readings, bound, controls(), (ROLE_SET_MINIGRID_2,))
+    inputs = build_input_set(result, select_cohort(readings, WINDOW, None), analytic_id=d3.ANALYTIC_ID,
+                             model_version=d3.MODEL_VERSION, roles_by_set=ROLES_BY_SET)
+    seg = only_segment(d3.assess(inputs))
+    assert seg["energy_cover"] == [entry("SHORT", held_kwh="95", need_kwh="120")]

@@ -114,7 +114,7 @@ def run_interval(feed: Feed, h0: int, h1: int, **values) -> Feed:
     return feed
 
 
-def test_two_capability_candidate_is_bounded_to_candidate_segments():
+def test_a_candidate_with_pv_alone_is_bounded_to_candidate_segments():
     inputs, result = run(run_interval(Feed(), 5, 6, pv=PV_ALONE))
     assert inputs.cohort.status == "SELECTED_UNIQUE"
     [interval] = result.intervals
