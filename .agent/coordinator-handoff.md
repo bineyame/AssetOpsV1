@@ -10,7 +10,7 @@ One current block, at most 2k tokens, replaced rather than appended (`.ai/RULES.
 
 ## Merged on main 21 Nov (this session)
 
-3B2, 0K1 (+ follow-up), 4a (+ follow-up); specs+handshakes for DS3, 4a, 3B6, 3B4, 0K1; owner-away decisions. Earlier: 11 of 14 deep-dive path units.
+3B2, 0K1 (+ follow-up), 4a (+ follow-up), 3B6, DS3, 3A6, 3B4; specs+handshakes for DS3, 4a, 3B6, 3B4, 0K1; owner-away decisions. Earlier: 11 of 14 deep-dive path units.
 
 ## In flight (branch · worktree · state)
 
@@ -25,7 +25,7 @@ One current block, at most 2k tokens, replaced rather than appended (`.ai/RULES.
 ## Next (pull order after these)
 
 3A7 commit 1 and 3C2 commit 1 (no text) when 3A6 merges; their text commits and 3C1b's after SC-1a merges; 5c when 3A7 merges; DDR after. Then 0K2, 0M, 1a, DS4 (spec not written: needs telemetry-source survey; walkthrough serve of a DS4 world held for owner), WK, IA-2b.
-Migration numbers: 0067 3A6, 0068 3A7, 0069 3C2, 0070 3C1b, 0071 3B4.
+Migrations on main: 0067 3A6, 0068 3B4. Unmerged, renumber at merge in merge order: 3A7 (built as 0068), 3C2 (0069), 3C1b (0070).
 
 ## For the owner on return
 
