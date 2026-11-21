@@ -8,7 +8,7 @@ the text of a backend `UNSERVED` class; (5) no Site code in a statement key, var
 module outside `i18n` reaches a private name of `i18n` or a name outside a public module's `__all__`.
 
     python tools/checks/statement_catalogue.py                   # exit 1 and one line per failure
-    python tools/checks/statement_catalogue.py --self-test       # every guard plant fails with its code, N1-N13 pass
+    python tools/checks/statement_catalogue.py --self-test       # every guard plant fails with its code, N1-N17 pass
     python tools/checks/statement_catalogue.py --write-baseline  # writes a missing baseline (BASELINE_EXISTS else)
     python tools/checks/statement_catalogue.py --prune           # removes stale baseline and allow entries, never adds
     options: --root <tree> (scan another tree), --adopt <repo path> (treat a path as ADOPTED; plants only)
@@ -57,7 +57,8 @@ ALLOW_CLASSES = ("SQL", "HASH", "CODE")
 ALLOW_WHY_MAX = 200
 
 LOG_METHODS = {"debug", "info", "warning", "error", "exception", "critical", "log"}
-LOG_NAMES = {"logger", "log", "logging", "_log", "_logger", "_LOGGER", "LOG"}
+#: D-SC1F.4: a logger name's stem, after leading underscores are stripped and case is folded (`_LOG`, `LOGGER`, `self._log`).
+LOG_STEMS = {"log", "logger", "logging"}
 KEY_CALLS = {"message", "Word", "Count", "KOfN", "Quantity", "Price", "Absent", "State", "Evidence"}
 CHROME_CALLS = {"add_argument", "ArgumentParser", "add_parser", "APIRouter", "FastAPI"}
 CHROME_KEYWORDS = {"help", "description", "epilog", "usage", "summary"}
@@ -144,11 +145,34 @@ def _display_form(s: str) -> bool:
     return bool(TWO_LOWER.search(s)) and not code and not SQL_LEAD.match(s)
 
 
-def _logger(receiver) -> bool:
-    """D-SC1.33 rule 5: a name or attribute in `LOG_NAMES`, or a `logging.getLogger(...)` call."""
-    return (isinstance(receiver, ast.Name) and receiver.id in LOG_NAMES) \
-        or (isinstance(receiver, ast.Attribute) and receiver.attr in LOG_NAMES) \
-        or _attr_call(receiver, "getLogger")
+def _getlogger(node) -> bool:
+    """A `logging.getLogger(...)` or a bare `getLogger(...)` call."""
+    return _attr_call(node, "getLogger") or (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                                             and node.func.id == "getLogger")
+
+
+def _ref_name(node) -> str | None:
+    return node.id if isinstance(node, ast.Name) else node.attr if isinstance(node, ast.Attribute) else None
+
+
+def _bound_loggers(tree: ast.AST) -> set[str]:
+    """D-SC1F.4 rule 2: the names and attribute names this module assigns from a `getLogger` call, at any scope."""
+    out: set[str] = set()
+    for n in ast.walk(tree):
+        targets = n.targets if isinstance(n, ast.Assign) else [n.target] if isinstance(n, ast.AnnAssign) else []
+        if targets and _getlogger(n.value):
+            out.update(name for t in targets if (name := _ref_name(t)) is not None)
+    return out
+
+
+def _logger(receiver, bound: set[str]) -> bool:
+    """D-SC1.33 rule 5 as amended by D-SC1F.4: a name or attribute whose stem (leading underscores stripped, case
+    folded) is in `LOG_STEMS`; or one the module binds to a `getLogger(...)` call (`bound`); or such a call itself. A
+    name imported from elsewhere, or bound to any other call, is not a logger, so its strings stay scanned."""
+    name = _ref_name(receiver)
+    if name is not None:
+        return name.lstrip("_").casefold() in LOG_STEMS or name in bound
+    return _getlogger(receiver)
 
 
 def _call_name(call: ast.Call) -> str | None:
@@ -210,11 +234,12 @@ class Tree:
         self.fstring_parts: set[int] = set()
         self.format_specs: set[int] = set()
         self.all_values: set[int] = set()
+        bound = _bound_loggers(self.tree)
         for n in self.nodes:
             if isinstance(n, ast.Expr) and _str(n.value):
                 exempt.append(n.value)
             elif isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and n.func.attr in LOG_METHODS \
-                    and _logger(n.func.value):
+                    and _logger(n.func.value, bound):
                 exempt += n.args + [k.value for k in n.keywords]
             elif isinstance(n, ast.Raise) and isinstance(n.exc, ast.Call) and _call_name(n.exc) in unserved:
                 exempt += n.exc.args + [k.value for k in n.exc.keywords]
@@ -821,6 +846,7 @@ def unserved_served(path: str, source: str, classes: tuple) -> list[str]:
     """D-SC1.34: for each backend class in `UNSERVED`, a handler naming it whose body reads the caught name other
     than in `raise ... from e`, `isinstance(e, ...)` or a logging call is `UNSERVED_SERVED path:line class`."""
     tree = ast.parse(source, filename=path)
+    bound = _bound_loggers(tree)
     out = []
     for h in ast.walk(tree):
         if not isinstance(h, ast.ExceptHandler) or not h.name:
@@ -836,7 +862,7 @@ def unserved_served(path: str, source: str, classes: tuple) -> list[str]:
                 elif isinstance(n, ast.Call) and isinstance(n.func, ast.Name) and n.func.id == "isinstance" and n.args:
                     allowed |= _subtree_ids([n.args[0]])
                 elif isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and n.func.attr in LOG_METHODS \
-                        and _logger(n.func.value):
+                        and _logger(n.func.value, bound):
                     allowed |= _subtree_ids(n.args + [k.value for k in n.keywords])
         for stmt in h.body:
             for n in ast.walk(stmt):
@@ -1114,14 +1140,17 @@ def _word_map_plant(base: Path):
 
 
 def _plants_r1(base: Path, leaf: str, adopt: list) -> list[tuple]:
-    """Fix round 1 plants (D-SC1.33 to D-SC1.37): P49a-d (P49e-h: review round 2, M4), P51a-d, P53a (above), P55a-c, P56, P57a-e and N5-N13."""
+    """Fix round 1 plants (D-SC1.33 to D-SC1.37): P49a-d (P49e-h: review round 2, M4), P51a-d, P53a (above), P55a-c, P56, P57a-e and N5-N13; SC-1f's N14-N17, P58a and P58b."""
     i18n_init = f"{I18N}/statements/en/__init__.py"
     prose_fn = "def f(x):\n    return f\"the gap is {x} today\"\n"
     leaf_prints = (_read_json(base / HANDBUILT_BASELINE) or {}).get(leaf, [])
     fp = leaf_prints[0] if leaf_prints else "g:<module>:000000000000"
 
     def allow(entry, path=leaf):
-        return {ALLOW: json.dumps({path: [entry]})}
+        """D-SC1F.5: the real allow file plus `entry` (a new list; the base copy is not edited)."""
+        merged = dict(_read_json(base / ALLOW) or {})
+        merged[path] = [*merged.get(path, []), entry]
+        return {ALLOW: json.dumps(merged)}
 
     wm_path, wm_edit = _word_map_plant(base)
     ratchet = {
@@ -1141,6 +1170,13 @@ def _plants_r1(base: Path, leaf: str, adopt: list) -> list[tuple]:
         "N11": "def f():\n    raise ValueError(\"expression is not text\")\n",
         "N12": "def f(known):\n    return \" AND e.recorded_at <= :k\" if known else \"\"\n",
         "N13": "from assetops_backend.i18n.render import served\n\n\ndef f(m):\n    return served(m)\n",
+        # SC-1f (D-SC1F.4): a logger by its stem (N14, N15, N17) or its `getLogger` binding (N16); not otherwise
+        "N14": "import logging\n_LOG = logging.getLogger(__name__)\ndef f(x):\n    _LOG.warning(f\"read {x} rows from the file\")\n",
+        "N15": "LOGGER = object()\ndef f(x):\n    LOGGER.info(f\"loaded {x} rows from the file\")\n",
+        "N16": "import logging\naudit = logging.getLogger(\"a\")\ndef f(x):\n    audit.error(f\"the gap is {x} today\")\n",
+        "N17": "class C:\n    def f(self, n):\n        self._log.info(f\"loaded {n} rows from the file\")\n",
+        "P58a": "def f(report, x):\n    report.warning(f\"the gap is {x} today\")\n",
+        "P58b": "def make():\n    return None\naudit = make()\ndef f(x):\n    audit.info(f\"the gap is {x} today\")\n",
     }
     out = [(name, {_PLANT: body}, [], None if name.startswith("N") else "HAND_BUILT_NEW",
             None if name.startswith("N") else {"HAND_BUILT_NEW"}) for name, body in ratchet.items()]

@@ -22,6 +22,7 @@
 - `D-SC1F.4` Logger = name stem log/logger/logging after stripping underscores, or bound to getLogger in the module (owner item 8a) · live · specs/SC-1f-declared-word/rulings.md
 - `D-SC1F.5` P55 allow helper merges into the real allow file; profiles.py date tokens move to it as CODE; upload _LOG line needs none (owner item 8b) · live · specs/SC-1f-declared-word/rulings.md
 - `D-SC1F.6` SC-1f 1.0 unit, two commits, one build; "Declared" seen at the 5c walkthrough, not merge-blocking · live · specs/SC-1f-declared-word/rulings.md
+- `D-SC1F.7` A `with` basis counts only the `of` figures its variant prints or reads; a statement wording a figure printed elsewhere (`money_word`) reads it with `requires: present` (review L1, KD1) · live · specs/SC-1f-declared-word/rulings.md
 - `D-1A.1` Optimize card = one lead issue's stored cost on the window's last day; pinned by tests first · live · specs/1a-optimize-card-scope/rulings.md
 - `D-1A.2` Correct by day and scope, not a period figure (owner-away row 52) · live · specs/1a-optimize-card-scope/rulings.md
 - `D-1A.3` Scope line on the card face in v70's days slot; amends D-UQFI.7 for this card · live · specs/1a-optimize-card-scope/rulings.md

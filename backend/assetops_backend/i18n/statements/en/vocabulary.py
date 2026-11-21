@@ -143,10 +143,10 @@ VOCABULARY = {
         },
     },
     "evidence": {
-        "by_evidence_first": {"ESTIMATED": "Estimated", "MODELLED": "Modelled"},
+        "by_evidence_first": {"ESTIMATED": "Estimated", "MODELLED": "Modelled", "DECLARED": "Declared"},
         "by_origin": {"source-emulated": "Emulated", "demo-simulated": "Simulated", "unknown": "Estimated"},
         "no_origin": "Estimated",
-        "observed_by_evidence": {"RECORDED": "Recorded", "DECLARED": "Recorded", "MEASURED": "Measured", "DERIVED": "Calculated"},
+        "observed_by_evidence": {"RECORDED": "Recorded", "MEASURED": "Measured", "DERIVED": "Calculated"},
         "money_suffix": "not yet reconciled",
     },
     # 3C2 (D-3C2.14): an agreed change's state on the deep-dive screen and the command's success line.

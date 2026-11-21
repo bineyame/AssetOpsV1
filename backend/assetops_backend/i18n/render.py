@@ -54,6 +54,7 @@ class _Rendering:
         self.tree, self.facts, self.trace = tree, facts, trace
         self.printed: list[str] = []
         self.read: list[str] = []
+        self.stated: set[str] = set()  # the figures the variant being filled printed or read (D-SC1F.3)
 
 
 def _render(msg: Message, locale: str | None, want_served: bool, trace: list | None = None):
@@ -201,19 +202,25 @@ def _statement(r: _Rendering, key: str, inherited: dict) -> str:
         raise StatementError("REQUIRES_FAILED", key, vid)
     if r.trace is not None:
         r.trace.append((key, vid))
+    start = (len(r.printed), len(r.read))
     for c in (chosen.get("when"), chosen.get("requires")):
         r.read.extend(_catalogue.condition_slots(c))
     merged = dict(inherited)
     for slot, opts in chosen.get("options", {}).items():
         merged[slot] = {**merged.get(slot, {}), **opts}
     slots = st.get("slots", {})
-    out = []
-    for literal, field in _catalogue.fields(chosen["text"]):
-        out.append(literal)
-        if field is not None:
-            spec = slots[field]
-            out.append(_FILL.get(spec["type"], _fill_fact)(r, key, vid, field, spec, merged))
-    return "".join(out)
+    # Two passes (D-SC1F.3): every field but the `evidence` ones first, recording what this variant (and the parts
+    # chosen under it) printed and read; then the `evidence` fields, which count only those figures. Text order kept.
+    pieces = list(_catalogue.fields(chosen["text"]))
+    filled: dict[int, str] = {}
+    for late in (False, True):
+        if late:
+            r.stated = {*r.printed[start[0]:], *r.read[start[1]:]}
+        for i, (_, field) in enumerate(pieces):
+            if field is not None and _LATE.get(slots[field]["type"], False) is late:
+                spec = slots[field]
+                filled[i] = _FILL.get(spec["type"], _fill_fact)(r, key, vid, field, spec, merged)
+    return "".join(literal + filled.get(i, "") for i, (literal, _) in enumerate(pieces))
 
 
 def _fill_fact(r: _Rendering, key, vid, name: str, spec: dict, merged: dict) -> str:
@@ -229,11 +236,16 @@ def _fill_fact(r: _Rendering, key, vid, name: str, spec: dict, merged: dict) -> 
 
 
 def _fill_evidence(r: _Rendering, key, vid, name: str, spec: dict, merged: dict) -> str:
+    """The `with` basis: the words of its `of` slots that are present and that this variant states, by printing them
+    (in its text or a part under it) or reading them in its `when`/`requires` (D-SC1F.3, `_served_words`' rule). A
+    statement that words a figure printed elsewhere (3A7's `money_word`) reads it with `requires: present`
+    (D-SC1F.7)."""
+    stated = r.stated
     opts = formats.options(spec, merged.get(name))
     words: list[str] = []
     for slot in spec["of"]:
         fact = r.facts[slot]
-        if not isinstance(fact, Absent):
+        if not isinstance(fact, Absent) and slot in stated:
             w = formats.figure_word(fact, opts, r.vocab)
             if w not in words:
                 words.append(w)
@@ -270,6 +282,8 @@ def _fill_example(r: _Rendering, key, vid, name: str, spec: dict, merged: dict) 
 
 
 _FILL = {"evidence": _fill_evidence, "pick": _fill_pick, "part": _fill_part, "example": _fill_example}
+#: D-SC1F.3: the slot types filled in a variant's second pass, after what it printed and read is known.
+_LATE = {"evidence": True}
 
 
 def _served_words(r: _Rendering) -> list[str]:

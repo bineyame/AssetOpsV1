@@ -3,7 +3,7 @@ the statements 3A7 adds beyond SC-1's worked shapes (the heading, gap, share and
 `worked.py`'s C1 to C9 and SC1, SC2). Every English literal is written by hand (W2), never computed.
 
 Evidence: the tolerance is `DECLARED` with origin `observed-financial` (the owner's figure or RC8's 1 in 100), so it
-reads "(Recorded)" inline (D-SC1.18).
+reads "(Declared)" inline, for every origin (D-SC1.18; D-SC1F.1, C11 and C12).
 """
 from __future__ import annotations
 
@@ -17,8 +17,8 @@ FIN = "observed-financial"
 EMU = "source-emulated"
 
 
-def tol(value: str = "0.01") -> Percent:
-    return Percent(D(value), Evidence("DECLARED", FIN))
+def tol(value: str = "0.01", origin: str | None = FIN) -> Percent:
+    return Percent(D(value), Evidence("DECLARED", origin))
 
 
 def site(code: str) -> dict:
@@ -41,24 +41,30 @@ CASES = [
     # reconciliation.statement (spec section 6: K after E and F, S3, T2's S1, T6's S4)
     Case("reconciliation.statement", "matched", {"state": State("MATCHED"), "month": OCT, **site("KOBO-001"),
                                                  "tolerance": tol()},
-         "October 2026 (KOBO-001) matches the management accounts within 1% (Recorded)."),
+         "October 2026 (KOBO-001) matches the management accounts within 1% (Declared)."),
+    Case("reconciliation.statement", "matched", {"state": State("MATCHED"), "month": OCT, **site("KOBO-001"),  # C11
+                                                 "tolerance": tol(origin=None)},
+         "October 2026 (KOBO-001) matches the management accounts within 1% (Declared)."),
+    Case("reconciliation.statement", "matched", {"state": State("MATCHED"), "month": OCT, **site("KOBO-001"),  # C12
+                                                 "tolerance": tol(origin="demo-simulated")},
+         "October 2026 (KOBO-001) matches the management accounts within 1% (Declared)."),
     Case("reconciliation.statement", "not_matched", {"state": State("NOT_MATCHED"), "month": OCT, **ORG,
                                                      "tolerance": tol()},
-         "October 2026 (the organisation) does not match the management accounts within 1% (Recorded)."),
+         "October 2026 (the organisation) does not match the management accounts within 1% (Declared)."),
     Case("reconciliation.statement", "not_comparable", {"state": State("NOT_COMPARABLE"), "month": OCT,
                                                         **site("MTO-001"), "tolerance": tol()},
          "October 2026 (MTO-001) cannot be compared with the management accounts yet."),
     # reconciliation.standing (T1, T3, T2, T6, T7, T8)
     Case("reconciliation.standing", "reconciled", {"reason": State("RECONCILED"), "month": OCT, **ORG,
                                                    "tolerance": tol()},
-         "Reconciled: October 2026 (the organisation) matches the management accounts within 1% (Recorded)."),
+         "Reconciled: October 2026 (the organisation) matches the management accounts within 1% (Declared)."),
     Case("reconciliation.standing", "reconciled", {"reason": State("RECONCILED"), "month": OCT, **ORG,
                                                    "tolerance": tol("0.02")},
-         "Reconciled: October 2026 (the organisation) matches the management accounts within 2% (Recorded)."),
+         "Reconciled: October 2026 (the organisation) matches the management accounts within 2% (Declared)."),
     Case("reconciliation.standing", "this_month_not_matched",
          {"reason": State("THIS_MONTH_NOT_MATCHED"), "month": OCT, **ORG, "tolerance": tol()},
          "Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1% "
-         "(Recorded)."),
+         "(Declared)."),
     Case("reconciliation.standing", "this_month_not_comparable",
          {"reason": State("THIS_MONTH_NOT_COMPARABLE"), "month": OCT, **site("MTO-001"), "tolerance": tol()},
          "Not yet reconciled: October 2026 (MTO-001) cannot be compared with the management accounts yet."),
@@ -68,7 +74,7 @@ CASES = [
     Case("reconciliation.standing", "none_matched", {"reason": State("NONE_MATCHED"), **site("KOBO-001"),
                                                      "tolerance": tol()},
          "Not yet reconciled: no month's recorded revenue and fuel cost match the management accounts within 1% "
-         "(Recorded) yet."),
+         "(Declared) yet."),
     # reconciliation.money_word (R6: the "Recorded" and "Emulated" bases, reconciled and not)
     Case("reconciliation.money_word", "word", figure(FIN, True), "Recorded"),
     Case("reconciliation.money_word", "word", figure(FIN, False), "Recorded, not yet reconciled"),

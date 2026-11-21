@@ -2,9 +2,10 @@
 through the SC-1 composer. No database.
 
 Each expected sentence is a hand literal (W2): spec §6's sentence, changed only by SC-1's rules (money reads `$505.00`,
-D-SC1.10; a figure carries its evidence word, D-SC1.18: the heading's `(Recorded and Emulated)` because the fixture's
-records are `source-emulated`, the tolerance's `(Recorded)`; number words reworded, D-SC1.21). The packet lists each
-changed string. Plants at the end prove the statements, not the service, carry the rounding and the share rule.
+D-SC1.10; a figure carries its evidence word, D-SC1.18: the heading's `(Recorded, Emulated and Declared)` because the
+accounts are `RECORDED`, the fixture's records `source-emulated` and the tolerance `DECLARED`, D-SC1F.1 and .2; the
+tolerance's `(Declared)`; number words reworded, D-SC1.21). The packet lists each changed string. Plants at the end
+prove the statements, not the service, carry the rounding and the share rule.
 """
 from __future__ import annotations
 
@@ -26,12 +27,12 @@ from test_3a7_reconciliation import (ANA, READ_AT, S1_AT, S2_AT, S3_AT, S4_AT, T
                                      standing, t2_world, two_sites_world)
 
 FIN, EMU = "observed-financial", "source-emulated"
-OCT_K_REV = ("Revenue (Recorded and Emulated): the accounts say $500.00 and the records say $505.50, $5.50 more "
-             "(1.10%), beyond the $5.00 allowed (1%).")
-OCT_K_FUEL = ("Fuel cost (Recorded and Emulated): the accounts say $780.00 and the records say $762.50, $17.50 less "
-              "(2.25%), beyond the $7.80 allowed (1%).")
-T2_FUEL = ("Fuel cost (Recorded and Emulated): the accounts say $505.00 and the records say $512.50, $7.50 more "
-           "(1.49%), beyond the $5.05 allowed (1%).")
+OCT_K_REV = ("Revenue (Recorded, Emulated and Declared): the accounts say $500.00 and the records say $505.50, $5.50 "
+             "more (1.10%), beyond the $5.00 allowed (1%).")
+OCT_K_FUEL = ("Fuel cost (Recorded, Emulated and Declared): the accounts say $780.00 and the records say $762.50, "
+              "$17.50 less (2.25%), beyond the $7.80 allowed (1%).")
+T2_FUEL = ("Fuel cost (Recorded, Emulated and Declared): the accounts say $505.00 and the records say $512.50, $7.50 "
+           "more (1.49%), beyond the $5.05 allowed (1%).")
 T6_FUEL = "Fuel cost (Recorded): the accounts say $40.00, but no fuel invoices are recorded for October 2026."
 
 
@@ -64,16 +65,16 @@ def test_r1_words_before_and_after_the_corrections() -> None:
         ingest(w, s["at"], s["batch"])
     k = record(w, S1_AT, site="KOBO-001", revenue="500.00", fuel="780.00")
     assert texts(k) == {"revenue": OCT_K_REV, "fuel_cost": OCT_K_FUEL}
-    assert k.text == "October 2026 (KOBO-001) does not match the management accounts within 1% (Recorded)."
+    assert k.text == "October 2026 (KOBO-001) does not match the management accounts within 1% (Declared)."
     for s in kobo_steps()[4:6]:
         ingest(w, s["at"], s["batch"])
     after = only(w)
     assert texts(after) == {
-        "revenue": "Revenue (Recorded and Emulated): the accounts say $500.00 and the records say $495.50, $4.50 less, "
-                   "within the $5.00 allowed (1%).",
-        "fuel_cost": "Fuel cost (Recorded and Emulated): the accounts say $780.00 and the records say $775.00, $5.00 "
-                     "less, within the $7.80 allowed (1%)."}
-    assert after.text == "October 2026 (KOBO-001) matches the management accounts within 1% (Recorded)."
+        "revenue": "Revenue (Recorded, Emulated and Declared): the accounts say $500.00 and the records say $495.50, "
+                   "$4.50 less, within the $5.00 allowed (1%).",
+        "fuel_cost": "Fuel cost (Recorded, Emulated and Declared): the accounts say $780.00 and the records say "
+                     "$775.00, $5.00 less, within the $7.80 allowed (1%)."}
+    assert after.text == "October 2026 (KOBO-001) matches the management accounts within 1% (Declared)."
 
 
 def test_r1_words_in_eur() -> None:
@@ -95,33 +96,33 @@ def test_r2_words_t1_t2_t4_t5_t6() -> None:
     record(w, S1_AT, site=None, revenue="755.00", fuel="505.00")
     t1 = only(w)
     assert texts(t1) == {
-        "revenue": "Revenue (Recorded and Emulated): the accounts say $755.00 and the records say $750.00, $5.00 less, "
-                   "within the $7.55 allowed (1%).",
-        "fuel_cost": "Fuel cost (Recorded and Emulated): the accounts say $505.00 and the records say $500.00, $5.00 "
-                     "less, within the $5.05 allowed (1%)."}
+        "revenue": "Revenue (Recorded, Emulated and Declared): the accounts say $755.00 and the records say $750.00, "
+                   "$5.00 less, within the $7.55 allowed (1%).",
+        "fuel_cost": "Fuel cost (Recorded, Emulated and Declared): the accounts say $505.00 and the records say "
+                     "$500.00, $5.00 less, within the $5.05 allowed (1%)."}
     for code in ("KOBO-001", "MTO-001"):
         st = standing(w, code)
         assert st.text == ("Reconciled: October 2026 (the organisation) matches the management accounts within 1% "
-                           "(Recorded).")
+                           "(Declared).")
         assert st.details == ()
     load(w, "C")  # T2
     assert texts(only(w))["fuel_cost"] == T2_FUEL
     for code in ("KOBO-001", "MTO-001"):
         st = standing(w, code)
         assert st.text == ("Not yet reconciled: October 2026 (the organisation) does not match the management "
-                           "accounts within 1% (Recorded).")
+                           "accounts within 1% (Declared).")
         assert st.details == (T2_FUEL,)  # D-3A7.13's failing headings, one sentence each (packet D1)
     record(w, S2_AT, site=None, revenue="755.00", fuel="510.00")  # T4
-    assert texts(only(w))["fuel_cost"] == ("Fuel cost (Recorded and Emulated): the accounts say $510.00 and the "
-                                           "records say $512.50, $2.50 more, within the $5.10 allowed (1%).")
+    assert texts(only(w))["fuel_cost"] == ("Fuel cost (Recorded, Emulated and Declared): the accounts say $510.00 and "
+                                           "the records say $512.50, $2.50 more, within the $5.10 allowed (1%).")
     assert standing(w, "KOBO-001").text == ("Reconciled: October 2026 (the organisation) matches the management "
-                                            "accounts within 1% (Recorded).")
+                                            "accounts within 1% (Declared).")
     s3 = record(w, S3_AT, site="MTO-001", revenue="250.00", fuel="0.00")  # T5
     assert texts(s3) == {
-        "revenue": "Revenue (Recorded and Emulated): the accounts say $250.00 and the records say $250.00, the same, "
-                   "within the $2.50 allowed (1%).",
+        "revenue": "Revenue (Recorded, Emulated and Declared): the accounts say $250.00 and the records say $250.00, "
+                   "the same, within the $2.50 allowed (1%).",
         "fuel_cost": "Fuel cost (Recorded): the accounts say $0.00 and no fuel invoices are recorded."}
-    assert s3.text == "October 2026 (MTO-001) matches the management accounts within 1% (Recorded)."
+    assert s3.text == "October 2026 (MTO-001) matches the management accounts within 1% (Declared)."
     s4 = record(w, S4_AT, site="MTO-001", revenue="250.00", fuel="40.00")  # T6
     assert texts(s4)["fuel_cost"] == T6_FUEL
     assert s4.text == "October 2026 (MTO-001) cannot be compared with the management accounts yet."
@@ -137,10 +138,10 @@ def test_r2_words_t3(tmp_path) -> None:
     w["clock"].now = T3_SET_AT
     w["recon"].set_tolerance(w["tid"], "0.02", OWNER_REF)
     w["clock"].now = READ_AT
-    assert texts(only(w))["fuel_cost"] == ("Fuel cost (Recorded and Emulated): the accounts say $505.00 and the "
-                                           "records say $512.50, $7.50 more, within the $10.10 allowed (2%).")
+    assert texts(only(w))["fuel_cost"] == ("Fuel cost (Recorded, Emulated and Declared): the accounts say $505.00 and "
+                                           "the records say $512.50, $7.50 more, within the $10.10 allowed (2%).")
     assert standing(w, "KOBO-001").text == ("Reconciled: October 2026 (the organisation) matches the management "
-                                            "accounts within 2% (Recorded).")
+                                            "accounts within 2% (Declared).")
 
 
 def test_r2_words_t7_t8_t10() -> None:
@@ -149,7 +150,7 @@ def test_r2_words_t7_t8_t10() -> None:
     assert standing(w, "KOBO-001").text == ("Not yet reconciled: no closed month has been compared with the "
                                             "management accounts.")
     none_matched = ("Not yet reconciled: no month's recorded revenue and fuel cost match the management accounts "
-                    "within 1% (Recorded) yet.")
+                    "within 1% (Declared) yet.")
     assert standing(t2_world(), "KOBO-001", "2026-09").text == none_matched  # T8
     record(w, S3_AT, site="MTO-001", revenue="250.00", fuel="0.00")  # T10
     for code in ("KOBO-001", "MTO-001"):
@@ -166,29 +167,31 @@ def words(accounts: str, recorded: str, origins=(FIN,)) -> str:
 
 
 def test_mixed_origin_lines_read_the_weakest_origin() -> None:
-    """Review L1: used lines of financial and emulated origin read "(Recorded and Emulated)" (D-4B.2: the weakest)."""
-    assert words("500.00", "505.50", origins=(FIN, EMU)).startswith("Revenue (Recorded and Emulated):")
-    assert words("500.00", "505.50", origins=(EMU, FIN)).startswith("Revenue (Recorded and Emulated):")
+    """Review L1: used lines of financial and emulated origin read "(Recorded, Emulated and Declared)" (D-4B.2: the
+    weakest)."""
+    assert words("500.00", "505.50", origins=(FIN, EMU)).startswith("Revenue (Recorded, Emulated and Declared):")
+    assert words("500.00", "505.50", origins=(EMU, FIN)).startswith("Revenue (Recorded, Emulated and Declared):")
 
 
 def test_mixed_origin_lines_read_the_weakest_origin() -> None:
-    """Review L1: used lines of financial and emulated origin read "(Recorded and Emulated)" (D-4B.2: the weakest)."""
-    assert words("500.00", "505.50", origins=(FIN, EMU)).startswith("Revenue (Recorded and Emulated):")
-    assert words("500.00", "505.50", origins=(EMU, FIN)).startswith("Revenue (Recorded and Emulated):")
+    """Review L1: used lines of financial and emulated origin read "(Recorded, Emulated and Declared)" (D-4B.2: the
+    weakest)."""
+    assert words("500.00", "505.50", origins=(FIN, EMU)).startswith("Revenue (Recorded, Emulated and Declared):")
+    assert words("500.00", "505.50", origins=(EMU, FIN)).startswith("Revenue (Recorded, Emulated and Declared):")
 
 
 @pytest.mark.parametrize("accounts, recorded, english", [
-    ("0.00", "3.00", "Revenue (Recorded): the accounts say $0.00 and the records say $3.00, $3.00 more, beyond the "
-                     "$0.00 allowed (1%)."),  # no share for a zero figure (V12)
-    ("501.50", "506.52", "Revenue (Recorded): the accounts say $501.50 and the records say $506.52, $5.02 more "
-                         "(1.01%), beyond the $5.01 allowed (1%)."),  # V15: the allowed amount rounds down
-    ("500.00", "500.004", "Revenue (Recorded): the accounts say $500.00 and the records say $500.00, less than $0.01 "
-                          "more, within the $5.00 allowed (1%)."),
-    ("505.00", "510.05", "Revenue (Recorded): the accounts say $505.00 and the records say $510.05, $5.05 more, "
-                         "within the $5.05 allowed (1%)."),
-    ("505.00", "499.94", "Revenue (Recorded): the accounts say $505.00 and the records say $499.94, $5.06 less "
-                         "(1.01%), beyond the $5.05 allowed (1%)."),
-    ("1234567.89", "1234567.89", "Revenue (Recorded): the accounts say $1,234,567.89 and the records say "
+    ("0.00", "3.00", "Revenue (Recorded and Declared): the accounts say $0.00 and the records say $3.00, $3.00 more, "
+                     "beyond the $0.00 allowed (1%)."),  # no share for a zero figure (V12)
+    ("501.50", "506.52", "Revenue (Recorded and Declared): the accounts say $501.50 and the records say $506.52, "
+                         "$5.02 more (1.01%), beyond the $5.01 allowed (1%)."),  # V15: the allowed amount rounds down
+    ("500.00", "500.004", "Revenue (Recorded and Declared): the accounts say $500.00 and the records say $500.00, "
+                          "less than $0.01 more, within the $5.00 allowed (1%)."),
+    ("505.00", "510.05", "Revenue (Recorded and Declared): the accounts say $505.00 and the records say $510.05, "
+                         "$5.05 more, within the $5.05 allowed (1%)."),
+    ("505.00", "499.94", "Revenue (Recorded and Declared): the accounts say $505.00 and the records say $499.94, "
+                         "$5.06 less (1.01%), beyond the $5.05 allowed (1%)."),
+    ("1234567.89", "1234567.89", "Revenue (Recorded and Declared): the accounts say $1,234,567.89 and the records say "
                                  "$1,234,567.89, the same, within the $12,345.68 allowed (1%)."),
 ])
 def test_r3_boundary_words(accounts, recorded, english) -> None:
@@ -196,7 +199,7 @@ def test_r3_boundary_words(accounts, recorded, english) -> None:
 
 
 def test_r3_an_unnamed_origin_reads_estimated() -> None:
-    assert words("500.00", "500.00", origins=()).startswith("Revenue (Recorded and Estimated): ")
+    assert words("500.00", "500.00", origins=()).startswith("Revenue (Recorded, Estimated and Declared): ")
 
 
 # ---------------------------------------------------------------- R4: refusal sentences
