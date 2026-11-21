@@ -1,6 +1,6 @@
 # 0K4a: `mini-grid` v8, the generator takes the load (implementer spec)
 
-Status: live, rev 2 (Architect, Claude, 2026-11-21): handshake answered (D-0K4.19, D-0K4.20, D-0K4.22, D-0K4.25),
+Status: in_review (implementer, 2026-11-21; packet `packet.md`), rev 2 (Architect, Claude, 2026-11-21): handshake answered (D-0K4.19, D-0K4.20, D-0K4.22, D-0K4.25),
 build-ready. **2.5 units.**
 Discovery review (W5): a new mechanism in the simulator's dispatch, whose litres feed a money figure. Non-screen. No
 migration. No database. `USER_REVIEW_REQUIRED: false` (v8's profile words reach only the simulator lab's run setup). Rulings: `specs/0K4-dispatch-model-review/
