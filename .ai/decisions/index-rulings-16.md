@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings, continued (index only) (D-0K1.10 to D-0K1.18)
+# Decision index: Demo-sprint and later rulings, continued (index only) (D-0K1.10 to D-0K1.18, D-DS3.9 to D-DS3.19)
 
 - `D-0K1.10` Test reader emits loads in reverse sorted order; load series pairwise unequal (a positional match must fail) · live · specs/0K1-forward-replay-port/rulings.md
 - `D-0K1.11` K-RES: no setting is the baseline anchor; reserve_source asserted from the request · live · specs/0K1-forward-replay-port/rulings.md
@@ -9,3 +9,14 @@
 - `D-0K1.16` T4 proves the reserve row is accepted; T10's pin is a drift guard only · live · specs/0K1-forward-replay-port/rulings.md
 - `D-0K1.17` A whole-interval override window is aligned at any step size; non-5-minute replay untested · live · specs/0K1-forward-replay-port/rulings.md
 - `D-0K1.18` Test commands recorded in the packet; generator_state refused by T6, constructs in the contract · live · specs/0K1-forward-replay-port/rulings.md
+- `D-DS3.9` Bulk refusals in one fixed order, one code per condition (BATCH_ID_CONFLICT); claim refusals pass through; disabled gateway reads GATEWAY_DISABLED · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.10` Bulk statements target three ledger tables plus recompute_job; triggers fire as on the real path; parity takes a census of every table · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.11` Bulk load proved for MINIGRID (v3 and v4); other Site types refused BULK_SITE_TYPE_UNPROVEN until their parity slice (owner away, row 13) · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.12` permitted_database also checks the container's host and port; the world command never loads the served walkthrough DB (serving held for owner) · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.13` World layout commercial/ and telemetry/ siblings; command exit 4 for a failed commercial step · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.14` pg_harness gains clone_database and drop_database; cleanup drops registered clones; tests take URLs from fixtures · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.15` Only _COLLISION_INDEXES are bulk collisions; other integrity errors propagate · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.16` The DS3 measurement is a committed slow, opt-in test module · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.17` Test 6 may seal with seal_batch_v2 and use S4-05's publication helper · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.18` Persistence guard is a first-commit gate run for real (check-architecture.ps1) · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.19` DS3 re-sized to 4.0 units, no split · live · specs/DS3-bulk-loader/rulings.md
