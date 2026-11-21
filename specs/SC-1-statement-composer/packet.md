@@ -45,6 +45,7 @@ Head: the commit that adds this section (code `33115e055`, main merged at `55aa7
   `"\n".join` later hashed; `081e850` `evaluate.py:223` `", ".join` building expression code). The rest: 13 English
   messages of backend exception classes (Architect: 11; I counted every hit inside a `raise` by AST, which includes
   `expressions.py:148`'s join and the start-up `ConfigurationError`s), 4 served exception texts (j), 93 served English.
+- **Gates** (worktree, code 33115e055 + merge 55aa7d6ac + docs): guard on the real tree `OK` (7.9s); `--self-test` 68 of 68; `test_sc1_statements.py` 370 passed; guard tests 48 passed (61.5s); i18n/refusal/3A2/3C1a regression (same 8 files) **778 passed, 1 warning** (28.3s wall); `check-architecture.ps1` passed (ASSETOPS_GUARD_PYTHON set, 100.5s); `check-agent-workflow.ps1` passed; `check-decision-index.py` OK (1,034 IDs); fast check-all 06:04-06:10 UTC, 371s wall (258s waiting for a slot): **all 43 guards passed**, both SC-1 lines among them.
 - **Known deviations.** (1) `schema.py`'s `NUMBER_WORDS` literal is read as data by scope (1): its roots and suffixes
   are no longer in `TOKENS`, so the spec's own literal would otherwise be `MECH_LITERAL`. (2) The rulings' "does not
   catch" list names `"policy_version required"`, but rule 1 makes a word of three or more letters beside an
