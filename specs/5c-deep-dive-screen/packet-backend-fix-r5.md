@@ -54,7 +54,10 @@ mock's waterfall with no arithmetic (D-5C.2 stands).
     `test_4_i_currency_card_word_beside_no_figure`, `test_bars_world_x_...`, `test_16_...[X|nothing|subset|two]`).
   - P-c bar from the rounded share (`(e / gap * 100).quantize(1)`): `3 failed, 179 passed` (test 3, `test_4_h`,
     `test_bars_vectors[V2]`).
-- `python3 tools/checks/statement_catalogue.py`: `OK statement catalogue: load, coverage, legacy, scan (6 adopted),
+  - P-d the crash restored (rest line at gap 0): `1 failed, 182 passed` (`test_bars_gap_zero_whole_payload`).
+- After KD2 (at `0b8210ac6`): focused `380 passed, 1 skipped, 1 warning in 6.71s`; view file `183 passed`; test 9
+  TEST9_R2; check-all (fast) CHECKALL_R2.
+- `python3 tools/checks/statement_catalogue.py` (before and after KD2): `OK statement catalogue: load, coverage, legacy, scan (6 adopted),
   keys, imports` (exit 0).
 - check-all (fast, through the slot, at `435a71c87`): `All 42 guards passed (blocking; 0 advisory, 0 warned).` (142.8 s; estate and pool self-tests skipped as unchanged).
 - Layout evidence: not run (backend only; no page changed).
@@ -65,10 +68,13 @@ mock's waterfall with no arithmetic (D-5C.2 stands).
   the ones the heading's sum adds. Class test 16 found, before this change, World "subset"'s Optimize card serving
   "−KES 730.00" with `word` "Not available yet": O&M and staff have no figure (KES and USD), so their NOT_AVAILABLE
   evidence was the weakest. D-5C.26 requires a present figure's word to be §2.4's word, never "Not available yet". A
-  is unchanged (every step has an effect). Architect to confirm.
-- KD2 a gap of exactly 0 with a non-zero rest raises `StatementError('REQUIRES_FAILED', 'deep_dive.tile_rest',
-  'offsets')` in `tiles()` (pre-existing on main, outside §11). The gap-0 share case is therefore a `shares()` vector
-  on a stub view, not a whole payload. Needs a ruling for the gap tile's rest line at gap 0.
+  is unchanged (every step has an effect). **Accepted** (coordinator for the Architect, owner away, 2026-11-21).
+- KD2 **fixed in this round** (coordinator ruling, 2026-11-21): a gap of exactly 0 with a non-zero rest raised
+  `StatementError('REQUIRES_FAILED', 'deep_dive.tile_rest', 'offsets')` in `tiles()` (pre-existing on main). Ruling: at
+  gap 0 the gap tile has no rest line (nothing to offset); value and word per D-5C.26. `tiles()` adds the rest line
+  only when R's effect is not None and not 0 (commit `0b8210ac6`). Test `test_bars_gap_zero_whole_payload` builds the
+  whole payload through the view (lead world gap 0.00, steps +5.00 and -5.00): it renders, the gap tile's lines are
+  only "Grow +$5.00 · Optimize −$5.00", no "Offsets it", no share, no bar, no scale.
 
 ## Residual risk and review focus
 
