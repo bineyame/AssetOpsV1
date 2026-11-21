@@ -348,9 +348,12 @@ def test_t8_shipped_catalogue_loads():
                                          # 3C1b (D-SC1.28): the trial action's actor words.
                                          "action.actor_label", "action.observe_note", "action.change_statement",
                                          "action.publish_note", "action.client_authority_forbidden",
-                                         "action.unknown_site"}
+                                         "action.unknown_site",
+                                         # 0K4b (D-0K4.19): Foundation property names and model-profile needs.
+                                         "foundation.property_name", "model_profile.need"}
     assert set(cat.vocabulary["en"]) == {"factor", "heading", "headline_subject", "record", "record_noun",
-                                         "evidence", "unit", "noun", "month", "format", "action_state"}
+                                         "evidence", "unit", "noun", "month", "format", "action_state",
+                                         "foundation_property"}
 
 
 def test_t8_a_module_with_a_docstring_loads_by_its_assignment_value():
