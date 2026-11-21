@@ -7,7 +7,10 @@ from __future__ import annotations
 
 import re
 from collections.abc import Mapping
+from dataclasses import dataclass
+from datetime import datetime
 from types import MappingProxyType
+from uuid import UUID
 
 from assetops_backend.structure.attribution.rules import BRIDGE_ROOTS
 from assetops_backend.structure.expressions import Bin, Expr, Neg, Ref
@@ -139,3 +142,50 @@ def money_dimension(unit) -> bool:
     """A unit with a money dimension (`MONEY`, `MONEY/KWH`, `MONEY/L`): its values carry a currency (spec §2.2 step
     3, §5.3's money leaves). Same rule as the evaluator's currency check."""
     return any(d == "MONEY" and e != 0 for d, e in unit.exponents)
+
+
+# --- spec §4.3: the lifecycle (D-3B4.8) and the tolerance record (D-3B4.11) ------------------------------------------
+
+_WITHDRAWN = ("NO_GAP", "FAVOURABLE", "INSIDE_TOLERANCE")
+_UNREADABLE = ("ACTUAL_NOT_AVAILABLE", "TARGET_NOT_AVAILABLE", "CURRENCY_MISMATCH", "TOLERANCE_NOT_AVAILABLE")
+
+
+def transition(held_lifecycle: str | None, held_basis: str | None, state: str,
+               basis: str) -> tuple[str, str] | None:
+    """Spec §4.3's table, first match wins: `(transition, lifecycle)` to write, or None (nothing)."""
+    if held_lifecycle is None:
+        return ("OPENED", "SUPPORTED") if state == "RAISED" else None
+    if state == "RAISED":
+        if held_lifecycle == "SUPPORTED":
+            return None if held_basis == basis else ("SUPPORT_CHANGED", "SUPPORTED")
+        if held_lifecycle in ("NO_LONGER_SUPPORTED", "UNCONFIRMED"):
+            return ("REOPENED", "SUPPORTED")
+        return None
+    if held_lifecycle in ("SUPPORTED", "UNCONFIRMED") and state in _WITHDRAWN:
+        return ("NO_LONGER_SUPPORTED", "NO_LONGER_SUPPORTED")
+    if held_lifecycle == "SUPPORTED" and state in _UNREADABLE:
+        return ("UNCONFIRMED", "UNCONFIRMED")
+    return None
+
+
+def previous_month(month: str) -> str:
+    y, m = int(month[:4]), int(month[5:7])
+    return f"{y - 1}-12" if m == 1 else f"{y}-{m - 1:02d}"
+
+
+@dataclass(frozen=True)
+class ToleranceRow:
+    """One `structure_tolerance` row (spec §4.1): a Site's declaration, append-only."""
+    id: UUID
+    tenant_id: UUID
+    site_id: UUID
+    structure_key: str
+    factor_id: str
+    state: str                      # SET or CLEARED
+    of_factor: str | None
+    pct: str | None                 # text, ^[0-9]{1,3}(\.[0-9]{1,2})?$
+    valid_from: str                 # YYYY-MM
+    recorded_at: datetime | None    # None on append: the store stamps clock_timestamp()
+    recorded_by: UUID
+    recorded_role: str
+    recorded_by_script: bool
