@@ -48,11 +48,11 @@ lines that contain "Declared". Each follows rule R1 or R3, apart from KD3.
 - **Logger rule:** N14-N17 pass, while P58a and P58b are still caught (`HAND_BUILT_NEW`). Pass.
 - **P55 on the real allow file:** P55a-c behave under the merged helper. The allow file holds exactly the two `profiles.py` lines. Pass.
 
-## Checks run (revision `baf072f50` unless stated)
+## Checks run (commit 1's code; commit 2's guard at `baf072f50`, unless stated)
 
 - Tests first (red): the new tests on main `fa13f254f`, before any code change: 41 failed, 413 passed.
 - `run-host-tests.ps1 -- test_sc1_statements.py test_3a7_reconciliation_words.py test_3a7_reconcile_command.py test_3a7_reconciliation.py`: **512 passed**, 3.7 s.
-- `heavy-slot.sh --db -- run-host-tests.ps1 -- test_3a7_reconciliation_postgres.py` on `assetops_test`: **3 passed**, 7.65 s.
+- `heavy-slot.sh --db -- run-host-tests.ps1 -- test_3a7_reconciliation_postgres.py` on `assetops_test`: **3 passed**, 7.65 s. This ran on `031f874fa`, commit 1 before its render rewrite to the `_LATE` table (KD2). Behaviour is the same, and the no-DB files reran after the rewrite.
 - `python3 tools/checks/statement_catalogue.py`: `OK statement catalogue: load, coverage, legacy, scan (2 adopted), keys, imports`, with `ALLOWED entries: 2`:
   - `ALLOWED backend/assetops_backend/commercial/profiles.py:124 CODE h:_swap_day_month:052fded502f9 | return fmt.replace("DD", "\0").replace("MM", "DD").replace("\0", "MM")`
   - the same line for `h:_swap_day_month:d40e38ccee22`
@@ -60,7 +60,17 @@ lines that contain "Declared". Each follows rule R1 or R3, apart from KD3.
   - Red: plants in place, logger code old. `FAIL N14/N15/N16: expected pass; got HAND_BUILT_NEW`; `75 of 78 plants behave`. N17 already passed, because `_log` was in `LOG_NAMES`. P59d proves N17 instead.
   - Green: `OK statement catalogue self-test: 78 of 78 plants behave`.
 - Baseline diff: `--prune` removed exactly `commercial_upload_api.py` `g:build_commercial_upload_router.run:395904969735` and `estate/index.py` `g:opportunity_read:693eaf7b776b`. The two `profiles.py` fingerprints were removed by hand. Nothing else changed (10 deletions).
-- P59 plants and check-all: see the round-1 section that follows.
+- Reviewer plants. Each was applied, run, then reverted with `git checkout`; the tree was clean afterwards.
+  - P59a: `DECLARED` back in `observed_by_evidence`. 7 failed: the T2 DECLARED pairs, V1, C11 and C12 (`reconciliation.statement-matched1/2`).
+  - P59b: `_fill_evidence` counts every `of` slot. 4 failed: C10 (`zero_stated1`), T13 and `test_r2_words_t1_t2_t4_t5_t6`.
+  - P59c: `accounts` uses `SETTING`. 13 failed, among them the R1 headings and the R3 boundary cases.
+  - P59d: no `lstrip("_")`. Only `FAIL N17` fails. N14's `_LOG` is still a logger through rule 2, its `getLogger` binding, so the spec's "N14 fails" does not hold.
+  - P59e: the replacing `allow()`. `FAIL P55a, P55a2, P55b, P55c` (`HAND_BUILT_NEW` on the `profiles.py` lines); 73 of 78 plants behave.
+- Fast check-all, on `39b038b6d`: `check-all: 189.2 s wall (0.3 s waiting for a slot), 4 jobs at once.` and `All 42 guards passed (blocking; 0 advisory, 0 warned).`
+  - The first run, on `01f9ec874`, failed 3 of 42 guards:
+    - `.ai/state/index-2.md` was 8108 bytes, over the 8000-byte cap. The line moved to `index-3.md`.
+    - The missing-claim scan and its fixtures failed with `MODULE_NOT_FOUND typescript`, because this worktree had no `frontend/node_modules`. It now has the same untracked symlink to main's that the other worktrees use.
+- Architecture seams and the agent-workflow check ran inside check-all, and all passed.
 
 ## Known deviations
 
