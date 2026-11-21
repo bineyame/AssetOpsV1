@@ -1,6 +1,6 @@
 # 0K2: Kobo's stop-threshold and reserve replays on a simulated season (implementer spec)
 
-Status: spec rev 2, handshake round 1 answered (D-0K2.17 to D-0K2.29; `rulings.md` "Handshake answers (round 1)"). Architect (Claude), 2026-11-21, on the owner's delegation
+Status: in_review (built on `task/0K2-kobo-replay`; packet `packet.md`). Spec rev 2, handshake round 1 answered (D-0K2.17 to D-0K2.29; `rulings.md` "Handshake answers (round 1)"). Architect (Claude), 2026-11-21, on the owner's delegation
 (`owner/owner-away-architect-decides-2026-11-21.md`; pull order `specs/OWNER-AWAY/decisions-2026-11-21.md` row 4).
 Spike K, part 2 (`delivery-plan.md` §2 row `0K2`: "Kobo's stop-threshold and reserve replays on the simulated series,
 through the port"; lane C, `two-week-build-plan.md` §0.2 days 8 to 10). **4.5 units** (rev 1: 4). Discovery review (W5): a new

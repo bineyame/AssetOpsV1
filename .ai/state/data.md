@@ -488,6 +488,13 @@ Branch `task/DS3-bulk-loader` (base main `8eff70625`); spec `specs/DS3-bulk-load
 
 - Settled: `PostgresEvidenceLedger.bulk_admit` (one transaction per batch, `_BULK_BATCH_SQL`/`_BULK_EVIDENCE_SQL`/`_BULK_DISPOSITION_SQL` set-based `INSERT ... SELECT FROM unnest`, only the existing DO NOTHING arbiters; refusals BULK_PUBLISHED_BATCH, BATCH_ID_CONFLICT, BULK_BATCH_IN_PROGRESS, BULK_SITE_TYPE_UNPROVEN (MINIGRID only), BULK_MESSAGE_COLLISION; other integrity errors propagate); `gateway_principal`; `BatchIngestionService.admit` and `_enqueue_admitted` extracted unchanged; `evidence/bulk_load.py` (`BulkEvidenceLoad`, SIMULATED only, `permitted_database`: audit names and harness clones only, host and port); `python -m assetops_backend.load_world_inputs` (commercial through `load_emulated_exports`, telemetry in bulk; exits 0/2/3/4); `pg_harness.clone_database`/`drop_database`. Parity on two Kobo days: equal evidence, batch and disposition rows, recompute-job rules, census.
 - Open: nothing from the mid-build questions (answered). DS4 lifts BULK_SITE_TYPE_UNPROVEN per Site type with that type's parity slice, and checks the event cover for gap days (D-DS3.21).
+## 0K2 - the Kobo replay study on a simulated season (in review, 21 Nov)
+
+Branch `task/0K2-kobo-replay` (base main `15c5b07b6`); spec `specs/0K2-kobo-replay-study/spec.md` rev 2, rulings D-0K2.1-29; packet `packet.md`. No database, no migration, no served text.
+
+- Settled: `runs/replay_study.py` (`replay_study` and the §2.5 helpers `0M` reuses; whole-window replays only, refusals before any port call, calibration on admissible days, dawn readings with new/cleared dates against no action, local-month splits, SIMULATED/MODELLED labels on every record); `host/tests/kobo_season.py` (the declared 61-day season, published at stated quanta); `tools/kobo_replay_study.py`. 61-day run: CALIBRATED (adapter fidelity); every case, the baseline included, has 16 of 61 dawns below 35% (day 0 and the 15 after-overcast dawns), no case adds or clears a dawn date.
+- Open: owner-away rows 37 (design values unchanged) and 42 (dawn admissibility for `6c`); the reader from accepted readings (`0K3`); money and option choice (`6c`).
+
 ## 0K1 - the forward replay port and its host adapter (in review, 21 Nov)
 
 Branch `task/0K1-forward-replay` (base main `3bdf3c81d`); spec `specs/0K1-forward-replay-port/spec.md` rev 2, rulings D-0K1.1-18; packet `packet.md`. No database, no route, no served text.
