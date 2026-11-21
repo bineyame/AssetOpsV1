@@ -140,3 +140,8 @@ no Python interpreter" (environment, not code); the first check-all failed on `.
 8000-byte cap from this slice's index line, shortened, then rerun.
 
 Mid-build count: 4 (corrected at review, L3): deviations 1 (`types` import), 2 (instants outside `[start, end)` only), 5 (the empty or reversed interval) and Q1 (Kobo's zone, Addis Ababa not Nairobi); defaults applied, nothing stopped. Spec rev 3 amends the text to match.
+
+
+## Change after merging main (SC-1a)
+
+The statement guard found 18 HAND_BUILT_NEW fingerprints in `runs/replay_series.py` (the English `detail` arguments). Route taken: D-SC1.34's declared-unserved class (D-0K3.9: `detail` is never served). `SeriesRefused` is added to `schema.UNSERVED` in `i18n/schema.py`, and to the two tests that pin the tuple (`backend/tests/test_sc1_statements.py`, `tools/checks/test_statement_catalogue.py`). No detail text, code, subject or behaviour changed; baseline, allow file and guard untouched. `statement_catalogue.py` exits 0.

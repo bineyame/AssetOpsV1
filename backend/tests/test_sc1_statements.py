@@ -487,7 +487,7 @@ def test_t12_schema_sets_equal_the_spec():
         (("doubl", "tripl", "quadrupl", "halv"), ("e", "es", "ed", "ing")),
         (("zero", "nought"), ("", "s", "es")))}
     assert schema.UNSERVED == ("ValueError", "TypeError", "KeyError", "LookupError", "RuntimeError", "AssertionError",
-                               "NotImplementedError", "StatementError", "CatalogueError", "WireError")
+                               "NotImplementedError", "StatementError", "CatalogueError", "WireError", "SeriesRefused")
     assert schema.SYMBOLS == ("", " ", ", ", "$", "−", "+", "%", ",", ".", "(", ")", " (", "{", "}", ":", "-",
                               "T")
     assert schema.SYSTEM == ("STATEMENTS", "VOCABULARY", "statements", "vocabulary", "utf-8", "en", "USD", "OMITTED",

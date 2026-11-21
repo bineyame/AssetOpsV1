@@ -17,7 +17,7 @@ import statement_catalogue as guard  # noqa: E402
 
 ROOT = HERE.parents[1]
 UNSERVED = ("ValueError", "TypeError", "KeyError", "LookupError", "RuntimeError", "AssertionError",
-            "NotImplementedError", "StatementError", "CatalogueError", "WireError")
+            "NotImplementedError", "StatementError", "CatalogueError", "WireError", "SeriesRefused")
 
 #: Spec section 6, P13a to P13q, each alone in an `ADOPTED` file.
 ADOPTED_PLANTS = {
