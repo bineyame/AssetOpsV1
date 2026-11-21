@@ -436,3 +436,145 @@ The only caller of `split_file` outside contracts is `commercial/profiles.py:233
   on the header row before parsing the rest of the sheet if this matters at the host's memory size.
 - Duplicate data-row numbers are kept as separate rows that share one number, so row-numbered messages can repeat.
   The N4 fix that refuses non-increasing numbers would close this too.
+
+## Round 4 (fresh adversarial re-review at 84113ed14, code at c8a6d23c1; verdict REVISE)
+
+### Summary (verdict: REVISE)
+
+- N4 is fixed and the r3 work bound does what it says for what it counts: XML elements. Duplicate, falling,
+  zero, overlong and missing row numbers, deep nesting, many attributes, many tags, DTDs and big numbers all stay
+  bounded (table below). The 249k-row case reproduces (4.54 s, 151 MB) and is acceptable as bounded.
+- The class is still open in two places the element count cannot see:
+  - **N5 High.** A compressed member whose declared size lies is inflated in full before the size is checked. A
+    1.0 MB upload took 2.0 GB of RSS and then read `ok`.
+  - **N6 High.** One shared string is reused by reference in every cell that points at it, then scanned
+    character by character in each row. A 4.6 kB upload took 17.4 s, and the cost grows linearly to hours.
+- **N7 Medium.** The CSV path has no budget: an 8 MiB file of `x\n` took 11.8 s and 2.5 GB.
+- The differential (2,000 random legitimate sheets, old reader against new) gave 0 mismatches. Contracts plus 3A6:
+  160 passed. 3A6 Postgres: 4 passed.
+- Open point: tell the operator the file is too large rather than "not readable" (recommended; Low, not blocking).
+
+### N5 High: the member cap trusts the zip's declared sizes (`contracts/assetops_contracts/native/xlsx.py:295` and `_parse`, `z.read(name)`)
+
+- **Wrong.** `_read` checks `ZipInfo.file_size`, which is the size the central directory claims. On Python 3.12,
+  `z.read` inflates the whole compressed stream in one `decompress` call with no output limit, and only then cuts
+  the result to the declared size. A sheet member that declares the small golden sheet's size and CRC, followed by
+  a deflate stream of N MiB of spaces, passes the cap, allocates N MiB (twice, briefly), and then passes the CRC,
+  because the cut bytes are the real sheet.
+- **Seen** (a fresh process reading a saved file, baseline RSS 22 MB):
+  - 200 MB lie in a 200.8 kB upload: 422 MB max RSS, `NATIVE_WORKBOOK`.
+  - 1,000 MB lie in a 997 kB upload: **2,024 MB max RSS, 3.69 s, read `ok 3`**.
+  - Deflate gives about 1,000:1, so the 8 MiB upload cap allows about 8 GB inflated (about 16 GB peak) per
+    request, and the 1 MiB profile sample cap allows about 2 GB.
+- **Why it matters.** This is the same small-file, host-sized-cost class as F1, N1 and N4, and it reaches past
+  every later bound because it happens before parsing. The r3 audit row "member cap 16 MiB" relies on a header field
+  the attacker writes.
+- **Fix.** Read each member through `z.open(name)` with a bounded read, so the inflation itself is limited:
+  `f.read(_MEMBER_MAX + 1)`, refused when longer. `ZipExtFile.read(n)` passes `n` as the decompressor's
+  `max_length`. Also keep a running total against `_TOTAL_MAX` over the bytes actually read. Then add a test that
+  splices a large deflate stream behind a small declared size, bounded on peak memory, and a plant that restores
+  `z.read`.
+
+### N6 High: shared-string amplification through `read_rows` (`layouts_v1.py:382` `_invisible`, and the joins after it; source `xlsx.py` `_Cell.value`, `shared[int(v)]`)
+
+- **Wrong.** The work bound charges one unit per `<c>` and `<v>`, but a `t="s"` cell delivers the whole shared
+  string. Every cell that references the same `<si>` gets the same Python string, so this is free in memory. Then
+  `read_rows` runs `_invisible` on it, a Python-level loop over every character with `unicodedata.category`, once
+  for each written cell. For the budget profile, `record_id_join` and `version_digest` also build a new string of
+  that length for each record and hash it.
+- **Seen** (shared string at index 0 is 1,000,000 `A`s; each row is the budget row with Site = `s0`; profiled time
+  is 95% `_invisible`):
+
+  | Rows | Upload | Time | Max RSS |
+  |---|---|---|---|
+  | 1 | 2.9 kB | 0.19 s | 27 MB |
+  | 10 | 3.1 kB | 1.72 s | 35 MB |
+  | 100 | 4.6 kB | 17.38 s | 122 MB |
+
+  The cost is linear: about 0.17 s and 1 MB a row. A 10,000-row upload is about 170,000 elements, so it sits
+  under the bound. It would come to roughly 30 minutes and 10 GB, still only tens of kB. With a 16 MiB shared
+  string, each row costs about 16 times more.
+- **Why it matters.** This is the class r3 was asked to close. The budget counts elements, but the work is
+  proportional to the characters delivered.
+- **Fix.** Charge characters too. Either:
+  - when a `t="s"` cell resolves, charge `len(shared[i])` against a workbook-wide character budget (for example
+    `_MEMBER_MAX` characters across all cells, which no legitimate export reaches); or
+  - also refuse any cell longer than Excel's own limit of 32,767 characters, which is defence in depth but not
+    enough alone (250k cells times 32k characters).
+
+  Then add a test with one long shared string referenced by a few thousand rows, bounded on time, and a plant.
+
+### N7 Medium: the CSV path is outside the budget (`layouts_v1.py` `split_file`, CSV branch `all_rows.append`)
+
+- **Wrong.** The packet states that CSV rows are bounded by the 8 MiB upload cap. They are bounded, but not to a
+  small cost:
+  - `kobo` profile, 8 MiB of `;;;;;;;;\n` (932,051 rows): 11.36 s, 551 MB, `ok 932051`.
+  - 8 MiB of `x\n` (4,194,230 rows, all `NATIVE_ROW`): **11.80 s, 2,536 MB**.
+
+  `parse_batch` refuses anything above `MAX_RECORDS = 10,000` only after the full read. The reader before 3A6
+  was also unbounded in row count, but it streamed rows into records. 3A6 lists every row first, and now serves
+  tenant-written profiles.
+- **Why it matters.** This is the same cost class. It is Medium rather than High because the shape predates the
+  slice and needs the full 8 MiB upload rather than a few kB.
+- **Fix.** Bound rows on both paths by the batch ceiling, not by the bytes. In `split_file`, refuse as soon as kept
+  data rows pass `MAX_RECORDS`, and stop iterating at once, on CSV and XLSX alike. That also brings the 249k XLSX
+  case down to about 10k rows (about 0.2 s). Add a CSV test at the cap and a plant.
+
+### Probes that held (fresh process each; max RSS includes about 22 MB of baseline)
+
+| Probe | Upload | Outcome | Time | RSS |
+|---|---|---|---|---|
+| 499k nested elements in one cell | 5.8 kB | ok | 0.90 s | 147 MB |
+| one element, 600k attributes | 1.4 MB | ok | 1.19 s | 200 MB |
+| 400k distinct tag names | 0.9 MB | ok | 1.26 s | 188 MB |
+| 200k `xmlns:` declarations | 1.0 MB | ok | 0.37 s | 91 MB |
+| one 15 MiB inline cell (written column) | 16.8 kB | ok | 2.76 s | 82 MB |
+| 15 MiB-digit amount | 16.8 kB | ok | 0.25 s | 88 MB |
+| 200k long-number rows | 1.0 MB | `NATIVE_WORKBOOK` (bound) | 0.00 s | 92 MB |
+| 240k shared strings | 11.6 kB | ok | 0.67 s | 37 MB |
+| 4 duplicate sheet member names, 15 MiB each | 63.5 kB | ok (last wins; total under 64 MiB) | 0.12 s | 67 MB |
+| DTD/ENTITY | 1.7 kB | `NATIVE_WORKBOOK` | 0.00 s | 22 MB |
+| 249k `<row><c t="b"/></row>` (builder's worst) | 14.2 kB | ok 249003 | 4.54 s | 151 MB |
+
+The 15 MiB inline cell (2.76 s) is the single-copy form of N6. It is bounded by the member, and the N6 character
+budget would cover it too. The 249k case is acceptable as bounded. N7's row ceiling would tighten it about 25
+times at no cost to legitimate files.
+
+### Open point: the budget refusal's words
+
+- **Judgment.** Telling an operator "not an Excel workbook this layout can read" for a file that is merely too
+  large is not honest. They will look for a format problem that is not there.
+- **Recommendation.** A dedicated code, for example `NATIVE_TOO_LARGE`, saying "This file holds more than one
+  upload can take (at most 10,000 rows); split it and upload the parts". It would be shared by the element budget,
+  the N6 character budget and the N7 row ceiling. It needs an SC-1/messages entry and the Architect's ruling.
+- **Severity.** Low: legitimate files are far under every bound, so no real operator should see it. It does not
+  block. If the Architect declines, keep `NATIVE_WORKBOOK` and record the reason.
+
+### Differential (my own)
+
+- **Method.** The round-2 reader (`a141bab51:xlsx.py`) against the r3 reader, `xlsx_sparse_rows`, on 2,000 random
+  legitimate sheets (seed 7).
+- **Contents.** Shared strings (plain and rich), inline strings (plain, rich runs, phonetic, two `<t>`), numbers
+  (including `-0`, `1E+20`, `4.2e300`, 17 digits), booleans, `str` with a formula, formulas without a value, errors,
+  `t="d"`, styled empty cells, cells and rows without `r`, gaps, and out-of-range shared indexes.
+- **Result.** 0 mismatches.
+
+### Checks run (at 84113ed14, worktree on `PYTHONPATH`)
+
+- `heavy-slot.sh -- pytest contracts/tests backend/tests/test_3a6_source_profiles.py -q`: 160 passed in 27.16 s.
+- `heavy-slot.sh --db -- pwsh tools/run-host-tests.ps1 backend/tests/test_3a6_source_profiles_postgres.py -q`:
+  4 passed in 5.45 s, routed `*_test`.
+- The probes are in my scratchpad, not the worktree. Each ran under `ulimit -v`.
+
+### Not verified
+
+- The full suite and the 41 guards: I relied on the implementer's r3 run at c8a6d23c1.
+- The 16 MiB shared-string form of N6 and an end-to-end HTTP upload. Late in the session the temp volume's quota
+  filled (other sessions' files), so the N6 figures are projected from the measured linear series above.
+- The r3 plants were not re-run.
+
+### Residual risk
+
+- The profile admission path reads the sample twice, through `reader.read` and then `split_file`. Every cost above
+  doubles there.
+- Concurrency: every figure is per request, and nothing limits parallel uploads per tenant.
