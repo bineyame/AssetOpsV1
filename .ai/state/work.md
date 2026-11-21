@@ -154,6 +154,10 @@ decision `D-2026-10-31-board-action-refresh-lineage`; packet `archive/agent-hist
   On the person path only, `actor_id` joins the digest payloads (R2).
 - Migration `0071_person_on_actions` (renumbered at the SC-1a merge; down_revision 0068 until 3A7 0069 and 3C2 0070 land): `person_id`, FK, `person_actor`,
   `person_coupling`; kind, id and channel checks widened under their names, restored exactly on downgrade.
-- Open: USER label, observe note and change statement are `null` until the SC-1 text commit (D-SC1.28,
-  Q-3C1b-1); the Action read label and the stored publish note still say "SYSTEM demonstration" (Q-3C1b-2);
-  renumber at merge; the switch (`3C0b`); names in reads (`3C2`).
+- Text commit (D-SC1.28, after SC-1a): six `action.*` SC-1 statements (`i18n/statements/en/action.py`) for the
+  actor label, observe note, change statement, stored publish note, `CLIENT_AUTHORITY_FORBIDDEN` and the
+  unknown-Site 404; SYSTEM variants are the old bytes, USER variants name no person. The capability block states
+  whom the command records for the caller (null when the command would refuse); the Action read label is its
+  accepting actor. The modules are not `ADOPTED` (their older text is SC-1b/SC-1c debt).
+- Open: the frontend `SYSTEM_DEMONSTRATION` button words (review L1; a screen slice); re-point `down_revision`
+  to 0069/0070 at merge preparation; the switch (`3C0b`); names in reads (`3C2`).
