@@ -34,6 +34,7 @@ from assetops_backend.analytics.assessment_inputs import (
     sha256_json,
 )
 from assetops_backend.analytics.dispatch import ANALYTIC_ID, CANDIDATE, INDETERMINATE, NECESSARY
+from assetops_backend.i18n import Evidence, Instant, Items, Message, Percent, Quantity, State, Word, message
 
 #: `dispatch-3.1` (D-2026-10-11-s3-phase-3a-version-and-cutover) = `dispatch-3` plus the stricter
 #: default multi-epoch cohort (Q9) and interval limitations lifted into the window list (Q13).
@@ -314,6 +315,29 @@ def cover_entry(at: datetime, state: str, *, held: Fraction | None = None, need:
     """One point's energy-cover outcome (D-0K4.24): codes and exact decimal strings only; unused fields are null."""
     return {"at": iso(at), "state": state, "held_kwh": _num(held), "need_kwh": _num(need), "input": input,
             "problem": problem, "gap_at": iso(gap_at), "range_end": iso(range_end), "controls": sorted(controls)}
+
+
+def _instant(text: str) -> datetime:
+    return datetime.fromisoformat(text.replace("Z", "+00:00"))
+
+
+def cover_message(entry: dict[str, Any]) -> Message:
+    """The `dispatch.energy_cover` statement for one stored entry (spec §2.5): the words come from the catalogue at
+    read time, never from the stored record (D-0K4.24)."""
+    facts: dict[str, Any] = {"state": State(entry["state"])}
+    for name in ("held", "need"):
+        if entry.get(f"{name}_kwh") is not None:
+            facts[name] = Quantity(Decimal(entry[f"{name}_kwh"]), "kWh", Evidence("DERIVED"))
+    if entry["state"] in ("COVERED", "SHORT"):
+        facts["headroom"] = Percent(Decimal(_num(CAPABILITY_HEADROOM)), Evidence("DECLARED"))
+    if entry["state"] == "GAP":
+        facts.update(input=Word("dispatch_input", entry["input"]), problem=Word("reading_problem", entry["problem"]),
+                     at=Instant(_instant(entry["gap_at"])))
+    if entry["state"] == "NOT_REACHED":
+        facts["at"] = Instant(_instant(entry["range_end"]))
+    if entry["state"] == "NOT_CONFIGURED":
+        facts["controls"] = Items(tuple(Word("dispatch_input", k) for k in entry["controls"]))
+    return message("dispatch.energy_cover", **facts)
 
 
 def _missing(role: str, problem: str) -> str:
