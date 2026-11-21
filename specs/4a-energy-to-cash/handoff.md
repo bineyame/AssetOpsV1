@@ -35,10 +35,14 @@ at the context limit (standing brief). Mid-build questions: 0.
 | `test_5a_targets.py` test 4 | `MAIN_OF` strings | tuples | D-4A.9 (MAIN_OF) |
 | `test_5a_targets.py:695` | MTO out list without kWh nodes | + `billed_kwh`, `metered_kwh` | target-side stated kWh nodes absent |
 | `test_w402_roles_properties.py:91-109` | 8 carriers | + `technical-loss-band` | new property |
+| `test_3b3_structure_read_postgres.py:82` | `("MINI_GRID", 3)` | `4` | registry v4 |
 
 ## Next (in order)
 
-1. Read the Postgres regression log `/opt/assetecon/evidence/4a-energy-to-cash/pg-regression.log` (3a4, 3b3,
+1. Postgres regression at `bc0c2ac5c` (heavy-slot --db, run-host-tests, 05:28Z start, 50.5 s pytest wall): 1 failed,
+   33 passed: only `test_3b3_structure_read_postgres.py:82` (version 3 -> 4, fixed in the next commit, not rerun).
+   Only 34 tests were collected across the seven files: confirm the harness ran all seven (`ASSETOPS_HOST_DRY_RUN=1`)
+   before trusting it. Log `/opt/assetecon/evidence/4a-energy-to-cash/pg-regression.log` (3a4, 3b3,
    3b7a, 4b, 4d, 5a, 5b postgres at `bc0c2ac5c`, started in the background) and sweep e2e pins by class (spec
    §6.4: `test_5b_attribution_postgres.py` Kobo/Kisiwa/Mto revenue now split as far as billed kWh and tariff are
    observed; `test_5b_attribution.py:434` `REVENUE_UNOBSERVED` passed unchanged at no-DB level). Also
