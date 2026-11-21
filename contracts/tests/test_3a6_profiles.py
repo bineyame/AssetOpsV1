@@ -21,6 +21,7 @@ from types import MappingProxyType
 import pytest
 
 from assetops_contracts.canonical import CanonicalRefused
+from load_scale import scale_wall
 from assetops_contracts.native import (
     CODED_PATHS,
     LAYOUTS,
@@ -239,7 +240,7 @@ def test_n3_far_right_cells_are_read_in_bounded_memory_and_time() -> None:
     elapsed = time.perf_counter() - started
     _, peak = tracemalloc.get_traced_memory()
     tracemalloc.stop()
-    assert peak < 20_000_000 and elapsed < 3.0, (peak, elapsed)
+    assert peak < 20_000_000 and elapsed < scale_wall(3.0), (peak, elapsed)
     assert len(result.refused) == 2000  # each far cell is a count mismatch, refused for its row alone
     assert {code for code, _ in result.refused.values()} == {"NATIVE_ROW"}
 
@@ -261,7 +262,7 @@ def test_n3_far_right_header_cell_is_refused_in_bounded_memory_and_time() -> Non
     _, peak = tracemalloc.get_traced_memory()
     tracemalloc.stop()
     assert code == "NATIVE_HEADER"
-    assert peak < 20_000_000 and elapsed < 3.0, (peak, elapsed)
+    assert peak < 20_000_000 and elapsed < scale_wall(3.0), (peak, elapsed)
 
 
 def _sheet_with_members(members: dict, rows_xml: bytes) -> bytes:
@@ -345,7 +346,7 @@ def _bounded(data: bytes, seconds: float, megabytes: float) -> str:
         _, peak = tracemalloc.get_traced_memory()
     finally:
         tracemalloc.stop()
-    assert elapsed < seconds and peak < megabytes * 1e6, (outcome, elapsed, peak)
+    assert elapsed < scale_wall(seconds) and peak < megabytes * 1e6, (outcome, elapsed, peak)
     return outcome
 
 
@@ -616,7 +617,7 @@ def _kobo_bounded(data: bytes, seconds: float, megabytes: float) -> str:
         _, peak = tracemalloc.get_traced_memory()
     finally:
         tracemalloc.stop()
-    assert elapsed < seconds and peak < megabytes * 1e6, (outcome, elapsed, peak)
+    assert elapsed < scale_wall(seconds) and peak < megabytes * 1e6, (outcome, elapsed, peak)
     return outcome
 
 
@@ -825,7 +826,7 @@ def test_n3_r5_b3_quadratic_extra_fields_are_too_large_in_bounded_time() -> None
     import time
     started = time.perf_counter()
     assert _outcome(data) == "NATIVE_TOO_LARGE"
-    assert time.perf_counter() - started < 0.2
+    assert time.perf_counter() - started < scale_wall(0.2)
 
 
 def test_n3_r5_b3_the_entry_count_and_directory_size() -> None:
