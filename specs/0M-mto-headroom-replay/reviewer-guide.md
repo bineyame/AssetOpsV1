@@ -1,6 +1,6 @@
 # 0M reviewer guide
 
-Architect (Claude), 2026-11-21, rev 1. Discovery review (W5): a new mechanism whose litres and kWh feed a money
+Architect (Claude), 2026-11-21, rev 2 (handshake round 1, D-0M.12 to D-0M.22). Discovery review (W5): a new mechanism whose litres and kWh feed a money
 figure. Read `spec.md`, `rulings.md`, 0K2's `spec.md` §2.5, then the diff. Done means every question of spec §6
 answers yes with evidence and every plant below fails its named test.
 
@@ -20,14 +20,23 @@ answers yes with evidence and every plant below fails its named test.
    packet.
 7. **Seam.** The diff lists spec §0's five new files and the one edited test; `runs/replay_study.py` and
    `host/tests/kobo_season.py` are unchanged; the guard shown failing.
-8. **Labels.** `input_class` and MODELLED on every result; nothing served; no design value edited (D-0M.11).
+8. **Labels.** `input_class` and MODELLED on `HeadroomResult`, every `DemandOutcome` and the `CapacityOutcome`; the
+   tool's lines and JSON header carry both and the plant note; no adopting word (M7; also read `study.json`); the
+   packet's design column headed "design value, unchanged (held, row 37)"; nothing served; no design value edited
+   (D-0M.11, D-0M.14).
+9. **Refusals before the port.** Derived case ids and the reduced run's frozen limit and other needs are checked in
+   step 1 (D-0M.18, D-0M.19): M4, M5 and H1's refused cases show zero port calls.
+10. **Month basis.** October beside the design's October values comes from the by-month fields, never a hand cut
+   (D-0M.15).
+11. **Dawn.** Dawn figures read as D-0K2.17: absolute verdict plus new and cleared dates; a packet that reads a FAIL
+   as the customer's effect without its new dates is High.
 
 ## Planted violations (each must fail the named test; the builder shows each failing once, in a scratch copy)
 
 | # | Plant | Fails |
 |---|---|---|
 | P1 | customer steps by UTC time | M1, H5 |
-| P2 | customer steps on every day, weekends included | M1, H6 (22 weekdays) |
+| P2 | customer steps on every day, weekends included | M1, M8 (44 days) |
 | P3 | the customer added to every load, or to the first load by position | M1 (reverse-ordered loads), H5 |
 | P4 | headroom not clamped at 0 | M2 (day 3) |
 | P5 | a day without headroom judged on the day total, not per step | M2 |
@@ -40,13 +49,23 @@ answers yes with evidence and every plant below fails its named test.
 | P12 | customers replayed after a failed calibration | M5 (one call) |
 | P13 | a second calibration rule in `headroom_replay.py` | review item 2 (High) |
 | P14 | `litres_per_customer_kwh` divides by zero or reads 0 | M3 |
-| P15 | `MIN_DEMAND_DAYS = 14` | H6, H7 |
+| P15 | `MIN_DEMAND_DAYS = 14` | H6, M5 (27 admissible days refused) |
 | P16 | the welder refused for verbal evidence | H3 |
 | P17 | `headroom_replay.py` imports `host.forward_replay` | M7, dependency-direction guard |
+| P18 | reduced headroom read from the full PV, not `pv_r` | M4, H4 (every REDUCED field; strict precondition) |
+| P19 | the customer window's last step dropped or `local_end` included | M1 (11:55Z yes, 12:00Z no) |
+| P20 | the reduced case id formed without the length check (33 characters reach the port) | M5 (zero calls) |
+| P21 | `inverter_limit_kw` trusted without the frozen-limit check | M4, H1 (refused, zero calls) |
+| P22 | the reduced run's other needs not compared (a different battery accepted) | M4 |
+| P23 | an outcome built without `input_class`, or `evidence_class` not checked | M7 |
+| P24 | `kwh_beyond_headroom_by_month` from all steps, or `days_without_headroom_by_month` counting steps not dates | M2 (3-day split), H2 |
+| P25 | new and cleared dawn dates taken against the full baseline for a REDUCED customer | M4 (scripted dawn dates) |
+| P26 | `mto_site` without `season_site` first | H1 (READY) |
 
 ## Not findings
 
 No money, no `NO_CUSTOMER_EVIDENCE`, no PRODUCTIVE_LOAD record (spec §7, D-0M.9, D-0M.11). One inverter component
 stands for Mto's two (D-0M.2). Kobo-template values kept where Mto states none (D-0M.2). Mto shares Kobo's declared
 weather (D-0M.3). PV that would have charged the battery counts as headroom (D-0M.6). Reduced runs are not
-calibrated (D-0M.10). The run keeps the fixture's `KOBO-001` site id (spec §3).
+calibrated (D-0M.10). A dawn bound failing under no action on Mto is the shipped dispatch law (D-0K2.17, D-0M.22), not
+a defect. The run keeps the fixture's `KOBO-001` site id (spec §3).

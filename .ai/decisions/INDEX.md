@@ -42,7 +42,7 @@ have no ID; find them by date heading (`## 2026-09-11` ...) in the parts.
 | `index-rulings-16.md` | Demo-sprint and later rulings | `D-0K1.10` to `D-0K1.18`, `D-DS3.9` to `D-DS3.19` (20) |
 | `index-rulings-17.md` | Demo-sprint and later rulings | `D-4A.1` to `D-4A.26`, `D-3B6.1` to `D-3B6.12` (38) |
 | `index-rulings-18.md` | Demo-sprint and later rulings | `D-3B4.1` to `D-3B4.26`, `D-DS4.1` to `D-DS4.15`, `D-0K2.1` to `D-0K2.16` (57) |
-| `index-rulings-19.md` | Demo-sprint and later rulings | `D-0M.1` to `D-0M.11` (11) |
+| `index-rulings-19.md` | Demo-sprint and later rulings | `D-0M.1` to `D-0M.22`, `D-DS4.16` to `D-DS4.25`, `D-0K2.17` to `D-0K2.29` (45) |
 
 The `index-rulings-*` lines are index-only: demo-sprint and later rulings
 (D-SR, D-E5, D-ANY, D-AW, D-W1, D-MONEY and the rest) whose text is in the
