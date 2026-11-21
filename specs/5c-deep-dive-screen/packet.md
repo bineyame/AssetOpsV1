@@ -230,3 +230,5 @@ Evidence: `/opt/assetecon/evidence/5c/unit3c/r6/`. Main (8bac2bed4) merged at eb
 - **A shots** (`r6/shots/`): the gate views `A-{1440x900,1280x720,390x844}-{light,dark}.png`, the two D-headline
   views, and `A-{1440x900,768x1024,390x844}-light-full.png` (cash table open) and `-fuel-cost-drawer.png`. The full-page
   shot shows the shell's sticky header partway down where the page scrolled (a capture artefact).
+- **check-all (fast), once** at bb6941806: 145.7 s, "All 42 guards passed (blocking; 0 advisory, 0 warned)"
+  (`r6/check-all.log`). `USER_REVIEW_REQUIRED: true`: fresh re-review, then the owner's walkthrough before merge.
