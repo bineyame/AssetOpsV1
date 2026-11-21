@@ -124,3 +124,26 @@ and `_Read` (memo per call). The tie on `recorded_at` is broken by `id` text. Ha
 - **D6.** `show` refuses a malformed period (`RECON_PERIOD`) and an unknown Site (`RECON_SITE_UNKNOWN`) with exit 2;
   the spec names no code. `set-tolerance` refusals stay codes (exit 2, no sentence).
 - Order of work: the statements module was written just before its word tests, in the same commit.
+
+### Checks (commit 2; logs in `/opt/assetecon/evidence/3A7/c2/`)
+
+- Focused, no database, at `2ecf0ddeb` (3A7's three files, `test_sc1_statements.py`, the guard's tests, 3A3, 3A4,
+  3A6, 3B4, 3C1a person work, 4b1, 4b): **2 failed, 1194 passed** in 168 s. Both failures are
+  `test_3a3_single_writer.py` (`S1-DYN tools/checks/statement_catalogue.py:881: importlib.import_module` and the
+  allow-list test). They fail the same way on `main` `4844d1648` (SC-1a's guard). They are not 3A7's.
+- Postgres, `heavy-slot.sh --db -- pwsh tools/run-host-tests.ps1` on `test_3a7_reconciliation_postgres.py` and
+  `test_3b4_observer_postgres.py` (its downgrade now passes 0069), at `d192a3816`: **16 passed** in 20 s (442 s wall).
+  The first attempt timed out waiting 1800 s for the db slot (exit 75).
+- `tools/check-all.ps1` through `heavy-slot.sh --wait-seconds 3000`:
+  - At `2ecf0ddeb`: 1 of 43 blocking guards failed, because `.ai/state/index-2.md` was 8129 bytes, over the cap.
+    `d192a3816` fixes it with `index-3.md`.
+  - At `d192a3816`: **all 43 guards passed**, 345 s of guards (1260 s wall). This includes "Statement catalogue
+    (SC-1)" (1 adopted, nothing added to the baseline or the allow file) and its self-test (72 of 72 plants behave).
+- `tools/check-architecture.ps1`: **passed**. `tools/check-agent-workflow.ps1`: **passed**.
+- Plants run in place and reverted with `git checkout`, each failing:
+  - V19 (empty `details`): R2 words, M4.
+  - V12 (a share for a zero figure): R3.
+  - V15 (allowed rounded half even): R3, plus the worked-shape equality test.
+  - Recorded origin forced to financial: R1, R2, R3, M1, M4.
+  - L2 boundary reverted: M5.
+  - An f-string sentence in the service: guard `HAND_BUILT`.
