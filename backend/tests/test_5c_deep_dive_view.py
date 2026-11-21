@@ -701,6 +701,58 @@ def test_4_h_driver_detail_in_its_rows_currency() -> None:  # review H3, plant C
         assert "KES" in said and "$" not in said, (key, said)
 
 
+def _kwh_world(monkeypatch) -> None:
+    """World A with the emulated budget's kWh shape (3A3 `budget-illustrative-1.csv` states kWh lines): revenue splits
+    into energy delivered (kWh, with an actual and a target) and tariff (a price per kWh)."""
+    real = V.portfolio_bridge
+
+    def portfolio_bridge(*args, **kwargs):
+        pb = real(*args, **kwargs)
+        rows = dict(pb.rows[T.ROOT])
+        rev = rows[T.REVENUE]
+        rows["delivered_kwh"] = replace(rev, key="delivered_kwh", kind="VOLUME", actual=D("8550"), target=D("9000"),
+                                        gap=D("-450"), effect=D("-112.50"))
+        # D-5C.24: a price does not sum across Sites, so the portfolio's tariff row has no actual or target.
+        rows["tariff"] = replace(rev, key="tariff", kind="PRICE", actual=None, target=None, gap=None,
+                                 effect=D("15.50"))
+        return replace(pb, rows={**pb.rows, T.ROOT: rows})
+    monkeypatch.setattr(V, "portfolio_bridge", portfolio_bridge)
+
+
+def test_4_h_driver_detail_kwh(monkeypatch) -> None:  # PF1 (DDR): VOCABULARY_UNKNOWN on a kWh driver; plant PF1
+    """A kWh quantity and a price per kWh render their detail with the SC-1 unit word "kWh" (the registry's dimension
+    name is "KWH"); the payload renders."""
+    _kwh_world(monkeypatch)
+    v = view()
+    drivers = {d["key"]: d for d in step(v, "revenue")["drawer"]["drivers"]}
+    assert drivers["delivered_kwh"]["detail"] == "Actual 8,550 kWh · Target 9,000 kWh"
+    assert drivers["tariff"]["detail"] is None
+    assert (drivers["delivered_kwh"]["value"], drivers["tariff"]["value"]) == ("−$112.50", "+$15.50")
+    # The price form of the same unit (a Site's own tariff row has both sides).
+    w = V._View.__new__(V._View)
+    w.reg = MG
+    said = w.driver_detail("tariff", SimpleNamespace(actual=D("0.27"), target=D("0.25"), currency="USD"))
+    assert said == "Actual $0.27 per kWh · Target $0.25 per kWh", said
+
+
+def test_1_driver_units_have_words() -> None:  # PF1: every driver a MINI_GRID step can show has a unit word
+    from assetops_backend.i18n.statements.en.vocabulary import VOCABULARY
+    from assetops_backend.structure.attribution.rules import BRIDGE_ROOTS
+    v = V._View.__new__(V._View)
+    v.reg = MG
+    reachable = set().union(*(_reachable(r) for r in BRIDGE_ROOTS["MINI_GRID"]))
+    seen = set()
+    for f in sorted(reachable):
+        unit = MG.row(f).unit
+        others = [n for n, _ in unit.exponents if n != "MONEY"]
+        if unit.is_money or len(others) != 1:
+            continue
+        seen.add(others[0])
+        assert T.UNIT_WORDS[others[0]] in VOCABULARY["unit"]["entries"], f
+        assert v.driver_detail(f, SimpleNamespace(actual=D("2"), target=D("1"), currency="USD"))
+    assert {"KWH", "L"} <= seen
+
+
 def test_4_h_residual_is_last_of_its_parent() -> None:  # review L8, D-5C.21, plant RP4
     """A residual sits under the factor it splits, after that factor's other parts, whatever `pb.rows` order."""
     def row(effect: str):

@@ -419,7 +419,7 @@ class _View:
             return None
         unit = self.reg.row(key).unit
         others = [name for name, power in unit.exponents if name != "MONEY"]
-        symbol = others[0] if others else None
+        symbol = T.UNIT_WORDS[others[0]] if others else None  # PF1: the vocabulary's key, never the registry's
         if unit.is_money:
             kind = "MONEY"
         elif ("MONEY", 1) in unit.exponents:

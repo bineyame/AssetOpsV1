@@ -96,3 +96,7 @@ CELL_FORM = {True: "AT_BUDGET", False: "SIGNED"}
 TONE_LOWERS, TONE_RAISES = "lowers", "raises"
 BAR_MIN_WIDTH = "0.8"
 BAR_PLACES = "0.01"
+
+#: PF1: a registry unit's dimension name to its SC-1 `unit` vocabulary key (a driver's detail, section 3.2). Every
+#: unit a MINI_GRID driver can show is here (test 1 proves it).
+UNIT_WORDS: Mapping[str, str] = MappingProxyType({"KWH": "kWh", "L": "L"})
