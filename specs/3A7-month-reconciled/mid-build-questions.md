@@ -6,7 +6,7 @@ the packet; a count above zero is a spec-template defect to fix.
 
 Count: **2** (reset at spec rev 2, 2026-11-20).
 
-## Q1 (commit 1, 2026-11-21): the owner file is read through a port, not by the service
+## Q1 ANSWERED D-3A7.15 (commit 1, 2026-11-21): the owner file is read through a port, not by the service
 
 - **Section.** §2.4, §2.6 (`set_tolerance(tenant_id, tolerance, owner_ref)` checks a file under the owner root).
 - **Conflict.** The persistence guard (`tools/checks/configuration-persistence.ps1`, "storage technology above the
@@ -19,7 +19,7 @@ Count: **2** (reset at spec rev 2, 2026-11-20).
   (`main(..., owner_root=...)` unchanged for the command and tests).
 - **Asked.** Confirm the port (default), or name another home for the file read (e.g. the command passing the bytes).
 
-## Q2 (commit 1, 2026-11-21, High): the service cannot live in `commercial/`
+## Q2 ANSWERED D-3A7.14 (commit 1, 2026-11-21, High): the service cannot live in `commercial/`
 
 - **Section.** §3 (`backend/assetops_backend/commercial/reconciliation.py`) with §2.1 (import `COST_STATUSES`,
   `ORIGIN_ORDER`, `SITE_TYPE_TO_STRUCTURE` from `structure`).

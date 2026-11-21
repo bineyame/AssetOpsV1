@@ -20,13 +20,12 @@ Branch `task/3A7-month-reconciled`, worktree `/opt/assetecon/AssetOpsV1-3a7`, ba
 ## Next (commit 2, after SC-1a merges and `main` is merged in)
 
 1. §2.7 as SC-1 statements in `i18n/statements/en/reconciliation.py` (rulings "Amendment (SC-1)": D-SC1.14, .16,
-   .18, .19, .21, .26). D-SC1.31: the records slot has `"form": "in_sentence"`. Money reads `$505.00` (D-SC1.10).
+   .18, .19, .21, .26). SC-1a mid-build ruling (its ID is in the index once SC-1a merges): the records slot has `"form": "in_sentence"`. Money reads `$505.00` (D-SC1.10).
    Add `words`/`text` to the three dataclasses, `heading_words`, `money_word` (R6), the refusal words, and join the
    guard's `ADOPTED`. Display rounding (D-3A7.10: `DISPLAY` context, ROUND_UP/DOWN per table) lives with the words.
 2. Word assertions: every T-case sentence of §6 (by SC-1's rules), R3's sentences (share omitted at 0, 5.01
    allowed, "less than 0.01 more", `1,234,567.89`), R6. Plants V12, V15, V19 then fail their named tests.
-3. `build_commercial_reconciliation` (home per mid-build Q2; not `commercial/composition.py`), which builds the `owner_file` port from the owner root (mid-build
-   Q1); `reconcile_month.py` (§5) and M1-M5; `test_3a7_reconciliation_postgres.py` Q1-Q3 (chain link, triggers,
+3. `build_commercial_reconciliation` in `structure/reconciliation_composition.py` (D-3A7.14), taking `owner_file` as a parameter (D-3A7.15; the command builds the reader from the owner root); `reconcile_month.py` (§5) and M1-M5; `test_3a7_reconciliation_postgres.py` Q1-Q3 (chain link, triggers,
    downgrade, tolerance CHECKs, Q2 routed T1/T2/T4, Q3 FK).
 4. Packet: list each changed string for the walkthrough; P4 residual (structure in the composition's import closure).
 
