@@ -41,7 +41,7 @@ finished work are in `archive/agent-history/`.
 | 3B4 | Structure observer | in review | `3B4-observer/spec.md` | 40 KB |
 | ENV1 | Upload parses under limits, per-host slots (1.35 units) | merged | `ENV1-parse-limits/spec.md` | 38 KB |
 | 0K3 | Replay series from stored readings (2.5 units) | merged | `0K3-replay-series-reader/spec.md` | 25 KB |
-| 0K4 | Dispatch model path (owner accepted 21 Nov): a 2.5 u, b 2, c 1, d 1.5, e 2.75 (10.5 u with 0K4m); 0K4f queued; one-figure list; operator request | live — a, b, e rev 2, build-ready; c, d rev 1 | `0K4-dispatch-model-review/rulings.md`; a-e: `0K4a-dispatch-v8/`, `0K4b-fuel-curve-taper/`, `0K4c-declared-season/`, `0K4d-rerun-restate/`, `0K4e-candidate-energy/` | 130 KB |
+| 0K4 | Dispatch model path (owner accepted 21 Nov): a 2.5 u, b 2, c 1, d 2.25, e 2.75 (11.25 u with 0K4m); 0K4f queued; one-figure list; operator request | live — b merged; a-e rev 2, build-ready (d commit 1 now; c after b) | `0K4-dispatch-model-review/rulings.md`; a-e: `0K4a-dispatch-v8/`, `0K4b-fuel-curve-taper/`, `0K4c-declared-season/`, `0K4d-rerun-restate/`, `0K4e-candidate-energy/` | 130 KB |
 | 1a | Optimize card states its day and scope: SC-1 line on the face, pin first (1.75 u) | in_review — built; merge held for walkthrough | `1a-optimize-card-scope/spec.md`, `1a-optimize-card-scope/packet.md` | 18 KB |
 | WK | Walkthrough DB: checked L2 copied to `assetops_polish_walk<label>_test`, two statements, rebuild, W1-W7, serve 8991/5491, teardown (1.25 u) | live — spec rev 1, handshake next | `WK-walkthrough-database/spec.md` | 27 KB |
 | OWNER-AWAY | Decisions made for the owner during a delegated absence (21 Nov, ~12 h), each with reason and reversal | live — owner reviews on return | `OWNER-AWAY/decisions-2026-11-21.md` | 1 KB |

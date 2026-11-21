@@ -34,6 +34,7 @@ from typing import Any, Callable
 
 import pytest
 
+from assetops_backend.served_text import served_text
 from assetops_backend.sites.models import (
     COMPONENT_PROPERTY_DEFINITIONS,
     COMPONENT_PROPERTY_KINDS,
@@ -117,7 +118,7 @@ class TestTheVocabulary:
         for key, definition in COMPONENT_PROPERTY_DEFINITIONS.items():
             assert definition.kind in COMPONENT_PROPERTY_KINDS, key
             assert definition.unit in PROPERTY_UNITS, key
-            assert definition.display_name.strip(), key
+            assert served_text(definition.display_name).strip(), key
 
     def test_the_unit_set_is_derived_rather_than_listed(self) -> None:
         """A unit listed by hand outlives the property that used it."""

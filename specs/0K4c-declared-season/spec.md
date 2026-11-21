@@ -1,8 +1,8 @@
 # 0K4c: Kobo's declared season v2, with weather spells and a varying load (implementer spec)
 
-Status: live, rev 1 (Architect, Claude, 2026-11-21); handshake next. **1.0 unit.** Verification-depth review is enough
+Status: live, rev 2 (Architect, Claude, 2026-11-21; handshake answered by D-0K4.26, D-0K4.30). **1.0 unit.** Verification-depth review is enough
 for the fixture, but it feeds a money figure, so a discovery reviewer reads it (W5). Non-screen. No migration. No
-database. `USER_REVIEW_REQUIRED: false`. Rulings: `specs/0K4-dispatch-model-review/rulings.md` (D-0K4.8, D-0K4.7).
+database. `USER_REVIEW_REQUIRED: false`. Rulings: `specs/0K4-dispatch-model-review/rulings.md` (D-0K4.8, D-0K4.7, D-0K4.26).
 Reviewer guide: `reviewer-guide.md`.
 
 - **What it is.** A second declared 61-day Kobo season beside 0K2's v1, in the same fixture file: overcast spells of
@@ -16,9 +16,13 @@ Reviewer guide: `reviewer-guide.md`.
 ## 0. Before you start
 
 - Branch `task/0K4c-season-v2` off `main` after 0K4b's merge; worktree `/opt/assetecon/AssetOpsV1-0k4c`.
-- **Pre-flight print (packet, first section):** on `main`, a stable digest of `season_inputs(base_run(61), 61)` (v1):
-  `sha256` over the sorted `(address, offset, duration, value)` of every forcing plus the initial values, printed as
-  hex; kept for S6.
+- **The split (D-0K4.26).** At the start, run `git merge-base --is-ancestor` with 0K4a's merge commit against
+  `main`. If 0K4a is not on `main` (the expected case), S7 is its document half only and S8 is not built here: both
+  frozen checks become 0K4d's V0. If 0K4a is on `main`, S7 and S8 are built whole. The packet says which applied.
+- **Pre-flight print (packet, first section):** on `main` plus `inputs_digest` (§2), three hex digests:
+  `inputs_digest(season_inputs(base_run(61), 61))` (v1), the `day_windows(d)` digest for d = 0 to 60 (v1), both kept
+  for S6, and `inputs_digest(season_inputs(base_run(61), 61, season="v2"))`, kept for S9. All are v7 bases: inputs
+  only, with no kernel run.
 - **Files.** Edited: `host/tests/kobo_season.py` (additions only, §2). New: `host/tests/test_0k4c_season_v2.py`.
   Nothing else.
 - **Heavy tools:** `pwsh -NoProfile -File tools/run-host-tests.ps1 -- host/tests/test_0k4c_season_v2.py` through the
@@ -43,16 +47,24 @@ def mill_on_v2(day_index: int) -> bool: return day_index % 7 != 5               
 def season_site_v2(document) -> None:                                              # v1's site plus 0K4b's assumptions
     season_site(document); assumed_site(document)
 SEASONS = ("v1", "v2")
+def inputs_digest(inputs) -> str: ...      # D-0K4.26: sha256 hex of the canonical text below
+def windows_digest(days: int = 61) -> str: ...  # the same line form over day_windows(d), d = 0 .. days - 1 (v1)
 ```
+
+`inputs_digest` text: one line per forcing, sorted, each holding every `ForcingInput` field in declaration order as
+`name=value` joined by `|` (numbers as `str(Fraction)`), then one line per initial value,
+`initial|<address>|<str(value)>|<unit>`, all joined by `\n` and encoded UTF-8.
 
 `day_windows(day_index, overcast=overcast_v1, *, load_multiplier=None, mill_on=None)`: unchanged when both are `None`.
 With `load_multiplier`, every residential and clinic row of that local day (night, day, dusk and late windows) has its
 value multiplied by `load_multiplier(day_index)`; with `mill_on` returning `False`, every mill row of that day has
 value 0 (the row is kept, so coverage is unchanged). Irradiance is never scaled.
 
-`season_inputs(run, days, *, overcast=overcast_v1, load_scale=Fraction(1), start_fuel_l=SEASON_START_FUEL_L,
-site_stop_pct=None, season="v1")`: `season="v2"` means `overcast=overcast_v2` (unless the caller passes one),
-`load_multiplier=load_multiplier_v2` and `mill_on=mill_on_v2`. `load_scale` still applies on top (0M halves the loads,
+`season_inputs(run, days, *, overcast=None, load_scale=Fraction(1), start_fuel_l=SEASON_START_FUEL_L,
+site_stop_pct=None, season="v1")`: `overcast=None` means the season's own calendar (`overcast_v1` for v1,
+`overcast_v2` for v2); a passed function overrides it. `season="v2"` also sets `load_multiplier=load_multiplier_v2` and
+`mill_on=mill_on_v2`. A season not in `SEASONS` is `ValueError`. No current caller passes `overcast`, so v1 is
+unchanged. `load_scale` still applies on top (0M halves the loads,
 D-0M.3). `base_run(..., site_edit=season_site_v2, version=8)` is how 0K4d builds the v2 site; `base_run`'s defaults
 are unchanged.
 
@@ -64,19 +76,31 @@ Expected values are the test's own literals and arithmetic (W2), never a call to
 - **S2 multiplier:** `load_multiplier_v2(d)` for d = 0 to 12 equals the literal sequence
   `37/40, 11/10, 19/20, 9/8, 39/40, 23/20, 1, 17/20, 41/40, 7/8, 21/20, 9/10, 43/40` (a literal in the test; the
   period 13 checked); minimum 17/20 and maximum 23/20 over 61 days.
+"The file's value" in S3 and S4 is read by the test's own `yaml.safe_load` loop over the day-type YAML files that
+`kobo_season` loads, never through `_series_events` or `day_windows` (D-0K4.26). Day 9 is overcast in v2, so the
+overcast file is the reference.
 - **S3 applied to res and clinic only:** for day 9 of `season_inputs(base_run(10, version=7), 10, season="v2")`, every
-  res and clinic forcing value equals the shipped file's value times `load_multiplier_v2(9)` (computed by the test as a
-  literal), irradiance equals the file's, and mill equals the file's.
+  res and clinic forcing value equals the file's value times 7/8 (`load_multiplier_v2(9)`, a literal), irradiance
+  equals the file's, and mill equals the file's. The night rows are also asserted as literals: res 3 kW to 21/8 and
+  clinic 2 kW to 7/4. A second case, with `load_scale=Fraction(1, 2)`, gives res and clinic the file times 1/2 times
+  7/8 and the mill the file times 1/2 (0K4d's Mto path).
 - **S4 Sundays:** the mill forcings of days 5 and 12 are all 0; days 4 and 6 equal the file's; the test's own weekday
   count gives eight Sundays in the window (days 5, 12, 19, 26, 33, 40, 47, 54) and `date(2026, 9, 6).weekday() == 6`.
 - **S5 coverage:** for an 8-day v2 season, each of the four series covers every 5-minute step exactly once (the 0K2
   review's check), and no other address gains a forcing.
-- **S6 v1 byte-equal:** the digest of `season_inputs(base_run(61), 61)` equals the pre-flight value; `day_windows(d)`
-  with no new argument equals `main`'s for d = 0 to 60.
-- **S7 Foundation:** a 1-day `base_run(1, version=8, site_edit=season_site_v2)` freezes the three v8 needs as initial
-  values (no-load 3.3 L/h as `11/200` L/min, minimum load 30, taper start 95), its Foundation document carries the
-  three basis rows `GENERIC_DEFAULT`, and the tank is 20,000 L.
-- **S8 runs:** a 2-day v2 season on v8 (`base_run(2, version=8, site_edit=season_site_v2)`) executes COMPLETED (smoke).
+- **S6 v1 inputs unchanged:** `inputs_digest(season_inputs(base_run(61), 61))` and `windows_digest()` each equal the
+  pre-flight's literal. The test also recomputes the first with its own loop over the canonical form, beside the
+  literal.
+- **S7 Foundation (document half):** `kobo_site(season_site_v2)` (`host/tests/kobo.py`) carries the three basis rows
+  `GENERIC_DEFAULT` (no-load rate, minimum load, taper start) and the 20,000 L tank. **Frozen half, only when 0K4a is
+  on `main`** (else 0K4d's V0): a 1-day `base_run(1, version=8, site_edit=season_site_v2)` has
+  `frozen_world_inputs(run).initial_values` with `parameter_id` `model-need:generator-no-load-fuel-rate` = `11/200`,
+  `model-need:generator-minimum-load` = `30` and `model-need:battery-charge-taper-start` = `95`, each answered by the
+  Foundation.
+- **S8 runs, only when 0K4a is on `main`** (else 0K4d's V0): a 2-day v2 season on v8 (`base_run(2, version=8,
+  site_edit=season_site_v2)`) executes COMPLETED (smoke).
+- **S9 v2 pinned as a whole:** `inputs_digest(season_inputs(base_run(61), 61, season="v2"))` equals the pre-flight's
+  literal. Docstring: "a change here is a new season, never an edit". 0K4d's `study.json` records the same digest.
 
 **Regression:** `host/tests/test_0k2_kobo_season.py` (unchanged, green), `host/tests/test_0m_mto_headroom.py`
 (green), check-all (fast) once.
@@ -85,17 +109,17 @@ Expected values are the test's own literals and arithmetic (W2), never a call to
 
 | Commit | Content |
 |---|---|
-| 1 (1.0) | §2, S1-S8, regression, packet |
+| 1 (1.0) | §2, S1-S7 and S9 (S7 and S8 whole only if 0K4a is on `main`), regression, packet |
 
-Packet `specs/0K4c-declared-season/packet.md`: the pre-flight digest, the calendar as a 61-day strip (C clear, O
-overcast, S Sunday), the multiplier range, S5's coverage counts, the regression output, the mid-build count. The packet
+Packet `specs/0K4c-declared-season/packet.md`: which split applied, the three pre-flight digests, the calendar as two
+61-character rows (row 1 weather, `C` or `O`; row 2 Sundays, `S` or `.`), the multiplier range, S5's coverage counts, the regression output, the mid-build count. The packet
 says the season is declared and SIMULATED, not a Kobo record.
 
 ## 5. Done (questions; each can fail)
 
 1. Does v2 hold the declared calendar, spells, multiplier and Sundays, and only those?
 2. Does every series cover every step once, with no new address?
-3. Is v1 byte-equal, so 0K2 and 0M stay reproducible?
+3. Are v1's inputs unchanged (both digests), so 0K2 and 0M stay reproducible, and is v2 pinned as a whole (S9)?
 4. Does the v2 Foundation carry the assumptions with their basis?
 5. Does each plant of `reviewer-guide.md` fail its named test, and is the mid-build count 0?
 
