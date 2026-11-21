@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-0K4.1 to D-0K4.25, D-5C.19 to D-5C.25)
+# Decision index: Demo-sprint and later rulings (index only) (D-0K4.1 to D-0K4.30, D-5C.19 to D-5C.25)
 
 - `D-0K4.1` 0K4 units, sizes, order and lanes (8.75 units; critical path 0K4a then 0K4d) · live; amended by D-0K4.25 · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.2` one new simulator version mini-grid v8 holds both physics corrections; v1-v7 untouched · live · specs/0K4-dispatch-model-review/rulings.md
@@ -6,7 +6,7 @@
 - `D-0K4.4` minimum generator load as a Foundation property (Kobo 30 %, GENERIC_DEFAULT); charge, then curtail PV · live · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.5` fuel curve through the no-load rate and full-load SFC; diesel energy 10 kWh/L in the stock account · live · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.6` charge taper above a Foundation taper start (Kobo LFP 95 %, GENERIC_DEFAULT), floor 1/20 · live · specs/0K4-dispatch-model-review/rulings.md
-- `D-0K4.7` assumed values by fixture with basis GENERIC_DEFAULT; template untouched; results list assumptions · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.7` assumed values by fixture with basis GENERIC_DEFAULT; template untouched; results list assumptions · live; amended by D-0K4.27 · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.8` declared season v2: 21 overcast days in spells of 1-4, loads ±15 % a day, mill off Sundays · live · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.9` admission rule: unserved and reserve breaches not above no action, starts and full charge within limits; dawn information only · live · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.10` dispatch-3.3: a battery-support Candidate needs energy to solar cover; own unit 0K4e; 4d, fuel-cost-1, Findings move · live · specs/0K4-dispatch-model-review/rulings.md
@@ -15,7 +15,7 @@
 - `D-0K4.13` product fuel law and worlds adopt v8 in queued 0K4f; owner to weigh in (owner-away row 56) · live · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.14` calibration on Kobo's records runs on v8 by the existing rule · live · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.15` pack and mock restated once, after 0K4d (0K4m) · live · specs/0K4-dispatch-model-review/rulings.md
-- `D-0K4.16` reserve breaches, most starts in a day and full-charge days read from replay steps · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.16` reserve breaches, most starts in a day and full-charge days read from replay steps · live; corrected by D-0K4.28 · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.17` one combined handshake per unit; 0K4a and 0K4b share one · live · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.18` operator request created: general asks by reference plus Kobo's five items · live · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.19` new served text composed, never baselined (class): SC-1, `served_text` seam, stored facts; version-token swap; +1.5 u (owner-away row 57) · live · specs/0K4-dispatch-model-review/rulings.md
@@ -24,7 +24,12 @@
 - `D-0K4.22` 0K4a answers: kobo.py tuple, no ValueError and tightened below-minimum (S10), N3, N5, N11, N13 · live · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.23` 0K4e answers: one-argument memoised walk, E5b redesigned, roles per instant, CaseRunner fixture, I6 · live · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.24` 0K4e energy-cover outcome stored as facts, explained by SC-1 statements in plain and finding reads · live · specs/0K4-dispatch-model-review/rulings.md
-- `D-0K4.25` sizes after the handshake (10.5 u; critical path about 4.0) and lane order; amends D-0K4.1 · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.25` sizes after the handshake (10.5 u; critical path about 4.0) and lane order; amends D-0K4.1 · live; amended by D-0K4.30 · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.26` 0K4c answers: canonical inputs digest (S6, S9), own YAML readers, S7/S8 split to 0K4d V0 by ancestor check · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.27` assumed values carry basis and derivation (class); four strings; Mto no-load 2.4 L/h by generic rule (row 63) · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.28` 0K4d answers: V5 vs main's literals, study.json identity, missing-value words, start rule STOPPED only, flags · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.29` §4.2 MG-T restatement: every numeral one of four kinds; each design value and dawn gate replaced · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.30` sizes 0K4c 1.0, 0K4d 2.25 (11.25 u; critical path 4.75); lane order confirmed; amends D-0K4.25 · live · specs/0K4-dispatch-model-review/rulings.md
 - `D-5C.19` (H2) spec 2.4 governs the deep-dive's evidence words after SC-1f; emulated reads Emulated, observed DECLARED reads Recorded · live · specs/5c-deep-dive-screen/rulings.md
 - `D-5C.20` (M2) one figure, one evidence statement: the headline's evidence through money_word like the tiles; PF8 confirmed · live · specs/5c-deep-dive-screen/rulings.md
 - `D-5C.21` (L2) step drawer drivers nested (key, children), parent the nearest ancestor with a row · live · specs/5c-deep-dive-screen/rulings.md
