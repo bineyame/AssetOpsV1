@@ -1391,3 +1391,46 @@ def cycle_charge_split(
         zero,
         D + C < M and D + C < R,
     )
+
+
+CYCLE_CHARGING_REASON = " (v8 cycle charging: a running generator is ahead of the battery)"
+
+
+def decide_v8(view: ControllerView) -> ControlIntent:
+    """v5's controller, with a RUNNING generator ranked immediately before the battery (D-0K4.3, spec §2.3).
+
+    When the generator is RUNNING and the Site's order puts it after the battery, the view's
+    `source-priority-rank` entries are rewritten so the generator moves to immediately before the battery (every
+    other source keeps its place) and `decide_v5` decides on that view; otherwise `decide_v5` decides on the view
+    unchanged. The generator-run decision is therefore v5's exactly, and the battery request asks to discharge only
+    above what the sources now ahead of it offer, and otherwise to charge from everything beyond demand.
+    """
+    state_entry = _entry(view, "generator-state")
+    if state_entry.value != RUNNING:
+        return decide_v5(view)
+    battery_id = _entry(view, "state-of-charge").address.split("@", 1)[1]
+    generator_id = state_entry.address.split("@", 1)[1]
+    ranked = sorted(
+        (item for item in view.entries if item.name == "source-priority-rank"),
+        key=lambda item: item.value,
+    )
+    order = [item.address for item in ranked]
+    if order.index(generator_id) < order.index(battery_id):
+        return decide_v5(view)
+    order.remove(generator_id)
+    order.insert(order.index(battery_id), generator_id)
+    rank = {address: Fraction(position) for position, address in enumerate(order, start=1)}
+    entries = tuple(
+        replace(item, value=rank[item.address]) if item.name == "source-priority-rank" else item
+        for item in view.entries
+    )
+    intent = decide_v5(replace(view, entries=entries))
+    return replace(
+        intent,
+        requests=tuple(
+            replace(item, reason=item.reason + CYCLE_CHARGING_REASON)
+            if item.quantity == "battery-power"
+            else item
+            for item in intent.requests
+        ),
+    )
