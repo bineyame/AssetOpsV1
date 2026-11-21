@@ -29,6 +29,7 @@ import json
 import os
 import re
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -37,12 +38,13 @@ from assetops_backend.accounts.permissions import roles_of
 from assetops_backend.commercial.composition import (OperatorDatabaseRefused, build_commercial_uploads,
                                                      build_source_profiles, commercial_upload_settings,
                                                      refuse_operator_database)
-from assetops_backend.commercial.readers import DEFAULT_READER, MEDIA_TYPES, READERS
-from assetops_backend.commercial.uploads import Actor, UploadRefused, UploadScope
+from assetops_backend.commercial.envelope import default_envelope
+from assetops_backend.commercial.readers import DEFAULT_READER, MEDIA_TYPES, READERS, ReadContext
+from assetops_backend.commercial.uploads import MAX_UPLOAD_BYTES, Actor, UploadRefused, UploadScope
 from assetops_backend.config import ConfigurationError
 from assetops_backend.database_target import DatabaseTargetUnclear
 from assetops_backend.i18n import render
-from assetops_contracts.canonical import SOURCE_TYPES
+from assetops_contracts.canonical import SOURCE_TYPES, CanonicalRefused
 
 #: The emulated native files, in submission order; each is read by the layout `<key>-illustrative-1`.
 KEYS = ("billing", "collections", "expenses", "budget")
@@ -141,15 +143,29 @@ def _resolve_profiles(files, profiles: Any, tenant_id) -> tuple[list[tuple[str, 
     return out, rows
 
 
-def _source_system(path: Path, reader_id: str, rows: dict[str, Any]) -> str | None:
-    """Step 5b: the file's source system (None for a JSON batch that does not read; the submission refuses it)."""
+def _bytes(path: Path) -> bytes:
+    """ENV-1 (D-ENV1.7): the file's bytes, read at most `MAX_UPLOAD_BYTES + 1`; a larger file is the intake's
+    `FILE_TOO_LARGE`, with its words."""
+    with path.open("rb") as handle:
+        data = handle.read(MAX_UPLOAD_BYTES + 1)
+    if len(data) > MAX_UPLOAD_BYTES:
+        refused = UploadRefused(413, "FILE_TOO_LARGE", {"limit_mb": MAX_UPLOAD_BYTES // 2**20})
+        raise _Stop(2, "FILE_TOO_LARGE", path.name, render(refused.words))
+    return data
+
+
+def _source_system(data: bytes, reader_id: str, rows: dict[str, Any], slug: str) -> str | None:
+    """Step 5b: the file's source system (None for a JSON batch that does not read; the submission refuses it).
+    ENV-1 (D-ENV1.7): a JSON batch is read only in the parse envelope."""
     if reader_id in rows:
         return rows[reader_id].source_system
     if reader_id != DEFAULT_READER:
         return READERS[reader_id].layout.source_system
     try:
-        batch = json.loads(path.read_bytes())
-    except ValueError:
+        # real_data False: the loader refuses operator databases (RC4), so its files are emulated.
+        batch = default_envelope().read(READERS[DEFAULT_READER], data,
+                                        ReadContext(slug, datetime.now(timezone.utc), False)).result.obj
+    except CanonicalRefused:
         return None
     system = batch.get("source_system") if isinstance(batch, dict) else None
     return system if isinstance(system, str) else None
@@ -210,19 +226,21 @@ def _run(args: argparse.Namespace, uploads: Any, accounts: Any, profiles: Any = 
     tenant_id = submitter.tenant_id
     files, profile_rows = _resolve_profiles(files, profiles, tenant_id)  # step 5c
     _mixed(files)  # handshake P7: over every file, its source type now known
+    # ENV-1 (D-ENV1.15): every file's size first, keeping only its digest; at most one file's bytes are held at once.
+    digests = {path: hashlib.sha256(_bytes(path)).hexdigest() for _, path, _, _ in files}
     held = uploads.held(tenant_id)  # step 5b: one read
     for _, path, reader_id, source_type in files:
-        system = _source_system(path, reader_id, profile_rows)
+        system = _source_system(_bytes(path), reader_id, profile_rows, args.tenant)
         if system is not None and any(h.source_type == source_type and h.source_system != system for h in held):
             raise _Stop(2, "EXPORT_PATH_SWITCHED", source_type)
     waiting = {h.file_sha256: h for h in held if h.waiting}
     if acceptor is not None:  # D-3A3.14: across runs, the submitter is never the acceptor
-        digests = {hashlib.sha256(path.read_bytes()).hexdigest() for _, path, _, _ in files}
-        if any(h.submitted_by == acceptor.person_id for sha, h in waiting.items() if sha in digests):
+        submitted = set(digests.values())
+        if any(h.submitted_by == acceptor.person_id for sha, h in waiting.items() if sha in submitted):
             raise _Stop(2, "PERSON_SAME_FOR_BOTH")
     actor = Actor(submitter.person_id, submit_role)
     for name, path, reader_id, _ in files:
-        data = path.read_bytes()
+        data = _bytes(path)
         sha256 = hashlib.sha256(data).hexdigest()
         try:
             if sha256 in waiting:

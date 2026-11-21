@@ -37,7 +37,7 @@ Migrations on main: 0067 3A6, 0068 3B4. Unmerged, renumber at merge in merge ord
 - IMPORTANT, row 42: by the shipped dispatch law no reserve-30 Kobo case can keep dawn at or above 35%, contradicting the pack's stop-70 "0 of 61 / dawn PASS" (MG-T2, 2,916.00). 0K2 reports figures as they come; owner decides the claim/admissibility (via 6c).
 - Row 41 fixed honestly: adjustments kWh reads "Not available yet" when the export never carried them (4a fix branch fix/4a-adjustments-blank).
 - Held: rows 36 and 40 (walkthrough serve of a DS4 world; creating /opt/assetecon/keys and /opt/assetecon/worlds).
-- DONE 14:20 UTC: owner approved SC-1a's two check-all lines and 3C2's guard block (owner/owner-approve-sc1a-3c2-guards-2026-11-21.md). SC-1a merge-prep agent running; then 3A7/3C2/3C1b text commits, 5c, DDR.
+- DONE 14:20 UTC: owner approved SC-1a's two check-all lines and 3C2's guard block (owner/owner-approve-sc1a-3c2-guards-2026-11-21.md). SC-1a MERGED fcb655f2c (rulings index -21; main's merged text rebaselined as SC-1b/c debt). Text commits running: 3A7 (mig 0069, +3A7-midbuild-answers), 3C2 (0070, +3C2-midbuild-answers, guard 42de02e06), 3C1b (0071). Each then reviewed; 5c after 3A7 merges, DDR after. 0K3 built, review running.
 - Review owner-away rows marked "owner to weigh in" (17, 18, 21, 22, 26, 27, 28 and others in the log).
 - Demo DB needs a 3B7a snapshot rebuild after 4a (else "rebuild needed" on every page); walkthrough DB untouched.
 - /tmp quota: old session scratch `/tmp/claude-1001/-opt-assetecon-AssetOpsV1/36691a1d-3a44-455a-947e-9acaa1af47c0/` (6.9 GB) and `/opt/assetecon/arch-scratch-1121b` can be deleted (classifier blocked the coordinator).

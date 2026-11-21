@@ -16,10 +16,12 @@ Refusal order: Site read access (401/403), Site scope (404 `SITE_NOT_FOUND`), th
 when no service is wired, i.e. `ASSETOPS_READING_UPLOAD_SITES` unset), the Site list (403
 `READING_UPLOAD_NOT_THIS_SITE`), the request (422 `READING_UPLOAD_BAD_REQUEST`), the media type (415
 `READING_UPLOAD_UNSUPPORTED_TYPE`), size (413 `FILE_TOO_LARGE`), then the service. Every refusal carries `code`, `message` (rendered for the request's locale) and `words` (the key).
+A parse stopped by a limit answers 503 with the check's or the send's unavailable words (ENV-1).
 """
 
 from __future__ import annotations
 
+import logging
 from typing import Any, Callable
 from uuid import UUID
 
@@ -29,11 +31,13 @@ from fastapi.responses import JSONResponse, Response
 
 from assetops_backend.finding_api import Access, Scope, development_access
 from assetops_backend.i18n import Message, message, render
-from assetops_backend.reading_upload.service import (MAX_BYTES, GatewayUnavailable, ReadingUploadService,
-                                                     UploadRefused, refusal_words)
+from assetops_backend.reading_upload.service import (LOAD_CAUSES, MAX_BYTES, GatewayUnavailable, ParseLimitBreach,
+                                                     ReadingUploadService, UploadRefused, refusal_words)
 
 #: D-UP.5: `file_name` is display-only (never a path) and at most 200 characters.
 MAX_FILE_NAME = 200
+#: ENV-1 (D-ENV1.5, D-ENV1.11; the D-3A6.29 pattern): every 503 of the service logs once, as codes and numbers.
+LOG = logging.getLogger("assetops.reading_upload")
 
 
 def _refusal(status: int, code: str, words: Message, **extra: Any) -> JSONResponse:
@@ -95,15 +99,32 @@ def build_reading_upload_router(service: ReadingUploadService | None, scope: Sco
             return _refusal(403, "READING_UPLOAD_NOT_THIS_SITE", message("reading_upload.not_this_site"))
         return tenant_id, site_id
 
-    async def run(work: Callable[[], tuple[int, dict]]) -> JSONResponse:
+    async def run(work: Callable[[], tuple[int, dict]], *, site: str | None = None,
+                  size: int | None = None) -> JSONResponse:
         # The upload runs field processes and database reads: off the event loop (as `evidence_api` does).
         try:
             status, body = await run_in_threadpool(work)
         except UploadRefused as refused:
             return _refusal(refused.status, refused.code, refused.words, **refused.extra)
+        except ParseLimitBreach as breach:  # ENV-1: before the two below; no file name, content or reading logged
+            extra = {"cause": breach.cause, "step": breach.step, "bytes": size, "site": site}
+            if breach.cause in LOAD_CAUSES:
+                LOG.warning("reading upload parse stopped by load", extra=extra)
+            else:
+                LOG.error("reading upload parse stopped by its CPU, memory or crash limit; a file within the upload "
+                           "cap should not reach it: re-measure FieldLimits for this host (ENV-1 section 0)",
+                           extra=extra)
+            if breach.step == "send":
+                return _refusal(503, "READING_UPLOAD_GATEWAY_UNAVAILABLE",
+                                message("reading_upload.gateway_unavailable"))
+            return _refusal(503, "READING_UPLOAD_CHECK_UNAVAILABLE", message("reading_upload.check_unavailable"))
         except GatewayUnavailable:
+            LOG.warning("reading upload send unavailable",
+                         extra={"cause": "gateway", "step": "send", "bytes": size, "site": site})
             return _refusal(503, "READING_UPLOAD_GATEWAY_UNAVAILABLE", message("reading_upload.gateway_unavailable"))
         except RuntimeError:  # a field process that printed no JSON: said in words, never a bare 500
+            LOG.error("reading upload check failed without an answer",
+                       extra={"cause": "error", "step": "check", "bytes": size, "site": site})
             return _refusal(503, "READING_UPLOAD_CHECK_UNAVAILABLE", message("reading_upload.check_unavailable"))
         if status == 422 and "refusal" in body:
             return JSONResponse(status_code=422, content={"code": body["refusal"]["code"],
@@ -131,7 +152,8 @@ def build_reading_upload_router(service: ReadingUploadService | None, scope: Sco
         if data is None:
             return _refusal(413, "FILE_TOO_LARGE", refusal_words("FILE_TOO_LARGE", limit_mb=MAX_BYTES // 2**20))
         assert service is not None  # open_site refused otherwise
-        return await run(lambda: service.upload(tenant_id, site_id, file_name, data, dry == "true"))
+        return await run(lambda: service.upload(tenant_id, site_id, file_name, data, dry == "true"),
+                         site=site_code.upper(), size=len(data))
 
     @router.get("/api/sites/{site_code}/reading-uploads")
     async def get_uploads_entry(request: Request, site_code: str) -> JSONResponse:

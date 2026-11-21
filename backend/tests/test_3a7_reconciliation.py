@@ -555,6 +555,7 @@ def test_r10_the_organisation_is_its_mini_grid_sites() -> None:
     ("0.02", "lakeside-power 12%", "OWNER_REF_INVALID"),  # 12% does not cite 2%
     ("0.02", "lakeside-power 0.025", "OWNER_REF_INVALID"),  # 0.025 does not cite 0.02
     ("0.02", "lakeside-power 0.2%", "OWNER_REF_INVALID"),  # 0.2% does not cite 2% (preceded by '.')
+    ("0.02", "north-lakeside-power 0.02", "OWNER_REF_INVALID"),  # review L2: a longer slug does not cite ours
     ("0.02", "lakeside-power: 0.02", None),
     ("0.005", "lakeside-power 0.5%", None),
 ])

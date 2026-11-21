@@ -232,12 +232,6 @@ def refusal_words(refused: ReconRefused) -> Message:
     return message("reconciliation.refused", **facts)
 
 
-def _compare(accounts: Decimal, recorded: Decimal, tolerance: Decimal) -> str:
-    """§2.2 rule 4, exact: `abs(recorded - accounts) <= tolerance * accounts`."""
-    with localcontext(EXACT):
-        return MATCHED if abs(recorded - accounts) <= tolerance * accounts else NOT_MATCHED
-
-
 def _heading(heading: str, accounts: Decimal, tolerance: Decimal, currency: str, period: str,
              months: Sequence[MonthAmounts]) -> HeadingCheck:
     lines = [line for month in months for line in used_lines(heading, month.lines)]

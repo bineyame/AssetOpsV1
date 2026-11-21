@@ -125,6 +125,40 @@ Architect (Claude), 2026-11-20. Applied by default; open questions with defaults
 - **Why.** The owner asked that the product say exactly what did not match; the label 5c shows is `standing.text`, so
   it must carry the figures, not only point at them.
 
+## D-3A7.16 The standing's failing headings are its `details`, one sentence each (commit 2 D1; amends D-3A7.13)
+
+- **Ruling.** As built. For `THIS_MONTH_NOT_MATCHED` and `THIS_MONTH_NOT_COMPARABLE`, `MoneyStanding.text` is the
+  standing sentence alone and `MoneyStanding.details: tuple[str, ...]` holds the rendered sentence of each of
+  `this_month`'s headings whose state is not `MATCHED`, in heading order (JSON `"details"`, a list); every other reason
+  has `details == ()`. Nothing joins them: no code, no SC-1 slot. D-3A7.13's goal stands (the standing says exactly
+  what did not match, with the figures); its carrier changes from one string to a sentence plus a list. V19 gates
+  `details`. A reader that shows the standing in full shows `text` and then each detail as its own line.
+- **Why.** The one reader that shows the standing in full is 5c's assure drawer, and its spec already serves a list
+  of lines (`drawer.lines`, §3.1): a drawer holds one sentence per line, so a joined paragraph would be split again or
+  shown as a wall of text. A sentence-sequence slot in SC-1 (option b) would be a composer change (schema, render,
+  wire, guard plants, review) whose only user would rebuild a string the screen does not want, and it would hold 3A7's
+  merge and so 5c and DDR on the critical chain. Joining in code is hand-built text (D-SC1.17). Class (W6): a statement
+  that needs several rendered sentences carries them as a list of messages and the screen lays them out; SC-1 gains a
+  sequence slot only when a screen needs one paragraph, which none does today.
+- **Readers (5c; folded in `specs/5c-deep-dive-screen/spec.md` §3).** `Standing` gains `details: tuple[str, ...]`;
+  JSON `standing` is `{"reconciled", "reason", "text", "details"}`; the assure drawer's `lines` are `[standing.text,
+  *standing.details]` plus `fresh.untracked_text` when not null; World A's literal standing moves its fuel-cost
+  sentence from `text` into `details` (its strings are restated in SC-1's forms when 5c converts its words). `standing_short`
+  and every `money_word` are unchanged. DDR reads only `reconciled` and `money_word`: no change.
+- **3A7 fix round.** None for the code. Spec §2.7 and §6.2 (T2, T6 standing texts) are restated as `text` plus
+  `details` by this ruling; the packet's D1 row cites D-3A7.16.
+
+## D-3A7.17 A sentence that states the tolerance carries its evidence inline: "within 1% (Recorded)" (commit 2 D4)
+
+- **Ruling.** As built: the statement and standing sentences print `{tolerance}` with its inline evidence word, as in
+  "matches the management accounts within 1% (Recorded)."; the heading sentence's tolerance keeps its `basis` word.
+- **Why.** D-SC1.18: every printed figure carries its evidence in the same sentence, with no `none`; the scope
+  statement is inline (SC-1 §5.4), so a chip (`served`) is not open to these parents without an SC-1 change. The word
+  is true: the tolerance is the owner's declared setting (RC8's 1%, or an owner file under D-3A7.12), and SC-1's
+  vocabulary reads `DECLARED` as "Recorded". Whether a declared setting (tolerances, targets) should read with its own
+  word such as "Set" is a vocabulary class question for SC-1, raised at the walkthrough; changing it there changes this
+  sentence with no 3A7 code change.
+
 ## Handshake answers (round 1)
 
 Architect (Claude), 2026-11-20, on `task/3A6-3A7-handshake` c01baa35a. Every answer is folded into `spec.md` rev 2. A

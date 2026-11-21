@@ -565,3 +565,17 @@ Branch `task/0M-mto-headroom` (base main `6c33395ef`, after the 0K2 merge `3b4f0
 - Settled: `runs/headroom_replay.py` `headroom_study` adds a customer's kW to one Site load at its local weekday steps and replays the whole window beside the no-customer replay (full, and a second base run frozen at a reduced inverter limit fed `min(PV, limit)`); headroom days and kWh from the series; extra litres, generator, unserved, starts, month splits, dawn new/cleared dates; every customer id and the reduced run's frozen limit and other needs refused before any port call. Reuses 0K2's helpers only. `host/tests/mto.py`: the Kobo template edited to Mto's manifest facts, loads halved.
 - 61-day SIMULATED/MODELLED figures beside the design values in the packet (huller Oct 6 days, 384 kWh, 156.7 L vs 3, 225, 68; reduced 0.24 L a day vs 5); design values unchanged (row 37).
 - Open: replacing design values is the owner's (row 37); dawn admissibility and money are `6g`.
+
+## ENV1 - every upload parse under hard limits (in review after fix round 1, 21 Nov)
+
+Branch `task/ENV1-parse-limits` (base main `e9d6cdfb1`); spec `specs/ENV1-parse-limits/spec.md` rev 3, rulings D-ENV1.1-24; packet `packet.md`. No migration, no database, no served text, no guard change.
+
+- Settled: `parse_slots.py` (abstract Unix socket names, `commercial` 2, `reading` 2 (checks) and `reading-send` 1 (sends, one at a time; D-ENV1.18) per network namespace, `ASSETOPS_PARSE_SLOT_NAMESPACE`; tests set their own per process); the envelope holds a host slot at each read; the field process sets its limits before it reads (`CHECK_LIMITS` 512 MiB/30/60, `SEND_LIMITS` 896 MiB/120/270, the send wall 2x the 129.2 s production-shape send, D-ENV1.19); breaches are `ParseLimitBreach` (slot, wall, cpu, memory, killed, crashed) answered with the existing 503 words and logged once; a 5,000-digit cell is `INVALID_VALUE`; the loader reads at most 8 MiB + 1 per file, sizes first, JSON only in the envelope.
+- Open: words for `cpu`/`memory`/`crashed` after SC-1a (row 49); waiting-request cap (D-ENV1.12); JSON API body bounds (`financial_api.py`, backlog); limits are per host class (re-measure on a slower one); the gateway ledger's growth slows a send (+1.73 s per 2 MiB send, about 4.5 s per GB; retune on the production ledger's size class); another writer into the same gateway is not bounded by the send pool.
+
+## 0K3 - the replay series reader from stored readings (in review, 21 Nov)
+
+Branch `task/0K3-replay-reader` (base main `e9d6cdfb1`); spec `specs/0K3-replay-series-reader/spec.md` rev 2, rulings D-0K3.1-20; packet `packet.md`. No migration, no served text, no consumer change.
+
+- Settled: `runs/replay_series.py` `SeriesReader.read` (built by `runs/composition.build_series_reader`) turns a Site's accepted readings over whole local days into 0K2's `ObservedSeries` or refuses with a code and subject: configuration before readings, 15-minute means refused never split, `pv_power` never read as available PV, instants only at step starts (off-grid counted), nothing carried, clock-change days refused before the query, `MAX_DAYS` 92, input class from source mode. Proven on R0 (no database), MG-W402-001 and DS3 Kobo in Postgres, and 0K2's 8-day season read back field by field with the same calibration.
+- Open: no study on stored readings until a 61-day 5-minute series, Kobo's `pv_available_power` binding (row 48) and `6c`; mid-build Q1 (Kobo's zone is Addis Ababa, not Nairobi).

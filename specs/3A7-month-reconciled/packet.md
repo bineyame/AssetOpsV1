@@ -103,7 +103,7 @@ and `_Read` (memo per call). The tie on `recorded_at` is broken by `id` text. Ha
 
 ### Known deviations (commit 2)
 
-- **D1 (needs an Architect ruling).** D-3A7.13 makes the standing's `text` its sentence plus the failing headings'
+- **D1 (ruled: D-3A7.16).** D-3A7.13 makes the standing's `text` its sentence plus the failing headings'
   sentences joined by a space. SC-1 has no way to join rendered sentences (a part shares its parent's facts, so two
   headings cannot both be parts; `Items` holds facts, not messages), and any join in code is hand-built text (the
   adopted rule; in the ratchet a new `HAND_BUILT_NEW`). Built: `text` is the standing sentence and
@@ -114,7 +114,7 @@ and `_Read` (memo per call). The tie on `recorded_at` is broken by `id` text. Ha
   evidence through the shared format (D-SC1.16), so 5c passes the money it shows.
 - **D3.** `CONFIGURATION` prints the code alone (exit 2); printing the `ConfigurationError`'s text would be served
   exception text (a new fingerprint).
-- **D4 (wording, owner).** The statement and standing sentences state the tolerance, a figure, so it carries its
+- **D4 (ruled: D-3A7.17; wording, owner).** The statement and standing sentences state the tolerance, a figure, so it carries its
   evidence: "within 1% (Recorded)". `reconciliation.scope` is an inline statement (§5.4), so its parents cannot be
   `served` and move the word to a chip.
 - **D5 (scope beyond §3's files).** `structure/money.py` (three helpers), `i18n/statements/en/vocabulary.py`

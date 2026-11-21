@@ -3,15 +3,20 @@
 `field/` may be imported only by itself and `host/tests` (dependency-direction guard, TEL-01 ruling D4), so the
 API reaches this module by running it, never by importing it:
 
-    python -m assetops_field.csv_upload check --profile P --file F
-    python -m assetops_field.csv_upload send --profile P --file F --gateway-address A --ipc-credential C \
-        --snapshot-sha256 S --expect-identity E
+    python -m assetops_field.csv_upload --limit-memory-bytes M --limit-cpu-seconds C check --profile P --file F
+    python -m assetops_field.csv_upload --limit-memory-bytes M --limit-cpu-seconds C send --profile P --file F \
+        --gateway-address A --ipc-credential C --snapshot-sha256 S --expect-identity E
 
 `check` validates the whole file with `CsvCollector` (no IPC) and prints one JSON object: the dry-run preview, or
 the refusal (one of the eight `CSV_CODES`, its field and detail). `send` runs the same validation, then one
 `CsvCollector.collect` through the gateway channel (admit in file order, seal, release), and prints the admission
 counts. Exit codes: 0 done, 2 the file is refused, 3 configuration refused, 4 gateway unavailable, 5 the gateway is
-not the one configured (identity mismatch), 6 the gateway refused the request.
+not the one configured (identity mismatch), 6 the gateway refused the request, 7 the process ran out of memory under
+its limit.
+
+ENV-1 (D-ENV1.2): the two limit flags are required and come first. The `__main__` entry sets `RLIMIT_AS`,
+`RLIMIT_CPU` (hard = soft + 1), `RLIMIT_FSIZE 0` and `RLIMIT_CORE 0` before it reads the profile or the file; a run
+without them is a configuration refusal (exit 3). `main` sets no limit (its in-process tests call it).
 """
 
 from __future__ import annotations
@@ -20,6 +25,7 @@ import argparse
 import csv
 import hashlib
 import json
+import os
 import re
 import sys
 from collections import Counter
@@ -34,6 +40,9 @@ from assetops_field.profile import FieldProfile, ProfileRefused, load_profile
 from assetops_field.publish import GatewayPublisher, IdentityMismatch
 
 EXIT_OK, EXIT_REFUSED, EXIT_CONFIG, EXIT_UNAVAILABLE, EXIT_IDENTITY, EXIT_GATEWAY_REFUSED = 0, 2, 3, 4, 5, 6
+EXIT_LIMIT = 7  # the child ran out of memory under its limit (ENV-1)
+LIMIT_FLAGS = ("--limit-memory-bytes", "--limit-cpu-seconds")
+_LIMIT_VALUE = re.compile(r"[0-9]{1,12}")
 #: The preview lists at most this many blank instants per column; `blanks` always carries the full count.
 BLANK_TIMES_SHOWN = 24
 
@@ -102,7 +111,8 @@ def send(profile: FieldProfile, path: Path, publisher: GatewayPublisher) -> dict
 
 
 def _arguments(argv: Sequence[str] | None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(prog="python -m assetops_field.csv_upload")
+    parser = argparse.ArgumentParser(
+        prog="python -m assetops_field.csv_upload --limit-memory-bytes N --limit-cpu-seconds N")
     sub = parser.add_subparsers(dest="command", required=True)
     check = sub.add_parser("check")
     check.add_argument("--profile", required=True, type=Path)
@@ -170,5 +180,34 @@ def main(argv: Sequence[str] | None = None) -> int:
     return EXIT_OK
 
 
+def _entry(argv: Sequence[str] | None = None) -> int:
+    """ENV-1: the module's only `__main__` path; never call it in-process (it sets this process's limits). The
+    limits are set before `main` reads the profile or the file."""
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if (len(argv) < 4 or argv[0] != LIMIT_FLAGS[0] or argv[2] != LIMIT_FLAGS[1]
+            or not _LIMIT_VALUE.fullmatch(argv[1]) or not _LIMIT_VALUE.fullmatch(argv[3])
+            or int(argv[1]) <= 0 or int(argv[3]) <= 0):
+        _emit({"ok": False, "error": "CONFIGURATION", "detail": "the memory and CPU limits are required"})
+        return EXIT_CONFIG
+    try:
+        import resource
+    except ImportError:
+        _emit({"ok": False, "error": "CONFIGURATION", "detail": "resource limits need Linux"})
+        return EXIT_CONFIG
+    memory, cpu = int(argv[1]), int(argv[3])
+    resource.setrlimit(resource.RLIMIT_AS, (memory, memory))
+    resource.setrlimit(resource.RLIMIT_CPU, (cpu, cpu + 1))
+    resource.setrlimit(resource.RLIMIT_FSIZE, (0, 0))
+    resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+    try:
+        return main(argv[4:])
+    except MemoryError:
+        try:
+            _emit({"ok": False, "error": "LIMIT", "detail": "memory"})
+        except MemoryError:
+            os._exit(EXIT_LIMIT)
+        return EXIT_LIMIT
+
+
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(_entry())
