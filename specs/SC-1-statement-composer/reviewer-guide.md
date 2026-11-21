@@ -1,6 +1,7 @@
 # SC-1 reviewer guide
 
-Architect (Claude), 2026-11-21, rev 2 (handshake round 1 folded in). Discovery review (W5): a new mechanism every server sentence will pass through,
+Architect (Claude), 2026-11-21, rev 3 (handshake round 1 and review answers D-SC1.32 to D-SC1.39 folded in; the
+fix-round re-review reads items 2, 10, 14 and 15 first). Discovery review (W5): a new mechanism every server sentence will pass through,
 and money in words. Read `spec.md`, `rulings.md`, today's `backend/assetops_backend/i18n/` (four files), 3A7
 `spec.md` §2.7 and 5c `spec.md` §2, then the diff. Done means every question in spec §7 answers yes with evidence,
 and every plant in spec §6 fails with its named code.
@@ -34,19 +35,31 @@ and every plant in spec §6 fails with its named code.
     its code and N1 to N4 pass. The legacy baseline equals `main`'s legacy keys and template hashes at the last merge of
     `main`; the hand-built baseline was produced by `--write-baseline` from `main` (re-run it on a clean checkout of the
     merge base and compare). In any later unit, an **added** hand-built fingerprint is High unless that unit's spec
-    names it; removals are expected. The check-all lines are present.
+    names it (served English goes to statements, D-SC1.34); removals are expected. Each new entry in
+    `statement-handbuilt-allow.json` is a code string of its stated class (`SQL`, `HASH`, `CODE`) and not text a
+    person reads; a served string allowed under a class is High. A class added to `schema.UNSERVED` is named by the
+    unit's spec. The check-all lines are present.
 11. **Scope.** No file outside spec §4's table changes. No database, server or Docker use.
 12. **Claims and preconditions (D-SC1.20).** For each variant of §5's statements and of the shipped `common.py`, read
     its text against its `when` and `requires`: a relation the words assert (same sign, at most, equal counts, on
     target) that neither selects nor requires is High.
 13. **Evidence on the page (D-SC1.18).** Every figure in a case's English is followed by or covered by its evidence
     word, or the case lists the word in `evidence`; a figure stated only by a condition (H4, SH4) still has its word.
+14. **Number words (D-SC1.32).** `NUMBER_WORDS` equals §3.12's pairs exactly; T12b's sixteen literals fail and its
+    fourteen ordinary words load; `TOKENS` holds no suffix such as `s` or `d`.
+15. **The served-text rules (D-SC1.33, D-SC1.35 to D-SC1.37).** Re-run the review's replay (`main`'s last 90
+    first-parent commits, new fingerprints per backend merge) with the shipped guard: expect about 112 fingerprints
+    with about 2 code strings among them, against 208 with 37 before; a materially higher code-string count, or a
+    replay sentence the rules drop (rulings, D-SC1.33's measured losses aside), is Medium. P57a to P57e prove the
+    narrowing still catches; N5 to N12 prove the replay's false positives pass; P51a to P51d and P49a to P49d close
+    M1 and M2.
 
 ## Severity
 
 High: a hand value computed by code; statement-specific code in the mechanism; a fallback sentence; a digit, currency
 sign or number word allowed in a literal; a legacy render that changed; a stated figure without its evidence; a scan
-scope that does not run on real code; an added baseline fingerprint not named by the spec. Medium: a §3.7 code without a test; a format differing from 5c §2.1.
+scope that does not run on real code; an added baseline fingerprint not named by the spec; a served string in the allow
+file; a file under `i18n/` no scope reads. Medium: a §3.7 code without a test; a format differing from 5c §2.1.
 Low: naming and comments.
 
 ## Packet
