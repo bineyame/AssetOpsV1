@@ -1,6 +1,6 @@
 # SC-1: the statement composer (implementer spec)
 
-Status: **in_review** (SC-1a built, units 1-3; `packet.md`; review round 1 ACCEPT WITH FIXES). Rev 3: handshake
+Status: **in_review** (SC-1a built, units 1-3; `packet.md`; review round 1 ACCEPT WITH FIXES; fix round r1 built). Rev 3: handshake
 round 1 answered (D-SC1.17 to D-SC1.27); mid-build answers D-SC1.29 to D-SC1.31; review answers D-SC1.32 to
 D-SC1.39 (fix round 0.75 units, §8).
 Code starts when the handshake has no open question. Questions during the build: `mid-build-questions.md`.

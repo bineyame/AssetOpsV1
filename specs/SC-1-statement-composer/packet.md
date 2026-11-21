@@ -5,6 +5,52 @@ answers D-SC1.29 to D-SC1.31 (merged from `task/SC-1a-midbuild-answers` 74e74ca9
 `USER_REVIEW_REQUIRED: false` (spec header). **Owner approval needed at merge:** the two new check-all lines (guard
 changes are held for the owner, `specs/OWNER-AWAY/decisions-2026-11-21.md` row 5).
 
+## Fix round r1 (D-SC1.32 to D-SC1.39; spec rev 3)
+
+Head: the commit that adds this section (code `33115e055`, main merged at `55aa7d6ac`: `task/SC-1a-review-answers`
+420596391, then `main` f75321b92; SC-1a's owner-away rows are now **23 and 24**, after 3B6's 21 and 22).
+**Owner approval still needed at merge: the two check-all lines** (owner-away rows 5 and 24).
+
+- **D-SC1.32 (M3).** `schema.NUMBER_WORDS["en"]` is the spec's six `(roots, suffixes)` pairs; `schema.number_words`
+  derives the set; the load splits on non-letters and refuses any member. `TOKENS` no longer holds them (T12 proves
+  no root or suffix is in it unless another set holds it). T12b: the 16 literals fail `LITERAL_NUMBER_WORD` (P28b),
+  the 14 N-T12 words load.
+- **D-SC1.33.** `prose` is word pairs (word, identifier, SQL words, `(s)`, trailing punctuation), not led by
+  `SQL_LEAD`; rule (e) skips a join that is `.encode()`d; rule (f) hits only a display branch; logging covers any
+  logger receiver and `logging.getLogger(...)`.
+- **D-SC1.34.** `tools/checks/statement-handbuilt-allow.json` (`{}`), `ALLOW_CLASS`/`ALLOW_STALE`/`ALLOW_SCOPE`,
+  `--prune` drops stale entries; `UNSERVED_SERVED` for backend classes in `UNSERVED` (built-ins exempt).
+- **D-SC1.35 (M1).** `i18n/**/*.py` walked; mechanism, legacy, package marker (literal rule, no `MECH_BRANCH`), data
+  module, else `MECH_UNSCOPED`.
+- **D-SC1.36 (M2).** `__all__` in `messages`, `locale`, `render`, `facts`, `wire` (what `i18n.__init__` re-exports
+  plus `CATALOGUE` and `locale.using`); a missing one is `I18N_SURFACE`; a name outside it, imported, read through
+  a bound name or by dotted path, is `I18N_BYPASS`.
+- **D-SC1.37 (L1).** `messages.CATALOGUE` templates and their locale dicts are left to the legacy ratchet; rule (i) is
+  one fingerprint per word-map entry. P14/P42/P53/P53c now give their legacy code only.
+- **L4.** `from_wire` checks the fact name is a `str` first (P40b, `WIRE_FORM`). L3 wording is the spec's; L2 not
+  adopted.
+- **Tests first.** The new T12/T12b/P40b tests failed on the old `schema`/`catalogue`/`wire` (16 failed: T12, P40b
+  and 14 of the 16 T12b literals; "twenty-five" and "two-thirds" were already refused by parts), then pass.
+- **Plants.** Self-test **68 of 68** behave (was 40): adds P49a-d, P51a-d, P53a, P55a/P55a2/P55b/P55c, P56,
+  P57a-e (P57e exactly one fingerprint), N5-N13. Guard on the guard (scratch edits, reverted): making the surface check
+  always pass, classing unscoped files as data and disabling the `UNSERVED_SERVED` read gave **61 of 68** (P49a-c,
+  P51a-c, P56 fail); dropping the encode exception or per-entry word maps fails the unplanted base copy.
+- **Baselines** regenerated with `--write-baseline --root <scratch>` on SC-1a's tree with `main`'s own `messages.py`
+  and `locale.py` (backend outside `i18n/`, `config` and `conversions` equal `main` f75321b92): hand-built **300
+  paths, 5,185 fingerprints** (g 2972, a 1590, j 229, e 114, d 87, f 71, i 67, h 55; was 320 / 5,900); legacy **123
+  keys** (unchanged).
+- **Replay** (the Architect's script, recreated verbatim after the scratch cleanup removed it; tip `43433bea8`, 90
+  first-parent commits, 4.7s): **112 new fingerprints over the 14 backend merges, all 14 fail**, the Architect's
+  prototype figure exactly. **False positives (code strings): 2 of 112**, the same two (`a8e1fd2` `months.py:125`
+  `"\n".join` later hashed; `081e850` `evaluate.py:223` `", ".join` building expression code). The rest: 13 English
+  messages of backend exception classes (Architect: 11; I counted every hit inside a `raise` by AST, which includes
+  `expressions.py:148`'s join and the start-up `ConfigurationError`s), 4 served exception texts (j), 93 served English.
+- **Known deviations.** (1) `schema.py`'s `NUMBER_WORDS` literal is read as data by scope (1): its roots and suffixes
+  are no longer in `TOKENS`, so the spec's own literal would otherwise be `MECH_LITERAL`. (2) The rulings' "does not
+  catch" list names `"policy_version required"`, but rule 1 makes a word of three or more letters beside an
+  identifier prose, so the guard catches it; the shipped rule follows D-SC1.33 rule 1 (a short word, `site_id is`,
+  passes). (3) P49d also gives `I18N_BYPASS` (without a surface every outside import of `render` is a bypass).
+
 ## Units (spec §8)
 
 | Unit | Commit | Content |

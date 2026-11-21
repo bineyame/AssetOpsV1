@@ -1,4 +1,4 @@
-# SC-1a handoff (COMPLETE: units 1-3 built; in review)
+# SC-1a handoff (COMPLETE: units 1-3 built; fix round r1 built; in review)
 
 Branch `task/SC-1a-composer`, worktree `/opt/assetecon/AssetOpsV1-sc1a`, off `main` 8805ee169; mid-build answers
 (74e74ca9c, D-SC1.29 to D-SC1.31) merged in. Python: `/opt/assetecon/AssetOpsV1/.venv/bin/python`; PYTHONPATH =
@@ -12,17 +12,12 @@ worktree `backend:backend/tests:contracts:simulator`.
 
 ## Next
 
-- Review round 1: ACCEPT WITH FIXES (`review.md`). Architect answers D-SC1.32 to D-SC1.39 (`rulings.md`, "Review
-  answers (round 1)"; spec rev 3; reviewer guide rev 3) on `task/SC-1a-review-answers`. Next: merge that branch, then
-  a fix round of 0.75 units per D-SC1.39 (fresh implementer), then a verification re-review (guide items 2, 10, 14,
-  15). Owner approval of the two check-all lines at merge (owner-away rows 5 and 24).
-- Coordinator: merge `main` into the branch to clear the inherited index-check failure (doc conflicts in
-  `.ai/decisions/index-rulings-15.md` and `specs/OWNER-AWAY/decisions-2026-11-21.md`: keep both sides' rows), then
-  delete and rewrite both baselines from `main` (`git archive <main> backend config`, lay SC-1's mechanism files and
-  `statement_cases/` over it, `--write-baseline --root <scratch>`), and rerun the guard and its self-test.
+- Fix round r1 (D-SC1.32 to D-SC1.39) built: `packet.md`, "Fix round r1". Next: the verification re-review (fresh
+  Claude reviewer; guide items 2, 10, 14, 15; regenerate both baselines from `main` and compare; rerun the replay).
+  Owner approval of the two check-all lines at merge (owner-away rows 5 and 24).
+- Any `main` merge that adds backend code: rewrite both baselines from `main` (`--write-baseline --root <scratch>`
+  on SC-1a's tree with `main`'s `messages.py` and `locale.py`), rerun the guard and its self-test.
 
 ## Risks
 
-- Any `main` change to `messages.CATALOGUE` changes its single word-map fingerprint (rule i) until the fix round
-  (D-SC1.37 removes it): rewrite the baselines.
 - `KEY_INSTANCE` tokens today: `cold`, `kisiwa`, `kobo`, `lab`; a new generic Site code word could hit a key.
