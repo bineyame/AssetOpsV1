@@ -631,6 +631,14 @@ class PostgresEvidenceLedger:
 
         return self._run(work)
 
+    def site_timezone(self, site_id: UUID) -> str:
+        """The Site's IANA zone, for the bulk load's cover rule (D-DS4.17). No cache and no None branch: the Site
+        exists after the gateway check and `site.timezone` is NOT NULL (I6)."""
+        def work(c: Connection) -> str:
+            return c.execute(text("SELECT timezone FROM site WHERE id = :s"), {"s": site_id}).scalar_one()
+
+        return self._run(work)
+
     def bulk_admit(
         self,
         principal: GatewayPrincipal,

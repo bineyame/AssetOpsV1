@@ -118,3 +118,20 @@
 ## From the SC-1a round-3 review (2026-11-21, ACCEPT)
 - Low: the I18N_BYPASS scan misses assignment aliases (`r = i18n.render; r.formats`), an aliased parent (`import assetops_backend as ab; ab.i18n.formats`), getattr and sys.modules.
 - Spec §3.12's number-word list extended by fix round r2 (doubling, tripling, quadrupling, halving, per cent, zeroes, nought): Architect to write it into the spec.
+
+## From the 3A6 round-6 review (2026-11-21, ACCEPT; merged)
+- HELD FOR OWNER (guard change): configuration-persistence's `open\(` pattern has no word boundary (it hit `_Popen(` and `set_spawning_popen(`). Reviewer recommends: tighten the pattern, add `FileIO\(`/`fdopen\(`, one explicit reasoned exemption for envelope.py's launch-pipe line, and restore the stdlib `open` there. Until then envelope.py uses io.FileIO (disclosed, judged a genuine false positive).
+- L1: E7 misses an aliased `split_file as _sf` call; its 3 allowances are per file, not per call.
+- L3: raw io.FileIO.write ignores short writes (theoretical).
+- ENV-1 (0.25 unit): reading_upload_api.py still parses uploads in the server process; the loader CLI parses JSON unbounded in its own process; parse slots are per uvicorn worker.
+- NATIVE_TOO_LARGE's words (in the messages catalogue) and D-3A6.26 are in the owner queue (owner-away row 29).
+- Low (3A6 log fix review): E9 doesn't assert EnvelopeBreach.cause is in the closed set for every forced breach.
+
+## From the 4a adjustments review (2026-11-21, ACCEPT; merged)
+- Low: no in-repo Postgres assertion pins the evaluated-level blank for never-sent adjustments.
+- Low (Architect): a Site whose only ADJUSTMENT records are money-only credit notes reads a stated 0 kWh (D-DS4.25 gates on the kind). Decide whether money-only credit notes should count as "ever sent" for kWh.
+
+## From the 0K2 review (2026-11-21, ACCEPT; merged)
+- L1: packet calls the replay row "site" and gives the design values in a paragraph, not a column.
+- L2: new/cleared dawn dates proven only on the stub (neither kernel season changes a date).
+- L3: packet gives no reason for the gap with the design; the review's "Design values beside the study" section is the owner-facing explanation.

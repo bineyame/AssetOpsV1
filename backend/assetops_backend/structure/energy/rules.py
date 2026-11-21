@@ -38,18 +38,20 @@ METER_READS_INCOMPLETE = "METER_READS_INCOMPLETE"
 NEEDS_ASSIGNMENT = "NEEDS:METER_ASSIGNMENT"
 NEEDS_READ = "NEEDS:CUSTOMER_METER_READ"
 NEEDS_CHARGE = "NEEDS:CHARGE"
+NEEDS_ADJUSTMENT = "NEEDS:ADJUSTMENT"
 MONTH_OPEN = "MONTH_OPEN"
 CURRENCY_MISMATCH = "CURRENCY_MISMATCH:"
 ZERO_DENOMINATOR = "ZERO_DENOMINATOR:billed_kwh"
 #: Spec §2.4 "Notes, in one list": 5c maps each to a record (D-4A.12). The last two are parametrised forms.
 NOTES = (FEEDER_NOT_BOUND, FEEDER_BINDINGS_CHANGED, FEEDER_READINGS_GAP, LOSS_BAND_NOT_DECLARED, LOSS_BAND_CHANGED,
          METER_REF_CONFLICT, METER_READ_STRADDLES, METER_READS_OVERLAP, METER_READS_INCOMPLETE, NEEDS_ASSIGNMENT,
-         NEEDS_READ, NEEDS_CHARGE, MONTH_OPEN, CURRENCY_MISMATCH, ZERO_DENOMINATOR)
+         NEEDS_READ, NEEDS_CHARGE, NEEDS_ADJUSTMENT, MONTH_OPEN, CURRENCY_MISMATCH, ZERO_DENOMINATOR)
 
 NOT_RECEIVED, NOT_CONNECTED, NOT_CALCULATED_YET = "NOT_RECEIVED", "NOT_CONNECTED", "NOT_CALCULATED_YET"
 FEEDER_SOURCE = "readings:feeder_demand"
 BAND_SOURCE = "foundation:technical-loss-band"
 CUSTOMER_METER_READ, METER_ASSIGNMENT, CHARGE = "CUSTOMER_METER_READ", "METER_ASSIGNMENT", "CHARGE"
+ADJUSTMENT = "ADJUSTMENT"
 USAGE, STANDARD, PRODUCTIVE, METER = "USAGE", "STANDARD", "PRODUCTIVE", "METER"
 
 
@@ -191,6 +193,7 @@ class _Month:
         self.i = inputs
         held = inputs.held
         self.has_charge_kind = CHARGE in held
+        self.has_adjustment_kind = ADJUSTMENT in held
         self.has_read_kind = CUSTOMER_METER_READ in held
         self.has_assignment_kind = METER_ASSIGNMENT in held
         self.standard = tuple(c for c in inputs.charges if c.line_type == USAGE and c.kwh is not None
@@ -292,8 +295,8 @@ class _Month:
 
     def adjustments(self) -> LeafValue | _No:
         i = self.i
-        if not self.has_charge_kind:
-            return _No(NOT_CONNECTED, NEEDS_CHARGE)
+        if not self.has_adjustment_kind:  # D-4A.8 / D-DS4.25: never sent is blank, not 0
+            return _No(NOT_CONNECTED, NEEDS_ADJUSTMENT)
         if not i.closed:
             return _No(NOT_RECEIVED, MONTH_OPEN)
         if not i.charges:

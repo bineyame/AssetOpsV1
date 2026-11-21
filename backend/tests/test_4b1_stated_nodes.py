@@ -222,11 +222,11 @@ def _valued_cases():
 
 @pytest.mark.parametrize("key, factor_id, stated", _valued_cases())
 def test_s11a_every_valued_part_with_empty_origins_is_refused(key, factor_id, stated):
-    from assetops_backend.structure.evaluate import _check_leaf, _check_stated, _money_dimension
+    from assetops_backend.structure.evaluate import _check_leaf, _check_stated
     from assetops_backend.structure.registry import REGISTRIES
     reg = REGISTRIES[key]
     row = reg.row(factor_id)
-    currency = "USD" if _money_dimension(row.unit) else None
+    currency = "USD" if row.unit.has_money_dimension else None
     leaf = LeafValue(Decimal("1.00"), "MEASURED", ("x",), None, None, currency, ())
     err = _raises("STRUCTURE_ORIGIN", _check_stated, reg, {factor_id: leaf}) if stated else _raises(
         "STRUCTURE_ORIGIN", _check_leaf, reg, factor_id, leaf)
@@ -234,10 +234,9 @@ def test_s11a_every_valued_part_with_empty_origins_is_refused(key, factor_id, st
 
 
 def test_s11a_the_registry_yields_money_and_non_money_leaves():
-    from assetops_backend.structure.evaluate import _money_dimension
     from assetops_backend.structure.registry import REGISTRIES
     rows = [REGISTRIES[p.values[0]].row(p.values[1]) for p in _valued_cases() if not p.values[2]]
-    assert any(_money_dimension(r.unit) for r in rows) and any(not _money_dimension(r.unit) for r in rows)
+    assert any(r.unit.has_money_dimension for r in rows) and any(not r.unit.has_money_dimension for r in rows)
     assert any(p.values[2] for p in _valued_cases())
 
 

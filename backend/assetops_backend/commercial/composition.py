@@ -15,7 +15,9 @@ from datetime import datetime, timezone
 
 from assetops_backend.commercial.adapters import file_key_store
 from assetops_backend.commercial.adapters.postgres_commercial_store import UNAVAILABLE, PostgresCommercialStore
+from assetops_backend.commercial.envelope import ParseEnvelope, default_envelope
 from assetops_backend.commercial.months import CommercialMonths
+from assetops_backend.commercial.profiles import SourceProfiles
 from assetops_backend.commercial.store import CommercialStore
 from assetops_backend.commercial.service import CommercialRecords
 from assetops_backend.commercial.uploads import CommercialUploads
@@ -104,12 +106,25 @@ def refuse_operator_database(url: str) -> None:
         raise OperatorDatabaseRefused()
 
 
-def build_commercial_uploads(database_url: str, settings: UploadSettings) -> CommercialUploads:
+def build_commercial_uploads(database_url: str, settings: UploadSettings, *,
+                             envelope: ParseEnvelope | None = None) -> CommercialUploads:
+    """`envelope`: the parse envelope (spec §2.12); omitted, the process's one shared `default_envelope()`."""
     if settings.key_dir is None:
         raise ConfigurationError("Commercial uploads need ASSETOPS_PSEUDONYM_KEY_DIR.")
+    envelope = envelope if envelope is not None else default_envelope()
     store = PostgresCommercialStore(database_url)
+    profiles = SourceProfiles(store, clock=_now, real_data=settings.real_data, envelope=envelope)  # 3A6 (spec §2.6)
     return CommercialUploads(CommercialRecords(store, clock=_now), store, FileKeyStore(settings.key_dir), clock=_now,
-                             real_data=settings.real_data)
+                             real_data=settings.real_data, profiles=profiles, envelope=envelope)
+
+
+def build_source_profiles(database_url: str, *,
+                          envelope: ParseEnvelope | None = None) -> tuple[SourceProfiles, Callable[[], None]]:
+    """3A6 (spec §2.6, §2.7): the admission service for the `source_profile` command, on the same settings path
+    (`commercial_upload_settings`: the real-data switch follows the database); and its store's `dispose`."""
+    settings = commercial_upload_settings(database_url)
+    store = PostgresCommercialStore(database_url)
+    return SourceProfiles(store, clock=_now, real_data=settings.real_data, envelope=envelope), store.dispose
 
 def build_commercial_months(database_url: str) -> CommercialMonths:
     """3A4 (spec §3.5): money by month over the Postgres store, with the UTC clock."""

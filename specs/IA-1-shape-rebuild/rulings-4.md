@@ -2,7 +2,7 @@
 
 ## IA-2a review answers (round 1)
 
-Architect (Claude), 2026-11-21, owner away (delegated; owner-away row 30). Answers `review-IA-2a-r1.md` M1, M2, L1 to L4;
+Architect (Claude), 2026-11-21, owner away (delegated; owner-away row 44). Answers `review-IA-2a-r1.md` M1, M2, L1 to L4;
 spec §5.1 rev 6. Brief: right control per content, one interaction grammar, honest numbers; W6 (the class, then the sweep).
 
 ### D-IA.54 Two figures for one quantity on one screen reconcile on that screen (M1)
@@ -68,7 +68,7 @@ and 390). The packet lists every IA route whose row changed, with a shot.
   Left out) and to `#/plan` where they are not (Review, History): the link goes to the control, the rule D-IA.36 sets for
   in-page links. L1 is identical except that one `href`. `plan_shape_check` asserts the `href` per tab before it
   normalises it, so the normalising can hide nothing else. A packet line says so.
-- **L4.** Keep both sides: `DS3` row 172 (main), `IA-2a` row 173 (done on `task/IA-2a-review-answers`).
+- **L4.** Keep both sides: `DS3` row 172 (main), `IA-2a` row 173 (renumbered 177 at the main merge; done on `task/IA-2a-review-answers`).
 
 **Fix size.** One round, about 1 unit, 2 commits: (1) D-IA.54 clause, `qty_check` and its sweep; D-IA.57 L2 and L3;
 (2) D-IA.55 listener and D-IA.56 rules with their `ia_shots` clauses and plants (heavy slot). A continuation builder on

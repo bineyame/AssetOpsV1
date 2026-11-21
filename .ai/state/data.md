@@ -488,6 +488,13 @@ Branch `task/DS3-bulk-loader` (base main `8eff70625`); spec `specs/DS3-bulk-load
 
 - Settled: `PostgresEvidenceLedger.bulk_admit` (one transaction per batch, `_BULK_BATCH_SQL`/`_BULK_EVIDENCE_SQL`/`_BULK_DISPOSITION_SQL` set-based `INSERT ... SELECT FROM unnest`, only the existing DO NOTHING arbiters; refusals BULK_PUBLISHED_BATCH, BATCH_ID_CONFLICT, BULK_BATCH_IN_PROGRESS, BULK_SITE_TYPE_UNPROVEN (MINIGRID only), BULK_MESSAGE_COLLISION; other integrity errors propagate); `gateway_principal`; `BatchIngestionService.admit` and `_enqueue_admitted` extracted unchanged; `evidence/bulk_load.py` (`BulkEvidenceLoad`, SIMULATED only, `permitted_database`: audit names and harness clones only, host and port); `python -m assetops_backend.load_world_inputs` (commercial through `load_emulated_exports`, telemetry in bulk; exits 0/2/3/4); `pg_harness.clone_database`/`drop_database`. Parity on two Kobo days: equal evidence, batch and disposition rows, recompute-job rules, census.
 - Open: nothing from the mid-build questions (answered). DS4 lifts BULK_SITE_TYPE_UNPROVEN per Site type with that type's parity slice, and checks the event cover for gap days (D-DS3.21).
+## 0K2 - the Kobo replay study on a simulated season (in review, 21 Nov)
+
+Branch `task/0K2-kobo-replay` (base main `15c5b07b6`); spec `specs/0K2-kobo-replay-study/spec.md` rev 2, rulings D-0K2.1-29; packet `packet.md`. No database, no migration, no served text.
+
+- Settled: `runs/replay_study.py` (`replay_study` and the §2.5 helpers `0M` reuses; whole-window replays only, refusals before any port call, calibration on admissible days, dawn readings with new/cleared dates against no action, local-month splits, SIMULATED/MODELLED labels on every record); `host/tests/kobo_season.py` (the declared 61-day season, published at stated quanta); `tools/kobo_replay_study.py`. 61-day run: CALIBRATED (adapter fidelity); every case, the baseline included, has 16 of 61 dawns below 35% (day 0 and the 15 after-overcast dawns), no case adds or clears a dawn date.
+- Open: owner-away rows 37 (design values unchanged) and 42 (dawn admissibility for `6c`); the reader from accepted readings (`0K3`); money and option choice (`6c`).
+
 ## 0K1 - the forward replay port and its host adapter (in review, 21 Nov)
 
 Branch `task/0K1-forward-replay` (base main `3bdf3c81d`); spec `specs/0K1-forward-replay-port/spec.md` rev 2, rulings D-0K1.1-18; packet `packet.md`. No database, no route, no served text.
@@ -508,3 +515,29 @@ Branch `task/3B6-cold-ev` (base main `22dc0bbf3`); spec `specs/3B6-cold-ev/spec.
 
 - Settled: `COLD_CHAIN` v1 (36 rows) and `EV_DEPOT_CAPTIVE` v1 (42 rows, `not_applicable=("revenue",)`) in `REGISTRIES`; `registry.applicability()` (APPLIES / NOT_APPLICABLE / NOT_IN_STRUCTURE; no caller outside tests); `STRUCTURE_NOT_APPLICABLE` (last per-registry code, plus a cross-registry pass) and the L2 key check in `check_all`; three cold and EV pins, `PENDING_PINS` empty; `SITE_TYPE_TO_STRUCTURE` maps COLDCHAIN and EV_CHARGING; `read.sites_excluded` (NOT_DECLARED / `STRUCTURE_OTHER_KEY`) used by every portfolio reader; `StructureRead.portfolio(structure_key=)`; `KEY_NOT_READ` refusals in `TargetRead.site` and `SnapshotRead.site`; `BridgeRead.site` reads targets first; `SOURCE_STATE` for both keys (calendar PROVIDED, HELD only with a stored record); `sources.COMMERCIAL_KEYS` gate in `CommercialLeafSource.leaf`.
 - Open: cold and EV intake (9d, 9e), target sides and snapshots for cold and EV, a cross-structure total and the portfolio `cost_per_departure_met` (R-CROSS-KEY), a public-charging structure (R-EV-PUBLIC); stored snapshots read rebuild-needed after merge.
+
+## 3A6 - source profiles as data (in review, 21 Nov)
+
+Branch `task/3A6-source-profiles` (main `26dd65e60` merged in); spec `specs/3A6-source-profiles/spec.md` rev 2, rulings D-3A6.1-17; packet `packet.md`. Migration 0067 (revises 0066); no route change beyond the reader lookup, no screen.
+
+- Settled: the profile engine (`native/profiles_v1.py`, `xlsx.py`, transforms, invisible rule, coded rule, `run_probes`); `commercial/profiles.py` (`SourceProfiles.check`/`admit`, steps 1-7 with coverage 4a-4c; `reader` with only the latest version reading new uploads); table `commercial_source_profile` (three hashes and a row count, never a cell); the intake's one-source-system-per-Site rule on check/submit and re-checked under the lock at acceptance; `python -m assetops_backend.source_profile check|admit|list`; the loader takes `<SLUG>.profile.<id>.csv|xlsx`; S1 tagged clauses (dynamic imports, `sys.modules`, `runpy`, names as strings, eval); the suite derives coded probes from the canonical side and runs the kobo profile case.
+- Fix round r3 (XLSX work class): `xlsx.py` parses every member by event under one workbook budget of 500,000 elements (`NATIVE_WORKBOOK` past it), row numbers rise strictly, the header is never padded past the layout, numbers past a double are unreadable cells; adversarial set "N3 r3" in `contracts/tests/test_3a6_profiles.py`.
+- Fix round r4 (bounds by resource): members are inflated a chunk at a time and counted (member 16 MiB, total 64 MiB, deflate or stored only), cell values charge one 16 Mi-character budget on every reference, CSV and XLSX reads stop one kept row past `MAX_RECORDS` and keep at most width+1 cells a row, the invisible scan is one regex class; set "N3 r4".
+- Fix round r5 (the class, D-3A6.23-26): every upload parse (both readers, canonical JSON, admission's split) runs in a fresh forkserver child (`commercial/envelope.py`) under RLIMIT_AS 512 MiB, CPU 6 s, wall 12 s, a 32 MiB result, 2 at once per process; any breach is `NATIVE_TOO_LARGE` (its own words), logged with no content; the resource bounds switched to that code; N8-N10 bounds (attribute runs and names, 1 Mi characters a CSV row, a 256-entry/256 KiB zip directory). E0-E9, B1-B3.
+- Open: the reading-upload intake (`reading_upload_api.py`) still parses in process (queued `ENV-1`); mid-build Q1 (A9 a's many-to-one map vs `check_layout`'s one-to-one rule); queue Q1 (moving a Site's source type to another system) and Q6 (Sites named, not coded) on their defaults; a v2 that changes `personal` turns that profile's corrections into version conflicts (packet risk); 3A7 next on the same files.
+
+## 3B4 - the structure observer (in review, 21 Nov)
+
+Branch `task/3B4-observer` (main `2ef8e9769` merged in: 4a, 3B6, DS3); spec `specs/3B4-observer/spec.md` rev 2, rulings D-3B4.1-26; packet `packet.md`. Migration `0068_structure_finding` on 0066 (renumber at merge, gate B); no route, no screen, no served text.
+
+- Settled: `structure/observe/` (`rules.py` OBSERVED/NOT_OBSERVED, signs, kinds, key, lifecycle table; `observe.py` the rule, band, basis, 25-key claim; `service.py` `StructureObserver.run` per Site under the Site-month lock; `composition.py`); today's Finding store gains domain `structure` and `structure_tolerance` (append-only, in `$findingTables`); four readers leave the domain out (`_fence`, `finding_detail`, `rows()` x5, thread sources); commands `observe_structure run` and `declare_tolerance set|clear|show`; `COMMAND_ROLES` `structure.tolerance.money`/`.operational`.
+- Settled (unit 4): `check.check_observed` (`OBSERVE_CODES` KEY, COVER, LEAF, SOURCE, DIRECTION, KIND) runs in `check_all()` after `check_pins`, over `OBSERVED`'s keys only (COLD/EV registries not a fault); registry v4's 31 MINI_GRID leaves covered once (19 observed, 12 not).
+- Open: owner Q1/Q2 (rows 27-28); residual R-FENCE-FUEL, R-NO-OPPORTUNITY, R-ASSUMED-TARGET; words and a screen come with 3B5/5c.
+
+## DS4 - the template ladder and world check, units 1-2 (in review, 21 Nov)
+
+Branch `task/DS4-template-ladder` (`9eff83776`); spec `specs/DS4-template-ladder/spec.md` rev 3, rulings D-DS4.1-27; packet `packet.md`.
+
+- Settled: `tools/world.py` builds the L0/L1/L2 ladder by key (migrations; definition, inputs, onboarding, code; L2 steps), frozen rungs, manifests, `clone`/`reset`/`list`/`drop` (keys erased before an L1 drops), and `check` C1-C7 with the total C4 oracle (`C4_CONTRACT` = §2.1, Kisiwa's O&M overrides, `C4_KNOWN_FINDINGS`), `harness_run` under its own base, and `check_passed` only while the check inputs are unchanged.
+- Settled: the bulk load refuses a batch whose envelopes resolve other days than its cover (Site-local and UTC grains, step 7a; `BULK_BATCH_GAP_DAYS`, `BULK_BATCH_TIME_UNREADABLE`); `PostgresEvidenceLedger.site_timezone`.
+- Open: the real world's C4 fails only on the 12 known D-DS4.27 plan cells until 5a F1 merges; unit 3 (bench, the real `assetops_world` build and check) waits for owner row 40.
