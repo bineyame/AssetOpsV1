@@ -1,6 +1,6 @@
 # 5c: the month, explained (the one deep-dive screen; implementer spec)
 
-Status: rev 2, Architect (Claude), 2026-11-20, re-scoped by D-BW1.9 and D-BW1.12; handshake round 1 answered
+Status: in_review (units 1-3 built, 2026-11-21). rev 2, Architect (Claude), 2026-11-20, re-scoped by D-BW1.9 and D-BW1.12; handshake round 1 answered
 (`rulings.md`, "Handshake answers"). UI lane, after the IA-1 stop (RC6). **3.5 units.** `USER_REVIEW_REQUIRED: true` (the screen the
 executive sees). Discovery review (W5): money figures on screen.
 - **Structure:** P5 (`specs/5a-targets/structure-page-P5.md`, approved 20 Nov) rules 2, 7 and 8; D-5B.10, D-5B.12,

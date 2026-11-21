@@ -29,3 +29,16 @@ the mid-build count. The Architect confirms them at review.
 | # | Point | Default applied |
 |---|---|---|
 | MBQ1 | Spec 3.5 World A's standing text ends "within 1%." (unit 1's injected `NOT_MATCHED`, the fixture's `standing.text` and Assure drawer line). 3A7's `CommercialReconciliation.standing` on the Postgres world words the organisation standing with the statement's evidence: "... within 1% (Recorded)." (and "Reconciled: ... within 1% (Recorded)." for B). | The view passes 3A7's words through (PF11); nothing in 5c rewords them. Test 9 asserts 3A7's real literal and compares the rest of the payload with the fixture after that one substitution (`test_5c_deep_dive_postgres.py` `A_TEXT`). Unit 1's fixture and test 8 keep the spec literal, since their standing is injected. The Architect decides whether spec 3.5 and the fixture take "(Recorded)"; no screen code depends on it. |
+
+## Mid-build (implementer, unit 3, 2026-11-21)
+
+Each proceeds on its default; none blocks the screen. Count raised by these to 7 (MBQ2 to MBQ7 below, with MBQ1).
+
+| # | Point | Default applied |
+|---|---|---|
+| MBQ2 | §5.2's 401 sentence "Sign in to see this operator's figures." against the served refusal text "Sign in to continue." (`person.person_required`) | The spec's sentence (screen copy, §5.2 binds); the served `text` is shown for every other refusal (503, 422). |
+| MBQ3 | G3 asks for dark captures; the live product has no dark theme (`ui/tokens.css` defines none) | No page-local dark theme (one theme across the shell); the dark shots show the live light theme. A product dark theme is a token change for the UI lane. |
+| MBQ4 | The guide's KPI size is 32 px; the live token for figures is 30 px (`--text-figure`, off the gate's scale) | KPI values at 24 px (`--font-size-700`, the mock's own size at 1280). |
+| MBQ5 | vNEXT draws each step as a bar on the gap's scale; the JSON serves no plain decimals for steps (D-5C.2) | Rows without bars; the totals bar only. MD11 (R767), open for the Architect: a served position per step. |
+| MBQ6 | The brief asks to serve from a `*_test` database built by the fixture path; the spec's gates answer the API from the fixture (`page.route`) | Gates and G3 captures from the World A fixture (gates through `page.route` on `vite preview` port 5571; `measure_screen.cjs` and the drawer shot through a scratch fixture server on 5572). A served backend on a `_test` database: not run (reason: unit 2's test 9 builds World A in a run-owned clone that is dropped after the test; no script keeps it for serving). |
+| MBQ7 | Coordinator notes L2 (driver hierarchy) and L3 (where the 10-Site cap applies), Architect rulings pending | L2: `DeepDiveDriver.depth` (optional); a deeper driver nests inside the row above (`driverTree`), never beside its parent; absent depth is flat, as today's JSON. L3: the cap is on screen (`SITE_CAP` 10, `NOT_AVAILABLE_CAP` 8; the JSON holds all, spec §3.4); moving it to the JSON changes `Capped` only. |

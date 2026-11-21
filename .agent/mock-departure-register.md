@@ -4,14 +4,14 @@ Architect classification, 2026-10-24; counts refreshed 2026-10-26 (post-W6 final
 
 | Category | Rows | Standing or open |
 | --- | ---: | ---: |
-| D1 data or feature unavailable | 133 | 132 |
-| D2 improvement | 76 | 73 |
+| D1 data or feature unavailable | 140 | 139 |
+| D2 improvement | 79 | 76 |
 | D3 structural oversight | 140 | 2 |
 | D4 illustrative placeholder | 53 | 53 |
-| D5 build order | 7 | 1 |
+| D5 build order | 8 | 2 |
 | D6 technical constraint | 0 | 0 |
 | Backlog (non-departure) | 1 | 1 |
-| **Total** | **410** | **263** |
+| **Total** | **421** | **274** |
 
 ## D1 — data or feature unavailable
 
@@ -718,3 +718,14 @@ R396; cold names R235; mini status strip R154).
 | R754 | IA-1c review fix round (D-IA.37, owner M2) | frame top bar, every IA route | The search box shown at 1101 and wider, hidden at 1100 and narrower | The search in icon form wherever the full box does not fit beside the other items, from 761 up | D2 | One collapse rule (search icon, inbox label, avatar) keeps search present and the bar one row at every width; mark "MOCK DEVIATION D2". | none (final) | IA-1c |
 | R755 | IA-1c fix round (D-IA.41) | frame top bar, every IA route | The period chip with its full sentence at every width | The period in short form (icon and month) where the bar does not fit at level 3; the sentence stated in the period menu's current item at every width | D2 | The collapse ends in a form that fits; the time stays one click away; mark "MOCK DEVIATION D2". | none (final) | IA-1c |
 | R756 | IA-1c fix round (D-IA.41) | frame top bar, every IA route | One row from 761 (D-IA.37); search hidden at 600 and narrower | Two rows wherever level 4 does not fit, the phone's arrangement; search in icon form at every width | D2 | One final form for phone and narrow desktop; every control reachable 390 to 1920; mark "MOCK DEVIATION D2". | none (final) | IA-1c |
+| R757 | 5c unit 3, MD1 (spec §7) | `portfolio/month` L1 tiles k3, k4 | Plan spend and Plan value with figures | Both tiles kept, each reading the served "Not available yet" with what is missing (no plan built) | D1 | The tile keeps its place; its honest gap is a served sentence, never 0. | 5c | standing (owner walkthrough) |
+| R758 | 5c unit 3, MD2 | `portfolio/month` L2 "Decisions" | The queue panel with decision rows | The panel kept with the served gap: no decision has been valued against doing nothing | D1 | Decisions are not valued yet (RC9). | 5c | standing (owner walkthrough) |
+| R759 | 5c unit 3, MD3 | `portfolio/month` L2 "Actions in hand" | The Portfolio's L2 holds the decision queue only (the Site hub's L2 holds Actions) | "Actions in hand" beside Decisions, newest first, three then "And {n} more"; "Not available yet" naming the Action until 3C2 connects it | D2 | Flagged to the owner (Q3): RC9's agreed change has no other place on this screen. | 5c; 3C2 unit 2 | standing (owner walkthrough) |
+| R760 | 5c unit 3, MD4 | `portfolio/month` "Where the gap comes from" | Waterfall steps at driver level (kWh, litres) | Steps at heading level (Revenue, Fuel cost, O&M, Staff); drivers only where observed, in the step's drawer, each with its evidence word | D1 | D-5C.5; drivers are not observed for most Sites. | 5c | standing (owner walkthrough) |
+| R761 | 5c unit 3, MD5 | `portfolio/month` L1 tiles k1, k2 | Trend lines in the Contribution and Gap tiles | Omitted | D1 | No earlier month is compared yet. | 5c | standing (owner walkthrough) |
+| R762 | 5c unit 3, MD6 | `portfolio/month` "By outcome" Protect card | Protect measures against target | The card reads the served "Not available yet" (limits, warranties and rights not set up) | D1 | Protect is not built. | 5c | standing (owner walkthrough) |
+| R763 | 5c unit 3, MD7 | `portfolio/month` route | The Overview itself is "the month in one line" | A Portfolio tab "The month" at `/portfolio/month`, second after Overview; the live Portfolio's six tabs against vNEXT's three predate 5c, "The month" makes seven | D5 | D-5C.1; resolving unit IA-2's live rebuild of the Overview. | IA-2 | standing |
+| R764 | 5c unit 3, MD8 | `portfolio/month` L1 status line; Assure drawer | L1 holds the headline and tiles only | One status line under the headline (as of, reconciliation in a few words, each budget disagreement by Site); the full reconciliation sentence, its failing headings and "not checked for later changes" in the Assure card's drawer | D2 | D-5C.14, flagged to the owner (Q7). | 5c | standing (owner walkthrough) |
+| R765 | 5c unit 3, MD9 | `portfolio/month` "By outcome" | No list of missing records | "What is not available yet" closes "By outcome": each record that would fill a gap, what it fills, at which Sites; 8 then "Show all {n}" | D1 | Honest gaps inside the mock's section; keeps the overview at 6 blocks (D-5C.11, D-5C.14). | 5c | standing (owner walkthrough) |
+| R766 | 5c unit 3, MD10 (D-SC1.18, D-SC1.26) | `portfolio/month` L1 headline | The headline sentence alone | The headline with its evidence word beside it ("Estimated"), as the tiles carry theirs | D2 | Honesty rule: every figure carries its evidence class. | 5c | standing (owner walkthrough) |
+| R767 | 5c unit 3, MD11 (builder; for the Architect) | `portfolio/month` "Where the gap comes from" | Each step a bar on the gap's scale (`uxBridge` `.ux-wf-bar`) | Steps as rows (label, value, share, word, Sites) without bars; the totals bar only | D1 | The JSON serves no plain decimals for steps (D-5C.2: the page computes nothing but the one bar); bars need a served position per step. | Architect: a `bar` per step in `deep-dive-month-1` | open |

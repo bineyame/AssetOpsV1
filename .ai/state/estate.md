@@ -202,3 +202,17 @@ plus Addendum 1. Packet `archive/agent-history/COV-PARTIAL-packet.md`. Decision 
   Grow stays Unknown (R636: no sales records). Frontend fixtures still carry the old "exposure in this hour"
   headline (Lane B, PB-2). The S+1 Readings chip still shows readiness "Unknown" beside "readings complete".
 
+
+## 5c unit 3 - "The month" screen (built, in_review; branch `task/5c-unit3-screen`)
+
+- `/portfolio/month?month=YYYY-MM` (App route before `/portfolio/:tab?`), Portfolio tab "The month" second after
+  Overview (`portfolioWords.ts`; `portfolioHref` gives it the plain path). `PortfolioTabs` and `portfolioHref` moved
+  verbatim to `estate/PortfolioTabs.tsx` (`counts` optional), re-exported from `EstatePortfolio.tsx`.
+- `estate/DeepDiveMonth.tsx` renders `deep-dive-month-1` as served (D-5C.2; the bar's ratio is the one arithmetic):
+  hub shape, `data-level` L1/L2/L3, 6 blocks; drawers are dialogs inside their sections. Caps on screen (10 Sites,
+  8 not-available rows); drivers nest by an optional `depth` (pending the Architect's ruling). Client
+  `deepDiveMonthClient.ts`; styles `deepDiveMonth.css` (live tokens, no dark theme: the product has none).
+- `tools/deep_dive_gates.cjs`: the hub gates with eight plants (spec §5.4). `test/settled.ts` knows "Preparing the
+  month…". `chain_coherence/screen_routes.json` gains `/portfolio/month`.
+- Open: MD11 (R767) step bars need a served position; dark theme; `StoreAgreedActions` (3C2 unit 2); the
+  pre-existing `chainScreenRoutes` failure (`/sites/:siteId/uploads` missing from the routes fixture).
