@@ -71,12 +71,13 @@ NONE = ("tariff", "productive_tariff", "diesel_price", "wear_rate", "hours_per_d
 #: records, the diesel price PROVIDED_ELSE_ASSUMED.
 STATE_TABLE = {
     "PROVIDED": {"period_days", "unserved_critical_kwh", "productive_kwh", "in_transit", "outstanding", "om",
-                 "staff", "necessary_l", "candidate_l", "unexplained_l"},  # 4d: the three litre leaves
+                 "staff", "necessary_l", "candidate_l", "unexplained_l",  # 4d: the three litre leaves
+                 "delivered_kwh", "technical_loss_kwh", "unexplained_loss_kwh", "adjustments_kwh", "unmapped_kwh",
+                 "tariff"},  # 4a: energy-to-cash@1
     "ASSUMED": {"productive_tariff"},
-    "HELD_NOT_CALCULATED": {"delivered_kwh", "reduced_days",
+    "HELD_NOT_CALCULATED": {"reduced_days",
                             "hours_per_day", "customer_hours_interrupted", "field_visits", "dawn_days_below"},
-    "NOT_CONNECTED": {"technical_loss_kwh", "unexplained_loss_kwh", "adjustments_kwh",
-                      "unmapped_kwh", "tariff", "wear_rate",
+    "NOT_CONNECTED": {"wear_rate",
                       "major_assets", "liability", "standby_kw", "lost_unit_kw"},
     "OPTION_ONLY": {"extra_l", "battery_throughput_kwh", "collection_cost"},
     "PROVIDED_ELSE_ASSUMED": {"diesel_price"},
@@ -86,7 +87,9 @@ STATE_TABLE = {
 PROVIDED_CAUSE = {"unserved_critical_kwh": "NOT_RECEIVED", "productive_kwh": "NOT_CONNECTED",
                   "in_transit": "NOT_CONNECTED", "outstanding": "NOT_CONNECTED", "om": "NOT_CONNECTED",
                   "staff": "NOT_CONNECTED", "necessary_l": "NOT_CONNECTED", "candidate_l": "NOT_CONNECTED",
-                  "unexplained_l": "NOT_CONNECTED"}  # 4d: read alone, the litre leaves are not connected
+                  "unexplained_l": "NOT_CONNECTED",  # 4d: read alone, the litre leaves are not connected
+                  **{f: "NOT_CONNECTED" for f in ("delivered_kwh", "technical_loss_kwh", "unexplained_loss_kwh",
+                                                  "adjustments_kwh", "unmapped_kwh", "tariff")}}  # 4a: likewise
 
 
 def _cent(x) -> Decimal:
@@ -373,7 +376,7 @@ def test_t5_neutral_values_are_the_manifest_literals():
         else:
             assert row.neutral is None
     assert set(OPTION_ONLY) == {"extra_l", "battery_throughput_kwh", "collection_cost"}
-    assert MG.version == 3
+    assert MG.version == 4  # 4a (D-4A.1)
 
 
 @pytest.mark.parametrize("target,neutral", [
@@ -661,7 +664,7 @@ def test_t6_the_read_evaluates_today_and_names_what_is_missing():
     priced = PriceSelection("PRICED", None, "rev-1", Decimal("1.30"), "USD", "a-1")
     source = _source([_snap(d) for d in OCT], FakePrices({"diesel_price_per_litre": priced}))
     result = StructureRead(source).site(KOBO, "2026-10")
-    assert (result.structure_key, result.structure_version, result.site_code) == ("MINI_GRID", 3, "KOBO-001")
+    assert (result.structure_key, result.structure_version, result.site_code) == ("MINI_GRID", 4, "KOBO-001")  # 4a: v4
     values = result.values
     assert values["unserved_critical_kwh"].value == Decimal("46.5")
     assert values["contribution"].value is None and values["contribution"].evidence == "NOT_AVAILABLE"

@@ -79,4 +79,7 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 165. `4d` the monthly litre split: necessary, candidate and unexplained litres (Modelled) from dispatch-3.2 at the fuel curve and the dip balance · data.md
 166. `IA-1c` mock-up decision shape and the "Waiting for you" inbox (IA-1 shape rebuild) · demo.md
 167. `3B7a` the frozen monthly structure snapshot, units 1-3 (store, served read with freshness, build/verify command, migration 0066) · data.md
-168. `3A6` source profiles as data: admitted JSON profiles, single-sheet XLSX, one source system per Site, tagged S1, migration 0067 · data.md
+168. `3B2` Findings pinned to their factors (pins, start-up pin check, parity report; no wire change) · data.md
+169. `0K1` the forward replay port and its host adapter (contract, port, adapter; exact parity with the kernel) · data.md
+170. `4a` energy to cash, where the kWh went (registry v4 stated kWh nodes, feeder delivered kWh, declared loss band, eight energy leaves; no migration) · data.md
+171. `3A6` source profiles as data: admitted JSON profiles, single-sheet XLSX, one source system per Site, tagged S1, migration 0067 · data.md

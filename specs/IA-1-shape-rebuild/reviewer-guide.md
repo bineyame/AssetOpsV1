@@ -1,4 +1,4 @@
-# IA-1 reviewer guide (rev 3, after the IA-1b/IA-1c handshake; review each unit separately)
+# IA-1 reviewer guide (rev 4: the IA-2a section added at the end; rev 3 after the IA-1b/IA-1c handshake; review each unit separately)
 
 You are the fresh Reviewer.
 - **At the handshake:** read `spec.md`, `rulings.md` and this guide, plus the proposal page
@@ -129,3 +129,54 @@ You are the fresh Reviewer.
   fixture test (D-IA.21) is the guard; read it.
 - **Plants that cannot bite.** Each plant must reach past the mechanism it tests (`unlink`, `stub`, `text`). If a
   plant passes, the gate is broken, not the plant.
+
+## IA-2a (rev 4, 2026-11-21): the plan shape
+
+Read `spec.md` §5.1, §6 to §8 and `rulings-2.md` D-IA.43 to D-IA.48, plus the proposal page's "4 · Plan" figure and its
+"Approve the plan" journey. Depth: discovery (W5), one review after unit 3. Questions go in `handshake.md` under
+"IA-2a", with the Implementer's pre-flight; mid-build questions in `mid-build-questions.md` under "IA-2a".
+
+**Done when** (beyond spec §6 and §5.1.10):
+1. `plan`, `plan/left-out`, `plan/review`, `plan/history` are live, shape `plan`, through `iaRender`; `shapePlanInterim`
+   is gone; `IA_LANDED` has IA-2a, added in the last commit.
+2. `node tools/parts_identity.cjs <main's index.html>` reports every `planScreen` and `whatChangedScreen` case
+   byte-identical in the three plan states and both previews, and every earlier job still identical. Run it yourself.
+3. `ia_gates.cjs` lists every plant of spec §5.1.8 failing. Run `PLAN_PLANT=place`, `COUNT_PLANT=planstep` and
+   `PSW_PLANT=crewtile` by hand.
+4. `plan_switch_check.cjs` passes; its changed assertions were shown failing on their plants before the flip commit.
+5. The copy is spec §5.1.6 word for word, and nothing else is new.
+
+**First checks.**
+- **Diff scope.** `vNEXT/` only. The functions listed as untouched in §5.1.5 have no line in the diff
+  (`git diff main -- vNEXT/loop-ux.js vNEXT/loop-portfolio.js` and read each hunk). The only reviewed line changed
+  outside the splits is `screens.js`'s document title.
+- **One state source** (D-IA.44). Grep the new code for `PSTATE()` and `uxMock()`: only `period`, `opened`,
+  `proposed`, the proposed `version`, and the act log in `iaPlanHistory`.
+- **Independence.** `plan_shape_check` and the `count_check` plan block derive the expected step and state from the
+  manifest and `sessionStorage['l4-mock']`, never from `iaPlanSteps`, `uxPlanState` or `iaForYou`.
+
+**Probes.**
+- **Q1 The approve journey** (G1). From `#/portfolio`, one click on "Review the plan" reaches the plan; Approve is in
+  the first screen at 1440 × 900 and 1280 × 720. Approve: the dialog, the toast with Undo, the stepper on Approved
+  (Draft and Proposed done), the chip, the badge down by one, the plan row gone from "For you", History's first row
+  "Version 1 approved". Open each other tab: the same L1. Undo: all of it back. Send back (reason and trade-off): Draft,
+  nothing done, History "Version 1 sent back".
+- **Q2 Placement.** Each fragment of the reviewed plan page appears once, on the tab spec §5.1.2 names; no approval
+  panel, no `meter()` bar. Left out opens its section; Review and History have no side panel.
+- **Q3 The case.** On Lakeside pick 6500 and No on Items: the band, the version notice and the release line change; go
+  to Left out: the same L1, two returned Actions; go to History: the same L1, no switches.
+- **Q4 Meters.** Lakeside: four L1 tiles (spend, November 3 of 3 full, December 1 of 3, value); Harvest and Metro:
+  three. Each bar's accessible name reads as §5.1.6.
+- **Q5 Titles and tabs.** The H1 is the plan's on every tab; the document titles differ ("Left out · …"); the active
+  tab is marked; Back returns to the previous tab.
+- **Q6 Phone and laptop.** At 390: no sideways scroll, the four tabs reachable, the sticky bar with Approve, the
+  thresholds drawer opens and Esc closes it with focus back on its opener. At 1280 × 720 the top bar keeps its D-IA.41
+  form.
+
+**Class sweeps (W6).** One fragment placed twice or not at all (the placement table against the rendered four tabs).
+One state read outside `uxPlanState` (the grep above). One meter form other than `uxMeterBar` on an IA plan route. One
+tabbed route sharing a document title (shape_check item 10 on every tab group). One plan list capped by position.
+
+**Risks.** The splits' templates must keep today's whitespace: trust only `parts_identity`. uxi's plan block is tied
+to the old page in places (`r.n`, the M1 routes, the sticky on a short page); each change is D-IA.48's, with its plant.
+The clean stop: if the packet carries a stop line, review only what the units it names deliver.

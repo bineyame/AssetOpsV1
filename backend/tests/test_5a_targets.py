@@ -565,13 +565,14 @@ def test_4_the_rule_table() -> None:
     expected = {leaf: rule for rule, leaves in RULE_TABLE.items() for leaf in leaves}
     assert dict(target_rules.TARGET_RULE[MG]) == expected
     assert {k: dict(v) for k, v in target_rules.MAIN_OF.items()} == {
-        MG: {"delivered_kwh": "revenue", "necessary_l": "fuel_cost"}}
+        MG: {"delivered_kwh": ("billed_kwh", "revenue"), "necessary_l": ("fuel_cost",)}}
     leaves = {r.factor_id for r in REG.rows if r.is_leaf}
     assert len(leaves) == 31 and set(expected) == leaves and len(expected) == 31
     assert set(RULE_TABLE["OPTION"]) == {r.factor_id for r in REG.rows if r.absent == "OPTION_ONLY"}
     assert set(RULE_TABLE["CALENDAR"]) == {r.factor_id for r in REG.rows if r.absent == "NEVER_EMPTY"}
-    for leaf, heading in target_rules.MAIN_OF[MG].items():
-        assert REG.row(heading).stated_by is not None and heading in blocks_of(REG, (leaf,))
+    for leaf, headings in target_rules.MAIN_OF[MG].items():
+        for heading in headings:
+            assert REG.row(heading).stated_by is not None and heading in blocks_of(REG, (leaf,))
     assert target_rules.RULES == ("LEAK_ZERO", "AT_ACTUAL", "MAIN", "OPTION", "CALENDAR")
     assert (target_rules.TARGET_KIND, target_rules.TARGET_FAMILY, target_rules.TARGET_WORDS) == \
         ("BUDGET_LINE", "COMMERCIAL_RECORD", WORDS)
@@ -691,8 +692,8 @@ def test_7_k_of_n_with_a_gap() -> None:  # plants V2, V13
     assert fv.value == D("1380.00") and format(fv.value, "f") == "1380.00" and fv.evidence == "DECLARED"
     count = site_count(pt.structure, "contribution")
     assert (count.k, count.n) == (2, 3)
-    assert count.out == (("MTO-001", ("delivered_kwh", "fuel_cost", "necessary_l", "om", "productive_tariff",
-                                      "revenue", "staff", "tariff")),)
+    assert count.out == (("MTO-001", ("billed_kwh", "delivered_kwh", "fuel_cost", "metered_kwh", "necessary_l", "om",
+                                      "productive_tariff", "revenue", "staff", "tariff")),)  # 4a: stated kWh nodes
     mto = pt.sites["MTO-001"].structure.values
     for factor in ("om", "staff", "revenue", "fuel_cost"):
         assert mto[factor].value is None

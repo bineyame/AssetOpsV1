@@ -1,0 +1,377 @@
+# SC-1 rulings
+
+Architect (Claude), 2026-11-21, rev 2 (handshake round 1 answered: D-SC1.17 to D-SC1.27); D-SC1.28 added 2026-11-21 (owner away). Each ruling states the decision and its reason. Index lines:
+`.ai/decisions/index-rulings-15.md`. Owner words: `owner/owner-text-composition-clean-2026-11-21.md`.
+
+## D-SC1.1 Extend the existing message seam; one renderer
+
+- **Ruling.** SC-1 extends `assetops_backend/i18n` (the `Message` contract, the catalogue, `render`). It adds no
+  parallel composer. `i18n.render` stays the single entry point for every server word, flat or structured.
+- **Reason.** The seam already holds the two properties the owner asks for: words are data, and they are rendered at
+  read from structured input, never stored composed (D-I18N.1). The owner's rule "extend aligned existing constructs,
+  don't drop" applies. A second renderer would be the "if/else mess" at the architecture level.
+
+## D-SC1.2 Facts are typed; every figure carries its evidence; absence is explicit
+
+- **Ruling.** Callers hand over §3.1's fact classes only. `Money`, `Quantity` and `Percent` cannot be built without an
+  `Evidence`. A missing figure is `Absent(reason)`; `None`, `0` and raw strings are refused.
+- **Reason.** The catalogue can only format, choose and check what it can see. A pre-formatted string hides the
+  currency, rounding and evidence; `None` invites "0" or "null of null". Owner rules: every figure carries its
+  evidence class; missing data is never shown as zero.
+
+## D-SC1.3 The catalogue is pure literal data in Python modules, one per area
+
+- **Ruling.** `i18n/statements/<locale>/<area>.py`, each one `STATEMENTS = {...}` (or `VOCABULARY = {...}`) whose
+  source passes `ast.literal_eval`; the load check refuses anything else (`NOT_DATA`).
+- **Reason.** JSON would need package-data configuration and loses comments; a free Python module invites helper
+  functions, which is code per statement again. A literal-checked module is data with the same packaging and review
+  ergonomics as today's `messages.py`.
+
+## D-SC1.4 Templates hold words and bare fields; formatting belongs to the slot
+
+- **Ruling.** No format spec, conversion or index in a field. A slot declares its type and options; a variant may
+  override options.
+- **Reason.** `{x:,.2f}` in a template is how two screens drift into two money forms. One format per type (D-SC1.10)
+  is only enforceable if templates cannot format.
+
+## D-SC1.5 Conditions are declared data over one small operator set, evaluated by one function
+
+- **Ruling.** §3.4's operators (eight in rev 1; `reason` is the ninth, D-SC1.23); ordered variants, first match; a terminal variant or a proved `exhaustive` set.
+  No statement-specific code.
+- **Reason.** This is the owner's "not if/else mess" made concrete: the choice still exists, but it is declared next
+  to the sentences it chooses between, validated at load, and covered by a case per variant. Eight operators cover
+  every choice in 3A7 §2.7, 5c §2.5 and the mock's decision text surveyed; a new operator is a spec change.
+
+## D-SC1.6 Word choices are picks over a declared domain
+
+- **Ruling.** "below/above", "more/less" and the like are `pick` slots on a state or a figure's sign, with words for
+  every value of the declared domain; a value outside the domain at render is an error.
+- **Reason.** A pick keeps one sentence instead of duplicating variants for one word, and the domain makes the
+  impossible case (a zero gap in a "below/above" sentence) fail loudly instead of reading "above".
+
+## D-SC1.7 Fragments and sub-sentences are parts
+
+- **Ruling.** Optional fragments ("(1.01%)", " Compared for 2 of 3 Sites.") and reused sentences are `part` slots
+  rendering another statement with the same facts and the parent variant's options. Cycles and depth over 4 are
+  refused.
+- **Reason.** 3A7 assembled `{gap}` and `{share}` in code, and 5c "appended" a sentence by rule; parts put both in data
+  and let a rounding direction chosen by the parent's state reach the fragment.
+
+## D-SC1.8 Vocabulary forms are declared, never derived by letter rules
+
+- **Ruling.** Labels, in-sentence forms, articles and plural forms are written per entry. No vowel rule, no
+  capitalisation rule, no `replace("_", " ")`.
+- **Reason.** 5c's `lower(label)` already needed an exception (O&M), the mock's `LINE_WORD` needed three regex fixes
+  (Ruiru, SMS, kWh), and `asset_words.py` falls back to capitalising codes. Declared forms cost one line each and never
+  surprise; a letter rule is a hidden branch.
+
+## D-SC1.9 No number reaches text except through a fact
+
+- **Ruling.** Template literals and vocabulary words hold no digit and no `$ € £ %`. Digits appear only through
+  figure, count, date and name slots, the money format's own precision (`tiny`) and declared `example` slots. 3A7's
+  "less than 0.01" becomes `tiny`; its "the accounts say 0.00" prints the `Money` fact.
+- **Reason.** The owner's honesty rule ("every number honest with its basis") as a machine check: a reviewer no longer
+  has to read every sentence to know it invents no figure. The mock's typed "61 days", "95% load", "$70" are exactly
+  the class this stops.
+
+## D-SC1.10 One format per fact type, product-wide; money is 5c's form
+
+- **Ruling.** Money reads `$1,200.00` for USD and `KES 1,200.00` otherwise, with U+2212 for negatives (5c §2.1), on
+  every screen and in every command's printed sentence. Options change only rounding direction, magnitude, sign,
+  `tiny` and inline evidence (rev 2: `tiny` is always on, D-SC1.24; evidence display is D-SC1.18). This amends 3A7 §2.7's `{figure} {currency}` form (decision queue Q2).
+- **Reason.** Two money forms in one product (3A7's `505.00 USD` beside 5c's `$505.00` on the same drawer) is a class
+  defect (W6). Directed rounding (D-3A7.10) is kept: it is an option, not a second format.
+
+## D-SC1.11 Render is strict; there is no fallback sentence
+
+- **Ruling.** A missing, unknown or mistyped fact, a printed absence, or a pick outside its domain raises
+  `StatementError`. Nothing catches it to substitute text.
+- **Reason.** A fallback would show a plausible sentence that the facts do not support, which is worse than an error
+  the cases catch before merge. Every variant has a case (D-SC1.12), so a raise in production is a code defect.
+
+## D-SC1.12 Every variant has a hand-written case; adoption is a ratchet
+
+- **Ruling.** The guard fails a variant without a case, a new legacy key, and a hand-built sentence in an `ADOPTED`
+  module (rev 2: three scan scopes, all live from SC-1a, D-SC1.17). Cases are written by hand from the spec (W2), never by calling the renderer. An area joins `ADOPTED` in the
+  commit that adopts.
+- **Reason.** "Tests per kind" only holds if the guard proves coverage, and "clean" only stays clean if adopted code
+  cannot regress to f-strings. The ratchet lets the rest of the product move over area by area without a big-bang
+  rewrite.
+
+## D-SC1.13 Statements name kinds, never instances; stored prose is never rewritten by pattern
+
+- **Ruling.** No key, variant id or vocabulary key names a Site, option, decision or person. No module rewrites stored
+  or manifest prose by regular expression to make a sentence (the mock's `REASON_RULES`, `analytics/plain.py`'s
+  restating); the prose's source must become codes and facts.
+- **Reason.** The mock's `decText` has one hand-written function per decision; a product serving 300 Sites cannot.
+  General over particular (owner): one statement per kind of decision, fed by the evaluation. Regex restating silently
+  breaks when the stored wording changes and can move numbers between sentences unchecked.
+
+## D-SC1.14 3A7 and 5c adopt from the start when SC-1a is in; nothing on the deep-dive path waits
+
+**Amended by D-SC1.26 (handshake, 2026-11-21): the fallback clause is withdrawn; 3A7 and 5c start after SC-1a merges.**
+
+- **Ruling.** SC-1a builds now, in a free lane, with no dependency. If it has merged when 3A7's code starts, 3A7
+  writes its §2.7 as statements (§5.1 exactly for the heading) and adds `commercial/reconciliation.py` to `ADOPTED`;
+  if it has merged when 5c's unit 1 starts, 5c writes its §2.5 as statements (§5.2 exactly for the headline), reads
+  §2.2 to §2.4 from the shared vocabulary, and adds `deep_dive/words.py` and `deep_dive/view.py` to `ADOPTED`.
+  Otherwise each ships its spec's flat entries, adds them to the legacy baseline, and converts in SC-1b. The amendments
+  in 3A7's and 5c's `rulings.md` say this.
+- **Reason.** The owner's fortnight puts the deep-dive path first. SC-1a costs about one builder-day off that path;
+  adopting costs 3A7 and 5c nothing (their display logic becomes data), and the fallback costs 0.25 each later.
+
+## D-SC1.15 The LLM phrasing layer is a contract, not a build
+
+- **Ruling.** §3.10 fixes the acceptance test for any later rephrasing (same digit runs, same names, words and
+  evidence words verbatim, nothing added, at most twice as long; else the template text). `rephrase` defaults to
+  `never` and must be `never` for money, evidence, reconciliation and refusals until the owner decides (Q1).
+- **Reason.** The owner allowed an LLM only as a checked phrasing layer over computed facts. Fixing the contract now
+  keeps the catalogue shape ready without spending fortnight time or adding a model dependency.
+
+## D-SC1.16 The evidence word has one home
+
+- **Ruling.** 5c §2.4's evidence-word rule and 3A7's `money_word` suffix live as data in vocabulary `evidence` and are
+  applied by the `evidence` format. 3A7's `money_word` and 5c's `word` become thin callers of it (or are replaced by
+  an `evidence` slot) when they adopt.
+- **Reason.** Two places computing "Recorded, not yet reconciled" is the drift class of D-SC1.10; the word is the
+  product's honesty marker and must read the same everywhere. "Verified" is refused by the vocabulary schema (5c §2.4).
+
+
+## D-SC1.17 Hand-built text is scanned from day one, in three scopes (R1)
+
+- **Ruling.** The guard's scan (spec §3.8.4) has three scopes, all live in SC-1a. (1) **Mechanism** (`i18n/*.py`
+  except `statements/`): every string constant is a member of `i18n/schema.py`'s closed sets or a format spec, and
+  `formats.py`, `conditions.py`, `render.py` and `wire.py` compare no value with a string constant: they dispatch by
+  table (`MECH_LITERAL`, `MECH_BRANCH`, `MECH_INSTANCE`). (2) **Adopted** (`ADOPTED`): a positive rule, every string
+  constant is code-form, no f-string, no composition call (`HAND_BUILT`). (3) **Ratchet** over every other module of
+  `backend/assetops_backend/`: the negative rules of §3.8.4, each hit fingerprinted; a hit not in
+  `tools/checks/statement-handbuilt-baseline.json` is `HAND_BUILT_NEW`, a baseline entry with no hit is
+  `HAND_BUILT_STALE`. The `raise` exemption covers only `UNSERVED` exception types; logging calls are exempt by
+  receiver name. Each rule and each evasion R1 lists has a plant (§6 P13a to P13p, P42 to P49).
+- **Reason.** An empty `ADOPTED` made the owner's "no if/else mess" a policy. The mechanism itself is the first code
+  that must be clean, so it is scanned positively; the rest of the backend cannot be converted in SC-1a, but it can be
+  stopped from growing, which is the only honest claim for it today. A positive rule (what is allowed) cannot be walked
+  around by a new idiom; a negative rule can, so it is used only where the ratchet makes its holes visible.
+
+## D-SC1.18 Every printed figure's evidence reaches the reader; impossible facts cannot be built (R2)
+
+- **Ruling.** A statement's `evidence` is `inline` (default) or `served`. Inline: every figure slot declares how its
+  evidence is shown in the same sentence (`inline`, `{"with": <evidence slot>}`, `{"derived_from": [<figure
+  slots>]}`); a printed figure without it is `EVIDENCE_UNSHOWN` at load; there is no `none`. Served: `render` refuses
+  the statement (`EVIDENCE_UNSERVED`) and `served(msg)` returns `{"text", "evidence"}`, the evidence words of every
+  figure it printed, which the screen shows (5c's chip). A derived figure is never stronger than `DERIVED` or than its
+  weakest input, and its origin is the weakest of its inputs' (`EVIDENCE_DERIVED` at render). `Evidence` refuses
+  `NOT_AVAILABLE` and `NEUTRAL`: a figure with no value is `Absent`. Swept to every fact (spec §3.1): no empty name,
+  no empty or repeated items, no datetime as a day, no `reconciled` on a quantity, percent or price.
+- **Reason.** The owner's rule is "every figure carries its evidence class" on the page, not in memory. A default of
+  "not shown" is the door this closes; `served` covers the screens whose mock shows the word as a chip beside the
+  sentence, without letting the serving code drop it, because the words come out of the same call as the text.
+
+## D-SC1.19 Facts travel only in the wire form; no generic encoder can walk a fact (R3)
+
+- **Ruling.** `i18n/wire.py`: `to_wire(msg)` and `from_wire(obj)` give a lossless JSON form for every fact (spec
+  §3.11), with a round-trip test per class. Facts are `__slots__` classes, not dataclasses, so `json.dumps` and
+  FastAPI's `jsonable_encoder` raise on them instead of flattening a `Decimal` to a float. `period_read.is_message` and
+  the refusal envelopes are unchanged in SC-1a: they refuse a structured message today, which is correct, and the first
+  unit that stores or sends one switches them to `i18n.wire` in that unit.
+- **Reason.** D-I18N.1 stores messages and renders at read, so a structured message must survive storage exactly. A
+  silent `asdict` would lose the currency's precision and the evidence class, which is the failure the owner's
+  honesty rule forbids; a loud refusal plus one wire form leaves no third path.
+
+## D-SC1.20 What can be proved at load is proved at load (R4, R5)
+
+- **Ruling.** (a) A pick is reachable only for values in its domain: `PICK_REACH` at load, by the three-valued
+  analysis of spec §3.7.1 over each variant's path condition. (b) A variant whose words assert a relation its `when`
+  does not select on declares it in `requires`; it is evaluated after the choice and `REQUIRES_FAILED` raises.
+  (c) Structured statements have no per-key locale fallback: a locale with a `statements/<locale>/` folder must hold
+  every English key with the same variant ids and slots (`LOCALE_INCOMPLETE`); a locale without one is not offered and
+  renders English, as D-I18N.3. Legacy entries keep today's per-key fallback until SC-1b.
+- **Reason.** A guarantee that only a well-chosen case can catch is a hope. The pick domain and the locale set are
+  finite and decidable, so they are proved; the sign relation in 5c's headline is caller knowledge the facts can still
+  contradict, so it is declared and checked at every render.
+
+## D-SC1.21 Literal ban by Unicode class and by number word (R7)
+
+- **Ruling.** `LITERAL_DIGIT`: any character of category `Nd`, `No` or `Nl`. `LITERAL_SYMBOL`: category `Sc`, or one
+  of `% ‰ ‱ ٪ ﹪ ％`. `LITERAL_NUMBER_WORD`: a whole word, case-folded, in `schema.NUMBER_WORDS[locale]`. Unit symbols
+  are vocabulary words under the same rule; only the `unit` vocabulary's `symbol` form may hold `²` or `³`.
+- **Reason.** The reason for the ban is that no number enters text except through a fact; `٣`, `¥` and "twice" are
+  numbers. The list of number words is closed per locale and lives with the schema, so a word is banned by data.
+
+## D-SC1.22 One public surface; internals are private and scanned (R9)
+
+- **Ruling.** `render` and `served` take no catalogue. Tests inject one through `i18n.catalogue._use(cat)` (a context
+  manager over a `ContextVar`) built by `catalogue._build(statements, vocabulary)`, the same validator. Outside
+  `backend/assetops_backend/i18n/`, `backend/tests/` and `tools/checks/`, a reference to a `_` name of
+  `assetops_backend.i18n` is `I18N_PRIVATE`, and an import of `i18n.formats`, `conditions`, `catalogue`, `schema` or
+  `render`'s internals is `I18N_BYPASS`.
+- **Reason.** A `catalogue=` keyword or an imported `formats.money` is a second renderer with one more step.
+
+## D-SC1.23 Absence carries a declared reason that conditions can read (R10)
+
+- **Ruling.** A slot that may be absent declares `"absent": [<reason codes>]`; `optional: true` also allows
+  omission, read as `Absent("OMITTED")`. Operator `{"reason": ["slot", "CODE"]}` holds when the fact is `Absent` with
+  that reason (`CODE` in the slot's list, else `CONDITION_VALUE`). An `Absent` with an undeclared reason is
+  `ABSENT_REASON` at render. Reasons are upper snake case.
+- **Reason.** 5c's causes (not received, not connected, not calculated yet) need different words; without an operator
+  the caller would choose the key by `if`, which D-SC1.5 removes.
+
+## D-SC1.24 A non-zero figure never reads as zero (R12)
+
+- **Ruling.** `tiny` is not an option: it is always on, for `money`, `price`, `quantity` (integer `places`) and
+  `percent` (integer `places`). A non-zero value that displays as zero reads `less than` + the smallest displayed
+  unit, in magnitude; a negative one printed with `abs: false` reads `more than` + the smallest unit with its sign
+  (`more than −$0.01`). Both words come from vocabulary `format`.
+- **Reason.** "Missing or zero never confused" is an honesty rule for every figure, not for money; an option that can
+  be left off is the door.
+
+## D-SC1.25 Price is a fact type (R11a)
+
+- **Ruling.** `Price(value, currency, unit, evidence)` and the `price` format: money of `value` at 2 places when its
+  normalised value has at most 2, else 4 places half even; then ` ` + vocabulary `format` `per` + ` ` + the unit
+  symbol (5c §2.1: `$1.25 per L`, `$0.4321 per kWh`).
+- **Reason.** 5c ships prices; a money slot cannot carry the per-unit and the 4-place rule without a second format.
+
+## D-SC1.26 3A7 and 5c adopt; their code starts after SC-1a merges (amends D-SC1.14; R18)
+
+**Amended by D-SC1.28 (owner away, 2026-11-21): code starts on the unit's other gates; only the text, and the merge, wait for SC-1a.**
+
+- **Ruling.** The legacy fallback of D-SC1.14 is withdrawn. 3A7's code starts when both 3A6 and SC-1a have merged;
+  5c's unit 1 when SC-1a has (its other gates stand). The coordinator checks `git merge-base --is-ancestor <SC-1a merge>
+  main` when dispatching each and says so in the builder's brief. If 3A6 merges first, SC-1a takes the next free lane
+  ahead of other work. 3A7's and 5c's amendments say this.
+- **Reason.** The fallback was the door: flat entries with `{gap}` and `{share}` assembled in code, and 3A7's
+  `505.00 USD` beside 5c's `$505.00`, shipped and then converted. SC-1a is about 1.75 builder-days and starts now,
+  while 3A6 still builds, so the expected wait is zero and the worst case is the part of SC-1a left when 3A6 merges.
+  **Owner to weigh in** if a wait on the deep-dive path is not acceptable (decision queue Q6).
+
+## D-SC1.27 The legacy baseline pins each template (R17)
+
+- **Ruling.** `statement-legacy-baseline.json` maps each legacy key to the SHA-256 (first 16 hex) of its English
+  template. A changed template is `LEGACY_CHANGED`; a new key `LEGACY_NEW`. Keys 3A6 adds join the baseline in 3A6's
+  merge (or SC-1a's, whichever is later, from `main` at that merge); no other unit adds one.
+- **Reason.** A ratchet by name alone lets a legacy template take a digit or a new field unseen.
+
+## D-SC1.28 Text waits for SC-1a; code does not (amends D-SC1.26; owner away, Architect on the owner's behalf)
+
+Decided 2026-11-21 under `owner/owner-away-architect-decides-2026-11-21.md`; logged as row 1 of
+`specs/OWNER-AWAY/decisions-2026-11-21.md` for the owner's review. This answers decision queue Q6.
+
+- **Scope.** Every unit not merged when SC-1a merges whose code adds served text: a sentence, a display word, a
+  refusal sentence or a message key. Today: 3A7, 3C2 (D-3C2.14) and 5c; any tail unit that starts before SC-1a merges
+  (3B2, 3C1b, 4a, 3B4 and the rest). 3A6 keeps D-SC1.27.
+- **Code starts on the unit's other gates.** Until SC-1a has merged, the branch adds no served text in any form: no
+  `messages.CATALOGUE` key, no prose constant, f-string sentence, word map, `.join` of words or placeholder. What will
+  be shown leaves the service as codes and typed values (`Decimal`, a state code such as `OPEN`, a refusal code), and
+  the tests assert those, never words.
+- **The text commit.** After SC-1a merges, the branch merges `main` first, then writes all of its text as SC-1
+  structured statements (by that unit's SC-1 amendment) in its own last commit: its modules join `ADOPTED`, every
+  variant has a hand-written case (D-SC1.12), and SC-1a's guard reports no `HAND_BUILT_NEW` and no `LEGACY_NEW` for
+  the unit. Word and exact-string assertions are written in that commit.
+- **3A7's split.** Commit 1: migration 0068, store and adapter, `reconciliation.py`'s standing as codes and
+  `Decimal`s (§2.1 to §2.6), the guard's table list, R1 to R10 without word assertions. Commit 2 (after SC-1a):
+  §2.7 as statements (its SC-1 amendment), composition, the command, M1 to M5, Q1 to Q3, the word assertions,
+  check-all, packet. 5c is unchanged in effect: its unit 1 already needs 3A7 merged.
+- **Merge and review.** The unit merges only after SC-1a (the coordinator checks
+  `git merge-base --is-ancestor <SC-1a merge> main` at the text commit's dispatch and at merge). One review of the
+  whole unit, after the text commit.
+- **Agents.** The builder stops after the non-text commit with a handoff, freeing its slot; the text commit is a
+  fresh builder from that handoff.
+- **Reason.** The owner asked for text composed "the clean way ... not brittle hard coding and if else mess"
+  (`owner/owner-text-composition-clean-2026-11-21.md`) and, for the absence, that "nothing is stuck". The fallback
+  ships hand-built text and converts it later, which is what the owner ruled out. Strict-on-code idles lane A on the
+  critical chain (3A6 → 3A7 → 5c → DDR) for most of SC-1a's 3.5 units. Gating the text, not the code, keeps every
+  served word composed by SC-1 from the first line that reaches any branch, and moves about one lane-day of 3A7 and
+  3C2 into SC-1a's build time. The non-text commit does not depend on SC-1a, so a change in SC-1a's review touches
+  only the text commit.
+- **Reverse.** Withdraw this ruling and D-SC1.26 stands again; a non-text commit already made stays valid under it
+  (it is the first part of the same unit, made earlier).
+
+## Handshake answers (round 1)
+
+Answered 2026-11-21 against `handshake.md` at 76cdf962a. Spec rev 2 folds every answer in. "Plant" names the spec §6
+row that fails the gate.
+
+- **R1 (High).** D-SC1.17. SC-1a now scans real code: the mechanism (positive, by `schema.py`'s closed sets, and
+  table dispatch: P45 to P47), the whole backend by ratchet (P43, P44), and `ADOPTED` by the positive rule, proved on
+  plants until 3A7 joins (P13, P13a to P13p, one per evasion: one-space constant, `" ".join`, `"".join` of literals,
+  short ternary, `string.Template`, `textwrap`, `str(x) + unit`, `+=`, a word map, `HTTPException` detail f-string,
+  `_refuse(...)` f-string, `str(exc)` served, `replace("_", " ")`, `.capitalize()`, `%`, `.format`). The `raise`
+  exemption is restricted to `UNSERVED` types (spec §3.8.4); a served call is never exempt, and serving an exception's
+  text (`str(e)`, `e.args`, `{e}`) is `HAND_BUILT` (P13l). Logging calls on receivers `logger`, `log`, `logging`,
+  `_log`, `_logger`, `LOG` are exempt (logs are never served); negative plants N1 to N3 prove the exemptions do not
+  over-reach. Known holes, stated in spec §3.8.4: in the ratchet scope, variable-plus-variable concatenation and joins
+  of computed lists; neither can occur in `ADOPTED` or the mechanism, where the positive rule leaves no string to join.
+  Done question 2 is reworded to say what each scope proves.
+- **R2 (High).** D-SC1.18. §5.1's heading now prints `({basis})`, the evidence words of the figures it states;
+  derived figures (difference, allowed, share) declare `derived_from`; §5.2's headline is `served` and its cases carry
+  the evidence list. Plants: P30, P31 (`EVIDENCE_UNSHOWN`), P32 (`EVIDENCE_DERIVED`), P33 (`EVIDENCE_UNSERVED`), P34
+  (`EVIDENCE_MODE`), P37 (constructors, including `Money(..., Evidence("NOT_AVAILABLE"))` and `Evidence("NEUTRAL")`).
+  The `NOT_AVAILABLE` row leaves the evidence vocabulary: an absent figure is worded by `common.not_available`.
+- **R3 / P3 (High).** D-SC1.19, spec §3.11. Structured messages may be stored or sent only as `to_wire(msg)`; T10
+  round-trips every case through `json.dumps`/`json.loads`; P40 proves an unknown fact name, an extra field and a
+  float value refuse (`WIRE_FORM`), and that `json.dumps` and `jsonable_encoder` raise on a raw fact. P3's plan stands
+  for SC-1a: nothing structured is stored or served yet; `is_message` and `_refusal` stay as they are.
+- **R4 (Medium).** (a) D-SC1.20(c): no per-key fallback for structured statements; `LOCALE_INCOMPLETE` (P39); legacy
+  keeps today's fallback (T7 asserts it for a non-English locale). (b) D-SC1.20(a): `PICK_REACH` at load (P35: §5.2
+  without `on_target`). `PICK_DOMAIN` stays in render as a defence that a loaded catalogue cannot reach; like
+  `NO_VARIANT` it is exempt from reviewer guide 3 and says so in a comment.
+- **R5 (Medium).** D-SC1.20(b). `more_than_gap` and `share_of_gap` declare `requires` (same sign, spec §5.2); H7
+  (opposite signs) must raise `REQUIRES_FAILED` (P36). The class: any variant whose words assert a relation its `when`
+  does not select on; reviewer guide 12 checks each variant's text against `when` plus `requires`.
+- **R6 (Medium).** Reworded (spec §3.5): the words and the tables are data; the three-step order is the `evidence`
+  format's fixed algorithm. T2 covers all 42 pairs (6 evidences x 7 origins including None) by a hand table built from
+  the rule's three steps. `RECORDED` with origin None or `unknown` reads "Estimated": intended (a figure whose source
+  cannot be named is not claimed as recorded).
+- **R7 (Medium).** D-SC1.21; P26 (`٣`, `m³` outside `unit`), P27 (`¥`, `‰`), P28 ("twice", "both"). `kWh`, `L` and
+  any unit symbol are under the rule; `m³` is legal only as a `unit` `symbol`. The rule reaches adopters' words: 3A7's
+  `standing.none_matched` ("both") and 5c's `SITE_SETUP` ("one ... one of each") are reworded in their amendments.
+- **R8 (Medium).** The load reads each module with `ast.parse`: the body is an optional docstring and one `Assign` to
+  `STATEMENTS` or `VOCABULARY`; `ast.literal_eval` runs on that assignment's value node; every `ast.Dict` in it is
+  checked for repeated constant keys (`KEY_DUPLICATE`, with the dict's path). P25 plants a repeated statement key and a
+  repeated vocabulary entry. A repeated value in a state's `values` or an `order` list is `SLOT_OPTION` /
+  `VOCABULARY_SCHEMA`.
+- **R9 (Medium).** D-SC1.22; P48 (`I18N_PRIVATE`), P49 (`I18N_BYPASS`).
+- **R10 (Medium).** D-SC1.23; T3 rows for `reason`; P38 (an undeclared reason in a condition: `CONDITION_VALUE`; an
+  `Absent` with an undeclared reason: `ABSENT_REASON`).
+- **R11 (Medium).** Spec §5.4 adds worked statements with hand cases: (a) `price` (D-SC1.25, F1 to F5); (b)
+  `deep_dive.share`, places 0 and the three-way sign variant (SH1 to SH5); (c) `deep_dive.status_disagreement`, `all`
+  of two `cmp` on `sites.count` plus a `requires` tying the count (SD1 to SD5); (d) `reconciliation.scope`: the scope is
+  a `State` (`SITE`, `ORGANISATION`) with a `Name`, never one slot of two classes (SC1, SC2); (e) the possessive is the
+  template's literal `'s` after a name field (SD1), no rule in code; (f) `drawer_values` and `tile2_rest` use only the
+  operators shown (`sign`, `cmp`, `requires`) and get their cases in 5c. Done question 7 now points at §5.4.
+- **R12 (Medium).** D-SC1.24; T2 rows for quantity and percent; P-free (no option exists to plant against: T2 proves
+  the behaviour, and `SLOT_OPTION` refuses a `tiny` key, P31b).
+- **R13 (Medium).** P7 gains P7b (`all` containing the `is`). P8: `NO_FALLBACK` depends only on the last variant
+  (an earlier `when`-less variant is `VARIANT_ID`), so P8 always fails with it. P16's exact edit: C1's facts with
+  `accounts` omitted (optional, so `Absent("OMITTED")`), rendered: `not_matched` prints `{accounts}` →
+  `ABSENT_PRINTED`. P17 becomes machine-checked: `KEY_INSTANCE` in the guard (a key segment, variant id or vocabulary
+  key equal, case-folded, to the first hyphen-separated token of a `config/scenarios/*.yaml` file name; digits and
+  UUIDs are already `KEY_FORM`). New plants P19 `SLOT_CONFLICT`, P20 `VARIANT_ID`, P21 `PART_UNKNOWN`, P22
+  `VOCABULARY_FORM`, P23 `REPHRASE`, P24 `CONDITION_TYPE`.
+- **R14 (Medium).** A `Flag` operand is a Python `True`/`False` (what `literal_eval` yields); a `State` operand a
+  string in its `values`. `{"is": ["pending", "true"]}` is `CONDITION_VALUE` (P29).
+- **R15 (Low).** §1's value sentence reworded: no number is written in any wording; every digit on screen comes from
+  a fact (a computed figure, a count, a date) or is copied verbatim from a record (`name`) or a declared example.
+- **R16 (Low).** `Items` refuses an empty tuple and repeated items (by fact equality) in its constructor, for every
+  order; "repeats removed" is deleted. No items is `Absent`.
+- **R17 (Low).** D-SC1.27. Guide 9 now reads: `messages.py` changes only in `Param`, plus 3A6's keys if 3A6 merged
+  in between (each in the baseline with its hash).
+- **R18 (Low).** D-SC1.26: the merge condition, checked by the coordinator at dispatch, told to each builder in the
+  brief. Q2 stays the owner's; with the fallback gone, one money form ships either way.
+- **P1.** Noted for SC-1b's sizing.
+- **P2.** Confirmed: `messages.CATALOGUE` stays the legacy dict untouched; the merged view lives in `catalogue.py`;
+  `render.py` imports from `catalogue` only.
+- **P4.** Confirmed, with D-SC1.18: both tuples are copied into `i18n/schema.py`; T12 asserts parity with
+  `structure.evaluate` (tests may import it); `Evidence` accepts `EVIDENCE_ORDER` without `NOT_AVAILABLE`.
+- **P5.** Not T2: the tests are backend-suite tests needing no database. The file stays in `backend/tests/` (the cases
+  live beside it). Run them as your plan says; §0 and §6 are corrected.
+- **P6, P7, P10, P11, P14.** Confirmed as planned.
+- **P8.** Recorded for SC-1c/SC-1d: an unmapped asset type is `VOCABULARY_UNKNOWN`, never a capitalised code;
+  `UNRECOGNISED_SENTENCE` becomes a refusal in SC-1d.
+- **P9.** Confirmed: `formats.DISPLAY = Context(prec=34, rounding=ROUND_HALF_EVEN, traps=[InvalidOperation,
+  DivisionByZero, Overflow])`; every quantize passes `context=DISPLAY`.
+- **P12.** `Name.text` empty refused; `Percent` any finite Decimal; `Month` 1 to 12 and a year `datetime.date`
+  accepts; see D-SC1.18's sweep for the rest.
+- **P13.** Confirmed: a variant's `options` keyed by slot name apply to every statement in the tree that declares that
+  slot; two declarations differing in type or options are `SLOT_CONFLICT` (P19).

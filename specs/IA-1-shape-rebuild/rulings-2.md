@@ -1,7 +1,7 @@
 # IA-1 rulings, continued
 
 Architect (Claude), 2026-11-20. `rulings.md` is at the 15k-token cap (RULES §9); later answers are here. Index lines are in
-`.ai/decisions/index-rulings-10.md`.
+`.ai/decisions/index-rulings-10.md` (to D-IA.35) and `index-rulings-12.md` (D-IA.36 on).
 
 ## IA-1b mid-build answers
 
@@ -449,3 +449,125 @@ simplicity by design).
   and states the figures' time in its menu.** **Default:** as D-IA.41 rules; the owner sees 800 and 390 at the G2
   stop. Alternatives rejected: a narrower rail at 761 to 1023 (a second band patch, no guarantee); truncating the
   scope or period label (the brief: never truncate a label).
+
+## IA-2a design (after the G2 stop)
+
+Architect (Claude), 2026-11-21. The owner saw G2 ("UI looks ok for now", `owner/owner-snapshot-guard-and-g2-2026-11-21.md`)
+and asked to start IA-2a while the UI lane waits for 5c (`owner/owner-start-ia2a-2026-11-21.md`). Read on `main` at
+`93fda5edc`. Folded into `spec.md` §5.1 (rev 4). Brief: `owner/owner-ui-standing-brief-2026-11-20.md`.
+
+### D-IA.43 The plan is one object page with four tab routes; its header is the same on every tab
+
+- **Class.** The interim (D-IA.20) is one long page in which the plan's header, its working list, what it leaves out,
+  how it will be judged and what happened to it are all siblings, and the approval panel repeats the band. That is the
+  owner's "very elaborate text, links, grids" on a page whose job is one act (approve). A tab-per-concern split fixes
+  it only if the header that carries the act is identical everywhere, so the act is never a tab away.
+- **Ruling.**
+  - Routes `plan` (Items), `plan/left-out`, `plan/review`, `plan/history`; tab group `Plan` (spec §5.1.1). Tabs are
+    routes, as on the Portfolio hub: one grammar for views of one object (D-IA.9). Back restores the tab.
+  - The H1 and subtitle are the plan's on every tab (the object's name; the tab is the view). Because tabbed routes
+    then share an H1, a route may set `docTitle`; the three new tabs set "{Tab} · {title}" so each document title
+    differs (WCAG 2.4.2). This is the class rule for every later tabbed object (Site tabs in IA-2c, Action and Asset
+    pages): `shape_check` item 10 holds it for every tab group.
+  - L1 (stepper, band, release line, version notice, thresholds opener) is identical on the four tabs, and the sticky
+    repeats the primary on every tab. `plan_shape_check` compares L1 across tabs, including after a non-default case.
+  - The placement is spec §5.1.2's table. What the plan holds (Items), what it does not (Left out: options left out,
+    values listed beside, Actions returned to their creator), how it will be judged (Review), what happened to it
+    (History).
+  - "Try another case" sits in the side panel of Items and Left out only: those are the tabs whose content the case
+    changes. Review (the proposed version's items against observed) and History (the record) do not depend on it and
+    take the full width. The L1 always shows the case on screen, because that is what Approve acts on (the reviewed
+    rule, review r4 M4), and its version notice says so when the case is not the proposed one.
+  - The approval panel leaves the page: its state block and meters repeat the band, its Opened and Proposed facts are
+    History's rows, its release line and version notice move into L1, its thresholds into a drawer, and its recording
+    note is what the Approve dialog already says ("Recorded under"). **R757** D2.
+- **Why.** Right control per content: a view is a tab, a rule read beside its parent is a drawer, the act stays where
+  the eye starts. Simplicity by removing repeats, not by hiding: every fragment of the reviewed page is placed exactly
+  once (`plan_shape_check`'s placement and "no `.approval`" assertions).
+
+### D-IA.44 The plan's stepper: four steps, from the one state source
+
+- **Ruling.** `iaPlanSteps(state)` maps `DRAFT` 0, `PROPOSED` 1, `REVISED` 1 (a revised version is proposed again),
+  `APPROVED` 2, `CLOSED` 3, and throws on any other state; the words are `STATE_WORD`'s. `iaPlanStepper(op)` reads
+  `uxPlanState(op).state` only and uses the `uxDecStatus` markup and its CSS (`.ux-dsteps`), with `aria-label` "Where
+  this plan is". A plan sent back is a Draft again: nothing is marked done; the chip says "Draft, sent back by …" and
+  History holds the send-back. "Closed" is never current while the period is open (no data or act closes a plan in
+  the demonstration); it is shown as the next step after Approved, never invented.
+- **One state source (review r4 M1, D-IA.24).** Every IA-2a builder reads state through `uxPlanState(op)` and the
+  one-source helpers named in the `loop-portfolio.js` comment (`planApprovedIds`, `planReleasedItem`, `releaseShown`,
+  and the functions that call them). `PSTATE()` only for what no act changes: `period`, `opened`, `proposed` and the
+  proposed `version`. `uxMock().plan` is never read directly. Reviewer sweep: grep the diff for `PSTATE()` and
+  `uxMock()`.
+- **Gate.** `count_check` plan block (spec §5.1.8): stepper, chips, inbox row, badge and History agree in four
+  states, from the check's own reading of `sessionStorage['l4-mock']` and the manifest. Plants `COUNT_PLANT=planstep`
+  (stepper reads `PSTATE()`: after Approve it still says Proposed) and `planhist`.
+
+### D-IA.45 The meters: the budget tile's bar, and one crew tile with its bar per month
+
+- **Class.** The band shows the crew figure without a meter, and the approval panel shows meters in a second
+  component (`meter()`), so one plan carries two meter forms and the crew limit's state is visible only lower down.
+- **Ruling.** L1 has one meter form, `uxMeterBar` inside a `uxKpi` tile: the reviewed spend tile (its bar unchanged),
+  then `iaCrewTiles` (one tile per month with a stated crew limit, spec §5.1.3), then the value tile. The bar's
+  `is-near` and `is-full` states are the reviewed ones (Lakeside's November reads 3 of 3, full). The period has at most
+  two months, so L1 holds at most 4 tiles (shape_check item 1). A month with no stated limit has no tile, as
+  `crewByMonth` filters it today; with no month at all the band's own crew tile stays.
+- **Gate.** `plan_switch_check` (retargeted; its intent unchanged): budget and crew figures per switch case against
+  the evaluator's switch cases and the manifest, computed by the check's own code. Plant `PSW_PLANT=crewtile`.
+
+### D-IA.46 What stays byte-identical: four splits, proven in three plan states
+
+- **Ruling.** The splits of spec §5.1.5 (`planParts` finer keys, `approvalParts`, `uxPlanBandParts`,
+  `whatChangedParts`) return today's strings; their joins are the reviewed functions, unchanged in output. The list of
+  untouched functions in §5.1.5 has no line in the diff. The one non-split change to reviewed code is `screens.js`
+  `render()` writing `s.docTitle || s.title` (D-IA.43); for every route without `docTitle` the title is unchanged.
+- **Proof.** `parts_identity.cjs` adds, per operator: `planScreen()` × every switch case × the plan states {none;
+  approved: `uxMockSet({ plan: { [op]: { state: 'APPROVED', by: <executive>, at: 'now', version: 1, ids: planCaseIds(op) } } })`;
+  sent back: `{ state: 'DRAFT', by: <executive>, at: 'now', reason: 'Too much spend', giveWay: <first item's label> }`}
+  × both previews; `whatChangedScreen()` × the three states × both previews. The plan states matter because
+  `approvalParts`, `uxPlanBandParts` and `whatChangedParts` branch on state.
+- **Why.** The reviewed plan page passed four review rounds; moving its parts must not re-open them.
+
+### D-IA.47 Review and History: reviewed content and the act log, nothing claimed
+
+- **Review** is `whatChangedParts(op).review` as reviewed: each version-1 item, its predicted change, owner, state,
+  Action owners, "Observed change: Not yet" and "Review: Not yet", with its note that the review runs when the period
+  ends. **R759** D1: an honest gap inside the mock's structure; "review against observed" fills only from Results'
+  verdicts (IA-2d).
+- **History** (spec §5.1.4) lists, newest first, this tab's approvals and send-backs from the act log (D-IA.24, the
+  same entries and row form as the inbox's "Since you last looked"), then the proposal and the opening from the
+  manifest. Its note says the acts are shown in this demonstration only (the act log is per browser tab). The
+  proposal figure's "L4 versions" drawer is not built: the list is the versions. **R760** D5, resolving IA-2d (entry
+  addresses).
+- **Caps (D-IA.34's scope).** No plan list is capped by position: an item, an option left out, a returned Action or a
+  review row is never hidden, because a plan is a commitment and its spend must add up on screen. The one `ul.list` that
+  can exceed 7 is History, capped by `uxCapLists` with "Show all {n}"; it holds no waiting item, so D-IA.34's ranking has
+  nothing to keep. `plan_shape_check` asserts no `[data-ux-over]` on Items, Left out and Review (plant `cap`).
+
+### D-IA.48 Gates, plants and the clean stop
+
+- **Gates.** Spec §5.1.8's table, each new or changed assertion shown failing on its plant first (§6). Three rules
+  the builder would otherwise have to decide:
+  - **Dormant checks.** Unit 2's assertions on plan tabs run only when `IA_LANDED` has IA-2a and print
+    `IA-2a not landed; dormant` otherwise, as G1 did before its origin landed (spec §2.5). Their plants run from the flip.
+  - **A short tab and the sticky bar.** uxi requires the sticky bar to show once the band scrolls under the top bar.
+    On a tab too short to scroll the band away, the requirement is that the band's Approve stays in the viewport at the
+    bottom scroll position; the assertion reads `(sticky on and its act present) or (band Approve in view at the
+    bottom)`, and both halves are measured, never assumed (a page that can scroll the band away must show the bar).
+  - **Hosts.** `PSW_PLANT=release` and `leftout` run where the case differs from the proposal and returns Actions:
+    Lakeside 6500/No (2 returned), Harvest No (1), Metro No (1).
+- **Size.** 3 units, 5 commits (spec §5.1.9). Under the 6-unit cap; one discovery review at the end.
+- **The clean stop.** Every commit boundary before the flip (3b) leaves every screen as it is on `main` and every gate
+  green. On 3A7's merge the builder finishes the commit in hand, runs fast check-all, pushes and writes the stop line in
+  the packet; the lane goes to 5c. Recommended stop: the end of unit 2. 5c changes no `vNEXT/` file.
+- **Why.** The owner's priority rule (5c first the moment it can start) needs a stop that costs nothing: no
+  half-visible shape, no gate red, no re-review on resume.
+
+### Owner questions (W3; defaults applied)
+
+- **OQ-IA.6 The plan's Approve stays in the band under the meters, not in the title row.** **Default:** as R758 (it is
+  inside the first screen at 1440 and 1280, and the sticky bar repeats it). The alternative, page actions in the title
+  row, is a frame change for every shape; it is worth a look at the IA-2 walkthrough, with the decision page, which has
+  the same pattern.
+- **OQ-IA.7 "Try another case" only on the tabs it changes (Items, Left out).** **Default:** as D-IA.43. The alternative
+  is the switches on all four tabs (one fixed side panel), at the cost of a what-if control beside the record and the
+  review it does not change.

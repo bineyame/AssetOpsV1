@@ -1,0 +1,48 @@
+# Decision index: Demo-sprint and later rulings (index only) (D-SC1.1 to D-SC1.28, D-3C2.14, D-0K1.1 to D-0K1.9, D-DS3.1 to D-DS3.8)
+
+- `D-SC1.1` Extend the i18n message seam; i18n.render stays the one renderer · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.2` Typed facts; every figure carries its evidence; absence is Absent, never None or 0 · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.3` Catalogue is pure literal data in one Python module per area (ast.literal_eval) · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.4` Templates hold words and bare fields; the format belongs to the slot · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.5` Conditions are declared data over eight operators, one evaluator, fallback or proved exhaustive · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.6` Word choices are picks over a declared domain; outside it is an error · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.7` Fragments and sub-sentences are parts with the parent's options; no cycles, depth 4 · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.8` Vocabulary forms (labels, articles, plurals) declared per entry, never letter rules · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.9` No digit or currency/percent symbol in literals; numbers only through facts · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.10` One format per fact type product-wide; money is 5c's form (amends 3A7 §2.7) · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.11` Render is strict; no fallback sentence · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.12` A hand-written case per variant; legacy ratchet; ADOPTED scan · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.13` Keys name kinds, never instances; no regex rewriting of stored prose · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.14` 3A7 and 5c adopt SC-1a (fallback clause withdrawn by D-SC1.26) · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.15` LLM phrasing is a contract only (same figures and words, else template); default never · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.16` The evidence word and money suffix have one home, the evidence vocabulary · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.17` Hand-built text scanned from day one: mechanism and ADOPTED positive, backend ratchet by fingerprint · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.18` Every stated figure's evidence on the page (inline/with/derived_from or served); impossible facts unbuildable · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.19` Facts travel only as i18n.wire; facts are not dataclasses, so no encoder flattens them · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.20` Proved at load: PICK_REACH, complete locales; variant requires checked at render · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.21` Literal ban by Unicode category (Nd/No/Nl, Sc) and closed number-word list · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.22` One public i18n surface; no catalogue= argument; private and bypass imports scanned · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.23` Absent carries a declared reason; reason operator in conditions · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.24` Tiny always on for every figure type: a non-zero figure never reads as zero · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.25` Price fact and format (2 or 4 places, per unit) · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.26` 3A7 and 5c code starts after SC-1a merges; legacy fallback withdrawn (amends D-SC1.14) · live; amended by D-SC1.28 · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.27` Legacy baseline pins each template by hash (LEGACY_CHANGED) · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.28` Text waits for SC-1a, code does not: non-text commit first, statements after SC-1a merges, merge after SC-1a (amends D-SC1.26; owner away) · live · specs/SC-1-statement-composer/rulings.md
+- `D-3C2.14` 3C2 state words and refusal sentences as SC-1 statements in a commit after SC-1a; 3A7 merges first (D-SC1.28) · live · specs/3C2-agreed-change-action/rulings.md
+- `D-0K1.1` A separate one-method ForwardReplayPort; LabExecutionPort untouched · live · specs/0K1-forward-replay-port/rulings.md
+- `D-0K1.2` A replay is the base run's frozen world with the request's series, start and settings; settings as kernel overrides · live · specs/0K1-forward-replay-port/rulings.md
+- `D-0K1.3` Only mini-grid v5 to v7 replay · live · specs/0K1-forward-replay-port/rulings.md
+- `D-0K1.4` PV-available inverted to irradiance exactly; a clipped step flagged, not refused · live · specs/0K1-forward-replay-port/rulings.md
+- `D-0K1.5` A gap in a series is refused (INPUT_GAP); no fill rule in 0K1 · live · specs/0K1-forward-replay-port/rulings.md
+- `D-0K1.6` Projection neutral and MODELLED; a kernel failure is a FAILED projection, not a refusal · live · specs/0K1-forward-replay-port/rulings.md
+- `D-0K1.7` Proof is exact equality with the kernel's own trajectory; calibration is 0K2's · live · specs/0K1-forward-replay-port/rulings.md
+- `D-0K1.8` 0K1 has no user-facing text (D-SC1.28 not engaged) · live · specs/0K1-forward-replay-port/rulings.md
+- `D-0K1.9` Exact numbers only at the port (Fraction; float refused) · live · specs/0K1-forward-replay-port/rulings.md
+- `D-DS3.1` Bulk evidence load is set-based INSERT ... SELECT FROM unnest in the ledger's one writer, not COPY into staging (owner away, row 10) · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.2` Commercial records keep one path, 3A2's intake via the existing loader; no commercial parity half (row 11) · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.3` Parity is row equality on the input tables; recompute jobs compared by coverage · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.4` A batch already published for a registered run is refused in bulk · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.5` The bulk path admits clean batches only (rejection or collision refuses the batch) · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.6` Bulk load: SIMULATED batches and *_test or <prefix>_audit* databases only · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.7` DS3 has no user-facing text · live · specs/DS3-bulk-loader/rulings.md
+- `D-DS3.8` Lines not received are not estimated by DS3; Not available yet until a declared-estimate unit (row 12) · live · specs/DS3-bulk-loader/rulings.md

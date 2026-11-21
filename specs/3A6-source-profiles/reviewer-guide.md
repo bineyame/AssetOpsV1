@@ -1,4 +1,4 @@
-# 3A6 reviewer guide (rev 2, after handshake round 1)
+# 3A6 reviewer guide (rev 3, after review round 5; rev 2 after handshake round 1)
 
 For the fresh Reviewer: first at the handshake (read `spec.md`, `rulings.md` and this guide; put questions in
 `handshake.md`), then at the review. Depth: discovery (W5): a new shared contract (the profile format and the engine's
@@ -59,6 +59,15 @@ cases, S1, the loader), the regression set, check-all, and each plant below fail
 | V31 | Restrict `S1-DYN-COMMERCIAL` to non-allowlisted modules | S1 plants p07, p08 |
 | V32 | Read the `YYYYMM` `XlsxNumber` as a serial | N4 (`2026-10`) |
 
+| V33 | Read in the server process in `_check` (call `reader.read` directly) | E7 |
+| V34 | Drop `RLIMIT_AS` in `_child` | E1 |
+| V35 | Drop the parent's `poll` timeout (wait without limit) | E3 (run with a 10 s pytest timeout) |
+| V36 | Drop `maxlength` and the child's result check | E4 |
+| V37 | Raise `RuntimeError` for a breach instead of `NATIVE_TOO_LARGE` | E1, E3, E4 |
+| V38 | Skip the `=` run scan in `_parse` | B1 (one element, 1.45 M names) |
+| V39 | Reset the N9 counter per physical line instead of per row | B2 (quoted lines) |
+| V40 | Remove `_directory_check` | B3 |
+
 Rule for plants (rev 2): every gate in `rulings.md` "Handshake answers (round 1)" has a row here; a plant that no
 listed test fails is a High finding against the spec, reported, not waived.
 
@@ -75,3 +84,28 @@ listed test fails is a High finding against the spec, reported, not waived.
   person reads it.
 - **No code per layout.** Admit a fresh profile of your own (any small CSV in a scratch directory) with the command on
   a scratch `*_test` database and upload through it: no file in the repository changes.
+
+## Round 6: what the review checks (stop rule, D-3A6.27)
+
+Depth: verification of fix round r5. The checks below are the only ones that can return REVISE:
+
+1. **Exclusive.** E7 passes. Your own grep of `backend/assetops_backend/` finds no parse of upload bytes outside
+   `commercial/envelope.py` and the reader classes. Every caller (the intake, admission, and through them the loader
+   and the command) goes through `ParseEnvelope.read`.
+2. **Bounded.** E1 to E6 pass. Run one breach of each kind yourself through the HTTP route: memory, CPU, wall, result
+   size, and a child killed by hand with `kill -9`. Each answers 422 `NATIVE_TOO_LARGE` within the wall limit plus
+   about 1 s, with no 500 and no hang. The server's RSS returns to its baseline, and the next upload reads.
+3. **Faithful.** E8 passes, and the packet's 600-case differential has 0 mismatches. Rerun 100 of its cases yourself.
+4. **Pinned and logged.** E0 and E9 pass. `DEFAULT_LIMITS` is the only production construction, with no setting or
+   environment variable that changes it.
+5. **Plants.** V33 to V37 each fail their named test.
+6. **Words.** A breach renders "this file is too large or too complex to read in one upload; split it and upload
+   the parts." on the upload route and in admission's `ADMIT_SAMPLE_FILE`.
+
+Checked, not blocking: B1 to B3 and V38 to V40 (D-3A6.24), and the r4 bounds table. A defect in these is Low unless
+it refuses a legitimate file, which is Medium.
+
+New routes: do not hunt further XML, CSV or zip shapes. If you meet one anyway, record it as a Low residual when it
+is refused with a coded reason inside the envelope's limits. It is a finding at its own severity only if it escapes
+the envelope: parent-side work that grows with the input beyond D-3A6.23's parent figures (8 MiB upload, 32 MiB
+result, `parse_batch` over the returned records), or a breach that harms the server process.
