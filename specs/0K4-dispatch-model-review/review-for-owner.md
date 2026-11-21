@@ -2,6 +2,9 @@
 
 Architect (Claude), 2026-11-21, for the owner. Answers `owner/owner-decisions-list-2026-11-21.md`, answer 3 (row 42).
 Proposals only: nothing here changes code, figures or labels until you accept it.
+**Accepted by the owner 2026-11-21** (`owner/owner-one-figure-loyal-to-operating-world-2026-11-21.md`). Unit specs and
+rulings D-0K4.1 to D-0K4.18: `rulings.md`; one-figure change list: `one-figure-change-list.md`; operator request:
+`operator-request.md`.
 
 ## 1. What exists today
 

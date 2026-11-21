@@ -145,6 +145,8 @@ class FakeRunner:
             return "exports"
         if args[:2] == ["-m", "alembic"]:
             return "migrate"
+        if args[:1] == ["tools/heavy-slot.sh"]:
+            return "slot.status"
         mod = args[1].rsplit(".", 1)[-1]
         return f"{mod}.{args[2]}"
 
@@ -979,3 +981,140 @@ def test_t11_world_tool_seams():
     bulk = (backend / "evidence/bulk_load.py").read_text()
     for banned in ("assetops_simulator", "assetops_backend.host", "assetops_backend.commercial"):
         assert banned not in bulk
+
+
+# --- T10 bench assembly (pure) -----------------------------------------------------------------------------------------
+
+def _ladder(l0: float, l1: float, l2: float) -> list[dict]:
+    return [{"rung": r, "database": f"assetops_worldbench_audit_{r.lower()}_0123456789ab", "key12": "0123456789ab",
+             "seconds": s, "steps_seconds": s, "size_bytes": 1, "steps": []} for r, s in (("L0", l0), ("L1", l1), ("L2", l2))]
+
+
+PROJECTION = {"sites": 9, "days": 61, "basis": "nine Sites, 61 days"}
+CLONES = [{"label": "b1", "seconds": 0.4, "size_bytes": 1}, {"label": "b2", "seconds": 0.5, "size_bytes": 1},
+          {"label": "b3", "seconds": 0.45, "size_bytes": 1}]
+
+
+@pytest.mark.parametrize("load, ticks, per, projected, triggered", [
+    (7.0, 700.0, 50.5, 27744.5, True),   # (7 + 700) / 14 = 50.5 s per Site-day; 20 + 50.5 * 9 * 61
+    (0.7, 13.3, 1.0, 569.0, False),      # (0.7 + 13.3) / 14 = 1.0; 20 + 1.0 * 549
+])
+def test_t10_bench_projection_and_ds7(load, ticks, per, projected, triggered):
+    line = ("noise\nDS4_PIPELINE " + json.dumps({"site_days": 14, "batches": 70, "envelopes": 6720, "load_seconds": load,
+                                                "mini_depth_seconds": 0.0, "ticks": 9, "tick_wall_seconds": ticks, "stage_ms": {"s3": 1},
+                                                "drain": {"verdict": "done", "reason": "all counts are 0"}}) + "\n1 passed\n")
+    measured = world.pipeline_line(line)
+    assert measured["site_days"] == 14
+    report = world.assemble_bench({"commit": "x"}, _ladder(2.0, 10.0, 20.0), CLONES, None,
+                                  {"exit": 0, "tail": "1 passed", "measured": measured}, PROJECTION)
+    assert report["format"] == "assetops.world-bench/2"
+    assert set(report) >= {"start", "ladder", "clones", "changes", "pipeline", "projection", "ds7", "targets"}
+    assert report["projection"]["kind"] == "PROJECTION_NOT_MEASUREMENT"
+    assert report["projection"]["per_site_day_seconds"] == per
+    assert report["projection"]["projected_l2_seconds"] == projected
+    assert report["projection"]["role"] == "INFORMATION_ONLY"
+    assert report["projection"]["per_site_day_includes"] == ["BULK_LOAD", "MINI_DEPTH", "TICKS"]
+    assert report["projection"]["input_drain"] == "done"
+    assert report["ds7"] == {"threshold_seconds": 2700, "reading": "MEASURED_L2", "measured_l2_seconds": 20.0,
+                             "triggered": False, "decide_at": "FIRST_WORLD_TELEMETRY", "basis": "nine Sites, 61 days",
+                             "projection": {"role": "INFORMATION_ONLY", "input_drain": "done",
+                                            "projected_l2_seconds": projected, "exceeds_threshold": triggered}}
+    assert report["changes"]["not_built"] == [{"kind": "option_change", "state": "NOT_BUILT", "unit": "6a"},
+                                              {"kind": "contract_term_edit", "state": "NOT_BUILT", "unit": "9a0"}]
+    targets = {t["operation"]: t for t in report["targets"]}
+    assert list(targets) == ["load_inputs", "run_pipeline_l2", "run_database", "one_option_change", "advance_one_day"]
+    assert targets["load_inputs"]["measured_seconds"] == 10.0
+    assert targets["run_pipeline_l2"]["projected_seconds"] == projected
+    assert targets["run_database"]["measured_seconds"] == 0.5
+    assert targets["one_option_change"]["state"] == targets["advance_one_day"]["state"] == "NOT_BUILT"
+
+
+def test_t10_bench_without_a_pipeline_line_projects_nothing():
+    assert world.pipeline_line("1 failed\n") is None
+    report = world.assemble_bench({}, _ladder(1.0, 1.0, 1.0), CLONES, None, {"exit": 1, "tail": "", "measured": None},
+                                  PROJECTION)
+    assert report["projection"]["projected_l2_seconds"] is None
+    assert report["ds7"]["triggered"] is False and report["ds7"]["projection"]["exceeds_threshold"] is None
+
+
+def test_t10_bench_evidence_inside_the_repository_is_refused(tmp_path, capsys):
+    with pytest.raises(world.Refused) as r:
+        world.bench_evidence_dir(ROOT / "evidence-here")
+    assert r.value.code == "WORLD_EVIDENCE_IN_REPO"
+    assert world.bench_evidence_dir(tmp_path / "ev") == (tmp_path / "ev").resolve()
+    code = world.main(["bench", "--key-root", str(tmp_path), "--evidence", str(ROOT / "evidence-here")],
+                      deps=world.Deps(require=lambda *a, **k: None, admin=lambda *a, **k: pytest.fail("admin")))
+    assert code == 2
+    assert capsys.readouterr().err.startswith("WORLD_EVIDENCE_IN_REPO ")
+    assert not (ROOT / "evidence-here").exists()
+
+
+def _m(site_days=1, load=40.0, mini=0.0, ticks=60.0, verdict="done", **over):
+    m = {"site_days": site_days, "load_seconds": load, "tick_wall_seconds": ticks,
+         "drain": {"verdict": verdict, "reason": "r"}}
+    if mini is not None:
+        m["mini_depth_seconds"] = mini
+    m.update(over)
+    return {"exit": 0, "tail": "", "measured": m}
+
+
+def _bench(l2, pipeline, projection=None):
+    return world.assemble_bench({}, _ladder(1.0, 1.0, l2), CLONES, None, pipeline,
+                                projection or {"sites": 1, "days": 1, "basis": "t"})
+
+
+def test_t10e_the_boundary_is_strict_on_both_comparisons():
+    r = _bench(2600.0, _m())
+    assert r["projection"]["projected_l2_seconds"] == 2700.0 and r["ds7"]["projection"]["exceeds_threshold"] is False
+    r = _bench(2600.0, _m(ticks=60.001))
+    assert r["projection"]["projected_l2_seconds"] == 2700.001 and r["ds7"]["projection"]["exceeds_threshold"] is True
+    assert _bench(2700.0, _m())["ds7"]["triggered"] is False
+    assert _bench(2700.001, _m())["ds7"]["triggered"] is True
+
+
+def test_t10f_the_mini_step_counts_in_the_figure():
+    r = _bench(8.0, _m(14, 14.0, 14.0, 14.0), PROJECTION)
+    assert r["projection"]["per_site_day_seconds"] == 3.0 and r["projection"]["projected_l2_seconds"] == 1655.0
+    r = _bench(8.0, _m(14, 14.0, None, 14.0), PROJECTION)
+    assert r["projection"]["per_site_day_seconds"] is None and r["projection"]["projected_l2_seconds"] is None
+
+
+def test_t10g_the_input_drain_is_carried():
+    r = _bench(8.0, _m(verdict="fail"))
+    assert r["projection"]["input_drain"] == "fail" and r["ds7"]["projection"]["input_drain"] == "fail"
+    r = _bench(8.0, None)
+    assert r["projection"]["input_drain"] is None and r["ds7"]["projection"]["input_drain"] is None
+    assert r["projection"]["per_site_day_seconds"] is None and r["projection"]["projected_l2_seconds"] is None
+    assert r["ds7"]["projection"]["exceeds_threshold"] is None
+
+
+def test_t10h_the_marker():
+    bad = "x\nDS4_PIPELINE {\n"
+    assert world.pipeline_line(bad) is None and world.pipeline_marker(bad) == "MALFORMED"
+    assert world.pipeline_marker("1 failed\n") == "MISSING"
+    good = "DS4_PIPELINE " + json.dumps({"site_days": 1}) + "\n"
+    assert world.pipeline_marker(good) == "PARSED" and world.pipeline_line(good) == {"site_days": 1}
+
+
+def test_t10i_a_failing_late_record_still_sweeps_every_bench_database(env, tmp_path, monkeypatch):
+    def boom(*a, **k):
+        raise RuntimeError("plant")
+    monkeypatch.setattr(world, "_late_record", boom)
+    evidence = tmp_path / "ev"
+    with pytest.raises(RuntimeError, match="plant"):
+        env.main("bench", "--key-root", str(env.keys), "--evidence", str(evidence))
+    drops = [w for k, w in env.log if k == "admin" and w.startswith("DROP DATABASE")]
+    names = [re.match(r'CREATE DATABASE "([^"]+)"', w).group(1) for k, w in env.log
+             if k == "admin" and re.match(r'CREATE DATABASE "[^"]*_audit_l[012]_', w)]
+    assert len(names) == 3
+    first_clone = max(i for i, w in enumerate(drops) if "_audit_c_" in w) if any("_audit_c_" in w for w in drops) else -1
+    for n in names:
+        assert any(f'"{n}"' in w for w in drops[first_clone + 1:]), n
+    assert not (evidence / "bench.json").exists()
+
+
+def test_t10_late_record_file(tmp_path):
+    src = tmp_path / "lakeside-power.billing.csv"
+    src.write_text("Invoice no,Revision,Site,Amount\nA,1,KISIWA-001,1.00\nB,1,KOBO-001,86.80\nC,1,KOBO-001,5.00\n")
+    world._late_csv(src, tmp_path / "out.csv")
+    assert (tmp_path / "out.csv").read_text() == "Invoice no,Revision,Site,Amount\nB,2,KOBO-001,96.80\n"
