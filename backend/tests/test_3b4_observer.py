@@ -1,4 +1,4 @@
-"""3B4 (spec §7 tests 2, 4 to 9; tests 1, 1b and 3 land with the `check.py` commit after 4a and 3B6, spec §0).
+"""3B4 (spec §7 tests 1 to 9; tests 1, 1b and 3 landed with the `check.py` commit after 4a and 3B6, D-3B4.25).
 
 No database. Expected tables and figures are literals from the pack (`derived-values.json`) and spec §2.1 and §6,
 never read from `OBSERVED`, `signs` or `observe` (W2).
@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import subprocess
+import sys
 import uuid
 from datetime import datetime, timezone
 from decimal import Decimal
@@ -17,7 +19,7 @@ import pytest
 import test_5b_attribution as t5b
 from assetops_backend.chain.ports import SiteRef
 from assetops_backend.structure.attribution.site import site_bridge
-from assetops_backend.structure.check import check_pins
+from assetops_backend.structure.check import OBSERVE_CODES, StructureError, check_all, check_observed, check_pins
 from assetops_backend.structure.evaluate import LeafValue, Missing, SiteStructure, evaluate
 from assetops_backend.structure.observe import observe as obs
 from assetops_backend.structure.observe import rules
@@ -99,6 +101,111 @@ CLAIM_KEYS = {"format", "structure_key", "structure_version", "factor_id", "home
               "snapshot_as_of", "tolerance_known_at"}
 PROTECT_LEAVES = {"reduced_days", "unserved_critical_kwh", "customer_hours_interrupted", "dawn_days_below"}
 CASH_LEAVES = {"in_transit", "outstanding"}
+
+
+#: Spec §2.1, written out (W2): the 12 leaves not observed and why.
+NOT_OBSERVED_LITERAL = {
+    "technical_loss_kwh": "DECLARED_SOURCE", "wear_rate": "DECLARED_SOURCE", "major_assets": "DECLARED_SOURCE",
+    "standby_kw": "DECLARED_SOURCE", "lost_unit_kw": "DECLARED_SOURCE", "extra_l": "OPTION_ONLY",
+    "battery_throughput_kwh": "OPTION_ONLY", "collection_cost": "OPTION_ONLY", "period_days": "CALENDAR",
+    "hours_per_day": "EXPOSURE_RATE", "field_visits": "NO_OWNER_RULE_KIND", "liability": "NO_OWNER_RULE_KIND"}
+
+
+# --- test 1: the tables, and the start-up path ------------------------------------------------------------------------
+
+def test_1_tables_are_the_spec_literals_and_check_all_passes() -> None:
+    assert tuple(rules.OBSERVED["MINI_GRID"].items()) == OBSERVED_LITERAL
+    assert dict(rules.NOT_OBSERVED["MINI_GRID"]) == NOT_OBSERVED_LITERAL
+    assert set(rules.OBSERVED) == set(rules.NOT_OBSERVED) == {"MINI_GRID"}
+    check_all()
+    check_observed()
+
+
+# --- test 1b: import order (D-3B4.20) ---------------------------------------------------------------------------------
+
+@pytest.mark.parametrize("module", ["assetops_backend.structure.check", "assetops_backend.structure.observe.rules",
+                                    "assetops_backend.structure.evaluate"])
+def test_1b_each_module_imports_first_in_a_fresh_interpreter(module: str) -> None:
+    import os
+    paths = [p for p in sys.path if p]
+    env = {**os.environ, "PYTHONPATH": os.pathsep.join(paths)}
+    # -I ignores PYTHONPATH, so the path is set inside the interpreter before the one import under test.
+    code = f"import sys; sys.path[:0] = {paths!r}; import {module}"
+    done = subprocess.run([sys.executable, "-I", "-c", code], env=env, capture_output=True, text=True, timeout=120)
+    assert done.returncode == 0, done.stderr[-2000:]
+
+
+def test_1b_check_all_passes_with_registries_the_observer_does_not_name() -> None:
+    assert set(REGISTRIES) - set(rules.OBSERVED)          # 3B6's COLD and EV keys (D-3B4.25)
+    check_all()
+
+
+# --- test 3: each check_observed code on its own planted table --------------------------------------------------------
+
+def _tables() -> tuple[dict, dict]:
+    return ({k: dict(v) for k, v in rules.OBSERVED.items()}, {k: dict(v) for k, v in rules.NOT_OBSERVED.items()})
+
+
+def _plant_key():
+    o, n = _tables()
+    o["NO_SUCH_KEY"], n["NO_SUCH_KEY"] = {}, {}
+    return o, n, "NO_SUCH_KEY", "-"
+
+
+def _plant_cover_removed():
+    o, n = _tables()
+    del o["MINI_GRID"]["dawn_days_below"]
+    return o, n, "MINI_GRID", "dawn_days_below"
+
+
+def _plant_cover_no_row():
+    o, n = _tables()
+    n["MINI_GRID"]["no_such_leaf"] = "DECLARED_SOURCE"
+    return o, n, "MINI_GRID", "no_such_leaf"
+
+
+def _plant_leaf():
+    o, n = _tables()
+    o["MINI_GRID"]["billed_kwh"] = "DOWN"
+    return o, n, "MINI_GRID", "billed_kwh"
+
+
+def _plant_source():
+    o, n = _tables()
+    del n["MINI_GRID"]["technical_loss_kwh"]
+    o["MINI_GRID"]["technical_loss_kwh"] = "UP"
+    return o, n, "MINI_GRID", "technical_loss_kwh"
+
+
+def _plant_direction():
+    o, n = _tables()
+    o["MINI_GRID"]["outstanding"] = "DOWN"
+    return o, n, "MINI_GRID", "outstanding"
+
+
+def _plant_kind():
+    o, n = _tables()
+    del n["MINI_GRID"]["field_visits"]
+    o["MINI_GRID"]["field_visits"] = "UP"
+    return o, n, "MINI_GRID", "field_visits"
+
+
+@pytest.mark.parametrize(("plant", "code"), [
+    (_plant_key, "STRUCTURE_OBSERVE_KEY"), (_plant_cover_removed, "STRUCTURE_OBSERVE_COVER"),
+    (_plant_cover_no_row, "STRUCTURE_OBSERVE_COVER"), (_plant_leaf, "STRUCTURE_OBSERVE_LEAF"),
+    (_plant_source, "STRUCTURE_OBSERVE_SOURCE"), (_plant_direction, "STRUCTURE_OBSERVE_DIRECTION"),
+    (_plant_kind, "STRUCTURE_OBSERVE_KIND")])
+def test_3_each_code_fires_on_its_plant_and_no_earlier_code(plant, code: str) -> None:
+    o, n, key, leaf = plant()
+    with pytest.raises(StructureError) as raised:
+        check_observed(o, n)
+    assert (raised.value.code, raised.value.structure_key, raised.value.factor_id) == (code, key, leaf)
+
+
+def test_3_codes_are_the_spec_order() -> None:
+    assert OBSERVE_CODES == ("STRUCTURE_OBSERVE_KEY", "STRUCTURE_OBSERVE_COVER", "STRUCTURE_OBSERVE_LEAF",
+                             "STRUCTURE_OBSERVE_SOURCE", "STRUCTURE_OBSERVE_DIRECTION", "STRUCTURE_OBSERVE_KIND")
+    check_observed()          # the real tables pass
 
 
 # --- test 2: signs ---------------------------------------------------------------------------------------------------
