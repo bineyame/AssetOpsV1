@@ -16,7 +16,7 @@ import pytest
 from assetops_backend.i18n import (Absent, Count, Day, Evidence, Flag, Instant, Items, KOfN, Money, Month, Name,
                                    Percent, Price, Quantity, State, StatementError, WireError, Word, from_wire,
                                    message, render, served, to_wire)
-from assetops_backend.i18n import catalogue, conditions, schema
+from assetops_backend.i18n import catalogue, conditions, formats, schema
 from assetops_backend.i18n.catalogue import CatalogueError
 from assetops_backend.i18n.statements.en.vocabulary import VOCABULARY
 from statement_cases import common as common_cases
@@ -214,7 +214,7 @@ def test_t2_counts_dates_words_items():
 EVIDENCE_WORDS = {
     "RECORDED": ("Recorded", "Recorded", "Recorded", "Emulated", "Simulated", "Estimated", "Estimated"),
     "MEASURED": ("Measured", "Measured", "Measured", "Emulated", "Simulated", "Estimated", "Estimated"),
-    "DECLARED": ("Recorded", "Recorded", "Recorded", "Emulated", "Simulated", "Estimated", "Estimated"),
+    "DECLARED": ("Declared",) * 7,  # D-SC1F.1: a setting reads "Declared" for every origin
     "DERIVED": ("Calculated", "Calculated", "Calculated", "Emulated", "Simulated", "Estimated", "Estimated"),
     "ESTIMATED": ("Estimated",) * 7,
     "MODELLED": ("Modelled",) * 7,
@@ -227,6 +227,13 @@ ORIGIN_COLUMNS = ("observed-financial", "field-integrated", "bench-tested", "sou
 def test_t2_evidence_word_all_42_pairs(evidence, column):
     fact = Money(D("1"), "USD", Evidence(evidence, ORIGIN_COLUMNS[column]))
     assert show({"type": "money", "evidence": "inline"}, fact) == f"$1.00 ({EVIDENCE_WORDS[evidence][column]})"
+
+
+def test_v1_declared_reads_declared_for_every_origin():
+    """SC-1f V1 (D-SC1F.1): `DECLARED` is step 1 of the three, so no origin, `None` included, changes its word."""
+    assert set(ORIGIN_COLUMNS) == {*schema.ORIGINS, None}
+    for origin in ORIGIN_COLUMNS:
+        assert formats.evidence_word(Evidence("DECLARED", origin), VOCABULARY) == "Declared"
 
 
 def test_t2_money_suffix():
@@ -764,7 +771,10 @@ def test_t13_evidence_on_the_page():
     assert say(h4)["evidence"] == ["Emulated"]  # the gap is stated by `on_target`'s `when`
     assert say(h5)["evidence"] == []  # the gap is absent: nothing stated
     assert say(sh4)["evidence"] == ["Emulated"]  # the share is stated by `no_effect`'s `requires`
-    assert say(c9).startswith("Revenue (Recorded and Emulated): ")
+    assert say(c9).startswith("Revenue (Recorded, Emulated and Declared): ")
+    c7, c10 = worked.CASES[6], worked.CASES[-1]
+    assert "tolerance" not in c7.facts and c10.facts["tolerance"].evidence.evidence == "DECLARED"
+    assert say(c10) == say(c7) == "Fuel cost (Recorded): the accounts say $0.00 and no fuel invoices are recorded."
 
 
 C1 = worked.CASES[0].facts
