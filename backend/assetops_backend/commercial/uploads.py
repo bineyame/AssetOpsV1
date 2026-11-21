@@ -13,6 +13,11 @@
 A refused record is dropped before anything is kept; only (file index, code, cut path) remain (D-3A2.14). No answer,
 log or error carries a record value, a ref or the batch (D-3A1.10): refusals raised here carry codes, cut paths,
 counts and the declared provenance only.
+
+3A6 (spec §2.6; D-3A6.5, D-3A6.8, D-3A6.15): a reader ID that is not one of `READERS` and starts `profile.` is read
+through the tenant's latest admitted source profile (`SourceProfiles.reader`). One source system per source type per
+Site: check and submit refuse a file whose Sites already send this source type from another system through a held
+upload (waiting or accepted); acceptance re-checks it under the tenant's lock against accepted uploads.
 """
 from __future__ import annotations
 
@@ -20,11 +25,11 @@ import hashlib
 import json
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 from uuid import UUID, uuid4
 
 from assetops_backend.commercial.model import (Acceptance, HeldUpload, UploadAlreadyDecided, UploadDecisionRow,
-                                               UploadRecord, UploadRow, UploadStale)
+                                               UploadRecord, UploadRow, UploadSourceSwitched, UploadStale)
 from assetops_backend.commercial.pseudonym import (PseudonymKeyErased, PseudonymKeyMissing, PseudonymKeys,
                                                    PseudonymKeyUnusable, cut_path, pseudonymise)
 from assetops_backend.commercial.readers import DEFAULT_READER, READERS, ReadContext, ReadResult, SourceReader
@@ -32,6 +37,9 @@ from assetops_backend.commercial.service import CommercialRecords
 from assetops_backend.commercial.store import CommercialStore
 from assetops_backend.i18n import Message, message, render
 from assetops_contracts.canonical import CanonicalRecordV1, CanonicalRefused, parse_batch
+
+if TYPE_CHECKING:
+    from assetops_backend.commercial.profiles import SourceProfiles
 
 MAX_UPLOAD_BYTES = 8 * 2**20
 MAX_LISTED = 50
@@ -57,6 +65,8 @@ _WORDS = {
     "UPLOAD_ALREADY_DECIDED": "already_decided",
     "UPLOAD_STALE": "stale",
     "UPLOAD_DECISION_INVALID": "decision_invalid",
+    "UPLOAD_READER_SUPERSEDED": "reader_superseded",  # 3A6 (D-3A6.8)
+    "UPLOAD_SOURCE_SWITCHED": "source_switched",  # 3A6 (D-3A6.5)
 }
 
 
@@ -137,8 +147,9 @@ def _with_text(words: Message) -> dict[str, Any]:
 
 class CommercialUploads:
     def __init__(self, records: CommercialRecords, store: CommercialStore, keys: PseudonymKeys, *,
-                 clock: Callable[[], datetime], real_data: bool) -> None:
+                 clock: Callable[[], datetime], real_data: bool, profiles: SourceProfiles | None = None) -> None:
         self._records = records
+        self._profiles = profiles
         self._store = store
         self._keys = keys
         self._clock = clock
@@ -146,10 +157,13 @@ class CommercialUploads:
 
     # --- step 1: the reader -----------------------------------------------------------------------------------
 
-    @staticmethod
-    def reader(reader_id: str | None, media_type: str | None) -> SourceReader:
-        """§3.2 step 1 before the body is read: an unknown reader (422), then the media type (415)."""
-        reader = READERS.get(reader_id if reader_id is not None else DEFAULT_READER)
+    def reader(self, tenant_id: UUID, reader_id: str | None, media_type: str | None) -> SourceReader:
+        """§3.2 step 1 before the body is read: an unknown reader (422), then the media type (415). 3A6: `READERS`
+        first, then an admitted source profile of the tenant."""
+        rid = reader_id if reader_id is not None else DEFAULT_READER
+        reader: SourceReader | None = READERS.get(rid)
+        if reader is None and self._profiles is not None and rid.startswith("profile."):
+            reader = self._profiles.reader(tenant_id, rid)
         if reader is None:
             raise UploadRefused(422, "UPLOAD_READER_UNKNOWN")
         if (media_type or "").split(";", 1)[0].strip().lower() not in reader.media_types:
@@ -160,7 +174,7 @@ class CommercialUploads:
 
     def _check(self, tenant_id: UUID, scope: UploadScope, actor: Actor, data: bytes, reader_id: str | None,
                media_type: str | None) -> _Checked:
-        reader = self.reader(reader_id, media_type)
+        reader = self.reader(tenant_id, reader_id, media_type)
         data = bytes(data)
         if len(data) > MAX_UPLOAD_BYTES:
             raise UploadRefused(413, "FILE_TOO_LARGE", {"limit_mb": MAX_UPLOAD_BYTES // 2**20})
@@ -203,6 +217,8 @@ class CommercialUploads:
             else:
                 kept.append(index)
         raw_records = read.obj["records"]  # parse_batch accepted the envelope, so this is the file's record list
+        self._refuse_switch(tenant_id, batch.source_type, batch.source_system,
+                            {raw_records[i].get("site_code") for i in kept})
         obj2 = {name: ([pseudonymise(raw_records[i], key, read.personal_paths) for i in kept]
                        if name == "records" else value) for name, value in read.obj.items()}
         data2 = json.dumps(obj2, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
@@ -229,6 +245,14 @@ class CommercialUploads:
         return _Checked(reader, file_sha256, len(data), batch.source_type, batch.source_system, batch.provenance,
                         data2, tuple(kept), result.basis_sha256, read.rows, len(parsed.outcomes), count["NEW"],
                         count["REVISED"], count["UNCHANGED"], tuple(refusals), ordered)
+
+    def _refuse_switch(self, tenant_id: UUID, source_type: str, source_system: str, sites: set) -> None:
+        """D-3A6.5: one source system per source type per Site (None, the portfolio level, is a Site key)."""
+        systems = sorted({h.source_system for h in self._store.held_uploads(tenant_id)
+                          if h.source_type == source_type and h.source_system != source_system
+                          and set(h.site_codes) & sites})
+        if systems:
+            raise UploadRefused(409, "UPLOAD_SOURCE_SWITCHED", {"source_type": source_type, "system": systems[0]})
 
     def check(self, tenant_id: UUID, scope: UploadScope, actor: Actor, data: bytes, *,
               reader_id: str | None = None, media_type: str | None = "application/json") -> dict[str, Any]:
@@ -289,9 +313,22 @@ class CommercialUploads:
             raise UploadRefused(409, "UPLOAD_ALREADY_DECIDED") from None
         except UploadStale:
             raise UploadRefused(409, "UPLOAD_STALE") from None
+        except UploadSourceSwitched as switched:  # D-3A6.15: re-checked under the lock; the upload stays waiting
+            system = switched.system
+            raise UploadRefused(409, "UPLOAD_SOURCE_SWITCHED", {"source_type": upload.source_type,
+                                                                "system": system}) from None
         return self.get(tenant_id, scope, str(upload.id))
 
     # --- reads ------------------------------------------------------------------------------------------------
+
+    def _stored_reader(self, tenant_id: UUID, reader_id: str) -> SourceReader:
+        """Handshake P6: a stored upload keeps its profile reader, superseded or not."""
+        found = READERS.get(reader_id)
+        if found is not None:
+            return found
+        if reader_id.startswith("profile.") and self._profiles is not None:
+            return self._profiles.reader(tenant_id, reader_id, superseded_ok=True)
+        return READERS[DEFAULT_READER]
 
     def _load(self, tenant_id: UUID, scope: UploadScope, upload_id: str) -> UploadRecord:
         try:
@@ -306,7 +343,7 @@ class CommercialUploads:
     def get(self, tenant_id: UUID, scope: UploadScope, upload_id: str) -> dict[str, Any]:
         record = self._load(tenant_id, scope, upload_id)
         u = record.upload
-        reader = READERS.get(u.reader, READERS[DEFAULT_READER])
+        reader = self._stored_reader(tenant_id, u.reader)
         refusals = tuple(zip(u.refusal_index, u.refusal_code, u.refusal_path))
         result = None
         if record.intake is not None:

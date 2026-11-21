@@ -1,0 +1,25 @@
+{
+  "schema": "assetops.source-profile",
+  "schema_version": 1,
+  "profile_id": "kobo-ledger-expenses",
+  "status": "ILLUSTRATIVE",
+  "source_type": "expense_ledger",
+  "source_system": "lakeside-purchases-ledger",
+  "file": {"format": "csv", "encoding": "cp1252", "delimiter": ";", "header_row": 3},
+  "values": {"decimal_mark": ",", "thousands_mark": ".", "negative": "minus", "date_format": "DD/MM/YYYY",
+             "time_format": "HH:MM", "month_format": "YYYY-MM", "timezone": "Africa/Nairobi"},
+  "version": {"from": "row_digest"},
+  "columns": [
+    {"header": "Ref", "paths": [{"path": "source_record_id", "type": "text"}, {"path": "body.document_ref", "type": "text"}]},
+    {"header": "Txn Date", "paths": [{"path": "clocks.occurred_at", "type": "datetime"}, {"path": "clocks.recognition_period", "type": "month_of"}]},
+    {"header": "Site", "paths": [{"path": "site_code", "type": "text"}, {"path": "subject.ref", "type": "text"}]},
+    {"header": "Account", "paths": [{"path": "body.category", "type": "text", "map": {"Diesel": "FUEL", "Repairs & maintenance": "OM", "Wages": "STAFF"}}]},
+    {"header": "Supplier", "paths": [{"path": "body.counterparty_ref", "type": "text"}]},
+    {"header": "Phone", "paths": []},
+    {"header": "Litres", "paths": [{"path": "quantity.value", "type": "number"}]},
+    {"header": "Net (USD)", "paths": [{"path": "amount.value", "type": "number"}]},
+    {"header": "State", "paths": [{"path": "status", "type": "text", "map": {"Invoiced": "INVOICED", "Paid": "PAID"}}]}
+  ],
+  "constants": {"kind": "EXPENSE", "subject.kind": "SITE", "quantity.unit": "L", "amount.currency": "USD"},
+  "personal": []
+}

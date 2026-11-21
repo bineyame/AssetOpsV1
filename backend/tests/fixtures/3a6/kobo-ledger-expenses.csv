@@ -1,0 +1,7 @@
+Lakeside Power Ltd – Purchases ledger;;;;;;;;
+Exported 06/11/2026 09:12;;;;;;;;
+Ref;Txn Date;Site;Account;Supplier;Phone;Litres;Net (USD);State
+PL-1001;11/10/2026 09:00;KOBO-001;Diesel;fuel-co;0712000001;400;500,00;Invoiced
+PL-1002;21/10/2026 09:00;KOBO-001;Diesel;fuel-co;0712000001;380;475,00;Paid
+PL-1003;31/10/2026 17:00;KOBO-001;Repairs & maintenance;om-contractor;;;1.200,00;Paid
+PL-1004;31/10/2026 17:30;KOBO-001;Wages;STAFF-07;0712000777;;450,00;Paid

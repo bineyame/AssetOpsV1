@@ -495,3 +495,19 @@ Branch `task/4a-energy-to-cash` (base main `aa3ebefe8`); spec `specs/4a-energy-t
 
 - Settled: MINI_GRID registry v4 (`metered_kwh` stated by customer meter reads, `billed_kwh` by the billing export); `structure/energy/` (pure `rules.month_energy` for the eight energy factors, `StoreEnergyInputs`, `EnergyLeafSource` as the fifth builder in `build_structure_read`); `MiniDepthRead.feeder_month` (roles-4 `feeder_demand`, SELECT only); the `technical-loss-band` LOAD property (below 100); 5a `MAIN_OF` tuples (`delivered_kwh` under `billed_kwh`, then `revenue`). Every absence is "Not available yet" with a cause and note, never 0.
 - Open: 5c's record keys wait on 5c and SC-1a (D-4A.12, D-4A.20); `R-ABSENT-META` (`unexplained_loss_kwh` keeps `ZERO_WHEN_HELD`, unread; manifest change queued with D-4A.10); stored v3 snapshots read `REBUILD_NEEDED` until 3B7a rebuilds them (D-4A.25).
+## 3A6 - source profiles as data (in review, 21 Nov)
+
+Branch `task/3A6-source-profiles` (main `26dd65e60` merged in); spec `specs/3A6-source-profiles/spec.md` rev 2, rulings D-3A6.1-17; packet `packet.md`. Migration 0067 (revises 0066); no route change beyond the reader lookup, no screen.
+
+- Settled: the profile engine (`native/profiles_v1.py`, `xlsx.py`, transforms, invisible rule, coded rule, `run_probes`); `commercial/profiles.py` (`SourceProfiles.check`/`admit`, steps 1-7 with coverage 4a-4c; `reader` with only the latest version reading new uploads); table `commercial_source_profile` (three hashes and a row count, never a cell); the intake's one-source-system-per-Site rule on check/submit and re-checked under the lock at acceptance; `python -m assetops_backend.source_profile check|admit|list`; the loader takes `<SLUG>.profile.<id>.csv|xlsx`; S1 tagged clauses (dynamic imports, `sys.modules`, `runpy`, names as strings, eval); the suite derives coded probes from the canonical side and runs the kobo profile case.
+- Fix round r3 (XLSX work class): `xlsx.py` parses every member by event under one workbook budget of 500,000 elements (`NATIVE_WORKBOOK` past it), row numbers rise strictly, the header is never padded past the layout, numbers past a double are unreadable cells; adversarial set "N3 r3" in `contracts/tests/test_3a6_profiles.py`.
+- Fix round r4 (bounds by resource): members are inflated a chunk at a time and counted (member 16 MiB, total 64 MiB, deflate or stored only), cell values charge one 16 Mi-character budget on every reference, CSV and XLSX reads stop one kept row past `MAX_RECORDS` and keep at most width+1 cells a row, the invisible scan is one regex class; set "N3 r4".
+- Open: a dedicated "file too large" reason (`NATIVE_TOO_LARGE`, needs SC-1 text and an Architect ruling after SC-1a; the bounds use the workbook words); mid-build Q1 (A9 a's many-to-one map vs `check_layout`'s one-to-one rule); queue Q1 (moving a Site's source type to another system) and Q6 (Sites named, not coded) on their defaults; a v2 that changes `personal` turns that profile's corrections into version conflicts (packet risk); 3A7 next on the same files.
+
+## 3A7 commit 1 - one closed month reconciled, codes and Decimals (in review, 21 Nov)
+
+Branch `task/3A7-month-reconciled` off `task/3A6-source-profiles` 166942e7d (D-3A6.26); spec `specs/3A7-month-reconciled/spec.md` rev 2, D-SC1.28 split; packet and `handoff.md`. Migration 0068 (revises 0067).
+
+- Settled: tables `commercial_accounts_statement` and `commercial_reconciliation_tolerance` (append-only); `structure/reconciliation.py` (`record`, `check`, `statements`, `standing` at `known_at`, `set_tolerance` citing an owner file by slug and figure); money reconciles only through a current opener with no covering mismatch; missing is never 0.
+- Open: commit 2 (SC-1 words, `money_word`, composition, `reconcile_month` command, M1-M5, Postgres Q1-Q3) after SC-1a; mid-build Q1 (owner-file port) and Q2 (module under `structure/`, builder home) await the Architect.
+

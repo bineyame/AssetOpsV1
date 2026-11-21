@@ -194,6 +194,11 @@ class CommercialMonths:
         self._store = store
         self._clock = clock
 
+    @property
+    def clock(self) -> Callable[[], datetime]:
+        """3A7 (spec §2.6): the service's clock, read-only, so the reconciliation reads the same instant."""
+        return self._clock
+
     # --- placement ----------------------------------------------------------------------------------------------
 
     def _site_zone(self, tenant_id: UUID, site_id: UUID) -> str:

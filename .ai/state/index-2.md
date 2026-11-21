@@ -82,3 +82,5 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 168. `3B2` Findings pinned to their factors (pins, start-up pin check, parity report; no wire change) · data.md
 169. `0K1` the forward replay port and its host adapter (contract, port, adapter; exact parity with the kernel) · data.md
 170. `4a` energy to cash, where the kWh went (registry v4 stated kWh nodes, feeder delivered kWh, declared loss band, eight energy leaves; no migration) · data.md
+168. `3A6` source profiles as data: admitted JSON profiles, single-sheet XLSX, one source system per Site, tagged S1, migration 0067 · data.md
+169. `3A7` commit 1: one closed month reconciled as codes and Decimals (migration 0068, store, standing) · data.md
