@@ -34,7 +34,7 @@ finished work are in `archive/agent-history/`.
 | SC-1 | The statement composer: every server sentence composed from typed facts by a data catalogue through the one renderer, checked at load and by a guard (case per variant, legacy ratchet, hand-built sentence scan); 3A7 and 5c adopt (SC-1a 3.5 units) | in_review — SC-1a r3 ACCEPT; owner approved the two check-all lines | `SC-1-statement-composer/spec.md` | 89 KB |
 | 0K1, 0K2, 0M | Spikes K, M: replay port (merged, `0K1-forward-replay-port/`); Kobo study (4.5 u); Mto headroom (4 u, after 0K2) | specs | `0K2-kobo-replay-study/`, `0M-mto-headroom-replay/` | 43, 30 KB |
 | DS3 | Bulk loader: set-based admission in the ledger writer, MINIGRID only, parity with central ingestion (4 units) | merged | `DS3-bulk-loader/spec.md` | 36 KB |
-| DS4 | Template ladder, world commands and check, re-benchmark (3.5 units) | in_review — units 1-2 (unit 3 held, row 40) | `DS4-template-ladder/spec.md` | 64 KB |
+| DS4 | Template ladder, world commands and check, re-benchmark (3.5 units) | in_review — units 1-3 | `DS4-template-ladder/spec.md` | 64 KB |
 | 4a | Energy to cash: delivered, losses, billed kWh, tariff (4 units) | merged — review ACCEPT; Q1-Q2, F1-F3 follow | `4a-energy-to-cash/spec.md` | 48 KB |
 | 3B6 | Cold, EV structures | spec | `3B6-cold-ev/spec.md` | 39 KB |
 | 3B4 | Structure observer | in review | `3B4-observer/spec.md` | 40 KB |
