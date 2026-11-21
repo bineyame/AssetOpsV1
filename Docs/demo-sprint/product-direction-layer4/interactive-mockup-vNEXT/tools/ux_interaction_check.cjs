@@ -5,7 +5,7 @@
    expire with IA-1c). Plants (each must fail): container, x5, palette, block7, tall, viewall, trap (D-IA.31), evrev. expiry (D-IA.35) is retired with IA-1c:
    its decision links are live, so the three evaluations pass on the real links and TEXT_OK is false whatever the plant. */
 const { chromium } = require(process.env.PW);
-const base = 'file://' + process.argv[2];
+const base = 'file://' + (process.argv[2] || require('path').resolve(__dirname, '..', 'index.html')); /* ia_gates passes no argument: this tree's page */
 const out = []; const ok = (c, what) => out.push(`${c ? 'PASS' : 'FAIL'} ${what}`);
 /* review r4 H1 and r5 G1: the plan's item list, measured (cells never overlap or overflow; the row never overflows its own box) */
 const PLAN_LAYOUT = () => { const bad = [], inter = (a, b) => Math.min(a.right, b.right) - Math.max(a.left, b.left) > 1 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1;
@@ -608,7 +608,7 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=anchor: (D-IA.36) iaInPa
       /* M1: every page agrees with the approval */
       await p.click('.ux-planband [data-ux-act="approve-plan"]'); await p.waitForTimeout(250); await p.click('#uxact [data-ux-act-go]'); await p.waitForTimeout(400);
       const dec = { lakeside: 'kisiwa-genset', harvest: 'kirinyaga-energy', metro: 'embakasi-schedule' }[op], routes = ['portfolio', 'portfolio/act-first', 'portfolio/what-changed', `decision/${dec}`, 'plan'];
-      if (IA2) routes.push(...TABS2);
+      if (IA2) routes.splice(routes.length - 1, 0, ...TABS2); /* plan stays last: the Send back and case flows below run on it */
       for (const rt of routes) { await p.goto(base + '#/' + rt); await p.waitForTimeout(300); await prep(p); await p.waitForTimeout(100);
         const s = await p.evaluate(src => { const k = document.querySelector('.canvas').cloneNode(true); k.querySelectorAll('.ux-dsteps').forEach(x => x.remove()); /* the stage list names its steps */ const t = k.textContent.replace(/\s+/g, ' '), m = t.match(new RegExp('.{0,40}(?:' + src + ').{0,20}', 'i')); return { say: m ? m[0] : '', waiting: document.querySelectorAll('[data-release="WAITING"]').length }; }, WAIT.source);
         if (s.say || s.waiting) fails.push(`${rt} after Approve: "${s.say}" ${s.waiting} waiting pills`);
