@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-3B4.1 to D-3B4.15)
+# Decision index: Demo-sprint and later rulings (index only) (D-3B4.1 to D-3B4.26)
 
 - `D-3B4.1` one mechanism STRUCTURE_DEVIATION; the leaf in the key is the pin · live · specs/3B4-observer/rulings.md
 - `D-3B4.2` declared adverse direction per leaf in observe/rules.py, checked against bridge signs · live · specs/3B4-observer/rulings.md
@@ -15,3 +15,14 @@
 - `D-3B4.13` no served text; words as SC-1 statements later · live · specs/3B4-observer/rulings.md
 - `D-3B4.14` sequencing after 4a and 3B6; no registry edit · live · specs/3B4-observer/rulings.md
 - `D-3B4.15` size 3.5 units, no split · live · specs/3B4-observer/rulings.md
+- `D-3B4.16` COVER is about names and tables, LEAF about a node in OBSERVED; no overlap · live · specs/3B4-observer/rulings.md
+- `D-3B4.17` every plant fails a named assertion; plants for all four reader predicates; P9 and P10 re-planted · live · specs/3B4-observer/rulings.md
+- `D-3B4.18` "no money" means no bridge value or effect; money-unit own figures stay; claim key set literal · live · specs/3B4-observer/rulings.md
+- `D-3B4.19` a Site may declare 0 percent; band 0 without reading the of-factor actual · live · specs/3B4-observer/rulings.md
+- `D-3B4.20` observe.rules imports nothing that reaches check; one lazy import in check_observed; fresh-interpreter test · live · specs/3B4-observer/rulings.md
+- `D-3B4.21` input_evidence_sha256 is the Site snapshot row's payload digest, read through store.get · live · specs/3B4-observer/rulings.md
+- `D-3B4.22` 3B4 needs neither 3A6 nor 3A7: tenant_sites and onboard_person are on main · live · specs/3B4-observer/rulings.md
+- `D-3B4.23` rows() filters all five selects; child tables through finding_revision · live · specs/3B4-observer/rulings.md
+- `D-3B4.24` bounds CHECK dropped (columns already NOT NULL) · live · specs/3B4-observer/rulings.md
+- `D-3B4.25` only the check.py edit waits for 4a and 3B6; non-observed structures are excluded, not errors · live · specs/3B4-observer/rulings.md
+- `D-3B4.26` pre-flight notes accepted; observe_site is the one place the actual side is chosen · live · specs/3B4-observer/rulings.md
