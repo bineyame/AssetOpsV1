@@ -312,3 +312,228 @@ section numbers below are rev 2's. A gate named here has a plant in `reviewer-gu
   so snapshots built before these merges read stale; that is the digest working. The coordinator rebuilds any demo
   snapshots after 3A7 merges.
 - **P10.** Noted; the digests and literals stand (kobo's new digests are in §4.1).
+
+## Review answers (r1) (review `.agent/review-3A6-r1.md`, head f3ccbd0b1; Architect, 2026-11-21)
+
+F1 (XLSX padding, High) and F2 (short CSV row, Medium) are straight fixes, no ruling; the reviewer's fixes stand
+(sparse rows `{index: value}` with an N3 case at `XFD` and a plant; `_coverage` judges only rows of header width, A4 gains
+the short-row case, `ADMIT_SAMPLE_ROW NATIVE_ROW`).
+
+### D-3A6.18 A change to `personal` is refused once data is accepted; a migration step is a queued unit (F3; amends D-3A6.16, spec §2.5 step 3)
+
+- **Ruling.** Step 3 refuses a new version whose `personal` set (compared as a set of `[path, class]`, order ignored)
+  differs from the latest version's, when the tenant holds an ACCEPTED upload whose `source_system` is the profile's
+  (`PROFILE_LINEAGE {where: "personal"}`, exit and HTTP as the other lineage refusals, nothing written). Before any
+  accepted upload the change is admitted, as in A2. Words: "This profile already read accepted files, so who counts as a
+  person cannot change under the same source. Records already stored would keep the old values. Ask for the migration, or
+  keep the declaration as it is." The residual in `packet.md` is replaced (see below). The store answers the question through
+  the existing `held_uploads(tenant, source_system)` (accepted only; no new port), in both the memory and Postgres mirrors.
+- **Why.** The three ways out are all unsound today: the row digest ignores `personal`, so unchanged rows would conflict
+  (INTAKE_VERSION_CONFLICT) on every upload; a new `profile_id` is closed by D-3A6.5's one-system rule, rightly; and
+  folding `personal` into the digest revises every record, which stores a second copy while the raw first copy stays
+  (the leak PII-1 forbids), and cannot cover `column` or `constant` versioning. A refusal that says so is honest and
+  loses nothing: before data, the analyst fixes `personal` freely, and that is the moment the mistake is cheapest.
+- **Queued, not built (owner RC4 gate: real data needs it first).** Unit `3A6b` "personal migration": a profile version
+  on the same system where pseudonymisation applies forward; every already-stored raw value of the newly personal
+  paths is listed for erasure (path, record ID, count; never the value); unchanged rows are matched by row digest
+  of the normalised row (taken before pseudonymisation) and reported UNCHANGED, not conflicted. Default: Architect specs
+  it when the owner names real data for a tenant; not demo-critical (illustrative data only).
+- **Tests and plants.** A2b above (accepted upload refuses; unaccepted, set-equal, sample-only change admit); the
+  Postgres file gains the same case (refusal reads the accepted row, nothing written). Plants: V33 (the check removed:
+  A2b fails); V34 (counts waiting uploads too: A2's v2 before any acceptance fails, because U1 is only waiting there);
+  V35 (compares `personal` as an ordered list: A2b's reordered case fails).
+- **Packet residual, replaced.** "A change to `personal` after accepted data is refused (D-3A6.18); the migration is unit
+  3A6b. Until then raw values from before the declaration cannot arise, because the declaration is fixed before the first
+  accepted upload."
+
+### D-3A6.19 Q1: profile maps stay one to one; A9 (a) uses `QUOTE` (mid-build Q1; F7)
+
+- **Ruling.** Confirmed: the substitution stands, with `"Quote": "QUOTE"` in place of `DRAFT` (`QUOTE`, `INVOICED`, `PAID`
+  are the expense statuses, `records_v1.py:205`). Spec A9 (a) amended to that literal; the test follows. Maps stay one to
+  one for every layout (`check_layout` unchanged).
+- **Why.** 4b fires on the uncovered key before any value is judged, so the value cannot change the test; one to one
+  keeps 3A3's rule single. Many to one ("Paid", "Paid in full") is a real operator need, but it is a change to the
+  shared `check_layout` and its rendering; queued with 3A6b, ruled when an operator export needs it.
+
+### D-3A6.20 The Lows (F4 to F9) and the deviations
+
+- **F4 confirmed.** A cell with `<f>` and no `<v>` becomes `XlsxBad("")`, so a written column refuses `NATIVE_FORMAT`; N3 case plus plant.
+- **F5 confirmed.** Row number read with `re.fullmatch(r"[0-9]+", r, re.ASCII)`; `²` is `NATIVE_WORKBOOK`; N3 case plus plant.
+- **F6 confirmed.** Flag any load reference (not only calls) to a name in `DYNAMIC_CALLS` or `EVAL_CALLS`, and count
+  `ImportFrom("assetops_backend", names ∋ "commercial")` as importing the package; two plants, each failing only its clause.
+- **F8 confirmed.** Use the spec's literal `2026-10-11 09:00` for `bad_clock`.
+- **F9 confirmed.** The loader keeps `dispose` from `build_source_profiles` and calls it in `finally`.
+- **Deviations.** 5 (`held_uploads` on `UploadMemoryStore`; done 11 lists it), 6 (`code_digest.py` allowlisted) and 7
+  (coverage before row refusals, with F2's guard) accepted.
+
+### D-3A6.21 Residuals recorded (reviewer's sweep)
+
+Not fixed here, named in the packet: an interior U+00A0, U+3000 or U+034F inside a ref is not refused (Zs, Mn) and can
+split a pseudonym (class: ref normalisation, queue with 3A6b); `fold=0` picks the first of a repeated DST hour (profiles
+state a fixed-offset zone today; a DST zone needs its own ruling); the profile reader trusts admission and upload to
+share one database.
+
+### D-3A6.22 Fix round for the builder
+
+F1, F2, F4, F5, F6, F8, F9, A2b with Postgres twin, A9 (a) `QUOTE`, the packet residual and done 11 wording; a Sonnet
+fix round (ROLE_CONFIG), then a fresh Claude re-review.
+
+## Review answers (round 5) (review `review.md` "Round 5", head 166942e7d, code at bc0c57ecf; Architect, 2026-11-21, owner away)
+
+Decided under `owner/owner-away-architect-decides-2026-11-21.md`; the merge call (D-3A6.26) is logged as row 29 of
+`specs/OWNER-AWAY/decisions-2026-11-21.md`. Probes behind the figures below ran in a scratch folder, since deleted:
+the kobo fixture scaled to 10,000 rows (788 kB) and padded to 8,210 kB, each read in a forkserver child of Python
+3.12.
+
+### D-3A6.23 Every upload's parse runs in a worker process under hard OS limits (the class)
+
+- **Ruling.** The step that turns upload bytes into rows or a batch object (`SourceReader.read` for every reader,
+  `canonical-json-v1` included, plus admission's `split_file`) runs only in a short-lived child process. The new
+  module `backend/assetops_backend/commercial/envelope.py` (spec §2.12) creates it. The child sets `RLIMIT_AS`
+  512 MiB, `RLIMIT_CPU` 6 s (hard 7 s), `RLIMIT_FSIZE` 0 and `RLIMIT_CORE` 0 before it reads a byte. The parent
+  waits at most 12 s of wall time, takes at most 32 MiB of result back, and runs at most 2 parses at once per server
+  process. Any breach (memory, CPU, wall, result size, or a child that dies without answering) refuses the file with
+  `NATIVE_TOO_LARGE` (D-3A6.25). The server logs the cause with no file content. There is no in-process mode and no
+  setting that turns the envelope off. Tests may build a `ParseEnvelope` with lower limits; production builds it from
+  `DEFAULT_LIMITS` only, and a test pins those values.
+- **Why a process, and not a sixth list of bounds.** Five rounds each found a route the table did not list: padding,
+  the header, inflated bytes, shared-string reuse, CSV rows, attributes and zip extras. Several of these costs sit
+  inside the standard library's C parsers (expat's name cache, `csv` splitting, `zipfile`'s directory decode), where
+  no Python-level counter can stop them in time. Listing resources cannot prove the list is complete. A kernel limit
+  on the process bounds every route by construction, including the ones not found yet. Four other mechanisms were
+  rejected:
+  - A watchdog thread or `tracemalloc` in the server process cannot stop C code that is running, and a breach would
+    take the server down with it.
+  - cgroups or container limits are set when the app is deployed. The suite cannot test them, and they kill the
+    whole server.
+  - A hardened third-party parser breaks D-3A6.9 (standard library only) and does not cover CSV.
+  - A process pool that keeps its workers would carry one tenant's memory into the next parse, and one breach
+    breaks the pool (`BrokenProcessPool`).
+  A fresh child for every parse costs about 11 ms with a forkserver that has preloaded `assetops_contracts.native`.
+- **Why these limits (legitimate files are far inside them).** The plan's real exports are a few dozen rows. The
+  largest legitimate file the intake accepts is 10,000 rows within 8 MiB. Measured in a forkserver child:
+  - 10,000 kobo rows in 788 kB: 1.0 s CPU, VmPeak 64 MB, 3.2 MB pickled result.
+  - The same rows padded to 8,210 kB: 1.4 s CPU, VmPeak 104 MB, 10.9 MB result.
+  - The child's own baseline (forkserver plus preload) is about 64 MB of address space.
+  That leaves about 5x headroom on memory, 4x on CPU, 8x on wall time and 3x on result size. The worst attack
+  measured after the D-3A6.24 bounds is about 170 MB and 3 s (review round 5, residual), also inside the limits.
+- **What the server pays per upload, worst case.**
+  - The child: at most 512 MiB of address space, 6 to 7 s of one core, 12 s of wall time, then freed whole.
+  - The parent: the upload (8 MiB cap, one copy to the pipe), its SHA-256, at most 32 MiB of result bytes and their
+    unpickled objects (roughly 3 to 4 times that, transient), and 2a's `parse_batch` over the returned records.
+  - Two at once per server process: about 1.4 GB and 2 cores for at most 12 s. The host has 22 GB and 8 cores.
+  - Further uploads wait for a slot. They are not refused, and each slot frees within 12 s.
+- **The boundary is exclusive (W6, the sweep).**
+  - A test scans `backend/assetops_backend/` for calls of `read_layout`, `split_file`, `xlsx_rows`,
+    `xlsx_sparse_rows` and `loads_canonical`, and for any `.read(` call with a `context=` keyword. Each may appear
+    only in `commercial/envelope.py` and `commercial/readers.py`.
+  - S1-DYN gains `set_forkserver_preload` (the envelope joins `DYNAMIC_IMPORT_ALLOWED`). Its preload names
+    `assetops_contracts.native` only, so `S1-DYN-COMMERCIAL` does not fire.
+  - Sweep result: the commercial intake (`uploads._check`), profile admission (`profiles` step 4) and, through them,
+    the loader and the command are every caller.
+  - Outside 3A6: the reading-upload intake (`reading_upload_api.py`, meter-reading CSVs) parses in the server
+    process. It is queued as `ENV-1` (0.25 unit, not on the critical chain): route it through the same envelope
+    after 3A6 merges.
+- **Platform.** The envelope needs Linux (`resource`, forkserver). On any other platform the constructor raises; there
+  is no fallback. The host and the deployment are Linux.
+
+### D-3A6.24 The N8 to N10 bounds, kept as precision bounds under the envelope
+
+Each one is cheap and keeps a common attack's cost well under the envelope. Each refuses `NATIVE_TOO_LARGE`.
+- **N8, attributes (`xlsx.py`).**
+  - A run check: XML forbids a raw `<` inside an attribute value, so the number of `=` between two `<` bounds one
+    element's attributes. After decoding, if a member's `text.count("=")` exceeds `_ATTR_RUN_MAX = 4096`, `_parse`
+    scans `re.compile(r"[^<]+")` matches and refuses one holding more than 4,096 `=`. The scan is linear.
+  - A names check: at most `_ATTR_NAMES_MAX = 512` distinct attribute names per workbook, counted in
+    `_Target.start`. This catches names spread over many elements, which builds expat's name cache.
+  - `_Workbook` keeps only `date1904` (a string or None), not `dict(attrib)`.
+  - Legitimate: SpreadsheetML uses well under 200 distinct attribute names, and Excel writes at most a few dozen
+    attributes per element. A text run holding 4,096 `=` is not an operator's export.
+- **N9, a logical CSV row (`layouts_v1.py` `split_file`).** `csv.reader` reads from a generator over
+  `io.StringIO(text, newline="")`. The generator adds each line's length to a counter that the loop body sets back
+  to zero after each row it receives. Past `_ROW_CHARS_MAX = 1,048,576` characters it raises
+  `CanonicalRefused("NATIVE_TOO_LARGE", f"row.{reader.line_num + 1}")` before yielding the line. Quoted newlines no
+  longer get past the cap. Legitimate kobo rows are a few hundred characters.
+- **N10, the zip directory (`xlsx.py`, before `zipfile.ZipFile`).** Read the end-of-central-directory record from
+  the last 65,557 bytes, using the last `PK\x05\x06`, as `zipfile` does. If an entry count, size or offset holds its
+  zip64 sentinel, read the zip64 end record through its locator. Refuse more than `_ZIP_ENTRIES_MAX = 256` entries,
+  or a directory over `_ZIP_DIRECTORY_MAX = 256 KiB`. A file with no end record is `NATIVE_WORKBOOK`, as today. A
+  one-sheet workbook has about 10 entries and a directory of about 1 KiB. With 256 KiB, the quadratic extra-field
+  decode costs at most about 0.1 s.
+- **Why kept although the envelope holds.** Without them, a 6 kB file costs up to the envelope on every request:
+  512 MiB and 6 s, twice at once. With them, the same files are refused in milliseconds, and the bounds table's worst
+  case stays true and small.
+
+### D-3A6.25 One honest reason for "too much": `NATIVE_TOO_LARGE` (closes the r4 open point)
+
+- **Ruling.** New code `NATIVE_TOO_LARGE`, a whole-file refusal (422, path `json`, or `row.N` for the N9 cap). Its
+  words, key `commercial_upload.reason.native_too_large`: "this file is too large or too complex to read in one
+  upload; split it and upload the parts."
+- **What it covers.** Every envelope breach and every resource bound:
+  - the declared and inflated member caps (16 MiB and 64 MiB);
+  - the element budget (`_WORK_MAX`), the character budget (`_CHAR_MAX`) and `_PAD_BUDGET`;
+  - D-3A6.24's three bounds.
+- **What keeps its code.**
+  - Format problems stay `NATIVE_WORKBOOK`: not a zip, bzip2 or lzma, DTD, bad XML, a bad rels target, falling row
+    numbers, `date1904`.
+  - The row ceiling stays `CANONICAL_RANGE batch.records`, which already says how many records.
+  - The CSV field limit stays `NATIVE_ROW`. `csv.Error` cannot tell it apart from a quoting error without matching
+    its message, and the N9 cap sits above it. This is recorded, not fixed.
+- **Why.** "Not an Excel workbook this layout can read" sends an operator looking for a format problem that is not
+  there (review r4). Honest words are the owner's standing rule.
+- **Served text.** 3A6 keeps D-SC1.27 (D-SC1.28 scope), so the key joins 3A6's `# 3A6` block and the legacy baseline
+  at 3A6's merge.
+- **Test changes.** The r3 and r4 adversarial tests that expect `NATIVE_WORKBOOK` for a budget breach change to
+  `NATIVE_TOO_LARGE`. This is a listed literal change; their bounds on time and memory stay.
+
+### D-3A6.26 What blocks the merge (owner-level; logged, row 29)
+
+- **Blocks the merge:**
+  - D-3A6.23's envelope, wired at both call sites, with spec §2.12's tests E0 to E9 and plants V33 to V37 passing;
+  - D-3A6.25's code and words.
+- **Built in the same round but not merge-blocking:** D-3A6.24's three bounds (B1 to B3, plants V38 to V40). Once
+  the envelope holds, N8, N9 and N10 are each bounded with a coded refusal, inside the envelope's stated cost. Their
+  severity falls to Low. A defect in one of these bounds is a Low follow-up, not a REVISE, unless it refuses a
+  legitimate file.
+- **Weighing.**
+  - The exposure today is small. Only the analyst uploads, only emulated exports, behind authentication, and no real
+    operator data before a signed agreement (RC4). On exposure alone, merging now would be defensible.
+  - It does not merge as-is, for three reasons:
+    1. This seam is where real operator exports will enter. The envelope is what makes it safe to open, and
+       building it later means reviewing the same seam twice.
+    2. Without a class bound, the review cannot converge: every round can find another route.
+    3. The cost is about one unit and one verification review.
+- **Taking it off the critical chain.** 3A7 commit 1 and 3C2 commit 1 wait only for migration 0067 as their base.
+  They may start now from `task/3A6-source-profiles` at `166942e7d`, and merge `main` once 3A6 merges. Their own
+  merges still wait for 3A6's. This amends the start condition in rows 6 and 7 of the owner-away dispatch list. The
+  envelope round adds only an optional keyword argument to `LayoutReader` and leaves migration 0067 alone, so their
+  base does not move.
+
+### D-3A6.27 The review stop rule (the next review checks a closed list)
+
+The next review (a fresh Claude reviewer; the reviewer guide's "Round 6") checks, and only these can REVISE:
+1. **Exclusive.** Upload bytes are parsed only inside the envelope: test E7, plus the reviewer's own grep of the call
+   sites.
+2. **Bounded.** Each breach (memory, CPU, wall, result size, a child killed) refuses `NATIVE_TOO_LARGE`, never with a
+   500, a hung request, or the server process dying or growing past the parent figures in D-3A6.23. After every
+   breach the next upload reads normally: E1 to E6.
+3. **Faithful.** Legitimate verdicts are unchanged: E8, and the packet's 600-case differential of in-process
+   against envelope reads.
+4. **Pinned and logged.** `DEFAULT_LIMITS` is pinned (E0). The log carries no file content (E9).
+5. **Plants.** V33 to V37 each fail their named test.
+
+D-3A6.24's bounds and the r4 table are checked for legitimate-file refusals only. A new route the reviewer finds is a
+Low residual, not a REVISE, if it is refused with a coded reason inside the envelope's limits. It is a finding at its
+own severity only if it escapes the envelope: work in the parent that grows with the input beyond D-3A6.23's parent
+figures. Hunting further XML, CSV or zip shapes is out of scope for round 6.
+
+### D-3A6.28 The fix round
+
+- **Size.** About 1.25 units, in two commits:
+  1. The envelope, wiring, `LayoutReader`'s profile source, the code and words, the S1 addition, E0 to E9 and V33 to
+     V37 (about 0.75 unit).
+  2. The N8 to N10 bounds, B1 to B3, V38 to V40, the code switch in the r3 and r4 tests, and the packet with the
+     differential and the updated bounds table (about 0.5 unit).
+- **Who.** A fresh Opus implementer, since this is new process code and not a fix against a written list
+  (ROLE_CONFIG). The verification review uses D-3A6.27's list.
+- **Spec.** `spec.md` §2.12 holds the exact design. The spec's status line records the round, at +1.25 units.
