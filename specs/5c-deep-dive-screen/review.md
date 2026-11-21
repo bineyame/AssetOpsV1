@@ -433,3 +433,143 @@ assume one portfolio currency. The fix keeps them true by printing each row in i
 ACCEPT WITH FIXES. H3 and M3 are fixed on the branch before units 1 and 2 merge, with M3's literal from the
 Architect. Then a verification round checks H3 and M3 only. L7 goes to the Architect. L8 is fixed with H3's tests
 or recorded.
+
+## Round 3 (verification): units 1 and 2 (backend), fix round 3
+
+Reviewer: Claude (fresh; did not author the work), 2026-11-21. Branch `task/5c-deep-dive-screen` at `1f6d60f0b`
+(worktree `AssetOpsV1-5cbe`), against round 2 at `a3bf31fdf`. Depth W6: H3, M3, L7 and L8 with their sweeps, plus my
+own probes over currency mixes the builder did not use. Paths below are under `backend/assetops_backend/`.
+
+**Summary (verdict: ACCEPT WITH FIXES)**
+- **H3 closed in code.** `self.cur` is gone. Every amount in four new probes prints in its own rows' currency.
+- **M4 (new, Medium).** H3's R-currency path has no test. My plants RP5 and RP6 put "USD" back and both survive.
+- **M3 open (Medium).** The sentence is no longer "not a mini-grid Site", but the new literal is still untrue in the
+  builder's own case: Mto's target is in USD. The reference currency is also arbitrary when no portfolio currency
+  exists.
+- L7 is closed in behaviour; I recommend rewording its literal. L8 is closed (RP4 now fails).
+- **L9 (new, Low).** A card whose heading mixes currencies reads "Not available yet" beside an evidence word.
+- H1, H2, M1 and M2 still hold.
+- check-all: 42 of 42 guards pass. The statement guard passes (6 adopted), and its self-test passes 78 of 78.
+
+### Checks run (1f6d60f0b)
+
+- Focused (`test_5c_deep_dive_view.py`, `test_5c_deep_dive_api.py`, `test_sc1_statements.py`, from `backend/`):
+  569 passed.
+- Test 9 (`--db`, the handoff's command; the harness clones a run-owned `_test` database):
+  `test_5c_deep_dive_postgres.py` 2 passed in 9.34 s.
+- `bash tools/heavy-slot.sh --wait-seconds 3000 -- pwsh -NoProfile -File tools/check-all.ps1` (with
+  `ASSETOPS_GUARD_PYTHON` set): "check-all: 146.7 s wall (0.2 s waiting for a slot), 4 jobs at once. All 42 guards
+  passed (blocking; 0 advisory, 0 warned)." It includes "Statement catalogue (SC-1): OK … scan (6 adopted)" and
+  "self-test: 78 of 78 plants behave".
+- Plants, each restored afterwards; the tree was clean after every one.
+  - The builder's, spot-checked:
+    - C3 (a heading over mixed currencies sums): fails `…a_heading_over_two_currencies`.
+    - C12 (the `own_cur` side fallback returns "USD"): fails `…a_sites_own_sides_differ`.
+    - L7 (the headline reason dropped): fails 4 i and `…one_currency_subset`.
+    - M3 (the `out_currency` branch dropped): fails `…a_sites_own_sides_differ`.
+  - Mine:
+    - RP4 (the residual-last sort) now fails `test_4_h_residual_is_last_of_its_parent`.
+    - **RP5** (`view.py:235` `cur = "USD"`) **survives**. **RP6** (`view.py:431` the totals' actual in "USD")
+      **survives** (M4).
+- Probes, in a temporary test file in `tests/` (deleted), with the whole payload dumped:
+  - P1: Kobo KES, Kisiwa TZS, Mto USD;
+  - P2: Kisiwa alone in KES;
+  - P3: Kobo TZS, Kisiwa EUR, and Mto's own actual KES with its target USD;
+  - P4: Kobo and Kisiwa KES, and Mto's actual KES with its target USD;
+  - P5 and P6: the Optimize heading over KES and USD steps.
+
+Not verified: unit 3, and the full backend suite (no shared code changed; the diff is 5c's view, words and
+statements).
+
+### Round 2 findings
+
+**H3, closed in code; its R path is untested (M4).**
+- `self.cur` is removed. No "USD" default is left in `deep_dive/`: grep finds only the comment at `words.py:75`.
+- P1 and P2: R, every step, heading, card and total read "Not available yet", and the headline gives the L7 reason.
+  Every Site's by-Site, drawer and cash cells print in that Site's own currency (KES, TZS or USD), "(at budget)"
+  included.
+- P3: Mto prints its actual in KES and its target in USD (`view.py:445-446`). Kobo prints in TZS and Kisiwa in EUR.
+- P4 (R in KES): every portfolio figure prints in KES. That covers the tiles, the bridge title, the totals, groups,
+  steps, drawer lines, by-Site total, cash sentence and total, cards and headline.
+- P5: the fuel cost step reads "−KES 730.00" and O&M "$0.00", while the Optimize heading and its card read "Not
+  available yet" (`view.py:152-170`).
+- The two exclusions from the whole-payload check are sound.
+  - Notices print in `check.currency` (`view.py:267-268`).
+  - The organisation's budget lines print in `line.currency` (`view.py:402-403`).
+  - Both are the currency of the budget they quote. The patched worlds change only bridge rows, so those budgets stay
+    in USD while the bridge rows turn to KES. That is an artefact of the test worlds, not a wrong label.
+  - A line with no currency is now dropped (`view.py:403`). That is acceptable, since a money budget line without a
+    currency cannot be printed honestly.
+- "XXX" pass-through (`words.py:76`, `:84`). `reconciliation.money_word`'s text is `{word}` alone, so the carrier
+  never prints, and no probe string contains "XXX". It reaches a visible word in one case only (L9).
+
+**M3, open (Medium; the literal is still not true).**
+- `view.py:313-324` with `deep_dive.py:365-367`: "{site}: its figures are in {currency}, not {portfolio_currency}, so
+  it is not included."
+- The `out` branch fires only when the Site's own root stops on `CURRENCY_MISMATCH` (`view.py:302`). That is 5b case
+  (h): its own actual and target are in different currencies. So one of the Site's own currencies is always among
+  its figures.
+  - In the builder's own test (cur2), "Mto: its figures are in KES, not USD", Mto's target is in USD, and the by-Site
+    row beside it prints "$915.00".
+  - In P4 it reads "Mto: its figures are in USD, not KES", while Mto's actual is "KES 810.00".
+  - In P3 it reads "…in KES and USD, not TZS". TZS is just the first other Site's currency; no portfolio currency
+    exists, because Kisiwa is in EUR.
+- The reference rule (the step row's, else R's, else the first other Site's, else its own target's, else the last
+  held) has no honest answer when the portfolio has no currency, so the sentence names one that isn't there.
+- **Fix.** Drop the reference and state the real reason, reusing the spec's §2.5 stop literal
+  (`spec.md:184`, "Not compared: the actual and the target are in different currencies ({a} and {b})."):
+  "**{site}: not compared: its actual and its target are in different currencies ({currencies}).**" `currencies` is
+  the held pair from the reason. `portfolio_currency` and the reference chain go. Update the case in
+  `tests/statement_cases/deep_dive.py` and the `outs` assertion in `…a_sites_own_sides_differ`. The Architect confirms
+  the literal.
+
+**L7, closed in behaviour; literal: recommend reword.**
+- `view.py:196-197`. It fires only when the gap is None and R's note is a currency mismatch. In P1, P2 and P3 the
+  statement is true, and it is not shown in P4, where R sums.
+- The literal "Not available yet: the Sites' figures are in different currencies." is honest and plain. It drops the
+  subject and the month, though, which every other headline carries, including the one it replaces ("Contribution for
+  October is not available yet."). A reader landing on the page is not told what is not available.
+- **Recommendation:** reword it to "**Contribution for October is not available yet: the Sites' figures are in
+  different currencies.**" That means a headline variant with the month slot instead of a bare `deep_dive.text`
+  piece. It uses no number word, so LITERAL_NUMBER_WORD passes. If the Architect keeps the bare piece, accept it as
+  it is; it is not blocking.
+
+**L8, closed.** `test_4_h_residual_is_last_of_its_parent` asserts nested order with two residuals, and RP4 fails it.
+
+**H1, H2, M1 and M2 still hold.**
+- `test_4_i_nothing_compared` (H1) passes with only the headline literal changed.
+- Test 5 and test 9 (H2, M1) pass.
+- `test_3_headline_evidence_is_the_figures_words` (M2) passes. The named heading's word now carries
+  `group_cur(subject)` (`view.py:204`), which is reached only when that heading's sum exists.
+
+### New findings
+
+**M4 (Medium; test gap on H3's own class). No world puts R in a currency other than USD.**
+- **Where:** the R figures printed with `R.currency` (`view.py:193`, `:235-253`, `:431-432`, `:458-459`).
+- **What happens:** my plants RP5 (the tiles in "USD") and RP6 (the totals' actual in "USD") survive all 161 view
+  tests. Every test world's R is USD or None. A regression to a USD default, the bug H3 fixed, would pass.
+- **Fix:** add a 4 i variant with every Site in KES (or P4's world). Assert no "$" anywhere in the payload outside
+  `.notices` and `.lines_org`, and that the tiles, totals and headline start with or contain "KES". Then confirm RP5
+  and RP6 fail.
+
+**L9 (Low). A card over mixed currencies shows a word beside no figure.**
+- **Where:** `view.py:603-604`. The card's `word` comes from `heading_evidence` whatever the sum, and `W.word` carries
+  "XXX" when `group_cur` is None.
+- **Probe P6:** Optimize's steps are fuel cost in KES, O&M in USD and staff in KES. The card reads value "Not
+  available yet" with word "Emulated". Everywhere else a missing figure reads "Not available yet" for both.
+- **Fix:** the card's word is "Not available yet" when `group_cur(category)` is None. The same could be done in
+  `W.word` for a None currency, which would retire "XXX". Not blocking.
+
+### Residual risk
+
+- Mixed-currency pages show KES, TZS and USD cells side by side with every total "Not available yet". That is
+  honest, and the L7 headline now says why. Unit 3 should check that the narrow by-Site table stays readable with
+  "−TZS 1,445.00"-length cells.
+- `out_line`'s currency branch (`view.py:302`) overrides every other `out` reason for that Site. That is right while
+  the root itself stops, because nothing of the Site is compared.
+
+### Disposition
+
+ACCEPT WITH FIXES. Fix M3 (the literal and dropping the reference, Architect to confirm) and M4 (the all-KES test) on
+the branch before units 1 and 2 merge. A verification round then checks those two only. L7's reword and L9 are
+recommended, not blocking; the Architect logs the L7 literal decision.
