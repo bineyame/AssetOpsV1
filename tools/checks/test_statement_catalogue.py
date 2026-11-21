@@ -188,6 +188,55 @@ def test_public_surfaces_and_bypass_through_them():
     assert guard.import_hits(rel, "from assetops_backend.i18n import locale\nlocale.current_locale()\n", surfaces) == []
 
 
+#: Review round 2, M4: the package object, however it is bound, chains into the public modules' surfaces.
+PACKAGE_BYPASSES = (
+    "import assetops_backend.i18n as i\ni.render.formats.money(1)\n",
+    "import assetops_backend.i18n as i\ni.formats.money(1)\n",
+    "from assetops_backend import i18n\ni18n.formats.money(1)\n",
+    "from assetops_backend import i18n as j\nj.schema\n",
+    "from . import i18n\ni18n.formats\n",
+    "import assetops_backend.i18n\nassetops_backend.i18n.formats\n",
+    "import assetops_backend\nassetops_backend.i18n.render.schema\n",
+    "import importlib\nf = importlib.import_module(\"assetops_backend.i18n.formats\")\n",
+    "__import__(\"assetops_backend.i18n.catalogue\")\n",
+    "import importlib\ni = importlib.import_module(\"assetops_backend.i18n\")\ni.render.schema\n",
+)
+PACKAGE_PUBLIC = (
+    "from assetops_backend import i18n\ni18n.message(\"a\")\ni18n.render.served(1)\ni18n.Money\n",
+    "import assetops_backend.i18n as i\ni.messages.message\ni.locale.current_locale()\n",
+    "from . import i18n\ni18n.served(1)\n",
+    "import importlib\ni = importlib.import_module(\"assetops_backend.i18n\")\ni.served(1)\n",
+)
+
+
+@pytest.mark.parametrize("src", PACKAGE_BYPASSES)
+def test_package_object_bypass(src):
+    hits = guard.import_hits("backend/assetops_backend/x.py", src, guard.public_surfaces(ROOT)[0])
+    assert [h.split()[0] for h in hits] == ["I18N_BYPASS"], hits
+
+
+@pytest.mark.parametrize("src", PACKAGE_PUBLIC)
+def test_package_object_public_names_pass(src):
+    assert guard.import_hits("backend/assetops_backend/x.py", src, guard.public_surfaces(ROOT)[0]) == []
+    assert guard.import_hits("backend/assetops_backend/x.py", "from assetops_backend import i18n\ni18n._x\n",
+                             guard.public_surfaces(ROOT)[0])[0].startswith("I18N_PRIVATE")
+
+
+def test_allowed_entries_print_their_source_line(tmp_path):
+    """Review round 2, L7: each live allow entry is reported with its file, line and text; it still counts as
+    baselined, and a stale one still fails."""
+    rel = "backend/assetops_backend/x.py"
+    (tmp_path / rel).parent.mkdir(parents=True)
+    (tmp_path / rel).write_text("A = 1\nQ = \"select a from b\"\n", encoding="utf-8")
+    hits = {rel: [("g:<module>:abc", 2)]}
+    notes: list = []
+    allowed, lines = guard._allow({rel: [{"fingerprint": "g:<module>:abc", "class": "SQL", "why": "a query"},
+                                         {"fingerprint": "g:<module>:old", "class": "SQL", "why": "gone"}]},
+                                  hits, (), tmp_path, notes)
+    assert notes == [f"ALLOWED {rel}:2 SQL g:<module>:abc | Q = \"select a from b\""]
+    assert allowed == {rel: guard.Counter({"g:<module>:abc": 1})} and lines == [f"ALLOW_STALE {rel} g:<module>:old"]
+
+
 def test_site_tokens_hold_the_real_site_codes():
     tokens = guard.site_tokens(ROOT)
     assert {"kisiwa", "kobo"} <= tokens

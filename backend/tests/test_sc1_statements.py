@@ -482,9 +482,10 @@ def test_t12_schema_sets_equal_the_spec():
         (("thir", "four", "fif", "six", "seven", "eigh", "nine"), ("teen", "teens", "teenth", "teenths")),
         (("twen", "thir", "for", "fif", "six", "seven", "eigh", "nine"), ("ty", "ties", "tieth", "tieths", "tyfold")),
         (("first", "second", "third", "fifth", "eighth", "ninth", "twelfth"), ("", "s")),
-        (("once", "twice", "thrice", "single", "both", "pair", "couple", "dozen", "half", "quarter", "percent"),
-         ("", "s")),
-        (("double", "triple", "quadruple", "halve"), ("", "s", "d")))}
+        (("once", "twice", "thrice", "single", "both", "pair", "couple", "dozen", "half", "quarter", "percent",
+          "cent"), ("", "s")),
+        (("doubl", "tripl", "quadrupl", "halv"), ("e", "es", "ed", "ing")),
+        (("zero", "nought"), ("", "s", "es")))}
     assert schema.UNSERVED == ("ValueError", "TypeError", "KeyError", "LookupError", "RuntimeError", "AssertionError",
                                "NotImplementedError", "StatementError", "CatalogueError", "WireError")
     assert schema.SYMBOLS == ("", " ", ", ", "$", "−", "+", "%", ",", ".", "(", ")", " (", "{", "}", ":", "-",
@@ -515,9 +516,13 @@ def test_t12_schema_sets_equal_the_spec():
 
 T12B_REFUSED = ("sixty days", "Ninety", "thirteen sites", "the tenth site", "hundreds of sites", "dozens",
                 "a couple of sites", "twenty-five", "two-thirds", "tenfold", "doubled", "halved", "Seventieth",
-                "millionths", "fourteenth", "eleventh")
+                "millionths", "fourteenth", "eleventh",
+                # review round 2, L6: the -ing forms, the spaced percent, and the other zero forms (D-SC1.32's class)
+                "doubling", "tripling", "quadrupling", "halving", "per cent", "ten per cent", "zeroes", "nought",
+                "noughts", "doubles", "halves")
 T12B_LOADS = ("tend", "often", "attend", "tone", "someone", "everyone", "forth", "content", "tenant", "coupled",
-              "secondary", "quarterly", "several", "doubt")
+              "secondary", "quarterly", "several", "doubt",
+              "percentage", "centre", "recent", "century", "doubtful")
 
 
 @pytest.mark.parametrize("text", T12B_REFUSED)

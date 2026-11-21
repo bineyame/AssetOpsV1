@@ -511,34 +511,67 @@ def _repo_surfaces() -> dict:
     return public_surfaces(REPO)[0]
 
 
+_IMPORT_CALLS = ("importlib.import_module", "import_module", "__import__")
+
+
 def import_hits(rel: str, source: str, surfaces: dict | None = None) -> list[str]:
     """`I18N_PRIVATE` (a `_` name of `i18n`) and `I18N_BYPASS` (a private module, or a name reached through a public
     module that is in neither its `__all__` nor `i18n.__all__`: imported from it, read as an attribute of a name
-    bound to it, or by its full dotted path; D-SC1.22, D-SC1.36)."""
+    bound to it, or by its full dotted path; D-SC1.22, D-SC1.36).
+
+    Review round 2, M4: the package itself is bound to the surface `""` (aliased, unaliased dotted, `from
+    assetops_backend import i18n`, relative); an attribute on it must be a public module, whose surface it chains
+    into, or a name of `i18n.__all__`. A string-literal `importlib.import_module(...)` or `__import__(...)` counts as
+    an `import`."""
     surfaces = surfaces if surfaces is not None else _repo_surfaces()
     package_all = surfaces.get("", frozenset())
     tree = ast.parse(source, filename=rel)
     out: list[str] = []
-    bound: dict[str, str | None] = {}  # local name -> public module it names (None: another i18n module)
+    #: local name -> "" (the package), a public module, or None (another i18n module)
+    bound: dict[str, str | None] = {}
     package = "assetops_backend.i18n"
+    parent, leaf = package.rsplit(".", 1)
+    other = object()  # not an i18n module (a value, or nothing of i18n)
 
     def surface_ok(module: str, name: str) -> bool:
         return name.startswith("__") or name in surfaces.get(module, frozenset()) or name in package_all
 
+    def check_import(name: str, lineno: int, asname: str | None) -> None:
+        if name == package:
+            if asname:
+                bound[asname] = ""
+            return
+        if not name.startswith(package + "."):
+            return
+        path = name[len(package) + 1:].split(".")
+        if path[0] not in PUBLIC_MODULES:
+            out.append(f"I18N_BYPASS {rel}:{lineno} {name}")
+        elif len(path) > 1 and not surface_ok(path[0], path[1]):
+            out.append(f"I18N_BYPASS {rel}:{lineno} {name}")
+        if asname:
+            bound[asname] = path[0] if path[0] in PUBLIC_MODULES and len(path) == 1 else None
+
+    def literal_import(call) -> str | None:
+        if isinstance(call, ast.Call) and ast.unparse(call.func) in _IMPORT_CALLS and call.args \
+                and isinstance(call.args[0], ast.Constant) and isinstance(call.args[0].value, str):
+            return call.args[0].value
+        return None
+
+    assigned = {id(n.value): n.targets[0].id for n in ast.walk(tree) if isinstance(n, ast.Assign)
+                and len(n.targets) == 1 and isinstance(n.targets[0], ast.Name)}
     for n in ast.walk(tree):
         if isinstance(n, ast.Import):
             for a in n.names:
-                if a.name.startswith(package + "."):
-                    path = a.name[len(package) + 1:].split(".")
-                    if path[0] not in PUBLIC_MODULES:
-                        out.append(f"I18N_BYPASS {rel}:{n.lineno} {a.name}")
-                    elif len(path) > 1 and not surface_ok(path[0], path[1]):
-                        out.append(f"I18N_BYPASS {rel}:{n.lineno} {a.name}")
-                    if a.asname:
-                        bound[a.asname] = path[0] if path[0] in PUBLIC_MODULES and len(path) == 1 else None
+                check_import(a.name, n.lineno, a.asname)
+        elif isinstance(n, ast.Call) and literal_import(n) is not None:
+            check_import(literal_import(n), n.lineno, assigned.get(id(n)))
         elif isinstance(n, ast.ImportFrom):
             module = _resolve(rel, n)
-            if module == package:
+            if module == parent:
+                for a in n.names:
+                    if a.name == leaf:
+                        bound[a.asname or a.name] = ""
+            elif module == package:
                 for a in n.names:
                     if a.name.startswith("_"):
                         out.append(f"I18N_PRIVATE {rel}:{n.lineno} {a.name}")
@@ -556,18 +589,46 @@ def import_hits(rel: str, source: str, surfaces: dict | None = None) -> list[str
                         out.append(f"I18N_PRIVATE {rel}:{n.lineno} {a.name}")
                     elif a.name != "*" and not surface_ok(path[0], a.name):
                         out.append(f"I18N_BYPASS {rel}:{n.lineno} {module}.{a.name}")
+
+    resolved: dict[int, object] = {}
+
+    def resolve(node):
+        """The i18n module `node` names: "" (the package), a public module, None (another i18n module), or
+        `other`. Reports each attribute that leaves a public surface once, at the attribute that leaves it."""
+        if id(node) in resolved:
+            return resolved[id(node)]
+        if ast.unparse(node) == package:
+            result = ""
+        elif isinstance(node, ast.Name):
+            result = bound.get(node.id, other)
+        elif isinstance(node, ast.Attribute):
+            base = resolve(node.value)
+            result = other
+            owner = ast.unparse(node.value)
+            if base is other or node.attr.startswith("__"):
+                pass
+            elif node.attr.startswith("_"):
+                out.append(f"I18N_PRIVATE {rel}:{node.lineno} {owner}.{node.attr}")
+            elif base is None:
+                pass  # its import is already a bypass
+            elif base == "":
+                if node.attr in PUBLIC_MODULES:
+                    result = node.attr
+                elif node.attr in MECHANISM + ("statements",):
+                    out.append(f"I18N_BYPASS {rel}:{node.lineno} {owner}.{node.attr}")
+                    result = None
+                elif node.attr not in package_all:
+                    out.append(f"I18N_BYPASS {rel}:{node.lineno} {owner}.{node.attr}")
+            elif not surface_ok(base, node.attr):
+                out.append(f"I18N_BYPASS {rel}:{node.lineno} {owner}.{node.attr}")
+        else:
+            result = other
+        resolved[id(node)] = result
+        return result
+
     for n in ast.walk(tree):
-        if not isinstance(n, ast.Attribute) or n.attr.startswith("__"):
-            continue
-        owner = ast.unparse(n.value)
-        dotted = owner[len(package) + 1:] if owner.startswith(package + ".") else None
-        if n.attr.startswith("_"):
-            if owner in bound or dotted is not None:
-                out.append(f"I18N_PRIVATE {rel}:{n.lineno} {owner}.{n.attr}")
-            continue
-        module = bound.get(owner) if owner in bound else dotted if dotted in PUBLIC_MODULES else None
-        if module and not surface_ok(module, n.attr):
-            out.append(f"I18N_BYPASS {rel}:{n.lineno} {owner}.{n.attr}")
+        if isinstance(n, ast.Attribute):
+            resolve(n)
     return out
 
 
@@ -721,10 +782,13 @@ def _allow_live(path: str, entry, hits) -> bool:
     return isinstance(entry, dict) and any(f == entry.get("fingerprint") for f, _ in hits.get(path, []))
 
 
-def _allow(allow, hits, adopted) -> tuple[dict, list[str]]:
+def _allow(allow, hits, adopted, root: Path | None = None, notes: list | None = None) -> tuple[dict, list[str]]:
     """D-SC1.34: `{path: [{"fingerprint", "class", "why"}]}`. An allowed fingerprint counts as baselined. Reports
     `ALLOW_CLASS` (a class outside `ALLOW_CLASSES`, or an empty, multi-line or over-long `why`), `ALLOW_STALE` (no
-    hit) and `ALLOW_SCOPE` (an `ADOPTED` or `i18n/` path; mechanism and adopted code never needs one)."""
+    hit) and `ALLOW_SCOPE` (an `ADOPTED` or `i18n/` path; mechanism and adopted code never needs one).
+
+    Review round 2, L7: each live entry adds `ALLOWED <path>:<line> <class> <fingerprint> | <source line>` to
+    `notes`, printed on every run so the reviewer reads each allowed string, not a hash. Notes never fail a run."""
     allowed: dict[str, Counter] = {}
     lines: list[str] = []
     for path, entries in sorted((allow or {}).items()):
@@ -739,6 +803,12 @@ def _allow(allow, hits, adopted) -> tuple[dict, list[str]]:
                 lines.append(f"ALLOW_STALE {path} {f}")
             else:
                 allowed.setdefault(path, Counter())[f] += 1
+                if notes is not None:
+                    src = (root / path).read_text(encoding="utf-8").splitlines() if root else []
+                    for fp, line in hits.get(path, []):
+                        if fp == f:
+                            text = src[line - 1].strip() if 0 < line <= len(src) else ""
+                            notes.append(f"ALLOWED {path}:{line} {entry['class']} {f} | {text}")
     return allowed, lines
 
 
@@ -801,7 +871,7 @@ def _ratchet_paths(root: Path, adopted: tuple):
             yield rel, p
 
 
-def run(root: Path, adopted: tuple, mode: str | None) -> list[str]:
+def run(root: Path, adopted: tuple, mode: str | None, notes: list | None = None) -> list[str]:
     sys.path[:0] = [str(root / "backend"), str(root / "backend" / "tests")]
     try:
         catalogue = importlib.import_module("assetops_backend.i18n.catalogue")
@@ -851,7 +921,7 @@ def run(root: Path, adopted: tuple, mode: str | None) -> list[str]:
     baseline = _read_json(handbuilt_path)
     allow_path = root / ALLOW
     allow = _read_json(allow_path)
-    allowed, allow_lines = _allow(allow, hits, adopted)
+    allowed, allow_lines = _allow(allow, hits, adopted, root, notes)
 
     if mode == "--write-baseline":
         for path, data in ((legacy_path, hashes), (handbuilt_path, {k: sorted(f for f, _ in v) for k, v in hits.items()})):
@@ -1044,7 +1114,7 @@ def _word_map_plant(base: Path):
 
 
 def _plants_r1(base: Path, leaf: str, adopt: list) -> list[tuple]:
-    """Fix round 1 plants (D-SC1.33 to D-SC1.37): P49a-d, P51a-d, P53a (above), P55a-c, P56, P57a-e and N5-N13."""
+    """Fix round 1 plants (D-SC1.33 to D-SC1.37): P49a-d (P49e-h: review round 2, M4), P51a-d, P53a (above), P55a-c, P56, P57a-e and N5-N13."""
     i18n_init = f"{I18N}/statements/en/__init__.py"
     prose_fn = "def f(x):\n    return f\"the gap is {x} today\"\n"
     leaf_prints = (_read_json(base / HANDBUILT_BASELINE) or {}).get(leaf, [])
@@ -1082,6 +1152,15 @@ def _plants_r1(base: Path, leaf: str, adopt: list) -> list[tuple]:
          "I18N_BYPASS", {"I18N_BYPASS"}),
         ("P49d", {f"{I18N}/render.py": lambda s: re.sub(r"\n__all__ = \[[^\]]*\]\n", "\n", s, count=1)}, [],
          "I18N_SURFACE", {"I18N_SURFACE", "I18N_BYPASS"}),  # without a surface every outside import is a bypass
+        # review round 2, M4: the package object itself, bound three ways, and a literal `import_module`
+        ("P49e", {_PLANT: "import assetops_backend.i18n as i\n\n\ndef f(x):\n    return i.render.formats.money(x)\n"},
+         [], "I18N_BYPASS", {"I18N_BYPASS"}),
+        ("P49f", {_PLANT: "from assetops_backend import i18n\n\n\ndef f(x):\n    return i18n.formats.money(x)\n"},
+         [], "I18N_BYPASS", {"I18N_BYPASS"}),
+        ("P49g", {_PLANT: "from . import i18n\n\n\ndef f():\n    return i18n.formats\n"}, [], "I18N_BYPASS",
+         {"I18N_BYPASS"}),
+        ("P49h", {_PLANT: "import importlib\n\nformats = importlib.import_module(\"assetops_backend.i18n.formats\")\n"},
+         [], "I18N_BYPASS", {"I18N_BYPASS"}),
         ("P51a", {f"{I18N}/helpers/words.py": prose_fn}, [], "MECH_UNSCOPED", {"MECH_UNSCOPED"}),
         ("P51b", {f"{I18N}/statements/words.py": prose_fn}, [], "MECH_UNSCOPED", {"MECH_UNSCOPED"}),
         ("P51c", {f"{I18N}/statements/en/extra/words.py": prose_fn}, [], "MECH_UNSCOPED", {"MECH_UNSCOPED"}),
@@ -1132,7 +1211,7 @@ def _guard(root: Path, args: list[str]) -> tuple[int, list[str]]:
                PYTHONDONTWRITEBYTECODE="1", SC1_GUARD_CACHE=str(root.parent / "cache"))
     proc = subprocess.run([sys.executable, str(Path(__file__).resolve()), "--root", str(root), *args], env=env,
                           capture_output=True, text=True, timeout=300)
-    lines = [ln for ln in proc.stdout.splitlines() if ln and not ln.startswith("OK ")]
+    lines = [ln for ln in proc.stdout.splitlines() if ln and not ln.startswith(("OK ", "ALLOWED "))]
     if proc.returncode and not lines:
         lines = [f"CRASH {proc.stderr.strip().splitlines()[-1] if proc.stderr.strip() else proc.returncode}"]
     return proc.returncode, lines
@@ -1204,7 +1283,12 @@ def main(argv: list[str]) -> int:
         i += 1
     if mode == "--self-test":
         return self_test()
-    out = run(root, tuple(adopted), mode)
+    notes: list[str] = []
+    out = run(root, tuple(adopted), mode, notes)
+    if mode is None:
+        for line in notes:
+            print(line)
+        print(f"ALLOWED entries: {len(notes)} (each line above is one allowed string; D-SC1.34)")
     for line in out:
         print(line)
     if not out:

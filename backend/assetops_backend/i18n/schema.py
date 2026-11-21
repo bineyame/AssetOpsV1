@@ -69,8 +69,10 @@ NUMBER_WORDS = {"en": (
     (("thir", "four", "fif", "six", "seven", "eigh", "nine"), ("teen", "teens", "teenth", "teenths")),
     (("twen", "thir", "for", "fif", "six", "seven", "eigh", "nine"), ("ty", "ties", "tieth", "tieths", "tyfold")),
     (("first", "second", "third", "fifth", "eighth", "ninth", "twelfth"), ("", "s")),
-    (("once", "twice", "thrice", "single", "both", "pair", "couple", "dozen", "half", "quarter", "percent"), ("", "s")),
-    (("double", "triple", "quadruple", "halve"), ("", "s", "d")),
+    (("once", "twice", "thrice", "single", "both", "pair", "couple", "dozen", "half", "quarter", "percent",
+      "cent"), ("", "s")),
+    (("doubl", "tripl", "quadrupl", "halv"), ("e", "es", "ed", "ing")),
+    (("zero", "nought"), ("", "s", "es")),
 )}
 
 
