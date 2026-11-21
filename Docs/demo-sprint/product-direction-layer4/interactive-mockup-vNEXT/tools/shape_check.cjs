@@ -182,7 +182,10 @@ const prep = w => { planStub(w); if (PLANT) w.eval(PLANTS[PLANT]); w.eval('rende
           return [k, String(s), t && typeof t === 'object' ? { path: t.path, query: typeof t.query === 'string' ? t.query : t.query ? new URLSearchParams(t.query).toString() : '' } : String(t)]; })`);
         const qn = q => [...new URLSearchParams(String(q || '').replace(/^\?/, ''))].map(([a, b]) => `${a}=${b}`).sort().join('&');
         V.forEach(([k, v, t]) => { const i = v.indexOf('?'), path = i < 0 ? v : v.slice(0, i), query = i < 0 ? '' : v.slice(i + 1);
-          if (!R.has(path)) bad(`alias values: "${k}" leads to "${path}", which is not a reserved path`);
+          /* IA-2b1 unit 3: a function value with no target for this operator (mini, cold, ev) is null, and the helper says so; the
+             reserved-path rule binds the values with a query (the list aliases): the others may lead to unbuilt or other operators' paths */
+          if (v === 'null') { if (t !== 'null') bad(`alias values: "${k}" has no target for this operator, iaAliasTarget gives ${JSON.stringify(t)}`); return; }
+          if (query && !R.has(path)) bad(`alias values: "${k}" leads to "${path}", which is not a reserved path`);
           if (typeof t !== 'object') bad(`alias values: iaAliasTarget("${k}") is ${t}`);
           else if (t.path !== path || qn(t.query) !== qn(query)) bad(`alias values: iaAliasTarget("${k}") is { path: "${t.path}", query: "${t.query}" }, its value "${v}" splits to "${path}" and "${query}"`); });
         log.push(`${B.opName} · alias values: ${V.length} split with the check's own code, ${V.filter(([, v]) => v.includes('?')).length} with a query`);

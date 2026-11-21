@@ -3,6 +3,8 @@
 const IA_LANDED = new Set(['IA-1a', 'IA-1b', 'IA-1c', 'IA-2a']);
 const IA_SHAPES = ['frame', 'hub', 'list', 'decision', 'plan', 'record', 'asset', 'drawer', 'statement'];
 let IA_ROUTE_ACTIVE = false;
+/* IA-2b1 (spec-IA-2b §3.3, D-IA.75): the list control to keep in place across the hash change its own listener wrote; null otherwise */
+let IA_LIST_KEEP = null;
 /* the reviewed plan page's own labels (spec §2.6: the interim reuses them, no new copy) */
 const iaLegacy = id => SCREENS.find(x => x.id === id);
 const IA_ROUTES = [
@@ -53,7 +55,9 @@ const IA_ALIASES = {
   recommendation: 'decision/kobo-generator', alternatives: 'decision/kobo-generator',
   'cold-recommendation': 'decision/thika-backup', 'ev-recommendation': 'decision/ruiru-connector',
   globalfinancials: 'financials',
-  'settings-policies': 'settings', 'settings-tenant': 'settings/organisation'
+  'settings-policies': 'settings', 'settings-tenant': 'settings/organisation',
+  /* IA-2b1 (spec-IA-2b §5, D-IA.64): the old act-first and Findings screens lead to the home lists, with their view as a query */
+  'portfolio/act-first': 'decisions', 'findings-cost': 'findings?heading=optimize', 'findings-risks': 'findings?heading=protect', 'findings-opportunities': 'findings?heading=grow'
 };
 /* the menu (D-IA.1), in its order and with its labels; an item whose unit has not landed is an unavailable root */
 const IA_RAIL = [
@@ -99,12 +103,15 @@ function iaForeign(path) {
 function iaMatch(path) { for (const route of IA_ROUTES) { const params = iaPattern(route.id, path); if (params) return { route, params }; } return null; }
 /* a landed route (never not-found: it is reached only by a typed address) */
 function iaLanded(path) { const m = iaMatch(path); return m && IA_LANDED.has(m.route.unit) ? m : null; }
-/* the alias's target, only when that target is a landed route */
-function iaLiveAlias(path) {
+/* D-IA.78: the one alias splitter. { path, query } for an alias key (a function value is called with its params first), else null */
+function iaAliasTarget(path) {
   for (const [k, v] of Object.entries(IA_ALIASES)) { const p = iaPattern(k, path); if (!p) continue;
-    const t = typeof v === 'function' ? v(p) : v; return t && iaLanded(t) && t !== 'not-found' ? t : null; }
+    const t = typeof v === 'function' ? v(p) : v; if (!t) return null; const i = String(t).indexOf('?');
+    return { path: i < 0 ? String(t) : String(t).slice(0, i), query: i < 0 ? '' : String(t).slice(i + 1) }; }
   return null;
 }
+/* the alias's target path, only when that path is a landed route */
+function iaLiveAlias(path) { const t = iaAliasTarget(path); return t && t.path !== 'not-found' && iaLanded(t.path) ? t.path : null; }
 function iaDev() { try { return sessionStorage.getItem('l4-dev') === '1'; } catch (e) { return false; } }
 /* D-IA.16: a landed route, a live alias, or the Lab under the developer switch; nothing else */
 function iaLive(href) {
@@ -112,10 +119,19 @@ function iaLive(href) {
   if (path === 'lab') return iaDev();
   return !!((iaLanded(path) && path !== 'not-found') || iaLiveAlias(path));
 }
-/* a live alias's canonical address, keeping the hash query */
+/* a live alias's canonical address: the value's query, then the href's own parameters not already set (D-IA.78); a list target is
+   written through iaListHref's order. An alias without a query keeps the href's query as typed */
 function iaCanon(href) {
-  const h = String(href).replace(/^#?\/?/, ''), i = h.indexOf('?'), t = iaLiveAlias(i < 0 ? h : h.slice(0, i));
-  return t ? `#/${t}${i < 0 ? '' : h.slice(i)}` : String(href);
+  const h = String(href).replace(/^#?\/?/, ''), i = h.indexOf('?'), src = i < 0 ? h : h.slice(0, i), own = i < 0 ? '' : h.slice(i + 1);
+  if (!iaLiveAlias(src)) return String(href);
+  const t = iaAliasTarget(src), m = iaMatch(t.path);
+  if (m && m.route.shape === 'list' && typeof IA_LIST_DEFS !== 'undefined' && IA_LIST_DEFS[t.path]) {
+    const q = Object.fromEntries(new URLSearchParams(t.query)); for (const [a, b] of new URLSearchParams(own)) if (!(a in q)) q[a] = b;
+    return '#/' + iaListHref(t.path, iaCtx(t.path, m.params, q), {});
+  }
+  if (!t.query) return `#/${t.path}${i < 0 ? '' : h.slice(i)}`;
+  const set = new Set([...new URLSearchParams(t.query)].map(([a]) => a)), rest = own.split('&').filter(x => x && !set.has(decodeURIComponent(x.split('=')[0])));
+  return `#/${t.path}?${[t.query, ...rest].join('&')}`;
 }
 function iaStart() { return IA_LANDED.has('IA-1b') ? 'portfolio' : 'plan'; }
 /* the empty hash renders iaStart() from IA-1b (D-IA.29) */
@@ -219,3 +235,26 @@ function iaTabSwitch(oldURL, newURL) {
 }
 /* a tab with no L2 (Portfolio Demand & capacity) starts at its first level box */
 window.addEventListener('hashchange', e => iaTabSwitch(e.oldURL, e.newURL));
+/* IA-2b1 (spec-IA-2b §3.3, D-IA.75): a list's tools write the address. A select applies on change, the search on submit (never the
+   form's default). The control's place is kept by iaListRestore, keyed to the address written here */
+function iaListWrite(e) {
+  const t = e.target, form = t && t.closest && t.closest('form[data-ia-list-tools]'); if (!form) return;
+  if (e.type === 'submit') e.preventDefault(); else if (t.tagName !== 'SELECT') return;
+  const el = e.type === 'submit' ? form.querySelector('input[name="q"]') : t; if (!el) return;
+  const key = form.dataset.iaListTools, P = iaParse(location.hash), h = iaListHref(key, iaCtx(P.path, P.params, P.query), { [el.name]: el.value });
+  if ('#/' + h === location.hash) return;
+  IA_LIST_KEEP = { hash: '#/' + h, name: el.name, top: el.getBoundingClientRect().top };
+  location.hash = '#/' + h;
+}
+document.addEventListener('change', iaListWrite);
+document.addEventListener('submit', iaListWrite);
+/* registered after iaTabSwitch's listener, so after the router's render(); scrollTo(0,0): it runs in the router's task, clears the keep on
+   every hash change, and applies it only to the address it was written for */
+function iaListRestore() {
+  const keep = IA_LIST_KEEP; IA_LIST_KEEP = null;
+  if (!keep || location.hash !== keep.hash) return;
+  const el = document.querySelector(`[data-ia-list-tools] [name="${keep.name}"]`); if (!el) return;
+  window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - keep.top, behavior: 'instant' });
+  el.focus({ preventScroll: true });
+}
+window.addEventListener('hashchange', iaListRestore);

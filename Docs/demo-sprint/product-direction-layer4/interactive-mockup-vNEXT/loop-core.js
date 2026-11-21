@@ -338,7 +338,7 @@ const ALIAS = {'portfolio/opportunity':'portfolio/demand-and-capacity',financial
 function resolveScreen(id){
  /* IA-1 (spec §2.2, P8): a live IA alias first, else ALIAS, never chained; a landed IA route renders in the frame */
  const IA=typeof IA_ROUTES!=='undefined',iaT=IA?iaLiveAlias(id):null;
- let target=id;if(iaT){target=iaT;try{const q=location.hash.indexOf('?');history.replaceState(null,'','#/'+target+(q<0?'':location.hash.slice(q)));}catch{}}else if(ALIAS[id]){target=ALIAS[id];try{history.replaceState(null,'','#/'+target);}catch{}}
+ let target=id;if(iaT){target=iaT;try{const q=location.hash.indexOf('?');history.replaceState(null,'',iaCanon('#/'+id+(q<0?'':location.hash.slice(q))));}catch{}} /* D-IA.78: the alias's own query too (iaCanon) */else if(ALIAS[id]){target=ALIAS[id];try{history.replaceState(null,'','#/'+target);}catch{}}
  if(IA&&!target&&typeof iaLanding==='function'){const l=iaLanding(),m=l&&iaLanded(l);if(m)return iaScreen(m.route,l);} /* D-IA.29: the empty hash renders iaStart() */
  if(IA&&typeof iaForeign==='function'&&iaForeign(target)){const m=iaLanded('not-found');if(m)return iaScreen(m.route,'not-found');} /* D-IA.28: another operator's Site or decision */
  if(IA&&target!=='not-found'){const m=iaLanded(target);if(m)return iaScreen(m.route,target);}

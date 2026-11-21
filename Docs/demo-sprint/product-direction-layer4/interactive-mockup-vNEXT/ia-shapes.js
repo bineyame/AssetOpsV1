@@ -5,7 +5,11 @@ const IA_GROUP_WORD = { mini: 'Mini-grids', cold: 'Cold rooms', ev: 'EV depots' 
 const iaVertical = sk => SK[sk].type === 'Mini-grid' ? 'mini' : /^Cold room/.test(SK[sk].type) ? 'cold' : 'ev';
 /* the scope menu (D-IA.6): all Sites, a group (one per vertical the operator has), the Sites */
 function iaScopeEntries(ctx) {
-  const op = ctx.op, sites = OPS[op].sites, groups = [...new Set(sites.map(iaVertical))], here = `#/${ctx.path}`;
+  const op = ctx.op, sites = OPS[op].sites, groups = [...new Set(sites.map(iaVertical))], here = `#/${ctx.path}`, m = iaMatch(ctx.path), route = m && m.route;
+  /* IA-2b1 (spec-IA-2b §3.3): on a list, every entry keeps the list's facets, sort and search and drops show; a Site entry scopes the list */
+  if (route && route.shape === 'list') { const c = { ...ctx, query: { ...ctx.query, show: '' } }, H = sc => '#/' + iaListHref(ctx.path, c, { scope: sc });
+    return [['All sites', H('all'), ctx.scope.kind === 'all'], ...groups.map(g => [IA_GROUP_WORD[g], H(`group:${g}`), ctx.scope.kind === 'group' && ctx.scope.id === g]),
+      ...sites.map(k => [SK[k].name, H(`site:${k}`), ctx.scope.kind === 'site' && ctx.scope.id === k])]; }
   return [['All sites', `${here}?scope=all`, ctx.scope.kind === 'all'],
     ...groups.map(g => [IA_GROUP_WORD[g], `${here}?scope=group:${g}`, ctx.scope.kind === 'group' && ctx.scope.id === g]),
     ...sites.map(k => [SK[k].name, `#/site/${k}`, ctx.scope.kind === 'site' && ctx.scope.id === k])];
@@ -219,4 +223,109 @@ function iaPeriodChip(op) {
 }
 function iaPeriodHtml(op) {
   return uxPeriodMenuHtml(op, iaPeriodChip(op)).replace('<small>current period</small>', `<small>current period · ${snapText(op)}</small>`);
+}
+
+/* ---- IA-2b1 unit 3: the list component (spec-IA-2b §3, D-IA.62, D-IA.67, D-IA.70, D-IA.80) ----
+   A def (IA_LIST_DEFS[key], unit 4) holds: key, title (tile 1's label and the H1), plural (the tools' aria-label), cols (the column
+   words, the first is the title column), items(op) (the one store, read at every render), site(it) (a Site key; none ignores the scope),
+   text(it) (the row's rendered text; else the row's own text), keep(it), group(it) with groupWord(g), facets [{ key, label, all,
+   options() -> [[value, word]], of(it) }], sorts [{ key, word, cmp }], row(it, ctx, qk) -> { key, href, title, small, cells },
+   tiles(m, ctx, qk) -> the tiles after tile 1, more(m, ctx, qk) (the hidden line; moreInline puts it in the "Show all" paragraph), none. */
+const IA_LIST_CAP = 10;
+const IA_LIST_DEFS = {};
+/* a Site key against a scope { kind: all | group | site, id } */
+function iaInScope(sk, scope) { const s = scope || { kind: 'all' }; return s.kind === 'site' ? sk === s.id : s.kind === 'group' ? !!SK[sk] && iaVertical(sk) === s.id : true; }
+/* the controls grow with the list (D-IA.67): none under 3 in scope, Sort only up to the cap, then facets, sort and search */
+function iaListTier(ns) { return ns < 3 ? 0 : ns <= IA_LIST_CAP ? 1 : 2; }
+/* a row's text as the search reads it: tags stripped, entities read, lower case, one space */
+function iaListText(html) { return String(html == null ? '' : html).replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim().toLowerCase(); }
+function iaListRowText(def, it) { const r = def.row(it, null, ''); return [r.title, r.small, ...(r.cells || [])].filter(x => x != null && x !== '').join(' '); }
+/* the model (spec §3.1), pure: scope, tier, facets, search, sort (stable), one cap ranked keep-first and shown in sort order, groups */
+function iaListModel(def, items, q, scope) {
+  q = q || {};
+  const inScope = def.site ? items.filter(it => iaInScope(def.site(it), scope)) : items.slice(), ns = inScope.length, tier = iaListTier(ns);
+  let rows = inScope;
+  for (const f of def.facets || []) { const v = q[f.key]; if (v == null || v === '') continue;
+    if (!f.options().some(([o]) => String(o) === String(v))) continue; rows = rows.filter(it => String(f.of(it)) === String(v)); }
+  const words = String(q.q || '').toLowerCase().split(/\s+/).filter(Boolean);
+  if (words.length) rows = rows.filter(it => { const t = iaListText(def.text ? def.text(it) : iaListRowText(def, it)); return words.every(x => t.includes(x)); });
+  const sort = (def.sorts || []).find(s => s.key === q.sort) || def.sorts[0];
+  rows = rows.map((it, i) => [it, i]).sort(([a, i], [b, j]) => sort.cmp(a, b) || i - j).map(([it]) => it);
+  const n = rows.length, rank = def.keep ? [...rows.filter(def.keep), ...rows.filter(it => !def.keep(it))] : rows;
+  const top = new Set(q.show === 'all' ? rank : rank.slice(0, IA_LIST_CAP));
+  let shown = rows.filter(it => top.has(it)), groups = null; const hidden = rows.filter(it => !top.has(it));
+  if (def.group) { const gs = [...new Set(rows.map(def.group))];
+    if (n > IA_LIST_CAP && gs.length > 1) { groups = gs.map(g => ({ g, n_g: rows.filter(it => def.group(it) === g).length })); shown = gs.flatMap(g => shown.filter(it => def.group(it) === g)); } }
+  return { rows, shown, hidden, n, ns, tier, groups, sort: sort.key, inScope };
+}
+/* the canonical address (pure): #/<key>, then scope, the facets in def order, sort, q, show, each only when not its default; a facet
+   change or a search drops show. change overrides ctx.query; change.scope is 'all', 'group:<g>' or 'site:<k>' */
+function iaListHref(key, ctx, change) {
+  const def = IA_LIST_DEFS[key], c = change || {}, v = { ...(ctx.query || {}), ...c }, p = [];
+  if ('q' in c || (def.facets || []).some(f => f.key in c)) delete v.show;
+  const s = 'scope' in c ? String(c.scope || 'all') : ctx.scope && ctx.scope.kind !== 'all' ? `${ctx.scope.kind}:${ctx.scope.id}` : 'all';
+  if (s !== 'all') p.push(`scope=${s}`);
+  (def.facets || []).forEach(f => { const x = v[f.key]; if (x != null && x !== '' && f.options().some(([o]) => String(o) === String(x))) p.push(`${f.key}=${encodeURIComponent(x)}`); });
+  if (v.sort && (def.sorts || []).some(o => o.key === v.sort) && v.sort !== def.sorts[0].key) p.push(`sort=${encodeURIComponent(v.sort)}`);
+  if (v.q && String(v.q).trim()) p.push(`q=${encodeURIComponent(String(v.q).trim())}`);
+  if (v.show === 'all') p.push('show=all');
+  return key + (p.length ? '?' + p.join('&') : '');
+}
+/* a view's figure key: the canonical query without show (spec §3.2) */
+function iaListQk(key, ctx) { const h = iaListHref(key, ctx, { show: '' }), i = h.indexOf('?'); return i < 0 ? '' : h.slice(i + 1); }
+/* one figure of a key (D-IA.71): counts carry data-qty-kind="count" */
+function iaQty(key, role, text, count) { return `<span data-qty="${key}" data-qty-role="${role}"${count ? ' data-qty-kind="count"' : ''}>${text}</span>`; }
+/* D-IA.59, D-IA.68: one form per key on a screen. The parts are the shown values as rendered (whole dollars) plus the hidden ones' sum;
+   when they add to the rounded total the key is whole dollars, else every figure of the key takes cents */
+function iaListCents(shown, hidden) { const tot = [...shown, ...hidden].reduce((a, x) => a + x, 0), r = shown.reduce((a, x) => a + Math.round(x), 0) + Math.round(hidden.reduce((a, x) => a + x, 0)); return r !== Math.round(tot); }
+/* the tiles (spec §3.2, §4): tile 1 is the list's count (n, the rows after filters and before the cap), then the def's own, at most 4 */
+function iaListTiles(def, m, ctx) {
+  const n = m.n;
+  const qk = iaListQk(def.key, ctx), t1 = uxKpi(def.title, iaQty(`${def.key}:n:${qk}`, 'total', num(n), true));
+  return [t1, ...(def.tiles ? def.tiles(m, ctx, qk) : [])].filter(Boolean).slice(0, 4).join('');
+}
+/* the view states no drawn control shows (D-IA.70), then "Clear filters" at 2 or more set */
+function iaListChips(def, m, ctx, drawn) {
+  const key = def.key, q = ctx.query || {}, chip = (word, href, out) => `<span class="ia-chip">${word} · <a class="ux-link" href="#/${href}">${out}</a></span>`, out = [];
+  if (ctx.scope && ctx.scope.kind !== 'all') out.push(chip(ctx.scope.kind === 'group' ? IA_GROUP_WORD[ctx.scope.id] : escapeHtml(SK[ctx.scope.id].name), iaListHref(key, ctx, { scope: 'all' }), 'All sites'));
+  const set = (def.facets || []).filter(f => q[f.key] != null && q[f.key] !== '' && f.options().some(([o]) => String(o) === String(q[f.key])));
+  set.forEach(f => { if (!drawn.includes(f.key)) out.push(chip(f.options().find(([o]) => String(o) === String(q[f.key]))[1], iaListHref(key, ctx, { [f.key]: '' }), f.all)); });
+  const qq = String(q.q || '').trim();
+  if (qq && m.tier < 2) out.push(chip(`Matching “${escapeHtml(qq)}”`, iaListHref(key, ctx, { q: '' }), 'Clear search'));
+  if (set.length + (qq ? 1 : 0) >= 2) out.push(`<a class="ux-link" href="#/${iaListHref(key, { ...ctx, query: {} }, {})}">Clear filters</a>`);
+  return out.length ? `<p class="ia-list-chips" aria-label="In this view">${out.join(' ')}</p>` : '';
+}
+/* the tools by tier (D-IA.67): tier 1 Sort only; tier 2 each facet with at least 2 options present in scope, Sort, Search */
+function iaListTools(def, m, ctx, drawn) {
+  if (!m.tier) return '';
+  const q = ctx.query || {}, opt = (v, w, cur) => `<option value="${escapeHtml(v)}"${String(cur) === String(v) ? ' selected' : ''}>${w}</option>`, plural = def.plural || def.title;
+  const facets = drawn.map(k => { const f = def.facets.find(x => x.key === k), os = f.options(), cur = os.some(([o]) => String(o) === String(q[k])) ? q[k] : '';
+    return `<label>${f.label} <select name="${k}">${opt('', 'All', cur)}${os.map(([v, w]) => opt(v, w, cur)).join('')}</select></label>`; }).join('');
+  const sort = `<label>Sort <select name="sort">${def.sorts.map(s => opt(s.key, s.word, m.sort)).join('')}</select></label>`;
+  const search = m.tier === 2 ? `<label>Search <input type="search" name="q" value="${escapeHtml(String(q.q || '').trim())}"></label><button type="submit" class="button">Search</button>` : '';
+  return `<form class="ia-list-tools" data-ia-list-tools="${def.key}" role="search" aria-label="${m.tier === 2 ? 'Filter and sort' : 'Sort'} ${plural}">${m.tier === 2 ? facets : ''}${sort}${search}</form>`;
+}
+/* the list's L2 (spec §3.2): chips, tools, the table (or the empty state) and the More line. opts.tools false: no chips and no tools
+   (the Outcomes fold, D-IA.64) */
+function iaListBody(key, ctx, opts = {}, model) {
+  const def = IA_LIST_DEFS[key], m = model || iaListModel(def, def.items(ctx.op), ctx.query, ctx.scope), qk = iaListQk(key, ctx), tools = opts.tools !== false;
+  const present = f => new Set(m.inScope.map(it => String(f.of(it))).filter(v => f.options().some(([o]) => String(o) === v))).size;
+  const drawn = m.tier === 2 ? (def.facets || []).filter(f => present(f) >= 2).map(f => f.key) : [];
+  const head = tools ? `${iaListChips(def, m, ctx, drawn)}${iaListTools(def, m, ctx, drawn)}` : '';
+  if (!m.ns) return `${head}<p class="ux-empty" role="status">${def.none}</p>`;
+  if (!m.n) return `${head}<p class="ux-empty" role="status">Nothing matches these filters. <a class="ux-link" href="#/${iaListHref(key, { ...ctx, query: {} }, {})}">Clear filters</a></p>`;
+  const cols = def.cols, row = it => { const r = def.row(it, ctx, qk);
+    return `<tr data-row="${escapeHtml(r.key)}"><th scope="row"><a class="ia-row-go" href="#/${r.href}">${r.title}</a>${r.small ? ` <small>${r.small}</small>` : ''}</th>${(r.cells || []).map((c, i) => `<td data-label="${cols[i + 1]}">${c}</td>`).join('')}</tr>`; };
+  const thead = `<thead><tr>${cols.map(c => `<th scope="col">${c}</th>`).join('')}</tr></thead>`, word = g => (def.groupWord ? def.groupWord(g) : IA_GROUP_WORD[g]) || g;
+  const body = m.groups ? m.groups.map(({ g, n_g }) => `<tbody data-group="${g}"><tr class="ia-list-group"><th colspan="${cols.length}" scope="rowgroup">${word(g)} ${`<span class="ux-count" data-qty="${key}:n:${qk}" data-qty-role="part" data-qty-kind="count">${num(n_g)}</span>`}</th></tr>${m.shown.filter(it => def.group(it) === g).map(row).join('')}</tbody>`).join('')
+    : `<tbody>${m.shown.map(row).join('')}</tbody>`;
+  const pre = def.more ? def.more(m, ctx, qk) || '' : '';
+  const all = `<a class="ux-link" href="#/${iaListHref(key, ctx, { show: 'all' })}" data-qty="${key}:n:${qk}" data-qty-role="total" data-qty-kind="count">Show all ${num(m.n)}</a>`;
+  const more = m.hidden.length ? (def.moreInline ? `<p class="ux-more">${pre ? pre + ' ' : ''}${all}</p>` : `${pre}<p class="ux-more">${all}</p>`) : def.moreInline ? '' : pre;
+  return `${head}<div class="table-wrap"><table class="ia-list ux-stack" id="ia-list-${key}">${thead}${body}</table></div>${more}`;
+}
+/* the list shape (spec §3.2): count tiles in L1; chips, tools, rows and More in L2 */
+function shapeList(ctx, key) {
+  const def = IA_LIST_DEFS[key], m = iaListModel(def, def.items(ctx.op), ctx.query, ctx.scope);
+  return `<section data-shape="list" data-ia-list="${key}"><div data-level="L1"><div class="heroes ux-kpis">${iaListTiles(def, m, ctx)}</div></div><div data-level="L2">${iaListBody(key, ctx, {}, m)}</div></section>`;
 }

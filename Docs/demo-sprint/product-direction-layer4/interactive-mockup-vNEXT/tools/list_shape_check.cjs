@@ -23,7 +23,7 @@ const SRC = {
   tier: ['iaListTier', ['ns <= IA_LIST_CAP ? 1 : 2', '2']],
   tile: ['iaListTiles', ['const n = m.n;', 'const n = m.shown.length;']],
   scopemenu: ['iaScopeEntries', ["route && route.shape === 'list'", 'false']] };
-const BLOCK = { cap: 'A', keep: 'A', scope: 'A', search: 'A', sort: 'A', invalid: 'A', group: 'AD', canon: 'A', tier: 'AD', scopemenu: 'C', remainder: 'D', tile: 'BD', rowctl: 'B', restore: 'B', own: 'B', stakesort: 'B', notarget: 'B' };
+const BLOCK = { cap: 'A', keep: 'AD', scope: 'A', search: 'A', sort: 'A', invalid: 'A', group: 'AD', canon: 'A', tier: 'AD', scopemenu: 'C', remainder: 'D', tile: 'BD', rowctl: 'B', restore: 'B', own: 'B', stakesort: 'B', notarget: 'B' };
 if (PLANT && !BLOCK[PLANT]) { console.error(`list_shape_check: unknown plant ${PLANT}`); process.exit(2); }
 function plantSource(w, block) {
   if (!PLANT || !BLOCK[PLANT].includes(block)) return;
@@ -54,7 +54,7 @@ async function blockA(fails, log) {
   const byV = { mini: [], cold: [], ev: [] }; Object.keys(SKT).forEach(k => byV[vert(k)].push(k));
   if (Object.values(byV).some(a => !a.length)) { fails.push('A: SK lacks a Site of one vertical'); B.dom.window.close(); return; }
   const G = ['mini', 'cold', 'ev'], WORDS = ['alpha beta', 'beta gamma', 'gamma alpha', 'delta', 'alpha <b>beta</b> delta'];
-  const items = [...Array(25)].map((_, i) => { const g = G[i % 3]; return { id: `i${i}`, site: byV[g][i % byV[g].length], g, f: ['a', 'b', 'c'][i % 3 === 2 ? 2 : i % 2], v: (i * 7) % 5, t: WORDS[i % 5], keep: i === 20 || i === 23 }; });
+  const items = [...Array(25)].map((_, i) => { const g = G[i % 3]; return { id: `i${i}`, site: byV[g][i % byV[g].length], g, f: ['a', 'b', 'c'][i % 3 === 2 ? 2 : i % 2], v: (i * 7) % 5, t: WORDS[i % 5], keep: i === 21 || i === 24 }; /* v 2 and 3: outside the sort's top 10 (v 0 and 1), so only keep-first shows them (IA-2b1 unit 3: i20/i23 sat inside it and the keep plant passed A) */ });
   /* the def: sorts by v (ties in store order) and by id descending; one facet f; keep on the keep flag; grouped by g */
   w.eval(`IA_LIST_DEFS.__a = { key: '__a', site: it => it.site, text: it => it.t, keep: it => it.keep, group: it => it.g,
     facets: [{ key: 'f', label: 'F', all: 'All f', options: () => [['a', 'A'], ['b', 'B'], ['c', 'C']], of: it => it.f }],
