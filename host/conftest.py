@@ -14,6 +14,7 @@ this repository could not run a suite because of it.
 from __future__ import annotations
 
 import os
+import secrets
 import tempfile
 from pathlib import Path
 
@@ -45,6 +46,9 @@ def _is_writable(directory: Path) -> bool:
 
 
 def pytest_configure(config: pytest.Config) -> None:
+    # ENV-1 (D-ENV1.13): first statement, before every early return; each process (xdist worker included) gets its
+    # own parse-slot pools, so suites, workers and lanes never wait on each other's slots or on a running server's.
+    os.environ["ASSETOPS_PARSE_SLOT_NAMESPACE"] = f"assetops-test-{os.getpid()}-{secrets.token_hex(4)}"
     # T1: a run with a database refuses to start outside the heavy-tool slot pool (xdist workers pass by ancestry).
     if os.environ.get("ASSETOPS_TEST_DATABASE_URL"): _heavy_slot_check().require("pytest with Postgres", exit_with=pytest.exit)
     # PERF-01 R5: the field acceptance tests replay at 60x real time; they belong to the slow tier.
