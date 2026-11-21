@@ -430,6 +430,14 @@ STATEMENTS = {
         "variants": [{"id": "rebuild", "text": "The figures for {month} must be prepared again before they can be "
                                                "shown."}],
     },
+    # Section 2.5 `errors` (unit 2, spec section 4.2): the route's refusals; PF5's example slot for the month.
+    "deep_dive.refused": {
+        "slots": {"code": {"type": "state", "values": ["BAD_MONTH", "DEEP_DIVE_UNAVAILABLE"]},
+                  "month_example": {"type": "example", "text": "2026-10"}},
+        "variants": [{"id": "bad_month", "when": {"is": ["code", "BAD_MONTH"]},
+                      "text": "Write the month as YYYY-MM, like {month_example}."},
+                     {"id": "unavailable", "text": "The month's figures cannot be read right now."}],
+    },
     "deep_dive.action_owner": {
         "slots": {"owner": {"type": "name"}, "due": {"type": "day"}},
         "variants": [{"id": "owner", "text": "Owner {owner} · due {due}"}],
