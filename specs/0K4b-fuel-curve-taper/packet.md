@@ -62,7 +62,7 @@ Taper start 95: 80 to 90 % takes 9 steps; 90 to 100 % takes 20. Taper start 100:
 - `tools/select-tests.py --base main`: 474 of 587 backend files selected (`models.py`, `profiles.py` are widely
   imported). The non-Postgres part of that selection: 252 files at `b17977d87`, `-n 2`: `8 failed, 6696 passed, 154 skipped in 266.87s`. Two failures were this unit's (exact-set tests, KD3; fixed, `111 passed`). The other six fail the same way on the main checkout at `e39a5d2fa`, without this branch: `test_demo_combined_finish_rows` kis8, `test_k7_kisiwa_story` test_8, `test_s1_cutover` analytics 503, two in `test_w302_evidence_api` ('Opens this range'), and one in `test_w302_money_api` (log `backend-selected-nonpg.txt`). The Postgres part was not run (full-suite scale;
   coordinator's call).
-- check-all (fast), at `b17977d87`: `All 42 guards passed (blocking; 0 advisory, 0 warned).` (log `check-all.txt`). The KD3 test-only edits came after it; none of the 42 guards reads them.
+- check-all (fast), at `b17977d87`: `All 42 guards passed (blocking; 0 advisory, 0 warned).` (log `check-all.txt`). The KD3 test-only edits came after it, and check-all was not rerun.
 - Tests first: the new backend and host test files fail at collection against `main`'s implementation (imports
   missing), checked by restoring `main`'s files in the worktree and putting them back.
 
