@@ -1,6 +1,6 @@
 /* ===== IA-1 (spec §2.2, D-IA.15 to D-IA.20): the route, alias and rail registry. One liveness rule (iaLive), applied before
    insertion by iaUnlink (ia-shapes.js) and by the palette. A unit adds its ID to IA_LANDED in its last commit. ===== */
-const IA_LANDED = new Set(['IA-1a', 'IA-1b', 'IA-1c', 'IA-2a']);
+const IA_LANDED = new Set(['IA-1a', 'IA-1b', 'IA-1c', 'IA-2a', 'IA-2b1']);
 const IA_SHAPES = ['frame', 'hub', 'list', 'decision', 'plan', 'record', 'asset', 'drawer', 'statement'];
 let IA_ROUTE_ACTIVE = false;
 /* IA-2b1 (spec-IA-2b §3.3, D-IA.75): the list control to keep in place across the hash change its own listener wrote; null otherwise */

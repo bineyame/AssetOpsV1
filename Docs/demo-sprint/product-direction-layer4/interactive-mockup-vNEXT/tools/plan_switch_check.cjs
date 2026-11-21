@@ -186,6 +186,9 @@ for (const op of ['lakeside', 'harvest', 'metro']) {
 // Act first: triage first, plan summary beside it
 for (const op of ['lakeside', 'harvest', 'metro']) {
   const dom = boot(op, 'portfolio/act-first'), w = dom.window, d = w.document, S = MAN.demo_workflow.plan_state, wf = MAN.demo_workflow.tenants.find(t => t.tenant === T[op]);
+  /* IA-2b1 (spec-IA-2b §5): #/portfolio/act-first is an alias of the Decisions list once IA-2b1 lands; the reviewed screen stays registered and
+     byte-identical, and this block reads it with the alias removed in this window only */
+  if (w.eval("typeof IA_ALIASES === 'object' && 'portfolio/act-first' in IA_ALIASES && IA_LANDED.has('IA-2b1')")) w.eval("delete IA_ALIASES['portfolio/act-first']; history.replaceState(null, '', '#/portfolio/act-first'); render()");
   const lay = d.querySelector('.layout-main-side'), main = lay?.children[0], side = lay?.children[1];
   ok(main?.querySelector('.triage li') && side?.classList.contains('side-panel'), `${op} act first: triage in the main column, plan in the side panel`);
   const st = side?.textContent.replace(/\s+/g, ' ') || '';
