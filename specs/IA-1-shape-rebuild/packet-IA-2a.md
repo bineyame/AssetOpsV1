@@ -126,3 +126,36 @@ sum), reviewed markup, registered in `qty_check`'s QTY table. **For the reviewer
 Known Deviations: (1) the phone margins of the plan's L1 notes are tightened (`.ia-plan-released/rules/case`, max-width 600) so Lakeside's plan
 at 390 does not start 8 px past the fold once the strip is at the top; (2) Portfolio Demand and capacity has no L2, so the listener and the
 check fall back to the first `[data-level]` box.
+
+## Fix round r2 (D-IA.58, D-IA.60; rulings-4.md, spec §5.1 rev 7, reviewer guide round 3)
+
+Commit on `task/IA-2a-plan`: `25decf048` (one commit; main merged first at `b2fb5de65`, `check-decision-index.py` OK). D-IA.59 (figure format) is not in this
+round: it lands in IA-2e.
+
+**D-IA.58 (M3).** `iaStickyH()` is `iaInPage`'s sticky-bar measure, extracted (one measure, two callers). `iaTabSwitch`: when the content's first box at scroll 0 starts
+below `innerHeight - 48`, the frame scrolls (instant) so that box sits at `iaStickyH() + var(--s2)`; otherwise it stays at 0. No sticky tab strip; focus rule unchanged.
+Gate (`ia_shots` `SHOTS_ONLY=tabs`, forced on the stub): Portfolio, Plan, Site x 3 operators x 390/1280/1440; Plan x 3 states (proposed, approved, sent back) x default and
+non-default case (D-IA.50: Lakeside 6500/No, Harvest aggregation No, Metro TOU No): **306 switches, 0 bad** (`tabs-clean.log`). It checks 48 px inside, content not under the
+sticky bar, focus on the active tab, scrollY 0 on the default proposed plan at 1440/1280. Plants, all fail: `tabstrip` 245 of 306 bad (Lakeside proposed non-default at 390
+on all four tabs: content 116 px below the fold), `tabnoscroll` 266, `tabscrollall` 251. Lakeside 6500/No at 390 passes on all four tabs (shots
+`/opt/assetecon/evidence/IA-2a/r2/tabshots/`, `lakeside-case-plan*-390.png`; each operator's default at 390 and Lakeside at 1280 and 1440 beside them).
+Scroll-target sweep (class, W6): in `ia-routes.js` and the other scripts the only programmatic scrolls are `iaInPage` (the linked element, below the bar), `iaTabSwitch`
+(first box, below the bar), `screens.js` hashchange `scrollTo(0,0)` (top), `rerenderKeep` in `loop-core.js` (restores the same offset). None aims at another box.
+
+**D-IA.60.** L5: `qty_check` QTY gains `overview-gap` (total `.ux-kpi-v` of "Gap to target", parts the tile's Grow/Optimize line; $852 = $25 + $827) and `plan-items`
+(the "in all" total in the tile's definition against the valued item rows' one-off costs: Lakeside $1,520 = $90 + $230 + $1,200, Harvest $620 = $350 + $270, Metro $1,590),
+each failing if its selector finds nothing on a route it names. Plants `QTY_PLANT=gap` (fails Lakeside, the only operator with a Grow part) and `items` (fails all three).
+The "+$6,089 / Net" pair waits for IA-2e. The r1 sentence "registered in QTY" is corrected: what is registered is plan-spend, overview-gap and plan-items.
+L6: `.ia-plan-released` takes the release line's font-size and colour tokens (`--fs-sm`, `--text-2`, as `.approval-releases`); `ia_shots` `releasedtype` measures it against the
+release line at every plan run (18 clauses measured; the sets are the runs of the `plan` route that show the clause); plant `SHOTS_PLANT=releasedtype` fails 18 of 73. L7: line 65's hand_typed
+sentence is corrected (fixed in code, count 0). One-off count of typed day-month dates inside template literals in `vNEXT/` (regex count, `loop-*.js`, `ia-*.js`, `screens.js`,
+`outcomes.js`, `portfolio.js`): 34, none in `ia-*.js` (loop-decisions 11, loop-portfolio 8, screens 7, loop-core 3, outcomes 2, loop-ux/init/protect 1 each); 161 lines carry a
+day-month string in any literal; extending the scanner is the coordinator's backlog item.
+D-IA.56 changed tile rows (3-tile rows; 4-tile rows unchanged): Harvest and Metro, on all four plan routes. Shots: `harvest-plan-1440-light.png`, `metro-plan-1440-light.png`,
+`harvest-plan-390-light.png`, `metro-plan-390-light.png` (and the three other plan tabs per operator, same names with `-left-out`, `-review`, `-history`), in `r2/gates/shots/`.
+
+**Gates** (heavy slot, logs `/opt/assetecon/evidence/IA-2a/r2/gates/`, `summary.txt`), all green: build; `ia_shots` full **612 measured, 0 bad** (649 s); qty_check PASS (270 screens, 60 s);
+count_check PASS; uxi PASS (588 s); G3 36 of 36; plan_switch 793 passed, 0 failed; shell_check, design_lint 0; render_text 237 renders 0 errors; vocab 0; copy 4838 strings 0 stray;
+hand_typed count 0; check_manifest 7572 passed; parts_identity against main 282 of 282 byte-identical; **`ia_gates` unforced 79 runs all as expected (6797.7 s)**. Two uxi plant runs inside
+`ia_gates` (`planans`, `planwait`) stalled at low CPU for 47 and 22 minutes (the browser stopped answering); I killed the browser each time, the gate recorded "got fail", so
+those two are fails by crash, not by the plant's own assertion. A standalone `UXI_PLANT=planans` rerun completed normally in 10 m 34 s with 9 assertion FAILs (rc 1; `gates/uxi-planans.log`), so the stalls were browser flakes, not the plant or this round's code; `planwait` was not rerun alone. Fast check-all: **All 40 guards passed** (396 s wall, 276 s waiting for a slot). Layout evidence (`tools/layout-evidence.mjs`): not run, needs a served URL (no server started); `ia_shots` measures.
