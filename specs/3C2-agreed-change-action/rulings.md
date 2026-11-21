@@ -251,3 +251,23 @@ reviewer guide (rev 2) that fails it.
   `chain_input_change`.
 - **Why.** Row triggers do not stop TRUNCATE; an append-only record with one open door is not append-only, and the
   fix is one line with a precedent.
+
+## Mid-build answers
+
+## D-3C2.15 The agreed-action composition lives in `actions/composition.py`; `agreed_composition.py` only re-exports (MB1)
+
+- **Ruling.** Alternative B. `build_agreed_actions` and `AgreedActionsService` move into `actions/composition.py`
+  (appended after S6-01a's code, calling none of it, no import-time effect); `actions/agreed_composition.py` becomes
+  two re-export lines and imports no adapter. The persistence guard needs no change for this: `actions/composition.py`
+  is already the package's one admitted adapter importer. Test 5 reads: only `actions/composition.py` imports the
+  agreed adapter; `agreed_composition.py` imports no adapter and defines nothing else. DDR G10's
+  `build_agreed_actions(url).service.for_tenant(tenant)[0]`, `record_action`'s import and test 9(e) are unchanged.
+- **Why.** The guard's rule is one composition root per package; A would widen a held guard rule to fit one file,
+  B keeps the rule and leaves the owner one question (the writer block). Costs weighed, none a design problem: the
+  edit touches an S6-01a file by appending only (no open `task/*` branch edits it); importing the composition also
+  loads S6-01a modules (imports only, no call, no cycle: `actions/` imports nothing from `deep_dive/`); agreed and
+  S6-01a code share a file, kept apart by the block boundary and by `agreed.py` importing nothing from S6-01a (test 5).
+- **Writer block.** `42de02e06` is independent of MB1 and still needed; it stays held for the owner (owner-away
+  row 5). With B the guard is green on the adapter-import line without any change.
+- **Code change that follows (builder, 3C2 branch).** Move the two definitions; make `agreed_composition.py`
+  re-exports; retarget test 5's importer set to `{"actions/composition.py"}` plus the two assertions above.

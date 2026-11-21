@@ -1,6 +1,6 @@
 # 3C2: the agreed change recorded as an Action (implementer spec)
 
-Status: rev 2, Architect (Claude), 2026-11-20, after handshake round 1 (`handshake.md`; answers in `rulings.md`
+Status: in_review (commit 1 codes, commit 2 SC-1 statements, D-3C2.14; `packet.md`). Spec rev 3 (D-3C2.15: composition in `actions/composition.py`; was rev 2), Architect (Claude), 2026-11-20, after handshake round 1 (`handshake.md`; answers in `rulings.md`
 "Handshake answers (round 1)"). Lane C (`two-week-build-plan.md` §0.2, days 5 and 6). **1.5 units.** Discovery review
 (W5): a new schema and a person rule. `USER_REVIEW_REQUIRED: false` (no screen; 5c shows the Action).
 - **What it is.** RC9: the first change agreed at the end of the deep-dive is recorded by people as an Action with its
@@ -41,8 +41,9 @@ Status: rev 2, Architect (Claude), 2026-11-20, after handshake round 1 (`handsha
 - **Databases:** `*_test` only, through `tools/heavy-slot.sh --db -- <command>`. Never ports 5490 or 8990, the
   walkthrough database or Docker.
 - **Collisions.** New: `backend/migrations/versions/00NN_agreed_action.py`, `backend/assetops_backend/actions/agreed.py`,
-  `actions/adapters/postgres_agreed_action_store.py`, `actions/agreed_composition.py`,
+  `actions/adapters/postgres_agreed_action_store.py`, `actions/agreed_composition.py` (a re-export only, D-3C2.15),
   `backend/assetops_backend/record_action.py`, the two test files. Edited: `accounts/permissions.py` (one line),
+  `actions/composition.py` (the agreed-action block appended, D-3C2.15),
   `tools/checks/configuration-persistence.ps1` (one writer block). Nothing else, `accounts/service.py` included.
   Unit 2: `deep_dive/actions.py` (one class), `deep_dive/composition.py` (one line),
   `backend/tests/test_5c_deep_dive_postgres.py` (case 9(d)), `backend/tests/test_3c2_agreed_actions.py` (case 9(e)).
@@ -197,9 +198,12 @@ tenant_id = :t AND site_code_key = lower(:c)`. `find`: one `SELECT` of `agreed_a
 `for_tenant`: one `SELECT` of `agreed_action a` joined to `operator_account o` (owner) and `operator_account c`
 (creator) on `(tenant_id, id)`, left-joined to `site s` on `(tenant_id, id)`, `WHERE a.tenant_id = :t ORDER BY
 a.created_at DESC, a.id DESC`. It reads no other table (never `action`, `action_event` or any S6-01a table).
-`dispose()` disposes its engine. `actions/agreed_composition.py`: `build_agreed_actions(database_url) ->
-AgreedActionsService(service, dispose)`, where `service` is an `AgreedActionService` over this adapter and
-`accounts.composition.build_account_service(url)`, clock UTC now; the only importer of the adapter.
+`dispose()` disposes its engine. Composition (D-3C2.15): `build_agreed_actions(database_url) ->
+AgreedActionsService(service, dispose)` and `AgreedActionsService` are defined in `actions/composition.py`, the
+package's one composition root, appended after S6-01a's code and calling none of it; `service` is an
+`AgreedActionService` over this adapter and `accounts.composition.build_account_service(url)`, clock UTC now;
+`actions/composition.py` is the only importer of this adapter. `actions/agreed_composition.py` is the stable name
+5c and the command import: it re-exports those two names and imports no adapter.
 
 ### 2.5 The command (`python -m assetops_backend.record_action`)
 
@@ -326,7 +330,7 @@ owner Joseph, due 2026-12-20, no Site), "Change D" (11:00Z, id 4, owner Joseph, 
    "Overdue".
 4. `roles_of("action.agree") == ("OPERATOR_EXECUTIVE",)`; `OWNER_COVER` equals D-3C2.6's three entries exactly.
 5. Grep: `actions/agreed.py` imports no adapter and nothing from `actions/service.py`, `lifecycle.py`,
-   `verification*.py`, `ports.py` or `actions/composition.py`; only `agreed_composition.py` imports the adapter; the
+   `verification*.py`, `ports.py` or `actions/composition.py`; only `actions/composition.py` imports the agreed adapter, and `agreed_composition.py` imports none and defines nothing but the two re-exported names; the
    table names in the adapter's SQL strings, taken by `(?i)\b(?:FROM|JOIN|INTO|UPDATE)\s+([a-z_][a-z0-9_]*)`, are a
    subset of `{"agreed_action", "operator_account", "site"}`, and `\baction\b` and `\baction_event\b` match nowhere in
    the adapter; the migration file and the adapter's SQL match no

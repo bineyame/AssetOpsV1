@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-IA.49 to D-IA.53)
+# Decision index: Demo-sprint and later rulings (index only) (D-IA.49 to D-IA.53, D-3C2.15)
 
 One line per decision ID: ID, title, status, file. Status is `live` unless a later decision text supersedes it. Top index: `INDEX.md`.
 
@@ -7,3 +7,4 @@ One line per decision ID: ID, title, status, file. Status is `live` unless a lat
 - `D-IA.51` L1 case line on all four tabs when the case is not the proposal; Approve of another case is never unseen · live · specs/IA-1-shape-rebuild/rulings-3.md
 - `D-IA.52` Plant and fingerprint rules: cap asserted on History, selectors, own constants, period check, doc titles per Site, approve-fold metric, copy list · live · specs/IA-1-shape-rebuild/rulings-3.md
 - `D-IA.53` G1 origins and depths (item decision 3, reported), crew and listed full width, commit plan · live · specs/IA-1-shape-rebuild/rulings-3.md
+- `D-3C2.15` Agreed-action composition lives in actions/composition.py, agreed_composition.py re-exports; no guard change (MB1) · live · specs/3C2-agreed-change-action/rulings.md

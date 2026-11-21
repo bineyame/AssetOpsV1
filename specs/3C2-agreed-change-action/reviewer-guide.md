@@ -19,7 +19,7 @@ every plant below fails its named test.
 3c. **Trust stated.** The packet lists `R-AUTH`; nothing calls the command authenticated.
 4. **One writer.** The persistence guard's new block; its two failing runs are in the packet.
 5. **Seams.** `git diff main...HEAD --stat` lists only spec §0's files; nothing under `actions/` other than the three
-   new modules changes; `actions/agreed.py` imports no S6-01a module (test 5); unit 2's two `deep_dive/` files import
+   new modules and the appended agreed-action block in `actions/composition.py` (D-3C2.15; S6-01a's lines untouched) changes; `actions/agreed.py` imports no S6-01a module and `agreed_composition.py` imports no adapter (test 5); unit 2's two `deep_dive/` files import
    only `actions.agreed` and `actions.agreed_composition` (test 9(e)).
 6. **Names, not emails; nothing valued.** The command's stdout and stderr hold no `@` (tests 1, 2 and 7); the line has
    exactly twelve keys (test 1); no value or money word in the migration or the adapter's SQL (test 5).

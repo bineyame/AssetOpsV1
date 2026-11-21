@@ -316,13 +316,15 @@ def test_t7_legacy_refuses_facts_and_structured_refuses_text():
 
 def test_t8_shipped_catalogue_loads():
     cat = catalogue._load()
+    # Adopters add their area's statements and vocabularies (3A7: `reconciliation.*`, D-SC1.28; 3C2: `agreed_action.*`,
+    # `action_state`, D-3C2.14).
     assert set(cat.statements["en"]) == {"common.not_available", "common.budget_lines",
-                                         # 3A7 (D-SC1.28): its statements, SC-1 sections 5.1 and 5.4 among them
                                          "reconciliation.heading", "reconciliation.gap", "reconciliation.share",
                                          "reconciliation.scope", "reconciliation.statement", "reconciliation.standing",
-                                         "reconciliation.money_word", "reconciliation.refused"}
+                                         "reconciliation.money_word", "reconciliation.refused",
+                                         "agreed_action.state", "agreed_action.refused"}
     assert set(cat.vocabulary["en"]) == {"factor", "heading", "headline_subject", "record", "record_noun",
-                                         "evidence", "unit", "noun", "month", "format"}
+                                         "evidence", "unit", "noun", "month", "format", "action_state"}
 
 
 def test_t8_a_module_with_a_docstring_loads_by_its_assignment_value():
