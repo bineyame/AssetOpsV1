@@ -40,6 +40,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
 
+from assetops_backend.served_text import served_text
 from assetops_backend.sites.cutover import ProductSiteDirectory, ProductSiteEntry
 from assetops_backend.sites.foundation_parsing import render_foundation_content
 from assetops_backend.sites.identity import SITE_ID_RULE, validate_site_id
@@ -142,9 +143,9 @@ def site_component(component: SiteComponent) -> dict[str, object]:
             else [
                 {
                     "property_key": item.property_key,
-                    "display_name": COMPONENT_PROPERTY_DEFINITIONS[
-                        item.property_key
-                    ].display_name,
+                    "display_name": served_text(
+                        COMPONENT_PROPERTY_DEFINITIONS[item.property_key].display_name
+                    ),
                     "value": item.value,
                     "unit": item.unit,
                     "kind": item.kind,
