@@ -45,7 +45,7 @@ All 14 grid cases are admitted (`kobo-61d/run.txt`, one line each). Per-dawn tab
 `study.json` `dawn_below`; every reading below 35 % is class `other` (none after an overcast day): the baseline's four
 (6 Sep, 2, 15, 28 Oct) are 34.795 % with the generator STARTING (the step it crosses the 35 % start). Night table
 after the 3-4 Sep overcast spell: `kobo-61d/night-table-2026-09-04-after-overcast.txt` (starts at 34.56 % at 19:55,
-SOC rises every RUNNING step, battery charging at −2.1 to −2.5 kW, 0 RUNNING steps with battery discharge).
+SOC rises every RUNNING step, battery charging at −2.1 to −2.5 kWh per 5-minute step, 0 RUNNING steps with battery discharge).
 
 ## 3. Mto figures: season v2 on mini-grid v8 (SIMULATED, MODELLED)
 
@@ -86,11 +86,13 @@ Kinds: (1) declared setting or record fact, (2) v8 study figure SIMULATED, (3) N
 | table, settings | 30 → 25; 90 → 70, reserve 30; 100 kWh battery (28,000) | 1 (declared settings; KOB-BATT100 size and manifest capex) |
 | table, litres | 59.7, 212.8 L a month; "61-day window × 30 / 61" | 2 (and its definition) |
 | table, dawn | worst 29.8 %, 34.8 %; 11 of 61, 4 of 61; margin −5.2, −0.2; "below 35 %" | 2 (readings, counts); margin and 35 are 4 |
+| table, dawn, comparison | "same 4 dates as no action"; "7 more than no action, which has 4" (11 against 4) | 2 (the baseline's own 4 and the case's 11 are v8 study counts, SIMULATED); 7 is their difference, 4 (information beside the rule) |
 | table, throughput, starts | 114.7, 59.0 kWh a month; −2.5, 8.4 a month; most starts in a day 2, 3 | 2 |
 | table, lowest charge | 33.1 % | 2 |
 | table, value, warranty | Value cells; warranty floor; candidate running litres | 3 |
 | candidate grid | {90, 85, 80, 75, 70, 65, 60} × {30, 25}; 10 % tie | 1 (proposed grid; `6c`'s tie rule, kept by D-0K4.29) |
 | evaluator inputs | 212.8, 59.7, 153.9 L a month; "× 30 / 61"; 0 L a day | 2 |
+| evaluator inputs | "mid-afternoon" (the Mto reduced-inverter reason, review L2) | 2 (read from the review's diagnostic on the SIMULATED v8 run, no new figure) |
 | evaluator inputs | half inverter capacity, 25 kW | 1 |
 | evaluator inputs | KIS-BATT60 | 3 |
 | calibration | ±5 %, ±10 %, 5 points, 5 minutes; G = 1000 ×; 60 kW PV on 50 kW AC; ≥ 14 days | 1 (declared thresholds, `replay_study.py` CALIBRATION_*, MIN_LITRE_DAYS) |
@@ -137,4 +139,7 @@ MG-T2 "210 L, 0/61, 2,916.00", and the 6 `<!--fig:-->` anchors on them.
 - The dawn readings below 35 % are the start-threshold crossing step (34.795 %), so the baseline itself shows a −0.205 margin.
 - The digest covers forcings and initial values only, not the rest of `FrozenWorldInputs`.
 - Line 5 of the pack still names 210 L, 20 L, 68 L as design values, and §4.3 still holds 68 L: outside §4.2's Kobo text (0K4m).
+- 0K4m hand-over (review L4): `domain-and-decision-models.md` line 755 still shows 330 and 2,916.00;
+  `phase-plan-and-acceptance.md:144` says "KOB-RESERVE rejected by dawn adequacy", which now contradicts reserve 25 admitted.
+- Round after review (L1-L4): L1, L2 in the doc; L3 the V5 test records `admit`'s arguments (baseline first); L4(b) the night table's column is relabelled kWh per 5-minute step in the evidence copy and `night.py`.
 - Mid-build questions: 0.

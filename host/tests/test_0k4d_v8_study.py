@@ -365,9 +365,22 @@ def test_v5_the_kobo_tool_with_no_flag_is_main_s(tmp_path, capsys, monkeypatch) 
     # 14 days is about 3 minutes; these three about 1); the grid is the tool's, narrowed, never another frame
     monkeypatch.setattr(kobo_tool(), "KOBO_GRID", GRID)
     out = tmp_path / "14" / "study.json"
+    # the tool's admission wiring (`admit(baseline, case, rule)`): every call takes the baseline first and the case
+    # second, and the written admission is of that case; swapped arguments leave this season's parts equal (0 = 0)
+    # but not these ids
+    real_admit, calls = kobo_tool().admit, []
+
+    def recording_admit(baseline, case, *args, **kwargs):
+        calls.append((baseline.case_id, case.case_id))
+        return real_admit(baseline, case, *args, **kwargs)
+
+    monkeypatch.setattr(kobo_tool(), "admit", recording_admit)
     assert kobo_tool().main(["--days", "14", "--out", str(out)]) == 0
     doc = json.loads(out.read_text(encoding="utf-8"))
     assert (doc["status"], doc["model"], doc["season"]) == ("CALIBRATED", "mini-grid/7", "v1")
+    assert calls == [("baseline", c["case_id"]) for c in doc["cases"]] and len(calls) == 3
+    assert all(c["case_id"] != "baseline" for c in doc["cases"])
+    assert all("admission" in c for c in doc["cases"])
     got = {c["case_id"]: c["avoided_l"]["exact"] for c in doc["cases"]}
     assert len(got) == 3 and got == {key: MAIN_AVOIDED_L_14[key] for key in got}
     printed = [line for line in capsys.readouterr().out.splitlines() if line]
