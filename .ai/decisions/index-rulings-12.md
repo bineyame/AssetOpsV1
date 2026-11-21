@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-5B.15 to D-IA.42)
+# Decision index: Demo-sprint and later rulings (index only) (D-5B.15 to D-IA.48)
 
 - `D-5B.15` A RESIDUAL row carries NOT_SPLIT / DETAIL_NOT_AVAILABLE; 5c keys on kind first (mid-build Q1) · live · specs/5b-attribution/rulings.md
 - `D-3A6.1` A source profile is a JSON data file compiled to the one engine's Layout; new fields default to today's behaviour (amends D-3A3.2) · live · specs/3A6-source-profiles/rulings.md
@@ -38,3 +38,9 @@
 - `D-3A7.11` The organisation's scope is its mini-grid Sites; other Site types refused · live · specs/3A7-month-reconciled/rulings.md
 - `D-3A7.12` A tolerance cites an owner file naming the tenant and the figure, pinned by SHA-256 (amends D-3A7.4) · live · specs/3A7-month-reconciled/rulings.md
 - `D-3A7.13` The standing's text appends the sentences of the headings that did not match (amends D-3A7.7) · live · specs/3A7-month-reconciled/rulings.md
+- `D-IA.43` Plan is one object page, four tab routes (Items, Left out, Review, History); L1 identical on every tab; docTitle per tab; approval panel placed once (R757 D2); switches on Items and Left out · live · specs/IA-1-shape-rebuild/rulings-2.md
+- `D-IA.44` Plan stepper Draft › Proposed › Approved › Closed from uxPlanState only (r4 M1 one source); REVISED = Proposed; plants COUNT_PLANT=planstep|planhist · live · specs/IA-1-shape-rebuild/rulings-2.md
+- `D-IA.45` One meter form in L1: spend tile bar plus one crew tile and bar per month (≤ 4 tiles); plant PSW_PLANT=crewtile · live · specs/IA-1-shape-rebuild/rulings-2.md
+- `D-IA.46` Byte-identical: planParts, approvalParts, uxPlanBandParts, whatChangedParts in three plan states; untouched list; screens.js docTitle line · live · specs/IA-1-shape-rebuild/rulings-2.md
+- `D-IA.47` Review is What changed's plan review (R759 D1); History from the act log and manifest (R760 D5); no plan list capped by position · live · specs/IA-1-shape-rebuild/rulings-2.md
+- `D-IA.48` IA-2a gates and plants; dormant checks until landed; short-tab sticky rule; 3 units, clean stop at any commit before the flip · live · specs/IA-1-shape-rebuild/rulings-2.md

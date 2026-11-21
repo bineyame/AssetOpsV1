@@ -35,8 +35,13 @@ have no ID; find them by date heading (`## 2026-09-11` ...) in the parts.
 | `index-rulings-9.md` | Demo-sprint and later rulings | `D-3A2.1` to `D-3A3.8` (51) |
 | `index-rulings-10.md` | Demo-sprint and later rulings | `D-4B.1` to `D-IA.31` (51) |
 | `index-rulings-11.md` | Demo-sprint and later rulings | `D-ON1.9` to `D-5B.14` (49) |
-| `index-rulings-12.md` | Demo-sprint and later rulings | `D-5B.15` to `D-IA.42` (38) |
+| `index-rulings-12.md` | Demo-sprint and later rulings | `D-5B.15` to `D-IA.48` (44) |
 | `index-rulings-13.md` | Demo-sprint and later rulings | `D-4D.1` to `D-3C2.13` (56) |
+| `index-rulings-14.md` | Demo-sprint and later rulings | `D-IA.49` to `D-IA.53` (5) |
+| `index-rulings-15.md` | Demo-sprint and later rulings | `D-SC1.1` to `D-SC1.28`, `D-3C2.14` (29) |
+| `index-rulings-16.md` | Demo-sprint and later rulings | `D-0K1.10` to `D-0K1.18`, `D-DS3.9` to `D-DS3.19` (20) |
+| `index-rulings-17.md` | Demo-sprint and later rulings | `D-4A.1` to `D-4A.26`, `D-3B6.1` to `D-3B6.12` (38) |
+| `index-rulings-18.md` | Demo-sprint and later rulings | `D-3B4.1` to `D-3B4.15` (15) |
 
 The `index-rulings-*` lines are index-only: demo-sprint and later rulings
 (D-SR, D-E5, D-ANY, D-AW, D-W1, D-MONEY and the rest) whose text is in the

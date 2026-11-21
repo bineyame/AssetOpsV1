@@ -202,3 +202,33 @@ rev 2. Each gate named here has a plant in `reviewer-guide.md` rev 2 that fails 
 - **P4 (Low).** `build_deep_dive_read(url)` builds 3B7a's snapshot read, 3A7's `(reconciliation, dispose)` and the
   actions port, and disposes all three; test 9 injects 3A7's months clock.
 - **P5 (Low).** MD7's note says the live Portfolio's six tabs against vNEXT's three predate 5c; "The month" makes seven.
+
+## Amendment (SC-1, 2026-11-21): words as statements (D-SC1.14)
+
+If `SC-1a` (`specs/SC-1-statement-composer/spec.md`) has merged when unit 1 starts, §2.5 is written as structured
+statements in `i18n/statements/en/deep_dive.py` (the headline exactly as SC-1 §5.2; every other row by the same rules:
+`{below|above}` and similar as picks, "appended when k < n" and optional fragments as parts, one / two or three / more
+Sites as variants, `{a|an}` as the factor vocabulary's declared article); §2.1's formats are SC-1's formats (identical
+by D-SC1.10); §2.2 to §2.4 are read from SC-1's shared vocabulary; `deep_dive/words.py` keeps only the functions that
+build facts (which heading is named, `needs` keys), and it and `deep_dive/view.py` join the guard's `ADOPTED`; every
+variant gets a case. Otherwise §2 ships as written, its keys join the legacy baseline, and SC-1b converts them.
+
+**Amended (SC-1 handshake, 2026-11-21; D-SC1.26 replaces the "otherwise" above).** Unit 1 starts when SC-1a has
+merged (its other gates stand); the coordinator checks at dispatch and says so in the brief. There is no flat
+fallback. The headline is SC-1 §5.2 rev 2: a `served` statement whose `requires` checks the named heading's sign
+(D-SC1.20); the payload's `headline` becomes `{"text", "evidence"}` and the screen shows `evidence` beside it as the
+tiles show `word` (D-SC1.18). If the governing mock shows no evidence word beside the headline, that is a **MOCK
+DEVIATION** (category: honesty rule, every figure carries its evidence class). The share column and the disagreement
+notice are SC-1 §5.4's shapes; prices use SC-1's `price` format. Every template or vocabulary word holding a number
+word is reworded to drop it (D-SC1.21): `SITE_SETUP` reads "a generator and a fuel tank declared in the Site's setup
+(litres are worked out for each)". This unit's expected strings change by these rules only; the packet lists each.
+
+**Amended (owner away, 2026-11-21; D-SC1.28 replaces D-SC1.26's start rule above).** Code starts on its gates (3B7a and 3A7 merged; 3A7 now merges only after SC-1a, so unit 1 still starts after SC-1a); only the
+text waits: no 5c code writes served text outside SC-1 statements (D-SC1.28). The unit merges only after SC-1a.
+
+**Amended (4a spec, 2026-11-21; D-4A.12).** `RECORDS`, `RECORD_KEYS` and `NOTE_KEYS` of spec §2.3 change as D-4A.12
+states (`specs/4a-energy-to-cash/rulings.md`): `METER_READS` and `LOSS_BAND` added after `METER_REGISTER`,
+`TARIFF_SHEET` removed, the energy leaves' keys and 4a's notes mapped. If 5c has not merged when 4a starts, the 5c
+builder takes it; if it has, 4a's last commit does. Words as SC-1 statements (D-SC1.28). 4a's handshake adds:
+`adjustments_kwh` (BILLING) and `BILLING_ADJUSTMENTS` removed from `RECORDS` (D-4A.20); `NOTE_KEYS` gains
+`METER_REF_CONFLICT` (METER_READS, METER_REGISTER) (D-4A.24).

@@ -46,7 +46,8 @@ from assetops_backend.mini_depth.inputs import (
 )
 from assetops_backend.mini_depth.provenance import LinkRowsOn, mini_blocks
 from assetops_backend.mini_depth.store import (
-    _ACCEPTED, DOMAINS, JOB_DOMAIN, NO_PV_BINDING, DaylightHours, daylight_hours, read_hour_rows,
+    _ACCEPTED, _COLUMNS, _KNOWN, _OVERLAPS, DOMAINS, JOB_DOMAIN, NO_PV_BINDING, DaylightHours, daylight_hours,
+    read_hour_rows,
 )
 from assetops_backend.sites.binding_roles import ROLE_SET_MINIGRID_4
 
@@ -383,6 +384,21 @@ def check_lineage(domain: str, window: rules.Window, row: Sequence[Any]) -> None
         raise MiniReadUnavailable("A selected mini-depth revision's lineage or basis is broken.")
 
 
+#: 4a (spec §4.2): `_ACCEPTED`'s statement with `e.source_mode` added to its select list (column 16).
+_ACCEPTED_FEEDERS = _ACCEPTED.replace(f"SELECT {_COLUMNS} FROM", f"SELECT {_COLUMNS}, e.source_mode FROM", 1)
+
+
+@dataclass(frozen=True)
+class FeederMonthRows:
+    """4a (spec §4.2): the raw cutoff-visible rows `structure.energy.inputs.feeder_month` adapts."""
+
+    binding_sets: tuple[tuple[UUID, datetime, datetime | None], ...]      # (id, valid_from, valid_to)
+    feeder_bindings: tuple[tuple[UUID, UUID, datetime, datetime | None], ...]  # (set id, asset_id, from, to)
+    assets: tuple[tuple[str, UUID], ...]                                  # (asset_code, id)
+    foundations: tuple[tuple[UUID, datetime, datetime | None, Any], ...]  # (id, valid_from, valid_to, content)
+    readings: tuple[dict[str, Any], ...]  # evidence_id, asset_id, start, end, value_kw, quality, source_mode
+
+
 class MiniDepthRead:
     """The read-only mini-depth reader (closure 1 Q6-Q8, Q14, Q15, Q18, Q31; q6 rulings 1 and 5)."""
 
@@ -457,6 +473,39 @@ class MiniDepthRead:
             return [{"evidence_id": r[0], "asset_id": r[2], "start": r[4], "end": r[5],
                      "value_kw": r[7] if r[8] == "kW" else None, "quality": r[6]}
                     for r in rows if str(r[2]) in wanted and r[4] is not None and r[5] is not None]
+        return self._readonly(work, known_at)
+
+    def feeder_month(self, *, tenant_id: UUID, site_id: UUID, lo: datetime, hi: datetime,
+                     known_at: datetime | None) -> FeederMonthRows:
+        """4a (spec §4.2): the `minigrid-roles-4` binding sets and their `feeder_demand` bindings, the Site's assets,
+        the Foundation revisions and the accepted feeder interval readings, all known at the cutoff and overlapping
+        `[lo, hi)`. SELECT only; a refusal or an outage propagates (D-4A.23)."""
+        def work(c: Connection, known: datetime) -> FeederMonthRows:
+            p = {"t": tenant_id, "s": site_id, "k": known, "lo": lo, "hi": hi}
+            sets = c.execute(text(
+                "SELECT id, valid_from, valid_to FROM signal_binding_set_revision WHERE tenant_id = :t "
+                f"AND site_id = :s AND role_set = :rs AND {_KNOWN} AND {_OVERLAPS} ORDER BY valid_from, id"),
+                {**p, "rs": ROLE_SET_MINIGRID_4}).all()
+            bindings = c.execute(text(
+                "SELECT binding_set_revision_id, asset_id, valid_from, valid_to FROM signal_binding_revision "
+                "WHERE tenant_id = :t AND site_id = :s AND binding_set_revision_id = ANY(:ids) AND role = :role "
+                "ORDER BY binding_set_revision_id, asset_id"),
+                {**p, "ids": [r[0] for r in sets], "role": rules.FEEDER_DEMAND}).all() if sets else []
+            assets = c.execute(text("SELECT asset_code, id FROM asset WHERE tenant_id = :t AND site_id = :s "
+                                    "ORDER BY asset_code"), p).all()
+            foundations = c.execute(text(
+                "SELECT id, valid_from, valid_to, content FROM foundation_revision WHERE tenant_id = :t "
+                f"AND site_id = :s AND {_KNOWN} AND {_OVERLAPS} ORDER BY valid_from, id"), p).all()
+            rows = c.execute(text(_ACCEPTED_FEEDERS), {**p, "roles": [rules.FEEDER_DEMAND]}).all()
+            readings = tuple(
+                {"evidence_id": r[0], "asset_id": r[2], "start": r[4], "end": r[5],
+                 "value_kw": r[7] if r[8] == "kW" else None, "quality": r[6], "source_mode": r[16]}
+                for r in rows if r[4] is not None and r[5] is not None)
+            return FeederMonthRows(
+                tuple((r[0], r[1], r[2]) for r in sets), tuple((r[0], r[1], r[2], r[3]) for r in bindings),
+                tuple((r[0], r[1]) for r in assets),
+                tuple((r[0], r[1], r[2], r[3] if isinstance(r[3], dict) else json.loads(r[3])) for r in foundations),
+                readings)
         return self._readonly(work, known_at)
 
     def read(self, *, tenant_id: UUID, site_id: UUID, site_code: str, domain: str, lo: datetime, hi: datetime,
@@ -786,6 +835,6 @@ def renewable_revisions(c: Connection, tenant_id: UUID, site_id: UUID,
                                 "evidence_ids": [str(i).lower() for i in r[3]]} for r in rows}
 
 
-__all__ = ["MESSAGES", "MiniDepthRead", "MiniReadRefused", "MiniReadUnavailable", "aggregate_job", "aggregate_state",
+__all__ = ["FeederMonthRows", "MESSAGES", "MiniDepthRead", "MiniReadRefused", "MiniReadUnavailable", "aggregate_job", "aggregate_state",
            "check_lineage", "compose_renewable", "hour_windows", "iso", "limit_claim", "links", "renewable_envelope",
            "renewable_revisions", "site_path"]
