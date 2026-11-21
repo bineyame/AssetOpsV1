@@ -147,3 +147,132 @@ runs (I read the named tests and ran my own). Unit 3 is not built.
 
 M1 until fixed. L6's orphan key. The world check passes only while the definition's Sites are what `build` built;
 the C2 and C3 checks are self-referential by design (they catch drift, not a wrong build).
+
+## Round 2 (discovery, W5): unit 3 at `bce4db0f7` (code `58bb50809`)
+
+Reviewer (fresh Claude), 2026-11-21. Read: spec §0, §4, §6, §7; D-DS4.11, .12, .19, .20; packet "Unit 3"; the
+`58bb50809` diff (`tools/world.py` bench, `test_ds4_bench_pipeline_postgres.py`, T10) and `088e93f9d`.
+
+**Summary (verdict ACCEPT WITH FIXES).**
+- The bench code meets §4: B1 to B6, the `ds7` block and the five targets are there. Every bench database is dropped
+  in `finally`, the report holds codes only, and the key root is only stat-checked and passed as a path.
+- `ds7` is computed as §4 and D-DS4.12 say: `triggered = projected_l2_seconds > 2700`, with its basis, beside the
+  measured 8.891 s.
+- **B5's `fail` comes from the bench, not from the pipeline (M1).** The slice starts with 686 roles-4 mini jobs. The
+  tick's mini stage takes 10 per Site (`scheduling/tick.py:70`). N leaves mini jobs out, and B5 skips the mini-depth
+  drain that `demo_combined` always runs first. So the drain cannot settle within 2N. My trace shows the real
+  pipeline drained at tick 4; at 10 jobs a tick the rest would take about 69 ticks.
+- The 19.585 s per Site-day figure therefore mixes 4 ticks of pipeline with 9 ticks of mini backlog. It is a
+  truncation, not a "lower bound" in any useful sense (M2, packet wording). DS7 stays triggered either way.
+- T10 is right, and 3 of my 5 plants failed it. The two that survived name no gap in §5 (L1, L2).
+- Fast check-all: 41 of 42 blocking guards passed. The one failure was a wall-time bound in a contracts test outside
+  DS4's diff, at load 12.7; that test passes when run alone (see Checks).
+
+### Findings
+
+**M1 (Medium, an acceptance gap in the spec's B5 text, which the implementer followed literally).**
+`backend/tests/test_ds4_bench_pipeline_postgres.py:79-104` (and spec §4, B5). The bench relabels the seed
+`minigrid-roles-4` so that mini-domain jobs exist. Commissioning then queues 686 mini-depth jobs (tick 0:
+`mini_deferred` 686). The tick drains at most `mini_jobs_per_site = 10` of them (`scheduling/tick.py:70`; `TICK`
+does not override it). That is why `demo_combined` always runs `drain_mini` (`mini_depth.worker run-pending --limit
+500` until nothing is due) before every R8 drain (`tools/demo_combined.py:1311-1325`, `:1150`, `:1198`, `:1701`).
+The R6 O2 N (`demo_combined_drain.py:28-33`) counts only dirty rows and pending snapshots, because it assumes that
+step has run. B5 skips it, so `fail` past 2N is certain on this slice.
+
+My trace, the same steps through `heavy-slot.sh --db` with counts after every tick
+(`/opt/assetecon/evidence/DS4/review-u3/drain-trace.jsonl`):
+- Dirty rows, snapshots and threads were all 0 by tick 4. Ticks 1 to 4 took 37.9, 28.9, 20.3 and 16.8 s.
+- From tick 5 to tick 45, `mini_deferred` fell by exactly 10 a tick, from 646 to 236, at about 15 s a tick.
+- Nothing was stuck. With N read after the first tick, as `demo_combined.drain` does, N is 5 and the drain fails at
+  tick 11.
+
+**Why it matters.** The verdict and the per-Site-day figure that feeds DS7 (owner row 35) are artifacts of a missing
+step:
+- The packet's "a real pipeline property, lower bound" reading is wrong about the cause.
+- The pipeline alone is about (34.9 + 104.0) / 14 = 9.9 s per Site-day, which projects about 5,450 s. That is still
+  above 2,700, so DS7 stays triggered.
+- The mini-depth backlog is a real cost that no one has measured. It would add about 1,000 s through ticks, or
+  less through the worker.
+
+**Fix (Architect to rule; route through the coordinator).** After `enrol`, run the mini-depth worker exactly as
+`drain_mini` does. Time it as `mini_depth_seconds` in the `DS4_PIPELINE` line, and add `end_counts` (the FIELDS per
+Site) so that a reader can tell a moving drain from a stuck one. Decide whether `per_site_day_seconds` includes
+`mini_depth_seconds`.
+
+Keep the change inside the test file if you can. That file is not a ladder key part (`tools/world.py:43-44`), so the
+kept `assetops_world` ladder stays current. Any edit to `tools/world.py` makes all three kept templates stale: they
+then need `world build` (about 36 s) and `world check` (about 620 s).
+
+Then rerun `world bench` alone, on a quiet DB slot, and replace B5 and B6 in the packet and the state. The run needs
+no other rerun.
+
+**M2 (Medium, honesty of a reported figure; packet and state wording).** Two documents say the wrong thing about
+B5:
+- `specs/DS4-template-ladder/packet.md`, residual risk "B5's drain did not settle ... a lower bound on the real drain
+  cost".
+- `.ai/state/data.md`, "pipeline 19.6 s per Kobo Site-day".
+
+Both present 19.6 s as the pipeline's per-Site-day cost. It is the pipeline plus 9 ticks of a mini backlog cut off by
+an N that does not count that backlog. Until M1 is rerun, state the cause instead: "fail is the bench's: 686 mini
+jobs at 10 per tick, no mini-depth step; pipeline alone ≈ 9.9 s per Site-day (reviewer trace); projection with the
+mini cost unmeasured". This is not an error in the report's own fields: `pipeline.measured.drain` shows `fail` and
+its reason in full, so nothing is hidden.
+
+**L1 (Low, a test gap the spec does not name).** `tools/world.py:1386-1397`: no test drives `cmd_bench`'s
+orchestration. My plant `swept["after"] = []` (no sweep in `finally`) passed every test. The real run's `dropped` and
+`pg_database` show the code is right today. A fake-admin test, with a raising late record and the drop statements
+asserted, would pin it.
+
+**L2 (Low, a preference).** `tools/world.py:1212`. My plant `>=` passed T10 because no case sits at exactly 2700 s.
+`>` matches the spec, so this is wording-level.
+
+**L3 (Low).** `tools/world.py:1210-1211`, `:1384-1385`:
+- The `projection` and `ds7` blocks do not carry the drain verdict. A reader of `ds7` alone does not see that its
+  input did not drain. `"input_drain": <verdict>` would fix that, but it is a `tools/world.py` edit, so it would
+  make the kept ladder stale (see M1).
+- `pipeline_line` raises `JSONDecodeError` on a malformed marker line. The sweep still runs, but no report is
+  written.
+
+### Checks run (this review)
+
+| Check | Result |
+|---|---|
+| `test_ds4_world.py` + `test_ds4_batch_days.py` (no DB, heavy slot) | 75 passed in 3.55 s |
+| Plants (T10, each alone, reverted; `plants.log`) | Caught: `ds7` on measured L2 (1 failed); per-day without tick wall (2 failed); projection `kind` dropped (2 failed). Not caught: no after-sweep (L1); `>=` threshold (L2). Tree clean after. |
+| B5 drain trace (scratch test, `heavy-slot.sh --db`, shared `*_test` harness, clones dropped) | 1 passed in 771.7 s; trace in `drain-trace.jsonl` (M1) |
+| `heavy-slot.sh -- pwsh -File tools/check-all.ps1` at `bce4db0f7` | "Check failed: 1 of 42 blocking guards". The failure: `contracts/tests/test_3a6_profiles.py::test_n3_r5_b1...`, `7.53 s < 3.0` wall bound, load 12.7 (my DB job plus two other lanes). DS4 touches no `contracts/` or `simulator/` file. Rerun alone: 8 passed. Not a DS4 finding. The implementer's same-revision run (`088e93f9d`, text-only diff since) was 42 of 42. |
+| Evidence `bench.json` | Matches the packet's figures. `projection.kind` is `PROJECTION_NOT_MEASUREMENT`. `ds7` is as quoted. `dropped.after` lists the three bench rungs. Every `key_dir` value is a path with no file name. |
+
+Logs are in `/opt/assetecon/evidence/DS4/review-u3/`.
+
+### The packet's questions (my view)
+
+1. **B5's drain (Architect).** It comes from the bench, not from the pipeline (M1). Rule on the mini-depth step and
+   rerun the bench alone.
+2. **DS7 reading (owner, row 35).** I agree with reading it on the projection. The corrected pipeline-only figure
+   (about 5,450 s) still triggers it. Adding the mini backlog only raises it. Read literally (8.9 s), it can never
+   fire on a world without telemetry, which is the reason for D-DS4.12. Whichever reading is chosen, the packet must
+   say the per-Site-day cost is taken from a fixture.
+3. **The bench L1 key directory (coordinator).** `/opt/assetecon/keys/world/assetops_worldbench_audit_l1_5d26f14268f5`
+   may be removed under D-DS4.19, because no manifest names it (`world list`). Its `keys_left` was not recorded
+   (deviation 4). `drop` ran the erase, as in T13. I did not look under the key root.
+4. **The deviations:**
+   - The bench prefix default is accepted (§0 names `assetops_worldbench_audit_*`).
+   - `start.slot` records the first line of the status: accepted, as §4 asks for exactly that.
+   - The keep-awake guard not running on Linux is accepted. It is a Windows sleep guard, and the caps held.
+   - The drop lines not copied into the report is Low: it would be useful once `keys_left` matters.
+
+### Could not verify
+
+- I did not rerun the bench, `build` or `check`: one heavy DB job at a time, and the machine was loaded. I relied on
+  the evidence files and my targeted B5 trace.
+- I did not run the mini-depth worker drain itself, so the mini backlog's cost is an estimate (about 15 s a tick for
+  10 jobs).
+- I did not query the three kept templates. I trust the packet's `pg_database` statement.
+
+### Residual risk the packet does not name
+
+- About 15 s of each tick is a fixed per-Site cost, paid even when the tick only moves 10 mini jobs. The projection's
+  linear Sites × days model is therefore weakest exactly where DS7 would act.
+- The B5 figures in this review come from load 7 to 12. My ticks were as slow as the bench's, so contention is in
+  both.
