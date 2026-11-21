@@ -45,3 +45,5 @@
 - `D-0M.20` mto_site starts from season_site; H1 asserts READY · live · specs/0M-mto-headroom-replay/rulings.md
 - `D-0M.21` complete list of edited and kept values; one derivation (load scale) · live · specs/0M-mto-headroom-replay/rulings.md
 - `D-0M.22` Mto dawn read as D-0K2.17: absolute verdict plus new/cleared dates · live · specs/0M-mto-headroom-replay/rulings.md
+- `D-DS4.26` Kisiwa actual om/cost_to_serve/contribution blank (October O&M invoice not received, GAP-1); §2.1 amended; C4_SITE_CLASSES; amends D-DS4.16 · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.27` plan price targets blank from 5a lines.py rule 4 (is_money vs money dimension); defect on main; 5a fix F1 (0.25 unit); 12 C4_KNOWN_FINDINGS until it merges · live · specs/DS4-template-ladder/rulings.md
