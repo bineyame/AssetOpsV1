@@ -139,6 +139,8 @@ database, no purchase. Nothing is held for the owner.
 
 ## D-3B4.14 Sequencing with 4a and 3B6
 
+- **Superseded in part by D-3B4.25:** only the `check.py` edit waits; units 2 to 4 do not.
+
 - **Ruling.** Unit 1's new files may start on the handshake alone; its `check.py` edit and units 2 to 4 start after 4a
   and 3B6 merge. 3B4 never edits `registry.py`, row files or `sources.py`. `permissions.py` gains two keys at the end of
   `COMMAND_ROLES` (3A7 adds one; a textual merge only). The migration number follows gate A/B (D-3C2.9).
@@ -150,3 +152,154 @@ database, no purchase. Nothing is held for the owner.
 - **Ruling.** Units 1.0 + 1.25 + 0.75 + 0.5.
 - **Why.** Over the plan's 2.5 by the store's domain arm and reader sweep (D-3B4.7, D-3B4.9) and the tolerance record
   (D-3B4.11), both needed for the gate. Under 6 units.
+
+## Handshake answers (round 1)
+
+Architect (Claude), 2026-11-21, on the owner's delegation, checked against `main` at `12a0c6356`. Every question of
+`handshake.md` (R1 to R4, I1 to I6, the pre-flight notes) is answered once below; `spec.md` rev 2 and
+`reviewer-guide.md` rev 2 carry each. No owner-level call arises (no new row in OWNER-AWAY; rows 27 and 28 stand), no
+authorisation is widened: still one migration, one guard name, no new writer block, no database, no purchase. Nothing
+is held. Verified against code: R1 `rows_mini_grid.py:106`; I1 `check.py:25`, `evaluate.py:22`, `targets/rules.py:15`;
+I2 `structure_snapshot/model.py:48`, `store.py:33`; I3 `accounts/service.py:255`, `accounts/model.py:80`,
+`build_structure_snapshot.py:79`; I4 `postgres_finding_store.py:263-277`; I5 `0009_finding_store.py:82-83`.
+
+## D-3B4.16 `COVER` is about the tables, `LEAF` about the row; they no longer overlap (R1)
+
+- **Ruling.** `COVER`: a leaf of the registry in neither table or in both; an entry (of either table) that is not a row
+  of the registry; a reason not in `REASONS`; a `NOT_OBSERVED` entry that is a node (that table lists leaves only).
+  `LEAF`: an `OBSERVED` entry that is a node. A node of the registry is therefore `LEAF`'s, never `COVER`'s, so P2
+  (`billed_kwh` added to `OBSERVED`) raises `STRUCTURE_OBSERVE_LEAF` and test 3's `LEAF` plant is the same table.
+- **Why.** The reviewer is right: as written `COVER` ("not a leaf ID of the registry") caught a node before `LEAF`, which
+  made `LEAF` dead code for every real node and P2's expected code wrong. Splitting by what is wrong (a name that is no
+  row, versus a row of the wrong shape) gives each of the six codes a table that only it fires on, which test 3 asserts
+  (each planted table raises its code and no earlier one).
+- **Reverse.** Merge `LEAF` into `COVER`.
+
+## D-3B4.17 Every plant fails a named assertion; four reader predicates, four plants (R2)
+
+- **Ruling.** Reviewer guide rev 2 has plants P17 (`_fence` counts structure), P18 (`rows` `finding`/`finding_revision`
+  selects unfiltered) and P19 (`rows` assessment, evidence or merge select unfiltered), each failing a named assertion
+  of test 13, so every one of the four predicates of D-3B4.9 has a plant. Test 13 asserts the five keys of
+  `rows()` one by one. The audit of the other plants found two that could not fail as named and fixes them: P10
+  (`snapshot_as_of` in the basis) cannot be planted in `basis()`, which sees no snapshot, so it is planted where the
+  service computes the basis (over the claim) and fails test 11's rebuilt-snapshot step only; P9 (the carried actual)
+  was named for test 6, which runs on an uncarried side by construction, so it is re-planted in `observe_site`
+  (D-3B4.26) and fails the new test 6b. Plants P20 to P23 cover D-3B4.19, D-3B4.20, D-3B4.21 and a dropped basis field.
+- **Why.** "Each plant fails its named test" (§9 Q8) is only worth what each plant can reach; a plant that cannot fail
+  proves nothing (W2).
+
+## D-3B4.18 "No money" means no bridge value and no effect of acting; the claim's key set is literal (R3)
+
+- **Ruling.** A Finding never holds a bridge value, an effect of acting, a priced line or a currency total it
+  computed. A money-unit leaf's own `actual`, `target`, `gap` and `band`, in that leaf's unit and currency
+  (`outstanding`, `in_transit`, `om`, `staff`, `tariff`, `productive_tariff`, `diesel_price`: 278.00 USD), are the
+  condition and stay. The claim's key set is the 25 keys of spec §4.3 (`format` and the 24 listed), no others; test 11 asserts it as a literal set
+  (not "no key containing money"), and P15 plants a `money` or `effect` key.
+- **Why.** Design §4: a Finding claims "its condition, in its factor's unit and period"; for a money leaf that is a
+  money figure. The old wording contradicted §1. The bridge carries the money once.
+
+## D-3B4.19 A Site may declare 0 %; band 0 then needs no `of_factor` actual (R4)
+
+- **Ruling.** `declare_tolerance set` accepts `0 <= pct <= 100` (the DB regex already admits 0). Band: `pct = 0`
+  gives `Decimal(0)` without reading the `of_factor` actual (a band known to be zero is not unknown); otherwise as
+  §2.2. So a Site can zero a structure default (`unexplained_l`'s 2 %) and every adverse deviation is raised again,
+  the design's own meaning of no tolerance. The row's default stays `pct > 0` (3B1's `STRUCTURE_TOLERANCE`, unchanged).
+  The basis writes `pct` normalised (`0.0`, `0.00` and `0` are one value, as are `5` and `5.00`).
+- **Why.** `CLEARED` returns to the default, so without 0 no Site could ask for strictness on a leaf that has a
+  default; refusing it was an accident of copying the row's rule, not a design. Honest semantics: a declared 0 is a
+  stated choice, source `SITE`, recorded with person and time, and distinct from an absent declaration.
+- **Reverse.** `0 < pct`; the strict Site then has no route on defaulted leaves.
+
+## D-3B4.20 No import cycle: `observe.rules` imports nothing that imports `check` (I1)
+
+- **Ruling.** `structure/observe/__init__.py` is a docstring only. `observe/rules.py` imports only `structure.registry`,
+  `structure.expressions` and `structure.attribution.rules` (stdlib-only modules, no path back to `check`) and never
+  `targets.rules`, `evaluate`, `check` or `observe.observe`. `check.py` imports `observe.rules` at the top;
+  `check_observed` reads `TARGET_RULE` through a function-local `from assetops_backend.structure.targets import rules`
+  (at call time `check` is fully loaded, so the `check -> targets.rules -> evaluate -> check` loop cannot close at
+  import). Only `observe/observe.py` (not imported by `check`) imports `evaluate`. Test 1b runs three fresh
+  interpreters (`python -I -c "import ..."`), importing `structure.check`, then `structure.observe.rules`, then
+  `structure.evaluate` first; each must succeed; P21 (a top-level `targets.rules` import in `observe/rules.py`) fails it.
+- **Why.** Verified: `evaluate.py:22` imports `StructureError` from `check`, and `targets/rules.py:15` imports
+  `evaluate`. Designing the module graph out beats a lazy import in `check_observed` for `observe.rules` itself, which
+  would hide a cycle until call time; the one lazy import left is the single unavoidable one, and the test makes it
+  load-bearing.
+
+## D-3B4.21 `input_evidence_sha256` is the Site row's stored `payload_sha256`, read through the store (I2)
+
+- **Ruling.** The value is `SnapshotRow.payload_sha256` of the Site's snapshot row (the row whose id is the served
+  `SiteMonthSnapshot.snapshot_id`), obtained by `store.get(tenant_id, [site.snapshot_id])[0]` on the public
+  `StructureSnapshotStore` protocol (`structure_snapshot/store.py:33`). `StructureObserver` takes that `store` as a
+  constructor argument beside `snapshots`; no edit to `structure_snapshot/`. It never enters `basis`. A missing row is
+  `StructureError("STRUCTURE_COMPOSE", ...)` (cannot happen for a served snapshot). The portfolio row's digest is not
+  used. Test 11 asserts the revision's value equals the Site row's; P23 (the portfolio's) fails it.
+- **Why.** The decoded snapshot has no digest (`model.py:48` is on the row); recomputing from canonical form would
+  invent a second definition of the digest. The Site row is the evidence this Site's figures came from; the portfolio
+  row also covers other Sites, so a change at another Site would move it.
+
+## D-3B4.22 3B4 depends on neither 3A6 nor 3A7; the exact public calls (I3)
+
+- **Ruling.** Tenant: `store.tenant_sites(slug) -> (tenant_id, sites) | None` of the snapshot store, as
+  `build_structure_snapshot.py:79` does (on `main`); `None` is `UNKNOWN_TENANT`, and the Site by code is in `sites`
+  (`SiteRef.site_id`, `.site_type`). Person: `AccountService.onboard_person(email) -> OnboardPerson | None`
+  (`accounts/service.py:255`, 3A3, on `main`): refuse `PERSON_NOT_FOUND` when it is `None`, `active` is false, or
+  `tenant_id` differs from the tenant's; its `roles` is `frozenset[(role, site_id | None)]`. Admission: the first role of
+  `roles_of(key)` for which a pair exists, a `SITE_MANAGER` pair counting only when its `site_id` equals the Site's.
+  The accounts service is built by `accounts.composition.build_account_service(url)` unless injected (as
+  `load_emulated_exports.py:146`). `main(argv, *, observer=None, accounts=None)` takes both. `AccountService.tenant_by_slug`
+  is not used (it does not exist on `main`). `--as EMAIL` is this command's own flag; 3A7's precedent is a convention, not a
+  dependency. So no gate on 3A6 or 3A7; a textual merge on `permissions.py` only (D-3B4.14). If 3A6 or 3A7 adds a
+  shared helper before 3B4 merges, switching to it is a packet note, not a question.
+- **Why.** Every call named exists on `main`; the spec's "from 3A6" was the only dependency and it was not needed.
+- **Reverse.** Wait for 3A6/3A7 and use their helpers.
+
+## D-3B4.23 `rows()` filters all five selects (I4)
+
+- **Ruling.** In `rows()`: `finding` and `finding_revision` add `AND domain <> 'structure'`; `finding_revision_assessment`,
+  `finding_revision_evidence` and `finding_merge` add `AND finding_revision_id IN (SELECT id FROM finding_revision WHERE
+  tenant_id = :t AND site_id = :s AND domain <> 'structure')`, so no list holds a link to a revision another list
+  removed. Test 13 asserts `rows()` holds no structure key in any of its five lists (P18, P19). `finding_detail`'s child
+  selects are scoped by the Finding id and need no change; `_index_lineage`, the chain reads and the consequence/action
+  stores read by revision or Finding id (class A, re-swept including the child tables, not only `FROM finding`).
+- **Why.** The pre-flight is right: `finding_revision_assessment` is Site-wide in `rows()` and would dangle. The class is
+  "every Site-wide select over the Finding tables"; the sweep now names all five tables, not the two the grep found.
+
+## D-3B4.24 The bounds CHECK is dropped (I5)
+
+- **Ruling.** No `finding_revision_structure_bounds`. `episode_start` and `episode_end` are `NOT NULL`
+  (`0009_finding_store.py:82-83`) and `finding_revision_bounds` already orders them. The migration is the two recreated
+  CHECKs plus the table; test 10 loses that assertion; the downgrade restores two CHECKs only.
+- **Why.** A CHECK that cannot fail proves nothing and adds a downgrade step.
+
+## D-3B4.25 Sequencing: only the `check.py` edit waits for 4a and 3B6 (I6)
+
+- **Ruling.** Units 1 (the new files and their tests), 2 and 3 start on the handshake alone (plus gate A's migration
+  number). Units 2 to 4 touch the Finding and assessment stores, `chain/adapters`, `permissions.py` and the guard, none
+  of which 4a or 3B6 edits. Only the `check.py` edit (`check_observed`, its call in `check_all`, `OBSERVE_CODES`) and the
+  tests that need it (1, 1b, 3) wait: one commit, last of the build, after `git merge-base --is-ancestor` shows both
+  merged; the lane is not idle meanwhile. Until then `observe.rules` is exercised by tests 2 and 4 to 9. With 3B6
+  merged, `REGISTRIES` holds COLD and EV keys that `OBSERVED` does not name: intended (spec §10: their targets do not
+  exist), not a `KEY` fault (`KEY` runs over `OBSERVED`'s keys). A COLD or EV Site in a served snapshot is returned in
+  `excluded` with reason `STRUCTURE_NOT_OBSERVED`, never observed and never an error (spec §5.1).
+- **Why.** Supersedes D-3B4.14's "units 2 to 4 start after 4a and 3B6 merge": the dependency is on one file's text.
+
+## D-3B4.26 Pre-flight notes accepted; the actual side is chosen in one place
+
+- **Ruling.** (a) Signs agree; the registry has no `family` attribute: `SOURCE` reads `row.filled_by.family` and
+  `row.absent`, `KIND` reads `row.home` (may be `None`, which is not Protect). (b) The sweep's unlisted readers are
+  class A or harmless, as reported; added to §4.4's note, including the 0022 trigger being `mini_grid` only (the cold
+  one is its own trigger, no change). (c) F2's world is pure (`new_world()` uses a memory store); `READ_AT` is imported
+  from `test_3a4_commercial_months`. `observe.py` gains `observe_site(site: SiteMonthSnapshot, declarations)` =
+  `observe(site.actual, site.targets.structure, declarations)`, the one place the actual side is chosen, called by the
+  service; test 6b feeds it Kisiwa's real inputs and targets (`test_5b_attribution._kisiwa()`) where `om` is carried by
+  `site_bridge` and must read `ACTUAL_NOT_AVAILABLE`.
+- **Why.** The un-carried actual (D-3B4.5) needs a pure seam a test can reach; the service could not otherwise be
+  planted without a database.
+
+## Size (re-estimate)
+
+Unchanged at 3.5 units (1.0 + 1.25 + 0.75 + 0.5), no split. Added: `observe_site`, the `rows()` child selects, the
+Site-row digest read, the `excluded` reason, seven more plants (P17 to P23), tests 1b and 6b. Removed: the bounds CHECK, the
+`tenant_by_slug`/3A gate work. They offset inside each unit (unit 2: migration smaller, `rows()` larger; unit 4 holds
+the plants). If the builder's mid-build count exceeds 0 for a reason these answers should have settled, it is a packet
+finding, not a re-size.
