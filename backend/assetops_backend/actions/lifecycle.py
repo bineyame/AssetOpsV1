@@ -49,6 +49,7 @@ class SystemDemoActor:
     source_channel: str = "SYSTEM_DEMONSTRATION_API"
     triggering_service: str = "assetops-backend/action-api"
     label: str = "SYSTEM demonstration"
+    person_id = None  # 3C1b: a SYSTEM event names no person
 
     def basis(self, fixture_id: str, command: str) -> str:
         return (f"SYSTEM_DEMONSTRATION_CAPABILITY: server-issued grant for fixture {fixture_id}, command {command}; "
@@ -56,6 +57,35 @@ class SystemDemoActor:
 
 
 SYSTEM_DEMO = SystemDemoActor()
+
+#: 3C1b (spec §5, R4): the signed-in person's channel on `action_event` (migration `*_person_on_actions`).
+PERSON_CHANNEL = "PERSON_API"
+
+
+@dataclass(frozen=True)
+class PersonEventActor:
+    """3C1b (spec §2, §5; R2-R4): the signed-in person's server-composed actor on a trial-action event.
+
+    The person replaces only the actor, the channel and the basis (D-3C1.11): the grant file still scopes the command
+    and supplies `triggering_fixture`, and the triggering service is the same action API. `action_event` has no
+    attestation, so the admitting role lives in `authorization_basis` (`PERSON_ROLE:<role>`)."""
+
+    person_id: UUID
+    role: str
+    actor_kind = "USER"
+    source_channel = PERSON_CHANNEL
+    triggering_service = SYSTEM_DEMO.triggering_service
+
+    @property
+    def actor_id(self) -> str:
+        return f"person:{self.person_id}"
+
+    def basis(self, fixture_id: str, command: str) -> str:
+        return f"PERSON_ROLE:{self.role}"
+
+
+#: The event actor a store write takes: today's SYSTEM demonstration actor or a signed-in person (P3).
+EventActor = SystemDemoActor | PersonEventActor
 
 
 def order_key(event: dict[str, Any]) -> tuple[datetime, str]:

@@ -1,6 +1,6 @@
 # 3C1a and 3C1b: the signed-in person on work and action commands (implementer spec)
 
-Status: 3C1a in_review (`task/3C1a-person-on-work`, packet `packet.md`); 3C1b not started.
+Status: 3C1a merged; 3C1b in_review (`task/3C1b-person-actions`, packet `packet-3C1b.md`).
 
 Architect (Claude), 2026-11-20. **Rev 2**: handshake round 1 is folded in (`rulings.md` "Handshake answers
 (round 1)", D-3C1.8 to D-3C1.13). The pre-flight estimated about 5 units, so the slice is split now (D-3C1.7, P10):

@@ -14,7 +14,8 @@ from dataclasses import dataclass
 from typing import Any, Callable, Mapping
 from uuid import UUID
 
-from assetops_backend.actions.lifecycle import COMMANDS, SYSTEM_DEMO
+from assetops_backend.actions.lifecycle import COMMANDS, SYSTEM_DEMO, EventActor
+from assetops_backend.i18n import State, message, render
 
 SCHEMA, VERSION = "assetops.action-demo-grants", 2
 NO_GRANTS = "No SYSTEM demonstration capability is configured on this server."
@@ -29,10 +30,14 @@ class Capability:
     unavailable_reason: str | None
     manifest_id: str | None = None
 
-    def wire(self) -> dict[str, Any]:
+    def wire(self, recorded: EventActor | None = SYSTEM_DEMO) -> dict[str, Any]:
+        """`recorded`: the actor the command records for this caller (3C1b review L1): today's SYSTEM actor, the
+        signed-in person, or None when the command would refuse the caller (no actor is stated)."""
+        kind = None if recorded is None else recorded.actor_kind
         return {"allowed": self.allowed, "command": self.command, "fixture_id": self.fixture_id,
                 "manifest_id": self.manifest_id, "unavailable_reason": self.unavailable_reason,
-                "actor_kind": SYSTEM_DEMO.actor_kind, "actor_id": SYSTEM_DEMO.actor_id, "label": SYSTEM_DEMO.label,
+                "actor_kind": kind, "actor_id": None if recorded is None else recorded.actor_id,
+                "label": None if kind is None else render(message("action.actor_label", actor=State(kind))),
                 "scope": "tenant, Site, command and fixture record; granted by server configuration only"}
 
 

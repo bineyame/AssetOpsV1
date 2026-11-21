@@ -52,6 +52,10 @@ COMMAND_ROLES: dict[str, tuple[str, ...]] = {
     "domain.create": (SITE_MANAGER, FINANCE),
     "domain.intent": (SITE_MANAGER, FINANCE),
     "domain.case_link": (SITE_MANAGER,),
+    # 3C1b (spec §3, D-3C1.10): the trial actions; the site manager may also record the observation.
+    "action.accept": (SITE_MANAGER,),
+    "action.apply": (SITE_MANAGER,),
+    "action.observe": (SITE_MANAGER, FIELD_TECHNICIAN),
     # 3A2 (spec §3.1, D-3A2.9): commercial uploads; always a signed-in person (the routes pass required=True).
     "commercial.upload": (ANALYST, FINANCE),
     "commercial.upload_decision": (FINANCE, EXECUTIVE),

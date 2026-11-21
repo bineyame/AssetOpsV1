@@ -143,6 +143,24 @@ decision `D-2026-10-31-board-action-refresh-lineage`; packet `archive/agent-hist
 - The switch is read once in `create_app` and ships off; `3C0b` turns it on.
 - Open: trial actions (`3C1b`); names in reads (`3C2`, `3C3`); turning the switch on (`3C0b`).
 
+## 3C1b: the signed-in person on trial actions (2026-11-21, `task/3C1b-person-actions`, in review)
+
+- `action_api.py`: accept, apply and observe run `person_step` after the open scope and before the Finding/Action
+  404 and the grant 403 (`COMMAND_ROLES`: `action.accept`/`action.apply` SITE_MANAGER, `action.observe` SITE_MANAGER,
+  FIELD_TECHNICIAN). Refusals in the route's own codes; other tenant = the unknown-Site 404.
+- `PersonEventActor` (`actions/lifecycle.py`): `USER`, `person:<id>`, channel `PERSON_API`, basis
+  `PERSON_ROLE:<role>`; the grant file still scopes and supplies `triggering_fixture` (R3). The store takes the actor
+  through all four writes (ACCEPTED, OBSERVED, APPLIED, FAILED) and writes `person_id`, kept out of `EVENT_COLUMNS`.
+  On the person path only, `actor_id` joins the digest payloads (R2).
+- Migration `0071_person_on_actions` (renumbered at the SC-1a merge; down_revision `0070_agreed_action`, re-pointed at merge preparation after 3A7 0069 and 3C2 0070 merged): `person_id`, FK, `person_actor`,
+  `person_coupling`; kind, id and channel checks widened under their names, restored exactly on downgrade.
+- Text commit (D-SC1.28, after SC-1a): six `action.*` SC-1 statements (`i18n/statements/en/action.py`) for the
+  actor label, observe note, change statement, stored publish note, `CLIENT_AUTHORITY_FORBIDDEN` and the
+  unknown-Site 404; SYSTEM variants are the old bytes, USER variants name no person. The capability block states
+  whom the command records for the caller (null when the command would refuse); the Action read label is its
+  accepting actor. The modules are not `ADOPTED` (their older text is SC-1b/SC-1c debt).
+- Open: the frontend `SYSTEM_DEMONSTRATION` button words (review L1; a screen slice); the switch (`3C0b`); names in reads (`3C2`).
+
 ## 3C2: the agreed change recorded as an Action (2026-11-21, `task/3C2-agreed-change`, in review; commits 1 and 2)
 
 - Migration `0070_agreed_action` (renumbered at the merge of main `e5a283228`; revises `0068_structure_finding`, and 3A7's `0069_commercial_reconciliation` once 3A7 merges):
