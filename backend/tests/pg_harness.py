@@ -334,7 +334,8 @@ def clone_database(tag: str, template_url: str | None = None) -> str:
 
     assert routed(), "clone_database needs a routed run (ASSETOPS_TEST_TEMPLATE on, a *_test base URL)"
     base = make_url(os.environ[BASE_ENV])
-    name = database_name(_stem(base.database), os.environ[RUN_ENV], tag)
+    # Under xdist every worker shares the run id: the worker tag keeps two workers' clones apart.
+    name = database_name(_stem(base.database), os.environ[RUN_ENV], tag + (os.environ[TAG_ENV] if _shared() else ""))
     source = make_url(template_url).database if template_url else _ensure_template()
     assert source and source.endswith("_test"), f"refusing to clone a database not named *_test: {source!r}"
     admin = _admin()

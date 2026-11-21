@@ -216,7 +216,7 @@ class TestCloneDatabase:
         try:
             stem = make_url(os.environ[pg_harness.BASE_ENV]).database[: -len("_test")]
             match = pg_harness._owned_pattern(stem).match(name)
-            assert match and match.group(1) == os.environ[pg_harness.RUN_ENV] and match.group(2) == "ds3hone"
+            assert match and match.group(1) == os.environ[pg_harness.RUN_ENV] and match.group(2) == "ds3hone" + (os.environ[pg_harness.TAG_ENV] if pg_harness._shared() else "")
             assert _exists_database(name) and name in pg_harness.registered_clones()
         finally:
             pg_harness.drop_database(url)
