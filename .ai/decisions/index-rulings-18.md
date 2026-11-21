@@ -37,7 +37,7 @@
 - `D-DS4.9` BULK_BATCH_GAP_DAYS: a bulk batch's Site-local days must be contiguous (D-DS3.21) · live · specs/DS4-template-ladder/rulings.md
 - `D-DS4.10` key directory per L1 under the coordinator's root; clones share; drop L1 erases keys last-child-first · live · specs/DS4-template-ladder/rulings.md
 - `D-DS4.11` the re-benchmark: cold ladder, clones, a late record, the pipeline on 14 Kobo days; NOT_BUILT rows; meanings · live · specs/DS4-template-ladder/rulings.md
-- `D-DS4.12` DS7's trigger read on the projection, reported to the owner (row 35) · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.12` DS7's trigger read on the projection, reported to the owner (row 35) · live; amended by D-DS4.28 (read literally) · specs/DS4-template-ladder/rulings.md
 - `D-DS4.13` serving a world database held for the owner; recommendation: coordinator copies L2 to a walk name (row 36) · live · specs/DS4-template-ladder/rulings.md
 - `D-DS4.14` 2.75 units in three units, no split · live · specs/DS4-template-ladder/rulings.md
 - `D-DS4.15` no user-facing text; D-SC1.28 does not hold DS4 · live · specs/DS4-template-ladder/rulings.md

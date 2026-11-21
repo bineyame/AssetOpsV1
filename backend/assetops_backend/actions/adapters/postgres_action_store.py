@@ -24,7 +24,8 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import DBAPIError, IntegrityError, OperationalError, ProgrammingError
 
-from assetops_backend.actions.lifecycle import ACCEPTED, APPLIED, FAILED, OBSERVED, OBSERVATION_CODE, SYSTEM_DEMO
+from assetops_backend.actions.lifecycle import (ACCEPTED, APPLIED, FAILED, OBSERVATION_CODE, OBSERVED, SYSTEM_DEMO,
+                                                EventActor)
 from assetops_backend.actions.ports import ActionRefused, ActionStoreUnavailable, ApplyFailed
 from assetops_backend.actions.reserve_trial import (
     CANDIDATE,
@@ -277,7 +278,8 @@ class PostgresActionStore:
 
     def accept(self, tenant_id: UUID, site_id: UUID, proposal: dict[str, Any], *, payload_sha256: str,
                payload: dict[str, Any], idempotency_key: str, fixture_id: str, recorded_at: datetime,
-               guard: Callable[[list[dict[str, Any]]], None]) -> tuple[dict[str, Any], dict[str, Any], bool]:
+               guard: Callable[[list[dict[str, Any]]], None],
+               actor: EventActor = SYSTEM_DEMO) -> tuple[dict[str, Any], dict[str, Any], bool]:
         """Insert the Action, its pinned basis and ACCEPTED, or return the existing Action for this
         recommendation key (`replayed=True`); the caller compares the stored payload digest.
 
@@ -337,7 +339,7 @@ class PostgresActionStore:
                         {**scope, "a": action_id, "e": reading["evidence_id"], "ar": seg["assessment_revision_id"],
                          "start": seg["start"], "role": SOC_ROLE, "v": reading["value"]})
             self._insert_event(c, tenant_id, site_id, action_id, event_id, ACCEPTED, "ACCEPT", recorded_at,
-                               recorded_at, idempotency_key, payload, payload_sha256, fixture_id)
+                               recorded_at, idempotency_key, payload, payload_sha256, fixture_id, actor=actor)
             action = c.execute(text(f"SELECT {ACTION_COLUMNS} FROM action WHERE id = :a"), {"a": action_id}).one()
             event = c.execute(text(f"SELECT {EVENT_COLUMNS} FROM action_event WHERE id = :e"), {"e": event_id}).one()
             return dict(action._mapping), dict(event._mapping), False
@@ -352,7 +354,7 @@ class PostgresActionStore:
 
     def observe(self, tenant_id: UUID, site_id: UUID, action_id: UUID, *, occurred_at: datetime,
                 idempotency_key: str, payload: dict[str, Any], payload_sha256: str, fixture_id: str,
-                recorded_at: datetime) -> tuple[dict[str, Any], bool]:
+                recorded_at: datetime, actor: EventActor = SYSTEM_DEMO) -> tuple[dict[str, Any], bool]:
         def work(c):
             c.execute(text("SELECT id FROM action WHERE tenant_id = :t AND site_id = :s AND id = :a FOR UPDATE"),
                       {"t": tenant_id, "s": site_id, "a": action_id}).one()
@@ -362,7 +364,7 @@ class PostgresActionStore:
                 return dict(existing._mapping), True
             event_id = uuid4()
             self._insert_event(c, tenant_id, site_id, action_id, event_id, OBSERVED, "OBSERVE", occurred_at,
-                               recorded_at, idempotency_key, payload, payload_sha256, fixture_id)
+                               recorded_at, idempotency_key, payload, payload_sha256, fixture_id, actor=actor)
             row = c.execute(text(f"SELECT {EVENT_COLUMNS} FROM action_event WHERE id = :e"), {"e": event_id}).one()
             return dict(row._mapping), False
         return self._run(work)
@@ -373,7 +375,7 @@ class PostgresActionStore:
               payload: dict[str, Any], payload_sha256: str, fixture_id: str, recorded_at: datetime,
               expected_foundation_revision_id: UUID,
               attempt: Callable[[Any, dict[str, Any], list[dict[str, Any]], Callable[[dict[str, Any]], None]], None],
-              ) -> dict[str, Any]:
+              actor: EventActor = SYSTEM_DEMO) -> dict[str, Any]:
         """One application attempt. Returns `{"outcome": ..., "event": ..., "change": ...}`.
 
         In ONE transaction: lock the same-Site Action row `FOR UPDATE` (before anything else, so before the
@@ -412,7 +414,7 @@ class PostgresActionStore:
                 written.update(self._insert_applied(c, tenant_id, site_id, action, ids, idempotency_key=idempotency_key,
                                                     payload=payload, payload_sha256=payload_sha256,
                                                     fixture_id=fixture_id, recorded_at=recorded_at,
-                                                    expected=expected_foundation_revision_id))
+                                                    expected=expected_foundation_revision_id, actor=actor))
 
             attempt(c, action, events, then)
             if "event" not in written:
@@ -424,11 +426,12 @@ class PostgresActionStore:
         except ApplyFailed as failed:
             event = self._append_failed(tenant_id, site_id, action_id, failed, idempotency_key=idempotency_key,
                                         payload=payload, payload_sha256=payload_sha256, fixture_id=fixture_id,
-                                        recorded_at=recorded_at, expected=expected_foundation_revision_id)
+                                        recorded_at=recorded_at, expected=expected_foundation_revision_id,
+                                        actor=actor)
             return {"outcome": "FAILED", "event": event, "failure": failed}
 
     def _insert_applied(self, c, tenant_id, site_id, action, ids, *, idempotency_key, payload, payload_sha256,
-                        fixture_id, recorded_at, expected) -> dict[str, Any]:
+                        fixture_id, recorded_at, expected, actor: EventActor = SYSTEM_DEMO) -> dict[str, Any]:
         publish, split = ids["publish_foundation_revision_ids"], ids["split_foundation_revision_ids"]
         superseded = ids["superseded_foundation_revision_ids"]
         if len(publish) != 1 or len(superseded) != 1 or len(split) > 1:
@@ -436,7 +439,7 @@ class PostgresActionStore:
         event_id, change_id = uuid4(), uuid4()
         self._insert_event(c, tenant_id, site_id, action["id"], event_id, APPLIED, "APPLY", recorded_at,
                            recorded_at, idempotency_key, payload, payload_sha256, fixture_id,
-                           expected=expected, current=publish[0])
+                           expected=expected, current=publish[0], actor=actor)
         effective = c.execute(text("SELECT valid_from FROM foundation_revision WHERE tenant_id = :t "
                                    "AND site_id = :s AND id = :f"),
                               {"t": tenant_id, "s": site_id, "f": publish[0]}).scalar_one()
@@ -461,7 +464,8 @@ class PostgresActionStore:
         return {"event": dict(event._mapping), "change": self._change_where(c, "id", change_id)}
 
     def _append_failed(self, tenant_id, site_id, action_id, failed: "ApplyFailed", *, idempotency_key, payload,
-                       payload_sha256, fixture_id, recorded_at, expected) -> dict[str, Any]:
+                       payload_sha256, fixture_id, recorded_at, expected,
+                       actor: EventActor = SYSTEM_DEMO) -> dict[str, Any]:
         """FAILED in its own transaction, after the attempt's rollback. A concurrent identical retry may already
         hold this key: then the stored event is returned (unique `(action_id, idempotency_key)`), never a second
         row, and nothing here can revert an APPLIED event."""
@@ -475,7 +479,8 @@ class PostgresActionStore:
             event_id = uuid4()
             self._insert_event(c, tenant_id, site_id, action_id, event_id, FAILED, "APPLY", recorded_at,
                                recorded_at, idempotency_key, payload, payload_sha256, fixture_id,
-                               failure_code=failed.code, expected=expected, current=failed.current_foundation_revision_id)
+                               failure_code=failed.code, expected=expected, current=failed.current_foundation_revision_id,
+                               actor=actor)
             return dict(c.execute(text(f"SELECT {EVENT_COLUMNS} FROM action_event WHERE id = :e"),
                                   {"e": event_id}).one()._mapping)
         try:
@@ -490,18 +495,20 @@ class PostgresActionStore:
     @staticmethod
     def _insert_event(c, tenant_id, site_id, action_id, event_id, kind, command, occurred_at, recorded_at,
                       idempotency_key, payload, payload_sha256, fixture_id, *, failure_code=None, expected=None,
-                      current=None) -> None:
+                      current=None, actor: EventActor = SYSTEM_DEMO) -> None:
+        """3C1b (P3): the actor columns and `person_id` come from `actor` (SYSTEM_DEMO on today's path, so its row is
+        byte-equal); `person_id` is written here but stays out of `EVENT_COLUMNS`, so event reads do not change."""
         c.execute(text(
             "INSERT INTO action_event (id, tenant_id, site_id, action_id, kind, occurred_at, recorded_at, "
             "actor_kind, actor_id, source_channel, authorization_basis, triggering_service, triggering_job, "
             "triggering_command, triggering_fixture, idempotency_key, payload, payload_sha256, failure_code, "
-            "observation_code, expected_foundation_revision_id, current_foundation_revision_id) VALUES (:id, :t, "
-            ":s, :a, :kind, :occ, :rec, :ak, :aid, :ch, :basis, :svc, NULL, :cmd, :fx, :key, "
-            "CAST(:payload AS jsonb), :ps, :fail, :obs, :exp, :cur)"),
+            "observation_code, expected_foundation_revision_id, current_foundation_revision_id, person_id) VALUES "
+            "(:id, :t, :s, :a, :kind, :occ, :rec, :ak, :aid, :ch, :basis, :svc, NULL, :cmd, :fx, :key, "
+            "CAST(:payload AS jsonb), :ps, :fail, :obs, :exp, :cur, :pid)"),
             {"id": event_id, "t": tenant_id, "s": site_id, "a": action_id, "kind": kind, "occ": occurred_at,
-             "rec": recorded_at, "ak": SYSTEM_DEMO.actor_kind, "aid": SYSTEM_DEMO.actor_id,
-             "ch": SYSTEM_DEMO.source_channel, "basis": SYSTEM_DEMO.basis(fixture_id, command),
-             "svc": SYSTEM_DEMO.triggering_service, "cmd": command, "fx": fixture_id, "key": idempotency_key,
+             "rec": recorded_at, "ak": actor.actor_kind, "aid": actor.actor_id,
+             "ch": actor.source_channel, "basis": actor.basis(fixture_id, command), "pid": actor.person_id,
+             "svc": actor.triggering_service, "cmd": command, "fx": fixture_id, "key": idempotency_key,
              "payload": json.dumps(payload, sort_keys=True), "ps": payload_sha256, "fail": failure_code,
              "obs": OBSERVATION_CODE if kind == OBSERVED else None, "exp": expected, "cur": current})
 

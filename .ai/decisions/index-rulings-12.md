@@ -39,7 +39,7 @@
 - `D-3A7.12` A tolerance cites an owner file naming the tenant and the figure, pinned by SHA-256 (amends D-3A7.4) · live · specs/3A7-month-reconciled/rulings.md
 - `D-3A7.13` The standing's text appends the sentences of the headings that did not match (amends D-3A7.7) · amended by D-3A7.16 · specs/3A7-month-reconciled/rulings.md
 - `D-3A7.16` The standing's failing headings are `details`, one sentence each; `text` is the standing sentence alone (amends D-3A7.13) · live · specs/3A7-month-reconciled/rulings.md
-- `D-3A7.17` Statement and standing sentences carry the tolerance's evidence inline ("within 1% (Recorded)") · live · specs/3A7-month-reconciled/rulings.md
+- `D-3A7.17` Statement and standing sentences carry the tolerance's evidence inline ("within 1% (Recorded)") · live; amended by D-SC1F.1 ("Declared") · specs/3A7-month-reconciled/rulings.md
 - `D-IA.43` Plan is one object page, four tab routes (Items, Left out, Review, History); L1 identical on every tab; docTitle per tab; approval panel placed once (R757 D2); switches on Items and Left out · live · specs/IA-1-shape-rebuild/rulings-2.md
 - `D-IA.44` Plan stepper Draft › Proposed › Approved › Closed from uxPlanState only (r4 M1 one source); REVISED = Proposed; plants COUNT_PLANT=planstep|planhist · live · specs/IA-1-shape-rebuild/rulings-2.md
 - `D-IA.45` One meter form in L1: spend tile bar plus one crew tile and bar per month (≤ 4 tiles); plant PSW_PLANT=crewtile · live · specs/IA-1-shape-rebuild/rulings-2.md

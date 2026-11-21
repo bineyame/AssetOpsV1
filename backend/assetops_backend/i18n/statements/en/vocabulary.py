@@ -110,7 +110,8 @@ VOCABULARY = {
             "site": {"one": "Site", "other": "Sites"},
             "budget_disagreement": {"one": "budget disagreement", "other": "budget disagreements"},
             "reading": {"one": "reading", "other": "readings"},
-            "character": {"one": "character", "other": "characters"},  # 3A7: a refusal's length limit
+            # 3C2 (D-3C2.14): the agreed change's title length, in its refusal sentence.
+            "character": {"one": "character", "other": "characters"},
             "month": {"one": "month", "other": "months"},  # 5c: the plan value's horizon (D-SC1.21)
         },
     },
@@ -150,5 +151,14 @@ VOCABULARY = {
         "no_origin": "Estimated",
         "observed_by_evidence": {"RECORDED": "Recorded", "DECLARED": "Recorded", "MEASURED": "Measured", "DERIVED": "Calculated"},
         "money_suffix": "not yet reconciled",
+    },
+    # 3C2 (D-3C2.14): an agreed change's state on the deep-dive screen and the command's success line.
+    "action_state": {
+        "forms": ["label"],
+        "order": ["OPEN", "OVERDUE"],
+        "entries": {
+            "OPEN": {"label": "Open"},
+            "OVERDUE": {"label": "Overdue"},
+        },
     },
 }

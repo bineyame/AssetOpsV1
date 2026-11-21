@@ -7,9 +7,14 @@ unavailable error type.
 from __future__ import annotations
 
 import os
+from dataclasses import dataclass
+from datetime import datetime, timezone
 from typing import Any, Callable
 from uuid import UUID
 
+from assetops_backend.accounts.composition import build_account_service
+from assetops_backend.actions.adapters.postgres_agreed_action_store import PostgresAgreedActionStore
+from assetops_backend.actions.agreed import AgreedActionService
 from assetops_backend.actions.adapters.demo_grants_file import load_grants
 from assetops_backend.actions.adapters.postgres_action_store import PostgresActionStore
 from assetops_backend.actions.capability import CapabilityCheck, from_grants
@@ -18,7 +23,7 @@ from assetops_backend.actions.service import ActionService, FindingCurrentness
 from assetops_backend.actions.verification import VerificationPorts
 from assetops_backend.sites.foundation_service import CallerTransaction, FoundationRefused
 
-__all__ = ["ACTION_UNAVAILABLE", "GRANTS_ENV", "build_action_service", "build_action_store",
+__all__ = ["ACTION_UNAVAILABLE", "AgreedActionsService", "GRANTS_ENV", "build_action_service", "build_agreed_actions", "build_action_store",
            "capability_from_environment", "finding_currentness", "foundation_publish", "verification_ports"]
 
 # S1 refusal under the Site lock -> the Action failure code a FAILED event records.
@@ -208,3 +213,25 @@ def build_action_service(database_url: str | None, finding_reads: Any,
                             source=getattr(finding_reads, "source_provenance", None), **kwargs)
     service.verification_ports = verification_ports(database_url)
     return service
+
+
+# 3C2 (D-3C2.5, D-3C2.15): the agreed-change service; calls no S6-01a code above.
+@dataclass(frozen=True)
+class AgreedActionsService:
+    service: AgreedActionService
+    dispose: Callable[[], None]
+
+
+def _now() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+def build_agreed_actions(database_url: str, *, clock: Callable[[], datetime] = _now) -> AgreedActionsService:
+    store = PostgresAgreedActionStore(database_url)
+    accounts = build_account_service(database_url)
+
+    def dispose() -> None:  # both pools: the agreed store's and the accounts store's
+        store.dispose()
+        accounts._store.dispose()
+
+    return AgreedActionsService(AgreedActionService(store, accounts, clock=clock), dispose)
