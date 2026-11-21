@@ -4,8 +4,10 @@ deep-dive, recorded as an Action by people, with its owner and due date. Nothing
 Not the S6-01a Actions (`actions/service.py`, `lifecycle.py`): those are opened from Findings by the system and have
 no person who agreed them; this module never reads or writes them (D-3C2.1).
 
-Commit 1 serves no text (D-3C2.14): the state is the code `OPEN` or `OVERDUE` and a refusal is its code and exit code.
-The words and sentences become SC-1 statements in commit 2.
+Text (D-3C2.14, commit 2): the state is the code `OPEN` or `OVERDUE`, and its word ("Open", "Overdue") is rendered
+from vocabulary `action_state` through statement `agreed_action.state`; a refusal is its code and exit code, and its
+sentence is rendered from statement `agreed_action.refused`. This module is in the SC-1 guard's `ADOPTED` scope: it
+builds no English itself.
 """
 from __future__ import annotations
 
@@ -17,6 +19,7 @@ from typing import TYPE_CHECKING, Callable, Mapping, Protocol
 from uuid import UUID, uuid4
 
 from assetops_backend.accounts.permissions import roles_of
+from assetops_backend.i18n import Count, State, Word, message, render
 from assetops_backend.structure.read import SITE_TYPE_TO_STRUCTURE
 from assetops_backend.structure.registry import REGISTRIES
 
@@ -25,14 +28,16 @@ if TYPE_CHECKING:
 
 ORIGIN = "DEEP_DIVE"
 COMMAND = "action.agree"
-TITLE_MAX = 200
-#: D-3C2.14: codes in commit 1; commit 2 renders them through the `action_state` vocabulary.
+TITLE_MIN, TITLE_MAX = 1, 200
+#: D-3C2.14: the state codes; `state_words` renders them through the `action_state` vocabulary.
 STATE_OPEN, STATE_OVERDUE = "OPEN", "OVERDUE"
 COVER_ALL, COVER_SITE = "ALL", "SITE"
 #: D-3C2.6: the owner's cover by role; a role not listed owns nothing.
 OWNER_COVER: Mapping[str, str] = MappingProxyType({
     "OPERATOR_EXECUTIVE": COVER_ALL, "FINANCE_AND_COMMERCIAL_LEAD": COVER_ALL, "SITE_MANAGER": COVER_SITE})
-TITLE_REFUSED_CATEGORIES = frozenset({"Cc", "Cf", "Zl", "Zp"})
+#: D-3C2.11's Unicode categories Cc, Cf, Zl, Zp, held upper-cased (code form) and compared with the upper-cased
+#: category; the thirty general category codes stay distinct when upper-cased, so the rule is unchanged.
+TITLE_REFUSED_CATEGORIES = frozenset({"CC", "CF", "ZL", "ZP"})
 
 #: §2.3 refusal codes and their exit codes (3 only for the store).
 REFUSAL_EXIT: Mapping[str, int] = MappingProxyType({
@@ -76,7 +81,8 @@ class AgreedActionRow:
 
 @dataclass(frozen=True)
 class AgreedActionView:
-    """One row as a reader sees it (names joined). `state_code` is `OPEN` or `OVERDUE` at the read's clock."""
+    """One row as a reader sees it (names joined). `state_code` is `OPEN` or `OVERDUE` at the read's clock and
+    `state_words` its rendered word (5c's mapping reads it)."""
     action_id: UUID
     title: str
     site_code: str | None
@@ -86,6 +92,7 @@ class AgreedActionView:
     created_at: datetime
     due_on: date
     state_code: str
+    state_words: str
 
 
 @dataclass(frozen=True)
@@ -123,13 +130,24 @@ def state_code(due_on: date, today: date) -> str:
     return STATE_OVERDUE if due_on < today else STATE_OPEN
 
 
+def state_words(due_on: date, today: date) -> str:
+    """The state's word (D-3C2.14): `state_code` rendered through vocabulary `action_state`."""
+    return render(message("agreed_action.state", state=Word("action_state", state_code(due_on, today))))
+
+
+def refusal_sentence(code: str) -> str:
+    """A refusal's sentence (spec §2.5, D-3C2.14), rendered from `agreed_action.refused`; the title bounds are counts."""
+    return render(message("agreed_action.refused", code=State(code), least=Count(TITLE_MIN, "character"),
+                          most=Count(TITLE_MAX, "character")))
+
+
 def clean_title(title: str) -> str | None:
     """D-3C2.11: spaces (U+0020) stripped as `btrim` does; None (BAD_TITLE) when empty, over 200 code points, holding
     a control, format or line/paragraph separator, or starting or ending with white space. No normalisation."""
     t = title.strip(" ")
     if not t or len(t) > TITLE_MAX:
         return None
-    if any(unicodedata.category(c) in TITLE_REFUSED_CATEGORIES for c in t):
+    if any(unicodedata.category(c).upper() in TITLE_REFUSED_CATEGORIES for c in t):
         return None
     if t[0].isspace() or t[-1].isspace():
         return None
@@ -158,7 +176,7 @@ def _now(clock: Callable[[], datetime]) -> datetime:
 def _view(row: AgreedActionRow, site_code: str | None, owner_name: str, creator_name: str,
           today: date) -> AgreedActionView:
     return AgreedActionView(row.id, row.title, site_code, row.factor_id, owner_name, creator_name, row.created_at,
-                            row.due_on, state_code(row.due_on, today))
+                            row.due_on, state_code(row.due_on, today), state_words(row.due_on, today))
 
 
 def _factor_known(factor_id: str) -> bool:

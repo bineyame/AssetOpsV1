@@ -316,9 +316,11 @@ def test_t7_legacy_refuses_facts_and_structured_refuses_text():
 
 def test_t8_shipped_catalogue_loads():
     cat = catalogue._load()
-    assert set(cat.statements["en"]) == {"common.not_available", "common.budget_lines"}
+    # Adopters add their area's statements and vocabularies (3C2: `agreed_action.*`, `action_state`; D-3C2.14).
+    assert set(cat.statements["en"]) == {"common.not_available", "common.budget_lines",
+                                         "agreed_action.state", "agreed_action.refused"}
     assert set(cat.vocabulary["en"]) == {"factor", "heading", "headline_subject", "record", "record_noun",
-                                         "evidence", "unit", "noun", "month", "format"}
+                                         "evidence", "unit", "noun", "month", "format", "action_state"}
 
 
 def test_t8_a_module_with_a_docstring_loads_by_its_assignment_value():

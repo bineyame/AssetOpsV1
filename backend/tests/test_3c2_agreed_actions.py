@@ -1,8 +1,9 @@
 """3C2 (`specs/3C2-agreed-change-action/spec.md` §4, §5 tests 1 to 5; D-3C2.2 to D-3C2.14): the agreed change
 recorded as an Action, without a database.
 
-Commit 1 (D-3C2.14) serves no text: the state is `OPEN` or `OVERDUE` and a refusal is its code alone on stderr. The
-exact sentences and words land with the SC-1 statements in commit 2.
+Text (D-3C2.14, commit 2): the state word ("Open", "Overdue") and each refusal's sentence are SC-1 statements
+(`i18n/statements/en/agreed_action.py`); the tests below assert section 4's exact strings, written by hand, and pin
+each sentence through the composer with plants that must fail.
 """
 from __future__ import annotations
 
@@ -23,7 +24,7 @@ from assetops_backend.accounts.permissions import roles_of
 from assetops_backend.accounts.service import AccountService
 from assetops_backend.actions import agreed
 from assetops_backend.actions.agreed import (OWNER_COVER, AgreedActionService, MemoryAgreedActionStore,
-                                             StoreUnavailable, state_code)
+                                             StoreUnavailable, refusal_sentence, state_code, state_words)
 from test_3c0a_accounts_service import PW, MemoryStore
 
 BACKEND = Path(__file__).resolve().parents[1]
@@ -40,8 +41,27 @@ KEYS = ["action_id", "title", "site_code", "factor_id", "owner", "created_by", "
         "created_at", "due_on", "state", "already_recorded"]
 R1_LINE = {"action_id": "00000000-0000-0000-0000-000000000001", "title": TITLE, "site_code": "KOBO-001",
            "factor_id": "candidate_l", "owner": "Peter", "created_by": "Amina", "created_role": EXEC,
-           "created_by_script": True, "created_at": "2026-11-20T09:30:00Z", "due_on": "2026-12-15", "state": "OPEN",
+           "created_by_script": True, "created_at": "2026-11-20T09:30:00Z", "due_on": "2026-12-15", "state": "Open",
            "already_recorded": False}
+
+
+#: Spec §2.5's sentences, exact, by hand (W2).
+SENTENCES = {
+    "BAD_TITLE": "Write a title of 1 to 200 characters.",
+    "UNKNOWN_TENANT": "No operator has that name.",
+    "PERSON_NOT_FOUND": "The person agreeing is not an active person of this operator.",
+    "PERSON_ROLE_REQUIRED": "Only the operator's executive records an agreed change.",
+    "SITE_NOT_FOUND": "This operator has no Site with that code.",
+    "FACTOR_NEEDS_SITE": "Name the Site the factor belongs to (--site).",
+    "FACTOR_UNKNOWN": "No factor has that name.",
+    "FACTOR_SITE_TYPE": "This factor does not apply to that Site's type.",
+    "OWNER_NOT_FOUND": "The owner is not an active person of this operator.",
+    "OWNER_SCOPE": "The owner's role does not cover where this change applies.",
+    "DUE_IN_PAST": "The due date is before today.",
+    "BAD_DUE": "Write the due date as YYYY-MM-DD, like 2026-12-15.",
+    "NO_DATABASE": "Set DATABASE_URL to the operator's database.",
+    "ACTIONS_UNAVAILABLE": "The Actions store cannot be reached right now.",
+}
 
 
 def email(name: str) -> str:
@@ -150,7 +170,7 @@ def _ok(result: tuple[int, str, str]) -> dict:
 
 def _refused(result: tuple[int, str, str], code: str, status: int = 2) -> None:
     exit_code, out, err = result
-    assert (exit_code, out, err) == (status, "", f"{code}\n")
+    assert (exit_code, out, err) == (status, "", f"{code} {SENTENCES[code]}\n")
     assert "@" not in out + err
 
 
@@ -165,10 +185,10 @@ def test_1_r1_prints_the_twelve_keys_and_stores_one_row(w, capsys) -> None:
 
 
 @pytest.mark.parametrize("at, title, state", [
-    (T_R1, TITLE, "OPEN"),
-    (datetime(2026, 11, 20, 10, 0, tzinfo=timezone.utc), TITLE, "OPEN"),
-    (datetime(2026, 12, 16, 8, 0, tzinfo=timezone.utc), TITLE, "OVERDUE"),
-    (T_R1, f"  {TITLE}  ", "OPEN"),
+    (T_R1, TITLE, "Open"),
+    (datetime(2026, 11, 20, 10, 0, tzinfo=timezone.utc), TITLE, "Open"),
+    (datetime(2026, 12, 16, 8, 0, tzinfo=timezone.utc), TITLE, "Overdue"),
+    (T_R1, f"  {TITLE}  ", "Open"),
 ], ids=["same-time", "later-same-day", "after-due-date", "padded-title"])
 def test_1_a_re_run_records_nothing_new(w, capsys, at, title, state) -> None:
     _ok(w.run(r1(), capsys))
@@ -275,7 +295,7 @@ def test_2_microseconds_are_dropped_from_the_clock(w, capsys) -> None:
 def test_2_one_clock_read_per_record(w, capsys) -> None:
     w.clock.values = [T_R1, datetime(2026, 12, 16, tzinfo=timezone.utc)]
     line = _ok(w.run(r1(), capsys))
-    assert (line["state"], line["created_at"], w.clock.calls) == ("OPEN", "2026-11-20T09:30:00Z", 1)
+    assert (line["state"], line["created_at"], w.clock.calls) == ("Open", "2026-11-20T09:30:00Z", 1)
 
 
 def test_2_rights_are_checked_on_a_re_run(w, capsys) -> None:
@@ -293,7 +313,7 @@ def test_2_a_naive_clock_is_a_programming_error(w) -> None:
 
 # --- test 3: the read -----------------------------------------------------------------------------------------------
 
-def test_3_the_read_is_newest_first_with_names_and_state_codes(capsys) -> None:
+def test_3_the_read_is_newest_first_with_names_and_state_words(capsys) -> None:
     w = World(ids=(1, 2, 3, 5, 4))
     records = [(T_R1, r1()),
                (datetime(2026, 11, 20, 10, 0, tzinfo=timezone.utc),
@@ -317,12 +337,18 @@ def test_3_the_read_is_newest_first_with_names_and_state_codes(capsys) -> None:
         ("Joseph", "Amina", None), ("Joseph", "Amina", None), ("Peter", "Amina", "KOBO-001"),
         ("Joseph", "Amina", None), ("Peter", "Amina", "KOBO-001")]
     assert [v.state_code for v in views] == ["OPEN", "OPEN", "OPEN", "OVERDUE", "OPEN"]
+    assert [v.state_words for v in views] == ["Open", "Open", "Open", "Overdue", "Open"]
     assert w.service.for_tenant(w.other) == ()
 
 
 def test_3_state_code_on_and_after_the_due_day() -> None:
     assert state_code(date(2026, 12, 15), date(2026, 12, 15)) == "OPEN"
     assert state_code(date(2026, 12, 15), date(2026, 12, 16)) == "OVERDUE"
+
+
+def test_3_state_words_on_and_after_the_due_day() -> None:
+    assert state_words(date(2026, 12, 15), date(2026, 12, 15)) == "Open"
+    assert state_words(date(2026, 12, 15), date(2026, 12, 16)) == "Overdue"
 
 
 # --- test 4: the role tables ----------------------------------------------------------------------------------------
@@ -385,3 +411,159 @@ def test_5_no_value_word_in_the_migration_or_the_adapter_sql() -> None:
     value_word = re.compile(r"(?i)\b(commercial_\w+|value|amount|currency|price|cost|money)\b")
     assert not value_word.search(MIGRATION.read_text(encoding="utf-8"))
     assert not value_word.search(" ".join(_sql_strings(ADAPTER)))
+
+
+# --- commit 2 (D-3C2.14): each served string through the SC-1 composer, and plants that must fail ------------------
+
+import copy  # noqa: E402
+import importlib.util  # noqa: E402
+import sys  # noqa: E402
+
+from assetops_backend.i18n import Count, State, StatementError, Word, message, render  # noqa: E402
+from assetops_backend.i18n import catalogue as i18n_catalogue  # noqa: E402
+from assetops_backend.i18n.catalogue import CatalogueError  # noqa: E402
+from assetops_backend.i18n.schema import UNSERVED  # noqa: E402
+from statement_cases import agreed_action as agreed_cases  # noqa: E402
+
+REPO = BACKEND.parent
+AGREED = "backend/assetops_backend/actions/agreed.py"
+
+
+def _guard():
+    spec = importlib.util.spec_from_file_location("statement_catalogue_3c2", REPO / "tools/checks/statement_catalogue.py")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules.setdefault(spec.name, module)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _refusal(code: str, **facts):
+    return message("agreed_action.refused", **{"code": State(code), "least": Count(1, "character"),
+                                                "most": Count(200, "character"), **facts})
+
+
+def _shipped() -> tuple[dict, dict]:
+    cat = i18n_catalogue.current()
+    return copy.deepcopy(cat.statements["en"]), copy.deepcopy(cat.vocabulary["en"])
+
+
+def _load_code(statements: dict, vocabulary: dict) -> str:
+    with pytest.raises(CatalogueError) as e:
+        i18n_catalogue._build({"en": [statements]}, {"en": vocabulary})
+    return e.value.code
+
+
+@pytest.mark.parametrize("code", sorted(SENTENCES))
+def test_c2_every_refusal_sentence_is_rendered_by_the_composer(code) -> None:
+    assert render(_refusal(code)) == SENTENCES[code]
+    assert refusal_sentence(code) == SENTENCES[code]
+
+
+def test_c2_the_refusal_codes_are_exactly_the_exit_table() -> None:
+    statement = i18n_catalogue.current().statements["en"]["agreed_action.refused"]
+    assert set(statement["slots"]["code"]["values"]) == set(agreed.REFUSAL_EXIT) == set(SENTENCES)
+    assert statement["exhaustive"] == "code"
+
+
+def test_c2_the_state_words_come_from_the_action_state_vocabulary() -> None:
+    assert render(message("agreed_action.state", state=Word("action_state", "OPEN"))) == "Open"
+    assert render(message("agreed_action.state", state=Word("action_state", "OVERDUE"))) == "Overdue"
+    vocabulary = i18n_catalogue.current().vocabulary["en"]["action_state"]
+    assert vocabulary["order"] == [agreed.STATE_OPEN, agreed.STATE_OVERDUE]
+
+
+@pytest.mark.parametrize("case", agreed_cases.CASES, ids=lambda c: f"{c.key}-{c.variant}")
+def test_c2_each_hand_case_renders_its_english(case) -> None:
+    assert render(message(case.key, **case.facts)) == case.english
+
+
+def test_c2_agreed_is_adopted_and_builds_no_english() -> None:
+    guard = _guard()
+    assert AGREED in guard.ADOPTED
+    source = (REPO / AGREED).read_text(encoding="utf-8")
+    assert guard.adopted_hits(AGREED, source, UNSERVED) == []
+
+
+@pytest.mark.parametrize("plant", [
+    'STATE_OPEN_WORD = "Open"\n',
+    'def _line(code):\n    return f"{code} refused"\n',
+    'def _join(a, b):\n    return a + " and " + b\n',
+    'TITLE_RULE = "Write a title of 1 to 200 characters."\n',
+    'def _pick(late):\n    return "Overdue" if late else "Open"\n',
+    'def _say(code):\n    return " ".join(["The", "due", "date"])\n',
+], ids=["word", "fstring", "concat", "sentence", "conditional", "join"])
+def test_c2_plant_a_hand_built_string_in_agreed_fails_the_adopted_scan(plant) -> None:
+    source = (REPO / AGREED).read_text(encoding="utf-8") + "\n\n" + plant
+    assert _guard().adopted_hits(AGREED, source, UNSERVED)
+
+
+def test_c2_plant_the_old_category_literal_fails_the_adopted_scan() -> None:
+    # The spec's literal `"Cc"` form is not code form in an adopted module; the upper-cased form is (packet Q1).
+    source = (REPO / AGREED).read_text(encoding="utf-8").replace('{"CC", "CF", "ZL", "ZP"}', '{"Cc", "Cf", "Zl", "Zp"}')
+    assert _guard().adopted_hits(AGREED, source, UNSERVED)
+
+
+def test_c2_the_upper_cased_categories_refuse_what_d_3c2_11_refuses() -> None:
+    import unicodedata
+    refused = {"Cc", "Cf", "Zl", "Zp"}
+    for cp in range(0x110000):
+        category = unicodedata.category(chr(cp))
+        assert (category.upper() in agreed.TITLE_REFUSED_CATEGORIES) == (category in refused)
+
+
+def test_c2_plant_a_digit_in_a_template_fails_the_load() -> None:
+    statements, vocabulary = _shipped()
+    statements["agreed_action.refused"]["variants"][0]["text"] = "Write a title of 1 to 200 characters."
+    assert _load_code(statements, vocabulary) == "LITERAL_DIGIT"
+
+
+def test_c2_plant_a_number_word_in_a_template_fails_the_load() -> None:
+    statements, vocabulary = _shipped()
+    statements["agreed_action.refused"]["variants"][0]["text"] = "Write a title of one to {most}."
+    assert _load_code(statements, vocabulary) == "LITERAL_NUMBER_WORD"
+
+
+def test_c2_plant_a_dropped_refusal_variant_fails_the_load() -> None:
+    statements, vocabulary = _shipped()
+    statements["agreed_action.refused"]["variants"].pop()
+    assert _load_code(statements, vocabulary) == "NOT_EXHAUSTIVE"
+
+
+def test_c2_plant_a_three_segment_key_fails_the_load() -> None:
+    statements, vocabulary = _shipped()
+    statements["agreed_action.refused.bad_title"] = statements.pop("agreed_action.state")
+    assert _load_code(statements, vocabulary) == "KEY_FORM"
+
+
+def test_c2_plant_a_missing_state_word_fails_the_load() -> None:
+    statements, vocabulary = _shipped()
+    del vocabulary["action_state"]["entries"]["OVERDUE"]
+    assert _load_code(statements, vocabulary) == "VOCABULARY_SCHEMA"
+
+
+def test_c2_an_unknown_state_word_or_missing_bound_refuses_to_render() -> None:
+    with pytest.raises(StatementError) as e:
+        render(message("agreed_action.state", state=Word("action_state", "CLOSED")))
+    assert e.value.code == "VOCABULARY_UNKNOWN"
+    with pytest.raises(StatementError) as e:
+        render(message("agreed_action.refused", code=State("BAD_TITLE"), least=Count(1, "character")))
+    assert e.value.code == "FACT_MISSING"
+    with pytest.raises(StatementError) as e:
+        render(message("agreed_action.refused", code="BAD_TITLE", least=Count(1, "character"),
+                       most=Count(200, "character")))
+    assert e.value.code == "FACT_TYPE"
+
+
+def test_c2_the_guard_reports_a_missing_case() -> None:
+    guard = _guard()
+    cases = [c for c in agreed_cases.CASES if c.variant != "bad_due"]
+    cat = i18n_catalogue.current()
+    render_mod = importlib.import_module("assetops_backend.i18n.render")
+    messages_mod = importlib.import_module("assetops_backend.i18n.messages")
+    original = guard._cases
+    guard._cases = lambda root: (("agreed_action", c) for c in cases)
+    try:
+        out = guard.coverage(REPO, cat, render_mod._render, messages_mod.message, set())
+    finally:
+        guard._cases = original
+    assert "CASE_MISSING agreed_action.refused bad_due" in out

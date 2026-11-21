@@ -266,6 +266,7 @@ def test_8_the_read_is_newest_first_with_names(lake, engine) -> None:  # noqa: F
     assert [(v.action_id.int, v.title, v.owner_name, v.site_code) for v in views] == expected
     assert {v.created_by_name for v in views} == {"Amina"}
     assert [v.state_code for v in views] == ["OPEN", "OPEN", "OPEN", "OVERDUE", "OPEN"]
+    assert [v.state_words for v in views] == ["Open", "Open", "Open", "Overdue", "Open"]
     composed = build_agreed_actions(URL)
     try:
         read = composed.service.for_tenant(lake["tenant"])

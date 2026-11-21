@@ -8,9 +8,9 @@ The analyst's trusted act, not a sign-in: it reads no password, session or token
 is attributed to, and `created_by_script` true says a script typed it (residual risk R-AUTH). A re-run records
 nothing new and says so (`already_recorded` true).
 
-Success: one JSON line of twelve keys on stdout, exit 0; names, never emails; no value or amount. A refusal: its code
-on stderr, nothing on stdout, exit 2 (3 when the store cannot be reached). Commit 1 serves no text (D-3C2.14): the
-sentences and the state words arrive as SC-1 statements in commit 2.
+Success: one JSON line of twelve keys on stdout, exit 0; names, never emails; no value or amount. A refusal: `<CODE>
+<sentence>` on stderr, nothing on stdout, exit 2 (3 when the store cannot be reached). The sentence and the success
+line's `state` word are SC-1 statements rendered by `actions/agreed.py` (D-3C2.14).
 """
 from __future__ import annotations
 
@@ -22,16 +22,15 @@ import sys
 from datetime import date, datetime, timezone
 from typing import Any, Callable, Sequence
 
-from assetops_backend.actions.agreed import AgreedActionRefused, Recorded
+from assetops_backend.actions.agreed import AgreedActionRefused, Recorded, refusal_sentence
 
-EPILOG = "Overdue counts from the day after the due date, by the UTC calendar."
 _DUE = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}")
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m assetops_backend.record_action",
                                      description="Record the change agreed at the end of the deep-dive as an Action.",
-                                     epilog=EPILOG)
+                                     epilog="Overdue counts from the day after the due date, by the UTC calendar.")
     parser.add_argument("--tenant", required=True, help="the operator's slug")
     parser.add_argument("--as", dest="as_email", required=True, help="email of the executive who agreed the change")
     parser.add_argument("--title", required=True, help="the change, 1 to 200 characters")
@@ -43,7 +42,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def _refuse(code: str, status: int = 2) -> int:
-    sys.stderr.write(f"{code}\n")
+    sys.stderr.write(f"{code} {refusal_sentence(code)}\n")
     return status
 
 
@@ -56,7 +55,7 @@ def _line(recorded: Recorded) -> dict[str, Any]:
     return {"action_id": str(row.id), "title": row.title, "site_code": view.site_code, "factor_id": row.factor_id,
             "owner": view.owner_name, "created_by": view.created_by_name, "created_role": row.created_role,
             "created_by_script": row.created_by_script, "created_at": _iso_seconds(row.created_at),
-            "due_on": row.due_on.isoformat(), "state": view.state_code, "already_recorded": recorded.already_recorded}
+            "due_on": row.due_on.isoformat(), "state": view.state_words, "already_recorded": recorded.already_recorded}
 
 
 def _due(text: str) -> date | None:
