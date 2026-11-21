@@ -361,3 +361,73 @@ Rows 40 (held) and 41 of `specs/OWNER-AWAY/decisions-2026-11-21.md` log the owne
   and MTO-001. It is emptied in the commit that merges after the fix.
 - **Why.** The owner's standing rule: a figure that needs a record the operator did not send reads "Not available
   yet" and names that record. It is never 0.
+
+## Mid-build answers
+
+Architect (Claude), 2026-11-21, on the owner's delegation (`owner/owner-away-architect-decides-2026-11-21.md`; owner
+row 43). Answers MBQ-1 (`mid-build-questions.md`): unit 1's spike (D-DS4.18) differs from §2.1 in 15 cells besides
+`adjustments_kwh`. Read on `main` `c027cd52b` and probed read-only in-process (no database): `targets/lines.py`
+`_classify` on the export's own lines, `canonical.parse_record` on a price line without a currency.
+
+## D-DS4.26 Kisiwa's actual O&M is blank: the world sends no October O&M invoice; §2.1 was wrong (amends D-DS4.16)
+
+- **Cause.** Not a defect. The manifest carries Kisiwa's October O&M as `coverage: om: ESTIMATED` ("O&M invoice for
+  October not received; plan amount carried as ESTIMATED"; disorder test GAP-1: "never zero"). D-DS1B.7 writes no
+  estimate as a record, and 3A3's exports list it in `unwritten.json` as `KISIWA-001 2026-10 actual om
+  ESTIMATED_NOT_RECEIVED`. So no EXPENSE (OM) record exists for Kisiwa in October, and `money.py` reads `om` as
+  NOT_RECEIVED naming EXPENSE (OM). `cost_to_serve` and `contribution` are blank with `missing_leaves ["om"]`. The pack's
+  700.0 is the plan amount carried as an estimate, not a record. §2.1 wrongly said every Site carries the same record kinds.
+- **Ruling.** §2.1 is amended. At KISIWA-001 only, actual `om` is `B` (Src R: EXPENSE (OM), not received), and actual
+  `cost_to_serve` and `contribution` are `B` (Src D: `om`). Kisiwa's actual side is 15 E and 32 B. Kobo and Mto stay
+  18 E and 29 B. The plan side is unchanged: Kisiwa's plan `om` 700.00 is its budget line. The contract becomes per Site
+  in one place. `tools/world.py` keeps `C4_CONTRACT` (the table, as it holds at Kobo and Mto) and adds
+  `C4_SITE_CLASSES = {"KISIWA-001": {"actual": {"om": "B", "cost_to_serve": "B", "contribution": "B"}}}`.
+  A Site's class for `f` on a side is `C4_SITE_CLASSES[code][side][f]` when present, else `C4_CONTRACT[side][f]`.
+  Nothing else in C4 changes.
+- **T9b** (independent) also asserts that `C4_SITE_CLASSES` equals that literal, and reads the manifest YAML itself.
+  Among the lakeside-power mini-grid Sites, the only October `coverage` value `ESTIMATED` is Kisiwa's `om`. Kisiwa's
+  effective counts are actual 15 E, 32 B and plan 36 E, 11 B. New plants: **P33**, the override is dropped: T12's C4
+  reports three `new` lines. **P34**, the override is also put at KOBO-001: T9b fails.
+- **No estimate in its place.** The product has no path that carries a plan amount as an *estimated actual*. Building
+  one is new scope that needs a labelled-estimate design (it would show 700.00 as *Estimated, invoice not received*).
+  It is not a DS4 matter. Until then the honest reading is the blank that names the missing invoice. This is owner row 43.
+- **Why.** The owner's standing rule: a figure needs the record the operator sent. "Not available yet" names the
+  invoice that did not come. It is never 0 and never the plan's number. GAP-1 is the pack's own "missing invoice" case,
+  and the product now shows it honestly.
+
+## D-DS4.27 The plan-side price targets are a defect on `main`: 5a's budget-line rule 4 refuses every price line
+
+- **Cause.** The budget export carries `tariff` 0.55 / 0.40 / 0.40 and `diesel_price` 1.30 / 1.25 / 1.25, each with
+  `currency` USD. It has to: the canonical `budget_currency` rule (`records_v1.py`) requires a currency on any factor
+  whose unit has the money dimension (`MONEY/KWH`, `MONEY/L`), and refuses the line without one
+  (`CANONICAL_FACTOR record.body.currency`, probed). But `targets/lines.py` `_classify` rule 4 tests
+  `Row.money`, which is `Unit.is_money`, true only for exactly `MONEY^1`. So it calls every price line a quantity
+  with a currency: unused, blocked `CURRENCY_ON_QUANTITY` (probed: `{'tariff': 'CURRENCY_ON_QUANTITY',
+  'diesel_price': 'CURRENCY_ON_QUANTITY'}`). A blocked leaf is absent `NOT_CALCULATED_YET` (D-5A.13), so it does not
+  fall back to its AT_ACTUAL rule either. `necessary_l` (MAIN under `fuel_cost = diesel_l * diesel_price`) then cannot
+  be solved (`MAIN_FACTOR_UNSOLVED:fuel_cost`), and `diesel_l` is blank on `necessary_l`. One cause, four cells.
+  5a's own spec §2 rule 4 says "the money dimension". The code departs from the spec, and its fixture carries no price
+  line, so no test caught it.
+- **The class (W6).** There are two predicates for "this unit needs a currency". The canonical rule and the evaluator
+  (`evaluate.py` `_money_dimension`, STRUCTURE_CURRENCY) use the money dimension. 5a uses `is_money` in `lines.py`
+  rule 4 (the live breach), and in `read.py` (LEAK_ZERO's currency check and currency, the MAIN assumption's currency)
+  and `rules.py` `solve_main`'s probe currency. Those three are latent today: the four rate leaves (`tariff`,
+  `productive_tariff`, `diesel_price`, `wear_rate`) are all AT_ACTUAL, and the AT_ACTUAL path carries the actual's
+  currency. `money.py` step 4 and `check.py` (homes) mean "exactly money", sums of AMOUNT lines. They are named and kept.
+- **Ruling.** This is a defect on `main`. It goes to a fix round of **0.25 unit** (a Sonnet fix round), specified in
+  `specs/5a-targets/spec.md` §11 (F1): one public predicate `Unit.has_money_dimension`, used by the canonical rule, the
+  evaluator and every 5a currency decision. §2.1's plan side is right and stays as it is: `tariff` and
+  `diesel_price` `E` (budget lines), `necessary_l` `E` (MAIN, now solvable), `diesel_l` `E`. With the fix,
+  Kisiwa reads 2990.00 / 1.30 = 2300, Kobo 875.00 / 1.25 = 700, Mto 375.00 / 1.25 = 300, and each `diesel_l` check
+  agrees with its line.
+- **DS4 does not wait.** As with D-DS4.25, `C4_KNOWN_FINDINGS` holds 12 lines until F1 merges: `lakeside-power/<code>
+  plan.<f> D-DS4.27` for `f` in `tariff`, `diesel_price`, `necessary_l`, `diesel_l` at KISIWA-001, KOBO-001 and MTO-001.
+  They are removed in the DS4 commit that first merges `main` after F1. The cells are blank, never a wrong number, so
+  the known finding hides nothing. D-DS4.25's three lines are already gone, because its fix merged (`e0d0a1e84`).
+- **Demo impact (stated plainly).** Until F1 merges, at all three Sites the target side reads "Not available yet" for
+  the tariff, the diesel price, the necessary litres and the diesel litres. This shows on 5c's deep-dive target column,
+  where the design shows a target, and in 5b's attribution of the revenue and fuel gaps to price and volume. Kobo's
+  fuel story (necessary litres against plan) cannot be told. After F1 merges, each one shows its budget figure. F1 must
+  merge before the world walkthrough.
+- **Why.** The operator sent these figures. Reading them is the product's job. The blank was honest about what the
+  product *read*, not about what the operator *sent*.

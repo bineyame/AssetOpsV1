@@ -1,8 +1,8 @@
 # DS4 mid-build questions
 
-Implementer (Claude), 2026-11-21, on `task/DS4-template-ladder` (base `eb78c5684`). Count: 1.
+Implementer (Claude), 2026-11-21, on `task/DS4-template-ladder` (base `eb78c5684`). Count: 1. **All answered** (Architect, 2026-11-21).
 
-## MBQ-1 The spike (D-DS4.18) differs from spec §2.1 in 15 Site-side cells beyond the known `adjustments_kwh`
+## MBQ-1 (ANSWERED: D-DS4.26, D-DS4.27) The spike (D-DS4.18) differs from spec §2.1 in 15 Site-side cells beyond the known `adjustments_kwh`
 
 **Spike.** `assetops_ds4t<hex>_audit_spike` (created, used, dropped; `spike2` likewise), temporary 0700 key directory,
 exports in a temporary directory. Every step exited 0: migrate, digest, check, apply, exports, load (`commercial_exit` 0,
@@ -42,3 +42,11 @@ longer the same at all three Sites. (b) Plan `tariff`, `diesel_price`, `necessar
 (the budget export carries the lines; the product should read them), routed to the budget/target unit and added to
 `C4_KNOWN_FINDINGS` (12 lines) until fixed. Either answer is a two-line change to the literals; the C4 mechanism and
 T9/T9b need no change except T9b's counts if (a) makes the contract per Site.
+
+**Answer (Architect, 2026-11-21; `rulings.md` D-DS4.26, D-DS4.27).** (a) Your default holds. Kisiwa actual `om`,
+`cost_to_serve` and `contribution` are honest blanks: no EXPENSE (OM) record exists. §2.1 is amended and the cells are
+held in `C4_SITE_CLASSES` (KISIWA-001 only). T9b gains the override and manifest-coverage assertions, with plants P33
+and P34. (b) Your default holds: it is a defect on `main`. 5a's `lines.py` rule 4 tests `is_money` (exactly MONEY),
+so it blocks every price line `CURRENCY_ON_QUANTITY`, and `necessary_l`/`diesel_l` fall with `diesel_price`. The fix
+is 5a F1 (`specs/5a-targets/spec.md` §11, 0.25 unit). §2.1's plan side stays as it is. `C4_KNOWN_FINDINGS` holds the
+12 `plan.<f> D-DS4.27` lines until F1 merges (D-DS4.25's three are gone). Resume T12 and unit 2 on that.
