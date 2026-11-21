@@ -541,6 +541,24 @@ describe("5c rev 4 screen fix: bars and scale (D-5C.27), the mute rule (D-5C.26)
     expect(a.bridge!.scale).toEqual({ target_at: "0.00", actual_at: "100.00" });
   });
 
+  it("D-5C.29: the cash sentence and the table's Billed column render exactly as served", async () => {
+    const a = worldA();
+    renderMonth(clientOf(() => ({ status: "loaded", body: a })));
+    await settled();
+    const cash = screen.getByRole("heading", { name: a.cash!.title }).closest("section")!;
+    expect(a.cash!.text).toBe(
+      "Of $9,688.00 billed for October, $8,870.00 has been collected, $150.00 is paid but in transit and $668.00 is still outstanding.",
+    );
+    expect(within(cash as HTMLElement).getByText(a.cash!.text).tagName).toBe("P");
+    const heads = [...cash.querySelectorAll("thead th")].map((th) => th.textContent);
+    expect(heads).toEqual(a.cash!.table.columns);
+    expect(heads[1]).toBe("Billed");
+    const rows = [...cash.querySelectorAll("tbody tr")].map((tr) => [...tr.children].map((c) => c.textContent));
+    expect(rows).toEqual(a.cash!.table.rows.slice(0, 10));
+    expect([...cash.querySelectorAll("tfoot tr > *")].map((c) => c.textContent)).toEqual(a.cash!.table.total);
+    expect(cash.textContent).not.toContain("expected");
+  });
+
   it("World X: no bar, no scale, no chip reads Not available yet; no-figure slots carry dd-na, Assure does not", async () => {
     const x = worldX();
     const view = renderMonth(clientOf(() => ({ status: "loaded", body: x })));
