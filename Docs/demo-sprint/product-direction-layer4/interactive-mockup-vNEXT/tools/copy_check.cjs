@@ -40,6 +40,7 @@ const PLAN_COPY = [
   ['crew meter name', new RegExp(`^${NUM} of ${NUM} [a-z]+(?: [a-z]+)*(?: in ${MONTH})?$`)],
   ['opener and drawer title', /^Release thresholds$/],
   ['case line', /^Showing the case you chose: .+\.$|^Change the case$/],
+  ['already released clause (D-IA.54)', /^Already released when (?:its Action was|their Actions were) created, within the release thresholds: .+ \(\$[\d,]+(?:\.\d+)?\)(?:; .+ \(\$[\d,]+(?:\.\d+)?\))*\.$/],
   ['History', new RegExp(`^Versions and approvals$|^Version ${NUM}, (draft|proposed|approved|closed|revised)$|^Version ${NUM} proposed$|^Opened within the executive’s limits$|^The system · \\d{1,2} [A-Z][a-z]{2}$|^Changes made here are shown in this demonstration only\\.$`)]
 ];
 async function planCopy() {
