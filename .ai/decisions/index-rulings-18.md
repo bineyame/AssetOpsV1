@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-3B4.1 to D-3B4.26)
+# Decision index: Demo-sprint and later rulings (index only) (D-3B4.1 to D-3B4.26, D-DS4.1 to D-DS4.15)
 
 - `D-3B4.1` one mechanism STRUCTURE_DEVIATION; the leaf in the key is the pin · live · specs/3B4-observer/rulings.md
 - `D-3B4.2` declared adverse direction per leaf in observe/rules.py, checked against bridge signs · live · specs/3B4-observer/rulings.md
@@ -26,3 +26,18 @@
 - `D-3B4.24` bounds CHECK dropped (columns already NOT NULL) · live · specs/3B4-observer/rulings.md
 - `D-3B4.25` only the check.py edit waits for 4a and 3B6; non-observed structures are excluded, not errors · live · specs/3B4-observer/rulings.md
 - `D-3B4.26` pre-flight notes accepted; observe_site is the one place the actual side is chosen · live · specs/3B4-observer/rulings.md
+- `D-DS4.1` world telemetry only from the generator's writer (DS2) at configured world Sites; none this fortnight (owner away, row 33) · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.2` cold-chain and EV parity slices move to the unit that first writes their telemetry (row 34) · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.3` the ladder is tools/world.py driving product commands; manifests as files; no migration, writer or guard change · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.4` names <prefix>_audit_*, permitted_database first; DDL on postgres only, never FORCE; frozen templates; built step env · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.5` key parts (migrations; definition, inputs, code trees; steps); clean tree; stale refused naming the part · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.6` the world this fortnight: Lakeside October from the emulated exports; other tenants NO_ONBOARDING_FILE · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.7` the real-path slice is DS3's parity test inside world check, never in the world · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.8` world check C1-C7 (inputs, census, rebuild, oracle, parity, batches, steps); clean, good = check passed · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.9` BULK_BATCH_GAP_DAYS: a bulk batch's Site-local days must be contiguous (D-DS3.21) · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.10` key directory per L1 under the coordinator's root; clones share; drop L1 erases keys last-child-first · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.11` the re-benchmark: cold ladder, clones, a late record, the pipeline on 14 Kobo days; NOT_BUILT rows; meanings · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.12` DS7's trigger read on the projection, reported to the owner (row 35) · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.13` serving a world database held for the owner; recommendation: coordinator copies L2 to a walk name (row 36) · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.14` 2.75 units in three units, no split · live · specs/DS4-template-ladder/rulings.md
+- `D-DS4.15` no user-facing text; D-SC1.28 does not hold DS4 · live · specs/DS4-template-ladder/rulings.md
