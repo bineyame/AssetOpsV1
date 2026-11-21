@@ -95,3 +95,10 @@ helper adds to the real allow file). Read on `main` `27434fe33`: `i18n/statement
   on ACCEPT, wording at the 5c walkthrough").
 - **Gate.** SC-1f starts on `main` now. It touches 3A7's merged files, so a lane holding 3A7 or 5c files merges
   `main` after SC-1f lands. 5c unit 1 starts on or after SC-1f.
+
+## D-SC1F.7 A `with` basis counts only the figures its variant prints or reads (review L1, KD1)
+
+- **Ruling.** A `with` basis counts only the `of` figures its variant prints or reads; a statement that words a figure
+  printed elsewhere (`money_word`) reads it with `requires: present`.
+- **Built.** `reconciliation.money_word`'s variant carries `"requires": {"present": "figure"}`; the KD1 fallback in
+  `_fill_evidence` is removed. Pinned by `test_sc1f_a_with_basis_counts_only_the_figures_its_variant_states`.

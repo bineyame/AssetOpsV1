@@ -22,3 +22,4 @@
 - `D-SC1F.4` Logger = name stem log/logger/logging after stripping underscores, or bound to getLogger in the module (owner item 8a) · live · specs/SC-1f-declared-word/rulings.md
 - `D-SC1F.5` P55 allow helper merges into the real allow file; profiles.py date tokens move to it as CODE; upload _LOG line needs none (owner item 8b) · live · specs/SC-1f-declared-word/rulings.md
 - `D-SC1F.6` SC-1f 1.0 unit, two commits, one build; "Declared" seen at the 5c walkthrough, not merge-blocking · live · specs/SC-1f-declared-word/rulings.md
+- `D-SC1F.7` A `with` basis counts only the `of` figures its variant prints or reads; a statement wording a figure printed elsewhere (`money_word`) reads it with `requires: present` (review L1, KD1) · live · specs/SC-1f-declared-word/rulings.md

@@ -247,6 +247,21 @@ def test_t2_money_suffix():
         assert words(None) == "$2.00 (Recorded)"
 
 
+def test_sc1f_a_with_basis_counts_only_the_figures_its_variant_states():
+    """D-SC1F.7: a variant printing no `of` figure and declaring no `requires: present` has no basis word."""
+    slots = {"x": {"type": "money", "evidence": {"with": "basis"}},
+             "basis": {"type": "evidence", "of": ["x"], "money": True}}
+    fact = Money(D("2"), "USD", Evidence("RECORDED", FIN, True))
+    with catalogue._use(build(statement("{basis}", slots))):
+        with pytest.raises(StatementError) as e:
+            render(message("test.thing", x=fact))
+        assert e.value.code == "ABSENT_PRINTED"
+    declared = statement("{basis}", slots)
+    declared["test.thing"]["variants"][0]["requires"] = {"present": "x"}
+    with catalogue._use(build(declared)):
+        assert render(message("test.thing", x=fact)) == "Recorded"
+
+
 # --- T3 conditions -------------------------------------------------------------------------------------------------
 
 FACTS = {"gap": usd("-562"), "big": usd("-412"), "zero": usd("0"), "kes": usd("1", "KES"),

@@ -238,11 +238,9 @@ def _fill_fact(r: _Rendering, key, vid, name: str, spec: dict, merged: dict) -> 
 def _fill_evidence(r: _Rendering, key, vid, name: str, spec: dict, merged: dict) -> str:
     """The `with` basis: the words of its `of` slots that are present and that this variant states, by printing them
     (in its text or a part under it) or reading them in its `when`/`requires` (D-SC1F.3, `_served_words`' rule). A
-    variant that states no figure at all is a word for figures the page prints beside it (3A7's `money_word`,
-    D-SC1.16), so its basis words all its present `of` figures (packet, Known Deviations)."""
+    statement that words a figure printed elsewhere (3A7's `money_word`) reads it with `requires: present`
+    (D-SC1F.7)."""
     stated = r.stated
-    if not any(isinstance(r.facts.get(n), FIGURES) for n in stated):
-        stated = set(spec["of"])
     opts = formats.options(spec, merged.get(name))
     words: list[str] = []
     for slot in spec["of"]:

@@ -35,7 +35,7 @@ All the changes are in `reconciliation.*`. No other statement's English changes.
 | `reconciliation.heading` `zero_stated`, `not_received` | `Fuel cost (Recorded): the accounts say $0.00 and no fuel invoices are recorded.` | unchanged, also when a tolerance is passed (C10) |
 | `reconciliation.statement` `matched` / `not_matched` | `... matches the management accounts within 1% (Recorded).` | `... within 1% (Declared).` |
 | `reconciliation.standing` `reconciled`, `this_month_not_matched`, `none_matched` | `Reconciled: ... within 1% (Recorded).` / `Not yet reconciled: ... within 1% (Recorded) yet.` | `(Declared)` in place of `(Recorded)` |
-| `reconciliation.money_word` | the figure's word, for example `Recorded` | unchanged: a `RECORDED` figure (KD1) |
+| `reconciliation.money_word` | the figure's word, for example `Recorded` | unchanged: a `RECORDED` figure (KD1, D-SC1F.7) |
 
 Every changed expected string is in the commit-1 diff (`git show 8a48b8e51 -- backend/tests`). These are 58 added
 lines that contain "Declared". Each follows rule R1 or R3, apart from KD3.
@@ -74,10 +74,7 @@ lines that contain "Declared". Each follows rule R1 or R3, apart from KD3.
 
 ## Known deviations
 
-- **KD1 (render rule, D-SC1F.3).** Read literally, the ruling raises `ABSENT_PRINTED` on `reconciliation.money_word`.
-  - That statement prints only `{word}`, the evidence word of a figure that the page prints beside it (D-SC1.16). Read literally, the ruling counts no slot there, and 5 money_word tests failed.
-  - Built rule: a variant that states no figure at all keeps wording all its present `of` figures. Any variant that states a figure counts only those figures.
-  - The Architect should confirm this, or rule another way, for example a `requires` on the variant.
+- **KD1 (render rule, D-SC1F.3), resolved by D-SC1F.7.** Read literally, the ruling raised `ABSENT_PRINTED` on `reconciliation.money_word`, which prints only the word of a figure printed beside it. The first build added a fallback in `_fill_evidence`. The review's preferred fix replaced it: `money_word`'s variant now declares `requires: {present: figure}`, the fallback is deleted, and D-SC1F.3 holds as written. Pinned by `test_sc1f_a_with_basis_counts_only_the_figures_its_variant_states`, which fails with the fallback restored.
 - **KD2 (guard shape).** The obvious `slots[field]["type"] == "evidence"` comparisons trip `MECH_BRANCH` in `render.py`. The second pass is therefore chosen by a `_LATE = {"evidence": True}` table, like `_FILL`. Behaviour is unchanged.
 - **KD3.** The heading for unnamed-origin records changes from `(Recorded and Estimated)` to `(Recorded, Estimated and Declared)`. This is R1's rule, applied to an origin that R1's two literals do not list.
 - **Broader rule 3.** `_getlogger` also accepts a bare `getLogger(...)` receiver, which the ruling's rule 2 already names.
@@ -85,6 +82,6 @@ lines that contain "Declared". Each follows rule R1 or R3, apart from KD3.
 
 ## Residual risk and review focus
 
-- KD1 is the one semantic call the ruling did not make.
+- KD1 is resolved (D-SC1F.7); no semantic call is left open.
 - The two-pass fill and the nested parts: a part's own late pass sets `r.stated`, and the parent resets it after all its first-pass fills.
 - `_bound_loggers` collects attribute names too, so `self.audit = logging.getLogger()` makes any `.audit` receiver in the module a logger.
