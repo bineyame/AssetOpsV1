@@ -18,6 +18,7 @@ import pytest
 
 from test_s4_finding_store_postgres import URL, CaseRunner, run_case  # noqa: F401
 from test_s6_action_store_postgres import CASES, T_ACCEPT, Harness, runner  # noqa: F401
+from test_3c1b_person_actions import PERSON_LABEL, PERSON_NOTE_TAIL
 
 pytestmark = pytest.mark.skipif(not URL, reason="ASSETOPS_TEST_DATABASE_URL is not set (see backend/README-db.md)")
 
@@ -28,6 +29,8 @@ _SPEC.loader.exec_module(MIG)
 
 PW = "correct horse battery"
 FIXTURE = "D-action-records-v1"
+PERSON_CHANGE = ("The Site Foundation reserve was changed by a signed-in person. No measured effect, saving or "
+                 "verification is claimed.")
 T_APPLY = T_ACCEPT + timedelta(hours=1)
 EFFECTIVE = T_ACCEPT + timedelta(days=1)
 #: The texts `pg_get_constraintdef` prints, written out here (W2): before (0016/0019) and after this migration.
@@ -121,6 +124,12 @@ def _events(engine) -> list[dict]:
             "triggering_fixture, failure_code, payload FROM action_event ORDER BY recorded_at, id")).mappings()]
 
 
+def _stored_note(engine, revision_id: str) -> str | None:
+    with engine.connect() as c:
+        return c.execute(text("SELECT change_note FROM foundation_revision WHERE id = :i"),
+                         {"i": revision_id}).scalar_one()
+
+
 def _constraint(engine, name: str) -> str | None:
     with engine.connect() as c:
         return c.execute(text("SELECT pg_get_constraintdef(oid) FROM pg_constraint WHERE conrelid = "
@@ -133,19 +142,28 @@ def _has_person_column(engine) -> bool:
                               "AND column_name = 'person_id'")).scalar_one() == 1
 
 
-def _copy(engine, source_id, **cols) -> None:
-    """INSERT a copy of one stored OBSERVED event under a new id and key, with the given columns overridden."""
-    with engine.connect() as c:
-        names = [r[0] for r in c.execute(text(
-            "SELECT column_name FROM information_schema.columns WHERE table_name = 'action_event' "
-            "ORDER BY ordinal_position"))]
+def _copy(engine, source_id, conn=None, **cols) -> None:
+    """INSERT a copy of one stored OBSERVED event under a new id and key, with the given columns overridden (on
+    `conn` inside a savepoint when given)."""
+    columns = text("SELECT column_name FROM information_schema.columns WHERE table_name = 'action_event' "
+                   "ORDER BY ordinal_position")
+    if conn is not None:
+        names = [r[0] for r in conn.execute(columns)]
+    else:
+        with engine.connect() as c:
+            names = [r[0] for r in c.execute(columns)]
     fixed = {"id": "gen_random_uuid()", "idempotency_key": "'copy-' || md5(random()::text)"}
     values = [fixed[n] if n in fixed else (f":{n}" if n in cols else n) for n in names]
     casts = {"person_id": "uuid"}
     values = [f"CAST({v} AS {casts[n]})" if n in casts and n in cols else v for n, v in zip(names, values)]
+    sql = text(f"INSERT INTO action_event ({', '.join(names)}) SELECT {', '.join(values)} FROM action_event "
+               "WHERE id = :source")
+    if conn is not None:
+        with conn.begin_nested():
+            conn.execute(sql, {"source": source_id, **cols})
+        return
     with engine.begin() as c:
-        c.execute(text(f"INSERT INTO action_event ({', '.join(names)}) SELECT {', '.join(values)} FROM action_event "
-                       "WHERE id = :source"), {"source": source_id, **cols})
+        c.execute(sql, {"source": source_id, **cols})
 
 
 def _system_observed(runner) -> tuple[Harness, str, UUID]:
@@ -199,6 +217,19 @@ def test_each_planted_actor_fails_on_its_constraint(runner) -> None:
         for cols, constraint in plants:
             with pytest.raises(DBAPIError, match=constraint):
                 _copy(runner.engine, observed, **cols)
+        # Review L2: the coupling's event-kind clause. `action_event_evaluator_job` already refuses an evaluator kind
+        # off `SYSTEM_JOB`, so the clause is reached only with that check out of the way: dropped inside a
+        # transaction that is rolled back, a person's RESOLVED row must still fail on the coupling.
+        resolved = {**good, "kind": "RESOLVED", "triggering_command": "EVALUATE", "observation_code": None}
+        with runner.engine.connect() as c:
+            tx = c.begin()
+            try:
+                c.execute(text("ALTER TABLE action_event DROP CONSTRAINT action_event_evaluator_job"))
+                with pytest.raises(DBAPIError, match="action_event_person_coupling"):
+                    _copy(runner.engine, observed, conn=c, **resolved)
+            finally:
+                tx.rollback()
+        assert _constraint(runner.engine, "action_event_evaluator_job") is not None
     finally:
         h.close()
         people.close()
@@ -223,7 +254,7 @@ def test_accept_apply_and_observe_are_stored_under_the_person(runner) -> None:
         path = f"/api/sites/KOBO-001/findings/{finding}/recommendation/accept"
         made = h.signed(peter_token).post(path, json=body)
         assert made.status_code == 201, made.text
-        assert made.json()["event"]["actor"]["label"] is None  # Q-3C1b-1
+        assert made.json()["event"]["actor"]["label"] == PERSON_LABEL  # spec §5 step 5
         second = h.signed(sam_token).post(path, json=body)  # R2: never a replay of Peter's event
         assert second.status_code == 409, second.text
         assert second.json()["detail"]["code"] == "ACTION_ACCEPTANCE_CONFLICT"
@@ -239,9 +270,21 @@ def test_accept_apply_and_observe_are_stored_under_the_person(runner) -> None:
         applied = h.signed(peter_token).post(apply_path, json=apply_body)
         assert applied.status_code == 201, applied.text
         change = applied.json()["change"]
-        assert change["label"] is None and change["statement"] is None
+        assert (change["label"], change["statement"]) == (PERSON_LABEL, PERSON_CHANGE)
         read = h.client.get(f"/api/sites/KOBO-001/foundation/changes/{change['change_id']}").json()["change"]
-        assert read["label"] is None and read["statement"] is None
+        assert (read["label"], read["statement"]) == (PERSON_LABEL, PERSON_CHANGE)
+        # Q-3C1b-2's merge condition: the note stored on the new Foundation revision names the person's apply.
+        assert _stored_note(runner.engine, change["new_foundation_revision_id"]) == (
+            f"{made.json()['action']['action_code']}: {PERSON_NOTE_TAIL}")
+        # The Action read: its label is the accepting person's; its block states whom each command records.
+        read_action = f"/api/sites/KOBO-001/actions/{action_id}"
+        unsigned = h.client.get(read_action).json()
+        assert unsigned["action"]["label"] == PERSON_LABEL
+        assert {c: b["actor_kind"] for c, b in unsigned["system_demo_capability"].items()} == {
+            "apply": "SYSTEM", "observe": "SYSTEM"}  # switch off, nobody signed in: today's SYSTEM actor
+        as_fatma = h.signed(fatma_token).get(read_action).json()["system_demo_capability"]
+        assert (as_fatma["apply"]["actor_kind"], as_fatma["apply"]["label"]) == (None, None)  # FT cannot apply
+        assert (as_fatma["observe"]["actor_id"], as_fatma["observe"]["label"]) == (f"person:{fatma}", PERSON_LABEL)
         observed = h.signed(fatma_token).post(f"/api/sites/KOBO-001/actions/{action_id}/observations", json={
             "observation_code": "DEMO_REVIEW_NOTE", "occurred_at": T_APPLY.isoformat(),
             "idempotency_key": "person-observe-01"})
@@ -259,7 +302,7 @@ def test_accept_apply_and_observe_are_stored_under_the_person(runner) -> None:
         assert rows["FAILED"]["failure_code"] == "ACTION_VALUE_INVALID"
         events = h.client.get(f"/api/sites/KOBO-001/actions/{action_id}/events").json()["events"]
         assert len(events) == 4 and all("person_id" not in e for e in events)
-        assert {e["actor"]["label"] for e in events} == {None}
+        assert {e["actor"]["label"] for e in events} == {PERSON_LABEL}
     finally:
         h.close()
         people.close()

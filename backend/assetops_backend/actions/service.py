@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
-from typing import Any, Callable
+from typing import Any, Callable, Mapping
 from uuid import UUID
 
 from assetops_backend import read_scope
@@ -25,6 +25,7 @@ from assetops_backend.actions.lifecycle import (
     RESOLUTION_WITHDRAWN,
     RESOLVED,
     SYSTEM_DEMO,
+    EventActor,
     PersonEventActor,
     Selector,
     UnknownEvent,
@@ -32,6 +33,7 @@ from assetops_backend.actions.lifecycle import (
     select,
 )
 from assetops_backend.actions.ports import ActionRefused, ActionStore, ApplyFailed, FoundationPublish
+from assetops_backend.i18n import DEFAULT_LOCALE, Name, State, message, render
 from assetops_backend.evidence.provenance_read import PROVENANCE_NOT_WIRED, PROVENANCE_UNREADABLE, unresolved
 from assetops_backend.outcomes.catalogue import MINI
 from assetops_backend.outcomes.outcome_map import categories_for, finding_signal_key
@@ -219,10 +221,15 @@ def _wire(value: Any) -> Any:
     return value
 
 
-def system_label(actor_kind: str) -> str | None:
-    """3C1b (R7, Q-3C1b-1): SYSTEM rows keep today's label byte for byte; a USER row's wording waits for the SC-1 text
-    commit (D-SC1.28), so it is None until then."""
-    return SYSTEM_DEMO.label if actor_kind == SYSTEM_DEMO.actor_kind else None
+def said(key: str, actor_kind: str, locale: str | None = None, **facts: Any) -> str:
+    """3C1b (R7; D-SC1.28): an `action.*` statement chosen by the actor kind (SYSTEM keeps today's text byte for byte;
+    USER names no person). Stored text is rendered in `DEFAULT_LOCALE`; read text in the request's."""
+    return render(message(key, actor=State(actor_kind), **facts), locale)
+
+
+def actor_label(actor_kind: str) -> str:
+    """The label of an event, a change artifact and an Action read, by the recording actor's kind."""
+    return said("action.actor_label", actor_kind)
 
 
 def _person_kwargs(actor: PersonEventActor | None) -> dict[str, Any]:
@@ -237,7 +244,7 @@ def _with_actor(payload: dict[str, Any], actor: PersonEventActor | None) -> dict
 
 def event_wire(event: dict[str, Any]) -> dict[str, Any]:
     out = _wire(event)
-    out["actor"] = {"kind": event["actor_kind"], "id": event["actor_id"], "label": system_label(event["actor_kind"]),
+    out["actor"] = {"kind": event["actor_kind"], "id": event["actor_id"], "label": actor_label(event["actor_kind"]),
                     "source_channel": event["source_channel"], "authorization_basis": event["authorization_basis"],
                     "triggering": {"service": event["triggering_service"], "job": event["triggering_job"],
                                    "command": event["triggering_command"], "fixture": event["triggering_fixture"]}}
@@ -278,26 +285,29 @@ class ActionService:
     # ---- capability --------------------------------------------------------------------------------------
 
     def demand(self, tenant_id: UUID, site_id: UUID, site_code: str, command: str,
-               finding_id: UUID | None) -> Capability:
+               finding_id: UUID | None, recorded: EventActor | None = SYSTEM_DEMO) -> Capability:
+        """`recorded`: the actor this command records for the caller (review L1), stated in the 403's block."""
         granted = self.capability(tenant_id, site_id, site_code, command, finding_id)
         if not granted.allowed:
             raise ActionRefused(403, "SYSTEM_DEMO_CAPABILITY_DENIED", granted.unavailable_reason or "Denied.",
-                                system_demo_capability=granted.wire())
+                                system_demo_capability=granted.wire(recorded))
         return granted
 
-    def authorize_accept(self, tenant_id: UUID, site_id: UUID, site_code: str, finding_id: UUID) -> Capability:
+    def authorize_accept(self, tenant_id: UUID, site_id: UUID, site_code: str, finding_id: UUID,
+                         recorded: EventActor | None = SYSTEM_DEMO) -> Capability:
         """Unknown or wrong-Site Finding 404, then the scoped grant for this fixture record (403)."""
         if self.store.latest_revision(tenant_id, site_id, finding_id) is None:
             raise ActionRefused(404, "FINDING_NOT_FOUND", "No such Finding or revision for this Site.")
-        return self.demand(tenant_id, site_id, site_code, "ACCEPT", finding_id)
+        return self.demand(tenant_id, site_id, site_code, "ACCEPT", finding_id, recorded)
 
     def authorize_action(self, tenant_id: UUID, site_id: UUID, site_code: str, command: str,
-                         action_id: UUID) -> tuple[Capability, dict[str, Any]]:
+                         action_id: UUID, recorded: EventActor | None = SYSTEM_DEMO
+                         ) -> tuple[Capability, dict[str, Any]]:
         """Unknown or wrong-Site Action 404, then the grant for its origin Finding's fixture record (403)."""
         action = self.store.action(tenant_id, site_id, action_id)
         if action is None:
             raise ActionRefused(404, "ACTION_NOT_FOUND", "No such Action for this Site.")
-        return self.demand(tenant_id, site_id, site_code, command, action["origin_finding_id"]), action
+        return self.demand(tenant_id, site_id, site_code, command, action["origin_finding_id"], recorded), action
 
     # ---- recommendation ----------------------------------------------------------------------------------
 
@@ -315,7 +325,9 @@ class ActionService:
         return current, reserve_trial.evaluate(inputs)
 
     def recommendation(self, tenant_id: UUID, site_id: UUID, site_code: str, finding_id: UUID,
-                       revision_id: UUID | None, source_open: bool) -> dict[str, Any] | None:
+                       revision_id: UUID | None, source_open: bool,
+                       recorded: EventActor | None = SYSTEM_DEMO) -> dict[str, Any] | None:
+        """`recorded`: whom an accept would record for this caller (review L1; None: the accept would be refused)."""
         current = self.currentness(tenant_id, site_id, finding_id, revision_id, source_open)
         if current is None:
             return None
@@ -366,7 +378,7 @@ class ActionService:
             "latest_revision_id": str(current["latest_revision_id"]), "is_latest": bool(current["is_latest"]),
             "rule": {"id": reserve_trial.RULE_ID, "version": reserve_trial.RULE_VERSION,
                      "limitation": {"code": reserve_trial.LIMITATION_CODE, "text": reserve_trial.LIMITATION_TEXT}},
-            "system_demo_capability": capability.wire(),
+            "system_demo_capability": capability.wire(recorded),
             "prior_actions": {
                 "label": "Actions accepted on this Finding (any revision). Each keeps its own origin revision; the "
                          "selected revision is `revision_id`.", "items": prior},
@@ -406,7 +418,7 @@ class ActionService:
 
     def accept(self, tenant_id: UUID, site_id: UUID, site_code: str, finding_id: UUID, command: dict[str, Any],
                source_open: bool, actor: PersonEventActor | None = None) -> tuple[int, dict[str, Any]]:
-        granted = self.authorize_accept(tenant_id, site_id, site_code, finding_id)
+        granted = self.authorize_accept(tenant_id, site_id, site_code, finding_id, actor or SYSTEM_DEMO)
         revision_id = command["revision_id"]
         if self.currentness(tenant_id, site_id, finding_id, revision_id, source_open) is None:
             raise ActionRefused(404, "FINDING_NOT_FOUND", "No such Finding or revision for this Site.")
@@ -481,7 +493,8 @@ class ActionService:
 
     def observe(self, tenant_id: UUID, site_id: UUID, site_code: str, action_id: UUID,
                 command: dict[str, Any], actor: PersonEventActor | None = None) -> tuple[int, dict[str, Any]]:
-        granted, _action = self.authorize_action(tenant_id, site_id, site_code, "OBSERVE", action_id)
+        granted, _action = self.authorize_action(tenant_id, site_id, site_code, "OBSERVE", action_id,
+                                                 actor or SYSTEM_DEMO)
         occurred: datetime = command["occurred_at"].astimezone(timezone.utc)  # one digest per instant (review L5)
         payload = _with_actor({"command": "OBSERVE", "action_id": str(action_id), "observation_code": OBSERVATION_CODE,
                                "occurred_at": occurred.isoformat(), "idempotency_key": command["idempotency_key"]},
@@ -506,9 +519,7 @@ class ActionService:
         if replayed:
             return self._observed(event, digest)
         return 201, {"replayed": False, "event": event_wire(event),
-                     "statement": None if actor is not None else (  # Q-3C1b-1: a person's note waits for SC-1a
-                         "A state-neutral SYSTEM demonstration note; it changes no application or "
-                         "verification state and claims no effect.")}
+                     "statement": said("action.observe_note", event["actor_kind"])}
 
     @staticmethod
     def _observed(event: dict[str, Any], digest: str) -> tuple[int, dict[str, Any]]:
@@ -522,7 +533,8 @@ class ActionService:
 
     def apply(self, tenant_id: UUID, site_id: UUID, site_code: str, action_id: UUID,
               command: dict[str, Any], actor: PersonEventActor | None = None) -> tuple[int, dict[str, Any]]:
-        granted, _action = self.authorize_action(tenant_id, site_id, site_code, "APPLY", action_id)
+        granted, _action = self.authorize_action(tenant_id, site_id, site_code, "APPLY", action_id,
+                                                 actor or SYSTEM_DEMO)
         if self.publish is None:
             raise ActionRefused(503, "ACTION_PUBLISH_UNAVAILABLE", "No Foundation publish is composed.")
         value: Decimal = command["value"]
@@ -551,8 +563,9 @@ class ActionService:
             publish(site_code, connection, then, asset_code=action["snapshot"]["asset_code"], value=float(value),
                     effective_from=effective, recorded_at=recorded, expected_revision_id=expected,
                     expected_value=float(action["old_value"]),
-                    note=f"{action['action_code']}: SYSTEM demonstration application of reserve-trial-1 "
-                         "(a policy-sensitivity trial, not a predicted saving)")
+                    note=said("action.publish_note", (actor or SYSTEM_DEMO).actor_kind, DEFAULT_LOCALE,
+                              action_code=Name(action["action_code"], "action.action_code"),
+                              rule=Name(reserve_trial.RULE_ID, "action.rule_id")))
 
         out = self.store.apply(tenant_id, site_id, action_id, idempotency_key=command["idempotency_key"],
                                payload=payload, payload_sha256=digest, fixture_id=granted.fixture_id or "",
@@ -592,9 +605,8 @@ class ActionService:
 
     def _change_wire(self, tenant_id: UUID, site_id: UUID, site_code: str,
                      change: dict[str, Any], actor_kind: str = SYSTEM_DEMO.actor_kind) -> dict[str, Any]:
-        """`actor_kind` is the APPLIED event's (R7): SYSTEM keeps today's label and statement; a person's apply has
-        None for both until the SC-1 text commit (Q-3C1b-1)."""
-        system = actor_kind == SYSTEM_DEMO.actor_kind
+        """`actor_kind` is the APPLIED event's (R7): SYSTEM keeps today's label and statement; a person's apply
+        reads the person's (no name)."""
         ids = [change[k] for k in ("expected_foundation_revision_id", "superseded_foundation_revision_id",
                                    "new_foundation_revision_id", "split_foundation_revision_id") if change[k]]
         revisions = [_wire(r) for r in self.store.foundation_revisions(tenant_id, site_id, ids)]
@@ -615,9 +627,8 @@ class ActionService:
                                    if b["relation"] == relation] for relation in ("SUPERSEDED", "INSERTED")},
             "effective_from": change["effective_from"].isoformat(),
             "recorded_at": change["recorded_at"].isoformat(),
-            "validity": change["validity"], "label": system_label(actor_kind), "outcome": OUTCOME_PENDING,
-            "statement": ("The Site Foundation reserve was changed by a SYSTEM demonstration command. No measured "
-                          "effect, saving or verification is claimed.") if system else None,
+            "validity": change["validity"], "label": actor_label(actor_kind), "outcome": OUTCOME_PENDING,
+            "statement": said("action.change_statement", actor_kind),
             "links": {"self": f"/api/sites/{site_code}/foundation/changes/{change['id']}",
                       "action": action_base,
                       "applied_event": f"{action_base}/events?event_id={change['applied_event_id']}",
@@ -686,8 +697,10 @@ class ActionService:
     def _links(self, site_code: str, action: dict[str, Any], chosen: Selector) -> dict[str, Any]:
         return selected_action_links(site_code, action, chosen)
 
-    def action(self, tenant_id: UUID, site_id: UUID, site_code: str, action_id: UUID,
-               chosen: Selector) -> dict[str, Any] | None:
+    def action(self, tenant_id: UUID, site_id: UUID, site_code: str, action_id: UUID, chosen: Selector,
+               recorded: Mapping[str, EventActor | None] | None = None) -> dict[str, Any] | None:
+        """`recorded`: per command (APPLY, OBSERVE), whom it would record for this caller (review L1); None: today's
+        SYSTEM actor for both."""
         found = self._prefix(tenant_id, site_id, action_id, chosen)
         if found is None:
             return None
@@ -699,12 +712,14 @@ class ActionService:
             "lifecycle": latest["lifecycle"], "transition": latest["transition"],
             "statement": "The Finding has a newer revision. This Action stays pinned to the revision it was "
                          "accepted for; the newer revision is shown beside it, not substituted."}
-        capability = {c.lower(): self.capability(tenant_id, site_id, site_code, c, action["origin_finding_id"]).wire()
-                      for c in ("APPLY", "OBSERVE")}
+        capability = {c.lower(): self.capability(tenant_id, site_id, site_code, c, action["origin_finding_id"]).wire(
+            SYSTEM_DEMO if recorded is None else recorded.get(c)) for c in ("APPLY", "OBSERVE")}
+        # The Action's label is its ACCEPTED event's actor (3C1b, Q-3C1b-2); every Action is written with it.
+        accepted_by = next((e["actor_kind"] for e in events if e["kind"] == ACCEPTED), SYSTEM_DEMO.actor_kind)
         return {
             "site_code": site_code,
             "action": {"id": str(action["id"]), "action_code": action["action_code"],
-                       "created_at": action["created_at"].isoformat(), "label": SYSTEM_DEMO.label,
+                       "created_at": action["created_at"].isoformat(), "label": actor_label(accepted_by),
                        "recommendation_key": action["recommendation_key"],
                        "acceptance_key": action["acceptance_key"]},
             "origin": {"finding_id": str(action["origin_finding_id"]),

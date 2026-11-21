@@ -38,6 +38,17 @@ SPEC_ROLES = {"action.accept": (SM,), "action.apply": (SM,), "action.observe": (
 UNSIGNED_LABEL = "SYSTEM demonstration"
 OBSERVE_STATEMENT = ("A state-neutral SYSTEM demonstration note; it changes no application or verification state "
                      "and claims no effect.")
+#: The text commit (D-SC1.28): the person's words, hand literals (spec §5 step 5; Q-3C1b-1, Q-3C1b-2).
+PERSON_LABEL = "Recorded by a signed-in person"
+PERSON_OBSERVE = ("A state-neutral note recorded by a signed-in person; it changes no application or verification "
+                  "state and claims no effect.")
+SYSTEM_AUTHORITY = ("A client cannot name an actor or grant authority; the server records the SYSTEM demonstration "
+                    "actor.")
+PERSON_AUTHORITY = "A client cannot name an actor or grant authority; the server records the signed-in person."
+TRIAL_NOTE_TAIL = "application of reserve-trial-1 (a policy-sensitivity trial, not a predicted saving)"
+SYSTEM_NOTE_TAIL = f"SYSTEM demonstration {TRIAL_NOTE_TAIL}"
+PERSON_NOTE_TAIL = ("application of reserve-trial-1 by a signed-in person (a policy-sensitivity trial, not a "
+                    "predicted saving)")
 
 
 @pytest.fixture(scope="module")
@@ -91,6 +102,11 @@ class FakeActionStore:
 
     def action_for_recommendation(self, tenant_id, site_id, key):
         return next((a for a in self.actions.values() if a["recommendation_key"] == key), None)
+
+    def actions_for_finding(self, *args, **kwargs):  # the recommendation read, before any accept
+        return []
+
+    actions_for_revision = actions_for_finding
 
     def trial_actions(self, tenant_id, site_id, asset_id, rule_id):
         return []
@@ -254,15 +270,15 @@ def test_a_person_with_a_listed_role_is_recorded_under_that_person(people, comma
     assert stored["triggering_fixture"] == FIXTURE  # R3: still the grant file's fixture
     assert event["actor"]["kind"] == "USER" and event["actor"]["id"] == f"person:{people.ids[who]}"
     assert event["actor"]["authorization_basis"] == f"PERSON_ROLE:{role}"
-    assert event["actor"]["label"] is None  # Q-3C1b-1: the wording waits for SC-1a (D-SC1.28)
+    assert event["actor"]["label"] == PERSON_LABEL  # spec §5 step 5, through `action.actor_label`
     assert stored["payload"]["actor_id"] == f"person:{people.ids[who]}"  # R2: the person is in the digest
 
 
-def test_the_observe_statement_is_none_for_a_person_and_unchanged_unsigned(people) -> None:
+def test_the_observe_statement_is_the_persons_for_a_person_and_unchanged_unsigned(people) -> None:
     api = Api(people)
     action_id = api.accepted()
     signed = api.observe("peter", action_id, key="observe-person")
-    assert signed.status_code == 201 and signed.json()["statement"] is None
+    assert signed.status_code == 201 and signed.json()["statement"] == PERSON_OBSERVE
     unsigned = api.observe(None, action_id, key="observe-system")
     assert unsigned.status_code == 201 and unsigned.json()["statement"] == OBSERVE_STATEMENT
     assert unsigned.json()["event"]["actor"]["label"] == UNSIGNED_LABEL
@@ -277,7 +293,7 @@ def test_a_failed_apply_is_the_persons_act(people) -> None:
     assert stored["kind"] == FAILED
     assert (stored["actor_kind"], stored["source_channel"], stored["authorization_basis"]) == (
         "USER", "PERSON_API", "PERSON_ROLE:SITE_MANAGER")
-    assert _detail(failed)["event"]["actor"]["label"] is None
+    assert _detail(failed)["event"]["actor"]["label"] == PERSON_LABEL
 
 
 # ---- refused: role, Site, tenant, client actor, grant scope -----------------------------------------------------
@@ -322,6 +338,9 @@ def test_a_body_carrying_actor_gets_422(people, command) -> None:
     refused = api.send(command, "peter", actor={"kind": "SERVICE", "id": "service:x"})
     assert refused.status_code == 422
     assert _detail(refused)["code"] == "CLIENT_AUTHORITY_FORBIDDEN" and _detail(refused)["fields"] == ["actor"]
+    assert _detail(refused)["message"] == PERSON_AUTHORITY  # the server records the person, not the SYSTEM actor
+    unsigned = Api(people).send(command, None, actor={"kind": "SERVICE", "id": "service:x"})
+    assert unsigned.status_code == 422 and _detail(unsigned)["message"] == SYSTEM_AUTHORITY  # today's bytes
 
 
 def test_a_finding_outside_the_grant_is_refused_as_today(people) -> None:
@@ -330,7 +349,15 @@ def test_a_finding_outside_the_grant_is_refused_as_today(people) -> None:
     unsigned = api.accept(None, finding=api.outside)
     assert signed.status_code == unsigned.status_code == 403
     assert _detail(signed)["code"] == "SYSTEM_DEMO_CAPABILITY_DENIED"
-    assert signed.content == unsigned.content
+    # Review L1: the 403's block states whom the command records; everything else is today's refusal.
+    actor_fields = ("actor_kind", "actor_id", "label")
+    signed_block = _detail(signed)["system_demo_capability"]
+    assert [signed_block[k] for k in actor_fields] == ["USER", f"person:{people.ids['peter']}", PERSON_LABEL]
+    assert [_detail(unsigned)["system_demo_capability"][k] for k in actor_fields] == [
+        "SYSTEM", SYSTEM_DEMO.actor_id, UNSIGNED_LABEL]
+    strip = lambda d: {**d, "system_demo_capability": {k: v for k, v in d["system_demo_capability"].items()
+                                                       if k not in actor_fields}}  # noqa: E731
+    assert strip(_detail(signed)) == strip(_detail(unsigned))
     missing = api.accept("peter", finding=uuid4())
     assert missing.status_code == 404 and _detail(missing)["code"] == "FINDING_NOT_FOUND"
     assert api.store.written == []
@@ -422,5 +449,74 @@ def test_event_reads_label_by_actor_kind(people) -> None:
     assert api.observe("peter", action_id).status_code == 201
     events = api.client.get(f"/api/sites/{KOBO}/actions/{action_id}/events").json()["events"]
     labels = {e["actor"]["kind"]: e["actor"]["label"] for e in events}
-    assert labels == {"SYSTEM": UNSIGNED_LABEL, "USER": None}
+    assert labels == {"SYSTEM": UNSIGNED_LABEL, "USER": PERSON_LABEL}
     assert all("person_id" not in e for e in events)  # not in EVENT_COLUMNS: reads stay byte-equal
+
+
+# ---- the text commit (D-SC1.28): every served sentence through the composer --------------------------------------
+
+def test_each_action_statement_case_renders_its_hand_literal() -> None:
+    """Every variant of the `action.*` statements, through `render`, against the hand literals of
+    `statement_cases/action.py` (the guard proves each variant has a case)."""
+    from assetops_backend.i18n import message, render
+    from statement_cases import action as action_cases
+    assert {(c.key, c.variant) for c in action_cases.CASES} == {
+        (k, v) for k in ("action.actor_label", "action.observe_note", "action.change_statement",
+                         "action.publish_note", "action.client_authority_forbidden") for v in ("system", "person")
+    } | {("action.unknown_site", "plain")}
+    for case in action_cases.CASES:
+        assert render(message(case.key, **case.facts)) == case.english, (case.key, case.variant)
+
+
+def test_the_system_words_are_todays_bytes() -> None:
+    """R7: each SYSTEM variant is the text `main` served before 3C1b (copied by hand into these literals)."""
+    from assetops_backend.actions.service import actor_label, said
+    assert actor_label("SYSTEM") == UNSIGNED_LABEL == SYSTEM_DEMO.label
+    assert said("action.observe_note", "SYSTEM") == OBSERVE_STATEMENT
+    assert said("action.change_statement", "SYSTEM") == (
+        "The Site Foundation reserve was changed by a SYSTEM demonstration command. No measured effect, saving or "
+        "verification is claimed.")
+    assert said("action.change_statement", "USER") == (
+        "The Site Foundation reserve was changed by a signed-in person. No measured effect, saving or verification "
+        "is claimed.")
+
+
+@pytest.mark.parametrize("who,tail", [(None, SYSTEM_NOTE_TAIL), ("peter", PERSON_NOTE_TAIL)])
+def test_the_stored_publish_note_names_the_recording_actor(people, who, tail) -> None:
+    """Q-3C1b-2's merge condition: the note apply stores on the Foundation revision follows the actor."""
+    api = Api(people)
+    action_id = api.accepted()
+    notes: list[str] = []
+
+    def publish(site_code, connection, then, **kwargs) -> None:
+        notes.append(kwargs["note"])
+        then({})
+
+    api.service.publish = publish
+    made = api.apply(who, action_id)
+    assert made.status_code == 201, made.text
+    assert notes == [f"{api.store.actions[UUID(action_id)]['action_code']}: {tail}"]
+
+
+@pytest.mark.parametrize("who,switch,expected", [
+    (None, False, "system"), ("peter", False, "person"), ("fatma", False, "none"),  # FT cannot accept
+    (None, True, "none"), ("hugo", False, "none"),  # switch on and nobody; another tenant
+])
+def test_the_recommendation_read_capability_states_whom_an_accept_records(people, who, switch, expected) -> None:
+    """Review L1 through the route: the read's block names the actor an accept would record for this caller, and
+    states none when the accept would refuse the caller."""
+    api = Api(people, require_person=switch)
+    read = api.client.get(f"/api/sites/{KOBO}/findings/{api.granted}/recommendation", headers=people.cookie(who))
+    assert read.status_code == 200, read.text
+    block = read.json()["system_demo_capability"]
+    got = (block["actor_kind"], block["actor_id"], block["label"])
+    assert got == {"system": ("SYSTEM", SYSTEM_DEMO.actor_id, UNSIGNED_LABEL),
+                   "person": ("USER", f"person:{people.ids.get('peter')}", PERSON_LABEL),
+                   "none": (None, None, None)}[expected]
+    assert block["allowed"] is True  # the grant still decides `allowed` (R3)
+
+
+def test_the_unknown_site_404_is_todays_text(people) -> None:
+    api = Api(people, scope={})
+    refused = api.client.post(f"/api/sites/{KOBO}/findings/{uuid4()}/recommendation/accept", json={})
+    assert refused.status_code == 404 and refused.json() == {"detail": f"No imported Site {KOBO!r} in this tenant."}

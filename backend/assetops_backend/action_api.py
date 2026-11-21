@@ -37,11 +37,19 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, Request
 
 from assetops_backend.accounts.permissions import PersonRefused, person_step
-from assetops_backend.actions.lifecycle import OBSERVATION_CODE, PersonEventActor, SelectorConflict, selector
+from assetops_backend.actions.lifecycle import (
+    OBSERVATION_CODE,
+    SYSTEM_DEMO,
+    EventActor,
+    PersonEventActor,
+    SelectorConflict,
+    selector,
+)
 from assetops_backend.actions.ports import ActionRefused, ActionStoreUnavailable
 from assetops_backend.actions.service import ActionService
 from assetops_backend.actions.verification import VerificationService
 from assetops_backend.finding_api import ACCESS_BASIS, Access, Gate, Scope, development_access, no_gate
+from assetops_backend.i18n.facts import Name, State
 from assetops_backend.i18n.messages import message
 from assetops_backend.i18n.render import render
 
@@ -60,6 +68,13 @@ AUTHORITY_WORDS = ("actor", "author", "principal", "capability", "authority", "a
 def _refuse(status: int, code: str, message: str, **extra: Any) -> HTTPException:
     headers = {"WWW-Authenticate": "Bearer"} if status == 401 else None
     return HTTPException(status_code=status, headers=headers, detail={"code": code, "message": message, **extra})
+
+
+def unknown_site(site_code: str) -> HTTPException:
+    """The action routes' unknown-Site 404, shared by `open_scope` and the other-tenant person (D-3C1.6, review L3).
+    The code is quoted as `repr` quotes it, as before."""
+    return HTTPException(status_code=404, detail=render(message("action.unknown_site",
+                                                                 site=Name(repr(site_code), "site.code"))))
 
 
 def _instant(value: str, name: str) -> datetime:
@@ -93,13 +108,24 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
             if refused.reason == "UNAVAILABLE":
                 raise _refuse(503, "ACTION_STORE_UNAVAILABLE", str(refused.__cause__)) from refused
             if refused.reason == "TENANT":  # D-3C1.6: byte-equal to the unknown-Site 404 in `open_scope`
-                raise HTTPException(status_code=404,
-                                    detail=f"No imported Site {site_code!r} in this tenant.") from refused
+                raise unknown_site(site_code) from refused
             if refused.reason == "PERSON_REQUIRED":
                 raise _refuse(401, "PERSON_REQUIRED", render(message("person.person_required"))) from refused
             raise _refuse(403, "PERSON_ROLE_REQUIRED", render(message("person.person_role_required")),
                           params=refused.params) from refused
         return None if grant is None else PersonEventActor(grant.person_id, grant.role)
+
+    def would_record(request: Request, tenant_id: UUID, site_id: UUID, command: str) -> EventActor | None:
+        """3C1b review L1: whom `command` would record for this caller, for a read's capability block. The person
+        step without its answers: a refusal of any kind (no person with the switch on, another tenant, no listed
+        role, the account store down) is None, so the block states no actor; no person with the switch off is
+        today's SYSTEM actor."""
+        try:
+            grant = person_step(request, accounts, required=require_person, unavailable=accounts_unavailable,
+                                tenant_id=tenant_id, site_id=site_id, command=command, enabled=True)
+        except PersonRefused:
+            return None
+        return SYSTEM_DEMO if grant is None else PersonEventActor(grant.person_id, grant.role)
 
     def as_person(actor: PersonEventActor | None) -> dict[str, Any]:
         """The service keyword for the person path only: today's path calls the service exactly as before (P6)."""
@@ -113,7 +139,7 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
             raise _refuse(403, "SITE_SCOPE_FORBIDDEN", f"No access to Site {site_code!r}.")
         found = scope(site_code)
         if found is None:
-            raise HTTPException(status_code=404, detail=f"No imported Site {site_code!r} in this tenant.")
+            raise unknown_site(site_code)
         if service is None:
             raise _refuse(503, "ACTION_STORE_UNAVAILABLE", "No product database is configured.")
         return found
@@ -132,8 +158,8 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
         except down as error:
             raise _refuse(503, "ACTION_STORE_UNAVAILABLE", str(error)) from error
 
-    async def body_of(request: Request, fields: tuple[str, ...],
-                      optional: tuple[str, ...] = ()) -> dict[str, Any]:
+    async def body_of(request: Request, fields: tuple[str, ...], optional: tuple[str, ...] = (),
+                      recorded: EventActor = SYSTEM_DEMO) -> dict[str, Any]:
         try:
             body = await request.json()
         except ValueError:
@@ -142,8 +168,8 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
             raise _refuse(422, "BODY_NOT_JSON", "The command body must be a JSON object.")
         claimed = sorted(k for k in body if any(w in k.lower() for w in AUTHORITY_WORDS))
         if claimed:
-            raise _refuse(422, "CLIENT_AUTHORITY_FORBIDDEN", "A client cannot name an actor or grant authority; "
-                          "the server records the SYSTEM demonstration actor.", fields=claimed)
+            raise _refuse(422, "CLIENT_AUTHORITY_FORBIDDEN", render(message(
+                "action.client_authority_forbidden", actor=State(recorded.actor_kind))), fields=claimed)
         extra = sorted(set(body) - set(fields) - set(optional))
         missing = [f for f in fields if body.get(f) in (None, "")]
         if extra or missing:
@@ -178,7 +204,9 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
                        revision_id: UUID | None = None) -> dict[str, Any]:
         code, tenant_id, site_id = open_scope(request, site_code, access)
         opened = source_open(code, tenant_id, site_id)
-        body = run(lambda: service.recommendation(tenant_id, site_id, code, finding_id, revision_id, opened))
+        recorded = would_record(request, tenant_id, site_id, "action.accept")
+        body = run(lambda: service.recommendation(tenant_id, site_id, code, finding_id, revision_id, opened,
+                                                  recorded))
         if body is None:
             raise HTTPException(status_code=404, detail="No such Finding or revision for this Site.")
         # S6-02a: each accepted Action's current verification state; the typed prior-trial block is
@@ -191,8 +219,8 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
     async def accept(request: Request, site_code: str, finding_id: UUID) -> Any:
         code, tenant_id, site_id = open_scope(request, site_code, command_access)
         actor = person_of(request, site_code, tenant_id, site_id, "action.accept")
-        run(lambda: service.authorize_accept(tenant_id, site_id, code, finding_id))
-        raw = await body_of(request, ACCEPT_FIELDS)
+        run(lambda: service.authorize_accept(tenant_id, site_id, code, finding_id, actor or SYSTEM_DEMO))
+        raw = await body_of(request, ACCEPT_FIELDS, recorded=actor or SYSTEM_DEMO)
         try:
             proposed = Decimal(str(raw["proposed_value"]))
             if not proposed.is_finite():
@@ -213,8 +241,8 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
     async def apply(request: Request, site_code: str, action_id: UUID) -> Any:
         code, tenant_id, site_id = open_scope(request, site_code, command_access)
         actor = person_of(request, site_code, tenant_id, site_id, "action.apply")
-        run(lambda: service.authorize_action(tenant_id, site_id, code, "APPLY", action_id))
-        raw = await body_of(request, APPLY_FIELDS)
+        run(lambda: service.authorize_action(tenant_id, site_id, code, "APPLY", action_id, actor or SYSTEM_DEMO))
+        raw = await body_of(request, APPLY_FIELDS, recorded=actor or SYSTEM_DEMO)
         try:
             value = Decimal(str(raw["value"]))
             if not value.is_finite():
@@ -241,8 +269,8 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
     async def observe(request: Request, site_code: str, action_id: UUID) -> Any:
         code, tenant_id, site_id = open_scope(request, site_code, command_access)
         actor = person_of(request, site_code, tenant_id, site_id, "action.observe")
-        run(lambda: service.authorize_action(tenant_id, site_id, code, "OBSERVE", action_id))
-        raw = await body_of(request, OBSERVE_FIELDS)
+        run(lambda: service.authorize_action(tenant_id, site_id, code, "OBSERVE", action_id, actor or SYSTEM_DEMO))
+        raw = await body_of(request, OBSERVE_FIELDS, recorded=actor or SYSTEM_DEMO)
         if raw["observation_code"] != OBSERVATION_CODE:
             raise _refuse(422, "OBSERVATION_CODE_INVALID", f"Only {OBSERVATION_CODE} is accepted.",
                           fields=["observation_code"])
@@ -257,7 +285,8 @@ def build_action_router(service: ActionService | None, scope: Scope, unavailable
                recorded_at: str | None = None) -> dict[str, Any]:
         code, tenant_id, site_id = open_scope(request, site_code, access)
         pick = chosen(event_id, recorded_at)
-        body = run(lambda: service.action(tenant_id, site_id, code, action_id, pick))
+        recorded = {c: would_record(request, tenant_id, site_id, f"action.{c.lower()}") for c in ("APPLY", "OBSERVE")}
+        body = run(lambda: service.action(tenant_id, site_id, code, action_id, pick, recorded))
         if body is None:
             raise HTTPException(status_code=404, detail="No such Action for this Site.")
         # S6-02a: the current verification state beside (never instead of) the pinned S6-01 history.

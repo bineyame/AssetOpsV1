@@ -316,7 +316,11 @@ def test_t7_legacy_refuses_facts_and_structured_refuses_text():
 
 def test_t8_shipped_catalogue_loads():
     cat = catalogue._load()
-    assert set(cat.statements["en"]) == {"common.not_available", "common.budget_lines"}
+    assert set(cat.statements["en"]) == {"common.not_available", "common.budget_lines",
+                                         # 3C1b (D-SC1.28): the trial action's actor words.
+                                         "action.actor_label", "action.observe_note", "action.change_statement",
+                                         "action.publish_note", "action.client_authority_forbidden",
+                                         "action.unknown_site"}
     assert set(cat.vocabulary["en"]) == {"factor", "heading", "headline_subject", "record", "record_noun",
                                          "evidence", "unit", "noun", "month", "format"}
 
