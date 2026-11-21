@@ -575,3 +575,14 @@ frame.
 **P20 (Low). Who "For you" holds.** `deciderOf` → `HC.decisions[].chooser` (R19): the executive chooses only
 `ruiru-expansion`. Plan state is `uxPlanState(op)` (`PSTATE()` plus `uxMock().plan[op]`). Choose is open to the
 viewer on every decision, whoever the chooser is. Is that intended?
+
+## IA-2a
+
+Questions on `spec.md` §5.1 (rev 4), `rulings-2.md` D-IA.43 to D-IA.48 and the reviewer guide's "IA-2a" section, in
+one batch: the Reviewer as R1, R2 …, the Implementer's pre-flight (against `main` and the proposal page) as I1, I2 ….
+Each cites its section and the answer expected; mark **(done)** when the answer changes what counts as done. The
+Architect answers once, in `rulings-2.md` (or `rulings-3.md` past its cap), and folds the answers into §5.1.
+
+### Reviewer questions
+
+### Implementer pre-flight
