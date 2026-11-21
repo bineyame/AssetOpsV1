@@ -3,18 +3,20 @@
 Architect (Claude), 2026-11-21, on the owner's delegation (`owner/owner-away-architect-decides-2026-11-21.md`).
 D-0K2.1 to D-0K2.16 are applied by `spec.md` rev 1 (D-0K2.16 added with the 0M spec, before the handshake). Checked against `main` (`a53a77a2e`) by running the kernel on an
 8- and a 14-day season through `HostForwardReplay`. Owner-level calls are logged in
-`specs/OWNER-AWAY/decisions-2026-11-21.md` rows 31 (held for the owner) and 32.
+`specs/OWNER-AWAY/decisions-2026-11-21.md` rows 37 (held for the owner) and 38.
 
 ## D-0K2.1 "The simulated series" is a declared season fixture; a reader from accepted readings is queued (0K3)
 
 - **Ruling.** 0K2 proves the study on a 61-day Kobo season declared in `host/tests/kobo_season.py` and run on the
   kernel as the site. The product-side study takes a neutral `ObservedSeries`; reading that series from accepted
   readings (`EvidenceQuery` over `DISPATCH_ROLES`, the cohort, the binding from feeder asset to load component) is a
-  queued unit, `0K3` (about 2 units), pulled when DS4 or DS2 gives the world 5-minute telemetry or a pilot sends an
-  EMS export, and before `6c` runs on records. This amends 0K1 spec §7's list ("reading series from product
+  queued unit, `0K3` (about 2 units), pulled when DS2's writer gives the world 5-minute telemetry (D-DS4.1) or a
+  pilot sends an EMS export, and before `6c` runs on records. The season never enters a database or the world: it
+  lives in the spike's tests and its tool's evidence file only, as D-DS4.1 requires of world telemetry. This amends 0K1 spec §7's list ("reading series from product
   readings (all 0K2)").
 - **Why.** No Kobo series longer than a day exists in any store: DS3 loads two Kobo days (`specs/DS3-bulk-loader/
-  spec.md` §3), generating telemetry is DS2's (next fortnight) and DS4 decides the world's telemetry source. A reader
+  spec.md` §3), and DS4 rules that world telemetry comes only from DS2's writer, none this fortnight (D-DS4.1,
+  owner-away row 33). A reader
   built now could only be tested on rows its own test invents. The seam the reader will feed (`ObservedSeries`) is
   fixed here, so 0K3 adds a producer and changes no consumer.
 
@@ -113,7 +115,7 @@ D-0K2.1 to D-0K2.16 are applied by `spec.md` rev 1 (D-0K2.16 added with the 0M s
 
 - **Ruling.** Every `StudyResult` carries `input_class` (SIMULATED here) and `evidence_class` MODELLED. The packet
   sets the 61-day figures beside the design values. Whether a figure from a replay on a declared simulated season may
-  replace a design value, or its label, anywhere is **held for the owner** (owner-away row 31). Meanwhile the design
+  replace a design value, or its label, anywhere is **held for the owner** (owner-away row 37). Meanwhile the design
   values and their label stay as they are and nothing is served.
 - **Why.** Decision D6: replay figures are design values until each replay passes, and are "never used as a result
   until the replay runs on the operator's own records". Passing on simulated data is a step that D6 does not settle;

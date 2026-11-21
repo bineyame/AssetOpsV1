@@ -250,8 +250,8 @@ def dawn_outcome(projection, days, local_times, frame) -> tuple[tuple[DawnReadin
 
 ## 3. The simulated season (`host/tests/kobo_season.py`; a declared test fixture, D-0K2.1 to D-0K2.3)
 
-No Kobo series longer than a day exists in any store (DS3 loads two Kobo days; DS2's generated telemetry is next
-fortnight). The season is therefore declared here from the shipped Kobo day types and run continuously on the kernel
+No Kobo series longer than a day exists in any store (DS3 loads two Kobo days; world telemetry comes only from
+DS2's writer, none this fortnight, D-DS4.1). The season never enters a database or the world. The season is therefore declared here from the shipped Kobo day types and run continuously on the kernel
 as the site. It is simulated input, never shown as observed.
 
 ```python
@@ -416,6 +416,6 @@ label (held for the owner, D-0K2.13); any screen or served text; Kisiwa's negati
 | Q1 | Where do "the simulated series" come from? | A declared 61-day season of shipped Kobo day types, run on the kernel as the site (D-0K2.1, D-0K2.2) |
 | Q2 | Replay day by day or the whole window? | Whole window (D-0K2.4): the dawn bound depends on the evening before |
 | Q3 | A dawn bound that fails under no action too | Reported for every case, baseline included, by the design's absolute rule; option admissibility relative to no action is `6c`'s, for the owner then (D-0K2.8) |
-| Q4 | Do the season's figures replace the design values? | Held for the owner (owner-away row 31); recorded beside them in the packet (D-0K2.13) |
+| Q4 | Do the season's figures replace the design values? | Held for the owner (owner-away row 37); recorded beside them in the packet (D-0K2.13) |
 | Q5 | Money in the spike? | No: the evaluator's (D-0K2.12) |
 | Q6 | Short input gaps | Refused, as D-0K1.5; a fill rule waits for real series (D-0K2.6) |
