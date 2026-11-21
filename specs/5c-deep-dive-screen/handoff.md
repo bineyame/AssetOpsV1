@@ -74,3 +74,24 @@ Builder (Claude), 2026-11-21, branch `task/5c-deep-dive-screen`, head 37e823259 
 - **Unit 3 follows.** The screen's own fixture or tests need to carry: "(at budget)", the nested `drivers`, the
   headline's evidence "Estimated, not yet reconciled", and the two record words.
 - Plants: `/opt/assetecon/evidence/5c/fixround1/plants.txt`.
+
+## Fix round 3 (review round 2: H3, M3, L7, L8), 2026-11-21
+- **H3.** `_View.cur` is gone. Each portfolio figure prints in its own row's currency: steps, drivers and their
+  details, drawer lines, the by-Site total, cash sentence and total, and R's figures in `R.currency`. A heading and its
+  card take the currency of their steps; `group_totals` returns (None, None) when the steps hold more than one
+  currency, so the heading reads "Not available yet" and the tile split is left out. `own_cur(code, row, side)`
+  returns the row's currency, else (5b case (h)) that side's own currency; never the portfolio's. A budget line with
+  no currency is not listed. `W.word` carries ISO "XXX" when the word's figure has no single currency, because the word
+  prints no amount.
+- **M3.** `deep_dive.out` variant `currency_mismatch` (reason `CURRENCY_MISMATCH`): "{site}: its figures are in
+  {currency}, not {portfolio_currency}, so it is not included." `currency` lists the Site's currencies other than the
+  reference, which is the step row's currency, else R's, else the other Sites', else the Site's own target's.
+- **L7.** `deep_dive.text` piece `CURRENCIES_DIFFER`: "Not available yet: the Sites' figures are in different
+  currencies." This is the headline when R notes a currency mismatch. **Known deviation:** the brief's "more than one
+  currency" is refused by LITERAL_NUMBER_WORD (D-SC1.32). The Architect confirms both literals.
+- **L8.** `test_4_h_residual_is_last_of_its_parent`.
+- Tests: `test_4_i_currency_one_currency_subset` (cur1, on world H for drivers),
+  `test_4_i_currency_a_heading_over_two_currencies`, `test_4_i_currency_a_sites_own_sides_differ` (cur2) and
+  `test_4_h_driver_detail_in_its_rows_currency`. Notices and organisation budget lines print in their budget's own
+  currency, which the patched worlds do not change, so cur1's whole-payload check leaves them out.
+- Plants (16; each fails): `/opt/assetecon/evidence/5c/fixround3/plants.txt`.
