@@ -98,7 +98,8 @@ query, the cohort selection, the two harness Sites' binding files (`backend/conv
 ## D-0K3.9 No served text, no migration, no guard change
 
 - **Ruling.** Nothing is served or rendered; `SeriesRefused.detail` is a developer diagnostic. No table or column is
-  added; the reader reads through the existing evidence query and Foundation store. D-SC1.28 is not engaged.
+  added; the reader reads through the existing evidence query and Foundation store. D-SC1.28 is not engaged. After main's SC-1a merge the unit declares the class unserved by the D-SC1.34 route: `SeriesRefused` is added to
+  `schema.UNSERVED` (and to the two tests that pin that tuple); the guard, baseline and allow file are unchanged.
 
 ## Handshake answers (round 1)
 
