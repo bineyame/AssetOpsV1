@@ -65,8 +65,8 @@ raise), P24 (catch removed: test 7b returns nothing), P25 (lock removed: test 7c
 
 - **3C0a and 3C1a tests touched** (outside §0's collision list): the 3C1a role table gains `action.agree`; 3C0a's
   downgrade test TRUNCATEs in `session_replication_role = replica`, because D-3C2.13's TRUNCATE trigger refuses the
-  cascade from `operator_account`. `ASSETOPS_TEST_CLEANUP=truncate` would refuse the same way (as `chain_input_change`
-  already does); the default DELETE cleanup is unaffected.
+  cascade from `operator_account`. `ASSETOPS_TEST_CLEANUP=truncate` did refuse the same way once 0069 landed (corrected in fix round r1: on main it
+  did not, the earlier sentence was wrong); fixed in r1 below.
 - `AgreedActionView.state_code` (not `state_words`) in commit 1; the field the 5c mapping reads lands in commit 2.
 - `build_agreed_actions(url, *, clock=...)`: an optional clock so `main(clock=...)` composes its own engine (test 7a);
   DDR G10's call is unchanged. `main` also maps an account-store error to `ACTIONS_UNAVAILABLE` (exit 3).
@@ -85,4 +85,21 @@ raise), P24 (catch removed: test 7b returns nothing), P25 (lock removed: test 7c
 - Unit `test_3c2_agreed_actions.py`: 54 passed (9.6 s).
 - Postgres (`heavy-slot.sh --db` + `run-host-tests.ps1`): 3C2 + 3C1a + 3C0a accounts files, 30 passed (52.7 s test time; 13 m wall, queued behind another db job).
 - Test 5 plants, each fails the retargeted test: adapter import added to `agreed_composition.py`; a second definition added there; adapter import removed from `composition.py`. All reverted.
-- Fast `check-all` (5 m 55 s): all 41 guards passed, including the decision index (D-SC1.* resolve after the merge) and the configuration-persistence guard. The held writer block commit `42de02e06` is not on this branch, so its guard lines are not exercised here; they stay held for the owner.
+- Fast `check-all` (5 m 55 s): all 41 guards passed, including the decision index (D-SC1.* resolve after the merge) and the configuration-persistence guard. The held writer block commit `42de02e06` IS on this branch (an ancestor); without it the persistence guard fails four times, so this green includes the block, which stays held for owner approval at merge.
+
+
+## Fix round r1 (review-c1 F1, F2, L1 to L3)
+
+- **F1.** `pg_harness.empty_tables` truncate branch and `test_pg_harness.py`'s rolled-back TRUNCATE now run under
+  `SET LOCAL session_replication_role = replica` (skips 0069's TRUNCATE trigger; test cleanup only); the harness
+  docstring no longer says no TRUNCATE triggers exist. Known Deviation: these two files are outside spec §0's list
+  (same reason as the 3C0a edit). `test_pg_harness.py` fully green. With `ASSETOPS_TEST_CLEANUP=truncate`, the 3C2
+  Postgres file plus `test_pg_harness.py`: 28 passed.
+- **F2.** Test 7d asserts `site(other_op, "KOBO-001") is None`; new 8b records an Action in `other-op` (Zara) and
+  asserts each tenant's read holds only its own. Plants in a throwaway worktree (removed): `for_tenant` filter made
+  a no-op -> `test_8b` fails (1 failed, 6 passed); `_SITE` filter made a no-op -> `test_7d` fails (1 failed, 6 passed).
+- **L1.** Packet sentence corrected above. **L3.** `build_agreed_actions` dispose now closes the accounts pool too.
+- **L2 select-tests** (`python tools/select-tests.py --base main`): `mode: full (566 of 566 backend test files)`;
+  triggers include migrations 0067 and 0069 and the 3a6 fixtures. Subset run (policy: no full suite here): 3C2 unit
+  and Postgres, `test_pg_harness.py`, 3C0a accounts and onboard Postgres, 3C1a Postgres: 108 passed in 80 s
+  (heavy-slot --db, run-host-tests.ps1). Full suite is the merge-gate job.
