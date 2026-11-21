@@ -1,4 +1,5 @@
-"""3A7 (spec `specs/3A7-month-reconciled/spec.md` §2; rulings D-3A7.1 to D-3A7.13): one closed month reconciled
+"""3A7 (spec `specs/3A7-month-reconciled/spec.md` §2; rulings D-3A7.1 to D-3A7.13; mid-build Q2: under `structure`,
+not `commercial`, because the commercial package never imports `structure`, D-3A4.8): one closed month reconciled
 against the operator's own management accounts.
 
 The finance lead records a closed month's revenue and fuel cost from the management accounts, for one mini-grid Site

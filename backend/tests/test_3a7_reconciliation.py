@@ -23,7 +23,7 @@ from assetops_backend.accounts.permissions import FINANCE
 from assetops_backend.chain.ports import SiteRef
 from assetops_backend.commercial.model import SiteRow, StatementRow, ToleranceRow
 from assetops_backend.commercial.months import CommercialMonths
-from assetops_backend.commercial.reconciliation import (DEFAULT_TOLERANCE, HEADINGS, CommercialReconciliation,
+from assetops_backend.structure.reconciliation import (DEFAULT_TOLERANCE, HEADINGS, CommercialReconciliation,
                                                         ReconRefused, _compare)
 from assetops_backend.commercial.service import CommercialRecords
 from assetops_backend.commercial.uploads import Actor
@@ -588,5 +588,5 @@ def test_no_owner_reader_no_tolerance() -> None:
 
 
 def test_no_float_in_the_reconciliation_module() -> None:
-    source = (TREE / "backend" / "assetops_backend" / "commercial" / "reconciliation.py").read_text("utf-8")
+    source = (TREE / "backend" / "assetops_backend" / "structure" / "reconciliation.py").read_text("utf-8")
     assert "float" not in source
