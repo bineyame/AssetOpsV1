@@ -170,6 +170,8 @@ class HeldUpload:
     file_sha256: str
     waiting: bool
     submitted_by: UUID
+    source_system: str = ""  # 3A6 (spec §2.6; D-3A6.5)
+    site_codes: tuple[str | None, ...] = ()  # 3A6: distinct month_site_code values, None first then sorted
 
 
 @dataclass(frozen=True)
@@ -246,3 +248,38 @@ class UploadAlreadyDecided(Exception):
 
 class UploadStale(Exception):
     """The store state differs from the one the check decided against (D-3A2.13); nothing was written."""
+
+
+class UploadSourceSwitched(Exception):
+    """3A6 (spec §2.6; D-3A6.15): at acceptance, under the tenant's lock, another accepted upload of the tenant has
+    the deciding upload's source type, another source system and a Site in common. `system` is the smallest such
+    source system. Nothing was written."""
+
+    def __init__(self, system: str) -> None:
+        super().__init__(system)
+        self.system = system
+
+
+# --- 3A6 (spec §2.5, §5; D-3A6.2, D-3A6.8): admitted source profiles ----------------------------------------------
+
+@dataclass(frozen=True)
+class ProfileRow:
+    """Every column of `commercial_source_profile` (`profile_row_id` is its `id`). Nothing of the sample is kept
+    but its SHA-256 and row count (RC4)."""
+    profile_row_id: UUID
+    tenant_id: UUID
+    profile_id: str
+    version: int
+    reader: str
+    status: str
+    source_type: str
+    source_system: str
+    file_format: str
+    profile_json: str
+    profile_sha256: str
+    sample_sha256: str
+    expected_sha256: str
+    sample_rows: int
+    admitted_at: datetime
+    admitted_by: UUID
+    admitted_role: str

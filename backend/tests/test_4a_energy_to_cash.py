@@ -239,6 +239,8 @@ VARIANTS = {
     "V9": lambda: _assignments(mto(), "M-2203"),
     "V9b": lambda: _r(mto(), charges=mto().charges + (V9B_CHARGE,)),
     "V9c": lambda: _assignments(_r(mto(), charges=mto().charges + (V9B_CHARGE,)), "M-2204"),
+    "V9d": lambda: _r(_r(mto(), charges=mto().charges + (V9B_CHARGE,)),
+                      assignments=mto().assignments + (assign("M-2204", "C-0415", d(10, 3)),)),
     "V10": lambda: _r(mto(), charges=mto().charges + (V10_CHARGE,)),
     "V11": lambda: _assignments(_r(mto(), charges=mto().charges + (V10_CHARGE,)), "M-2201"),
     "V12": lambda: _reads(mto(), keep=lambda r: r.meter_ref != "M-0001", add=[read("M-0001", FIRST, NEXT, "5570")]),
@@ -250,12 +252,17 @@ VARIANTS = {
     "V17": lambda: _r(mto(), held=HELD - {"CHARGE"}, charges=()),
     "V18": lambda: _reads(mto(), keep=lambda r: r.meter_ref != "M-0099",
                           add=[read("M-0099", FIRST, NEXT, "40", body="M-0098")]),
+    "V18b": lambda: _r(mto(), assignments=tuple(
+        dataclasses.replace(a, body_meter_ref="M-0098") if a.meter_ref == "M-0001" else a for a in mto().assignments)),
     "V19": lambda: _r(mto(), feeders=FeederMonth("BINDINGS_CHANGED", (), 31)),
     "V20": lambda: _feeders(mto(), band_state="NOT_DECLARED", band_pct=None),
     "V21": _v21,
     "V22": lambda: _r(mto(), held=HELD - {"CUSTOMER_METER_READ"}, reads=()),
     "V23": lambda: _r(mto(), reads=(), assignments=(assign("M-OLD-1", "C-0412", d(5, 1, 2023), d(9, 1)),)),
     "V24": lambda: _r(mto(), charges=(), adjustments=()),
+    # D-4A.8 / D-DS4.25: ADJUSTMENT never held is blank; held, none this month, is a stated 0.
+    "V28": lambda: _r(mto(), held=HELD - {"ADJUSTMENT"}, adjustments=()),
+    "V29": lambda: _r(mto(), adjustments=()),
     "V25": lambda: _r(mto(), charges=tuple(dataclasses.replace(c, line_type="FIXED", kwh=None)
                                            for c in mto().charges)),
     "V26": lambda: _r(mto(), feeders=FeederMonth("BINDINGS_CHANGED", (), 31), closed=False),
@@ -285,6 +292,7 @@ EXPECT = {
     "V9": {"unmapped_kwh": ("140",)},
     "V9b": {"unmapped_kwh": ("115",), "billed_kwh": ("5425",), "tariff": ("0.4", "USD")},
     "V9c": {"unmapped_kwh": ("140",), "billed_kwh": ("5425",)},
+    "V9d": {"unmapped_kwh": ("140",), "billed_kwh": ("5425",)},
     "V10": {"unmapped_kwh": ("109",), "billed_kwh": ("5431",), "tariff": ("0.4", "USD")},
     "V11": {"unmapped_kwh": ("109",)},
     "V12": {"metered_kwh": ("5750",), "unexplained_loss_kwh": ("-50",), "unmapped_kwh": ("140",)},
@@ -292,10 +300,14 @@ EXPECT = {
     "V14": {"tariff": (A, NCY, "CURRENCY_MISMATCH:KES,USD"), "billed_kwh": ("5400",)},
     "V15": {"metered_kwh": ("5580",)},
     "V16": {"billed_kwh": ("0",), "tariff": (A, NCY, "ZERO_DENOMINATOR:billed_kwh")},
-    "V17": {"billed_kwh": (A, NC, None), "tariff": (A, NC, "NEEDS:CHARGE"), "adjustments_kwh": (A, NC, "NEEDS:CHARGE"),
+    "V17": {"billed_kwh": (A, NC, None), "tariff": (A, NC, "NEEDS:CHARGE"), "adjustments_kwh": (A, NR, "NEEDS:CHARGE"),
             "unmapped_kwh": (A, NC, "NEEDS:CHARGE")},
+    "V28": {"adjustments_kwh": (A, NC, "NEEDS:ADJUSTMENT"), "billed_kwh": ("5400",), "unmapped_kwh": ("140",)},
+    "V29": {"adjustments_kwh": ("0",), "billed_kwh": ("5400",), "unmapped_kwh": ("140",)},
     "V18": {**{f: (A, NCY, "METER_REF_CONFLICT") for f in ("metered_kwh", "unmapped_kwh", "unexplained_loss_kwh")},
             "billed_kwh": ("5400",)},
+    "V18b": {**{f: (A, NCY, "METER_REF_CONFLICT") for f in ("metered_kwh", "unmapped_kwh", "unexplained_loss_kwh")},
+             "billed_kwh": ("5400",)},
     "V19": {f: (A, NCY, "FEEDER_BINDINGS_CHANGED") for f in ("delivered_kwh", "technical_loss_kwh",
                                                               "unexplained_loss_kwh")},
     "V20": {"technical_loss_kwh": (A, NC, "LOSS_BAND_NOT_DECLARED"),
@@ -365,7 +377,7 @@ STEPS = {
     ("unexplained_loss_kwh", "1"): (NR, "FEEDER_READINGS_GAP"),
     ("unexplained_loss_kwh", "2"): (NCY, "LOSS_BAND_CHANGED"),
     ("unexplained_loss_kwh", "3"): (NC, "NEEDS:METER_ASSIGNMENT"),
-    ("adjustments_kwh", "1"): (NC, "NEEDS:CHARGE"),
+    ("adjustments_kwh", "1"): (NC, "NEEDS:ADJUSTMENT"),
     ("adjustments_kwh", "2"): (NR, "MONTH_OPEN"),
     ("adjustments_kwh", "3"): (NR, "NEEDS:CHARGE"),
     ("unmapped_kwh", "1"): (NC, "NEEDS:METER_ASSIGNMENT"),
@@ -394,7 +406,7 @@ STEP_MAP = {
     ("metered_kwh", "4"): "V18", ("metered_kwh", "5"): "V6", ("metered_kwh", "6"): "V7",
     ("metered_kwh", "7"): "V8", ("metered_kwh", "8"): "V23",
     ("unexplained_loss_kwh", "1"): "V3", ("unexplained_loss_kwh", "2"): "V4", ("unexplained_loss_kwh", "3"): "V5",
-    ("adjustments_kwh", "1"): "V17", ("adjustments_kwh", "2"): "V1", ("adjustments_kwh", "3"): "V24",
+    ("adjustments_kwh", "1"): "V28", ("adjustments_kwh", "2"): "V1", ("adjustments_kwh", "3"): "V24",
     ("unmapped_kwh", "1"): "V5", ("unmapped_kwh", "2"): "V22", ("unmapped_kwh", "3"): "V17",
     ("unmapped_kwh", "4"): "V1", ("unmapped_kwh", "5"): "V6", ("unmapped_kwh", "6"): "V24",
     ("billed_kwh", "1"): "V17", ("billed_kwh", "2"): "V1", ("billed_kwh", "3"): "V24",
@@ -416,6 +428,14 @@ def test_2b_each_step_is_reached(factor, step):
     assert (lv.missing.cause, lv.missing.note) == (cause, note), lv
 
 
+def test_2_v27_kobo_feeders_at_bands_4_5_6():
+    k = kobo()
+    fs = tuple(dataclasses.replace(f, band_state="DECLARED", band_pct=D(p))
+               for f, p in zip(k.feeders.feeders, (4, 5, 6)))
+    v = run(_r(k, feeders=FeederMonth("ONE_SET", fs, 31)))
+    assert v["technical_loss_kwh"].value == D(486) and v["technical_loss_kwh"].evidence == "MODELLED"
+
+
 def test_2b_the_kobo_band_is_step_2():
     v = run(kobo())
     assert (v["technical_loss_kwh"].missing.cause, v["technical_loss_kwh"].missing.note) == STEPS[
@@ -426,7 +446,7 @@ def test_2b_notes_list():
     assert rules.NOTES == (
         "FEEDER_NOT_BOUND", "FEEDER_BINDINGS_CHANGED", "FEEDER_READINGS_GAP", "LOSS_BAND_NOT_DECLARED",
         "LOSS_BAND_CHANGED", "METER_REF_CONFLICT", "METER_READ_STRADDLES", "METER_READS_OVERLAP",
-        "METER_READS_INCOMPLETE", "NEEDS:METER_ASSIGNMENT", "NEEDS:CUSTOMER_METER_READ", "NEEDS:CHARGE", "MONTH_OPEN",
+        "METER_READS_INCOMPLETE", "NEEDS:METER_ASSIGNMENT", "NEEDS:CUSTOMER_METER_READ", "NEEDS:CHARGE", "NEEDS:ADJUSTMENT", "MONTH_OPEN",
         "CURRENCY_MISMATCH:", "ZERO_DENOMINATOR:billed_kwh")
     assert rules.OBSERVER == "energy-to-cash@1"
 

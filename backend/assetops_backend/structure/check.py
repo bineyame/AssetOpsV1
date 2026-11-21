@@ -11,7 +11,14 @@ without `stated_by`.
 
 3B2 added `check_pins` (D-3B2.10 to D-3B2.13): mechanism pins, run by `check_all()` on the start-up path only.
 
-Deferred (D-3B1.6): observer existence (3B4), and levers (step 6).
+3B6 added `STRUCTURE_NOT_APPLICABLE` (D-3B6.3): per registry (pattern, repeat, own row) as the last code, and across
+the checked set in `check_all` (each entry a row of another checked registry); and the key check (3B1's L2, D-3B6.4):
+a `REGISTRIES` key that differs from its registry's `structure_key` refuses as `STRUCTURE_CATALOGUE <key>/-`.
+
+3B4 added `check_observed` (D-3B4.2, D-3B4.16, D-3B4.20, D-3B4.25): the observer's tables against the registries,
+run by `check_all()` on the start-up path after `check_pins`.
+
+Deferred (D-3B1.6): levers (step 6).
 """
 
 from __future__ import annotations
@@ -24,11 +31,13 @@ from assetops_backend.config import ConfigurationError
 from assetops_backend.outcomes import outcome_map as _outcome_map
 from assetops_backend.structure import pins as _pins
 from assetops_backend.structure import registry as _registry
+from assetops_backend.structure.attribution.rules import BRIDGE_ROOTS
+from assetops_backend.structure.observe import rules as _observe
 from assetops_backend.structure.expressions import (
     Bin, Expr, ExpressionError, Neg, Num, Ref, UnitError, names, parse, unit_of,
 )
 from assetops_backend.structure.registry import ABSENT, COMPOSES, FAMILIES, HOMES, Registry
-from assetops_contracts.canonical.factors import LEAF_FACTORS, STRUCTURE_KEYS, leaves_of
+from assetops_contracts.canonical.factors import FACTOR_ID_PATTERN, LEAF_FACTORS, STRUCTURE_KEYS, leaves_of
 from assetops_contracts.canonical.units import KWH
 
 _ABOVE, _CALENDAR = HOMES["above"], HOMES["calendar"]
@@ -221,6 +230,19 @@ def _money_home(ctx: _Context) -> None:
             raise ctx.refuse("STRUCTURE_MONEY_HOME", row.factor_id)
 
 
+def _not_applicable(ctx: _Context) -> None:
+    """3B6 (D-3B6.3): each declared not-applicable ID is a well-formed factor ID, named once, and not a row here."""
+    seen: set[str] = set()
+    for entry in ctx.reg.not_applicable:
+        if not isinstance(entry, str) or FACTOR_ID_PATTERN.fullmatch(entry) is None:
+            raise ctx.refuse("STRUCTURE_NOT_APPLICABLE", str(entry))
+        if entry in seen:
+            raise ctx.refuse("STRUCTURE_NOT_APPLICABLE", entry)
+        if entry in ctx.units:
+            raise ctx.refuse("STRUCTURE_NOT_APPLICABLE", entry)
+        seen.add(entry)
+
+
 _CHECKS: tuple[tuple[str, Callable[[_Context], None]], ...] = (
     ("STRUCTURE_DUPLICATE", _duplicate),
     ("STRUCTURE_EXPRESSION", _expression),
@@ -237,6 +259,7 @@ _CHECKS: tuple[tuple[str, Callable[[_Context], None]], ...] = (
     ("STRUCTURE_CATEGORY", _category),
     ("STRUCTURE_OBJECTIVE", _objective),
     ("STRUCTURE_MONEY_HOME", _money_home),
+    ("STRUCTURE_NOT_APPLICABLE", _not_applicable),
 )
 #: The codes in the order they run.
 CODES = tuple(code for code, _ in _CHECKS)
@@ -300,15 +323,97 @@ def check_pins(pins: Mapping[str, "_pins.Pin"] | None = None, registries: Mappin
                 raise StructureError("STRUCTURE_PIN_MISSING", _NO_KEY, mechanism)
 
 
+OBSERVE_CODES = ("STRUCTURE_OBSERVE_KEY", "STRUCTURE_OBSERVE_COVER", "STRUCTURE_OBSERVE_LEAF",
+                 "STRUCTURE_OBSERVE_SOURCE", "STRUCTURE_OBSERVE_DIRECTION", "STRUCTURE_OBSERVE_KIND")
+_NOT_SOURCES = frozenset({"DECLARED", "CALENDAR"})
+_NOT_ABSENT = frozenset({"OPTION_ONLY", "NEVER_EMPTY"})
+
+
+def check_observed(observed: Mapping[str, Mapping[str, str]] | None = None,
+                   not_observed: Mapping[str, Mapping[str, str]] | None = None,
+                   registries: Mapping[str, Registry] | None = None) -> None:
+    """3B4 (spec §2.3; D-3B4.2, D-3B4.16): raise the first observer-table fault, code by code in `OBSERVE_CODES`
+    order, each over keys in `OBSERVED` order then leaves in table order. A `None` reads the real table at call time.
+    `KEY` runs over `OBSERVED`'s keys only: a registry the observer does not name is not a fault (D-3B4.25)."""
+    observed = _observe.OBSERVED if observed is None else observed
+    not_observed = _observe.NOT_OBSERVED if not_observed is None else not_observed
+    registries = _registry.REGISTRIES if registries is None else registries
+    # D-3B4.20: the one function-local import; at call time `check` is loaded, so the cycle cannot close.
+    from assetops_backend.structure.targets import rules as _targets
+
+    def refuse(code: str, key: str, leaf: str) -> StructureError:
+        return StructureError("STRUCTURE_OBSERVE_" + code, key, leaf)
+
+    for key in observed:
+        if key not in registries or key not in BRIDGE_ROOTS or key not in _targets.TARGET_RULE:
+            raise refuse("KEY", key, _NO_KEY)
+    if set(observed) != set(not_observed):
+        key = next(iter(k for k in (*observed, *not_observed) if k not in observed or k not in not_observed))
+        raise refuse("KEY", key, _NO_KEY)
+
+    for key, table in observed.items():
+        reg, other = registries[key], not_observed[key]
+        rows = {row.factor_id: row for row in reg.rows}
+        for row in reg.rows:
+            if row.is_leaf and (row.factor_id in table) == (row.factor_id in other):
+                raise refuse("COVER", key, row.factor_id)
+        for leaf in (*table, *other):
+            if leaf not in rows:
+                raise refuse("COVER", key, leaf)
+        for leaf, reason in other.items():
+            if not rows[leaf].is_leaf or reason not in _observe.REASONS:
+                raise refuse("COVER", key, leaf)
+    for key, table in observed.items():
+        reg = registries[key]
+        for leaf in table:
+            if not reg.row(leaf).is_leaf:
+                raise refuse("LEAF", key, leaf)
+    for key, table in observed.items():
+        reg = registries[key]
+        for leaf in table:
+            row = reg.row(leaf)
+            family = row.filled_by.family if row.filled_by is not None else None
+            if family in _NOT_SOURCES or row.absent in _NOT_ABSENT:
+                raise refuse("SOURCE", key, leaf)
+    for key, table in observed.items():
+        got = _observe.reached(registries[key], key)
+        for leaf, direction in table.items():
+            s = got.get(leaf, frozenset())
+            if (direction not in (_observe.UP, _observe.DOWN) or len(s) > 1
+                    or (s == {-1} and direction == _observe.DOWN) or (s == {1} and direction == _observe.UP)):
+                raise refuse("DIRECTION", key, leaf)
+    protect = HOMES["protect"]
+    for key, table in observed.items():
+        reg = registries[key]
+        got = _observe.reached(reg, key)
+        for leaf in table:
+            home = reg.row(leaf).home
+            if leaf not in got and (home is None or home.category != protect):
+                raise refuse("KIND", key, leaf)
+
+
 def check_all(registries: Mapping[str, Registry] | None = None) -> None:
     """Check every registry; `registry.REGISTRIES` is read at call time (P3). Nothing is cached (R6).
 
     3B2 (D-3B2.10): with no argument (the start-up path) the pins are checked last; `check_all(registries=X)` checks
-    `X` alone and runs no pin check."""
-    for reg in (_registry.REGISTRIES if registries is None else registries).values():
+    `X` alone and runs no pin check. 3B4 (spec §2.3): the observer tables are checked after the pins, on the same
+    path only.
+
+    3B6 (D-3B6.3, D-3B6.4): per entry, the key check (L2) then `check`; then every not-applicable entry must be a
+    row of another registry of the checked set."""
+    checked = _registry.REGISTRIES if registries is None else registries
+    for key, reg in checked.items():
+        if key != reg.structure_key:
+            raise StructureError("STRUCTURE_CATALOGUE", key, _NO_KEY)
         check(reg)
+    for key, reg in checked.items():
+        for entry in reg.not_applicable:
+            if not any(other_key != key and any(row.factor_id == entry for row in other.rows)
+                       for other_key, other in checked.items()):
+                raise StructureError("STRUCTURE_NOT_APPLICABLE", key, entry)
     if registries is None:
         check_pins()
+        check_observed()
 
 
 def check_at_start() -> None:
@@ -319,4 +424,5 @@ def check_at_start() -> None:
         raise ConfigurationError(str(error)) from error
 
 
-__all__ = ["CODES", "PIN_CODES", "StructureError", "check", "check_all", "check_at_start", "check_pins"]
+__all__ = ["CODES", "OBSERVE_CODES", "PIN_CODES", "StructureError", "check", "check_all", "check_at_start",
+           "check_observed", "check_pins"]

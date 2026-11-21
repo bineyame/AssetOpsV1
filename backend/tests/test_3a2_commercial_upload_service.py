@@ -19,8 +19,8 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from assetops_backend.commercial.model import (IntakeSummary, UploadAlreadyDecided, UploadDecisionRow, UploadRecord,
-                                               UploadRow)
+from assetops_backend.commercial.model import (HeldUpload, IntakeSummary, UploadAlreadyDecided, UploadDecisionRow,
+                                               UploadRecord, UploadRow)
 from assetops_backend.commercial.composition import FileKeyStore
 from assetops_backend.commercial.pseudonym import (ALLOWED_EXTRA, REF_BODY_FIELDS, PseudonymKeyMissing,
                                                    PseudonymKeyUnusable, pseudonymise)
@@ -113,6 +113,20 @@ class UploadMemoryStore(MemoryCommercialStore):
         rows = [u for u in self.uploads if u.tenant_id == tenant_id and u.site_id == site_id]
         rows.sort(key=lambda u: (u.submitted_at, str(u.id)), reverse=True)
         return tuple(self._record(u) for u in rows[:limit])
+
+    def held_uploads(self, tenant_id: UUID) -> tuple[HeldUpload, ...]:
+        """3A3 (spec §2.8) and 3A6 (spec §2.6): the adapter's `_HELD`, mirrored (moved here from 3A3's loader test
+        when 3A6's intake began calling it on every check)."""
+        out = []
+        for u in sorted((u for u in self.uploads if u.tenant_id == tenant_id), key=lambda u: str(u.id)):
+            found = [d for d in self.decisions if d.tenant_id == tenant_id and d.upload_id == u.id]
+            if found and found[0].decision != "ACCEPTED":
+                continue
+            codes = set(u.month_site_code)
+            site_codes = ((None,) if None in codes else ()) + tuple(sorted(c for c in codes if c is not None))
+            out.append(HeldUpload(u.id, u.source_type, u.reader, u.file_sha256, not found, u.submitted_by,
+                                  u.source_system, site_codes))
+        return tuple(out)
 
     def stored_strings(self) -> list[str]:
         """Every string of every stored row (uploads, decisions, intakes, records, revisions, rejections)."""
@@ -592,12 +606,22 @@ class ExtraReader(CanonicalJsonReader):
         return ReadResult(loads_canonical(data), None, self.extra)
 
 
+class StubEnvelope:
+    """3A6 r5 (spec §2.12): the parse envelope's child rebuilds only registered and profile readers, so a test's own
+    stub reader is read through this double, which a test sets on its service; production has no such path."""
+
+    def read(self, reader, data, context, *, split=False):
+        from assetops_backend.commercial.envelope import BoundedRead
+        return BoundedRead(reader.read(data, context=context), None)
+
+
 def test_16_reader_paths(w, monkeypatch) -> None:
     for extra in ({("body.amount", "C")}, {("source_record_id", "X")}):
         with pytest.raises(ValueError):
             pseudonymise(charge(), KEY, frozenset(extra))
     monkeypatch.setattr("assetops_backend.commercial.uploads.READERS",
                         {**READERS, "canonical-json-extra": ExtraReader(frozenset({("source_record_id", "C")}))})
+    monkeypatch.setattr(w.svc, "_envelope", StubEnvelope())
     call = dict(reader_id="canonical-json-extra")
     accept(w, w.svc.submit(w.tid, w.kobo, w.ana, encode(b_bill()), file_name="x.json", **call))
     stored = {r.source_record_id for r in w.store.records}

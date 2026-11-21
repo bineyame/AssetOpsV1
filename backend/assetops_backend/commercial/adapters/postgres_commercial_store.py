@@ -17,6 +17,10 @@ or context (D-2A.11's class, R13).
 transaction, after an under-lock "no decision yet" check that precedes `decide`. Every public method is wrapped by
 `_scrubbed`: a `DBAPIError` that is not a connection failure (`OperationalError`, `InterfaceError`) leaves as
 `StoreRefused(constraint)`, raised outside the handler, so no driver text, cause or context survives.
+
+3A6 (spec §2.6, §5; D-3A6.15): the sole runtime writer of `commercial_source_profile` too (one plain INSERT). An
+acceptance re-checks, under the lock after the "no decision yet" check, that no other accepted upload of the tenant
+sends the same source type from another source system for a Site in common (`UploadSourceSwitched`).
 """
 from __future__ import annotations
 
@@ -30,8 +34,9 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.exc import DBAPIError, InterfaceError, OperationalError
 
 from assetops_backend.commercial.model import (ExistingRecord, HeldUpload, IntakeRow, IntakeSummary, Plan,
-                                               RejectionRow, RevisionRow, StoreRefused, UploadAlreadyDecided,
-                                               UploadDecisionRow, UploadRecord, UploadRow)
+                                               ProfileRow, RejectionRow, RevisionRow, StoreRefused,
+                                               UploadAlreadyDecided, UploadDecisionRow, UploadRecord, UploadRow,
+                                               UploadSourceSwitched)
 
 _F = TypeVar("_F", bound=Callable)
 #: D-3A2.2: a connection failure is retried, not scrubbed; the routes answer 503 for these.
@@ -162,9 +167,35 @@ _UPLOADS = text(
     "ORDER BY u.submitted_at DESC, u.id DESC LIMIT :n")
 #: 3A3 (spec §2.8): what the tenant holds, one read.
 _HELD = text(
-    "SELECT u.id, u.source_type, u.reader, u.file_sha256, d.decision IS NULL AS waiting, u.submitted_by FROM commercial_upload u "
+    "SELECT u.id, u.source_type, u.reader, u.file_sha256, d.decision IS NULL AS waiting, u.submitted_by, "
+    "u.source_system, u.month_site_code FROM commercial_upload u "
     "LEFT JOIN commercial_upload_decision d ON d.tenant_id = u.tenant_id AND d.upload_id = u.id "
     "WHERE u.tenant_id = :t AND (d.decision IS NULL OR d.decision = 'ACCEPTED') ORDER BY u.id")
+#: 3A6 (spec §2.6; D-3A6.15): under the lock, the smallest source system of another ACCEPTED upload of the tenant
+#: with the deciding upload's source type, another source system and a month_site_code value in common.
+_SWITCHED = text(
+    "SELECT min(b.source_system) FROM commercial_upload a JOIN commercial_upload b ON b.tenant_id = a.tenant_id "
+    "AND b.id <> a.id AND b.source_type = a.source_type AND b.source_system <> a.source_system "
+    "JOIN commercial_upload_decision d ON d.tenant_id = b.tenant_id AND d.upload_id = b.id "
+    "AND d.decision = 'ACCEPTED' WHERE a.tenant_id = :t AND a.id = :u AND EXISTS (SELECT 1 FROM "
+    "unnest(a.month_site_code) x JOIN unnest(b.month_site_code) y ON x IS NOT DISTINCT FROM y)")
+#: 3A6 (spec §5): admitted source profiles.
+_PROFILE_COLUMNS = (
+    "id AS profile_row_id, tenant_id, profile_id, version, reader, status, source_type, source_system, file_format, "
+    "profile_json, profile_sha256, sample_sha256, expected_sha256, sample_rows, admitted_at, admitted_by, "
+    "admitted_role")
+_PROFILES_ALL = text("SELECT " + _PROFILE_COLUMNS + " FROM commercial_source_profile "
+                     "WHERE tenant_id = :t AND profile_id = :p ORDER BY version")
+_PROFILE_LATEST = text("SELECT " + _PROFILE_COLUMNS + " FROM commercial_source_profile "
+                       "WHERE tenant_id = :t AND profile_id = :p ORDER BY version DESC LIMIT 1")
+_PROFILES_LATEST = text("SELECT DISTINCT ON (profile_id) " + _PROFILE_COLUMNS + " FROM commercial_source_profile "
+                        "WHERE tenant_id = :t ORDER BY profile_id, version DESC")
+_INSERT_PROFILE = text(
+    "INSERT INTO commercial_source_profile (id, tenant_id, profile_id, version, reader, status, source_type, "
+    "source_system, file_format, profile_json, profile_sha256, sample_sha256, expected_sha256, sample_rows, "
+    "admitted_at, admitted_by, admitted_role) VALUES (:profile_row_id, :tenant_id, :profile_id, :version, :reader, "
+    ":status, :source_type, :source_system, :file_format, :profile_json, :profile_sha256, :sample_sha256, "
+    ":expected_sha256, :sample_rows, :admitted_at, :admitted_by, :admitted_role)")
 _UPLOAD_ARRAYS = ("kept_index", "row_map", "refusal_index", "refusal_code", "refusal_path", "month_site_code",
                   "month_period")
 _WRITTEN = text("SELECT id FROM commercial_record_revision WHERE tenant_id = :t AND intake_id = :i "
@@ -181,6 +212,12 @@ def _upload_values(row: UploadRow) -> dict:
         if values[name] is not None:
             values[name] = list(values[name])
     return values
+
+
+def site_codes(values) -> tuple[str | None, ...]:
+    """3A6 (spec §2.6): the distinct Site codes of an upload's months, None first, then sorted."""
+    distinct = set(values or ())
+    return ((None,) if None in distinct else ()) + tuple(sorted(v for v in distinct if v is not None))
 
 
 def _revision(row) -> RevisionRow:
@@ -295,6 +332,10 @@ class PostgresCommercialStore:
                 c.execute(_LOCK, {"tenant_id": str(tenant_id)})
                 if decision is not None and not dry_run and self._decided(c, tenant_id, decision.upload_id):
                     raise UploadAlreadyDecided()
+                if decision is not None and not dry_run and decision.decision == "ACCEPTED":
+                    system = c.execute(_SWITCHED, {"t": tenant_id, "u": decision.upload_id}).scalar_one()
+                    if system is not None:
+                        raise UploadSourceSwitched(system)
                 plan = decide(self._existing(c, tenant_id, source_system, ids))
                 if dry_run:
                     tx.rollback()
@@ -366,8 +407,33 @@ class PostgresCommercialStore:
     @_scrubbed
     def held_uploads(self, tenant_id: UUID) -> tuple[HeldUpload, ...]:
         with self._engine.connect() as c:
-            return tuple(HeldUpload(r.id, r.source_type, r.reader, r.file_sha256, bool(r.waiting), r.submitted_by)
+            return tuple(HeldUpload(r.id, r.source_type, r.reader, r.file_sha256, bool(r.waiting), r.submitted_by,
+                                    r.source_system, site_codes(r.month_site_code))
                          for r in c.execute(_HELD, {"t": tenant_id}))
+
+    # --- 3A6: admitted source profiles ----------------------------------------------------------------------------
+
+    @_scrubbed
+    def source_profiles_all(self, tenant_id: UUID, profile_id: str) -> tuple[ProfileRow, ...]:
+        with self._engine.connect() as c:
+            return tuple(ProfileRow(**dict(r._mapping)) for r in c.execute(_PROFILES_ALL,
+                                                                           {"t": tenant_id, "p": profile_id}))
+
+    @_scrubbed
+    def source_profile_latest(self, tenant_id: UUID, profile_id: str) -> ProfileRow | None:
+        with self._engine.connect() as c:
+            found = c.execute(_PROFILE_LATEST, {"t": tenant_id, "p": profile_id}).first()
+            return None if found is None else ProfileRow(**dict(found._mapping))
+
+    @_scrubbed
+    def source_profiles_latest(self, tenant_id: UUID) -> tuple[ProfileRow, ...]:
+        with self._engine.connect() as c:
+            return tuple(ProfileRow(**dict(r._mapping)) for r in c.execute(_PROFILES_LATEST, {"t": tenant_id}))
+
+    @_scrubbed
+    def add_source_profile(self, row: ProfileRow) -> None:
+        with self._engine.begin() as c:
+            c.execute(_INSERT_PROFILE, _values(row))
 
     @_scrubbed
     def uploads_in_scope(self, tenant_id: UUID, site_id: UUID | None, limit: int) -> tuple[UploadRecord, ...]:

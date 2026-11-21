@@ -1,0 +1,14 @@
+[
+  {"format_version": 1, "kind": "BUDGET_LINE", "source_record_id": "KOBO-001:2026-10:Revenue",
+   "source_version": "r8b6cdd540fa7c49a", "site_code": "KOBO-001", "clocks": {"recognition_period": "2026-10"},
+   "body": {"line_ref": "Revenue", "factor_id": "revenue", "value": "3420", "currency": "USD",
+            "version_ref": "lakeside-budget-2026"}},
+  {"format_version": 1, "kind": "BUDGET_LINE", "source_record_id": "KOBO-001:2026-10:Diesel",
+   "source_version": "r4bc1868e230b8ed3", "site_code": "KOBO-001", "clocks": {"recognition_period": "2026-10"},
+   "body": {"line_ref": "Diesel", "factor_id": "fuel_cost", "value": "875", "currency": "USD",
+            "version_ref": "lakeside-budget-2026"}},
+  {"format_version": 1, "kind": "BUDGET_LINE", "source_record_id": "KOBO-001:2026-10:kWh sold",
+   "source_version": "rff4a97f304aa3280", "site_code": "KOBO-001", "clocks": {"recognition_period": "2026-10"},
+   "body": {"line_ref": "kWh sold", "factor_id": "billed_kwh", "value": "8550",
+            "version_ref": "lakeside-budget-2026"}}
+]

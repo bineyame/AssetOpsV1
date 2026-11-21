@@ -49,6 +49,9 @@ SPEC_ROLES = {
     "domain.create": (SM, FIN), "domain.intent": (SM, FIN), "domain.case_link": (SM,),
     "commercial.upload": ("ANALYST", FIN), "commercial.upload_decision": (FIN, "OPERATOR_EXECUTIVE"),
     "commercial.upload_read": ("ANALYST", FIN, "OPERATOR_EXECUTIVE", SM),
+    "commercial.profile_admit": ("ANALYST", FIN),
+    # 3B4 (spec §5.3): the tolerance command's two keys (a command line, no route).
+    "structure.tolerance.money": (FIN,), "structure.tolerance.operational": (SM,),
 }
 
 
@@ -477,7 +480,7 @@ def detail(response) -> dict:
 
 def test_command_roles_is_the_spec_table() -> None:
     assert COMMAND_ROLES == SPEC_ROLES
-    assert set(COMMANDS) == {k for k in SPEC_ROLES if not k.startswith("commercial.")}
+    assert set(COMMANDS) == {k for k in SPEC_ROLES if not k.startswith(("commercial.", "structure."))}
     for other in ("work.case_event.VERIFIED", "work.case_event.CREATED", "work.case_event.?"):
         assert roles_of(other) == (SM,)
 

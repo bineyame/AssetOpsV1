@@ -37,14 +37,15 @@ DOMAIN_OF_STRUCTURE: Mapping[str, str] = MappingProxyType({
 PINS: Mapping[str, Pin] = MappingProxyType({
     "GENERATOR_SUPPORT_CANDIDATE": Pin("GENERATOR_SUPPORT_CANDIDATE", "MINI_GRID", "candidate_l"),
     "UNEXPLAINED_FUEL": Pin("UNEXPLAINED_FUEL", "MINI_GRID", "unexplained_l"),
+    # 3B6 (D-3B6.5): pinned to leaves under Protect P1.
+    "COLD_START_FAILURE": Pin("COLD_START_FAILURE", "COLD_CHAIN", "uncovered_nights"),
+    "COLD_EXCURSION": Pin("COLD_EXCURSION", "COLD_CHAIN", "excursion_crates"),
+    "EV_INTERRUPTION": Pin("EV_INTERRUPTION", "EV_DEPOT_CAPTIVE", "chargers_in_service"),
 })
 
-#: D-3B2.2: mechanism -> structure key, for registries that do not exist yet. `3B6` moves them into `PINS`.
-PENDING_PINS: Mapping[str, str] = MappingProxyType({
-    "COLD_START_FAILURE": "COLD_CHAIN",
-    "COLD_EXCURSION": "COLD_CHAIN",
-    "EV_INTERRUPTION": "EV_DEPOT_CAPTIVE",
-})
+#: D-3B2.2: mechanism -> structure key, for registries that do not exist yet. 3B6 moved the three into `PINS`; empty
+#: until another structure has pending mechanisms.
+PENDING_PINS: Mapping[str, str] = MappingProxyType({})
 
 _PLACEMENTS = frozenset({_registry.HOMES["above"], _registry.HOMES["calendar"]})
 

@@ -425,6 +425,8 @@ Answered 2026-11-21 (Architect, owner away, under `owner/owner-away-architect-de
 authorisation: the two check-all lines stay held for the owner at merge (owner-away row 5); the definition of served
 text is logged as owner-away row 24.
 
+Owner approved both check-all lines (scan and self-test), 2026-11-21 (`owner/owner-approve-sc1a-3c2-guards-2026-11-21.md`).
+
 **For the owner: the two check-all lines in one read.**
 
 - **What the guard catches.** Any new sentence or phrase written into backend code: a string of two or more words,

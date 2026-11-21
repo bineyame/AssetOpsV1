@@ -61,9 +61,12 @@ same commit (`.ai/ROLE_CONFIG.md`).
 | P21 | `permitted_database` ignores host and port | test 1 (`10.0.0.5`, port 5432) |
 | P22 | `clone_database` does not register its name | `test_pg_harness.py` (cleanup leaves the clone) |
 | P23 | the world command passes the tenant directory, not `commercial/`, as `--dir` | test 2 (stub's `--dir`) |
+| P24 | `permitted_database`'s allow widened back to any name ending `_test` | test 1 (`assetops_polish_walk1113_test`, `assetops_test`) |
+| P25 | the `walk\|serve` deny removed | test 1 (`assetops_walk_audit1121`) |
 
 ## Not findings
 
+The 11 failures identical on `main` at `8eff70625` (`test_s4_evidence_decided_at_postgres` x10, `test_s2_rejection_placement` x1; D-DS3.23). `event_outbox` rows fewer in bulk with the same subject cover (D-DS3.21). `v4.delta` refused in bulk (D-DS3.20). No `xfail` may remain in `test_ds3_parity_postgres.py`: one is a finding. A bare `*_test` database no longer passes `permitted_database` (D-DS3.22). 
 No `COPY` (D-DS3.1). No commercial parity half (D-DS3.2). Different dispatch or cold recompute-job row counts within
 D-DS3.3's rule; fewer `chain_input_change` rows in bulk with the same scopes (D-DS3.10). Zero
 `financial_consequence_work` and EV consequence work on both paths (D-DS3.10's stated limit). No bulk loading at

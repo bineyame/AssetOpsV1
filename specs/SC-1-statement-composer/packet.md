@@ -4,6 +4,7 @@ Branch `task/SC-1a-composer`, built off `main` 8805ee169; main merged in through
 answers D-SC1.29 to D-SC1.31 (merged from `task/SC-1a-midbuild-answers` 74e74ca9c). Non-screen.
 `USER_REVIEW_REQUIRED: false` (spec header). **Owner approval needed at merge:** the two new check-all lines (guard
 changes are held for the owner, `specs/OWNER-AWAY/decisions-2026-11-21.md` row 5).
+**Owner approved both check-all lines, 2026-11-21** (`owner/owner-approve-sc1a-3c2-guards-2026-11-21.md`).
 
 ## Fix round r2 (review round 2: M4, L6, L7)
 
@@ -47,7 +48,7 @@ sides of `.ai/state/index-2.md`: SC-1a 168, 3B2 169, 0K1 170, 4a 171; SC-1a's ow
 Head: the commit that adds this section (code `33115e055`, main merged at `55aa7d6ac`: `task/SC-1a-review-answers`
 420596391, then `main` f75321b92; SC-1a's owner-away rows are now **23 and 24**, after 3B6's 21 and 22).
 **Owner approval still needed at merge: the two check-all lines** (owner-away rows 5 and 24).
-After the gates, `main` 12a0c6356 (3B6 handshake, 3B4 spec; docs only) merged at f54d11445: rows 23 and 24 kept (main's are 21, 22, 26 to 28); `index-rulings-17.md` went over its 8,000-byte cap, so D-SC1.32-39's index lines moved to a new `index-rulings-19.md`; `check-decision-index.py` OK (1,061 IDs), guard OK, check-agent-workflow passed.
+After the gates, `main` 12a0c6356 (3B6 handshake, 3B4 spec; docs only) merged at f54d11445: rows 23 and 24 kept (main's are 21, 22, 26 to 28); `index-rulings-17.md` went over its 8,000-byte cap, so D-SC1.32-39's index lines moved to a new index file (now `index-rulings-21.md`, renumbered at the final main merge); `check-decision-index.py` OK (1,061 IDs), guard OK, check-agent-workflow passed.
 
 - **D-SC1.32 (M3).** `schema.NUMBER_WORDS["en"]` is the spec's six `(roots, suffixes)` pairs; `schema.number_words`
   derives the set; the load splits on non-letters and refuses any member. `TOKENS` no longer holds them (T12 proves

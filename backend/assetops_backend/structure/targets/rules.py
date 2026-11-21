@@ -61,7 +61,7 @@ def solve_main(registry: Registry, leaves: Mapping[str, LeafValue], heading: str
     and 2; linear when the two steps are equal, with a slope when they are not zero. `currency` is the heading's, used
     for the probe only when the main leaf is money. The probe rests on no record, so it carries `unknown` (D-4B.18);
     the probe's origins never reach the returned value."""
-    probe_currency = currency if registry.row(leaf).money else None
+    probe_currency = currency if registry.row(leaf).unit.has_money_dimension else None
     v: list[Decimal] = []
     for k in (0, 1, 2):
         probe = LeafValue(Decimal(k), "DECLARED", ("solve",), None, None, probe_currency, (ORIGIN_UNKNOWN,))

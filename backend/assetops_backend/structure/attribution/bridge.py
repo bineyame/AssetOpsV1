@@ -60,10 +60,6 @@ def _norm(v: Decimal | None) -> Decimal | None:
     return v.copy_abs() if v is not None and v == 0 else v
 
 
-def _money_dimension(unit: Unit) -> bool:
-    return any(d == "MONEY" and e != 0 for d, e in unit.exponents)
-
-
 def _is_price(unit: Unit) -> bool:
     """Step 3: money per unit of something: `("MONEY", 1)` among the exponents, and not money itself."""
     return ("MONEY", 1) in unit.exponents and not unit.is_money
@@ -134,7 +130,7 @@ class _Bridge:
         # 1. Gap
         if a.value is None or t.value is None:
             return made(None, None, "NOT_SPLIT", GAP_NOT_AVAILABLE, (a.missing_leaves, t.missing_leaves))
-        if _money_dimension(reg_row.unit) and a.currency != t.currency:
+        if reg_row.unit.has_money_dimension and a.currency != t.currency:
             currencies = ",".join(sorted(c for c in (a.currency, t.currency) if c is not None))
             return made(None, None, "NOT_SPLIT", CURRENCY_MISMATCH + currencies)
         gap = a.value - t.value

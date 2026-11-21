@@ -32,7 +32,8 @@ class BridgeRead:
 
     def site(self, site: SiteRef, month: str, known_at: datetime | None = None) -> SiteBridge:
         k = self._pin(known_at)
-        return site_bridge(self._actual.site_inputs(site, month, k), self._targets.site(site, month, k))
+        targets = self._targets.site(site, month, k)  # 3B6 (D-3B6.17): its refusal comes before any leaf read
+        return site_bridge(self._actual.site_inputs(site, month, k), targets)
 
     def portfolio(self, tenant_id: UUID, sites: Sequence[SiteRef], month: str,
                   known_at: datetime | None = None) -> PortfolioBridge:

@@ -356,3 +356,61 @@ EV targets (RC5).
 | Q5 | A price target with no line is taken at the actual | Yes (D-5A.5): no price gap is claimed without a stated price |
 | Q6 | A person re-accepting an unchanged budget becomes its declarer | Not this fortnight (D-5A.14): the declarer is the intake of the latest revision; needs a 3A1 read of intakes that carried a record unchanged |
 | Q7 (owner) | A cost with no budget line (O&M, staff) | Taken at this month's actual, labelled; the headings above it read *Estimated* (D-5A.15). Alternative: no target, which removes the Site's contribution target |
+
+## 11. Fix round F1: price budget lines are read (D-DS4.27; 0.25 unit, Sonnet fix round)
+
+Architect (Claude), 2026-11-21, from DS4's MBQ-1. Branch `task/5a-f1-price-lines` off `main`; one commit; a fresh
+Claude review. Independent of DS4; F1 must merge before the world walkthrough.
+
+**Defect.** §2 rule 4 says "the money dimension". `lines.py` `_classify` tests `factors[factor].money`
+(`Unit.is_money`, exactly `MONEY^1`). Every price line (`tariff` `MONEY/KWH`, `diesel_price` `MONEY/L`) must carry a
+currency, because the canonical `budget_currency` rule refuses it without one. So rule 4 blocks every price line
+`CURRENCY_ON_QUANTITY`. The leaf is then absent `NOT_CALCULATED_YET`, and `necessary_l` (MAIN under `fuel_cost`) is
+unsolvable.
+
+**The class: one predicate.** "This unit needs a currency" is decided in one place:
+- `contracts/assetops_contracts/canonical/units.py`: add `Unit.has_money_dimension` (a property): `any(d == "MONEY"
+  and e != 0 for d, e in self.exponents)`. `is_money` is unchanged.
+- Use it in these places, and these only:
+  - `records_v1.py` `_cross_field` `budget_currency`: replaces its inline `any(...)`. The behaviour is unchanged.
+  - `structure/evaluate.py`: `_money_dimension` is removed and line 202 calls `row.unit.has_money_dimension`. The
+    behaviour is unchanged.
+  - `structure/targets/lines.py` rule 4: `money = factors[factor].unit.has_money_dimension`. This is the fix.
+  - `structure/targets/read.py`: the LEAK_ZERO branch (`row.money` twice) and the MAIN assumption's currency
+    (`reg.row(f).money`).
+  - `structure/targets/rules.py` `solve_main`: `probe_currency`.
+  The last two are latent: no rate leaf is LEAK_ZERO or MAIN today.
+- Keep `Row.money` / `is_money` where they mean exactly money: `money.py` step 4 (one currency over AMOUNT lines) and
+  `check.py` (money homes). Change nothing else.
+
+**Tests (written first; `backend/tests/test_5a_targets.py` and `contracts/tests/`).**
+- F1-1 `_classify` (no database), on lines with `version_ref` `budget-2026-v1`:
+  - `tariff` 0.55 USD, `diesel_price` 1.30 USD, `om` 700.00 USD and `diesel_l` 2300 (no currency) are all used, and
+    `blocked` is empty.
+  - `tariff` 0.55 with no currency is blocked `CURRENCY_MISSING`.
+  - `diesel_l` 2300 USD is blocked `CURRENCY_ON_QUANTITY` (unchanged).
+- F1-2 `TargetRead.site` with a fake line reader holding Kisiwa's October budget: `revenue` 4125.00, `fuel_cost`
+  2990.00, `om` 700.00, `staff` 500.00, `billed_kwh` 7500, `diesel_l` 2300, `tariff` 0.55 and `diesel_price` 1.30, in
+  USD where money-dimensioned.
+  - `tariff` is DECLARED 0.55 USD, source `budget:<revision>`.
+  - `diesel_price` is DECLARED 1.30 USD.
+  - `necessary_l` is ESTIMATED 2300, `MAIN_TEXT`, source `assumption:main-factor:fuel_cost`.
+  - `diesel_l` reads 2300, and its `TargetCheck` agrees.
+  - Literals by hand: 2990.00 / 1.30 = 2300.
+- F1-3 (the class, independent): for every MINI_GRID leaf, a budget record with a currency parses under
+  `parse_record` exactly when `_classify` uses the same line with that currency. The same holds without the currency.
+  The predicate itself: `MONEY/KWH` and `MONEY` true, `L` and `KWH` false, and `is_money` false for `MONEY/KWH`.
+- Regression: the 5a, 5b, 3B3 evaluate, 3B7a snapshot and 2a canonical tests, run isolated (test-suite policy).
+
+**Plants.**
+- FP1: rule 4 back to `.money`. F1-1 and F1-3 fail.
+- FP2: `has_money_dimension` returns `is_money`. F1-1, F1-3 and the canonical tests fail.
+- FP3: rule 4 has no currency check. F1-1's `CURRENCY_MISSING` and `CURRENCY_ON_QUANTITY` cases fail.
+
+**Done.**
+- Does a price budget line become its leaf's DECLARED target with its currency?
+- Does `necessary_l` solve under `fuel_cost`?
+- Does one predicate decide "needs a currency" in canonical, evaluate and 5a?
+- Do FP1 to FP3 each fail once?
+
+After the merge, DS4 empties `C4_KNOWN_FINDINGS` in its next merge of `main` (D-DS4.27).
