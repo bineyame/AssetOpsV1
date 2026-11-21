@@ -228,6 +228,31 @@ def test_s8_the_summary_states_the_day_and_scope_from_its_window(monkeypatch) ->
     assert day["cards"]["OPTIMIZE_COST"]["scope_text"] == S2
 
 
+COLD = SiteRef(T, UUID("00000000-0000-4000-8000-0000000001a3"), "COLD-001", "Cold", "COLD_CHAIN", NAIROBI)
+
+
+def test_s8b_a_period_site_reads_its_latest_issue_over_a_range_and_its_day_over_one_day(monkeypatch) -> None:
+    """Review L1: a PERIOD-basis (cold-chain) Site through `summary()`. Over 7 days the claim is the latest issue
+    (`one_latest`, no day); over one UTC day it is that day's (`one_day`)."""
+    _fake_board(monkeypatch, {"COLD-001": "3.31"})
+    week = _summary([COLD], datetime(2026, 10, 24, tzinfo=UTC), datetime(2026, 10, 31, tzinfo=UTC))
+    assert week["cards"]["OPTIMIZE_COST"]["scope_text"] == "Cost of Cold's latest issue in the 7 days shown, not their total"
+    one = _summary([COLD], datetime(2026, 10, 30, tzinfo=UTC), datetime(2026, 10, 31, tzinfo=UTC))
+    assert one["cards"]["OPTIMIZE_COST"]["scope_text"] == "Cost of Cold's lead issue on 30 October 2026"
+
+
+def test_l2_a_mixed_frame_window_names_no_last_day(monkeypatch) -> None:
+    """Review L2: Nairobi 1 Oct local to 31 Oct UTC has `window_day` 30 Oct but `window_days` ending 31 Oct, so the
+    mini-grid line must not say "30 October, the last of the N days shown"."""
+    from assetops_backend.chain.read import window_days
+    lo, hi = datetime(2026, 9, 30, 21, tzinfo=UTC), datetime(2026, 10, 31, tzinfo=UTC)
+    assert window_day(lo, hi, NAIROBI) != window_days(lo, hi, NAIROBI)[-1]
+    _fake_board(monkeypatch, {"KOBO-001": "3.31"})
+    text = _summary([KOBO], lo, hi)["cards"]["OPTIMIZE_COST"]["scope_text"]
+    assert "30 October" not in text and "the last of" not in text
+    assert text == f"Cost of Kobo's latest issue in the {len(window_days(lo, hi, NAIROBI))} days shown, not their total"
+
+
 def test_s9_coh17_o1_passes_on_the_scoped_summaries(monkeypatch) -> None:
     """D-1A.4, D-1A.10 (R4): COH-17 O1 with its real signature, unchanged, on S8's two summaries and two priced
     Sites."""

@@ -704,7 +704,10 @@ class SiteOutcomeBoardService:
         for site in sites:
             basis, b_day, b_lo, b_hi = self.summary_window(site, lo, hi, known_at)
             wd = window_days(lo, hi, site.timezone)
-            scope_day[site.site_code] = b_day if basis == WINDOW_BASIS_DAY else (wd[0] if len(wd) == 1 else None)
+            # 1a L2: "the last of the N days shown" names `window_day`, so a DAY Site's day is stated only where it is
+            # the last of the days shown; a mixed-frame window (Site-local `lo`, UTC `hi`) names no day instead.
+            scope_day[site.site_code] = (b_day if len(wd) <= 1 or b_day == wd[-1] else None) \
+                if basis == WINDOW_BASIS_DAY else (wd[0] if len(wd) == 1 else None)
             scope_days[site.site_code] = len(wd)
             earnings: dict[str, Any] | None = None
             try:
