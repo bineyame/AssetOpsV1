@@ -1,11 +1,11 @@
 # 0K3: the replay series read from stored readings (implementer spec)
 
-Status: spec rev 1, handshake not started. Architect (Claude), 2026-11-21, on the owner's delegation
+Status: spec rev 2, handshake round 1 answered (`rulings.md` D-0K3.10 to D-0K3.20). Architect (Claude), 2026-11-21, on the owner's delegation
 (`owner/owner-away-architect-decides-2026-11-21.md`). Queued by D-0K2.1 ("reading that series from accepted
-readings ... a queued unit, `0K3` (about 2 units)"). **2 units.** Discovery review (W5): a new mechanism on the
+readings ... a queued unit, `0K3` (about 2 units)"). **2.5 units** (2 at rev 1; D-0K3.20). Discovery review (W5): a new mechanism on the
 evidence seam whose series feed a litre figure that becomes money in `6c`. Non-screen. No migration, no served
 text, no guard change. `USER_REVIEW_REQUIRED: false` (nothing served). Decisions: `rulings.md` (D-0K3.1 to
-D-0K3.9). Reviewer guide: `reviewer-guide.md`. Handshake: `handshake.md`.
+D-0K3.20). Reviewer guide: `reviewer-guide.md`. Handshake: `handshake.md`.
 
 - **What it is.** A producer for 0K2's seam: `SeriesReader.read` turns a Site's accepted readings over whole local
   days into the `ObservedSeries` that `replay_study` takes, or refuses with a code and a subject. It reads only what
@@ -33,11 +33,14 @@ D-0K3.9). Reviewer guide: `reviewer-guide.md`. Handshake: `handshake.md`.
 - **Pre-flight print (packet, first section).** (a) On a `pg_harness` clone with MG-W402-001 installed
   (`test_w402_authored_v4_postgres.install`), for each of the six roles of §2.1 the snapshot's binding (device,
   signal, asset code); ingest one planned row per role (§4 G1's kinds) for 2026-10-12 00:00 to 00:05 local and print
-  each accepted reading's `(role, interval_start is None, unit, source_mode)`. Expected: the three kW roles with an
-  interval and unit `kW`; `battery_soc` `%`, `fuel_level` `L`, `generator_state` `state`, each without an interval;
-  `SIMULATED`. A refusal, or a different shape, is a handshake question. (b) On a clone with DS3's converted Kobo
-  (`test_ds3_bulk_load_postgres.seed_database`), the roles of its current binding set and the Site's zone. Expected:
-  no `pv_available_power`. (c) `find_site_by_id(...).timezone` of both Sites.
+  each accepted reading's `(role, interval_start, interval_end, source_time, unit, source_mode)`, and each bound
+  load's asset code. Expected: the three kW roles with `interval_end == source_time` and unit `kW`; `battery_soc`
+  `%`, `fuel_level` `L`, `generator_state` `state`, each without an interval; `SIMULATED`; loads `load-clinic`,
+  `load-mill`, `load-res` (D-0K3.15); and the last step's PV row ending at the window's end (D-0K3.17). A refusal,
+  or a different shape, is a pre-flight question. (b) On a clone with DS3's converted Kobo
+  (`test_ds3_bulk_load_postgres.seed_database`), the roles of its current binding set, whether K1 holds `pv_power`
+  readings, and the Site's zone. Expected: no `pv_available_power`, `pv_power` bound and no `pv_power` reading.
+  (c) `find_site_by_id(...).timezone` of both Sites (expected `Africa/Nairobi` for both).
 - **Read:** `rulings.md`; 0K2 `spec.md` §2.1 and §2.2; `host/tests/kobo_season.py:150-172` (`observed_series`);
   `analytics/assessment_inputs.py:46-200, 340-361`; `analytics/cohort.py:62-80`; `tools/w402_mini_depth_cases.py:
   61-160, 177-196`; `backend/tests/test_w402_reads_postgres.py:45-95`; `backend/tests/test_ds3_bulk_load_postgres.py:
@@ -62,6 +65,9 @@ value invented, moved or spread? Does it refuse, with its code and subject, a ro
 coarser than the step, a conflict, a unit or value it cannot read, an ambiguous cohort and a mixed input class,
 before any study runs? When 0K2's simulated season is published as readings, does the reader return the season's own
 series, field for field? Does every series say what it is: RECORDED for live readings, SIMULATED for simulated ones?
+Does the study's own window check accept every series the reader makes? (Stated, D-0K3.12: Kobo's harness day is
+refused on its configuration and on its own 15-minute instants; the refusal of a 15-minute mean, UP-1's shape, is
+proven on stored readings at MG-W402-001 only.)
 
 ## 2. Design
 
@@ -84,13 +90,15 @@ UNITS = MappingProxyType({PV: "kW", LOAD: "kW", GEN_POWER: "kW", SOC: "%", FUEL:
 STATES = dispatch_v3.ON_STATES | dispatch_v3.OFF_STATES          # RUNNING, STOPPED, STARTING, FAILED
 INPUT_CLASS_BY_MODE = MappingProxyType({"LIVE": "RECORDED", "SIMULATED": "SIMULATED"})
 DECIMAL = re.compile(r"-?[0-9]{1,15}(\.[0-9]{1,9})?")
-MAX_DAYS = 366
+MAX_DAYS = 92                                                    # D-0K3.14
+INSTANT = "%Y-%m-%dT%H:%M:%SZ"                                   # the study's instant form (D-0K3.10)
 SERIES_ANALYTIC_ID, SERIES_VERSION = "replay-series", "replay-series-1"   # the input set's identity
 QUERY_DOMAIN = "replay-series"                                   # a label: query_evidence does not filter on it
 READER_REFUSALS = frozenset({
     "READER_WINDOW_INVALID", "READER_SITE_UNKNOWN", "READER_ROLE_UNBOUND", "READER_BINDING_CHANGED",
     "READER_ASSET_UNKNOWN", "READER_COHORT", "READER_RESOLUTION", "READER_READINGS_CONFLICT", "READER_UNIT",
     "READER_VALUE", "READER_STATE_UNKNOWN", "READER_INPUT_CLASS", "READER_START_FUEL_UNKNOWN"})
+# One read holds about MAX_DAYS x 288 x (5 + loads) readings plus the bracket (D-0K3.14); no separate count cap.
 
 class SeriesRefused(Exception):
     def __init__(self, code: str, subject: str, detail: str) -> None   # code in READER_REFUSALS, else ValueError
@@ -149,8 +157,10 @@ two builders, nothing else).
 2. **Site.** `site = sites.find_site_by_id(tenant_id, site_id)`; `None`: `READER_SITE_UNKNOWN` subject the site id.
    `zone = site.timezone`; not resolvable by `ZoneInfo`: `READER_WINDOW_INVALID` subject `timezone`. `window =
    local_window(first_local_date, days, zone)`: start `datetime.combine(first_local_date, time(0), ZoneInfo(zone))`,
-   end the same for `first_local_date + timedelta(days=days)`, both to UTC. `asset_codes = {a.id: a.asset_code for a
-   in sites.registrations(tenant_id, site_id).assets}`.
+   end the same for `first_local_date + timedelta(days=days)`, both to UTC. Each local day `d` of the window must
+   last 24 hours (UTC of local midnight of `d + 1` minus that of `d`), else `READER_WINDOW_INVALID` subject
+   `day:<d ISO date>` (D-0K3.18; the study's 288-step rule, D-0K2.7). `asset_codes = {a.id: a.asset_code for a in
+   sites.registrations(tenant_id, site_id).assets}`.
 3. **Query.** `result = evidence.query_evidence(EvidenceQuery(tenant_id, site_id, QUERY_DOMAIN, window,
    knowledge_at, cohort=request.cohort, roles=REPLAY_ROLES))` (one call; the default bracket).
 4. **Bindings.** `bound = bound_assets(result.bindings, asset_codes, window)`, before the cohort (configuration is
@@ -170,8 +180,9 @@ two builders, nothing else).
 
 ### 2.3 `series_from_readings`: placing readings on the grid (exact; D-0K3.2, D-0K3.3)
 
-Let `n = (window.end - window.start) / STEP` (an integer for whole local days of any zone whose offsets are whole
-minutes of 5; otherwise `READER_WINDOW_INVALID` subject `steps`), `t_k = window.start + k × STEP`. Readings are
+Let `n = (window.end - window.start) / STEP` (`288 × days`: §2.2 step 2 has refused any day that is not 24 hours;
+`series_from_readings` called directly with a window that is not a whole number of steps raises
+`READER_WINDOW_INVALID` subject `steps`), `t_k = window.start + k × STEP`. Readings are
 taken in the order `(REPLAY_ROLES.index(role), asset code or "", placed_at, str(evidence_id))`; a reading whose role
 is not in `REPLAY_ROLES` or whose asset is not in `bound[role]` is skipped. The first refusal raises. `iso` is
 `assessment_inputs.iso`; a subject is `<role>@<iso>`, or `feeder_demand:<code>@<iso>` for a load.
@@ -201,10 +212,12 @@ is not in `REPLAY_ROLES` or whose asset is not in `bound[role]` is skipped. The 
    ascending code; `generator_kwh[k] = gen_kw[k] × Fraction(5, 60)` (`None` stays `None`); `generator_state[k]` the
    state text; `soc_pct[k]`; `start_fuel_l` the `FUEL` reading at `t_0`, else `READER_START_FUEL_UNKNOWN` subject
    `fuel_level` (the study needs a start stock; the fuel at any other step is not used). `interval_start =
-   iso(window.start)`, `timestep_minutes = 5`.
+   window.start.strftime(INSTANT)` (never `iso`, which carries microseconds the study refuses; D-0K3.10),
+   `timestep_minutes = 5`.
 7. **Input class.** Over the readings that set a value (GOOD and placed): every `source_mode` in
-   `INPUT_CLASS_BY_MODE` and one class among them, else `READER_INPUT_CLASS` subject `mixed` or the unknown mode;
-   no such reading at all: `READER_COHORT` subject `EMPTY`. `input_class` is that class.
+   `INPUT_CLASS_BY_MODE` and one class among them, else `READER_INPUT_CLASS` subject `mixed` or the unknown mode.
+   `input_class` is that class. (There is always such a reading: step 6 refused unless a GOOD fuel reading at `t_0`
+   set `start_fuel_l`; the cohort's `EMPTY` of §2.2 step 5 is the only empty answer, D-0K3.14.)
 
 The reader validates and places; it never computes a dispatch, a fuel law, an average across steps, a carry-forward
 of a state or a value from another role. Missing values stay `None`: the study treats a day without generator energy,
@@ -240,7 +253,9 @@ state or charge as inadmissible, and the port refuses a PV or load gap as `INPUT
 `backend/tests/test_0k3_replay_series.py` (no database):
 - **B1** R0 through `series_from_readings`: every field equals the literal expected tuples (288 values each; the
   loads ordered `load-clinic`, `load-mill`, `load-res`); `generator_kwh` at step 72 is `Fraction(2)`;
-  `start_fuel_l == Fraction(15000)`; `input_class == "SIMULATED"`; `readings_used == 288 × 7 + 1` (2,017); `off_grid == ()`.
+  `start_fuel_l == Fraction(15000)`; `input_class == "SIMULATED"`; `readings_used == 288 × 7 + 1` (2,017); `off_grid == ()`;
+  `interval_start == "2026-10-11T21:00:00Z"` and `timestep_minutes == 5`; step 287 of PV, each load and
+  `generator_kwh` set (the mean ending at `window.end`, D-0K3.17).
 - **B2** Tiling: step 10's PV as five 1-minute means `"10"`, `"11"`, `"12"`, `"13"`, `"14"` gives `Fraction(12)`; as
   a 2-minute and a 3-minute mean `"10"`, `"15"` gives `Fraction(13)`; with the third minute missing, `None`; with one
   minute `SUSPECT`, `None`; neighbouring steps unchanged.
@@ -251,33 +266,55 @@ state or charge as inadmissible, and the port refuses a PV or load gap as `INPUT
 - **B5** Unit, value, state: PV unit `"W"` → `READER_UNIT`; SOC `"80,0"`, `"1e3"`, a 40-digit value and `None` →
   `READER_VALUE`; state `"IDLE"` → `READER_STATE_UNKNOWN`; the same bad values on a non-GOOD reading refuse nothing
   and leave the step `None`.
-- **B6** Off grid: SOC instants at `t_k + 2 min` for every step and none at `t_k` → `soc_pct` all `None`, `off_grid
-  == (("battery_soc", 288),)`, no refusal.
+- **B6** Off grid, parametrised over the three instant roles (D-0K3.13): SOC instants at `t_k + 2 min` for every
+  step and none at `t_k` → `soc_pct` all `None`, `off_grid == (("battery_soc", 288),)`, no refusal; state the same
+  → `generator_state` all `None`, `(("generator_state", 288),)`; fuel only at `t_0 + 2 min` →
+  `READER_START_FUEL_UNKNOWN` `fuel_level`.
+- **B6b** K1's shape: SOC and state instants only at `t_{3j}` (96 each, values alternating so a carried value would
+  be visible): steps `3j` hold them, steps `3j + 1` and `3j + 2` are `None`, `off_grid == ()`.
 - **B7** Bindings (`bound_assets`): no PV binding → `READER_ROLE_UNBOUND` `pv_available_power`; a second generator
   asset whose binding overlaps the window → `READER_BINDING_CHANGED` `generator_power`; one ending before the window
   is ignored; a load asset with no code → `READER_ASSET_UNKNOWN`.
+- **B7b** (D-0K3.11) R0 with the PV binding's role `pv_power` (asset `pv-inverter`) and its 288 readings as
+  `pv_power`, through `SeriesReader` with a stub evidence source that returns them whatever the query's roles →
+  `READER_ROLE_UNBOUND` `pv_available_power`.
 - **B8** Input class: all `LIVE` → `RECORDED`; one GOOD SIMULATED reading among LIVE → `READER_INPUT_CLASS` `mixed`;
   mode `"REPLAY"` → `READER_INPUT_CLASS` `REPLAY`; a non-GOOD reading of another mode does not count.
-- **B9** Start fuel: no fuel reading at `t_0` (one at `t_1`) → `READER_START_FUEL_UNKNOWN`.
+- **B9** Start fuel: no fuel reading at `t_0` (one at `t_1`) → `READER_START_FUEL_UNKNOWN`; a non-GOOD fuel reading
+  at `t_0` → the same.
 - **B10** The reader with stub ports: the one query carries `REPLAY_ROLES`, the window of R0 and `knowledge_at`;
   step order — an unbound PV with an AMBIGUOUS cohort refuses `READER_ROLE_UNBOUND`; with PV bound, AMBIGUOUS →
-  `READER_COHORT` `AMBIGUOUS`; an unknown site refuses before any query (stub records zero calls); `days` 0, 367,
-  `True`, a `datetime` date, a naive `knowledge_at`, zone `"Mars/Base"` each `READER_WINDOW_INVALID`;
+  `READER_COHORT` `AMBIGUOUS`; an unknown site refuses before any query (stub records zero calls); `days` 0, 93,
+  `True`, a `datetime` date, a naive `knowledge_at`, zone `"Mars/Base"` each `READER_WINDOW_INVALID`; zone
+  `Europe/London` from 2026-10-25 → `READER_WINDOW_INVALID` `day:2026-10-25` with zero queries, and `Asia/Kathmandu`
+  for one day reads (D-0K3.18); the stub's readings go through the real `select_cohort` and `build_input_set`, and
+  step 287 of PV is set (D-0K3.17);
   `input_sha256` equals `build_input_set(...)`'s on the same result; `timezone` is the site's. The module's imports
   are exactly §2.1's set (AST).
-- **B11** Seam: `replay_study(stub_port, run, read.series, StudyFrame("Africa/Addis_Ababa", Fraction(100)))` on the
-  1-day R0 series returns `SAMPLE_TOO_SHORT` with zero port calls (the reader adds no consumer change).
+- **B11** Seam and the study's own checks (D-0K3.10): with `frame = StudyFrame("Africa/Addis_Ababa", Fraction(100))`,
+  `study_days(read.series, frame) == (StudyDay("2026-10-12", 0, 288),)`; every series of the read has 288 values;
+  `replay_study(stub_port, run, read.series, frame)` returns `SAMPLE_TOO_SHORT` (not `STUDY_WINDOW_INVALID`) with
+  zero port calls (the reader adds no consumer change).
 - **B12** No value is made: `replay_series.py` holds no `float(`, `round(`, `interpolat` or `ffill` (source scan), and B2/B6 prove no step takes a value from another step.
 
 `backend/tests/test_0k3_replay_series_postgres.py` (its own clones):
 - **G1** MG-W402-001, fixture G1, `build_series_reader(url).read(SeriesRequest(t, s, date(2026, 10, 12), 1, RECEIVED
   + 1 h))`: the series equals R0's expected values (zone Nairobi, window 2026-10-11T21:00Z); `input_class ==
-  "SIMULATED"`; `timezone == "Africa/Nairobi"`; the cohort holds the G1 sources.
+  "SIMULATED"`; `timezone == "Africa/Nairobi"`; the cohort holds the G1 sources; loads by R0's codes (D-0K3.15);
+  step 287 set; `study_days(series, StudyFrame("Africa/Nairobi", Fraction(100)))` is one 288-step day.
+- **G1b** (D-0K3.11) G1 plus `MEAN` rows of `pv-inverter-controller`/`ac-power` (bound as `pv_power`) at `"9.00"` kW
+  every step → the PV series is still all `Fraction(25, 2)`.
 - **G2** The same Site with one 15-minute PV mean added at 10:00 local → `READER_RESOLUTION`.
 - **G3** `knowledge_at = RECEIVED - 1 h` (after the install, before the decision clock: bindings visible, readings
   not) → `READER_COHORT` `EMPTY`.
-- **G4** DS3's converted Kobo with K1 → `READER_ROLE_UNBOUND` `pv_available_power` (the harness day is read as far
-  as configuration and refused honestly).
+- **G4** DS3's converted Kobo with K1, local day 2026-10-06 → `READER_ROLE_UNBOUND` `pv_available_power` (the
+  harness day is read as far as configuration and refused honestly).
+- **G4a** (D-0K3.11) K1 plus Kobo's own inverter readings: 15-minute `POINT`s of `pv-inverter-controller`/`ac-power`
+  value `"5"`, sealed by `seal_rows` beside K1 → still `READER_ROLE_UNBOUND` `pv_available_power`.
+- **G4b** (D-0K3.12) K1's accepted readings read by the real store with the reader's query for 2026-10-06, then
+  `bound_assets` over Kobo's real bindings plus one test-only `RoleBinding` of `pv_available_power` on Kobo's
+  `pv-inverter` asset, then `series_from_readings` → `READER_RESOLUTION` subject
+  `feeder_demand:load-clinic@2026-10-06T00:00:00.000000Z`, detail "an instant where an interval mean is needed".
 
 `host/tests/test_0k3_series_equivalence.py` (kernel):
 - **T1** S8 through `series_from_readings` equals `observed_series(trajectory, 2304)` field by field (loads compared by
@@ -292,12 +329,14 @@ state or charge as inadmissible, and the port refuses a PV or load gap as `INPUT
 
 | Unit | Content | Commits |
 |---|---|---|
-| 1 (1.0) | §2.1, §2.3, `local_window`, `bound_assets`; B1-B9, B12; the seam-test edit | 1 |
-| 2 (1.0) | §2.2 `SeriesReader`, `build_series_reader`; B10, B11; G1-G4; T1-T2; select-tests set; check-all; packet | 1 to 2 |
+| 1 (1.1) | §2.1, §2.3, `local_window`, `bound_assets`; B1-B9 (B6b, B7b), B12; the seam-test edit | 1 |
+| 2 (1.4) | §2.2 `SeriesReader` (the clock-change refusal), `build_series_reader`; B10, B11; G1-G4 (G1b, G4a, G4b); T1-T2; select-tests set; check-all; packet | 1 to 2 |
 
 Packet `specs/0K3-replay-series-reader/packet.md`: the pre-flight print; G1's series totals (PV, each load,
 generator kWh, starts, min SOC) beside R0's literal ones; T1's field-by-field result; the refusal table (code,
-subject, which test); each plant with the test that failed; what 0K3 waits for (§0 "Why now"); the mid-build count.
+subject, which test); each plant with the test that failed; what 0K3 waits for (§0 "Why now"); the statement of
+D-0K3.12 (where the 15-minute mean refusal is proven, and where not); T1's note of D-0K3.16 (the season's loads are
+requested power published as `feeder_demand`); the host-test invocation (D-0K3.19); the mid-build count.
 
 ## 6. Done (questions; each can fail)
 
@@ -306,10 +345,12 @@ subject, which test); each plant with the test that failed; what 0K3 waits for (
 2. Is each reading placed by its own interval or instant, a 1-minute mean tiling a step averaged exactly, and a
    coarser, crossing or conflicting reading refused with its subject?
 3. Is nothing filled: a gap, a non-GOOD part or an off-grid instant leaves the step `None`, counted where stated?
-4. Are configuration refusals (unbound, changed, unknown asset) given before the cohort, and the cohort's own status
-   named when it is not usable?
+4. Are configuration refusals (unbound, changed, unknown asset, a day that is not 24 hours) given before the cohort,
+   the cohort's own status named when it is not usable, and is inverter output never read as available PV, whether
+   or not `pv_available_power` is bound (B7b, G1b, G4a)?
 5. Does every series carry RECORDED or SIMULATED from the readings' own source mode, refusing a mix?
-6. Does the study take the reader's series unchanged (B11, T2), with no consumer edited?
+6. Does the study take the reader's series unchanged and pass its own window check (B11, G1, T2), with no consumer
+   edited?
 7. Does each plant of `reviewer-guide.md` fail its named test, and is the mid-build count 0?
 
 ## 7. Out of scope
@@ -329,3 +370,5 @@ queue Q3); a sampling-jitter tolerance; a tool mode reading from the store; any 
 | Q4 | Load as requested or delivered power | Delivered (`feeder_demand`, the required role); stated on every read (D-0K3.5) |
 | Q5 | `pv_power` where `pv_available_power` is not bound | Refused: output is not availability (D-0K3.4; row 48, owner to weigh in) |
 | Q6 | Live readings' class | `LIVE` reads as RECORDED; a mix is refused (D-0K3.6) |
+| Q7 | A local day with a clock change | Refused by the reader before the query, `day:<date>` (D-0K3.18) |
+| Q8 | The longest read | 92 days, a stated size; no count cap (D-0K3.14) |
