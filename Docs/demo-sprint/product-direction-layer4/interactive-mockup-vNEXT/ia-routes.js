@@ -121,18 +121,21 @@ function IA_G1_SURFACES() {
   for (const op of Object.keys(OPS)) {
     if (!IA_LANDED.has('IA-1b')) continue;
     out.push({ op, surface: 'the plan', route: 'plan', limit: 1, via: 'any' });
+    /* IA-2a (D-IA.53): each plan tab is 2 from portfolio (plan 1, the tab strip 2) */
+    const plan2 = IA_LANDED.has('IA-2a');
+    if (plan2) [['Left out', 'plan/left-out'], ['Review', 'plan/review'], ['History', 'plan/history']].forEach(([t, r]) => out.push({ op, surface: `plan tab: ${t}`, route: r, limit: 2, via: 'any' }));
     OPS[op].sites.forEach(sk => out.push({ op, surface: `${SK[sk].name} Overview`, route: `site/${sk}`, limit: 2, via: 'any' }));
     OPS[op].sites.forEach(sk => { const r = iaLargestAdverse(sk);
       out.push(r ? { op, surface: `${SK[sk].name} largest driver against target (${r.s.lab})`, route: `site/${sk}#drawer=${r.id}`, limit: 3, via: 'any' }
         : { op, surface: `${SK[sk].name} largest driver against target`, route: null, limit: 3, via: 'any', na: 'no driver against target' }); });
     if (!IA_LANDED.has('IA-1c')) continue;
     /* IA-1c (spec §6): every queue decision (1, via the Overview queue), every waiting decision and the proposed plan (2, via the inbox),
-       every plan item's decision (2) */
+       every plan item's decision (2; from IA-2a 3 and reported only, D-IA.53: plan 1, the closed item 2, the decision 3) */
     const q = d => decById(d).q;
     iaQueueCap(uxMergeRows(ATTN[op]).map(m => m.d), 6).shown.forEach(d => out.push({ op, surface: `queue: ${q(d)}`, route: `decision/${d}`, limit: 1, via: 'queue' }));
     iaDecIds(op, { kind: 'all' }).filter(iaWaiting).forEach(d => out.push({ op, surface: `waiting: ${q(d)}`, route: `decision/${d}`, limit: 2, via: 'inbox' }));
     if (uxPlanState(op).state === 'PROPOSED') out.push({ op, surface: 'the proposed plan', route: 'plan', limit: 2, via: 'inbox' });
-    [...new Set(planCase(op).ids.map(id => DEC_SEE_ALSO[id] || (decOf(id) || {}).id).filter(Boolean))].forEach(d => out.push({ op, surface: `plan item: ${q(d)}`, route: `decision/${d}`, limit: 2, via: 'any' }));
+    [...new Set(planCase(op).ids.map(id => DEC_SEE_ALSO[id] || (decOf(id) || {}).id).filter(Boolean))].forEach(d => out.push(plan2 ? { op, surface: `plan item: ${q(d)}`, route: `decision/${d}`, limit: 3, via: 'any', report: true } : { op, surface: `plan item: ${q(d)}`, route: `decision/${d}`, limit: 2, via: 'any' }));
   }
   return out;
 }

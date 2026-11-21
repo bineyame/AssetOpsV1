@@ -14,7 +14,7 @@ const PLANTS = {
   'IA-1c': [['shape_check', 'SHAPE_PLANT', ['decprimary', 'stickyact', 'anchor', 'sitecrumb', 'decscope']], ['click_depth_check', 'G1_PLANT', ['inbox']], ['count_check', 'COUNT_PLANT', ['foryou', 'nolog']], ['after_render_check', 'AR_PLANT', ['fitlate']]],
   /* spec §5.1.8, D-IA.49 to D-IA.52 */
   'IA-2a': [['plan_shape_check', 'PLAN_PLANT', ['tabs', 'place', 'l1', 'approval', 'thr', 'stepdone', 'cap', 'revised', 'sticky']], ['count_check', 'COUNT_PLANT', ['planstep', 'planhist', 'planver']],
-    ['shape_check', 'SHAPE_PLANT', ['doctitle']], ['click_depth_check', 'G1_PLANT', ['plantabs']], ['plan_switch_check', 'PSW_PLANT', ['crewtile', 'release', 'leftout']],
+    ['shape_check', 'SHAPE_PLANT', ['doctitle']], ['click_depth_check', 'G1_PLANT', ['plantabs']], ['plan_switch_check', 'PS_PLANT', ['crewtile', 'release', 'leftout']],
     ['ux_interaction_check', 'UXI_PLANT', ['planans', 'planwait']], ['copy_check', 'COPY_PLANT', ['plan']]]
 };
 /* the checks of a unit whose output must not say "dormant" once the unit is landed (D-IA.49) */

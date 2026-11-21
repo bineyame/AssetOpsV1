@@ -51,4 +51,7 @@ function liveRoutes(w, op) {
 }
 /* the hrefs a crawl follows: links in #app outside the review bar and the workspace footer */
 function hrefsOf(doc) { return [...doc.querySelectorAll('#app a[href^="#/"]')].filter(a => !a.closest('.reviewbar, [data-ia-footer]')).map(a => a.getAttribute('href')); }
-module.exports = { forced, boot, classifier, identity, liveRoutes, hrefsOf, OPS, sleep, html };
+/* D-IA.49: before 3(a) the plan shape's builders exist only as tools/fixtures/plan_stub.js; load it into a booted window when the window
+   has no shapePlan (the stub renders again itself). Returns true when the stub was loaded. */
+function planStub(w) { if (w.eval('typeof shapePlan') === 'function') return false; w.eval(fs.readFileSync(path.join(root, 'tools', 'fixtures', 'plan_stub.js'), 'utf8')); return true; }
+module.exports = { forced, boot, classifier, identity, liveRoutes, hrefsOf, OPS, sleep, html, planStub };

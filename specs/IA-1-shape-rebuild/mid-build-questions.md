@@ -28,18 +28,20 @@ IA-2's wayfinding pass? Default if unanswered: as built (crumbs hidden where the
 
 Reset to 0 after the IA-2a handshake (spec rev 5, 2026-11-21).
 
-Count: **2** (Q3, Q4). Write each question as Q1, Q2 … (the unit, the section of `spec.md` §5.1, what is stopped, what is built,
+Count: **2** (Q3, Q4), both answered by the coordinator 2026-11-21 (naming only); none open. Write each question as Q1, Q2 … (the unit, the section of `spec.md` §5.1, what is stopped, what is built,
 what you ask). The Architect rules in `rulings-2.md`.
 
-**Q3 (IA-2a unit 2, §5.1.8 `plan_switch_check` row; open).** The spec and D-IA.48/49 name `PSW_PLANT=crewtile|release|leftout`, but
+**Q3 (IA-2a unit 2, §5.1.8 `plan_switch_check` row; answered by the coordinator 2026-11-21, naming only: `PS_PLANT`, the existing name).** The spec and D-IA.48/49 name `PSW_PLANT=crewtile|release|leftout`, but
 `plan_switch_check.cjs` already reads its plants from `PS_PLANT` (one plant, `resid`, line 349; an unknown value exits 2). **Stopped:** the
 three plants and their runner row only. **Built:** the runner row is written as `PSW_PLANT` in `ia_gates.cjs` (uncommitted). **Asked:** add
 the three under the existing `PS_PLANT` (and rename the runner row), or add a second variable `PSW_PLANT`? Default if unanswered: `PS_PLANT`,
 one variable per check, as every other check has.
 
-**Q4 (IA-2a unit 2, D-IA.52 R16; open).** R16 says "`copy_check.cjs` list extended; plant `COPY_PLANT=plan` adds a stray word". `copy_check`
+**Q4 (IA-2a unit 2, D-IA.52 R16; answered by the coordinator 2026-11-21, naming only: a new block in `copy_check.cjs`).** R16 says "`copy_check.cjs` list extended; plant `COPY_PLANT=plan` adds a stray word". `copy_check`
 has no list of allowed strings: it applies regex rules (doubled word, placeholder, …) to `rendered-text.json`, and its only `ALLOW` is two
 regexes (line 20). "Every string on the four routes and not on the reviewed pages is in the §5.1.6 list" needs a new comparison (rendered
 strings of the four routes minus the reviewed plan page and What changed, against the §5.1.6 list). **Stopped:** that assertion and its plant.
 **Asked:** build it as a new block in `copy_check.cjs` (its own jsdom render, independent of `rendered-text.json`), or in
 `plan_shape_check.cjs`? Default if unanswered: a new block in `copy_check.cjs`.
+
+**Numbering (coordinator, 2026-11-21, naming only).** `shape_check` already has items 10 to 13; the spec's "new item 10" (one tab group, distinct document titles) takes the next free number, item 14.

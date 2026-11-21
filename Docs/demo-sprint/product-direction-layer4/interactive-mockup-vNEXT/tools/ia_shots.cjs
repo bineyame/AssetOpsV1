@@ -16,10 +16,21 @@
    measures its Site crumb (shown, inside the width). SHOTS_ONLY=sweep runs only the sweep.
    IA-1c fix round (D-IA.41): the sweep adds 390, 600, 601, 760 and checks at every width: past, reach, trunc, midword, rows (data-fit 0-4 one line, 5 two row bands, 5 below 761), order (data-fit never rises with width), full (0 at 1920), asof (period menu holds the figures' time; 1440 and 390 on #/portfolio).
    Plants (D-IA.41, SHOTS_ONLY=sweep): wrap, phonesearch, midword, asof must fail; longname must pass.
-   Plants: SHOTS_PLANT=fit (no collapse; with SHOTS_ONLY=sweep), truncate (the search box clipped; sweep), crumbs (the keep rule deleted; with SHOTS_ONLY=decision), status (hides the status words), SHOTS_PLANT=headline (narrows the headline to force a third line), SHOTS_PLANT=stack (removes the stacking media rule). */
+   Plants: SHOTS_PLANT=fit (no collapse; with SHOTS_ONLY=sweep), truncate (the search box clipped; sweep), crumbs (the keep rule deleted; with SHOTS_ONLY=decision), status (hides the status words), SHOTS_PLANT=headline (narrows the headline to force a third line), SHOTS_PLANT=stack (removes the stacking media rule).
+   IA-2a (spec §5.1.8 row 7, D-IA.52 R14, D-IA.49): with IA-2a in IA_LANDED or IA_FORCE_LANDED=IA-2a (then each page adds the unit and loads
+   tools/fixtures/plan_stub.js when it has no shapePlan, and renders again), the four plan routes plan, plan/left-out, plan/review, plan/history
+   join the measured set at 1440x900, 1280x720 and 390x844, light and dark, with every measure above (fit, truncate, crumbs clauses), and
+   approvefold: at 1440x900 and 1280x720, at scroll 0 and while the plan is proposed, the band's own Approve (.ux-planband
+   [data-ux-act="approve-plan"], never one inside [data-ux-sticky]) has getBoundingClientRect().bottom <= innerHeight. Shots on plan at 1440
+   and 390 light: the Approve dialog open, after Approve, after Send back; the thresholds drawer at 1440 and 390; Lakeside 6500/No on Left out at
+   1440. SHOTS_ONLY=plan runs only this set; otherwise it prints "IA-2a not landed; dormant". Plant SHOTS_PLANT=approvefold (a 900 px block
+   before the band) must fail.
+*/
 const { chromium } = require(process.env.PW), fs = require('fs');
 const base = 'file://' + process.argv[2], out = process.argv[3]; fs.mkdirSync(out, { recursive: true });
-const PLANT = process.env.SHOTS_PLANT || '', LAST = {}; let SW_ORDER = false;
+const PLANT = process.env.SHOTS_PLANT || '', LAST = {}; let SW_ORDER = false, IA2A_ON = false;
+const path = require('path'), IA2A_FORCED = String(process.env.IA_FORCE_LANDED || '').split(',').map(x => x.trim()).includes('IA-2a');
+const PLAN_STUB = fs.readFileSync(path.join(__dirname, 'fixtures', 'plan_stub.js'), 'utf8');
 const measure = () => { const tb = document.querySelector('.ia-frame .topbar'), kids = tb ? [...tb.querySelectorAll(':scope > *, :scope > .right > *')].filter(e => e.getBoundingClientRect().height > 0) : [];
   const cs = kids.map(e => { const r = e.getBoundingClientRect(); return (r.top + r.bottom) / 2; }), oneLine = Math.max(...cs) - Math.min(...cs) <= 8;
   const fit5 = !!tb && tb.dataset.fit === '5', tall = kids.filter(e => !(fit5 && e.matches('.ux-scope-sw')) && e.getBoundingClientRect().height > 40).map(e => e.className || e.tagName), past = tb ? [...tb.querySelectorAll('*')].filter(e => { const r = e.getBoundingClientRect(); return r.width > 0 && !e.closest('details:not([open]) > :not(summary)') && (r.right > innerWidth + 1 || r.left < -1); }).map(e => e.className || e.tagName) : [];
@@ -48,6 +59,9 @@ const measure = () => { const tb = document.querySelector('.ia-frame .topbar'), 
   const run = async (op, w, h, dark, r, shot, act) => {
     const ctx = await b.newContext({ viewport: { width: w, height: h }, colorScheme: dark ? 'dark' : 'light' }); await ctx.addInitScript(v => { try { sessionStorage.setItem('l4-op', v); } catch (e) {} }, op);
     const p = await ctx.newPage(); await p.goto(`${base}#/${r}`); await p.waitForTimeout(400);
+    if (IA2A_FORCED) await p.evaluate(src => { IA_LANDED.add('IA-2a'); if (typeof shapePlan !== 'function') (0, eval)(src); render(); }, PLAN_STUB);
+    if (act === 'case') { await p.evaluate(() => { for (const [n, v] of [['sw-budget', '6500'], ['sw-loi', 'no']]) { const i = document.querySelector(`input[name="${n}"][value="${v}"]`); i.checked = true; i.dispatchEvent(new Event('change', { bubbles: true })); } location.hash = '#/plan/left-out'; }); await p.waitForTimeout(300); }
+    if (PLANT === 'approvefold') await p.evaluate(() => { const b = document.querySelector('[data-shape="plan"] .ux-planband'); if (b) b.insertAdjacentHTML('beforebegin', '<div data-plant="approvefold" style="height:900px"></div>'); });
     if (PLANT === 'status') await p.addStyleTag({ content: '.ia-rail-status{display:none!important}' });
     if (PLANT === 'fit') await p.evaluate(() => { iaFitTopbar = () => {}; render(); });
     if (PLANT === 'truncate') await p.addStyleTag({ content: '.ia-frame .topbar .searchbox{max-width:140px;overflow:hidden}.ia-frame .topbar .ia-search-t{overflow:hidden;text-overflow:ellipsis}' });
@@ -61,9 +75,18 @@ const measure = () => { const tb = document.querySelector('.ia-frame .topbar'), 
     if (PLANT === 'headline') await p.addStyleTag({ content: '.ux-headline{max-width:220px!important}' });
     if (PLANT === 'stack') await p.evaluate(() => { for (const sh of document.styleSheets) for (let i = sh.cssRules.length - 1; i >= 0; i--) { const r = sh.cssRules[i]; if (r.type === CSSRule.MEDIA_RULE && /max-width:\s*760px/.test(r.conditionText) && /table\.ux-stack/.test(r.cssText)) sh.deleteRule(i); } });
     if (act === 'inbox') { await p.click('[data-ia-inbox]'); await p.waitForTimeout(350); }
+    const fold = r.startsWith('plan') && !act && (w === 1440 || w === 1280) ? await p.evaluate(() => { const a = [...document.querySelectorAll('[data-shape="plan"] .ux-planband [data-ux-act="approve-plan"]')].find(e => !e.closest('[data-ux-sticky]'));
+      return a ? { b: Math.round(a.getBoundingClientRect().bottom), h: innerHeight, y: scrollY } : null; }) : null;
+    if (['dialog', 'approved', 'sentback'].includes(act)) { await p.click('[data-shape="plan"] .ux-planband [data-ux-act="' + (act === 'sentback' ? 'send-back' : 'approve-plan') + '"]'); await p.waitForTimeout(300);
+      if (act === 'sentback') await p.evaluate(() => { const t = document.getElementById('ux-sb-reason'), s = document.getElementById('ux-sb-way'); t.value = 'The crew cannot do both visits'; s.value = [...s.options].find(o => o.value).value; for (const e of [t, s]) for (const k of ['input', 'change']) e.dispatchEvent(new Event(k, { bubbles: true })); });
+      if (act !== 'dialog') { await p.click('#uxact [data-ux-act-go]'); await p.waitForTimeout(400); } }
+    if (act === 'thresholds') { await p.click('[data-shape="plan"] button[data-ux-drawer="ia-plan-thresholds"]'); await p.waitForTimeout(350); }
     const m = await p.evaluate(measure), why = [];
     if (act === 'inbox') { const ib = await p.evaluate(() => { const d = document.getElementById('ia-inbox'), r = d && d.querySelector('.ux-drawer-panel').getBoundingClientRect(); return { open: !!d && d.dataset.open === 'true', fits: !!r && r.left >= -1 && r.right <= innerWidth + 1, rows: d ? d.querySelectorAll('a[data-ia-row]').length : 0 }; });
       if (!ib.open) why.push('the inbox did not open'); if (!ib.fits) why.push('the inbox panel runs past the window'); m.inboxRows = ib.rows; }
+    if (r.startsWith('plan') && !act && (w === 1440 || w === 1280) && IA2A_ON) { if (!fold) why.push('no band Approve measured (approvefold)'); else if (fold.b > fold.h || fold.y) why.push(`the band's Approve ends at ${fold.b} past the first viewport ${fold.h} (approvefold)`); else m.fold = fold.b; }
+    if (act === 'thresholds' && !(await p.evaluate(() => (document.getElementById('ia-plan-thresholds') || {}).dataset?.open === 'true'))) why.push('the thresholds drawer did not open');
+    if (act === 'approved' && !(await p.evaluate(() => /approved/i.test((document.querySelector('.ux-toast') || {}).textContent || '')))) why.push('no approval toast');
     if (!m.frame) why.push('no frame'); if (m.hscroll) why.push('sideways scroll'); if (m.tall.length) why.push(`tall top-bar item ${m.tall[0]}`); if (m.past.length) why.push(`top bar runs past the window (${m.past[0]})`);
     if (m.reach.length && !act) why.push(`${m.reach[0]} (reach)`); if (m.trunc.length) why.push(`truncated control (${m.trunc[0]})`); if (m.mw) why.push(`the scope label breaks inside a word or ends in an ellipsis (${m.mw}) (midword)`);
     if (w < 761 && m.fit !== '5') why.push(`data-fit ${m.fit}, not 5 below 761 (rows)`);
@@ -79,12 +102,19 @@ const measure = () => { const tb = document.querySelector('.ia-frame .topbar'), 
     if (w <= 760 && m.stackBad.length) why.push(`stacked table does not fit: ${m.stackBad[0]}`); if (w === 390 && r === 'portfolio/outcomes' && !m.stackN) why.push('no table.ux-stack measured on Outcomes');
     if (!why.length) {} else bad++;
     if (shot) await p.screenshot({ path: `${out}/${op}-${r === 'x-unknown' ? 'not-found' : r.replace(/\//g, '-')}${act ? `-${act}` : ''}-${w}-${dark ? 'dark' : 'light'}.png`, fullPage: false });
-    lines.push(`${why.length ? 'BAD' : 'ok '} ${op} #/${r}${act ? ` (${act} open, ${m.inboxRows} rows)` : ''} ${w}x${h} ${dark ? 'dark' : 'light'}: top bar one line ${m.oneLine} (${m.kids} items), rail ${m.rail ? `${m.un.length} unavailable items measured` : 'hidden'}${m.hlLines !== null ? `, headline ${m.hlLines} line(s)` : ''}${why.length ? ' · ' + why.join('; ') : ''}`); await ctx.close(); };
+    lines.push(`${why.length ? 'BAD' : 'ok '} ${op} #/${r}${act ? ` (${act}${act === 'inbox' ? ` open, ${m.inboxRows} rows` : ''})` : ''}${m.fold ? ` band Approve bottom ${m.fold}` : ''} ${w}x${h} ${dark ? 'dark' : 'light'}: top bar one line ${m.oneLine} (${m.kids} items), rail ${m.rail ? `${m.un.length} unavailable items measured` : 'hidden'}${m.hlLines !== null ? `, headline ${m.hlLines} line(s)` : ''}${why.length ? ' · ' + why.join('; ') : ''}`); await ctx.close(); };
   const SITES = { lakeside: ['kobo', 'kisiwa', 'mto'], harvest: ['mwea', 'thika', 'kirinyaga'], metro: ['embakasi', 'kasarani', 'ruiru'] };
   const ONLY = process.env.SHOTS_ONLY; /* optional: run only the hub routes (IA-1b's set), or only the decisions and the inbox (IA-1c's) */
   /* IA-1c: every decision of each operator, and the inbox open */
   const DECS = await (async () => { const ctx = await b.newContext(), p = await ctx.newPage(); await p.goto(`${base}#/plan`); await p.waitForTimeout(300);
     const x = await p.evaluate(() => Object.fromEntries(Object.keys(OPS).map(op => [op, DEC.filter(d => OPS[op].sites.includes(d.site)).map(d => d.id)]))); const L = await p.evaluate(() => Object.fromEntries(Object.keys(OPS).map(op => [op, DEC.filter(d => OPS[op].sites.includes(d.site)).sort((a, b) => SK[b.site].name.length - SK[a.site].name.length)[0].id]))); await ctx.close(); x.longest = L; return x; })();
+  /* IA-2a: the four plan routes (landed, or forced) */
+  { const ctx = await b.newContext(), p = await ctx.newPage(); await p.goto(`${base}#/plan`); await p.waitForTimeout(300); IA2A_ON = IA2A_FORCED || await p.evaluate(() => IA_LANDED.has('IA-2a')); await ctx.close(); }
+  if (!IA2A_ON) { lines.push('IA-2a not landed; dormant'); if (ONLY === 'plan') { await b.close(); console.log(lines.join('\n')); process.exit(0); } }
+  else if (!ONLY || ONLY === 'plan') { for (const op of Object.keys(SITES)) for (const [w, h] of [[1440, 900], [1280, 720], [390, 844]]) for (const dark of [false, true]) for (const r of ['plan', 'plan/left-out', 'plan/review', 'plan/history']) await run(op, w, h, dark, r, !PLANT);
+    if (!PLANT) { for (const op of Object.keys(SITES)) for (const [w, h] of [[1440, 900], [390, 844]]) { for (const a of ['dialog', 'approved', 'sentback', 'thresholds']) await run(op, w, h, false, 'plan', true, a); }
+      await run('lakeside', 1440, 900, false, 'plan', true, 'case'); }
+    if (ONLY === 'plan') { await b.close(); console.log(lines.join('\n')); console.log(`shots: ${lines.length} measured, ${bad} bad`); process.exit(bad ? 1 : 0); } }
   if (ONLY !== 'hub') for (const op of Object.keys(SITES)) for (const [w, h] of [[1440, 900], [1280, 720], [390, 844]]) for (const dark of [false, true]) {
     for (const d of DECS[op]) if (ONLY !== 'sweep') await run(op, w, h, dark, `decision/${d}`, !PLANT);
     if (ONLY !== 'sweep') await run(op, w, h, dark, 'portfolio', !PLANT, 'inbox'); }

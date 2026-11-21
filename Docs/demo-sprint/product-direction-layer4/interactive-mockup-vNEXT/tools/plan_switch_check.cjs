@@ -36,7 +36,41 @@ function boot(op, hash) {
 const ok = (cond, what) => { (cond ? log : fails).push(what); };
 const pick = (w, name, val) => { const el = w.document.querySelector(`input[name="${name}"][value="${val}"]`); el.checked = true; el.dispatchEvent(new w.Event('change', { bubbles: true })); };
 const T = { lakeside: 'lakeside-power', harvest: 'harvest-cold', metro: 'metro-bus' };
-const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+/* IA-2a 3(b) (spec §5.1.8 row 5, D-IA.45): when IA-2a is landed or forced (IA_FORCE_LANDED=IA-2a, D-IA.49) the switch-case
+   blocks read the plan shape: the budget from L1's spend tile, one crew tile per month with a stated limit, the release line
+   from L1, the Actions from plan and plan/left-out (the returned Actions on Left out). Otherwise today's page, as before.
+   PS_PLANT (the existing variable): resid (below), and for IA-2a crewtile (the last month's crew tile dropped), release (L1
+   shows the default case's release line), leftout (no returned Actions on Left out). */
+const PS_PLANT = process.env.PS_PLANT || '';
+const PS_IA_PLANTS = {
+  crewtile: `{ const _c = iaCrewTiles; iaCrewTiles = (op, P) => { const t = document.createElement('template'); t.innerHTML = _c(op, P); const k = t.content.querySelectorAll('.ux-kpi'); if (k.length) k[k.length - 1].remove(); return t.innerHTML; }; }`,
+  release: `{ let r0; const _p = planParts; planParts = op => { const p = _p(op); if (r0 === undefined) r0 = p.ap.releases; return { ...p, ap: { ...p.ap, releases: r0 } }; }; }`,
+  leftout: `{ const _p = planParts; planParts = op => ({ ..._p(op), returned: '' }); }`
+};
+if (PS_PLANT && PS_PLANT !== 'resid' && !PS_IA_PLANTS[PS_PLANT]) { console.error(`plan_switch_check: unknown plant ${PS_PLANT}`); process.exit(2); }
+const IA_FORCED = String(process.env.IA_FORCE_LANDED || '').split(',').map(x => x.trim()).includes('IA-2a');
+let IA_MODE = null; /* set on the first plan boot: true when IA-2a is landed or forced */
+function iaPlan(w) { /* the one "landed or forced, stub if needed, plant" step for a plan boot; returns whether the IA path runs */
+  const landed = w.eval(`IA_LANDED.has('IA-2a')`);
+  if (!landed && !IA_FORCED) return false;
+  if (!landed) w.eval(`IA_LANDED.add('IA-2a')`);
+  if (w.eval('typeof shapePlan') !== 'function') w.eval(fs.readFileSync(path.join(__dirname, 'fixtures', 'plan_stub.js'), 'utf8'));
+  if (PS_IA_PLANTS[PS_PLANT]) w.eval(PS_IA_PLANTS[PS_PLANT]);
+  w.eval('render()'); return true;
+}
+const goSync = (w, h) => { w.location.hash = '#/' + h; w.eval('render()'); };
+const snap = d => (d.querySelector('#ia-root') || d.querySelector('#app') || d.body).cloneNode(true);
+const union = (w, roots) => ({ defaultView: w, querySelectorAll: sel => roots.flatMap(r => [...r.querySelectorAll(sel)]) });
+/* the band: the first tile is the spend tile with the budget meter; the tiles between it and the value tile are the crew tiles */
+function iaBandCheck(op, d, c, budget, label) {
+  const ks = [...d.querySelectorAll('[data-level="L1"] .ux-planband .ux-kpi')], sp = ks[0], v = squash(sp?.querySelector('.ux-kpi-v')?.textContent), bar = sp?.querySelector('.ux-meterbar')?.getAttribute('aria-label') || '';
+  ok(v.startsWith(usd(c.spend)) && bar.startsWith(`${usd(c.spend)} of ${usd(budget)}`), `${label}: L1 spend tile ${v.slice(0, 40)} starts ${usd(c.spend)}, its meter "${bar}" is ${usd(c.spend)} of ${usd(budget)}`);
+  const crew = ks.slice(1, -1), ex = expectedCrew(op, c);
+  ok(crew.length === ex.length, `${label}: L1 ${ex.length} crew tile${ex.length === 1 ? '' : 's'} (one per month with a stated limit), found ${crew.length}`);
+  ex.forEach((x, i) => { const t = crew[i], bs = t ? t.querySelectorAll('.ux-meterbar') : [], tv = squash(t?.querySelector('.ux-kpi-v')?.textContent), lb = bs[0]?.getAttribute('aria-label') || '';
+    ok(!!t && bs.length === 1 && tv.includes(`${x.used} of ${x.lim}`) && lb.includes(`${x.used} of ${x.lim}`) && (ex.length === 1 || (squash(t.textContent).includes(x.month) && lb.includes(x.month))), `${label}: L1 ${x.month} crew tile ${x.used} of ${x.lim}, one meter (${tv}; "${lb}")`); });
+}
+const MON =['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const MONTH = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const fdate = iso => { const [, m, d] = iso.slice(0, 10).split('-').map(Number); return `${d} ${MON[m - 1]}`; };
 const hhmm = iso => /T\d{2}:\d{2}/.test(iso || '') ? iso.slice(11, 16) : null;
@@ -76,24 +110,24 @@ function itemsCheck(op, d, c, label) {
   }
   ok(d.querySelectorAll('.plan-item').length === c.items.length + proOf(op).length, `${label}: ${c.items.length} case items plus ${proOf(op).length} declared`);
 }
-function approvalCheck(op, d, label) {
+function approvalCheck(op, d, label, sel = '.approval .approval-releases') {
   /* review r4 M4: the approval covers the case on screen (a different case is approved as the next version), so its items are the ones shown */
   const wf = wfOf(op), v1 = [...d.querySelectorAll('.plan-item')].map(e => e.dataset.item);
   /* an option the case adds has no item record yet: it waits when it is above either threshold (the release rule) */
   const have = new Set((wf.items || []).map(i => i.item)), extra = v1.filter(id => !have.has(id)).map(id => { const x = DV.options[id] || {}; return { item: id, kind: 'OPTION', item_state: (x.operator_one_off || 0) > wf.spend_threshold || (x.crew_visits || 0) > wf.crew_visit_threshold ? 'CHOSEN' : 'RELEASED' }; });
   const waiting = [...(wf.items || []), ...extra].filter(i => v1.includes(i.item) && i.item_state === 'CHOSEN'), spend = waiting.reduce((s, i) => s + itemSpend(op, i), 0);
   const capital = waiting.filter(i => i.capital), capSpend = capital.reduce((s, i) => s + itemSpend(op, i), 0);
-  const tx = squash(d.querySelector('.approval .approval-releases')?.textContent);
+  const tx = squash(d.querySelector(sel)?.textContent);
   ok(tx.includes(`${waiting.length} item${waiting.length === 1 ? '' : 's'}, ${usd(spend)} of one-off spend`), `${label}: approval releases ${waiting.length} items, ${usd(spend)} (${tx.slice(0, 90)})`);
   ok(!capital.length || tx.includes(`including ${usd(capSpend)} of capital`), `${label}: approval counts ${usd(capSpend)} of capital`);
 }
-function actionsCheck(op, d, caseItems, label) {
+function actionsCheck(op, d, caseItems, label, ret) { /* ret (IA-2a): where the returned Actions must be (Left out); default d */
   const wf = MAN.demo_workflow.tenants.find(t => t.tenant === T[op]), v1 = DV.plans[T[op]].default.items;
-  const text = [...d.querySelectorAll('.action-list li')].map(li => li.textContent.replace(/\s+/g, ' '));
+  const texts = x => [...x.querySelectorAll('.action-list li')].map(li => li.textContent.replace(/\s+/g, ' ')), text = texts(d), rtext = ret ? texts(ret) : text;
   for (const a of wf.actions) {
     const shown = d.defaultView.plainText ? d.defaultView.plainText(a.action) : a.action, li = text.find(t => t.includes(shown)); /* the screen shows asset codes as plain names */
     if (!v1.includes(a.item)) { ok(!li, `${label}: ${a.item} not in version 1, not listed`); continue; }
-    if (!caseItems.includes(a.item)) { ok(li && li.includes('Returned') && li.includes('To its creator'), `${label}: ${a.action.slice(0, 30)} Returned to its creator`); continue; }
+    if (!caseItems.includes(a.item)) { const li = rtext.find(t => t.includes(shown)); ok(li && li.includes('Returned') && li.includes('To its creator'), `${label}: ${a.action.slice(0, 30)} Returned to its creator`); continue; }
     ok(li && li.includes(a.release === 'AT_CREATION' ? 'Released' : 'Waiting'), `${label}: ${a.action.slice(0, 30)} ${a.release}`);
   }
   // rev 16.12 (design §2.5, Figure 6d): an Action's release shows only Waiting, Released, Returned or Withdrawn; deferral is an event
@@ -101,26 +135,36 @@ function actionsCheck(op, d, caseItems, label) {
   { const n = d.querySelectorAll('.action-list .state .status-pill').length; ok(n > 0, `${label}: ${n} release states shown`); }
 }
 // Lakeside: the four switch cases
-{ const dom = boot('lakeside', 'plan'), w = dom.window, d = w.document;
+/* IA path: the case is picked on Items; Items and Left out are read under it (Actions from both, the returned ones on Left out) */
+function iaCase(op, w, d, c, budget, label) {
+  iaBandCheck(op, d, c, budget, label); approvalCheck(op, d, `${label} L1`, '[data-level="L1"] .approval-releases');
+  const items = snap(d); goSync(w, 'plan/left-out'); const left = snap(d);
+  ok(!!left.querySelector('[data-level="L1"] .approval-releases') && squash(left.querySelector('[data-level="L1"] .approval-releases').textContent) === squash(items.querySelector('[data-level="L1"] .approval-releases')?.textContent), `${label}: Left out's L1 release line equals Items' under the same case`);
+  actionsCheck(op, union(w, [items, left]), c.items, label, union(w, [left])); goSync(w, 'plan');
+}
+{ const dom = boot('lakeside', 'plan'), w = dom.window, d = w.document, ia = IA_MODE = iaPlan(w);
   for (const [k, c] of Object.entries(DV.plans['lakeside-power'].switch_cases)) {
     const [b, l] = k.split('/'); pick(w, 'sw-budget', b); pick(w, 'sw-loi', l === 'True' ? 'yes' : 'no');
     const meter = d.querySelector('.approval .meterhead strong')?.textContent, total = d.querySelector('.total strong')?.textContent;
-    ok(meter && meter.startsWith(usd(c.spend)), `lakeside ${k}: budget meter ${meter} starts ${usd(c.spend)}`);
+    if (!ia) ok(meter && meter.startsWith(usd(c.spend)), `lakeside ${k}: budget meter ${meter} starts ${usd(c.spend)}`);
     ok(total && [usd(c.value), usd(Math.round(c.value))].some(v => total.startsWith((c.value < 0 ? '−' : '+') + v)), `lakeside ${k}: value ${total}`); /* UI/UX guide U3: whole dollars at the plan total */
-    actionsCheck('lakeside', d, c.items, `lakeside ${k}`);
-    itemsCheck('lakeside', d, c, `lakeside ${k}`); metersCheck('lakeside', d.querySelector('.approval'), c, `lakeside ${k} approval`); approvalCheck('lakeside', d, `lakeside ${k}`);
+    itemsCheck('lakeside', d, c, `lakeside ${k}`);
+    if (ia) iaCase('lakeside', w, d, c, +b, `lakeside ${k}`);
+    else { actionsCheck('lakeside', d, c.items, `lakeside ${k}`); metersCheck('lakeside', d.querySelector('.approval'), c, `lakeside ${k} approval`); approvalCheck('lakeside', d, `lakeside ${k}`); }
   }
   w.close(); }
 for (const [op, sw] of [['harvest', 'sw-agg'], ['metro', 'sw-tou']]) {
-  const dom = boot(op, 'plan'), w = dom.window, d = w.document;
+  const dom = boot(op, 'plan'), w = dom.window, d = w.document, ia = iaPlan(w);
   for (const [v, key] of [['yes', 'True'], ['no', 'False']]) {
     pick(w, sw, v); const c = DV.plans[T[op]].switch_cases[key];
     const meter = d.querySelector('.approval .meterhead strong')?.textContent;
-    ok(meter && meter.startsWith(usd(c.spend)), `${op} ${v}: budget meter ${meter} starts ${usd(c.spend)}`);
-    actionsCheck(op, d, c.items, `${op} ${v}`);
-    itemsCheck(op, d, c, `${op} ${v}`); metersCheck(op, d.querySelector('.approval'), c, `${op} ${v} approval`); approvalCheck(op, d, `${op} ${v}`);
+    if (!ia) ok(meter && meter.startsWith(usd(c.spend)), `${op} ${v}: budget meter ${meter} starts ${usd(c.spend)}`);
+    itemsCheck(op, d, c, `${op} ${v}`);
+    if (ia) iaCase(op, w, d, c, consOf(op).budget_usd_nov_dec, `${op} ${v}`);
+    else { actionsCheck(op, d, c.items, `${op} ${v}`); metersCheck(op, d.querySelector('.approval'), c, `${op} ${v} approval`); approvalCheck(op, d, `${op} ${v}`); }
   }
   w.close(); }
+if (!IA_MODE) console.log('IA-2a not landed; dormant');
 // Decision pages: who chooses is the item's stated chooser (items[].chosen_by), reached from each item card's decision link
 for (const op of ['lakeside', 'harvest', 'metro']) {
   const dom = boot(op, 'plan'), d = dom.window.document;
@@ -346,8 +390,6 @@ for (const op of ['lakeside', 'harvest', 'metro']) { const dom = boot(op, 'portf
 /* D-IA.35 L1: read on a live route. Ruiru's Site page (#/site/ruiru), the "What is driving the gap" summary answer holds "{residual} not attributed yet",
    the residual computed here as before (the Site's gap, which no bridge explains); the other operators' Site pages never say it.
    PS_PLANT=resid: in the page, uxSiteBoard strips "; ... not attributed yet" from its answer; the check must fail. */
-const PS_PLANT = process.env.PS_PLANT || '';
-if (PS_PLANT && PS_PLANT !== 'resid') { console.error(`plan_switch_check: unknown plant ${PS_PLANT}`); process.exit(2); }
 for (const op of ['lakeside', 'harvest', 'metro']) { const has = !!HC.residuals?.[VK[op]];
   for (const [i, sk] of SITES[op].entries()) { if (has && sk !== 'ruiru') continue; /* the data's residual belongs to Ruiru alone */
     const dom = boot(op, `site/${sk}`), w = dom.window; if (PS_PLANT === 'resid') w.eval(`{ const _b = uxSiteBoard; uxSiteBoard = sk => { const r = _b(sk); return { ...r, answer: r.answer.replace(/; [^;]*not attributed yet/, '') }; }; } render()`);
@@ -363,6 +405,6 @@ for (const op of ['lakeside', 'harvest', 'metro']) { const man = (() => { const 
     const dom = boot(op, sc.id), d = dom.window.document; n++; const av = squash(d.querySelector('.topbar .avatar')?.textContent), tx = d.body.textContent;
     if (/\bBY\b|Yohannes/.test(tx) || av === 'BY') bad.push(sc.id); if (d.querySelector('.topbar') && !(sc.id.startsWith('portfolio') ? av === exec[0] : ['A', 'E', 'D'].includes(av))) wrong++; dom.window.close(); }
   ok(n >= 5 && !bad.length && !wrong, `${op}: ${n} screens, no "BY" or "Yohannes", avatar is an executive's initial (portfolio screens: ${exec[0]}, ${exec}) (bad: ${bad.slice(0, 5).join(', ') || 'none'}; wrong avatar ${wrong})`); }
-console.log(`plan_switch_check: ${log.length} passed, ${fails.length} failed, script errors ${errors.length}`);
+console.log(`plan_switch_check: ${log.length} passed, ${fails.length} failed, script errors ${errors.length}${fails.length || errors.length ? ' FAIL' : ''}`);
 if (fails.length) console.log(fails.join('\n')); if (errors.length) console.log(errors.slice(0, 5).join('\n'));
 if (fails.length || errors.length) process.exitCode = 1;

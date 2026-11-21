@@ -19,6 +19,18 @@ const PLAN_LAYOUT = () => { const bad = [], inter = (a, b) => Math.min(a.right, 
         const box = (s.closest('.panel, .ux-items') || s).getBoundingClientRect(), last = rc.filter(r => r.width > 0).pop(); if (last && last.right > box.right + 1) bad.push(`${s.parentElement.dataset.row}: last cell ends at ${Math.round(last.right)}, past its card at ${Math.round(box.right)}`); });
       return { rows, card, bad: [...new Set(bad)].slice(0, 3) }; };
 let TEXT_OK = null; /* D-IA.35 L2: the text form of an unbuilt decision link counts only until IA-1c lands; expiry forces landed */
+/* IA-2a (spec §5.1.8 row 6, D-IA.48, D-IA.49): IA_FORCE_LANDED=<unit>[,…] adds the units to IA_LANDED on every page after load and renders
+   again (prep, after every goto and reload). With IA-2a landed or forced, the plan block reads the plan shape: at least 2 answer-titled
+   sections on plan (was 4: Left out, Listed beside and the review moved to their tabs), plan/left-out with at least 2 answer-titled sections,
+   each answered; the M1 "every page agrees after Approve" routes gain plan/left-out, plan/review and plan/history; on each tab, after scrolling
+   to the end, the sticky bar carries Approve or, on a tab too short to scroll the band away, the band's Approve stays in view. Otherwise
+   it prints "IA-2a not landed; dormant". Plants UXI_PLANT=planans (Left out's answers emptied), planwait (History's sub says "awaiting
+   approval" after Approve); each must fail. */
+const FORCED = String(process.env.IA_FORCE_LANDED || '').split(',').map(x => x.trim()).filter(Boolean);
+const prep = async p => { await p.evaluate(([u, plant]) => { u.forEach(x => IA_LANDED.add(x));
+  if (plant === 'planans' && typeof shapePlan === 'function') { const _s = shapePlan; shapePlan = (ctx, tab) => { const h = _s(ctx, tab); if (tab !== 'left-out') return h; const t = document.createElement('template'); t.innerHTML = h; t.content.querySelectorAll('.ux-ans').forEach(e => { e.textContent = ''; }); return t.innerHTML; }; }
+  if (plant === 'planwait' && typeof iaPlanHistory === 'function') { const _h = iaPlanHistory; iaPlanHistory = op => _h(op).replace(/(Version [\d,]+, )approved/, '$1awaiting approval'); }
+  if (u.length || plant === 'planans' || plant === 'planwait') render(); }, [FORCED, process.env.UXI_PLANT || '']); };
 const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=anchor: (D-IA.36) iaInPage returns false, the in-page link lands on not-found; UXI_PLANT=container: the item list's container query removed; the layout gate must fail at 1440 and 1280 */
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.CHROME });
@@ -37,7 +49,7 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=anchor: (D-IA.36) iaInPa
     /* review Site M3: sideways overflow is any visible element in the canvas past the viewport outside its own scrolling frame;
        the page never scrolls sideways (.workspace clips), so the page's scrollWidth alone cannot fail */
     await ctx.addInitScript(() => { window.__ovf = () => { const out = []; for (const e of document.querySelectorAll('#app .canvas *')) { const a = e.getBoundingClientRect(); if (a.width <= 1 || a.height <= 1 || (a.right <= innerWidth + 1 && a.left >= -1)) continue; if (e.closest('.ux-drawer:not([data-open="true"]), [hidden], .vh')) continue;
-      let sc = false; for (let x = e.parentElement; x && !sc && !x.matches('.canvas'); x = x.parentElement) { const ov = getComputedStyle(x).overflowX; sc = ov === 'auto' || ov === 'scroll'; } if (!sc) out.push(`${e.tagName.toLowerCase()}.${String(e.className).split(' ')[0]} ${Math.round(a.left)}..${Math.round(a.right)}`); } return out.length ? out.slice(0, 3).join('; ') : false; }; }); const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message)); await p.goto(base + (o.q || '') + '#/' + hash); await p.waitForTimeout(500); p._errs = errs; if (TEXT_OK === null) TEXT_OK = PLANT === 'expiry' ? false : !(await p.evaluate(() => IA_LANDED.has('IA-1c'))); await p.evaluate(v => { window.__tx = v; }, TEXT_OK); return p; };
+      let sc = false; for (let x = e.parentElement; x && !sc && !x.matches('.canvas'); x = x.parentElement) { const ov = getComputedStyle(x).overflowX; sc = ov === 'auto' || ov === 'scroll'; } if (!sc) out.push(`${e.tagName.toLowerCase()}.${String(e.className).split(' ')[0]} ${Math.round(a.left)}..${Math.round(a.right)}`); } return out.length ? out.slice(0, 3).join('; ') : false; }; }); const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message)); await p.goto(base + (o.q || '') + '#/' + hash); await p.waitForTimeout(500); await prep(p); await p.waitForTimeout(100); p._errs = errs; if (TEXT_OK === null) TEXT_OK = PLANT === 'expiry' ? false : !(await p.evaluate(() => IA_LANDED.has('IA-1c'))); await p.evaluate(v => { window.__tx = v; }, TEXT_OK); return p; };
   if (PLANT === 'container') { for (const op of ['lakeside', 'harvest', 'metro']) for (const [w, h] of [[1440, 900], [1280, 720]]) { const p = await page('plan', { op, w, h });
       await p.evaluate(() => { for (const sh of document.styleSheets) for (let i = sh.cssRules.length - 1; i >= 0; i--) { const r = sh.cssRules[i]; if (r.constructor.name === 'CSSContainerRule' && r.containerName === 'uxitems') sh.deleteRule(i); } }); await p.waitForTimeout(150);
       const lay = await p.evaluate(PLAN_LAYOUT); ok(lay.rows > 0 && !lay.bad.length, `plant container: ${op} plan at ${w}: ${lay.rows} rows${lay.bad.length ? `, ${lay.bad.join('; ')}` : ''}`); await p.context().close(); }
@@ -550,8 +562,18 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=anchor: (D-IA.36) iaInPa
      M4 the dialog follows the case on screen; M7 focus is never on the page body after an action or an Undo; L2 dialog copy; L3 the vertical's word;
      L4 no phrase said twice in a row; L5 the phone bar does not truncate its pill; L7 a focus walk under the plan's sticky bar */
   const WAIT = /awaiting approval|awaiting [^.]{0,40}approval|waiting for (?:the plan’s )?approval|Chosen · awaiting|Chosen · the plan was sent back/i;
+  let IA2 = null; const TABS2 = ['plan/left-out', 'plan/review', 'plan/history'];
   for (const op of ['lakeside', 'harvest', 'metro']) for (const [w, h] of [[1440, 900], [1280, 720], [390, 844]]) {
-    const p = await page('plan', { op, w, h });
+    const p = await page('plan', { op, w, h }); if (IA2 === null) { IA2 = await p.evaluate(() => IA_LANDED.has('IA-2a')); if (!IA2) out.push('IA-2a not landed; dormant'); }
+    /* IA-2a: Left out's answers, and each tab's Approve after scrolling to the end */
+    let tabsDesc = '', tabsOk = true;
+    if (IA2) { const q = await page('plan/left-out', { op, w, h }), lo = await q.evaluate(() => { const secs = [...document.querySelectorAll('[data-shape="plan"] .ux-ans-sec')]; return { n: secs.length, ans: secs.every(s => (s.querySelector('.ux-ans')?.textContent.trim() || '').length > 4) }; }); await q.context().close();
+      const reach = [];
+      for (const t of TABS2) { const q2 = await page(t, { op, w, h }); await q2.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight)); await q2.waitForTimeout(150);
+        reach.push(await q2.evaluate(t => { const st = !!document.querySelector('.ux-dsticky.is-on [data-ux-act="approve-plan"]'), a = [...document.querySelectorAll('[data-shape="plan"] .ux-planband [data-ux-act="approve-plan"]')].find(e => !e.closest('[data-ux-sticky]')), r = a && a.getBoundingClientRect();
+          return { t, how: st ? 'sticky' : r && r.top >= 0 && r.bottom <= innerHeight ? 'band in view' : null }; }, t)); await q2.context().close(); }
+      tabsOk = lo.n >= 2 && lo.ans && reach.every(x => x.how);
+      tabsDesc = `; Left out ${lo.n} answer-titled sections${lo.ans ? ', each answered' : ', NOT all answered'}; Approve at the end of ${reach.map(x => `${x.t.slice(5)} ${x.how || 'NOT REACHABLE'}`).join(', ')}`; }
     const r = await p.evaluate(() => { const secs = [...document.querySelectorAll('.ux-ans-sec')]; return { n: secs.length, ans: secs.every(s => (s.querySelector('.ux-ans')?.textContent.trim() || '').length > 4), ovf: (window.__ovf() || document.documentElement.scrollWidth > innerWidth), chip: document.querySelector('.ux-planband [data-plan-state]')?.dataset.planState, diff: /Changes since version/.test(document.body.textContent), crew: !!document.querySelector('[data-k="Visits"]') }; });
     /* H1: layout of the item list, measured, with its own proof that the set is not empty */
     const lay = await p.evaluate(PLAN_LAYOUT);
@@ -570,7 +592,7 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=anchor: (D-IA.36) iaInPa
     await p.evaluate(() => window.scrollTo(0, 0));
     /* L1: at a phone width the toast sits above the bar and not over it or the state it reports */
     let toastOk = true; if (w === 390) { await p.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight)); await p.waitForTimeout(150); await p.click('.ux-dsticky.is-on [data-ux-act="approve-plan"]'); await p.waitForTimeout(250); await p.click('#uxact [data-ux-act-go]'); await p.waitForTimeout(400); await p.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight)); await p.waitForTimeout(200);
-      toastOk = await p.evaluate(() => { const t = document.querySelector('.ux-toast')?.getBoundingClientRect(), b = document.querySelector('.ux-dsticky.is-on')?.getBoundingClientRect(); return !!t && !!b && t.bottom <= b.top + 1; }); await p.evaluate(() => sessionStorage.removeItem('l4-mock')); await p.reload(); await p.waitForTimeout(300); }
+      toastOk = await p.evaluate(() => { const t = document.querySelector('.ux-toast')?.getBoundingClientRect(), b = document.querySelector('.ux-dsticky.is-on')?.getBoundingClientRect(); return !!t && !!b && t.bottom <= b.top + 1; }); await p.evaluate(() => sessionStorage.removeItem('l4-mock')); await p.reload(); await p.waitForTimeout(300); await prep(p); }
     let flow = true, desc = '';
     if (w === 1440) { const fails = [], ST = () => p.evaluate(() => ({ chip: document.querySelector('.ux-planband [data-plan-state]')?.dataset.planState, undo: !!document.querySelector('.toast [data-ux-undo]'), focus: document.activeElement.tagName, act: document.activeElement.dataset?.uxAct || '' }));
       await p.click('.ux-planband [data-ux-act="approve-plan"]'); await p.waitForTimeout(250);
@@ -586,11 +608,12 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=anchor: (D-IA.36) iaInPa
       /* M1: every page agrees with the approval */
       await p.click('.ux-planband [data-ux-act="approve-plan"]'); await p.waitForTimeout(250); await p.click('#uxact [data-ux-act-go]'); await p.waitForTimeout(400);
       const dec = { lakeside: 'kisiwa-genset', harvest: 'kirinyaga-energy', metro: 'embakasi-schedule' }[op], routes = ['portfolio', 'portfolio/act-first', 'portfolio/what-changed', `decision/${dec}`, 'plan'];
-      for (const rt of routes) { await p.goto(base + '#/' + rt); await p.waitForTimeout(300);
+      if (IA2) routes.push(...TABS2);
+      for (const rt of routes) { await p.goto(base + '#/' + rt); await p.waitForTimeout(300); await prep(p); await p.waitForTimeout(100);
         const s = await p.evaluate(src => { const k = document.querySelector('.canvas').cloneNode(true); k.querySelectorAll('.ux-dsteps').forEach(x => x.remove()); /* the stage list names its steps */ const t = k.textContent.replace(/\s+/g, ' '), m = t.match(new RegExp('.{0,40}(?:' + src + ').{0,20}', 'i')); return { say: m ? m[0] : '', waiting: document.querySelectorAll('[data-release="WAITING"]').length }; }, WAIT.source);
         if (s.say || s.waiting) fails.push(`${rt} after Approve: "${s.say}" ${s.waiting} waiting pills`);
         if (rt === 'portfolio' && await p.evaluate(() => !!document.querySelector('.ux-toast'))) fails.push('the toast of the plan survives navigation to another page (L1)'); }
-      await p.evaluate(() => sessionStorage.removeItem('l4-mock')); await p.reload(); await p.waitForTimeout(400);
+      await p.evaluate(() => sessionStorage.removeItem('l4-mock')); await p.reload(); await p.waitForTimeout(400); await prep(p); await p.waitForTimeout(100);
       /* M2 M3: Send back returns to Draft, and needs a reason and a trade-off that the executive wrote */
       await p.click('.ux-planband [data-ux-act="send-back"]'); await p.waitForTimeout(250);
       const sd = () => p.evaluate(() => ({ dis: document.querySelector('#uxact [data-ux-act-go]').disabled, reason: document.getElementById('ux-sb-reason').value, way: document.getElementById('ux-sb-way').value }));
@@ -609,8 +632,8 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=anchor: (D-IA.36) iaInPa
       if (nd.def || !nd.v2 || nd.spend !== nd.band || +nd.items !== nd.shown) fails.push(`a case that differs: default ${nd.def}, makes version 2 ${nd.v2}, spend ${nd.spend} against ${nd.band}, items ${nd.items} against ${nd.shown} rows`);
       flow = !fails.length; desc = `; Approve/Send back/case flows${fails.length ? ` FAIL: ${fails.join(' | ')}` : ': dialog matches the case, every page follows Approve, Send back returns to Draft with a required reason and trade-off, focus stays on the page'}`; }
     const layOk = lay.rows > 0 && !lay.bad.length;
-    ok(r.n >= 4 && r.ans && !r.ovf && r.chip === 'PROPOSED' && r.diff && (w < 600 || r.crew) && st.on && st.act && flow && toastOk && layOk && wordOk && !st.trunc.length && !covered.length,
-      `${op} plan at ${w}: ${r.n} answer-titled sections, changes since the version, visits per item, sticky approver bar${w < 600 ? ` (pill ${st.trunc.length ? 'TRUNCATED ' + st.trunc[0] : 'whole'})` : ''}; ${lay.rows} item rows as ${lay.card ? 'cards' : 'a table'}${layOk ? ', no cell overlaps or overflows (H1)' : ` OVERLAP ${lay.rows ? lay.bad.join('; ') : 'no rows found'}`}${wordOk ? '' : ` WORDS ${words.rep.join('; ')} ${words.op === 'mini' ? (words.tech ? 'technician' : '') : (words.crew ? 'crew' : '')}`}${toastOk ? '' : ' TOAST over the bar'}; a full focus walk finds ${covered.length ? `the bar covering "${covered[0]}" (${covered.length} times)` : 'no focused element under it'}${desc}`);
+    ok(r.n >= (IA2 ? 2 : 4) && tabsOk && r.ans && !r.ovf && r.chip === 'PROPOSED' && r.diff && (w < 600 || r.crew) && st.on && st.act && flow && toastOk && layOk && wordOk && !st.trunc.length && !covered.length,
+      `${op} plan at ${w}: ${r.n} answer-titled sections, changes since the version, visits per item, sticky approver bar${w < 600 ? ` (pill ${st.trunc.length ? 'TRUNCATED ' + st.trunc[0] : 'whole'})` : ''}; ${lay.rows} item rows as ${lay.card ? 'cards' : 'a table'}${layOk ? ', no cell overlaps or overflows (H1)' : ` OVERLAP ${lay.rows ? lay.bad.join('; ') : 'no rows found'}`}${wordOk ? '' : ` WORDS ${words.rep.join('; ')} ${words.op === 'mini' ? (words.tech ? 'technician' : '') : (words.crew ? 'crew' : '')}`}${toastOk ? '' : ' TOAST over the bar'}; a full focus walk finds ${covered.length ? `the bar covering "${covered[0]}" (${covered.length} times)` : 'no focused element under it'}${desc}${tabsDesc}`);
     await p.context().close(); }
   /* review r4 M5: a choice made in the demonstration says the one release rule, the same words as its dialog and How this works */
   { const p = await page('decision/mto-billing', { op: 'lakeside' });
