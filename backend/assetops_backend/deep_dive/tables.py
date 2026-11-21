@@ -91,3 +91,8 @@ def iso_z(at: datetime) -> str:
 #: A by-Site step cell's and its drawer row's amount form: a carried row names its source, " (at budget)"
 #: (spec section 3.2, D-5C.23).
 CELL_FORM = {True: "AT_BUDGET", False: "SIGNED"}
+
+#: D-5C.27: a step bar's tone (effect below 0, else) and the places every track position is served with.
+TONE_LOWERS, TONE_RAISES = "lowers", "raises"
+BAR_MIN_WIDTH = "0.8"
+BAR_PLACES = "0.01"

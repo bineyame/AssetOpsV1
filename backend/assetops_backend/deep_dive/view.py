@@ -9,7 +9,8 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
-from decimal import Decimal
+from collections.abc import Sequence
+from decimal import ROUND_HALF_EVEN, Context, Decimal, localcontext
 from typing import Any
 
 from assetops_backend.outcomes.catalogue import CATEGORIES
@@ -50,6 +51,43 @@ def _nav(month: str, now: datetime) -> dict:
     y2, m2 = (int(p) for p in T.month_code(year, mon + 2).split("-"))
     end = datetime(y2, m2, 1, tzinfo=timezone.utc)  # the next month's end
     return {"previous": T.month_code(year, mon - 1), "next": after if end <= now else None}
+
+
+def bridge_bars(effects: Sequence[Decimal | None], gap: Decimal | None) -> tuple[list[dict | None], dict | None]:
+    """Spec section 3.2 "Bars" (D-5C.27): each step's bar on the gap's scale and the scale's two marks, as percentages
+    of the step track (plain strings, two places, half even). `effects` in JSON order; None for a step with no
+    figure in R's currency. No gap (None or 0): no bar and no scale."""
+    if gap is None or gap == 0:
+        return [None] * len(effects), None
+    with localcontext(Context(prec=34, rounding=ROUND_HALF_EVEN)):
+        spans: list[tuple[Decimal, Decimal, Decimal] | None] = []
+        p = Decimal(0)
+        for e in effects:
+            if e is None or e == 0:
+                spans.append(None)
+                continue
+            a, b = p, p + e / gap * 100
+            p = b
+            spans.append((a, b, e))
+        ends = [x for span in spans if span is not None for x in span[:2]]
+        lo, hi = min([Decimal(0), *ends]), max([Decimal(100), *ends])
+
+        def at(x: Decimal) -> Decimal:
+            return (x - lo) / (hi - lo) * 100
+
+        def text(x: Decimal) -> str:
+            return str(x.quantize(Decimal(T.BAR_PLACES)))
+        bars: list[dict | None] = []
+        for span in spans:
+            if span is None:
+                bars.append(None)
+                continue
+            a, b, e = span
+            left = at(min(a, b))
+            width = max(Decimal(T.BAR_MIN_WIDTH), min(abs(at(b) - at(a)), 100 - left))
+            bars.append({"left": text(left), "width": text(width),
+                         "tone": T.TONE_LOWERS if e < 0 else T.TONE_RAISES})
+        return bars, {"target_at": text(at(Decimal(0))), "actual_at": text(at(Decimal(100)))}
 
 
 def _walk(row: BridgeRow):
@@ -102,8 +140,17 @@ class _View:
         held = values.get(row.factor_id if row.factor_id is not None else row.parent)
         return held.currency if held is not None else None
 
-    def word(self, row) -> str:
-        return W.word(row.evidence, row.origins, self.standing, row.currency)
+    def figure_word(self, value: Decimal | None, currency: str | None, ev: str, origins) -> str | None:
+        """D-5C.26: a figure slot's word (section 2.4 through `money_word`); None exactly when the figure is absent
+        (its value or its currency is None). Every slot's word and the headline's evidence come from here."""
+        if value is None or currency is None:
+            return None
+        return W.word(ev, origins, self.standing, currency)
+
+    def heading_word(self, category: str) -> str | None:
+        """A heading's sum's word (its card, the headline when named): the steps' weakest evidence."""
+        total, cur = self.group_totals()[category]
+        return self.figure_word(total, cur, *self.heading_evidence(category))
 
     def home(self, factor_id: str) -> str | None:
         home = self.reg.row(factor_id).home
@@ -176,8 +223,11 @@ class _View:
         return self.group_totals()[category][1]
 
     def heading_evidence(self, category: str) -> tuple[str, tuple[str, ...]]:
-        """The weakest evidence of a heading's steps: the evidence its sum, its card and the headline carry."""
-        return W.weakest_of(self.rows[s] for s in self.steps if s in self.rows and self.home(s) == category)
+        """The weakest evidence of the heading's steps its sum adds (those with an effect): the evidence its sum, its
+        card and the headline carry. A step with no figure adds nothing to the sum, so it does not set its word
+        (D-5C.26: a figure that is present never reads "Not available yet")."""
+        return W.weakest_of(self.rows[s] for s in self.steps if s in self.rows and self.home(s) == category
+                            and self.rows[s].effect is not None)
 
     def big(self, category: str | None):
         if category is None:
@@ -198,10 +248,10 @@ class _View:
         # the standing): the gap R's, the named heading its steps' weakest. `served`'s unmarked words are replaced.
         words = []
         if gap is not None:
-            words.append(self.word(R))
+            words.append(self.figure_word(R.effect, R.currency, R.evidence, R.origins))
             if big is not None:
-                words.append(W.word(*self.heading_evidence(subject), self.standing, self.group_cur(subject)))
-        head["evidence"] = list(dict.fromkeys(words))
+                words.append(self.heading_word(subject))
+        head["evidence"] = list(dict.fromkeys(w for w in words if w is not None))
         title = W.bridge_title(gap, big, subject) if gap is not None else None
         return head, title
 
@@ -240,7 +290,7 @@ class _View:
         if ratio is not None:
             lines.append(W.cost_received(ratio))
         contribution = {"key": T.TILE_KEYS[0], "label": W.text("CONTRIBUTION"), "value": W.amount(R.actual, cur),
-                        "word": self.word(R), "lines": lines,
+                        "word": self.figure_word(R.actual, cur, R.evidence, R.origins), "lines": lines,
                         "bar": ({"actual": str(R.actual), "target": str(R.target)}
                                 if R.actual is not None and R.target is not None else None)}
         gap_lines = []
@@ -250,7 +300,7 @@ class _View:
         if R.effect is not None:
             gap_lines.append(W.tile_rest(W.money(self.rest(), cur), W.money(R.effect, cur)))
         gap = {"key": T.TILE_KEYS[1], "label": W.text("GAP_TO_TARGET"), "value": W.amount(R.effect, cur, "SIGNED"),
-               "word": self.word(R), "lines": gap_lines, "bar": None}
+               "word": self.figure_word(R.effect, cur, R.evidence, R.origins), "lines": gap_lines, "bar": None}
         spend = {"key": T.TILE_KEYS[2], "label": W.text("PLAN_SPEND"), "value": W.text("NOT_AVAILABLE"), "word": None,
                  "lines": [W.text("PLAN_SPEND_LINE")], "bar": None}
         value = {"key": T.TILE_KEYS[3], "label": W.plan_value_label(), "value": W.text("NOT_AVAILABLE"),
@@ -271,7 +321,10 @@ class _View:
     # --- section 3.2 ----------------------------------------------------------------------------------------------
 
     def shares(self) -> dict[str, str]:
-        gap = self.R.effect or Decimal(0)
+        """Section 3.2: each step's share of what widens the gap; none when R has no gap (None or 0, D-5C.28)."""
+        gap = self.R.effect
+        if gap is None or gap == 0:
+            return {}
         widening = [self.rows[s].effect for s in self.steps if s in self.rows and self.rows[s].effect is not None
                     and self.rows[s].effect != 0 and (self.rows[s].effect < 0) == (gap < 0)]
         total = sum((abs(e) for e in widening), Decimal(0))
@@ -281,7 +334,7 @@ class _View:
             if row is None or row.effect is None:
                 continue
             e = row.effect
-            if e == 0 or gap == 0 or total == 0:
+            if e == 0 or total == 0:
                 value = Decimal(0) if e == 0 else Decimal(-1)
             elif (e < 0) == (gap < 0):
                 value = abs(e) / total
@@ -356,7 +409,8 @@ class _View:
             x = key[len(T.RESIDUAL_PREFIX):] if key.startswith(T.RESIDUAL_PREFIX) else None
             return {"key": key, "label": W.factor_label(key if x is None else x),
                     "value": W.amount(r.effect, r.currency, "SIGNED"), "sites": W.sites(r.k, self.n),
-                    "detail": self.driver_detail(key, r), "word": self.word(r),
+                    "detail": self.driver_detail(key, r),
+                    "word": self.figure_word(r.effect, r.currency, r.evidence, r.origins),
                     "children": [node(k) for k in kids.get(key, [])]}
         return [node(k) for k in kids.get(step, [])]
 
@@ -404,26 +458,33 @@ class _View:
     def bridge(self, title: str | None) -> dict:
         R = self.R
         shares = self.shares()
+        homes = [(c, [s for s in self.steps if self.home(s) == c]) for c in CATEGORIES]
+        homes = [(c, steps) for c, steps in homes if steps]
+        order = [s for _, steps in homes for s in steps]  # JSON order (D-5C.27)
+
+        def bar_effect(s: str) -> Decimal | None:  # a step's bar needs its figure in R's currency
+            row = self.rows.get(s)
+            return row.effect if row is not None and row.currency == R.currency else None
+        bars, scale = bridge_bars([bar_effect(s) for s in order], R.effect)
+        bar = dict(zip(order, bars))
         groups = []
-        for category in CATEGORIES:
-            steps = [s for s in self.steps if self.home(s) == category]
-            if not steps:
-                continue
+        for category, steps in homes:
             items = []
             for s in steps:
                 row = self.rows.get(s)
-                effect = row.effect if row is not None else None
-                items.append({"key": s, "label": W.factor_label(s), "value": W.amount(effect, row.currency if row is not None else None,
-                                                                      "SIGNED"),
-                              "share": shares.get(s), "word": self.word(row) if row is not None else
-                              W.text("NOT_AVAILABLE"), "sites": W.sites(row.k, self.n) if row is not None else None,
+                effect, cur = (row.effect, row.currency) if row is not None else (None, None)
+                items.append({"key": s, "label": W.factor_label(s), "value": W.amount(effect, cur, "SIGNED"),
+                              "share": shares.get(s),
+                              "word": self.figure_word(effect, cur, row.evidence, row.origins) if row is not None
+                              else None,
+                              "sites": W.sites(row.k, self.n) if row is not None else None, "bar": bar[s],
                               "drawer": self.drawer(s, row) if row is not None else None})
             total, cur = self.group_totals()[category]
             groups.append({"key": category, "label": W.heading_label(category),
                            "value": W.amount(total, cur, "SIGNED"), "steps": items})
         totals = {"actual_label": W.totals_label(self.month), "actual": W.amount(R.actual, R.currency),
                   "target_label": W.text("TARGET"), "target": W.amount(R.target, R.currency)}
-        return {"title": title, "totals": totals, "groups": groups, "by_site": self.by_site()}
+        return {"title": title, "totals": totals, "scale": scale, "groups": groups, "by_site": self.by_site()}
 
     def by_site(self) -> dict:
         columns = [W.text("SITE"), W.text("CONTRIBUTION"), W.text("TARGET"), W.text("GAP"),
@@ -483,7 +544,8 @@ class _View:
                                W.amount(o.actual if o is not None else None, self.own_cur(code, o))])
         total = [W.sites(root.k, self.n), a(revenue), a(root), a(transit), a(owed)]
         columns = [W.text("SITE"), W.text("BILLED"), W.text("COLLECTED"), W.text("IN_TRANSIT"), W.text("OUTSTANDING")]
-        return {"title": W.text("CASH_TITLE"), "text": sentence, "word": self.word(root),
+        return {"title": W.text("CASH_TITLE"), "text": sentence,
+                "word": self.figure_word(root.actual, root.currency, root.evidence, root.origins),
                 "sites": W.sites(root.k, self.n), "table": {"columns": columns, "rows": table_rows, "total": total}}
 
     # --- section 3.4 ----------------------------------------------------------------------------------------------
@@ -592,10 +654,8 @@ def _outcomes(v: _View, standing: Standing, fresh: dict) -> list[dict]:
         card: dict[str, Any] = {"key": T.OUTCOME_KEYS[category], "label": W.heading_label(category)}
         steps = [v.rows[s] for s in v.steps if s in v.rows and v.home(s) == category]
         if category in (T.GROW, T.OPTIMIZE):
-            ev, origins = v.heading_evidence(category)
             card["value"] = W.amount(sums[category], v.group_cur(category), "SIGNED")
-            card["word"] = (W.word(ev, origins, standing, v.group_cur(category))
-                            if v.group_cur(category) is not None else W.text("NOT_AVAILABLE"))  # review L9
+            card["word"] = v.heading_word(category)  # D-5C.26 (revises L9): no figure, no word
             card["line"] = (W.grow_line(steps[0].k if steps else 0, v.n) if category == T.GROW
                             else W.text("OPTIMIZE_LINE"))
             card["drawer"] = None
