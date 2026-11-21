@@ -10,6 +10,7 @@ changes are held for the owner, `specs/OWNER-AWAY/decisions-2026-11-21.md` row 5
 Head: the commit that adds this section (code `33115e055`, main merged at `55aa7d6ac`: `task/SC-1a-review-answers`
 420596391, then `main` f75321b92; SC-1a's owner-away rows are now **23 and 24**, after 3B6's 21 and 22).
 **Owner approval still needed at merge: the two check-all lines** (owner-away rows 5 and 24).
+After the gates, `main` 12a0c6356 (3B6 handshake, 3B4 spec; docs only) merged at f54d11445: rows 23 and 24 kept (main's are 21, 22, 26 to 28); `index-rulings-17.md` went over its 8,000-byte cap, so D-SC1.32-39's index lines moved to a new `index-rulings-19.md`; `check-decision-index.py` OK (1,061 IDs), guard OK, check-agent-workflow passed.
 
 - **D-SC1.32 (M3).** `schema.NUMBER_WORDS["en"]` is the spec's six `(roots, suffixes)` pairs; `schema.number_words`
   derives the set; the load splits on non-letters and refuses any member. `TOKENS` no longer holds them (T12 proves
