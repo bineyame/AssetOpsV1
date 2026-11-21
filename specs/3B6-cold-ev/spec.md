@@ -1,12 +1,11 @@
 # 3B6: cold-room and captive-EV structures, declared and tested from the start (implementer spec)
 
-Status: rev 1 (handshake pending), Architect (Claude), 2026-11-21, written on the owner's delegation
+Status: rev 2 (handshake round 1 answered, `rulings.md` D-3B6.13 to D-3B6.24), Architect (Claude), 2026-11-21, written on the owner's delegation
 (`owner/owner-away-architect-decides-2026-11-21.md`; pull order `specs/OWNER-AWAY/decisions-2026-11-21.md` row 4; the
-owner-level calls made here are logged there as rows 21 and 22). `delivery-plan.md` §2 row `3B6`: "Cold-room and
+owner-level calls made here are logged there as rows 21, 22 and 26). `delivery-plan.md` §2 row `3B6`: "Cold-room and
 captive-EV structures declared and tested from the start (revenue not applicable, never zero)" (step 3B, construct
 B1, lane 2, 1.5 units, depends on `3B1`, page P3B, approved 20 Nov; non-screen). Build plan §0.2 day 10 to 11 (lane B
-tail), §0.3 "Lands". **2.5 units** (1.0 over the plan: the Site-type map reaches six readers that assumed one structure,
-D-3B6.6, and "not applicable" needs a declared mechanism, D-3B6.3; no split). Discovery review (W5): two new
+tail), §0.3 "Lands". **2.75 units** (1.25 over the plan: the Site-type map reaches six readers that assumed one structure, D-3B6.6, "not applicable" needs a declared mechanism, D-3B6.3, and the handshake added a shared-ID guard, a reader reorder and honest-record tests, D-3B6.17, D-3B6.18, D-3B6.24; no split). Discovery review (W5): two new
 structures on the shared core and a change to how portfolio reads exclude a Site. Non-screen; adds no user-facing text
 (D-SC1.28 does not hold it; D-3B6.12). `USER_REVIEW_REQUIRED: false`.
 
@@ -16,8 +15,7 @@ structures on the shared core and a change to how portfolio reads exclude a Site
   rate − cost to serve) and `EV_DEPOT_CAPTIVE` (a captive depot judged on cost per required departure met, revenue
   *not applicable*), as rows on the same records with **no vertical-specific code** in the evaluator, the check or the
   read. It makes cold-room and EV Sites readable through `StructureRead.site`, every leaf honest about its source
-  (calendar figures computed; everything else "Not available yet" naming its record, never 0), declares that revenue
-  does not apply to a captive depot, moves the three cold and EV Finding mechanisms from pending to pinned, and makes
+  (calendar figures computed; everything else "Not available yet" naming its record, never 0), declares that revenue does not apply to a captive depot (declared, checked and queryable; no read shows it until `3B5`, D-3B6.14), moves the three cold and EV Finding mechanisms from pending to pinned, and makes
   every reader that assumed one structure exclude a Site of another structure by name rather than drop it or crash.
 - **Design source:** `structure-specification.md` §3 and §3.1 (leaves, nodes, portfolio composition, empty leaves);
   `layer4-transformation-design.md` §2 (line 375: "A captive EV depot is judged on cost per required departure met,
@@ -25,7 +23,7 @@ structures on the shared core and a change to how portfolio reads exclude a Site
   (`revenue: NOT_APPLICABLE`), tenant `metro-bus` `business_model`; P3B ("`3B6` cold rooms and captive EV depots.
   Declared on the same core, with no vertical-specific code").
 - **Gate question it answers** (`delivery-plan.md` §3 step 3B): "Does a captive EV depot show revenue as *not
-  applicable*, never zero?" And for step 6's later gate ("Does the same evaluator pass a cold-room and an EV fixture with
+  applicable*, never zero?" At the data level only (test 5a: a declared, checked, queryable fact, never a row or a 0); no read carries it, so the screen-level answer is `3B5`'s (D-3B6.14, owner row 26). And for step 6's later gate ("Does the same evaluator pass a cold-room and an EV fixture with
   no vertical code?") it supplies the fixtures: the pack's six cold and EV Sites evaluated to the cent (§5).
 - **Owner rules kept:** unknown is never zero (every cold and EV leaf without a provider reads "Not available yet"
   naming its record); not applicable is not zero and not unknown (a third, declared state, D-3B6.3); one mechanism
@@ -46,15 +44,21 @@ structures on the shared core and a change to how portfolio reads exclude a Site
   changes six readers that filter Sites with `SITE_TYPE_TO_STRUCTURE.get(type) is None` while composing only
   `MINI_GRID`: left alone, a cold Site would vanish silently from every mini-grid portfolio read (neither composed nor
   excluded), and `TargetRead.site` would raise `KeyError`. That class is fixed here (D-3B6.6), not deferred.
-- **Decisions:** `rulings.md` (D-3B6.1 to D-3B6.12). **Reviewer guide:** `reviewer-guide.md`. **Handshake:**
+- **Decisions:** `rulings.md` (D-3B6.1 to D-3B6.24). **Reviewer guide:** `reviewer-guide.md`. **Handshake:**
   `handshake.md`.
 
 ## 0. Before you start (gates; each is a hard stop)
 
-- **Start:** the handshake has no open question, and `4a` has merged (it edits `structure/registry.py`,
-  `structure/check.py` and `structure/sources.py`, which 3B6 edits too; branch after it). If a lane is free before 4a
-  merges, unit 1 (§2, §3; new files plus `registry.py`, `check.py`, `pins.py`) may start and merges `main` at its
-  handoff, before unit 2. Not a heavy database job. No other gate: 3B1, 3B2, 3B3, 5a, 5b and 3B7a are merged.
+- **Start:** the handshake has no open question (round 1 answered in `rulings.md`; the reviewer and implementer
+  confirm in `handshake.md`), and `4a` has merged (it edits `structure/registry.py`, `structure/check.py`,
+  `structure/sources.py`, `structure/money.py` and the 3b1/3b3 tests, which 3B6 edits too; branch after it). If a lane
+  is free before 4a merges, unit 1 may build **only** (D-3B6.19): `rows_cold_chain.py` and `rows_ev_depot.py`; the
+  `not_applicable` field and `applicability` in `registry.py` (outside the `REGISTRIES` literal); `check.py` (§2.4);
+  and tests 1, 2, 3 over `Registry` objects built from the row files and over test-local mappings. It does **not**
+  touch the `REGISTRIES` literal, `pins.py` (a pin refuses at start-up without its registry entry), `sources.py`,
+  `money.py`, the readers, test 7, or the `test_3b1:91-92` and `test_3b3:377,664` rows: those wait for 4a's merge into
+  the branch. Nothing of 3B6 merges to `main` before 4a. Not a heavy database job. No other gate: 3B1, 3B2, 3B3, 5a,
+  5b and 3B7a are merged.
 - **Branch** `task/3B6-cold-ev` off `main`; worktree `/opt/assetecon/AssetOpsV1-3b6`; symlink `frontend/node_modules`
   from the main checkout.
 - **Databases:** none needed; every test of this slice runs without a database. If a regression file named in §6.3 is a
@@ -69,27 +73,24 @@ structures on the shared core and a change to how portfolio reads exclude a Site
   (1423-1508), `empty_states.leaf_sources` (1672-1721); `tests/test_3b1_structure_registry.py:1-140`,
   `tests/test_3b3_structure_evaluate.py:1-140`, `tests/test_3b2_findings_pinned.py:100-150`.
 - **Pre-flight (before any test is written; report in the handshake):** (a) write the two row files (§2.2) in a
-  scratch copy and run `check_all()`; any refusal is a handshake question, not a fix to the check. (b) Print
-  `pins.parity()` with the three new pins of §3: it must return exactly today's one entry (`UNEXPLAINED_FUEL`). (c) Run
-  the W6 grep of §4.4 and list every hit; a hit not in §4.4's table is a handshake question.
+  scratch copy and run `check_all()`; any refusal is a handshake question, not a fix to the check (run in round 1: both pass, D-3B6.23). (b) Print
+  `pins.parity()` with the three new pins of §3: it must return exactly today's one entry (`UNEXPLAINED_FUEL`). (c) Run the three W6 greps of §4.4 and list every hit; a hit outside the allowed set is a handshake question.
 - **Files.** New: `backend/assetops_backend/structure/rows_cold_chain.py`, `structure/rows_ev_depot.py`; tests
   `backend/tests/test_3b6_cold_ev_structures.py` (no database). Edited, and only these: `structure/registry.py`
-  (§2.1, §2.3), `structure/check.py` (§2.4), `structure/pins.py` (§3), `structure/read.py` (§4.1), `structure/sources.py`
-  (§4.2), `structure/targets/read.py` (§4.3), `structure_snapshot/build.py`, `structure_snapshot/read.py`,
+  (§2.1, §2.3), `structure/check.py` (§2.4), `structure/pins.py` (§3), `structure/read.py` (§4.1), `structure/sources.py` and `structure/money.py` (§4.2), `structure/targets/read.py` and `structure/attribution/read.py` (§4.3), `structure_snapshot/build.py`, `structure_snapshot/read.py`,
   `structure_snapshot/model.py` (comment only) (§4.3), `structure/__init__.py` (docstring only), and the test lines the
   W6 sweep names (§6.4).
 
 ## 1. Outcome and why
 
 For a cold room and a captive EV depot, the structure read returns every factor of its declared structure for a
-Site-month, each with its value or with "Not available yet" naming the record that would fill it; a captive depot's
-revenue reads *not applicable* by declaration, never 0 and never "Not available yet"; and a portfolio read names each
+Site-month, each with its value or with "Not available yet" naming the record that would fill it; a captive depot's revenue is *declared not applicable* (a checked fact `applicability()` answers; it is never a row, never 0 and never "Not available yet"; no read shows it until `3B5`, D-3B6.14); and a portfolio read names each
 Site of another structure as excluded, with its reason, instead of dropping it.
 
 Why it converts: an operator executive of a cold-room or depot business sees the same shape as a mini-grid operator's
 (outcome, headings, leaks, evidence words) from day one, so cold and EV become the records slices `9d` and `9e` filling
 leaves, not new screens or new code. Today, with no cold or EV records connected (RC5: the first deep-dive is
-mini-grid), only the calendar figures carry values; the honest reading of everything else is "Not available yet".
+mini-grid), only the calendar figures carry values (every other leaf names a record that is stored today, or says it is not connected, D-3B6.13); the honest reading of everything else is "Not available yet".
 
 **On a typical cold or EV operator's exports** nothing is read this fortnight: the cold storage ledger, rate card and
 electricity bill (`9d`) and the fleet roster, utility time-of-use bill and service contract (`9e`) have no intake. Each
@@ -102,7 +103,7 @@ evaluator to the cent (§5.1).
 
 - `Registry` gains a fourth field `not_applicable: tuple[str, ...] = ()` (after `rows`; the default keeps every
   existing `Registry(key, version, rows)` call valid). It lists factor IDs a reader of another structure may ask this
-  structure for, which this structure declares do not apply to its business. It is not a row and carries no value.
+  structure for, which this structure declares do not apply to its business. It is not a row and carries no value. **Interface note (D-3B6.14):** `applicability()` is the only supported way to tell "revenue does not apply" from "revenue is not in this structure"; a reader (`3B5`) must call it and must not infer either from a missing key. It has no caller outside tests today: no read record carries it.
 - Three module constants and one function in `registry.py`:
 
 ```python
@@ -119,15 +120,14 @@ def applicability(reg: Registry, factor_id: str) -> str:
 
 ```python
 REGISTRIES: Mapping[str, Registry] = MappingProxyType({
-    "MINI_GRID": Registry("MINI_GRID", <its version on main, unchanged>, _MINI_GRID_ROWS),
+    "MINI_GRID": Registry("MINI_GRID", <its version when 3B6 merges, unchanged>, _MINI_GRID_ROWS),
     "COLD_CHAIN": Registry("COLD_CHAIN", 1, _COLD_CHAIN_ROWS),
     "EV_DEPOT_CAPTIVE": Registry("EV_DEPOT_CAPTIVE", 1, _EV_DEPOT_ROWS, not_applicable=("revenue",)),
 })
 ```
 
   imported after the records, as `_MINI_GRID_ROWS` is (`from assetops_backend.structure.rows_cold_chain import ROWS as
-  _COLD_CHAIN_ROWS`, `from assetops_backend.structure.rows_ev_depot import ROWS as _EV_DEPOT_ROWS`). The mini-grid
-  entry is not touched (4a's version stands).
+  _COLD_CHAIN_ROWS`, `from assetops_backend.structure.rows_ev_depot import ROWS as _EV_DEPOT_ROWS`). The mini-grid entry is not touched: it keeps the version it has when 3B6 merges (3 on `main`, 4 after 4a; D-3B6.19), and no 3B6 test asserts it.
 
 ### 2.2 The rows (`rows_cold_chain.py`, `rows_ev_depot.py`; D-3B6.1, D-3B6.2)
 
@@ -252,18 +252,24 @@ def sites_excluded(sites: Sequence[SiteRef], structure_key: str) -> Mapping[str,
 ### 4.2 Leaf sources (`sources.py`; D-3B6.10, D-3B6.11)
 
 `SOURCE_STATE` gains two maps, each with every leaf of its registry and nothing else (the test checks the key sets).
-The states, as of 21 Nov 2026:
+The states, as of 21 Nov 2026 (D-3B6.13; each HELD leaf names the stored record in the third column, and test 5c checks
+that record's token is in its file):
 
 | Structure | State | Leaves |
 |---|---|---|
 | COLD | `PROVIDED` | `period_days`, `minutes_per_day` |
 | COLD | `OPTION_ONLY` | `contract_crate_days`, `contract_rate`, `model_factor`, `handling` |
-| COLD | `HELD_NOT_CALCULATED` | `backup_unproven_days` (work cases), `cooling_minutes_unavailable` (compressor state readings) |
-| COLD | `NOT_CONNECTED` | `outstanding`, `staff`, `liability`, `crate_days`, `rate`, `base_kwh`, `k_kwh_per_crate_day`, `excess_kwh`, `elec_price`, `maint`, `uncovered_nights`, `excursion_crates`, `excursion_days`, `batches_exposed`, `capacity_crate_days` |
+| COLD | `HELD_NOT_CALCULATED` | `cooling_minutes_unavailable`: role `compressor_state` (`sites/binding_roles.py:162`, read by `analytics/cold.py:54`) |
+| COLD | `NOT_CONNECTED` (16) | `outstanding`, `staff`, `liability`, `crate_days`, `rate`, `base_kwh`, `k_kwh_per_crate_day`, `excess_kwh`, `elec_price`, `maint`, `uncovered_nights`, `backup_unproven_days`, `excursion_crates`, `excursion_days`, `batches_exposed`, `capacity_crate_days` |
 | EV | `PROVIDED` | `nights_in_period` |
 | EV | `OPTION_ONLY` | `covered_bus_nights`, `extra_missed_departures` |
-| EV | `HELD_NOT_CALCULATED` | `chargers_in_service` (connector state and fault readings), `chargers_installed`, `charger_kw`, `import_limit_kw` (declared in the EV Foundation), `charger_out_days` (work cases) |
-| EV | `NOT_CONNECTED` | `window_h`, `buses`, `kwh_per_bus_night`, `peak_kwh`, `kwh_2200_2400`, `kwh_0000_0500`, `max_kw`, `peak_price`, `offpeak_price`, `night_price`, `demand_rate`, `maintenance`, `short_nights`, `spare_bus_nights`, `penalty_rate` |
+| EV | `HELD_NOT_CALCULATED` | `chargers_in_service`: roles `ev_connector_state` and `ev_connector_fault` (`sites/binding_roles.py:204,208`); `import_limit_kw`: property `ev-site-import-limit` (`sites/models.py:224`, `sites/ev_foundation.py:431`); `chargers_installed`: the `EV_CHARGER` components of the declared Foundation (`sites/ev_foundation.py`, `ev_foundation_document`) |
+| EV | `NOT_CONNECTED` (17) | `charger_kw` (per-charger `ev-charger-max-power`, no rule for one Site rating), `charger_out_days` (no ticket record with fault and restore times), `window_h`, `buses`, `kwh_per_bus_night`, `peak_kwh`, `kwh_2200_2400`, `kwh_0000_0500`, `max_kw`, `peak_price`, `offpeak_price`, `night_price`, `demand_rate`, `maintenance`, `short_nights`, `spare_bus_nights`, `penalty_rate` |
+
+HELD means the record kind has a stored form and an intake today and the figure is not calculated from it yet; a Site
+that holds no such record reads the same words. A work case (`work/model.py`) is a free-text incident or request with no
+failed-start, witnessed-test or fault-and-restore field, so a leaf whose manifest record is a work case or service
+ticket is `NOT_CONNECTED`.
 
 `STATED_STATE` is unchanged (no cold or EV row states). `COMMERCIAL_LEAVES`, `LITRE_LEAVES`, `ASSUMPTION_WORDS` and
 `PRICE_KEYS` are unchanged.
@@ -273,31 +279,40 @@ The states, as of 21 Nov 2026:
 - `nights_in_period` → exactly `_period_days(ctx)` (the Site-local days of the month).
 
 No other change to `ProductLeafSource`: `NOT_CONNECTED` and `HELD_NOT_CALCULATED` already build `Missing` from the
-row's own `filled_by`; `OPTION_ONLY` already returns `row.neutral` as `NEUTRAL`. `CommercialLeafSource.leaf` and
-`LitreLeafSource.leaf` need no change: a cold or EV leaf's state is never `PROVIDED` or `PROVIDED_ELSE_ASSUMED` there
-(except the calendar, which they pass through) and no cold or EV ID is in `LITRE_LEAVES`, so both fall through to
-`ProductLeafSource` and never read a commercial or litre store (test 6 proves it with raising fakes).
+row's own `filled_by`; `OPTION_ONLY` already returns `row.neutral` as `NEUTRAL`. **Shared factor IDs (`R-SHARED-ID`, D-3B6.18).** `COMMERCIAL_LEAVES` and `money._ROWS` are keyed by factor ID and COLD shares `staff` and `outstanding` with the mini-grid, so the day `9d` flips a COLD leaf to `PROVIDED` it would be judged with mini-grid rows. Prevented now: `sources.py` gains `COMMERCIAL_KEYS = frozenset({"MINI_GRID"})` (beside `COMMERCIAL_LEAVES`; added to `__all__`), and `CommercialLeafSource.leaf` (`money.py:169`) serves a `_ROWS` leaf only when `state == PROVIDED and key in COMMERCIAL_KEYS`, else falls back; `ProductLeafSource` reads a PROVIDED commercial-leaf ID as `NOT_CONNECTED` (its existing branch). `9d` adds its structure to `COMMERCIAL_KEYS` together with its own rows. `LitreLeafSource` (IDs `necessary_l`, `candidate_l`, `unexplained_l`) and, after 4a, `EnergyLeafSource` share no ID with a cold or EV leaf; test 6 asserts that by state, not by ID (it cannot be by ID for `staff`). Nothing else changes in the two sources: a cold or EV leaf is never `PROVIDED` there (except the calendar, which passes through), so both fall through to `ProductLeafSource` and never read a commercial or litre store (test 6 proves it with raising fakes).
 
 ### 4.3 The readers that support only the mini-grid structure (D-3B6.6)
 
 | File | Today | 3B6 |
 |---|---|---|
-| `structure/targets/read.py` `TargetRead.site` | `TARGET_RULE[key]` → `KeyError` for a cold Site | after the key lookup: `if key not in TARGET_RULE: raise StructureError(KEY_NOT_READ, key, site.site_code)` |
+| `structure/targets/read.py` `TargetRead.site` | `TARGET_RULE[key]` → `KeyError` for a cold Site | right after the key lookup (before `_month`, before the budget-lines read): `if key not in TARGET_RULE: raise StructureError(KEY_NOT_READ, key, site.site_code)` |
 | `structure/targets/read.py` `TargetRead.portfolio` | excludes `get(type) is None` as `NOT_DECLARED`; drops other keys | `sites_excluded(sites, key)` |
 | `structure_snapshot/build.py` `build` | `excluded[code] = NOT_DECLARED` for any key ≠ MINI_GRID | `excluded[code] = sites_excluded(sites, key)[code]` for each Site not composed |
 | `structure_snapshot/read.py` `SnapshotRead.site` | refuses only `get(type) is None` | also refuses a key other than `SITE_TYPE_TO_STRUCTURE["MINIGRID"]` with `StructureError(KEY_NOT_READ, key, site.site_code)` (snapshots are built only for MINI_GRID) |
 | `structure_snapshot/model.py` | comment "a type with no structure: NOT_DECLARED" | comment names `OTHER_STRUCTURE` too; no code change |
-| `structure/attribution/read.py` `BridgeRead` | follows `TargetRead` | no change: `site` propagates `KEY_NOT_READ`; `portfolio` takes `sites_excluded` from the target composition |
+| `structure/attribution/read.py` `BridgeRead.site` | evaluates `self._actual.site_inputs(...)` (every leaf through the providers) as an argument, then `self._targets.site(...)` | evaluate `self._targets.site(site, month, k)` first (a local), then `site_inputs`: the refusal comes before any read (D-3B6.17) |
+| `structure/attribution/read.py` `BridgeRead.portfolio` | follows `TargetRead.portfolio`; reads `site_inputs` for Sites of its key only | no change; `sites_excluded` comes from the target composition (test 8 shows it) |
 
-`structure/money.py`, `structure/litres/source.py`, `structure/attribution/{site,carry,rules,portfolio}.py`,
+`structure/litres/source.py`, `structure/attribution/{site,carry,rules,portfolio}.py`,
 `structure/targets/{lines,rules}.py`, `structure_snapshot/{codec,untracked}.py` need no change (each is reached only for
 a mini-grid key, or looks the registry up by the stored key); the packet states this per file.
 
-### 4.4 The W6 grep (pre-flight (c); packet table)
+### 4.4 The W6 greps (pre-flight (c); packet table; D-3B6.22)
 
-`grep -rn 'SITE_TYPE_TO_STRUCTURE\|NOT_DECLARED\|REGISTRIES\["MINI_GRID"\]\|"MINIGRID"' backend/assetops_backend`.
-Every hit is in §4.1 to §4.3 or the "no change" list above; the packet lists each with "changed" or the reason it is
-safe. A hit outside both is a handshake question.
+Three greps, narrowed to the readers of the Site-type map (the old `"MINIGRID"` literal grep returned about 60 hits,
+about 40 of them other uses of the literal in `chain/`, `sites/`, `scheduling/` and `site_outcomes/`):
+
+- **G1** `grep -rn 'SITE_TYPE_TO_STRUCTURE' backend/assetops_backend`: every hit lies in `structure/` or
+  `structure_snapshot/` (on `main`: 25 hits, 8 files). Each is listed in the packet as "changed" (§4.1 to §4.3) or with
+  the reason it is safe.
+- **G2** `grep -rn 'build_structure_read\|build_target_read\|build_bridge_read\|StructureRead(\|TargetRead(\|BridgeRead(' backend/assetops_backend`:
+  no hit outside `structure/` and `structure_snapshot/` (on `main`: none), so no consumer outside assumes one structure.
+- **G3** `grep -rn 'NOT_DECLARED\|REGISTRIES\["MINI_GRID"\]' backend/assetops_backend/structure backend/assetops_backend/structure_snapshot`
+  (on `main`: 27 hits): each in the packet as "changed" or safe.
+
+A hit outside G1's or G2's directories, or a G1 or G3 hit that is neither named in §4.1 to §4.3 nor listed safe in the
+implementer's pre-flight (`structure/read.py:61`, `structure/sources.py:144`, `structure/attribution/portfolio.py:21,103`,
+`structure/attribution/read.py:43`: safe; `structure/money.py:165-169` (`leaf`): changed, D-3B6.18; `:174` (`stated`): safe, `STATED_STATE` has no cold or EV key), is a handshake question.
 
 ## 5. Fixtures (the pack's own figures; the tests read the pack, never the code under test, W2)
 
@@ -333,10 +348,10 @@ sums prices and per-night rates too; those pack sums are not compared, which the
 A cold Site `SiteRef(TENANT, uuid4(), "COLD-THIKA", "COLDCHAIN", "Africa/Nairobi")` and an EV Site `SiteRef(...,
 "EV-RUI", "EV_CHARGING", "Africa/Nairobi")`, month `2026-10`, `known_at` 2026-11-06T00:00Z, read through
 `StructureRead(ProductLeafSource(<snapshot fake that fails if called>, <price fake that fails if called>, now))`.
-Expected, per leaf: `PROVIDED` calendar leaves `period_days` 31, `minutes_per_day` 1440, `nights_in_period` 31, DERIVED;
+Expected for `2026-10`, per leaf: `PROVIDED` calendar leaves `period_days` 31, `minutes_per_day` 1440, `nights_in_period` 31, DERIVED; the same read is repeated for `2026-02`, `2026-11` and `2028-02` (D-3B6.15: 28, 30, 29 days; COLD `chamber_minutes` 40320, 43200, 41760), so a constant month length fails;
 OPTION_ONLY leaves their neutral as `NEUTRAL`; `NOT_CONNECTED` leaves `value None`, `NOT_AVAILABLE`, cause
 `NOT_CONNECTED`, `record_kind`/`source_family`/`record_words` equal to the manifest's `kind`/`family`/`words`;
-`HELD_NOT_CALCULATED` leaves the same with cause `NOT_CALCULATED_YET`. Nodes: COLD `chamber_minutes` 44640 (DERIVED);
+`HELD_NOT_CALCULATED` leaves (COLD 1, EV 3) the same with cause `NOT_CALCULATED_YET`. Nodes: COLD `chamber_minutes` 44640 (DERIVED);
 COLD `cooling_available_minutes` None (it rests on `cooling_minutes_unavailable`); every money node (`revenue`,
 `received`, `energy`, `cost_to_serve`, `contribution`) value None, never 0, each `missing_leaves` naming at least one
 leaf; EV `departures_required` None; EV `contribution` None.
@@ -349,32 +364,48 @@ leaf; EV `departures_required` None; EV `contribution` None.
    `factor_map[key]`; each leaf's `filled_by` and `absent` equal `empty_states.leaf_sources[key]` (`words` included);
    each row's home equals `home_categories.nodes[key]` through the test's own home map (3B1's `OWN_HOME_MAP` copied);
    the home rows not in the registry are exactly COLD `{"cover_not_claimable"}` and EV `{"cover_not_claimable"}`; row
-   order is `leaves_of(key)` then the manifest's node order; row counts 36 (23 + 13) and 42 (23 + 19); versions 1.
+   order is `leaves_of(key)` then the manifest's node order; row counts 36 (23 + 13) and 42 (23 + 19); versions 1;
+   each registry's `not_applicable` equals the IDs the manifest's `chain_model[key]` marks `NOT_APPLICABLE` (EV
+   `("revenue",)`, COLD and MINI_GRID `()`), read from the pack, not from the code.
 2. **Units and composes (T2):** `check_all()` passes; each node's composed unit (`unit_of(parse(expr), declared)`)
    and declared unit equal §2.2.2's table, written as literals; each row's `composes` equals §2.2.1 and §2.2.2; each
    OPTION_ONLY leaf's `neutral` equals the manifest literal and §2.2.1.
-3. **The check (T3):** one plant per new refusal, each asserting the full text: `not_applicable=("revenu",)` on EV in
-   `check_all(registries={MINI_GRID, COLD, EV})` → `STRUCTURE_NOT_APPLICABLE EV_DEPOT_CAPTIVE/revenu`;
-   `not_applicable=("cost_to_serve",)` → `check(EV)` refuses `.../cost_to_serve` (a row of its own);
-   `("revenue", "revenue")` → refuses the second; `("Revenue",)` → refuses (pattern); EV alone in `check_all` →
+3. **The check (T3),** one plant per new refusal, each asserting the full text. Per-registry refusals go through
+   `check(reg)` directly (so removing one line of `_not_applicable` fails here): `not_applicable=("Revenue",)` (pattern)
+   → `STRUCTURE_NOT_APPLICABLE EV_DEPOT_CAPTIVE/Revenue`; `("revenue", "revenue")` → refuses the second;
+   `("cost_to_serve",)` → `.../cost_to_serve` (a row of its own). Mapping-level refusals go through
+   `check_all(registries=...)`: `("revenu",)` on EV with `{MINI_GRID, COLD, EV}` → `.../revenu`; EV alone →
    `STRUCTURE_NOT_APPLICABLE EV_DEPOT_CAPTIVE/revenue`; `{"COLD_CHAIN": REGISTRIES["EV_DEPOT_CAPTIVE"]}` →
    `STRUCTURE_CATALOGUE COLD_CHAIN/-` (L2). `CODES[-1] == "STRUCTURE_NOT_APPLICABLE"` and `CODES[:-1]` equals the
-   15-code literal of `main`. `create_app()` refuses a planted not-applicable typo as `ConfigurationError`.
+   15-code literal of `main`. `create_app()` refuses a planted not-applicable typo as `ConfigurationError`. Each of the
+   five code lines it exercises is the target of a code plant (guide P20 to P24).
 4. **The six Sites (T4)** of §5.1, parametrised over the 13 sides; the skip set equals its literal.
 4b. **The two portfolios (T4b)** of §5.2.
-5. **The gate: revenue not applicable, never zero (T5a):** for the EV registry and the EV Site read of §5.3 and the
-   Embakasi actual side of §5.1: `"revenue"` is not a row and not a key of `values`; `applicability(EV, "revenue") ==
-   NOT_APPLICABLE`; `applicability(EV, "tariff") == NOT_IN_STRUCTURE`; `applicability(MG, "revenue") ==
-   applicability(COLD, "revenue") == APPLIES`; no `FactorValue` of any EV side has value 0 under a factor ID that is a
-   row of MINI_GRID or COLD named `revenue`, `received` or `collected` (there are none); EV `contribution` equals
-   −`cost_to_serve` on every evaluated side.
+5. **The gate, at the data level: revenue declared not applicable, never zero (T5a):** for the EV registry and the EV
+   Site read of §5.3 and the Embakasi actual side of §5.1: `"revenue"` is not a row and not a key of `values`;
+   `applicability(EV, "revenue") == NOT_APPLICABLE`; `applicability(EV, "tariff") == NOT_IN_STRUCTURE`;
+   `applicability(MG, "revenue") == applicability(COLD, "revenue") == APPLIES`; no `FactorValue` of any EV side has
+   value 0 under `revenue`, `received` or `collected` (there are none); EV `contribution` equals −`cost_to_serve` on
+   every evaluated side. The test's docstring says no read carries applicability (D-3B6.14).
 5b. **The product read (T5b)** of §5.3: `set(SOURCE_STATE[key]) == {leaf IDs of REGISTRIES[key]}` for both keys; the
-   test's own copy of §4.2's table equals `SOURCE_STATE`; each leaf and node as §5.3 states; no `FactorValue` of either
-   Site has value 0 except the OPTION_ONLY leaves' neutral 0 and nodes that rest only on them and the calendar
-   (asserted by name: none in COLD or EV today, so the set is empty).
-6. **The composed chain does not touch other stores (T6):** `CommercialLeafSource(<months fake raising>, <store fake
-   raising>, LitreLeafSource(<inputs fake raising>, ProductLeafSource(...), now))` reads the cold and EV Sites of §5.3
-   with results equal to test 5b's; no fake is called.
+   test's own copy of §4.2's table equals `SOURCE_STATE` (state counts COLD 2/4/1/16, EV 1/2/3/17); each leaf and node
+   as §5.3 states, for all four months of D-3B6.15; no `FactorValue` of either Site has value 0 except the OPTION_ONLY
+   leaves' neutral 0 and nodes that rest only on them and the calendar (asserted by name: none in COLD or EV today, so
+   the set is empty).
+5c. **Held records exist (T5c):** the test holds, as its own literal, one `(file, token)` per HELD leaf: COLD
+   `cooling_minutes_unavailable` → (`sites/binding_roles.py`, `"compressor_state"`); EV `chargers_in_service` →
+   (`sites/binding_roles.py`, `"ev_connector_state"`) and (`..., "ev_connector_fault"`); `import_limit_kw` →
+   (`sites/ev_foundation.py`, `"ev-site-import-limit"`); `chargers_installed` → (`sites/ev_foundation.py`,
+   `"EV_CHARGER"`). It fails when a token is not in its file, and when the set of HELD leaves in `SOURCE_STATE` is not
+   exactly the literal's leaves (so a leaf cannot become HELD without a cited record).
+6. **The composed chain does not touch other stores, and shared IDs cannot route (T6):** (a) `CommercialLeafSource(
+   <months fake raising>, <store fake raising>, LitreLeafSource(<inputs fake raising>, ProductLeafSource(...), now))`
+   (after 4a: wrapped in `EnergyLeafSource(<inputs fake raising>, <that chain>, now)`, as `structure/composition.py`
+   builds it, D-3B6.20) reads the cold and EV Sites of §5.3 with results equal to test 5b's; no fake is called. (b)
+   For each key of COLD and EV, no leaf whose ID is in `COMMERCIAL_LEAVES | LITRE_LEAVES | set(money._ROWS)` (after 4a
+   `| ENERGY_LEAVES`) has state `PROVIDED` or `PROVIDED_ELSE_ASSUMED` (state, not ID: `staff` is shared). (c) With
+   `SOURCE_STATE` patched (in `sources` and in `money`, which imports it by name) so COLD `staff` is `PROVIDED`, the
+   chain of (a) reads `staff` as `NOT_CONNECTED` naming the COLD row's `filled_by`, and no fake is called (D-3B6.18).
 7. **Pins (T7):** `PINS` equals the test's literal of five (two mini-grid, three of §3); `PENDING_PINS == {}`;
    `check_all()` passes; `parity()` returns exactly the `UNEXPLAINED_FUEL` entry; each new pin's
    `pinned_category` is PROTECT_ASSET.
@@ -382,9 +413,13 @@ leaf; EV `departures_required` None; EV `contribution` None.
    `cold` and `ev` as `OTHER_STRUCTURE` and `hydro` (type `"HYDRO"`) as `NOT_DECLARED`, in that order;
    `portfolio(..., structure_key="COLD_CHAIN")` over `[cold_a, cold_b, KOBO]` composes the two rooms and excludes
    KOBO as `OTHER_STRUCTURE`; `structure_key="NOPE"` raises `STRUCTURE_NOT_DECLARED NOPE/-`; `TargetRead.site(cold)`
-   raises `StructureError` code `STRUCTURE_KEY_NOT_READ`, `factor_id` the Site code (never `KeyError`);
-   `SnapshotRead.site(T, cold, m)` raises the same; `SnapshotBuilder.build` over `[KOBO, cold]` with fakes stores
-   `excluded == {"COLD-...": OTHER_STRUCTURE}` (use the 3B7a test world's fakes, `tests/test_3b7a_structure_snapshot.py`).
+   raises `StructureError` code `STRUCTURE_KEY_NOT_READ`, `factor_id` the Site code (never `KeyError`), with the
+   budget-lines fake failing if called; `BridgeRead.site(cold)` raises the same with the actual side's `site_inputs`
+   fake and the lines fake both failing if called (D-3B6.17); `TargetRead.portfolio(T, [KOBO, cold], m)` and
+   `BridgeRead.portfolio(T, [KOBO, cold], m)` exclude `cold` as `OTHER_STRUCTURE` and compose KOBO, the `site_inputs`
+   fake called for KOBO only; `SnapshotRead.site(T, cold, m)` raises `STRUCTURE_KEY_NOT_READ`;
+   `SnapshotBuilder.build` over `[KOBO, cold]` with fakes stores `excluded == {"COLD-...": OTHER_STRUCTURE}` (use the
+   3B7a test world's fakes, `tests/test_3b7a_structure_snapshot.py`). `test_5b_attribution.py` runs in the build.
 
 ### 6.2 Regression (named files, run in the build)
 
@@ -410,8 +445,9 @@ Then check-all.
 
 Found by the class grep `grep -rn 'STRUCTURE_NOT_DECLARED\|PENDING_PINS\|set(REGISTRIES)' backend/tests`; a literal
 changed for any other reason is a finding. `test_3b3_structure_evaluate.py:783` stays (it asserts no
-`NOT_DECLARED` reason within one structure). Each changed test keeps one assertion that a Site of an undeclared type
-still reads `NOT_DECLARED` (test 8 adds it).
+`NOT_DECLARED` reason within one structure). Each changed test keeps one assertion that a Site of an undeclared type still reads `NOT_DECLARED` (test 8 adds it).
+
+**No literal changed, behaviour widened (packet lists both, D-3B6.21):** `test_3b2_findings_pinned.py:234` (its planted `Registry("NOT_MINI_GRID_KEY", ...)` now refuses at L2, `STRUCTURE_CATALOGUE X/-`, same code in `CODES`; the comment is retitled to say L2) and `test_4b1_stated_nodes.py` `_valued_cases` (about 60 cold and EV cases join through `REGISTRIES`; a failing case is a finding on the row, not a test edit). **Not touched by 3B6:** the mini-grid version line `test_3b1_structure_registry.py:91` and `test_3b3_structure_evaluate.py:377,664` are 4a's (3 to 4); 3B6 edits `:92` only.
 
 Stored snapshots: `rules_digest` covers every module the build imports (`structure_snapshot/adapters/code_digest.py`),
 so after this merge every stored snapshot reads "rebuild needed" until the analyst rebuilds it, as after every
@@ -421,32 +457,28 @@ structure slice (D-4A.25). No migration; 3B6 touches no stored row.
 
 | Unit | Content | Commits |
 |---|---|---|
-| 1 (1.0) | §2 (registry field and function, two row files, the check), §3 pins; pre-flight (a) and (b); tests 1, 2, 3, 7; the 3B1 and 3B2 lines of §6.3 | 1 to 2 |
-| 2 (1.0) | §4 (map, `sites_excluded`, codes, portfolio key, sources, the readers); pre-flight (c); tests 4, 4b, 5, 5b, 6, 8; the remaining lines of §6.3 | 1 to 2 |
-| 3 (0.5) | regression §6.2; plants (reviewer guide P1 to P18); check-all; packet | 1 |
+| 1 (1.0) | §2 (registry field and function, two row files, the check), then (after 4a, §0) the `REGISTRIES` literal and §3 pins; pre-flight (a) and (b); tests 1, 2, 3, 7; the 3B1 and 3B2 lines of §6.3 | 1 to 2 |
+| 2 (1.0) | §4 (map, `sites_excluded`, codes, portfolio key, sources, `COMMERCIAL_KEYS` guard, the readers, `BridgeRead.site` reorder); pre-flight (c); tests 4, 4b, 5, 5b, 5c, 6, 8; the remaining lines of §6.3 | 1 to 2 |
+| 3 (0.75) | regression §6.2; plants (reviewer guide P1 to P30, each shown failing once on a scratch copy); check-all; packet | 1 |
 
-Total 2.5 (D-3B6.12). Packet `specs/3B6-cold-ev/packet.md`: the sweep table, the W6 grep table (§4.4), the stored-
+Total 2.75 (D-3B6.12, D-3B6.24). Packet `specs/3B6-cold-ev/packet.md`: the sweep table, the W6 grep table (§4.4), the stored-
 snapshot statement, the plants run, residual risks `R-EV-PUBLIC` (D-3B6.7), `R-DST-MINUTES` (D-3B6.11),
-`R-CROSS-KEY` (D-3B6.8), the mid-build count.
+`R-CROSS-KEY` (D-3B6.8), `R-SHARED-ID` (D-3B6.18: closed by the guard and test 6; stays listed until `9d`), the "no literal changed, behaviour widened" list (D-3B6.21), the mid-build count.
 
 ## 8. Done (questions; each can fail)
 
 1. Do the cold-room and captive-EV structures reproduce the manifest row for row (expressions, leaves, sources,
    absences, homes, order), and does `check_all()` pass with them at start-up (tests 1, 2)?
 2. Does the same evaluator give the pack's figures to the cent for the 13 cold and EV sides and the two portfolios'
-   summed factors, with no vertical-specific code in `evaluate.py`, `check.py` or `read.py` (tests 4, 4b; `git diff`
-   of `evaluate.py` empty)?
-3. Does a captive depot's revenue read *not applicable* by declaration, never 0 and never "Not available yet", and is
-   any other unknown ID `NOT_IN_STRUCTURE`, not "not applicable" (test 5)?
+   summed factors, with no vertical-specific code in `evaluate.py`, `check.py` or `read.py` (tests 4, 4b; `git diff` of `evaluate.py` empty)? Do the calendar leaves hold for four month lengths (test 5b)?
+3. Is a captive depot's revenue *declared* not applicable (checked at start-up, answered by `applicability()`), never a row, never 0 and never "Not available yet", and is any other unknown ID `NOT_IN_STRUCTURE` (test 5a)? The question does not ask that a read shows it: none does until `3B5` (D-3B6.14).
 4. Does a cold or EV Site read today show the calendar figures and "Not available yet" naming each record for every
-   other leaf, with every money node unknown and never 0, without touching a commercial or litre store (tests 5b, 6)?
+   other leaf, with every money node unknown and never 0, without touching a commercial or litre store, with every HELD leaf naming a record that exists and no shared factor ID able to route a cold or EV leaf through mini-grid rows (tests 5b, 5c, 6)?
 5. Is every Site of another structure named in a portfolio read with `STRUCTURE_OTHER_KEY`, every undeclared type
-   with `STRUCTURE_NOT_DECLARED`, and does every mini-grid-only Site reader refuse a cold or EV Site by code, never a
-   `KeyError` and never a silent drop (test 8, §6.3)?
+   with `STRUCTURE_NOT_DECLARED`, and does every mini-grid-only Site reader (`TargetRead.site`, `BridgeRead.site`, `SnapshotRead.site`) refuse a cold or EV Site by code before any read, never a `KeyError` and never a silent drop (test 8, §6.3)?
 6. Are the three cold and EV mechanisms pinned, `PENDING_PINS` empty, and `parity()` unchanged (test 7)?
 7. Are the persistence and architecture guards unchanged and passing, with no migration and no user-facing text?
-8. Is every pin of §6.3 changed only for its stated reason, and does each plant of the reviewer guide fail its named
-   test? Mid-build count 0?
+8. Is every pin of §6.3 changed only for its stated reason, and does each plant of the reviewer guide (P1 to P30) fail its named test? Mid-build count 0?
 
 ## 9. Out of scope
 
@@ -469,3 +501,6 @@ structure (D-3B6.7); the rights nodes `cover_not_claimable` (as for MINI_GRID, D
 | Q5 | `capacity_crate_days` (the pack assigns its source to 3B6) | Declared, `NOT_CONNECTED`; its Foundation property and reader go with `9d`, when something reads it (D-3B6.10) |
 | Q6 | `minutes_per_day` in a zone with daylight saving | The declared 1440 (the manifest's literal); every demo and pilot zone has no DST; risk `R-DST-MINUTES` (D-3B6.11) |
 | Q7 | Portfolio `cost_per_departure_met` (Σ cost ÷ Σ departures) | Not composed (`NONE`); queued with the cross-structure total (D-3B6.8) |
+| Q8 | What makes a leaf `HELD_NOT_CALCULATED` rather than `NOT_CONNECTED`? | A stored record with an intake in the code today, named and checked by test 5c; otherwise `NOT_CONNECTED` (D-3B6.13) |
+| Q9 (owner, logged) | What does 3B6 claim about "revenue not applicable"? | Declared, checked and queryable; no read shows it until `3B5` (D-3B6.14; row 26) |
+| Q10 | A COLD leaf shares a factor ID with the mini-grid (`staff`, `outstanding`) | A structure-key guard in `CommercialLeafSource` plus a state assertion in test 6 (D-3B6.18) |

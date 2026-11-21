@@ -1,7 +1,7 @@
 # 3B6 rulings
 
 Architect (Claude), 2026-11-21, on the owner's delegation (`owner/owner-away-architect-decides-2026-11-21.md`),
-checked against `main` at `28263c47b`. D-3B6.1 to D-3B6.12 are applied by `spec.md` rev 1. D-3B6.7 and D-3B6.8 settle
+checked against `main` at `28263c47b`. D-3B6.1 to D-3B6.12 are applied by `spec.md` rev 1 and D-3B6.13 to D-3B6.24 (handshake round 1) by rev 2. D-3B6.7 and D-3B6.8 settle
 what a cold or EV operator will see, so each is logged for the owner in `specs/OWNER-AWAY/decisions-2026-11-21.md`
 (rows 21 and 22). None widens an authorisation: no migration, no guard change, no database, no purchase.
 
@@ -108,10 +108,147 @@ what a cold or EV operator will see, so each is logged for the owner in `specs/O
 
 ## D-3B6.12 Size 2.5 units in three units; no user-facing text
 
-- **Ruling.** 2.5 units (plan 1.5; +0.5 for D-3B6.6, +0.5 for D-3B6.3 and the pack fixtures). No split. Every new
+- **Ruling.** 2.5 units, superseded in size by D-3B6.24 (2.75) (plan 1.5; +0.5 for D-3B6.6, +0.5 for D-3B6.3 and the pack fixtures). No split. Every new
   string is a code; D-SC1.28 does not hold 3B6.
 - **Why.** Spec §7.
 
 ## Handshake answers (round 1)
 
-(None yet.)
+Architect (Claude), 2026-11-21, on the same delegation; every answer checked against `main` at `f75321b92`. Questions
+are in `handshake.md` (R1 to R6 reviewer, I1 to I4 implementer); each is answered once here and folded into `spec.md`
+rev 2 and `reviewer-guide.md` rev 2. No authorisation widened: no migration, no guard edit, no database, no purchase.
+The one owner-level call (what the gate answer claims, and the size) is `specs/OWNER-AWAY/decisions-2026-11-21.md`
+row 26.
+
+## D-3B6.13 A `HELD_NOT_CALCULATED` leaf cites a stored record that exists today (R5)
+
+- **Ruling.** HELD means the record kind has a stored form and an intake in the code today (a binding role or a
+  Foundation property), and the figure is not calculated from it yet. Anything else is `NOT_CONNECTED` ("Not available
+  yet, record not connected"). Verified against `main`:
+  - COLD `cooling_minutes_unavailable` stays HELD: role `compressor_state` (`sites/binding_roles.py:162`, read by
+    `analytics/cold.py:54`).
+  - COLD `backup_unproven_days` moves to `NOT_CONNECTED`, with `uncovered_nights` (same manifest record, "work case
+    (failed start, witnessed test)"): a work case (`work/model.py`) is a free-text incident or request with no
+    failed-start or witnessed-test field, and `mini_depth/rules.py:843` states no witnessed-test record exists.
+  - EV `chargers_in_service` stays HELD: roles `ev_connector_state` and `ev_connector_fault`
+    (`sites/binding_roles.py:204,208`; `analytics/ev_availability.py:24`).
+  - EV `import_limit_kw` stays HELD: property `ev-site-import-limit` on the feed (`sites/models.py:224`,
+    `sites/ev_foundation.py:431`).
+  - EV `chargers_installed` stays HELD, now citing its real record: the `EV_CHARGER` components of the declared
+    Foundation (`sites/ev_foundation.py`, `ev_foundation_document`, `component_type == "EV_CHARGER"`). It is a count of
+    stored components, not a field.
+  - EV `charger_kw` moves to `NOT_CONNECTED`: the Foundation holds `ev-charger-max-power` per charger; the leaf is one
+    rating for the Site (`NONE`) and no rule picks one when chargers differ.
+  - EV `charger_out_days` moves to `NOT_CONNECTED`: no ticket record with fault and restore times exists (work cases as
+    above).
+  Result: COLD 2 PROVIDED, 4 OPTION_ONLY, 1 HELD, 16 NOT_CONNECTED; EV 1 PROVIDED, 2 OPTION_ONLY, 3 HELD, 17
+  NOT_CONNECTED. A new test (5c) holds, as the test's own literal, one `(file, token)` per HELD leaf and fails when the
+  token is not in the file.
+- **Why.** The state tells a reader a record is held; a state that names a record that is not there is a false
+  statement (R5). The safe default is the weaker claim.
+- **Reverse.** Move a leaf to HELD in `SOURCE_STATE` and 5c's table when its record has a stored form.
+
+## D-3B6.14 What 3B6 claims about "revenue not applicable" (R4; owner row 26)
+
+- **Ruling.** `applicability()` has no caller outside tests and nothing in `SiteStructure`, `PortfolioStructure` or
+  `site_count` carries it, so 3B6 claims only: revenue is *declared* not applicable for the captive depot, the
+  declaration is *checked* at start-up, and `applicability(reg, id)` is the *queryable* answer. No read shows it until
+  `3B5`. Interface note (spec §2.1): `applicability()` is the only supported way to tell "revenue does not apply" from
+  "revenue is not in this structure"; a reader must call it and must not infer either from a missing key. The gate
+  question's "show revenue as not applicable" is answered at the data level (test 5a), and at the screen level by
+  `3B5`; the spec says so.
+- **Why.** A claim the build cannot show to a reader fails the review's own honesty bar; a read carrying it would add
+  a field to three read records and six readers for no consumer.
+- **Reverse.** When 3B5 needs it on a record, add the field then, from `applicability()`.
+
+## D-3B6.15 The calendar test uses four month lengths (R1)
+
+- **Ruling.** Test 5b reads both Sites for `2026-02` (28), `2026-10` (31), `2026-11` (30) and `2028-02` (29): each of
+  `period_days` and `nights_in_period` equals the month's length and `chamber_minutes` (cold) equals length x 1440
+  (40320, 44640, 43200, 41760), all DERIVED. The expected lengths are the test's own literals.
+- **Why.** A constant 31, 30 or 28 passes any one month; four lengths, one a leap February, fail every constant.
+
+## D-3B6.16 Plants are named against the test that catches them, by class (R2)
+
+- **Ruling.** The guide separates *data plants* (a mutation of the real rows or `REGISTRIES`: they fail tests 1, 2 and
+  start-up, not test 3, which passes its own mapping to `check_all`) from *code plants* (a line removed from
+  `check.py` or a source: they fail test 3, 5b, 6 or 8). Test 3 asserts per-registry refusals through `check(reg)`
+  and the mapping-level ones through `check_all(mapping)`. Code plants added: L2 removed (P20), cross-registry pass
+  removed (P21), own-row refusal removed (P22), repeat refusal removed (P23), pattern refusal removed (P24),
+  `nights_in_period` constant (P19), guard removed from `CommercialLeafSource` (P26), HELD record absent (P27),
+  `BridgeRead.site` order (P29), portfolio inclusion (P30). P16 stays "test 2 only" (`buses_short_per_night` is not
+  forced by `STRUCTURE_COMPOSES`; run on a scratch copy). Test 1 also reads the manifest's `chain_model` for the
+  not-applicable list, so P3 and P5/P6 fail a real-data check too.
+- **Why.** A plant that names a test that cannot catch it proves nothing; checked one by one in the reviewer guide.
+
+## D-3B6.17 `BridgeRead.site` refuses before it reads (R3)
+
+- **Ruling.** `BridgeRead.site` evaluates `self._targets.site(...)` first, then `self._actual.site_inputs(...)`: one
+  line moved, so a cold or EV Site raises `STRUCTURE_KEY_NOT_READ` before any leaf is read. The spec's "no change" row
+  becomes "order of two calls". `TargetRead.site` raises before it reads the budget lines. Test 8 adds
+  `BridgeRead.site(cold)` (inputs fake and lines fake raise if called), `TargetRead.portfolio([KOBO, cold])` and
+  `BridgeRead.portfolio([KOBO, cold])` (cold excluded as `OTHER_STRUCTURE`; the inputs fake called for KOBO only).
+  `test_5b_attribution.py` runs in the build; a changed expectation from the reorder is a finding.
+- **Why.** The alternative (allow the providers to be called for a refused Site) reads every cold leaf for nothing.
+
+## D-3B6.18 Shared factor IDs cannot route a cold or EV leaf through mini-grid rows (R6)
+
+- **Ruling.** Risk `R-SHARED-ID` (`COMMERCIAL_LEAVES` and `money._ROWS` are keyed by factor ID; COLD shares `staff`
+  and `outstanding`). Prevented in code and in the test: (a) `sources.COMMERCIAL_KEYS = frozenset({"MINI_GRID"})`;
+  `CommercialLeafSource.leaf` serves a `_ROWS` leaf only when its structure key is in it, else it falls back (and
+  `ProductLeafSource` reads a PROVIDED commercial leaf as `NOT_CONNECTED`); `9d` extends the set with its own rows.
+  (b) Test 6 asserts that no COLD or EV leaf in `COMMERCIAL_LEAVES | LITRE_LEAVES | money._ROWS` (and, after 4a,
+  `ENERGY_LEAVES`) has state `PROVIDED` or `PROVIDED_ELSE_ASSUMED`, and that a COLD `staff` forced to `PROVIDED` still
+  reads `NOT_CONNECTED` with every fake raising.
+- **Why.** A guard and an assertion fail on different mistakes: P10 (state set) fails (b)'s assertion; P26 (guard
+  removed) fails (b)'s dispatch test.
+
+## D-3B6.19 Sequencing with `4a` (I1)
+
+- **Ruling.** `MINI_GRID` keeps the version it has when 3B6 merges (3 on main, 4 after 4a); no 3B6 test asserts a
+  mini-grid version (test 1 asserts the new two, version 1). Before 4a merges, unit 1 may build only: the two row
+  files, the `Registry.not_applicable` field with `applicability`, the check (`check.py`), and tests 1, 2, 3 written
+  over `Registry` objects made from the row files and over test-local mappings. After 4a merges into the branch, and
+  not before: the `REGISTRIES` literal, `pins.py` (a pin needs its registry entry or `check_pins` refuses at
+  start-up), `sources.py`, `money.py` and the readers, test 7, and the `test_3b1:91-92` and `test_3b3:377,664` rows.
+- **Why.** Both slices edit the `REGISTRIES` literal, `sources.py` and those test lines; the order removes the
+  conflict. 3B6 itself still starts only after 4a merges (spec §0); this says what a free lane may do first.
+
+## D-3B6.20 Test 6 is the production chain (I2)
+
+- **Ruling.** After 4a merges, test 6's chain is `EnergyLeafSource(<inputs fake raising>, CommercialLeafSource(...,
+  LitreLeafSource(..., ProductLeafSource(...))), now)`, as `structure/composition.py` builds it; no fake is called.
+  Before 4a it is Commercial over Litre over Product. 4a's `_state` keys by `SITE_TYPE_TO_STRUCTURE`, so a cold or EV
+  Site reaches the fallback unchanged (the assertion of D-3B6.18 covers `ENERGY_LEAVES`).
+
+## D-3B6.21 Two existing tests widen without a literal change (I3)
+
+- **Ruling.** Listed in the packet under "no literal changed, behaviour widened": `test_3b2_findings_pinned.py:234`
+  (its planted `Registry("NOT_MINI_GRID_KEY", ...)` now refuses at L2 `STRUCTURE_CATALOGUE X/-`, the same code, so
+  it passes but no longer tests its comment; the builder retitles the comment to say L2, and adds nothing) and
+  `test_4b1_stated_nodes.py` `_valued_cases` (about 60 cold and EV cases join; a failing case is a finding on the
+  row, not a test edit; the file is already in §6.2).
+
+## D-3B6.22 The W6 grep is narrowed to the readers of the map (§4.4, I4)
+
+- **Ruling.** Greps: (G1) `grep -rn 'SITE_TYPE_TO_STRUCTURE' backend/assetops_backend`: every hit must lie in
+  `structure/` or `structure_snapshot/` (run on `main`: 25 hits, 8 files, all inside); (G2) `grep -rn
+  'build_structure_read\|build_target_read\|build_bridge_read\|StructureRead(\|TargetRead(\|BridgeRead(' backend/assetops_backend`:
+  no hit outside those two directories (run on `main`: none); (G3) `grep -rn 'NOT_DECLARED\|REGISTRIES\["MINI_GRID"\]'
+  backend/assetops_backend/structure backend/assetops_backend/structure_snapshot` (27 hits on `main`, each listed in the packet). A
+  hit outside G1 or G2's allowed set is a handshake question. The old `"MINIGRID"` literal grep is dropped: its
+  outside-hits (`chain/`, `sites/`, `scheduling/`, `site_outcomes/`) are other uses of the literal, not readers of the
+  map. Implementer pre-flight (c) found no hit needing a change beyond `structure/money.py` (D-3B6.18) and
+  `structure/attribution/read.py` (D-3B6.17).
+
+## D-3B6.23 Implementer pre-flight and pack figures accepted (I4)
+
+- **Ruling.** Pre-flight (a), (b) and the pack figures are accepted as run (36 and 42 rows; `check_pins` passes;
+  `parity()` returns exactly `UNEXPLAINED_FUEL`; every `SUM` factor equals the pack). The `§6.3` line numbers are
+  confirmed; the packet need not repeat them.
+
+## D-3B6.24 Size 2.75 units (owner row 26)
+
+- **Ruling.** 2.75 units (+0.25: `money.py` guard, `BridgeRead` reorder, test 5c, the four-month calendar test, ten
+  more plants in the guide). Three units: 1.0, 1.0, 0.75. No split.
+- **Why.** Spec §7.

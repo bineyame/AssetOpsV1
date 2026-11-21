@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-4A.1 to D-4A.26, D-SC1.32 to D-SC1.39)
+# Decision index: Demo-sprint and later rulings (index only) (D-4A.1 to D-4A.26)
 
 - `D-4A.1` Billing export states billed kWh, meter reads state metered kWh; stated rule admits kWh (registry v4) · live · specs/4a-energy-to-cash/rulings.md
 - `D-4A.2` Delivered kWh: every bound feeder every day, one binding set; SIMULATED readings are demo-simulated · live · specs/4a-energy-to-cash/rulings.md
@@ -38,11 +38,15 @@
 - `D-3B6.10` capacity_crate_days declared, NOT_CONNECTED; its property goes with 9d · live · specs/3B6-cold-ev/rulings.md
 - `D-3B6.11` minutes_per_day 1440; nights_in_period the month's local days · live · specs/3B6-cold-ev/rulings.md
 - `D-3B6.12` Size 2.5 units in three units; no user-facing text · live · specs/3B6-cold-ev/rulings.md
-- `D-SC1.32` Number words are roots joined to suffixes (cardinals, teens, tens, ordinals, multipliers, plurals, compounds); TOKENS excludes them · live · specs/SC-1-statement-composer/rulings.md
-- `D-SC1.33` Served text defined; the scan tells it from code by prose pairs, SQL lead, spacing joins, display conditionals, any logger · live · specs/SC-1-statement-composer/rulings.md
-- `D-SC1.34` New strings: served English to statements; misread code strings to a classed allow file; exception classes unserved only by spec, proved · live · specs/SC-1-statement-composer/rulings.md
-- `D-SC1.35` Every file under i18n/ is classified; anything else at any depth is MECH_UNSCOPED (M1) · live · specs/SC-1-statement-composer/rulings.md
-- `D-SC1.36` Public i18n modules declare __all__; anything else reached through them is I18N_BYPASS (M2) · live · specs/SC-1-statement-composer/rulings.md
-- `D-SC1.37` messages.CATALOGUE judged by the legacy ratchet alone; word maps fingerprinted per entry (L1, now) · live · specs/SC-1-statement-composer/rulings.md
-- `D-SC1.38` D-SC1.30 wording: names need not be absent from TOKENS (L3) · live · specs/SC-1-statement-composer/rulings.md
-- `D-SC1.39` SC-1a fix round 0.75 units (SC-1a 4.25); L4 fixed, L2 not adopted · live · specs/SC-1-statement-composer/rulings.md
+- `D-3B6.13` A HELD_NOT_CALCULATED leaf cites a stored record that exists, else NOT_CONNECTED · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.14` Revenue not applicable is claimed declared, checked and queryable only; applicability() has no read (owner row 26) · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.15` Calendar test reads four month lengths (28, 29, 30, 31) · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.16` Plants named against the test that catches them: data plants vs code plants · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.17` BridgeRead.site refuses before it reads; test 8 covers Bridge and portfolio readers · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.18` Shared factor IDs cannot route a cold or EV leaf through mini-grid rows (COMMERCIAL_KEYS, test 6) · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.19` Sequencing with 4a: what unit 1 may build first; MINI_GRID version not asserted · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.20` Test 6 is the production chain (EnergyLeafSource after 4a) · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.21` Two existing tests widen without a literal change (3b2:234, 4b1 _valued_cases) · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.22` W6 grep narrowed to readers of the Site-type map (G1, G2, G3) · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.23` Implementer pre-flight and pack figures accepted · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.24` Size 2.75 units (owner row 26) · live · specs/3B6-cold-ev/rulings.md
