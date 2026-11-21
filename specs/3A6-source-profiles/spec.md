@@ -589,9 +589,10 @@ def reader_spec(reader: SourceReader) -> tuple: ...
   4. Map the answer:
      - `ok` → `BoundedRead`;
      - `refused` → raise `CanonicalRefused(code, path)`, as the in-process read did;
-     - `breach` or any cause above → raise `CanonicalRefused("NATIVE_TOO_LARGE", "json")`, after logging
-       `assetops.commercial.envelope` WARNING `"upload parse refused by the envelope"`, with `extra` `cause`,
-       `reader` (id), `bytes` (length) and `tenant` (`context.tenant_code`) and nothing else from the file;
+     - `breach` or any cause above → raise `EnvelopeBreach` (a `CanonicalRefused("NATIVE_TOO_LARGE", "json")` with
+       `cause` set to the closed cause code; D-3A6.29). The envelope logs nothing (R13); the upload API logs
+       `assetops.commercial_upload` WARNING `"upload parse refused by the envelope"`, with `extra` `cause`,
+       `reader` (id), `bytes` (length) and `tenant` (code), and nothing else from the file;
      - `error` → raise `RuntimeError(f"parse failed in the envelope: {name}")`, a 500 as an unexpected reader
        exception is today.
 - **Wiring.**
@@ -641,7 +642,7 @@ def reader_spec(reader: SourceReader) -> tuple: ...
   `envelope.read(...)` equals `reader.read(...)` in process (obj, rows, refused, personal paths). Admission's `split`
   equals `split_file`.
 - E9 Logged without content: E1's file carries a sentinel string in a text column. No log record's message, args or
-  extra contains it. The record holds `cause`, `reader`, `bytes` and `tenant`.
+  extra contains it (captured at the upload API). The record holds `cause`, `reader`, `bytes` and `tenant`.
 
 Contracts (`contracts/tests/test_3a6_profiles.py`, section "N3 r5", in process; time bounded in a plain run, peak
 memory in a traced run):

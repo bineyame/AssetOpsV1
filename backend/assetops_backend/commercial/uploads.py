@@ -84,8 +84,9 @@ class UploadRefused(Exception):
     """A refusal the routes answer as `{"code", "message", "words", "params"}`. It carries no record value."""
 
     def __init__(self, status: int, code: str, params: dict[str, Any] | None = None,
-                 words: Message | None = None) -> None:
+                 words: Message | None = None, cause: str | None = None) -> None:
         super().__init__(code)
+        self.cause = cause  # D-3A6.29: the envelope's closed cause code, or None
         self.status = status
         self.code = code
         self.params = dict(params or {})
@@ -125,10 +126,10 @@ class _Checked:
     months: tuple[tuple[str | None, str], ...]
 
 
-def _file_refused(reader: SourceReader, code: str, path: str) -> UploadRefused:
+def _file_refused(reader: SourceReader, code: str, path: str, cause: str | None = None) -> UploadRefused:
     field = reader.field_label(cut_path(code, path))
     return UploadRefused(422, "UPLOAD_FILE_REFUSED", {"code": code, "field": field},
-                         message("commercial_upload.file_refused", field=field, reason=render(reason_words(code))))
+                         message("commercial_upload.file_refused", field=field, reason=render(reason_words(code))), cause)
 
 
 def _counts(records: int, new: int, revised: int, unchanged: int, refused: int) -> dict[str, Any]:
@@ -159,6 +160,13 @@ class CommercialUploads:
         self._real_data = bool(real_data)
 
     # --- step 1: the reader -----------------------------------------------------------------------------------
+
+    @staticmethod
+    def reader_id(reader_id: str | None) -> str:
+        return reader_id if reader_id is not None else DEFAULT_READER
+
+    def tenant_code(self, tenant_id: UUID) -> str | None:
+        return self._store.tenant_slug(tenant_id)
 
     def reader(self, tenant_id: UUID, reader_id: str | None, media_type: str | None) -> SourceReader:
         """§3.2 step 1 before the body is read: an unknown reader (422), then the media type (415). 3A6: `READERS`
@@ -192,7 +200,7 @@ class CommercialUploads:
         except CanonicalRefused as error:
             refused = error
         if refused is not None:  # raised outside the handler: 2a's path may echo the operator's key text
-            raise _file_refused(reader, refused.code, refused.path)
+            raise _file_refused(reader, refused.code, refused.path, getattr(refused, "cause", None))
         batch = parsed.batch
         if batch.tenant_code != slug:
             raise UploadRefused(422, "UPLOAD_TENANT_MISMATCH")
