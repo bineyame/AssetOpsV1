@@ -139,6 +139,9 @@ The sweep found no pin outside the spec's list.
 - 4d: `candidate_l` falls and `necessary_l` rises by the same litres.
 - Findings re-derive on the next pass.
 - A verification whose baseline days mix model versions refuses (`VERIFICATION_MODEL_NOT_COMPARABLE`) until the reconcile pass ends.
+- After the reconcile, in-flight verification plans read their baseline as moved (it fails closed, and a new plan is needed). A new verification over stale 3.2 days refuses with `VERIFICATION_BASELINE_NOT_CURRENT`.
+- Recency: a battery-support run whose post-run records have not arrived yet reads GAP, so its Finding opens late until a later delivery reassesses the window. A Finding-level case for this is queued as a backlog item.
+- Residual risks (reviewer, round 1): the 6-hour read range decides evening points (an evening point is Candidate only if PV covers by 06:00 UTC, 09:00 at Kobo; otherwise `NOT_REACHED`); 15-minute cadence gives GAP at the second slot (the 15-minute fallback rescues interval means only); off-grid report times start their own slot grid, so memo sharing holds only for aligned times (cost stays bounded by points x slots).
 - Readiness reads COVERED on an energy-cover Indeterminate (queued as Q10).
 - No reassessment was run on any demo or walkthrough database. That is the coordinator's job.
 

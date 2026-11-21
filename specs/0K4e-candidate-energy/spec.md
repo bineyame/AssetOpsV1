@@ -345,6 +345,8 @@ times, the database name, the fingerprint swap (old, new), the regression output
 - **Verifications (I6 (a)):** a verification whose baseline days mix model versions refuses
   (`VERIFICATION_MODEL_NOT_COMPARABLE`) from deploy until the reconcile pass ends; the coordinator runs the pass
   straight after deploy. The S3 lineage and performance reads follow `MODEL_VERSION` (I6 (b); no code change).
+- **Recency:** a battery-support run whose post-run records have not arrived yet reads GAP, so its Finding opens late,
+  until a later delivery reassesses the window. A Finding-level case for this is queued as a backlog item.
 - **Readiness (I6 (d)):** per-instant role coverage reads COVERED on an energy-cover Indeterminate (E14); naming it
   in readiness is queued (Q10).
 - **Databases:** the 5c walkthrough world has no telemetry (D-DS4.1) and does not move. The 13 Nov demo database and
