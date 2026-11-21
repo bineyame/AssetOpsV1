@@ -515,6 +515,27 @@ def test_15_tolerance_command(world, capsys, monkeypatch) -> None:
         ("", "PERSON_ROLE_REQUIRED\n")                                          # money needs the finance lead
     held = world.count("structure_tolerance")
     assert held == 2
+    # L3: a FINANCE person of another tenant, and a disabled FINANCE person of this one, are not found
+    other = AccountService(PostgresAccountStore(URL), clock=lambda: datetime(2026, 9, 1, tzinfo=UTC))
+    with world.engine.begin() as c:
+        c.execute(text("INSERT INTO tenant (id, slug, name, created_at) VALUES (:id, 'elsewhere', 'elsewhere', now())"),
+                  {"id": uuid4()})
+    other.onboard_create("elsewhere", "zed@elsewhere.example", "Zed", PW, executive=True)
+    zed = other.sign_in("zed@elsewhere.example", PW).principal
+    other.grant(zed, other.onboard_person("zed@elsewhere.example").person_id, FIN, None)
+    boss = world.accounts.sign_in("amina@lakeside.example", PW).principal
+    pid = world.accounts.onboard_create(SLUG, "dora@lakeside.example", "Dora", PW, executive=False)
+    world.accounts.grant(boss, pid, FIN, None)
+    with world.engine.begin() as c:
+        c.execute(text("INSERT INTO account_status (id, tenant_id, person_id, status, reason, set_at, set_by) "
+                       "VALUES (:i, :t, :p, 'DISABLED', NULL, now(), 'service:test')"),
+                  {"i": uuid4(), "t": world.t, "p": pid})
+    for who in ("zed@elsewhere.example", "dora@lakeside.example"):
+        argv = _set("outstanding", "outstanding", "10", "x")
+        argv[-1] = who
+        assert world.declare(*argv, capsys=capsys) == (2, "", "PERSON_NOT_FOUND\n"), who
+    assert world.count("structure_tolerance") == held
+    pg_harness.dispose(other._store)
     refusals = [
         (_set("necessary_l", "diesel_l", "5", "sam", tenant="nobody"), "UNKNOWN_TENANT"),
         (_set("necessary_l", "diesel_l", "5", "sam", site="NOPE-001"), "SITE_UNKNOWN"),

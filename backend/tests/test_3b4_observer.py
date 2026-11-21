@@ -385,3 +385,64 @@ def test_9_pin_of_key_and_also_pinned() -> None:
     assert set(c) == CLAIM_KEYS
     check_pins()
 
+
+# --- spec §4.3's lifecycle table, every cell against a literal (review L1) ----------------------------------------------
+
+_W = ("NO_GAP", "FAVOURABLE", "INSIDE_TOLERANCE")
+_U = ("ACTUAL_NOT_AVAILABLE", "TARGET_NOT_AVAILABLE", "CURRENCY_MISMATCH", "TOLERANCE_NOT_AVAILABLE")
+_NLS = ("NO_LONGER_SUPPORTED", "NO_LONGER_SUPPORTED")
+
+
+def _expected(held: str | None, same_basis: bool, state: str):
+    """The spec table written out per held lifecycle; `None` is "write nothing"."""
+    if held is None:
+        return ("OPENED", "SUPPORTED") if state == "RAISED" else None
+    if held == "SUPPORTED":
+        if state == "RAISED":
+            return None if same_basis else ("SUPPORT_CHANGED", "SUPPORTED")
+        if state in _W:
+            return _NLS
+        if state in _U:
+            return ("UNCONFIRMED", "UNCONFIRMED")
+    if held == "UNCONFIRMED":
+        if state == "RAISED":
+            return ("REOPENED", "SUPPORTED")
+        if state in _W:
+            return _NLS
+    if held == "NO_LONGER_SUPPORTED" and state == "RAISED":
+        return ("REOPENED", "SUPPORTED")
+    return None
+
+
+@pytest.mark.parametrize("held", [None, "SUPPORTED", "UNCONFIRMED", "NO_LONGER_SUPPORTED"])
+@pytest.mark.parametrize("same", [True, False])
+@pytest.mark.parametrize("state", ["RAISED", *_W, *_U])
+def test_11_transition_walks_every_cell_of_the_table(held, same, state) -> None:
+    assert rules.transition(held, "b" if held else None, state, "b" if same else "c") == _expected(held, same, state)
+
+
+def test_11_the_named_rows() -> None:
+    t = rules.transition
+    assert t("UNCONFIRMED", "b", "RAISED", "b") == ("REOPENED", "SUPPORTED")
+    assert t("UNCONFIRMED", "b", "INSIDE_TOLERANCE", "b") == _NLS
+    assert t("UNCONFIRMED", "b", "FAVOURABLE", "b") == _NLS
+    assert t("UNCONFIRMED", "b", "NO_GAP", "b") == _NLS
+    assert t("NO_LONGER_SUPPORTED", "b", "ACTUAL_NOT_AVAILABLE", "b") is None
+    assert t("UNCONFIRMED", "b", "TARGET_NOT_AVAILABLE", "b") is None
+
+
+def test_15_tolerance_read_is_as_known() -> None:  # review L2: a later-recorded declaration is not yet known
+    from types import SimpleNamespace as NS
+
+    from assetops_backend.structure.observe.service import tolerance_in_force
+
+    t0 = datetime(2026, 11, 1, tzinfo=timezone.utc)
+    t1, t2 = datetime(2026, 11, 2, tzinfo=timezone.utc), datetime(2026, 11, 3, tzinfo=timezone.utc)
+    mk = lambda rid, at, pct, state="SET": NS(id=rid, structure_key="MINI_GRID", factor_id="necessary_l",
+                                              valid_from="2026-10", recorded_at=at, state=state, of_factor="diesel_l",
+                                              pct=pct)
+    rows = (mk(1, t0, "5"), mk(2, t2, "9"))
+    got = tolerance_in_force(rows, "MINI_GRID", "2026-10", t1)["necessary_l"]
+    assert (got.pct, got.declaration_id) == (Decimal(5), 1)                 # the later row is not yet recorded
+    assert tolerance_in_force(rows, "MINI_GRID", "2026-10", t2)["necessary_l"].declaration_id == 2
+    assert tolerance_in_force((mk(1, t0, "5"), mk(2, t2, None, "CLEARED")), "MINI_GRID", "2026-10", t1)["necessary_l"]
