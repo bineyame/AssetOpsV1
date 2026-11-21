@@ -29,6 +29,21 @@ ASSUMPTION_NOTE = (
     "2026-11-07), minimum load 30 % of rating, lithium iron phosphate battery tapering above 95 %"
 )
 
+#: 0K4d (D-0K4.27): (label, basis, derivation) for each key a v8 study names, worded as D-0K4.27; a key with no entry
+#: is `KeyError`, never a blank. SFC is the template's value, not an assumed row here, so its basis is TEMPLATE.
+ASSUMED_DERIVATION: dict[str, tuple[str, str, str]] = {
+    "generator-no-load-fuel-rate": (
+        "assumed", ASSUMED_BASIS, "the owner's value of 2026-11-07 for a 40 kW set; the generic rule of about 0.08 L/h "
+        "per kW of rating gives 3.2"),
+    "generator-minimum-load": (
+        "assumed", ASSUMED_BASIS, "a typical diesel controller setting, until Kobo's controller settings"),
+    "battery-charge-taper-start": (
+        "assumed", ASSUMED_BASIS, "a lithium iron phosphate battery, until Kobo's battery sheet"),
+    "specific-fuel-consumption": (
+        "assumed", "TEMPLATE", "the Kobo template's value, read as consumption at rated output, until Kobo's fuel "
+        "sheet"),
+}
+
 
 def assumed_site(document: dict[str, Any]) -> None:
     """Append the assumed rows to a rendered Kobo site document; a key already present is `KeyError`."""
