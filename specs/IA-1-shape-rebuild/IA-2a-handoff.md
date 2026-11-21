@@ -1,3 +1,16 @@
+# Resume note (builder 2, 2026-11-21, 05:45 UTC)
+
+- Unit 2 committed `c5af13ced`; 3(a) committed `ef7d098ad` (builders, routes, docTitle, ia.css; not live), `76b739121` (uxi page
+  default and route order), `ce3d81d16` (ia_gates prints a crash's error line).
+- Unit 2 proof (stub, forced): every plant failed: PLAN_PLANT 9 of 9, COUNT planstep/planhist/planver, SHAPE doctitle, G1 plantabs
+  (after the rebuild), PS crewtile/release/leftout, COPY plan, SHOTS approvefold (48 of 72 bad). Logs `/opt/assetecon/evidence/IA-2a/unit2/`.
+- uxi planans and planwait fail on the builders (forced). The forced uxi base run crashed twice ("Target crashed"), during the /tmp
+  quota incident 05:30-05:40; rerun pending.
+- Uncommitted: walkthroughs.md (plan tabs), register R757-R760, `.ai/state/demo.md` + index line 168. The flip is prepared in
+  `<scratch>/ia2a-r2/flip/` (IA_LANDED + IA-2a, plan renders shapePlan, shapePlanInterim deleted).
+- Next: forced ia_gates green at 3(a) -> flip commit (copy flip files, build) -> normal ia_gates, ia_shots full, parts_identity,
+  G3, shell, lint, render_text, vocab, copy, hand_typed, check_manifest -> packet-IA-2a.md, spec Status in_review.
+
 # IA-2a handoff (partial: unit 1 done, unit 2 started)
 
 Builder 1 (Claude Opus), 2026-11-21. Stopped at the context budget (standing brief), not on a coordinator stop.
