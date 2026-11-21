@@ -87,3 +87,4 @@ One line per `## ` section of the former `.ai/CODE_STATE.md`, in its original or
 173. `3A6` source profiles as data: admitted JSON profiles, single-sheet XLSX, one source system per Site, tagged S1, migration 0067, every upload parse in a bounded child process (r5) · data.md
 174. `3B4` the structure observer (observed leaves and rule, start-up table check, structure Finding domain and tolerance record, migration 0068, observer and two commands) · data.md
 175. `0K2` the Kobo replay study (replay_study over ForwardReplayPort, calibration, dawn dates, month splits; simulated 61-day season fixture; no database) · data.md
+176. `0M` Mto's demand-on-headroom replay (headroom_study over ForwardReplayPort on 0K2's helpers, reduced-capacity run, refusals before the port; simulated 61-day Mto season; no database) · data.md

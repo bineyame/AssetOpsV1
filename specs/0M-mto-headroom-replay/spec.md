@@ -1,6 +1,6 @@
 # 0M: Mto's demand-on-headroom replay through the same port (implementer spec)
 
-Status: spec rev 2, handshake round 1 answered (D-0M.12 to D-0M.22; `rulings.md` "Handshake answers (round 1)"). Architect (Claude), 2026-11-21, on the owner's delegation
+Status: in_review (built on `task/0M-mto-headroom`, packet `packet.md`). Spec rev 2, handshake round 1 answered (D-0M.12 to D-0M.22; `rulings.md` "Handshake answers (round 1)"). Architect (Claude), 2026-11-21, on the owner's delegation
 (`owner/owner-away-architect-decides-2026-11-21.md`; pull order `specs/OWNER-AWAY/decisions-2026-11-21.md` row 4).
 Spike M (`delivery-plan.md` §2 row `0M`: "Mto's demand-on-headroom replay through the same adapter"; lane C,
 `two-week-build-plan.md` §0.2 days 10 to 12). **4 units** (rev 1: 3.5). Discovery review (W5): a new mechanism whose litres and

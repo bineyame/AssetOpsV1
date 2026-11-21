@@ -533,3 +533,11 @@ Branch `task/3B4-observer` (main `2ef8e9769` merged in: 4a, 3B6, DS3); spec `spe
 - Settled: `structure/observe/` (`rules.py` OBSERVED/NOT_OBSERVED, signs, kinds, key, lifecycle table; `observe.py` the rule, band, basis, 25-key claim; `service.py` `StructureObserver.run` per Site under the Site-month lock; `composition.py`); today's Finding store gains domain `structure` and `structure_tolerance` (append-only, in `$findingTables`); four readers leave the domain out (`_fence`, `finding_detail`, `rows()` x5, thread sources); commands `observe_structure run` and `declare_tolerance set|clear|show`; `COMMAND_ROLES` `structure.tolerance.money`/`.operational`.
 - Settled (unit 4): `check.check_observed` (`OBSERVE_CODES` KEY, COVER, LEAF, SOURCE, DIRECTION, KIND) runs in `check_all()` after `check_pins`, over `OBSERVED`'s keys only (COLD/EV registries not a fault); registry v4's 31 MINI_GRID leaves covered once (19 observed, 12 not).
 - Open: owner Q1/Q2 (rows 27-28); residual R-FENCE-FUEL, R-NO-OPPORTUNITY, R-ASSUMED-TARGET; words and a screen come with 3B5/5c.
+
+## 0M - Mto's demand-on-headroom replay (in review, 21 Nov)
+
+Branch `task/0M-mto-headroom` (base main `6c33395ef`, after the 0K2 merge `3b4f06052`); spec `specs/0M-mto-headroom-replay/spec.md` rev 2, rulings D-0M.1-22; packet `packet.md`. No database, no migration, no served text, no money.
+
+- Settled: `runs/headroom_replay.py` `headroom_study` adds a customer's kW to one Site load at its local weekday steps and replays the whole window beside the no-customer replay (full, and a second base run frozen at a reduced inverter limit fed `min(PV, limit)`); headroom days and kWh from the series; extra litres, generator, unserved, starts, month splits, dawn new/cleared dates; every customer id and the reduced run's frozen limit and other needs refused before any port call. Reuses 0K2's helpers only. `host/tests/mto.py`: the Kobo template edited to Mto's manifest facts, loads halved.
+- 61-day SIMULATED/MODELLED figures beside the design values in the packet (huller Oct 6 days, 384 kWh, 156.7 L vs 3, 225, 68; reduced 0.24 L a day vs 5); design values unchanged (row 37).
+- Open: replacing design values is the owner's (row 37); dawn admissibility and money are `6g`.
