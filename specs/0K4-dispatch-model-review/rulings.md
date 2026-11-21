@@ -87,7 +87,7 @@ Review: `review-for-owner.md`. Unit specs: `specs/0K4a-dispatch-v8/`, `specs/0K4
   `generator-fuel`: `fuel_energy = generator_output + generator_conversion_loss`.
   Kobo's assumed values: `r = 3.3` L/h basis `GENERIC_DEFAULT` (the owner's value of 2026-11-07, already declared in
   `tools/demo_combined_kobo.py:NO_LOAD`) and `SFC = 0.3` (the template's), so `s = 0.2175` L/kWh: 3.3 L/h idle,
-  about 0.54 L/kWh at a quarter load, 0.38 at half and 0.30 at full. Labelled assumed until Kobo's fuel sheet arrives.
+  0.5475 L/kWh at a quarter load, 0.3825 at half and 0.30 at full (exact on the curve; corrected at the 0K4b review, L4). Labelled assumed until Kobo's fuel sheet arrives.
 - **Why.** Review §2 point 5 and §3 row 4. The product already declares a no-load rate with a basis; reusing it keeps
   one value per fact. A curve fixed by two declared points needs no new key. The energy constant lets the kernel's
   exact stock check stay whole now that litres are not proportional to output.

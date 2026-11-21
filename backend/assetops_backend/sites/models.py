@@ -21,6 +21,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from assetops_backend.i18n import Message, Word, message
+
 # The M1 Site types. A template declares which kind of Site it would produce;
 # that is a statement about the archetype, not about any Site.
 SITE_TYPES = frozenset({"MINIGRID", "COLDCHAIN", "EV_CHARGING"})
@@ -106,7 +108,14 @@ class PropertyDefinition:
 
     unit: str
     kind: str
-    display_name: str
+    #: A legacy name is a `str` (baselined debt); a name added since D-0K4.19 is an SC-1 `Message`, rendered at read
+    #: through `served_text`.
+    display_name: str | Message
+
+
+def _name(key: str) -> Message:
+    """D-0K4.19: a Foundation property's name as an SC-1 message over the `foundation_property` vocabulary."""
+    return message("foundation.property_name", property=Word("foundation_property", key))
 
 
 #: The closed property vocabulary. Four members, which is what this slice's
@@ -281,6 +290,20 @@ COMPONENT_PROPERTY_DEFINITIONS: dict[str, PropertyDefinition] = {
     "generator-no-load-fuel-rate-basis": PropertyDefinition(
         unit="state", kind="PHYSICAL", display_name="Generator no-load fuel rate basis"
     ),
+    # 0K4b (D-0K4.4 minimum load, D-0K4.6 charge taper): the two settings `mini-grid` v8 reads beside the no-load
+    # rate, each with where its value comes from. Their names are SC-1 (D-0K4.19).
+    "generator-minimum-load": PropertyDefinition(
+        unit="%", kind="CONTROL", display_name=_name("generator_minimum_load")
+    ),
+    "generator-minimum-load-basis": PropertyDefinition(
+        unit="state", kind="CONTROL", display_name=_name("generator_minimum_load_basis")
+    ),
+    "battery-charge-taper-start": PropertyDefinition(
+        unit="%", kind="PHYSICAL", display_name=_name("battery_charge_taper_start")
+    ),
+    "battery-charge-taper-start-basis": PropertyDefinition(
+        unit="state", kind="PHYSICAL", display_name=_name("battery_charge_taper_start_basis")
+    ),
     # DIESEL-1 K1 (R3c): the tank level sensor's declared accuracy, read by fuel-balance-1 (K3) as the margin term a.
     "fuel-level-sensor-accuracy": PropertyDefinition(
         unit="L", kind="PHYSICAL", display_name="Fuel level sensor accuracy"
@@ -317,6 +340,9 @@ STATE_PROPERTY_VALUES: dict[str, frozenset[str]] = {
     "supply-use": frozenset({"PRODUCTIVE", "HOUSEHOLD", "ESSENTIAL_SERVICE"}),
     # FUEL-1 A1: where a declared generator no-load fuel rate comes from.
     "generator-no-load-fuel-rate-basis": frozenset({"GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST"}),
+    # 0K4b: where a declared minimum load and taper start come from.
+    "generator-minimum-load-basis": frozenset({"GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST"}),
+    "battery-charge-taper-start-basis": frozenset({"GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST"}),
     # DIESEL-1 K1: where a declared fuel level sensor accuracy comes from.
     "fuel-level-sensor-accuracy-basis": frozenset({"GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_CALIBRATION"}),
 }
@@ -347,6 +373,10 @@ MINIGRID_PROPERTY_CARRIERS: dict[str, str] = {
     "supply-use": "LOAD",  # WALK1-3 §4.2
     "generator-no-load-fuel-rate": "GENERATOR",  # FUEL-1 A1
     "generator-no-load-fuel-rate-basis": "GENERATOR",  # FUEL-1 A1
+    "generator-minimum-load": "GENERATOR",  # 0K4b (D-0K4.4)
+    "generator-minimum-load-basis": "GENERATOR",  # 0K4b
+    "battery-charge-taper-start": "BATTERY",  # 0K4b (D-0K4.6)
+    "battery-charge-taper-start-basis": "BATTERY",  # 0K4b
     "fuel-level-sensor-accuracy": "FUEL_TANK",  # DIESEL-1 K1
     "fuel-level-sensor-accuracy-basis": "FUEL_TANK",  # DIESEL-1 K1
     "technical-loss-band": "LOAD",  # 4a (D-4A.3): per feeder

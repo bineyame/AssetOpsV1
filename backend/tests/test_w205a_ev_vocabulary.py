@@ -138,7 +138,12 @@ class TestVocabulary:
                                                 # DIESEL-1 K1: the fuel level sensor accuracy basis
                                                 "fuel-level-sensor-accuracy-basis": frozenset({
                                                     "GENERIC_DEFAULT", "MANUFACTURER_DATASHEET",
-                                                    "SITE_CALIBRATION"})}
+                                                    "SITE_CALIBRATION"}),
+                                                # 0K4b: the minimum load's and taper start's bases
+                                                "generator-minimum-load-basis": frozenset({
+                                                    "GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST"}),
+                                                "battery-charge-taper-start-basis": frozenset({
+                                                    "GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST"})}
 
 
 class TestParserAndRender:
