@@ -19,6 +19,7 @@ import { fakeClient, findingsBody, loaded } from "./estateFixtures";
 import { loadedPortfolio, portfolioBody } from "./portfolioFixtures";
 import FIXTURE_TEXT from "../../../../backend/tests/fixtures/5c/deep_dive_lakeside_2026-10.json?raw";
 import TABS_BEFORE from "./fixtures/portfolioTabsOverview.before.html?raw";
+import PAGE_SOURCE from "../DeepDiveMonth.tsx?raw";
 
 const worldA = (): DeepDiveMonthBody => JSON.parse(FIXTURE_TEXT) as DeepDiveMonthBody;
 
@@ -123,6 +124,13 @@ describe("5c test 10: World A renders", () => {
     const text = view.container.textContent ?? "";
     for (const s of strings(a)) expect(text, s).toContain(s);
     expect(text).toContain(a.headline!.evidence[0]);
+    // D-5C.2 (P8): each figure is the JSON's string, character for character, in its own place.
+    for (const tile of a.tiles!) {
+      expect(view.container.querySelector(`[data-dd-tile="${tile.key}"] .dd-kpi__value`)!.textContent).toBe(tile.value);
+    }
+    for (const step of a.bridge!.groups.flatMap((g) => g.steps)) {
+      expect(view.container.querySelector(`[data-dd-step="${step.key}"] .dd-wf__value`)!.textContent).toBe(step.value);
+    }
     // D-5C.13: never the uncarried composition.
     expect(text).not.toContain("$1,693.00");
     // The notice is visible with every drawer closed, never inside a dialog (P5).
@@ -136,6 +144,16 @@ describe("5c test 10: World A renders", () => {
     expect(status.textContent).toContain("Kisiwa");
     // Kisiwa's carried O&M reads "(estimate)" in the by-Site table (P6).
     expect(text).toContain("$0.00 (estimate)");
+  });
+
+  it("the page never formats a figure: no number formatting in its source (D-5C.2, P8)", () => {
+    const code = PAGE_SOURCE.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+    for (const banned of ["toFixed", "toLocaleString", "Intl.NumberFormat", "parseFloat", "toPrecision"]) {
+      expect(code, banned).not.toContain(banned);
+    }
+    // The bar's ratio is the one arithmetic: Number( appears only inside barWidths.
+    const outside = code.replace(/function barWidths[\s\S]*?\n\}\n/, "");
+    expect(outside).not.toContain("Number(");
   });
 
   it("opens every step drawer and the Assure drawer with their lines", async () => {
