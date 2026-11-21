@@ -1,7 +1,7 @@
 """3C1b (`specs/3C1-person-on-commands/spec.md` §5; R2-R4, R7, R8, P1-P3, P7): the person migration on `action_event`,
 its constraints and coupling, the person path over the real stores, and the `create_app` wiring.
 
-The migration's ids are read from its module (D-3A1.12: 0070 is provisional and may be renumbered at merge). The
+The migration's ids are read from its module (D-3A1.12: 0071, re-pointed at merge preparation). The
 accept, apply (APPLIED and FAILED) and observe run through the real action router over the real
 `PostgresActionStore`, the S1 publish and the Postgres account store, as the S6 tests do (Q-3C1b-3: no harness
 composes Actions inside `create_app`); `create_app` is proved to hand the person inputs to the action router.

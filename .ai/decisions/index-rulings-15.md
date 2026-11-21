@@ -27,6 +27,9 @@
 - `D-SC1.25` Price fact and format (2 or 4 places, per unit) · live · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.26` 3A7 and 5c code starts after SC-1a merges; legacy fallback withdrawn (amends D-SC1.14) · live; amended by D-SC1.28 · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.27` Legacy baseline pins each template by hash (LEGACY_CHANGED) · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.29` Legacy `i18n` modules (`messages.py`, `locale.py`) sit in the ratchet, named and pinned; new i18n files must be in scope (`MECH_UNSCOPED`) · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.30` Mechanism names (`const`, `params`, `fact`, fact fields) read as identifiers, not added to `SYSTEM`; listed in §3.12 · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.31` §5.1 `records` slot reads `in_sentence`; 3A7 transcribes it so · live · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.28` Text waits for SC-1a, code does not: non-text commit first, statements after SC-1a merges, merge after SC-1a (amends D-SC1.26; owner away) · live · specs/SC-1-statement-composer/rulings.md
 - `D-3C2.14` 3C2 state words and refusal sentences as SC-1 statements in a commit after SC-1a; 3A7 merges first (D-SC1.28) · live · specs/3C2-agreed-change-action/rulings.md
 - `D-0K1.1` A separate one-method ForwardReplayPort; LabExecutionPort untouched · live · specs/0K1-forward-replay-port/rulings.md

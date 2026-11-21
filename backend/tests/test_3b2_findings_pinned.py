@@ -34,19 +34,23 @@ MANIFEST = yaml.load(MANIFEST_PATH.read_text(encoding="utf-8"), Loader=_LOADER)
 DESIGN_PINS = {
     "GENERATOR_SUPPORT_CANDIDATE": ("MINI_GRID", "candidate_l"),
     "UNEXPLAINED_FUEL": ("MINI_GRID", "unexplained_l"),
+    # 3B6 (D-3B6.5): the three cold and EV mechanisms, pinned to leaves under Protect.
+    "COLD_START_FAILURE": ("COLD_CHAIN", "uncovered_nights"),
+    "COLD_EXCURSION": ("COLD_CHAIN", "excursion_crates"),
+    "EV_INTERRUPTION": ("EV_DEPOT_CAPTIVE", "chargers_in_service"),
 }
-DESIGN_PENDING = {
-    "COLD_START_FAILURE": "COLD_CHAIN",
-    "COLD_EXCURSION": "COLD_CHAIN",
-    "EV_INTERRUPTION": "EV_DEPOT_CAPTIVE",
-}
+DESIGN_PENDING: dict[str, str] = {}  # 3B6 moved the three into PINS
 #: D-3B2.7: the catalogue's domain values, lower case.
 OWN_DOMAIN_OF_STRUCTURE = {"MINI_GRID": "mini_grid", "COLD_CHAIN": "cold_chain", "EV_DEPOT_CAPTIVE": "ev_charging"}
 #: The manifest's heading words (T1).
 OWN_HEADING = {"grow": "GROW_REVENUE", "optimize": "OPTIMIZE_COST", "protect": "PROTECT_ASSET",
                "assure": "ASSURE_PERFORMANCE"}
-#: D-3B2.9: the manifest's mini-grid site names.
-OWN_SITE_STRUCTURE = {"Kobo": "MINI_GRID", "Kisiwa": "MINI_GRID", "Mto": "MINI_GRID"}
+#: D-3B2.9: the manifest's site names (3B6: the cold rooms and depots too).
+OWN_SITE_STRUCTURE = {"Kobo": "MINI_GRID", "Kisiwa": "MINI_GRID", "Mto": "MINI_GRID",
+                      "Room A · Mwea": "COLD_CHAIN", "Room B · Thika": "COLD_CHAIN", "Room C · Kirinyaga": "COLD_CHAIN",
+                      "Embakasi": "EV_DEPOT_CAPTIVE", "Kasarani": "EV_DEPOT_CAPTIVE", "Ruiru": "EV_DEPOT_CAPTIVE"}
+#: 3B6 (D-3B6.5): a pinned mechanism no screen Finding shows yet, with its reason.
+NO_MANIFEST_ROW = {"COLD_EXCURSION": "no pack Site has an excursion Finding in October (home_categories.findings)"}
 
 #: Spec §4 / D-3B2.4: the ruled differences between the literal and the registry. A new or vanished one fails T3.
 EXPECTED_DIVERGENCES = {
@@ -141,9 +145,15 @@ def test_t1_pin_is_a_frozen_record():
 def test_t1_each_pin_sits_on_a_manifest_findings_row(mechanism):
     structure_key, factor_id = DESIGN_PINS[mechanism]
     category = REGISTRIES[structure_key].row(factor_id).home.category
+    structure = MANIFEST["structures"][structure_key]
+    # 3B6 (D-3B6.5): a row on a node that is exactly the pinned leaf (a bare rename) counts as the leaf's row.
     rows = [r for r in MANIFEST["home_categories"]["findings"]
-            if r["factor"] == factor_id and OWN_HEADING[r["heading"]] == category
+            if (r["factor"] == factor_id or structure.get(r["factor"]) == factor_id)
+            and OWN_HEADING[r["heading"]] == category
             and OWN_SITE_STRUCTURE.get(r["site"]) == structure_key]
+    if mechanism in NO_MANIFEST_ROW:
+        assert not rows, f"{mechanism} now has a findings row; drop it from NO_MANIFEST_ROW"
+        return
     assert rows, f"no home_categories.findings row for {structure_key}/{factor_id} under {category}"
 
 
@@ -213,7 +223,8 @@ def test_t2_a_pin_on_a_product_is_accepted():
 ])
 def test_t2_which_planted_nodes_are_totals(expression, total):
     row = dataclasses.replace(MG.row("diesel_l"), factor_id="planted_node", expression=expression)
-    planted = {"MINI_GRID": Registry("MINI_GRID", MG.version, MG.rows + (row,))}
+    # 3B6: the real cold and EV registries stay beside the planted one, as the real pins name them.
+    planted = {**REGISTRIES, "MINI_GRID": Registry("MINI_GRID", MG.version, MG.rows + (row,))}
     planted_pins = _pins(UNEXPLAINED_FUEL=("MINI_GRID", "planted_node"))
     if total:
         with pytest.raises(StructureError, match=r"^STRUCTURE_PIN_TOTAL MINI_GRID/planted_node$"):
@@ -229,6 +240,8 @@ def test_t2_the_real_data_passes():
 
 def test_t2_check_all_with_planted_registries_runs_no_pin_check(monkeypatch):
     # P5 (D-3B2.10): a set with no MINI_GRID would fail STRUCTURE_PIN against the real pins; it is not checked.
+    # 3B6 (D-3B6.4, D-3B6.21): the planted key differs from its registry's key, so L2 refuses it first
+    # (`STRUCTURE_CATALOGUE X/-`, the same registry code).
     check_all(registries={})
     with pytest.raises(StructureError) as caught:
         check_all(registries={"X": Registry("NOT_MINI_GRID_KEY", MG.version, MG.rows)})
@@ -255,8 +268,8 @@ def test_t2_create_app_refuses_a_bad_pin(monkeypatch):
 def test_t2_create_app_refuses_an_unpinned_mechanism(monkeypatch):  # P2
     from assetops_backend.main import create_app
 
-    pending = {k: v for k, v in pins.PENDING_PINS.items() if k != "EV_INTERRUPTION"}
-    monkeypatch.setattr(pins, "PENDING_PINS", MappingProxyType(pending))
+    pinned = {k: v for k, v in pins.PINS.items() if k != "EV_INTERRUPTION"}  # 3B6: it is pinned, not pending
+    monkeypatch.setattr(pins, "PINS", MappingProxyType(pinned))
     with pytest.raises(ConfigurationError, match=r"^STRUCTURE_PIN_MISSING -/EV_INTERRUPTION$"):
         create_app()
 
@@ -274,8 +287,8 @@ def test_t3_parity_equals_the_ruled_differences():
 def test_t3_a_new_difference_is_reported(monkeypatch):  # P3
     rows = tuple(dataclasses.replace(r, home=Home("PROTECT_ASSET", "P1")) if r.factor_id == "candidate_l" else r
                  for r in MG.rows)
-    monkeypatch.setattr(registry_module, "REGISTRIES", MappingProxyType(
-        {"MINI_GRID": Registry("MINI_GRID", MG.version, rows)}))
+    monkeypatch.setattr(registry_module, "REGISTRIES", MappingProxyType(  # 3B6: cold and EV kept for their pins
+        {**REGISTRIES, "MINI_GRID": Registry("MINI_GRID", MG.version, rows)}))
     got = {(d.mechanism, d.registry_category) for d in pins.parity()}
     assert ("GENERATOR_SUPPORT_CANDIDATE", "PROTECT_ASSET") in got
 
@@ -320,7 +333,7 @@ def test_t5_mini_mechanisms_read_optimize(mechanism):
     assert pins.pin_of(mechanism) == pins.Pin(mechanism, *DESIGN_PINS[mechanism])
 
 
-@pytest.mark.parametrize("mechanism", ["COLD_START_FAILURE", "COLD_EXCURSION", "EV_INTERRUPTION", "NOT_A_MECHANISM"])
+@pytest.mark.parametrize("mechanism", ["NOT_A_MECHANISM"])  # 3B6: the three pending mechanisms are pinned (§3)
 def test_t5_pending_and_unknown_read_none(mechanism):
     assert pins.pinned_category(mechanism) is None
     assert pins.pin_of(mechanism) is None

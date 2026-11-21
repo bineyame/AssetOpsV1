@@ -1,0 +1,22 @@
+{
+  "format": "assetops.world-definition/1",
+  "world": "layer4",
+  "manifest": "Docs/demo-sprint/product-direction-layer4/demo-site-scenario-manifest.yaml",
+  "derived_values": "Docs/demo-sprint/product-direction-layer4/derived-values.json",
+  "months": ["2026-10"],
+  "built_by": "service:world-build",
+  "tenants": [
+    {"slug": "lakeside-power",
+     "onboarding": "backend/tests/fixtures/on1/lakeside-power.onboarding.json",
+     "submit_as": "wanjiru@lakeside-power.example",
+     "accept_as": "joseph@lakeside-power.example",
+     "sites": {"KISIWA-001": "Kisiwa", "KOBO-001": "Kobo", "MTO-001": "Mto"}}
+  ],
+  "not_built": [
+    {"tenant": "harvest-cold", "reason": "NO_ONBOARDING_FILE"},
+    {"tenant": "metro-bus", "reason": "NO_ONBOARDING_FILE"}
+  ],
+  "telemetry": {"source": "none", "reason": "DS2_NOT_BUILT"},
+  "projection": {"sites": 9, "days": 61,
+                 "basis": "manifest time_scales.sparse_operational_context span 2026-09-01..2026-10-31; nine Sites"}
+}

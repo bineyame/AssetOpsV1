@@ -751,7 +751,7 @@ function Invoke-ConfigurationPersistenceCheck {
         $opportunityCoalesce)
     $findingWriter = "$backendRoot/analytics/adapters/postgres_finding_store.py"
     $findingTables = @('finding', 'finding_revision', 'finding_revision_assessment', 'finding_revision_evidence',
-        'finding_merge', 'finding_match_pass')
+        'finding_merge', 'finding_match_pass', 'structure_tolerance')
     # S4-02a adds the sixth writer, the financial assumption store: it inserts its two tables and its only
     # UPDATE closes an assignment's set-once recorded_to. No other module writes either table.
     $assumptionWriter = "$backendRoot/financials/adapters/postgres_assumption_store.py"
@@ -984,8 +984,9 @@ function Invoke-ConfigurationPersistenceCheck {
     # 3A2 (spec section 7; migration 0065; D-3A2.4): the same writer also owns commercial_upload and
     # commercial_upload_decision, with the same plain-INSERT shape. Its under-lock "no decision yet" read
     # (SELECT 1 FROM commercial_upload_decision WHERE ...) is a read, not a write, and is not counted.
+    # 3A6 (spec section 3; migration 0067; D-3A6.2): the same writer owns commercial_source_profile, same shape.
     $commercialTables = @('commercial_intake', 'commercial_record', 'commercial_record_revision', 'commercial_rejection',
-        'commercial_upload', 'commercial_upload_decision')
+        'commercial_upload', 'commercial_upload_decision', 'commercial_source_profile')
     $commercialShapes = [ordered]@{}
     foreach ($table in $commercialTables) {
         $commercialShapes["$table insert"] = ('(?i)^INSERT\s+INTO\s+' + $table + '\s*\([^)]*\)\s*VALUES\s*\([^()]*\)\s*;?\s*$')

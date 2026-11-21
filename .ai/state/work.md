@@ -152,7 +152,7 @@ decision `D-2026-10-31-board-action-refresh-lineage`; packet `archive/agent-hist
   `PERSON_ROLE:<role>`; the grant file still scopes and supplies `triggering_fixture` (R3). The store takes the actor
   through all four writes (ACCEPTED, OBSERVED, APPLIED, FAILED) and writes `person_id`, kept out of `EVENT_COLUMNS`.
   On the person path only, `actor_id` joins the digest payloads (R2).
-- Migration `0070_person_on_actions` (provisional number; down_revision 0066): `person_id`, FK, `person_actor`,
+- Migration `0071_person_on_actions` (renumbered at the SC-1a merge; down_revision 0068 until 3A7 0069 and 3C2 0070 land): `person_id`, FK, `person_actor`,
   `person_coupling`; kind, id and channel checks widened under their names, restored exactly on downgrade.
 - Open: USER label, observe note and change statement are `null` until the SC-1 text commit (D-SC1.28,
   Q-3C1b-1); the Action read label and the stored publish note still say "SYSTEM demonstration" (Q-3C1b-2);

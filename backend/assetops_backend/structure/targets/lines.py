@@ -106,7 +106,7 @@ def _classify(reg: Registry, candidates: list[MonthLine]):
             unused.extend(_unused(c, DUPLICATE_DECLARATION) for c in lines)
             blocked[factor] = DUPLICATE_DECLARATION
             continue
-        line, money = lines[0], factors[factor].money
+        line, money = lines[0], factors[factor].unit.has_money_dimension
         reason = CURRENCY_MISSING if money and line.currency is None else (
             CURRENCY_ON_QUANTITY if not money and line.currency is not None else None)
         if reason is not None:  # rule 4

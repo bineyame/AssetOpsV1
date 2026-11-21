@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-4A.1 to D-4A.26)
+# Decision index: Demo-sprint and later rulings (index only) (D-4A.1 to D-4A.29)
 
 - `D-4A.1` Billing export states billed kWh, meter reads state metered kWh; stated rule admits kWh (registry v4) · live · specs/4a-energy-to-cash/rulings.md
 - `D-4A.2` Delivered kWh: every bound feeder every day, one binding set; SIMULATED readings are demo-simulated · live · specs/4a-energy-to-cash/rulings.md
@@ -26,3 +26,30 @@
 - `D-4A.24` I4: meter is subject.ref; a differing body.meter_ref blocks metered kWh (METER_REF_CONFLICT) · live · specs/4a-energy-to-cash/rulings.md
 - `D-4A.25` I5: class sweep adds seam and property pins; stored v3 snapshots read REBUILD_NEEDED, no migration · live · specs/4a-energy-to-cash/rulings.md
 - `D-4A.26` Size 4.0 units in three units, no split · live · specs/4a-energy-to-cash/rulings.md
+- `D-3B6.1` Two registries (COLD_CHAIN 36 rows, EV_DEPOT_CAPTIVE 42 rows) on the shared records, v1 · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.2` No cold or EV row states a total · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.3` Not applicable is a declared registry list read by applicability(); EV declares revenue · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.4` REGISTRIES key must equal structure_key (3B1 L2) · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.5` Cold and EV Findings pin to leaves under Protect; PENDING_PINS empty · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.6` One exclusion rule (STRUCTURE_OTHER_KEY); mini-grid-only Site readers refuse STRUCTURE_KEY_NOT_READ · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.7` EV_CHARGING Sites take the captive-depot structure (owner row 21) · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.8` One composition per structure; no cross-structure total or depot ratio (owner row 22) · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.9` No tolerances on cold or EV rows · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.10` capacity_crate_days declared, NOT_CONNECTED; its property goes with 9d · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.11` minutes_per_day 1440; nights_in_period the month's local days · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.12` Size 2.5 units in three units; no user-facing text · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.13` A HELD_NOT_CALCULATED leaf cites a stored record that exists, else NOT_CONNECTED · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.14` Revenue not applicable is claimed declared, checked and queryable only; applicability() has no read (owner row 26) · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.15` Calendar test reads four month lengths (28, 29, 30, 31) · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.16` Plants named against the test that catches them: data plants vs code plants · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.17` BridgeRead.site refuses before it reads; test 8 covers Bridge and portfolio readers · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.18` Shared factor IDs cannot route a cold or EV leaf through mini-grid rows (COMMERCIAL_KEYS, test 6) · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.19` Sequencing with 4a: what unit 1 may build first; MINI_GRID version not asserted · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.20` Test 6 is the production chain (EnergyLeafSource after 4a) · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.21` Two existing tests widen without a literal change (3b2:234, 4b1 _valued_cases) · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.22` W6 grep narrowed to readers of the Site-type map (G1, G2, G3) · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.23` Implementer pre-flight and pack figures accepted · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.24` Size 2.75 units (owner row 26) · live · specs/3B6-cold-ev/rulings.md
+- `D-4A.27` Producer world dated after the Kobo Foundation; gateway enabled (Q1) · live · specs/4a-energy-to-cash/rulings.md
+- `D-4A.28` Unexplained names FEEDER_READINGS_GAP in PG1(e); PG1(e) amended; no sibling alignment (Q2) · live · specs/4a-energy-to-cash/rulings.md
+- `D-4A.29` F1-F3 added as tests V9d, V27, V18b (tests only) · live · specs/4a-energy-to-cash/rulings.md

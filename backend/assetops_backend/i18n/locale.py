@@ -11,6 +11,9 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from typing import Any, Iterator
 
+#: The public surface (D-SC1.36): a name outside this list is private to `i18n` (`I18N_BYPASS`).
+__all__ = ["DEFAULT_LOCALE", "LocaleMiddleware", "current_locale", "resolve", "using"]
+
 DEFAULT_LOCALE = "en"
 #: Locales offered (D-I18N.3). A language is added here only when its catalogue is complete and reviewed.
 SUPPORTED: tuple[str, ...] = ("en",)

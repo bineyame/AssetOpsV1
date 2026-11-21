@@ -190,7 +190,7 @@ written, its keys join the legacy baseline, and SC-1b converts them. Either way 
 
 **Amended (SC-1 handshake, 2026-11-21; D-SC1.26 replaces the "otherwise" above).** This unit's code starts when both
 3A6 and SC-1a have merged; the coordinator checks SC-1a's merge at dispatch and says so in the brief. There is no flat
-fallback. The heading reads as SC-1 §5.1 rev 2, with the evidence word of the figures it states (`Revenue
+fallback. The heading reads as SC-1 §5.1 rev 2 (its `records` slot declares `"form": "in_sentence"`, because `record_noun` has only that form; D-SC1.31; transcribe the slot exactly, never default it to `label`), with the evidence word of the figures it states (`Revenue
 (Recorded): the accounts say ...`, D-SC1.18), the difference, allowed amount and share declared `derived_from`; the
 scope is SC-1 §5.4's `reconciliation.scope` (a `State` and a `Name`). Every template holding a number word is
 reworded to drop it (D-SC1.21): `standing.none_matched` reads "Not yet reconciled: no month's recorded revenue and

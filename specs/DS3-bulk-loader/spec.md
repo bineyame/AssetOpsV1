@@ -1,6 +1,6 @@
 # DS3: the bulk loader for the generated world's inputs (implementer spec)
 
-Status: rev 2, Architect (Claude), 2026-11-21, on the owner's delegation (`owner/owner-away-architect-decides-2026-11-21.md`;
+Status: in_review (built on `task/DS3-bulk-loader`; mid-build Q1-Q3 answered, rev 3: D-DS3.20 to D-DS3.23). Rev 2, Architect (Claude), 2026-11-21, on the owner's delegation (`owner/owner-away-architect-decides-2026-11-21.md`;
 pull order `specs/OWNER-AWAY/decisions-2026-11-21.md` row 4, rows 10 to 13 for the calls made here). Rev 2 folds the
 handshake answers D-DS3.9 to D-DS3.19 (`rulings.md` "Handshake answers (round 1)"); the handshake is closed. `delivery-plan.md`
 §2 row `DS3`: "Bulk loader: COPY into staging, set-based writes into input stores, the table allowlist and label
@@ -193,8 +193,10 @@ records nothing either. `received_at = clock()` once per batch; `completed_at=cl
 `except BatchRefused as error: raise BulkLoadRefused(error.kind, batch.batch_id, error.detail) from None` around
 `admit` only.
 
-`permitted_database(url, environ)`: with `target = database_target(url, environ)`: `target.name` ends `_test`, or
-`re.fullmatch(r"[a-z0-9_]+_audit[a-z0-9_]*", target.name)`; and `not is_operator_name(target.name)`; and
+`permitted_database(url, environ)`: with `target = database_target(url, environ)`: `not re.search(r"walk|serve", target.name)`
+(deny; D-DS3.22); and `re.fullmatch(r"[a-z0-9_]+_audit[a-z0-9_]*", target.name)` or
+`re.fullmatch(r"[a-z0-9_]+_pt[0-9a-f]+_[a-z0-9]+_test", target.name)` (a `pg_harness.database_name` clone; a bare `_test` name
+is no longer permitted, D-DS3.22); and `not is_operator_name(target.name)`; and
 `target.host in {"127.0.0.1", "localhost"}` and `target.port == int(env.get("ASSETOPS_PG_PORT", "55432"))` (the port
 `docker-compose.yml:21` publishes for `assetopsv1-postgres-1`; D-DS3.12). A `DatabaseTargetUnclear` or a missing port
 is false. The command is never the tool that loads the served walkthrough database: DS4 builds into
@@ -247,13 +249,13 @@ device per day (`Kit.seal(texts, device_id=...)`), `source_mode` SIMULATED, epoc
 well) = 960 envelopes (the pre-flight confirmed the five devices).
 
 **v4 slice (D-DS3.11).** With `patched_v4(kit, monkeypatch)` active for both loads: one batch `V`, `kit.seal([v4.event(100001,
-"START_RESULT", "evt-1", "FAILED"), v4.start(100002, "start-1"), v4.point(100003), v4.delta(100004)])`, appended to
-`B` (sequences far above the Kobo days'). The real path must accept all four ordinals (asserted; if not, a mid-build
-question, not a change of shapes). The seven v4-only columns are compared by the `accepted_evidence` list below.
+"START_RESULT", "evt-1", "FAILED"), v4.start(100002, "start-1"), v4.point(100003)])`, appended to
+`B` (sequences far above the Kobo days'). The real path must accept all three ordinals (asserted). `v4.delta` is not
+a member: central ingestion refuses it on `charger-controller/session-event` (D-DS3.20); it is a test-6 refusal case. The seven v4-only columns are compared by the `accepted_evidence` list below.
 
 **Real path:** on `real`, `BatchIngestionService(PostgresEvidenceLedger(real)).submit(kit.principal, b)` for each
 `b` in `B`, each 200 and COMPLETED. **Bulk path:** on `bulk`, `BulkEvidenceLoad(PostgresEvidenceLedger(bulk)).load(B)`
-(11 batches, 964 envelopes).
+(11 batches, 963 envelopes).
 
 **Equal rows** (each a sorted list of tuples, compared exactly):
 - `accepted_evidence`: every column except `id`, `batch_id`, `received_at`, keyed by `(source_id, message_id)`;
@@ -268,18 +270,20 @@ per batch and at most as many as the real path. Every other domain present on ei
 on both, ignoring `id`, `cause_evidence_id`, `available_at`, `created_at` (D-DS3.10); the test asserts at least one
 mini-domain job exists (the relabel took effect).
 **Census** (D-DS3.10): for every base table, `delta = count after - baseline`. Equal on both paths for every table
-except `recompute_job` (the rules above) and `chain_input_change` (the set of distinct `(tenant_id, site_id,
-table_name)` among new rows equal; bulk count at most real). Every table with a non-zero delta on either side is in
+except `recompute_job` (the rules above), `chain_input_change` (the set of distinct `(tenant_id, site_id,
+table_name)` among new rows equal; bulk count at most real) and `event_outbox` (per `(tenant_id, site_id, source, type)`:
+the groups equal, bulk count at most real, the subject cover equal; D-DS3.21). Every table with a non-zero delta on either side is in
 the test's named list (`ingestion_batch`, `accepted_evidence`, `ingestion_disposition`, `recompute_job`,
 `chain_input_change`, and any table the real path's triggers write on this seed, named with its delta as a literal);
-an unnamed table fails with its name. `financial_consequence_work` and the EV consequence work tables have delta 0
+an unnamed table fails with its name. No test is `xfail`: the census and the v4 slice both pass. `financial_consequence_work` and the EV consequence work tables have delta 0
 on both (no Finding or assessment revisions in the seed; the stated limit).
 
 ## 4. Tests (written first)
 
 **No database** (`backend/tests/test_ds3_bulk_load.py`):
 1. `permitted_database` (all on `127.0.0.1:55432` with an explicit empty `environ` unless said): `assetops_test`
-   true; `assetops_pt1a_ds3bulk_test` true; `assetops_ds3_audit1121` true; `assetops_ds4_audit1125` true;
+   false (D-DS3.22); `assetops_pt1a_ds3bulk_test` true; `assetops_ds3_audit1121` true; `assetops_ds4_audit1125` true;
+   `assetops_polish_walk1113_test` false (the live walkthrough database); `assetops_walk_audit1121` false; `assetops_other_test` false;
    `assetops_polish_walk1113` false; `assetops_op_kobo` false; `assetops_op_kobo_test` false; `_audit` false; a URL
    with a `dbname` query false (unclear); `assetops_test` on host `10.0.0.5` false; on port 5432 false; with no port
    false; on port 55433 with `environ={"ASSETOPS_PG_PORT": "55433"}` true.
@@ -309,7 +313,8 @@ fresh `clone_database(f"ds3c{n}", seed)`, dropped in `finally`; `recompute_job` 
    `BULK_NOT_SIMULATED`); an unknown gateway id (`seal_batch_v2` directly, D-DS3.17; `BULK_UNKNOWN_GATEWAY`); the
    gateway disabled (`UPDATE gateway SET disabled_at`, as `test_s2_evidence_ledger_postgres.py:360`;
    `GATEWAY_DISABLED`); the source disabled (as `:354`; `SOURCE_DISABLED`); a batch with one envelope outside the
-   binding's valid period (`BULK_REJECTED_ORDINAL`, ordinal named; the real path would store a rejection); the same
+   binding's valid period (`BULK_REJECTED_ORDINAL`, ordinal named; the real path would store a rejection); a batch `[v4.delta(...)]` on the MINIGRID Site
+   (`BULK_REJECTED_ORDINAL`, `MAPPING_INCOMPATIBLE` in detail, no row written; D-DS3.20); the same
    batch ID with other bytes after a load (`BATCH_ID_CONFLICT`, from `admit`); the lost race: `ledger.bulk_admit`
    called directly after that load with another `payload_sha256` (`BulkAdmissionRefused`, `BATCH_ID_CONFLICT`); an
    `evidence_publication` row inserted for the slot through `test_s405_publication_postgres.py`'s helper first
@@ -322,7 +327,7 @@ fresh `clone_database(f"ds3c{n}", seed)`, dropped in `finally`; `recompute_job` 
 7. A load stopped by a refusal at its third batch: batches one and two stay COMPLETED; a re-run after removing the
    bad batch reports them as `already_loaded` and loads the rest.
 
-**Parity** (`backend/tests/test_ds3_parity_postgres.py`): 8. §3 in full: the hand counts (11 batches, 964
+**Parity** (`backend/tests/test_ds3_parity_postgres.py`): 8. §3 in full: the hand counts (11 batches, 963
 envelopes), every equal-rows list equal (Kobo days and the v4 batch), the recompute-job rules, the census; the test
 drops its three clones in `finally`.
 
@@ -394,3 +399,7 @@ database (D-DS3.12; DS4, owner).
 | Q4 (owner) | Lines the generated world marks `ESTIMATED_NOT_RECEIVED` | Not loaded and not estimated: "Not available yet" naming the record (D-DS3.8; row 12) until a declared-estimate unit is queued |
 | Q5 (owner) | Bulk-load cold-chain and EV Sites now (add their parity slices, +0.75 unit) or refuse them until DS4 adds the slices? | Refuse (`BULK_SITE_TYPE_UNPROVEN`; D-DS3.11; row 13): bulk loads only what parity proves |
 | Q6 (owner, DS4) | How the walkthrough serve reaches a world built into `assetops_ds4_audit<MMDD>` | **Held** for the owner at DS4 (D-DS3.12); no authorisation widened here |
+
+## 10. Rev 3 (mid-build answers)
+
+D-DS3.20: v4 slice is three shapes, `v4.delta` a refusal case. D-DS3.21: `event_outbox` parity is the subject cover per group. D-DS3.22: `permitted_database` allows only `_audit*` and harness clones and denies `walk|serve`; plants P24, P25. D-DS3.23: the 11 pre-existing failures do not block. The envelope count in §3 is 963 (960 Kobo plus the v4 batch's three).
