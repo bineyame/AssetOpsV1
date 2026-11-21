@@ -3,6 +3,12 @@ D-3A3.10): the source contract suite C1 to C10 over every case of `source_contra
 
 3A2's in-memory world (`UploadMemoryStore`, `People`, key `bytes(range(32))`, `T_SUBMIT`). Expected records are the
 hand-written fixtures, pseudonymised here with the formula written out (W2), never by the code under test.
+
+3A6 (spec §2.10; D-3A6.6): C1 to C10 run over `CONTRACT_CASES + PROFILE_CASES`. A profile case is admitted into the
+test's in-memory store (`SourceProfiles.admit`, 3A6's world) before C1; C10's real-data half admits a PINNED copy.
+The mutation helpers read and write each case's encoding, delimiter, header row and line end; "row 2" and "row 3"
+are the first and second data rows, and every count is computed from the case's data rows. Every case passes
+`assert_coded_probes` (a probe per column writing a coded path, derived from the canonical side).
 """
 from __future__ import annotations
 
@@ -11,23 +17,27 @@ import hashlib
 import hmac
 import io
 import json
+from dataclasses import replace
 from types import MappingProxyType
 
 import pytest
+
+from assetops_contracts.native import Column, Layout
 
 import assetops_backend.commercial.uploads as uploads_module
 from assetops_backend.commercial.readers import READERS, LayoutReader, ReadResult
 from assetops_backend.commercial.uploads import UploadRefused, reason_words
 from assetops_backend.i18n import message, render
 from assetops_contracts.canonical import SOURCE_TYPES
-from assetops_contracts.native import LAYOUTS
-from source_contracts import CONTRACT_CASES, ContractCase
+from source_contracts import CONTRACT_CASES, PROFILE_CASES, ContractCase, assert_coded_probes
 from test_3a2_commercial_upload_service import (CANONICAL_CODES, KEY, T_SUBMIT, encode, envelope, make_world,
                                                 people, receipt, refused)
+from test_3a6_source_profiles import make_world as profile_world
 
 __all__ = ["people"]  # the module-scoped People fixture, shared with 3A2's file
 
 CASES = {c.reader_id: c for c in CONTRACT_CASES}
+ALL_CASES = CONTRACT_CASES + PROFILE_CASES
 NATIVE_WORDS = {
     "NATIVE_ENCODING": "the file is not text in the character encoding this layout reads.",  # 3A6 §2.11
     "NATIVE_HEADER": "the column headings are not the ones this layout reads, in this order.",
@@ -80,22 +90,53 @@ def expected(case: ContractCase) -> list[dict]:
 
 
 def grid(case: ContractCase) -> list[list[str]]:
-    return list(csv.reader(io.StringIO(golden(case).decode("utf-8"), newline="")))
+    """Every line of the file (any preamble, the header, the data rows) as cells."""
+    text = golden(case).decode(case.encoding)
+    return list(csv.reader(io.StringIO(text, newline=""), delimiter=case.delimiter))
 
 
-def write(rows: list[list[str]]) -> bytes:
+def header(case: ContractCase) -> list[str]:
+    return grid(case)[case.header_row - 1]
+
+
+def data_rows(case: ContractCase) -> int:
+    return len(grid(case)) - case.header_row
+
+
+def physical(case: ContractCase, row: int) -> int:
+    """Data row `row` counted as 3A3 did ("row 2" is the first data row) to its line in the file."""
+    return case.header_row + row - 1
+
+
+def write(rows: list[list[str]], case: ContractCase = CONTRACT_CASES[0]) -> bytes:
     out = io.StringIO()
-    csv.writer(out, lineterminator="\n").writerows(rows)
-    return out.getvalue().encode("utf-8")
+    csv.writer(out, delimiter=case.delimiter, lineterminator=case.line_end).writerows(rows)
+    return out.getvalue().encode(case.encoding)
 
 
-def changed(case: ContractCase, header: str, value: str, row: int = 2) -> bytes:
+def changed(case: ContractCase, header_cell: str, value: str, row: int = 2) -> bytes:
     rows = grid(case)
-    rows[row - 1][rows[0].index(header)] = value
-    return write(rows)
+    rows[physical(case, row) - 1][header(case).index(header_cell)] = value
+    return write(rows, case)
 
 
-def check(w, case: ContractCase, data: bytes) -> dict:
+def layout_of(w, case: ContractCase):
+    return w.svc.reader(w.tid, case.reader_id, "text/csv").layout
+
+
+def case_world(people, case: ContractCase | None, *, real_data: bool = False):
+    """3A6's world (3A2's store plus admitted profiles); a profile case's profile admitted (PINNED when real)."""
+    world = profile_world(people, real_data=real_data)
+    if case is not None and case.profile is not None:
+        profile = json.loads(case.profile.read_bytes())
+        if real_data:
+            profile["status"] = "PINNED"
+        data = case.profile.read_bytes() if not real_data else json.dumps(profile).encode("utf-8")
+        world.profiles.admit(world.tid, world.ana, data, golden(case), case.expected.read_bytes())
+    return world
+
+
+def check(w, case: ContractCase, data: bytes) -> dict:  # noqa: D103
     return w.svc.check(w.tid, w.org, w.ana, data, reader_id=case.reader_id, media_type="text/csv")
 
 
@@ -121,13 +162,14 @@ def stored(w) -> dict[str, dict]:
     return {r.source_record_id: json.loads(r.canonical) for r in w.store.revisions}
 
 
-ids = [c.reader_id for c in CONTRACT_CASES]
-parametrise = pytest.mark.parametrize("case", CONTRACT_CASES, ids=ids)
+ids = [c.reader_id for c in ALL_CASES]
+parametrise = pytest.mark.parametrize("case", ALL_CASES, ids=ids)
 
 
 @pytest.fixture()
-def w(people):
-    return make_world(people)
+def w(people, request):
+    params = getattr(getattr(request.node, "callspec", None), "params", {})
+    return case_world(people, params.get("case"))
 
 
 # --- C1 to C10 -------------------------------------------------------------------------------------------------------
@@ -135,7 +177,7 @@ def w(people):
 @parametrise
 def test_c1_check_submit_accept_on_the_organisation_path(w, case) -> None:
     checked = check(w, case, golden(case))
-    rows = len(grid(case)) - 1  # the golden's data rows: the record count equals them
+    rows = data_rows(case)  # the golden's data rows: the record count equals them
     assert counts(checked) == (rows, rows, 0, 0, 0) and rows == len(expected(case))
     want_months = sorted({(r.get("site_code"), "2026-10") for r in expected(case)},
                          key=lambda m: (m[0] is not None, m[0] or ""))
@@ -143,7 +185,7 @@ def test_c1_check_submit_accept_on_the_organisation_path(w, case) -> None:
     upload = submit(w, case, golden(case))
     assert upload["state"] == "WAITING" and upload["scope"] == "ORGANISATION" and upload["reader"] == case.reader_id
     done = accept(w, upload)
-    assert done["state"] == "ACCEPTED" and done["result"]["counts"]["new"] == 3
+    assert done["state"] == "ACCEPTED" and done["result"]["counts"]["new"] == rows
     want = {r["source_record_id"]: pseudonymised(r) for r in expected(case)}
     assert stored(w) == want
 
@@ -151,64 +193,70 @@ def test_c1_check_submit_accept_on_the_organisation_path(w, case) -> None:
 @parametrise
 def test_c2_kinds_belong_to_the_source_type(w, case) -> None:
     accept(w, submit(w, case, golden(case)))
-    kinds = SOURCE_TYPES[LAYOUTS[case.reader_id].source_type].kinds
+    kinds = SOURCE_TYPES[layout_of(w, case).source_type].kinds
     assert {r["kind"] for r in stored(w).values()} <= kinds and stored(w)
 
 
-@pytest.mark.parametrize("case,header", [(c, h) for c in CONTRACT_CASES for h in c.required_headers],
-                         ids=[f"{c.reader_id}-{h}" for c in CONTRACT_CASES for h in c.required_headers])
-def test_c3_required_cell_blank_refuses_row_2_only(w, case, header) -> None:
-    answer = check(w, case, changed(case, header, ""))
-    field = case.field_for.get(header, header)
+@pytest.mark.parametrize("case,cell", [(c, h) for c in ALL_CASES for h in c.required_headers],
+                         ids=[f"{c.reader_id}-{h}" for c in ALL_CASES for h in c.required_headers])
+def test_c3_required_cell_blank_refuses_row_2_only(w, case, cell) -> None:
+    answer = check(w, case, changed(case, cell, ""))
+    field = case.field_for.get(cell, cell)
+    first, n = physical(case, 2), data_rows(case)
     [(row, code, got)] = refusals(answer)
-    assert (row, got) == (2, field) and code in CANONICAL_CODES
-    assert answer["refusals"][0]["text"] == f"Row 2, {field}: {render(reason_words(code))}"
-    assert counts(answer) == (3, 2, 0, 0, 1)
+    assert (row, got) == (first, field) and code in CANONICAL_CODES
+    assert answer["refusals"][0]["text"] == f"Row {first}, {field}: {render(reason_words(code))}"
+    assert counts(answer) == (n, n - 1, 0, 0, 1)
 
 
-@pytest.mark.parametrize("case,header", [(c, h) for c in CONTRACT_CASES for h in grid(c)[0] if h not in c.required_headers],
-                         ids=[f"{c.reader_id}-{h}" for c in CONTRACT_CASES for h in grid(c)[0]
+@pytest.mark.parametrize("case,cell", [(c, h) for c in ALL_CASES for h in header(c) if h not in c.required_headers],
+                         ids=[f"{c.reader_id}-{h}" for c in ALL_CASES for h in header(c)
                               if h not in c.required_headers])
-def test_c3_optional_cell_blank_keeps_row_2(w, case, header) -> None:
+def test_c3_optional_cell_blank_keeps_row_2(w, case, cell) -> None:
     """The complement: every header not listed as required is optional, so the case fully states the required cells."""
-    n = len(grid(case)) - 1
-    answer = check(w, case, changed(case, header, ""))
+    n = data_rows(case)
+    answer = check(w, case, changed(case, cell, ""))
     assert refusals(answer) == [] and counts(answer) == (n, n, 0, 0, 0)
 
 
 @parametrise
 def test_c3_every_listed_header_is_a_header_of_the_file(case) -> None:
-    assert set(case.required_headers) <= set(grid(case)[0])
+    assert set(case.required_headers) <= set(header(case))
 
 
 @parametrise
 def test_c4_number_with_comma(w, case) -> None:
-    answer = check(w, case, changed(case, case.amount_header, "12,5"))
-    assert refusals(answer) == [(2, "CANONICAL_NUMBER", case.amount_header)]
+    cell, code = case.bad_number
+    answer = check(w, case, changed(case, case.amount_header, cell))
+    assert refusals(answer) == [(physical(case, 2), code, case.amount_header)]
 
 
 @parametrise
 def test_c5_clock(w, case) -> None:
     answer = check(w, case, changed(case, case.clock_header, case.bad_clock))
-    assert refusals(answer) == [(2, "CANONICAL_CLOCK", case.clock_header)]
+    assert refusals(answer) == [(physical(case, 2), case.bad_clock_code, case.clock_header)]
 
 
 @parametrise
 def test_c6_idempotency_key(w, case) -> None:
     accept(w, submit(w, case, golden(case)))
     assert refused(lambda: submit(w, case, golden(case))).code == "UPLOAD_NOTHING_NEW"
-    rows = grid(case)
-    assert refused(lambda: submit(w, case, write([rows[0], *reversed(rows[1:])]))).code == "UPLOAD_NOTHING_NEW"
-    other = changed(case, case.amount_header, "999.00")
+    rows, k, n = grid(case), case.header_row, data_rows(case)
+    reordered = write([*rows[:k], *reversed(rows[k:])], case)
+    assert refused(lambda: submit(w, case, reordered)).code == "UPLOAD_NOTHING_NEW"
+    other = changed(case, case.amount_header, case.changed_amount)
     answer = check(w, case, other)
-    assert [(r, c) for r, c, _ in refusals(answer)] == [(2, "INTAKE_VERSION_CONFLICT")]
-    assert counts(answer) == (3, 0, 0, 2, 1)
+    if case.versioning == "digest":  # a new digest: the correction is a new version (D-3A6.16)
+        assert refusals(answer) == [] and counts(answer) == (n, 0, 1, n - 1, 0)
+        return
+    assert [(r, c) for r, c, _ in refusals(answer)] == [(physical(case, 2), "INTAKE_VERSION_CONFLICT")]
+    assert counts(answer) == (n, 0, 0, n - 1, 1)
     assert refused(lambda: submit(w, case, other)).code == "UPLOAD_NOTHING_NEW"
     if case.revision_header is not None:
         rows = grid(case)
-        rows[1][rows[0].index(case.amount_header)] = "999.00"
-        rows[1][rows[0].index(case.revision_header)] = "2"
-        assert counts(check(w, case, write(rows))) == (3, 0, 1, 2, 0)
+        rows[k][header(case).index(case.amount_header)] = case.changed_amount
+        rows[k][header(case).index(case.revision_header)] = "2"
+        assert counts(check(w, case, write(rows, case))) == (n, 0, 1, n - 1, 0)
 
 
 @parametrise
@@ -221,28 +269,43 @@ def test_c7_late_record_names_its_month(w, case) -> None:
 @parametrise
 def test_c8_native_refusals_on_the_service(w, case) -> None:
     rows = grid(case)
-    reordered = write([[r[1], r[0], *r[2:]] for r in rows])
+    reordered = write([[r[1], r[0], *r[2:]] if len(r) > 1 else r for r in rows], case)
     error = refused(lambda: check(w, case, reordered))
     assert (error.status, error.code, error.params) == (422, "UPLOAD_FILE_REFUSED",
                                                         {"code": "NATIVE_HEADER", "field": "the file"})
-    # A case with no mapped cell is allowed only where the layout maps nothing: admission is never vacuous.
-    assert (case.mapped is None) == (not any(c.maps for c in LAYOUTS[case.reader_id].columns))
-    n = len(rows) - 1
+    # A probe per column writing a coded path, derived from the canonical side (D-3A6.6): never vacuous.
+    assert_coded_probes(case, layout_of(w, case))
+    n, second = data_rows(case), physical(case, 3)
     short = [r[:] for r in rows]
-    short[2] = short[2][:-1]
-    answer = check(w, case, write(short))
-    assert refusals(answer) == [(3, "NATIVE_ROW", "row 3")] and counts(answer) == (n, n - 1, 0, 0, 1)
-    assert answer["refusals"][0]["text"] == f"Row 3, row 3: {NATIVE_WORDS['NATIVE_ROW']}"
+    short[second - 1] = short[second - 1][:-1]
+    answer = check(w, case, write(short, case))
+    assert refusals(answer) == [(second, "NATIVE_ROW", f"row {second}")] and counts(answer) == (n, n - 1, 0, 0, 1)
+    assert answer["refusals"][0]["text"] == f"Row {second}, row {second}: {NATIVE_WORDS['NATIVE_ROW']}"
     nul = [r[:] for r in rows]
-    nul[2][-1] = "a\x00b"
-    answer = check(w, case, write(nul))
-    assert refusals(answer) == [(3, "NATIVE_CHARACTER", "row 3")] and counts(answer) == (n, n - 1, 0, 0, 1)
-    assert answer["refusals"][0]["text"] == f"Row 3, row 3: {NATIVE_WORDS['NATIVE_CHARACTER']}"
-    if case.mapped is not None:
-        header, value = case.mapped
-        answer = check(w, case, changed(case, header, value))
-        assert refusals(answer) == [(2, "NATIVE_VALUE", header)]
-        assert answer["refusals"][0]["text"] == f"Row 2, {header}: this value is not one this layout knows."
+    nul[second - 1][-1] = "a\x00b"
+    answer = check(w, case, write(nul, case))
+    assert refusals(answer) == [(second, "NATIVE_CHARACTER", f"row {second}")]
+    assert counts(answer) == (n, n - 1, 0, 0, 1)
+    assert answer["refusals"][0]["text"] == f"Row {second}, row {second}: {NATIVE_WORDS['NATIVE_CHARACTER']}"
+    first = physical(case, 2)
+    for cell, value in case.coded:  # C8's map-miss check, for every pair
+        answer = check(w, case, changed(case, cell, value))
+        assert refusals(answer) == [(first, "NATIVE_VALUE", cell)]
+        assert answer["refusals"][0]["text"] == f"Row {first}, {cell}: this value is not one this layout knows."
+
+
+def test_coded_check_fails_on_an_unchecked_layout() -> None:
+    """Handshake R2: a layout writing a coded path with no map, built directly (no `check_layout`), and a case that
+    declares no coded probe: `assert_coded_probes` refuses it (it never reads `Column.maps`)."""
+    layout = Layout(id="planted.v1", source_type="mobile_money_statement", source_system="planted",
+                    columns=(Column("Ref", ("source_record_id",)), Column("Method", ("body.method",))),
+                    constants=MappingProxyType({}))
+    case = ContractCase("planted.v1", CONTRACT_CASES[0].golden, CONTRACT_CASES[0].expected, required_headers=(),
+                        amount_header="Ref", clock_header="Ref", bad_clock="", revision_header=None, coded=(),
+                        personal_raw=())
+    with pytest.raises(AssertionError):
+        assert_coded_probes(case, layout)
+    assert_coded_probes(replace(case, coded=(("Method", "Teleport"),)), layout)
 
 
 def test_c8_unclosed_quote_refuses_the_file_at_its_last_line(w) -> None:
@@ -261,7 +324,7 @@ def test_c9_no_raw_personal_value_stored_or_answered(w, case) -> None:
     answers = [check(w, case, golden(case))]
     upload = submit(w, case, golden(case))
     answers += [upload, accept(w, upload)]
-    blank = changed(case, case.required_headers[0], "", row=3)
+    blank = changed(case, case.required_headers[0], "", row=3)  # the second data row
     answers.append(check(w, case, blank))
     second = submit(w, case, changed(case, case.required_headers[0], "NEW-0001"))  # one new record ID
     answers += [second, accept(w, second), w.svc.list(w.tid, w.org)]
@@ -273,11 +336,11 @@ def test_c9_no_raw_personal_value_stored_or_answered(w, case) -> None:
 
 @parametrise
 def test_c10_provenance_follows_the_database(people, case) -> None:
-    emulated = make_world(people)
+    emulated = case_world(people, case)
     accept(emulated, submit(emulated, case, golden(case)))
     assert emulated.store.uploads[0].provenance == "source-emulated"
     assert {r.provenance for r in emulated.store.revisions} == {"source-emulated"}
-    real = make_world(people, real_data=True)
+    real = case_world(people, case, real_data=True)
     done = accept(real, submit(real, case, golden(case)))
     assert done["state"] == "ACCEPTED" and real.store.uploads[0].provenance == "observed-financial"
     assert {r.provenance for r in real.store.revisions} == {"observed-financial"}

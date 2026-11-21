@@ -121,7 +121,8 @@ def make_world(people: People, *, real_data: bool = False) -> SimpleNamespace:
     profiles = SourceProfiles(store, clock=clock, real_data=real_data)
     svc = CommercialUploads(CommercialRecords(store, clock=clock), store, Keys({people.acme: KEY}), clock=clock,
                             real_data=real_data, profiles=profiles)
-    return SimpleNamespace(store=store, profiles=profiles, svc=svc, tid=people.acme, org=UploadScope(None, None),
+    return SimpleNamespace(store=store, profiles=profiles, svc=svc, clock=clock, tid=people.acme,
+                           org=UploadScope(None, None),
                            ana=Actor(people.ids["ana"], ANALYST), fiona=Actor(people.ids["fiona"], FIN))
 
 
