@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-SC1.1 to D-SC1.16)
+# Decision index: Demo-sprint and later rulings (index only) (D-SC1.1 to D-SC1.27)
 
 - `D-SC1.1` Extend the i18n message seam; i18n.render stays the one renderer · live · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.2` Typed facts; every figure carries its evidence; absence is Absent, never None or 0 · live · specs/SC-1-statement-composer/rulings.md
@@ -13,6 +13,17 @@
 - `D-SC1.11` Render is strict; no fallback sentence · live · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.12` A hand-written case per variant; legacy ratchet; ADOPTED scan · live · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.13` Keys name kinds, never instances; no regex rewriting of stored prose · live · specs/SC-1-statement-composer/rulings.md
-- `D-SC1.14` 3A7 and 5c adopt if SC-1a has merged; else flat entries and SC-1b; nothing waits · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.14` 3A7 and 5c adopt SC-1a (fallback clause withdrawn by D-SC1.26) · live · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.15` LLM phrasing is a contract only (same figures and words, else template); default never · live · specs/SC-1-statement-composer/rulings.md
 - `D-SC1.16` The evidence word and money suffix have one home, the evidence vocabulary · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.17` Hand-built text scanned from day one: mechanism and ADOPTED positive, backend ratchet by fingerprint · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.18` Every stated figure's evidence on the page (inline/with/derived_from or served); impossible facts unbuildable · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.19` Facts travel only as i18n.wire; facts are not dataclasses, so no encoder flattens them · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.20` Proved at load: PICK_REACH, complete locales; variant requires checked at render · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.21` Literal ban by Unicode category (Nd/No/Nl, Sc) and closed number-word list · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.22` One public i18n surface; no catalogue= argument; private and bypass imports scanned · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.23` Absent carries a declared reason; reason operator in conditions · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.24` Tiny always on for every figure type: a non-zero figure never reads as zero · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.25` Price fact and format (2 or 4 places, per unit) · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.26` 3A7 and 5c code starts after SC-1a merges; legacy fallback withdrawn (amends D-SC1.14) · live · specs/SC-1-statement-composer/rulings.md
+- `D-SC1.27` Legacy baseline pins each template by hash (LEGACY_CHANGED) · live · specs/SC-1-statement-composer/rulings.md

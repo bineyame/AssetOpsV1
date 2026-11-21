@@ -212,3 +212,13 @@ Sites as variants, `{a|an}` as the factor vocabulary's declared article); §2.1'
 by D-SC1.10); §2.2 to §2.4 are read from SC-1's shared vocabulary; `deep_dive/words.py` keeps only the functions that
 build facts (which heading is named, `needs` keys), and it and `deep_dive/view.py` join the guard's `ADOPTED`; every
 variant gets a case. Otherwise §2 ships as written, its keys join the legacy baseline, and SC-1b converts them.
+
+**Amended (SC-1 handshake, 2026-11-21; D-SC1.26 replaces the "otherwise" above).** Unit 1 starts when SC-1a has
+merged (its other gates stand); the coordinator checks at dispatch and says so in the brief. There is no flat
+fallback. The headline is SC-1 §5.2 rev 2: a `served` statement whose `requires` checks the named heading's sign
+(D-SC1.20); the payload's `headline` becomes `{"text", "evidence"}` and the screen shows `evidence` beside it as the
+tiles show `word` (D-SC1.18). If the governing mock shows no evidence word beside the headline, that is a **MOCK
+DEVIATION** (category: honesty rule, every figure carries its evidence class). The share column and the disagreement
+notice are SC-1 §5.4's shapes; prices use SC-1's `price` format. Every template or vocabulary word holding a number
+word is reworded to drop it (D-SC1.21): `SITE_SETUP` reads "a generator and a fuel tank declared in the Site's setup
+(litres are worked out for each)". This unit's expected strings change by these rules only; the packet lists each.
