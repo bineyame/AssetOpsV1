@@ -72,8 +72,7 @@ spec-template defect.
 
 ## Residual risk
 
-- A new version that changes `personal` changes stored canonical text with an unchanged digest, so corrections to
-  earlier records conflict until the analyst resubmits under a new `profile_id`.
+- A change to `personal` after accepted data is refused (D-3A6.18); the migration is queued unit 3A6b. Review r1 residuals: D-3A6.21.
 - S1 still misses (D-3A6.14): unimported services handed in, `__getattribute__`, `vars(obj)[name]`, tools named
   `test_*.py`.
 - Commit 1's risk stands: a CSV with a bad header and a later syntax error reports `NATIVE_ROW`.
