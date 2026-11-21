@@ -1,6 +1,6 @@
 # 3A6: source profiles as data (implementer spec)
 
-Status: **spec rev 2, handshake round 1 answered** (`rulings.md` "Handshake answers (round 1)"; coding may start).
+Status: **in_review** (built on rev 2, 21 Nov; packet `packet.md`). Handshake round 1 answered (`rulings.md`).
 Questions during the build: `mid-build-questions.md`. Reviewer: `reviewer-guide.md` rev 2. Decisions with reasons:
 `rulings.md` (D-3A6.1 to D-3A6.17).
 
