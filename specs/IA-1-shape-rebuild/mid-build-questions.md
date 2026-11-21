@@ -23,3 +23,8 @@ Portfolio), and the hub routes have the same rule (they have the rail and tabs).
 **Built:** the crumbs as spec'd, shown at 1440 × 900 and wider. **Asked:** may IA-1c (a) keep the crumbs on `decision/*` at every size
 (an IA rule in `ia.css`), or (b) make the meta line's Site name a link (a change to reviewed `uxDecisionSlots`)? Or does it stay until
 IA-2's wayfinding pass? Default if unanswered: as built (crumbs hidden where the reviewed rule hides them).
+
+## IA-2a
+
+Count: **0**. Write each question as Q1, Q2 … (the unit, the section of `spec.md` §5.1, what is stopped, what is built,
+what you ask). The Architect rules in `rulings-2.md`.

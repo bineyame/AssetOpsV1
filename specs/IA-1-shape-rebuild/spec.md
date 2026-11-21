@@ -1,8 +1,9 @@
 # IA-1 and IA-2: rebuild the mock-up by shape (implementer spec)
 
-Status: IA-1a merged (`e100640bf`); IA-1b merged (`b817f9370`); IA-1c in_review (branch `task/IA-1c-decision`, `packet-IA-1c.md`); G2 stop after IA-1c
+Status: IA-1a, IA-1b, IA-1c merged (`bf9428ca3`); G2 seen by the owner ("UI looks ok for now", 21 Nov); IA-2a specified (§5.1), handshake next
 
-Architect (Claude), 2026-11-20, rev 3 (the IA-1b/IA-1c handshake folded in: D-IA.21 to D-IA.30; rev 2 folded in round 1,
+Architect (Claude), 2026-11-21, rev 4: IA-2a's full design (§5.1; D-IA.43 to D-IA.48 in `rulings-2.md`). Rev 3, 2026-11-20
+(the IA-1b/IA-1c handshake folded in: D-IA.21 to D-IA.30; rev 2 folded in round 1,
 D-IA.15 to D-IA.20). This is the handshake format (`.ai/RULES.md` §4): this spec, `reviewer-guide.md`, `rulings.md`
 (D-IA.1 to D-IA.30, "Handshake answers (round 1)" and "IA-1b/IA-1c handshake answers"), `handshake.md` and
 `mid-build-questions.md`. Where rev 3 changed a rev 2 rule, the ruling names it.
@@ -14,7 +15,8 @@ D-IA.15 to D-IA.20). This is the handshake format (`.ai/RULES.md` §4): this spe
 - `layer4-transformation-design.md` §2.10.
 
 The IA-1 units are fully specified here. IA-2 is specified to the level its order and gates need; its unit cards
-are folded in after the owner's G2 input (D-IA.11). No IA-2 unit starts before that.
+are folded in after the owner's G2 input (D-IA.11). The owner gave it on 21 Nov; IA-2a's card is §5.1 (rev 4). For
+IA-2a the binding part is §5.1, §6, §7 and §8.
 
 ## 0. Before you start
 
@@ -571,11 +573,224 @@ joins the slots in today's order.
 
 | Unit | Shape | Routes | Shape's own gate, beyond §6 |
 |---|---|---|---|
-| IA-2a | Plan | `plan` | The state stepper (Draft › Proposed › Approved › Closed). The budget and crew meters. Items, Left out, Review and History as tabs. `plan_switch_check.cjs` passes |
+| IA-2a | Plan | `plan`, `plan/left-out`, `plan/review`, `plan/history` (§5.1) | The state stepper (Draft › Proposed › Approved › Closed). The budget and crew meters. Items, Left out, Review and History as tabs. `plan_switch_check.cjs` passes |
 | IA-2b | List | `decisions`, `findings`, `actions`, `sites`; "View all {n}" goes live on the hubs (the D5 deviation of D-IA.25 closes); aliases `portfolio/act-first` → `decisions` and `findings-*` → `findings?heading=`; the Outcomes table (D-IA.27) folds into the list component | One list component. Filters, sort and scope in the address. Cap at 10 with "Show all". Count tiles equal the list length (audit C2.3). A row has one target (D-IA.9; the queue rows' D5 deviation closes). Search indexes every object. G1's "released Actions, filtered to the plan version" gets its surface |
 | IA-2c | Asset | `asset/:asset`; `assets`, `incidents` and `maintenance` as list instances; `site/:site/operations`, `/performance`, `/setup` | One timeline per asset. Each row of the Site's Operations tab has the same columns on every vertical. Performance panels follow the vertical, with the slots fixed |
 | IA-2d | Drawer and record page | Every drawer's address `?drawer=<kind>:<id>` (stable ids; the inbox and the driver drawers included; Back restores it); the incident, maintenance, right and record drawers; `finding/:id`, `action/:id`; `results`, `evidence` (Coverage, Records, Imports); `site/:site/evidence` | Every drawer has an address and closes with Esc. G1's drawer nodes move onto the addressed hrefs, and its Finding surface moves to the Finding page. The stepper gains "Verified" once Results holds verdicts |
 | IA-2e | Statement | `financials` (Statement, Budget & targets, Prices); `site/:site/financials`; `settings` (four tabs); the Lab's own content only (its gate is built in IA-1a, D-IA.19) | Reconciliation (the statement against the headings, all operators). Final sweep: every one of the 184 manifest routes plus `plan` resolves to a live route, an alias or not-found, and `rebase_v70.py` renders nothing routed |
+
+### 5.1 IA-2a: the plan shape (rev 4; D-IA.43 to D-IA.48, `rulings-2.md`)
+
+The owner reviewed G2 ("UI looks ok for now", `owner/owner-snapshot-guard-and-g2-2026-11-21.md`) and asked to start
+IA-2a while the UI lane waits for 5c (`owner/owner-start-ia2a-2026-11-21.md`). 5c takes the lane the moment 3A7
+merges, so IA-2a is cut into units that each end at a clean stop (§5.1.9). Brief: `owner/owner-ui-standing-brief-2026-11-20.md`
+(right control per content, one interaction grammar, simplicity by design, honest numbers); G1 (D-IA.10).
+
+**Where.** Branch `task/IA-2a-plan` in `/opt/assetecon/AssetOpsV1-ia2a`, from `main` at or after the merge of
+`task/IA-2a-spec`. Touch `vNEXT/` only (plus its `tools/`, `walkthroughs.md` and this folder). No manifest, evaluator,
+backend or `frontend/src` change. Evidence: `/opt/assetecon/evidence/IA-2a/<unit>/`. Browser checks run through
+`tools/heavy-slot.sh` as §0 says. Never touch ports 5490 or 8990, or Docker.
+
+**Mock.** The proposal page's plan shape (`Docs/design-system/ia-proposal/index.html`, §4 "4 · Plan": a title row
+with Approve and Send back; the stepper "Draft › Proposed › Approved › Closed"; Budget meter, Crew-visit meter, Value;
+L2 "Items: option · Site · owner · dates · spend"; L3 "Left out, and why · review against observed"; L4 versions;
+tabs Items, Left out, Review, History; "Approve or Send back: dialog, toast with Undo"), and its journey "Approve the
+plan" (§5: the plan at click 1, approve there). The content is the reviewed plan page (`planParts`, D-IA.20) and the
+reviewed "The plan's review" section of `whatChangedScreen` (proposal §6: What changed → Plan › Review).
+
+#### 5.1.1 Routes and tabs (D-IA.43)
+
+| Route | Tab | `unit` | H1 · document title | Crumbs | Body |
+|---|---|---|---|---|---|
+| `plan` | Items | IA-1a (kept) | the reviewed title · `{title} · {operator}` | `[['Plan']]` | `shapePlan(ctx, 'items')` |
+| `plan/left-out` | Left out | IA-2a | the same H1 · `Left out · {title} · {operator}` | `[['Plan','plan'],['Left out']]` | `shapePlan(ctx, 'left-out')` |
+| `plan/review` | Review | IA-2a | the same H1 · `Review · {title} · {operator}` | `[['Plan','plan'],['Review']]` | `shapePlan(ctx, 'review')` |
+| `plan/history` | History | IA-2a | the same H1 · `History · {title} · {operator}` | `[['Plan','plan'],['History']]` | `shapePlan(ctx, 'history')` |
+
+- `title` and `subtitle` are the reviewed screen's (`iaLegacy('portfolio/act-first/plan')`), on every tab: the H1 names
+  the object, the tab names the view (the object-page grammar, D-IA.43).
+- All four: `shape: 'plan'`, `object: 'plan'`, `home: 'Plan'`, `tabGroup: 'Plan'`.
+- `IA_TAB_GROUPS.Plan = ctx => [['Items','plan'],['Left out','plan/left-out'],['Review','plan/review'],['History','plan/history']]`.
+- **Document title.** A route may carry `docTitle: ctx => string`. `iaScreen` adds `docTitle: route.docTitle ?
+  route.docTitle(ctx) : route.title(ctx)`, and `screens.js` `render()` writes `${s.docTitle || s.title} · ${operator}`.
+  The three new routes set `docTitle: ctx => \`${tab} · ${title}\``. No other route changes.
+- No alias is added or changed. `portfolio/act-first/plan` → `plan` stays.
+
+#### 5.1.2 The shape (`ia-shapes.js`, D-IA.43)
+
+`shapePlan(ctx, tab)` returns, for Items and Left out:
+
+```html
+<section data-shape="plan">
+  {p.sticky}
+  <div data-level="L1">{iaPlanHead(op, p)}</div>
+  <div class="layout-main-side">
+    <div><div data-level="L2">{L2 of the tab}</div><div data-level="L3">{L3 of the tab}</div></div>
+    <aside class="side-panel" data-level="L3">{p.switches}</aside>
+  </div>
+  <div data-ia-drawers>{uxDrawer('ia-plan-thresholds', 'Release thresholds', p.ap.thrBody)}</div>
+</section>
+```
+
+and for Review and History (no side panel; their content does not depend on the case):
+
+```html
+<section data-shape="plan">{p.sticky}<div data-level="L1">{iaPlanHead(op, p)}</div><div data-level="L2">{L2 of the tab}</div><div data-ia-drawers>{the same drawer}</div></section>
+```
+
+`p = planParts(op)`. An empty L3 omits its region. `shapePlanInterim` is deleted in the flip commit (§5.1.9).
+
+**The placement** (every reviewed fragment of the plan page, and where it goes):
+
+| Fragment (part) | Tab · level |
+|---|---|
+| `p.sticky` (`uxPlanSticky`, unchanged) | every tab, first, outside the levels; repeats the L1 primary |
+| stepper, band, release line, version notice, thresholds opener (`iaPlanHead`, §5.1.3) | every tab · L1, identical on the four |
+| `p.l2` (items and their Actions, the total, "How the plan is chosen") | Items · L2 |
+| `p.diff`, `p.paths` (Lakeside), `p.crew`, `p.cases` (Lakeside) | Items · L3, in that order |
+| "Left out of the plan, and why": `uxSecA('Left out of the plan, and why', p.leftAns, p.leftBody, true)` (open) | Left out · L2 |
+| `p.listed`, `p.returned` (when any) | Left out · L3, in that order |
+| `whatChangedParts(op).review` ("The plan's review") | Review · L2 |
+| `iaPlanHistory(op)` (§5.1.4) | History · L2 |
+| `p.switches` ("Try another case") | Items and Left out · the side panel |
+| `p.ap.thrBody` (release thresholds) | the drawer `ia-plan-thresholds`, every tab |
+| `p.ap.status`, `p.ap.meters`, `p.ap.note` (the approval panel's state block, legacy meters, recording note) | not on the IA page (the band carries state and meters; the Approve dialog says "Recorded under"); `MOCK DEVIATION` D2, R757 |
+| `p.ap.kv` (Opened, Proposed) | its facts are History's rows |
+
+#### 5.1.3 L1: the plan's header (D-IA.44, D-IA.45)
+
+`iaPlanHead(op, p)` returns
+`${iaPlanStepper(op)}${iaPlanBand(op, p.P, p.budget)}${p.ap.releases}${p.ap.notice}<p class="ia-plan-rules">${uxOpener('ia-plan-thresholds', 'Release thresholds', 'ux-link')}</p>`.
+
+- **The stepper.** `const IA_PLAN_STEPS = ['DRAFT', 'PROPOSED', 'APPROVED', 'CLOSED']`. `iaPlanSteps(state)` (pure)
+  returns `{ steps: IA_PLAN_STEPS.map(s => STATE_WORD[s]), cur }`, `cur` = 1 for `REVISED`, else
+  `IA_PLAN_STEPS.indexOf(state)`, and throws `plan state <state> has no step` when that is −1. `iaPlanStepper(op)` reads
+  `uxPlanState(op).state` and returns `<ol class="ux-dsteps ia-plan-steps" aria-label="Where this plan is">` with one
+  `<li>` per step, `is-done` before `cur`, `is-current` and `aria-current="step"` at `cur` (the markup of `uxDecStatus`).
+- **The band.** `iaPlanBand(op, P, budget)` returns
+  `<section class="ux-planband" aria-label="The plan at a glance"><div class="heroes ux-kpis">${B.spend}${iaCrewTiles(op, P) || B.crew}${B.value}</div>${B.act}</section>`,
+  `B = uxPlanBandParts(op, P, budget)` (§5.1.5). The budget meter is the spend tile's reviewed `uxMeterBar`.
+- **The crew meters.** `iaCrewTiles(op, P)`: one tile per month of `crewByMonth(op, P)` (each month with a stated
+  limit), `''` when there is none:
+  `uxKpi(\`${cap(o.crewWord)} used${ms.length > 1 ? \`, ${m.month}\` : ''}\`, \`${num(m.used)} <small>of ${num(m.limit)}</small>\`, [], uxMeterBar(m.used, m.limit, \`${num(m.used)} of ${num(m.limit)} ${o.crewWord}${ms.length > 1 ? \` in ${m.month}\` : ''}\`))`.
+  Lakeside has two months, so its L1 holds 4 tiles (spend, November, December, value): the L1 cap of 4 holds for every
+  operator (period of at most two months).
+- **State.** Every builder reads the plan's state through `uxPlanState(op)` and the one-source helpers
+  (`planApprovedIds`, `planReleasedItem`, `releaseShown`, `itemStateOf`, `waitingSummary`; review r4 M1, D-IA.24).
+  `PSTATE()` is read only for fields no act changes: `period`, `opened`, `proposed` and the proposed `version`.
+- **The primary.** "Approve version {n}" in the band's act row while `PROPOSED`; the sticky repeats it with the same
+  act (D-IA.23). Neither moves into the title row (R758).
+
+#### 5.1.4 History (D-IA.47)
+
+`iaPlanHistory(op)` returns `sec('Versions and approvals', body, \`Version ${num(S.version)}, ${STATE_WORD[S.state].toLowerCase()}\`)`,
+`S = uxPlanState(op)`. `body` is `<ul class="list ia-plan-history">` + rows, newest first, + `<p class="note">Changes made
+here are shown in this demonstration only.</p>`:
+1. each entry of `uxMock().log` with `op === op` and `key` `approve-plan` or `send-back`, newest first:
+   `<li data-ia-hist="log:{i}">{toast} <small>{by} · {hhmm(at)}</small></li>` (the inbox row's form; `i` counts within
+   these entries);
+2. `<li data-ia-hist="proposed">Version {num(PSTATE().version)} proposed <small>The system · {fdate(PSTATE().proposed)}</small></li>`;
+3. `<li data-ia-hist="opened">Opened within the executive’s limits <small>The system · {fdate(PSTATE().opened)}</small></li>`.
+
+#### 5.1.5 The parts splits, byte-identical (D-IA.46)
+
+Each reviewed function below returns exactly today's string, proven by `tools/parts_identity.cjs` (§5.1.8):
+- `planParts(op)` keeps `sticky`, `band`, `l2`, `l3`, `aside` and adds `P`, `budget`, `diff`, `paths`, `crew`,
+  `listed`, `leftBody`, `leftAns`, `left`, `cases`, `returned`, `switches`, `ap`. `left` is
+  `uxSecAx('Left out of the plan, and why', leftBody, leftAns)`; `l3` is today's template over `diff`, `paths`,
+  `crew`, `listed`, `left`, `cases`, `returned`; `aside` is `${approvalPanel(op, P, budget)}${switches}`.
+- `approvalParts(op, P, budget)` (new, beside `approvalPanel`) returns `{ status, kv, meters, releases, notice, note,
+  thrBody, thresholds }` (`thresholds` = `<h3 class="h3s">Release thresholds</h3>${thrBody}`, `thrBody` =
+  `thresholdsKv(op) + ILLUS`); `approvalPanel` joins them in today's template.
+- `uxPlanBandParts(op, P, budget)` (new, beside `uxPlanBand`) returns `{ spend, crew, value, act }`; `uxPlanBand`
+  joins them in today's template.
+- `whatChangedParts(op)` (new) returns `{ kpis, actions, review, chosen, rightsM, rights }`; `whatChangedScreen()`
+  joins them in today's template.
+
+Untouched (no line of the diff): `uxPlanSticky`, `uxPlanStateChip`, `uxPlanActions`, `uxPlanState`, `UX_ACTS`,
+`uxActOpen`, `uxActDo`, `uxFocusState`, `uxPlanDiff`, `uxItemRow`, `planStatusBlock`, `thresholdsKv`, `crewByMonth`,
+`crewMeters`, `releaseOf`, `waitingSummary`, the inbox builders, every hub and decision part.
+
+#### 5.1.6 Copy (exact; nothing else is new)
+
+- Tabs: "Items", "Left out", "Review", "History". Document titles: §5.1.1.
+- Stepper: the steps are `STATE_WORD`'s "Draft", "Proposed", "Approved", "Closed"; `aria-label` "Where this plan is".
+- Crew tiles: label "{Crew word} used" or "{Crew word} used, {Month}" (`crewMeters`' own label); value "{used} of
+  {limit}"; meter name "{used} of {limit} {crew word}" or "… in {Month}".
+- Opener and drawer title: "Release thresholds".
+- History: title "Versions and approvals"; sub "Version {n}, {state word in lower case}"; rows "Version {n} proposed",
+  "Opened within the executive’s limits", "The system · {date}"; note "Changes made here are shown in this demonstration
+  only."
+
+#### 5.1.7 What stays byte-identical, and what changes (D-IA.46)
+
+**Byte-identical** (`parts_identity.cjs`, every case below, `UX_QN` reset): `planScreen()` for every operator × switch
+case × plan state {as proposed, approved, sent back to draft} × {default, `?state=no-recommendation`};
+`whatChangedScreen()` for every operator × the three plan states × both previews; every existing job (hub, Site,
+decision). The legacy plan page, Act first and What changed stay registered for the review select, unchanged.
+Also unchanged: the Approve and Send back dialogs, the toast with Undo, focus after an act, the act log, the inbox's
+plan row (`#/plan`), the badge rule, the Overview's plan tile and its "Review the plan" link.
+
+**Changes:** the IA `plan` page (the interim, §2.6) becomes the plan shape; three tab routes; the L1 gains the stepper
+and one crew meter per month; the approval panel leaves the page (R757); Left out, Listed beside and the returned
+Actions move to the Left out tab; "The plan's review" appears on Review; History is new; tabbed routes may set
+`docTitle`; `ia.css` gains `.ia-plan-steps{margin:0 0 var(--s3,12px)}` and `.ia-plan-rules{margin:var(--s2,8px) 0 0}` only.
+
+#### 5.1.8 Gates and plants that must fail (D-IA.48)
+
+§6 applies whole. Beyond it:
+
+| Check | Asserts | Plants (each must fail) |
+|---|---|---|
+| `tools/plan_shape_check.cjs` (new, jsdom, run by `ia_gates.cjs`) | the four tabs, in order, on each plan route; one stepper in L1 with the four steps, `is-done` before the current only, the current from the manifest's own state; L1 identical on the four tabs, also after a non-default case is picked on Items; the placement table (§5.1.2); no `.approval`, no `.meter` on any IA plan route; side panel on Items and Left out only; the thresholds opener and its closed drawer; nothing hidden by a cap (`[data-ux-over]`) on Items, Left out, Review; L1's `.approval-releases` equals the one in `planScreen()` in the same state | `PLAN_PLANT=tabs` (History dropped from the group), `place` (the left-out section also on Items), `l1` (History's L1 without the release line), `approval` (the panel back in the Items aside), `thr` (no drawer), `stepdone` (no `is-done`), `cap` (`uxCapLists` caps at 1) |
+| `count_check.cjs` (plan block, D-IA.24) | per operator, on the four plan routes: as proposed, then after Approve, after its Undo, after Send back (reason and trade-off filled): the stepper's current step, the band and sticky chips, the inbox plan row, the badge and History's first row agree with the state the check derives from `sessionStorage['l4-mock']` and the manifest | `COUNT_PLANT=planstep` (`iaPlanStepper` reads `PSTATE()`), `planhist` (History ignores the log) |
+| `shape_check.cjs` | item 4 reads `docTitle` where set; new item 10: the routes of one tab group have distinct document titles | `SHAPE_PLANT=doctitle` (`docTitle` ignored) |
+| `click_depth_check.cjs` | new surfaces `plan tab: Left out`, `Review`, `History`, each ≤ 2 via `any` | `G1_PLANT=plantabs` (the Plan group returns Items only) |
+| `plan_switch_check.cjs` (retargeted, §2.1) | the budget figure from L1's spend tile; one crew tile with one meter per month with a stated limit, used of limit as the evaluator's; the release line from L1; Actions from `plan` and `plan/left-out` under the same switches | `PSW_PLANT=crewtile` (the last month's tile dropped; host Lakeside), `release` (the line of the default case), `leftout` (no `p.returned`); hosts of the last two: Lakeside 6500/No, Harvest No, Metro No |
+| `ux_interaction_check.cjs` | the plan block's `r.n >= 4` becomes `>= 2` on `plan`, plus `plan/left-out` with at least 2 answer-titled sections, each answered; the M1 "every page agrees after Approve" routes gain the three tabs; on a tab too short to scroll the band away, the band's Approve stays in view (D-IA.48) | `UXI_PLANT=planans` (Left out's answers emptied), `planwait` (History's sub says "awaiting approval" after Approve) |
+| `ia_shots.cjs` (heavy slot) | the four routes join its route list (fit, truncate and crumbs clauses, D-IA.37 to D-IA.41); at 1440 × 900 and 1280 × 720 the band's Approve is inside the first viewport | `SHOTS_PLANT=approvefold` (a 900 px block before the band) |
+
+`after_render_check` and `shape_check` items 1 to 9 cover the new routes by construction (every live route).
+
+**Screenshots** (`ia_shots.cjs`, to the evidence folder): the four routes × three operators × light and dark × 1440 ×
+900, 1280 × 720, 390 × 844; on `plan` at 1440 and 390 (light): the Approve dialog open, after Approve (stepper on
+Approved, the toast), after Send back (Draft); the thresholds drawer open at 1440 and 390; Lakeside 6500/No on Left out
+at 1440 (the returned Actions).
+
+#### 5.1.9 Units, size and the clean stop (D-IA.48)
+
+**Size: 3 units** (5 commits), one branch, one review at the end (discovery depth, W5). Within the 6-unit cap.
+
+| Unit | Commits | Content | Visible change |
+|---|---|---|---|
+| 1 | 1 | The four parts splits (§5.1.5); `parts_identity.cjs` gains the plan states and `whatChangedScreen` | none |
+| 2 | 1 to 2 | The checks first (W2): `plan_shape_check.cjs`, the `count_check` plan block, `shape_check` item 10, the G1 surfaces, the `ia_shots` clause, the runner's rows; each new assertion is dormant (prints `IA-2a not landed; dormant`) until `IA_LANDED` has IA-2a, and item 10 runs at once (the Portfolio group passes) | none |
+| 3 | 2 | (a) The builders (§5.1.2 to §5.1.4), the three routes with `unit: 'IA-2a'`, `docTitle`, `IA_TAB_GROUPS.Plan`, `ia.css`: not live, so nothing shows. (b) The flip: `plan` renders `shapePlan(ctx, 'items')`, `shapePlanInterim` deleted, `'IA-2a'` added to `IA_LANDED`; `plan_switch_check` and uxi retargeted with their plants shown failing first; `walkthroughs.md` (the plan's tabs); register rows R757 to R760; screenshots; packet | the plan shape |
+
+**The clean stop.** Every commit boundary before 3(b) leaves `main`'s screens as they are and every gate green, so the
+branch can pause there. If 3A7 merges during IA-2a: finish the commit in hand (never stop inside one), run the fast
+check-all, push, and write `Stopped after <unit/commit> at <sha>; resume at <next>` at the top of `packet-IA-2a.md`.
+The lane then goes to 5c. The recommended stop is the end of unit 2 (structure proven identical, checks written). Units 1
+and 2 may merge alone after a verification review if the pause is long; 3(b) never merges without unit 3(a) and the
+discovery review. 5c touches no `vNEXT/` file, so neither lane waits on the other's merge.
+
+#### 5.1.10 Done, deviations, packet
+
+**IA-2a is done when**, beyond §6: the four plan routes are live from one shape; `plan_switch_check` passes with its
+three plants failing; `parts_identity.cjs` reports every `planScreen` and `whatChangedScreen` case byte-identical; G1
+prints the plan (≤ 1), each plan tab (≤ 2), every plan item's decision (≤ 2) and the proposed plan via the inbox (≤ 2);
+the Approve journey reads dialog, toast with Undo, stepper on Approved, badge down by one, History's new first row, on
+every tab; every new plant fails in `ia_gates.cjs`' table.
+
+**`MOCK DEVIATION`s** (rows in `.agent/mock-departure-register.md`, a line each in the packet):
+- **R757** D2: the approval panel is not on the plan page; its parts are placed once (§5.1.2).
+- **R758** D2: Approve and Send back sit in the band's act row under the meters, not in the title row of the proposal's
+  figure (inside the first viewport at 1440 and 1280; the sticky repeats them).
+- **R759** D1: Review's "Observed change" and "Review" read "Not yet" while the period is open (reviewed copy).
+- **R760** D5, resolving IA-2d: History has no per-version drawer (the figure's "L4 versions") and no address per entry.
+
+**Packet** `specs/IA-1-shape-rebuild/packet-IA-2a.md` (§8's list), plus the stop line if any, the `parts_identity`
+counts per function and state, and the L1 tile count per operator.
 
 ## 6. Every unit's gate (D-IA.12, D-IA.14)
 
@@ -608,10 +823,11 @@ P7 holds in its three cases.
 
 - No figure, manifest or evaluator change. A figure that disagrees between two screens is reported to the Architect,
   never adjusted on screen.
-- No new copy beyond §2.7, §3.3 and §4.4, plus the labels the reused functions already have. A missing string is
+- No new copy beyond §2.7, §3.3, §4.4 and §5.1.6, plus the labels the reused functions already have. A missing string is
   raised as a question, not invented. The review bar is mock tooling (D-IA.30).
 - Reviewed functions change only as D-IA.22 (the parts splits and the one named sticky fix), D-IA.24 (the act log in
-  `uxActDo`) and D-IA.28 (`iaPattern`, the aliases) say.
+  `uxActDo`), D-IA.28 (`iaPattern`, the aliases) and, for IA-2a, D-IA.46 (the four plan splits, the `docTitle`
+  line in `screens.js`) say.
 - No change to `frontend/src`. The live product keeps its rail (O1).
 - The old screens stay registered for the review-bar select until IA-2e. None may be linked from a live IA route.
 - `USER_REVIEW_REQUIRED: true` (UI/UX). After IA-1c, stop for the owner (D-IA.11).
