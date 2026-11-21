@@ -399,6 +399,10 @@ LEAD = [  # (gap, grow, optimize, headline, title)
      "The $10.00 gap, by heading. Open a step for what is behind it."),
     ("50.00", "30.00", "20.00", "Contribution is $50.00 above target in October; Grow revenue explains $30.00 of it.",
      None),
+    # L5 (added; spec L1 to L4 never put the larger heading on the other sign, so plant P14 survived them): Grow
+    # +500.00 narrows a -100.00 gap and is the larger; only Optimize widens it.
+    ("-100.00", "500.00", "-50.00", "Contribution is $100.00 below target in October; cost and efficiency explain "
+     "$50.00 of it.", "Cost and efficiency explain $50.00 of the $100.00 gap. Open a step for what is behind it."),
 ]
 
 
