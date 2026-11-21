@@ -311,25 +311,26 @@ def split_file(layout: Layout, data: bytes) -> tuple[list[str], list[tuple[int, 
     `NATIVE_HEADER json`; the header's comparison is `read_rows`' first step."""
     rules = layout.file
     if rules.format == "xlsx":
-        sheet_rows = xlsx_sparse_rows(data, rules.sheet or "")
-        header: list[str] = []
-        for number, sparse in sheet_rows:
-            if number == rules.header_row:
-                header = [sparse.get(i, "") for i in range(max(sparse) + 1)] if sparse else []
+        sheet_rows = xlsx_sparse_rows(data, rules.sheet or "")  # row numbers rise strictly, under one work bound
+        # Fix round r3: nothing is padded past the layout's width. The header row is the one row numbered
+        # `header_row`; a non-empty cell past the layout's last column refuses it before any list is built.
+        width = len(layout.columns)
+        sparse_header = next((sparse for number, sparse in sheet_rows if number == rules.header_row), {})
+        if any(v != "" for i, v in sparse_header.items() if i >= width):
+            raise CanonicalRefused("NATIVE_HEADER", "json")
+        header = [sparse_header.get(i, "") for i in range(width)]
         while header and header[-1] == "":
             header.pop()
         if header != [c.header for c in layout.columns]:
-            # refused before any row is built: padding to an unchecked header width costs the file's choice of column
             raise CanonicalRefused("NATIVE_HEADER", "json")
-        width = len(header)
         rows: list[tuple[int, list[str]]] = []
         for number, sparse in sheet_rows:
             if number <= rules.header_row or all(c == "" for c in sparse.values()):
                 continue
             cells = [sparse.get(i, "") for i in range(width)]
-            over = [v for i, v in sorted(sparse.items()) if i >= width and v != ""]
-            if over:
-                cells.append(over[0])  # one extra cell: a count mismatch, refused by the row verdict
+            over = min((i for i, v in sparse.items() if i >= width and v != ""), default=None)
+            if over is not None:
+                cells.append(sparse[over])  # one extra cell: a count mismatch, refused by the row verdict
             rows.append((number, cells))
         return header, rows
     raw = bytes(data)
