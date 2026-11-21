@@ -88,3 +88,9 @@ not widen the allow-list further.
 `tools/run-host-tests.ps1` (pwsh); on this host that tool must work under `tools/heavy-slot.sh`. I will print the
 actual invocation in the packet's first section; if the host runner is unavailable on Linux, T1/T2 are not
 runnable and I will say so rather than mark them passed.
+
+## Architect answers
+
+Round 1 answered in `rulings.md` "Handshake answers (round 1)" (D-0K3.10 to D-0K3.20), folded into `spec.md` rev 2 and
+`reviewer-guide.md` rev 2. No question is left open by the Architect; the handshake closes when the Reviewer and
+Implementer raise none on rev 2.

@@ -100,3 +100,9 @@ still pins the production memory and CPU values, so a loaded run cannot turn a c
 need `parse_slots` registered or may flag `fcntl`. I will run both guards and `check-agent-workflow` after the first
 unit and report any needed inventory entry as a mid-build question, not edit a guard (spec §0 forbids it). I expect
 that rule to stand.
+
+## Architect answers
+
+Round 1 answered in `rulings.md` "Handshake answers (round 1)" (D-ENV1.8 to D-ENV1.17), folded into `spec.md` rev 2 and
+`reviewer-guide.md` rev 2. No question is left open by the Architect; the handshake closes when the Reviewer and
+Implementer raise none on rev 2.

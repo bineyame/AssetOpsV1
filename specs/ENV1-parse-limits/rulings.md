@@ -121,3 +121,140 @@ The owner-level call is logged as row 47 of `specs/OWNER-AWAY/decisions-2026-11-
   the envelope anyway, so the cost is one more child per JSON file.
 - **Behaviour change, listed.** A file over the cap was refused at its turn with exit 3 after earlier files were
   submitted; now the run stops with exit 2 before any submission. Earlier is safer and the words are the same.
+
+## Handshake answers (round 1)
+
+Architect (Claude), 2026-11-21, on the owner's delegation. Each answer is checked against `main` (`5f8ae6c94`) and
+folded into `spec.md` rev 2 and `reviewer-guide.md` rev 2. D-ENV1.8 amends D-ENV1.3; D-ENV1.10 amends D-ENV1.2's
+figures into a method; D-ENV1.11 amends D-ENV1.4's cause list. Owner-level parts: row 49 of
+`specs/OWNER-AWAY/decisions-2026-11-21.md` (owner to weigh in).
+
+### D-ENV1.8 Slots are abstract socket names in one network namespace (R1, I6; amends D-ENV1.3)
+
+- **Ruling.** A slot is an abstract-namespace Unix socket name, `"\0" + f"{namespace}.{pool}.{i}"`; holding it is
+  `bind`, releasing it is `close`. The namespace is `ASSETOPS_PARSE_SLOT_NAMESPACE` when set and non-empty, else
+  `assetops-parse`. No directory, no lock file, no `flock`. The scope is stated as it is: **one pool per network
+  namespace**. The server (`serve_tls`), the lab app and the loader all run in the host's network namespace with the
+  variable unset, so they share one pool by construction, whatever their uid, `TMPDIR` or `PrivateTmp`; a container
+  or a `PrivateNetwork` unit gets its own pool and is counted as another host. The worst case is stated per network
+  namespace (spec §5 packet). S2b proves two processes started with one namespace exclude each other through
+  `host_slots()` itself, and a different namespace does not.
+- **Why not the `flock` directory.** R1 is right: `<tmp>/assetops-parse-slots-<uid>` is shared only by processes
+  with one uid and one temporary directory, so "per host" was untrue for a `PrivateTmp` unit or the loader run as
+  another user. A fixed path (`/run/assetops`) would be host-wide but needs a provisioned directory, which is an
+  authorisation (row 40's precedent: server directories are held for the owner). And I6 found a second problem on
+  `main`: `tools/checks/configuration-persistence.ps1` rule 4 fails any backend module outside a registered writer
+  that calls `.mkdir(` or `os.open(`; the spec forbids a guard change. A socket name writes nothing to disk, so the
+  rule holds without an exception, and it is not a way round the rule: no file is created.
+- **Why sockets are sound here.** The kernel frees the name when the holder's descriptor closes, including on
+  `SIGKILL` (measured on this host: a second `bind` fails `EADDRINUSE`, succeeds after `close`). Python sockets are
+  non-inheritable (PEP 446), and both the forkserver and `subprocess.run(close_fds=True)` start children without the
+  descriptor. Linux only, as the envelope's forkserver and the field limits already are.
+- **Residual (row 49).** An abstract name carries no permission: any process in the namespace can bind the names and
+  hold the slots (commercial uploads then wait, reading answers `slot` after 60 s). Local processes are trusted for
+  availability (any of them can already exhaust the host's memory or CPU); the slots are a resource bound, not a
+  security boundary.
+
+### D-ENV1.9 The send limits come from the real send through a real gateway (R2)
+
+- **Ruling.** Pre-flight (c) runs the real `send` of F1 and F2 through `ProcessReadingSender` against a real
+  `python -m assetops_gateway serve` (TEL-06a's bench: `host/tests/test_field_export_csv_proof.py`, its
+  `tel4.Bench` and `_publisher` identity; the profile is the same file as `reading_upload_process.PROFILE`), and
+  measures it as §0 states. `SEND_LIMITS` is set from those figures by D-ENV1.10's method, not from the simulated
+  send. New test H6s: the same real send of F1 and F2 under the production memory and CPU of `SEND_LIMITS` returns a
+  `Sent` (admitted plus held equal to the file's cells), never a `ParseLimitBreach`.
+- **Why.** `RLIMIT_AS` counts virtual size, and the real child imports the gateway link and holds the admission
+  answers; a simulated send cannot stand for it. A send killed by its own limit leaves unreleased admissions
+  (D-ENV1.4), so this is the one place a mis-sized limit costs data.
+- **If the gateway refuses a 2 MiB send** for a reason of its own (an IPC frame cap, a session cap), the legitimate
+  worst case cannot be sent today regardless of ENV-1: a pre-flight question, before code.
+
+### D-ENV1.10 Limits are set by a stated margin method for a stated host class (R3; amends D-ENV1.2)
+
+- **Ruling.** For each command (`check`, `send`) over F1 and F2: the memory figure is the smallest `RLIMIT_AS` that
+  passes, found by bisection at 32 MiB resolution between 128 MiB and 4 GiB; the CPU figure is the largest user plus
+  system CPU of five idle runs and three runs with two children of that command at once (the pool's size). Then
+  `memory_bytes` is the next multiple of 128 MiB at or above twice the largest memory figure; `cpu_seconds` the next
+  multiple of 10 at or above three times the largest CPU figure; `wall_seconds` twice `cpu_seconds` (two children
+  may share a core); `slot_wait_seconds` 60 (a policy, not a measurement). The Architect's single-run figures give
+  check 512 MiB / 30 s / 60 s, the values spec rev 1 pinned; the send's values are outputs of pre-flight (c).
+- **Stop bounds (a pre-flight question, before code):** any `memory_bytes` above 2 GiB, or a send `wall_seconds`
+  above 300 s (the upload request is synchronous).
+- **Host class.** The packet records the reference host (`nproc`, the CPU model from `lscpu`, `sys.version`,
+  `os.getloadavg()` during the runs). The limits hold for hosts of that class. The constants live only in
+  `CHECK_LIMITS` and `SEND_LIMITS` (`host/reading_upload_process.py`); retuning for a slower class means re-running
+  §0's measurement on it and applying this method, with H0 and H6 moving together.
+- **The cause named honestly.** A `slot` or `wall` breach is load, and "try again" is true of it. A `cpu`, `memory`
+  or `crashed` breach of a file within the cap, after a 2x to 3x margin, means a host slower than its class or a
+  defect, and "try again" is not true of it. Now: the log says so at ERROR (spec §2.3), so the operator sees which
+  limit to re-measure. The served words stay D-ENV1.5's until SC-1a (D-SC1.28 forbids new text now). **Owner to weigh
+  in (row 49):** after SC-1a, these three causes get one sentence of SC-1's statement form that says the server could
+  not check the file within its limits and does not advise retrying. Default: yes, in the first unit that adds
+  reading-upload text after SC-1a.
+
+### D-ENV1.11 A child that dies without an answer is `crashed`, coded and logged (R4; amends D-ENV1.4)
+
+- **Ruling.** `PARSE_LIMIT_CAUSES` gains `crashed`. `run_field` raises `ParseLimitBreach("crashed", step)` for a
+  negative return code other than `-SIGXCPU` and `-SIGKILL` (checked before any JSON is read), and for a run that
+  prints no JSON line (today's `RuntimeError`). The class (W6): every 503 of the reading-upload route is logged once
+  at the API layer with codes and numbers. So the two remaining 503 branches log too: `GatewayUnavailable` with
+  `cause "gateway"`, `step "send"`; `RuntimeError` (a JSON answer that is neither a preview nor a refusal, for example
+  a `CONFIGURATION` exit) with `cause "error"`, `step "check"`. Their codes and words are unchanged.
+- **Why.** `RLIMIT_AS` exhaustion surfaces as `MemoryError` only when Python itself allocates; a C allocation, a
+  thread start or a fatal error ends in `SIGSEGV` or `SIGABRT` with no JSON, which was an unlogged 503. A limit that
+  kills the child silently defeats D-3A6.29.
+
+### D-ENV1.12 Waiting requests: a stated residual, no cap (R5)
+
+- **Ruling.** No cap on waiting requests this unit. Residual, stated in spec §7 and the packet: a burst of uploads
+  parks up to about 36 of anyio's 40 threadpool threads in the slot poll (commercial without end, reading 60 s), which
+  can starve other threadpool routes; polling at 50 ms is not a queue, so a reading wait can expire while later
+  requests succeed. Today the same threads run children, so this is a trade, not a regression. A cap with a coded
+  refusal would be a new answer on the commercial path, whose D-3A6.23 rule is "wait, never refused".
+
+### D-ENV1.13 Test isolation is the first statement of each hook (I1)
+
+- **Ruling.** Confirmed as the implementer proposes, with the socket namespace (D-ENV1.8): the first statement of
+  each `pytest_configure` (`backend/tests/conftest.py`, `host/conftest.py`, before the heavy-slot check and every
+  early `return`) sets `os.environ["ASSETOPS_PARSE_SLOT_NAMESPACE"] = f"assetops-test-{os.getpid()}-
+  {secrets.token_hex(4)}"` unconditionally, so an xdist worker overrides the controller's value. Nothing to remove
+  in `pytest_unconfigure` (no file exists). Subprocess servers the tests start inherit `os.environ` and so the test
+  namespace; a test that builds a server environment by hand must copy the variable (the implementer greps
+  `serve_tls`/`uvicorn` launches in tests and lists them in the packet). Test S6: under pytest, `slot_namespace()`
+  is not `DEFAULT_NAMESPACE`.
+
+### D-ENV1.14 The envelope resolves its host slots at each read (I2)
+
+- **Ruling.** `ParseEnvelope.__init__` stores `slots` as given (`None` allowed) and resolves nothing.
+  `read` uses `self._slots_given or host_slots("commercial")`, so `default_envelope()` built at import or app
+  construction never freezes a namespace, and construction cannot raise for the slots. A malformed
+  `ASSETOPS_PARSE_SLOT_NAMESPACE` raises `ValueError` naming the variable at the first read: a configuration error of
+  the operator, not a breach (test S3). S6 proves an envelope built before the variable changes reads under the new
+  namespace.
+
+### D-ENV1.15 The loader checks every file's size first and holds one file at a time (I3)
+
+- **Ruling.** Confirmed: the look-up adds one envelope child per JSON file only; the submissions already use
+  `default_envelope()`. The dict of all files is dropped. Right after `_mixed(files)`, one pass reads each file
+  through `_bytes(path)` and keeps only its SHA-256 (the acceptor check uses these digests); a file over the cap stops
+  the run with exit 2 before any submission. The look-up and the submission each read the file again through
+  `_bytes`, so at most one file's bytes (8 MiB + 1) are held at once. A file that grows past the cap between passes
+  stops the run at its turn with the same exit 2 and words (stated residual: the operator changed a file during the
+  run). L10b: two files, the second over the cap, and the first is never submitted.
+
+### D-ENV1.16 Confirmations (I4, I5, I6)
+
+- **I4.** Confirmed: the only launcher on `main` is `host/reading_upload_process.py` (`run_field`). The module
+  docstring and argparse `prog` show the two flags before the subcommand (`prog="python -m assetops_field.csv_upload
+  --limit-memory-bytes N --limit-cpu-seconds N"`); `--help` without the flags is the configuration refusal, by design.
+- **I5.** H6 and H6s keep the production `memory_bytes` and `cpu_seconds` and replace `wall_seconds` and
+  `slot_wait_seconds` with 600 (`dataclasses.replace`), and are marked `slow`; the packet shows them run. FL3 and H3
+  stand (1 s CPU and 0.5 s wall against an 8 s parse).
+- **I6.** The rule stands: run `check-architecture.ps1` and `check-agent-workflow` after unit 1; an inventory entry
+  a guard asks for is a mid-build question, never a guard edit. D-ENV1.8 removes the write calls the persistence
+  guard would have failed on.
+
+### D-ENV1.17 Size: 1.0 unit (was 0.75)
+
+- Unit 1 0.4 (sockets, lazy envelope, two-pass loader, conftests); unit 2 0.6 (the field limits, `crashed`, the
+  route's logs, the measured method and H6s through a real gateway).
