@@ -11,7 +11,7 @@ hold the merge for the owner's walkthrough.
 |---|---|
 | `b414d4b7a` 1a commit 1 | Tests only: P1-P4 in `backend/tests/test_1a_optimize_scope.py`, green on its parent |
 | ``41dee463b`` 1a commit 2 | `CostScope`, `cost_scope_text`, `scope_text`, the statement, `noun.day`, the face line, the tests, the sweep, the golden, the capture tool and its fixtures, the register row. P4 now expects the eighth key (the commit message says so) |
-| `__C3__` docs | Packet, spec status `in_review`, `specs/INDEX.md` row, the `.ai/state/estate.md` entry and its index line |
+| ``93f0447ea` + `382707e17`` docs | Packet, spec status `in_review`, `specs/INDEX.md` row, the `.ai/state/estate.md` entry and its index line |
 
 ## Files
 
@@ -63,7 +63,7 @@ hold the merge for the owner's walkthrough.
 | vitest `estatePortfolio.test.tsx` | `94 passed (94)` |
 | `tsc -b --noEmit` (heavy slot) | exit 0 |
 | `test_ch6b_estate_postgres.py -k optimize_card_is_the_one_builder` (`--db`, `assetops_test` base) | **not run**: `MechanismRefused: TEMPLATE_STALE: template inputs a15afccd6b4c != this checkout 8648de978cbe`. A `states` template rebuild keeps only the two newest templates, so it could prune one another lane is using. I left the rebuild for the coordinator's slice-end or full run |
-| Fast check-all | __CHECKALL__ |
+| Fast check-all | The first run (`93f0447ea`) failed 1 of 42: `specs/INDEX.md:45: names a missing file packet.md`. The row was fixed in `382707e17`. The rerun at `382707e17` passed **All 42 guards** in 138.6 s check-all wall (178 s with the slot wait). Logs: `/opt/assetecon/evidence/1a/check-all.log`, `check-all-2.log` |
 
 ## Plants (each alone, then reverted)
 
