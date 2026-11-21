@@ -636,3 +636,10 @@ Branch `task/WK-walk-world` (base main `3e77a8575`); spec `specs/WK-walkthrough-
 
 - Settled: `tools/walk_world.py` (copy, prepare, check, serve, smoke, stop, status, drop) over `world.World` through `WalkDeps(world, http, procs, world_factory, deep_dive, foundation)`; every walk connection through `walk_url` (label rule, `PROTECTED_DATABASES`, `walk_name_ok`, `database_target` name/host/port); copy gated on `current_l2` + `check_state` (one `CREATE DATABASE ... TEMPLATE ... STRATEGY FILE_COPY`); prepare = two `reconcile_month record` + one `build_structure_snapshot build` per tenant-month from `backend/conversions/walk-layer4-v1.json`; check W1-W7 (no stop at first FAIL); serve on 8991/5491 with built envs, refusing 8990/5490 and the 13 Nov tree; smoke S1-S4 (S4 the after-serve census, D-WK.13) with `tools/walk_world_smoke.cjs`.
 - Open: the coordinator's run (spec §5, after 3C2 unit 2 and a world build and check); the npm cmdline form `stop` matches is unverified on a live serve; the smoke script carries no `assertHeavySlot` (packet, deviation 8); the one-figure read of the PNGs (D-WK.12) after the run.
+
+## DDR - the deep-dive rehearsal checker (in review, 21 Nov)
+
+Branch `task/DDR-rehearsal` (main with 3C2 unit 2 merged in); spec `specs/DDR-rehearsal/spec.md` rev 3, rulings D-DDR.1-15; packet `packet.md`. No migration, no screen, no statement.
+
+- Settled: `python -m assetops_backend.rehearsal_check` (ten gates G1-G10, one JSON line each, codes and facts only, `DDR_GATE_FAILED G<n> <CODE>`); `StructureSnapshotStore.portfolio_history`; the board-budget profile fixtures and `lakeside-2026-10.expect.json`; runbook sections 6-12 (admit before load, `_test` names); test 1 runs S1-S12 through the commands with the first failing gate G2 -> ... -> none.
+- Open: the rehearsal itself and its serve (spec §5, coordinator); MB2 and MB3 defaults (stored profile status `ILLUSTRATIVE`; tariff received drops four screen literals); PF1 (the emulated budget's driver lines make the 5c screen answer 500, `VOCABULARY_UNKNOWN actual_quantity`).

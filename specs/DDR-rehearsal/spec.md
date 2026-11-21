@@ -1,6 +1,6 @@
 # DDR: the deep-dive rehearsed end to end on emulated exports (implementer spec)
 
-Status: rev 3, Architect (Claude), 2026-11-21: handshake round 2 answered (`rulings.md`, "Handshake answers (round 2)",
+Status: in_review (build 2026-11-21, `packet.md`); rev 3, Architect (Claude), 2026-11-21: handshake round 2 answered (`rulings.md`, "Handshake answers (round 2)",
 D-DDR.11 to D-DDR.15; D-WK.12 for the one-figure read); rev 2 answered round 1. Lane B, the deep-dive path's last unit
 (`two-week-build-plan.md` §0.1 row 14; D-BW1.11). **1.5 units** (rev 2: 1.25; +0.1 codes and facts, D-DDR.11; +0.1 the
 runbook order and ON1's runbook test, D-DDR.15; +0.05 the key check, R17). Day-14 order (D-WK.14): 3C2 unit 2, then
