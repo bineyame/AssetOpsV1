@@ -681,7 +681,7 @@ def test_t6_portfolio_refuses_duplicates_and_other_tenants_and_excludes_undeclar
     mto = SiteRef(TENANT, uuid4(), "MTO-001", "MINIGRID", TZ)
     result = read.portfolio(TENANT, [KOBO, cold, mto], "2026-10")
     assert result.sites == ("KOBO-001", "ROOM-A", "MTO-001")
-    assert dict(result.composition.sites_excluded) == {"ROOM-A": ("STRUCTURE_NOT_DECLARED",)}
+    assert dict(result.composition.sites_excluded) == {"ROOM-A": ("STRUCTURE_OTHER_KEY",)}
     assert result.composition.sites == ("KOBO-001", "MTO-001")
     unserved = result.composition.values["unserved_critical_kwh"]
     assert unserved.included == ("KOBO-001", "MTO-001") and unserved.value.value == Decimal("93.0")
@@ -705,7 +705,7 @@ def test_t6_site_count_is_k_of_n_over_every_site_asked_for():
             assert count is None
             continue
         assert count.n == 3 and count.k + len(count.out) == count.n, row.factor_id
-        assert ("ROOM-A", ("STRUCTURE_NOT_DECLARED",)) in count.out
+        assert ("ROOM-A", ("STRUCTURE_OTHER_KEY",)) in count.out
         assert [c for c, _ in count.out] == [c for c in portfolio.sites if c in dict(count.out)]
     assert site_count(portfolio, "unserved_critical_kwh").k == 2
     assert site_count(portfolio, "contribution").k == 0

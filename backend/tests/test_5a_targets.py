@@ -541,7 +541,7 @@ def test_3_refusals() -> None:
     cold = SiteRef(w["tid"], w["sites"]["KOBO-001"], "KOBO-001", "COLDCHAIN", TZ)
     with pytest.raises(StructureError) as e:
         targets(w).site(cold, OCT)
-    assert (e.value.code, e.value.factor_id) == ("STRUCTURE_NOT_DECLARED", "KOBO-001")
+    assert (e.value.code, e.value.factor_id) == ("STRUCTURE_KEY_NOT_READ", "KOBO-001")
     with pytest.raises(ValueError) as bad:
         targets(w).site(refs(w)["KOBO-001"], "2026-13")
     assert not isinstance(bad.value, StructureError)
@@ -672,9 +672,9 @@ def test_6_refusals_and_other_types() -> None:
     cold = SiteRef(w["tid"], w["sites"]["KISIWA-001"], "KISIWA-001", "COLDCHAIN", TZ)
     pt = targets(w).portfolio(w["tid"], [r["KOBO-001"], cold], OCT)
     assert tuple(pt.sites) == ("KOBO-001",)
-    assert dict(pt.structure.composition.sites_excluded) == {"KISIWA-001": ("STRUCTURE_NOT_DECLARED",)}
+    assert dict(pt.structure.composition.sites_excluded) == {"KISIWA-001": ("STRUCTURE_OTHER_KEY",)}
     count = site_count(pt.structure, "contribution")
-    assert (count.k, count.n, count.out) == (1, 2, (("KISIWA-001", ("STRUCTURE_NOT_DECLARED",)),))
+    assert (count.k, count.n, count.out) == (1, 2, (("KISIWA-001", ("STRUCTURE_OTHER_KEY",)),))
 
 
 # --- tests 7 to 9 -----------------------------------------------------------------------------------------------------
