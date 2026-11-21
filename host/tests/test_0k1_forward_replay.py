@@ -543,6 +543,14 @@ def test_t10_everything_not_replaced_is_kept_unchanged() -> None:
     loads = [f for f in plan.forcings if f.address.startswith("load-demand@")]
     assert {f.address for f in loads} == {f"load-demand@{load}" for load in LOADS}
     assert all(f.parameter_id == "replay:load" for f in loads)
+    # Each load's forcings carry that load's own series, matched by id (P2: the projection's fields are sums over
+    # loads, so a positional swap is invisible to T1 and is caught here; mid-build question Q1).
+    for series in request.loads:
+        per_step = {}
+        for f in _at(plan, f"load-demand@{series.load_id}"):
+            for offset in range(f.offset_minutes, f.offset_minutes + f.duration_minutes, 5):
+                per_step[offset] = f.value
+        assert tuple(per_step[o] for o in frozen.interval.step_starts) == series.kw, series.load_id
     # The windows tile the interval at each forcing address.
     for address in {f.address for f in irradiance + loads}:
         windows = sorted((f.offset_minutes, f.duration_minutes) for f in _at(plan, address))
