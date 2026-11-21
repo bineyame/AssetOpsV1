@@ -607,8 +607,10 @@ class World:
         parts, keys, self.ladder_inputs = self.ladder_parts()
         name = check_name(name_for(self.prefix, "L2", keys[2][:12]), self.environ)
         m = self.read_manifest(name)
-        if m is not None and m.get("key") == keys[2] and self.exists(name):
-            return name, m
+        if m is not None and m.get("key") == keys[2]:
+            if self.exists(name):
+                return name, m
+            raise Refused("WORLD_NO_TEMPLATE", f"{name} (database missing)")
         l2s = [x for x in self.manifests() if x.get("rung") == "L2" and x["database"].startswith(f"{self.prefix}_audit_")]
         if not l2s:
             raise Refused("WORLD_NO_TEMPLATE", self.prefix)
@@ -864,15 +866,8 @@ C4_CONTRACT = {
 }
 # Kisiwa's October O&M invoice was not received: three actual cells are blank there (D-DS4.26).
 C4_SITE_CLASSES = {"KISIWA-001": {"actual": {"om": "B", "cost_to_serve": "B", "contribution": "B"}}}
-# Filled only by the Architect (D-DS4.16). D-DS4.27: until 5a fix F1 merges; then emptied.
-C4_KNOWN_FINDINGS = (
-    "lakeside-power/KISIWA-001 plan.tariff D-DS4.27", "lakeside-power/KISIWA-001 plan.diesel_price D-DS4.27",
-    "lakeside-power/KISIWA-001 plan.necessary_l D-DS4.27", "lakeside-power/KISIWA-001 plan.diesel_l D-DS4.27",
-    "lakeside-power/KOBO-001 plan.tariff D-DS4.27", "lakeside-power/KOBO-001 plan.diesel_price D-DS4.27",
-    "lakeside-power/KOBO-001 plan.necessary_l D-DS4.27", "lakeside-power/KOBO-001 plan.diesel_l D-DS4.27",
-    "lakeside-power/MTO-001 plan.tariff D-DS4.27", "lakeside-power/MTO-001 plan.diesel_price D-DS4.27",
-    "lakeside-power/MTO-001 plan.necessary_l D-DS4.27", "lakeside-power/MTO-001 plan.diesel_l D-DS4.27",
-)
+# Filled only by the Architect (D-DS4.16). D-DS4.27: emptied once 5a fix F1 merged (do not re-add).
+C4_KNOWN_FINDINGS: tuple[str, ...] = ()
 CHECK_CLONE_LABEL = "check"
 SITE_TIMEZONE = "SELECT timezone FROM site WHERE id = '{site}'"
 
@@ -922,11 +917,36 @@ def judge_side(slug: str, code: str, side: str, product: Mapping[str, Any], expe
             "blanks": blanks}
 
 
-def c4_oracle(rows: Sequence[tuple[str, Mapping[str, Any]]], definition: Definition, derived: Mapping[str, Any]) -> dict:
-    """C4 over `(slug, payload)` Site rows: PASS only when no factor FAILs; a known finding is still a FAIL."""
+def site_set_fails(rows: Sequence[tuple[str, Mapping[str, Any]]], definition: Definition,
+                   snapshots: Mapping[str, int]) -> list[str]:
+    """Which Sites were judged: each Site the definition declares, once per snapshot of its tenant (D-DS4.16)."""
+    got: dict[tuple[str, str], int] = {}
+    for slug, payload in rows:
+        k = (slug, str(payload.get("site_code")))
+        got[k] = got.get(k, 0) + 1
+    out = []
+    for t in sorted(definition.tenants, key=lambda x: x.slug):
+        for code in sorted(t.sites):
+            n, want = got.pop((t.slug, code), 0), snapshots.get(t.slug, 0)
+            if n < want:
+                out.append(f"site_missing {t.slug}/{code}")
+            elif n > want:
+                out.append(f"site_duplicate {t.slug}/{code}")
+    out += [f"site_undeclared {s}/{c}" for (s, c) in sorted(got)]
+    return out
+
+
+def c4_oracle(rows: Sequence[tuple[str, Mapping[str, Any]]], definition: Definition, derived: Mapping[str, Any],
+              snapshots: Mapping[str, int] | None = None) -> dict:
+    """C4 over `(slug, payload)` Site rows: PASS only when no factor FAILs; a known finding is still a FAIL.
+
+    With `snapshots` (tenant slug to its snapshot count) the set of Sites judged must be exactly the definition's.
+    """
     names = {t.slug: t.sites for t in definition.tenants}
+    set_fails = site_set_fails(rows, definition, snapshots) if snapshots is not None else []
+    rows = [r for r in rows if r[1].get("site_code") in names.get(r[0], {})]
     known = {" ".join(k.split(" ")[:2]): k.split(" ")[2] for k in C4_KNOWN_FINDINGS}
-    sides, fails, blanks = [], [], []
+    sides, fails, blanks = [], [{"line": x, "mark": "new"} for x in set_fails], []
     for slug, payload in sorted(rows, key=lambda r: (r[0], r[1].get("site_code", ""))):
         code = payload["site_code"]
         expected = derived["sites"][f"{slug}/{names[slug][code]}"]
@@ -937,23 +957,26 @@ def c4_oracle(rows: Sequence[tuple[str, Mapping[str, Any]]], definition: Definit
             sides.append({k: j[k] for k in ("site", "side", "E", "B")})
             for line in j["fails"]:
                 head = " ".join(line.split(" ")[:2])
-                fails.append({"line": line, "mark": f"known {known[head]}" if head in known else "new"})
+                fails.append({"line": line, "mark": f"known {known[head]}" if head in known and " product=None " in line else "new"})
             blanks += j["blanks"]
     return {"state": "FAIL" if fails or not rows else "PASS",
             "detail": {"sites": sides, "fails": fails, "blanks": blanks}}
 
 
+HARNESS_ENV_ALLOW = ("ASSETOPS_TEST_PYTHON", "ASSETOPS_HEAVY_SLOT", "ASSETOPS_HEAVY_DB")
+
+
 def harness_run(world: World, which: str, test: str, extra_env: Mapping[str, str],
                 args: Sequence[str] = ()) -> tuple[int, str]:
     """C5 and B5 (D-DS4.20): DS3's tests under a base of their own, never the parent's test database."""
-    env = world.env(None)
+    env = world.env(None)  # built from an explicit allow-list; the parent environment is never inherited
     pwsh = world.deps.which("pwsh", path=env.get("PATH"))
     if pwsh is None:
         return 127, "pwsh not found"
     base = check_name(harness_base_name(which), world.environ)
     stem = base[: -len("_test")]
     env["ASSETOPS_TEST_DATABASE_URL"] = rung_url(base, world.environ)
-    for k in ("ASSETOPS_TEST_PYTHON", "ASSETOPS_HEAVY_SLOT", "ASSETOPS_HEAVY_DB"):
+    for k in HARNESS_ENV_ALLOW:
         if k in world.environ:
             env[k] = world.environ[k]
     env.update(extra_env)
@@ -1040,7 +1063,10 @@ def _c4(world: World, clone: str, l2: Mapping[str, Any]) -> dict:
             rows += [(slug, codec.payload_of(r)) for r in service.store.get(tid, ids)]
     finally:
         service.dispose()
-    result = c4_oracle(rows, world.definition, derived)
+    counts = {slug.split(":")[0]: 0 for slug in (l2.get("snapshots") or {})}
+    for key_ in (l2.get("snapshots") or {}):
+        counts[key_.split(":")[0]] += 1
+    result = c4_oracle(rows, world.definition, derived, counts)
     return _line("C4", result["state"] == "PASS", result["detail"])
 
 
@@ -1111,8 +1137,9 @@ def cmd_check(world: World) -> int:
                  _guard("C5", lambda: _c5(world)), _guard("C6", lambda: _c6(world, clone, l1)),
                  _guard("C7", lambda: _c7([l0, l1, l2]))]
     finally:
-        world.wait_idle(clone)
-        world.drop_db(clone)
+        stuck = not world.wait_idle(clone)
+        if not stuck:
+            world.drop_db(clone)
     passed = all(x["state"] == "PASS" for x in lines)
     l2 = dict(l2)
     l2["check"] = {"at": _now_iso(world), "commit": world.git.head(), "check_inputs": world.check_inputs(),
@@ -1120,6 +1147,9 @@ def cmd_check(world: World) -> int:
     world.write_manifest(l2_name, l2)
     for x in lines:
         world.emit(x)
+    world.emit({"check": "ALL", "state": "PASS" if passed else "FAIL"})
+    if stuck:  # never forced: a coded refusal, the check clone left for `drop`
+        raise Refused("WORLD_DATABASE_IN_USE", clone)
     return 0 if passed else 4
 
 

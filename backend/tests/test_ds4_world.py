@@ -183,6 +183,7 @@ class Env:
                                snapshots=self.snapshot_service)
         self.payloads = {code: hand_payload(code) for code in SITE_IDS}
         self.snapshot_error = None
+        self.rows_for = None   # a hook that changes which Site ids the store returns
         self.disposed = 0
 
     def snapshot_service(self, url):
@@ -198,7 +199,7 @@ class Env:
             assert str(tenant_id) == TID
             codes = {v: k for k, v in SITE_IDS.items()}
             rows = []
-            for i in ids:
+            for i in (env.rows_for(list(ids)) if env.rows_for else ids):
                 text = json.dumps(env.payloads[codes[str(i)]])
                 rows.append(SimpleNamespace(payload=text, payload_sha256=codec.digest(text)))
             return tuple(rows)
@@ -639,6 +640,11 @@ def test_t6_staleness_of_a_passed_check(env, capsys):
     m = env.manifests()["assetops_ds4tfake_audit_c_dv"]
     assert (m["check_passed"], m["check_stale"]) == (None, "derived_values")
     del env.git.ids["Docs/demo-sprint/product-direction-layer4/derived-values.json"]
+    env.git.ids[world.read_definition(DEFINITION).manifest] = "new-blob"
+    assert env.main("clone", "--label", "mf") == 0
+    (line,), _ = _lines(capsys)
+    assert (line["check_passed"], line["check_stale"]) == (None, "manifest")
+    del env.git.ids[world.read_definition(DEFINITION).manifest]
     env.git.ids["backend/tests/pg_harness.py"] = "new-blob"
     assert env.main("clone", "--label", "code") == 0
     (line,), _ = _lines(capsys)
@@ -671,8 +677,9 @@ def test_t9_all_checks_pass_and_the_clone_is_dropped(env, capsys):
     names = {x["rung"]: x["database"] for x in _lines(capsys)[0]}
     env.log.clear()
     code, by, _ = _check(env, capsys)
-    assert code == 0 and sorted(by) == [f"C{n}" for n in range(1, 8)]
+    assert code == 0 and sorted(by) == ["ALL"] + [f"C{n}" for n in range(1, 8)]
     assert all(x["state"] == "PASS" for x in by.values()), by
+    assert by["ALL"] == {"check": "ALL", "state": "PASS"}
     assert by["C6"]["detail"] == "0 batches (telemetry none)"
     assert by["C4"]["detail"]["fails"] == [] and len(by["C4"]["detail"]["sites"]) == 6
     clone = "assetops_ds4tfake_audit_c_check"
@@ -682,6 +689,10 @@ def test_t9_all_checks_pass_and_the_clone_is_dropped(env, capsys):
     block = env.manifests()[names["L2"]]["check"]
     assert block["passed"] is True and len(block["checks"]) == 7
     assert set(block["check_inputs"]["code"]) == set(world.CHECK_CODE) and env.disposed == 1
+
+
+def test_t9_equal_has_no_tolerance_and_manifest_staleness():
+    assert world._equal("1.000", 1.0) and not world._equal("1.001", 1.0) and not world._equal(None, 0.0)
 
 
 def test_t9_c1_c2_c3_fail_naming_what_differs(env, capsys):
@@ -755,7 +766,8 @@ def test_t9_oracle_on_hand_payloads():
     assert p["actual"]["om"]["value"] is None and _oracle([p])["state"] == "PASS"
 
 
-def test_t9_known_findings_are_marked_and_still_fail():
+def test_t9_known_findings_are_marked_and_still_fail(monkeypatch):
+    monkeypatch.setattr(world, "C4_KNOWN_FINDINGS", ("lakeside-power/MTO-001 plan.tariff D-DS4.27",))
     p = hand_payload("MTO-001")
     p["targets"]["values"]["tariff"] = {"value": None, "missing": {"record_kind": "BUDGET_LINE"}, "missing_leaves": []}
     p["actual"]["staff"]["value"] = "1"
@@ -763,6 +775,47 @@ def test_t9_known_findings_are_marked_and_still_fail():
     assert r["state"] == "FAIL"
     marks = {f["line"].split(" class=")[0]: f["mark"] for f in r["detail"]["fails"]}
     assert marks == {"lakeside-power/MTO-001 plan.tariff": "known D-DS4.27", "lakeside-power/MTO-001 actual.staff": "new"}
+    # a known cell carrying a wrong number is a new finding, not a known one
+    p = hand_payload("MTO-001")
+    p["targets"]["values"]["tariff"] = {"value": "9.99", "missing": None, "missing_leaves": []}
+    assert [f["mark"] for f in _oracle([p])["detail"]["fails"]] == ["new"]
+
+
+def test_c4_known_findings_are_empty():
+    assert world.C4_KNOWN_FINDINGS == ()   # D-DS4.27: emptied after 5a F1; never re-added by a builder
+
+
+def test_t9_c4_judges_exactly_the_declared_sites():
+    d = world.read_definition(DEFINITION)
+    derived = json.loads(DERIVED.read_text())
+    rows = [("lakeside-power", hand_payload(c)) for c in SITE_IDS]
+    assert world.c4_oracle(rows, d, derived, {"lakeside-power": 1})["state"] == "PASS"
+    r = world.c4_oracle(rows[:2], d, derived, {"lakeside-power": 1})   # a Site missing
+    assert r["state"] == "FAIL" and _fail_lines(r) == ["site_missing lakeside-power/MTO-001"]
+    r = world.c4_oracle(rows[:2] + [rows[1]], d, derived, {"lakeside-power": 1})   # one Site twice, one missing
+    assert r["state"] == "FAIL" and _fail_lines(r) == ["site_duplicate lakeside-power/KOBO-001",
+                                                         "site_missing lakeside-power/MTO-001"]
+    r = world.c4_oracle(rows + [rows[0]], d, derived, {"lakeside-power": 1})   # one Site twice
+    assert r["state"] == "FAIL" and _fail_lines(r) == ["site_duplicate lakeside-power/KISIWA-001"]
+    foreign = dict(hand_payload("KOBO-001"), site_code="NOPE-001")
+    r = world.c4_oracle(rows + [("lakeside-power", foreign)], d, derived, {"lakeside-power": 1})
+    assert r["state"] == "FAIL" and _fail_lines(r) == ["site_undeclared lakeside-power/NOPE-001"]
+    two = rows + rows   # two snapshots of the tenant: every Site twice is right
+    assert world.c4_oracle(two, d, derived, {"lakeside-power": 2})["state"] == "PASS"
+
+
+def test_t9_c4_site_set_through_the_command(env, capsys):
+    assert env.build() == 0
+    capsys.readouterr()
+    ids = list(SITE_IDS.values())
+    env.rows_for = lambda got: ids[:2]
+    code, by, _ = _check(env, capsys)
+    assert code == 4 and by["C4"]["state"] == "FAIL" and by["ALL"]["state"] == "FAIL"
+    assert [f["line"] for f in by["C4"]["detail"]["fails"]] == ["site_missing lakeside-power/MTO-001"]
+    env.rows_for = lambda got: ids[:2] + [ids[1]]
+    code, by, _ = _check(env, capsys)
+    assert code == 4 and [f["line"] for f in by["C4"]["detail"]["fails"]] == [
+        "site_duplicate lakeside-power/KOBO-001", "site_missing lakeside-power/MTO-001"]
 
 
 def test_t9_c4_and_raising_checks_through_the_command(env, capsys):
@@ -785,7 +838,10 @@ def test_t9_c4_and_raising_checks_through_the_command(env, capsys):
 
 def test_t9_c5_runs_under_its_own_base(env, capsys):
     env.environ.update({"ASSETOPS_TEST_DATABASE_URL": "postgresql+psycopg://a:b@127.0.0.1:55432/assetops_test",
-                        "ASSETOPS_HEAVY_SLOT": "1", "ASSETOPS_HEAVY_DB": "1"})
+                        "ASSETOPS_HEAVY_SLOT": "1", "ASSETOPS_HEAVY_DB": "1", "LANG": "C.UTF-8",
+                        "DATABASE_URL": "postgresql://x/assetops_test", "ASSETOPS_TEST_DATABASE_BASE_URL": "x",
+                        "ASSETOPS_TENANT_SLUG": "t", "ASSETOPS_PSEUDONYM_KEY_DIR": "/k",
+                        "UNRELATED_PARENT_VAR": "1"})
     assert env.build() == 0
     capsys.readouterr()
     seen = {}
@@ -802,6 +858,10 @@ def test_t9_c5_runs_under_its_own_base(env, capsys):
     base = seen["ASSETOPS_TEST_DATABASE_URL"].rsplit("/", 1)[1]
     assert re.fullmatch(r"assetops_wc5_pt[0-9a-f]{8}_base_test", base)
     assert not {"DATABASE_URL", "ASSETOPS_TENANT_SLUG", "ASSETOPS_PSEUDONYM_KEY_DIR"} & set(seen)
+    # an explicit allow-list: nothing of the parent's (PG*, ASSETOPS_*, unrelated) reaches the child unless named
+    assert set(seen) == {"PATH", "HOME", "LANG", "PYTHONPATH", "ASSETOPS_PG_PORT", "ASSETOPS_TEST_DATABASE_URL",
+                         "ASSETOPS_HEAVY_SLOT", "ASSETOPS_HEAVY_DB"}
+    assert seen["ASSETOPS_TEST_DATABASE_URL"].endswith("_base_test")
     assert seen["ASSETOPS_HEAVY_SLOT"] == "1" and seen["ASSETOPS_HEAVY_DB"] == "1"
     steps = [w for _, w in env.log]
     i_create = steps.index(f'CREATE DATABASE "{base}"')
