@@ -1,16 +1,15 @@
 /* ===== IA-1 (spec §2.2, D-IA.15 to D-IA.20): the route, alias and rail registry. One liveness rule (iaLive), applied before
    insertion by iaUnlink (ia-shapes.js) and by the palette. A unit adds its ID to IA_LANDED in its last commit. ===== */
-const IA_LANDED = new Set(['IA-1a', 'IA-1b', 'IA-1c']);
+const IA_LANDED = new Set(['IA-1a', 'IA-1b', 'IA-1c', 'IA-2a']);
 const IA_SHAPES = ['frame', 'hub', 'list', 'decision', 'plan', 'record', 'asset', 'drawer', 'statement'];
 let IA_ROUTE_ACTIVE = false;
 /* the reviewed plan page's own labels (spec §2.6: the interim reuses them, no new copy) */
 const iaLegacy = id => SCREENS.find(x => x.id === id);
 const IA_ROUTES = [
-  /* IA-2a (spec §5.1.1, D-IA.43): the plan's four tabs; one H1 (the reviewed title), the tab in the document title. Until IA-2a is in
-     IA_LANDED the three tab routes are not live and plan renders the interim (IA_FORCE_LANDED=IA-2a renders the shape in a check's window) */
+  /* IA-2a (spec §5.1.1, D-IA.43): the plan's four tabs; one H1 (the reviewed title), the tab in the document title */
   { id: 'plan', shape: 'plan', object: 'plan', home: 'Plan', unit: 'IA-1a', tab: 'Items', tabGroup: 'Plan',
     title: ctx => iaLegacy('portfolio/act-first/plan').title, subtitle: ctx => iaLegacy('portfolio/act-first/plan').subtitle,
-    crumbs: ctx => [['Plan']], render: ctx => IA_LANDED.has('IA-2a') ? shapePlan(ctx, 'items') : shapePlanInterim(ctx) },
+    crumbs: ctx => [['Plan']], render: ctx => shapePlan(ctx, 'items') },
   ...[['plan/left-out', 'Left out', 'left-out'], ['plan/review', 'Review', 'review'], ['plan/history', 'History', 'history']].map(([id, tab, key]) => ({
     id, shape: 'plan', object: 'plan', home: 'Plan', unit: 'IA-2a', tab, tabGroup: 'Plan',
     title: ctx => iaLegacy('portfolio/act-first/plan').title, subtitle: ctx => iaLegacy('portfolio/act-first/plan').subtitle,

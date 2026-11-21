@@ -69,11 +69,6 @@ function iaBind(route) { setTimeout(() => typeof uxStickyTick === 'function' && 
 
 /* ---- shapes ---- */
 function shapeNotFound(ctx) { return `<section data-shape="frame">${uxNotFound()}</section>`; }
-/* spec §2.6 (D-IA.20): the reviewed plan page as one named interim, its parts placed in levels; it must not grow */
-function shapePlanInterim(ctx) {
-  const p = planParts(ctx.op);
-  return `<section data-shape="plan">${p.sticky}<div data-level="L1">${p.band}</div><div class="layout-main-side"><div><div data-level="L2">${p.l2}</div><div data-level="L3">${p.l3}</div></div><aside class="side-panel" data-level="L3">${p.aside}</aside></div></section>`;
-}
 
 /* ---- IA-2a: the plan shape (spec §5.1.2 to §5.1.4, D-IA.43 to D-IA.47, D-IA.51) ---- */
 /* the stepper (§5.1.3): pure steps and the current index; REVISED shows as Proposed; an unknown state throws */
