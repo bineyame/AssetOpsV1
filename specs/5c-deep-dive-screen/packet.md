@@ -81,3 +81,45 @@ viewport, "Where the gap comes from" above the fold at 1440 and 1280; lowContras
 - The backend fix round (H1, H2 on `task/5c-deep-dive-screen`) changes served strings; the screen renders whatever
   is served, but test 10 reads the fixture, so a fixture change flows through. Merge that branch in when it lands.
 - Review: the drawer's focus trap, the 390 step rows, the not-available list's reading order, MD11.
+
+## Round 3b: the screen on the merged backend (main 08f3bf86c merged at 70a654d29), 2026-11-21
+
+Evidence: `/opt/assetecon/evidence/5c/unit3b/`.
+
+- **Merge.** One conflict, `.ai/state/index-3.md`: main's rows 185 to 187 (0K4b, 0K4c, 0K4e) kept, 5c's row renumbered
+  188. Under the 2k-token cap (209 words).
+- **Payload.** `DeepDiveDriver.key` and `.children` are required (D-5C.21: every driver carries both; a leaf has
+  `children` []). No other page change was needed: the page already rendered each served string as given, so "(at
+  budget)" (D-5C.23), the headline's evidence chip (D-5C.20, now "Estimated, not yet reconciled"), the record words
+  (D-5C.25), KES figures, the M3 out-line and the L7 headline all flow through.
+- **Served worlds.** `backend/tests/fixtures/5c/make_screen_worlds.py` writes two screen fixtures from the backend's
+  own view (never by hand): `frontend/src/estate/__tests__/fixtures/deep_dive_world_h.json` (World H) and
+  `deep_dive_currency_mismatch.json` (World X: Kobo in KES with O&M and staff not compared; Kisiwa in USD with fuel
+  cost not compared; Mto's actual in KES against a USD target). X serves the L7 headline "Contribution for October is
+  not available yet: the Sites' figures are in different currencies." with `evidence` [], Mto's line "Mto: not
+  compared: its actual and its target are in different currencies (KES and USD)." in every step drawer, fuel cost
+  "−KES 600.00" beside O&M "$0.00", and the Optimize heading and card "Not available yet" for figure and word (L9).
+- **Tests (test 11, new describe).** The hand-written World H (spec test 11 keeps it by hand) must equal the backend's
+  World H in `tiles`, `bridge`, `fresh`, `outcomes`, `headline`, so it cannot drift. World X: every shown string, the
+  headline exactly and with no chip, no tile bar, the Optimize card and heading, each step value character for
+  character, Mto's line in each drawer, no "$" in the KES drivers. World A and X: every money figure on the page (read
+  one text node at a time) is one the JSON serves. World B now strips the headline's evidence too (its word gained
+  ", not yet reconciled"). `fresh.untracked_text` is left out of the page-wide string check: it is read in the Assure
+  drawer, which test 11 already asserts.
+- **Plant X1** (page puts "$" on a KES step: `step.value.replace("KES ", "$")`) fails the World X test:
+  `plant-X1-dollar-on-kes.txt`.
+- **Vitest** (`DeepDiveMonth.test.tsx`, `estatePortfolio.test.tsx`, `estatePortfolioRoutes.test.tsx`): 3 files, 115
+  passed (20 in the new file). `tsc --noEmit`: exit 0. `vite build`: exit 0 (`vite-build.txt`).
+- **Gates** (`tools/deep_dive_gates.cjs`, now with `--world` to name views and shots), served by `vite preview` of
+  this build on 127.0.0.1:8797 (stopped after): World A exit 0 (8 views; 1280 × 720 headline now 2 lines, L1 ends 575
+  px, because the chip is longer), World X exit 0 (8 views; L1 ends 455/459 px; 390 width 390), World H exit 0; the
+  eight plants on A each exit 1 (`gates-summary.txt`, `plant-*.jsonl`). 0 page errors, 0 texts under 12 px.
+- **Shots** (`shots/`): `{A,H,X}-{1440x900,1280x720,390x844}-{light,dark}.png` and the D-headline views; drawer shots
+  `{X,H}-{390x844,1440x900}-light-fuel-cost-drawer.png` (`drawer-shots.jsonl`). Dark renders light (MBQ3).
+- **Guard (for the reviewer).** The missing-claim scan exemption `DD_NOT_AVAILABLE_TITLE`
+  (`tools/checks/missing-claim-scan.mjs:86`) stays as it was: a builder-added named exemption for the section title
+  "What is not available yet" (spec §5.2, D-5C.11, D-5C.14). Review point unchanged.
+- **Register.** R766 now names the served word and the no-figure headline with no chip.
+- **Review point.** In World X the Contribution and Gap tiles show "Not available yet" at full figure size beside a
+  "Not available yet" chip (both served); the plan tiles mute theirs by key. The page does not read words to style
+  them; whether the tile should mute a value with no figure is a served-shape question for the Architect.

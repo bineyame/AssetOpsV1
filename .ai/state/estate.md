@@ -214,5 +214,8 @@ plus Addendum 1. Packet `archive/agent-history/COV-PARTIAL-packet.md`. Decision 
   `deepDiveMonthClient.ts`; styles `deepDiveMonth.css` (live tokens, no dark theme: the product has none).
 - `tools/deep_dive_gates.cjs`: the hub gates with eight plants (spec §5.4). `test/settled.ts` knows "Preparing the
   month…". `chain_coherence/screen_routes.json` gains `/portfolio/month`.
+- On the merged backend (fix rounds 1-4): drivers typed with `key` and `children`; screen fixtures World H and the
+  currency-mismatch World X are written by `backend/tests/fixtures/5c/make_screen_worlds.py` from the backend view;
+  every figure renders in its served currency (tests check each shown money figure is a served one).
 - Open: MD11 (R767) step bars need a served position; dark theme; `StoreAgreedActions` (3C2 unit 2); the
   pre-existing `chainScreenRoutes` failure (`/sites/:siteId/uploads` missing from the routes fixture).
