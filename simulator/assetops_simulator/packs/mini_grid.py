@@ -975,7 +975,11 @@ def resolve_v2(context: StepContext, intent: ControlIntent) -> AcceptedFlowSet:
     power read at an instant. v1 is untouched: its runs keep their interval
     measurements and digests.
     """
-    accepted = resolve(context, intent)
+    return _add_v2_measures(context, resolve(context, intent))
+
+
+def _add_v2_measures(context: StepContext, accepted: AcceptedFlowSet) -> AcceptedFlowSet:
+    """v2's additions to an accepted flow set (0K4a §2.1: `resolve_v2`'s body, unchanged)."""
     plant, gen = _both(context)
     value, origin, provenance = _stop_threshold_at(context, gen)
     generator_energy = next(
@@ -1046,7 +1050,11 @@ def resolve_v3(context: StepContext, intent: ControlIntent) -> AcceptedFlowSet:
     requests. v1 and v2 are untouched; their interval measurements and digests
     are what they were (`D-2026-09-22-contract-version-scope`).
     """
-    accepted = resolve_v2(context, intent)
+    return _add_v3_measures(context, resolve_v2(context, intent))
+
+
+def _add_v3_measures(context: StepContext, accepted: AcceptedFlowSet) -> AcceptedFlowSet:
+    """v3's additions to an accepted flow set (0K4a §2.1: `resolve_v3`'s body, unchanged)."""
     plant, _ = _both(context)
     energy = {flow.flow_id: flow.energy for flow in accepted.flows}
     available = energy["pv_potential"] - energy["inverter_clipping"]
@@ -1105,7 +1113,11 @@ def resolve_v4(context: StepContext, intent: ControlIntent) -> AcceptedFlowSet:
     requests. v1-v3 are untouched; their interval measurements and digests are
     what they were.
     """
-    accepted = resolve_v3(context, intent)
+    return _add_v4_measures(context, resolve_v3(context, intent))
+
+
+def _add_v4_measures(context: StepContext, accepted: AcceptedFlowSet) -> AcceptedFlowSet:
+    """v4's additions to an accepted flow set (0K4a §2.1: `resolve_v4`'s body, unchanged)."""
     plant, _ = _both(context)
     energy = {flow.flow_id: flow.energy for flow in accepted.flows}
     return replace(
@@ -1225,7 +1237,12 @@ def resolve_v6(context: StepContext, intent: ControlIntent) -> AcceptedFlowSet:
     and a v5 run of one document accept the same flows, decide the same
     requests and measure every v5 state identically. v1-v5 are untouched.
     """
-    accepted = resolve_v4(context, intent)
+    return _add_v6_measures(context, intent, resolve_v4(context, intent))
+
+
+def _add_v6_measures(context: StepContext, intent: ControlIntent, accepted: AcceptedFlowSet) -> AcceptedFlowSet:
+    """v6's additions to an accepted flow set (0K4a §2.1: `resolve_v6`'s body, unchanged; `intent` for the charge
+    request)."""
     plant, _ = _both(context)
     hours = Fraction(context.to_offset - context.from_offset, 60)
     charge = max(-intent.requests[0].requested, Fraction(0))
@@ -1296,3 +1313,81 @@ MINI_GRID_V7_MODEL = replace(
     )
     + (FUEL_TANK_SAMPLE_HANDLER,),
 )
+
+
+# --- `mini-grid` v8 (0K4a): the generator takes the load ---------------------
+#
+# D-0K4.3 (cycle charging and generator support) and D-0K4.4 (minimum load).
+# The pure split below is the whole allocation rule for one segment of a
+# RUNNING generator; v8's resolver calls it, and v1-v7 never do.
+
+
+@dataclass(frozen=True)
+class CycleSplit:
+    """One segment's allocation while the generator runs, all in kW."""
+
+    pv_to_load: Fraction
+    pv_to_battery: Fraction
+    curtailed_pv: Fraction
+    generator_to_load: Fraction
+    generator_to_battery: Fraction
+    battery_to_load: Fraction
+    unserved: Fraction
+    #: `D + C < M and D + C < R`: the generator sits below its minimum load
+    #: only because nothing more can be absorbed (never for a fuel cap).
+    below_minimum: bool
+
+
+def _non_negative_kw(name: str, value: object) -> Fraction:
+    if not isinstance(value, Fraction):
+        raise TypeError(f"cycle_charge_split: {name} must be an exact Fraction, not {type(value).__name__}")
+    if value < 0:
+        raise ValueError(f"cycle_charge_split: {name} {value} kW is negative")
+    return value
+
+
+def cycle_charge_split(
+    demand: Fraction,
+    pv_available: Fraction,
+    generator_kw: Fraction,
+    charge_kw: Fraction,
+    minimum_kw: Fraction,
+    discharge_kw: Fraction,
+) -> CycleSplit:
+    """D-0K4.3 for one segment of a RUNNING generator, all in kW.
+
+    `generator_kw` is the usable rating (fuel-capped), `charge_kw` the battery's
+    acceptance C, `discharge_kw` v7's discharge cap (0 at or below the reserve).
+    `minimum_kw > generator_kw` is legal: the generator's share is capped by its
+    usable rating (D-0K4.22).
+
+    1. Generator support: when demand exceeds PV plus the rating, PV and the
+       generator carry all they can and the battery covers the shortfall within
+       its cap; the rest is unserved.
+    2. Cycle charging: otherwise the generator carries the load PV does not and
+       charges the battery, held at the minimum load by charging first and then
+       by curtailing PV, and below it only when the load plus the acceptance is.
+    """
+    D = _non_negative_kw("demand", demand)
+    A = _non_negative_kw("pv_available", pv_available)
+    R = _non_negative_kw("generator_kw", generator_kw)
+    C = _non_negative_kw("charge_kw", charge_kw)
+    M = _non_negative_kw("minimum_kw", minimum_kw)
+    dis = _non_negative_kw("discharge_kw", discharge_kw)
+    zero = Fraction(0)
+    if D > A + R:
+        battery = min(D - A - R, dis)
+        return CycleSplit(A, zero, zero, R, zero, battery, D - A - R - battery, False)
+    g = min(R, max(M, D + C - A), D + C)
+    u = max(zero, min(A, D + C - g))
+    pv_load = min(u, D)
+    return CycleSplit(
+        pv_load,
+        u - pv_load,
+        A - u,
+        D - pv_load,
+        g - (D - pv_load),
+        zero,
+        zero,
+        D + C < M and D + C < R,
+    )
