@@ -72,7 +72,6 @@ TEXTS = [
     ("protect_line", "PROTECT_LINE", "Limits, warranties and rights are not set up yet"),
     ("reconciled", "RECONCILED", "Reconciled"), ("not_reconciled", "NOT_RECONCILED", "Not yet reconciled"),
     ("assure_title", "ASSURE_TITLE", "Reconciliation with the management accounts"),
-    ("currencies_differ", "CURRENCIES_DIFFER", "Not available yet: the Sites' figures are in different currencies."),
 ]
 
 CASES = [Case("deep_dive.text", variant, text(piece), english) for variant, piece, english in TEXTS] + [
@@ -181,8 +180,8 @@ CASES = [Case("deep_dive.text", variant, text(piece), english) for variant, piec
          "Thika: not a mini-grid Site, not included.", []),
     Case("deep_dive.out", "currency_mismatch",
          {"site": Name("Mto", "site.name"), "reason": State("CURRENCY_MISMATCH"),
-          "currency": Items((Name("KES", "row.currency"),)), "portfolio_currency": Name("USD", "row.currency")},
-         "Mto: its figures are in KES, not USD, so it is not included.", []),
+          "currency": Items((Name("KES", "row.currency"), Name("USD", "row.currency")))},
+         "Mto: not compared: its actual and its target are in different currencies (KES and USD).", []),
     Case("deep_dive.out", "not_split", {"site": Name("Mto", "site.name"), "reason": State("NOT_SPLIT")},
          "Mto: not split this far.", []),
     Case("deep_dive.out", "needs_target",
@@ -262,6 +261,8 @@ CASES = [Case("deep_dive.text", variant, text(piece), english) for variant, piec
     Case("deep_dive.sentences", "one", {"head": Name("One.", "deep_dive.sentence")}, "One."),
     Case("deep_dive.sentences", "more",
          {"head": Name("One.", "deep_dive.sentence"), "rest": Name("Two.", "deep_dive.sentence")}, "One. Two."),
+    Case("deep_dive.headline", "currencies_differ", {"month": OCT, "sites": KOfN(0, 3, "site"), "cause": State("CURRENCIES")},
+         "Contribution for October is not available yet: the Sites' figures are in different currencies.", []),
     # headline_subject label, money forms and the bridge title.
     Case("deep_dive.money", "not_available", {"value": Absent("NOT_AVAILABLE"), "form": State("PLAIN")},
          "Not available yet", []),

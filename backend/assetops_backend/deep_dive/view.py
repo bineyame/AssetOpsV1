@@ -192,9 +192,8 @@ class _View:
         subject, _ = W.named(R.effect, sums[T.GROW], sums[T.OPTIMIZE])
         gap = self.money(R.effect, R) if R.effect is not None else None
         big = self.big(subject)
-        head = W.headline(gap, big, subject, self.month, R.k, self.n)
-        if gap is None and (R.note or "").startswith(T.CURRENCY_PREFIX):  # review L7: say why
-            head = {"text": W.text("CURRENCIES_DIFFER"), "evidence": []}
+        differ = gap is None and (R.note or "").startswith(T.CURRENCY_PREFIX)  # review L7: say why
+        head = W.headline(gap, big, subject, self.month, R.k, self.n, differ)
         # D-5C.20: each figure the headline states carries the payload's own word for it (through `money_word`, with
         # the standing): the gap R's, the named heading its steps' weakest. `served`'s unmarked words are replaced.
         words = []
@@ -296,11 +295,11 @@ class _View:
         out = dict(row.out)
         return [c for c in self.snap.asked if c in self.sb and c not in out]
 
-    def out_line(self, code: str, reasons: tuple[str, ...], row=None) -> str:
+    def out_line(self, code: str, reasons: tuple[str, ...]) -> str:
         if reasons == (T.OUT_NOT_SPLIT,):
             return W.out_text(self.name(code), "NOT_SPLIT")
         if code in self.sb and (self.sb[code].roots[T.ROOT].reason or "").startswith(T.CURRENCY_PREFIX):
-            return self.out_currency(code, row)
+            return self.out_currency(code)
         actual = [r[len(T.ACTUAL_PREFIX):] for r in reasons if r.startswith(T.ACTUAL_PREFIX)]
         target = [r[len(T.TARGET_PREFIX):] for r in reasons if r.startswith(T.TARGET_PREFIX)]
         if code not in self.sb or not (actual or target):
@@ -310,18 +309,12 @@ class _View:
         return W.out_text(self.name(code), "NEEDS", keys, target,
                           W.money(own, self.own_cur(code, side="TARGET")) if own is not None else None)
 
-    def out_currency(self, code: str, row=None) -> str:
-        """Review M3: a mini-grid Site out because its own actual and target are in different currencies. Its
-        currencies other than the figure's (the portfolio row's, else R's, else the other Sites', else its own
-        target's) are named."""
+    def out_currency(self, code: str) -> str:
+        """Review M3: a mini-grid Site out because its own actual and target are in different currencies; both
+        sides' currencies are named (the held pair from the reason)."""
         reason = self.sb[code].roots[T.ROOT].reason
         held = reason[len(T.CURRENCY_PREFIX):].split(T.CURRENCY_SEP)
-        others = [self.sb[c].roots[T.ROOT].currency for c in self.snap.asked if c in self.sb and c != code]
-        reference = ((row.currency if row is not None else None) or self.R.currency
-                     or next((c for c in others if c is not None), None) or self.own_cur(code, side="TARGET")
-                     or held[-1])
-        own = [c for c in held if c != reference]
-        return W.out_text(self.name(code), "CURRENCY_MISMATCH", currencies=own, portfolio_currency=reference)
+        return W.out_text(self.name(code), "CURRENCY_MISMATCH", currencies=held)
 
     def descendants(self, step: str) -> dict[str, str]:
         """Each registry descendant of `step` with its registry parent (the first reached, breadth first)."""
@@ -398,7 +391,7 @@ class _View:
                                                 T.CELL_FORM[own is not None and own.carried]),
                               "text": W.sentences(stops) if stops else None})
         carried = [W.carried(self.name(c), step) for c in row.carried if step in T.CARRIED_STATE]
-        out = [self.out_line(c, reasons, row) for c, reasons in row.out]
+        out = [self.out_line(c, reasons) for c, reasons in row.out]
         lines_org = [W.portfolio_line(W.money(line.value, line.currency), line.factor_id)
                      for line in self._portfolio_lines() if line.factor_id == step and line.currency is not None]
         drivers = self.drivers(step)
@@ -601,7 +594,8 @@ def _outcomes(v: _View, standing: Standing, fresh: dict) -> list[dict]:
         if category in (T.GROW, T.OPTIMIZE):
             ev, origins = v.heading_evidence(category)
             card["value"] = W.amount(sums[category], v.group_cur(category), "SIGNED")
-            card["word"] = W.word(ev, origins, standing, v.group_cur(category))
+            card["word"] = (W.word(ev, origins, standing, v.group_cur(category))
+                            if v.group_cur(category) is not None else W.text("NOT_AVAILABLE"))  # review L9
             card["line"] = (W.grow_line(steps[0].k if steps else 0, v.n) if category == T.GROW
                             else W.text("OPTIMIZE_LINE"))
             card["drawer"] = None

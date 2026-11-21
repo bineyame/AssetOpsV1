@@ -127,8 +127,11 @@ def named(gap: Decimal | None, grow: Decimal | None, optimize: Decimal | None) -
     return best
 
 
-def headline_facts(gap: Money | None, big: Money | None, subject: str | None, month: str, k: int, n: int) -> dict:
+def headline_facts(gap: Money | None, big: Money | None, subject: str | None, month: str, k: int, n: int,
+                   currencies_differ: bool = False) -> dict:
     facts: dict[str, Any] = {"month": month_of(month), "sites": KOfN(k, n, "site")}
+    if currencies_differ:
+        facts["cause"] = State("CURRENCIES")
     if gap is not None:
         facts["gap"] = gap
     if big is not None:
@@ -137,8 +140,10 @@ def headline_facts(gap: Money | None, big: Money | None, subject: str | None, mo
     return facts
 
 
-def headline(gap: Money | None, big: Money | None, subject: str | None, month: str, k: int, n: int) -> dict:
-    return served_words(message("deep_dive.headline", **headline_facts(gap, big, subject, month, k, n)))
+def headline(gap: Money | None, big: Money | None, subject: str | None, month: str, k: int, n: int,
+             currencies_differ: bool = False) -> dict:
+    return served_words(message("deep_dive.headline",
+                                **headline_facts(gap, big, subject, month, k, n, currencies_differ)))
 
 
 def bridge_title(gap: Money, big: Money | None, subject: str | None) -> str:
@@ -218,12 +223,10 @@ def needs_row(keys: Iterable[str], target_leaves: Sequence[str]) -> str:
 
 
 def out_text(site: str, reason: str, keys: Iterable[str] = (), target_leaves: Sequence[str] = (),
-             target: Money | None = None, currencies: Sequence[str] = (), portfolio_currency: str | None = None) -> str:
+             target: Money | None = None, currencies: Sequence[str] = ()) -> str:
     facts: dict[str, Any] = {"site": Name(site, "site.name"), "reason": State(reason)}
     if currencies:
         facts["currency"] = Items(tuple(Name(c, "row.currency") for c in currencies))
-    if portfolio_currency is not None:
-        facts["portfolio_currency"] = Name(portfolio_currency, "row.currency")
     if reason == "NEEDS":
         facts.update(needs_facts(keys, target_leaves))
     if target is not None:

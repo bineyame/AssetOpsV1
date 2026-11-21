@@ -462,7 +462,7 @@ def test_4_i_nothing_compared(monkeypatch) -> None:  # review H1
     monkeypatch.setattr(V, "site_bridge", site_bridge)
     v = view()
     # Review L7: the headline says why (R's Sites hold KES and USD).
-    assert v["headline"] == {"text": "Not available yet: the Sites' figures are in different currencies.",
+    assert v["headline"] == {"text": "Contribution for October is not available yet: the Sites' figures are in different currencies.",
                              "evidence": []}
     gap = v["tiles"][1]
     assert (gap["value"], gap["word"], gap["lines"]) == ("Not available yet", "Not available yet", [])
@@ -572,7 +572,7 @@ def test_4_i_currency_one_currency_subset(monkeypatch) -> None:  # review H3, pr
         return replace(sb, roots={k: _in_kes(r) for k, r in sb.roots.items()})
     monkeypatch.setattr(V, "site_bridge", site_bridge)
     v = view("H", standing=RECONCILED)  # H: Kobo's fuel cost splits into litres and price (drivers)
-    assert v["headline"]["text"] == "Not available yet: the Sites' figures are in different currencies."
+    assert v["headline"]["text"] == "Contribution for October is not available yet: the Sites' figures are in different currencies."
     b = v["bridge"]
     fuel = step(v, "fuel_cost")
     assert fuel["sites"] == "2 of 3 Sites"
@@ -600,6 +600,41 @@ def test_4_i_currency_one_currency_subset(monkeypatch) -> None:  # review H3, pr
              and (("KES" in x) if mine else ("$" in x))]
     assert wrong == []
     assert [p for p, x, mine in _owned(v) if not mine and "KES" in x]
+
+
+def test_4_i_currency_all_kes_no_dollar(monkeypatch) -> None:  # review M4: R and every Site in KES, plants RP5, RP6
+    """R and every Site are in KES: every portfolio figure prints in KES and no "$" appears anywhere except in the
+    notices and the organisation's budget lines (each in its own budget's currency, USD in this world)."""
+    real = V.site_bridge
+
+    def site_bridge(inputs, targets):
+        sb = real(inputs, targets)
+        return replace(sb, roots={k: _in_kes(r) for k, r in sb.roots.items()})
+    monkeypatch.setattr(V, "site_bridge", site_bridge)
+    v = view(standing=RECONCILED)
+    dollars = [(p, x) for p, x in _paths(v) if "$" in x and not p.startswith(".notices") and ".lines_org[" not in p]
+    assert dollars == [], dollars
+    assert all("KES" in t["value"] for t in v["tiles"][:2]), v["tiles"]  # the tiles (RP5)
+    totals = v["bridge"]["totals"]
+    assert "KES" in totals["actual"] and "KES" in totals["target"], totals  # the totals (RP6)
+    assert "KES" in v["headline"]["text"], v["headline"]
+    assert [p for p, x in _paths(v) if "KES" in x]
+
+
+def test_4_i_currency_card_word_beside_no_figure(monkeypatch) -> None:  # review L9, probe P6
+    """A card whose heading has no single currency reads "Not available yet" for its figure and for its word."""
+    real = V.site_bridge
+
+    def site_bridge(inputs, targets):
+        sb = real(inputs, targets)
+        root = sb.roots[T.ROOT]
+        if sb.site_code == "MTO-001":
+            return replace(sb, roots={**sb.roots, T.ROOT: _gone(root, "fuel_cost")})
+        return replace(sb, roots={**{k: _in_kes(r) for k, r in sb.roots.items()}, T.ROOT: _in_kes(_gone(root, "om"))})
+    monkeypatch.setattr(V, "site_bridge", site_bridge)
+    v = view(standing=RECONCILED)
+    card = next(c for c in v["outcomes"] if c["label"] == "Optimize cost and efficiency")
+    assert (card["value"], card["word"]) == ("Not available yet", "Not available yet"), card
 
 
 def test_4_i_currency_a_heading_over_two_currencies(monkeypatch) -> None:  # review H3, plant C3
@@ -645,13 +680,13 @@ def test_4_i_currency_a_sites_own_sides_differ(monkeypatch) -> None:  # review H
     assert mto[0] == "Mto" and mto[1].startswith("KES") and mto[2].startswith("$"), mto  # each side its own
     assert mto[3:] == ["Not compared"] * (1 + len(T.STEPS[T.MINI_GRID]))
     outs = [o for g in b["groups"] for s in g["steps"] for o in s["drawer"]["out"] if o.startswith("Mto")]
-    assert outs and set(outs) == {"Mto: its figures are in KES, not USD, so it is not included."}, outs  # M3
+    assert outs and set(outs) == {"Mto: not compared: its actual and its target are in different currencies (KES and USD)."}, outs  # M3
     assert not [x for x in strings(v) if "not a mini-grid Site" in x]
     cash_mto = v["cash"]["table"]["rows"][2]
     assert cash_mto[0] == "Mto" and cash_mto[2].startswith("KES"), cash_mto
     # Across the whole payload: KES is Mto's actual side only; a "$" of Mto's is its target or its budget's notice.
     kes = [p for p, x, mine in _owned(v) if "KES" in x and not (mine and ".out[" not in p)]
-    assert kes == [p for p, x, _ in _owned(v) if x.startswith("Mto: its figures are in KES")]
+    assert kes == [p for p, x, _ in _owned(v) if x.startswith("Mto: not compared: its actual and its target")]
     mto_usd = [p for p, x, mine in _owned(v) if mine and "$" in x and not p.startswith(".notices")]
     assert mto_usd == [".bridge.by_site.rows[2][2]"], mto_usd
 
