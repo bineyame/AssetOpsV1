@@ -38,3 +38,15 @@
 - `D-3B6.10` capacity_crate_days declared, NOT_CONNECTED; its property goes with 9d · live · specs/3B6-cold-ev/rulings.md
 - `D-3B6.11` minutes_per_day 1440; nights_in_period the month's local days · live · specs/3B6-cold-ev/rulings.md
 - `D-3B6.12` Size 2.5 units in three units; no user-facing text · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.13` A HELD_NOT_CALCULATED leaf cites a stored record that exists, else NOT_CONNECTED · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.14` Revenue not applicable is claimed declared, checked and queryable only; applicability() has no read (owner row 26) · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.15` Calendar test reads four month lengths (28, 29, 30, 31) · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.16` Plants named against the test that catches them: data plants vs code plants · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.17` BridgeRead.site refuses before it reads; test 8 covers Bridge and portfolio readers · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.18` Shared factor IDs cannot route a cold or EV leaf through mini-grid rows (COMMERCIAL_KEYS, test 6) · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.19` Sequencing with 4a: what unit 1 may build first; MINI_GRID version not asserted · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.20` Test 6 is the production chain (EnergyLeafSource after 4a) · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.21` Two existing tests widen without a literal change (3b2:234, 4b1 _valued_cases) · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.22` W6 grep narrowed to readers of the Site-type map (G1, G2, G3) · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.23` Implementer pre-flight and pack figures accepted · live · specs/3B6-cold-ev/rulings.md
+- `D-3B6.24` Size 2.75 units (owner row 26) · live · specs/3B6-cold-ev/rulings.md
