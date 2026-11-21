@@ -1,13 +1,14 @@
 # 5c: the month, explained (the one deep-dive screen; implementer spec)
 
-Status: rev 4, Architect (Claude), 2026-11-21 (rev 2 2026-11-20, re-scoped by D-BW1.9 and D-BW1.12; handshake round 1
+Status: rev 5, Architect (Claude), 2026-11-21 (rev 2 2026-11-20, re-scoped by D-BW1.9 and D-BW1.12; handshake round 1
 answered, `rulings.md` "Handshake answers"). **Rev 3** folds in review round 1 of units 1-2 (`rulings.md` D-5C.19 to
 D-5C.25): §2.4 after SC-1f (D-5C.19), the headline's evidence (D-5C.20), nested drivers (D-5C.21), caps on the screen
 (D-5C.22), "(at budget)" (D-5C.23), World H's price (D-5C.24) and two record words (D-5C.25). §3.5's literals below
 are rev 3's where these rulings touch them; D-4A.12/.20's record changes (PF2) also apply to every A literal that
 lists records. **Rev 4** (same day) folds in unit 3's review round 1 (`rulings.md` D-5C.26 to D-5C.28): a figure slot
 with no figure has no word (D-5C.26, revises L9), the bridge's step bars served as positions (D-5C.27, closes MD11),
-no share without a gap (D-5C.28, M1); the two fix scopes are §11. UI lane, after the IA-1 stop (RC6). **3.5 units.** `USER_REVIEW_REQUIRED: true` (the screen the
+no share without a gap (D-5C.28, M1); the two fix scopes are §11. **Rev 5** (same day, DDR review) rules the cash
+sentence (D-5C.29): the bills and the three parts they split into, every cash figure from the cash tree; fix scope §12. UI lane, after the IA-1 stop (RC6). **3.5 units.** `USER_REVIEW_REQUIRED: true` (the screen the
 executive sees). Discovery review (W5): money figures on screen.
 - **Structure:** P5 (`specs/5a-targets/structure-page-P5.md`, approved 20 Nov) rules 2, 7 and 8; D-5B.10, D-5B.12,
   D-5B.15 (5c inherits them); D-3A7.9 (the standing at the snapshot's "as of"); 3B7a ruling 15 on
@@ -188,7 +189,7 @@ yet". Every step, driver (D-5C.16), tile and card value is money. A figure never
 | out STRUCTURE_NOT_DECLARED | {site}: not a mini-grid Site, not included. |
 | out NOT_SPLIT | {site}: not split this far. |
 | out actual/target leaves | {site}: not compared until {needs}{; its own target is {target}}. |
-| cash | In {month_name}, {collected} was collected against {expected} expected; {outstanding} is still outstanding and {in_transit} is paid but in transit. |
+| cash (rev 5, D-5C.29) | Of {billed} billed for {month_name}, {collected} has been collected, {in_transit} is paid but in transit and {outstanding} is still outstanding. Without `cash_parts`: {collected} has been collected on the bills for {month_name}; the amounts billed, in transit and still outstanding are not available for the same Sites yet. No collected figure: Cash collected in {month_name} is not available yet. |
 | fresh | These figures are out of date: {parts joined by "; "}. They are shown as they were on {at_words(as_of)}. Parts: RECORDS "records have arrived since they were prepared" + " for {join(names)}" when Sites are known; MONTH_CLOSED "the month has closed since they were prepared"; RULES "the way they are worked out has changed" |
 | untracked | Not checked for later changes: {join("{label} ({join(names)})")}. |
 | as_of | Figures as of {at_words(as_of)}. |
@@ -301,11 +302,13 @@ the gap (§2.5, D-5C.15).
 
 ### 3.3 Cash
 
-From `pb.rows["collected"]`: `collected` root (actual, target as `expected`), `in_transit` and `outstanding` rows'
-actuals, `revenue`'s actual. `word` §2.4 of the root (money), null when the root's actual or currency is None (rev 4,
+From `pb.rows["collected"]` (the cash tree only, rev 5, D-5C.29): the `collected` root's actual, and
+`cash_parts(rows)`'s `revenue` (billed), `in_transit` and `outstanding` actuals, given together or not at all (§12).
+The root's target is not read. `word` §2.4 of the root (money), null when the root's actual or currency is None (rev 4,
 D-5C.26); `sites` of the root. `table`: columns `["Site",
-"Billed", "Collected", "In transit", "Outstanding"]`, rows per asked Site from `sb[c].roots["collected"]` (unsigned
-money; "Not available yet" for an absent value), total from the portfolio rows.
+"Billed", "Collected", "In transit", "Outstanding"]`, rows per asked Site from `sb[c].roots["collected"]` (Billed is that tree's `revenue` row,
+rev 5; unsigned money; "Not available yet" for an absent value), total from the portfolio rows: collected's root,
+then the three parts from `cash_parts` ("Not available yet" each when it is None).
 
 ### 3.4 What is not available yet
 
@@ -372,8 +375,8 @@ against recorded 9,688.00 and 4,995.00); `actions` `AgreedActions(False, ())`.
   "−$65.00", "−$185.00", "−$55.00", "−$130.00", "$0.00 (at budget)", "$0.00"; Mto "$810.00", "$915.00", "−$105.00",
   "−$80.00", "−$25.00", "$0.00", "$0.00"; total "3 of 3 Sites", "$1,443.00", "$2,295.00", "−$852.00", "−$97.00",
   "−$755.00", "$0.00", "$0.00".
-- cash text "In October, $8,870.00 was collected against $9,785.00 expected; $668.00 is still outstanding and $150.00
-  is paid but in transit."; word "Estimated, not yet reconciled"; rows Kobo "$3,458.00", "$3,180.00", "$0.00",
+- cash text (rev 5, D-5C.29) "Of $9,688.00 billed for October, $8,870.00 has been collected, $150.00 is paid but in
+  transit and $668.00 is still outstanding."; word "Estimated, not yet reconciled"; rows Kobo "$3,458.00", "$3,180.00", "$0.00",
   "$278.00"; Kisiwa "$4,070.00", "$3,800.00", "$0.00", "$270.00"; Mto "$2,160.00", "$1,890.00", "$150.00",
   "$120.00"; total "3 of 3 Sites", "$9,688.00", "$8,870.00", "$150.00", "$668.00".
 - outcomes: grow "−$97.00" "Emulated, not yet reconciled" "Revenue against target, 3 of 3 Sites", drawer null;
@@ -782,3 +785,82 @@ rehearsed Lakeside tenant (DDR), served by the coordinator, then decides the mer
 6. Tests per §6 "Rev 4 additions", unit 3; vitest, tsc, vite build; gates on A, X and H (the hub height and the 390
    width with the track rows); the shots of test 14 retaken for A at 1440 and 390 and X at 1440; check-all once.
    Re-review: a fresh reviewer, verification depth on these items; the merge waits for the owner's walkthrough.
+
+## 12. Rev 5 fix scope (D-5C.29, the cash sentence)
+
+**Backend fix** (new branch `fix/5c-cash-r6` off `main`; about 0.25 unit, one commit; Sonnet per the fix-round rule;
+files in `backend/` only; tests first). The screen prints `cash.text` and the table verbatim, so no frontend code
+changes. The screen branch (`task/5c-unit3-screen`) regenerates its two frontend fixtures with
+`make_screen_worlds.py` when it next merges `main`.
+
+1. `deep_dive/view.py`, module level, pure and public:
+   `cash_parts(rows: Mapping[str, PortfolioRow]) -> tuple[PortfolioRow, PortfolioRow, PortfolioRow] | None`.
+   It returns `(rows[T.REVENUE], rows[T.IN_TRANSIT], rows[T.OUTSTANDING])` only when all of these hold:
+   - root = `rows[T.CASH]` has `actual` and `currency` not None;
+   - each part is present, with `actual` not None and `currency == root.currency`;
+   - each part has `{c for c, _ in part.out} == {c for c, _ in root.out}`;
+   - `root.actual == revenue.actual - in_transit.actual - outstanding.actual`.
+
+   Otherwise it returns None. Import `PortfolioRow` from `structure.attribution.portfolio`.
+2. `view.py` `MonthView.cash()`:
+   - `parts = cash_parts(rows)`.
+   - Sentence: `W.cash(self.month, m(root), tuple(m(p) for p in parts) if parts else None)`.
+   - Total, in column order Billed, Collected, In transit, Outstanding: `[W.sites(root.k, self.n), a(parts[0]),
+     a(root), a(parts[1]), a(parts[2])]`; when `parts` is None, `[W.sites(root.k, self.n), a(None), a(root),
+     a(None), a(None)]` (`a(None)` is already "Not available yet").
+   - Per Site, Billed is `_find(cash_root, T.REVENUE)` (the cash tree), replacing `_find(roots[T.ROOT],
+     T.REVENUE)`. `self.rows.get(T.REVENUE)` and the root's `target` are no longer read in `cash()`.
+3. `deep_dive/words.py`: `cash(month, collected: Money | None, parts: tuple[Money, Money, Money] | None)`, where
+   `parts` is (billed, in_transit, outstanding). It passes the slots `billed`, `in_transit` and `outstanding`
+   only when `parts` is given. The `expected` slot is deleted.
+4. `i18n/statements/en/deep_dive.py` `deep_dive.cash` (evidence `served`, unchanged). Slots: `month`; `collected`
+   (money, absent NOT_AVAILABLE); `billed`, `in_transit` and `outstanding` (money, optional). Variants in this
+   order:
+   - `not_available`, when collected is absent: unchanged.
+   - `cash`, when billed, in_transit and outstanding are all present: "Of {billed} billed for {month}, {collected}
+     has been collected, {in_transit} is paid but in transit and {outstanding} is still outstanding."
+   - `collected_only`, the last variant, with no `when`: "{collected} has been collected on the bills for {month};
+     the amounts billed, in transit and still outstanding are not available for the same Sites yet."
+5. `backend/tests/statement_cases/deep_dive.py`:
+   - case `cash`: collected 9000.00, billed 9700.00, in_transit 200.00, outstanding 500.00, which gives "Of
+     $9,700.00 billed for October, $9,000.00 has been collected, $200.00 is paid but in transit and $500.00 is
+     still outstanding."
+   - a new case `collected_only`: collected 9000.00, which gives "$9,000.00 has been collected on the bills for
+     October; the amounts billed, in transit and still outstanding are not available for the same Sites yet."
+     The case's evidence is the same EV as `cash`.
+6. Fixture `backend/tests/fixtures/5c/deep_dive_lakeside_2026-10.json`, edited by hand (W2): `cash.text` reads "Of
+   $9,688.00 billed for October, $8,870.00 has been collected, $150.00 is paid but in transit and $668.00 is still
+   outstanding." The table is unchanged.
+7. Tests, written first, in `backend/tests/test_5c_deep_dive_view.py`:
+   - (a) Test 3's literal is World A's new text.
+   - (b) **Class test** `test_cash_sentence_reconciles`, over A, D, E, G, H, X and the five `CURRENCY_WORLDS`.
+     Parse the money tokens of `cash.text` in order (`(?:KES |\$)[\d,]+\.\d\d`). With four tokens (b, c, t, o), b
+     == c + t + o, and the table total's cells [1:5] are the same four strings in column order. With one token
+     (the `collected_only` variant) or none (`not_available`, as in X), total [1], [3] and [4] read "Not available
+     yet". Two or three tokens fail. "expected" appears nowhere in the payload.
+   - (c) Literals:
+     - D and the `sides` world: "Of $7,528.00 billed for October, $6,980.00 has been collected, $0.00 is paid but
+       in transit and $548.00 is still outstanding." Total ["2 of 3 Sites", "$7,528.00", "$6,980.00", "$0.00",
+       "$548.00"].
+     - Subset world: the same sentence in KES, and total ["2 of 3 Sites", "KES 7,528.00", "KES 6,980.00", "KES
+       0.00", "KES 548.00"]. Before the fix its Billed total read "Not available yet". Mto's row is ["Mto", "Not
+       available yet", "$1,890.00", "Not available yet", "Not available yet"]: the plant removes Mto's cash
+       tree's rows.
+   - (d) `cash_parts` vectors on hand-built `PortfolioRow`s:
+     - collected 100, revenue 120, in transit 0, outstanding 10 (does not reconcile) gives None;
+     - the same with outstanding 20 gives the three rows;
+     - outstanding whose `out` holds a Site the root's does not gives None;
+     - a part in KES under a USD root gives None;
+     - a missing `in_transit` row gives None.
+8. Plants (each applied to `view.py`, run on the view file, reverted with `git checkout`):
+   - C1: the sentence's billed slot fed `root.target`. Test (b) fails (9,785 ≠ 9,688) and so does (a).
+   - C2: the identity check deleted from `cash_parts`. Test (d)'s first vector fails.
+   - C3: the total's Billed back to `self.rows.get(T.REVENUE)`. Test (c)'s subset total fails.
+   - C4: the per-Site Billed back to the contribution tree. Test (c)'s Mto row fails.
+9. Checks: the focused set of the r5 packet (`test_5c_deep_dive_view.py`, `test_5c_deep_dive_api.py`, `test_5b_*`,
+   `test_3a7_*`), the statement catalogue load (`test_sc1_statements.py`; the deep-dive cases run in `test_5c_deep_dive_view.py`), and check-all (fast) through the slot. Packet
+   `specs/5c-deep-dive-screen/packet-backend-fix-r6.md`. Review: a fresh reviewer, verification depth on D-5C.29.
+
+**Done (questions).** Does every cash sentence the view can produce either state four figures where billed equals
+collected + in transit + outstanding, or state one figure? Do the sentence and the total row print the same four
+strings? Does any cash figure come from outside the cash tree? Does "expected" appear anywhere?
