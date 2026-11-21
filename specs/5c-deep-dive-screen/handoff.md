@@ -50,3 +50,27 @@ Builder (Claude), 2026-11-21, branch `task/5c-deep-dive-screen`, head 37e823259 
 - Risks: MBQ1 (`mid-build-questions.md`): 3A7's real standing words end "within 1% (Recorded)."; spec 3.5 and the
   unit-1 fixture say "within 1%."; test 9 asserts 3A7's words, the Architect settles 3.5. With a `DATABASE_URL`,
   `create_app` now builds the snapshot composition (the rules digest reads files once per app).
+
+## Fix round 1 (units 1-2; review round 1 and rulings D-5C.19 to D-5C.25), 2026-11-21
+- Branch `task/5c-deep-dive-screen` in worktree `AssetOpsV1-5cbe`; `main` merged twice (SC-1f at 28cb8e449, the
+  rev-3 rulings at 3d2760637), both clean.
+- **H1.** `group_sums` carries None; the tile split, a step drawer's effect line and a residual stop are left out
+  when there is no figure; group and outcome values read "Not available yet". Test 4 i (Mto's records in KES, so
+  nothing compares) asserts every place.
+- **H2 / D-5C.19.** `words.SCREEN_EVIDENCE` hands `DECLARED` to the shared vocabulary as `RECORDED` (section 2.4's
+  order); test 5 has a DECLARED row for each origin. 3A7's passed-through text keeps its own words.
+- **M1.** Test 9 asserts 3A7's post-SC-1f words ("(Declared)", "Fuel cost (Recorded, Emulated and Declared)") and maps
+  unit 1's injected fuel-cost detail to them.
+- **M2 / D-5C.20.** The headline's `evidence` is `word()` (through `money_word`) of R and of the named heading; class
+  test `test_3_headline_evidence_is_the_figures_words` over A, B, D, L1 to L4.
+- **L2 / D-5C.21.** `drivers` nested with `key` and `children`; test 4(H) asserts section 3.5's literal.
+- **L3 / D-5C.22.** No `more` outside Actions (already so); test 3 asserts it.
+- **L1, flag (a) / D-5C.23.** `CELL_FORM[True]` is `AT_BUDGET` (" (at budget)"; the `deep_dive.money` variant renamed
+  `at_budget`), used by the cell and the drawer row.
+- **L5 / D-5C.25.** BILLING and LOSS_BAND reworded; `test_5_record_words_hold_no_comma_outside_brackets`.
+- **Known deviation KD3 (Architect to confirm).** The no-comma case also caught `ANALYSING` ("the running record's
+  analysis, still in progress", spec section 2.3's table). It now reads "the running record's analysis (still in
+  progress)". The spec table row is unchanged.
+- **Unit 3 follows.** The screen's own fixture or tests need to carry: "(at budget)", the nested `drivers`, the
+  headline's evidence "Estimated, not yet reconciled", and the two record words.
+- Plants: `/opt/assetecon/evidence/5c/fixround1/plants.txt`.
