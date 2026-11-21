@@ -125,3 +125,4 @@
 - L3: raw io.FileIO.write ignores short writes (theoretical).
 - ENV-1 (0.25 unit): reading_upload_api.py still parses uploads in the server process; the loader CLI parses JSON unbounded in its own process; parse slots are per uvicorn worker.
 - NATIVE_TOO_LARGE's words (in the messages catalogue) and D-3A6.26 are in the owner queue (owner-away row 29).
+- Low (3A6 log fix review): E9 doesn't assert EnvelopeBreach.cause is in the closed set for every forced breach.
