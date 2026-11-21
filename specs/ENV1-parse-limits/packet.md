@@ -108,6 +108,16 @@ New: `backend/assetops_backend/parse_slots.py`, `backend/tests/test_env1_parse_s
 - UP-1 Postgres (`run-host-tests.ps1` via `heavy-slot --db`; `test_up1_reading_upload_flow_postgres.py` with the real
   field process and gateway, `test_up1_reading_upload_postgres.py`): 8 passed in 172 s.
 - `check-architecture.ps1`: pass. `check-agent-workflow.ps1`: pass. Fast `check-all.ps1`: section 8.
+- **Fix round (rev 3), at `987d62e3d` (code) / `5809f5f77` (check-all); logs in `evidence/ENV1/fix/`:**
+  `test_env1_parse_slots.py` 8 passed (5.2 s); `test_field_csv_upload.py` 24 passed; `test_up1_reading_upload_process.py
+  -m "not slow"` 30 passed, 1 deselected (H8 new); `test_up1_reading_upload.py` 53 passed. Slow (`-m slow`, H6 + H6s,
+  via `heavy-slot.sh`): 3 passed in 228.9 s (H6s send F1 90.7 s, F2 115.9 s; H6 check F2 8.9 s, F1 8.7 s).
+  `statement_catalogue.py` exit 0 after the merge, no baseline or allow-file change. `check-architecture.ps1` (with
+  `ASSETOPS_GUARD_PYTHON`) pass; `check-agent-workflow.ps1` pass; `check-decision-index.py` OK. Fast check-all through
+  `heavy-slot.sh --wait-seconds 3000`: "All 42 guards passed (blocking; 0 advisory, 0 warned)", exit 0, 270 s wall
+  (131 s inside the slot), including both SC-1 lines (catalogue; self-test 72 of 72 plants); estate and heavy-slot
+  pool self-tests skipped by their diff gates, tsc shim main-only. Postgres UP-1 files not re-run (no database code
+  changed; the send path's only change is its default slot pool, covered by H8 and H6s).
 - `select-tests.py --base main`: "full (574 of 574)" because both conftests changed; the full suite is the
   coordinator's to schedule (not run).
 
