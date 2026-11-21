@@ -161,3 +161,19 @@ the upper-cased form (no baseline or allow entry). Alternative: keep `"Cc"` and 
 `agreed.py` out of `ADOPTED` or by a guard change. Reversal is two lines.
 
 **Checks (commit 2).**
+
+- Unit (no database), `run-host-tests.ps1` under `heavy-slot.sh`: `test_3c2_agreed_actions.py`,
+  `test_sc1_statements.py`, `test_3c1a_person_work.py`: 636 passed, 1 warning (28.9 s), at `ac6a5d4ec`'s tree. A
+  first run had 1 failure (the new adopted-scan test passed no `UNSERVED` classes, so `raise ValueError(...)` hit);
+  fixed in the test before the commit.
+- Postgres (`heavy-slot.sh --db`, `*_test` DB): `test_3c2_agreed_actions_postgres.py`, `test_3b4_observer_postgres.py`
+  (downgrades through 0070), `test_pg_harness.py`: 41 passed (37.2 s).
+- `alembic` script directory: one head, `0070_agreed_action`.
+- Full `check-all` (`heavy-slot.sh --wait-seconds 3000`, revision `a2d7c807a`, 1,304 s wall incl. slot wait): 42 of
+  43 blocking guards passed, including `Statement catalogue (SC-1)` ("OK ... scan (1 adopted)"), its self-test (72 of
+  72 plants), `configuration-persistence.ps1` with the approved writer block, and the estate guard self-tests (17
+  passed). 1 failed: the index guard, `.ai/state/index-2.md` 8,184 bytes over the 8,000 cap (main's lines plus
+  3C2's). Fixed by splitting it: lines 160 onward move to `index-3.md` (`INDEX.md` lists it); that guard rerun
+  alone: OK (1,207 IDs). Full check-all not rerun for the docs-only split.
+- `check-agent-workflow.ps1`: passed. No change to `statement-handbuilt-baseline.json`,
+  `statement-handbuilt-allow.json` or `statement-legacy-baseline.json`.
