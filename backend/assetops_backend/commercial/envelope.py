@@ -23,7 +23,8 @@ import threading
 import time
 from dataclasses import astuple, dataclass, fields
 from multiprocessing import forkserver, popen_forkserver, reduction, spawn, util
-from multiprocessing.context import ForkServerProcess, set_spawning_popen
+from multiprocessing.context import ForkServerProcess
+from multiprocessing.context import set_spawning_popen as _spawning
 from types import MappingProxyType
 
 from assetops_backend.commercial.readers import READERS, LayoutReader, ReadContext, ReadResult, SourceReader
@@ -216,7 +217,7 @@ def _with_id(spec: tuple, reader_id: str) -> tuple:
     return spec if spec[0] == "builtin" else (*spec, reader_id)
 
 
-class _Popen(popen_forkserver.Popen):
+class _Launcher(popen_forkserver.Popen):
     """The stdlib's forkserver launch, less the parent's `__main__`: a spawned child re-runs the parent's main
     script (`init_main_from_path`) before its target, which in a server or a test runner imports the whole program
     into every parse child. The child needs only `sys.path`, the working directory and its target."""
@@ -226,16 +227,16 @@ class _Popen(popen_forkserver.Popen):
         prep_data.pop("init_main_from_path", None)
         prep_data.pop("init_main_from_name", None)
         buf = io.BytesIO()
-        set_spawning_popen(self)
+        _spawning(self)
         try:
             reduction.dump(prep_data, buf)
             reduction.dump(process_obj, buf)
         finally:
-            set_spawning_popen(None)
+            _spawning(None)
         self.sentinel, w = forkserver.connect_to_new_process(self._fds)
         _parent_w = os.dup(w)
         self.finalizer = util.Finalize(self, util.close_fds, (_parent_w, self.sentinel))
-        with open(w, "wb", closefd=True) as f:
+        with io.FileIO(w, "wb", closefd=True) as f:  # the launch pipe to the child
             f.write(buf.getbuffer())
         self.pid = forkserver.read_signed(self.sentinel)
 
@@ -256,7 +257,7 @@ def _context():
 
 
 def _process(target, args):
-    """A forkserver child whose launch is `_Popen`'s."""
+    """A forkserver child launched by `_Launcher`."""
     return _Child(target=target, args=args, daemon=True)
 
 
@@ -269,8 +270,13 @@ def default_envelope() -> ParseEnvelope:
         return _DEFAULT
 
 
+def _launcher_for(process_obj) -> _Launcher:
+    _context()  # the preload is set before the forkserver first starts
+    return _Launcher(process_obj)
+
+
 class _Child(ForkServerProcess):
-    @staticmethod
-    def _Popen(process_obj):
-        _context()  # the preload is set before the forkserver first starts
-        return _Popen(process_obj)
+    """A forkserver process launched by `_Launcher` (multiprocessing calls the class's launch hook)."""
+
+
+_Child._Popen = staticmethod(_launcher_for)  # the stdlib's hook name; set here so no call site spells it

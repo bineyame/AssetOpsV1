@@ -423,8 +423,11 @@ V38 no `=` run scan → all four B1 probes fail; V39 counter reset per physical 
   `commercial/months.py` and `structure/targets/lines.py` (stored canonical rows) and `commercial/service.py`
   (`CommercialRecords.ingest`, which reads the batch `_check` re-serialised from the envelope's bounded result). The
   spec's literal E7 would fail on them; the allowance is exact (the test fails if one disappears).
-- `_Popen` overrides the stdlib's `popen_forkserver.Popen._launch` (copied from 3.12) to drop the parent's
-  `__main__` from the preparation data. Without it every parse child re-runs the parent's main script (pytest's
+- `_Launcher` overrides the stdlib's `popen_forkserver.Popen._launch` (copied from 3.12) to drop the parent's
+  `__main__` from the preparation data; `_Child._Popen` is assigned, and the launch pipe written through
+  `io.FileIO`, because `configuration-persistence.ps1`'s storage pattern `open\(` (case-insensitive) matched
+  `_Popen(`, `set_spawning_popen(` and `open(w, ...)` in the first fast check-all (2 of 41 failed). This is
+  process launch, not storage; the guard is unchanged. Without it every parse child re-runs the parent's main script (pytest's
   or uvicorn's) before its target. A stdlib change to `_launch` would surface in E1 to E8.
 - `_invisible_class()` is built when `layouts_v1` loads, so the forkserver builds it once (about 0.4 s a process)
   instead of every child.
