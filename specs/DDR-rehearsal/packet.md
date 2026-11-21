@@ -90,13 +90,25 @@ their commands and shows the checker's first failing gate move G2 -> G3 -> G5 ->
 
 ## Product finding (for the Architect; not fixed in DDR)
 
-- **PF1.** With the emulated `budget.csv` loaded (the test 3 case without the replacement), `GET
-  /api/portfolio/month` answers 500: `StatementError('VOCABULARY_UNKNOWN', 'deep_dive.driver_detail', None,
-  'actual_quantity')` from `deep_dive/words.py:376` via `view.py:375`. The board budget path (the rehearsal) is not
-  affected.
+- **PF1 (fixed in 5c's r5, on main).** With the emulated `budget.csv` loaded the screen answered 500 (`VOCABULARY_UNKNOWN deep_dive.driver_detail actual_quantity`); after r5 the emulated-budget case asserts S7 and S10 answer 200 and G3 `READER_MISSING profile.ddr-board-budget.v1`.
 
 ## Residual risk and review focus
 
 - G9's compared keys against §3.4 (`SCREEN_KEYS`, `rehearsal_check.py`); MB3's literals; D-WK.12's one-figure read of
   the `screen`.
 - Tests 3 and 4 share the module's pooled database; each case empties the tenant closure first.
+
+## Review round 1 fixes (`2a62754c2`, main with 5c r5 merged in at `ffba4bdb2`)
+
+- M1: test 4a submits S4's files without acceptance, ingests each upload's own batch through `CommercialRecords.ingest`,
+  declines the uploads, asserts every reader's kind (CHARGE, RECEIPT, EXPENSE, BUDGET_LINE) exists and no upload is
+  held, then asserts G3 `("READER_MISSING", {"reader": "billing-illustrative-1"})` and G4 not failing.
+- L1: `test_l1_g9_compares_exactly_the_spec_keys` pins `SCREEN_KEYS` and the file's `screen` keys to §3.4. Plant
+  (drop `not_available`): the test fails.
+- L2: as PF1 above. L3: `test_l3_every_rehearsal_database_line_is_a_test_name` (regex over both runbook copies).
+- L4: G3 checks SUBMITTER and ACCEPTER on every accepted upload of a reader; `test_l4_...` (plant: first upload only)
+  fails.
+- r5's `bridge.scale` and step `bar` added to the expectation file's `screen` by hand from 5c's updated World A fixture.
+- No-DB: 27 passed. Postgres full file and the faithful P1 re-plant: chain3, log
+  `/tmp/claude-1001/-opt-assetecon-AssetOpsV1/b41e22f5-3892-40aa-b0a6-08516de67e3b/scratchpad/ddr2/chain3.log`
+  (pending at handback). Check-all: not rerun after these fixes.
