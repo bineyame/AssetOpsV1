@@ -40,7 +40,7 @@ D-0K3.20). Reviewer guide: `reviewer-guide.md`. Handshake: `handshake.md`.
   or a different shape, is a pre-flight question. (b) On a clone with DS3's converted Kobo
   (`test_ds3_bulk_load_postgres.seed_database`), the roles of its current binding set, whether K1 holds `pv_power`
   readings, and the Site's zone. Expected: no `pv_available_power`, `pv_power` bound and no `pv_power` reading.
-  (c) `find_site_by_id(...).timezone` of both Sites (expected `Africa/Nairobi` for both).
+  (c) `find_site_by_id(...).timezone` of both Sites (expected `Africa/Nairobi` for both). Rev 3, accepted at review (L3): Kobo's zone is `Africa/Addis_Ababa`, not Nairobi; both are UTC+3 with no clock change, so windows and subjects are the same.
 - **Read:** `rulings.md`; 0K2 `spec.md` §2.1 and §2.2; `host/tests/kobo_season.py:150-172` (`observed_series`);
   `analytics/assessment_inputs.py:46-200, 340-361`; `analytics/cohort.py:62-80`; `tools/w402_mini_depth_cases.py:
   61-160, 177-196`; `backend/tests/test_w402_reads_postgres.py:45-95`; `backend/tests/test_ds3_bulk_load_postgres.py:
@@ -73,10 +73,10 @@ proven on stored readings at MG-W402-001 only.)
 
 ### 2.1 Types and constants (`backend/assetops_backend/runs/replay_series.py`)
 
-Imports exactly: `__future__`, `dataclasses`, `datetime`, `fractions`, `re`, `typing`, `uuid`, `zoneinfo`,
+Imports exactly: `__future__`, `dataclasses`, `datetime`, `fractions`, `re`, `types`, `typing`, `uuid`, `zoneinfo`,
 `assetops_backend.analytics.assessment_inputs`, `assetops_backend.analytics.assessment_worker`,
 `assetops_backend.analytics.cohort`, `assetops_backend.analytics.dispatch_v3`, `assetops_backend.runs.replay_study`,
-`assetops_contracts.forward_replay` (test B10 pins the set). No adapter import; no clock read.
+`assetops_contracts.forward_replay` (test B10 pins the set). No adapter import; no clock read. Rev 3, accepted at review (L3): `types` is added to the set (for `MappingProxyType`); the pin records each in-repo import as module plus name.
 
 ```python
 STEP = timedelta(minutes=5)
@@ -188,7 +188,7 @@ is not in `REPLAY_ROLES` or whose asset is not in `bound[role]` is skipped. The 
 `assessment_inputs.iso`; a subject is `<role>@<iso>`, or `feeder_demand:<code>@<iso>` for a load.
 
 1. **Window edge.** A reading with `COALESCE(interval_end, source_time) <= window.start` or `COALESCE(interval_start,
-   source_time) >= window.end` is outside (the bracket) and skipped. A mean that starts before `window.start` and ends
+   source_time) >= window.end` is outside (the bracket) and skipped. Rev 3, accepted at review (L3): an *instant* is skipped only when `source_time` lies outside `[window.start, window.end)` (an instant at `t_0` is read, the start fuel included); the rule for means is as written. A mean that starts before `window.start` and ends
    after it, or starts before `window.end` and ends after it: `READER_RESOLUTION` (detail "crosses the window
    edge").
 2. **Shape.** A `MEAN_ROLES` reading with no interval: `READER_RESOLUTION` (detail "an instant where an interval mean
@@ -199,7 +199,7 @@ is not in `REPLAY_ROLES` or whose asset is not in `bound[role]` is skipped. The 
    in `STATES`: `READER_STATE_UNKNOWN`. A reading of any other quality sets nothing (its step stays `None`) and is not
    checked for unit or value.
 4. **Means.** Step `k = (interval_start - window.start) // STEP`. The interval must lie inside `[t_k, t_{k+1})` with
-   `interval_end > interval_start`; one that ends after `t_{k+1}` (a coarser mean, e.g. 15 minutes):
+   `interval_end > interval_start` (rev 3, accepted at review (L3): a mean with an empty or reversed interval is refused `READER_RESOLUTION`, detail "an empty or reversed interval"); one that ends after `t_{k+1}` (a coarser mean, e.g. 15 minutes):
    `READER_RESOLUTION` (detail "coarser than the 5-minute step"). The step's means, sorted by start, must not
    overlap (a start before the previous end: `READER_READINGS_CONFLICT`). The step's value is `Σ value × (end −
    start) / STEP` (an exact `Fraction` of seconds) when the means are all GOOD and tile `[t_k, t_{k+1})` exactly

@@ -97,6 +97,14 @@ clean file passes B1 after. Every named test failed:
 - No study ran on stored readings. It waits for (a) a Site with the six roles bound and 61 days of 5-minute
   readings, (b) for Kobo, a binding of `pv_available_power` (row 48), (c) `6c`, which calls `read`.
 
+## Risks for 6c
+
+- Means tiling tolerance: a real feed's 5-minute means may not tile a step exactly (small gaps or overlaps at the
+  edges); the reader refuses overlap and sums exact fractions, so `6c` may need a stated tolerance for real feeds.
+- `readings_used` counts readings placed on a read step whatever their quality (non-GOOD included), so coverage
+  should be judged from the empty steps, not from `readings_used`.
+- Build `StudyFrame` from `read.timezone`, never from a literal.
+
 ## Known deviations
 
 1. `types` joins §2.1's import set: §2.1's own `UNITS`/`INPUT_CLASS_BY_MODE` are `MappingProxyType`, which lives in
@@ -131,4 +139,4 @@ A first check-architecture run without `ASSETOPS_GUARD_PYTHON` failed only on "t
 no Python interpreter" (environment, not code); the first check-all failed on `.ai/state/index-2.md` over its
 8000-byte cap from this slice's index line, shortened, then rerun.
 
-Mid-build count: 1 (Q1, Kobo's zone; default applied, nothing stopped).
+Mid-build count: 4 (corrected at review, L3): deviations 1 (`types` import), 2 (instants outside `[start, end)` only), 5 (the empty or reversed interval) and Q1 (Kobo's zone, Addis Ababa not Nairobi); defaults applied, nothing stopped. Spec rev 3 amends the text to match.

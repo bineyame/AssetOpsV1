@@ -26,7 +26,7 @@ from typing import Mapping, Protocol, Sequence
 from uuid import UUID
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from assetops_backend.analytics import dispatch_v3
+from assetops_backend.analytics.dispatch_v3 import OFF_STATES, ON_STATES
 from assetops_backend.analytics.assessment_inputs import (
     AcceptedReading,
     CohortMember,
@@ -50,7 +50,7 @@ MEAN_ROLES = frozenset({PV, LOAD, GEN_POWER})  # an interval mean, kW
 INSTANT_ROLES = frozenset({SOC, FUEL, GEN_STATE})  # a reading at a step's start
 ONE_ASSET_ROLES = (PV, GEN_POWER, GEN_STATE, SOC, FUEL)  # exactly one bound asset each; LOAD: one or more
 UNITS = MappingProxyType({PV: "kW", LOAD: "kW", GEN_POWER: "kW", SOC: "%", FUEL: "L", GEN_STATE: "state"})
-STATES = dispatch_v3.ON_STATES | dispatch_v3.OFF_STATES  # RUNNING, STOPPED, STARTING, FAILED
+STATES = ON_STATES | OFF_STATES  # RUNNING, STOPPED, STARTING, FAILED
 INPUT_CLASS_BY_MODE = MappingProxyType({"LIVE": "RECORDED", "SIMULATED": "SIMULATED"})
 DECIMAL = re.compile(r"-?[0-9]{1,15}(\.[0-9]{1,9})?")
 MAX_DAYS = 92  # D-0K3.14
@@ -125,7 +125,7 @@ def local_window(first_local_date: date, days: int, zone: str) -> Window:
     (D-0K3.18: the study's 288-step day), else `READER_WINDOW_INVALID` `day:<date>`."""
     try:
         tz = ZoneInfo(zone)
-    except (ZoneInfoNotFoundError, ValueError, TypeError) as unknown:
+    except (ZoneInfoNotFoundError, ValueError, TypeError, OSError) as unknown:
         raise SeriesRefused("READER_WINDOW_INVALID", "timezone", f"{zone!r} is not an IANA zone") from unknown
 
     def midnight(day: date) -> datetime:

@@ -394,6 +394,7 @@ def test_b10_order_configuration_before_the_cohort() -> None:
     (dict(first_local_date=datetime(2026, 10, 12, tzinfo=UTC)), ZONE, "first_local_date"),
     (dict(knowledge_at=datetime(2026, 10, 13, 8, 0)), ZONE, "knowledge_at"),
     ({}, "Mars/Base", "timezone"),
+    ({}, "Africa", "timezone"),
     (dict(first_local_date=date(2026, 10, 25)), "Europe/London", "day:2026-10-25"),
     (dict(first_local_date=date(2026, 10, 24), days=3), "Europe/London", "day:2026-10-25"),
 ])
@@ -425,14 +426,20 @@ def test_b10_the_module_imports_exactly_its_set() -> None:
     modules = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.ImportFrom):
-            modules.add(node.module)
+            # in-repo imports pin module and name, so `from assetops_backend.analytics import adapters` fails the pin
+            modules.update(f"{node.module}:{a.name}" if node.module.startswith("assetops_") else node.module
+                           for a in node.names)
         elif isinstance(node, ast.Import):
             modules.update(a.name for a in node.names)
     # spec §2.1's set, plus `types` for the MappingProxyType §2.1 itself names (packet, Known Deviations)
-    assert modules == {"__future__", "dataclasses", "datetime", "fractions", "re", "types", "typing", "uuid",
-                       "zoneinfo", "assetops_backend.analytics", "assetops_backend.analytics.assessment_inputs",
-                       "assetops_backend.analytics.assessment_worker", "assetops_backend.analytics.cohort",
-                       "assetops_backend.runs.replay_study", "assetops_contracts.forward_replay"}
+    assert modules == {
+        "__future__", "dataclasses", "datetime", "fractions", "re", "types", "typing", "uuid", "zoneinfo",
+        "assetops_backend.analytics.dispatch_v3:ON_STATES", "assetops_backend.analytics.dispatch_v3:OFF_STATES",
+        *(f"assetops_backend.analytics.assessment_inputs:{n}" for n in (
+            "AcceptedReading", "CohortMember", "EvidenceQuery", "EvidenceQueryResult", "RoleBinding", "Window",
+            "build_input_set", "iso")),
+        "assetops_backend.analytics.assessment_worker:ROLES_BY_SET", "assetops_backend.analytics.cohort:select_cohort",
+        "assetops_backend.runs.replay_study:ObservedSeries", "assetops_contracts.forward_replay:LoadSeries"}
 
 
 # --- B11 the study's own checks -------------------------------------------------------------------------------------
