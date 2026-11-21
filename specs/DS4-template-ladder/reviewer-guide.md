@@ -26,8 +26,9 @@ unless a finding needs it; cite the builder's runs at the same commit (`.ai/ROLE
 6. **The check is independent (W2) and total (D-DS4.16).** C4 reads `derived-values.json` and the snapshot payload
    directly; the expected values are never computed by product code; `C4_CONTRACT` equals spec §2.1 cell for cell
    (read the literal against the table yourself); every payload factor is judged (no `unchecked`), `E` by exact
-   equality with `None` never equal, `B` blank with its record (no zero class: D-DS4.25); `C4_KNOWN_FINDINGS` holds only the three
-   D-DS4.25 lines until 4a's fix merges, then nothing, and a known finding is still a FAIL. The spike's printout in the packet matches
+   equality with `None` never equal, `B` blank with its record (no zero class: D-DS4.25); `C4_SITE_CLASSES` holds only Kisiwa's three actual
+   cells (D-DS4.26); `C4_KNOWN_FINDINGS` holds only the twelve plan-side D-DS4.27 lines until 5a's fix F1 merges, then
+   nothing (D-DS4.25's lines are gone), and a known finding is still a FAIL. The spike's printout in the packet matches
    §2.1, or each difference has an Architect ruling. T1b and T9b read the manifest YAML and the derived values
    themselves, not through the tool. C2 compares the clone with the manifest's census recorded at build, not with
    itself. `check_passed` is reported only while `check_inputs` are unchanged (D-DS4.21).
@@ -83,10 +84,12 @@ unless a finding needs it; cite the builder's runs at the same commit (`.ai/ROLE
 | P30 | `cover_gap` checks the local grain only | T8 (g) |
 | P31 | `envelope_span` lets `ValueError` or `TypeError` escape | T8 (unreadable cases) |
 | P32 | Step 7a runs before step 6 | T16c (a real-path COMPLETED gap batch is refused instead of already loaded) |
+| P33 | `C4_SITE_CLASSES` dropped (Kisiwa judged by the Kobo/Mto table) | T12 (three `new` C4 lines at KISIWA-001) |
+| P34 | Kisiwa's override also put at KOBO-001 | T9b (override literal and manifest coverage) |
 
 ## Verdict
 
-ACCEPT when spec §7 is all yes and P1 to P32 each failed once; findings by severity (High: a protected seam, a
+ACCEPT when spec §7 is all yes and P1 to P34 each failed once; findings by severity (High: a protected seam, a
 permitted-name or connection rule, the check's independence or totality, the telemetry ruling, a key file named or
 read, `assetops_test` touched; Medium: a missing test or plant;
 Low: wording). The coordinator records the verdict.

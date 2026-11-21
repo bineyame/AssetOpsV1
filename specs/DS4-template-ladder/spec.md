@@ -1,8 +1,8 @@
 # DS4: the template ladder, the world commands and the re-benchmark (implementer spec)
 
-Status: rev 2, handshake round 1 answered (D-DS4.16 to D-DS4.25). Architect (Claude), 2026-11-21, on the owner's delegation
+Status: rev 3, handshake round 1 answered (D-DS4.16 to D-DS4.25); mid-build MBQ-1 answered (D-DS4.26, D-DS4.27). Architect (Claude), 2026-11-21, on the owner's delegation
 (`owner/owner-away-architect-decides-2026-11-21.md`; pull order `specs/OWNER-AWAY/decisions-2026-11-21.md` row 4;
-rows 33 to 36, 40 and 41 for the calls made here). `delivery-plan.md` §2 row `DS4`: "Template ladder, the world commands and the
+rows 33 to 36, 40, 41 and 43 for the calls made here). `delivery-plan.md` §2 row `DS4`: "Template ladder, the world commands and the
 build manifest; the stage-by-stage re-benchmark of the build cost (delivery §5)" (2.5 units; depends on `DS3`; feeds
 `WK`, `DS6`, `DS7`). Design source: data and build strategy §4, §8, §9 and Appendix A (branch
 `task/data-build-strategy`, `Docs/engineering/data-and-build-strategy.md`; not on `main`). **3.5 units** (D-DS4.24),
@@ -29,7 +29,7 @@ machine-wide (row 4), every database command through `tools/heavy-slot.sh --db`.
   `n_for`, `step`), `tools/heavy_slot_check.py` (`require`), `backend/tests/pg_harness.py` (`clone_database`,
   `drop_database`), `backend/tests/test_ds3_bulk_load_postgres.py` (`seed_database`, `kobo_days`, `DAY6`, `census`),
   `backend/tests/test_ds3_parity_postgres.py`, `Docs/demo-sprint/product-direction-layer4/derived-values.json`.
-- **Decisions:** `rulings.md` (D-DS4.1 to D-DS4.25). **Reviewer guide:** `reviewer-guide.md`. **Handshake:**
+- **Decisions:** `rulings.md` (D-DS4.1 to D-DS4.27). **Reviewer guide:** `reviewer-guide.md`. **Handshake:**
   `handshake.md`.
 
 ## 0. Before you start (gates; each is a hard stop)
@@ -109,15 +109,17 @@ tick, drain) join the ladder with the first world telemetry, and §4 measures th
 
 ### 2.1 What the world shows, factor by factor (D-DS4.16; the C4 contract)
 
-These are the classes of all 47 mini-grid factors in each Site snapshot of this world, the same at Kisiwa, Kobo and Mto,
-because every Site carries the same record kinds. They are held as the literal `C4_CONTRACT` in `tools/world.py`.
+These are the classes of all 47 mini-grid factors in each Site snapshot of this world. They are the same at Kobo and Mto.
+At Kisiwa, the world sends no October O&M invoice, so three actual cells differ (D-DS4.26, marked ‡). The table is
+held as the literal `C4_CONTRACT` in `tools/world.py`, and Kisiwa's three cells as `C4_SITE_CLASSES` (§3.6).
 `E`: must equal `derived-values.json` exactly. `B`: must be blank ("Not available yet"). `Src` says why a
 factor is blank: **T** needs telemetry (no gateway, sources or binding set at the world's Sites); **R** needs a record
 that no native layout carries; **S** is blank on every database today (`structure/sources.py` `SOURCE_STATE`
 NOT_CONNECTED or HELD_NOT_CALCULATED, or no assumption published); **D** is a node blank because a part is blank.
-Unit 1's spike confirms the table (D-DS4.18). Cells marked † are the ones to read first if the spike differs.
+Unit 1's spike (D-DS4.18; MBQ-1) confirmed the table except for ‡ (D-DS4.26) and four plan cells that a defect on
+`main` leaves blank (D-DS4.27, marked §). Cells marked † are the ones to read first if a later run differs.
 
-**Actual side** (`payload["actual"]`): 18 E, 29 B.
+**Actual side** (`payload["actual"]`): 18 E, 29 B at Kobo and Mto; 15 E, 32 B at Kisiwa (‡).
 
 | Factor | Class | Src | Why (the record it names when blank) |
 |---|---|---|---|
@@ -138,7 +140,8 @@ Unit 1's spike confirms the table (D-DS4.18). Cells marked † are the ones to r
 | `diesel_price` | E | | fuel invoices over their litres (`money.py` `_diesel_price`) |
 | `battery_throughput_kwh` | E | | option-only neutral 0 |
 | `wear_rate` | B | S | NOT_CONNECTED |
-| `om`, `staff` | E | | EXPENSE (OM), EXPENSE (STAFF) |
+| `om` | E; **B at Kisiwa** ‡ | ‡ R | EXPENSE (OM). Kisiwa's October O&M invoice was not received: manifest `coverage: om: ESTIMATED`, `unwritten.json` `ESTIMATED_NOT_RECEIVED`, no record written (D-DS1B.7). Kisiwa reads blank naming EXPENSE (OM), never the pack's estimate 700.0 (D-DS4.26) |
+| `staff` | E | | EXPENSE (STAFF) |
 | `collection_cost` | E | | option-only neutral 0 |
 | `reduced_days`, `hours_per_day` | B | S | work cases, HELD_NOT_CALCULATED |
 | `major_assets` | B | S | asset register, NOT_CONNECTED |
@@ -154,7 +157,7 @@ Unit 1's spike confirms the table (D-DS4.18). Cells marked † are the ones to r
 | `diesel_l` | B | T, D | the three litre leaves |
 | `fuel_cost` | E | | stated by the fuel invoices; the stated value governs (D-4B.1), so blank litres do not reach it |
 | `battery_wear` | E | | 0: neutral throughput times anything (`neutral_zero`) |
-| `cost_to_serve`, `contribution` | E | | from `fuel_cost`, `om`, `staff` and the neutral zeros |
+| `cost_to_serve`, `contribution` | E; **B at Kisiwa** ‡ | ‡ D | from `fuel_cost`, `om`, `staff` and the neutral zeros; at Kisiwa `missing_leaves ["om"]` (D-DS4.26) |
 | `obligation_hours_without_redundancy`, `obligation_hours_without_backup`, `shortfall_backed` | B | D | work-case and outage-unit leaves |
 | `replayed_dawn_days_below_safeguard` | B | D | `dawn_days_below` |
 | `asset_days_out_of_service`, `asset_days_total`, `asset_days_available` | B | D | `reduced_days`, `major_assets` |
@@ -165,17 +168,18 @@ revenue, fuel_cost, om, staff, billed_kwh, diesel_l, tariff, diesel_price): 36 E
 | Factors | Class | Why |
 |---|---|---|
 | LEAK_ZERO leaves: `technical_loss_kwh`, `unexplained_loss_kwh`, `adjustments_kwh`, `unmapped_kwh`, `in_transit`, `outstanding`, `candidate_l`, `unexplained_l`, `reduced_days`, `unserved_critical_kwh`, `customer_hours_interrupted`, `field_visits`, `liability`, `dawn_days_below` | E | taken at 0; the pack's plan is 0 |
-| `tariff`, `diesel_price`, `om`, `staff` | E | budget lines |
+| `tariff` §, `diesel_price` §, `om`, `staff` | E | budget lines (§: until 5a fix F1 merges, `main` blocks price lines `CURRENCY_ON_QUANTITY`: a known finding, D-DS4.27) |
 | `productive_kwh` | E | at this month's actual, 0 |
 | `productive_tariff`, `wear_rate`, `hours_per_day`, `major_assets`, `standby_kw`, `lost_unit_kw` | B | at this month's actual, which is blank (S) |
-| `delivered_kwh`, `necessary_l` | E | MAIN: solved from the billed-kWh and diesel-litre headings † |
+| `delivered_kwh`, `necessary_l` § | E | MAIN: `delivered_kwh` from the billed-kWh heading; `necessary_l` from `fuel_cost` over the diesel-price line (2300 / 700 / 300; § blank until F1, D-DS4.27) † |
 | `extra_l`, `battery_throughput_kwh`, `collection_cost` | E | option neutral 0 |
 | `period_days` | E | the calendar |
-| `metered_kwh` † , `billed_kwh`, `revenue`, `collected`, `diesel_l`, `fuel_cost`, `battery_wear`, `cost_to_serve`, `contribution`, `replayed_dawn_days_below_safeguard`, `asset_days_out_of_service` | E | budget lines and the expressions over the rows above |
+| `metered_kwh` † , `billed_kwh`, `revenue`, `collected`, `diesel_l` §, `fuel_cost`, `battery_wear`, `cost_to_serve`, `contribution`, `replayed_dawn_days_below_safeguard`, `asset_days_out_of_service` | E | budget lines and the expressions over the rows above |
 | `obligation_hours_without_redundancy`, `obligation_hours_without_backup`, `shortfall_backed`, `asset_days_total`, `asset_days_available` | B | D: a part is blank |
 
-The money line the owner sees is whole: revenue, collected, fuel cost, O&M, staff, cost to serve and contribution are
-`E` on both sides. Kobo's fuel split (necessary, candidate, unexplained litres) is blank, as D-DS4.1 says. No
+The money line the owner sees is whole on the plan side at every Site and on the actual side at Kobo and Mto: revenue,
+collected, fuel cost, O&M, staff, cost to serve and contribution are `E`. At Kisiwa the actual O&M, cost to serve and
+contribution read "Not available yet", naming the O&M invoice that was not received (D-DS4.26). Kobo's fuel split (necessary, candidate, unexplained litres) is blank, as D-DS4.1 says. No
 figure differs from the pack without being blank (row 41).
 
 ## 3. Design
@@ -404,14 +408,16 @@ or 4.
 expected `expected["plan"]["nodes"]`). `C4_CONTRACT = {"actual": {factor: "E"|"B"}, "plan": {...}}` is §2.1 as
 a literal, 47 factors per side. For each factor `f` of the union of the payload side's keys and the contract side's
 keys, with `v` the product value (`None` when absent or null):
+- The Site's class for `f` is `C4_SITE_CLASSES[code][side][f]` when present, else `C4_CONTRACT[side][f]` (D-DS4.26).
 - `f` is not in the contract: FAIL `uncontracted`. `f` is in the contract but not in the payload: FAIL `not_in_product`.
 - `E`: PASS only when `v is not None` and `Decimal(v) == Decimal(repr(expected[f]))`, with no tolerance. A `None` is
   never equal to anything, zero included: unknown is not zero.
 - `B`: PASS only when `v is None` and the entry carries `missing` (a leaf) or a non-empty `missing_leaves` (a node).
   The detail prints the `missing.record_kind`, or the missing leaves.
 C4 is PASS only when no factor FAILs; a known finding is still a FAIL. `C4_KNOWN_FINDINGS` (a literal tuple of
-`"<slug>/<code> <side>.<f> <finding id>"`, filled only by the Architect, D-DS4.16; in rev 2 it holds the three
-`actual.adjustments_kwh D-DS4.25` lines until 4a's fix merges, then is emptied) changes no state: C4
+`"<slug>/<code> <side>.<f> <finding id>"`, filled only by the Architect, D-DS4.16; D-DS4.25's lines are gone now that
+4a's fix has merged; rev 3 holds the twelve `plan.<f> D-DS4.27` lines (`tariff`, `diesel_price`, `necessary_l`,
+`diesel_l` at each Site) until 5a's fix F1 merges, then is emptied) changes no state: C4
 marks each FAIL line that it names `known` and every other FAIL line `new`, and T12 asserts that there are no `new`
 lines and that every known one appears. Detail: per Site and side, the
 E and B counts; every FAIL as `<slug>/<code> <side>.<f> class=<c> product=<v> expected=<x>`; then the blank list
@@ -558,7 +564,9 @@ report and the packet. Nothing in §4 is a gate; no test asserts a time.
   contract fails `uncontracted`, and a contract factor missing from the payload fails `not_in_product`; a payload
   that is all blank fails (its `E` factors). **T9b (independent, W2):** `C4_CONTRACT` read from the module has, for
   each side, exactly the keys of `derived_values["sites"]["lakeside-power/Kobo"][side]["nodes"]` read with `json`, with
-  §2.1's counts (actual 18 E, 29 B; plan 36 E, 11 B). **C5 (D-DS4.20):** with the parent's
+  §2.1's counts (actual 18 E, 29 B; plan 36 E, 11 B); `C4_SITE_CLASSES` equals D-DS4.26's literal, and the manifest
+  YAML (read with `yaml`) has `coverage` `ESTIMATED` for October at lakeside-power's mini-grid Sites only at Kisiwa
+  `om`; Kisiwa's effective counts are actual 15 E, 32 B. **C5 (D-DS4.20):** with the parent's
   `ASSETOPS_TEST_DATABASE_URL` set to `.../assetops_test`, the runner receives `ASSETOPS_TEST_DATABASE_URL` naming the
   created `assetops_wc5_pt<hex>_base_test`, no `DATABASE_URL`, `ASSETOPS_TENANT_SLUG` or `ASSETOPS_PSEUDONYM_KEY_DIR`,
   and the heavy-slot markers; the recording admin saw `CREATE DATABASE` of the base before the run and `DROP DATABASE`
@@ -584,7 +592,8 @@ a module `finally` drops, through the tool, every database with the prefix, chil
   4 (three Sites and the portfolio row) and the observe step's exit 0. A second `build` creates nothing. `clone
   --label t1`: its census equals L2's. `check`: C1, C2, C3, C6 and C7 PASS; C4 PASS, or, when `C4_KNOWN_FINDINGS` is
   non-empty, FAIL with no `new` line (D-DS4.16; a difference here is a finding for the Architect, never a loosened
-  rule or an edited contract). C4's blank list equals §2.1's `B` rows for each Site, less any factor `C4_KNOWN_FINDINGS` names.
+  rule or an edited contract). C4's blank list equals §2.1's `B` rows for each Site (Kisiwa's three ‡ cells included), plus the blank cells that
+  `C4_KNOWN_FINDINGS` names.
 - **T13 drop order.** Dropping L0 is refused while L1 exists; dropping the clone, L2, L1 (its tenant's key file is
   erased: `key_state` reports it so; `keys_left` 0) and L0 leaves no database and no manifest with the prefix.
 - **T14 in use.** With a session open on clone `t2`, `drop` exits 2 `WORLD_DATABASE_IN_USE` and the database still
