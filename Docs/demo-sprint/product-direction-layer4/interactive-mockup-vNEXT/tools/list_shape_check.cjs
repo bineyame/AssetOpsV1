@@ -1,12 +1,12 @@
 /* IA-2b1 list shape check (spec-IA-2b §8 rows 1 to 4; D-IA.62, D-IA.66 to D-IA.70, D-IA.73, D-IA.80), jsdom. Runs only when IA_LANDED has
    IA-2b1 (or IA_FORCE_LANDED=IA-2b1); otherwise prints "IA-2b1 not landed; dormant" and exits 0.
    A synthetic: iaListModel and iaListHref on a 25-item store in 3 groups (the only block that calls the list's code).
-   B live: every operator x the four lists (PARTIAL: not yet written; it fails while landed, so the gate cannot pass without it).
+   B live: every operator x the four lists x the views of spec §8 row 2, against its own rows and literal tables (D-IA.73).
    C the scope menu on a list. D the fixture (tools/list_fixture.cjs), rendered by the real route.
    Plants (LIST_PLANT): A cap, keep, scope, search, sort, invalid, group, canon, tier; B tile, rowctl, restore, own, stakesort, notarget;
    C scopemenu; D remainder (tier and group also bite D). A source plant rewrites the product function at its rule; a rule the source
    lacks exits 2, so a plant cannot pass unbitten. */
-const { boot, OPS, sleep } = require('./ia_crawl.cjs');
+const { boot, OPS, sleep, classifier } = require('./ia_crawl.cjs');
 const F = require('./list_fixture.cjs');
 const PLANT = process.env.LIST_PLANT || '';
 const money = s => { const m = String(s).replace(/,/g, '').match(/([−-])?\$(\d+(?:\.\d+)?)/); return m ? (m[1] ? -1 : 1) * parseFloat(m[2]) : NaN; };
@@ -21,6 +21,7 @@ const SRC = {
   group: ['iaListModel', ['n > IA_LIST_CAP && gs.length > 1', 'false']],
   canon: ['iaListHref', ['v.sort !== def.sorts[0].key', '!!v.sort']],
   tier: ['iaListTier', ['ns <= IA_LIST_CAP ? 1 : 2', '2']],
+  tile: ['iaListTiles', ['const n = m.n;', 'const n = m.shown.length;']],
   scopemenu: ['iaScopeEntries', ["route && route.shape === 'list'", 'false']] };
 const BLOCK = { cap: 'A', keep: 'A', scope: 'A', search: 'A', sort: 'A', invalid: 'A', group: 'AD', canon: 'A', tier: 'AD', scopemenu: 'C', remainder: 'D', tile: 'BD', rowctl: 'B', restore: 'B', own: 'B', stakesort: 'B', notarget: 'B' };
 if (PLANT && !BLOCK[PLANT]) { console.error(`list_shape_check: unknown plant ${PLANT}`); process.exit(2); }
@@ -29,8 +30,20 @@ function plantSource(w, block) {
   if (SRC[PLANT]) { const [fn, ...rules] = SRC[PLANT]; const ok = w.eval(`(() => { if (typeof ${fn} !== 'function') return 'no function ${fn}'; let s = ${fn}.toString(); for (const [a, b] of ${JSON.stringify(rules)}) { if (!s.includes(a)) return 'plant found no rule: ' + a; s = s.split(a).join(b); } (0, eval)('${fn} = ' + s); return ''; })()`);
     if (ok) { console.log(`list_shape_check (plant ${PLANT}): ${ok}`); process.exit(2); } w.eval('render()'); return; }
   if (PLANT === 'remainder') { w.eval(`(() => { const d = IA_LIST_DEFS.sites, m = d.more; d.more = () => ''; })()`); return; }
-  /* the B plants are written with block B */
+  /* B's window plants (D-IA.73): each changes the product in the booted window only; a seam the window lacks exits 2 */
+  const no = why => { console.log(`list_shape_check (plant ${PLANT}): ${why}`); process.exit(2); };
+  if (PLANT === 'rowctl') { const o = w.shapeList; if (typeof o !== 'function') no('no function shapeList');
+    w.shapeList = (ctx, key) => { const h = o(ctx, key); return key !== 'decisions' ? h : String(h).replace(/(<tr data-row="[^"]*"[^>]*>[\s\S]*?)(<\/tr>)/g, (m, a, b) => { PLANT_HITS.n++; return `${a}<td data-label="Choose"><button type="button" class="button">Choose</button></td>${b}`; }); }; }
+  if (PLANT === 'restore') { const o = w.iaListModel; if (typeof o !== 'function' || w.eval('typeof IA_LIST_KEEP') === 'undefined') no('no iaListModel or IA_LIST_KEEP');
+    /* the address's sort and facets ignored unless the render follows the list's own listener (a fresh boot or a typed address) */
+    w.iaListModel = (d, it, q, s) => o(d, it, w.eval('IA_LIST_KEEP') ? q : Object.fromEntries(Object.entries(q || {}).filter(([k]) => k === 'q' || k === 'show')), s); }
+  if (PLANT === 'own') { const d = w.eval("typeof IA_LIST_DEFS === 'object' ? IA_LIST_DEFS.findings : null"); if (!d || typeof d.items !== 'function') no('no IA_LIST_DEFS.findings.items'); const o = d.items; d.items = op => o(op).slice(0, -1); }
+  if (PLANT === 'stakesort') { const ok = w.eval("typeof IA_LIST_DEFS === 'object' && Array.isArray(IA_LIST_DEFS.decisions?.sorts) ? (IA_LIST_DEFS.decisions.sorts.push({ key: 'stake', word: 'At stake', cmp: (a, b) => 0 }), true) : false"); if (!ok) no('no IA_LIST_DEFS.decisions.sorts array'); }
+  if (PLANT === 'notarget') { const why = w.eval(`(() => { const op = LS.op, names = OPS[op].sites.map(k => SK[k].name), f = (HC.findings || []).find(f => f.decision && decById(f.decision) && names.includes(String(f.site).replace(/^Room [A-C] · /, '')));
+    if (!f) return 'no Finding of ' + op + ' with a decision'; DEC.splice(DEC.findIndex(d => d.id === f.decision), 1); return ''; })()`); if (why) no(why); }
+  w.eval('render()');
 }
+const PLANT_HITS = { n: 0 };
 /* ---- Block A: synthetic (the only block that calls the model, D-IA.73) ---- */
 async function blockA(fails, log) {
   const B = await boot('lakeside', 'portfolio'), { w } = B;
@@ -171,15 +184,192 @@ async function blockD(fails, log) {
   if (B.errors.length) fails.push(`D: script error ${B.errors[0]}`);
   B.dom.window.close();
 }
-/* ---- Block B: live (PARTIAL, see specs/IA-1-shape-rebuild/handoff-IA-2b1.md) ---- */
-async function blockB(fails, log) { fails.push('B: block B (live, every operator x the four lists) is not written yet'); log.push('B · not written'); }
+/* ---- Block B: live (spec §8 row 2, D-IA.69, D-IA.70, D-IA.73). Every operator x the four lists x the default view, each facet value (by
+   address), each sort, q = the first row's first word, each scope entry and show=all; Actions also after Approve, after Send back and in
+   Lakeside 6500/No. B's rows come from the stores (ATTN, DEC, HC.findings, WF(op).actions, OPS[op].sites) and reviewed one-source
+   classifiers (uxDecState, uxDueIso, uxUrgency, releaseShown, planCaseIds, planApprovedIds, planItemsV1, uxPlanState, tree, siteM) with
+   its own code; it never calls the list's code. Its word tables are literals, asserted against the product's first (D-IA.73 c). ---- */
+const LENSW = { grow: 'Grow revenue', optimize: 'Optimize cost and efficiency', protect: 'Protect asset and capital', assure: 'Assure performance and returns' };
+const URGW = { week: 'Due this week', month: 'Due this month', later: 'Due later', none: 'No deadline' };
+const RELW = { WAITING: 'Waiting', RELEASED: 'Released', RETURNED: 'Returned', WITHDRAWN: 'Withdrawn' };
+const DECW = { waiting: 'Waiting for a choice', approval: 'Awaiting approval', draft: 'With the plan sent back to draft', underway: 'Under way' };
+const GROUPW = { mini: 'Mini-grids', cold: 'Cold rooms', ev: 'EV depots' };
+/* per list: the title (tile 1's label and the route's H1), the sort literals (D-IA.69), the facets [key, words, way out], def.none */
+const LIT = cost => ({
+  decisions: { title: 'Decisions', sorts: [['priority', 'Priority'], ['due', 'Due date']], facets: [['state', DECW, 'All states'], ['due', URGW, 'Any due date']], none: 'No decisions in this scope.' },
+  findings: { title: 'Findings', sorts: [['priority', 'Priority'], ['site', 'Site']], facets: [['heading', LENSW, 'All headings']], none: 'No Findings in this scope.' },
+  actions: { title: 'Actions', sorts: [['due', 'Due date'], ['item', 'Plan item']], facets: [['state', { released: RELW.RELEASED, waiting: RELW.WAITING, returned: RELW.RETURNED }, 'All states'], ['version', null, 'All versions']], none: 'No Actions in this scope.' },
+  sites: { title: 'Sites', sorts: [['gap', 'Gap to target'], ['name', 'Name']], facets: [['target', cost ? { below: 'Over target', on: 'On or under target' } : { below: 'Below target', on: 'On or above target' }, cost ? 'Over and under target' : 'Above and below target']], none: 'No Sites in this scope.' } });
+const LISTS = ['decisions', 'findings', 'actions', 'sites'];
+const INTERACTIVE = 'a[href], button, input, select, textarea, summary, [tabindex]:not([tabindex="-1"]), [contenteditable="true"]';
+const norm = s => String(s || '').replace(/\s+/g, ' ').trim();
+/* B's own store reads: one JSON per list, from the stores and the reviewed classifiers only */
+function ownStore(w, op, key) {
+  const o = JSON.stringify(op);
+  if (key === 'decisions') return w.eval(`(() => { const op = ${o}; return [...new Set(ATTN[op].map(r => r[4]))].map(id => { const d = decById(id), s = uxDecState(id), due = ATTN[op].filter(r => r[4] === id).map(r => uxDueIso(id, r[3])).filter(Boolean).sort()[0] || '';
+    return { key: id, site: d ? d.site : null, target: d ? 'decision/' + id : null, sk: s.key, draft: !!s.draft, due, urg: uxUrgency(due) }; }); })()`)
+    .map(x => ({ ...x, f: { state: ['choose', 'none'].includes(x.sk) ? 'waiting' : x.sk === 'approval' ? (x.draft ? 'draft' : 'approval') : x.sk === 'released' ? 'underway' : `unknown ${x.sk}`, due: x.urg }, keep: ['choose', 'none'].includes(x.sk) }));
+  if (key === 'findings') return w.eval(`(() => { const op = ${o}, names = OPS[op].sites.map(k => [SK[k].name, k]), nm = f => String(f.site).replace(/^Room [A-C] · /, '');
+    return (HC.findings || []).map(f => ({ key: f.id, sname: nm(f), site: (names.find(([n]) => n === nm(f)) || [])[1] || null, target: f.decision && decById(f.decision) ? 'decision/' + f.decision : null, heading: f.heading })).filter(x => x.site); })()`)
+    .map(x => ({ ...x, f: { heading: x.heading } }));
+  if (key === 'actions') return w.eval(`(() => { const op = ${o}, A = WF(op).actions || [], inCase = new Set(planCaseIds(op)), S = uxPlanState(op), ver = S.state === 'APPROVED' ? planApprovedIds(op) : planItemsV1(op), v1 = planItemsV1(op),
+    decs = DEC.filter(d => OPS[op].sites.includes(d.site)), cnt = {};
+    return { version: String(S.version), rows: A.map(a => { cnt[a.item] = (cnt[a.item] || 0) + 1; const d = decs.find(d => (d.opts || []).includes(a.item));
+      return { key: a.item + '-' + cnt[a.item], item: a.item, site: OPT[a.item]?._site || (itemOf(op, a.item)?.site || '').split(' · ').pop().toLowerCase(), target: d ? 'decision/' + d.id : 'plan',
+        state: !inCase.has(a.item) ? 'returned' : releaseShown(op, a.item).at ? 'released' : 'waiting', inVer: ver.includes(a.item), due: a.due || '', ix: v1.indexOf(a.item) }; }) }; })()`);
+  return w.eval(`(() => { const op = ${o}; return OPS[op].sites.map(sk => { const t = tree(sk), s = siteM(sk); return { key: sk, site: sk, name: SK[sk].name, target: 'site/' + sk, has: t.plan != null, gap: s.period.variance }; }); })()`)
+    .map(x => ({ ...x, f: { target: x.has ? (x.gap < 0 ? 'below' : 'on') : null } }));
+}
+/* B's own model of a view (spec §3.1 read independently): scope, tier, facets, search, sort, cap with keep-first, group blocks */
+function ownView(key, L, items, q, scope, texts, vert) {
+  const inS = items.filter(it => scope.kind === 'site' ? it.site === scope.id : scope.kind === 'group' ? vert(it.site) === scope.id : true), ns = inS.length;
+  const tier = ns < 3 ? 0 : ns <= 10 ? 1 : 2, opts = facetOpts(L, items);
+  let rows = inS.filter(it => L.facets.every(([f]) => !q[f] || !(q[f] in opts[f]) || it.f[f] === q[f]));
+  const words = String(q.q || '').toLowerCase().split(/\s+/).filter(Boolean);
+  rows = rows.filter(it => words.every(x => (texts[it.key] || '').includes(x)));
+  const sk = L.sorts.some(([k]) => k === q.sort) ? q.sort : L.sorts[0][0], cmp = CMP[key][sk], st = rows.map((x, i) => [x, i]).sort(([a, i], [b, j]) => cmp(a, b) || i - j).map(([x]) => x);
+  const n = st.length, all = q.show === 'all', rank = key === 'decisions' ? [...st.filter(x => x.keep), ...st.filter(x => !x.keep)] : st, top = new Set((all ? rank : rank.slice(0, 10)).map(x => x.key));
+  let shown = st.filter(x => top.has(x.key));
+  const gs = key === 'sites' ? [...new Set(st.map(x => vert(x.site)))] : [];
+  if (gs.length > 1 && n > 10) shown = gs.flatMap(g => shown.filter(x => vert(x.site) === g));
+  const present = f => new Set(inS.map(it => it.f[f]).filter(v => v != null && v in opts[f])).size;
+  const drawn = tier === 2 ? L.facets.map(([f]) => f).filter(f => present(f) >= 2) : [];
+  return { ns, n, tier, shown: shown.map(x => x.key), hidden: n - shown.length, drawn, sort: sk, opts };
+}
+const facetOpts = (L, items) => Object.fromEntries(L.facets.map(([f, words]) => [f, f === 'version' ? { [items.version]: `Version ${items.version}` } : f === 'heading' ? Object.fromEntries(Object.entries(words).filter(([k]) => items.some(it => it.f.heading === k))) : words]));
+const byDue = (a, b) => (!a.due) - (!b.due) || (a.due < b.due ? -1 : a.due > b.due ? 1 : 0);
+const CMP = { decisions: { priority: () => 0, due: byDue }, findings: { priority: () => 0, site: (a, b) => a.sname.localeCompare(b.sname) },
+  actions: { due: byDue, item: (a, b) => (a.ix < 0) - (b.ix < 0) || a.ix - b.ix }, sites: { gap: (a, b) => (a.has !== b.has ? (a.has ? -1 : 1) : a.has ? a.gap - b.gap : 0), name: (a, b) => a.name.localeCompare(b.name) } };
+/* the address of a view, written with B's own code in the canonical order (scope, facets, sort, q, show) */
+function addr(key, L, q, scopeParam) {
+  const p = [];
+  if (scopeParam) p.push(`scope=${scopeParam}`);
+  L.facets.forEach(([f]) => { if (q[f]) p.push(`${f}=${encodeURIComponent(q[f])}`); });
+  if (q.sort && q.sort !== L.sorts[0][0]) p.push(`sort=${q.sort}`);
+  if (q.q) p.push(`q=${encodeURIComponent(q.q)}`);
+  if (q.show) p.push('show=all');
+  return key + (p.length ? '?' + p.join('&') : '');
+}
+const ctlNames = s => { const f = s && s.querySelector('[data-ia-list-tools]'); return f ? [...f.querySelectorAll('select[name], input[name]')].map(e => e.name).join(',') + (f.querySelector('button[type="submit"]') ? ',submit' : '') : ''; };
+const l2Of = doc => { const s = doc.querySelector('section[data-shape="list"]'), l = s && s.querySelector('[data-level="L2"]'); return l ? l.innerHTML : null; };
+/* one view: every assertion of spec §8 row 2 that reads the screen */
+function checkView(ctx, key, q, scope, scopeParam, tag) {
+  const { B, op, L, items, texts, vert, fails, cls, stat } = ctx, doc = B.doc, at = `B ${B.opName} · ${tag} · #/${addr(key, L, q, scopeParam)}`;
+  const secs = doc.querySelectorAll('[data-shape="list"]'); stat.views++;
+  if (secs.length !== 1) { fails.push(`${at}: ${secs.length} [data-shape="list"], expected one`); return; }
+  const s = secs[0], V = ownView(key, L, items, q, scope, texts, vert);
+  /* tile 1 = the shown rows + the hidden rows = the "Show all" n = B's own count */
+  const tile = [...s.querySelectorAll('[data-level="L1"] .ux-kpi')].find(e => norm(e.querySelector('.ux-kpi-l')?.textContent) === L.title), tv = tile ? +norm(tile.querySelector('.ux-kpi-v')?.textContent).replace(/,/g, '') : NaN;
+  const rows = [...s.querySelectorAll('tbody tr[data-row]')], keys = rows.map(r => r.dataset.row), more = [...s.querySelectorAll('a')].filter(a => /^Show all [\d,]+$/.test(norm(a.textContent)));
+  const moreN = more.length ? +norm(more[0].textContent).replace(/\D/g, '') : null, hidden = moreN == null ? 0 : moreN - rows.length;
+  if (tv !== rows.length + hidden || tv !== V.n || (moreN != null && moreN !== tv)) fails.push(`${at}: tile 1 "${L.title}" is ${tile ? tv : 'missing'}; ${rows.length} rows shown + ${hidden} hidden${moreN != null ? ` ("Show all ${moreN}")` : ''}; B counts ${V.n}`);
+  if (more.length > 1 || (V.hidden > 0) !== (more.length === 1)) fails.push(`${at}: ${more.length} "Show all" link(s), B hides ${V.hidden} row(s)`);
+  /* the row set and order equal B's own computation */
+  if (keys.join(',') !== V.shown.join(',')) fails.push(`${at}: rows ${keys.join(',') || 'none'}, B computes ${V.shown.join(',') || 'none'}`);
+  /* the tier's controls and no others (D-IA.67); each control's value equals the address */
+  const want = V.tier === 0 ? '' : V.tier === 1 ? 'sort' : [...V.drawn, 'sort', 'q', 'submit'].join(','), got = ctlNames(s);
+  if (got !== want) fails.push(`${at}: controls "${got}", expected "${want}" (tier ${V.tier}, ${V.ns} in scope)`);
+  const form = s.querySelector('[data-ia-list-tools]');
+  if (form) { const sel = form.querySelector('select[name="sort"]');
+    if (sel) { const ov = [...sel.options].map(o => o.value).join(','), lv = L.sorts.map(([k]) => k).join(','), ow = [...sel.options].map(o => norm(o.textContent)).join(','), lw = L.sorts.map(([, x]) => x).join(',');
+      if (ov !== lv || ow !== lw) fails.push(`${at}: the sort list is "${ov}" ("${ow}"), expected the literal "${lv}" ("${lw}") (D-IA.69)`);
+      if (sel.value !== V.sort) fails.push(`${at}: Sort shows "${sel.value}", the address's sort is "${V.sort}"`); }
+    for (const f of V.drawn) { const e = form.querySelector(`select[name="${f}"]`), wv = q[f] && q[f] in V.opts[f] ? q[f] : '';
+      if (e && e.value !== wv) fails.push(`${at}: ${f} shows "${e.value}", the address has "${wv}"`);
+      if (e) [...e.options].filter(o => o.value).forEach(o => { if (V.opts[f][o.value] !== norm(o.textContent)) fails.push(`${at}: ${f} option ${o.value} reads "${norm(o.textContent)}", B's table "${V.opts[f][o.value]}"`); }); }
+    const qi = form.querySelector('input[name="q"]'); if (qi && qi.value !== (q.q || '')) fails.push(`${at}: Search shows "${qi.value}", the address has "${q.q || ''}"`); }
+  /* a chip for each set state that no control shows (D-IA.70), in the order scope, facets, q; Clear filters at 2 or more */
+  const chips = [...s.querySelectorAll('.ia-list-chips .ia-chip')].map(c => norm(c.textContent)), wc = [];
+  if (scope.kind !== 'all') wc.push(`${scope.kind === 'group' ? GROUPW[scope.id] : ctx.siteName[scope.id]} · All sites`);
+  const set = L.facets.filter(([f]) => q[f] && q[f] in V.opts[f]);
+  set.forEach(([f, , out]) => { if (!V.drawn.includes(f)) wc.push(`${V.opts[f][q[f]]} · ${out}`); });
+  if (q.q && V.tier < 2) wc.push(`Matching “${q.q}” · Clear search`);
+  if (chips.join(' | ') !== wc.join(' | ')) fails.push(`${at}: chips "${chips.join(' | ')}", expected "${wc.join(' | ')}"`);
+  const clear = [...s.querySelectorAll('.ia-list-chips a')].some(a => norm(a.textContent) === 'Clear filters');
+  if (clear !== (set.length + (q.q ? 1 : 0) >= 2)) fails.push(`${at}: "Clear filters" ${clear ? 'drawn' : 'missing'} at ${set.length + (q.q ? 1 : 0)} set filter(s)`);
+  /* every row has exactly one interactive element, and it is a live link (D-IA.9, D-IA.70 b, D-IA.76) */
+  rows.forEach(r => { const ia = [...r.querySelectorAll(INTERACTIVE)], it = items.rows ? items.rows.find(x => x.key === r.dataset.row) : items.find(x => x.key === r.dataset.row);
+    if (ia.length !== 1 || !ia[0].matches('a.ia-row-go[href]')) { fails.push(`${at}: row ${r.dataset.row} has ${ia.length} interactive element(s) (${ia.map(e => e.tagName.toLowerCase()).join(', ')}), expected one a.ia-row-go`); return; }
+    const h = ia[0].getAttribute('href'), c = cls(h); if (c !== 'good') fails.push(`${at}: row ${r.dataset.row} opens ${h} (${c})`);
+    if (it && it.target && h !== '#/' + it.target) fails.push(`${at}: row ${r.dataset.row} opens ${h}, B's target is #/${it.target}`); });
+  /* the empty states */
+  const em = s.querySelector('.ux-empty[role="status"]');
+  if (V.ns === 0 && norm(em?.textContent) !== L.none) fails.push(`${at}: the empty state is "${norm(em?.textContent)}", expected "${L.none}"`);
+  if (V.ns > 0 && V.n === 0 && !/^Nothing matches these filters\. Clear filters$/.test(norm(em?.textContent))) fails.push(`${at}: no "Nothing matches these filters." state`);
+  /* the live cents fallback (spec §3.4): counted, expected 0 */
+  if (key === 'sites' && [...s.querySelectorAll('[data-qty^="sites:gap:"]')].some(e => /\.\d\d(?!\d)/.test(e.textContent))) stat.cents++;
+}
+async function blockB(fails, log) {
+  const stat = { views: 0, cents: 0, restore: 0, scen: 0 }, counts = [];
+  /* the product's word tables equal B's literals (D-IA.73 c) */
+  {
+    const B = await boot('lakeside', 'portfolio'), { w } = B; plantSource(w, 'B');
+    const T = w.eval(`({ lens: Object.fromEntries(Object.entries(LENS).map(([k, v]) => [k, v[0]])), urg: UX_URG, rel: RELEASE_WORD, dec: typeof IA_DEC_STATE_WORD === 'object' ? IA_DEC_STATE_WORD : null, grp: IA_GROUP_WORD })`);
+    for (const [n, a, b] of [['LENS headings', T.lens, LENSW], ['UX_URG', T.urg, URGW], ['RELEASE_WORD', T.rel, RELW], ['IA_DEC_STATE_WORD', T.dec, DECW], ['IA_GROUP_WORD', T.grp, GROUPW]])
+      if (JSON.stringify(a) !== JSON.stringify(b)) fails.push(`B word table ${n}: the product has ${JSON.stringify(a)}, B's literal ${JSON.stringify(b)} (re-rule on purpose)`);
+    B.dom.window.close();
+  }
+  for (const op of OPS) {
+    const scen = [['default', null]].concat([['approved', 'approve'], ['sent back', 'sendback']], op === 'lakeside' ? [['6500/No', 'nd']] : []);
+    for (const [sn, how] of scen) {
+      const B = await boot(op, how ? 'plan' : 'portfolio'), { w, doc } = B; plantSource(w, 'B'); stat.scen++;
+      if (how && !(await scenario(B, op, how, fails))) { B.dom.window.close(); continue; }
+      if (w.eval(`OPS[${JSON.stringify(op)}].sites.some(k => !SK[k])`)) fails.push(`B ${B.opName}: a Site key without SK`);
+      const SKT = w.eval('Object.fromEntries(Object.entries(SK).map(([k, v]) => [k, v.type]))'), vert = k => SKT[k] === 'Mini-grid' ? 'mini' : /^Cold room/.test(SKT[k]) ? 'cold' : 'ev';
+      const ctx = { B, op, fails, stat, vert, cls: classifier(w, op), siteName: w.eval(`Object.fromEntries(OPS[${JSON.stringify(op)}].sites.map(k => [k, SK[k].name]))`) };
+      /* the decision state words appear in the reviewed uxStateCount (D-IA.73 c) */
+      { const sc = w.eval(`uxStateCount([...new Set(ATTN[${JSON.stringify(op)}].map(r => r[4]))])`).toLowerCase(), present = new Set(ownStore(w, op, 'decisions').map(x => x.f.state)); /* uxStateCount names the states present */
+        [...present].forEach(k => { if (!DECW[k] || !sc.includes(DECW[k].toLowerCase())) fails.push(`B ${B.opName} · ${sn}: the state word "${DECW[k] || k}" is not in uxStateCount's output "${sc}"`); }); }
+      for (const key of how ? ['actions'] : LISTS) {
+        const L = LIT(w.eval(`OPS[${JSON.stringify(op)}].kind`) === 'cost')[key], raw = ownStore(w, op, key), items = key === 'actions' ? Object.assign(raw.rows.map(x => ({ ...x, f: { state: x.state, version: x.inVer ? raw.version : null } })), { version: raw.version }) : raw;
+        /* every store item has a live target (D-IA.70 b) */
+        items.forEach(it => { if (!it.target) fails.push(`B ${B.opName} · ${sn}: ${key} item ${it.key} has no target`); else if (ctx.cls('#/' + it.target) !== 'good') fails.push(`B ${B.opName} · ${sn}: ${key} item ${it.key}'s target #/${it.target} is ${ctx.cls('#/' + it.target)}`); });
+        /* the rendered text of each row, read at show=all (def.text is the row's rendered text) */
+        await B.go(`${key}?show=all`); const texts = Object.fromEntries([...doc.querySelectorAll('section[data-shape="list"] tbody tr[data-row]')].map(r => [r.dataset.row, [...r.children].map(c => c.textContent).join(' ').replace(/\s+/g, ' ').toLowerCase()]));
+        const C = { ...ctx, L, items, texts }, views = [[{}, { kind: 'all' }, null, 'default'], [{ show: 'all' }, { kind: 'all' }, null, 'show=all']];
+        const opts = facetOpts(L, items); L.facets.forEach(([f]) => Object.keys(opts[f]).forEach(v => views.push([{ [f]: v }, { kind: 'all' }, null, `${f}=${v}`])));
+        L.sorts.slice(1).forEach(([k]) => views.push([{ sort: k }, { kind: 'all' }, null, `sort=${k}`]));
+        await B.go(key); const first = doc.querySelector('section[data-shape="list"] tbody tr[data-row] .ia-row-go'), fw = first ? norm(first.textContent).split(' ')[0].toLowerCase() : '';
+        if (fw) views.push([{ q: fw }, { kind: 'all' }, null, 'q']);
+        [...doc.querySelectorAll('.ux-scope-sw .ux-pop-menu a[href]')].map(a => decodeURIComponent(a.getAttribute('href'))).forEach(h => { const m = h.match(/[?&]scope=(site|group):([^&]+)/);
+          if (m) views.push([{}, { kind: m[1], id: m[2] }, `${m[1]}:${m[2]}`, `scope ${m[1]}:${m[2]}`]); });
+        for (const [q, scope, sp, tag] of views) { await B.go(addr(key, L, q, sp)); checkView(C, key, q, scope, sp, `${sn} · ${key} · ${tag}`); }
+        if (!how) counts.push(`${B.opName} ${key} ${ownView(key, L, items, {}, { kind: 'all' }, texts, vert).n}`);
+        /* D-IA.73 (a): the in-page path (the Sort select changed from the default view) and a fresh boot of the same address give a byte-identical L2 */
+        if (!how) for (const [k] of L.sorts.slice(1)) {
+          await B.go(key); const sel = doc.querySelector('section[data-shape="list"] [data-ia-list-tools] select[name="sort"]');
+          if (!sel) continue; sel.value = k; sel.dispatchEvent(new w.Event('change', { bubbles: true })); await sleep(60);
+          const h = w.location.hash.slice(2), inPage = l2Of(doc); stat.restore++;
+          if (h !== addr(key, L, { sort: k }, null)) fails.push(`B ${B.opName} · ${key}: the Sort change wrote #/${h}, expected #/${addr(key, L, { sort: k }, null)}`);
+          const F2 = await boot(op, h); plantSource(F2.w, 'B'); const fresh = l2Of(F2.doc); F2.dom.window.close();
+          if (fresh !== inPage) { const i = [...Array(Math.min((fresh || '').length, (inPage || '').length) + 1).keys()].find(j => (fresh || '')[j] !== (inPage || '')[j]); fails.push(`B ${B.opName} · #/${h}: a fresh boot's L2 differs from the in-page path's at char ${i} (D-IA.73 a): "${(fresh || '').slice(i, i + 60)}" vs "${(inPage || '').slice(i, i + 60)}"`); }
+        }
+      }
+      if (B.errors.length) fails.push(`B ${B.opName} · ${sn}: script error ${B.errors[0]}`);
+      B.dom.window.close();
+    }
+  }
+  if (PLANT === 'rowctl' && !PLANT_HITS.n) { console.log('list_shape_check (plant rowctl): the plant found no decision row'); process.exit(2); }
+  log.push(`B · ${stat.views} views over ${stat.scen} scenario boots · ${stat.restore} fresh-boot comparisons · lists ${counts.join(', ')} · live cents fallbacks ${stat.cents} (expected 0)`);
+}
+/* the plan scenarios of D-IA.50 for the Actions list (qty_check's flow) */
+async function scenario(B, op, how, fails) {
+  const { w, doc } = B, click = async sel => { const e = doc.querySelector(sel); if (!e) return false; e.click(); await sleep(20); return true; }, tag = `B ${B.opName} · ${how}`;
+  if (how === 'nd') { for (const [name, val] of [['sw-budget', '6500'], ['sw-loi', 'no']]) { const r = doc.querySelector(`input[name="${name}"][value="${val}"]`); if (!r) { fails.push(`${tag}: no switch ${name}=${val}`); return false; } r.checked = true; r.dispatchEvent(new w.Event('change', { bubbles: true })); await sleep(10); } return true; }
+  if (how === 'approve') { if (await click('.ux-planband [data-ux-act="approve-plan"]') && await click('#uxact [data-ux-act-go]')) return true; fails.push(`${tag}: Approve did not run`); return false; }
+  if (!await click('.ux-planband [data-ux-act="send-back"]')) { fails.push(`${tag}: no Send back`); return false; }
+  const ta = doc.getElementById('ux-sb-reason'), sel = doc.getElementById('ux-sb-way'), opt = sel && [...sel.options].find(o => o.value);
+  if (!ta || !opt) { fails.push(`${tag}: the Send back dialog lacks its reason or a trade-off`); return false; }
+  ta.value = 'The crew cannot do both visits'; sel.value = opt.value; for (const e of [ta, sel]) for (const t of ['input', 'change']) e.dispatchEvent(new w.Event(t, { bubbles: true }));
+  if (await click('#uxact [data-ux-act-go]')) return true; fails.push(`${tag}: Send back did not run`); return false;
+}
 (async () => {
   const t0 = Date.now(), fails = [], log = [];
   const B0 = await boot('lakeside', 'portfolio'); const on = B0.w.eval("IA_LANDED.has('IA-2b1')"); B0.dom.window.close();
   if (!on) { console.log('IA-2b1 not landed; dormant'); process.exit(0); }
-  await blockA(fails, log); await blockB(fails, log); await blockC(fails, log); await blockD(fails, log);
+  for (const [n, f] of [['A', blockA], ['B', blockB], ['C', blockC], ['D', blockD]]) { try { await f(fails, log); } catch (e) { fails.push(`${n}: the block threw ${String(e && e.message || e).slice(0, 200)}`); } }
   log.forEach(l => console.log('  ' + l));
   console.log(`list_shape_check · ${((Date.now() - t0) / 1000).toFixed(1)} s${PLANT ? ` · plant ${PLANT}` : ''}`);
-  if (fails.length) { console.log(`${fails.length} FAIL\n` + fails.slice(0, 14).map(f => '  ' + f).join('\n')); console.log('list_shape_check: FAIL'); process.exit(1); }
+  if (fails.length) { console.log(`${fails.length} FAIL\n` + fails.slice(0, process.env.LIST_VERBOSE ? 1e6 : 14).map(f => '  ' + f).join('\n')); console.log('list_shape_check: FAIL'); process.exit(1); }
   console.log('list_shape_check: PASS'); process.exit(0);
 })();
