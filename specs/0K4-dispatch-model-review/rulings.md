@@ -4,7 +4,7 @@ Architect (Claude), 2026-11-21. Builds the 0K4 path the owner accepted the same 
 (`owner/owner-one-figure-loyal-to-operating-world-2026-11-21.md`: "Accept all (Recommended)", and the one-figure rule).
 Review: `review-for-owner.md`. Unit specs: `specs/0K4a-dispatch-v8/`, `specs/0K4b-fuel-curve-taper/`,
 `specs/0K4c-declared-season/`, `specs/0K4d-rerun-restate/`, `specs/0K4e-candidate-energy/`. Change list:
-`one-figure-change-list.md`. Operator request: `operator-request.md`. Owner-level call: owner-away row 52.
+`one-figure-change-list.md`. Operator request: `operator-request.md`. Owner-level call: owner-away row 56.
 
 ## D-0K4.1 Units, sizes, order and lanes
 
@@ -199,7 +199,7 @@ Review: `review-for-owner.md`. Unit specs: `specs/0K4a-dispatch-v8/`, `specs/0K4
   world did not have). The 5c walkthrough world stays as built (D-DS4.1, no telemetry). Queued unit **0K4f** (about 2
   units, after the 5c walkthrough): the product's fuel law reads the same curve (the no-load rate over every running
   hour, the slope `s` over energy), the Kobo template and DS2's telemetry writer adopt v8 and the D-0K4.4 to D-0K4.6
-  properties, and the demo database is rebuilt. Owner-away row 52.
+  properties, and the demo database is rebuilt. Owner-away row 56.
 - **Why.** One law per quantity is the owner's rule for figures; applying it to the product's fuel law changes served
   money and states at Kisiwa and needs its own discovery review, which the walkthrough date does not allow. Keeping the
   world off v8 until then is the honest interim. **Owner to weigh in** if the world should move before the walkthrough.
@@ -246,7 +246,7 @@ Review: `review-for-owner.md`. Unit specs: `specs/0K4a-dispatch-v8/`, `specs/0K4
 
 | # | Question | Default |
 |---|---|---|
-| Q1 | Should the 5c walkthrough world move to v8 first? | No: 0K4f after the walkthrough (D-0K4.13, row 52); owner to weigh in |
+| Q1 | Should the 5c walkthrough world move to v8 first? | No: 0K4f after the walkthrough (D-0K4.13, row 56); owner to weigh in |
 | Q2 | Load-following Sites | Stay on v7 until a load-following rule is specified; not demo scope |
 | Q3 | High-load starts and quiet hours | Backlog (review §2 point 2); no Kobo setting asks for them yet |
 | Q4 | A lower stop for night charging (owner default 5) | Backlog |

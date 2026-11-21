@@ -12,7 +12,7 @@
 - `D-0K4.10` dispatch-3.3: a battery-support Candidate needs energy to solar cover; own unit 0K4e; 4d, fuel-cost-1, Findings move · live · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.11` one figure per quantity as a class; amends D-0K2.12, D-0K2.13, D-0K2.17, D-0M.11, D-0M.14 · live · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.12` until 0K4d: Not available yet for stop-70 and the other spike inputs, mechanism shown · live · specs/0K4-dispatch-model-review/rulings.md
-- `D-0K4.13` product fuel law and worlds adopt v8 in queued 0K4f; owner to weigh in (owner-away row 52) · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.13` product fuel law and worlds adopt v8 in queued 0K4f; owner to weigh in (owner-away row 56) · live · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.14` calibration on Kobo's records runs on v8 by the existing rule · live · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.15` pack and mock restated once, after 0K4d (0K4m) · live · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.16` reserve breaches, most starts in a day and full-charge days read from replay steps · live · specs/0K4-dispatch-model-review/rulings.md

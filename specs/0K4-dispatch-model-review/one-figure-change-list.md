@@ -24,7 +24,7 @@ the merged replay code. One line per place: where, what it shows or serves today
    and candidate Findings): a moment's power read as a night's energy. Fixed in the model as `dispatch-3.3`. **0K4e.**
 5. The product's fuel law (`fuel_balance/rules.py`, `financials/fuel_cost_v2.py`, `structure/litres/rules.py`:
    `SFC x kWh` plus the no-load rate over idle time only) against v8's curve: two laws for one quantity once a world runs
-   on v8. No world moves to v8 until the product reads the same curve. **0K4f** (queued, D-0K4.13, owner-away row 52).
+   on v8. No world moves to v8 until the product reads the same curve. **0K4f** (queued, D-0K4.13, owner-away row 56).
 6. `config/site-templates/kobo-mini-grid-60kw.yaml`: no no-load rate, minimum load or taper; SFC 0.3. These are
    declared inputs, not shown beside a figure. The template adopts the D-0K4.4 to D-0K4.6 properties with their basis.
    **0K4f.**
