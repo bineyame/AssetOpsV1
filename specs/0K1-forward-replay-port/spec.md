@@ -1,6 +1,6 @@
 # 0K1: the forward replay port and its host adapter (implementer spec)
 
-Status: rev 2 (handshake round 1 folded in: D-0K1.10 to D-0K1.18), Architect (Claude), 2026-11-21, written on the owner's delegation (`owner/owner-away-architect-decides-2026-11-21.md`;
+Status: in_review (built on `task/0K1-forward-replay`; packet `packet.md`). Rev 2 (handshake round 1 folded in: D-0K1.10 to D-0K1.18), Architect (Claude), 2026-11-21, written on the owner's delegation (`owner/owner-away-architect-decides-2026-11-21.md`;
 pull order `specs/OWNER-AWAY/decisions-2026-11-21.md` row 4). Spike K, part 1 (`delivery-plan.md` §2 row `0K1`: "the
 forward replay port method and its host adapter, proven by replaying a recorded run to the kernel's own trajectory";
 lane C in `two-week-build-plan.md` §0.2, days 6 to 8). **3 units.** Discovery review (W5): a new port across a
