@@ -1,7 +1,6 @@
 # 4a mid-build questions
 
-Questions raised during the build about something the spec did not fix (spec rev 2). Count: 2 (defaults applied, not
-blocking).
+Questions raised during the build about something the spec did not fix (spec rev 2). Count: 2. **Q1 answered: D-4A.27 (confirmed). Q2 answered: D-4A.28 (confirmed; PG1(e) wording amended).**
 
 ## Q1 (2026-11-21) D-4A.22's producer-world dates precede the Kobo Foundation
 

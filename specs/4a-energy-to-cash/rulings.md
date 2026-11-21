@@ -352,3 +352,38 @@ change, no database touched by this answer, no new external reader.
   1.5 (rev 1's 1.0, plus the producer harness, 2,232 readings, the band publication, PG1(e) and PG1b; less the
   basis); unit 3 1.0 (rev 1's 0.75, plus PG3(a)'s added assertions and plants P19 to P27). Under 6 units: no split.
 - **Why.** The answers add tests and one rule step, no new mechanism.
+
+## Mid-build answers
+
+Architect (Claude), 2026-11-21, on `main` at `22dc0bbf3` after review ACCEPT. Q1 and Q2 of `mid-build-questions.md`
+answered; the builder's defaults stand. Spec rev 2 and reviewer guide amended. Not owner-level: no row logged.
+
+## D-4A.27 (Q1) The producer world starts after the Kobo Foundation; the gateway is enabled
+
+- **Ruling.** Confirmed. `IMPORT_AT` 2026-09-29T12:00Z, `INSTALL_AT` 2026-09-30T06:00Z, gateway and sources enabled
+  after `configure_at` (the harness prerequisite the producer demo already follows). D-4A.22's earlier dates are
+  superseded; its structure stands.
+- **Why.** The Kobo Foundation `valid_from` is fixed by the import, so earlier dates cannot configure. PG1b is not
+  weakened: the roles-4 set (install + 27 min) precedes October's first local midnight, the band's cutoff check
+  (PG1b(c)) still bites, and every pre-flight batch was ACCEPTED.
+- **Reverse.** Move the two constants in `test_4a_energy_to_cash_postgres.py`.
+
+## D-4A.28 (Q2) Unexplained names `FEEDER_READINGS_GAP` here; PG1(e) is amended; no sibling alignment
+
+- **Ruling.** §2.4's order binds (delivered, then technical, then metered). On the producer Site after days 1-3,
+  PG1(e) asserts technical `LOSS_BAND_NOT_DECLARED` and unexplained `FEEDER_READINGS_GAP`, both None, NOT_AVAILABLE.
+  D-4A.17's PG1(e) sentence is amended accordingly. The optional (unexplained taking technical's reason first) is
+  **declined**: each cell names the first missing input of its own formula.
+- **Why.** Declaring the band would not make unexplained computable while delivered is incomplete, so naming the
+  band would send the operator to a fix that does not clear the cell. The honest record is the first blocker.
+- **Reverse.** Reorder §2.4's unexplained steps (a rules change; V3/V4 and the step map move).
+
+## D-4A.29 (F1-F3) The three survivors become tests now; tests only
+
+- **Ruling.** Add V9d (two `M-2204` assignments over one span: unmapped 140, billed 5425), V27 (Kobo's three
+  feeders DECLARED at 4, 5, 6: technical 486 = 62 + 145 + 279) and V18b (conflict on the assignment's
+  `body_meter_ref`: `METER_REF_CONFLICT` as V18), with planted P28 to P30. No rules code changes; each must pass
+  against the code on `main`, and fail against its plant.
+- **Why.** Each is a one-line variant of a path the reviewer found correct but unheld (W6: close the class of
+  untested rule branches the step map did not reach).
+- **Reverse.** Leave as Low gaps.

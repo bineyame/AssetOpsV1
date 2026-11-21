@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-4A.1 to D-4A.26)
+# Decision index: Demo-sprint and later rulings (index only) (D-4A.1 to D-4A.29)
 
 - `D-4A.1` Billing export states billed kWh, meter reads state metered kWh; stated rule admits kWh (registry v4) · live · specs/4a-energy-to-cash/rulings.md
 - `D-4A.2` Delivered kWh: every bound feeder every day, one binding set; SIMULATED readings are demo-simulated · live · specs/4a-energy-to-cash/rulings.md
@@ -50,3 +50,6 @@
 - `D-3B6.22` W6 grep narrowed to readers of the Site-type map (G1, G2, G3) · live · specs/3B6-cold-ev/rulings.md
 - `D-3B6.23` Implementer pre-flight and pack figures accepted · live · specs/3B6-cold-ev/rulings.md
 - `D-3B6.24` Size 2.75 units (owner row 26) · live · specs/3B6-cold-ev/rulings.md
+- `D-4A.27` Producer world dated after the Kobo Foundation; gateway enabled (Q1) · live · specs/4a-energy-to-cash/rulings.md
+- `D-4A.28` Unexplained names FEEDER_READINGS_GAP in PG1(e); PG1(e) amended; no sibling alignment (Q2) · live · specs/4a-energy-to-cash/rulings.md
+- `D-4A.29` F1-F3 added as tests V9d, V27, V18b (tests only) · live · specs/4a-energy-to-cash/rulings.md
