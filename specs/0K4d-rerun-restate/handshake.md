@@ -147,3 +147,5 @@ the Mto figures are not named.
 - **Dawn margin** is `worst - 35`.
 - **Huller** is `mto-huller` `extra_fuel_l` x 30 / 61.
 - **Reduced inverter** is `extra_fuel_l_per_day`.
+
+**Answered** (Architect, 2026-11-21): every question by a D-ID or its default, in the table "Handshake answers (rev 2 of 0K4c and 0K4d)" of `specs/0K4-dispatch-model-review/rulings.md` (D-0K4.26 to D-0K4.30); the spec is rev 2.

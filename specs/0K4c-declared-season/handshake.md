@@ -70,3 +70,5 @@ current caller, and none passes `overcast` (grep). An unknown `season` raises `V
 **I4. The packet strip has no letter for an overcast Sunday** (`spec.md:90`). Days 19 and 33 are both overcast and
 Sunday.
 *Default:* two rows of 61 characters. Row 1 is weather (`C` or `O`); row 2 marks Sundays (`S`, else `.`).
+
+**Answered** (Architect, 2026-11-21): every question by a D-ID or its default, in the table "Handshake answers (rev 2 of 0K4c and 0K4d)" of `specs/0K4-dispatch-model-review/rulings.md` (D-0K4.26 to D-0K4.30); the spec is rev 2.
