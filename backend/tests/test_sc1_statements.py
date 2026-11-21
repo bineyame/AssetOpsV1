@@ -610,3 +610,139 @@ def test_p39_locale_incomplete(monkeypatch):
 def test_key_duplicate_with_a_legacy_key():
     st = {"analytics.site_not_found": {"variants": [{"id": "only", "text": "x"}]}}
     assert load_code(st) == "KEY_DUPLICATE"
+
+
+# --- unit 2: the worked statements (T4, T5, T6, T9, T13 and the render plants) ---------------------------------------
+
+WORKED_CAT = worked.catalogue()
+ALL_CASES = [*common_cases.CASES, *worked.CASES]
+
+
+def say(case_or_key, facts=None, serve=None):
+    """Render through the test catalogue; `served` for a case with an evidence list."""
+    key, facts, serve = (case_or_key.key, case_or_key.facts, case_or_key.evidence is not None) \
+        if facts is None else (case_or_key, facts, serve)
+    with catalogue._use(WORKED_CAT):
+        msg = message(key, **facts)
+        return served(msg) if serve else render(msg)
+
+
+def refusal(key, facts, serve=False) -> str:
+    with pytest.raises(StatementError) as e:
+        say(key, facts, serve)
+    return e.value.code
+
+
+@pytest.mark.parametrize("case", worked.CASES, ids=lambda c: f"{c.key}-{c.variant}")
+def test_t4_worked_cases_render_exactly(case):
+    out = say(case)
+    if case.evidence is None:
+        assert out == case.english
+    else:
+        assert out == {"text": case.english, "evidence": case.evidence}
+
+
+def chosen(key, facts, serve=False) -> list:
+    from assetops_backend.i18n.render import _render
+    trace: list = []
+    with catalogue._use(WORKED_CAT):
+        _render(message(key, **facts), None, serve, trace)
+    return trace
+
+
+def test_t5_parent_options_reach_the_part():
+    c2 = worked.CASES[1]
+    assert chosen(c2.key, c2.facts) == [("reconciliation.heading", "matched"), ("reconciliation.gap", "differs")]
+    assert "less than $0.01 less" in say(c2)  # `matched`'s round down and the money slot's tiny, in the part
+    c1 = worked.CASES[0]
+    assert "$5.02 more (1.01%)" in say(c1)  # `not_matched`'s round up on the difference and the share
+
+
+def test_t5_a_part_ignores_facts_it_does_not_declare():
+    facts = {"scope": State("SITE"), "site": Name("KOBO-001", "site.code")}
+    assert say("reconciliation.scope", facts) == "KOBO-001"
+    assert chosen("reconciliation.scope", facts) == [("reconciliation.scope", "site")]
+
+
+@pytest.mark.parametrize("case", ALL_CASES, ids=lambda c: f"{c.key}-{c.variant}")
+def test_t9_every_case_renders_its_english(case):
+    if case.key.startswith("common."):
+        assert render(message(case.key, **case.facts)) == case.english
+    else:
+        test_t4_worked_cases_render_exactly(case)
+    trace = chosen(case.key, case.facts, case.evidence is not None) if not case.key.startswith("common.") else None
+    assert trace is None or trace[0] == (case.key, case.variant)
+
+
+@pytest.mark.parametrize("case", ALL_CASES, ids=lambda c: f"{c.key}-{c.variant}")
+def test_t10_every_case_renders_the_same_after_the_wire(case):
+    msg = message(case.key, **case.facts)
+    back = round_trip(msg)
+    assert back == msg
+    with catalogue._use(WORKED_CAT if not case.key.startswith("common.") else catalogue.current()):
+        fn = served if case.evidence is not None else render
+        assert fn(back) == fn(msg)
+
+
+def test_t13_evidence_on_the_page():
+    h4, h5, sh4, c9 = worked.CASES[12], worked.CASES[13], worked.CASES[18], worked.CASES[8]
+    assert say(h4)["evidence"] == ["Emulated"]  # the gap is stated by `on_target`'s `when`
+    assert say(h5)["evidence"] == []  # the gap is absent: nothing stated
+    assert say(sh4)["evidence"] == ["Emulated"]  # the share is stated by `no_effect`'s `requires`
+    assert say(c9).startswith("Revenue (Recorded and Emulated): ")
+
+
+C1 = worked.CASES[0].facts
+H1 = worked.CASES[9].facts
+
+
+def without(facts, *names, **replace):
+    return {**{k: v for k, v in facts.items() if k not in names}, **replace}
+
+
+@pytest.mark.parametrize("key, facts, serve, code", [
+    pytest.param(HEADING, without(C1, "accounts"), False, "ABSENT_PRINTED", id="P16"),
+    pytest.param("deep_dive.headline", without(H1, big=worked.usd("-412.00", "DERIVED", EMU, "KES")), True,
+                 "CONDITION_TYPE", id="P24"),
+    pytest.param(HEADING, {**worked.CASES[8].facts, "difference": worked.usd("0", "DERIVED", FIN)}, False,
+                 "EVIDENCE_DERIVED", id="P32"),
+    pytest.param(HEADING, without(C1, allowed=worked.usd("5.015", "DECLARED")), False, "EVIDENCE_DERIVED",
+                 id="P32-stronger-than-derived"),
+    pytest.param("deep_dive.headline", H1, False, "EVIDENCE_UNSERVED", id="P33"),
+    pytest.param(HEADING, C1, True, "EVIDENCE_MODE", id="P33b"),
+    pytest.param("deep_dive.headline", without(H1, big=worked.usd("412.00", "DERIVED", EMU)), True,
+                 "REQUIRES_FAILED", id="P36-H7"),
+    pytest.param("deep_dive.headline", without(H1, big=worked.usd("700.00", "DERIVED", EMU)), True,
+                 "REQUIRES_FAILED", id="P36-H8"),
+    pytest.param("deep_dive.status_disagreement",
+                 {"sites": worked.names("Kisiwa", "Mto", "Kobo", "Thika"), "total": Count(5, "site")}, False,
+                 "REQUIRES_FAILED", id="P36-SD5"),
+    pytest.param(HEADING, without(C1, share=Absent("OTHER")), False, "ABSENT_REASON", id="P38b"),
+    pytest.param("reconciliation.gap", {"difference": C1["difference"]}, False, "PART_ONLY", id="P41"),
+    pytest.param(HEADING, {**C1, "colour": State("RED")}, False, "FACT_UNKNOWN", id="fact-unknown"),
+    pytest.param(HEADING, without(C1, "heading"), False, "FACT_MISSING", id="fact-missing"),
+    pytest.param(HEADING, without(C1, accounts="501.50"), False, "FACT_TYPE", id="fact-type-str-for-money"),
+    pytest.param(HEADING, without(C1, heading=Word("record_noun", "REVENUE")), False, "FACT_TYPE",
+                 id="fact-type-word-from-wrong-vocabulary"),
+    pytest.param(HEADING, without(C1, basis=Evidence("DECLARED", FIN)), False, "FACT_TYPE",
+                 id="fact-type-evidence-as-param"),
+    pytest.param(HEADING, without(C1, accounts=Absent("OMITTED"), heading=Absent("OMITTED")), False, "FACT_TYPE",
+                 id="fact-type-absent-for-required"),
+    pytest.param(HEADING, without(C1, state=State("SETTLED")), False, "FACT_TYPE", id="fact-type-state-value"),
+    pytest.param(HEADING, without(C1, heading=Word("heading", "WATER")), False, "VOCABULARY_UNKNOWN",
+                 id="vocabulary-unknown-key"),
+    pytest.param("deep_dive.status_disagreement", {"sites": worked.names("A"), "total": Count(1, "lorry")}, False,
+                 "VOCABULARY_UNKNOWN", id="vocabulary-unknown-noun"),
+])
+def test_render_plants_fail_with_their_code(key, facts, serve, code):
+    assert refusal(key, facts, serve) == code
+
+
+def test_no_fallback_text_anywhere_in_render():
+    """D-SC1.11: nothing in the renderer catches an error to substitute text."""
+    import ast
+    import inspect
+    from assetops_backend.i18n import render as render_module
+    tree = ast.parse(inspect.getsource(render_module))
+    handlers = [h for n in ast.walk(tree) if isinstance(n, ast.Try) for h in n.handlers]
+    assert all(isinstance(h.body[-1], ast.Raise) for h in handlers)
