@@ -21,6 +21,7 @@ from assetops_backend.runs.replay_study import StudyFrame
 from assetops_contracts.world_inputs import FrozenWorldInputs
 
 from kobo import component, set_property
+from kobo_assumed import ASSUMED_BASIS, ASSUMED_DERIVATION, ASSUMED_PROPERTIES
 from kobo_season import TIMEZONE, base_run, season_inputs, season_site
 
 #: (component, property, value): document numbers, the manifest's Mto `physical` line
@@ -58,12 +59,56 @@ def mto_site(inverter_limit_kw: Fraction = MTO_INVERTER_KW):
     return edit
 
 
-def mto_base_run(days: int, *, inverter_limit_kw: Fraction = MTO_INVERTER_KW) -> SimulationRun:
-    return base_run(days, site_edit=mto_site(inverter_limit_kw))
+#: 0K4d (D-0K4.27): the values Mto has not sent, assumed for `mini-grid` v8 runs, each with its basis row. The
+#: no-load rate is the generic rule of 0.08 L/h per kW of rating x Mto's 30 kW, never scaled from Kobo's 3.3 (the
+#: owner's value for one set); minimum load and taper start are Kobo's assumed rows unchanged.
+MTO_ASSUMED: dict[str, tuple[tuple[str, object, str], ...]] = {
+    "generator": (
+        ("generator-no-load-fuel-rate", 2.4, "L/h"),
+        ("generator-no-load-fuel-rate-basis", ASSUMED_BASIS, "state"),
+        ("generator-minimum-load", 30, "%"),
+        ("generator-minimum-load-basis", ASSUMED_BASIS, "state"),
+    ),
+    "battery": ASSUMED_PROPERTIES["battery"],
+}
+#: (label, basis, derivation) per assumed or declared key, worded as D-0K4.27; a key with no entry is `KeyError`.
+MTO_ASSUMED_DERIVATION: dict[str, tuple[str, str, str]] = {
+    "generator-no-load-fuel-rate": (
+        "assumed", "GENERIC_DEFAULT", "the generic rule of 0.08 L/h per kW of rating x 30 kW; no owner value for Mto"),
+    "generator-minimum-load": ASSUMED_DERIVATION["generator-minimum-load"],
+    "battery-charge-taper-start": ASSUMED_DERIVATION["battery-charge-taper-start"],
+    "specific-fuel-consumption": (
+        "declared", "MANIFEST", "Mto's physical line, read as consumption at rated output"),
+}
 
 
-def mto_season(run, days) -> FrozenWorldInputs:
-    return season_inputs(run, days, load_scale=MTO_LOAD_SCALE)
+def mto_site_v2(inverter_limit_kw: Fraction = MTO_INVERTER_KW):
+    """`mto_site` then `MTO_ASSUMED` appended, as `assumed_site` does with Kobo's; a key present is `KeyError`."""
+    base = mto_site(inverter_limit_kw)
+
+    def edit(document) -> None:
+        base(document)
+        for component_id, rows in MTO_ASSUMED.items():
+            item = component(document, component_id)
+            properties = item.get("properties") or []
+            present = {entry["property_key"] for entry in properties}
+            for key, value, unit in rows:
+                if key in present:
+                    raise KeyError(f"{key} is already declared on {component_id}")
+                properties.append(
+                    {"property_key": key, "value": value, "unit": unit, "source": "SITE", "source_version": 1})
+            item["properties"] = properties
+
+    return edit
+
+
+def mto_base_run(days: int, *, inverter_limit_kw: Fraction = MTO_INVERTER_KW, version: int = 7,
+                 site=mto_site) -> SimulationRun:
+    return base_run(days, site_edit=site(inverter_limit_kw), version=version)
+
+
+def mto_season(run, days, season: str = "v1") -> FrozenWorldInputs:
+    return season_inputs(run, days, load_scale=MTO_LOAD_SCALE, season=season)
 
 
 #: MTO-HULLER: 15 kW, 10:00-15:00, 22 days a month (Monday to Friday local, D-0M.5), signed letter of intent.
@@ -74,6 +119,8 @@ MTO_FRAME = StudyFrame(timezone=TIMEZONE, battery_capacity_kwh=Fraction(150))
 
 __all__ = [
     "HULLER",
+    "MTO_ASSUMED",
+    "MTO_ASSUMED_DERIVATION",
     "MTO_FACTS",
     "MTO_FRAME",
     "MTO_INVERTER_KW",
@@ -85,4 +132,5 @@ __all__ = [
     "mto_base_run",
     "mto_season",
     "mto_site",
+    "mto_site_v2",
 ]

@@ -622,3 +622,10 @@ Branch `fix/5c-backend-r5` (base main `4b13c0afe`); spec `specs/5c-deep-dive-scr
 
 - Settled: `_View.figure_word` builds every figure slot's word and the headline's evidence, None exactly when the figure's value or currency is absent (L9's card word and `words.NO_CURRENCY` gone; `W.word` takes `currency: str`); a heading's word is the weakest of the steps its sum adds; `shares()` returns nothing when R's effect is None or 0; module-level `bridge_bars(effects, gap)` serves each step's `bar` (`left`, `width`, `tone`) and `bridge.scale` as two-place track percentages (A: revenue 0.00/11.38, fuel cost 11.38/88.62). `backend/tests/deep_dive_worlds.py` holds `world_h`, `world_x`, `in_kes`, `gone`.
 - Open: the screen fix (§11, `task/5c-unit3-screen`: generator on `deep_dive_worlds`, `dd-na`, track and scale, L1-L5); a gap of exactly 0 with a non-zero rest raises in `tile_rest` (pre-existing, not in this scope).
+
+## 0K4d - the admission rule, the rerun on v8 and season v2, MG-T restated (in review, 21 Nov)
+
+Branch `task/0K4d-rerun-restate`; spec `specs/0K4d-rerun-restate/spec.md` rev 2, rulings D-0K4.9, D-0K4.16, D-0K4.26-30; packet `packet.md`. No migration, database, screen or guard change.
+
+- Settled: `runs/admission.py` (four parts, absolute-then-relative fallback, dawn as `DawnInformation` only) and `admission_measures` on `CaseOutcome`; both study tools take `--model-version {7,8}` and `--season {v1,v2}` (mixed pair `STUDY_FLAGS_INVALID`, exit 2; defaults reproduce 0K2 and 0M), headers carry commit, model, season, S9's inputs digest, site trajectory digest and D-0K4.27's assumption strings (`ASSUMED_DERIVATION`, `MTO_ASSUMED_DERIVATION`, `mto_site_v2`); the 61-day v8/v2 figures: Kobo stop 70 212.75 L a month, reserve 25 59.73, both admitted (all 14 cases admitted); Mto huller 153.88 L a month, reduced inverter 0 L a day; §4.2's Kobo option text restated to one figure per quantity.
+- Open: `6c` values the options; the manifest and derived values (0K4m; `check_manifest` H9 counts 6 fewer anchors); the pack's line 5 and §4.3 still name design values; the reduced-inverter 0 is for review.

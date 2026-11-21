@@ -1,6 +1,8 @@
 """0M: the demand-on-headroom study on the declared simulated Mto season (spec §4 "The 61-day study"). No database.
 
     python tools/mto_headroom_study.py --days 61 --out /opt/assetecon/evidence/0M/<run>/study.json
+    python tools/mto_headroom_study.py --model-version 8 --season v2 --days 61 --out .../0K4d/<run>/study.json
+    python tools/mto_headroom_study.py --time-one [--days 61] [--model-version 8 --season v2]
 
 Builds the Mto season (`host/tests/mto.py` on `host/tests/kobo_season.py`), runs it on the kernel as the site,
 publishes its series, freezes the reduced run at 25 kW, and runs `headroom_study` through `HostForwardReplay` with
@@ -9,6 +11,13 @@ evidence; CALIBRATED on SIMULATED input is adapter fidelity (the replay path fol
 series), not a match of the model to a Site. Every printed line carries both labels; the JSON header carries both and
 the plant note. Nothing here is a price, and no design value is changed (owner-away row 37).
 
+0K4d: `--model-version {7,8}` and `--season {v1,v2}` (defaults 7 and v1, so 0M's recorded command reproduces); only
+(7, v1) and (8, v2) run, a mixed pair exits 2 with `STUDY_FLAGS_INVALID model=<v> season=<s>`. On v8 both runs, the
+reduced one included, use `mto_site_v2`, and the JSON header carries the four assumption strings of D-0K4.27
+(`HeadroomResult` is unchanged). Every line and the header carry the model and season; the header also holds the
+commit, the season's inputs digest (S9's form, on the Kobo v7 base) and the site run's trajectory digest (D-0K4.28).
+`--time-one` builds the site run and one baseline replay, prints the wall seconds of each and exits 0 (D-0K2.24).
+
 Exit 0 done, 2 refused (`<CODE> <subject>` on stderr).
 """
 
@@ -16,6 +25,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import sys
 import time
 from fractions import Fraction
@@ -33,29 +43,89 @@ from assetops_backend.runs.replay_study import (  # noqa: E402
     step_local_times,
     study_days,
 )
-from assetops_contracts.forward_replay import ForwardReplayRefused  # noqa: E402
+from assetops_backend.runs.replay_study import start_state  # noqa: E402
+from assetops_contracts.forward_replay import ForwardReplayRefused, ForwardReplayRequest  # noqa: E402
 from assetops_simulator.kernel.execute import execute  # noqa: E402
 
 from execution_adapter import model_for  # noqa: E402
 from forward_replay import HostForwardReplay  # noqa: E402
-from kobo_season import observed_series  # noqa: E402
+from kobo_season import base_run, inputs_digest, observed_series, season_inputs  # noqa: E402
 from mto import (  # noqa: E402
     HULLER,
+    MTO_ASSUMED_DERIVATION,
     MTO_FRAME,
     MTO_PLANT_NOTE,
     MTO_REDUCED_INVERTER_KW,
     WELDER,
     mto_base_run,
     mto_season,
+    mto_site,
+    mto_site_v2,
 )
+from trajectory_digest import trajectory_digest  # noqa: E402
 
 LABELS = "input_class=SIMULATED evidence_class=MODELLED"
 NOTE = ("CALIBRATED on SIMULATED input is adapter fidelity: the replay path follows the kernel run that made the "
         "series; it is not a match of the model to a Site")
 
 
+#: The only (model version, season) pairs that run, each with its site edit.
+PAIRS = {(7, "v1"): mto_site, (8, "v2"): mto_site_v2}
+#: D-0K4.27's order of the assumption strings.
+ASSUMPTION_KEYS = ("generator-no-load-fuel-rate", "generator-minimum-load", "battery-charge-taper-start",
+                   "specific-fuel-consumption")
+_IDENTITY = {"model": 7, "season": "v1"}
+
+
 def say(text: str) -> None:
-    print(f"{LABELS} {text}", flush=True)
+    print(f"{LABELS} model=mini-grid/{_IDENTITY['model']} season={_IDENTITY['season']} {text}", flush=True)
+
+
+def authored(value) -> str:
+    return f"{value:g}"
+
+
+def assumption_lines(run) -> tuple[str, ...]:
+    """D-0K4.27: `<key> <value> <unit> (<label>, <BASIS>: <derivation>)` per key, value and unit from the run's frozen
+    `model_needs` (authored form), the rest from `MTO_ASSUMED_DERIVATION`; a missing entry is `KeyError`."""
+    needs = {need.property_key: need for need in run.deterministic_identity.model_needs}
+    lines = []
+    for key in ASSUMPTION_KEYS:
+        if key not in needs:
+            raise KeyError(key)
+        label, basis, words = MTO_ASSUMED_DERIVATION[key]
+        lines.append(f"{key} {authored(needs[key].value)} {needs[key].unit} ({label}, {basis}: {words})")
+    return tuple(lines)
+
+
+def commit() -> str:
+    return subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True,
+                          check=True).stdout.strip()
+
+
+def site(days: int, version: int, season: str):
+    edit = PAIRS[(version, season)]
+    run = mto_base_run(days, version=version, site=edit)
+    if run.execution_status != "READY":
+        raise SystemExit(f"the full Mto run is {run.execution_status}")
+    trajectory = execute(mto_season(run, days, season), model_for(run))
+    if trajectory.outcome != "COMPLETED":
+        raise SystemExit(f"the site run ended {trajectory.outcome}: {trajectory.failure}")
+    return run, trajectory
+
+
+def time_one(days: int, version: int = 7, season: str = "v1") -> int:
+    began = time.monotonic()
+    run, trajectory = site(days, version, season)
+    site_seconds = time.monotonic() - began
+    observed = observed_series(trajectory, len(trajectory.boundaries) - 1)
+    began = time.monotonic()
+    HostForwardReplay().forward_replay(run, ForwardReplayRequest(
+        "baseline", observed.pv_available_kw, observed.loads, start_state(observed)))
+    replay_seconds = time.monotonic() - began
+    say(f"days={days} steps={len(observed.pv_available_kw)} site_seconds={site_seconds:.1f} "
+        f"replay_seconds={replay_seconds:.1f}")
+    return 0
 
 
 def number(value: Fraction | None) -> dict | None:
@@ -115,18 +185,16 @@ def baseline_dawn(result, observed) -> dict | None:
                       for r in readings if r.soc_pct < MTO_FRAME.dawn_min_soc_pct]}
 
 
-def study(days: int, out: Path) -> int:
+def study(days: int, out: Path, version: int = 7, season: str = "v1") -> int:
     say(NOTE)
     say(f"plant={MTO_PLANT_NOTE!r}")
     began = time.monotonic()
-    run = mto_base_run(days)
-    reduced_run = mto_base_run(days, inverter_limit_kw=MTO_REDUCED_INVERTER_KW)
-    for name, item in (("full", run), ("reduced", reduced_run)):
-        if item.execution_status != "READY":
-            raise SystemExit(f"the {name} Mto run is {item.execution_status}")
-    trajectory = execute(mto_season(run, days), model_for(run))
-    if trajectory.outcome != "COMPLETED":
-        raise SystemExit(f"the site run ended {trajectory.outcome}: {trajectory.failure}")
+    reduced_run = mto_base_run(days, inverter_limit_kw=MTO_REDUCED_INVERTER_KW, version=version,
+                               site=PAIRS[(version, season)])
+    if reduced_run.execution_status != "READY":
+        raise SystemExit(f"the reduced Mto run is {reduced_run.execution_status}")
+    run, trajectory = site(days, version, season)
+    assumptions = assumption_lines(run) if version == 8 else ()
     observed = observed_series(trajectory, len(trajectory.boundaries) - 1)
     site_seconds = time.monotonic() - began
     began = time.monotonic()
@@ -142,6 +210,11 @@ def study(days: int, out: Path) -> int:
         "input_class": result.input_class, "evidence_class": result.evidence_class, "plant": MTO_PLANT_NOTE,
         "note": NOTE,
         "study": "0M demand-on-headroom study on the declared simulated Mto season (host/tests/mto.py)",
+        "commit": commit(), "model": f"mini-grid/{version}", "season": season,
+        # S9's form: the season's inputs on the Kobo v7 base run (D-0K4.26); Mto's own loads are these x 1/2
+        "season_inputs_digest": inputs_digest(season_inputs(base_run(days), days, season=season)),
+        "trajectory_digests": {"site": trajectory_digest(trajectory)},
+        "assumptions": list(assumptions),
         "base_run_id": result.base_run_id, "status": result.status, "window_start": result.window_start,
         "days": result.days, "steps": len(observed.pv_available_kw),
         "site_runs": 1, "replays": len(result.projections),
@@ -194,9 +267,20 @@ def study(days: int, out: Path) -> int:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--days", type=int, default=61)
-    parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--out", type=Path)
+    parser.add_argument("--time-one", action="store_true")
+    parser.add_argument("--model-version", type=int, choices=(7, 8), default=7)
+    parser.add_argument("--season", choices=("v1", "v2"), default="v1")
     args = parser.parse_args(argv)
-    return study(args.days, args.out)
+    if (args.model_version, args.season) not in PAIRS:
+        print(f"STUDY_FLAGS_INVALID model={args.model_version} season={args.season}", file=sys.stderr)
+        return 2
+    _IDENTITY.update(model=args.model_version, season=args.season)
+    if args.time_one:
+        return time_one(args.days, args.model_version, args.season)
+    if args.out is None:
+        parser.error("--out is required for a study run")
+    return study(args.days, args.out, args.model_version, args.season)
 
 
 if __name__ == "__main__":
