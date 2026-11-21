@@ -1,6 +1,6 @@
 # 0K1: the forward replay port and its host adapter (implementer spec)
 
-Status: rev 1, Architect (Claude), 2026-11-21, written on the owner's delegation (`owner/owner-away-architect-decides-2026-11-21.md`;
+Status: rev 2 (handshake round 1 folded in: D-0K1.10 to D-0K1.18), Architect (Claude), 2026-11-21, written on the owner's delegation (`owner/owner-away-architect-decides-2026-11-21.md`;
 pull order `specs/OWNER-AWAY/decisions-2026-11-21.md` row 4). Spike K, part 1 (`delivery-plan.md` §2 row `0K1`: "the
 forward replay port method and its host adapter, proven by replaying a recorded run to the kernel's own trajectory";
 lane C in `two-week-build-plan.md` §0.2, days 6 to 8). **3 units.** Discovery review (W5): a new port across a
@@ -10,7 +10,7 @@ protected seam (`.ai/RULES.md` §1; design A5). Non-screen. `USER_REVIEW_REQUIRE
   generator setting needs the kernel (design `domain-and-decision-models.md` §4.2). 0K1 builds the seam: a neutral
   request and projection in `assetops_contracts`, a one-method port the product owns, and the adapter in `host/`
   that turns a frozen Kobo run plus a replay request into kernel inputs, executes them and projects the result. It is
-  proven by exact equality with the kernel's own trajectory on four shipped Kobo runs.
+  proven by exact equality with the kernel's own trajectory on five cases drawn from three shipped scenarios (prolonged, stop-60, reserve-trial; two cases edited by `document_edit`; the overcast scenario only pins a constant, T10).
 - **Who uses it next.** `0K2` (Kobo's stop-threshold and reserve replays on the simulated series, the calibration
   rule, the 61-day window), `0M` (Mto's headroom replay "through the same adapter"), `6c` (the evaluator wired to the
   port). None of them may need a change to the port's types; that is what "done" protects.
@@ -22,7 +22,7 @@ protected seam (`.ai/RULES.md` §1; design A5). Non-screen. `USER_REVIEW_REQUIRE
   `BoundaryState`, `DiscreteTransition`), `world_inputs.py` (`FrozenWorldInputs`, `ForcingInput`, `InitialValue`,
   `DiscreteInitialValue`, `DeclaredCause`), `backend/assetops_backend/runs/execution_ports.py` (`LabExecutionPort`,
   untouched), `host/tests/kobo.py` (`kobo_draft`).
-- **Decisions:** `rulings.md` (D-0K1.1 to D-0K1.9). **Reviewer guide:** `reviewer-guide.md`. **Handshake:**
+- **Decisions:** `rulings.md` (D-0K1.1 to D-0K1.18). **Reviewer guide:** `reviewer-guide.md`. **Handshake:**
   `handshake.md`.
 
 ## 0. Before you start (gates; each is a hard stop)
@@ -36,7 +36,7 @@ protected seam (`.ai/RULES.md` §1; design A5). Non-screen. `USER_REVIEW_REQUIRE
   address, state_key, canonical_unit, dimension, shape, requirement)`, every `initial_values` row's `(address,
   state_key, parameter_id, value)` and `discrete_initial_values`. Do the same for `kobo-mini-grid-stop-60` (v5) and
   for `kobo-daytime-overcast` (`daytime-mini-grid`, 15-minute, its own default interval): the stop-override row and
-  the reserve-forcing row are what §2.3's constants are pinned to. Record the output in the packet. If any address
+  the reserve-forcing row are what §2.3's constants are pinned to. Also print `[k for k, _ in B[1].interval_measurements]` of the prolonged v7 trajectory (the kernel keys are what the test reader reads: `pv-available-power@pv-inverter`, `load-requested-power@load-clinic|load-mill|load-res`, `generator-output-power@generator`; D-0K1.15). Record the output in the packet. If any address
   below differs from what is printed, stop and ask (a mid-build question).
 - **Read:** `rulings.md`; design `domain-and-decision-models.md` §4.2 (in the pack); `runs/execution_ports.py`
   (whole header); `host/execution_adapter.py:1-141`, `:160-255`, `:404-524`, `:869-876`; `packs/mini_grid.py:1-35`,
@@ -44,7 +44,7 @@ protected seam (`.ai/RULES.md` §1; design A5). Non-screen. `USER_REVIEW_REQUIRE
   `host/tests/test_mini_grid_v5.py` (how a Kobo v5 run is built and read).
 - **Databases:** none. Heavy tools through the slot pool only: host tests by `tools/heavy-slot.sh -- pwsh -NoProfile
   -File tools/run-host-tests.ps1 -- host/tests/test_0k1_forward_replay.py`; contract tests by the same wrapper on
-  `contracts/tests/test_0k1_forward_replay_contract.py`. Never ports 5490 or 8990, the walkthrough DB or Docker.
+  `contracts/tests/test_0k1_forward_replay_contract.py` (the wrapper puts `contracts/` on `PYTHONPATH` and takes any file path; no database is used by either new test file; the packet's first section records both commands and their exit lines, and if the wrapper cannot reach a file the interpreter command used instead, which is not a mid-build question; D-0K1.18). Never ports 5490 or 8990, the walkthrough DB or Docker.
 - **Files.** New: `contracts/assetops_contracts/forward_replay.py`, `backend/assetops_backend/runs/replay_port.py`,
   `host/forward_replay.py`, `host/tests/test_0k1_forward_replay.py`, `contracts/tests/test_0k1_forward_replay_contract.py`,
   `backend/tests/test_0k1_replay_port_seam.py`. Edited: none. Nothing under `simulator/`, `runs/execution_ports.py`,
@@ -144,7 +144,7 @@ Nothing composes it in the product in this unit (no route, no command); `0K2` an
 ### 2.3 The adapter (`host/forward_replay.py`)
 
 ```python
-REPLAY_MODELS = frozenset({("mini-grid", 5), ("mini-grid", 6), ("mini-grid", 7)})   # D-0K1.3
+REPLAY_MODELS = frozenset({("mini-grid", 5), ("mini-grid", 6), ("mini-grid", 7)})   # D-0K1.3; each proven by T1 (D-0K1.12)
 STEP_HOURS = lambda minutes: Fraction(minutes, 60)
 
 class HostForwardReplay:                       # satisfies ForwardReplayPort
@@ -178,11 +178,13 @@ base run's row for that address):
 - irradiance at `site:plane-of-array-irradiance`: value `STANDARD_IRRADIANCE * kw / pv_rated_kw` (exact; D-0K1.4);
   `event_id` `replay:pv:<offset>`; other fields copied from the base run's first forcing at that address;
 - each load at `load-demand@<load>`: value `kw`; `event_id` `replay:load:<load>:<offset>`; fields copied likewise;
-- a stop setting, if given: one window `[0, duration)` at `generator-stop-soc-threshold@<g>`, `event_id`
-  `replay:stop`, `state_key`, `canonical_unit`, `dimension` and `requirement` equal to the stop-60 run's own row
-  (constants `STOP_OVERRIDE_FIELDS`, pinned by T10);
+- a stop setting, if given: one window `[0, duration)` at `generator-stop-soc-threshold@<g>`, `event_id` `replay:stop`, `state_key`, `canonical_unit`, `dimension` and `requirement` equal to the stop-60 run's own row
+  (constants `STOP_OVERRIDE_FIELDS`, pinned by T10). A whole-interval window is aligned to every step, which is what
+  `_stop_threshold_at` requires; it is the shipped stop-60 row's own form (offset 0, duration 480 at 5-minute steps;
+  D-0K1.17);
 - a reserve setting, if given: one window `[0, duration)` at `battery-reserve-state-of-charge@<b>`, `event_id`
-  `replay:reserve`, fields `RESERVE_OVERRIDE_FIELDS`, pinned by T10 to the overcast run's reserve row.
+  `replay:reserve`, fields `RESERVE_OVERRIDE_FIELDS`, pinned by T10 to the overcast run's reserve row (a drift guard only; that the
+  mini-grid models accept the row is proved by T4; D-0K1.16).
 Every base-run forcing at the irradiance address, a load-demand address, the stop address or the reserve address is
 removed; every other forcing, every cause, bound, site control, bus attachment and unmodelled input is kept unchanged
 (D-0K1.2). `parameter_id` of a built forcing is `replay:<field>` (`pv`, `load`, `stop`, `reserve`).
@@ -233,7 +235,8 @@ With `B = trajectory.boundaries`, `dt = inputs.interval.timestep_minutes`, `n = 
   `starts`: `trajectory.discrete_transitions` with `address == "generator-state@<g>"`, `previous == "STOPPED"` and
   `next == "STARTING"`.
 - `fuel_burned_l` (COMPLETED only, else `None`): `fuel_start − fuel_end + Σ` over `inputs.causes` at the tank
-  address of `quantity` (`INCREASE`) or `−quantity` (`DECREASE`).
+  address of `quantity` (`INCREASE`) or `−quantity` (`DECREASE`). Its docstring says: "exact only while the tank never
+  meets its capacity or empty bound; a run whose tank causes could clip is outside 0K1's proof (0K2)" (D-0K1.14).
 - `stop_soc_pct`, `stop_source`: the setting and `"SETTING"`, else the baseline and `"BASELINE"`; reserve likewise.
 - `replay_identity = trajectory.inputs_identity`; `status = trajectory.outcome`; on FAILED, `failure_kind` and
   `failure_subject` from `trajectory.failure`.
@@ -242,46 +245,49 @@ With `B = trajectory.boundaries`, `dt = inputs.interval.timestep_minutes`, `n = 
 ## 3. Fixtures (shipped scenarios; no new file under `config/`)
 
 Every run: `kobo_draft(name, timestep_minutes=5, model_profile="mini-grid", model_profile_version=V,
-start_time="2026-09-22T03:00:00Z", end_time="2026-09-22T11:00:00Z", ...)` (96 steps), `V` in `{5, 7}` unless a case
-says otherwise. The test's own reader (`recorded_request(trajectory, case_id)`, written in the test file, sharing no
-code with the adapter, W2) builds a request from a kernel trajectory: for step `i`, `pv = B[i+1].interval_measurement(
-"pv-available-power@inverter") / Fraction(5, 60)`, each load's `kw = B[i+1].interval_measurement(
+start_time="2026-09-22T03:00:00Z", end_time="2026-09-22T11:00:00Z", ...)` (96 steps), `V` is 7 for K-START to K-CLIP; K-BASE runs at
+5, 6 and 7 (D-0K1.12). The test's own reader (`recorded_request(trajectory, case_id)`, written in the test file, sharing no
+code with the adapter, W2) builds a request from a kernel trajectory, **loads in reverse sorted `load_id` order** (the kernel's and the plant's order is sorted, so any positional match would pass otherwise; D-0K1.10): for step `i`, `pv = B[i+1].interval_measurement(
+"pv-available-power@pv-inverter") / Fraction(5, 60)`, each load's `kw = B[i+1].interval_measurement(
 "load-requested-power@<load>") / Fraction(5, 60)`; start from `B[0]` (SOC and tank stocks, `B[0].discrete_state(
-"generator-state@generator")`). Component ids `inverter`, `battery`, `generator`, `fuel-tank`, `load-res`,
-`load-clinic`, `load-mill` are the template's (confirm in the pre-flight print).
+"generator-state@generator")`). Each case's expected values are read from its own kernel run, executed by the test
+with `execute(frozen_world_inputs(run), model_for(run))`.. Component ids as printed on `main` (D-0K1.15): `pv-array`, `pv-inverter` (the inverter; read as `pv-available-power@pv-inverter`),
+`battery-pcs`, `battery`, `generator`, `fuel-tank`, `load-res`, `load-clinic`, `load-mill`; the reader's keys are those
+printed keys, and a key missing from the boundary is a `KeyError` that fails the test.
 
 | Case | Kernel run (the expected trajectory) | Replay request |
 |---|---|---|
 | **K-BASE** | `kobo-mini-grid-prolonged` | `recorded_request(K-BASE)`, settings none |
 | **K-START** | `kobo-mini-grid-prolonged` with `document_edit` setting `starting-state-of-charge` to 55 | K-BASE's series, start SOC 55 |
 | **K-STOP** | `kobo-mini-grid-stop-60` | K-BASE's series, `stop_soc_pct=Fraction(60)` |
-| **K-RES** | `kobo-mini-grid-reserve-trial` with `site_edit` reserve 25 (`test_mini_grid_v5.py` `_reserve`) | the series of the same scenario at the template reserve (30), `reserve_soc_pct=Fraction(25)` |
+| **K-RES** | `kobo-mini-grid-reserve-trial` with `site_edit` reserve 25 (`test_mini_grid_v5.py` `_reserve`) | `recorded_request` of the same scenario unedited (reserve 30), `reserve_soc_pct=Fraction(25)`; also that request with no setting (the baseline-30 anchor) |
 | **K-CLIP** | `kobo-mini-grid-prolonged` with `document_edit` setting the 240-minute irradiance window's value from 550 to 900 (54 kW potential on a 50 kW inverter) | `recorded_request(K-CLIP)` |
 
 Hand anchors (independent of both the kernel and the adapter): Kobo's template 0.3 L/kWh, so K-BASE's
-`fuel_burned_l == Fraction(3, 10) * generator_kwh`; K-BASE `starts >= 1` and `unserved_kwh > 0` (the scenario's
+`fuel_burned_l == Fraction(3, 10) * generator_kwh`; K-BASE `starts == 1` and `running_steps == 66` (so `starts` and `running_steps` differ; printed on `main` for v5, v6 and v7) and `unserved_kwh > 0`; the three load series of K-BASE are pairwise unequal (so a mix-up changes the result) (the scenario's
 purpose: "part of the load goes unserved for that hour"); K-STOP's `generator_kwh` and `running_steps` are strictly
 less than K-BASE's ("it runs for less time, delivers less energy"); K-RES `running_steps == 0` and the replay of the
-same series at reserve 30 has `running_steps > 0` (`test_mini_grid_v5.py` docstring: the dawn dip to 34.6% never
+same series with **no setting** (baseline 30, not `Fraction(30)`) has `running_steps > 0` (`test_mini_grid_v5.py` docstring: the dawn dip to 34.6% never
 reaches v5's 30% start); K-CLIP `clipped_offsets == tuple(range(240, 480, 5))`; K-BASE `clipped_offsets == ()`.
 
 ## 4. Tests (written first)
 
 `host/tests/test_0k1_forward_replay.py` (no database):
-- **T1 parity, K-BASE (V = 5 and 7):** `HostForwardReplay().forward_replay(run, request)`; for every step `i`, each
+- **T1 parity, K-BASE (V = 5, 6 and 7):** `HostForwardReplay().forward_replay(run, request)`; for every step `i`, each
   `ReplayStep` field equals the value read from the kernel trajectory by the test's own reader (state, generator kWh,
   unserved kWh, SOC, fuel); `starts`, `running_steps`, `soc_end_pct`, `fuel_end_l`, `min_soc_pct` equal the
   trajectory's; status COMPLETED; the hand anchors.
 - **T2 parity, K-START; T3 parity, K-STOP; T4 parity, K-RES; T5 parity and clipping, K-CLIP:** as T1 against each
   case's own kernel trajectory; T3 also `stop_source == "SETTING"`, `stop_soc_pct == 60`; T4 `reserve_source ==
-  "SETTING"`; the anchors of §3.
+  "SETTING"` and `reserve_soc_pct == 25` asserted from the request, and only the step fields, `starts`, `running_steps`, SOC and fuel
+  compared with the kernel run (whose reserve is a baseline, so `reserve_source` cannot match it; D-0K1.11); the anchors of §3.
 - **T6 refusals**, each its own case on K-BASE's run and request with one change, asserting `code` and `subject`:
   95 PV values (`REPLAY_SERIES_MISALIGNED`, `pv`); `load-mill` left out (`REPLAY_ADDRESS_UNKNOWN`, `load-mill`); an
   extra `load-pump` (`REPLAY_ADDRESS_UNKNOWN`, `load-pump`); `load-res` twice (`REPLAY_ADDRESS_UNKNOWN`, `load-res`);
   PV `None` at offset 50 (`INPUT_GAP`, `pv@50`); `load-mill` `None` at 50 and PV `None` at 55 (`INPUT_GAP`,
   `load:load-mill@50`); PV −1 at 0 (`REPLAY_SERIES_INVALID`, `pv@0`); PV 51 kW at 0 (`REPLAY_SERIES_INVALID`); stop 35
   and stop 101 (`POLICY_BAND_INVALID`, `stop`); stop 36 accepted; reserve −1 and 101 (`POLICY_BAND_INVALID`,
-  `reserve`); SOC 101, fuel 401, generator `RUNNING` (`REPLAY_START_STATE_INVALID`, `soc`, `fuel`, `generator`); a
+  `reserve`); SOC 101, fuel 401, generator `RUNNING` (`REPLAY_START_STATE_INVALID`, `soc`, `fuel`, `generator`; the `generator` case constructs its request, so the contract does not refuse it, D-0K1.18); a
   `daytime-mini-grid` run and a `mini-grid` v4 run (`REPLAY_MODEL_UNSUPPORTED`); a BLOCKED Draft (prolonged with a
   required parameter removed by `document_edit`, the way `kobo.py`'s callers make one; `REPLAY_RUN_NOT_EXECUTABLE`);
   95 PV values and stop 35 together (`REPLAY_SERIES_MISALIGNED`: step 4 before step 8). Each asserts the stub
@@ -299,7 +305,7 @@ reaches v5's 30% start); K-CLIP `clipped_offsets == tuple(range(240, 480, 5))`; 
   starting `assetops_simulator`.
 - **T10 pins:** `STOP_OVERRIDE_FIELDS` equals the stop-60 run's frozen stop-override row on `(state_key,
   canonical_unit, dimension, shape, requirement)`; `RESERVE_OVERRIDE_FIELDS` equals the overcast run's reserve row on
-  the same fields; a built plan for K-STOP holds exactly one forcing at the stop address, `[0, 480)`; a plan on the stop-60
+  the same fields; a built plan for K-STOP holds exactly one forcing at the stop address, `[0, 480)`; `RESERVE_OVERRIDE_FIELDS` is T10's drift guard only (D-0K1.16); a plan on the stop-60
   run itself with `stop_soc_pct=Fraction(70)` holds exactly one forcing there, value 70; a plan with no
   settings holds none at the stop or reserve address; every non-replaced forcing, cause and initial value of the base
   run is in the plan unchanged; K-BASE's plan has fewer irradiance forcings than steps (run-length merge).
@@ -307,13 +313,15 @@ reaches v5's 30% start); K-CLIP `clipped_offsets == tuple(range(240, 480, 5))`; 
 `contracts/tests/test_0k1_forward_replay_contract.py`: a `float`, an `int` and a `Decimal` in each numeric request
 field raise `TypeError`; `case_id` `"Bad Id"`, `""` and a 41-character id raise `ValueError`; a projection with
 status `FAILED` and no `failure_kind`, or `COMPLETED` with one, raises `ValueError`; `ForwardReplayRefused("NOPE",
-"", "")` raises `ValueError`; the module imports only the standard library (an `ast` scan).
+"", "")` raises `ValueError`; `ReplayStartState(Fraction(40), Fraction(300), "RUNNING")` constructs (the refusal is T6's, D-0K1.18); the module imports only the standard library (an `ast` scan).
 
 `backend/tests/test_0k1_replay_port_seam.py`: `runs/replay_port.py` imports exactly the four modules of §2.2 (an
 `ast` scan); `LabExecutionPort`'s public method names equal `{"projection", "start", "step", "run_to_end",
 "registered_stage", "staged_envelopes", "history", "advance_publication", "publication_schedule",
 "gateway_diagnostics", "release_registered", "registered_delivery"}` (unchanged, D-0K1.1); no file under `backend/`
 names `forward_replay` outside `runs/replay_port.py` and this test.
+
+**Run count (packet records it; D-0K1.13):** about 20 kernel executions of 96 steps: 8 kernel runs for the expected values (K-BASE x3, K-START, K-STOP, K-RES at 25 and at 30, K-CLIP), 8 replays, 1 in T7, 3 in T8; T6 and T10 execute none.
 
 **Regression:** `host/tests/test_mini_grid_v5.py`, `host/tests/test_lab_execution.py`, `backend/tests/test_run_execution_api.py`;
 the dependency-direction guard; check-all (fast) once at the end; `python tools/select-tests.py --base main` before
@@ -352,7 +360,7 @@ guard runs, the mid-build count).
 The calibration rule (±5% generator kWh, ±10% starts, 5 points SOC MAE; `REPLAY_NOT_CALIBRATED`), the 61-day window,
 `SAMPLE_TOO_SHORT`, the dawn bound at 05:00 local, the candidate grid, litres to money, and reading series from
 product readings (all `0K2`); a gap-fill rule (D-0K1.5); a demand-on-headroom replay (`0M`); composing the port in a
-process (`0K2`, `6c`); any screen or served text; the start threshold as a setting (not on the design's grid).
+process (`0K2`, `6c`); any screen or served text; the start threshold as a setting (not on the design's grid); a replay on a step other than 5 minutes (the window form is whole-interval, so it holds, but no test runs it, D-0K1.17); a tank refill or any tank cause that could clip at capacity (D-0K1.14).
 
 ## 8. Decision queue (W3; defaults applied)
 

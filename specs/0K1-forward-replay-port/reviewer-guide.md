@@ -1,6 +1,6 @@
 # 0K1 reviewer guide
 
-Architect (Claude), 2026-11-21, rev 1. Discovery review (W5): a new port across the product/simulator seam. Read
+Architect (Claude), 2026-11-21, rev 2 (handshake round 1, D-0K1.10 to D-0K1.18). Discovery review (W5): a new port across the product/simulator seam. Read
 `spec.md`, `rulings.md`, then the diff. Done means every question of spec §6 answers yes with evidence and every plant
 below fails its named test.
 
@@ -27,9 +27,11 @@ below fails its named test.
 | # | Plant | Fails |
 |---|---|---|
 | P1 | irradiance from the inverter limit instead of the rated power | T1 (steps with PV below the limit) |
-| P2 | load series matched by position, not `load_id` (request loads reversed) | T1 (unserved energy and state) |
+| P2 | load series matched by position, not `load_id` (the test reader emits loads in reverse sorted order and K-BASE's three load series are pairwise unequal, D-0K1.10) | T1 (unserved energy and state) |
 | P3 | the stop setting ignored | T3 |
 | P4 | the reserve setting applied to the start threshold instead of the reserve forcing | T4 and T10 |
+| P20 | `RESERVE_OVERRIDE_FIELDS.dimension` changed | T10 (drift guard only; T4 is the acceptance proof, D-0K1.16) |
+| P21 | `generator_state` validated in `ReplayStartState.__post_init__` | contract test (`"RUNNING"` constructs) and T6 (a refusal code is expected) |
 | P5 | the base run's start SOC kept | T2 |
 | P6 | the base run's own stop-override forcing kept beside the setting (a stop-60 base replayed at 70) | T10 (one forcing at the stop address) |
 | P7 | a `None` read as 0 | T6 (`INPUT_GAP`) |
@@ -46,7 +48,10 @@ below fails its named test.
 | P18 | `fuel_burned_l` as kWh × 0.3 in the adapter | T1 passes but review item 2 is High; T7 (`fuel_burned_l` must be `None` on FAILED) |
 | P19 | `replay_identity` built from `case_id` | T8 |
 
+7b. **Tank bound.** `fuel_burned_l`'s docstring carries the capacity/empty-bound note (D-0K1.14); missing is Low.
+
 ## Not findings
 
+
 No calibration rule, no 61-day window, no dawn bound, no gap fill, no money (spec §7, `0K2`). No caller composes the
-port (D-0K1.1). Clipped steps replay (D-0K1.4). No served text (D-0K1.8).
+port (D-0K1.1). A tank refill or cause (D-0K1.14) and a non-5-minute replay (D-0K1.17) are unproven by design. Clipped steps replay (D-0K1.4). K-RES's `reserve_source` is asserted from the request, not compared with the kernel (D-0K1.11). No served text (D-0K1.8).
