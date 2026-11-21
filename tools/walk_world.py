@@ -398,14 +398,15 @@ def _killpg(pgid: int, sig: int) -> None:
 
 
 def parse_stat(raw: bytes | None) -> dict | None:
-    """`/proc/<pid>/stat`: the fields after `(comm)`; field 5 pgrp, 6 session, 22 starttime (clock ticks since boot)."""
+    """`/proc/<pid>/stat`: the fields after `(comm)`; field 3 state, 5 pgrp, 6 session, 22 starttime (clock ticks
+    since boot)."""
     if not raw:
         return None
     text = raw.decode("utf-8", "replace")
     close = text.rfind(")")
     rest = text[close + 1:].split() if close >= 0 else []
     try:
-        return {"pgrp": int(rest[2]), "session": int(rest[3]), "start_time": int(rest[19])}
+        return {"state": rest[0], "pgrp": int(rest[2]), "session": int(rest[3]), "start_time": int(rest[19])}
     except (IndexError, ValueError):
         return None
 
@@ -458,6 +459,8 @@ class Procs:
             return "gone"
         if st["start_time"] != start:
             return "start_time"
+        if st["state"] == "Z":
+            return "gone"  # L5: an unreaped zombie leader; its PID stays reserved, the recorded-member fallback applies
         if self.getpgid(pid) != pid:
             return "not_leader"
         if pgid != pid:
@@ -466,18 +469,38 @@ class Procs:
             return "cmdline"
         return None
 
+    def track(self, rec: dict) -> None:
+        """M3: while the recorded leader exists (alive or an unreaped zombie, same start time, leading its group), the
+        group id is reserved by it, so every process in the group and session is ours: add each as `[pid, start_time]`
+        to `rec["members"]`. Called during the serve wait and once when serve succeeds."""
+        pid, start, pgid = rec.get("pid"), rec.get("start_time"), rec.get("pgid")
+        if not isinstance(pid, int) or not isinstance(start, int) or pgid != pid:
+            return
+        lead = self.stat(pid)
+        if lead is None or lead["start_time"] != start or lead["pgrp"] != pgid:
+            return
+        known = {tuple(x) for x in rec.get("members") or []}
+        for p in self.pids():
+            st = self.stat(p)
+            if st is not None and st["pgrp"] == pgid and st["session"] == pgid:
+                known.add((p, st["start_time"]))
+        lead = self.stat(pid)  # the leader still holds the group id after the scan
+        if lead is not None and lead["start_time"] == start:
+            rec["members"] = sorted([p, t] for p, t in known)
+
     def members(self, rec: Mapping[str, Any]) -> tuple[list[int], list[int]]:
-        """L4: the live processes in the recorded group, split into those in the recorded session that started at or
-        after the recorded start time (ours: a member cannot predate its leader) and any other (not provably ours)."""
-        pgid, start = rec.get("pgid"), rec.get("start_time")
-        if not isinstance(pgid, int) or not isinstance(start, int):
+        """L4 bounded by M3: the live processes in the recorded group, split into those recorded at serve as members
+        (same pid and start time, in the recorded session) and any other, which is not provably ours."""
+        pgid = rec.get("pgid")
+        if not isinstance(pgid, int):
             return [], []
+        recorded = {(int(p), int(t)) for p, t in rec.get("members") or []}
         ok, bad = [], []
         for p in self.pids():
             st = self.stat(p)
             if st is None or st["pgrp"] != pgid:
                 continue
-            (ok if st["session"] == pgid and st["start_time"] >= start else bad).append(p)
+            (ok if st["session"] == pgid and (p, st["start_time"]) in recorded else bad).append(p)
         return ok, bad
 
     def alive(self, rec: Mapping[str, Any]) -> bool:
@@ -491,7 +514,8 @@ class Procs:
 
     def signal(self, rec: Mapping[str, Any], sig: int) -> str | None:
         """Signal the recorded group only after the checks. With the leader gone (L4), only when every surviving member
-        passes the start-time check. Returns None when signalled, `gone` when nothing is left, else the failed check."""
+        is one recorded at serve (M3). Returns None when signalled, `gone` when nothing is left, else the failed
+        check."""
         reason = self.checked(rec)
         if reason == "gone":
             ok, bad = self.members(rec)
@@ -946,6 +970,8 @@ def cmd_serve(walk: Walk) -> int:
     end = clock.monotonic() + SERVE_WAIT_SECONDS
     failed = None
     while True:
+        for rec in (api_rec, web_rec):
+            procs.track(rec)
         if procs.exited(api):
             failed = ("api", api_log)
             break
@@ -962,7 +988,10 @@ def cmd_serve(walk: Walk) -> int:
     if failed is not None:
         _report_refused([(rec, stop_child(procs, rec, clock, signal.SIGKILL)) for rec in (api_rec, web_rec)])
         raise Failed("WALK_SERVE_FAILED", f"{failed[0]} {failed[1]}")
-    m["serve"] = {"tree": str(tree), "port": port, "web_port": web_port, "api": api_rec, "web": web_rec, "started_at": W._now_iso(walk.world)}
+    for rec in (api_rec, web_rec):
+        procs.track(rec)  # M3: the members recorded once both children are ready
+    m["serve"] = {"tree": str(tree), "port": port, "web_port": web_port, "api": api_rec, "web": web_rec,
+                  "started_at": W._now_iso(walk.world)}
     walk.write_manifest(m)
     walk.emit({"api": f"http://127.0.0.1:{port}", "web": f"http://127.0.0.1:{web_port}", "api_pid": api,
                "web_pid": web})

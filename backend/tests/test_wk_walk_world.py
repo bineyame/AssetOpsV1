@@ -146,7 +146,7 @@ class FakeProcs(WK.Procs):
         super().__init__(read=self._read, getpgid=self._getpgid, pids=lambda: sorted(self.table),
                          killpg=self._kill, popen=self._popen)
         self.next, self.spawned, self.table, self.signals, self.busy, self.dead = 4000, [], {}, [], set(), set()
-        self.ignore_term, self.spawn_error = set(), None
+        self.ignore_term, self.spawn_error, self.npm_children = set(), None, 0
         self.clock = 1000
 
     def _popen(self, argv, cwd, env, stdout, stderr, start_new_session):
@@ -157,6 +157,10 @@ class FakeProcs(WK.Procs):
         self.clock += 7
         pid = self.next
         self.table[pid] = {"cmd": list(argv), "start": self.clock, "pgrp": pid, "sid": pid}
+        if argv[:1] == ["npm"]:
+            for i in range(self.npm_children):   # sh and node vite, in npm's group and session
+                self.table[pid + 500 + i] = {"cmd": ["node", "vite"], "start": self.clock + 1 + i, "pgrp": pid,
+                                             "sid": pid}
         self.spawned.append({"pid": pid, "argv": list(argv), "cwd": cwd, "env": dict(env), "log": stdout.name})
         if argv[:1] == ["npm"]:
             self.busy.add(int(argv[argv.index("--port") + 1]))
@@ -169,7 +173,7 @@ class FakeProcs(WK.Procs):
             return None
         if leaf == "cmdline":
             return b"".join(c.encode() + b"\0" for c in t["cmd"])
-        fields = ["S", "1", str(t["pgrp"]), str(t["sid"])] + ["0"] * 15 + [str(t["start"]), "0"]
+        fields = [t.get("state", "S"), "1", str(t["pgrp"]), str(t["sid"])] + ["0"] * 15 + [str(t["start"]), "0"]
         return f"{pid} (x y) {' '.join(fields)}\n".encode()
 
     def _getpgid(self, pid):
@@ -967,20 +971,120 @@ def test_t9_stop_refuses_an_unrecorded_child(env, capsys):
     assert f"WALK_PID_REUSED {api} unrecorded" in capsys.readouterr().err
 
 
-def test_t9_stop_group_survives_its_leader(env, capsys):
-    """L4: npm died, Vite lives on in the recorded group: the group is stopped after the members' start-time check."""
+def _vite_served(env):
+    """npm spawned with its group (npm, sh, node vite) all live while serve waits; the members are recorded."""
+    env.procs.npm_children = 2
     m = env.served()
     rec = m["serve"]["web"]
+    kids = sorted(p for p, t in env.procs.table.items() if t["pgrp"] == rec["pid"] and p != rec["pid"])
+    assert len(kids) == 2 and sorted(x[0] for x in rec["members"]) == sorted([rec["pid"], *kids])
+    return m, rec, kids
+
+
+def test_t9_serve_records_the_group_members(env):
+    m, rec, kids = _vite_served(env)
+    t = env.procs.table
+    assert rec["members"] == sorted([p, t[p]["start"]] for p in [rec["pid"], *kids])
+    assert m["serve"]["api"]["members"] == [[m["serve"]["api"]["pid"], m["serve"]["api"]["start_time"]]]
+
+
+def test_t9_stop_group_survives_its_leader(env, capsys):
+    """L4: npm died, Vite lives on in the recorded group: every live member was recorded at serve, so it is stopped."""
+    m, rec, kids = _vite_served(env)
     web = rec["pid"]
-    env.procs.table[9001] = {"cmd": ["node", "vite"], "start": rec["start_time"] + 1, "pgrp": web, "sid": web}
     del env.procs.table[web]
     capsys.readouterr()
     assert env.main("status") == 0
     (line,), _ = _lines(capsys)
     assert line["alive"]["web"] is True
     assert env.main("stop") == 0
-    assert (web, signal.SIGTERM) in env.procs.signals and 9001 not in env.procs.table
+    assert (web, signal.SIGTERM) in env.procs.signals and not set(kids) & set(env.procs.table)
     assert "WALK_PID_REUSED" not in capsys.readouterr().err
+
+
+def test_t9_stop_refuses_a_foreign_group_after_a_pid_wrap(env, capsys):
+    """M3, the reviewer's attack: our group emptied, the PID wrapped, and a foreign daemon (setsid, fork, exit) holds
+    the recorded pgid with the same session and a later start time. It was never recorded: no signal."""
+    m, rec, kids = _vite_served(env)
+    web = rec["pid"]
+    for p in (web, *kids):
+        del env.procs.table[p]
+    env.procs.table[9001] = {"cmd": ["sleep", "20"], "start": rec["start_time"] + 500, "pgrp": web, "sid": web}
+    capsys.readouterr()
+    assert env.main("status") == 0
+    (line,), _ = _lines(capsys)
+    assert line["alive"]["web"] is False
+    assert env.main("stop") == 0
+    assert all(p != web for p, _ in env.procs.signals) and 9001 in env.procs.table
+    assert f"WALK_PID_REUSED {web} group_unverified" in capsys.readouterr().err
+
+
+def test_t9_stop_refuses_a_recorded_pid_with_another_start_time(env, capsys):
+    """M3: a recorded member's PID reused inside the same pgid and session still needs the recorded start time."""
+    m, rec, kids = _vite_served(env)
+    web = rec["pid"]
+    del env.procs.table[web]
+    env.procs.table[kids[0]]["start"] += 900
+    capsys.readouterr()
+    assert env.main("stop") == 0
+    assert all(p != web for p, _ in env.procs.signals)
+    assert f"WALK_PID_REUSED {web} group_unverified" in capsys.readouterr().err
+
+
+def test_t9_stop_refuses_a_recorded_member_in_another_session(env, capsys):
+    """L6: a recorded pid and start time whose session is not the recorded group's is not provably ours."""
+    m, rec, kids = _vite_served(env)
+    web = rec["pid"]
+    del env.procs.table[web]
+    env.procs.table[kids[0]]["sid"] = 55
+    capsys.readouterr()
+    assert env.main("stop") == 0
+    assert all(p != web for p, _ in env.procs.signals) and kids[0] in env.procs.table
+    assert f"WALK_PID_REUSED {web} group_unverified" in capsys.readouterr().err
+
+
+def test_t9_stop_zombie_leader_uses_the_recorded_members(env, capsys):
+    """L5: npm exited but is unreaped (state Z, empty cmdline, same start time): treated as gone, and the live recorded
+    members are stopped, not reported as `cmdline`."""
+    m, rec, kids = _vite_served(env)
+    web = rec["pid"]
+    env.procs.table[web].update(state="Z", cmd=[])
+    capsys.readouterr()
+    assert env.main("status") == 0
+    (line,), _ = _lines(capsys)
+    assert line["alive"]["web"] is True
+    assert env.main("stop") == 0
+    assert (web, signal.SIGTERM) in env.procs.signals and not set(kids) & set(env.procs.table)
+    assert "WALK_PID_REUSED" not in capsys.readouterr().err
+
+
+def test_t9_stop_zombie_with_another_start_time_is_refused(env, capsys):
+    m, rec, kids = _vite_served(env)
+    web = rec["pid"]
+    env.procs.table[web].update(state="Z", cmd=[], start=rec["start_time"] + 3)
+    capsys.readouterr()
+    assert env.main("stop") == 0
+    assert all(p != web for p, _ in env.procs.signals)
+    assert f"WALK_PID_REUSED {web} start_time" in capsys.readouterr().err
+
+
+def test_t9_failed_serve_stops_members_seen_while_waiting(env, capsys):
+    """A failed serve whose npm already exited: its members, recorded during the wait, are still killed."""
+    env.checked()
+    env.procs.npm_children = 1
+    env.http_answers["/api/health"] = (0, b"")
+    real = env.procs.exited
+
+    def exited(pid):
+        if pid == env.procs.spawned[1]["pid"] and env.procs.table.get(pid):
+            del env.procs.table[pid]       # npm dies and is reaped on the second poll; its child lives on
+            return True
+        return real(pid)
+    env.procs.exited = exited
+    assert env.main("serve", "--tree", str(env.tree)) == 4
+    web = env.procs.spawned[1]["pid"]
+    assert (web, signal.SIGKILL) in env.procs.signals
+    assert not [p for p, t in env.procs.table.items() if t["pgrp"] == web]
 
 
 def test_t9_stop_refuses_a_group_member_older_than_the_leader(env, capsys):
@@ -1006,7 +1110,7 @@ def test_t9_stop_with_both_gone_signals_nothing(env, capsys):
 
 def test_t9_parse_stat_reads_field_22_past_a_comm_with_spaces():
     raw = b"123 (a) b (c)) S 1 123 123 0 -1 0 0 0 0 0 0 0 0 0 20 0 1 0 987654 0 0\n"
-    assert WK.parse_stat(raw) == {"pgrp": 123, "session": 123, "start_time": 987654}
+    assert WK.parse_stat(raw) == {"state": "S", "pgrp": 123, "session": 123, "start_time": 987654}
     assert WK.parse_stat(None) is None and WK.parse_stat(b"1 (x) S") is None
 
 
