@@ -160,4 +160,39 @@ def test_9_the_composition_reads_the_database(lakeside) -> None:
     finally:
         dispose()
     assert served["state"] == "SERVED" and served["operator"] == "Lakeside Power"
-    assert served["actions"]["connected"] is False
+    assert served["actions"]["connected"] is True and served["actions"]["rows"] == []
+
+
+def test_9d_the_composition_reads_the_agreed_change(lakeside, monkeypatch, capsys) -> None:
+    """Unit 2 (3C2 spec section 3, D-3C2.16): R1 recorded through `main` appears as 5c section 3.5 World C's row."""
+    from datetime import date
+
+    from assetops_backend import record_action
+    from assetops_backend.accounts.composition import build_account_service
+    from test_3c0a_accounts_service import PW
+    from test_3c2_agreed_actions import Clock, r1
+
+    x = lakeside
+    monkeypatch.setenv("DATABASE_URL", URL)
+    people = build_account_service(URL)  # the Lakeside people of ON1's file, onboarded into this test's tenant
+    try:
+        people.onboard_create("lakeside-power", "amina@lakeside-power.example", "Amina", PW, executive=True)
+        people.onboard_create("lakeside-power", "peter@lakeside-power.example", "Peter", PW, executive=False)
+        people.onboard_grant("lakeside-power", "peter@lakeside-power.example", "SITE_MANAGER", "KOBO-001")
+    finally:
+        people._store.dispose()
+    capsys.readouterr()
+    assert record_action.main(r1(), clock=Clock(datetime(2026, 11, 20, 9, 30, tzinfo=timezone.utc))) == 0
+    capsys.readouterr()
+    build(x, at(11))
+    read_, dispose = build_deep_dive_read(URL)
+    try:
+        served = read_.month(x["tenant"], "2026-10", NAMES)
+    finally:
+        dispose()
+    state = "Open" if datetime.now(timezone.utc).date() <= date(2026, 12, 15) else "Overdue"  # UTC, as state_code (review L1)
+    assert served["actions"] == {
+        "title": "Actions in hand", "connected": True, "text": None, "more": 0, "rows": [
+            {"title": "Lower the generator stop setting at Kobo to 70% battery charge",
+             "owner": "Owner Peter \u00b7 due 15 December 2026", "agreed": "Agreed by Amina on 20 November 2026",
+             "state": state}]}

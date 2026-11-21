@@ -112,3 +112,31 @@ Summary (at most 15 lines):
 - Not rerun: `test_3b4_observer_postgres.py` (downgrades through 0070) and the full suites. I accept the builder's same-revision runs (41 passed under `--db`; 636 unit tests at `ac6a5d4ec`), because the later commits change only docs.
 - The 3A7-merge step (item 4 and L2) is still ahead; until then 0070's parent is provisional.
 - `R-AUTH` is unchanged and stated in the packet.
+
+## Unit 2 verification: fresh review, 2026-11-21
+
+**Verdict: ACCEPT.** Head `9cbab0bef`, one commit on `main` `3e77a8575`. Two Low findings, neither blocking.
+
+- `StoreAgreedActions` (`deep_dive/actions.py:25-35`) is spec §3's expression, field for field, against `AgreedActionView` and `AgreedAction`. `connected` is True, the service order is kept and nothing is invented. `NotConnectedActions` stays.
+- The composition (`deep_dive/composition.py:40-42`) is D-3C2.16's three lines, in the same `try`, with the `getattr` check removed.
+- Test 9 now asserts `connected` True with empty rows, which is stronger than before. Test 8 now patches `build_agreed_actions`, so the real dispose path runs. Neither assertion is weakened.
+- The 9(d) deviation is sound. ON1's `apply` (`onboarding/service.py:187,193`) makes the same `onboard_create` and `onboard_grant` calls. The people and roles match ON1's Lakeside file: Amina is executive, Peter is SITE_MANAGER on KOBO-001. The body equals 5c §3.5 World C.
+- I planted P16 in two forms. Both fail 9(e).
+
+### Findings
+
+- **L1 (Low, robustness; not an acceptance gap).** `backend/tests/test_5c_deep_dive_postgres.py:193` uses `date.today()`, which is the host's local date. `state_code` uses the UTC date at the read (D-3C2.4). On a non-UTC host, near midnight on 15 or 16 December 2026, the expected word and the served word could differ. This host runs on UTC, so the case cannot occur today. Fix: `datetime.now(timezone.utc).date()`. Having a word that depends on the date is the right call: the composition takes no clock, and spec §3 does not add one.
+- **L2 (Low, missing test; preference).** `backend/tests/test_5c_deep_dive_api.py:183-187` covers only a reconciliation builder that raises. Before this commit the third builder could not raise. Now `build_agreed_actions` can raise after the other two are built, and no case checks that `snapshot` and `reconciliation` are then disposed. The code handles it, since the line sits inside the `try`. Fix (optional): one more `broken` case on `build_agreed_actions` that asserts `sorted(disposed) == ["reconciliation", "snapshot"]`.
+
+### Checks run (same revision)
+
+- No database, through `heavy-slot.sh`: `test_3c2_agreed_actions.py`, `test_5c_deep_dive_api.py` and `test_5c_deep_dive_view.py`. **284 passed.**
+- Postgres, through `heavy-slot.sh --db` and `run-host-tests.ps1`: `test_5c_deep_dive_postgres.py` (3, 9(d) included) and `test_3c2_agreed_actions_postgres.py` (7). **10 passed**, none skipped, exit 0.
+- P16 planted as the spec words it (`StoreAgreedActions(agreed.service, build_action_service)`, with `actions.composition` imported in `deep_dive/composition.py`). 9(e) fails on the import: `('composition.py', {'assetops_backend.actions.composition'})`. With only the extra parameter planted, 9(e) fails on `['self', 'service', 'actions'] == ['self', 'service']`. Both plants were reverted, and the tree is clean.
+- Fast check-all: **All 42 guards passed (blocking; 0 advisory, 0 warned)**, exit 0.
+
+### Not verified, and residual risk
+
+- Full suites were not rerun.
+- After 15 December 2026, 9(d) asserts "Overdue" rather than World C's literal "Open". This is expected, and the row is otherwise unchanged.
+- The deep-dive read now opens two more pools: the agreed store's and the accounts store's. They are disposed with the composition. Pool use under the served app was not measured.
