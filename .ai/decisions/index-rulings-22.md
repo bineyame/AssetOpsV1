@@ -1,23 +1,20 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-IA.61 to D-IA.81)
+# Decision index: Demo-sprint and later rulings (index only) (D-0K4.1 to D-0K4.18)
 
-- `D-IA.61` IA-2b is the list shape only, split 2b1/2b2; 2b2 waits for the owner's IA-2a walkthrough · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.62` One list component; filters, sort, search, show-all in the address; focus keep · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.63` Four lists: stores, one-target rows, facets, count tiles; no at-stake sum (D2) · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.64` Outcomes fold, aliases with a query, crumbs, search index · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.65` 2b2: hub queues as the list, View all, no Decide button, plan link · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.66` IA-2b gates written first, dormant until landed, plants · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.67` IA lists: controls grow with the list (none <3, Sort ≤10, full >10); scale proven by fixture · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.68` Sites gap tile = operator's own gap (EQUAL overview-gap); hidden rows as a remainder part · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.69` No list sorts or sums non-commensurable figures; At stake sort dropped · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.70` Chips name every view state no control shows; every row has a live target · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.71` qty_check count mode, format mode, EQUAL table in IA-2b1 unit 2 · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.72` IA-2b shots matrix S1-S9 with per-class counts; listkeep, listwrap, emptytools · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.73` IA-2b plants compare independent paths; check carries literal word tables · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.74` IA-2b1 reads IA-2a at render; stop re-rule list adds list facets · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.75` List scroll/focus keep in a hashchange listener after the router, keyed to its hash · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.76` List cells text only; figure explainers stay on the Site hub · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.77` iaDecStateKey, iaActionStateKey, iaFindingSite classifiers · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.78` iaAliasTarget: one alias splitter · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.79` IA-2b dormancy: rail units renamed IA-2b1, OWN map rows · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.80` One cap per list, groups as display; amends D-IA.27 per-group cap · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.81` IA-2b size 5 to 6 units; split and stop hold · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-0K4.1` 0K4 units, sizes, order and lanes (8.75 units; critical path 0K4a then 0K4d) · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.2` one new simulator version mini-grid v8 holds both physics corrections; v1-v7 untouched · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.3` the generator takes the load: cycle charging, generator support only above PV plus rating · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.4` minimum generator load as a Foundation property (Kobo 30 %, GENERIC_DEFAULT); charge, then curtail PV · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.5` fuel curve through the no-load rate and full-load SFC; diesel energy 10 kWh/L in the stock account · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.6` charge taper above a Foundation taper start (Kobo LFP 95 %, GENERIC_DEFAULT), floor 1/20 · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.7` assumed values by fixture with basis GENERIC_DEFAULT; template untouched; results list assumptions · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.8` declared season v2: 21 overcast days in spells of 1-4, loads ±15 % a day, mill off Sundays · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.9` admission rule: unserved and reserve breaches not above no action, starts and full charge within limits; dawn information only · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.10` dispatch-3.3: a battery-support Candidate needs energy to solar cover; own unit 0K4e; 4d, fuel-cost-1, Findings move · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.11` one figure per quantity as a class; amends D-0K2.12, D-0K2.13, D-0K2.17, D-0M.11, D-0M.14 · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.12` until 0K4d: Not available yet for stop-70 and the other spike inputs, mechanism shown · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.13` product fuel law and worlds adopt v8 in queued 0K4f; owner to weigh in (owner-away row 56) · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.14` calibration on Kobo's records runs on v8 by the existing rule · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.15` pack and mock restated once, after 0K4d (0K4m) · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.16` reserve breaches, most starts in a day and full-charge days read from replay steps · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.17` one combined handshake per unit; 0K4a and 0K4b share one · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-0K4.18` operator request created: general asks by reference plus Kobo's five items · live · specs/0K4-dispatch-model-review/rulings.md

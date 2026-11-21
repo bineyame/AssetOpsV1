@@ -109,6 +109,9 @@ D-0K2.17 to D-0K2.29 (handshake round 1) by rev 2. Checked against `main` (`a53a
 
 ## D-0K2.12 No money in the spike
 
+- **Amended 2026-11-21 by D-0K4.11** (owner rule, one figure per quantity): row 37 is settled; a figure carried into
+  the manifest is the v8 study's (0K4d, 0K4m), never a design value beside it.
+
 - **Ruling.** The study returns litres, kWh, starts, steps and SOC. Litres × price, wear cost, one-off and the
   12-month value are the evaluator's (`6c`, design §4.1). The CANDIDATE share of avoided litres is `avoided_l_on`,
   with `6c` supplying dispatch-3.2's offsets. This amends 0K1 spec §7 ("litres to money ... 0K2").
@@ -117,6 +120,10 @@ D-0K2.17 to D-0K2.29 (handshake round 1) by rev 2. Checked against `main` (`a53a
   writes a manifest, a config or a label (D-0K2.20).
 
 ## D-0K2.13 Results carry their input class; replacing the design values is held for the owner
+
+- **Amended 2026-11-21 by D-0K4.11 and D-0K4.12** (`owner/owner-one-figure-loyal-to-operating-world-2026-11-21.md`):
+  no longer held. One model-computed figure per quantity, labelled by its source; no design value beside it; until
+  0K4d's figures land the stop-70 option reads "Not available yet" with its mechanism. The labels ruled here stand.
 
 - **Ruling.** Every `StudyResult` carries `input_class` (SIMULATED here) and `evidence_class` MODELLED. The packet
   sets the 61-day figures beside the design values. Whether a figure from a replay on a declared simulated season may
@@ -189,6 +196,8 @@ outputs, and the build's own run replaces them. Owner-level call: owner-away row
   5. **What the study claims.** On a declared simulated season, under the shipped dispatch law, each setting's dawn
      readings and the dates it adds or clears against no action. It does not claim that Kobo fails dawn (the input is
      simulated), nor that any setting is admissible or rejected.
+- **Settled 2026-11-21 (D-0K4.9, D-0K4.11):** the owner accepted the 0K4 path and its admission rule (dawn margin as
+  information, not a gate); the design value is withdrawn, not kept. The bullet below is the record of the question.
 - **Owner to weigh in (row 42).** The pack's stop-70 row ("0 of 61", "dawn PASS") and MG-T2's value (2,916.00) need a
   dawn pass that this model cannot give under the absolute rule: by the law above, every reserve-30 case fails at least on
   the dawns after overcast days, and the reserve-25 cases start the generator later still. The design value and its label

@@ -99,7 +99,7 @@ place); tile rows fill (D-IA.56); composed text only (D-IA.57); every plant must
 
 ## Handshake answers (round 1): IA-2b (`handshake-IA-2b.md` R1 to R8, I1 to I7)
 
-Architect (Claude), 2026-11-21, owner away (delegated; owner-away row 52). Each answer was checked against IA-2a's code at the
+Architect (Claude), 2026-11-21, owner away (delegated; owner-away row 57). Each answer was checked against IA-2a's code at the
 head of `task/IA-2a-plan` (`b2fb5de65`), and the live sizes and figures were read from a jsdom boot of that head (nothing was
 changed). Live sizes per operator (Lakeside / Harvest / Metro): Sites 3 / 3 / 3, each operator one vertical; Decisions 8 / 3 / 4;
 Findings 9 / 4 / 7, every one with a decision; Actions 6 / 3 / 2, on 4 / 3 / 2 plan items. No live list passes 10 rows, so no
@@ -130,7 +130,7 @@ Metro's sum nets −$3,204 against +$19.68. The spec (rev 2) and the reviewer gu
   "filter · sort" only. The home list figure draws them together, and one tier above the cap is simpler than two.
 - **Not changed:** the scope menu's group entry (it equals "All sites" while an operator has one vertical). It is IA-1b's,
   and its entries are the same on every route. Changing it on lists alone would split the grammar. It is listed for the W1
-  UI pass (owner-away row 52).
+  UI pass (owner-away row 57).
 
 ### D-IA.68 The Sites gap tile stays: it is the operator's own gap, and hidden rows show as a part (R2, done)
 
@@ -278,7 +278,7 @@ changes any of them, they are re-ruled before IA-2b1 merges, not patched in IA-2
   away. An in-cell button would be a second target in a row that is a link (D-IA.9). No carve-out is made, and B's
   "exactly one interactive element" stands.
 - `outcomes_table_check`: A, C and D unchanged in meaning; B per D-IA.80; a new assertion "no button and no second link in a
-  row". The Outcomes tab's figure buttons go; `walkthroughs.md` says where the explanations are (owner-away row 52).
+  row". The Outcomes tab's figure buttons go; `walkthroughs.md` says where the explanations are (owner-away row 57).
 
 ### D-IA.77 Three IA classifiers, one each (I4, done)
 
