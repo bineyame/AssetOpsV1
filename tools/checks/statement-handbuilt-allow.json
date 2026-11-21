@@ -1,1 +1,9 @@
-{}
+{
+  "backend/assetops_backend/commercial/profiles.py": [
+    {"fingerprint": "h:_swap_day_month:d40e38ccee22", "class": "CODE", "why": "date-format tokens DD/MM swapped in a format string (3A6); never read by a person"},
+    {"fingerprint": "h:_swap_day_month:052fded502f9", "class": "CODE", "why": "date-format tokens DD/MM swapped in a format string (3A6); never read by a person"}
+  ],
+  "backend/assetops_backend/commercial_upload_api.py": [
+    {"fingerprint": "g:build_commercial_upload_router.run:395904969735", "class": "CODE", "why": "log message of _LOG.warning (D-3A6.29); logs are not served (D-SC1.33), the scan's LOG_NAMES lacks _LOG"}
+  ]
+}
