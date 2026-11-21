@@ -270,11 +270,17 @@ class TestLegacySurfacesRefuse:
         do_import(store)
         client = app_for(store, legacy_root)
         for path in ("evidence", "evidence/records", "evidence/rejections", "overview",
-                     "dispatch", "analytics", "findings"):
+                     "dispatch", "findings"):
             response = client.get(f"/api/sites/KOBO-001/{path}")
             assert response.status_code == 409, path
             assert response.json()["detail"]["code"] == "AWAITING_EVIDENCE_MIGRATION"
             assert client.get(f"/api/sites/MG-LEGACY-1/{path}").status_code != 409, path
+        # AP-1 / D-SR.75 (f75c70cec, 2026-11-13): `/analytics` of a stored Site reads the stored declaration behind
+        # the Performance cutover gate, so with no product database it is 503 ASSESSMENT_UNAVAILABLE, never the old
+        # 409. The gate-closed 409 is the stored read's own refusal (AP-1 tests); legacy Sites keep the file path.
+        analytics = client.get("/api/sites/KOBO-001/analytics")
+        assert analytics.status_code == 503 and analytics.json()["detail"]["code"] == "ASSESSMENT_UNAVAILABLE"
+        assert client.get("/api/sites/MG-LEGACY-1/analytics").status_code not in (409, 503)
         assert all(row["site_id"] != "KOBO-001" for row in client.get("/api/findings").json()["findings"])
 
     def test_ingestion_refuses_an_imported_code_and_persists_nothing(self, tmp_path) -> None:
