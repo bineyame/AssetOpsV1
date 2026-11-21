@@ -215,6 +215,8 @@ def test_3_world_a_key_by_key_and_whole() -> None:
     om = step(v, "om")["drawer"]
     assert om["lines"] == ["Actual $1,800.00 · Target $1,800.00 · Difference $0.00", "Effect on contribution $0.00",
                            "3 of 3 Sites"]
+    assert [(r["site"], r["value"]) for r in om["sites"]] == [  # review L1: the drawer row reads as the table cell
+        ("Kobo", "$0.00"), ("Kisiwa", "$0.00 (estimate)"), ("Mto", "$0.00")]
     assert om["carried"] == ["Kisiwa: no service contractor invoice received; taken at its budget line for the month "
                              "(estimate)."]  # plant P6
     staff = step(v, "staff")["drawer"]
@@ -387,6 +389,67 @@ def test_4_h_kobo_litres() -> None:
     assert rows[SETUP] == (THREE_FUEL, "Kisiwa and Mto")
     same = ("headline", "status_line", "notices", "cash", "actions", "decisions", "standing")
     assert {k: v[k] for k in same} == {k: a[k] for k in same}
+
+
+# --- test 4 i: nothing compared (review H1; owner rule "missing is Not available yet, never 0") -----------------
+
+def _paths(obj, path=""):
+    """Every string of the payload with its path."""
+    if isinstance(obj, str):
+        yield path, obj
+    elif isinstance(obj, dict):
+        for k, x in obj.items():
+            yield from _paths(x, f"{path}.{k}")
+    elif isinstance(obj, list):
+        for i, x in enumerate(obj):
+            yield from _paths(x, f"{path}[{i}]")
+
+
+def test_4_i_nothing_compared(monkeypatch) -> None:  # review H1
+    """Mto keeps its records in KES (both sides), Kobo and Kisiwa in USD: no portfolio row sums, so R has no effect
+    (the designed `headline_na` state). A missing figure is never printed as 0; a line with no figure is left out."""
+    real = V.site_bridge
+
+    def in_kes(row):
+        return replace(row, currency="KES" if row.currency is not None else None,
+                       rows=tuple(in_kes(c) for c in row.rows))
+
+    def site_bridge(inputs, targets):
+        sb = real(inputs, targets)
+        return replace(sb, roots={k: in_kes(r) for k, r in sb.roots.items()}) if sb.site_code == "MTO-001" else sb
+    monkeypatch.setattr(V, "site_bridge", site_bridge)
+    v = view()
+    assert v["headline"] == {"text": "Contribution for October is not available yet.", "evidence": []}
+    gap = v["tiles"][1]
+    assert (gap["value"], gap["word"], gap["lines"]) == ("Not available yet", "Not available yet", [])
+    b = v["bridge"]
+    assert b["title"] is None
+    assert [(g["label"], g["value"]) for g in b["groups"]] == [("Grow revenue", "Not available yet"),
+                                                               ("Optimize cost and efficiency", "Not available yet")]
+    for g in b["groups"]:
+        for s in g["steps"]:
+            assert s["value"] == "Not available yet"
+            assert s["drawer"]["lines"] == ["3 of 3 Sites"], s["key"]
+    grow, opt = v["outcomes"][:2]
+    assert (grow["value"], grow["word"]) == (opt["value"], opt["word"]) == ("Not available yet", "Not available yet")
+    assert b["by_site"]["total"][3:] == ["Not available yet"] * 5
+    # The only zeros left are Sites' own figures (each Site's own row compares in its own currency).
+    own = (".bridge.by_site.rows[", ".cash.table.rows[")
+    zeros = [p for p, s in _paths(v) if "$0.00" in s]
+    assert zeros and all(p.startswith(own) or ".drawer.sites[" in p for p in zeros), zeros
+    # A residual with no figure is left out of the stops (`effect or 0` printed "$0.00").
+    side, absent, stated = t5b.side, t5b._absent, t5b.stated
+    gone = {"delivered_kwh": absent("delivered_kwh", "NOT_RECEIVED")}
+    a = side("actual", stated={"revenue": stated("3458.00")}, **gone)
+    t = side("target", stated={"revenue": stated("3420.00", "DECLARED")}, **gone)
+    row, _ = _stop(a, t, "revenue")
+    res = next(r for r in V.lowest(row) if r.kind == "RESIDUAL")
+    v7 = V._View.__new__(V._View)
+    v7.cur = "USD"
+    v7.sb = {"KOBO-001": SimpleNamespace(actual=SimpleNamespace(values=a),
+                                         targets=SimpleNamespace(structure=SimpleNamespace(values=t)))}
+    assert v7.stop("KOBO-001", res) is not None
+    assert v7.stop("KOBO-001", replace(res, effect=None)) is None
 
 
 LEAD = [  # (gap, grow, optimize, headline, title)

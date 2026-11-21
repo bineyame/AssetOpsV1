@@ -112,8 +112,9 @@ class _View:
 
     def stop(self, code: str, r: BridgeRow) -> str | None:
         keys = W.actual_keys(r.unobserved_actual, self.notes(code))
-        if r.kind == "RESIDUAL":
-            return W.residual_text(r.parent, self.money(r.effect or Decimal(0), r), keys, r.unobserved_target)
+        if r.kind == "RESIDUAL":  # no figure, no line (review H1)
+            return (W.residual_text(r.parent, self.money(r.effect, r), keys, r.unobserved_target)
+                    if r.effect is not None else None)
         if r.split != "NOT_SPLIT":
             return None
         reason = r.reason or ""
@@ -135,12 +136,14 @@ class _View:
 
     # --- section 3.1 ----------------------------------------------------------------------------------------------
 
-    def group_sums(self) -> dict[str, Decimal]:
-        sums = {c: Decimal(0) for c in CATEGORIES}
+    def group_sums(self) -> dict[str, Decimal | None]:
+        """Each heading's sum of its steps' effects; None when no step has one (never 0 for missing, review H1)."""
+        sums: dict[str, Decimal | None] = {c: None for c in CATEGORIES}
         for step in self.steps:
             row = self.rows.get(step)
             if row is not None and row.effect is not None:
-                sums[self.home(step)] += row.effect
+                home = self.home(step)
+                sums[home] = (sums[home] if sums[home] is not None else Decimal(0)) + row.effect
         return sums
 
     def big(self, category: str | None):
@@ -198,7 +201,9 @@ class _View:
                         "word": self.word(R), "lines": lines,
                         "bar": ({"actual": str(R.actual), "target": str(R.target)}
                                 if R.actual is not None and R.target is not None else None)}
-        gap_lines = [W.tile_split(W.money(sums[T.GROW], self.cur), W.money(sums[T.OPTIMIZE], self.cur))]
+        gap_lines = []
+        if R.effect is not None and sums[T.GROW] is not None and sums[T.OPTIMIZE] is not None:
+            gap_lines.append(W.tile_split(W.money(sums[T.GROW], self.cur), W.money(sums[T.OPTIMIZE], self.cur)))
         if R.effect is not None:
             gap_lines.append(W.tile_rest(W.money(self.rest(), self.cur), W.money(R.effect, self.cur)))
         gap = {"key": T.TILE_KEYS[1], "label": W.text("GAP_TO_TARGET"), "value": W.amount(R.effect, self.cur, "SIGNED"),
@@ -289,14 +294,16 @@ class _View:
         if row.actual is not None and row.target is not None and row.gap is not None:
             lines.append(W.drawer_values(W.money(row.actual, self.cur), W.money(row.target, self.cur),
                                          W.money(row.gap, self.cur)))
-        lines.append(W.drawer_effect(W.money(row.effect or Decimal(0), self.cur)))
+        if row.effect is not None:
+            lines.append(W.drawer_effect(W.money(row.effect, self.cur)))
         lines.append(W.sites(row.k, self.n))
         site_rows = []
         for code in self.included(row):
             own = _find(self.sb[code].roots[T.ROOT], step)
             stops = self.stops(code, own) if own is not None else []
             site_rows.append({"site": self.name(code),
-                              "value": W.amount(own.effect if own is not None else None, self.cur, "SIGNED"),
+                              "value": W.amount(own.effect if own is not None else None, self.cur,
+                                                T.CELL_FORM[own is not None and own.carried]),
                               "text": W.sentences(stops) if stops else None})
         carried = [W.carried(self.name(c), step) for c in row.carried if step in T.CARRIED_STATE]
         out = [self.out_line(c, reasons) for c, reasons in row.out]
@@ -324,18 +331,16 @@ class _View:
             steps = [s for s in self.steps if self.home(s) == category]
             if not steps:
                 continue
-            total = Decimal(0)
             items = []
             for s in steps:
                 row = self.rows.get(s)
                 effect = row.effect if row is not None else None
-                total += effect or Decimal(0)
                 items.append({"key": s, "label": W.factor_label(s), "value": W.amount(effect, self.cur, "SIGNED"),
                               "share": shares.get(s), "word": self.word(row) if row is not None else
                               W.text("NOT_AVAILABLE"), "sites": W.sites(row.k, self.n) if row is not None else None,
                               "drawer": self.drawer(s, row) if row is not None else None})
             groups.append({"key": category, "label": W.heading_label(category),
-                           "value": W.amount(total, self.cur, "SIGNED"), "steps": items})
+                           "value": W.amount(self.group_sums()[category], self.cur, "SIGNED"), "steps": items})
         totals = {"actual_label": W.totals_label(self.month), "actual": W.amount(R.actual, self.cur),
                   "target_label": W.text("TARGET"), "target": W.amount(R.target, self.cur)}
         return {"title": title, "totals": totals, "groups": groups, "by_site": self.by_site()}

@@ -98,12 +98,13 @@ def names_of(codes: Sequence[str], names: Mapping[str, str]) -> Items:
 
 # --- the headline (D-5C.15) -----------------------------------------------------------------------------------------
 
-def named(gap: Decimal | None, grow: Decimal, optimize: Decimal) -> tuple[str | None, Decimal | None]:
-    """Of Grow and Optimize, those whose sum has the gap's sign (zero has none); the larger in magnitude, ties to
-    Optimize; (None, None) when none."""
+def named(gap: Decimal | None, grow: Decimal | None, optimize: Decimal | None) -> tuple[str | None, Decimal | None]:
+    """Of Grow and Optimize, those whose sum has the gap's sign (zero and a missing sum have none); the larger in
+    magnitude, ties to Optimize; (None, None) when none."""
     if gap is None or gap == 0:
         return None, None
-    same = [(h, v) for h, v in ((T.OPTIMIZE, optimize), (T.GROW, grow)) if v != 0 and (v < 0) == (gap < 0)]
+    same = [(h, v) for h, v in ((T.OPTIMIZE, optimize), (T.GROW, grow))
+            if v is not None and v != 0 and (v < 0) == (gap < 0)]
     if not same:
         return None, None
     best = same[0]
