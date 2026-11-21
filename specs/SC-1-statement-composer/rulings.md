@@ -338,3 +338,45 @@ row that fails the gate.
   accepts; see D-SC1.18's sweep for the rest.
 - **P13.** Confirmed: a variant's `options` keyed by slot name apply to every statement in the tree that declares that
   slot; two declarations differing in type or options are `SLOT_CONFLICT` (P19).
+
+## Mid-build answers (SC-1a, 2026-11-21; Architect, owner away; against `mid-build-questions.md` at 74825a551)
+
+## D-SC1.29 The two pre-existing `i18n` modules sit in the ratchet, named, pinned and unable to grow (Q1)
+
+- **Ruling.** The ratchet is the honest place; no refactor in SC-1a. Spec §3.8.4 (1) now names the mechanism modules
+  (`__init__`, `schema`, `facts`, `formats`, `conditions`, `catalogue`, `render`, `wire`) instead of the glob, and
+  names `messages.py` and `locale.py` as `LEGACY_I18N`, scanned by scope (3). A new `.py` under `i18n/` in neither
+  list is `MECH_UNSCOPED` (P51), so no file is ever unscanned and none can slip out of the positive scope by being
+  added. What stops new hand-built text entering them: `messages.py`'s 123 templates are pinned by hash
+  (`LEGACY_CHANGED`, D-SC1.27), a new template is `HAND_BUILT_NEW`, a removed one `HAND_BUILT_STALE`; `locale.py`'s
+  hits are fingerprinted in the hand-built baseline, any new prose, f-string or composition is `HAND_BUILT_NEW`, and
+  the baseline is written once and never hand-extended (`BASELINE_EXISTS`). P53 plants both. `messages.py` shrinks as
+  units convert (D-SC1.14, SC-1b); it never grows except by 3A6's keys (D-SC1.27).
+- **Reason.** The owner asked for clean composition, not a clean past. `messages.py` is exactly the debt D-SC1.17 says
+  the ratchet exists to freeze: moving 123 templates to statements is SC-1b's job, and the positive rule cannot pass
+  them by construction. `locale.py` holds ASGI protocol strings (`"http"`, `"latin-1"`), which are not served wording;
+  forcing them into `SYMBOLS` would pollute the closed set that is the mechanism's proof, or force a rewrite of
+  working middleware for no reader's benefit. Narrowing the positive scope to the files SC-1 writes keeps its claim
+  true (the mechanism has no English and no branch on a string) and keeps the two legacy files visible and frozen.
+- **Not accepted as written.** The builder's version left the scope as a statement of intent; the named lists and
+  `MECH_UNSCOPED` make the boundary checkable. Sweep: any future `i18n/` module is covered by that rule.
+
+## D-SC1.30 Names the mechanism needs are read as identifiers, not added to `SYSTEM` (Q2)
+
+- **Ruling.** Confirmed. `const`, `abs`, `params`, `key`, `fact`, `v` and every fact field name are read from code
+  (annotations of private `TypedDict`s, `Message.__annotations__`, constructor parameters), never written as strings;
+  `SYSTEM` is unchanged. §3.12 now lists them in its own paragraph ("Names read as identifiers"), T12 asserts the
+  set, and a string-constant plant fails (P52).
+- **Reason.** A closed set that grows each time the mechanism needs a key is an allow-list that erodes; identifiers
+  tie the names to the code that uses them, so a rename cannot leave a stale string, and the scan stays literal-free.
+  Cost is none: no schema change, no wire change.
+
+## D-SC1.31 `records` reads the in-sentence form; §5.1 and 3A7 corrected (Q3)
+
+- **Ruling.** Confirmed: §5.1's `records` slot declares `"form": "in_sentence"`; `record_noun` keeps only its
+  `in_sentence` form (§3.5). 3A7's rulings (amendment on SC-1) now say the heading transcribes §5.1 rev 2 including
+  that form; 3A7's builder copies the slot as written.
+- **Reason.** §3.3's `label` default fails the load against §3.5 (`SLOT_OPTION`); the text reads "no billing records
+  are recorded", mid-sentence, which is the in-sentence form. Giving `record_noun` a `label` would add a form no
+  sentence uses. Sweep: every other `word` slot in §5 was checked against its vocabulary's forms; only `records` was
+  wrong.

@@ -391,7 +391,7 @@ environment.
    or `site_code` at any depth in `config/**/*.{yaml,yml,json}` and `backend/conversions/*.json`, split on
    non-letters. A test asserts the token set contains `kisiwa` and `kobo` (else the source is wrong: a mid-build
    question).
-6. `--self-test` runs plants P12 to P14, P13a to P13p, P17, P42 to P49 and the negative plants N1 to N3 (§6) against
+6. `--self-test` runs plants P12 to P14, P13a to P13p, P17, P42 to P49, P51 to P53 and the negative plants N1 to N3 (§6) against
    temporary copies and passes only if each plant fails with its code and each negative plant passes.
 
 Wire in `tools/check-all.ps1` next to the fuel wording guard: `Add-Guard "Statement catalogue (SC-1)" $Python
@@ -409,7 +409,10 @@ is an attribute `debug`, `info`, `warning`, `error`, `exception`, `critical` or 
 `e.args` or an f-string field `{e}`, where `e` is bound by `except ... as e`, anywhere but a logging call or a
 `raise U(...)` of an `UNSERVED` type.
 
-**(1) Mechanism** (`backend/assetops_backend/i18n/*.py`; not `statements/`). Every string constant, outside the
+**(1) Mechanism** (the modules SC-1 writes in `backend/assetops_backend/i18n/`: `__init__`, `schema`, `facts`, `formats`,
+`conditions`, `catalogue`, `render`, `wire`; not `statements/`; D-SC1.29). `messages.py` and `locale.py` are the two
+pre-existing modules, named in the guard as `LEGACY_I18N` and read by scope (3); any other `.py` under `i18n/` is in
+scope (1) or the guard reports `MECH_UNSCOPED path` (P51). Every string constant, outside the
 exemptions and `__all__`, is one of: an upper snake code (`^[A-Z][A-Z0-9_]*$`) that is not a state value, absent
 reason or vocabulary entry key of the loaded catalogue (else `MECH_INSTANCE`); a member of `schema.TOKENS` (§3.12);
 a member of `schema.SYMBOLS`; a decimal literal (`^\d+(\.\d+)?$`); or an f-string field's format spec matching
@@ -511,6 +514,15 @@ and renders with `from_wire` at read; that unit's spec says so.
 `VOCABULARY`, `statements`, `vocabulary`, `utf-8`, `en`, `USD`, `OMITTED`, `ABSENT`). `TOKENS` is the union of
 every set above except `SYMBOLS`. Adding to any of them is a spec change; T12 asserts each equals this section.
 
+**Names read as identifiers, never written as strings (D-SC1.30).** The mechanism needs names no set above holds; it
+reads them from code, so none is a string constant and none is in `TOKENS`: the condition operand keys `abs` and
+`const` (the annotation names of `conditions._Operand`, a private `TypedDict`); the `Message` keys `key` and `params`
+(`Message.__annotations__`); the wire envelope's keys `fact` and `v` where §3.11 uses them (`wire._Envelope`'s
+annotations); and each fact's field names (`value`, `currency`, `origin`, `reconciled`, `n`, `k`, `year`, `at`,
+`source`, and the rest of §3.1), which are its constructor's parameter names (`facts._FactMeta` builds `__slots__`
+from them). A new such name is a new annotation or parameter, not a string. T12 asserts these sets equal this
+paragraph; a plant writing one as a string constant is `MECH_LITERAL` (P52).
+
 ## 4. Code (SC-1a)
 
 | File | Holds |
@@ -550,7 +562,7 @@ on the real shapes before they land.
         "state": {"type": "state", "values": ["MATCHED", "NOT_MATCHED", "ZERO_STATED", "NOT_RECEIVED",
                                               "CURRENCY_MISMATCH", "MONTH_OPEN"]},
         "heading": {"type": "word", "vocabulary": "heading", "form": "label"},
-        "records": {"type": "word", "vocabulary": "record_noun", "optional": True},
+        "records": {"type": "word", "vocabulary": "record_noun", "form": "in_sentence", "optional": True},
         "accounts": {"type": "money", "optional": True, "evidence": {"with": "basis"}},
         "recorded": {"type": "money", "optional": True, "evidence": {"with": "basis"}},
         "allowed": {"type": "money", "optional": True, "evidence": {"derived_from": ["accounts", "tolerance"]}},
@@ -844,6 +856,9 @@ plants run in the guard's `--self-test` over temporary copies.
 | P48 (guard) | a module outside `i18n` calling `catalogue._use` | `I18N_PRIVATE` |
 | P49 (guard) | a module outside `i18n` importing `assetops_backend.i18n.formats` | `I18N_BYPASS` |
 | P50 (guard) | `--write-baseline` with the baseline present | `BASELINE_EXISTS` |
+| P51 (guard) | a new `i18n/extra.py` that is neither in the mechanism list nor `LEGACY_I18N` | `MECH_UNSCOPED` |
+| P52 (guard) | `"const"` or `"params"` written as a string constant in a copy of `conditions.py` | `MECH_LITERAL` |
+| P53 (guard) | a new template string added to a copy of `messages.py`, and a new prose f-string in a copy of `locale.py` | `HAND_BUILT_NEW` each; an edited existing template: `LEGACY_CHANGED` |
 
 **Negative plants** (guard self-test; each must pass): N1 a logging f-string in an `ADOPTED` file; N2 `raise
 ValueError(f"...")` in an `ADOPTED` file; N3 a docstring and `message("deep_dive.headline", gap=...)` in an `ADOPTED`
