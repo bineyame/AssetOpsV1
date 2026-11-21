@@ -186,3 +186,23 @@ K6 is extended to it (a planted 0 fails), and `stated()` accepts `source` only w
 `check_manifest.py` on `main` (pooled): `7565 checks passed (2868 history checks), 1 failed`, the one failure
 `H9 baseline: 4496 checks passed before the history checks == 4502, with 0 failed`, as spec §0 expects.
 `hand_typed_scan.py` ran past 100 s unpooled and was stopped. The builder runs it through `tools/heavy-slot.sh`.
+
+## Answers (Architect, Claude, 2026-11-21; folded into `spec.md` rev 2; rulings D-0K4.38, D-0K4.39)
+
+| Q | Answer |
+|---|---|
+| R1 | Default, with the path list corrected: (a) view hash, (b) `world_history.py check`, (c) changed-line to YAML-path map, comment lines included, at every commit (spec §0 item 3). Guide check 3 rewritten. |
+| R2 | **Not available yet** for both Kobo settings' litres, throughput and value until the model runs on Kobo's October as recorded (0K4f). World-month rule and K12 (spec §1.3; D-0K4.38; owner-away row 75). Not the default. |
+| R3 | Default: the welder uses `mto-welder` (FULL); the inverter reason reads from sourced `extra_generator_kwh` and `extra_unserved_kwh`, checked by K6. |
+| R4 | Default: not available is its own value, `|` never falls through it; K4 checks presence with null; `evaluator()` compares key presence; P16, P17. |
+| R5 | Default, with commit 1 split: 1a adds `CHECK_LABELS` only (count unchanged), 1b the rest; the ledger diffs 1a on main against the head. |
+| R6 | Default: both sha256 in full in the spec header; the extract refuses a differing file; K3 covers every identity key; the packet's three-column table. |
+| I1 | Default, accepted with its proof: `VIEW_HELD` (four paths, `until: 0K4f`), list equals K1's finds both ways, entries inside the view, K7 over the mock's sources, K11's literal skip guarded by equality (spec §1.2). |
+| I2 | Default: `generator_l` falls back to `record.necessary_l + record.candidate_l`; the override is side-free; motivation figures in unit 2 (commit 2 if a unit-1 check runs them). |
+| I3 | Default (spec §2.3 row). |
+| I4 | Default (spec §3, §4); the two registers are excluded by name as decision history. |
+| I5 | Default: the Kobo protect row carries its K8 `source` with cases; K6 checks it; `stated()` accepts a checked `source` only. |
+| I6 | Defaults. The placeholders are written out in spec §2.3. |
+| Citations | Fixed: spec header and `reviewer-guide.md:4` cite `rulings.md` for D-0K4.9 to D-0K4.29 and `rulings-2.md` for D-0K4.31 to D-0K4.39; spec §3 points at `economic-metric-and-effect-contracts.md:243`. |
+
+Size: 3.5 units (unit 1 1.75, unit 2 0.75, unit 3 1.0). Unit 1 builds first.
