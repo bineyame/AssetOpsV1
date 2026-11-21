@@ -988,6 +988,21 @@ def test_t9_serve_records_the_group_members(env):
     assert m["serve"]["api"]["members"] == [[m["serve"]["api"]["pid"], m["serve"]["api"]["start_time"]]]
 
 
+def test_t9_serve_records_a_member_started_at_readiness(env):
+    """M3: a member that appears after the last wait-loop scan (Vite's node at readiness) is recorded at success."""
+    env.checked()
+    real = env.procs.port_busy
+
+    def port_busy(port):
+        web = env.procs.spawned[-1]["pid"] if len(env.procs.spawned) == 2 else None
+        if web and port == 5491 and 7777 not in env.procs.table:
+            env.procs.table[7777] = {"cmd": ["node", "vite"], "start": 5000, "pgrp": web, "sid": web}
+        return real(port)
+    env.procs.port_busy = port_busy
+    assert env.main("serve", "--tree", str(env.tree)) == 0
+    assert [7777, 5000] in env.manifest()["serve"]["web"]["members"]
+
+
 def test_t9_stop_group_survives_its_leader(env, capsys):
     """L4: npm died, Vite lives on in the recorded group: every live member was recorded at serve, so it is stopped."""
     m, rec, kids = _vite_served(env)
