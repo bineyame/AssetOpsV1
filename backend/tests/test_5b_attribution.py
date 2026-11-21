@@ -921,3 +921,11 @@ def test_11_a_factor_twice_in_one_tree_is_refused() -> None:  # plant V21
     with pytest.raises(ValueError) as e:
         _hand_portfolio(bad, _hand_site("B-001"))
     assert str(e.value) == "REPEATED_FACTOR:om"
+
+
+def test_f1_a_price_leaf_in_two_currencies_is_not_subtracted() -> None:  # bridge.py currency check, price unit
+    from assetops_backend.structure.attribution.bridge import _Bridge
+    reg = _toy("p * x")
+    a, t = _toy_side(reg, "100", "0.50"), _toy_side(reg, "80", "0.40", "EUR")
+    row = _Bridge(reg, a, t, USD).row("p", "y", "PRICE", None, D("100"), (a["p"], t["p"]))
+    assert (row.gap, row.effect, row.reason) == (None, None, "CURRENCY_MISMATCH:EUR,USD")
