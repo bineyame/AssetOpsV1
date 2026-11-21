@@ -81,6 +81,13 @@ export const REVIEWED_EXEMPTIONS = [
     decision: 'POLISH build sheet §5 PB-1 (time.test.ts: invalid input gives "Time not available yet"); Addendum 7 Q3',
     reason: 'The word the shared time formatter uses for an unparseable instant, so a raw string is never echoed; it describes a malformed value, not a missing capability or a Site claim, so it is not a mock_gaps placement.',
   },
+  {
+    file: 'frontend/src/estate/DeepDiveMonth.tsx',
+    constName: 'DD_NOT_AVAILABLE_TITLE',
+    text: 'What is not available yet',
+    decision: '5c spec rev 3 section 5.2; D-5C.11, D-5C.14 (MD9, register R765)',
+    reason: 'The title of "The month" section that lists the served not-available rows (each row names the record that would fill a gap, what it fills and at which Sites); it titles a list of served claims, it is not itself a missing claim about a Site, so it is not a mock_gaps placement.',
+  },
 ];
 
 const toPosix = (p) => p.split(path.sep).join('/');

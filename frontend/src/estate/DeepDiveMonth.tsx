@@ -27,6 +27,12 @@ import { queryFromParams } from "./estateShared";
 import { PortfolioTabs } from "./PortfolioTabs";
 import "./deepDiveMonth.css";
 
+/**
+ * The title of the section that lists the records still missing (spec §5.2, D-5C.11, D-5C.14). It names a section of
+ * served rows, each naming its record; it is not a claim about a Site (missing-claim scan exemption).
+ */
+export const DD_NOT_AVAILABLE_TITLE = "What is not available yet";
+
 /** Screen copy the page owns (spec §5.2); every figure and served sentence comes from the JSON. */
 export const DD_COPY = {
   title: "Portfolio",
@@ -36,7 +42,7 @@ export const DD_COPY = {
   tryAgain: "Try again",
   bridge: "Where the gap comes from",
   byOutcome: "By outcome",
-  notAvailable: "What is not available yet",
+  notAvailable: DD_NOT_AVAILABLE_TITLE,
   showBySiteTable: "Show as table, by Site",
   showBySite: "Show by Site",
   close: "Close",
