@@ -60,7 +60,7 @@ mock's waterfall with no arithmetic (D-5C.2 stands).
   - P-e PF1 undone (registry name as the unit): `2 failed, 183 passed` (`test_4_h_driver_detail_kwh`,
     `test_1_driver_units_have_words`).
 - After KD2 and PF1 (at `9280e866f`): focused `382 passed, 1 skipped, 1 warning in 6.66s`; view file `185 passed`;
-  catalogue OK; test 9 TEST9_R3; check-all (fast) CHECKALL_R3.
+  catalogue OK; test 9 `2 passed, 2 warnings in 8.74s` (exit 0, 644 s wall with the db-lock wait); check-all (fast, at `16cb7fb5f`) `All 42 guards passed (blocking; 0 advisory, 0 warned).` (142.3 s).
 - `python3 tools/checks/statement_catalogue.py` (before and after KD2): `OK statement catalogue: load, coverage, legacy, scan (6 adopted),
   keys, imports` (exit 0).
 - check-all (fast, through the slot, at `435a71c87`): `All 42 guards passed (blocking; 0 advisory, 0 warned).` (142.8 s; estate and pool self-tests skipped as unchanged).
