@@ -91,3 +91,12 @@ def iso_z(at: datetime) -> str:
 #: A by-Site step cell's and its drawer row's amount form: a carried row names its source, " (at budget)"
 #: (spec section 3.2, D-5C.23).
 CELL_FORM = {True: "AT_BUDGET", False: "SIGNED"}
+
+#: D-5C.27: a step bar's tone (effect below 0, else) and the places every track position is served with.
+TONE_LOWERS, TONE_RAISES = "lowers", "raises"
+BAR_MIN_WIDTH = "0.8"
+BAR_PLACES = "0.01"
+
+#: PF1: a registry unit's dimension name to its SC-1 `unit` vocabulary key (a driver's detail, section 3.2). Every
+#: unit a MINI_GRID driver can show is here (test 1 proves it).
+UNIT_WORDS: Mapping[str, str] = MappingProxyType({"KWH": "kWh", "L": "L"})

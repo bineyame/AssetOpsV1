@@ -71,17 +71,13 @@ def not_compared() -> str:
     return figure_text(message("deep_dive.money", value=Absent("NOT_COMPARED"), form=State("PLAIN")))
 
 
-#: ISO 4217's "no currency" code: the carrier `money_word` needs when a word's figure has no single currency. The word
-#: prints no amount, so no currency is ever shown from it (review H3: nothing defaults to USD).
-NO_CURRENCY = "XXX"
-
-
-def word(ev: str, origins: Sequence[str], standing: Standing, currency: str | None) -> str:
-    """Section 2.4 for a money figure: "Not available yet", else the evidence word (section 2.4's order, `evidence`)
-    with 3A7's money suffix."""
+def word(ev: str, origins: Sequence[str], standing: Standing, currency: str) -> str:
+    """Section 2.4 for a money figure in `currency`: "Not available yet", else the evidence word (section 2.4's order,
+    `evidence`) with 3A7's money suffix. A figure with no value or no currency has no word: the view's `figure_word`
+    never calls this for one (D-5C.26)."""
     if ev == "NOT_AVAILABLE":
         return text("NOT_AVAILABLE")
-    return money_word(Money(Decimal(0), currency or NO_CURRENCY, evidence(ev, origins)), standing)
+    return money_word(Money(Decimal(0), currency, evidence(ev, origins)), standing)
 
 
 def weakest_of(rows: Iterable[Any]) -> tuple[str, tuple[str, ...]]:
