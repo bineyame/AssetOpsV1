@@ -142,3 +142,8 @@
 - Timing-bound tests flake under load (~9): T1 heavy-slot self-test P4b (pwsh outer 5154 ms) on main after 3A7 merge, passes alone; contracts test_3a6_profiles n3_r5_b1 wall 7.5 s vs 3.0 s in DS4 review, passes alone. Consider load-aware bounds (guard change -> owner).
 - Kobo: a lower generator stop setting for night charging (0K4 review open question 5; owner: backlog, 2026-11-21).
 - 3C1b review L2-L4 (round 2): reads query the account store up to 5x with a cookie (resolve once per read); frontend actionClient.ts types actor fields non-null and granted() ignores would-refuse; service.py:718 SYSTEM fallback should be next() without default; action_api/service/capability not ADOPTED (SC-1b/c debt).
+- SC-1 L2 (SC-1f review): `_bound_loggers` matches attribute names module-wide, so `report.audit.info(f"...")` is exempt after `self.audit = getLogger(...)`; tighten to `self.<attr>` (guard change, owner approval).
+- 0K4e L3: plain.py:306-320 renders "...missing or conflicting: Detail not available ..." with a double period for mixed SHORT/COVERED segments (3.2 does it too; 3.3 adds instances). Queue with Q9 (legacy text families).
+- 0K4e: Finding-level recency case (battery-support run whose post-run records arrive in a second delivery; Finding opens late). Queued from the 0K4e review.
+- Shared UI contrast below 4.5:1: shell demonstration bar 4.12:1, DataTable header cells 4.35:1 (5c review). UI lane.
+- 5c: phone (390 px) headline runs 3 lines and is not gated.

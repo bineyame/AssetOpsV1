@@ -171,11 +171,9 @@ def test_8_composition_disposes_all_three(monkeypatch) -> None:
     monkeypatch.setattr(C, "build_commercial_reconciliation",
                         lambda url: ("reconciliation", lambda: disposed.append("reconciliation")))
 
-    class Actions(NotConnectedActions):
-        def dispose(self) -> None:
-            disposed.append("actions")
-
-    monkeypatch.setattr(C, "NotConnectedActions", Actions)
+    monkeypatch.setattr(C, "build_agreed_actions",  # 3C2 unit 2: the agreed-action service and its dispose
+                        lambda url: SimpleNamespace(service=SimpleNamespace(for_tenant=lambda t: ()),
+                                                    dispose=lambda: disposed.append("actions")))
     read, dispose = C.build_deep_dive_read("postgresql://x/assetops_test")
     assert isinstance(read, DeepDiveRead)
     assert disposed == []

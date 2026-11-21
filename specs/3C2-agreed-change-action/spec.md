@@ -247,7 +247,13 @@ agreed_action` in another module; the packet records each run's exit code and me
   v.created_by_name, v.created_at, v.due_on, v.state_words) for v in service.for_tenant(tenant_id)))` (order kept:
   newest first).
 - `deep_dive/composition.py`: `NotConnectedActions()` becomes `StoreAgreedActions(build_agreed_actions(url).service)`
-  (its `dispose` joins the composition's).
+  (its `dispose` joins the composition's). Exactly (D-3C2.16): `agreed = build_agreed_actions(database_url)`,
+  `disposers.append(agreed.dispose)`, `actions = StoreAgreedActions(agreed.service)`, in place of the
+  `NotConnectedActions()` line and its `getattr(actions, "dispose")` check, inside the same `try`. `NotConnectedActions`
+  stays in `deep_dive/actions.py` (in-memory 5c tests use it).
+- **Pulled first on day 14 (D-3C2.16, D-WK.14).** Gate C holds (5c units 1 and 2 merged, unit 1 merged). Branch
+  `task/3C2-unit2` off `main`; worktree `/opt/assetecon/AssetOpsV1-3c2u2`. Handshake round 1 covered this unit (R13,
+  P8); no new round. Verification review (W5). It merges before WK's world build (§5 step 1 of WK's spec).
 - 5c test 9(d) and 3C2 test 9(e) (§5).
 
 ## 4. Fixtures (hand-written; the tests write these literals, W2)
@@ -397,7 +403,7 @@ Closing, completing, reassigning or re-dating an Action (3C3, with the screen co
 | Unit | Content | Needs | Commits |
 |---|---|---|---|
 | 1 (1.25) | §2: migration, model, memory store, adapter, service, command, permission line, guard block; tests 1 to 8; check-all; packet | gate A (3A6 merged; number read at the head); gate B at merge | 1 to 2 |
-| 2 (0.25) | §3: `StoreAgreedActions`, the composition line; tests 9(d) and 9(e) | gate C (unit 1 and 5c unit 2 merged) | 1 |
+| 2 (0.25) | §3: `StoreAgreedActions`, the composition lines; tests 9(d) and 9(e) | gate C (unit 1 and 5c unit 2 merged: holds); first on day 14 (D-3C2.16) | 1 |
 
 ## 9. Decision queue (W3; defaults applied)
 

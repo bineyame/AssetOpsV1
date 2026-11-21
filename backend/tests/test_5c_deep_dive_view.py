@@ -28,6 +28,7 @@ from assetops_backend.structure.registry import REGISTRIES
 from assetops_backend.structure.targets.read import TargetCheck
 from assetops_backend.structure_snapshot.model import Freshness, Served
 from test_3a4_commercial_months import new_world
+from deep_dive_worlds import gone, in_kes, world_h, world_x
 
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "5c" / "deep_dive_lakeside_2026-10.json"
 MG = REGISTRIES["MINI_GRID"]
@@ -201,6 +202,11 @@ def test_3_world_a_key_by_key_and_whole() -> None:
         ("fuel_cost", "−$755.00", "89% of what widens the gap", "Emulated, not yet reconciled", "3 of 3 Sites"),
         ("om", "$0.00", "No effect", "Estimated, not yet reconciled", "3 of 3 Sites"),
         ("staff", "$0.00", "No effect", "Emulated, not yet reconciled", "3 of 3 Sites")]
+    # Rev 4 (D-5C.27): each step's bar on the gap's scale, served as track percentages (97 / 852 = 11.3850 %).
+    assert list(b) == ["title", "totals", "scale", "groups", "by_site"]
+    assert list(step(v, "revenue")) == ["key", "label", "value", "share", "word", "sites", "bar", "drawer"]
+    assert b["scale"] == A_SCALE
+    assert {s["key"]: s["bar"] for g in b["groups"] for s in g["steps"]} == A_BARS
     rev = step(v, "revenue")["drawer"]
     assert rev["lines"] == ["Actual $9,688.00 · Target $9,785.00 · Difference −$97.00",
                             "Effect on contribution −$97.00", "3 of 3 Sites"]
@@ -267,6 +273,12 @@ def test_3_world_a_key_by_key_and_whole() -> None:
     assert all(set(s) == {"site", "value", "text"} for g in b["groups"] for st in g["steps"]
                for s in st["drawer"]["sites"])
     assert v == json.loads(FIXTURE.read_text(encoding="utf-8"))
+
+
+#: Rev 4 (D-5C.27): World A's step bars and scale (spec section 3.5); O&M and staff have effect 0, so no bar.
+A_BARS = {"revenue": {"left": "0.00", "width": "11.38", "tone": "lowers"},
+          "fuel_cost": {"left": "11.38", "width": "88.62", "tone": "lowers"}, "om": None, "staff": None}
+A_SCALE = {"target_at": "0.00", "actual_at": "100.00"}
 
 
 # --- test 3 (class form, D-5C.20): the headline's evidence is the payload's own word for each figure it states ----
@@ -431,6 +443,10 @@ def test_4_h_kobo_litres() -> None:
     assert rows[SETUP] == (THREE_FUEL, "Kisiwa and Mto")
     same = ("headline", "status_line", "notices", "cash", "actions", "decisions", "standing")
     assert {k: v[k] for k in same} == {k: a[k] for k in same}
+    # Rev 4 (D-5C.27): H's bars and scale equal A's (the same step effects); `world_h` is this world.
+    assert v["bridge"]["scale"] == A_SCALE
+    assert {s["key"]: s["bar"] for g in v["bridge"]["groups"] for s in g["steps"]} == A_BARS
+    assert world_h() == v
 
 
 # --- test 4 i: nothing compared (review H1; owner rule "missing is Not available yet, never 0") -----------------
@@ -447,25 +463,61 @@ def _paths(obj, path=""):
             yield from _paths(x, f"{path}[{i}]")
 
 
+def _patch(monkeypatch, change) -> None:
+    """Every Site bridge passed through `change` (a 4 i currency world)."""
+    real = V.site_bridge
+    monkeypatch.setattr(V, "site_bridge", lambda inputs, targets: change(real(inputs, targets)))
+
+
+def _mto_in_kes(sb):  # 4 i nothing compared: Mto in KES, Kobo and Kisiwa in USD
+    return replace(sb, roots={k: in_kes(r) for k, r in sb.roots.items()}) if sb.site_code == "MTO-001" else sb
+
+
+def _subset(sb):  # 4 i one-currency subset: Kobo and Kisiwa in KES, Mto USD with its fuel cost and cash missing
+    if sb.site_code == "MTO-001":
+        roots = dict(sb.roots)
+        roots[T.ROOT] = gone(roots[T.ROOT], "fuel_cost")
+        roots[T.CASH] = replace(roots[T.CASH], gap=None, effect=None, evidence="NOT_AVAILABLE", origins=(),
+                                split="NOT_SPLIT", reason="GAP_NOT_AVAILABLE", rows=())
+        return replace(sb, roots=roots)
+    return replace(sb, roots={k: in_kes(r) for k, r in sb.roots.items()})
+
+
+def _all_kes(sb):  # 4 i all KES
+    return replace(sb, roots={k: in_kes(r) for k, r in sb.roots.items()})
+
+
+def _two_currencies(sb):  # 4 i a heading over two currencies: fuel cost KES (Kobo, Kisiwa), O&M USD (Mto)
+    root = sb.roots[T.ROOT]
+    if sb.site_code == "MTO-001":
+        return replace(sb, roots={**sb.roots, T.ROOT: gone(root, "fuel_cost")})
+    return replace(sb, roots={**{k: in_kes(r) for k, r in sb.roots.items()}, T.ROOT: in_kes(gone(root, "om"))})
+
+
+def _sides_differ(sb):  # 4 i a Site's own sides differ: Mto's actual in KES, its target in USD
+    if sb.site_code != "MTO-001":
+        return sb
+    values = {f: (replace(x, currency="KES") if x.currency is not None else x) for f, x in sb.actual.values.items()}
+    roots = {k: bridge(MG, values, sb.targets.structure.values, k) for k in sb.roots}
+    return replace(sb, roots=roots, actual=replace(sb.actual, values=values))
+
+
+#: The 4 i currency worlds: (change, world, standing).
+CURRENCY_WORLDS = {"nothing": (_mto_in_kes, "A", "NOT_MATCHED"), "subset": (_subset, "H", "RECONCILED"),
+                   "all_kes": (_all_kes, "A", "RECONCILED"), "two": (_two_currencies, "A", "RECONCILED"),
+                   "sides": (_sides_differ, "A", "RECONCILED")}
+
+
 def test_4_i_nothing_compared(monkeypatch) -> None:  # review H1
     """Mto keeps its records in KES (both sides), Kobo and Kisiwa in USD: no portfolio row sums, so R has no effect
     (the designed `headline_na` state). A missing figure is never printed as 0; a line with no figure is left out."""
-    real = V.site_bridge
-
-    def in_kes(row):
-        return replace(row, currency="KES" if row.currency is not None else None,
-                       rows=tuple(in_kes(c) for c in row.rows))
-
-    def site_bridge(inputs, targets):
-        sb = real(inputs, targets)
-        return replace(sb, roots={k: in_kes(r) for k, r in sb.roots.items()}) if sb.site_code == "MTO-001" else sb
-    monkeypatch.setattr(V, "site_bridge", site_bridge)
+    _patch(monkeypatch, _mto_in_kes)
     v = view()
     # Review L7: the headline says why (R's Sites hold KES and USD).
     assert v["headline"] == {"text": "Contribution for October is not available yet: the Sites' figures are in different currencies.",
                              "evidence": []}
     gap = v["tiles"][1]
-    assert (gap["value"], gap["word"], gap["lines"]) == ("Not available yet", "Not available yet", [])
+    assert (gap["value"], gap["word"], gap["lines"]) == ("Not available yet", None, [])  # D-5C.26
     b = v["bridge"]
     assert b["title"] is None
     assert [(g["label"], g["value"]) for g in b["groups"]] == [("Grow revenue", "Not available yet"),
@@ -475,7 +527,7 @@ def test_4_i_nothing_compared(monkeypatch) -> None:  # review H1
             assert s["value"] == "Not available yet"
             assert s["drawer"]["lines"] == ["3 of 3 Sites"], s["key"]
     grow, opt = v["outcomes"][:2]
-    assert (grow["value"], grow["word"]) == (opt["value"], opt["word"]) == ("Not available yet", "Not available yet")
+    assert (grow["value"], grow["word"]) == (opt["value"], opt["word"]) == ("Not available yet", None)  # D-5C.26
     assert b["by_site"]["total"][3:] == ["Not available yet"] * 5
     # The only zeros left are Sites' own figures (each Site's own row compares in its own currency).
     own = (".bridge.by_site.rows[", ".cash.table.rows[")
@@ -541,36 +593,13 @@ def _owned(obj, path="", mto=False):
             yield from _owned(x, f"{path}[{i}]", mine)
 
 
-def _in_kes(row):
-    return replace(row, currency="KES" if row.currency is not None else None, rows=tuple(_in_kes(c) for c in row.rows))
-
-
-def _gone(row, factor_id: str):
-    """`row` with `factor_id`'s own row not compared (its records missing): no effect, no split."""
-    if row.factor_id == factor_id and row.kind != "RESIDUAL":
-        return replace(row, gap=None, effect=None, evidence="NOT_AVAILABLE", origins=(), split="NOT_SPLIT",
-                       reason="GAP_NOT_AVAILABLE", rows=())
-    return replace(row, rows=tuple(_gone(c, factor_id) for c in row.rows))
-
-
 def test_4_i_currency_one_currency_subset(monkeypatch) -> None:  # review H3, probe cur1
     """Kobo and Kisiwa keep KES, Mto USD, and Mto's fuel cost (and its cash) is not available: R sums nothing (two
     currencies), but the fuel cost step, its drivers, the Optimize heading and card, the by-Site total's fuel cell and
     the cash figures sum Kobo and Kisiwa only (2 of 3 Sites), in KES. No KES figure is printed with "$", and no figure
     of Mto's with KES. (Notices and the organisation's budget lines print in their own budget currency, USD, which
     this world does not change.)"""
-    real = V.site_bridge
-
-    def site_bridge(inputs, targets):
-        sb = real(inputs, targets)
-        if sb.site_code == "MTO-001":
-            roots = dict(sb.roots)
-            roots[T.ROOT] = _gone(roots[T.ROOT], "fuel_cost")
-            roots[T.CASH] = replace(roots[T.CASH], gap=None, effect=None, evidence="NOT_AVAILABLE", origins=(),
-                                    split="NOT_SPLIT", reason="GAP_NOT_AVAILABLE", rows=())
-            return replace(sb, roots=roots)
-        return replace(sb, roots={k: _in_kes(r) for k, r in sb.roots.items()})
-    monkeypatch.setattr(V, "site_bridge", site_bridge)
+    _patch(monkeypatch, _subset)
     v = view("H", standing=RECONCILED)  # H: Kobo's fuel cost splits into litres and price (drivers)
     assert v["headline"]["text"] == "Contribution for October is not available yet: the Sites' figures are in different currencies."
     b = v["bridge"]
@@ -605,12 +634,7 @@ def test_4_i_currency_one_currency_subset(monkeypatch) -> None:  # review H3, pr
 def test_4_i_currency_all_kes_no_dollar(monkeypatch) -> None:  # review M4: R and every Site in KES, plants RP5, RP6
     """R and every Site are in KES: every portfolio figure prints in KES and no "$" appears anywhere except in the
     notices and the organisation's budget lines (each in its own budget's currency, USD in this world)."""
-    real = V.site_bridge
-
-    def site_bridge(inputs, targets):
-        sb = real(inputs, targets)
-        return replace(sb, roots={k: _in_kes(r) for k, r in sb.roots.items()})
-    monkeypatch.setattr(V, "site_bridge", site_bridge)
+    _patch(monkeypatch, _all_kes)
     v = view(standing=RECONCILED)
     dollars = [(p, x) for p, x in _paths(v) if "$" in x and not p.startswith(".notices") and ".lines_org[" not in p]
     assert dollars == [], dollars
@@ -621,36 +645,20 @@ def test_4_i_currency_all_kes_no_dollar(monkeypatch) -> None:  # review M4: R an
     assert [p for p, x in _paths(v) if "KES" in x]
 
 
-def test_4_i_currency_card_word_beside_no_figure(monkeypatch) -> None:  # review L9, probe P6
-    """A card whose heading has no single currency reads "Not available yet" for its figure and for its word."""
-    real = V.site_bridge
-
-    def site_bridge(inputs, targets):
-        sb = real(inputs, targets)
-        if sb.site_code == "MTO-001":  # fuel cost is KES (Kobo, Kisiwa), O&M and staff are USD (Mto)
-            return replace(sb, roots={**sb.roots, T.ROOT: _gone(sb.roots[T.ROOT], "fuel_cost")})
-        return replace(sb, roots={**{k: _in_kes(r) for k, r in sb.roots.items()},
-                                  T.ROOT: _in_kes(_gone(_gone(sb.roots[T.ROOT], "om"), "staff"))})
-    monkeypatch.setattr(V, "site_bridge", site_bridge)
-    v = view(standing=RECONCILED)
+def test_4_i_currency_card_word_beside_no_figure() -> None:  # review L9, probe P6; rev 4 D-5C.26 (plant L9)
+    """World X: the Optimize heading would add KES fuel cost (Kobo) to USD O&M and staff (Kisiwa), so its card has no
+    figure and, with no figure, no word (D-5C.26 revises L9: never "Not available yet" as the word)."""
+    v = world_x()
     card = next(c for c in v["outcomes"] if c["label"] == "Optimize cost and efficiency")
     assert step(v, "fuel_cost")["value"] != "Not available yet"  # a step still has a figure
-    assert (card["value"], card["word"]) == ("Not available yet", "Not available yet"), card
+    assert (card["value"], card["word"]) == ("Not available yet", None), card
 
 
 def test_4_i_currency_a_heading_over_two_currencies(monkeypatch) -> None:  # review H3, plant C3
     """Fuel cost sums Kobo and Kisiwa in KES (Mto's is missing) and O&M sums Mto alone in USD (Kobo's and Kisiwa's
     are missing): each step prints in its own currency, and the Optimize heading, which would add KES to USD, has no
     figure ("Not available yet"), nor has its card."""
-    real = V.site_bridge
-
-    def site_bridge(inputs, targets):
-        sb = real(inputs, targets)
-        root = sb.roots[T.ROOT]
-        if sb.site_code == "MTO-001":
-            return replace(sb, roots={**sb.roots, T.ROOT: _gone(root, "fuel_cost")})
-        return replace(sb, roots={**{k: _in_kes(r) for k, r in sb.roots.items()}, T.ROOT: _in_kes(_gone(root, "om"))})
-    monkeypatch.setattr(V, "site_bridge", site_bridge)
+    _patch(monkeypatch, _two_currencies)
     v = view(standing=RECONCILED)
     fuel, om = step(v, "fuel_cost"), step(v, "om")
     assert "KES" in fuel["value"] and "$" not in fuel["value"], fuel["value"]
@@ -664,16 +672,7 @@ def test_4_i_currency_a_heading_over_two_currencies(monkeypatch) -> None:  # rev
 def test_4_i_currency_a_sites_own_sides_differ(monkeypatch) -> None:  # review H3, M3, probe cur2 (5b case (h))
     """Mto's actual is in KES and its target in USD: Mto prints each side in its own currency (never the portfolio's),
     and is out of every portfolio figure with the currency reason, not "not a mini-grid Site"."""
-    real = V.site_bridge
-
-    def site_bridge(inputs, targets):
-        sb = real(inputs, targets)
-        if sb.site_code != "MTO-001":
-            return sb
-        values = {f: (replace(x, currency="KES") if x.currency is not None else x) for f, x in sb.actual.values.items()}
-        roots = {k: bridge(MG, values, sb.targets.structure.values, k) for k in sb.roots}
-        return replace(sb, roots=roots, actual=replace(sb.actual, values=values))
-    monkeypatch.setattr(V, "site_bridge", site_bridge)
+    _patch(monkeypatch, _sides_differ)
     v = view(standing=RECONCILED)
     b = v["bridge"]
     assert b["totals"]["actual"].startswith("$") and v["tiles"][0]["value"].startswith("$")  # R: Kobo and Kisiwa
@@ -700,6 +699,60 @@ def test_4_h_driver_detail_in_its_rows_currency() -> None:  # review H3, plant C
     for key in ("om", "diesel_price"):
         said = v.driver_detail(key, kes)
         assert "KES" in said and "$" not in said, (key, said)
+
+
+def _kwh_world(monkeypatch) -> None:
+    """World A with the emulated budget's kWh shape (3A3 `budget-illustrative-1.csv` states kWh lines): revenue splits
+    into energy delivered (kWh, with an actual and a target) and tariff (a price per kWh)."""
+    real = V.portfolio_bridge
+
+    def portfolio_bridge(*args, **kwargs):
+        pb = real(*args, **kwargs)
+        rows = dict(pb.rows[T.ROOT])
+        rev = rows[T.REVENUE]
+        rows["delivered_kwh"] = replace(rev, key="delivered_kwh", kind="VOLUME", actual=D("8550"), target=D("9000"),
+                                        gap=D("-450"), effect=D("-112.50"))
+        # D-5C.24: a price does not sum across Sites, so the portfolio's tariff row has no actual or target.
+        rows["tariff"] = replace(rev, key="tariff", kind="PRICE", actual=None, target=None, gap=None,
+                                 effect=D("15.50"))
+        return replace(pb, rows={**pb.rows, T.ROOT: rows})
+    monkeypatch.setattr(V, "portfolio_bridge", portfolio_bridge)
+
+
+def test_4_h_driver_detail_kwh(monkeypatch) -> None:  # PF1 (DDR): VOCABULARY_UNKNOWN on a kWh driver; plant PF1
+    """A kWh quantity and a price per kWh render their detail with the SC-1 unit word "kWh" (the registry's dimension
+    name is "KWH"); the payload renders."""
+    _kwh_world(monkeypatch)
+    v = view()
+    drivers = {d["key"]: d for d in step(v, "revenue")["drawer"]["drivers"]}
+    assert drivers["delivered_kwh"]["detail"] == "Actual 8,550 kWh · Target 9,000 kWh"
+    assert drivers["tariff"]["detail"] is None
+    assert (drivers["delivered_kwh"]["value"], drivers["tariff"]["value"]) == ("−$112.50", "+$15.50")
+    # The price form of the same unit (a Site's own tariff row has both sides).
+    w = V._View.__new__(V._View)
+    w.reg = MG
+    said = w.driver_detail("tariff", SimpleNamespace(actual=D("0.27"), target=D("0.25"), currency="USD"))
+    assert said == "Actual $0.27 per kWh · Target $0.25 per kWh", said
+
+
+def test_1_driver_units_have_words() -> None:  # PF1: every driver a MINI_GRID step can show has a unit word
+    from assetops_backend.i18n.statements.en.vocabulary import VOCABULARY
+    from assetops_backend.structure.attribution.rules import BRIDGE_ROOTS
+    v = V._View.__new__(V._View)
+    v.reg = MG
+    reachable = set().union(*(_reachable(r) for r in BRIDGE_ROOTS["MINI_GRID"]))
+    seen = set()
+    for f in sorted(reachable):
+        unit = MG.row(f).unit
+        others = [n for n, _ in unit.exponents if n != "MONEY"]
+        if unit.is_money:
+            continue
+        # review L2: driver_detail reads UNIT_WORDS[others[0]], so a unit with two non-money dimensions must fail here
+        assert len(others) == 1, (f, others)
+        seen.add(others[0])
+        assert T.UNIT_WORDS[others[0]] in VOCABULARY["unit"]["entries"], f
+        assert v.driver_detail(f, SimpleNamespace(actual=D("2"), target=D("1"), currency="USD"))
+    assert {"KWH", "L"} <= seen
 
 
 def test_4_h_residual_is_last_of_its_parent() -> None:  # review L8, D-5C.21, plant RP4
@@ -876,3 +929,137 @@ def test_every_deep_dive_variant_has_a_case() -> None:
     want = {(k, v["id"]) for k, s in STATEMENTS.items() if not s.get("part_only") and k not in parts
             for v in s["variants"]}
     assert want - have == set()
+
+
+# --- rev 4: bars (D-5C.27), no share without a gap (D-5C.28), no word beside no figure (D-5C.26) ---------------
+
+def _bar(left: str, width: str, tone: str) -> dict:
+    return {"left": left, "width": width, "tone": tone}
+
+
+BARS = [  # (effects, gap, bars, scale): spec section 3.5 "Bars"
+    ("V1", ("50.00", "-150.00"), "-100.00", [_bar("0.00", "33.33", "raises"), _bar("0.00", "100.00", "lowers")],
+     {"target_at": "33.33", "actual_at": "100.00"}),
+    ("V2", ("-1.00", "-999.00"), "-1000.00", [_bar("0.00", "0.80", "lowers"), _bar("0.10", "99.90", "lowers")],
+     {"target_at": "0.00", "actual_at": "100.00"}),
+    ("V3", (None, "-852.00"), "-852.00", [None, _bar("0.00", "100.00", "lowers")],
+     {"target_at": "0.00", "actual_at": "100.00"}),
+    ("V4", ("-97.00", "-755.00"), None, [None, None], None),
+    ("V5", ("5.00", "-5.00"), "0.00", [None, None], None),
+    ("V6", ("-150.00", "50.00"), "-100.00", [_bar("0.00", "100.00", "lowers"), _bar("66.67", "33.33", "raises")],
+     {"target_at": "0.00", "actual_at": "66.67"}),
+]
+
+
+@pytest.mark.parametrize(("name", "effects", "gap", "bars", "scale"), BARS, ids=[b[0] for b in BARS])
+def test_bars_vectors(name, effects, gap, bars, scale) -> None:  # D-5C.27; plant: a bar from the rounded share
+    got = V.bridge_bars([D(e) if e is not None else None for e in effects], D(gap) if gap is not None else None)
+    assert got == (bars, scale)
+
+
+def test_bars_world_x_no_share_no_bar_no_word() -> None:  # D-5C.26 to D-5C.28; plant `or Decimal(0)`
+    v = world_x()
+    b = v["bridge"]
+    steps = [s for g in b["groups"] for s in g["steps"]]
+    assert [s["share"] for s in steps] == [None] * len(steps)  # D-5C.28: R has no effect
+    assert not [x for x in strings(v) if "Offsets it" in x]
+    assert [s["bar"] for s in steps] == [None] * len(steps) and b["scale"] is None  # D-5C.27
+    assert any(s["share"] is None and s["value"] != "Not available yet" for s in steps)  # a step with a figure
+    tiles = {t["key"]: t for t in v["tiles"]}
+    revenue = step(v, "revenue")
+    optimize = next(c for c in v["outcomes"] if c["key"] == "optimize")
+    for slot in (tiles["contribution"], tiles["gap"], revenue, optimize):  # D-5C.26
+        assert (slot["value"], slot["word"]) == ("Not available yet", None), slot
+    assert not [w for w in _words(v) if w == "Not available yet"]
+
+
+def test_bars_gap_zero_no_share() -> None:  # D-5C.28; plant `or Decimal(0)`
+    """R's effect 0 with steps +5.00 and -5.00: nothing widens a gap of 0, so neither step has a share (and, V5, no
+    bar). A gap of None is the same (World X)."""
+    v = V._View.__new__(V._View)
+    v.steps = ("revenue", "fuel_cost")
+    row = lambda e: SimpleNamespace(effect=D(e), evidence="RECORDED", origins=("observed-financial",))  # noqa: E731
+    v.rows = {"revenue": row("5.00"), "fuel_cost": row("-5.00")}
+    for gap in (D("0.00"), None):
+        v.R = SimpleNamespace(effect=gap)
+        assert v.shares() == {}, gap
+    v.R = SimpleNamespace(effect=D("-5.00"))  # the same steps against a gap: fuel cost widens it, revenue offsets it
+    assert set(v.shares()) == {"revenue", "fuel_cost"}
+
+
+def test_bars_gap_zero_whole_payload(monkeypatch) -> None:  # KD2 ruling (coordinator, 2026-11-21); plant: rest at 0
+    """R's gap exactly 0 (steps +5.00 and -5.00, O&M and staff 0): the payload renders; the gap tile has no rest line
+    (nothing to offset); no step reads "Offsets it"; no share, no bar, no scale."""
+    _lead_world(monkeypatch, "0.00", "5.00", "-5.00")
+    v = view()
+    gap = v["tiles"][1]
+    assert gap["value"] == "$0.00" and gap["word"] is not None  # D-5C.26: a figure, so a word
+    assert not [x for x in gap["lines"] if "not split to its drivers" in x or "offsetting" in x], gap["lines"]
+    assert gap["lines"] == ["Grow +$5.00 · Optimize −$5.00"], gap["lines"]
+    steps = [s for g in v["bridge"]["groups"] for s in g["steps"]]
+    assert [s["value"] for s in steps] == ["+$5.00", "−$5.00", "$0.00", "$0.00"]
+    assert [s["share"] for s in steps] == [None] * 4
+    assert not [x for x in strings(v) if "Offsets it" in x]
+    assert [s["bar"] for s in steps] == [None] * 4 and v["bridge"]["scale"] is None
+
+
+def _words(obj):
+    """Every served word: each `word` key's value, and the headline's evidence."""
+    if isinstance(obj, dict):
+        for k, x in obj.items():
+            if k == "word":
+                yield x
+            elif k == "evidence" and isinstance(x, list):
+                yield from x
+            else:
+                yield from _words(x)
+    elif isinstance(obj, list):
+        for x in obj:
+            yield from _words(x)
+
+
+def _drivers(nodes):
+    for n in nodes:
+        yield n
+        yield from _drivers(n["children"])
+
+
+def _slots(v: dict):
+    """Every figure slot (D-5C.26) as (path, figure absent, word)."""
+    na = "Not available yet"
+    for t in v["tiles"]:
+        yield f"tiles.{t['key']}", t["value"] == na, t["word"]
+    for g in v["bridge"]["groups"]:
+        for s in g["steps"]:
+            yield f"step.{s['key']}", s["value"] == na, s["word"]
+            for d in _drivers(s["drawer"]["drivers"] if s["drawer"] is not None else []):
+                yield f"driver.{s['key']}.{d['key']}", d["value"] == na, d["word"]
+    for c in v["outcomes"]:
+        if c["key"] != "assure":  # the Assure card is not a figure slot
+            yield f"outcome.{c['key']}", c["value"] == na, c["word"]
+    yield "cash", v["cash"]["table"]["total"][2] == na, v["cash"]["word"]  # the collected root's actual
+
+
+CLASS_WORLDS = ["A", "B", "D", "G", "H", "X", *CURRENCY_WORLDS]
+
+
+@pytest.mark.parametrize("name", CLASS_WORLDS)
+def test_16_word_null_iff_figure_absent(name, monkeypatch) -> None:  # D-5C.26; plant: L9's card word
+    if name == "X":
+        v = world_x()
+    elif name in CURRENCY_WORLDS:
+        change, base, standing = CURRENCY_WORLDS[name]
+        _patch(monkeypatch, change)
+        v = view(base, standing=globals()[standing])
+    else:
+        v = view("A" if name == "B" else name, standing=RECONCILED if name == "B" else NOT_MATCHED)
+    slots = list(_slots(v))
+    if name != "nothing":  # World "nothing" compares nothing: every slot is absent
+        assert any(not absent for _, absent, _ in slots)  # the set of slots with a figure is not empty
+    if name in ("X", "nothing", "two"):  # these worlds also hold a computed slot with no figure (not only the plan)
+        assert any(absent for p, absent, _ in slots if not p.startswith(("tiles.plan", "outcome.protect")))
+    wrong = [(path, absent, word) for path, absent, word in slots if absent != (word is None)]
+    assert wrong == [], wrong
+    words = list(_words(v))
+    assert words and "Not available yet" not in words
+    assert None not in v["headline"]["evidence"]

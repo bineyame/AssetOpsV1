@@ -753,3 +753,130 @@ READY FOR WALKTHROUGH.
 - M1 goes to unit 1's owner. It does not appear on the walkthrough tenant, but should be fixed before 5c merges.
 - L1 to L5 are recommended on the branch; none blocks.
 - Items 6 and 7 go to the Architect.
+
+## Backend fix r5 (verification, D-5C.26 to D-5C.28, KD1, KD2, PF1)
+
+Branch `fix/5c-backend-r5` at `1ec0a46fc`, diff against `4b13c0afe` (merge base). Fresh reviewer, verification depth
+(W5) on spec rev 4 §11 "Backend fix", rulings D-5C.26 to D-5C.28 and `packet-backend-fix-r5.md` (KD1, KD2, PF1).
+
+**Summary (verdict: ACCEPT).**
+- D-5C.26: every figure slot's word (tiles 0 and 1, steps, drivers, Grow and Optimize cards, cash, headline evidence)
+  goes through `_View.figure_word` (`view.py:143-148`); L9's line is gone, `NO_CURRENCY` is deleted, and no other
+  `W.word` caller remains. Class test 16 holds in all 11 worlds.
+- D-5C.27: `bridge_bars` (`view.py:56-90`) follows §3.2. I recomputed A and V1 to V6 by hand and all match.
+- D-5C.28: `shares()` returns `{}` at a gap of None or 0 (`view.py:323-327`); World X and the gap-0 payload carry
+  no share and no "Offsets it".
+- KD1 is honest in A and in the five currency worlds. KD2: a gap of 0 renders with no rest line. PF1: the route's 500
+  on the emulated budget is gone. I confirmed this on a `*_test` database, with a control run that still shows the 500.
+- Two Low findings, neither blocking. Every check is green.
+
+### Hand recomputation (D-5C.27)
+
+- **World A** (−97, −755, gap −852): b1 = 97/852 × 100 = 11.38497…, b2 = 100, lo 0, hi 100. Revenue {0.00, 11.38,
+  lowers}; fuel cost L = 11.38497… → "11.38", W = min(88.61502…, 100 − 11.38497…) → "88.62", lowers. O&M and staff
+  have effect 0, so null. Scale {0.00, 100.00}. This matches `A_BARS`/`A_SCALE` and the hand-edited fixture.
+- **V1** (+50, −150; −100): spans 0→−50 and −50→100, so lo −50 and hi 100. The bars are {0.00, 33.33, raises} and
+  {0.00, 100.00, lowers}, and the scale is {33.33, 100.00}.
+- **V2**: the bars are {0.00, 0.80 (floor of 0.10)} and {0.10, 99.90}.
+- **V3**: [None, {0.00, 100.00}].
+- **V4** (gap None) and **V5** (gap 0): every bar and the scale are None.
+- **V6** (−150, +50; −100): spans 0→150 and 150→100, so hi is 150. The bars are {0.00, 100.00, lowers} and {66.67,
+  33.33, raises}. The second width is capped at 100 − 66.666…, and the scale is {0.00, 66.67}.
+
+All six match `test_bars_vectors`. The page does no arithmetic: the slice serves only strings, and no frontend file
+changes.
+
+### KD1 in the worlds (printed payloads, my probe)
+
+| World | Headline evidence | Optimize card |
+|---|---|---|
+| A | ["Estimated, not yet reconciled"]. The gap and the heading share one word, deduplicated as before. | −$755.00 "Estimated, not yet reconciled", unchanged |
+| X, nothing, two | [] | null figure, null word |
+| subset | [] | −KES 730.00 "Emulated". This is fuel cost's word, the only step its sum adds. Before KD1 it read "Not available yet". |
+| all_kes | ["Estimated"] | −KES 755.00 "Estimated" |
+| sides | ["Estimated"] | −$730.00 "Estimated" |
+
+The word always describes what the sum adds, so KD1 is honest. A step with effect 0 (O&M "Estimated") still counts
+toward the word, as it should, because 0 is a figure.
+
+### Plants
+
+The packet's P-a and P-b reproduce: P-a fails 3 tests and P-b fails 7. My own plants, applied to a scratch copy and
+not to the worktree:
+
+| Plant | Result |
+|---|---|
+| Pr2: KD1 reverted | fails `test_16[subset]` |
+| Pr3: the width cap from a rounded `left` | fails `test_bars_vectors[V6]` |
+| Pr4: `"L"` dropped from `UNIT_WORDS` | fails 10 tests, among them `test_1_driver_units_have_words` and `test_4_h_kobo_litres` |
+| Pr1: `bar_effect` ignores the row's currency | survives |
+| Pr5: the contribution tile's word built from `R.effect` instead of `R.actual` | survives |
+
+Pr1 and Pr5 survive, and I traced why neither is a gap.
+
+- **Pr1.** The ruling's "row's currency is not R's" clause cannot be reached through the real bridge. A Site whose
+  root has no effect returns no child rows (`bridge.py` `made(..., rows=())` on GAP_NOT_AVAILABLE and on
+  CURRENCY_MISMATCH). So every step's Sites are a subset of R's Sites, and they share R's currency.
+- **Pr5.** A portfolio row's actual is present only when its effect is, so the two words are the same.
+- **What a forced Pr1 world shows.** I forced the Pr1 case by blanking only a Site's root effect while keeping its
+  child rows, which the bridge never produces. In that world the headline raised `CONDITION_TYPE` ("more_than_gap"
+  over two currencies). The fault is in code that predates this slice and that world cannot occur, so I record it as
+  residual risk, not as a finding.
+
+### Findings
+
+**L1 (Low; preference/tidy). `view.py:9-13`: a second `from collections.abc import Sequence` line, out of order.**
+- It sits after `datetime`, beside the existing `from collections.abc import Mapping`.
+- It has no behaviour effect, and check-all passes.
+- Fix: merge it into one `from collections.abc import Mapping, Sequence`. This can wait for the screen fix's merge of
+  `main` or the next touch of the file.
+
+**L2 (Low; test). `test_5c_deep_dive_view.py:748`: `test_1_driver_units_have_words` skips any unit with other than
+one non-money dimension.**
+- `driver_detail` (`view.py:422`) indexes `T.UNIT_WORDS[others[0]]` for every non-money unit.
+- Today every reachable MINI_GRID unit has exactly one non-money dimension: KWH, L, MONEY/KWH or MONEY/L. I listed all
+  29 reachable factors.
+- If a two-dimension unit (say L/kWh) became reachable, the test would skip it silently, while the route could raise
+  `KeyError`, which is a 500.
+- Fix: assert `len(others) <= 1` for every reachable factor instead of `continue`, so a new shape fails the test.
+  This is not an acceptance gap.
+
+No acceptance gap. Each of §11 items 1 to 6 holds as the packet states:
+- the key orders `key, label, value, share, word, sites, bar, drawer` and `title, totals, scale, groups, by_site`
+  are asserted in test 3;
+- the schema id is unchanged;
+- the fixture was edited by hand;
+- `deep_dive_worlds.py` provides `world_h`, `world_x`, `in_kes` and `gone`;
+- `test_4_i_currency_card_word_beside_no_figure` runs on `world_x()` and asserts a null word.
+
+### Checks run (this reviewer, at `1ec0a46fc`)
+
+- Focused tests, from `backend/` through the slot: `test_5c_deep_dive_view.py`, `test_5c_deep_dive_api.py`,
+  `test_5b_attribution.py`, and the three non-Postgres `test_3a7_*` files. Result: `382 passed, 1 skipped, 1 warning
+  in 6.80s`.
+- Test 9, through `heavy-slot.sh --db --wait-seconds 3000` and `run-host-tests.ps1`, on
+  `backend/tests/test_5c_deep_dive_postgres.py`: `2 passed, 2 warnings in 9.44s`, exit 0.
+- Statement catalogue: `OK statement catalogue: load, coverage, legacy, scan (6 adopted), keys, imports`, exit 0.
+- Check-all, fast, through the slot: `All 42 guards passed (blocking; 0 advisory, 0 warned).` It took 146.0 s; the
+  estate and pool self-tests were skipped as unchanged.
+- The PF1 route check used a throwaway detached worktree of main `06a5b9e3e` (DDR's base) with this branch's
+  `backend/` diff and DDR's diff applied. Nothing was committed, and the worktree was removed afterwards.
+  - DDR's `test_3_the_emulated_budget_loaded_fails_g3` (`-k emulated_budget`) was given one extra assertion: S7 and
+    S10 exit 0.
+  - With the fix: `RV-EXITS {'S7': 0, 'S10': 0}`, `1 passed`.
+  - Control, with `deep_dive/{view,tables,words}.py` reverted to base: `RV-EXITS {'S7': 500, 'S10': 500}`, `1 failed`.
+  - So the original 500 on the emulated `budget.csv` through `/api/portfolio/month` is gone with this fix.
+
+### Not verified, and residual risk
+
+- **Layout evidence: not applicable.** No page changed in this slice. The screen fix carries the gates on A, X and H.
+- **The screen branch still uses the names this slice removes.** `task/5c-unit3-screen` still calls `self.word`, keeps
+  `NO_CURRENCY`, and uses `t._in_kes` and `t._gone` in `make_screen_worlds.py`. The screen fix's item 1 (merge `main`,
+  rewrite the generator on `deep_dive_worlds`) must drop all of them, or its merge fails on import.
+- **A latent crash in code that predates this slice.** The headline crashes if a heading's currency ever differs from
+  R's (`CONDITION_TYPE` above). The bridge cannot produce that today. If 5b's portfolio rule changes so that a Site
+  with no root effect still contributes step rows, this crash becomes a 500.
+
+### Disposition
+
+ACCEPT. L1 and L2 are optional and do not block. The merge can go ahead under the screen fix's own gates.

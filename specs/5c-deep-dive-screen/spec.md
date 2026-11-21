@@ -1,11 +1,13 @@
 # 5c: the month, explained (the one deep-dive screen; implementer spec)
 
-Status: in_review (units 1-3 built, 2026-11-21). rev 3, Architect (Claude), 2026-11-21 (rev 2 2026-11-20, re-scoped by D-BW1.9 and D-BW1.12; handshake round 1
+Status: in_review (units 1-3 built; screen fix built, 2026-11-21). rev 4, Architect (Claude), 2026-11-21 (rev 2 2026-11-20, re-scoped by D-BW1.9 and D-BW1.12; handshake round 1
 answered, `rulings.md` "Handshake answers"). **Rev 3** folds in review round 1 of units 1-2 (`rulings.md` D-5C.19 to
 D-5C.25): §2.4 after SC-1f (D-5C.19), the headline's evidence (D-5C.20), nested drivers (D-5C.21), caps on the screen
 (D-5C.22), "(at budget)" (D-5C.23), World H's price (D-5C.24) and two record words (D-5C.25). §3.5's literals below
 are rev 3's where these rulings touch them; D-4A.12/.20's record changes (PF2) also apply to every A literal that
-lists records. UI lane, after the IA-1 stop (RC6). **3.5 units.** `USER_REVIEW_REQUIRED: true` (the screen the
+lists records. **Rev 4** (same day) folds in unit 3's review round 1 (`rulings.md` D-5C.26 to D-5C.28): a figure slot
+with no figure has no word (D-5C.26, revises L9), the bridge's step bars served as positions (D-5C.27, closes MD11),
+no share without a gap (D-5C.28, M1); the two fix scopes are §11. UI lane, after the IA-1 stop (RC6). **3.5 units.** `USER_REVIEW_REQUIRED: true` (the screen the
 executive sees). Discovery review (W5): money figures on screen.
 - **Structure:** P5 (`specs/5a-targets/structure-page-P5.md`, approved 20 Nov) rules 2, 7 and 8; D-5B.10, D-5B.12,
   D-5B.15 (5c inherits them); D-3A7.9 (the standing at the snapshot's "as of"); 3B7a ruling 15 on
@@ -25,7 +27,7 @@ executive sees). Discovery review (W5): money figures on screen.
   `3A7` (`CommercialReconciliation.standing`, `money_word`, `build_commercial_reconciliation`; must be merged),
   `3B1` (`REGISTRIES`, `parsed`, `CATEGORIES`), the live frontend's Portfolio (`estate/EstatePortfolio.tsx`,
   `estate/portfolioWords.ts`, `sites/temporarilyUnavailable.ts`), `ON1` (served tenant; `site_registry`).
-- **Decisions:** `rulings.md` (D-5C.1 to D-5C.18). **Reviewer guide:** `reviewer-guide.md`.
+- **Decisions:** `rulings.md` (D-5C.1 to D-5C.28). **Reviewer guide:** `reviewer-guide.md`.
 
 ## 0. Before you start
 
@@ -245,11 +247,11 @@ together with the neutral terms they are all of them). A step's group is its row
 | `headline` | `{"text", "evidence"}` (SC-1 `served`; each evidence word through `money_word` with the standing,
 as the tiles' words, D-5C.20) §2.5 from the root row `R = pb.rows["contribution"]["contribution"]`; `grow` = the GROW_REVENUE steps' effects summed, `optimize` the OPTIMIZE_COST ones; the named heading per D-5C.15 |
 | `status_line` | §2.5 `status_line`: `as_of_text`, `standing_short`, `status_disagreement` (D-5C.14) |
-| `tiles` | four objects `{"key", "label", "value", "word", "lines", "bar"}`: `contribution` (R's actual; lines tile1_target, `sites(R.k, n)`, tile1_cost; bar `{"actual", "target"}` plain decimals), `gap` (R's effect signed; lines tile2_split, tile2_rest), `plan_spend`, `plan_value` (word null, bar null) |
+| `tiles` | four objects `{"key", "label", "value", "word", "lines", "bar"}`: `contribution` (R's actual; lines tile1_target, `sites(R.k, n)`, tile1_cost; bar `{"actual", "target"}` plain decimals), `gap` (R's effect signed; lines tile2_split, tile2_rest), `plan_spend`, `plan_value` (word null, bar null). Rev 4 (D-5C.26): every figure slot's `word` is `figure_word(value, currency, ev, origins)`, null exactly when the figure (value or currency) is absent |
 | `notices` | one `disagreement` sentence per `pb.disagreements` entry, `asked` order |
-| `bridge` | `{"title", "totals", "groups", "by_site"}` (§3.2) |
+| `bridge` | `{"title", "totals", "scale", "groups", "by_site"}` (§3.2; `scale` rev 4, D-5C.27) |
 | `cash` | `{"title": "Cash collected, outside the contribution gap", "text", "word", "sites", "table"}` (§3.3) |
-| `outcomes` | the four cards, `HEADINGS` order, each `{"key", "label", "value", "word", "line", "drawer"}` (§2.5): grow and optimize value the group's sum signed and word the weakest of its steps' words; protect and assure word null; `drawer` null except assure: `{"title", "lines"}` with `lines` `[standing.text]` plus `fresh.untracked_text` when not null |
+| `outcomes` | the four cards, `HEADINGS` order, each `{"key", "label", "value", "word", "line", "drawer"}` (§2.5): grow and optimize value the group's sum signed and word the weakest of its steps' words, null when the sum or `group_cur` is None (rev 4, D-5C.26: revises L9's "Not available yet"); protect and assure word null; `drawer` null except assure: `{"title", "lines"}` with `lines` `[standing.text]` plus `fresh.untracked_text` when not null |
 | `decisions` | `{"title": "Decisions", "text": decisions}` |
 | `actions` | `{"title": "Actions in hand", "connected", "text", "rows", "more"}`: not connected `actions_off`, rows [], more 0; connected and none `actions_none`; else text null, one row `{"title", "owner", "agreed", "state"}` per Action in the port's order (newest first), at most 3, `more` the rest (0 when none) |
 | `not_available` | `{"rows": [{"needs", "fills", "sites"}], "not_built": not_built}` (§3.4) |
@@ -263,10 +265,21 @@ the gap (§2.5, D-5C.15).
 ### 3.2 The bridge
 
 - `totals`: `{"actual_label": "Contribution, {month_name}", "actual", "target_label": "Target", "target"}` from R.
+- `scale` (rev 4, D-5C.27): `{"target_at", "actual_at"}` from `bridge_bars`, null when R's effect is None or 0.
 - `groups`: per home present among the steps, `CATEGORIES` order: `{"key", "label": HEADINGS[key], "value": Σ step
   effects signed, "steps": [...]}`. A step: `{"key", "label", "value" (effect signed, or "Not available yet" when
-  the row is absent or its effect None), "share", "word", "sites", "drawer"}`; `share` against the steps whose effect
-  has the gap's sign (`round(|e| / Σ|those| × 100)` half even); `word` §2.4 (money).
+  the row is absent or its effect None), "share", "word", "sites", "bar", "drawer"}`; `share` against the steps whose effect
+  has the gap's sign (`round(|e| / Σ|those| × 100)` half even), and null for every step when R's effect is None or 0
+  (rev 4, D-5C.28); `word` §2.4 (money), null when the value is "Not available yet" (D-5C.26).
+- **Bars (rev 4, D-5C.27).** `bridge_bars(effects: Sequence[Decimal | None], gap: Decimal | None) -> tuple[list[dict
+  | None], dict | None]`, module-level and pure in `view.py`, called with the steps in JSON order (groups in
+  `CATEGORIES` order, steps in group order), each step's effect, or None when its row is absent, its effect is None or
+  its row's currency is not R's. Exact Decimal (`prec=34`): when `gap` is None or 0, every bar and the scale are None.
+  Else `p = 0`; for each step with effect `e` not None and not 0: `a = p`, `b = p + e / gap × 100`, `p = b` (a None or
+  0 step gets None and leaves `p`). `lo = min(0, every a and b)`, `hi = max(100, every a and b)`, `S(x) = (x − lo) /
+  (hi − lo) × 100`. A bar: `L = S(min(a, b))`, `W = max(0.8, min(|S(b) − S(a)|, 100 − L))`, `{"left": L, "width": W,
+  "tone": "lowers" if e < 0 else "raises"}`. Scale: `{"target_at": S(0), "actual_at": S(100)}`. Every number is
+  rounded half even to 0.01 and served as a plain string with two places ("0.00", "11.38", "100.00").
 - `drawer`: `{"title", "lines", "sites", "carried", "out", "lines_org", "drivers"}`: `lines` drawer_values (when it
   applies), drawer_effect, `sites(k, n)`; `sites` one entry per included Site in `asked` order (every Site; the screen caps, D-5C.22): `{"site", "value": that Site's row effect signed, "text": the stop sentence of that row or of its
   lowest descendants that stop (each once, in tree order, joined by a space), null when none}`; `carried` §2.5 per
@@ -289,7 +302,8 @@ the gap (§2.5, D-5C.15).
 ### 3.3 Cash
 
 From `pb.rows["collected"]`: `collected` root (actual, target as `expected`), `in_transit` and `outstanding` rows'
-actuals, `revenue`'s actual. `word` §2.4 of the root (money); `sites` of the root. `table`: columns `["Site",
+actuals, `revenue`'s actual. `word` §2.4 of the root (money), null when the root's actual or currency is None (rev 4,
+D-5C.26); `sites` of the root. `table`: columns `["Site",
 "Billed", "Collected", "In transit", "Outstanding"]`, rows per asked Site from `sb[c].roots["collected"]` (unsigned
 money; "Not available yet" for an absent value), total from the portfolio rows.
 
@@ -351,6 +365,9 @@ against recorded 9,688.00 and 4,995.00); `actions` `AgreedActions(False, ())`.
   Sites"]; sites Kobo "$0.00", Kisiwa "$0.00 (at budget)", Mto "$0.00" (D-5C.23); carried ["Kisiwa: no service contractor invoice received; taken at its budget line for the month
   (estimate)."]. staff drawer lines ["Actual $1,450.00 · Target $1,450.00 · Difference $0.00", …]; lines_org ["The
   organisation's budget also states $1,200.00 for staff that no Site carries; it is listed, not added."].
+- Rev 4 (D-5C.27): `bridge.scale` {"target_at": "0.00", "actual_at": "100.00"}; step `bar`s: revenue {"left":
+  "0.00", "width": "11.38", "tone": "lowers"} (97 / 852 = 11.3850 %), fuel_cost {"left": "11.38", "width": "88.62",
+  "tone": "lowers"} (11.3850 % to 100 %), om null, staff null (effect 0). D-5C.28 changes no A share.
 - by_site rows: Kobo "$883.00", "$1,445.00", "−$562.00", "+$38.00", "−$600.00", "$0.00", "$0.00"; Kisiwa "−$250.00",
   "−$65.00", "−$185.00", "−$55.00", "−$130.00", "$0.00 (at budget)", "$0.00"; Mto "$810.00", "$915.00", "−$105.00",
   "−$80.00", "−$25.00", "$0.00", "$0.00"; total "3 of 3 Sites", "$1,443.00", "$2,295.00", "−$852.00", "−$97.00",
@@ -430,6 +447,16 @@ key equals A's except:
 **F.** Month 2026-09: NO_SNAPSHOT, `state_text` "The figures for September 2026 have not been prepared yet.", `nav`
 {"previous": "2026-08", "next": "2026-10"}. A row with `format` 0 written to the store: REBUILD_NEEDED, "The figures
 for October 2026 must be prepared again before they can be shown."
+**Bars** (rev 4, D-5C.27; `bridge_bars` direct, effects in order, gap last): V1 (+50.00, −150.00; −100.00): [{"0.00",
+"33.33", raises}, {"0.00", "100.00", lowers}], scale {"33.33", "100.00"}. V2 (−1.00, −999.00; −1000.00): [{"0.00",
+"0.80", lowers}, {"0.10", "99.90", lowers}], scale {"0.00", "100.00"}. V3 (None, −852.00; −852.00): [None, {"0.00",
+"100.00", lowers}], scale {"0.00", "100.00"}. V4 (−97.00, −755.00; None): [None, None], scale None. V5 (+5.00, −5.00; 0.00): [None, None], scale
+None. V6 (−150.00, +50.00; −100.00): [{"0.00", "100.00", lowers}, {"66.67", "33.33", raises}], scale {"0.00",
+"66.67"}. H's bars and scale equal A's.
+**World X** (the generated currency-mismatch world, `deep_dive_worlds.world_x()`, rev 4): every step `share` null and
+no "Offsets it" (D-5C.28); every `bar` and `bridge.scale` null (R's effect None); the contribution and gap tiles, the
+revenue step and the Optimize card serve `word` null beside "Not available yet" (D-5C.26); no served `word` reads
+"Not available yet".
 **Lead vectors** (view-level, October, USD; D-5C.15): L1 gap −100.00, Grow +200.00, Optimize −300.00: "Contribution is
 $100.00 below target in October; cost and efficiency explain $300.00, more than the whole gap." and title "Cost and
 efficiency explain $300.00, more than the whole $100.00 gap. Open a step for what is behind it."; L2 −100.00, −120.00,
@@ -515,8 +542,9 @@ assetops_backend.record_action --tenant SLUG --as EMAIL --title TEXT --owner EMA
   </div>
   <div data-level="L3">
     <section "Where the gap comes from">: title; notices (role="note", visible, never in a drawer); totals with the
-        bar; groups as an <ol> (group row: label and value; step rows: button opening the step drawer: label, value,
-        share, word, sites); <details> "Show as table, by Site"; the step drawers </section>
+        bar; the scale row (rev 4: two marks, omitted when `scale` is null); groups as an <ol> (group row: label and
+        value; step rows: button opening the step drawer: label, value, share, word, sites, and the step track with
+        its bar, D-5C.27); <details> "Show as table, by Site"; the step drawers </section>
     <section "Cash collected, outside the contribution gap">: text, word, sites, <details> "Show by Site" table </section>
     <section "By outcome">: four cards (the Assure card's value is a button opening its drawer); h3 "What is not
         available yet": rows (needs, fills, sites), 8 then "Show all {n}"; not_built line; the Assure drawer </section>
@@ -535,8 +563,25 @@ assetops_backend.record_action --tenant SLUG --as EMAIL --title TEXT --owner EMA
 
 ### 5.3 Rules
 
-- The page renders the JSON's strings and never formats, adds or compares a figure (D-5C.2). The bar's widths are
-  the only arithmetic (`actual / max(|actual|, |target|)`).
+- The page renders the JSON's strings and never formats, adds or compares a figure (D-5C.2). The tile bar's widths
+  are the only arithmetic (`actual / max(|actual|, |target|)`).
+- **Step bars (rev 4, D-5C.27).** Each step button gains a track (`.dd-wf__track`, vNEXT `.ux-wf-track`: 20 px high,
+  `position: relative`, a 1 px left rule in `--border-strong`) as the row's last grid column
+  at widths above 600 px, and as a full-width row under the label and value at 600 px and below (ux.css `:451`). Inside
+  it, when `bar` is not null, `<span class="dd-wf__bar dd-wf__bar--{tone}" style={{ left: `${bar.left}%`, width:
+  `${bar.width}%` }}>` (12 px high, top 4 px, radius 2 px; `lowers` filled with `--status-red-text`, `raises` with
+  `--status-green-text`); a null `bar` leaves the track empty. Above the `<ol>`, when `scale` is not null, `<div
+  class="dd-wf__scale" aria-hidden="true">` (ux.css `:597-601` under `dd-` names, aligned with the track column) with
+  two marks at `left: ${scale.target_at}%` ("{totals.target_label} {totals.target}") and `${scale.actual_at}%`
+  ("{totals.actual_label} {totals.actual}", the end mark, `translateX(-100%)`). Track, bar and scale are
+  `aria-hidden`. No `Number(`, `parseFloat` or arithmetic on these strings.
+- **No figure (rev 4, D-5C.26).** A figure slot's value takes the modifier `dd-na` (the muted style of today's
+  `dd-kpi__value--na`, renamed) when its `word` is null: tiles, steps, drivers; an outcome card when `word` and
+  `drawer` are both null. No test on a key or on a text.
+- **Drawers (rev 4, L1, L2).** While a drawer is open: Escape and the Tab cycle are handled on `document` (vNEXT
+  `uxOpen`), so they work wherever focus is; "Show all {n}" inside a drawer moves focus to the first newly shown row
+  (`tabIndex={-1}`); `body` carries `dd-locked` (`overflow: hidden`), removed on close and on unmount. `inert` on
+  other regions is not required (the drawers sit inside their sections; `aria-modal` holds).
 - Words are text, never colour alone; negative values carry "−"; the word chip has the same text as the JSON.
 - Widths: 1440 and 1280 four tiles in a row; 768 two by two; 390 one column, the tables scroll inside their own box
   (no page scroll), drawers full width.
@@ -580,7 +625,7 @@ plant must make the script exit 1 naming its check.
    1443/2295 → 63%, target ≤ 0 → none; `pct1` 0.91510 → 91.5%; `join` of 1, 2, 3 items.
 3. World A against the hand-written JSON, key by key and whole. Rev 3: the headline's `evidence` is the payload's own
    word for each figure it states: for A, B, D and L1 to L4, `set(headline.evidence)` equals {`tiles[1].word`} plus the
-   named heading's outcome card `word` when one is named (D-5C.20).
+   named heading's outcome card `word` when one is named, null words left out (D-5C.20; rev 4, D-5C.26).
 4. A2, B, C (connected empty, C4), D, E, F, G, H and the lead vectors: every literal of §3.5 (rev 3: H's drivers
    nested, D-5C.21; a flattened list fails).
 5. Words: §2.4 table, every row (rev 3: the `DECLARED` rows with each origin, run on `main` with SC-1f, D-5C.19); a
@@ -617,7 +662,22 @@ plant must make the script exit 1 naming its check.
     measure_screen.cjs` on each view, its JSON kept; 0 page errors; page width equal to the viewport; L1 at or above
     the fold; no text under 12 px.
 15. `tools/deep_dive_gates.cjs` passes on World A's fixture, and each of its eight plants makes it exit 1 (shown once
-    each, output in the evidence folder).
+    each, output in the evidence folder). Rev 4 (L5): the two D-headline views run for `--world A` only.
+
+**Rev 4 additions** (D-5C.26 to D-5C.28):
+- Unit 1 (backend fix): 3 and 4 take A's and H's bars and scale and the "Bars" vectors V1 to V6; 4 i World X (from
+  `backend/tests/deep_dive_worlds.py`): shares null, no "Offsets it", bars and scale null; a gap-0 vector's shares null
+  (D-5C.28); class case 16: in every figure slot of A, B, D, G, H, X and the 4 i currency worlds, `word is None` iff
+  the figure is absent, and no `word` equals "Not available yet" (D-5C.26). Plants that must fail: `or Decimal(0)`
+  restored; L9's card word restored; a bar computed from the rounded share instead of the effect.
+- Unit 3 (screen fix): 10 gains A's bars (revenue `left: 0.00%; width: 11.38%`, fuel cost `11.38%` and `88.62%`, O&M
+  and staff tracks empty) and the two scale marks; World X: no bar, no scale, no word chip reading "Not available
+  yet", the contribution and gap tiles, the revenue step and the Optimize card carry `dd-na`, the Assure card does
+  not. 11 gains L1 (A's revenue drawer with 12 Sites: after "Show all 12" focus is on row 11 inside the dialog; Escape
+  then closes and returns focus to the opener) and L2 (`body` has `dd-locked` while open, not after). 17 (L4,
+  backend, no database): `test_5c_screen_worlds_fresh.py` builds World H and World X in memory through
+  `deep_dive_worlds` and compares them byte for byte with the committed frontend fixtures, failing with "rerun
+  make_screen_worlds.py".
 
 **Regression:** the Portfolio's vitest files, `test_5b_*`, `test_3a7_*`, the 3B7a tests; tsc; check-all once at the
 end; `select-tests` before review.
@@ -635,6 +695,8 @@ end; `select-tests` before review.
 | MD7 | the route: a Portfolio tab "The month", not the Overview | D5 | resolving unit: IA-2's live rebuild of the Overview. The live Portfolio's six tabs against vNEXT's three predate 5c; "The month" makes seven (not a new departure) |
 | MD8 | L1's status line (as of, reconciliation in a few words, budget disagreements by Site); the full reconciliation sentence and "not checked for later changes" in the Assure card's drawer | D2 | flagged to the owner (D-5C.14): the mock's L1 has the headline and tiles only |
 | MD9 | "What is not available yet" as the last part of "By outcome" | D1 | honest gaps inside the mock's section; keeps the overview at 6 blocks |
+| MD10 | L1 headline with its evidence word (R766) | D2 | D-5C.20; no word when the headline states no figure |
+| MD11 | the bridge's per-step bars (R767) | D1 | **resolved, rev 4** (D-5C.27): bars served as positions, drawn as the mock |
 
 ## 8. Done (questions; each can fail)
 
@@ -683,3 +745,40 @@ rehearsed Lakeside tenant (DDR), served by the coordinator, then decides the mer
 | Q9 | A 5b or 5c rule change marking served figures out of date | Not this fortnight (D-5C.18): rebuild after every deploy; 3B7b adds the roots |
 | Q10 | SC-1's inline and `served` paths ignore `Evidence.reconciled` (only `with` honours it) | Queued to SC-1's next unit: `figure_word` becomes the one path. Nothing reads wrong today (no producer sets `reconciled` on an inline or served figure); 5c maps its own words (D-5C.20) |
 | Q11 (owner) | The carried cell's label | " (at budget)" (D-5C.23; OWNER-AWAY row 61); 5b's carry rule unchanged |
+| Q12 (owner) | A figure with none: "Not available yet" as the value and again as its chip? | Once, as the value, muted, no chip (D-5C.26; OWNER-AWAY row 68; revises L9) |
+| Q13 (owner) | The bridge without per-step bars (MD11) for the walkthrough? | No: bars as the mock, served as positions, before the walkthrough (D-5C.27; OWNER-AWAY row 69) |
+| Q14 | A step's share when the gap is not available or 0 | None shown (D-5C.28, M1) |
+
+## 11. Rev 4 fix scopes (D-5C.26 to D-5C.28)
+
+**Backend fix** (Status: in_review, 2026-11-21, branch `fix/5c-backend-r5`, `packet-backend-fix-r5.md`) (new branch off `main`, about 0.5 unit, one commit; Sonnet per the fix-round rule; files in
+`backend/` only):
+1. `deep_dive/view.py` `shares()`: return `{}` when `self.R.effect` is None or 0; delete `or Decimal(0)` (D-5C.28).
+2. `view.py` `figure_word(value, currency, ev, origins)`: None when `value` or `currency` is None, else `W.word(ev,
+   origins, standing, currency)`. Used for tiles[0] (R.actual), tiles[1] (R.effect), steps (row.effect, row.currency;
+   row absent: None), drivers (row.effect, row.currency), grow and optimize cards (group sum, `group_cur`; the L9 line
+   `:597-598` goes), cash (root.actual, root currency) and the headline's `evidence` (D-5C.20's path, unchanged in
+   effect). `words.py`: `word(..., currency: str)`, `NO_CURRENCY` deleted (D-5C.26).
+3. `view.py` `bridge_bars` per §3.2; each step gains `bar` (key order `key, label, value, share, word, sites, bar,
+   drawer`); `bridge` gains `scale` after `totals`. Schema stays `deep-dive-month-1` (the screen has not merged).
+4. `backend/tests/fixtures/5c/deep_dive_lakeside_2026-10.json` edited by hand with A's bars and scale (W2, never by
+   running `month_view`).
+5. `backend/tests/deep_dive_worlds.py` (new, test support, no database): `world_h()` (`view("H")`) and `world_x()`
+   (the World X `site_bridge` patch now in the screen branch's `make_screen_worlds.py`, applied and undone inside the
+   function), with public `in_kes` and `gone` moved from `test_5c_deep_dive_view.py`. `test_4_i_currency_card_word_
+   beside_no_figure` uses `world_x()` and now asserts the card's `word` null.
+6. Tests per §6 "Rev 4 additions", unit 1. Then focused tests, `test_5b_*`, `test_3a7_*`, check-all (fast) through
+   the slot. Review: a fresh reviewer, verification depth on D-5C.26 to D-5C.28.
+
+**Screen fix** (on `task/5c-unit3-screen` after the backend fix merges, about 0.5 unit, one or two commits):
+1. Merge `main`. Rewrite `make_screen_worlds.py` to call `deep_dive_worlds.world_h()` and `world_x()` only (no
+   private helpers, no patch of its own); regenerate both frontend fixtures.
+2. L4: `backend/tests/test_5c_screen_worlds_fresh.py` (§6 item 17). It lands here because the generator and the files
+   it checks exist only on this branch.
+3. D-5C.26's page rule (`dd-na`), `startsWith("plan")` deleted (L3).
+4. D-5C.27's track, bar and scale (§5.3), the `DeepDiveMonth` types gaining `bar` and `scale`; register row R767 set
+   to resolved (D-5C.27).
+5. L1 and L2 (§5.3 "Drawers"). L5 (§6 item 15).
+6. Tests per §6 "Rev 4 additions", unit 3; vitest, tsc, vite build; gates on A, X and H (the hub height and the 390
+   width with the track rows); the shots of test 14 retaken for A at 1440 and 390 and X at 1440; check-all once.
+   Re-review: a fresh reviewer, verification depth on these items; the merge waits for the owner's walkthrough.
