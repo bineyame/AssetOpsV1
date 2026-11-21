@@ -1,9 +1,10 @@
 # SC-1: the statement composer (implementer spec)
 
-Status: **in_review** (SC-1a built, units 1-3; `packet.md`). Rev 2, handshake round 1 answered (D-SC1.17 to
-D-SC1.27); mid-build answers D-SC1.29 to D-SC1.31.
+Status: **in_review** (SC-1a built, units 1-3; `packet.md`; review round 1 ACCEPT WITH FIXES). Rev 3: handshake
+round 1 answered (D-SC1.17 to D-SC1.27); mid-build answers D-SC1.29 to D-SC1.31; review answers D-SC1.32 to
+D-SC1.39 (fix round 0.75 units, §8).
 Code starts when the handshake has no open question. Questions during the build: `mid-build-questions.md`.
-Reviewer: `reviewer-guide.md` rev 2. Decisions with reasons: `rulings.md` (D-SC1.1 to D-SC1.27).
+Reviewer: `reviewer-guide.md` rev 3. Decisions with reasons: `rulings.md` (D-SC1.1 to D-SC1.39).
 
 Architect (Claude), 2026-11-21. Owner words (verbatim, `owner/owner-text-composition-clean-2026-11-21.md`): "if that
 application could do it reaptedly, make sure it uses clean way to do it (not brittle hard coding and if else mess)".
@@ -335,7 +336,8 @@ validator, and install one with `catalogue._use(cat)` (D-SC1.22).
 | `KEY_FORM` | a key is not `<area>.<name>` lower snake case (no digits) |
 | `SLOT_TYPE`, `SLOT_OPTION`, `SLOT_CONFLICT` | an unknown type; an option not in §3.3 for that type, a bad or repeated option value, a required option missing, a `tiny` key, an `evidence` option in a `served` statement, a bad `absent` list, or a variant `options` naming a slot that neither the statement nor its parts declare; one name declared with two types or option sets across a statement and its parts |
 | `FIELD_UNDECLARED`, `FIELD_FORM` | a template field that is not a declared slot; a field with a format spec, conversion or index, or a stray brace |
-| `LITERAL_DIGIT`, `LITERAL_SYMBOL`, `LITERAL_NUMBER_WORD` | in a template's literal text or any vocabulary word: a character of Unicode category `Nd`, `No` or `Nl` (`²`, `³` allowed in `unit` `symbol` only); a character of category `Sc` or one of `% ‰ ‱ ٪ ﹪ ％`; a whole word, case-folded, in `schema.NUMBER_WORDS[locale]` (D-SC1.21). Digits reach text only through figure, count, date and name slots, the formats' own precision (tiny) and `example` slots |
+| `LITERAL_DIGIT`, `LITERAL_SYMBOL`, `LITERAL_NUMBER_WORD` | in a template's literal text or any vocabulary word: a character of Unicode category `Nd`, `No` or `Nl` (`²`, `³` allowed in `unit` `symbol` only); a character of category `Sc` or one of `% ‰ ‱ ٪ ﹪ ％`; a token (the literal split on non-letters), case-folded, that is a root joined to a suffix of one of
+`schema.NUMBER_WORDS[locale]`'s `(roots, suffixes)` pairs (D-SC1.21, D-SC1.32). Digits reach text only through figure, count, date and name slots, the formats' own precision (tiny) and `example` slots |
 | `STATE_PRINTED` | a `state` or `flag` slot used as a template field |
 | `CONDITION_OPERATOR`, `CONDITION_SLOT`, `CONDITION_VALUE` | (in `when` and `requires`) an unknown operator or extra key; a path to an undeclared slot or field; an `is` value outside the state's `values` or not a bool for a `Flag`, a `sign` word outside the three, a `reason` code not in the slot's list |
 | `NO_FALLBACK` | the last variant has a `when`, and no `exhaustive` (depends on the last variant only) |
@@ -392,8 +394,9 @@ environment.
    or `site_code` at any depth in `config/**/*.{yaml,yml,json}` and `backend/conversions/*.json`, split on
    non-letters. A test asserts the token set contains `kisiwa` and `kobo` (else the source is wrong: a mid-build
    question).
-6. `--self-test` runs plants P12 to P14, P13a to P13p, P17, P42 to P49, P51 to P53 and the negative plants N1 to N3 (§6) against
-   temporary copies and passes only if each plant fails with its code and each negative plant passes.
+6. `--self-test` runs plants P12 to P14, P13a to P13q, P17, P42 to P49, P49a to P49d, P51 to P53, P51a to P51d,
+   P55a to P55c, P56, P57a to P57e and the negative plants N1 to N13 (§6) against temporary copies and passes only if
+   each plant fails with its code and each negative plant passes.
 
 Wire in `tools/check-all.ps1` next to the fuel wording guard: `Add-Guard "Statement catalogue (SC-1)" $Python
 @("tools/checks/statement_catalogue.py")` and the `--self-test` line.
@@ -403,17 +406,23 @@ Wire in `tools/check-all.ps1` next to the fuel wording guard: `Add-Guard "Statem
 All three scopes read Python through `ast`, as `fuel_wording.py` does (reuse `_bare_strings` for docstrings).
 **Exempt everywhere:** docstrings and bare string statements; the arguments of logging calls (a call whose function
 is an attribute `debug`, `info`, `warning`, `error`, `exception`, `critical` or `log` of a name `logger`, `log`,
-`logging`, `_log`, `_logger` or `LOG`; logs are never served); the arguments of `raise U(...)` where `U` is in
+`logging`, `_log`, `_logger`, `_LOGGER` or `LOG`, of an attribute with one of those names (`self.logger`), or of a
+`logging.getLogger(...)` call; logs are never served, D-SC1.33); the arguments of `raise U(...)` where `U` is in
 `schema.UNSERVED` (`ValueError`, `TypeError`, `KeyError`, `LookupError`, `RuntimeError`, `AssertionError`,
-`NotImplementedError`, `StatementError`, `CatalogueError`, `WireError`). Any other raised call (`HTTPException`, a
+`NotImplementedError`, `StatementError`, `CatalogueError`, `WireError`, and any backend class a unit's spec adds,
+D-SC1.34). For each backend class in `UNSERVED`, a handler naming it whose body reads the caught name other than in
+`raise ... from e`, `isinstance(e, ...)` or a logging call is `UNSERVED_SERVED path:line class` (P56). Any other raised call (`HTTPException`, a
 `_refuse(...)`, an `APIError`) is scanned like any call. **Served exception text** is a hit in every scope: `str(e)`,
 `e.args` or an f-string field `{e}`, where `e` is bound by `except ... as e`, anywhere but a logging call or a
 `raise U(...)` of an `UNSERVED` type.
 
 **(1) Mechanism** (the modules SC-1 writes in `backend/assetops_backend/i18n/`: `__init__`, `schema`, `facts`, `formats`,
 `conditions`, `catalogue`, `render`, `wire`; not `statements/`; D-SC1.29). `messages.py` and `locale.py` are the two
-pre-existing modules, named in the guard as `LEGACY_I18N` and read by scope (3); any other `.py` under `i18n/` is in
-scope (1) or the guard reports `MECH_UNSCOPED path` (P51). Every string constant, outside the
+pre-existing modules, named in the guard as `LEGACY_I18N` and read by scope (3). The guard walks `i18n/**/*.py`
+(D-SC1.35): each file is a mechanism module (directly in `i18n/`), `LEGACY_I18N` (directly in `i18n/`), a package
+marker (`statements/__init__.py`, `statements/<locale>/__init__.py`: this scope's literal rule, no `MECH_BRANCH`), or a
+data module directly in `statements/<locale>/` for a package the loader reads (proved by the load, `NOT_DATA`);
+anything else, at any depth, is `MECH_UNSCOPED path` (P51, P51a to P51c). Every string constant, outside the
 exemptions and `__all__`, is one of: an upper snake code (`^[A-Z][A-Z0-9_]*$`) that is not a state value, absent
 reason or vocabulary entry key of the loaded catalogue (else `MECH_INSTANCE`); a member of `schema.TOKENS` (§3.12);
 a member of `schema.SYMBOLS`; a decimal literal (`^\d+(\.\d+)?$`); or an f-string field's format spec matching
@@ -437,28 +446,54 @@ is `HAND_BUILT path:line`:
   `re.sub`, `re.subn`; `.join` on a string constant receiver; `+` or `+=` with a string constant, f-string or
   `str(...)` operand; an `IfExp` with a string constant branch; served exception text.
 
-**(3) Ratchet** (every other `.py` under `backend/assetops_backend/`, outside `i18n/` and `ADOPTED`). Negative rules,
-where *prose* is a literal containing `[A-Za-z]{2,}\s+[A-Za-z]{2,}` with a lower-case letter in the match and not
-beginning with an upper-case SQL statement word (`SELECT`, `INSERT`, `UPDATE`, `DELETE`, `WITH`, `CREATE`, `ALTER`,
-`DROP`): (a) an f-string with a prose literal part; (b) `%` or `.format`/`.format_map` on a prose constant; (c)
+**(3) Ratchet** (every other `.py` under `backend/assetops_backend/`, outside `i18n/` and `ADOPTED`, plus `LEGACY_I18N`;
+the plain-string template values of `messages.CATALOGUE[locale]` are judged by the legacy ratchet alone, §3.8.3,
+D-SC1.37). Served text is defined in D-SC1.33. Negative rules, where *prose* (D-SC1.33) is a literal that does not
+lead with SQL (its first word, after spaces and an optional `(`, is not one of `SQL_LEAD`: `SELECT INSERT UPDATE
+DELETE WITH CREATE ALTER DROP FROM WHERE AND OR JOIN LEFT INNER ORDER GROUP SET VALUES RETURNING ON LIMIT OFFSET CASE
+HAVING UNION`, upper case) and, split on whitespace, has a prose pair: two adjacent tokens, the first not ending in
+punctuation, that are both *words* with a lower-case letter in either, or a word of three or more letters with a
+lower-case letter beside an *identifier*. A word is a token of letters (inner `'` or `-` allowed; a trailing `(s)`
+ignored) once opening quotes or brackets and closing quotes, brackets and `.,;:!?` are stripped, and is not in
+`SQL_WORDS` (upper case) nor `asc`, `desc`, `nulls` (any case). An identifier is letters and digits joined by `_` or
+`.` (`site_id`, `u.reader`), the same stripping applied. `SQL_LEAD` and `SQL_WORDS` are constants of the guard, not
+of `schema` (`SQL_WORDS`: `SELECT FROM WHERE JOIN LEFT RIGHT INNER OUTER FULL CROSS ON USING AND OR NOT NULL IS IN AS
+BY ORDER GROUP HAVING LIMIT OFFSET DISTINCT INSERT INTO VALUES UPDATE SET DELETE RETURNING WITH CREATE ALTER DROP
+TABLE INDEX CASE WHEN THEN ELSE END EXISTS ANY ALL UNION BETWEEN LIKE ILIKE ASC DESC CONFLICT DO NOTHING CAST COALESCE
+COUNT SUM MIN MAX FOR SKIP LOCKED NULLS FIRST LAST INTERVAL TRUE FALSE PRIMARY KEY REFERENCES DEFAULT UNIQUE CONSTRAINT
+LATERAL OVER PARTITION FILTER`). (a) an f-string with a prose literal part; (b) `%` or `.format`/`.format_map` on a prose constant; (c)
 `string.Template`, `textwrap.fill`/`wrap`/`shorten`; (d) `+` or `+=` with a prose constant or an (a) operand; (e)
-`.join` on a constant receiver holding a letter or whitespace, or any `.join` whose argument is a list or tuple
-literal holding a string constant with a letter; (f) an `IfExp` whose branches are both string constants with a
-letter, or one prose; (g) a prose string constant anywhere, except the keyword arguments `help`, `description`,
+`.join` on a constant receiver holding a letter or whitespace, unless the join's result is immediately `.encode(...)`d,
+or any `.join` whose argument is a list or tuple literal holding a string constant with a letter; (f) an `IfExp` with a
+string constant branch that is prose, or holds two adjacent lower-case letters, is not code-form for this rule
+(`^[A-Za-z0-9_.\-/+:]*$` with no capital followed by a lower-case letter) and does not lead with SQL; (g) a prose string constant anywhere, except the keyword arguments `help`, `description`,
 `epilog`, `usage`, `summary` of `add_argument`, `ArgumentParser`, `add_parser`, `APIRouter`, `FastAPI` and route
 decorators (static chrome, Q3); (h) `.capitalize`, `.title`; `.replace` or `re.sub`/`re.subn` whose replacement
-constant holds a letter or whitespace; (i) a dict literal with two or more string values matching `^[A-Z][a-z]` (a
-word map); (j) served exception text. Each hit is fingerprinted `<rule>:<enclosing qualified name or
-<module>>:<sha1 of ast.unparse(node)>[:12]`; `tools/checks/statement-handbuilt-baseline.json` maps each path to its
+constant holds a letter or whitespace; (i) in a dict literal with two or more string values matching `^[A-Z][a-z]` (a
+word map), each such value that is not prose, one hit per entry (D-SC1.37); (j) served exception text. Each hit is
+fingerprinted `<rule>:<enclosing qualified name or <module>>:<sha1 of ast.unparse(node)>[:12]` (for (i), the sha1 of the
+entry's key source, a NUL and its value); `tools/checks/statement-handbuilt-baseline.json` maps each path to its
 sorted fingerprints (repeats kept, compared as multisets). A hit not in the baseline: `HAND_BUILT_NEW path:line
 fingerprint`. A baseline fingerprint with no hit, or an entry for an `ADOPTED` path: `HAND_BUILT_STALE`.
 `--write-baseline` writes the file only when it does not exist (`BASELINE_EXISTS` otherwise); `--prune` removes stale
-entries and never adds. Adding a fingerprint is a hand edit the reviewer sees (reviewer guide 10).
+entries and never adds. Adding a served fingerprint is a hand edit its unit's spec names (D-SC1.34; reviewer guide
+10). A code string the scan misreads goes in `tools/checks/statement-handbuilt-allow.json` (`{path: [{"fingerprint",
+"class", "why"}]}`, class `SQL`, `HASH` or `CODE`, `why` one line of at most 200 characters); an allowed fingerprint
+counts as baselined; `ALLOW_CLASS` (other class or empty `why`), `ALLOW_STALE` (no hit; `--prune` removes it),
+`ALLOW_SCOPE` (an `ADOPTED` or `i18n/` path). The file starts as `{}`.
 
 **Known holes, stated** (ratchet scope only; neither the mechanism nor `ADOPTED` has them, because their positive
-rule leaves no string to compose with): variable-plus-variable concatenation; a join of a computed list; a single
-capitalised word outside a word map; prose assembled from non-prose pieces. The frontend is SC-1d's
+rule leaves no string to compose with): variable-plus-variable concatenation; a join of a computed list with a
+separator holding no letter or space, or encoded at once; a single word outside a word map or a display conditional;
+an identifier beside one short word (`"policy_version required"`); a sentence whose first word is an upper-case SQL
+word; prose assembled from non-prose pieces; text reaching a person through one of the 229 handlers already in the
+baseline that show an exception's text (rule (j); a new one is caught; SC-1b and SC-1c convert them). The frontend is SC-1d's
 (`frontend-hardwiring.mjs`).
+
+**Imports from outside `i18n/`** (D-SC1.22, D-SC1.36). Each of `messages`, `locale`, `render`, `facts`, `wire` declares
+`__all__` (else `I18N_SURFACE module`). A name imported from one of them, or read as an attribute of a name bound to one
+or of its full dotted path, that is in neither that module's `__all__` nor `i18n.__all__` is `I18N_BYPASS` (P49a to
+P49c); a reference to a `_` name stays `I18N_PRIVATE`.
 
 ### 3.9 Legacy entries
 
@@ -478,7 +513,8 @@ and any statement with a figure or `evidence` slot, until the owner says otherwi
 ### 3.11 The wire form (`i18n/wire.py`; D-SC1.19)
 
 `to_wire(msg) -> dict` and `from_wire(obj) -> Message` are exact inverses; `from_wire` is strict and raises
-`WireError(code, path)` (`ValueError`; code `WIRE_FORM`) on an unknown fact name, a missing or extra field, or a value
+`WireError(code, path)` (`ValueError`; code `WIRE_FORM`) on a fact name that is not a string (checked first, P40b), an
+unknown fact name, a missing or extra field, or a value
 of the wrong JSON type, then runs the fact's own constructor. Form: `{"key": k, "params": {name: <wire>}}`, where a
 legacy `str`/`int`/`float` param stays itself and a fact is an object with `"fact"` (its type name in §3.3) and:
 
@@ -507,19 +543,23 @@ and renders with `from_wire` at read; that unit's spec says so.
 (`<`, `<=`, `==`, `>=`, `>`); `SIGNS`; `MODES` (`inline`, `served`); `REPHRASE` (`never`, `allowed`); `EVIDENCES`;
 `EVIDENCE_ORDER`, `ORIGINS` (= `ORIGIN_ORDER`), copied from `structure.evaluate` (no import; T12 proves parity);
 `FORMAT_VOCABULARIES` (`format`, `unit`, `noun`, `month`, `evidence`); `FORMAT_WORDS` (§3.5 `format` keys);
-`NUMBER_WORDS` (`{"en": ("zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
-"eleven", "twelve", "twenty", "thirty", "forty", "fifty", "hundred", "thousand", "million", "billion", "half",
-"halves", "quarter", "twice", "thrice", "once", "double", "triple", "both", "dozen", "first", "second", "third",
-"fourth", "fifth", "single", "pair", "percent")}`); `UNSERVED` (§3.8.4); `SYMBOLS` (`""`, `" "`, `", "`, `"$"`,
+`NUMBER_WORDS` (D-SC1.32; a tuple of `(roots, suffixes)` pairs; a number word is a root joined to a suffix of its
+pair: `{"en": ((("zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven",
+"twelve", "hundred", "thousand", "million", "billion", "trillion"), ("", "s", "th", "ths", "fold")), (("thir", "four",
+"fif", "six", "seven", "eigh", "nine"), ("teen", "teens", "teenth", "teenths")), (("twen", "thir", "for", "fif", "six",
+"seven", "eigh", "nine"), ("ty", "ties", "tieth", "tieths", "tyfold")), (("first", "second", "third", "fifth",
+"eighth", "ninth", "twelfth"), ("", "s")), (("once", "twice", "thrice", "single", "both", "pair", "couple", "dozen",
+"half", "quarter", "percent"), ("", "s")), (("double", "triple", "quadruple", "halve"), ("", "s", "d")))}`); `UNSERVED` (§3.8.4); `SYMBOLS` (`""`, `" "`, `", "`, `"$"`,
 `"−"`, `"+"`, `"%"`, `","`, `"."`, `"("`, `")"`, `" ("`, `"{"`, `"}"`, `":"`, `"-"`, `"T"`); `SYSTEM` (`STATEMENTS`,
 `VOCABULARY`, `statements`, `vocabulary`, `utf-8`, `en`, `USD`, `OMITTED`, `ABSENT`). `TOKENS` is the union of
-every set above except `SYMBOLS`. Adding to any of them is a spec change; T12 asserts each equals this section.
+every set above except `SYMBOLS` and `NUMBER_WORDS` (D-SC1.32: a suffix such as `s` must never be a legal mechanism
+constant). Adding to any of them is a spec change; T12 asserts each equals this section.
 
 **Names read as identifiers, never written as strings (D-SC1.30).** The mechanism needs names no set above holds; it
-reads them from code, so none is a string constant and none is in `TOKENS`: the condition operand keys `abs` and
+reads them from code, so none is written as a string constant; whether a name is also in `TOKENS` through another set
+does not matter (`abs` is a money option and `key` a part option, §3.3; D-SC1.38): the condition operand keys `abs` and
 `const` (the annotation names of `conditions._Operand`, a private `TypedDict`); the `Message` keys `key` and `params`
-(`Message.__annotations__`); the wire envelope's keys `fact` and `v` where §3.11 uses them (`wire._Envelope`'s
-annotations); and each fact's field names (`value`, `currency`, `origin`, `reconciled`, `n`, `k`, `year`, `at`,
+(`Message.__annotations__`); the wire envelope's key `fact` (`wire._Envelope`'s annotations); and each fact's field names (`value`, `currency`, `origin`, `reconciled`, `n`, `k`, `year`, `at`,
 `source`, and the rest of §3.1), which are its constructor's parameter names (`facts._FactMeta` builds `__slots__`
 from them). A new such name is a new annotation or parameter, not a string. T12 asserts these sets equal this
 paragraph; a plant writing one as a string constant is `MECH_LITERAL` (P52).
@@ -529,13 +569,14 @@ paragraph; a plant writing one as a string constant is `MECH_LITERAL` (P52).
 | File | Holds |
 |---|---|
 | `backend/assetops_backend/i18n/schema.py` | §3.12 |
-| `backend/assetops_backend/i18n/facts.py` | §3.1 |
+| `backend/assetops_backend/i18n/facts.py` | §3.1; `__all__` |
 | `backend/assetops_backend/i18n/formats.py` | §3.3 (one function per type, dispatched by table, reading vocabulary words; no English literal of its own; `DISPLAY`) |
 | `backend/assetops_backend/i18n/conditions.py` | §3.4, and §3.7.1's three-valued evaluation over the same operator table |
 | `backend/assetops_backend/i18n/catalogue.py` | loading, merging, §3.7; `CatalogueError`, `StatementError`; `_build`, `_use` |
-| `backend/assetops_backend/i18n/render.py` | §3.6 (extends today's function; same signature) and `served` |
-| `backend/assetops_backend/i18n/wire.py` | §3.11; `WireError` |
-| `backend/assetops_backend/i18n/messages.py` | `Param` widened; `CATALOGUE` unchanged otherwise |
+| `backend/assetops_backend/i18n/render.py` | §3.6 (extends today's function; same signature) and `served`; `__all__` |
+| `backend/assetops_backend/i18n/wire.py` | §3.11; `WireError`; `__all__` |
+| `backend/assetops_backend/i18n/messages.py` | `Param` widened; `__all__` (D-SC1.36); `CATALOGUE` unchanged otherwise |
+| `backend/assetops_backend/i18n/locale.py` | `__all__` only (D-SC1.36) |
 | `backend/assetops_backend/i18n/__init__.py` | exports the fact classes, `served`, `Served`, `StatementError`, `to_wire`, `from_wire`, `WireError` (the public surface, D-SC1.22) |
 | `backend/assetops_backend/i18n/statements/__init__.py`, `statements/en/__init__.py` | empty |
 | `backend/assetops_backend/i18n/statements/en/vocabulary.py` | §3.5 |
@@ -543,7 +584,8 @@ paragraph; a plant writing one as a string constant is `MECH_LITERAL` (P52).
 | `backend/tests/statement_cases/__init__.py`, `common.py` | `Case`; §5.3's cases |
 | `backend/tests/statement_cases/worked.py` | §5.1, §5.2 and §5.4's cases, rendered through the test catalogue (`_build` of the worked statements, installed with `_use`); the guard's coverage skips keys absent from the shipped catalogue |
 | `backend/tests/test_sc1_statements.py` | §6 T1 to T13 and the T-plants |
-| `tools/checks/statement_catalogue.py`, `tools/checks/test_statement_catalogue.py` | §3.8, the guard plants and N1 to N4 |
+| `tools/checks/statement_catalogue.py`, `tools/checks/test_statement_catalogue.py` | §3.8, the guard plants and N1 to N13 |
+| `tools/checks/statement-handbuilt-allow.json` | `{}` (D-SC1.34) |
 | `tools/checks/statement-legacy-baseline.json`, `tools/checks/statement-handbuilt-baseline.json` | §3.8.3 and §3.8.4 (3), written once from `main` at branch time and rewritten from `main` after each merge of `main` into the branch (never by hand-adding) |
 | `tools/check-all.ps1` | two `Add-Guard` lines |
 
@@ -798,7 +840,12 @@ SD5 (four Sites, total 5) must raise `REQUIRES_FAILED` (P36). Prices are format 
 - **T11 reach:** §3.7.1 on §5.2 (passes), on P35 (fails `gap` `zero`), and on a state pick whose earlier variant
   removes one value (passes) and without it (fails).
 - **T12 schema:** `schema.EVIDENCE_ORDER` and `ORIGINS` equal `structure.evaluate`'s; each §3.12 set equals the
-  spec's list, as a hand literal.
+  spec's list, as a hand literal; `TOKENS` holds no `NUMBER_WORDS` root or suffix that no other set holds.
+- **T12b number words** (D-SC1.32): each alone in a test template fails the load with `LITERAL_NUMBER_WORD` (P28b):
+  "sixty days", "Ninety", "thirteen sites", "the tenth site", "hundreds of sites", "dozens", "a couple of sites",
+  "twenty-five", "two-thirds", "tenfold", "doubled", "halved", "Seventieth", "millionths", "fourteenth", "eleventh";
+  each alone loads (N-T12): "tend", "often", "attend", "tone", "someone", "everyone", "forth", "content", "tenant",
+  "coupled", "secondary", "quarterly", "several", "doubt".
 - **T13 evidence on the page:** §3.3.1's stated rule (H4 `["Emulated"]`, H5 `[]`, SH4 `["Emulated"]`); C9's two words.
 
 **Plants.** Each must fail with its code. T-plants run over test catalogues in `test_sc1_statements.py`; guard
@@ -835,6 +882,7 @@ plants run in the guard's `--self-test` over temporary copies.
 | P26 | `"within ٣ days"` in a template; `"m³"` in a `noun` word | `LITERAL_DIGIT` |
 | P27 | `"¥"` in a template; `"‰"` in a vocabulary word | `LITERAL_SYMBOL` |
 | P28 | `"twice the gap"`; `"both match"` | `LITERAL_NUMBER_WORD` |
+| P28b | T12b's sixteen literals, each alone | `LITERAL_NUMBER_WORD` |
 | P29 | `{"is": ["pending", "true"]}` | `CONDITION_VALUE` |
 | P30 | §5.1 `matched` with `({basis})` removed | `EVIDENCE_UNSHOWN` |
 | P31, P31b, P31c | a money slot without `evidence` in an `inline` statement; `"tiny": True` on a slot; an `evidence` option in a `served` statement | `EVIDENCE_UNSHOWN`; `SLOT_OPTION`; `SLOT_OPTION` |
@@ -847,6 +895,7 @@ plants run in the guard's `--self-test` over temporary copies.
 | P38 | `{"reason": ["share", "ACCOUNT_ZERO"]}`; C4 with `share` `Absent("OTHER")` | `CONDITION_VALUE`; `ABSENT_REASON` |
 | P39 | a test catalogue with an `xx` locale lacking `reconciliation.share` | `LOCALE_INCOMPLETE` |
 | P40 | `from_wire` of an unknown fact, an extra field, a float `value`; `json.dumps` and `jsonable_encoder` of a raw fact | `WIRE_FORM`; `TypeError` / raises |
+| P40b | `from_wire({"key": "k", "params": {"m": {"fact": ["money"]}}})` | `WIRE_FORM` (never `TypeError`) |
 | P41 | `render` of `reconciliation.gap` | `PART_ONLY` |
 | P42 (guard) | a legacy template edited | `LEGACY_CHANGED` |
 | P43 (guard) | a new prose f-string in a ratchet-scope module | `HAND_BUILT_NEW` |
@@ -856,14 +905,28 @@ plants run in the guard's `--self-test` over temporary copies.
 | P47 (guard) | a `"MATCHED"` constant in a copy of `catalogue.py` | `MECH_INSTANCE` |
 | P48 (guard) | a module outside `i18n` calling `catalogue._use` | `I18N_PRIVATE` |
 | P49 (guard) | a module outside `i18n` importing `assetops_backend.i18n.formats` | `I18N_BYPASS` |
+| P49a, P49b, P49c (guard) | outside `i18n`: `from assetops_backend.i18n.render import formats`; `import assetops_backend.i18n.render as r` then `r.formats.money(x)`; `from assetops_backend.i18n import render` then `render.formats` | `I18N_BYPASS` each |
+| P49d (guard) | a copy of `render.py` without `__all__` | `I18N_SURFACE` |
 | P50 (guard) | `--write-baseline` with the baseline present | `BASELINE_EXISTS` |
 | P51 (guard) | a new `i18n/extra.py` that is neither in the mechanism list nor `LEGACY_I18N` | `MECH_UNSCOPED` |
+| P51a, P51b, P51c (guard) | a prose f-string in a new `i18n/helpers/words.py`; in `i18n/statements/words.py`; in `i18n/statements/en/extra/words.py` | `MECH_UNSCOPED` each |
+| P51d (guard) | a prose constant in a copy of `i18n/statements/en/__init__.py` | `MECH_LITERAL` |
 | P52 (guard) | `"const"` or `"params"` written as a string constant in a copy of `conditions.py` | `MECH_LITERAL` |
-| P53 (guard) | a new template string added to a copy of `messages.py`, and a new prose f-string in a copy of `locale.py` | `HAND_BUILT_NEW` each; an edited existing template: `LEGACY_CHANGED` |
+| P53 (guard) | a new template string added to `CATALOGUE` in a copy of `messages.py`; a new prose f-string outside `CATALOGUE` in `messages.py`, and one in a copy of `locale.py`; an edited existing template | `LEGACY_NEW`; `HAND_BUILT_NEW` each; `LEGACY_CHANGED` (D-SC1.37) |
+| P55a, P55b, P55c (guard) | an allow entry with class `SERVED` or an empty `why`; an allow entry with no hit; an allow entry for an `ADOPTED` path | `ALLOW_CLASS`; `ALLOW_STALE`; `ALLOW_SCOPE` |
+| P56 (guard) | a backend class `PlantRefused(ValueError)` added to `UNSERVED` in a copy of `schema.py`, and a ratchet-scope handler `except PlantRefused as e: return {"detail": e.args[0]}` | `UNSERVED_SERVED` |
+| P57a to P57e (guard; the narrowing still catches) | in a ratchet-scope module, each alone: `LABELS = ("PV array",)`; `f"Unknown change_kind {k!r}."`; `"Yes" if ok else "No"`; `", ".join(day_texts)`; a new entry `"SHUT": "Shut"` in an existing word map | `HAND_BUILT_NEW` each (P57e exactly one) |
 
 **Negative plants** (guard self-test; each must pass): N1 a logging f-string in an `ADOPTED` file; N2 `raise
 ValueError(f"...")` in an `ADOPTED` file; N3 a docstring and `message("deep_dive.headline", gap=...)` in an `ADOPTED`
-file; N4 a new f-string `f"SELECT id FROM site WHERE code = {p}"` in a ratchet-scope module.
+file; N4 a new f-string `f"SELECT id FROM site WHERE code = {p}"` in a ratchet-scope module. N5 to N13 come from the
+review's replay (D-SC1.33, D-SC1.36), each new in a ratchet-scope module: N5 `text("SELECT " + _COLUMNS + " FROM
+structure_snapshot WHERE tenant_id = :t AND site_id IS NULL ")`; N6 `"u.id, u.tenant_id, u.file_name, u.reader, " + "
+FROM commercial_upload u JOIN operator_account sa ON sa.tenant_id = u.tenant_id "`; N7 `hashlib.sha256("\n".join(lines).encode("utf-8"))`;
+N8 `"LIVE" if real else "SIMULATED"`, `"application/json" if j else "text/csv"` and `"keep" if kept else "grant"`; N9
+`self.logger.info(f"loaded {n} rows from the file")`; N10 `ORDER = "episode_start desc nulls last, site_code_key asc"`;
+N11 `raise ValueError("expression is not text")`; N12 `" AND e.recorded_at <= :k" if known else ""`; N13 outside
+`i18n`, an import of a name in `render.__all__`.
 
 `PICK_DOMAIN` and `NO_VARIANT` are defences a loaded catalogue cannot reach; they have no plant, each says so in a
 comment, and reviewer guide 3 exempts them by name.
@@ -871,10 +934,11 @@ comment, and reviewer guide 3 exempts them by name.
 ## 7. Done (questions; each can fail)
 
 1. Does every sentence a structured statement produces come from facts alone, with no digit, currency sign or number
-   word in any template or vocabulary literal? (P1, P2, P26 to P28, T8)
+   word in any template or vocabulary literal? (P1, P2, P26 to P28, P28b, T8, T12b)
 2. Is every choice between sentences or words made by a declared condition or pick, evaluated by one function? Does
    the scan prove, from day one, that the mechanism holds no English and no branch on a string (P45 to P47), that no
-   backend module gained a hand-built sentence (P43, P44, N4), and that an adopted module can hold only codes (P13,
+   backend module gained a hand-built sentence while code strings pass (P43, P44, P57a to P57e, N4 to N12), that no
+   file under `i18n/` escapes the scans (P51 to P51d) and no internal is reached from outside (P48, P49 to P49d), and that an adopted module can hold only codes (P13,
    P13a to P13q, N1 to N3)?
 3. Is every figure formatted by its type's one format, the same on every screen, and does every stated figure's
    evidence reach the page, in the sentence or served with it? (T2, T13, P15, P30 to P34)
@@ -893,6 +957,7 @@ comment, and reviewer guide 3 exempts them by name.
 | 1.5 | schema, facts, formats, conditions (with §3.7.1), catalogue and load check, render and `served`, wire, vocabulary, common statements; T1 to T3, T5 to T8, T10 to T12; the load and fact plants | 1 |
 | 0.75 | the worked statements' test catalogue and cases (§5.1, §5.2, §5.4); T4, T9, T13; the render plants | 2 |
 | 1.25 | the guard (coverage with trace, legacy hashes, the three scan scopes, private and bypass, key instances) with its self-test and negative plants, both baselines, check-all wiring; packet | 3 |
+| 0.75 | review fix round (D-SC1.32 to D-SC1.39): number-word class, `i18n/**` classification, `__all__` surfaces, served-text rules (prose pairs, SQL lead, joins, conditionals, loggers, per-entry word maps, `CATALOGUE` by the legacy ratchet), allow file, `UNSERVED_SERVED`, L4; the new plants and negatives; both baselines regenerated from `main` | 4 (and 5 if split) |
 
 **Fit (D-SC1.26).** The deep-dive path is: 3A6 (in build) → 3A7 (lane A, gated on 3A6 and SC-1a) → 5c (UI lane,
 gated on 3A7, 3B7a and SC-1a) → DDR. SC-1a has no dependency and touches only `i18n` and the guard, so it builds now
