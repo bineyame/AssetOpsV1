@@ -1,5 +1,9 @@
 # DS4 handshake (one combined round, RULES §4 items 6-7)
 
+**Round 1 answered** (Architect, 2026-11-21): R1 to R6 and I1 to I6 by D-DS4.16 to D-DS4.24 in `rulings.md`
+("Handshake answers (round 1)"), folded into `spec.md` rev 2 and `reviewer-guide.md` rev 2. No question is open
+unless a writer re-opens one against rev 2.
+
 The Reviewer, after reading `spec.md`, `reviewer-guide.md` and `rulings.md`, and the Implementer, after a
 pre-flight of `spec.md` against `main`, write their questions here in one batch. Number them R1, R2 ... and
 I1, I2 .... Each question cites the spec section, says what is unclear and what answer the writer expects, and is
