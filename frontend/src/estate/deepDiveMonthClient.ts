@@ -19,17 +19,14 @@ export interface DeepDiveTile {
 }
 
 export interface DeepDiveDriver {
+  key?: string;
   label: string;
   value: string;
   sites: string;
   detail: string | null;
   word: string | null;
-  /**
-   * Pending the Architect's driver-hierarchy ruling (coordinator note L2): a driver's depth under its step (0 = a
-   * direct driver) when the server sends it. A deeper row nests inside the row above it, so a parent's parts are never
-   * shown as its siblings. Absent: depth 0.
-   */
-  depth?: number;
+  /** D-5C.21: the driver's own parts, same shape, recursively; `[]` for a leaf (absent in payloads before rev 3). */
+  children?: DeepDiveDriver[];
 }
 
 export interface DeepDiveStepDrawer {

@@ -13,7 +13,7 @@ import type { SiteDetailClient, SiteDirectoryClient } from "../../sites/siteDire
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import { settledScreen } from "../../test/settled";
 import { DeepDiveMonthFrame } from "../DeepDiveMonth";
-import type { DeepDiveMonthBody, DeepDiveMonthClient, DeepDiveResult } from "../deepDiveMonthClient";
+import type { DeepDiveDriver, DeepDiveMonthBody, DeepDiveMonthClient, DeepDiveResult } from "../deepDiveMonthClient";
 import { PORTFOLIO_TABS } from "../portfolioWords";
 import { fakeClient, findingsBody, loaded } from "./estateFixtures";
 import { loadedPortfolio, portfolioBody } from "./portfolioFixtures";
@@ -53,12 +53,18 @@ function worldH(): DeepDiveMonthBody {
     { site: "Mto", value: "−$25.00", text: stop },
   ];
   const m = "Modelled, not yet reconciled";
+  // D-5C.21: Diesel used holds its three parts; Diesel price is its sibling (D-5C.24: no detail, Modelled).
+  const leaf = (label: string, value: string, detail: string | null) => ({ label, value, sites: "1 of 3 Sites", detail, word: m, children: [] });
   fuel.drivers = [
-    { label: "Diesel used", value: "−$600.00", sites: "1 of 3 Sites", detail: "Actual 1,180 L · Target 700 L", word: m },
-    { label: "Diesel not shown to be avoidable", value: "−$37.50", sites: "1 of 3 Sites", detail: "Actual 730 L · Target 700 L", word: m },
-    { label: "Diesel run while solar and battery could carry the load", value: "−$412.50", sites: "1 of 3 Sites", detail: "Actual 330 L · Target 0 L", word: m },
-    { label: "Unexplained fuel", value: "−$150.00", sites: "1 of 3 Sites", detail: "Actual 120 L · Target 0 L", word: m },
-    { label: "Diesel price", value: "$0.00", sites: "1 of 3 Sites", detail: null, word: m },
+    {
+      ...leaf("Diesel used", "−$600.00", "Actual 1,180 L · Target 700 L"),
+      children: [
+        leaf("Diesel not shown to be avoidable", "−$37.50", "Actual 730 L · Target 700 L"),
+        leaf("Diesel run while solar and battery could carry the load", "−$412.50", "Actual 330 L · Target 0 L"),
+        leaf("Unexplained fuel", "−$150.00", "Actual 120 L · Target 0 L"),
+      ],
+    },
+    leaf("Diesel price", "$0.00", null),
   ];
   h.fresh = { current: true, text: null, untracked_text: untracked };
   h.outcomes![3].drawer!.lines = [...h.outcomes![3].drawer!.lines, untracked];
@@ -142,8 +148,10 @@ describe("5c test 10: World A renders", () => {
     const status = screen.getByRole("status");
     expect(status.textContent).toBe(a.status_line);
     expect(status.textContent).toContain("Kisiwa");
-    // Kisiwa's carried O&M reads "(estimate)" in the by-Site table (P6).
-    expect(text).toContain("$0.00 (estimate)");
+    // Kisiwa's carried O&M cell reads as served (D-5C.23: "(at budget)"), in its own cell (P6).
+    const kisiwa = a.bridge!.by_site.rows.find((r) => r[0] === "Kisiwa")!;
+    const cells = [...view.container.querySelectorAll("tbody tr")].find((tr) => tr.querySelector("th")?.textContent === "Kisiwa")!;
+    expect([...cells.querySelectorAll("th, td")].map((c) => c.textContent)).toEqual(kisiwa);
   });
 
   it("the page never formats a figure: no number formatting in its source (D-5C.2, P8)", () => {
@@ -205,14 +213,16 @@ describe("5c test 11: drawers keep and return focus; drivers carry their words",
     expect(document.activeElement).toBe(within(dialog).getByRole("button", { name: "Close" }));
     // Every driver shows label, value, word chip, sites and detail (P13).
     const rows = dialog.querySelectorAll("[data-dd-driver]");
-    expect(rows.length).toBe(h.bridge!.groups[1].steps[0].drawer.drivers.length);
-    h.bridge!.groups[1].steps[0].drawer.drivers.forEach((d, i) => {
+    const flat = (ds: DeepDiveDriver[]): DeepDiveDriver[] => ds.flatMap((d) => [d, ...flat(d.children ?? [])]);
+    const all = flat(h.bridge!.groups[1].steps[0].drawer.drivers);
+    expect(rows.length).toBe(all.length);
+    all.forEach((d, i) => {
       const row = rows[i] as HTMLElement;
       expect(row.textContent).toContain(d.label);
       expect(row.textContent).toContain(d.value);
       expect(row.textContent).toContain(d.sites);
       if (d.detail !== null) expect(row.textContent).toContain(d.detail);
-      expect(row.querySelector("[data-dd-word]")?.textContent).toBe(d.word);
+      expect(row.querySelector(":scope > [data-dd-word]")?.textContent).toBe(d.word);
     });
     expect(dialog.textContent).toContain("Modelled, not yet reconciled");
     fireEvent.keyDown(dialog, { key: "Escape" });
@@ -220,23 +230,47 @@ describe("5c test 11: drawers keep and return focus; drivers carry their words",
     expect(document.activeElement).toBe(opener);
   });
 
-  it("a driver with a depth nests inside its parent, never beside it (coordinator note L2)", async () => {
-    const h = worldH();
-    const drivers = h.bridge!.groups[1].steps[0].drawer.drivers;
-    drivers.forEach((d, i) => (d.depth = i >= 1 && i <= 3 ? 1 : 0));
-    renderMonth(clientOf(() => ({ status: "loaded", body: h })));
+  it("World H's three parts sit inside Diesel used's list item, never beside it (D-5C.21)", async () => {
+    renderMonth(clientOf(() => ({ status: "loaded", body: worldH() })));
     await settled();
     fireEvent.click(screen.getByRole("button", { name: /^Fuel cost / }));
     const dialog = screen.getByRole("dialog", { name: "Fuel cost" });
+    const label = (li: Element) => li.querySelector(":scope > .dd-driver__label")!.textContent;
     const top = dialog.querySelectorAll(".dd-drivers:not(.dd-drivers--parts) > [data-dd-driver]");
-    expect([...top].map((li) => li.querySelector(".dd-driver__label")!.textContent)).toEqual(["Diesel used", "Diesel price"]);
-    const parts = within(dialog).getByRole("list", { name: "Parts of Diesel used" });
-    expect(parts.closest("[data-dd-driver]")!.querySelector(".dd-driver__label")!.textContent).toBe("Diesel used");
-    expect(within(parts).getAllByRole("listitem").map((li) => li.querySelector(".dd-driver__label")!.textContent)).toEqual([
+    expect([...top].map(label)).toEqual(["Diesel used", "Diesel price"]);
+    const parts = top[0].querySelectorAll(":scope > ul > [data-dd-driver]");
+    expect([...parts].map(label)).toEqual([
       "Diesel not shown to be avoidable",
       "Diesel run while solar and battery could carry the load",
       "Unexplained fuel",
     ]);
+    expect(within(dialog).getByRole("list", { name: "Parts of Diesel used" }).closest("[data-dd-driver]")).toBe(top[0]);
+    expect(top[1].querySelector("ul")).toBeNull();
+  });
+
+  it("caps: 12 by-Site rows and 12 drawer Sites show 10 and Show all 12; 9 not-available rows show 8 (D-5C.22)", async () => {
+    const a = worldA();
+    const bySite = a.bridge!.by_site.rows;
+    a.bridge!.by_site.rows = Array.from({ length: 12 }, (_, i) => [`Site ${i + 1}`, ...bySite[i % 3].slice(1)]);
+    const revenue = a.bridge!.groups[0].steps[0].drawer;
+    revenue.sites = Array.from({ length: 12 }, (_, i) => ({ ...revenue.sites[i % 3], site: `Site ${i + 1}` }));
+    const na = a.not_available!.rows;
+    a.not_available!.rows = na.slice(0, 9);
+    const view = renderMonth(clientOf(() => ({ status: "loaded", body: a })));
+    await settled();
+    const table = view.container.querySelector("details.dd-details tbody")!;
+    expect(table.querySelectorAll("tr").length).toBe(10);
+    const bridge = screen.getByRole("heading", { name: "Where the gap comes from" }).closest("section")!;
+    fireEvent.click(within(bridge as HTMLElement).getByRole("button", { name: "Show all 12" }));
+    expect(table.querySelectorAll("tr").length).toBe(12);
+    expect(view.container.querySelectorAll(".dd-na__row").length).toBe(8);
+    fireEvent.click(screen.getByRole("button", { name: "Show all 9" }));
+    expect(view.container.querySelectorAll(".dd-na__row").length).toBe(9);
+    fireEvent.click(screen.getByRole("button", { name: /^Revenue / }));
+    const dialog = screen.getByRole("dialog", { name: "Revenue" });
+    expect(dialog.querySelectorAll(".dd-site").length).toBe(10);
+    fireEvent.click(within(dialog).getByRole("button", { name: "Show all 12" }));
+    expect(dialog.querySelectorAll(".dd-site").length).toBe(12);
   });
 
   it("the scrim and Close close the drawer and return focus (P12)", async () => {

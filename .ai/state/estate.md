@@ -210,7 +210,7 @@ plus Addendum 1. Packet `archive/agent-history/COV-PARTIAL-packet.md`. Decision 
   verbatim to `estate/PortfolioTabs.tsx` (`counts` optional), re-exported from `EstatePortfolio.tsx`.
 - `estate/DeepDiveMonth.tsx` renders `deep-dive-month-1` as served (D-5C.2; the bar's ratio is the one arithmetic):
   hub shape, `data-level` L1/L2/L3, 6 blocks; drawers are dialogs inside their sections. Caps on screen (10 Sites,
-  8 not-available rows); drivers nest by an optional `depth` (pending the Architect's ruling). Client
+  8 not-available rows; D-5C.22); drivers nest by their `children` (D-5C.21), one `<ul>` per level. Client
   `deepDiveMonthClient.ts`; styles `deepDiveMonth.css` (live tokens, no dark theme: the product has none).
 - `tools/deep_dive_gates.cjs`: the hub gates with eight plants (spec §5.4). `test/settled.ts` knows "Preparing the
   month…". `chain_coherence/screen_routes.json` gains `/portfolio/month`.

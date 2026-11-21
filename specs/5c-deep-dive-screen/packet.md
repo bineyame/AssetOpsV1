@@ -1,6 +1,6 @@
 # 5c packet: units 1 to 3 (unit 3, the screen)
 
-Implementer (Claude), 2026-11-21. Branch `task/5c-unit3-screen` (from `task/5c-deep-dive-screen` at 4b18a2c77; units 1
+Implementer (Claude), 2026-11-21, spec rev 3 (main merged at 51b545159). Branch `task/5c-unit3-screen` (from `task/5c-deep-dive-screen` at 4b18a2c77; units 1
 and 2 unchanged here). `USER_REVIEW_REQUIRED: true`: merge waits for the owner's walkthrough. Units 1 and 2: see
 `handoff.md` (their review runs on `task/5c-deep-dive-screen`).
 
@@ -58,8 +58,10 @@ viewport, "Where the gap comes from" above the fold at 1440 and 1280. Served fro
 - MD1 to MD10 as spec §7 (R757 to R766). MD11 (R767, open): steps have no bars on the gap's scale; the JSON serves
   no plain step decimals (MBQ5).
 - 401 shows the spec's sentence, not the served "Sign in to continue." (MBQ2). KPI figures 24 px, not 32 (MBQ4).
-- Coordinator notes built around (MBQ7): drivers nest by an optional `depth` (test 11 case); the 10-Site cap is on
-  screen.
+- Spec rev 3 (merged from main): D-5C.21 nested drivers from `children` (test 11: H's three parts inside Diesel
+  used's `<li>`); D-5C.22 caps on screen (test 11: 12 rows show 10 then 12; 9 not-available rows show 8 then 9);
+  D-5C.20 and D-5C.23 render as served (the fixture on this branch predates the backend fix round; test 10 reads the
+  fixture, never a literal, so "Estimated, not yet reconciled" and "(at budget)" flow through when it lands).
 - `.agent/owner-ui-ux-guidance-2026-10-25.md` is not in either tree; the standing brief and `uiux-guide.md` were used.
 
 ## Mid-build count

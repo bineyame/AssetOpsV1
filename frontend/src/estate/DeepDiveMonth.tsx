@@ -196,37 +196,21 @@ function Capped<T>({ items, cap, render }: { items: T[]; cap: number; render: (i
   );
 }
 
-interface DriverNode {
-  driver: DeepDiveDriver;
-  parts: DriverNode[];
-}
-
-/** Nests each driver under the nearest earlier driver of smaller depth (server order kept; depth absent = 0). */
-export function driverTree(drivers: DeepDiveDriver[]): DriverNode[] {
-  const roots: DriverNode[] = [];
-  const stack: { depth: number; node: DriverNode }[] = [];
-  for (const driver of drivers) {
-    const depth = driver.depth ?? 0;
-    const node: DriverNode = { driver, parts: [] };
-    while (stack.length > 0 && stack[stack.length - 1].depth >= depth) stack.pop();
-    if (stack.length === 0) roots.push(node);
-    else stack[stack.length - 1].node.parts.push(node);
-    stack.push({ depth, node });
-  }
-  return roots;
-}
-
-function DriverList({ nodes, parent }: { nodes: DriverNode[]; parent?: string }) {
+/**
+ * D-5C.21: one `<ul>` per level; a driver's parts sit in a nested `<ul>` inside its `<li>`, never beside it, so the
+ * grouping on screen is the sum's grouping. No control: every level shows. The page adds nothing.
+ */
+function DriverList({ drivers, parent }: { drivers: DeepDiveDriver[]; parent?: string }) {
   return (
     <ul className={parent === undefined ? "dd-drivers" : "dd-drivers dd-drivers--parts"} aria-label={parent === undefined ? undefined : DD_COPY.partsOf(parent)}>
-      {nodes.map(({ driver, parts }, i) => (
-        <li key={i} className="dd-driver" data-dd-driver data-dd-depth={driver.depth ?? 0}>
+      {drivers.map((driver, i) => (
+        <li key={driver.key ?? i} className="dd-driver" data-dd-driver>
           <span className="dd-driver__label">{driver.label}</span> <span className="dd-num">{driver.value}</span> <Word word={driver.word} />
           <span className="dd-driver__meta">
             {driver.sites}
             {driver.detail !== null ? ` · ${driver.detail}` : ""}
           </span>
-          {parts.length > 0 ? <DriverList nodes={parts} parent={driver.label} /> : null}
+          {driver.children !== undefined && driver.children.length > 0 ? <DriverList drivers={driver.children} parent={driver.label} /> : null}
         </li>
       ))}
     </ul>
@@ -264,7 +248,7 @@ function StepDrawer({ step, api }: { step: DeepDiveStep; api: DrawerApi }) {
       {d.drivers.length > 0 ? (
         <>
           <h3>{DD_COPY.drawerDrivers}</h3>
-          <DriverList nodes={driverTree(d.drivers)} />
+          <DriverList drivers={d.drivers} />
         </>
       ) : null}
     </Drawer>

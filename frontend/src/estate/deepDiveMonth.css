@@ -487,10 +487,11 @@
   padding: var(--space-2) 0;
   border-top: 1px solid var(--border-subtle);
 }
+/* D-5C.21: each level indented by one spacing token, the parts' rule marking the group. */
 .dd-drivers--parts {
-  margin: var(--space-2) 0 0 var(--space-3);
-  padding-left: var(--space-3);
-  border-left: 2px solid var(--border-strong);
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--border-subtle);
 }
 .dd-drivers--parts .dd-driver:first-child {
   border-top: 0;
