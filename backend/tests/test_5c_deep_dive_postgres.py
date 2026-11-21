@@ -53,6 +53,9 @@ TIMED = ("as_of", "as_of_text", "status_line")
 A_FIXTURE_TEXT = "Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1%."
 A_TEXT = ("Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1% "
           "(Declared).")
+#: The same for the fuel-cost detail: unit 1's injected literal keeps 3A7's pre-SC-1f evidence words.
+A_FIXTURE_DETAIL = "Fuel cost (Recorded and Emulated): "
+A_DETAIL = "Fuel cost (Recorded, Emulated and Declared): "
 A_WORDS = ["Estimated, not yet reconciled", "Estimated, not yet reconciled", None, None,
            "Emulated, not yet reconciled", "Emulated, not yet reconciled", "Estimated, not yet reconciled",
            "Emulated, not yet reconciled", "Estimated, not yet reconciled", "Emulated, not yet reconciled",
@@ -107,7 +110,8 @@ def test_9_the_standing_is_read_at_the_snapshots_instant(lakeside) -> None:  # p
     build(x, at(11))
     raw = FIXTURE.read_text(encoding="utf-8")
     assert raw.count(A_FIXTURE_TEXT) == 2  # the standing and the Assure drawer's first line
-    fixture = json.loads(raw.replace(A_FIXTURE_TEXT, A_TEXT))
+    assert raw.count(A_FIXTURE_DETAIL) == 2
+    fixture = json.loads(raw.replace(A_FIXTURE_TEXT, A_TEXT).replace(A_FIXTURE_DETAIL, A_DETAIL))
 
     # (a) read at 11:30: World A's standing and money words, as of the build.
     a = read(x, at(11, 30))
@@ -118,7 +122,7 @@ def test_9_the_standing_is_read_at_the_snapshots_instant(lakeside) -> None:  # p
     assert a["standing"] == {
         "reconciled": False, "reason": "THIS_MONTH_NOT_MATCHED",
         "text": A_TEXT,
-        "details": ["Fuel cost (Recorded, Emulated and Declared): the accounts say $5,100.00 and the records say $4,995.00, "
+        "details": [A_DETAIL + "the accounts say $5,100.00 and the records say $4,995.00, "
                     "$105.00 less (2.06%), beyond the $51.00 allowed (1%)."]}
     assert money_words(a) == A_WORDS
     assert {k: v for k, v in a.items() if k not in TIMED} == {k: v for k, v in fixture.items() if k not in TIMED}
