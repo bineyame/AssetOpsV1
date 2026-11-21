@@ -72,6 +72,7 @@ TEXTS = [
     ("protect_line", "PROTECT_LINE", "Limits, warranties and rights are not set up yet"),
     ("reconciled", "RECONCILED", "Reconciled"), ("not_reconciled", "NOT_RECONCILED", "Not yet reconciled"),
     ("assure_title", "ASSURE_TITLE", "Reconciliation with the management accounts"),
+    ("currencies_differ", "CURRENCIES_DIFFER", "Not available yet: the Sites' figures are in different currencies."),
 ]
 
 CASES = [Case("deep_dive.text", variant, text(piece), english) for variant, piece, english in TEXTS] + [
@@ -178,6 +179,10 @@ CASES = [Case("deep_dive.text", variant, text(piece), english) for variant, piec
     Case("deep_dive.out", "not_mini_grid",
          {"site": Name("Thika", "site.name"), "reason": State("NOT_MINI_GRID")},
          "Thika: not a mini-grid Site, not included.", []),
+    Case("deep_dive.out", "currency_mismatch",
+         {"site": Name("Mto", "site.name"), "reason": State("CURRENCY_MISMATCH"),
+          "currency": Items((Name("KES", "row.currency"),)), "portfolio_currency": Name("USD", "row.currency")},
+         "Mto: its figures are in KES, not USD, so it is not included.", []),
     Case("deep_dive.out", "not_split", {"site": Name("Mto", "site.name"), "reason": State("NOT_SPLIT")},
          "Mto: not split this far.", []),
     Case("deep_dive.out", "needs_target",

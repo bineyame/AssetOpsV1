@@ -104,7 +104,7 @@ STATEMENTS = {
             "NOT_AVAILABLE", "CONTRIBUTION", "GAP", "GAP_TO_TARGET", "TARGET", "SITE", "PLAN_SPEND", "PLAN_SPEND_LINE",
             "PLAN_VALUE_LINE", "CASH_TITLE", "BILLED", "COLLECTED", "IN_TRANSIT", "OUTSTANDING", "DECISIONS_TITLE",
             "DECISIONS", "ACTIONS_TITLE", "ACTIONS_OFF", "ACTIONS_NONE", "NOT_BUILT", "OPTIMIZE_LINE",
-            "PROTECT_LINE", "RECONCILED", "NOT_RECONCILED", "ASSURE_TITLE"]}},
+            "PROTECT_LINE", "RECONCILED", "NOT_RECONCILED", "ASSURE_TITLE", "CURRENCIES_DIFFER"]}},
         "variants": [
             {"id": "not_available", "when": {"is": ["piece", "NOT_AVAILABLE"]}, "text": "Not available yet"},
             {"id": "contribution", "when": {"is": ["piece", "CONTRIBUTION"]}, "text": "Contribution"},
@@ -141,6 +141,11 @@ STATEMENTS = {
             {"id": "not_reconciled", "when": {"is": ["piece", "NOT_RECONCILED"]}, "text": "Not yet reconciled"},
             {"id": "assure_title", "when": {"is": ["piece", "ASSURE_TITLE"]},
              "text": "Reconciliation with the management accounts"},
+            # Review L7 (default literal, for the Architect to confirm): the headline when R's Sites hold more than
+            # one currency, so no portfolio figure sums. The brief's "more than one currency" is refused by
+            # LITERAL_NUMBER_WORD (D-SC1.32), so the literal says "different currencies".
+            {"id": "currencies_differ", "when": {"is": ["piece", "CURRENCIES_DIFFER"]},
+             "text": "Not available yet: the Sites' figures are in different currencies."},
         ],
         "exhaustive": "piece",
     },
@@ -347,12 +352,19 @@ STATEMENTS = {
     "deep_dive.out": {
         "evidence": "served",
         "slots": {"site": {"type": "name"},
-                  "reason": {"type": "state", "values": ["NOT_MINI_GRID", "NOT_SPLIT", "NEEDS"]},
+                  "reason": {"type": "state", "values": ["NOT_MINI_GRID", "NOT_SPLIT", "NEEDS", "CURRENCY_MISMATCH"]},
                   "needs": {"type": "part", "key": "deep_dive.needs"},
-                  "target": {"type": "money", "optional": True}},
+                  "target": {"type": "money", "optional": True},
+                  "currency": {"type": "items", "of": {"type": "name"}, "order": "given", "optional": True},
+                  "portfolio_currency": {"type": "name", "optional": True}},
         "variants": [
             {"id": "not_mini_grid", "when": {"is": ["reason", "NOT_MINI_GRID"]},
              "text": "{site}: not a mini-grid Site, not included."},
+            # Review M3 (default literal, for the Architect to confirm): a mini-grid Site whose own actual and target
+            # are in different currencies; `currency` is its currencies other than `portfolio_currency`.
+            {"id": "currency_mismatch", "when": {"is": ["reason", "CURRENCY_MISMATCH"]},
+             "requires": {"all": [{"present": "currency"}, {"present": "portfolio_currency"}]},
+             "text": "{site}: its figures are in {currency}, not {portfolio_currency}, so it is not included."},
             {"id": "not_split", "when": {"is": ["reason", "NOT_SPLIT"]}, "text": "{site}: not split this far."},
             {"id": "needs_target", "when": {"present": "target"},
              "text": "{site}: not compared until {needs}; its own target is {target}."},

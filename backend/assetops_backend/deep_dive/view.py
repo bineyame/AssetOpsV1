@@ -78,7 +78,6 @@ class _View:
         self.names = {c: names.get(c, c) for c in snap.asked}
         self.rows = self.pb.rows[T.ROOT]
         self.R = self.rows[T.ROOT]
-        self.cur = self.R.currency or "USD"
         self.steps = T.STEPS[T.MINI_GRID]
 
     # --- small pieces ---------------------------------------------------------------------------------------------
@@ -87,16 +86,24 @@ class _View:
         return self.names.get(code, code)
 
     def money(self, value: Decimal, row=None, cur: str | None = None):
+        """`value` in `cur`, else in its row's own currency (review H3: every figure in the currency of what it sums)."""
         ev = W.evidence(row.evidence, row.origins) if row is not None and row.evidence != "NOT_AVAILABLE" else None
-        return W.money(value, cur or self.cur, ev)
+        return W.money(value, cur if cur is not None else row.currency, ev)
 
-    def own_cur(self, code: str, row=None) -> str:
-        """The currency a Site's own figure prints in: the row's, else the Site's root's, else the portfolio's. The
-        portfolio's `self.cur` is only for portfolio figures (fix round 2)."""
-        return (row.currency if row is not None else None) or self.sb[code].roots[T.ROOT].currency or self.cur
+    def own_cur(self, code: str, row=None, side: str = "ACTUAL") -> str | None:
+        """The currency a Site's own figure prints in: the row's (its root's, D-5B), else, when the Site's actual and
+        target differ in currency (5b case (h)), that side's own currency for the row's factor. Never the
+        portfolio's (review H3); None prints "Not available yet"."""
+        sb = self.sb[code]
+        row = row if row is not None else sb.roots[T.ROOT]
+        if row.currency is not None:
+            return row.currency
+        values = sb.actual.values if side == "ACTUAL" else sb.targets.structure.values
+        held = values.get(row.factor_id if row.factor_id is not None else row.parent)
+        return held.currency if held is not None else None
 
     def word(self, row) -> str:
-        return W.word(row.evidence, row.origins, self.standing, self.cur)
+        return W.word(row.evidence, row.origins, self.standing, row.currency)
 
     def home(self, factor_id: str) -> str | None:
         home = self.reg.row(factor_id).home
@@ -133,7 +140,8 @@ class _View:
             for side, values in (("ACTUAL", sb.actual.values), ("TARGET", sb.targets.structure.values)):
                 v = values.get(r.factor_id)
                 if v is not None and v.stated and v.computed is not None and v.computed != v.value:
-                    parts.append(W.differ_text(side, W.money(v.value, self.own_cur(code)), W.money(v.computed, self.own_cur(code))))
+                    c = self.own_cur(code, r, side)
+                    parts.append(W.differ_text(side, W.money(v.value, c), W.money(v.computed, c)))
             return W.sentences(parts)
         if reason in T.NO_RULE:
             return W.stop_text("NO_RULE", (), ())
@@ -141,15 +149,31 @@ class _View:
 
     # --- section 3.1 ----------------------------------------------------------------------------------------------
 
-    def group_sums(self) -> dict[str, Decimal | None]:
-        """Each heading's sum of its steps' effects; None when no step has one (never 0 for missing, review H1)."""
-        sums: dict[str, Decimal | None] = {c: None for c in CATEGORIES}
+    def group_totals(self) -> dict[str, tuple[Decimal | None, str | None]]:
+        """Each heading's sum of its steps' effects with its currency; (None, None) when no step has one (never 0 for
+        missing, review H1) or when its steps' effects are in more than one currency (review H3)."""
+        held: dict[str, list] = {c: [] for c in CATEGORIES}
         for step in self.steps:
             row = self.rows.get(step)
             if row is not None and row.effect is not None:
-                home = self.home(step)
-                sums[home] = (sums[home] if sums[home] is not None else Decimal(0)) + row.effect
-        return sums
+                held[self.home(step)].append(row)
+        out: dict[str, tuple[Decimal | None, str | None]] = {}
+        for category, rows in held.items():
+            currencies = {r.currency for r in rows}
+            if not rows or len(currencies) != 1 or None in currencies:
+                out[category] = (None, None)
+                continue
+            total = Decimal(0)
+            for r in rows:
+                total += r.effect
+            out[category] = (total, rows[0].currency)
+        return out
+
+    def group_sums(self) -> dict[str, Decimal | None]:
+        return {c: total for c, (total, _) in self.group_totals().items()}
+
+    def group_cur(self, category: str) -> str | None:
+        return self.group_totals()[category][1]
 
     def heading_evidence(self, category: str) -> tuple[str, tuple[str, ...]]:
         """The weakest evidence of a heading's steps: the evidence its sum, its card and the headline carry."""
@@ -159,7 +183,8 @@ class _View:
         if category is None:
             return None
         ev, origins = self.heading_evidence(category)
-        return W.money(self.group_sums()[category], self.cur, W.evidence(ev, origins))
+        total, cur = self.group_totals()[category]
+        return W.money(total, cur, W.evidence(ev, origins))
 
     def headline(self) -> tuple[dict, str | None]:
         sums = self.group_sums()
@@ -168,13 +193,15 @@ class _View:
         gap = self.money(R.effect, R) if R.effect is not None else None
         big = self.big(subject)
         head = W.headline(gap, big, subject, self.month, R.k, self.n)
+        if gap is None and (R.note or "").startswith(T.CURRENCY_PREFIX):  # review L7: say why
+            head = {"text": W.text("CURRENCIES_DIFFER"), "evidence": []}
         # D-5C.20: each figure the headline states carries the payload's own word for it (through `money_word`, with
         # the standing): the gap R's, the named heading its steps' weakest. `served`'s unmarked words are replaced.
         words = []
         if gap is not None:
             words.append(self.word(R))
             if big is not None:
-                words.append(W.word(*self.heading_evidence(subject), self.standing, self.cur))
+                words.append(W.word(*self.heading_evidence(subject), self.standing, self.group_cur(subject)))
         head["evidence"] = list(dict.fromkeys(words))
         title = W.bridge_title(gap, big, subject) if gap is not None else None
         return head, title
@@ -205,24 +232,25 @@ class _View:
 
     def tiles(self) -> list[dict]:
         R, sums = self.R, self.group_sums()
-        ratio = self.cost_ratio()
+        cur, ratio = R.currency, self.cost_ratio()
         lines = []
         if R.target is not None:
             share = R.actual / R.target if R.actual is not None and R.target > 0 else None
-            lines.append(W.tile_target(W.money(R.target, self.cur), share))
+            lines.append(W.tile_target(W.money(R.target, cur), share))
         lines.append(W.sites(R.k, self.n))
         if ratio is not None:
             lines.append(W.cost_received(ratio))
-        contribution = {"key": T.TILE_KEYS[0], "label": W.text("CONTRIBUTION"), "value": W.amount(R.actual, self.cur),
+        contribution = {"key": T.TILE_KEYS[0], "label": W.text("CONTRIBUTION"), "value": W.amount(R.actual, cur),
                         "word": self.word(R), "lines": lines,
                         "bar": ({"actual": str(R.actual), "target": str(R.target)}
                                 if R.actual is not None and R.target is not None else None)}
         gap_lines = []
         if R.effect is not None and sums[T.GROW] is not None and sums[T.OPTIMIZE] is not None:
-            gap_lines.append(W.tile_split(W.money(sums[T.GROW], self.cur), W.money(sums[T.OPTIMIZE], self.cur)))
+            gap_lines.append(W.tile_split(W.money(sums[T.GROW], self.group_cur(T.GROW)),
+                                          W.money(sums[T.OPTIMIZE], self.group_cur(T.OPTIMIZE))))
         if R.effect is not None:
-            gap_lines.append(W.tile_rest(W.money(self.rest(), self.cur), W.money(R.effect, self.cur)))
-        gap = {"key": T.TILE_KEYS[1], "label": W.text("GAP_TO_TARGET"), "value": W.amount(R.effect, self.cur, "SIGNED"),
+            gap_lines.append(W.tile_rest(W.money(self.rest(), cur), W.money(R.effect, cur)))
+        gap = {"key": T.TILE_KEYS[1], "label": W.text("GAP_TO_TARGET"), "value": W.amount(R.effect, cur, "SIGNED"),
                "word": self.word(R), "lines": gap_lines, "bar": None}
         spend = {"key": T.TILE_KEYS[2], "label": W.text("PLAN_SPEND"), "value": W.text("NOT_AVAILABLE"), "word": None,
                  "lines": [W.text("PLAN_SPEND_LINE")], "bar": None}
@@ -268,9 +296,11 @@ class _View:
         out = dict(row.out)
         return [c for c in self.snap.asked if c in self.sb and c not in out]
 
-    def out_line(self, code: str, reasons: tuple[str, ...]) -> str:
+    def out_line(self, code: str, reasons: tuple[str, ...], row=None) -> str:
         if reasons == (T.OUT_NOT_SPLIT,):
             return W.out_text(self.name(code), "NOT_SPLIT")
+        if code in self.sb and (self.sb[code].roots[T.ROOT].reason or "").startswith(T.CURRENCY_PREFIX):
+            return self.out_currency(code, row)
         actual = [r[len(T.ACTUAL_PREFIX):] for r in reasons if r.startswith(T.ACTUAL_PREFIX)]
         target = [r[len(T.TARGET_PREFIX):] for r in reasons if r.startswith(T.TARGET_PREFIX)]
         if code not in self.sb or not (actual or target):
@@ -278,7 +308,20 @@ class _View:
         own = self.sb[code].roots[T.ROOT].target
         keys = W.actual_keys(actual, self.notes(code))
         return W.out_text(self.name(code), "NEEDS", keys, target,
-                          W.money(own, self.own_cur(code)) if own is not None else None)
+                          W.money(own, self.own_cur(code, side="TARGET")) if own is not None else None)
+
+    def out_currency(self, code: str, row=None) -> str:
+        """Review M3: a mini-grid Site out because its own actual and target are in different currencies. Its
+        currencies other than the figure's (the portfolio row's, else R's, else the other Sites', else its own
+        target's) are named."""
+        reason = self.sb[code].roots[T.ROOT].reason
+        held = reason[len(T.CURRENCY_PREFIX):].split(T.CURRENCY_SEP)
+        others = [self.sb[c].roots[T.ROOT].currency for c in self.snap.asked if c in self.sb and c != code]
+        reference = ((row.currency if row is not None else None) or self.R.currency
+                     or next((c for c in others if c is not None), None) or self.own_cur(code, side="TARGET")
+                     or held[-1])
+        own = [c for c in held if c != reference]
+        return W.out_text(self.name(code), "CURRENCY_MISMATCH", currencies=own, portfolio_currency=reference)
 
     def descendants(self, step: str) -> dict[str, str]:
         """Each registry descendant of `step` with its registry parent (the first reached, breadth first)."""
@@ -319,7 +362,7 @@ class _View:
             r = self.rows[key]
             x = key[len(T.RESIDUAL_PREFIX):] if key.startswith(T.RESIDUAL_PREFIX) else None
             return {"key": key, "label": W.factor_label(key if x is None else x),
-                    "value": W.amount(r.effect, self.cur, "SIGNED"), "sites": W.sites(r.k, self.n),
+                    "value": W.amount(r.effect, r.currency, "SIGNED"), "sites": W.sites(r.k, self.n),
                     "detail": self.driver_detail(key, r), "word": self.word(r),
                     "children": [node(k) for k in kids.get(key, [])]}
         return [node(k) for k in kids.get(step, [])]
@@ -336,15 +379,15 @@ class _View:
             kind = "PRICE"
         else:
             kind = "QUANTITY"
-        return W.detail(kind, row.actual, row.target, self.cur, symbol)
+        return W.detail(kind, row.actual, row.target, row.currency, symbol)
 
     def drawer(self, step: str, row) -> dict:
         lines = []
         if row.actual is not None and row.target is not None and row.gap is not None:
-            lines.append(W.drawer_values(W.money(row.actual, self.cur), W.money(row.target, self.cur),
-                                         W.money(row.gap, self.cur)))
+            lines.append(W.drawer_values(W.money(row.actual, row.currency), W.money(row.target, row.currency),
+                                         W.money(row.gap, row.currency)))
         if row.effect is not None:
-            lines.append(W.drawer_effect(W.money(row.effect, self.cur)))
+            lines.append(W.drawer_effect(W.money(row.effect, row.currency)))
         lines.append(W.sites(row.k, self.n))
         site_rows = []
         for code in self.included(row):
@@ -355,9 +398,9 @@ class _View:
                                                 T.CELL_FORM[own is not None and own.carried]),
                               "text": W.sentences(stops) if stops else None})
         carried = [W.carried(self.name(c), step) for c in row.carried if step in T.CARRIED_STATE]
-        out = [self.out_line(c, reasons) for c, reasons in row.out]
-        lines_org = [W.portfolio_line(W.money(line.value, line.currency or self.cur), line.factor_id)
-                     for line in self._portfolio_lines() if line.factor_id == step]
+        out = [self.out_line(c, reasons, row) for c, reasons in row.out]
+        lines_org = [W.portfolio_line(W.money(line.value, line.currency), line.factor_id)
+                     for line in self._portfolio_lines() if line.factor_id == step and line.currency is not None]
         drivers = self.drivers(step)
         return {"title": W.factor_label(step), "lines": lines, "sites": site_rows, "carried": carried, "out": out,
                 "lines_org": lines_org, "drivers": drivers}
@@ -377,14 +420,16 @@ class _View:
             for s in steps:
                 row = self.rows.get(s)
                 effect = row.effect if row is not None else None
-                items.append({"key": s, "label": W.factor_label(s), "value": W.amount(effect, self.cur, "SIGNED"),
+                items.append({"key": s, "label": W.factor_label(s), "value": W.amount(effect, row.currency if row is not None else None,
+                                                                      "SIGNED"),
                               "share": shares.get(s), "word": self.word(row) if row is not None else
                               W.text("NOT_AVAILABLE"), "sites": W.sites(row.k, self.n) if row is not None else None,
                               "drawer": self.drawer(s, row) if row is not None else None})
+            total, cur = self.group_totals()[category]
             groups.append({"key": category, "label": W.heading_label(category),
-                           "value": W.amount(self.group_sums()[category], self.cur, "SIGNED"), "steps": items})
-        totals = {"actual_label": W.totals_label(self.month), "actual": W.amount(R.actual, self.cur),
-                  "target_label": W.text("TARGET"), "target": W.amount(R.target, self.cur)}
+                           "value": W.amount(total, cur, "SIGNED"), "steps": items})
+        totals = {"actual_label": W.totals_label(self.month), "actual": W.amount(R.actual, R.currency),
+                  "target_label": W.text("TARGET"), "target": W.amount(R.target, R.currency)}
         return {"title": title, "totals": totals, "groups": groups, "by_site": self.by_site()}
 
     def by_site(self) -> dict:
@@ -397,7 +442,8 @@ class _View:
                 continue
             root = self.sb[code].roots[T.ROOT]
             c = self.own_cur(code, root)
-            cells = [self.name(code), W.amount(root.actual, c), W.amount(root.target, c)]
+            cells = [self.name(code), W.amount(root.actual, c),
+                     W.amount(root.target, self.own_cur(code, root, "TARGET"))]
             if code in out:
                 cells.extend(W.not_compared() for _ in range(1 + len(self.steps)))
             else:
@@ -408,9 +454,11 @@ class _View:
                     cells.append(W.amount(own.effect if own is not None else None, self.own_cur(code, own),
                                           T.CELL_FORM[carried]))
             rows.append(cells)
-        total = [W.sites(self.R.k, self.n), W.amount(self.R.actual, self.cur), W.amount(self.R.target, self.cur),
-                 W.amount(self.R.effect, self.cur, "SIGNED"),
-                 *(W.amount(self.rows[s].effect if s in self.rows else None, self.cur, "SIGNED") for s in self.steps)]
+        R = self.R
+        total = [W.sites(R.k, self.n), W.amount(R.actual, R.currency), W.amount(R.target, R.currency),
+                 W.amount(R.effect, R.currency, "SIGNED"),
+                 *(W.amount(self.rows[s].effect, self.rows[s].currency, "SIGNED") if s in self.rows
+                   else W.amount(None, None, "SIGNED") for s in self.steps)]
         return {"columns": columns, "rows": rows, "total": total}
 
     # --- section 3.3 ----------------------------------------------------------------------------------------------
@@ -420,10 +468,13 @@ class _View:
         root = rows[T.CASH]
         transit, owed, revenue = rows.get(T.IN_TRANSIT), rows.get(T.OUTSTANDING), self.rows.get(T.REVENUE)
 
-        def m(row):
-            return W.money(row.actual, self.cur) if row is not None and row.actual is not None else None
-        sentence = W.cash(self.month, m(root), W.money(root.target, self.cur) if root.target is not None else None,
-                          m(owed), m(transit))
+        def m(row, value=None):  # each cash figure in its own row's currency (review H3)
+            value = row.actual if row is not None and value is None else value
+            return W.money(value, row.currency) if value is not None and row.currency is not None else None
+
+        def a(row):
+            return W.amount(row.actual, row.currency) if row is not None else W.amount(None, None)
+        sentence = W.cash(self.month, m(root), m(root, root.target), m(owed), m(transit))
         table_rows = []
         for code in self.snap.asked:
             if code not in self.sb:
@@ -437,9 +488,7 @@ class _View:
                                W.amount(cash_root.actual, self.own_cur(code, cash_root)),
                                W.amount(t.actual if t is not None else None, self.own_cur(code, t)),
                                W.amount(o.actual if o is not None else None, self.own_cur(code, o))])
-        total = [W.sites(root.k, self.n), W.amount(revenue.actual if revenue is not None else None, self.cur),
-                 W.amount(root.actual, self.cur), W.amount(transit.actual if transit is not None else None, self.cur),
-                 W.amount(owed.actual if owed is not None else None, self.cur)]
+        total = [W.sites(root.k, self.n), a(revenue), a(root), a(transit), a(owed)]
         columns = [W.text("SITE"), W.text("BILLED"), W.text("COLLECTED"), W.text("IN_TRANSIT"), W.text("OUTSTANDING")]
         return {"title": W.text("CASH_TITLE"), "text": sentence, "word": self.word(root),
                 "sites": W.sites(root.k, self.n), "table": {"columns": columns, "rows": table_rows, "total": total}}
@@ -551,8 +600,8 @@ def _outcomes(v: _View, standing: Standing, fresh: dict) -> list[dict]:
         steps = [v.rows[s] for s in v.steps if s in v.rows and v.home(s) == category]
         if category in (T.GROW, T.OPTIMIZE):
             ev, origins = v.heading_evidence(category)
-            card["value"] = W.amount(sums[category], v.cur, "SIGNED")
-            card["word"] = W.word(ev, origins, standing, v.cur)
+            card["value"] = W.amount(sums[category], v.group_cur(category), "SIGNED")
+            card["word"] = W.word(ev, origins, standing, v.group_cur(category))
             card["line"] = (W.grow_line(steps[0].k if steps else 0, v.n) if category == T.GROW
                             else W.text("OPTIMIZE_LINE"))
             card["drawer"] = None

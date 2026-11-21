@@ -461,7 +461,9 @@ def test_4_i_nothing_compared(monkeypatch) -> None:  # review H1
         return replace(sb, roots={k: in_kes(r) for k, r in sb.roots.items()}) if sb.site_code == "MTO-001" else sb
     monkeypatch.setattr(V, "site_bridge", site_bridge)
     v = view()
-    assert v["headline"] == {"text": "Contribution for October is not available yet.", "evidence": []}
+    # Review L7: the headline says why (R's Sites hold KES and USD).
+    assert v["headline"] == {"text": "Not available yet: the Sites' figures are in different currencies.",
+                             "evidence": []}
     gap = v["tiles"][1]
     assert (gap["value"], gap["word"], gap["lines"]) == ("Not available yet", "Not available yet", [])
     b = v["bridge"]
@@ -516,10 +518,136 @@ def test_4_i_nothing_compared(monkeypatch) -> None:  # review H1
     v7.sb["KOBO-001"] = SimpleNamespace(roots={T.ROOT: SimpleNamespace(currency="KES")},
                                         actual=SimpleNamespace(values=vals),
                                         targets=SimpleNamespace(structure=SimpleNamespace(values={})))
-    differ = SimpleNamespace(kind="FACTOR", split="NOT_SPLIT", reason="RECORD_AND_FACTORS_DIFFER",
+    differ = SimpleNamespace(kind="FACTOR", split="NOT_SPLIT", reason="RECORD_AND_FACTORS_DIFFER", currency="KES",
                              factor_id="fuel_cost", unobserved_actual=(), unobserved_target=())
     said = v7.stop("KOBO-001", differ)
     assert said and "KES" in said and "$" not in said, said
+
+
+# --- test 4 i, currency (review H3, M3): every figure prints in the currency of the rows it sums ---------------
+
+def _owned(obj, path="", mto=False):
+    """Every string of the payload with its path and whether it is Mto's own figure: a by-Site or cash row of Mto's,
+    a drawer Site entry of Mto's, or a sentence about Mto."""
+    if isinstance(obj, str):
+        yield path, obj, mto or obj.startswith("Mto")
+    elif isinstance(obj, dict):
+        mine = mto or obj.get("site") == "Mto"
+        for k, x in obj.items():
+            yield from _owned(x, f"{path}.{k}", mine)
+    elif isinstance(obj, list):
+        mine = mto or (bool(obj) and obj[0] == "Mto")
+        for i, x in enumerate(obj):
+            yield from _owned(x, f"{path}[{i}]", mine)
+
+
+def _in_kes(row):
+    return replace(row, currency="KES" if row.currency is not None else None, rows=tuple(_in_kes(c) for c in row.rows))
+
+
+def _gone(row, factor_id: str):
+    """`row` with `factor_id`'s own row not compared (its records missing): no effect, no split."""
+    if row.factor_id == factor_id and row.kind != "RESIDUAL":
+        return replace(row, gap=None, effect=None, evidence="NOT_AVAILABLE", origins=(), split="NOT_SPLIT",
+                       reason="GAP_NOT_AVAILABLE", rows=())
+    return replace(row, rows=tuple(_gone(c, factor_id) for c in row.rows))
+
+
+def test_4_i_currency_one_currency_subset(monkeypatch) -> None:  # review H3, probe cur1
+    """Kobo and Kisiwa keep KES, Mto USD, and Mto's fuel cost (and its cash) is not available: R sums nothing (two
+    currencies), but the fuel cost step, its drivers, the Optimize heading and card, the by-Site total's fuel cell and
+    the cash figures sum Kobo and Kisiwa only (2 of 3 Sites), in KES. No KES figure is printed with "$", and no figure
+    of Mto's with KES. (Notices and the organisation's budget lines print in their own budget currency, USD, which
+    this world does not change.)"""
+    real = V.site_bridge
+
+    def site_bridge(inputs, targets):
+        sb = real(inputs, targets)
+        if sb.site_code == "MTO-001":
+            roots = dict(sb.roots)
+            roots[T.ROOT] = _gone(roots[T.ROOT], "fuel_cost")
+            roots[T.CASH] = replace(roots[T.CASH], gap=None, effect=None, evidence="NOT_AVAILABLE", origins=(),
+                                    split="NOT_SPLIT", reason="GAP_NOT_AVAILABLE", rows=())
+            return replace(sb, roots=roots)
+        return replace(sb, roots={k: _in_kes(r) for k, r in sb.roots.items()})
+    monkeypatch.setattr(V, "site_bridge", site_bridge)
+    v = view("H", standing=RECONCILED)  # H: Kobo's fuel cost splits into litres and price (drivers)
+    assert v["headline"]["text"] == "Not available yet: the Sites' figures are in different currencies."
+    b = v["bridge"]
+    fuel = step(v, "fuel_cost")
+    assert fuel["sites"] == "2 of 3 Sites"
+    assert fuel["value"].startswith("−KES") and "$" not in fuel["value"], fuel["value"]  # the step
+    opt = next(g for g in b["groups"] if g["key"] == T.OPTIMIZE)
+    assert opt["value"] == fuel["value"]  # the heading: only fuel cost has a figure
+    lines = fuel["drawer"]["lines"]
+    assert lines[:2] and all("KES" in x and "$" not in x for x in lines[:2]), lines  # the drawer's figures
+    drivers = [d for d in _paths(fuel["drawer"]["drivers"]) if d[0].endswith(".value") and d[1] != "Not available yet"]
+    assert drivers and all("KES" in x and "$" not in x for _, x in drivers), drivers  # the drivers
+    details = [x for p, x in _paths(fuel["drawer"]["drivers"]) if p.endswith(".detail")]
+    assert details and not any("$" in x for x in details), details
+    total = b["by_site"]["total"]
+    assert total[1:4] == ["Not available yet"] * 3
+    assert "KES" in total[4 + T.STEPS[T.MINI_GRID].index("fuel_cost")], total  # the by-Site total's fuel cell
+    card = next(c for c in v["outcomes"] if c["label"] == "Optimize cost and efficiency")
+    assert card["value"] == fuel["value"]  # the card
+    cash = v["cash"]
+    assert cash["sites"] == "2 of 3 Sites" and "KES" in cash["text"] and "$" not in cash["text"], cash["text"]
+    assert all("KES" in x for x in cash["table"]["total"][2:]), cash["table"]["total"]
+    mto = b["by_site"]["rows"][2]
+    assert mto[0] == "Mto" and "$" in mto[1] and "$" in mto[2], mto  # Mto's own figures in its own USD
+    # Across the whole payload: no amount prints in a currency other than its rows'.
+    wrong = [(p, x) for p, x, mine in _owned(v) if not p.startswith(".notices") and ".lines_org[" not in p
+             and (("KES" in x) if mine else ("$" in x))]
+    assert wrong == []
+    assert [p for p, x, mine in _owned(v) if not mine and "KES" in x]
+
+
+def test_4_i_currency_a_sites_own_sides_differ(monkeypatch) -> None:  # review H3, M3, probe cur2 (5b case (h))
+    """Mto's actual is in KES and its target in USD: Mto prints each side in its own currency (never the portfolio's),
+    and is out of every portfolio figure with the currency reason, not "not a mini-grid Site"."""
+    real = V.site_bridge
+
+    def site_bridge(inputs, targets):
+        sb = real(inputs, targets)
+        if sb.site_code != "MTO-001":
+            return sb
+        values = {f: (replace(x, currency="KES") if x.currency is not None else x) for f, x in sb.actual.values.items()}
+        roots = {k: bridge(MG, values, sb.targets.structure.values, k) for k in sb.roots}
+        return replace(sb, roots=roots, actual=replace(sb.actual, values=values))
+    monkeypatch.setattr(V, "site_bridge", site_bridge)
+    v = view(standing=RECONCILED)
+    b = v["bridge"]
+    assert b["totals"]["actual"].startswith("$") and v["tiles"][0]["value"].startswith("$")  # R: Kobo and Kisiwa
+    mto = b["by_site"]["rows"][2]
+    assert mto[0] == "Mto" and mto[1].startswith("KES") and mto[2].startswith("$"), mto  # each side its own
+    assert mto[3:] == ["Not compared"] * (1 + len(T.STEPS[T.MINI_GRID]))
+    outs = [o for g in b["groups"] for s in g["steps"] for o in s["drawer"]["out"] if o.startswith("Mto")]
+    assert outs and set(outs) == {"Mto: its figures are in KES, not USD, so it is not included."}, outs  # M3
+    assert not [x for x in strings(v) if "not a mini-grid Site" in x]
+    cash_mto = v["cash"]["table"]["rows"][2]
+    assert cash_mto[0] == "Mto" and cash_mto[2].startswith("KES"), cash_mto
+    # Across the whole payload: KES is Mto's actual side only; a "$" of Mto's is its target or its budget's notice.
+    kes = [p for p, x, mine in _owned(v) if "KES" in x and not (mine and ".out[" not in p)]
+    assert kes == [p for p, x, _ in _owned(v) if x.startswith("Mto: its figures are in KES")]
+    mto_usd = [p for p, x, mine in _owned(v) if mine and "$" in x and not p.startswith(".notices")]
+    assert mto_usd == [".bridge.by_site.rows[2][2]"], mto_usd
+
+
+def test_4_h_residual_is_last_of_its_parent() -> None:  # review L8, D-5C.21, plant RP4
+    """A residual sits under the factor it splits, after that factor's other parts, whatever `pb.rows` order."""
+    def row(effect: str):
+        return SimpleNamespace(effect=D(effect), currency="USD", k=1, actual=None, target=None, evidence="DERIVED",
+                               origins=())
+    v = V._View.__new__(V._View)
+    v.reg, v.n, v.standing = MG, 1, RECONCILED
+    v.rows = {k: row("1") for k in ("revenue", "residual:revenue", "residual:billed_kwh", "billed_kwh",
+                                    "delivered_kwh", "tariff")}
+
+    def tree(nodes):
+        return [(n["key"], tree(n["children"])) for n in nodes]
+    assert tree(v.drivers("revenue")) == [
+        ("billed_kwh", [("delivered_kwh", []), ("residual:billed_kwh", [])]), ("tariff", []),
+        ("residual:revenue", [])]
 
 
 LEAD = [  # (gap, grow, optimize, headline, title)

@@ -71,12 +71,17 @@ def not_compared() -> str:
     return figure_text(message("deep_dive.money", value=Absent("NOT_COMPARED"), form=State("PLAIN")))
 
 
+#: ISO 4217's "no currency" code: the carrier `money_word` needs when a word's figure has no single currency. The word
+#: prints no amount, so no currency is ever shown from it (review H3: nothing defaults to USD).
+NO_CURRENCY = "XXX"
+
+
 def word(ev: str, origins: Sequence[str], standing: Standing, currency: str | None) -> str:
     """Section 2.4 for a money figure: "Not available yet", else the evidence word (section 2.4's order, `evidence`)
     with 3A7's money suffix."""
     if ev == "NOT_AVAILABLE":
         return text("NOT_AVAILABLE")
-    return money_word(Money(Decimal(0), currency or "USD", evidence(ev, origins)), standing)
+    return money_word(Money(Decimal(0), currency or NO_CURRENCY, evidence(ev, origins)), standing)
 
 
 def weakest_of(rows: Iterable[Any]) -> tuple[str, tuple[str, ...]]:
@@ -213,8 +218,12 @@ def needs_row(keys: Iterable[str], target_leaves: Sequence[str]) -> str:
 
 
 def out_text(site: str, reason: str, keys: Iterable[str] = (), target_leaves: Sequence[str] = (),
-             target: Money | None = None) -> str:
+             target: Money | None = None, currencies: Sequence[str] = (), portfolio_currency: str | None = None) -> str:
     facts: dict[str, Any] = {"site": Name(site, "site.name"), "reason": State(reason)}
+    if currencies:
+        facts["currency"] = Items(tuple(Name(c, "row.currency") for c in currencies))
+    if portfolio_currency is not None:
+        facts["portfolio_currency"] = Name(portfolio_currency, "row.currency")
     if reason == "NEEDS":
         facts.update(needs_facts(keys, target_leaves))
     if target is not None:
