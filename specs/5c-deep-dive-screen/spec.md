@@ -205,6 +205,11 @@ def month_view(*, operator: str, month: str, served: Served, standing: Standing,
 ```
 `standing` is the organisation's, read by the caller at `served.as_of` (D-3A7.9, D-5C.4); it words every money figure.
 `names`: Site code to display name (absent: the code). `month_view` keeps the port's order.
+**Amended (D-3A7.16, 2026-11-21).** `Standing` also has `details: tuple[str, ...]` (the failing headings' sentences;
+`()` unless the reason is `THIS_MONTH_NOT_MATCHED` or `THIS_MONTH_NOT_COMPARABLE`). §3.1: `standing` is `{"reconciled",
+"reason", "text", "details"}`; the assure drawer's `lines` are `[standing.text, *standing.details]` plus
+`fresh.untracked_text` when not null. §3.5 World A: `text` ends at "...within 1%." and the fuel-cost sentence is the one
+entry of `details` (strings in SC-1's forms when 5c converts its words).
 
 **Build.** `served.state` NO_SNAPSHOT or REBUILD_NEEDED: only the header keys (`schema` to `state_text`; §3.1).
 SERVED: `snap = served.snapshot`; `sb = {c: site_bridge(s.inputs, s.targets) for c, s in snap.sites.items()}`;
