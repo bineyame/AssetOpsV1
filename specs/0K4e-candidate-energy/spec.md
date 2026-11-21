@@ -38,6 +38,11 @@ instant (E10).
      night, the count of Candidate segments and Candidate minutes on `main` (3.2) over that fixture's days, labelled
      as such, kept for E9 (D-0K4.23).
   A pin the sweep finds that this spec does not name is a mid-build question.
+  **Named pin (5c review flag (c), 2026-11-21; 5c `rulings.md`):** `backend/tests/test_5c_deep_dive_view.py::
+  test_4_h_kobo_litres` holds Kobo's October litres as literals (330 L, −$412.50, 730 L, −$37.50), read from 4d's
+  KOBO-OCT test inputs. Class it in the sweep: if 0K4e leaves those inputs unchanged, leave the test and say so in the
+  packet; if it moves them, update the literals by hand (W2), never by running the view. The test exists only on
+  `task/5c-deep-dive-screen` until 5c merges; whichever of 5c and 0K4e merges second runs it.
 - **Files.** Edited: `analytics/dispatch_v3.py`, `analytics/assessment_inputs.py` (two constants),
   `analytics/adapters/postgres_assessment_store.py` (`_configuration` only), `analytics/claim_limit_read.py`
   (`SUPPORTED_MODELS`), `analytics/plain.py` (`_segment`), `analytics/finding_read.py` (`portion_cause` and its

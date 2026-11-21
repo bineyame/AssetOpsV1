@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-0K4.1 to D-0K4.25)
+# Decision index: Demo-sprint and later rulings (index only) (D-0K4.1 to D-0K4.25, D-5C.19 to D-5C.25)
 
 - `D-0K4.1` 0K4 units, sizes, order and lanes (8.75 units; critical path 0K4a then 0K4d) · live; amended by D-0K4.25 · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.2` one new simulator version mini-grid v8 holds both physics corrections; v1-v7 untouched · live · specs/0K4-dispatch-model-review/rulings.md
@@ -25,3 +25,10 @@
 - `D-0K4.23` 0K4e answers: one-argument memoised walk, E5b redesigned, roles per instant, CaseRunner fixture, I6 · live · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.24` 0K4e energy-cover outcome stored as facts, explained by SC-1 statements in plain and finding reads · live · specs/0K4-dispatch-model-review/rulings.md
 - `D-0K4.25` sizes after the handshake (10.5 u; critical path about 4.0) and lane order; amends D-0K4.1 · live · specs/0K4-dispatch-model-review/rulings.md
+- `D-5C.19` (H2) spec 2.4 governs the deep-dive's evidence words after SC-1f; emulated reads Emulated, observed DECLARED reads Recorded · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.20` (M2) one figure, one evidence statement: the headline's evidence through money_word like the tiles; PF8 confirmed · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.21` (L2) step drawer drivers nested (key, children), parent the nearest ancestor with a row · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.22` (L3) the JSON holds every Site row; the screen caps (10, 8; Show all n); Actions capped by the server · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.23` (flag a, L1) a carried step's cell and drawer row read "(at budget)"; 5b's carry rule unchanged · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.24` (KD1) World H's diesel price driver: detail null, word Modelled · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.25` (L5) record words: BILLING names the lines' kWh and tariff, LOSS_BAND without a comma; no comma outside brackets · live · specs/5c-deep-dive-screen/rulings.md
