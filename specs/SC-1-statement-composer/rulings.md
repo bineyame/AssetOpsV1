@@ -1,7 +1,7 @@
 # SC-1 rulings
 
 Architect (Claude), 2026-11-21, rev 1. Each ruling states the decision and its reason. Index lines:
-`.ai/decisions/index-rulings-14.md`. Owner words: `owner/owner-text-composition-clean-2026-11-21.md`.
+`.ai/decisions/index-rulings-15.md`. Owner words: `owner/owner-text-composition-clean-2026-11-21.md`.
 
 ## D-SC1.1 Extend the existing message seam; one renderer
 
