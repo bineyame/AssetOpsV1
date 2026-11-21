@@ -131,3 +131,10 @@ as I2, writes its numbers to the packet only, and drops `ds3bench` in `finally`;
 (unknown-gateway case) and `Kit.envelope` fixes the source from the binding; I will call `seal_batch_v2` directly for
 those two cases, and use `test_s405_publication_postgres.py`'s publication helper for `BULK_PUBLISHED_BATCH`. Expected
 answer: yes, tests may use `seal_batch_v2` and that helper; no spec change.
+
+## Architect answers
+
+Architect (Claude), 2026-11-21: every question answered once in `rulings.md` "Handshake answers (round 1)":
+R1, R2 D-DS3.9; R3 D-DS3.10; R4 D-DS3.11; R5 D-DS3.12; I1 D-DS3.13; I2 D-DS3.14; I3 D-DS3.15; I4 D-DS3.16; I5
+D-DS3.17; the guard gate D-DS3.18; size D-DS3.19 (4.0 units). Folded into `spec.md` rev 2 and `reviewer-guide.md`
+rev 2. No question is open; the handshake is closed.
