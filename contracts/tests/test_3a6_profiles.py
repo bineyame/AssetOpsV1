@@ -293,6 +293,167 @@ def test_n3_unicode_digit_row_number_is_a_workbook_refusal() -> None:
     assert refused_file(profile(BUDGET), rezip(members)) == "NATIVE_WORKBOOK"
 
 
+# --- N3 r3: one work bound for the workbook (fix round r3, review N4) ---------------------------------------------
+# Adversarial workbooks, each small once deflated, each bounded on time and on peak memory. Builders follow the
+# reviewer's round 3 probes. `_WORK_MAX` is the reader's one budget (XML elements parsed across the members read).
+
+from assetops_contracts.native import xlsx as _xlsx  # noqa: E402
+
+_ONE = b'<row r="%d"><c r="A%d" t="inlineStr"><is><t>x</t></is></c></row>'
+
+
+def _deflated(members: dict[str, bytes]) -> bytes:
+    out = io.BytesIO()
+    with zipfile.ZipFile(out, "w", compression=zipfile.ZIP_DEFLATED) as z:
+        for name, raw in members.items():
+            z.writestr(name, raw)
+    return out.getvalue()
+
+
+def _workbook(rows_xml: bytes = b"", header_extra: bytes = b"", members: dict[str, bytes] | None = None) -> bytes:
+    """The budget workbook with `header_extra` inside its header row, `rows_xml` after its rows, `members` added or
+    replaced."""
+    m = zip_members(budget_bytes())
+    sheet = m["xl/worksheets/sheet1.xml"]
+    a = sheet.index(b"</row>")
+    sheet = sheet[:a] + header_extra + sheet[a:]
+    b = sheet.index(b"</sheetData>")
+    m["xl/worksheets/sheet1.xml"] = sheet[:b] + rows_xml + sheet[b:]
+    m.update(members or {})
+    return _deflated(m)
+
+
+def _outcome(data: bytes) -> str:
+    try:
+        return f"ok {len(read(profile(BUDGET), data).obj['records'])}"
+    except CanonicalRefused as refused:
+        return refused.code
+
+
+def _bounded(data: bytes, seconds: float, megabytes: float) -> str:
+    """The read's outcome, after one plain run bounded on time and one traced run bounded on peak memory."""
+    import time
+    import tracemalloc
+    started = time.perf_counter()
+    outcome = _outcome(data)
+    elapsed = time.perf_counter() - started
+    tracemalloc.start()
+    try:
+        assert _outcome(data) == outcome
+        _, peak = tracemalloc.get_traced_memory()
+    finally:
+        tracemalloc.stop()
+    assert elapsed < seconds and peak < megabytes * 1e6, (outcome, elapsed, peak)
+    return outcome
+
+
+def test_n3_r3_duplicate_header_rows_are_a_workbook_refusal_in_bounded_time() -> None:
+    """N4: thousands of rows numbered 1 with a cell at XFD must not rebuild the header once each."""
+    data = _workbook(b'<row r="1"><c r="XFD1"><v>1</v></c></row>' * 5000)
+    assert len(data) < 20_000
+    assert _bounded(data, 1.0, 20) == "NATIVE_WORKBOOK"
+
+
+def test_n3_r3_duplicate_data_rows_are_a_workbook_refusal() -> None:
+    assert _bounded(_workbook(b'<row r="500"><c r="A500"><v>1</v></c></row>' * 5000), 1.0, 20) == "NATIVE_WORKBOOK"
+
+
+def test_n3_r3_decreasing_row_numbers_are_a_workbook_refusal() -> None:
+    assert _bounded(_workbook(b"".join(_ONE % (n, n) for n in range(5500, 500, -1))), 1.0, 20) == "NATIVE_WORKBOOK"
+
+
+def test_n3_r3_row_zero_and_rows_past_excel_are_workbook_refusals() -> None:
+    assert _outcome(_workbook(b'<row r="1048577"><c r="A1048577"><v>1</v></c></row>')) == "NATIVE_WORKBOOK"
+    m = zip_members(budget_bytes())
+    sheet = m["xl/worksheets/sheet1.xml"]
+    m["xl/worksheets/sheet1.xml"] = sheet.replace(b'<row r="1"', b'<row r="0"', 1)
+    assert _outcome(_deflated(m)) == "NATIVE_WORKBOOK"
+
+
+def test_n3_r3_rows_without_r_follow_the_previous_row() -> None:
+    """§2.3: a `<row>` without `r` takes the previous row's number plus one, so it rises by itself; a numbered row
+    after it must still rise past it."""
+    from assetops_contracts.native.xlsx import xlsx_sparse_rows
+    rows = xlsx_sparse_rows(_workbook(b'<row><c r="A5"><v>1</v></c></row><row/><row r="9"/>'), "Budget 2026")
+    assert [n for n, _ in rows][-3:] == [5, 6, 9]
+    assert _outcome(_workbook(b'<row><c r="A5"><v>1</v></c></row><row r="5"/>')) == "NATIVE_WORKBOOK"
+
+
+def test_n3_r3_far_header_cell_is_compared_without_padding() -> None:
+    """The header is the layout's width plus a check for non-empty cells past it: an empty far cell keeps a valid
+    header, a far value refuses it, as before."""
+    assert _outcome(_workbook(header_extra=b'<c r="XFD1"/>')) == "ok 3"
+    assert _outcome(_workbook(header_extra=b'<c r="XFD1" t="inlineStr"><is><t></t></is></c>')) == "ok 3"
+    assert _outcome(_workbook(header_extra=b'<c r="XFD1" t="inlineStr"><is><t>x</t></is></c>')) == "NATIVE_HEADER"
+    assert _outcome(_workbook(header_extra=b'<c r="F1" t="inlineStr"><is><t>Extra</t></is></c>')) == "NATIVE_HEADER"
+
+
+# Past-the-bound cases run with the bound lowered to `_SMALL` so the traced run stays short; the time and memory
+# they need scale with the bound, and the near-member-cap case below runs at the real one.
+_SMALL = 100_000
+
+
+def test_n3_r3_the_bound_is_the_stated_one() -> None:
+    assert _xlsx._WORK_MAX == 500_000
+
+
+def test_n3_r3_many_empty_rows_under_the_bound_read_as_before() -> None:
+    data = _workbook(b"<row/>" * 100_000)
+    assert len(data) < 20_000
+    assert _bounded(data, 1.5, 40) == "ok 3"
+
+
+def test_n3_r3_empty_rows_past_the_bound_are_refused(monkeypatch) -> None:
+    monkeypatch.setattr(_xlsx, "_WORK_MAX", _SMALL)
+    assert _bounded(_workbook(b"<row/>" * (_SMALL + 10)), 1.0, 30) == "NATIVE_WORKBOOK"
+
+
+def test_n3_r3_near_member_cap_sheet_is_refused_in_bounded_time_and_memory() -> None:
+    """The reviewer's P5 at the real bound: a sheet member just under 16 MiB of one-cell rows (263 MB and 11 s at
+    round 3). The bound stops the parse after 100,000 rows."""
+    target, parts, size, r = _xlsx._MEMBER_MAX - 10_000, [], 0, 500
+    while size < target:
+        parts.append(_ONE % (r, r))
+        size, r = size + len(parts[-1]), r + 1
+    data = _workbook(b"".join(parts[:-1]))
+    assert max(len(v) for v in zip_members(data).values()) > _xlsx._MEMBER_MAX - 20_000
+    assert len(data) < 8 * 2**20  # under the upload cap
+    assert _bounded(data, 3.0, 120) == "NATIVE_WORKBOOK"
+
+
+def test_n3_r3_cells_without_r_take_the_next_index_in_linear_time() -> None:
+    """A cell without `r` takes the index after the widest cell so far; finding it must not rescan the row."""
+    data = _workbook(b"".join(b"<row>" + b"<c><v>1</v></c>" * 16_000 + b"</row>" for _ in range(2)))
+    assert _bounded(data, 1.5, 40) == "ok 5"  # each long row is a count mismatch, refused for its row alone
+
+
+def test_n3_r3_repeated_cell_references_count_against_the_budget(monkeypatch) -> None:
+    monkeypatch.setattr(_xlsx, "_WORK_MAX", _SMALL)
+    data = _workbook(b'<row r="600">' + b'<c r="A600"><v>1</v></c>' * (_SMALL // 2 + 10) + b"</row>")
+    assert _bounded(data, 1.0, 30) == "NATIVE_WORKBOOK"
+
+
+def test_n3_r3_shared_strings_count_against_the_budget(monkeypatch) -> None:
+    monkeypatch.setattr(_xlsx, "_WORK_MAX", _SMALL)
+    sst = (b'<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+           + b"<si><t>a</t></si>" * (_SMALL // 2 + 10) + b"</sst>")
+    assert _bounded(_workbook(members={"xl/sharedStrings.xml": sst}), 1.0, 30) == "NATIVE_WORKBOOK"
+
+
+def test_n3_r3_many_sheets_count_against_the_budget(monkeypatch) -> None:
+    monkeypatch.setattr(_xlsx, "_WORK_MAX", _SMALL)
+    book = zip_members(budget_bytes())["xl/workbook.xml"]
+    at = book.index(b"</sheets>")
+    book = book[:at] + b'<sheet name="z" sheetId="9" r:id="rId9"/>' * (_SMALL + 10) + book[at:]
+    assert _bounded(_workbook(members={"xl/workbook.xml": book}), 1.0, 30) == "NATIVE_WORKBOOK"
+
+
+def test_n3_r3_many_members_are_listed_in_bounded_time() -> None:
+    """The reader lists the members (sizes, names) and reads only four: 20,000 empty members cost the listing."""
+    data = _workbook(members={f"xl/media/m{i}.bin": b"" for i in range(20_000)})
+    assert _bounded(data, 1.5, 60) == "ok 3"
+
+
 # --- N4 transforms -----------------------------------------------------------------------------------------------
 
 from assetops_contracts.native import transform  # noqa: E402
