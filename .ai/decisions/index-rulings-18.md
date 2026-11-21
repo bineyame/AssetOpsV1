@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-3B4.1 to D-3B4.26, D-DS4.1 to D-DS4.15)
+# Decision index: Demo-sprint and later rulings (index only) (D-3B4.1 to D-3B4.26, D-DS4.1 to D-DS4.15, D-0K2.1 to D-0K2.16)
 
 - `D-3B4.1` one mechanism STRUCTURE_DEVIATION; the leaf in the key is the pin · live · specs/3B4-observer/rulings.md
 - `D-3B4.2` declared adverse direction per leaf in observe/rules.py, checked against bridge signs · live · specs/3B4-observer/rulings.md
