@@ -202,8 +202,11 @@ def test_b1_migration_up_down_up_on_empty_tables(store, engine) -> None:  # noqa
         assert head(engine) == PREVIOUS and shape(engine) == ((), {}, {}, ())
         down_checks = checks(engine)
         assert "fuel_balance" not in " ".join(down_checks.values())
-        assert up_checks["finding_domain_subject"] == _widened(down_checks["finding_domain_subject"], SUBJECT_ARM)
-        assert up_checks["finding_revision_domain_minutes"] == _widened(
+        # 3B4: a later migration (0071) adds its own arm, so 0056's widening is compared at 0056, not at head.
+        command.upgrade(config, MIGRATION)
+        at_0056 = checks(engine)
+        assert at_0056["finding_domain_subject"] == _widened(down_checks["finding_domain_subject"], SUBJECT_ARM)
+        assert at_0056["finding_revision_domain_minutes"] == _widened(
             down_checks["finding_revision_domain_minutes"], MINUTES_ARM)
         command.upgrade(config, "head")
     finally:

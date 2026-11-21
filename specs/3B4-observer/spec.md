@@ -1,6 +1,6 @@
 # 3B4: the structure observer, deviations stored as Findings (implementer spec)
 
-Status: rev 2 (handshake round 1 answered, D-3B4.16 to D-3B4.26; coding may start under §0), Architect (Claude), 2026-11-21, written on the owner's delegation
+Status: in_review (partial: units 1-3 built, `packet.md`; the `check.py` edit, tests 1/1b/3 and unit 4 wait for 4a and 3B6). Spec rev 2 (handshake round 1 answered, D-3B4.16 to D-3B4.26), Architect (Claude), 2026-11-21, written on the owner's delegation
 (`owner/owner-away-architect-decides-2026-11-21.md`; pull order `specs/OWNER-AWAY/decisions-2026-11-21.md` row 4; the
 owner-level calls made here are rows 27 and 28 there). `delivery-plan.md` §2 row `3B4`: "Structure observer: deviations
 stored as Findings under the owner's rule and outside the factor's tolerance (OD-3)" (step 3B, CH1, lane 2, 2.5 units,

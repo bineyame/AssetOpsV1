@@ -488,3 +488,10 @@ Branch `task/0K1-forward-replay` (base main `3bdf3c81d`); spec `specs/0K1-forwar
 
 - Settled: `assetops_contracts/forward_replay.py` (request, projection, `FORWARD_REPLAY_REFUSALS`, Fraction-only fields); `runs/replay_port.py` `ForwardReplayPort` (one method; `LabExecutionPort` unchanged); `host/forward_replay.py` `HostForwardReplay`, `replay_inputs` (spec §2.4 order), `project`, `REPLAY_MODELS` mini-grid v5-v7. Replays of K-BASE (v5, v6, v7), K-START, K-STOP, K-RES and K-CLIP equal the kernel's own trajectories exactly.
 - Open: mid-build Q1 (P2 is caught by T10, not T1: the projection depends on loads only through their sum) and Q2 (P4 is caught by T10, not T4); defaults applied. Calibration, the 61-day window, gap fill and composing the port are `0K2`/`6c`.
+
+## 3B4 units 1-3 - the structure observer (in review, 21 Nov; partial)
+
+Branch `task/3B4-observer` (base main `17775a4d5`); spec `specs/3B4-observer/spec.md` rev 2, rulings D-3B4.1-26; packet `packet.md`. Migration `0071_structure_finding` on 0066 (renumber at merge, gate B); no route, no screen, no served text.
+
+- Settled: `structure/observe/` (`rules.py` OBSERVED/NOT_OBSERVED, signs, kinds, key, lifecycle table; `observe.py` the rule, band, basis, 25-key claim; `service.py` `StructureObserver.run` per Site under the Site-month lock; `composition.py`); today's Finding store gains domain `structure` and `structure_tolerance` (append-only, in `$findingTables`); four readers leave the domain out (`_fence`, `finding_detail`, `rows()` x5, thread sources); commands `observe_structure run` and `declare_tolerance set|clear|show`; `COMMAND_ROLES` `structure.tolerance.money`/`.operational`.
+- Open: the `check.py` edit (`check_observed`), tests 1/1b/3 and unit 4 wait for 4a and 3B6; owner Q1/Q2 (rows 27-28); residual R-FENCE-FUEL, R-NO-OPPORTUNITY, R-ASSUMED-TARGET; words and a screen come with 3B5/5c.
