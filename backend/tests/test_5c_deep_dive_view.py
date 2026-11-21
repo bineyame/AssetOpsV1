@@ -46,10 +46,11 @@ OFF = AgreedActions(False, ())
 EMS = ("the EMS interval export (generator running and output, solar available power, battery charge)")
 CURVE = "the generator's fuel curve (litres per kWh; litres per hour idle)"
 SETUP = "a generator and a fuel tank declared in the Site's setup (litres are worked out for each)"
-REVENUE_STOP = ("Not split further until the billing export, a feeder meter export, a meter register with change "
-                "dates, the customer meter reads for the month, the expected technical loss of each feeder, declared "
-                "in the Site's setup, the productive-use tariff and budget lines for energy delivered, tariff and "
-                "productive-use price.")
+BILLING = "the billing export with each line's kWh and tariff"  # D-5C.25
+LOSS_BAND = "each feeder's expected technical loss as declared in the Site's setup"  # D-5C.25
+REVENUE_STOP = (f"Not split further until {BILLING}, a feeder meter export, a meter register with change dates, the "
+                f"customer meter reads for the month, {LOSS_BAND}, the productive-use tariff and budget lines for "
+                "energy delivered, tariff and productive-use price.")
 FUEL_STOP = (f"Not split further until {EMS}, {CURVE}, tank dips at the start and end of the month and fuel delivery "
              "notes.")
 THREE_FUEL = ("Diesel not shown to be avoidable, Diesel run while solar and battery could carry the load and "
@@ -215,8 +216,8 @@ def test_3_world_a_key_by_key_and_whole() -> None:
     om = step(v, "om")["drawer"]
     assert om["lines"] == ["Actual $1,800.00 · Target $1,800.00 · Difference $0.00", "Effect on contribution $0.00",
                            "3 of 3 Sites"]
-    assert [(r["site"], r["value"]) for r in om["sites"]] == [  # review L1: the drawer row reads as the table cell
-        ("Kobo", "$0.00"), ("Kisiwa", "$0.00 (estimate)"), ("Mto", "$0.00")]
+    assert [(r["site"], r["value"]) for r in om["sites"]] == [  # D-5C.23 (L1): the drawer row reads as the table cell
+        ("Kobo", "$0.00"), ("Kisiwa", "$0.00 (at budget)"), ("Mto", "$0.00")]
     assert om["carried"] == ["Kisiwa: no service contractor invoice received; taken at its budget line for the month "
                              "(estimate)."]  # plant P6
     staff = step(v, "staff")["drawer"]
@@ -225,7 +226,7 @@ def test_3_world_a_key_by_key_and_whole() -> None:
                                   "is listed, not added."]
     assert b["by_site"]["rows"] == [
         ["Kobo", "$883.00", "$1,445.00", "−$562.00", "+$38.00", "−$600.00", "$0.00", "$0.00"],
-        ["Kisiwa", "−$250.00", "−$65.00", "−$185.00", "−$55.00", "−$130.00", "$0.00 (estimate)", "$0.00"],
+        ["Kisiwa", "−$250.00", "−$65.00", "−$185.00", "−$55.00", "−$130.00", "$0.00 (at budget)", "$0.00"],
         ["Mto", "$810.00", "$915.00", "−$105.00", "−$80.00", "−$25.00", "$0.00", "$0.00"]]
     assert b["by_site"]["total"] == ["3 of 3 Sites", "$1,443.00", "$2,295.00", "−$852.00", "−$97.00", "−$755.00",
                                      "$0.00", "$0.00"]
@@ -249,12 +250,11 @@ def test_3_world_a_key_by_key_and_whole() -> None:
     assert v["actions"] == {"title": "Actions in hand", "connected": False, "text": "Not available yet: an agreed "
                             "change is recorded as an Action with its owner and due date.", "rows": [], "more": 0}
     assert [(r["needs"], r["fills"], r["sites"]) for r in v["not_available"]["rows"]] == [
-        ("the billing export", "Billing adjustments, Energy on unmapped meters and Tariff", ALL),
+        (BILLING, "Billing adjustments, Energy on unmapped meters and Tariff", ALL),
         ("a feeder meter export", "Energy delivered, Technical losses and Unexplained losses", ALL),
         ("a meter register with change dates", "Unexplained losses and Energy on unmapped meters", ALL),
         ("the customer meter reads for the month", "Unexplained losses and Energy on unmapped meters", ALL),
-        ("the expected technical loss of each feeder, declared in the Site's setup",
-         "Technical losses and Unexplained losses", ALL),
+        (LOSS_BAND, "Technical losses and Unexplained losses", ALL),
         ("the productive-use tariff", "Productive-use price", ALL),
         (EMS, THREE_FUEL, ALL), (CURVE, THREE_FUEL, ALL),
         ("tank dips at the start and end of the month", "Unexplained fuel", ALL),
@@ -316,7 +316,7 @@ def test_4_d_mto_records_missing() -> None:
         "$633.00", ["Target $1,380.00 · 46% of target", "2 of 3 Sites", "89.8% of cost from figures received"])
     assert v["tiles"][1]["lines"] == ["Grow −$17.00 · Optimize −$730.00", "$747.00 of it not split to its drivers yet"]
     out = step(v, "revenue")["drawer"]["out"]
-    assert len(out) == 1 and out[0].startswith("Mto: not compared until the billing export")
+    assert len(out) == 1 and out[0].startswith(f"Mto: not compared until {BILLING}, ")
     assert out[0].endswith("; its own target is $915.00.")
     mto = v["bridge"]["by_site"]["rows"][2]
     assert mto == ["Mto", "Not available yet", "$915.00", *["Not compared"] * 5]
@@ -488,8 +488,11 @@ WORDS = [  # (evidence, origins, word)
     ("MEASURED", ("demo-simulated",), "Simulated"), ("RECORDED", ("unknown",), "Estimated"),
     ("RECORDED", (), "Estimated"), ("RECORDED", ("observed-financial",), "Recorded"),
     ("DECLARED", ("field-integrated",), "Recorded"), ("MEASURED", ("bench-tested",), "Measured"),
-    ("DECLARED", ("source-emulated",), "Emulated"), ("DECLARED", ("demo-simulated",), "Simulated"),  # review H2
-    ("DECLARED", ("observed-financial", "source-emulated"), "Emulated"), ("DECLARED", (), "Estimated"),
+    # D-5C.19 (H2): DECLARED with each origin, in section 2.4's order after SC-1f (plant P23).
+    ("DECLARED", ("observed-financial",), "Recorded"), ("DECLARED", ("bench-tested",), "Recorded"),
+    ("DECLARED", ("source-emulated",), "Emulated"), ("DECLARED", ("demo-simulated",), "Simulated"),
+    ("DECLARED", ("unknown",), "Estimated"), ("DECLARED", (), "Estimated"),
+    ("DECLARED", ("observed-financial", "source-emulated"), "Emulated"),
     ("DERIVED", ("observed-financial",), "Calculated"), ("RECORDED", ("observed-financial", "source-emulated"),
                                                          "Emulated"),  # plant P9
 ]
@@ -501,6 +504,22 @@ def test_5_words(ev, origins, expected) -> None:
     suffixed = expected if expected == "Not available yet" else f"{expected}, not yet reconciled"  # plant P4
     assert W.word(ev, origins, NOT_MATCHED, "USD") == suffixed
     assert "Verified" not in (W.word(ev, origins, RECONCILED, "USD"), suffixed)
+
+
+def test_5_record_words_hold_no_comma_outside_brackets() -> None:  # D-5C.25, plant P26
+    """`needs` joins records with commas, so a record's own words hold none outside brackets."""
+    from assetops_backend.i18n.statements.en.vocabulary import VOCABULARY
+    entries = VOCABULARY["record"]["entries"]
+    assert entries
+    for key, forms in entries.items():
+        for text in forms.values():
+            depth, bare = 0, []
+            for ch in text:
+                depth += ch == "("
+                depth -= ch == ")"
+                if ch == "," and depth == 0:
+                    bare.append(ch)
+            assert not bare, (key, text)
 
 
 # --- test 6: one contribution -----------------------------------------------------------------------------------

@@ -86,15 +86,16 @@ STATEMENTS = {
     "deep_dive.money": {
         "evidence": "served",
         "slots": {"value": {"type": "money", "absent": ["NOT_AVAILABLE", "NOT_COMPARED"]},
-                  "form": {"type": "state", "values": ["PLAIN", "SIGNED", "ESTIMATE"]}},
+                  "form": {"type": "state", "values": ["PLAIN", "SIGNED", "AT_BUDGET"]}},
         "variants": [
             {"id": "not_available", "when": {"reason": ["value", "NOT_AVAILABLE"]}, "text": "Not available yet"},
             {"id": "not_compared", "when": {"reason": ["value", "NOT_COMPARED"]}, "text": "Not compared"},
             {"id": "plain", "when": {"is": ["form", "PLAIN"]}, "text": "{value}"},
             {"id": "signed", "when": {"is": ["form", "SIGNED"]}, "options": {"value": {"signed": True}},
              "text": "{value}"},
-            {"id": "estimate", "requires": {"is": ["form", "ESTIMATE"]}, "options": {"value": {"signed": True}},
-             "text": "{value} (estimate)"},
+            # D-5C.23: a carried Site's step value names its source.
+            {"id": "at_budget", "requires": {"is": ["form", "AT_BUDGET"]}, "options": {"value": {"signed": True}},
+             "text": "{value} (at budget)"},
         ],
     },
     # The fixed words of the screen, one variant per piece.
