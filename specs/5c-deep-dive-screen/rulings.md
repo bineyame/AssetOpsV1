@@ -225,3 +225,8 @@ word is reworded to drop it (D-SC1.21): `SITE_SETUP` reads "a generator and a fu
 
 **Amended (owner away, 2026-11-21; D-SC1.28 replaces D-SC1.26's start rule above).** Code starts on its gates (3B7a and 3A7 merged; 3A7 now merges only after SC-1a, so unit 1 still starts after SC-1a); only the
 text waits: no 5c code writes served text outside SC-1 statements (D-SC1.28). The unit merges only after SC-1a.
+
+**Amended (4a spec, 2026-11-21; D-4A.12).** `RECORDS`, `RECORD_KEYS` and `NOTE_KEYS` of spec §2.3 change as D-4A.12
+states (`specs/4a-energy-to-cash/rulings.md`): `METER_READS` and `LOSS_BAND` added after `METER_REGISTER`,
+`TARIFF_SHEET` removed, the energy leaves' keys and 4a's notes mapped. If 5c has not merged when 4a starts, the 5c
+builder takes it; if it has, 4a's last commit does. Words as SC-1 statements (D-SC1.28).
