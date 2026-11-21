@@ -103,3 +103,27 @@ None blocks the spec's acceptance; 1 and 2 are judgement calls for the owner.
 R759 D1 (Review "Not yet"), R760 D5 (History: no per-version drawer, no address per entry).
 
 `USER_REVIEW_REQUIRED: true` (UI/UX: the plan page changed shape). Hold the merge for the owner's IA-2 walkthrough after review.
+
+## Fix round r1 (D-IA.54 to D-IA.57; rulings-4.md, spec §5.1 rev 6, reviewer guide rev 5)
+
+Commits on `task/IA-2a-plan`: `09a06c300` commit 1 (D-IA.54 released-at-creation clause and `qty_check`; D-IA.57 rightsM date from fdate,
+case-link href asserted per tab); `e5ccb0137` commit 2 (D-IA.55 `iaTabSwitch` listener, `[data-ia-tabs]` wrapper, phone margin tweak;
+D-IA.56 tile-row fill CSS; `ia_shots` tabs set, `tilefill` measure and plants); `ab3746a44` copy_check lists the already-released clause
+(spec §5.1.6; 36 strings matched; the first gate run failed on it, fixed, gates rerun whole).
+
+Gates (heavy slot, pw env, at `ab3746a44`, logs `/opt/assetecon/evidence/IA-2a/r1/gates/`, shots `/opt/assetecon/evidence/IA-2a/r1/shots/`), all green:
+build; `ia_gates` unforced 79 runs all as expected (3710 s); `ia_shots` 611 measured, 0 bad (530 s); uxi PASS (584 s); count_check PASS; qty_check PASS
+(270 screens); G3 36 of 36; plan_switch 793 passed, 0 failed; shell_check, design_lint, render_text (237 renders), vocab, copy (0 not listed);
+hand_typed 0 hits; check_manifest 7572 passed, 0 failed; parts_identity against main's `index.html` 282 cases identical; check-all fast: 40 guards passed (113 s).
+Plants (each fails): `tabnoscroll` 66 of 76 bad, `tabscrollall` 69 of 79 bad (SHOTS_ONLY=tabs); `tilefill` 48 of 72 bad (SHOTS_ONLY=plan: the
+3-tile plan rows of Harvest and Metro are the rows that were short; the hub routes have only 4-tile rows, so the plant is invisible there);
+`QTY_PLANT=clause` and `wait` each fail all three operators (run directly: `qty-plant-*.log`). Tab-switch set: 81 switches, 0 bad.
+
+Sweep of reconciled figures (D-IA.54): plan band $3,750 = $3,660 + $90 reconciled; Overview plan tile $3,750 alone, equal across routes;
+Overview gap $852 = $827 + $25 reconciled. Plan Items "$1,520 in all" and Harvest "$620 in all" are a different quantity (the shown items'
+sum), reviewed markup, registered in `qty_check`'s QTY table. **For the reviewer, "honest numbers":** Items "+$6,089" (tile) against
+"Net +$6,088.50" (reviewed bytes) is the same figure rounded; both registered, not changed.
+
+Known Deviations: (1) the phone margins of the plan's L1 notes are tightened (`.ia-plan-released/rules/case`, max-width 600) so Lakeside's plan
+at 390 does not start 8 px past the fold once the strip is at the top; (2) Portfolio Demand and capacity has no L2, so the listener and the
+check fall back to the first `[data-level]` box.

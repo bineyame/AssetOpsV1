@@ -1,3 +1,7 @@
+# Done (fix round r1, 2026-11-21): commits 09a06c300, e5ccb0137, ab3746a44
+
+- All gates green at ab3746a44; packet-IA-2a.md has "Fix round r1". Logs `/opt/assetecon/evidence/IA-2a/r1/`. Nothing left to resume; review r1 next. Do not merge (owner walkthrough).
+
 # Done (builder 3, 2026-11-21): 3(b) complete
 
 - Flip `a4737f102`; merge of `main` `af7847ac2`; packet-IA-2a.md finished (in review). Logs `/opt/assetecon/evidence/IA-2a/3b/`.
