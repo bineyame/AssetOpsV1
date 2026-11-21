@@ -102,3 +102,7 @@ until 3B7a's build rebuilds it; 4a writes no migration and touches no stored sna
 
 The §2.4 step order (2b map); the customer join (V9b/V9c, P6/P20); the cutoffs (PG1(b), PG1b(c), 6b); Q1 and Q2; that
 the sweep rows above are every changed literal (`git diff aa3ebefe8 -- backend/tests ':!*test_4a*'`).
+
+## Follow-up
+
+D-4A.27-29 (task/4a-followup): tests only. Added V9d (duplicate M-2204 assignment: unmapped 140, billed 5425), V27 (Kobo feeders at 4/5/6: technical 486) and V18b (conflict on the assignment's body_meter_ref) to `test_4a_energy_to_cash.py` (103 passed); plants P28 (customer join takes the first of several), P29 (fixed 5% band) and P30 (assignment-side ref check removed) each failed exactly V9d, V27, V18b, then were reverted. The Postgres file already holds the Q1 dates and PG1(e)'s D-4A.28 reasons; unchanged.
