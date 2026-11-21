@@ -481,3 +481,10 @@ Branch `task/3B2-findings-pinned` (base main `c69e72f61`); spec `specs/3B2-findi
 
 - Settled: `structure/pins.py` (`PINS`: GENERATOR_SUPPORT_CANDIDATE -> MINI_GRID/`candidate_l`, UNEXPLAINED_FUEL -> MINI_GRID/`unexplained_l`; `PENDING_PINS` for the two cold and one EV mechanism; `pinned_category` from the row's home at call time; `parity()` in the pin's own domain); `check.check_pins` and `PIN_CODES` (STRUCTURE_PIN, _TOTAL, _DUPLICATE, _UNKNOWN, _MISSING), run by `check_all()` on the start-up path only. The outcome map's wire is unchanged; the one ruled difference is UNEXPLAINED_FUEL (Protect in the literal, Optimize in the registry, D-3B2.4).
 - Open: `3B5` switches the wire to the pins applying D-3B2.4; `3B6` moves the pending pins onto their registries; the `-` structure key in `STRUCTURE_PIN_MISSING`'s text is for review.
+
+## 4a - Energy to cash, where the kWh went (in review, 21 Nov)
+
+Branch `task/4a-energy-to-cash` (base main `aa3ebefe8`); spec `specs/4a-energy-to-cash/spec.md` rev 2, rulings D-4A.1-26; packet `packet.md`; mid-build Q1-Q2 (defaults applied). No migration, no guard edit, no route, no screen, no served text.
+
+- Settled: MINI_GRID registry v4 (`metered_kwh` stated by customer meter reads, `billed_kwh` by the billing export); `structure/energy/` (pure `rules.month_energy` for the eight energy factors, `StoreEnergyInputs`, `EnergyLeafSource` as the fifth builder in `build_structure_read`); `MiniDepthRead.feeder_month` (roles-4 `feeder_demand`, SELECT only); the `technical-loss-band` LOAD property (below 100); 5a `MAIN_OF` tuples (`delivered_kwh` under `billed_kwh`, then `revenue`). Every absence is "Not available yet" with a cause and note, never 0.
+- Open: 5c's record keys wait on 5c and SC-1a (D-4A.12, D-4A.20); `R-ABSENT-META` (`unexplained_loss_kwh` keeps `ZERO_WHEN_HELD`, unread; manifest change queued with D-4A.10); stored v3 snapshots read `REBUILD_NEEDED` until 3B7a rebuilds them (D-4A.25).
