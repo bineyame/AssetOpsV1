@@ -130,3 +130,8 @@
 ## From the 4a adjustments review (2026-11-21, ACCEPT; merged)
 - Low: no in-repo Postgres assertion pins the evaluated-level blank for never-sent adjustments.
 - Low (Architect): a Site whose only ADJUSTMENT records are money-only credit notes reads a stated 0 kWh (D-DS4.25 gates on the kind). Decide whether money-only credit notes should count as "ever sent" for kWh.
+
+## From the 0K2 review (2026-11-21, ACCEPT; merged)
+- L1: packet calls the replay row "site" and gives the design values in a paragraph, not a column.
+- L2: new/cleared dawn dates proven only on the stub (neither kernel season changes a date).
+- L3: packet gives no reason for the gap with the design; the review's "Design values beside the study" section is the owner-facing explanation.
