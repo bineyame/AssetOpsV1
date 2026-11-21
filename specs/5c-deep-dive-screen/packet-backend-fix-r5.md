@@ -46,7 +46,7 @@ mock's waterfall with no arithmetic (D-5C.2 stands).
 - Focused: `pytest tests/test_5c_deep_dive_view.py tests/test_5c_deep_dive_api.py tests/test_5b_*.py tests/test_3a7_*.py`
   (non-postgres): `379 passed, 1 skipped, 1 warning in 8.08s` (wall 9.1 s). View file alone: `182 passed`.
 - Test 9: `bash tools/heavy-slot.sh --db --wait-seconds 3000 -- pwsh -NoProfile -File tools/run-host-tests.ps1 --
-  backend/tests/test_5c_deep_dive_postgres.py`: TEST9_RESULT.
+  backend/tests/test_5c_deep_dive_postgres.py`: `2 passed, 2 warnings in 9.70s` (exit 0; 692 s wall, most of it waiting for the db-job lock).
 - Plants (each applied to `view.py`, run on the view file, reverted with `git checkout`):
   - P-a `or Decimal(0)` restored: `2 failed, 180 passed` (`test_bars_world_x_no_share_no_bar_no_word`,
     `test_bars_gap_zero_no_share`).
@@ -56,7 +56,7 @@ mock's waterfall with no arithmetic (D-5C.2 stands).
     `test_bars_vectors[V2]`).
 - `python3 tools/checks/statement_catalogue.py`: `OK statement catalogue: load, coverage, legacy, scan (6 adopted),
   keys, imports` (exit 0).
-- check-all (fast): CHECKALL_RESULT.
+- check-all (fast, through the slot, at `435a71c87`): `All 42 guards passed (blocking; 0 advisory, 0 warned).` (142.8 s; estate and pool self-tests skipped as unchanged).
 - Layout evidence: not run (backend only; no page changed).
 
 ## Known deviations
