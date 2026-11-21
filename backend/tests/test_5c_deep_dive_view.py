@@ -627,10 +627,10 @@ def test_4_i_currency_card_word_beside_no_figure(monkeypatch) -> None:  # review
 
     def site_bridge(inputs, targets):
         sb = real(inputs, targets)
-        if sb.site_code == "MTO-001":  # fuel cost is KES (Kobo, Kisiwa), O&M is USD (Mto), staff mixes both
+        if sb.site_code == "MTO-001":  # fuel cost is KES (Kobo, Kisiwa), O&M and staff are USD (Mto)
             return replace(sb, roots={**sb.roots, T.ROOT: _gone(sb.roots[T.ROOT], "fuel_cost")})
         return replace(sb, roots={**{k: _in_kes(r) for k, r in sb.roots.items()},
-                                  T.ROOT: _in_kes(_gone(sb.roots[T.ROOT], "om"))})
+                                  T.ROOT: _in_kes(_gone(_gone(sb.roots[T.ROOT], "om"), "staff"))})
     monkeypatch.setattr(V, "site_bridge", site_bridge)
     v = view(standing=RECONCILED)
     card = next(c for c in v["outcomes"] if c["label"] == "Optimize cost and efficiency")
