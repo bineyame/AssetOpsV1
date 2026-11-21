@@ -1,6 +1,6 @@
 # 0K3: the replay series read from stored readings (implementer spec)
 
-Status: spec rev 2, handshake round 1 answered (`rulings.md` D-0K3.10 to D-0K3.20). Architect (Claude), 2026-11-21, on the owner's delegation
+Status: in_review (built on `task/0K3-replay-reader`, packet `packet.md`). Spec rev 2, handshake round 1 answered (`rulings.md` D-0K3.10 to D-0K3.20). Architect (Claude), 2026-11-21, on the owner's delegation
 (`owner/owner-away-architect-decides-2026-11-21.md`). Queued by D-0K2.1 ("reading that series from accepted
 readings ... a queued unit, `0K3` (about 2 units)"). **2.5 units** (2 at rev 1; D-0K3.20). Discovery review (W5): a new mechanism on the
 evidence seam whose series feed a litre figure that becomes money in `6c`. Non-screen. No migration, no served

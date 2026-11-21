@@ -549,3 +549,10 @@ Branch `task/0M-mto-headroom` (base main `6c33395ef`, after the 0K2 merge `3b4f0
 - Settled: `runs/headroom_replay.py` `headroom_study` adds a customer's kW to one Site load at its local weekday steps and replays the whole window beside the no-customer replay (full, and a second base run frozen at a reduced inverter limit fed `min(PV, limit)`); headroom days and kWh from the series; extra litres, generator, unserved, starts, month splits, dawn new/cleared dates; every customer id and the reduced run's frozen limit and other needs refused before any port call. Reuses 0K2's helpers only. `host/tests/mto.py`: the Kobo template edited to Mto's manifest facts, loads halved.
 - 61-day SIMULATED/MODELLED figures beside the design values in the packet (huller Oct 6 days, 384 kWh, 156.7 L vs 3, 225, 68; reduced 0.24 L a day vs 5); design values unchanged (row 37).
 - Open: replacing design values is the owner's (row 37); dawn admissibility and money are `6g`.
+
+## 0K3 - the replay series reader from stored readings (in review, 21 Nov)
+
+Branch `task/0K3-replay-reader` (base main `e9d6cdfb1`); spec `specs/0K3-replay-series-reader/spec.md` rev 2, rulings D-0K3.1-20; packet `packet.md`. No migration, no served text, no consumer change.
+
+- Settled: `runs/replay_series.py` `SeriesReader.read` (built by `runs/composition.build_series_reader`) turns a Site's accepted readings over whole local days into 0K2's `ObservedSeries` or refuses with a code and subject: configuration before readings, 15-minute means refused never split, `pv_power` never read as available PV, instants only at step starts (off-grid counted), nothing carried, clock-change days refused before the query, `MAX_DAYS` 92, input class from source mode. Proven on R0 (no database), MG-W402-001 and DS3 Kobo in Postgres, and 0K2's 8-day season read back field by field with the same calibration.
+- Open: no study on stored readings until a 61-day 5-minute series, Kobo's `pv_available_power` binding (row 48) and `6c`; mid-build Q1 (Kobo's zone is Addis Ababa, not Nairobi).
