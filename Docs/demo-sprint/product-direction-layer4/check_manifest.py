@@ -68,6 +68,30 @@ import yaml
 failures: list[str] = []
 passes = 0
 
+# CHECK_LABELS=<file> (0K4m R5): each passing check() and eq() writes "<section function>\t<label>", every number in the
+# label replaced by "#", so two runs' check sets can be diffed by section as multisets (the H9 ledger).
+import os as _os
+_LABELS = _os.environ.get("CHECK_LABELS") or None
+_PASSED: list[str] = []   # one entry per counted pass; a self-test that restores `passes` truncates it to match
+_NUMBER = re.compile(r"-?\d[\d,]*(\.\d+)?")
+
+
+def _label_pass(label):
+    if _LABELS is None:
+        return
+    f, section = sys._getframe(2), "?"
+    while f is not None:
+        if f.f_back is not None and f.f_back.f_code.co_name == "main" and f.f_back.f_code.co_filename == __file__:
+            section = f.f_code.co_name; break
+        f = f.f_back
+    _PASSED.append(f"{section}\t{_NUMBER.sub('#', str(label))}".replace("\n", " "))
+
+
+def _write_labels():
+    if _LABELS is not None:
+        assert len(_PASSED) == passes, (len(_PASSED), passes)
+        pathlib.Path(_LABELS).write_text("".join(x + "\n" for x in _PASSED), encoding="utf-8")
+
 
 def eq(label, a, b):
     global passes
@@ -78,7 +102,7 @@ def eq(label, a, b):
     except Exception:
         same = a == b
     if same:
-        passes += 1
+        passes += 1; _label_pass(label)
     else:
         failures.append(f"{label}: {a} != {b}")
 
@@ -86,7 +110,7 @@ def eq(label, a, b):
 def check(label, cond):
     global passes
     if cond:
-        passes += 1
+        passes += 1; _label_pass(label)
     else:
         failures.append(label)
 
@@ -809,11 +833,11 @@ def homes_selftest(doc):
               "a decision with no origin Finding": lambda d: row(d, "kobo-candidate").update(origin=False)}
     for label, mut in plants.items():
         d = copy.deepcopy(doc); mut(d)
-        keep, kp = list(failures), passes
+        keep, kp, kl = list(failures), passes, len(_PASSED)
         homes(d)
         caught = len(failures) > len(keep)
         failures[:] = keep
-        globals()["passes"] = kp
+        globals()["passes"] = kp; del _PASSED[kl:]
         check(f"homes self-test: {label} is planted and fails", caught)
 
 
@@ -2005,6 +2029,7 @@ def main(path):
     reconciliation(doc, dv)   # after the history checks, so H9's baseline (checks before them) is unchanged
     option_basis(doc)         # after the history checks too (D-RECON.6)
     operations(root, doc)     # after the history checks too (D-L4OPS.7)
+    _write_labels()
     print(f"{passes} checks passed ({nh} history checks), {len(failures)} failed")
     for f in failures:
         print("FAIL", f)
