@@ -1,6 +1,6 @@
 # SC-1f: a word for declared settings, and two guard fixes (implementer spec)
 
-Status: **live, build-ready** (rev 1). Architect (Claude), 2026-11-21, owner in session. Rulings with reasons:
+Status: **in_review** (rev 1; built `task/SC-1f-declared-word`, packet `packet.md`). Architect (Claude), 2026-11-21, owner in session. Rulings with reasons:
 `rulings.md` (D-SC1F.1 to D-SC1F.6). Owner words: `owner/owner-decisions-list-2026-11-21.md` items 7 and 8 (row 51,
 D-3A7.17's D4; the two SC-1 guard fixes, approved). Parent: `specs/SC-1-statement-composer/spec.md` §3.5, §3.6, §3.8.4,
 §5.1. Non-screen. **1.0 unit, two commits, one build.** `USER_REVIEW_REQUIRED: true` for the word only, seen at the 5c
