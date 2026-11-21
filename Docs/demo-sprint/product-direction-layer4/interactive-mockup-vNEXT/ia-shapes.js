@@ -75,6 +75,36 @@ function shapePlanInterim(ctx) {
   return `<section data-shape="plan">${p.sticky}<div data-level="L1">${p.band}</div><div class="layout-main-side"><div><div data-level="L2">${p.l2}</div><div data-level="L3">${p.l3}</div></div><aside class="side-panel" data-level="L3">${p.aside}</aside></div></section>`;
 }
 
+/* ---- IA-2a: the plan shape (spec §5.1.2 to §5.1.4, D-IA.43 to D-IA.47, D-IA.51) ---- */
+/* the stepper (§5.1.3): pure steps and the current index; REVISED shows as Proposed; an unknown state throws */
+const IA_PLAN_STEPS = ['DRAFT', 'PROPOSED', 'APPROVED', 'CLOSED'];
+function iaPlanSteps(state) { const cur = state === 'REVISED' ? 1 : IA_PLAN_STEPS.indexOf(state); if (cur < 0) throw new Error(`plan state ${state} has no step`); return { steps: IA_PLAN_STEPS.map(s => STATE_WORD[s]), cur }; }
+function iaPlanStepper(op) { const { steps, cur } = iaPlanSteps(uxPlanState(op).state); return `<ol class="ux-dsteps ia-plan-steps" aria-label="Where this plan is">${steps.map((s, i) => `<li class="${i < cur ? 'is-done' : i === cur ? 'is-current' : ''}"${i === cur ? ' aria-current="step"' : ''}>${s}</li>`).join('')}</ol>`; }
+/* one crew tile per month with a stated limit (crewByMonth), '' when there is none */
+function iaCrewTiles(op, P) { const o = OPS[op], ms = crewByMonth(op, P); return ms.map(m => uxKpi(`${cap(o.crewWord)} used${ms.length > 1 ? `, ${m.month}` : ''}`, `${num(m.used)} <small>of ${num(m.limit)}</small>`, [], uxMeterBar(m.used, m.limit, `${num(m.used)} of ${num(m.limit)} ${o.crewWord}${ms.length > 1 ? ` in ${m.month}` : ''}`))).join(''); }
+function iaPlanBand(op, P, budget) { const B = uxPlanBandParts(op, P, budget); return `<section class="ux-planband" aria-label="The plan at a glance"><div class="heroes ux-kpis">${B.spend}${iaCrewTiles(op, P) || B.crew}${B.value}</div>${B.act}</section>`; }
+/* D-IA.51: the case line. The Approve dialog has no case-label function, so the label is the reviewed switches' own words: each
+   fieldset's legend and its checked option, from switches(op) */
+function iaPlanCaseLabel(op) { const t = document.createElement('template'); t.innerHTML = switches(op); return [...t.content.querySelectorAll('fieldset')].map(f => `${f.querySelector('legend').textContent}: ${((f.querySelector('input[checked]') || {}).parentNode || { textContent: '' }).textContent.trim()}`).join('; '); }
+function iaPlanCaseLine(op, here) { return DEFAULT_CASE(op) ? '' : `<p class="ia-plan-case">Showing the case you chose: ${escapeHtml(iaPlanCaseLabel(op))}. <a href="${here ? '#sw-h' : '#/plan'}">Change the case</a></p>`; }
+function iaPlanHead(op, p, here) { return `${iaPlanStepper(op)}${iaPlanBand(op, p.P, p.budget)}${p.ap.releases}${p.ap.notice}${iaPlanCaseLine(op, here)}<p class="ia-plan-rules">${uxOpener('ia-plan-thresholds', 'Release thresholds', 'ux-link')}</p>`; }
+/* History (§5.1.4): the act log's plan entries newest first, then the proposal and the opening (PSTATE: no act changes them) */
+function iaPlanHistory(op) {
+  const S = uxPlanState(op), S0 = PSTATE(), L = (uxMock().log || []).filter(e => e.op === op && (e.key === 'approve-plan' || e.key === 'send-back'));
+  const rows = [...L.map((e, i) => `<li data-ia-hist="log:${i}">${e.toast} <small>${e.by} · ${hhmm(e.at) || ''}</small></li>`), `<li data-ia-hist="proposed">Version ${num(S0.version)} proposed <small>The system · ${fdate(S0.proposed)}</small></li>`, `<li data-ia-hist="opened">Opened within the executive’s limits <small>The system · ${fdate(S0.opened)}</small></li>`];
+  return sec('Versions and approvals', `<ul class="list ia-plan-history">${rows.join('')}</ul><p class="note">Changes made here are shown in this demonstration only.</p>`, `Version ${num(S.version)}, ${STATE_WORD[S.state].toLowerCase()}`);
+}
+/* the shape (§5.1.2): L1 identical on the four tabs; Items and Left out carry the case switches in the side panel */
+function shapePlan(ctx, tab) {
+  const op = ctx.op, p = planParts(op), side = tab === 'items' || tab === 'left-out', lv = (n, x) => x ? `<div data-level="${n}">${x}</div>` : '';
+  const l1 = `<div data-level="L1">${iaPlanHead(op, p, side)}</div>`, drawers = `<div data-ia-drawers>${uxDrawer('ia-plan-thresholds', 'Release thresholds', p.ap.thrBody)}</div>`;
+  if (side) {
+    const l2 = tab === 'items' ? p.l2 : uxSecA('Left out of the plan, and why', p.leftAns, p.leftBody, true), l3 = tab === 'items' ? `${p.diff}${p.paths}${p.crew}${p.cases}` : `${p.listed}${p.returned}`;
+    return `<section data-shape="plan">${p.sticky}${l1}<div class="layout-main-side"><div>${lv('L2', l2)}${lv('L3', l3)}</div><aside class="side-panel" data-level="L3">${p.switches}</aside></div>${drawers}</section>`;
+  }
+  return `<section data-shape="plan">${p.sticky}${l1}${lv('L2', tab === 'review' ? whatChangedParts(op).review : iaPlanHistory(op))}${drawers}</section>`;
+}
+
 /* ---- IA-1b: levels, the hub shape and its predicates (spec §3, D-IA.22, D-IA.24, D-IA.25, D-IA.27) ---- */
 /* the levels: structure only ([data-level] and [data-ia-drawers] are display: contents in ia.css); an empty slot omits its region */
 function iaLevels(shape, { cls = '', sticky = '', l1 = '', l2 = '', l3 = '', drawers = '' } = {}) {

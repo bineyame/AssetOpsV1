@@ -6,9 +6,15 @@ let IA_ROUTE_ACTIVE = false;
 /* the reviewed plan page's own labels (spec §2.6: the interim reuses them, no new copy) */
 const iaLegacy = id => SCREENS.find(x => x.id === id);
 const IA_ROUTES = [
-  { id: 'plan', shape: 'plan', object: 'plan', home: 'Plan', unit: 'IA-1a', tab: null,
+  /* IA-2a (spec §5.1.1, D-IA.43): the plan's four tabs; one H1 (the reviewed title), the tab in the document title. Until IA-2a is in
+     IA_LANDED the three tab routes are not live and plan renders the interim (IA_FORCE_LANDED=IA-2a renders the shape in a check's window) */
+  { id: 'plan', shape: 'plan', object: 'plan', home: 'Plan', unit: 'IA-1a', tab: 'Items', tabGroup: 'Plan',
     title: ctx => iaLegacy('portfolio/act-first/plan').title, subtitle: ctx => iaLegacy('portfolio/act-first/plan').subtitle,
-    crumbs: ctx => [['Plan']], render: ctx => shapePlanInterim(ctx) },
+    crumbs: ctx => [['Plan']], render: ctx => IA_LANDED.has('IA-2a') ? shapePlan(ctx, 'items') : shapePlanInterim(ctx) },
+  ...[['plan/left-out', 'Left out', 'left-out'], ['plan/review', 'Review', 'review'], ['plan/history', 'History', 'history']].map(([id, tab, key]) => ({
+    id, shape: 'plan', object: 'plan', home: 'Plan', unit: 'IA-2a', tab, tabGroup: 'Plan',
+    title: ctx => iaLegacy('portfolio/act-first/plan').title, subtitle: ctx => iaLegacy('portfolio/act-first/plan').subtitle,
+    docTitle: ctx => `${tab} · ${iaLegacy('portfolio/act-first/plan').title}`, crumbs: ctx => [['Plan', 'plan'], [tab]], render: ctx => shapePlan(ctx, key) })),
   { id: 'not-found', shape: 'frame', object: null, home: null, unit: 'IA-1a', tab: null, noFigures: true,
     title: ctx => iaLegacy('not-found').title, crumbs: ctx => [['Page not found']], render: ctx => shapeNotFound(ctx) },
   /* IA-1b (spec §3, D-IA.25): the hub shape. The three Portfolio tabs and every Site's Overview; titles and subtitles are the
@@ -30,6 +36,7 @@ const IA_ROUTES = [
 /* the hub tab groups (spec §3.1), keyed by route.tabGroup; only landed tabs are drawn, and a group with one landed tab draws none */
 const IA_TAB_GROUPS = {
   Portfolio: ctx => [['Overview', 'portfolio'], ['Outcomes', 'portfolio/outcomes'], ['Demand & capacity', 'portfolio/demand-and-capacity']],
+  Plan: ctx => [['Items', 'plan'], ['Left out', 'plan/left-out'], ['Review', 'plan/review'], ['History', 'plan/history']],
   Site: ctx => [['Overview', `site/${ctx.site}`], ['Operations', `site/${ctx.site}/operations`], ['Performance', `site/${ctx.site}/performance`], ['Financials', `site/${ctx.site}/financials`], ['Evidence', `site/${ctx.site}/evidence`], ['Setup', `site/${ctx.site}/setup`]]
 };
 /* old route -> new route; a value may be a function of the parameters. Live only once its target is a landed route. An alias key never
@@ -150,7 +157,7 @@ function iaCtx(path, params, query) {
 /* resolveScreen's view of a landed route: the screen object the review bar and the legacy helpers read */
 function iaScreen(route, path) {
   const ctx = iaCtx(path, iaPattern(route.id, path), iaParse(location.hash).query);
-  return { id: path, ia: route, ctx, title: route.title(ctx), root: route.home || '', section: '', loop: true, opScoped: true, noFigures: !!route.noFigures, book: false, question: '', anchor: '' };
+  return { id: path, ia: route, ctx, title: route.title(ctx), docTitle: route.docTitle ? route.docTitle(ctx) : route.title(ctx), root: route.home || '', section: '', loop: true, opScoped: true, noFigures: !!route.noFigures, book: false, question: '', anchor: '' };
 }
 /* the palette lists only what is live, at its canonical address (R9) */
 function iaPaletteFilter(out) { return out.filter(([, , id]) => iaLive(id)).map(([l, k, id]) => [l, k, iaCanon(id).replace(/^#\//, '')]); }
