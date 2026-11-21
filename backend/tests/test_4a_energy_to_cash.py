@@ -530,6 +530,21 @@ def test_7_main_of():
                                                         "necessary_l": ("fuel_cost",)}
 
 
+def test_7_delivered_is_solved_under_the_nearest_heading_with_a_target():
+    import test_5a_targets as t5a
+    w = t5a.lakeside()  # no billed-kWh line: neither heading has a target without prices
+    v = t5a.read_site(w, "KOBO-001").structure.values
+    assert v["delivered_kwh"].value is None and v["delivered_kwh"].missing.note == "MAIN_FACTOR_UNSOLVED:revenue"
+    v = t5a.read_site(w, "KOBO-001", t5a.PRICED).structure.values  # revenue's target only
+    assert (v["delivered_kwh"].value, v["delivered_kwh"].sources) == (D("8550"), ("assumption:main-factor:revenue",))
+    line = t5a.budget_line("KOBO-001", "BUD-2026-10:KOBO-001:billed_kwh", "billed_kwh", "8550", currency=None)
+    t5a.ingest(w, "2026-11-08T10:00:00+00:00", t5a.LOADER, t5a.budget_batch([line]))
+    v = t5a.read_site(w, "KOBO-001").structure.values  # billed kWh's target: solved without any price
+    assert (v["delivered_kwh"].value, v["delivered_kwh"].sources) == (D("8550"),
+                                                                       ("assumption:main-factor:billed_kwh",))
+    assert (v["billed_kwh"].value, v["billed_kwh"].stated, v["billed_kwh"].evidence) == (D("8550"), True, "DECLARED")
+
+
 # ---------------------------------------------------------------- test 8: seams (ast)
 
 ENERGY = Path(__file__).resolve().parents[1] / "assetops_backend" / "structure" / "energy"
@@ -560,3 +575,223 @@ def test_8_seams():
            "typing"}
     for mod in _imports(ENERGY / "rules.py"):
         assert mod in std or mod.startswith(allowed), mod
+
+
+# ---------------------------------------------------------------- test 9: the Foundation property (D-4A.3, D-4A.18)
+
+
+@pytest.mark.parametrize("component, value, refused", [
+    ("load-mill", 5, None),
+    ("load-clinic", 99.9, None),
+    ("generator", 5, "technical-loss-band belongs on a LOAD"),
+    ("load-mill", 100, "technical-loss-band on load-mill must be below 100"),
+])
+def test_9_the_band_property(component, value, refused):
+    import test_w402_roles_properties as w402
+    from assetops_backend.sites.ports import SiteConfigurationInvalid
+    doc = w402._with(component, "technical-loss-band", value)
+    if refused:
+        with pytest.raises(SiteConfigurationInvalid, match=refused):
+            w402._parse(doc)
+    else:
+        site = w402._parse(doc)
+        props = {(c.component_id, p.property_key): p.value for c in site.foundation.components
+                 for p in (c.properties or ())}
+        assert props[(component, "technical-loss-band")] == value
+
+
+def test_9_no_basis_property():
+    from assetops_backend.sites.models import COMPONENT_PROPERTY_DEFINITIONS
+    assert "technical-loss-band-basis" not in COMPONENT_PROPERTY_DEFINITIONS
+    assert COMPONENT_PROPERTY_DEFINITIONS["technical-loss-band"].unit == "%"
+def test_v15_is_a_register_read():
+    """V15's read kWh is register_end − register_start (1,000 → 6,400), computed by the input adapter (§4.2)."""
+    from assetops_backend.structure.energy.inputs import read_kwh
+    assert read_kwh({"read_type": "REGISTER", "register_start": D(1000), "register_end": D(6400)}, None) == D(5400)
+
+
+# ---------------------------------------------------------------- test 3: feeder_month (pure)
+
+UTC = timezone.utc
+LO, HI = datetime(2026, 9, 30, 21, tzinfo=UTC), datetime(2026, 10, 31, 21, tzinfo=UTC)  # Nairobi, UTC+3
+SET_A, SET_B = UUID(int=101), UUID(int=102)
+F1, F2 = UUID(int=201), UUID(int=202)
+
+
+class Rows:
+    def __init__(self, sets=None, bindings=None, foundations=None, readings=None) -> None:
+        self.binding_sets = ((SET_A, LO - timedelta(days=30), None),) if sets is None else sets
+        self.feeder_bindings = ((SET_A, F1, LO - timedelta(days=30), None),) if bindings is None else bindings
+        self.assets = (("load-clinic", F1), ("load-res", F2), ("generator", UUID(int=203)))
+        self.foundations = (_foundation({"load-clinic": 5}),) if foundations is None else foundations
+        self.readings = tuple(_hourly(F1)) if readings is None else readings
+
+
+def _foundation(bands: dict, comp_type: str = "LOAD") -> tuple:
+    comps = [{"component_id": code, "component_type": comp_type,
+              "properties": [{"property_key": "technical-loss-band", "value": v, "unit": "%"}]}
+             for code, v in bands.items()]
+    comps.append({"component_id": "load-res", "component_type": "LOAD", "properties": []})
+    return (UUID(int=301), LO - timedelta(days=30), None, {"components": comps})
+
+
+def _hourly(asset, kw="2", mode="SIMULATED", skip=None):
+    for h in range(31 * 24):
+        start = LO + timedelta(hours=h)
+        if skip is not None and skip(start):
+            continue
+        yield {"evidence_id": UUID(int=h + 10_000), "asset_id": asset, "start": start,
+               "end": start + timedelta(hours=1), "value_kw": D(kw), "quality": "GOOD", "source_mode": mode}
+
+
+def fm(rows: Rows) -> FeederMonth:
+    from assetops_backend.structure.energy.inputs import feeder_month
+    return feeder_month(rows, LO, HI, FIRST, d(10, 31), "Africa/Nairobi")
+
+
+def test_3_feeder_month_states():
+    assert fm(Rows(sets=())) == FeederMonth("NOT_BOUND", (), 31)
+    assert fm(Rows(bindings=())) == FeederMonth("NOT_BOUND", (), 31)
+    two = ((SET_A, LO - timedelta(days=30), LO + timedelta(days=9)), (SET_B, LO + timedelta(days=9), None))
+    assert fm(Rows(sets=two)).state == "BINDINGS_CHANGED"
+    late = ((SET_A, F1, datetime(2026, 10, 14, 21, tzinfo=UTC), None),)  # from 10-15 local
+    assert fm(Rows(bindings=late)) == FeederMonth("BINDINGS_CHANGED", (), 31)
+
+
+def test_3_feeder_month_days_origins_and_band():
+    whole = fm(Rows())
+    assert whole.state == "ONE_SET" and len(whole.feeders) == 1
+    f = whole.feeders[0]
+    assert (f.asset_id, f.asset_code, f.origins, f.band_state, f.band_pct) == (F1, "load-clinic", (SIM,), "DECLARED",
+                                                                                D(5))
+    assert f.day_kwh == tuple([D(48)] * 31)
+    day5 = datetime(2026, 10, 4, 21, tzinfo=UTC)  # 10-05 local midnight
+    gap = list(_hourly(F1, skip=lambda s: s == day5 + timedelta(hours=3)))
+    gap.append({"evidence_id": UUID(int=1), "asset_id": F1, "start": day5 + timedelta(hours=3),
+                "end": day5 + timedelta(hours=3, minutes=45), "value_kw": D(2), "quality": "GOOD",
+                "source_mode": "SIMULATED"})  # 15 minutes missing on day 5
+    days = fm(Rows(readings=tuple(gap))).feeders[0].day_kwh
+    assert days[4] is None and days[3] == D(48) and days[5] == D(48)
+    day6 = day5 + timedelta(days=1)
+    twice = list(_hourly(F1)) + [{"evidence_id": UUID(int=2), "asset_id": F1, "start": day6 + timedelta(hours=1),
+                                  "end": day6 + timedelta(hours=2), "value_kw": D(2), "quality": "GOOD",
+                                  "source_mode": "SIMULATED"}]
+    days = fm(Rows(readings=tuple(twice))).feeders[0].day_kwh
+    assert days[5] is None and days[4] == D(48)  # overlapping readings of one feeder: conflict
+    live = fm(Rows(readings=tuple(_hourly(F1, mode="LIVE")))).feeders[0]
+    assert live.origins == ("unknown",)
+
+
+@pytest.mark.parametrize("foundations, state, pct", [
+    ((_foundation({"load-clinic": 5}), _foundation({"load-clinic": 5})), "DECLARED", D(5)),
+    ((_foundation({"load-clinic": 5}), _foundation({"load-clinic": 6})), "CHANGED", None),
+    ((_foundation({"load-clinic": 5}), _foundation({})), "NOT_DECLARED", None),
+    ((_foundation({"load-clinic": 5}, comp_type="GENERATOR"),), "NOT_DECLARED", None),  # no LOAD of that code
+    ((), "NOT_DECLARED", None),
+])
+def test_3_band(foundations, state, pct):
+    f = fm(Rows(foundations=foundations)).feeders[0]
+    assert (f.band_state, f.band_pct) == (state, pct)
+
+
+# ---------------------------------------------------------------- test 6b: live reads and failures (D-4A.23)
+
+
+class _Mini:
+    def __init__(self, error=None) -> None:
+        self.known, self.error = [], error
+
+    def feeder_month(self, *, tenant_id, site_id, lo, hi, known_at):
+        self.known.append(known_at)
+        if self.error is not None:
+            raise self.error
+        return Rows(sets=())
+
+
+class _Store:
+    def __init__(self) -> None:
+        self.known = []
+
+    def latest_revisions(self, tenant_id, *, site_id=None, kind=None, recognition_period=None, known_at=None):
+        self.known.append(known_at)
+        return ()
+
+
+def test_6b_live_reads_pass_no_cutoff():
+    from assetops_backend.structure.energy.inputs import StoreEnergyInputs
+    mini, store = _Mini(), _Store()
+    src = EnergyLeafSource(StoreEnergyInputs(mini, store), _Fallback(), lambda: NOW)
+    lv = src.leaf(ReadContext(SITE, "2026-10", None), "delivered_kwh")
+    assert mini.known == [None] and store.known == [None]
+    assert lv.missing.note == "FEEDER_NOT_BOUND"
+    early = datetime(2026, 10, 20, tzinfo=UTC)
+    assert StoreEnergyInputs(mini, store).read(SITE, "2026-10", None, early).closed is False  # closed follows now
+    assert mini.known[-1] is None and store.known[-1] is None
+    pinned = datetime(2026, 11, 2, tzinfo=UTC)
+    inputs = StoreEnergyInputs(mini, store).read(SITE, "2026-10", pinned, early)
+    assert mini.known[-1] == pinned and store.known[-1] == pinned and inputs.closed is True
+
+
+@pytest.mark.parametrize("error", ["MiniReadUnavailable", "MiniReadRefused"])
+def test_6b_a_refusal_or_outage_propagates(error):
+    from assetops_backend.mini_depth import read as mini_read
+    from assetops_backend.structure.energy.inputs import StoreEnergyInputs
+    cls = getattr(mini_read, error)
+    src = EnergyLeafSource(StoreEnergyInputs(_Mini(cls("INVALID_KNOWN_AT")), _Store()), _Fallback(), lambda: NOW)
+    with pytest.raises(cls):
+        src.leaf(ReadContext(SITE, "2026-10", None), "technical_loss_kwh")
+
+
+# ---------------------------------------------------------------- the composition (spec §4.3, L1)
+
+
+def _builders(monkeypatch, log):
+    from types import SimpleNamespace
+    import assetops_backend.chain.composition as chain_composition
+    import assetops_backend.commercial.composition as commercial_composition
+    import assetops_backend.financials.composition as fin_composition
+    import assetops_backend.structure.litres.composition as litre_composition
+    store = object()
+    monkeypatch.setattr(chain_composition, "build_snapshot_store",
+                        lambda url: SimpleNamespace(dispose=lambda: log.append("snapshots")))
+    monkeypatch.setattr(fin_composition, "build_window_price_selection",
+                        lambda url: SimpleNamespace(select=None, dispose=lambda: log.append("prices")))
+    monkeypatch.setattr(commercial_composition, "build_commercial_reads",
+                        lambda url: SimpleNamespace(months=None, store=store, dispose=lambda: log.append("commercial")))
+    monkeypatch.setattr(litre_composition, "build_litre_inputs",
+                        lambda url: SimpleNamespace(inputs=None, dispose=lambda: log.append("litres")))
+    return store
+
+
+def test_composition_fifth_builder(monkeypatch):
+    from types import SimpleNamespace
+    import assetops_backend.structure.energy.composition as energy_composition
+    from assetops_backend.structure.composition import build_structure_read
+    from assetops_backend.structure.money import CommercialLeafSource
+    log: list[str] = []
+    store = _builders(monkeypatch, log)
+    seen = []
+    monkeypatch.setattr(energy_composition, "build_energy_inputs", lambda url, s: seen.append(s) or SimpleNamespace(
+        inputs="inputs", dispose=lambda: log.append("energy")))
+    service = build_structure_read("postgresql://x")
+    assert seen == [store] and log == []  # the commercial store is shared, no second engine
+    src = service.read._sources
+    assert isinstance(src, EnergyLeafSource) and service.read._stated is src and src._inputs == "inputs"
+    assert isinstance(src._fallback, CommercialLeafSource)
+    service.dispose()
+    assert sorted(log) == ["commercial", "energy", "litres", "prices", "snapshots"]
+
+
+def test_composition_failing_fifth_builder_disposes_the_four(monkeypatch):
+    import assetops_backend.structure.energy.composition as energy_composition
+    from assetops_backend.structure.composition import build_structure_read
+    log: list[str] = []
+    _builders(monkeypatch, log)
+
+    def boom(url, store):
+        raise RuntimeError("energy builder failed")
+
+    monkeypatch.setattr(energy_composition, "build_energy_inputs", boom)
+    with pytest.raises(RuntimeError, match="energy builder failed"):
+        build_structure_read("postgresql://x")
+    assert sorted(log) == ["commercial", "litres", "prices", "snapshots"]

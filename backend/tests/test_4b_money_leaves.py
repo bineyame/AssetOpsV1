@@ -635,6 +635,9 @@ def test_13_dispose_disposes_each_store_once(monkeypatch):
                                                     dispose=lambda: log.append("commercial")))
     service = build_structure_read("postgresql://x")
     assert log == []
-    assert isinstance(service.read._sources, CommercialLeafSource) and service.read._stated is service.read._sources
+    # 4a (spec §4.3): the energy source sits in front of the commercial source and serves the stated nodes too.
+    from assetops_backend.structure.energy.source import EnergyLeafSource
+    assert isinstance(service.read._sources, EnergyLeafSource) and service.read._stated is service.read._sources
+    assert isinstance(service.read._sources._fallback, CommercialLeafSource)
     service.dispose()
     assert sorted(log) == ["commercial", "prices", "snapshots"]
