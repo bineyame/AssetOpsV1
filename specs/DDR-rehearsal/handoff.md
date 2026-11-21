@@ -1,5 +1,7 @@
 # DDR handoff (PARTIAL, phase 1 of the build)
 
+**Superseded by phase 2 (2026-11-21): every "Next" item below is done; see `packet.md`.**
+
 Builder (Claude), 2026-11-21, branch `task/DDR-rehearsal`, worktree `/opt/assetecon/AssetOpsV1-ddr`, head after
 `fb587c24d`. Stopped at the context budget (standing brief), not at a blocker. Every R and I question of rounds 1 and
 2 is answered (rulings.md R1-R17, I1-I6, P1-P3, A1). 3C2 unit 2 is **not** on `main` yet (no `StoreAgreedActions` in

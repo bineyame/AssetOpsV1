@@ -11,3 +11,4 @@ One line per slice, continuing `index-2.md` (number, slice ID, summary, file in 
 186. `0K4c` declared season v2 (overcast spells, varying load, Sunday mill), canonical inputs digest, v1 and v2 pinned · data.md
 187. `0K4e` dispatch-3.3: battery-support Candidate needs stored energy to solar cover; `energy_cover` facts rendered by SC-1 statements · data.md
 188. `0K4a` `mini-grid` v8: cycle charging, minimum load, fuel curve and taper wired in; v8 profile words via SC-1; replay port takes v8 · data.md
+189. `DDR` the rehearsal checker (ten gates, codes only), `portfolio_history`, board-budget profile, runbook 6-12; rehearsal pending · data.md
