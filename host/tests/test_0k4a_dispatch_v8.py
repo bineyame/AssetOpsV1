@@ -145,14 +145,14 @@ def n1_run(version: int = 8, stop=None):
 
 
 @cache
-def night_support(mill_from: int):
+def night_support(mill_from: int, res: int = 25, clinic: int = 10):
     """Start SOC 34; res 25 and clinic 10 kW over [60, 90), the mill 40 kW from `mill_from` to 90 (N4: 60; N13: 62).
 
     N13 reads "res 25 and clinic 10 kW all night" as the night's support window [60, 90), N4's SOC history (packet,
     mid-build question): forced over [0, 360) the battery charges at only 5 kW before 01:00 and reaches its reserve
     inside the window (01:20, battery AC 3019/1600 kWh), so N4's per-step figures cannot hold there."""
     run = _run(1, 8, site)
-    windows = ((RES, 60, 90, 25), (CLINIC, 60, 90, 10), (MILL, mill_from, 90, 40))
+    windows = ((RES, 60, 90, res), (CLINIC, 60, 90, clinic), (MILL, mill_from, 90, 40))
     return _execute(run, _windows(_start_soc(season_inputs(run, 1), 34), windows))
 
 
@@ -386,3 +386,17 @@ def test_n13_the_reverse_mismatch_keeps_v7s_rule_with_its_note() -> None:
         assert energy(t, i, GEN_OUT) == F(10, 3), i
         assert energy(t, i, BAT_AC) == F(5, 2), i
         assert demand(t, i) - served(t, i) == F(5, 12), i
+
+
+def test_n13b_the_reverse_mismatch_note_beside_another_limit() -> None:
+    """N13 with the PCS charge limit also binding (res 5 kW from 60: the view asks 35 kW of charge, the PCS takes 30),
+    so v7's end-of-step rule (which notes the mismatch only when nothing else limits) cannot supply the note: v8's own
+    reverse-mismatch note must. From 62 the mill makes 45 kW > 40, and 5 kW over 3 minutes is unserved."""
+    t = night_support(62, res=5, clinic=0)
+    i = 12
+    assert state(t, i) == "RUNNING"
+    notes = accepted(t, i).controls[0].limited_by
+    assert any(n.startswith("pcs-charge-limit") for n in notes), notes  # precondition: another limit binds
+    assert DIFFERED in notes, notes
+    assert demand(t, i) - served(t, i) == F(1, 4)
+    assert energy(t, i, BAT_AC) == F(-1)  # 30 kW over [60, 62), none over [62, 65)
