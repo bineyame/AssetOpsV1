@@ -7,3 +7,4 @@ One line per slice, continuing `index-2.md` (number, slice ID, summary, file in 
 182. `3C2` the agreed change recorded as an Action (migration 0070, `record_action`, owner by role; state words and refusal sentences as SC-1 statements, `actions/agreed.py` ADOPTED) · work.md
 183. `3C1b` the signed-in person on trial actions (accept, apply, observe; migration 0071) · work.md
 184. `IA-2a` mock-up plan shape: four tabs, stepper, crew tiles, History (IA-1 shape rebuild) · demo.md
+185. `IA-2b1` mock-up list shape, units 1-3: checks first, qty modes, the list component (not landed) · demo.md

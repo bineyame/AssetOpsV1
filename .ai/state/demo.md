@@ -268,3 +268,13 @@ Branch `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, from m
   group), G1 plan tabs (2) and plan items' decisions (reported at 3), the `copy_check` plan block, `ia_shots` approvefold; plants under
   `IA_FORCE_LANDED=IA-2a` before the flip; after it, an IA-2a check that prints "dormant" fails `ia_gates`.
 - Open: R758 (Approve in the band, not the title row) and R759 (Review "Not yet") revisit at the IA-2 walkthrough and IA-2d.
+
+## IA-2b1 - the list shape, units 1 to 3 (building 21 Nov; not landed)
+
+- Mock-up only, nothing live. Units 1 and 2: `list_shape_check` (blocks A to D), `qty_check`'s count and format modes and its `EQUAL`
+  row, the `shape_check`, `click_depth` and `copy_check` rows; all dormant until `IA-2b1` lands or is forced.
+- Unit 3: one list component in `ia-shapes.js` (`iaListModel`, `iaListHref`, tiers, chips, tools, `iaListBody`, `shapeList`;
+  `IA_LIST_DEFS` empty), the tools listener and `iaListRestore` (after the router), `iaAliasTarget` as the one alias splitter, the
+  scope menu on a list, the list aliases (dormant). Block A's plants and `aliasq` proved under force.
+- Open: unit 4 (the four defs and routes, the Outcomes fold, crumbs, search index, the flip, shots, packet) and the plants that need
+  the lists (`specs/IA-1-shape-rebuild/handoff-IA-2b1.md`).
