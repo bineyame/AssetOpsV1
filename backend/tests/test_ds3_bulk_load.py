@@ -32,6 +32,7 @@ HOST = "postgresql+psycopg://u:p@127.0.0.1:55432"
     (f"{HOST}/assetops_op_kobo", {}, False),
     (f"{HOST}/assetops_op_kobo_test", {}, False),
     (f"{HOST}/_audit", {}, False),
+    (f"{HOST}/assetops_testbed", {}, False),  # contains "test" without the suffix
     (f"{HOST}/assetops_test?dbname=assetops_op_kobo", {}, False),
     ("postgresql+psycopg://u:p@10.0.0.5:55432/assetops_test", {}, False),
     ("postgresql+psycopg://u:p@127.0.0.1:5432/assetops_test", {}, False),
@@ -222,3 +223,66 @@ def test_the_bulk_evidence_columns_are_persists_columns_in_order() -> None:
         return [c.strip() for c in text.split(",")]
 
     assert split(bulk_columns) == split(persist_columns) and len(split(persist_columns)) == 42
+
+
+class _Persisting:
+    """A fake connection that captures `_persist`'s accepted_evidence INSERT and its parameters."""
+
+    def __init__(self) -> None:
+        self.sql, self.params = None, None
+
+    def begin_nested(self):
+        return type("Savepoint", (), {"commit": lambda s: None, "rollback": lambda s: None})()
+
+    def execute(self, statement, params):
+        self.sql, self.params = statement.text, params
+        return type("Result", (), {"first": lambda s: ("inserted",)})()
+
+
+def _bindings_of(sql: str) -> dict[str, tuple[str, str]]:
+    """column -> ("scalar", param) or ("array", param), read from the statement text itself."""
+    columns = [c.strip() for c in re.search(r"INSERT INTO accepted_evidence \(([^)]*)\)", sql).group(1).split(",")]
+    values = re.search(r"\bVALUES \((.*?)\) ON CONFLICT", sql)
+    if values:
+        return {c: ("scalar", v.strip()[1:]) for c, v in zip(columns, values.group(1).split(","))}
+    select = re.search(r"\bSELECT (.*?) FROM unnest\((.*)\) AS s\(([^)]*)\)", sql)
+    expressions = [e.strip() for e in select.group(1).split(", ")]
+    arrays = re.findall(r"CAST\(:(\w+) AS \w+\[\]\)", select.group(2))
+    aliases = [a.strip() for a in select.group(3).split(",")]
+    by_alias = dict(zip(aliases, arrays))
+    out = {}
+    for column, expression in zip(columns, expressions):
+        scalar = re.fullmatch(r"CAST\(:(\w+) AS \w+\)", expression)
+        out[column] = ("scalar", scalar.group(1)) if scalar else ("array", by_alias[expression[2:]])
+    return out
+
+
+def test_the_bulk_statement_binds_what_persist_binds_column_by_column() -> None:
+    """Reviewer guide item 2 as a test: one decision whose every field is distinct, bound by `_persist` and by the bulk
+    builder; each of the 42 columns (the generated id apart) receives the same value. Test 8's Kobo fixtures are all
+    IDENTITY conversions, so a swap of value and normalized value (P1) or of two v4 ids (P15) shows here."""
+    from types import SimpleNamespace as N
+
+    envelope = N(message_id="m", sequence_epoch="ep", sequence=7, device_id="dev", signal_id="sig", family="fam",
+                 measurement="meas", quality="q", unavailable_reason="ur", value="raw-value", unit="raw-unit",
+                 record_kind="rk", event_id="eid", correlation_id="cid", session_id="sess", connector_id="conn",
+                 actor="act", outcome="out")
+    decision = N(ordinal=3, envelope=envelope, envelope_text="body", envelope_sha256="sha",
+                 binding=N(asset_id="asset", role="role", binding_revision_id="brev"),
+                 normalized_value_text="normalized-value", normalized_unit="norm-unit", conversion_kind="ck",
+                 source_time="st", published_at="pub", interval_start="is", interval_end="ie",
+                 configuration_outdated="outdated")
+    batch = N(tenant_id="t", site_id="site", id="batch", gateway_id="g", source_id="src", received_at="recv",
+              foundation_revision_id="f", binding_set_revision_id="bs", source_mode="mode")
+    fake = _Persisting()
+    adapter.PostgresEvidenceLedger._persist(None, fake, batch, decision, "decided")
+    persisted = {column: fake.params[param] for column, (_, param) in _bindings_of(fake.sql).items()}
+    params = adapter._bulk_evidence_params("t", "site", "batch", "g", "src", "recv",
+                                           N(foundation_revision_id="f", binding_set_revision_id="bs"), "mode",
+                                           [decision], ["new-id"])
+    bulk = {column: params[param] if kind == "scalar" else params[param][0]
+            for column, (kind, param) in _bindings_of(adapter._BULK_EVIDENCE_SQL.text).items()}
+    assert set(bulk) == set(persisted) and len(bulk) == 42
+    differing = {c: (persisted[c], bulk[c]) for c in persisted if c != "id" and persisted[c] != bulk[c]}
+    assert differing == {}
+    assert len({v for c, v in persisted.items() if c != "id"}) == 41  # every field distinct: a swap cannot hide
