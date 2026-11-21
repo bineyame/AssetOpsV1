@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import io
 import re
+import struct
 import zipfile
 import zlib
 from decimal import ROUND_HALF_EVEN, Context, Decimal, InvalidOperation
@@ -83,6 +84,16 @@ _WORK_MAX = 500_000
 # one workbook-wide budget, so a shared string referenced from every row costs its length each time.
 _CHUNK = 64 * 1024
 _CHAR_MAX = 16 * 1024 * 1024
+# Fix round r5 (D-3A6.24), bounds the envelope (spec §2.12) holds anyway, kept so a common attack costs milliseconds:
+# N8, attributes: XML forbids a raw `<` in an attribute value, so the `=` between two `<` bound one element's
+# attributes; and the distinct attribute names of the workbook (expat keeps each in its name cache).
+_ATTR_RUN_MAX = 4096
+_ATTR_NAMES_MAX = 512
+_RUN = re.compile(r"[^<]+")
+# N10, the zip directory, read from its end record before `zipfile` decodes it (extra fields decode quadratically).
+_ZIP_ENTRIES_MAX = 256
+_ZIP_DIRECTORY_MAX = 256 * 1024
+_EOCD, _EOCD64, _LOCATOR = b"PK\x05\x06", b"PK\x06\x06", b"PK\x06\x07"
 _ROW, _C, _V, _F, _IS, _T, _R, _SI = (f"{_MAIN}{n}" for n in ("row", "c", "v", "f", "is", "t", "r", "si"))
 _OTHER, _SHEETS, _IN_ROW, _IN_CELL, _IN_V, _IN_IS, _IN_RUN, _T_DIRECT, _T_RUN = range(9)  # element roles
 
@@ -139,14 +150,19 @@ class _Target:
     """An `XMLParser` target, so no tree is built. Each open element is `[role, owner, text, collecting]`; `text`
     gathers the element's leading text (ElementTree's `.text`) until its first child starts."""
 
-    def __init__(self, work: list[int]) -> None:
+    def __init__(self, work: list[int], names: set[str]) -> None:
         self.work = work
+        self.names = names  # r5 (N8): the workbook's distinct attribute names, one set across the four parses
         self.open: list[list] = []
 
     def start(self, tag: str, attrib: dict) -> None:
         self.work[0] -= 1
         if self.work[0] < 0:
             raise _too_large()
+        if attrib:
+            self.names.update(attrib)
+            if len(self.names) > _ATTR_NAMES_MAX:
+                raise _too_large()
         parent = self.open[-1] if self.open else None
         if parent is not None:
             parent[3] = False
@@ -188,15 +204,16 @@ class _Target:
 
 
 class _Workbook(_Target):
-    def __init__(self, work: list[int]) -> None:
-        super().__init__(work)
-        self.pr: dict | None = None
+    def __init__(self, work: list[int], names: set[str]) -> None:
+        super().__init__(work, names)
+        self.pr_seen = False
+        self.date1904: str | None = None  # r5 (N8): only this, not the element's whole attribute dict
         self.sheets = 0
         self.first: tuple[str | None, str | None] = (None, None)
 
     def role(self, tag: str, attrib: dict, parent: list | None) -> tuple:
-        if len(self.open) == 1 and tag == f"{_MAIN}workbookPr" and self.pr is None:
-            self.pr = dict(attrib)
+        if len(self.open) == 1 and tag == f"{_MAIN}workbookPr" and not self.pr_seen:
+            self.pr_seen, self.date1904 = True, attrib.get("date1904")
         elif len(self.open) == 1 and tag == f"{_MAIN}sheets":
             return _SHEETS, None, None, False
         elif parent is not None and parent[0] == _SHEETS and tag == f"{_MAIN}sheet":
@@ -207,8 +224,8 @@ class _Workbook(_Target):
 
 
 class _Rels(_Target):
-    def __init__(self, work: list[int], rid: str | None) -> None:
-        super().__init__(work)
+    def __init__(self, work: list[int], names: set[str], rid: str | None) -> None:
+        super().__init__(work, names)
         self.rid, self.found, self.target = rid, False, None
 
     def role(self, tag: str, attrib: dict, parent: list | None) -> tuple:
@@ -218,8 +235,8 @@ class _Rels(_Target):
 
 
 class _Shared(_Target):
-    def __init__(self, work: list[int]) -> None:
-        super().__init__(work)
+    def __init__(self, work: list[int], names: set[str]) -> None:
+        super().__init__(work, names)
         self.strings: list[str] = []
 
     def role(self, tag: str, attrib: dict, parent: list | None) -> tuple:
@@ -235,8 +252,9 @@ class _Shared(_Target):
 
 
 class _Sheet(_Target):
-    def __init__(self, work: list[int], shared: list[str], after: int = 0, keep: int | None = None) -> None:
-        super().__init__(work)
+    def __init__(self, work: list[int], names: set[str], shared: list[str], after: int = 0,
+                 keep: int | None = None) -> None:
+        super().__init__(work, names)
         self.shared = shared
         self.rows: list[tuple[int, dict[int, str]]] = []
         self.previous = 0
@@ -329,31 +347,62 @@ def _parse(z: zipfile.ZipFile, name: str, target: _Target, left: list[int]) -> _
     del raw
     if "<!DOCTYPE" in text or "<!ENTITY" in text:
         raise _workbook_error()
+    if text.count("=") > _ATTR_RUN_MAX:  # r5 (N8): one linear scan, only when the member could hold such a run
+        for run in _RUN.finditer(text):
+            if text.count("=", run.start(), run.end()) > _ATTR_RUN_MAX:
+                raise _too_large()
     parser = ElementTree.XMLParser(target=target)
     parser.feed(text)
     parser.close()  # ParseError on an empty or unfinished document
     return target
 
 
+def _directory_check(data: bytes) -> None:
+    """Fix round r5 (N10): before `zipfile` decodes the central directory, its size and entry count from the end
+    record (found as `zipfile` finds it), and from the zip64 end record when a locator precedes it; a workbook has
+    about 10 entries in about 1 KiB. No end record is `NATIVE_WORKBOOK`, as `zipfile` would refuse it."""
+    tail = data[-65_557:]
+    at = len(tail) - 22
+    if not (at >= 0 and tail[at:at + 4] == _EOCD and tail[-2:] == b"\x00\x00"):
+        at = tail.rfind(_EOCD)
+        if at < 0 or len(tail) - at < 22:
+            raise _workbook_error()
+    entries, size = struct.unpack("<HL", tail[at + 10:at + 16])  # total entries, directory size
+    candidates = []
+    end = len(data) - len(tail) + at  # the end record's offset in the upload
+    if end >= 20 and data[end - 20:end - 16] == _LOCATOR:  # `zipfile` then reads the zip64 record's values
+        reloff = struct.unpack("<Q", data[end - 12:end - 4])[0]
+        for start in {reloff, end - 20 - 56}:  # where `zipfile` looks for it: at the locator's offset, or just before
+            record = data[start:start + 56] if 0 <= start < len(data) else b""
+            if len(record) == 56 and record.startswith(_EOCD64):
+                candidates.append(struct.unpack("<QQ", record[32:48]))  # total entries, directory size
+    if not candidates:  # no zip64 record: the end record's own values (a sentinel there is refused as too large)
+        candidates.append((entries, size))
+    if any(n > _ZIP_ENTRIES_MAX or s > _ZIP_DIRECTORY_MAX for n, s in candidates):
+        raise _too_large()
+
+
 def _read(data: bytes, sheet: str, after: int = 0, keep: int | None = None) -> list[tuple[int, dict[int, str]]]:
-    z = zipfile.ZipFile(io.BytesIO(bytes(data)))
+    data = bytes(data)
+    _directory_check(data)
+    z = zipfile.ZipFile(io.BytesIO(data))
     infos = z.infolist()
     if any(i.file_size > _MEMBER_MAX for i in infos) or sum(i.file_size for i in infos) > _TOTAL_MAX:
         raise _too_large()
-    work, left = [_WORK_MAX], [_TOTAL_MAX]
-    workbook = _parse(z, "xl/workbook.xml", _Workbook(work), left)
-    if workbook.pr is not None and (workbook.pr.get("date1904") or "").strip().lower() in ("1", "true"):
+    work, left, names = [_WORK_MAX], [_TOTAL_MAX], set()
+    workbook = _parse(z, "xl/workbook.xml", _Workbook(work, names), left)
+    if (workbook.date1904 or "").strip().lower() in ("1", "true"):
         raise _workbook_error()
     if workbook.sheets != 1 or workbook.first[0] != sheet:
         raise CanonicalRefused("NATIVE_SHEET", "json")
-    target = _parse(z, "xl/_rels/workbook.xml.rels", _Rels(work, workbook.first[1]), left).target
+    target = _parse(z, "xl/_rels/workbook.xml.rels", _Rels(work, names, workbook.first[1]), left).target
     if not target:
         raise _workbook_error()
     path = target.lstrip("/") if target.startswith("/") else _normpath(_join("xl", target))
     shared: list[str] = []
     if "xl/sharedStrings.xml" in z.namelist():
-        shared = _parse(z, "xl/sharedStrings.xml", _Shared(work), left).strings
-    rows = _Sheet(work, shared, after, keep)
+        shared = _parse(z, "xl/sharedStrings.xml", _Shared(work, names), left).strings
+    rows = _Sheet(work, names, shared, after, keep)
     try:
         _parse(z, path, rows, left)
     except _Enough:

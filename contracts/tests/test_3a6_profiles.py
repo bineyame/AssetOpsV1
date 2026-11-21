@@ -477,9 +477,10 @@ def test_n3_r3_many_sheets_count_against_the_budget(monkeypatch) -> None:
 
 
 def test_n3_r3_many_members_are_listed_in_bounded_time() -> None:
-    """The reader lists the members (sizes, names) and reads only four: 20,000 empty members cost the listing."""
+    """The reader reads only four members. Since r5 (D-3A6.24, N10; a listed literal change from `ok 3`) a zip of
+    more than 256 entries is refused from its end record before `zipfile` lists them: 20,000 empty members."""
     data = _workbook(members={f"xl/media/m{i}.bin": b"" for i in range(20_000)})
-    assert _bounded(data, 1.5, 60) == "ok 3"
+    assert _bounded(data, 1.5, 60) == "NATIVE_TOO_LARGE"
 
 
 # --- N3 r4: bounds by resource (fix round r4, review N5, N6, N7) ------------------------------------------------
@@ -646,6 +647,207 @@ def test_n3_r4_xlsx_rows_stop_one_past_the_batch_ceiling() -> None:
     """The same ceiling on the XLSX path: 100,000 non-empty rows stop at 10,001 kept (the work bound allows them)."""
     data = _workbook(b"".join(b'<row r="%d"><c r="E%d" t="b"/></row>' % (r, r) for r in range(10, 100_010)))
     assert _bounded(data, 1.5, 60) == f"ok {MAX_RECORDS + 1}"
+
+
+# --- N3 r5: the last precision bounds under the envelope (fix round r5, D-3A6.24; review r5 N8, N9, N10) ----------
+# Each probe follows review r5's; each is refused `NATIVE_TOO_LARGE`, bounded on time (plain run) and peak memory
+# (traced run). The envelope (backend, spec §2.12) bounds the same files by the kernel; these keep them cheap.
+
+_UPLOAD = 8 * 2**20
+
+
+def _attrs(names) -> bytes:
+    return b" ".join(b'%s=""' % n for n in names)
+
+
+def _before_sheet_data(xml: bytes) -> bytes:
+    m = zip_members(budget_bytes())
+    sheet = m[_SHEET]
+    at = sheet.index(b"<sheetData")
+    m[_SHEET] = sheet[:at] + xml + sheet[at:]
+    return _deflated(m)
+
+
+def _n8_one_element() -> bytes:
+    data = _before_sheet_data(b"<x " + _attrs(b"a%d" % i for i in range(1_450_000)) + b"/>")
+    assert len(zip_members(data)[_SHEET]) < _xlsx._MEMBER_MAX
+    return data
+
+
+def _n8_spread() -> bytes:
+    return _before_sheet_data(b"".join(b"<x " + _attrs(b"a%d" % (e * 14_500 + k) for k in range(14_500)) + b"/>"
+                                       for e in range(100)))
+
+
+def _n8_namespaced() -> bytes:
+    return _before_sheet_data(b'<x xmlns:p="u" ' + _attrs(b"p:a%d" % i for i in range(1_000_000)) + b"/>")
+
+
+def _n8_pr_and_sheet() -> bytes:
+    attrs = _attrs(b"a%d" % i for i in range(1_450_000))
+    m = zip_members(budget_bytes())
+    m["xl/workbook.xml"] = m["xl/workbook.xml"].replace(b"<sheets", b"<workbookPr " + attrs + b"/><sheets", 1)
+    sheet = m[_SHEET]
+    at = sheet.index(b"<sheetData")
+    m[_SHEET] = sheet[:at] + b"<x " + attrs + b"/>" + sheet[at:]
+    return _deflated(m)
+
+
+@pytest.mark.parametrize("build", [_n8_one_element, _n8_spread, _n8_namespaced, _n8_pr_and_sheet],
+                         ids=["one element 1.45 M", "14,500 x 100", "1 M p:aN", "workbookPr and sheet"])
+def test_n3_r5_b1_attribute_probes_are_too_large_in_bounded_time(build) -> None:
+    data = build()
+    assert len(data) < _UPLOAD
+    assert _bounded(data, 1.0, 60) == "NATIVE_TOO_LARGE"
+
+
+def test_n3_r5_b1_an_equals_run_past_4096_is_refused_and_one_at_4096_reads() -> None:
+    def text_cell(n: int) -> bytes:
+        return b'<row r="9"><c r="E9" t="inlineStr"><is><t>' + b"=" * n + b"</t></is></c></row>"
+    assert _xlsx._ATTR_RUN_MAX == 4096
+    assert _outcome(_workbook(text_cell(4_097))) == "NATIVE_TOO_LARGE"
+    assert _outcome(_workbook(text_cell(4_096))) == "ok 4"  # the scan ran (more than 4,096 `=` in the member)
+    assert zip_members(_workbook(text_cell(4_096)))[_SHEET].count(b"=") > 4096
+
+
+def _names_in(data: bytes) -> set[str]:
+    """The distinct attribute names of the four members the reader parses, counted by ElementTree here."""
+    from xml.etree import ElementTree
+    names: set[str] = set()
+    m = zip_members(data)
+    for member in ("xl/workbook.xml", "xl/_rels/workbook.xml.rels", "xl/sharedStrings.xml", _SHEET):
+        if member in m:
+            for _, element in ElementTree.iterparse(io.BytesIO(m[member])):
+                names.update(element.attrib)
+    return names
+
+
+def test_n3_r5_b1_more_than_512_distinct_names_are_refused_and_512_read() -> None:
+    assert _xlsx._ATTR_NAMES_MAX == 512
+    base = len(_names_in(budget_bytes()))
+
+    def spread(count: int) -> bytes:  # `count` new names over elements of 10
+        new = [b"n%d" % i for i in range(count)]
+        return _before_sheet_data(b"".join(b"<x " + _attrs(new[i:i + 10]) + b"/>" for i in range(0, count, 10)))
+    assert len(_names_in(spread(512 - base))) == 512
+    assert _outcome(spread(512 - base)) == "ok 3"
+    assert _outcome(spread(513 - base)) == "NATIVE_TOO_LARGE"
+
+
+def test_n3_r5_b1_legitimate_workbooks_read_as_without_the_scan(monkeypatch) -> None:
+    """The lakeside fixture, and 10,000 rows (9,997 added) of 20 numeric cells (about 610,000 `=`, so the run scan
+    runs), read as they do with the scan switched off."""
+    rows = b"".join(b'<row r="%d">' % r + b"".join(b'<c r="%s%d" s="1" t="n"><v>%d</v></c>' % (bytes([65 + c]), r, c)
+                                                  for c in range(20)) + b"</row>" for r in range(10, 10_007))
+    wide = _workbook(rows)
+    assert zip_members(wide)[_SHEET].count(b"=") > 600_000
+    with_scan = [_outcome(budget_bytes()), _bounded(wide, 3.0, 120)]
+    monkeypatch.setattr(_xlsx, "_ATTR_RUN_MAX", 10**9)
+    monkeypatch.setattr(_xlsx, "_ATTR_NAMES_MAX", 10**9)
+    assert with_scan == [_outcome(budget_bytes()), _outcome(wide)]
+    assert with_scan[0] == "ok 3" and with_scan[1] == "ok 10000"
+
+
+def test_n3_r5_b1_date1904_is_kept_alone() -> None:
+    from xml.etree import ElementTree
+    target = _xlsx._Workbook([10], set())
+    parser = ElementTree.XMLParser(target=target)
+    parser.feed('<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+                '<workbookPr date1904="1" codeName="x"/><workbookPr date1904="0"/></workbook>')
+    parser.close()
+    assert target.date1904 == "1" and not hasattr(target, "pr")
+
+
+def test_n3_r5_b2_csv_row_probes_are_too_large_in_bounded_time() -> None:
+    one_line = _kobo_head() + b"\x80;" * (_UPLOAD // 2 - 2_000) + b"\n"  # cp1252: U+20AC each, one line
+    quoted = _kobo_head() + (";".join(["ab"] * 30_000) + ';"\n";').encode() * 90 + b"x\n"  # one row, 90 lines
+    for data in (one_line, quoted):
+        assert len(data) < _UPLOAD
+        assert _kobo_bounded(data, 0.5, 60) == "NATIVE_TOO_LARGE"
+    with pytest.raises(CanonicalRefused) as refused:
+        split_file(compile_profile(profile(KOBO), 1), quoted)
+    # lines 4 on are 90,002 characters each: the 12th (line 15) takes the row past 1 Mi characters
+    assert (refused.value.code, refused.value.path) == ("NATIVE_TOO_LARGE", "row.15")
+
+
+def test_n3_r5_b2_a_row_of_exactly_the_cap_is_not_refused_by_it() -> None:
+    assert _layouts._ROW_CHARS_MAX == 1_048_576
+    head = _kobo_head()
+    row = kobo_bytes().splitlines(keepends=True)[3].rstrip(b"\r\n")
+
+    def of(chars: int) -> bytes:  # the row, then fields under csv's 128 Ki field limit, to `chars` with its CR LF
+        fill = chars - len(row) - 2
+        fields = [b"9" * 100_000] * (fill // 100_001) + [b"9" * (fill % 100_001 - 1)]
+        return row + b";" + b";".join(fields) + b"\r\n"
+    exact = of(_layouts._ROW_CHARS_MAX)
+    assert len(exact.decode("cp1252")) == _layouts._ROW_CHARS_MAX
+    assert _kobo_outcome(head + exact) == "ok 1"  # read; the row's extra cells refuse that row alone
+    assert _kobo_outcome(head + of(_layouts._ROW_CHARS_MAX + 1)) == "NATIVE_TOO_LARGE"
+    assert _kobo_outcome(kobo_bytes()) == "ok 4"
+
+
+def test_n3_r5_b2_the_windowed_lines_are_stringio_lines() -> None:
+    import random
+    rnd = random.Random(2026)
+    for _ in range(3_000):
+        text = "".join(rnd.choice(["a", "bb", "\r", "\n", "\r\n", ";", '"']) for _ in range(rnd.randrange(60)))
+        want = list(io.StringIO(text, newline=""))
+        for window in (2, 3, 5, 8):
+            if all(len(line) < window for line in want):
+                assert list(_layouts._physical_lines(text, window)) == want, (text, window)
+
+
+def _cd_entry(name: bytes, extra: bytes = b"") -> bytes:
+    return struct.pack("<4s6H3L5H2L", b"PK\x01\x02", 20, 20, 0, 0, 0, 0, 0, 0, 0, len(name), len(extra), 0, 0, 0, 0,
+                       0) + name + extra
+
+
+def _with_entries(base: bytes, entries: list[bytes], *, zip64: bool = False) -> bytes:
+    """`base` with `entries` appended to its central directory (review r5's builder); `zip64` writes the end as a
+    zip64 end record and locator behind a sentinel end record, as `zipfile` reads one."""
+    end = base.rindex(b"PK\x05\x06")
+    count = struct.unpack("<H", base[end + 10:end + 12])[0]
+    size, offset = struct.unpack("<LL", base[end + 12:end + 20])
+    body, directory = base[:offset], base[offset:offset + size] + b"".join(entries)
+    n = count + len(entries)
+    if zip64:
+        record = struct.pack("<4sQ2H2L4Q", b"PK\x06\x06", 44, 45, 45, 0, 0, n, n, len(directory), len(body))
+        locator = struct.pack("<4sLQL", b"PK\x06\x07", 0, len(body) + len(directory), 1)
+        return body + directory + record + locator + struct.pack("<4s4H2LH", b"PK\x05\x06", 0, 0, 0xFFFF, 0xFFFF,
+                                                                 0xFFFFFFFF, 0xFFFFFFFF, 0)
+    return body + directory + struct.pack("<4s4H2LH", b"PK\x05\x06", 0, 0, n, n, len(directory), len(body), 0)
+
+
+def test_n3_r5_b3_quadratic_extra_fields_are_too_large_in_bounded_time() -> None:
+    extra = b"\x99\x99\x00\x00" * (65_532 // 4)  # 16,383 empty extra records per entry
+    data = _with_entries(budget_bytes(), [_cd_entry(b"q%d" % i, extra) for i in range(125)])
+    assert len(data) < _UPLOAD
+    import time
+    started = time.perf_counter()
+    assert _outcome(data) == "NATIVE_TOO_LARGE"
+    assert time.perf_counter() - started < 0.2
+
+
+def test_n3_r5_b3_the_entry_count_and_directory_size() -> None:
+    assert (_xlsx._ZIP_ENTRIES_MAX, _xlsx._ZIP_DIRECTORY_MAX) == (256, 256 * 1024)
+    base = budget_bytes()
+    count = len(zip_members(base))
+    assert _outcome(_with_entries(base, [_cd_entry(b"e%d" % i) for i in range(257)])) == "NATIVE_TOO_LARGE"
+    assert _outcome(_with_entries(base, [_cd_entry(b"e%d" % i) for i in range(256 - count)])) != "NATIVE_TOO_LARGE"
+    big_name = [_cd_entry(b"n" * 60_000 + b"%d" % i) for i in range(5)]  # 5 entries, a 300 kB directory
+    assert _outcome(_with_entries(base, big_name)) == "NATIVE_TOO_LARGE"
+    ten = rezip({**zip_members(base), **{f"xl/media/m{i}.bin": b"" for i in range(10 - count)}})
+    assert len(zip_members(ten)) == 10 and _outcome(ten) == "ok 3"
+    assert _outcome(b"PK\x03\x04 no end record") == "NATIVE_WORKBOOK"
+
+
+def test_n3_r5_b3_the_zip64_end_record_is_read() -> None:
+    base = budget_bytes()
+    as_zip64 = _with_entries(base, [], zip64=True)
+    with zipfile.ZipFile(io.BytesIO(as_zip64)) as z:  # `zipfile` reads it through the zip64 record
+        assert len(z.infolist()) == len(zip_members(base))
+    assert _outcome(as_zip64) == "ok 3"
+    assert _outcome(_with_entries(base, [_cd_entry(b"e%d" % i) for i in range(257)], zip64=True)) == "NATIVE_TOO_LARGE"
 
 
 # --- N4 transforms -----------------------------------------------------------------------------------------------
