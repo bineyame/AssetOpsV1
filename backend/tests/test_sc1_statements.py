@@ -352,6 +352,8 @@ def test_t8_shipped_catalogue_loads():
                                          "action.unknown_site",
                                          # 0K4b (D-0K4.19): Foundation property names and model-profile needs.
                                          "foundation.property_name", "model_profile.need",
+                                         # 0K4a (D-0K4.19): mini-grid v8's description and restated fuel-tank state.
+                                         "model_profile.description", "model_profile.state",
                                          # 0K4e (D-0K4.24): energy-cover entries.
                                          "dispatch.energy_cover", "dispatch.energy_cover_cause"} | set(DEEP_DIVE_STATEMENTS)
     assert set(cat.vocabulary["en"]) == {"factor", "heading", "headline_subject", "record", "record_noun",

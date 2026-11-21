@@ -52,8 +52,10 @@ from execution_adapter import (
     model_for,
 )
 
-#: The models a replay runs on (D-0K1.3); each is proven by T1 (D-0K1.12). A later version joins by one line here.
-REPLAY_MODELS = frozenset({("mini-grid", 5), ("mini-grid", 6), ("mini-grid", 7)})
+#: The models a replay runs on (D-0K1.3); v5-v7 are proven by T1 (D-0K1.12). A later version joins by one line here.
+#: v8 is proven by 0K4a's N11 (`host/tests/test_0k4a_dispatch_v8.py`, D-0K4.22 I4), not by T1, whose hand anchors are
+#: v7's linear fuel law.
+REPLAY_MODELS = frozenset({("mini-grid", 5), ("mini-grid", 6), ("mini-grid", 7), ("mini-grid", 8)})
 
 
 def STEP_HOURS(minutes: int) -> Fraction:
