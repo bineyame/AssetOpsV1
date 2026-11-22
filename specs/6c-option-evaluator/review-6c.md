@@ -159,9 +159,9 @@ Batched; each has a recommended default. None blocks the branch fixes in M1 and 
 
 ## Residual risk not named in the packet
 
-- `run.py:101-104`: `except Exception` around `site_inputs` turns any defect in the read (a type error included)
+- `run.py:111-114`: `except Exception` around `site_inputs` turns any defect in the read (a type error included)
   into `STRUCTURE_UNAVAILABLE`, exit 3. With `build_evaluation` untested end to end, a wiring fault would show as
   "the month's figures cannot be read right now", not as a bug. A Postgres test of `build_evaluation` on one seeded
   Site would close both.
-- `horizon_change = monthly × horizon_months` (`evaluate.py:89`) runs outside `evaluate`'s 34-digit context (default
+- `horizon_change = monthly × horizon_months` (`evaluate.py:90`) runs outside `evaluate`'s 34-digit context (default
   28 digits). Harmless at these magnitudes; noted for consistency with "nothing quantised".
