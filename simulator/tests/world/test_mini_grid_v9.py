@@ -80,6 +80,12 @@ def _two_inverters(frozen):
                                                                      "ac-bus"),))
 
 
+def _kobo_at_40(books: dict):
+    """Kobo's 1-2 Oct from the 40 % starting charge the writer declared before D-DD.104 (the test's own scenario, so
+    the sets run on those days; the writer's own start is the warm-up day's, `test_dd3b2_units.py`)."""
+    return tel._frozen(_kobo(), books, "2026-10-01", "2026-10-02", start_soc=Fraction(40))
+
+
 def _event(kind: str, component: str, offset: int) -> ForcingInput:
     """A unit event at an instant: one minute at the instant, so it reaches exactly the step that holds it."""
     return ForcingInput(event_id=f"{kind}:{component}:{offset}", address=f"{kind}@{component}", state_key=kind,
@@ -160,7 +166,7 @@ def _lead_rated(frozen, rated: Fraction):
 def test_two_generators_run_in_order_and_share_by_rating(books: dict) -> None:
     """Kobo's evening asks about 34 kW of the set (load plus the battery's acceptance); a 20 kW lead cannot carry it,
     so the 24 kW second set joins and each carries the set's output in proportion to its rating."""
-    frozen = _v9(_second_generator(_lead_rated(tel.frozen_inputs(_kobo(), books, "2026-10-01", "2026-10-02"),
+    frozen = _v9(_second_generator(_lead_rated(_kobo_at_40(books),
                                                Fraction(20))))
     run = _run(frozen, V9)
     lead, second = _interval(run, "generator-output-power@generator"), _interval(run, "generator-output-power@generator-b")
@@ -175,7 +181,7 @@ def test_two_generators_run_in_order_and_share_by_rating(books: dict) -> None:
 
 
 def test_a_unit_failing_while_running_stops_at_that_step_and_restores_to_stopped(books: dict) -> None:
-    base = _v9(_second_generator(tel.frozen_inputs(_kobo(), books, "2026-10-01", "2026-10-02")))
+    base = _v9(_second_generator(_kobo_at_40(books)))
     first = _transitions(_run(base, V9), "generator-state@generator")
     on = next(at for at, _, nxt in first if nxt == "RUNNING")
     fail_at, restore_at = on + 12, on + 12 + 600  # 12 minutes into its run (inside a step), restored 10 h later
@@ -257,7 +263,7 @@ def test_the_unit_path_forced_on_one_of_each_moves_v8s_stocks_states_and_reading
 def test_the_requested_generator_power_is_never_negative(books: dict) -> None:
     """D-DD.145 (deviation 2): P = max(0, demand + the battery's acceptance - available solar). At a sunny midday
     the solar exceeds both, so P is 0 there, never a negative request."""
-    frozen = _v9(_second_generator(_lead_rated(tel.frozen_inputs(_kobo(), books, "2026-10-01", "2026-10-02"),
+    frozen = _v9(_second_generator(_lead_rated(_kobo_at_40(books),
                                                Fraction(20))))
     requested = [b.control_step.view.value("generator-requested-power") for b in _run(frozen, V9).boundaries[:-1]]
     assert min(requested) == 0
@@ -267,7 +273,7 @@ def test_the_requested_generator_power_is_never_negative(books: dict) -> None:
 def test_a_fuel_limited_segment_never_burns_more_than_the_tank(books: dict) -> None:
     """D-DD.145 (deviation 3): two sets running on a nearly empty tank; each step burns at most what the tank held
     at its start, the tank never goes below 0, and the tank is emptied by the sets (the cap is reached)."""
-    frozen = _v9(_second_generator(_lead_rated(tel.frozen_inputs(_kobo(), books, "2026-10-01", "2026-10-02"),
+    frozen = _v9(_second_generator(_lead_rated(_kobo_at_40(books),
                                                Fraction(20))))
     tank = "fuel-tank-volume@fuel-tank"
     frozen = dataclasses.replace(frozen, causes=(), initial_values=tuple(

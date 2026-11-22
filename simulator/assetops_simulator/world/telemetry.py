@@ -155,12 +155,11 @@ def site_inputs(onboarding: dict, bindings: dict[str, dict]) -> dict:
     """`F` (D-DD.28): each `/2` Site joined with its binding conversion, sorted by Site code. Pure."""
     refuse_oracle(onboarding)
     operator = onboarding["operator"]["slug"]
-    sites = []
+    sites, unbound = [], []
     for site in sorted(onboarding["sites"], key=lambda s: s["code"]):
         binding = bindings.get(site["code"])
-        if binding is None:  # D-DD.129: written as a `not_written` manifest line by the writer, never skipped
-            sites.append({"tenant": operator, "code": site["code"],
-                          "not_written": "TEL_BINDING the Site has no binding conversion"})
+        if binding is None:  # D-DD.129: listed, and written as a `not_written` manifest line, never skipped
+            unbound.append({"tenant": operator, "code": site["code"]})
             continue
         components = [
             {"id": c["id"], "type": c["type"],
@@ -177,7 +176,7 @@ def site_inputs(onboarding: dict, bindings: dict[str, dict]) -> dict:
             "foundation": foundation, "role_set": binding["role_set"], "bindings": rows,
             "foundation_digest": sha256_hex(canonical_bytes({"foundation": foundation, "bindings": rows,
                                                              "role_set": binding["role_set"]}))})
-    return {"schema": SITE_INPUTS_SCHEMA, "generator": GENERATOR, "sites": sites}
+    return {"schema": SITE_INPUTS_SCHEMA, "generator": GENERATOR, "sites": sites, **({"unbound": unbound} if unbound else {})}
 
 
 # --- inputs: shapes, scaling, the frozen record ------------------------------------------------------------------------
@@ -889,13 +888,14 @@ def build_telemetry(view: dict, sites: dict, decided_books: dict, *, start: str,
     refuse_oracle(sites)
     files, manifests = [], []
     by_tenant: dict[str, list[SiteRun]] = {}
+    for site in sites.get("unbound", []):  # D-DD.129: a Site with no binding conversion is stated, not skipped
+        if only is None or site["code"] in only:
+            manifests.append((f"{site['tenant']}/telemetry/{site['code']}.manifest.json", {
+                "schema": MANIFEST_SCHEMA, "site_code": site["code"],
+                "not_written": "TEL_BINDING the Site has no binding conversion"}))
     for site in sites["sites"]:
         code = site["code"]
         if only is not None and code not in only:
-            continue
-        if "not_written" in site:  # D-DD.129: a Site with no binding conversion is stated, not skipped
-            manifests.append((f"{site['tenant']}/telemetry/{code}.manifest.json",
-                              {"schema": MANIFEST_SCHEMA, "site_code": code, "not_written": site["not_written"]}))
             continue
         family = pack_family(site)
         if family in VERTICAL_PACKS:
