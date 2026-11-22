@@ -72,15 +72,26 @@ def _effects(row):
              [(m.record_kind, m.source_family, m.factor_id) for m in e.missing]) for e in row.effects]
 
 
-def _mg_effects(avoided, added):
-    a, t = D(avoided), D(added)
-    fuel = -a * D("1.25")
-    wear = t * D("0.05")
-    changes = [-a, t, -a, fuel, wear, fuel + wear, -(fuel + wear)]
-    currency = list(MG_CURRENCY)
-    if t == 0:  # a zero throughput change reads no wear rate, so the wear effect has no money value and no currency
-        currency[4] = None
-    return [(f, i, c, u, cur, []) for i, (f, c, u, cur) in enumerate(zip(MG_EFFECTS, changes, MG_UNITS, currency))]
+def _mg_rows(*changes, wear_currency=USD):
+    """The seven MINI_GRID effect rows of F1: their changes are the literals each test writes down."""
+    units = ["L", "KWH", "L", "MONEY", "MONEY", "MONEY", "MONEY"]
+    names = ["candidate_l", "battery_throughput_kwh", "diesel_l", "fuel_cost", "battery_wear", "cost_to_serve",
+             "contribution"]
+    currencies = [None, None, None, USD, wear_currency, USD, USD]
+    return [(n, i, D(c), u, cur, []) for i, (n, c, u, cur) in enumerate(zip(names, changes, units, currencies))]
+
+
+#: F1b's effect rows, one literal list per option: avoided L, added kWh, fuel cost at 1.25, wear at 0.05, cost to
+#: serve, contribution (each worked on the page of the spec)
+F1B_EFFECTS = {
+    "stop-90-reserve-25": _mg_rows("-5", "0", "-5", "-6.25", "0", "-6.25", "6.25"),
+    "stop-80-reserve-30": _mg_rows("-180", "10", "-180", "-225.00", "0.50", "-224.50", "224.50"),
+    "stop-80-reserve-25": _mg_rows("-190", "20", "-190", "-237.50", "1.00", "-236.50", "236.50"),
+    "stop-70-reserve-30": _mg_rows("-200", "50", "-200", "-250.00", "2.50", "-247.50", "247.50"),
+    "stop-70-reserve-25": _mg_rows("-210", "80", "-210", "-262.50", "4.00", "-258.50", "258.50"),
+    "stop-60-reserve-30": _mg_rows("-150", "100", "-150", "-187.50", "5.00", "-182.50", "182.50"),
+    "stop-60-reserve-25": _mg_rows("-250", "150", "-250", "-312.50", "7.50", "-305.00", "305.00"),
+}
 
 
 #: F1b: (avoided L, added kWh, monthly, 12 months, value, disposition, rank, reason, admitted, first failing)
@@ -113,7 +124,7 @@ def _assert_f1b_row(key, row, one_offs, options):
     assert row.one_off_id == one_offs[options[key].id].id
     assert (row.admission["admitted"], row.admission["first_failing_part"]) == (admitted, first)
     assert row.dawn == F1_DAWN
-    assert _effects(row) == _mg_effects(avoided, added), key
+    assert _effects(row) == F1B_EFFECTS[key], key
 
 
 # --- test 2: read_study and models --------------------------------------------------------------------------------
@@ -290,9 +301,9 @@ def test_4_f1a_wear_missing() -> None:
         assert (row.disposition, row.reason_code, row.rank) == (disp, reason, None), key
         assert (row.monthly_change, row.horizon_change, row.value, row.currency) == (None, None, None, USD), key
         assert _missing(row) == [WEAR_MISSING] and row.assumed == DIESEL and row.source_class == "SIMULATED"
-        effects = _mg_effects(avoided, added)
-        for i in (4, 5, 6):  # the wear effect read no money value, so it carries no currency
-            effects[i] = effects[i][:2] + (None, effects[i][3], None if i == 4 else USD, [WEAR_MISSING])
+        effects = list(F1B_EFFECTS[key])
+        for i in (4, 5, 6):  # the wear rate is missing: the wear, cost to serve and contribution have no change
+            effects[i] = (effects[i][0], i, None, "MONEY", None if i == 4 else USD, [WEAR_MISSING])
         assert _effects(row) == effects, key
     assert rows["stop-70-reserve-30"].effects[3].change_per_month == D("-250.00")
 
@@ -381,6 +392,7 @@ def test_4_f1j_a_zero_change_takes_the_one_offs_currency(tmp_path) -> None:
     assert (row.monthly_change, row.value, row.currency, row.disposition, row.reason_code, _missing(row)) \
         == (0, D("-90.00"), USD, "DEFERRED", "NOT_WORTH_MORE_THAN_NO_ACTION", [])
     assert row.assumed == ()  # no price was read: nothing changed
+    assert _effects(row) == _mg_rows("0", "0", "0", "0", "0", "0", "0")  # D-P6.34: every zero money effect carries USD
     for key in F1_KEYS[2:]:
         _assert_f1b_row(key, rows[key], one_offs, options)
 
@@ -535,3 +547,175 @@ def test_9_nothing_loads_the_simulator_or_the_host() -> None:
             "print(bad); sys.exit(1 if bad else 0)")
     done = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True)
     assert done.returncode == 0, done.stdout + done.stderr
+
+
+# --- M1, L1, D-P6.34 to D-P6.38 and D-P6.40: planted and injected cases, literal outcomes --------------------------------
+
+import dataclasses  # noqa: E402
+
+from assetops_backend.decisions import evaluate as evaluate_module  # noqa: E402
+from assetops_backend.structure.difference import Delta  # noqa: E402
+from assetops_backend.structure.levers import Lever, SettingAxis  # noqa: E402
+from option_fixtures import (ASSUMING, DIVISION, OUTCOME_LEAF, PRODUCT, assumed, change, leaves_for,  # noqa: E402
+                             stated)
+
+
+def _planted_row(registry, base, changes, amount="0.00", currency="USD"):
+    decision, options = decision_of(None, registry.structure_key, current={}, keys=("plant",))
+    inputs = (OptionInput(options[0], None, None, None, None),
+              OptionInput(options[1], changes, None, None, one_off_of(options[1], amount, currency)))
+    return evaluate_options(registry, base, decision, None, inputs)
+
+
+def test_4_a_changed_leaf_with_a_missing_base_names_its_record() -> None:
+    base = leaves_for(PRODUCT, {"a": stated(250)})
+    outcome, (_, row) = _planted_row(PRODUCT, base, {"a": change(100), "b": change(5)})
+    assert outcome == "RANKING_INCOMPLETE"
+    assert (row.value, row.monthly_change, row.horizon_change) == (None, None, None)
+    assert (row.disposition, row.reason_code) == ("DEFERRED", "VALUE_NOT_AVAILABLE")
+    assert _missing(row) == [("b_record", "PLANT_FAMILY", "b")]
+    assert _effects(row)[2] == ("prod", 2, None, "L", None, [("b_record", "PLANT_FAMILY", "b")])
+
+
+def test_4_a_one_off_in_another_currency_leaves_the_value_missing() -> None:
+    """F1b with one option's one-off stated in EUR: its value is not available and no option is ranked."""
+    outcome, rows, options, _ = run_f1(amounts={"stop-60-reserve-30": "90.00"})
+    decision, opts = decision_of(TEST_LEVER)
+    study = read_study(FIXTURES / "study-f1.json")
+    by_key, _ = match_cases(decision, opts, study)
+    one_offs = {o.id: one_off_of(o, "90.00", "EUR" if o.option_key == "stop-60-reserve-30" else "USD")
+                for o in opts if o.generator == "SETTING_GRID"}
+    inputs = option_inputs(opts, TEST_LEVER, study, by_key, recompute_admission(study), one_offs, grid_changes=TEST_GRID)
+    outcome, rows = evaluate_options(MG, f1_base(), decision, TEST_LEVER, inputs)
+    row = dict(zip([o.option_key for o in opts], rows))["stop-60-reserve-30"]
+    assert outcome == "RANKING_INCOMPLETE"
+    assert _missing(row) == [("ONE_OFF_CURRENCY", "DECISION", None)]
+    assert (row.value, row.disposition, row.reason_code, row.rank) == (None, "DEFERRED", "VALUE_NOT_AVAILABLE", None)
+    assert (row.monthly_change, row.horizon_change, row.currency) == (D("182.50"), D("2190.00"), USD)
+
+
+def _leaf_option(monthly, amount, origin="demo-simulated"):
+    return {"contribution": change(monthly, origin)}, amount
+
+
+def _ranked(lever, current, pairs, registry=OUTCOME_LEAF, extra=()):
+    """`pairs`: option key -> (monthly change on the outcome, one-off amount[, origin]); no study, no admission."""
+    decision, options = decision_of(lever, current=current)
+    by_key = {o.option_key: o for o in options}
+    inputs = [OptionInput(options[0], None, None, None, None)]
+    for key, spec in pairs.items():
+        monthly, amount, *origin = spec
+        inputs.append(OptionInput(by_key[key], {"contribution": change(monthly, *origin)}, None, None,
+                                  one_off_of(by_key[key], amount)))
+    outcome, rows = evaluate_options(registry, leaves_for(registry, {"contribution": stated(0)}), decision, lever,
+                                     tuple(inputs))
+    return outcome, {r.option_id: r for r in rows}, by_key
+
+
+def _axis_lever(values, template="stop-{stop_soc_pct}"):
+    return Lever("plant_stop", "MINI_GRID", "candidate_l", "SETTING_GRID",
+                 (SettingAxis("stop_soc_pct", tuple(D(v) for v in values), "%"),), template, ("candidate_l",))
+
+
+def _rec(rows, by_key, key):
+    r = rows[by_key[key].id]
+    return r.disposition, r.rank, r.reason_code
+
+
+def test_4_the_near_set_includes_a_value_at_exactly_the_tie_threshold() -> None:
+    """stop-70 is worth 1200 - 200 = 1000.00, stop-80 is worth 1200 - 300 = 900.00 = 1000.00 x 0.9 and is nearer."""
+    lever = _axis_lever((90, 80, 70))
+    outcome, rows, by_key = _ranked(lever, {"stop_soc_pct": D(90)},
+                                    {"stop-80": (100, "300.00"), "stop-70": (100, "200.00")})
+    assert outcome == "RECOMMENDED"
+    assert rows[by_key["stop-70"].id].value == D("1000.00") and rows[by_key["stop-80"].id].value == D("900.00")
+    assert _rec(rows, by_key, "stop-80") == ("RECOMMENDED", 1, None)
+    assert _rec(rows, by_key, "stop-70") == ("ACCEPTABLE", 2, None)
+
+
+def test_4_a_distance_tie_goes_to_the_higher_value() -> None:
+    """stop-100 and stop-80 are both 10 from 90; stop-100 is worth 1000.00, stop-80 950.00."""
+    lever = _axis_lever((110, 100, 90, 80))
+    outcome, rows, by_key = _ranked(lever, {"stop_soc_pct": D(90)},
+                                    {"stop-100": (100, "200.00"), "stop-80": (100, "250.00")})
+    assert outcome == "RECOMMENDED"
+    assert rows[by_key["stop-100"].id].value == D("1000.00") and rows[by_key["stop-80"].id].value == D("950.00")
+    assert _rec(rows, by_key, "stop-100") == ("RECOMMENDED", 1, None)
+    assert _rec(rows, by_key, "stop-80") == ("ACCEPTABLE", 2, None)
+
+
+def test_4_the_recommended_setting_above_today_at_the_grid_edge() -> None:
+    lever = _axis_lever((100, 90, 80))
+    outcome, rows, by_key = _ranked(lever, {"stop_soc_pct": D(90)}, {"stop-100": (100, "200.00")})
+    assert outcome == "RECOMMENDED"
+    assert _rec(rows, by_key, "stop-100") == ("RECOMMENDED", 1, "AT_GRID_EDGE")
+
+
+def test_4_no_actions_source_class_is_the_weakest_across_options() -> None:
+    lever = _axis_lever((100, 90, 80))
+    _, rows, by_key = _ranked(lever, {"stop_soc_pct": D(90)},
+                              {"stop-100": (100, "200.00", "observed-financial"), "stop-80": (100, "200.00", "source-emulated")})
+    assert rows[by_key["stop-100"].id].source_class == "RECORDED"
+    assert rows[by_key["stop-80"].id].source_class == "EMULATED"
+    no_action = next(r for r in rows.values() if r.disposition == "COMPARISON")
+    assert no_action.source_class == "EMULATED"
+
+
+def test_4_an_assumption_under_a_used_node_is_listed() -> None:
+    """contribution = a x s, s = w x 2 with w an assumption: a changes, so s is read; `assumed` names w."""
+    base = leaves_for(ASSUMING, {"a": stated(10), "w": assumed(ASSUMING, "w", 3, "USD")})
+    _, (_, row) = _planted_row(ASSUMING, base, {"a": change(4)})
+    assert row.monthly_change == D(24) and row.assumed == ("w",) and _missing(row) == []
+
+
+def test_4_a_zero_denominator_is_named_as_such() -> None:
+    base = leaves_for(DIVISION, {"a": stated(250), "z": stated(5)})
+    outcome, (_, row) = _planted_row(DIVISION, base, {"z": change(-5)})
+    assert outcome == "RANKING_INCOMPLETE" and row.value is None
+    assert _missing(row) == [("ZERO_DENOMINATOR", "STRUCTURE", "r")]
+    assert _effects(row)[1] == ("r", 1, None, "L", None, [("ZERO_DENOMINATOR", "STRUCTURE", "r")])
+
+
+def test_4_a_zero_denominator_in_the_no_action_side_is_named_as_such() -> None:
+    base = leaves_for(DIVISION, {"a": stated(250), "z": stated(0)})
+    _, (_, row) = _planted_row(DIVISION, base, {"a": change(4)})
+    assert _missing(row) == [("ZERO_DENOMINATOR", "STRUCTURE", "r")]
+
+
+def _with_missing_names(monkeypatch, registry, names):
+    real = evaluate_module.difference
+
+    def fake(reg, base, changes):
+        out = dict(real(reg, base, changes))
+        out["contribution"] = Delta("contribution", None, out["contribution"].unit, None, names, (), "MODELLED", ())
+        return out
+    monkeypatch.setattr(evaluate_module, "difference", fake)
+
+
+def test_4_a_node_with_no_value_is_named_by_its_own_missing_leaves(monkeypatch) -> None:
+    base = leaves_for(PRODUCT, {"a": stated(250)})  # prod has no value: b is missing
+    _with_missing_names(monkeypatch, PRODUCT, ("prod",))
+    _, (_, row) = _planted_row(PRODUCT, base, {"a": change(100)})
+    assert _missing(row) == [("b_record", "PLANT_FAMILY", "b")]
+
+
+def test_4_a_missing_name_outside_the_closed_list_raises(monkeypatch) -> None:
+    base = leaves_for(PRODUCT, {"a": stated(250), "b": stated(2)})
+    _with_missing_names(monkeypatch, PRODUCT, ("ghost",))
+    with pytest.raises(RuntimeError, match="ghost"):
+        _planted_row(PRODUCT, base, {"a": change(100)})
+
+
+def test_4_a_node_that_names_no_leaf_raises(monkeypatch) -> None:
+    base = leaves_for(PRODUCT, {"a": stated(250), "b": stated(2)})  # prod has a value, so no leaf is missing
+    _with_missing_names(monkeypatch, PRODUCT, ("prod",))
+    with pytest.raises(RuntimeError, match="prod"):
+        _planted_row(PRODUCT, base, {"a": change(100)})
+
+
+def test_4_the_horizon_change_is_computed_in_the_structures_context() -> None:
+    from decimal import getcontext
+    monthly = D("1.00000000000000000000000000001")  # 30 digits
+    assert getcontext().prec == 28 and monthly * 12 == D("12.00000000000000000000000000")  # the default rounds it
+    _, rows, by_key = _ranked(_axis_lever((100, 90, 80)), {"stop_soc_pct": D(90)}, {"stop-100": (monthly, "0.00")})
+    assert rows[by_key["stop-100"].id].horizon_change == D("12.00000000000000000000000000012")

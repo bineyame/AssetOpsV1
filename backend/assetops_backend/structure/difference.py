@@ -41,6 +41,7 @@ class Delta:
     used: tuple[str, ...]               # factor ids whose values the change needed, registry order
     evidence: str                       # weakest of the used values and the changed leaves
     origins: tuple[str, ...]            # ORIGIN_ORDER order
+    zero_denominators: tuple[str, ...] = ()  # D-P6.37: nodes whose fold met a zero denominator, registry order
 
 
 @dataclass(frozen=True)
@@ -61,6 +62,7 @@ class _V:
     missing: frozenset[str] = frozenset()
     used: frozenset[str] = frozenset()
     evidence: tuple[str, ...] = ()
+    zero: frozenset[str] = frozenset()  # D-P6.37: the nodes whose fold met a zero denominator
 
     @property
     def neutral_zero(self) -> bool:
@@ -70,7 +72,7 @@ class _V:
 
 def _merge(parts: tuple[_V, ...], value: Decimal | None) -> _V:
     return _V(value, frozenset().union(*(p.missing for p in parts)), frozenset().union(*(p.used for p in parts)),
-              tuple(e for p in parts for e in p.evidence))
+              tuple(e for p in parts for e in p.evidence), frozenset().union(*(p.zero for p in parts)))
 
 
 def _fold_v(expr: Expr, read: Callable[[str], _V], owner: str | None) -> _V:
@@ -98,7 +100,8 @@ def _fold_v(expr: Expr, read: Callable[[str], _V], owner: str | None) -> _V:
             return _merge((left, right), left.value * right.value)
         if right.value == 0:
             named = _merge((left, right), None)
-            return _V(None, named.missing | ({owner} if owner else frozenset()), named.used, named.evidence)
+            mark = frozenset({owner}) if owner else frozenset()
+            return _V(None, named.missing | mark, named.used, named.evidence, named.zero | mark)
         return _merge((left, right), left.value / right.value)
     if isinstance(expr, Call):
         args = tuple(_fold_v(a, read, owner) for a in expr.args)
@@ -235,8 +238,9 @@ class _Difference:
                 currency = next(iter(currencies))
         if change is not None and change == 0:
             change = change.copy_abs()  # never -0
+        zero = tuple(sorted(got.zero, key=lambda n: order.get(n, len(order))))
         return Delta(factor_id, change, row.unit, currency, missing, used, weakest(evidence),
-                     tuple(o for o in ORIGIN_ORDER if o in origins))
+                     tuple(o for o in ORIGIN_ORDER if o in origins), zero)
 
 
 def _exactly_zero(v: _V) -> bool:

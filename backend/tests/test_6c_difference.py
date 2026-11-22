@@ -168,3 +168,51 @@ def test_9_difference_imports_only_structure_and_the_standard_library() -> None:
         top = name.split(".")[0]
         assert name.startswith("assetops_backend.structure") or top in sys.stdlib_module_names \
             or top == "__future__", name
+
+
+# --- M1 and D-P6.40: the rules no fixture reaches, on planted registries with literal numbers ----------------------
+
+def _plant_base(registry, **given):
+    return leaves_for(registry, {k: v for k, v in given.items()})
+
+
+def test_1_a_changed_leaf_through_division_ceil_floor_min_max() -> None:
+    """a 250 -> 350, b 100, c 300: a/b 2.5 -> 3.5 (+1); ceil 3 -> 4 (+1); floor 2 -> 3 (+1); min 250 -> 300 (+50);
+    max 300 -> 350 (+50)."""
+    from option_fixtures import OPS
+    base = _plant_base(OPS, a=stated(250), b=stated(100), c=stated(300))
+    got = difference(OPS, base, {"a": change(100)})
+    assert list(got) == ["a", "ratio", "cap", "fl", "lo", "hi", "contribution"]
+    assert _changes_of(got) == {"a": D(100), "ratio": D(1), "cap": D(1), "fl": D(1), "lo": D(50), "hi": D(50),
+                                "contribution": D(103)}
+    assert all(d.missing_leaves == () for d in got.values())
+
+
+def test_1_a_changed_leaf_with_a_missing_base_is_missing_never_zero() -> None:
+    """a x b with both changed and b's base NOT_AVAILABLE: the change is missing and names b, not 100 x 5 + 250 x 5."""
+    from option_fixtures import PRODUCT
+    base = _plant_base(PRODUCT, a=stated(250))
+    got = difference(PRODUCT, base, {"a": change(100), "b": change(5)})
+    assert got["prod"].change is None and got["prod"].missing_leaves == ("b",)
+    assert got[OUTCOME_FACTOR].change is None and got[OUTCOME_FACTOR].missing_leaves == ("b",)
+    assert got["b"].change == D(5)  # the leaf's own delta is known; its base is what is missing
+
+
+def test_1_the_option_only_neutral_zero_short_cut_matches_evaluate() -> None:
+    """q = a x n x x with n neutral at 0: no-action q is 0 although a has no value, so x's change moves q by 0."""
+    from option_fixtures import NEUTRAL
+    base = _plant_base(NEUTRAL, x=stated(10))
+    assert evaluate(NEUTRAL, base)["q"].value == 0
+    got = difference(NEUTRAL, base, {"x": change(5)})
+    assert _changes_of(got) == {"x": D(5), "q": D(0), "contribution": D(0)}
+    assert all(d.missing_leaves == () for d in got.values())
+
+
+def test_1_a_zero_denominator_is_tagged_on_the_node_that_met_it() -> None:
+    from option_fixtures import DIVISION
+    base = _plant_base(DIVISION, a=stated(250), z=stated(5))
+    got = difference(DIVISION, base, {"z": change(-5)})  # the option side divides by 0
+    assert got["r"].change is None and got["r"].missing_leaves == ("r",) and got["r"].zero_denominators == ("r",)
+    assert got[OUTCOME_FACTOR].zero_denominators == ("r",) and got["z"].zero_denominators == ()
+    fine = difference(DIVISION, base, {"z": change(5)})
+    assert fine["r"].change == D(-25) and fine["r"].zero_denominators == ()  # 250/10 - 250/5

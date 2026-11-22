@@ -11,7 +11,7 @@ from __future__ import annotations
 import dataclasses
 from collections.abc import Mapping
 from dataclasses import dataclass
-from decimal import Decimal
+from decimal import Decimal, localcontext
 from fractions import Fraction
 from typing import Any
 from uuid import UUID
@@ -20,13 +20,14 @@ from assetops_backend.decisions.records import (SOURCE_CLASSES, DecisionRow, Eff
                                                 OneOffRow, OptionRow)
 from assetops_backend.runs.admission import AdmissionPart
 from assetops_backend.structure.difference import OUTCOME_FACTOR, Delta, LeafChange, difference
-from assetops_backend.structure.evaluate import LeafValue
+from assetops_backend.structure.evaluate import FactorValue, LeafValue, _context, evaluate
 from assetops_backend.structure.levers import Lever
 from assetops_backend.structure.registry import Registry
 
 EVALUATOR_VERSION = "option-evaluator-1"
 TIE = Decimal("0.9")                       # within 10 % of the best value (D-P6.16; D-0K4.29 keeps the 10 % as 6c's)
 _ASSUMED = ("TARGET", "ASSUMPTION")
+_CURRENCY, _ZERO_DENOMINATOR = "currency", "ZERO_DENOMINATOR"
 _SIMULATED_ORIGIN, _EMULATED_ORIGIN = "demo-simulated", "source-emulated"
 _SIMULATED, _EMULATED, _RECORDED = "SIMULATED", "EMULATED", "RECORDED"
 _PENDING_ID = UUID(int=0)                  # every row's id is filled by the caller
@@ -54,16 +55,48 @@ def admission_record(parts: tuple[AdmissionPart, ...]) -> dict[str, Any]:
         for p in parts]}
 
 
-def _missing_input(name: str, changes: Mapping[str, LeafChange], base: Mapping[str, LeafValue]) -> MissingInput:
-    if name == "currency":
-        return MissingInput("CURRENCY_MISMATCH", "STRUCTURE", None)
+def _leaf_input(name: str, changes: Mapping[str, LeafChange], base: Mapping[str, LeafValue]) -> MissingInput | None:
     change = changes.get(name)
     if change is not None and change.delta is None and change.missing is not None:
         return MissingInput(change.missing[0], change.missing[1], name)
     leaf = base.get(name)
     if leaf is not None and leaf.missing is not None:
         return MissingInput(leaf.missing.record_kind, leaf.missing.source_family, name)
-    return MissingInput("ZERO_DENOMINATOR", "STRUCTURE", name)  # a node with no value of its own (M1)
+    return None
+
+
+def _missing_inputs(registry: Registry, names: tuple[str, ...], zero: tuple[str, ...],
+                    changes: Mapping[str, LeafChange], base: Mapping[str, LeafValue],
+                    v0: Mapping[str, FactorValue]) -> tuple[MissingInput, ...]:
+    """D-P6.37: each missing name resolved to the record or cause it lacks, from a closed list; a name outside the
+    list is a code defect and raises."""
+    order = {r.factor_id: i for i, r in enumerate(registry.rows)}
+    out: list[MissingInput] = []
+
+    def add(item: MissingInput) -> None:
+        if item not in out:
+            out.append(item)
+
+    for name in names:
+        if name == _CURRENCY:
+            add(MissingInput("CURRENCY_MISMATCH", "STRUCTURE", None))
+            continue
+        found = _leaf_input(name, changes, base)
+        if found is not None:
+            add(found)
+            continue
+        fv = v0.get(name)
+        if name in zero or (fv is not None and fv.missing is not None
+                            and fv.missing.record_kind.startswith(_ZERO_DENOMINATOR)):
+            add(MissingInput(_ZERO_DENOMINATOR, "STRUCTURE", name))
+            continue
+        resolved = [] if fv is None else [_leaf_input(n, changes, base) for n in
+                                          sorted(fv.missing_leaves, key=lambda n: order.get(n, len(order)))]
+        if not resolved or None in resolved:
+            raise RuntimeError(f"6c: the missing name {name!r} resolves to no record and no cause")
+        for item in resolved:
+            add(item)
+    return tuple(out)
 
 
 def _source_class(origins: tuple[str, ...]) -> str:
@@ -81,14 +114,15 @@ class _Valued:
     distance: Decimal
 
 
-def _value_option(registry: Registry, base: Mapping[str, LeafValue], decision: DecisionRow, lever: Lever | None,
-                  item: OptionInput) -> _Valued:
+def _value_option(registry: Registry, base: Mapping[str, LeafValue], v0: Mapping[str, FactorValue],
+                  decision: DecisionRow, lever: Lever | None, item: OptionInput) -> _Valued:
     changes = item.changes or {}
     result: Mapping[str, Delta] = difference(registry, base, changes)
     out = result[OUTCOME_FACTOR]
     monthly, currency = out.change, out.currency
-    horizon = None if monthly is None else monthly * decision.horizon_months
-    missing = [_missing_input(n, changes, base) for n in out.missing_leaves]
+    with localcontext(_context()):  # D-P6.41: nothing is quantised, so the product runs at the structure's precision
+        horizon = None if monthly is None else monthly * decision.horizon_months
+    missing = list(_missing_inputs(registry, out.missing_leaves, out.zero_denominators, changes, base, v0))
     one_off = item.one_off
     if one_off is None:
         missing.append(MissingInput("ONE_OFF", "DECISION", None))
@@ -97,17 +131,22 @@ def _value_option(registry: Registry, base: Mapping[str, LeafValue], decision: D
             currency = one_off.currency
         if currency is not None and one_off.currency != currency:
             missing.append(MissingInput("ONE_OFF_CURRENCY", "DECISION", None))
-    value = None if missing or horizon is None else horizon - one_off.amount
+    with localcontext(_context()):
+        value = None if missing or horizon is None else horizon - one_off.amount
     if value is not None and value == 0:
         value = value.copy_abs()
-    effects = tuple(EffectRow(d.factor_id, i, d.change, str(d.unit), d.currency,
-                              tuple(_missing_input(n, changes, base) for n in d.missing_leaves))
+    effects = tuple(EffectRow(d.factor_id, i, d.change, str(d.unit), _effect_currency(d, currency),
+                              _missing_inputs(registry, d.missing_leaves, d.zero_denominators, changes, base, v0))
                     for i, d in enumerate(result.values()))
-    assumed = []
+    assumed = set()  # D-P6.36: used leaves carried as a target or assumption, and what a used node rests on
     for name in out.used:
         leaf = base.get(name)
         if leaf is not None and leaf.missing is not None and leaf.missing.carried_as in _ASSUMED:
-            assumed.append(name)
+            assumed.add(name)
+        if name in v0:
+            assumed.update(v0[name].assumed_leaves)
+    order = {r.factor_id: i for i, r in enumerate(registry.rows)}
+    assumed = sorted(assumed, key=lambda n: order.get(n, len(order)))
     admission = None if item.admission is None else admission_record(item.admission)
     admitted = admission is None or admission["admitted"]
     distance = Decimal(0)
@@ -119,6 +158,13 @@ def _value_option(registry: Registry, base: Mapping[str, LeafValue], decision: D
                         out.evidence, tuple(missing), tuple(assumed), admission,
                         None if item.dawn is None else dict(item.dawn), effects)
     return _Valued(row, admitted, distance)
+
+
+def _effect_currency(delta: Delta, option_currency: str | None) -> str | None:
+    """D-P6.34: a money effect that is exactly 0 and read no money value takes the option row's currency."""
+    if delta.currency is None and delta.unit.is_money and delta.change is not None and delta.change == 0:
+        return option_currency
+    return delta.currency
 
 
 def _at_grid_edge(lever: Lever | None, decision: DecisionRow, option: OptionRow) -> bool:
@@ -137,10 +183,11 @@ def evaluate_options(registry: Registry, base: Mapping[str, LeafValue], decision
                      lever: Lever | None, inputs: tuple[OptionInput, ...]) -> tuple[str, tuple[EvaluationRow, ...]]:
     """(run outcome, one EvaluationRow per option in position order); every row's id is the caller's to fill."""
     ordered = sorted(inputs, key=lambda i: i.option.position)
+    v0 = evaluate(registry, base) if any(i.changes is not None for i in ordered) else {}
     valued: dict[UUID, _Valued] = {}
     for item in ordered:
         if item.changes is not None:
-            valued[item.option.id] = _value_option(registry, base, decision, lever, item)
+            valued[item.option.id] = _value_option(registry, base, v0, decision, lever, item)
     rows: dict[UUID, EvaluationRow] = {}
     candidates: list[tuple[OptionRow, _Valued]] = []
     incomplete = False

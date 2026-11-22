@@ -151,3 +151,34 @@ def case_doc(doc: dict, case_id: str) -> dict:
 
 
 REAL_LEVER = LEVERS["generator_stop_reserve"]
+
+
+# --- planted registries (D-P6.40): one rule each, with literal numbers --------------------------------------------------
+
+from assetops_backend.structure.registry import FactorRow, FilledBy  # noqa: E402
+
+_LITRES = MG.row("diesel_l").unit
+
+
+def planted(rows: dict[str, str | None], neutral: dict[str, Decimal] | None = None) -> Registry:
+    """A registry of litre rows: a leaf has `None` for its expression; `contribution` is the outcome."""
+    neutral = neutral or {}
+    return Registry("PLANT", 1, tuple(
+        FactorRow(fid, expr, _LITRES, None, None if expr else FilledBy("PLANT_FAMILY", f"{fid}_record"),
+                  "OPTION_ONLY" if fid in neutral else None, None, neutral=neutral.get(fid))
+        for fid, expr in rows.items()))
+
+
+#: a changed leaf through `/`, `ceil`, `floor`, `min` and `max`
+OPS = planted({"a": None, "b": None, "c": None, "ratio": "a / b", "cap": "ceil(a / b)", "fl": "floor(a / b)",
+               "lo": "min(a, c)", "hi": "max(a, c)", "contribution": "ratio + cap + fl + lo + hi"})
+#: a product of two changed leaves
+PRODUCT = planted({"a": None, "b": None, "prod": "a * b", "contribution": "prod"})
+#: the option-only neutral zero short cut: a * n, n neutral at 0, a without a value
+NEUTRAL = planted({"a": None, "n": None, "x": None, "q": "a * n * x", "contribution": "q"}, {"n": Decimal(0)})
+#: a node resting on an assumption, read by the outcome through a product
+ASSUMING = planted({"a": None, "w": None, "s": "w * 2", "contribution": "a * s"})
+#: a division
+DIVISION = planted({"a": None, "z": None, "r": "a / z", "contribution": "r"})
+#: the outcome as a leaf: an option's monthly change is the change on it
+OUTCOME_LEAF = planted({"contribution": None})
