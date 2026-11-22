@@ -126,14 +126,14 @@ const T004_OPERATOR_NAVIGATION_LABELS = [
  */
 // W3-03 run 2 admits the reviewed estate Portfolio root (closure 1 navigation, closure 4 S17).
 // IA-P P1 (spec §2.1): Operational records left the rail; Evidence & records is the one root.
-const ADMITTED_SINCE_T004 = ["Findings", "Decisions", "Actions", "Evidence & records", "Financials", "Portfolio", "Incidents", "Maintenance"];
+const ADMITTED_SINCE_T004 = ["Findings", "Decisions", "Actions", "Evidence & records", "Financials", "Portfolio", "Incidents", "Maintenance", "Results"];
 
 /**
  * Operator navigation after T028, in order. T008 removed both parameterless
  * site items, T011A did not change the list, and T028 added Findings.
  */
 // IA-P P1 (spec §2.1): Operational records left the rail; Evidence & records is the one root.
-const OPERATOR_NAVIGATION_LABELS = ["Portfolio", "Sites", "Findings", "Decisions", "Actions", "Incidents", "Maintenance", "Evidence & records", "Financials"];
+const OPERATOR_NAVIGATION_LABELS = ["Portfolio", "Sites", "Findings", "Decisions", "Actions", "Incidents", "Maintenance", "Results", "Evidence & records", "Financials"];
 
 function directoryWith(sites: SiteSummary[]): SiteDirectoryClient {
   return { listSites: () => Promise.resolve({ status: "loaded", sites }) };
@@ -471,7 +471,7 @@ describe("the parameterless Site Configuration placeholder is gone", () => {
     unmount();
 
     // IA-P P1 (spec §2.1): Operational records left the rail; Evidence & records is the one root.
-    expect(hrefs).toEqual(["/portfolio", "/sites", "/findings", "/decisions", "/actions", "/incidents", "/maintenance", "/evidence", "/financials"]);
+    expect(hrefs).toEqual(["/portfolio", "/sites", "/findings", "/decisions", "/actions", "/incidents", "/maintenance", "/results", "/evidence", "/financials"]);
     for (const href of hrefs) {
       const view = renderAt(href, ENABLED);
       await settledScreen(view.container);

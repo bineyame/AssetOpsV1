@@ -100,3 +100,32 @@ BAR_PLACES = "0.01"
 #: PF1: a registry unit's dimension name to its SC-1 `unit` vocabulary key (a driver's detail, section 3.2). Every
 #: unit a MINI_GRID driver can show is here (test 1 proves it).
 UNIT_WORDS: Mapping[str, str] = MappingProxyType({"KWH": "kWh", "L": "L"})
+
+#: IA-P P3a (`spec-period.md` P.4): E2's schema, its modes (by the count of served months: none, one, two or more)
+#: and the headline's "fewer Sites compared" state (D-IAP.25).
+PERIOD_SCHEMA = "portfolio-period-1"
+MODE_NONE, MODE_MONTH, MODE_PERIOD = "none", "month", "period"
+PERIOD_MODES = (MODE_NONE, MODE_MONTH, MODE_PERIOD)
+FEWER: Mapping[bool, str] = MappingProxyType({True: "YES", False: "NO"})
+#: A statement's number state by how many it names (`portfolio_period.*`, `portfolio_sites.without_target`), and a
+#: span's by its months; the nav's two keys (5c's `_nav`).
+NUMBER: Mapping[bool, str] = MappingProxyType({True: "ONE", False: "SEVERAL"})
+SPAN_COUNT = ("ONE", "TWO", "MORE")
+NAV_KEYS = ("previous", "next")
+#: E2's and E1's query parameters (`deep_dive_api.py`; SR-1's names).
+RANGE_FROM, RANGE_TO = "from", "to"
+#: The only day form E2 and E1 accept (fullmatch), then read as a calendar day.
+DAY_PATTERN = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}")
+#: IA-P P3a (`spec-period.md` P.6): E2's route, on the month route's router.
+PERIOD_ROUTE = "/api/portfolio/period"
+
+#: IA-P P4a (`spec-period.md` P.8): E1's schema and route, the registry's mini-grid Site type (the only type with a
+#: monthly snapshot, D-3B6.6), the target side of `_View.own_cur`, the count nouns, the column pieces and the
+#: headline's state.
+SITES_SCHEMA = "portfolio-sites-1"
+SITES_ROUTE = "/api/portfolio/sites"
+MINIGRID_DOMAIN = "MINIGRID"
+TARGET_SIDE = "TARGET"
+MONTH_NOUN, SITE_NOUN = "month", "site"
+GROUP_PIECE, WAITING_PIECE, DRIVER_PIECE = "GROUP", "WAITING", "DRIVER"
+BELOW: Mapping[bool, str] = MappingProxyType({True: "SOME", False: "NONE"})

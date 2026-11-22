@@ -236,6 +236,7 @@ describe("operator route navigation", () => {
         ["Actions", "/actions"],
         ["Incidents", "/incidents"],
         ["Maintenance", "/maintenance"],
+        ["Results", "/results"],
         ["Evidence & records", "/evidence"],
         ["Financials", "/financials"],
       ].map(([label, to]) => [label, `${to}${carried}`]),
@@ -286,7 +287,7 @@ describe("operator route navigation", () => {
           "Maintenance | live",
         ],
       ],
-      [[["ASSURANCE", "ASSURANCE"]], [`Results | ${off}`, "Evidence & records | live"]],
+      [[["ASSURANCE", "ASSURANCE"]], ["Results | live", "Evidence & records | live"]],
       [[["BUSINESS", "BUSINESS"]], ["Financials | live"]],
       [[["ADMIN", "ADMIN"]], [`Settings | ${off}`]],
     ]);

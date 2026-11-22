@@ -18,8 +18,9 @@ Coordinator state: `.agent/coordinator-handoff.md`. Owner words: `owner/SUMMARY.
 
 ## DD: demo data
 - Branch `task/DD-handshake`; spec `specs/DD-demo-data/spec.md`.
-- 41.5 u in nine parts (D-DD.44, D-DD.57, D-DD.66, D-DD.73, D-DD.80, D-DD.88, D-DD.96: DD2 split into DD2a and DD2b, DD4 into DD4a and DD4b): 3 operators, 9 Sites, books Jul-Oct, readings
+- 42.0 u in nine parts (D-DD.44, D-DD.57, D-DD.66, D-DD.73, D-DD.80, D-DD.88, D-DD.96, D-DD.101: DD2 split into DD2a and DD2b, DD4 into DD4a and DD4b): 3 operators, 9 Sites, books Jul-Oct, readings
   1 Jul-6 Nov, telemetry. Handshake answered; owner Q7-Q9 answered.
+- D-DD.97 (Kobo evening peak from 18:00) owner-approved 22 Nov, built in DD3b; D-DD.98 depot readings stand (owner, 22 Nov).
 
 ## 0K4f: Kobo on its own records
 - Spec `specs/0K4-dispatch-model-review/rulings-2.md` (D-0K4.45).
@@ -34,7 +35,7 @@ Coordinator state: `.agent/coordinator-handoff.md`. Owner words: `owner/SUMMARY.
 ## Queued after IA-P
 - Q11: monthly figures for cold-chain and EV Sites.
 - Q12: lift the 31-day cap on other pages (shipped as "Showing {span} of the range").
-- Design-doc alignment pass (design, roadmap, phase plan, mock), after IA-P and DD.
+- Design-doc alignment pass (design, roadmap, phase plan, mock, incl. the vNEXT Kobo kit strings per D-DD.105), after IA-P and DD.
 
 IA-P (real app onto the IA shape): rev 3, `specs/IA-P-product-shape/spec.md`; IA-P1 (P0-P2) merged 22 Nov; IA-P2 next, then IA-P3.
 

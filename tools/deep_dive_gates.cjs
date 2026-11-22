@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 // 5c (spec §5.3, §5.4; D-5C.14): the hub gates of "The month", checked on the built React page.
 //
-// usage: node tools/deep_dive_gates.cjs <base-url> <fixture.json> [--plant NAME] [--shots DIR] [--world NAME]
+// usage: node tools/deep_dive_gates.cjs <base-url> <fixture.json> [--path URLPATH] [--plant NAME] [--shots DIR] [--world NAME]
 // `--world` names the views and shots (default "A"; "X" for the currency-mismatch world).
 // Needs /opt/assetecon/tools/pw/env.sh sourced (PW, CHROME) and LD_LIBRARY_PATH=$AUDIT_LD_LIBRARY_PATH; runs inside
 // the heavy-tool slot pool. The script answers `/api/portfolio/month*` with the fixture through `page.route`, opens
-// `<base-url>/portfolio/month?month=2026-10` at 1440 x 900, 1280 x 720 and 390 x 844, each light and dark, plus A with
+// `<base-url>/portfolio?from=2026-10-01&to=2026-10-31` (IA-P2 P3b: the month is the Overview in mode `month`; `--path`
+// overrides it) at 1440 x 900, 1280 x 720 and 390 x 844, each light and dark, plus A with
 // D's headline (the longest) at 1440 and 1280 light (World A only, L5), runs the checks on each and G2's static part over
 // `frontend/src/estate/deepDiveMonth.css`. One JSON line per view; exit 1 on any failure.
 //
@@ -20,14 +21,17 @@ assertHeavySlot("browser capture"); // a browser capture runs only inside the he
 const SCALE = [12, 13, 14, 16, 20, 24, 32];
 const D_HEADLINE = "Contribution is $747.00 below target in October; cost and efficiency explain $730.00 of it. Compared for 2 of 3 Sites.";
 const PLANTS = ["block", "headline", "levels", "height", "fold", "status", "scroll", "lint"];
+const IAP = path.join(__dirname, "..", "frontend", "src", "estate", "__tests__", "fixtures", "iap");
+const DEFAULT_PATH = "/portfolio?from=2026-10-01&to=2026-10-31";
 const CSS_PATH = path.join(__dirname, "..", "frontend", "src", "estate", "deepDiveMonth.css");
 
 function parseArgs(argv) {
-  const out = { base: argv[0], fixture: argv[1], plant: null, shots: null, world: "A" };
+  const out = { base: argv[0], fixture: argv[1], plant: null, shots: null, world: "A", path: DEFAULT_PATH };
   for (let i = 2; i < argv.length; i += 1) {
     if (argv[i] === "--plant") out.plant = argv[++i];
     else if (argv[i] === "--shots") out.shots = argv[++i];
     else if (argv[i] === "--world") out.world = argv[++i];
+    else if (argv[i] === "--path") out.path = argv[++i];
   }
   if (!out.base || !out.fixture) throw new Error("usage: deep_dive_gates.cjs <base-url> <fixture.json> [--plant NAME] [--shots DIR] [--world NAME]");
   if (out.plant !== null && !PLANTS.includes(out.plant)) throw new Error(`unknown plant ${out.plant}`);
@@ -59,9 +63,16 @@ async function checkView(browser, args, fixture, view) {
     if (url.pathname === "/api/portfolio/month") {
       return route.fulfill({ status: 200, contentType: "application/json", headers: { "Cache-Control": "no-store" }, body: JSON.stringify(body) });
     }
+    // IA-P2 P3b: E2 serves the one-month body and the estate reads the IA-P fixture; the checks are unchanged.
+    if (url.pathname === "/api/portfolio/period") {
+      return route.fulfill({ status: 200, contentType: "application/json", headers: { "Cache-Control": "no-store" }, body: fs.readFileSync(path.join(IAP, "period-month-2026-10.json"), "utf8") });
+    }
+    if (url.pathname === "/api/estate/portfolio") {
+      return route.fulfill({ status: 200, contentType: "application/json", headers: { "Cache-Control": "no-store" }, body: fs.readFileSync(path.join(IAP, "portfolio.json"), "utf8") });
+    }
     return route.fulfill({ status: 404, contentType: "application/json", body: "{}" });
   });
-  await page.goto(`${args.base.replace(/\/$/, "")}/portfolio/month?month=2026-10`);
+  await page.goto(`${args.base.replace(/\/$/, "")}${args.path}`);
   await page.waitForSelector(".dd-status", { timeout: 20000 });
   await page.evaluate(() => document.fonts.ready);
   if (args.plant !== null && args.plant !== "lint") {

@@ -262,7 +262,7 @@ export function useSharedRange(): SharedRangeState {
  * last 7 full UTC days ending yesterday, S17), so filling the address changes no request. Work and Site pages keep
  * their own defaults until SR-2 moves them onto the range (R338, Site-local days, Cold/EV selected event).
  */
-const FILLED_PAGES = /^\/(?:portfolio(?:\/[^/]+)?|findings|decisions|actions|evidence(?:\/records)?|financials)\/?$/;
+const FILLED_PAGES = /^\/(?:portfolio(?:\/[^/]+)?|findings|decisions|actions|results|evidence(?:\/records)?|financials)\/?$/;
 export const fillsRangeOnEntry = (pathname: string): boolean => FILLED_PAGES.test(pathname);
 
 /**
@@ -272,7 +272,7 @@ export const fillsRangeOnEntry = (pathname: string): boolean => FILLED_PAGES.tes
  * it. SR-2 adds a page here when it moves onto the range.
  */
 const RANGE_PAGES =
-  /^\/(?:portfolio(?:\/[^/]+)?|findings|decisions|actions|evidence(?:\/records)?|financials|incidents|maintenance(?:\/preventive)?)\/?$/;
+  /^\/(?:portfolio(?:\/[^/]+)?|findings|decisions|actions|results|evidence(?:\/records)?|financials|incidents|maintenance(?:\/preventive)?)\/?$/;
 /**
  * SR-2 review (Medium): Site pages (Evidence, Findings, Cold, Renewable, Service, EV) load their content from the
  * address's from/to/known_at, so a Site or performance page whose address carries a range IS using it. A Site page
@@ -358,8 +358,12 @@ export function widenToDay(range: DayRange, day: string): DayRange {
   return { from: dayOf(dayMs(day) - 6 * DAY_MS), to: day };
 }
 
-/** The range to fill an empty address with: the last one chosen in this tab, else Last 7 days. Blocked storage falls back to the default. */
-export function entryRange(now: number = Date.now()): URLSearchParams {
+/**
+ * The range to fill an empty address with: the last one chosen in this tab, else the page's entry preset. IA-P P3b
+ * (D-IAP.21, I3): the Portfolio's Overview (`/portfolio`) enters on Last month, so the front page opens on figures;
+ * every other page enters on Last 7 days. Blocked storage falls back to the default.
+ */
+export function entryRange(pathname?: string, now: number = Date.now()): URLSearchParams {
   let stored: string | null = null;
   try {
     stored = window.sessionStorage.getItem(SHARED_RANGE_SESSION_KEY);
@@ -370,7 +374,23 @@ export function entryRange(now: number = Date.now()): URLSearchParams {
     const state = readSharedRange(new URLSearchParams(stored), now);
     if (state.status === "set") return rangeParams({ from: state.from, to: state.to, known_at: null });
   }
-  return rangeParams({ ...presetRange("7d", now), known_at: null });
+  const preset: FixedPreset = pathname !== undefined && PORTFOLIO_OVERVIEW.test(pathname) ? "lastmonth" : "7d";
+  return rangeParams({ ...presetRange(preset, now), known_at: null });
+}
+
+const PORTFOLIO_OVERVIEW = /^\/portfolio\/?$/;
+
+/**
+ * IA-P P3b (spec §2.4, D-IAP.18): the first and last day of a `YYYY-MM` month code, the frontend twin of the server's
+ * `month_days`; `null` for a code that names no month. Used only by the `/portfolio/month?month=` alias.
+ */
+export function monthDays(code: string | null): DayRange | null {
+  const m = code === null ? null : /^(\d{4})-(\d{2})$/.exec(code);
+  if (m === null) return null;
+  const year = Number(m[1]);
+  const month = Number(m[2]);
+  if (month < 1 || month > 12) return null;
+  return { from: dayOf(Date.UTC(year, month - 1, 1)), to: dayOf(Date.UTC(year, month, 1) - DAY_MS) };
 }
 
 /**

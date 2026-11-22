@@ -69,7 +69,7 @@ const operatorRailItems: NavRailItem[] = [
   { kind: "live", to: "/actions", label: "Actions", end: false, group: "WORK", icon: "action" },
   { kind: "live", to: "/incidents", label: "Incidents", end: false, group: "WORK", icon: "incident" },
   { kind: "live", to: "/maintenance", label: "Maintenance", end: false, group: "WORK", icon: "work" },
-  { kind: "unavailable", label: "Results", group: "ASSURANCE", icon: "book" },
+  { kind: "live", to: "/results", label: "Results", end: false, group: "ASSURANCE", icon: "book" },
   { kind: "live", to: "/evidence", label: "Evidence & records", end: false, group: "ASSURANCE", icon: "evidence" },
   { kind: "live", to: "/financials", label: "Financials", end: false, group: "BUSINESS", icon: "money" },
   { kind: "unavailable", label: "Settings", group: "ADMIN", icon: "gear" },

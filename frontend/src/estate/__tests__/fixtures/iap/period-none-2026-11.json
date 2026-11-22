@@ -1,0 +1,21 @@
+{
+  "schema": "portfolio-period-1",
+  "from": "2026-11-15",
+  "to": "2026-11-21",
+  "mode": "none",
+  "months": [],
+  "served": [],
+  "period_words": null,
+  "notes": [
+    "November is only partly in this range, so it is not counted: the figures are kept by whole month.",
+    "This range holds no whole month with figures. Contribution against target is kept by whole calendar month."
+  ],
+  "shown": null,
+  "nav": null,
+  "suggest": {
+    "text": "Show October 2026",
+    "from": "2026-10-01",
+    "to": "2026-10-31"
+  },
+  "body": null
+}

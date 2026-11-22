@@ -56,8 +56,10 @@ describe("W3-03 Portfolio shell route", () => {
     const view = renderAt("/portfolio", client);
     await settledScreen();
     expect(screen.getByRole("main", { name: "Portfolio" })).toBeTruthy();
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Portfolio Value & Operations");
-    expect(client.portfolioCalls).toBe(1);
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Portfolio"); // IA-P2 P3b (spec §5.3): the header is the title alone
+    // IA-P2 P3b (D-IAP.2): the Overview reads E2 (`/api/portfolio/period`), not the estate portfolio, so no estate
+    // read is made here; the Outcomes tab's one read is pinned in the tab-route tests below.
+    expect(client.portfolioCalls).toBe(0);
     const rail = screen.getByRole("navigation", { name: "Operator routes" });
     const portfolio = within(rail).getByRole("link", { name: "Portfolio" });
     // SR-1: the shell filled the empty address with the default range, and the rail carries it.
@@ -68,7 +70,7 @@ describe("W3-03 Portfolio shell route", () => {
       .filter((li) => li.querySelector("a") === null && li.querySelector(".nav-rail__label") !== null)
       .map((li) => li.querySelector(".nav-rail__label")?.textContent);
     // W6-01e: Operational records rail root is live.
-    expect(unavailable).toEqual(["Assets & cover", "Plan", "Results", "Settings"]);
+    expect(unavailable).toEqual(["Assets & cover", "Plan", "Settings"]); // IA-P2 P3b: Results is live
     view.unmount();
 
     // IA-P P2: the old risk lens address is an alias of the Findings list; it is not the Portfolio.
@@ -90,13 +92,15 @@ describe("PF-T Portfolio tab routes", () => {
   const tabRow = () => screen.getByRole("navigation", { name: "Portfolio sections" });
 
   it("a tab switch stays on the one mounted route and does not read again", async () => {
+    // IA-P2 P3b: Outcomes and Demand & capacity are the one mounted `/portfolio/:tab` route; the Overview is E2's route.
     const client = estate();
-    renderAt(`/portfolio?${WINDOW}`, client);
+    renderAt(`/portfolio/outcomes?${WINDOW}`, client);
     await settledScreen();
     const main = screen.getByRole("main", { name: "Portfolio" });
-    fireEvent.click(within(tabRow()).getByRole("link", { name: /^What changed/ }));
+    // IA-P2 P3b (spec §2.2): the tabs are Overview, Outcomes and Demand & capacity (What changed is /results).
+    fireEvent.click(within(tabRow()).getByRole("link", { name: "Demand & capacity" }));
     await settledScreen();
-    expect(where()).toBe(`/portfolio/changes?${WINDOW}`);
+    expect(where()).toBe(`/portfolio/demand-and-capacity?${WINDOW}`);
     expect(screen.getByRole("main", { name: "Portfolio" })).toBe(main);
     expect(client.portfolioCalls).toBe(1);
   });
@@ -113,6 +117,6 @@ describe("PF-T Portfolio tab routes", () => {
     renderAt(`/portfolio/nonsense?${WINDOW}`, estate());
     await settledScreen();
     expect(where()).toBe(`/portfolio?${WINDOW}`);
-    expect(within(tabRow()).getByRole("link", { current: "page" }).querySelector("[data-pf-tab-label]")?.textContent).toBe("Overview");
+    expect(within(tabRow()).getByRole("link", { current: "page" }).textContent).toBe("Overview");
   });
 });
