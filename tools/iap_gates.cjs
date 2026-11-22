@@ -338,7 +338,7 @@ async function readHub(page) {
       tabs: [...document.querySelectorAll("[data-section-tabs] a")].map((a) => ({ text: a.textContent.trim(), href: a.getAttribute("href") || "" })),
       notes: [...document.querySelectorAll(".dd-head [role=note]")].filter(visible).map((n) => n.textContent.trim()),
       tag: document.querySelector("[data-shared-range-focus]")?.getAttribute("data-shared-range-focus") ?? null,
-      barText: document.querySelector("[data-shared-range-focus]")?.textContent ?? "",
+      barText: document.querySelector("[data-shared-range-button] .shared-range__tag")?.textContent ?? "",
       bodyText: document.body.textContent,
       pageWidth: document.documentElement.scrollWidth,
     };
@@ -407,7 +407,8 @@ async function checkOverview(browser, args, routes) {
     const { ctx, page, errors } = await openPortfolio(browser, routes, `${args.base}/portfolio?from=2026-11-15&to=2026-11-21`);
     const h = await readHub(page);
     if (h.notes.length === 0) failures.push("H5: no visible note in the header");
-    if (h.levels.length > 0) failures.push(`H5: a hub region is drawn in mode none ([${h.levels.join(", ")}])`);
+    // Spec 3 (MD-IAP-11): mode none draws the header, the notes, the link and L2; L1 and L3 are omitted.
+    if (h.levels.includes("L1") || h.levels.includes("L3")) failures.push(`H5: L1 or L3 is drawn in mode none ([${h.levels.join(", ")}])`);
     await page.getByRole("link", { name: "Show October 2026" }).click();
     await page.waitForSelector("[data-shape='hub'] [data-level='L1']", { timeout: 20000 }).catch(() => failures.push("H5: October's month did not render after the click"));
     const u = new URL(page.url());
