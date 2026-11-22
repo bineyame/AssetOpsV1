@@ -153,3 +153,17 @@ the 6f resolution can retire the first without touching the second.
 None blocking. Optional: should the `iap_gates.cjs` fixtures include a cold, EV, MONITOR and no-ref row, so that L2
 exercises the text-row and windowed-link paths in the browser? Today they are covered only by vitest and this review's
 probe.
+
+## Verification (fix round 1)
+
+Head be1d55363, diff 232c5b4e0..HEAD. **Verdict: ACCEPT.** No remaining Medium or High finding.
+
+- M1 fixed: `HomeList` hands `model.rows` (filtered) and a `whole` flag to `tiles`; Decisions uses the server `waiting_count` only when whole. New tests in `homeLists.test.tsx` cover parts under a State facet on Decisions and Actions.
+- M2 fixed: Findings column and tile read `Loading…` in flight and `Not available yet` when refused; "No decision open" and 0 only when the read is ready. Two tests.
+- M3 fixed: `globalWorkPageQuery` calls `readSharedRange`/`capWindow`/`rangeWindow`; its own day arithmetic and `validMidnight` are gone; `known_at` is checked first. Test covers 1-31 Oct, a 40-day range (last 31 days, `link` keeps the whole) and a reversed range. Gate R3 now fails on any `[data-page-refusal]` on a list page or any `INVALID_*` on any page. `noRawRangeReads` also matches `getAll`.
+- Deviation (01:00Z accepted, rounded to its day; "not a UTC midnight" case became "not a date"): consistent, not a loosening. `readSharedRange` already accepts instant forms by their day, rejects a reversed raw instant pair (line 131) and caps at 31 days; the Incidents client must read the same address the date bar writes, and a single reader is what M3 asked for. Invalid input ("yesterday") still refuses. Residual: no test pins a 01:00Z `from` against Incidents; low risk.
+- Gate fixtures: portfolio/findings carry cold windowed, cold no-window, EV, watched, under-way and no-link rows; actions a no-link row. Decisions shot shows Decision 4 and 7 as text rows ("Detail not available yet"), Being watched and Under way states, three Site types. L2 now requires at least one text row per list, so it cannot pass vacuously. Real coverage.
+- Deferred Lows (L2 tile labels while loading, L3 nonce, L5 second exemption const, L4 wording) are reasonable: cosmetic or cross-cutting, none affects an acceptance criterion.
+- Noted, not a finding: on `/evidence/records` the gate serves no records API, so the shot shows the inline "Work records could not be read. Reload." alert; a read failure, not an `INVALID_*` refusal, and the bar reads "1-31 Oct 2026". I did not exercise a real records fetch.
+
+Checks run: `tsc --noEmit` clean. Vitest `src/estate src/ui` plus globalIncidents and operationalRecords: 33 files, 429 passed. `src/work`: 10 files, 207 passed. `src/shell` full: 22 failures in untouched files (overviewDispatchAssessment, s502, s5SiteWindowOverview, siteDetailScreen, ...), none in the diff; not compared against main (the packet names only SR-6b). Fresh vite build, `iap_gates.cjs`: 29 of 29 pass, exit 0. Architecture and agent-workflow scripts not rerun (packet figures cited). Preview server stopped, scratch deleted.
