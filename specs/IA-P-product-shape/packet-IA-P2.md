@@ -102,3 +102,12 @@ The new tests account for the difference: backend +84 (`test_iap_portfolio_perio
 2. The summary of `/api/estate/portfolio` grew two keys: stored `chain_response` bodies grow (spec §8, D-WK.16).
 3. IA-P2's merge stales the world ladder's L2 `code` part (`tools/world.py` keys on `backend/assetops_backend`): the coordinator rebuilds the current rung once after the merge (spec §8). No migration.
 4. Flaky under load: `s502OverviewFindingList`, `simulatorLabGate` (green in isolation).
+
+## Fix round 1 (review-IA-P2.md, head `b332feb9a` findings)
+
+- M1: month-by-month cells put the site count and the driver heading on their own line (`.dd-meta--line`, a space before it in the text). Tests first (both failed before): `portfolioHub.test.tsx` "M1" (no `\d{5}`, no `\d[A-Z]` run-together in a month row). Gate H4/M1 (`tools/iap_gates.cjs`) measures the layout: the second part sits below its first, and the rendered text has no run-together. New plant `--plant inline` fails it ("3 of 3 Sites sits on the line of September 2026"). The plant first passed vacuously (the check ran after the page had navigated to a month); fixed by reloading the range page first.
+- M2: the E2 stub is keyed by range: `2026-10-01|2026-10-31` answers `period-month-g-2026-10.json`; H6's range (`2026-10-01..2026-11-21`) is that body restated with the November note; an unlisted range is a 404, never another range's body. Overview shots by mode (month, period, none) at 1440, 1280 and 390, light and dark: `/opt/assetecon/evidence/IA-P/IA-P2/iap-r1/overview-*` (18 files). The month shot now reads "All pages" with no September note. Packet shot line above: the Overview is in `iap-r1/`, the earlier `iap/` set is superseded.
+- L1: `period.py` takes the latest month the Site is out (`reversed(vs)`); test `test_13b` (three months, out in the first two, the month-tagged sentence) failed first with August's line.
+- L2: the R7/R8 test in `sharedRange.test.tsx` answers `portfolio`; no unhandled rejection.
+- L3: the period header's empty `<nav>` is a `<div className="dd-nav">`; test "L3" (every `nav` named and holding a link or button) failed first.
+- L4 and question 1: `portfolioTabsOverview.before.html` deleted; the comment in `DeepDiveMonth.test.tsx` reworded.
