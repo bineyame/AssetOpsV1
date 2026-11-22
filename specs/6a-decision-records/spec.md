@@ -1,6 +1,6 @@
 # 6a: decisions, options and their records (implementer spec)
 
-**Status: rev 2, handshake answered (`handshake.md`; D-P6.20 to D-P6.29); ready to build.** P6 approved by the owner, 22 Nov 2026 ("accept all p6 defaults",
+**Status: in_review (units 1 to 3 built; `packet.md`).** Was: rev 2, handshake answered (`handshake.md`; D-P6.20 to D-P6.29). P6 approved by the owner, 22 Nov 2026 ("accept all p6 defaults",
 `owner/owner-accept-p6-defaults-2026-11-22.md`); every default is decided (§10) and logged as D-P6.1 to D-P6.19
 (`specs/6-decision-valued/rulings.md`). Architect (Claude), 2026-11-21 rev 0, 2026-11-22 rev 1 and rev 2. Lane 3 (`delivery-plan.md` §2,
 row `6a`). **3.25 units**, three commits. Discovery review (W5): new schema, a person rule, the record every money

@@ -17,3 +17,4 @@ One line per slice, continuing `index-2.md` (number, slice ID, summary, file in 
 192. `DDR` the rehearsal checker (ten gates, codes only), `portfolio_history`, board-budget profile, runbook 6-12; rehearsal pending · data.md
 193. `5c` unit 3: "The month" screen (Portfolio tab, hub shape, drawers, gates script with eight plants; rev 4 screen fix: served step bars and scale, `dd-na` mute, drawer focus and lock; in_review) · estate.md
 194. `1a` Optimize card states its day and scope: `CostScope`, SC-1 `portfolio_card.cost_scope`, `scope_text` on the face (merge held for walkthrough) · estate.md
+195. `6a` decision records: migration 0072 (seven append-only tables), levers, `DecisionService`, Postgres store, three commands, one writer guard block; in_review · work.md
