@@ -140,11 +140,13 @@ def check_layout(layout: Layout) -> None:
             if path not in column.paths or len(set(mapping.values())) != len(mapping):
                 raise ValueError(f"NATIVE_LAYOUT {layout.id} {path}")
             if column.types.get(path) == "bool":
-                if set(mapping.values()) != BOOL_VALUES:
+                if set(mapping.values()) != BOOL_VALUES or path in CODED_PATHS or path == "source_record_id":
                     raise ValueError(f"NATIVE_LAYOUT {layout.id} {path}")
             elif path not in CODED_PATHS:
                 raise ValueError(f"NATIVE_LAYOUT {layout.id} {path}")
         for path in column.paths:
+            if column.types.get(path) == "bool" and (path in CODED_PATHS or path == "source_record_id"):
+                raise ValueError(f"NATIVE_LAYOUT {layout.id} {path}")
             if (path in CODED_PATHS or column.types.get(path) == "bool") and path not in column.maps:
                 raise ValueError(f"NATIVE_LAYOUT {layout.id} {path}")
 

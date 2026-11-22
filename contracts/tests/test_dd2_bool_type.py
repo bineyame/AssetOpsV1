@@ -119,3 +119,23 @@ def test_the_contract_probes_pass_on_a_bool_profile() -> None:
     layout = compile_profile(PROFILE, 1)
     header, rows = split_file(layout, DATA)
     assert run_probes(layout, header, rows, **CTX) is None
+
+
+@pytest.mark.parametrize("path,column", [("body.category", 2), ("source_record_id", 0)])
+def test_review_l1_refuse_a_bool_on_a_coded_path_or_the_record_id(path: str, column: int) -> None:
+    obj = copy.deepcopy(PROFILE)
+    obj["columns"][column]["paths"][0] = {"path": path, "type": "bool", "map": {"Y": "true", "N": "false"}}
+    with pytest.raises(ProfileInvalid) as refused:
+        compile_profile(obj, 1)
+    assert refused.value.where == f"columns.{column}.paths.0.type"
+
+
+@pytest.mark.parametrize("path", ["body.category", "source_record_id"])
+def test_review_l1_layout_check_refuses_a_bool_on_a_coded_path_or_the_record_id(path: str) -> None:
+    mapping = {path: {"Y": "true", "N": "false"}}
+    types = MappingProxyType({path: "bool"})
+    for maps in (MappingProxyType(mapping), MappingProxyType({})):
+        column = Column("X", (path,), maps, types)
+        layout = Layout("t", "fleet_roster", "x", (Column("Row", ("subject.ref",)), column), MappingProxyType({}))
+        with pytest.raises(ValueError, match="NATIVE_LAYOUT"):
+            check_layout(layout)

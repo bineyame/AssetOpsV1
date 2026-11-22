@@ -196,6 +196,8 @@ def compile_profile(obj: object, version: int) -> Layout:
             type_ = p["type"]
             if not isinstance(type_, str) or type_ not in TYPES:
                 raise ProfileInvalid(f"{pw}.type")
+            if type_ == "bool" and (path in CODED_PATHS or path == "source_record_id"):
+                raise ProfileInvalid(f"{pw}.type")
             if "map" in p:
                 mapping = p["map"]
                 allowed = (type_ == "bool") or (type_ == "text" and path in CODED_PATHS)
