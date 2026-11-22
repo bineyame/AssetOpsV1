@@ -94,3 +94,25 @@ the roles-4 `BINDING_ROLE_AMBIGUOUS` plant all match the rulings.
   A two-GENERATOR Site reaching a run before DD3.3/DD3.4 may be ambiguous or refuse. No roles-5 reader exists yet
   (`analytics/assessment_worker.py:63`, `mini_depth/*` are pinned to roles-4), so today this is latent.
 - Kisiwa and Mto show no generator or PV figures until DD3.4, as D-DD.41 intends.
+
+## Re-review (fix round D-DD.45-47), head 9107b2463
+
+**Verdict: ACCEPT.** H1, L1, L3 closed; no new findings. L2 is on the backlog per D-DD.47.
+
+- Flag: `every_component=True` is set on exactly seven roles (feeder_demand, feeder_requested_power, and the five roles-5
+  unit roles); it is the only condition at both branches (`binding_service.py:818`, `:914`); `cardinality` is untouched
+  at the binding key (`:321`, `:472`). The test pins "exactly the seven" and "implies PER_ASSET".
+- L1: the stale 64/77 and 160/208 comment blocks are replaced by the D-DD.42 basis. L3: `onboard_operator.py` parses every
+  `<CODE>-bindings.json` in the pre-write loop (OSError/ValueError gives `ONBOARD_SITE_INVALID`) and passes the parsed
+  dict on; a planted malformed-file test asserts no write.
+- Deviation 1 (main's cold readiness): I ran readiness on main (`591458c38`; binding_roles/binding_service are unchanged
+  since the golden's `05be2b968`) in a temporary worktree. Cold-lab-001 and COLD-KIRI both read INCOMPLETE with missing
+  `Temperature policy low/high` only; no probe-channel role is missing. The builder is right; my round-1 statement that
+  main reports cold READY_TO_REPORT was wrong (I had stubbed gaps/controls, which hid the policy controls). The
+  false-missing probe role is gone on the branch: goldens regenerate byte-equal (cmp) for cold-lab, EV and KIRI.
+- Deviation 2 (KIRI golden via branch onboarding over main's role/service files): sound for readiness. Readiness is a
+  pure function of Site, revision, registrations and binding set plus the two files kept from main; the overlay touches
+  only how the Foundation is produced. I re-captured KIRI that way and it matched byte-for-byte. Residual: it cannot show
+  parity of main's own onboarding output, which refuses the on1 format anyway.
+- Plant: every_component on chamber_temperature makes the cold parity test fail (in the suite, passing as a planted-fail).
+- Checks: 443 passed (dd1, s1 bindings, w202 cold-lab, w205a, all w402; 540 s) on the worktree; architecture guard passed.
