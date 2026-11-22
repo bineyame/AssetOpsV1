@@ -143,6 +143,9 @@ class ColdLoadParameters:
     field_heat_target_degc: Fraction = Fraction(4)
     #: D-DD.87: the chamber temperature is held on this grid (degC); the rounding is booked in `rounding_total`.
     temperature_quantum: Fraction | None = None
+    #: D-DD.83: a start requested while the generator is faulted fails in the request minute (the start
+    #: controller reports it); False keeps v1's rule (FAILED only at the start timeout).
+    start_failure_at_request: bool = False
 
     def __post_init__(self) -> None:
         if self.temperature_quantum is not None and self.temperature_quantum <= 0:
@@ -159,7 +162,8 @@ class ColdLoadParameters:
 #: The DD world's values, all rooms (spec section 4.4's table; Assumed, written in the readings manifest).
 DD_LOAD_PARAMETERS = ColdLoadParameters(
     respiration_kw_per_crate=Fraction(15, 10000), field_heat_kwh_per_crate_degc=Fraction(37, 1800),
-    cop=Fraction(2), auxiliary_kw=Fraction(1), temperature_quantum=Fraction(1, 1000000))
+    cop=Fraction(2), auxiliary_kw=Fraction(1), temperature_quantum=Fraction(1, 1000000),
+    start_failure_at_request=True)
 
 
 @dataclass(frozen=True)
@@ -184,7 +188,7 @@ FORCING_EFFECTS: Mapping[str, tuple[str, str]] = {
 #: cold-thermal 2's forcings; the value is the count (crates), the new ambient (degC) or f (exact rational).
 V2_FORCING_ASSETS: Mapping[str, str] = {
     "CRATES_IN": "room-1", "CRATES_OUT": "room-1", "AMBIENT": "ambient-1", "EFFICIENCY": "compressor-1",
-    "GENERATOR_RESET": "generator-1",
+    "GENERATOR_HAND_START": "generator-1",
 }
 
 
@@ -283,7 +287,8 @@ _GENERATOR_MOVES = {("STOPPED", "STARTING"), ("STARTING", "RUNNING"), ("STARTING
                     ("RUNNING", "STOPPED"), ("STARTING", "STOPPED")}
 _TRANSFER_MOVES = {("GRID", "OPEN"), ("OPEN", "BACKUP"), ("OPEN", "GRID"), ("BACKUP", "GRID"),
                    ("BACKUP", "OPEN")}
-_GENERATOR_MOVES_V2 = _GENERATOR_MOVES | {("FAILED", "STOPPED")}
+#: D-DD.83: a start by hand moves a FAILED generator straight to RUNNING.
+_GENERATOR_MOVES_V2 = _GENERATOR_MOVES | {("FAILED", "RUNNING")}
 
 _STATE_CHANNELS = (
     ("grid-meter", "grid"), ("generator-controller", "generator"),
@@ -293,7 +298,7 @@ _STATE_CHANNELS = (
 
 def check_move(kind: str, before: str, after: str) -> None:
     moves = {"compressor": _COMPRESSOR_MOVES, "generator": _GENERATOR_MOVES, "transfer": _TRANSFER_MOVES,
-             "generator-reset": _GENERATOR_MOVES_V2}[kind]
+             "generator-hand-start": _GENERATOR_MOVES_V2}[kind]
     if before != after and (before, after) not in moves:
         raise PhysicallyUnacceptable(f"{kind} cannot move from {before} to {after}")
 
@@ -345,6 +350,9 @@ class ColdPack:
                 if f.asset != V2_FORCING_ASSETS[f.kind]:
                     raise PhysicallyUnacceptable(f"forcing {f.kind} {f.asset} is not cold-thermal/2")
                 s = self._v2_forcing(s, f)
+                if f.kind == "GENERATOR_HAND_START":
+                    event("generator-controller", "start-event", "START_RESULT", "SUCCEEDED", "generator-1",
+                          "OPERATOR", ("outage", s.outage))
                 continue
             if FORCING_EFFECTS.get(f.kind) != (f.asset, f.value):
                 raise PhysicallyUnacceptable(f"forcing {f.kind} {f.asset} {f.value} is not cold-thermal/1")
@@ -421,6 +429,11 @@ class ColdPack:
                         generator_timeout_due=t + STEP * int(self.p.start_timeout))
             event("generator-controller", "start-event", "START_REQUEST", "REQUESTED", "generator-1",
                   "CONTROLLER", ("outage", s.outage))
+            if self.load is not None and self.load.start_failure_at_request and s.generator_fault:
+                check_move("generator", s.generator, "FAILED")
+                s = replace(s, generator="FAILED", generator_running_due=None, generator_timeout_due=None)
+                event("generator-controller", "start-event", "START_RESULT", "FAILED", "generator-1",
+                      "CONTROLLER", ("outage", s.outage))
         demand = s.demand
         if s.temperature >= self.p.control_high:
             demand = True
@@ -519,11 +532,17 @@ class ColdPack:
             if value <= 0:
                 raise PhysicallyUnacceptable(f"efficiency {value} is not positive")
             return replace(s, efficiency=value)
-        # GENERATOR_RESET: FAILED -> STOPPED by hand; the controller's start request then runs as usual
+        # GENERATOR_HAND_START (D-DD.83): an operator starts the FAILED generator by hand; it runs at this minute
+        if f.value != "RUNNING":
+            raise PhysicallyUnacceptable(f"generator hand start {f.value!r} is not RUNNING")
         if s.generator != "FAILED":
-            raise PhysicallyUnacceptable(f"generator reset while {s.generator}, not FAILED")
-        check_move("generator-reset", s.generator, "STOPPED")
-        return replace(s, generator="STOPPED", generator_fault=False)
+            raise PhysicallyUnacceptable(f"generator hand start while {s.generator}, not FAILED")
+        check_move("generator-hand-start", s.generator, "RUNNING")
+        s = replace(s, generator="RUNNING", generator_fault=False, generator_running_due=None,
+                    generator_timeout_due=None)
+        if s.transfer == "OPEN":
+            s = replace(s, transfer_due=s.minute + STEP * self.p.transfer_delay)
+        return s
 
 
 @dataclass(frozen=True)

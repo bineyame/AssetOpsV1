@@ -107,26 +107,66 @@ def test_v1_refuses_v2_forcings():
                    ambient=Fraction(24), forcings=(_f(1, "CRATES_IN", "room-1", "7"),))
 
 
-def test_generator_reset_restarts_by_hand():
-    """GENERATOR_RESET: FAILED -> STOPPED; the controller's start request then runs as usual (a start by hand)."""
-    pack = ColdPack(_params(), load=DD_LOAD_PARAMETERS)
-    forcings = (_f(0, "GRID_LOSS", "grid-1", "LOST"), _f(0, "GENERATOR_FAILURE", "generator-1", "FAILED"),
-                _f(7, "GENERATOR_RESET", "generator-1", "STOPPED"), _f(169, "GRID_RESTORE", "grid-1", "AVAILABLE"))
-    run = run_window(pack, start=T0, end=_at(180), initial_temperature=Fraction(3), ambient=Fraction(24),
-                     forcings=forcings)
-    gen = [(int((r.source_time - T0).total_seconds() // 60), r.record_kind, r.outcome) for r in run.records
-           if r.device_id == "generator-controller" and r.measurement is None]
-    assert gen == [(0, "START_REQUEST", "REQUESTED"), (5, "START_RESULT", "FAILED"),
-                   (7, "START_REQUEST", "REQUESTED"), (9, "START_RESULT", "SUCCEEDED")]
-    assert run.transitions[11].before.bus == "POWERED"
+def _gen_events(run):
+    return [(int((r.source_time - T0).total_seconds() // 60), r.record_kind, r.outcome, r.actor) for r in run.records
+            if r.device_id == "generator-controller" and r.measurement is None]
 
 
-def test_generator_reset_of_a_generator_not_failed_raises():
+THIKA = (_f(0, "GRID_LOSS", "grid-1", "LOST"), _f(0, "GENERATOR_FAILURE", "generator-1", "FAILED"),
+         _f(3, "GENERATOR_HAND_START", "generator-1", "RUNNING"), _f(169, "GRID_RESTORE", "grid-1", "AVAILABLE"))
+
+
+def test_failed_start_is_reported_in_the_request_minute():
+    """D-DD.83 mechanism 1: with `start_failure_at_request`, a start requested under a fault fails at once."""
+    assert DD_LOAD_PARAMETERS.start_failure_at_request is True
+    run = run_window(ColdPack(_params(), load=DD_LOAD_PARAMETERS), start=T0, end=_at(30),
+                     initial_temperature=Fraction(3), ambient=Fraction(24), forcings=THIKA[:2])
+    assert _gen_events(run) == [(0, "START_REQUEST", "REQUESTED", "CONTROLLER"),
+                                (0, "START_RESULT", "FAILED", "CONTROLLER")]
+    after = run.transitions[0].after
+    assert after.generator == "FAILED" and after.generator_running_due is None and after.generator_timeout_due is None
+
+
+def test_without_the_flag_the_timeout_rule_holds():
+    from dataclasses import replace
+    load = replace(DD_LOAD_PARAMETERS, start_failure_at_request=False)
+    run = run_window(ColdPack(_params(), load=load), start=T0, end=_at(30), initial_temperature=Fraction(3),
+                     ambient=Fraction(24), forcings=THIKA[:2])
+    assert _gen_events(run) == [(0, "START_REQUEST", "REQUESTED", "CONTROLLER"),
+                                (5, "START_RESULT", "FAILED", "CONTROLLER")]
+
+
+def test_hand_start_runs_at_its_minute_and_transfers_one_minute_later():
+    """D-DD.83 mechanism 2 (Thika): request and FAILED at 0, run by hand at 3, backup and bus powered at 4."""
+    run = run_window(ColdPack(_params(), load=DD_LOAD_PARAMETERS), start=T0, end=_at(180),
+                     initial_temperature=Fraction(3), ambient=Fraction(24), forcings=THIKA)
+    assert _gen_events(run)[:3] == [(0, "START_REQUEST", "REQUESTED", "CONTROLLER"),
+                                    (0, "START_RESULT", "FAILED", "CONTROLLER"),
+                                    (3, "START_RESULT", "SUCCEEDED", "OPERATOR")]
+    assert len([e for e in _gen_events(run) if e[1] == "START_REQUEST"]) == 1
+    at3, at4 = run.transitions[3].after, run.transitions[4].after
+    assert at3.generator == "RUNNING" and not at3.generator_fault and at3.transfer == "OPEN"
+    assert at3.bus == "UNPOWERED" and at4.transfer == "BACKUP" and at4.bus == "POWERED"
+    assert all(run.transitions[m].after.bus == "UNPOWERED" for m in range(4))
+
+
+def test_hand_start_of_a_generator_not_failed_raises():
     pack = ColdPack(_params(), load=DD_LOAD_PARAMETERS)
     with pytest.raises(PhysicallyUnacceptable):
         run_window(pack, start=T0, end=_at(10), initial_temperature=Fraction(3), ambient=Fraction(24),
-                   forcings=(_f(0, "GRID_LOSS", "grid-1", "LOST"), _f(0, "GENERATOR_FAILURE", "generator-1", "FAILED"),
-                             _f(3, "GENERATOR_RESET", "generator-1", "STOPPED")))
+                   forcings=(_f(3, "GENERATOR_HAND_START", "generator-1", "RUNNING"),))
+
+
+def test_generator_reset_is_gone():
+    from assetops_simulator.packs.cold import V2_FORCING_ASSETS, check_move
+    assert "GENERATOR_RESET" not in V2_FORCING_ASSETS
+    with pytest.raises(PhysicallyUnacceptable):
+        run_window(ColdPack(_params(), load=DD_LOAD_PARAMETERS), start=T0, end=_at(10),
+                   initial_temperature=Fraction(3), ambient=Fraction(24),
+                   forcings=THIKA[:2] + (_f(3, "GENERATOR_RESET", "generator-1", "STOPPED"),))
+    with pytest.raises(PhysicallyUnacceptable):
+        check_move("generator-hand-start", "FAILED", "STOPPED")
+    check_move("generator-hand-start", "FAILED", "RUNNING")
 
 
 def test_full_room_at_capacity_runs_unclipped():
