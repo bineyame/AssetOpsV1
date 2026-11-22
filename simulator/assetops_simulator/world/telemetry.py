@@ -55,6 +55,9 @@ from .months import day_class, parse_month
 SITE_INPUTS_SCHEMA = "assetops.world-site-inputs/1"
 READINGS_SCHEMA = "assetops.world-readings/1"
 MANIFEST_SCHEMA = "assetops.world-readings-manifest/1"
+#: D-DD.103: the readings span, local time, declared once. The mini-grid, cold and EV writers, the CLI defaults and
+#: DD5's world manifest `span` read it. The execution horizon ends at the end instant (no step after 06:00 on 6 Nov).
+READINGS_SPAN = ("2026-07-01T00:00", "2026-11-06T06:00")
 STEP_MINUTES = 5
 STEPS_PER_DAY = 288
 HOURS_PER_STEP = Fraction(STEP_MINUTES, 60)
@@ -218,11 +221,37 @@ def _iso_utc(moment: datetime) -> str:
     return moment.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def _days(first: str, last: str) -> list[date]:
-    start, end = date.fromisoformat(first), date.fromisoformat(last)
+def span_days(first: str, last: str) -> tuple[list[date], int]:
+    """The local days of the span and the end instant's minute in the last one (1440: the whole day; D-DD.103).
+    `first` is a local date or its midnight (`YYYY-MM-DDT00:00`); `last` a local date (the whole day) or a local
+    instant `YYYY-MM-DDTHH:MM` on a whole hour (a midnight ends the day before)."""
+    if len(first) > 10 and first[10:] not in ("T00:00", "T00:00:00"):
+        raise TelemetryRefused("TEL_EVENT_UNPLACED", f"the span starts at {first}, not at a local midnight")
+    start = date.fromisoformat(first[:10])
+    if len(last) > 10:
+        moment = datetime.fromisoformat(last)
+        if moment.tzinfo is not None or moment.second or moment.microsecond or moment.minute:
+            raise TelemetryRefused("TEL_EVENT_UNPLACED", f"the span end {last} is not a local whole hour")
+        end, minute = moment.date(), moment.hour * 60
+        if minute == 0:
+            end, minute = end - timedelta(days=1), 1440
+    else:
+        end, minute = date.fromisoformat(last), 1440
     if end < start:
         raise TelemetryRefused("TEL_EVENT_UNPLACED", f"the span {first}..{last} is empty")
-    return [start + timedelta(days=i) for i in range((end - start).days + 1)]
+    return [start + timedelta(days=i) for i in range((end - start).days + 1)], minute
+
+
+def _days(first: str, last: str) -> list[date]:
+    return span_days(first, last)[0]
+
+
+def _span_hours(day: date) -> range:
+    """The local hours of `day` inside `READINGS_SPAN` (empty outside it)."""
+    days, minute = span_days(*READINGS_SPAN)
+    if not days[0] <= day <= days[-1]:
+        return range(0)
+    return range(minute // 60) if day == days[-1] else range(24)
 
 
 def _component(foundation: dict, kind: str, code: str) -> dict:
@@ -251,14 +280,17 @@ def _month_days(month: str) -> list[date]:
 
 def _load_blocks(month: str, weights: dict, books: dict, code: str) -> dict[tuple[date, str, int], Fraction]:
     """Largest remainder over the month's (day, feeder, hour) blocks: Wh per block, summing to `delivered_kwh` x 1000.
-    The month's weights are those of the whole month whatever span is run, so a day's values never depend on the span."""
-    delivered = books["months"][month]["delivered_kwh"]
+    The month's weights are those of the whole month whatever span is run, so a day's values never depend on the span.
+    A month with no books (`rate_of`, D-DD.103) has the blocks of its days and hours inside `READINGS_SPAN`."""
+    book = books["months"][month]
+    delivered = book["delivered_kwh"]
     keys, shares = [], []
     classes = weights["classes"]
     for day in _month_days(month):
         weight = Fraction(weights[day_class(day, classes)])
+        hours = _span_hours(day) if "rate_of" in book else range(24)
         for feeder in sorted(LOAD_SHAPE_KW):
-            for hour in range(24):
+            for hour in hours:
                 keys.append((day, feeder, hour))
                 shares.append(weight * LOAD_SHAPE_KW[feeder][hour])
     if sum(shares, Fraction(0)) == 0:
@@ -278,6 +310,20 @@ def _draws(month: str, books: dict) -> dict[date, Fraction]:
     return {day: Fraction(c, 100) for day, c in zip(days, centilitres)}
 
 
+def _draw(day: date, books: dict, code: str) -> Fraction:
+    """The day's declared draw. A month with no books draws its rate month's part of the same day of month (D-DD.103)."""
+    book = books["months"][day.strftime("%Y-%m")]
+    if "rate_of" not in book:
+        return _draws(day.strftime("%Y-%m"), books)[day]
+    parts = _draws(book["rate_of"], books)
+    year, number = parse_month(book["rate_of"])
+    try:
+        return parts[date(year, number, day.day)]
+    except (KeyError, ValueError):
+        raise TelemetryRefused("TEL_INPUT_TOTAL", f"{code} {day.isoformat()} has no day {day.day} in "
+                                                  f"{book['rate_of']}") from None
+
+
 def _sun(day: date, weights: dict, code: str) -> tuple[Fraction, ...]:
     """Season v2's day on its calendar; any other day the clear shape times the `solar_surplus` weight (D-DD.77)."""
     if SEASON_V2_DAY_ZERO <= day <= SEASON_V2_LAST_DAY:
@@ -293,11 +339,11 @@ def _sun(day: date, weights: dict, code: str) -> tuple[Fraction, ...]:
 def frozen_inputs(site: dict, books: dict, first: str, last: str) -> FrozenWorldInputs:
     """The Site's one frozen input record for the span (D-DD.69), from `F` and the books alone."""
     code, foundation, zone = site["code"], site["foundation"], _zone(site)
-    days = _days(first, last)
-    start, end = _utc(zone, days[0]), _utc(zone, days[-1] + timedelta(days=1))
-    if (end - start) != timedelta(days=len(days)):
+    days, end_minute = span_days(first, last)
+    start, end = _utc(zone, days[0]), _utc(zone, days[-1], end_minute)
+    duration = (len(days) - 1) * 1440 + end_minute
+    if (end - start) != timedelta(minutes=duration):
         raise TelemetryRefused("TEL_FOUNDATION", f"{code} a clock change inside {first}..{last}")
-    duration = len(days) * 1440
     ids = {kind: _component(foundation, kind, code)["id"] for kind in
            ("PV_ARRAY", "INVERTER", "BATTERY", "POWER_CONVERSION_SYSTEM", "GENERATOR", "FUEL_TANK", "AC_BUS")}
     loads = [c["id"] for c in foundation["components"] if c["type"] == "LOAD"]
@@ -333,7 +379,7 @@ def frozen_inputs(site: dict, books: dict, first: str, last: str) -> FrozenWorld
         base = index * 1440
         month_blocks = blocks[day.strftime("%Y-%m")]
         sun = _sun(day, books.get("sun_weights", DEFAULT_SUN_WEIGHTS), code)
-        for hour in range(24):
+        for hour in range(end_minute // 60 if day == days[-1] else 24):
             offset = base + hour * 60
             forcings.append(ForcingInput(
                 event_id=f"sun:{offset}", address=IRRADIANCE, state_key="plane-of-array-irradiance",
@@ -350,7 +396,7 @@ def frozen_inputs(site: dict, books: dict, first: str, last: str) -> FrozenWorld
     for note in books.get("fuel_notes", []):
         at = datetime.fromisoformat(note["at"]).astimezone(zone)
         local_day = at.date()
-        if local_day < days[0] or local_day > days[-1]:
+        if local_day < days[0] or local_day > days[-1] or at.astimezone(timezone.utc) >= end:
             continue
         offset = int((at.astimezone(timezone.utc) - start).total_seconds() // 60)
         if (at.astimezone(timezone.utc) - start).total_seconds() % (STEP_MINUTES * 60):
@@ -360,7 +406,9 @@ def frozen_inputs(site: dict, books: dict, first: str, last: str) -> FrozenWorld
             parameter_id="fuel-note", quantity=Fraction(note["litres"]), canonical_unit="L", dimension="VOLUME",
             shape="POINT", offset_minutes=offset, duration_minutes=None))
     for index, day in enumerate(days):
-        draw = _draws(day.strftime("%Y-%m"), books)[day]
+        if day == days[-1] and DRAW_MINUTE >= end_minute:
+            continue
+        draw = _draw(day, books, code)
         if draw:
             causes.append(DeclaredCause(
                 event_id=f"draw:{day.isoformat()}", address=tank, state_key=TANK_ADDRESS, direction="DECREASE",
@@ -426,7 +474,8 @@ class SiteRun:
     def __init__(self, site: dict, books: dict, first: str, last: str) -> None:
         self.site, self.books = site, books
         self.code, self.zone = site["code"], _zone(site)
-        self.days = _days(first, last)
+        self.days, self.end_minute = span_days(first, last)
+        self.day_steps = [STEPS_PER_DAY] * (len(self.days) - 1) + [self.end_minute // STEP_MINUTES]
         self.frozen = frozen_inputs(site, books, first, last)
         self.pairs, self.mappings = self._resolve()
         self._execution = start_execution(self.frozen, MINI_GRID_V8_MODEL)
@@ -566,7 +615,13 @@ class SiteRun:
         if index >= len(self.days):
             raise IndexError("the span is complete")
         self.next_day += 1
-        return self.readings_for_steps(index * STEPS_PER_DAY + 1, (index + 1) * STEPS_PER_DAY)
+        first = index * STEPS_PER_DAY + 1
+        return self.readings_for_steps(first, first + self.day_steps[index] - 1)
+
+    @property
+    def end_local(self) -> datetime:
+        """The span's end instant, local time (D-DD.103)."""
+        return datetime.fromisoformat(self.frozen.interval.end_time.replace("Z", "+00:00")).astimezone(self.zone)
 
     def _value(self, pair: dict, boundary, previous) -> str:
         kind, address = pair["kind"], pair["address"]
@@ -610,7 +665,7 @@ def supported(site: dict) -> bool:
 def build_telemetry(view: dict, sites: dict, decided_books: dict, *, start: str, end: str,
                     only: tuple[str, ...] | None = None) -> TelemetryResult:
     """`view` the allowlisted manifest view, `sites` the `F` file, `decided_books` per Site code (see `books_for`).
-    `start` and `end` are the first and last local day of the span."""
+    `start` is the first local day; `end` the last local day (whole) or a local end instant (D-DD.103)."""
     refuse_oracle(sites)
     files, manifests = [], []
     by_tenant: dict[str, list[SiteRun]] = {}
@@ -640,7 +695,7 @@ def site_manifest(site: dict, run: SiteRun, books: dict, golden: dict[str, str])
     return {
         "schema": MANIFEST_SCHEMA, "generator": GENERATOR, "site_code": site["code"], "role_set": site["role_set"],
         "pack": {"model": PACK[0], "version": PACK[1]}, "foundation_digest": site["foundation_digest"],
-        "span": {"first": run.days[0].isoformat(), "last": run.days[-1].isoformat()},
+        "span": {"first": run.days[0].isoformat(), "last": run.days[-1].isoformat(), "to": run.end_local.isoformat()},
         "private_parameters": {a.address: str(a.value) for a in run.frozen.initial_values},
         "conditions": {
             "load_shape_kw": {k: list(v) for k, v in sorted(LOAD_SHAPE_KW.items())},
@@ -651,8 +706,19 @@ def site_manifest(site: dict, run: SiteRun, books: dict, golden: dict[str, str])
                                      "weights": books.get("sun_weights", DEFAULT_SUN_WEIGHTS)},
             "day_weights": books["day_weights"], "tank_start": "50 % of tank-capacity (Assumed, D-DD.19)",
             "declared_draw": "month unexplained_l in equal daily parts at 02:00 local (D-DD.19)",
-            "fuel_notes": books.get("fuel_notes", []), "critical_load_order": list(CRITICAL_ORDER)},
+            "fuel_notes": books.get("fuel_notes", []), "critical_load_order": list(CRITICAL_ORDER),
+            **_month_without_books(run, books)},
         "mappings": run.mappings, "golden_digests": golden}
+
+
+def _month_without_books(run: SiteRun, books: dict) -> dict:
+    """D-DD.103's condition, written when the run's span reaches a month with no books."""
+    rates = sorted({books["months"][m]["rate_of"] for m in {d.strftime("%Y-%m") for d in run.days}
+                    if "rate_of" in books["months"].get(m, {})})
+    if not rates:
+        return {}
+    return {"month_without_books": {"rule": "D-DD.103", "load": "the rate month's kWh per weighted shape unit",
+                                    "draw": "the rate month's daily parts by day of month", "rate_of": ", ".join(rates)}}
 
 
 # --- the decided books ------------------------------------------------------------------------------------------------
@@ -687,9 +753,32 @@ def books_for(view: dict, history: dict, expenses: dict[str, str]) -> dict[str, 
                                  "unexplained_l": block["actual"].get("unexplained_l", 0)}
             actual = site["period"]["actual"]
             months[accounting] = {"delivered_kwh": actual["delivered_kwh"], "unexplained_l": actual.get("unexplained_l", 0)}
+            for month in _months_without_books(accounting):
+                months[month] = {"rate_of": accounting,
+                                 "delivered_kwh": _rate_kwh(month, accounting, weights, actual["delivered_kwh"])}
             out[site["code"]] = {"months": months, "day_weights": weights, "sun_weights": sun_weights,
                                  "fuel_notes": sorted(notes.get(site["code"], []), key=lambda n: n["at"])}
     return out
+
+
+def _months_without_books(accounting: str) -> list[str]:
+    """The months of `READINGS_SPAN` after the accounting period (D-DD.103)."""
+    days, _minute = span_days(*READINGS_SPAN)
+    return sorted({d.strftime("%Y-%m") for d in days if d.strftime("%Y-%m") > accounting})
+
+
+def _rate_kwh(month: str, rate_of: str, weights: dict, delivered: int) -> int:
+    """D-DD.103: E = round_half_even(k x sum over the month's span days of W(d) x sum of S(h) over the span's hours),
+    k = the rate month's kWh per weighted shape unit."""
+    classes = weights["classes"]
+
+    def units(day: date, hours: range) -> Fraction:
+        shape = sum(LOAD_SHAPE_KW[feeder][hour] for feeder in LOAD_SHAPE_KW for hour in hours)
+        return Fraction(weights[day_class(day, classes)]) * shape
+
+    k = Fraction(delivered) / sum((units(d, range(24)) for d in _month_days(rate_of)), Fraction(0))
+    exact = k * sum((units(d, _span_hours(d)) for d in _month_days(month)), Fraction(0))
+    return int((Decimal(exact.numerator) / Decimal(exact.denominator)).quantize(Decimal(1), rounding=ROUND_HALF_EVEN))
 
 
 def measured_for(slug: str, runs: list[SiteRun]) -> dict:
@@ -704,5 +793,8 @@ def measured_for(slug: str, runs: list[SiteRun]) -> dict:
                 "served_kwh": {k: _decimal(v) for k, v in sorted(row["served_kwh"].items())},
                 "unserved_kwh": {k: _decimal(v) for k, v in sorted(row["unserved_kwh"].items())},
                 "generator_kwh": _decimal(row["generator_kwh"])}
+        end = run.end_local
+        if (end.day, end.hour, end.minute) != (1, 0, 0):  # the span ends inside its last month (D-DD.99)
+            months[run.days[-1].strftime("%Y-%m")]["partial_to"] = end.isoformat()
         sites[run.code] = months
     return {"schema": "assetops.world-measured/1", "tenant": slug, "sites": sites}

@@ -36,6 +36,7 @@ from zoneinfo import ZoneInfo
 from ..packs.cold import (DD_LOAD_PARAMETERS, FORCING_EFFECTS, PROPERTY_FIELDS, V2_FORCING_ASSETS, ColdForcingRow,
                           ColdPack, ColdParameters, ColdState)
 from ..packs.errors import PhysicallyUnacceptable
+from .telemetry import span_days
 
 STEP = timedelta(minutes=1)
 DOOR_MINUTES = 5  # spec §4.4: door per movement
@@ -104,16 +105,10 @@ class ColdSiteRun:
         self.params = cold_parameters(site)
         self.load = DD_LOAD_PARAMETERS
         self.pack = ColdPack(self.params, load=self.load)
-        self.days = []
-        day, end_day = date.fromisoformat(first), date.fromisoformat(last)
-        while day <= end_day:
-            self.days.append(day)
-            day += timedelta(days=1)
-        if not self.days:
-            raise _refuse("TEL_EVENT_UNPLACED", f"{self.code} the span {first}..{last} is empty")
+        self.days, end_minute = span_days(first, last)
         self.start = self._utc(self.days[0])
-        self.end = self._utc(self.days[-1] + timedelta(days=1))
-        if self.end - self.start != timedelta(days=len(self.days)):
+        self.end = self._utc(self.days[-1]) + timedelta(minutes=end_minute)
+        if self.end - self.start != timedelta(minutes=(len(self.days) - 1) * 1440 + end_minute):
             raise _refuse("TEL_FOUNDATION", f"{self.code} a clock change inside {first}..{last}")
         self.cooling = {"cooling": books["cooling"], "seasons": books["seasons"], "day_classes": books["day_classes"]}
         self.ambients = {d: day_ambient(d, self.cooling, self.code) for d in self.days}
@@ -196,7 +191,7 @@ class ColdSiteRun:
             raise _refuse("TEL_EVENT_UNPLACED", f"{self.code} advanced past {self.days[-1].isoformat()}")
         day = self.days[self.advanced]
         day_start = self._utc(day)
-        day_end = day_start + timedelta(days=1)
+        day_end = min(day_start + timedelta(days=1), self.end)  # the span's end instant (D-DD.103)
         rows: list[tuple] = []
         state = self.state
         t = day_start
