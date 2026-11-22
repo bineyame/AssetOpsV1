@@ -16,6 +16,8 @@ import {
   SITE_TEMPLATES_PATH,
 } from "../../shell/simulatorLabRoutes";
 import { settledScreen } from "../../test/settled";
+import { estateE0, sitesE1 } from "../../test/sitesE1";
+import { pathsWithOneRange } from "../../test/rangeHrefs";
 
 /**
  * The parts of the shared visual vocabulary that are claims rather than
@@ -69,7 +71,7 @@ function renderAt(path: string, flags = ENABLED, sites: SiteSummary[] = []) {
   const directory = directoryOf(...sites);
   return render(
     <MemoryRouter initialEntries={[path]}>
-      <App flags={flags} siteDirectory={directory} siteDetail={directory} />
+      <App flags={flags} siteDirectory={directory} siteDetail={directory} portfolioSites={sitesE1()} estateIndex={estateE0({})} />
     </MemoryRouter>,
   );
 }
@@ -143,10 +145,11 @@ describe("the Simulator Lab rail lists only truthful destinations", () => {
     // The two rails share a component and nothing else. Neither shell can
     // reach the other's contents, so no Lab destination appears here. T028
     // adds the Findings rail root (`D-2026-10-02-grammar-ownership-test`).
+    // IA-P P4b (spec §6 "Range pages"): `/sites` fills its range on entry, and every rail link keeps it.
     expect(
-      within(operatorRail)
+      pathsWithOneRange(within(operatorRail)
         .getAllByRole("link")
-        .map((link) => link.getAttribute("href")),
+        .map((link) => link.getAttribute("href"))),
     // IA-P P1 (spec §2.1): Operational records left the rail; Evidence & records is the one root.
     ).toEqual(["/portfolio", SITES_PATH, "/findings", "/decisions", "/actions", "/incidents", "/maintenance", "/results", "/evidence", "/financials"]);
     expect(
@@ -156,42 +159,21 @@ describe("the Simulator Lab rail lists only truthful destinations", () => {
 });
 
 describe("a badge renders only where a record supplies its value", () => {
-  it("badges the three fields the record always carries", async () => {
-    const { container } = renderAt(SITES_PATH, ENABLED, [FROM_TEMPLATE]);
+  // IA-P P4b (spec §6 P4b; D-IAP.6 "text-only cells"): `/sites` is the Sites list, whose cells are text. The mode,
+  // lifecycle and origin badges and the template-provenance cell left with the directory table (`SitesIndex`, which no
+  // route mounts now). The rule kept here is the one about absent values: the list's row carries no badge, whether or
+  // not the record came from a template.
+  it.each([
+    ["from a template", FROM_TEMPLATE],
+    ["from no template", FROM_NO_TEMPLATE],
+  ])("draws the Sites list row as text, with no badge (%s)", async (_name, site) => {
+    const { container } = renderAt(SITES_PATH, ENABLED, [site]);
     await settledScreen();
 
-    const row = within(within(container).getByRole("table", { name: "Site inventory" })).getByRole("row", { name: /MG-002/ });
-
-    // Lifecycle, mode and origin are three vocabularies and three tones. They
-    // are never one status pill, which is the collapse this product refuses.
-    const tones = Array.from(row.querySelectorAll(".badge")).map((badge) => [
-      badge.className,
-      badge.textContent,
-    ]);
-    // Order follows the canonical column set T011 settled: Mode before
-    // Lifecycle, each in its own column. Three vocabularies, three tones, and
-    // never one status pill, which is what this assertion is really about.
-    expect(tones).toEqual([
-      ["badge badge--provenance", "Demonstration data"],
-      ["badge badge--lifecycle", "Planned"],
-      ["badge badge--origin", "User"],
-    ]);
-  });
-
-  it("renders an absent template provenance as text, never as a badge", async () => {
-    const { container } = renderAt(SITES_PATH, ENABLED, [FROM_NO_TEMPLATE]);
-    await settledScreen();
-
-    const row = within(within(container).getByRole("table", { name: "Site inventory" })).getByRole("row", { name: /MG-002/ });
-
-    // The site came from no template. That is an absence, not a value, and a
-    // badge around it would dress it as a state the site is in.
-    const absence = within(row).getByText("Not created from a template");
-    expect(absence.closest(".badge")).toBeNull();
-
-    // The three that do have values are unaffected: this is a rule about
-    // absent values, not a rule against badges.
-    expect(row.querySelectorAll(".badge")).toHaveLength(3);
+    const row = container.querySelector<HTMLElement>('[data-home-list="sites"] tbody tr[data-row="MG-002"]');
+    expect(row).not.toBeNull();
+    expect(row!.querySelectorAll(".badge")).toHaveLength(0);
+    expect(row!.querySelector('[data-label="Group"]')?.textContent).toBe("Mini-grid");
   });
 
   it("renders no badge at all on a screen with no site record", () => {

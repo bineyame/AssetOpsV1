@@ -17,6 +17,7 @@ import { FINDINGS_API_PATH, type SiteAnalyticsClient } from "../../sites/siteAna
 import type { FindingIndexClient } from "../../sites/findingIndexClient";
 import type { SiteDetailClient, SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import { settledScreen } from "../../test/settled";
+import { pathsWithOneRange } from "../../test/rangeHrefs";
 import {
   ACTIONS_PATH,
   FINDINGS_COST_PATH,
@@ -162,7 +163,10 @@ describe("W3-01 estate roots in the operator shell", () => {
     const estate = fakeClient(() => loaded(findingsBody("all")));
     renderAt("/sites", { estate });
     await settledScreen();
-    expect(within(rail()).getAllByRole("link").map((link) => [link.textContent, link.getAttribute("href")])).toEqual([
+    // IA-P P4b (spec §6 "Range pages"): `/sites` fills its range on entry, and every rail link keeps it.
+    const links = within(rail()).getAllByRole("link");
+    const paths = pathsWithOneRange(links.map((link) => link.getAttribute("href")));
+    expect(links.map((link, i) => [link.textContent, paths[i]])).toEqual([
       ["Portfolio", "/portfolio"],
       ["Sites", "/sites"],
       ["Findings", "/findings"],

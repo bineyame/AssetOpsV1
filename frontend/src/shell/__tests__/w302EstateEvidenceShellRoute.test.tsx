@@ -14,6 +14,7 @@ import { POPULATED_EVIDENCE, evidenceClient } from "../../sites/__tests__/eviden
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import type { SiteDetailClient, SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import { settledScreen } from "../../test/settled";
+import { hrefPath } from "../../test/rangeHrefs";
 import { EVIDENCE_PATH } from "../operatorSiteRoutes";
 
 /**
@@ -111,7 +112,10 @@ describe("W3-02 estate Evidence root in the operator shell", () => {
     const fromSites = fake();
     renderAt("/sites", fromSites);
     await settledScreen();
-    expect(within(rail()).getByRole("link", { name: "Financials" })).toHaveAttribute("href", "/financials");
+    // IA-P P4b (spec §6 "Range pages"): `/sites` fills its range on entry, so the rail link keeps it.
+    const financials = within(rail()).getByRole("link", { name: "Financials" }).getAttribute("href");
+    expect(hrefPath(financials)).toBe("/financials");
+    expect(financials).toMatch(/\?from=[^&]+&to=[^&]+$/);
     expect(fromSites.calls).toEqual([]);
     fireEvent.click(within(rail()).getByRole("link", { name: "Evidence & records" }));
     await settledScreen();

@@ -113,6 +113,18 @@ function renderResults(client: EstateClient) {
  * PF-T: the panels now sit on section tabs of the one mounted page. `showTab` follows a tab link in place (no new
  * read: the page keeps its reads), so a pre-PF-T assertion on a panel opens that panel's tab first.
  */
+/**
+ * IA-P3 P4b (spec §6 P4b): on Outcomes, the objectives panel ("Outcomes across the estate") sits inside the closed
+ * Disclosure "Each Site's objectives" under the cards. Panel-title checks first see it hidden, then open it.
+ */
+function openObjectives(): void {
+  const details = document.querySelector<HTMLDetailsElement>('[data-disclosure="portfolio-objectives"]');
+  expect(details).not.toBeNull();
+  expect(details!.open).toBe(false);
+  expect(renderedPanelTitles()).toEqual([]);
+  details!.open = true;
+}
+
 function showTab(label: string) {
   const nav = document.querySelector("nav[aria-label='Portfolio sections']");
   const link = Array.from(nav?.querySelectorAll("a") ?? []).find((a) => text(a) === label);
@@ -617,8 +629,22 @@ describe("estate Portfolio page", () => {
     ];
     for (const [label, titles] of perTab) {
       showTab(label);
+      if (label === "Outcomes") openObjectives();
       expect(renderedPanelTitles(), label).toEqual(titles);
-      expect(leadingIntruders(main, "portfolio"), `${label}: before panel 1`).toEqual([]);
+      if (label === "Outcomes") {
+        // IA-P3 P4b (spec §6 P4b): Outcomes leads with E1 (L1 headline, L2 Sites rows), then L3's cards; the objectives
+        // panel is last, inside the Disclosure. So "nothing before panel 1" becomes that order, with nothing else before.
+        const panel = main.querySelector('[data-disclosure="portfolio-objectives"]') as HTMLElement;
+        const l3 = panel.closest('[data-level="L3"]') as HTMLElement;
+        expect(l3).not.toBeNull();
+        expect(l3.previousElementSibling).not.toBeNull();
+        expect([...l3.children].map((c) => c.getAttribute("data-portfolio-cards") !== null || c === panel || c.matches("p.range-part"))).toEqual(
+          [...l3.children].map(() => true),
+        );
+        expect(l3.lastElementChild).toBe(panel);
+      } else {
+        expect(leadingIntruders(main, "portfolio"), `${label}: before panel 1`).toEqual([]);
+      }
       expect(strayOutsidePanels(main), `${label}: outside panels`).toEqual([]);
       expect(stripIntruders(main), `${label}: in a status strip`).toEqual([]);
       expect(strayBetweenPanels(main), `${label}: between panels`).toEqual([]);
@@ -909,7 +935,8 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
     expect(scan.scanned).toBeGreaterThan(10);
     expect(describeViolations(scan.violations)).toBe("");
     // IA-P2 P3b: the Outcomes tab holds the cards and the objectives panel; per-tab titles are pinned in
-    // rendersMeasuredPanelHierarchyAndScrollContainers.
+    // rendersMeasuredPanelHierarchyAndScrollContainers. IA-P3 P4b: the panel is inside the closed Disclosure.
+    openObjectives();
     expect(renderedPanelTitles()).toEqual(["Outcomes across the estate"]);
   });
 
