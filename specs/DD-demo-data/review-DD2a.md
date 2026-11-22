@@ -88,3 +88,14 @@ Add it only if C-DD3 is meant to mirror `checks` one for one.
   invoice CSV do not mix in one tenant's `commercial/`.
 - `EMU_NODE` skips a recorded node that the record's leaves cannot reach (`node in nodes` guard). Today every October
   node is reachable (tested), so this has no effect now.
+
+## Verification (fix round D-DD.58)
+
+**Verdict: ACCEPT.** Head 1fa88f563; diff read `e55a79ff9..HEAD` (checker, packet, two test files; the main merge ignored).
+- M1 closed: `judge_identities` no longer reads `energy_cost`; cold `crate_days` absent gives `<tenant>/<site> <month>: crate_days not recorded` and `continue`; the real-inputs test with `tenants=None` runs both judges without exception.
+- EV clause matches D-DD.58: line = `round_half_even(quantity x band price, 0.01)`, price read from `M` `tenant.sites.<s>.tariff.prices` by `_EV_PRICE` (PEAK/OFFPEAK/NIGHT/FLAT/DEMAND); an absent price is a FAIL line; no tenant CHARGE row gives `pending: EV utility invoices are DD4.4's`. Tie rounding is tested both ways.
+- L2 closed (`BOOK_MONTHS` deleted, test asserts it). L1 carried and stated in the packet (DD5's first C-DD2 run). L3 not adopted, per ruling.
+- Parity: mini-grid code is untouched in the diff; the parity test checks line count and prefixes of the planted fixture, not full text. Acceptable (Info, no action).
+- Checks I ran: the three dd_check files via `heavy-slot.sh --db -- run-host-tests.ps1`: 26 passed at this head; the same files at main `e55a79ff9` (throwaway worktree, removed): 19 passed. Delta 7, matching the packet. `tools/check-architecture.ps1` (ASSETOPS_GUARD_PYTHON set): passed.
+- Not verified: `BOOK_QUERY` SQL (carried); the FLAT key `usd_per_kwh` is absent from `M`, a DD4.4 note already in the packet.
+No remaining findings.
