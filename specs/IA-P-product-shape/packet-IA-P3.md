@@ -160,4 +160,5 @@ new "alias rows" describe asserts the redirect to `/findings` with `scope=site:{
   (fails only in the full run: the Site tabs read the window before the read settled; passes alone on head and on main, 4 of
   4). Not failing at head: `linkRefOnly` (main flake), `siteFindingsAlias` COLD, `coldWorkCases`, `simulatorLabGate` (it fails
   alone on main and head, passes in the full run: order/timing, not this slice).
+- `test_iap_*` (4 files, one `--db-lane` call): 88 passed, 0 xfailed, 77 s (main: 85 in run 1, no parity file).
 - `tsc` clean; `check-architecture` passed (clean, and the planted `SiteFindingIndex` outside `sites/` failed it).
