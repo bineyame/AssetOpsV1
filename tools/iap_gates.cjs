@@ -27,6 +27,10 @@
 //   H6 /portfolio?from=2026-10-01&to=2026-11-21: the bar's tag is data-shared-range-focus="inside".
 //   S1 (IA-P3 P4b) the /sites tile "Gap to target" equals the /portfolio tile 2, by text, at 2026-10-01..2026-10-31 and
 //      at 2026-09-01..2026-10-31; /sites (L1, L2, R3 to R6) joins the landed list pages.
+//   T1 (IA-P3 P5) one Site per vertical (MINI KOBO-001, COLD COLD-LAB-001, EV EV-LAB-001): the Site tab row is the six
+//      tabs of spec §2.3 in order, Overview current on the Overview;
+//   T2 (IA-P3 P5) an object page per vertical (a Finding page): no Site tab row, and a breadcrumb of exactly three parts.
+//   Site detail bodies: fixtures/iap/site-{mini,cold,ev}.json (D-IAP.38; their source is in packet-IA-P3 §P5).
 // Expected values are spec literals held here, never read from the app's modules (W2 independence).
 //
 // In-page plants (`--plant`): `wide` (a 600 px block at 390 fails R4), `tiny` (an 11 px text fails R6), `inline` (month cells' second part drawn inline fails H4/M1). The source
@@ -524,6 +528,71 @@ async function checkSites(browser, args, routes) {
   return results;
 }
 
+/** T1 and T2 (spec §6 P5): the Site's six tabs, and object pages with no tab row and a three-part crumb. */
+const SIX_TABS = ["Overview", "Operations", "Performance", "Financials", "Evidence", "Setup"];
+const T_SITES = [["mini", "KOBO-001"], ["cold", "COLD-LAB-001"], ["ev", "EV-LAB-001"]];
+const T_FINDING = "00000000-0000-4000-8000-000000000001";
+
+async function readSiteFrame(page) {
+  return page.evaluate(() => {
+    const row = document.querySelector('nav[aria-label="Site sections"]');
+    const crumb = document.querySelector('nav[aria-label="Breadcrumb"]');
+    return {
+      tabs: row ? [...row.querySelectorAll("a, [aria-disabled]")].map((a) => a.textContent.trim()) : null,
+      current: row ? [...row.querySelectorAll('[aria-current="page"]')].map((a) => a.textContent.trim()) : [],
+      crumb: crumb ? [...crumb.querySelectorAll("li")].map((li) => li.textContent.trim()) : null,
+      h1: (document.querySelector("h1") || {}).textContent || null,
+    };
+  });
+}
+
+async function checkSiteFrames(browser, args, routes) {
+  const results = [];
+  for (const [vertical, code] of T_SITES) {
+    for (const [gate, suffix] of [["T1", ""], ["T2", `/findings/${T_FINDING}`]]) {
+      const failures = [];
+      const o = await openPage(browser, routes, { w: 1440, h: 900, dark: false });
+      await o.page.goto(`${args.base}/sites/${code}${suffix}?${RANGE}`);
+      await o.page.waitForSelector("h1", { timeout: 20000 }).catch(() => {});
+      await o.page.waitForTimeout(800);
+      const got = await readSiteFrame(o.page);
+      if (gate === "T1") {
+        if (got.tabs === null) failures.push(`T1: ${vertical}: no Site tab row`);
+        else if (JSON.stringify(got.tabs) !== JSON.stringify(SIX_TABS)) failures.push(`T1: ${vertical}: tabs ${JSON.stringify(got.tabs)}`);
+        if (JSON.stringify(got.current) !== JSON.stringify(["Overview"])) failures.push(`T1: ${vertical}: current ${JSON.stringify(got.current)}`);
+      } else {
+        if (got.tabs !== null) failures.push(`T2: ${vertical}: the Finding page draws a Site tab row ${JSON.stringify(got.tabs)}`);
+        if (got.crumb === null || got.crumb.length !== 3) failures.push(`T2: ${vertical}: crumb ${JSON.stringify(got.crumb)}`);
+      }
+      if (o.errors.length > 0) failures.push(`R5: ${vertical}${suffix} ${o.errors.length} page errors (${o.errors[0]})`);
+      if (args.shots && args.plant === null) {
+        fs.mkdirSync(args.shots, { recursive: true });
+        await o.page.screenshot({ path: path.join(args.shots, `p5-${gate}-${vertical}.png`), fullPage: true });
+      }
+      await o.ctx.close();
+      results.push({ gate, vertical, path: `/sites/${code}${suffix}`, ...got, failures, pass: failures.length === 0 });
+    }
+  }
+  // P5 shots: one Site per vertical, Overview, Setup and a Finding page, at the three widths, light and dark.
+  if (args.shots && args.plant === null) {
+    for (const [vertical, code] of T_SITES) {
+      for (const [name, suffix] of [["overview", ""], ["setup", "/foundation"], ["finding", `/findings/${T_FINDING}`]]) {
+        for (const [w, h] of [[1440, 900], [768, 1024], [390, 844]]) {
+          for (const dark of [false, true]) {
+            const o = await openPage(browser, routes, { w, h, dark });
+            await o.page.goto(`${args.base}/sites/${code}${suffix}?${RANGE}`);
+            await o.page.waitForSelector("h1", { timeout: 20000 }).catch(() => {});
+            await o.page.waitForTimeout(500);
+            await o.page.screenshot({ path: path.join(args.shots, `p5-${vertical}-${name}-${w}x${h}-${dark ? "dark" : "light"}.png`), fullPage: true });
+            await o.ctx.close();
+          }
+        }
+      }
+    }
+  }
+  return results;
+}
+
 (async () => {
   const args = parseArgs(process.argv.slice(2));
   const routes = loadRoutes();
@@ -540,6 +609,7 @@ async function checkSites(browser, args, routes) {
     report(await checkLensAlias(browser, args, routes));
     for (const r of await checkOverview(browser, args, routes)) report(r);
     for (const r of await checkSites(browser, args, routes)) report(r);
+    for (const r of await checkSiteFrames(browser, args, routes)) report(r);
     const views = [];
     for (const [w, h] of [[1440, 900], [390, 844]]) for (const dark of [false, true]) views.push({ name: `${w}x${h}-${dark ? "dark" : "light"}`, w, h, dark });
     for (const spec of PAGES) {
