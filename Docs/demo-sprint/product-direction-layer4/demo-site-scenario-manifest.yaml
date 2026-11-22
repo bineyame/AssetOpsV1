@@ -1,4 +1,5 @@
 # AssetEcon Layer 4 — demo site and scenario manifest (proposed design, not built) · rev 12 (17 Nov 2026)
+# rev 16.19 (DD4a, 22 Nov): Thika's hand start moves to 20:22 (D-DD.89, owner "Change the event"): cooling running 20:23, chamber above 4 C 75-85 min, peak 5.4 C at 20:25, back in band by 20:55, cooling unavailable 72 min, cooling availability 99.946 %; the room is unchanged.
 # rev 16.18 (DD3a, 22 Nov): Kobo physical from its data sheets (spec DD §6, D-DD.30): genset_kw 36 (FG Wilson P50-3 prime), sfc_l_per_kwh 0.2917 (10.5 L/h / 36 kW), battery_kwh 191.5 (42 x Pylontech US5000 4.56 kWh usable).
 # rev 16.17 (0K4m, 21 Nov): one figure per quantity (D-0K4.31 to D-0K4.36): replay inputs from 0K4d's v8 studies (replay-studies.json); the dawn is information; admission per runs/admission.py; Kobo's candidate split, KIS-BATT60 and Embakasi's per-bus timing Not available yet.
 # rev 16.13 (20 Nov): `empty_states` added (structure-specification.md §3.1): the record behind every empty leaf, usable capacity deferred to queued slice 4c, the cold occupied-to-chargeable leak a reconciled zero. No figure changed.
@@ -460,7 +461,7 @@ tenants:
         - {id: MWEA-COMPRESSOR, kind: CAPEX, capex: 4800.00, disposition: REJECTED, reason: "energy matches the occupancy model (+0.6%); no equipment problem to fix"}
         - {id: MWEA-NOACT, kind: NO_ACTION, disposition: ACCEPTABLE}
   - site: "Room B · Thika"
-    observations: {october: {cooling_minutes_unavailable: 4, batches_exposed: 1, excursion_crates: 120, excursion_days: 1, backup_unproven_from: "2026-10-06", unproven_nights_without_stock: 0, unproven_nights_rota_covered: 0,
+    observations: {october: {cooling_minutes_unavailable: 72, batches_exposed: 1, excursion_crates: 120, excursion_days: 1, backup_unproven_from: "2026-10-06", unproven_nights_without_stock: 0, unproven_nights_rota_covered: 0,
                               stock_and_rota_basis: "stock register: stock present every night 6-31 Oct; no manual-start rota in October (rev 12, L2)", crate_minutes_above_limit: "2,400-3,600 (observer output: 120 crates x 20-30 min, bounded by 5-minute readings)"}}
     code: COLD-THIKA
     role_in_story: "commercially strong; backup generator failed to start (v7.0 INC-203, F-118, F-119) and exposed one batch; EPC-covered start controller; insurance below deductible"
@@ -477,14 +478,14 @@ tenants:
       date: "2026-10-06"
       ids: {incident: INC-203, findings: [F-118, F-119], work: WR-019, action: ACT-051}
       grid_outage: "from 19:11"
-      backup: "automatic start requested 19:11:05; generator GEN-CR-01 failed to start 19:11:10 (start controller); started by hand 19:14; cooling running 19:15"
-      chamber: {policy_band_c: "2-4", above_4c_minutes: "25-35 (bounded by 5-minute readings)", peak_c: 8.2, peak_at: "19:19", back_in_band: "by 19:45"}
+      backup: "automatic start requested 19:11:05; generator GEN-CR-01 failed to start 19:11:10 (start controller); started by hand 20:22; cooling running 20:23"
+      chamber: {policy_band_c: "2-4", above_4c_minutes: "75-85 (bounded by 5-minute readings)", peak_c: 5.4, peak_at: "20:25", back_in_band: "by 20:55"}
       batches:
         - {batch: B-1031, commodity: "French beans, export grade", crates: 120, owner: "Kamau Cooperative", limit_c: 5, present: true, exposed: true,
            above_limit_minutes: "20-30", declared_value_per_crate: 18.00, exposed_value: 2160.00, exposed_value_basis: "crates x declared value per crate (checked)", exposed_value_class: EXPOSURE,
            qa: "7 Oct: 6 crates downgraded to local grade", confirmed_damage: 108.00,
            contract: "operator compensates QA-confirmed downgrades when an operator-equipment excursion keeps a batch above its limit for more than 15 min", liability: 108.00}
-        - {batch: B-1034, commodity: avocado, crates: 80, limit_c: 12, present: true, exposed: false, reason: "peak 8.2 C is below its 12 C limit"}
+        - {batch: B-1034, commodity: avocado, crates: 80, limit_c: 12, present: true, exposed: false, reason: "peak 5.4 C is below its 12 C limit"}
         - {batch: B-1029, commodity: cabbage, crates: 60, present: false, reason: "checked out 5 Oct 16:00"}
       insurance: {policy: "goods-in-custody", deductible: 500.00, notice_days: 14, notified: "2026-10-08", claim: NOT_FILED,
                   reason: "confirmed loss 108 is below the 500 deductible", reimbursement_recorded: 0.00}
@@ -535,8 +536,8 @@ tenants:
     operations:
       period: "2026-10"
       measures:
-        - {id: cooling_availability, numerator: cooling_available_minutes, denominator: chamber_minutes, scale: 100, decimals: 3, unit: "% of chamber-minutes", objective: O2, plan: 100.0, class: MEASURED, basis: "minutes with cooling running or available / minutes; Thika lost cooling 19:11-19:15 on 6 Oct",
-           minutes_unavailable: {"Room A · Mwea": 0, "Room B · Thika": 4, "Room C · Kirinyaga": 0}, minutes_per_room: 44640, chamber_minutes_portfolio: 133920, portfolio_pct: 99.997}
+        - {id: cooling_availability, numerator: cooling_available_minutes, denominator: chamber_minutes, scale: 100, decimals: 3, unit: "% of chamber-minutes", objective: O2, plan: 100.0, class: MEASURED, basis: "minutes with cooling running or available / minutes; Thika lost cooling 19:11-20:23 on 6 Oct",
+           minutes_unavailable: {"Room A · Mwea": 0, "Room B · Thika": 72, "Room C · Kirinyaga": 0}, minutes_per_room: 44640, chamber_minutes_portfolio: 133920, portfolio_pct: 99.946}
         - {id: crate_days_without_excursion, numerator: crate_days_without_excursion, unit: crate-days, objective: O2, plan: 26040, class: DERIVED, basis: "occupied crate-days minus crate-days of batches above their limit",
            sites: {"Room A · Mwea": 4340, "Room B · Thika": 8560, "Room C · Kirinyaga": 9920}, portfolio: 22820, note: "Thika {fig:sites[harvest-cold/Room B · Thika].actual.nodes.crate_days} - {fig:sites[harvest-cold/Room B · Thika].actual.nodes.excursion_crates} (B-1031, one day)"}
     rights:
@@ -1864,7 +1865,7 @@ oracle:   # PRIVATE expectation oracle: compared against computed results; never
   - {id: OR-MG-5, expect: "Portfolio bridge sums to -852.00 with residual lines explicit"}
   - {id: OR-ENT-1, expect: "INV-MT-02 POTENTIALLY_COVERED; GEN-KS-01 EXPIRED_AND_EXCLUDED; BAT-001 INSUFFICIENT_EVIDENCE; no remedy booked as money"}
   - {id: OR-CC-1, expect: "Mwea normalised energy within tolerance -> occupancy root cause; Kirinyaga +24% -> efficiency root cause"}
-  - {id: OR-CC-2, expect: "B-1031 exposed 2,160 (EXPOSURE), damage 108, liability 108; B-1034 not exposed (peak 8.2 below 12); B-1029 excluded (checked out 5 Oct)"}
+  - {id: OR-CC-2, expect: "B-1031 exposed 2,160 (EXPOSURE), damage 108, liability 108; B-1034 not exposed (peak 5.4 below 12); B-1029 excluded (checked out 5 Oct)"}
   - {id: OR-EV-1, expect: "EMB-CHEAPEST has the lowest bill (12,975/month) and is REJECTED (3 buses short); EMB-DEADLINE RECOMMENDED (13,356/month), valued 8,082.00/month against November no-action 21,438.00"}
   - {id: OR-EV-2, expect: "CH-K2 outranks CH-R7 connector 2"}
   - {id: OR-EV-3, expect: "Ruiru +6 feasible, +10 infeasible"}
@@ -2021,8 +2022,8 @@ operations:   # design rev 16.16 §2.10 (owner OD-26, 20 Nov: "they should be se
            done: ["2026-09-04"], next_due: "2026-12-04", visit: false, cost_basis: IN_FEE, right: thika-epc, note: "3 of 3 tests logged since commissioning (entitlement evidence)"}
       incidents:
         - {key: thika-gen-2026-10-06, asset: GEN-CR-01-SC, at: "2026-10-06T19:11+03:00", mode: START_FAILURE, out_from: "2026-10-06", restored: null, state: REDUCED,
-           summary: "grid outage; the backup generator failed to start automatically (start controller); started by hand at 19:14",
-           consequences: [{node: cooling_minutes_unavailable, quantity: 4, unit: minutes}, {node: days_backup_start_unproven, quantity: 26, unit: days}, {node: liability, amount: 108.00, note: "credit note CN-0412, counted once in its cost leaf"}],
+           summary: "grid outage; the backup generator failed to start automatically (start controller); started by hand at 20:22",
+           consequences: [{node: cooling_minutes_unavailable, quantity: 72, unit: minutes}, {node: days_backup_start_unproven, quantity: 26, unit: days}, {node: liability, amount: 108.00, note: "credit note CN-0412, counted once in its cost leaf"}],
            decision: thika-backup}
       maintenance:
         - {key: thika-wr019, incident: thika-gen-2026-10-06, kind: RESPONSIVE, at: "2026-10-07", asset: GEN-CR-01-SC, visit: true, cost_basis: IN_FEE, right: thika-service,

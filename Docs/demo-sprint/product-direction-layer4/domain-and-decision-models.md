@@ -257,7 +257,7 @@ Model-implied unit cost: Mwea 2,635 × 0.20 / 4,340 = 0.121 (observed 0.122: nor
 **Purpose.** Bound an equipment or power event's consequence to the batches actually present and above their own limits, and keep exposure, damage and liability as three different factors (brief C3 scenario 5).
 **Status: new**, built on kept observers: `COLD_START_FAILURE` (F-118) and `COLD_EXCURSION` (F-119) Findings (`outcome_map.py:20-21`) [code-observed].
 
-**Narrative (6 Oct, Thika).** Grid power failed at 19:11. The automatic start of backup generator GEN-CR-01 was requested at 19:11:05 and failed at 19:11:10 (start controller); staff started it by hand at 19:14; cooling ran from 19:15. The chamber, banded 2–4 °C, was above 4 °C for 25–35 minutes, peaked at **8.2 °C at 19:19**, and was back in band by 19:45. The peak came four minutes after cooling resumed: the air keeps warming while the coil pulls down.
+**Narrative (6 Oct, Thika).** Grid power failed at 19:11. The automatic start of backup generator GEN-CR-01 was requested at 19:11:05 and failed at 19:11:10 (start controller); staff started it by hand at 20:22; cooling ran from 20:23. The chamber, banded 2–4 °C, was above 4 °C for 75–85 minutes, peaked at **5.4 °C at 20:25**, and was back in band by 20:55. The peak came two minutes after cooling resumed: the air keeps warming while the coil pulls down.
 
 ```
 present_b  = [in_b, out_b) ∩ excursion_window ≠ ∅
@@ -270,7 +270,7 @@ liability_b = contract rule(damage_b, cause = operator equipment, minutes_b) →
 | Batch | Commodity, limit | Present | Above limit | Exposure | QA damage | Liability |
 |---|---|---|---|---:|---:|---:|
 | B-1031 | French beans, export grade, 5 °C | yes | 20–30 min (> 15) | 2,160.00 (120 × 18) | 6 crates = 108.00 | 108.00 (credit note CN-0412) |
-| B-1034 | avocado, 12 °C | yes | no (peak 8.2 < 12) | — | — | — |
+| B-1034 | avocado, 12 °C | yes | no (peak 5.4 < 12) | — | — | — |
 | B-1029 | cabbage | no (checked out 5 Oct 16:00) | excluded | — | — | — |
 
 The decision is robust to resolution: even the lower bound (20 minutes above 5 °C) exceeds the contract's 15 minutes.
@@ -361,7 +361,7 @@ October: no discrepancy at any room. Chargeable = occupied (22,940 crate-days); 
 ### 3.13 Operations (O2) observer (new composition over kept and new observers)
 
 **Purpose.** Observe the brief's O2 measures (operational throughput and resource productivity) as declared factors, composed Σ/Σ (contracts §2.7).
-**Mechanism.** asset availability = Σ available asset-days / Σ asset-days, from fault and restore records (Lakeside 428 / 434 = 98.62%<!--fig:operations.lakeside-power.asset_availability.portfolio-->); field visits from work records (3, plan 3); delivered kWh per visit 23,050 / 3 = 7,683.33; cooling availability from chamber-controller run state (Thika lost 4 minutes on 6 Oct: 99.997% over 3 × 44,640 chamber-minutes); crate-days without excursion = occupied − crate-days of exposed batches (22,820 against plan 26,040); deliverable energy used (import-limited) = Σ delivered kWh per night / Σ (min(chargers × kW, import limit) × window h) (5,960 / 10,600 = 56.23%<!--fig:operations.metro-bus.deliverable_energy_used.portfolio-->); departures met per installed charger 1,302 / 26 = 50.08.
+**Mechanism.** asset availability = Σ available asset-days / Σ asset-days, from fault and restore records (Lakeside 428 / 434 = 98.62%<!--fig:operations.lakeside-power.asset_availability.portfolio-->); field visits from work records (3, plan 3); delivered kWh per visit 23,050 / 3 = 7,683.33; cooling availability from chamber-controller run state (Thika lost 72 minutes on 6 Oct: 99.946% over 3 × 44,640 chamber-minutes); crate-days without excursion = occupied − crate-days of exposed batches (22,820 against plan 26,040); deliverable energy used (import-limited) = Σ delivered kWh per night / Σ (min(chargers × kW, import limit) × window h) (5,960 / 10,600 = 56.23%<!--fig:operations.metro-bus.deliverable_energy_used.portfolio-->); departures met per installed charger 1,302 / 26 = 50.08.
 **Error modes:** `RESTORE_RECORD_MISSING`; `WINDOW_UNDECLARED` (utilisation refused without a declared usable window). **Uncertainty:** EXACT on records. **Negative control:** a site with no fault records has availability 100%, never "unknown" unless its asset list is missing. **Refusal:** never a mean of site percentages; O2 carries no money of its own. **Vectors:** OP-T1 98.62%<!--fig:operations.lakeside-power.asset_availability.portfolio-->; OP-T2 56.23%<!--fig:operations.metro-bus.deliverable_energy_used.portfolio--> (Embakasi 46.67%<!--fig:operations.metro-bus.deliverable_energy_used.sites.Embakasi-->, Kasarani 85.71%<!--fig:operations.metro-bus.deliverable_energy_used.sites.Kasarani-->, Ruiru 61.25%<!--fig:operations.metro-bus.deliverable_energy_used.sites.Ruiru-->); OP-T3 22,820.
 
 **Assure A4** is not an observer: it is the evidence-pack export of A1–A3 (coverage, residuals, verdicts, rights states, lineage) per period, built in delivery slice 9 (P1-P), with no new measure.
