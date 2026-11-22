@@ -651,6 +651,12 @@ SENTENCES = {
     "BAD_UUID": "Write the reference as it was printed.",
     "NO_DATABASE": "Set DATABASE_URL to the operator's database.",
     "RECORD_INVALID": "This record does not fit the decision it names, so nothing was stored.",
+    # 6h4 (spec §6.2): an option record's refusals
+    "NO_ACTION_RECORD": "Doing nothing has no records to state.",
+    "RECORD_NOT_ON_OPTION": "That option does not change that figure, or its change comes from a simulation.",
+    "BAD_RECORD_UNIT": "The unit does not match that figure's unit.",
+    "BAD_VALUE": "Give a number with at most 6 decimal places.",
+    "BAD_DOCUMENT": "Name the document, in 1 to 200 characters.",
     "DECISIONS_UNAVAILABLE": "The decisions store cannot be reached right now.",
 }
 

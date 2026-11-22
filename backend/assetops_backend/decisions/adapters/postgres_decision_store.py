@@ -21,8 +21,8 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from assetops_backend.chain.ports import SiteRef
 from assetops_backend.decisions.records import (ChoiceRow, DecisionBundle, DecisionRow, EffectRow, EvaluationRow,
-                                                DecisionRefused, MissingInput, OneOffRow, OptionRow, RunRow,
-                                                StoreUnavailable)
+                                                DecisionRefused, MissingInput, OneOffRow, OptionRecordRow,
+                                                OptionRow, RunRow, StoreUnavailable)
 
 _DECISION_ONCE = "decision_once"
 _CHOICE_ONCE = "decision_choice_once"
@@ -50,6 +50,16 @@ _ONE_OFFS = text("SELECT DISTINCT ON (option_id) id, tenant_id, option_id, amoun
                  "declared_by_person_id, declared_role, declared_by_script, declared_at FROM option_one_off "
                  "WHERE tenant_id = :t AND option_id IN (SELECT id FROM decision_option "
                  "WHERE tenant_id = :t AND decision_id = :d) ORDER BY option_id, declared_at DESC, id DESC")
+_OPTION_RECORDS = text(
+    "SELECT DISTINCT ON (option_id, factor_id) id, tenant_id, option_id, factor_id, value, unit, currency, origin, "
+    "document, basis, declared_by_person_id, declared_role, declared_by_script, declared_at FROM option_record "
+    "WHERE tenant_id = :t AND option_id IN (SELECT id FROM decision_option WHERE tenant_id = :t "
+    "AND decision_id = :d) ORDER BY option_id, factor_id, declared_at DESC, id DESC")
+_INSERT_OPTION_RECORD = text(
+    "INSERT INTO option_record (id, tenant_id, option_id, factor_id, value, unit, currency, origin, document, basis, "
+    "declared_by_person_id, declared_role, declared_by_script, declared_at) VALUES (:id, :tenant_id, :option_id, "
+    ":factor_id, :value, :unit, :currency, :origin, :document, :basis, :declared_by_person_id, :declared_role, "
+    ":declared_by_script, :declared_at)")
 _RUN = text("SELECT id, tenant_id, decision_id, evaluator_version, outcome, study_sha256, study_identity, known_at, "
             "run_by_person_id, run_role, run_by_script, run_at FROM option_evaluation_run "
             "WHERE tenant_id = :t AND decision_id = :d ORDER BY run_at DESC, id DESC LIMIT 1")
@@ -137,6 +147,12 @@ def _option_row(r: Row) -> OptionRow:
 def _one_off_row(r: Row) -> OneOffRow:
     return OneOffRow(r.id, r.tenant_id, r.option_id, r.amount, r.currency, r.crew_visits, r.basis,
                      r.declared_by_person_id, r.declared_role, r.declared_by_script, r.declared_at)
+
+
+def _option_record_row(r: Row) -> OptionRecordRow:
+    return OptionRecordRow(r.id, r.tenant_id, r.option_id, r.factor_id, r.value, r.unit, r.currency, r.origin,
+                           r.document, r.basis, r.declared_by_person_id, r.declared_role, r.declared_by_script,
+                           r.declared_at)
 
 
 def _choice_row(r: Row) -> ChoiceRow:
@@ -321,6 +337,21 @@ class PostgresDecisionStore:
                 "declared_by_person_id": row.declared_by_person_id, "declared_role": row.declared_role,
                 "declared_by_script": row.declared_by_script, "declared_at": row.declared_at})
         return row
+
+    def add_option_record(self, row: OptionRecordRow) -> OptionRecordRow:
+        with self._unavailable(), self._engine.begin() as c:
+            c.execute(_INSERT_OPTION_RECORD, {
+                "id": row.id, "tenant_id": row.tenant_id, "option_id": row.option_id, "factor_id": row.factor_id,
+                "value": _num(row.value), "unit": row.unit, "currency": row.currency, "origin": row.origin,
+                "document": row.document, "basis": row.basis, "declared_by_person_id": row.declared_by_person_id,
+                "declared_role": row.declared_role, "declared_by_script": row.declared_by_script,
+                "declared_at": row.declared_at})
+        return row
+
+    def latest_option_records(self, tenant_id: UUID, decision_id: UUID) -> Mapping[tuple[UUID, str], OptionRecordRow]:
+        with self._unavailable(), self._engine.connect() as c:
+            rows = c.execute(_OPTION_RECORDS, {"t": tenant_id, "d": decision_id}).all()
+        return {(r.option_id, r.factor_id): _option_record_row(r) for r in rows}
 
     def add_run(self, run: RunRow) -> RunRow:
         with self._unavailable(), self._engine.begin() as c:

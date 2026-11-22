@@ -20,7 +20,7 @@ from assetops_backend.decisions.records import (SOURCE_CLASSES, DecisionRow, Eff
                                                 OneOffRow, OptionRow)
 from assetops_backend.runs.admission import AdmissionPart
 from assetops_backend.structure.difference import OUTCOME_FACTOR, Delta, LeafChange, difference
-from assetops_backend.structure.evaluate import FactorValue, LeafValue, _context, evaluate
+from assetops_backend.structure.evaluate import NEUTRAL, FactorValue, LeafValue, _context, _origin_union, evaluate, weakest
 from assetops_backend.structure.levers import Lever
 from assetops_backend.structure.registry import Registry
 
@@ -117,12 +117,20 @@ class _Valued:
 def _value_option(registry: Registry, base: Mapping[str, LeafValue], v0: Mapping[str, FactorValue],
                   decision: DecisionRow, lever: Lever | None, item: OptionInput) -> _Valued:
     changes = item.changes or {}
-    result: Mapping[str, Delta] = difference(registry, base, changes)
+    # D-P6.57: the purpose factor's closure is in scope too (a registry that lacks it, as a planted one, adds nothing)
+    also = (() if lever is None or lever.purpose_factor not in {r.factor_id for r in registry.rows}
+            else (lever.purpose_factor,))
+    result: Mapping[str, Delta] = difference(registry, base, changes, **({"also": also} if also else {}))
     out = result[OUTCOME_FACTOR]
     monthly, currency = out.change, out.currency
     with localcontext(_context()):  # D-P6.41: nothing is quantised, so the product runs at the structure's precision
         horizon = None if monthly is None else monthly * decision.horizon_months
     missing = list(_missing_inputs(registry, out.missing_leaves, out.zero_denominators, changes, base, v0))
+    for leaf, change in changes.items():  # D-P6.60: the option's own unrecorded leaves are always named
+        if change.delta is None:
+            found = _leaf_input(leaf, changes, base)
+            if found is not None and found not in missing:
+                missing.append(found)
     one_off = item.one_off
     if one_off is None:
         missing.append(MissingInput("ONE_OFF", "DECISION", None))
@@ -153,9 +161,14 @@ def _value_option(registry: Registry, base: Mapping[str, LeafValue], v0: Mapping
     if lever is not None:
         for axis in lever.axes:
             distance += abs(item.option.settings[axis.name] - decision.current_settings[axis.name])
+    valued_changes = [c for c in changes.values() if c.delta is not None]  # D-P6.61
+    evidence = weakest((out.evidence, *[c.evidence for c in valued_changes]))
+    if evidence == NEUTRAL:
+        evidence = weakest([c.evidence for c in changes.values()])
+    origins = _origin_union(out.origins, *[c.origins for c in valued_changes])
     row = EvaluationRow(_PENDING_ID, item.option.id, "", None, None, monthly, horizon,
-                        None if one_off is None else one_off.id, value, currency, _source_class(out.origins),
-                        out.evidence, tuple(missing), tuple(assumed), admission,
+                        None if one_off is None else one_off.id, value, currency, _source_class(origins),
+                        evidence, tuple(missing), tuple(assumed), admission,
                         None if item.dawn is None else dict(item.dawn), effects)
     return _Valued(row, admitted, distance)
 
@@ -235,6 +248,12 @@ def evaluate_options(registry: Registry, base: Mapping[str, LeafValue], decision
         for option, v in rest:
             rank += 1
             rows[option.id] = dataclasses.replace(v.row, disposition="ACCEPTABLE", rank=rank)
+    if lever is not None and lever.bounds_required:  # D-P6.57: a protective lever recommends nothing
+        outcome = "BOUNDS_NOT_CHECKED"
+        for option_id, r in list(rows.items()):
+            if r.disposition != "REJECTED" and r.value is not None:
+                rows[option_id] = dataclasses.replace(r, disposition="CONDITIONAL", reason_code="BOUNDS_NOT_CHECKED",
+                                                      rank=None)
     classes = [rows[o].source_class for o in rows]
     for item in ordered:  # R0
         if item.changes is None:

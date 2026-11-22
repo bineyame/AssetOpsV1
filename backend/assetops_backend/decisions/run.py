@@ -10,17 +10,20 @@ import dataclasses
 from collections.abc import Callable, Mapping
 from datetime import datetime
 from os import PathLike
+from types import MappingProxyType
 from typing import Any
 from uuid import UUID, uuid4
 
 from assetops_backend.decisions.evaluate import EVALUATOR_VERSION, OptionInput, evaluate_options, fraction_text
 from assetops_backend.decisions.models import (NO_ACTION, SETTING_GRID, SETTING_GRID_CHANGES, check_grid_changes,
-                                               match_cases, months_averaged, setting_changes)
-from assetops_backend.decisions.records import (COMMANDS, DecisionRefused, DecisionRow, DecisionStore, OneOffRow,
-                                                OptionRow, RunRow, StoreUnavailable, _now, admit_person)
+                                               match_cases, months_averaged, setting_changes, stated_changes)
+from assetops_backend.decisions.records import (COMMANDS, STATED_OPTIONS, DecisionRefused, DecisionRow, DecisionStore,
+                                                OneOffRow, OptionRecordRow, OptionRow, RunRow, StoreUnavailable, _now,
+                                                admit_person)
 from assetops_backend.decisions.study_input import SITE_RECORD, CaseInput, StudyInput, StudyRefused, read_study
 from assetops_backend.runs.admission import DAWN_LIMIT_PCT, AdmissionPart, AdmissionRule, judge
 from assetops_backend.structure.check import StructureError
+from assetops_backend.structure.evaluate import LeafValue
 from assetops_backend.structure.levers import LEVERS, Lever
 from assetops_backend.structure.registry import REGISTRIES
 
@@ -49,14 +52,22 @@ def recompute_admission(study: StudyInput) -> Mapping[str, tuple[AdmissionPart, 
     return out
 
 
-def option_inputs(options: tuple[OptionRow, ...], lever: Lever, study: StudyInput, by_key: Mapping[str, CaseInput],
-                  admissions: Mapping[str, tuple[AdmissionPart, ...]], one_offs: Mapping[UUID, OneOffRow], *,
+def option_inputs(options: tuple[OptionRow, ...], lever: Lever, study: StudyInput | None,
+                  by_key: Mapping[str, CaseInput], admissions: Mapping[str, tuple[AdmissionPart, ...]],
+                  one_offs: Mapping[UUID, OneOffRow], *, base: Mapping[str, LeafValue] | None = None,
+                  records: Mapping[tuple[UUID, str], OptionRecordRow] = MappingProxyType({}),
                   grid_changes=SETTING_GRID_CHANGES) -> tuple[OptionInput, ...]:
     """§3.5: each option's leaf changes, admission, dawn and one-off; no action has none."""
     out = []
     for option in options:
         if option.generator == NO_ACTION:
             out.append(OptionInput(option, None, None, None, None))
+            continue
+        if option.generator == STATED_OPTIONS:  # 6h (spec §4.1)
+            if base is None:
+                raise RuntimeError("6h: a STATED_OPTIONS option needs the base")  # a caller fault, never a refusal
+            out.append(OptionInput(option, stated_changes(lever, option, base, records), None, None,
+                                   one_offs.get(option.id)))
             continue
         if option.generator != SETTING_GRID:  # D-P6.38: no model, no figure (E3 refuses before this is reached)
             raise DecisionRefused("LEVER_UNKNOWN")
@@ -98,19 +109,30 @@ class EvaluationService:
             raise DecisionRefused("LEVER_UNKNOWN")
         if lever.generator == SETTING_GRID and study_path is None:  # E2: a SETTING_GRID lever needs its study
             raise DecisionRefused("STUDY_REQUIRED")
-        modelled = (NO_ACTION, SETTING_GRID)  # E3, D-P6.38: a generator with no model refuses before anything is read
+        if lever.generator == STATED_OPTIONS and study_path is not None:  # 6h E2: a stated lever reads no study
+            raise DecisionRefused("STUDY_NOT_FOR_LEVER")
+        modelled = (NO_ACTION, SETTING_GRID, STATED_OPTIONS)  # E3, D-P6.38: a generator with no model refuses before anything is read
         if lever.generator not in modelled or any(o.generator not in modelled for o in options):
             raise DecisionRefused("LEVER_UNKNOWN")
-        if study_path is None:
+        stated = lever.generator == STATED_OPTIONS
+        if study_path is None and not stated:
             raise DecisionRefused("STUDY_REQUIRED")
+        study: StudyInput | None = None
+        months: tuple[str, ...] = ()
+        by_key: Mapping[str, CaseInput] = {}
+        admissions: Mapping[str, tuple[AdmissionPart, ...]] = {}
+        ignored: tuple[str, ...] = ()
         try:  # E3
-            study = read_study(study_path, self._read_bytes)
+            site = None
+            if not stated:
+                study = read_study(study_path, self._read_bytes)
             site = self._call(self._store.site_by_id, tenant_id, decision.site_id)
             if site is None:
                 raise DecisionRefused("DECISIONS_UNAVAILABLE")
-            months = self._months(decision, lever, study, tenant_slug, site.site_code)
-            by_key, ignored = match_cases(decision, options, study)
-            admissions = recompute_admission(study)
+            if study is not None:
+                months = self._months(decision, lever, study, tenant_slug, site.site_code)
+                by_key, ignored = match_cases(decision, options, study)
+                admissions = recompute_admission(study)
         except StudyRefused as refused:
             raise DecisionRefused(refused.code) from None
         now = _now(self._clock)  # E4: one clock read
@@ -120,13 +142,17 @@ class EvaluationService:
         except (StructureError, StoreUnavailable):  # D-P6.41: a declared failure; anything else is a fault and propagates
             raise DecisionRefused("STRUCTURE_UNAVAILABLE") from None
         one_offs = self._call(self._store.latest_one_offs, tenant_id, decision.id)  # E5
-        inputs = option_inputs(options, lever, study, by_key, admissions, one_offs, grid_changes=self._grid_changes)
+        records = self._call(self._store.latest_option_records, tenant_id, decision.id)
+        inputs = option_inputs(options, lever, study, by_key, admissions, one_offs, base=base, records=records,
+                               grid_changes=self._grid_changes)
         try:  # E6
             outcome, rows = evaluate_options(registry, base, decision, lever, inputs)
         except StructureError:
             raise DecisionRefused("STRUCTURE_UNAVAILABLE") from None
-        identity = {**study.identity, "ignored_cases": list(ignored), "months_averaged": list(months)}
-        run = RunRow(self._new_id(), tenant_id, decision.id, EVALUATOR_VERSION, outcome, study.sha256, identity, now,
+        identity = (None if study is None else
+                    {**study.identity, "ignored_cases": list(ignored), "months_averaged": list(months)})
+        run = RunRow(self._new_id(), tenant_id, decision.id, EVALUATOR_VERSION, outcome,
+                     None if study is None else study.sha256, identity, now,
                      person.person_id, role, True, now,
                      tuple(_with_id(row, self._new_id()) for row in rows))
         return self._call(self._store.add_run, run)  # E7: a refused record is RECORD_INVALID (D-P6.30, D-P6.31)
