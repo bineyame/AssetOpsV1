@@ -130,3 +130,32 @@ Owner Q7 is answered: 0.62 L/h, DATASHEET_FIT (`owner/owner-demo-data-answers-20
   `test_statement_catalogue.py` still fails 2 tests on ONE finding not mine:
   `HAND_BUILT_NEW decisions/adapters/structure_read.py:24 j:GuardedStructureRead.site_inputs:d0bac1208c82` (file identical to main; report to coordinator).
 - Still to do: all of "Next" above (writer, C-DD11/12, pure run, commit 2, packet, state entry).
+
+---
+# Update 4 (session 3; PARTIAL; context limit). Head: see `git log -1` (commits 2d0a68f3a, then the CLI/dd_check commit).
+
+## Done
+- `git merge main` (903ebf0f2): the structure_read baseline failure is gone with main's allow entry.
+- **DD3.1 writer**: `simulator/assetops_simulator/world/telemetry.py` (`site_inputs`, `frozen_inputs`, `SiteRun`, `day_file`,
+  `build_telemetry`, `books_for`, `measured_for`, `TelemetryRefused` with TEL_FOUNDATION / TEL_INPUT_TOTAL / TEL_BINDING / TEL_PACK /
+  TEL_EVENT_UNPLACED / TEL_ORACLE_READ), tests `simulator/tests/world/test_dd3_telemetry.py` (13 pass; shown failing first: ImportError, then 2 failures fixed).
+  - Own `NEEDS` table (17 rows). Parity: `tools/dd_check.py` **C-DD21** (writer table vs the backend's frozen Kobo v8 initial values), made to fail by editing a unit.
+  - **C-DD11** (two processes, `exports` + `site-inputs` + `telemetry` on a 2-day Kobo window, byte compare) and **C-DD12** (AST scan of
+    `world/` and `tools/world_history.py` for the answer block; C-DD12 made to fail by planting a key). C-DD11 needs commit 2's /2 file (curve properties) to run: NOT yet run green.
+  - CLI: `tools/world_history.py site-inputs --onboarding DIR --bindings DIR --out F`, `telemetry --manifest --sites --books DIR --out --start --end --site`.
+  - `tools/dd3_pure_run.py --books DIR --no-load 0.62|3.3`: the commit 1b table. Applies the datasheet slot in memory (3.3 restates the slot's item as GENERIC_DEFAULT).
+    `DIR` = output of `world_history.py exports` (needs `lakeside-power.expenses.csv`).
+- Design choices to put in the packet (spec silent): load and sun are **hour-block WINDOW forcings** (96 per day, not 5-minute ones) because
+  the kernel scans every forcing at every step (O(forcings x steps)); Wh allocated by largest remainder per (day, feeder, hour) over the month, so month totals are exact;
+  load shape = season v2's 2-hour blocks read hourly (`LOAD_SHAPE_KW`), day weight from `history.families.demand.day`; sun = season v2 clear/overcast, overcast calendar indexed from 1 Sep (Jul/Aug all clear);
+  critical-load order clinic, res, mill; notes outside the span are skipped; Kobo only (`supported()`); Kisiwa/Mto listed `not_written` in their manifest. Readings: millesimal half-even, one JSON line per row.
+  v8 caps burn at the tank (fuel-limited, unserved appears); an empty tank from a declared DRAW fails INTEGRATION_BOUND; overfill = BOUNDED_AND_RECORDED, refused as TEL_PACK (strict) or tabled (pure run).
+- Early finding: **Kobo's tank is 400 L (the /2 file) and the notes are 400 L deliveries (3 a month)**; the tank starts at 200 L, so the first note (1 Jul 10:00) already overfills. A 7-day pure run shows refused litres. This is the D-DD.19 / D-DD.70 gate: report to the Architect before DD3a merges. Nothing is tuned.
+
+## Next
+1. Read the full-span pure run (`/tmp/claude-1001/.../scratchpad/pure062.txt` may be gone; rerun: `tools/heavy-slot.sh -- python tools/dd3_pure_run.py --books <exports dir>` at 0.62 and `--no-load 3.3`; ~minutes). Record both tables in the packet. Gate figures: 0.62 and 3.3 L/h.
+2. Commit 2: `python tools/datasheet_template.py --slot config/datasheets/kobo-equipment.json --onboarding backend/tests/fixtures/on1/lakeside-power.onboarding.json --site KOBO-001 --write`;
+   manifest Kobo `physical` (genset_kw 36, sfc 0.2917, battery_kwh 191.5) + rev note; regenerate history.json, goldens (`simulator/tests/world/golden/`), PINNED digests (`test_3a3_exports.py:142`), derived-values.json; check_manifest.py, check_alignment.py (H8_DERIVED_SHA `check_manifest.py:1271`); list every moved figure; C-DD16 live in dd_check. Then C-DD11 green.
+   Because the hand-written test fixture `_kobo()` adds the curve properties itself, tests keep passing after commit 2; drop that helper then.
+3. Scope run: every test file importing a touched module (telemetry, world_history, dd_check, datasheet_template, sites.models, fuel_cost_v2, vocabulary) incl. the 3 postgres-named files (`tools/heavy-slot.sh --db -- pwsh tools/run-host-tests.ps1 -- <files>`), on branch AND main. Architecture guard (`ASSETOPS_GUARD_PYTHON=/opt/assetecon/AssetOpsV1/.venv/bin/python`), statement-catalogue guard.
+4. `specs/DD-demo-data/packet-DD3a.md` (all rounds), state entry + index line (next free number in `.ai/state/index-3.md`), spec Status in_review.
