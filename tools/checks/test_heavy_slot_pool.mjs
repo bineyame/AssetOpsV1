@@ -17,7 +17,7 @@ import { scaleWall } from "./_load_scale.mjs";
 const TOOLS = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const COPY = ["heavy-slot.sh", "heavy-slot.ps1", "checks/_heavy_slot.ps1", "heavy_slot_check.cjs", "heavy_slot_check.py",
               "heavy-slot-shims.mjs"];
-const SCRUB = ["ASSETOPS_HEAVY_SLOT", "ASSETOPS_HEAVY_DB", "ASSETOPS_HEAVY_SLOT_CONTAINER",
+const SCRUB = ["ASSETOPS_HEAVY_SLOT", "ASSETOPS_HEAVY_DB", "ASSETOPS_HEAVY_DB_B", "ASSETOPS_HEAVY_DB_LANE", "ASSETOPS_HEAVY_SLOT_CONTAINER",
                "DOTNET_SYSTEM_IO_DISABLEFILELOCKING", "ASSETOPS_HEAVY_SLOT_DIR"];
 const PWSH = "pwsh";
 const live = new Set();
@@ -134,11 +134,27 @@ function killQuiet(pid, sig = "SIGKILL") {
   try { process.kill(pid, sig); } catch { /* gone */ }
 }
 
-// A holder of slot <n> outside any wrapper, with no owner file: one process (sleep) holds the flocked fd.
+// A holder of slot <n> (or of a lock path) outside any wrapper, with no owner file: one process (sleep) holds the fd.
 async function rawHold(repo, n) {
   fs.mkdirSync(repo.D, { recursive: true });
-  const h = start("bash", ["-c", 'exec 9>>"$1"; flock -x 9; exec sleep 120', "hold", repo.slot(n)]);
-  await waitFor(() => held(repo.slot(n)), 8000, `raw hold of slot-${n}`);
+  const p = typeof n === "number" ? repo.slot(n) : n;
+  const h = start("bash", ["-c", 'exec 9>>"$1"; flock -x 9; exec sleep 120', "hold", p]);
+  await waitFor(() => held(p), 8000, `raw hold of ${path.basename(p)}`);
+  return h;
+}
+
+// T1b: a holder through a wrapper whose child prints its three DB markers, then sleeps; resolves once printed.
+const MARKERS = 'echo "lane=${ASSETOPS_HEAVY_DB_LANE-} db=${ASSETOPS_HEAVY_DB-} dbb=${ASSETOPS_HEAVY_DB_B-}"; exec sleep 120';
+async function markHold(repo, kind, extra) {
+  const args = [...extra, "--", "sh", "-c", MARKERS];
+  const h = kind === "bash" ? start("bash", [repo.sh, ...args], { cwd: repo.M })
+                            : start(PWSH, ["-NoProfile", "-File", repo.ps, ...args], { cwd: repo.M });
+  try {
+    await waitFor(() => h.out().includes("\n"), 10000, `${kind} ${extra.join(" ")} holder`);
+  } catch (e) {
+    await stop(h);
+    throw e;
+  }
   return h;
 }
 
@@ -482,6 +498,12 @@ Start-Sleep -Seconds 120
     try {
       h = await wrapHold(r, "bash", 1, ["--db"]);
       assert.equal(held(path.join(r.D, "db-job.lock")), true);
+      // T1b: a --db holder holds both lanes.
+      for (const st of [await bashW(r, ["--status"]), await pwshW(r, ["-Status"])]) {
+        const lines = st.stdout.trim().split("\n");
+        assert.match(lines[2], /^db-job: busy pid=\d+ child=\d+ label=sleep 120 /, st.stdout);
+        assert.match(lines[3], /^db-job-b: busy pid=\d+ child=\d+ label=sleep 120 /, st.stdout);
+      }
       const [db2, plain] = await Promise.all([
         bashW(r, ["--db", "--wait-seconds", "3", "--", "true"]),
         bashW(r, ["--wait-seconds", "3", "--", "true"]),
@@ -509,15 +531,16 @@ Start-Sleep -Seconds 120
     } finally { cleanup(r); }
   });
 
-  test("P10 --status: the three lines, free when the file is missing, busy with the owner, holder unknown", async () => {
+  test("P10 --status: the four lines, free when the file is missing, busy with the owner, holder unknown", async () => {
     const r = makeRepo();
     let h; let x;
     try {
       for (const st of [await bashW(r, ["--status"]), await pwshW(r, ["-Status"])]) {
         assert.equal(st.code, 0, st.stderr);
-        assert.deepEqual(st.stdout.trim().split("\n"), ["slot-1: free", "slot-2: free", "db-job: free"]);
+        assert.deepEqual(st.stdout.trim().split("\n"), ["slot-1: free", "slot-2: free", "db-job: free", "db-job-b: free"]);
       }
       assert.equal(fs.existsSync(path.join(r.D, "db-job.lock")), false, "a status probe never creates a file");
+      assert.equal(fs.existsSync(path.join(r.D, "db-job-b.lock")), false, "a status probe never creates a file");
       h = await wrapHold(r, "bash", 1);
       x = await rawHold(r, 2);
       fs.writeFileSync(path.join(r.D, "slot-3.lock"), "");
@@ -527,6 +550,7 @@ Start-Sleep -Seconds 120
         assert.equal(lines[1], `slot-2: busy, holder unknown (owner file stale); find it with: fuser -v ${fs.realpathSync(r.D)}/slot-2.lock`);
         assert.equal(lines[2], "slot-3: free");
         assert.equal(lines[3], "db-job: free");
+        assert.equal(lines[4], "db-job-b: free");
       }
     } finally { await stop(h); await stop(x); cleanup(r); }
   });
@@ -578,6 +602,88 @@ Start-Sleep -Seconds 120
       const out = await pwshScript(r, "p15.ps1", `. '${r.mod}'\n$h = Enter-HeavySlot -SlotDir (Get-HeavySlotDir '${r.M}/tools') -Slots 3 -WaitSeconds 1\nexit 0\n`);
       assert.equal(out.code, 64, out.stderr);
       assert.match(out.stderr, /the shared pool has 2 slots \(T1\)/);
+    } finally { cleanup(r); }
+  });
+
+  // ---- T1b (spec-T1b.md §8): two database lanes ----
+  const LANES_BUSY = /heavy-slot: both database lanes are busy \(tools\/heavy-slot\.sh --status\); waiting up to 3 s\./;
+  const laneOf = (h) => /lane=(\S*)/.exec(h.out())[1];
+
+  test("P16 two --db-lane holders (bash, pwsh) get db-job.lock and db-job-b.lock; a third of each waits and exits 75", async () => {
+    const r = makeRepo();
+    let a; let b;
+    try {
+      a = await markHold(r, "bash", ["--db-lane"]);
+      const D = fs.realpathSync(r.D);
+      b = await markHold(r, "pwsh", ["-DbLane"]);
+      assert.equal(laneOf(a), `${D}/db-job.lock`, a.out());
+      assert.equal(laneOf(b), `${D}/db-job-b.lock`, b.out());
+      assert.match(a.out(), /db= dbb=/, "a lane holder gets no exclusive marker");
+      assert.match(b.out(), /db= dbb=/, "a lane holder gets no exclusive marker");
+      assert.equal(ownerField(path.join(r.D, "db-job.lock"), "db"), "lane");
+      assert.equal(ownerField(path.join(r.D, "db-job-b.lock"), "db"), "lane");
+      const [c, d] = await Promise.all([bashW(r, ["--db-lane", "--wait-seconds", "3", "--", "true"]),
+                                        pwshW(r, ["-DbLane", "-SlotWaitSeconds", "3", "--", "true"])]);
+      for (const out of [c, d]) {
+        assert.equal(out.code, 75, out.stderr);
+        assert.match(out.stderr, LANES_BUSY);
+        assert.match(out.stderr, TIMEOUT_LINE);
+      }
+    } finally { await stop(a); await stop(b); cleanup(r); }
+  });
+
+  test("P17 --db waits on lane b while a --db-lane holds it; --db-lane waits while a --db holds both", async () => {
+    const r = makeRepo();
+    let x; let lb; let ex;
+    try {
+      x = await rawHold(r, path.join(r.D, "db-job.lock"));
+      lb = await markHold(r, "bash", ["--db-lane"]);
+      assert.match(laneOf(lb), /\/db-job-b\.lock$/, lb.out());
+      await stop(x); x = null;
+      for (const out of await Promise.all([bashW(r, ["--db", "--wait-seconds", "3", "--", "true"]),
+                                           pwshW(r, ["-Db", "-SlotWaitSeconds", "3", "--", "true"])])) {
+        assert.equal(out.code, 75, out.stderr);
+        assert.match(out.stderr, /heavy-slot: another database job holds db-job-b\.lock; waiting up to 3 s\./);
+        assert.doesNotMatch(out.stderr, /holds db-job\.lock/);
+      }
+      assert.equal(held(path.join(r.D, "db-job.lock")), false, "a timed-out --db releases lane a");
+      await stop(lb); lb = null;
+      ex = await markHold(r, "bash", ["--db"]);
+      assert.match(ex.out(), /^lane= db=\S+\/db-job\.lock dbb=\S+\/db-job-b\.lock$/m, ex.out());
+      for (const out of await Promise.all([bashW(r, ["--db-lane", "--wait-seconds", "3", "--", "true"]),
+                                           pwshW(r, ["-DbLane", "-SlotWaitSeconds", "3", "--", "true"])])) {
+        assert.equal(out.code, 75, out.stderr);
+        assert.match(out.stderr, LANES_BUSY);
+      }
+    } finally { await stop(x); await stop(lb); await stop(ex); cleanup(r); }
+  });
+
+  test("P18 nesting: --db-lane inside --db takes nothing; --db inside --db-lane and --db-lane inside a slot exit 69; both flags exit 64", async () => {
+    const r = makeRepo();
+    try {
+      const both = "heavy-slot: --db and --db-lane are exclusive; give one.\n";
+      for (const out of [await bashW(r, ["--db", "--db-lane", "--", "true"]), await pwshW(r, ["-Db", "-DbLane", "--", "true"])]) {
+        assert.equal(out.code, 64, out.stderr);
+        assert.equal(out.stderr, both);
+      }
+      assert.equal(fs.existsSync(path.join(r.D, "db-job-b.lock")), false, "a usage error takes no lock");
+      const inner = (flag) => [["bash", r.sh, flag === "db" ? "--db" : "--db-lane", "--wait-seconds", "30", "--", "true"],
+                               [PWSH, "-NoProfile", "-File", r.ps, flag === "db" ? "-Db" : "-DbLane", "-SlotWaitSeconds", "30", "--", "true"]];
+      for (const argv of inner("lane")) {
+        const ok = await bashW(r, ["--db", "--", ...argv]);
+        assert.equal(ok.code, 0, ok.stderr);
+        assert.ok(ok.ms < scaleWall(argv[0] === "bash" ? 3000 : 5000), `took ${ok.ms} ms`);
+      }
+      const dbLine = /heavy-slot: refused: --db inside a held slot; put --db on the outermost wrapper\./;
+      const laneLine = /heavy-slot: refused: --db-lane inside a held slot; put --db-lane on the outermost wrapper\./;
+      for (const [outer, flag, line] of [[["--db-lane"], "db", dbLine], [[], "lane", laneLine]]) {
+        for (const argv of inner(flag)) {
+          const out = await bashW(r, [...outer, "--", ...argv]);
+          assert.equal(out.code, 69, out.stderr);
+          assert.match(out.stderr, line);
+          assert.ok(out.ms < scaleWall(argv[0] === "bash" ? 3000 : 5000), `took ${out.ms} ms`);
+        }
+      }
     } finally { cleanup(r); }
   });
 

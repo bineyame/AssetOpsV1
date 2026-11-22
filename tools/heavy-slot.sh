@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 # T1: run one heavy command inside the heavy-tool slot pool (specs/T1-heavy-tool-slot-pool/spec.md §2, §3.3).
 #
-#   tools/heavy-slot.sh [--db] [--wait-seconds <n>] [--label <text>] -- <command> [args...]
+#   tools/heavy-slot.sh [--db | --db-lane] [--wait-seconds <n>] [--label <text>] -- <command> [args...]
 #   tools/heavy-slot.sh --status
+#
+# --db: one heavy database job at a time (both database lanes, db-job.lock then db-job-b.lock). --db-lane: the first
+# free database lane, a or b (T1b, specs/T1-heavy-tool-slot-pool/spec-T1b.md §2), for a focused Postgres test run.
 #
 # Same pool, options, messages and exit codes as tools/heavy-slot.ps1 (the pwsh half takes the same flock(2) locks).
 # Exit codes: the child's when the command ran; 64 usage; 69 refused; 75 no slot came free (R20: a child's own 64,
@@ -14,12 +17,13 @@ set -u
 
 hs_usage() {
     [[ -n ${1-} ]] && printf 'heavy-slot: %s\n' "$1" >&2
-    printf '%s\n' "usage: tools/heavy-slot.sh [--db] [--wait-seconds <n>] [--label <text>] -- <command> [args...]" \
+    printf '%s\n' "usage: tools/heavy-slot.sh [--db | --db-lane] [--wait-seconds <n>] [--label <text>] -- <command> [args...]" \
                   "       tools/heavy-slot.sh --status" >&2
     exit 64
 }
 
 hs_db=0
+hs_lane=0
 hs_wait=1200
 hs_label=""
 hs_status=0
@@ -29,6 +33,7 @@ while (($#)); do
     case $1 in
         --) shift; hs_dd=1; break ;;
         --db) hs_db=1; hs_opts+=(-Db) ;;
+        --db-lane) hs_lane=1; hs_opts+=(-DbLane) ;;
         --status) hs_status=1; hs_opts+=(-Status) ;;
         --wait-seconds)
             [[ ${2-} =~ ^[0-9]+$ ]] || hs_usage "--wait-seconds needs a whole number of seconds."
@@ -40,6 +45,10 @@ while (($#)); do
     esac
     shift
 done
+if ((hs_db && hs_lane)); then
+    echo "heavy-slot: --db and --db-lane are exclusive; give one." >&2
+    exit 64
+fi
 
 if [[ -n ${DOTNET_SYSTEM_IO_DISABLEFILELOCKING:-} ]]; then
     echo "heavy-slot: refused: DOTNET_SYSTEM_IO_DISABLEFILELOCKING is set; the slot locks would not hold." >&2
@@ -118,14 +127,18 @@ hs_is_ancestor() {  # <holder> <caller>: the 4th field of /proc/<pid>/stat, pars
     return 1
 }
 
-hs_marker() {  # <value> <slot|db>: the marker test of spec §2; sets hs_reason
+hs_marker() {  # <value> <slot|db|dbb|lane>: the marker test of spec §2 (T1b §2 names); sets hs_reason
     local value=$1 name=$2 dir leaf cdir pid
     if [[ -z $value ]]; then hs_reason="ASSETOPS_HEAVY_SLOT is not set"; return 1; fi
     hs_reason="the marker is not a slot of this machine's pool"
     [[ $value == */* ]] || return 1
     dir=${value%/*}; leaf=${value##*/}
-    if [[ $name == db ]]; then [[ $leaf == db-job.lock ]] || return 1
-    else [[ $leaf =~ ^slot-[12]\.lock$ ]] || return 1; fi
+    case $name in
+        db) [[ $leaf == db-job.lock ]] ;;
+        dbb) [[ $leaf == db-job-b.lock ]] ;;
+        lane) [[ $leaf =~ ^db-job(-b)?\.lock$ ]] ;;
+        *) [[ $leaf =~ ^slot-[12]\.lock$ ]] ;;
+    esac || return 1
     cdir=$(realpath -e -- "${dir:-/}" 2>/dev/null) || return 1
     [[ $cdir == "$D" ]] || return 1
     if [[ -d /proc/self ]]; then
@@ -138,6 +151,10 @@ hs_marker() {  # <value> <slot|db>: the marker test of spec §2; sets hs_reason
     hs_reason=""
 }
 
+# T1b §2: exclusive passes when both --db markers pass; a lane passes when exclusive does (lane a) or the lane marker.
+hs_exclusive() { hs_marker "${ASSETOPS_HEAVY_DB:-}" db && hs_marker "${ASSETOPS_HEAVY_DB_B:-}" dbb; }
+hs_lane_held() { hs_exclusive || hs_marker "${ASSETOPS_HEAVY_DB_LANE:-}" lane; }
+
 if ((hs_status)); then
     hs_names=(slot-1 slot-2)
     for hs_f in "$D"/slot-*.lock; do
@@ -145,7 +162,7 @@ if ((hs_status)); then
         hs_n=${hs_f##*/}; hs_n=${hs_n%.lock}
         [[ $hs_n == slot-1 || $hs_n == slot-2 ]] || hs_names+=("$hs_n")
     done
-    hs_names+=(db-job)
+    hs_names+=(db-job db-job-b)
     for hs_n in "${hs_names[@]}"; do
         hs_lock="$D/$hs_n.lock"
         if ! hs_held "$hs_lock"; then echo "$hs_n: free"; continue; fi
@@ -165,8 +182,12 @@ fi
 # ---- nesting (D-T1.3, D-T1.13): a verified marker means take nothing ----
 if [[ -n ${ASSETOPS_HEAVY_SLOT:-} ]]; then
     if hs_marker "$ASSETOPS_HEAVY_SLOT" slot; then
-        if ((hs_db)) && ! hs_marker "${ASSETOPS_HEAVY_DB:-}" db; then
+        if ((hs_db)) && ! hs_exclusive; then
             echo "heavy-slot: refused: --db inside a held slot; put --db on the outermost wrapper." >&2
+            exit 69
+        fi
+        if ((hs_lane)) && ! hs_lane_held; then
+            echo "heavy-slot: refused: --db-lane inside a held slot; put --db-lane on the outermost wrapper." >&2
             exit 69
         fi
         exec "$@"
@@ -179,7 +200,9 @@ fi
 hs_label=${hs_label//$'\n'/ }; hs_label=${hs_label//$'\r'/ }; hs_label=${hs_label//=/ }
 hs_cwd=$PWD
 hs_db_path="$D/db-job.lock"
-hs_db_word=no; ((hs_db)) && hs_db_word=yes
+hs_dbb_path="$D/db-job-b.lock"
+hs_lane_path=""
+hs_db_word=no; ((hs_db)) && hs_db_word=yes; ((hs_lane)) && hs_db_word=lane
 hs_deadline=$(( ${EPOCHREALTIME/./} + hs_wait * 1000000 ))
 exec {hs_sleepfd}<> <(:)   # a pipe nobody writes: `read -t` on it is a builtin sleep
 
@@ -196,16 +219,42 @@ hs_timeout() {
     exit 75
 }
 
-# ---- acquire: the DB lock first, then the lowest free slot ----
+# ---- acquire (T1b §2): --db takes lane a then lane b; --db-lane the first free lane; then the lowest free slot ----
 hs_dbfd=""
+hs_dbbfd=""
+hs_lanefd=""
+hs_fds=("$hs_sleepfd")   # every fd number the child and rm must not keep
 if ((hs_db)); then
     exec {hs_dbfd}>>"$hs_db_path"
+    hs_fds+=("$hs_dbfd")
     hs_said=0
     until flock -n -x "$hs_dbfd"; do
         (( ${EPOCHREALTIME/./} >= hs_deadline )) && hs_timeout
         if ((!hs_said)); then echo "heavy-slot: another database job holds db-job.lock; waiting up to $hs_wait s." >&2; hs_said=1; fi
         hs_pause
     done
+    exec {hs_dbbfd}>>"$hs_dbb_path"
+    hs_fds+=("$hs_dbbfd")
+    hs_said=0
+    until flock -n -x "$hs_dbbfd"; do
+        (( ${EPOCHREALTIME/./} >= hs_deadline )) && hs_timeout
+        if ((!hs_said)); then echo "heavy-slot: another database job holds db-job-b.lock; waiting up to $hs_wait s." >&2; hs_said=1; fi
+        hs_pause
+    done
+elif ((hs_lane)); then
+    hs_said=0
+    while :; do
+        for hs_p in "$hs_db_path" "$hs_dbb_path"; do
+            exec {hs_fd}>>"$hs_p"
+            if flock -n -x "$hs_fd"; then hs_lanefd=$hs_fd; hs_lane_path=$hs_p; break; fi
+            exec {hs_fd}>&-
+        done
+        [[ -n $hs_lanefd ]] && break
+        (( ${EPOCHREALTIME/./} >= hs_deadline )) && hs_timeout
+        if ((!hs_said)); then echo "heavy-slot: both database lanes are busy (tools/heavy-slot.sh --status); waiting up to $hs_wait s." >&2; hs_said=1; fi
+        hs_pause
+    done
+    hs_fds+=("$hs_lanefd")
 fi
 hs_slotfd=""
 hs_said=0
@@ -222,8 +271,10 @@ while :; do
 done
 
 hs_slot_path="$D/slot-$hs_n.lock"
+hs_fds+=("$hs_slotfd")
 hs_owners=("$D/slot-$hs_n.owner")
-((hs_db)) && hs_owners+=("$D/db-job.owner")
+((hs_db)) && hs_owners+=("$D/db-job.owner" "$D/db-job-b.owner")
+((hs_lane)) && hs_owners+=("${hs_lane_path%.lock}.owner")
 TZ=UTC printf -v hs_since '%(%Y-%m-%dT%H:%M:%SZ)T' -1
 for hs_o in "${hs_owners[@]}"; do
     printf 'pid=%s\nlabel=%s\nsince=%s\ncwd=%s\ndb=%s\n' "$$" "$hs_label" "$hs_since" "$hs_cwd" "$hs_db_word" > "$hs_o"
@@ -232,9 +283,9 @@ done
 hs_on_exit() {
     local o keep=()
     for o in "${hs_owners[@]}"; do hs_owner_field "$o" pid; [[ $hs_val == "$$" ]] && keep+=("$o"); done
+    # rm runs with every lock fd closed in its own copy (a subshell closes them, then execs rm).
     if ((${#keep[@]})); then
-        if [[ -n $hs_dbfd ]]; then rm -f -- "${keep[@]}" {hs_slotfd}>&- {hs_dbfd}>&- {hs_sleepfd}>&-
-        else rm -f -- "${keep[@]}" {hs_slotfd}>&- {hs_sleepfd}>&-; fi
+        ( for hs_f in "${hs_fds[@]}"; do exec {hs_f}>&-; done; exec rm -f -- "${keep[@]}" )
     fi
 }
 
@@ -286,15 +337,14 @@ trap 'hs_on_intr HUP' HUP
 trap 'hs_on_intr INT' INT
 
 # ---- the child: it closes the lock fds, keeps stdin and stays in this process group (D-T1.15) ----
-if ((hs_db)); then
-    ( trap - INT QUIT; exec {hs_slotfd}>&- {hs_dbfd}>&- {hs_sleepfd}>&-
-      export ASSETOPS_HEAVY_SLOT="$hs_slot_path" ASSETOPS_HEAVY_DB="$hs_db_path"
-      exec "$@" ) <&0 &
-else
-    ( trap - INT QUIT; exec {hs_slotfd}>&- {hs_sleepfd}>&-
-      export ASSETOPS_HEAVY_SLOT="$hs_slot_path"; unset ASSETOPS_HEAVY_DB
-      exec "$@" ) <&0 &
-fi
+# Markers per T1b §2: --db exports both exclusive markers, --db-lane its lane's, neither only the slot.
+( trap - INT QUIT
+  for hs_f in "${hs_fds[@]}"; do exec {hs_f}>&-; done
+  export ASSETOPS_HEAVY_SLOT="$hs_slot_path"
+  unset ASSETOPS_HEAVY_DB ASSETOPS_HEAVY_DB_B ASSETOPS_HEAVY_DB_LANE
+  if ((hs_db)); then export ASSETOPS_HEAVY_DB="$hs_db_path" ASSETOPS_HEAVY_DB_B="$hs_dbb_path"
+  elif ((hs_lane)); then export ASSETOPS_HEAVY_DB_LANE="$hs_lane_path"; fi
+  exec "$@" ) <&0 &
 hs_child=$!
 for hs_o in "${hs_owners[@]}"; do printf 'child=%s\n' "$hs_child" >> "$hs_o"; done
 
