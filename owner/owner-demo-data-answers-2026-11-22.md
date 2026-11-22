@@ -23,3 +23,5 @@ Owner answer: "Change the event (Recommended)" — keep the room's declared phys
 
 Context: honestly simulated, Kobo's declared plant (60 kW PV, 191.5 kWh battery, 35/90 % dispatch) burns about 628 L in October against the story's 1,180 L; candidate saving about 42 L (bridge about -$52) instead of 330 L (-$412.50).
 Owner answer: "Revisit a plant figure" (keep a larger fuel story by correcting a declared plant figure to what the real site has; owner supplies or confirms the figure; nothing fitted to the story).
+Follow-up asked: "Kobo plant figures: which can you give real values for?" (solar kWp, start/stop SOC, load profile are template/assumed; generator and battery are from datasheets).
+Owner answer: "None: have the Architect propose" (the Architect proposes which template value is weakest and a defensible typical value, labelled Assumed, for the owner to approve).
