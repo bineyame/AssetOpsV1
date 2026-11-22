@@ -3,10 +3,10 @@
 Status: **rev 2, 2026-11-22; DD1 in_review (`packet-DD1.md`); DD2a in_review (`packet-DD2a.md`); DD2b in_review (`packet-DD2b.md`)**: the combined handshake (`handshake.md`, R1-R10, I1-I15) is answered there under "Answers
 (Architect)" and ruled in `rulings.md` (D-DD.17 to D-DD.34). Rev 1 (same day) had 19.5 u in four parts; rev 2 has
 **30.0 u in six parts** (§7); restated by D-DD.44 to **33.0 u in seven parts** (DD3 splits into DD3a, DD3b), by D-DD.47 to 33.5 u, and by D-DD.57 to
-**34.25 u in eight parts** (DD2 splits into DD2a, DD2b), by D-DD.66 to **35.25 u**, by D-DD.73 to **35.75 u**, by D-DD.74 to **36.25 u**, by D-DD.79 to **37.0 u**, by D-DD.80 to **37.5 u**, and by D-DD.88 to **39.0 u** (DD4 splits into DD4a, DD4b). Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
+**34.25 u in eight parts** (DD2 splits into DD2a, DD2b), by D-DD.66 to **35.25 u**, by D-DD.73 to **35.75 u**, by D-DD.74 to **36.25 u**, by D-DD.79 to **37.0 u**, by D-DD.80 to **37.5 u**, by D-DD.88 to **39.0 u** (DD4 splits into DD4a, DD4b), and by D-DD.96 to **41.5 u**. Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
 it grounded on the product goals"); owner answers to Q1-Q6: `owner/owner-demo-data-answers-2026-11-22.md`. Owner words on
 Kobo's equipment: `owner/owner-iap-q1-q2-kobo-datasheets-2026-11-22.md`. **Rulings:** D-DD.1 to D-DD.16 (§9) and
-D-DD.17 to D-DD.88 (`rulings.md`); index lines in `.ai/decisions/index-rulings-26.md`, `index-rulings-27.md`,
+D-DD.17 to D-DD.96 (`rulings.md`); index lines in `.ai/decisions/index-rulings-26.md`, `index-rulings-27.md`,
 `index-rulings-28.md` and `index-rulings-29.md`.
 **Reviewer guide:** `reviewer-guide.md` (rev 2). `USER_REVIEW_REQUIRED: true` (demo narrative, evidence labels, what the
 served app shows; owner Q7-Q9 open with defaults applied).
@@ -252,7 +252,8 @@ The frame is `world/telemetry.py` alone. Cold and EV drive their packs in `world
     `foundation_digest`.
   - `decided_books` is the writer's read of the staged decided files (fuel notes, storage ledger, roster).
 - `F` is written by `tools/world_history.py site-inputs --onboarding DIR --bindings DIR --out F`, a pure function in
-  DD3.1. It joins each `/2` Site with its binding conversion.
+  DD3.1. It joins each `/2` Site with its binding conversion; it reads `/2` documents only (others `SKIPPED`), a
+  component's `rating` is optional, and a duplicate Site code refuses `TEL_FOUNDATION` (D-DD.95).
 - **Per Site, one continuous execution advanced one local day at a time** (D-DD.69; every pack): it starts at the
   span's first local midnight from the declared initial state, and each day's file is written from that day's steps,
   so day d+1 starts from day d's end state (SOC, tank, temperature, crates, sessions, a RUNNING generator). Inputs are scaled by largest remainder so the month's input totals equal the books
@@ -263,7 +264,9 @@ The frame is `world/telemetry.py` alone. Cold and EV drive their packs in `world
 - **Output:**
   - per Site-day, `<slug>/telemetry/<SITE>.<YYYY-MM-DD>.readings.json`, schema `assetops.world-readings/1`:
     `{"schema", "site_code", "day", "timezone", "role_set", "readings": [{"source_id", "signal_id", "start", "end",
-    "value", "unit"}]}`, sorted by (start, source_id, signal_id). No UUID appears (D-DD.8);
+    "value", "unit"}]}`, sorted by (start, source_id, signal_id). No UUID appears (D-DD.8). An event row has
+    `"value": null`, unit `event` and an `event` object (`record_kind`, `outcome`, `actor`, `component_id`,
+    `ordinal`, `correlation`); ties sort by `event.ordinal`; the ids are formed at sealing (D-DD.91);
   - per Site, `<SITE>.manifest.json`: the pack versions, private parameters, conditions, mappings and a golden digest
     per Site-month;
   - per tenant, `<slug>/telemetry/measured.json`: the meter month totals the measured books are written from (§5.6).
@@ -347,7 +350,7 @@ Added to cold-thermal 1, as **private load parameters** (`ColdLoadParameters`, p
 - **Efficiency condition** `f_m` (private, per room-month) is 1 everywhere except Kirinyaga: July 1.05, August 1.10,
   September 1.17 (`history.sites`), October and November 500/403. Forcing `EFFICIENCY` at 00:00 local on a month's first
   day when it changes (D-DD.86).
-- **Ambient per day** = 24 °C + (w_d − 1) / 0.025, where w_d is the `cooling` family day weight. 24 °C and 2.5 % per °C
+- **Ambient per day** (November declared `short_rains`, scope digests unchanged: D-DD.90) = 24 °C + (w_d − 1) / 0.025, where w_d is the `cooling` family day weight. 24 °C and 2.5 % per °C
   are the manifest's reference ambient and sensitivity (`M:430`). w_d is season × day class with no jitter (22.8, 24.8 or
   24.0 °C). Forcing `AMBIENT` at each local midnight after the first day; the ambient probe reports it (D-DD.86).
 - **A failed start is reported when it happens** (`start_failure_at_request`, True in the DD values): a start request
@@ -365,12 +368,13 @@ Added to cold-thermal 1, as **private load parameters** (`ColdLoadParameters`, p
 - **Thika, 6 Oct**, at minute resolution:
   - `GRID_LOSS` 19:11;
   - `GENERATOR_FAILURE` 19:11 (start requested 19:11:05, failed 19:11:10);
-  - `GENERATOR_HAND_START` 19:14 (running 19:14, bus powered 19:15: 4 minutes without cooling, as `M`);
+  - `GENERATOR_HAND_START` **20:22** (D-DD.89: running 20:22, bus powered 20:23, 72 minutes without cooling; no
+    night rota in October);
   - `GRID_RESTORE` 22:00 (the manifest states none; Assumed, in `conditions`).
 
   B-1029 goes out on 5 Oct at 16:00. B-1031 (120 crates) and B-1034 (80 crates) are present, received in lots at their
-  ledger times (D-DD.85). D-DD.83 predicts that C-DD6's B-1031 clause fails on the declared room; if it does, it goes to
-  the owner.
+  ledger times (D-DD.85). D-DD.89 resized the event (owner: "Change the event"): B-1031 is above 5 °C 20:08-20:32
+  per minute (peak 5.477 °C), five 5-minute readings above 5 °C (bound 20-30 min, as `M`); `test_dd4_thika_incident.py`.
 - What the chamber does is the pack's. C-DD6 asks the story's facts (B-1031 above its 5 °C limit for more than 15
   minutes; B-1034 below 12 °C). A failure goes to the Architect; nothing is tuned.
 
@@ -822,7 +826,7 @@ Order: DD1 → (DD2a → DD2b ∥ DD3) → DD4a → DD4b → DD5 → DD6 (after 
   `measured.json` and tested on a fixture. C-DD2 to C-DD4 go live for the decided books, with C-DD4's node clause and
   the checker's own evaluator (D-DD.55).
 
-### DD3: the mini-grid's operating reality (10.25 u in two parts, D-DD.44, D-DD.73, D-DD.79, D-DD.80: DD3a = DD3.1, DD3.2, 5.25 u, `task/DD3a-mini-reality`; DD3b = DD3.3, DD3.4, 5.0 u, `task/DD3b-mini-units`)
+### DD3: the mini-grid's operating reality (11.75 u in two parts, D-DD.44, D-DD.73, D-DD.79, D-DD.80, D-DD.96: DD3a = DD3.1, DD3.2, 5.75 u, `task/DD3a-mini-reality`; DD3b = DD3.3, DD3.4, 6.0 u, `task/DD3b-mini-units`)
 
 - **DD3.1 Writer core and Kobo on v8 (2.75; D-DD.79, D-DD.80).** §4.1 and §4.2 for Kobo: `site-inputs`, scaling, chaining, the tank's
   deliveries and declared draw, golden digests. C-DD11, C-DD12 and C-DD21 go live. The kernel's forcing index and its
@@ -833,12 +837,13 @@ Order: DD1 → (DD2a → DD2b ∥ DD3) → DD4a → DD4b → DD5 → DD6 (after 
   lists every moved figure. C-DD16 goes live.
 - **DD3.3 Mini-grid v9 (2.5).** §4.3: the model, the forcings, the parity test against v8 on Kobo's October, and
   Kisiwa and Mto in the writer, with their D-DD.19 pure-run table and gate (D-DD.70). C-DD19 (mini part) goes live, and C-DD8 runs on the pure output.
+  The three Sites' fuel notes restated from the tank by the reorder rule (D-DD.92, +1.0 u; owner asked first).
 - **DD3.4 Unit roles in the readers (2.5; D-DD.41, D-DD.44).** `sites/unit_roles.py`: the Site-from-units rule and
   the lead-unit policy read, called by every reader D-DD.41 lists for a `minigrid-roles-5` set; a migration lets the
   mini-depth lift accept one roles-4 or roles-5 set; Kobo's world conversion moves to roles-5 with a parity test of its
   product outputs. Merges before DD5.1 loads Kisiwa's or Mto's readings.
 
-### DD4: cold and EV operating reality, and the measured books (7.25 u in two parts, D-DD.88: DD4a = DD4.1, DD4.2, 4.0 u, `task/DD4-cold-ev-reality`; DD4b = DD4.3, DD4.4, 3.25 u, `task/DD4b-ev-measured`)
+### DD4: cold and EV operating reality, and the measured books (8.25 u in two parts, D-DD.88, D-DD.96: DD4a = DD4.1, DD4.2, 5.0 u, `task/DD4-cold-ev-reality`; DD4b = DD4.3, DD4.4, 3.25 u, `task/DD4b-ev-measured`)
 
 - **DD4.1 cold-thermal 2 (2.0; D-DD.83, D-DD.87).** §4.4: the model and its parity test against v1, and a run at occupancy = capacity
   with no clipping (D-DD.65). C-DD19 (cold part) goes live.
@@ -891,7 +896,7 @@ Order: DD1 → (DD2a → DD2b ∥ DD3) → DD4a → DD4b → DD5 → DD6 (after 
   - Fold in the DDR runbook's ten queued clarity notes.
   - Evidence goes to `/opt/assetecon/evidence/DD/<run>/`.
 
-**Size: 39.0 units (D-DD.88; D-DD.80: 37.5 u; D-DD.79: 37.0 u; D-DD.74: 36.25 u; D-DD.73: 35.75 u; D-DD.66: 35.25 u; D-DD.57: 34.25 u; D-DD.47: 33.5 u; D-DD.44: 33.0 u; rev 2: 30.0 u), about 54 commits** (rev 1: 19.5 u). Each part is at or under 6 units. 0K4f grows by 0.5 u
+**Size: 41.5 units (D-DD.96; D-DD.88: 39.0 u; D-DD.80: 37.5 u; D-DD.79: 37.0 u; D-DD.74: 36.25 u; D-DD.73: 35.75 u; D-DD.66: 35.25 u; D-DD.57: 34.25 u; D-DD.47: 33.5 u; D-DD.44: 33.0 u; rev 2: 30.0 u), about 54 commits** (rev 1: 19.5 u). Each part is at or under 6 units. 0K4f grows by 0.5 u
 (D-DD.30).
 
 ---
@@ -961,6 +966,8 @@ The checker shares no logic, list or expected figure with the generators. Expect
 - Databases: only `assetops_world_*_test`, `assetops_world_audit*` and harness `*_test` names (`check_name`). WK copies
   to `assetops_polish_walk<L>_test`. Drop your own when done. Never use port 5490, 8990 or 8992, or the walk server while
   the owner validates.
+- Every DD packet runs `tools/checks/statement_catalogue.py`: exit 0, or output identical to main's run at the same
+  time, both cited (D-DD.96).
 - Heavy work goes through `tools/heavy-slot.sh` (`--db` for builds). Full builds run one at a time, on a quiet machine,
   with keep-awake and a cap of twice the expected time (8 hours).
 - Scratch goes in the session scratchpad. Generated files go under `/opt/assetecon/worlds` or
