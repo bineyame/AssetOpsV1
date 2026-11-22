@@ -1,4 +1,9 @@
-# IA-2b1 handoff (units 1 to 3 done; unit 4 next), 2026-11-21
+# IA-2b1 handoff (complete: units 1 to 4 done; in review), 2026-11-22
+
+**Superseded by `packet-IA-2b1.md`.** Unit 4 is built and flipped (`c80539d53`), the plants are proved, the `ia_shots` list set
+S1 to S9 is committed (`b4ea6c7c9`), and the full gate has run. Mid-build questions Q1 to Q8 are in `mid-build-questions.md`.
+The text below is the unit 3 handoff, kept for the def contract.
+
 
 Status: units 1 to 3 are built and committed (unit 3 at `8b0543c7e`). Nothing is live. With IA-2b1 not landed, every touched gate is green or dormant.
 Branch `task/IA-2b1-lists`, worktree `/opt/assetecon/AssetOpsV1-ia2b1`. Main 757aba13d is merged in at unit 3 (doc conflicts kept both sides: the IA rulings index moved to `index-rulings-23.md`, the owner-away IA-2b row renumbered 57).

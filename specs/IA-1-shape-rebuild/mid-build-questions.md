@@ -48,14 +48,21 @@ strings of the four routes minus the reviewed plan page and What changed, agains
 
 ## IA-2b1
 
-Reset to 0 after the IA-2b handshake (spec rev 2, 2026-11-21). Count: **4** (Q1 to Q4), each built on its default; Q1 waits for the
-Architect's confirmation at review. Units 1 and 2 recorded them (Q1 and Q2 by the first builder, Q3 and Q4 by the unit 1-2 builder).
+Reset to 0 after the IA-2b handshake (spec rev 2, 2026-11-21). Count: **8** (Q1 to Q8). Q2 to Q8 are built on their defaults; Q1's
+default was overridden in unit 3 (see its note). Q1 and Q5 wait for the Architect's check at review. Units 1 and 2 recorded Q1 to Q4;
+Q5 to Q8 are unit 3 and 4 calls, written up at the unit 4 close from the commits that made them.
 
 **Q1 (unit 3/4, spec §5 aliases, D-IA.78; default built later, Architect confirmation at review).** `resolveScreen` (`loop-core.js`, a
 reviewed function) writes `'#/' + iaLiveAlias(id) + the typed query`, which drops an alias's own query (`findings-cost` would land on
 `findings` without `heading=optimize`). **Stopped:** nothing. **Default:** `loop-core.js` is not touched; `iaLiveAlias` notes the alias it
 last resolved (reset on every call), and `iaScreen` merges that alias's query and replaces the history entry with the canonical address.
 **Asked:** does the Architect confirm this seam (the alternative is a change to the reviewed `resolveScreen`)?
+**Built (unit 3, `8b0543c7e`): the alternative, not the default.** One line of `resolveScreen` changed: a live alias's
+`history.replaceState` writes `iaCanon('#/' + id + typed query)` instead of `'#/' + target + typed query`. Why: `resolveScreen`
+already rewrites the address for a live alias, and `iaCanon` (D-IA.78) is the one function that merges an alias's query with the
+typed one; the default needed `iaLiveAlias` (a lookup) to keep hidden state and `iaScreen` to write the address a second time. The
+ALIAS branch, the landing, foreign and landed branches are unchanged. **Asked (at review):** does the Architect accept the change to
+the reviewed function?
 
 **Q2 (unit 1, block D, D-IA.67 4(a) re-scope).** The fixture's Sites use fake keys (`fx01`..), so its group and Site scopes are undefined.
 **Default:** block D uses scope `all` only; the scopes are asserted live in block B.
@@ -69,3 +76,31 @@ date, no date last.
 `iaListModel` are top-level function declarations (a window property the plant can wrap); `IA_LIST_KEEP` is a top-level `let`;
 `IA_LIST_DEFS[key].sorts` is an array and `.items` a function; the tiles come from `iaListTiles(def, m, ctx)` holding the exact string
 `const n = m.n;` (plant `tile`). `qty_check`'s list plants are DOM plants (as `gap` and `items` are), each exiting 2 when it finds nothing.
+
+**Q5 (unit 3, spec §9 unit 4(a) "the aliases").** `SHAPE_PLANT=aliasq` (item 7) needs list aliases to exist to break. **Default:**
+the four list aliases were added in unit 3, dormant (their targets unlanded, so `iaLiveAlias` returned null until the flip), and
+`aliasq` was proved under `IA_FORCE_LANDED=IA-2b1` there. Unit 4 adds none. **Asked (at review):** does the Architect accept the
+aliases pulled forward a unit?
+**Observed at the close (coordinator, default kept):** the command palette still lists "Act first (Portfolio)", which now goes to
+`#/decisions` through the alias, beside "Decisions · Go to" (two entries, one place). No hub shows an "Act first" link. The
+palette entry is left as it is for the Architect's call.
+
+**Q6 (unit 4(b), `plan_switch_check`, spec §5).** The check reads `#/portfolio/act-first`, which becomes an alias of `#/decisions`
+at the flip; the reviewed act-first screen stays registered. **Default:** the check deletes that one alias in its own window and
+renders the reviewed screen (16 failures at the flip before it, none after); the product's alias is untouched. `ux_interaction_check`
+does the same since the unit 4 close (the full gate's one BAD), and expects "findings" to find the live Findings list.
+
+**Q7 (unit 4, `LIST_PLANT=notarget`, D-IA.70 b).** Removing the decision from `DEC` broke other stores that point to it, so every
+list threw before the target assertion (the plant failed for the wrong reason). **Default (`3ec99d53f`):** the plant removes one
+Finding's link to its decision, so the row has no target and the check names it (21 planted-only lines).
+
+**Q8 (unit 4, `ia_shots` S1 at 390, D-IA.35 L5).** The spec's `ia.css` rules (§3.2) leave the stacked row title (the global
+`th{white-space:nowrap}`) and the state pill (`nowrap`) unwrapped, so they run past the stacked cell at 390 (without the rule, 51 of
+255 list shots fail the fit, e.g. `cell "Litres used 1,180 agains" 679 > 332`; `/opt/assetecon/evidence/IA-2b1/fin/shots-nocss.log`). **Default:** one `ia.css` rule at
+`max-width:760px`, scoped to `.ia-list` (the title and pill wrap); no other list or screen changes.
+
+**Observation (not a question; existing issue, recorded, not fixed).** At 390 the review bar's screen chooser (`#screen-select`,
+`screens.js` `reviewBar`, a review tool) reads "Portfolio · Portfolio" on `#/decisions`, whatever page it came from. The chooser
+lists only `SCREENS`; a landed IA route without a `SCREENS` entry selects no option, so the first one shows. On `main` the same
+happens on `#/plan` and `#/portfolio/outcomes`; IA-2b1 adds `#/decisions` to that class (with `plan/left-out`, `plan/review` and
+`plan/history` from IA-2a). Probe: `/opt/assetecon/evidence/IA-2b1/fin/screen-select.txt`.

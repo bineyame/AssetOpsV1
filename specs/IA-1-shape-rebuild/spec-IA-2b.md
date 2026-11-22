@@ -1,5 +1,7 @@
 # IA-2b: the list shape (implementer spec, rev 2)
 
+Status: in_review (IA-2b1 built, `packet-IA-2b1.md`; IA-2b2 not started)
+
 Architect (Claude), 2026-11-21, owner away (delegated; owner-away rows 46 and 47). Rulings D-IA.61 to D-IA.66, and the
 handshake's answers D-IA.67 to D-IA.81 (rev 2), are in `rulings-5.md`. The reviewer entry is `reviewer-guide-IA-2b.md`. This
 file is IA-2b's card for `spec.md` §5 (the IA-2 plan's "IA-2b" row). It is a separate file so that it does not collide with

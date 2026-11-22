@@ -10,4 +10,4 @@ One line per slice, continuing `index-2.md` (number, slice ID, summary, file in 
 185. `0K4b` fuel curve and charge taper module, three Foundation properties, assumed Kobo fixture, `served_text` seam · data.md
 186. `0K4c` declared season v2 (overcast spells, varying load, Sunday mill), canonical inputs digest, v1 and v2 pinned · data.md
 187. `IA-2a` mock-up plan shape: four tabs, stepper, crew tiles, History (IA-1 shape rebuild) · demo.md
-188. `IA-2b1` mock-up list shape, units 1-3: checks first, qty modes, the list component (not landed) · demo.md
+188. `IA-2b1` mock-up list shape: four home lists from one component, landed in the mock-up, in review · demo.md

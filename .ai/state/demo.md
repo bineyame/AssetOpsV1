@@ -269,12 +269,13 @@ Branch `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, from m
   `IA_FORCE_LANDED=IA-2a` before the flip; after it, an IA-2a check that prints "dormant" fails `ia_gates`.
 - Open: R758 (Approve in the band, not the title row) and R759 (Review "Not yet") revisit at the IA-2 walkthrough and IA-2d.
 
-## IA-2b1 - the list shape, units 1 to 3 (building 21 Nov; not landed)
+## IA-2b1 - the list shape (built 21 Nov; in review, not merged)
 
-- Mock-up only, nothing live. Units 1 and 2: `list_shape_check` (blocks A to D), `qty_check`'s count and format modes and its `EQUAL`
-  row, the `shape_check`, `click_depth` and `copy_check` rows; all dormant until `IA-2b1` lands or is forced.
-- Unit 3: one list component in `ia-shapes.js` (`iaListModel`, `iaListHref`, tiers, chips, tools, `iaListBody`, `shapeList`;
-  `IA_LIST_DEFS` empty), the tools listener and `iaListRestore` (after the router), `iaAliasTarget` as the one alias splitter, the
-  scope menu on a list, the list aliases (dormant). Block A's plants and `aliasq` proved under force.
-- Open: unit 4 (the four defs and routes, the Outcomes fold, crumbs, search index, the flip, shots, packet) and the plants that need
-  the lists (`specs/IA-1-shape-rebuild/handoff-IA-2b1.md`).
+- Mock-up only. `IA-2b1` is in `IA_LANDED`: four home lists (Decisions, Findings, Actions, Sites) from one def table
+  (`IA_LIST_DEFS`) and one component (`shapeList`, `iaListModel`, tiers, chips, tools; `iaListRestore` keeps the control's place).
+  The Outcomes tab draws the Sites list's rows; act-first and the Findings aliases resolve to the lists with their queries; the
+  Decisions and Sites crumbs link.
+- Checks: `list_shape_check` (A to D), `qty_check` count and format modes with `EQUAL` (Sites gap = Overview gap), `shape_check`
+  items 7, 12 and 15, G1 lists at 1, the `copy_check` list block, `ia_shots` S1 to S9; every 2b1 plant fails in `ia_gates`.
+- Open: the Architect's check of the `resolveScreen` line (Q1 default overridden) and the aliases pulled into unit 3 (Q5); D5 rows
+  R764 (IA-2d) and R765 (IA-2c); R749 to R751 close in IA-2b2; the owner's walkthrough (`packet-IA-2b1.md`).
