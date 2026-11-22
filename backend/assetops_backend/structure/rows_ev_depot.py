@@ -4,7 +4,7 @@ One literal tuple of 42 rows: the 23 leaves in `canonical.leaves_of("EV_DEPOT_CA
 the manifest's `structures.EV_DEPOT_CAPTIVE` order. Every literal is written here, never read from the catalogue or the
 manifest (W2); the parity test compares them. There is no `revenue` row: the registry declares it not applicable
 (`not_applicable`, D-3B6.3), and `contribution` is `0 - cost_to_serve` as the manifest states. No row states a total
-(D-3B6.2), carries a tolerance (D-3B6.9) or a lever (step 6).
+(D-3B6.2), carries a tolerance (D-3B6.9).
 """
 
 from __future__ import annotations
@@ -19,13 +19,15 @@ _ABOVE, _CALENDAR = HOMES["above"], HOMES["calendar"]
 
 
 def _leaf(factor_id: str, unit: Unit, home: Home, family: str, kind: str, absent: str,
-          words: str | None = None, *, composes: str, neutral: Decimal | None = None) -> FactorRow:
+          words: str | None = None, *, composes: str, neutral: Decimal | None = None,
+          levers: tuple[str, ...] = ()) -> FactorRow:
     return FactorRow(factor_id, None, unit, home, FilledBy(family, kind, words), absent, None,
-                     neutral=neutral, composes=composes)
+                     levers=levers, neutral=neutral, composes=composes)
 
 
-def _node(factor_id: str, expression: str, unit: Unit, home: Home, *, composes: str) -> FactorRow:
-    return FactorRow(factor_id, expression, unit, home, None, None, None, composes=composes)
+def _node(factor_id: str, expression: str, unit: Unit, home: Home, *, composes: str,
+          levers: tuple[str, ...] = ()) -> FactorRow:
+    return FactorRow(factor_id, expression, unit, home, None, None, None, levers=levers, composes=composes)
 
 
 _REGISTER = "charger register (site configuration)"
@@ -35,19 +37,21 @@ ROWS: tuple[FactorRow, ...] = (
     # ---- leaves (23)
     _leaf("chargers_in_service", ONE, Home(_PROTECT, "P1"),
           "OBSERVER", "charging capacity (charger register, ev_connector_state, ev_connector_fault)", "MISSING",
-          composes="SUM"),
+          composes="SUM", levers=("charger_restore",)),
     _leaf("chargers_installed", ONE, Home(_OPTIMIZE, "O2"), "DECLARED", _REGISTER, "MISSING", composes="SUM"),
     _leaf("charger_kw", KW, Home(_PROTECT, "P1"), "DECLARED", _REGISTER, "MISSING", composes="NONE"),
     _leaf("import_limit_kw", KW, Home(_PROTECT, "P1"), "DECLARED", "grid connection (site configuration)", "MISSING",
           composes="NONE"),
     _leaf("window_h", HOUR / DAY, Home(_PROTECT, "P1"), "COMMERCIAL_RECORD", "FLEET_ROSTER", "MISSING",
           composes="NONE"),
-    _leaf("buses", ONE, Home(_GROW, "G2"), "COMMERCIAL_RECORD", "FLEET_ROSTER", "MISSING", composes="SUM"),
+    _leaf("buses", ONE, Home(_GROW, "G2"), "COMMERCIAL_RECORD", "FLEET_ROSTER", "MISSING", composes="SUM",
+          levers=("fleet_capacity_use",)),
     _leaf("kwh_per_bus_night", KWH / DAY, Home(_PROTECT, "P1"), "COMMERCIAL_RECORD", "FLEET_ROSTER", "MISSING",
           composes="NONE"),
     _leaf("nights_in_period", DAY, Home(_CALENDAR, None), "CALENDAR", "period nights", "NEVER_EMPTY",
           composes="NONE"),
-    _leaf("peak_kwh", KWH, Home(_OPTIMIZE, "O1"), "COMMERCIAL_RECORD", _TOU, "ZERO_WHEN_HELD", composes="SUM"),
+    _leaf("peak_kwh", KWH, Home(_OPTIMIZE, "O1"), "COMMERCIAL_RECORD", _TOU, "ZERO_WHEN_HELD", composes="SUM",
+          levers=("charging_schedule",)),
     _leaf("kwh_2200_2400", KWH, Home(_OPTIMIZE, "O1"), "COMMERCIAL_RECORD", _TOU, "MISSING", composes="SUM"),
     _leaf("kwh_0000_0500", KWH, Home(_OPTIMIZE, "O1"), "COMMERCIAL_RECORD", _TOU, "ZERO_WHEN_HELD", composes="SUM"),
     _leaf("max_kw", KW, Home(_OPTIMIZE, "O1"), "COMMERCIAL_RECORD", "CHARGE (utility demand line)", "ZERO_WHEN_HELD",
@@ -89,7 +93,7 @@ ROWS: tuple[FactorRow, ...] = (
     _node("departures_missed",
           "max(buses_short_per_night * short_nights - spare_bus_nights - covered_bus_nights, 0)"
           " + extra_missed_departures",
-          DAY, Home(_PROTECT, "P1"), composes="SUM"),
+          DAY, Home(_PROTECT, "P1"), composes="SUM", levers=("charger_restore",)),
     _node("nights_below_required", "min(buses_short_per_night, 1) * short_nights", DAY, Home(_PROTECT, "P1"),
           composes="SUM"),
     _node("charger_days_out_of_service", "charger_out_days", DAY, Home(_PROTECT, "P2"), composes="SUM"),

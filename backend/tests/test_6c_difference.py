@@ -128,7 +128,9 @@ def test_1_unchanged_revenue_is_left_out_and_c1b_names_base_kwh() -> None:
 def test_1_stated_records_are_never_read() -> None:
     # Plant (D-P6.4): passing SiteInputs.stated would make the fuel effect 0; the signature takes no stated map.
     import inspect
-    assert list(inspect.signature(difference).parameters) == ["registry", "base", "changes"]
+    params = inspect.signature(difference).parameters
+    assert list(params) == ["registry", "base", "changes", "also"]  # 6h (D-P6.57): `also`, still no stated map
+    assert params["also"].kind is inspect.Parameter.KEYWORD_ONLY and params["also"].default == ()
 
 
 def test_1_a_product_of_two_changing_operands_uses_val1() -> None:
