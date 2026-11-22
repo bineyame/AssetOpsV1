@@ -3985,17 +3985,17 @@
      {
       "m": "Jul",
       "p": "2026-07",
-      "v": 1310.85
+      "v": 1347.25
      },
      {
       "m": "Aug",
       "p": "2026-08",
-      "v": 1429.85
+      "v": 1387.85
      },
      {
       "m": "Sep",
       "p": "2026-09",
-      "v": 1594.15
+      "v": 1678.1
      },
      {
       "m": "Oct",
@@ -4007,17 +4007,17 @@
      {
       "m": "Jul",
       "p": "2026-07",
-      "v": -984.15
+      "v": -947.75
      },
      {
       "m": "Aug",
       "p": "2026-08",
-      "v": -865.15
+      "v": -907.15
      },
      {
       "m": "Sep",
       "p": "2026-09",
-      "v": -522.4
+      "v": -438.45
      },
      {
       "m": "Oct",
@@ -4032,17 +4032,17 @@
       {
        "m": "Jul",
        "p": "2026-07",
-       "v": 936.45
+       "v": 972.85
       },
       {
        "m": "Aug",
        "p": "2026-08",
-       "v": 985.25
+       "v": 943.25
       },
       {
        "m": "Sep",
        "p": "2026-09",
-       "v": 891.45
+       "v": 975.4
       },
       {
        "m": "Oct",
@@ -4054,17 +4054,17 @@
       {
        "m": "Jul",
        "p": "2026-07",
-       "v": -508.55
+       "v": -472.15
       },
       {
        "m": "Aug",
        "p": "2026-08",
-       "v": -459.75
+       "v": -501.75
       },
       {
        "m": "Sep",
        "p": "2026-09",
-       "v": -471.9
+       "v": -387.95
       },
       {
        "m": "Oct",
@@ -4200,32 +4200,32 @@
        "actual": {
         "status": "evaluated",
         "nodes": {
-         "metered_kwh": 8205.0,
-         "billed_kwh": 8163.0,
-         "revenue": 3265.2,
-         "collected": 3002.73,
-         "diesel_l": 983.0,
-         "fuel_cost": 1228.75,
+         "metered_kwh": 8372.0,
+         "billed_kwh": 8329.0,
+         "revenue": 3331.6,
+         "collected": 3063.78,
+         "diesel_l": 1007.0,
+         "fuel_cost": 1258.75,
          "battery_wear": 0.0,
-         "cost_to_serve": 2328.75,
-         "contribution": 936.45,
+         "cost_to_serve": 2358.75,
+         "contribution": 972.85,
          "obligation_hours_without_redundancy": 0.0,
          "shortfall_backed": 0.0,
          "obligation_hours_without_backup": 0.0,
          "replayed_dawn_days_below_safeguard": 0.0,
          "asset_days_out_of_service": 0.0,
-         "delivered_kwh": 8592.0,
-         "technical_loss_kwh": 387.0,
+         "delivered_kwh": 8767.0,
+         "technical_loss_kwh": 395.0,
          "unexplained_loss_kwh": 0.0,
-         "adjustments_kwh": 42.0,
+         "adjustments_kwh": 43.0,
          "unmapped_kwh": 0.0,
          "tariff": 0.4,
          "productive_kwh": 0.0,
          "productive_tariff": 0.3,
          "in_transit": 0.0,
-         "outstanding": 262.47,
-         "necessary_l": 711.0,
-         "candidate_l": 260.0,
+         "outstanding": 267.82,
+         "necessary_l": 730.0,
+         "candidate_l": 265.0,
          "unexplained_l": 12.0,
          "extra_l": 0.0,
          "diesel_price": 1.25,
@@ -4435,22 +4435,22 @@
        "actual": {
         "status": "evaluated",
         "nodes": {
-         "metered_kwh": 8278.0,
-         "billed_kwh": 8235.0,
-         "revenue": 3294.0,
-         "collected": 3029.17,
-         "diesel_l": 967.0,
-         "fuel_cost": 1208.75,
+         "metered_kwh": 8273.0,
+         "billed_kwh": 8230.0,
+         "revenue": 3292.0,
+         "collected": 3027.34,
+         "diesel_l": 999.0,
+         "fuel_cost": 1248.75,
          "battery_wear": 0.0,
-         "cost_to_serve": 2308.75,
-         "contribution": 985.25,
+         "cost_to_serve": 2348.75,
+         "contribution": 943.25,
          "obligation_hours_without_redundancy": 0.0,
          "shortfall_backed": 0.0,
          "obligation_hours_without_backup": 0.0,
          "replayed_dawn_days_below_safeguard": 0.0,
          "asset_days_out_of_service": 0.0,
-         "delivered_kwh": 8669.0,
-         "technical_loss_kwh": 391.0,
+         "delivered_kwh": 8663.0,
+         "technical_loss_kwh": 390.0,
          "unexplained_loss_kwh": 0.0,
          "adjustments_kwh": 43.0,
          "unmapped_kwh": 0.0,
@@ -4458,9 +4458,9 @@
          "productive_kwh": 0.0,
          "productive_tariff": 0.3,
          "in_transit": 0.0,
-         "outstanding": 264.83,
-         "necessary_l": 701.0,
-         "candidate_l": 254.0,
+         "outstanding": 264.66,
+         "necessary_l": 721.0,
+         "candidate_l": 266.0,
          "unexplained_l": 12.0,
          "extra_l": 0.0,
          "diesel_price": 1.25,
@@ -4670,32 +4670,32 @@
        "actual": {
         "status": "evaluated",
         "nodes": {
-         "metered_kwh": 8256.0,
-         "billed_kwh": 8213.0,
-         "revenue": 3285.2,
-         "collected": 3021.06,
-         "diesel_l": 1035.0,
-         "fuel_cost": 1293.75,
+         "metered_kwh": 8470.0,
+         "billed_kwh": 8426.0,
+         "revenue": 3370.4,
+         "collected": 3099.43,
+         "diesel_l": 1036.0,
+         "fuel_cost": 1295.0,
          "battery_wear": 0.0,
-         "cost_to_serve": 2393.75,
-         "contribution": 891.45,
+         "cost_to_serve": 2395.0,
+         "contribution": 975.4,
          "obligation_hours_without_redundancy": 0.0,
          "shortfall_backed": 0.0,
          "obligation_hours_without_backup": 0.0,
          "replayed_dawn_days_below_safeguard": 0.0,
          "asset_days_out_of_service": 0.0,
-         "delivered_kwh": 8646.0,
-         "technical_loss_kwh": 390.0,
+         "delivered_kwh": 8870.0,
+         "technical_loss_kwh": 400.0,
          "unexplained_loss_kwh": 0.0,
-         "adjustments_kwh": 43.0,
+         "adjustments_kwh": 44.0,
          "unmapped_kwh": 0.0,
          "tariff": 0.4,
          "productive_kwh": 0.0,
          "productive_tariff": 0.3,
          "in_transit": 0.0,
-         "outstanding": 264.14,
-         "necessary_l": 658.0,
-         "candidate_l": 366.0,
+         "outstanding": 270.97,
+         "necessary_l": 662.0,
+         "candidate_l": 363.0,
          "unexplained_l": 11.0,
          "extra_l": 0.0,
          "diesel_price": 1.25,

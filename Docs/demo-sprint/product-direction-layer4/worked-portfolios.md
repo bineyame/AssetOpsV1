@@ -56,7 +56,7 @@ A mini-grid Site's contribution is revenue minus cost to serve. Revenue is bille
 
 | Site | Diesel per litre | Tariff per kWh | Generator consumption rate | How it is known |
 |---|---:|---:|---:|---|
-| Kobo | 1.25<!--fig:sites.lakeside-power/Kobo.actual.nodes.diesel_price--> | 0.40<!--fig:sites.lakeside-power/Kobo.actual.nodes.tariff--> | 0.30<!--rec:tenants[lakeside-power].sites[Kobo].physical.sfc_l_per_kwh--> L/kWh | Record |
+| Kobo | 1.25<!--fig:sites.lakeside-power/Kobo.actual.nodes.diesel_price--> | 0.40<!--fig:sites.lakeside-power/Kobo.actual.nodes.tariff--> | 0.2917<!--rec:tenants[lakeside-power].sites[Kobo].physical.sfc_l_per_kwh--> L/kWh | Record |
 | Kisiwa | 1.30<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.diesel_price--> | 0.55<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.tariff--> | 0.31<!--rec:tenants[lakeside-power].sites[Kisiwa].physical.sfc_l_per_kwh--> L/kWh | Record |
 | Mto | 1.25<!--fig:sites.lakeside-power/Mto.actual.nodes.diesel_price--> | 0.40<!--fig:sites.lakeside-power/Mto.actual.nodes.tariff--> | 0.33<!--rec:tenants[lakeside-power].sites[Mto].physical.sfc_l_per_kwh--> L/kWh | Record |
 | All three Sites | productive-use tariff 0.30<!--rec:tenants[lakeside-power].prices.productive_tariff_usd_per_kwh--> per kWh | | | Record (tariff schedule) |

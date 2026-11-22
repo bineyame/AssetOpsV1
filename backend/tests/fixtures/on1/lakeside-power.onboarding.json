@@ -564,15 +564,15 @@
           "type": "BATTERY",
           "name": "Battery energy storage",
           "rating": {
-            "value": 200,
+            "value": 191.5,
             "unit": "kWh"
           },
           "properties": [
             {
               "property_key": "battery-energy-capacity",
-              "value": 200,
+              "value": 191.5,
               "unit": "kWh",
-              "source": "TEMPLATE",
+              "source": "SITE",
               "source_version": 1
             },
             {
@@ -580,6 +580,27 @@
               "value": 30,
               "unit": "%",
               "source": "TEMPLATE",
+              "source_version": 1
+            },
+            {
+              "property_key": "battery-energy-capacity-basis",
+              "value": "MANUFACTURER_DATASHEET",
+              "unit": "state",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "battery-charge-taper-start",
+              "value": 95,
+              "unit": "%",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "battery-charge-taper-start-basis",
+              "value": "GENERIC_DEFAULT",
+              "unit": "state",
+              "source": "SITE",
               "source_version": 1
             }
           ]
@@ -621,15 +642,15 @@
           "type": "GENERATOR",
           "name": "Diesel generator",
           "rating": {
-            "value": 40,
+            "value": 36,
             "unit": "kW"
           },
           "properties": [
             {
               "property_key": "specific-fuel-consumption",
-              "value": 0.3,
+              "value": 0.2917,
               "unit": "L/kWh",
-              "source": "TEMPLATE",
+              "source": "SITE",
               "source_version": 1
             },
             {
@@ -662,10 +683,52 @@
             },
             {
               "property_key": "generator-rated-power",
-              "value": 40,
+              "value": 36,
               "unit": "kW",
-              "source": "TEMPLATE",
-              "source_version": 2
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "generator-rated-power-basis",
+              "value": "MANUFACTURER_DATASHEET",
+              "unit": "state",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "specific-fuel-consumption-basis",
+              "value": "MANUFACTURER_DATASHEET",
+              "unit": "state",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "generator-no-load-fuel-rate",
+              "value": 0.62,
+              "unit": "L/h",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "generator-no-load-fuel-rate-basis",
+              "value": "DATASHEET_FIT",
+              "unit": "state",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "generator-minimum-load",
+              "value": 30,
+              "unit": "%",
+              "source": "SITE",
+              "source_version": 1
+            },
+            {
+              "property_key": "generator-minimum-load-basis",
+              "value": "GENERIC_DEFAULT",
+              "unit": "state",
+              "source": "SITE",
+              "source_version": 1
             }
           ]
         },

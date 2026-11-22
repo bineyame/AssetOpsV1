@@ -33,10 +33,11 @@ PINNED = {
 }
 #: DD2.1: what `world_history.py exports` writes by default, every month (the packet lists both moves). The receipts
 #: keep `source_version` "1" (the collections layout's constant), so that October file's hash did not move.
+#: DD3a commit 2: Kobo `physical` from its data sheets reseeds Kobo's July-September; billing, collections and expenses moved.
 PINNED_ALL_MONTHS = {
-    "lakeside-power.billing.csv": "e5b74fbbc6816d1cd1059fc0d7d0786e373c9f0be8fb19ce4a6df9bd74fe39d6",
-    "lakeside-power.collections.csv": "8bb39b30e13123ff9e33d3fba4f551d115717d488dc9c6a9f5e826899f0eb00f",
-    "lakeside-power.expenses.csv": "00e3449a7a1ec107b639d8003b1e4d578aff0b7b7d237f0d22abd504015bf5b5",
+    "lakeside-power.billing.csv": "60c2ac9ebcc6f50fbad73b9509b61b3f20526e936440ba36911fe534408d19ea",
+    "lakeside-power.collections.csv": "1ae56f430b25b82011a26d1efd865d2a54a2de09d8c1998b174669bb286fba56",
+    "lakeside-power.expenses.csv": "8a0a1102d95eb16ff1587c1cebcb7a1c0d84416d434d015ecc4fff31927a79ae",
     "lakeside-power.budget.csv": "e12bcd1f78886ff4c5e13291c7fd3c6636a067f95e6537ca7dd104ce9ea34adc",
 }
 

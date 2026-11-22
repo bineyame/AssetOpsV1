@@ -26,7 +26,7 @@
   ],
   "schema": "assetops.history/1",
   "shape_source": "synthetic",
-  "view_digest": "caf1a5e6cac9c9190b3964e2ad7e3a5924a3d76760cd0e4bd1e8c84c819c7779"
+  "view_digest": "02e57ac889ffa60fb3cfee6456c31581169551c79883c30b67e2d67448fa9a5a"
  },
  "tenants": {
   "harvest-cold": {
@@ -355,15 +355,15 @@
    "Kobo": {
     "2026-07": {
      "actual": {
-      "adjustments_kwh": 42,
-      "candidate_l": 260,
-      "delivered_kwh": 8592,
+      "adjustments_kwh": 43,
+      "candidate_l": 265,
+      "delivered_kwh": 8767,
       "in_transit": 0,
-      "necessary_l": 711,
+      "necessary_l": 730,
       "om": 60000,
-      "outstanding": 26247,
+      "outstanding": 26782,
       "staff": 50000,
-      "technical_loss_kwh": 387,
+      "technical_loss_kwh": 395,
       "unexplained_l": 12
      },
      "coverage": {
@@ -380,19 +380,19 @@
       "om": 60000,
       "staff": 50000
      },
-     "scope_digest": "6d515f65d9298caa679b91a1345a4c78d552264598ff301a6d29946cbb0c9252"
+     "scope_digest": "c0c7326adbf254712ad3fc7f62ad459bd35161fddcc7fbb1a128e68b7bb2100c"
     },
     "2026-08": {
      "actual": {
       "adjustments_kwh": 43,
-      "candidate_l": 254,
-      "delivered_kwh": 8669,
+      "candidate_l": 266,
+      "delivered_kwh": 8663,
       "in_transit": 0,
-      "necessary_l": 701,
+      "necessary_l": 721,
       "om": 60000,
-      "outstanding": 26483,
+      "outstanding": 26466,
       "staff": 50000,
-      "technical_loss_kwh": 391,
+      "technical_loss_kwh": 390,
       "unexplained_l": 12
      },
      "coverage": {
@@ -409,19 +409,19 @@
       "om": 60000,
       "staff": 50000
      },
-     "scope_digest": "eec922658eb9c516200857b22229ecd371911e9575c02b8457703c83508ee6da"
+     "scope_digest": "74b59099f1ec511c32964c92e407dc2176bb89c7762a5cc27db7c0291b84e7e5"
     },
     "2026-09": {
      "actual": {
-      "adjustments_kwh": 43,
-      "candidate_l": 366,
-      "delivered_kwh": 8646,
+      "adjustments_kwh": 44,
+      "candidate_l": 363,
+      "delivered_kwh": 8870,
       "in_transit": 0,
-      "necessary_l": 658,
+      "necessary_l": 662,
       "om": 60000,
-      "outstanding": 26414,
+      "outstanding": 27097,
       "staff": 50000,
-      "technical_loss_kwh": 390,
+      "technical_loss_kwh": 400,
       "unexplained_l": 11
      },
      "coverage": {
@@ -438,7 +438,7 @@
       "om": 60000,
       "staff": 50000
      },
-     "scope_digest": "2fc4715b43214412f5e6735f6601aa475333e379bfaebd19368dd5b2238b5519"
+     "scope_digest": "8a75caa28f51c9d324338c72860b218fb435e3bce818c6dfbf34d9ff5b6d8212"
     }
    },
    "Mto": {
