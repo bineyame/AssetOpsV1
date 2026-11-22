@@ -306,3 +306,31 @@ loop-decisions.js, loop-portfolio.js, index.html, fixture-mapping.md, derivation
   diesel_minus_20pct: None != -230.0 / -2910.0` (spec ambiguity: D-0K4.48 says those read null; the model nulls only on value null).
 - Product-parity run (8 files, DB URL unreachable): fails exactly `test_3b1_structure_registry.py::test_t1_leaf_sources_absence_and_words_equal_the_manifest`
   and `test_3b3_structure_evaluate.py::test_t6_each_state_yields_its_leaf_value_on_its_own_record`; the other six files pass.
+
+## Unit 2 (commit 3; branch `task/0K4m-u2-docs` off 2b `ba2da1c4e`, main merged at `c215cb167` for rev 5)
+
+- Commits: `68189f828` domain-and-decision-models; `4547b4daf` worked-portfolios, plan-and-action-workflow, decision
+  history; `21a5512ca` layer4 design (+html), roadmap (+html), phase plan, contracts, decision loop, delivery plan;
+  `f6c181672` derivation register, integration, reuse matrices, build plans, structure spec :27, go-to-market
+  (+html twins by their renderers); `86169d45a` checker REQUIRED and the website H3 rule. Manifest, history and
+  derived files untouched.
+- Anchored numbers were rewritten from `derived-values.json` by a scratch script (number before each `<!--fig:-->`),
+  null anchors removed with their figures and replaced by the gap's words; new figures carry `fig`/`figx`/`rec`.
+- `check_manifest.py` at head: `7791 checks passed (2868 history checks), 11 failed`: 9 on `interactive-mockup-vNEXT/`
+  (walkthroughs.md anchors x3 and documents(), K11 on browser-audit.md, fixture-mapping.md, index.html x2,
+  walkthroughs.md), H9 (`4532 ... == 4502, with 4 failed`), K10. `check_alignment.py` 114 passed, 0 failed. K13 passes.
+- Boundary (a)(b)(c) PASS at every unit 2 commit (`/opt/assetecon/evidence/0K4m/u2/boundary.txt`); the manifest and
+  history are byte-equal to 2b's, so (d) K13 holds at each. extract `--check`, `motivation_figures.py --check`,
+  `regenerate_traceability_columns.py --check` pass; all four html twins regenerate equal.
+- Checker edits (section 5 only): REQUIRED headline `options.KOB-STOPSOC.value` -> `options.MTO-HULLER.value` for the
+  design and roadmap (KOB-STOPSOC has no value); the 17 Nov Q15 history row requires no anchor (D-0K4.49). No
+  documents() history exclusion was needed.
+- `render_website_content_html.py` `design_values()` read the retired `design_values` key, so H3 had gone empty; it
+  reads `replay_sources` now. Plant: a copy block with 2,213.33 fails the lint (the old rule passed it).
+- Sweep: `/opt/assetecon/evidence/0K4m/u2/sweep-1-2.txt`, `sweep-3.txt`. Remaining hits are the world's record
+  (330, 730, 412.50, 37.50, 11 of 31; §2.3a), declared litres (Kisiwa 20 L), Metro's anchored 95,634, code line
+  references, K8 information in the replay frame (4 of 61), the K8 test vectors in domain §4.2 (season v2 frame),
+  dated snapshots in derivation-register §7 quoting the 17 Nov mock code (unit 3 restates the mock), and the two
+  decision registers (excluded by name).
+- Not covered by `hand_typed_scan.py` (it scans `loop-*.js` and rendered manifest strings only): the documents'
+  hand-typed "61" day counts (one anchored, `rec:replay_studies.K8.days`, in website-content.md).
