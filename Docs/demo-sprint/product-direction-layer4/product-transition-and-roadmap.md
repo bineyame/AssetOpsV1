@@ -43,7 +43,7 @@ flowchart LR
 | 3B (B1, CH1) | The factor structure from leaves to outcomes; Findings pinned to their factors | Kobo's October contribution, 883<!--fig:sites.lakeside-power/Kobo.actual.nodes.contribution--> against a target of 1,445<!--fig:sites.lakeside-power/Kobo.plan.nodes.contribution-->, computed factor by factor |
 | 3C (CH2) | Sign-in and roles (OD-13, OD-14); a named person on every command | Accountability the executive can see |
 | 4, 5 (B2) | Money leaves from records; targets per factor; the bridge | Why the month came in below target, in money |
-| 6 (CH3) | Options valued against no action, bounds first | Choices compared net of their cost: Kobo's stop-threshold change is worth 2,916.00<!--fig:options.KOB-STOPSOC.value--> over twelve months (a design value until replay K runs) |
+| 6 (CH3) | Options valued against no action, bounds first | Choices compared net of their cost: Mto's huller connection is worth 2,213.33<!--fig:options.MTO-HULLER.value--> over twelve months (MODELLED on SIMULATED litres from the M8 replay); Kobo's stop-threshold litres and value are Not available yet (a dispatch replay on Kobo's October as recorded; 0K4f) |
 | 7 (P) | The plan's items, each with its chooser and owner, released within thresholds and approved by the executive (OD-16, OD-17) | Cross-Site trade-offs within budget and crews |
 | 8 (CH4) | Economic and causal verdicts beside the operational one | Proof that the money followed |
 | 9 | Rights from contracts, cold rooms, EV depots; the EMS API, then the edge gateway (OD-22) | Remedies inside repair decisions; all three verticals |

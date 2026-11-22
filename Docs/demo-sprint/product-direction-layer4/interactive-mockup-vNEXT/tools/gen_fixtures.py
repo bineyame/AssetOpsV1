@@ -65,101 +65,56 @@ for ten in data['tenants']:
 print('evaluator vs stated fields: %d differences' % len(diffs) + (': ' + '; '.join(diffs) if diffs else ''))
 
 
-# ---- Replay-dependent values (rev 8, R7-L1): derived from the manifest, used by the design-value tagger ----
-# Rule: options carrying forward_replay / replay / design_value -> their forward_replay quantities, their result
-# economics (net, saving, bill, gross, revenue, fuel), their sensitivities; the allocation values, switch-case values and
-# downsides of any tenant whose valued options include such an option; protect_effects flagged design_value.
-# Quoted one-off costs are not replay-dependent. Money below $50 is not pattern-matched (it collides with unrelated
-# unit prices such as $12 a kW); such figures sit in rows already tagged. Small litre values that collide with an
-# observed litre quantity are matched only in "avoided" phrasing.
+# ---- Source-dependent values (0K4m, spec §4): derived from the manifest's replay_studies and source: / information:
+# entries, and the evaluator's replay_sources; used by the Simulated-chip tagger. Each figure maps to the study it rests on.
+# Rule: an option rests on a study when a param carries `source:` or the option carries `information.source`, or its
+# evaluated output lists replay_sources. Its figures are its evaluated value, monthly change and sensitivities (null ones
+# are not shown, D-0K4.48). A plan case's value rests on the studies of its valued options. Money below $50 is not
+# pattern-matched (it collides with unrelated unit prices); figures stated as information are chipped where they render.
 import re, copy
-# Rev 13: manifest strings carry {fig:path} / {rec:path} placeholders (spec §7); render them before reading figures from text.
-def _get(root, path):
-    o = root
-    for m in re.finditer(r'\[([^\]]+)\]|([^.\[\]]+)', path):
-        k = m.group(1) if m.group(1) is not None else m.group(2)
-        if isinstance(o, list): o = o[int(k)] if k.isdigit() else next((x for x in o if isinstance(x, dict) and k in (x.get('tenant'), x.get('site'), x.get('id'), x.get('driver'), x.get('measure'), x.get('batch'))), None)
-        elif isinstance(o, dict): o = o.get(k)
-        else: return None
-    return o
-def _fmt(v, neg):
-    if isinstance(v, bool) or v is None: return 'not available'
-    if isinstance(v, (int, float)):
-        x = -v if neg else v
-        return ('−' if x < 0 else '') + (f"{abs(x):,.0f}" if abs(x - round(x)) < 1e-9 else f"{abs(x):,.2f}")
-    if hasattr(v, 'isoformat'): v = v.isoformat()
-    if isinstance(v, str) and re.fullmatch(r'\d{4}-\d{2}-\d{2}', v):
-        y, mo, d = v.split('-'); return f"{int(d)} {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][int(mo)-1]}"
-    return str(v)
-def _render_all(o, man, der):
-    if isinstance(o, dict):
-        for k, v in o.items(): o[k] = _render_all(v, man, der)
-    elif isinstance(o, list):
-        for i, v in enumerate(o): o[i] = _render_all(v, man, der)
-    elif isinstance(o, str) and '{' in o:
-        return re.sub(r'\{(fig|rec):(-?)([^{}]+)\}', lambda m: _fmt(_get(der if m.group(1) == 'fig' else man, m.group(3)), bool(m.group(2))), o)
-    return o
-data_raw = data
-data = _render_all(copy.deepcopy(data_raw), copy.deepcopy(data_raw), derived)
 def money(v):
-    return '\\$' + (f'{v:,.0f}' if float(v).is_integer() else f'{v:,.2f}').replace(',', ',') + '(?![\\d,])'
-def ints(v): return f'{int(v):,}'
-observed_l = set()
+    return '\\$' + (f'{v:,.0f}' if float(v).is_integer() else f'{v:,.2f}') + '(?![\\d,])'
+studies = {k for k, v in (data.get('replay_studies') or {}).items() if isinstance(v, dict) and v.get('days')}
+opt_src = {}
+for oid, ev in ((data.get('evaluation') or {}).get('options') or {}).items():
+    st = {v['source']['study'] for v in (ev.get('params') or {}).values() if isinstance(v, dict) and isinstance(v.get('source'), dict)}
+    if isinstance((ev.get('information') or {}).get('source'), dict): st.add(ev['information']['source']['study'])
+    if st: opt_src[oid] = st
+for oid, d in derived['options'].items():
+    if d.get('replay_sources'): opt_src.setdefault(oid, set()).update(d['replay_sources'])
+opt_src = {k: sorted(v & studies) for k, v in opt_src.items() if v & studies}
+pats, labels = [], []
+def add(v, st):
+    if v is None or abs(v) < 50: return
+    p = money(abs(v))
+    if p not in pats: pats.append(p); labels.append(st)
+for oid in sorted(opt_src):
+    d, st = derived['options'][oid], opt_src[oid][0]
+    if d.get('value') is None: continue
+    add(d['value'], st); add(d.get('monthly_or_horizon_change'), st)
+    for v in (d.get('sensitivities') or {}).values(): add(v.get('value') if isinstance(v, dict) else v, st)
+for plan in derived['plans'].values():
+    for c in [plan['default']] + list(plan['switch_cases'].values()) + list(plan['sensitivity_values'].values()):
+        st = sorted({s for o in c.get('valued_options', []) for s in opt_src.get(o, [])})
+        if st and c.get('value') is not None: add(c['value'], st[0])
+# Kobo's verification line (D-0K4.55): the matched days, read from the leading integers of verification_plan; kept outside
+# the MANIFEST literal so K11's parse-back of that literal is untouched.
+verify = {}
 for ten in data['tenants']:
     for s in ten['sites']:
-        for b in s.get('period', {}).get('bridge', []) or []:
-            m = re.match(r'([\d,]+) L x', str(b.get('basis', '')))
-            if m: observed_l.add(int(m.group(1).replace(',', '')))
-        fb = s.get('period', {}).get('fuel_balance') or {}
-        for k in ('residual_l',): 
-            if k in fb: observed_l.add(int(fb[k]))
-pats, vals = [], []
-def add(p, v): 
-    if p not in pats: pats.append(p); vals.append(v)
-for ten in data['tenants']:
-    replay_tenant = False
-    for s in ten['sites']:
-        opts = (s.get('decision') or {}).get('options', []) + ((s.get('entitlement') or {}).get('options', []) if isinstance(s.get('entitlement'), dict) else [])
-        for o in opts:
-            if not any(k in o for k in ('forward_replay', 'replay', 'design_value')): continue
-            if o.get('disposition') == 'RECOMMENDED': replay_tenant = True
-            fr = o.get('forward_replay', {})
-            for k, v in fr.items():
-                if k.endswith('_l') and k != 'constrained_candidate_l':
-                    if int(v) in observed_l: add(rf'(?:avoid(?:s|ed)?|remov(?:es|ed))(?: only)? {ints(v)} L|{ints(v)} L avoided', f'{v} L (avoided phrasing)')
-                    else: add(rf'(?<![\d,]){ints(v)} L\b', f'{v} L')
-                if k in ('kwh_from_battery_or_genset', 'added_battery_throughput_kwh'): add(rf'(?<![\d,]){ints(v)} kWh', f'{ints(v)} kWh')
-                if k == 'soc_0500_below_35_days': add(rf'{61 - int(v)} of 61|{int(v)} of 61', f'{v} of 61 days')
-            if 'replay' in o:
-                m = re.match(r'(\d+) of (\d+)', o['replay'])
-                if m: add(rf'{m.group(1)} of {m.group(2)}', m.group(0) + ' nights')
-                kw = re.search(r'about (\d+) kW', o['replay'])
-                if kw: add(rf'(?<![\d,]){kw.group(1)} kW\b', f'{kw.group(1)} kW')
-                if 'deliverable_kwh' in o: add(rf'(?<![\d,]){ints(o["deliverable_kwh"])} kWh', f'{ints(o["deliverable_kwh"])} kWh')
-            e = o.get('economics', {}) or {}
-            for k in ('net_12m', 'net_monthly', 'saving_monthly', 'energy_cost_monthly', 'gross_monthly', 'fuel_monthly'):
-                if k in e and abs(e[k]) >= 50: add(money(abs(e[k])), e[k])
-            for v in (o.get('sensitivity') or {}).values():
-                if abs(v) >= 50: add(money(abs(v)), v)
-    # Plan values: every derived plan case (default, switch cases, sensitivities) whose valued options include a replay-dependent option.
-    rids = {o['id'] for s in ten['sites'] for o in ((s.get('decision') or {}).get('options', []) + ((s.get('entitlement') or {}).get('options', []) if isinstance(s.get('entitlement'), dict) else [])) if any(k in o for k in ('forward_replay', 'replay', 'design_value'))}
-    rids |= {oid for oid, e in derived['options'].items() if e.get('design_values')}
-    plan = derived['plans'].get(ten['tenant'])
-    if plan:
-        for c in [plan['default']] + list(plan['switch_cases'].values()) + list(plan['sensitivity_values'].values()):
-            if set(c['valued_options']) & rids and c['value'] >= 50: add(money(c['value']), c['value'])
-    for pe in ten['portfolio'].get('protect_effects', []):
-        if pe.get('design_value'):
-            for v in pe['options'].values():
-                if isinstance(v, (int, float)) and v >= 10: add(rf'(?<![\d,.]){ints(v)} ' + pe['measure'].replace('_', ' '), f'{ints(v)} ' + pe['measure'].replace('_', ' '))
+        vp = (s.get('decision') or {}).get('verification_plan')
+        if vp:
+            n = lambda t: int(re.match(r'\s*(\d+)', str(t or '')).group(1)) if re.match(r'\s*(\d+)', str(t or '')) else None
+            verify[s['site']] = {'matched_days': n(vp.get('baseline')), 'after_days': n(vp.get('after'))}
 
 sha = hashlib.sha256(raw).hexdigest()[:12]
 (here / 'fixtures.js').write_text(
     "/* GENERATED by tools/gen_fixtures.py from ../demo-site-scenario-manifest.yaml (sha256 " + sha + "). Do not edit by hand.\n"
     "   Every figure on the Layer 4 screens is read from MANIFEST or derived by stated arithmetic (see fixture-mapping.md). */\n"
     "const MANIFEST = " + body + ";\nconst MANIFEST_SHA = '" + sha + "';\n"
-    "/* Replay-dependent values derived from the manifest (rule above in tools/gen_fixtures.py) */\n"
+    "/* Source-dependent values derived from the manifest (rule above in tools/gen_fixtures.py) */\n"
     "const DERIVED = " + json.dumps(derived, ensure_ascii=False, separators=(',', ':')) + "; /* from ../evaluate_structure.py */\n"
-    "const REPLAY_PATTERNS = " + json.dumps(pats) + ";\nconst REPLAY_VALUES = " + json.dumps([str(v) for v in vals]) + ";\n")
-print('replay patterns', len(pats))
+    "const SOURCE_PATTERNS = " + json.dumps(pats) + ";\nconst SOURCE_LABELS = " + json.dumps(labels) + ";\n"
+    "const VERIFY = " + json.dumps(verify) + ";\n")
+print('source patterns', len(pats))
 print('fixtures.js written', len(body), 'chars, sha', sha)

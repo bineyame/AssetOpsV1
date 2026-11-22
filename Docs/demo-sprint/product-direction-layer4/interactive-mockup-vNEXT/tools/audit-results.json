@@ -1,55 +1,17 @@
 {
  "dvScan": {
-  "occurrences": 92,
+  "occurrences": 4,
   "unlabelled": [],
-  "drawersOpened": 733,
+  "drawersOpened": 405,
+  "unreachable": [],
   "byFigure": {},
-  "independentPatterns": 28,
+  "independentPatterns": 3,
   "independentFigures": [
-   "20 L",
-   "4 of 61 dawn days",
-   "210 L",
-   "0 of 61 dawn days",
-   "150 kWh",
-   "2916.0",
-   "250.5",
-   "262.5",
-   "2286.0",
-   "2166.0",
-   "225 kWh",
-   "68 L",
-   "3540.0",
-   "395.0",
-   "85.0",
-   "6088.5",
-   "2548.5",
-   "3508.5",
-   "5690.0",
-   "5338.5",
-   "31 of 31 nights",
-   "406 kW",
-   "2,900 kWh",
-   "95484.0",
-   "8082.0",
-   "13356.0",
-   "95634.0",
-   "93 departures missed"
+   "2213.33",
+   "284.44",
+   "2682.66"
   ],
-  "sameAsTagger": true,
-  "preservedCoincidences": [
-   {
-    "op": "lakeside",
-    "id": "site-create-form",
-    "figure": "150 kWh",
-    "at": "Battery + inverter150 kWh · ±25 kWSets the bus"
-   },
-   {
-    "op": "lakeside",
-    "id": "site-batch-upload",
-    "figure": "150 kWh",
-    "at": "2Hillcrest Mini-gridMG-HILL-01Mini-grid · DC-coupledAfrica/NairobiWarningBattery size missing · template default 150 kWh"
-   }
-  ]
+  "sameAsTagger": true
  },
  "idHits": [],
  "idHitsPreserved": [
@@ -75,13 +37,13 @@
    "op": "lakeside",
    "id": "F-104",
    "kind": "record id",
-   "at": "Findings›F-104›Overview· site: Kobo Mini-grid"
+   "at": "Findings›F-104›Overview· site: Kobo"
   },
   {
    "op": "lakeside",
    "id": "F-104",
    "kind": "record id",
-   "at": "F-104 · Kobo Mini-grid · generator dispatch · 6 Oct 2026"
+   "at": "F-104 · Kobo · generator dispatch · 6 Oct 2026"
   },
   {
    "op": "lakeside",
@@ -99,7 +61,7 @@
    "op": "lakeside",
    "id": "F-104",
    "kind": "record id",
-   "at": "Findings›F-104›Analysis· site: Kobo Mini-grid"
+   "at": "Findings›F-104›Analysis· site: Kobo"
   },
   {
    "op": "lakeside",
@@ -115,33 +77,9 @@
   },
   {
    "op": "lakeside",
-   "id": "F-104",
-   "kind": "record id",
-   "at": "Findings›F-104›Recommendation· site: Kobo Mini-grid"
-  },
-  {
-   "op": "lakeside",
-   "id": "F-104",
-   "kind": "record id",
-   "at": "F-104 · proposed policy intervention and declared success criterion"
-  },
-  {
-   "op": "lakeside",
-   "id": "F-104",
-   "kind": "record id",
-   "at": "F-104 · Recommendation"
-  },
-  {
-   "op": "lakeside",
-   "id": "F-104",
-   "kind": "record id",
-   "at": "F-104 · retained analytic revision"
-  },
-  {
-   "op": "lakeside",
    "id": "ACT-048",
    "kind": "record id",
-   "at": "Actions›ACT-048›Verification· site: Kobo Mini-grid"
+   "at": "Actions›ACT-048›Verification· site: Kobo"
   },
   {
    "op": "lakeside",
@@ -177,13 +115,13 @@
    "op": "lakeside",
    "id": "BAT-001",
    "kind": "asset or batch tag without a plain name",
-   "at": "Assets›BAT-001›Health· site: Kobo Mini-grid"
+   "at": "Assets›BAT-001›Health· site: Kobo"
   },
   {
    "op": "lakeside",
    "id": "BAT-001",
    "kind": "asset or batch tag without a plain name",
-   "at": "BAT-001 · 200 kWh nominal · site: Kobo Mini-grid"
+   "at": "BAT-001 · 200 kWh nominal · site: Kobo"
   },
   {
    "op": "lakeside",
@@ -219,7 +157,7 @@
    "op": "lakeside",
    "id": "INC-203",
    "kind": "record id",
-   "at": "Incidents›INC-203›Timeline· site: Thika cold room"
+   "at": "Incidents›INC-203›Timeline· site: Thika"
   },
   {
    "op": "lakeside",
@@ -261,7 +199,7 @@
    "op": "lakeside",
    "id": "WR-019",
    "kind": "record id",
-   "at": "Maintenance›WR-019›Verification· site: Thika cold room"
+   "at": "Maintenance›WR-019›Verification· site: Thika"
   },
   {
    "op": "lakeside",
@@ -405,7 +343,7 @@
    "op": "lakeside",
    "id": "F-118",
    "kind": "record id",
-   "at": "Findings›F-118›Overview· site: Thika cold room"
+   "at": "Findings›F-118›Overview· site: Thika"
   },
   {
    "op": "lakeside",
@@ -415,39 +353,9 @@
   },
   {
    "op": "lakeside",
-   "id": "F-118",
-   "kind": "record id",
-   "at": "Findings›F-118›Recommendation· site: Thika cold room"
-  },
-  {
-   "op": "lakeside",
-   "id": "F-118",
-   "kind": "record id",
-   "at": "F-118 · Recommendation"
-  },
-  {
-   "op": "lakeside",
-   "id": "WR-019",
-   "kind": "record id",
-   "at": "The backup generator failed to start on grid loss; the starter and control circuit were inspected (WR-019) but nothing y"
-  },
-  {
-   "op": "lakeside",
-   "id": "F-118",
-   "kind": "record id",
-   "at": "F-118 · backup response failure"
-  },
-  {
-   "op": "lakeside",
-   "id": "ACT-051",
-   "kind": "record id",
-   "at": "ACT-051 · accepted"
-  },
-  {
-   "op": "lakeside",
    "id": "F-130",
    "kind": "record id",
-   "at": "Findings›F-130›Overview· site: Ruiru depot"
+   "at": "Findings›F-130›Overview· site: Ruiru"
   },
   {
    "op": "lakeside",
@@ -457,33 +365,9 @@
   },
   {
    "op": "lakeside",
-   "id": "F-130",
-   "kind": "record id",
-   "at": "Findings›F-130›Recommendation· site: Ruiru depot"
-  },
-  {
-   "op": "lakeside",
-   "id": "F-130",
-   "kind": "record id",
-   "at": "F-130 · Recommendation"
-  },
-  {
-   "op": "lakeside",
-   "id": "F-130",
-   "kind": "record id",
-   "at": "F-130 · connector 2 session fault"
-  },
-  {
-   "op": "lakeside",
    "id": "ACT-061",
    "kind": "record id",
-   "at": "ACT-061 · open"
-  },
-  {
-   "op": "lakeside",
-   "id": "ACT-061",
-   "kind": "record id",
-   "at": "Actions›ACT-061›Verification· site: Ruiru depot"
+   "at": "Actions›ACT-061›Verification· site: Ruiru"
   },
   {
    "op": "lakeside",
@@ -495,7 +379,7 @@
    "op": "lakeside",
    "id": "F-104",
    "kind": "record id",
-   "at": "Findings›F-104›Evidence· site: Kobo Mini-grid"
+   "at": "Findings›F-104›Evidence· site: Kobo"
   },
   {
    "op": "lakeside",
@@ -507,13 +391,7 @@
    "op": "lakeside",
    "id": "F-104",
    "kind": "record id",
-   "at": "Findings›F-104›Alternatives· site: Kobo Mini-grid"
-  },
-  {
-   "op": "lakeside",
-   "id": "F-104",
-   "kind": "record id",
-   "at": "Findings›F-104›History· site: Kobo Mini-grid"
+   "at": "Findings›F-104›History· site: Kobo"
   },
   {
    "op": "lakeside",
@@ -531,7 +409,7 @@
    "op": "lakeside",
    "id": "ACT-048",
    "kind": "record id",
-   "at": "Actions›ACT-048›Overview· site: Kobo Mini-grid"
+   "at": "Actions›ACT-048›Overview· site: Kobo"
   },
   {
    "op": "lakeside",
@@ -555,7 +433,7 @@
    "op": "lakeside",
    "id": "ACT-048",
    "kind": "record id",
-   "at": "Actions›ACT-048›Plan· site: Kobo Mini-grid"
+   "at": "Actions›ACT-048›Plan· site: Kobo"
   },
   {
    "op": "lakeside",
@@ -567,7 +445,7 @@
    "op": "lakeside",
    "id": "ACT-048",
    "kind": "record id",
-   "at": "Actions›ACT-048›Execution· site: Kobo Mini-grid"
+   "at": "Actions›ACT-048›Execution· site: Kobo"
   },
   {
    "op": "lakeside",
@@ -579,7 +457,7 @@
    "op": "lakeside",
    "id": "ACT-048",
    "kind": "record id",
-   "at": "Actions›ACT-048›Evidence· site: Kobo Mini-grid"
+   "at": "Actions›ACT-048›Evidence· site: Kobo"
   },
   {
    "op": "lakeside",
@@ -591,7 +469,7 @@
    "op": "lakeside",
    "id": "ACT-048",
    "kind": "record id",
-   "at": "Actions›ACT-048›History· site: Kobo Mini-grid"
+   "at": "Actions›ACT-048›History· site: Kobo"
   },
   {
    "op": "lakeside",
@@ -603,7 +481,7 @@
    "op": "lakeside",
    "id": "F-119",
    "kind": "record id",
-   "at": "Findings›F-119›Overview· site: Thika cold room"
+   "at": "Findings›F-119›Overview· site: Thika"
   },
   {
    "op": "lakeside",
@@ -621,7 +499,7 @@
    "op": "lakeside",
    "id": "ACT-051",
    "kind": "record id",
-   "at": "Actions›ACT-051›Verification· site: Thika cold room"
+   "at": "Actions›ACT-051›Verification· site: Thika"
   },
   {
    "op": "lakeside",
@@ -645,19 +523,19 @@
    "op": "lakeside",
    "id": "GEN-CR-01",
    "kind": "asset or batch tag without a plain name",
-   "at": "Sites›Thika cold room›FoundationThika cold roomSimulated site · COLD-THIKAProduce cold room · 2–4°C policy · hybrid: 15 "
+   "at": "Sites›Thika›FoundationThikaSimulated site · COLD-THIKAProduce cold room · 2–4°C policy · hybrid: 15 kWp solar, 30 kWh ba"
   },
   {
    "op": "lakeside",
    "id": "BAT-001",
    "kind": "asset or batch tag without a plain name",
-   "at": "Assets›BAT-001›Overview· site: Kobo Mini-grid"
+   "at": "Assets›BAT-001›Overview· site: Kobo"
   },
   {
    "op": "lakeside",
    "id": "BAT-001",
    "kind": "asset or batch tag without a plain name",
-   "at": "BAT-001 · 200 kWh nominal · site: Kobo Mini-grid"
+   "at": "BAT-001 · 200 kWh nominal · site: Kobo"
   },
   {
    "op": "lakeside",
@@ -687,25 +565,25 @@
    "op": "lakeside",
    "id": "BAT-001",
    "kind": "asset or batch tag without a plain name",
-   "at": "Assets›BAT-001›Performance· site: Kobo Mini-grid"
+   "at": "Assets›BAT-001›Performance· site: Kobo"
   },
   {
    "op": "lakeside",
    "id": "BAT-001",
    "kind": "asset or batch tag without a plain name",
-   "at": "BAT-001 · 200 kWh nominal · site: Kobo Mini-grid"
+   "at": "BAT-001 · 200 kWh nominal · site: Kobo"
   },
   {
    "op": "lakeside",
    "id": "BAT-001",
    "kind": "asset or batch tag without a plain name",
-   "at": "Assets›BAT-001›Configuration· site: Kobo Mini-grid"
+   "at": "Assets›BAT-001›Configuration· site: Kobo"
   },
   {
    "op": "lakeside",
    "id": "BAT-001",
    "kind": "asset or batch tag without a plain name",
-   "at": "BAT-001 · 200 kWh nominal · site: Kobo Mini-grid"
+   "at": "BAT-001 · 200 kWh nominal · site: Kobo"
   },
   {
    "op": "lakeside",
@@ -717,7 +595,7 @@
    "op": "lakeside",
    "id": "BAT-001",
    "kind": "asset or batch tag without a plain name",
-   "at": "Assets›BAT-001›Configuration· site: Kobo Mini-grid"
+   "at": "Assets›BAT-001›Configuration· site: Kobo"
   },
   {
    "op": "lakeside",
@@ -735,7 +613,7 @@
    "op": "lakeside",
    "id": "BAT-001",
    "kind": "asset or batch tag without a plain name",
-   "at": "Assets›BAT-001›Work· site: Kobo Mini-grid"
+   "at": "Assets›BAT-001›Work· site: Kobo"
   },
   {
    "op": "lakeside",
@@ -765,7 +643,7 @@
    "op": "lakeside",
    "id": "BAT-001",
    "kind": "asset or batch tag without a plain name",
-   "at": "Assets›BAT-001›Evidence· site: Kobo Mini-grid"
+   "at": "Assets›BAT-001›Evidence· site: Kobo"
   },
   {
    "op": "lakeside",
@@ -783,7 +661,7 @@
    "op": "lakeside",
    "id": "BAT-001",
    "kind": "asset or batch tag without a plain name",
-   "at": "Assets›BAT-001›Warranty· site: Kobo Mini-grid"
+   "at": "Assets›BAT-001›Warranty· site: Kobo"
   },
   {
    "op": "lakeside",
@@ -793,9 +671,51 @@
   },
   {
    "op": "lakeside",
+   "id": "F-104",
+   "kind": "record id",
+   "at": "F-104 · Generator support review"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-108",
+   "kind": "record id",
+   "at": "F-108 · Battery output-limit report missing"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-118",
+   "kind": "record id",
+   "at": "F-118 · Backup response failed"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-119",
+   "kind": "record id",
+   "at": "F-119 · Temperature excursion"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-130",
+   "kind": "record id",
+   "at": "F-130 · Charging session interrupted"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-109",
+   "kind": "record id",
+   "at": "Seen on 3 of 5 well-observed days · 18–20 kW at midday · F-109"
+  },
+  {
+   "op": "lakeside",
+   "id": "F-109",
+   "kind": "record id",
+   "at": "F-109 · Productive-use headroom"
+  },
+  {
+   "op": "lakeside",
    "id": "WR-019",
    "kind": "record id",
-   "at": "Maintenance›WR-019›Overview· site: Thika cold room"
+   "at": "Maintenance›WR-019›Overview· site: Thika"
   },
   {
    "op": "lakeside",
@@ -843,7 +763,7 @@
    "op": "lakeside",
    "id": "WR-019",
    "kind": "record id",
-   "at": "Maintenance›WR-019›Maintenance record· site: Thika cold room"
+   "at": "Maintenance›WR-019›Maintenance record· site: Thika"
   },
   {
    "op": "lakeside",
@@ -867,7 +787,7 @@
    "op": "lakeside",
    "id": "WR-019",
    "kind": "record id",
-   "at": "Maintenance›WR-019›History· site: Thika cold room"
+   "at": "Maintenance›WR-019›History· site: Thika"
   },
   {
    "op": "lakeside",
@@ -923,8 +843,8 @@
    "id": "mini",
    "status": "Changed",
    "ok": true,
-   "h1": "Kobo Mini-grid",
-   "landed": "mini",
+   "h1": "Kobo",
+   "landed": "site/kobo",
    "errors": [],
    "topbarOperatorSelect": false,
    "reviewOperatorSelect": true
@@ -934,7 +854,7 @@
    "id": "foundation",
    "status": "Preserved",
    "ok": true,
-   "h1": "Kobo Mini-grid",
+   "h1": "Kobo",
    "landed": "foundation",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -945,7 +865,7 @@
    "id": "readiness",
    "status": "Preserved",
    "ok": true,
-   "h1": "Kobo Mini-grid",
+   "h1": "Kobo",
    "landed": "readiness",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -956,7 +876,7 @@
    "id": "changes",
    "status": "Preserved",
    "ok": true,
-   "h1": "Kobo Mini-grid",
+   "h1": "Kobo",
    "landed": "changes",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -967,7 +887,7 @@
    "id": "dispatch",
    "status": "Preserved",
    "ok": true,
-   "h1": "Kobo Mini-grid",
+   "h1": "Kobo",
    "landed": "dispatch",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -978,7 +898,7 @@
    "id": "renewable",
    "status": "Changed",
    "ok": true,
-   "h1": "Kobo Mini-grid",
+   "h1": "Kobo",
    "landed": "renewable",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -989,7 +909,7 @@
    "id": "evidence",
    "status": "Preserved",
    "ok": true,
-   "h1": "Kobo Mini-grid",
+   "h1": "Kobo",
    "landed": "evidence",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1044,8 +964,8 @@
    "id": "recommendation",
    "status": "Preserved",
    "ok": true,
-   "h1": "Generator support merits review",
-   "landed": "recommendation",
+   "h1": "What should we do about the Kobo generator stop setting?",
+   "landed": "decision/kobo-generator",
    "errors": [],
    "topbarOperatorSelect": false,
    "reviewOperatorSelect": true
@@ -1077,7 +997,7 @@
    "id": "health",
    "status": "Preserved",
    "ok": true,
-   "h1": "Kobo Mini-grid",
+   "h1": "Kobo",
    "landed": "health",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1088,7 +1008,7 @@
    "id": "lab",
    "status": "Preserved",
    "ok": true,
-   "h1": "Kobo · Gateway & Ingestion",
+   "h1": "Page not found",
    "landed": "lab",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1099,7 +1019,7 @@
    "id": "cold",
    "status": "Changed",
    "ok": true,
-   "h1": "Thika cold room",
+   "h1": "Thika",
    "landed": "cold",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1110,7 +1030,7 @@
    "id": "temperature",
    "status": "Preserved",
    "ok": true,
-   "h1": "Thika cold room",
+   "h1": "Thika",
    "landed": "temperature",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1121,7 +1041,7 @@
    "id": "cooling",
    "status": "Preserved",
    "ok": true,
-   "h1": "Thika cold room",
+   "h1": "Thika",
    "landed": "cooling",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1132,7 +1052,7 @@
    "id": "coldbackup",
    "status": "Preserved",
    "ok": true,
-   "h1": "Thika cold room",
+   "h1": "Thika",
    "landed": "coldbackup",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1143,7 +1063,7 @@
    "id": "ev",
    "status": "Changed",
    "ok": true,
-   "h1": "Ruiru depot",
+   "h1": "Ruiru",
    "landed": "ev",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1154,7 +1074,7 @@
    "id": "sessions",
    "status": "Changed",
    "ok": true,
-   "h1": "Ruiru depot",
+   "h1": "Ruiru",
    "landed": "sessions",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1165,7 +1085,7 @@
    "id": "availability",
    "status": "Changed",
    "ok": true,
-   "h1": "Ruiru depot",
+   "h1": "Ruiru",
    "landed": "availability",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1176,7 +1096,7 @@
    "id": "energy",
    "status": "Changed",
    "ok": true,
-   "h1": "Ruiru depot",
+   "h1": "Ruiru",
    "landed": "energy",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1209,7 +1129,7 @@
    "id": "service",
    "status": "Preserved",
    "ok": true,
-   "h1": "Kobo Mini-grid",
+   "h1": "Kobo",
    "landed": "service",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1220,7 +1140,7 @@
    "id": "fuel",
    "status": "Preserved",
    "ok": true,
-   "h1": "Kobo Mini-grid",
+   "h1": "Kobo",
    "landed": "fuel",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1231,7 +1151,7 @@
    "id": "backup",
    "status": "Preserved",
    "ok": true,
-   "h1": "Kobo Mini-grid",
+   "h1": "Kobo",
    "landed": "backup",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1242,7 +1162,7 @@
    "id": "sitefindings",
    "status": "Preserved",
    "ok": true,
-   "h1": "Kobo Mini-grid",
+   "h1": "Kobo",
    "landed": "sitefindings",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1253,7 +1173,7 @@
    "id": "sitework",
    "status": "Preserved",
    "ok": true,
-   "h1": "Kobo Mini-grid",
+   "h1": "Kobo",
    "landed": "sitework",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1264,7 +1184,7 @@
    "id": "sitework-incidents",
    "status": "Preserved",
    "ok": true,
-   "h1": "Kobo Mini-grid",
+   "h1": "Kobo",
    "landed": "sitework-incidents",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1275,7 +1195,7 @@
    "id": "sitework-maintenance",
    "status": "Preserved",
    "ok": true,
-   "h1": "Kobo Mini-grid",
+   "h1": "Kobo",
    "landed": "sitework-maintenance",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1286,7 +1206,7 @@
    "id": "evidence-analysis",
    "status": "Preserved",
    "ok": true,
-   "h1": "Kobo Mini-grid",
+   "h1": "Kobo",
    "landed": "evidence-analysis",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1295,7 +1215,7 @@
   {
    "op": "lakeside",
    "id": "assets",
-   "status": "Changed",
+   "status": "Preserved",
    "ok": true,
    "h1": "Assets",
    "landed": "assets",
@@ -1306,7 +1226,7 @@
   {
    "op": "lakeside",
    "id": "findings",
-   "status": "Changed",
+   "status": "Preserved",
    "ok": true,
    "h1": "Findings",
    "landed": "findings",
@@ -1317,7 +1237,7 @@
   {
    "op": "lakeside",
    "id": "actions",
-   "status": "Changed",
+   "status": "Preserved",
    "ok": true,
    "h1": "Actions",
    "landed": "actions",
@@ -1328,7 +1248,7 @@
   {
    "op": "lakeside",
    "id": "incidents",
-   "status": "Changed",
+   "status": "Preserved",
    "ok": true,
    "h1": "Incidents",
    "landed": "incidents",
@@ -1339,7 +1259,7 @@
   {
    "op": "lakeside",
    "id": "maintenance",
-   "status": "Changed",
+   "status": "Preserved",
    "ok": true,
    "h1": "Maintenance",
    "landed": "maintenance",
@@ -1350,7 +1270,7 @@
   {
    "op": "lakeside",
    "id": "globalevidence",
-   "status": "Changed",
+   "status": "Preserved",
    "ok": true,
    "h1": "Portfolio evidence",
    "landed": "globalevidence",
@@ -1374,7 +1294,7 @@
    "id": "cold-foundation",
    "status": "Preserved",
    "ok": true,
-   "h1": "Thika cold room",
+   "h1": "Thika",
    "landed": "cold-foundation",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1385,7 +1305,7 @@
    "id": "cold-health",
    "status": "Preserved",
    "ok": true,
-   "h1": "Thika cold room",
+   "h1": "Thika",
    "landed": "cold-health",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1396,7 +1316,7 @@
    "id": "cold-evidence",
    "status": "Preserved",
    "ok": true,
-   "h1": "Thika cold room",
+   "h1": "Thika",
    "landed": "cold-evidence",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1407,7 +1327,7 @@
    "id": "cold-evidence-analysis",
    "status": "Preserved",
    "ok": true,
-   "h1": "Thika cold room",
+   "h1": "Thika",
    "landed": "cold-evidence-analysis",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1440,7 +1360,7 @@
    "id": "cold-findings",
    "status": "Preserved",
    "ok": true,
-   "h1": "Thika cold room",
+   "h1": "Thika",
    "landed": "cold-findings",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1451,7 +1371,7 @@
    "id": "cold-work",
    "status": "Preserved",
    "ok": true,
-   "h1": "Thika cold room",
+   "h1": "Thika",
    "landed": "cold-work",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1462,7 +1382,7 @@
    "id": "cold-work-incidents",
    "status": "Preserved",
    "ok": true,
-   "h1": "Thika cold room",
+   "h1": "Thika",
    "landed": "cold-work-incidents",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1473,7 +1393,7 @@
    "id": "cold-work-maintenance",
    "status": "Preserved",
    "ok": true,
-   "h1": "Thika cold room",
+   "h1": "Thika",
    "landed": "cold-work-maintenance",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1495,8 +1415,8 @@
    "id": "cold-recommendation",
    "status": "Preserved",
    "ok": true,
-   "h1": "Backup response failed during grid interruption",
-   "landed": "cold-recommendation",
+   "h1": "Thika stock cover until the start controller is replaced",
+   "landed": "decision/thika-backup",
    "errors": [],
    "topbarOperatorSelect": false,
    "reviewOperatorSelect": true
@@ -1506,7 +1426,7 @@
    "id": "ev-foundation",
    "status": "Changed",
    "ok": true,
-   "h1": "Ruiru depot",
+   "h1": "Ruiru",
    "landed": "ev-foundation",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1517,7 +1437,7 @@
    "id": "ev-health",
    "status": "Changed",
    "ok": true,
-   "h1": "Ruiru depot",
+   "h1": "Ruiru",
    "landed": "ev-health",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1528,7 +1448,7 @@
    "id": "ev-evidence",
    "status": "Changed",
    "ok": true,
-   "h1": "Ruiru depot",
+   "h1": "Ruiru",
    "landed": "ev-evidence",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1539,7 +1459,7 @@
    "id": "ev-evidence-analysis",
    "status": "Changed",
    "ok": true,
-   "h1": "Ruiru depot",
+   "h1": "Ruiru",
    "landed": "ev-evidence-analysis",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1572,7 +1492,7 @@
    "id": "ev-findings",
    "status": "Changed",
    "ok": true,
-   "h1": "Ruiru depot",
+   "h1": "Ruiru",
    "landed": "ev-findings",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1583,7 +1503,7 @@
    "id": "ev-work",
    "status": "Changed",
    "ok": true,
-   "h1": "Ruiru depot",
+   "h1": "Ruiru",
    "landed": "ev-work",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1594,7 +1514,7 @@
    "id": "ev-work-incidents",
    "status": "Changed",
    "ok": true,
-   "h1": "Ruiru depot",
+   "h1": "Ruiru",
    "landed": "ev-work-incidents",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1605,7 +1525,7 @@
    "id": "ev-work-maintenance",
    "status": "Changed",
    "ok": true,
-   "h1": "Ruiru depot",
+   "h1": "Ruiru",
    "landed": "ev-work-maintenance",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1627,8 +1547,8 @@
    "id": "ev-recommendation",
    "status": "Preserved",
    "ok": true,
-   "h1": "Connector 2 charging session interrupted",
-   "landed": "ev-recommendation",
+   "h1": "What should we do about the Ruiru idle connector claim?",
+   "landed": "decision/ruiru-connector",
    "errors": [],
    "topbarOperatorSelect": false,
    "reviewOperatorSelect": true
@@ -1660,8 +1580,8 @@
    "id": "alternatives",
    "status": "Preserved",
    "ok": true,
-   "h1": "Generator support review",
-   "landed": "alternatives",
+   "h1": "What should we do about the Kobo generator stop setting?",
+   "landed": "decision/kobo-generator",
    "errors": [],
    "topbarOperatorSelect": false,
    "reviewOperatorSelect": true
@@ -1770,7 +1690,7 @@
    "id": "scenarios",
    "status": "Merged",
    "ok": true,
-   "h1": "Kobo",
+   "h1": "Page not found",
    "landed": "site/kobo/economics",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1792,7 +1712,7 @@
    "id": "ev-scenarios",
    "status": "Merged",
    "ok": true,
-   "h1": "Ruiru",
+   "h1": "Page not found",
    "landed": "site/ruiru/economics",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1803,7 +1723,7 @@
    "id": "cold-readiness",
    "status": "Preserved",
    "ok": true,
-   "h1": "Thika cold room",
+   "h1": "Thika",
    "landed": "cold-readiness",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1814,7 +1734,7 @@
    "id": "ev-readiness",
    "status": "Changed",
    "ok": true,
-   "h1": "Ruiru depot",
+   "h1": "Ruiru",
    "landed": "ev-readiness",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1825,7 +1745,7 @@
    "id": "sld",
    "status": "Preserved",
    "ok": true,
-   "h1": "Kobo Mini-grid",
+   "h1": "Kobo",
    "landed": "sld",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1836,7 +1756,7 @@
    "id": "cold-sld",
    "status": "Preserved",
    "ok": true,
-   "h1": "Thika cold room",
+   "h1": "Thika",
    "landed": "cold-sld",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1847,7 +1767,7 @@
    "id": "ev-sld",
    "status": "Changed",
    "ok": true,
-   "h1": "Ruiru depot",
+   "h1": "Ruiru",
    "landed": "ev-sld",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -1856,7 +1776,7 @@
   {
    "op": "lakeside",
    "id": "assets-warranty",
-   "status": "Changed",
+   "status": "Preserved",
    "ok": true,
    "h1": "Assets",
    "landed": "assets-warranty",
@@ -1867,7 +1787,7 @@
   {
    "op": "lakeside",
    "id": "asset-register",
-   "status": "Changed",
+   "status": "Preserved",
    "ok": true,
    "h1": "Assets",
    "landed": "asset-register",
@@ -1999,7 +1919,7 @@
   {
    "op": "lakeside",
    "id": "findings-cost",
-   "status": "Changed",
+   "status": "Preserved",
    "ok": true,
    "h1": "Findings",
    "landed": "findings-cost",
@@ -2010,7 +1930,7 @@
   {
    "op": "lakeside",
    "id": "findings-risks",
-   "status": "Changed",
+   "status": "Preserved",
    "ok": true,
    "h1": "Findings",
    "landed": "findings-risks",
@@ -2021,7 +1941,7 @@
   {
    "op": "lakeside",
    "id": "findings-opportunities",
-   "status": "Changed",
+   "status": "Preserved",
    "ok": true,
    "h1": "Findings",
    "landed": "findings-opportunities",
@@ -2032,7 +1952,7 @@
   {
    "op": "lakeside",
    "id": "maintenance-preventive",
-   "status": "Changed",
+   "status": "Preserved",
    "ok": true,
    "h1": "Maintenance",
    "landed": "maintenance-preventive",
@@ -2076,7 +1996,7 @@
   {
    "op": "lakeside",
    "id": "oprecords",
-   "status": "Changed",
+   "status": "Preserved",
    "ok": true,
    "h1": "Operational records",
    "landed": "oprecords",
@@ -2087,7 +2007,7 @@
   {
    "op": "lakeside",
    "id": "settings-policies",
-   "status": "Changed",
+   "status": "Preserved",
    "ok": true,
    "h1": "Settings",
    "landed": "settings-policies",
@@ -2098,7 +2018,7 @@
   {
    "op": "lakeside",
    "id": "settings-tenant",
-   "status": "Changed",
+   "status": "Preserved",
    "ok": true,
    "h1": "Settings",
    "landed": "settings-tenant",
@@ -2111,8 +2031,8 @@
    "id": "portfolio/outcomes-by-site",
    "status": "Added",
    "ok": true,
-   "h1": "Portfolio",
-   "landed": "portfolio/outcomes-by-site",
+   "h1": "Outcomes",
+   "landed": "portfolio/outcomes",
    "errors": [],
    "topbarOperatorSelect": false,
    "reviewOperatorSelect": true
@@ -2122,7 +2042,7 @@
    "id": "portfolio/demand-and-capacity",
    "status": "Added",
    "ok": true,
-   "h1": "Portfolio",
+   "h1": "Demand & capacity",
    "landed": "portfolio/demand-and-capacity",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2174,10 +2094,32 @@
   },
   {
    "op": "lakeside",
+   "id": "portfolio/act-first/plan",
+   "status": "Added",
+   "ok": true,
+   "h1": "The plan for November and December",
+   "landed": "plan",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "not-found",
+   "status": "Added",
+   "ok": true,
+   "h1": "Page not found",
+   "landed": "not-found",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
    "id": "site/kobo",
    "status": "Added",
    "ok": true,
-   "h1": "Kobo",
+   "h1": "Page not found",
    "landed": "site/kobo",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2188,7 +2130,7 @@
    "id": "site/kobo/economics",
    "status": "Added",
    "ok": true,
-   "h1": "Kobo",
+   "h1": "Page not found",
    "landed": "site/kobo/economics",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2199,7 +2141,7 @@
    "id": "site/kisiwa",
    "status": "Added",
    "ok": true,
-   "h1": "Kisiwa",
+   "h1": "Page not found",
    "landed": "site/kisiwa",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2210,7 +2152,7 @@
    "id": "site/kisiwa/economics",
    "status": "Added",
    "ok": true,
-   "h1": "Kisiwa",
+   "h1": "Page not found",
    "landed": "site/kisiwa/economics",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2221,7 +2163,7 @@
    "id": "site/kisiwa/foundation",
    "status": "Added",
    "ok": true,
-   "h1": "Kisiwa",
+   "h1": "Page not found",
    "landed": "site/kisiwa/foundation",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2232,7 +2174,7 @@
    "id": "site/kisiwa/health",
    "status": "Added",
    "ok": true,
-   "h1": "Kisiwa",
+   "h1": "Page not found",
    "landed": "site/kisiwa/health",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2243,7 +2185,7 @@
    "id": "site/kisiwa/performance",
    "status": "Added",
    "ok": true,
-   "h1": "Kisiwa",
+   "h1": "Page not found",
    "landed": "site/kisiwa/performance",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2254,7 +2196,7 @@
    "id": "site/kisiwa/findings",
    "status": "Added",
    "ok": true,
-   "h1": "Kisiwa",
+   "h1": "Page not found",
    "landed": "site/kisiwa/findings",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2265,7 +2207,7 @@
    "id": "site/kisiwa/work",
    "status": "Added",
    "ok": true,
-   "h1": "Kisiwa",
+   "h1": "Page not found",
    "landed": "site/kisiwa/work",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2276,7 +2218,7 @@
    "id": "site/kisiwa/evidence",
    "status": "Added",
    "ok": true,
-   "h1": "Kisiwa",
+   "h1": "Page not found",
    "landed": "site/kisiwa/evidence",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2287,7 +2229,7 @@
    "id": "site/mto",
    "status": "Added",
    "ok": true,
-   "h1": "Mto",
+   "h1": "Page not found",
    "landed": "site/mto",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2298,7 +2240,7 @@
    "id": "site/mto/economics",
    "status": "Added",
    "ok": true,
-   "h1": "Mto",
+   "h1": "Page not found",
    "landed": "site/mto/economics",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2309,7 +2251,7 @@
    "id": "site/mto/foundation",
    "status": "Added",
    "ok": true,
-   "h1": "Mto",
+   "h1": "Page not found",
    "landed": "site/mto/foundation",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2320,7 +2262,7 @@
    "id": "site/mto/health",
    "status": "Added",
    "ok": true,
-   "h1": "Mto",
+   "h1": "Page not found",
    "landed": "site/mto/health",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2331,7 +2273,7 @@
    "id": "site/mto/performance",
    "status": "Added",
    "ok": true,
-   "h1": "Mto",
+   "h1": "Page not found",
    "landed": "site/mto/performance",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2342,7 +2284,7 @@
    "id": "site/mto/findings",
    "status": "Added",
    "ok": true,
-   "h1": "Mto",
+   "h1": "Page not found",
    "landed": "site/mto/findings",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2353,7 +2295,7 @@
    "id": "site/mto/work",
    "status": "Added",
    "ok": true,
-   "h1": "Mto",
+   "h1": "Page not found",
    "landed": "site/mto/work",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2364,7 +2306,7 @@
    "id": "site/mto/evidence",
    "status": "Added",
    "ok": true,
-   "h1": "Mto",
+   "h1": "Page not found",
    "landed": "site/mto/evidence",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2397,7 +2339,7 @@
    "id": "site/mwea/foundation",
    "status": "Added",
    "ok": true,
-   "h1": "Mwea",
+   "h1": "Page not found",
    "landed": "site/mwea/foundation",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2408,7 +2350,7 @@
    "id": "site/mwea/health",
    "status": "Added",
    "ok": true,
-   "h1": "Mwea",
+   "h1": "Page not found",
    "landed": "site/mwea/health",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2419,7 +2361,7 @@
    "id": "site/mwea/performance",
    "status": "Added",
    "ok": true,
-   "h1": "Mwea",
+   "h1": "Page not found",
    "landed": "site/mwea/performance",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2430,7 +2372,7 @@
    "id": "site/mwea/findings",
    "status": "Added",
    "ok": true,
-   "h1": "Mwea",
+   "h1": "Page not found",
    "landed": "site/mwea/findings",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2441,7 +2383,7 @@
    "id": "site/mwea/work",
    "status": "Added",
    "ok": true,
-   "h1": "Mwea",
+   "h1": "Page not found",
    "landed": "site/mwea/work",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2452,7 +2394,7 @@
    "id": "site/mwea/evidence",
    "status": "Added",
    "ok": true,
-   "h1": "Mwea",
+   "h1": "Page not found",
    "landed": "site/mwea/evidence",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2507,7 +2449,7 @@
    "id": "site/kirinyaga/foundation",
    "status": "Added",
    "ok": true,
-   "h1": "Kirinyaga",
+   "h1": "Page not found",
    "landed": "site/kirinyaga/foundation",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2518,7 +2460,7 @@
    "id": "site/kirinyaga/health",
    "status": "Added",
    "ok": true,
-   "h1": "Kirinyaga",
+   "h1": "Page not found",
    "landed": "site/kirinyaga/health",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2529,7 +2471,7 @@
    "id": "site/kirinyaga/performance",
    "status": "Added",
    "ok": true,
-   "h1": "Kirinyaga",
+   "h1": "Page not found",
    "landed": "site/kirinyaga/performance",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2540,7 +2482,7 @@
    "id": "site/kirinyaga/findings",
    "status": "Added",
    "ok": true,
-   "h1": "Kirinyaga",
+   "h1": "Page not found",
    "landed": "site/kirinyaga/findings",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2551,7 +2493,7 @@
    "id": "site/kirinyaga/work",
    "status": "Added",
    "ok": true,
-   "h1": "Kirinyaga",
+   "h1": "Page not found",
    "landed": "site/kirinyaga/work",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2562,7 +2504,7 @@
    "id": "site/kirinyaga/evidence",
    "status": "Added",
    "ok": true,
-   "h1": "Kirinyaga",
+   "h1": "Page not found",
    "landed": "site/kirinyaga/evidence",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2573,7 +2515,7 @@
    "id": "site/embakasi",
    "status": "Added",
    "ok": true,
-   "h1": "Embakasi",
+   "h1": "Page not found",
    "landed": "site/embakasi",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2584,7 +2526,7 @@
    "id": "site/embakasi/economics",
    "status": "Added",
    "ok": true,
-   "h1": "Embakasi",
+   "h1": "Page not found",
    "landed": "site/embakasi/economics",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2595,7 +2537,7 @@
    "id": "site/embakasi/foundation",
    "status": "Added",
    "ok": true,
-   "h1": "Embakasi",
+   "h1": "Page not found",
    "landed": "site/embakasi/foundation",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2606,7 +2548,7 @@
    "id": "site/embakasi/health",
    "status": "Added",
    "ok": true,
-   "h1": "Embakasi",
+   "h1": "Page not found",
    "landed": "site/embakasi/health",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2617,7 +2559,7 @@
    "id": "site/embakasi/performance",
    "status": "Added",
    "ok": true,
-   "h1": "Embakasi",
+   "h1": "Page not found",
    "landed": "site/embakasi/performance",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2628,7 +2570,7 @@
    "id": "site/embakasi/findings",
    "status": "Added",
    "ok": true,
-   "h1": "Embakasi",
+   "h1": "Page not found",
    "landed": "site/embakasi/findings",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2639,7 +2581,7 @@
    "id": "site/embakasi/work",
    "status": "Added",
    "ok": true,
-   "h1": "Embakasi",
+   "h1": "Page not found",
    "landed": "site/embakasi/work",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2650,7 +2592,7 @@
    "id": "site/embakasi/evidence",
    "status": "Added",
    "ok": true,
-   "h1": "Embakasi",
+   "h1": "Page not found",
    "landed": "site/embakasi/evidence",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2661,7 +2603,7 @@
    "id": "site/kasarani",
    "status": "Added",
    "ok": true,
-   "h1": "Kasarani",
+   "h1": "Page not found",
    "landed": "site/kasarani",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2672,7 +2614,7 @@
    "id": "site/kasarani/economics",
    "status": "Added",
    "ok": true,
-   "h1": "Kasarani",
+   "h1": "Page not found",
    "landed": "site/kasarani/economics",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2683,7 +2625,7 @@
    "id": "site/kasarani/foundation",
    "status": "Added",
    "ok": true,
-   "h1": "Kasarani",
+   "h1": "Page not found",
    "landed": "site/kasarani/foundation",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2694,7 +2636,7 @@
    "id": "site/kasarani/health",
    "status": "Added",
    "ok": true,
-   "h1": "Kasarani",
+   "h1": "Page not found",
    "landed": "site/kasarani/health",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2705,7 +2647,7 @@
    "id": "site/kasarani/performance",
    "status": "Added",
    "ok": true,
-   "h1": "Kasarani",
+   "h1": "Page not found",
    "landed": "site/kasarani/performance",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2716,7 +2658,7 @@
    "id": "site/kasarani/findings",
    "status": "Added",
    "ok": true,
-   "h1": "Kasarani",
+   "h1": "Page not found",
    "landed": "site/kasarani/findings",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2727,7 +2669,7 @@
    "id": "site/kasarani/work",
    "status": "Added",
    "ok": true,
-   "h1": "Kasarani",
+   "h1": "Page not found",
    "landed": "site/kasarani/work",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2738,7 +2680,7 @@
    "id": "site/kasarani/evidence",
    "status": "Added",
    "ok": true,
-   "h1": "Kasarani",
+   "h1": "Page not found",
    "landed": "site/kasarani/evidence",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2749,7 +2691,7 @@
    "id": "site/ruiru",
    "status": "Added",
    "ok": true,
-   "h1": "Ruiru",
+   "h1": "Page not found",
    "landed": "site/ruiru",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2760,7 +2702,7 @@
    "id": "site/ruiru/economics",
    "status": "Added",
    "ok": true,
-   "h1": "Ruiru",
+   "h1": "Page not found",
    "landed": "site/ruiru/economics",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2771,7 +2713,7 @@
    "id": "decision/kobo-generator",
    "status": "Added",
    "ok": true,
-   "h1": "Kobo generator stop setting",
+   "h1": "Page not found",
    "landed": "decision/kobo-generator",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2782,7 +2724,7 @@
    "id": "decision/kobo-battery",
    "status": "Added",
    "ok": true,
-   "h1": "Kobo battery warranty evidence",
+   "h1": "Page not found",
    "landed": "decision/kobo-battery",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2793,7 +2735,7 @@
    "id": "decision/kisiwa-genset",
    "status": "Added",
    "ok": true,
-   "h1": "Kisiwa evening backup generator",
+   "h1": "Page not found",
    "landed": "decision/kisiwa-genset",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2804,7 +2746,7 @@
    "id": "decision/kisiwa-om",
    "status": "Added",
    "ok": true,
-   "h1": "Kisiwa late repair response and service credit",
+   "h1": "Page not found",
    "landed": "decision/kisiwa-om",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2815,7 +2757,7 @@
    "id": "decision/mto-demand",
    "status": "Added",
    "ok": true,
-   "h1": "Mto new daytime demand",
+   "h1": "Page not found",
    "landed": "decision/mto-demand",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2826,8 +2768,19 @@
    "id": "decision/mto-billing",
    "status": "Added",
    "ok": true,
-   "h1": "Mto billing after the meter swap",
+   "h1": "Page not found",
    "landed": "decision/mto-billing",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "lakeside",
+   "id": "decision/mto-losses",
+   "status": "Added",
+   "ok": true,
+   "h1": "Page not found",
+   "landed": "decision/mto-losses",
    "errors": [],
    "topbarOperatorSelect": false,
    "reviewOperatorSelect": true
@@ -2837,7 +2790,7 @@
    "id": "decision/mto-inverter",
    "status": "Added",
    "ok": true,
-   "h1": "Mto inverter 2 restore path",
+   "h1": "Page not found",
    "landed": "decision/mto-inverter",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2881,7 +2834,7 @@
    "id": "decision/embakasi-schedule",
    "status": "Added",
    "ok": true,
-   "h1": "Embakasi charging schedule",
+   "h1": "Page not found",
    "landed": "decision/embakasi-schedule",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2892,7 +2845,7 @@
    "id": "decision/kasarani-charger",
    "status": "Added",
    "ok": true,
-   "h1": "Kasarani departures while charger 2 is repaired",
+   "h1": "Page not found",
    "landed": "decision/kasarani-charger",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2903,7 +2856,7 @@
    "id": "decision/ruiru-expansion",
    "status": "Added",
    "ok": true,
-   "h1": "Ruiru route expansion: extra buses",
+   "h1": "Page not found",
    "landed": "decision/ruiru-expansion",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2914,7 +2867,7 @@
    "id": "decision/ruiru-connector",
    "status": "Added",
    "ok": true,
-   "h1": "Ruiru idle connector claim",
+   "h1": "Page not found",
    "landed": "decision/ruiru-connector",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -2958,8 +2911,8 @@
    "id": "portfolio/outcomes-by-site",
    "status": "Added",
    "ok": true,
-   "h1": "Portfolio",
-   "landed": "portfolio/outcomes-by-site",
+   "h1": "Outcomes",
+   "landed": "portfolio/outcomes",
    "errors": [],
    "topbarOperatorSelect": false,
    "reviewOperatorSelect": true
@@ -2969,7 +2922,7 @@
    "id": "portfolio/demand-and-capacity",
    "status": "Added",
    "ok": true,
-   "h1": "Portfolio",
+   "h1": "Demand & capacity",
    "landed": "portfolio/demand-and-capacity",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -3015,6 +2968,17 @@
    "ok": true,
    "h1": "A deep-dive and pilot on your data",
    "landed": "portfolio/scope/pilot",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
+  },
+  {
+   "op": "harvest",
+   "id": "portfolio/act-first/plan",
+   "status": "Added",
+   "ok": true,
+   "h1": "The plan for November and December",
+   "landed": "plan",
    "errors": [],
    "topbarOperatorSelect": false,
    "reviewOperatorSelect": true
@@ -3057,8 +3021,8 @@
    "id": "portfolio/outcomes-by-site",
    "status": "Added",
    "ok": true,
-   "h1": "Portfolio",
-   "landed": "portfolio/outcomes-by-site",
+   "h1": "Outcomes",
+   "landed": "portfolio/outcomes",
    "errors": [],
    "topbarOperatorSelect": false,
    "reviewOperatorSelect": true
@@ -3068,7 +3032,7 @@
    "id": "portfolio/demand-and-capacity",
    "status": "Added",
    "ok": true,
-   "h1": "Portfolio",
+   "h1": "Demand & capacity",
    "landed": "portfolio/demand-and-capacity",
    "errors": [],
    "topbarOperatorSelect": false,
@@ -3117,10 +3081,250 @@
    "errors": [],
    "topbarOperatorSelect": false,
    "reviewOperatorSelect": true
+  },
+  {
+   "op": "metro",
+   "id": "portfolio/act-first/plan",
+   "status": "Added",
+   "ok": true,
+   "h1": "The plan for November and December",
+   "landed": "plan",
+   "errors": [],
+   "topbarOperatorSelect": false,
+   "reviewOperatorSelect": true
   }
  ],
  "overflow390": [],
- "vocab": [],
+ "vocab": [
+  {
+   "op": "lakeside",
+   "id": "portfolio",
+   "match": "driver",
+   "at": " itThe four headings sit over one structure: each driver under one heading, so no figure is counted "
+  },
+  {
+   "op": "lakeside",
+   "id": "portfolio (drawer 0)",
+   "match": "drivers",
+   "at": "sum of the three sites, computed from each site's drivers (never an average of site percentages).\n H"
+  },
+  {
+   "op": "lakeside",
+   "id": "portfolio (drawer 2)",
+   "match": "drivers",
+   "at": "sum of the three sites, computed from each site's drivers (never an average of site percentages).\n H"
+  },
+  {
+   "op": "lakeside",
+   "id": "portfolio (drawer 5)",
+   "match": "driver",
+   "at": "et✕+$38Simulated\n What this isAttribution of this driver's deviation to the site outcome. \n How it i"
+  },
+  {
+   "op": "lakeside",
+   "id": "globalfinancials",
+   "match": "driver",
+   "at": "ted as zero.\n Site economicsKobo economics: every driver against target, the prices and models used,"
+  },
+  {
+   "op": "lakeside",
+   "id": "portfolio/outcomes-by-site",
+   "match": "driver",
+   "at": " OctoberSiteGroupContributionGap to targetLargest driver against targetWaiting for a choiceMweaCold "
+  },
+  {
+   "op": "lakeside",
+   "id": "portfolio/demand-and-capacity",
+   "match": "drivers",
+   "at": "st Cold Network value chain, October · stages are drivers; the gaps between them are leaksCapacity37"
+  },
+  {
+   "op": "lakeside",
+   "id": "portfolio/what-changed",
+   "match": "driver",
+   "at": " end of the period, 31 Dec, each item’s predicted driver change is set against what was observed. Th"
+  },
+  {
+   "op": "lakeside",
+   "id": "portfolio/scope",
+   "match": "driver",
+   "at": "tober cost rests on simulated records. Every base driver carries its evidence type in words.SiteBase"
+  },
+  {
+   "op": "lakeside",
+   "id": "portfolio/scope/pilot",
+   "match": "drivers",
+   "at": "r exports: each site’s outcomes computed from its drivers, against your plan, with recorded and esti"
+  },
+  {
+   "op": "lakeside",
+   "id": "site/mwea",
+   "match": "drivers",
+   "at": "s in detailMwea value chain, October · stages are drivers; the gaps between them are leaksCapacity12"
+  },
+  {
+   "op": "lakeside",
+   "id": "site/mwea/economics",
+   "match": "driver",
+   "at": "orked out.OverviewFinancialsMwea economics: every driver against target97.8% of the operator’s cost "
+  },
+  {
+   "op": "lakeside",
+   "id": "site/thika",
+   "match": "drivers",
+   "at": " in detailThika value chain, October · stages are drivers; the gaps between them are leaksCapacity12"
+  },
+  {
+   "op": "lakeside",
+   "id": "site/thika/economics",
+   "match": "driver",
+   "at": "tions with their reference.Thika economics: every driver against target97.8% of the operator’s cost "
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kirinyaga",
+   "match": "drivers",
+   "at": "detailKirinyaga value chain, October · stages are drivers; the gaps between them are leaksCapacity12"
+  },
+  {
+   "op": "lakeside",
+   "id": "site/kirinyaga/economics",
+   "match": "driver",
+   "at": " out.OverviewFinancialsKirinyaga economics: every driver against target97.8% of the operator’s cost "
+  },
+  {
+   "op": "lakeside",
+   "id": "decision/mwea-occupancy",
+   "match": "driver",
+   "at": "days a month (December to March); the electricity driver rises with occupancy, as the model predicts"
+  },
+  {
+   "op": "lakeside",
+   "id": "decision/kirinyaga-energy",
+   "match": "driver",
+   "at": "alculated from recordsThe repair targets that one driver (excess kWh); occupancy and prices stay as "
+  },
+  {
+   "op": "harvest",
+   "id": "portfolio",
+   "match": "driver",
+   "at": "ta.The four headings sit over one structure: each driver under one heading, so no figure is counted "
+  },
+  {
+   "op": "harvest",
+   "id": "portfolio (drawer 0)",
+   "match": "drivers",
+   "at": "sum of the three sites, computed from each site's drivers (never an average of site percentages).\n H"
+  },
+  {
+   "op": "harvest",
+   "id": "portfolio (drawer 2)",
+   "match": "drivers",
+   "at": "sum of the three sites, computed from each site's drivers (never an average of site percentages).\n H"
+  },
+  {
+   "op": "harvest",
+   "id": "portfolio (drawer 5)",
+   "match": "driver",
+   "at": "t✕−$620Simulated\n What this isAttribution of this driver's deviation to the site outcome. \n How it i"
+  },
+  {
+   "op": "harvest",
+   "id": "globalfinancials",
+   "match": "driver",
+   "at": "ted as zero.\n Site economicsMwea economics: every driver against target, the prices and models used,"
+  },
+  {
+   "op": "harvest",
+   "id": "portfolio/outcomes-by-site",
+   "match": "driver",
+   "at": " OctoberSiteGroupContributionGap to targetLargest driver against targetWaiting for a choiceMweaCold "
+  },
+  {
+   "op": "harvest",
+   "id": "portfolio/demand-and-capacity",
+   "match": "drivers",
+   "at": "st Cold Network value chain, October · stages are drivers; the gaps between them are leaksCapacity37"
+  },
+  {
+   "op": "harvest",
+   "id": "portfolio/what-changed",
+   "match": "driver",
+   "at": " end of the period, 31 Dec, each item’s predicted driver change is set against what was observed. Th"
+  },
+  {
+   "op": "harvest",
+   "id": "portfolio/scope",
+   "match": "driver",
+   "at": "tober cost rests on simulated records. Every base driver carries its evidence type in words.SiteBase"
+  },
+  {
+   "op": "harvest",
+   "id": "portfolio/scope/pilot",
+   "match": "drivers",
+   "at": "r exports: each site’s outcomes computed from its drivers, against your plan, with recorded and esti"
+  },
+  {
+   "op": "metro",
+   "id": "portfolio",
+   "match": "driver",
+   "at": "ta.The four headings sit over one structure: each driver under one heading, so no figure is counted "
+  },
+  {
+   "op": "metro",
+   "id": "portfolio (drawer 0)",
+   "match": "drivers",
+   "at": "sum of the three sites, computed from each site's drivers (never an average of site percentages).\n H"
+  },
+  {
+   "op": "metro",
+   "id": "portfolio (drawer 2)",
+   "match": "drivers",
+   "at": "sum of the three sites, computed from each site's drivers (never an average of site percentages).\n H"
+  },
+  {
+   "op": "metro",
+   "id": "portfolio (drawer 5)",
+   "match": "driver",
+   "at": "−$2,604Simulated\n What this isAttribution of this driver's deviation to the site outcome. \n How it i"
+  },
+  {
+   "op": "metro",
+   "id": "globalfinancials",
+   "match": "driver",
+   "at": "as zero.\n Site economicsEmbakasi economics: every driver against target, the prices and models used,"
+  },
+  {
+   "op": "metro",
+   "id": "portfolio/outcomes-by-site",
+   "match": "driver",
+   "at": "st per required departure metGap to targetLargest driver against targetWaiting for a choiceEmbakasiE"
+  },
+  {
+   "op": "metro",
+   "id": "portfolio/demand-and-capacity",
+   "match": "drivers",
+   "at": "etro Bus Depots value chain, October · stages are drivers; the gaps between them are leaksDeliverabl"
+  },
+  {
+   "op": "metro",
+   "id": "portfolio/what-changed",
+   "match": "driver",
+   "at": " end of the period, 31 Dec, each item’s predicted driver change is set against what was observed. Th"
+  },
+  {
+   "op": "metro",
+   "id": "portfolio/scope",
+   "match": "driver",
+   "at": "tober cost rests on simulated records. Every base driver carries its evidence type in words.SiteBase"
+  },
+  {
+   "op": "metro",
+   "id": "portfolio/scope/pilot",
+   "match": "drivers",
+   "at": "r exports: each site’s outcomes computed from its drivers, against your plan, with recorded and esti"
+  }
+ ],
  "drawer": {
   "openedWithKeyboard": true,
   "focusInside": true,
@@ -3138,49 +3342,35 @@
   {
    "sel": ".rail a",
    "tag": "A",
-   "outline": "solid 3px",
-   "shadow": "none",
+   "outline": "solid 2px",
+   "shadow": "rgb(201, 139, 30) 3px 0px 0px 0px inset",
    "visible": true
   },
   {
    "sel": ".tabs a",
    "tag": "A",
-   "outline": "solid 3px",
+   "outline": "solid 2px",
    "shadow": "none",
    "visible": true
   },
   {
    "sel": ".ev-num",
    "tag": "BUTTON",
-   "outline": "solid 3px",
+   "outline": "solid 2px",
    "shadow": "none",
    "visible": true
   },
   {
    "sel": "#op-switch",
    "tag": "SELECT",
-   "outline": "solid 3px",
-   "shadow": "none",
-   "visible": true
-  },
-  {
-   "sel": "button.wfrow",
-   "tag": "BUTTON",
-   "outline": "solid 3px",
+   "outline": "solid 2px",
    "shadow": "none",
    "visible": true
   },
   {
    "sel": "input[name=\"sw-budget\"]",
    "tag": "INPUT",
-   "outline": "solid 3px",
-   "shadow": "none",
-   "visible": true
-  },
-  {
-   "sel": "details.astable summary",
-   "tag": "SUMMARY",
-   "outline": "auto 1px",
+   "outline": "solid 2px",
    "shadow": "none",
    "visible": true
   }
@@ -3189,204 +3379,187 @@
   {
    "route": "portfolio",
    "sel": ".ec-rec",
-   "ratio": 5.19,
-   "size": "11px",
+   "ratio": 7.53,
+   "size": "12px",
    "pass": true
   },
   {
    "route": "portfolio",
    "sel": ".ec-est",
-   "ratio": 6.35,
-   "size": "10px",
+   "ratio": 7.53,
+   "size": "12px",
    "pass": true
   },
   {
    "route": "portfolio",
    "sel": ".ec-der",
-   "ratio": 5.23,
-   "size": "11px",
+   "ratio": 7.53,
+   "size": "12px",
    "pass": true
   },
   {
    "route": "portfolio",
    "sel": ".ec-mod",
-   "ratio": 5.17,
-   "size": "11px",
+   "ratio": 7.53,
+   "size": "12px",
    "pass": true
   },
   {
    "route": "portfolio",
    "sel": ".ec-stake",
-   "ratio": 6.96,
-   "size": "10px",
+   "ratio": 7.53,
+   "size": "12px",
    "pass": true
   },
   {
    "route": "portfolio",
    "sel": ".ec-na",
-   "ratio": 5.92,
-   "size": "10px",
+   "ratio": 7.53,
+   "size": "12px",
    "pass": true
   },
   {
    "route": "portfolio",
    "sel": ".hero small",
-   "ratio": 5.92,
-   "size": "11px",
-   "pass": true
+   "missing": true
   },
   {
    "route": "portfolio",
    "sel": ".note",
-   "ratio": 5.52,
-   "size": "11px",
+   "ratio": 7.53,
+   "size": "12px",
    "pass": true
   },
   {
    "route": "portfolio",
    "sel": ".attn-k",
-   "ratio": 6.96,
-   "size": "10px",
+   "ratio": 6.87,
+   "size": "12px",
    "pass": true
   },
   {
    "route": "portfolio",
    "sel": ".attn-new .attn-k",
-   "ratio": 7.01,
-   "size": "10px",
+   "ratio": 5.34,
+   "size": "12px",
    "pass": true
   },
   {
    "route": "portfolio",
    "sel": ".attn-at .attn-k",
-   "ratio": 6.35,
-   "size": "10px",
+   "ratio": 5.56,
+   "size": "12px",
    "pass": true
   },
   {
    "route": "portfolio",
    "sel": ".attn-unobs .attn-k",
-   "ratio": 7.15,
-   "size": "10px",
+   "ratio": 6.87,
+   "size": "12px",
    "pass": true
   },
   {
    "route": "portfolio",
    "sel": ".chain .stage span",
-   "ratio": 5.92,
-   "size": "10px",
-   "pass": true
+   "missing": true
   },
   {
    "route": "portfolio",
    "sel": ".chain .leak",
-   "ratio": 6.69,
-   "size": "10px",
-   "pass": true
+   "missing": true
   },
   {
    "route": "portfolio",
    "sel": ".ocard h4",
-   "ratio": 5.92,
-   "size": "10px",
+   "ratio": 7.53,
+   "size": "12px",
    "pass": true
   },
   {
    "route": "portfolio",
    "sel": ".op-select",
-   "ratio": 7.92,
-   "size": "11px",
+   "ratio": 7.44,
+   "size": "12px",
+   "pass": true
+  },
+  {
+   "route": "portfolio",
+   "sel": ".ux-chip.is-neutral",
+   "ratio": 6.87,
+   "size": "12px",
    "pass": true
   },
   {
    "route": "portfolio/outcomes-by-site",
    "sel": ".fac small",
-   "ratio": 5.66,
-   "size": "10.5px",
-   "pass": true
+   "missing": true
   },
   {
    "route": "portfolio/outcomes-by-site",
    "sel": ".wfval small",
-   "ratio": 5.92,
-   "size": "10px",
-   "pass": true
+   "missing": true
   },
   {
    "route": "portfolio/outcomes-by-site",
    "sel": ".wflabel small",
-   "ratio": 5.92,
-   "size": "10px",
-   "pass": true
+   "missing": true
   },
   {
    "route": "portfolio/outcomes-by-site",
    "sel": ".lens",
-   "ratio": 10.16,
-   "size": "10px",
-   "pass": true
+   "missing": true
   },
   {
    "route": "portfolio/outcomes-by-site",
    "sel": ".ftab thead th",
-   "ratio": 5.66,
-   "size": "10px",
-   "pass": true
+   "missing": true
   },
   {
    "route": "portfolio/outcomes-by-site",
    "sel": ".lgrid tbody th small",
-   "ratio": 5.92,
-   "size": "11px",
-   "pass": true
+   "missing": true
   },
   {
    "route": "portfolio/act-first",
    "sel": ".cellnote",
-   "ratio": 5.92,
-   "size": "10px",
-   "pass": true
-  },
-  {
-   "route": "portfolio/act-first",
-   "sel": ".switch small",
-   "ratio": 5.92,
-   "size": "11px",
-   "pass": true
-  },
-  {
-   "route": "portfolio/act-first",
-   "sel": ".meterhead",
-   "ratio": 9.47,
-   "size": "11px",
-   "pass": true
-  },
-  {
-   "route": "portfolio/act-first",
-   "sel": ".downside",
-   "ratio": 10.16,
+   "ratio": 7.53,
    "size": "12px",
    "pass": true
   },
   {
    "route": "portfolio/act-first",
-   "sel": ".dv",
-   "ratio": 7.5,
-   "size": "10px",
+   "sel": ".switch small",
+   "missing": true
+  },
+  {
+   "route": "portfolio/act-first",
+   "sel": ".meterhead",
+   "ratio": 16.46,
+   "size": "12px",
    "pass": true
+  },
+  {
+   "route": "portfolio/act-first",
+   "sel": ".downside",
+   "missing": true
+  },
+  {
+   "route": "portfolio/act-first",
+   "sel": ".dv",
+   "missing": true
   },
   {
    "route": "decision/mto-inverter",
    "sel": ".legal",
-   "ratio": 8.18,
-   "size": "11px",
+   "ratio": 14.83,
+   "size": "12px",
    "pass": true
   },
   {
    "route": "decision/mto-inverter",
    "sel": ".steps small",
-   "ratio": 5.03,
-   "size": "10px",
+   "ratio": 7.53,
+   "size": "12px",
    "pass": true
   },
   {
@@ -3399,29 +3572,25 @@
   {
    "route": "decision/kobo-generator",
    "sel": ".obl-pass",
-   "ratio": 7.09,
-   "size": "11px",
+   "ratio": 6.35,
+   "size": "12px",
    "pass": true
   },
   {
    "route": "decision/kobo-generator",
    "sel": ".obl-fail",
-   "ratio": 8.03,
-   "size": "11px",
-   "pass": true
+   "missing": true
   },
   {
    "route": "decision/kobo-generator",
    "sel": ".obl-cost",
-   "ratio": 6.59,
-   "size": "11px",
-   "pass": true
+   "missing": true
   },
   {
    "route": "decision/kobo-generator",
    "sel": ".obl-unknown",
-   "ratio": 8.71,
-   "size": "11px",
+   "ratio": 8.57,
+   "size": "12px",
    "pass": true
   },
   {
@@ -3432,105 +3601,99 @@
   {
    "route": "decision/kobo-generator",
    "sel": ".badge.green",
-   "ratio": 5.67,
-   "size": "10px",
-   "pass": true
+   "missing": true
   },
   {
    "route": "decision/kobo-generator",
    "sel": ".badge.amber",
-   "ratio": 5.3,
-   "size": "10px",
+   "ratio": 5.56,
+   "size": "12px",
    "pass": true
   },
   {
    "route": "decision/kobo-generator",
    "sel": ".badge.red",
-   "ratio": 5.8,
-   "size": "10px",
-   "pass": true
+   "missing": true
   },
   {
    "route": "findings",
    "sel": ".slim-banner",
-   "ratio": 6.9,
-   "size": "11px",
-   "pass": true
+   "missing": true
   }
  ],
  "switches": {
   "lakeside 5000/yes": {
-   "expectSpend": "$3,750",
-   "expectValue": "+$6,088.50",
+   "expectSpend": "$3,660",
+   "expectValue": "+$2,213.33",
    "spendOk": true,
-   "valueOk": true,
+   "valueOk": false,
    "inverterOk": true,
    "competingShown": true,
-   "hullerOk": true,
+   "hullerOk": false,
    "valuedCostsOk": true,
-   "downsideOk": true,
+   "downsideOk": false,
    "announced": true,
    "focusKept": true
   },
   "lakeside 5000/no": {
-   "expectSpend": "$2,550",
-   "expectValue": "+$2,548.50",
+   "expectSpend": "$2,460",
+   "expectValue": "+$0",
    "spendOk": true,
-   "valueOk": true,
+   "valueOk": false,
    "inverterOk": true,
    "competingShown": true,
    "hullerOk": true,
-   "valuedCostsOk": true,
-   "downsideOk": true,
+   "valuedCostsOk": false,
+   "downsideOk": false,
    "announced": true,
    "focusKept": true
   },
   "lakeside 6500/yes": {
-   "expectSpend": "$3,750",
-   "expectValue": "+$6,088.50",
+   "expectSpend": "$3,660",
+   "expectValue": "+$2,213.33",
    "spendOk": true,
-   "valueOk": true,
+   "valueOk": false,
    "inverterOk": true,
    "competingShown": true,
-   "hullerOk": true,
+   "hullerOk": false,
    "valuedCostsOk": true,
-   "downsideOk": true,
+   "downsideOk": false,
    "announced": true,
    "focusKept": true
   },
   "lakeside 6500/no": {
-   "expectSpend": "$6,430",
-   "expectValue": "+$3,508.50",
+   "expectSpend": "$6,340",
+   "expectValue": "+$2,213.33",
    "spendOk": true,
-   "valueOk": true,
+   "valueOk": false,
    "inverterOk": true,
    "competingShown": true,
-   "hullerOk": true,
+   "hullerOk": false,
    "valuedCostsOk": true,
-   "downsideOk": true,
+   "downsideOk": false,
    "announced": true,
    "focusKept": true
   },
   "harvest aggregator yes": {
    "spendOk": true,
    "visitsOk": true,
-   "valueOk": true,
-   "downsideOk": true,
+   "valueOk": false,
+   "downsideOk": false,
    "got": [
     "$720 of $2,500",
     "2 of 2",
-    "+$3,182.40"
+    "+$3,182"
    ]
   },
   "harvest aggregator no": {
    "spendOk": true,
    "visitsOk": true,
-   "valueOk": true,
-   "downsideOk": true,
+   "valueOk": false,
+   "downsideOk": false,
    "got": [
     "$450 of $2,500",
     "1 of 2",
-    "+$1,512.40"
+    "+$1,512"
    ]
   },
   "metro tariff yes": {
@@ -3556,18 +3719,12 @@
  },
  "operator": {
   "harvest": {
-   "topbar": "Harvest Cold Network / Demo operator",
-   "headline": "October contribution, composed from the sites’ factors: $946 against a plan of $1,716, $77",
    "inTopbar": false
   },
   "metro": {
-   "topbar": "Metro Bus Depots / Demo operator",
-   "headline": "October charging and depot cost, composed from the depots’ factors: $41,705.12 against a p",
    "inTopbar": false
   },
   "lakeside": {
-   "topbar": "Lakeside Power / Demo operator",
-   "headline": "October contribution, composed from the sites’ factors: $1,443 against a plan of $2,295, $",
    "inTopbar": false
   }
  },
@@ -3575,434 +3732,898 @@
  "preservedText": [
   {
    "id": "foundation",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "readiness",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "changes",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "dispatch",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "evidence",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "finding",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": false
   },
   {
    "id": "analysis",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": false
   },
   {
    "id": "recommendation",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": false
   },
   {
    "id": "verification",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": false
   },
   {
    "id": "asset",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": false
   },
   {
    "id": "health",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "lab",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "temperature",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "cooling",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "coldbackup",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "incident",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "workverification",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "service",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "fuel",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "backup",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "sitefindings",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "sitework",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "sitework-incidents",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "sitework-maintenance",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "evidence-analysis",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
+   "namesChanged": true
+  },
+  {
+   "id": "assets",
+   "identicalAfterNames": false,
+   "namesChanged": true
+  },
+  {
+   "id": "findings",
+   "identicalAfterNames": false,
+   "namesChanged": true
+  },
+  {
+   "id": "actions",
+   "identicalAfterNames": false,
+   "namesChanged": true
+  },
+  {
+   "id": "incidents",
+   "identicalAfterNames": false,
+   "namesChanged": true
+  },
+  {
+   "id": "maintenance",
+   "identicalAfterNames": false,
+   "namesChanged": true
+  },
+  {
+   "id": "globalevidence",
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "cold-foundation",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "cold-health",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "cold-evidence",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "cold-evidence-analysis",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "cold-findings",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "cold-work",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "cold-work-incidents",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "cold-work-maintenance",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "cold-finding",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "cold-recommendation",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "ev-finding",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "ev-recommendation",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "ev-action",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "finding-evidence",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": false
   },
   {
    "id": "alternatives",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": false
   },
   {
    "id": "finding-history",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": false
   },
   {
    "id": "action-overview",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": false
   },
   {
    "id": "action-plan",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": false
   },
   {
    "id": "action-execution",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": false
   },
   {
    "id": "action-evidence",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": false
   },
   {
    "id": "action-history",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": false
   },
   {
    "id": "cold-finding-excursion",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "cold-action",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "cold-readiness",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "sld",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "cold-sld",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
+   "namesChanged": true
+  },
+  {
+   "id": "assets-warranty",
+   "identicalAfterNames": false,
+   "namesChanged": false
+  },
+  {
+   "id": "asset-register",
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "asset-overview",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "site-create-form",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": false
   },
   {
    "id": "site-create-template",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": false
   },
   {
    "id": "site-batch-upload",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "site-setup-history",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "asset-performance",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": false
   },
   {
    "id": "asset-config",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": false
   },
   {
    "id": "asset-edit",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": false
   },
   {
    "id": "asset-work",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": false
   },
   {
    "id": "asset-evidence",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": false
   },
   {
    "id": "asset-warranty",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": false
   },
   {
+   "id": "findings-cost",
+   "identicalAfterNames": false,
+   "namesChanged": true
+  },
+  {
+   "id": "findings-risks",
+   "identicalAfterNames": false,
+   "namesChanged": true
+  },
+  {
+   "id": "findings-opportunities",
+   "identicalAfterNames": false,
+   "namesChanged": true
+  },
+  {
+   "id": "maintenance-preventive",
+   "identicalAfterNames": false,
+   "namesChanged": true
+  },
+  {
    "id": "wr-overview",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "wr-record",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
   },
   {
    "id": "wr-history",
-   "identicalAfterNames": true,
+   "identicalAfterNames": false,
    "namesChanged": true
+  },
+  {
+   "id": "oprecords",
+   "identicalAfterNames": false,
+   "namesChanged": true
+  },
+  {
+   "id": "settings-policies",
+   "identicalAfterNames": false,
+   "namesChanged": true
+  },
+  {
+   "id": "settings-tenant",
+   "identicalAfterNames": false,
+   "namesChanged": false
   }
  ],
  "errors": [],
- "links": {},
+ "links": {
+  "lakeside:portfolio": [
+   "plan",
+   "portfolio?scope=all",
+   "portfolio?scope=group:mini",
+   "portfolio/outcomes"
+  ],
+  "lakeside:mini": [
+   "plan",
+   "site/kobo?scope=all",
+   "site/kobo?scope=group:mini"
+  ],
+  "lakeside:recommendation": [
+   "plan",
+   "decision/kobo-generator?scope=all",
+   "decision/kobo-generator?scope=group:mini"
+  ],
+  "lakeside:lab": [
+   "plan"
+  ],
+  "lakeside:cold-recommendation": [
+   "plan",
+   "decision/thika-backup?scope=all",
+   "decision/thika-backup?scope=group:cold"
+  ],
+  "lakeside:ev-recommendation": [
+   "plan",
+   "decision/ruiru-connector?scope=all",
+   "decision/ruiru-connector?scope=group:ev"
+  ],
+  "lakeside:alternatives": [
+   "plan",
+   "decision/kobo-generator?scope=all",
+   "decision/kobo-generator?scope=group:mini"
+  ],
+  "lakeside:scenarios": [
+   "plan"
+  ],
+  "lakeside:ev-scenarios": [
+   "plan"
+  ],
+  "lakeside:portfolio/outcomes-by-site": [
+   "plan",
+   "portfolio/outcomes?scope=all",
+   "portfolio/outcomes?scope=group:cold",
+   "portfolio/outcomes"
+  ],
+  "lakeside:portfolio/demand-and-capacity": [
+   "plan",
+   "portfolio/demand-and-capacity?scope=all",
+   "portfolio/demand-and-capacity?scope=group:cold",
+   "portfolio/outcomes"
+  ],
+  "lakeside:portfolio/act-first/plan": [
+   "plan",
+   "plan?scope=all",
+   "plan?scope=group:cold"
+  ],
+  "lakeside:not-found": [
+   "plan"
+  ],
+  "lakeside:site/kobo": [
+   "plan"
+  ],
+  "lakeside:site/kobo/economics": [
+   "plan"
+  ],
+  "lakeside:site/kisiwa": [
+   "plan"
+  ],
+  "lakeside:site/kisiwa/economics": [
+   "plan"
+  ],
+  "lakeside:site/kisiwa/foundation": [
+   "plan"
+  ],
+  "lakeside:site/kisiwa/health": [
+   "plan"
+  ],
+  "lakeside:site/kisiwa/performance": [
+   "plan"
+  ],
+  "lakeside:site/kisiwa/findings": [
+   "plan"
+  ],
+  "lakeside:site/kisiwa/work": [
+   "plan"
+  ],
+  "lakeside:site/kisiwa/evidence": [
+   "plan"
+  ],
+  "lakeside:site/mto": [
+   "plan"
+  ],
+  "lakeside:site/mto/economics": [
+   "plan"
+  ],
+  "lakeside:site/mto/foundation": [
+   "plan"
+  ],
+  "lakeside:site/mto/health": [
+   "plan"
+  ],
+  "lakeside:site/mto/performance": [
+   "plan"
+  ],
+  "lakeside:site/mto/findings": [
+   "plan"
+  ],
+  "lakeside:site/mto/work": [
+   "plan"
+  ],
+  "lakeside:site/mto/evidence": [
+   "plan"
+  ],
+  "lakeside:site/mwea": [
+   "plan",
+   "site/mwea?scope=all",
+   "site/mwea?scope=group:cold"
+  ],
+  "lakeside:site/mwea/foundation": [
+   "plan"
+  ],
+  "lakeside:site/mwea/health": [
+   "plan"
+  ],
+  "lakeside:site/mwea/performance": [
+   "plan"
+  ],
+  "lakeside:site/mwea/findings": [
+   "plan"
+  ],
+  "lakeside:site/mwea/work": [
+   "plan"
+  ],
+  "lakeside:site/mwea/evidence": [
+   "plan"
+  ],
+  "lakeside:site/thika": [
+   "plan",
+   "site/thika?scope=all",
+   "site/thika?scope=group:cold"
+  ],
+  "lakeside:site/kirinyaga": [
+   "plan",
+   "site/kirinyaga?scope=all",
+   "site/kirinyaga?scope=group:cold"
+  ],
+  "lakeside:site/kirinyaga/foundation": [
+   "plan"
+  ],
+  "lakeside:site/kirinyaga/health": [
+   "plan"
+  ],
+  "lakeside:site/kirinyaga/performance": [
+   "plan"
+  ],
+  "lakeside:site/kirinyaga/findings": [
+   "plan"
+  ],
+  "lakeside:site/kirinyaga/work": [
+   "plan"
+  ],
+  "lakeside:site/kirinyaga/evidence": [
+   "plan"
+  ],
+  "lakeside:site/embakasi": [
+   "plan"
+  ],
+  "lakeside:site/embakasi/economics": [
+   "plan"
+  ],
+  "lakeside:site/embakasi/foundation": [
+   "plan"
+  ],
+  "lakeside:site/embakasi/health": [
+   "plan"
+  ],
+  "lakeside:site/embakasi/performance": [
+   "plan"
+  ],
+  "lakeside:site/embakasi/findings": [
+   "plan"
+  ],
+  "lakeside:site/embakasi/work": [
+   "plan"
+  ],
+  "lakeside:site/embakasi/evidence": [
+   "plan"
+  ],
+  "lakeside:site/kasarani": [
+   "plan"
+  ],
+  "lakeside:site/kasarani/economics": [
+   "plan"
+  ],
+  "lakeside:site/kasarani/foundation": [
+   "plan"
+  ],
+  "lakeside:site/kasarani/health": [
+   "plan"
+  ],
+  "lakeside:site/kasarani/performance": [
+   "plan"
+  ],
+  "lakeside:site/kasarani/findings": [
+   "plan"
+  ],
+  "lakeside:site/kasarani/work": [
+   "plan"
+  ],
+  "lakeside:site/kasarani/evidence": [
+   "plan"
+  ],
+  "lakeside:site/ruiru": [
+   "plan"
+  ],
+  "lakeside:site/ruiru/economics": [
+   "plan"
+  ],
+  "lakeside:decision/kobo-generator": [
+   "plan"
+  ],
+  "lakeside:decision/kobo-battery": [
+   "plan"
+  ],
+  "lakeside:decision/kisiwa-genset": [
+   "plan"
+  ],
+  "lakeside:decision/kisiwa-om": [
+   "plan"
+  ],
+  "lakeside:decision/mto-demand": [
+   "plan"
+  ],
+  "lakeside:decision/mto-billing": [
+   "plan"
+  ],
+  "lakeside:decision/mto-losses": [
+   "plan"
+  ],
+  "lakeside:decision/mto-inverter": [
+   "plan"
+  ],
+  "lakeside:decision/mwea-occupancy": [
+   "plan",
+   "decision/mwea-occupancy?scope=all",
+   "decision/mwea-occupancy?scope=group:cold"
+  ],
+  "lakeside:decision/thika-backup": [
+   "plan",
+   "decision/thika-backup?scope=all",
+   "decision/thika-backup?scope=group:cold"
+  ],
+  "lakeside:decision/kirinyaga-energy": [
+   "plan",
+   "decision/kirinyaga-energy?scope=all",
+   "decision/kirinyaga-energy?scope=group:cold"
+  ],
+  "lakeside:decision/embakasi-schedule": [
+   "plan"
+  ],
+  "lakeside:decision/kasarani-charger": [
+   "plan"
+  ],
+  "lakeside:decision/ruiru-expansion": [
+   "plan"
+  ],
+  "lakeside:decision/ruiru-connector": [
+   "plan"
+  ],
+  "harvest:portfolio": [
+   "plan",
+   "portfolio?scope=all",
+   "portfolio?scope=group:cold",
+   "portfolio/outcomes"
+  ],
+  "harvest:portfolio/outcomes-by-site": [
+   "plan",
+   "portfolio/outcomes?scope=all",
+   "portfolio/outcomes?scope=group:cold",
+   "portfolio/outcomes"
+  ],
+  "harvest:portfolio/demand-and-capacity": [
+   "plan",
+   "portfolio/demand-and-capacity?scope=all",
+   "portfolio/demand-and-capacity?scope=group:cold",
+   "portfolio/outcomes"
+  ],
+  "harvest:portfolio/act-first/plan": [
+   "plan",
+   "plan?scope=all",
+   "plan?scope=group:cold"
+  ],
+  "metro:portfolio": [
+   "plan",
+   "portfolio?scope=all",
+   "portfolio?scope=group:ev",
+   "portfolio/outcomes"
+  ],
+  "metro:portfolio/outcomes-by-site": [
+   "plan",
+   "portfolio/outcomes?scope=all",
+   "portfolio/outcomes?scope=group:ev",
+   "portfolio/outcomes"
+  ],
+  "metro:portfolio/demand-and-capacity": [
+   "plan",
+   "portfolio/demand-and-capacity?scope=all",
+   "portfolio/demand-and-capacity?scope=group:ev",
+   "portfolio/outcomes"
+  ],
+  "metro:portfolio/act-first/plan": [
+   "plan",
+   "plan?scope=all",
+   "plan?scope=group:ev"
+  ]
+ },
  "oracleShipped": false,
  "placeholders": {
-  "fig": 91,
-  "rec": 53,
-  "strings": 77,
+  "fig": 95,
+  "rec": 52,
+  "strings": 80,
   "unresolved": []
  },
+ "reviewNotesNoDrawer": [
+  "portfolio",
+  "portfolio/outcomes-by-site",
+  "portfolio/demand-and-capacity",
+  "portfolio/act-first/plan",
+  "not-found",
+  "site/kobo",
+  "site/kisiwa",
+  "site/kisiwa/foundation",
+  "site/kisiwa/health",
+  "site/kisiwa/performance",
+  "site/kisiwa/findings",
+  "site/kisiwa/work",
+  "site/kisiwa/evidence",
+  "site/mto",
+  "site/mto/foundation",
+  "site/mto/health",
+  "site/mto/performance",
+  "site/mto/findings",
+  "site/mto/work",
+  "site/mto/evidence",
+  "site/mwea",
+  "site/mwea/economics",
+  "site/mwea/foundation",
+  "site/mwea/health",
+  "site/mwea/performance",
+  "site/mwea/findings",
+  "site/mwea/work",
+  "site/mwea/evidence",
+  "site/thika",
+  "site/thika/economics",
+  "site/kirinyaga",
+  "site/kirinyaga/economics",
+  "site/kirinyaga/foundation",
+  "site/kirinyaga/health",
+  "site/kirinyaga/performance",
+  "site/kirinyaga/findings",
+  "site/kirinyaga/work",
+  "site/kirinyaga/evidence",
+  "site/embakasi",
+  "site/embakasi/economics",
+  "site/embakasi/foundation",
+  "site/embakasi/health",
+  "site/embakasi/performance",
+  "site/embakasi/findings",
+  "site/embakasi/work",
+  "site/embakasi/evidence",
+  "site/kasarani",
+  "site/kasarani/economics",
+  "site/kasarani/foundation",
+  "site/kasarani/health",
+  "site/kasarani/performance",
+  "site/kasarani/findings",
+  "site/kasarani/work",
+  "site/kasarani/evidence",
+  "site/ruiru",
+  "site/ruiru/economics",
+  "decision/kobo-generator",
+  "decision/kobo-battery",
+  "decision/kisiwa-genset",
+  "decision/kisiwa-om",
+  "decision/mto-demand",
+  "decision/mto-billing",
+  "decision/mto-losses",
+  "decision/mto-inverter",
+  "decision/mwea-occupancy",
+  "decision/thika-backup",
+  "decision/kirinyaga-energy",
+  "decision/embakasi-schedule",
+  "decision/kasarani-charger",
+  "decision/ruiru-expansion",
+  "decision/ruiru-connector"
+ ],
  "reviewNotesChecked": true,
  "rev5": {
   "lakeside": {
-   "protectTable": true,
+   "protectTable": false,
    "novTable": false,
-   "stakeListed": true,
+   "stakeListed": false,
    "avoidableObserved": false,
    "overviewProtectTargets": true,
-   "valueNote": "plan $2,295 · 91.5% · show how this is worked out of cost on emulated records −$676 attributed to factors · −$176 not explained by the model yet of $5,000 3 of 3 crew visits Valued options only; includes design values not yet run on site data"
+   "valueNote": ""
   },
   "harvest": {
-   "protectTable": true,
+   "protectTable": false,
    "novTable": false,
-   "stakeListed": true,
+   "stakeListed": false,
    "avoidableObserved": false,
    "overviewProtectTargets": true,
-   "valueNote": "plan $1,716 · 97.8% · show how this is worked out of cost on emulated records −$770 attributed to factors · $0 not explained by the model yet of $2,500 2 of 2 technician visits Valued options only; includes an assumed recovery share (80%) at Kirinyaga"
+   "valueNote": ""
   },
   "metro": {
-   "protectTable": true,
-   "novTable": true,
-   "stakeListed": true,
+   "protectTable": false,
+   "novTable": false,
+   "stakeListed": false,
    "avoidableObserved": false,
    "overviewProtectTargets": true,
-   "valueNote": "plan $38,520.80 · 99.3% · show how this is worked out of cost on emulated records −$3,204 attributed to factors · +$19.68 not attributed yet of $5,000 0 of 2 technician visits Valued options only; includes design values not yet run on site data"
+   "valueNote": ""
   }
  },
  "rev6": {
   "tabOrder": [
    "Overview",
-   "Outcomes by site",
-   "Demand and capacity",
-   "Act first",
-   "What changed",
-   "Scope & coverage"
+   "Outcomes",
+   "Demand & capacity"
   ],
-  "tabOrderOk": true,
+  "tabOrderOk": false,
   "oldRouteRedirect": "#/portfolio/demand-and-capacity",
   "dvDecisionPages": {
    "kobo-generator": [
-    "Design value: the replay has not yet been run on site data: the 210 L and 20 L avoided, the 61 of 61 and 4 of 61 replayed days, and the $2,916",
-    "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data"
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Not available yet: needs a simulation of Kobo's own October One-off cost$90 We payLimitsPasses\n     Passes the operating checks: energy served, reserve kept, starts within the maker's limit, regular full charge",
+    "Not available yet: needs a simulation of Kobo's own October One-off costNot costed —LimitsPasses\n     Passes the operating checks: energy served, reserve kept, starts within the maker's limit, regular full charge",
+    "Not available yet: needs a simulation of Kobo's own October",
+    "Not available yet: needs a simulation of Kobo's own October",
+    "Not available yet: needs a simulation of Kobo's own October",
+    "Not available yet: needs a simulation of Kobo's own OctoberNot available yet: needs a simulation of Kobo's own OctoberDays below 35% at 5 am (information, not a limit)4 of 61 days4 of 61 days; lowest 34",
+    "Not available yet: needs a simulation of Kobo's own October (assumed $0",
+    "Not available yet: needs a simulation of Kobo's own October (assumed $0",
+    "Not available yet: needs a simulation of Kobo's own OctoberNot available yet: needs a simulation of Kobo's own OctoberLimits and cover1 cannot be checked yetOptionHard limits of this decision (measured value)Allowed or notStop the generator at 70% battery instead of 90%Passes the operating checks: energy served, reserve kept, starts within the maker's limit, regular full charge SimulatedDawn: lowest 5 am charge 34",
+    "Not available yet: needs a simulation of Kobo's own October",
+    "Not available yet: needs a simulation of Kobo's own October\n   ActionsAfter the choice, Site manager, KoboPeter creates the Actions",
+    "Not available yet: needs a simulation of Kobo's own October\n   ActionsAfter the choice, Site manager, KoboPeter creates the Actions"
    ],
    "mto-demand": [
-    "Design value: the replay has not yet been run on site data: the 68 L of extra fuel, $395 a month and $3,540",
-    "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data"
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data"
    ],
-   "embakasi-schedule": [
-    "Design value: the replay has not yet been run on site data: schedule feasibility on 31 of 31 October nights and the deliverable energy a night",
-    "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data"
-   ],
-   "kirinyaga-energy": [
-    "Assumption: Kirinyaga recovery share 80%, range 60–90%",
-    "Assumption: Kirinyaga recovery share 80%, range 60–90%",
-    "Assumption: Kirinyaga recovery share 80%, range 60–90%"
-   ],
+   "embakasi-schedule": [],
+   "kirinyaga-energy": [],
    "mto-inverter": [
-    "Design value: the replay has not yet been run on site data: the plan values in the sensitivity include the Kobo stop-setting replay and the rice huller replay",
-    "Design value: the replay has not yet been run on site data",
-    "Design value: the replay has not yet been run on site data"
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data",
+    "Simulated: from a simulation of a declared 61-day season, not your recorded data"
    ]
   },
-  "dvOk": true,
+  "dvOk": false,
   "dvPlanDrawer": {
-   "lakeside": true,
-   "harvest": true,
-   "metro": true
+   "lakeside": false,
+   "harvest": false,
+   "metro": false
   },
   "overviewNote": {
-   "lakeside": true,
-   "harvest": true,
-   "metro": true
+   "lakeside": false,
+   "harvest": false,
+   "metro": false
   },
   "ruiruNoModelWording": {
    "site/ruiru": true,
@@ -4012,18 +4633,28 @@
   "ruiruOk": true
  },
  "rev7": {
-  "evMeasure": true,
+  "evMeasure": false,
   "ruiruNameplate": true
  },
  "tabsKeyboard": true,
+ "focusTargetsGone": [
+  {
+   "sel": "button.wfrow",
+   "route": "portfolio/outcomes-by-site"
+  },
+  {
+   "sel": "details.astable summary",
+   "route": "portfolio/outcomes-by-site"
+  }
+ ],
  "handTyped": {
   "count": 0,
   "hits": [],
-  "manifest_strings_scanned": 216,
+  "manifest_strings_scanned": 285,
   "manifest_count": 0,
   "manifest_hits": [],
-  "allow_total": 46,
-  "allow_used": 46,
+  "allow_total": 48,
+  "allow_used": 48,
   "allow_unused": [],
   "allow": [
    {
@@ -4067,6 +4698,30 @@
     "literal": "1,000",
     "context": "1,000-hour service",
     "reason": "warranty condition text (declared contract term)"
+   },
+   {
+    "where": "replay_studies.M8.assumptions[0]",
+    "literal": "0.08",
+    "context": "0.08 L/h per kW",
+    "reason": "the study's declared assumption, verbatim from the extract (K3), shown in the drawer (0K4m)"
+   },
+   {
+    "where": "replay_studies.M8.assumptions[0]",
+    "literal": "30",
+    "context": "x 30 kW",
+    "reason": "the study's declared assumption (generator rating), verbatim from the extract (K3)"
+   },
+   {
+    "where": "replay_studies.M8.assumptions[1]",
+    "literal": "30",
+    "context": "minimum-load 30 %",
+    "reason": "the study's declared assumption, verbatim from the extract (K3)"
+   },
+   {
+    "where": "tenants[lakeside-power].sites[Kobo].decision.verification_plan.causal",
+    "literal": "10",
+    "context": "PV +/-10%",
+    "reason": "declared comparability bands (PV and load) of the verification plan, read by the verify line (D-0K4.55)"
    },
    {
     "where": "sources.cold_chain[1].cadence",
@@ -4177,6 +4832,18 @@
     "reason": "declared option setting (reserve after the change)"
    },
    {
+    "where": "tenants[lakeside-power].sites[Kobo].decision.options[KOB-STOPSOC].economics.one_off_detail",
+    "literal": "60",
+    "context": "reconfiguration 60 +",
+    "reason": "the vendor quote breakdown quoted as record text (same class as KAS-OEM-STOPGAP detail); the one-off total shown is the evaluator's (0K4m audit rerun)"
+   },
+   {
+    "where": "tenants[lakeside-power].sites[Kobo].decision.options[KOB-STOPSOC].economics.one_off_detail",
+    "literal": "30",
+    "context": "supervision 30",
+    "reason": "the vendor quote breakdown quoted as record text (same class as KAS-OEM-STOPGAP detail); the one-off total shown is the evaluator's (0K4m audit rerun)"
+   },
+   {
     "where": "tenants[lakeside-power].sites[Kobo].decision.options[KOB-STOPSOC].carrier",
     "literal": "90",
     "context": "threshold 90 -> 70",
@@ -4195,28 +4862,10 @@
     "reason": "warranty limit quoted in the evidence record"
    },
    {
-    "where": "tenants[metro-bus].sites[Embakasi].decision.options[EMB-DEADLINE].replay",
-    "literal": "21",
-    "context": "21-bus night",
-    "reason": "spike E replay basis (design value)"
-   },
-   {
     "where": "tenants[lakeside-power].sites[Kisiwa].period.bridge[DEMAND_VOLUME].basis",
     "literal": "100",
     "context": "100 kWh",
     "reason": "bridge quantity = actual - plan billed kWh; no single node (export requested)"
-   },
-   {
-    "where": "tenants[lakeside-power].sites[Kisiwa].period.bridge[SOLAR_SHORTFALL_NECESSARY_GEN].basis",
-    "literal": "80",
-    "context": "80 L",
-    "reason": "bridge quantity = actual - plan needed litres; no single node (export requested)"
-   },
-   {
-    "where": "tenants[lakeside-power].sites[Kobo].period.bridge[EVENING_LOAD_GROWTH].basis",
-    "literal": "30",
-    "context": "30 L",
-    "reason": "bridge quantity = actual - plan needed litres; no single node (export requested)"
    },
    {
     "where": "tenants[lakeside-power].sites[Mto].period.bridge[DEMAND_VOLUME].basis",
@@ -4225,15 +4874,9 @@
     "reason": "bridge quantity = actual - plan metered kWh; no single node (export requested)"
    },
    {
-    "where": "tenants[lakeside-power].sites[Mto].period.bridge[EVENING_NECESSARY_GEN].basis",
-    "literal": "20",
-    "context": "20 L",
-    "reason": "bridge quantity = actual - plan needed litres; no single node (export requested)"
-   },
-   {
     "where": "tenants[metro-bus].sites[Embakasi].period.bridge[PEAK_ENERGY_SHARE].basis",
     "literal": "30",
-    "context": "vs 30%",
+    "context": "against 30%",
     "reason": "plan peak share; no node (export requested)"
    },
    {
@@ -4305,47 +4948,47 @@
   ]
  },
  "summary": {
-  "routesChecked": 202,
-  "routesOk": 202,
-  "screens": 184,
+  "routesChecked": 207,
+  "routesOk": 207,
+  "screens": 187,
   "byStatus": {
-   "Changed": 36,
-   "Preserved": 65,
+   "Changed": 21,
+   "Preserved": 80,
    "Merged": 9,
-   "Added": 74
+   "Added": 77
   },
   "consoleErrorRoutes": 0,
-  "badLinkRoutes": 0,
+  "badLinkRoutes": 87,
   "overflow390": 0,
-  "vocabHits": 0,
+  "vocabHits": 38,
   "identifierHitsAddedChanged": 0,
-  "identifierHitsPreservedV70": 140,
+  "identifierHitsPreservedV70": 133,
   "roleOrQuestionHits": 0,
   "filterControlsOnPortfolio": 0,
   "operatorSelectInTopbar": 0,
-  "operatorSelectInReviewBar": 202,
-  "designValueScan": "independent set of 28 replay figures (same as the tagger's: true); 92 occurrences scanned on all routes and 733 drawers; unlabelled 0; unrelated matches on preserved v7.0 pages (exempt, not replay figures): 2",
-  "rev6TabOrder": true,
-  "rev7EvMeasure": true,
+  "operatorSelectInReviewBar": 207,
+  "designValueScan": "independent set of 3 replay figures (same as the tagger's: true); 4 occurrences scanned on all routes and 405 drawers; unlabelled 0; unrelated matches on preserved v7.0 pages (exempt, not replay figures): 0",
+  "rev6TabOrder": false,
+  "rev7EvMeasure": false,
   "rev7RuiruNameplate": true,
-  "rev6DesignValueLabels": true,
+  "rev6DesignValueLabels": false,
   "rev6RuiruWording": true,
   "rev6OldRoute": "#/portfolio/demand-and-capacity",
-  "switchCasesOk": "8/8",
+  "switchCasesOk": "2/8",
   "drawerOk": true,
-  "focusVisible": "7/7",
-  "contrastPass": "38/38",
-  "preservedIdentical": "65/65",
+  "focusVisible": "5/5",
+  "contrastPass": "22/22",
+  "preservedIdentical": "0/80",
   "oracleShipped": false,
   "hand_typed_figures": 0,
   "handTypedCode": 0,
   "handTypedManifest": 0,
-  "manifestStringsScanned": 216,
-  "handTypedAllowList": 46,
+  "manifestStringsScanned": 285,
+  "handTypedAllowList": 48,
   "handTypedAllowUnused": 0,
-  "placeholdersFig": 91,
-  "placeholdersRec": 53,
-  "placeholderStrings": 77,
+  "placeholdersFig": 95,
+  "placeholdersRec": 52,
+  "placeholderStrings": 80,
   "unresolvedPlaceholders": 0
  }
 }

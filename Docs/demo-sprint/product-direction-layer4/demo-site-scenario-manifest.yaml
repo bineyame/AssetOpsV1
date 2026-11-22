@@ -1,4 +1,5 @@
 # AssetEcon Layer 4 — demo site and scenario manifest (proposed design, not built) · rev 12 (17 Nov 2026)
+# rev 16.17 (0K4m, 21 Nov): one figure per quantity (D-0K4.31 to D-0K4.36): replay inputs from 0K4d's v8 studies (replay-studies.json); the dawn is information; admission per runs/admission.py; Kobo's candidate split, KIS-BATT60 and Embakasi's per-bus timing Not available yet.
 # rev 16.13 (20 Nov): `empty_states` added (structure-specification.md §3.1): the record behind every empty leaf, usable capacity deferred to queued slice 4c, the cold occupied-to-chargeable leak a reconciled zero. No figure changed.
 # rev 12 (re-review rev 11): no typed admissibility (notice-deadline lapse + cover bound; dawn-adequacy bound over the spike-K leaf); value nets the
 # reference path's one-off; crews enforced; budget-aware least violation; one redundancy rule measured on hours with no backup supply (Q15);
@@ -41,7 +42,7 @@ chain_model:   # main design §2.1: one economic reality per site-period; stages
 
 time_scales:
   ledger_history:
-    purpose: "actual vs plan, variance bridge, seasonality context"
+    purpose: "actual against target, variance bridge, seasonality context"
     span: "2026-07 .. 2026-10 (4 monthly periods)"
     resolution: "record-level commercial facts, monthly plan lines"
     generation: "direct from a coherent ledger generator (no physics); emitted as source-shaped CSV"
@@ -96,7 +97,7 @@ tenants:
       loads: {residential_kw: 25, clinic_kw: 10, mill_kw: 40}
     service_obligations:
       - "clinic critical load 24/7 (MG-5 hard constraint)"
-      - "battery SOC at 05:00 >= 35% on every forward-replayed day (evening-to-dawn adequacy)"
+      - "the dawn margin (05:00 SOC against 35 %) is reported beside every setting, never a gate"
     customers: {connections: 300, critical: [clinic], productive: [mill]}
     daytime_headroom: {usable_kw: "18-20", window: "10:00-15:00", customer_evidence: NONE,
                        note: "v7.0 Finding F-109; capacity without a paying customer is shown as capacity, never as an opportunity value"}
@@ -110,8 +111,8 @@ tenants:
       bridge:
         - {driver: DEMAND_VOLUME, overlap_group: KOBO-2026-10-REV, amount: 38.00, basis: "95 kWh x {rec:tenants[lakeside-power].prices.tariff_usd_per_kwh.Kobo}", class: ECONOMIC_ACTUAL}
         - {driver: CANDIDATE_RUNNING, overlap_group: KOBO-2026-10-FUEL, amount: -412.50, basis: "{fig:sites[lakeside-power/Kobo].actual.nodes.candidate_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kobo}: generator running while solar could carry the load (dispatch-3.2 Candidate; plan {fig:sites[lakeside-power/Kobo].plan.nodes.candidate_l} L); model-implied litres from metered generator energy x SFC", class: DERIVED,
-           note: "observed factor; how much of it an option avoids (210 L for the stop-threshold change, 20 L for the reserve change) is that option's effect (M3), never a node of the observed structure"}
-        - {driver: EVENING_LOAD_GROWTH, overlap_group: KOBO-2026-10-FUEL, amount: -37.50, basis: "30 L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kobo} (Necessary by dispatch classification of metered generator energy x declared consumption rate)", class: DERIVED}
+           note: "observed factor; how much of it an option avoids is that option's effect (M3), never a node of the observed structure"}
+        - {driver: EVENING_LOAD_GROWTH, overlap_group: KOBO-2026-10-FUEL, amount: -37.50, basis: "{fig:sites[lakeside-power/Kobo].actual.nodes.necessary_l} L against a target of {fig:sites[lakeside-power/Kobo].plan.nodes.necessary_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kobo} (Necessary by dispatch classification of metered generator energy x declared consumption rate)", class: DERIVED}
         - {driver: UNEXPLAINED_RESIDUAL, overlap_group: KOBO-2026-10-FUEL, amount: -150.00, basis: "{fig:sites[lakeside-power/Kobo].actual.nodes.unexplained_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kobo} consumed minus modelled; investigate (MG-L5)", class: DERIVED}
       fuel_balance: {opening_dip_l: 220, deliveries_l: 1200, closing_dip_l: 240, consumed_l: 1180, model_implied_l: 1060, residual_l: 120, tolerance_pct: 2.0}
     findings_expected:
@@ -124,27 +125,23 @@ tenants:
         - id: KOB-NOACT
           kind: NO_ACTION
           monthly_net: 0.00
-          note: "baseline: {fig:sites[lakeside-power/Kobo].actual.nodes.diesel_l} L/month pattern continues; 262.50/month avoidable fuel keeps being spent"
+          note: "baseline: the generator keeps running after it has charged the battery; what a setting avoids is that setting's replay figure"
           disposition: ACCEPTABLE
         - id: KOB-RESERVE
           kind: CONFIG_TRIAL
           carrier: "reserve-trial-1 (existing rule: reserve {rec:tenants[lakeside-power].sites[Kobo].physical.reserve_soc_pct} -> 25)"
-          forward_replay: {avoidable_fuel_l: 20, soc_0500_below_35_days: 4}
-          safeguard: {policy: MG5_DAWN_ADEQUACY, mode: HARD_CONSTRAINT, result: FAIL}
-          disposition: REJECTED
-          reason: "Removes only {fig:options.KOB-RESERVE.params.avoided_candidate_l} L/month and puts dawn battery charge below 35% on {fig:options.KOB-RESERVE.protect.replayed_dawn_days_below_safeguard} of 61 replayed days"
+          replay: K8 stop-90-reserve-25
+          disposition: NOT_AVAILABLE_YET
+          reason: "admitted on the replay (it passes every operating check; dawn below 35 % on {fig:options.KOB-RESERVE.information.dawn_days_below} of 61 replayed days, information); litres and value Not available yet (a dispatch replay on Kobo's October as recorded; 0K4f)"
         - id: KOB-STOPSOC
           kind: CONFIG_TRIAL
           carrier: "new rule stop-soc-trial-1 (stop threshold 90 -> 70, reserve unchanged)"
-          forward_replay: {avoidable_fuel_l: 210, constrained_candidate_l: 120, soc_0500_below_35_days: 0, added_battery_throughput_kwh: 150}
-          safeguards:
-            - {policy: MG5_DAWN_ADEQUACY, mode: HARD_CONSTRAINT, result: PASS}
-            - {policy: MG4_BATTERY_WEAR, mode: COSTED_TRADEOFF, cost_monthly: 12.00}
-            - {policy: WARRANTY_OPERATING_LIMITS, mode: HARD_CONSTRAINT, result: PASS, note: "lowest SOC 30% >= warranty floor 10%"}
-          economics: {gross_monthly: 262.50, wear_monthly: 12.00, net_monthly: 250.50, one_off: 90.00, one_off_detail: "vendor remote reconfiguration 60 + 14-day trial supervision 30", net_12m: 2916.00, class: MODELLED}
-          sensitivity: {diesel_minus_20pct_net_12m: 2286.00, feasible_fuel_160l_net_12m: 2166.00}
+          replay: K8 stop-70-reserve-30
+          economics: {class: MODELLED, input_class: SIMULATED, value: "Not available yet (a dispatch replay on Kobo's October as recorded; 0K4f)", one_off_detail: "vendor remote reconfiguration 60 + 14-day trial supervision 30"}
+          warranty: "lowest charge {fig:options.KOB-STOPSOC.information.min_soc_pct} % in the replay (SIMULATED); warranty floor Not available yet (Kobo's battery sheet)"
           crew_visits: 0
-          disposition: RECOMMENDED
+          disposition: NOT_AVAILABLE_YET
+          reason: "admitted on the replay (it passes every operating check); litres and value Not available yet (a dispatch replay on Kobo's October as recorded; 0K4f)"
           condition: "supervised 14-day trial; verified before becoming policy"
         - id: KOB-BATT100
           kind: CAPEX
@@ -154,7 +151,7 @@ tenants:
       verification_plan:
         baseline: "14 matched days before change (Sep 29 - Oct 12 class days)"
         after: "14 days after apply"
-        operational_target: "Candidate generator minutes down >= 50% on comparable days; MG-5 dawn SOC >= 35% every day"
+        operational_target: "candidate generator minutes down on comparable days; the four admission parts hold over the trial against the matched baseline (runs/admission.py)"
         economic: "fuel consumed (dips + deliveries) per delivered kWh, weather-normalised, vs baseline"
         causal: "comparability bands PV +/-10%, load +/-10%; Kisiwa/Mto as non-treated controls"
     entitlement:
@@ -193,7 +190,7 @@ tenants:
       variance: -185.00
       bridge:
         - {driver: DEMAND_VOLUME, overlap_group: KIS-2026-10-REV, amount: -55.00, basis: "100 kWh x {rec:tenants[lakeside-power].prices.tariff_usd_per_kwh.Kisiwa}", class: ECONOMIC_ACTUAL}
-        - {driver: SOLAR_SHORTFALL_NECESSARY_GEN, overlap_group: KIS-2026-10-FUEL, amount: -104.00, basis: "80 L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kisiwa} (rainy month; all generator time Necessary by dispatch classification)", class: DERIVED}
+        - {driver: SOLAR_SHORTFALL_NECESSARY_GEN, overlap_group: KIS-2026-10-FUEL, amount: -104.00, basis: "{fig:sites[lakeside-power/Kisiwa].actual.nodes.necessary_l} L against a target of {fig:sites[lakeside-power/Kisiwa].plan.nodes.necessary_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kisiwa} (rainy month; all generator time Necessary by dispatch classification)", class: DERIVED}
         - {driver: UNEXPLAINED_RESIDUAL, overlap_group: KIS-2026-10-FUEL, amount: -26.00, basis: "{fig:sites[lakeside-power/Kisiwa].actual.nodes.unexplained_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kisiwa}; within 2% tolerance, reported not investigated", class: DERIVED}
       fuel_balance: {model_implied_l: 2380, consumed_l: 2400, residual_l: 20, tolerance_pct: 2.0}
     findings_expected:
@@ -206,8 +203,8 @@ tenants:
         - {id: KIS-REPAIR, kind: REPAIR, cost: 1800.00, crew_visits: 1, must_do: true, crew_visit: "2026-11-08", restore_date: "2026-11-09", disposition: RECOMMENDED,
            reason: "evening supply has no redundancy; repair beats replacement ({fig:options.KIS-REPLACE.net_one_off})"}
         - {id: KIS-REPLACE, kind: CAPEX, capex: 9500.00, lead_time_days: 21, restore_date: "2026-11-27", disposition: REJECTED, reason: "repair restores redundancy for {fig:options.KIS-REPAIR.net_one_off}"}
-        - {id: KIS-BATT60, kind: CAPEX, capex: 14000.00, monthly_fuel_saving_modelled: 195.00, net_12m: -11660.00, disposition: DEFERRED,
-           reason: "payback about 6 years; outside the 12-month horizon and budget; revisit with a quote and 7-year lifecycle"}
+        - {id: KIS-BATT60, kind: CAPEX, capex: 14000.00, disposition: DEFERRED,
+           reason: "value Not available yet (a Kisiwa battery replay; queue Q7)"}
         - {id: KIS-NOACT, kind: NO_ACTION, disposition: REJECTED, reason: "fails the evening service obligation (P1 hard constraint) on a single genset"}
     entitlements:
       - asset: GEN-KS-01
@@ -249,7 +246,7 @@ tenants:
         - {driver: DEMAND_VOLUME, overlap_group: MTO-2026-10-REV, amount: -8.00, basis: "20 kWh x {rec:tenants[lakeside-power].prices.tariff_usd_per_kwh.Mto}", class: ECONOMIC_ACTUAL}
         - {driver: METER_MAPPING_UNBILLED, overlap_group: MTO-2026-10-REV, amount: -56.00, basis: "{fig:sites[lakeside-power/Mto].actual.nodes.unmapped_kwh} kWh x {rec:tenants[lakeside-power].prices.tariff_usd_per_kwh.Mto}; 6 customers, meter swap 3 Oct not applied", class: ECONOMIC_ACTUAL}
         - {driver: AUTHORISED_ADJUSTMENT, overlap_group: MTO-2026-10-REV, amount: -16.00, basis: "{fig:sites[lakeside-power/Mto].actual.nodes.adjustments_kwh} kWh x {rec:tenants[lakeside-power].prices.tariff_usd_per_kwh.Mto} clinic allowance, approved", class: ECONOMIC_ACTUAL}
-        - {driver: EVENING_NECESSARY_GEN, overlap_group: MTO-2026-10-FUEL, amount: -25.00, basis: "20 L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Mto} (Necessary evening running by dispatch classification)", class: DERIVED}
+        - {driver: EVENING_NECESSARY_GEN, overlap_group: MTO-2026-10-FUEL, amount: -25.00, basis: "{fig:sites[lakeside-power/Mto].actual.nodes.necessary_l} L against a target of {fig:sites[lakeside-power/Mto].plan.nodes.necessary_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Mto} (Necessary evening running by dispatch classification)", class: DERIVED}
     energy_to_cash:
       chain: "delivered 6,000 -> expected loss 300 -> metered 5,580 (+120 unexplained) -> billed 5,400 (140 unmapped, 40 authorised) -> collected 1,890 + in transit 150 + outstanding 120 = 2,160"
       unexplained_kwh_money: null   # deliberately unpriced: investigation, not theft, not collectible
@@ -261,8 +258,8 @@ tenants:
           kind: DEMAND_CONNECTION
           customer: "Mto Farmers Cooperative (signed letter of intent)"
           load: {kw: 15, window: "10:00-15:00", days_per_month: 22, kwh_month: 1650}
-          forward_replay: {days_without_headroom: 3, kwh_from_battery_or_genset: 225, extra_fuel_l: 68}
-          economics: {revenue_monthly: 495.00, fuel_monthly: 85.00, collection_cost_monthly: 15.00, net_monthly: 395.00, one_off: 1200.00, net_12m: 3540.00, class: MODELLED}
+          replay: M8 mto-huller
+          economics: {class: MODELLED, input_class: SIMULATED, value: "{fig:options.MTO-HULLER.value}", collection_cost_monthly: 15.00, one_off: 1200.00}
           connection_lead_working_days: 5   # contractor quote: service drop, meter and supply contract after the inverter is restored
           customer_loi: {lapses: "2026-11-30", extension_to: "2026-12-31", extension_basis: "the date the cooperative would extend to if asked (assumption until signed; the 'letter extended' switch)"}
           crew_visits: 0   # service drop and meter are fitted by the connection contractor inside the 1,200 connection cost; not crew work
@@ -272,8 +269,8 @@ tenants:
           kind: DEMAND_CONNECTION
           customer: "evening welding workshop (verbal enquiry, no contract)"
           load: {kw: 10, window: "18:00-21:00", days_per_month: 22, kwh_month: 660}
-          economics: {revenue_monthly: 264.00, fuel_monthly: 272.25, net_monthly: -8.25, class: MODELLED}
-          break_even_tariff_usd_per_kwh: 0.42
+          replay: M8 mto-welder
+          economics: {class: MODELLED, input_class: SIMULATED, value: "{fig:options.MTO-WELDING.value}", monthly_change: "{fig:options.MTO-WELDING.monthly_or_horizon_change}"}
           disposition: REJECTED
           reason: "every evening kWh is diesel; margin negative at {rec:tenants[lakeside-power].prices.tariff_usd_per_kwh.Mto} and no demand evidence"
         - id: MTO-BILLING
@@ -299,16 +296,16 @@ tenants:
       cover_value: 2600.00
       claim_state: EVIDENCE_ASSEMBLED
       options:
-        - {id: MTO-INV-CLAIM, kind: SUPPLIER_REMEDY, residual_cost: 367.50, detail: "evaluated: shipping {rec:evaluation.options.MTO-INV-CLAIM.cost_lines.shipping_failed_unit} + install {rec:evaluation.options.MTO-INV-CLAIM.cost_lines.install} (replacement unit {rec:evaluation.options.MTO-INV-CLAIM.cost_lines.replacement_unit.amount} borne by the supplier under the warranty) + extra fuel for {fig:options.MTO-INV-CLAIM.params.days_to_restore} days at half inverter capacity to the {fig:options.MTO-INV-CLAIM.restore_date} restore at {fig:options.MTO-INV-CLAIM.params.extra_l_per_day} L a day x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Mto} = {fig:-options.MTO-INV-CLAIM.monthly_or_horizon_change}",
+        - {id: MTO-INV-CLAIM, kind: SUPPLIER_REMEDY, residual_cost: 230.00, detail: "evaluated: shipping {rec:evaluation.options.MTO-INV-CLAIM.cost_lines.shipping_failed_unit} + install {rec:evaluation.options.MTO-INV-CLAIM.cost_lines.install} (replacement unit {rec:evaluation.options.MTO-INV-CLAIM.cost_lines.replacement_unit.amount} borne by the supplier under the warranty) + extra fuel for {fig:options.MTO-INV-CLAIM.params.days_to_restore} days at half inverter capacity to the {fig:options.MTO-INV-CLAIM.restore_date} restore at {fig:options.MTO-INV-CLAIM.params.extra_l_per_day} L a day x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Mto} = {fig:-options.MTO-INV-CLAIM.monthly_or_horizon_change}",
            restore_by: "2026-11-28", crew_visits: 1, disposition: RECOMMENDED, mutually_exclusive_with: [MTO-INV-BUYNOW],
            risk: "huller LOI lapses {rec:tenants[lakeside-power].sites[Mto].decision.options[MTO-HULLER].customer_loi.lapses} unless extended: restore on {fig:options.MTO-INV-CLAIM.restore_date}, but the connection needs {rec:tenants[lakeside-power].sites[Mto].decision.options[MTO-HULLER].connection_lead_working_days} working days"}
-        - {id: MTO-INV-BUYNOW, kind: STOPGAP_PLUS_CLAIM, residual_cost: 2947.50, detail: "evaluated: buy replacement {rec:evaluation.options.MTO-INV-BUYNOW.cost_lines.replacement_unit_bought} + install {rec:evaluation.options.MTO-INV-BUYNOW.cost_lines.install} now; claim failed unit (replacement becomes a spare, not cash) shipping {rec:evaluation.options.MTO-INV-BUYNOW.cost_lines.ship_failed_unit_for_claim} + {rec:evaluation.options.MTO-INV-BUYNOW.cost_lines.install_returned_unit_as_spare}; extra fuel for {fig:options.MTO-INV-BUYNOW.params.days_to_restore} days to the {fig:options.MTO-INV-BUYNOW.restore_date} restore at {fig:options.MTO-INV-BUYNOW.params.extra_l_per_day} L a day x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Mto} = {fig:-options.MTO-INV-BUYNOW.monthly_or_horizon_change}",
+        - {id: MTO-INV-BUYNOW, kind: STOPGAP_PLUS_CLAIM, residual_cost: 2910.00, detail: "evaluated: buy replacement {rec:evaluation.options.MTO-INV-BUYNOW.cost_lines.replacement_unit_bought} + install {rec:evaluation.options.MTO-INV-BUYNOW.cost_lines.install} now; claim failed unit (replacement becomes a spare, not cash) shipping {rec:evaluation.options.MTO-INV-BUYNOW.cost_lines.ship_failed_unit_for_claim} + {rec:evaluation.options.MTO-INV-BUYNOW.cost_lines.install_returned_unit_as_spare}; extra fuel for {fig:options.MTO-INV-BUYNOW.params.days_to_restore} days to the {fig:options.MTO-INV-BUYNOW.restore_date} restore at {fig:options.MTO-INV-BUYNOW.params.extra_l_per_day} L a day x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Mto} = {fig:-options.MTO-INV-BUYNOW.monthly_or_horizon_change}",
            restore_by: "2026-11-12", crew_visits: 1, disposition: CONDITIONAL, condition: "wins if budget >= {fig:plans.lakeside-power.switch_cases[6500/False].spend} and the cooperative will not extend its letter of intent"}
         - {id: MTO-INV-LOCAL, kind: REPAIR, cost: 450.00, disposition: REJECTED, reason: "fails the cover bound: opening the unit voids the warranty (evaluated)"}
         - {id: MTO-INV-NOACT, kind: NO_ACTION, disposition: REJECTED, reason: "fails the cover bound: no notice is filed, so the warranty lapses on its {rec:tenants[lakeside-power].sites[Mto].entitlement.notice_deadline} deadline and {fig:options.MTO-INV-NOACT.rights.cover_lost} of cover is lost (evaluated); half daytime capacity continues on the generator"}
 
   portfolio:
-    protect_effects:   # rev 8 (re-review CP-2): each option's effect on Protect measures, evaluated through the structure over a stated horizon; design values where a replay is involved
+    protect_effects:   # rev 8 (re-review CP-2): each option's effect on Protect measures, evaluated through the structure over a stated horizon; where a replay is involved, the replay study's figure with its `source` (0K4m, K6)
       - decision: "Kisiwa generator 1 failed"
         horizon: "evenings 18:00-23:00 from the decision (as_of {rec:as_of}) to {fig:horizons.protect_horizon_end}: {fig:options.KIS-NOACT.params.days_to_restore} evenings"
         observed_before_decision: {evenings: "1-5 Nov", hours: 25, note: "on one generator under every option; observed, not an option effect"}
@@ -325,11 +322,11 @@ tenants:
         class: DERIVED
         note: "the plan's claim-versus-buy switch is decided on money; buying now also cuts reduced-capacity hours from {fig:options.MTO-INV-CLAIM.protect.obligation_hours_without_redundancy} to {fig:options.MTO-INV-BUYNOW.protect.obligation_hours_without_redundancy}, shown beside the switch"
       - decision: "Kobo generator stop setting"
-        horizon: "61 replayed days"
-        measure: "days with battery below 35% at 5 am (the bound that keeps unserved critical kWh at 0)"
-        options: {KOB-NOACT: 0, KOB-STOPSOC: 0, KOB-RESERVE: 4}
+        horizon: "61 replayed days (K8)"
+        measure: "days with the battery below 35 % at 5 am (information, never a gate)"
+        options: {KOB-NOACT: 4, KOB-STOPSOC: 4, KOB-RESERVE: 11}
+        source: {study: K8, field: dawn_days_below, cases: {KOB-NOACT: baseline, KOB-STOPSOC: stop-70-reserve-30, KOB-RESERVE: stop-90-reserve-25}}
         class: MODELLED
-        design_value: true
       - decision: "Kobo battery warranty evidence"
         horizon: "until a capacity claim is needed"
         measure: tracked_assets_with_complete_contract_evidence
@@ -388,34 +385,35 @@ tenants:
       cost_recorded_share: 0.9151
     allocation:
       method: "one joint search: one option per decision; options breaking a hard bound left out unless none can keep it; budget/crew visits/dated dependencies; rank by least violation, then highest 12-month value, then lowest spend"
-      recommended: [KIS-REPAIR, KOB-STOPSOC, MTO-INV-CLAIM, MTO-HULLER, MTO-BILLING, MTO-METER-AUDIT, BAT-EVIDENCE]
-      spend: 3750.00
-      spend_breakdown: {KIS-REPAIR: 1800.00, KOB-STOPSOC: 90.00, MTO-INV-CLAIM: 230.00, MTO-HULLER: 1200.00, MTO-BILLING: 0.00, BAT-EVIDENCE: 430.00}
+      recommended: [KIS-REPAIR, MTO-INV-CLAIM, MTO-HULLER, MTO-BILLING, MTO-METER-AUDIT, BAT-EVIDENCE]
+      spend: 3660.00
+      spend_breakdown: {KIS-REPAIR: 1800.00, MTO-INV-CLAIM: 230.00, MTO-HULLER: 1200.00, MTO-BILLING: 0.00, BAT-EVIDENCE: 430.00}
       meter_audit_note: "MTO-METER-AUDIT 60 is funded from the routine O&M visit budget, not the decision budget"
       crew_visits_used: 3     # Kisiwa repair, Mto inverter (meter audit on the same visit), Kobo battery evidence; huller connection is contractor work
-      modelled_12m_change: {KOB-STOPSOC: 2916.00, MTO-HULLER: 3540.00, MTO-INV-CLAIM: -367.50, total: 6088.50, class: MODELLED, note: "evaluated by evaluate_structure.py; distinct factors; not realized"}
+      modelled_12m_change: {MTO-HULLER: 2213.33, total: 2213.33, class: MODELLED, input_class: SIMULATED, note: "evaluated by evaluate_structure.py on the M8 replay's litres per kWh; Kobo's two settings Not available yet (a dispatch replay on Kobo's October as recorded; 0K4f); not realized"}
       listed_not_summed: {MTO-BILLING_charges_12m: 672.00, KIS-OM-SLA_potential_credit: 70.00, BAT-001_cover_exposure: 64000.00}
-      valued_option_costs: 1520.00     # KOB-STOPSOC 90 + MTO-INV-CLAIM 230 + MTO-HULLER 1,200 (one-off spend); the claim's extra fuel is an operating change inside the value
-      unvalued_spend: 2230.00          # KIS-REPAIR 1,800 (must-do) + BAT-EVIDENCE 430 (protective): not valued in money; their effect is on Protect measures
+      valued_option_costs: 1200.00     # MTO-HULLER 1,200 (one-off spend); the inverter claim changes no money node (M8: no extra fuel at the 25 kW limit), so its 230 is spend not valued in money
+      unvalued_spend: 2460.00          # KIS-REPAIR 1,800 (must-do) + BAT-EVIDENCE 430 (protective) + MTO-INV-CLAIM 230 (the restore path): not valued in money; their effect is on Protect measures
       must_do_spend: 1800.00            # KIS-REPAIR
       protective_spend: 430.00          # BAT-EVIDENCE
       value_label: "modelled 12-month change from the valued options, net of their own one-off costs; must-do and protective spend not valued in money"
-      downside: {value: 2548.50, sensitivity: "the cooperative does not sign a supply contract (huller drops)", others: {diesel_minus_20pct: 5690.00, feasible_fuel_160l: 5338.50}, class: MODELLED,
-                 note: "evaluated: diesel -20% applied to every valued option that buys diesel: stop setting {fig:options.KOB-STOPSOC.sensitivities.diesel_minus_20pct} + huller {fig:options.MTO-HULLER.sensitivities.diesel_minus_20pct} - inverter claim {fig:-options.MTO-INV-CLAIM.sensitivities.diesel_minus_20pct} (one-off {fig:options.MTO-INV-CLAIM.net_one_off} plus fuel to the restore at the lower price)"}
+      downside: {value: 0.00, sensitivity: "the cooperative does not sign a supply contract (huller drops)", others: {diesel_minus_20pct: 2682.66}, class: MODELLED,
+                 note: "evaluated: diesel -20% applied to every valued option that buys diesel: huller {fig:options.MTO-HULLER.sensitivities.diesel_minus_20pct}; the inverter claim's one-off {fig:options.MTO-INV-CLAIM.net_one_off} is not valued in money"}
       excluded:
         - {id: MTO-INV-BUYNOW, reason: "{fig:plans.lakeside-power.switch_cases[6500/False].spend} needed with everything else; budget {rec:tenants[lakeside-power].portfolio_constraints.budget_usd_nov_dec}"}
-        - {id: KIS-BATT60, reason: "over budget; payback ~6 years"}
-        - {id: KOB-RESERVE, reason: "fails dawn adequacy safeguard"}
+        - {id: KIS-BATT60, reason: "value Not available yet (a Kisiwa battery replay; queue Q7)"}
+        - {id: KOB-STOPSOC, reason: "admitted on the replay; litres and value Not available yet (a dispatch replay on Kobo's October as recorded; 0K4f)"}
+        - {id: KOB-RESERVE, reason: "admitted on the replay; litres and value Not available yet (a dispatch replay on Kobo's October as recorded; 0K4f)"}
         - {id: MTO-WELDING, reason: "negative margin; no demand evidence"}
-        - {id: KOB-BATT100, reason: "not needed for the avoidable fuel"}
+        - {id: KOB-BATT100, reason: "deferred capital; not in the evaluation"}
       switches:
         - {switch: "budget", values: [5000, 6500], default: 5000}
         - {switch: "cooperative extends its letter of intent", default: true}
-        - {cases: {"5000/yes": {spend: 3750.00, value: 6088.50, inverter: CLAIM, huller: true}, "5000/no": {spend: 2550.00, value: 2548.50, inverter: CLAIM, huller: false},
-                   "6500/yes": {spend: 3750.00, value: 6088.50, inverter: CLAIM, huller: true}, "6500/no": {spend: 6430.00, value: 3508.50, inverter: BUYNOW, huller: true}}}
+        - {cases: {"5000/yes": {spend: 3660.00, value: 2213.33, inverter: CLAIM, huller: true}, "5000/no": {spend: 2460.00, value: 0.00, inverter: CLAIM, huller: false},
+                   "6500/yes": {spend: 3660.00, value: 2213.33, inverter: CLAIM, huller: true}, "6500/no": {spend: 6340.00, value: 2213.33, inverter: BUYNOW, huller: true}}}
       sensitivity:
         - "budget >= {fig:plans.lakeside-power.switch_cases[6500/False].spend} and LOI cannot be extended -> MTO-INV-BUYNOW replaces MTO-INV-CLAIM"
-        - "diesel price -20% -> KOB-STOPSOC 12-month net {fig:options.KOB-STOPSOC.sensitivities.diesel_minus_20pct}; ranking unchanged"
+        - "diesel price -20% -> MTO-HULLER 12-month net {fig:options.MTO-HULLER.sensitivities.diesel_minus_20pct}; ranking unchanged"
         - "huller contract not signed -> MTO-HULLER drops; inverter claim path still recommended"
 
 # =============================== COLD CHAIN =====================================================================
@@ -612,8 +610,8 @@ tenants:
       coverage: {energy: RECORDED, demand: RECORDED, maintenance: RECORDED}
       variance: -3204.00
       bridge:
-        - {driver: PEAK_ENERGY_SHARE, overlap_group: EMB-2026-10-ENERGY, amount: -2604.00, basis: "21,700 kWh more at peak than plan (55% vs 30%) x 0.12 premium", class: ECONOMIC_ACTUAL}
-        - {driver: DEMAND_CHARGE, overlap_group: EMB-2026-10-DEMAND, amount: -600.00, basis: "monthly peak {fig:sites[metro-bus/Embakasi].actual.nodes.max_kw} kW vs plan {fig:sites[metro-bus/Embakasi].plan.nodes.max_kw} kW x {fig:sites[metro-bus/Embakasi].actual.nodes.demand_rate}", class: ECONOMIC_ACTUAL}
+        - {driver: PEAK_ENERGY_SHARE, overlap_group: EMB-2026-10-ENERGY, amount: -2604.00, basis: "21,700 kWh more at peak price than the target (55% against 30%) x 0.12 premium", class: ECONOMIC_ACTUAL}
+        - {driver: DEMAND_CHARGE, overlap_group: EMB-2026-10-DEMAND, amount: -600.00, basis: "monthly peak {fig:sites[metro-bus/Embakasi].actual.nodes.max_kw} kW against a target of {fig:sites[metro-bus/Embakasi].plan.nodes.max_kw} kW x {fig:sites[metro-bus/Embakasi].actual.nodes.demand_rate}", class: ECONOMIC_ACTUAL}
     decision:
       thread: "Embakasi pays peak prices for charging that could wait"
       origin: PLAN_VARIANCE
@@ -624,7 +622,7 @@ tenants:
            safeguard: {policy: EV1_DEPARTURE_READINESS, mode: HARD_CONSTRAINT, result: FAIL}, disposition: REJECTED,
            reason: "cheapest bill ({fig:options.EMB-CHEAPEST.energy_bill_option} a month) but {fig:options.EMB-CHEAPEST.bound.buses_short_per_night} buses leave below required charge every night"}
         - {id: EMB-DEADLINE, kind: SCHEDULE, window: "22:00-05:15 staggered", deliverable_kwh: 2900, required_kwh: 2800, max_kw: 400,
-           replay: "{fig:options.EMB-DEADLINE.params.feasible_nights} of {fig:sites[metro-bus/Embakasi].actual.nodes.nights_in_period} October nights feasible ({fig:sites[metro-bus/Embakasi].actual.nodes.buses} buses each night); a 21-bus night needs about 406 kW, inside the {rec:tenants[metro-bus].sites[Embakasi].physical.import_limit_kw} kW limit but above the {fig:options.EMB-DEADLINE.params.max_kw_option} kW plan",
+           replay: "energy check: {fig:options.EMB-DEADLINE.bound.supplied_kwh_night} kWh a night supplied against {fig:options.EMB-DEADLINE.bound.required_kwh_night} kWh required; per-bus departure timing: Not available yet (the Embakasi schedule replay, not run)",
            economics: {kwh_2200_2400: 24800, cost_2200_2400: 2976.00, kwh_0000_0500: 62000, cost_0000_0500: 5580.00, demand: 4800.00,
                        energy_cost_monthly: 13356.00, saving_monthly: 8082.00, saving_basis: "against no-action under the November tariff (21,438.00), not against October as billed", one_off: 1500.00, net_12m: 95484.00, class: MODELLED,
                        note: "400 kW for 2 h before midnight (800 kWh) and 5 h after (2,000 kWh) each night; 381 a month dearer than the rejected cheapest schedule"},
@@ -716,12 +714,11 @@ tenants:
         basis: "evaluated by evaluate_structure.py: required energy a night against energy supplied under the 400 kW import limit"
         class: DERIVED
       - decision: "Embakasi charging schedule"
-        horizon: "31 replayed October nights"
+        horizon: "31 October nights (energy check)"
         measure: departures_missed
         options: {EMB-NOACT: 0, EMB-DEADLINE: 0, EMB-CHEAPEST: 93}
         basis: "evaluated by evaluate_structure.py: the option's factor changes (restore date derived from its drivers, cover dates, chargers in service) run through the Protect nodes of the structure"
-        class: MODELLED
-        design_value: true
+        class: DERIVED
     operations:
       period: "2026-10"
       measures:
@@ -949,7 +946,7 @@ factor_map:   # how each vertical's source records become leaf factors (record =
     penalty_rate: "incident.penalty_per_missed_departure | 0"
 
 evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is compared with, its parameters (taken from the option
-              # rows where they exist, or declared here with their provenance: design value of a calibration spike, assumption, or quote),
+              # rows where they exist, or declared here with their provenance: a replay study's figure through `source:` (replay_studies), assumption, or quote),
               # its factor changes as expressions over those parameters and the site's observed factors, and its cost lines with the right
               # that decides who bears each line. Value = (outcome under the option - outcome under the reference) x months - operator-borne
               # one-off cost. An option is "valued in money" only when it changes a money node of the structure; otherwise its spend is
@@ -962,7 +959,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
     MINI_GRID:
       - {id: redundancy, node: obligation_hours_without_backup, max: "0", reason: "obligation supply is never left on one unit with nothing behind it (P1); rev 12: measured on the hours with no backup supply (owner Q15)"}
       - {id: claimable_cover, node: cover_not_claimable, max: "0", reason: "keep warranty cover claimable: no cover left unclaimable for want of evidence, and none lost to a lapsed notice or a voiding repair (P4)"}
-      - {id: dawn_adequacy, node: replayed_dawn_days_below_safeguard, max: "0", reason: "MG5: battery at or above 35% at 5 am on every replayed day (P1)"}
+      - {id: admission, node: admission_parts_failed, max: "0", reason: "the owner's admission rule (D-0K4.9, runs/admission.py): against no action over the same replayed days, energy not served and reserve breaches do not rise, starts stay within the maker's limit, the battery reaches full charge regularly; the dawn margin is information, never a gate"}
     COLD_CHAIN:
       - {id: backup_cover, node: nights_without_backup_cover, max: "0", reason: "stock present must have backup start or manual cover (P1, batch temperature)"}
       - {id: capacity, node: occupied_total_crate_days, max: "capacity_crate_days", reason: "room capacity (physical)"}
@@ -972,11 +969,11 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       - {id: import_limit, node: max_kw, max: "import_limit_kw", reason: "site import limit (physical)"}
       - {id: claimable_cover, node: cover_not_claimable, max: "0", reason: "keep warranty cover claimable: none lost to a lapsed notice or a voiding repair (P4)"}
   protect_nodes:   # rev 12 (L7): the Protect nodes reported with every option, declared per vertical (not held in the evaluator)
-    MINI_GRID: [obligation_hours_without_redundancy, obligation_hours_without_backup, replayed_dawn_days_below_safeguard, unclaimable_cover, cover_not_claimable]
+    MINI_GRID: [obligation_hours_without_redundancy, obligation_hours_without_backup, unclaimable_cover, cover_not_claimable]
     COLD_CHAIN: [nights_without_backup_cover, cover_not_claimable]
     EV_DEPOT_CAPTIVE: [departures_missed, cover_not_claimable]
   forward_baseline:   # rev 12 (L5): options look forward from as_of; the period-observation leaves below are reset before an option's changes apply
-    MINI_GRID: {reduced_days: "0"}
+    MINI_GRID: {reduced_days: "0", admission_parts_failed: "0"}   # 0K4m (§2.3a): the admission count is an option-only leaf
     COLD_CHAIN: {uncovered_nights: "0", backup_unproven_days: "0"}
     EV_DEPOT_CAPTIVE: {}
   option_detail:   # rev 12 (L7): per-vertical detail nodes shown with an option (capacity check, unit cost, bills), declared here
@@ -991,25 +988,31 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       site: Kobo
       basis: NO_ACTION
       months: 12
-      params: {avoided_candidate_l: {value: 210, design_value: K}, added_throughput_kwh: {value: 150, design_value: K},
-               dawn_days_below_35pct: {value: "row.forward_replay.soc_0500_below_35_days", design_value: K}}
-      changes: {candidate_l: "candidate_l - avoided_candidate_l", battery_throughput_kwh: "battery_throughput_kwh + added_throughput_kwh", dawn_days_below: "dawn_days_below_35pct"}
+      params: {avoided_l: 'unavailable("a dispatch replay on Kobo''s October as recorded (0K4f)")', added_throughput_kwh: 'unavailable("a dispatch replay on Kobo''s October as recorded (0K4f)")',
+               admission_parts_failed_option: {value: 0, source: {study: K8, case: stop-70-reserve-30, field: admission_parts_failed}}}
+      changes: {candidate_l: "candidate_l - avoided_l", battery_throughput_kwh: "battery_throughput_kwh + added_throughput_kwh", admission_parts_failed: "admission_parts_failed_option"}
+      information: {source: {study: K8, case: stop-70-reserve-30}, dawn_days_below: 4, baseline_dawn_days_below: 4, new_dawn_days_below: 0,
+                    worst_dawn_soc_pct: 34.794737, min_soc_pct: 33.141398, max_starts_in_a_day: 3, longest_days_without_full_charge: 5, admitted: true, first_failing_part: null}
       cost_lines: {vendor_remote_reconfiguration: 60.00, trial_supervision: 30.00}
-      sensitivities: {diesel_minus_20pct: {factors: {diesel_price: "diesel_price * 0.8"}}, feasible_fuel_160l: {params: {avoided_candidate_l: 160}}}
+      sensitivities: {diesel_minus_20pct: {factors: {diesel_price: "diesel_price * 0.8"}}}
     KOB-RESERVE:
       site: Kobo
       basis: NO_ACTION
       months: 12
-      params: {avoided_candidate_l: {value: 20, design_value: K}, dawn_days_below_35pct: {value: "row.forward_replay.soc_0500_below_35_days", design_value: K}}
-      changes: {candidate_l: "candidate_l - avoided_candidate_l", dawn_days_below: "dawn_days_below_35pct"}
+      params: {avoided_l: 'unavailable("a dispatch replay on Kobo''s October as recorded (0K4f)")', added_throughput_kwh: 'unavailable("a dispatch replay on Kobo''s October as recorded (0K4f)")',
+               admission_parts_failed_option: {value: 0, source: {study: K8, case: stop-90-reserve-25, field: admission_parts_failed}}}
+      changes: {candidate_l: "candidate_l - avoided_l", battery_throughput_kwh: "battery_throughput_kwh + added_throughput_kwh", admission_parts_failed: "admission_parts_failed_option"}
+      information: {source: {study: K8, case: stop-90-reserve-25}, dawn_days_below: 11, baseline_dawn_days_below: 4, new_dawn_days_below: 7,
+                    worst_dawn_soc_pct: 29.815789, min_soc_pct: 28.243229, max_starts_in_a_day: 2, longest_days_without_full_charge: 4, admitted: true, first_failing_part: null}
       crew_visits: {value: 0, basis: "remote reconfiguration, as KOB-STOPSOC"}
     MTO-HULLER:
       site: Mto
       basis: NO_ACTION
       months: 12
       params: {load_kw: "row.load.kw", load_hours_per_day: {value: 5, basis: "window 10:00-15:00"}, days: "row.load.days_per_month",
-               added_fuel_l: {value: 68, design_value: M}, collection: "row.economics.collection_cost_monthly"}
-      changes: {productive_kwh: "productive_kwh + load_kw * load_hours_per_day * days", extra_l: "extra_l + added_fuel_l", collection_cost: "collection_cost + collection"}
+               litres_per_kwh: {value: 0.094815, source: {study: M8, case: mto-huller, field: litres_per_customer_kwh}}, collection: "row.economics.collection_cost_monthly"}
+      changes: {productive_kwh: "productive_kwh + load_kw * load_hours_per_day * days", extra_l: "extra_l + litres_per_kwh * load_kw * load_hours_per_day * days", collection_cost: "collection_cost + collection"}
+      information: {source: {study: M8, case: mto-huller}, days_without_headroom: "16 of 61 replayed days", extra_starts: 5, dawn_days_below: 0}
       requires_restore: {decision: mto_inverter, plus_business_days: "row.connection_lead_working_days", by: "row.customer_loi.lapses",
                          by_if_switch: {loi_extended: "row.customer_loi.extension_to"}}   # rev 13 (H1): a dated dependency, evaluated in the allocator
       cost_lines: {service_drop_and_meter: 1200.00}
@@ -1018,15 +1021,16 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       site: Mto
       basis: NO_ACTION
       months: 12
-      params: {load_kw: "row.load.kw", load_hours_per_day: {value: 3, basis: "window 18:00-21:00"}, days: "row.load.days_per_month", sfc: "physical.sfc_l_per_kwh"}
-      changes: {delivered_kwh: "delivered_kwh + load_kw * load_hours_per_day * days", extra_l: "extra_l + load_kw * load_hours_per_day * days * sfc"}
-      note: "every evening kWh is generator energy (no solar, battery at reserve)"
+      params: {load_kw: "row.load.kw", load_hours_per_day: {value: 3, basis: "window 18:00-21:00"}, days: "row.load.days_per_month",
+               litres_per_kwh: {value: 0.324868, source: {study: M8, case: mto-welder, field: litres_per_customer_kwh}}}
+      changes: {delivered_kwh: "delivered_kwh + load_kw * load_hours_per_day * days", extra_l: "extra_l + load_kw * load_hours_per_day * days * litres_per_kwh"}
+      note: "litres per welder kWh from the M8 replay (SIMULATED)"
       crew_visits: {value: 0, basis: "existing connection; no works"}
     KIS-BATT60:
       site: Kisiwa
       basis: NO_ACTION
       months: 12
-      params: {shifted_fuel_l: {value: 150, assumption: "no Kisiwa battery replay exists; deferred option; owner decision Q14"}}
+      params: {shifted_fuel_l: 'unavailable("a Kisiwa battery replay (queue Q7)")'}
       changes: {necessary_l: "necessary_l - shifted_fuel_l"}
       cost_lines: {battery_60_kwh: 14000.00}
       crew_visits: {value: 1, basis: "installation visit (assumption; no quote held)"}
@@ -1039,8 +1043,9 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       params: {restore: {date: as_of, plus: ["entitlement.contract.lead_time_days", "install_days"], performed_under: INV-MT-02,
                          if_not_covered: {date: as_of, plus: ["local_supply_days", "install_days"], crew_visits: {value: 1, basis: "own crew installs the unit bought locally"}}},
                install_days: {value: 1, basis: "installer quote"}, local_supply_days: {value: 5, basis: "local distributor quote (if the claim is refused, the unit is bought locally)"},
-               extra_l_per_day: "physical.extra_l_per_day_at_half_inverter_capacity"}
+               extra_l_per_day: {value: 0, source: {study: M8, case: reduced, field: extra_fuel_l_per_day}}}
       changes: {reduced_days: "days_to_restore", extra_l: "extra_l + value_days_to_restore * extra_l_per_day"}
+      information: {source: {study: M8, case: reduced}, extra_generator_kwh: 0, extra_unserved_kwh: 0, reason: "over the 61 replayed days the 25 kW limit adds no generator energy and no unserved energy"}
       cost_lines: {replacement_unit: {amount: 2600.00, covered_by: INV-MT-02}, shipping_failed_unit: 150.00, install: 80.00}
     MTO-INV-BUYNOW:
       site: Mto
@@ -1049,8 +1054,9 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       reference: "immediate restore at no operator cost"
       files_notice: {INV-MT-02: {date: as_of}}   # the failed unit is claimed now (the returned unit becomes a spare)
       params: {restore: {date: as_of, plus: ["local_supply_days", "install_days"]}, local_supply_days: {value: 5, basis: "local distributor quote"}, install_days: {value: 1, basis: "installer quote"},
-               extra_l_per_day: "physical.extra_l_per_day_at_half_inverter_capacity"}
+               extra_l_per_day: {value: 0, source: {study: M8, case: reduced, field: extra_fuel_l_per_day}}}
       changes: {reduced_days: "days_to_restore", extra_l: "extra_l + value_days_to_restore * extra_l_per_day"}
+      information: {source: {study: M8, case: reduced}, extra_generator_kwh: 0, extra_unserved_kwh: 0, reason: "over the 61 replayed days the 25 kW limit adds no generator energy and no unserved energy"}
       cost_lines: {replacement_unit_bought: 2600.00, install: 80.00, ship_failed_unit_for_claim: 150.00, install_returned_unit_as_spare: 80.00}
     MTO-INV-NOACT:
       site: Mto
@@ -1058,8 +1064,9 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       reference: "immediate restore at no operator cost"
       # rev 12 (H1): complete like the other two paths (extra fuel included) and files no notice: INV-MT-02 lapses on its 27 Nov deadline,
       # 2,600 of cover is lost, and the declared claimable_cover bound rejects it. No typed admissibility.
-      params: {restore: {date: none}, extra_l_per_day: "physical.extra_l_per_day_at_half_inverter_capacity"}
+      params: {restore: {date: none}, extra_l_per_day: {value: 0, source: {study: M8, case: reduced, field: extra_fuel_l_per_day}}}
       changes: {reduced_days: "days_to_restore", extra_l: "extra_l + value_days_to_restore * extra_l_per_day"}   # rev 13 (M2): fuel over the tenant horizon
+      information: {source: {study: M8, case: reduced}, extra_generator_kwh: 0, extra_unserved_kwh: 0, reason: "over the 61 replayed days the 25 kW limit adds no generator energy and no unserved energy"}
       crew_visits: {value: 0, basis: "no action"}
     MTO-INV-LOCAL:   # rev 13 (L3): evaluated like KAS-LOCAL, not a hand disposition
       site: Mto
@@ -1067,8 +1074,9 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       reference: "immediate restore at no operator cost"
       voids_rights: [INV-MT-02]
       params: {restore: {date: as_of, plus: ["local_repair_days"]}, local_repair_days: {value: 2, assumption: "a local technician opens and repairs the unit in 2 days; no quote held"},
-               extra_l_per_day: "physical.extra_l_per_day_at_half_inverter_capacity"}
+               extra_l_per_day: {value: 0, source: {study: M8, case: reduced, field: extra_fuel_l_per_day}}}
       changes: {reduced_days: "days_to_restore", extra_l: "extra_l + value_days_to_restore * extra_l_per_day"}
+      information: {source: {study: M8, case: reduced}, extra_generator_kwh: 0, extra_unserved_kwh: 0, reason: "over the 61 replayed days the 25 kW limit adds no generator energy and no unserved energy"}
       cost_lines: {local_repair: {amount: "row.cost"}}
       crew_visits: {value: 1, basis: "own crew visit with the technician"}
     KIS-REPAIR:
@@ -1168,10 +1176,8 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       basis: NO_ACTION
       months: 12
       reference_factors: {night_price: "tariff.prices.night_from_1_nov"}
-      params: {max_kw_option: "row.max_kw", hours_before_midnight: {value: 2, basis: "22:00-24:00"}, hours_after_midnight: {value: 5, basis: "00:00-05:00 (to 05:15)"},
-               feasible_nights: {value: 31, design_value: E}, bus_short_on_infeasible_night: {value: 1, basis: "a 21-bus night needs about 406 kW, one bus beyond the 400 kW plan (spike E)"}}
-      changes: {peak_kwh: "0", kwh_2200_2400: "max_kw_option * hours_before_midnight * nights_in_period", kwh_0000_0500: "max_kw_option * hours_after_midnight * nights_in_period", max_kw: "max_kw_option",
-                extra_missed_departures: "(nights_in_period - feasible_nights) * bus_short_on_infeasible_night"}
+      params: {max_kw_option: "row.max_kw", hours_before_midnight: {value: 2, basis: "22:00-24:00"}, hours_after_midnight: {value: 5, basis: "00:00-05:00 (to 05:15)"}}
+      changes: {peak_kwh: "0", kwh_2200_2400: "max_kw_option * hours_before_midnight * nights_in_period", kwh_0000_0500: "max_kw_option * hours_after_midnight * nights_in_period", max_kw: "max_kw_option"}
       cost_lines: {schedule_configuration_and_supervision: 1500.00}
       sensitivities: {flat_tariff: {factors: {peak_price: "offpeak_price", night_price: "offpeak_price", demand_rate: "0"}}}
     EMB-CHEAPEST:
@@ -1249,7 +1255,7 @@ plans:   # inputs to the allocator (M4): one joint search over all decisions (ev
       - {name: kisiwa_genset, kind: protective, options: [KIS-REPAIR, KIS-REPLACE, KIS-NOACT], hard: [redundancy], fallback: least_violation,
          reason: "evening supply has nothing behind GEN-KS-02; no option restores a backup at once, so the least violation among affordable options is chosen"}
       - {name: kobo_battery_evidence, kind: protective, options: [BAT-EVIDENCE, BAT-NOACT], hard: [claimable_cover], reason: "keep {fig:options.BAT-EVIDENCE.rights.claimable_cover} of cover claimable"}
-      - {name: kobo_generator, kind: valued, options: [KOB-STOPSOC, KOB-RESERVE], optional: true, hard: [dawn_adequacy]}
+      - {name: kobo_generator, kind: valued, options: [KOB-STOPSOC, KOB-RESERVE], optional: true, hard: [admission]}
       - {name: mto_inverter, kind: valued, options: [MTO-INV-CLAIM, MTO-INV-BUYNOW, MTO-INV-LOCAL, MTO-INV-NOACT], optional: false, hard: [redundancy, claimable_cover], fallback: least_violation,
          reason: "the generator backs the daytime shortfall on every path (redundancy met); no action lets the warranty notice lapse (cover bound); money decides between the claim and buying now"}
       - {name: mto_demand, kind: valued, options: [MTO-HULLER], optional: true}
@@ -1306,7 +1312,6 @@ demo_workflow:   # design rev 16.8 §2.4-§2.6 (plan F mock-up lane, 19 Nov; own
         - {role: FIELD_TECHNICIAN, name: Musa}
         - {role: ANALYST, name: Wanjiru}
       items:   # one row per item of version 1; chosen_by = the person who chose the option (reactive) or declared the item (proactive)
-        - {item: KOB-STOPSOC, kind: REACTIVE, site: Kobo, chosen_by: Peter, owner: Peter, item_state: RELEASED}
         - {item: KIS-REPAIR, kind: REACTIVE, site: Kisiwa, chosen_by: Halima, owner: Halima, item_state: CHOSEN}
         - {item: BAT-EVIDENCE, kind: REACTIVE, site: Kobo, chosen_by: Peter, owner: Peter, item_state: CHOSEN}   # rev 16.12 (M3): the site manager chooses for the Site's asset; Joseph creates the claim-evidence Action
         - {item: MTO-INV-CLAIM, kind: REACTIVE, site: Mto, chosen_by: David, owner: David, item_state: CHOSEN}   # OD-16: "Mto: David"
@@ -1319,8 +1324,6 @@ demo_workflow:   # design rev 16.8 §2.4-§2.6 (plan F mock-up lane, 19 Nov; own
            depends_reason: "GEN-KS-01 must be back (repair restores it on 9 Nov) so the evening supply keeps a backup while GEN-KS-02 is off",
            service_date: "2026-12-08", action_note: "no Action on 6 Nov: Halima creates it when she books the December visit; it is released at creation once a version holding the item is in force"}
       actions:
-        - {item: KOB-STOPSOC, action: "Reconfigure the generator stop threshold 90% to 70% (vendor, remote)", created_by: Peter, owner: Peter, due: "2026-11-09", release: AT_CREATION}
-        - {item: KOB-STOPSOC, action: "Supervise the 14-day trial", created_by: Peter, owner: Musa, due: "2026-11-23", release: AT_CREATION}
         - {item: KIS-REPAIR, action: "Repair the Kisiwa alternator", created_by: Halima, owner: Musa, due: "2026-11-09", release: AWAITS_APPROVAL}
         - {item: BAT-EVIDENCE, action: "Capacity test and temperature sensor for the Kobo battery warranty", created_by: Joseph, owner: Joseph, due: "2026-11-20", release: AWAITS_APPROVAL}
         - {item: MTO-INV-CLAIM, action: "File the inverter warranty notice (INV-MT-02, deadline 27 Nov)", created_by: Joseph, owner: Joseph, due: "2026-11-13", release: AWAITS_APPROVAL}
@@ -1582,9 +1585,10 @@ home_categories:   # design rev 16.11 §2.0 (OD-21; Architect's calls): the regi
                           # placed under its own factor's heading and counted once. Each is a factor the option's `changes` name (or,
                           # for a cover option, the service cost line linked to the Protect measure it moves). check_manifest.py homes().
     KOB-STOPSOC: [candidate_l, battery_throughput_kwh]
+    KOB-RESERVE: [candidate_l, battery_throughput_kwh]
     MTO-HULLER: [productive_kwh, extra_l, collection_cost]
     MTO-WELDING: [delivered_kwh, extra_l]
-    KIS-BATT60: [necessary_l]                 # the fuel shifted to the battery (a flagged assumption, Q14); its one-off is the battery
+    KIS-BATT60: [necessary_l]                 # the fuel shifted to the battery (Not available yet: a Kisiwa battery replay, Q7); its one-off is the battery
     MTO-INV-CLAIM: [extra_l]                  # extra fuel at half inverter capacity until the restore; the one-off is its own column
     MTO-INV-BUYNOW: [extra_l]
     MWEA-AGG: [contract_crate_days, contract_rate, handling]
@@ -1795,12 +1799,51 @@ owner_question_variants:   # rev 13 (M4): the owner question's alternatives are 
                 {path: "plans.lakeside-power.decisions[name=mto_inverter].hard", remove: redundancy},
                 {path: "plans.lakeside-power.decisions[name=kisiwa_storage].hard", remove: redundancy}]}
 
-calibration_spikes:   # rev 13 (owner rule 1): the replays only; no list of figures. A figure is replay-dependent when it is computed from an
-                      # option parameter carrying design_value K, M or E (or a physical field named below), or is a plan figure whose valued
-                      # options include such an option; the screen tagger and the audit derive that set from the evaluation.
-  K: {replay: "Kobo forward dispatch replay", parameters: "design_value: K on KOB-STOPSOC and KOB-RESERVE params; row forward_replay"}
-  M: {replay: "Mto demand-on-headroom replay", parameters: "design_value: M on MTO-HULLER params; physical.extra_l_per_day_at_half_inverter_capacity"}
-  E: {replay: "Embakasi deadline-aware schedule replay", parameters: "design_value: E on EMB-DEADLINE params"}
+replay_studies:   # 0K4m (D-0K4.31, D-0K4.32): the v8 replay studies behind every replay input; identity keys as the extract's
+                  # (replay-studies.json, written by extract_replay_studies.py from 0K4d's study.json; K3). A param reads a
+                  # study through `source: {study, case, field}` (N2) and an option's information through `information.source` (N3).
+  K8:
+    extract: replay-studies.json
+    source_file: "kobo-61d/study.json"
+    source_sha256: "c52e475554e6d4e2c713b7d8face961426c8d27b991315cb95bb974eccc78b61"
+    commit: "6fd0d6bb6b17b851a0e27d3098a592a656f56fc1"
+    model: "mini-grid/8"
+    season: "v2"
+    season_inputs_digest: "465ab6e0818f3fbd6d15a3fbb2a30b6ab75ad1e3cfaa250d6c3b9807f4cdb1a8"
+    trajectory_digest_site: "7be8f02e64fa91a8d7f779b38b61c0bc4ee5ba0425d63fdc5d58769d6e3fba1d"
+    input_class: "SIMULATED"
+    evidence_class: "MODELLED"
+    status: "CALIBRATED"
+    days: 61
+    month_basis: "window figure x 30 / 61"
+    assumptions:
+      - "generator-no-load-fuel-rate 3.3 L/h (assumed, GENERIC_DEFAULT: the owner's value of 2026-11-07 for a 40 kW set; the generic rule of about 0.08 L/h per kW of rating gives 3.2)"
+      - "generator-minimum-load 30 % (assumed, GENERIC_DEFAULT: a typical diesel controller setting, until Kobo's controller settings)"
+      - "battery-charge-taper-start 95 % (assumed, GENERIC_DEFAULT: a lithium iron phosphate battery, until Kobo's battery sheet)"
+      - "specific-fuel-consumption 0.3 L/kWh (assumed, TEMPLATE: the Kobo template's value, read as consumption at rated output, until Kobo's fuel sheet)"
+    admission_rule:
+      - "max-starts-per-day 6 per day (assumed, GENERIC_DEFAULT: a typical maker's limit, until Kobo's generator sheet)"
+      - "full-charge-every-days 7 days (assumed, GENERIC_DEFAULT: lithium iron phosphate, until Kobo's battery sheet)"
+  M8:
+    extract: replay-studies.json
+    source_file: "mto-61d/study.json"
+    source_sha256: "69a7b9bd8964d054c901c70422c637320eccf230b72e738994f0e5a0a5a2707d"
+    commit: "6fd0d6bb6b17b851a0e27d3098a592a656f56fc1"
+    model: "mini-grid/8"
+    season: "v2"
+    season_inputs_digest: "465ab6e0818f3fbd6d15a3fbb2a30b6ab75ad1e3cfaa250d6c3b9807f4cdb1a8"
+    trajectory_digest_site: "afd2a3e376b8f75bb4969f381d6b5192c24b5e4444dd4653e2601c8addefa757"
+    input_class: "SIMULATED"
+    evidence_class: "MODELLED"
+    status: "CALIBRATED"
+    days: 61
+    month_basis: "rates only (litres per customer kWh, litres per day); no window figure is scaled"
+    assumptions:
+      - "generator-no-load-fuel-rate 2.4 L/h (assumed, GENERIC_DEFAULT: the generic rule of 0.08 L/h per kW of rating x 30 kW; no owner value for Mto)"
+      - "generator-minimum-load 30 % (assumed, GENERIC_DEFAULT: a typical diesel controller setting, until Kobo's controller settings)"
+      - "battery-charge-taper-start 95 % (assumed, GENERIC_DEFAULT: a lithium iron phosphate battery, until Kobo's battery sheet)"
+      - "specific-fuel-consumption 0.33 L/kWh (declared, MANIFEST: Mto's physical line, read as consumption at rated output)"
+  E: {replay: "Embakasi deadline-aware schedule replay (per-bus departure timing)", status: NOT_RUN}
 
 disorder_tests:   # deliberately irregular records every build must contain
   - {id: DUP-1, what: "Mto billing CSV re-uploaded with identical rows", expect: "idempotent: 0 new revisions"}
@@ -1813,9 +1856,9 @@ disorder_tests:   # deliberately irregular records every build must contain
   - {id: CLOCK-1, what: "OCPP MeterValues with charger clock 4 min fast", expect: "clock offset corrected from StatusNotification pairing; flagged"}
 
 oracle:   # PRIVATE expectation oracle: compared against computed results; never read by product code
-  - {id: OR-MG-1, expect: "Kobo: GENERATOR_SUPPORT_CANDIDATE on 11 days; KOB-STOPSOC RECOMMENDED; KOB-RESERVE REJECTED by MG5_DAWN_ADEQUACY"}
+  - {id: OR-MG-1, expect: "Kobo: candidate running {fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l} L as the world records it (dispatch-3.2; dispatch-3.3 re-classifies it in 0K4f); both settings admitted on K8's replayed days; their litres and value Not available yet (a dispatch replay on Kobo's October as recorded, 0K4f)"}
   - {id: OR-MG-2, expect: "Kisiwa: zero Candidate minutes; no fuel saving option qualifies"}
-  - {id: OR-MG-3, expect: "Mto: MTO-HULLER net 395/month; MTO-WELDING net -8.25/month REJECTED"}
+  - {id: OR-MG-3, expect: "Mto: MTO-HULLER valued on M8 litres per kWh; MTO-WELDING as the evaluator gives"}
   - {id: OR-MG-4, expect: "Mto energy-to-cash: 140 unbilled mapping, 40 authorised, 120 unexplained unpriced; billed 2,160 = 1,890 + 150 + 120"}
   - {id: OR-MG-5, expect: "Portfolio bridge sums to -852.00 with residual lines explicit"}
   - {id: OR-ENT-1, expect: "INV-MT-02 POTENTIALLY_COVERED; GEN-KS-01 EXPIRED_AND_EXCLUDED; BAT-001 INSUFFICIENT_EVIDENCE; no remedy booked as money"}
