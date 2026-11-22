@@ -5704,3 +5704,17 @@ input.v69-chip-control[type="datetime-local"] {
 .gap-group__subject + .gap-group__subject::before {
   content: " · ";
 }
+
+/* IA-P P5 (spec §2.3): the section links line, "In {Tab}:" then the tab's pages. */
+.site-sections {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.site-sections__lead {
+  color: var(--text-muted);
+  font-size: var(--text-subtab);
+  white-space: nowrap;
+}

@@ -1,4 +1,5 @@
 import { ROADMAP_WORDS } from "../ui/productWords";
+import { SiteSectionItem } from "../ui/SiteSections";
 import { useEffect, useState, type ReactNode } from "react";
 import { RangeLink as Link } from "../ui/RangeLink";
 import { selectedSourceBlock } from "./sourceProvenance";
@@ -837,6 +838,8 @@ export interface ColdPerformanceFrameProps {
   tabs: ReactNode;
   parentTrail: Crumb[];
   subtabHref: (id: ColdPerformanceView) => string;
+  /** IA-P P5 (spec §2.3): the line ends with Health. */
+  healthHref?: string;
   /** W5-01a C2: the selected depth reads and the cold UI route bases behind the Cooling page. */
   depth: ColdDepthClient;
   routes: ColdSiteRoutes;
@@ -868,7 +871,8 @@ export function ColdPerformanceFrame(props: ColdPerformanceFrameProps) {
         headingId={COLD_PERFORMANCE_HEADING_ID}
       />
       {props.tabs}
-      <nav className="site-tabs site-subtabs" aria-label="Performance sections">
+      <nav className="site-tabs site-subtabs site-sections" aria-label="Performance sections">
+        <span className="site-sections__lead">In Performance:</span>
         <ol className="site-tabs__list">
           <li className="site-tabs__item">
             <Link className="site-tabs__link" to={props.subtabHref("temperature")} data-performance-subtab="temperature" aria-current={view === "temperature" ? "page" : undefined}>
@@ -881,6 +885,7 @@ export function ColdPerformanceFrame(props: ColdPerformanceFrameProps) {
               Backup
             </Link>
           </li>
+          {props.healthHref === undefined ? null : <SiteSectionItem link={{ label: "Health", href: props.healthHref, current: false }} />}
         </ol>
       </nav>
       {view === "cooling" ? (
@@ -922,7 +927,8 @@ export interface ColdFindingFrameProps {
   window: ColdWindowQuery;
   client: ColdAssessmentClient;
   links: ColdLinks;
-  tabs: ReactNode;
+  /** IA-P P5 (D-IAP.38 Q20): a Finding is an object page; the Site route passes no Site tab row. */
+  tabs?: ReactNode;
   parentTrail: Crumb[];
 }
 
@@ -1174,7 +1180,7 @@ export function ColdFindingFrame(props: ColdFindingFrameProps) {
   const title = detail?.title ?? "Finding";
   return (
     <main aria-labelledby={COLD_FINDING_HEADING_ID} data-cold-view={detail === null ? "cold-finding" : isExcursion ? "cold-finding-excursion" : "cold-finding"}>
-      <Breadcrumbs trail={[...props.parentTrail, { label: "Finding" }]} />
+      <Breadcrumbs trail={[...props.parentTrail, { label: title }]} />
       <PageHeader title={title} headingId={COLD_FINDING_HEADING_ID} subtitle={`${props.siteName} · cold-chain finding`} />
       {props.tabs}
       <nav className="site-tabs site-subtabs" aria-label="Finding sections">

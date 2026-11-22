@@ -19,6 +19,7 @@ import { EvFoundationFrame } from "../sites/EvFoundationViews";
 import { Breadcrumbs, PageHeader, plainTime, ProductStatus, readResultWords, SITE_SCREEN_DESCRIPTIONS, SitePageHeader } from "../ui";
 import { EV_SITE_TAB_HREFS } from "./evSiteRoutes";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
+import { SetupSections } from "./siteSections";
 import { RouteNotAvailableFrame } from "./RouteNotAvailableFrame";
 import { useDeclareRangeNotUsed } from "../ui/rangeFocus";
 import {
@@ -149,7 +150,7 @@ export function SiteFoundationFrame({
         viewHref={(target) => siteFoundationViewHref(siteId, segmentFor(target), at, null)}
         evidenceHref={siteEvidenceHref(siteId)}
         healthHref={siteHealthHref(siteId)}
-        tabs={<OperatorSiteTabs siteId={siteId} current="Foundation" />}
+        tabs={<><OperatorSiteTabs siteId={siteId} current="Foundation" /><SetupSections siteId={siteId} current="Foundation" /></>}
         parentTrail={[
           { label: "Sites", to: sitesPath },
           { label: record?.status === "loaded" ? record.site.display_name : (state.foundation?.status === "loaded" ? state.foundation.value.site.display_name : siteId), to: siteDetailHref(siteId) },
@@ -176,7 +177,7 @@ export function SiteFoundationFrame({
         healthHref={siteHealthHref(siteId)}
         financialsHref={siteEvHref(siteId, "financials")}
         assumptionsHref={siteEvHref(siteId, "assumptions")}
-        tabs={<OperatorSiteTabs siteId={siteId} current="Foundation" hrefs={EV_SITE_TAB_HREFS} />}
+        tabs={<><OperatorSiteTabs siteId={siteId} current="Foundation" hrefs={EV_SITE_TAB_HREFS} /><SetupSections siteId={siteId} current="Foundation" /></>}
         parentTrail={[
           { label: "Sites", to: sitesPath },
           { label: siteName, to: siteDetailHref(siteId) },
@@ -197,7 +198,12 @@ export function SiteFoundationFrame({
   const loaded = state.foundation?.status === "loaded" ? state.foundation.value : null;
   const screenDescription = SITE_SCREEN_DESCRIPTIONS[view === "model" ? "foundation" : view];
 
-  const tabs = <OperatorSiteTabs siteId={siteId} current="Foundation" />;
+  const tabs = (
+    <>
+      <OperatorSiteTabs siteId={siteId} current="Foundation" />
+      {siteId === undefined ? null : <SetupSections siteId={siteId} current="Foundation" />}
+    </>
+  );
   // W1-F5b (carry 11): the crumb names the site as the mock does; the code only while no read has named it.
   const knownSiteName = record?.status === "loaded" ? record.site.display_name : (loaded?.site.display_name ?? null);
   const parentTrail = (canonicalSiteId: string) => [

@@ -22,6 +22,7 @@ import {
   OPERATOR_SITE_TABS,
   OPERATOR_SITE_TABS_LABEL,
   CANONICAL_OPERATOR_SITE_TABS,
+  SITE_TAB_OF,
 } from "../operatorSiteTabs";
 import { spacedText } from "../../test/text";
 
@@ -42,29 +43,15 @@ import { spacedText } from "../../test/text";
 const DISABLED = featureFlagsWith(false);
 const ENABLED = featureFlagsWith(true);
 
-/** v6.9 lines 464 and 615, in order. Written out, not derived. */
-const V69_OPERATOR_SITE_TABS = [
-  "Overview",
-  "Foundation",
-  "Health",
-  "Performance",
-  "Findings",
-  "Work",
-  "Financials",
-  "Evidence",
-];
+/**
+ * IA-P P5 (spec §2.3, D-IAP.7, D-IAP.38 Q17): the Site's six tabs, in order. Written out, not derived. v6.9's eight
+ * (lines 464 and 615) fold in: Foundation is Setup, Health sits in Performance, Work is Operations, and Findings
+ * leaves the row for the Findings home.
+ */
+const V69_OPERATOR_SITE_TABS = ["Overview", "Operations", "Performance", "Financials", "Evidence", "Setup"];
 
 /** What this build renders, in order. */
-const RENDERED_TABS = [
-  "Overview",
-  "Foundation",
-  "Health",
-  "Performance",
-  "Findings",
-  "Work",
-  "Financials",
-  "Evidence",
-];
+const RENDERED_TABS = [...V69_OPERATOR_SITE_TABS];
 
 /** Canonical aspects with no capability in this build: not rendered. */
 const UNRENDERED_TABS: string[] = [];
@@ -161,15 +148,21 @@ function tabRow(): HTMLElement {
 
 const SITE_SURFACES = [
   ["the site page", "/sites/MG-002", "Overview"],
-  ["the Foundation", "/sites/MG-002/foundation", "Foundation"],
+  // IA-P P5 (spec §2.3): each page lights its new tab.
+  ["the Foundation", "/sites/MG-002/foundation", "Setup"],
+  ["the Foundation changes", "/sites/MG-002/foundation/changes", "Setup"],
   ["the Evidence", "/sites/MG-002/evidence", "Evidence"],
-  // W4-01: the two Work subtab lists sit under the Work tab.
-  ["Work > Incidents", "/sites/MG-002/work/incidents", "Work"],
-  ["Work > Maintenance", "/sites/MG-002/work/maintenance", "Work"],
+  ["the Health", "/sites/MG-002/health", "Performance"],
+  // D-IAP.38 Q18: Assets lights Setup; Uploads gains the row and lights Evidence.
+  ["the Assets", "/sites/MG-002/assets", "Setup"],
+  ["the Uploads", "/sites/MG-002/uploads", "Evidence"],
+  // W4-01: the two Work subtab lists sit under the Work tab, now Operations.
+  ["Work > Incidents", "/sites/MG-002/work/incidents", "Operations"],
+  ["Work > Maintenance", "/sites/MG-002/work/maintenance", "Operations"],
 ] as const;
 
 describe("the operator Site tab inventory is defined once", () => {
-  it("keeps all eight canonical aspects in v6.9's order", () => {
+  it("keeps the six canonical tabs in spec §2.3's order", () => {
     expect(CANONICAL_OPERATOR_SITE_TABS.map((tab) => tab.label)).toEqual(
       V69_OPERATOR_SITE_TABS,
     );
@@ -196,7 +189,7 @@ describe("the operator Site tab inventory is defined once", () => {
 describe.each(SITE_SURFACES)(
   "the Site tab row on %s",
   (_name, path, currentTab) => {
-    it("renders exactly Overview, Foundation, Health, Performance, Findings, Work, Financials, Evidence, in order", async () => {
+    it("renders exactly Overview, Operations, Performance, Financials, Evidence, Setup, in order", async () => {
       renderAt(path);
       await settledScreen();
 
@@ -227,13 +220,11 @@ describe.each(SITE_SURFACES)(
           .map((link) => [link.textContent, rangeless(link.getAttribute("href") ?? "")]),
       ).toEqual([
         ["Overview", "/sites/MG-002"],
-        ["Foundation", "/sites/MG-002/foundation"],
-        ["Health", "/sites/MG-002/health"],
+        ["Operations", "/sites/MG-002/work"],
         ["Performance", "/sites/MG-002/performance"],
-        ["Findings", "/sites/MG-002/findings"],
-        ["Work", "/sites/MG-002/work"],
         ["Financials", "/sites/MG-002/financials"],
         ["Evidence", "/sites/MG-002/evidence"],
+        ["Setup", "/sites/MG-002/foundation"],
       ]);
     });
 
@@ -296,7 +287,7 @@ describe.each(SITE_SURFACES)(
       const rail = screen.getByRole("navigation", { name: "Operator routes" });
 
       expect(tabRow()).not.toBe(rail);
-      expect(spacedText(rail)).not.toMatch(/foundation/i);
+      expect(spacedText(rail)).not.toMatch(/foundation|setup/i);
       expect(rail.contains(tabRow())).toBe(false);
     });
   },
@@ -304,7 +295,7 @@ describe.each(SITE_SURFACES)(
 
 describe("an unrendered aspect has no route behind it", () => {
   // Every canonical aspect renders since S6-03 (Work) and S7-01b (Health); a non-canonical one still has no route.
-  it.each([...UNRENDERED_TABS, "Incidents"])("serves nothing under a site at %s", (label) => {
+  it.each([...UNRENDERED_TABS, "Incidents", "Operations", "Setup"])("serves nothing under a site at %s", (label) => {
     renderAt(`/sites/MG-002/${label.toLowerCase()}`);
 
     expect(
@@ -426,7 +417,9 @@ describe("Work subtab query preservation by Site type", () => {
         `/sites/${COLD_CODE}/work/incidents?${kept}`,
         `/sites/${COLD_CODE}/work/maintenance?${kept}`,
       ]);
-      expect(within(tabRow()).getByRole("link", { name: "Work" }).getAttribute("aria-current")).toBe("page");
+      // IA-P P5 (spec §2.3, D-IAP.38 Q17): six labels in order on every vertical; Work lights Operations.
+      expect(within(tabRow()).getAllByRole("link").map((a) => a.textContent)).toEqual(RENDERED_TABS);
+      expect(within(tabRow()).getByRole("link", { name: "Operations" }).getAttribute("aria-current")).toBe("page");
     });
   }
 
@@ -449,7 +442,9 @@ describe("Work subtab query preservation by Site type", () => {
         `/sites/${EV_SITE_CODE}/work/incidents?${kept}`,
         `/sites/${EV_SITE_CODE}/work/maintenance?${kept}`,
       ]);
-      expect(within(tabRow()).getByRole("link", { name: "Work" }).getAttribute("aria-current")).toBe("page");
+      // IA-P P5 (spec §2.3, D-IAP.38 Q17): six labels in order on every vertical; Work lights Operations.
+      expect(within(tabRow()).getAllByRole("link").map((a) => a.textContent)).toEqual(RENDERED_TABS);
+      expect(within(tabRow()).getByRole("link", { name: "Operations" }).getAttribute("aria-current")).toBe("page");
     });
   }
 
@@ -505,7 +500,8 @@ describe("post-W6 W4 R333 (D2 R453): the Site tab row wraps at narrow widths", (
     const list = tabRow().querySelector(".site-tabs__list") as HTMLElement;
     expect(list.scrollLeft).toBe(0);
     expect(within(tabRow()).getAllByRole("link").map((link) => link.textContent)).toEqual(RENDERED_TABS);
-    expect(within(tabRow()).getByRole("link", { name: "Work" })).toHaveAttribute("aria-current", "page");
+    // IA-P P5 (spec §2.3): Work lights Operations.
+    expect(within(tabRow()).getByRole("link", { name: "Operations" })).toHaveAttribute("aria-current", "page");
     expect(tabRow().querySelector("[data-mock-deviation='R453']")?.textContent?.trim()).toBe("MOCK DEVIATION D2 (R453)");
     vi.restoreAllMocks();
   });
@@ -516,5 +512,91 @@ describe("post-W6 W4 R333 (D2 R453): the Site tab row wraps at narrow widths", (
     await settledScreen();
     expect((tabRow().querySelector(".site-tabs__list") as HTMLElement).scrollLeft).toBeGreaterThanOrEqual(158);
     vi.restoreAllMocks();
+  });
+});
+
+/* IA-P P5 (spec §6 P5, §2.3): the old-label map and the section links line. */
+describe("IA-P P5: the old tab labels map onto the six", () => {
+  it("SITE_TAB_OF maps Foundation to Setup, Health to Performance, Work to Operations, and keeps the rest", () => {
+    expect(SITE_TAB_OF).toEqual({
+      Overview: "Overview",
+      Foundation: "Setup",
+      Health: "Performance",
+      Performance: "Performance",
+      Findings: "Evidence",
+      Work: "Operations",
+      Financials: "Financials",
+      Evidence: "Evidence",
+      Operations: "Operations",
+      Setup: "Setup",
+    });
+  });
+});
+
+describe("IA-P P5: the section links line (spec §2.3)", () => {
+  function sections(tab: string): HTMLElement {
+    return screen.getByRole("navigation", { name: `${tab} sections` });
+  }
+  function lineOf(nav: HTMLElement) {
+    return {
+      text: spacedText(nav),
+      links: within(nav).getAllByRole("link").map((a) => [a.textContent, rangeless(a.getAttribute("href") ?? "")]),
+      current: within(nav).queryAllByRole("link", { current: "page" }).map((a) => a.textContent),
+    };
+  }
+
+  it.each([
+    ["/sites/MG-002/foundation", "Foundation"],
+    ["/sites/MG-002/foundation/changes", "Changes"],
+    ["/sites/MG-002/assets", "Assets"],
+  ])("on %s: In Setup: Foundation · Changes · Assets, %s current", async (path, current) => {
+    renderAt(path);
+    await settledScreen();
+    const line = lineOf(sections("Setup"));
+    expect(line.text).toMatch(/^In Setup:/);
+    expect(line.links).toEqual([
+      ["Foundation", "/sites/MG-002/foundation"],
+      ["Changes", "/sites/MG-002/foundation/changes"],
+      ["Assets", "/sites/MG-002/assets"],
+    ]);
+    expect(line.current).toEqual([current]);
+    expect(sections("Setup").classList.contains("site-sections")).toBe(true);
+  });
+
+  it.each([
+    ["/sites/MG-002/evidence", "Records"],
+    ["/sites/MG-002/uploads", "Uploads"],
+  ])("on %s: In Evidence: Records · Uploads, %s current", async (path, current) => {
+    renderAt(path);
+    await settledScreen();
+    const line = lineOf(sections("Evidence"));
+    expect(line.text).toMatch(/^In Evidence:/);
+    expect(line.links).toEqual([
+      ["Records", "/sites/MG-002/evidence"],
+      ["Uploads", "/sites/MG-002/uploads"],
+    ]);
+    expect(line.current).toEqual([current]);
+  });
+
+  it("on the Health page: In Performance: … · Health, Health current", async () => {
+    renderAt("/sites/MG-002/health");
+    await settledScreen();
+    const line = lineOf(sections("Performance"));
+    expect(line.text).toMatch(/^In Performance:/);
+    expect(line.links.at(-1)).toEqual(["Health", "/sites/MG-002/health"]);
+    expect(line.current).toEqual(["Health"]);
+  });
+
+  it("the Uploads crumb is Sites › {Site} › Upload readings (D-IAP.38 Q18)", async () => {
+    renderAt("/sites/MG-002/uploads");
+    await settledScreen();
+    const crumb = screen.getByRole("navigation", { name: "Breadcrumb" });
+    expect(Array.from(crumb.querySelectorAll("li")).map((li) => li.textContent)).toEqual(["Sites", "Kalangala Mini-Grid", "Upload readings"]);
+  });
+
+  it("the Overview, Operations and Financials pages draw no section line", async () => {
+    renderAt("/sites/MG-002");
+    await settledScreen();
+    expect(document.querySelector("nav.site-sections")).toBeNull();
   });
 });

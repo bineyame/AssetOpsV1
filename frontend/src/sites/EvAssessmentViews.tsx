@@ -1,4 +1,5 @@
 import { ROADMAP_WORDS } from "../ui/productWords";
+import { SiteSectionItem } from "../ui/SiteSections";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { RangeLink as Link } from "../ui/RangeLink";
@@ -660,6 +661,8 @@ export interface EvSessionsFrameProps {
   view?: EvPerformanceView;
   /** W5-03a E2: a live subtab's address, carrying the read window query. */
   subtabHref: (view: EvPerformanceView) => string;
+  /** IA-P P5 (spec §2.3): the line ends with Health. */
+  healthHref?: string;
   /** W5-03a E2: the live Performance landing the depth pages' breadcrumb links to. */
   performanceHref?: string;
   /** W5-03a E2: the depth page body rendered under the subtabs for a non-sessions view. */
@@ -676,7 +679,8 @@ const SCREEN_OF: Record<EvPerformanceView, keyof typeof SITE_SCREEN_DESCRIPTIONS
 
 function EvPerformanceSubtabs({ view, props }: { view: EvPerformanceView; props: EvSessionsFrameProps }) {
   return (
-    <nav className="site-tabs site-subtabs" aria-label="Performance sections">
+    <nav className="site-tabs site-subtabs site-sections" aria-label="Performance sections">
+      <span className="site-sections__lead">In Performance:</span>
       <ol className="site-tabs__list">
         <li className="site-tabs__item">
           <Link className="site-tabs__link" to={props.sessionsHref} data-performance-subtab="sessions" aria-current={view === "sessions" ? "page" : undefined}>
@@ -693,6 +697,7 @@ function EvPerformanceSubtabs({ view, props }: { view: EvPerformanceView; props:
             Energy / site power
           </Link>
         </li>
+        {props.healthHref === undefined ? null : <SiteSectionItem link={{ label: "Health", href: props.healthHref, current: false }} />}
       </ol>
     </nav>
   );
@@ -777,8 +782,9 @@ export interface EvFindingFrameProps {
   client: EvAssessmentClient;
   /** post-W6 W2-EV R276 (Q7): EV Evidence Analysis at the Finding's own window; hidden on a refused read. */
   analysisHref?: (search: string) => string;
-  /** post-W6 W2-EV (Q14): a function receives the loaded read's selected `?from=&to=&known_at=` ("" when none). */
-  tabs: EvTabs;
+  /** post-W6 W2-EV (Q14): a function receives the loaded read's selected `?from=&to=&known_at=` ("" when none). IA-P P5
+   * (D-IAP.38 Q20): a Finding is an object page; the Site route passes no Site tab row. */
+  tabs?: EvTabs;
   parentTrail: Crumb[];
 }
 
@@ -979,7 +985,7 @@ export function EvFindingFrame(props: EvFindingFrameProps) {
   const sessionReady = detail === null || sessionId === null || session !== null;
   return (
     <main aria-labelledby={EV_FINDING_HEADING_ID} data-ev-view="ev-finding">
-      <Breadcrumbs trail={[...props.parentTrail, { label: "Finding" }]} />
+      <Breadcrumbs trail={[...props.parentTrail, { label: detail?.title ?? "Finding" }]} />
       <PageHeader title={detail?.title ?? "Finding"} headingId={EV_FINDING_HEADING_ID} subtitle={`${props.siteName} · EV charging finding`} />
       {renderEvTabs(props.tabs, selectedWindowSearch(detail))}
       <nav className="site-tabs site-subtabs" aria-label="Finding sections">

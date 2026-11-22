@@ -10,7 +10,8 @@ import type { EvScenariosClient } from "../sites/evScenariosClient";
 import type { SiteDetailClient } from "../sites/siteDirectoryClient";
 import { deriveSiteView } from "../sites/siteViewModel";
 import { EVIDENCE_PATH, siteDetailHref, siteEvHref, siteHealthHref, siteWorkHref, siteFindingHref, siteFoundationViewHref, sitePerformanceHref } from "./operatorSiteRoutes";
-import { OperatorSiteTabs, type OperatorSiteTabHrefs } from "./operatorSiteTabs";
+import { OperatorSiteTabs, type OperatorSiteTabHrefs, type OperatorSiteTabLabel } from "./operatorSiteTabs";
+import { EvidenceSections } from "./siteSections";
 import { SiteScoped } from "./SiteAnalyticsFrames";
 
 /** W2-07: the UI route bases (no query) the five EV Site screens link to. */
@@ -63,7 +64,7 @@ export function evWorkTabSearch(site: { site_type: string }, params: URLSearchPa
   return refused === null ? coldWindowSearch(window) : "";
 }
 
-const CURRENT_TAB: Record<EvSiteView, string> = {
+const CURRENT_TAB: Record<EvSiteView, OperatorSiteTabLabel> = {
   overview: "Overview",
   evidence: "Evidence",
   analysis: "Evidence",
@@ -117,7 +118,12 @@ export function SiteEvFrame({
             client={evSite}
             outcomeBoard={outcomeBoard}
             routes={evSiteRoutes(site.site_id)}
-            tabs={(search) => <OperatorSiteTabs siteId={site.site_id} current={CURRENT_TAB[view]} hrefs={EV_SITE_TAB_HREFS} search={search} />}
+            tabs={(search) => (
+              <>
+                <OperatorSiteTabs siteId={site.site_id} current={CURRENT_TAB[view]} hrefs={EV_SITE_TAB_HREFS} search={search} />
+                {CURRENT_TAB[view] === "Evidence" ? <EvidenceSections siteId={site.site_id} current="Records" recordsHref={siteEvHref(site.site_id, "evidence")} /> : null}
+              </>
+            )}
             parentTrail={[
               { label: "Sites", to: sitesPath },
               view === "overview" ? { label: site.display_name } : { label: site.display_name, to: siteDetailHref(site.site_id) },
