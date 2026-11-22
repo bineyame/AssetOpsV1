@@ -4,7 +4,7 @@ Branch `task/DD4-cold-ev-reality`, worktree `/opt/assetecon/AssetOpsV1-dd4`. Pac
 
 ## Done (D-DD.88 builder order)
 1. D-DD.87 grid + rounding ledger (95507fa56). 2. D-DD.83 failure at request, `GENERATOR_HAND_START` (ab38dcd9e).
-3. D-DD.85 receiving lots, named lots, pack guard, `EMU_RECEIVING` (b0f... see log) and goldens. 4. `ColdSiteRun`
+3. D-DD.85 receiving lots, named lots, pack guard, `EMU_RECEIVING` (67323959a) and goldens. 4. `ColdSiteRun`
 (`world/telemetry_cold.py`) with D-DD.86 forcings. State entry 205.
 
 ## Stop
