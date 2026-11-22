@@ -123,6 +123,11 @@ class EvaluationService:
                      tuple(_with_id(row, self._new_id()) for row in rows))
         return self._call(self._store.add_run, run)  # E7: a refused record is RECORD_INVALID (D-P6.30, D-P6.31)
 
+    def option_keys(self, run: RunRow) -> Mapping[UUID, str]:
+        """Each option's key by its id, for the command's line."""
+        found = self._call(self._store.decision, run.tenant_id, run.decision_id)
+        return {} if found is None else {o.id: o.option_key for o in found[1]}
+
     def _months(self, decision: DecisionRow, lever: Lever, study: StudyInput, tenant_slug: str,
                 site_code: str) -> tuple[str, ...]:
         """SITE_RECORD: the frame is this tenant's and Site's, then the decision's month is a full month."""

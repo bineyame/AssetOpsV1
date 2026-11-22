@@ -42,8 +42,10 @@ def as_int(value: str, code: str) -> int:
         raise DecisionRefused(code) from None
 
 
-def run(args: Any, services: Any, clock: Callable[[], datetime] | None, act: Callable[[Any], dict]) -> int:
-    """Compose the service when none is given, run `act(service)` and print its one JSON line."""
+def run(args: Any, services: Any, clock: Callable[[], datetime] | None, act: Callable[[Any], dict],
+        build: Callable[..., Any] | None = None) -> int:
+    """Compose the service when none is given (`build`, else the decisions composition), run `act(service)` and
+    print its one JSON line."""
     import json
 
     from assetops_backend.accounts.composition import ACCOUNTS_UNAVAILABLE
@@ -55,8 +57,9 @@ def run(args: Any, services: Any, clock: Callable[[], datetime] | None, act: Cal
             return refuse("NO_DATABASE")
         from assetops_backend.decisions.decisions_composition import build_decisions
 
+        build = build or build_decisions
         try:
-            composed = services = build_decisions(url) if clock is None else build_decisions(url, clock=clock)
+            composed = services = build(url) if clock is None else build(url, clock=clock)
         except Exception:  # noqa: BLE001 - any composition error is the store being unreachable
             return refuse("DECISIONS_UNAVAILABLE", 3)
     try:
