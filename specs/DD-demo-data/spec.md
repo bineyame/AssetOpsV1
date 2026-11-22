@@ -3,10 +3,10 @@
 Status: **rev 2, 2026-11-22; DD1 in_review (`packet-DD1.md`); DD2a in_review (`packet-DD2a.md`); DD2b in_review (`packet-DD2b.md`)**: the combined handshake (`handshake.md`, R1-R10, I1-I15) is answered there under "Answers
 (Architect)" and ruled in `rulings.md` (D-DD.17 to D-DD.34). Rev 1 (same day) had 19.5 u in four parts; rev 2 has
 **30.0 u in six parts** (§7); restated by D-DD.44 to **33.0 u in seven parts** (DD3 splits into DD3a, DD3b), by D-DD.47 to 33.5 u, and by D-DD.57 to
-**34.25 u in eight parts** (DD2 splits into DD2a, DD2b), by D-DD.66 to **35.25 u**, by D-DD.73 to **35.75 u**, by D-DD.74 to **36.25 u**, and by D-DD.79 to **37.0 u**. Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
+**34.25 u in eight parts** (DD2 splits into DD2a, DD2b), by D-DD.66 to **35.25 u**, by D-DD.73 to **35.75 u**, by D-DD.74 to **36.25 u**, by D-DD.79 to **37.0 u**, and by D-DD.80 to **37.5 u**. Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
 it grounded on the product goals"); owner answers to Q1-Q6: `owner/owner-demo-data-answers-2026-11-22.md`. Owner words on
 Kobo's equipment: `owner/owner-iap-q1-q2-kobo-datasheets-2026-11-22.md`. **Rulings:** D-DD.1 to D-DD.16 (§9) and
-D-DD.17 to D-DD.79 (`rulings.md`); index lines in `.ai/decisions/index-rulings-26.md`, `index-rulings-27.md`,
+D-DD.17 to D-DD.80 (`rulings.md`); index lines in `.ai/decisions/index-rulings-26.md`, `index-rulings-27.md`,
 `index-rulings-28.md` and `index-rulings-29.md`.
 **Reviewer guide:** `reviewer-guide.md` (rev 2). `USER_REVIEW_REQUIRED: true` (demo narrative, evidence labels, what the
 served app shows; owner Q7-Q9 open with defaults applied).
@@ -739,7 +739,7 @@ line's: 10.50 / 10.50; 7.80 / 8.03; 5.60 / 5.56. The packet quotes these residua
 **Order inside DD3.2.**
 - Commit 1: the tool, the basis vocabulary, the slot, and the pure run of D-DD.19 on Kobo, July to October, at 0.62
   and at 3.3 L/h (D-DD.70: Kisiwa's and Mto's pure run is DD3.3's, on v9). The three tanks of D-DD.76 are written before the pure run, which reads
-  them; the order inside DD3a is D-DD.79's.
+  them; the order inside DD3a is D-DD.79's, amended by D-DD.80 (the cause index before the pure run).
 - Commit 2, after the coordinator has put Q7 to the owner: Lakeside's `/2` values at the answer or the default, the
   manifest's Kobo `physical`, and the regeneration.
 
@@ -806,11 +806,11 @@ Order: DD1 → (DD2a → DD2b ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merg
   `measured.json` and tested on a fixture. C-DD2 to C-DD4 go live for the decided books, with C-DD4's node clause and
   the checker's own evaluator (D-DD.55).
 
-### DD3: the mini-grid's operating reality (9.75 u in two parts, D-DD.44, D-DD.73, D-DD.79: DD3a = DD3.1, DD3.2, 4.75 u, `task/DD3a-mini-reality`; DD3b = DD3.3, DD3.4, 5.0 u, `task/DD3b-mini-units`)
+### DD3: the mini-grid's operating reality (10.25 u in two parts, D-DD.44, D-DD.73, D-DD.79, D-DD.80: DD3a = DD3.1, DD3.2, 5.25 u, `task/DD3a-mini-reality`; DD3b = DD3.3, DD3.4, 5.0 u, `task/DD3b-mini-units`)
 
-- **DD3.1 Writer core and Kobo on v8 (2.25; D-DD.79).** §4.1 and §4.2 for Kobo: `site-inputs`, scaling, chaining, the tank's
+- **DD3.1 Writer core and Kobo on v8 (2.75; D-DD.79, D-DD.80).** §4.1 and §4.2 for Kobo: `site-inputs`, scaling, chaining, the tank's
   deliveries and declared draw, golden digests. C-DD11, C-DD12 and C-DD21 go live. The kernel's forcing index and its
-  parity test (D-DD.75); Kobo's sun outside season v2 (D-DD.77).
+  parity test (D-DD.75); the kernel's cause index, its cause cases and the 123-day target (D-DD.80); Kobo's sun outside season v2 (D-DD.77).
 - **DD3.2 Kobo's data sheets (2.5; D-DD.79: the three tanks of D-DD.76 before the pure run).** §6: the tool, basis vocabulary, slot, Lakeside's `/2` values, the manifest's Kobo
   `physical` and the regeneration (D-DD.30), D-DD.67 and its parity test (D-DD.68), and the pure-run gate of D-DD.19
   for Kobo (D-DD.70). Two commits, in §6's order; the packet
