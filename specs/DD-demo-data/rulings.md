@@ -208,3 +208,162 @@ a measured figure (C-DD7, C-DD17, C-DD20).
 
 - **D-DD.34 Owner queue, round 2.** Q7, Q8 and Q9 of spec §A, with defaults applied now (W3). The owner is asked to
   weigh in on all three: Q7 replaces an owner value, Q8 sets when the demo counts as done, and Q9 moves story figures.
+
+---
+
+# DD rulings, round 3 (D-DD.35 to D-DD.40): DD1 mid-build questions
+
+Architect (Claude), 2026-11-22. Answers Q-DD1.1 to Q-DD1.6 of `handoff-DD1.md` (branch `task/DD1-operators`, commit
+`26fbb3927`). None needs the owner; each is logged here for owner review.
+
+- **D-DD.35 The gateway provisioning guard compares the served tenant** (Q-DD1.3; the blocker).
+  - `evidence/provision_gateway.py:71` compares `args.tenant` with `config.served_tenant_slug()`, not the constant
+    `DEVELOPMENT_TENANT_SLUG`. A `ConfigurationError` from it exits 2 with its own sentence before any store is built.
+    The refusal reads `Tenant {x!r} is not the tenant this environment serves (ASSETOPS_TENANT_SLUG; unset means "demo").`
+  - *Safety intent kept.* The S2-02 guard stops a gateway credential or enablement being written for a tenant the
+    deployment does not serve, through a typo or a wrong flag. After the change: with the variable unset the behaviour is
+    byte-identical ("demo" only); with it set, the flag and the environment must still agree, so it is still a two-key
+    check; and an ON1 operator database holds one tenant (`ONBOARD_DATABASE_NOT_EMPTY`), so the flag cannot reach another
+    tenant's rows. `served_tenant_slug()` is the server's own answer to "which tenant" (D-ON1.5), so the CLI and the app
+    can no longer disagree. The old guard also made every ON1 operator's gateway unprovisionable, a latent fault.
+  - Tests (no database, `store=` injected): unset + `demo` runs; unset + `lakeside-power` exits 2; set `lakeside-power` +
+    `lakeside-power` runs; set `lakeside-power` + `demo` exits 2; set to an invalid slug exits 2 and builds no store.
+  - *Class (W6):* thirteen other operator CLIs compare the constant (`publish_source`, `chain/backfill`,
+    `chain/snapshots`, `chain/period_backfill`, `recompute_consequences`, `publish_assumption`, `declare_objective`,
+    `record_clock_attestation`, `evidence_migration`, `performance_migration`, `sites/convert_kobo_bindings`,
+    `sites/demo_configuration`; `sites/import_kobo` passes it as `configured_tenant_slug`). None is on DD's command
+    list (spec §0: `bulk_load`, `source_profile admit`, `provision_gateway`, `build_structure_snapshot`,
+    `observe_structure`), so DD changes only `provision_gateway`. Rule: a later unit that runs one of them for a
+    non-"demo" tenant makes the same change with the same five tests. The coordinator records the thirteen as one
+    backlog task. This is a guard change, which D-DS4.3 kept out of DS4; it is DD's, narrow and recorded here.
+
+- **D-DD.36 The apply step lives in `onboard_operator apply --bindings DIR`** (Q-DD1.4; amends D-DD.29's "subprocess").
+  - Adopted as proposed: optional `--bindings DIR`; `tools/world.py` L1 passes `backend/conversions/world`. Without the
+    option `apply` is unchanged, so existing tests stay as they are.
+  - The two provisioning steps run **in process** through `provision_gateway.main([...])`, not as a subprocess: the same
+    entry, argument checks, guard (D-DD.35) and `gateway_access_event`, without a product command forking the
+    interpreter. It runs in the same process whose `served_tenant_slug()` onboarding already checked
+    (`ONBOARD_TENANT_NOT_SERVED`).
+  - Order per Site: `convert` (idempotent) then publish; then read `registrations()` and call `enable-gateway` /
+    `enable-source --source` only for rows with `disabled_at` set. A non-zero exit from a step stops the apply with that
+    exit code and the step's own stderr; a re-run completes it.
+  - A Site with no `<CODE>-bindings.json` in DIR refuses `ONBOARD_SITE_INVALID` with where `bindings/<CODE>`, before
+    any write. No new sentence.
+  - Real files: `ONBOARD_REAL_AWAITS_APPROVAL` already refuses before this step; a test shows a real file with
+    `--bindings` exits with that code and writes no binding set and no event.
+
+- **D-DD.37 Cold compressor rating 6 kW, the cooling rating** (Q-DD1.5). Adopted. `compressor-1.rating` is 6 kW,
+  equal to `cold-cooling-capacity`, as in cold-lab-001: both state the cooling duty, one quantity. The electrical draw
+  (cooling × f_m / cop, about 3 kW at full duty) stays the pack's private result (§4.4) and is never written as a rating.
+  No product read uses a compressor's rating.
+
+- **D-DD.38 EV ids follow the manifest's asset codes** (Q-DD1.6). Adopted, with display names.
+  - Ids as proposed, lower-cased manifest codes, as Lakeside's `gen-ks-01`: chargers `ch-e1..ch-e10`, `ch-k1..ch-k4`,
+    `ch-r1..ch-r12`; connectors `<charger>-c1`, `<charger>-c2`; devices `<connector>-charger-controller`,
+    `-connector-controller`, `-connector-meter` (ev-lab-001's set); `feed-1`, `site-meter-1`.
+  - Display names carry the manifest's codes, so C-DD6 and every screen name the story's unit: charger `Charger CH-K2`,
+    connector `CH-R7 connector 2`, devices as ev-lab-001's wording with that prefix.
+  - Topology: `feed-1` → `site-meter-1` → each charger → its two connectors (POWER), plus ev-lab-001's SIGNAL edges per
+    charger.
+
+- **D-DD.39 EV schedules: every connector enabled all day; `24:00` accepted as a day's end** (Q-DD1.2; amends the
+  proposal).
+  - Confirmed: `/2` accepts `connector_enable_schedules` (spec §7 DD1.1 amended).
+  - Amended: the proposed 00:00-23:59 leaves a disabled minute every night, inside the overnight charging window, and
+    the product's windows would show it. That is a model fault, so it is fixed in the model (owner, 2026-11-21: one
+    figure loyal to the operating world): `sites/ev_foundation._validate_schedules` accepts `local_end` `24:00` (end of
+    the local day), `local_start` stays `00:00`-`23:59`. The reads already take it (`ev_site_reads._occurrences` allows
+    hour 24; the window builder adds 24 h), and the screen prints the text. Tests: `00:00`-`24:00` accepted; `24:00`
+    as `local_start` refused; `24:01` refused.
+  - Every connector: seven entries, `00:00`-`24:00`, `time_zone` `Africa/Nairobi`, `utc_offset_minutes` 180. The load
+    manager (§4.5), not the schedule, limits charging.
+
+- **D-DD.40 C-DD13's TENANT-1 clause is pending until DD5.2** (Q-DD1.1). Confirmed. Until DD5.2 C-DD13 is judged on the
+  cross-tenant reads and prints `TENANT-1: pending (DD5.2)` beside its result. DD5.2 makes the clause live, and from
+  then C-DD13 passes only when both hold. A checker test asserts the pending line.
+
+---
+
+# DD rulings, round 4 (D-DD.41 to D-DD.44): DD1 questions Q-DD1.7 to Q-DD1.9
+
+Architect (Claude), 2026-11-22. Answers Q-DD1.7 to Q-DD1.9 of `packet-DD1.md` (branch `task/DD1-operators`, commit
+`68c799339`). Architect-level calls, logged for owner review; the owner may want to weigh in on D-DD.41 (it adds a
+unit of work, D-DD.44).
+
+- **D-DD.41 Multi-unit role binding: `minigrid-roles-5`, unit roles PER_ASSET, Site figures by one aggregation rule**
+  (Q-DD1.7; the blocker; completes D-DD.21 on the evidence side).
+  - *The fault (a class, W6).* `minigrid-roles-4` says "one generator, one PV inverter per Site": its GENERATOR and
+    INVERTER roles are cardinality ONE, and `BindingService.publish` refuses a Foundation with two such components
+    (`BINDING_ROLE_AMBIGUOUS`). v9 (D-DD.21) models several units, and the Protect beats need each unit's own
+    evidence. Binding only unit 01, or a Site-total channel, would hide the failed unit or add a second figure for one
+    quantity; both rejected. The fix is in the role model, not the data.
+  - *Rule.* A role is PER_ASSET in `minigrid-roles-5` exactly when its asset type is a unit type of v9 (GENERATOR,
+    INVERTER): `generator_state`, `generator_power`, `mini_backup_start_event`, `pv_power`, `pv_available_power`.
+    Every other role, label, unit, value kind, `required` flag, `states` and `event_kinds` is `minigrid-roles-4`'s,
+    unchanged. Immutable, a new named version beside roles-4; roles-4 is untouched and still refuses (it stays
+    interpretable for the sets published under it).
+  - *Site figures from unit evidence (one rule, one module; built in DD3.4, D-DD.44).* Power roles: the Site value at a
+    step is the sum of the bound units' values; a unit with no value at that step makes the Site value absent there,
+    named by unit (no imputation). `generator_state`: RUNNING if any unit runs, else STARTING if any starts, else
+    STOPPED if any unit is not FAILED, else FAILED. `mini_backup_start_event`: the union in time order, each event
+    keeping its unit. Unit property reads: Site generator rating = the sum of non-FAILED units' `generator-rated-power`;
+    burn per unit on its own curve, Site litres = the sum; Site policy from the lead unit (D-DD.43). One unit gives the
+    unit's own value byte for byte, so a one-unit Site reads as today. Protect reads (C-DD6, the failure on its own unit)
+    read the unit series, never the Site series.
+  - *DD1 now (publish side only).* Kisiwa and Mto publish under roles-5; Kobo stays roles-4 until DD3.4 moves it with a
+    parity proof, so the live Kobo figures are not touched before their readers accept roles-5. Until DD3.4 merges no
+    reader selects a roles-5 set, so Kisiwa and Mto show no generator or PV figure rather than a wrong one; their
+    readings are not loaded before DD5 in any case.
+  - *Builder's change list (DD1.2):*
+    1. `sites/binding_roles.py`: `ROLE_SET_MINIGRID_5 = "minigrid-roles-5"`; `MINIGRID_ROLES_5` = roles-4 with the five
+       roles above as PER_ASSET (built by replacing those five entries, order kept); add it to `ROLES_BY_SET` and to
+       `SERVED_ROLE_SETS_BY_SITE_TYPE["MINIGRID"]`. `ROLE_SET_BY_SITE_TYPE` unchanged.
+    2. `sites/binding_service.py`: roles-5 beside roles-4 in `_V4_TABLE_BY_ROLE_SET` and `_MIXED_V4_ROLES_BY_ROLE_SET`
+       (same entries), and at its third roles-4 reference. Class fix: the readiness branch (`role.cardinality ==
+       "PER_ASSET" and role.asset_type == "LOAD"`, about `:814`) and the verification-missing branch (about `:908`)
+       apply to every PER_ASSET role over the Site's components of `role.asset_type`, so an unbound unit of a required
+       role is named as missing (LOAD output byte-identical).
+    3. `conversions/world/KISIWA-001-bindings.json`, `MTO-001-bindings.json`: `role_set` `minigrid-roles-5`, each
+       unit's device signals bound with that unit's `asset_code`. KOBO-001 unchanged.
+    4. Tests: roles-5 publishes Kisiwa (2 GENERATOR) and Mto (2 INVERTER); roles-4 on the same Foundation still refuses
+       `BINDING_ROLE_AMBIGUOUS` (plant); two bindings of one unit role on one unit refuse `BINDING_ROLE_CONFLICT`;
+       readiness lists `generator_power - <unit>` missing when one unit is unbound; LOAD readiness unchanged on an
+       existing fixture; `test_dd1_onboarding_postgres` Lakeside apply with `--bindings` exits 0, one published set per
+       Site, second apply unchanged (replaces the Q-DD1.7 refusal case).
+  - Not in DD1: every reader (`analytics/assessment_worker`, `mini_depth/*`, migration 0029's lift, `dispatch_v3`,
+    `fuel_balance`, `actions/verification*`, `finding_episode`, `financials/fuel_cost`, `chain/measure_impls`,
+    `runs/replay_*`, `structure/energy/inputs`): DD3.4.
+
+- **D-DD.42 Site document limits: 10,000 nodes, 96 devices, accepted with their basis** (Q-DD1.8).
+  - Accepted. The limits guard parsing cost and refuse runaway documents; they are not product rules. The byte bound
+    (256 KiB) stays and is the binding memory limit (10,000 nodes fit it at about 25 bytes a node). Basis: the largest
+    real demo Site is Ruiru, 6,623 nodes and 73 devices; 10,000 and 96 leave about 1.5x and 1.3x. The template
+    `MAX_DOCUMENT_NODES` moves with them so the device cap stays under the ceiling.
+  - Builder: the three constants' comments name this ID and the basis; one test each that a document at the new
+    limit parses and one over it refuses with the existing code. The user-facing refusal sentences, if they quote a
+    number, quote the new one (statement baseline re-hashed, ratchet count unchanged).
+
+- **D-DD.43 Lakeside template fill accepted; the Site's generator policy is held once, on the lead unit** (Q-DD1.9).
+  - Accepted as applied: where the manifest is silent, template v3's values (PCS 30 kW, tank 400 L, load ratings
+    25/10/40 kW, Kisiwa inverter 30 kW). Values taken from the manifest (Kisiwa SFC 0.31, Mto inverters 25 kW) are
+    labelled `TEMPLATE` today; DD3.2's basis vocabulary relabels Lakeside's `/2` values (Declared, Assumed), as planned.
+    C-DD8 (tank within [0, capacity]) is the check on the 400 L tanks; a breach stops for the Architect.
+  - Amended: start and stop SOC, start delay and minimum runtime are the Site's one control policy (spec §4.3). Copied
+    onto both Kisiwa units they are two stored figures for one quantity. They are held once, on the lead unit (first
+    GENERATOR in declared order, `gen-ks-01`), as a lead set's controller holds a plant's set points. `gen-ks-02`
+    carries only its unit properties (`generator-rated-power`, `specific-fuel-consumption`; DD3.3 adds no-load rate and
+    minimum load). DD3.3's v9 reads the policy from the lead unit and refuses `TEL_FOUNDATION` when a non-lead unit
+    carries one; DD3.4's readers do the same.
+  - Builder (DD1.2): remove the four policy properties from `gen-ks-02` in `lakeside-power.onboarding.json`; a test
+    that no non-lead GENERATOR in the three files carries a policy property. If an existing DD1 test or readiness check
+    requires them on every GENERATOR, stop and report (do not restore them).
+
+- **D-DD.44 DD restated: 33.0 u in seven parts** (amends D-DD.33).
+  - DD1.2 grows 0.5 u (2.25; DD1 4.5 u): D-DD.41's publish side and D-DD.43's edit.
+  - New **DD3.4 Unit roles in the readers (2.5 u)**: one module (`sites/unit_roles.py`: the D-DD.41 aggregation and
+    the lead-unit policy read) that every listed reader calls for a roles-5 set; no reader sums units itself. A new
+    migration lets the mini-depth lift accept one roles-4 or roles-5 set in force. Kobo's world conversion moves to
+    roles-5, and a parity test shows Kobo's product outputs equal under roles-4 and roles-5 (as C-DD19 for v9). The
+    Planner's code-reality check confirms the size; over 3 u stops for the Architect.
+  - DD3 (8.5 u) splits at its seam: **DD3a** DD3.1 and DD3.2 (3.75 u; `task/DD3a-mini-reality`), then **DD3b** DD3.3
+    and DD3.4 (4.75 u; `task/DD3b-mini-units`). DD3.4 must merge before DD5.1 loads Kisiwa's or Mto's readings.

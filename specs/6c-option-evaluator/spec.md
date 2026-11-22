@@ -583,3 +583,41 @@ here, at rev 1.
 | Q9 | Nothing beats doing nothing (P6 #7) | `NO_ACTION_BEST`; 6f's sentence "Doing nothing is worth more than any setting tried"; a tie is `WORTH_THE_SAME_AS_NO_ACTION` | D-P6.19 (owner), D-P6.5 |
 
 Open for the owner, defaults applied (`rulings.md` queue): Q1, Kobo's litres "Not available yet" until 0K4f.
+
+## 12. Rev 3 amendments (review rulings D-P6.34 to D-P6.41, 22 Nov 2026; they override the text above where it differs)
+
+- **§2 `Delta`** gains `zero_denominators: tuple[str, ...]` (registry order, () by default): the nodes whose fold met a
+  zero denominator (D-P6.37).
+- **§3.4 step 1, missing names (closed list, D-P6.37):** a changed leaf with no delta (its `LeafChange.missing`); a
+  base leaf with a missing record (its record kind and family); `CURRENCY_MISMATCH`/`STRUCTURE`/None; `ONE_OFF`,
+  `ONE_OFF_CURRENCY`/`DECISION`/None; `ZERO_DENOMINATOR`/`STRUCTURE`/node only for a tagged zero denominator (or a `v0`
+  problem kind starting `ZERO_DENOMINATOR:`). Any other node is named by its `missing_leaves` through the leaf rule,
+  deduplicated, registry order. A name outside this list raises.
+- **§3.4 step 1, `horizon_change`** is computed in `evaluate`'s context (prec 34, ROUND_HALF_EVEN) (D-P6.41).
+- **§3.4 step 2, effect currency (D-P6.34):** a money-unit effect whose change is exactly 0 and whose `Delta.currency`
+  is None takes the option row's `currency`; a missing money effect, or a zero one on an option with no currency,
+  stays null.
+- **§3.4 step 3, `assumed` (D-P6.36):** the used leaves carried as `TARGET`/`ASSUMPTION` plus each used node's
+  `FactorValue.assumed_leaves`, one list in registry order without repeats.
+- **§3.5 / §4 E2-E3, generators (D-P6.38):** `option_inputs` branches on `NO_ACTION` and `SETTING_GRID` by name; any
+  other generator refuses `LEVER_UNKNOWN` at E3 before the study and the structure read. `STUDY_REQUIRED` when the
+  lever's generator is `SETTING_GRID` and no study is given.
+- **§4, the structure read (D-P6.41):** the catch around `site_inputs` is `(StructureError, StoreUnavailable)`;
+  `build_evaluation` wraps the read in a `decisions/adapters/` class mapping `SQLAlchemyError` to `StoreUnavailable`
+  and takes keyword-only `levers`, `grid_changes` (production defaults). Every other exception propagates.
+- **§5 F1j (D-P6.35):** `stop-90-reserve-25`'s `assumed` is [] (no price read); its zero money effects carry USD
+  (D-P6.34). **§5 F1b:** "money effects carry USD" holds for every valued money effect; F1a's missing
+  `battery_wear` stays null.
+- **§6 (D-P6.40, D-P6.41):** test 1 adds (a) a planted registry with a changed leaf through `/`, `ceil` and `min`
+  with a non-zero change: base a = 250, b = 100, c = 300, d(a) = +100; `a / b` changes 1, `ceil(a / b)` changes 1,
+  `min(a, c)` changes 50 (literals); (b) `a × b` with both changed and b's base NOT_AVAILABLE: change MISSING naming b
+  (and test 4: the row's `missing` names b by its record kind); (c) the option-only neutral short cut. Test 4 adds:
+  F1b with one option's one-off in EUR (`missing` [["ONE_OFF_CURRENCY", "DECISION", null]], value None, `DEFERRED`
+  `VALUE_NOT_AVAILABLE`, run `RANKING_INCOMPLETE`); one injected-changes case each for the near set at exactly
+  `V × TIE`, a distance tie (higher value wins), `AT_GRID_EDGE` above current, R0's weakest class across mixed
+  options; D-P6.36's node-assumption case; D-P6.37's zero-denominator and node-missing names; and every effect row
+  as a literal (no helper arithmetic). Test 5 adds the `TypeError` and `StoreUnavailable` reads; test 6 adds
+  `build_evaluation` end to end (D-P6.41); E2/E3 add D-P6.38's two cases. The plant list adds the eight of D-P6.40.
+- **Deviations accepted (D-P6.39):** the months check in E3 after the frame check; `admit_person` lifted,
+  `cli.run(build=)`, `StudyRefused`; `read_study(path, read_bytes)`, `EvaluationService(read_bytes=)`.
+- **§9:** fix round 0.75 units; 6c is **3.75 units**.
