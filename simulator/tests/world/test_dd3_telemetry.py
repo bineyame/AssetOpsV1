@@ -55,7 +55,7 @@ def _books(first_note_l: int = 100, delivered_kwh: int = 8592, unexplained_l: in
 def test_site_inputs_joins_the_foundation_with_its_bindings(sites_file: dict) -> None:
     assert sites_file["schema"] == "assetops.world-site-inputs/1"
     kobo = _kobo(sites_file)
-    assert (kobo["tenant"], kobo["timezone"], kobo["role_set"]) == ("lakeside-power", "Africa/Nairobi", "minigrid-roles-4")
+    assert (kobo["tenant"], kobo["timezone"], kobo["role_set"]) == ("lakeside-power", "Africa/Nairobi", "minigrid-roles-5")  # D-DD.114
     assert len(kobo["bindings"]) == 12 and len(kobo["foundation"]["components"]) == 10
     assert len(kobo["foundation_digest"]) == 64
     alone = tel.site_inputs(json.loads(ONBOARDING.read_text()), {"KOBO-001": _bindings()})

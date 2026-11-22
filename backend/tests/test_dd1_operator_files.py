@@ -16,7 +16,7 @@ BACKEND = Path(__file__).resolve().parent.parent
 ON1 = BACKEND / "tests" / "fixtures" / "on1"
 WORLD = BACKEND / "conversions" / "world"
 FILES = {"lakeside-power": ("MINI_GRID", 3), "harvest-cold": ("COLD_CHAIN", 3), "metro-bus": ("EV_DEPOT", 3)}
-ROLE_SET = {"MINI_GRID": "minigrid-roles-4",  # Kobo stays roles-4 until DD3.4 (D-DD.41); Kisiwa and Mto are roles-5
+ROLE_SET = {"MINI_GRID": "minigrid-roles-5",  # all three Lakeside Sites bind roles-5 (D-DD.41; Kobo by D-DD.114)
              "COLD_CHAIN": "cold-roles-1", "EV_DEPOT": "ev-roles-1"}
 VALID_FROM = "2026-06-30T21:00:00Z"
 
@@ -111,8 +111,7 @@ def test_every_site_has_a_conversion_listing_every_device_signal(slug) -> None:
     vertical, _ = FILES[slug]
     for site in _raw(slug)["sites"]:
         fixture = json.loads((WORLD / f"{site['code']}-bindings.json").read_text(encoding="utf-8"))
-        expected = "minigrid-roles-5" if site["code"] in ("KISIWA-001", "MTO-001") else ROLE_SET[vertical]
-        assert fixture["site_code"] == site["code"] and fixture["role_set"] == expected
+        assert fixture["site_code"] == site["code"] and fixture["role_set"] == ROLE_SET[vertical]
         assert fixture["effective_from"] == VALID_FROM and fixture["declare_signals"] == []
         bound = {(b["device_id"], b["signal_id"]) for b in fixture["bindings"]}
         declared = {(d["device_id"], s["signal_id"]) for d in site["devices"] for s in d["signals"]}
