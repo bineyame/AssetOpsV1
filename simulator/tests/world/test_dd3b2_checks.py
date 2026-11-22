@@ -159,3 +159,17 @@ def test_c_dd21_v9_rows_on_kisiwa_hold_and_fail_on_a_planted_gap(books) -> None:
     assert dd_check.judge_v9_rows(gap, units, needs)
     half = dict(values, **{"pv-array-share@pv-inverter": (values["pv-array-share@pv-inverter"][0] / 2, "1", "FRACTION")})
     assert dd_check.judge_v9_rows(half, units, needs)
+
+
+# --- dd3_pure_run.py --site (DD3.3): Kisiwa and Mto on v9 from their committed kit -----------------------------------
+
+def test_the_pure_run_tool_runs_kisiwa_on_v9(tmp_path: Path, capsys) -> None:
+    spec = importlib.util.spec_from_file_location("dd3_pure_run", REPOSITORY_ROOT / "tools/dd3_pure_run.py")
+    tool = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(tool)
+    (tmp_path / "lakeside-power.expenses.csv").write_text("", encoding="utf-8")
+    assert tool.main(["--books", str(tmp_path), "--site", "KISIWA-001", "--start", "2026-10-30",
+                      "--end", "2026-10-30"]) == 0
+    out = capsys.readouterr().out
+    assert "KISIWA-001 2026-10-30..2026-10-30; pack v9; tank capacity 5000 L" in out
+    assert "2026-10" in out and "bound hit: no" in out

@@ -1,7 +1,9 @@
-"""DD3.2 commit 1b (D-DD.19, D-DD.70): the pure run on Kobo, July to October, at one no-load rate.
+"""DD3.2 commit 1b (D-DD.19, D-DD.70) and DD3.3: the pure run on one mini-grid Site, July to October.
 
-    python tools/dd3_pure_run.py --books DIR [--no-load 0.62|3.3] [--start 2026-07-01 --end 2026-10-31]
+    python tools/dd3_pure_run.py --books DIR [--site KOBO-001|KISIWA-001|MTO-001] [--no-load 0.62|3.3]
+                                 [--start 2026-07-01 --end 2026-10-31]
 
+Kisiwa and Mto run on v9 from their committed `/2` kit (D-DD.70, D-DD.128); `--no-load` is Kobo's only.
 No database. Applies the data-sheet slot to the committed `/2` file in memory (at 3.3 L/h the slot's no-load item is
 restated as GENERIC_DEFAULT), builds the Site's inputs, drives the writer as it runs for the world (a delivery that
 overfills is recorded, not refused, so the table can show it), and prints per month: delivered (notes), accepted,
@@ -45,11 +47,18 @@ def kobo_site(no_load: str) -> dict:
     return next(s for s in telemetry.site_inputs(document, codes)["sites"] if s["code"] == "KOBO-001")
 
 
-def run_table(no_load: str, books_dir: Path, first: str, last: str) -> int:
+def mini_site(code: str) -> dict:
+    """Kisiwa's or Mto's inputs from the committed `/2` file as the writer reads it (no slot is applied)."""
+    codes = {code: json.loads((BINDINGS / f"{code}-bindings.json").read_text(encoding="utf-8"))}
+    document = json.loads(ONBOARDING.read_text(encoding="utf-8"))
+    return next(s for s in telemetry.site_inputs(document, codes)["sites"] if s["code"] == code)
+
+
+def run_table(no_load: str, books_dir: Path, first: str, last: str, code: str = "KOBO-001") -> int:
     view = world_history.load_view(MANIFEST)
     expenses = {p.name.removesuffix(".expenses.csv"): p.read_text(encoding="utf-8") for p in books_dir.glob("*.expenses.csv")}
-    books = telemetry.books_for(view, generate_history(view), expenses)["KOBO-001"]
-    run = telemetry.SiteRun(kobo_site(no_load), books, first, last)
+    books = telemetry.books_for(view, generate_history(view), expenses)[code]
+    run = telemetry.SiteRun(kobo_site(no_load) if code == "KOBO-001" else mini_site(code), books, first, last)
     run.strict = False
     stopped = None
     try:
@@ -57,7 +66,9 @@ def run_table(no_load: str, books_dir: Path, first: str, last: str) -> int:
             run.next_day_readings()
     except telemetry.TelemetryRefused as error:
         stopped = str(error)
-    print(f"no-load {no_load} L/h; Kobo {first}..{last}; tank capacity {run.frozen.bounds[0].value} L")
+    kit = f"no-load {no_load} L/h" if code == "KOBO-001" else "the /2 kit"
+    print(f"{kit}; {code} {first}..{last}; pack v{run.frozen.model_profile_version}; "
+          f"tank capacity {run.frozen.bounds[0].value} L")
     head = ("month", "notes_l", "accepted_l", "refused_l", "drawn_l", "burned_tank_l", "modelled_l", "tank_min", "tank_max",
             "open_l", "close_l", "balance_l", "unserved_kwh", "gen_h", "standin_cand_l")
     print(" ".join(f"{h:>13}" for h in head))
@@ -83,11 +94,14 @@ def run_table(no_load: str, books_dir: Path, first: str, last: str) -> int:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--books", required=True, type=Path)
+    parser.add_argument("--site", default="KOBO-001", choices=("KOBO-001", "KISIWA-001", "MTO-001"))
     parser.add_argument("--no-load", default="0.62", choices=("0.62", "3.3"))
     parser.add_argument("--start", default="2026-07-01")
     parser.add_argument("--end", default="2026-10-31")
     args = parser.parse_args(argv)
-    return run_table(args.no_load, args.books, args.start, args.end)
+    if args.site != "KOBO-001" and args.no_load != "0.62":
+        parser.error("--no-load is Kobo's only")
+    return run_table(args.no_load, args.books, args.start, args.end, args.site)
 
 
 if __name__ == "__main__":
