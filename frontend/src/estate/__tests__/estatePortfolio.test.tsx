@@ -22,7 +22,8 @@ import type {
 } from "../estateClient";
 
 type EstateOutcomeSummaryRead = EstateResult<EstateOutcomeSummaryBody>;
-import { consequenceFirst, EstatePortfolioPage } from "../EstatePortfolio";
+import { consequenceFirst, EstatePortfolioPage, PortfolioScopeSection } from "../EstatePortfolio";
+import { ResultsPage } from "../Results";
 import { mechanismWords, OPPORTUNITY_PANEL, PRIORITY_PANEL } from "../portfolioWords";
 import { outcomeWarning, planWarning } from "../../test/outcomeBoardFixture";
 import type { OutcomeWarning } from "../../sites/outcomeBoardClient";
@@ -49,13 +50,15 @@ import {
   withOutcomeSummary,
 } from "./portfolioFixtures";
 
-const ENTRY = "/portfolio?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z";
+// IA-P2 P3b (spec §3, §2.2, D-IAP.2, D-IAP.12): `/portfolio` is the Overview on E2 (`portfolioHub.test.tsx`); the page this
+// file tests now draws the Outcomes and Demand & capacity tabs only, so its entry is the Outcomes tab.
+const ENTRY = "/portfolio/outcomes?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z";
 /** SR-4 D-SR.2: every Site link carries the address range; D-SR.57: a target's own from/to win, the address known_at is added. */
 const RANGE = "from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z";
 const KNOWN_Q = "known_at=2026-10-07T00%3A00%3A00Z";
 const ranged = (href: string, q: string = RANGE) => `${href}${href.includes("?") ? "&" : "?"}${q}`;
 /** PF-T: the same window on a section tab. */
-const tabEntry = (segment: string) => ENTRY.replace("/portfolio?", `/portfolio/${segment}?`);
+const tabEntry = (segment: string) => ENTRY.replace("/portfolio/outcomes?", `/portfolio/${segment}?`);
 
 const NODE_FS = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
 const CWD = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
@@ -86,21 +89,43 @@ function renderAt(entry: string, client: EstateClient) {
   );
 }
 
+/** IA-P2 P3b: the scope section (coverage line, scope disclosure, footer) is Evidence & records' (spec §2.4). */
+function renderScope(client: EstateClient) {
+  return render(
+    <MemoryRouter initialEntries={[ENTRY.replace("/portfolio/outcomes?", "/evidence?")]}>
+      <Routes>
+        <Route path="/evidence" element={<main><PortfolioScopeSection client={client} /></main>} />
+      </Routes>
+    </MemoryRouter>,
+  );
+}
+
+/** IA-P2 P3b: the "What changed" panel is the Results page's (spec §2.4: `/portfolio/changes` is `/results`). */
+function renderResults(client: EstateClient) {
+  return render(
+    <MemoryRouter initialEntries={[ENTRY.replace("/portfolio/outcomes?", "/results?")]}>
+      <Routes>
+        <Route path="/results" element={<main><ResultsPage client={client} /></main>} />
+      </Routes>
+    </MemoryRouter>,
+  );
+}
+
 /**
  * PF-T: the panels now sit on section tabs of the one mounted page. `showTab` follows a tab link in place (no new
  * read: the page keeps its reads), so a pre-PF-T assertion on a panel opens that panel's tab first.
  */
 function showTab(label: string) {
   const nav = document.querySelector("nav[aria-label='Portfolio sections']");
-  const link = Array.from(nav?.querySelectorAll("a") ?? []).find((a) => text(a.querySelector("[data-pf-tab-label]")) === label);
+  const link = Array.from(nav?.querySelectorAll("a") ?? []).find((a) => text(a) === label);
   if (link === undefined) throw new Error(`No Portfolio tab "${label}".`);
   if (link.getAttribute("aria-current") !== "page") fireEvent.click(link);
 }
+// IA-P2 P3b (spec §2.2): the three tabs are Overview, Outcomes and Demand & capacity; the panels of the retired tabs
+// moved (Act first to /decisions, What changed to /results, Scope & coverage to /evidence; spec §2.4).
 const PANEL_TAB: Record<string, string> = {
-  "Where management should act first": "Act first",
-  "Outcomes across the estate": "Outcomes by site",
-  "An opportunity beyond reducing cost": "Opportunity",
-  "What changed in this review": "What changed",
+  "Outcomes across the estate": "Outcomes",
+  "An opportunity beyond reducing cost": "Demand & capacity",
 };
 const panel = (title: string) => {
   if (PANEL_TAB[title] !== undefined) showTab(PANEL_TAB[title]);
@@ -118,7 +143,7 @@ describe("estate Portfolio page", () => {
   it("rendersContextFiveCardsPulseAndSelectedRows", async () => {
     renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody())));
     await settledScreen();
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Portfolio Value & Operations");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Portfolio");
     const context = document.querySelector("[data-portfolio-context]") as HTMLElement;
     expect(text(context)).toContain("Selected Site records");
     expect(text(context)).toContain("Portfolio: Review selected Sites");
@@ -146,9 +171,8 @@ describe("estate Portfolio page", () => {
     expect(cards[0].querySelector("[data-portfolio-card-link]")?.getAttribute("href")).toMatch(/^\/findings\/opportunities\?/);
     expect(cards[3].querySelector("[data-portfolio-card-link]")?.getAttribute("href")).toMatch(/^\/evidence\?/);
     expect(text(document.body)).not.toMatch(/18–20|kW ×|\$2\.50|battery on watch|ACT-0/);
-    const pulse = document.querySelector("[data-portfolio-pulse]") as HTMLElement;
-    expect(text(pulse)).toContain("Not assessed priority sites");
-    expect(text(pulse)).toContain("Distinct consequence categories · no combined savings total");
+    // IA-P2 P3b (spec §6 P3b, D-IAP.12): the pulse and the top three left the Portfolio with the Overview branch.
+    expect(document.querySelector("[data-portfolio-pulse]")).toBeNull();
     // IA-P P2: the ranked Findings table left the Portfolio; the Decisions list holds the rows (homeLists.test).
     expect(document.querySelectorAll("[data-portfolio-row]")).toHaveLength(0);
   });
@@ -250,9 +274,8 @@ describe("estate Portfolio page", () => {
     renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "loaded", value: outcomeSummaryBody({ cards: growCards }) }));
     await settledScreen();
     // PF-T: the matrix is on Outcomes by site and the cards on the Overview; compare against a copy of the matrix.
-    showTab("Outcomes by site");
+    showTab("Outcomes");
     const matrix = screen.getByRole("table", { name: "Outcomes across the estate" }).cloneNode(true) as HTMLElement;
-    showTab("Overview");
     for (const cat of ["GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"]) {
       // UQ-FI-3: the per-Site states sit behind the card's "Why?", each a StatusPill like the matrix cell's.
       const dots = Array.from(whyOf(cat).querySelectorAll(`[data-portfolio-card-dots='${cat}'] > span`));
@@ -294,7 +317,7 @@ describe("estate Portfolio page", () => {
       const outcomes = panel("Outcomes across the estate");
       expect(within(outcomes).getByRole("alert").textContent).toBe("Outcome status is not available right now");
       expect(outcomes.querySelector("[role='table']")).toBeNull();
-      showTab("Overview");
+      // IA-P2 P3b: the cards and the matrix are both on the Outcomes tab.
       expect(document.querySelectorAll("[data-portfolio-card]")).toHaveLength(4);
       expect(document.querySelectorAll("[data-portfolio-dot]")).toHaveLength(0);
       for (const key of ["GROW_REVENUE", "PROTECT_ASSET", "ASSURE_PERFORMANCE"]) {
@@ -422,9 +445,9 @@ describe("estate Portfolio page", () => {
       total_count: 0,
       progress: { ...portfolioBody().progress, pending_trial_count: null, verified_resolution_count: 2, rows: [progressRow("act-1", true), progressRow("act-2", false), progressRow("act-3", false, true), progressRow("act-4", true, false)] },
     });
-    renderAt(ENTRY, portfolioClient(loadedPortfolio(body)));
+    renderResults(portfolioClient(loadedPortfolio(body)));
     await settledScreen();
-    const progress = panel("What changed in this review");
+    const progress = panelTitled("What changed in this review");
     expect(text(progress)).toContain("Completed activity · Not known yet");
     expect(text(progress)).toContain("Trials waiting for a result · Unknown");
     expect(text(progress)).toContain("Fixes confirmed · 2");
@@ -462,9 +485,9 @@ describe("estate Portfolio page", () => {
       await settledScreen();
       expect(document.querySelector("[data-portfolio-context]")?.getAttribute("data-portfolio-context")).toBe(status);
       expect(text(document.querySelector("[data-portfolio-context]"))).toContain(expected[status]);
-      // IA-P P2: the ranked panel is gone; the Overview holds the top three panel only. The row-value prefixes
-      // (Updating, Historical) are asserted on consequenceFirst below.
-      expect(Array.from(document.querySelectorAll("section.panel")).map((p) => p.getAttribute("data-portfolio-panel"))).toEqual(["top3"]);
+      // IA-P2 P3b (D-IAP.12): the top three left the Portfolio; the Outcomes tab holds the objectives panel only. The
+      // row-value prefixes (Updating, Historical) are asserted on consequenceFirst below.
+      expect(Array.from(document.querySelectorAll("section.panel")).map((p) => p.getAttribute("data-portfolio-panel"))).toEqual(["objectives"]);
       if (status === "EMPTY_SCOPE") {
         expect(text(document.querySelector("[data-portfolio-domains]"))).toBe("0 accessible Sites · 0 mini-grid / 0 cold-chain / 0 EV charging");
       }
@@ -534,7 +557,7 @@ describe("estate Portfolio page", () => {
   });
 
   it("rendersEvFooterAndMissingEnergyBasis", async () => {
-    const view = renderAt(tabEntry("scope"), portfolioClient(loadedPortfolio(portfolioBody())));
+    const view = renderScope(portfolioClient(loadedPortfolio(portfolioBody())));
     await settledScreen();
     const footer = () => document.querySelector("[data-portfolio-footer]") as HTMLElement;
     expect(text(footer())).toContain("Business context: Depot delivered 120 kWh in selected records; $36.00 at the recorded tariff, before costs (a what-if).");
@@ -559,7 +582,7 @@ describe("estate Portfolio page", () => {
       footer: null,
       coverage: { ...portfolioBody().coverage, sites: SITES.map((s, i) => coverageSite(s.site_id, i === 3 ? "UNKNOWN" : "CURRENT")) },
     });
-    renderAt(tabEntry("scope"), portfolioClient(loadedPortfolio(body)));
+    renderScope(portfolioClient(loadedPortfolio(body)));
     await settledScreen();
     expect(text(footer())).toContain("Cross-Site energy and tariff totals are not known yet.");
     expect(text(footer())).toContain("Energy basis unavailable");
@@ -587,12 +610,12 @@ describe("estate Portfolio page", () => {
       expect(nodes[i - 1].compareDocumentPosition(nodes[i]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     }
     // Each v69 panel now sits on its own tab; each tab shows exactly its panel titles.
+    // IA-P2 P3b (spec §2.2, §2.4): two tabs remain here; What changed is Results' panel and Scope & coverage is
+    // Evidence's section (their panel titles are pinned in Results.test.tsx and estateEvidence.test.tsx). The Overview
+    // is E2's page (portfolioHub.test.tsx).
     const perTab: [string, string[]][] = [
-      ["Overview", ["Overview", "Where management should act first"]],
-      ["Outcomes by site", ["Outcomes across the estate"]],
-      ["Opportunity", ["An opportunity beyond reducing cost"]],
-      ["What changed", ["What changed in this review"]],
-      ["Scope & coverage", ["Scope & coverage"]],
+      ["Outcomes", ["Outcomes across the estate"]],
+      ["Demand & capacity", ["An opportunity beyond reducing cost"]],
     ];
     for (const [label, titles] of perTab) {
       showTab(label);
@@ -614,7 +637,7 @@ describe("estate Portfolio page", () => {
       }
       expect(renderedPanelTitles(), `${label}: plant removed`).toEqual(titles);
     }
-    showTab("Outcomes by site");
+    showTab("Outcomes");
     // OUT-B B6 (R521): the outcome matrix replaces the objectives matrix in the same scroll container.
     expect(main.querySelector("[data-portfolio-scroll='objectives'] .oc-matrix")).not.toBeNull();
     expect(main.querySelector(".objective-matrix")).toBeNull();
@@ -627,14 +650,13 @@ describe("estate Portfolio page", () => {
     renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody())));
     await settledScreen();
     const ids = gapIds();
-    for (const label of ["Overview", "Outcomes by site", "Opportunity", "What changed", "Scope & coverage"]) {
-      if (label !== "Overview") showTab(label);
-      const h1 = expectOneHeadline("Portfolio Value & Operations");
-      expect(h1.closest(".page-header")?.querySelector(".page-header__subtitle")?.textContent).toBe(
-        "Operating decisions across the estate: cost, service, productive use and asset value",
-      );
+    for (const label of ["Outcomes", "Demand & capacity"]) {
+      showTab(label);
+      // IA-P2 P3b (spec §5.3): the Portfolio header is the title "Portfolio" alone (5c's H1, on all three tabs).
+      const h1 = expectOneHeadline("Portfolio");
+      expect(h1.closest(".page-header")?.querySelector(".page-header__subtitle")).toBeNull();
     }
-    showTab("Overview");
+    showTab("Outcomes");
     expect(gapIds()).toEqual(ids);
   });
 });
@@ -703,7 +725,7 @@ describe("post-W6 W3-estate Portfolio links, scope disclosure and refused window
           answer = resolve;
         }),
     };
-    renderAt(tabEntry("scope"), fake);
+    renderScope(fake);
     await settledScreen();
     const first = document.querySelector("[data-portfolio-drawer='scope'] [data-portfolio-scope-site] details") as HTMLDetailsElement;
     expect(first.querySelector("[data-portfolio-assessment-ids-loading]")).not.toBeNull(); // closed: nothing read yet
@@ -752,7 +774,7 @@ describe("post-W6 W3-estate Portfolio links, scope disclosure and refused window
         return Promise.resolve({ status: "loaded", value: idsBody } as EstateResult<EstatePortfolioScopeIdsBody>);
       },
     };
-    renderAt(tabEntry("scope"), fake);
+    renderScope(fake);
     await settledScreen();
     const drawer = document.querySelector("[data-portfolio-drawer='scope']") as HTMLElement;
     const summary = (code: string) => text(drawer.querySelector(`[data-portfolio-scope-site='${code}'] [data-portfolio-scope-summary]`));
@@ -1283,7 +1305,7 @@ describe("OUT-C U5: Portfolio early warnings", () => {
   it("nonPartialBodiesShowNoGapLine", async () => {
     for (const body of [portfolioBody(), STATUS_BODIES.UNKNOWN]) {
       // PF-T: on the Scope & coverage tab, where the scope drawer (and its gap lines) render.
-      const view = renderAt(tabEntry("scope"), portfolioClient(loadedPortfolio(body)));
+      const view = renderScope(portfolioClient(loadedPortfolio(body)));
       await settledScreen();
       expect(document.querySelector("[data-portfolio-drawer='scope']")).not.toBeNull();
       expect(document.querySelector("[data-portfolio-scope-gaps]")).toBeNull();
@@ -1672,7 +1694,10 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
  */
 describe("PF-T Portfolio section tabs", () => {
   const WINDOW_QUERY = "from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-10-07T00:05:00Z";
-  const TAB_NAMES = ["Overview", "The month", "Outcomes by site", "Opportunity", "What changed", "Scope & coverage"];
+  // IA-P2 P3b (spec §2.2, D-IAP.4): three tabs, Overview, Outcomes and Demand & capacity, drawn by SectionTabs (no counts;
+  // PortfolioTabs.tsx). The Overview page is E2's (`portfolioHub.test.tsx`); this file mounts the Outcomes tab.
+  const TAB_NAMES = ["Overview", "Outcomes", "Demand & capacity"];
+  const OUTCOMES = `/portfolio/outcomes?${WINDOW_QUERY}`;
 
   function renderTabs(entry: string, client: EstateClient) {
     return render(
@@ -1686,82 +1711,68 @@ describe("PF-T Portfolio section tabs", () => {
   }
   const tabRow = () => screen.getByRole("navigation", { name: "Portfolio sections" });
   const tabLinks = () => within(tabRow()).getAllByRole("link");
-  const tabLink = (name: string) => tabLinks().find((a) => text(a.querySelector("[data-pf-tab-label]")) === name)!;
+  const tabLink = (name: string) => tabLinks().find((a) => text(a) === name)!;
   const paramsOf = (a: Element) => new URL(a.getAttribute("href")!, "http://x").searchParams;
   const pathOf = (a: Element) => new URL(a.getAttribute("href")!, "http://x").pathname;
 
   it("renders a Portfolio sections nav of links, the current tab marked aria-current", async () => {
-    renderTabs(`/portfolio/outcomes?${WINDOW_QUERY}`, portfolioClient(loadedPortfolio(portfolioBody())));
+    renderTabs(OUTCOMES, portfolioClient(loadedPortfolio(portfolioBody())));
     await settledScreen();
     expect(tabRow().tagName).toBe("NAV");
-    expect(tabLinks().map((a) => text(a.querySelector("[data-pf-tab-label]")))).toEqual(TAB_NAMES);
-    expect(tabLinks().filter((a) => a.getAttribute("aria-current") === "page")).toEqual([tabLink("Outcomes by site")]);
+    expect(tabLinks().map((a) => text(a))).toEqual(TAB_NAMES);
+    expect(tabLinks().filter((a) => a.getAttribute("aria-current") === "page")).toEqual([tabLink("Outcomes")]);
   });
 
   it("every tab link carries from, to and known_at", async () => {
-    renderTabs(`/portfolio?${WINDOW_QUERY}`, portfolioClient(loadedPortfolio(portfolioBody())));
+    renderTabs(OUTCOMES, portfolioClient(loadedPortfolio(portfolioBody())));
     await settledScreen();
-    // 5c (spec §5.1): "The month" is the plain path, its state `?month=`; every other tab carries the window.
-    for (const a of tabLinks().filter((l) => pathOf(l) !== "/portfolio/month")) {
+    for (const a of tabLinks()) {
       const p = paramsOf(a);
       expect([p.get("from"), p.get("to"), p.get("known_at")]).toEqual(["2026-10-06T00:00:00Z", "2026-10-07T00:00:00Z", "2026-10-07T00:05:00Z"]);
     }
-    expect(tabLinks().map(pathOf)).toEqual(["/portfolio", "/portfolio/month", "/portfolio/outcomes", "/portfolio/opportunity", "/portfolio/changes", "/portfolio/scope"]);
+    expect(tabLinks().map(pathOf)).toEqual(["/portfolio", "/portfolio/outcomes", "/portfolio/demand-and-capacity"]);
   });
 
-  it("an unknown count shows no badge, never 0", async () => {
+  it("no tab shows a count badge, whether the counts are unknown or known (the Opportunity and What changed tabs left)", async () => {
     const base = portfolioBody();
-    const body = portfolioBody({ total_count: null, summary: { ...base.summary, opportunity_count: null, accepted_action_count: null } });
-    renderTabs(`/portfolio?${WINDOW_QUERY}`, portfolioClient(loadedPortfolio(body)));
-    await settledScreen();
-    expect(tabRow().querySelectorAll("[data-pf-tab-count]").length).toBe(0);
-    expect(text(tabRow())).not.toMatch(/\d/);
-  });
-
-  it("known counts show on Opportunity and What changed", async () => {
-    const base = portfolioBody();
-    const body = portfolioBody({ total_count: 6, summary: { ...base.summary, opportunity_count: 1, accepted_action_count: 3 } });
-    renderTabs(`/portfolio?${WINDOW_QUERY}`, portfolioClient(loadedPortfolio(body)));
-    await settledScreen();
-    expect(tabLinks().map((a) => a.querySelector("[data-pf-tab-count]")?.textContent ?? null)).toEqual([null, null, null, "1", "3", null]);
+    for (const body of [
+      portfolioBody({ total_count: null, summary: { ...base.summary, opportunity_count: null, accepted_action_count: null } }),
+      portfolioBody({ total_count: 6, summary: { ...base.summary, opportunity_count: 1, accepted_action_count: 3 } }),
+    ]) {
+      const view = renderTabs(OUTCOMES, portfolioClient(loadedPortfolio(body)));
+      await settledScreen();
+      expect(tabRow().querySelectorAll("[data-pf-tab-count]").length).toBe(0);
+      expect(text(tabRow())).not.toMatch(/\d/);
+      view.unmount();
+    }
   });
 
   it("a tab change keeps the page mounted, reads nothing again and moves focus to the panel heading", async () => {
     const client = portfolioClient(loadedPortfolio(portfolioBody()));
-    renderTabs(`/portfolio?${WINDOW_QUERY}`, client);
+    renderTabs(OUTCOMES, client);
     await settledScreen();
     const h1 = screen.getByRole("heading", { level: 1 });
-    fireEvent.click(tabLink("Opportunity"));
+    fireEvent.click(tabLink("Demand & capacity"));
     await settledScreen();
-    expect(screen.getByTestId("where").textContent).toBe(`/portfolio/opportunity?${new URLSearchParams(WINDOW_QUERY).toString()}`);
+    expect(screen.getByTestId("where").textContent).toBe(`/portfolio/demand-and-capacity?${new URLSearchParams(WINDOW_QUERY).toString()}`);
     expect(client.calls.length).toBe(1);
     expect(screen.getByRole("heading", { level: 1 })).toBe(h1);
     expect(document.activeElement).toBe(screen.getByRole("heading", { level: 2, name: OPPORTUNITY_PANEL }));
   });
 
-  it("Overview shows the four cards, the counts strip as tab links and the top 3 with See all", async () => {
+  it("Outcomes shows the four cards and no pulse, counts strip or top three (D-IAP.12)", async () => {
     const rows = [1, 2, 3, 4].map((n) => row({ finding_id: `f-${n}`, finding_revision_id: `r-${n}`, title: `Finding ${n}` }));
     const base = portfolioBody();
-    renderTabs(`/portfolio?${WINDOW_QUERY}`, portfolioClient(loadedPortfolio(portfolioBody({ rows, total_count: 4, summary: { ...base.summary, opportunity_count: 1 } }))));
+    renderTabs(OUTCOMES, portfolioClient(loadedPortfolio(portfolioBody({ rows, total_count: 4, summary: { ...base.summary, opportunity_count: 1 } }))));
     await settledScreen();
     expect(document.querySelectorAll(".oc-pfcard").length).toBe(4);
-    const pulse = document.querySelector("[data-portfolio-pulse]")!;
-    expect(Array.from(pulse.querySelectorAll("a")).map(pathOf)).toEqual([
-      "/decisions",
-      "/portfolio/opportunity",
-      "/portfolio/scope",
-      "/portfolio/changes",
-      "/decisions",
-    ]);
-    const top3 = screen.getByRole("region", { name: PRIORITY_PANEL });
-    expect(Array.from(top3.querySelectorAll("ol > li")).map((li) => text(li.querySelector("[data-pf-top3-title]")))).toEqual(["Finding 1", "Finding 2", "Finding 3"]);
-    const seeAll = within(top3).getByRole("link", { name: "See all 4 findings →" });
-    expect(pathOf(seeAll)).toBe("/decisions");
+    expect(document.querySelector("[data-portfolio-pulse]")).toBeNull();
+    expect(screen.queryByRole("region", { name: PRIORITY_PANEL })).toBeNull();
     expect(screen.queryByRole("group", { name: "Finding lens" })).toBeNull();
   });
 
   it("SR-1: the page has no date form of its own; the cutoff line sits under the title, above the tabs", async () => {
-    renderTabs(`/portfolio?${WINDOW_QUERY}`, portfolioClient(loadedPortfolio(portfolioBody())));
+    renderTabs(OUTCOMES, portfolioClient(loadedPortfolio(portfolioBody())));
     await settledScreen();
     expect(document.querySelector("[data-estate-date-bar]")).toBeNull();
     expect(document.querySelector('.estate-portfolio input[type="date"]')).toBeNull();
