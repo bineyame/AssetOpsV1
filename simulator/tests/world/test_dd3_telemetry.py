@@ -2,7 +2,7 @@
 
 Every expected figure is written by hand from the pinned inputs in the first lines of each test: Kobo's July books
 (`history.json`: delivered 8592 kWh, unexplained 12 L), the fuel note of 1 July 10:00 (400 L), the /2 file's tank of
-400 L (so 200 L at the start) and the binding file's twelve rows.
+2500 L (D-DD.76; so 1250 L at the start) and the binding file's twelve rows.
 """
 
 from __future__ import annotations
@@ -70,12 +70,12 @@ def test_frozen_inputs_come_from_the_foundation_by_address(sites_file: dict) -> 
     by_address = {row.address: row for row in frozen.initial_values}
     assert by_address["generator-rated-power@generator"].value == 40
     assert by_address["generator-specific-fuel-consumption@generator"].value == Fraction(3, 10)
-    assert by_address["fuel-tank-capacity@fuel-tank"].value == 400
-    assert by_address["fuel-tank-volume@fuel-tank"].value == 200  # 50 % of the capacity (D-DD.19)
+    assert by_address["fuel-tank-capacity@fuel-tank"].value == 2500  # D-DD.76
+    assert by_address["fuel-tank-volume@fuel-tank"].value == 1250  # 50 % of the capacity (D-DD.19)
     assert [d.value for d in frozen.discrete_initial_values] == ["STOPPED"]
     assert frozen.interval.duration_minutes == 2 * 1440 and frozen.interval.timestep_minutes == 5
     assert frozen.interval.start_time == "2026-06-30T21:00:00Z"  # 1 July 00:00 at +03:00
-    assert [b.kind for b in frozen.bounds] == ["UPPER"] and frozen.bounds[0].value == 400
+    assert [b.kind for b in frozen.bounds] == ["UPPER"] and frozen.bounds[0].value == 2500
 
 
 def test_a_foundation_without_a_needed_property_refuses(sites_file: dict) -> None:
@@ -146,8 +146,8 @@ def test_a_public_record_with_no_binding_row_or_two_refuses(sites_file: dict, ed
 
 
 def test_a_delivery_that_overfills_the_tank_is_refused_as_tel_pack_naming_the_day(sites_file: dict) -> None:
-    # The tank holds 400 L and starts at 200 L: a 400 L note on the first morning cannot fit.
-    run = tel.SiteRun(_kobo(sites_file), _books(first_note_l=400)["KOBO-001"], "2026-07-01", "2026-07-02")
+    # The tank holds 2500 L and starts at 1250 L: a 2000 L note on the first morning cannot fit.
+    run = tel.SiteRun(_kobo(sites_file), _books(first_note_l=2000)["KOBO-001"], "2026-07-01", "2026-07-02")
     with pytest.raises(tel.TelemetryRefused) as refusal:
         run.next_day_readings()
     assert str(refusal.value).startswith("TEL_PACK KOBO-001 2026-07-01 fuel-tank-capacity")
@@ -155,7 +155,7 @@ def test_a_delivery_that_overfills_the_tank_is_refused_as_tel_pack_naming_the_da
 
 def test_an_empty_tank_is_refused_as_tel_pack_with_the_packs_code(sites_file: dict) -> None:
     books = _books()["KOBO-001"]
-    books["months"]["2026-07"]["unexplained_l"] = 31 * 40  # 40 L a night from a tank of 200 L
+    books["months"]["2026-07"]["unexplained_l"] = 31 * 200  # 200 L a night from a tank of 1250 L
     run = tel.SiteRun(_kobo(sites_file), books, "2026-07-01", "2026-07-31")
     with pytest.raises(tel.TelemetryRefused) as refusal:
         for _ in range(31):
@@ -244,3 +244,31 @@ def test_books_carry_the_views_solar_surplus_weights() -> None:
     sun = tel.books_for(view, {"tenants": {"t": {"s": {}}}}, {})["X-001"]["sun_weights"]
     assert sun == {"seasons": {"2026-07": "cool_dry"}, "classes": {"WD": [1, 2, 3, 4, 5], "SA": [6], "SU": [7]},
                    "season": {"cool_dry": "0.70"}, "day": {"WD": "1.00", "SA": "1.00", "SU": "0.50"}}
+
+
+#: D-DD.76's storage sizes, in order; the rule rounds two months of the largest month up to the next one.
+STANDARD_TANKS_L = (500, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 10000)
+
+
+def test_each_lakeside_tank_is_the_sites_own_two_months_of_its_largest_month() -> None:
+    """D-DD.76: necessary + candidate + unexplained litres of `history.json` July-September and October's
+    `period.actual.diesel_l`; twice the largest, rounded up to a standard size; source SITE, version 1."""
+    import yaml
+
+    layer4 = REPOSITORY_ROOT / "Docs/demo-sprint/product-direction-layer4"
+    history = json.loads((layer4 / "history.json").read_text(encoding="utf-8"))["tenants"]["lakeside-power"]
+    manifest = yaml.safe_load((layer4 / "demo-site-scenario-manifest.yaml").read_text(encoding="utf-8"))
+    tenant = next(t for t in manifest["tenants"] if t["tenant"] == "lakeside-power")
+    onboarding = json.loads(ONBOARDING.read_text(encoding="utf-8"))
+    declared = {}
+    for site in onboarding["sites"]:
+        tank = next(c for c in site["components"] if c["type"] == "FUEL_TANK")
+        declared[site["code"]] = [(p["value"], p["source"], p["source_version"]) for p in tank["properties"]
+                                  if p["property_key"] == "tank-capacity"]
+    expected = {}
+    for site in tenant["sites"]:
+        months = [sum(b["actual"].get(k, 0) for k in ("necessary_l", "candidate_l", "unexplained_l"))
+                  for b in history[site["site"]].values()] + [site["period"]["actual"]["diesel_l"]]
+        expected[site["code"]] = [(next(s for s in STANDARD_TANKS_L if s >= 2 * max(months)), "SITE", 1)]
+    assert expected == {"KISIWA-001": [(5000, "SITE", 1)], "KOBO-001": [(2500, "SITE", 1)], "MTO-001": [(1000, "SITE", 1)]}
+    assert declared == expected

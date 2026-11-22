@@ -198,9 +198,9 @@
           "properties": [
             {
               "property_key": "tank-capacity",
-              "value": 400,
+              "value": 5000,
               "unit": "L",
-              "source": "TEMPLATE",
+              "source": "SITE",
               "source_version": 1
             }
           ]
@@ -680,9 +680,9 @@
           "properties": [
             {
               "property_key": "tank-capacity",
-              "value": 400,
+              "value": 2500,
               "unit": "L",
-              "source": "TEMPLATE",
+              "source": "SITE",
               "source_version": 1
             }
           ]
@@ -1145,9 +1145,9 @@
           "properties": [
             {
               "property_key": "tank-capacity",
-              "value": 400,
+              "value": 1000,
               "unit": "L",
-              "source": "TEMPLATE",
+              "source": "SITE",
               "source_version": 1
             }
           ]
