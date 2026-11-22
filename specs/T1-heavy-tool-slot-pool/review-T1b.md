@@ -111,3 +111,20 @@ All jobs used a plain slot; no `--db` or `--db-lane` job was run from this branc
   would not be caught (none exists today).
 - Leftover `<stem>_pt<run>_tpl_test` templates on both bases (pre-existing harness behaviour, packet deviation 1)
   now accumulate on two bases; each is removed only by the next run on that base.
+
+## Re-review (fix round 1)
+
+Reviewed `git diff 88c510928..02273df2e`. Verdict: **ACCEPT**. M1, L1, L2, L3 closed; no new finding.
+
+- M1: the guard is the same in `heavy-slot.sh:246-262` and `_heavy_slot.ps1:239-251`. On winning `db-job-b.lock` it
+  reads `db-job.owner` (`db`, `pid`) and `db-job-b.owner` (`pid`); it releases lane b and keeps polling only when
+  `db=yes`, the pid is live and differs from lane b's owner pid. A new-tools `--db` writes both owners with one pid
+  (and holds b, so the flock fails anyway); a `--db-lane` writes `db=lane`; so only an old-tools `--db` matches.
+  No deadlock: the probe fd is closed before `continue`, no slot is held while polling, the wait deadline applies
+  (P18 saw exit 75, lane b released). Liveness is `kill -0` / `Get-Process`: a recycled pid or zombie could hold
+  lane b out only until the stale owner is rewritten or removed; negligible, fail-safe. The builder's named
+  millisecond gap (lock held, owner not yet written) is real, accepted residual; the old wrapper's window is tiny.
+- L1: `harness_base_url` mirrors `route` (base only with `ASSETOPS_TEST_RUN_ID`); new test covers the stale pair.
+- L2: spec §5 row and T-L5 reason now say the advisory lock is per base. L3: README-db points at the lane rule.
+- Ran: architecture guard passes (with `ASSETOPS_GUARD_PYTHON` set; the worktree has no `.venv`); workflow check
+  passes; `test_t1b_db_lanes.py` 28 passed; `test_heavy_slot_pool.mjs` 41/41 including P18 (no DB run touched).
