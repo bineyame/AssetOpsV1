@@ -1,8 +1,8 @@
-# 0K4 rulings, continued (D-0K4.31 to D-0K4.49): 0K4m, the pack and mock restated once
+# 0K4 rulings, continued (D-0K4.31 to D-0K4.56): 0K4m, the pack and mock restated once
 
 Architect (Claude), 2026-11-21, standing in for the owner (`owner/owner-away-architect-stands-in-2026-11-21b.md`).
 These rulings continue `rulings.md`, which is past the 15k cap. Unit spec: `specs/0K4m-pack-restate/spec.md`. Owner-level
-calls: owner-away rows 71 to 75, 77 and 78 (`specs/OWNER-AWAY/decisions-2026-11-21.md`). Built on 0K4d as merged (`03c665012`).
+calls: owner-away rows 71 to 75 and 77 to 79 (`specs/OWNER-AWAY/decisions-2026-11-21.md`). Built on 0K4d as merged (`03c665012`).
 
 ## D-0K4.31 The pack's numbers are of four kinds; the replay inputs come from a committed extract
 
@@ -439,6 +439,169 @@ calls: owner-away rows 71 to 75, 77 and 78 (`specs/OWNER-AWAY/decisions-2026-11-
   One merge still keeps main green at every merge.
 - **Reverse:** merge with D-0K4.43's order and accept H1 on main (red).
 
+## D-0K4.50 The vocabulary guard stays; §4's copy says "simulation", not "replay" (unit 3 pre-flight Q1)
+
+- **Ruling.**
+  - `tools/vocab_check.cjs` keeps its `replay(?:ed|s)?` ban on loop screens. Spec §4's exact copy changes instead. These
+    are the new exact strings (rev 5):
+    - `SIMTEXT` = `'Simulated: from a simulation of a declared ' + <days> + '-day season, not your recorded data'`.
+      `<days>` follows D-0K4.53.
+    - KIS-BATT60: `'Not available yet: needs a simulation with a Kisiwa battery'`.
+    - Embakasi per-bus timing: `'Not available yet: needs a simulation of the charging schedule'`.
+    - Kobo's two settings (litres and value): `'Not available yet: needs a simulation of Kobo''s own October'`.
+    - The popover (`loop-core.js:425`): `"Simulated figures come from a simulation of a declared season; 'Not
+      available yet' names the record that would fill it"`.
+    - The warranty floor is unchanged: `'Not available yet: needs Kobo''s battery sheet'`.
+  - The class: every string the spec gives as exact copy for a loop screen must pass `vocab_check.cjs`. The builder
+    runs the spec's strings through the guard before coding. A clash goes back to the Architect, and the guard never
+    bends.
+- **Why.** The ban came from the owner's review of the copy (19 Nov: "not using technical words that should not be
+  user facing"). "Replay" is the pack's own word for a dispatch study. The spec put that word on screen, and the
+  spec was wrong. "Simulated" is already the chip's word, so "simulation" keeps one word for one idea (UI standing
+  brief: one interaction grammar; NN/g heuristic 2, match the user's language).
+- **Reverse:** relax the guard for these five strings, which needs the owner's approval.
+
+## D-0K4.51 Kobo's split is labelled in words on screen; the 0K4f code goes in the drawer's reviewer block (Q2; amends acceptance 5)
+
+- **Ruling.**
+  - On the mock, Kobo's candidate and necessary litres (330 / 730) read as a recorded figure. They get no "Simulated"
+    chip. Beside them is this exact copy: `'as October''s records classify it; to be re-checked against Kobo''s own
+    5-minute readings'`.
+  - The evidence drawer for that figure keeps its existing collapsed block, `<details class="tech">For reviewers: demo
+    data reference</details>` (`loop-core.js:299`). `render_text.cjs:36` removes that block from the vocabulary scan.
+    Inside the block, add the line `source: world view, period.actual candidate_l / necessary_l (dispatch-3.2);
+    re-classified in 0K4f`.
+  - **Acceptance 5 (rev 5):** "labelled with their source and 0K4f in every document and on the mock" means the
+    documents carry the code, and the mock carries its words on screen and the code in the reviewer block only.
+- **Why.**
+  - The builder's default said "as the simulated world records it". On the loop screens, the world's records are the
+    operator's recorded data, and "Simulated" marks only figures from a study. Calling a record "simulated" would
+    blur the one distinction the chip exists to draw (the owner's one-figure rule: labelled by its source).
+  - Codes stay off screen (owner, 2026-10-04; UI guidance 2026-10-25: "no raw codes on screen"). The reviewer block
+    is the place the mock already uses for such codes.
+- **Reverse:** "0K4f" on screen, with a guard exception, which needs the owner's approval.
+
+## D-0K4.52 Bridge-base words are fixed at the source, in the manifest: "against a target of" (Q3)
+
+- **Ruling.**
+  - The class is manifest prose that reaches a reader. Commit 2b introduced "{fig:} L against plan {fig:} L" in three
+    bridge `basis` strings (`demo-site-scenario-manifest.yaml:115, 193, 249`), which breaks OD-6. Unit 3 rewords
+    them in the manifest, in commit 4, to `"{fig:…actual.nodes.necessary_l} L against a target of {fig:…plan.nodes
+    .necessary_l} L x {rec:…}"`. Placeholders, amounts and the rest of each string stay as they are.
+  - **Sweep.** Unit 3 greps every manifest string (`basis`, `reason`, `words`, `how`) for OD-6's retired forms
+    (`check_alignment.py`'s RETIRED pattern for "plan" as a target). Each hit is reworded the same way, and the packet
+    lists the hits. Machine keys named `plan` stay (decisions-register item 9).
+  - The mock's `PLAIN` map gets no entry for this wording (no instance patch).
+  - Unit 2 uses the same wording wherever a document quotes a bridge base. The coordinator relays this ruling to
+    unit 2's builder (`/opt/assetecon/AssetOpsV1-0k4mu2`). Unit 2 does not edit the manifest, so the two units
+    cannot both edit it.
+  - No new check is needed. `vocab_check.cjs` already guards the mock and A3 already guards the documents, and both
+    already caught this. The manifest had no reader-side guard, and it now has one wording that both readers render.
+  - The edit touches no K13 part. Bridge `basis` words are not in `structures`, `factor_map` or the derived `sites`
+    (checked: `derived-values.json` has no "against plan"), so K13 and H11 are unaffected.
+    `rendered-manifest-strings.json` is regenerated (§4).
+- **Why.** OD-6 binds every reader. A fix in the mock alone would leave the documents and the mock on two wordings
+  of one figure's basis, and the next reader would repeat the fault (W6).
+- **Reverse:** a `PLAIN` entry in the mock and a separate rewording in each document.
+
+## D-0K4.53 Unit 3's scope and evidence: the whole of §4; Simulated days per figure; no repo screenshots (Q4, Q5, Q6)
+
+- **Ruling.**
+  - **Q4.** Unit 3 covers all of §4. That includes the documents (`walkthroughs.md`, `fixture-mapping.md`), the tools
+    (`gen_docs.cjs`, `audit.mjs`, `ux_interaction_check.cjs`, `vocab_check.cjs`, `hand_typed_scan.py`,
+    `replay_values.py`) and the regenerated `rendered-manifest-strings.json`. It also covers the manifest strings in
+    D-0K4.52 and nothing else of unit 1's.
+  - **Q5.** Each Simulated chip's title reads the `days` of the study that its own figure's `source` names: K8 for
+    Kobo, M8 for Mto, and so on, through `SOURCE_LABELS`. The popover has no day count.
+  - **Q6.**
+    - In the repo, `tools/run-audit.sh` runs without `--shots`, through `tools/heavy-slot.sh` with
+      `/opt/assetecon/tools/pw/env.sh`. Its results feed `gen_docs.cjs` and `browser-audit.md`.
+    - Screenshots come from a scratch copy of the mock folder run with `--shots`, then are copied to
+      `/opt/assetecon/evidence/0K4m/u3/`. The scratch copy is deleted afterwards (temp-quota rule).
+    - No file under the repo's `screenshots/` changes, and `audit.mjs` is not changed to move them.
+- **Why.**
+  - Q5: one figure, labelled by its own source. A K8 day count on an M8 figure would label one study's figure with
+    another study's season.
+  - Q6: §4 forbids `screenshots/`, and the audit tool's paths are not this unit's to redesign.
+- **Reverse:** one page-wide day count; an `audit.mjs` output-directory option.
+
+## D-0K4.54 The mock renders its own §4 copy, not the manifest's `reason` strings, for Kobo's settings and KIS-BATT60 (Q7)
+
+- **Ruling.**
+  - For these gaps, the mock shows the exact strings of D-0K4.50. It never renders the manifest's `reason`
+    (`:135, 144, 207, 404-406`).
+  - The manifest's reason strings stay as they are. They are the documents' and the reviewer's wording, codes
+    included (acceptance 5).
+  - This differs from D-0K4.52 because the two wordings are for two audiences:
+    - a rule that binds every reader, like OD-6, is fixed at the source;
+    - a reviewer reference, like a slice code or "dispatch replay", stays in the reviewer-facing manifest, and the
+      screen gets its own plain copy.
+  - The reviewer block (D-0K4.51) may quote the reason string.
+- **Why.** Codes off screen (owner, 2026-10-04). Stripping the codes from the manifest would take the record
+  documents need away from them.
+- **Reverse:** plain manifest reasons and codes moved to a separate reviewer field, as a manifest-schema change.
+
+## D-0K4.55 Every mock reader reads a field the regenerated fixtures carry; a figure with no source shows its gap, and the element stays (Q8; the five crashing pages)
+
+- **Ruling.** This is one class with three cases. Unit 3 fixes all of them.
+  1. **Removed fields, the cause of the crashes.** Unit 3 fixes every reader of a field that 0K4m's evaluator or
+     manifest removed. That includes `forward_replay.*` (`avoidable_fuel_l`), `days_without_headroom`, `economics.*`
+     (gross, wear, net, the Mto huller and welder rows, MTO-BILLING, Kirinyaga and Mwea where removed) and the removed
+     break-even.
+     - **The sweep.** List the keys present on main's `fixtures.js` and absent from the regenerated one, then grep the
+       mock sources for each. The packet lists every reader with its new source.
+     - **The acceptance.** `audit.mjs` reports `consoleErrorRoutes: 0` and `routesOk == routesChecked`. Confirmed:
+       these readers are unit 3's to fix, and five crashing pages are a merge block.
+  2. **A figure the evaluator gives.** It reads the evaluator's option figure (`value`, `monthly_or_horizon_change`,
+     `params.*`, `sensitivities.*`, null as D-0K4.48 says) or the manifest record. Mto's welder break-even shows the
+     evaluator's welder value, as Q15 already ruled.
+  3. **A mock element with no source.** The element stays, keeping the mock's layout (START_HERE, O2; no
+     `MOCK DEVIATION`). Its figure reads `'Not available yet: ' + <words naming the record or study>`. A prose
+     sentence that only restated a removed figure is reworded without the figure, and never with a typed
+     substitute.
+     - Rows are never dropped. That changes the builder's default, which dropped them: the mock states missing data
+       on screen, and content without a source shows as "not available yet".
+- **Named places.**
+  - **Kobo's verify line** (`loop-decisions.js:276`). The Operational entry becomes `'Generator time beyond need down
+    on comparable days, and the four operating checks still pass over the trial (' + <n> + ' matched days before and
+    after)'`. That removes the "35 % at 5 am every day" bound (acceptance 4: the dawn is information).
+    - `<n>` is the leading integer of `verification_plan.baseline`, which `gen_fixtures.py` emits as
+      `VERIFY[<decision>].matched_days`. That constant sits outside the embedded `MANIFEST` literal, which K11 parses
+      back to the manifest. If `.after`'s integer differs, both numbers are shown.
+    - The Economic and Causal entries read `verification_plan.economic` and `.causal`'s figures (the ±10 % bands)
+      from the fixtures, in the mock's existing words.
+  - **The wear row** (`loop-decisions.js:178`, the KOB-STOPSOC effect line). It shows the mechanism with no money:
+    `'avoided litres × diesel price ' + <price> + ' − battery wear (assumed ' + <wear rate> + ' a kWh of added
+    throughput) = value a month: Not available yet: needs a simulation of Kobo''s own October'`.
+    - The price and the rate come from the tenant's prices in the fixtures.
+    - The wear rate stays a labelled assumption (§7, Q11).
+  - **The Mto prose** (`:305-306, 313-314`). It reads the evaluator's MTO option figures under case 2. Where none
+    exists, it takes case 3.
+- **Why.**
+  - The crashes and the stale prose are one fault: readers bound to the old fixture shape. Fixing the named lines
+    alone would leave the next removed key to crash another page (W6).
+  - Keeping the element with its stated gap honours the mock as the layout spec and the owner's honest-numbers bar.
+- **Reverse:** drop sourceless rows, labelled `MOCK DEVIATION` (removal), which needs the owner's look.
+
+## D-0K4.56 P26 is carried by P26b; K10's code is retired at commit 6 (commit 2b pending point)
+
+- **Ruling.**
+  - **P26b is accepted.** Plant P26 becomes: Kobo's `factor_sources: {candidate_l: "0"}` re-added (scratch copy),
+    which must fail K13 on `derived-values.json` `sites`.
+    - The spec's original form, with `candidate_l` nulled, crashes both models in the history series before K13
+      runs. A crash fails loudly, but it does not prove the named check.
+    - Nulling a world leaf is 0K4f's state to support, not 0K4m's (D-0K4.45).
+    - The original form is recorded only as "must exit non-zero". It is not a plant.
+  - **K10 is retired in code.** The checker at `ba2da1c4e` still runs `k10()` (`check_manifest.py:2439`). Its row
+    fails ("factor_sources sets candidate_l … (got None, None)"), although spec rev 4 retired K10 (D-0K4.45; K13
+    holds the class).
+    - Commit 6 removes `k10()` and its call, together with `H9_BASELINE`, since both edit `check_manifest.py`.
+    - The ledger counts K10's removal by section.
+    - Unit 3 does not touch `check_manifest.py`.
+- **Why.** Each plant must fail its own named check. A retired check that still runs is a second oracle for the same
+  class, and its standing failure would hide a real one at the head.
+- **Reverse:** guard the history series against a null leaf in both models, and keep P26 as specified.
+
 ## Decision queue (W3; defaults applied)
 
 | # | Question | Default |
@@ -455,3 +618,10 @@ calls: owner-away rows 71 to 75, 77 and 78 (`specs/OWNER-AWAY/decisions-2026-11-
 | Q20 | A protective decision with no candidate | Take none, with the reason in `protective_choices`; never infeasible for that reason alone (D-0K4.46) |
 | Q21 | Sensitivities of an option with no value | Null (D-0K4.48) |
 | Q22 | Decision-history rows that anchor restated figures | Rows before 21 Nov keep their words and lose the anchor; rows from 21 Nov on are anchored (D-0K4.49) |
+| Q23 | Unit 3: the guard bans "replay", but §4's exact copy uses it five times | Keep the guard. The copy says "simulation", in exact strings (D-0K4.50) |
+| Q24 | Kobo's 330 / 730 split: source and 0K4f on the mock, with codes kept off screen | On screen in words, as October's records classify it and to be re-checked against Kobo's readings. 0K4f goes in the drawer's reviewer block. Acceptance 5 amended (D-0K4.51) |
+| Q25 | "{fig:} L against plan {fig:} L" in commit 2b's bridge bases (OD-6) | Fixed in the manifest, in unit 3's commit 4: "against a target of". Manifest strings swept; unit 2 uses the same words; no `PLAIN` patch (D-0K4.52) |
+| Q26 | Unit 3 scope; SIMTEXT's day count; `--shots` writing to `screenshots/` | All of §4 plus D-0K4.52's strings. Each chip shows its own study's days. The repo audit runs without shots, and the shots come from a scratch copy into `/opt/assetecon/evidence/0K4m/u3/` (D-0K4.53) |
+| Q27 | The manifest `reason` strings for Kobo's settings and KIS-BATT60 carry "0K4f" and "dispatch replay" | The mock renders its own copy. The reasons stay for the documents and reviewers (D-0K4.54) |
+| Q28 | Hand-typed or stale readers outside §4's list, and five pages crashing on removed fields | One class: each reader reads a field the fixtures carry (evaluator or record). A gap shows "Not available yet", the element stays and no row is dropped. Zero console-error routes is the gate (D-0K4.55) |
+| Q29 | P26, as specified, crashes both models before K13 runs | P26b (`candidate_l: "0"` override) accepted. K10's leftover code goes at commit 6 (D-0K4.56) |
