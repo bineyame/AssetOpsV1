@@ -37,6 +37,8 @@ export interface PeriodBody {
   headline: { text: string; evidence: string[] };
   tiles: DeepDiveTile[];
   notices: string[];
+  /** D-IAP.34: the Sites left out of the figures, each named with why; `[]` when every Site is compared. */
+  out: string[];
   months: { title: string; columns: string[]; rows: PeriodMonthRow[] };
   outcomes: DeepDiveOutcome[];
   actions: NonNullable<DeepDiveMonthBody["actions"]>;
@@ -83,7 +85,9 @@ export async function fetchPeriod(from: string, to: string): Promise<PeriodResul
     return { status: "refused", httpStatus: 0, code: null, text: null };
   }
   if (response.ok) {
-    if (isObject(body) && body.schema === PERIOD_SCHEMA) return { status: "loaded", body: body as unknown as PortfolioPeriod };
+    // D-IAP.34: a period body without `out` is of another shape (the figures could not say who was left out).
+    const inner = isObject(body) && isObject(body.body) ? body.body : null;
+    if (isObject(body) && body.schema === PERIOD_SCHEMA && (inner === null || Array.isArray(inner.out))) return { status: "loaded", body: body as unknown as PortfolioPeriod };
     return { status: "refused", httpStatus: response.status, code: null, text: null };
   }
   const code = isObject(body) && typeof body.code === "string" ? body.code : null;

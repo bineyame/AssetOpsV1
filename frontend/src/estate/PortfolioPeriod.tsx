@@ -9,7 +9,7 @@ import { useSearchParams } from "react-router-dom";
 
 import { DataTable } from "../ui";
 import { RangeLink as Link } from "../ui/RangeLink";
-import { DdHead, DdNotes, DdOutcomes, DdQueue, DdTiles, monthRangeHref, useDrawers } from "./DeepDiveMonth";
+import { DdHead, DdNotes, Lines, DdOutcomes, DdQueue, DdTiles, monthRangeHref, useDrawers } from "./DeepDiveMonth";
 import type { EstateClient } from "./estateClient";
 import type { PeriodBody } from "./portfolioPeriodClient";
 import "./deepDiveMonth.css";
@@ -37,6 +37,12 @@ function Lead({ body }: { body: PeriodBody }) {
           {notice}
         </p>
       ))}
+      {/* D-IAP.34 (MD-IAP-16): the Sites left out, named with why: 5c's own drawer lines, since the period has no step drawer. */}
+      {body.out.length > 0 ? (
+        <div data-dd-out>
+          <Lines lines={body.out} className="dd-lines dd-lines--note" />
+        </div>
+      ) : null}
     </div>
   );
 }

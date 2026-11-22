@@ -206,7 +206,7 @@ function Drawer({ id, title, api, children }: { id: string; title: string; api: 
   );
 }
 
-function Lines({ lines, className }: { lines: string[]; className?: string }) {
+export function Lines({ lines, className }: { lines: string[]; className?: string }) {
   if (lines.length === 0) return null;
   return (
     <ul className={className ?? "dd-lines"}>

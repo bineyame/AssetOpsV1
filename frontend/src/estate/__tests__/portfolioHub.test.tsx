@@ -6,7 +6,7 @@
  */
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, useLocation } from "react-router-dom";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
@@ -16,7 +16,7 @@ import { settledScreen } from "../../test/settled";
 import { entryRange, presetRange, readSharedRange } from "../../ui/sharedRange";
 import type { DeepDiveMonthBody, DeepDiveMonthClient } from "../deepDiveMonthClient";
 import type { EstateClient, EstatePortfolioRow } from "../estateClient";
-import type { PeriodResult, PortfolioPeriod, PortfolioPeriodClient } from "../portfolioPeriodClient";
+import { fetchPeriod, type PeriodResult, type PortfolioPeriod, type PortfolioPeriodClient } from "../portfolioPeriodClient";
 import { PORTFOLIO_TABS } from "../portfolioWords";
 import { loaded } from "./estateFixtures";
 import { portfolioBody, row } from "./portfolioFixtures";
@@ -163,6 +163,23 @@ describe("IA-P P3b: the Portfolio hub", () => {
     expect(document.querySelector(".dd-headline")!.textContent).toContain("across September and October");
   });
 
+  it("World P (no Site left out): no [data-dd-out] region", async () => {
+    renderAt("/portfolio?from=2026-09-01&to=2026-10-31", parse(PERIOD_PERIOD));
+    await settled();
+    expect(document.querySelector("[data-dd-out]")).toBeNull();
+  });
+
+  it("D-IAP.34: a period body without `out` is refused by the client (schema check)", async () => {
+    const body = parse<PortfolioPeriod>(PERIOD_PERIOD);
+    const { out: _out, ...inner } = body.body!;
+    vi.stubGlobal("fetch", async () => new Response(JSON.stringify({ ...body, body: inner }), { status: 200 }));
+    try {
+      expect((await fetchPeriod("2026-09-01", "2026-10-31")).status).toBe("refused");
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("mode none renders the notes and the suggest link, and no L1 or L3", async () => {
     renderAt("/portfolio?from=2026-11-15&to=2026-11-21", parse(PERIOD_NONE));
     await settled();
@@ -246,6 +263,9 @@ describe("IA-P R2 (D-IAP.25): the page by Site-type matrix on the Overview", () 
   it("two months (World G): the headline, tile 1 and every month row state 3 of 4 Sites as served", async () => {
     renderAt("/portfolio?from=2026-09-01&to=2026-10-31", parse(PERIOD_PERIOD_G));
     await settled();
+    // D-IAP.34 (MD-IAP-16): Thika is named in the lead itself, with no drawer opened (deviation 12, ruled).
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(document.querySelector('[data-level="L1"] [data-dd-out]')!.textContent).toBe("Thika: not a mini-grid Site, not included.");
     expect(document.querySelector(".dd-headline")!.textContent).toContain("Compared for 3 of 4 Sites.");
     expect(document.querySelector('[data-dd-tile="contribution"]')!.textContent).toContain("3 of 4 Sites");
     const rows = [...document.querySelectorAll("[data-period-months] tbody tr")];
