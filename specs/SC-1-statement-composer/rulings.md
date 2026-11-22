@@ -478,6 +478,8 @@ Owner approved both check-all lines (scan and self-test), 2026-11-21 (`owner/own
   "doubled", "halved", "Seventieth", "millionths", "fourteenth", "eleventh" (`LITERAL_NUMBER_WORD`, P28b); and loads,
   each alone: "tend", "often", "attend", "tone", "someone", "everyone", "forth", "content", "tenant", "coupled",
   "secondary", "quarterly", "several", "doubt" (N-T12).
+- **Amended by D-P6.81** (`specs/6f-decisions-screen/rulings.md`): `NUMBER_WORD_IDIOMS` exempts only `one` joined by
+  a single `-` or `_` to `off`/`offs` ("one-off", `ONE_OFF`), an idiom that states no count.
 
 ## D-SC1.33 What counts as served, and how the scan tells served text from code strings
 

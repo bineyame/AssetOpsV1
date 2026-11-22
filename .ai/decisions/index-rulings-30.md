@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-IA.61 to D-IA.81, D-P6.68 to D-P6.80, D-IAP.34, D-DD.97 to D-DD.101)
+# Decision index: Demo-sprint and later rulings (index only) (D-IA.61 to D-IA.81, D-P6.68 to D-P6.81, D-IAP.34, D-DD.97 to D-DD.101)
 
 - `D-IA.61` IA-2b is the list shape only, split 2b1/2b2; 2b2 waits for the owner's IA-2a walkthrough · live · specs/IA-1-shape-rebuild/rulings-5.md
 - `D-IA.62` One list component; filters, sort, search, show-all in the address; focus keep · live · specs/IA-1-shape-rebuild/rulings-5.md
@@ -40,3 +40,4 @@
 - `D-DD.99` DD4b Q16: measured.json = DD3a's world-measured/1 extended per vertical (cold room_kwh; EV bands, demand_kw, import_kwh; EV departures); partial_to; DD4.4 after the join · live · specs/DD-demo-data/rulings.md
 - `D-DD.100` DD4b Q1-Q9, Q11-Q15, Q17-Q18 ratified; Q5, Q9 amended by D-DD.98; split-slot rows checked against meter delta · live · specs/DD-demo-data/rulings.md
 - `D-DD.101` units: DD4b 3.25 -> 3.75 u; DD 42.0 u; D-DD.97 if approved +0.25 (DD3a fix round, else DD3b split) · live · specs/DD-demo-data/rulings.md
+- `D-P6.81` 6f1 number words: "one-off" kept via narrow NUMBER_WORD_IDIOMS exemption (one + off/offs by - or _; amends D-SC1.32); near-best prints {margin} = 1 - TIE percent; other rewordings ratified/amended; ONE_OFF ids restored; 6f1 4.5 u · live · specs/6f-decisions-screen/rulings.md
