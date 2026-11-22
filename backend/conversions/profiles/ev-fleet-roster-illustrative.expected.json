@@ -1,0 +1,128 @@
+[
+  {
+    "format_version": 1,
+    "kind": "FLEET_ROSTER",
+    "source_record_id": "gen:EV-EMB:2026-07-01:roster:01",
+    "source_version": "1",
+    "site_code": "EV-EMB",
+    "subject": {
+      "kind": "VEHICLE",
+      "ref": "EV-EMB-B01"
+    },
+    "clocks": {
+      "effective_from": "2026-07-01"
+    },
+    "body": {
+      "vehicle_ref": "EV-EMB-B01",
+      "block_ref": "EV-EMB-BLK-01",
+      "return_at": "2026-07-01T17:30:00+03:00",
+      "departure_at": "2026-07-02T05:30:00+03:00",
+      "required_kwh": "140.000"
+    }
+  },
+  {
+    "format_version": 1,
+    "kind": "FLEET_ROSTER",
+    "source_record_id": "gen:EV-EMB:2026-07-01:roster:02",
+    "source_version": "1",
+    "site_code": "EV-EMB",
+    "subject": {
+      "kind": "VEHICLE",
+      "ref": "EV-EMB-B02"
+    },
+    "clocks": {
+      "effective_from": "2026-07-01"
+    },
+    "body": {
+      "vehicle_ref": "EV-EMB-B02",
+      "block_ref": "EV-EMB-BLK-02",
+      "return_at": "2026-07-01T17:36:00+03:00",
+      "departure_at": "2026-07-02T05:30:00+03:00",
+      "required_kwh": "140.000"
+    }
+  },
+  {
+    "format_version": 1,
+    "kind": "FLEET_ROSTER",
+    "source_record_id": "gen:EV-EMB:2026-07-01:roster:03",
+    "source_version": "1",
+    "site_code": "EV-EMB",
+    "subject": {
+      "kind": "VEHICLE",
+      "ref": "EV-EMB-B03"
+    },
+    "clocks": {
+      "effective_from": "2026-07-01"
+    },
+    "body": {
+      "vehicle_ref": "EV-EMB-B03",
+      "block_ref": "EV-EMB-BLK-03",
+      "return_at": "2026-07-01T17:43:00+03:00",
+      "departure_at": "2026-07-02T05:30:00+03:00",
+      "required_kwh": "140.000"
+    }
+  },
+  {
+    "format_version": 1,
+    "kind": "FLEET_ROSTER",
+    "source_record_id": "gen:EV-EMB:2026-07-01:roster:04",
+    "source_version": "1",
+    "site_code": "EV-EMB",
+    "subject": {
+      "kind": "VEHICLE",
+      "ref": "EV-EMB-B04"
+    },
+    "clocks": {
+      "effective_from": "2026-07-01"
+    },
+    "body": {
+      "vehicle_ref": "EV-EMB-B04",
+      "block_ref": "EV-EMB-BLK-04",
+      "return_at": "2026-07-01T17:49:00+03:00",
+      "departure_at": "2026-07-02T05:30:00+03:00",
+      "required_kwh": "140.000"
+    }
+  },
+  {
+    "format_version": 1,
+    "kind": "FLEET_ROSTER",
+    "source_record_id": "gen:EV-EMB:2026-07-01:roster:05",
+    "source_version": "1",
+    "site_code": "EV-EMB",
+    "subject": {
+      "kind": "VEHICLE",
+      "ref": "EV-EMB-B05"
+    },
+    "clocks": {
+      "effective_from": "2026-07-01"
+    },
+    "body": {
+      "vehicle_ref": "EV-EMB-B05",
+      "block_ref": "EV-EMB-BLK-05",
+      "return_at": "2026-07-01T17:55:00+03:00",
+      "departure_at": "2026-07-02T05:30:00+03:00",
+      "required_kwh": "140.000"
+    }
+  },
+  {
+    "format_version": 1,
+    "kind": "FLEET_ROSTER",
+    "source_record_id": "gen:EV-EMB:2026-07-01:roster:06",
+    "source_version": "1",
+    "site_code": "EV-EMB",
+    "subject": {
+      "kind": "VEHICLE",
+      "ref": "EV-EMB-B06"
+    },
+    "clocks": {
+      "effective_from": "2026-07-01"
+    },
+    "body": {
+      "vehicle_ref": "EV-EMB-B06",
+      "block_ref": "EV-EMB-BLK-06",
+      "return_at": "2026-07-01T18:02:00+03:00",
+      "departure_at": "2026-07-02T05:30:00+03:00",
+      "required_kwh": "140.000"
+    }
+  }
+]

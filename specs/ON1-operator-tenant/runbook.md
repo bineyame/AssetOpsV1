@@ -137,7 +137,7 @@ Three blocks, run in order. First write the emulated exports into `DIR`:
 (
   export DATABASE_URL="postgresql+psycopg://assetops:$DB_PASSWORD@127.0.0.1:55432/assetops_rehearsal_${REHEARSAL}_test"
   export ASSETOPS_TENANT_SLUG=lakeside-power ASSETOPS_PSEUDONYM_KEY_DIR="$KEY_DIR"
-  python tools/world_history.py exports --manifest Docs/demo-sprint/product-direction-layer4/demo-site-scenario-manifest.yaml --out "$DIR"
+  python tools/world_history.py exports --manifest Docs/demo-sprint/product-direction-layer4/demo-site-scenario-manifest.yaml --out "$DIR" --tenant lakeside-power
 )
 ```
 

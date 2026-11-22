@@ -32,13 +32,16 @@ RULE_VERSION = "decision-prepare-1"
 HORIZON_DEFAULT = 12  # D-P6.15
 HORIZON_MIN, HORIZON_MAX = 1, 60
 COMMANDS = MappingProxyType({"prepare": "decision.prepare", "one_off": "decision.one_off",
-                             "choose": "decision.choose", "evaluate": "decision.evaluate"})
+                             "choose": "decision.choose", "evaluate": "decision.evaluate",
+                             "option_record": "decision.option_record"})
 DISPOSITIONS = ("COMPARISON", "RECOMMENDED", "CONDITIONAL", "ACCEPTABLE", "DEFERRED", "REJECTED")
-RUN_OUTCOMES = ("RECOMMENDED", "NO_ACTION_BEST", "RANKING_INCOMPLETE", "NOTHING_ADMITTED")
+RUN_OUTCOMES = ("RECOMMENDED", "NO_ACTION_BEST", "RANKING_INCOMPLETE", "NOTHING_ADMITTED", "BOUNDS_NOT_CHECKED")
+STATED_OPTIONS = "STATED_OPTIONS"  # 6h: the named-option generator
 SOURCE_CLASSES = ("SIMULATED", "EMULATED", "RECORDED")  # weakest first
 STATE_NOT_VALUED, STATE_WAITING, STATE_CHOSEN, STATE_UNDER_WAY, STATE_KEPT = (
     "NOT_VALUED", "WAITING", "CHOSEN", "UNDER_WAY", "KEPT_AS_IS")
 AMOUNT_PLACES, AMOUNT_INTEGER_DIGITS, CURRENCY_LETTERS, BASIS_MAX = 2, 12, 3, 200
+RECORD_PLACES, RECORD_INTEGER_DIGITS = 6, 14  # 6h4 (spec §6.2 R6): numeric(20, 6)
 
 #: §3.3 refusal codes and their exit codes (3 only for the store).
 REFUSAL_EXIT: Mapping[str, int] = MappingProxyType({
@@ -49,6 +52,9 @@ REFUSAL_EXIT: Mapping[str, int] = MappingProxyType({
         "BAD_CURRENCY", "BAD_CREW_VISITS", "BAD_BASIS", "ALREADY_CHOSEN", "NOT_EVALUATED", "CHOOSE_NONE_INSTEAD",
         "OPTION_REJECTED", "ACTION_NOT_FOUND", "ACTION_SITE_MISMATCH", "BAD_UUID", "NO_DATABASE",
         "RECORD_INVALID",
+        # 6h (spec §6.2): an option record's refusals, and a study given to a lever that reads none
+        "NO_ACTION_RECORD", "RECORD_NOT_ON_OPTION", "BAD_RECORD_UNIT", "BAD_VALUE", "BAD_DOCUMENT",
+        "STUDY_NOT_FOR_LEVER",
         # 6c (spec §4): the evaluation's refusals
         "STUDY_REQUIRED", "STUDY_UNREADABLE", "STUDY_NOT_CALIBRATED", "STUDY_LABELS_INVALID", "STUDY_BASELINE_MISMATCH",
         "STUDY_GRID_MISMATCH", "STUDY_ADMISSION_MISMATCH", "STUDY_FRAME_MISMATCH", "STUDY_MONTH_NOT_COVERED")},
@@ -93,6 +99,24 @@ class OneOffRow:
     amount: Decimal
     currency: str
     crew_visits: int
+    basis: str
+    declared_by_person_id: UUID
+    declared_role: str
+    declared_by_script: bool
+    declared_at: datetime
+
+
+@dataclass(frozen=True)
+class OptionRecordRow:                  # 6h4 (spec §6.1): a document's stated level of a leaf under an option
+    id: UUID
+    tenant_id: UUID
+    option_id: UUID
+    factor_id: str
+    value: Decimal
+    unit: str
+    currency: str | None
+    origin: str                         # "observed-financial" | "source-emulated"
+    document: str
     basis: str
     declared_by_person_id: UUID
     declared_role: str
@@ -215,6 +239,9 @@ class DecisionStore(Protocol):
     def decision(self, tenant_id: UUID, decision_id: UUID) -> tuple[DecisionRow, tuple[OptionRow, ...]] | None: ...
     def add_one_off(self, row: OneOffRow) -> OneOffRow: ...
     def latest_one_offs(self, tenant_id: UUID, decision_id: UUID) -> Mapping[UUID, OneOffRow]: ...
+    def add_option_record(self, row: OptionRecordRow) -> OptionRecordRow: ...  # 6h4
+    def latest_option_records(self, tenant_id: UUID, decision_id: UUID
+                              ) -> Mapping[tuple[UUID, str], OptionRecordRow]: ...
     def add_run(self, run: RunRow) -> RunRow: ...  # 6c's writer
     def latest_run(self, tenant_id: UUID, decision_id: UUID) -> RunRow | None: ...
     def agreed_action_site(self, tenant_id: UUID, action_id: UUID) -> UUID | None | Literal[False]: ...
@@ -296,7 +323,8 @@ def refusal_sentence(code: str) -> str:
     """A refusal's sentence (spec §3.4), rendered from `decision.refused`; the bounds are counts."""
     return render(message("decision.refused", code=State(code), least=Count(HORIZON_MIN, "month"),
                           most=Count(HORIZON_MAX, "month"), places=Count(AMOUNT_PLACES, "character"),
-                          letters=Count(CURRENCY_LETTERS, "character"), chars=Count(BASIS_MAX, "character")))
+                          letters=Count(CURRENCY_LETTERS, "character"), chars=Count(BASIS_MAX, "character"),
+                          value_places=Count(RECORD_PLACES, "character")))
 
 
 def _period_ok(period: object) -> bool:
@@ -335,6 +363,15 @@ def _amount_ok(amount: Decimal) -> bool:
     if exponent < -AMOUNT_PLACES:
         return False
     return len(str(int(amount))) <= AMOUNT_INTEGER_DIGITS
+
+
+def _value_ok(value: Decimal) -> bool:
+    if not isinstance(value, Decimal) or not value.is_finite():
+        return False
+    exponent = value.as_tuple().exponent
+    if exponent < -RECORD_PLACES:
+        return False
+    return len(str(int(abs(value)))) <= RECORD_INTEGER_DIGITS
 
 
 def admit_person(accounts: AccountService, command: str, tenant_slug: str, as_email: str):
@@ -395,7 +432,7 @@ class DecisionService:
                 raise DecisionRefused("FINDING_NOT_FOUND")
             if not self._pin_lists_lever(mechanism, lever_id):
                 raise DecisionRefused("FINDING_NOT_ON_LEVER")
-        names = {axis.name for axis in lever.axes}  # P5
+        names = {axis.name for axis in lever.axes}  # P5 (6h: a STATED_OPTIONS lever has no axes, so current is {})
         if set(current) != names or any(not isinstance(v, Decimal) or not v.is_finite() for v in current.values()):
             raise DecisionRefused("BAD_CURRENT")
         found = self._call(self._store.find_decision, tenant_id, site.site_id, lever_id, period, finding_id)  # P6
@@ -408,10 +445,15 @@ class DecisionService:
                                lever.purpose_factor, finding_id, period, horizon_months, dict(current), RULE_VERSION,
                                person.person_id, role, True, now)
         options = [OptionRow(self._new_id(), tenant_id, decision.id, NO_ACTION_KEY, "NO_ACTION", dict(current), 0)]
-        for point in grid(lever):
-            if not _same_settings(point, current):
-                options.append(OptionRow(self._new_id(), tenant_id, decision.id, option_key(lever, point),
-                                         lever.generator, dict(point), len(options)))
+        if lever.generator == STATED_OPTIONS:  # 6h P7: the lever's named options in catalogue order
+            for named in lever.options:
+                options.append(OptionRow(self._new_id(), tenant_id, decision.id, named.key, STATED_OPTIONS, {},
+                                         len(options)))
+        else:
+            for point in grid(lever):
+                if not _same_settings(point, current):
+                    options.append(OptionRow(self._new_id(), tenant_id, decision.id, option_key(lever, point),
+                                             lever.generator, dict(point), len(options)))
         stored, already = self._call(self._store.add_decision, decision, tuple(options))
         if already:
             _, options_back = self._call(self._store.decision, tenant_id, stored.id)
@@ -435,7 +477,7 @@ class DecisionService:
         if found is None:
             raise DecisionRefused("DECISION_NOT_FOUND")
         decision, options = found
-        role = self._covering_role(person.roles, decision.site_id)  # O1b (D-P6.24)
+        role = self._covering_role(person.roles, decision.site_id, COMMANDS["one_off"])  # O1b (D-P6.24)
         if role is None:
             raise DecisionRefused("PERSON_ROLE_REQUIRED")
         option = next((o for o in options if o.option_key == option_key), None)  # O2
@@ -457,12 +499,55 @@ class DecisionService:
         return self._call(self._store.add_one_off, row)
 
     @staticmethod
-    def _covering_role(roles: frozenset[tuple[str, UUID | None]], site_id: UUID) -> str | None:
-        for role in roles_of(COMMANDS["one_off"]):
+    def _covering_role(roles: frozenset[tuple[str, UUID | None]], site_id: UUID, command: str) -> str | None:
+        for role in roles_of(command):
             for held, grant_site in roles:
                 if held == role and (role != "SITE_MANAGER" or grant_site == site_id):
                     return role
         return None
+
+    # --- option record (6h4, spec §6.2) -------------------------------------------------------------------------
+
+    def state_option_record(self, *, tenant_slug: str, as_email: str, decision_id: UUID, option_key: str,
+                            factor_id: str, value: Decimal, unit: str, currency: str | None, document: str,
+                            basis: str, emulated: bool) -> OptionRecordRow:
+        now = _now(self._clock)
+        tenant_id, person, _ = self._admit(COMMANDS["option_record"], tenant_slug, as_email)
+        found = self._call(self._store.decision, tenant_id, decision_id)  # R1
+        if found is None:
+            raise DecisionRefused("DECISION_NOT_FOUND")
+        decision, options = found
+        role = self._covering_role(person.roles, decision.site_id, COMMANDS["option_record"])  # R1b
+        if role is None:
+            raise DecisionRefused("PERSON_ROLE_REQUIRED")
+        option = next((o for o in options if o.option_key == option_key), None)  # R2
+        if option is None:
+            raise DecisionRefused("OPTION_NOT_FOUND")
+        if option.generator == "NO_ACTION":  # R3
+            raise DecisionRefused("NO_ACTION_RECORD")
+        lever = self._levers.get(decision.lever_id)
+        catalogue = None if lever is None else next((o for o in lever.options if o.key == option_key), None)
+        if (option.generator != "STATED_OPTIONS" or catalogue is None or factor_id not in catalogue.changes
+                or lever.change_sources[factor_id].kind != "RECORD"):  # R4
+            raise DecisionRefused("RECORD_NOT_ON_OPTION")
+        row_def = REGISTRIES[decision.structure_key].row(factor_id)
+        if unit != str(row_def.unit):  # R5
+            raise DecisionRefused("BAD_RECORD_UNIT")
+        if not _value_ok(value):  # R6
+            raise DecisionRefused("BAD_VALUE")
+        if row_def.unit.has_money_dimension != (currency is not None) or (
+                currency is not None and not _currency_ok(currency)):  # R7
+            raise DecisionRefused("BAD_CURRENCY")
+        cleaned_document = clean_title(document) if isinstance(document, str) else None  # R8
+        if cleaned_document is None:
+            raise DecisionRefused("BAD_DOCUMENT")
+        cleaned_basis = clean_title(basis) if isinstance(basis, str) else None
+        if cleaned_basis is None:
+            raise DecisionRefused("BAD_BASIS")
+        row = OptionRecordRow(self._new_id(), tenant_id, option.id, factor_id, value, unit, currency,  # R9
+                              "source-emulated" if emulated else "observed-financial", cleaned_document,
+                              cleaned_basis, person.person_id, role, True, now)
+        return self._call(self._store.add_option_record, row)
 
     # --- choose ------------------------------------------------------------------------------------------------
 
@@ -584,6 +669,7 @@ class MemoryDecisionStore:
         self.decisions: list[DecisionRow] = []
         self.options: list[OptionRow] = []
         self.one_offs: list[OneOffRow] = []
+        self.option_records: list[OptionRecordRow] = []
         self.runs: list[RunRow] = []
         self.choices: list[ChoiceRow] = []
 
@@ -648,6 +734,20 @@ class MemoryDecisionStore:
         for row in sorted((r for r in self.one_offs if r.option_id in ids and r.tenant_id == tenant_id),
                           key=lambda r: (r.declared_at, r.id)):
             latest[row.option_id] = row
+        return latest
+
+    def add_option_record(self, row: OptionRecordRow) -> OptionRecordRow:
+        if not any(o.id == row.option_id and o.tenant_id == row.tenant_id for o in self.options):
+            raise DecisionRefused("RECORD_INVALID")
+        self.option_records.append(row)
+        return row
+
+    def latest_option_records(self, tenant_id: UUID, decision_id: UUID) -> Mapping[tuple[UUID, str], OptionRecordRow]:
+        ids = {o.id for o in self.options if o.decision_id == decision_id}
+        latest: dict[tuple[UUID, str], OptionRecordRow] = {}
+        for row in sorted((r for r in self.option_records if r.option_id in ids and r.tenant_id == tenant_id),
+                          key=lambda r: (r.declared_at, r.id)):
+            latest[(row.option_id, row.factor_id)] = row
         return latest
 
     def add_run(self, run: RunRow) -> RunRow:

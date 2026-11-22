@@ -1028,7 +1028,7 @@ function Invoke-ConfigurationPersistenceCheck {
     # every change. The advisory-lock SELECT and the reads are not writes.
     $decisionRecordWriter = "$backendRoot/decisions/adapters/postgres_decision_store.py"
     $decisionRecordTables = @('decision', 'decision_option', 'option_one_off', 'option_evaluation_run',
-        'option_evaluation', 'option_effect', 'decision_choice')
+        'option_evaluation', 'option_effect', 'decision_choice', 'option_record')
     $decisionRecordShapes = [ordered]@{}
     foreach ($table in $decisionRecordTables) {
         $decisionRecordShapes["$table insert"] = ('(?i)^INSERT\s+INTO\s+' + $table +

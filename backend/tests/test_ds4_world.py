@@ -117,6 +117,11 @@ class FakeRunner:
             o.mkdir(parents=True)
             (o / "lakeside-power.billing.csv").write_text("a,b\n1,2\n")
             (o / "unwritten.json").write_text("[]")
+            if "--extras" in args:  # D-DD.60: staged JSON is placed under <slug>/staged/, never in commercial/
+                x = Path(args[args.index("--extras") + 1])
+                x.mkdir(parents=True)
+                (x / "lakeside-power.storage_rate_card.json").write_text("{}")
+                (x / "lakeside-power.statements.json").write_text("{}")
         elif "digest" in args:
             out = "d" * 64
         elif "apply" in args:
@@ -475,6 +480,8 @@ def test_t5_cold_build_then_reuse(env, capsys):
     assert l2["snapshots"] == {"lakeside-power:2026-10": {"portfolio_snapshot_id": PORTFOLIO, "sites": SITE_IDS}}
     assert l2["check"] is None and l1["parent"] == names["L0"] and l2["parent"] == names["L1"]
     assert l1["census"] == {"site": 3, "tenant": 1}
+    assert "lakeside-power/staged/lakeside-power.storage_rate_card.json" in l1["inputs"]
+    assert not [k for k in l1["inputs"] if "statements" in k or "storage_rate_card" in k and "/commercial/" in k]
     # freeze before the manifest: every frozen database has its manifest, and the order in the log is ALTER then nothing
     assert env.admin.frozen == set(names.values())
     # §3.5 environment, exactly

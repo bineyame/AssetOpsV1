@@ -1,4 +1,4 @@
-# 6h rulings (D-P6.59 to D-P6.67): the handshake answered
+# 6h rulings (D-P6.59 to D-P6.71): the handshake and the review answered
 
 Architect (Claude), 2026-11-22, answering `handshake-review.md` (reviewer, on `main` at `c39006bf6`). Code re-read on
 `task/6h-handshake` at `c1a9c65b6`. D-P6.51 to D-P6.58 (in `specs/6f-decisions-screen/rulings.md`) stand except where a
@@ -122,3 +122,45 @@ figure Thika's page shows) and is told of the unit card (D-P6.67).
   D-P6.51; 0.25 the handshake's fixes). 6f1 stays 3.75 u.
 - **Why.** The 22 Nov usage rule: a ruling that changes shared behaviour names its reach and proves the rest unchanged.
 - **Reverse:** none (the rule is standing).
+
+# 6h review rulings (D-P6.68 to D-P6.71): the 6h review's questions A1 to A4
+
+Architect (Claude), 2026-11-22, answering "Questions for the Architect" in `review-6h.md` (round 1, branch
+`task/6h-named-option-levers`) and packet Q1 to Q4. Every reviewer default is accepted. No figure moves; no owner
+weigh-in needed.
+
+## D-P6.68 The parity golden has one named exception: `source_class` of one 6c test-double case (A1, packet Q4)
+
+- **Ruling.** `test_6h_parity.py` compares `source_class` as absent for
+  `test_6c_evaluate::test_4_a_node_with_no_value_is_named_by_its_own_missing_leaves` only; every other field of that
+  key, and every other key, stays byte for byte. D-P6.67's rule stands: the golden is never refreshed, and this is
+  its only exception. A second exception needs its own ruling. Merge prep: the comment at `test_6h_parity.py:14`
+  ("The Architect confirms or rules") reads "D-P6.68" instead.
+- **Why.** That case's `difference` double returns Deltas with no origins while its changed leaf carries
+  `demo-simulated`, which breaks D-P6.61's premise (every known changed leaf is in `contribution.used`). No real
+  `difference` result differs, and §10.2 keeps 6c's tests untouched.
+- **Reverse:** change the 6c double to carry origins (touches a test §10.2 freezes), or refresh the golden (barred).
+
+## D-P6.69 The guarded `also` in `_value_option` stands (A2, review L4, deviation 6)
+
+- **Ruling.** `evaluate.py:121` keeps `also` only when the purpose factor is a registry row, passed as a keyword only
+  when non-empty. No change.
+- **Why.** Branch 3 of `check_levers` makes the guard unreachable in production; it exists because 6c's planted
+  registries lack the factor and three 6c tests double `difference` with three arguments, all frozen by §10.2.
+- **Reverse:** drop the guard and update the three 6c doubles when 6c's tests are next opened on their own merits.
+
+## D-P6.70 No sign rule on option record values in 6h (A3)
+
+- **Ruling.** `_value_ok` keeps accepting negative values (spec R6). If a sign rule is ever wanted, it is per-leaf data
+  on the registry or lever catalogue, never a code branch.
+- **Why.** A negative `excess_kwh` can be real; for crate-days, uncovered nights or buses it means nothing, so the rule
+  belongs to the leaf, not the record check. No demo record is negative.
+- **Reverse:** a global non-negative check (would refuse real negative leaves).
+
+## D-P6.71 Packet Q1 to Q3 accepted as built (A4)
+
+- **Ruling.** Q1: `GENERATOR_REDUNDANCY` reads "evening supply with no standby generator" (SC-1 bans `one`/`single`;
+  the words say the operating fact). Q2: `check_lever_paths(levers=...)` keeps the spec signature, accepted and unused.
+  Q3: `prepare` memory/Postgres parity is covered by test 6 of the prepare tests. No change.
+- **Why.** Each matches the spec's intent at no cost; none moves a figure or a seam.
+- **Reverse:** none needed.

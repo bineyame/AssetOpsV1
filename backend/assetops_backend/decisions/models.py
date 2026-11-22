@@ -12,11 +12,12 @@ from collections.abc import Mapping
 from decimal import Decimal, localcontext
 from fractions import Fraction
 from types import MappingProxyType
+from uuid import UUID
 
-from assetops_backend.decisions.records import DecisionRow, OptionRow
+from assetops_backend.decisions.records import STATED_OPTIONS, DecisionRow, OptionRecordRow, OptionRow
 from assetops_backend.decisions.study_input import SITE_RECORD, CaseInput, StudyInput, StudyRefused
 from assetops_backend.structure.difference import LeafChange
-from assetops_backend.structure.evaluate import _context
+from assetops_backend.structure.evaluate import LeafValue, _context
 from assetops_backend.structure.levers import Lever
 
 NO_ACTION = "NO_ACTION"
@@ -75,6 +76,31 @@ def setting_changes(lever: Lever, case: CaseInput, study: StudyInput, *,
     return MappingProxyType(out)
 
 
+def stated_changes(lever: Lever, option: OptionRow, base: Mapping[str, LeafValue],
+                   records: Mapping[tuple[UUID, str], OptionRecordRow]) -> Mapping[str, LeafChange]:
+    """6h (spec §4.2; D-P6.58, D-P6.65): a STATED_OPTIONS option's leaf changes. A simulated leaf is missing its
+    simulation; a document's leaf is missing its record until one is stated, then the stated level minus the
+    decision month's own level (missing is never 0)."""
+    catalogue = next(o for o in lever.options if o.key == option.option_key)
+    out: dict[str, LeafChange] = {}
+    for leaf in catalogue.changes:
+        if lever.change_sources[leaf].kind == "STUDY":
+            out[leaf] = LeafChange(None, "MODELLED", (), (), ("OPTION_STUDY", "SIMULATION"))
+            continue
+        record = records.get((option.id, leaf))
+        if record is None:
+            out[leaf] = LeafChange(None, "DECLARED", (), (), ("OPTION_RECORD", "DECISION"))
+            continue
+        level = base[leaf]
+        if level.value is None:
+            out[leaf] = LeafChange(None, "DECLARED", (), (), (level.missing.record_kind, level.missing.source_family))
+            continue
+        with localcontext(_context()):
+            delta = record.value - level.value
+        out[leaf] = LeafChange(delta, "DECLARED", ("option_record",), (record.origin,), None, currency=record.currency)
+    return MappingProxyType(out)
+
+
 def months_averaged(lever: Lever, study: StudyInput, *, grid_changes=SETTING_GRID_CHANGES) -> tuple[str, ...]:
     """The baseline's full months (SITE_RECORD); every case must have the same set, else STUDY_UNREADABLE.
     A declared season averages nothing."""
@@ -114,5 +140,6 @@ def match_cases(decision: DecisionRow, options: tuple[OptionRow, ...], study: St
     return MappingProxyType(by_key), tuple(ignored)
 
 
-__all__ = ["NO_ACTION", "ORIGIN_OF_INPUT", "SETTING_GRID", "SETTING_GRID_CHANGES", "SITE_MONTH_MISSING", "check_grid_changes",
-           "full_months", "match_cases", "months_averaged", "setting_changes"]
+__all__ = ["NO_ACTION", "ORIGIN_OF_INPUT", "SETTING_GRID", "SETTING_GRID_CHANGES", "SITE_MONTH_MISSING", "STATED_OPTIONS",
+           "check_grid_changes",
+           "full_months", "match_cases", "months_averaged", "setting_changes", "stated_changes"]

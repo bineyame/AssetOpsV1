@@ -5,7 +5,7 @@ Architect (Claude). Rev 2 (the Overview follows the range) and rev 1 were merged
 Owner request: `owner/owner-merge-on-accept-ia-shape-k10-2026-11-22.md`. The owner reviews once the product is close to the
 shape, then iterates. UI slices merge on review ACCEPT, with one combined walkthrough at the end.
 
-**Decisions:** `rulings.md`, D-IAP.1 to D-IAP.33 (rev 2: D-IAP.15 on; rev 3: D-IAP.24 on). **Binding parts:** this file,
+**Decisions:** `rulings.md`, D-IAP.1 to D-IAP.34 (rev 2: D-IAP.15 on; rev 3: D-IAP.24 on; build rulings: D-IAP.34 on). **Binding parts:** this file,
 `spec-period.md` and `handshake.md` "Answers (Architect)". **Reviewer guide:** `reviewer-guide.md`. `USER_REVIEW_REQUIRED: true`.
 **Mock (governs, `.ai/RULES.md` §6):** vNEXT (`Docs/demo-sprint/product-direction-layer4/interactive-mockup-vNEXT/`)
 as built by IA-1a/1b/1c, IA-2a and IA-2b1:
@@ -221,7 +221,7 @@ cut by day. E2 (`GET /api/portfolio/period?from=&to=`) resolves the range on the
 
 | Page | Mini-grid | Cold-chain | EV charging |
 |---|---|---|---|
-| Overview (E2 and 5c) | counted per whole month | named as not compared: 5c's `out` reason and "Compared for k of n Sites", in mode `period` too (D-IAP.25) | the same as cold-chain |
+| Overview (E2 and 5c) | counted per whole month | named as not compared: 5c's `out` reason and "Compared for k of n Sites"; in mode `period` the `out` lines sit in the lead, under the headline (E2 `body.out`; D-IAP.25, D-IAP.34) | the same as cold-chain |
 | Outcomes L1 and L2, Sites list (E1) | rows with figures for the same months | a row reading "No monthly figures for cold-chain Sites yet" (no monthly snapshot for the type; MD-IAP-12, owner Q11), with "Waiting for a choice" for the range | the same, "… EV charging Sites yet" |
 | Outcomes L3, Demand & capacity, Decisions, Findings, Actions, Results, Evidence | the range, as today | the range | the range |
 
@@ -368,7 +368,7 @@ Three parts (rev 3, D-IAP.32), one branch each, each branched from the previous 
 part. The units run in this order:
 - **IA-P1** is P1, P0 and P2 (4.5 units), on `task/IA-P1-frame-range-lists`. P0 runs after P1 because its gates extend
   `iap_gates.cjs`.
-- **IA-P2** is P3a, P3b and P4a (5.0 units), on `task/IA-P2-portfolio-figures`. It is the only part that touches
+- **IA-P2** is P3a, P3b and P4a (5.5 units; D-IAP.34), on `task/IA-P2-portfolio-figures`. It is the only part that touches
   `backend/assetops_backend`.
 - **IA-P3** is P4b, P5, P6 and P7 (4.5 units), on `task/IA-P3-sites-site-inbox`.
 
@@ -471,7 +471,7 @@ Each later unit adds its own checks.
 
 - **IA-P1's review follows P2.**
 
-### P3a: E2, the period read (1.75 units; IA-P2; rev 3 adds tests 11 and 12)
+### P3a: E2, the period read (2.0 units; IA-P2; rev 3 adds tests 11 and 12; D-IAP.34 adds `out`, tests 13 and 14)
 
 - **Files:**
   - `deep_dive/period.py` (new: `Period`, `MonthServed`, `month_days`, `resolve`, `header`, `period_view`);
@@ -480,7 +480,7 @@ Each later unit adds its own checks.
   - `i18n/statements/en/portfolio_period.py` (new);
   - the fixtures `frontend/src/estate/__tests__/fixtures/iap/period-month-2026-10.json`, `period-period-2026-09-10.json`
     and `period-none-2026-11.json`, written from the view (test 10 keeps them current).
-- **Tests first:** `spec-period.md` P.7, tests 1 to 10.
+- **Tests first:** `spec-period.md` P.7, tests 1 to 14 (13 and 14 by D-IAP.34, with the `countonly` and `twosets` plants).
 - **Plants:**
   - `dayscut` (`resolve` counts a PARTIAL month) fails test 1;
   - `onefig` (a month row's gap formatted again instead of taken from `V_m.tiles()[1]`, with one rounding changed) fails
@@ -488,7 +488,7 @@ Each later unit adds its own checks.
   - `handbuilt` (an f-string sentence in `period.py`) fails the SC-1 guard.
 - `view.py`'s month view and its tests are unchanged. `git diff` there is empty.
 
-### P3b: the Portfolio hub on the range (1.75 units; IA-P2)
+### P3b: the Portfolio hub on the range (2.0 units; IA-P2; D-IAP.34 adds the `out` lines)
 
 - **Files:**
   - `estate/portfolioWords.ts` (three tabs: overview `null`, outcomes `outcomes`, demand `demand-and-capacity`);
@@ -509,7 +509,9 @@ Each later unit adds its own checks.
       are otherwise unchanged;
   - `estate/PortfolioPeriod.tsx` (new; the period body):
     - the header with `<b>{period_words}</b>` and the notes;
-    - L1 `dd-lead` and `DdTiles`;
+    - L1 `dd-lead` and `DdTiles`; the lead renders `body.out` after the notices as
+      `<Lines lines={body.out} className="dd-lines dd-lines--note" />` in a `<div data-dd-out>` (nothing when `[]`;
+      D-IAP.34, MD-IAP-16); `PeriodBody` gains `out: string[]` and the client's schema check requires it;
     - L2 as in the month;
     - L3 "Month by month": a `<table>`, the first cell `<th scope="row"><Link>{month_words}</Link></th>` (one target per
       row, setting the range to that month), the other cells text with the gap word as a chip; then `DdOutcomes`;
@@ -529,6 +531,10 @@ Each later unit adds its own checks.
     - mode `month` reads the month read for `served[0]`, not for the range's `to`;
     - the nav links equal E2's `nav` days;
     - mode `period` renders one link per month row and no `[data-portfolio-card-value]`;
+    - mode `period` on `period-period-g-2026-09-10.json` shows "Thika: not a mini-grid Site, not included." inside
+      `[data-dd-out]` with no drawer opened, and the headline ends "Compared for 3 of 4 Sites." (D-IAP.34; the R2
+      matrix's two-month case asserts this, not the step drawer); on `period-period-2026-09-10.json` there is no
+      `[data-dd-out]`;
     - mode `none` renders the notes and the suggest link, and no L1 or L3;
     - the L2 rows are the Decisions rows for the range, at most 6, then "View all {n}";
     - `/portfolio/month?month=2026-10` → `/portfolio?from=2026-10-01&to=2026-10-31`, also when the address held another
@@ -543,7 +549,8 @@ Each later unit adds its own checks.
   - `window` (the tabs lose the range) fails `portfolioHub`;
   - `twofig` (the old category cards rendered on the Overview) fails gate H2;
   - `browsermonth` (the month read for the range's `to` month) fails `portfolioHub`;
-  - `span` (`shown` ignored) fails `portfolioHub` and gate H6.
+  - `span` (`shown` ignored) fails `portfolioHub` and gate H6;
+  - `nameless` (`Lead` drops `body.out`) fails `portfolioHub` (D-IAP.34).
 - **Gates added:**
   - **H1** three tabs in §2.2's order;
   - **H2** in every mode, the Overview has at most 6 blocks and holds no `[data-portfolio-card-value]`;
@@ -684,16 +691,17 @@ Each later unit adds its own checks.
 | MD-IAP-13 | Sites "Gap to target" tile and More line under scope, facet or search (IA-2b §4 Sites remainder, §3.4) | D2 | the tile shows the server's total only unfiltered; no browser sum or re-format | P4b |
 | MD-IAP-14 | Rail icons (vNEXT `IA_RAIL`) | D4 | the live icon set; `decide` is new so that two items do not share `finding` | P1 |
 | MD-IAP-15 | A Site Findings index kept for a vertical whose parity test failed | D2 | lit under Evidence, with "Findings" in its section line, until its alias ships | P5 |
+| MD-IAP-16 | Overview lead on a range of two or more months (5c's lead has no `out` lines; they sit in the step drawers) | D2 | the period has no step drawer (MD-IAP-10), so 5c's drawer `out` lines, unchanged, sit under the headline (D-IAP.34) | P3b |
 | MD-IAP-11 | Overview L1 and L3 on a range with no served whole month | D1 | figures exist only per whole month; the page states why and links to the latest served month. Nothing is cut by day | P3b |
 
 5c's MD2 and MD7 close in P3b (the month is the Overview).
 
 ## 8. Size, and the effect on the world ladder and the WK and DDR serves (D-IAP.22, D-IAP.32)
 
-**Size: 14.0 units, about 23 commits.** Rev 1 was 8.5 and rev 2 was 10.75. Rev 3 adds P0 (the long range, 1.0) and the
+**Size: 14.5 units, about 24 commits** (D-IAP.34 adds 0.5 to IA-P2). Rev 1 was 8.5 and rev 2 was 10.75. Rev 3 adds P0 (the long range, 1.0) and the
 handshake answers (2.25 spread over the units), and splits P4.
 - IA-P1 is 4.5 units: P1 1.5, P0 1.0, P2 2.0.
-- IA-P2 is 5.0 units: P3a 1.75, P3b 1.75, P4a 1.5.
+- IA-P2 is 5.5 units: P3a 2.0, P3b 2.0, P4a 1.5 (D-IAP.34).
 - IA-P3 is 4.5 units: P4b 1.25, P5 1.25, P6 0.75, P7 1.25.
 - Each part is under the 6-unit cap.
 - Opus does the first builds; Sonnet does the fix rounds. There is one discovery review per part (W5: IA-P1 sweeps every

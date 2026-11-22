@@ -1,0 +1,23 @@
+{
+  "schema": "assetops.source-profile",
+  "schema_version": 1,
+  "profile_id": "ev-service-tickets-illustrative",
+  "status": "ILLUSTRATIVE",
+  "source_type": "service_tickets",
+  "source_system": "ev-service-tickets",
+  "file": {"format": "csv", "encoding": "utf-8", "delimiter": ",", "header_row": 1},
+  "values": {"decimal_mark": ".", "thousands_mark": "", "negative": "minus", "date_format": "YYYY-MM-DD", "time_format": "HH:MM", "month_format": "YYYY-MM", "timezone": "Africa/Nairobi"},
+  "version": {"from": "row_digest"},
+  "columns": [
+    {"header": "Ticket", "paths": [{"path": "source_record_id", "type": "text"}]},
+    {"header": "Site", "paths": [{"path": "site_code", "type": "text"}]},
+    {"header": "Asset", "paths": [{"path": "subject.ref", "type": "text"}, {"path": "body.asset_ref", "type": "text"}]},
+    {"header": "Opened at", "paths": [{"path": "clocks.occurred_at", "type": "datetime"}]},
+    {"header": "Acknowledged at", "paths": [{"path": "body.acknowledged_at", "type": "datetime"}]},
+    {"header": "Restored at", "paths": [{"path": "body.restored_at", "type": "datetime"}]},
+    {"header": "State", "paths": [{"path": "status", "type": "text", "map": {"Open": "OPEN", "Acknowledged": "ACKNOWLEDGED", "Restored": "RESTORED", "Closed": "CLOSED"}}]},
+    {"header": "Contractor", "paths": [{"path": "body.counterparty_ref", "type": "text"}]}
+  ],
+  "constants": {"kind": "SERVICE_TICKET", "subject.kind": "ASSET"},
+  "personal": []
+}

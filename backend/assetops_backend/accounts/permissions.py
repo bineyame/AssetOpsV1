@@ -70,6 +70,7 @@ COMMAND_ROLES: dict[str, tuple[str, ...]] = {
     # states a one-off, only the executive chooses.
     "decision.prepare": (ANALYST,),
     "decision.one_off": (SITE_MANAGER, FINANCE),
+    "decision.option_record": (SITE_MANAGER, FINANCE),  # 6h4 (spec §6.2): as the one-off
     "decision.choose": (EXECUTIVE,),
     "decision.evaluate": (ANALYST,),  # 6c (spec §4, E0): the analyst values the options
 }

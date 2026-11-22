@@ -1,12 +1,12 @@
 # DD: the demo data (implementer spec)
 
-Status: **rev 2, 2026-11-22; DD1 in_review (`packet-DD1.md`); DD2a in_review (`packet-DD2a.md`)**: the combined handshake (`handshake.md`, R1-R10, I1-I15) is answered there under "Answers
+Status: **rev 2, 2026-11-22; DD1 in_review (`packet-DD1.md`); DD2a in_review (`packet-DD2a.md`); DD2b in_review (`packet-DD2b.md`)**: the combined handshake (`handshake.md`, R1-R10, I1-I15) is answered there under "Answers
 (Architect)" and ruled in `rulings.md` (D-DD.17 to D-DD.34). Rev 1 (same day) had 19.5 u in four parts; rev 2 has
 **30.0 u in six parts** (§7); restated by D-DD.44 to **33.0 u in seven parts** (DD3 splits into DD3a, DD3b), by D-DD.47 to 33.5 u, and by D-DD.57 to
-**34.25 u in eight parts** (DD2 splits into DD2a, DD2b), by D-DD.66 to **35.25 u**, by D-DD.73 to **35.75 u**, and by D-DD.74 to **36.25 u**. Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
+**34.25 u in eight parts** (DD2 splits into DD2a, DD2b), by D-DD.66 to **35.25 u**, by D-DD.73 to **35.75 u**, by D-DD.74 to **36.25 u**, and by D-DD.79 to **37.0 u**. Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
 it grounded on the product goals"); owner answers to Q1-Q6: `owner/owner-demo-data-answers-2026-11-22.md`. Owner words on
 Kobo's equipment: `owner/owner-iap-q1-q2-kobo-datasheets-2026-11-22.md`. **Rulings:** D-DD.1 to D-DD.16 (§9) and
-D-DD.17 to D-DD.74 (`rulings.md`); index lines in `.ai/decisions/index-rulings-26.md`, `index-rulings-27.md`,
+D-DD.17 to D-DD.79 (`rulings.md`); index lines in `.ai/decisions/index-rulings-26.md`, `index-rulings-27.md`,
 `index-rulings-28.md` and `index-rulings-29.md`.
 **Reviewer guide:** `reviewer-guide.md` (rev 2). `USER_REVIEW_REQUIRED: true` (demo narrative, evidence labels, what the
 served app shows; owner Q7-Q9 open with defaults applied).
@@ -278,14 +278,15 @@ cold and EV Site-days were never measured. DD6.3 measures; owner Q4 governs (cap
 
 ### 4.2 Mini-grid inputs (DD3.1, DD3.3)
 
-- **Load.** Season v2's normalised 5-minute load shape (one declared shape at all three Sites, written in
+- **Load.** Season v2's normalised load shape (2-hour blocks, written as hour-block windows: D-DD.78) (one declared shape at all three Sites, written in
   `conditions`) times the `demand` family day weight. It is scaled so the month's served-plus-unserved load equals
   `delivered_kwh` (October `period.actual`, July to September `history.json`).
-- **Sun.** Season v2's irradiance at Kobo. Season v2's normalised irradiance shape times the `solar_surplus` day weight
-  at Kisiwa and Mto.
+- **Sun.** Season v2's irradiance at Kobo on the days its calendar covers (1 Sep to 31 Oct). Season v2's clear-day shape
+  times the `solar_surplus` day weight (season × day class) at Kisiwa and Mto, and at Kobo on any other day (D-DD.77).
 - **Fuel** (D-DD.19). Each note of `<slug>.expenses.csv` with category FUEL enters the Site's tank at `occurred_at`
   (OOO-1 at 26 Oct 10:00). The declared draw is the month's `unexplained_l`, in equal daily parts at 02:00 local. The
-  tank starts at 50 % of `tank-capacity`.
+  tank starts at 50 % of `tank-capacity`, which each Site declares by D-DD.76's storage rule: Kobo 2500 L, Kisiwa
+  5000 L, Mto 1000 L (source SITE, in the `/2` and `/1` files).
 - **Generators.** Kobo's generator curve and battery come from the `/2` file (§6). For Kisiwa and Mto, all
   GENERIC_DEFAULT (Assumed), as the owner chose for an unsheeted set on 7 Nov:
   - no-load rate by the generic rule of 0.08 L/h per kW of unit rating (Kisiwa 4.8 L/h per set, Mto 2.4 L/h);
@@ -710,7 +711,8 @@ generator and battery block of Lakeside's `/2` file, prints the diff, and refuse
 | `generator-minimum-load` (%) | stated, else the `assumed` entry | 30 | GENERIC_DEFAULT → Assumed |
 | battery `rating.value`, `battery-energy-capacity` (kWh) | `modules × module_usable_kwh`, half-even to 0.1 | 191.5 | MANUFACTURER_DATASHEET → Declared |
 | `battery-charge-taper-start` (%) | stated, else the `assumed` entry | 95 | GENERIC_DEFAULT → Assumed |
-| PCS limits and efficiency; reserve, start and stop SOC; delays; tank | not from these sheets | as Lakeside's `/1` file | as today |
+| PCS limits and efficiency; reserve, start and stop SOC; delays | not from these sheets | as Lakeside's `/1` file | as today |
+| `tank-capacity` (L) | not from these sheets: D-DD.76's storage rule, in both files | 2500 | source SITE, version 1 |
 
 The tool checks the curve against v8's refusals: `NO_LOAD_NOT_POSITIVE`, `SFC_BELOW_DIESEL_ENERGY` and `NEGATIVE_SLOPE`.
 The slope is 0.2917 − 0.62/36 = 0.2745, which is admitted. Per stated point it prints the sheet's L/h beside the
@@ -736,7 +738,8 @@ line's: 10.50 / 10.50; 7.80 / 8.03; 5.60 / 5.56. The packet quotes these residua
 
 **Order inside DD3.2.**
 - Commit 1: the tool, the basis vocabulary, the slot, and the pure run of D-DD.19 on Kobo, July to October, at 0.62
-  and at 3.3 L/h (D-DD.70: Kisiwa's and Mto's pure run is DD3.3's, on v9).
+  and at 3.3 L/h (D-DD.70: Kisiwa's and Mto's pure run is DD3.3's, on v9). The three tanks of D-DD.76 are written before the pure run, which reads
+  them; the order inside DD3a is D-DD.79's.
 - Commit 2, after the coordinator has put Q7 to the owner: Lakeside's `/2` values at the answer or the default, the
   manifest's Kobo `physical`, and the regeneration.
 
@@ -803,11 +806,12 @@ Order: DD1 → (DD2a → DD2b ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merg
   `measured.json` and tested on a fixture. C-DD2 to C-DD4 go live for the decided books, with C-DD4's node clause and
   the checker's own evaluator (D-DD.55).
 
-### DD3: the mini-grid's operating reality (9.0 u in two parts, D-DD.44, D-DD.73: DD3a = DD3.1, DD3.2, 4.0 u, `task/DD3a-mini-reality`; DD3b = DD3.3, DD3.4, 5.0 u, `task/DD3b-mini-units`)
+### DD3: the mini-grid's operating reality (9.75 u in two parts, D-DD.44, D-DD.73, D-DD.79: DD3a = DD3.1, DD3.2, 4.75 u, `task/DD3a-mini-reality`; DD3b = DD3.3, DD3.4, 5.0 u, `task/DD3b-mini-units`)
 
-- **DD3.1 Writer core and Kobo on v8 (1.75).** §4.1 and §4.2 for Kobo: `site-inputs`, scaling, chaining, the tank's
-  deliveries and declared draw, golden digests. C-DD11 and C-DD12 go live.
-- **DD3.2 Kobo's data sheets (2.25).** §6: the tool, basis vocabulary, slot, Lakeside's `/2` values, the manifest's Kobo
+- **DD3.1 Writer core and Kobo on v8 (2.25; D-DD.79).** §4.1 and §4.2 for Kobo: `site-inputs`, scaling, chaining, the tank's
+  deliveries and declared draw, golden digests. C-DD11, C-DD12 and C-DD21 go live. The kernel's forcing index and its
+  parity test (D-DD.75); Kobo's sun outside season v2 (D-DD.77).
+- **DD3.2 Kobo's data sheets (2.5; D-DD.79: the three tanks of D-DD.76 before the pure run).** §6: the tool, basis vocabulary, slot, Lakeside's `/2` values, the manifest's Kobo
   `physical` and the regeneration (D-DD.30), D-DD.67 and its parity test (D-DD.68), and the pure-run gate of D-DD.19
   for Kobo (D-DD.70). Two commits, in §6's order; the packet
   lists every moved figure. C-DD16 goes live.
@@ -902,6 +906,7 @@ Order: DD1 → (DD2a → DD2b ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merg
 | C-DD18 | For each tenant on October, is each of the four outcome categories shown by at least one surfaced item (Finding, decision or outcome row), or by a "Not available yet" naming the missing record, as §A's table expects? | DD6.1 |
 | C-DD19 | Is v9 with one unit each byte-identical to v8 on Kobo's October, and cold-thermal 2 with zero load terms byte-identical to v1? | DD3.3, DD4.1 |
 | C-DD20 | Do the story mechanisms hold by direction? Mwea's kWh per crate-day rises each month as occupancy falls. Kirinyaga's kWh per crate-day rises each month. Embakasi's metered peak share rises each month. Kisiwa has unserved evening energy after 30 Oct 19:10 and none before. Mto's generator litres per day are higher after 28 Oct 11:02 than in the 28 days before. A failure stops for the Architect; nothing is tuned. | DD4.4 (Kisiwa and Mto from DD3.3) |
+| C-DD21 | Does the writer's `NEEDS` table match the backend's frozen Kobo v8 initial values, address, parameter and unit (D-DD.78)? | DD3.1 |
 
 **C-DD9 cells** (ranges Oct = 31 days, Sep-Oct = 61, Jul-Oct = 123; pages from IA-P `spec.md` §3):
 

@@ -22,7 +22,7 @@ finished work are in `archive/agent-history/`.
 | ON1 | Operator tenant from one onboarding file; emulated roles granted automatically, real files refused until ON1b; served tenant; key erasure; runbook (2.0 units) | in_review — built on `task/ON1-operator-tenant`; mid-build Q1, Q2 open | `ON1-operator-tenant/spec.md` | 40 KB |
 | 3B2 | Findings pinned to factors | in_review — built on `task/3B2-findings-pinned`, packet | `3B2-findings-pinned/spec.md` | — |
 | IA-1, IA-2b | Shape rebuild; IA-2a plan shape; IA-2b four home lists | rev 4; IA-1a-c merged; IA-2a, 2b1 in review (land together) | `IA-1-shape-rebuild/spec.md`, `IA-1-shape-rebuild/spec-IA-2b.md` | 64, 24 KB |
-| IA-P | Real app onto the IA shape: Overview on range, lists, six Site tabs, inbox (14 u, 3 parts) | live — rev 3; IA-P1 merged, IA-P2 next | `IA-P-product-shape/spec.md` | 58 KB |
+| IA-P | Real app on the IA shape: Overview on range, lists, six Site tabs, inbox (14.5 u, 3 parts) | live — rev 3; IA-P1 merged, IA-P2 next | `IA-P-product-shape/spec.md` | 58 KB |
 | 5a | Targets per factor, declarer recorded; page P5 | rev 2; unit 1 merged; units 2-3 in review | `5a-targets/spec.md` | 24 KB |
 | 3A6 | Source profiles as data (CSV, one-sheet XLSX), admitted by command; migration 0067 (2.75 u) | merged | `3A6-source-profiles/spec.md` | 70 KB |
 | 3A7 | One month reconciled against management accounts within 1%; migration 0069 (1.75 u) | merged | `3A7-month-reconciled/spec.md` | 38 KB |
@@ -44,7 +44,7 @@ finished work are in `archive/agent-history/`.
 | WK | Walkthrough DB tool: checked L2 copied, prepared, W1-W7, serve 8991/5491 (1.4 u) | merged; coordinator run pending | `WK-walkthrough-database/spec.md` |
 | 6a, 6c | Decisions valued against doing nothing: records (6a, 3.25 u); evaluator (6c, 3.75 u); P6 | merged 22 Nov | `6-decision-valued/P6-proposal.md`; `6a-decision-records/spec.md`; `6c-option-evaluator/spec.md` | 7, 48, 46 KB |
 | 6f | Decisions screen (6f1 3.75 u, records only) | spec rev 1 | `6f-decisions-screen/spec.md` | 54 KB |
-| 6h | Named-option levers, all Site types (4.25 u) | rev 1 | `6h-named-option-levers/spec.md`, rulings | 43 KB |
+| 6h | Named-option levers, all Site types (4.25 u) | in_review | `6h-named-option-levers/spec.md`, rulings | 43 KB |
 | DD | Demo data: 3 operators, 9 Sites, Jul-Oct books, telemetry, Kobo data sheets; 7 parts, 33.0 u (D-DD.44) | rev 2, handshake answered; owner Q7-Q9 open | `DD-demo-data/spec.md` | 71 KB |
 | OWNER-AWAY | Decisions made for the owner during a delegated absence (21 Nov, ~12 h), each with reason and reversal | live — owner reviews on return | `OWNER-AWAY/decisions-2026-11-21.md` | 1 KB |
 

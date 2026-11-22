@@ -20,6 +20,9 @@ run by `check_all()` on the start-up path after `check_pins`.
 
 6a added `check_levers` (D-P6.12, D-P6.23; spec §3.1): the levers against the registries and the pins, run by
 `check_all()` between `check_pins` and `check_observed`, on the start-up path only. It was D-3B1.6's deferred item.
+
+6h added branches 15 to 22 of `check_levers` (named-option levers) and `check_lever_paths` (D-P6.53: every pinned
+Finding has a decision path), run by `check_all()` on the line after `check_levers()`.
 """
 
 from __future__ import annotations
@@ -27,6 +30,7 @@ from __future__ import annotations
 import re
 from collections.abc import Callable, Mapping
 from decimal import Decimal
+from types import MappingProxyType
 
 from assetops_backend.config import ConfigurationError
 from assetops_backend.outcomes import outcome_map as _outcome_map
@@ -38,7 +42,7 @@ from assetops_backend.structure.observe import rules as _observe
 from assetops_backend.structure.expressions import (
     Bin, Expr, ExpressionError, Neg, Num, Ref, UnitError, names, parse, unit_of,
 )
-from assetops_backend.structure.registry import ABSENT, COMPOSES, FAMILIES, HOMES, Registry
+from assetops_backend.structure.registry import ABSENT, COMPOSES, FAMILIES, HOMES, FactorRow, Registry
 from assetops_contracts.canonical.factors import FACTOR_ID_PATTERN, LEAF_FACTORS, STRUCTURE_KEYS, leaves_of
 from assetops_contracts.canonical.units import KWH
 
@@ -327,11 +331,13 @@ def check_pins(pins: Mapping[str, "_pins.Pin"] | None = None, registries: Mappin
 
 _LEVER_ID = re.compile(r"[a-z][a-z0-9_]{0,63}", re.ASCII)
 _OPTION_KEY = re.compile(r"[a-z0-9][a-z0-9-]{0,63}", re.ASCII)
+_NO_ACTION_KEY = "no-action"
 
 
 def _lever_fault(lever: "_levers.Lever", registries: Mapping[str, Registry], pins: Mapping[str, "_pins.Pin"],
                  all_levers: Mapping[str, "_levers.Lever"]) -> None:
-    """Branches 2 to 14 of spec §3.1 for one lever, in order."""
+    """Branches 2 to 14 of 6a spec §3.1 for one lever, in order (6 to 13 for `SETTING_GRID` only, D-P6.63), then
+    6h's 15 to 22."""
     def refuse() -> StructureError:
         return StructureError("STRUCTURE_LEVER", lever.structure_key, lever.lever_id)
 
@@ -346,23 +352,24 @@ def _lever_fault(lever: "_levers.Lever", registries: Mapping[str, Registry], pin
     leaves = {row.factor_id for row in reg.rows if row.is_leaf}
     if any(name not in leaves for name in lever.changes):
         raise refuse()
-    if any(not _LEVER_ID.fullmatch(axis.name) for axis in lever.axes):
-        raise refuse()
-    if any(len(axis.values) == 0 for axis in lever.axes):
-        raise refuse()
-    if any(len(set(axis.values)) != len(axis.values) for axis in lever.axes):
-        raise refuse()
-    if len({axis.unit for axis in lever.axes}) > 1:
-        raise refuse()
-    if set(re.findall(r"\{(\w*)\}", lever.key_template)) != {axis.name for axis in lever.axes}:
-        raise refuse()
-    if any(value != value.to_integral_value() for axis in lever.axes for value in axis.values):
-        raise refuse()
-    keys = [_levers.option_key(lever, point) for point in _levers.grid(lever)]
-    if len(set(keys)) != len(keys):
-        raise refuse()
-    if any(not _OPTION_KEY.fullmatch(key) for key in keys):
-        raise refuse()
+    if lever.generator == "SETTING_GRID":  # 6 to 13 (D-P6.63): the grid branches, for the grid generator only
+        if any(not _LEVER_ID.fullmatch(axis.name) for axis in lever.axes):
+            raise refuse()
+        if any(len(axis.values) == 0 for axis in lever.axes):
+            raise refuse()
+        if any(len(set(axis.values)) != len(axis.values) for axis in lever.axes):
+            raise refuse()
+        if len({axis.unit for axis in lever.axes}) > 1:
+            raise refuse()
+        if set(re.findall(r"\{(\w*)\}", lever.key_template)) != {axis.name for axis in lever.axes}:
+            raise refuse()
+        if any(value != value.to_integral_value() for axis in lever.axes for value in axis.values):
+            raise refuse()
+        keys = [_levers.option_key(lever, point) for point in _levers.grid(lever)]
+        if len(set(keys)) != len(keys):
+            raise refuse()
+        if any(not _OPTION_KEY.fullmatch(key) for key in keys):
+            raise refuse()
     for pin in pins.values():
         pin_reg = registries.get(pin.structure_key)
         pin_row = None if pin_reg is None else next((r for r in pin_reg.rows if r.factor_id == pin.factor_id), None)
@@ -370,6 +377,34 @@ def _lever_fault(lever: "_levers.Lever", registries: Mapping[str, Registry], pin
             continue
         if pin_row.home.category != purpose.home.category:
             raise refuse()
+    _named_fault(lever, purpose, refuse)
+
+
+def _named_fault(lever: "_levers.Lever", purpose: FactorRow, refuse: Callable[[], StructureError]) -> None:
+    """6h (spec §3.2): branches 15 to 22, in order."""
+    if lever.generator not in _levers.GENERATORS:  # 15
+        raise refuse()
+    if set(lever.change_sources) != set(lever.changes) or any(  # 16
+            source.kind not in _levers.CHANGE_SOURCE_KINDS for source in lever.change_sources.values()):
+        raise refuse()
+    if lever.generator == "SETTING_GRID" and lever.options:  # 17
+        raise refuse()
+    if lever.generator == "STATED_OPTIONS" and (lever.axes or not lever.options or lever.key_template):
+        raise refuse()
+    keys = [option.key for option in lever.options]  # 18
+    if any(not _OPTION_KEY.fullmatch(key) or key == _NO_ACTION_KEY for key in keys) or len(set(keys)) != len(keys):
+        raise refuse()
+    if any(option.kind not in _levers.OPTION_KINDS for option in lever.options):  # 19
+        raise refuse()
+    for option in lever.options:  # 20
+        if not option.changes or any(name not in lever.changes for name in option.changes):
+            raise refuse()
+        if list(option.changes) != [name for name in lever.changes if name in option.changes]:
+            raise refuse()
+    if lever.no_action_words not in _levers.NO_ACTION_WORDS:  # 21
+        raise refuse()
+    if lever.bounds_required and (purpose.home is None or purpose.home.category != HOMES["protect"]):  # 22
+        raise refuse()
 
 
 def check_levers(levers: Mapping[str, "_levers.Lever"] | None = None,
@@ -388,6 +423,34 @@ def check_levers(levers: Mapping[str, "_levers.Lever"] | None = None,
                     raise StructureError("STRUCTURE_LEVER", key, name)
     for lever in levers.values():
         _lever_fault(lever, registries, pins, levers)
+
+
+#: 6h (spec §5.3; D-P6.53): a pinned mechanism whose decision path is still to come -> the slice that closes it.
+PENDING_LEVERS: Mapping[str, str] = MappingProxyType({})
+
+
+def check_lever_paths(pins: Mapping[str, "_pins.Pin"] | None = None,
+                      registries: Mapping[str, Registry] | None = None,
+                      levers: Mapping[str, "_levers.Lever"] | None = None,
+                      pending: Mapping[str, str] | None = None) -> None:
+    """6h (spec §5.3; D-P6.53, D-P6.66 N12): every pinned Finding has a decision path. For each `PINS` mechanism in
+    order, the pinned row lists a lever or the mechanism is in `PENDING_LEVERS`, else `STRUCTURE_LEVER_PATH
+    <structure>/<mechanism>`. A pending mechanism whose row lists a lever refuses with its pin's structure key; a pending
+    key that is no pin refuses with structure key `""`. A `None` argument reads the real table at call time."""
+    pins = _pins.PINS if pins is None else pins
+    registries = _registry.REGISTRIES if registries is None else registries
+    levers = _levers.LEVERS if levers is None else levers  # read for symmetry with check_levers; rows name levers
+    pending = PENDING_LEVERS if pending is None else pending
+    for mechanism, pin in pins.items():
+        listed = registries[pin.structure_key].row(pin.factor_id).levers
+        if mechanism in pending:
+            if listed:
+                raise StructureError("STRUCTURE_LEVER_PATH", pin.structure_key, mechanism)
+        elif not listed:
+            raise StructureError("STRUCTURE_LEVER_PATH", pin.structure_key, mechanism)
+    for mechanism in pending:
+        if mechanism not in pins:
+            raise StructureError("STRUCTURE_LEVER_PATH", "", mechanism)
 
 
 OBSERVE_CODES = ("STRUCTURE_OBSERVE_KEY", "STRUCTURE_OBSERVE_COVER", "STRUCTURE_OBSERVE_LEAF",
@@ -481,6 +544,7 @@ def check_all(registries: Mapping[str, Registry] | None = None) -> None:
     if registries is None:
         check_pins()
         check_levers()
+        check_lever_paths()
         check_observed()
 
 
@@ -492,5 +556,5 @@ def check_at_start() -> None:
         raise ConfigurationError(str(error)) from error
 
 
-__all__ = ["CODES", "OBSERVE_CODES", "PIN_CODES", "StructureError", "check", "check_all", "check_at_start",
-           "check_levers", "check_observed", "check_pins"]
+__all__ = ["CODES", "OBSERVE_CODES", "PENDING_LEVERS", "PIN_CODES", "StructureError", "check", "check_all",
+           "check_at_start", "check_lever_paths", "check_levers", "check_observed", "check_pins"]

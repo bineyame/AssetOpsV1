@@ -251,7 +251,7 @@ def test_6a_chain_and_catalogue(engine) -> None:  # noqa: F811
     assert [(s.revision, s.down_revision) for s in ours] == [HAND_PAIR]
     files = sorted(p.name for p in VERSIONS.glob("[0-9][0-9][0-9][0-9]_*.py"))
     assert files[files.index(f"{HAND_PAIR[0]}.py") - 1] == f"{HAND_PAIR[1]}.py"
-    assert scripts.get_heads() == [HAND_PAIR[0]]
+    assert len(scripts.get_heads()) == 1  # 6h: 0073 follows; one head, no longer this pair's
     with engine.connect() as c:
         for table in TABLES:
             found = {kind: set(c.execute(text(
@@ -508,4 +508,4 @@ def test_6d_append_only_downgrade_and_one_head(world, engine) -> None:  # noqa: 
                          ).scalar_one() == 0
     command.upgrade(cfg, "head")
     pg_harness.assert_at_head(engine)
-    assert pg_harness._heads() == {HAND_PAIR[0]}
+    assert len(pg_harness._heads()) == 1  # 6h: 0073 follows; one head, no longer this pair's

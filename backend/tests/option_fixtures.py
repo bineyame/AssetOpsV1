@@ -96,7 +96,7 @@ from pathlib import Path  # noqa: E402
 from uuid import UUID  # noqa: E402
 
 from assetops_backend.decisions.models import SETTING_GRID_CHANGES  # noqa: E402
-from assetops_backend.decisions.records import DecisionRow, OneOffRow, OptionRow  # noqa: E402
+from assetops_backend.decisions.records import DecisionRow, OneOffRow, OptionRecordRow, OptionRow  # noqa: E402
 from assetops_backend.structure.levers import LEVERS, Lever, SettingAxis, grid, option_key  # noqa: E402
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "decisions"
@@ -182,3 +182,53 @@ ASSUMING = planted({"a": None, "w": None, "s": "w * 2", "contribution": "a * s"}
 DIVISION = planted({"a": None, "z": None, "r": "a / z", "contribution": "r"})
 #: the outcome as a leaf: an option's monthly change is the change on it
 OUTCOME_LEAF = planted({"contribution": None})
+
+
+# --- 6h (spec §10.1): named-option decisions, their records and the bases of N1, T1, K2 ------------------------------
+
+def named_decision(lever_id: str, period: str, horizon: int):
+    """A STATED_OPTIONS decision: no action first, then the lever's named options in catalogue order."""
+    lever = LEVERS[lever_id]
+    did = UUID(int=0xD)
+    row = DecisionRow(did, TENANT, SITE, lever.structure_key, lever_id, lever.purpose_factor, None, period, horizon, {},
+                      "decision-prepare-1", PERSON, "ANALYST", True, AT)
+    options = [OptionRow(UUID(int=0x100), TENANT, did, "no-action", "NO_ACTION", {}, 0)]
+    for named in lever.options:
+        options.append(OptionRow(UUID(int=0x100 + len(options)), TENANT, did, named.key, "STATED_OPTIONS", {},
+                                 len(options)))
+    return row, tuple(options)
+
+
+def record_of(option: OptionRow, factor_id: str, value, unit: str, currency: str | None = None,
+              origin: str = "observed-financial", seq: int = 0) -> OptionRecordRow:
+    return OptionRecordRow(UUID(int=0x300 + seq), TENANT, option.id, factor_id, D(value), unit, currency, origin,
+                           "Signed storage contract", "From the contract", PERSON, "FINANCE_AND_COMMERCIAL_LEAD",
+                           True, AT)
+
+
+def n1_base() -> MappingProxyType:
+    return leaves_for(CC, {"crate_days": recorded(4340), "rate": recorded("0.20", "USD"),
+                           "k_kwh_per_crate_day": recorded("0.25"), "elec_price": recorded("0.20", "USD")})
+
+
+def t1_base() -> MappingProxyType:
+    return leaves_for(CC, {"uncovered_nights": recorded(26)})
+
+
+def k2_base() -> MappingProxyType:
+    given = {"chargers_in_service": 4, "charger_kw": 50, "import_limit_kw": 400, "window_h": 7, "peak_kwh": 0,
+             "kwh_2200_2400": 18000, "kwh_0000_0500": 27000, "nights_in_period": 30, "buses": 11,
+             "kwh_per_bus_night": 140, "short_nights": 8, "spare_bus_nights": 2}
+    out = {k: recorded(v) for k, v in given.items()}
+    out["penalty_rate"] = recorded("120.00", "USD")
+    return leaves_for(EV, out)
+
+
+def s1_base() -> MappingProxyType:
+    """Embakasi: every figure the schedule's contribution needs is recorded; only the simulated levels are not."""
+    given = dict(k2_base())
+    for name, value in (("peak_price", "0.30"), ("offpeak_price", "0.20"), ("night_price", "0.10"),
+                        ("demand_rate", "2.00")):
+        given[name] = recorded(value, "USD")
+    given["maintenance"] = recorded("500.00", "USD")
+    return leaves_for(EV, given)
