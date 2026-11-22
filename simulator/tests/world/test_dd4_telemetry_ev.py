@@ -125,7 +125,7 @@ def test_e5_kasarani_ch_k2_faults_both_connectors_at_23_40_and_the_aborted_buses
     at = datetime.fromisoformat(fault["at"]).astimezone(UTC)
     for c in ("ch-k2-c1", "ch-k2-c2"):
         events = [row for row in rows_of(r, c) if row[1] in ("fault-event", "session-event") and row[2] == at]
-        assert sorted(row[4].split()[0] for row in events) == ["EV_CONNECTOR_FAULT", "EV_SESSION_ABORT"]
+        assert sorted(row[6]["record_kind"] for row in events) == ["EV_CONNECTOR_FAULT", "EV_SESSION_ABORT"]
         later = [row for row in rows_of(r, c, "state") if row[2] > at]
         assert later and {row[4] for row in later} == {"FAULTED"}
     assert any(c["condition"] == "fault" and c["value"].startswith("ch-k2") for c in r.conditions())
@@ -142,12 +142,18 @@ def test_e6_ruiru_ch_r7_c2_faults_at_00_00_and_no_departure_is_short() -> None:
 
 # --- CLOCK-1 (pre-flight Q12) --------------------------------------------------------------------------------------
 
+def _hashable(rows: list[tuple]) -> list[tuple]:
+    """D-DD.91's seventh element (the event object) as a sorted item tuple, so rows compare as sets."""
+    return [row[:6] + (None if row[6] is None else tuple(sorted((k, str(v)) for k, v in row[6].items())),)
+            for row in rows]
+
+
 def test_e7_clock_1_shifts_the_third_chargers_session_rows_by_four_minutes_only() -> None:
     clock = [{"charger": 3, "day": "2026-10-15", "minutes": 4, "source": "M disorder_tests CLOCK-1"}]
     plain = run("EV-EMB", "2026-10-15", "2026-10-15")
     shifted = run("EV-EMB", "2026-10-15", "2026-10-15", clock=clock)
     day = date(2026, 10, 15)
-    a, b = plain.day_records(day), shifted.day_records(day)
+    a, b = _hashable(plain.day_records(day)), _hashable(shifted.day_records(day))
     assert [row for row in a if not row[0].startswith("ch-e3-")] == [row for row in b if not row[0].startswith("ch-e3-")]
     a3 = [row for row in a if row[0].startswith("ch-e3-")]
     b3 = sorted((row for row in b if row[0].startswith("ch-e3-")), key=lambda row: (row[2], row[3], row[0], row[1]))
@@ -156,7 +162,7 @@ def test_e7_clock_1_shifts_the_third_chargers_session_rows_by_four_minutes_only(
     pairs = {(row[0], row[1], row[4], row[5]) for row in b3}
     assert pairs == {(row[0], row[1], row[4], row[5]) for row in a3}
     shifted_rows = set(b3) - set(a3)
-    assert shifted_rows and all((row[0], row[1], row[2] - four, row[3] - four, row[4], row[5]) in set(a3)
+    assert shifted_rows and all((row[0], row[1], row[2] - four, row[3] - four, *row[4:]) in set(a3)
                                 for row in shifted_rows)
     assert any(c["condition"] == "CLOCK-1" for c in shifted.conditions())
 
@@ -172,7 +178,8 @@ def test_e8_protocol_days_chain_and_refusals_carry_their_code() -> None:
     with pytest.raises(ValueError, match=r"^TEL_EVENT_UNPLACED "):
         r.advance_day()
     # the 14 Oct night's sessions cross midnight into the 15th's file
-    assert any(row[1] == "session-event" and row[4].startswith("EV_SESSION_END") for row in r.day_records(date(2026, 10, 15)))
+    assert any(row[1] == "session-event" and row[6]["record_kind"] == "EV_SESSION_END"
+               for row in r.day_records(date(2026, 10, 15)))
     site = json.loads(json.dumps(f_site("EV-KAS")))
     for c in site["foundation"]["components"]:
         c["properties"] = [p for p in c.get("properties", []) if p["property_key"] != "ev-site-import-limit"]

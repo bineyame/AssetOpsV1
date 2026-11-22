@@ -31,8 +31,9 @@ day at a time (D-DD.69). It does not map `source_id`, round, write bytes or buil
   session boundaries). `device_id` is the bound asset (`ch-k1-c1`, `site-meter`), `signal_id` the channel.
 - CLOCK-1 (pre-flight Q12): on its local day, every row of the charger's connectors whose start minute holds a
   session carries `start` and `end` the declared minutes later; the true minute drives the physics.
-- Refusals are `ValueError`s whose message starts with the `TEL_*` code (D-DD.81: the frame's `TelemetryRefused`
-  replaces them at the join): `TEL_FOUNDATION`, `TEL_EVENT_UNPLACED`, `TEL_PACK`.
+- Refusals are the frame's `TelemetryRefused` (D-DD.81's join): `TEL_FOUNDATION`, `TEL_EVENT_UNPLACED`, `TEL_PACK`.
+- Rows are D-DD.91's seven elements; an event's object adds `session_id` and `connector_id` where the pack gives a
+  session (D-DD.123). `last` may be a local end instant (D-DD.103).
 
 Standard library and the simulator's EV pack only.
 """
@@ -47,6 +48,7 @@ from zoneinfo import ZoneInfo
 
 from ..packs.errors import PhysicallyUnacceptable
 from ..packs.ev_charger import CONNECTORS, EvChargerPack, EvForcingRow, EvParameters, EvState
+from .telemetry import TelemetryRefused, span_days
 
 UTC = timezone.utc
 STEP = timedelta(minutes=1)
@@ -66,8 +68,8 @@ _FAULT_KIND = {"FAULT": "EV_CONNECTOR_FAULT FAULTED", "CLEAR": "EV_CONNECTOR_CLE
 _MEANS = (("power", "allocated_kw"), ("requested-power", "requested_kw"), ("allocated-limit", "allocated_kw"))
 
 
-def _refuse(code: str, detail: str) -> ValueError:
-    return ValueError(f"{code} {detail}")
+def _refuse(code: str, detail: str) -> TelemetryRefused:
+    return TelemetryRefused(code, detail)
 
 
 def _kw(value: object, where: str) -> Fraction:
@@ -114,15 +116,11 @@ class EvSiteRun:
         self.code = site["code"]
         self.zone = ZoneInfo(site["timezone"])
         self._foundation(site)
-        self.days: list[date] = []
-        day, end_day = date.fromisoformat(first), date.fromisoformat(last)
-        while day <= end_day:
-            self.days.append(day)
-            day += timedelta(days=1)
-        if not self.days:
-            raise _refuse("TEL_EVENT_UNPLACED", f"{self.code} the span {first}..{last} is empty")
+        self.days, end_minute = span_days(first, last)  # `last` a local day or a local end instant (D-DD.103)
         self.start = self._utc(self.days[0])
-        self.end = self._utc(self.days[-1] + timedelta(days=1))
+        self.end = self._utc(self.days[-1]) + timedelta(minutes=end_minute)
+        if self.end - self.start != timedelta(minutes=(len(self.days) - 1) * 1440 + end_minute):
+            raise _refuse("TEL_FOUNDATION", f"{self.code} a clock change inside {first}..{last}")
         self._conditions: list[dict] = [
             {"condition": "initial state", "value": "every connector UNPLUGGED; no bus at the depot before its first "
              "roster return", "source": "DD4b-preflight Q11 (Assumed)"},
@@ -156,6 +154,8 @@ class EvSiteRun:
         self._unplugs: list[tuple[datetime, str, str]] = []  # rotation UNPLUGs: (instant, bus, connector asset)
         self.advanced = 0
         self._records: dict[date, list[tuple]] = {}
+        self._ordinals: dict[tuple[str, str], int] = {}
+        self._episodes: dict[str, int] = {}
         self._departed: list[dict] = []
         self._plugs: list[tuple[datetime, str, str, str]] = []  # (instant, bus, connector asset, night)
         self._import: dict[datetime, Fraction] = {}
@@ -431,7 +431,7 @@ class EvSiteRun:
 
     # -- public rows --------------------------------------------------------------------------------------------------
 
-    def _rows(self, day: date, day_start: datetime) -> list[tuple]:
+    def _rows(self, day: date, day_start: datetime, day_end: datetime) -> list[tuple]:
         rows: list[tuple] = []
         minutes = [day_start + STEP * i for i in range(len(self._docs[0]))]
         cuts_all: set[datetime] = set()
@@ -443,23 +443,28 @@ class EvSiteRun:
             for name in CONNECTORS:
                 device = self.asset((k, name))
                 for i, t in enumerate(minutes):
-                    rows.append((device, "state", t, t, per[name][i]["state"], "state", per[name][i]["session_id"]))
+                    rows.append((device, "state", t, t, per[name][i]["state"], "state", None,
+                                 per[name][i]["session_id"]))
                 spans = list(self._spans[(k, name)])
                 for e in events:
                     if e.connector != name:
                         continue
                     if e.kind in _SESSION_KIND:
-                        rows.append((device, "session-event", e.at, e.at, f"{_SESSION_KIND[e.kind]} {e.session_id}",
-                                     "event", e.session_id))
+                        rows.append((device, "session-event", e.at, e.at, None, "event",
+                                     self._event(device, "session-event", _SESSION_KIND[e.kind], e.session_id, None),
+                                     e.session_id))
                         if e.kind == "START":
                             spans.append([e.at, None, e.session_id])
                         else:
                             open_span = next(sp for sp in spans if sp[2] == e.session_id and sp[1] is None)
                             open_span[1] = e.at
                     else:
-                        rows.append((device, "fault-event", e.at, e.at,
-                                     f"{_FAULT_KIND[e.kind]} {e.session_id or '-'}", "event", e.session_id))
-                cuts = {t for sp in spans for t in sp[:2] if t is not None and day_start < t < day_start + timedelta(days=1)}
+                        if e.kind == "FAULT":
+                            self._episodes[device] = self._episodes.get(device, 0) + 1
+                        rows.append((device, "fault-event", e.at, e.at, None, "event",
+                                     self._event(device, "fault-event", _FAULT_KIND[e.kind], e.session_id,
+                                                 ["fault", self._episodes.get(device, 0)]), e.session_id))
+                cuts = {t for sp in spans for t in sp[:2] if t is not None and day_start < t < day_end}
                 cuts_all |= cuts
 
                 def energy(t: datetime) -> Fraction:
@@ -467,34 +472,47 @@ class EvSiteRun:
                     return Fraction(per[name][i]["energy_kwh"]) if i < len(minutes) else closing[name].energy_kwh
 
                 slot = day_start
-                while slot < day_start + timedelta(days=1):
+                while slot < day_end:
                     for a, b in _split(slot, slot + SLOT, cuts):
                         for s0, s1, session in spans:
                             if s0 <= a and (s1 is None or b <= s1):
                                 rows.append((device, "energy", a, b, _milli(energy(b)) - _milli(energy(a)), "kWh",
-                                             session))
+                                             None, session))
                         ia, ib = int((a - day_start) / STEP), int((b - day_start) / STEP)
                         for channel, key in _MEANS:
                             mean = sum((Fraction(per[name][i][key]) for i in range(ia, ib)), Fraction(0)) / (ib - ia)
-                            rows.append((device, channel, a, b, mean, "kW", per[name][ia]["session_id"]))
+                            rows.append((device, channel, a, b, mean, "kW", None, per[name][ia]["session_id"]))
                     slot += SLOT
                 self._spans[(k, name)] = [sp for sp in spans if sp[1] is None]
             self._docs[k], self._events[k] = [], []
         slot = day_start
-        while slot < day_start + timedelta(days=1):
+        while slot < day_end:
             for a, b in _split(slot, slot + SLOT, cuts_all):
                 mean = sum((self._import.get(t, Fraction(0)) for t in minutes[int((a - day_start) / STEP):
                                                                            int((b - day_start) / STEP)]),
                            Fraction(0)) / int((b - a) / STEP)
-                rows.append((SITE_METER, "import", a, b, mean, "kW", None))
+                rows.append((SITE_METER, "import", a, b, mean, "kW", None, None))
             slot += SLOT
         shift = self._clock.get(day)
         out = []
         for row in rows:
-            device, signal, a, b, value, unit, session = row
+            device, signal, a, b, value, unit, event, session = row
             if shift is not None and session is not None and device.startswith(f"{self.chargers[shift[0]]['id']}-"):
                 a, b = a + shift[1], b + shift[1]
-            out.append((device, signal, a, b, value, unit))
+            out.append((device, signal, a, b, value, unit, event))
+        return out
+
+    def _event(self, device: str, signal: str, kind: str, session: str | None, correlation: list | None) -> dict:
+        """D-DD.91's EVENT fields (ids formed at sealing), plus `session_id` and `connector_id` where the pack gives
+        them (D-DD.123); `ordinal` is one-based per channel, continuous over the span."""
+        record_kind, outcome = kind.split()
+        key = (device, signal)
+        self._ordinals[key] = self._ordinals.get(key, 0) + 1
+        out = {"record_kind": record_kind, "outcome": outcome, "actor": "CONTROLLER", "component_id": device,
+               "ordinal": self._ordinals[key], "correlation": None if session is not None else correlation}
+        if session is not None:
+            out["session_id"] = session
+            out["connector_id"] = device
         return out
 
     # -- the protocol (D-DD.81) ---------------------------------------------------------------------------------------
@@ -511,14 +529,15 @@ class EvSiteRun:
         self._events = [[] for _ in self.chargers]
         day = self.days[self.advanced]
         day_start = self._utc(day)
+        day_end = min(day_start + timedelta(days=1), self.end)  # the span's end instant (D-DD.103)
         t = day_start
         try:
-            while t < day_start + timedelta(days=1):
+            while t < day_end:
                 self._minute(t)
                 t += STEP
         except PhysicallyUnacceptable as exc:
             raise _refuse("TEL_PACK", f"{self.code} {day.isoformat()} {exc}") from exc
-        self._records[day] = self._rows(day, day_start)
+        self._records[day] = self._rows(day, day_start, day_end)
         self.advanced += 1
         return day
 
@@ -526,7 +545,7 @@ class EvSiteRun:
         """The day's pack rows `(device_id, signal_id, start, end, value, unit)`, UTC instants, exact values."""
         if day not in self._records:
             raise _refuse("TEL_EVENT_UNPLACED", f"{self.code} {day.isoformat()} is not advanced")
-        return sorted(self._records[day], key=lambda r: (r[2], r[3], r[0], r[1]))
+        return sorted(self._records[day], key=lambda r: (r[2], r[3], r[0], r[1], r[6]["ordinal"] if r[6] else 0))
 
     def conditions(self) -> list[dict]:
         return list(self._conditions)
@@ -560,6 +579,52 @@ class EvSiteRun:
         return dict(self._charger_draw)
 
 
+# --- the EV books (D-DD.123) ------------------------------------------------------------------------------------------
+
+#: The depots' faults (`M`'s incident blocks are outside the view, as D-DD.120's cold events); `test_dd4_ev_join` pins
+#: them to `M`. Ruiru's instant within 6 Oct is the 14th bus's charge (pre-flight Q7, Assumed).
+EV_FAULTS: dict[str, tuple[dict, ...]] = {
+    "EV-KAS": ({"asset": "ch-k2", "at": "2026-11-01T23:40:00+03:00", "source": "M tenants.metro-bus.EV-KAS incident.fault"},),
+    "EV-RUI": ({"asset": "ch-r7-c2", "at": "2026-10-06T00:00:00+03:00",
+                "source": "M tenants.metro-bus.EV-RUI incident.fault (00:00 Assumed, DD4b-preflight Q7)"},),
+}
+#: CLOCK-1 (`M` `disorder_tests`, pre-flight Q12): the third charger in declared order, 4 minutes fast, on 15 Oct.
+EV_CLOCK: dict[str, tuple[dict, ...]] = {
+    "EV-EMB": ({"charger": 3, "day": "2026-10-15", "minutes": 4, "source": "M disorder_tests CLOCK-1"},)}
+ROSTER_KEY = "profile.ev-fleet-roster"
+
+
+def ev_roster_files(view: dict, history: dict, records) -> list:
+    """Each EV tenant's roster `ExportFile`, from the same function the `exports` command runs (as D-DD.119's ledger)."""
+    from .exports_ev import build_ev_exports
+
+    out = []
+    for tenant in view["tenants"]:
+        if tenant.get("vertical") == "EV_DEPOT":
+            out += [f for f in build_ev_exports(view, history, records, tenant).files if f.key == ROSTER_KEY]
+    return out
+
+
+def ev_books_for(view: dict, rosters: list) -> dict[str, dict]:
+    """Per EV Site code: its roster rows, plug-in practice (Embakasi), faults, CLOCK-1 and TARIFF_SCHEDULE records."""
+    from .tariffs import tariff_schedules
+
+    schedules = tariff_schedules(view)
+    rows = [r for f in rosters for r in f.records]
+    out: dict[str, dict] = {}
+    for tenant in view["tenants"]:
+        if tenant.get("vertical") != "EV_DEPOT":
+            continue
+        tariffs = schedules.get(tenant["tenant"], {}).get("records", [])
+        for site in tenant["sites"]:
+            code = site["code"]
+            out[code] = {"roster": [r for r in rows if r["site_code"] == code],
+                         "practice": dict(PRACTICE) if code == "EV-EMB" else {},
+                         "faults": list(EV_FAULTS.get(code, ())), "clock": list(EV_CLOCK.get(code, ())),
+                         "tariffs": [t for t in tariffs if t["site_code"] == code]}
+    return out
+
+
 def _decimal(value: Fraction) -> str:
     """REQUEST_KW text: exact decimal when it terminates, else the exact fraction (the pack parses both)."""
     if value.denominator == 1:
@@ -573,4 +638,5 @@ def _split(start: datetime, end: datetime, cuts: set[datetime]) -> list[tuple[da
     return list(zip(points, points[1:]))
 
 
-__all__ = ["EvSiteRun", "PRACTICE", "round_half_even"]
+__all__ = ["EvSiteRun", "EV_CLOCK", "EV_FAULTS", "PRACTICE", "ROSTER_KEY", "ev_books_for", "ev_roster_files",
+           "round_half_even"]

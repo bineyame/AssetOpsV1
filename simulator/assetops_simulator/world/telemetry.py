@@ -670,7 +670,7 @@ def day_file(site: dict, day: date, rows: list[dict]) -> bytes:
 #: D-DD.81: a Site's pack family, by its binding role set's family (the role set's name before its version).
 PACK_FAMILIES = {"minigrid-roles": "mini-grid", "cold-roles": "cold-thermal", "ev-roles": "ev-charger"}
 #: The vertical pack each family's run drives (model, version), written in its readings manifest.
-VERTICAL_PACKS = {"cold-thermal": ("cold-thermal", 2)}
+VERTICAL_PACKS = {"cold-thermal": ("cold-thermal", 2), "ev-charger": ("ev-charger", 1)}
 
 
 def pack_family(site: dict) -> str | None:
@@ -690,15 +690,21 @@ class VerticalBinding:
             if key in self.rows_by_channel:
                 raise TelemetryRefused("TEL_BINDING", f"{self.code} {key[0]}/{key[1]} has two binding rows")
             self.rows_by_channel[key] = row
+        # D-DD.123: a run that names a channel by its bound asset (EV: `ch-k1-c1`, `site-meter`) resolves through the
+        # binding's `asset_code` when no binding row's `device_id` carries that name; an asset bound twice refuses.
+        self.by_asset: dict[tuple[str, str], dict | None] = {}
+        for row in site["bindings"]:
+            key = (row["asset_code"], row["signal_id"])
+            self.by_asset[key] = None if key in self.by_asset else row
         self.used: set[tuple[str, str]] = set()
 
     def rows(self, pack_rows: list[tuple]) -> list[dict]:
         out = []
         for device, signal, start, end, value, unit, event in pack_rows:
-            binding = self.rows_by_channel.get((device, signal))
+            binding = self.rows_by_channel.get((device, signal)) or self.by_asset.get((device, signal))
             if binding is None:
                 raise TelemetryRefused("TEL_BINDING", f"{self.code} {device}/{signal} has no binding row")
-            self.used.add((device, signal))
+            self.used.add((binding["device_id"], binding["signal_id"]))
             row = {"source_id": binding["device_id"], "signal_id": binding["signal_id"],
                    "start": start.astimezone(self.zone).isoformat(), "end": end.astimezone(self.zone).isoformat()}
             if event is not None:
@@ -769,9 +775,7 @@ def build_telemetry(view: dict, sites: dict, decided_books: dict, *, start: str,
 
 def _vertical(site: dict, family: str, books: dict, start: str, end: str, manifests: list) -> list[tuple[str, bytes]]:
     """A vertical Site's run (D-DD.81): its pack rows bound, rounded and written by this frame, a day at a time."""
-    from .telemetry_cold import ColdSiteRun
-
-    run = ColdSiteRun(site, books, start, end)
+    run = _vertical_runs()[family](site, books, start, end)
     binding = VerticalBinding(site)
     files, digests = [], {}
     for day in run.days:
@@ -897,3 +901,18 @@ def measured_for(slug: str, runs: list[SiteRun]) -> dict:
             months[run.days[-1].strftime("%Y-%m")]["partial_to"] = end.isoformat()
         sites[run.code] = months
     return {"schema": "assetops.world-measured/1", "tenant": slug, "sites": sites}
+
+
+def _vertical_runs() -> dict:
+    """D-DD.123 `VERTICAL_RUNS`: the run class of each vertical family, one table. Read through the module's
+    `__getattr__` because the vertical modules import this frame."""
+    from .telemetry_cold import ColdSiteRun
+    from .telemetry_ev import EvSiteRun
+
+    return {"cold-thermal": ColdSiteRun, "ev-charger": EvSiteRun}
+
+
+def __getattr__(name: str):
+    if name == "VERTICAL_RUNS":
+        return _vertical_runs()
+    raise AttributeError(name)

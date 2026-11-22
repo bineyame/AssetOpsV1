@@ -140,12 +140,10 @@ def test_event_rows_carry_the_v4_event_fields_and_ties_keep_the_packs_order(thik
     assert keys == sorted(keys)
 
 
-def test_an_ev_depot_is_not_written_yet() -> None:
+def test_an_ev_depot_is_a_vertical_run() -> None:
+    """D-DD.123: the EV depot is written by `EvSiteRun` behind this frame (`test_dd4_ev_join` writes its days)."""
     depot = next(s for s in _sites("metro-bus", ("EV-EMB",))["sites"])
-    result = tel.build_telemetry({}, {"sites": [depot]}, {}, start="2026-07-01", end="2026-07-01")
-    assert result.files == ()
-    assert dict(result.manifests)[f"metro-bus/telemetry/{depot['code']}.manifest.json"]["not_written"].startswith(
-        "TEL_PACK")
+    assert tel.pack_family(depot) == "ev-charger" and tel.VERTICAL_PACKS["ev-charger"] == ("ev-charger", 1)
 
 
 @pytest.mark.parametrize("edit", ["drop", "unit"])
