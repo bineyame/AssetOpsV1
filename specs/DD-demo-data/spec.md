@@ -1,6 +1,6 @@
 # DD: the demo data (implementer spec)
 
-Status: **rev 2, 2026-11-22**: the combined handshake (`handshake.md`, R1-R10, I1-I15) is answered there under "Answers
+Status: **rev 2, 2026-11-22; DD1 in_review (`packet-DD1.md`)**: the combined handshake (`handshake.md`, R1-R10, I1-I15) is answered there under "Answers
 (Architect)" and ruled in `rulings.md` (D-DD.17 to D-DD.34). Rev 1 (same day) had 19.5 u in four parts; rev 2 has
 **30.0 u in six parts** (§7); restated by D-DD.44 to **33.0 u in seven parts** (DD3 splits into DD3a, DD3b). Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
 it grounded on the product goals"); owner answers to Q1-Q6: `owner/owner-demo-data-answers-2026-11-22.md`. Owner words on

@@ -1,0 +1,229 @@
+{
+  "format": "assetops.operator-onboarding/1",
+  "data": "emulated",
+  "operator": {
+    "slug": "lakeside-power",
+    "name": "Lakeside Power",
+    "vertical": "MINI_GRID"
+  },
+  "sites": [
+    {
+      "code": "KISIWA-001",
+      "name": "Kisiwa mini-grid",
+      "timezone": "Africa/Nairobi",
+      "country": "Kenya",
+      "locality": "Kisiwa",
+      "lifecycle": "ACTIVE",
+      "valid_from": "2026-07-01T00:00:00Z",
+      "components": [
+        {
+          "id": "pv-array",
+          "type": "PV_ARRAY",
+          "name": "PV array",
+          "rating": {
+            "value": 30.0,
+            "unit": "kW"
+          }
+        },
+        {
+          "id": "battery",
+          "type": "BATTERY",
+          "name": "Battery",
+          "rating": {
+            "value": 80.0,
+            "unit": "kWh"
+          }
+        },
+        {
+          "id": "gen-ks-01",
+          "type": "GENERATOR",
+          "name": "Generator 1",
+          "rating": {
+            "value": 60.0,
+            "unit": "kW"
+          }
+        },
+        {
+          "id": "gen-ks-02",
+          "type": "GENERATOR",
+          "name": "Generator 2",
+          "rating": {
+            "value": 60.0,
+            "unit": "kW"
+          }
+        }
+      ]
+    },
+    {
+      "code": "KOBO-001",
+      "name": "Kobo mini-grid",
+      "timezone": "Africa/Nairobi",
+      "country": "Kenya",
+      "locality": "Kobo",
+      "lifecycle": "ACTIVE",
+      "valid_from": "2026-07-01T00:00:00Z",
+      "components": [
+        {
+          "id": "pv-array",
+          "type": "PV_ARRAY",
+          "name": "PV array",
+          "rating": {
+            "value": 60.0,
+            "unit": "kW"
+          }
+        },
+        {
+          "id": "inverter",
+          "type": "INVERTER",
+          "name": "Inverter",
+          "rating": {
+            "value": 50.0,
+            "unit": "kW"
+          }
+        },
+        {
+          "id": "battery",
+          "type": "BATTERY",
+          "name": "Battery",
+          "rating": {
+            "value": 200.0,
+            "unit": "kWh"
+          }
+        },
+        {
+          "id": "generator",
+          "type": "GENERATOR",
+          "name": "Generator",
+          "rating": {
+            "value": 40.0,
+            "unit": "kW"
+          }
+        }
+      ]
+    },
+    {
+      "code": "MTO-001",
+      "name": "Mto mini-grid",
+      "timezone": "Africa/Nairobi",
+      "country": "Kenya",
+      "locality": "Mto",
+      "lifecycle": "ACTIVE",
+      "valid_from": "2026-07-01T00:00:00Z",
+      "components": [
+        {
+          "id": "pv-array",
+          "type": "PV_ARRAY",
+          "name": "PV array",
+          "rating": {
+            "value": 50.0,
+            "unit": "kW"
+          }
+        },
+        {
+          "id": "inv-mt-01",
+          "type": "INVERTER",
+          "name": "Inverter 1",
+          "rating": {
+            "value": 25.0,
+            "unit": "kW"
+          }
+        },
+        {
+          "id": "inv-mt-02",
+          "type": "INVERTER",
+          "name": "Inverter 2",
+          "rating": {
+            "value": 25.0,
+            "unit": "kW"
+          }
+        },
+        {
+          "id": "battery",
+          "type": "BATTERY",
+          "name": "Battery",
+          "rating": {
+            "value": 150.0,
+            "unit": "kWh"
+          }
+        },
+        {
+          "id": "generator",
+          "type": "GENERATOR",
+          "name": "Generator",
+          "rating": {
+            "value": 30.0,
+            "unit": "kW"
+          }
+        }
+      ]
+    }
+  ],
+  "people": [
+    {
+      "email": "amina@lakeside-power.example",
+      "name": "Amina",
+      "roles": [
+        {
+          "role": "OPERATOR_EXECUTIVE"
+        }
+      ]
+    },
+    {
+      "email": "joseph@lakeside-power.example",
+      "name": "Joseph",
+      "roles": [
+        {
+          "role": "FINANCE_AND_COMMERCIAL_LEAD"
+        }
+      ]
+    },
+    {
+      "email": "wanjiru@lakeside-power.example",
+      "name": "Wanjiru",
+      "roles": [
+        {
+          "role": "ANALYST"
+        }
+      ]
+    },
+    {
+      "email": "peter@lakeside-power.example",
+      "name": "Peter",
+      "roles": [
+        {
+          "role": "SITE_MANAGER",
+          "site": "KOBO-001"
+        }
+      ]
+    },
+    {
+      "email": "halima@lakeside-power.example",
+      "name": "Halima",
+      "roles": [
+        {
+          "role": "SITE_MANAGER",
+          "site": "KISIWA-001"
+        }
+      ]
+    },
+    {
+      "email": "david@lakeside-power.example",
+      "name": "David",
+      "roles": [
+        {
+          "role": "SITE_MANAGER",
+          "site": "MTO-001"
+        }
+      ]
+    },
+    {
+      "email": "musa@lakeside-power.example",
+      "name": "Musa",
+      "roles": [
+        {
+          "role": "FIELD_TECHNICIAN"
+        }
+      ]
+    }
+  ]
+}

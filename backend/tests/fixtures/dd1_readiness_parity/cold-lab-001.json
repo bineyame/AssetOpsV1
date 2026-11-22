@@ -1,0 +1,411 @@
+{
+ "binding_set_revision_id": "uuid-1",
+ "channels": [
+  {
+   "binding_revision_id": "uuid-2",
+   "device_id": "chamber-probe",
+   "display_name": "Chamber temperature",
+   "role": "chamber_temperature",
+   "signal_id": "temperature",
+   "source_id": "uuid-3",
+   "status": "BOUND",
+   "unit": "degC"
+  },
+  {
+   "binding_revision_id": "uuid-4",
+   "device_id": "ambient-probe",
+   "display_name": "Ambient temperature",
+   "role": "ambient_temperature",
+   "signal_id": "temperature",
+   "source_id": "uuid-5",
+   "status": "BOUND",
+   "unit": "degC"
+  },
+  {
+   "binding_revision_id": "uuid-6",
+   "device_id": "grid-meter",
+   "display_name": "Grid state",
+   "role": "grid_state",
+   "signal_id": "state",
+   "source_id": "uuid-7",
+   "status": "BOUND",
+   "unit": "state"
+  },
+  {
+   "binding_revision_id": "uuid-8",
+   "device_id": "grid-meter",
+   "display_name": "Grid power events",
+   "role": "grid_power_event",
+   "signal_id": "event",
+   "source_id": "uuid-7",
+   "status": "BOUND",
+   "unit": "event"
+  },
+  {
+   "binding_revision_id": "uuid-9",
+   "device_id": "generator-controller",
+   "display_name": "Generator state",
+   "role": "generator_state",
+   "signal_id": "state",
+   "source_id": "uuid-10",
+   "status": "BOUND",
+   "unit": "state"
+  },
+  {
+   "binding_revision_id": "uuid-11",
+   "device_id": "generator-controller",
+   "display_name": "Generator start request and result",
+   "role": "backup_start_event",
+   "signal_id": "start-event",
+   "source_id": "uuid-10",
+   "status": "BOUND",
+   "unit": "event"
+  },
+  {
+   "binding_revision_id": "uuid-12",
+   "device_id": "compressor-controller",
+   "display_name": "Compressor state",
+   "role": "compressor_state",
+   "signal_id": "state",
+   "source_id": "uuid-13",
+   "status": "BOUND",
+   "unit": "state"
+  },
+  {
+   "binding_revision_id": "uuid-14",
+   "device_id": "compressor-meter",
+   "display_name": "Compressor power",
+   "role": "compressor_power",
+   "signal_id": "power",
+   "source_id": "uuid-15",
+   "status": "BOUND",
+   "unit": "kW"
+  },
+  {
+   "binding_revision_id": "uuid-16",
+   "device_id": "backup-bus-meter",
+   "display_name": "Backup bus state",
+   "role": "backup_bus_state",
+   "signal_id": "state",
+   "source_id": "uuid-17",
+   "status": "BOUND",
+   "unit": "state"
+  },
+  {
+   "binding_revision_id": "uuid-18",
+   "device_id": "transfer-controller",
+   "display_name": "Transfer result",
+   "role": "transfer_result",
+   "signal_id": "event",
+   "source_id": "uuid-19",
+   "status": "BOUND",
+   "unit": "event"
+  },
+  {
+   "binding_revision_id": "uuid-20",
+   "device_id": "door-sensor",
+   "display_name": "Door open and close",
+   "role": "door_event",
+   "signal_id": "event",
+   "source_id": "uuid-21",
+   "status": "BOUND",
+   "unit": "event"
+  }
+ ],
+ "foundation_gaps": [
+  {
+   "code": "SITE_TYPE_UNSUPPORTED",
+   "message": "Site type 'COLDCHAIN' is not MINIGRID.",
+   "subject": "site"
+  },
+  {
+   "code": "COMPONENT_MISSING",
+   "message": "No PV array component is declared.",
+   "subject": "PV_ARRAY"
+  },
+  {
+   "code": "COMPONENT_MISSING",
+   "message": "No battery component is declared.",
+   "subject": "BATTERY"
+  },
+  {
+   "code": "COMPONENT_MISSING",
+   "message": "No battery power conversion system component is declared.",
+   "subject": "POWER_CONVERSION_SYSTEM"
+  },
+  {
+   "code": "COMPONENT_MISSING",
+   "message": "No fuel tank component is declared.",
+   "subject": "FUEL_TANK"
+  },
+  {
+   "code": "COMPONENT_RATING_MISSING",
+   "message": "Backup AC bus declares no rating.",
+   "subject": "bus-1"
+  },
+  {
+   "code": "COMPONENT_MISSING",
+   "message": "No declared load component is declared.",
+   "subject": "LOAD"
+  },
+  {
+   "code": "AC_BUS_PATH_MISSING",
+   "message": "Node 'ambient-1' has no path to the AC bus.",
+   "subject": "ambient-1"
+  },
+  {
+   "code": "BATTERY_RESERVE_MISSING",
+   "message": "The battery declares no reserve state of charge.",
+   "subject": "battery"
+  },
+  {
+   "code": "SITE_CONTROL_MISSING",
+   "message": "The Site Control 'source-priority' is not declared.",
+   "subject": "source-priority"
+  },
+  {
+   "code": "SITE_CONTROL_MISSING",
+   "message": "The Site Control 'critical-load-priority' is not declared.",
+   "subject": "critical-load-priority"
+  }
+ ],
+ "foundation_revision_id": "uuid-22",
+ "missing_roles": [
+  "Temperature policy low",
+  "Temperature policy high"
+ ],
+ "role_set": "cold-roles-1",
+ "roles": [
+  {
+   "canonical_unit": "degC",
+   "covered_by": "CHANNEL",
+   "label": "Chamber temperature",
+   "required": true,
+   "role": "chamber_temperature",
+   "status": "CONFIGURED",
+   "subjects": [
+    {
+     "asset_code": "probe-1",
+     "asset_id": "uuid-23",
+     "binding_revision_ids": [
+      "uuid-2"
+     ],
+     "status": "CONFIGURED"
+    }
+   ]
+  },
+  {
+   "canonical_unit": "degC",
+   "covered_by": "FOUNDATION_CONTROL",
+   "detail": "Foundation v1 declares no battery reserve.",
+   "foundation_revision_id": "uuid-22",
+   "label": "Temperature policy low",
+   "required": true,
+   "role": "cold_policy_low",
+   "status": "NOT_CONFIGURED",
+   "subjects": []
+  },
+  {
+   "canonical_unit": "degC",
+   "covered_by": "FOUNDATION_CONTROL",
+   "detail": "Foundation v1 declares no battery reserve.",
+   "foundation_revision_id": "uuid-22",
+   "label": "Temperature policy high",
+   "required": true,
+   "role": "cold_policy_high",
+   "status": "NOT_CONFIGURED",
+   "subjects": []
+  },
+  {
+   "canonical_unit": "state",
+   "covered_by": "CHANNEL",
+   "label": "Compressor state",
+   "required": true,
+   "role": "compressor_state",
+   "status": "CONFIGURED",
+   "subjects": [
+    {
+     "asset_code": "compressor-1",
+     "asset_id": "uuid-24",
+     "binding_revision_ids": [
+      "uuid-12"
+     ],
+     "status": "CONFIGURED"
+    }
+   ]
+  },
+  {
+   "canonical_unit": "kW",
+   "covered_by": "CHANNEL",
+   "label": "Compressor power",
+   "required": false,
+   "role": "compressor_power",
+   "status": "CONFIGURED",
+   "subjects": [
+    {
+     "asset_code": "compressor-1",
+     "asset_id": "uuid-24",
+     "binding_revision_ids": [
+      "uuid-14"
+     ],
+     "status": "CONFIGURED"
+    }
+   ]
+  },
+  {
+   "canonical_unit": "state",
+   "covered_by": "CHANNEL",
+   "label": "Grid state",
+   "required": true,
+   "role": "grid_state",
+   "status": "CONFIGURED",
+   "subjects": [
+    {
+     "asset_code": "grid-1",
+     "asset_id": "uuid-25",
+     "binding_revision_ids": [
+      "uuid-6"
+     ],
+     "status": "CONFIGURED"
+    }
+   ]
+  },
+  {
+   "canonical_unit": "event",
+   "covered_by": "CHANNEL",
+   "label": "Generator start request and result",
+   "required": true,
+   "role": "backup_start_event",
+   "status": "CONFIGURED",
+   "subjects": [
+    {
+     "asset_code": "generator-1",
+     "asset_id": "uuid-26",
+     "binding_revision_ids": [
+      "uuid-11"
+     ],
+     "status": "CONFIGURED"
+    }
+   ]
+  },
+  {
+   "canonical_unit": "state",
+   "covered_by": "CHANNEL",
+   "label": "Generator state",
+   "required": true,
+   "role": "generator_state",
+   "status": "CONFIGURED",
+   "subjects": [
+    {
+     "asset_code": "generator-1",
+     "asset_id": "uuid-26",
+     "binding_revision_ids": [
+      "uuid-9"
+     ],
+     "status": "CONFIGURED"
+    }
+   ]
+  },
+  {
+   "canonical_unit": "state",
+   "covered_by": "CHANNEL",
+   "label": "Backup bus state",
+   "required": true,
+   "role": "backup_bus_state",
+   "status": "CONFIGURED",
+   "subjects": [
+    {
+     "asset_code": "bus-1",
+     "asset_id": "uuid-27",
+     "binding_revision_ids": [
+      "uuid-16"
+     ],
+     "status": "CONFIGURED"
+    }
+   ]
+  },
+  {
+   "canonical_unit": "event",
+   "covered_by": "CHANNEL",
+   "label": "Grid power loss and restoration",
+   "required": true,
+   "role": "grid_power_event",
+   "status": "CONFIGURED",
+   "subjects": [
+    {
+     "asset_code": "grid-1",
+     "asset_id": "uuid-25",
+     "binding_revision_ids": [
+      "uuid-8"
+     ],
+     "status": "CONFIGURED"
+    }
+   ]
+  },
+  {
+   "canonical_unit": "event",
+   "covered_by": "CHANNEL",
+   "label": "Transfer result",
+   "required": false,
+   "role": "transfer_result",
+   "status": "CONFIGURED",
+   "subjects": [
+    {
+     "asset_code": "transfer-1",
+     "asset_id": "uuid-28",
+     "binding_revision_ids": [
+      "uuid-18"
+     ],
+     "status": "CONFIGURED"
+    }
+   ]
+  },
+  {
+   "canonical_unit": "event",
+   "covered_by": "CHANNEL",
+   "label": "Door open and close",
+   "required": false,
+   "role": "door_event",
+   "status": "CONFIGURED",
+   "subjects": [
+    {
+     "asset_code": "room-1",
+     "asset_id": "uuid-29",
+     "binding_revision_ids": [
+      "uuid-20"
+     ],
+     "status": "CONFIGURED"
+    }
+   ]
+  },
+  {
+   "canonical_unit": "degC",
+   "covered_by": "CHANNEL",
+   "label": "Ambient temperature",
+   "required": false,
+   "role": "ambient_temperature",
+   "status": "CONFIGURED",
+   "subjects": [
+    {
+     "asset_code": "ambient-1",
+     "asset_id": "uuid-30",
+     "binding_revision_ids": [
+      "uuid-4"
+     ],
+     "status": "CONFIGURED"
+    }
+   ]
+  },
+  {
+   "canonical_unit": "degC",
+   "covered_by": "CHANNEL",
+   "label": "Manual temperature log",
+   "required": false,
+   "role": "manual_temperature",
+   "status": "UNBOUND",
+   "subjects": []
+  }
+ ],
+ "state": "INCOMPLETE",
+ "statement": "Set up to report means this configuration links a reading channel or names a configured control for every required role, and the Foundation shown has no configuration gap. It does not mean any device is connected, reporting or healthy; operational status is not assessed here."
+}

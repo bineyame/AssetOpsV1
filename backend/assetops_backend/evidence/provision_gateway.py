@@ -43,7 +43,7 @@ import sys
 from datetime import datetime, timezone
 from typing import Sequence
 
-from assetops_backend.config import DEVELOPMENT_TENANT_SLUG, database_url
+from assetops_backend.config import ConfigurationError, database_url, served_tenant_slug
 from assetops_backend.evidence.composition import (
     CredentialFileRefused,
     build_gateway_access,
@@ -68,8 +68,14 @@ def main(argv: Sequence[str] | None = None, *, store=None, now=None) -> int:
     parser.add_argument("--cadence-seconds", type=int)
     parser.add_argument("--actor", default=os.environ.get("USERNAME") or os.environ.get("USER") or "operator")
     args = parser.parse_args(argv)
-    if args.tenant != DEVELOPMENT_TENANT_SLUG:
-        print(f"Tenant {args.tenant!r} is not the configured development tenant.", file=sys.stderr)
+    try:
+        served = served_tenant_slug()
+    except ConfigurationError as error:  # D-DD.35: before any store is built
+        print(str(error), file=sys.stderr)
+        return 2
+    if args.tenant != served:
+        print(f"Tenant {args.tenant!r} is not the tenant this environment serves "
+              '(ASSETOPS_TENANT_SLUG; unset means "demo").', file=sys.stderr)
         return 2
     access = build_gateway_access(database_url()) if store is None else store
     at = now or datetime.now(timezone.utc)

@@ -67,7 +67,10 @@ RATING_KEYS = frozenset({"value", "unit"})
 # Bounds. A pathological document is refused rather than accepted: without
 # these, one shipped or later user-authored file can exhaust memory or fill a
 # screen with ten thousand rows.
-MAX_DOCUMENT_NODES = 2_000
+# D-DD.42: 10,000 nodes. A guard on parsing cost, not a product rule; the 256 KiB byte bound is the memory limit.
+# Basis: the largest real demo Site (Ruiru) is 6,623 nodes and 73 devices, so 10,000 and 96 leave about 1.5x and 1.3x;
+# the ceiling stays above the device cap (96).
+MAX_DOCUMENT_NODES = 10_000
 MAX_DOCUMENT_TEXT_LENGTH = 64_000
 MAX_NESTING_DEPTH = 8
 MAX_COMPONENTS = 64

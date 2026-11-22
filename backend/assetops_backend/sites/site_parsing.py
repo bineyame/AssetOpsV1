@@ -94,7 +94,7 @@ RATING_KEYS = frozenset({"value", "unit"})
 # index with rows nobody can scroll past, and an index that cannot be opened
 # is worse than a create that was refused.
 SITE_DOCUMENT_LIMITS = DocumentLimits(
-    max_nodes=2_000,
+    max_nodes=10_000,  # D-DD.42: parsing-cost guard; basis Ruiru, 6,623 nodes (1.5x); the 256 KiB byte bound is the memory limit
     max_text_length=64_000,
     max_nesting_depth=8,
 )

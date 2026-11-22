@@ -1,0 +1,419 @@
+{
+ "binding_set_revision_id": "uuid-1",
+ "channels": [
+  {
+   "binding_revision_id": "uuid-2",
+   "device_id": "c1-charger-controller",
+   "display_name": "Connector 1 charging sessions",
+   "role": "ev_session_event",
+   "signal_id": "session-event",
+   "source_id": "uuid-3",
+   "status": "BOUND",
+   "unit": "event"
+  },
+  {
+   "binding_revision_id": "uuid-4",
+   "device_id": "c1-connector-controller",
+   "display_name": "Connector 1 faults",
+   "role": "ev_connector_fault",
+   "signal_id": "fault-event",
+   "source_id": "uuid-5",
+   "status": "BOUND",
+   "unit": "event"
+  },
+  {
+   "binding_revision_id": "uuid-6",
+   "device_id": "c1-connector-controller",
+   "display_name": "Connector 1 state",
+   "role": "ev_connector_state",
+   "signal_id": "state",
+   "source_id": "uuid-5",
+   "status": "BOUND",
+   "unit": "state"
+  },
+  {
+   "binding_revision_id": "uuid-7",
+   "device_id": "c1-connector-controller",
+   "display_name": "Connector 1 requested power",
+   "role": "ev_requested_power",
+   "signal_id": "requested-power",
+   "source_id": "uuid-5",
+   "status": "BOUND",
+   "unit": "kW"
+  },
+  {
+   "binding_revision_id": "uuid-8",
+   "device_id": "c1-connector-controller",
+   "display_name": "Connector 1 allocated limit",
+   "role": "ev_allocated_limit",
+   "signal_id": "allocated-limit",
+   "source_id": "uuid-5",
+   "status": "BOUND",
+   "unit": "kW"
+  },
+  {
+   "binding_revision_id": "uuid-9",
+   "device_id": "c1-connector-meter",
+   "display_name": "Connector 1 energy",
+   "role": "ev_connector_energy",
+   "signal_id": "energy",
+   "source_id": "uuid-10",
+   "status": "BOUND",
+   "unit": "kWh"
+  },
+  {
+   "binding_revision_id": "uuid-11",
+   "device_id": "c1-connector-meter",
+   "display_name": "Connector 1 power",
+   "role": "ev_connector_power",
+   "signal_id": "power",
+   "source_id": "uuid-10",
+   "status": "BOUND",
+   "unit": "kW"
+  },
+  {
+   "binding_revision_id": "uuid-12",
+   "device_id": "c2-charger-controller",
+   "display_name": "Connector 2 charging sessions",
+   "role": "ev_session_event",
+   "signal_id": "session-event",
+   "source_id": "uuid-13",
+   "status": "BOUND",
+   "unit": "event"
+  },
+  {
+   "binding_revision_id": "uuid-14",
+   "device_id": "c2-connector-controller",
+   "display_name": "Connector 2 faults",
+   "role": "ev_connector_fault",
+   "signal_id": "fault-event",
+   "source_id": "uuid-15",
+   "status": "BOUND",
+   "unit": "event"
+  },
+  {
+   "binding_revision_id": "uuid-16",
+   "device_id": "c2-connector-controller",
+   "display_name": "Connector 2 state",
+   "role": "ev_connector_state",
+   "signal_id": "state",
+   "source_id": "uuid-15",
+   "status": "BOUND",
+   "unit": "state"
+  },
+  {
+   "binding_revision_id": "uuid-17",
+   "device_id": "c2-connector-controller",
+   "display_name": "Connector 2 requested power",
+   "role": "ev_requested_power",
+   "signal_id": "requested-power",
+   "source_id": "uuid-15",
+   "status": "BOUND",
+   "unit": "kW"
+  },
+  {
+   "binding_revision_id": "uuid-18",
+   "device_id": "c2-connector-controller",
+   "display_name": "Connector 2 allocated limit",
+   "role": "ev_allocated_limit",
+   "signal_id": "allocated-limit",
+   "source_id": "uuid-15",
+   "status": "BOUND",
+   "unit": "kW"
+  },
+  {
+   "binding_revision_id": "uuid-19",
+   "device_id": "c2-connector-meter",
+   "display_name": "Connector 2 energy",
+   "role": "ev_connector_energy",
+   "signal_id": "energy",
+   "source_id": "uuid-20",
+   "status": "BOUND",
+   "unit": "kWh"
+  },
+  {
+   "binding_revision_id": "uuid-21",
+   "device_id": "c2-connector-meter",
+   "display_name": "Connector 2 power",
+   "role": "ev_connector_power",
+   "signal_id": "power",
+   "source_id": "uuid-20",
+   "status": "BOUND",
+   "unit": "kW"
+  },
+  {
+   "binding_revision_id": "uuid-22",
+   "device_id": "site-meter",
+   "display_name": "Site import power",
+   "role": "ev_site_import",
+   "signal_id": "import",
+   "source_id": "uuid-23",
+   "status": "BOUND",
+   "unit": "kW"
+  }
+ ],
+ "foundation_gaps": [
+  {
+   "code": "SITE_TYPE_UNSUPPORTED",
+   "message": "Site type 'EV_CHARGING' is not MINIGRID.",
+   "subject": "site"
+  },
+  {
+   "code": "COMPONENT_MISSING",
+   "message": "No generator component is declared.",
+   "subject": "GENERATOR"
+  },
+  {
+   "code": "COMPONENT_MISSING",
+   "message": "No PV array component is declared.",
+   "subject": "PV_ARRAY"
+  },
+  {
+   "code": "COMPONENT_MISSING",
+   "message": "No battery component is declared.",
+   "subject": "BATTERY"
+  },
+  {
+   "code": "COMPONENT_MISSING",
+   "message": "No battery power conversion system component is declared.",
+   "subject": "POWER_CONVERSION_SYSTEM"
+  },
+  {
+   "code": "COMPONENT_MISSING",
+   "message": "No fuel tank component is declared.",
+   "subject": "FUEL_TANK"
+  },
+  {
+   "code": "COMPONENT_RATING_MISSING",
+   "message": "Site feed declares no rating.",
+   "subject": "feed-1"
+  },
+  {
+   "code": "COMPONENT_MISSING",
+   "message": "No declared load component is declared.",
+   "subject": "LOAD"
+  },
+  {
+   "code": "BATTERY_RESERVE_MISSING",
+   "message": "The battery declares no reserve state of charge.",
+   "subject": "battery"
+  },
+  {
+   "code": "SITE_CONTROL_MISSING",
+   "message": "The Site Control 'source-priority' is not declared.",
+   "subject": "source-priority"
+  },
+  {
+   "code": "SITE_CONTROL_MISSING",
+   "message": "The Site Control 'critical-load-priority' is not declared.",
+   "subject": "critical-load-priority"
+  }
+ ],
+ "foundation_revision_id": "uuid-24",
+ "missing_roles": [],
+ "role_set": "ev-roles-1",
+ "roles": [
+  {
+   "canonical_unit": "event",
+   "covered_by": "CHANNEL",
+   "label": "Charging session start and end",
+   "required": true,
+   "role": "ev_session_event",
+   "status": "CONFIGURED",
+   "subjects": [
+    {
+     "asset_code": "c1",
+     "asset_id": "uuid-25",
+     "binding_revision_ids": [
+      "uuid-2"
+     ],
+     "status": "CONFIGURED"
+    },
+    {
+     "asset_code": "c2",
+     "asset_id": "uuid-26",
+     "binding_revision_ids": [
+      "uuid-12"
+     ],
+     "status": "CONFIGURED"
+    }
+   ]
+  },
+  {
+   "canonical_unit": "event",
+   "covered_by": "CHANNEL",
+   "label": "Connector fault and clear",
+   "required": false,
+   "role": "ev_connector_fault",
+   "status": "CONFIGURED",
+   "subjects": [
+    {
+     "asset_code": "c1",
+     "asset_id": "uuid-25",
+     "binding_revision_ids": [
+      "uuid-4"
+     ],
+     "status": "CONFIGURED"
+    },
+    {
+     "asset_code": "c2",
+     "asset_id": "uuid-26",
+     "binding_revision_ids": [
+      "uuid-14"
+     ],
+     "status": "CONFIGURED"
+    }
+   ]
+  },
+  {
+   "canonical_unit": "state",
+   "covered_by": "CHANNEL",
+   "label": "Connector state",
+   "required": true,
+   "role": "ev_connector_state",
+   "status": "CONFIGURED",
+   "subjects": [
+    {
+     "asset_code": "c1",
+     "asset_id": "uuid-25",
+     "binding_revision_ids": [
+      "uuid-6"
+     ],
+     "status": "CONFIGURED"
+    },
+    {
+     "asset_code": "c2",
+     "asset_id": "uuid-26",
+     "binding_revision_ids": [
+      "uuid-16"
+     ],
+     "status": "CONFIGURED"
+    }
+   ]
+  },
+  {
+   "canonical_unit": "kWh",
+   "covered_by": "CHANNEL",
+   "label": "Connector energy",
+   "required": true,
+   "role": "ev_connector_energy",
+   "status": "CONFIGURED",
+   "subjects": [
+    {
+     "asset_code": "c1",
+     "asset_id": "uuid-25",
+     "binding_revision_ids": [
+      "uuid-9"
+     ],
+     "status": "CONFIGURED"
+    },
+    {
+     "asset_code": "c2",
+     "asset_id": "uuid-26",
+     "binding_revision_ids": [
+      "uuid-19"
+     ],
+     "status": "CONFIGURED"
+    }
+   ]
+  },
+  {
+   "canonical_unit": "kW",
+   "covered_by": "CHANNEL",
+   "label": "Connector power",
+   "required": false,
+   "role": "ev_connector_power",
+   "status": "CONFIGURED",
+   "subjects": [
+    {
+     "asset_code": "c1",
+     "asset_id": "uuid-25",
+     "binding_revision_ids": [
+      "uuid-11"
+     ],
+     "status": "CONFIGURED"
+    },
+    {
+     "asset_code": "c2",
+     "asset_id": "uuid-26",
+     "binding_revision_ids": [
+      "uuid-21"
+     ],
+     "status": "CONFIGURED"
+    }
+   ]
+  },
+  {
+   "canonical_unit": "kW",
+   "covered_by": "CHANNEL",
+   "label": "Site import power",
+   "required": false,
+   "role": "ev_site_import",
+   "status": "CONFIGURED",
+   "subjects": [
+    {
+     "asset_code": "site-meter-1",
+     "asset_id": "uuid-27",
+     "binding_revision_ids": [
+      "uuid-22"
+     ],
+     "status": "CONFIGURED"
+    }
+   ]
+  },
+  {
+   "canonical_unit": "kW",
+   "covered_by": "CHANNEL",
+   "label": "Requested power",
+   "required": false,
+   "role": "ev_requested_power",
+   "status": "CONFIGURED",
+   "subjects": [
+    {
+     "asset_code": "c1",
+     "asset_id": "uuid-25",
+     "binding_revision_ids": [
+      "uuid-7"
+     ],
+     "status": "CONFIGURED"
+    },
+    {
+     "asset_code": "c2",
+     "asset_id": "uuid-26",
+     "binding_revision_ids": [
+      "uuid-17"
+     ],
+     "status": "CONFIGURED"
+    }
+   ]
+  },
+  {
+   "canonical_unit": "kW",
+   "covered_by": "CHANNEL",
+   "label": "Allocated power limit",
+   "required": false,
+   "role": "ev_allocated_limit",
+   "status": "CONFIGURED",
+   "subjects": [
+    {
+     "asset_code": "c1",
+     "asset_id": "uuid-25",
+     "binding_revision_ids": [
+      "uuid-8"
+     ],
+     "status": "CONFIGURED"
+    },
+    {
+     "asset_code": "c2",
+     "asset_id": "uuid-26",
+     "binding_revision_ids": [
+      "uuid-18"
+     ],
+     "status": "CONFIGURED"
+    }
+   ]
+  }
+ ],
+ "state": "INCOMPLETE",
+ "statement": "Set up to report means this configuration links a reading channel or names a configured control for every required role, and the Foundation shown has no configuration gap. It does not mean any device is connected, reporting or healthy; operational status is not assessed here."
+}

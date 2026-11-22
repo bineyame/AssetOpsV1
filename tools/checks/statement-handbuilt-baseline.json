@@ -2421,7 +2421,6 @@
   "g:_timeline:f94616b96fc8"
  ],
  "backend/assetops_backend/evidence/provision_gateway.py": [
-  "a:main:1aa22b6d7a5f",
   "a:main:3148a711a278",
   "a:main:6b6f5ccbe4c1",
   "a:main:70da78ceb397",
@@ -2429,6 +2428,7 @@
   "a:main:87a8d3b7eb75",
   "a:main:910b3098bed1",
   "a:main:a3c8622efdc1",
+  "a:main:dcf25be71c66",
   "a:main:fc3143ee2cd1",
   "f:main:e14868fe59df",
   "f:main:f6406dd23219",
@@ -2441,7 +2441,8 @@
   "j:main:4fc10eb2e0ea",
   "j:main:4fc10eb2e0ea",
   "j:main:4fc10eb2e0ea",
-  "j:main:4fc10eb2e0ea"
+  "j:main:4fc10eb2e0ea",
+  "j:main:d0bac1208c82"
  ],
  "backend/assetops_backend/evidence/publication.py": [
   "a:_fixture_declared:1b443dd0ee40",
@@ -3299,7 +3300,7 @@
  ],
  "backend/assetops_backend/onboard_operator.py": [
   "e:_refuse:17b4c19a2fac",
-  "g:<module>:10b4ad3f82b6",
+  "g:<module>:046e4d1e53c5",
   "g:<module>:1948463c3374",
   "g:<module>:21002fe4a266",
   "g:<module>:2701b658ebc0",
@@ -3331,6 +3332,7 @@
   "g:<module>:d63fad454778",
   "g:<module>:de3914ef1538",
   "g:<module>:ebddb0e28ad1",
+  "j:_publish_and_enable:4fc10eb2e0ea",
   "j:_settings:d0bac1208c82"
  ],
  "backend/assetops_backend/onboarding/operator_file.py": [
