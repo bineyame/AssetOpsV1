@@ -116,6 +116,97 @@ their commands and shows the checker's first failing gate move G2 -> G3 -> G5 ->
 
 ## Rehearsal run (§5.1), 22 Nov
 
+Run 2026-11-21 23:41Z to 23:55Z (22 Nov, server-local). Database `assetops_rehearsal_ddr1_test`; key folder
+`/opt/assetecon/keys/assetops_rehearsal_ddr1_test` (mode 0700). **R = `bfe073171fbb31886473f5805c1454d9b4c5571c`**
+(`main`; alembic head `0071_person_on_actions`). Commands run from `/opt/assetecon/AssetOpsV1` (the checkout the venv's
+editable `assetops_backend` points at), every database step inside `tools/heavy-slot.sh --db --label ddr`; no `PG*`
+exported; nothing served. Logs: `/opt/assetecon/evidence/DDR-rehearsal/run-2026-11-22/` (one `<step>.log` each,
+`times.txt`, `coord-*.txt|log`).
+
+**Result: G9 FAIL (`SCREEN`, `$.cash.text`); G1-G8 and G10 PASS. The run stopped there (S12 is the last step).**
+
+### Steps (wall time is the command's own, inside the slot; exit)
+
+| Step | Runbook | Wall | Exit | Output (short) |
+|---|---|---|---|---|
+| Coord. 2 | create + `alembic upgrade head` | 451.3 s (mostly waiting for a heavy slot: both busy) | 0 | at head `0071_person_on_actions` |
+| Coord. 3 | `install -d -m 700 "$KEY_DIR"` | 0.01 s | 0 | mode 700 |
+| S1 digest | 4 | 0.36 s | 0 | 64-char digest |
+| S1 check | 4 | 1.27 s | 0 | plan; `roles_digest` = `DIGEST` |
+| S1 apply | 4 | 2.33 s | 0 | tenant id recorded (evidence `tenant-id.txt`) |
+| S1 set-password x3 | 4 | 2.60 s | 0 | one id per person |
+| S2 admit + list | 6 | 2.93 s | 0 | `ADMITTED`, `profile.ddr-board-budget.v1`, 16 rows; `admitted_by` = Wanjiru |
+| S3 write + replace | 7 | 0.96 s | 0 | billing, collections, expenses, board budget xlsx (+ `unwritten.json`) |
+| S4 load | 7 | 2.25 s | 0 | 4 uploads ACCEPTED (120, 113, 15, 16 records; 0 refused) |
+| S5 draft figures | 8 | 1.43 s | 0 | `NOT_MATCHED`, opens false (fuel −105.00 vs 51.00 allowed) |
+| S6 prepare | 9 | 4.34 s | 0 | snapshot A, 3 Sites, none excluded |
+| S7 read | 10 | n/a | not run | no server for this tenant (serving is §5.2) |
+| S8 final figures | 8 | 1.38 s | 0 | `MATCHED`, opens true |
+| S9 prepare | 9 | 4.39 s | 0 | snapshot B |
+| S10 read | 10 | n/a | not run | as S7 |
+| S11 action | 11 | 1.01 s | 0 | Action Open, owner Peter, by Amina (executive) |
+| S12 read | 10 | n/a | not run | as S7 |
+| S12 check | 11 | 7.52 s | **4** | `DDR_GATE_FAILED G9 SCREEN` |
+
+Analyst time for S1-S12 commands: about 33 s of command time; about 4 min 35 s elapsed from digest to the check's end (slot waits
+and reading outputs).
+
+### Checker output (verbatim)
+
+```
+DDR_GATE_FAILED G9 SCREEN
+{"gate": "G1", "step": "S1", "state": "PASS", "code": null, "facts": {}}
+{"gate": "G2", "step": "S2", "state": "PASS", "code": null, "facts": {}}
+{"gate": "G3", "step": "S4", "state": "PASS", "code": null, "facts": {}}
+{"gate": "G4", "step": "S4", "state": "PASS", "code": null, "facts": {}}
+{"gate": "G5", "step": "S5", "state": "PASS", "code": null, "facts": {}}
+{"gate": "G6", "step": "S6", "state": "PASS", "code": null, "facts": {}}
+{"gate": "G7", "step": "S8", "state": "PASS", "code": null, "facts": {}}
+{"gate": "G8", "step": "S9", "state": "PASS", "code": null, "facts": {}}
+{"gate": "G9", "step": null, "state": "FAIL", "code": "SCREEN", "facts": {"path": "$.cash.text"}}
+{"gate": "G10", "step": "S11", "state": "PASS", "code": null, "facts": {}}
+```
+
+**Likely cause (coordinator reading, not fixed, not worked around).** The expectation file
+`backend/tests/fixtures/ddr/lakeside-2026-10.expect.json` (last changed in `2a62754c2`) still holds the pre-r6 cash
+sentence: "In October, $8,870.00 was collected against $9,785.00 expected; $668.00 is still outstanding and $150.00
+is paid but in transit." 5c cash fix r6 (`8bac2bed4`, D-5C.29, an ancestor of R) rewrote that sentence as billed =
+collected + in transit + outstanding and took "expected" out of it. So the screen on `main` no longer says what the
+file expects. G9 stops at the first differing path, so other drifted `cash` keys (if any) are not yet known. Needs an
+Architect call: refresh `screen.cash` from r6's sentence (and re-run DDR's Postgres file), then re-run only the
+checker on this database (no rebuild needed: the run's records are intact).
+
+### Where the runbook was unclear
+
+1. **`DB_PASSWORD`** is used from step 2 on but the runbook never says where its value comes from. The shell held no
+   `ASSETOPS_PG_PASSWORD`; used the compose default (`docker-compose.yml`).
+2. **`DIR`** is listed as a variable but never assigned. Used a scratch folder outside the repository; it was deleted
+   at the end of this run, so step 12's `rm -rf -- "$DIR"` has nothing left to remove.
+3. **"The project's Python on the path"**: commands say `python`, step 2 says `../.venv/bin/python`. Put `.venv/bin`
+   first on `PATH`. The venv's `assetops_backend` is an editable install of `/opt/assetecon/AssetOpsV1/backend`, so
+   "the repository root" must be that checkout; run from another worktree, `-m assetops_backend...` would still run
+   the main checkout's code.
+4. **set-password**: the runbook says it reads the password on standard input but not what to choose or where to keep
+   it for the people who will sign in. Generated three random passwords, kept at
+   `/opt/assetecon/evidence/DDR-rehearsal/run-2026-11-22/signin-passwords.txt` (mode 0600; not shown here). Its
+   output (a bare id per person) is not explained.
+5. **check's plan**: the `people` list shows index 0 with `OPERATOR_EXECUTIVE`, but the `roles` list has no grant for
+   index 0. The runbook says to read "each role"; an analyst cannot tell whether the executive will be granted. (G1
+   passed and S11 recorded the Action as the executive, so it was.)
+6. **apply's output**: the runbook says it "prints the same plan as done"; it prints the same plan still saying
+   `create` everywhere, with only the tenant `id` filled in. An analyst may not read that as done.
+7. **`unwritten.json`**: step 7's write leaves this file in `DIR` (31 entries, codes `NOT_ON_PATH_VERTICAL` and
+   `NOT_A_MONTH_RECORD`); the runbook does not mention it or say whether it matters. The loader skipped it.
+8. **Step 10 (S7, S10, S12's read)**: the runbook says open the page or call the API, but never says how the tenant
+   gets served. Not run (serving is §5.2); G9 reads the screen in the checker. Until a serving step exists in the
+   runbook, an analyst following it alone cannot do step 10.
+9. The spec's S2 row says admit's output carries `admitted_by`; it is `list`'s output, as the runbook says (runbook
+   right; spec table wording only).
+10. The two runbook copies are identical from the first heading; the specs copy adds one leading comment line (as
+    D-ON1.19 says).
+
+### After the run: drift, rerun, test 5
+
 - G9 failed on the 22 Nov rehearsal (`SCREEN` at `$.cash.text`): the expectation file predated 5c cash fix r6 (D-5C.29). A key-by-key diff of World A's served screen (same path as G9, `Stores.screen`) against the file's `screen` found one drifted path, `$.cash.text`; the cash table (rows, Billed column, total) already matched. Refreshed that one string to "Of $9,688.00 billed for October, $8,870.00 has been collected, $150.00 is paid but in transit and $668.00 is still outstanding." The fixture SHAs are unchanged (the XLSX and profile did not change).
 - Rerun of the checker only, on the existing `assetops_rehearsal_ddr1_test` with this branch's file: G1 to G10 all PASS, exit 0 (`/opt/assetecon/evidence/DDR-rehearsal/run-2026-11-22/check-rerun.log`).
-- DDR test files on `fix/ddr-expect-r6`: 26 passed, 1 failed. The failure is `test_5_no_code_for_the_new_layout`, which diffs `main...HEAD` and expects DDR's own branch changes (`rehearsal_check.py`, the profile); on a branch off post-merge main it fails by construction, not because of the cash text.
+- DDR test files on `fix/ddr-expect-r6` after the expectation refresh: `test_5_no_code_for_the_new_layout` failed, because it diffed `main...HEAD` and so failed by construction on any branch made after DDR merged. It now diffs DDR's own merge range (the merge found by its subject on this history; absent merge fails, never skips), with the same allowed-code and profile assertions.
