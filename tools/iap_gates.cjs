@@ -15,7 +15,10 @@
 //   R5 no page error;
 //   R6 no visible text under 12 px;
 //   R7 /findings on a 61-day range sends from=2026-10-01 and the bar tags it "inside";
-//   R8 the rail Portfolio link from that page keeps from=2026-09-01.
+//   R8 the rail Portfolio link from that page keeps from=2026-09-01;
+//   L1 each list page (Decisions, Findings, Actions) draws one data-shape="list" of its own key;
+//   L2 each list row holds exactly one interactive element (its title link) and Tab moves one stop per row;
+//   L3 /portfolio/act-first?lens=cost lands on /decisions?lens=cost and shows the chip "Cost · All findings".
 // Expected values are spec literals held here, never read from the app's modules (W2 independence).
 //
 // In-page plants (`--plant`): `wide` (a 600 px block at 390 fails R4), `tiny` (an 11 px text fails R6). The source
@@ -31,13 +34,13 @@ const FIXTURES = path.join(__dirname, "..", "frontend", "src", "estate", "__test
 const PLANTS = ["wide", "tiny"];
 const RANGE = "from=2026-10-01&to=2026-10-31";
 
-/** Spec §2.1 after IA-P1's P1 (kind|label|group). */
+/** Spec §2.1 after IA-P1's P2 (kind|label|group): Decisions is live. */
 const RAIL = [
   "live|Portfolio|OPERATIONS",
   "live|Sites|OPERATIONS",
   "unavailable|Assets & cover|OPERATIONS",
   "live|Findings|INTELLIGENCE",
-  "unavailable|Decisions|WORK",
+  "live|Decisions|WORK",
   "unavailable|Plan|WORK",
   "live|Actions|WORK",
   "live|Incidents|WORK",
@@ -57,6 +60,9 @@ const ALIASES = [
 /** Landed pages and their R3 regions. */
 const PAGES = [
   { path: "/portfolio", rail: "Portfolio", regions: [] },
+  { path: "/decisions", rail: "Decisions", list: "decisions" },
+  { path: "/findings", rail: "Findings", list: "findings" },
+  { path: "/actions", rail: "Actions", list: "actions" },
   { path: "/evidence", rail: "Evidence & records", h1: "Evidence & records", tabs: ["Coverage", "Records"], current: "Coverage" },
   { path: "/evidence/records", rail: "Evidence & records", h1: "Evidence & records", tabs: ["Coverage", "Records"], current: "Records" },
 ];
@@ -168,6 +174,7 @@ async function checkPage(browser, args, routes, spec, view) {
     if (cur.join() !== spec.current) failures.push(`R3: current tab is [${cur.join(", ")}], expected ${spec.current}`);
     for (const t of r3.tabs) if (!/from=2026-10-01/.test(t.href || "")) failures.push(`R3: tab ${t.text} drops the range (${t.href})`);
   }
+  if (spec.list) failures.push(...(await checkList(page, spec, view)));
   if (view.menu) {
     await page.click(".app-frame__menu-toggle");
     await page.waitForTimeout(200);
@@ -183,6 +190,51 @@ async function checkPage(browser, args, routes, spec, view) {
   }
   await ctx.close();
   return { gate: "page", page: spec.path, view: view.name, menu: !!view.menu, plant: args.plant, ...m, errors: errors.length, failures, pass: failures.length === 0 };
+}
+
+/** L1 and L2 on a list page (the page waits for its rows first: the lists read every page before they draw). */
+async function checkList(page, spec, view) {
+  const failures = [];
+  await page.waitForSelector("[data-shape='list'] tbody tr[data-row]", { timeout: 10000 }).catch(() => failures.push(`L1: ${spec.path} drew no list rows`));
+  const shapes = await page.evaluate(() => [...document.querySelectorAll("[data-shape='list']")].map((e) => e.getAttribute("data-home-list")));
+  if (shapes.join() !== spec.list) failures.push(`L1: ${spec.path} draws lists [${shapes.join(", ")}], expected one "${spec.list}"`);
+  const rows = await page.evaluate(() =>
+    [...document.querySelectorAll("[data-shape='list'] tbody tr[data-row]")].map((tr) =>
+      tr.querySelectorAll("a, button, input, select, textarea, [tabindex]:not([tabindex='-1'])").length),
+  );
+  if (rows.length === 0) failures.push(`L2: ${spec.path} has no rows to check`);
+  const bad = rows.filter((n) => n !== 1).length;
+  if (bad > 0) failures.push(`L2: ${bad} of ${rows.length} rows on ${spec.path} do not hold exactly one interactive element`);
+  if (view.w === 1440 && !view.dark && rows.length >= 2) {
+    const first = await page.$("[data-shape='list'] tbody tr[data-row] a");
+    if (first) {
+      await first.focus();
+      await page.keyboard.press("Tab");
+      const stops = await page.evaluate(() => {
+        const rowsEl = [...document.querySelectorAll("[data-shape='list'] tbody tr[data-row]")];
+        const at = rowsEl.findIndex((tr) => tr.contains(document.activeElement));
+        return at;
+      });
+      if (stops !== 1) failures.push(`L2: Tab from row 1 of ${spec.path} landed in row ${stops + 1}, expected row 2`);
+    }
+  }
+  return failures;
+}
+
+/** L3: the old Act first lens address lands on the Decisions list with the lens chip. */
+async function checkLensAlias(browser, args, routes) {
+  const { ctx, page, errors } = await openPage(browser, routes, { w: 1440, h: 900, dark: false });
+  await page.goto(`${args.base}/portfolio/act-first?lens=cost&${RANGE}`);
+  await page.waitForSelector("[data-shape='list']", { timeout: 10000 }).catch(() => {});
+  const failures = [];
+  const url = new URL(page.url());
+  if (url.pathname !== "/decisions") failures.push(`L3: /portfolio/act-first landed on ${url.pathname}, expected /decisions`);
+  if (url.searchParams.get("lens") !== "cost") failures.push(`L3: the lens was lost (${url.search})`);
+  const chips = await page.evaluate(() => [...document.querySelectorAll(".hl-chip")].map((e) => (e.textContent || "").trim()));
+  if (!chips.includes("Cost · All findings")) failures.push(`L3: chips are [${chips.join(" | ")}], expected "Cost · All findings"`);
+  if (errors.length > 0) failures.push(`R5: ${errors.length} page errors (${errors[0]})`);
+  await ctx.close();
+  return { gate: "lens-alias", landed: `${url.pathname}${url.search}`, chips, failures, pass: failures.length === 0 };
 }
 
 async function checkAlias(browser, args, routes, [from, target, own]) {
@@ -241,6 +293,7 @@ async function checkLongRange(browser, args, routes) {
   try {
     report(await checkLongRange(browser, args, routes));
     for (const alias of ALIASES) report(await checkAlias(browser, args, routes, alias));
+    report(await checkLensAlias(browser, args, routes));
     const views = [];
     for (const [w, h] of [[1440, 900], [390, 844]]) for (const dark of [false, true]) views.push({ name: `${w}x${h}-${dark ? "dark" : "light"}`, w, h, dark });
     for (const spec of PAGES) {

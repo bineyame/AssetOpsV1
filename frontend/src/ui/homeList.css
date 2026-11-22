@@ -86,6 +86,7 @@
 }
 .hl-table th[scope="row"] small {
   display: block;
+  font-size: var(--font-size-200); /* never under 12 px (gate R6); the browser's small is 0.83em */
   font-weight: var(--weight-regular);
   color: var(--text-secondary);
 }

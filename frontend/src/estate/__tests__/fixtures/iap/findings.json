@@ -1,0 +1,437 @@
+{
+ "schema_version": "estate-finding-index-2",
+ "scope": {
+  "tenant_id": "t",
+  "authorized_site_count": 2,
+  "covered_site_count": 2,
+  "access_basis": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+ },
+ "window": {
+  "from": "2026-10-01T00:00:00Z",
+  "to": "2026-10-31T00:00:00Z",
+  "bounds": "[from,to)",
+  "known_at": "2026-10-31T00:05:00Z"
+ },
+ "status": "CURRENT",
+ "coverage": {
+  "state": "COMPLETE",
+  "sites": [
+   {
+    "site_id": "10000000-0000-4000-8000-000000000011",
+    "state": "CURRENT",
+    "committed_watermark": null,
+    "selection_id": null,
+    "match_state": "COMPLETE",
+    "job_state": "SETTLED",
+    "source_freshness": "RECENT"
+   },
+   {
+    "site_id": "10000000-0000-4000-8000-000000000012",
+    "state": "CURRENT",
+    "committed_watermark": null,
+    "selection_id": null,
+    "match_state": "COMPLETE",
+    "job_state": "SETTLED",
+    "source_freshness": "RECENT"
+   }
+  ]
+ },
+ "lens": "all",
+ "state_filter": "all",
+ "summary": {
+  "awaiting_verification": 0,
+  "basis_count": 8,
+  "supported_findings": 8,
+  "unconfirmed_findings": 0
+ },
+ "order": "episode_start desc, finding_id asc",
+ "total_count": 8,
+ "rows": [
+  {
+   "finding_id": "f1f1f1f1-0000-4000-8000-000000000001",
+   "finding_revision_id": "f1f1f1f1-0000-4000-8000-000000001001",
+   "site_id": "10000000-0000-4000-8000-000000000011",
+   "site_code": "KOBO-001",
+   "site_name": "Kobo Mini-grid",
+   "finding_label": "Finding 10000000",
+   "title": "Decision 1",
+   "priority": null,
+   "confidence": null,
+   "confidence_reasons": [],
+   "lifecycle": "SUPPORTED",
+   "lens_flags": [],
+   "consequence": {
+    "state": "UNPRICED",
+    "amount": null,
+    "amount_low": null,
+    "amount_high": null,
+    "currency": null,
+    "source_revision_id": null
+   },
+   "source_provenance": {
+    "classification": "REGISTERED_SIMULATION",
+    "state": "REGISTERED_SIMULATION",
+    "source_ids": [],
+    "evidence_ids": [],
+    "basis_sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "reasons": []
+   },
+   "episode_start": "2026-10-14T08:00:00Z",
+   "status": "CURRENT",
+   "links": {
+    "finding": "/sites/KOBO-001/findings/10000000-0000-4000-8000-000000000101?revision_id=10000000-0000-4000-8000-000000000201",
+    "site": "/sites/KOBO-001"
+   },
+   "link_refs": {
+    "finding": {
+     "kind": "FINDING",
+     "site": "KOBO-001",
+     "id": "10000000-0000-4000-8000-000000000101",
+     "revision": "10000000-0000-4000-8000-000000000201"
+    },
+    "site": {
+     "kind": "SITE",
+     "site": "KOBO-001"
+    }
+   }
+  },
+  {
+   "finding_id": "f1f1f1f1-0000-4000-8000-000000000002",
+   "finding_revision_id": "f1f1f1f1-0000-4000-8000-000000001002",
+   "site_id": "10000000-0000-4000-8000-000000000011",
+   "site_code": "KOBO-001",
+   "site_name": "Kobo Mini-grid",
+   "finding_label": "Finding 10000000",
+   "title": "Decision 2",
+   "priority": null,
+   "confidence": null,
+   "confidence_reasons": [],
+   "lifecycle": "SUPPORTED",
+   "lens_flags": [],
+   "consequence": {
+    "state": "UNPRICED",
+    "amount": null,
+    "amount_low": null,
+    "amount_high": null,
+    "currency": null,
+    "source_revision_id": null
+   },
+   "source_provenance": {
+    "classification": "REGISTERED_SIMULATION",
+    "state": "REGISTERED_SIMULATION",
+    "source_ids": [],
+    "evidence_ids": [],
+    "basis_sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "reasons": []
+   },
+   "episode_start": "2026-10-14T08:00:00Z",
+   "status": "CURRENT",
+   "links": {
+    "finding": "/sites/KOBO-001/findings/10000000-0000-4000-8000-000000000102?revision_id=10000000-0000-4000-8000-000000000202",
+    "site": "/sites/KOBO-001"
+   },
+   "link_refs": {
+    "finding": {
+     "kind": "FINDING",
+     "site": "KOBO-001",
+     "id": "10000000-0000-4000-8000-000000000102",
+     "revision": "10000000-0000-4000-8000-000000000202"
+    },
+    "site": {
+     "kind": "SITE",
+     "site": "KOBO-001"
+    }
+   }
+  },
+  {
+   "finding_id": "f1f1f1f1-0000-4000-8000-000000000003",
+   "finding_revision_id": "f1f1f1f1-0000-4000-8000-000000001003",
+   "site_id": "10000000-0000-4000-8000-000000000011",
+   "site_code": "KOBO-001",
+   "site_name": "Kobo Mini-grid",
+   "finding_label": "Finding 10000000",
+   "title": "Decision 3",
+   "priority": null,
+   "confidence": null,
+   "confidence_reasons": [],
+   "lifecycle": "SUPPORTED",
+   "lens_flags": [],
+   "consequence": {
+    "state": "UNPRICED",
+    "amount": null,
+    "amount_low": null,
+    "amount_high": null,
+    "currency": null,
+    "source_revision_id": null
+   },
+   "source_provenance": {
+    "classification": "REGISTERED_SIMULATION",
+    "state": "REGISTERED_SIMULATION",
+    "source_ids": [],
+    "evidence_ids": [],
+    "basis_sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "reasons": []
+   },
+   "episode_start": "2026-10-14T08:00:00Z",
+   "status": "CURRENT",
+   "links": {
+    "finding": "/sites/KOBO-001/findings/10000000-0000-4000-8000-000000000103?revision_id=10000000-0000-4000-8000-000000000203",
+    "site": "/sites/KOBO-001"
+   },
+   "link_refs": {
+    "finding": {
+     "kind": "FINDING",
+     "site": "KOBO-001",
+     "id": "10000000-0000-4000-8000-000000000103",
+     "revision": "10000000-0000-4000-8000-000000000203"
+    },
+    "site": {
+     "kind": "SITE",
+     "site": "KOBO-001"
+    }
+   }
+  },
+  {
+   "finding_id": "f1f1f1f1-0000-4000-8000-000000000004",
+   "finding_revision_id": "f1f1f1f1-0000-4000-8000-000000001004",
+   "site_id": "10000000-0000-4000-8000-000000000011",
+   "site_code": "KOBO-001",
+   "site_name": "Kobo Mini-grid",
+   "finding_label": "Finding 10000000",
+   "title": "Decision 4",
+   "priority": null,
+   "confidence": null,
+   "confidence_reasons": [],
+   "lifecycle": "SUPPORTED",
+   "lens_flags": [],
+   "consequence": {
+    "state": "UNPRICED",
+    "amount": null,
+    "amount_low": null,
+    "amount_high": null,
+    "currency": null,
+    "source_revision_id": null
+   },
+   "source_provenance": {
+    "classification": "REGISTERED_SIMULATION",
+    "state": "REGISTERED_SIMULATION",
+    "source_ids": [],
+    "evidence_ids": [],
+    "basis_sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "reasons": []
+   },
+   "episode_start": "2026-10-14T08:00:00Z",
+   "status": "CURRENT",
+   "links": {
+    "finding": "/sites/KOBO-001/findings/10000000-0000-4000-8000-000000000104?revision_id=10000000-0000-4000-8000-000000000204",
+    "site": "/sites/KOBO-001"
+   },
+   "link_refs": {
+    "finding": {
+     "kind": "FINDING",
+     "site": "KOBO-001",
+     "id": "10000000-0000-4000-8000-000000000104",
+     "revision": "10000000-0000-4000-8000-000000000204"
+    },
+    "site": {
+     "kind": "SITE",
+     "site": "KOBO-001"
+    }
+   }
+  },
+  {
+   "finding_id": "f1f1f1f1-0000-4000-8000-000000000005",
+   "finding_revision_id": "f1f1f1f1-0000-4000-8000-000000001005",
+   "site_id": "10000000-0000-4000-8000-000000000011",
+   "site_code": "KOBO-001",
+   "site_name": "Kobo Mini-grid",
+   "finding_label": "Finding 10000000",
+   "title": "Decision 5",
+   "priority": null,
+   "confidence": null,
+   "confidence_reasons": [],
+   "lifecycle": "SUPPORTED",
+   "lens_flags": [],
+   "consequence": {
+    "state": "UNPRICED",
+    "amount": null,
+    "amount_low": null,
+    "amount_high": null,
+    "currency": null,
+    "source_revision_id": null
+   },
+   "source_provenance": {
+    "classification": "REGISTERED_SIMULATION",
+    "state": "REGISTERED_SIMULATION",
+    "source_ids": [],
+    "evidence_ids": [],
+    "basis_sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "reasons": []
+   },
+   "episode_start": "2026-10-14T08:00:00Z",
+   "status": "CURRENT",
+   "links": {
+    "finding": "/sites/KOBO-001/findings/10000000-0000-4000-8000-000000000105?revision_id=10000000-0000-4000-8000-000000000205",
+    "site": "/sites/KOBO-001"
+   },
+   "link_refs": {
+    "finding": {
+     "kind": "FINDING",
+     "site": "KOBO-001",
+     "id": "10000000-0000-4000-8000-000000000105",
+     "revision": "10000000-0000-4000-8000-000000000205"
+    },
+    "site": {
+     "kind": "SITE",
+     "site": "KOBO-001"
+    }
+   }
+  },
+  {
+   "finding_id": "f1f1f1f1-0000-4000-8000-000000000006",
+   "finding_revision_id": "f1f1f1f1-0000-4000-8000-000000001006",
+   "site_id": "10000000-0000-4000-8000-000000000011",
+   "site_code": "KOBO-001",
+   "site_name": "Kobo Mini-grid",
+   "finding_label": "Finding 10000000",
+   "title": "Decision 6",
+   "priority": null,
+   "confidence": null,
+   "confidence_reasons": [],
+   "lifecycle": "SUPPORTED",
+   "lens_flags": [],
+   "consequence": {
+    "state": "UNPRICED",
+    "amount": null,
+    "amount_low": null,
+    "amount_high": null,
+    "currency": null,
+    "source_revision_id": null
+   },
+   "source_provenance": {
+    "classification": "REGISTERED_SIMULATION",
+    "state": "REGISTERED_SIMULATION",
+    "source_ids": [],
+    "evidence_ids": [],
+    "basis_sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "reasons": []
+   },
+   "episode_start": "2026-10-14T08:00:00Z",
+   "status": "CURRENT",
+   "links": {
+    "finding": "/sites/KOBO-001/findings/10000000-0000-4000-8000-000000000106?revision_id=10000000-0000-4000-8000-000000000206",
+    "site": "/sites/KOBO-001"
+   },
+   "link_refs": {
+    "finding": {
+     "kind": "FINDING",
+     "site": "KOBO-001",
+     "id": "10000000-0000-4000-8000-000000000106",
+     "revision": "10000000-0000-4000-8000-000000000206"
+    },
+    "site": {
+     "kind": "SITE",
+     "site": "KOBO-001"
+    }
+   }
+  },
+  {
+   "finding_id": "f1f1f1f1-0000-4000-8000-000000000007",
+   "finding_revision_id": "f1f1f1f1-0000-4000-8000-000000001007",
+   "site_id": "10000000-0000-4000-8000-000000000011",
+   "site_code": "KOBO-001",
+   "site_name": "Kobo Mini-grid",
+   "finding_label": "Finding 10000000",
+   "title": "Decision 7",
+   "priority": null,
+   "confidence": null,
+   "confidence_reasons": [],
+   "lifecycle": "SUPPORTED",
+   "lens_flags": [],
+   "consequence": {
+    "state": "UNPRICED",
+    "amount": null,
+    "amount_low": null,
+    "amount_high": null,
+    "currency": null,
+    "source_revision_id": null
+   },
+   "source_provenance": {
+    "classification": "REGISTERED_SIMULATION",
+    "state": "REGISTERED_SIMULATION",
+    "source_ids": [],
+    "evidence_ids": [],
+    "basis_sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "reasons": []
+   },
+   "episode_start": "2026-10-14T08:00:00Z",
+   "status": "CURRENT",
+   "links": {
+    "finding": "/sites/KOBO-001/findings/10000000-0000-4000-8000-000000000107?revision_id=10000000-0000-4000-8000-000000000207",
+    "site": "/sites/KOBO-001"
+   },
+   "link_refs": {
+    "finding": {
+     "kind": "FINDING",
+     "site": "KOBO-001",
+     "id": "10000000-0000-4000-8000-000000000107",
+     "revision": "10000000-0000-4000-8000-000000000207"
+    },
+    "site": {
+     "kind": "SITE",
+     "site": "KOBO-001"
+    }
+   }
+  },
+  {
+   "finding_id": "f1f1f1f1-0000-4000-8000-000000000008",
+   "finding_revision_id": "f1f1f1f1-0000-4000-8000-000000001008",
+   "site_id": "10000000-0000-4000-8000-000000000011",
+   "site_code": "KOBO-001",
+   "site_name": "Kobo Mini-grid",
+   "finding_label": "Finding 10000000",
+   "title": "Decision 8",
+   "priority": null,
+   "confidence": null,
+   "confidence_reasons": [],
+   "lifecycle": "SUPPORTED",
+   "lens_flags": [],
+   "consequence": {
+    "state": "UNPRICED",
+    "amount": null,
+    "amount_low": null,
+    "amount_high": null,
+    "currency": null,
+    "source_revision_id": null
+   },
+   "source_provenance": {
+    "classification": "REGISTERED_SIMULATION",
+    "state": "REGISTERED_SIMULATION",
+    "source_ids": [],
+    "evidence_ids": [],
+    "basis_sha256": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "reasons": []
+   },
+   "episode_start": "2026-10-14T08:00:00Z",
+   "status": "CURRENT",
+   "links": {
+    "finding": "/sites/KOBO-001/findings/10000000-0000-4000-8000-000000000108?revision_id=10000000-0000-4000-8000-000000000208",
+    "site": "/sites/KOBO-001"
+   },
+   "link_refs": {
+    "finding": {
+     "kind": "FINDING",
+     "site": "KOBO-001",
+     "id": "10000000-0000-4000-8000-000000000108",
+     "revision": "10000000-0000-4000-8000-000000000208"
+    },
+    "site": {
+     "kind": "SITE",
+     "site": "KOBO-001"
+    }
+   }
+  }
+ ],
+ "next_cursor": null,
+ "selection_token": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+}
