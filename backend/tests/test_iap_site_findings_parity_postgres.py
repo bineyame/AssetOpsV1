@@ -29,7 +29,8 @@ MINI alias (D-IAP.42)". MINI pins no body.
 D-IAP.43: the COLD and EV bodies are pinned normalised (`_normalise`): `finding_id` and `finding_revision_id` values to
 `00000000-0000-4000-8000-{n:012d}` in order of first appearance (Site body, then estate body), any other uuid to its own
 series `00000000-0000-4000-a000-{n:012d}`, every ISO timestamp and date shifted by one constant so the month window's
-`from` is 2026-10-01T00:00:00Z; the compare is byte for byte on sorted keys, 2-space indent. The subset relation is
+`from` is 2026-10-01T00:00:00Z; the pin is written on sorted keys, 2-space indent; D-IAP.46: the hard assert (no xfail) compares a named projection
+(`_projection`) of the fresh and the pinned bodies, not bytes. The subset relation is
 asserted on the raw bodies and again on the normalised ones. COLD's month window is the 31 days ending on the data day
 (the world moves with the wall clock, so a calendar month would put the data on a different day of it each day).
 """
@@ -263,7 +264,7 @@ def _subset(vertical: str, site: dict, estate: dict, code: str, site_key: str, w
 
 
 def _pin(vertical: str, code: str, bodies: dict) -> None:
-    """D-IAP.43: subset on the raw page-one bodies, normalise, subset again, then byte compare (or write)."""
+    """D-IAP.43: subset on the raw page-one bodies, normalise, subset again, then the D-IAP.46 projection compare (or write)."""
     _subset(vertical, bodies["site"], bodies["estate"], code, bodies["site_key"], "before normalising")
     site, estate = _normalise(bodies["site"], bodies["estate"], bodies["window"]["from"])
     _subset(vertical, site, estate, code, bodies["site_key"], "after normalising")
@@ -272,19 +273,51 @@ def _pin(vertical: str, code: str, bodies: dict) -> None:
         FIXTURES.mkdir(parents=True, exist_ok=True)
         for name, text in files.items():
             (FIXTURES / name).write_text(text, encoding="utf-8")
-    drift = []
-    for name, text in files.items():
-        pinned = (FIXTURES / name).read_text(encoding="utf-8")
-        if pinned != text and os.environ.get("IAP_PARITY_DUMP"):
+    if os.environ.get("IAP_PARITY_DUMP"):
+        for name, text in files.items():
             (Path(os.environ["IAP_PARITY_DUMP"]) / name).write_text(text, encoding="utf-8")
-        if pinned != text:
-            drift.append((name, _diff(json.loads(pinned), json.loads(text))))
-    if drift:
-        # SPEC_CONFLICT (packet-IA-P3 Known Deviations, Q-P5-3): measured on two builds of the same world, the
-        # normalised bodies still differ in classes D-IAP.43 does not name (`run-<hex32>` ids, sha256/sha1 digests
-        # over ids, wall-clock record stamps such as `as_of` and `decided_at`, and arrays ordered by uuid value, so
-        # first-appearance tokens permute). The subset relation above holds; the byte compare waits on the Architect.
-        pytest.xfail(f"SPEC_CONFLICT D-IAP.43 byte compare (Q-P5-3): {drift}")
+    pinned_site = json.loads((FIXTURES / f"parity-{vertical}-site.json").read_text(encoding="utf-8"))
+    pinned_estate = json.loads((FIXTURES / f"parity-{vertical}-estate.json").read_text(encoding="utf-8"))
+    fresh_p = _projection(site, estate, bodies["site_key"])
+    pinned_p = _projection(pinned_site, pinned_estate, bodies["site_key"])
+    assert fresh_p == pinned_p, f"{vertical} D-IAP.46 projection differs from the pin: " + "; ".join(_diff(pinned_p, fresh_p)[:20])
+
+
+#: D-IAP.46: the fields a person sees change; everything else (run ids, digests, stamps, uuid order) is build noise.
+_ROW_FIELDS = ("site_code", "site_name", "title", "finding_label", "lifecycle", "lens_flags", "status")
+
+
+def _row_key(r: dict) -> tuple:
+    start = r.get("episode_start")
+    if start is None:  # Site bodies carry the period in `episode_bounds` (cold); the sort key only, never compared
+        start = ((r.get("episode_bounds") or {}).get("start") or {}).get("earliest")
+    return (start or "", r.get("title") or "", r.get("finding_label") or "")
+
+
+def _projection(site: dict, estate: dict, site_key: str) -> dict:
+    """D-IAP.46: the envelope and each row's named fields; tokens follow (episode_start, title), Site body first;
+    rows are compared sorted by token."""
+    tokens: dict[str, str] = {}
+    for rows in (site.get(site_key) or [], estate.get("rows") or []):
+        for r in sorted(rows, key=_row_key):
+            tokens.setdefault(r["finding_id"], f"F{len(tokens) + 1:04d}")
+
+    def row(r: dict) -> dict:
+        out = {"token": tokens[r["finding_id"]]}
+        out.update({k: r[k] for k in _ROW_FIELDS if k in r})
+        if "episode_start" in r:
+            out["episode_start"] = r["episode_start"]
+        if "categories" in r:
+            out["categories"] = [i.get("label") for i in (r["categories"] or {}).get("items") or []]
+        if "link_refs" in r:
+            out["link_refs"] = sorted(r["link_refs"] or {})
+        return out
+
+    def rows(body: list) -> list:
+        return sorted((row(r) for r in body), key=lambda x: x["token"])
+
+    return {"envelope": {k: estate.get(k) for k in ("schema_version", "status", "total_count")},
+            "site": rows(site.get(site_key) or []), "estate": rows(estate.get("rows") or [])}
 
 
 def _month_and_61(month_first: date, month_last: date, last_61: date, known_at: str | None) -> dict[str, dict]:
