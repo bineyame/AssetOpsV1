@@ -186,10 +186,11 @@ async function checkPage(browser, args, routes, spec, view) {
 async function checkAlias(browser, args, routes, [from, target, own]) {
   const { ctx, page, errors } = await openPage(browser, routes, { w: 1440, h: 900, dark: false });
   await page.goto(`${args.base}${from}?${RANGE}`);
-  await page.waitForSelector('nav[aria-label="Operator routes"]', { state: "attached", timeout: 20000 });
+  const failures = [];
+  // An address that is not aliased lands on the catch-all, outside the operator shell: that is an R2 failure.
+  await page.waitForSelector('nav[aria-label="Operator routes"]', { state: "attached", timeout: 10000 }).catch(() => failures.push(`R2: ${from} rendered no operator page`));
   await page.waitForTimeout(300);
   const url = new URL(page.url());
-  const failures = [];
   if (url.pathname !== target) failures.push(`R2: ${from} landed on ${url.pathname}, expected ${target}`);
   // The range is kept (in either address form) and the target's own query is set.
   if (!/^2026-10-01/.test(url.searchParams.get("from") || "")) failures.push(`R2: ${from} dropped the range (${url.search})`);

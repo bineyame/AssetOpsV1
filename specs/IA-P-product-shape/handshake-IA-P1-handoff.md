@@ -29,11 +29,22 @@ Builder (Claude), 2026-11-22. Branch `task/IA-P1-frame-portfolio` (worktree `/op
   (`routes.json` maps an API path to a file; empty in P1, any other `/api/*` is 404).
 - Register rows R771 (MD-IAP-1) and R772 (MD-IAP-14), counts updated.
 
-Evidence (outside the repo): `/opt/assetecon/evidence/IA-P/P1/` (gate shots), plant outputs listed in the commit.
+Evidence (outside the repo): `/opt/assetecon/evidence/IA-P/P1/` (gate shots at 1440 and 390, light and dark, plus 390
+with the menu open; `gates-clean.log`), plant logs in `plants/`.
+
+P1 plants (each a one-line edit, shown failing, then reverted with `git checkout`):
+- `rail` (Decisions made live): `iap_gates` R1 "rail is [... live|Decisions|WORK ...]", exit 1; `check-architecture`
+  navigation truthfulness "declares the rail items [...] but the W1 rail is exactly [...]" and "points at '/decisions'
+  ... not a route"; the rail fixtures case "IA-P1: Decisions made live (plant rail)" holds it.
+- `alias` (`/operational-records` entry dropped): `iap_gates` R2 "/operational-records landed on /operational-records,
+  expected /evidence/records", exit 1; `iaRouteMap` (b) fails (1 failed, 2 passed).
+- `routemap` (`<Route path="/x">` added): `iaRouteMap` (a) fails (1 failed, 2 passed).
+- `activeLabel={null}` (I16): rail fixtures case "IA-P1: activeLabel={null} (plant)" expects the call-form failure.
+- In-page: `--plant wide` fails R4 ("page width 616 px at a 390 px viewport"), `--plant tiny` fails R6.
 
 ## Next: P0 (the long range; spec-period.md P.9)
 
-Written, not yet green: `p0-pending/readWindow.test.ts.pending` and `p0-pending/noRawRangeReads.test.ts.pending` (move them to `frontend/src/ui/__tests__/` as `.test.ts`; they fail until the
+Written, not yet green: `p0-pending-tests.md` (copy each block to `frontend/src/ui/__tests__/`; they fail until the
 source lands). The plan, already surveyed:
 - `sharedRange.ts`: `RANGE_MAX_DAYS = 731`; `WHOLE_RANGE_PAGES = /^\/(?:portfolio(?:\/outcomes)?|sites)\/?$/`;
   `readWindow(params, now?)` → `{from, to, known_at} | null` (DayRange plus `known_at`); `windowBound(params, key)` (the
