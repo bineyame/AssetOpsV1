@@ -659,3 +659,15 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
   follows the served tenant (D-DD.35). `tools/dd_check.py` has C-DD1 and C-DD13 live, 18 stubs.
 - Left open: Kisiwa and Mto bindings are refused by the product's ONE-per-Site roles (Q-DD1.7); Site document bounds were
   raised (Q-DD1.8); `tools/world.py` L1 does not pass `--bindings` yet.
+
+## DD2b: cold and EV decided books (in_review; `specs/DD-demo-data/packet-DD2b.md`)
+- Settled: `world_history.py exports` writes `harvest-cold` and `metro-bus` books for Jul-Oct in their source profiles'
+  formats (`world/exports_cold.py`, `world/exports_ev.py`, rendered by `world/profile_csv.py` from
+  `backend/conversions/profiles/`, 9 profiles with samples). Expenses use `expenses-illustrative-1` (no ENERGY or PENALTY
+  row). Cold revenue and received are `COLD_CHAIN` nodes (D-DD.50). The ledger matches each month's crate-days exactly,
+  and its peak is at most the room capacity. The EV roster comes from one function, `roster_rows` (D-DD.52). Every DS1b
+  record lands in one place (D-DD.54, `world/books.py`). `ev-departures` bool is admitted and stored as a JSON boolean on
+  PostgreSQL.
+- Left open: the source-system switch at load for cold invoices/receipts/ADJUSTMENT (Q1, DD5). Receipts/tickets use the
+  `row_digest` version and the EV invoice Line column is split (contract rules). TARIFF_SCHEDULE staging is DD2a's.
+  NODES unify with DD2a at merge.
