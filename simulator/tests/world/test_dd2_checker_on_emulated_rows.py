@@ -108,3 +108,15 @@ def test_c_dd4_fails_on_a_leaf_and_on_octobers_recorded_node(inputs, mini_rows) 
                for line in dd_check.judge_leaves_and_nodes(inputs, october, LAKESIDE).detail)
 
 
+
+
+def test_the_mini_grid_detail_lines_are_unchanged_by_the_ev_and_missing_figure_rules(inputs, mini_rows) -> None:
+    """D-DD.58 parity: the existing fixture rows give the same C-DD3 detail lines as before the fix round."""
+    bent = copy.deepcopy(mini_rows)
+    next(r for r in bent if r["site"] == "MTO-001" and r["month"] == "2026-09" and r["kind"] == "CHARGE")["amount"] += 1
+    result = dd_check.judge_identities(inputs, bent, LAKESIDE)
+    assert len(result.detail) == 2 and not result.pending
+    assert result.detail[0].startswith("lakeside-power/MTO-001 2026-09: revenue ")
+    assert result.detail[0].endswith(" x tariff " + str(Decimal(str(
+        next(t for t in inputs.manifest["tenants"] if t["tenant"] == "lakeside-power")["prices"]["tariff_usd_per_kwh"]["Mto"]))))
+    assert result.detail[1].startswith("lakeside-power/MTO-001 2026-09: collected ")

@@ -19,7 +19,7 @@ import os
 import re
 import sys
 from dataclasses import dataclass, field
-from decimal import Decimal
+from decimal import ROUND_HALF_EVEN, Decimal
 from pathlib import Path
 from typing import Callable
 
@@ -334,7 +334,6 @@ DECIDED_KINDS = {"MINI_GRID": ("CHARGE", "RECEIPT", "EXPENSE", "BUDGET_LINE"),
                  "COLD_CHAIN": ("STORAGE_MOVEMENT", "CHARGE", "RECEIPT", "EXPENSE", "BUDGET_LINE"),
                  "EV_DEPOT": ("FLEET_ROSTER", "EXPENSE", "BUDGET_LINE")}
 EMULATED = "source-emulated"
-BOOK_MONTHS = ("2026-07", "2026-08", "2026-09", "2026-10")
 
 
 def stored_books(database_url: str) -> list[dict]:
@@ -391,11 +390,25 @@ def judge_kinds(inputs: "Inputs", rows: list[dict], tenants: set[str] | None = N
     return Result("C-DD2", not detail, detail[:40] + ([f"... {len(detail) - 40} more"] if len(detail) > 40 else []))
 
 
+#: D-DD.58: an EV invoice line's price class and the key of its price in `M` `tenants.<t>.sites.<s>.tariff.prices`.
+_EV_PRICE = {"PEAK": "peak", "OFFPEAK": "offpeak", "NIGHT": "night_from_1_nov", "FLAT": "usd_per_kwh",
+             "DEMAND": "demand_per_kw_month"}
+
+
+def _site_prices(inputs: "Inputs", tenant: str, code: str) -> dict:
+    for t in inputs.manifest["tenants"]:
+        if t["tenant"] == tenant:
+            return next((s.get("tariff", {}).get("prices", {}) for s in t["sites"] if s["code"] == code), {})
+    return {}
+
+
 def judge_identities(inputs: "Inputs", rows: list[dict], tenants: set[str] | None = None) -> Result:
     """C-DD3: the manifest `checks` identities on the stored records, by sums. Mini: revenue = billed x tariff and
-    collected + in transit + outstanding = revenue. Cold: revenue = crate-days x 0.20. EV: energy cost = the sum of
-    its band and demand lines."""
+    collected + in transit + outstanding = revenue. Cold: revenue = crate-days x 0.20. EV (D-DD.58): each stored invoice
+    line = quantity x its band price in `M`, half-even to the cent; pending while no EV CHARGE row is stored. A missing
+    figure is a FAIL line, never an exception."""
     detail: list[str] = []
+    ev_pending = False
     for tenant, vertical, name, code, month, record, _, _, prices in _site_months(inputs, tenants):
         where = f"{tenant}/{code} {month}"
         charges = _by(rows, tenant, code, month, "CHARGE")
@@ -413,15 +426,30 @@ def judge_identities(inputs: "Inputs", rows: list[dict], tenants: set[str] | Non
                               f"!= revenue {revenue}")
         elif vertical == "COLD_CHAIN":
             invoices = [r for r in charges if r["body"].get("line_type") == "STORAGE"]
+            if "crate_days" not in record:
+                detail.append(f"{where}: crate_days not recorded")
+                continue
             expected = Decimal(str(record["crate_days"])) * Decimal(str(prices["storage_usd_per_crate_day"]))
             if _sum(invoices) != expected:
                 detail.append(f"{where}: storage invoices {_sum(invoices)} != crate-days {record['crate_days']} x rate")
         elif vertical == "EV_DEPOT":
             lines = [r for r in charges if r["body"].get("line_type") in ("USAGE", "DEMAND")]
-            expected = Decimal(str(record["energy_cost"]))
-            if _sum(lines) != expected:
-                detail.append(f"{where}: band and demand lines {_sum(lines)} != energy cost {expected}")
-    return Result("C-DD3", not detail, detail[:40])
+            if not any(r["kind"] == "CHARGE" for r in rows if r["tenant"] == tenant):
+                ev_pending = True
+                continue
+            site_prices = _site_prices(inputs, tenant, code)
+            for r in lines:
+                price_key = _EV_PRICE.get(str(r["body"].get("band", "")) if r["body"].get("line_type") == "USAGE" else "DEMAND")
+                price = site_prices.get(price_key) if price_key else None
+                if price is None:
+                    detail.append(f"{where}: {price_key or r['body'].get('band')} not recorded")
+                    continue
+                expected = (r["quantity"] * Decimal(str(price))).quantize(Decimal("0.01"), rounding=ROUND_HALF_EVEN)
+                if r["amount"] != expected:
+                    detail.append(f"{where} {r['body'].get('band') or 'DEMAND'}: amount {r['amount']} != "
+                                  f"quantity {r['quantity']} x {price_key} {price}")
+    return Result("C-DD3", not detail, detail[:40],
+                  pending=["EV utility invoices are DD4.4's"] if ev_pending else [])
 
 
 #: The checker's own list of the decided node figures of a history month, per vertical (D-DD.55): the stored figure's

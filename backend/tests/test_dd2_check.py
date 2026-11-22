@@ -71,3 +71,66 @@ def test_the_checker_still_imports_nothing_from_the_simulator() -> None:
              for n in ast.walk(tree) if isinstance(n, (ast.Import, ast.ImportFrom))
              for a in (n.names if isinstance(n, ast.Import) else [n])}
     assert not [x for x in names if x and ("simulator" in x or "world" in x)]
+
+
+# --- D-DD.58: C-DD3 and C-DD4 never crash; the EV clause judges quantity x band price ------------------------------------
+
+def _ev_site(inputs):
+    t = next(x for x in inputs.manifest["tenants"] if x["vertical"] == "EV_DEPOT")
+    site = next(s for s in t["sites"] if s["site"] == "Embakasi")
+    return t["tenant"], site["code"], site["tariff"]["prices"]
+
+
+def _ev_line(tenant, code, band, line_type, quantity, amount, month="2026-10"):
+    return {"tenant": tenant, "site": code, "kind": "CHARGE", "month": month, "provenance": "source-emulated",
+            "amount": Decimal(amount), "quantity": Decimal(quantity), "status": None,
+            "body": {"line_type": line_type, "band": band}}
+
+
+def test_c_dd3_and_c_dd4_on_the_real_inputs_with_no_tenant_filter_raise_nothing(inputs) -> None:
+    for judge in (dd_check.judge_identities, dd_check.judge_leaves_and_nodes):
+        result = judge(inputs, [], None)
+        assert result.check in ("C-DD3", "C-DD4")
+
+
+def test_a_dropped_cold_crate_days_is_a_fail_line_not_an_exception(inputs) -> None:
+    import copy
+    planted = dd_check.Inputs(manifest=inputs.manifest, history=copy.deepcopy(inputs.history), database_url=inputs.database_url)
+    cold = next(t for t in planted.manifest["tenants"] if t["vertical"] == "COLD_CHAIN")
+    site = cold["sites"][0]
+    del planted.history["tenants"][cold["tenant"]][site["site"]]["2026-07"]["actual"]["crate_days"]
+    result = dd_check.judge_identities(planted, [], {cold["tenant"]})
+    assert not result.passed
+    assert f"{cold['tenant']}/{site['code']} 2026-07: crate_days not recorded" in result.detail
+
+
+def test_the_ev_clause_is_pending_while_no_ev_charge_row_is_stored(inputs) -> None:
+    result = dd_check.judge_identities(inputs, [], {"metro-bus"})
+    assert result.pending == ["EV utility invoices are DD4.4's"]
+    assert not any("energy" in line for line in result.detail)
+
+
+def test_the_ev_clause_judges_each_line_as_quantity_times_band_price_half_even(inputs) -> None:
+    tenant, code, prices = _ev_site(inputs)
+    good = [_ev_line(tenant, code, "PEAK", "USAGE", "47740", "11457.60"),
+            _ev_line(tenant, code, "OFFPEAK", "USAGE", "39060", "4687.20"),
+            _ev_line(tenant, code, "DEMAND", "DEMAND", "500", "6000.00")]
+    result = dd_check.judge_identities(inputs, good, {tenant})
+    assert not result.pending and not [l for l in result.detail if "2026-10" in l and code in l and "!=" in l]
+    bad = [dict(good[0], amount=Decimal("11457.61"))] + good[1:]
+    result = dd_check.judge_identities(inputs, bad, {tenant})
+    assert not result.passed and any(f"{tenant}/{code} 2026-10 PEAK" in l for l in result.detail)
+    half = _ev_line(tenant, code, "PEAK", "USAGE", "0.0625", "0.02")  # 0.0625 x 0.24 = 0.015 -> half-even 0.02
+    assert not [l for l in dd_check.judge_identities(inputs, [half], {tenant}).detail if "PEAK" in l]
+    half = _ev_line(tenant, code, "PEAK", "USAGE", "0.0625", "0.01")
+    assert [l for l in dd_check.judge_identities(inputs, [half], {tenant}).detail if "PEAK" in l]
+
+
+def test_an_ev_line_without_a_price_in_m_is_a_fail_line(inputs) -> None:
+    tenant, code, _ = _ev_site(inputs)
+    result = dd_check.judge_identities(inputs, [_ev_line(tenant, code, "FLAT", "USAGE", "10", "1.50")], {tenant})
+    assert not result.passed and any("usd_per_kwh not recorded" in l for l in result.detail)
+
+
+def test_book_months_is_gone() -> None:
+    assert not hasattr(dd_check, "BOOK_MONTHS")

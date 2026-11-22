@@ -72,3 +72,24 @@ DD2.3 and DD2.4 are DD2b (`task/DD2b-cold-ev-books`) and are not built here. Rev
 - `simulator/tests/world`: 170 passed. `contracts/tests`: 206 passed. `backend/tests/test_3a3_load_emulated.py`, `test_ds4_world.py`, `test_dd1_check.py`, `test_dd2_check.py`: 117 passed.
 - Postgres, one `tools/heavy-slot.sh --db -- pwsh tools/run-host-tests.ps1` run (ds4 world, DDR rehearsal, WK walk): 118 passed, 202 s. A first run failed (9 failed, 3 errors) when staged JSON sat in the exports directory; fixed by `--extras`. Baseline before DD2.1: passed.
 - `tools/check-architecture.ps1` (ASSETOPS_GUARD_PYTHON set), `tools/check-agent-workflow.ps1`, `tools/check-decision-index.py`: pass.
+
+
+## Fix round (D-DD.58)
+
+Review M1 and L1-L3, per `rulings.md` D-DD.58. Checker only (`tools/dd_check.py`); nothing from DD2b built.
+- **Missing figures.** C-DD3's cold clause reports `<tenant>/<site> <month>: crate_days not recorded` as a FAIL line;
+  the EV clause no longer reads `energy_cost` (history holds none), so the exception is gone.
+- **EV clause.** Each stored EV CHARGE line must equal `round_half_even(quantity x band price, 0.01)`, the price read
+  by the checker from `M` `tenants.<t>.sites.<s>.tariff.prices` (`PEAK`, `OFFPEAK`, `NIGHT`, `FLAT`, `DEMAND` keys per
+  D-DD.58). A price absent from `M` is a FAIL line `<key> not recorded`. While a tenant has no CHARGE row the result
+  carries `pending: EV utility invoices are DD4.4's` and the clause is not judged. Note for DD4.4: `M` has no
+  `usd_per_kwh` key (Kasarani's flat tariff is `peak = offpeak = 0.15`), so a FLAT line would be a FAIL line until the
+  ruling or `M` names the key. The invoice line's band is read from `body.band`, a field DD4.4 must write.
+- **L2.** `BOOK_MONTHS` deleted. **L1 (carried).** DD5's first C-DD2 run is `BOOK_QUERY`'s first proof; SQL is still
+  exercised against no database.
+- **Tests (each failed first).** `test_dd2_check.py`: real inputs with `tenants=None` raise nothing; dropped cold
+  `crate_days` plant; EV pending; EV half-even line (good, +0.01 plant, tie-rounding both ways); EV missing price;
+  `BOOK_MONTHS` gone. `test_dd2_checker_on_emulated_rows.py`: mini-grid detail lines on the fixtures unchanged
+  (cold fixture rows are DD2b's).
+- **Counts.** `test_dd2_check.py`, `test_dd1_check.py`, `test_dd2_checker_on_emulated_rows.py` (every file importing
+  `dd_check`): 26 passed (19 on main plus 7 new), via `run-host-tests.ps1`.
