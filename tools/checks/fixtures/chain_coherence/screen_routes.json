@@ -20,6 +20,7 @@
     "/operational-records",
     "/portfolio",
     "/portfolio/:tab",
+    "/portfolio/month",
     "/simulator-lab",
     "/simulator-lab/cold-run-setup",
     "/simulator-lab/create-site",

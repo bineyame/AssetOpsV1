@@ -574,6 +574,186 @@ ACCEPT WITH FIXES. Fix M3 (the literal and dropping the reference, Architect to 
 the branch before units 1 and 2 merge. A verification round then checks those two only. L7's reword and L9 are
 recommended, not blocking; the Architect logs the L7 literal decision.
 
+## Unit 3 round 1: the screen "The month", discovery review (W5)
+
+Reviewer (Claude, fresh; did not author the work), 2026-11-21. Branch `task/5c-unit3-screen` at 4beb26c09, diffed
+against `main` (units 1 and 2 at 08f3bf86c).
+
+**Summary (verdict READY FOR WALKTHROUGH).**
+- No figure is computed in the browser. Every tile, step, cell and KES amount is the served string. The only
+  arithmetic is the bar ratio; the month-link labels are made from `nav` codes (labels, not figures).
+- D-5C.20, .21, .22, .23 and World X's currency lines render as ruled.
+- The gates pass on worlds A, X and H. I ran the `fold` and `scroll` plants myself and both fail as named.
+- The page's own colours have a contrast of at least 4.56:1. No text is under 12 px. At 390 px the page width is 390.
+- The `DD_NOT_AVAILABLE_TITLE` exemption is narrow. A planted "Not available yet" still fails the scan.
+- check-all (fast) at 4beb26c09: all 42 blocking guards passed.
+- One Medium finding is in unit 1's view on `main`, outside this diff. When the gap is not available, every step reads
+  "Offsets it". It does not show on the single-currency walkthrough tenant, so it is routed, not blocking.
+- Five Lows: focus after "Show all" in a drawer, no background lock, a mute keyed by tile key, no freshness check on
+  the generated fixtures, and `--world` only labels the run.
+- Items 6 and 7 are recommendations for the Architect.
+
+### Checks run (4beb26c09)
+
+- `bash tools/heavy-slot.sh --wait-seconds 3000 -- pwsh -NoProfile -File tools/check-all.ps1`: "check-all: 147.8 s
+  wall … All 42 guards passed (blocking; 0 advisory, 0 warned)." It covers the architecture seams, the agent
+  workflow, and the missing-claim scan ("passed: 44 tagged placement use(s), 10 baselined legacy occurrence(s)").
+  The builder's run was at 915d42288. HEAD adds only the packet.
+- Vitest, through the slot, on `DeepDiveMonth.test.tsx`, `estatePortfolio.test.tsx` and
+  `estatePortfolioRoutes.test.tsx`: 3 files, 115 passed. `tsc --noEmit`: exit 0. `vite build`: built, exit 0.
+- `vite preview` on 127.0.0.1:5583 (stopped after). `tools/deep_dive_gates.cjs` on world A
+  (`backend/tests/fixtures/5c/deep_dive_lakeside_2026-10.json`), X and H: each exit 0, 9 lines each (lint plus 8
+  views), 0 failures.
+  - A: 6 blocks. Headline 1 line at 1440 and 2 at 1280 (2 at both with D's headline). L1 ends at 511 px (1440 × 900)
+    and 575 px (1280 × 720). Headline and status end at 513 px at 390 × 844. Hub 1,738 px at 1440. Width 390 at 390.
+    0 texts under 12 px, 0 page errors.
+  - X: L1 ends at 455 and 459 px. Hub 1,642 px.
+- Plants, mine. `fold`: exit 1 on every view ("L1 ends at 1315 px, below the 900 px fold"; at 390: "the headline and
+  status end at 1317 px"). `scroll`: exit 1 ("page width 616 px at a 390 px viewport"). The builder's eight plants are
+  in `evidence/5c/unit3b/gates-summary.txt`, each exit 1.
+- Fixture drift: I ran `make_screen_worlds.py` into scratch. Both outputs are byte-identical to the committed
+  `deep_dive_world_h.json` and `deep_dive_currency_mismatch.json`.
+- Missing-claim scan, planted in memory through `analyze()` with the real registry, mirror and baseline:
+  - clean tree: 0 errors;
+  - a JSX `<p>Not available yet</p>` in the page: `untagged_copy DeepDiveMonth.tsx:481`;
+  - a new const `"Not available yet"`: `untagged_copy :58`;
+  - a second const holding the exempt title text: `untagged_copy :58`;
+  - the exempt const's text changed: `untagged_copy :34`.
+- Contrast from `ui/tokens.css` for the page's own pairs:
+  - text-secondary on raised 5.03, on page 4.69, on sunken 4.56;
+  - chip 6.92; accent 6.70; amber on page 5.51.
+- Shots read: `evidence/5c/unit3b/shots/` A and X at 1440, A at 390, and H's fuel-cost drawer at 390. The mock read:
+  vNEXT `loop-ux.js` `uxOverviewParts` and `uxBridge`, and `walkthroughs.md` §2 steps 1 to 3.
+
+Not verified:
+- The screen served from a real `_test` database (MBQ6: fixtures through `page.route`).
+- A screen reader pass.
+- Dark captures: they render the light theme (MBQ3).
+
+### Judged
+
+1. **Nothing computed in the browser: holds.**
+   - `DeepDiveMonth.tsx` has no `toFixed`, `toLocaleString`, `Intl` or `parseFloat`. `Number(` appears only in
+     `barWidths` (`:76-82`). `parseInt` is used only on month codes, for link labels (`:62-71`).
+   - Test 10 pins each tile and step value in place.
+   - The per-text-node money check (`moneyIn`) runs on A, on X, and on every X drawer.
+   - Plant X1 is recorded as failing.
+2. **The rev 3 rulings, rendered.**
+   - D-5C.21: nested `<ul>` inside the driver's `<li>` (`:209-224`). The H shot shows the indent and rule.
+   - D-5C.22: caps of 10 Sites in the drawer `sites`, `by_site` and the cash table, and 8 not-available rows, with
+     "Show all n" (`:187-203`, `:264-299`). Tested at 12 and at 9.
+   - D-5C.20: the headline chip (`:306-313`), "Estimated, not yet reconciled" in the A shot. X has none
+     (`evidence` []).
+   - D-5C.23: Kisiwa's O&M cell is checked against the served row.
+   - World X: Mto's line is asserted in every step drawer, and "−KES 600.00" is printed with no "$".
+3. **Gates.** Every check in spec §5.3 and §5.4 is implemented, and each plant names its check.
+   - The 390 fold covers the headline and status, as the spec says.
+   - `--world` is sound as a label, but it is no more than a label (L5).
+4. **Accessibility and modern UI.**
+   - Drawers are `role=dialog`, `aria-modal`, labelled by their h2. Focus moves to Close and the Tab cycle stays in the
+     drawer. Escape, the scrim and Close all close it, and focus returns to the opener. Gaps: L1 and L2.
+   - Nothing is under 12 px, and sizes are on the scale.
+   - The 4.12:1 and 4.35:1 contrasts are the shell's demonstration bar and the shared `DataTable` header. Both were
+     there before this slice, so they are not 5c findings (residual risk).
+   - At 390 px: one column; the step rows wrap the share, chip and Sites under the label; the tab row scrolls inside
+     its own box; width 390.
+5. **`DD_NOT_AVAILABLE_TITLE` (`tools/checks/missing-claim-scan.mjs:84-90`).** The exemption is justified. It is
+   keyed by file, const name and exact text, and it cites spec §5.2, D-5C.11 and D-5C.14. The title names a section
+   of served claims and is not a claim itself. Every plant above still fails the scan.
+
+### Findings
+
+**M1 (Medium; unit 1's view on `main`, outside this diff; surfaced by World X). A step reads "Offsets it" when the gap
+is not available.**
+- **Where:** `backend/assetops_backend/deep_dive/view.py:274`, `gap = self.R.effect or Decimal(0)`, then `:284-285`.
+- **What is wrong:** when `R.effect` is None, the gap is taken as 0, so every non-zero step gets share −1, worded
+  "Offsets it". World X shows "Fuel cost −KES 600.00 Offsets it" beside a gap of "Not available yet". A fuel-cost
+  overspend that would widen the gap is stated as offsetting a gap that is not known. That is a wrong claim on an
+  executive figure.
+- **Why it does not block the walkthrough:** the rehearsed Lakeside tenant is single-currency, so R is available. Any
+  tenant whose R is not available (mixed currencies, or no target) shows it.
+- **Fix:** when `R.effect` is None, `share` is null for every step (the page already omits a null share), or a "not
+  compared" share word if the Architect prefers. Add a 4 i case asserting no "Offsets it" when R has no effect.
+  Rerun `make_screen_worlds.py` so World X follows.
+
+**L1 (Low). After "Show all" inside a drawer, focus leaves the dialog.**
+- **Where:** `DeepDiveMonth.tsx:194-198` (the button unmounts on click) and `:141-159` (Escape and the Tab trap
+  listen on the panel only).
+- **What happens:** focus drops to `<body>`. Escape then does nothing and Tab walks the page behind the modal. It only
+  happens with more than 10 Sites.
+- **Fix:** move focus to the first newly shown row (tabIndex −1) or to the list, and listen for Escape on `document`
+  while a drawer is open, as vNEXT's `uxOpen` does.
+
+**L2 (Low). The page behind an open drawer still scrolls, and is not inert.**
+- **Where:** `:160-172`. vNEXT adds `ux-locked` to `body`.
+- **Fix:** lock body scroll while a drawer is open. `inert` on the hub siblings is optional.
+
+**L3 (Low; tied to item 6). The tile mute is keyed by tile key.**
+- **Where:** `:328`, `tile.key.startsWith("plan")`. The page styles by key, so a Contribution tile with no figure is
+  not muted (the builder's open point).
+- **Fix:** with item 6's rule, mute on `word === null && bar === null`, which is a served shape and not a key.
+
+**L4 (Low). The generated screen fixtures have no freshness check.**
+- **Where:** `backend/tests/fixtures/5c/make_screen_worlds.py`.
+  - It imports private helpers from a test module (`t._in_kes`, `t._gone`, `t.view`).
+  - It monkeypatches `V.site_bridge` with a copy of `test_4_i_currency_card_word_beside_no_figure`'s world.
+  - The committed JSON is current today (I regenerated it byte-identical).
+- **Risk:** a later backend wording change leaves `deep_dive_currency_mismatch.json` stale while the frontend tests
+  stay green. World H is partly guarded by the hand-written comparison; World X is not guarded at all.
+- **Fix:** a no-database backend test that builds both worlds in memory and compares them with the committed files,
+  failing with "rerun make_screen_worlds.py". Move the World X patch into one helper shared by that test and 4 i.
+
+**L5 (Low). `--world` names the run, nothing more.**
+- **Where:** `tools/deep_dive_gates.cjs:27-31`, `:156-161`.
+- **What happens:** the name is not checked against the fixture. For X and H, the two "with-D-headline" views paste
+  Lakeside's USD D headline into another world, yet are named `X-with-D-headline…`. That is harmless as a line-count
+  gate, but the shot names mislead.
+- **Fix:** run the D-headline views for world A only, or name them `…-longest-headline`.
+
+### Item 6: World X's Contribution and Gap tiles (recommendation for the Architect)
+
+The tile states "Not available yet" twice: as the value at full figure size, and as the chip. The plan tiles state it
+once, muted. The headline already follows the owner's one-statement rule (D-5C.20: `evidence` [] when it states no
+figure).
+
+Recommend one class rule: **a figure slot with no figure states "Not available yet" once, as its value, muted, with
+no chip.**
+- Server (`view.py`): serve `word` null wherever the value is the not-available statement. This covers tiles, outcome
+  cards (it revises L9's "word too"), steps (X's Revenue step shows the same pair) and the cash word.
+- Page: mute on `word === null && bar === null`, and drop the key test (L3).
+
+This keeps D-5C.2: the page reads the shape, not words. If the Architect keeps L9's chip, the page should still mute
+the value; the duplication would then remain.
+
+### Item 7: MBQ5 (no per-step bars)
+
+**Yes, it is a gap from the mock.**
+- vNEXT `uxBridge` draws each step as `.ux-wf-bar` on the gap's scale (`s.pos`).
+- That waterfall is the overview's one chart (guide §9) and the visual of walkthrough step 2.
+- It is labelled (MD11, R767, open), so it is not a High.
+
+Recommendation: the server serves each step's position as plain decimals, as it does for the tile's `bar`. For
+example `bar: {"from", "to"}` on the target-to-actual scale, `null` for a step with no effect or a mixed currency. The
+page maps them to percentages, as `barWidths` does.
+- This needs one Architect line extending D-5C.2's "one ratio" to served positions.
+- It is about 0.25 unit across unit 1 and the page.
+- If it does not land before the walkthrough, the owner should be told that the bridge shows rows without bars.
+
+### Residual risk the packet does not name
+
+- Any tenant whose R is not available shows "Offsets it" (M1).
+- At 390 px, A's headline runs 3 lines. This is not gated (the spec gates 1440 and 1280), but it is on the phone path.
+- Shared parts below 4.5:1 (the demonstration bar and the `DataTable` header) appear on this screen. They belong to the
+  UI lane.
+
+### Disposition
+
+READY FOR WALKTHROUGH.
+- Nothing in this diff is High or Medium.
+- M1 goes to unit 1's owner. It does not appear on the walkthrough tenant, but should be fixed before 5c merges.
+- L1 to L5 are recommended on the branch; none blocks.
+- Items 6 and 7 go to the Architect.
+
 ## Backend fix r5 (verification, D-5C.26 to D-5C.28, KD1, KD2, PF1)
 
 Branch `fix/5c-backend-r5` at `1ec0a46fc`, diff against `4b13c0afe` (merge base). Fresh reviewer, verification depth
@@ -789,3 +969,162 @@ Branch `fix/5c-cash-r6` at `d71457123`, diff against `ecaf49f5a` (merge base). F
 ### Disposition
 
 ACCEPT. L1 is optional and does not block.
+
+## Unit 3 round 2: the screen fix and D-5C.29 (verification, W5/W6)
+
+Reviewer (Claude, fresh; did not author the work), 2026-11-21. Branch `task/5c-unit3-screen` at 23e7d73d4, diffed
+against `main` (backend through r6, 8bac2bed4, merged at ebb25e162).
+
+**Summary (verdict READY FOR WALKTHROUGH).**
+- L2 to L5 and items 6 and 7 hold. In the browser, the bars and scale sit at the served positions (within 0.02 %).
+- The cash sentence and table render exactly as served (D-5C.29). "Expected" is gone.
+- Gates A, X and H exit 0. My plants `levels` and `height` exit 1, each naming its check. Vitest 121 passed; tsc and
+  vite build exit 0. Python 201 passed. check-all (fast) passed all 42 guards.
+- L1 is only half fixed (R2-L1, Low). After "Show all 12" focus lands on row 11, but the next Tab leaves the dialog,
+  because the trap tests `contains` rather than membership. vNEXT uses membership. The fix is one line.
+- Item 5 (R2-L2, Low): "Show all" in the by-Site tables still drops focus to `body`. There is no modal, so it is not
+  High.
+- KD4 is right in principle (R2-L3, Low). It is not recorded as a departure, and the stacked step takes 5 lines.
+- Nothing is High or Medium. None of the three Lows shows on the 3-Site walkthrough tenant at 1440 or 1280.
+
+### Checks run (23e7d73d4, from `/opt/assetecon/AssetOpsV1-5c`)
+
+- Slot: `npx vitest run` on `DeepDiveMonth.test.tsx`, `estatePortfolio.test.tsx` and `estatePortfolioRoutes.test.tsx`:
+  3 files, 121 passed (26 in the 5c file). `npx tsc --noEmit`: exit 0. `npx vite build`: built in 5.06 s, exit 0.
+- Slot: `tools/run-host-tests.ps1 -- backend/tests/test_5c_screen_worlds_fresh.py
+  backend/tests/test_5c_deep_dive_view.py`: 201 passed.
+- `vite preview` on 127.0.0.1:5597 (stopped after). `tools/deep_dive_gates.cjs`:
+  - A (`--world A`): exit 0, 9 lines with 0 failures. Hub 1,758 px at 1440. L1 ends at 511 px (1440) and 575 px (1280).
+    6 blocks. Headline 1 line at 1440 and 2 at 1280. 0 texts under 12 px. 0 errors.
+  - X: exit 0, 7 lines. Hub 1,602 px.
+  - H: exit 0, 7 lines. L5 holds: X and H have no D-headline views.
+- My plants on A:
+  - `levels`: exit 1, "levels: a data-level region is missing" on all 8 views.
+  - `height`: exit 1, "height: the hub is 4758 px, at most 2,500" at 1440. The gate checks height at 1440 only, as the
+    spec says.
+- My probe (`page.route` fixtures), worlds A, X and H at 1440, 1280, 1024, 768 and 390:
+  - `scrollWidth` equals the viewport in all 15 views. No element of the hub passes the viewport. 0 texts under 12 px.
+    0 page errors.
+  - Every track and the scale share one box. For example, A is at x 1050 / 333 px wide at 1440 and 273 / 438 at 768.
+  - Measured bars: revenue left 0.00 % and width 11.37 to 11.39 % (served 0.00 / 11.38). Fuel cost 11.37 to 11.39 % and
+    88.61 to 88.63 % (served 11.38 / 88.62). Pixel rounding only.
+  - Every step with a null `bar` has an empty track. X has no bar and no scale. Every track is `aria-hidden`.
+  - Drawer at 1440 and 390: focus goes to Close. `body.dd-locked` is set, with computed `overflow: hidden`, and a wheel
+    does not scroll the page behind.
+  - After "Show all 12", focus is on the LI "Site 11" inside the dialog. Shift+Tab from `body` returns into the dialog.
+    Escape with focus on `body` closes the drawer and returns focus to the Revenue step. The lock is gone after close.
+  - The by-Site table's "Show all 12" leaves focus on `BODY`.
+- Fast check-all, once, through the slot: "check-all: 141.8 s wall … All 42 guards passed (blocking; 0 advisory, 0
+  warned)". It covers the architecture seams, the agent workflow and the missing-claim scan.
+- Shots read: `unit3c/shots/` A and X `-1440x900-light-bridge`; `unit3c/r6/shots/` A `-768x1024-light-full` and
+  `-390x844-light-full`; my own A at 1024. The mock read: vNEXT `uxBridge`, `uxOpen`/`uxClose` and the keydown trap
+  (`loop-ux.js:239-293`); `ux.css` `.ux-wf*`, `:451`, `:597-601`.
+
+### Round 1 findings and items
+
+- **L1 (focus after Show all; Escape and Tab on `document`): partly closed.** The listener is on `document`
+  (`DeepDiveMonth.tsx:178-198`). Show all focuses the first new row (`:240-249`). Escape from `body` works, and so does
+  Tab back in from outside. The next Tab from that row leaks out of the dialog (R2-L1).
+- **L2 (`body.dd-locked`): closed.** It is added on open and removed in the effect cleanup (`:177`, `:199-202`). It is
+  verified in the browser (scroll held) and by vitest on close and unmount.
+- **L3 (mute by served word, not key): closed.** `mute(word, …)` at `:106-108` is used for tiles (`:392`), steps
+  (`:473`) and drivers (`:277`). The outcome card mutes only in the no-drawer branch (`:521-528`). `startsWith` is gone.
+  The vitest shape test flips words on both a contribution tile and a plan tile.
+- **L4 (freshness fails on drift): closed.** `test_5c_screen_worlds_fresh.py` compares the generator's bytes with the
+  committed files and fails with "rerun make_screen_worlds.py". The generator imports only `deep_dive_worlds`. 201
+  passed here. I did not re-plant it; the builder's plant is `unit3c/plant-L4-stale-world.txt`.
+- **L5 (D-headline views for World A only): closed.** `deep_dive_gates.cjs:160`. The views are named for the world only
+  when `--world` is passed (default "A"), which is acceptable.
+- **Item 6 (D-5C.26): holds.** In World X the contribution tile, gap tile, Revenue step and Optimize card carry `dd-na`.
+  Assure and fuel cost do not. No chip reads "Not available yet" (vitest and the X shot). The muted colour
+  `--text-secondary` on raised is 5.03:1.
+- **Item 7 (D-5C.27): holds, checked in the browser.** `left` and `width` come straight from the served strings
+  (`:117`, `:127`, `:130`). No `Number(`, `parseFloat` or arithmetic is added. The positions are measured above. The
+  layout matches `uxBridge`: track rule, 12 px bar, the end mark at `translateX(-100%)`.
+
+### D-5C.29 (cash)
+
+A and H serve, and the page prints, "Of $9,688.00 billed for October, $8,870.00 has been collected, $150.00 is paid
+but in transit and $668.00 is still outstanding." (`:500`, verbatim).
+- The columns are Site, Billed, Collected, In transit, Outstanding. The total is "3 of 3 Sites · $9,688.00 · $8,870.00
+  · $150.00 · $668.00", the same four strings as the sentence. 9,688 = 8,870 + 150 + 668.
+- X reads "Cash collected in October is not available yet." Its total cells read "Not available yet".
+- The page adds nothing (`MonthTable` `:328-363` prints cells as given). The vitest D-5C.29 case pins the text, the
+  head row, the rows and the total, and checks that "expected" is absent.
+
+### KD4 (the step row stacks under 720 px of section)
+
+**Right in principle.** The spec's 600 px *viewport* rule does not account for the shell's navigation. At a 768
+viewport the section is 488 px, and six columns cannot fit without breaking §5.3's "no page scroll".
+- A container query on the section is the correct tool (`deepDiveMonth.css:201`, `:630-650`). I measured no overflow
+  at 768 or 1024. At 1280 and 1440 the row keeps six columns.
+- Two consequences are worth stating (R2-L3):
+  1. The threshold is on the content box (section 744 px gives about 710 px of content), so a **1024 px laptop also
+     stacks**.
+  2. The stacked step gives share, chip and Sites a line each. Each step is then 155 px against 33 px, and the hub is
+     2,756 px at 1024 and 3,186 px at 768. vNEXT's stacked row (`ux.css:451`) is 2 lines.
+- No gate covers either width.
+
+### Accessibility
+
+- **Bars and scale in text: yes.** Each step button's name is its full row text, for example "Revenue −$97.00 11% of
+  what widens the gap Emulated, not yet reconciled 3 of 3 Sites". The share states the bar's proportion. The scale's
+  two marks repeat the visible totals line ("Contribution, October $1,443.00", "Target $2,295.00"). The tile bar keeps
+  its `role="img"` label. `aria-hidden` on the track, bar and scale is right.
+- **Focus and lock:** see L1 and L2 above, and R2-L1.
+- **Under 12 px:** none, in the gates at 3 widths × 2 themes × 3 worlds and in my probe at 5 widths.
+- **Contrast:**
+  - text-secondary on raised 5.03:1;
+  - bar red `#a13838` on white about 7:1;
+  - bar green `#166b50` about 6.6:1.
+  The track rule `--border-strong` is about 1.5:1. It is decorative and `aria-hidden`, and it is the mock's own
+  `--line-strong`, so it is not a finding. Dark captures still render light (MBQ3, known).
+
+### Findings
+
+**R2-L1 (Low; acceptance gap against spec §5.3 "Drawers": the Tab cycle holds wherever focus is). After "Show all"
+in a drawer, the next Tab leaves the dialog.**
+- **Where:** `frontend/src/estate/DeepDiveMonth.tsx:189-195`.
+- **What is wrong:** the handler wraps only when focus is outside the panel or is exactly `last`. After "Show all"
+  the focused row is inside the panel but is not in `focusable` (it has `tabIndex -1`). Usually Close is then the
+  only focusable, so Tab moves on in DOM order to the page behind ("Show by Site"). Probed at 1440 and 390. The next
+  Tab comes back, but a modal (`aria-modal`) let focus out once, which is what L1 was meant to stop.
+- **Why it does not block:** it needs more than 10 Sites in a drawer. The walkthrough tenant has 3.
+- **Fix:** do as vNEXT does (`loop-ux.js:289`). Use `const out = !focusable.includes(document.activeElement)` and wrap
+  when `out` (Tab → first, Shift+Tab → last). Extend the vitest L1 case with one Tab from row 11 that asserts focus
+  stays in the dialog.
+
+**R2-L2 (Low; the item 5 question). "Show all {n}" under the by-Site tables drops focus to `body`.**
+- **Where:** `DeepDiveMonth.tsx:356-360` (the button unmounts on click).
+- **Severity:** Low, not High. There is no modal, no trap and no data loss. Chrome resumes Tab at the `<details>`
+  summary, near where the reader was. A screen-reader user does lose their place. It needs more than 10 Sites.
+- **Fix:** the `Capped` pattern. Give the first newly shown `<tr>` `tabIndex={-1}` and focus it after the click.
+
+**R2-L3 (Low; record plus a preference on the stacked form). KD4 departs from spec §5.3's text and is not recorded;
+the stacked step takes 5 lines.**
+- **Where:** `deepDiveMonth.css:630-650` and `:601-609`. `.agent/mock-departure-register.md` has no KD4 row; spec §5.3 still says "at widths
+  above 600 px".
+- **What it means:** the departure is correct. It needs one Architect line (or a §5.3 edit) and a register row, so
+  that the 720 px container rule is the spec and not a builder choice.
+- **Preference, not an acceptance gap:** in the stacked layout, put share, chip and Sites on one wrapping meta line
+  spanning `1 / -1`. A stacked step would then be about 3 lines, closer to vNEXT's 2. That roughly halves the bridge
+  at 1024 and 768, and 1024 is a common laptop width.
+
+Nothing else. No new arithmetic, no key or text test, no colour literal, and no figure that the page formats.
+
+### Not verified, and residual risk
+
+- No screen-reader pass. The screen was not served from a real `_test` database (MBQ6, fixtures through `page.route`).
+  Dark mode renders light (MBQ3).
+- The 1024 and 768 hub heights (2,756 and 3,186 px) are ungated. If the owner walks through on a smaller laptop, the
+  bridge reads long (R2-L3).
+- The L4 plant was not rerun by me (code read, and the builder's plant file).
+
+### Disposition
+
+READY FOR WALKTHROUGH.
+- Nothing is High or Medium.
+- R2-L1 and R2-L2 are one-line-class fixes. They are recommended on the branch before merge and do not block the
+  walkthrough.
+- R2-L3 goes to the Architect: record KD4, and decide on the compact stacked row.
+- The merge waits for the owner's walkthrough.

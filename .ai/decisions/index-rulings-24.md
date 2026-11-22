@@ -1,18 +1,14 @@
-# Decision index: rulings part 24
+# Decision index: Demo-sprint and later rulings (index only) (D-0K4.45 to D-0K4.56)
 
-One line per ID (`.ai/decisions/INDEX.md`).
-
-- `D-IAP.1` scope: menu, Portfolio, lists, Site tab row, inbox, scope, search; IA-2c/2d/2e content follow the mock; Plan unavailable (no plan record) · live · specs/IA-P-product-shape/rulings.md
-- `D-IAP.2` the month (5c) is the Portfolio Overview; /portfolio/month aliases; SR-4c month span; range exception is owner Q2 · live · specs/IA-P-product-shape/rulings.md
-- `D-IAP.3` interim decision = placed Finding (waiting when no Action agreed); page = Finding recommendation view; 6f replaces · live · specs/IA-P-product-shape/rulings.md
-- `D-IAP.4` iaRoutes.ts registry, landed rule, LEGACY_ROUTES keep query; IA names for menu/Portfolio, Site segments kept; tabs carry range · live · specs/IA-P-product-shape/rulings.md
-- `D-IAP.5` rail per D-IA.1; Operational records into Evidence & records; railHomeOf replaces railActiveLabel; guard re-pinned · live · specs/IA-P-product-shape/rulings.md
-- `D-IAP.6` one HomeList component (IA-2b §3), all pages read via shared cache (1,000 cap stated), ref-less rows shown as text · live · specs/IA-P-product-shape/rulings.md
-- `D-IAP.7` Site six tabs (Setup, Performance, Operations folds); Findings off the row behind parity test; object pages no tab row · live · specs/IA-P-product-shape/rulings.md
-- `D-IAP.8` E0: estate portfolio summary waiting_count and waiting_by_site (members with no Action), additive · live · specs/IA-P-product-shape/rulings.md
-- `D-IAP.9` E1 GET /api/portfolio/sites: server-ordered Sites rows, SC-1 portfolio_sites.*, gaps sum to the Overview gap · live · specs/IA-P-product-shape/rulings.md
-- `D-IAP.10` Waiting for you: badge and In your portfolio from waiting decisions; For you not available yet; since = progress rows · live · specs/IA-P-product-shape/rulings.md
-- `D-IAP.11` scope switch and search palette (Sites, decisions, Findings, Actions, live rail items; 20 shown) · live · specs/IA-P-product-shape/rulings.md
-- `D-IAP.12` old Overview re-housed: cards to Outcomes L3, top three to Overview L2, pulse retired, coverage to Evidence, changes to Results · live · specs/IA-P-product-shape/rulings.md
-- `D-IAP.13` units P1-P7 in two parts (IA-P1 3.75 u, IA-P2 4.75 u); iap_gates.cjs and route-map test first; plants · live · specs/IA-P-product-shape/rulings.md
-- `D-IAP.14` only P4 stales the world key (one rung rebuild); walk pages still land; DDR path aliased, runbook line in P3 · live · specs/IA-P-product-shape/rulings.md
+- `D-0K4.45` product-parity seam: 0K4m leaves structures, factor_map, leaf_sources, home nodes/findings and derived/missing sites (and derived portfolio/history) as on main (K13); Kobo split override, generator_l, MODEL_PENDING out; admission leaf in forward_baseline; structure layer moves to 0K4f; world check rerun, no build (owner-away row 78) · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.46` N5 no-candidate covers protective decisions: take none, reason in protective_choices, never infeasible for it; P24 · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.47` N1 option words, leftmost operand, not-available over missing, null bound, admissible stated in spec · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.48` sensitivities null when the option's value is null · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.49` M1/L3/L4 fixes confirmed; M1 probe plant P25; history-row anchors; commit 2b before units 2-3; 0K4m 4.0 u; 0K4f +~1 u; amends D-0K4.43 · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.50` unit 3: vocab guard keeps the replay ban; §4 copy says "simulation" (exact strings); spec copy checked against the guard first · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.51` Kobo split on the mock: recorded, no chip, words "as October's records classify it…"; 0K4f in the drawer reviewer block only; amends acceptance 5 (owner-away row 79) · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.52` manifest prose fixed at source: bridge bases "against a target of" (OD-6), swept; unit 3 commit 4; unit 2 same words; no PLAIN patch · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.53` unit 3 scope all of §4; Simulated chip days per figure's own study; repo audit without --shots, shots from scratch copy to evidence/0K4m/u3 · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.54` mock renders its own copy for Kobo settings and KIS-BATT60, never manifest reason strings (two audiences) · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.55` mock readers read fields the fixtures carry (removed-field sweep, crashes fixed, consoleErrorRoutes 0); gap = Not available yet, element kept, no row dropped; verify/wear/Mto copy · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.56` P26b (candidate_l "0" override) carries P26; k10() code removed at commit 6 · live · specs/0K4-dispatch-model-review/rulings-2.md

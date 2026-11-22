@@ -15,3 +15,4 @@ One line per slice, continuing `index-2.md` (number, slice ID, summary, file in 
 190. `0K4d` admission rule in `runs/admission.py`; Kobo and Mto studies rerun on v8 and season v2 with identity headers; §4.2 MG-T restated · data.md
 191. `WK` walkthrough database tool: guarded `walk_url`, copy/prepare/check W1-W7/serve 8991-5491/smoke S1-S4/stop/drop; no run yet · data.md
 192. `DDR` the rehearsal checker (ten gates, codes only), `portfolio_history`, board-budget profile, runbook 6-12; rehearsal pending · data.md
+193. `5c` unit 3: "The month" screen (Portfolio tab, hub shape, drawers, gates script with eight plants; rev 4 screen fix: served step bars and scale, `dd-na` mute, drawer focus and lock; in_review) · estate.md
