@@ -23,3 +23,4 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-11-22 `owner-demo-data-spec-2026-11-22.md` Go ahead with the demo-data spec (every Site type, months of history, telemetry if demo-critical), grounded on the product goals · current
 - 2026-11-22 `owner-demo-data-answers-2026-11-22.md` DD answers: readings 1 Jul-6 Nov, four months of books, one operator served at a time, Kobo kit FG Wilson P50-3 36 kW + Pylontech · current
 - 2026-11-22 `owner-docs-refresh-2026-11-22.md` Refresh NOW and SUMMARY now; one design-doc + mock alignment pass after IA-P and DD land · current
+- 2026-11-22 `owner-6f-q1-levers-2026-11-22.md` 6f Q1: why are cold/EV different, is the union a code fix for a data issue (lever gap); Q2-Q8 accepted · current
