@@ -2597,6 +2597,17 @@ def k9(root, doc, im):
     out.append((f"K9 self-test (P25): with all four MTO-INV options not available the plan takes none of them and is feasible "
                 f"(feasible {got[0]}, items {got[1]}, spend {got[2]}; want KIS-REPAIR + BAT-EVIDENCE, 2230)",
                 got == (True, ["BAT-EVIDENCE", "KIS-REPAIR"], 2230.0)))
+    # D-0K4.48: an option with money_changes false (or a null value) has every sensitivity null; the set must be non-empty
+    try:
+        oo = im.Model(_copy.deepcopy(doc)).compute()["options"]
+        flat = [k for k, o in oo.items() if o.get("sensitivities") and not o["money_changes"]]
+        bad = [k for k in flat if any(v is not None for v in oo[k]["sensitivities"].values())]
+        bad += [k for k, o in oo.items() if o.get("sensitivities") and o["value"] is None
+                and any(v is not None for v in o["sensitivities"].values())]
+    except Exception as ex:   # noqa: BLE001
+        flat, bad = [], [f"raised {ex!r}"]
+    out.append((f"K9 self-test (D-0K4.48): every sensitivity is null for an option with money_changes false or a null value "
+                f"({len(flat)} such options with sensitivities, e.g. {flat[:2]}; numeric: {bad})", len(flat) > 0 and not bad))
     # P24 (rev 4, D-0K4.46): every option of one protective decision not available: it takes none, with its stated how
     p = _copy.deepcopy(doc)
     dec = next(d for d in p["plans"]["lakeside-power"]["decisions"] if d.get("kind") == "protective")

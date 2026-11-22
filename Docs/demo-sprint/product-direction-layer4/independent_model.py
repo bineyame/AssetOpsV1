@@ -983,7 +983,7 @@ class Model:
         out["params"] = OrderedDict((k, rdec(v, 6)) for k, v in run["params"].items())
         out["cost_lines"] = OrderedDict((k, {"amount": r2(a), "operator_share": sh}) for k, (a, sh) in run["cost_lines"].items())
         if sens:
-            out["sensitivities"] = OrderedDict((k, None if out["value"] is None else r2(v)) for k, v in sens.items())
+            out["sensitivities"] = OrderedDict((k, None if (out["value"] is None or not out["money_changes"]) else r2(v)) for k, v in sens.items())
         od = (self.ev.get("option_detail") or {}).get(V)
         if od:
             if od.get("capacity"):
