@@ -20,6 +20,15 @@ SIDES = ("plan", "actual")
 PHYSICAL_READS: dict[str, tuple[str, ...]] = {"fleet_kwh": ("buses", "kwh_per_bus_night"), "fleet_nights": ("buses",)}
 
 
+def history_global(history: dict) -> dict:
+    """The history's global inputs a scope reads. `seasons` is restricted to the history's months plus the anchor
+    (D-DD.90): a season declared for a later month of the readings span is read by no history rule."""
+    out = {key: history[key] for key in GLOBAL_KEYS}
+    read = set(history["months"]) | {history["anchor_period"]}
+    out["seasons"] = {month: season for month, season in history["seasons"].items() if month in read}
+    return out
+
+
 def scope_key(tenant: str, site: str, month: str) -> str:
     return f"{tenant}/{site}/{month}"
 
@@ -66,7 +75,7 @@ def scope_input(view: dict, tenant_doc: dict, site_doc: dict, month: str, rules:
     return {
         "generator": GENERATOR,
         "month": month,
-        "history_global": {key: history[key] for key in GLOBAL_KEYS},
+        "history_global": history_global(history),
         "rules": rules,
         "tenant": tenant,
         "site": site,

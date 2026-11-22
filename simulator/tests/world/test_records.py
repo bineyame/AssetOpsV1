@@ -589,11 +589,15 @@ def test_l2_season_v2_last_day_is_day_zero_plus_declared_length() -> None:
     assert tel.SEASON_V2_LAST_DAY.isoformat() == "2026-10-31"
 
 
-def test_l2_cli_end_default_is_none_and_resolves_to_the_accounting_period() -> None:
+def test_l2_cli_end_default_is_readings_span_since_d_dd_103() -> None:
+    """D-DD.106 L2's `None` default resolved to the accounting period's end until D-DD.103 replaced it with
+    `READINGS_SPAN` (no literal, no allowance)."""
+    from assetops_simulator.world.telemetry import READINGS_SPAN
+
     import importlib.util
     spec = importlib.util.spec_from_file_location("world_history_cli", CLI)
     cli = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(cli)
     args = cli.build_parser().parse_args(["telemetry", "--manifest", "m", "--sites", "s", "--books", "b", "--out", "o"])
-    assert args.end is None
-    assert "period_end(view[\"accounting_period\"])" in CLI.read_text(encoding="utf-8")
+    assert (args.start, args.end) == READINGS_SPAN
+    assert "period_end" not in CLI.read_text(encoding="utf-8")

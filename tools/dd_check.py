@@ -35,11 +35,14 @@ SITE_TYPE = {"MINI_GRID": "MINIGRID", "COLD_CHAIN": "COLDCHAIN", "EV_DEPOT": "EV
 
 #: Stubs: each check's question and the unit that makes it live (spec §8.1 "Live from").
 STUBS = {
-    "C-DD5": "DD4.4", "C-DD6": "DD4.4", "C-DD7": "DD4.4",
+    "C-DD5": "DD4.4", "C-DD7": "DD4.4",
     "C-DD8": "DD3.3", "C-DD9": "DD6.1", "C-DD10": "DD6.1",
     "C-DD14": "DD5.2", "C-DD15": "DD6.1", "C-DD17": "DD3.3", "C-DD18": "DD6.1",
     "C-DD19": "DD3.3", "C-DD20": "DD4.4",
 }
+#: D-DD.121: C-DD6 is live by vertical (so in LIVE, not STUBS); its clauses not yet producible, each with the unit that makes it live.
+PENDING = {"C-DD6": ("EV-KAS CH-K2 2026-11-01T23:40 DD4b", "EV-RUI CH-R7 c2 2026-10-06 DD4b",
+                  "KISIWA-001 GEN-KS-01 2026-10-30T18:40 DD3b", "MTO-001 INV-MT-02 2026-10-28T11:02 DD3b")}
 ORDER = tuple(f"C-DD{i}" for i in range(1, 22))
 
 
@@ -522,6 +525,59 @@ def stub(check: str) -> Result:
     return Result(check, False, [f"not live: its unit {STUBS[check]} has not landed"])
 
 
+#: C-DD6's live clauses (D-DD.121), the checker's own reading of `M`: Thika's failure on its own unit at its minute
+#: (GEN-CR-01 is the generator controller's channel), and the two batches present that night with their limits.
+FAILURES_LIVE = ({"site": "COLD-THIKA", "unit": "GEN-CR-01", "source_id": "generator-controller",
+                  "at": "2026-10-06T19:11"},)
+EXCURSIONS = ({"site": "COLD-THIKA", "batch": "B-1031", "day": "2026-10-06", "limit_c": Decimal(5), "above_minutes": 15},
+              {"site": "COLD-THIKA", "batch": "B-1034", "day": "2026-10-06", "limit_c": Decimal(12)})
+CHAMBER = "chamber-probe"
+
+
+def judge_failures_at_instant(readings: dict[str, list[dict]]) -> Result:
+    """C-DD6 on readings rows (`{site code: rows}`, the writer's row shape): each live failure is a FAILED event on its
+    own channel at its local minute, and on no other channel then; B-1031 is above 5 degC for more than 15 minutes by
+    the 5-minute readings' lower bound ((n - 1) x 5 for n consecutive readings above); B-1034 stays below 12 degC."""
+    detail = []
+    for clause in FAILURES_LIVE:
+        rows = readings.get(clause["site"], [])
+        failed = {r["source_id"] for r in rows if r.get("unit") == "event" and r["event"].get("outcome") == "FAILED"
+                  and r["start"][:16] == clause["at"]}
+        if failed != {clause["source_id"]}:
+            detail.append(f"{clause['site']} {clause['unit']}: FAILED at {clause['at']} on {sorted(failed) or 'nothing'}")
+    for clause in EXCURSIONS:
+        chamber = [(r["start"], Decimal(r["value"])) for r in readings.get(clause["site"], [])
+                   if r["source_id"] == CHAMBER and r["start"].startswith(clause["day"])]
+        if not chamber:
+            detail.append(f"{clause['site']} {clause['batch']}: no chamber readings on {clause['day']}")
+            continue
+        if "above_minutes" in clause:
+            run = longest = 0
+            for _at, value in chamber:
+                run = run + 1 if value > clause["limit_c"] else 0
+                longest = max(longest, run)
+            bound = max(longest - 1, 0) * 5
+            if bound <= clause["above_minutes"]:
+                detail.append(f"{clause['site']} {clause['batch']}: above {clause['limit_c']} degC at least {bound} "
+                              f"minutes, not more than {clause['above_minutes']}")
+        else:
+            peak = max(value for _at, value in chamber)
+            if peak >= clause["limit_c"]:
+                detail.append(f"{clause['site']} {clause['batch']}: peak {peak} degC is not below {clause['limit_c']}")
+    pending = [f"{p} pending" for p in PENDING["C-DD6"]]
+    return Result("C-DD6", not detail, detail, pending)
+
+
+def stored_readings(database_url: str) -> dict[str, list[dict]]:
+    """C-DD6's fetch from the clone. The world's readings reach the store only through DD5's loader (DD5.1); until it
+    lands the store holds none, so the check fails on the clone naming the missing rows (D-DD.121)."""
+    return {}
+
+
+def check_failures(inputs: "Inputs") -> Result:
+    return judge_failures_at_instant(stored_readings(inputs.database_url))
+
+
 GENERATOR_MODULES = ("simulator/assetops_simulator/world", "tools/world_history.py")
 #: Names the writer's own refusal may carry; every other mention of the answer block in a generator module fails C-DD12.
 ANSWER_BLOCK_ALLOWED = ("refuse_oracle", "TEL_ORACLE_READ", "ORACLE_KEY")
@@ -569,7 +625,7 @@ def _run_world(args: list[str]) -> None:
 
 def check_two_processes_agree(inputs: Inputs, first: str = "2026-07-01", last: str = "2026-07-02") -> Result:
     """C-DD11: two generator runs in separate processes give identical bytes for books, readings and measured books.
-    A two-day window of Kobo (the writer is deterministic by construction; this is the proof it is)."""
+    A two-day window of Kobo and Mwea (the writer is deterministic by construction; this is the proof it is)."""
     import tempfile
 
     onboarding = ROOT / "backend/tests/fixtures/on1"
@@ -583,7 +639,7 @@ def check_two_processes_agree(inputs: Inputs, first: str = "2026-07-01", last: s
                         str(ROOT / "backend/conversions/world"), "--out", str(base / "sites.json")])
             _run_world(["telemetry", "--manifest", manifest, "--sites", str(base / "sites.json"), "--books",
                         str(base / "books"), "--out", str(base / "telemetry"), "--start", first, "--end", last,
-                        "--site", "KOBO-001"])
+                        "--site", "KOBO-001", "--site", "COLD-MWEA"])  # Mwea from DD4a (D-DD.122)
             digests.append({str(p.relative_to(base)): hashlib.sha256(p.read_bytes()).hexdigest()
                             for p in sorted(base.rglob("*")) if p.is_file()})
     differing = sorted(k for k in set(digests[0]) | set(digests[1]) if digests[0].get(k) != digests[1].get(k))
@@ -717,7 +773,7 @@ LIVE: dict[str, Callable[[Inputs], Result]] = {
     "C-DD11": check_two_processes_agree, "C-DD12": check_no_oracle_read, "C-DD21": check_property_table_parity,
     "C-DD16": check_datasheet,
     "C-DD1": check_cast, "C-DD2": _judged(judge_kinds), "C-DD3": _judged(judge_identities),
-    "C-DD4": _judged(judge_leaves_and_nodes), "C-DD13": check_tenant_isolation}
+    "C-DD4": _judged(judge_leaves_and_nodes), "C-DD13": check_tenant_isolation, "C-DD6": check_failures}
 
 
 def run(inputs: Inputs, only: tuple[str, ...] = ORDER) -> list[Result]:

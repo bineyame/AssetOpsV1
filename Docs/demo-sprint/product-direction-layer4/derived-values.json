@@ -461,7 +461,7 @@
      "occupied_total_crate_days": 8680.0,
      "crate_days_without_excursion": 8560.0,
      "chamber_minutes": 44640.0,
-     "cooling_available_minutes": 44636.0,
+     "cooling_available_minutes": 44568.0,
      "crate_days": 8680.0,
      "rate": 0.2,
      "contract_crate_days": 0.0,
@@ -481,7 +481,7 @@
      "excursion_crates": 120.0,
      "excursion_days": 1.0,
      "batches_exposed": 1.0,
-     "cooling_minutes_unavailable": 4.0,
+     "cooling_minutes_unavailable": 72.0,
      "minutes_per_day": 1440.0,
      "capacity_crate_days": 12400.0,
      "period_days": 31.0
@@ -3242,7 +3242,7 @@
    "cooling_availability": {
     "numerator": {
      "Room A · Mwea": 44640.0,
-     "Room B · Thika": 44636.0,
+     "Room B · Thika": 44568.0,
      "Room C · Kirinyaga": 44640.0
     },
     "denominator": {
@@ -3252,10 +3252,10 @@
     },
     "sites": {
      "Room A · Mwea": 100.0,
-     "Room B · Thika": 99.991,
+     "Room B · Thika": 99.839,
      "Room C · Kirinyaga": 100.0
     },
-    "portfolio": 99.997
+    "portfolio": 99.946
    },
    "crate_days_without_excursion": {
     "sites": {
@@ -3464,8 +3464,8 @@
      "contract_crate_days": 0.0,
      "contract_rate": 0.0,
      "contribution": 946.0,
-     "cooling_available_minutes": 133916.0,
-     "cooling_minutes_unavailable": 4.0,
+     "cooling_available_minutes": 133848.0,
+     "cooling_minutes_unavailable": 72.0,
      "cost_to_serve": 3642.0,
      "crate_days": 22940.0,
      "crate_days_without_excursion": 22820.0,

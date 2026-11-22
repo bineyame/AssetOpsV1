@@ -1,0 +1,365 @@
+{
+ "files": {
+  "lakeside-power/telemetry/KOBO-001.2026-07-01.readings.json": "4344e432d7a43da0cec45368d68199033ef2f4ace76b4cb3e89cf49fe73c8b23",
+  "lakeside-power/telemetry/KOBO-001.2026-07-02.readings.json": "4a7f081dd8c512099b421b08070964ca4e243d66b30ea1c01939d4188966ca51",
+  "lakeside-power/telemetry/KOBO-001.2026-07-03.readings.json": "a0deddaadd6896a24ef4917c64fd50e7f5f9e4e2539dd74977c9abb5e7aab6c7",
+  "lakeside-power/telemetry/KOBO-001.2026-07-04.readings.json": "87429de10d11bcb230d75dbbf2944e8ef09c039e829d6830ddbe0f4d807baa04",
+  "lakeside-power/telemetry/KOBO-001.2026-07-05.readings.json": "15112c7eb7780e469a8227a5992f645669e321df4e50044f688ec8e12fa5989a",
+  "lakeside-power/telemetry/KOBO-001.2026-07-06.readings.json": "b8737f1e562b30fece421f23b4df2627453e01ff93310a053fda11c5fefe3c0b",
+  "lakeside-power/telemetry/KOBO-001.2026-07-07.readings.json": "6c30c06443b42740d447e41fac1e5e967e5382c2e1873515421329198db15ff0",
+  "lakeside-power/telemetry/measured.json": "8f7c2b9f34edc6eb8eec244959fb255b0b5dc3b1abe11219a0a201d1449f77dd"
+ },
+ "manifests": {
+  "lakeside-power/telemetry/KOBO-001.manifest.json": {
+   "conditions": {
+    "critical_load_order": [
+     "clinic",
+     "res",
+     "mill"
+    ],
+    "day_weights": {
+     "SA": "0.97",
+     "SU": "0.90",
+     "WD": "1.00",
+     "classes": {
+      "SA": [
+       6
+      ],
+      "SU": [
+       7
+      ],
+      "WD": [
+       1,
+       2,
+       3,
+       4,
+       5
+      ]
+     }
+    },
+    "declared_draw": "month unexplained_l in equal daily parts at 02:00 local (D-DD.19)",
+    "fuel_notes": [
+     {
+      "at": "2026-07-01T10:00:00+03:00",
+      "litres": 400
+     },
+     {
+      "at": "2026-07-05T10:00:00+03:00",
+      "litres": 400
+     }
+    ],
+    "load_shape_kw": {
+     "clinic": [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      5,
+      5,
+      6,
+      6,
+      7,
+      7,
+      7,
+      7,
+      6,
+      6,
+      5,
+      5,
+      5,
+      5,
+      4,
+      4,
+      2,
+      2
+     ],
+     "mill": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      15,
+      15,
+      18,
+      18,
+      10,
+      10,
+      12,
+      12,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "res": [
+      3,
+      3,
+      3,
+      3,
+      3,
+      5,
+      8,
+      8,
+      6,
+      6,
+      5,
+      5,
+      6,
+      6,
+      8,
+      8,
+      14,
+      14,
+      14,
+      14,
+      9,
+      9,
+      5,
+      5
+     ]
+    },
+    "overcast_day_indices": [
+     2,
+     3,
+     7,
+     8,
+     9,
+     13,
+     17,
+     18,
+     19,
+     20,
+     24,
+     25,
+     28,
+     33,
+     38,
+     39,
+     45,
+     50,
+     51,
+     52,
+     57
+    ],
+    "overcast_days_from": "2026-09-01",
+    "sun_outside_calendar": {
+     "calendar": [
+      "2026-09-01",
+      "2026-10-31"
+     ],
+     "rule": "clear shape x solar_surplus day weight (season x day class, no jitter) (D-DD.77)",
+     "weights": {
+      "classes": {
+       "SA": [
+        6
+       ],
+       "SU": [
+        7
+       ],
+       "WD": [
+        1,
+        2,
+        3,
+        4,
+        5
+       ]
+      },
+      "day": {
+       "SA": "1.00",
+       "SU": "1.00",
+       "WD": "1.00"
+      },
+      "season": {
+       "cool_dry": "0.80",
+       "short_rains": "1.00",
+       "warm_dry": "1.10"
+      },
+      "seasons": {
+       "2026-07": "cool_dry",
+       "2026-08": "cool_dry",
+       "2026-09": "warm_dry",
+       "2026-10": "short_rains"
+      }
+     }
+    },
+    "sun_w_per_m2": {
+     "clear": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      150,
+      150,
+      550,
+      550,
+      900,
+      900,
+      950,
+      950,
+      600,
+      600,
+      150,
+      150,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ],
+     "overcast": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      50,
+      50,
+      190,
+      190,
+      310,
+      310,
+      330,
+      330,
+      210,
+      210,
+      50,
+      50,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+     ]
+    },
+    "tank_start": "50 % of tank-capacity (Assumed, D-DD.19)"
+   },
+   "foundation_digest": "339b034652ce54f84c1fa74b765bbce7aeca4f4ebc902da95aea263ca34a0373",
+   "generator": "assetops_simulator.world/1",
+   "golden_digests": {
+    "2026-07": "ced72629a5e39c2d8bc830254f15b4f9b9c0250a7d2fd88f9f15c7b3ec43a642"
+   },
+   "mappings": [
+    {
+     "record": "battery-ac-power@battery-pcs",
+     "role": "battery_power",
+     "signal_id": "ac-power",
+     "source_id": "battery-pcs-controller"
+    },
+    {
+     "record": "battery-discharge-capability@battery-pcs",
+     "role": "pcs_discharge_capability",
+     "signal_id": "discharge-capability",
+     "source_id": "battery-pcs-controller"
+    },
+    {
+     "record": "battery-state-of-charge@battery",
+     "role": "battery_soc",
+     "signal_id": "state-of-charge",
+     "source_id": "battery-pcs-controller"
+    },
+    {
+     "record": "load-served-power@load-clinic",
+     "role": "feeder_demand",
+     "signal_id": "active-power",
+     "source_id": "clinic-meter"
+    },
+    {
+     "record": "fuel-tank-volume@fuel-tank",
+     "role": "fuel_level",
+     "signal_id": "fuel-level",
+     "source_id": "fuel-level-sensor"
+    },
+    {
+     "record": "generator-output-power@generator",
+     "role": "generator_power",
+     "signal_id": "ac-power",
+     "source_id": "generator-controller"
+    },
+    {
+     "record": "generator-state@generator",
+     "role": "generator_state",
+     "signal_id": "status",
+     "source_id": "generator-controller"
+    },
+    {
+     "record": "load-served-power@load-mill",
+     "role": "feeder_demand",
+     "signal_id": "active-power",
+     "source_id": "mill-meter"
+    },
+    {
+     "record": "pv-ac-power@pv-inverter",
+     "role": "pv_power",
+     "signal_id": "ac-power",
+     "source_id": "pv-inverter-controller"
+    },
+    {
+     "record": "pv-available-power@pv-inverter",
+     "role": "pv_available_power",
+     "signal_id": "available-power",
+     "source_id": "pv-inverter-controller"
+    },
+    {
+     "record": "site:plane-of-array-irradiance",
+     "role": "pv_irradiance",
+     "signal_id": "irradiance",
+     "source_id": "pv-irradiance-sensor"
+    },
+    {
+     "record": "load-served-power@load-res",
+     "role": "feeder_demand",
+     "signal_id": "active-power",
+     "source_id": "residential-meter"
+    }
+   ],
+   "pack": {
+    "model": "mini-grid",
+    "version": 8
+   },
+   "private_parameters": {
+    "battery-charge-taper-start@battery": "95",
+    "battery-energy-capacity@battery": "383/2",
+    "battery-reserve-state-of-charge@battery": "30",
+    "battery-state-of-charge@battery": "40",
+    "fuel-tank-capacity@fuel-tank": "2500",
+    "fuel-tank-volume@fuel-tank": "1250",
+    "generator-minimum-load@generator": "30",
+    "generator-minimum-runtime@generator": "30",
+    "generator-no-load-fuel-rate@generator": "31/3000",
+    "generator-rated-power@generator": "36",
+    "generator-specific-fuel-consumption@generator": "2917/10000",
+    "generator-start-delay@generator": "5",
+    "generator-start-soc-threshold@generator": "35",
+    "generator-stop-soc-threshold@generator": "90",
+    "inverter-ac-limit@pv-inverter": "50",
+    "pcs-charge-limit@battery-pcs": "30",
+    "pcs-conversion-efficiency@battery-pcs": "95",
+    "pcs-discharge-limit@battery-pcs": "30",
+    "pv-rated-power@pv-array": "60"
+   },
+   "role_set": "minigrid-roles-4",
+   "schema": "assetops.world-readings-manifest/1",
+   "site_code": "KOBO-001",
+   "span": {
+    "first": "2026-07-01",
+    "last": "2026-07-07"
+   }
+  }
+ },
+ "source": "main 759759598 (DD3a merge), before the join"
+}
