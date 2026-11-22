@@ -1041,7 +1041,106 @@ owner is asked to weigh in on D-DD.76 (it declares three Site tanks).
   - *Order inside DD3a.* (1) the parity golden on the unchanged kernel, committed; (2) the index, parity green, timing;
     (3) D-DD.77; (4) D-DD.76's tank rows, then commit 1b's pure run on the new tank; (5) commit 2 as §6 says.
 
-# DD rulings, round 10 (D-DD.80 to D-DD.87): DD4 mid-build questions Q1 to Q5 and the deviation
+# DD rulings, round 10 (D-DD.80): DD3a blocker (kernel speed, second round: the cause path)
+
+Architect (Claude), 2026-11-22. Input: `DD3a-handoff.md` Update 5 on `task/DD3a-mini-reality` at c35c50e92 (timings
+7 / 14 / 28 days 5.5 / 15.3 / 74.8 s, 123 days over 10 min; cProfile of 28 days, 99.7 s, `point_due_at` 53.2 s over
+249,984 calls). Checked against code on that branch: `kernel/execute.py:250-271` (`_forcing_index`, D-DD.75), `:1079-1125`
+(`_phase_apply_events`: every cause at every step, `point_due_at` per POINT cause), `:1383-1410` (`_phase_evolve`: every
+cause at every step for the non-POINT shapes), `:1700-1706`, `:1845-1869` (`Execution`, `_advance_one`, `step_length`),
+`:1618` (`_PHASES`, reached only through `Execution`), `contracts/.../execution_contract.py:1671` (`point_due_at`, a scan of
+every step start), `contracts/.../world_inputs.py:77` (`FrozenInterval.step_starts`, a property that builds a tuple of every
+step start at each read) and `:343` (`excludes`), every `for ... in world.inputs.<collection>` in `execute.py` (lines 260,
+276, 361, 472, 544, 687, 715, 753, 757, 820, 887, 916 are setup, read once; 1100 and 1391 are per step), and
+`host/forward_replay.py:193,320` (one read each). `git diff main -- simulator/assetops_simulator/kernel contracts` on the
+branch is D-DD.75's index only. The owner is informed; no owner weigh-in is needed (no figure moves).
+
+- **D-DD.80 The kernel indexes declared causes by step, as D-DD.75 indexes forcings; the per-boundary rebuild of the
+  step starts goes with it; byte-identical** (blocker; protected seam, no contract change).
+  - *The class (W6).* A boundary must cost the same whatever the span. Three per-step reads violate it, all in
+    `kernel/execute.py`: (1) `_phase_apply_events` walks every cause and, for each POINT one, calls `point_due_at`, a scan
+    of every step start: O(steps × POINT causes × steps), the square the timings show (the writer adds a draw a day and
+    the notes, so POINT causes grow with the span too); (2) `_phase_evolve` walks every cause at every step for the WINDOW
+    and INTERVAL_WIDE shapes: O(steps × causes); (3) `_phase_apply_events` reads `interval.step_starts`, which builds a
+    tuple of every step start, at every boundary (8,064 reads at 28 days). D-DD.75 fixed the same class for forcings. This
+    ruling closes it: after it, no per-step code in the kernel reads a frozen-input collection or a derived value whose
+    size grows with the span. Every other loop over `world.inputs` in `execute.py` is setup (listed above), read once.
+  - *Options.* An index of causes by step is taken. `point_due_at` by arithmetic is refused: it is a contract function
+    (protected seam; `backend/.../scenarios/execution.py:82` re-exports it), it would leave (2) and (3), and it would put a
+    second definition of `point-applied-once` beside the contract's. Caching `step_starts` alone is refused: it removes (3)
+    only. With the index, nothing per step reads the step starts, so no cache is needed.
+  - *Change (`kernel/execute.py` only).*
+    1. `_World` gains `point_causes_by_step: dict[int, tuple[int, ...]] | None = None` and
+       `spread_causes_by_step: dict[int, tuple[int, ...]] | None = None` beside `forcings_by_step`, with a comment
+       citing D-DD.80.
+    2. The step walk of `_forcing_index` moves, unchanged, into one pure helper
+       `_steps_overlapping(step_starts, timestep, duration, start, end) -> Iterator[int]`: from
+       `max(bisect_right(step_starts, start) - 1, 0)` while `step_starts[cursor] < end`, yield `s` when
+       `overlap_minutes(s, min(s + timestep, duration) - s, start, end - start) > 0`. `_forcing_index` calls it; its
+       output is unchanged.
+    3. New pure function `_cause_index(inputs) -> tuple[dict[int, tuple[int, ...]], dict[int, tuple[int, ...]]]`, read
+       once: `step_starts = inputs.interval.step_starts`; for each position `p` of `inputs.causes`, in order:
+       - POINT: `due = point_due_at(step_starts, timestep, cause.offset_minutes)` (the contract's function, called once
+         per cause); when `due is not None`, append `p` to the first map at `due`.
+       - WINDOW or INTERVAL_WIDE: `(start, end) = _entry_span(cause, duration)`; when `end <= start`, append `p` to the
+         second map at step 0 (the old loop reached such a cause at the first step and raised from
+         `window_share_of_step`; keeping it there keeps that, which D-DD.75 could only skip); otherwise append `p` to the
+         second map at every `s` of `_steps_overlapping(...)`.
+       Values are tuples, ascending by construction.
+    4. `_ensure_cause_index(world)`: when `world.point_causes_by_step is None`, set both maps from `_cause_index`.
+    5. `_phase_apply_events`: after the terminal-instant return, call `_ensure_cause_index(world)`. The
+       `step_starts = ...` line goes. The cause loop becomes `for position in world.point_causes_by_step.get(world.offset,
+       ()):` with `cause = world.inputs.causes[position]` as its first line; the `shape != "POINT"` check, the
+       `point_due_at` call and the `due != world.offset` check go (the index holds exactly those). From the `_excluded`
+       check on, every line is unchanged.
+    6. `_phase_evolve`: after the `begins_a_step` return, call `_ensure_cause_index(world)`. The loop becomes
+       `for position in world.spread_causes_by_step.get(world.offset, ()):` with `cause = world.inputs.causes[position]`
+       first; the `shape == "POINT"` check goes. From the `_excluded` check on (`_entry_span`, `window_share_of_step`,
+       `if share == 0: continue`), every line is unchanged.
+    7. Nothing else changes: no contract (`git diff main -- contracts` stays empty), no pack, no writer, no setup check,
+       `point_due_at` and `FrozenInterval.step_starts` untouched.
+  - *Why it is byte-identical.* (a) POINT: the old loop applied a cause at the one offset where
+    `point_due_at(...) == world.offset`; the index stores the cause at exactly that value, computed by the same function
+    with the same arguments. Every non-terminal boundary is a step start, and the terminal one returns before the loop in
+    both. (b) Spread: `window_share_of_step` is `overlap_minutes(...) / (end - start)` with `world.step_length =
+    min(s + dt, duration) - s` (`_advance_one`), so `share == 0` exactly when the helper's predicate fails; the loop keeps
+    its own `share == 0` check besides. (c) Every skipped cause was skipped after pure reads (frozen inputs, the run's
+    exclusions) with no side effect, and the kept ones are visited in input order, so `grouped`, its lists, the sorted
+    address walk, the ledger and the digest are the same. (d) The lazy build covers every way a `_World` is made,
+    stepped or batched.
+  - *Reach.* One Site type, mini-grid: the ten `EXECUTABLE_MODELS` (minimal fuel tank, daytime mini-grid, mini-grid v1 to
+    v8) and the DD3 writer, through `Execution` and `_PHASES`. Packs reached: the mini-grid and fuel packs those models
+    bind (`packs/mini_grid.py`, `packs/minigrid.py`), unchanged. Cold chain (`ColdExecution`, its own runner) and EV
+    charging (its own path) never reach `_PHASES`; the builder confirms by grep, as for D-DD.75, and adds a case if
+    either does. Forward replay (`host/forward_replay.py`) reads the step starts once and is unchanged.
+  - *Parity (golden from main's kernel; the loader `--reference main` exists).* Order: first commit the new cases with
+    goldens from main's kernel and the test green on the branch's current kernel (D-DD.75 is byte-identical, so both
+    agree; the packet shows both digests), then the kernel edit, then all cases green. Existing K1 to K8, D1, F1, X1, W1,
+    S1 stay. W1 carries POINT causes (notes, the 02:00 draw); K1 to K8 may carry none, so three cases are added, built on
+    F1's run (the minimal fuel tank model, whose tank takes `CAUSAL_INPUT`) with causes added in the test:
+    - **C1 (POINT):** causes at offset 0, exactly on a later step boundary, mid-step, two on one address in one step
+      (one INCREASE, one DECREASE), and in the last step; plus one on an address the run excludes as `CAUSAL_INPUT` when
+      the frozen inputs admit such a record without a setup change (else the packet says it is not made).
+    - **C2 (spread):** a WINDOW cause whose first and last steps are partial, one inside a single step, one ending at the
+      interval's end, and one INTERVAL_WIDE; on a duration not a multiple of the timestep (short last step) when setup
+      admits it (else the packet says so).
+    - **S2:** C1 advanced one boundary at a time, equal to C1's digest.
+    The zero-length spread cause has no case (setup or `overlap_minutes` refuses it before any case can carry it); the
+    packet notes the edge, as D-DD.75's did.
+  - *Timing, target and stop rule (packet).* Wall time of the Kobo pure run (`tools/dd3_pure_run.py`, 0.62 L/h) at 7, 14
+    and 28 days before and after, and the 123-day run at 0.62 and at 3.3 on the 2500 L tank, with the 28-day cProfile top
+    15 after. **Target:** each 123-day run at most **3 minutes** wall on the idle machine, and the cost linear in the
+    span: wall(28 days) / wall(14 days) at most **2.4** (linear 2.0, square 4.0). The estimate from Update 5's profile is
+    about 2 to 2.5 minutes. **Stop rule:** if either is missed, the builder keeps the edit if parity is green, makes no
+    further kernel, writer or window change (never tunes inputs to meet a time), and hands the Architect the timings, the
+    28-day cProfile top 15 and the size of `inputs.unmodelled_inputs` at 123 days (`excludes` scans it per cause and per
+    forcing; it should not grow with the span).
+  - *Order inside DD3a (amends D-DD.79's).* After (4): (4a) the C1, C2 and S2 goldens, committed; (4b) this index, parity
+    green, timings; then commit 1b's pure run and (5) as D-DD.79 says.
+  - *Units (W4).* DD3.1 2.25 to **2.75** (the index, three parity cases, timings). DD3a 4.75 to **5.25 u**, DD3 10.25 u,
+    DD 37.0 to **37.5 u**; each part at or under 6 u. (A parallel DD4 ruling restates DD4 only; the DD total adds both.)
+
+# DD rulings, round 11 (D-DD.81 to D-DD.88): DD4 mid-build questions Q1 to Q5 and the deviation
 
 Architect (Claude), 2026-11-22. Input: `DD4-handoff.md` on `task/DD4-cold-ev-reality` at 66e0ae15d. Checked against
 code on that branch: `packs/cold.py` (`ColdLoadParameters`, `step` stages 1 to 7, `_v2_forcing`, the v2 move set),
@@ -1055,12 +1154,12 @@ runs parity files as subprocesses), DD3a's `world/telemetry.py` at c35c50e92 (`S
 - *Exact arithmetic.* One cold-thermal 2 room stepped minute by minute: the temperature's denominator grows by about
   4,260 digits a day (the leak term multiplies it by 900 each minute), and day 6 alone takes 35 s, so cost grows with
   the square of the span. A 130-day room run would take many hours. Q4's "measured by the writer run" cannot be
-  measured until D-DD.86 lands.
+  measured until D-DD.87 lands.
 
-The owner is informed of all eight and is asked to weigh in on D-DD.82's prediction (the Thika chamber) and on
-D-DD.84 (the receiving rule changes Assumed admission times; no story figure moves).
+The owner is informed of all eight and is asked to weigh in on D-DD.83's prediction (the Thika chamber) and on
+D-DD.85 (the receiving rule changes Assumed admission times; no story figure moves).
 
-- **D-DD.80 Deviation accepted: `world/telemetry_cold.py` and `world/telemetry_ev.py` drive their packs, and DD3a's
+- **D-DD.81 Deviation accepted: `world/telemetry_cold.py` and `world/telemetry_ev.py` drive their packs, and DD3a's
   `world/telemetry.py` stays the only frame** (amends spec §4.1's module line).
   - *Why.* Each vertical's inputs and pack drive are their own (ledger and rooms; roster, practice and the depot load
     manager). The frame (span, day chaining by D-DD.69, binding map by D-DD.72, rounding, file bytes, manifest,
@@ -1082,7 +1181,7 @@ D-DD.84 (the receiving rule changes Assumed admission times; no story figure mov
     with a golden written from main at DD3a's merge, before the join. Kobo's 7 days from 2026-07-01 (D-DD.75 W1's
     inputs), readings bytes and readings manifest are byte-identical. Cold and EV are new outputs.
 
-- **D-DD.81 Q1: C-DD3 reads a FLAT Site's price at `tariff.usd_per_kwh`, as `M` states it** (default taken; amends
+- **D-DD.82 Q1: C-DD3 reads a FLAT Site's price at `tariff.usd_per_kwh`, as `M` states it** (default taken; amends
   spec §8.1 C-DD3).
   - `M` gives the FLAT type its one price at `tariff.usd_per_kwh`, and `world/tariffs.py` writes the FLAT band from
     that key. The checker reads the same place in `M` with its own code.
@@ -1092,7 +1191,7 @@ D-DD.84 (the receiving rule changes Assumed admission times; no story figure mov
   - *Reach.* The checker's EV clause only. Mini and cold clauses are unchanged; the existing `test_dd1_check` cases
     stay green. Add one case: a FLAT line priced at 0.15 passes, and at 0.16 it FAILs naming `usd_per_kwh`.
 
-- **D-DD.82 Q2: the Thika sequence comes from two v2 mechanisms that match `M`'s backup line; the builder's default
+- **D-DD.83 Q2: the Thika sequence comes from two v2 mechanisms that match `M`'s backup line; the builder's default
   (reset at the later minute) is refused** (amends spec §4.4 "New forcing" and "Thika").
   - *Why the default is refused.* `M` says: start requested 19:11:05, failed 19:11:10 (start controller), started by
     hand 19:14, cooling running 19:15, `cooling_minutes_unavailable` 4. With the 5-minute timeout the pack reports
@@ -1135,7 +1234,7 @@ D-DD.84 (the receiving rule changes Assumed admission times; no story figure mov
     stand, and the owner chooses whether the story's chamber figures follow the room or the room's declared figures
     are revisited.
 
-- **D-DD.83 Q3: C-DD19 is judged by `world check` C5, which runs the two simulator parity tests in a subprocess;
+- **D-DD.84 Q3: C-DD19 is judged by `world check` C5, which runs the two simulator parity tests in a subprocess;
   `dd_check` does not import or run the simulator** (default amended; amends spec §8.1 C-DD19).
   - *Why.* C-DD19 asks whether the simulator agrees with itself, so only a run of the simulator can answer it. The
     checker's independence (D-DD.14) concerns expected figures, and a parity has none. C5 already runs parity files as
@@ -1144,12 +1243,12 @@ D-DD.84 (the receiving rule changes Assumed admission times; no story figure mov
     - C5 gains the cold node id (DD4.1's v1 digest test in `simulator/tests/test_cold_thermal2.py`) now, and DD3.3's
       v8/v9 test when it lands. It runs them with the simulator's interpreter, and the test files go into
       `CHECK_CODE`.
-    - `dd_check`'s C-DD19 entry stops being a stub check. It prints `C-DD19 judged in world check C5 (D-DD.83)` and
+    - `dd_check`'s C-DD19 entry stops being a stub check. It prints `C-DD19 judged in world check C5 (D-DD.84)` and
       is excluded from its pass count; the table in §8.1 says so.
   - *Reach.* `tools/world.py` C5 and `tools/dd_check.py` only. C5's existing bulk-path parity files are unchanged,
     and a `tools/tests` case covers the new node ids with a fake runner.
 
-- **D-DD.84 Q4: a room receives produce in lots at receiving times its declared cooling can pull down, and the pack
+- **D-DD.85 Q4: a room receives produce in lots at receiving times its declared cooling can pull down, and the pack
   refuses field heat beyond the produce's own temperature** (amends D-DD.63's "Fill", "Clock" and the named batches,
   D-DD.64 (4), and spec §4.4 and §5.2).
   - *What a real cold store does.* A store without a pre-cooler schedules deliveries so that each lot's field heat is
@@ -1193,7 +1292,7 @@ D-DD.84 (the receiving rule changes Assumed admission times; no story figure mov
     checks three things: no receiving time holds two INs, no IN exceeds 40 crates, and every IN is at 08:00 or 16:00.
   - *Moved, Assumed:* admission times, and the named batches' receipts from 27 Sep. No story figure moves.
 
-- **D-DD.85 Q5: AMBIENT and EFFICIENCY are ratified as private v2 forcings, placed by the writer at local midnights**
+- **D-DD.86 Q5: AMBIENT and EFFICIENCY are ratified as private v2 forcings, placed by the writer at local midnights**
   (amends spec §4.4 "Efficiency condition" and "Ambient per day").
   - `AMBIENT` (`ambient-1`) is placed at 00:00 local of each day after the run's first day. Its value is the day's
     ambient as exact decimal text: 24 + (w_d − 1)/0.025, where w_d is the `cooling` family's season × day class with
@@ -1207,7 +1306,7 @@ D-DD.84 (the receiving rule changes Assumed admission times; no story figure mov
     never sees it (D-DD.22).
   - *Assumed.* A day-constant ambient is the resolution `M` declares; the readings manifest's `conditions` say so.
 
-- **D-DD.86 cold-thermal 2 holds the chamber temperature on a declared 10⁻⁶ °C grid and books the rounding in its
+- **D-DD.87 cold-thermal 2 holds the chamber temperature on a declared 10⁻⁶ °C grid and books the rounding in its
   energy ledger** (found in this round; amends spec §4.4).
   - *The fault (a class, W6).* Exact rational stepping of a leak-coupled temperature has unbounded denominators (see
     the measurement above). Every long cold-thermal run has it. The fix is in the pack, once.
@@ -1228,22 +1327,22 @@ D-DD.84 (the receiving rule changes Assumed admission times; no story figure mov
     - Timing in the packet: one room for 7 days, and the projected full span.
     - Stop rule: if one room's full span takes over 15 minutes, hand the top 15 `cProfile` lines to the Architect and
       change nothing further.
-  - *Reach.* cold-thermal 2 only; v1 is guarded as in D-DD.82. EV: the builder checks `ev-charger` denominators over
+  - *Reach.* cold-thermal 2 only; v1 is guarded as in D-DD.83. EV: the builder checks `ev-charger` denominators over
     7 days; if they grow, it stops and asks, and does not fix it silently. Mini-grid ran 123 days in DD3a and is not
     touched.
 
-- **D-DD.87 Units: DD4 +1.5 u to 7.25 u, split into DD4a (4.0 u) and DD4b (3.25 u); DD 38.5 u** (W4: parts of at
+- **D-DD.88 Units: DD4 +1.5 u to 7.25 u, split into DD4a (4.0 u) and DD4b (3.25 u); DD 37.5 u to 39.0 u (after D-DD.80)** (W4: parts of at
   most 6 u; amends spec §7 DD4 and §8.2).
   - **DD4a, cold (`task/DD4-cold-ev-reality`, continuing): 4.0 u.**
-    - DD4.1, 1.5 to 2.0 u: D-DD.82 +0.25, D-DD.86 +0.25.
-    - DD4.2, 1.25 to 2.0 u: D-DD.84 +0.5, D-DD.80's join and mini parity +0.25.
-    - D-DD.81 and D-DD.85 fall inside their units.
+    - DD4.1, 1.5 to 2.0 u: D-DD.83 +0.25, D-DD.87 +0.25.
+    - DD4.2, 1.25 to 2.0 u: D-DD.85 +0.5, D-DD.81's join and mini parity +0.25.
+    - D-DD.82 and D-DD.86 fall inside their units.
   - **DD4b, EV and measured books (`task/DD4b-ev-measured`, from main after DD4a merges): 3.25 u.**
     - DD4.3, 1.75 u.
-    - DD4.4, 1.25 to 1.5 u: D-DD.83 +0.25.
+    - DD4.4, 1.25 to 1.5 u: D-DD.84 +0.25.
   - *Sequencing.* DD4a's join waits for DD3a on main (not DD3b). DD4b follows DD4a. DD5 follows DD3b and DD4b.
   - *Builder order in DD4a.*
-    1. D-DD.86, then D-DD.82, in `packs/cold.py` with their tests (v1 digest green at each commit).
-    2. D-DD.84's ledger, goldens and parity.
-    3. `ColdSiteRun` on the protocol, with D-DD.85's forcings.
+    1. D-DD.87, then D-DD.83, in `packs/cold.py` with their tests (v1 digest green at each commit).
+    2. D-DD.85's ledger, goldens and parity.
+    3. `ColdSiteRun` on the protocol, with D-DD.86's forcings.
     4. After DD3a merges: the join, its parity, and the writer run, measuring Thika against C-DD6.
