@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-IA.61 to D-IA.81, D-P6.68 to D-P6.80, D-IAP.34, D-DD.97 to D-DD.101)
+# Decision index: Demo-sprint and later rulings (index only) (D-IA.61 to D-IA.81, D-P6.68 to D-P6.80, D-IAP.34, D-DD.97 to D-DD.107)
 
 - `D-IA.61` IA-2b is the list shape only, split 2b1/2b2; 2b2 waits for the owner's IA-2a walkthrough · live · specs/IA-1-shape-rebuild/rulings-5.md
 - `D-IA.62` One list component; filters, sort, search, show-all in the address; focus keep · live · specs/IA-1-shape-rebuild/rulings-5.md
@@ -35,8 +35,14 @@
 - `D-P6.79` 6f1 unit card 4.25 u (U1 2.0); owner told; words are defaults · live · specs/6f-decisions-screen/rulings.md
 - `D-P6.80` 6f1 U1 deviations: effect has 5 variants (QUANTITY and COUNT split); T8 and T12 of test_sc1_statements change named lines; frame_kind None with no study · live · specs/6f-decisions-screen/rulings.md
 - `D-IAP.34` period body names Sites left out: E2 body.out (5c out_line), k/n from one set, lead lines (MD-IAP-16); parity test; IA-P2 5.5 u · live · specs/IA-P-product-shape/rulings.md
-- `D-DD.97` owner-approved 22 Nov: Kobo's weakest assumed figure is the load timing (residential evening block from 18:00); Oct ~634 L, stand-in candidate ~25 L, bridge ~-31; no sourced figure nears 1,180 L · draft · specs/DD-demo-data/rulings.md
+- `D-DD.97` owner-approved 22 Nov: Kobo's weakest assumed figure is the load timing (residential evening block from 18:00); Oct ~634 L, stand-in candidate ~25 L, bridge ~-31; no sourced figure nears 1,180 L; built in DD3b (D-DD.107) · live · specs/DD-demo-data/rulings.md
 - `D-DD.98` DD4b Q10: depot rotates full buses off connectors (5 min), spare charges by day; readings stand; M's pooled capacity stage gives 1 short vs room 2: structure finding, owner asked · live · specs/DD-demo-data/rulings.md
 - `D-DD.99` DD4b Q16: measured.json = DD3a's world-measured/1 extended per vertical (cold room_kwh; EV bands, demand_kw, import_kwh; EV departures); partial_to; DD4.4 after the join · live · specs/DD-demo-data/rulings.md
 - `D-DD.100` DD4b Q1-Q9, Q11-Q15, Q17-Q18 ratified; Q5, Q9 amended by D-DD.98; split-slot rows checked against meter delta · live · specs/DD-demo-data/rulings.md
 - `D-DD.101` units: DD4b 3.25 -> 3.75 u; DD 42.0 u; D-DD.97 if approved +0.25 (DD3a fix round, else DD3b split) · live · specs/DD-demo-data/rulings.md
+- `D-DD.102` DD3a M1: scope digest covers only the physical keys its rules read (PHYSICAL_READS); one-time re-draw at 6 Sites, cold unchanged; DD3a fix round · live · specs/DD-demo-data/rulings.md
+- `D-DD.103` DD3a M2: READINGS_SPAN constant; no-books month at October's rate (load intensity, draw by day); last day file ends 06:00; DD4a · live · specs/DD-demo-data/rulings.md
+- `D-DD.104` DD3a L1: starting SOC from one warm-up day (Kobo ~60.4 %); 40 % removed (it made Kobo's 37 L July fuel); DD3b · live · specs/DD-demo-data/rulings.md
+- `D-DD.105` DD3a L4: vNEXT mock's hand-typed Kobo kit to the design-doc alignment pass; amends D-DD.94 mock part · live · specs/DD-demo-data/rulings.md
+- `D-DD.106` DD3a L2 (SEASON_V2_DAYS, CLI end from accounting period), L3, L5, L6 in the fix round; two-run order · live · specs/DD-demo-data/rulings.md
+- `D-DD.107` D-DD.97 to DD3b; DD3b split (DD3b 4.0 u, DD3c 2.5 u); DD3a 6.0, DD4a 5.5; DD 43.25 u in ten parts; notes run after DD4a · live · specs/DD-demo-data/rulings.md
