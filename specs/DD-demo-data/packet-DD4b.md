@@ -82,7 +82,16 @@ test_cli`: 18 passed. Plants and parity: `DD4b-handoff.md` "Plants". Reach set, 
   passed, statement catalogue exit 0.
 
 ### Plants (run 4)
-PLANT_EVIDENCE
+At `7ea87a2c9` (writer code unchanged since run 3's `059f211ad`), `world_history.py site-inputs`, `exports`,
+`telemetry` (cold: 3 rooms; EV: 3 depots, one process each), then `exports --telemetry` both directories, scratch under
+the session scratchpad (deleted after):
+- Cold: exit 0, 89.4 s, 198,740 kB peak RSS. EV: exit 0, 1,619.9 s, **3,818,860 kB peak RSS** (run 3: 1,608.9 s,
+  3.8 GB; the risk below stands).
+- Both tenants' `measured.json` are byte-identical to the committed fixtures, so the samples and C-DD20's books are the
+  plant's. Exported measured books: cold bill 12 rows, EV invoice 28 rows, departures 5,379 rows.
+- Parity as in run 3 (goldens unchanged; `test_telemetry_join_parity`, `test_dd4_measured` m6 pass in the reach set).
+- Not run: C-DD5/C-DD6/C-DD7 over the full-span plant readings. Holding 130 days of EV rows as dicts for one judge
+  call is beyond this machine for the same reason as the writer's memory; the judges are tested on writer days.
 
 ### Risk for DD6's world build: the EV writer's memory (run 3's plant: 3 depots in one process, 1608.9 s, 3.8 GB peak)
 The cause is visible in the code; nothing was built for it (proposal only):
