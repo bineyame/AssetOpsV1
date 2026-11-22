@@ -1,7 +1,7 @@
 """T1b: the second Postgres test lane, the Python side (specs/T1-heavy-tool-slot-pool/spec-T1b.md §4, §6, §8).
 
 No database and no URL: the lane checks are pure functions, the runner check is a text check (the script never prints
-the URL), and the `CREATE DATABASE` file list keeps the fixed-name class closed (§6).
+the URL), and the list of files that create databases keeps the fixed-name class closed (§6).
 """
 
 from __future__ import annotations
@@ -122,7 +122,7 @@ def test_l6_lane_databases_match_the_runner() -> None:
     assert h.LANE_DATABASES == {"a": "assetops_test", "b": "assetops_b_test"}
 
 
-# ---- T-L5: the CREATE DATABASE sites and why each cannot collide across runs (§6, A8) ----
+# ---- T-L5: the files that create databases and why each cannot collide across runs (§6, A8) ----
 CREATE_SITES = {
     "backend/tests/mechanism_dataset.py": "content-keyed mechanism template, built exclusively, staged and renamed",
     "backend/tests/pg_harness.py": "stem + run id",
@@ -143,5 +143,5 @@ def test_l5_every_create_database_site_is_listed() -> None:
     assert r.returncode in (0, 1), r.stderr
     found = {line for line in r.stdout.splitlines() if line}
     assert found == set(CREATE_SITES), (
-        f"new or removed CREATE DATABASE sites: {sorted(found ^ set(CREATE_SITES))}; list each with the reason its "
+        f"new or removed {needle} sites: {sorted(found ^ set(CREATE_SITES))}; list each with the reason its "
         "name cannot collide between two runs on one server (spec-T1b.md §6)")

@@ -779,6 +779,9 @@ print(json.dumps([c("slot", False), c("slot", True), c("db", False), c("db", Tru
     try {
       for (const trip of [nodeTrip, pyTrip]) {
         refused(await pooled(r, trip(r, "database job", true), ["--db-lane"]), "database job", DB_REASON, true);
+        // A lane-a holder naming its lane lock as ASSETOPS_HEAVY_DB (or an old --db holder: lane a only) is not exclusive.
+        const forged = ["bash", "-c", 'ASSETOPS_HEAVY_DB="$ASSETOPS_HEAVY_DB_LANE" exec "$@"', "forge", ...trip(r, "database job", true)];
+        refused(await pooled(r, forged, ["--db-lane"]), "database job", DB_REASON, true);
         passed(await pooled(r, trip(r, "database job", true), ["--db"]), "--db");
       }
       const tools = JSON.stringify(path.join(r.M, "tools"));
