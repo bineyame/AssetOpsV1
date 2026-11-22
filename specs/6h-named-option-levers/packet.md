@@ -85,11 +85,11 @@ compared as absent; every other field byte for byte. Architect to confirm or rul
 
 ## Residual risk and review focus
 The first real EV and cold-chain values need records stated by Finance (none exist in the demo data); `charging_schedule`
-names five missing simulations (S1). Index number is now 203 (renumbered in the review-Lows fix round). Focus: `_value_option`
+names five missing simulations (S1). Index number is now 204 (renumbered in the review-Lows fix round). Focus: `_value_option`
 (D-P6.60/61 apply to every option), `stated_changes` (D-P6.65 base level), the BOUNDS rewrite order after R1 to R4.
 
 ## Fix round (review Lows)
-- L1: state index line renumbered 199 to 203 (main holds 199-202); the merge of main resolved the conflict. work.md does not exist in the folder; packet reference updated.
+- L1: state index line renumbered 199 to 204 (main holds 199-203); the merge of main resolved the conflict. work.md does not exist in the folder; packet reference updated.
 - L2: `test_6h_migration_postgres.py` now asserts `get_heads() == ["0073_named_option_levers"]`.
 - L3: E3 in `decisions/run.py` refuses `LEVER_UNKNOWN` when a STATED_OPTIONS option key is not in the lever's catalogue; test `test_a_stored_option_key_that_left_the_catalogue_is_refused_not_crashed` (written first, failed with StopIteration).
 - L5: spec §5.4 now says a lever without words fails test 7.

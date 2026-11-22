@@ -20,6 +20,7 @@ from assetops_contracts.native import LAYOUTS, read_layout
 from assetops_simulator.world.exports import build_exports, file_name
 from assetops_simulator.world.history import generate_history
 
+from .books_support import PINNED_COLD_EV
 from .conftest import CLI, FIXTURE, load_fixture, site_of, tenant_of
 
 TENANT = "lakeside-power"
@@ -253,11 +254,18 @@ def test_tool_exports_writes_files_and_refuses(tmp_path) -> None:
     run = subprocess.run([sys.executable, str(CLI), "exports", "--manifest", str(FIXTURE), "--out", str(out),
                           "--extras", str(extras)], capture_output=True, text=True, timeout=300)
     assert run.returncode == 0, run.stderr
-    # the CSV directory holds the four files and unwritten.json only (the loader reads a directory whole)
-    assert sorted(p.name for p in out.iterdir()) == sorted([*PINNED_ALL_MONTHS, "unwritten.json"])
+    cold_ev = ["harvest-cold.expenses.csv", "harvest-cold.profile.cold-budget.csv",  # DD2b: cold and EV books
+               "harvest-cold.profile.cold-storage-invoicing.csv", "harvest-cold.profile.cold-storage-ledger.csv",
+               "metro-bus.expenses.csv",
+               "metro-bus.profile.ev-budget.csv", "metro-bus.profile.ev-fleet-roster.csv",
+               "metro-bus.profile.ev-service-tickets.csv"]
+    assert sorted(p.name for p in out.iterdir()) == sorted([*PINNED_ALL_MONTHS, *cold_ev, "unwritten.json"])
     assert {n: hashlib.sha256((out / n).read_bytes()).hexdigest() for n in PINNED_ALL_MONTHS} == PINNED_ALL_MONTHS
-    assert sorted(p.name for p in extras.iterdir()) == ["harvest-cold.customer_invoicing.json",
-                                                         "lakeside-power.statements.json"]
+    # D-DD.60, D-DD.61: staged JSON is the cold rate card and the EV schedules; Thika's credit note is a file row
+    assert {n: hashlib.sha256((out / n).read_bytes()).hexdigest() for n in cold_ev} == PINNED_COLD_EV  # D-DD.65a
+    assert sorted(p.name for p in extras.iterdir()) == ["harvest-cold.storage_rate_card.json",
+                                                         "lakeside-power.statements.json",
+                                                         "metro-bus.utility_invoice.json"]
     again = subprocess.run([sys.executable, str(CLI), "exports", "--manifest", str(FIXTURE), "--out", str(out)],
                            capture_output=True, text=True, timeout=300)
     assert again.returncode == 3 and again.stderr.strip() == "DS1B_OUT not-empty"

@@ -1,0 +1,23 @@
+{
+  "schema": "assetops.source-profile",
+  "schema_version": 1,
+  "profile_id": "cold-storage-ledger-illustrative",
+  "status": "ILLUSTRATIVE",
+  "source_type": "storage_ledger",
+  "source_system": "cold-storage-ledger",
+  "file": {"format": "csv", "encoding": "utf-8", "delimiter": ",", "header_row": 1},
+  "values": {"decimal_mark": ".", "thousands_mark": "", "negative": "minus", "date_format": "YYYY-MM-DD", "time_format": "HH:MM", "month_format": "YYYY-MM", "timezone": "Africa/Nairobi"},
+  "version": {"from": "constant", "value": "1"},
+  "columns": [
+    {"header": "Movement", "paths": [{"path": "source_record_id", "type": "text"}]},
+    {"header": "Site", "paths": [{"path": "site_code", "type": "text"}]},
+    {"header": "Batch", "paths": [{"path": "subject.ref", "type": "text"}, {"path": "body.batch_ref", "type": "text"}]},
+    {"header": "Customer", "paths": [{"path": "body.customer_ref", "type": "text"}]},
+    {"header": "Commodity", "paths": [{"path": "body.commodity", "type": "text"}]},
+    {"header": "Crates", "paths": [{"path": "quantity.value", "type": "number"}]},
+    {"header": "Direction", "paths": [{"path": "body.direction", "type": "text", "map": {"IN": "IN", "OUT": "OUT"}}]},
+    {"header": "At", "paths": [{"path": "clocks.occurred_at", "type": "datetime"}]}
+  ],
+  "constants": {"kind": "STORAGE_MOVEMENT", "subject.kind": "BATCH", "quantity.unit": "crate"},
+  "personal": []
+}

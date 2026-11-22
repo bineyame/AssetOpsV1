@@ -1,0 +1,7 @@
+Line ID,Site,Month,Line,Value,Currency,Budget version
+gen:EV-EMB:2026-07:plan:peak_kwh,EV-EMB,2026-07,peak_kwh,26040,,budget-2026-v1
+gen:EV-EMB:2026-07:plan:max_kw,EV-EMB,2026-07,max_kw,450,,budget-2026-v1
+gen:EV-EMB:2026-07:plan:maintenance,EV-EMB,2026-07,maintenance,600.00,USD,budget-2026-v1
+gen:EV-RUI:2026-07:plan:maintenance,EV-RUI,2026-07,maintenance,500.00,USD,budget-2026-v1
+gen:EV-RUI:2026-07:plan:energy_cost,EV-RUI,2026-07,energy_cost,12600.00,USD,budget-2026-v1
+gen:EV-RUI:2026-07:plan:departures_required,EV-RUI,2026-07,departures_required,434,,budget-2026-v1
