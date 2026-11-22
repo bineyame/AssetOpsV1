@@ -1,4 +1,4 @@
-# DD3b review packet (DD3b1 + its D-DD.145 fix round; DD3b2 writer and model steps; dd_check and pure runs of Kisiwa/Mto PARTIAL)
+# DD3b review packet (DD3b1 + its D-DD.145 fix round; DD3b2 complete: writer, model, checks and pure runs; DD3b3 not started)
 
 Branch `task/DD3b-mini-plant` (worktree `/opt/assetecon/AssetOpsV1-dd3b`), base main `6e3c02ab5`. Part 1 of 3
 (D-DD.142: DD3b1 2.0 u). Scope: D-DD.127 and spec DD §4.3, in `simulator/assetops_simulator/packs/mini_grid.py` and
@@ -105,6 +105,90 @@ revision `71badcc41`. Re-pins: four `test_mini_grid_v9.py` multi-unit cases star
 their own scenario; the warm-up start leaves no generator run on 1-2 Oct); W1's join golden regenerated from the
 writer (kernel and pack v8 equal main's; `source` names the revision).
 
+## DD3b2 checks and pure runs (D-DD.132, D-DD.146; C-DD21's v9 row)
+
+Commits `9133791e3` (tests first: 9 failed), `f2d532075` (dd_check), `8d61890a8` (`dd3_pure_run.py --site`; its test
+failed first with `SystemExit: 2`), `45a74193f` (W1 forcing-index case). All in `tools/dd_check.py`,
+`tools/dd3_pure_run.py`, tests.
+- **C-DD6 (D-DD.146).** `FAILURES_LIVE` clauses carry `evidence`: Thika `event` (unchanged), Kisiwa `state`
+  (`gen-ks-01-controller` STATE row FAILED starting 2026-10-30T18:40, no other source FAILED then), Mto `power`
+  (`inv-mt-02-controller` `ac-power` 0 from the 11:00 step to span end, above 0 at 10:55, irradiance and INV-MT-01
+  above 0 at 11:00; an information line says 11:02 is the O&M record's). `PENDING` keeps only EV-KAS and EV-RUI.
+  `passed` now reads failing lines only, so information lines can stand in `detail`. Thika's test judges its own
+  lines (with Kisiwa/Mto absent the whole result fails by design); its three plants still fail on Thika lines.
+- **`--pure DIR` (D-DD.132).** No `--database-url`. Reads `<tenant>/telemetry/*.readings.json`, `*.manifest.json`,
+  `measured.json`; judges C-DD8 (tank in [0, rating]; Kobo October balance beside the manifest's 120 L; Kobo October
+  unserved critical energy, MG-5; Kisiwa candidate minutes, OR-MG-2), C-DD17 pure (Kobo monthly unexplained >= 0,
+  <= 2 % Jul-Sep, > 2 % Oct) and C-DD20 Kisiwa/Mto. Readings only, no simulator import (the import guard holds).
+- **C-DD21's v9 row.** `judge_v9_rows`: on the writer's `frozen_inputs` for Kisiwa (v9), every per-unit need and
+  `pv-array-share` is answered at each unit with the table's unit and dimension, shares sum to 1. Kobo's v8
+  comparison keeps the `n.version in (None, 8)` filter.
+- **`dd3_pure_run.py --site CODE`** (Kobo default; Kisiwa/Mto from the committed `/2` kit, v9; `--no-load` Kobo only).
+
+Tests: `simulator/tests/world/test_dd3b2_checks.py` (9; every new clause shown failing on a planted row: late or
+shared FAILED state, power returning at 16:00, already 0 at 10:55, INV-MT-01 off, dark irradiance, tank 5000.5 L,
+a generator at 10:20 while PV charges, missing 28-day window, a dropped `generator-no-load-fuel-rate@gen-ks-02`, a
+halved share).
+
+**Plant (C-DD21 filter):** the filter removed, `check_property_table_parity` fails with `pv-array-share: backend None
+!= writer ('pv-array-share', '1', 'FRACTION', 'pv-array-share')`; reverted (`git checkout`). With the filter: PASS,
+"17 rows equal ...; KISIWA-001 v9: every unit answered, pv-array-share sums to 1".
+
+### Pure runs (`dd3_pure_run.py --books <exports> --site CODE`, 1 Jul-31 Oct; nothing fitted)
+
+| Site | month | notes | accepted | refused | drawn | burned | tank min-max | unserved kWh | gen h | stand-in cand. |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Kisiwa v9 (5000 L) | Jul | 2353 | 2353 | 0 | 20 | 1255.28 | 2479-3687 | 0 | 92.58 | 3.67 |
+| | Aug | 2339 | 2339 | 0 | 19 | 1236.15 | 3559-4763 | 0 | 92.42 | 115.39 |
+| | Sep | 2134 | 998.33 | 1135.67 | 18 | 689.02 | 4661-5000 | 0 | 49.67 | 0 |
+| | Oct | 2400 | 874.46 | 1525.54 | 20 | 883.56 | 4784-5000 | 0 | 65.58 | 66.93 |
+| Mto v9 (1000 L) | Jul | 319 | 319 | 0 | 0 | 0 | 500-819 | 0 | 0 | 0 |
+| | Aug | 318 | 181 | 137 | 0 | 0 | 819-1000 | 0 | 0 | 0 |
+| | Sep | 293 | 0 | 293 | 0 | 0 | 1000 | 0 | 0 | 0 |
+| | Oct | 320 | 0 | 320 | 0 | 32.38 | 968-1000 | 0 | 3.25 | 32.17 |
+| Kobo v8 0.62 (2500 L) | Jul | 972 | 972 | 0 | 12 | 0 | 1250-2216 | 0 | 0 | |
+| | Aug | 1002 | 295.85 | 706.15 | 12 | 0 | 2210-2500 | 0 | 0 | |
+| | Sep | 1003 | 345.45 | 657.55 | 11 | 762.20 | 2066-2500 | 0 | 75.67 | |
+| | Oct | 1180 | 934.58 | 245.42 | 120 | 514.22 | 2062-2500 | 0 | 51.33 | |
+
+Balance (open + accepted - close - modelled) equals the drawn litres every month at all three. **Bound hit: YES at
+all three** (deliveries overfill the tank). Walls 75 s (Kisiwa), 73 s (Mto). Each goes to the Architect (D-DD.19/
+D-DD.70); D-DD.131's notes restatement is DD3b3. Kobo's bound hit is new with D-DD.104 (July burns 0 L from a 60 %
+start, so August's notes overfill).
+
+### `dd_check --pure` on the writer's files
+
+The strict writer (`world_history.py telemetry`) refuses the overfill (`TEL_PACK ... fuel-tank-capacity refused`):
+Kobo on 2026-08-01 (109.61 L), Kisiwa on 2026-09-01 (194.97 L). So no Jul-Oct pure DIR exists until DD3b3. Run on
+1-31 Jul for all three (telemetry exit 0; dd_check exit 1): tanks within bounds at all three; FAIL lines are
+coverage (no October, no August-October months, no 28-day Mto window) and two world facts: **Kisiwa 20 candidate
+minutes in July** (and 20 on 30 Oct in the one-day test run: GEN-KS-01 running 10:00-10:15 at 22.8 kW to its 90 %
+stop while PV gives 27 kW against a 19.8 kW load), against OR-MG-2's zero; and the pure table's **Kisiwa October
+unserved 0 kWh**, against C-DD20's "unserved evening energy after 30 Oct 18:40" (GEN-KS-02 carries the evening).
+Mto in the table: 0 L burned July-September, 32.38 L over 3.25 h in October (the table does not say when in October; C-DD20's Mto clause needs the Jul-Oct DIR). Reported, nothing tuned.
+
+### Host tests that import the writer; the one `--db-lane` reach run
+
+`tools/heavy-slot.sh --db-lane -- bash reach.sh` at revision `8d61890a8` (one call, three `run-host-tests.ps1`
+runs): backend 8 files (`test_0k4a_profile_words`, `test_k1_kisiwa_fixtures`, `test_dd1_operator_files`,
+`test_dd2_check`, `test_dd1_check`, `test_sc1_statements`, `test_dd1_onboarding_postgres`,
+`test_dd3_datasheet_check`) **464 passed** 30.8 s; host 8 files (§4 DD3b list) **171 passed, 1 failed** 80.4 s;
+simulator 22 files (§4 DD3b list + `test_dd3b2_units`, `test_dd3b2_checks`, `test_mini_grid_v9`,
+`test_dd4_thika_incident`) **217 passed** 147.6 s. The failure: `test_kernel_forcing_index_parity[W1]`,
+`TEL_BOOKS KOBO-001 the books carry no sun_weights` (its hand-made books relied on the default D-DD.129 removed).
+Fix `45a74193f`: the case passes `tel.DEFAULT_SUN_WEIGHTS`; its inputs moved (D-DD.97, D-DD.104), so its digest was
+regenerated with main's kernel (`--reference main W1`, `b00c96e1...`). Rerun `test_0k4c_season_v2` +
+`test_kernel_forcing_index_parity`: **31 passed**. Main: `.agent/main-baseline/23d2cd9f6.md` (DD3c's 81 backend
+files, 1008 passed, 10 failed, 4 errors; main's own failures `test_ch5c2_clock_guard`, `test_w204`
+TestMigration0023), partial, no per-test list; none of this run's failures is among them, and host/simulator files
+are outside it.
+
+**For the reviewer:** W1's **join** golden (`test_telemetry_join_parity`) was regenerated from the writer because
+D-DD.97 and D-DD.104 move Kobo's world (step 7 commit `71badcc41`); the kernel and pack v8 are unchanged against
+main. The forcing-index W1 digest above is the same move, computed by main's kernel. Judge both.
+
+Guards: `tools/check-architecture.ps1` passed; `tools/checks/statement_catalogue.py` exit 0.
+
 ## Moved figures
 
 Kobo, `tools/dd3_pure_run.py --books <exports>` (no-load 0.62, 1 Jul-31 Oct), before (`3aa165f67`) -> after (`71badcc41`):
@@ -148,10 +232,21 @@ digest `4e36563d...` -> `25345568...` (D-DD.128).
 7. `generator_minutes` in the ledger counts unit-minutes (each running unit); only the pure-run table reads it.
 8. A Site with no binding is carried in F as `unbound` (written only when non-empty, so committed F digests hold)
    rather than as a Site entry, because F's readers take every `sites` entry as bound.
-6. **D-DD.146 applied to the plan**: C-DD6's Kisiwa (state evidence) and Mto (power evidence) clauses go live in
-   DD3b2's step 8 (handoff); not yet built.
+6. D-DD.146 built (section "DD3b2 checks and pure runs").
+9. **`--pure` readings choices (D-DD.132 names the checks, not every reading).** Builder defaults, for the
+   Architect: burned = the `/2` curve per unit on (no-load x h + (SFC - no-load/rated) x kWh, as the pure table);
+   opening/closing dip = the month's first tank reading and the next month's first; candidate = a generator above 0
+   kW while PV >= 1.1 x feeder load (dispatch-3.2's rule); MG-5 critical = the first of `critical_load_order`
+   (clinic); unexplained tolerance 2 % (domain models §3.3; no product constant found); C-DD8's candidate count
+   over the whole span. **C-DD20 Kisiwa** is judged on `measured.json` months, which cannot resolve 17-31 Aug or
+   1-30 Oct (stated in the detail). **Question:** is a per-day unserved series wanted in `measured.json` (writer
+   change) or is the month reading accepted?
+10. **No Jul-Oct pure DIR** while the notes overfill (strict writer refuses); judged on July only. Closes with
+    DD3b3's notes (D-DD.131).
+11. **Two world facts against the oracle**, reported, not tuned: Kisiwa candidate minutes > 0 (OR-MG-2 says 0);
+    Kisiwa October unserved 0 kWh (C-DD20 expects unserved evening energy after 30 Oct 18:40). Both to the Architect.
 
 ## Next
 
-DD3b2 rest (handoff "Next"): `tools/dd_check.py` C-DD6 evidence and the Kisiwa/Mto clauses, `--pure`, C-DD21's
-v9 row; `dd3_pure_run.py --site` and the Kisiwa/Mto pure runs; the one `--db-lane` reach run. Then DD3b3.
+DD3b3 (D-DD.92, .130, .131: the notes restated from the pure run; then `--pure` on a full Jul-Oct DIR). The
+Architect's answers on Known Deviations 9-11 first.

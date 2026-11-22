@@ -721,3 +721,13 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
   never exposes a POINT forcing (packet Known Deviations 1, question to the Architect). DD3b2 (writer units, kit,
   pure runs, D-DD.97/104/126/128/129/132) and DD3b3 (notes and leaves) follow; `EXECUTABLE_MODELS` not registered.
 
+## DD3b2: the writer runs units; checks and pure runs (in_review, part 2 of 3; `specs/DD-demo-data/packet-DD3b.md`)
+
+- Settled: per-unit `NEEDS`, v8 (Kobo) / v9 (Kisiwa, Mto) by Site, unit events and state rows, D-DD.97 shape,
+  D-DD.104 warm-up, D-DD.129 defaults refused. `dd_check`: C-DD6 clauses by evidence (Kisiwa state, Mto power, live;
+  only the EV clauses pending), `--pure DIR` (C-DD8, C-DD17 pure, C-DD20 Kisiwa/Mto, no database), C-DD21's v9 row
+  on Kisiwa. `dd3_pure_run.py --site`. Kobo's world moved (join and forcing-index W1 goldens regenerated; kernel
+  and pack v8 unchanged).
+- Open: every mini Site's notes overfill (bound hit at all three; the strict writer refuses from 1 Aug at Kobo),
+  so no Jul-Oct pure DIR until DD3b3's notes (D-DD.131). Kisiwa candidate minutes > 0 (OR-MG-2) and Kisiwa October
+  unserved 0 (C-DD20) are with the Architect, as are the `--pure` reading defaults (packet Known Deviations 9-11).
