@@ -136,13 +136,21 @@ def test_the_written_file_parses_as_a_foundation(slot) -> None:
 
 
 def test_cli_check_reports_the_diff_then_write_makes_it_clean(tmp_path, capsys) -> None:
+    """D-DD.93: independent of the repo's state. The written slot file is copied with one property reverted."""
+    doc = json.loads(LAKESIDE.read_text(encoding="utf-8"))
+    kobo = next(s for s in doc["sites"] if s["code"] == "KOBO-001")
+    generator = next(c for c in kobo["components"] if c["type"] == "GENERATOR")
+    prop = next(p for p in generator["properties"] if p["property_key"] == "generator-no-load-fuel-rate")
+    assert prop["value"] != "0.99"
+    prop["value"] = "0.99"  # reverted from the data sheet's fitted 0.62
     target = tmp_path / "lakeside.json"
-    target.write_text(LAKESIDE.read_text(encoding="utf-8"), encoding="utf-8")
-    code = dt.main(["--slot", str(SLOT), "--onboarding", str(target), "--site", "KOBO-001", "--check"])
+    target.write_text(json.dumps(doc), encoding="utf-8")
+    args = ["--slot", str(SLOT), "--onboarding", str(target), "--site", "KOBO-001"]
+    code = dt.main([*args, "--check"])
     out = capsys.readouterr().out
     assert code == 1 and "generator-no-load-fuel-rate" in out and "10.50 / 10.50" in out
-    dt.main(["--slot", str(SLOT), "--onboarding", str(target), "--site", "KOBO-001", "--write"])
-    assert dt.main(["--slot", str(SLOT), "--onboarding", str(target), "--site", "KOBO-001", "--check"]) == 0
+    assert dt.main([*args, "--write"]) == 0
+    assert dt.main([*args, "--check"]) == 0
 
 
 def test_the_basis_vocabulary_carries_the_datasheet_siblings() -> None:  # D-DD.17

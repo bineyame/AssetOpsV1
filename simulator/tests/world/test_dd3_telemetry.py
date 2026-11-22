@@ -68,8 +68,8 @@ def test_site_inputs_joins_the_foundation_with_its_bindings(sites_file: dict) ->
 def test_frozen_inputs_come_from_the_foundation_by_address(sites_file: dict) -> None:
     frozen = tel.frozen_inputs(_kobo(sites_file), _books()["KOBO-001"], "2026-07-01", "2026-07-02")
     by_address = {row.address: row for row in frozen.initial_values}
-    assert by_address["generator-rated-power@generator"].value == 40
-    assert by_address["generator-specific-fuel-consumption@generator"].value == Fraction(3, 10)
+    assert by_address["generator-rated-power@generator"].value == 36
+    assert by_address["generator-specific-fuel-consumption@generator"].value == Fraction(2917, 10000)
     assert by_address["fuel-tank-capacity@fuel-tank"].value == 2500  # D-DD.76
     assert by_address["fuel-tank-volume@fuel-tank"].value == 1250  # 50 % of the capacity (D-DD.19)
     assert [d.value for d in frozen.discrete_initial_values] == ["STOPPED"]
