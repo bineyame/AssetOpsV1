@@ -17,7 +17,8 @@ import pytest
 import yaml
 
 from assetops_simulator.world import exports
-from assetops_simulator.world.exports import NODES, ZERO_LEAVES, build_exports, evaluate_mini_grid
+from assetops_simulator.world.exports import ZERO_LEAVES, build_exports, evaluate_mini_grid
+from assetops_simulator.world.nodes import NODES
 from assetops_simulator.world.history import generate_history
 from assetops_simulator.world.records import PASS_THROUGH, build_records
 
@@ -58,14 +59,6 @@ def total(rs: list[dict]) -> Decimal:
 
 
 # --- parity (D-DD.48 item 4a) -------------------------------------------------------------------------------------------
-
-def test_the_node_table_is_the_manifests_text(manifest) -> None:
-    structure = manifest["structures"]["MINI_GRID"]
-    assert [name for name, _, _ in NODES["MINI_GRID"]] == ["metered_kwh", "billed_kwh", "revenue", "collected",
-                                                           "diesel_l", "fuel_cost"]
-    for name, text, _ in NODES["MINI_GRID"]:
-        assert text == structure[name], name
-
 
 def test_the_leaf_alternatives_are_the_manifests(manifest) -> None:
     factor_map = manifest["factor_map"]["MINI_GRID"]

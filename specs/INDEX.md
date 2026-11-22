@@ -44,7 +44,7 @@ finished work are in `archive/agent-history/`.
 | WK | Walkthrough DB tool: checked L2 copied, prepared, W1-W7, serve 8991/5491 (1.4 u) | merged; coordinator run pending | `WK-walkthrough-database/spec.md` |
 | 6a, 6c | Decisions valued against doing nothing: records (6a, 3.25 u); evaluator (6c, 3.75 u); P6 | merged 22 Nov | `6-decision-valued/P6-proposal.md`; `6a-decision-records/spec.md`; `6c-option-evaluator/spec.md` | 7, 48, 46 KB |
 | 6f | Decisions screen (6f1 3.75 u, records only) | spec rev 1 | `6f-decisions-screen/spec.md` | 54 KB |
-| 6h | Named-option levers, all Site types (4.25 u) | rev 1 | `6h-named-option-levers/spec.md`, rulings | 43 KB |
+| 6h | Named-option levers, all Site types (4.25 u) | in_review | `6h-named-option-levers/spec.md`, rulings | 43 KB |
 | DD | Demo data: 3 operators, 9 Sites, Jul-Oct books, telemetry, Kobo data sheets; 7 parts, 33.0 u (D-DD.44) | rev 2, handshake answered; owner Q7-Q9 open | `DD-demo-data/spec.md` | 71 KB |
 | OWNER-AWAY | Decisions made for the owner during a delegated absence (21 Nov, ~12 h), each with reason and reversal | live — owner reviews on return | `OWNER-AWAY/decisions-2026-11-21.md` | 1 KB |
 

@@ -1,6 +1,6 @@
 # 6h: named-option levers for every Site type (implementer spec, with its reviewer guide)
 
-**Status: rev 1, handshake answered (W4); buildable.** Architect (Claude), 2026-11-22. Demo-critical.
+**Status: in_review (built; packet.md).** Spec rev 1, handshake answered (W4); Architect (Claude), 2026-11-22. Demo-critical.
 **Rulings:** `specs/6f-decisions-screen/rulings.md` D-P6.51 to D-P6.58; this folder's `rulings.md` D-P6.59 to D-P6.67
 (the handshake, `handshake-review.md`). **Owner:** "Build 6h (Recommended)" and 6h Q3
 "Yes, +1.0 u" (`owner/owner-6f-q1-levers-2026-11-22.md`). **Why:** `specs/6f-decisions-screen/assessment-levers.md`.
@@ -279,7 +279,7 @@ move here (6f amendment, §7). No digit, `%` or currency symbol in a template.
 | `study` (slots `site`, `month`) | `CHARGING_SCHEDULE` "a charging replay of {site}'s own {month} under this schedule" |
 
 A selector is the lever id or option key upper-cased with `-` → `_`. A key the catalogue names with no variant fails
-the start-up statement check (SC-1's exhaustive selector), so a new lever cannot ship without words.
+test 7 (§10.2: every selector the catalogue names has its variant), so a new lever cannot ship without words.
 
 ## 6. Unit 6h4: option records (1.0 unit; owner Q3)
 

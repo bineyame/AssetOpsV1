@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-IA.61 to D-IA.81)
+# Decision index: Demo-sprint and later rulings (index only) (D-IA.61 to D-IA.81, D-P6.68 to D-P6.71)
 
 - `D-IA.61` IA-2b is the list shape only, split 2b1/2b2; 2b2 waits for the owner's IA-2a walkthrough · live · specs/IA-1-shape-rebuild/rulings-5.md
 - `D-IA.62` One list component; filters, sort, search, show-all in the address; focus keep · live · specs/IA-1-shape-rebuild/rulings-5.md
@@ -21,3 +21,7 @@
 - `D-IA.79` IA-2b dormancy: rail units renamed IA-2b1, OWN map rows · live · specs/IA-1-shape-rebuild/rulings-5.md
 - `D-IA.80` One cap per list, groups as display; amends D-IA.27 per-group cap · live · specs/IA-1-shape-rebuild/rulings-5.md
 - `D-IA.81` IA-2b size 5 to 6 units; split and stop hold · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-P6.68` parity golden: one named exception, source_class of 6c test_4 double case; never refreshed · live · specs/6h-named-option-levers/rulings.md
+- `D-P6.69` guarded also in _value_option stands (6c doubles, unreachable in production) · live · specs/6h-named-option-levers/rulings.md
+- `D-P6.70` no sign rule on option record values; later only as per-leaf data · live · specs/6h-named-option-levers/rulings.md
+- `D-P6.71` 6h packet Q1-Q3 accepted as built (standby-generator title, unused levers arg, prepare parity) · live · specs/6h-named-option-levers/rulings.md

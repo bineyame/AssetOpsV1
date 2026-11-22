@@ -51,6 +51,7 @@ class LeafChange:                       # D-P6.3: a delta on a leaf, never a rep
     sources: tuple[str, ...]
     origins: tuple[str, ...]            # ORIGIN_ORDER order
     missing: tuple[str, str] | None     # (record_kind, source_family) when delta is None, else None
+    currency: str | None = None         # D-P6.62: the currency of a stated money level, else None
 
 
 @dataclass(frozen=True)
@@ -226,7 +227,7 @@ class _Difference:
             for part in parts:
                 evidence.append(part.evidence)
                 origins.update(part.origins)
-                if not isinstance(part, LeafChange) and part.currency is not None:
+                if part.currency is not None:
                     currencies.add(part.currency)
         change = got.value
         missing = () if change is not None else tuple(sorted(got.missing, key=lambda n: order.get(n, len(order))))
@@ -260,8 +261,9 @@ def _closure(registry: Registry, factor_id: str) -> frozenset[str]:
 
 
 def difference(registry: Registry, base: Mapping[str, LeafValue],
-               changes: Mapping[str, LeafChange]) -> Mapping[str, Delta]:
-    """Each changed leaf and each node of the outcome's closure resting on one, in registry order (spec §2)."""
+               changes: Mapping[str, LeafChange], *, also: tuple[str, ...] = ()) -> Mapping[str, Delta]:
+    """Each changed leaf and each node of the outcome's closure (and of each `also` factor's, D-P6.57) resting on
+    one, in registry order; the outcome factor is always in scope (spec §2)."""
     leaf_ids = {row.factor_id for row in registry.rows if row.is_leaf}
     for name in changes:
         if name not in leaf_ids:
@@ -269,9 +271,10 @@ def difference(registry: Registry, base: Mapping[str, LeafValue],
     v0 = evaluate(registry, base)
     with localcontext(_context()):
         run = _Difference(registry, base, changes, v0)
-        closure = _closure(registry, OUTCOME_FACTOR)
+        closure = _closure(registry, OUTCOME_FACTOR).union(*(_closure(registry, f) for f in also))
         scope = [row.factor_id for row in registry.rows
-                 if row.factor_id in changes or (row.factor_id in run.over and row.factor_id in closure)]
+                 if row.factor_id in changes or row.factor_id == OUTCOME_FACTOR
+                 or (row.factor_id in run.over and row.factor_id in closure)]
         return MappingProxyType({factor_id: run.delta(factor_id) for factor_id in scope})
 
 

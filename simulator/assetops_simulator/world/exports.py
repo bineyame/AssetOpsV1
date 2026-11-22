@@ -7,10 +7,9 @@ billing (forty customers per Site, kWh split evenly, remainder to the first cust
 (node lines from the plan and prices, then DS1b's O&M and staff lines). Rows are ordered by (month, Site, row).
 
 Billed kWh, revenue, collections and fuel are nodes of the world's structure (`structures.MINI_GRID`), evaluated every
-month from that month's leaves through the manifest's `factor_map` (`NODES`, "node of `structures.MINI_GRID`,
-evaluated on the month's leaves (D-DD.48)"). For the accounting period the evaluated node must equal the node the
-period records, or the emulator stops (`EMU_NODE`). The manifest is not read here: `NODES` is a module table with a
-parity test against the manifest (`simulator/tests/world/test_dd2_nodes.py`).
+month from that month's leaves through the manifest's `factor_map` (`nodes.NODES`, D-DD.62). For the accounting period the evaluated node must equal the node the
+period records, or the emulator stops (`EMU_NODE`). The manifest is not read here: `nodes.NODES` is a module table with a
+parity test against the manifest (`simulator/tests/world/test_dd2b_nodes.py`).
 
 Totals must equal the nodes per Site or the emulator stops (`EMU_REVENUE`, `EMU_COLLECTIONS`, `EMU_FUEL`); a price
 or quantity that is not whole in its unit stops it too (`EMU_PRICE`, `EMU_QUANTITY`). ESTIMATED coverage writes
@@ -35,6 +34,7 @@ from assetops_contracts.native import LAYOUTS, render_layout
 
 from .leaves import MONEY_LEAVES
 from .months import days_in, parse_month, period_end
+from .nodes import emu_node, evaluate
 from .records import PASS_THROUGH, build_records, money_text
 from .statements import figures_from_rows, statements_bytes
 from .view import ManifestView
@@ -67,23 +67,7 @@ NOTE_HOUR = 10
 #: D-DD.54: the DS1b kinds staged as `<tenant>.<source_type>.json`.
 STAGED_KINDS = frozenset({"METER_ASSIGNMENT", "TARIFF_SCHEDULE", "ADJUSTMENT"})
 
-# --- D-DD.48: node of `structures.MINI_GRID`, evaluated on the month's leaves ------------------------------------------
-#: (node, the manifest's expression text, the same expression). Dependency order. Leaves are the names of `factor_map`.
-NODES = {
-    "MINI_GRID": (
-        ("metered_kwh", "delivered_kwh - technical_loss_kwh - unexplained_loss_kwh",
-         lambda v: v["delivered_kwh"] - v["technical_loss_kwh"] - v["unexplained_loss_kwh"]),
-        ("billed_kwh", "metered_kwh - adjustments_kwh - unmapped_kwh",
-         lambda v: v["metered_kwh"] - v["adjustments_kwh"] - v["unmapped_kwh"]),
-        ("revenue", "billed_kwh * tariff + productive_kwh * productive_tariff",
-         lambda v: v["billed_kwh"] * v["tariff"] + v["productive_kwh"] * v["productive_tariff"]),
-        ("collected", "revenue - in_transit - outstanding",
-         lambda v: v["revenue"] - v["in_transit"] - v["outstanding"]),
-        ("diesel_l", "necessary_l + candidate_l + unexplained_l + extra_l",
-         lambda v: v["necessary_l"] + v["candidate_l"] + v["unexplained_l"] + v["extra_l"]),
-        ("fuel_cost", "diesel_l * diesel_price", lambda v: v["diesel_l"] * v["diesel_price"]),
-    ),
-}
+# --- D-DD.48: node of `structures.MINI_GRID`, evaluated on the month's leaves (`nodes.NODES`, D-DD.62) ------------
 #: Leaves whose `factor_map` text ends in `| 0`: absent in the record reads 0. `delivered_kwh` and `necessary_l` are
 #: required. `productive_kwh` and `extra_l` are the constant 0.
 ZERO_LEAVES = frozenset({"technical_loss_kwh", "unexplained_loss_kwh", "adjustments_kwh", "unmapped_kwh", "in_transit",
@@ -173,13 +157,7 @@ def evaluate_mini_grid(record: dict, *, money_in_cents: bool, tariff: Decimal, d
     is absent, and every node depending on it, is left out."""
     values = _leaves(record, money_in_cents) | {"tariff": tariff, "diesel_price": diesel_price,
                                                 "productive_tariff": productive_tariff}
-    nodes: dict[str, Decimal] = {}
-    for name, _, fn in NODES["MINI_GRID"]:
-        try:
-            nodes[name] = fn(values | nodes)
-        except KeyError:
-            continue
-    return nodes
+    return evaluate("MINI_GRID", values)
 
 
 class _Site:
@@ -206,10 +184,9 @@ class _Site:
         evaluated_plan = evaluate_mini_grid(plan, money_in_cents=money_in_cents, **prices)
         if recorded is not None:
             for side, nodes in (("actual", self.n), ("plan", evaluated_plan)):
-                for node, field in RECORDED[side]:
-                    held = recorded.get(side, {}).get(field)
-                    if node in nodes and held is not None and _number(held) != nodes[node]:
-                        raise ValueError(f"EMU_NODE {self.where()} {month} {'plan.' if side == 'plan' else ''}{node}")
+                held = {node: None if recorded.get(side, {}).get(field) is None
+                        else _number(recorded[side][field]) for node, field in RECORDED[side]}
+                emu_node(self.tenant, self.code, month, nodes, held, "plan." if side == "plan" else "")
         #: the plan lines this module writes, under the names of the plan record (the budget lines' fields)
         self.p = {field: evaluated_plan[node] for node, field in
                   (("revenue", "revenue"), ("fuel_cost", "diesel_cost"), ("billed_kwh", "billed_kwh"),

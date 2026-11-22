@@ -168,7 +168,13 @@ def test_1_order_counts_and_version(key):
     assert len(ids) == n_leaves + n_nodes == {COLD: 36, EV: 42}[key]
     assert ids[:n_leaves] == list(leaves_of(key))
     assert ids[n_leaves:] == list(MANIFEST["structures"][key])
-    assert all(r.tolerance is None and r.levers == () and r.stated_by is None for r in reg.rows)  # D-3B6.2, .9
+    assert all(r.tolerance is None and r.stated_by is None for r in reg.rows)  # D-3B6.2, .9
+    assert {r.factor_id: r.levers for r in reg.rows if r.levers} == {  # 6h spec §5.2 (D-P6.66 N3)
+        COLD: {"uncovered_nights": ("backup_cover",), "excursion_crates": ("backup_cover",),
+               "excess_kwh": ("chamber_efficiency",), "contract_crate_days": ("storage_contract",),
+               "nights_without_backup_cover": ("backup_cover",)},
+        EV: {"chargers_in_service": ("charger_restore",), "buses": ("fleet_capacity_use",),
+             "peak_kwh": ("charging_schedule",), "departures_missed": ("charger_restore",)}}[key]
 
 
 @pytest.mark.parametrize("key", (MG_KEY, COLD, EV))

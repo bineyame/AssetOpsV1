@@ -477,6 +477,6 @@ def compose(registry: Registry, per_site: Mapping[str, SiteStructure]) -> Compos
 
 __all__ = [
     "CARRIED_AS", "CAUSES", "EVIDENCE_ORDER", "NEUTRAL", "ORIGIN_ORDER", "ORIGIN_UNKNOWN", "Composition", "Coverage",
-    "FactorValue", "LeafValue", "Missing", "PortfolioValue", "SiteStructure", "blocks_of", "compose", "evaluate", "weakest",
+    "FactorValue", "LeafValue", "Missing", "PortfolioValue", "SiteStructure", "_origin_union", "blocks_of", "compose", "evaluate", "weakest",
     "weakest_origin",
 ]

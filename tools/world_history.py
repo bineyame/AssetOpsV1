@@ -16,7 +16,8 @@ sys.path.insert(0, str(REPOSITORY / "contracts"))  # DS1b P1: the canonical form
 #                                       `DS1_CHECK_DIFF <scope_key>` (or `meta`) and exit 1
 #   records  --manifest M --out DIR     DS1b: write the canonical v1 batches and `unwritten.json` into a new
 #                                       or empty DIR outside the repository; exit 3 with `DS1B_*` on stderr
-#   exports  --manifest M --out DIR     3A3: write the emulated native CSV exports (October, mini-grid) and
+#   exports  --manifest M --out DIR     3A3/DD2b: write the emulated native CSV exports (mini-grid October; cold
+#                                       and EV July-October in their source profiles' formats) and
 #                                       `unwritten.json` into a new or empty DIR outside the repository; exit 3 with
 #                                       `EMU_*` or `DS1B_*` on stderr
 
@@ -27,7 +28,8 @@ from assetops_contracts.canonical import to_canonical_json  # noqa: E402
 
 from assetops_simulator.world.canonical import file_bytes, write_canonical_file  # noqa: E402
 from assetops_simulator.world import telemetry as telemetry_writer  # noqa: E402
-from assetops_simulator.world.exports import build_exports, file_name  # noqa: E402
+from assetops_simulator.world.books import build_books  # noqa: E402
+from assetops_simulator.world.exports import file_name  # noqa: E402
 from assetops_simulator.world.history import generate_history  # noqa: E402
 from assetops_simulator.world.records import batch_file_name, build_records  # noqa: E402
 from assetops_simulator.world.view import ManifestView  # noqa: E402
@@ -98,24 +100,36 @@ def _records(manifest: Path, out: Path) -> int:
     return 0
 
 
-def _exports(manifest: Path, out: Path, extras: Path | None = None) -> int:
+def _exports(manifest: Path, out: Path, extras: Path | None = None, tenants: list[str] | None = None) -> int:
     try:
         target = _out_dir(out)
         extra = _out_dir(extras) if extras is not None else None
         view = load_view(manifest)
-        result = build_exports(view, generate_history(view))
+        result = build_books(view, generate_history(view))  # mini-grid, cold and EV books (DD2b)
+        if tenants:  # D-DD.74: keep only the named tenants' files; build_books is unchanged
+            known = {str(t.get("tenant")) for t in view.get("tenants", [])}
+            for slug in tenants:
+                if slug not in known:
+                    raise ValueError(f"EMU_TENANT_UNKNOWN {slug}")
     except ValueError as error:
         if not str(error).startswith(("EMU_", "DS1B_")):
             raise
         print(error, file=sys.stderr)
         return 3
+    prefixes = tuple(f"{slug}." for slug in tenants or [])
+
+    def kept(name: str) -> bool:
+        return not prefixes or name.startswith(prefixes)
+
     target.mkdir(parents=True, exist_ok=True)
     for export in result.files:
-        (target / file_name(export)).write_bytes(export.data)
+        if kept(file_name(export)):
+            (target / file_name(export)).write_bytes(export.data)
     if extra is not None:  # D-DD.54 staged DS1b JSON and DD spec §5.4 statements: not in the CSV directory
         extra.mkdir(parents=True, exist_ok=True)
         for name, data in (*result.staged, *result.statements):
-            (extra / name).write_bytes(data)
+            if kept(name):
+                (extra / name).write_bytes(data)
     (target / "unwritten.json").write_bytes(file_bytes([list(row) for row in result.unwritten]))
     return 0
 
@@ -177,6 +191,8 @@ def build_parser() -> argparse.ArgumentParser:
     exports.add_argument("--out", required=True, type=Path, help="a new or empty directory outside the repository")
     exports.add_argument("--extras", type=Path, default=None,
                          help="a new or empty directory outside the repository for the staged DS1b JSON and statements")
+    exports.add_argument("--tenant", action="append", default=None, metavar="SLUG",
+                         help="keep only this tenant's files (repeatable; default every tenant) (D-DD.74)")
     inputs = commands.add_parser("site-inputs", help="join each /2 Site with its binding conversion (DD3.1, D-DD.28)")
     inputs.add_argument("--onboarding", required=True, type=Path, help="a directory of *.onboarding.json")
     inputs.add_argument("--bindings", required=True, type=Path, help="a directory of *-bindings.json")
@@ -200,7 +216,7 @@ def main(argv: list[str]) -> int:
     if args.command == "records":
         return _records(args.manifest, args.out)
     if args.command == "exports":
-        return _exports(args.manifest, args.out, args.extras)
+        return _exports(args.manifest, args.out, args.extras, args.tenant)
     if args.command == "site-inputs":
         return _site_inputs(args.onboarding, args.bindings, args.out)
     if args.command == "telemetry":

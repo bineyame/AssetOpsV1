@@ -667,3 +667,17 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
   `SOURCE_VERSION` "2" (receipts keep "1"); staged DS1b JSON and the Lakeside statements via `world_history.py exports --extras`;
   `dd_check` has its own formula evaluator and C-DD2 to C-DD4 live (fail until DD5 loads the books); `bool` refused on coded paths.
 - Left open: cold and EV books and profiles (DD2b); DS1b writes no METER_ASSIGNMENT/TARIFF_SCHEDULE; statements reader (DD5/WK).
+
+## DD2b: cold and EV decided books (in_review; `specs/DD-demo-data/packet-DD2b.md`, fix round 7 done)
+- Settled: `world_history.py exports` writes `harvest-cold` and `metro-bus` books for Jul-Oct in their source profiles'
+  formats (`world/exports_cold.py`, `world/exports_ev.py`, rendered by `world/profile_csv.py` from
+  `backend/conversions/profiles/`, 8 profiles with samples). Cold invoices, receipts and Thika's credit note are one
+  export, `cold-storage-invoicing-illustrative` with a `Type` column (D-DD.59). `world/nodes.py` holds the one `NODES`
+  table and `emu_node` (D-DD.62). `world/tariffs.py` writes T-STORAGE, C-114 (twice), C-117 and FLAT-EV-KASARANI from the
+  manifest prices as staged JSON, with a parity test against every invoice tariff code (D-DD.61). `build_books` stops
+  `EMU_SOURCE_SWITCH` on a source-type or source-system clash; staged JSON is placed under `<slug>/staged/` by
+  `tools/world.py` (D-DD.60). June ledger rows are opening stock (D-DD.63). The cold and EV files are sha256-pinned.
+  Every DS1b record lands in one place (D-DD.54); `ev-departures` bool is stored as a JSON boolean on PostgreSQL.
+- Left open: DD5.3 loads `<slug>/staged/` as step `L1.staged:<slug>` and DD5.2 writes the meter register; the EV
+  utility-invoice rows are DD4.4's. `test_ddr_rehearsal_postgres.py` fails 9 tests (the loader does not read cold files),
+  the same at the DD2b head: DD5's.

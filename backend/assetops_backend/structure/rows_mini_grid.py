@@ -35,8 +35,9 @@ def _leaf(factor_id: str, unit: Unit, home: Home, family: str, kind: str, absent
 
 
 def _node(factor_id: str, expression: str, unit: Unit, home: Home, *, composes: str,
-          stated_by: FilledBy | None = None) -> FactorRow:
-    return FactorRow(factor_id, expression, unit, home, None, None, None, composes=composes, stated_by=stated_by)
+          stated_by: FilledBy | None = None, levers: tuple[str, ...] = ()) -> FactorRow:
+    return FactorRow(factor_id, expression, unit, home, None, None, None, levers=levers, composes=composes,
+                     stated_by=stated_by)
 
 
 ROWS: tuple[FactorRow, ...] = (
@@ -53,7 +54,8 @@ ROWS: tuple[FactorRow, ...] = (
           composes="SUM"),
     _leaf("tariff", MONEY / KWH, Home(_GROW, "G1"), "COMMERCIAL_RECORD", "TARIFF_SCHEDULE", "MISSING", composes="NONE"),
     _leaf("productive_kwh", KWH, Home(_GROW, "G3"),
-          "COMMERCIAL_RECORD", "CHARGE (productive tariff class)", "ZERO_WHEN_HELD", composes="SUM"),
+          "COMMERCIAL_RECORD", "CHARGE (productive tariff class)", "ZERO_WHEN_HELD", composes="SUM",
+                levers=("productive_demand",)),
     _leaf("productive_tariff", MONEY / KWH, Home(_GROW, "G3"), "COMMERCIAL_RECORD", "TARIFF_SCHEDULE", "MISSING",
           composes="NONE"),
     _leaf("in_transit", MONEY, Home(_OPTIMIZE, "O3"), "COMMERCIAL_RECORD", "SETTLEMENT", "ZERO_WHEN_HELD",
@@ -68,7 +70,8 @@ ROWS: tuple[FactorRow, ...] = (
           levers=("generator_stop_reserve",)),
     _leaf("unexplained_l", L, Home(_OPTIMIZE, "O1"), "OBSERVER",
           "fuel balance (FUEL_DELIVERY, TANK_DIP) minus dispatch-3.3", "ZERO_WHEN_HELD",
-          tolerance=Tolerance(of_factor="diesel_l", pct=Decimal("2.0")), composes="SUM"),
+          tolerance=Tolerance(of_factor="diesel_l", pct=Decimal("2.0")), composes="SUM",
+                levers=("fuel_reconciliation",)),
     _leaf("extra_l", L, Home(_OPTIMIZE, "O1"), "OBSERVER", "forward replay (an option's extra running)", "OPTION_ONLY",
           composes="SUM", neutral=Decimal("0")),
     _leaf("diesel_price", MONEY / L, Home(_OPTIMIZE, "O1"), "COMMERCIAL_RECORD", "EXPENSE (FUEL)", "MISSING",
@@ -121,7 +124,7 @@ ROWS: tuple[FactorRow, ...] = (
           composes="SUM"),
     _node("contribution", "revenue - cost_to_serve", MONEY, Home(_ABOVE, None), composes="SUM"),
     _node("obligation_hours_without_redundancy", "reduced_days * hours_per_day", HOUR, Home(_PROTECT, "P1"),
-          composes="SUM"),
+          composes="SUM", levers=("generator_redundancy",)),
     _node("shortfall_backed", "min(1, floor(standby_kw / max(lost_unit_kw, 1)))", ONE, Home(_PROTECT, "P1"),
           composes="NONE"),
     _node("obligation_hours_without_backup", "obligation_hours_without_redundancy * (1 - shortfall_backed)",
