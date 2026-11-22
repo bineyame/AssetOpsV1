@@ -265,3 +265,61 @@ def test_staged_files_are_named_by_tenant_and_source_type(full) -> None:
     names = [n for n, _ in full.staged]
     assert names and all(re.fullmatch(r"[a-z-]+\.(billing_export|customer_invoicing)\.json", n) for n in names)
     assert names == sorted(names)
+
+
+# --- absent leaves and negative nodes (D-DD.48 item 3) -----------------------------------------------------------------
+
+def test_an_absent_required_leaf_writes_no_row_and_is_listed_not_in_history() -> None:
+    view = load_fixture()
+    actual = site_of(view, TENANT, "Kobo")["period"]["actual"]
+    for field in ("delivered_kwh", "billed_kwh", "metered_kwh", "revenue", "collected"):
+        del actual[field]
+    result = build_exports(view, generate_history(view), months=["2026-10"])
+    assert not [r for r in rows(result, "billing") if r["site_code"] == "KOBO-001"]
+    assert not [r for r in rows(result, "collections") if r["site_code"] == "KOBO-001"]
+    assert [r for r in rows(result, "expenses") if r["site_code"] == "KOBO-001" and r["body"]["category"] == "FUEL"]
+    listed = {(r[1], r[4], r[5]) for r in result.unwritten if r[2] == "2026-10"}
+    for node in ("billed_kwh", "revenue", "collected"):
+        assert ("KOBO-001", node, "NOT_IN_HISTORY") in listed
+
+
+def test_a_negative_collected_node_stops_the_emulator() -> None:
+    view = load_fixture()
+    actual = site_of(view, TENANT, "Kobo")["period"]["actual"]
+    actual.update({"outstanding": "9000.0", "collected": "-5542.0"})  # the period records the node it implies
+    with pytest.raises(ValueError) as raised:
+        build_exports(view, generate_history(view), months=["2026-10"])
+    assert str(raised.value) == "EMU_COLLECTIONS lakeside-power/KOBO-001"
+
+
+# --- statements (DD2.5; DD spec §5.4) ----------------------------------------------------------------------------------
+
+def test_lakesides_statements_are_the_sums_of_its_history_month_rows(full) -> None:
+    (name, data), = full.statements
+    assert name == "lakeside-power.statements.json"
+    doc = json.loads(data)
+    assert doc["schema"] == "assetops.world-statements/1" and doc["tenant"] == TENANT
+    assert [s["period"] for s in doc["statements"]] == ["2026-07", "2026-08", "2026-09"]  # October stays in the walk
+    july = doc["statements"][0]
+    assert july["currency"] == "USD"
+    assert july["source_ref"] == "Emulated management accounts, July 2026, final"
+    billing = [r for r in rows(full, "billing") if month_of(r) == "2026-07"]
+    fuel = [r for r in rows(full, "expenses") if month_of(r) == "2026-07" and r["body"]["category"] == "FUEL"]
+    assert Decimal(july["revenue"]) == total(billing) and Decimal(july["fuel_cost"]) == total(fuel)
+    assert set(july) == {"period", "currency", "revenue", "fuel_cost", "source_ref"}
+
+
+def test_the_statements_writer_takes_cold_and_ev_rows_with_energy_cost() -> None:
+    """DD2.5: the cold and EV writer, on a fixture of measured bill rows (the real rows come with DD4.4)."""
+    from assetops_simulator.world.statements import figures_from_rows, statements_document
+    invoices = [{"clocks": {"recognition_period": "2026-10"}, "amount": {"value": "868.00"}},
+                {"clocks": {"recognition_period": "2026-10"}, "amount": {"value": "1736.00"}}]
+    bills = [{"clocks": {"recognition_period": "2026-10"}, "amount": {"value": "250.50"}},
+             {"clocks": {"recognition_period": "2026-10"}, "amount": {"value": "300.25"}}]
+    figures = figures_from_rows(invoices, bills, ["2026-07", "2026-10"])
+    doc = statements_document("harvest-cold", "USD", "energy_cost", figures)
+    assert doc["statements"] == [{"period": "2026-10", "currency": "USD", "revenue": "2604.00",
+                                  "energy_cost": "550.75",
+                                  "source_ref": "Emulated management accounts, October 2026, final"}]
+    with pytest.raises(ValueError, match="STATEMENT_INCOMPLETE 2026-10"):
+        figures_from_rows(invoices, [], ["2026-10"])
