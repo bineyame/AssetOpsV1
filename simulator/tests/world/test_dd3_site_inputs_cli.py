@@ -16,7 +16,7 @@ from .conftest import CLI, REPOSITORY_ROOT
 ON1 = REPOSITORY_ROOT / "backend/tests/fixtures/on1"
 BINDINGS = REPOSITORY_ROOT / "backend/conversions/world"
 # Golden: sha256 of `F` built from the `/2` Lakeside file alone, from the branch's /2-only run (no main equivalent).
-LAKESIDE_ALONE_SHA256 = "4e36563d6bc81cccc9dee28b67a69520bab22fef6f865d89e740cb957d6333d9"
+LAKESIDE_ALONE_SHA256 = "2534556818b0c10d8879e85c97fa7c546c4787a445a6356fa3ec4e3cfc8936c4"
 
 
 def _run(onboarding: Path, out: Path) -> subprocess.CompletedProcess:

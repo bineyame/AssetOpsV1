@@ -192,7 +192,7 @@ VOCABULARY = {
     "foundation_property": {
         "forms": ["label", "in_sentence"],
         "order": ["generator_minimum_load", "generator_minimum_load_basis", "battery_charge_taper_start",
-                  "battery_charge_taper_start_basis"],
+                  "battery_charge_taper_start_basis", "pv_array_share", "pv_array_share_basis"],
         "entries": {
             "generator_minimum_load": {"label": "Generator minimum load", "in_sentence": "generator minimum load"},
             "generator_minimum_load_basis": {"label": "Generator minimum load basis",
@@ -201,6 +201,8 @@ VOCABULARY = {
                                            "in_sentence": "battery charge taper start"},
             "battery_charge_taper_start_basis": {"label": "Battery charge taper start basis",
                                                  "in_sentence": "battery charge taper start basis"},
+            "pv_array_share": {"label": "PV array share", "in_sentence": "PV array share"},
+            "pv_array_share_basis": {"label": "PV array share basis", "in_sentence": "PV array share basis"},
         },
     },
 }

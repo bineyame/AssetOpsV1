@@ -16,4 +16,6 @@ CASES = [
     _name("generator_minimum_load_basis", "Generator minimum load basis"),
     _name("battery_charge_taper_start", "Battery charge taper start"),
     _name("battery_charge_taper_start_basis", "Battery charge taper start basis"),
+    _name("pv_array_share", "PV array share"),
+    _name("pv_array_share_basis", "PV array share basis"),
 ]
