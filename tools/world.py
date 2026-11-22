@@ -584,6 +584,8 @@ class World:
                     for slug in slugs:
                         shutil.copyfile(f, staged / slug / "commercial" / f.name)
                     continue
+                if f.name.endswith(".statements.json"):
+                    continue  # D-DD.54: the statements reader is DD5 / WK; the loader refuses the file in commercial/
                 owner = next((s for s in slugs if f.name.startswith(f"{s}.")), None)
                 if owner is None:
                     raise Refused("WORLD_INPUT_UNPLACED", f.name)

@@ -110,6 +110,8 @@ def _exports(manifest: Path, out: Path) -> int:
     target.mkdir(parents=True, exist_ok=True)
     for export in result.files:
         (target / file_name(export)).write_bytes(export.data)
+    for name, data in (*result.staged, *result.statements):  # D-DD.54 staged JSON; DD spec §5.4 statements
+        (target / name).write_bytes(data)
     (target / "unwritten.json").write_bytes(file_bytes([list(row) for row in result.unwritten]))
     return 0
 
