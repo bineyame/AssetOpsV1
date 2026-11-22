@@ -243,10 +243,10 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=anchor: (D-IA.36) iaInPa
   // wave 2: the provenance popover, the command search, the scope switcher, the period menu
   { const p = await page('portfolio');
     await p.click('.ux-prov>summary'); await p.waitForTimeout(100);
-    const pv = await p.evaluate(() => { const d = document.querySelector('.ux-prov'); return d.open && /Design estimate/.test(d.textContent) && d.querySelector('.ux-pop-menu').offsetParent !== null; });
+    const pv = await p.evaluate(() => { const d = document.querySelector('.ux-prov'); return d.open && /Simulated figures come from a simulation of a declared season/.test(d.textContent) && d.querySelector('.ux-pop-menu').offsetParent !== null; });
     await p.keyboard.press('Escape'); await p.waitForTimeout(100);
     const pc = await p.evaluate(() => !document.querySelector('.ux-prov').open && document.activeElement === document.querySelector('.ux-prov>summary'));
-    ok(pv && pc, 'provenance: About these figures opens with the † meaning; Esc closes it and returns focus');
+    ok(pv && pc, 'provenance: About these figures opens with the Simulated meaning; Esc closes it and returns focus');
     await paletteTest(p);
     await p.click('.topbar [data-index]'); await p.waitForTimeout(150);
     const op2 = await p.evaluate(() => document.getElementById('ux-cmd').dataset.open === 'true');
@@ -432,7 +432,7 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=anchor: (D-IA.36) iaInPa
           const rq = document.querySelector('.ux-drec-q');
           if (rec && (!rq || rq.textContent.trim() !== tq(rec))) bad.push(`recommendation "${rq && rq.textContent.trim()}" vs table "${tq(rec)}"`);
           for (const c of document.querySelectorAll('.ux-ocard:not(.is-base)')) { const o = c.dataset.optCard, cq = c.querySelector('.ux-ocard-q'); if (!cq || cq.textContent.trim() !== tq(o)) bad.push(`${optLabel(o)}: "${cq && cq.textContent.trim()}" vs "${tq(o)}"`); }
-          const dv = rec && DV_OPT[rec] && !String(DV_OPT[rec]).startsWith(DVTEXT) ? (document.querySelector('.ux-drec-n') || {}).textContent.includes(DV_OPT[rec]) : true;
+          const dv = rec && DV_OPT[rec] && !STUDY(DV_OPT[rec]).days ? (document.querySelector('.ux-drec-n') || {}).textContent.includes(DV_OPT[rec]) : true;
           /* r2 H1: no sentence on the page names a comparator the decision does not use */
           if (decBasis(d) !== 'NO_ACTION' && /against (?:no action|doing nothing)/i.test(document.querySelector('.canvas').textContent)) bad.push(`a typed "against no action" on a ${decBasis(d)} decision`);
           return { bad, dv, n: document.querySelectorAll('.ux-ocard:not(.is-base)').length };

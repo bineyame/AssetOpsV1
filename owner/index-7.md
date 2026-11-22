@@ -17,3 +17,9 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-11-21 `owner-one-figure-loyal-to-operating-world-2026-11-21.md` One figure per quantity, model-computed and source-labelled; no design value beside it; fix model faults in the model; stop-70 reads Not available yet until 0K4; 0K4 defaults accepted · current — supersedes row 37 (a)
 - 2026-11-21 `owner-approve-load-aware-timing-tests-2026-11-21.md` Approves load-aware bounds for the T1 P4b and 3A6 n3_r5_b1 timing tests · current
 - 2026-11-21 `owner-away-architect-stands-in-2026-11-21b.md` Owner away several hours from ~18:00 UTC; the Architect stands in; push to complete the two-week plan · current
+- 2026-11-22 `owner-merge-on-accept-ia-shape-k10-2026-11-22.md` UI slices merge on review ACCEPT; one walkthrough at product shape; spec the real app onto the IA shape; K10 removal approved · current
+- 2026-11-22 `owner-accept-p6-defaults-2026-11-22.md` Accepts all P6 defaults 1-7 (decisions valued against doing nothing) · current
+- 2026-11-22 `owner-iap-q1-q2-kobo-datasheets-2026-11-22.md` Month is the Overview; Overview follows the date range; Kobo simulated + data sheets; 6c Kobo fuel "Not available yet" until 0K4f · current
+- 2026-11-22 `owner-demo-data-spec-2026-11-22.md` Go ahead with the demo-data spec (every Site type, months of history, telemetry if demo-critical), grounded on the product goals · current
+- 2026-11-22 `owner-demo-data-answers-2026-11-22.md` DD answers: readings 1 Jul-6 Nov, four months of books, one operator served at a time, Kobo kit FG Wilson P50-3 36 kW + Pylontech · current
+- 2026-11-22 `owner-docs-refresh-2026-11-22.md` Refresh NOW and SUMMARY now; one design-doc + mock alignment pass after IA-P and DD land · current

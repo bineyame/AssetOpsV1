@@ -147,7 +147,7 @@ function iaCase(op, w, d, c, budget, label) {
     const [b, l] = k.split('/'); pick(w, 'sw-budget', b); pick(w, 'sw-loi', l === 'True' ? 'yes' : 'no');
     const meter = d.querySelector('.approval .meterhead strong')?.textContent, total = d.querySelector('.total strong')?.textContent;
     if (!ia) ok(meter && meter.startsWith(usd(c.spend)), `lakeside ${k}: budget meter ${meter} starts ${usd(c.spend)}`);
-    ok(total && [usd(c.value), usd(Math.round(c.value))].some(v => total.startsWith((c.value < 0 ? '−' : '+') + v)), `lakeside ${k}: value ${total}`); /* UI/UX guide U3: whole dollars at the plan total */
+    ok(total && [usd(c.value), usd(Math.round(c.value))].some(v => total.startsWith((c.value < 0 ? '−' : c.value > 0 ? '+' : '') + v)), `lakeside ${k}: value ${total}`); /* a zero value (0K4m: 5000/False) carries no sign on the page */ /* UI/UX guide U3: whole dollars at the plan total */
     itemsCheck('lakeside', d, c, `lakeside ${k}`);
     if (ia) iaCase('lakeside', w, d, c, +b, `lakeside ${k}`);
     else { actionsCheck('lakeside', d, c.items, `lakeside ${k}`); metersCheck('lakeside', d.querySelector('.approval'), c, `lakeside ${k} approval`); approvalCheck('lakeside', d, `lakeside ${k}`); }

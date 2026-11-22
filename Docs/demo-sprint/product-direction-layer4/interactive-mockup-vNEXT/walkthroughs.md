@@ -45,12 +45,12 @@
 - *Who:* Peter reads it; the analyst, Wanjiru, maps the sources behind it.
 
 **Step 5. The choice, valued against doing nothing.** Route `#/decision/kobo-generator`.
-- *Sees:* lowering the generator stop setting from 90 to 70 per cent battery charge is worth +$2,916.00<!--fig:options.KOB-STOPSOC.value--> over 12 months against doing nothing, marked as a design estimate not yet tested on the operator's data, and keeps the dawn battery limit on every simulated day. Lowering the reserve is rejected, with its reason. The "Who decides" panel shows the system's recommendation, Peter's choice under his name, the two Actions he created, and their release: 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> over both, within the 250.00<!--rec:demo_workflow.tenants[lakeside-power].spend_threshold--> spend threshold, with no crew visit.
+- *Sees:* both settings, lowering the generator stop setting from 90 to 70 per cent battery charge and lowering the reserve, pass the operating checks on the simulated days (chip "Simulated"). Their litres and value read "Not available yet: needs a simulation of Kobo's own October", so neither is recommended or valued. The dawn margin is shown beside each as information, not a limit. Kobo's 330 L of candidate running reads as October's records classify it, to be re-checked against Kobo's own 5-minute readings. The "Who decides" panel shows no option recommended and nothing chosen yet; the stop setting's one-off cost is 90.00<!--fig:options.KOB-STOPSOC.operator_one_off-->, within the 250.00<!--rec:demo_workflow.tenants[lakeside-power].spend_threshold--> spend threshold, with no crew visit.
 - *Why it matters:* this is economic judgement a monitoring tool cannot give: the fuel saving net of its cost, under Optimize, with the service limit kept.
 - *Who:* Peter chooses and creates the Actions; Musa, the field technician, supervises the 14-day trial.
 
 **Step 6. The executive approves the plan.** Routes `#/portfolio/act-first`, then `#/plan`.
-- *Sees:* first the issues needing a decision, each with who decides. Then the plan, proposed by the system for November and December: version 1, awaiting Amina's approval; $3,750.00<!--fig:plans.lakeside-power.default.spend--> of the $5,000.00<!--rec:plans.lakeside-power.budget--> budget; a modelled +$6,088.50<!--fig:plans.lakeside-power.default.value--> from the valued options only. Each item names its owner, its state and an "Effect under each heading": the Kisiwa repair under Protect, the Mto huller under Grow and Optimize. The huller is a capital item, so its Action is created only after approval.
+- *Sees:* first the issues needing a decision, each with who decides. Then the plan, proposed by the system for November and December: version 1, awaiting Amina's approval; $3,660.00<!--fig:plans.lakeside-power.default.spend--> of the $5,000.00<!--rec:plans.lakeside-power.budget--> budget; a modelled +$2,213.33<!--fig:plans.lakeside-power.default.value--> from the valued options only (the rice huller, Simulated). Each item names its owner, its state and an "Effect under each heading": the Kisiwa repair under Protect, the Mto huller under Grow and Optimize. The huller is a capital item, so its Action is created only after approval.
 - *Why it matters:* the plan trades Sites against one budget and one crew, which no single Site can do, and nothing spends above the threshold until the executive approves.
 - *Who:* Amina approves or sends back the version; each item's owner (Halima, David, Peter) creates its operational Actions, and Joseph creates the notice and claim Actions.
 - *Try:* under "What if", switch the budget to $6,500.00<!--rec:plans.lakeside-power.switches.budget[1]--> and the letter of intent to "No"; the plan shows its new spend and value, and the four-case table shows each result. The line "Showing the case you chose" then stays on every tab, and Left out lists the Actions that return to their creator. Approve: the dialog, the toast with Undo, the stepper on Approved, the badge down by one and a new first row under History.
@@ -91,7 +91,7 @@
 - *Who:* Mercy, Site manager at Kasarani, chose it and created the Action, released when created.
 
 **Step 3. Growth on the chargers already in place.** Routes `#/portfolio/demand-and-capacity`, then `#/plan`.
-- *Sees:* Ruiru can take 6 more buses on its chargers, shown as potential beside Grow, never counted as revenue. The plan holds a spend of $1,590.00<!--fig:plans.metro-bus.default.spend--> for a modelled +$95,634.00<!--fig:plans.metro-bus.default.value-->, almost all from Embakasi's charging schedule, a design estimate.
+- *Sees:* Ruiru can take 6 more buses on its chargers, shown as potential beside Grow, never counted as revenue. The plan holds a spend of $1,590.00<!--fig:plans.metro-bus.default.spend--> for a modelled +$95,634.00<!--fig:plans.metro-bus.default.value-->, almost all from Embakasi's charging schedule; its per-bus departure timing reads "Not available yet: needs a simulation of the charging schedule".
 - *Who:* Daniel approves; Ibrahim, Site manager at Embakasi, owns the schedule.
 
 ## 5. The owner's checklist
@@ -114,7 +114,7 @@
 |---|---|
 | `#/portfolio`, the decision links on each card | OD-25 (owner, 19 Nov): a decision sits under the heading of its Finding's factor, or its lever's with no Finding; register call 18 now says how a Finding is pinned. In the data all fourteen agree with the screens' headings |
 | `#/portfolio`, the Protect card | Register call 17: Protect shows no money; compensation and penalties are Optimize costs. Default: applied in the data |
-| `#/decision/kobo-generator` | Register item D6: design estimates are shown to clients with their label, and said aloud. Default: shown, labelled |
+| `#/decision/kobo-generator` | Register item D6: simulated figures are shown to clients with their Simulated chip, gaps as "Not available yet", and said aloud. Default: shown, labelled |
 | `#/decision/kisiwa-genset` | Register item Q14: keep Kisiwa's battery fuel saving as a flagged assumption. Default: kept, flagged |
 | `#/decision/mto-inverter` | Register item Q15: when losing a unit breaches redundancy. Default: it follows the capacity computed from records |
 

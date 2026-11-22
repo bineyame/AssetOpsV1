@@ -169,7 +169,9 @@ const mm = ym => { const [y, m] = ym.split('-').map(Number); return y * 12 + m -
       const k = L1.querySelectorAll('.ux-kpi').length;
       if (k !== tiles || k > 4) bad(`${at}: L1 holds ${k} .ux-kpi, expected ${tiles} (spend, ${limited || 'the band\'s one'} crew, value)${k > 4 ? ': L1 cap of 4 exceeded, spec stop' : ''}`);
       /* D-IA.54: the released-at-creation clause once in L1 where the case holds such an item (all three operators do) */
-      { const n = doc.querySelectorAll('.ia-plan-released').length, m = L1.querySelectorAll('.ia-plan-released').length; if (n !== 1 || m !== 1) bad(`${at}: .ia-plan-released ${n} on the page, ${m} in L1, expected 1 and 1`); }
+      { /* expected from the raw thresholds, not releaseOf: 0K4m's data leaves Lakeside's default case with no item under both thresholds (the clause is then absent, D-IA.54 'where the case holds such an item') */
+        const want = w.eval(`planCaseIds(${JSON.stringify(op)}).some(id => { const it = itemOf(${JSON.stringify(op)}, id), pro = it && it.kind === 'PROACTIVE', x = pro ? null : DOPT(id), W = WF(${JSON.stringify(op)}); return !(it && it.capital) && (pro ? (it.planned_spend || 0) : ((x && x.operator_one_off) || 0)) <= W.spend_threshold && (pro ? (it.crew_visits || 0) : ((x && x.crew_visits) || 0)) <= W.crew_visit_threshold; }) ? 1 : 0`);
+        const n = doc.querySelectorAll('.ia-plan-released').length, m = L1.querySelectorAll('.ia-plan-released').length; if (n !== want || m !== want) bad(`${at}: .ia-plan-released ${n} on the page, ${m} in L1, expected ${want} and ${want}`); }
       /* D-IA.57 L3: the case link goes to the control where the switches are (Items, Left out), to #/plan where they are not; asserted before the normalising below */
       if (o.nondefault) { const cl = L1.querySelector('.ia-plan-case a'), want = tab[2] === 'items' || tab[2] === 'left-out' ? '#sw-h' : '#/plan'; if (!cl || cl.getAttribute('href') !== want) bad(`${at}: the case link's href is ${cl ? cl.getAttribute('href') : 'missing'}, expected ${want}`); }
       return L1.innerHTML.replace(/href="#sw-h"/g, 'href="#/plan"');

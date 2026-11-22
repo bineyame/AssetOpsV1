@@ -236,6 +236,16 @@ function Invoke-ConfigurationPersistenceCheck {
             UserRootVar = $null
             UserRootOwner = $null
         }
+        @{
+            # 6a (spec section 4; migration 0072; D-P6.1): the decision records. Rule 8 confines its PostgreSQL writer
+            # ($decisionRecordWriter). Only its composition imports the adapter.
+            Name        = "decisions"
+            Package     = "$backendRoot/decisions"
+            Composition = "$backendRoot/decisions/composition.py"
+            Writer      = $null
+            UserRootVar = $null
+            UserRootOwner = $null
+        }
     )
 
     foreach ($domain in $domains) {
@@ -1011,6 +1021,21 @@ function Invoke-ConfigurationPersistenceCheck {
     $agreedActionTables = @('agreed_action')
     $agreedActionInsert = '(?i)^INSERT\s+INTO\s+agreed_action\s*\([^)]*\)\s*VALUES\s*\([^()]*\)\s*;?\s*$'
     $agreedActionInsertsSeen = 0
+    # 6a (spec section 4; migration 0072; D-P6.1, D-P6.27, handshake I6): the decision store is the sole runtime writer of
+    # the seven decision tables, and it runs one plain INSERT INTO <table> (...) VALUES (...) per table (each required at
+    # least once: anti-vacuity below), binding plain parameters, except that a jsonb value binds as the one nested form
+    # CAST(:name AS jsonb). No ON CONFLICT, no SELECT source, no UPDATE, DELETE or TRUNCATE. The 0072 triggers refuse
+    # every change. The advisory-lock SELECT and the reads are not writes.
+    $decisionRecordWriter = "$backendRoot/decisions/adapters/postgres_decision_store.py"
+    $decisionRecordTables = @('decision', 'decision_option', 'option_one_off', 'option_evaluation_run',
+        'option_evaluation', 'option_effect', 'decision_choice')
+    $decisionRecordShapes = [ordered]@{}
+    foreach ($table in $decisionRecordTables) {
+        $decisionRecordShapes["$table insert"] = ('(?i)^INSERT\s+INTO\s+' + $table +
+            '\s*\([^)]*\)\s*VALUES\s*\((?:[^()]|CAST\(:\w+\s+AS\s+jsonb\))*\)\s*;?\s*$')
+    }
+    $decisionRecordShapesSeen = @{}
+    foreach ($shape in $decisionRecordShapes.Keys) { $decisionRecordShapesSeen[$shape] = 0 }
     # CH-1b (build sheet CH-1b section 7; migration 0044; ruling CH1b-R Q2): the event store is the sole runtime writer of
     # the event tables, and it runs exactly four statement shapes: INSERT INTO event_consumption (insert-only, no
     # ON CONFLICT); the snapshot_dirty mark (INSERT ... ON CONFLICT (pk) DO UPDATE SET marked_at = clock_timestamp(),
@@ -1075,6 +1100,7 @@ function Invoke-ConfigurationPersistenceCheck {
     $pgWriters += $commercialWriter  # 3A1: on its own line, as the account writer
     $pgWriters += $structureSnapshotWriter  # 3B7a: on its own line, as the account writer
     $pgWriters += $agreedActionWriter  # 3C2: on its own line, as the account writer
+    $pgWriters += $decisionRecordWriter  # 6a: on its own line, as the account writer
     # W4-01 Run 3 ruling 7: the work read adapter is a named reader (no write; the work store stays the sole writer).
     $pgReaders = @("$backendRoot/estate/adapters/postgres_estate_read.py", "$backendRoot/estate/adapters/postgres_evidence_money_read.py",
         "$backendRoot/work/adapters/postgres_work_read.py",
@@ -1631,6 +1657,25 @@ function Invoke-ConfigurationPersistenceCheck {
                     $failures.Add(("Only $agreedActionWriter writes agreed-change table '$target'; " +
                         "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
                 }
+                # 6a: the decision store runs only its seven per-table plain INSERTs; no other module writes them.
+                if ($module.Path -eq $decisionRecordWriter) {
+                    $decisionRecordShape = $null
+                    foreach ($shape in $decisionRecordShapes.Keys) {
+                        if ($line -match $decisionRecordShapes[$shape]) { $decisionRecordShape = $shape; break }
+                    }
+                    if ($null -eq $decisionRecordShape) {
+                        $failures.Add(("The decision store runs only one plain INSERT per decision table (no UPDATE, " +
+                            "DELETE, TRUNCATE, upsert, SELECT source or other table; a jsonb value binds as " +
+                            "CAST(:name AS jsonb)); $($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                    } else {
+                        $decisionRecordShapesSeen[$decisionRecordShape]++
+                    }
+                }
+                if ($null -ne $target -and $decisionRecordTables -contains $target -and
+                        $module.Path -ne $decisionRecordWriter) {
+                    $failures.Add(("Only $decisionRecordWriter writes decision table '$target'; " +
+                        "$($module.Path):${lineNumber}: $($line.Trim()).")) | Out-Null
+                }
                 if ($module.Path -eq $eventWriter) {
                     $eventShape = $null
                     foreach ($shape in $eventShapes.Keys) {
@@ -1982,6 +2027,13 @@ function Invoke-ConfigurationPersistenceCheck {
     if ($extractorRan -and $agreedActionInsertsSeen -lt 1) {
         $failures.Add(("Rule 8 found no INSERT INTO agreed_action statement in $agreedActionWriter, so the " +
             "agreed-change writer check is vacuous. Update the check, do not delete it.")) | Out-Null
+    }
+    # 6a: anti-vacuity for the decision writer's seven INSERTs.
+    foreach ($shape in $decisionRecordShapes.Keys) {
+        if ($extractorRan -and $decisionRecordShapesSeen[$shape] -lt 1) {
+            $failures.Add(("Rule 8 found no $shape statement in $decisionRecordWriter, so the decision-store " +
+                "statement check is vacuous. Update the check, do not delete it.")) | Out-Null
+        }
     }
     foreach ($shape in $eventShapes.Keys) {
         if ($extractorRan -and $eventShapesSeen[$shape] -lt 1) {

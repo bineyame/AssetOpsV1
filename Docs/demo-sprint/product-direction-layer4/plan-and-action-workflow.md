@@ -84,10 +84,10 @@ Step by step:
 
 *Serves the objective:* one approval per version, on Act first, gives the executive control over money and crews without a sign-off for every small task.
 
-## 4. Kobo: from a Finding to released Actions
+## 4. Kobo: from a Finding to released Actions (the path a setting takes once it has a value)
 <!--derives: §2.4; §2.5; Figure 5; Figure 8; OD-1; OD-2; OD-8; OD-12; WP §1.1; WP §1.5-->
 
-Kobo's candidate-running Finding is a bottom-line impact: 330 L of generator running in October that the solar and battery could have carried (§2.1). The system prepares a decision on the candidate-litres factor (design Figure 5). Peter, Kobo's Site manager, compares the options and chooses the stop-threshold change, recorded under his name. Its total one-off is 90.00<!--fig:options.KOB-STOPSOC.operator_one_off-->, the vendor's remote reconfiguration plus the trial supervision. It needs no crew visit. Peter creates two Actions (WP §1.5): the reconfiguration, which he owns, due 9 Nov, and the 14-day supervised trial, owned by Musa, the field technician, due 23 Nov. Creator and owner differ on the second, as the design allows (§2.5).
+Kobo's candidate-running Finding is a bottom-line impact: 330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> L of generator running in October that the solar and battery could have carried (§2.1), as the simulated world records it (dispatch-3.2); dispatch-3.3 re-classifies it in 0K4f. The system prepares a decision on the candidate-litres factor (design Figure 5). Both settings pass the admission rule on K8's replayed days, but their litres and value are Not available yet (a dispatch replay on Kobo's October as recorded; 0K4f). So on 6 Nov the plan proposes neither, and version 1 holds no Kobo setting (WP §1.5). The walk-through below is the path a setting takes once it has a value. Peter, Kobo's Site manager, compares the options and chooses, say, the stop-threshold change, recorded under his name. Its total one-off is 90.00<!--fig:options.KOB-STOPSOC.operator_one_off-->, the vendor's remote reconfiguration plus the trial supervision. It needs no crew visit. Peter creates two Actions: the reconfiguration, which he owns, and the 14-day supervised trial, owned by Musa, the field technician. Creator and owner differ on the second, as the design allows (§2.5).
 
 <!--diagram:kobo-sequence-->
 
@@ -113,7 +113,7 @@ sequenceDiagram
   S->>S: operational, economic and causal verdicts, then the plan review
 ```
 
-*Figure 12.2. Kobo, below and above the spend threshold. The demonstration takes the first branch: its 250.00<!--rec:demo_workflow.tenants[lakeside-power].spend_threshold--> threshold is above the change's one-off, so on 6 Nov both Actions are released at creation (WP §1.5). Under a spend threshold of at least 90.00<!--fig:options.KOB-STOPSOC.operator_one_off-->, both Actions are released at once and still counted in the plan. Under a lower threshold, or none set, both wait for the executive (§2.4 step 4; design Figure 8). The crew-visit threshold's default of zero does not hold this change back, because it adds no crew visit (OD-12).*
+*Figure 12.2. Kobo, below and above the spend threshold. Under the demonstration's 250.00<!--rec:demo_workflow.tenants[lakeside-power].spend_threshold--> threshold the change would take the first branch, because the threshold is above the change's one-off; on 6 Nov the demonstration holds no Kobo setting, and its released-at-creation cases are the Thika and Kasarani stopgaps (WP §1.5). Under a spend threshold of at least 90.00<!--fig:options.KOB-STOPSOC.operator_one_off-->, both Actions are released at once and still counted in the plan. Under a lower threshold, or none set, both wait for the executive (§2.4 step 4; design Figure 8). The crew-visit threshold's default of zero does not hold this change back, because it adds no crew visit (OD-12).*
 
 Three things in this walk-through are rules, not choices of the example:
 - **The threshold applies to the whole chosen change**, summed over its Actions, never one Action at a time. Splitting the change into smaller Actions cannot slip it under the threshold (design Architect's call, §2.4 step 4).
@@ -127,17 +127,16 @@ A Finding-origin Action that spends, with no decision behind it, creates its own
 
 **The limits** (set by the operator, `worked-portfolios.md` §1.1): budget 5,000<!--rec:tenants[lakeside-power].portfolio_constraints.budget_usd_nov_dec--> for November and December, and 3 crew visits in November and 3<!--rec:tenants[lakeside-power].portfolio_constraints.crew_visits_dec--> in December, each visit counted in its month (design §2.5). Every decision is taken on 6 Nov, the demonstration's today. The system opened the draft on 1 Nov (OD-10), and on 6 Nov version 1 is *proposed*, awaiting Amina, the operator executive (WP §1.5).
 
-**Version 1.** The managers take the Recommended options, and the five chosen items fit. Halima also declares one proactive item. The items, their owners, the Actions and their state on 6 Nov are WP §1.5's:
+**Version 1.** The managers take the Recommended options, and the four chosen items fit. Kobo's two settings are not among them: both are admitted on K8's replayed days, and their litres and value are Not available yet (a dispatch replay on Kobo's October as recorded; 0K4f). Halima also declares one proactive item. The items, their owners, the Actions and their state on 6 Nov are WP §1.5's:
 
 | Item (Site; owner, OD-16) | Finding it answers (§1.3) | One-off | Crew visits | Actions: creator → owner, due | On 6 Nov, and why |
 |---|---|---:|---:|---|---|
-| Stop-threshold change (Kobo; Peter) | bottom-line: candidate running | 90.00<!--fig:options.KOB-STOPSOC.operator_one_off--> | 0 | reconfigure, Peter → Peter, 9 Nov; supervise the trial, Peter → Musa, 23 Nov | **released at creation**: within the spend threshold, no crew visit; the item is *Released* |
 | Alternator repair (Kisiwa; Halima) | risk: evening hours with no backup | 1,800.00<!--fig:options.KIS-REPAIR.operator_one_off--> | 1 | repair, Halima → Musa, 9 Nov | waits: above the spend threshold, and a crew visit |
 | Battery evidence (Kobo; Peter) | risk: warranty cover that cannot be claimed | 430.00<!--fig:options.BAT-EVIDENCE.operator_one_off--> | 1 | capacity test and sensor, Joseph → Joseph, 20 Nov | waits: above the spend threshold, and a crew visit |
 | Inverter warranty claim (Mto; David) | risk: half inverter capacity, cover at stake | 230.00<!--fig:options.MTO-INV-CLAIM.operator_one_off--> | 1 | file the notice (deadline 27 Nov), Joseph → Joseph, 13 Nov; install the unit, David → David, 28 Nov | **waits on the crew visit alone**: within the spend threshold, but one crew visit at a threshold of 0 (OD-12) |
 | Huller connection (Mto; David) | opportunity: the cooperative's signed letter of intent | 1,200.00<!--fig:options.MTO-HULLER.operator_one_off--> | 0 | none yet: David creates "connect, after the inverter" (due 5 Dec) once Amina approves | waits as **capital** (OD-17): a new connection waits for the executive whatever its spend |
 | Generator service (Kisiwa; Halima), **proactive** | none: declared upkeep, "no factor (upkeep or compliance)" (OD-5) | 0.00<!--rec:demo_workflow.tenants[lakeside-power].items[KIS-SERVICE].planned_spend--> | 1, in December | none yet: Halima creates the service Action (owner Musa, 8 Dec) when she books the visit | waits: one crew visit at a threshold of 0; once version 1 is in force, its Action is released at creation |
-| **Version 1** | | **3,750.00<!--fig:plans.lakeside-power.default.spend-->** | **3 of 3 in November; 1 of 3 in December** | | proposed; Amina's approval releases the waiting Actions together, and its items become *Released* (design Figure 6c) |
+| **Version 1** | | **3,660.00<!--fig:plans.lakeside-power.default.spend-->** | **3 of 3 in November; 1 of 3 in December** | | proposed; Amina's approval releases the waiting Actions together, and its items become *Released* (design Figure 6c) |
 
 **The Mto claim is the demonstration's crew-visit case.** Its 230.00<!--fig:options.MTO-INV-CLAIM.operator_one_off--> is within the 250.00<!--rec:demo_workflow.tenants[lakeside-power].spend_threshold--> spend threshold, so spend alone would release it. Its crew visit holds it for Amina. Under OD-12 the executive can raise the crew-visit threshold, and then a one-visit change like this one would be released at creation, provided the plan still fits its 3 crew visits.
 
@@ -173,8 +172,8 @@ What each path costs, and why only the executive can choose:
 
 | Path | Spend | Crew visits | Evening hours with no backup at Kisiwa, 6–30 Nov |
 |---|---:|---:|---:|
-| The system's proposal: keep the claim and the repair, lose the huller | 2,550.00<!--fig:plans.lakeside-power.switch_cases.5000/False.spend--> | 3 | 15 |
-| The executive's trade: buy the inverter now, keep the huller, drop the repair | 4,630.00<!--figx:{plans.lakeside-power.default.spend}-{options.KIS-REPAIR.operator_one_off}-{options.MTO-INV-CLAIM.operator_one_off}+{options.MTO-INV-BUYNOW.operator_one_off}--> | 2 | 125 |
+| The system's proposal: keep the claim and the repair, lose the huller | 2,460.00<!--fig:plans.lakeside-power.switch_cases.5000/False.spend--> | 3 | 15 |
+| The executive's trade: buy the inverter now, keep the huller, drop the repair | 4,540.00<!--figx:{plans.lakeside-power.default.spend}-{options.KIS-REPAIR.operator_one_off}-{options.MTO-INV-CLAIM.operator_one_off}+{options.MTO-INV-BUYNOW.operator_one_off}--> | 2 | 125 |
 
 - **The proposal keeps the repair** because the search breaks service rules least before it weighs money. The trade is worth more in money but leaves 125 evening hours without backup instead of 15 (WP §1.1). That trade belongs to the budget holder (§2.5).
 - **Both paths make a new version.** The proposal moves total spend by 1,200.00<!--figx:{plans.lakeside-power.default.spend}-{plans.lakeside-power.switch_cases.5000/False.spend}-->, above the demonstration's 250.00<!--rec:demo_workflow.tenants[lakeside-power].spend_threshold--> threshold. The trade also removes a crew visit, and at a crew-visit threshold of 0 any change in crew visits needs approval (OD-11, OD-12).

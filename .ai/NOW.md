@@ -1,75 +1,39 @@
 # Now
 
-Active lanes only, one block each. Replaced, not appended; history is in git
-(previous version: `.ai/history/active-context-to-2026-11-18.md`).
-Last updated 2026-11-18.
+Active lanes only, one block each. Replaced, not appended; history is in git.
+Last updated 2026-11-22.
 
-## 1. Layer 4 product direction (awaiting the owner)
+Coordinator state: `.agent/coordinator-handoff.md`. Owner words: `owner/SUMMARY.md`.
 
-- Branch `task/product-direction-layer4-design` (not merged to `main`).
-- Pack: `Docs/demo-sprint/product-direction-layer4/`; read the design
-  (`layer4-transformation-design.md`) and `decisions-register.md` first; the
-  short roadmap is `product-transition-and-roadmap.md` (rev 5).
-- State: roadmap rev 3 done. Owner decisions open: Q1-Q16
-  (`Docs/demo-sprint/product-direction-layer4/design-questions-and-decisions.md`)
-  and D1-D15 (`decisions-register.md`). D11 (workflow W1-W9) is adopted and recorded in
-  `.ai/RULES.md`.
-- Owner words: `owner/owner-layer4-direction-feedback-2026-11-17.md`,
-  `owner/owner-product-transition-request-2026-11-18.md`.
-- Next: owner answers. The pack is frozen except for decisions and the
-  mock-up gate (D10, recommended; to confirm).
+## IA-P: real app onto the IA shape
+- Branch `task/IA-P1-frame-portfolio`; spec `specs/IA-P-product-shape/spec.md`.
+- Rev 3, 14 u in three parts. IA-P1 (frame, Portfolio) is being built.
+- Overview follows the date range; fresh entry Last month; ranges of two or
+  more months show Month by month.
 
-## 2. Repo declutter (in progress)
+## 6a, 6c: decisions valued against doing nothing
+- Branch `task/6a-decision-records`; specs `specs/6-decision-valued/`
+  (`P6-proposal.md`, `6a-decision-records/`, `6c-option-evaluator/`).
+- 6a built, in review. 6c next, after 6a merges. 6f and 6b/6d/6e not yet specced.
 
-- Spec: `specs/DECLUTTER/repo-declutter-recommendation-2026-11-18.md` (§4.2 steps);
-  owner decisions O1-O7 and D11 in
-  `owner/owner-repo-declutter-request-2026-11-18.md`.
-- Step 1 (start path, text only): reviewed (ACCEPT WITH NOTES, notes fixed)
-  and merged to `main` from `task/declutter-01-on-main`.
-- Step 2 (indexes; DECISIONS and CODE_STATE split verbatim): reviewed and
-  merged to `main`.
-- Step 3 (evidence out of the repo, 2-week retention): built on
-  `task/declutter-03-untrack-evidence`, packet `specs/DECLUTTER/packet-declutter-03.md`,
-  merged to `main`. Evidence now goes to `/opt/assetecon/evidence/`
-  (RULES section 9). Merging it into a worktree removes that worktree's
-  untracked `.agent/` evidence files; copies are in
-  `/opt/assetecon/evidence/repo-untracked-2026-11-18/` (manifest) and the
-  coordinator backup. Lanes merge `main` as in the packet's lane note.
-- Step 4a (specs to `specs/<ID>/`, owner files to `owner/`, history to
-  `archive/agent-history/`, citation rewrite and `specs/CITATION_MAP.md`):
-  reviewed (ACCEPT WITH NOTES) and merged. Step 4b (owner summary, O4) on
-  `task/declutter-04b-owner-summary`, for the owner to confirm.
-- Step 5 (Docs and tools, plus the step-4 notes L1-L5): built on
-  `task/declutter-05-docs-tools`, packet `specs/DECLUTTER/packet-declutter-05.md`,
-  in review. O5 (history rewrite, worktree pruning) waits until after the demo.
+## DD: demo data
+- Branch `task/DD-handshake`; spec `specs/DD-demo-data/spec.md`.
+- 30.0 u in six parts (rev 2): 3 operators, 9 Sites, books Jul-Oct, readings
+  1 Jul-6 Nov, telemetry. Handshake answered; owner Q7-Q9 answered.
 
-## 3. Demo sprint (live product on `main`)
+## 0K4f: Kobo on its own records
+- Spec `specs/0K4-dispatch-model-review/rulings-2.md` (D-0K4.45).
+- Kobo's kit: FG Wilson P50-3 (36 kW) and 42 Pylontech US5000, from
+  `/opt/assetecon/evidence/kobo-datasheets/datasheets.md`.
+- Until it lands, Kobo's fuel saved reads "Not available yet".
 
-- `main` head at this writing: `fe2392899` (2026-11-15).
-- Coordinator state and lane rules: `.agent/coordinator-handoff.md`,
-  `.agent/lane-rules-vps-2026-11-12.md`.
-- Rulings: `specs/OWN-GAPS/`; plan
-  `.agent/architect-sequence-client-scope-2026-11-11.md`.
-- Walkthrough worktree `/opt/assetecon/AssetOpsV1-walk`
-  (`task/WALK-1113-build`, DB `assetops_polish_walk1113_test`): do not touch
-  without the coordinator.
-- Owner decisions pending (from the handoff, 2026-11-14): page-load D1-D6
-  (`.agent/page-load-architecture-review-2026-11-14.html`) and the Grow card
-  money question. To confirm: whether these are still open, and whether the
-  17 Nov client demo has happened.
-- Owner documents on `main`: `Docs/demo-sprint/convertion_potential.html`,
-  `Docs/demo-sprint/decision-intelligence-mechanism-2026-11-14.html`.
+## IA-2a and IA-2b1: merging
+- Branches `task/IA-2a-plan`, `task/IA-2b1-lists`; spec
+  `specs/IA-1-shape-rebuild/spec.md`. Reviewed; merge on ACCEPT (gates running).
 
-IA-P (real app onto the IA shape): spec rev 1, `specs/IA-P-product-shape/spec.md`; handshake next, then IA-P1 (P1-P3) and IA-P2 (P4-P7).
+## Queued after IA-P
+- Q11: monthly figures for cold-chain and EV Sites.
+- Q12: lift the 31-day cap on other pages (shipped as "Showing {span} of the range").
+- Design-doc alignment pass (design, roadmap, phase plan, mock), after IA-P and DD.
 
-Also active: `task/gtm-documents` (worktree `/opt/assetecon/AssetOpsV1-gtm`,
-based on the Layer 4 branch): two-week conversion plan, commercial plan and
-website content documents (`Docs/go-to-market/`).
-
-Check-all (PIPE-1, merged): builders run the fast check-all themselves (2 at
-once); the coordinator runs it on `main` after each merge.
-
-No other lane is active. The S1-S7, W1-W6 and OUT/POLISH/DEMO "in_review"
-records in the old active context are history: their branches are not present
-on this machine and the coordinator reports the work merged to `main`
-(to confirm per slice only if one is reopened).
+UI slices merge on review ACCEPT; one owner walkthrough at product shape.
