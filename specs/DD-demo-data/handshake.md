@@ -370,3 +370,130 @@ mini-grid Site-days only.
 
 **Counts:** R1-R10 (High: R1, R2, R3, R4, R6; Medium: R5, R7, R8, R9; Low: R10). I1-I15 (High: I1, I3, I4, I5, I6,
 I7, I8, I9; Medium: I2, I10, I11, I12; Low: I13, I14, I15).
+
+## Answers (Architect)
+
+Architect (Claude), 2026-11-22. Every question is answered once, here. The rulings are D-DD.17 to D-DD.34 in
+`rulings.md`, and the spec is rev 2 (`spec.md`). One class sits behind R2, R7, R9 and I6. Rev 1 let the books and the
+readings each carry a figure for one measured quantity, and then reconciled them with a tolerance. Rev 2 classes every
+quantity as input or measured (`spec.md` §4.0): measured books follow the meter, and the readings follow the decided
+books. That rule, and its sweep, is at the head of `rulings.md`. Where a default below is accepted, it is cited, not
+restated.
+
+**R1 (no-load rate labelled Declared).** Accepted, with one change: the owner decides. 0.62 L/h is labelled
+**Assumed**, through a new basis value `DATASHEET_FIT` on the existing `generator-no-load-fuel-rate-basis`, which reads
+"Assumed: fitted to the data sheet's stated points". It replaces the owner's 3.3 L/h of 7 Nov
+(`owner/owner-fuel-scope-2026-11-07.md` Q2) only on the owner's answer to the new **owner Q7**, whose default is 0.62.
+DD3.2 commit 1 prints Kobo's October necessary, candidate and unexplained litres at both values. Commit 2 waits until
+the coordinator has put Q7 to the owner, then applies the answer, or the default under W3. The K8 study keeps 3.3.
+D-DD.17; `spec.md` §A Q7, §6.
+
+**R2 (two fuel splits; trend unchecked).** Accepted. The served split is the readings-fed one (D-DD.18). The trend check
+is restated to the manifest's own story rather than "rises month on month": the history override says Kobo stays
+within tolerance before October (`M` `history.sites`, "before it, within tolerance"). So **C-DD17** asks: each month
+≥ 0, July to September within the product's tolerance, October above it. The world now has a cause for the residual:
+a declared tank draw (D-DD.19).
+
+**R3 (page × Site type).** Accepted in part. The C-DD9 cell table and the per-Site tabs are adopted (`spec.md` §8.1).
+The rest of the default is not taken: §A is **not** amended to accept "trends after Q11" as the end state. A "No
+monthly figures" row and a 31-day window both count as **not output**. DD's acceptance build is the one rebuild after
+0K4f, Q11 and Q12 (**owner Q8**, default: those gate acceptance; nothing cut). DD6's first build lists each pending
+cell with the unit that closes it. D-DD.26.
+
+**R4 (four categories per operator).** Accepted. **C-DD18** is added, and §A gains the operator × category table.
+Ruiru keeps **Grow revenue**: the city's +6 bus route is new contract revenue on existing chargers, and its revenue
+reads "Not available yet (route contract not in the books)". The avoided chargers are its capital side, under Protect.
+Harvest Cold's and Metro Bus's Assure beats come with Q11 (Q8). D-DD.26.
+
+**R5 (C-DD4 from generator output).** Accepted as stated. D-DD.31; `spec.md` DD1.3.
+
+**R6 (disorder not plantable as written).** Accepted. `spec.md` §5.5 now has a table per test. TENANT-1 and DUP-1 run
+as their own L1 steps with expected exits. CLOCK-1 is stamped 4 minutes ahead in the readings, admitted, and its
+correction reported "not built". DD5.2 is a unit of 1.25 u. D-DD.25.
+
+**R7 (checks that pass on wrong data).** Accepted, and widened by the class rule. C-DD7 is exact on every scaled and
+measured quantity, including the cold bill against its meter and the EV invoice against its meter. That replaces the
+3 % and 1 % tolerances, because the bills now come from the meters (D-DD.20). C-DD8 prints the balance beside 120 L.
+C-DD1 checks (person, role, Site) triples. C-DD5 reads cadence from the readings manifest. D-DD.31.
+
+**R8 (who makes choices and Actions).** The default is not taken; DD does it. DD6.2's WK `prepare` creates
+`demo_workflow`'s decision records and Actions through the 3C2 and 6a commands, as the named people. An item whose
+command is not on `main` is listed as pending, and C-DD9 reads that page as its empty state. DD6.2 is 2.0 u. D-DD.27.
+
+**R9 (Kobo's balance knowable before DD4).** Accepted and widened. DD3.2 commit 1 makes a pure run of all three
+mini-grid Sites, July to October. It prints delivered, burned, drawn, tank minimum and maximum, the balance, and
+candidate litres, with Kobo at both no-load values. Any bound hit, or a C-DD8 or C-DD17 failure, goes to the Architect
+before DD3 merges. The fallback is stated in advance: a declared reorder rule, with the books following the tank and
+the owner told. D-DD.19.
+
+**R10 (basis words overstate).** Accepted. The basis texts are rewritten to the research's own words, including the
+"30 % of standby (12 kW, 33 % of prime); 30 % of prime applied" line. The slot's `document` names the scrambled text
+layer and the MSF match. D-DD.17; `spec.md` §6.
+
+**I1 (disabled gateway and sources).** Accepted. D-DD.29; `spec.md` DD1.2.
+
+**I2 (a batch is one source).** Accepted: one batch per (Site, source, local day), `sequence_epoch` 1, sequences in
+reading order, with the 1 MiB unit test. D-DD.29; `spec.md` §4.6.
+
+**I3 (readings before the Sites exist).** Accepted: `valid_from` 2026-06-30T21:00:00Z on every `/2` file and binding
+set. D-DD.29.
+
+**I4 (v8 cannot run Kisiwa or Mto).** The writer runs on each Site's `/2` foundation: accepted. The aggregate-set
+mapping is **not** taken: it would hide the failed unit that the cover and warranty beats are about. The mechanism is
+specified instead. **Mini-grid v9** adds ordered generator units sharing one tank, dispatched by shortest prefix and
+sharing load in proportion to rating, each with v8's lifecycle and curve. It adds PV inverter units by array share,
+and `UNIT_FAIL` and `UNIT_RESTORE` forcings. With one unit each it gives v8's bytes, proven on Kobo's October (C-DD19).
+Kobo stays on v8; Kisiwa and Mto run v9. The new unit is DD3.3, 2.25 u. D-DD.21; `spec.md` §4.3.
+
+**I5 (template v3 lacks the v8 properties; basis vocabulary exists).** Accepted. The existing `-basis` mechanism is
+reused, with three new siblings and one new value, `DATASHEET_FIT`. There is no new `source` and no `source_document`;
+the closed key set is unchanged. D-DD.17.
+
+**I6 (cold and EV packs lack the scaled inputs).** The mechanism is specified, and no output is calibrated.
+- **cold-thermal 2** adds crates as state from the storage ledger's movements, respiration and field heat, door
+  openings per movement, a compressor COP, an auxiliary load, and Kirinyaga's efficiency condition `f_m` as a private
+  condition. It uses private load parameters with their basis, and the thirteen Foundation values come from
+  cold-lab-001 with cooling capacity 6 kW. With zero terms it gives v1's bytes.
+- Ambient per day comes from the `cooling` weight through the manifest's own 24 °C and 2.5 %/°C.
+- **EV:** a depot load manager shares the import limit across chargers with the pack's own round-robin. The roster and
+  plug-in practice are inputs; `p_m` is the declared share read as the depot's practice, never inverted from a target.
+- The cold bill, EV invoice and departures follow the meters, which removes the 3 % target (D-DD.20; **owner Q9**).
+- The observation path: readings leave the writer as canonical readings, not through `S/observation/transform.py`.
+  The writer emits the pack's public records mapped to the role set's `source_id` and `signal_id`; the mapping is
+  recorded in each readings manifest's `mappings`.
+- D-DD.22, D-DD.23; `spec.md` §4.4, §4.5.
+
+**I7 (profiles cannot produce required fields).** Accepted. `spec.md` §5.2, §5.3 and §5.6 give every profile's column
+→ path table. Invoicing splits into invoices and receipts, and tariff schedules go as canonical JSON (DS1b). DEPARTURE
+takes the contract route: a `bool` type in `layouts_v1` with a required Y/N map and its own tests (DD2.2, 0.5 u). Each
+profile ships `<id>.expected.json`, admitted with `--expected` and `--as` the analyst. D-DD.24.
+
+**I8 (the world check would pass without checking).** Accepted. C6 judges the sealed batches written at sealing; C4
+judges October only. The named paths join `CODE_PATHS` and `CHECK_CODE`, C5 runs both parity files, and C8 runs
+`dd_check.py`. D-DD.28; `spec.md` DD5.3.
+
+**I9 (restating Kobo moves more than listed).** Accepted, with the template moved out. DD3.2 regenerates
+`history.json`, the goldens, the export pins and `derived-values.json`, and lists every moved figure; §0 is amended.
+Template v4, its fingerprint pin and the lab moves go back to **0K4f**, which grows from 2.25 to about 2.75 u. Lab
+tests and the K8 study stay on v3 at 40 kW, labelled. C-DD16 compares the world's Kobo with the slot. DD3.2 is 2.0 u.
+D-DD.30.
+
+**I10 (definition `/2`, site inputs, digest).** Accepted as stated, plus the readings files, measured books and slot
+in the digest. D-DD.28; `spec.md` §4.1, DD5.3.
+
+**I11 (WK without snapshot months).** Accepted. D-DD.28; `spec.md` DD6.2.
+
+**I12 (exports details).** Accepted, with fixed note days: the 1st, 8th, 15th, 22nd and 29th at 10:00 local. OOO-1
+keeps 26 Oct. D-DD.32.
+
+**I13, I14, I15.** Accepted as stated. D-DD.28, D-DD.29.
+
+**Sizes.** Rev 1 had 19.5 u in four parts; rev 2 has **30.0 u in six parts**: DD1 4.0, DD2 5.5, DD3 6.0, DD4 5.75,
+DD5 5.0, DD6 3.75. No part is over 6 u. 0K4f grows by 0.5 u. D-DD.33.
+
+**Owner questions (D-DD.34), defaults applied:**
+- **Q7**, the Kobo no-load rate: default 0.62 L/h, Assumed (fit); the alternative is to keep the owner's 3.3 L/h.
+- **Q8**, Q11 and Q12 gate demo acceptance: default yes.
+- **Q9**, bills follow the meter: default yes, so story figures move and the stories are checked by direction.
+
+**Open after this round:** none for the reviewer or implementer. The handshake can close once the reviewer confirms.
