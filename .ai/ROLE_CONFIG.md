@@ -88,6 +88,32 @@ resumed. State in every review which reviewer produced it.
 - **Coordinator session restarts at natural pauses**, from a refreshed
   `.agent/coordinator-handoff.md` (one current block, replaced, not appended).
 
+- **Usage rules from the 22 Nov audit (owner: "fix any usage issues and make sure they
+  don't reappear via standing rules").** Each line is a failure that cost a round.
+  - **Brief footer, pasted verbatim into every builder and reviewer brief:**
+    "Run commands from the worktree ROOT with repo-relative paths. Postgres tests: ONE call
+    `tools/heavy-slot.sh --db -- pwsh tools/run-host-tests.ps1 -- <files>`; vitest only via
+    `tools/heavy-slot.sh`; architecture guard with
+    `ASSETOPS_GUARD_PYTHON=/opt/assetecon/AssetOpsV1/.venv/bin/python`. A queued heavy slot is
+    waited on, never a reason to stop. Delete only files you created, never a directory under
+    /tmp/claude-1001. No background job or preview server left running at hand-back."
+  - **Test scope before hand-back:** a builder runs the whole test directory or module its diff
+    touches (frontend: all of each touched `src/<area>`; backend: every test file importing a
+    touched module), and compares failures against main at the same time. "Pre-existing"
+    must cite main's run, not memory.
+  - **Rulings that change shared behaviour** (a service, role set, contract, shared UI part)
+    name every Site type and role set it reaches and require a parity test (golden from main)
+    for the ones meant to stay unchanged.
+  - **Model coverage before design:** a spec Architect first checks that the model (levers,
+    structures, factors, records) covers every Site type the work shows. A gap is fixed in the
+    model, or put to the owner labelled WORKAROUND; it is never bridged in code silently.
+  - **Coordinator housekeeping:** stop an agent's leftover background work (TaskStop) as soon
+    as its hand-back is in; check `tools/heavy-slot.sh --status` before dispatching DB-heavy
+    work alongside another; merge dependent branches in order and check a long-running agent's
+    log at about 60 minutes instead of waiting blind.
+  - **Briefs stay within the rules above:** at most about 25 lines plus the footer; a reviewer
+    brief gives target, prior results and constraints, never a list of what to judge.
+
 ## Updating bindings
 
 Change the table above; keep responsibilities stable. A Claude subagent's
