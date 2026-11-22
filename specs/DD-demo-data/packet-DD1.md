@@ -87,3 +87,23 @@ Branch `task/DD1-operators`. Implementer (Claude), 2026-11-22. Status: `in_revie
 ## Hand-off notes
 Real files with `--bindings` exit `ONBOARD_REAL_AWAITS_APPROVAL` before any step (same order as without it); no dedicated
 test was added for it. Scratch deleted.
+
+## Fix round (D-DD.45-47)
+
+- H1: `Role.every_component` (default False) in `binding_roles.py`; true on `feeder_demand`, `feeder_requested_power` and the
+  five roles-5 unit roles (`replace(r, cardinality=PER_ASSET, every_component=True)`). `binding_service.py` readiness and
+  verification readiness branch on `role.every_component` only; `loads` renamed `components`.
+- Sweep (`grep -n 'cardinality\|asset_type == "LOAD"' sites/*.py`, nothing else changed): `binding_service.py:321`
+  (ONE-only auto-bind), `:472` (conflict key, stays on cardinality), `cold_foundation.py:333` (backlog item),
+  `parsing.py:17` (a docstring). No `asset_type == "LOAD"` remains.
+- L1: limit comments in `foundation_parsing.py` now state D-DD.42's basis in two lines; the `MAX_SIGNAL_MAPPINGS` note is gone.
+- L3: the `--bindings` pre-write check parses every `<CODE>-bindings.json` (`OSError`/`ValueError` refuses
+  `ONBOARD_SITE_INVALID bindings/<CODE>`, exit 2, nothing written); `_publish_and_enable` takes the parsed files.
+- Tests: `test_dd1_readiness_parity_postgres.py` (goldens + README in `fixtures/dd1_readiness_parity/`, captured from main
+  `05be2b968`; plant; every_component implies PER_ASSET and the true set is the seven), malformed-file test in
+  `test_dd1_onboarding_postgres.py`.
+- Deviation: the ruling expected cold goldens to read `READY_TO_REPORT`. On main both cold Sites read INCOMPLETE
+  (policy controls unconfigured, Site-type gap); no probe channel is missing. Goldens record main as it is, and a test
+  asserts the missing roles are exactly the two policy controls. COLD-KIRI cannot be onboarded by main's code (file
+  format), so its capture overlaid the branch's onboarding machinery on main's `binding_roles.py`/`binding_service.py`
+  (README).
