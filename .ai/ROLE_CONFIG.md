@@ -94,7 +94,7 @@ resumed. State in every review which reviewer produced it.
     "Run commands from the worktree ROOT with repo-relative paths. Postgres tests: ONE call
     `tools/heavy-slot.sh --db -- pwsh tools/run-host-tests.ps1 -- <files>`; vitest only via
     `tools/heavy-slot.sh`; architecture guard with
-    `ASSETOPS_GUARD_PYTHON=/opt/assetecon/AssetOpsV1/.venv/bin/python`. A queued heavy slot is
+    `ASSETOPS_GUARD_PYTHON=/opt/assetecon/AssetOpsV1/.venv/bin/python`, and `tools/checks/statement_catalogue.py` (exit 0, or output identical to main). A queued heavy slot is
     waited on, never a reason to stop. Delete only files you created, never a directory under
     /tmp/claude-1001. No background job or preview server left running at hand-back."
   - **Test scope before hand-back:** a builder runs the whole test directory or module its diff
@@ -107,6 +107,7 @@ resumed. State in every review which reviewer produced it.
   - **Model coverage before design:** a spec Architect first checks that the model (levers,
     structures, factors, records) covers every Site type the work shows. A gap is fixed in the
     model, or put to the owner labelled WORKAROUND; it is never bridged in code silently.
+  - **Coordinator merge check:** before every merge, run check-decision-index, check-agent-workflow and `statement_catalogue.py` on the merged tree (6c and 6h each broke the catalogue on main unseen).
   - **Coordinator housekeeping:** stop an agent's leftover background work (TaskStop) as soon
     as its hand-back is in; check `tools/heavy-slot.sh --status` before dispatching DB-heavy
     work alongside another; merge dependent branches in order and check a long-running agent's
