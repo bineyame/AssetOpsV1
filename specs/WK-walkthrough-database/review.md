@@ -187,3 +187,17 @@ As in round 2: the live serve against the walk database, and the real npm/Vite g
 
 - The `group_unverified` report names the dead leader's PID, not the survivors or the pgid. With `serve` nulled, a refused stop leaves no record to retry from (item 5).
 - `signal` reads the group and then calls `killpg`. Between the two, every recorded member would have to exit and a foreign group take the id after a full PID wrap. That race is not reachable in practice and is inherent to `killpg`.
+
+## Serve keys and S4 growth
+
+Reviewer (fresh Claude), 2026-11-22, branch `task/WK-serve-keys` (8b09be198) against main. Rulings D-WK.15, D-WK.16, D-DDR.16; spec §3.5, §3.6 S4, T5, T8.
+
+**Verdict: ACCEPT.** No findings.
+
+1. Cursor keys. `tools/walk_world.py:308-310` sets both names from `secrets.token_hex(32)` after the parent-environment copies, so the parent's values are never read. `api_env` has one caller (`:993`), which passes the result to `procs.spawn` (`:447-457`). The spawn record keeps argv, pid, start time and pgid, not env, so the manifest holds no key. The keys travel by env, not argv, and nothing prints or logs the env. T8 (`test_wk_walk_world.py:817-851`) plants the parent keys, then checks that the served keys are 64-hex, differ from each other and from the parent's, and are absent from the manifest, stdout and every file under `var`. Note: the log scan runs against the fake runner, so it proves our code writes nothing and cannot prove what a real child logs; uvicorn does not echo its env.
+2. S4 tolerance. `SERVE_GROWTH_TABLES` is passed only at `:1053` (S4). W3 (`:944`) calls with no growth, so it stays exact. In the judge (`:228-246`) only `chain_response` is tolerant: now below the prepared count fails with "at least N != M"; every other table is compared exactly. Tests cover +3 PASS, -1 FAIL, +1 in `site` FAIL, an unknown table FAIL, and W3 with +1 FAIL (judge-level and through `check`).
+3. Tests and plants. `pytest backend/tests/test_wk_walk_world.py`: 103 passed. My plant, W3 given the growth tuple and the work key read from the parent environment: 3 tests failed (`test_t5_w3_fails_on_chain_response_plus_one`, `test_t8_serve_envs_and_argv`, `test_t8_cursor_keys_are_fresh_each_serve`). Restored, tree clean. The builder's plants are consistent with these tests.
+4. Nothing widened. The diff to `api_env` adds only the two names. T8's exact key list gains only those two. The deny list and its test (`test_t8_api_env_drops_every_forbidden_name`) are unchanged. `node_env` and `web_env` are untouched. D-DDR.16 text matches D-WK.15.
+
+Not verified: a real serve (no live serves, DB or Docker touched, per the brief); check-all (not run, per the brief).
+Residual risk: the growth tuple is a code constant, so adding a table needs a code edit; the ruling already says it needs a new ruling.

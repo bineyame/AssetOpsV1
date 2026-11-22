@@ -30,6 +30,9 @@ class StructureSnapshotStore(Protocol):
     def latest_portfolio(self, tenant_id: UUID, period: str) -> SnapshotRow | None:
         """The portfolio row with the greatest as_of."""
 
+    def portfolio_history(self, tenant_id: UUID, period: str) -> tuple[SnapshotRow, ...]:
+        """Every portfolio row of the tenant and period, by as_of (DDR spec §2.3, D-DDR.6)."""
+
     def get(self, tenant_id: UUID, ids: Sequence[UUID]) -> tuple[SnapshotRow, ...]:
         """The rows in the order given; a missing id raises LookupError."""
 
@@ -68,6 +71,10 @@ class MemoryStructureSnapshotStore:
 
     def latest_portfolio(self, tenant_id: UUID, period: str) -> SnapshotRow | None:
         return self._latest(tenant_id, None, period)
+
+    def portfolio_history(self, tenant_id: UUID, period: str) -> tuple[SnapshotRow, ...]:
+        found = [r for r in self.rows if r.tenant_id == tenant_id and r.site_id is None and r.period == period]
+        return tuple(sorted(found, key=lambda r: r.as_of))
 
     def get(self, tenant_id: UUID, ids: Sequence[UUID]) -> tuple[SnapshotRow, ...]:
         by_id = {r.id: r for r in self.rows if r.tenant_id == tenant_id}

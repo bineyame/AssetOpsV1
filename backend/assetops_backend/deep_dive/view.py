@@ -14,7 +14,7 @@ from typing import Any
 
 from assetops_backend.outcomes.catalogue import CATEGORIES
 from assetops_backend.structure.attribution.bridge import BridgeRow, lowest
-from assetops_backend.structure.attribution.portfolio import portfolio_bridge
+from assetops_backend.structure.attribution.portfolio import PortfolioRow, portfolio_bridge
 from assetops_backend.structure.attribution.site import site_bridge
 from assetops_backend.structure.read import SITE_TYPE_TO_STRUCTURE
 from assetops_backend.structure.registry import REGISTRIES
@@ -93,6 +93,24 @@ def _walk(row: BridgeRow):
     yield row
     for child in row.rows:
         yield from _walk(child)
+
+
+def cash_parts(rows: Mapping[str, PortfolioRow]) -> tuple[PortfolioRow, PortfolioRow, PortfolioRow] | None:
+    """The bills and the two parts of them not yet collected, only when they reconcile with the collected root:
+    present, in its currency, over its Sites, and collected = billed - in transit - outstanding (D-5C.29)."""
+    root = rows.get(T.CASH)
+    if root is None or root.actual is None or root.currency is None:
+        return None
+    found = tuple(rows.get(k) for k in (T.REVENUE, T.IN_TRANSIT, T.OUTSTANDING))
+    sites = {c for c, _ in root.out}
+    for part in found:
+        if (part is None or part.actual is None or part.currency != root.currency
+                or {c for c, _ in part.out} != sites):
+            return None
+    revenue, in_transit, outstanding = found
+    if root.actual != revenue.actual - in_transit.actual - outstanding.actual:
+        return None
+    return revenue, in_transit, outstanding
 
 
 def _find(root: BridgeRow, factor_id: str) -> BridgeRow | None:
@@ -519,7 +537,7 @@ class _View:
     def cash(self) -> dict:
         rows = self.pb.rows[T.CASH]
         root = rows[T.CASH]
-        transit, owed, revenue = rows.get(T.IN_TRANSIT), rows.get(T.OUTSTANDING), self.rows.get(T.REVENUE)
+        parts = cash_parts(rows)
 
         def m(row, value=None):  # each cash figure in its own row's currency (review H3)
             value = row.actual if row is not None and value is None else value
@@ -527,13 +545,13 @@ class _View:
 
         def a(row):
             return W.amount(row.actual, row.currency) if row is not None else W.amount(None, None)
-        sentence = W.cash(self.month, m(root), m(root, root.target), m(owed), m(transit))
+        sentence = W.cash(self.month, m(root), tuple(m(p) for p in parts) if parts else None)
         table_rows = []
         for code in self.snap.asked:
             if code not in self.sb:
                 continue
             cash_root = self.sb[code].roots[T.CASH]
-            rev = _find(self.sb[code].roots[T.ROOT], T.REVENUE)
+            rev = _find(cash_root, T.REVENUE)
             t = _find(cash_root, T.IN_TRANSIT)
             o = _find(cash_root, T.OUTSTANDING)
             table_rows.append([self.name(code),
@@ -541,7 +559,8 @@ class _View:
                                W.amount(cash_root.actual, self.own_cur(code, cash_root)),
                                W.amount(t.actual if t is not None else None, self.own_cur(code, t)),
                                W.amount(o.actual if o is not None else None, self.own_cur(code, o))])
-        total = [W.sites(root.k, self.n), a(revenue), a(root), a(transit), a(owed)]
+        total = ([W.sites(root.k, self.n), a(parts[0]), a(root), a(parts[1]), a(parts[2])] if parts
+                 else [W.sites(root.k, self.n), a(None), a(root), a(None), a(None)])
         columns = [W.text("SITE"), W.text("BILLED"), W.text("COLLECTED"), W.text("IN_TRANSIT"), W.text("OUTSTANDING")]
         return {"title": W.text("CASH_TITLE"), "text": sentence,
                 "word": self.figure_word(root.actual, root.currency, root.evidence, root.origins),
