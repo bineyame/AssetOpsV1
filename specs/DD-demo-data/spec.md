@@ -3,10 +3,10 @@
 Status: **rev 2, 2026-11-22; DD1 in_review (`packet-DD1.md`); DD2a in_review (`packet-DD2a.md`)**: the combined handshake (`handshake.md`, R1-R10, I1-I15) is answered there under "Answers
 (Architect)" and ruled in `rulings.md` (D-DD.17 to D-DD.34). Rev 1 (same day) had 19.5 u in four parts; rev 2 has
 **30.0 u in six parts** (§7); restated by D-DD.44 to **33.0 u in seven parts** (DD3 splits into DD3a, DD3b), by D-DD.47 to 33.5 u, and by D-DD.57 to
-**34.25 u in eight parts** (DD2 splits into DD2a, DD2b), by D-DD.66 to **35.25 u**, and by D-DD.73 to **35.75 u**. Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
+**34.25 u in eight parts** (DD2 splits into DD2a, DD2b), by D-DD.66 to **35.25 u**, by D-DD.73 to **35.75 u**, and by D-DD.74 to **36.25 u**. Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
 it grounded on the product goals"); owner answers to Q1-Q6: `owner/owner-demo-data-answers-2026-11-22.md`. Owner words on
 Kobo's equipment: `owner/owner-iap-q1-q2-kobo-datasheets-2026-11-22.md`. **Rulings:** D-DD.1 to D-DD.16 (§9) and
-D-DD.17 to D-DD.73 (`rulings.md`); index lines in `.ai/decisions/index-rulings-26.md`, `index-rulings-27.md`,
+D-DD.17 to D-DD.74 (`rulings.md`); index lines in `.ai/decisions/index-rulings-26.md`, `index-rulings-27.md`,
 `index-rulings-28.md` and `index-rulings-29.md`.
 **Reviewer guide:** `reviewer-guide.md` (rev 2). `USER_REVIEW_REQUIRED: true` (demo narrative, evidence labels, what the
 served app shows; owner Q7-Q9 open with defaults applied).
@@ -781,7 +781,7 @@ Order: DD1 → (DD2a → DD2b ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merg
   - It reads the manifest's `oracle`, `checks` and `period` by its own YAML read. It reads `history.json` by its own
     JSON read, after asserting its sha256 equals `simulator/tests/world/golden/history_v1.json`'s digest (D-DD.31).
 
-### DD2: four months of decided books (7.0 u in two parts, D-DD.57, D-DD.66: DD2a = DD2.2, DD2.1, DD2.5, 3.0 u, `task/DD2-books`; DD2b = DD2.3, DD2.4, 4.0 u, `task/DD2b-cold-ev-books`; DD2a merges first, D-DD.62)
+### DD2: four months of decided books (7.5 u in two parts, D-DD.57, D-DD.66, D-DD.74: DD2a = DD2.2, DD2.1, DD2.5, 3.0 u, `task/DD2-books`; DD2b = DD2.3, DD2.4, 4.5 u, `task/DD2b-cold-ev-books`; DD2a merges first, D-DD.62)
 
 - **DD2.1 Mini-grid months, notes and staging (1.5).** §5.1 and D-DD.48 (node table, parity, `EMU_NODE`, plan side),
   D-DD.53 (dated note). `inputs()` stages DS1b's METER_ASSIGNMENT, TARIFF_SCHEDULE and ADJUSTMENT JSON (D-DD.54).
@@ -789,13 +789,16 @@ Order: DD1 → (DD2a → DD2b ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merg
   are exactly `{"true", "false"}`, the one exception to "a map sits only on a coded path"; it writes a JSON boolean.
   Contract tests: accept; refuse an unmapped cell; refuse a map without both values; refuse a map on a non-bool,
   non-coded path.
-- **DD2.3 Cold decided books and profiles (2.25).** §5.2: ledger and invoicing profiles (D-DD.59) plus both budget
+- **DD2.3 Cold decided books and profiles (2.5).** §5.2: ledger and invoicing profiles (D-DD.59) plus both budget
   profiles (D-DD.49), with samples and expected files; cold nodes (D-DD.50) in `world/nodes.py` (D-DD.62); the ledger
   rule (D-DD.63); `world/tariffs.py` with its parity test, the staged directory and `EMU_SOURCE_SWITCH` (D-DD.60,
   D-DD.61); sha256 pins of the cold and EV files (D-DD.65a); admission by `source_profile admit --expected E
   --as <analyst>`.
-- **DD2.4 EV decided books and profiles (1.5).** §5.3: the roster and tickets profiles. The invoice and departure
+- **DD2.4 EV decided books and profiles (1.75).** §5.3: the roster and tickets profiles. The invoice and departure
   profiles of §5.6 are defined here, with samples and expected files; their rows come in DD4.4.
+  D-DD.74 (0.25 u each in DD2.3 and DD2.4): `world_history.py exports --tenant SLUG` (repeatable;
+  `EMU_TENANT_UNKNOWN`), passed by `tools/world.py` L1 for each definition tenant, by DDR S3 and by the ON1 and
+  deep-dive runbooks, so no consumer meets another tenant's books.
 - **DD2.5 Statements and checks (1.0).** §5.4 for Lakeside's history months. The cold and EV writer is wired to
   `measured.json` and tested on a fixture. C-DD2 to C-DD4 go live for the decided books, with C-DD4's node clause and
   the checker's own evaluator (D-DD.55).
@@ -868,7 +871,7 @@ Order: DD1 → (DD2a → DD2b ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merg
   - Fold in the DDR runbook's ten queued clarity notes.
   - Evidence goes to `/opt/assetecon/evidence/DD/<run>/`.
 
-**Size: 35.75 units (D-DD.73; D-DD.66: 35.25 u; D-DD.57: 34.25 u; D-DD.47: 33.5 u; D-DD.44: 33.0 u; rev 2: 30.0 u), about 54 commits** (rev 1: 19.5 u). Each part is at or under 6 units. 0K4f grows by 0.5 u
+**Size: 36.25 units (D-DD.74; D-DD.73: 35.75 u; D-DD.66: 35.25 u; D-DD.57: 34.25 u; D-DD.47: 33.5 u; D-DD.44: 33.0 u; rev 2: 30.0 u), about 54 commits** (rev 1: 19.5 u). Each part is at or under 6 units. 0K4f grows by 0.5 u
 (D-DD.30).
 
 ---
@@ -927,6 +930,8 @@ The checker shares no logic, list or expected figure with the generators. Expect
 - DD1 to DD5 run in a lane beside IA-P. They touch onboarding, `sites/`, `evidence/`, `load_world_inputs.py`, the
   simulator, contracts' profile types and data, and none of IA-P2's files (`deep_dive/`, `estate/`).
 - DD2.2 changes `contracts/` (a protected seam) and is reviewed as one.
+- DD2b merges ahead of DD5, main green, once `world_history.py exports --tenant` and its consumers (`tools/world.py`
+  L1, DDR S3, the two runbooks) are in (D-DD.74); DD3a, DD3b and DD4 build on its files from main.
 - 0K4f, Q11 and Q12 each need a rebuild; the coordinator runs one after all three merge.
 
 ### 8.3 Guards
@@ -945,7 +950,7 @@ The checker shares no logic, list or expected figure with the generators. Expect
 
 - **D-DD.1 to D-DD.16** as in rev 1, kept below. D-DD.4 is amended by D-DD.21 and D-DD.22, D-DD.5 by D-DD.24, and
   D-DD.10 by D-DD.17 and D-DD.30.
-- **D-DD.17 to D-DD.73**: `rulings.md`.
+- **D-DD.17 to D-DD.74**: `rulings.md`.
 
 - **D-DD.1 The cast.** The manifest's three operators and nine Sites, as §1's table. *Why:* one world drives the
   manifest, mock, documents and product. *Reverse:* a cast change is a manifest change first.
