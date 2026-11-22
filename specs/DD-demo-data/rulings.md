@@ -2529,3 +2529,44 @@ built from it until the owner approves.
     `interactive-mockup-vNEXT/`, the `EFFICIENCY_CONDITION` freeze and the parity re-pins
     (`backend/tests/golden/6h_parity.json` lists the moved figures). If approved, DD4b 4.75 → 5.75 u, DD 49.75 →
     50.75 u.
+
+# DD rulings, round 18 (D-DD.145): DD3b1 deviations 1-4 (unit events as forcings)
+
+Architect (Claude, DD lane), 2026-11-22. Read: `packet-DD3b.md` "Known Deviations" 1-4 on `task/DD3b-mini-plant`
+(f1f71ae65); `simulator/assetops_simulator/kernel/execute.py` `_forcing_index` (skips `end <= start`) and
+`_cause_index` (POINT causes at `point_due_at`); `world/telemetry.py` `STEP_MINUTES` 5; D-DD.75, D-DD.126,
+D-DD.127. The owner is informed; no owner weigh-in is needed (no story figure moves).
+
+- **D-DD.145 Unit events are one-minute WINDOW forcings read at the step that holds them; the kernel is unchanged.
+  Deviations 2-4 are confirmed** (model; amends D-DD.127's "POINT forcings" and spec §4.3 "Forcings").
+  - *Ruling on deviation 1: the builder's default.* A kernel that exposes POINT forcings is a version move at a
+    protected seam. It would reach every pack that reads forcings (mini-grid v1-v9, cold-thermal 1-2, EV), and its
+    proof would be a byte-parity golden over every pack's runs. It would buy nothing that the 5-minute step can
+    resolve: a POINT and a one-minute WINDOW both land on the one step `point-applied-once` names. So:
+    - the writer declares `UNIT_FAIL` / `UNIT_RESTORE <component>` as a WINDOW [t, t + 1 min), with t the instant
+      in `UNIT_EVENTS`;
+    - v9 applies it in `commit` at the start of the step that holds t;
+    - the unit's state-change event row is stamped **t itself** (18:40, 19:20, 11:00, 11:02), never the step start
+      or the next step, because C-DD6 and C-DD20 read the instant;
+    - the 5-minute sample at the failing step's start still shows the unit as it was, and the controller acts from
+      the next step;
+    - `conditions` gains "unit failures and restores apply at the 5-minute step holding their instant; the
+      controller responds at the next step (Assumed)". If the kernel ever exposes POINT forcings, `_unit_events`
+      reads them unchanged (the builder's note), and no figure moves.
+  - *Is the one-step lag honest for Kisiwa, 30 Oct 18:40 (D-DD.126)? Yes.* 18:40 is a step start, so GEN-KS-01 is
+    out for the whole 18:40-18:45 step, and GEN-KS-02 can be asked to start from 18:45. A controller detecting a
+    trip and bringing on the standby set takes a start delay, cranking and warm-up of about a minute to a few
+    minutes, so a response within 5 minutes is ordinary practice. The battery carries the gap. C-DD20's question
+    (unserved evening energy after 18:40) is unaffected. Mto's 11:02 is off the grid and applies from 11:00, two
+    minutes early, inside one 5-minute mean: the same quantisation every forcing in the writer has (D-DD.75), not a
+    claim. Its event row still reads 11:02.
+  - *Deviation 2, confirmed with a floor:* the requested generator power P = max(0, demand + the battery's charge
+    acceptance at T (taper and headroom, the pack's own limit) − available solar). This is v8's cycle-charging
+    intent, made numeric for choosing a set.
+  - *Deviation 3, confirmed:* on a fuel-limited multi-unit segment, each unit gets its rating share of the tank, and
+    where the no-load burn exceeds the tank, the litres are scaled to the tank. A unit test asserts the segment's
+    litres never exceed the tank. No Site reaches it.
+  - *Deviation 4, confirmed:* `UNIT_RESTORE` returns a generator to STOPPED (D-DD.127), and it can be asked to start
+    from the next step. Kisiwa's 17 Aug 11:00 restore therefore makes GEN-KS-01 startable from 11:05.
+  - *Units:* none. This is the default already built, plus a `conditions` line and the event-stamp test (DD3b1's fix
+    round or DD3b2, at the builder's choice).
