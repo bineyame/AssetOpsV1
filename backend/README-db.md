@@ -79,11 +79,12 @@ the rows; it never recomputes a published hash.
 The Compose service also creates `assetops_test`, a disposable database used
 only by the Postgres tests as an administrative base: every Postgres module
 starts on a freshly cloned, fully migrated run-owned database; they never touch
-the developer database.
+the developer database. The runner picks the free lane's database (`assetops_test` or
+`assetops_b_test`); do not export a fixed `ASSETOPS_TEST_DATABASE_URL`, lane b refuses lane a's database
+(`backend/TESTING.md`, "Two database lanes").
 
 ```sh
-export ASSETOPS_TEST_DATABASE_URL=postgresql+psycopg://assetops:assetops-local-dev@127.0.0.1:55432/assetops_test
-.venv/Scripts/python.exe -m pytest backend/tests/test_s1_foundation_postgres.py backend/tests/test_s1_bindings_postgres.py
+tools/heavy-slot.sh --db-lane -- pwsh -NoProfile -File tools/run-host-tests.ps1 -- backend/tests/test_s1_foundation_postgres.py backend/tests/test_s1_bindings_postgres.py
 ```
 
 Without `ASSETOPS_TEST_DATABASE_URL` those tests are reported as skipped, not

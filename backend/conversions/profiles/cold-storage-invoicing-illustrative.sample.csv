@@ -1,10 +1,10 @@
 Type,Document,Site,Party,Party ref,Account,Payer,From,To,Month,Paid at,Line,Quantity,Unit,Amount,Currency,Tariff,Method,State,Reason,Authorised by,Reference
-Invoice,gen:COLD-KIRI:2026-07:invoice-01,COLD-KIRI,Customer,COLD-KIRI-K-01,COLD-KIRI-K-01,,2026-07-01,2026-08-01,2026-07,,Storage,1440,crate-day,288.00,USD,T-STORAGE,,,,,
-Invoice,gen:COLD-KIRI:2026-07:invoice-02,COLD-KIRI,Customer,COLD-KIRI-K-02,COLD-KIRI-K-02,,2026-07-01,2026-08-01,2026-07,,Storage,1800,crate-day,360.00,USD,T-STORAGE,,,,,
-Invoice,gen:COLD-KIRI:2026-07:invoice-03,COLD-KIRI,Customer,COLD-KIRI-K-03,COLD-KIRI-K-03,,2026-07-01,2026-08-01,2026-07,,Storage,1440,crate-day,288.00,USD,T-STORAGE,,,,,
-Receipt,gen:COLD-KIRI:2026-07:receipt-01,COLD-KIRI,Customer,COLD-KIRI-K-01,,COLD-KIRI-K-01,,,2026-07,2026-07-31T10:00:00+03:00,,,,288.00,USD,,M-Pesa,Collected,,,
-Receipt,gen:COLD-KIRI:2026-07:receipt-02,COLD-KIRI,Customer,COLD-KIRI-K-02,,COLD-KIRI-K-02,,,2026-07,2026-07-31T10:00:00+03:00,,,,360.00,USD,,M-Pesa,Collected,,,
-Receipt,gen:COLD-KIRI:2026-07:receipt-03,COLD-KIRI,Customer,COLD-KIRI-K-03,,COLD-KIRI-K-03,,,2026-07,2026-07-31T10:00:00+03:00,,,,288.00,USD,,Bank,Collected,,,
+Invoice,gen:COLD-KIRI:2026-07:invoice-01,COLD-KIRI,Customer,COLD-KIRI-K-01,COLD-KIRI-K-01,,2026-07-01,2026-08-01,2026-07,,Storage,1396,crate-day,279.20,USD,T-STORAGE,,,,,
+Invoice,gen:COLD-KIRI:2026-07:invoice-02,COLD-KIRI,Customer,COLD-KIRI-K-02,COLD-KIRI-K-02,,2026-07-01,2026-08-01,2026-07,,Storage,1600,crate-day,320.00,USD,T-STORAGE,,,,,
+Invoice,gen:COLD-KIRI:2026-07:invoice-03,COLD-KIRI,Customer,COLD-KIRI-K-03,COLD-KIRI-K-03,,2026-07-01,2026-08-01,2026-07,,Storage,1680,crate-day,336.00,USD,T-STORAGE,,,,,
+Receipt,gen:COLD-KIRI:2026-07:receipt-01,COLD-KIRI,Customer,COLD-KIRI-K-01,,COLD-KIRI-K-01,,,2026-07,2026-07-31T10:00:00+03:00,,,,279.20,USD,,M-Pesa,Collected,,,
+Receipt,gen:COLD-KIRI:2026-07:receipt-02,COLD-KIRI,Customer,COLD-KIRI-K-02,,COLD-KIRI-K-02,,,2026-07,2026-07-31T10:00:00+03:00,,,,320.00,USD,,M-Pesa,Collected,,,
+Receipt,gen:COLD-KIRI:2026-07:receipt-03,COLD-KIRI,Customer,COLD-KIRI-K-03,,COLD-KIRI-K-03,,,2026-07,2026-07-31T10:00:00+03:00,,,,336.00,USD,,Bank,Collected,,,
 Credit note,gen:COLD-THIKA:2026-10:actual:liability,COLD-THIKA,Site,COLD-THIKA,,,2026-10-01,,2026-10,,,,,-108.00,USD,,,,CUSTOMER_COMPENSATION,finance-lead,gen:COLD-THIKA:2026-10:actual:liability
 Receipt,gen:COLD-THIKA:2026-10:receipt-x7,COLD-THIKA,Customer,COLD-THIKA-K-07,,COLD-THIKA-K-07,,,2026-10,2026-10-30T15:20:00+03:00,,,,42.00,USD,,Cash,Collected,,,
 Receipt,gen:COLD-THIKA:2026-10:receipt-x8,COLD-THIKA,Customer,COLD-THIKA-K-08,,COLD-THIKA-K-08,,,2026-10,2026-10-31T18:45:00+03:00,,,,36.00,USD,,M-Pesa,In transit,,,

@@ -188,7 +188,8 @@ round the Architect folds rulings into one current unit card.
   12 Nov is ended (PIPE-1, coordinator rule).
 - Heavy tools (tsc, vitest, pytest with a database, browser captures) and
   heavy database jobs run only through the slot pool, `tools/heavy-slot.sh --
-  <command>` (`--db` for a database job; pwsh `tools/heavy-slot.ps1`); each
+  <command>` (`--db-lane` for a Postgres test run, `--db` for a database job;
+  pwsh `tools/heavy-slot.ps1`); each
   refuses to start outside it (T1, `backend/TESTING.md`).
 - Databases: only `*_test` and `<prefix>_audit*` databases in
   `assetopsv1-postgres-1`; never others. Drop your own when done.

@@ -4,7 +4,8 @@
 # module: tools/check-architecture.ps1 skips every `_*.ps1` in tools/checks.
 #
 # The pool is two exclusive flock(2) locks, slot-1.lock and slot-2.lock, in D = <git common dir>/check-all-slots
-# (canonical), plus db-job.lock for the one heavy database job at a time. .NET's FileShare.None open is that flock
+# (canonical), plus db-job.lock and db-job-b.lock, the two database lanes (T1b, spec-T1b.md §2): a heavy database job
+# (-Db) holds both, a focused Postgres test run (-DbLane) the first free one. .NET's FileShare.None open is that flock
 # on Linux and is close-on-exec, so a child never inherits it (D-T1.2). The bash wrapper takes the same locks.
 
 $script:HeavyOnWindows = ($PSVersionTable.PSVersion.Major -lt 6) -or $IsWindows
@@ -128,7 +129,7 @@ function Test-HeavyMarker([string]$Value, [string]$SlotDir, [string]$Name) {
     $leaf = [IO.Path]::GetFileName($Value)
     $parent = [IO.Path]::GetDirectoryName($Value)
     if (-not $parent) { return $pool }
-    $pattern = if ($Name -eq 'db') { '^db-job\.lock$' } else { '^slot-[12]\.lock$' }
+    $pattern = switch ($Name) { 'db' { '^db-job\.lock$' } 'dbb' { '^db-job-b\.lock$' } 'lane' { '^db-job(-b)?\.lock$' } default { '^slot-[12]\.lock$' } }
     if ($leaf -notmatch $pattern) { return $pool }
     if (-not (Test-HeavySamePath (Get-HeavyCanonicalPath $parent) $SlotDir)) { return $pool }
     $lock = [IO.Path]::Combine($SlotDir, $leaf)
@@ -143,6 +144,20 @@ function Test-HeavyMarker([string]$Value, [string]$SlotDir, [string]$Name) {
     return @{ Ok = $true; Reason = "" }
 }
 
+# T1b §2: exclusive passes when both -Db markers pass; the lane is 'a' (exclusive, or db-job.lock), 'b' or $null.
+function Test-HeavyExclusive([string]$SlotDir) {
+    return ((Test-HeavyMarker $env:ASSETOPS_HEAVY_DB $SlotDir 'db').Ok -and (Test-HeavyMarker $env:ASSETOPS_HEAVY_DB_B $SlotDir 'dbb').Ok)
+}
+
+function Get-HeavyLane([string]$SlotDir) {
+    if (Test-HeavyExclusive $SlotDir) { return 'a' }
+    if ((Test-HeavyMarker $env:ASSETOPS_HEAVY_DB_LANE $SlotDir 'lane').Ok) {
+        if ([IO.Path]::GetFileName($env:ASSETOPS_HEAVY_DB_LANE) -eq 'db-job-b.lock') { return 'b' }
+        return 'a'
+    }
+    return $null
+}
+
 function Assert-HeavySlotLocking {
     if ($env:DOTNET_SYSTEM_IO_DISABLEFILELOCKING) {
         [Console]::Error.WriteLine("heavy-slot: refused: DOTNET_SYSTEM_IO_DISABLEFILELOCKING is set; the slot locks would not hold.")
@@ -150,17 +165,17 @@ function Assert-HeavySlotLocking {
     }
 }
 
-function Write-HeavyOwner([string]$LockPath, [string]$Label, [bool]$Db) {
+# $DbWord: yes (-Db), lane (-DbLane) or no.
+function Write-HeavyOwner([string]$LockPath, [string]$Label, [string]$DbWord) {
     $since = [DateTime]::UtcNow.ToString('s') + 'Z'
-    $yes = if ($Db) { 'yes' } else { 'no' }
-    $text = "pid=$PID`nlabel=$Label`nsince=$since`ncwd=$($PWD.ProviderPath)`ndb=$yes`n"
+    $text = "pid=$PID`nlabel=$Label`nsince=$since`ncwd=$($PWD.ProviderPath)`ndb=$DbWord`n"
     try { [IO.File]::WriteAllText((Get-HeavyOwnerPath $LockPath), $text) } catch { }
 }
 
 # After the wrapper starts its child: one more owner field (appended, so a reader never sees an empty file).
 function Add-HeavyOwnerChild($Handle, [int]$ChildPid) {
     if (-not $Handle -or $Handle.Nested) { return }
-    foreach ($lock in @($Handle.SlotPath, $Handle.DbPath)) {
+    foreach ($lock in @($Handle.SlotPath, $Handle.DbPath, $Handle.DbBPath, $Handle.LanePath)) {
         if ($lock) { try { [IO.File]::AppendAllText((Get-HeavyOwnerPath $lock), "child=$ChildPid`n") } catch { } }
     }
 }
@@ -171,38 +186,71 @@ function Enter-HeavySlot {
         [int]$Slots = 2,
         [int]$WaitSeconds,
         [switch]$Db,
+        [switch]$DbLane,
         [string]$Label = "",
         [string]$Announce = "",
         # Where -Announce goes: check-all keeps its host line; the wrappers write to stderr.
         [ValidateSet('Host', 'Error')][string]$AnnounceTo = 'Host'
     )
+    if ($Db -and $DbLane) { [Console]::Error.WriteLine("heavy-slot: --db and --db-lane are exclusive; give one."); exit 64 }
     if ($Slots -gt 2) { [Console]::Error.WriteLine("heavy-slot: the shared pool has 2 slots (T1)"); exit 64 }
     $clock = [Diagnostics.Stopwatch]::StartNew()
     $marker = $env:ASSETOPS_HEAVY_SLOT
     if ($marker) {
         $test = Test-HeavyMarker $marker $SlotDir 'slot'
         if ($test.Ok) {
-            if ($Db -and -not (Test-HeavyMarker $env:ASSETOPS_HEAVY_DB $SlotDir 'db').Ok) {
+            if ($Db -and -not (Test-HeavyExclusive $SlotDir)) {
                 [Console]::Error.WriteLine("heavy-slot: refused: --db inside a held slot; put --db on the outermost wrapper.")
                 exit 69
             }
+            if ($DbLane -and -not (Get-HeavyLane $SlotDir)) {
+                [Console]::Error.WriteLine("heavy-slot: refused: --db-lane inside a held slot; put --db-lane on the outermost wrapper.")
+                exit 69
+            }
             return @{ Nested = $true; SlotPath = $marker; SlotStream = $null
-                      DbPath = $(if ($Db) { $env:ASSETOPS_HEAVY_DB } else { $null }); DbStream = $null; WaitedSeconds = 0.0 }
+                      DbPath = $(if ($Db) { $env:ASSETOPS_HEAVY_DB } else { $null }); DbStream = $null
+                      DbBPath = $(if ($Db) { $env:ASSETOPS_HEAVY_DB_B } else { $null }); DbBStream = $null
+                      LanePath = $(if ($DbLane) { $env:ASSETOPS_HEAVY_DB_LANE } else { $null }); LaneStream = $null
+                      WaitedSeconds = 0.0 }
         }
         [Console]::Error.WriteLine("heavy-slot: ignoring stale ASSETOPS_HEAVY_SLOT=$marker ($($test.Reason))")
     }
     $dbPath = [IO.Path]::Combine($SlotDir, "db-job.lock")
+    $dbbPath = [IO.Path]::Combine($SlotDir, "db-job-b.lock")
     $dbStream = $null
+    $dbbStream = $null
+    $laneStream = $null
+    $lanePath = $null
     $slotStream = $null
     $slotPath = $null
     $saidDb = $false
+    $saidDbB = $false
+    $saidLanes = $false
     $saidSlot = $false
     while ($true) {
-        # Order: the DB lock first, then the lowest free slot (deadlock freedom, spec §2).
+        # Order (T1b §2): -Db takes lane a, then lane b; -DbLane the first free lane; then the lowest free slot.
         if ($Db -and -not $dbStream) {
             try { $dbStream = [IO.File]::Open($dbPath, 'OpenOrCreate', 'ReadWrite', 'None') } catch [System.IO.IOException] { }
         }
-        if (-not $Db -or $dbStream) {
+        if ($Db -and $dbStream -and -not $dbbStream) {
+            try { $dbbStream = [IO.File]::Open($dbbPath, 'OpenOrCreate', 'ReadWrite', 'None') } catch [System.IO.IOException] { }
+        }
+        if ($DbLane -and -not $laneStream) {
+            foreach ($candidate in @($dbPath, $dbbPath)) {
+                if ($laneStream) { break }
+                try { $laneStream = [IO.File]::Open($candidate, 'OpenOrCreate', 'ReadWrite', 'None'); $lanePath = $candidate }
+                catch [System.IO.IOException] { continue }
+                # M1: lane b is not free while an old-tools -Db (owner db=yes, live pid, no lane-b owner of its own) holds lane a.
+                if ($candidate -eq $dbbPath) {
+                    $oa = Read-HeavyOwner $dbPath
+                    $ob = Read-HeavyOwner $dbbPath
+                    if ($oa['db'] -eq 'yes' -and $oa['pid'] -and $oa['pid'] -ne $ob['pid'] -and (Get-Process -Id ([int]$oa['pid']) -ErrorAction SilentlyContinue)) {
+                        $laneStream.Dispose(); $laneStream = $null; $lanePath = $null
+                    }
+                }
+            }
+        }
+        if ((-not $Db -or $dbbStream) -and (-not $DbLane -or $laneStream)) {
             for ($i = 1; $i -le $Slots -and -not $slotStream; $i++) {
                 $candidate = [IO.Path]::Combine($SlotDir, "slot-$i.lock")
                 try { $slotStream = [IO.File]::Open($candidate, 'OpenOrCreate', 'ReadWrite', 'None'); $slotPath = $candidate }
@@ -212,26 +260,35 @@ function Enter-HeavySlot {
         if ($slotStream) { break }
         $left = $WaitSeconds - $clock.Elapsed.TotalSeconds
         if ($left -le 0) {
-            if ($dbStream) { $dbStream.Dispose() }
+            foreach ($held in @($dbStream, $dbbStream, $laneStream)) { if ($held) { $held.Dispose() } }
             return $null
         }
         if ($Db -and -not $dbStream) {
             if (-not $saidDb) { [Console]::Error.WriteLine("heavy-slot: another database job holds db-job.lock; waiting up to $WaitSeconds s."); $saidDb = $true }
+        } elseif ($Db -and -not $dbbStream) {
+            if (-not $saidDbB) { [Console]::Error.WriteLine("heavy-slot: another database job holds db-job-b.lock; waiting up to $WaitSeconds s."); $saidDbB = $true }
+        } elseif ($DbLane -and -not $laneStream) {
+            if (-not $saidLanes) { [Console]::Error.WriteLine("heavy-slot: both database lanes are busy (tools/heavy-slot.sh --status); waiting up to $WaitSeconds s."); $saidLanes = $true }
         } elseif (-not $saidSlot -and $Announce) {
             if ($AnnounceTo -eq 'Error') { [Console]::Error.WriteLine($Announce) } else { Write-Host $Announce }
             $saidSlot = $true
         }
         Start-Sleep -Milliseconds ([int][Math]::Min(2000, [Math]::Ceiling($left * 1000)))
     }
-    Write-HeavyOwner $slotPath $Label $Db.IsPresent
-    if ($dbStream) { Write-HeavyOwner $dbPath $Label $true }
+    $word = if ($Db) { 'yes' } elseif ($DbLane) { 'lane' } else { 'no' }
+    Write-HeavyOwner $slotPath $Label $word
+    if ($dbStream) { Write-HeavyOwner $dbPath $Label $word; Write-HeavyOwner $dbbPath $Label $word }
+    if ($laneStream) { Write-HeavyOwner $lanePath $Label $word }
     return @{ Nested = $false; SlotPath = $slotPath; SlotStream = $slotStream
-              DbPath = $(if ($dbStream) { $dbPath } else { $null }); DbStream = $dbStream; WaitedSeconds = $clock.Elapsed.TotalSeconds }
+              DbPath = $(if ($dbStream) { $dbPath } else { $null }); DbStream = $dbStream
+              DbBPath = $(if ($dbbStream) { $dbbPath } else { $null }); DbBStream = $dbbStream
+              LanePath = $lanePath; LaneStream = $laneStream; WaitedSeconds = $clock.Elapsed.TotalSeconds }
 }
 
 function Exit-HeavySlot($Handle) {
     if (-not $Handle) { return }
-    foreach ($pair in @(@($Handle.SlotPath, $Handle.SlotStream), @($Handle.DbPath, $Handle.DbStream))) {
+    foreach ($pair in @(@($Handle.SlotPath, $Handle.SlotStream), @($Handle.DbPath, $Handle.DbStream),
+                        @($Handle.DbBPath, $Handle.DbBStream), @($Handle.LanePath, $Handle.LaneStream))) {
         if (-not $pair[1]) { continue }
         $owner = Read-HeavyOwner $pair[0]
         if ($owner['pid'] -eq "$PID") { try { [IO.File]::Delete((Get-HeavyOwnerPath $pair[0])) } catch { } }
@@ -239,11 +296,14 @@ function Exit-HeavySlot($Handle) {
     }
     $Handle.SlotStream = $null
     $Handle.DbStream = $null
+    $Handle.DbBStream = $null
+    $Handle.LaneStream = $null
 }
 
-function Get-HeavyRefusal([string]$Tool, [string]$Reason, [bool]$Db) {
-    $sh = if ($Db) { "--db " } else { "" }
-    $ps = if ($Db) { "-Db " } else { "" }
+# $Mode: '' (a slot), 'db' (--db) or 'lane' (--db-lane).
+function Get-HeavyRefusal([string]$Tool, [string]$Reason, [string]$Mode) {
+    $sh = switch ($Mode) { 'db' { "--db " } 'lane' { "--db-lane " } default { "" } }
+    $ps = switch ($Mode) { 'db' { "-Db " } 'lane' { "-DbLane " } default { "" } }
     return "heavy-slot: refused: $Tool runs only inside the heavy-tool slot pool ($Reason).`n" +
         "Run it as: tools/heavy-slot.sh $($sh)-- <your command>   (from frontend/: ../tools/heavy-slot.sh; pwsh: pwsh -NoProfile -File tools/heavy-slot.ps1 $($ps)-- ...)`n" +
         "RULES §7 (T1)."
@@ -251,7 +311,7 @@ function Get-HeavyRefusal([string]$Tool, [string]$Reason, [bool]$Db) {
 
 # The pwsh tripwire (spec §5.1). D is resolved with no override: a slot in a private directory never passes.
 function Assert-HeavySlotHeld {
-    param([string]$Tool, [switch]$Db)
+    param([string]$Tool, [switch]$Db, [switch]$DbLane)
     $reason = ""
     if (-not $script:HeavyOnWindows -and (Test-Path -LiteralPath '/.dockerenv')) {
         $v = $env:ASSETOPS_HEAVY_SLOT_CONTAINER
@@ -262,22 +322,24 @@ function Assert-HeavySlotHeld {
         $dir = Resolve-HeavySlotDir $PSScriptRoot $false $true
         $test = Test-HeavyMarker $env:ASSETOPS_HEAVY_SLOT $dir 'slot'
         if (-not $test.Ok) { $reason = $test.Reason }
-        elseif ($Db -and -not (Test-HeavyMarker $env:ASSETOPS_HEAVY_DB $dir 'db').Ok) { $reason = "a database job needs --db on the outermost wrapper" }
+        elseif ($Db -and -not (Test-HeavyExclusive $dir)) { $reason = "a database job needs --db on the outermost wrapper" }
+        elseif ($DbLane -and -not (Get-HeavyLane $dir)) { $reason = "a Postgres test run needs --db-lane (or --db) on the outermost wrapper" }
     }
     if ($reason) {
-        [Console]::Error.WriteLine((Get-HeavyRefusal $Tool $reason $Db.IsPresent))
+        $mode = if ($Db) { 'db' } elseif ($DbLane) { 'lane' } else { '' }
+        [Console]::Error.WriteLine((Get-HeavyRefusal $Tool $reason $mode))
         exit 69
     }
 }
 
-# The marker for a container runner: `db` when ASSETOPS_HEAVY_DB passes the marker test, otherwise `slot` (§5.3).
+# The marker for a container runner: `db` when exclusive passes (both -Db markers, T1b §2), otherwise `slot` (§5.3).
 function Get-HeavyContainerMarker {
     $dir = Resolve-HeavySlotDir $PSScriptRoot $false $true
-    if ((Test-HeavyMarker $env:ASSETOPS_HEAVY_DB $dir 'db').Ok) { return 'db' }
+    if (Test-HeavyExclusive $dir) { return 'db' }
     return 'slot'
 }
 
-# -Status lines (I12c): slot-1, slot-2 and db-job always, plus any other slot-N.lock present.
+# -Status lines (I12c): slot-1, slot-2, any other slot-N.lock present, then db-job and db-job-b always.
 function Get-HeavySlotStatus([string]$SlotDir) {
     $names = [System.Collections.Generic.List[string]]::new()
     foreach ($n in @('slot-1', 'slot-2')) { $names.Add($n) }
@@ -286,6 +348,7 @@ function Get-HeavySlotStatus([string]$SlotDir) {
         if (-not $names.Contains($n)) { $names.Add($n) }
     }
     $names.Add('db-job')
+    $names.Add('db-job-b')
     foreach ($n in $names) {
         $lock = [IO.Path]::Combine($SlotDir, "$n.lock")
         if (-not (Test-HeavyLockHeld $lock)) { "${n}: free"; continue }

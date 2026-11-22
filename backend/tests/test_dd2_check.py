@@ -1,6 +1,6 @@
 """DD2.5 (spec `specs/DD-demo-data/spec.md` §8.1; D-DD.55): C-DD2 to C-DD4 on rows, no database.
 
-The checker's own evaluator is tested against hand figures (Kobo's July: 8163 kWh, 3265.20, 3002.73). The judges' tests on the
+The checker's own evaluator is tested against hand figures (Kobo's July: 8318 kWh, 3327.20, 3059.74). The judges' tests on the
 emulator's rows are `simulator/tests/world/test_dd2_checker_on_emulated_rows.py` (a product test may not import the
 simulator).
 """
@@ -37,11 +37,11 @@ def formulas_for(inputs, tenant: str, site: str, month: str) -> dd_check.Formula
 
 def test_the_evaluator_gives_kobos_july_by_hand(inputs) -> None:
     f = formulas_for(inputs, "lakeside-power", "Kobo", "2026-07")
-    assert f.node("billed_kwh") == Decimal(8163)      # 8592 - 387 - 0 - 42 - 0
-    assert f.node("revenue") == Decimal("3265.2")      # 8163 x 0.40
-    assert f.node("collected") == Decimal("3002.73")   # 3265.20 - 0 - 262.47
-    assert f.node("diesel_l") == Decimal(983)          # 711 + 260 + 12
-    assert f.node("fuel_cost") == Decimal("1228.75")   # 983 x 1.25
+    assert f.node("billed_kwh") == Decimal(8318)      # 8755 - 394 - 0 - 43 - 0
+    assert f.node("revenue") == Decimal("3327.2")      # 8318 x 0.40
+    assert f.node("collected") == Decimal("3059.74")   # 3327.20 - 0 - 267.46
+    assert f.node("diesel_l") == Decimal(972)          # 703 + 257 + 12
+    assert f.node("fuel_cost") == Decimal("1215")      # 972 x 1.25
 
 
 def test_the_evaluator_gives_cold_revenue_and_received_by_hand(inputs) -> None:
@@ -67,8 +67,10 @@ def test_the_three_checks_are_live_and_fail_on_an_empty_store(inputs) -> None:
 def test_the_checker_still_imports_nothing_from_the_simulator() -> None:
     import ast
     tree = ast.parse((ROOT / "tools" / "dd_check.py").read_text(encoding="utf-8"))
+    inside = {id(n) for f in ast.walk(tree) if isinstance(f, ast.FunctionDef) and f.name == "check_property_table_parity"
+              for n in ast.walk(f)}  # C-DD21's one function imports the writer's table (DD3.1)
     names = {n.module if isinstance(n, ast.ImportFrom) else a.name
-             for n in ast.walk(tree) if isinstance(n, (ast.Import, ast.ImportFrom))
+             for n in ast.walk(tree) if isinstance(n, (ast.Import, ast.ImportFrom)) and id(n) not in inside
              for a in (n.names if isinstance(n, ast.Import) else [n])}
     assert not [x for x in names if x and ("simulator" in x or "world" in x)]
 

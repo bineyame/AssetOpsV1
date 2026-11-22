@@ -138,12 +138,18 @@ SLOW_MARKER = ('slow: deliberate real-clock tests, the PERF-01 slow tier (backen
 
 
 def pytest_configure(config: pytest.Config) -> None:
-    # T1: a run with a database refuses to start outside the heavy-tool slot pool (xdist workers pass by ancestry).
-    if os.environ.get("ASSETOPS_TEST_DATABASE_URL"): _heavy_slot_check().require("pytest with Postgres", exit_with=pytest.exit)
+    # T1: a run with a database refuses to start outside the heavy-tool slot pool (xdist workers pass by ancestry);
+    # T1b (D-T1.22): it needs a database lane, and its base must be that lane's database.
+    if os.environ.get("ASSETOPS_TEST_DATABASE_URL"): _heavy_slot_check().require("pytest with Postgres", lane=True, exit_with=pytest.exit)
     # ENV-1 (D-ENV1.13): right after the T1 heavy-slot require (which T1's tripwire keeps first) and before every early
     # return; each process (xdist worker included) gets its own parse-slot pools, so suites, workers and lanes never
     # wait on each other's slots or on a running server's.
     os.environ["ASSETOPS_PARSE_SLOT_NAMESPACE"] = f"assetops-test-{os.getpid()}-{secrets.token_hex(4)}"
+    # T1b (D-T1.25): a database-lane run (not --db) uses at most -n 2; the controller decides, before any worker starts.
+    if os.environ.get("PYTEST_XDIST_WORKER") is None:
+        r = _heavy_slot_check().lane_workers_refusal(getattr(config.option, "numprocesses", None)) if os.environ.get("ASSETOPS_TEST_DATABASE_URL") else None
+        if r:
+            pytest.exit(r, returncode=69)
     config.addinivalue_line("markers", SLOW_MARKER)
     refuse_template_opt_out_under_xdist(config)
     workerinput = _workerinput(config)

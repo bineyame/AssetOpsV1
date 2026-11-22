@@ -92,7 +92,7 @@ resumed. State in every review which reviewer produced it.
   don't reappear via standing rules").** Each line is a failure that cost a round.
   - **Brief footer, pasted verbatim into every builder and reviewer brief:**
     "Run commands from the worktree ROOT with repo-relative paths. Postgres tests: ONE call
-    `tools/heavy-slot.sh --db -- pwsh tools/run-host-tests.ps1 -- <files>`; vitest only via
+    `tools/heavy-slot.sh --db-lane -- pwsh tools/run-host-tests.ps1 -- <files>` (merge main first so the worktree has the T1b tools; `--db` only for prepares, the slow tier and shared-server runs); vitest only via
     `tools/heavy-slot.sh`; architecture guard with
     `ASSETOPS_GUARD_PYTHON=/opt/assetecon/AssetOpsV1/.venv/bin/python`, and `tools/checks/statement_catalogue.py` (exit 0, or output identical to main). A queued heavy slot is
     waited on, never a reason to stop. Delete only files you created, never a directory under
@@ -125,6 +125,21 @@ resumed. State in every review which reviewer produced it.
   - **One Architect per lane, kept:** reuse the lane's Architect with SendMessage until about
     200k context, then hand off to a fresh one with a short note. Parallel fresh Architects in
     one lane collided on IDs (D-DD.80 used twice).
+  - **Third audit (22 Nov night).** (a) Mid-run Postgres calls cover only the files the part
+    touches; the full reach set vs main runs once, at the slice end (one DB slot serialised four
+    lanes for over an hour). (b) Any served text is written as catalogue statements from the
+    first line, and `statement_catalogue.py` runs after each new file, not at the end (6f1 U1
+    took five runs, one of them undoing 100 hand-built strings).
+  - **DD strategy (owner, 22 Nov: "yes proceed"; `owner/owner-dd-strategy-2026-11-22.md`).**
+    (a) Shared main baseline: after each merge the coordinator runs the reach sets on main once
+    and writes `.agent/main-baseline/<short-sha>.md` (files, passed/failed/errors, failing test
+    ids). Builders and reviewers compare against the newest baseline file instead of rerunning
+    main; they rerun main only for a file the baseline does not list. (b) Architect rounds only
+    for BLOCKERs, model questions and owner-level questions; every other question keeps the
+    builder's default, recorded in the packet, and the reviewer confirms it. (c) One discovery
+    review per slice; a re-review only when the review has a High or Medium; Lows are fixed in
+    the next builder run and noted, not re-reviewed. (d) One kept Architect per lane runs one
+    lane-wide pre-flight for all remaining parts before they are built.
   - **No merge without the shared branch held:** a branch is held behind another only when
     they share files (`git diff --name-only` overlap); otherwise each merges on its own ACCEPT
     (IA-P1 waited hours behind IA-2b1 with no overlap).

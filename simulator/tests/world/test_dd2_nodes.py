@@ -1,7 +1,7 @@
 """DD2.1 (spec `specs/DD-demo-data/spec.md` §5.1; D-DD.48, D-DD.51-54): mini-grid books from the structure's own nodes.
 
-Every expected figure is written by hand from the pinned inputs: Kobo's July billed 8163 kWh, revenue 3265.20 and
-collected 3002.73 (`history.json`: delivered 8592, technical loss 387, adjustments 42, outstanding 262.47 at 0.40).
+Every expected figure is written by hand from the pinned inputs: Kobo's July billed 8318 kWh, revenue 3327.20 and
+collected 3059.74 (`history.json`: delivered 8755, technical loss 394, adjustments 43, outstanding 267.46 at 0.40).
 The parity tests read the manifest; the exporter does not.
 """
 
@@ -126,11 +126,11 @@ def test_a_changed_october_plan_leaf_stops_it_too() -> None:
 
 def test_july_at_kobo_is_derived_from_the_pinned_leaves(full) -> None:
     july = [r for r in rows(full, "billing") if month_of(r) == "2026-07" and r["site_code"] == "KOBO-001"]
-    assert sum(int(r["quantity"]["value"]) for r in july) == 8163
-    assert total(july) == Decimal("3265.20")
+    assert sum(int(r["quantity"]["value"]) for r in july) == 8318
+    assert total(july) == Decimal("3327.20")
     receipts = [r for r in rows(full, "collections") if month_of(r) == "2026-07" and r["site_code"] == "KOBO-001"]
-    assert total([r for r in receipts if r["status"] == "COLLECTED"]) == Decimal("3002.73")
-    assert total(receipts) == Decimal("3002.73")  # no in transit in July
+    assert total([r for r in receipts if r["status"] == "COLLECTED"]) == Decimal("3059.74")
+    assert total(receipts) == Decimal("3059.74")  # no in transit in July
 
 
 def test_every_month_has_billing_receipts_and_fuel_at_every_site(full) -> None:
@@ -224,7 +224,7 @@ def test_other_months_cut_400_l_notes_on_the_fixed_days(full) -> None:
             assert [r["quantity"]["value"] for r in fuel[:-1]] == ["400"] * (len(fuel) - 1)
     kobo_july = [r for r in rows(full, "expenses") if r["site_code"] == "KOBO-001" and month_of(r) == "2026-07"
                  and r["body"]["category"] == "FUEL"]
-    assert sum(int(r["quantity"]["value"]) for r in kobo_july) == 711 + 260 + 12  # necessary + candidate + unexplained
+    assert sum(int(r["quantity"]["value"]) for r in kobo_july) == 703 + 257 + 12  # necessary + candidate + unexplained
     assert "remainder" in kobo_july[-1]["body"]["document_ref"]
 
 

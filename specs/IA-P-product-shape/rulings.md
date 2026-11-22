@@ -386,3 +386,91 @@ written in the pre-flight, which is then binding with the amendments named.
     by MD ID). Q28 accepted: each unit's gates join the always-run set.
   - Sizes: P5 1.75 (D-IAP.39), so IA-P3 is 5.0 units (under 6). IA-PD is 0.5. IA-P is 15.5 units.
   - Owner: nothing blocks. The owner is informed of D-IAP.40's wider chip (MD-IAP-5) and D-IAP.36's new demo links.
+
+## IA-P3 P5 run 3 questions (Architect, Claude, 2026-11-22; `IA-P3-handoff.md` run 3 on `task/IA-P3-sites-site-inbox` at `85148bb7b`)
+
+- **D-IAP.42 MINI takes MD-IAP-15; the alias ships for COLD and EV (Q-P5-1).**
+  - Fact: on a PARTIAL mini-grid Site the estate read withholds every head that touches an unchecked day
+    (`estate/coverage.py` §2.5 rule) and reports the Site UNKNOWN with `total_count` null (`estate/index.py`). The Site
+    index shows those heads. The estate rule is a reviewed coverage rule, not a fault IA-P3 may change (§11: the only
+    backend changes are E0, E1 and E2).
+  - So MINI gets no alias. Its Findings index stays, lit under Evidence with "Findings" in its section line
+    (MD-IAP-15, D-IAP.31). COLD and EV alias `/sites/:siteId/findings` to `/findings?scope=site:{id}`, through a
+    type-aware redirect in `SiteFindingsFrame` (no `LEGACY_ROUTES` entry, because the alias is not for every Site).
+  - The server test keeps MINI, flipped: it asserts that every Site id missing from the estate read belongs to a Site
+    whose estate coverage is not CURRENT or HISTORICAL. If MINI ever reaches the full subset, the test fails with
+    "MINI parity holds: ship the MINI alias (D-IAP.42)". A change in either rule is then seen, not missed.
+  - Queued, not in IA-P: one withholding rule for a PARTIAL mini Site across the Site index and the estate read. Until
+    then, the same Finding shows on the Site's index and is withheld from the estate Findings list, which says why
+    through its coverage state. The resolving unit is to be specified; the owner is informed.
+  - Reason: honest numbers. An alias would send a Kobo user from Findings they can see to a list that withholds
+    them.
+
+- **D-IAP.43 The pinned parity bodies are normalised (Q-P5-2).** "Shape and subset only" is rejected, because it cannot
+  fail on content drift.
+  - The server test writes and compares a normalised body for COLD and EV (MINI needs no client fixture, D-IAP.42).
+  - Ids: every `finding_id` and `finding_revision_id` is mapped, consistently across a vertical's Site and estate body,
+    to `00000000-0000-4000-8000-{n:012d}`. `n` follows the order of the first appearance in the Site body, then the
+    estate body. Any other uuid4 field gets the same mapping in its own series.
+  - Times: every ISO timestamp is shifted by one constant per vertical, so the window's `from` becomes
+    `2026-10-01T00:00:00Z`. The format and relative order are kept.
+  - The byte compare runs on the normalised JSON (sorted keys, 2-space indent). The subset relation is asserted
+    before and after normalisation.
+  - The vitest runs on the normalised bodies; the tokens are uuid-shaped, so the clients' parsers accept them.
+
+- **D-IAP.44 Lifecycle gets a home on the Sites list; the lineage note stays on the Site (packet-IA-P3 §5 Q1).**
+  - "In setup" is a recorded fact (the directory's lifecycle), so it is not dropped. On every Sites row and Outcomes
+    L2 row, a Site whose directory lifecycle is not Active carries its lifecycle word (the `deriveSiteView`
+    `lifecycleStatus` word, reused, no new string) as the title's `<small>`. The join is by `site_code` to the
+    directory read the list already makes. A refused directory read shows no lifecycle word, and the rows stand.
+  - The template-lineage note belongs to the Site, not the list. It stays where the Site page already shows
+    "Created from template" (Setup, `SiteConfiguration`), behind the same gate.
+  - R795 is registered as MOCK DEVIATION D2 (re-housed at its level), naming both homes. The v69 "In setup" panel's
+    own table is retired: its content is the row word.
+  - Test: a `sitesList` case with one non-Active directory Site shows the word under its title. Plant `nolife`
+    (the word dropped) fails it.
+  - Reason: missing data is named, never hidden; each element sits at its own level (the owner's UI standing brief).
+
+- **D-IAP.45 `sites/SitesIndex.tsx` and its test are deleted in P5 (packet-IA-P3 §5 Q2).**
+  - Any export still imported elsewhere (`tsc` and grep decide) moves unchanged to its own file first.
+  - `ui/__tests__/sharedVisualVocabulary.test.tsx` drops or re-points its `SitesIndex` reference as (b).
+  - Reason: a component no route mounts is dead code, and its test pins a retired screen.
+  - Size (D-IAP.42 to D-IAP.45): absorbed in P5's 1.75. IA-P3 stays 5.0 units, and IA-P 15.5.
+
+## IA-P3 P5 run 4 questions (Architect, Claude, 2026-11-22; `IA-P3-handoff.md` run 4 on `task/IA-P3-sites-site-inbox` at `3eab8ef28`)
+
+- **D-IAP.46 The parity pin compares a named projection, not bytes (Q-P5-3; amends D-IAP.43).**
+  - Fact: a second build differs after D-IAP.43's normalising, in run ids (`run-<hex32>`), digests over ids, wall-clock
+    stamps (`as_of`, `decided_at`, `committed_watermark`) and uuid-ordered arrays. These are build facts, not part of
+    what the client shows. Tokenising each one would chase the store's internals, so the assertion changes instead.
+  - The pinned files stay the full normalised bodies (D-IAP.43, written under `IAP_WRITE_FIXTURES=1`), because the
+    vitest runs on them. The hard assert, with no xfail, is `projection(fresh) == projection(pinned)`, per vertical and
+    body:
+    - The envelope: `schema_version`, `status`, `total_count`.
+    - Each row: the token of `finding_id`, `site_code`, `site_name`, `title`, `finding_label`, `lifecycle`,
+      `lens_flags`, `categories` item labels, `status`, the sorted key set of `link_refs`, and `episode_start` shifted
+      as in D-IAP.43. On the Site body, a row's fields are the ones present among these names.
+    - Tokens are assigned in the order (shifted `episode_start`, `title`, Site body before estate body), not by first
+      appearance. Rows are compared sorted by token.
+    - Excluded by name: run ids, digests, `as_of`, `decided_at`, `committed_watermark`, `selection_token`,
+      `next_cursor`, and every other uuid outside the projection.
+  - The subset is still asserted on the fresh bodies.
+  - Plants (each must fail the projection compare, then is reverted):
+    - `estatedrift`: `estate/index.py` row `site_name` set from `site["site_code"]`;
+    - `sitedrop`: the COLD Site findings read returns its rows minus the last. The subset still holds, so only the
+      projection catches it.
+  - Reason: the check must fail on what a person would see change (a Finding gained or lost, its title, state, lens
+    or link), and stay quiet on build noise.
+
+- **D-IAP.47 `ColdFindingIndex` and `EvFindingIndex` are deleted (Q-P5-4; the class of D-IAP.45).**
+  - No route mounts them since D-IAP.42's COLD and EV alias. Delete `sites/EvFindingIndex.tsx`, the `ColdFindingIndex`
+    function in `sites/ColdAssessmentViews.tsx`, and any helper or word used only by them (`tsc`, grep and
+    `statement_catalogue.py` decide). Anything else imports stays unchanged.
+  - The 19 tests in `coldFindingIndex.test.tsx` (10) and `evFindingIndex.test.tsx` (9) are each sorted in the packet:
+    - (b), moved: a test whose behaviour the Findings list at `scope=site:{id}` must keep (the range carried, the
+      window note, the empty state, the refusal) is re-pointed to `siteFindingsAlias` or the findings list tests;
+    - deleted with the component: a test of content only the old index drew. Its content is named in the packet
+      (missing content is named, never dropped silently), for the walkthrough.
+  - The `siteRangeMatrix` cold and EV `/findings (R)` rows become alias rows: the redirect keeps `from`, `to` and
+    `known_at`.
+  - Size: absorbed in P5's 1.75. IA-P3 5.0 units, IA-P 15.5.

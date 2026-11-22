@@ -3,7 +3,7 @@
     "format_version": 1,
     "kind": "CHARGE",
     "source_record_id": "gen:COLD-KIRI:2026-07:invoice-01",
-    "source_version": "ra8e0181553ce6f0f",
+    "source_version": "r1ba10f5ad9412b6d",
     "site_code": "COLD-KIRI",
     "subject": {
       "kind": "CUSTOMER",
@@ -15,11 +15,11 @@
       "recognition_period": "2026-07"
     },
     "quantity": {
-      "value": "1440",
+      "value": "1396",
       "unit": "crate_day"
     },
     "amount": {
-      "value": "288.00",
+      "value": "279.20",
       "currency": "USD"
     },
     "body": {
@@ -32,7 +32,7 @@
     "format_version": 1,
     "kind": "CHARGE",
     "source_record_id": "gen:COLD-KIRI:2026-07:invoice-02",
-    "source_version": "r25336a4d0af1af7f",
+    "source_version": "r5a2f24c4bd3906b8",
     "site_code": "COLD-KIRI",
     "subject": {
       "kind": "CUSTOMER",
@@ -44,11 +44,11 @@
       "recognition_period": "2026-07"
     },
     "quantity": {
-      "value": "1800",
+      "value": "1600",
       "unit": "crate_day"
     },
     "amount": {
-      "value": "360.00",
+      "value": "320.00",
       "currency": "USD"
     },
     "body": {
@@ -61,7 +61,7 @@
     "format_version": 1,
     "kind": "CHARGE",
     "source_record_id": "gen:COLD-KIRI:2026-07:invoice-03",
-    "source_version": "r83fc6bebc63d9450",
+    "source_version": "r16fe71f331318f4d",
     "site_code": "COLD-KIRI",
     "subject": {
       "kind": "CUSTOMER",
@@ -73,11 +73,11 @@
       "recognition_period": "2026-07"
     },
     "quantity": {
-      "value": "1440",
+      "value": "1680",
       "unit": "crate_day"
     },
     "amount": {
-      "value": "288.00",
+      "value": "336.00",
       "currency": "USD"
     },
     "body": {
@@ -90,7 +90,7 @@
     "format_version": 1,
     "kind": "RECEIPT",
     "source_record_id": "gen:COLD-KIRI:2026-07:receipt-01",
-    "source_version": "r31b49b38059487ac",
+    "source_version": "r6f662a88fc71e773",
     "site_code": "COLD-KIRI",
     "subject": {
       "kind": "CUSTOMER",
@@ -101,7 +101,7 @@
       "recognition_period": "2026-07"
     },
     "amount": {
-      "value": "288.00",
+      "value": "279.20",
       "currency": "USD"
     },
     "status": "COLLECTED",
@@ -114,7 +114,7 @@
     "format_version": 1,
     "kind": "RECEIPT",
     "source_record_id": "gen:COLD-KIRI:2026-07:receipt-02",
-    "source_version": "r27328c862d3a7675",
+    "source_version": "r18d528926d294f25",
     "site_code": "COLD-KIRI",
     "subject": {
       "kind": "CUSTOMER",
@@ -125,7 +125,7 @@
       "recognition_period": "2026-07"
     },
     "amount": {
-      "value": "360.00",
+      "value": "320.00",
       "currency": "USD"
     },
     "status": "COLLECTED",
@@ -138,7 +138,7 @@
     "format_version": 1,
     "kind": "RECEIPT",
     "source_record_id": "gen:COLD-KIRI:2026-07:receipt-03",
-    "source_version": "rea6dbbb607366414",
+    "source_version": "r2bcb8036f46adcb7",
     "site_code": "COLD-KIRI",
     "subject": {
       "kind": "CUSTOMER",
@@ -149,7 +149,7 @@
       "recognition_period": "2026-07"
     },
     "amount": {
-      "value": "288.00",
+      "value": "336.00",
       "currency": "USD"
     },
     "status": "COLLECTED",
