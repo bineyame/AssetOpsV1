@@ -2615,3 +2615,74 @@ D-DD.127, D-DD.145. The owner is informed, and may weigh in on the inverter-stat
     want it sooner.
   - *Units:* +0.25 u in DD3b2 (the judge's evidence field, two clauses, tests on the writer's rows). DD3b 5.75 →
     6.0 u, DD 50.75 → 51.0 u.
+
+# DD rulings, round 20 (D-DD.147 to D-DD.149): DD3b2's pure runs (deviations 9-11, the bound hit)
+
+Architect (Claude, DD lane), 2026-11-22. Read: `packet-DD3b.md` on `task/DD3b-mini-plant` (ab307b8c6) "Pure runs",
+"`dd_check --pure`" and deviations 9-11; D-DD.92, D-DD.104, D-DD.126, D-DD.131, D-DD.132; `M` Kobo, Kisiwa and Mto
+`period`, `factor_sources`, `observations`, `findings_expected` and OR-MG-2 (`M:1862`). No run was made. The owner
+is informed of all three and asked to weigh in on **D-DD.148**'s story change and D-DD.147's Kisiwa figures.
+
+- **D-DD.147 Q1: the bound hit is the ordering effect D-DD.92 named; DD3b3's reorder rule resolves it at all three
+  Sites. What it exposes is that Kisiwa's and Mto's fuel story is also a figure no plant produced** (confirms
+  D-DD.92 and D-DD.131 for Kisiwa and Mto; amends nothing in the plant).
+  - *Why it is ordering.* The pure runs still take D-DD.32's notes (history litres). D-DD.92's rule places notes
+    only below 25 % of the tank, and only as many as fit in the free space, so an overfill cannot occur by
+    construction. Measured burns per month: Kisiwa 689-1,255 L on 5,000 L, Mto 0-32 L on 1,000 L, Kobo 0-762 L on
+    2,500 L. From the 50 % start, Mto never reaches 250 L, so it has no purchase July-October. Kobo's new August
+    overfill comes from D-DD.104 (July 0 L) and is the same effect. `--restate-notes` iterates to no crossing, and
+    the strict writer then accepts the Jul-Oct DIR (deviation 10 closes there).
+  - *What else is wrong (the class, W6).* `M`'s Kisiwa and Mto fuel leaves are typed like Kobo's (D-DD.92). D-DD.131
+    already restates October `period.actual` for all three from the notes run. Projected (the run gives the figures):
+    - Kisiwa: `diesel_l` about 904 L (burned 884 + draw 20) against 2,400; cost about 1,175 against 3,120;
+      contribution about +1,695 against −250. It is still the highest diesel use of the three, and no longer
+      loss-making.
+    - Mto: about 32 L against 320; cost about 40 against 400.
+  - *Plan leaves stay the operator's budget* (a booked record of intent, as D-DD.130 keeps the history months). The
+    bridge lines that compare necessary litres with plan (`SOLAR_SHORTFALL_NECESSARY_GEN`, `EVENING_NECESSARY_GEN`)
+    follow their stated formulas, so they turn favourable: fuel well under budget, which is what the tank says.
+    D-DD.131's "stop if the bridge does not close" still applies.
+  - Kisiwa's typed "95 %" (GEN-KS-02's evening load) and `BATTERY_NEAR_RESERVE` 22 days join D-DD.131's sweep. Each
+    is printed from the readings by the product's own rule (the peak evening generator kW after 30 Oct 18:40 ÷ 60;
+    the warning's own count). A leaf that has no rule stops for the Architect.
+
+- **D-DD.148 Q2: at Kisiwa the plant stands. OR-MG-2 is restated to what the plant shows, and C-DD20's Kisiwa clause
+  was the lane's own error, now corrected to `M`'s story** (amends D-DD.126's C-DD20 wording, spec §8.1 C-DD8 and
+  C-DD20, `M` OR-MG-2 and Kisiwa `findings_expected`; nothing fitted).
+  - *(a) Candidate minutes.* The 20 minutes are the declared dispatch working: cycle charging continues to the
+    90 % stop past sunrise (GEN-KS-01 at 22.8 kW, 10:00-10:15, while PV gives 27 kW against a 19.8 kW load). A rule
+    that stops the set when the sun is up would be a new plant figure chosen to meet the story, so it is refused.
+    `M`'s `count: 0` was typed. Restated:
+    - OR-MG-2 becomes "Kisiwa: candidate time immaterial (under 1 % of generator minutes in every month); no
+      fuel-saving option qualifies". On the run, July is 20 min of about 5,555 (0.4 %), and 30 Oct is 20 min.
+    - The product's rule gives about 2.4 L (about 3 at 1.30) on such a day.
+    - `findings_expected` follows D-DD.131: days with a positive writer stand-in (labelled projected). That is about
+      67 L in October and about 115 L in August that the battery could have carried, beside the product's own
+      figure.
+    - If the product's option logic qualifies a fuel option on these minutes, stop for the Architect.
+  - *(b) Unserved energy.* `M` itself records none: `customer_hours_interrupted: 0`, "GEN-KS-02 carries the evening
+    load", `standby_kw` "0 ... GEN-KS-02 carries", and `KIS-NOACT` rejected for lost *redundancy* (P1 on a single
+    set), not for lost supply. D-DD.126's "unserved evening energy after 18:40" misread that. C-DD20 Kisiwa becomes:
+    - GEN-KS-01 FAILED and at 0 kW from 30 Oct 18:40, with no restore;
+    - every generator interval in 18:00-23:00 after then is on GEN-KS-02;
+    - unserved energy 0 over the whole span (as in 14-17 Aug).
+  - *Story, plainly.* Kisiwa's failure costs redundancy, not supply. The point becomes "one more failure and the
+    evening goes dark", which is the existing `KIS-REPAIR` must-do reason, unchanged. "Nothing avoidable" becomes
+    "nothing material avoidable".
+
+- **D-DD.149 Q3 and Q4: the `--pure` defaults are confirmed, with two changes; `measured.json` gains no per-day
+  series** (amends D-DD.132).
+  - *Confirmed:*
+    - burned per unit on its `/2` curve;
+    - dips at the month's first and the next month's first tank reading (D-DD.131's dips);
+    - candidate = a generator above 0 kW while PV ≥ 1.1 × feeder load (dispatch-3.2, OR-MG-2's measure);
+    - MG-5 critical = the first of `critical_load_order` (clinic).
+  - *Changed:*
+    - the unexplained tolerance is read from `M` `fuel_balance.tolerance_pct` per Site (2.0 today), not typed;
+    - C-DD8's Kisiwa candidate is judged per month against D-DD.148's bound and printed, not counted over the span.
+  - *No per-day series.* The restated Kisiwa clause asks for 0 unserved. An energy quantity is never negative, so
+    month totals of 0 prove every day is 0. The unit facts are read from the readings rows. Mto's litres per day
+    before and after 28 Oct 11:02 are computed by the judge from the per-unit generator power rows on the same
+    curve (D-DD.55: judges read rows). The writer is not changed.
+  - *Units:* +0.25 u in DD3b3 (C-DD8 and C-DD20 Kisiwa judges, tolerance read, OR-MG-2 and `findings_expected` in
+    D-DD.131's `M` commit). DD3b 6.25 u over its three parts (each part at most 6), DD 51.0 → 51.25 u.
