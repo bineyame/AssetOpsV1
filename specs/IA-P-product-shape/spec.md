@@ -1,11 +1,11 @@
 # IA-P: the real app on the agreed shape (implementer spec)
 
-Status: in_review (IA-P1: P0, P1 and P2 built, `packet-IA-P1.md`; IA-P2: P3a, P3b, P4a and D-IAP.34 built, `packet-IA-P2.md`; IA-P3 not started). **rev 3** (2026-11-22: handshake answered, `handshake.md`; the long range, P0; three parts).
+Status: in_review (IA-P1: P0, P1 and P2 built, `packet-IA-P1.md`; IA-P2: P3a, P3b, P4a and D-IAP.34 built, `packet-IA-P2.md`; IA-P3 P4b built, P5 to P7 next; IA-P3 pre-flight ruled, D-IAP.35 to D-IAP.41). **rev 3** (2026-11-22: handshake answered, `handshake.md`; the long range, P0; three parts).
 Architect (Claude). Rev 2 (the Overview follows the range) and rev 1 were merged on 2026-11-22.
 Owner request: `owner/owner-merge-on-accept-ia-shape-k10-2026-11-22.md`. The owner reviews once the product is close to the
 shape, then iterates. UI slices merge on review ACCEPT, with one combined walkthrough at the end.
 
-**Decisions:** `rulings.md`, D-IAP.1 to D-IAP.34 (rev 2: D-IAP.15 on; rev 3: D-IAP.24 on; build rulings: D-IAP.34 on). **Binding parts:** this file,
+**Decisions:** `rulings.md`, D-IAP.1 to D-IAP.41 (rev 2: D-IAP.15 on; rev 3: D-IAP.24 on; build rulings: D-IAP.34 on; IA-P3 pre-flight: D-IAP.35 to D-IAP.41, binding over `IA-P3-preflight.md`'s defaults). **Binding parts:** this file,
 `spec-period.md` and `handshake.md` "Answers (Architect)". **Reviewer guide:** `reviewer-guide.md`. `USER_REVIEW_REQUIRED: true`.
 **Mock (governs, `.ai/RULES.md` §6):** vNEXT (`Docs/demo-sprint/product-direction-layer4/interactive-mockup-vNEXT/`)
 as built by IA-1a/1b/1c, IA-2a and IA-2b1:
@@ -364,13 +364,15 @@ It is IA-2b §3 transcribed to React, with the live tokens. Markup:
 
 ## 6. Units (each 1 to 3 commits; the app works after each; D-IAP.13, D-IAP.22)
 
-Three parts (rev 3, D-IAP.32), one branch each, each branched from the previous part's merge, one discovery review per
+Four parts (rev 3, D-IAP.32; IA-PD from D-IAP.36), one branch each, each branched from the previous part's merge, one discovery review per
 part. The units run in this order:
 - **IA-P1** is P1, P0 and P2 (4.5 units), on `task/IA-P1-frame-range-lists`. P0 runs after P1 because its gates extend
   `iap_gates.cjs`.
 - **IA-P2** is P3a, P3b and P4a (5.5 units; D-IAP.34), on `task/IA-P2-portfolio-figures`. It is the only part that touches
   `backend/assetops_backend`.
-- **IA-P3** is P4b, P5, P6 and P7 (4.5 units), on `task/IA-P3-sites-site-inbox`.
+- **IA-P3** is P4b, P5, P6 and P7 (5.0 units; D-IAP.39), on `task/IA-P3-sites-site-inbox`.
+- **IA-PD** is PD (0.5 unit; D-IAP.36), on `task/IA-PD-demo-routes` from `main`: `tools/demo_combined.py` and its tests
+  only. It shares no file with IA-P3, merges on its own ACCEPT, and must merge before the next demo build.
 
 **Handshake answers (binding).** `handshake.md` "Answers (Architect)" amends the units it names. Each unit's packet lists
 the answers it applied: R4, I2, I11 and I16 to P1; R7, I8, I9 and I12 to P2; R2 and I7 to P3a; I1, I3, I4 and I14 to P3b;
@@ -584,7 +586,8 @@ Each later unit adds its own checks.
     "Below target" and "Gap to target" read "Not available yet", the target facet is not offered, and E1's notes show
     under the header. Outcomes L1 shows them in place of the headline.
 - **The tile rule (R6, MD-IAP-13).** The "Gap to target" tile shows `total.gap` only at scope `all` with no facet and no `q`.
-  Otherwise it reads "Not available yet", with the line "For every Site only". The More line is "Not shown: {h} Sites.".
+  Otherwise it reads "Not available yet", with the line "For every Site only". The More line is "Not shown: {h} Sites."
+  ("Not shown: 1 Site." when `h` is 1; D-IAP.35). A directory Site that E1 lacks follows E1's rows (D-IAP.35 Q1).
 - **Tests first:** `estate/__tests__/sitesList.test.tsx` (and `estate/__tests__/siteTypeMatrix.test.tsx`: Thika is named on
   the Overview, Outcomes and the Sites list on a one-month and a two-month fixture, D-IAP.25 and D-IAP.26):
   - World A's E1 fixture: the rows in E1 order; the gap tile "−$852.00" equals the Overview's tile 2 string; the target
@@ -601,7 +604,7 @@ Each later unit adds its own checks.
   2026-09-01 to 2026-10-31.
 - **Shots:** `/sites`, `/portfolio/outcomes` at the three widths, light and dark.
 
-### P5: the Site's six tabs (1.25 units; IA-P3; rev 3 adds I10)
+### P5: the Site's six tabs (1.75 units; IA-P3; rev 3 adds I10; D-IAP.39 adds the server parity layer)
 
 - **Files:**
   - `shell/operatorSiteTabs.tsx` (six entries; `OperatorSiteTabLabel` is the six; the old-label map `SITE_TAB_OF` is
@@ -612,8 +615,11 @@ Each later unit adds its own checks.
   - `App.tsx` (the `/sites/:id/findings` alias, after the parity test).
 - **Tests first:**
   - `shell/__tests__/operatorSiteTabs.test.tsx`: six labels in order on MINI, COLD and EV; each §2.3 page lights its tab;
-  - `estate/__tests__/siteFindingsParity.test.ts`: for the three verticals' fixtures, every Finding the Site index lists
-    for a window appears in the Findings list at `scope=site:{id}` for the same window.
+  - the parity proof is D-IAP.39's two layers, per vertical: `backend/tests/test_iap_site_findings_parity_postgres.py`
+    (server: Site ids ⊆ estate ids on one built world, two windows through `readWindow`, non-empty, under the 1,000 cap;
+    it writes and pins the six `fixtures/iap/parity-*.json` bodies) and `estate/__tests__/siteFindingsParity.test.ts`
+    (client: those bodies through the Findings list path at `scope=site:{code}`). Plant `parity` (scope keyed on
+    `site_id`) fails the vitest.
   - **If the parity test fails for a vertical, stop that part and raise `SPEC_AMBIGUITY`.** Do not ship the alias for it.
 - **Plants:**
   - `seventab` (Findings kept in the row) fails `operatorSiteTabs` and gate T1;
@@ -630,7 +636,8 @@ Each later unit adds its own checks.
 - **The control** follows IA-1 §4.3:
   `<button type="button" class="ia-inbox" aria-haspopup="dialog" aria-controls="ia-inbox">`, then the icon `action`, the
   label "Waiting for you" (visually hidden at 390) and the badge.
-  - The badge is the count of the Decisions read's `waiting` rows, with the hidden text ", {n} waiting". It is absent at 0.
+  - The badge is the Decisions tile's "Waiting for a choice" figure, from the one shared function (D-IAP.37), with the
+    hidden text ", {n} waiting". It is absent at 0.
 - **The drawer** is a dialog, `aria-modal`, titled "Waiting for you". Focus moves to Close; Escape and the scrim close it;
   focus returns to the control. Its sections:
   1. **"For you"**: "Not available yet" (who decides is not recorded until the decision records, 6a; MD-IAP-4).
@@ -656,7 +663,9 @@ Each later unit adds its own checks.
   - The menu lists "All sites", one entry per domain present, then the Sites.
   - On a list, an entry writes `scope=` and keeps the facets, sort and `q`. On a Site page or a hub, a Site entry opens
     `/sites/{code}`, and a group or all keeps `scope=` in the address.
-  - The Overview and Demand & capacity show the chip "This page shows every Site" when scope is not all (MD-IAP-5).
+  - Every `HomeList` surface applies the scope (Outcomes L2 included). The Overview, Demand & capacity, Outcomes (above
+    L1), Results and Evidence & records show the chip "This page shows every Site" when scope is not all (MD-IAP-5;
+    D-IAP.40). Site pages keep the parameter and show nothing more.
 - **Search:**
   - The button is "Search Sites, decisions and Findings", opened with Ctrl K or ⌘ K, as a dialog with one input.
   - The entries are Sites (`name`, "Site", `/sites/{code}`), Decisions (`title`, "Decision · {Site}"), Findings
@@ -673,6 +682,16 @@ Each later unit adds its own checks.
 - **Shots:** the scope menu and the palette, at the three widths, light and dark.
 - **IA-P3's review follows P7.**
 
+### PD: the demo's prebuilt routes and whole-month links (0.5 unit; IA-PD; D-IAP.36, binding)
+
+- **Files:** `tools/demo_combined.py` (`story_links`, `LINK_FORMS`, `prebuilt_routes`) and its tests
+  (`backend/tests/test_e4_prebuilt_routes_generator.py`, the runbook's line-by-line test).
+- **Links:** "Portfolio, last whole month before S" and "Sites, last whole month before S" (D-IAP.36), after the week links.
+- **Prebuilt requests:** E2 per `/portfolio?` link; the month read for the whole-month link; E1 and the estate portfolio
+  read per `/sites?` link. Query strings equal the frontend clients' byte for byte (a test pins one of each).
+- **Plant** `noperiod` (the E2 request dropped) fails the generator test.
+- These reads are live-composed: the prebuild asks them so a non-200 fails the build; it stores nothing for them.
+
 ## 7. Mock deviations (each gets a row in `.agent/mock-departure-register.md` in its unit)
 
 | ID | Element (mock) | Category | Note | Unit |
@@ -681,7 +700,7 @@ Each later unit adds its own checks.
 | MD-IAP-2 | Decisions list rows (IA-2b §4 `decisions`) | D1 | rows are placed Findings (D-IAP.3). Due and Who decides read "Not available yet"; State has two of the four words. Resolving unit: 6f (on 6a) | P2 |
 | MD-IAP-3 | Demand & capacity L1 `uxChain` | D1 | no portfolio demand-to-capacity read; the region is omitted (an empty slot omits its region); L3 as the mock | P3b |
 | MD-IAP-4 | Inbox "For you", and the plan row | D1 | who decides is not recorded (6a); there is no plan | P6 |
-| MD-IAP-5 | Scope on the Overview (the month read has no scope) | D5 | a chip says the page shows every Site. Resolving unit: a scoped month read (to be specified) | P7 |
+| MD-IAP-5 | Scope on the Overview, Demand & capacity, Outcomes L1 and L3, Results, Evidence & records (their reads have no scope; D-IAP.40) | D5 | a chip says the page shows every Site. Resolving unit: scoped reads (to be specified) | P7 |
 | MD-IAP-6 | Actions list tiles | D2 | today's four server figures kept as a caption line under the list tiles (extended, not dropped) | P2 |
 | MD-IAP-7 | Outcomes L3 `uxInsight` ("Sites that look alike") | D1 + D2 | no live source (D1); the range category cards and the objectives matrix sit there instead (D2, flagged: Q8) | P3b, P4 |
 | MD-IAP-8 | Site paths `/setup`, `/operations` (IA route names) | D2 | today's segments kept, labels changed (Q5) | P5 |
@@ -698,11 +717,12 @@ Each later unit adds its own checks.
 
 ## 8. Size, and the effect on the world ladder and the WK and DDR serves (D-IAP.22, D-IAP.32)
 
-**Size: 14.5 units, about 24 commits** (D-IAP.34 adds 0.5 to IA-P2). Rev 1 was 8.5 and rev 2 was 10.75. Rev 3 adds P0 (the long range, 1.0) and the
+**Size: 15.5 units, about 26 commits** (D-IAP.34 adds 0.5 to IA-P2; D-IAP.39 adds 0.5 to IA-P3; D-IAP.36 adds IA-PD, 0.5). Rev 1 was 8.5 and rev 2 was 10.75. Rev 3 adds P0 (the long range, 1.0) and the
 handshake answers (2.25 spread over the units), and splits P4.
 - IA-P1 is 4.5 units: P1 1.5, P0 1.0, P2 2.0.
 - IA-P2 is 5.5 units: P3a 2.0, P3b 2.0, P4a 1.5 (D-IAP.34).
-- IA-P3 is 4.5 units: P4b 1.25, P5 1.25, P6 0.75, P7 1.25.
+- IA-P3 is 5.0 units: P4b 1.25, P5 1.75, P6 0.75, P7 1.25.
+- IA-PD is 0.5 unit: PD, the demo's prebuilt routes and whole-month links (D-IAP.36), on its own branch.
 - Each part is under the 6-unit cap.
 - Opus does the first builds; Sonnet does the fix rounds. There is one discovery review per part (W5: IA-P1 sweeps every
   range read; IA-P2 adds money figures and two endpoints; IA-P3 renders those figures).
