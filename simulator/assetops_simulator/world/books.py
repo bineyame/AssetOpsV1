@@ -7,8 +7,12 @@ share, and the one call that writes every tenant's decided books.
 - `budget_rows` / `expense_rows`: D-DD.49's budget lines (DS1b's own-leaf lines plus the node lines of `NODE_LINES`)
   and DS1b's EXPENSE rows.
 - `build_books`: the mini-grid files (`exports.build_exports`), then the cold and EV files, with one unwritten list.
-  Every DS1b record of a cold or EV tenant lands in exactly one place: an exported file, the staged DS1b JSON (the
-  kinds in `STAGED_KINDS`, staged by `tools/world.py inputs()`, D-DD.54) or `unwritten.json`.
+  Every DS1b record of a cold or EV tenant lands in exactly one place: an exported file (a credit note is a row of
+  the cold invoicing file, D-DD.59), staged canonical JSON or `unwritten.json`. Staged JSON (D-DD.60) is the cold
+  rate cards and EV tariff schedules (`tariffs.py`, D-DD.61) and a DS1b record of a kind in `STAGED_KINDS` that no
+  exported file of its source type can carry; `tools/world.py` places it under `<slug>/staged/`.
+- `check_source_systems`: the store invariant at export (D-DD.60): one source system per source type per Site, so a
+  clash stops `EMU_SOURCE_SWITCH <tenant> <source_type> <site>` at generation, not at the load.
 
 Standard library, `assetops_contracts` and the world modules only.
 """
@@ -17,14 +21,17 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from datetime import date, datetime, time
 from decimal import Decimal
 from fractions import Fraction
 from zoneinfo import ZoneInfo
 
-from assetops_contracts.canonical import CanonicalRefused, parse_record, to_canonical_json
+from assetops_contracts.canonical import CanonicalRefused, parse_batch, parse_record, to_canonical_json
+from assetops_contracts.native import LAYOUTS
 
 from .exports import NOT_ON_PATH_VERTICAL, ExportFile
-from .records import STRUCTURE_KEY, RecordsResult, money_text
+from .profile_csv import load_profile
+from .records import PROVENANCE, SOURCE_SYSTEM, STRUCTURE_KEY, RecordsResult, money_text
 from .view import ManifestView
 
 #: D-DD.54: DS1b's JSON kinds that are staged as canonical JSON, never written into a native file.
@@ -47,7 +54,10 @@ AS_UNPAID_CHARGES = "AS_UNPAID_CHARGES"
 class BooksResult:
     files: tuple[ExportFile, ...]
     unwritten: tuple[tuple[str, ...], ...]
-    staged: tuple[str, ...]  # DS1b record IDs left to the staged JSON (D-DD.54)
+    #: (file name, bytes): staged canonical JSON `<tenant>.<source_type>.json` (D-DD.60), by name.
+    staged: tuple[tuple[str, bytes], ...] = ()
+    #: (file name, bytes): `<tenant>.statements.json` (DD spec §5.4), by name.
+    statements: tuple[tuple[str, bytes], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -109,6 +119,51 @@ def ds1b_by_tenant(records: RecordsResult, tenant: str) -> list[dict]:
         if batch.batch.tenant_code == tenant:
             out += json.loads(to_canonical_json(batch))["records"]
     return out
+
+
+def batch_object(view: dict, tenant: str, source_type: str, source_system: str, records: list[dict]) -> dict:
+    """A canonical batch object for `records`, produced at 06:00 local on `as_of` like DS1b's."""
+    zone = ZoneInfo(view["timezone_default"])
+    produced_at = datetime.combine(date.fromisoformat(view["as_of"]), time(6, 0), tzinfo=zone).isoformat()
+    return {"format_version": 1, "tenant_code": tenant, "source_type": source_type, "source_system": source_system,
+            "provenance": PROVENANCE, "produced_at": produced_at, "records": records}
+
+
+def staged_file(batch: dict) -> tuple[str, bytes]:
+    """(`<tenant>.<source_type>.json`, canonical bytes) of a batch object; `EMU_FORMAT` when the contract refuses it."""
+    try:
+        parsed = parse_batch(batch)
+    except CanonicalRefused as refused:
+        raise ValueError(f"EMU_FORMAT staged {refused.code} {refused.path}") from None
+    return f"{batch['tenant_code']}.{batch['source_type']}.json", to_canonical_json(parsed)
+
+
+def staged_batch(view: dict, tenant: str, source_type: str, records: list[dict]) -> tuple[str, bytes]:
+    """DS1b's own records as a staged file: the generator's source system, as DS1b writes them."""
+    return staged_file(batch_object(view, tenant, source_type, SOURCE_SYSTEM, records))
+
+
+def check_source_systems(files: list[ExportFile] | tuple[ExportFile, ...],
+                         staged: list[tuple[str, bytes]] | tuple[tuple[str, bytes], ...]) -> None:
+    """D-DD.60, mirroring D-3A6.5 and the loader's `_mixed`: a tenant's exported files each hold their own source type
+    (a), and a staged batch never names a Site that an exported file of its source type names under another source
+    system (b). Otherwise `EMU_SOURCE_SWITCH <tenant> <source_type> <site>`."""
+    seen: list[tuple[str, str, str, set[str]]] = []  # (tenant, source_type, source_system, Sites)
+    for f in files:
+        layout = LAYOUTS.get(f.layout_id) or load_profile(f.layout_id)[1]
+        sites = {r["site_code"] for r in f.records}
+        for tenant, source_type, _, other in seen:
+            if tenant == f.tenant and source_type == layout.source_type:
+                raise ValueError(f"EMU_SOURCE_SWITCH {f.tenant} {source_type} {min(sites | other, default='*')}")
+        seen.append((f.tenant, layout.source_type, layout.source_system, sites))
+    for name, data in staged:
+        batch = json.loads(data)
+        sites = {r["site_code"] for r in batch["records"]}
+        for tenant, source_type, system, exported in seen:
+            clash = sites & exported
+            if tenant == batch["tenant_code"] and source_type == batch["source_type"] \
+                    and system != batch["source_system"] and clash:
+                raise ValueError(f"EMU_SOURCE_SWITCH {tenant} {source_type} {min(clash)}")
 
 
 def checked(where: str, record: dict) -> dict:
@@ -191,13 +246,14 @@ def build_books(view: dict, history: dict) -> BooksResult:
     from .exports_cold import build_cold_exports
     from .exports_ev import build_ev_exports
     from .records import build_records
+    from .tariffs import tariff_schedules
 
     view = ManifestView.from_document(view)
     records = build_records(view, history)
     mini = build_exports(view, history)
     files = list(mini.files)
     unwritten: list[tuple[str, ...]] = []
-    staged: list[str] = []
+    staged: list[tuple[str, bytes]] = []
     covered = set()
     for tenant in view.get("tenants", []):
         key = STRUCTURE_KEY.get(tenant.get("vertical"))
@@ -212,4 +268,10 @@ def build_books(view: dict, history: dict) -> BooksResult:
         unwritten += part.unwritten
         staged += part.staged
     unwritten += [row for row in mini.unwritten if not (row[0] in covered and row[5] == NOT_ON_PATH_VERTICAL)]
-    return BooksResult(tuple(files), tuple(sorted(unwritten)), tuple(sorted(staged)))
+    # mini-grid's own staged JSON (DS1b's ADJUSTMENT and the like); a cold or EV tenant's is this module's (D-DD.54)
+    staged += [(name, data) for name, data in mini.staged if name.split(".")[0] not in covered]
+    for batch in tariff_schedules(view).values():  # D-DD.61: the rate cards and EV schedules
+        staged.append(staged_file(batch))
+    staged.sort()
+    check_source_systems(files, staged)
+    return BooksResult(tuple(files), tuple(sorted(unwritten)), tuple(staged), mini.statements)

@@ -9,12 +9,16 @@ Per Site-month (July to September from `history.json`, October from `period`), i
   occupied crate-days equal the leaf exactly: the standard batches fill what earlier batches have not, and the
   remainder batch carries the rest (`r // 7` crates for 7 days, plus one crate leaving after `r % 7` days). The
   manifest's named batches (B-1029, B-1031, B-1034; `NAMED_BATCHES`, with a parity test) keep their crates and times.
-  A movement after `as_of` is not written (the crates are still in the room). The room never holds more than
-  `capacity_crates_per_room` (`EMU_CAPACITY`).
-- invoices (`cold-storage-invoices-illustrative`): one per customer per month, on the customer's crate-days of the
-  month. Their sum is the node `revenue` of `structures.COLD_CHAIN` (D-DD.50), evaluated on the month's leaves.
-- receipts (`cold-storage-receipts-illustrative`): the node `received = revenue - outstanding`, all COLLECTED (the
-  cold structure has no in-transit leaf), customers paid in order; the rest is outstanding.
+  A movement after `as_of` is not written (the crates are still in the room). Rows dated in June are opening stock
+  (D-DD.63): batches admitted in June that are still in on 1 July, with every OUT after their IN. June has no
+  invoice, receipt or leaf, and a check that reads the ledger by month judges July to October only. The room never
+  holds more than `capacity_crates_per_room` (`EMU_CAPACITY`).
+- invoicing (`cold-storage-invoicing-illustrative`, D-DD.59): one export of the operator's one invoicing system, a
+  `Type` column naming each row. `Invoice`: one per customer per month, on the customer's crate-days of the month,
+  tariff `T-STORAGE` (the rate card is `tariffs.py`'s, D-DD.61); their sum is the node `revenue` of
+  `structures.COLD_CHAIN` (D-DD.50). `Receipt`: the node `received = revenue - outstanding`, all COLLECTED (the cold
+  structure has no in-transit leaf), customers paid in order; the rest is outstanding. `Credit note`: DS1b's
+  ADJUSTMENT (Thika's October liability), a row of this file.
 - expenses (`expenses-illustrative-1`, unchanged): DS1b's EXPENSE rows only (OM, STAFF). No ENERGY or PENALTY row.
 - budget (`cold-budget-illustrative`, D-DD.49): DS1b's own-leaf lines plus the node line `kwh`.
 
@@ -34,11 +38,11 @@ from pathlib import Path
 
 from assetops_contracts.native import LAYOUTS, render_layout
 
-from .books import (AS_UNPAID_CHARGES, NOT_IN_HISTORY, SOURCE_VERSION, STAGED_KINDS, BooksResult, SiteMonth,
-                    budget_rows, checked, ds1b_by_tenant, expense_rows, remaining_unwritten, site_months,
-                    zone_currency)
+from .books import (AS_UNPAID_CHARGES, NOT_IN_HISTORY, SOURCE_VERSION, BooksResult, SiteMonth, budget_rows, checked,
+                    ds1b_by_tenant, expense_rows, remaining_unwritten, site_months, staged_batch, zone_currency)
 from .exports import ExportFile
 from .months import days_in, parse_month, period_end
+from .nodes import NODES, emu_node, evaluate
 from .profile_csv import PROFILES_DIR, load_profile, render_profile, row_digest
 from .records import RecordsResult, money_text
 
@@ -53,18 +57,12 @@ METHODS = ("MOBILE_MONEY", "MOBILE_MONEY", "BANK")
 TARIFF_CODE = "T-STORAGE"
 PAID_AT = time(10, 0)
 BUDGET_LINES = ("crate_days", "kwh", "staff", "maint", "liability")
-PROFILES = {"ledger": "cold-storage-ledger-illustrative", "invoices": "cold-storage-invoices-illustrative",
-            "receipts": "cold-storage-receipts-illustrative", "budget": "cold-budget-illustrative"}
+PROFILES = {"ledger": "cold-storage-ledger-illustrative", "invoicing": "cold-storage-invoicing-illustrative",
+            "budget": "cold-budget-illustrative"}
+#: The invoicing export's row order within a Site-month (D-DD.59): invoices, receipts, then credit notes.
+TYPE_ORDER = {"CHARGE": 0, "RECEIPT": 1, "ADJUSTMENT": 2}
 
-#: D-DD.50: the `structures.COLD_CHAIN` nodes the books carry, with their manifest text (a parity test reads `M`).
-#: Money in integer cents. `contract_crate_days` and `contract_rate` are the constant 0 (factor_map).
-NODES = {
-    "COLD_CHAIN": (
-        ("revenue", "crate_days * rate + contract_crate_days * contract_rate",
-         lambda v: v["crate_days"] * v["rate"] + v["contract_crate_days"] * v["contract_rate"]),
-        ("received", "revenue - outstanding", lambda v: v["revenue"] - v["outstanding"]),
-    ),
-}
+#: D-DD.50, D-DD.62: the `structures.COLD_CHAIN` nodes the books carry are `nodes.NODES["COLD_CHAIN"]` (money in cents).
 #: The `factor_map.COLD_CHAIN` text of each leaf the nodes read (parity test).
 LEAF_TEXT = {"crate_days": "record.crate_days", "rate": "prices.storage_usd_per_crate_day",
              "contract_crate_days": "0", "contract_rate": "0", "outstanding": "record.outstanding | 0"}
@@ -213,15 +211,12 @@ def _evaluate(m: SiteMonth, rate_cents: int) -> dict | None:
     outstanding = m.cents("actual", "outstanding")
     values = {"crate_days": crate_days, "rate": rate_cents, "contract_crate_days": 0, "contract_rate": 0,
               "outstanding": 0 if outstanding is None else outstanding}
-    for node, _, fn in NODES[KEY]:
-        values[node] = fn(values)
+    values |= evaluate(KEY, values)
+    for node, _, _ in NODES[KEY]:
         if values[node] < 0:
             raise ValueError(f"EMU_COLLECTIONS {m.tenant}/{m.code} {m.month} {node}")
     if m.october:
-        for node, _, _ in NODES[KEY]:
-            recorded = m.cents("actual", PERIOD_FIELD[node])
-            if recorded is not None and recorded != values[node]:
-                raise ValueError(f"EMU_NODE {m.tenant}/{m.code} {m.month} {node}")
+        emu_node(m.tenant, m.code, m.month, values, {n: m.cents("actual", f) for n, f in PERIOD_FIELD.items()})
     return values
 
 
@@ -267,8 +262,7 @@ def build_cold_exports(view: dict, history: dict, records: RecordsResult, tenant
     renamed: dict[tuple[str, str, str, str], str] = {}
     batches: dict[str, list[Batch]] = {}
     seq: dict[str, list[int]] = {}
-    invoices: list[dict] = []
-    receipts: list[dict] = []
+    invoicing: list[dict] = []  # D-DD.59: one export of one system: invoices, receipts, credit notes
     for m in months:  # (month, Site) order, so each Site's earlier months are filled first
         if m.coverage.get("revenue") == "ESTIMATED":
             continue  # GAP-1: an estimate is never written
@@ -298,7 +292,7 @@ def build_cold_exports(view: dict, history: dict, records: RecordsResult, tenant
         for i, customer in enumerate(sorted(by_customer), start=1):
             cd = by_customer[customer]
             charges.append((customer, cd * rate))
-            invoices.append(checked(m.where(), {
+            invoicing.append(checked(m.where(), {
                 "format_version": 1, "kind": "CHARGE", "source_record_id": f"gen:{m.code}:{m.month}:invoice-{i:02d}",
                 "source_version": SOURCE_VERSION, "site_code": m.code, "subject": {"kind": "CUSTOMER", "ref": customer},
                 "clocks": {"effective_from": first.isoformat(), "effective_to": after, "recognition_period": m.month},
@@ -320,7 +314,7 @@ def build_cold_exports(view: dict, history: dict, records: RecordsResult, tenant
                 "clocks": {"occurred_at": paid_at, "recognition_period": m.month},
                 "amount": {"value": money_text(pay), "currency": currency}, "status": "COLLECTED",
                 "body": {"payer_ref": customer, "method": METHODS[(i - 1) % len(METHODS)]}}
-            receipts.append(record)
+            invoicing.append(record)
         if left != 0:
             raise ValueError(f"EMU_COLLECTIONS {name}/{m.code} {m.month}")
         for f in ("crate_days", "revenue", "collected"):
@@ -329,13 +323,22 @@ def build_cold_exports(view: dict, history: dict, records: RecordsResult, tenant
 
     files: list[ExportFile] = []
     ledger = _movement_records([b for code in sorted(batches) for b in batches[code]], as_of_end)
-    receipts_layout = load_profile(PROFILES["receipts"], profiles_dir)[1]
-    for r in receipts:  # the receipts profile versions each row by its digest (its State column, 3A6)
-        r["source_version"] = row_digest(receipts_layout, r)
-        checked(r["site_code"], r)
+    invoicing_layout = load_profile(PROFILES["invoicing"], profiles_dir)[1]
+    # D-DD.59: DS1b's ADJUSTMENT (a credit note) is a row of the invoicing file when the file exists; otherwise it
+    # is staged canonical JSON (D-DD.60), under its own source type.
+    adjustments = [r for r in ds1b if r["kind"] == "ADJUSTMENT"]
+    staged: list[tuple[str, bytes]] = []
+    if invoicing:
+        invoicing += adjustments
+        invoicing.sort(key=lambda r: (r["clocks"]["recognition_period"], r["site_code"], TYPE_ORDER[r["kind"]]))
+        for r in invoicing:  # the State column versions each row by its digest (3A6)
+            r["source_version"] = row_digest(invoicing_layout, r)
+            checked(r["site_code"], r)
+    elif adjustments:
+        staged.append(staged_batch(view, name, "customer_invoicing", adjustments))
     budget, node_fields = budget_rows(KEY, name, months, ds1b, BUDGET_LINES, currency, unwritten)
     written |= {(code, month, "plan", f) for code, month, f in node_fields}
-    for key, rows in (("ledger", ledger), ("invoices", invoices), ("receipts", receipts), ("budget", budget)):
+    for key, rows in (("ledger", ledger), ("invoicing", invoicing), ("budget", budget)):
         if rows:
             profile_id = PROFILES[key]
             layout = load_profile(profile_id, profiles_dir)[1]
@@ -345,6 +348,5 @@ def build_cold_exports(view: dict, history: dict, records: RecordsResult, tenant
     if expenses:
         files.append(ExportFile(name, "expenses", "expenses-illustrative-1", tuple(expenses),
                                 render_layout(LAYOUTS["expenses-illustrative-1"], expenses)))
-    staged = [r["source_record_id"] for r in ds1b if r["kind"] in STAGED_KINDS]
     unwritten += remaining_unwritten(records, name, written, renamed)
     return BooksResult(tuple(files), tuple(unwritten), tuple(staged))

@@ -86,6 +86,14 @@ def _ins_and_outs(n: int):
     return pick
 
 
+def _invoicing_slice(rows):
+    """Three invoices, three receipts and the credit note: every Type of the export (D-DD.59)."""
+    out = []
+    for kind, n in (("CHARGE", 3), ("RECEIPT", 3), ("ADJUSTMENT", 1)):
+        out += [r for r in rows if r["kind"] == kind][:n]
+    return out
+
+
 def _receipt(code, i, at, amount, method, status):
     return {"format_version": 1, "kind": "RECEIPT", "source_record_id": f"gen:{code}:2026-10:receipt-x{i}",
             "source_version": "", "site_code": code, "subject": {"kind": "CUSTOMER", "ref": f"{code}-K-0{i}"},
@@ -97,7 +105,7 @@ def _receipt(code, i, at, amount, method, status):
 #: Hand-written rows added to a slice so the sample shows every value of the profile's maps (3A6 admission step 4b):
 #: the emulator writes no cash receipt and nothing in transit (the cold structure has no in-transit leaf, D-DD.50).
 SAMPLE_EXTRAS = {
-    "cold-storage-receipts-illustrative": [
+    "cold-storage-invoicing-illustrative": [
         _receipt("COLD-THIKA", 7, "2026-10-30T15:20:00+03:00", "42.00", "CASH", "COLLECTED"),
         _receipt("COLD-THIKA", 8, "2026-10-31T18:45:00+03:00", "36.00", "MOBILE_MONEY", "PAID_IN_TRANSIT"),
     ],
@@ -106,8 +114,7 @@ SAMPLE_EXTRAS = {
 #: profile id -> (emulated file, row selection)
 SAMPLES = {
     "cold-storage-ledger-illustrative": (f"{COLD}.profile.cold-storage-ledger.csv", _ins_and_outs(3)),
-    "cold-storage-invoices-illustrative": (f"{COLD}.profile.cold-storage-invoices.csv", _first(6)),
-    "cold-storage-receipts-illustrative": (f"{COLD}.profile.cold-storage-receipts.csv", _first(6)),
+    "cold-storage-invoicing-illustrative": (f"{COLD}.profile.cold-storage-invoicing.csv", _invoicing_slice),
     "cold-budget-illustrative": (f"{COLD}.profile.cold-budget.csv", _month_sites("2026-07", "COLD-THIKA")),
     "ev-budget-illustrative": (f"{EV}.profile.ev-budget.csv", _month_sites("2026-07", "EV-EMB", "EV-RUI")),
     "ev-fleet-roster-illustrative": (f"{EV}.profile.ev-fleet-roster.csv", _first(6)),
@@ -193,3 +200,24 @@ def expected_bytes(records: list[dict]) -> bytes:
 
 def shipped(profile_id: str) -> tuple[Path, Path]:
     return PROFILES_DIR / f"{profile_id}.sample.csv", PROFILES_DIR / f"{profile_id}.expected.json"
+
+
+#: D-DD.65a: sha256 of every cold and EV exported file of the fixture view (the determinism pin; the EV golden of D-DD.59).
+PINNED_COLD_EV: dict[str, str] = {
+    "harvest-cold.expenses.csv":
+        "63d607d981a0b4a05bd093f587918fc38c0bdb1e076d3642b6780cc61668a4e1",
+    "harvest-cold.profile.cold-budget.csv":
+        "9294a419590a6ee53a6a223031b1f543d08f0afacf02e41822a166225fac7609",
+    "harvest-cold.profile.cold-storage-invoicing.csv":
+        "12c6e51d8f6286f9d2ea49a0e9a8c4e2b204434e6f9e7a13ce8ca63aee71fb4b",
+    "harvest-cold.profile.cold-storage-ledger.csv":
+        "296b9176923ba5bfb45d9f27c29ca3efe38fbc3a79f3fc45f65750a73689bbc4",
+    "metro-bus.expenses.csv":
+        "5b68506247721888acf47996428f1726c8f80a81bdef15dc8dfe11ee3400c822",
+    "metro-bus.profile.ev-budget.csv":
+        "3bfbfac1c3fd72c93b4291d9b3c2d690bc0d1e1d7c778413802cdc63af263748",
+    "metro-bus.profile.ev-fleet-roster.csv":
+        "70357dfa667e407c8e6cce618197be2c7fa45b2232594cdcd9476d1f9f174d1a",
+    "metro-bus.profile.ev-service-tickets.csv":
+        "3579df14f4c4442a38620b2a0ee5c7360ff5b18c4d061c5beb462f9c042b4a24",
+}

@@ -10,6 +10,7 @@ import pytest
 
 from assetops_contracts.native import LAYOUTS, read_layout
 from assetops_simulator.world import exports_cold
+from assetops_simulator.world.nodes import NODES
 from assetops_simulator.world.books import NODE_LINES
 from assetops_simulator.world.profile_csv import load_profile
 
@@ -22,6 +23,11 @@ MONTHS = ("2026-07", "2026-08", "2026-09", "2026-10")
 
 def rows(name: str) -> list[dict]:
     return list(files_by_name(built()[3])[f"{COLD}.{name}.csv"].records)
+
+
+def invoicing(kind: str) -> list[dict]:
+    """One kind of the one invoicing export (D-DD.59)."""
+    return [r for r in rows("profile.cold-storage-invoicing") if r["kind"] == kind]
 
 
 def money(records) -> Decimal:
@@ -71,8 +77,7 @@ def counted(ledger: list[dict], code: str, month: str) -> int:
 def test_c1_files_and_profiles_round_trip() -> None:
     names = sorted(n for n in files_by_name(built()[3]) if n.startswith(f"{COLD}."))
     assert names == [f"{COLD}.expenses.csv", f"{COLD}.profile.cold-budget.csv",
-                     f"{COLD}.profile.cold-storage-invoices.csv", f"{COLD}.profile.cold-storage-ledger.csv",
-                     f"{COLD}.profile.cold-storage-receipts.csv"]
+                     f"{COLD}.profile.cold-storage-invoicing.csv", f"{COLD}.profile.cold-storage-ledger.csv"]
     for f in built()[3].files:
         if f.tenant != COLD:
             continue
@@ -131,7 +136,7 @@ def test_c4_named_batches_keep_their_crates_and_times() -> None:
 
 
 def test_c5_invoices_are_the_revenue_node_and_receipts_received() -> None:
-    invoices, receipts = rows("profile.cold-storage-invoices"), rows("profile.cold-storage-receipts")
+    invoices, receipts = invoicing("CHARGE"), invoicing("RECEIPT")
     for code in SITES:
         for month in MONTHS:
             inv = [r for r in invoices if (r["site_code"], r["clocks"]["recognition_period"]) == (code, month)]
@@ -157,11 +162,9 @@ def test_c5_invoices_are_the_revenue_node_and_receipts_received() -> None:
 
 def test_c6_nodes_parity_with_the_manifest() -> None:
     structure, factors = manifest()["structures"]["COLD_CHAIN"], manifest()["factor_map"]["COLD_CHAIN"]
-    for node, text, _ in exports_cold.NODES["COLD_CHAIN"]:
-        assert structure[node] == text, node
     for name, text in exports_cold.LEAF_TEXT.items():
         assert factors[name] == text, name
-    assert set(exports_cold.PERIOD_FIELD) == {n for n, _, _ in exports_cold.NODES["COLD_CHAIN"]}
+    assert set(exports_cold.PERIOD_FIELD) == {n for n, _, _ in NODES["COLD_CHAIN"]}
     for key, lines in NODE_LINES.items():  # D-DD.49: every node line names a node of its structure
         assert set(lines) <= set(manifest()["structures"][key]), key
 
@@ -186,7 +189,8 @@ def test_c9_missing_crate_days_is_listed_never_zero() -> None:
 
     books = build(None, drop)[3]
     assert (COLD, "COLD-MWEA", "2026-08", "actual", "crate_days", "NOT_IN_HISTORY") in books.unwritten
-    invoices = files_by_name(books)[f"{COLD}.profile.cold-storage-invoices.csv"].records
+    invoices = [r for r in files_by_name(books)[f"{COLD}.profile.cold-storage-invoicing.csv"].records
+                if r["kind"] == "CHARGE"]
     assert not [r for r in invoices if r["site_code"] == "COLD-MWEA" and r["clocks"]["recognition_period"] == "2026-08"]
     assert [r for r in invoices if r["site_code"] == "COLD-MWEA" and r["clocks"]["recognition_period"] == "2026-09"]
 

@@ -19,7 +19,8 @@ PROFILE_IDS = sorted(p.name.removesuffix(".profile.json") for p in PROFILES_DIR.
 
 
 def test_b1_every_ds1b_record_lands_in_exactly_one_place() -> None:
-    """D-DD.54, over all three tenants: an exported file, the staged DS1b JSON or `unwritten.json`. Mini-grid's
+    """D-DD.54, D-DD.59, over all three tenants: an exported file (Thika's credit note is a row of the cold invoicing
+    file), the staged DS1b JSON (none today) or `unwritten.json`. Mini-grid's
     history months are DD2.1's (DD2a); here its accounting period is asserted, as 3A3's E9 does."""
     view, _, records, books = built()
     in_files = {}
@@ -27,18 +28,21 @@ def test_b1_every_ds1b_record_lands_in_exactly_one_place() -> None:
         for r in f.records:
             in_files.setdefault((f.tenant, r["source_record_id"]), []).append(file_name(f))
     listed = {(row[0], row[4]) for row in books.unwritten if row[3] not in ("actual", "plan")}
-    staged = set(books.staged)
+    staged = {r["source_record_id"] for _, data in books.staged for r in json.loads(data)["records"]}
+    ds1b_ids = set()
     for batch in records.batches:
         tenant = batch.batch.tenant_code
         for record in json.loads(to_canonical_json(batch))["records"]:
             rid = record["source_record_id"]
+            ds1b_ids.add(rid)
             month = record.get("clocks", {}).get("recognition_period")
             if tenant not in (COLD, EV) and month != view["accounting_period"]:
                 continue
             places = len(in_files.get((tenant, rid), [])) + (rid in staged) + ((tenant, rid) in listed)
             assert places == 1, (tenant, rid, in_files.get((tenant, rid)), rid in staged)
-            assert (rid in staged) == (record["kind"] in STAGED_KINDS), rid
-    assert staged == {"gen:COLD-THIKA:2026-10:actual:liability"}
+            if record["kind"] in STAGED_KINDS:  # D-DD.59: the credit note is a file row, not staged JSON
+                assert in_files[(tenant, rid)] == [f"{COLD}.profile.cold-storage-invoicing.csv"], rid
+    assert not staged & ds1b_ids  # what is staged today is `tariffs.py`'s (D-DD.61), not DS1b's
 
 
 def test_b2_mini_grid_unchanged_and_no_vertical_left_unwritten() -> None:
@@ -68,8 +72,8 @@ def test_b3_profile_ships_its_sample_and_expected(profile_id: str, request) -> N
 def test_b4_every_profile_has_a_sample_source() -> None:
     assert not set(SAMPLES) & set(HAND_SAMPLES) and set(SAMPLES) | set(HAND_SAMPLES) == set(PROFILE_IDS)
     assert PROFILE_IDS == sorted([
-        "cold-budget-illustrative", "cold-storage-invoices-illustrative", "cold-storage-ledger-illustrative",
-        "cold-storage-receipts-illustrative", "ev-budget-illustrative", "ev-departures-illustrative",
+        "cold-budget-illustrative", "cold-storage-invoicing-illustrative", "cold-storage-ledger-illustrative",
+        "ev-budget-illustrative", "ev-departures-illustrative",
         "ev-fleet-roster-illustrative", "ev-service-tickets-illustrative", "ev-utility-invoice-illustrative"])
 
 

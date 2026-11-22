@@ -99,9 +99,10 @@ def _records(manifest: Path, out: Path) -> int:
     return 0
 
 
-def _exports(manifest: Path, out: Path) -> int:
+def _exports(manifest: Path, out: Path, extras: Path | None = None) -> int:
     try:
         target = _out_dir(out)
+        extra = _out_dir(extras) if extras is not None else None
         view = load_view(manifest)
         result = build_books(view, generate_history(view))  # mini-grid, cold and EV books (DD2b)
     except ValueError as error:
@@ -112,6 +113,10 @@ def _exports(manifest: Path, out: Path) -> int:
     target.mkdir(parents=True, exist_ok=True)
     for export in result.files:
         (target / file_name(export)).write_bytes(export.data)
+    if extra is not None:  # D-DD.54 staged DS1b JSON and DD spec §5.4 statements: not in the CSV directory
+        extra.mkdir(parents=True, exist_ok=True)
+        for name, data in (*result.staged, *result.statements):
+            (extra / name).write_bytes(data)
     (target / "unwritten.json").write_bytes(file_bytes([list(row) for row in result.unwritten]))
     return 0
 
@@ -130,6 +135,8 @@ def build_parser() -> argparse.ArgumentParser:
     exports = commands.add_parser("exports", help="write the emulated native CSV exports (3A3)")
     exports.add_argument("--manifest", required=True, type=Path)
     exports.add_argument("--out", required=True, type=Path, help="a new or empty directory outside the repository")
+    exports.add_argument("--extras", type=Path, default=None,
+                         help="a new or empty directory outside the repository for the staged DS1b JSON and statements")
     check = commands.add_parser("check")
     check.add_argument("--manifest", required=True, type=Path)
     check.add_argument("--history", required=True, type=Path)
@@ -141,7 +148,7 @@ def main(argv: list[str]) -> int:
     if args.command == "records":
         return _records(args.manifest, args.out)
     if args.command == "exports":
-        return _exports(args.manifest, args.out)
+        return _exports(args.manifest, args.out, args.extras)
 
     view = load_view(args.manifest)
     if args.command == "view":

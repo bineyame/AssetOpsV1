@@ -31,9 +31,9 @@ def people() -> People:
     return People()
 
 
-def test_a0_the_nine_profiles() -> None:
-    assert IDS == ["cold-budget-illustrative", "cold-storage-invoices-illustrative", "cold-storage-ledger-illustrative",
-                   "cold-storage-receipts-illustrative", "ev-budget-illustrative", "ev-departures-illustrative",
+def test_a0_the_eight_profiles() -> None:
+    assert IDS == ["cold-budget-illustrative", "cold-storage-invoicing-illustrative", "cold-storage-ledger-illustrative",
+                   "ev-budget-illustrative", "ev-departures-illustrative",
                    "ev-fleet-roster-illustrative", "ev-service-tickets-illustrative", "ev-utility-invoice-illustrative"]
 
 

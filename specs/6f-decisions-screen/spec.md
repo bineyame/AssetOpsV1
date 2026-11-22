@@ -1,12 +1,12 @@
 # 6f: the Decisions screen (implementer spec, with its reviewer guide)
 
-**Status: rev 0, ready for the handshake (W4, `.ai/RULES.md` §4).** Architect (Claude), 2026-11-22. Demo-critical.
-**Rulings:** `rulings.md` (this folder), D-P6.42 to D-P6.50. **Owner rulings it applies:** D-P6.8, D-P6.9 (amended by
-D-P6.43), D-IAP.3, D-P6.13 to D-P6.19, D-P6.37 and the 6f split (`specs/6-decision-valued/rulings.md` queue Q3, owner:
+**Status: rev 1 (D-P6.51 to D-P6.58: the union is withdrawn, the list is records only, lever words come from 6h).
+Handshake Q1 answered by the owner ("Build 6h"); Q2-Q8 accepted.** Architect (Claude), 2026-11-22. Demo-critical.
+**Rulings:** `rulings.md` (this folder), D-P6.42 to D-P6.58 (D-P6.43 withdrawn, D-P6.44 amended). **Owner rulings it applies:** D-P6.8, D-P6.9, D-IAP.3, D-P6.13 to D-P6.19, D-P6.37 and the 6f split (`specs/6-decision-valued/rulings.md` queue Q3, owner:
 "6f1 (Decisions rows, read-only page) after 6c; 6f2 (the choice) after 6b/6d"). `USER_REVIEW_REQUIRED: true` (UI,
 evidence interpretation, demo narrative). W5: **discovery review** (money figures on screen, a new read and route).
 
-**Parts.** **6f1** (this spec, binding): the Decisions list's source and the read-only decision page, **4.0 units** in
+**Parts.** **6f1** (this spec, binding): the Decisions list's source and the read-only decision page, **3.75 units** in
 three units. **6f2** (the choice on screen): its structure is fixed in §11; its unit card is written after the 6b and
 6d specs, so their bounds and Action carrier fold in (D-P6.42). Each part is under the 6-unit cap.
 
@@ -57,9 +57,9 @@ Nothing on screen reads those records.
 **6f1 adds:**
 1. Two reads: `GET /api/decisions?from=&to=` (the list rows) and `GET /api/decisions/{decision_id}` (the page view),
    built on the server from 6a's read, with every served string an SC-1 statement (D-P6.45).
-2. The Decisions list becomes the **union** of the decision records and the placed Findings no record covers
-   (D-P6.43). Every Site type keeps its rows; a record row adds who decides, its state and what is at stake. The
-   waiting counts (E0, the tile, the inbox badge) count the same union (D-P6.44).
+2. The Decisions list's source becomes the **decision records** of the range (D-P6.8, D-P6.52). 6h gives every
+   Site type its levers, so every Site type keeps rows; a row says who decides, its state and what is at stake. The
+   waiting counts (E0, the tile, the inbox badge) count the records waiting (D-P6.44 as amended).
 3. The decision page `/decisions/:decisionId`, read-only, in the IA-1 decision shape (§5). The choice acts are 6f2's
    (MOCK DEVIATION D5, MD-6F-1).
 
@@ -71,7 +71,42 @@ months" stays "Not available yet", D-P6.9), every 6a/6c record and rule.
 - **G-IAP:** IA-P1 and IA-P2 merged on `main` (the list component, `estateReadCache`, the Overview L2 rows, E0 in
   `estate/portfolio.py`). IA-P3 may build beside 6f1: whichever lands second runs the W6 sweep of §4.4.
 - **G-6c:** 6c merged (it is: `591458c38`).
+- **G-6h:** 6h merged before U2 builds (D-P6.52); U1 and U3 may build on 6h's spec'd shapes before it merges.
 - Builders pre-flight against `main` and the mock and batch questions with the reviewer's (§12).
+
+## 2a. Rev 1 amendments to Units 1 and 3 (D-P6.51 to D-P6.58; binding over the rev 0 text below)
+
+- **Lever words come from 6h.** `title`, `question` and `option_label` are read from `decision_lever.*`
+  (6h spec §5.4); the three rows of §3.4 move there unchanged for the generator lever. `LEVER_WORDS` keeps only the
+  generator's axis names (`stop_axis`, `reserve_axis`); for a `STATED_OPTIONS` lever the option label is
+  `decision_lever.option_label` of the option key, and doing nothing is `decision_lever.no_action` of the lever's
+  `no_action_words`. Test 1's start-up assertion becomes: every `LEVERS` key has a `decision_lever.title` variant.
+- **"Setting" words for named options.** Each row of §3.4 that says "setting" gains an `OPTION` twin with "option"
+  in its place (`at_stake` `LOSS_OPTION`, `TIE_OPTION`, `MIXED_OPTION`; `outcome_note` `INCOMPLETE_OPTION`,
+  `LOSS_OPTION`, `TIE_OPTION`, `MIXED_OPTION`; `reason` `RANKING_INCOMPLETE_OPTION`; `why_rule` `OPTION`: "Each
+  option is valued against doing nothing, over the same figures that make up the month's contribution. The one worth
+  the most is recommended; among the options within a tenth of it, the one first in the list."). The view picks the
+  twin when the lever's generator is `STATED_OPTIONS`. Noun `count` uses `option`.
+- **New variants:**
+  - `missing`: `OPTION_STUDY` "Not available yet: needs {study}" (`decision_lever.study`, site, decision month) ·
+    `OPTION_RECORD` "Not available yet: needs {record}" (`decision_lever.record` of `<LEVER>__<LEAF>`).
+    (`OPTION_RECORD_CURRENCY` withdrawn by D-P6.62: a record in another currency reads the existing
+    `CURRENCY_MISMATCH` or `ONE_OFF_CURRENCY`.)
+  - `at_stake` `BOUNDS` "Valued; no option recommended until the limits are checked" · `outcome_note` `BOUNDS` "No
+    option is recommended until the limits for this decision are checked; each option's value and what it protects
+    are shown." · `eyebrow` uses `NONE` · `disposition` `CONDITIONAL` "Valued; limits not checked yet" · `reason`
+    `BOUNDS_NOT_CHECKED` "Its limits are checked once bounds are set."
+  - `limits_answer` `NO_CHECKS` "These options have no service checks; their limits are checked once bounds are set"
+    (when no option has an admission); `checks` and `check_cell` read `NOT_CHECKED` for those options.
+  - `horizon_basis` `STATED` "Over {horizon}: {horizon_count} times the month's change".
+  - `verify_items` `NOT_SET` "Not available yet: how this kind of change will be checked is set with its verification."
+    for every lever but `generator_stop_reserve` (D-P6.50 stands for the generator).
+  - `source` `RECORDED_STATED` "From {site}'s own records and the documents stated for each option" when any shown
+    option reads an option record (6h4).
+- **States (§5.3)** gain `BOUNDS_NOT_CHECKED`: the rec card uses `eyebrow` `NONE` and `outcome_note` `BOUNDS`; cards in
+  display order with `CONDITIONAL` after the baseline.
+- **Fixtures (§6.1)** gain **F6-N** (6h N1, Mwea, recommended), **F6-T** (6h T1 as of 6h rev 1, Thika, bounds; `self-repair` names `uncovered_nights` and the one-off only, D-P6.59) and **F6-S** (6h S1,
+  Embakasi, missing study); test 1 asserts their pages as literals; `decision_page_*.json` adds the three.
 
 ## 3. Unit 1: the server read (1.5 units; `task/6f1-decisions`)
 
@@ -266,67 +301,48 @@ against doing nothing, unsigned for a one-off.
 - Wording checks before coding: every template passes `check_literal` and the banned-word test (§6.4); a clash comes
   back to the Architect.
 
-## 4. Unit 2: the list on the union (1.0 unit)
+## 4. Unit 2: the list on the records (0.5 unit; gate G-6h)
 
-### 4.1 E0 counts the union (`estate/portfolio.py`; D-P6.44)
+### 4.1 E0 counts the records waiting (`estate/portfolio.py`; D-P6.44 as amended by D-P6.52)
 
-- A port `DecisionCoverage` (`estate/ports.py` or beside E0): `coverage(tenant_id, period_from, period_to) ->
-  Coverage(finding_ids: frozenset[str], waiting_by_site: Mapping[str, int])`, from `DecisionService.for_tenant` over
-  the same months: `finding_ids` = every record's `finding_id`; `waiting_by_site` counts records whose state is
-  `NOT_VALUED` or `WAITING`, by `site_code`. Composed in `main.py` from `build_decisions`; `None` without a database.
-- `summary.waiting_count` = the placed members counted today (D-IAP.29) whose `finding_id ∉ finding_ids`, plus
-  Σ `waiting_by_site`. `summary.waiting_by_site` likewise per Site. With the port `None`, E0 is unchanged. A store
-  fault in the port: E0 fields `null` (the cells read "Not available yet"), never a partial count.
-- Tests (`backend/tests/test_6f_e0_union.py`, pure): a covered waiting Finding is counted once (as its record); a
-  record without a Finding adds one; a `CHOSEN` record covering a waiting Finding removes it from the count; the
-  port's fault gives `null`; port `None` equals IA-P's literals.
+- A port `DecisionWaiting` beside E0: `waiting(tenant_id, period_from, period_to) -> Mapping[str, int]` (records in
+  `NOT_VALUED` or `WAITING`, by `site_code`), from `DecisionService.for_tenant` over the same months; composed in
+  `main.py` from `build_decisions`; `None` without a database.
+- `summary.waiting_count` = Σ `waiting`; `summary.waiting_by_site` = `waiting`. Port `None` or a store fault: both
+  fields `null` (the cells read "Not available yet"), never a partial count or the placed-Finding count.
+- Tests (`backend/tests/test_6f_e0_records.py`, pure): two waiting records on two Sites and one `CHOSEN` give 2 and
+  `{A: 1, B: 1}`; a fault gives `null`; port `None` gives `null`.
 
 ### 4.2 The client (`estate/decisionsClient.ts`, `estate/estateReadCache.tsx`)
 
 - `createDecisionsClient(fetch)`: `list({from, to})` and `one(decisionId)`, each `EstateResult`-shaped (`loaded` |
   `refused {code, text}`), with the §3.3 types (`DecisionListRow`, `DecisionPage`).
-- `EstateReadKind` gains `"decisions"`; the cache wraps the list body as `AllPages` with `truncated: false` (one
-  request, no cursor).
+- `EstateReadKind` gains `"decisions"`; the cache wraps the list body as `AllPages` with `truncated: false`.
 
-### 4.3 The union (`estate/homeLists.tsx`; D-P6.43)
+### 4.3 The list on the records (`estate/homeLists.tsx`; D-P6.52)
 
-`DecisionItem` becomes one normalised shape: `{ kind: "record" | "finding", key, title, small, siteName, siteCode,
-domain, state, stake, decides, target, lens, findingId }`, with `rowKey` `d:{decision_id}` or `f:{finding_id}`.
-- **Record items** from the decisions read: `title` = `row.title`; `small` = `row.heading.word`; `state` = `waiting`
-  (`NOT_VALUED`, `WAITING`), `chosen` (`CHOSEN`), `underway` (`UNDER_WAY`), `kept` (`KEPT_AS_IS`); `stake` =
-  `row.at_stake.text`; `decides` = `row.decides`; `target` = `row.target`; `lens` = the covered placed row's
-  `lens_flags` mapped as today, else `[]`.
-- **Finding items** as IA-P1 builds them today (state, stake, target, `decides` "Not available yet"), only for placed
-  rows whose `finding_id` no record carries.
-- **Order** (the "Priority" sort, D-P6.43): the placed rows in server order, each covered row replaced in place by its
-  record items (newest `period` first); then records whose Finding is not among the placed rows, or with none, in the
-  decisions read's order.
-- `DECISION_STATE_WORD` gains `chosen` "Chosen" and `kept` "Kept as it is"; the State facet lists `waiting`,
-  `watching`, `underway`, `chosen`, `kept`. Columns unchanged: "Due" stays "Not available yet" for both kinds
-  (MD-6F-3); "Who decides" = `decides`.
-- **Partial read:** placed rows loaded and the decisions read refused → the Finding items alone, every Finding shown
-  (no covering applied), and the line "Valued decisions cannot be read right now." under the tiles; the tile is the
-  shown rows' count. Decisions loaded and placed refused → IA-P's refusal (the list's primary read).
-- `useDecisionItems(range)` (one hook; reads `portfolio` and `decisions` through the cache) returns `{items, state:
-  "loading" | "unavailable" | "ready", partial: boolean, waitingTotal}`.
+`DecisionItem` = `{ key, title, small, siteName, siteCode, domain, state, stake, decides, target, findingId }`,
+`rowKey` `d:{decision_id}`, from the decisions read only: `title` = `row.title`; `small` = `row.heading.word`; `state`
+= `waiting` (`NOT_VALUED`, `WAITING`), `chosen`, `underway`, `kept`; `stake` = `row.at_stake.text`; `decides` =
+`row.decides`; `target` = `/decisions/{id}`. Order: the read's order (newest `prepared_at` first). `DECISION_STATE_WORD`
+gains `chosen` "Chosen" and `kept` "Kept as it is"; the State facet lists `waiting`, `underway`, `chosen`, `kept`.
+Columns unchanged; "Due" stays "Not available yet" (MD-6F-3). A refused read → IA-P's refusal. An empty range →
+IA-P's empty state, "No decisions for this range."
+`useDecisionItems(range)` returns `{items, state: "loading" | "unavailable" | "ready", waitingTotal}`.
 
 ### 4.4 Every consumer reads the hook (W6 sweep)
 
-Class: "a surface that builds decision rows from the placed Findings alone". Sweep with `grep -rn "decisionItems("
-frontend/src` and fix every hit to `useDecisionItems`: the Decisions list page, the Findings list's "Its decision"
-(join on `findingId`; a record wins over a placed row; several records → the newest `period`), the Overview L2 rows
-(IA-P2, `cap: 6`), and, when present, the inbox (P6: badge = `waiting` items; "In your portfolio" rows use
-`title` and `{siteName} · {small}`) and search (P7: Decisions entries `title`, "Decision · {siteName}"). The packet
-lists the grep before and after.
+Class: "a surface that builds decision rows from the placed Findings". Sweep with `grep -rn "decisionItems("
+frontend/src` and fix every hit to `useDecisionItems`: the Decisions list page, the Overview L2 rows (IA-P2,
+`cap: 6`), the inbox and search when present. The Findings list's "Its decision" joins `findingId` (several records →
+the newest `period`); no record → "Not available yet". The packet lists the grep before and after.
 
 ### 4.5 Tests
 
-`estate/__tests__/decisionsUnion.test.tsx` with `__fixtures__/decisions_list.json` (§6.2) and IA-P1's estate list
-fixture: the union's keys in order (literal list); a covered Finding appears once, as its record; record states map
-to the five keys; the State facet "Chosen" shows exactly the chosen record; the tile equals E0 `waiting_count` of the
-fixture (literal); "Its decision" reads the record's word; the partial-read line and counts; "Who decides" shows the
-served name. Plants (each fails a named case): `nocover` (covered Findings kept); `swap` (Finding items dropped);
-`tailfirst` (uncovered records placed first).
+`estate/__tests__/decisionsList.test.tsx` with `__fixtures__/decisions_list.json`: keys in order (literal list);
+states map to the four keys; the State facet "Chosen" shows exactly the chosen record; the tile equals E0
+`waiting_count` (literal); "Its decision" reads the record's word, else "Not available yet"; "Who decides" shows the
+served name. Plants: `placed` (Finding rows added back to the list); `count` (tile counts placed Findings).
 
 ## 5. Unit 3: the decision page (1.5 units)
 
@@ -455,7 +471,7 @@ the frontend tests assert on their served strings and never recompute them.
 2. `backend/tests/test_6f_decisions_api.py` (TestClient, memory services): both routes; each refusal code and status;
    `no-store`; another tenant's id → 404; real-data switch on without a person → 401; `from > to` → 422; the period
    filter (a 2026-09 decision is outside 2026-10-01..2026-10-31).
-3. `backend/tests/test_6f_e0_union.py` (§4.1). 4. 6a test 7 cases (§3.1). 5. `decisionsUnion.test.tsx` (§4.5).
+3. `backend/tests/test_6f_e0_records.py` (§4.1). 4. 6a test 7 cases (§3.1). 5. `decisionsList.test.tsx` (§4.5).
 6. `estate/__tests__/DecisionPage.test.tsx`: each fixture renders its served H1, pill, steps, rec card, cards (7 then
    all), six summaries with their answers, drawers' focus cycle; no `<button>` or link whose name starts "Choose";
    404/503 states; the Finding line's three cases; no text node that is not in the fixture or §5.6.
@@ -476,8 +492,8 @@ the frontend tests assert on their served strings and never recompute them.
 
 - **D1** `/decisions/{F6-C id}` at 1440, 768 and 390, light and dark: no horizontal scroll; the sticky bar appears
   after the rec card scrolls; shots to `/opt/assetecon/evidence/6f1/<run>/`.
-- **D2** `/decisions` with the union fixture: the tile = E0; a record row opens `/decisions/:id`, a Finding row its
-  Finding view (IA-P gate L2 unchanged).
+- **D2** `/decisions` with the records fixture: the tile = E0; every row opens `/decisions/:id`; on the DD world, a
+  row for every Site with a decision in the range, all three Site types.
 - **D3** keyboard: every disclosure, "Show all", each drawer open and close with focus returned.
 - IA-P gates L1-L3 and `navigation-truthfulness` stay green; `uiux-guide` G2-G4; `check-all` fast mode.
 
@@ -485,14 +501,14 @@ the frontend tests assert on their served strings and never recompute them.
 
 | Surface | Mini-grid (Kobo, Kisiwa, Mto) | Cold chain (Mwea, Thika, Kirinyaga) | EV (Embakasi, Kasarani, Ruiru) |
 |---|---|---|---|
-| Decisions list (range) | record rows for the generator setting + uncovered placed Findings | placed Findings (no lever yet; MD-6F-7) | placed Findings (MD-6F-7) |
-| Decision page | `/decisions/:id` for each record | none: rows open the Finding's view (D-IAP.3) | as cold chain |
-| Overview L2 rows, inbox, search | the union | the union | the union |
-| Findings "Its decision" | record word, else placed word | placed word | placed word |
-| Sites list "Waiting for a choice" (E0) | union count | union count (placed only) | union count (placed only) |
+| Decisions list (range) | a record row per prepared decision | a record row per prepared decision (6h levers) | a record row per prepared decision (6h levers) |
+| Decision page | `/decisions/:id` for each record | `/decisions/:id` for each record | `/decisions/:id` for each record |
+| Overview L2 rows, inbox, search | the records | the records | the records |
+| Findings "Its decision" | record word, else "Not available yet" | as mini-grid | as mini-grid |
+| Sites list "Waiting for a choice" (E0) | records waiting | records waiting | records waiting |
 
 Each Site type with data in the range shows rows the same way, with the same columns; a valued decision appears
-where a lever exists, and nothing is invented where it does not.
+where its records exist (6h), and an unvalued option names the record it needs.
 
 ## 9. Mock deviations (rows in `.agent/mock-departure-register.md` in the unit named)
 
@@ -504,7 +520,7 @@ where a lever exists, and nothing is invented where it does not.
 | MD-6F-4 | "What it changes" without the month's figure of the purpose factor | D1 | not stored with the valuation; link to the month on the Overview · queued (6f2 may read it) | U3 |
 | MD-6F-5 | "What would change the recommendation" | D1 | sensitivity not worked out · not scheduled | U3 |
 | MD-6F-6 | "Limits and cover": service checks only, no cover or costed bounds | D1 | this lever has no rights; bounds as rows are 6b's · 6b | U3 |
-| MD-6F-7 | cold-chain and EV decisions not valued | D1 | no lever for those Site types · 6g, 9c | U2 |
+| ~~MD-6F-7~~ | withdrawn (D-P6.52): 6h gives every Site type levers; unvalued options are 6h's MD-6H-4 | — | — | — |
 | MD-6F-8 | stepper tail "Action agreed" (no "Awaiting approval → Actions released") | D1 | no plan record (D-IAP.1) · 7a | U3 |
 | MD-6F-9 | the mock's Kobo options (battery storage, its figures) | D4 | the live grid's 13 settings and 6c's own figures (D-0K4.15) | U3 |
 
@@ -512,8 +528,8 @@ MD-IAP-2 narrows to "Due" (Who decides is lit for records); its register row is 
 
 ## 10. Done (questions; each can fail)
 
-1. Does `/decisions` show every Site type's rows for the range, with each covered Finding once, as its record?
-2. Do the tile, the inbox badge and E0 `waiting_count` give the same number on the union fixture?
+1. Does `/decisions` show the decision records of the range for every Site type, and only records?
+2. Do the tile, the inbox badge and E0 `waiting_count` give the same number on the records fixture?
 3. Does a record row say who decides by name, its state, and what is at stake, all served?
 4. Does `/decisions/:id` ask the question, show one recommendation with one number and its basis (or say plainly why
    none), the options as cards with the same three facts, and the six sections with answers visible when closed?
@@ -543,7 +559,7 @@ MD-IAP-2 narrows to "Due" (Who decides is lit for records); its register row is 
   test over the statement file).
 - Figures: no arithmetic on stored figures in `decision_page/` (read the view; plant `round2`); missing never 0
   (plant `zero`); rounding literals of F6-C.
-- Union: the order rule and covering on the fixture (plants `swap`, `nocover`, `tailfirst`); E0 = tile = badge.
+- List: records only (plants `placed`, `count`); E0 = tile = badge.
 - Mock: each §5.2 row against `uxDecisionSlots`; every departure has a §9 row and a register row; an unlabelled
   departure is High.
 - Copy: §6.4 run; no system words; every sentence plain.
@@ -554,22 +570,22 @@ MD-IAP-2 narrows to "Due" (Who decides is lit for records); its register row is 
 
 | # | Question | Default |
 |---|---|---|
-| Q1 | The list: union of records and uncovered Findings, or a pure swap to records (D-P6.8's wording)? | Union (D-P6.43); a swap would empty cold and EV |
+| Q1 | The list: union of records and uncovered Findings, or a pure swap to records (D-P6.8's wording)? | **Owner: "Build 6h".** Records only (D-P6.52); 6h gives every Site type levers |
 | Q2 | Who decides before a choice | the current executive's name; the role words only when none is onboarded (D-P6.47) |
 | Q3 | Fourteen options: cards | 7 cards in display order, then "Show all"; the full table below (MD-6F-2) |
 | Q4 | Card order | baseline, recommended, by rank, deferred, rejected (D-P6.48) |
 | Q5 | "How we will check it worked" before 6e | the approved method (P6 §3) with "Not started" (D-P6.50) |
 | Q6 | Money display | cents, signed against doing nothing (SC-1's money form, D-P6.45) |
-| Q7 | List order | placement priority, records in their Finding's place, uncovered records after (D-P6.43) |
+| Q7 | List order | newest prepared first (the read's order; D-P6.52 replaces D-P6.43's rule) |
 | Q8 | 6f2 timing and scope | after the 6b and 6d specs, as the owner accepted; includes "For you" (D-P6.42) |
 | R1 | Do IA-P3's inbox and search exist when 6f1 builds? | whichever lands second runs §4.4's sweep |
 | R2 | SC-1 glyphs (minus sign, currency symbol) in the literals | confirmed at pre-flight from `formats.money`; literals fixed once in `rulings.md` |
 
-**Size:** U1 1.5 + U2 1.0 + U3 1.5 = **4.0 units** (6f2 about 2.0, carded later). Order: IA-P1 → IA-P2 → 6f1 (U1 →
+**Size:** U1 1.5 + U2 0.5 + U3 1.5 + the rev 1 words 0.25 = **3.75 units** (6f2 about 2.0, carded later). Order: IA-P1 → IA-P2 and 6h → 6f1 (U1 →
 U2 → U3, each reviewed before the next builds on shared code) → 6f2 after 6b/6d.
 
 ## 13. Out of scope
 
-The choice and any write (6f2); bounds rows and `CONDITIONAL` (6b); applying and verifying (6d, 6e); plan value and
-plan items (7a, 7c; tile 4 stays "Not available yet"); levers for cold chain and EV (6g, 9c); sensitivity; 0K4f's
+The choice and any write (6f2); bounds rows (6b; `CONDITIONAL` is rendered, never decided, here); applying and verifying (6d, 6e); plan value and
+plan items (7a, 7c; tile 4 stays "Not available yet"); levers for every Site type (6h); sensitivity; 0K4f's
 study (Kobo's values arrive with it, no 6f change needed).

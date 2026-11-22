@@ -30,7 +30,7 @@ from pathlib import Path
 from assetops_contracts.native import LAYOUTS, render_layout
 
 from .allocate import allocate
-from .books import (NOT_IN_HISTORY, SOURCE_VERSION, STAGED_KINDS, BooksResult, SiteMonth, budget_rows, checked,
+from .books import (NOT_IN_HISTORY, SOURCE_VERSION, BooksResult, SiteMonth, budget_rows, checked,
                     ds1b_by_tenant, expense_rows, remaining_unwritten, site_months, zone_currency)
 from .exports import ExportFile
 from .months import dates_of
@@ -150,6 +150,5 @@ def build_ev_exports(view: dict, history: dict, records: RecordsResult, tenant: 
     if expenses:
         files.append(ExportFile(name, "expenses", "expenses-illustrative-1", tuple(expenses),
                                 render_layout(LAYOUTS["expenses-illustrative-1"], expenses)))
-    staged = [r["source_record_id"] for r in ds1b if r["kind"] in STAGED_KINDS]
     unwritten += remaining_unwritten(records, name, written, {})
-    return BooksResult(tuple(files), tuple(unwritten), tuple(staged))
+    return BooksResult(tuple(files), tuple(unwritten))

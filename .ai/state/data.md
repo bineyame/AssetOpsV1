@@ -660,14 +660,24 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
 - Left open: Kisiwa and Mto bindings are refused by the product's ONE-per-Site roles (Q-DD1.7); Site document bounds were
   raised (Q-DD1.8); `tools/world.py` L1 does not pass `--bindings` yet.
 
-## DD2b: cold and EV decided books (in_review; `specs/DD-demo-data/packet-DD2b.md`)
+## DD2a: four months of mini-grid books, notes, staging, statements, C-DD2 to C-DD4 (in_review; `specs/DD-demo-data/packet-DD2a.md`)
+
+- Settled: `exports.py` evaluates billed kWh, revenue, collections and fuel as nodes of `structures.MINI_GRID` every month
+  (`NODES`, parity test; October must equal its period or `EMU_NODE`); `months=`; dated fuel notes (OOO-1 on 26 Oct);
+  `SOURCE_VERSION` "2" (receipts keep "1"); staged DS1b JSON and the Lakeside statements via `world_history.py exports --extras`;
+  `dd_check` has its own formula evaluator and C-DD2 to C-DD4 live (fail until DD5 loads the books); `bool` refused on coded paths.
+- Left open: cold and EV books and profiles (DD2b); DS1b writes no METER_ASSIGNMENT/TARIFF_SCHEDULE; statements reader (DD5/WK).
+
+## DD2b: cold and EV decided books (in_review; `specs/DD-demo-data/packet-DD2b.md`, fix round 7 done)
 - Settled: `world_history.py exports` writes `harvest-cold` and `metro-bus` books for Jul-Oct in their source profiles'
   formats (`world/exports_cold.py`, `world/exports_ev.py`, rendered by `world/profile_csv.py` from
-  `backend/conversions/profiles/`, 9 profiles with samples). Expenses use `expenses-illustrative-1` (no ENERGY or PENALTY
-  row). Cold revenue and received are `COLD_CHAIN` nodes (D-DD.50). The ledger matches each month's crate-days exactly,
-  and its peak is at most the room capacity. The EV roster comes from one function, `roster_rows` (D-DD.52). Every DS1b
-  record lands in one place (D-DD.54, `world/books.py`). `ev-departures` bool is admitted and stored as a JSON boolean on
-  PostgreSQL.
-- Left open: the source-system switch at load for cold invoices/receipts/ADJUSTMENT (Q1, DD5). Receipts/tickets use the
-  `row_digest` version and the EV invoice Line column is split (contract rules). TARIFF_SCHEDULE staging is DD2a's.
-  NODES unify with DD2a at merge.
+  `backend/conversions/profiles/`, 8 profiles with samples). Cold invoices, receipts and Thika's credit note are one
+  export, `cold-storage-invoicing-illustrative` with a `Type` column (D-DD.59). `world/nodes.py` holds the one `NODES`
+  table and `emu_node` (D-DD.62). `world/tariffs.py` writes T-STORAGE, C-114 (twice), C-117 and FLAT-EV-KASARANI from the
+  manifest prices as staged JSON, with a parity test against every invoice tariff code (D-DD.61). `build_books` stops
+  `EMU_SOURCE_SWITCH` on a source-type or source-system clash; staged JSON is placed under `<slug>/staged/` by
+  `tools/world.py` (D-DD.60). June ledger rows are opening stock (D-DD.63). The cold and EV files are sha256-pinned.
+  Every DS1b record lands in one place (D-DD.54); `ev-departures` bool is stored as a JSON boolean on PostgreSQL.
+- Left open: DD5.3 loads `<slug>/staged/` as step `L1.staged:<slug>` and DD5.2 writes the meter register; the EV
+  utility-invoice rows are DD4.4's. `test_ddr_rehearsal_postgres.py` fails 9 tests (the loader does not read cold files),
+  the same at the DD2b head: DD5's.

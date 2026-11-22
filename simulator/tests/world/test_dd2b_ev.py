@@ -10,6 +10,7 @@ import pytest
 
 from assetops_contracts.native import LAYOUTS, read_layout
 from assetops_simulator.world import exports_ev
+from assetops_simulator.world.books import zone_currency
 from assetops_simulator.world.profile_csv import load_profile
 
 from .books_support import EV, build, built, files_by_name, m_site, tenant_view
@@ -83,7 +84,7 @@ def test_v4_one_roster_writer() -> None:
     from assetops_simulator.world.books import site_months
     october = next(m for m in site_months(view, built()[1], tenant_view(view, EV))
                    if m.code == "EV-KAS" and m.month == "2026-10")
-    wider = exports_ev.roster_rows(october, datetime.now().astimezone().tzinfo,
+    wider = exports_ev.roster_rows(october, zone_currency(view)[0],
                                    [date(2026, 11, 1) + timedelta(days=k) for k in range(6)])
     assert len(wider) == 8 * 6 and wider[0]["clocks"]["effective_from"] == "2026-11-01"
 
