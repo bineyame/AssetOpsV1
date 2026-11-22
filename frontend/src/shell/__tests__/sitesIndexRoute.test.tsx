@@ -15,10 +15,25 @@ import type {
 import { CREATE_SITE_ENTRY_POINT_LABEL } from "../simulatorLabRoutes";
 import { settledScreen } from "../../test/settled";
 import { spacedText } from "../../test/text";
-import { expectV69Panels, panelTitled } from "../../test/panelStructure";
+import { estateE0, sitesE1 } from "../../test/sitesE1";
+import type { PortfolioSites } from "../../estate/portfolioSitesClient";
+import SITES_OCT from "../../estate/__tests__/fixtures/iap/sites-2026-10.json?raw";
 
-/** W1-F1: the v69 Sites screen has a second table (In setup); these tests read the inventory table. */
-const INVENTORY_TABLE = "Site inventory";
+/**
+ * IA-P P4b (spec §6 P4b): `/sites` is the Sites list on the one list component; the directory table ("Site inventory")
+ * and the v69 "In setup" panel are gone. These tests read the list. E1 serves no rows unless a test says so, so the
+ * directory's Sites are the rows (D-IAP.35 Q1).
+ */
+const sitesList = () => document.querySelector<HTMLElement>('[data-home-list="sites"]');
+async function findList(): Promise<HTMLElement> {
+  await settledScreen();
+  const list = sitesList();
+  expect(list).not.toBeNull();
+  return list!;
+}
+/** The list's empty sentence (HomeList `def.none`). */
+const NO_SITES = "No Sites in this scope.";
+const pathOf = (href: string | null) => (href ?? "").split("?")[0];
 
 /**
  * Route-level tests for the operator Sites index.
@@ -110,10 +125,10 @@ function detailClientFor(site: SiteDetailReadModel): SiteDetailClient {
   };
 }
 
-function renderSites(flags: FeatureFlags, sites: SiteSummary[] = []) {
+function renderSites(flags: FeatureFlags, sites: SiteSummary[] = [], waiting: Record<string, number> = {}) {
   return render(
     <MemoryRouter initialEntries={["/sites"]}>
-      <App flags={flags} siteDirectory={directoryWith(sites)} />
+      <App flags={flags} siteDirectory={directoryWith(sites)} portfolioSites={sitesE1()} estateIndex={estateE0(waiting)} />
     </MemoryRouter>,
   );
 }
@@ -125,47 +140,43 @@ describe("the Sites index is an operator capability", () => {
   ])("lists the same site with the %s", async (_name, flags) => {
     renderSites(flags as FeatureFlags, [SITE]);
 
-    const row = within(await screen.findByRole("table", { name: INVENTORY_TABLE })).getAllByRole("row")[1];
-
-    expect(within(row).getByText("MG-002")).toBeInTheDocument();
-    expect(within(row).getByText("Kalangala Mini-Grid")).toBeInTheDocument();
-    expect(within(row).getByText("Demonstration data")).toBeInTheDocument();
-    expect(within(row).getByText("User")).toBeInTheDocument();
-    expect(within(row).getByText("Planned")).toBeInTheDocument();
-    expect(
-      within(row).getByText("hybrid-mini-grid-100kw v1"),
-    ).toBeInTheDocument();
+    // IA-P P4b (§6 P4b, D-IAP.35 Q1): the row is the list's; the directory's ID, source, origin, lifecycle and template
+    // cells left with the directory table. The Site's name links to it, its Group comes from `site_type`.
+    const row = (await findList()).querySelector<HTMLElement>('tbody tr[data-row="MG-002"]')!;
+    expect(within(row).getByRole("link", { name: "Kalangala Mini-Grid" })).toBeInTheDocument();
+    expect(row.querySelector('[data-label="Group"]')?.textContent).toBe("Mini-grid");
+    expect(row.querySelector('[data-label="Waiting for a choice"]')?.textContent).toBe("0");
   });
 
   it("shows the app-wide demonstration note with the client-facing wording (OWN-G3b R2-G3b 16)", async () => {
     renderSites(ENABLED, [SITE]);
-    await screen.findByRole("table", { name: INVENTORY_TABLE });
+    await findList();
 
     expect(screen.getByRole("note")).toHaveTextContent(/^Demonstration · example sites and records$/);
   });
 
   it("renders the same listing markup in both gate states", async () => {
     const enabled = renderSites(ENABLED, [SITE]);
-    await within(enabled.container).findByRole("table", { name: INVENTORY_TABLE });
-    const enabledListing = enabled.container.querySelector("table")?.outerHTML;
+    const enabledListing = (await findList()).outerHTML;
     enabled.unmount();
 
     const disabled = renderSites(DISABLED, [SITE]);
-    await within(disabled.container).findByRole("table", { name: INVENTORY_TABLE });
-    const disabledListing = disabled.container.querySelector("table")?.outerHTML;
+    const disabledListing = (await findList()).outerHTML;
 
+    expect(disabledListing).toContain("Kalangala Mini-Grid");
     expect(disabledListing).toBe(enabledListing);
   });
 
   it("shows every rendered value from the record and nothing else numeric", async () => {
-    renderSites(ENABLED, [SITE]);
-    await screen.findByRole("table", { name: INVENTORY_TABLE });
+    // IA-P P4b: a directory-only row's one figure is E0's waiting count (D-IAP.35 Q1), so E0 is a record here too.
+    const waiting = { "MG-002": 7 };
+    renderSites(ENABLED, [SITE], waiting);
+    const list = await findList();
 
     const fromRecord = new Set(
-      (JSON.stringify([SITE]).match(/\d+(?:\.\d+)?/g) ?? []),
+      (JSON.stringify([SITE, waiting]).match(/\d+(?:\.\d+)?/g) ?? []),
     );
-    const onScreen =
-      screen.getByRole("table", { name: INVENTORY_TABLE }).textContent?.match(/\d+(?:\.\d+)?/g) ?? [];
+    const onScreen = list.querySelector("table")?.textContent?.match(/\d+(?:\.\d+)?/g) ?? [];
 
     expect(onScreen.length).toBeGreaterThan(0);
     for (const value of onScreen) {
@@ -177,7 +188,7 @@ describe("the Sites index is an operator capability", () => {
 describe("the gated way into the create flow", () => {
   it("offers exactly one action on the first-run empty state when the gate is open", async () => {
     const { container } = renderSites(ENABLED);
-    await screen.findByText("No sites configured");
+    await screen.findByText(NO_SITES);
 
     const main = screen.getByRole("main");
     const links = within(main).getAllByRole("link");
@@ -194,7 +205,7 @@ describe("the gated way into the create flow", () => {
 
   it("opens the create flow from the Sites index", async () => {
     renderSites(ENABLED);
-    await screen.findByText("No sites configured");
+    await screen.findByText(NO_SITES);
 
     fireEvent.click(
       screen.getByRole("link", { name: CREATE_SITE_ENTRY_POINT_LABEL }),
@@ -211,7 +222,7 @@ describe("the gated way into the create flow", () => {
 
   it("offers no way to add a site, and names no Simulator Lab, when the gate is closed", async () => {
     const { container } = renderSites(DISABLED);
-    await screen.findByText("No sites configured");
+    await screen.findByText(NO_SITES);
 
     const main = screen.getByRole("main");
 
@@ -228,7 +239,7 @@ describe("the gated way into the create flow", () => {
 
   it("still offers the create action once a site exists", async () => {
     renderSites(ENABLED, [SITE]);
-    await screen.findByRole("table", { name: INVENTORY_TABLE });
+    await findList();
 
     expect(
       screen.getByRole("link", { name: CREATE_SITE_ENTRY_POINT_LABEL }),
@@ -238,7 +249,7 @@ describe("the gated way into the create flow", () => {
   it("puts the create action in the page header, not in the listing", async () => {
     render(
       <MemoryRouter initialEntries={["/sites"]}>
-        <App flags={ENABLED} siteDirectory={directoryWith([SITE])} />
+        <App flags={ENABLED} siteDirectory={directoryWith([SITE])} portfolioSites={sitesE1()} estateIndex={estateE0({})} />
       </MemoryRouter>,
     );
     await settledScreen();
@@ -257,7 +268,7 @@ describe("the gated way into the create flow", () => {
     expect(header?.contains(action)).toBe(true);
 
     // And not inside the listing, where it would read as a row action.
-    expect(screen.getByRole("table", { name: INVENTORY_TABLE }).contains(action)).toBe(false);
+    expect(sitesList()!.contains(action)).toBe(false);
   });
 
   it("is identical in both gate states apart from that one action", async () => {
@@ -272,7 +283,7 @@ describe("the gated way into the create flow", () => {
 
     const enabled = render(
       <MemoryRouter initialEntries={["/sites"]}>
-        <App flags={ENABLED} siteDirectory={directoryWith([SITE])} />
+        <App flags={ENABLED} siteDirectory={directoryWith([SITE])} portfolioSites={sitesE1()} estateIndex={estateE0({})} />
       </MemoryRouter>,
     );
     await settledScreen();
@@ -283,7 +294,7 @@ describe("the gated way into the create flow", () => {
 
     const disabled = render(
       <MemoryRouter initialEntries={["/sites"]}>
-        <App flags={DISABLED} siteDirectory={directoryWith([SITE])} />
+        <App flags={DISABLED} siteDirectory={directoryWith([SITE])} portfolioSites={sitesE1()} estateIndex={estateE0({})} />
       </MemoryRouter>,
     );
     await settledScreen();
@@ -300,7 +311,7 @@ describe("the gated way into the create flow", () => {
   it("keeps the action out of operator navigation in both gate states", async () => {
     for (const flags of [DISABLED, ENABLED]) {
       const view = renderSites(flags, [SITE]);
-      await within(view.container).findByRole("table", { name: INVENTORY_TABLE });
+      await findList();
 
       const navigation = within(view.container).getByRole("navigation", {
         name: "Operator routes",
@@ -325,10 +336,12 @@ describe("a Sites row is the way into a site", () => {
           flags={ENABLED}
           siteDirectory={directoryWith([SITE])}
           siteDetail={detailClientFor(SITE_DETAIL)}
+          portfolioSites={sitesE1()}
+          estateIndex={estateE0({})}
         />
       </MemoryRouter>,
     );
-    await screen.findByRole("table", { name: INVENTORY_TABLE });
+    await findList();
 
     // T011 puts the name and the identity in one cell, so the row link is
     // named for the site rather than for its ID. The address is unchanged and
@@ -360,24 +373,24 @@ describe("a Sites row is the way into a site", () => {
           flags={ENABLED}
           siteDirectory={directoryWith([SITE])}
           siteDetail={detailClientFor(SITE_DETAIL)}
+          portfolioSites={sitesE1()}
+          estateIndex={estateE0({})}
         />
       </MemoryRouter>,
     );
-    await screen.findByRole("table", { name: INVENTORY_TABLE });
+    await findList();
 
     const main = within(view.container).getByRole("main");
 
-    // The row now offers the name and a `View` action, both resolving to the
-    // same site. The claim is unchanged - the index adds one destination per
-    // site and the gated create action, and nothing else - so it is asserted
-    // on the set of destinations rather than on the number of anchors.
+    // IA-P P4b (D-IAP.6): one target per row, the Site's name; the `View` action left with the directory table. The
+    // claim is unchanged - one destination per site and the gated create action, nothing else. A list link carries
+    // the range (spec §6 "Range pages"), so the destinations are compared by path.
     const hrefs = within(main)
       .getAllByRole("link")
-      .map((link) => link.getAttribute("href"));
+      .map((link) => pathOf(link.getAttribute("href")));
 
     expect(hrefs).toEqual([
       "/simulator-lab/create-site",
-      "/sites/MG-002",
       "/sites/MG-002",
     ]);
     expect(new Set(hrefs)).toEqual(
@@ -454,10 +467,12 @@ describe("a Sites row is the way into a site", () => {
           flags={ENABLED}
           siteDirectory={directoryWith([SITE])}
           siteDetail={detailClientFor(SITE_DETAIL)}
+          portfolioSites={sitesE1()}
+          estateIndex={estateE0({})}
         />
       </MemoryRouter>,
     );
-    await screen.findByRole("table", { name: INVENTORY_TABLE });
+    await findList();
 
     // The index offers one destination per site, and that destination is the
     // site. A Foundation link on a row would be a second way in, addressed by
@@ -466,47 +481,49 @@ describe("a Sites row is the way into a site", () => {
     const main = screen.getByRole("main");
     const hrefs = within(main)
       .getAllByRole("link")
-      .map((link) => link.getAttribute("href"));
+      .map((link) => pathOf(link.getAttribute("href")));
 
+    expect(hrefs).toContain("/sites/MG-002");
     expect(hrefs).not.toContain("/sites/MG-002/foundation");
     expect(hrefs).not.toContain("/sites/MG-002/configuration");
   });
 });
 
 /**
- * W1-F1 (D-2026-10-17-mockup-layout-spec): the `/sites` route renders exactly the v69
- * `sites` panels, in order, whether the directory is stocked, empty or unreadable.
+ * W1-F1 pinned the v69 `sites` panels (Site inventory, then In setup). IA-P P4b replaces them with the Sites list (spec
+ * §6 P4b; "In setup" is a known deviation in packet-IA-P3). What stays pinned: the page renders the one list whether the
+ * directory is stocked, empty or unreadable, and a refused directory read leaves E1's rows alone (D-IAP.35 Q1).
  */
-describe("W1-F1: the Sites route keeps the v69 panel structure", () => {
+describe("IA-P P4b: the Sites route renders the one list in every directory state", () => {
   const unavailable: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "unavailable" as const }) };
-  const variants: [string, SiteDirectoryClient][] = [
-    ["stocked", directoryWith([SITE])],
-    ["empty", directoryWith([])],
-    ["unreadable", unavailable],
+  const kobo = (JSON.parse(SITES_OCT) as PortfolioSites).rows[0];
+  const variants: [string, SiteDirectoryClient, string[]][] = [
+    ["stocked", directoryWith([SITE]), [kobo.site, SITE.display_name]],
+    ["empty", directoryWith([]), [kobo.site]],
+    ["unreadable", unavailable, [kobo.site]],
   ];
 
-  it.each(variants)("renders Site inventory then In setup, and nothing else panel-like (%s)", async (_name, directory) => {
+  it.each(variants)("lists E1's rows, then the directory's (%s)", async (_name, directory, titles) => {
     render(
       <MemoryRouter initialEntries={["/sites"]}>
-        <App flags={DISABLED} siteDirectory={directory} />
+        <App flags={DISABLED} siteDirectory={directory} portfolioSites={sitesE1([kobo])} estateIndex={estateE0({})} />
       </MemoryRouter>,
     );
-    await settledScreen();
-    await screen.findByText(/Registered sites, not ranked|No sites configured|Sites unavailable/);
-    expectV69Panels("sites");
+    const list = await findList();
+    expect([...list.querySelectorAll("tbody th[scope=row]")].map((th) => th.querySelector("a,span")?.textContent)).toEqual(titles);
+    expect(document.querySelectorAll("[data-home-list]")).toHaveLength(1);
     expect(document.querySelector("[data-headline-card]")).toBeNull();
-    // Unsupported reads are stated inside their slots.
-    expect(panelTitled("In setup").querySelector('[data-gap-id="G-sites-setup-progress"]')).not.toBeNull();
   });
 });
 
-describe("post-W6 shell: Sites root crumb and empty-state prose", () => {
-  it("R127/R120: shows the root Sites crumb above the h1 and the empty sentences at the mock prose size", async () => {
+describe("IA-P P4b: the Sites list header and empty state", () => {
+  it("is a list page: the title alone, no root crumb, and the list's empty sentence (spec §5.3)", async () => {
     renderSites(ENABLED);
-    await screen.findByText("No sites configured");
-    const crumbs = screen.getByRole("navigation", { name: "Breadcrumb" });
-    expect(crumbs.textContent).toBe("Sites");
-    expect(crumbs.compareDocumentPosition(screen.getByRole("heading", { level: 1 })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(document.querySelector('[data-sites-state="empty"]')?.className).toBe("v69-prose");
+    await screen.findByText(NO_SITES);
+    // R127/R120 pinned a root "Sites" crumb on the directory page; §5.3 gives every list a PageHeader with the menu
+    // label as its title, and the rail lights Sites, so the one-part crumb is gone.
+    expect(screen.queryByRole("navigation", { name: "Breadcrumb" })).toBeNull();
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Sites");
+    expect(screen.getByText(NO_SITES).getAttribute("role")).toBe("status");
   });
 });
