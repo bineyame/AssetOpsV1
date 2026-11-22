@@ -697,9 +697,9 @@ Order: DD1 → (DD2 ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merges). See �
   - `operator_file.py` maps verticals `{"MINI_GRID": "MINIGRID", "COLD_CHAIN": "COLDCHAIN", "EV_DEPOT": "EV_CHARGING"}`.
     Any other value refuses `ONBOARD_VERTICAL` with "This operator's business type is not onboarded yet." (in
     `onboard_operator._SENTENCES`, beside the current sentence).
-  - Format `assetops.operator-onboarding/2` is accepted beside `/1`. It adds optional per-Site `devices` and `topology`
-    and per-component `properties`, in the Site import's foundation shape (exemplars: `fixtures/w2/cold-lab-001.yaml`,
-    `ev-lab-001.yaml`).
+  - Format `assetops.operator-onboarding/2` is accepted beside `/1`. It adds optional per-Site `devices`, `topology` and
+    `connector_enable_schedules` (D-DD.39) and per-component `rating` and `properties`, in the Site import's foundation
+    shape (exemplars: `fixtures/w2/cold-lab-001.yaml`, `ev-lab-001.yaml`).
   - Tests: one per vertical; one refusal per new key misuse (`ONBOARD_SITE_INVALID`); every `/1` file's digest is
     unchanged byte for byte.
 - **DD1.2 The three files, bindings and enabled sources (1.75).**
@@ -710,9 +710,10 @@ Order: DD1 → (DD2 ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merges). See �
   - Every `/2` file and binding set has `valid_from` 2026-06-30T21:00:00Z.
   - Nine binding conversions, `backend/conversions/world/<SITE>-bindings.json` (`assetops.binding-conversion/1`; role
     sets `minigrid-roles-4`, `cold-roles-1`, `ev-roles-1`). Kisiwa's and Mto's list every unit's device.
-  - One new apply step, idempotent, run for `data: emulated` only. It publishes through `binding_conversion.convert` and
-    `BindingService.publish`, then runs `provision_gateway enable-gateway` and `enable-source` for each source
-    (subprocess).
+  - One new apply step, idempotent, run for `data: emulated` only: `onboard_operator apply --bindings DIR` (D-DD.36). It
+    publishes through `binding_conversion.convert` and `BindingService.publish`, then runs `provision_gateway
+    enable-gateway` and `enable-source` in process for each disabled row. The guard compares the served tenant
+    (D-DD.35). Ids, ratings and schedules: D-DD.37 to D-DD.39.
   - Test: after an emulated apply each Site has `edge-<code>` enabled, its sources enabled and one published binding
     set; a second apply changes nothing.
 - **DD1.3 The checker, first (1.25; W2).** `tools/dd_check.py` holds C-DD1 to C-DD20 (§8.1) as stubs that FAIL until
@@ -873,7 +874,7 @@ itself.
 
 - **D-DD.1 to D-DD.16** as in rev 1, kept below. D-DD.4 is amended by D-DD.21 and D-DD.22, D-DD.5 by D-DD.24, and
   D-DD.10 by D-DD.17 and D-DD.30.
-- **D-DD.17 to D-DD.34**: `rulings.md`.
+- **D-DD.17 to D-DD.40**: `rulings.md`.
 
 - **D-DD.1 The cast.** The manifest's three operators and nine Sites, as §1's table. *Why:* one world drives the
   manifest, mock, documents and product. *Reverse:* a cast change is a manifest change first.
