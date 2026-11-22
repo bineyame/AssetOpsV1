@@ -107,7 +107,8 @@ def test_m4_measured_json_writes_every_vertical_and_departures_only_for_ev(emb) 
     doc = tel.measured_for("metro-bus", [emb])
     assert set(doc) == {"schema", "tenant", "sites", "departures"} and doc["schema"] == "assetops.world-measured/1"
     nov = doc["sites"]["EV-EMB"]["2026-11"]
-    assert "partial_to" not in nov and nov["import_kwh"] == tel._decimal(emb.measured_months()["2026-11"]["import_kwh"])
+    assert nov["partial_to"] == "2026-11-02T00:00:00+03:00" and "partial_to" not in doc["sites"]["EV-EMB"]["2026-10"]
+    assert nov["import_kwh"] == tel._decimal(emb.measured_months()["2026-11"]["import_kwh"])
     deps = doc["departures"]
     assert deps and deps == sorted(deps, key=lambda d: (d["site_code"], d["departure_at"], d["vehicle_ref"]))
     assert {frozenset(d) for d in deps} == {frozenset({"site_code", "vehicle_ref", "block_ref", "service_day",

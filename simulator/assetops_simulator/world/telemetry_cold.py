@@ -126,6 +126,7 @@ class ColdSiteRun:
         self.advanced = 0
         self._records: dict[date, list[tuple]] = {}
         self._month_rounding: dict[str, Fraction] = {}
+        self._room_kwh: dict[str, Fraction] = {}  # the room meter's exact slot energy by local month (D-DD.99)
 
     # -- inputs ---------------------------------------------------------------------------------------------------
 
@@ -214,6 +215,11 @@ class ColdSiteRun:
             state.rounding_total - self.state.rounding_total)
         self.state = state
         self._records[day] = rows
+        for r in rows:
+            if r[0] == "compressor-meter" and r[6] is None:  # 5-minute INTERVAL_MEAN kW x the slot's hours = the slot's exact energy
+                month = r[2].astimezone(self.zone).strftime("%Y-%m")
+                self._room_kwh[month] = self._room_kwh.get(month, Fraction(0)) + r[4] * Fraction(
+                    int((r[3] - r[2]).total_seconds()), 3600)
         self.advanced += 1
         return day
 
@@ -236,6 +242,15 @@ class ColdSiteRun:
 
     def conditions(self) -> list[dict]:
         return list(self._conditions)
+
+    @property
+    def end_local(self) -> datetime:
+        """The span's end instant, local time (D-DD.103)."""
+        return self.end.astimezone(self.zone)
+
+    def measured_months(self) -> dict[str, dict]:
+        """D-DD.99 cold `<month>`: `{"room_kwh"}`, the room meter's energy, exact (the frame rounds once)."""
+        return {m: {"room_kwh": v} for m, v in sorted(self._room_kwh.items())}
 
     def private_parameters(self) -> dict:
         p = self.load

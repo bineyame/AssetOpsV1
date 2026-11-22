@@ -54,7 +54,7 @@ UTC = timezone.utc
 STEP = timedelta(minutes=1)
 SLOT = timedelta(minutes=5)
 MINUTES_PER_HOUR = 60
-QUANTUM_KW = Fraction(1)
+SHARE_STEP_KW = Fraction(1)  # the load manager's share step (the pack's grant step), not a rounding quantum
 LATE_PLUG = time(22, 0)  # spec §4.5: the rest plug in at 22:00
 #: D-DD.98: a full bus is unplugged for a waiting one, which plugs in on that connector this many minutes later.
 ROTATION_MINUTES = 5
@@ -160,6 +160,7 @@ class EvSiteRun:
         self._plugs: list[tuple[datetime, str, str, str]] = []  # (instant, bus, connector asset, night)
         self._import: dict[datetime, Fraction] = {}
         self._charger_draw: dict[tuple[str, datetime], Fraction] = {}
+        self._tariffs = list(books.get("tariffs", []))
 
     # -- inputs -------------------------------------------------------------------------------------------------------
 
@@ -293,7 +294,7 @@ class EvSiteRun:
                     continue
                 headroom = min(caps[s] - share[s], left[s[0]])
                 if headroom > 0:
-                    q = min(QUANTUM_KW, headroom, remaining)
+                    q = min(SHARE_STEP_KW, headroom, remaining)
                     share[s] += q
                     left[s[0]] -= q
                     remaining -= q
@@ -552,7 +553,7 @@ class EvSiteRun:
 
     def private_parameters(self) -> dict:
         return {"model": "ev-charger/1 (max_plugs None)", "import_limit_kw": str(self.import_limit),
-                "quantum_kw": str(QUANTUM_KW), "late_plug": LATE_PLUG.isoformat(timespec="minutes"),
+                "share_step_kw": str(SHARE_STEP_KW), "late_plug": LATE_PLUG.isoformat(timespec="minutes"),
                 "practice": {m: str(v) for m, v in sorted(self.practice.items())},
                 "chargers": [{"id": c["id"], "charger_kw": str(self.charger_kw[k]),
                               "connector_kw": str(self.connector_kw[k])} for k, c in enumerate(self.chargers)]}
@@ -571,6 +572,59 @@ class EvSiteRun:
 
     def assignments(self, night: str) -> list[tuple[datetime, str, str]]:
         return [(t, bus, asset) for t, bus, asset, n in self._plugs if n == night]
+
+    @property
+    def end_local(self) -> datetime:
+        """The span's end instant, local time (D-DD.103)."""
+        return self.end.astimezone(self.zone)
+
+    def _bands_on(self, day: date) -> list[tuple[str, int, int]]:
+        """The price classes of the TARIFF_SCHEDULE in force on a local day: (class, from minute, to minute). The class
+        is the band name before `-` (D-DD.61: OFFPEAK-AM and OFFPEAK-PM are OFFPEAK)."""
+        text = day.isoformat()
+        found = [r for r in self._tariffs if r["clocks"]["effective_from"] <= text
+                 and text <= r["clocks"].get("effective_to", "9999-12-31")]
+        if len(found) != 1:
+            raise _refuse("TEL_BOOKS", f"{self.code} {text} has {len(found)} TARIFF_SCHEDULE records in force")
+
+        def minute(hhmm: str) -> int:
+            hours, minutes = hhmm.split(":")
+            return int(hours) * MINUTES_PER_HOUR + int(minutes)
+
+        return [(b["band"].split("-")[0], minute(b["from"]), minute(b["to"])) for b in found[0]["body"]["bands"]]
+
+    def measured_months(self) -> dict[str, dict]:
+        """D-DD.99 EV `<month>`: `{"bands": {class: kWh}, "demand_kw", "import_kwh"}` from the depot import by minute,
+        exact (the frame rounds once). Every class of the schedules in force that month is present; `demand_kw` is
+        the largest mean of the 30 minutes from each :00 and :30."""
+        months: dict[str, dict] = {}
+        windows: dict[datetime, Fraction] = {}
+        for day in self.days:
+            month = day.strftime("%Y-%m")
+            entry = months.setdefault(month, {"bands": {}, "demand_kw": Fraction(0)})
+            for name, _, _ in self._bands_on(day):
+                entry["bands"].setdefault(name, Fraction(0))
+        tables: dict[date, list[tuple[str, int, int]]] = {}
+        for t, kw in sorted(self._import.items()):
+            lt = t.astimezone(self.zone)
+            day = lt.date()
+            if day not in tables:
+                tables[day] = self._bands_on(day)
+            at = lt.hour * MINUTES_PER_HOUR + lt.minute
+            name = next((n for n, a, b in tables[day] if a <= at < b), None)
+            if name is None:
+                raise _refuse("TEL_BOOKS", f"{self.code} {lt.isoformat()} is in no band of its TARIFF_SCHEDULE")
+            bands = months[lt.strftime("%Y-%m")]["bands"]
+            bands[name] += kw / MINUTES_PER_HOUR
+            window = lt.replace(minute=lt.minute - lt.minute % 30)
+            windows[window] = windows.get(window, Fraction(0)) + kw
+        for window, total in windows.items():
+            entry = months[window.strftime("%Y-%m")]
+            entry["demand_kw"] = max(entry["demand_kw"], total / 30)
+        for entry in months.values():
+            entry["bands"] = dict(sorted(entry["bands"].items()))
+            entry["import_kwh"] = sum(entry["bands"].values(), Fraction(0))
+        return dict(sorted(months.items()))
 
     def import_by_minute(self) -> dict[datetime, Fraction]:
         return dict(self._import)

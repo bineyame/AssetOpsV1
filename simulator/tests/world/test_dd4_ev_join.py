@@ -32,7 +32,9 @@ def _sites() -> dict:
 
 def _decided(code: str) -> dict:
     out = books(code, faults=list(telemetry_ev.EV_FAULTS.get(code, ())))
-    out["tariffs"] = []
+    from assetops_simulator.world.tariffs import tariff_schedules  # DD4.4: the measured bands read the schedule
+
+    out["tariffs"] = [r for r in tariff_schedules(built()[0])[EV]["records"] if r["site_code"] == code]
     return out
 
 
@@ -64,6 +66,8 @@ def test_j2_ev_readings_are_bound_and_written_by_the_frame() -> None:
     manifest_doc = dict(result.manifests)["metro-bus/telemetry/EV-KAS.manifest.json"]
     assert manifest_doc["pack"] == {"model": "ev-charger", "version": 1}
     assert any(c["condition"] == "rotation" for c in manifest_doc["conditions"])
+    measured = json.loads(dict(result.files)["metro-bus/telemetry/measured.json"])  # DD4.4 (D-DD.99)
+    assert set(measured["sites"]["EV-KAS"]["2026-11"]["bands"]) == {"FLAT"} and measured["departures"]
 
 
 def test_j3_refusals_are_the_frames_and_the_span_ends_at_a_local_instant() -> None:

@@ -619,6 +619,12 @@ class SiteRun:
         first = index * STEPS_PER_DAY + 1
         return self.readings_for_steps(first, first + self.day_steps[index] - 1)
 
+    def measured_months(self) -> dict[str, dict]:
+        """D-DD.99 mini-grid `<month>` (DD3a's, unchanged), exact; the frame rounds once."""
+        return {month: {"demand_kwh": dict(row["demand_kwh"]), "served_kwh": dict(row["served_kwh"]),
+                        "unserved_kwh": dict(row["unserved_kwh"]), "generator_kwh": row["generator_kwh"]}
+                for month, row in sorted(self.ledger.items())}
+
     def advance_day(self) -> date:
         """D-DD.81's day-level protocol: step the next local day and keep its rows (already bound by this frame)."""
         day = self.days[self.next_day]
@@ -753,7 +759,9 @@ def build_telemetry(view: dict, sites: dict, decided_books: dict, *, start: str,
             continue
         family = pack_family(site)
         if family in VERTICAL_PACKS:
-            files += _vertical(site, family, decided_books[code], start, end, manifests)
+            written, vertical_run = _vertical(site, family, decided_books[code], start, end, manifests)
+            files += written
+            by_tenant.setdefault(site["tenant"], []).append(vertical_run)
             continue
         if family != "mini-grid" or not supported(site):
             manifests.append((f"{site['tenant']}/telemetry/{code}.manifest.json", {"schema": MANIFEST_SCHEMA, "site_code": code,
@@ -773,7 +781,7 @@ def build_telemetry(view: dict, sites: dict, decided_books: dict, *, start: str,
     return TelemetryResult(tuple(files), tuple(manifests))
 
 
-def _vertical(site: dict, family: str, books: dict, start: str, end: str, manifests: list) -> list[tuple[str, bytes]]:
+def _vertical(site: dict, family: str, books: dict, start: str, end: str, manifests: list) -> tuple[list, object]:
     """A vertical Site's run (D-DD.81): its pack rows bound, rounded and written by this frame, a day at a time."""
     run = _vertical_runs()[family](site, books, start, end)
     binding = VerticalBinding(site)
@@ -791,7 +799,20 @@ def _vertical(site: dict, family: str, books: dict, start: str, end: str, manife
                  "to": run.end.astimezone(_zone(site)).isoformat()},
         "private_parameters": run.private_parameters(), "conditions": run.conditions(),
         "mappings": binding.mappings(), "golden_digests": {m: d.hexdigest() for m, d in sorted(digests.items())}}))
-    return files
+    return files, _measured_view(run)
+
+
+def _measured_view(run) -> object:
+    """What `measured_for` reads of a finished vertical run, taken now so the run's day rows are not held."""
+    from types import SimpleNamespace
+
+    months = run.measured_months()
+    view = SimpleNamespace(code=run.code, days=[run.days[-1]], end_local=run.end_local, zone=run.zone,
+                           measured_months=lambda: months)
+    if hasattr(run, "departures"):
+        departed = run.departures()
+        view.departures = lambda: departed
+    return view
 
 
 def site_manifest(site: dict, run: SiteRun, books: dict, golden: dict[str, str]) -> dict:
@@ -884,23 +905,36 @@ def _rate_kwh(month: str, rate_of: str, weights: dict, delivered: int) -> int:
     return int((Decimal(exact.numerator) / Decimal(exact.denominator)).quantize(Decimal(1), rounding=ROUND_HALF_EVEN))
 
 
-def measured_for(slug: str, runs: list[SiteRun]) -> dict:
-    """`<slug>/telemetry/measured.json`: per Site and month, the load energy the meters carried and the unserved
-    energy the pack's accepted loads record (`accepted.loads[].unserved_energy`); no unserved signal is published."""
-    sites = {}
+def _written(value: object) -> object:
+    """A measured value as `measured.json` holds it: exact decimal text (`_decimal`, rounded once), maps sorted."""
+    if isinstance(value, dict):
+        return {k: _written(v) for k, v in sorted(value.items())}
+    return _decimal(value)
+
+
+def measured_for(slug: str, runs: list) -> dict:
+    """`<slug>/telemetry/measured.json` (D-DD.99): per Site and month, each run's `measured_months()` with its
+    vertical's fixed key set (mini-grid: the load energy the meters carried and the unserved energy the pack's accepted
+    loads record; cold: the room meter; EV: bands, demand, import), and, for a tenant with EV Sites only, `departures`
+    sorted by (site, departure instant, vehicle)."""
+    sites, departures, ev = {}, [], False
     for run in runs:
-        months = {}
-        for month, row in sorted(run.ledger.items()):
-            months[month] = {
-                "demand_kwh": {k: _decimal(v) for k, v in sorted(row["demand_kwh"].items())},
-                "served_kwh": {k: _decimal(v) for k, v in sorted(row["served_kwh"].items())},
-                "unserved_kwh": {k: _decimal(v) for k, v in sorted(row["unserved_kwh"].items())},
-                "generator_kwh": _decimal(row["generator_kwh"])}
+        months = {month: _written(row) for month, row in run.measured_months().items()}
         end = run.end_local
         if (end.day, end.hour, end.minute) != (1, 0, 0):  # the span ends inside its last month (D-DD.99)
             months[run.days[-1].strftime("%Y-%m")]["partial_to"] = end.isoformat()
         sites[run.code] = months
-    return {"schema": "assetops.world-measured/1", "tenant": slug, "sites": sites}
+        if hasattr(run, "departures"):
+            ev = True
+            departures += [{"site_code": d["site_code"], "vehicle_ref": d["vehicle_ref"], "block_ref": d["block_ref"],
+                            "service_day": d["service_day"],
+                            "departure_at": d["departure_at"].astimezone(run.zone).isoformat(),
+                            "required_kwh": _decimal(d["required_kwh"]), "kwh_at_departure": _decimal(d["delivered_kwh"])}
+                           for d in run.departures()]
+    out = {"schema": "assetops.world-measured/1", "tenant": slug, "sites": sites}
+    if ev and departures:  # no file writes an empty list (D-DD.99)
+        out["departures"] = sorted(departures, key=lambda d: (d["site_code"], d["departure_at"], d["vehicle_ref"]))
+    return out
 
 
 def _vertical_runs() -> dict:
