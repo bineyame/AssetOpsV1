@@ -6,6 +6,7 @@ import { RangeFocusProvider } from "../ui/rangeFocus";
 import { EstateReadCacheProvider } from "../estate/estateReadCache";
 import { railHomeOf } from "./iaRoutes";
 import { SharedRangeBar, SharedRangeOutlet } from "./SharedRangeBar";
+import { WaitingForYou } from "./WaitingForYou";
 import { rangeSearch } from "./sharedRange";
 import type { WorkspaceChrome } from "./WorkspaceShellLayout";
 import "./demonstrationBanner.css";
@@ -143,9 +144,11 @@ export function OperatorShellLayout() {
       <EstateReadCacheProvider>
       <RangeFocusProvider>
       <div className="app-frame__body">
-        {/* SR-1 (v71 Change 0b): the top-bar row holds the one shared date range; the demonstration banner stays. */}
+        {/* SR-1 (v71 Change 0b): the top-bar row holds the one shared date range; the demonstration banner stays. IA-P P6:
+            "Waiting for you" after the range bar (spec §6 P6). */}
         <header className="app-topbar" data-shared-range-topbar>
           <SharedRangeBar />
+          <WaitingForYou />
         </header>
         <p className="demonstration-banner" role="note" data-demonstration-banner>
           {DEMONSTRATION_BANNER}

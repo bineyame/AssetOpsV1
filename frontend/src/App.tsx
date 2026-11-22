@@ -121,6 +121,7 @@ import { createEvScenariosClient, type EvScenariosClient } from "./sites/evScena
 import { SiteEvFrame } from "./shell/evSiteRoutes";
 import { createColdSiteClient, type ColdSiteClient } from "./sites/coldSiteClient";
 import { createEstateClient, type EstateClient } from "./estate/estateClient";
+import { EstateClientProvider } from "./estate/estateReadCache";
 import { createGlobalWorkClient, type GlobalWorkClient } from "./work/globalWorkClient";
 import { GlobalIncidentsFrame } from "./work/GlobalIncidents";
 import { GlobalMaintenanceFrame } from "./work/GlobalMaintenance";
@@ -361,6 +362,7 @@ export function App({
 
   return (
     <RefLinkProvider value={linkFor}>
+    <EstateClientProvider client={estateIndex}>
     <Routes>
       <Route element={<WorkspaceShellLayout flags={flags} />}>
         <Route element={<OperatorShellLayout />}>
@@ -614,6 +616,7 @@ export function App({
       ))}
       <Route path="*" element={<RouteNotAvailableFrame />} />
     </Routes>
+    </EstateClientProvider>
     </RefLinkProvider>
   );
 }

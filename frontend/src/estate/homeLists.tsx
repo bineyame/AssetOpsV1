@@ -89,6 +89,20 @@ function bySite<T>(name: (i: T) => string) {
   return (a: T, b: T) => name(a).localeCompare(name(b));
 }
 
+/**
+ * IA-P P6 (D-IAP.37 Q13): the one waiting total. The Decisions tile "Waiting for a choice" and the shell's "Waiting for
+ * you" badge both read it, so badge = tile in every case: `total` (the server's `waiting_count`, given when the read
+ * was truncated) when set, else the rows in `waiting`. 6f1 U2 (tile = E0, D-P6.78) re-sources this one function.
+ */
+export function waitingForAChoice(items: readonly DecisionItem[], total: number | null): number {
+  return total !== null ? total : items.filter((i) => i.state === "waiting").length;
+}
+
+/** The `total` `waitingForAChoice` takes for a loaded Decisions read: `waiting_count` when the read was truncated. */
+export function waitingTotalOf(loaded: { truncated: boolean; first: EstatePortfolioBody }): number | null {
+  return loaded.truncated ? (loaded.first.summary.waiting_count ?? null) : null;
+}
+
 /** `waitingTotal`: the server's `waiting_count`, used by the tile when the read was truncated. */
 export function decisionsDef(waitingTotal: number | null = null): HomeListDef<DecisionItem> {
   return {
@@ -127,7 +141,7 @@ export function decisionsDef(waitingTotal: number | null = null): HomeListDef<De
     domain: (i) => i.row.domain,
     scopeWord: (s) => (s.startsWith("group:") ? (DOMAIN_WORD as Record<string, string>)[s.slice(6)] ?? s : s.slice(5)),
     tiles: (_m, rows, whole) => [
-      { label: "Waiting for a choice", role: "part" as const, value: whole && waitingTotal !== null ? waitingTotal : rows.filter((i) => i.state === "waiting").length },
+      { label: "Waiting for a choice", role: "part" as const, value: waitingForAChoice(rows, whole ? waitingTotal : null) },
     ],
     none: "No decisions in this range.",
   };
@@ -323,7 +337,7 @@ export function DecisionsListPage({ client }: { client?: EstateClient }) {
   const read = useEstateRead(reads, "portfolio", query);
   const loaded = read?.status === "loaded" ? read.value : null;
   const items = useMemo(() => (loaded === null ? [] : decisionItems(loaded.first, loaded.rows)), [loaded]);
-  const def = useMemo(() => decisionsDef(loaded?.truncated ? (loaded.first.summary.waiting_count ?? null) : null), [loaded]);
+  const def = useMemo(() => decisionsDef(loaded === null ? null : waitingTotalOf(loaded)), [loaded]);
   return (
     <ListPage
       root="decisions"
@@ -414,7 +428,7 @@ export function DecisionsRows({ client, title }: { client?: EstateClient; title:
   const read = useEstateRead(reads, "portfolio", query);
   const loaded = read?.status === "loaded" ? read.value : null;
   const items = useMemo(() => (loaded === null ? [] : decisionItems(loaded.first, loaded.rows)), [loaded]);
-  const def = useMemo(() => decisionsDef(loaded?.truncated ? (loaded.first.summary.waiting_count ?? null) : null), [loaded]);
+  const def = useMemo(() => decisionsDef(loaded === null ? null : waitingTotalOf(loaded)), [loaded]);
   const range = readSharedRange(params);
   return (
     <section className="dd-panel" aria-labelledby="dd-decisions-h" data-overview-decisions>

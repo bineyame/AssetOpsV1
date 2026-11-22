@@ -138,6 +138,20 @@ export function createEstateReadCache(): EstateReadCache {
 
 const CacheContext = createContext<EstateReadCache | null>(null);
 
+/**
+ * IA-P P6 (D-IAP.37 Q12): the app's estate client, so the shell's "Waiting for you" reads on the Decisions read's
+ * cache key (the same client object, so no second read). `App` provides the client its routes get.
+ */
+const ClientContext = createContext<EstateClient | null>(null);
+
+export function EstateClientProvider({ client, children }: { client: EstateClient; children: ReactNode }) {
+  return <ClientContext.Provider value={client}>{children}</ClientContext.Provider>;
+}
+
+export function useProvidedEstateClient(): EstateClient | null {
+  return useContext(ClientContext);
+}
+
 export function EstateReadCacheProvider({ children }: { children: ReactNode }) {
   const cache = useRef<EstateReadCache | null>(null);
   if (cache.current === null) cache.current = createEstateReadCache();
