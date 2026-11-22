@@ -2120,8 +2120,11 @@ RATE_FIELDS = {"litres_per_customer_kwh": ("load_kw", "load_hours_per_day", "day
 OPTION_ONLY_SOURCE = "admission_parts_failed"
 KOBO_SETTINGS = ("KOB-STOPSOC", "KOB-RESERVE")
 KOBO_SETTING_WORDS = "a dispatch replay on Kobo's October as recorded (0K4f)"   # §2.3, R2
-K8_HISTORY_SHA = "329181f274b22b1563c496b1e5fc7195cbea9944e341356d957f3eaff123cacb"   # history.json at the 0K4m base (K8);
+K8_HISTORY_SHA = "6fd610899336b95dbe898cd3c583d06fa130fb065d7912282a33e1e4fe6d4fc8"   # history.json at the 0K4m base (K8);
 # re-based (22 Nov) for DD3a commit 2: Kobo `physical` from its data sheets moves the view. The previous base was 9cb1b6bfecd6b1cec0d10974c037161e2e454f7dac3694791a584bfd173fd4c9.
+# Re-based (22 Nov) for DD3a's fix round (D-DD.102): a scope digest covers only the `physical` keys its rules read, so the
+# July-September leaves of Kobo, Kisiwa and Mto were re-drawn once and the depots' scope digests moved (cold rooms unchanged).
+# The previous base was 329181f274b22b1563c496b1e5fc7195cbea9944e341356d957f3eaff123cacb.
 MOCK = "interactive-mockup-vNEXT"
 K11_EXCLUDED = {"REVIEW.md", "REVIEW-response.md"}   # and regeneration/ (never scanned)
 # K11: the decision-history registers (spec §3, I4: by name) and the mock's change register (rows before 21 Nov) are exempt
@@ -2642,7 +2645,9 @@ K13_PARITY = {   # 0K4m K13 (rev 4, D-0K4.45): canonical sha256 of each product-
     ("derived-values.json", "portfolio"): "c994625db43e247bc1d0ab3176ca13e695668b5d1c3aaeec55e95a2ccd1e254b",
     # Re-based (22 Nov) for DD3a commit 2: Kobo `physical` from its data sheets moves the view, so history.json and this part
     # were regenerated (evaluate_structure.py). The previous value was de3fbbaed74207bc3273bfd84453caed3e99432c2d235fe8c092b2409289fc09.
-    ("derived-values.json", "history"): "3de2042041cd58e1878e5c242b1f11e445323b4d0944ccba8c74179a81affcef",
+    # Re-based (22 Nov) for DD3a's fix round (D-DD.102): the physical-reads digest re-draws Kobo, Kisiwa and Mto's
+    # July-September leaves once (history.json, K8). The previous value was 3de2042041cd58e1878e5c242b1f11e445323b4d0944ccba8c74179a81affcef.
+    ("derived-values.json", "history"): "57bac43ddcc498d26f73724da183ca66251f77e0d2b453e175c2bc9428ec41be",
     ("missing-records.json", "sites"): "d17461a1a6f5a347ea26f0455fa1cdad5792bdf65167097eb57a31ad771346e3",
 }
 

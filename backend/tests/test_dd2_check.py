@@ -1,6 +1,6 @@
 """DD2.5 (spec `specs/DD-demo-data/spec.md` §8.1; D-DD.55): C-DD2 to C-DD4 on rows, no database.
 
-The checker's own evaluator is tested against hand figures (Kobo's July: 8329 kWh, 3331.60, 3063.78). The judges' tests on the
+The checker's own evaluator is tested against hand figures (Kobo's July: 8318 kWh, 3327.20, 3059.74). The judges' tests on the
 emulator's rows are `simulator/tests/world/test_dd2_checker_on_emulated_rows.py` (a product test may not import the
 simulator).
 """
@@ -37,11 +37,11 @@ def formulas_for(inputs, tenant: str, site: str, month: str) -> dd_check.Formula
 
 def test_the_evaluator_gives_kobos_july_by_hand(inputs) -> None:
     f = formulas_for(inputs, "lakeside-power", "Kobo", "2026-07")
-    assert f.node("billed_kwh") == Decimal(8329)      # 8767 - 395 - 0 - 43 - 0
-    assert f.node("revenue") == Decimal("3331.6")      # 8329 x 0.40
-    assert f.node("collected") == Decimal("3063.78")   # 3331.60 - 0 - 267.82
-    assert f.node("diesel_l") == Decimal(1007)         # 730 + 265 + 12
-    assert f.node("fuel_cost") == Decimal("1258.75")   # 1007 x 1.25
+    assert f.node("billed_kwh") == Decimal(8318)      # 8755 - 394 - 0 - 43 - 0
+    assert f.node("revenue") == Decimal("3327.2")      # 8318 x 0.40
+    assert f.node("collected") == Decimal("3059.74")   # 3327.20 - 0 - 267.46
+    assert f.node("diesel_l") == Decimal(972)          # 703 + 257 + 12
+    assert f.node("fuel_cost") == Decimal("1215")      # 972 x 1.25
 
 
 def test_the_evaluator_gives_cold_revenue_and_received_by_hand(inputs) -> None:
