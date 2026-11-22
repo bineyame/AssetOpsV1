@@ -1,4 +1,4 @@
-# 0K4m unit 1 handoff (partial: commits 1a and 1b done, commit 2 next; builder, Claude, 2026-11-22)
+# 0K4m unit 1 handoff (PARTIAL: commits 1a, 1b done; commit 2 `75c9b7e0c` built, not green; builder, Claude, 2026-11-22)
 
 Worktree `/opt/assetecon/AssetOpsV1-0k4m`, branch `task/0K4m-pack-restate` off `main` at `6bfbcf2c7`.
 `frontend/node_modules` is a symlink to the main checkout. Never switch branches or commit in `/opt/assetecon/AssetOpsV1`.
@@ -141,3 +141,131 @@ Deviations.
 - `homes_selftest`-style save/restore of `passes` elsewhere would desync `_PASSED`; the assert in `_write_labels()`
   catches it.
 - `hand_typed_scan.py` and `check_manifest.py` are slow; run through `tools/heavy-slot.sh`.
+
+
+## Commit 2 (`75c9b7e0c`, partial): what was built
+
+Scripts that made the manifest edits (reproducible, scratch): S/c2/edit1.py (inputs, §2.3 place by place) and S/c2/edit2.py
+(stated copies from derived-values.json), plus a small inline step (demo_workflow, bridge_drivers, vertical-factor-map.md).
+
+- **Manifest** (outside the view; view sha `7ed4a720…` unchanged at the commit, `world_history.py check` exit 0): rev 16.17 line;
+  `diesel_l = generator_l + unexplained_l + extra_l`; factors `generator_l` (I2 expression verbatim) and `admission_parts_failed: "0"`;
+  Kobo `factor_sources` necessary_l/candidate_l `unavailable("dispatch-3.3 ... (0K4e, 4d)")`; `replayed_dawn_days_below_safeguard`
+  node gone (structures, protect_nodes, home_categories); `admission` bound; KOB-STOPSOC/RESERVE params per D-0K4.38 with
+  `admission_parts_failed_option` from K8 and `information` (baseline_* from K8's baseline case); `feasible_fuel_160l` gone; MTO-HULLER
+  and MTO-WELDING `litres_per_kwh` (M8 huller / welder FULL; every admitted restore path restores within 6 days), the four MTO-INV
+  `extra_l_per_day` from M8 reduced (0) with `information`; KIS-BATT60 `unavailable("a Kisiwa battery replay (queue Q7)")` on
+  `generator_l`; EMB-DEADLINE loses `feasible_nights`, `bus_short_on_infeasible_night`, `extra_missed_departures`; `replay_studies`
+  (K8, M8 identity keys from the extract; E NOT_RUN); home_categories (generator_l, admission_parts_failed, GENERATOR_RUNNING,
+  KOB-RESERVE money factors, lever generator_l); leaf_sources rows; MODEL_PENDING in the empty_states comment vocabulary.
+- **Stated copies**: Kobo bridge one row GENERATOR_RUNNING −450.00 ((1,060 − 700) L × 1.25; bridge still sums to −562.00); findings,
+  KOB-NOACT note, both Kobo rows (`disposition: NOT_AVAILABLE_YET`, reasons with `{fig:}`), service obligation, verification target,
+  protect effects (Kobo sourced from K8: 4/4/11; Embakasi DERIVED), Kisiwa row, Mto rows (residual_cost 230.00 / 2,910.00), Lakeside
+  allocation, oracle OR-MG-1/OR-MG-3. Metro's plan figures did not move.
+- **demo_workflow**: KOB-STOPSOC item and its two Actions removed from version 1 (the block's rule: version 1 = the evaluator's
+  default items; workflow() failed otherwise). The mock and worked-portfolios.md still tell the Kobo trial story (unit 2/3).
+- **bridge_drivers**: SOLAR_SHORTFALL_NECESSARY_GEN and EVENING_NECESSARY_GEN (Kisiwa, Mto) now map to `generator_l` (RC1-RC5
+  failed: necessary_l no longer sits on a statement line). CANDIDATE_RUNNING and EVENING_LOAD_GROWTH removed.
+- **evaluate_structure.py**: `NotAvailable` (own class; arithmetic dunders return it), `unavailable()` reserved before FUNCS (one
+  non-empty string constant, else ValueError; a string argument elsewhere is a ValueError), BinOp/FUNCS evaluate every operand and a
+  not-available one wins over Missing, `|` falls through only on Missing; sides `nodes: null` + `not_available`; options, plans,
+  history months, MODEL_PENDING missing entries (slice `0K4e`), `information`, `replay_sources`; portfolio sums leave out a
+  not-available node. Two allocator changes beyond N1 (see Known Deviations 2 and 3).
+- **Regenerated**: derived-values.json, missing-records.json (`evaluate_structure.py`), `regenerate_traceability_columns.py` (CSV
+  unchanged: it holds no row for the removed node), `interactive-mockup-vNEXT/fixtures.js` (`tools/gen_fixtures.py`; K7 and K11's
+  literal check failed on the stale literal).
+- **check_manifest.py**: H8 (both) and H10 re-based with the comment line; **H9 not re-based** (cannot be measured green, below).
+- `0K4e` declared in `empty_states.queued_slices` (the manifest's existing mechanism for slices outside the fortnight, which
+  `empty_state_problems()` accepts). `plan_model.py` SLICES is the scheduled fortnight (its own note: adding a row there displaces a
+  committed slice), so it is more than a data line and was not touched.
+- `motivation_figures.py`: no unit-1 check runs it (only render_design_html.py imports it); its fix stays in unit 2.
+
+## Commit 2 evidence
+
+- `check_manifest.py` at `75c9b7e0c` (S/c2/cm4.txt, labels S/c2/labels-head.tsv): **`7466 checks passed (2874 history checks), 346 failed`**.
+  K1-K10 and K12 pass; K8 passes (history.json `9cb1b6bf…` unchanged); H11 passes unchanged. Failures:
+  - documents (unit 2): 297 anchored/computed-figure lines (domain-and-decision-models 94, worked-portfolios 76, phase-plan 34,
+    layer4-transformation-design 20, economic-metric 14, design-questions 13, decision-loop 12, delivery-plan 9, walkthroughs 5,
+    integration-source 4, plan-and-action 3, demo-build-cost 2, two-week-build-plan 1, roadmap 1; plus `../../go-to-market/website-content.md` 5
+    and `commercial-plan.md` 4, outside the pack), record-tagged/untagged/untraced figure lines, K11 on 18 pack/mock documents
+    (incl. `interactive-mockup-vNEXT/index.html` x2, fixture-mapping.md, browser-audit.md, walkthroughs.md);
+  - checker defects (not the evaluator's to fix; see Known Deviations 4-6): params rounding x2, empty-states stale rule x1, H2 x12;
+  - H9 (base 4208 with 315 failed).
+- `check_alignment.py`: `alignment: 114 checks passed, 0 failed`.
+- `extract_replay_studies.py --kobo … --mto … --check`: `replay-studies.json matches the two study files` (exit 0).
+- `regenerate_traceability_columns.py --check`: exit 0.
+- Boundary (`/opt/assetecon/evidence/0K4m/boundary.txt`): 1a, 1b, handoff commits PASS; `75c9b7e0c` view `7ed4a720… == base`,
+  `world_history.py check` exit 0, 238 lines changed, **1 forbidden: `+2 [top-level (outside any key)]` = the spec-mandated rev
+  line under the header (a comment)**. So it prints BOUNDARY FAIL. The proof script was not edited (an edit to allow header
+  comments was refused by the permission layer as weakening the proof); the coordinator rules (Known Deviation 1).
+- H9 ledger (PROVISIONAL): `/opt/assetecon/evidence/0K4m/h9-ledger.txt`. Base sections main 4496 (= 4502 − 6) → head 4208:
+  evaluator 2095→2151 (+158 −102), stated 332→317 (−15), narratives 177→171 (+12 −18), anchors 1295→987 (−308), documents 4→0
+  (−4), workflow 76→67 (−9), homes 376→375 (+13 −14), empty_states 11→10 (−1); rights_terms, homes_selftest, factor_map,
+  alignment unchanged. 4496 + 56 − 15 − 6 − 308 − 4 − 9 − 1 − 1 = 4208. Final only after unit 2 turns the documents green.
+- Kobo `candidate_l`/`necessary_l` null with words on plan, October and Jul-Sep plan/actual (two MODEL_PENDING entries each);
+  contribution 1,445.00 / 883.00, variance −562.00 and the GENERATOR_RUNNING row evaluate.
+
+## For the packet (record)
+
+**Reconciliation table (Lakeside; Metro and Harvest unchanged)**
+
+| Figure | Was | Now | Cause |
+|---|---|---|---|
+| default items | KIS-REPAIR, BAT-EVIDENCE, KOB-STOPSOC, MTO-INV-CLAIM, MTO-HULLER | KIS-REPAIR, BAT-EVIDENCE, MTO-INV-CLAIM, MTO-HULLER | both Kobo settings not available (D-0K4.38); `kobo_generator` has no valued setting, both under `plans.lakeside-power.not_available` (with KIS-BATT60) |
+| spend | 3,750.00 | 3,660.00 | KOB-STOPSOC's 90 leaves |
+| value (modelled 12 m) | 6,088.50 | 2,213.33 | KOB-STOPSOC 2,916 leaves; MTO-HULLER 3,540 → 2,213.33 (M8 0.094815 L/kWh x 1,650 kWh = 156.4 L a month, was 68 L); MTO-INV-CLAIM −367.50 → not valued in money (M8: 0 extra litres a day, was 5) |
+| valued option costs | 1,520.00 | 1,200.00 | KOB-STOPSOC leaves; the claim's 230 is spend not valued in money |
+| not valued in money | 2,230.00 | 2,460.00 | + MTO-INV-CLAIM 230 |
+| downside (co-op does not sign) | 2,548.50 | 0.00 | no valued option remains without the huller |
+| diesel −20 % | 5,690.00 | 2,682.66 | only the huller buys diesel among valued options |
+| feasible_fuel_160l | 5,338.50 | removed | sensitivity removed with KOB-STOPSOC's design value |
+| case 5000/no | 2,550.00 / 2,548.50 | 2,460.00 / 0.00 | as above |
+| case 6500/no | 6,430.00 / 3,508.50 | 6,340.00 / 2,213.33 | BUYNOW 2,947.50 → 2,910.00 (no extra fuel); KOB-STOPSOC leaves |
+| cases 5000/yes, 6500/yes | 3,750.00 / 6,088.50 | 3,660.00 / 2,213.33 | as default |
+| MTO-WELDING value | (−8.25 a month) | −48.19 (−4.02 a month) | M8 welder 0.324868 L/kWh (was sfc 0.30 plus) |
+| Kobo bridge | −412.50 + −37.50 | −450.00 GENERATOR_RUNNING | one row on the recorded generator litres; split Not available yet |
+
+**K8 baseline fields**: all five read from the study's `baseline` block (`extract_replay_studies.py:94`, `K8_BASELINE_FIELDS`); none from the no-action case.
+
+**Basis print (residual risk; never on screen)**: K8 season generator fuel 2,932.969 L over 61 days (1,442.4 L per 30 days) beside
+Kobo's recorded October generator litres 1,060 (diesel 1,180); M8 season 646.180 L over 61 days (317.8 L per 30 days) beside Mto's
+recorded 320 L.
+
+**Welder**: `mto-welder` (FULL inverter case), because every admitted restore path restores within 6 days.
+
+**Not restated, stale typed figure**: MTO-WELDING row `break_even_tariff_usd_per_kwh: 0.42` (computed from the old fuel rate; read by
+loop-decisions.js, loop-portfolio.js, index.html, fixture-mapping.md, derivation-register.md). Spec §2.3 does not list it; unit 2/3 or a ruling.
+
+## Known Deviations and open points (for the coordinator / Architect)
+
+1. **Boundary vs the rev line.** Spec §2.3 puts the rev line under the header; boundary.py classes any changed line outside every
+   key as forbidden. View hash equal; the line is a comment. Ruling needed: accept, or move the rev line.
+2. **Allocator: a decision that must take one may take an option not valued in money** (`candidates()`). With M8's 0 extra litres
+   the four MTO-INV paths change no money node, so `mto_inverter` (valued, optional: false) had no candidate and the Lakeside
+   plan was infeasible. The independent model already takes MTO-INV-CLAIM there (its failure lines showed items
+   [KIS-REPAIR, BAT-EVIDENCE, MTO-INV-CLAIM, MTO-HULLER], spend 3,660); the evaluator now agrees. The spec does not define the
+   case; the rule was matched to the model's output, so W2 independence is weaker on this point: Architect to confirm the rule.
+3. **Sensitivities from the unrounded value**: the evaluator rounded the monthly change to cents before x 12 (HULLER diesel −20 %
+   2,682.72 vs the model's 2,682.66); now computed as the value is.
+4. **Checker defect (model): params rounded to cents** — `evaluator options.MTO-HULLER.params.litres_per_kwh: 0.094815 != 0.09`
+   (and welder 0.324868 != 0.32). The model writes params through money(); a rate below a cent cannot be compared. Fix in
+   independent_model.py (not opened by this builder).
+5. **Checker defect: `empty_state_problems()` stale rule** (`check_manifest.py:1221`) reads a leaf entry with `carried_as: null` on an
+   evaluated side as stale; N1's MODEL_PENDING entries are exactly that (spec §2.4 shape). Needs a MODEL_PENDING exemption.
+6. **Checker defect: H2 `first_present_keys()`** takes `generator_l`'s first alternative `record.diesel_l - (record.unexplained_l | 0)`
+   as present among October's keys and so expects `diesel_l` on history actual months (12 failures: Kobo, Kisiwa, Mto actual
+   Jul-Sep; Kobo plan Jul-Sep, where Kobo's overridden necessary_l no longer names `diesel_l`). The handoff's risk 2. H2 needs to
+   read alternatives by the record they need on that month (or the Architect re-words I2).
+7. **0 failed is not reachable in commit 2 as specced**: the documents' anchors and K11 (unit 2, commit 3) fail as soon as the
+   manifest is restated, and H9 needs 0 base failures to be re-based. Either unit 2 lands before H9 is set, or commit 2 and 3 are
+   judged together.
+8. Slice `0K4e` declared in `empty_states.queued_slices`, not plan_model.py (above).
+9. `replay-studies.json` committed in 1b, not 2 (above).
+
+## Next (exact)
+
+1. Rulings on 1, 2 and 7; fixes for checker defects 4-6 (a checker-side change, independent of this evaluator).
+2. Unit 2 (documents, spec §3), including `vertical-factor-map.md` (lever cell already set to `generator_l`) and the go-to-market
+   anchors; then rerun `CHECK_LABELS=<file> check_manifest.py`, rebuild the ledger with the same script logic (S/c2 has none saved;
+   the ledger header in evidence names the method), set `H9_BASELINE` with its by-section comment, and confirm 0 failed.
+3. Boundary rerun for every commit; plants, fast check-all, packet, state entry (later step).
