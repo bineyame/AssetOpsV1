@@ -1,6 +1,6 @@
 # IA-P: the real app on the agreed shape (implementer spec)
 
-Status: in_review (IA-P1: P0, P1 and P2 built, `packet-IA-P1.md`; IA-P2: P3a, P3b, P4a and D-IAP.34 built, `packet-IA-P2.md`; IA-P3 P4b and P5 built and in_review (P5 to D-IAP.47), `packet-IA-P3.md`, P6 and P7 next; IA-P3 pre-flight ruled, D-IAP.35 to D-IAP.41; P5 runs 3 and 4 ruled, D-IAP.42 to D-IAP.47). **rev 3** (2026-11-22: handshake answered, `handshake.md`; the long range, P0; three parts).
+Status: in_review (IA-P1: P0, P1 and P2 built, `packet-IA-P1.md`; IA-P2: P3a, P3b, P4a and D-IAP.34 built, `packet-IA-P2.md`; IA-P3 P4b, P5 and P6 built and in_review (P5 to D-IAP.47, P6 on D-IAP.37), `packet-IA-P3.md`, P7 next; IA-P3 pre-flight ruled, D-IAP.35 to D-IAP.41; P5 runs 3 and 4 ruled, D-IAP.42 to D-IAP.47). **rev 3** (2026-11-22: handshake answered, `handshake.md`; the long range, P0; three parts).
 Architect (Claude). Rev 2 (the Overview follows the range) and rev 1 were merged on 2026-11-22.
 Owner request: `owner/owner-merge-on-accept-ia-shape-k10-2026-11-22.md`. The owner reviews once the product is close to the
 shape, then iterates. UI slices merge on review ACCEPT, with one combined walkthrough at the end.

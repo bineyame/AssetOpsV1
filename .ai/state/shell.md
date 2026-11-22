@@ -504,7 +504,7 @@ Branch `task/W1-UX-07` (base main `3bb1b8b2`). Packet `archive/agent-history/W1-
 - Left open: the demo's prebuilt `/portfolio` week requests (`tools/demo_combined.py`) no longer match what the Overview reads (E2);
   MD-IAP-3, -7, -10, -11, -12, -16 registered (R784 to R789); the world ladder's L2 `code` part is stale until the coordinator rebuilds it.
 
-## IA-P3 - Sites, the Site's six tabs, the inbox, scope and search (P4b and P5 built, in_review; P6 and P7 not built)
+## IA-P3 - Sites, the Site's six tabs, the inbox, scope and search (P4b, P5 and P6 built, in_review; P7 not built)
 
 - Pre-flight for the whole part: `specs/IA-P-product-shape/IA-P3-preflight.md` (28 questions with defaults; Q21 blocks only
   P5's `/sites/:id/findings` alias). Meeting point with 6f1: `decisionItems(` (6f1 U2's W6 sweep, §4.4).
@@ -525,5 +525,9 @@ Branch `task/W1-UX-07` (base main `3bb1b8b2`). Packet `archive/agent-history/W1-
   Lifecycle word on Sites and Outcomes rows (D-IAP.44). `SitesIndex`, `ColdFindingIndex`, `EvFindingIndex` deleted
   (D-IAP.45, D-IAP.47); the Site's early warnings and the cold index's table columns have no home on the Findings list
   (`packet-IA-P3.md` §7.3). Gates T1, T2. `RangeMatrixEntry.alias` marks the alias rows.
-- Left open: P6, P7; the demo prebuild (part IA-PD, D-IAP.36); register R790 to R793; the template-lineage note and
+- P6 (D-IAP.37): "Waiting for you" in the top bar (`shell/WaitingForYou.tsx`); badge = the Decisions tile through
+  one function (`waitingForAChoice`, 6f1 U2 re-sources it); rows only via `decisionItems(` on the Decisions read's cache
+  key (`EstateClientProvider` in `App`); `ui/Drawer.tsx` (moved from DeepDiveMonth). Gate W1. Open: the Outcomes tab's
+  page-1 read and the shell's are the same URL twice; a range-less address reads the default window once first.
+- Left open: P7; the demo prebuild (part IA-PD, D-IAP.36); register R790 to R793; the template-lineage note and
   "In setup" have no place on the list (packet questions); `sites/SitesIndex.tsx` is mounted by no route.

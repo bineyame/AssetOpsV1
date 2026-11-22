@@ -3,7 +3,7 @@
 Branch `task/IA-P3-sites-site-inbox`, worktree `/opt/assetecon/AssetOpsV1-iap3`. Head: see `git log -1` (stated in the hand-back).
 Spec: `spec.md` rev 3 §6 P4b, §5.2, §5.3, §6 "Range pages"; `rulings.md` D-IAP.35 (merged from main `3cf6f893b`).
 `USER_REVIEW_REQUIRED`: no (a build slice; the owner walkthrough is after the IA shape is built, `owner-review-at-product-shape`).
-P5, P6 and P7 are not built (next runs).
+P5 and P6 are built (§7, §8); P7 is the next run.
 
 ## 1. What was built
 
@@ -162,3 +162,66 @@ new "alias rows" describe asserts the redirect to `/findings` with `scope=site:{
   alone on main and head, passes in the full run: order/timing, not this slice).
 - `test_iap_*` (4 files, one `--db-lane` call): 88 passed, 0 xfailed, 77 s (main: 85 in run 1, no parity file).
 - `tsc` clean; `check-architecture` passed (clean, and the planted `SiteFindingIndex` outside `sites/` failed it).
+
+## 8. P6 "Waiting for you" (spec §6 P6; D-IAP.37 Q12 to Q16)
+
+### 8.1 What was built
+
+- `shell/WaitingForYou.tsx` (new), mounted in `OperatorShellLayout`'s top bar after `SharedRangeBar`. The control is
+  `<button type="button" class="ia-inbox" aria-haspopup="dialog" aria-controls="ia-inbox">`, the `action` icon, the label
+  (visually hidden at <=640 px, `shell/waitingForYou.css`) and the badge (visible n, `aria-hidden`; hidden text
+  ", {n} waiting"; absent at 0). `data-shell-control` marks it as shell chrome for tests that count a page's buttons.
+- Q13: `waitingForAChoice(items, total)` and `waitingTotalOf(loaded)` in `estate/homeLists.tsx` are the one waiting total;
+  the Decisions tile (`decisionsDef`, filtered: rows; whole: the truncated `waiting_count`) and the badge both call it.
+  6f1 U2 re-sources this one function.
+- Q12: the rows come only from `decisionItems(loaded.first, loaded.rows)` through `useEstateRead(…, "portfolio", …)`.
+  The shell gets the app's estate client from the new `EstateClientProvider` (`estate/estateReadCache.tsx`, wrapped
+  around `App`'s routes with `estateIndex`), so its cache key is the Decisions read's (`App` cannot pass the shell a prop:
+  `navigation-truthfulness.ps1` pins `<Route element={<OperatorShellLayout />}>`). On `/findings` the page and the
+  shell make one request (sr2RequestUrls row unchanged). `grep -rn "decisionItems(" frontend/src` (non-test) for 6f1's
+  §4.4 sweep:
+  - `estate/homeLists.tsx:77` (the definition), `:339` (`DecisionsListPage`), `:367` (Findings list join), `:430`
+    (`DecisionsRows`);
+  - `shell/WaitingForYou.tsx:53` (the inbox; `:6` is its doc comment).
+- Q14: `Drawer`, `useDrawers`, `DrawerApi` moved unchanged to `ui/Drawer.tsx` (Close word as `DRAWER_CLOSE`), their rules
+  to `ui/drawer.css` (the two `--dd-` tokens, `body.dd-locked`, `.dd-drawer*` and the <=600 px and reduced-motion rules).
+  `DeepDiveMonth` and `PortfolioPeriod` import them; `DeepDiveMonth.test.tsx` passes unchanged. The Close button keeps
+  `dd-button` (styled by `deepDiveMonth.css`, global in the one bundle).
+- The drawer: "For you" "Not available yet" (MD-IAP-4); "In your portfolio" the `waiting` rows in server order, capped at
+  10, `<a>{title} <small>{Site} · {placement word}</small></a>` (a row with no target is text), then "View all {n}" to
+  `/decisions?state=waiting` with the range, shown only when n exceeds the rows shown; empty "Nothing else is waiting
+  for a choice"; "Since you last looked" the first 3 `progress.rows` as "Action {code} · {outcome words}"
+  (`displayCode`, `progressOutcomeWords`, Q15), then "See all in Results" to `/results` with the range; empty "No change
+  recorded in this range". Loading: "Loading Decisions…"; a refusal: its copy. A link inside closes the drawer.
+
+### 8.2 Tests first, plants
+
+- `shell/__tests__/waitingForYou.test.tsx` (8 tests) failed first (module missing), then passed. It covers badge = tile
+  (25 rows, 23 waiting, one read), truncated (1,010 rows, `waiting_count` 1,007), absent at 0, the shared function, the
+  sections and caps, the empty states, and the focus cycle (focus to Close; Escape and scrim close; focus returns; Tab wraps).
+- Plant `badge` (the badge counts every row, `items.length`): 4 failed (both badge = tile tests, absent at 0, the cap
+  test's "View all 23"); reverted.
+- Plant `focus` (no focus return: `opener.current?.focus()` removed in `ui/Drawer.tsx`): both focus-cycle tests failed;
+  reverted.
+
+### 8.3 Existing tests migrated (the shell now reads the Decisions read on every operator page)
+
+- Shell buttons: `simulatorLabGate`, `sitesIndexRoute`, `siteFoundationChange` exclude `[data-shell-control]` beside
+  `[data-shared-range-button]`.
+- A page's own requests: `test/shellReads.ts` (`isShellInboxRead`, `pageRequests`); `miniServiceRoutes`,
+  `miniBackupRoutes`, `siteWorkCases` drop the shell's read from their request lists.
+- Estate reads pinned on purpose: `sr2RequestUrls` `/portfolio/outcomes` now expects the portfolio URL twice (the Outcomes
+  tab reads page 1 outside the shared cache, the shell through it) and `/maintenance` adds the shell's read;
+  `estatePortfolioRoutes` counts 2 on a bare `/portfolio` (the default window on mount, then the completed address) and 2
+  on the tab switch test (unchanged across the switch); `sharedRange` compares distinct requests.
+
+### 8.4 Known deviations and risks
+
+- On `/portfolio/outcomes` the portfolio page-1 URL is requested twice (the Outcomes tab's own read and the shell's cached
+  read). On a page whose address has no range yet, the shell reads the default window once before the address is
+  completed. Neither is a second Decisions read; both are left for P7 or the coordinator.
+
+### 8.5 Checks at head
+
+See `IA-P3-handoff.md` run 6 for the counts and shots. `iap_gates.cjs`: 63 of 63 pass (W1: badge "6" = tile "6"; the
+top bar one row at 1280, 45 px high for a 32 px control).

@@ -180,3 +180,26 @@ Merged main `12e618be3` (conflicts in spec Status and state index resolved: DD3a
 
 D-IAP.46 and D-IAP.47 applied; 19 tests sorted, siteRangeMatrix alias rows, plants, counts: see `packet-IA-P3.md` §7.
 Open: P6, P7. The `evScenarios` R347 full-run-only failure is unexplained (passes alone).
+
+## Run 6 (P6 complete; in_review)
+
+- Merged main (`a4dd5e801`); the P5 state entry renumbered 208 -> 209 (main's 208 is DD4a).
+- Built P6 on D-IAP.37: `shell/WaitingForYou.tsx`, `ui/Drawer.tsx` + `ui/drawer.css` (moved), `waitingForAChoice` /
+  `waitingTotalOf` in `estate/homeLists.tsx`, `EstateClientProvider` in `estate/estateReadCache.tsx` (App wraps its
+  routes), gate W1 in `tools/iap_gates.cjs`. Details, plants, migrated tests: `packet-IA-P3.md` §8.
+- Counts at head (vitest `src/estate src/shell src/ui src/sites`, rev `e7e62461f`): 187 files, 11 failed / 4123 passed
+  (4134), 139 s. Main `12e618be3`: 12 failed / 4081 passed (4093). Failures at head are main's set (s502 3 this run, a
+  timing-dependent set whose names vary by run; siteRangeMatrix 2; sr2RequestUrls SR-6b; domainActionVerification;
+  evActionFixRound; evSiteMoneyRoutes 2; siteWorkCases R322). Before the migration the run had 32 failed (21 from the
+  shell's new read and button; packet §8.3).
+- `test_iap_*` (4 files, one `--db-lane` call, rev `0260de08b`): 88 passed, 110 s.
+- tsc clean (in the fresh build); fresh `npm run build` ok; `check-architecture` and `check-agent-workflow` passed;
+  `statement_catalogue.py` exit 0; style ratchet passed.
+- `iap_gates.cjs` on `vite preview :5573`: first run 62 pass / 1 fail (W1 measured the closed drawer's empty 0 px holder
+  as a second line: tops 6,6,22, bar 45 px, control 32 px); the gate now skips 0 px children; rerun:
+  63 of 63 pass, W1 badge "6" = tile "6", tops 6,6, bar 45 px (327 s).
+- Shots (scratch, not in repo): the drawer open at 1440, 768, 390, light and dark. The dark shots show a light panel:
+  the drawer uses `--surface-raised` as before the move (no change to the month's drawers).
+- Risks: `/portfolio/outcomes` requests the portfolio page-1 URL twice (tab read outside the cache + the shell);
+  a range-less address reads the default window once before `SharedRangeOutlet` completes it.
+- Next: P7 (scope and search).

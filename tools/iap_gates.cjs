@@ -30,6 +30,8 @@
 //   T1 (IA-P3 P5) one Site per vertical (MINI KOBO-001, COLD COLD-LAB-001, EV EV-LAB-001): the Site tab row is the six
 //      tabs of spec §2.3 in order, Overview current on the Overview;
 //   T2 (IA-P3 P5) an object page per vertical (a Finding page): no Site tab row, and a breadcrumb of exactly three parts.
+//   W1 (IA-P3 P6) the "Waiting for you" badge text equals the /decisions "Waiting for a choice" tile (non-zero on the
+//      fixture), and at 1280 the top bar is on one line (every child of the top bar on one row, the bar one control high).
 //   Site detail bodies: fixtures/iap/site-{mini,cold,ev}.json (D-IAP.38; their source is in packet-IA-P3 §P5).
 // Expected values are spec literals held here, never read from the app's modules (W2 independence).
 //
@@ -593,6 +595,51 @@ async function checkSiteFrames(browser, args, routes) {
   return results;
 }
 
+/** W1 (spec §6 P6): the badge is the Decisions tile; at 1280 the top bar is on one line. Shots: the drawer open. */
+async function checkInbox(browser, args, routes) {
+  const failures = [];
+  const o = await openPage(browser, routes, { w: 1280, h: 900, dark: false });
+  await o.page.goto(`${args.base}/decisions?${RANGE}`);
+  await o.page.waitForSelector('[data-home-list="decisions"] .hl-tile', { timeout: 20000 }).catch(() => {});
+  await o.page.waitForSelector("button.ia-inbox .ia-inbox__badge", { timeout: 20000 }).catch(() => {});
+  const read = await o.page.evaluate(() => {
+    const t = [...document.querySelectorAll('[data-home-list="decisions"] .hl-tile')].find((x) => x.querySelector(".hl-tile__label").textContent === "Waiting for a choice");
+    const badge = document.querySelector("button.ia-inbox .ia-inbox__badge [aria-hidden='true']");
+    const bar = document.querySelector(".app-topbar");
+    // The drawer holder (`#ia-inbox`) is empty while closed (0 px high): it draws no line, so it is not measured.
+    const kids = bar ? [...bar.children].map((c) => c.getBoundingClientRect()).filter((r) => r.height > 0) : [];
+    const control = document.querySelector("button.ia-inbox");
+    return {
+      tile: t ? t.querySelector(".hl-tile__value").textContent.trim() : null,
+      badge: badge ? badge.textContent.trim() : null,
+      tops: kids.map((r) => Math.round(r.top)),
+      barHeight: bar ? Math.round(bar.getBoundingClientRect().height) : null,
+      controlHeight: control ? Math.round(control.getBoundingClientRect().height) : null,
+    };
+  });
+  if (o.errors.length > 0) failures.push(`R5: /decisions ${o.errors.length} page errors (${o.errors[0]})`);
+  await o.ctx.close();
+  if (read.tile === null || read.tile === "0" || read.badge !== read.tile) failures.push(`W1: badge "${read.badge}", /decisions tile "${read.tile}"`);
+  const oneRow = read.tops.length >= 2 && Math.max(...read.tops) - Math.min(...read.tops) <= 8 && read.barHeight !== null && read.barHeight < 2 * read.controlHeight;
+  if (!oneRow) failures.push(`W1: top bar not on one line at 1280 (child tops ${read.tops.join(",")}, bar ${read.barHeight}px, control ${read.controlHeight}px)`);
+  if (args.shots && args.plant === null) {
+    fs.mkdirSync(args.shots, { recursive: true });
+    for (const [w, h] of [[1440, 900], [768, 1024], [390, 844]]) {
+      for (const dark of [false, true]) {
+        const v = await openPage(browser, routes, { w, h, dark });
+        await v.page.goto(`${args.base}/decisions?${RANGE}`);
+        await v.page.waitForSelector("button.ia-inbox .ia-inbox__badge", { timeout: 20000 }).catch(() => {});
+        await v.page.click("button.ia-inbox");
+        await v.page.waitForSelector("[role='dialog']", { timeout: 20000 }).catch(() => {});
+        await v.page.waitForTimeout(300);
+        await v.page.screenshot({ path: path.join(args.shots, `p6-inbox-${w}x${h}-${dark ? "dark" : "light"}.png`) });
+        await v.ctx.close();
+      }
+    }
+  }
+  return { gate: "W1", ...read, failures, pass: failures.length === 0 };
+}
+
 (async () => {
   const args = parseArgs(process.argv.slice(2));
   const routes = loadRoutes();
@@ -610,6 +657,7 @@ async function checkSiteFrames(browser, args, routes) {
     for (const r of await checkOverview(browser, args, routes)) report(r);
     for (const r of await checkSites(browser, args, routes)) report(r);
     for (const r of await checkSiteFrames(browser, args, routes)) report(r);
+    report(await checkInbox(browser, args, routes));
     const views = [];
     for (const [w, h] of [[1440, 900], [390, 844]]) for (const dark of [false, true]) views.push({ name: `${w}x${h}-${dark ? "dark" : "light"}`, w, h, dark });
     for (const spec of PAGES) {
