@@ -13,3 +13,8 @@
 
 Asked: "Accept these tank sizes?" (Kobo 2,500 L, Kisiwa 5,000 L, Mto 1,000 L, starting half full; the 400 L was a template placeholder.)
 Owner answer: "Accept (Recommended)".
+
+## B-1031 / CN-0412 (later the same day)
+
+Context: simulated honestly, Thika's chamber peaks at 4.05 °C on 6 Oct; B-1031 never exceeds 5 °C, so C-DD6's clause behind credit note CN-0412 fails.
+Owner answer: "Change the event (Recommended)" — keep the room's declared physics; the Architect resizes the incident so it really breaches 5 °C, computed from the room model, not tuned.
