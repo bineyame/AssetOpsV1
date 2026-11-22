@@ -361,7 +361,7 @@ def test_t8_shipped_catalogue_loads():
                                          # IA-P P3a and P4a (spec-period.md P.6, P.8): the Overview on the range, E1.
                                          *(f"portfolio_period.{k}" for k in (
                                              "month", "span", "headline", "compared", "missing", "partial", "open",
-                                             "none", "suggest", "currencies", "fresh", "grow_line", "assure_line",
+                                             "none", "suggest", "currencies", "fresh", "out_only", "grow_line", "assure_line",
                                              "assure_entry", "text", "refused")),
                                          *(f"portfolio_sites.{k}" for k in (
                                              "headline", "months", "contribution", "driver", "no_driver",

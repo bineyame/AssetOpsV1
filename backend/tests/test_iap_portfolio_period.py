@@ -140,7 +140,7 @@ def test_2_world_p_two_months() -> None:
     assert got["period_words"] == "September and October"
     assert (got["notes"], got["shown"], got["nav"], got["suggest"]) == ([], None, None, None)
     b = got["body"]
-    assert list(b) == ["as_of_text", "status_line", "fresh", "headline", "tiles", "notices", "months", "outcomes",
+    assert list(b) == ["as_of_text", "status_line", "fresh", "headline", "tiles", "notices", "out", "months", "outcomes",
                        "actions"]
     assert b["as_of_text"] == "Figures as of 20 November 2026, 08:00 UTC."
     assert b["status_line"] == ("Figures as of 20 November 2026, 08:00 UTC. Not yet reconciled with the management "
@@ -162,6 +162,7 @@ def test_2_world_p_two_months() -> None:
                         actions=OFF, names=NAMES, now=NOW)["tiles"]
     assert [t2, t3] == five_c[2:]
     assert b["notices"] == []
+    assert b["out"] == []
     m = b["months"]
     assert (m["title"], m["columns"]) == ("Month by month", ["Month", "Contribution", "Gap to target",
                                                              "Largest driver against target"])
@@ -342,6 +343,39 @@ def test_11_world_g_names_the_sites_not_compared() -> None:
     assert got["headline"]["text"].endswith(" Compared for 3 of 4 Sites.")
     assert "3 of 4 Sites" in got["tiles"][0]["lines"]
     assert [r["sites"] for r in got["months"]["rows"]] == ["3 of 4 Sites", "3 of 4 Sites"]
+    # D-IAP.34: the Site left out is named, with 5c's own sentence, in both months so no "Only in".
+    assert got["out"] == ["Thika: not a mini-grid Site, not included."]
+
+
+def test_13_one_set_for_the_count_and_the_names() -> None:  # plants `countonly`, `twosets`
+    """D-IAP.34: Thika is out in September only (October no longer asks for it): n is the Sites asked in any month."""
+    g = _world_p("G")
+    oct_snap = g["2026-10"].snapshot
+    asked = tuple(c for c in oct_snap.asked if c != "THIKA-001")
+    excluded = {c: r for c, r in oct_snap.sites_excluded.items() if c != "THIKA-001"}
+    months = {**g, "2026-10": replace(g["2026-10"], snapshot=replace(oct_snap, asked=asked, sites_excluded=excluded))}
+    got = period(months, "2026-09-01", "2026-10-31", {**NAMES, "THIKA-001": "Thika"})["body"]
+    assert got["headline"]["text"].endswith(" Compared for 3 of 4 Sites.")
+    assert got["tiles"][0]["lines"][-1] == "3 of 4 Sites"
+    assert got["out"] == ["Thika: not a mini-grid Site, not included. Only in September."]
+    assert len(got["out"]) == 4 - 3
+    # Month rows keep their own count: September asks 4 and compares 3, October asks 3 and compares 3.
+    assert [r["sites"] for r in got["months"]["rows"]] == ["3 of 4 Sites", "3 of 3 Sites"]
+    # World P: no Site is out, so `out` is empty and the headline carries no "Compared for".
+    clean = period(_world_p(), "2026-09-01", "2026-10-31")["body"]
+    assert clean["out"] == [] and "Compared for" not in clean["headline"]["text"]
+
+
+def test_14_parity_the_month_view_is_untouched_by_the_period_out() -> None:
+    """D-IAP.34 reach: only `period-period-*.json` bodies gain `out`; modes month and none stay `body` null. The `view.py`
+    diff and the byte-identity of the month, none and sites fixtures are the packet's `git diff` (tests 10 and the
+    5c and E1 suites compare those fixtures exactly)."""
+    for name in ("period-month-2026-10.json", "period-none-2026-11.json", "period-month-g-2026-10.json"):
+        body = json.loads((FIXTURES / name).read_text(encoding="utf-8"))
+        assert body["body"] is None, name
+    bodies = _fixture_bodies()
+    for name in ("period-period-2026-09-10.json", "period-period-g-2026-09-10.json"):
+        assert "out" in bodies[name]["body"], name
 
 
 def test_12_world_x_degrades(monkeypatch) -> None:

@@ -117,6 +117,12 @@ STATEMENTS = {
                       "text": "Some months' figures are out of date: {months}. Open a month for what changed."}],
         "rephrase": "never",
     },
+    # D-IAP.34: a Site out in some served months but not all; `line` is 5c's own `out` sentence.
+    "portfolio_period.out_only": {
+        "slots": {"line": {"type": "name"}, "months": {"type": "items", "of": {"type": "name"}, "order": "given"}},
+        "variants": [{"id": "only", "text": "{line} Only in {months}."}],
+        "rephrase": "never",
+    },
     "portfolio_period.grow_line": {
         "slots": {"count": {"type": "count"}},
         "variants": [{"id": "grow", "text": "Revenue against target, over {count}"}],

@@ -166,6 +166,7 @@ describe("W3-01 estate roots in the operator shell", () => {
       ["Actions", "/actions"],
       ["Incidents", "/incidents"],
       ["Maintenance", "/maintenance"],
+      ["Results", "/results"],
       ["Evidence & records", "/evidence"],
       ["Financials", "/financials"],
     ]);

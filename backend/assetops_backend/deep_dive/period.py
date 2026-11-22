@@ -287,10 +287,24 @@ def _body(read: Sequence[MonthServed], names: Mapping[str, str], actions) -> dic
     disagreeing = {c for v in vs for c in v.disagreeing()}
     stale = [r.month for r in M if not r.served.freshness.current]
 
+    # D-IAP.34: the Sites left out, named with why, and the count from the same set (`n - k == len(out)`). A code is out
+    # in a month when it is in that month's `R.out`; its line is the latest such month's own sentence.
+    out_lines = []
+    for code in every:
+        months_out = [r.month for r, v in zip(M, vs) if code in dict(v.R.out)]
+        if not months_out:
+            continue
+        line = next(v.out_line(code, dict(v.R.out)[code]) for v in (latest, *vs[:-1]) if code in dict(v.R.out))
+        if len(months_out) < len(M):
+            line = render(message("portfolio_period.out_only", line=Name(line, "portfolio_period.out_line"),
+                                  months=Items(tuple(_names(months_out)))))
+        out_lines.append(line)
+
     # The headline: 5c's choice of heading over the sums (D-5C.15), "across {period}".
     period_words = span([r.month for r in M])
-    k, n = latest.R.k, latest.n
-    fewer = any(v.R.k < v.n for v in vs)
+    n = len(every)
+    k = n - len(out_lines)
+    fewer = k < n
     subject, _ = W.named(E, groups[T.GROW][0], groups[T.OPTIMIZE][0])
     facts: dict[str, Any] = {"period": Name(period_words, "portfolio_period.span"), "sites": KOfN(k, n, "site"),
                              "fewer": State(T.FEWER[fewer])}
@@ -351,6 +365,7 @@ def _body(read: Sequence[MonthServed], names: Mapping[str, str], actions) -> dic
             "headline": head,
             "tiles": tiles,
             "notices": [render(message("portfolio_period.currencies"))] if differ else [],
+            "out": out_lines,
             "months": {"title": text("MONTHS_TITLE"),
                        "columns": [text("MONTH"), W.text("CONTRIBUTION"), W.text("GAP_TO_TARGET"), text("DRIVER")],
                        "rows": rows},
