@@ -114,6 +114,20 @@ resumed. State in every review which reviewer produced it.
     log at about 60 minutes instead of waiting blind.
   - **Briefs stay within the rules above:** at most about 25 lines plus the footer; a reviewer
     brief gives target, prior results and constraints, never a list of what to judge.
+  - **One part per builder run (second audit, 22 Nov evening).** A builder brief names ONE
+    spec part (e.g. DD3.1, P3b), not a whole slice: DD3a took five builders and IA-P2 three
+    because each ran out of context mid-slice and the next re-read everything. The slice end
+    (full scope vs main, packet, state entry) is its own short run.
+  - **Code-reality pre-flight per part:** before a DD or other data part is built, its builder
+    (or the lane Architect) checks the spec against the code and the world inputs and batches
+    every question into ONE ruling round. Mid-build ruling rounds are for surprises only (DD
+    had seven rounds in one day, most of them findable before code).
+  - **One Architect per lane, kept:** reuse the lane's Architect with SendMessage until about
+    200k context, then hand off to a fresh one with a short note. Parallel fresh Architects in
+    one lane collided on IDs (D-DD.80 used twice).
+  - **No merge without the shared branch held:** a branch is held behind another only when
+    they share files (`git diff --name-only` overlap); otherwise each merges on its own ACCEPT
+    (IA-P1 waited hours behind IA-2b1 with no overlap).
 
 ## Updating bindings
 
