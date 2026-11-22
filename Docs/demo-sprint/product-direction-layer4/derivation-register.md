@@ -2,7 +2,7 @@
 
 **Layer 4 companion artifact 13 · rev 13 · AssetOps Architect (Claude) · 17 Nov 2026 · restated 22 Nov 2026 (0K4m, D-0K4.31 to D-0K4.49)**
 
-**0K4m restatement (22 Nov).** The owner's one-figure rule (21 Nov) retires the class "replay replay placeholder". The §3.1 rows that held one now name what replaced it: a v8 study figure read from `replay-studies.json` (K8 Kobo, M8 Mto; SIMULATED, MODELLED, with the study's assumptions), `unavailable("<record>")` ("Not available yet", naming the record that would fill it), `information` beside an option (the dawn margin, never a gate), or a world-view record held for 0K4f. The counts in §1 and the perturbation results are the 17 Nov scan's, unchanged. §7 is the 17 Nov sweep of the mock-up's code, and 0K4m unit 3 replaces the replay-placeholder labels it lists with the Simulated chip and the source fields.
+**0K4m restatement (22 Nov).** The owner's one-figure rule (21 Nov) retires the class "replay replay placeholder". The §3.1 rows that held one now name what replaced it: a v8 study figure read from `replay-studies.json` (K8 Kobo, M8 Mto; SIMULATED, MODELLED, with the study's assumptions), `unavailable("<record>")` ("Not available yet", naming the record that would fill it), `information` beside an option (the dawn margin, never a gate), or a world-view record held for 0K4f. A row whose leaf 0K4m removed says "removed" with its ruling (M23-M25, M58, M65-M67, M142-M143, M165, M170, M175, M183, M186, M333, M670, M673), and a row whose list entry moved names its new place (M334, M335, M448). `check_register_paths.py` resolves every §3.1 path against the manifest and fails on a row that lists a missing leaf as live, or a text leaf with other text. The counts in §1 and the perturbation results are the 17 Nov scan's, unchanged. §7 is the 17 Nov sweep of the mock-up's code, and 0K4m unit 3 replaces the replay-placeholder labels it lists with the Simulated chip and the source fields.
 
 This is the main deliverable of rev 13 (owner, twelfth message, rule 2). It lists every item in the pack that is **not derived** from the declared structure (`structure-specification.md`), wherever the item lives: manifest, evaluator, checker, mock-up code and generators, documents.
 
@@ -91,9 +91,9 @@ Every leaf below was perturbed alone (numbers ×1.1 + 1, dates +1 day, text alte
 | M20 | `evaluation.bounds.MINI_GRID[claimable_cover].id` | claimable_cover | (b) policy declaration | bound with reason (spec §5.6) | moves evaluated values in 5 of 5 worlds |
 | M21 | `evaluation.bounds.MINI_GRID[claimable_cover].max` | 0 | (b) policy declaration | bound with reason (spec §5.6) | evaluation fails without it |
 | M22 | `evaluation.bounds.MINI_GRID[claimable_cover].node` | cover_not_claimable | (b) policy declaration | bound with reason (spec §5.6) | moves evaluated values in 5 of 5 worlds |
-| M23 | `evaluation.bounds.MINI_GRID[dawn_adequacy].id` | dawn_adequacy | (b) policy declaration | bound with reason (spec §5.6) | moves evaluated values in 5 of 5 worlds |
-| M24 | `evaluation.bounds.MINI_GRID[dawn_adequacy].max` | 0 | (b) policy declaration | bound with reason (spec §5.6) | evaluation fails without it |
-| M25 | `evaluation.bounds.MINI_GRID[dawn_adequacy].node` | replayed_dawn_days_below_safeguard | (b) policy declaration | bound with reason (spec §5.6) | moves evaluated values in 5 of 5 worlds |
+| M23 | `evaluation.bounds.MINI_GRID[dawn_adequacy].id` | — | removed (0K4m, D-0K4.33): the `admission` bound on `admission_parts_failed` replaces the dawn bound; the dawn is the option's `information`, never a gate | — | — |
+| M24 | `evaluation.bounds.MINI_GRID[dawn_adequacy].max` | — | removed (0K4m, D-0K4.33): the `admission` bound on `admission_parts_failed` replaces the dawn bound; the dawn is the option's `information`, never a gate | — | — |
+| M25 | `evaluation.bounds.MINI_GRID[dawn_adequacy].node` | — | removed (0K4m, D-0K4.33): the `admission` bound on `admission_parts_failed` replaces the dawn bound; the dawn is the option's `information`, never a gate | — | — |
 | M26 | `evaluation.bounds.MINI_GRID[redundancy].id` | redundancy | (b) policy declaration | bound with reason (spec §5.6) | moves evaluated values in 5 of 5 worlds |
 | M27 | `evaluation.bounds.MINI_GRID[redundancy].max` | 0 | (b) policy declaration | bound with reason (spec §5.6) | evaluation fails without it |
 | M28 | `evaluation.bounds.MINI_GRID[redundancy].node` | obligation_hours_without_backup | (b) policy declaration | bound with reason (spec §5.6) | moves evaluated values in 5 of 5 worlds |
@@ -126,14 +126,14 @@ Every leaf below was perturbed alone (numbers ×1.1 + 1, dates +1 day, text alte
 | M55 | `evaluation.options.EMB-CHEAPEST.params.max_kw_option` | physical.import_limit_kw | (b) structure declaration | parameter reads a record by path | evaluation fails without it |
 | M56 | `evaluation.options.EMB-CHEAPEST.reference_factors.night_price` | tariff.prices.night_from_1_nov | (b) structure declaration | decision framing (reference, rights touched, site) | evaluation fails without it |
 | M57 | `evaluation.options.EMB-CHEAPEST.site` | Embakasi | (b) structure declaration | decision framing (reference, rights touched, site) | evaluation fails without it |
-| M58 | `evaluation.options.EMB-DEADLINE.changes.extra_missed_departures` | (nights_in_period - feasible_nights) * b | (b) structure declaration | option factor change (spec §5.3) | evaluation fails without it |
+| M58 | `evaluation.options.EMB-DEADLINE.changes.extra_missed_departures` | — | removed (0K4m, D-0K4.36): missed departures come from the structure's energy check (`buses_short_per_night`); per-bus departure timing Not available yet (the Embakasi schedule replay, not run) | — | — |
 | M59 | `evaluation.options.EMB-DEADLINE.changes.kwh_0000_0500` | max_kw_option * hours_after_midnight * n | (b) structure declaration | option factor change (spec §5.3) | evaluation fails without it |
 | M60 | `evaluation.options.EMB-DEADLINE.changes.kwh_2200_2400` | max_kw_option * hours_before_midnight *  | (b) structure declaration | option factor change (spec §5.3) | evaluation fails without it |
 | M61 | `evaluation.options.EMB-DEADLINE.changes.max_kw` | max_kw_option | (b) structure declaration | option factor change (spec §5.3) | evaluation fails without it |
 | M62 | `evaluation.options.EMB-DEADLINE.changes.peak_kwh` | 0 | (b) structure declaration | option factor change (spec §5.3) | evaluation fails without it |
 | M63 | `evaluation.options.EMB-DEADLINE.cost_lines.schedule_configuration_and_supervision` | 1500.0 | (b) quote | cost line amount (quote) | moves evaluated values in 5 of 5 worlds |
 | M64 | `evaluation.options.EMB-DEADLINE.months` | 12 | (b) record | term of the option's recurring effect (contract or horizon) | moves evaluated values in 5 of 5 worlds |
-| M65 | `evaluation.options.EMB-DEADLINE.params.bus_short_on_infeasible_night.value` | 1 | (b) record | basis: a 21-bus night needs about 406 kW, one bus beyond the 400 kW plan (spi | moves evaluated values in 5 of 5 worlds |
+| M65 | `evaluation.options.EMB-DEADLINE.params.bus_short_on_infeasible_night.value` | — | removed (0K4m, D-0K4.36): missed departures come from the structure's energy check (`buses_short_per_night`); per-bus departure timing Not available yet (the Embakasi schedule replay, not run); the "21-bus night" basis goes with it | — | — |
 | M66 | `evaluation.options.EMB-DEADLINE.params.feasible_nights` (marker) | — | removed (0K4m, D-0K4.36): missed departures come from the structure's energy check (`buses_short_per_night`); per-bus departure timing Not available yet (the Embakasi schedule replay, not run) | — | — |
 | M67 | `evaluation.options.EMB-DEADLINE.params.feasible_nights.value` | — | removed (0K4m, D-0K4.36): missed departures come from the structure's energy check (`buses_short_per_night`); per-bus departure timing Not available yet (the Embakasi schedule replay, not run) | — | — |
 | M68 | `evaluation.options.EMB-DEADLINE.params.hours_after_midnight.value` | 5 | (b) record | basis: 00:00-05:00 (to 05:15) | moves evaluated values in 5 of 5 worlds |
@@ -210,8 +210,8 @@ Every leaf below was perturbed alone (numbers ×1.1 + 1, dates +1 day, text alte
 | M139 | `evaluation.options.KIS-BATT60.cost_lines.battery_60_kwh` | 14000.0 | (b) quote | cost line amount (quote) | moves evaluated values in 5 of 5 worlds |
 | M140 | `evaluation.options.KIS-BATT60.crew_visits.value` | 1 | (b) assumption | crew visits: installation visit (assumption; no quote held) | moves evaluated values in 5 of 5 worlds |
 | M141 | `evaluation.options.KIS-BATT60.months` | 12 | (b) record | term of the option's recurring effect (contract or horizon) | moves evaluated values in 5 of 5 worlds |
-| M142 | `evaluation.options.KIS-BATT60.params.shifted_fuel_l.assumption` | no Kisiwa battery replay exists; deferre | (b) assumption | assumption label: no Kisiwa battery replay exists; deferred option; owner decision Q14 | moves evaluated values in 5 of 5 worlds |
-| M143 | `evaluation.options.KIS-BATT60.params.shifted_fuel_l.value` | 150 | (b) assumption | assumption label: no Kisiwa battery replay exists; deferred option; owner decision Q14 | moves evaluated values in 5 of 5 worlds |
+| M142 | `evaluation.options.KIS-BATT60.params.shifted_fuel_l.assumption` | — | removed (0K4m, D-0K4.36): `params.shifted_fuel_l` is `unavailable("a Kisiwa battery replay (queue Q7)")`; the option's value is null and it is never chosen | — | — |
+| M143 | `evaluation.options.KIS-BATT60.params.shifted_fuel_l.value` | — | removed (0K4m, D-0K4.36): `params.shifted_fuel_l` is `unavailable("a Kisiwa battery replay (queue Q7)")`; the option's value is null and it is never chosen | — | — |
 | M144 | `evaluation.options.KIS-BATT60.site` | Kisiwa | (b) structure declaration | decision framing (reference, rights touched, site) | evaluation fails without it |
 | M145 | `evaluation.options.KIS-NOACT.changes.reduced_days` | days_to_restore | (b) structure declaration | option factor change (spec §5.3) | evaluation fails without it |
 | M146 | `evaluation.options.KIS-NOACT.crew_visits.value` | 0 | (b) record | crew visits: no action | moves evaluated values in 5 of 5 worlds |
@@ -232,8 +232,8 @@ Every leaf below was perturbed alone (numbers ×1.1 + 1, dates +1 day, text alte
 | M161 | `evaluation.options.KIS-REPLACE.params.restore.plus[0]` | row.lead_time_days | (b) structure declaration | restore driver (spec §4.2) | evaluation fails without it |
 | M162 | `evaluation.options.KIS-REPLACE.reference_option` | KIS-NOACT | (b) structure declaration | decision framing (reference, rights touched, site) | evaluation fails without it |
 | M163 | `evaluation.options.KIS-REPLACE.site` | Kisiwa | (b) structure declaration | decision framing (reference, rights touched, site) | evaluation fails without it |
-| M164 | `evaluation.options.KOB-RESERVE.changes.candidate_l` | candidate_l - avoided_candidate_l | (b) structure declaration | option factor change (spec §5.3) | evaluation fails without it |
-| M165 | `evaluation.options.KOB-RESERVE.changes.dawn_days_below` | dawn_days_below_35pct | (b) structure declaration | option factor change (spec §5.3) | evaluation fails without it |
+| M164 | `evaluation.options.KOB-RESERVE.changes.candidate_l` | candidate_l - avoided_l (was `avoided_candidate_l`, 0K4m) | (b) structure declaration | option factor change (spec §5.3) | evaluation fails without it |
+| M165 | `evaluation.options.KOB-RESERVE.changes.dawn_days_below` | — | removed (0K4m, D-0K4.33): the option changes no dawn leaf; the dawn count is the option's `information` from K8 | — | — |
 | M166 | `evaluation.options.KOB-RESERVE.crew_visits.value` | 0 | (b) record | crew visits: remote reconfiguration, as KOB-STOPSOC | moves evaluated values in 5 of 5 worlds |
 | M167 | `evaluation.options.KOB-RESERVE.months` | 12 | (b) record | term of the option's recurring effect (contract or horizon) | moves evaluated values in 5 of 5 worlds |
 | M168 | `evaluation.options.KOB-RESERVE.params.avoided_l` (was `avoided_candidate_l`, marker) | — | (b) Not available yet | the marker is gone (0K4m, D-0K4.38) | — |
@@ -242,8 +242,8 @@ Every leaf below was perturbed alone (numbers ×1.1 + 1, dates +1 day, text alte
 | M171 | `evaluation.options.KOB-RESERVE.information.dawn_days_below` (was `params.dawn_days_below_35pct`) | K8 stop-90-reserve-25 | (b) v8 study figure, information | K8, SIMULATED, MODELLED; checked by K6 | moves no value or choice |
 | M172 | `evaluation.options.KOB-RESERVE.site` | Kobo | (b) structure declaration | decision framing (reference, rights touched, site) | evaluation fails without it |
 | M173 | `evaluation.options.KOB-STOPSOC.changes.battery_throughput_kwh` | battery_throughput_kwh + added_throughpu | (b) structure declaration | option factor change (spec §5.3) | evaluation fails without it |
-| M174 | `evaluation.options.KOB-STOPSOC.changes.candidate_l` | candidate_l - avoided_candidate_l | (b) structure declaration | option factor change (spec §5.3) | evaluation fails without it |
-| M175 | `evaluation.options.KOB-STOPSOC.changes.dawn_days_below` | dawn_days_below_35pct | (b) structure declaration | option factor change (spec §5.3) | evaluation fails without it |
+| M174 | `evaluation.options.KOB-STOPSOC.changes.candidate_l` | candidate_l - avoided_l (was `avoided_candidate_l`, 0K4m) | (b) structure declaration | option factor change (spec §5.3) | evaluation fails without it |
+| M175 | `evaluation.options.KOB-STOPSOC.changes.dawn_days_below` | — | removed (0K4m, D-0K4.33): the option changes no dawn leaf; the dawn count is the option's `information` from K8 | — | — |
 | M176 | `evaluation.options.KOB-STOPSOC.cost_lines.trial_supervision` | 30.0 | (b) quote | cost line amount (quote) | moves evaluated values in 5 of 5 worlds |
 | M177 | `evaluation.options.KOB-STOPSOC.cost_lines.vendor_remote_reconfiguration` | 60.0 | (b) quote | cost line amount (quote) | moves evaluated values in 5 of 5 worlds |
 | M178 | `evaluation.options.KOB-STOPSOC.months` | 12 | (b) record | term of the option's recurring effect (contract or horizon) | moves evaluated values in 5 of 5 worlds |
@@ -254,10 +254,10 @@ Every leaf below was perturbed alone (numbers ×1.1 + 1, dates +1 day, text alte
 | M183 | `evaluation.options.KOB-STOPSOC.params.dawn_days_below_35pct` (marker) | — | removed (0K4m, D-0K4.33) | the dawn is `information` from K8, never a gate | — |
 | M184 | `evaluation.options.KOB-STOPSOC.params.admission_parts_failed_option` (the dawn param removed) | K8 stop-70-reserve-30 | (b) v8 study figure, admission-rule line | `runs/admission.py` read from K8 (`admission` bound, max 0); the dawn is `information` | moves the admission bound |
 | M185 | `evaluation.options.KOB-STOPSOC.sensitivities.diesel_minus_20pct.factors.diesel_price` | diesel_price * 0.8 | (b) owner decision | sensitivity declared for the downside (spec §6.4) | evaluation fails without it |
-| M186 | `evaluation.options.KOB-STOPSOC.sensitivities.feasible_fuel_160l.params.avoided_candidate_l` | 160 | (b) owner decision | sensitivity declared for the downside (spec §6.4) | moves evaluated values in 5 of 5 worlds |
+| M186 | `evaluation.options.KOB-STOPSOC.sensitivities.feasible_fuel_160l.params.avoided_candidate_l` | — | removed (0K4m, D-0K4.38, D-0K4.48): Kobo's settings have no value (Not available yet), and a sensitivity follows the option's value | — | — |
 | M187 | `evaluation.options.KOB-STOPSOC.site` | Kobo | (b) structure declaration | decision framing (reference, rights touched, site) | evaluation fails without it |
 | M188 | `evaluation.options.MTO-HULLER.changes.collection_cost` | collection_cost + collection | (b) structure declaration | option factor change (spec §5.3) | evaluation fails without it |
-| M189 | `evaluation.options.MTO-HULLER.changes.extra_l` | extra_l + added_fuel_l | (b) structure declaration | option factor change (spec §5.3) | evaluation fails without it |
+| M189 | `evaluation.options.MTO-HULLER.changes.extra_l` | extra_l + litres_per_kwh * load_kw * load_hours_per_day * days (was `+ added_fuel_l`, 0K4m, D-0K4.34) | (b) structure declaration | option factor change (spec §5.3) | evaluation fails without it |
 | M190 | `evaluation.options.MTO-HULLER.changes.productive_kwh` | productive_kwh + load_kw * load_hours_pe | (b) structure declaration | option factor change (spec §5.3) | evaluation fails without it |
 | M191 | `evaluation.options.MTO-HULLER.cost_lines.service_drop_and_meter` | 1200.0 | (b) quote | cost line amount (quote) | moves evaluated values in 5 of 5 worlds |
 | M192 | `evaluation.options.MTO-HULLER.months` | 12 | (b) record | term of the option's recurring effect (contract or horizon) | moves evaluated values in 5 of 5 worlds |
@@ -401,9 +401,9 @@ Every leaf below was perturbed alone (numbers ×1.1 + 1, dates +1 day, text alte
 | M330 | `evaluation.protect_nodes.EV_DEPOT_CAPTIVE[1]` | cover_not_claimable | (b) structure declaration | spec §5 | moves evaluated values in 5 of 5 worlds |
 | M331 | `evaluation.protect_nodes.MINI_GRID[0]` | obligation_hours_without_redundancy | (b) structure declaration | spec §5 | moves evaluated values in 5 of 5 worlds |
 | M332 | `evaluation.protect_nodes.MINI_GRID[1]` | obligation_hours_without_backup | (b) structure declaration | spec §5 | moves evaluated values in 5 of 5 worlds |
-| M333 | `evaluation.protect_nodes.MINI_GRID[2]` | replayed_dawn_days_below_safeguard | (b) structure declaration | spec §5 | moves evaluated values in 5 of 5 worlds |
-| M334 | `evaluation.protect_nodes.MINI_GRID[3]` | unclaimable_cover | (b) structure declaration | spec §5 | moves evaluated values in 5 of 5 worlds |
-| M335 | `evaluation.protect_nodes.MINI_GRID[4]` | cover_not_claimable | (b) structure declaration | spec §5 | moves evaluated values in 5 of 5 worlds |
+| M333 | `evaluation.protect_nodes.MINI_GRID[replayed_dawn_days_below_safeguard]` (was `[2]`) | — | removed (0K4m, D-0K4.33, commit 2b): the node `replayed_dawn_days_below_safeguard` is removed; the entries after it moved up one place | — | — |
+| M334 | `evaluation.protect_nodes.MINI_GRID[2]` (was `[3]`, 0K4m) | unclaimable_cover | (b) structure declaration | spec §5 | moves evaluated values in 5 of 5 worlds |
+| M335 | `evaluation.protect_nodes.MINI_GRID[3]` (was `[4]`, 0K4m) | cover_not_claimable | (b) structure declaration | spec §5 | moves evaluated values in 5 of 5 worlds |
 | M336 | `factor_map.COLD_CHAIN.backup_unproven_days` | days_incl(record.backup_unproven_from, p | (b) structure declaration | spec §3; record-to-leaf map | evaluation fails without it |
 | M337 | `factor_map.COLD_CHAIN.base_kwh` | energy_model.base_kwh | (b) structure declaration | spec §3; record-to-leaf map | evaluation fails without it |
 | M338 | `factor_map.COLD_CHAIN.batches_exposed` | record.batches_exposed / 0 | (b) structure declaration | spec §3; record-to-leaf map | evaluation fails without it |
@@ -516,7 +516,7 @@ Every leaf below was perturbed alone (numbers ×1.1 + 1, dates +1 day, text alte
 | M445 | `plans.lakeside-power.decisions[kobo_battery_evidence].name` | kobo_battery_evidence | (b) policy declaration | decision kind, hard bounds, fallback, optional (spec §6.1) | moves evaluated values in 5 of 5 worlds |
 | M446 | `plans.lakeside-power.decisions[kobo_battery_evidence].options[0]` | BAT-EVIDENCE | (b) policy declaration | decision kind, hard bounds, fallback, optional (spec §6.1) | evaluation fails without it |
 | M447 | `plans.lakeside-power.decisions[kobo_battery_evidence].options[1]` | BAT-NOACT | (b) policy declaration | decision kind, hard bounds, fallback, optional (spec §6.1) | evaluation fails without it |
-| M448 | `plans.lakeside-power.decisions[kobo_generator].hard[0]` | dawn_adequacy | (b) policy declaration | decision kind, hard bounds, fallback, optional (spec §6.1) | moves evaluated values in 5 of 5 worlds |
+| M448 | `plans.lakeside-power.decisions[kobo_generator].hard[0]` | admission (was `dawn_adequacy`; 0K4m, D-0K4.33) | (b) policy declaration | decision kind, hard bounds, fallback, optional (spec §6.1) | moves evaluated values in 5 of 5 worlds |
 | M449 | `plans.lakeside-power.decisions[kobo_generator].kind` | valued | (b) policy declaration | decision kind, hard bounds, fallback, optional (spec §6.1) | moves evaluated values in 5 of 5 worlds |
 | M450 | `plans.lakeside-power.decisions[kobo_generator].name` | kobo_generator | (b) policy declaration | decision kind, hard bounds, fallback, optional (spec §6.1) | moves evaluated values in 5 of 5 worlds |
 | M451 | `plans.lakeside-power.decisions[kobo_generator].options[0]` | KOB-STOPSOC | (b) policy declaration | decision kind, hard bounds, fallback, optional (spec §6.1) | evaluation fails without it |
