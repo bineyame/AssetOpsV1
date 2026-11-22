@@ -100,6 +100,10 @@ for h in hits:
 # ---- Part B: rendered manifest strings ----
 MALLOW = [
     # (manifest path, exact literal, context substring, reason)
+    ('replay_studies.M8.assumptions[0]', '0.08', '0.08 L/h per kW', 'the study\'s declared assumption, verbatim from the extract (K3), shown in the drawer (0K4m)'),
+    ('replay_studies.M8.assumptions[0]', '30', 'x 30 kW', 'the study\'s declared assumption (generator rating), verbatim from the extract (K3)'),
+    ('replay_studies.M8.assumptions[1]', '30', 'minimum-load 30 %', 'the study\'s declared assumption, verbatim from the extract (K3)'),
+    ('tenants[lakeside-power].sites[Kobo].decision.verification_plan.causal', '10', 'PV +/-10%', 'declared comparability bands (PV and load) of the verification plan, read by the verify line (D-0K4.55)'),
     ('sources.cold_chain[1].cadence', '5', '5 min', 'declared source cadence'),
     ('sources.mini_grid[0].cadence', '5', '5 min in evidence', 'declared source cadence'),
     ('sources.mini_grid[0].cadence', '15', '15 min context', 'declared source cadence'),
@@ -152,7 +156,7 @@ MASKS = [r'\{(?:fig|rec):[^{}]+\}',                                   # placehol
          r'\b[A-Za-z][A-Za-z0-9]*(?:[-.][A-Za-z0-9]+)*-[A-Za-z0-9]*\d[A-Za-z0-9-]*\b',  # ID codes (CN-0412, GEN-KS-02, MG-L5)
          r'\b[A-Z]{1,3}\d+(?:\.\d+)*[A-Za-z]?\b',                       # short codes (P1, O2, L1.1, A17, 1.6J)
          r'\b\d{1,2}(?:/\d{1,2})?(?:-\d{1,2}(?:/\d{1,2})?)?\s(?:' + '|'.join(MON) + r')\b(?:/\d{1,2}\s(?:' + '|'.join(MON) + r'))?',  # dates and ranges
-         r'\b\d{4}-\d{2}-\d{2}(?:T[\d:+.-]+)?\b', r'\b24/7\b', r'\bv\d+(?:\.\d+)*\b', r'\b\d+-(?:day|hour|year|month|minute)\b']
+         r'\b\d{4}-\d{2}(?:-\d{2}(?:T[\d:+.-]+)?)?\b', r'\b24/7\b', r'\bv\d+(?:\.\d+)*\b', r'\b\d+-(?:day|hour|year|month|minute)\b']
 mhits = []
 for path in rendered:
     s = mget(man, path)
