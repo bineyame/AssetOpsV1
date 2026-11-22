@@ -1,8 +1,8 @@
-# DD4b review packet (PARTIAL: DD4.3, the rejoin and DD4.4's measured hooks and books; DD4.4's samples and checks, DD4.5, DD4.6 to come)
+# DD4b review packet (PARTIAL: DD4.3, the rejoin and DD4.4 done; DD4.5, DD4.6 to come)
 
 Branch `task/DD4b-ev-measured`. Spec `spec.md` §4.5 and §5.6; rulings D-DD.81, D-DD.91, D-DD.98, D-DD.100, D-DD.123;
-pre-flight `DD4b-preflight.md`, `preflight-remaining.md` §DD4b. Not ready for review until DD4.4 lands. The
-handoff is `DD4b-handoff.md`.
+pre-flight `DD4b-preflight.md`, `preflight-remaining.md` §DD4b. DD4.4 (D-DD.99, D-DD.123, D-DD.124) is complete and
+reviewable; DD4.5 and DD4.6 are later runs. The handoff is `DD4b-handoff.md`.
 
 ## Run 1 (DD4.3, before main held DD3a/DD4a)
 `22275cdaa`, `8a0699b49`, `8d519ef49`: the roster to 6 Nov, `EvSiteRun` on D-DD.81's protocol, ev-charger/1
@@ -27,7 +27,78 @@ test_telemetry_join_parity, test_dd4_telemetry_cold, test_dd4_telemetry_ev, test
 test_dd3_telemetry`: 66 passed (121 s) after the j2 tariff fix; `test_dd4_exports_measured, test_dd2b_tenant_filter,
 test_cli`: 18 passed. Plants and parity: `DD4b-handoff.md` "Plants". Reach set, guards: not run yet.
 
-## Evidence
+## Run 4 (DD4.4, rest; `git merge main`: already up to date at `0c44ae75b`)
+| Commit | What | Tests first |
+|---|---|---|
+| `c5b019832` | `test_dd2b_books` b4 (nine profiles, `HAND_SAMPLES == {}`), b4b (each sampled row is a row of the emulated file); backend `test_dd2b_profile_admission` a0 nine profiles; `test_dd2b_round7` r12 on the measured invoice | ImportError (`emulated_files`), then with the loader: 6 failed (b3 cold bill, b4, b4b x4) |
+| `5aacad343` | `books_support`: `emulated_files()` = books + `exports_measured` over the committed fixtures; `SAMPLES` for bill (Oct, 3 rooms), invoice (Oct, 3 depots, 7 lines), departures (Kasarani 1 Nov B02 Y, B03 N; Ruiru 6 Oct B01 Y), tickets (2 emulated + 3 `SAMPLE_EXTRAS` for the other states); `HAND_SAMPLES` empty; `--update-golden`; roster pin to DD4.3's file | 48 passed (books, round7, exports_measured) |
+| `4cb1eca8b` | `backend/tests/test_dd4_check.py` (hand rows), `simulator/tests/world/test_dd4_checker_on_emulated_rows.py` (writer rows), `test_dd1_check` stub list, Thika C-DD6 test takes `sites` | backend 30 failed / 1 passed (no judges); simulator 5 failed |
+| `e287a2604` | `tools/dd_check.py`: C-DD5, C-DD7, C-DD20 live; C-DD6 EV clauses live | backend 32 passed; simulator 4 passed (after the test fix below) |
+| `7ea87a2c9` | C-DD7 pending clause for the EV hour sums (question (a)) | the added assertion failed first, then 32 passed |
+
+- The samples: the cold bill sample is Oct 2026 for all three rooms (1576.300 / 2113.603 / 1771.350 kWh); the EV
+  invoice sample is October's seven lines (NIGHT is not in a whole month: it starts 1 Nov); `ev-service-tickets`'s
+  bytes are unchanged (the two emulated tickets plus the three hand rows equal the old hand sample).
+- `test_r15` (the cold/EV byte pins) failed before this run on `metro-bus.profile.ev-fleet-roster.csv`: DD4.3's roster
+  to 6 Nov (run 1). The pin now holds the new sha256 with that note.
+- The simulator test's first run failed on test setup: a one-day Kasarani run holds no departure (the 1 Nov bus-night
+  departs 2 Nov 05:00), and the cold probes write samples at the slot's start instant. The fixture now runs Kasarani
+  1-2 Nov, and the cadence table admits a sample at a slot's start (deviation 9); a hand test proves an off-grid
+  sample still fails.
+
+### The checks (D-DD.55: judges on rows; the fetch returns nothing until DD5, so each FAILs on the clone)
+- **C-DD5** `judge_cadence(readings, source_modes, sites, start, end, outages)`: every Site has rows; its
+  `source_mode` (a separate input, question (b)) is SIMULATED; every row lies in the span (`span_of(M)`: 1 Jul 00:00
+  to 6 Nov 06:00 +03:00, D-DD.103); the cadence table `CADENCE` (states and events on change; every other unit a mean
+  inside one 5-minute slot, or a sample at its start); every 5-minute slot holds a mean unless a declared outage
+  covers it. On the writer's rows (Kasarani 2 days, Ruiru, Mwea) it passes; an hour removed fails as a gap.
+- **C-DD6** EV clauses live: CH-K2 FAULTED at 2026-11-01T23:40 on both connectors' controllers and no other channel;
+  CH-R7 c2 FAULTED on 6 Oct (the day `M` names; 00:00 is the writer's Assumed instant). Kisiwa and Mto stay pending
+  (DD3b, D-DD.146). On the writer's rows: pass; the fault moved 5 minutes fails.
+- **C-DD7** exact: the cold bill kWh = the compressor meter (`compressor-meter/power`) energy of the month; each EV
+  USAGE band = the Site meter (`site-meter/import`) energy in that price class of the schedule in force (class = band
+  name before `-`); DEMAND = the largest :00/:30 30-minute mean; a metered class missing from an invoiced month fails;
+  each departure's `block_met` = delivered >= roster required, delivered never above required, every roster
+  bus-night has one departure. Cold metered kWh is printed beside `M`'s (`info:` lines). On the writer's rows
+  (Kasarani 1-2 Nov with B03/B04 short, Ruiru 6 Oct with PEAK/OFFPEAK/DEMAND, Mwea 1 Oct): pass; DEMAND + 0.001 fails.
+- **C-DD20** directions on the measured books: Mwea's and Kirinyaga's kWh per crate-day rise each month, July to
+  October (crate-days: `history.json` July-September and `M`'s October actual, `crate_days_of`), Mwea's occupancy
+  falls each month, Embakasi's peak share rises each month. On the plant fixtures' books: pass. Mwea 0.2390, 0.2655,
+  0.3155, 0.3632; Kirinyaga 0.1881, 0.1900, 0.2101, 0.2131 kWh per crate-day. Kisiwa and Mto pending (DD3b).
+
+### Run 4 evidence
+- Reach set (`preflight-remaining.md` §4 DD4b, plus the files this run changed), ONCE at `7ea87a2c9`:
+  `tools/heavy-slot.sh --db-lane -- pwsh tools/run-host-tests.ps1 -- simulator/tests/world/{test_dd4_telemetry_ev,
+  test_dd4_ev_roster, test_dd2b_ev, test_dd2b_books, test_dd2b_round7, test_telemetry_join_parity, test_dd4_span_end,
+  test_dd4_checker_on_emulated_rows, test_dd4_thika_incident, test_dd4_exports_measured, test_dd4_measured,
+  test_dd4_ev_join}.py backend/tests/{test_dd4_check, test_dd2_check, test_dd1_check, test_dd2b_profile_admission}.py`:
+  **167 passed, 1 warning, 0 failed** (pytest 138 s; 301 s wall with the slot wait).
+- Main: `.agent/main-baseline/23d2cd9f6.md` (DD3c's 81 backend files) lists none of these files, so it gives no main
+  count for them, and main was not rerun (one call only). Known main/branch differences: on main `test_dd4_check`,
+  `test_dd4_checker_on_emulated_rows`, `test_dd4_exports_measured`, `test_dd4_measured` do not exist; b3/b4/a0 see eight
+  profiles; r15 pins the pre-DD4.3 roster.
+- `tools/check-architecture.ps1` (ASSETOPS_GUARD_PYTHON set): passed. `tools/checks/statement_catalogue.py`: exit 0
+  ("OK statement catalogue"). `tools/check-agent-workflow.ps1`: passed (`e287a2604`). Re-run at `7ea87a2c9`: architecture
+  passed, statement catalogue exit 0.
+
+### Plants (run 4)
+PLANT_EVIDENCE
+
+### Risk for DD6's world build: the EV writer's memory (run 3's plant: 3 depots in one process, 1608.9 s, 3.8 GB peak)
+The cause is visible in the code; nothing was built for it (proposal only):
+1. `build_telemetry` (`world/telemetry.py` 749-792) appends every day file's bytes to `files` and returns them; the CLI
+   writes them at the end. An EV day file is large (Kasarani 1 Nov: 18,941 rows, of them 11,520 one-minute connector
+   `state` rows; Embakasi and Ruiru have 60 and 50 connectors), so 130 days x 3 depots of JSON bytes are held at once.
+   The cold plant (199 MB peak) writes about 3,400 rows a day per room.
+2. `EvSiteRun._charger_draw` (`telemetry_ev.py` 162, 420) keeps a (charger, minute) Fraction for every non-zero draw
+   over the whole span (85 chargers x up to 187,200 minutes); only two tests read it (`charger_draw()`).
+   `_import` (one Fraction per minute per depot) is small beside it.
+Proposed fix (for DD6, not built): let `build_telemetry` hand each day file to a writer callback (or yield it) so the
+CLI writes and drops it; keep `_charger_draw` for the current day only (the tests read a day), and fold `_import` into
+the month's bands and 30-minute windows at each day's end. Byte parity: the day files and `measured.json` must stay
+identical (the run 3 goldens).
+
+## Evidence (runs 1-3)
 - Focused (revision `03ad50d4a`, plain pytest from `simulator/`):
   `test_dd4_telemetry_ev, test_dd4_ev_rotation, test_dd4_ev_join, test_telemetry_join_parity, test_dd4_telemetry_cold`:
   all passed after the e5/e7/e8 updates (35 tests in the combined run before the fixes: 31 passed, 4 failed on the
@@ -45,6 +116,20 @@ test_cli`: 18 passed. Plants and parity: `DD4b-handoff.md` "Plants". Reach set, 
    EV `kwh_2200_2400` / `kwh_0000_0500` are `metered: null` (not in D-DD.99's EV key set).
 7. `exports --telemetry` is repeatable (one directory per writer process); each kept cold/EV tenant needs exactly one
    `measured.json`, else `EMU_MEASURED` exit 3.
+8. Question (a), default kept: the EV hour sums `kwh_2200_2400`, `kwh_0000_0500` are written `metered: null`. They are
+   read: `M`'s EV structure (`backend/assetops_backend/structure/rows_ev_depot.py` leaves at lines 55-56, nodes
+   `scheduled_kwh_night` and `offpeak_cost`) and the D-DD.20 rule that C-DD7 checks every `meter_billed` leaf exactly.
+   C-DD7 lists that clause as PENDING, naming the gap (D-DD.99's EV month has no hour sums); for the Architect.
+9. Question (b), default kept: C-DD5 judges against the checker's own cadence table (`CADENCE`), with source modes a
+   separate input (`stored_source_modes`, empty until DD5); the readings manifest declares no cadence, so "the
+   checker's table must equal the manifest's" is not judged. "States and events on change" is judged as "no grid":
+   Kobo writes `status` every 5 minutes and EV connector `state` every minute, so a strict "only on a change" rule
+   would fail the writers; a numeric sample at a slot's start instant (the cold probes) counts as that slot's reading.
+10. C-DD7's mini-grid clause (served + unserved = `delivered_kwh`) is PENDING: unserved energy is not a readings
+    channel (DD3a writes it to `measured.json` only). C-DD7 and C-DD20 read the book rows through `stored_books`,
+    whose query does not yet fetch TARIFF_SCHEDULE, FLEET_ROSTER or DEPARTURE; DD5's loader widens the fetch.
+11. C-DD20 also judges Mwea's occupancy falling each month (the spec's "as occupancy falls"); the series are printed
+    as `info:` lines.
 1. `VERTICAL_RUNS` is read through the frame module's `__getattr__`: a module-level table would import the vertical
    modules while they import the frame (circular). One table, one place (`_vertical_runs`).
 2. `VerticalBinding` resolves a channel by `asset_code` when no `device_id` matches (EV rows name the bound asset,

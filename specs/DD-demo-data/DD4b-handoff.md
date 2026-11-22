@@ -1,4 +1,4 @@
-# DD4b handoff (PARTIAL: rejoin done; DD4.4 run 3 stopped at the context budget)
+# DD4b handoff (PARTIAL: DD4.3, the rejoin and DD4.4 done; DD4.5 and DD4.6 next)
 
 Branch `task/DD4b-ev-measured`, worktree `/opt/assetecon/AssetOpsV1-dd4b`. Main merged at `0c44ae75b` (`12af8de92`).
 Packet `packet-DD4b.md`.
@@ -20,19 +20,20 @@ Packet `packet-DD4b.md`.
     first), then `world/exports_measured.py`, `cold-electricity-bill-illustrative.profile.json`, `world_history.py
     exports --telemetry DIR` (repeatable; each cold/EV tenant kept needs exactly one measured.json; TEL_ exit 3).
 
-## Next (rest of DD4.4)
-1. Samples (D-DD.65a L1): `HAND_SAMPLES` empty. Service tickets -> `SAMPLES` slice (2 emulated rows) + the 3 hand
-   tickets in `SAMPLE_EXTRAS` (statuses). Invoice, departures and the new cold bill: slices of `exports_measured` rows
-   over committed fixture docs `simulator/tests/world/fixtures/measured/{harvest-cold,metro-bus}.measured.json`, copied
-   from the plant run below; then `--update-golden` for sample/expected; `test_dd2b_books` b4 list + backend
-   `test_dd2b_profile_admission` a0 (nine profiles); `test_dd2b_round7` r12 reads the sample/fixture invoice rows.
-2. `tools/dd_check.py`: C-DD5, C-DD7, C-DD20 out of `STUBS`; C-DD6 EV clauses out of `PENDING` (Kisiwa/Mto stay DD3b,
-   D-DD.146). Judges on rows (D-DD.55/124), fetch returns {} until DD5. `backend/tests/test_dd4_check.py` (new) on hand
-   rows, plus simulator tests on emulated rows. Open point: the readings manifest declares no cadence and rows carry no
-   `source_mode` (a store field): judge against the checker's own table and take source modes as a separate input.
-   C-DD20 cold needs crate-days per month (history `crate_days`, or the ledger).
-3. Reach set once at the end (preflight-remaining §4 DD4b list); architecture guard; statement catalogue.
-4. Packet: evidence below; Known deviations 5-7 (see packet).
+- Run 4 (DD4.4, rest; packet "Run 4"): `c5b019832`, `5aacad343` samples (HAND_SAMPLES empty, nine profiles, samples
+  sliced from `exports_measured` over the committed fixtures via `books_support.emulated_files()`); `4cb1eca8b`,
+  `e287a2604`, `7ea87a2c9` C-DD5, C-DD6 EV clauses, C-DD7, C-DD20 live in `tools/dd_check.py`, tested in
+  `backend/tests/test_dd4_check.py` and `simulator/tests/world/test_dd4_checker_on_emulated_rows.py`.
+
+## Next
+1. DD4.5 (D-DD.125, 1.0 u): the per-charger bound in `structure/rows_ev_depot.py` and `M` `structures`; parity with
+   `golden/6h_parity.json`; Kasarani November restated from the departure log (fixture
+   `simulator/tests/world/fixtures/measured/metro-bus.measured.json`). Reach set adds every `test_3b*_structure*`,
+   `test_6h*`, `test_6c*` and readers of `6h_parity.json`.
+2. DD4.6 (D-DD.144): the cold energy rebuild.
+3. At DD4b's end: spec Status `in_review`, a `.ai/state/` entry and its index line (not written yet: DD4b is not done).
+4. Open for the Architect (packet deviations 8-10): the EV hour sums (C-DD7 pending), C-DD5's "on change" reading,
+   C-DD7's mini clause.
 
 ## Plants (run 3, revision 059f211ad, scratch /tmp/claude-1001/.../ce5c6176.../scratchpad/dd44)
 - Main goldens (main 0c44ae75b): exports + extras sha256, COLD-MWEA full-span telemetry (31.1 s), Kobo W1 hashes.
@@ -50,6 +51,8 @@ Packet `packet-DD4b.md`.
   run, revision 059f211ad) for step 1's samples; the scratch plant files are deleted.
 
 ## Risks
-- `meter_billed` EV leaves `kwh_2200_2400`, `kwh_0000_0500` are written `metered: null`: D-DD.99's EV key set has no
-  hour sums (question for the Architect; default: not measured, never derived).
+- `meter_billed` EV leaves `kwh_2200_2400`, `kwh_0000_0500` are written `metered: null` and C-DD7's clause for them is
+  PENDING (packet deviation 8): `M`'s EV structure reads them.
+- EV writer memory (3.8 GB, 1609 s for three depots): cause and proposed fix in the packet ("Risk for DD6's world
+  build"); not built.
 - `_vertical`'s run is dropped after `_measured_view`; a caller wanting the run must keep its own.
