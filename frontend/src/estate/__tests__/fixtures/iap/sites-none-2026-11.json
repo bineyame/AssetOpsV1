@@ -1,0 +1,101 @@
+{
+  "schema": "portfolio-sites-1",
+  "from": "2026-10-01",
+  "to": "2026-10-31",
+  "mode": "none",
+  "months": [
+    {
+      "month": "2026-10",
+      "month_words": "October 2026",
+      "from": "2026-10-01",
+      "to": "2026-10-31",
+      "state": "NO_SNAPSHOT"
+    }
+  ],
+  "served": [],
+  "period_words": null,
+  "notes": [
+    "No figures are served for October, so it is not in these figures.",
+    "This range holds no whole month with figures. Contribution against target is kept by whole calendar month."
+  ],
+  "shown": null,
+  "nav": null,
+  "suggest": null,
+  "as_of_text": null,
+  "headline": null,
+  "columns": [
+    "Site",
+    "Group",
+    "Contribution",
+    "Gap to target",
+    "Largest driver against target",
+    "Waiting for a choice"
+  ],
+  "rows": [
+    {
+      "site_code": "KOBO-001",
+      "site": "Kobo",
+      "group": "Mini-grid",
+      "contribution": "Not available yet",
+      "gap": "Not available yet",
+      "gap_word": null,
+      "driver": "Not available yet",
+      "driver_heading": null,
+      "below": false,
+      "months_text": null
+    },
+    {
+      "site_code": "KISIWA-001",
+      "site": "Kisiwa",
+      "group": "Mini-grid",
+      "contribution": "Not available yet",
+      "gap": "Not available yet",
+      "gap_word": null,
+      "driver": "Not available yet",
+      "driver_heading": null,
+      "below": false,
+      "months_text": null
+    },
+    {
+      "site_code": "MTO-001",
+      "site": "Mto",
+      "group": "Mini-grid",
+      "contribution": "Not available yet",
+      "gap": "Not available yet",
+      "gap_word": null,
+      "driver": "Not available yet",
+      "driver_heading": null,
+      "below": false,
+      "months_text": null
+    },
+    {
+      "site_code": "COLD-001",
+      "site": "Cold Room",
+      "group": "Cold-chain",
+      "contribution": "No monthly figures for cold-chain Sites yet",
+      "gap": "Not available yet",
+      "gap_word": null,
+      "driver": "Not available yet",
+      "driver_heading": null,
+      "below": false,
+      "months_text": null
+    },
+    {
+      "site_code": "EV-001",
+      "site": "Charge Hub",
+      "group": "EV charging",
+      "contribution": "No monthly figures for EV charging Sites yet",
+      "gap": "Not available yet",
+      "gap_word": null,
+      "driver": "Not available yet",
+      "driver_heading": null,
+      "below": false,
+      "months_text": null
+    }
+  ],
+  "total": null,
+  "without_target": {
+    "count": 0,
+    "text": null
+  }
+}

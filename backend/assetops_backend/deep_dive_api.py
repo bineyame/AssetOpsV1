@@ -8,6 +8,7 @@ fault (503). The 200 body is `month_view`'s JSON. Every answer carries `Cache-Co
 from __future__ import annotations
 
 from datetime import date
+import logging
 from typing import TYPE_CHECKING, Any
 
 from fastapi import APIRouter, Query, Request
@@ -15,13 +16,15 @@ from fastapi.responses import JSONResponse
 
 from assetops_backend.accounts.principal import person_from_request
 from assetops_backend.deep_dive.period import BAD_RANGE, refused_text
+from assetops_backend.deep_dive.sites import SiteRef
 from assetops_backend.deep_dive.read import BAD_MONTH, BadMonth, BadRange, DeepDiveRead
-from assetops_backend.deep_dive.tables import DAY_PATTERN, NO_STORE, PERIOD_ROUTE, RANGE_FROM, RANGE_TO, ROUTE
+from assetops_backend.deep_dive.tables import DAY_PATTERN, NO_STORE, PERIOD_ROUTE, RANGE_FROM, RANGE_TO, ROUTE, SITES_ROUTE
 from assetops_backend.i18n import State, message, render
 
 if TYPE_CHECKING:
     from assetops_backend.accounts.service import AccountService
 
+_log = logging.getLogger(__name__)
 UNAVAILABLE_CODE = "DEEP_DIVE_UNAVAILABLE"
 PERSON_REQUIRED = "PERSON_REQUIRED"
 
@@ -78,6 +81,9 @@ def build_deep_dive_router(read: DeepDiveRead | None, *, accounts: AccountServic
             return _range_refused(error.code)
         except unavailable:
             return _refused(503, UNAVAILABLE_CODE)
+        except AssertionError:  # E1's sum check (I7): a bridge break is logged and refused, never served
+            _log.exception(UNAVAILABLE_CODE)
+            return _refused(503, UNAVAILABLE_CODE)
         return JSONResponse(status_code=200, content=body, headers=NO_STORE)
 
     def names_of(registry) -> dict[str, str]:
@@ -93,7 +99,15 @@ def build_deep_dive_router(read: DeepDiveRead | None, *, accounts: AccountServic
         return answer(request, lambda tenant, registry: read.period(tenant, _day(first), _day(last),
                                                                     names_of(registry)))
 
+    @router.get(SITES_ROUTE)
+    def portfolio_sites(request: Request, first: str | None = Query(None, alias=RANGE_FROM),
+                        last: str | None = Query(None, alias=RANGE_TO)) -> Any:
+        def body(tenant, registry):
+            refs = tuple(SiteRef(s.site_code, s.name, s.site_type) for s in registry.imported_sites())
+            return read.sites(tenant, _day(first), _day(last), refs)
+        return answer(request, body)
+
     return router
 
 
-__all__ = ["PERIOD_ROUTE", "ROUTE", "build_deep_dive_router"]
+__all__ = ["PERIOD_ROUTE", "ROUTE", "SITES_ROUTE", "build_deep_dive_router"]

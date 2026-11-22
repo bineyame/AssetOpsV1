@@ -41,7 +41,7 @@ HANDBUILT_BASELINE = "tools/checks/statement-handbuilt-baseline.json"
 ADOPTED: tuple[str, ...] = (f"{PKG}/structure/reconciliation.py", f"{PKG}/actions/agreed.py", f"{PKG}/decisions/records.py",  # 6a (D-P6.7)
                              f"{PKG}/deep_dive/words.py", f"{PKG}/deep_dive/view.py",  # 5c (D-SC1.28)
                              f"{PKG}/deep_dive/read.py", f"{PKG}/deep_dive_api.py",  # 5c unit 2
-                             f"{PKG}/deep_dive/period.py")  # IA-P P3a
+                             f"{PKG}/deep_dive/period.py", f"{PKG}/deep_dive/sites.py")  # IA-P P3a, P4a
 #: Scope (1): the modules SC-1 writes (D-SC1.29). `MECH_BRANCH` reads the four that dispatch by table.
 MECHANISM = ("__init__", "schema", "facts", "formats", "conditions", "catalogue", "render", "wire")
 MECH_BRANCH_FILES = ("formats", "conditions", "render", "wire")

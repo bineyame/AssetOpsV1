@@ -232,33 +232,52 @@ def _month_row(r: MonthServed, v) -> dict:
     return row
 
 
-def _body(read: Sequence[MonthServed], names: Mapping[str, str], actions) -> dict:
-    views = {r.month: V._View(r.served, r.standing, names, r.month) for r in read if r.served.state == SERVED}
-    M = [r for r in read if r.month in views]
-    vs = [views[r.month] for r in M]
-    latest = vs[-1]
-    Rs = [v.R for v in vs]
-    cur = one_currency(R.currency for R in Rs)
-    differ = len({R.currency for R in Rs if R.currency is not None}) > 1
-    unreconciled = [r.standing for r in M if not r.standing.reconciled]
-    S = unreconciled[-1] if unreconciled else M[-1].standing
+class Sums:
+    """P.5's sums over the served months' 5c views, shared by E2's body and E1's total (one figure)."""
 
-    def word(value, currency, rows) -> str | None:
+    def __init__(self, read: Sequence[MonthServed], names: Mapping[str, str]) -> None:
+        self.views = {r.month: V._View(r.served, r.standing, names, r.month) for r in read
+                      if r.served.state == SERVED}
+        self.M = [r for r in read if r.month in self.views]
+        self.vs = [self.views[r.month] for r in self.M]
+        self.latest = self.vs[-1]
+        self.Rs = [v.R for v in self.vs]
+        self.cur = one_currency(R.currency for R in self.Rs)
+        self.differ = len({R.currency for R in self.Rs if R.currency is not None}) > 1
+        unreconciled = [r.standing for r in self.M if not r.standing.reconciled]
+        self.S = unreconciled[-1] if unreconciled else self.M[-1].standing
+        cur = self.cur
+        self.A = exact_sum([R.actual for R in self.Rs]) if cur is not None else None
+        self.Tg = exact_sum([R.target for R in self.Rs]) if cur is not None else None
+        self.E = exact_sum([R.effect for R in self.Rs]) if cur is not None else None
+        self.groups = {}
+        for category in (T.GROW, T.OPTIMIZE):
+            gcur = one_currency(v.group_cur(category) for v in self.vs)
+            self.groups[category] = (exact_sum([v.group_sums()[category] for v in self.vs])
+                                     if gcur is not None else None, gcur)
+
+    def word(self, value, currency, rows) -> str | None:
         if value is None or currency is None:
             return None
-        return W.word(*W.weakest_of(rows), S, currency)
+        return W.word(*W.weakest_of(rows), self.S, currency)
 
-    def heading_rows(category: str) -> list:
-        return [v.rows[s] for v in vs for s in v.steps
+    def heading_rows(self, category: str) -> list:
+        return [v.rows[s] for v in self.vs for s in v.steps
                 if s in v.rows and v.home(s) == category and v.rows[s].effect is not None]
 
-    A = exact_sum([R.actual for R in Rs]) if cur is not None else None
-    Tg = exact_sum([R.target for R in Rs]) if cur is not None else None
-    E = exact_sum([R.effect for R in Rs]) if cur is not None else None
-    groups = {}
-    for category in (T.GROW, T.OPTIMIZE):
-        gcur = one_currency(v.group_cur(category) for v in vs)
-        groups[category] = (exact_sum([v.group_sums()[category] for v in vs]) if gcur is not None else None, gcur)
+    def gap(self) -> tuple[str, str | None]:
+        """The Overview's tile 2 `value` and `word` for these months: 5c's own in mode `month`, ΣE in `period`."""
+        if len(self.vs) == 1:
+            tile = self.latest.tiles()[1]
+            return tile["value"], tile["word"]
+        return W.amount(self.E, self.cur, "SIGNED"), self.word(self.E, self.cur, self.Rs)
+
+
+def _body(read: Sequence[MonthServed], names: Mapping[str, str], actions) -> dict:
+    z = Sums(read, names)
+    views, M, vs, latest, Rs, cur, differ, S = z.views, z.M, z.vs, z.latest, z.Rs, z.cur, z.differ, z.S
+    A, Tg, E, groups = z.A, z.Tg, z.E, z.groups
+    word, heading_rows = z.word, z.heading_rows
 
     as_of = max(r.served.as_of for r in M)
     every = {}
@@ -296,8 +315,8 @@ def _body(read: Sequence[MonthServed], names: Mapping[str, str], actions) -> dic
     tiles = [{"key": T.TILE_KEYS[0], "label": W.text("CONTRIBUTION"), "value": W.amount(A, cur),
               "word": word(A, cur, Rs), "lines": lines,
               "bar": {"actual": str(A), "target": str(Tg)} if A is not None and Tg is not None else None},
-             {"key": T.TILE_KEYS[1], "label": W.text("GAP_TO_TARGET"), "value": W.amount(E, cur, "SIGNED"),
-              "word": word(E, cur, Rs), "lines": gap_lines, "bar": None},
+             {"key": T.TILE_KEYS[1], "label": W.text("GAP_TO_TARGET"), "value": z.gap()[0], "word": z.gap()[1],
+              "lines": gap_lines, "bar": None},
              *latest.tiles()[2:]]
 
     rows = [_month_row(r, views.get(r.month)) for r in read]

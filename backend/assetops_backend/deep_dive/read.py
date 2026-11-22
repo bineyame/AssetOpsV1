@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 
 from assetops_backend.deep_dive import tables as T
 from assetops_backend.deep_dive import period as P
+from assetops_backend.deep_dive import sites as S
 from assetops_backend.deep_dive.actions import AgreedActionsPort
 from assetops_backend.deep_dive.view import month_view
 
@@ -99,3 +100,8 @@ class DeepDiveRead:
         now, p, read, suggest = self._period_reads(tenant, first, last)
         actions = self._actions.for_tenant(tenant.id) if P.mode_of(read) == T.MODE_PERIOD else None
         return P.period_view(period=p, read=read, suggest=suggest, names=names, actions=actions, now=now)
+
+    def sites(self, tenant: TenantRef, first: date, last: date, sites) -> dict:
+        """IA-P P4a (`spec-period.md` P.8): E1 over the same months and reads as E2."""
+        now, p, read, suggest = self._period_reads(tenant, first, last)
+        return S.sites_view(period=p, read=read, suggest=suggest, sites=sites, now=now)

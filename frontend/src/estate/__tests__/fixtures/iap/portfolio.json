@@ -74,7 +74,13 @@
    "UNPRICED_RISK": 0,
    "MONITOR": 0
   },
-  "opportunity_labels": []
+  "opportunity_labels": [],
+  "waiting_count": 6,
+  "waiting_by_site": {
+   "KOBO-001": 3,
+   "COLD-001": 2,
+   "EV-001": 1
+  }
  },
  "value_cards": [
   {

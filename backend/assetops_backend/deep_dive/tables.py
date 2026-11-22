@@ -118,3 +118,14 @@ RANGE_FROM, RANGE_TO = "from", "to"
 DAY_PATTERN = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}")
 #: IA-P P3a (`spec-period.md` P.6): E2's route, on the month route's router.
 PERIOD_ROUTE = "/api/portfolio/period"
+
+#: IA-P P4a (`spec-period.md` P.8): E1's schema and route, the registry's mini-grid Site type (the only type with a
+#: monthly snapshot, D-3B6.6), the target side of `_View.own_cur`, the count nouns, the column pieces and the
+#: headline's state.
+SITES_SCHEMA = "portfolio-sites-1"
+SITES_ROUTE = "/api/portfolio/sites"
+MINIGRID_DOMAIN = "MINIGRID"
+TARGET_SIDE = "TARGET"
+MONTH_NOUN, SITE_NOUN = "month", "site"
+GROUP_PIECE, WAITING_PIECE, DRIVER_PIECE = "GROUP", "WAITING", "DRIVER"
+BELOW: Mapping[bool, str] = MappingProxyType({True: "SOME", False: "NONE"})
