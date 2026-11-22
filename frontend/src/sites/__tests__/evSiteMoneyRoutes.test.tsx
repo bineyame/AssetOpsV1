@@ -360,10 +360,9 @@ describe("W2-07 EV Site routes", () => {
   it("ev_evidence_tabs_and_record_limit", async () => {
     await renderAt(PATHS["ev-evidence"], client());
     expectV69Panels("ev-evidence");
-    expect(subtabs("Evidence sections")).toEqual([
-      { text: "Overview", href: `${PATHS["ev-evidence"]}${Q}`, current: "page" },
-      { text: "Analysis", href: `${PATHS["ev-evidence-analysis"]}${Q}`, current: null },
-    ]);
+    // IA-P P5 (spec §2.3): Evidence's section line is Records · Uploads (the EV Records link first), then the page's own Overview and Analysis.
+    const actual = subtabs("Evidence sections");
+    expect(actual.map((t) => t.text)).toEqual(["Records", "Uploads", "Overview", "Analysis"]);
     const conclude = panelTitled("What we can conclude now");
     const rows = Array.from(conclude.querySelectorAll("tbody tr"));
     expect(rows.map((r) => r.querySelector("th")?.textContent)).toEqual(["Session outcomes", "Connector availability", "Delivered energy", "Cause of interruption"]);
@@ -403,7 +402,8 @@ describe("W2-07 EV Site routes", () => {
     // Analysis tab: real accepted rows only, closed to three; the claim limit has its two exact blocks.
     cleanup();
     await renderAt(PATHS["ev-evidence-analysis"], client());
-    expect(subtabs("Evidence sections").map((t) => [t.text, t.current])).toEqual([["Overview", null], ["Analysis", "page"]]);
+    // IA-P P5 (spec §2.3): the line leads with Evidence's Records and Uploads links, then the page's own Overview and Analysis.
+    expect(subtabs("Evidence sections").map((t) => [t.text, t.current])).toEqual([["Records", "page"], ["Uploads", null], ["Overview", null], ["Analysis", "page"]]);
     expect(strip()).toContain("6 accepted records");
     const headers = Array.from(panelTitled("Accepted records behind the conclusions").querySelectorAll("thead th")).map((th) => th.textContent);
     expect(headers).toEqual(["Source · reading", "Value", "Measured (EAT)", "Sent (EAT)", "Received (EAT)", "Record"]);
@@ -970,7 +970,8 @@ describe("post-W6 W2-EV (Q14/Q23): EV Site main tabs and the bare Site home", ()
       const tabs = tabHrefs();
       expect(tabs.Evidence, path).toBe(`/sites/${CODE}/ev/evidence${Q}`);
       expect(tabs.Financials, path).toBe(`/sites/${CODE}/ev/financials${Q}`);
-      expect(tabs.Foundation, path).toBe(`/sites/${CODE}/foundation${Q}`);
+      // IA-P P5 (spec §2.3): Foundation is the Setup tab (same /foundation path).
+      expect(tabs.Setup, path).toBe(`/sites/${CODE}/foundation${Q}`);
       cleanup();
     }
   });

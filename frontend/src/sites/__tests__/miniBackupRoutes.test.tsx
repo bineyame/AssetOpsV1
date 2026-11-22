@@ -153,6 +153,7 @@ describe("W4-02 unit 6: backup keeps the v69 strip, cards, chains, readiness, op
       ["Fuel", null],
       ["Renewable", null],
       ["Backup", "page"],
+      ["Health", null], // IA-P P5 (spec §2.3): the trailing Health link of Performance's section line
     ]);
     expect(client.getBackup).toHaveBeenCalledWith(CODE, {
       from: "2026-10-06T09:00:00.000Z",

@@ -609,7 +609,8 @@ describe("W2-05a: every mock row, column and chip is bound or shows its honest g
     expect(href("Overview")).toBe("/sites/EV-LAB-001/ev");
     expect(href("Evidence")).toBe("/sites/EV-LAB-001/ev/evidence");
     expect(href("Financials")).toBe("/sites/EV-LAB-001/ev/financials");
-    expect(href("Foundation")).toBe("/sites/EV-LAB-001/foundation");
+    // IA-P P5 (spec §2.3): the Foundation page is reached by the Setup tab.
+    expect(href("Setup")).toBe("/sites/EV-LAB-001/foundation");
   });
 
   it("W5-03b E4 (ruling 3): both source controls open EV Evidence > Data sources with only a valid window", async () => {

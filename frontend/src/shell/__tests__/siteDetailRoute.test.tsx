@@ -239,13 +239,13 @@ describe("a site is opened from a Sites row", () => {
       ["/sites", "Sites"],
       ["/sites/MG-002", "Kalangala Mini-Grid"],
       ["/sites/MG-002", "Overview"],
-      ["/sites/MG-002/foundation", "Foundation"],
-      ["/sites/MG-002/health", "Health"],
+      // IA-P P5 (spec §2.3): the row is six tabs (Overview, Operations, Performance, Financials, Evidence, Setup);
+      // Health, Findings, Foundation and Work left it (Health, Changes, Assets, Uploads now live in the section lines).
+      ["/sites/MG-002/work", "Operations"],
       ["/sites/MG-002/performance", "Performance"],
-      ["/sites/MG-002/findings", "Findings"],
-      ["/sites/MG-002/work", "Work"],
       ["/sites/MG-002/financials", "Financials"],
       ["/sites/MG-002/evidence", "Evidence"],
+      ["/sites/MG-002/foundation", "Setup"],
     ]);
   });
 

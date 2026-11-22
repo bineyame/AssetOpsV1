@@ -306,7 +306,7 @@ describe("W2-06: sessions keeps the v69 panels, strip, cards and six columns", (
     expect(cause).toContain("Requested power, allocated limit, site import and charger diagnostics are needed to test competing explanations.");
     expect(document.querySelectorAll("[data-tab-unavailable]")).toHaveLength(0);
     // r7 P8 / W5-03a E2-E3: exact tab order, live Sessions, Availability and Energy / site power; no inert entry.
-    expect(subtabs("Performance sections")).toEqual([["Sessions", false], ["Availability", false], ["Energy / site power", false]]);
+    expect(subtabs("Performance sections")).toEqual([["Sessions", false], ["Availability", false], ["Energy / site power", false], ["Health", false]]); // IA-P P5 (spec §2.3): trailing Health link
     for (const label of ["Availability", "Energy / site power"]) expect(document.querySelector(`[data-tab-unavailable="${label}"]`)).toBeNull();
     const availabilityTab = document.querySelector('[data-performance-subtab="availability"]') as HTMLAnchorElement;
     expect(rangeless(availabilityTab.getAttribute("href"))).toBe(`/sites/${CODE}/performance/availability`);
@@ -896,7 +896,9 @@ describe("post-W6 W2-EV (Q14/Q23): EV Sessions and Finding main tabs carry the s
     expect(tabs.Overview).toBe(`/sites/${CODE}/ev${SEL}`);
     expect(tabs.Evidence).toBe(`/sites/${CODE}/ev/evidence${SEL}`);
     expect(tabs.Financials).toBe(`/sites/${CODE}/ev/financials${SEL}`);
-    expect(tabs.Findings).toBe(`/sites/${CODE}/findings${SEL}`);
+    // IA-P P5 (spec §2.3): Findings left the Site tab row (it lives on the Findings home), so the row has no Findings link.
+    expect(tabs.Findings).toBeUndefined();
+    expect(tabs.Setup).toBe(`/sites/${CODE}/foundation${SEL}`);
     expect(Object.values(tabs).some((h) => (h ?? "").includes("gateway"))).toBe(false);
   });
 

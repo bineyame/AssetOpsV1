@@ -37,7 +37,6 @@ import {
   actionWindowRefusal,
 } from "../sites/evWorkPresentation";
 import { shortName } from "../sites/siteWorkCases";
-import "../ui/mock-deviation.css";
 import { DomainActionVerification, type DomainActionPresentation } from "../sites/DomainActionVerification";
 import { MillVerificationBody, useMillVerification } from "../sites/SiteMillVerification";
 import { createMillVerificationClient, type MillVerificationClient } from "../sites/millVerificationClient";

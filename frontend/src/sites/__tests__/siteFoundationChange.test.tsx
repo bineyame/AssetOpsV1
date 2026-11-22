@@ -107,7 +107,8 @@ function pageButtons(): string[] {
 
 function foundationTabCurrent() {
   const current = qa('[aria-current="page"]').map((el) => el.textContent);
-  expect(current).toContain("Foundation");
+  // IA-P P5 (spec §2.3): the Foundation pages light the Setup tab (Foundation is the Setup section line's first link).
+  expect(current).toContain("Setup");
   // W1-F5b (D-2026-10-17-f5-subtabs-and-contact): the Foundation row shows here with Change & effect current,
   // linking to this Changes route; the three period views link to their own addresses.
   const row = screen.getByRole("navigation", { name: "Foundation views" });

@@ -1015,8 +1015,11 @@ describe("S1-03: what each Foundation view offers and the order of its panels", 
     const main = screen.getByRole("main");
     const forbidden = /^\s*(changes|change\s*(&|and)\s*effect)\s*$/i;
     // Visible text and the accessible name (aria-label, title) both count.
+    // IA-P P5 (spec §2.3): the Setup section line ("Foundation · Changes · Assets") is a second, separate "Changes"
+    // link by design, so this rule is scoped to the Foundation views row and the Setup line is excluded.
     const named = Array.from(main.querySelectorAll("a, button, [role='tab'], [role='link'], [aria-disabled]")).filter(
       (node) =>
+        node.closest('nav[aria-label="Setup sections"]') === null &&
         [node.textContent, node.getAttribute("aria-label"), node.getAttribute("title")].some((name) =>
           forbidden.test(name ?? ""),
         ),

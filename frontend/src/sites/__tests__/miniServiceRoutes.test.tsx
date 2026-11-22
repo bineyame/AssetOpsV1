@@ -172,6 +172,7 @@ describe("W4-02 unit 6: service keeps the v69 panels, strip, cards and addressed
       ["Fuel", null],
       ["Renewable", null],
       ["Backup", null],
+      ["Health", null], // IA-P P5 (spec §2.3): the trailing Health link of Performance's section line
     ]);
     // Q5 / handoff Run 15: the local 12:00-13:00 hour of the local date of the shell's UTC day.
     expect(client.getService).toHaveBeenCalledWith(CODE, {

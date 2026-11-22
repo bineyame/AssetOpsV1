@@ -64,13 +64,12 @@ const SITES_INDEX_COLUMNS = ["Site", "Group", "Contribution", "Gap to target", "
  */
 const OPERATOR_SITE_TABS = [
   "Overview",
-  "Foundation",
-  "Health",
+  "Operations",
   "Performance",
-  "Findings",
-  "Work",
   "Financials",
   "Evidence",
+  // IA-P P5 (spec §2.3): six tabs; Foundation became Setup, Health/Findings/Work left or were renamed.
+  "Setup",
 ];
 
 const SITE: SiteSummary = {
@@ -251,7 +250,7 @@ describe("the correction buys no space from the inventories", () => {
     ).toEqual(SITES_INDEX_COLUMNS);
   });
 
-  it("leaves the operator Site tab row with all seven rendered labels", async () => {
+  it("leaves the operator Site tab row with all six rendered labels", async () => {
     renderAt("/sites/MG-002");
     await settledScreen();
 
