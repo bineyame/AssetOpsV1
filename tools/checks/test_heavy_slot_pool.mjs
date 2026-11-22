@@ -640,8 +640,9 @@ Start-Sleep -Seconds 120
       lb = await markHold(r, "bash", ["--db-lane"]);
       assert.match(laneOf(lb), /\/db-job-b\.lock$/, lb.out());
       await stop(x); x = null;
-      for (const out of await Promise.all([bashW(r, ["--db", "--wait-seconds", "3", "--", "true"]),
-                                           pwshW(r, ["-Db", "-SlotWaitSeconds", "3", "--", "true"])])) {
+      // One at a time: two --db entries at once would queue on lane a, and only the first would reach lane b.
+      for (const out of [await bashW(r, ["--db", "--wait-seconds", "3", "--", "true"]),
+                         await pwshW(r, ["-Db", "-SlotWaitSeconds", "3", "--", "true"])]) {
         assert.equal(out.code, 75, out.stderr);
         assert.match(out.stderr, /heavy-slot: another database job holds db-job-b\.lock; waiting up to 3 s\./);
         assert.doesNotMatch(out.stderr, /holds db-job\.lock/);
