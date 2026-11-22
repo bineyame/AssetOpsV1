@@ -60,8 +60,15 @@ def test_generator_state_order(states, site) -> None:
     assert ur.site_generator_state(dict(zip(("u1", "u2"), states))) == ur.SiteValue(site, ())
 
 
-def test_generator_state_absent_when_a_unit_is_absent() -> None:  # pre-flight Q4 default
-    assert ur.site_generator_state({"u1": "RUNNING", "u2": None}) == ur.SiteValue(None, ("u2",))
+def test_generator_state_running_is_decided_whatever_a_silent_unit_holds() -> None:  # D-DD.111
+    assert ur.site_generator_state({"u1": "RUNNING", "u2": None}) == ur.SiteValue("RUNNING", ())
+    assert ur.site_generator_state({"u1": None, "u2": "RUNNING"}) == ur.SiteValue("RUNNING", ())
+
+
+def test_generator_state_undecided_by_known_units_is_absent_naming_the_unit() -> None:  # D-DD.111
+    assert ur.site_generator_state({"u1": "STOPPED", "u2": None}) == ur.SiteValue(None, ("u2",))
+    assert ur.site_generator_state({"u1": "STARTING", "u2": None}) == ur.SiteValue(None, ("u2",))
+    assert ur.site_generator_state({"u1": None, "u2": None}) == ur.SiteValue(None, ("u1", "u2"))
 
 
 # --- events: the union in time order, each keeping its unit --------------------------------------------------------
@@ -80,11 +87,43 @@ def test_units_are_in_declared_order_and_the_lead_is_the_first_generator() -> No
     assert ur.lead_unit(comps)["component_id"] == "gen-ks-01"
 
 
-def test_rating_is_the_sum_of_non_failed_units() -> None:
+def test_installed_rating_is_the_sum_of_every_generator_unit() -> None:  # D-DD.112
     comps = _components("KISIWA-001")
-    assert ur.site_rating(comps) == ur.SiteValue(Decimal("120"), ())
-    assert ur.site_rating(comps, {"gen-ks-01": "FAILED", "gen-ks-02": "RUNNING"}) == ur.SiteValue(Decimal("60"), ())
-    assert ur.site_rating(comps, {"gen-ks-01": "RUNNING", "gen-ks-02": None}) == ur.SiteValue(None, ("gen-ks-02",))
+    assert ur.site_installed_rating(comps) == ur.SiteValue(Decimal("120"), ())
+    second = next(c for c in comps if c["component_id"] == "gen-ks-02")
+    second["properties"] = [p for p in second["properties"] if p["property_key"] != ur.RATING_KEY]
+    assert ur.site_installed_rating(comps) == ur.SiteValue(None, ("gen-ks-02",))
+
+
+def test_available_rating_is_the_sum_of_the_non_failed_units() -> None:  # D-DD.112
+    comps = _components("KISIWA-001")
+    got = ur.site_available_rating(comps, {"gen-ks-01": "FAILED", "gen-ks-02": "RUNNING"})
+    assert got == ur.SiteValue(Decimal("60"), ())
+    both = ur.site_available_rating(comps, {"gen-ks-01": "STOPPED", "gen-ks-02": "RUNNING"})
+    assert both == ur.SiteValue(Decimal("120"), ())
+
+
+def test_available_rating_every_unit_failed_is_zero_kw_not_absent() -> None:  # D-DD.112
+    comps = _components("KISIWA-001")
+    got = ur.site_available_rating(comps, {"gen-ks-01": "FAILED", "gen-ks-02": "FAILED"})
+    assert got == ur.SiteValue(Decimal("0"), ()) and got.value is not None
+
+
+def test_available_rating_one_failed_one_silent_is_absent_naming_the_silent() -> None:  # D-DD.112
+    comps = _components("KISIWA-001")
+    assert ur.site_available_rating(comps, {"gen-ks-01": "FAILED", "gen-ks-02": None}) == ur.SiteValue(
+        None, ("gen-ks-02",))
+    assert ur.site_available_rating(comps, {"gen-ks-01": "RUNNING"}) == ur.SiteValue(None, ("gen-ks-02",))
+
+
+def test_rating_with_no_generator_is_absent() -> None:  # D-DD.112: nothing declared
+    comps = [c for c in _components("KISIWA-001") if c["component_type"] != "GENERATOR"]
+    assert ur.site_installed_rating(comps) == ur.SiteValue(None, ())
+    assert ur.site_available_rating(comps, {}) == ur.SiteValue(None, ())
+
+
+def test_site_rating_is_replaced_by_the_two_quantities() -> None:  # D-DD.112: no quantity under two meanings
+    assert not hasattr(ur, "site_rating")
 
 
 def test_litres_are_the_sum_of_each_units_own_burn() -> None:
@@ -130,8 +169,10 @@ def test_kobo_one_unit_reads_as_today() -> None:
     comps = _components("KOBO-001")
     gen = next(c for c in comps if c["component_type"] == "GENERATOR")
     rated = next(p["value"] for p in gen["properties"] if p["property_key"] == ur.RATING_KEY)
-    got = ur.site_rating(comps)
+    got = ur.site_installed_rating(comps)
     assert got.value is rated and got.missing == ()
+    avail = ur.site_available_rating(comps, {gen["component_id"]: "RUNNING"})
+    assert avail.value is rated and avail.missing == ()
     policy = ur.lead_policy(comps)
     assert {k: v for k, v in policy.items()} == {
         p["property_key"]: p for p in gen["properties"] if p["property_key"] in ur.POLICY_KEYS}

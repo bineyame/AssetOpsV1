@@ -3,10 +3,11 @@ read (D-DD.43). Pure; every reader of a `minigrid-roles-5` set calls this module
 
 - Power (and litres, each unit burnt on its own curve): the Site value at a step is the sum of the units' values; a
   unit with no value at that step makes the Site value absent there, named by unit. No imputation.
-- `generator_state`: RUNNING if any unit runs, else STARTING if any starts, else STOPPED if any unit is not FAILED,
-  else FAILED. A unit with no state makes the Site state absent (DD3c pre-flight Q4 default).
+- `generator_state` (D-DD.111): RUNNING if any unit with a state runs; else absent, named by unit, if any unit has no
+  state; else STARTING if any starts, STOPPED if any unit is not FAILED, else FAILED.
 - `mini_backup_start_event`: the union in time order, each event keeping its unit; equal times in declared order.
-- Site generator rating: the sum of the non-FAILED units' `generator-rated-power`.
+- Site generator rating, two quantities (D-DD.112): installed (every GENERATOR unit's `generator-rated-power`) and
+  available at a step (the units whose state is not FAILED; every unit FAILED gives 0 kW).
 - Site control policy: from the lead unit (first GENERATOR in declared order); a non-lead unit carrying a policy
   property is refused `TEL_FOUNDATION`.
 
@@ -17,6 +18,7 @@ from __future__ import annotations
 
 from collections.abc import Callable, Hashable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
+from decimal import Decimal
 from functools import reduce
 from operator import add
 from typing import Any
@@ -27,6 +29,8 @@ RATING_KEY = "generator-rated-power"
 POLICY_KEYS: tuple[str, ...] = ("start-soc-threshold", "stop-soc-threshold", "start-delay", "minimum-runtime")
 RUNNING, STARTING, STOPPED, FAILED = "RUNNING", "STARTING", "STOPPED", "FAILED"
 REFUSED_CODE = "TEL_FOUNDATION"
+#: Every unit FAILED: the evidence decides the available rating, and it is zero (D-DD.112).
+ZERO_KW = Decimal("0")
 
 
 @dataclass(frozen=True)
@@ -70,15 +74,18 @@ def site_power_series(series: Mapping[str, Mapping[Hashable, Any]]) -> dict[Hash
 
 
 def site_generator_state(states: Mapping[str, str | None]) -> SiteValue:
+    """D-DD.111: a state the known units decide is stated; otherwise absent, named by unit."""
+    if len(states) == 1:
+        only = next(iter(states.values()))
+        return SiteValue(only, () if only is not None else _missing(states))
+    present = {s for s in states.values() if s is not None}
+    if RUNNING in present:
+        return SiteValue(RUNNING, ())
     missing = _missing(states)
     if missing or not states:
         return SiteValue(None, missing)
-    if len(states) == 1:
-        return SiteValue(next(iter(states.values())), ())
-    present = set(states.values())
-    for state in (RUNNING, STARTING):
-        if state in present:
-            return SiteValue(state, ())
+    if STARTING in present:
+        return SiteValue(STARTING, ())
     return SiteValue(STOPPED if present != {FAILED} else FAILED, ())
 
 
@@ -115,19 +122,29 @@ def lead_policy(components: Sequence[Mapping[str, Any]]) -> dict[str, Mapping[st
     return {p["property_key"]: p for p in _properties(generators[0]) if p.get("property_key") in POLICY_KEYS}
 
 
-def site_rating(components: Sequence[Mapping[str, Any]],
-                states: Mapping[str, str | None] | None = None) -> SiteValue:
-    """The sum of the non-FAILED units' rated power. `states` (unit -> state at the step) None: a Foundation-only
-    read, every unit counts (pre-flight Q5 default)."""
-    ratings: dict[str, Any] = {}
-    for unit in units(components, GENERATOR):
-        code = str(unit.get("component_id"))
-        if states is not None:
-            if states.get(code) is None:
-                return SiteValue(None, _missing({c: states.get(c) for c in
-                                                 (str(u.get("component_id")) for u in units(components, GENERATOR))}))
-            if states[code] == FAILED:
-                continue
-        found = [p.get("value") for p in _properties(unit) if p.get("property_key") == RATING_KEY]
-        ratings[code] = found[0] if len(found) == 1 else None
+def _unit_rating(unit: Mapping[str, Any]) -> Any:
+    found = [p.get("value") for p in _properties(unit) if p.get("property_key") == RATING_KEY]
+    return found[0] if len(found) == 1 else None
+
+
+def site_installed_rating(components: Sequence[Mapping[str, Any]]) -> SiteValue:
+    """D-DD.112: the sum of every GENERATOR unit's rated power; a unit without exactly one gives absent, named by
+    unit; no GENERATOR gives absent (nothing declared)."""
+    return site_power({str(u.get("component_id")): _unit_rating(u) for u in units(components, GENERATOR)})
+
+
+def site_available_rating(components: Sequence[Mapping[str, Any]], states: Mapping[str, str | None]) -> SiteValue:
+    """D-DD.112: at one step (`states`: unit -> state), the sum over the units whose state is not FAILED. A unit with
+    no state gives absent, named by unit (its inclusion is undecided). Every unit FAILED gives 0 kW: each state is
+    known and says the unit gives no power. No GENERATOR gives absent."""
+    generators = units(components, GENERATOR)
+    if not generators:
+        return SiteValue(None, ())
+    silent = tuple(str(u.get("component_id")) for u in generators if states.get(str(u.get("component_id"))) is None)
+    if silent:
+        return SiteValue(None, silent)
+    ratings = {str(u.get("component_id")): _unit_rating(u) for u in generators
+               if states[str(u.get("component_id"))] != FAILED}
+    if not ratings:
+        return SiteValue(ZERO_KW, ())
     return site_power(ratings)
