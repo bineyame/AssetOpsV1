@@ -12,7 +12,7 @@ included.
 **Inputs the readings follow.** Load is the declared hourly shape (`LOAD_SHAPE_KW`) times the `demand` family's day
 weight, scaled by largest remainder so a month's load energy equals the month's `delivered_kwh` exactly
 (`TEL_INPUT_TOTAL` otherwise). Sun is `SUN_W_PER_M2`: season v2's clear or overcast day on its calendar (1 Sep to
-31 Oct), any other day the clear shape times the `solar_surplus` day weight, season x day class (D-DD.77). Deliveries are tank INCREASE points
+the last day of Oct), any other day the clear shape times the `solar_surplus` day weight, season x day class (D-DD.77). Deliveries are tank INCREASE points
 at each note's instant; the unexplained draw is a tank DECREASE point of the month's `unexplained_l`, in equal daily
 parts at 02:00 local, largest remainder to 0.01 L. The tank starts at 50 % of its capacity. Each is written in the
 readings manifest's `conditions`; the story's answer block is never read (`TEL_ORACLE_READ`).
@@ -182,7 +182,7 @@ SUN_W_PER_M2: dict[str, tuple[int, ...]] = {
 #: Season v2's overcast days, indexed from 2026-09-01 (`host/tests/kobo_season.py` OVERCAST_V2); no other day is.
 OVERCAST_DAYS = frozenset({2, 3, 7, 8, 9, 13, 17, 18, 19, 20, 24, 25, 28, 33, 38, 39, 45, 50, 51, 52, 57})
 SEASON_V2_DAY_ZERO = date(2026, 9, 1)
-SEASON_V2_LAST_DAY = date(2026, 10, 31)  # the calendar covers 1 Sep to 31 Oct only
+SEASON_V2_LAST_DAY = date(2026, 11, 1) - timedelta(days=1)  # the calendar covers 1 Sep to the end of Oct only
 #: D-DD.77: the `solar_surplus` family of the manifest's `history` block, the default (books carry the view's own).
 #: A day outside season v2's calendar gets the clear shape times season x day-class weight, no jitter.
 DEFAULT_SUN_WEIGHTS = {

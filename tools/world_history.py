@@ -22,6 +22,7 @@ sys.path.insert(0, str(REPOSITORY / "contracts"))  # DS1b P1: the canonical form
 #                                       `EMU_*` or `DS1B_*` on stderr
 
 import argparse  # noqa: E402
+from datetime import date, timedelta  # noqa: E402
 import json  # noqa: E402
 
 from assetops_contracts.canonical import to_canonical_json  # noqa: E402
@@ -222,7 +223,8 @@ def build_parser() -> argparse.ArgumentParser:
     telemetry.add_argument("--books", required=True, type=Path, help="the directory `exports` wrote")
     telemetry.add_argument("--out", required=True, type=Path, help="a new or empty directory outside the repository")
     telemetry.add_argument("--start", default="2026-07-01", help="first local day of the span")
-    telemetry.add_argument("--end", default="2026-10-31", help="last local day of the span")
+    telemetry.add_argument("--end", default=(date(2026, 11, 1) - timedelta(days=1)).isoformat(),
+                           help="last local day of the span (default: the last day of October)")
     telemetry.add_argument("--site", action="append", default=None, help="a Site code; repeat for several")
     check = commands.add_parser("check")
     check.add_argument("--manifest", required=True, type=Path)
