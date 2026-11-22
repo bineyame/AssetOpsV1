@@ -12,7 +12,7 @@ by a channel).
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 #: S1-02's vocabulary. Kept readable for every binding set recorded under it.
 ROLE_SET_MINIGRID_1 = "minigrid-roles-1"
@@ -30,6 +30,9 @@ ROLE_SET_MINIGRID_3 = "minigrid-roles-3"
 #: plus the requested-service, storage-charge, primary-supply and mini backup
 #: chain channels the mini-grid depth pages need. Opt-in, like roles-3.
 ROLE_SET_MINIGRID_4 = "minigrid-roles-4"
+#: DD1.2 (`D-DD.41`): roles-4 with the unit roles (those whose asset type is a unit type of the v9 Foundation,
+#: GENERATOR and INVERTER) PER_ASSET, so a Site of several units binds each unit's own evidence.
+ROLE_SET_MINIGRID_5 = "minigrid-roles-5"
 #: The set a new MINIGRID binding publication is recorded under.
 ROLE_SET_MINIGRID = ROLE_SET_MINIGRID_2
 #: W2-01 (`archive/agent-history/W2-technical-design-cold.md` section 3, `D-2026-10-17-w2-01-answers`
@@ -237,11 +240,19 @@ COLD_POLICY_PROPERTIES: dict[str, str] = {
 #: sample every 300 s; EVENT channels are transition-driven (no cadence).
 COLD_PERIODIC_CADENCE_SECONDS = 300
 
+_UNIT_ROLES_5 = frozenset({"generator_state", "generator_power", "mini_backup_start_event", "pv_power",
+                           "pv_available_power"})
+#: `D-DD.41`: roles-4 with the five unit roles PER_ASSET (order kept); every other field is roles-4's.
+MINIGRID_ROLES_5: tuple[Role, ...] = tuple(
+    replace(r, cardinality=PER_ASSET) if r.role in _UNIT_ROLES_5 else r for r in MINIGRID_ROLES_4
+)
+
 ROLES_BY_SET: dict[str, tuple[Role, ...]] = {
     ROLE_SET_MINIGRID_1: MINIGRID_ROLES,
     ROLE_SET_MINIGRID_2: MINIGRID_ROLES_2,
     ROLE_SET_MINIGRID_3: MINIGRID_ROLES_3,
     ROLE_SET_MINIGRID_4: MINIGRID_ROLES_4,
+    ROLE_SET_MINIGRID_5: MINIGRID_ROLES_5,
     ROLE_SET_COLD_1: COLD_ROLES_1,
     ROLE_SET_EV_1: EV_ROLES_1,
 }
@@ -254,7 +265,7 @@ ROLE_SET_BY_SITE_TYPE: dict[str, str] = {
 #: under the role definitions it was published with, never today's.
 SERVED_ROLE_SETS_BY_SITE_TYPE: dict[str, frozenset[str]] = {
     "MINIGRID": frozenset({ROLE_SET_MINIGRID_1, ROLE_SET_MINIGRID_2, ROLE_SET_MINIGRID_3,
-                           ROLE_SET_MINIGRID_4}),
+                           ROLE_SET_MINIGRID_4, ROLE_SET_MINIGRID_5}),
     "COLDCHAIN": frozenset({ROLE_SET_COLD_1}),
     "EV_CHARGING": frozenset({ROLE_SET_EV_1}),
 }
@@ -262,7 +273,7 @@ SERVED_ROLE_SETS_BY_SITE_TYPE: dict[str, frozenset[str]] = {
 #: S6-02a verification inputs (Architect S6-02a Q2). Interval-power roles
 #: need five-minute interval-valued readings covering each UTC slot; point
 #: roles need an accepted sample at each five-minute boundary.
-VERIFICATION_ROLE_SETS: frozenset[str] = frozenset({ROLE_SET_MINIGRID_3, ROLE_SET_MINIGRID_4})
+VERIFICATION_ROLE_SETS: frozenset[str] = frozenset({ROLE_SET_MINIGRID_3, ROLE_SET_MINIGRID_4, ROLE_SET_MINIGRID_5})
 VERIFICATION_POWER_ROLES: tuple[str, ...] = (
     "generator_power", "feeder_demand", "pv_available_power", "pcs_discharge_capability",
     "critical_load_requested_power", "critical_load_delivered_power",

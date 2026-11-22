@@ -56,9 +56,16 @@ class TestVocabulary:
         assert serves("MINIGRID", "minigrid-roles-1") and serves("MINIGRID", "minigrid-roles-2")
         # S6-02a: roles-3 is served (opt-in by explicit role_set); new publications stay roles-2.
         assert serves("MINIGRID", "minigrid-roles-3")
-        # W4-02 closure 2: roles-4 is served the same way (explicit role_set only); no later version exists.
+        # W4-02 closure 2: roles-4 is served the same way (explicit role_set only).
         assert serves("MINIGRID", "minigrid-roles-4")
-        assert not serves("MINIGRID", "minigrid-roles-5")
+        # D-DD.41: roles-5 is roles-4 with the five unit roles PER_ASSET; served, explicit role_set only.
+        assert serves("MINIGRID", "minigrid-roles-5") and not serves("MINIGRID", "minigrid-roles-6")
+        four, five = roles_for("minigrid-roles-4"), roles_for("minigrid-roles-5")
+        assert list(four) == list(five)
+        changed = {n for n in four if four[n] != five[n]}
+        assert changed == {"generator_state", "generator_power", "mini_backup_start_event", "pv_power",
+                           "pv_available_power"}
+        assert all(five[n].cardinality == "PER_ASSET" and four[n].cardinality == "ONE" for n in changed)
 
 
 class TestPublication:

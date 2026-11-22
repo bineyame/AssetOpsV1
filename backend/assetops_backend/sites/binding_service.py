@@ -47,6 +47,7 @@ from assetops_backend.sites.binding_roles import (
     ROLE_SET_COLD_1,
     ROLE_SET_EV_1,
     ROLE_SET_MINIGRID_4,
+    ROLE_SET_MINIGRID_5,
     VERIFICATION_MESSAGES,
     VERIFICATION_POINT_ROLES,
     VERIFICATION_POWER_ROLES,
@@ -227,6 +228,8 @@ _V4_TABLE_BY_ROLE_SET = {
     ROLE_SET_EV_1: V4_CHANNEL_MAPPINGS_BY_PROFILE[(V4_EV_MAPPING_PROFILE_ID, V4_EV_MAPPING_PROFILE_VERSION)],
     ROLE_SET_MINIGRID_4: V4_CHANNEL_MAPPINGS_BY_PROFILE[(V4_MINI_MAPPING_PROFILE_ID,
                                                          V4_MINI_MAPPING_PROFILE_VERSION)],
+    ROLE_SET_MINIGRID_5: V4_CHANNEL_MAPPINGS_BY_PROFILE[(V4_MINI_MAPPING_PROFILE_ID,
+                                                         V4_MINI_MAPPING_PROFILE_VERSION)],
 }
 
 #: W4-02 q1 ruling 1: a *mixed* v3/v4 role set. Only the roles named here are v4 rows of the set's closed table;
@@ -234,6 +237,7 @@ _V4_TABLE_BY_ROLE_SET = {
 #: metadata. Cold/EV are not mixed: every one of their channels is checked against their table.
 _MIXED_V4_ROLES_BY_ROLE_SET: Mapping[str, frozenset[str]] = {
     ROLE_SET_MINIGRID_4: frozenset({"site_supply_state", "mini_backup_start_event", "mini_backup_bus_state"}),
+    ROLE_SET_MINIGRID_5: frozenset({"site_supply_state", "mini_backup_start_event", "mini_backup_bus_state"}),
 }
 
 
@@ -785,7 +789,7 @@ def readiness(
     roles = roles_for(role_set) if role_set else {}
     bindings = binding_set.bindings if binding_set else ()
     asset_by_id = {a.id: a for a in registrations.assets}
-    loads = [a for a in registrations.assets if a.asset_type == "LOAD"]
+    assets = list(registrations.assets)
     entries: list[dict[str, Any]] = []
     missing: list[str] = []
     for role in roles.values():
@@ -811,7 +815,9 @@ def readiness(
             if status != "CONFIGURED" and role.required:
                 missing.append(role.label)
             continue
-        if role.cardinality == "PER_ASSET" and role.asset_type == "LOAD":
+        if role.cardinality == "PER_ASSET":
+            # D-DD.41 class fix: every PER_ASSET role is read over the Site's components of its own asset type.
+            loads = [a for a in assets if a.asset_type == role.asset_type]
             subjects = []
             for load in loads:
                 hits = [b for b in bound if b.asset_id == load.id]
@@ -868,7 +874,7 @@ def readiness(
         state = "READY_TO_REPORT"
     extra: dict[str, Any] = {}
     if binding_set is not None and role_set in VERIFICATION_ROLE_SETS:
-        extra["verification_readiness"] = verification_readiness(roles, bindings, loads)
+        extra["verification_readiness"] = verification_readiness(roles, bindings, assets)
     return {
         **extra,
         "role_set": role_set,
@@ -889,7 +895,7 @@ def readiness(
 
 
 def verification_readiness(
-    roles: dict[str, Role], bindings: Sequence[BindingRow], loads: Sequence[Any],
+    roles: dict[str, Role], bindings: Sequence[BindingRow], assets: Sequence[Any],
 ) -> dict[str, Any]:
     """S6-02a: which verification input roles this binding set leaves unbound.
 
@@ -905,7 +911,8 @@ def verification_readiness(
         bound = [b for b in bindings if b.role == name]
         lab_message, site_message = VERIFICATION_MESSAGES[name]
         entry = {"role": name, "label": role.label, "lab_message": lab_message, "site_message": site_message}
-        if role.cardinality == "PER_ASSET" and role.asset_type == "LOAD":
+        if role.cardinality == "PER_ASSET":
+            loads = [a for a in assets if a.asset_type == role.asset_type]
             unbound = [load for load in loads if not any(b.asset_id == load.id for b in bound)]
             if not loads:
                 missing.append({**entry, "asset_codes": []})

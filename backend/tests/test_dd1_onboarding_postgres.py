@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 from pathlib import Path
 
 import pytest
@@ -94,9 +95,78 @@ def test_a_site_without_its_conversion_refuses_before_any_write(store, engine, t
         assert c.execute(text("SELECT count(*) FROM tenant")).scalar() == 0
 
 
-def test_lakeside_kisiwa_and_mto_are_refused_by_the_product_role_limit(store, engine, tmp_path, monkeypatch, capsys) -> None:  # noqa: F811
-    """Q-DD1.7: `minigrid-roles-4` binds one GENERATOR and one INVERTER per Site (BINDING_ROLE_AMBIGUOUS); Kisiwa has two
-    generators and Mto two inverters. Written as the fact today; it turns into a pass when the question is answered."""
+def _world_with(tmp_path, code, edit):
+    """A copy of the world conversions with one Site's file edited by `edit(document)`."""
+    out = tmp_path / "world"
+    shutil.copytree(WORLD, out)
+    path = out / f"{code}-bindings.json"
+    document = json.loads(path.read_text(encoding="utf-8"))
+    edit(document)
+    path.write_text(json.dumps(document, indent=2), encoding="utf-8")
+    return out
+
+
+LAKESIDE = ON1 / "lakeside-power.onboarding.json"
+
+
+def test_lakeside_publishes_under_roles_5_one_set_per_site_and_a_second_apply_is_a_no_op(
+        store, engine, tmp_path, monkeypatch, capsys) -> None:  # noqa: F811
+    """D-DD.41: Kisiwa (2 GENERATOR) and Mto (2 INVERTER) publish under minigrid-roles-5, each unit bound on its own."""
     _env(monkeypatch, tmp_path, "lakeside-power")
-    code, _, err = _run(capsys, ON1 / "lakeside-power.onboarding.json", ("--bindings", str(WORLD)))
+    code, _, err = _run(capsys, LAKESIDE, ("--bindings", str(WORLD)))
+    assert code == 0, err
+    with engine.connect() as c:
+        sets = c.execute(text("SELECT count(DISTINCT binding_set_id) FROM signal_binding_set_revision")).scalar()
+        roles = dict(c.execute(text(
+            "SELECT s.site_code, r.role_set FROM signal_binding_set_revision r "
+            "JOIN site s ON s.id = r.site_id")).all())
+        per_unit = c.execute(text(
+            "SELECT count(DISTINCT b.asset_id) FROM signal_binding_revision b WHERE b.role = 'generator_power'")).scalar()
+    assert sets == 3 and roles["KISIWA-001"] == roles["MTO-001"] == "minigrid-roles-5"
+    assert per_unit == 4  # gen-ks-01, gen-ks-02, Kobo's and Mto's one generator
+    before = _counts(engine)
+    code, _, err = _run(capsys, LAKESIDE, ("--bindings", str(WORLD)))
+    assert code == 0, err
+    assert _counts(engine) == before
+
+
+def test_roles_4_on_the_same_foundation_still_refuses_two_generators(store, engine, tmp_path, monkeypatch, capsys) -> None:  # noqa: F811
+    _env(monkeypatch, tmp_path, "lakeside-power")
+    world = _world_with(tmp_path, "KISIWA-001", lambda d: d.update(role_set="minigrid-roles-4"))
+    code, _, err = _run(capsys, LAKESIDE, ("--bindings", str(world)))
     assert code == 3 and "BINDING_ROLE_AMBIGUOUS" in err and "KISIWA-001" in err
+
+
+def test_two_bindings_of_one_unit_role_on_one_unit_refuse_as_a_conflict(store, engine, tmp_path, monkeypatch, capsys) -> None:  # noqa: F811
+    _env(monkeypatch, tmp_path, "lakeside-power")
+
+    def twice(document):
+        row = next(b for b in document["bindings"] if b["role"] == "generator_power" and b["asset_code"] == "gen-ks-01")
+        document["declare_signals"] = [{"device_id": row["device_id"], "signal_id": "ac-power-2",
+                                        "display_name": "Second power channel", "unit": "kW", "reason": "test"}]
+        document["bindings"].append({**row, "legacy_mapping_id": None, "signal_id": "ac-power-2"})
+
+    world = _world_with(tmp_path, "KISIWA-001", twice)
+    code, _, err = _run(capsys, LAKESIDE, ("--bindings", str(world)))
+    assert code == 3 and "BINDING_ROLE_CONFLICT" in err, err
+
+
+def test_an_unbound_unit_is_named_in_readiness(store, engine, tmp_path, monkeypatch, capsys) -> None:  # noqa: F811
+    from assetops_backend.sites.binding_service import readiness
+    from datetime import datetime, timezone
+
+    from test_s1_bindings_postgres import Clock
+
+    from assetops_backend.sites.foundation_service import FoundationService
+
+    _env(monkeypatch, tmp_path, "lakeside-power")
+    world = _world_with(tmp_path, "KISIWA-001", lambda d: d.update(
+        bindings=[b for b in d["bindings"] if b["asset_code"] != "gen-ks-02"]))
+    code, _, err = _run(capsys, LAKESIDE, ("--bindings", str(world)))
+    assert code == 0, err
+    tenant = store.resolve_tenant("lakeside-power")
+    site = store.find_site(tenant.id, "KISIWA-001")
+    seen = FoundationService(store, "demo", Clock(datetime.now(timezone.utc))).read(site, tenant, None, None)
+    missing = readiness(seen.site, seen.revision, seen.registrations, seen.binding_set)["missing_roles"]
+    assert any(m.startswith("Generator power - ") and "Generator 02" in m for m in missing), missing
+    assert not any("Generator 01" in m for m in missing)

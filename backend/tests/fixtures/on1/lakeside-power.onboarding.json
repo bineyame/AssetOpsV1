@@ -179,34 +179,6 @@
               "source_version": 1
             },
             {
-              "property_key": "minimum-runtime",
-              "value": 30,
-              "unit": "min",
-              "source": "TEMPLATE",
-              "source_version": 1
-            },
-            {
-              "property_key": "start-soc-threshold",
-              "value": 35,
-              "unit": "%",
-              "source": "TEMPLATE",
-              "source_version": 2
-            },
-            {
-              "property_key": "stop-soc-threshold",
-              "value": 90,
-              "unit": "%",
-              "source": "TEMPLATE",
-              "source_version": 2
-            },
-            {
-              "property_key": "start-delay",
-              "value": 5,
-              "unit": "min",
-              "source": "TEMPLATE",
-              "source_version": 2
-            },
-            {
               "property_key": "generator-rated-power",
               "value": 60,
               "unit": "kW",

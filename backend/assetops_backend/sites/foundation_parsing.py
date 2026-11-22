@@ -132,7 +132,7 @@ MAX_CONNECTIONS = 128
 #
 # 64 leaves headroom under the 77 the ceiling refuses at, so the cap stays the
 # first thing to fire even as a device grows more signals.
-MAX_DEVICES = 96  # DD1.2 Q-DD1.8: Ruiru, 12 chargers x 2 connectors x 3 devices + the site meter, is 73
+MAX_DEVICES = 96  # D-DD.42: basis Ruiru, 73 devices (1.3x); a parsing-cost guard, under the 10,000-node ceiling
 MAX_SIGNALS_PER_DEVICE = 32
 # 160 rather than 256, for the reason MAX_DEVICES is 64 rather than 128.
 #

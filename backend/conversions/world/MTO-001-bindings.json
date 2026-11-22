@@ -5,7 +5,7 @@
   },
   "status": "DD1.2 demo world (specs/DD-demo-data/spec.md DD1.2); emulated, configuration only, no observation.",
   "site_code": "MTO-001",
-  "role_set": "minigrid-roles-4",
+  "role_set": "minigrid-roles-5",
   "effective_from": "2026-06-30T21:00:00Z",
   "note": "First minigrid-roles-4 binding set for MTO-001: every device the /2 file declares.",
   "declare_signals": [],

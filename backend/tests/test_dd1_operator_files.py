@@ -16,7 +16,8 @@ BACKEND = Path(__file__).resolve().parent.parent
 ON1 = BACKEND / "tests" / "fixtures" / "on1"
 WORLD = BACKEND / "conversions" / "world"
 FILES = {"lakeside-power": ("MINI_GRID", 3), "harvest-cold": ("COLD_CHAIN", 3), "metro-bus": ("EV_DEPOT", 3)}
-ROLE_SET = {"MINI_GRID": "minigrid-roles-4", "COLD_CHAIN": "cold-roles-1", "EV_DEPOT": "ev-roles-1"}
+ROLE_SET = {"MINI_GRID": "minigrid-roles-4",  # Kobo stays roles-4 until DD3.4 (D-DD.41); Kisiwa and Mto are roles-5
+             "COLD_CHAIN": "cold-roles-1", "EV_DEPOT": "ev-roles-1"}
 VALID_FROM = "2026-06-30T21:00:00Z"
 
 
@@ -110,7 +111,8 @@ def test_every_site_has_a_conversion_listing_every_device_signal(slug) -> None:
     vertical, _ = FILES[slug]
     for site in _raw(slug)["sites"]:
         fixture = json.loads((WORLD / f"{site['code']}-bindings.json").read_text(encoding="utf-8"))
-        assert fixture["site_code"] == site["code"] and fixture["role_set"] == ROLE_SET[vertical]
+        expected = "minigrid-roles-5" if site["code"] in ("KISIWA-001", "MTO-001") else ROLE_SET[vertical]
+        assert fixture["site_code"] == site["code"] and fixture["role_set"] == expected
         assert fixture["effective_from"] == VALID_FROM and fixture["declare_signals"] == []
         bound = {(b["device_id"], b["signal_id"]) for b in fixture["bindings"]}
         declared = {(d["device_id"], s["signal_id"]) for d in site["devices"] for s in d["signals"]}
@@ -125,3 +127,18 @@ def test_kisiwa_and_mto_list_every_units_device() -> None:
     mto = json.loads((WORLD / "MTO-001-bindings.json").read_text(encoding="utf-8"))
     assert {b["device_id"] for b in mto["bindings"] if b["role"] == "pv_power"} == {
         "inv-mt-01-controller", "inv-mt-02-controller"}
+
+
+POLICY_KEYS = {"start-soc-threshold", "stop-soc-threshold", "start-delay", "minimum-runtime"}
+
+
+@pytest.mark.parametrize("slug", FILES)
+def test_the_generator_policy_is_held_once_on_the_lead_unit(slug) -> None:  # D-DD.43
+    """First GENERATOR in declared order is the lead; a later one carries unit properties only."""
+    for site in _raw(slug)["sites"]:
+        generators = [c for c in site["components"] if c["type"] == "GENERATOR"]
+        for unit in generators[1:]:
+            held = {p["property_key"] for p in unit.get("properties", [])} & POLICY_KEYS
+            assert not held, f"{site['code']} {unit['id']} carries policy {sorted(held)}"
+        if len(generators) > 1:
+            assert {p["property_key"] for p in generators[0]["properties"]} >= POLICY_KEYS
