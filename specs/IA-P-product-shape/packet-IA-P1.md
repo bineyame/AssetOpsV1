@@ -69,3 +69,12 @@ Handoff with anchors and history: `specs/IA-P-product-shape/handshake-IA-P1-hand
 - Coverage lost with the old tables: the Finding row's evidence prompt and per-row placement reasons have no new home (P3b/P4).
 - Review the two scan exemptions and `DataTable.tableClassName` (shared primitive).
 - Check `/decisions?lens=cost` chip and the Tab order on a real browser; the 8-row fixture draws no tools (tier 1).
+
+## Fix round 1 (review-IA-P1.md M1-M3, L1-L5)
+- M1: `HomeList` passes the filtered `model.rows` to `def.tiles` with a `whole` flag; Decisions uses the server `waiting_count` only when `whole`. Tests: parts under a State facet on Decisions and Actions.
+- M2: Findings "Its decision" column and tile read `Loading…` while the Decisions read is in flight and `Not available yet` when it is refused; never "No decision open" or 0. Two tests.
+- M3: `globalWorkPageQuery` takes its window from `readSharedRange`/`capWindow`/`rangeWindow` (both forms; the second day arithmetic and `validMidnight` are gone); `known_at` is checked first so its refusal code is kept. `noRawRangeReads` now matches `getAll` too (and its sharedRange exemption path was fixed). Deviation: an instant with hours (01:00Z) is now accepted and rounded to its day, as the bar does; the old "not a UTC midnight" incidents case became "not a date". Gate: any `[data-page-refusal]` on a list page, or an `INVALID_*` refusal on any page, fails R3 (proved: the old client fails it on `/evidence/records`).
+- Gate fixtures (class fix): portfolio and findings gained a cold windowed, cold no-window, EV windowed, watched (MONITOR), under-way and no-link row; actions a no-link row. Gate L2 accepts a text row only if it says "Detail not available yet" and fails if a list has no text row.
+- L1 (th row fill transparent), L2 (copy "Loading Decisions…" etc.; added to `settled.ts`), L4 (crumb "Evidence & records") fixed.
+- Deferred: L2 tile labels while loading; L3 (First page nonce in `useEstateRead`/cache); L5 (second exemption const needs a missing-claim-scan config change); L4 "See all 8 findings" wording (P3b rebuilds the panel).
+- Checks: tsc clean; vitest on ui, estate, work and two shell files 648 passed, 1 failed (SR-6b, pre-existing on main); architecture, agent-workflow, missing-claim (44 tagged, 10 baselined), hard-wiring (12/20/69/50/3), navigation x2 pass; fresh build, `iap_gates.cjs` 29 of 29, exit 0.
