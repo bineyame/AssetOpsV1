@@ -40,9 +40,9 @@ STUBS = {
     "C-DD14": "DD5.2", "C-DD15": "DD6.1", "C-DD17": "DD3.3", "C-DD18": "DD6.1",
     "C-DD19": "DD3.3", "C-DD20": "DD4.4",
 }
-#: D-DD.121: C-DD6 is live by vertical; its clauses not yet producible, each with the unit that makes it live.
-STUBS["C-DD6"] = ("EV-KAS CH-K2 2026-11-01T23:40 DD4b", "EV-RUI CH-R7 c2 2026-10-06 DD4b",
-                  "KISIWA-001 GEN-KS-01 2026-10-30T18:40 DD3b", "MTO-001 INV-MT-02 2026-10-28T11:02 DD3b")
+#: D-DD.121: C-DD6 is live by vertical (so in LIVE, not STUBS); its clauses not yet producible, each with the unit that makes it live.
+PENDING = {"C-DD6": ("EV-KAS CH-K2 2026-11-01T23:40 DD4b", "EV-RUI CH-R7 c2 2026-10-06 DD4b",
+                  "KISIWA-001 GEN-KS-01 2026-10-30T18:40 DD3b", "MTO-001 INV-MT-02 2026-10-28T11:02 DD3b")}
 ORDER = tuple(f"C-DD{i}" for i in range(1, 22))
 
 
@@ -564,7 +564,7 @@ def judge_failures_at_instant(readings: dict[str, list[dict]]) -> Result:
             peak = max(value for _at, value in chamber)
             if peak >= clause["limit_c"]:
                 detail.append(f"{clause['site']} {clause['batch']}: peak {peak} degC is not below {clause['limit_c']}")
-    pending = [f"{p} pending" for p in STUBS["C-DD6"]]
+    pending = [f"{p} pending" for p in PENDING["C-DD6"]]
     return Result("C-DD6", not detail, detail, pending)
 
 

@@ -134,7 +134,7 @@ regeneration, sweep), 0707ce3c1 (`test_dd4_thika_incident.py`, C-DD6 live for co
   CHANGE-REGISTER.md 289; tools/gen_docs.cjs 114; worked-portfolios.md 24, 375; integration-source-to-canonical-design.md
   173, 296, 319, 321, 324, 333; domain-and-decision-models.md 260, 273, 364; economic-metric-and-effect-contracts.md 176;
   derivation-register.md 1982, 2451. Content only; no MOCK DEVIATION. `check_manifest.py` re-based H8, H10, K13 with
-  dated notes; it exits 1 with 7 failures that failed before this change too (H9, K8, A1, A2, A3, A5 alignment);
+  dated notes; it exits 1 with 6 failures, the same as main (H9, A1, A2, A3, A5 alignment, walkthroughs); K8 was re-based to the history.json sha that D-DD.90 moved (deviation 7) in the review fix round;
   regenerating the stale fixtures.js/index.html cleared 5 earlier failures (K11 x4, K7).
 - **Writer run (D-DD.122).** Output `/opt/assetecon/worlds/DD4a-0c5d5fab7b90/` (books, sites.json, one telemetry tree
   per room). exports 1.7 s; COLD-MWEA 29.4 s, COLD-KIRI 30.1 s, COLD-THIKA 30.7 s (one process each, ~0.23 s per
@@ -188,3 +188,10 @@ regeneration, sweep), 0707ce3c1 (`test_dd4_thika_incident.py`, C-DD6 live for co
     source_time 17:25Z. Left for a content pass from the writer's readings: the mock's temperature and recovery chart
     series (screens.js:71, 77-78, still peaking at 8.2 on a 19:00-20:00 axis), "Exposure size 50-90 degC-min"
     (screens.js:400); historical review records untouched.
+
+## Fix round (review)
+- F1 (Medium): `K8_HISTORY_SHA` re-based to d2498a9c5a0e... with a dated note citing D-DD.90 and deviation 7; the packet's "pre-existing" line corrected. `check_manifest.py` now gives 6 failures, the same as main 12e618be3.
+- F4: C-DD6 is only in `LIVE`; its pending clauses moved to `PENDING`. `test_dd1_check::test_stubs_fail_naming_their_unit` now asserts no check is in both STUBS and LIVE.
+- F3: `domain-and-decision-models.md:260` states only the 5.4 degC reading at 20:25, the 1-minute compressor start delay and the 5-minute reading grid (per-minute peak 20:24); the coil-pulldown claim is dropped.
+- F2: the mock's 19:00-20:00 window and the 25-35 in-policy share are left for the design-doc alignment pass.
+- Q1, Q2: untouched, with the Architect.

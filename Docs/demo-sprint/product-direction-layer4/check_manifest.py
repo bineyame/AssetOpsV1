@@ -2123,11 +2123,13 @@ RATE_FIELDS = {"litres_per_customer_kwh": ("load_kw", "load_hours_per_day", "day
 OPTION_ONLY_SOURCE = "admission_parts_failed"
 KOBO_SETTINGS = ("KOB-STOPSOC", "KOB-RESERVE")
 KOBO_SETTING_WORDS = "a dispatch replay on Kobo's October as recorded (0K4f)"   # §2.3, R2
-K8_HISTORY_SHA = "6fd610899336b95dbe898cd3c583d06fa130fb065d7912282a33e1e4fe6d4fc8"   # history.json at the 0K4m base (K8);
+K8_HISTORY_SHA = "d2498a9c5a0ea766022aa084682b43652698e65e39924be038a8b62e6f375f0b"   # history.json at the 0K4m base (K8);
 # re-based (22 Nov) for DD3a commit 2: Kobo `physical` from its data sheets moves the view. The previous base was 9cb1b6bfecd6b1cec0d10974c037161e2e454f7dac3694791a584bfd173fd4c9.
 # Re-based (22 Nov) for DD3a's fix round (D-DD.102): a scope digest covers only the `physical` keys its rules read, so the
 # July-September leaves of Kobo, Kisiwa and Mto were re-drawn once and the depots' scope digests moved (cold rooms unchanged).
 # The previous base was 329181f274b22b1563c496b1e5fc7195cbea9944e341356d957f3eaff123cacb.
+# Re-based (22 Nov) for DD4a (D-DD.90, deviation 7): the history.json `view_digest` line moved with the Thika incident resize
+# (D-DD.89); only that line changed (the scope blocks are asserted by test_scope_seasons_parity). The previous base was 6fd610899336b95dbe898cd3c583d06fa130fb065d7912282a33e1e4fe6d4fc8.
 MOCK = "interactive-mockup-vNEXT"
 K11_EXCLUDED = {"REVIEW.md", "REVIEW-response.md"}   # and regeneration/ (never scanned)
 # K11: the decision-history registers (spec §3, I4: by name) and the mock's change register (rows before 21 Nov) are exempt

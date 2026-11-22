@@ -257,7 +257,7 @@ Model-implied unit cost: Mwea 2,635 × 0.20 / 4,340 = 0.121 (observed 0.122: nor
 **Purpose.** Bound an equipment or power event's consequence to the batches actually present and above their own limits, and keep exposure, damage and liability as three different factors (brief C3 scenario 5).
 **Status: new**, built on kept observers: `COLD_START_FAILURE` (F-118) and `COLD_EXCURSION` (F-119) Findings (`outcome_map.py:20-21`) [code-observed].
 
-**Narrative (6 Oct, Thika).** Grid power failed at 19:11. The automatic start of backup generator GEN-CR-01 was requested at 19:11:05 and failed at 19:11:10 (start controller); staff started it by hand at 20:22; cooling ran from 20:23. The chamber, banded 2–4 °C, was above 4 °C for 75–85 minutes, peaked at **5.4 °C at 20:25**, and was back in band by 20:55. The peak came two minutes after cooling resumed: the air keeps warming while the coil pulls down.
+**Narrative (6 Oct, Thika).** Grid power failed at 19:11. The automatic start of backup generator GEN-CR-01 was requested at 19:11:05 and failed at 19:11:10 (start controller); staff started it by hand at 20:22; cooling ran from 20:23. The chamber, banded 2–4 °C, was above 4 °C for 75–85 minutes, peaked at **5.4 °C at 20:25**, and was back in band by 20:55. The highest reading, 5.4 °C at 20:25, came two minutes after power returned to the chamber; the compressor restarts one minute after power reaches it, and the readings are five minutes apart (the per-minute peak, 20:24, falls between two readings).
 
 ```
 present_b  = [in_b, out_b) ∩ excursion_window ≠ ∅
