@@ -23,6 +23,10 @@
   font-size: var(--font-size-700);
   color: var(--text-primary);
 }
+.hl-tile small {
+  font-size: var(--font-size-200); /* IA-P P4b: a tile's note; never under 12 px (gate R6) */
+  color: var(--text-secondary);
+}
 .hl-caption {
   margin: 0 0 var(--space-4);
   font-size: var(--font-size-200);
