@@ -478,6 +478,9 @@ every number honest with its basis.
     **(rev 2, I4)** the mock's per-figure chip, `<span class="ux-chip is-neutral" title="<SIMTEXT>">Simulated</span>`
     (`loop-ux.js:42, 710`; `ux.css:105`). `.ux-prov` stays the page's "About these figures" popover, with the copy
     below. The "†" goes.
+    **Correction (0K4m u23 review M1; pending Architect line):** the chip's markup is `<span class="ux-chip attn-k
+    is-neutral" title="<SIMTEXT>">Simulated</span>`, with a space before it; the pill layout sits on `.ux-chip.attn-k`
+    (`ux.css:101`), as `uxChip` renders it (`loop-ux.js:42`).
   - The drawer lists the study's four assumptions as `<key in words> <value> <unit> (assumed: <derivation>)` or
     `(declared: …)`, without the basis code.
   - Not-available text: `'Not available yet: ' + <words>`. The words: ~~Kobo's candidate split~~ (rev 4, D-0K4.45:

@@ -2,7 +2,7 @@
 
 Each ruling has its reason. The owner asked for this spec on 22 Nov (`owner/owner-merge-on-accept-ia-shape-k10-2026-11-22.md`)
 and reviews once the product is close to the shape. The open owner questions are spec §9 (Q3 to Q10, with the defaults
-applied). Q1 and Q2 were answered on 22 Nov (D-IAP.15). Rev 2 rulings are D-IAP.15 to D-IAP.23, at the end.
+applied). Q1 and Q2 were answered on 22 Nov (D-IAP.15). Rev 2 rulings are D-IAP.15 to D-IAP.23, and rev 3 rulings (the handshake) D-IAP.24 to D-IAP.33, at the end.
 
 - **D-IAP.1 Scope and boundary.**
   - IA-P brings the real app onto the agreed shape for these parts: the menu, the Portfolio's three tabs and its Overview,
@@ -171,7 +171,7 @@ applied). Q1 and Q2 were answered on 22 Nov (D-IAP.15). Rev 2 rulings are D-IAP.
     so it stays warm.
   - The owner may veto: spec §9 Q9.
 
-- **D-IAP.22 Units, sizes and the ladder (rev 2).**
+- **D-IAP.22 Units, sizes and the ladder (rev 2).** *(Superseded by D-IAP.32.)*
   - P3 splits into P3a (E2, 1.5) and P3b (the hub on the range, 1.75), and P4 grows to 2.0.
   - IA-P1 is 5.75 units and IA-P2 is 5.0, 10.75 in all, each under the 6-unit cap.
   - P3a and P4 both change `backend/assetops_backend`. The coordinator rebuilds the rung after each part merges before
@@ -184,3 +184,81 @@ applied). Q1 and Q2 were answered on 22 Nov (D-IAP.15). Rev 2 rulings are D-IAP.
     evidence gives on 5c's screen today. IA-P adds no label of its own.
   - No IA-P change follows. The data sheet replacement is the owner's prospect ask (0K4f), outside IA-P.
 
+## Rev 3 (Architect, Claude, 2026-11-22; the handshake, `handshake.md` "Answers (Architect)")
+
+- **D-IAP.24 The long range (R1).**
+  - The shared range accepts up to 731 days, so a 731-day range holds at most 24 whole months (E2's cap).
+  - The Overview, Outcomes and Sites read the whole range (E2, E1). Every other read takes `readWindow`: the last 31
+    days ending at `to`. The bar declares that window automatically ("Showing {span} of the range"). A capped block on a
+    whole-range page carries `RangePartNote`, and links carry the whole range.
+  - A static guard forbids raw `from`/`to` reads outside `sharedRange.ts`.
+  - Reason: the owner's Q10 needs ranges over 31 days. The 31-day cap sits in about 15 server routes, so one central
+    window plus a stated span is honest without a cross-system change. Raising the caps is owner Q12 (default: a
+    measured task after IA-P).
+  - Spec: `spec-period.md` P.9, unit P0.
+
+- **D-IAP.25 The period body names the Sites it does not compare (R2).**
+  - Tile 1 keeps `W.sites(k, n)`, and the headline gains "Compared for {k} of {n} Sites." when `k < n` in any month.
+  - Each month row carries its `sites`.
+  - World G tests cover the period view, E1 and the frontend matrix.
+  - Reason: the page × Site-type rule. A cold-chain or EV Site never vanishes from a page without a word.
+
+- **D-IAP.26 Cold-chain and EV rows state why they have no figure (R3).**
+  - Monthly snapshots are MINI_GRID only (D-3B6.6). So E1's row for a cold-chain or EV Site reads "No monthly figures
+    for {type} Sites yet", not the bare "Not available yet".
+  - The row's range output is its "Waiting for a choice" and its link to the Site Overview. Outcomes L3 gives every type's
+    range objectives.
+  - MD-IAP-12 (D1) is registered. Building the figures is owner Q11; the default is to specify them after IA-P.
+  - Reason: honest numbers. The mock's cost-kind cell has no live source, and inventing one would break the one-figure
+    rule.
+
+- **D-IAP.27 The route-map test runs both ways (R4, I2).**
+  - It holds §2.4's addresses as its own literals and resolves route constants, `.map` arrays and the Lab routes.
+  - It fails when a route has no home, when a §2.4 address has no route or alias, and when a `path` cannot be resolved.
+
+- **D-IAP.28 Words and one-figure pins (R5, R6, R8, R9, I7).**
+  - Month names in the notes follow `span`'s year rule.
+  - The Sites gap tile shows the server's total only at scope `all`, unfiltered (MD-IAP-13), and the More line carries no
+    figure.
+  - The E1 fixtures are kept current by a test.
+  - E1's Site gap equals 5c's `by_site` cell.
+  - The sum checks degrade to a logged 503, never a 500, and are skipped when a term is absent.
+
+- **D-IAP.29 `MONITOR` is not waiting for a choice (R7).**
+  - A placed Finding in `MONITOR` with no Action is `watching`, "Being watched". `waiting` excludes it, while
+    `NEEDS_INVESTIGATION` stays waiting.
+  - E0, the tiles, the badge and the inbox use the same rule.
+  - Reason: the badge must count only choices waiting for an executive (honest numbers).
+
+- **D-IAP.30 Implementer clarifications adopted (I1, I3, I4, I5, I6, I8, I9, I11, I12, I13, I14, I16).** Each is as
+  answered in `handshake.md`:
+  - the month nav comes from E2 only, and the typed months are deleted;
+  - `entryRange(pathname?, now)`;
+  - the bar keeps its words;
+  - the existing `W` helpers are used, with a `portfolio_period.refused` 422;
+  - World P comes from `replace(snapshot)`;
+  - links go through `findingLinkLive`;
+  - `loadAllPages` restarts once;
+  - the fixture sets are named;
+  - IA-2b is pinned at `b3102080c`;
+  - the walk test list is updated;
+  - `Results.tsx` is new;
+  - the navigation guard pins both files.
+
+- **D-IAP.31 Site lighting and icons (I10, I15).**
+  - Finding pages and the mill and fuel verification pages are object pages.
+  - A Findings index kept for a failed parity vertical lights Evidence (MD-IAP-15).
+  - The rail keeps the live icon set (MD-IAP-14).
+
+- **D-IAP.32 Rev 3 units and parts.**
+  - P0 (the long range, 1.0) is added, and P4 splits into P4a (E0 and E1, 1.5) and P4b (the Sites list and Outcomes,
+    1.25).
+  - Three parts: IA-P1 is P1, P0 and P2 (4.5); IA-P2 is P3a, P3b and P4a (5.0); IA-P3 is P4b, P5, P6 and P7 (4.5).
+    That is 14.0 units in all, each part under 6.
+  - Only IA-P2 touches `backend/assetops_backend`, so there is one rung rebuild after it.
+  - Supersedes D-IAP.22's sizes and ladder.
+
+- **D-IAP.33 The owner's answers to Q9 and Q10 (22 Nov).**
+  - Q9 "Last month": D-IAP.21 stands.
+  - Q10 "Month by month": MD-IAP-10 stands.
+  - Both leave the queue. R1's answer keeps Q10 reachable.

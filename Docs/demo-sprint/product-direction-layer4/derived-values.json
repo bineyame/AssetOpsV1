@@ -915,7 +915,7 @@
  "options": {
   "KOB-STOPSOC": {
    "site": "Kobo",
-   "monthly_or_horizon_change": 250.5,
+   "monthly_or_horizon_change": null,
    "months": 12.0,
    "operator_one_off": 90.0,
    "reference_one_off": 0.0,
@@ -937,19 +937,17 @@
      "operator_share": 1.0
     }
    },
-   "money_changes": true,
-   "formula": "(contribution under option 1133.5 - under reference 883.0) x 12 - (operator-borne one-off 90.0 - reference path's 0.0)",
+   "money_changes": false,
+   "formula": "(contribution under option None - under reference 883.0) x 12 - (operator-borne one-off 90.0 - reference path's 0.0)",
    "protect": {
     "obligation_hours_without_redundancy": 0.0,
     "obligation_hours_without_backup": 0.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 64000.0,
     "cover_not_claimable": 64000.0
    },
    "reference_protect": {
     "obligation_hours_without_redundancy": 0.0,
     "obligation_hours_without_backup": 0.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 64000.0,
     "cover_not_claimable": 64000.0
    },
@@ -965,51 +963,64 @@
    "violations": {
     "redundancy": 0.0,
     "claimable_cover": 64000.0,
-    "dawn_adequacy": 0.0
+    "admission": 0.0
    },
    "restore_basis": null,
    "restore_date": null,
    "params": {
-    "avoided_candidate_l": 210.0,
-    "added_throughput_kwh": 150.0,
-    "dawn_days_below_35pct": 0.0
+    "avoided_l": null,
+    "added_throughput_kwh": null,
+    "admission_parts_failed_option": 0.0
    },
-   "design_values": [
-    "K"
+   "replay_sources": [
+    "K8"
    ],
    "assumptions": [],
-   "value_if_admissible": 2916.0,
+   "value_if_admissible": null,
+   "information": {
+    "source": {
+     "study": "K8",
+     "case": "stop-70-reserve-30"
+    },
+    "dawn_days_below": 4,
+    "baseline_dawn_days_below": 4,
+    "new_dawn_days_below": 0,
+    "worst_dawn_soc_pct": 34.794737,
+    "min_soc_pct": 33.141398,
+    "max_starts_in_a_day": 3,
+    "longest_days_without_full_charge": 5,
+    "admitted": true,
+    "first_failing_part": null
+   },
+   "not_available": "a dispatch replay on Kobo's October as recorded (0K4f)",
    "sensitivities": {
-    "diesel_minus_20pct": 2286.0,
-    "feasible_fuel_160l": 2166.0
+    "diesel_minus_20pct": null
    },
    "admissible": true,
-   "value": 2916.0,
-   "valued_in_money": true,
+   "value": null,
+   "valued_in_money": false,
    "decision": "kobo_generator"
   },
   "KOB-RESERVE": {
    "site": "Kobo",
-   "monthly_or_horizon_change": 25.0,
+   "monthly_or_horizon_change": null,
    "months": 12.0,
    "operator_one_off": 0.0,
    "reference_one_off": 0.0,
    "net_one_off": 0.0,
    "crew_visits": 0,
    "cost_lines": {},
-   "money_changes": true,
-   "formula": "(contribution under option 908.0 - under reference 883.0) x 12 - (operator-borne one-off 0.0 - reference path's 0.0)",
+   "money_changes": false,
+   "formula": "(contribution under option None - under reference 883.0) x 12 - (operator-borne one-off 0.0 - reference path's 0.0)",
    "protect": {
     "obligation_hours_without_redundancy": 0.0,
     "obligation_hours_without_backup": 0.0,
-    "replayed_dawn_days_below_safeguard": 4.0,
     "unclaimable_cover": 64000.0,
     "cover_not_claimable": 64000.0
    },
    "reference_protect": {
     "obligation_hours_without_redundancy": 0.0,
     "obligation_hours_without_backup": 0.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 64000.0,
     "cover_not_claimable": 64000.0
    },
@@ -1025,28 +1036,44 @@
    "violations": {
     "redundancy": 0.0,
     "claimable_cover": 64000.0,
-    "dawn_adequacy": 4.0
+    "admission": 0.0
    },
    "restore_basis": null,
    "restore_date": null,
    "params": {
-    "avoided_candidate_l": 20.0,
-    "dawn_days_below_35pct": 4.0
+    "avoided_l": null,
+    "added_throughput_kwh": null,
+    "admission_parts_failed_option": 0.0
    },
-   "design_values": [
-    "K"
+   "replay_sources": [
+    "K8"
    ],
    "assumptions": [],
-   "value_if_admissible": 300.0,
-   "admissible": false,
+   "value_if_admissible": null,
+   "information": {
+    "source": {
+     "study": "K8",
+     "case": "stop-90-reserve-25"
+    },
+    "dawn_days_below": 11,
+    "baseline_dawn_days_below": 4,
+    "new_dawn_days_below": 7,
+    "worst_dawn_soc_pct": 29.815789,
+    "min_soc_pct": 28.243229,
+    "max_starts_in_a_day": 2,
+    "longest_days_without_full_charge": 4,
+    "admitted": true,
+    "first_failing_part": null
+   },
+   "not_available": "a dispatch replay on Kobo's October as recorded (0K4f)",
+   "admissible": true,
    "value": null,
    "valued_in_money": false,
-   "decision": "kobo_generator",
-   "bound_failure": "hard bound: dawn_adequacy exceeded by 4.0"
+   "decision": "kobo_generator"
   },
   "MTO-HULLER": {
    "site": "Mto",
-   "monthly_or_horizon_change": 395.0,
+   "monthly_or_horizon_change": 284.44,
    "months": 12.0,
    "operator_one_off": 1200.0,
    "reference_one_off": 0.0,
@@ -1062,18 +1089,16 @@
     }
    },
    "money_changes": true,
-   "formula": "(contribution under option 1205.0 - under reference 810.0) x 12 - (operator-borne one-off 1200.0 - reference path's 0.0)",
+   "formula": "(contribution under option 1094.44 - under reference 810.0) x 12 - (operator-borne one-off 1200.0 - reference path's 0.0)",
    "protect": {
     "obligation_hours_without_redundancy": 0.0,
     "obligation_hours_without_backup": 0.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 0.0,
     "cover_not_claimable": 0.0
    },
    "reference_protect": {
     "obligation_hours_without_redundancy": 0.0,
     "obligation_hours_without_backup": 0.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 0.0,
     "cover_not_claimable": 0.0
    },
@@ -1089,7 +1114,7 @@
    "violations": {
     "redundancy": 0.0,
     "claimable_cover": 0.0,
-    "dawn_adequacy": 0.0
+    "admission": 0.0
    },
    "restore_basis": null,
    "restore_date": null,
@@ -1097,25 +1122,34 @@
     "load_kw": 15.0,
     "load_hours_per_day": 5.0,
     "days": 22.0,
-    "added_fuel_l": 68.0,
+    "litres_per_kwh": 0.094815,
     "collection": 15.0
    },
-   "design_values": [
-    "M"
+   "replay_sources": [
+    "M8"
    ],
    "assumptions": [],
-   "value_if_admissible": 3540.0,
+   "value_if_admissible": 2213.33,
+   "information": {
+    "source": {
+     "study": "M8",
+     "case": "mto-huller"
+    },
+    "days_without_headroom": "16 of 61 replayed days",
+    "extra_starts": 5,
+    "dawn_days_below": 0
+   },
    "sensitivities": {
-    "diesel_minus_20pct": 3744.0
+    "diesel_minus_20pct": 2682.66
    },
    "admissible": true,
-   "value": 3540.0,
+   "value": 2213.33,
    "valued_in_money": true,
    "decision": "mto_demand"
   },
   "MTO-WELDING": {
    "site": "Mto",
-   "monthly_or_horizon_change": -8.25,
+   "monthly_or_horizon_change": -4.02,
    "months": 12.0,
    "operator_one_off": 0.0,
    "reference_one_off": 0.0,
@@ -1123,18 +1157,16 @@
    "crew_visits": 0,
    "cost_lines": {},
    "money_changes": true,
-   "formula": "(contribution under option 801.75 - under reference 810.0) x 12 - (operator-borne one-off 0.0 - reference path's 0.0)",
+   "formula": "(contribution under option 805.98 - under reference 810.0) x 12 - (operator-borne one-off 0.0 - reference path's 0.0)",
    "protect": {
     "obligation_hours_without_redundancy": 0.0,
     "obligation_hours_without_backup": 0.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 0.0,
     "cover_not_claimable": 0.0
    },
    "reference_protect": {
     "obligation_hours_without_redundancy": 0.0,
     "obligation_hours_without_backup": 0.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 0.0,
     "cover_not_claimable": 0.0
    },
@@ -1150,7 +1182,7 @@
    "violations": {
     "redundancy": 0.0,
     "claimable_cover": 0.0,
-    "dawn_adequacy": 0.0
+    "admission": 0.0
    },
    "restore_basis": null,
    "restore_date": null,
@@ -1158,19 +1190,21 @@
     "load_kw": 10.0,
     "load_hours_per_day": 3.0,
     "days": 22.0,
-    "sfc": 0.33
+    "litres_per_kwh": 0.324868
    },
-   "design_values": [],
+   "replay_sources": [
+    "M8"
+   ],
    "assumptions": [],
-   "value_if_admissible": -99.0,
+   "value_if_admissible": -48.19,
    "admissible": true,
-   "value": -99.0,
+   "value": -48.19,
    "valued_in_money": true,
    "decision": "mto_evening_demand"
   },
   "KIS-BATT60": {
    "site": "Kisiwa",
-   "monthly_or_horizon_change": 195.0,
+   "monthly_or_horizon_change": null,
    "months": 12.0,
    "operator_one_off": 14000.0,
    "reference_one_off": 0.0,
@@ -1185,19 +1219,17 @@
      "operator_share": 1.0
     }
    },
-   "money_changes": true,
-   "formula": "(contribution under option -55.0 - under reference -250.0) x 12 - (operator-borne one-off 14000.0 - reference path's 0.0)",
+   "money_changes": false,
+   "formula": "(contribution under option None - under reference -250.0) x 12 - (operator-borne one-off 14000.0 - reference path's 0.0)",
    "protect": {
     "obligation_hours_without_redundancy": 0.0,
     "obligation_hours_without_backup": 0.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 0.0,
     "cover_not_claimable": 0.0
    },
    "reference_protect": {
     "obligation_hours_without_redundancy": 0.0,
     "obligation_hours_without_backup": 0.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 0.0,
     "cover_not_claimable": 0.0
    },
@@ -1214,26 +1246,25 @@
    "violations": {
     "redundancy": 0.0,
     "claimable_cover": 0.0,
-    "dawn_adequacy": 0.0
+    "admission": 0.0
    },
    "restore_basis": null,
    "restore_date": null,
    "params": {
-    "shifted_fuel_l": 150.0
+    "shifted_fuel_l": null
    },
-   "design_values": [],
-   "assumptions": [
-    "no Kisiwa battery replay exists; deferred option; owner decision Q14"
-   ],
-   "value_if_admissible": -11660.0,
+   "replay_sources": [],
+   "assumptions": [],
+   "value_if_admissible": null,
+   "not_available": "a Kisiwa battery replay (queue Q7)",
    "admissible": true,
-   "value": -11660.0,
-   "valued_in_money": true,
+   "value": null,
+   "valued_in_money": false,
    "decision": "kisiwa_storage"
   },
   "MTO-INV-CLAIM": {
    "site": "Mto",
-   "monthly_or_horizon_change": -137.5,
+   "monthly_or_horizon_change": 0.0,
    "months": 1.0,
    "operator_one_off": 230.0,
    "reference_one_off": 0.0,
@@ -1262,19 +1293,17 @@
      "operator_share": 1.0
     }
    },
-   "money_changes": true,
-   "formula": "(contribution under option 672.5 - under reference 810.0) x 1 - (operator-borne one-off 230.0 - reference path's 0.0)",
+   "money_changes": false,
+   "formula": "(contribution under option 810.0 - under reference 810.0) x 1 - (operator-borne one-off 230.0 - reference path's 0.0)",
    "protect": {
     "obligation_hours_without_redundancy": 110.0,
     "obligation_hours_without_backup": 0.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 0.0,
     "cover_not_claimable": 0.0
    },
    "reference_protect": {
     "obligation_hours_without_redundancy": 0.0,
     "obligation_hours_without_backup": 0.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 0.0,
     "cover_not_claimable": 0.0
    },
@@ -1290,31 +1319,42 @@
    "violations": {
     "redundancy": 0.0,
     "claimable_cover": 0.0,
-    "dawn_adequacy": 0.0
+    "admission": 0.0
    },
    "restore_basis": null,
    "restore_date": "2026-11-28",
    "params": {
     "install_days": 1.0,
     "local_supply_days": 5.0,
-    "extra_l_per_day": 5.0,
+    "extra_l_per_day": 0.0,
     "days_to_restore": 22.0,
     "value_days_to_restore": 22.0
    },
-   "design_values": [],
+   "replay_sources": [
+    "M8"
+   ],
    "assumptions": [],
-   "value_if_admissible": -367.5,
+   "value_if_admissible": null,
+   "information": {
+    "source": {
+     "study": "M8",
+     "case": "reduced"
+    },
+    "extra_generator_kwh": 0,
+    "extra_unserved_kwh": 0,
+    "reason": "over the 61 replayed days the 25 kW limit adds no generator energy and no unserved energy"
+   },
    "sensitivities": {
-    "diesel_minus_20pct": -340.0
+    "diesel_minus_20pct": null
    },
    "admissible": true,
-   "value": -367.5,
-   "valued_in_money": true,
+   "value": null,
+   "valued_in_money": false,
    "decision": "mto_inverter"
   },
   "MTO-INV-BUYNOW": {
    "site": "Mto",
-   "monthly_or_horizon_change": -37.5,
+   "monthly_or_horizon_change": 0.0,
    "months": 1.0,
    "operator_one_off": 2910.0,
    "reference_one_off": 0.0,
@@ -1350,19 +1390,17 @@
      "operator_share": 1.0
     }
    },
-   "money_changes": true,
-   "formula": "(contribution under option 772.5 - under reference 810.0) x 1 - (operator-borne one-off 2910.0 - reference path's 0.0)",
+   "money_changes": false,
+   "formula": "(contribution under option 810.0 - under reference 810.0) x 1 - (operator-borne one-off 2910.0 - reference path's 0.0)",
    "protect": {
     "obligation_hours_without_redundancy": 30.0,
     "obligation_hours_without_backup": 0.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 0.0,
     "cover_not_claimable": 0.0
    },
    "reference_protect": {
     "obligation_hours_without_redundancy": 0.0,
     "obligation_hours_without_backup": 0.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 0.0,
     "cover_not_claimable": 0.0
    },
@@ -1378,50 +1416,59 @@
    "violations": {
     "redundancy": 0.0,
     "claimable_cover": 0.0,
-    "dawn_adequacy": 0.0
+    "admission": 0.0
    },
    "restore_basis": null,
    "restore_date": "2026-11-12",
    "params": {
     "local_supply_days": 5.0,
     "install_days": 1.0,
-    "extra_l_per_day": 5.0,
+    "extra_l_per_day": 0.0,
     "days_to_restore": 6.0,
     "value_days_to_restore": 6.0
    },
-   "design_values": [],
+   "replay_sources": [
+    "M8"
+   ],
    "assumptions": [],
-   "value_if_admissible": -2947.5,
+   "value_if_admissible": null,
+   "information": {
+    "source": {
+     "study": "M8",
+     "case": "reduced"
+    },
+    "extra_generator_kwh": 0,
+    "extra_unserved_kwh": 0,
+    "reason": "over the 61 replayed days the 25 kW limit adds no generator energy and no unserved energy"
+   },
    "sensitivities": {
-    "diesel_minus_20pct": -2940.0
+    "diesel_minus_20pct": null
    },
    "admissible": true,
-   "value": -2947.5,
-   "valued_in_money": true,
+   "value": null,
+   "valued_in_money": false,
    "decision": "mto_inverter"
   },
   "MTO-INV-NOACT": {
    "site": "Mto",
-   "monthly_or_horizon_change": -2281.25,
+   "monthly_or_horizon_change": 0.0,
    "months": 1.0,
    "operator_one_off": 0.0,
    "reference_one_off": 0.0,
    "net_one_off": 0.0,
    "crew_visits": 0,
    "cost_lines": {},
-   "money_changes": true,
-   "formula": "(contribution under option -1471.25 - under reference 810.0) x 1 - (operator-borne one-off 0.0 - reference path's 0.0)",
+   "money_changes": false,
+   "formula": "(contribution under option 810.0 - under reference 810.0) x 1 - (operator-borne one-off 0.0 - reference path's 0.0)",
    "protect": {
     "obligation_hours_without_redundancy": 125.0,
     "obligation_hours_without_backup": 0.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 0.0,
     "cover_not_claimable": 2600.0
    },
    "reference_protect": {
     "obligation_hours_without_redundancy": 0.0,
     "obligation_hours_without_backup": 0.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 0.0,
     "cover_not_claimable": 0.0
    },
@@ -1439,18 +1486,29 @@
    "violations": {
     "redundancy": 0.0,
     "claimable_cover": 2600.0,
-    "dawn_adequacy": 0.0
+    "admission": 0.0
    },
    "restore_basis": null,
    "restore_date": null,
    "params": {
-    "extra_l_per_day": 5.0,
+    "extra_l_per_day": 0.0,
     "days_to_restore": 25.0,
     "value_days_to_restore": 365.0
    },
-   "design_values": [],
+   "replay_sources": [
+    "M8"
+   ],
    "assumptions": [],
-   "value_if_admissible": -2281.25,
+   "value_if_admissible": null,
+   "information": {
+    "source": {
+     "study": "M8",
+     "case": "reduced"
+    },
+    "extra_generator_kwh": 0,
+    "extra_unserved_kwh": 0,
+    "reason": "over the 61 replayed days the 25 kW limit adds no generator energy and no unserved energy"
+   },
    "admissible": false,
    "value": null,
    "valued_in_money": false,
@@ -1459,7 +1517,7 @@
   },
   "MTO-INV-LOCAL": {
    "site": "Mto",
-   "monthly_or_horizon_change": -12.5,
+   "monthly_or_horizon_change": 0.0,
    "months": 1.0,
    "operator_one_off": 450.0,
    "reference_one_off": 0.0,
@@ -1474,19 +1532,17 @@
      "operator_share": 1.0
     }
    },
-   "money_changes": true,
-   "formula": "(contribution under option 797.5 - under reference 810.0) x 1 - (operator-borne one-off 450.0 - reference path's 0.0)",
+   "money_changes": false,
+   "formula": "(contribution under option 810.0 - under reference 810.0) x 1 - (operator-borne one-off 450.0 - reference path's 0.0)",
    "protect": {
     "obligation_hours_without_redundancy": 10.0,
     "obligation_hours_without_backup": 0.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 0.0,
     "cover_not_claimable": 2600.0
    },
    "reference_protect": {
     "obligation_hours_without_redundancy": 0.0,
     "obligation_hours_without_backup": 0.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 0.0,
     "cover_not_claimable": 0.0
    },
@@ -1502,21 +1558,32 @@
    "violations": {
     "redundancy": 0.0,
     "claimable_cover": 2600.0,
-    "dawn_adequacy": 0.0
+    "admission": 0.0
    },
    "restore_basis": null,
    "restore_date": "2026-11-08",
    "params": {
     "local_repair_days": 2.0,
-    "extra_l_per_day": 5.0,
+    "extra_l_per_day": 0.0,
     "days_to_restore": 2.0,
     "value_days_to_restore": 2.0
    },
-   "design_values": [],
+   "replay_sources": [
+    "M8"
+   ],
    "assumptions": [
     "a local technician opens and repairs the unit in 2 days; no quote held"
    ],
-   "value_if_admissible": -462.5,
+   "value_if_admissible": null,
+   "information": {
+    "source": {
+     "study": "M8",
+     "case": "reduced"
+    },
+    "extra_generator_kwh": 0,
+    "extra_unserved_kwh": 0,
+    "reason": "over the 61 replayed days the 25 kW limit adds no generator energy and no unserved energy"
+   },
    "admissible": false,
    "value": null,
    "valued_in_money": false,
@@ -1545,14 +1612,12 @@
    "protect": {
     "obligation_hours_without_redundancy": 15.0,
     "obligation_hours_without_backup": 15.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 0.0,
     "cover_not_claimable": 0.0
    },
    "reference_protect": {
     "obligation_hours_without_redundancy": 125.0,
     "obligation_hours_without_backup": 125.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 0.0,
     "cover_not_claimable": 0.0
    },
@@ -1569,7 +1634,7 @@
    "violations": {
     "redundancy": 15.0,
     "claimable_cover": 0.0,
-    "dawn_adequacy": 0.0
+    "admission": 0.0
    },
    "restore_basis": null,
    "restore_date": "2026-11-09",
@@ -1578,7 +1643,7 @@
     "days_to_restore": 3.0,
     "value_days_to_restore": 3.0
    },
-   "design_values": [],
+   "replay_sources": [],
    "assumptions": [],
    "value_if_admissible": null,
    "admissible": false,
@@ -1609,14 +1674,12 @@
    "protect": {
     "obligation_hours_without_redundancy": 105.0,
     "obligation_hours_without_backup": 105.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 0.0,
     "cover_not_claimable": 0.0
    },
    "reference_protect": {
     "obligation_hours_without_redundancy": 125.0,
     "obligation_hours_without_backup": 125.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 0.0,
     "cover_not_claimable": 0.0
    },
@@ -1633,7 +1696,7 @@
    "violations": {
     "redundancy": 105.0,
     "claimable_cover": 0.0,
-    "dawn_adequacy": 0.0
+    "admission": 0.0
    },
    "restore_basis": null,
    "restore_date": "2026-11-27",
@@ -1641,7 +1704,7 @@
     "days_to_restore": 21.0,
     "value_days_to_restore": 21.0
    },
-   "design_values": [],
+   "replay_sources": [],
    "assumptions": [],
    "value_if_admissible": null,
    "admissible": false,
@@ -1664,14 +1727,12 @@
    "protect": {
     "obligation_hours_without_redundancy": 125.0,
     "obligation_hours_without_backup": 125.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 0.0,
     "cover_not_claimable": 0.0
    },
    "reference_protect": {
     "obligation_hours_without_redundancy": 0.0,
     "obligation_hours_without_backup": 0.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 0.0,
     "cover_not_claimable": 0.0
    },
@@ -1688,7 +1749,7 @@
    "violations": {
     "redundancy": 125.0,
     "claimable_cover": 0.0,
-    "dawn_adequacy": 0.0
+    "admission": 0.0
    },
    "restore_basis": null,
    "restore_date": null,
@@ -1696,7 +1757,7 @@
     "days_to_restore": 25.0,
     "value_days_to_restore": 365.0
    },
-   "design_values": [],
+   "replay_sources": [],
    "assumptions": [],
    "value_if_admissible": null,
    "admissible": false,
@@ -1734,14 +1795,12 @@
    "protect": {
     "obligation_hours_without_redundancy": 0.0,
     "obligation_hours_without_backup": 0.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 0.0,
     "cover_not_claimable": 0.0
    },
    "reference_protect": {
     "obligation_hours_without_redundancy": 0.0,
     "obligation_hours_without_backup": 0.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 64000.0,
     "cover_not_claimable": 64000.0
    },
@@ -1757,12 +1816,12 @@
    "violations": {
     "redundancy": 0.0,
     "claimable_cover": 0.0,
-    "dawn_adequacy": 0.0
+    "admission": 0.0
    },
    "restore_basis": null,
    "restore_date": null,
    "params": {},
-   "design_values": [],
+   "replay_sources": [],
    "assumptions": [],
    "value_if_admissible": null,
    "admissible": true,
@@ -1784,14 +1843,12 @@
    "protect": {
     "obligation_hours_without_redundancy": 0.0,
     "obligation_hours_without_backup": 0.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 64000.0,
     "cover_not_claimable": 64000.0
    },
    "reference_protect": {
     "obligation_hours_without_redundancy": 0.0,
     "obligation_hours_without_backup": 0.0,
-    "replayed_dawn_days_below_safeguard": 0.0,
     "unclaimable_cover": 64000.0,
     "cover_not_claimable": 64000.0
    },
@@ -1807,12 +1864,12 @@
    "violations": {
     "redundancy": 0.0,
     "claimable_cover": 64000.0,
-    "dawn_adequacy": 0.0
+    "admission": 0.0
    },
    "restore_basis": null,
    "restore_date": null,
    "params": {},
-   "design_values": [],
+   "replay_sources": [],
    "assumptions": [],
    "value_if_admissible": null,
    "admissible": false,
@@ -1875,7 +1932,7 @@
     "contract_rate": 0.18,
     "handling": 100.0
    },
-   "design_values": [],
+   "replay_sources": [],
    "assumptions": [],
    "value_if_admissible": 1670.0,
    "admissible": true,
@@ -1927,7 +1984,7 @@
    "params": {
     "recovery_share": 0.8
    },
-   "design_values": [],
+   "replay_sources": [],
    "assumptions": [
     "recovery share 80% (range 60-90%)"
    ],
@@ -1984,7 +2041,7 @@
    "params": {
     "new_unit_factor": 0.95
    },
-   "design_values": [],
+   "replay_sources": [],
    "assumptions": [
     "a new compressor runs 5% below the occupancy model (vendor datasheet)"
    ],
@@ -2042,7 +2099,7 @@
     "days_to_restore": 2.0,
     "value_days_to_restore": 2.0
    },
-   "design_values": [],
+   "replay_sources": [],
    "assumptions": [
     "if the EPC remedy is refused, a controller is bought from local stock and fitted the same day; no quote held"
    ],
@@ -2114,7 +2171,7 @@
     "days_to_restore": 0.0,
     "value_days_to_restore": 0.0
    },
-   "design_values": [],
+   "replay_sources": [],
    "assumptions": [],
    "value_if_admissible": null,
    "admissible": true,
@@ -2170,7 +2227,7 @@
     "days_to_restore": 0.0,
     "value_days_to_restore": 0.0
    },
-   "design_values": [],
+   "replay_sources": [],
    "assumptions": [
     "controller held in local stock and fitted the same day; no quote held (rev 12, L3)"
    ],
@@ -2225,13 +2282,9 @@
    "params": {
     "max_kw_option": 400.0,
     "hours_before_midnight": 2.0,
-    "hours_after_midnight": 5.0,
-    "feasible_nights": 31.0,
-    "bus_short_on_infeasible_night": 1.0
+    "hours_after_midnight": 5.0
    },
-   "design_values": [
-    "E"
-   ],
+   "replay_sources": [],
    "assumptions": [],
    "value_if_admissible": 95484.0,
    "bound": {
@@ -2290,7 +2343,7 @@
     "max_kw_option": 500.0,
     "hours_after_midnight": 5.0
    },
-   "design_values": [],
+   "replay_sources": [],
    "assumptions": [],
    "value_if_admissible": 101556.0,
    "bound": {
@@ -2360,7 +2413,7 @@
     "value_days_to_restore": 3.0,
     "spare_cover": 1.0
    },
-   "design_values": [],
+   "replay_sources": [],
    "assumptions": [],
    "value_if_admissible": null,
    "bound": {
@@ -2438,7 +2491,7 @@
     "value_days_to_restore": 3.0,
     "spare_cover": 1.0
    },
-   "design_values": [],
+   "replay_sources": [],
    "assumptions": [],
    "value_if_admissible": 150.0,
    "bound": {
@@ -2507,7 +2560,7 @@
     "value_days_to_restore": 1.0,
     "spare_cover": 0.0
    },
-   "design_values": [],
+   "replay_sources": [],
    "assumptions": [],
    "value_if_admissible": -260.0,
    "bound": {
@@ -2565,7 +2618,7 @@
    "params": {
     "added_buses": 6.0
    },
-   "design_values": [],
+   "replay_sources": [],
    "assumptions": [],
    "value_if_admissible": null,
    "bound": {
@@ -2631,7 +2684,7 @@
     "added_chargers": 4.0,
     "unit_cost": 15000.0
    },
-   "design_values": [],
+   "replay_sources": [],
    "assumptions": [],
    "value_if_admissible": null,
    "bound": {
@@ -2688,7 +2741,7 @@
    "params": {
     "added_buses": 10.0
    },
-   "design_values": [],
+   "replay_sources": [],
    "assumptions": [],
    "value_if_admissible": null,
    "bound": {
@@ -2726,22 +2779,19 @@
     }
    },
    "default": {
-    "value": 6088.5,
-    "spend": 3750.0,
+    "value": 2213.33,
+    "spend": 3660.0,
     "items": [
      "KIS-REPAIR",
      "BAT-EVIDENCE",
-     "KOB-STOPSOC",
      "MTO-INV-CLAIM",
      "MTO-HULLER"
     ],
     "valued_options": [
-     "KOB-STOPSOC",
-     "MTO-INV-CLAIM",
      "MTO-HULLER"
     ],
-    "valued_option_costs": 1520.0,
-    "not_valued_in_money": 2230.0,
+    "valued_option_costs": 1200.0,
+    "not_valued_in_money": 2460.0,
     "crew_visits_used": 3,
     "crew_visits_limit": 3,
     "protective_choices": {
@@ -2766,22 +2816,19 @@
    },
    "switch_cases": {
     "5000/True": {
-     "value": 6088.5,
-     "spend": 3750.0,
+     "value": 2213.33,
+     "spend": 3660.0,
      "items": [
       "KIS-REPAIR",
       "BAT-EVIDENCE",
-      "KOB-STOPSOC",
       "MTO-INV-CLAIM",
       "MTO-HULLER"
      ],
      "valued_options": [
-      "KOB-STOPSOC",
-      "MTO-INV-CLAIM",
       "MTO-HULLER"
      ],
-     "valued_option_costs": 1520.0,
-     "not_valued_in_money": 2230.0,
+     "valued_option_costs": 1200.0,
+     "not_valued_in_money": 2460.0,
      "crew_visits_used": 3,
      "crew_visits_limit": 3,
      "protective_choices": {
@@ -2805,20 +2852,16 @@
      "least_violation_total": 15.0
     },
     "5000/False": {
-     "value": 2548.5,
-     "spend": 2550.0,
+     "value": 0.0,
+     "spend": 2460.0,
      "items": [
       "KIS-REPAIR",
       "BAT-EVIDENCE",
-      "KOB-STOPSOC",
       "MTO-INV-CLAIM"
      ],
-     "valued_options": [
-      "KOB-STOPSOC",
-      "MTO-INV-CLAIM"
-     ],
-     "valued_option_costs": 320.0,
-     "not_valued_in_money": 2230.0,
+     "valued_options": [],
+     "valued_option_costs": 0.0,
+     "not_valued_in_money": 2460.0,
      "crew_visits_used": 3,
      "crew_visits_limit": 3,
      "protective_choices": {
@@ -2842,22 +2885,19 @@
      "least_violation_total": 15.0
     },
     "6500/True": {
-     "value": 6088.5,
-     "spend": 3750.0,
+     "value": 2213.33,
+     "spend": 3660.0,
      "items": [
       "KIS-REPAIR",
       "BAT-EVIDENCE",
-      "KOB-STOPSOC",
       "MTO-INV-CLAIM",
       "MTO-HULLER"
      ],
      "valued_options": [
-      "KOB-STOPSOC",
-      "MTO-INV-CLAIM",
       "MTO-HULLER"
      ],
-     "valued_option_costs": 1520.0,
-     "not_valued_in_money": 2230.0,
+     "valued_option_costs": 1200.0,
+     "not_valued_in_money": 2460.0,
      "crew_visits_used": 3,
      "crew_visits_limit": 3,
      "protective_choices": {
@@ -2881,22 +2921,19 @@
      "least_violation_total": 15.0
     },
     "6500/False": {
-     "value": 3508.5,
-     "spend": 6430.0,
+     "value": 2213.33,
+     "spend": 6340.0,
      "items": [
       "KIS-REPAIR",
       "BAT-EVIDENCE",
-      "KOB-STOPSOC",
       "MTO-INV-BUYNOW",
       "MTO-HULLER"
      ],
      "valued_options": [
-      "KOB-STOPSOC",
-      "MTO-INV-BUYNOW",
       "MTO-HULLER"
      ],
-     "valued_option_costs": 4200.0,
-     "not_valued_in_money": 2230.0,
+     "valued_option_costs": 1200.0,
+     "not_valued_in_money": 5140.0,
      "crew_visits_used": 3,
      "crew_visits_limit": 3,
      "protective_choices": {
@@ -2924,30 +2961,22 @@
    },
    "sensitivity_values": {
     "cooperative_does_not_sign": {
-     "value": 2548.5,
-     "valued_options": [
-      "KOB-STOPSOC",
-      "MTO-INV-CLAIM"
-     ]
+     "value": 0.0,
+     "valued_options": []
     },
     "diesel_minus_20pct": {
-     "value": 5690.0,
+     "value": 2682.66,
      "valued_options": [
-      "KOB-STOPSOC",
-      "MTO-INV-CLAIM",
-      "MTO-HULLER"
-     ]
-    },
-    "feasible_fuel_160l": {
-     "value": 5338.5,
-     "valued_options": [
-      "KOB-STOPSOC",
-      "MTO-INV-CLAIM",
       "MTO-HULLER"
      ]
     }
    },
-   "downside": 2548.5
+   "downside": 0.0,
+   "not_available": {
+    "KOB-STOPSOC": "a dispatch replay on Kobo's October as recorded (0K4f)",
+    "KOB-RESERVE": "a dispatch replay on Kobo's October as recorded (0K4f)",
+    "KIS-BATT60": "a Kisiwa battery replay (queue Q7)"
+   }
   },
   "harvest-cold": {
    "protective_choices": {
@@ -3615,12 +3644,11 @@
     "lakeside-power": {
      "cases": {
       "5000/True": {
-       "value": 6088.5,
-       "spend": 3750.0,
+       "value": 2213.33,
+       "spend": 3660.0,
        "items": [
         "KIS-REPAIR",
         "BAT-EVIDENCE",
-        "KOB-STOPSOC",
         "MTO-INV-CLAIM",
         "MTO-HULLER"
        ],
@@ -3629,12 +3657,11 @@
        "spend_change_vs_applied": 0.0
       },
       "5000/False": {
-       "value": 2548.5,
-       "spend": 2550.0,
+       "value": 0.0,
+       "spend": 2460.0,
        "items": [
         "KIS-REPAIR",
         "BAT-EVIDENCE",
-        "KOB-STOPSOC",
         "MTO-INV-CLAIM"
        ],
        "crew_visits_used": 3,
@@ -3642,12 +3669,11 @@
        "spend_change_vs_applied": 0.0
       },
       "6500/True": {
-       "value": 6088.5,
-       "spend": 3750.0,
+       "value": 2213.33,
+       "spend": 3660.0,
        "items": [
         "KIS-REPAIR",
         "BAT-EVIDENCE",
-        "KOB-STOPSOC",
         "MTO-INV-CLAIM",
         "MTO-HULLER"
        ],
@@ -3656,12 +3682,11 @@
        "spend_change_vs_applied": 0.0
       },
       "6500/False": {
-       "value": 3508.5,
-       "spend": 6430.0,
+       "value": 2213.33,
+       "spend": 6340.0,
        "items": [
         "KIS-REPAIR",
         "BAT-EVIDENCE",
-        "KOB-STOPSOC",
         "MTO-INV-BUYNOW",
         "MTO-HULLER"
        ],
@@ -3728,12 +3753,11 @@
     "lakeside-power": {
      "cases": {
       "5000/True": {
-       "value": 6088.5,
-       "spend": 3750.0,
+       "value": 2213.33,
+       "spend": 3660.0,
        "items": [
         "KIS-REPAIR",
         "BAT-EVIDENCE",
-        "KOB-STOPSOC",
         "MTO-INV-CLAIM",
         "MTO-HULLER"
        ],
@@ -3742,12 +3766,11 @@
        "spend_change_vs_applied": 0.0
       },
       "5000/False": {
-       "value": 2548.5,
-       "spend": 2550.0,
+       "value": 0.0,
+       "spend": 2460.0,
        "items": [
         "KIS-REPAIR",
         "BAT-EVIDENCE",
-        "KOB-STOPSOC",
         "MTO-INV-CLAIM"
        ],
        "crew_visits_used": 3,
@@ -3755,26 +3778,24 @@
        "spend_change_vs_applied": 0.0
       },
       "6500/True": {
-       "value": 3508.5,
-       "spend": 6430.0,
+       "value": 2213.33,
+       "spend": 6340.0,
        "items": [
         "KIS-REPAIR",
         "BAT-EVIDENCE",
-        "KOB-STOPSOC",
         "MTO-INV-BUYNOW",
         "MTO-HULLER"
        ],
        "crew_visits_used": 3,
-       "value_change_vs_applied": -2580.0,
+       "value_change_vs_applied": 0.0,
        "spend_change_vs_applied": 2680.0
       },
       "6500/False": {
-       "value": 3508.5,
-       "spend": 6430.0,
+       "value": 2213.33,
+       "spend": 6340.0,
        "items": [
         "KIS-REPAIR",
         "BAT-EVIDENCE",
-        "KOB-STOPSOC",
         "MTO-INV-BUYNOW",
         "MTO-HULLER"
        ],
@@ -3841,12 +3862,11 @@
     "lakeside-power": {
      "cases": {
       "5000/True": {
-       "value": 6088.5,
-       "spend": 1950.0,
+       "value": 2213.33,
+       "spend": 1860.0,
        "items": [
         "KIS-NOACT",
         "BAT-EVIDENCE",
-        "KOB-STOPSOC",
         "MTO-INV-CLAIM",
         "MTO-HULLER"
        ],
@@ -3855,26 +3875,24 @@
        "spend_change_vs_applied": -1800.0
       },
       "5000/False": {
-       "value": 3508.5,
-       "spend": 4630.0,
+       "value": 2213.33,
+       "spend": 4540.0,
        "items": [
         "KIS-NOACT",
         "BAT-EVIDENCE",
-        "KOB-STOPSOC",
         "MTO-INV-BUYNOW",
         "MTO-HULLER"
        ],
        "crew_visits_used": 2,
-       "value_change_vs_applied": 960.0,
+       "value_change_vs_applied": 2213.33,
        "spend_change_vs_applied": 2080.0
       },
       "6500/True": {
-       "value": 6088.5,
-       "spend": 1950.0,
+       "value": 2213.33,
+       "spend": 1860.0,
        "items": [
         "KIS-NOACT",
         "BAT-EVIDENCE",
-        "KOB-STOPSOC",
         "MTO-INV-CLAIM",
         "MTO-HULLER"
        ],
@@ -3883,12 +3901,11 @@
        "spend_change_vs_applied": -1800.0
       },
       "6500/False": {
-       "value": 3508.5,
-       "spend": 4630.0,
+       "value": 2213.33,
+       "spend": 4540.0,
        "items": [
         "KIS-NOACT",
         "BAT-EVIDENCE",
-        "KOB-STOPSOC",
         "MTO-INV-BUYNOW",
         "MTO-HULLER"
        ],

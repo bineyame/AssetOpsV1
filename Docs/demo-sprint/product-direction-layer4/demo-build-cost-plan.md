@@ -25,16 +25,16 @@ The build therefore starts from the choice and asks, mechanic by mechanic, what 
 
 ### 1.2 Per portfolio: the choice, the factor states it needs, and the facts that produce them
 
-**Lakeside Power (mini-grid).** *Choice:* with 5,000 and three crew visits, repair Kisiwa's genset (must-do), trial Kobo's lower generator stop threshold, claim Mto's inverter under warranty, connect the rice huller, fix Mto's meter mapping and assemble Kobo's battery evidence: spend 3,750.00<!--fig:plans.lakeside-power.default.spend-->, modelled 12-month change +6,088.50<!--fig:plans.lakeside-power.default.value-->, not realised (both evaluated by `evaluate_structure.py`).
+**Lakeside Power (mini-grid).** *Choice:* with 5,000 and three crew visits, repair Kisiwa's genset (must-do), claim Mto's inverter under warranty, connect the rice huller, fix Mto's meter mapping and assemble Kobo's battery evidence (Kobo's two generator settings are admitted on the replay, but their litres and value are Not available yet: a dispatch replay on Kobo's October as recorded; 0K4f): spend 3,660.00<!--fig:plans.lakeside-power.default.spend-->, modelled 12-month change +2,213.33<!--fig:plans.lakeside-power.default.value-->, not realised (both evaluated by `evaluate_structure.py`).
 
 | Factor state the tour needs | Intended value (manifest) | Facts that must produce it | Time scale |
 |---|---|---|---|
-| Kobo candidate running (observed) and each option's feasible reduction of it (option effect) | 330 L observed; 210 L (stop threshold) / 20 L (reserve) as option effects | 5-minute generator, PV-available, load and SOC on the 11 candidate days; 61 days of 15-minute context for the replay | evidence window + sparse context |
-| Kobo litres beyond the model | 120 L (above 2%) | dips 220 → 240, deliveries 1,200<!--rec:tenants[lakeside-power].sites[Kobo].period.fuel_balance.deliveries_l--> L (one entered 9 days late, OOO-1) | ledger history |
-| Kisiwa every generator interval necessary (negative control) | 0 candidate minutes; 20 L residual within tolerance | 15-minute context showing load > PV + PCS every evening; battery near reserve on 22 days | sparse context |
+| Kobo candidate running (observed) and each setting's reduction of it (option effect) | 330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> L as the simulated world records it (dispatch-3.2; dispatch-3.3 re-classifies it in 0K4f); each setting's litres Not available yet (a dispatch replay on Kobo's October as recorded; 0K4f) | 5-minute generator, PV-available, load and SOC on the 11 candidate days; 61 days of 15-minute context for the replay | evidence window + sparse context |
+| Kobo litres beyond the model | 120<!--fig:sites.lakeside-power/Kobo.actual.nodes.unexplained_l--> L (above 2%) | dips 220 → 240, deliveries 1,200<!--rec:tenants[lakeside-power].sites[Kobo].period.fuel_balance.deliveries_l--> L (one entered 9 days late, OOO-1) | ledger history |
+| Kisiwa every generator interval necessary (negative control) | 0 candidate minutes; 20<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.unexplained_l--> L residual within tolerance | 15-minute context showing load > PV + PCS every evening; battery near reserve on 22 days | sparse context |
 | Mto unmapped kWh / authorised / unexplained | 140 / 40 / 120 kWh | meter register with the 3 Oct swap; meter reads; billing export | ledger history |
 | Mto cash | 1,890 + 150 in transit + 120 outstanding | receipts; settlement 2 Nov (LATE-SETTLE-1) | ledger history |
-| Mto daytime headroom vs huller | 3 days without headroom; 68 L extra fuel | 61 days of 15-minute PV-available and load | sparse context |
+| Mto daytime headroom vs huller | huller litres per customer kWh from the M8 replay (0.094815<!--fig:options.MTO-HULLER.params.litres_per_kwh--> L/kWh, SIMULATED), days without headroom as information | 61 days of 15-minute PV-available and load | sparse context |
 | Rights | INV-MT-02 potentially covered; GEN-KS-01 expired and excluded; BAT-001 insufficient evidence; Kisiwa O&M review required | contract documents with reviewed rows; fault event 28 Oct; run hours 1,240; tickets 30 Oct → 3 Nov; weather bulletin | documents + events |
 | Coverage | 91.5% of cost Recorded | Kisiwa O&M invoice withheld (GAP-1) | ledger history |
 

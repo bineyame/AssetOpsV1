@@ -20,3 +20,6 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-11-22 `owner-merge-on-accept-ia-shape-k10-2026-11-22.md` UI slices merge on review ACCEPT; one walkthrough at product shape; spec the real app onto the IA shape; K10 removal approved · current
 - 2026-11-22 `owner-accept-p6-defaults-2026-11-22.md` Accepts all P6 defaults 1-7 (decisions valued against doing nothing) · current
 - 2026-11-22 `owner-iap-q1-q2-kobo-datasheets-2026-11-22.md` Month is the Overview; Overview follows the date range; Kobo simulated + data sheets; 6c Kobo fuel "Not available yet" until 0K4f · current
+- 2026-11-22 `owner-demo-data-spec-2026-11-22.md` Go ahead with the demo-data spec (every Site type, months of history, telemetry if demo-critical), grounded on the product goals · current
+- 2026-11-22 `owner-demo-data-answers-2026-11-22.md` DD answers: readings 1 Jul-6 Nov, four months of books, one operator served at a time, Kobo kit FG Wilson P50-3 36 kW + Pylontech · current
+- 2026-11-22 `owner-docs-refresh-2026-11-22.md` Refresh NOW and SUMMARY now; one design-doc + mock alignment pass after IA-P and DD land · current

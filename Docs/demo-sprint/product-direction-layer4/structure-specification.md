@@ -24,7 +24,7 @@ Terms: *record path* means a dotted path into the site's context (§2.3). *Expre
 | Structure declaration | the node expressions of each vertical and the record-to-leaf map | `structures`, `factor_map`, site `factor_sources` | the spec itself |
 | Record | an observed fact, a contract term or a dated event | tenant and site records (period, observations, physical, tariff, prices, incident, entitlement, decision rows) | coverage class (RECORDED, ESTIMATED) |
 | Quote | a price, lead time or duration offered by a supplier or contractor | option `params` and `cost_lines`, with `basis` | `basis` |
-| Replay design value | a figure a calibration replay must reproduce before it is relied on | option `params` with `design_value: K\|M\|E`, and physical fields marked as spike outputs | "design value" label wherever shown |
+| Replay study figure | a rate or count read from a committed v8 replay study (K8 Kobo, M8 Mto), through `replay-studies.json`; a quantity no study yet gives reads `unavailable("<record>")` | option `params` with `source: {study, case, field}`, option `information`, `replay_studies`; `unavailable(...)` params | SIMULATED, MODELLED, with the study's assumptions; "Not available yet" naming its record |
 | Assumption | a value with no record or quote | option `params` with `assumption:` | "assumption" label |
 | Policy declaration | the operator's obligation bounds and how each decision treats them | `evaluation.bounds`, `plan.decisions[].kind / hard / fallback / optional` | reason text; owner question where open (Q15) |
 | Owner or person decision | budget, crew limits, switches, horizon | tenant `portfolio_constraints`, `plan.budget`, `plan.switches` | switch shown on screen |

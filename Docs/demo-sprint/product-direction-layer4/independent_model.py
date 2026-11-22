@@ -95,9 +95,44 @@ class Unresolved(Exception):
     pass
 
 
+class NotAvailable:
+    """N1 (0K4m spec §2.2, R4): a value that is not available, carrying its record words. It is its own value, never a
+    missing record: `|` falls through only on Unresolved, never on this. Arithmetic on it gives it back (so sums and
+    differences stay not available); comparisons and truth tests are not defined and fail loudly."""
+    __slots__ = ("words",)
+
+    def __init__(self, words):
+        self.words = words
+
+    def __repr__(self):
+        return "NotAvailable(%r)" % (self.words,)
+
+    def _same(self, *_):
+        return self
+
+    __add__ = __radd__ = __sub__ = __rsub__ = __mul__ = __rmul__ = __truediv__ = __rtruediv__ = _same
+    __neg__ = __pos__ = _same
+
+    def __bool__(self):
+        raise TypeError("a not-available value has no truth value")
+
+
+def is_na(v):
+    return isinstance(v, NotAvailable)
+
+
+def first_na(*vals):
+    for v in vals:
+        if isinstance(v, NotAvailable):
+            return v
+    return None
+
+
 def D(x):
     if isinstance(x, Decimal):
         return x
+    if isinstance(x, NotAvailable):
+        raise TypeError("a not-available value reached a number conversion: %r" % (x,))
     if isinstance(x, bool) or x is None:
         raise Unresolved("not a number: %r" % (x,))
     if isinstance(x, int):
@@ -130,12 +165,14 @@ def add_business_days(d, n):
 
 
 def r2(x):
-    if x is None:
+    if x is None or is_na(x):
         return None
     return float(D(x).quantize(CENT, rounding=ROUND_HALF_EVEN))
 
 
 def rdec(x, decimals):
+    if is_na(x):
+        return None
     q = Decimal(1).scaleb(-int(decimals))
     return float(D(x).quantize(q, rounding=ROUND_HALF_EVEN))
 
@@ -207,6 +244,30 @@ FUNCS = {"min": _fn_min, "max": _fn_max, "ceil": _fn_ceil, "floor": _fn_floor,
          "days_incl": _fn_days_incl, "days_between": _fn_days_between, "nights_listed": _fn_nights_listed}
 
 
+def _ev_or(node, resolve):
+    """(value, None) or (None, Unresolved): both operands of an operator are evaluated, so a not-available operand wins
+    over a missing record whichever side it is on (N1: the node is not available when it reads a not-available value)."""
+    try:
+        return _ev(node, resolve), None
+    except Unresolved as e:
+        return None, e
+
+
+def _operands(nodes, resolve):
+    vals, err = [], None
+    for n in nodes:
+        v, e = _ev_or(n, resolve)
+        vals.append(v)
+        if e is not None and err is None:
+            err = e
+    na = first_na(*vals)
+    if na is not None:
+        return na, None
+    if err is not None:
+        raise err
+    return None, vals
+
+
 def _ev(node, resolve):
     if isinstance(node, ast.Constant):
         v = node.value
@@ -219,6 +280,8 @@ def _ev(node, resolve):
         return resolve(node.id)
     if isinstance(node, ast.Attribute):
         base = _ev(node.value, resolve)
+        if is_na(base):
+            return base
         if isinstance(base, dict) and node.attr in base and base[node.attr] is not None:
             return base[node.attr]
         raise Unresolved("missing attribute %s" % node.attr)
@@ -228,6 +291,9 @@ def _ev(node, resolve):
         if hasattr(ast, "Index") and isinstance(sl, getattr(ast, "Index")):  # pragma: no cover (py<3.9)
             sl = sl.value
         idx = _ev(sl, resolve)
+        na = first_na(base, idx)
+        if na is not None:
+            return na
         if isinstance(base, list):
             try:
                 i = int(D(idx))
@@ -245,13 +311,15 @@ def _ev(node, resolve):
             raise Unresolved("missing key %r" % (key,))
         raise Unresolved("not subscriptable")
     if isinstance(node, ast.BinOp):
-        if isinstance(node.op, ast.BitOr):
+        if isinstance(node.op, ast.BitOr):   # R4: the right side runs only on a missing record, never on not available
             try:
                 return _ev(node.left, resolve)
             except Unresolved:
                 return _ev(node.right, resolve)
-        a = D(_ev(node.left, resolve))
-        b = D(_ev(node.right, resolve))
+        na, vals = _operands((node.left, node.right), resolve)
+        if na is not None:
+            return na
+        a, b = D(vals[0]), D(vals[1])
         if isinstance(node.op, ast.Add):
             return a + b
         if isinstance(node.op, ast.Sub):
@@ -264,16 +332,29 @@ def _ev(node, resolve):
             return a / b
         raise ValueError("operator not allowed")
     if isinstance(node, ast.UnaryOp):
-        v = D(_ev(node.operand, resolve))
+        v = _ev(node.operand, resolve)
+        if is_na(v):
+            return v
+        v = D(v)
         if isinstance(node.op, ast.USub):
             return -v
         if isinstance(node.op, ast.UAdd):
             return v
         raise ValueError("unary operator not allowed")
     if isinstance(node, ast.Call):
+        if isinstance(node.func, ast.Name) and node.func.id == "unavailable":   # I6: reserved, matched before FUNCS
+            a = node.args
+            if node.keywords or len(a) != 1 or not isinstance(a[0], ast.Constant) or not isinstance(a[0].value, str) \
+                    or not a[0].value.strip():
+                raise ValueError("unavailable() takes exactly one non-empty string of record words")
+            return NotAvailable(a[0].value)
         if not isinstance(node.func, ast.Name) or node.func.id not in FUNCS or node.keywords:
             raise ValueError("function not allowed")
-        args = [_ev(a, resolve) for a in node.args]
+        if any(isinstance(a, ast.Constant) and isinstance(a.value, str) for a in node.args):
+            raise ValueError("a string argument is legal only in unavailable()")
+        na, args = _operands(node.args, resolve)
+        if na is not None:
+            return na
         return FUNCS[node.func.id](*args)
     raise ValueError("expression element not allowed: %s" % type(node).__name__)
 
@@ -292,7 +373,8 @@ def evaluate(expr, resolve):
 
 
 def evaluate_num(expr, resolve):
-    return D(evaluate(expr, resolve))
+    v = evaluate(expr, resolve)
+    return v if is_na(v) else D(v)
 
 
 class Env:
@@ -833,7 +915,9 @@ class Model:
     def evaluate_option(self, oid):
         spec, tid, t, s, V = self.option_setup(oid)
         run, ref, delta, months, value = self.option_value_parts(oid)
-        valued = (delta != 0) and not spec.get("comparator") and not spec.get("is_reference")
+        # N1: the option is not available when a param, its value, or a bound over its nodes is; the words are the first
+        # not-available param's (in params order), else the value's, else the first such bound's
+        na = first_na(*run["params"].values(), value)
 
         violations = OrderedDict()
         for b in (self.ev.get("bounds") or {}).get(V) or []:
@@ -841,7 +925,13 @@ class Model:
             if val is None:
                 continue
             limit = evaluate_num(b["max"], run["env"].resolve)
+            bna = first_na(val, limit)
+            if bna is not None:   # neither passes nor fails: no violation is recorded (null), and the option is not available
+                violations[b["id"]] = None
+                na = na if na is not None else bna
+                continue
             violations[b["id"]] = max(val - limit, ZERO)
+        valued = (na is None) and (delta != 0) and not spec.get("comparator") and not spec.get("is_reference")
 
         cv = spec.get("crew_visits")
         if run["crew_override"] is not None:
@@ -876,10 +966,12 @@ class Model:
         out["operator_one_off"] = r2(run["one_off"])
         out["reference_one_off"] = r2(ref["one_off"])
         out["net_one_off"] = r2(run["one_off"] - ref["one_off"])
-        out["value"] = r2(value)
+        out["value"] = None if na is not None else r2(value)
         out["value_if_admissible"] = r2(value) if valued else None
-        out["money_changes"] = bool(delta != 0)
+        out["money_changes"] = False if na is not None else bool(delta != 0)
         out["valued_in_money"] = bool(valued)
+        if na is not None:
+            out["not_available"] = na.words
         out["crew_visits"] = crew
         out["restore_date"] = iso(run["restore_date"])
         out["protect"] = OrderedDict((n, r2(self._lookup(run, n))) for n in pn)
@@ -888,10 +980,10 @@ class Model:
         out["right_states"] = OrderedDict((a, st["eligibility"]) for a, st in run["rights"].items())
         out["lapsed_rights"] = [a for a, st in run["rights"].items() if st["eligibility"] == "LAPSED"]
         out["violations"] = OrderedDict((k, r2(v)) for k, v in violations.items())
-        out["params"] = OrderedDict((k, r2(v)) for k, v in run["params"].items())
+        out["params"] = OrderedDict((k, rdec(v, 6)) for k, v in run["params"].items())
         out["cost_lines"] = OrderedDict((k, {"amount": r2(a), "operator_share": sh}) for k, (a, sh) in run["cost_lines"].items())
         if sens:
-            out["sensitivities"] = OrderedDict((k, r2(v)) for k, v in sens.items())
+            out["sensitivities"] = OrderedDict((k, None if (out["value"] is None or not out["money_changes"]) else r2(v)) for k, v in sens.items())
         od = (self.ev.get("option_detail") or {}).get(V)
         if od:
             if od.get("capacity"):
@@ -900,7 +992,16 @@ class Model:
                 out[k] = r2(self._lookup(run, n))
             for k, n in (od.get("reference_nodes") or {}).items():
                 out[k] = r2(self._lookup(ref, n))
-        internal = {"value": value, "valued": valued, "one_off": run["one_off"], "crew": crew,
+        # N3: information copied verbatim; N4: replay_sources, the sorted study ids its params and information read
+        if "information" in spec:
+            out["information"] = copy.deepcopy(spec["information"])
+        studies = {ps["source"]["study"] for ps in (spec.get("params") or {}).values()
+                   if isinstance(ps, dict) and isinstance(ps.get("source"), dict) and "study" in ps["source"]}
+        info_src = (spec.get("information") or {}).get("source") if isinstance(spec.get("information"), dict) else None
+        if isinstance(info_src, dict) and "study" in info_src:
+            studies.add(info_src["study"])
+        out["replay_sources"] = sorted(studies)
+        internal = {"na": na, "value": value, "valued": valued, "one_off": run["one_off"], "crew": crew,
                     "violations": violations, "restore_date": run["restore_date"], "sens": sens,
                     "requires_restore": rr, "requires_switch": spec.get("requires_switch")}
         return out, internal
@@ -930,7 +1031,7 @@ class Model:
             kind = d.get("kind")
             if kind == "comparator":
                 continue
-            opts = [o for o in d.get("options") or [] if o not in exclude]
+            opts = [o for o in d.get("options") or [] if o not in exclude and opt[o]["na"] is None]   # N1: never chosen
             hard = d.get("hard") or []
             hv = {o: sum((opt[o]["violations"].get(b, ZERO) for b in hard), ZERO) for o in opts}
             zero = [o for o in opts if hv[o] == 0]
@@ -941,14 +1042,18 @@ class Model:
                 cands, on_fb = list(opts), True
             else:
                 cands = []
+            how = None
             if kind == "protective":
-                if not cands:
-                    return None
-                ch = list(cands)
+                if cands:
+                    ch = list(cands)
+                else:   # D-0K4.46: no candidate takes none, never infeasible
+                    ch = [None]
+                    how = ("no candidate: every option is not available" if not opts else
+                           "no candidate: no option meets %s and the decision declares no fallback" % ", ".join(hard))
             else:
                 optional = d.get("optional", True)
                 ch = ([None] if (optional or not cands) else []) + list(cands)
-            decs.append({"d": d, "hv": hv, "on_fb": on_fb})
+            decs.append({"d": d, "hv": hv, "on_fb": on_fb, "how": how})
             choices.append(ch)
 
         best, best_key = None, None
@@ -998,6 +1103,10 @@ class Model:
         for dd, c in zip(decs, best["combo"]):
             d = dd["d"]
             if d.get("kind") != "protective":
+                continue
+            if c is None:   # D-0K4.46: {chosen: null, admissible: [], how}, no trade_off
+                prot[d["name"]] = None
+                detail[d["name"]] = OrderedDict([("chosen", None), ("admissible", []), ("how", dd["how"])])
                 continue
             prot[d["name"]] = c
             v = dd["hv"][c]
@@ -1088,6 +1197,13 @@ class Model:
         out["sensitivity_values"] = OrderedDict((k, r2(v)) for k, v in sv.items())
         pool = [v for v in list(drops.values()) + list(sv.values()) if v is not None]
         out["downside"] = r2(min(pool)) if pool else None
+        na = OrderedDict()
+        for d in plan.get("decisions") or []:
+            for o in d.get("options") or []:
+                if o in opt and opt[o]["na"] is not None and o not in na:
+                    na[o] = opt[o]["na"].words
+        if na:
+            out["not_available"] = na
         return out
 
     # ---- §3 portfolio and operations --------------------------------------------------------------------------
@@ -1178,8 +1294,9 @@ class Model:
             if d is None:
                 o["admissible"] = True
             else:
-                hv = sum((internal[oid]["violations"].get(b, ZERO) for b in d.get("hard") or []), ZERO)
-                o["admissible"] = bool(hv == 0)
+                vs = [internal[oid]["violations"].get(b, ZERO) for b in d.get("hard") or []]
+                # N1: a hard bound over a not-available node neither passes nor fails
+                o["admissible"] = None if any(v is None for v in vs) else bool(sum(vs, ZERO) == 0)
         plans = OrderedDict((tid, self.plan_tenant(tid, internal)) for tid in self.plans_decl)
         return opts_out, plans
 
@@ -1190,7 +1307,7 @@ class Model:
             entry = OrderedDict()
             for side, e in self.site_sides(sname).items():
                 if e["status"] == "evaluated":
-                    entry[side] = {"status": "evaluated", "nodes": OrderedDict((k, r2(v)) for k, v in e["nodes"].items())}
+                    entry[side] = side_out(e["nodes"])
                 else:
                     entry[side] = {"status": e["status"], "stated_total": r2(e["stated_total"])}
             sites["%s/%s" % (tid, sname)] = entry
@@ -1204,6 +1321,17 @@ class Model:
                            "value_horizon_end": OrderedDict((tid, iso(d)) for tid, d in self.value_horizon_end.items())}
         out["deciders"] = OrderedDict((r, sorted(v)) for r, v in sorted(self.deciders.items()))
         return out
+
+
+def side_out(nodes, keep=None):
+    """An evaluated side (or history month side): nodes rounded, a not-available node null, and (N1) the side map
+    `not_available: {node: words}` when any node is not available."""
+    keep = keep if keep is not None else (lambda k: True)
+    out = {"status": "evaluated", "nodes": OrderedDict((k, r2(v)) for k, v in nodes.items() if keep(k))}
+    na = OrderedDict((k, v.words) for k, v in nodes.items() if keep(k) and is_na(v))
+    if na:
+        out["not_available"] = na
+    return out
 
 
 def _variant_cases(plans):
@@ -1290,8 +1418,10 @@ def _history_side(M, V, t, s, block, side, money_leaves):
     own = set()   # leaves whose first alternative (their own record) resolves
     for name, expr in M.leaf_exprs(V, s).items():
         try:
-            D(_ev(_left_alternative(_parse(str(expr))), ctx_resolver(ctx)))
-            own.add(name)
+            v = _ev(_left_alternative(_parse(str(expr))), ctx_resolver(ctx))
+            if not is_na(v):   # N1: a not-available leaf is never the month's own record
+                D(v)
+                own.add(name)
         except (Unresolved, InvalidOperation):
             pass
     info = {"leaves": leaves, "unresolved": missing, "own": own}
@@ -1337,7 +1467,8 @@ def _history_missing(manifest, M, V, s, refs, fed, sides, cause):
     else:
         result = manifest["chain_model"][V]["result"]
         split = [f for f in order if f not in plan["own"] and LS[f]["absent"] not in ("OPTION_ONLY", "NEVER_EMPTY")
-                 and f in act["leaves"] and act["leaves"][f] != plan["leaves"][f] and result in _reach(refs, [f])]
+                 and f in act["leaves"] and not is_na(act["leaves"][f]) and not is_na(plan["leaves"].get(f))
+                 and act["leaves"][f] != plan["leaves"][f] and result in _reach(refs, [f])]
         if split:
             out["plan"].append(ent("plan", {"leaves": split}, TS["kind"], TS["family"], "NOT_RECEIVED", "ASSUMPTION", _reach(refs, split), TS["slice"]))
     for f in order:
@@ -1395,9 +1526,8 @@ def compute_history(manifest_path):
                     e = sides[side]
                     if e["status"] == "evaluated":
                         val = e["nodes"][outcome]
-                        nodes = OrderedDict((k, r2(v)) for k, v in e["nodes"].items() if k not in blocked and k not in fed)
-                        periods[mo][side] = {"status": e["status"], "nodes": nodes, "outcome": r2(val),
-                                             "not_observed": sorted(blocked)}
+                        periods[mo][side] = side_out(e["nodes"], lambda k: k not in blocked and k not in fed)
+                        periods[mo][side].update({"outcome": r2(val), "not_observed": sorted(blocked)})
                     else:
                         val = e["stated_total"]
                         periods[mo][side] = {"status": e["status"], "stated_total": r2(val), "outcome": r2(val),

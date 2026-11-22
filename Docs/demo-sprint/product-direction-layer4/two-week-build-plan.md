@@ -423,7 +423,7 @@ Only built features are shown, each with how it is known (design Rules). At the 
 | Screen | What it shows on day 14 | How each figure is known |
 |---|---|---|
 | Portfolio Optimize card (step 1) | the period's figure, or its day and scope stated; fields the API computed and the screen hid | as today's wording |
-| Site board (3B) | driver lines as factor rows from the registry; today's Findings on the factors they observe, such as Kobo's 330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> L candidate and 120<!--fig:sites.lakeside-power/Kobo.actual.nodes.unexplained_l--> L unexplained litres | *Recorded* or *Measured* from telemetry and fuel records |
+| Site board (3B) | driver lines as factor rows from the registry; today's Findings on the factors they observe, such as Kobo's 330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> L candidate (as the simulated world records it, dispatch-3.2; dispatch-3.3 re-classifies it in 0K4f) and 120<!--fig:sites.lakeside-power/Kobo.actual.nodes.unexplained_l--> L unexplained litres | *Recorded* or *Measured* from telemetry and fuel records |
 | Evidence labels (3A) | *Emulated* beside *Recorded* on every figure; no total above its weakest part | from the record's own label (D14) |
 
 Built without a screen yet, and so not shown:

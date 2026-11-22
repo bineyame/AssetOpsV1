@@ -1,11 +1,12 @@
 # IA-P: the real app on the agreed shape (implementer spec)
 
-Status: live, **rev 2** (2026-11-22: the Overview follows the top-bar range, owner Q2; `spec-period.md`), handshake next.
-Architect (Claude). Rev 1 was merged earlier on 2026-11-22.
+Status: live, **rev 3** (2026-11-22: handshake answered, `handshake.md`; the long range, P0; three parts), ready to build.
+Architect (Claude). Rev 2 (the Overview follows the range) and rev 1 were merged on 2026-11-22.
 Owner request: `owner/owner-merge-on-accept-ia-shape-k10-2026-11-22.md`. The owner reviews once the product is close to the
 shape, then iterates. UI slices merge on review ACCEPT, with one combined walkthrough at the end.
 
-**Decisions:** `rulings.md`, D-IAP.1 to D-IAP.23 (rev 2: D-IAP.15 on). **Binding parts:** this file and `spec-period.md`. **Reviewer guide:** `reviewer-guide.md`. `USER_REVIEW_REQUIRED: true`.
+**Decisions:** `rulings.md`, D-IAP.1 to D-IAP.33 (rev 2: D-IAP.15 on; rev 3: D-IAP.24 on). **Binding parts:** this file,
+`spec-period.md` and `handshake.md` "Answers (Architect)". **Reviewer guide:** `reviewer-guide.md`. `USER_REVIEW_REQUIRED: true`.
 **Mock (governs, `.ai/RULES.md` §6):** vNEXT (`Docs/demo-sprint/product-direction-layer4/interactive-mockup-vNEXT/`)
 as built by IA-1a/1b/1c, IA-2a and IA-2b1:
 - `ia-routes.js` `IA_RAIL`, `IA_TAB_GROUPS`, `IA_ALIASES`;
@@ -220,8 +221,8 @@ cut by day. E2 (`GET /api/portfolio/period?from=&to=`) resolves the range on the
 
 | Page | Mini-grid | Cold-chain | EV charging |
 |---|---|---|---|
-| Overview (E2 and 5c) | counted per whole month | named as not compared (5c's `out` reason and "Compared for k of n Sites") | the same as cold-chain |
-| Outcomes L1 and L2, Sites list (E1) | rows with figures for the same months | a row reading "Not available yet" | the same |
+| Overview (E2 and 5c) | counted per whole month | named as not compared: 5c's `out` reason and "Compared for k of n Sites", in mode `period` too (D-IAP.25) | the same as cold-chain |
+| Outcomes L1 and L2, Sites list (E1) | rows with figures for the same months | a row reading "No monthly figures for cold-chain Sites yet" (no monthly snapshot for the type; MD-IAP-12, owner Q11), with "Waiting for a choice" for the range | the same, "… EV charging Sites yet" |
 | Outcomes L3, Demand & capacity, Decisions, Findings, Actions, Results, Evidence | the range, as today | the range | the range |
 
 ## 4. What each surface reads (D-IAP.8, D-IAP.9, D-IAP.17, D-IAP.20)
@@ -257,7 +258,8 @@ and search does not re-read. It is dropped when the range changes.
 ### 4.2 E0: waiting counts (additive; `/api/estate/portfolio`)
 
 - **Fields** (`estate/portfolio.py`, beside `placement_counts`, over the same `members`, the composed `portfolio_row`s):
-  - `summary.waiting_count` counts the members whose `action_id` is None;
+  - `summary.waiting_count` counts the members whose `action_id` is None and whose placement group is not `MONITOR`
+    (D-IAP.29);
   - `summary.waiting_by_site: {site_code: int}` gives the same per Site, for Sites with at least one member.
   - Both are `null` when `finding_known` is false.
 - **The client.** `estateClient.ts`: `waiting_count?: number | null` and `waiting_by_site?: Record<string, number> | null`
@@ -334,7 +336,7 @@ It is IA-2b §3 transcribed to React, with the live tokens. Markup:
 
 | List | Row key · title (small) · target | Columns after the first | Facets (key · label · options · way out) | Sorts | Tiles |
 |---|---|---|---|---|---|
-| decisions | `finding_id` · `row.title` (small: `PLACEMENT_GROUP_LABEL[row.placement.group]`) · `link_refs.finding` with the view `recommendation` | Site (`site_name`) · State (`decisionStateKey`: `waiting` "Waiting for a choice" when `action_id` is null, else `underway` "Under way") · At stake (the consequence text today's `FindingRow` renders, by the same function) · Due ("Not available yet") · Who decides ("Not available yet") | `state` · State · waiting, underway · "All states"; `lens` · Finding type · cost "Cost", risks "Risks", opportunities "Opportunities" (from `lens_flags`) · "All findings" | `priority` "Priority" (server order) · `site` "Site" | "Decisions" (`total_count`); "Waiting for a choice" (rows `waiting`; asserted equal to E0 `waiting_count`) |
+| decisions | `finding_id` · `row.title` (small: `PLACEMENT_GROUP_LABEL[row.placement.group]`) · `link_refs.finding` through `findingLinkLive` (I8: `recommendation` only on a mini-grid `FINDING` Ref) | Site (`site_name`) · State (`decisionStateKey`: `underway` "Under way" when `action_id` is set; else `watching` "Being watched" when the placement group is `MONITOR`; else `waiting` "Waiting for a choice"; D-IAP.29) · At stake (the consequence text today's `FindingRow` renders, by the same function) · Due ("Not available yet") · Who decides ("Not available yet") | `state` · State · waiting, watching, underway · "All states"; `lens` · Finding type · cost "Cost", risks "Risks", opportunities "Opportunities" (from `lens_flags`) · "All findings" | `priority` "Priority" (server order) · `site` "Site" | "Decisions" (`total_count`); "Waiting for a choice" (rows `waiting`; asserted equal to E0 `waiting_count`) |
 | findings | `finding_id` · `title` (small: `finding_label`) · `link_refs.finding` | Site · Heading (the `categories.items` labels joined " · ", else "Not available yet") · Its decision (the Decisions row with the same `finding_id`: its State word, else "No decision open") | `lens` · Finding type · (as above) · "All findings"; `state` · State · `EstateStateFilter` words as `findingIndex.tsx` shows them · "All states" | `priority` "Priority" · `site` "Site" | "Findings" (`total_count`); "Decision waiting for a choice" (rows whose decision is `waiting`) |
 | actions | `action_id` · `action_title` (small: `success_criterion`) · `link_refs.action` | Owner (`owner`, else "Not recorded") · Due (today's `actionIndex.tsx` date words, else "No deadline") · State (today's `application_state` words) | `state` · State · the three `application_state` words · "All states" | `due` "Due date" (ISO string order, no date last) · `site` "Site" | "Actions" (`total_count`); one part per `application_state` present (the parts sum to n) |
 | sites | `site_code` · `site` · `/sites/{code}` | Group · Contribution · Gap to target (with `gap_word` as `<small>`) · Largest driver against target (`driver`, small `driver_heading`) · Waiting for a choice (E0 `waiting_by_site`, §4.2) | `target` · Target · below "Below target", on "On or above target" (by E1 `below`; not compared in neither) · "Above and below target" | `gap` "Gap to target" (E1 order) · `name` "Name" | "Sites" (rows); "Below target" (rows `below`); "Gap to target" (`total.gap`, with `without_target.text` under it) |
@@ -362,9 +364,17 @@ It is IA-2b §3 transcribed to React, with the live tokens. Markup:
 
 ## 6. Units (each 1 to 3 commits; the app works after each; D-IAP.13, D-IAP.22)
 
-Two parts, one branch each, one discovery review per part:
-- **IA-P1** is P1, P2, P3a and P3b (5.75 units), on `task/IA-P1-frame-portfolio`.
-- **IA-P2** is P4 to P7 (5.0 units), on `task/IA-P2-sites-site-inbox`, branched from IA-P1's merge.
+Three parts (rev 3, D-IAP.32), one branch each, each branched from the previous part's merge, one discovery review per
+part. The units run in this order:
+- **IA-P1** is P1, P0 and P2 (4.5 units), on `task/IA-P1-frame-range-lists`. P0 runs after P1 because its gates extend
+  `iap_gates.cjs`.
+- **IA-P2** is P3a, P3b and P4a (5.0 units), on `task/IA-P2-portfolio-figures`. It is the only part that touches
+  `backend/assetops_backend`.
+- **IA-P3** is P4b, P5, P6 and P7 (4.5 units), on `task/IA-P3-sites-site-inbox`.
+
+**Handshake answers (binding).** `handshake.md` "Answers (Architect)" amends the units it names. Each unit's packet lists
+the answers it applied: R4, I2, I11 and I16 to P1; R7, I8, I9 and I12 to P2; R2 and I7 to P3a; I1, I3, I4 and I14 to P3b;
+R3, R7 (E0), R8, R9 and I7 to P4a; R3, R6 and R8 to P4b; I10 to P5; I13 to P7; and I15 to P1 (the register row).
 
 **Range pages (D-IAP.19; a class fix).** Each unit that lands a page whose content follows the range adds it to
 `RANGE_PAGES` and `FILLED_PAGES` (`ui/sharedRange.ts`): P1 `/evidence/records`, P2 `/decisions`, P3b `/results` and P4
@@ -393,7 +403,14 @@ unit:
 
 Each later unit adds its own checks.
 
-### P1: the frame (1.0 unit; IA-P1)
+### P0: the long range (1.0 unit; IA-P1; `spec-period.md` P.9, binding)
+
+- **Files:** `ui/sharedRange.ts` (`RANGE_MAX_DAYS` 731, `WHOLE_RANGE_PAGES`, `readWindow`), `shell/SharedRangeBar.tsx`
+  (the automatic window span), `ui/RangePartNote.tsx` (new), and every request builder that reads the range (the sweep).
+- **Tests, plants and gates:** as P.9 (R7 and R8 added to `iap_gates.cjs`).
+- **Shots:** `/findings` and a Site page on a 61-day range (the bar's tag), at 1440 and 390, light and dark.
+
+### P1: the frame (1.5 units; IA-P1; rev 3 adds R4 and I2's two-way route map, I11's fixture base, and I16's pins)
 
 - **Files:**
   - `shell/OperatorShellLayout.tsx` (items per §2.1, `railHomeOf`);
@@ -416,7 +433,7 @@ Each later unit adds its own checks.
   - `routemap` (a new `<Route path="/x">`) fails `iaRouteMap`.
 - **Shots:** `/portfolio` (the rail), `/evidence`, `/evidence/records`; 390 with the menu open.
 
-### P2: the list component and three lists (1.5 units; IA-P1)
+### P2: the list component and three lists (2.0 units; IA-P1; rev 3 adds R7's `watching`, I8's links and I9's restart)
 
 - **Files:**
   - `ui/HomeList.tsx`, `ui/homeListModel.ts`, `ui/homeList.css` (new);
@@ -452,7 +469,9 @@ Each later unit adds its own checks.
   - **L3** `/portfolio/act-first?lens=cost` lands on `/decisions?lens=cost`, showing the chip "Cost · All findings".
 - **Shots:** each list at 1440, 768 and 390, light and dark; `/decisions` with one facet set.
 
-### P3a: E2, the period read (1.5 units; IA-P1)
+- **IA-P1's review follows P2.**
+
+### P3a: E2, the period read (1.75 units; IA-P2; rev 3 adds tests 11 and 12)
 
 - **Files:**
   - `deep_dive/period.py` (new: `Period`, `MonthServed`, `month_days`, `resolve`, `header`, `period_view`);
@@ -469,7 +488,7 @@ Each later unit adds its own checks.
   - `handbuilt` (an f-string sentence in `period.py`) fails the SC-1 guard.
 - `view.py`'s month view and its tests are unchanged. `git diff` there is empty.
 
-### P3b: the Portfolio hub on the range (1.75 units; IA-P1)
+### P3b: the Portfolio hub on the range (1.75 units; IA-P2)
 
 - **Files:**
   - `estate/portfolioWords.ts` (three tabs: overview `null`, outcomes `outcomes`, demand `demand-and-capacity`);
@@ -536,13 +555,20 @@ Each later unit adds its own checks.
   - **H6** `/portfolio?from=2026-10-01&to=2026-11-21`: the bar's tag is `data-shared-range-focus="inside"`.
 - **Shots:** the three tabs and the Overview in each mode, `/results` and `/evidence` with the scope section, at the three
   widths, light and dark.
-- **IA-P1's review follows P3b.**
+- **The L2 rows' `RangePartNote`** (P.9) shows on a range over 31 days.
 
-### P4: the Sites list, Outcomes, E0 and E1 (2.0 units; IA-P2)
+### P4a: E0 and E1 (1.5 units; IA-P2)
+
+- **Files:** `deep_dive/sites.py`, `deep_dive/read.py` (`sites`), `deep_dive_api.py` (route),
+  `i18n/statements/en/portfolio_sites.py`, `estate/portfolio.py` (E0, with R7's `MONITOR` rule) and the E1 fixtures (P.8
+  test 9).
+- **Tests first:** §4.2's tests (plus "a `MONITOR` member is not counted") and `spec-period.md` P.8 tests 1 to 9 (with 4b).
+- **Plants:** `sum`, `order` and `handbuilt` (below).
+- **IA-P2's review follows P4a.**
+
+### P4b: the Sites list and Outcomes (1.25 units; IA-P3)
 
 - **Files:**
-  - backend: `deep_dive/sites.py`, `deep_dive/read.py` (`sites`), `deep_dive_api.py` (route),
-    `i18n/statements/en/portfolio_sites.py`, `estate/portfolio.py` (E0);
   - frontend: `estate/portfolioSitesClient.ts` (new; schema check `portfolio-sites-1`), `estate/sitesList.tsx` (new),
     `shell/SitesFrame.tsx` (renders the Sites list; the directory table and the Lifecycle column are removed),
     `estate/EstatePortfolio.tsx` (outcomes: L1 E1 headline; L2 `HomeList` sites `{tools: false, tiles: false}` with "Show
@@ -550,12 +576,16 @@ Each later unit adds its own checks.
     `estate/estateClient.ts` (E0 type), `ui/sharedRange.ts` (`/sites` as a range page). In mode `none` the Sites tiles
     "Below target" and "Gap to target" read "Not available yet", the target facet is not offered, and E1's notes show
     under the header. Outcomes L1 shows them in place of the headline.
-- **Tests first:** §4.2's and `spec-period.md` P.8's backend tests (1 to 8); `estate/__tests__/sitesList.test.tsx`:
+- **The tile rule (R6, MD-IAP-13).** The "Gap to target" tile shows `total.gap` only at scope `all` with no facet and no `q`.
+  Otherwise it reads "Not available yet", with the line "For every Site only". The More line is "Not shown: {h} Sites.".
+- **Tests first:** `estate/__tests__/sitesList.test.tsx` (and `estate/__tests__/siteTypeMatrix.test.tsx`: Thika is named on
+  the Overview, Outcomes and the Sites list on a one-month and a two-month fixture, D-IAP.25 and D-IAP.26):
   - World A's E1 fixture: the rows in E1 order; the gap tile "−$852.00" equals the Overview's tile 2 string; the target
     facet; "Not available yet" rows last; the Outcomes rows = the Sites list rows;
   - World P's fixture: the gap tile "−$1,704.00";
   - mode `none`: the tiles and the notes.
-- **Plants:**
+- **Plants** (`sum`, `order` and `handbuilt` are run in P4a; `browsersort` and `scopetile` in P4b):
+  - `scopetile` (the tile shows `total.gap` under a facet) fails `sitesList`;
   - `sum` (one Site effect altered in the view) fails test 4;
   - `order` (registry order) fails test 1;
   - `browsersort` (the frontend sorts by gap) fails `sitesList` (the order must be E1's);
@@ -564,7 +594,7 @@ Each later unit adds its own checks.
   2026-09-01 to 2026-10-31.
 - **Shots:** `/sites`, `/portfolio/outcomes` at the three widths, light and dark.
 
-### P5: the Site's six tabs (1.0 unit; IA-P2)
+### P5: the Site's six tabs (1.25 units; IA-P3; rev 3 adds I10)
 
 - **Files:**
   - `shell/operatorSiteTabs.tsx` (six entries; `OperatorSiteTabLabel` is the six; the old-label map `SITE_TAB_OF` is
@@ -586,7 +616,7 @@ Each later unit adds its own checks.
   - **T2** object pages: the crumb has three parts, and no tab row.
 - **Shots:** one Site per vertical: Overview, Setup and a Finding page, at the three widths, light and dark.
 
-### P6: "Waiting for you" (0.75 unit; IA-P2)
+### P6: "Waiting for you" (0.75 unit; IA-P3)
 
 - **Files:** `shell/WaitingForYou.tsx` (new) and `OperatorShellLayout.tsx` (the control in the top bar, after the range
   bar).
@@ -610,7 +640,7 @@ Each later unit adds its own checks.
 - **Gates added:** **W1** the badge text = the `/decisions` waiting tile; at 1280 the top bar is on one line.
 - **Shots:** the drawer open at the three widths, light and dark.
 
-### P7: scope and search (1.25 units; IA-P2)
+### P7: scope and search (1.25 units; IA-P3)
 
 - **Files:** `shell/ScopeSwitch.tsx` and `shell/SearchPalette.tsx` (new); `OperatorShellLayout.tsx` (the order is
   Scope · Search · range bar · Waiting for you); `backend/conversions/walk-layer4-v1.json` (pages extended, §8).
@@ -634,7 +664,7 @@ Each later unit adds its own checks.
   - `deadlink` (an unavailable rail item indexed) fails `searchPalette`.
 - **Gates added:** **K1** the Ctrl K open and close cycle with focus returned.
 - **Shots:** the scope menu and the palette, at the three widths, light and dark.
-- **IA-P2's review follows P7.**
+- **IA-P3's review follows P7.**
 
 ## 7. Mock deviations (each gets a row in `.agent/mock-departure-register.md` in its unit)
 
@@ -650,24 +680,29 @@ Each later unit adds its own checks.
 | MD-IAP-8 | Site paths `/setup`, `/operations` (IA route names) | D2 | today's segments kept, labels changed (Q5) | P5 |
 | MD-IAP-9 | Group words "Mini-grids", "Cold rooms", "EV depots" | D4 | the live product's domain words, as the Type column has always read | P4, P7 |
 | MD-IAP-10 | Overview L3 "Where the gap comes from" and cash, on a range of two or more months | D2 | "Month by month" stands in their place: each month's row opens that month's full bridge and cash (one click). A summed bridge is Q10 | P3b |
+| MD-IAP-12 | Sites list and Outcomes rows for cold-chain and EV Sites (vNEXT's cost-kind cell) | D1 | no monthly snapshot or target exists for these types (D-3B6.6); the cell says so by type. Resolving unit: monthly figures for cold-chain and EV (owner Q11) | P4a, P4b |
+| MD-IAP-13 | Sites "Gap to target" tile and More line under scope, facet or search (IA-2b §4 Sites remainder, §3.4) | D2 | the tile shows the server's total only unfiltered; no browser sum or re-format | P4b |
+| MD-IAP-14 | Rail icons (vNEXT `IA_RAIL`) | D4 | the live icon set; `decide` is new so that two items do not share `finding` | P1 |
+| MD-IAP-15 | A Site Findings index kept for a vertical whose parity test failed | D2 | lit under Evidence, with "Findings" in its section line, until its alias ships | P5 |
 | MD-IAP-11 | Overview L1 and L3 on a range with no served whole month | D1 | figures exist only per whole month; the page states why and links to the latest served month. Nothing is cut by day | P3b |
 
 5c's MD2 and MD7 close in P3b (the month is the Overview).
 
-## 8. Size, and the effect on the world ladder and the WK and DDR serves (D-IAP.22)
+## 8. Size, and the effect on the world ladder and the WK and DDR serves (D-IAP.22, D-IAP.32)
 
-**Size: 10.75 units, about 18 commits** (rev 1 was 8.5; rev 2 adds E2 and the three modes).
-- IA-P1 is 5.75 units: P1 1.0, P2 1.5, P3a 1.5, P3b 1.75.
-- IA-P2 is 5.0 units: P4 2.0, P5 1.0, P6 0.75, P7 1.25.
+**Size: 14.0 units, about 23 commits.** Rev 1 was 8.5 and rev 2 was 10.75. Rev 3 adds P0 (the long range, 1.0) and the
+handshake answers (2.25 spread over the units), and splits P4.
+- IA-P1 is 4.5 units: P1 1.5, P0 1.0, P2 2.0.
+- IA-P2 is 5.0 units: P3a 1.75, P3b 1.75, P4a 1.5.
+- IA-P3 is 4.5 units: P4b 1.25, P5 1.25, P6 0.75, P7 1.25.
 - Each part is under the 6-unit cap.
-- Opus does the first builds; Sonnet does the fix rounds. There is one discovery review per part (W5: each part now adds
-  money figures and an endpoint).
+- Opus does the first builds; Sonnet does the fix rounds. There is one discovery review per part (W5: IA-P1 sweeps every
+  range read; IA-P2 adds money figures and two endpoints; IA-P3 renders those figures).
 
 **The world ladder.** `tools/world.py` keys the world on `CODE_PATHS` (`backend/assetops_backend`, …), not on `frontend/`.
-- P3a (E2) and P4 (E0, E1) change `backend/assetops_backend`. So each part's merge stales the L2 template, naming the
-  `code` part.
-- The coordinator rebuilds the current rung once after each part merges, before the next WK run. If both parts merge
-  before a WK run, one rebuild covers both. There is no migration.
+- Only IA-P2 (P3a's E2, and P4a's E0 and E1) changes `backend/assetops_backend`, so only its merge stales the L2
+  template, naming the `code` part.
+- The coordinator rebuilds the current rung once after IA-P2 merges, before the next WK run. There is no migration.
 
 **WK.** The walk pages (`backend/conversions/walk-layer4-v1.json`) all still land:
 - `/portfolio` with no range opens on last month (D-IAP.21);
@@ -694,11 +729,11 @@ P3b.
 | Q7 | "Waiting for you" before who decides is recorded | **Badge and "In your portfolio" from the waiting decisions; "For you" not available yet** | the control earns its place now; nothing is attributed to a person falsely |
 | Q8 | Outcomes L3 holds the range category cards (with 1a's line) and the objectives matrix | **Yes** (D2) | reviewed content is kept and placed where outcomes live; the mock's insight block has no source |
 
-| Q9 | A fresh entry to the Portfolio (no range in the address or the session) opens on "Last month", not "Last 7 days" | **Yes** (D-IAP.21) | the front page opens on figures; a 7-day range holds no whole month. Without it, the page opens on the notes and "Show {month}" |
-| Q10 | On a range of two or more months, Overview L3 shows "Month by month" with each month's bridge one click away, not a bridge summed across months | **Month by month** (MD-IAP-10) | each figure stays the one the month's accounts hold; a summed bridge would need a cross-month split rule (prices and rates do not add across months) |
+| Q11 | Build monthly figures (a cost-kind snapshot and targets) for cold-chain and EV Sites, so their Sites and Outcomes rows carry a figure as vNEXT shows | **Not in IA-P.** The rows state the gap by type now (MD-IAP-12); the unit is specified after IA-P when the owner schedules it | the EV and cold structures exist, but no snapshot or target is served (D-3B6.6). It is a new figure family, not a re-housing |
+| Q12 | Raise the 31-day cap of the estate, Site, cold, EV, actions and source-health reads, so that every page shows a range over 31 days whole | **Queue a measured task after IA-P.** IA-P ships the labelled 31-day window (P0) | the cap is in about 15 routes with unknown query cost on long windows; the window is honest and stated on every page |
 
-Q1 and Q2 are answered (owner, 2026-11-22; D-IAP.15) and are removed from this queue. I would like the owner to weigh in on
-Q9 and Q10 at the walkthrough. Everything else can stand on the defaults.
+Q1, Q2, Q9 ("Last month") and Q10 ("Month by month") are answered (owner, 2026-11-22; D-IAP.15, D-IAP.33) and are removed
+from this queue. I would like the owner to weigh in on Q11 and Q12. Neither blocks the build.
 
 ## 10. Done (questions; each can fail)
 
@@ -713,7 +748,9 @@ Q9 and Q10 at the walkthrough. Everything else can stand on the defaults.
 5. Are there six Site tabs on every vertical, with object pages showing three-part crumbs?
 6. Does the inbox badge equal the Decisions waiting tile?
 7. Does every page pass at 390 (no sideways scroll), light and dark, with fonts on the scale?
-8. Does every plant in §6 fail its named check, and is every MOCK DEVIATION in §7 registered? Is the mid-build count 0?
+8. On a 61-day range, does every non-whole page send the 31-day window and say so in the bar, while the Overview,
+   Outcomes and Sites read the whole range (P0; R7, R8)? Is Thika named on every page of the matrix?
+9. Does every plant in §6 fail its named check, and is every MOCK DEVIATION in §7 registered? Is the mid-build count 0?
 
 ## 11. Scope limits
 
