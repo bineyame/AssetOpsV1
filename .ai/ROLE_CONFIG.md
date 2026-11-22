@@ -92,7 +92,7 @@ resumed. State in every review which reviewer produced it.
   don't reappear via standing rules").** Each line is a failure that cost a round.
   - **Brief footer, pasted verbatim into every builder and reviewer brief:**
     "Run commands from the worktree ROOT with repo-relative paths. Postgres tests: ONE call
-    `tools/heavy-slot.sh --db -- pwsh tools/run-host-tests.ps1 -- <files>`; vitest only via
+    `tools/heavy-slot.sh --db-lane -- pwsh tools/run-host-tests.ps1 -- <files>` (merge main first so the worktree has the T1b tools; `--db` only for prepares, the slow tier and shared-server runs); vitest only via
     `tools/heavy-slot.sh`; architecture guard with
     `ASSETOPS_GUARD_PYTHON=/opt/assetecon/AssetOpsV1/.venv/bin/python`, and `tools/checks/statement_catalogue.py` (exit 0, or output identical to main). A queued heavy slot is
     waited on, never a reason to stop. Delete only files you created, never a directory under
