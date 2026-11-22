@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-DDR.11 to D-DDR.16, D-WK.10 to D-WK.16, D-3C2.16, D-5C.26 to D-5C.29, D-0K4.31 to D-0K4.44)
+# Decision index: Demo-sprint and later rulings (index only) (D-DDR.11 to D-DDR.16, D-WK.10 to D-WK.16, D-3C2.16, D-5C.26 to D-5C.29, D-0K4.31 to D-0K4.49)
 
 - `D-DDR.11` (I1) rehearsal_check speaks codes and facts, never English; no statement or baseline entry · live · specs/DDR-rehearsal/rulings.md
 - `D-DDR.12` (R12) every rehearsal database is assetops_rehearsal_${REHEARSAL}_test; runbook, key folder, ON1 test swept · live · specs/DDR-rehearsal/rulings.md
@@ -22,7 +22,7 @@
 - `D-0K4.32` money on SIMULATED v8 litres is the pack evaluator's figure; amends D-0K4.29 Value cells (owner-away row 71) · live · specs/0K4-dispatch-model-review/rulings-2.md
 - `D-0K4.33` admission bound replaces the dawn bound in the pack; dawn as option information · live · specs/0K4-dispatch-model-review/rulings-2.md
 - `D-0K4.34` Mto litres = litres per customer kWh x declared kWh; amends D-0K4.28 I6 for the pack (owner-away row 72) · live · specs/0K4-dispatch-model-review/rulings-2.md
-- `D-0K4.35` world view not edited; Kobo candidate split Not available yet via factor_sources; generator_l (owner-away row 73) · live; words amended by D-0K4.44 · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.35` world view not edited; Kobo candidate split Not available yet via factor_sources; generator_l (owner-away row 73) · live in part; split override and generator_l moved to 0K4f by D-0K4.45 · specs/0K4-dispatch-model-review/rulings-2.md
 - `D-0K4.36` Embakasi departures from the energy check, per-bus timing NAY; KIS-BATT60 NAY (owner-away row 74) · live · specs/0K4-dispatch-model-review/rulings-2.md
 - `D-0K4.37` 0K4m 2.75 u in three units; unit 3 merge held for owner; 0K4 total 13.25 u; amends D-0K4.1 · live; hold extended to the branch by D-0K4.43 · specs/0K4-dispatch-model-review/rulings-2.md
 - `D-0K4.38` world-month rule: study figures only as rates on an option's own quantity; Kobo settings NAY until 0K4f (owner-away row 75) · live · specs/0K4-dispatch-model-review/rulings-2.md
@@ -30,5 +30,10 @@
 - `D-0K4.40` boundary proof (c): a comment line in no root entry's span is `<root>` and allowed; rev line stays; P20, P21 · live · specs/0K4-dispatch-model-review/rulings-2.md
 - `D-0K4.41` N5: candidacy is availability plus hard bounds, never money_changes; computed-zero options count 0 value; tie order (owner-away row 77) · live · specs/0K4-dispatch-model-review/rulings-2.md
 - `D-0K4.42` N6: output params half-even 6 places; money incl. sensitivities cents once from unrounded; defects 5, 6 no spec change; P22 · live · specs/0K4-dispatch-model-review/rulings-2.md
-- `D-0K4.43` green judged at the branch head; commit 2 fails only on documents units 2-3 restate; go-to-market in unit 2; H9 in commit 6; one merge held for owner; amends D-0K4.37, D-0K4.39 (row 77) · live · specs/0K4-dispatch-model-review/rulings-2.md
-- `D-0K4.44` MODEL_PENDING slice is 0K4f in queued_slices (0K4e row dropped); record words end (0K4f); amends D-0K4.35 words · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.43` green judged at the branch head; commit 2 fails only on documents units 2-3 restate; go-to-market in unit 2; H9 in commit 6; one merge held for owner; amends D-0K4.37, D-0K4.39 (row 77) · live; order amended by D-0K4.49 · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.44` MODEL_PENDING slice is 0K4f in queued_slices (0K4e row dropped); record words end (0K4f); amends D-0K4.35 words · live as the rule; 0K4m's entries removed by D-0K4.45 · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.45` product-parity seam: 0K4m leaves structures, factor_map, leaf_sources, home nodes/findings and derived/missing sites (and derived portfolio/history) as on main (K13); Kobo split override, generator_l, MODEL_PENDING out; admission leaf in forward_baseline; structure layer moves to 0K4f; world check rerun, no build (owner-away row 78) · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.46` N5 no-candidate covers protective decisions: take none, reason in protective_choices, never infeasible for it; P24 · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.47` N1 option words, leftmost operand, not-available over missing, null bound, admissible stated in spec · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.48` sensitivities null when the option's value is null · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.49` M1/L3/L4 fixes confirmed; M1 probe plant P25; history-row anchors; commit 2b before units 2-3; 0K4m 4.0 u; 0K4f +~1 u; amends D-0K4.43 · live · specs/0K4-dispatch-model-review/rulings-2.md
