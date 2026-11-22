@@ -14,10 +14,17 @@ role-set name by `<role-set>` (D-DD.45's normaliser), then byte-equal:
     evidence_ids) and each `analytic_run` (analytic, model, window, cohort_status, cohort, role_coverage,
     selection, status, the source_time and published_at watermarks);
   - fuel balance: every `fuel_balance_window` column but id/recorded_at/input_sha256;
-  - the litres month (`month_litres` over `StoreLitreInputs.read`), as its dataclass tree.
+  - the litres month (`month_litres` over `StoreLitreInputs.read`), as its dataclass tree. With one and a half days
+    of readings in October it is the all-absent month (note RUNNING_RECORD_GAP), pinned below; a valued month needs
+    a whole October of readings and the dips, which this test does not load.
 Wall-clock values are never compared: created_at/recorded_at/started_at/completed_at columns, the runs' and
 revisions' `knowledge_cutoff` (each job's cutoff is the database's now at enqueue) and the received_at/accepted_at
-watermarks are not selected.
+watermarks are not selected; inside a result the `committed_watermark` key (mini-depth `basis`) reads `<wall-clock>`.
+
+One step before D-DD.45's normaliser (`_named`): accepted-evidence ids are uuid4 in each database and the product
+sorts evidence-id lists by id, so the same readings would number differently in the two states. Each accepted
+evidence id is therefore written as its reading, `evidence:<device>/<signal>#<sequence>` (unique per Site, asserted),
+and a list made only of those is sorted. Membership is still compared exactly; only the id-dependent order goes.
 
 Stored digests, and how each is compared:
   - directly: none. Every stored digest embeds ids or the role-set name, so each is covered by its normalised
@@ -113,9 +120,30 @@ def _plain(value):
     return value
 
 
-def normalised(value) -> str:
-    """`sort_keys` JSON, UUIDs as `uuid-<n>` in first-appearance order, the role-set name as `<role-set>`."""
-    body = json.dumps(_plain(value), sort_keys=True)
+#: JSON keys whose values are wall-clock instants (the database's now when the row was written), never compared.
+WALL_CLOCK_KEYS = frozenset({"committed_watermark"})
+
+
+def _named(value, evidence: dict[str, str]):
+    """Accepted-evidence ids as their reading (`evidence:<device>/<signal>#<sequence>`), lists of them sorted;
+    wall-clock keys masked. The ids are uuid4 per database and the product sorts these lists by id, so without
+    this step the same readings number differently in the two states (see the module docstring)."""
+    if isinstance(value, dict):
+        return {k: "<wall-clock>" if k in WALL_CLOCK_KEYS else _named(v, evidence) for k, v in value.items()}
+    if isinstance(value, list):
+        items = [_named(v, evidence) for v in value]
+        if items and all(isinstance(i, str) and i.startswith("evidence:") for i in items):
+            return sorted(items)
+        return items
+    if isinstance(value, str):
+        return evidence.get(value.lower(), value)
+    return value
+
+
+def normalised(value, evidence: dict[str, str]) -> str:
+    """`sort_keys` JSON, UUIDs as `uuid-<n>` in first-appearance order, the role-set name as `<role-set>`
+    (D-DD.45), after `_named`."""
+    body = json.dumps(_named(_plain(value), evidence), sort_keys=True)
     seen: dict[str, str] = {}
     body = _UUID.sub(lambda m: seen.setdefault(m.group(0).lower(), f"uuid-{len(seen) + 1}"), body)
     return _ROLE_SET.sub("<role-set>", body)
@@ -124,11 +152,13 @@ def normalised(value) -> str:
 # --- readings --------------------------------------------------------------------------------------------------------
 
 def _f(x: float) -> str:
-    return f"{x:.2f}"
+    """A canonical decimal string (no trailing zeros, no negative zero)."""
+    text_ = f"{x:.2f}".rstrip("0").rstrip(".")
+    return "0" if text_ in ("-0", "") else text_
 
 
 def kobo_rows():
-    """Every 15 minutes FIRST..LAST, all twelve bindings: PV 06:00-18:00 local, the generator RUNNING 19:00-23:00
+    """Every 15 minutes FIRST..LAST, all twelve bindings (the generator every 5 minutes): PV 06:00-18:00 local, the generator RUNNING 19:00-23:00
     local on the night with the tank falling 2 L a quarter hour while it runs, the battery covering the night."""
     rows, level, soc = [], 1500.0, 80.0
     t = FIRST
@@ -143,12 +173,16 @@ def kobo_rows():
                  ("battery-pcs-controller", "ac-power", t, _f(6.0 if night and not running else -8 * sun)),
                  ("battery-pcs-controller", "state-of-charge", t, _f(soc)),
                  ("battery-pcs-controller", "discharge-capability", t, _f(30.0)),
-                 ("generator-controller", "ac-power", t, _f(25.0 if running else 0.0)),
-                 ("generator-controller", "status", t, "RUNNING" if running else "STOPPED"),
                  ("fuel-level-sensor", "fuel-level", t, _f(level)),
                  ("residential-meter", "active-power", t, _f(3.0 if sun else 6.0)),
                  ("clinic-meter", "active-power", t, _f(2.0)),
                  ("mill-meter", "active-power", t, _f(8.0 if sun else 0.0))]
+        for k in range(3):  # the generator every 5 minutes: its state, and its power as a 5-minute interval mean
+            at = t + timedelta(minutes=5 * k)  # (A2's slot rule reads power only from interval means)
+            on = at.date() == NIGHT and 19 <= at.hour < 23
+            if at < LAST:
+                rows += [("generator-controller", "status", at, "RUNNING" if on else "STOPPED"),
+                         ("generator-controller", "ac-power", at + timedelta(minutes=5), _f(25.0 if on else 0.0), at)]
         if running:
             level -= 2.0
         soc = min(90.0, soc + 1.0) if sun else (soc if running else max(40.0, soc - 0.5))
@@ -161,11 +195,12 @@ def sealed(kit, rows) -> list[bytes]:
     `test_ds3_bulk_load_postgres.seal_rows` numbers them."""
     sequences: dict = {}
     by_source: dict[tuple[str, str], list[str]] = {}
-    for device, signal, when, value in rows:
+    for device, signal, when, value, *start in rows:
         source = kit.binding(device, signal)["source_id"]
         sequences[source] = sequences.get(source, 0) + 1
         by_source.setdefault((device, source), []).append(kit.envelope(
-            device, sequences[source], 0, value, source_time=_z(when), bound_signal=signal))
+            device, sequences[source], 0, value, source_time=_z(when), bound_signal=signal,
+            interval_start=_z(start[0]) if start else None))
     return [kit.seal(texts[i:i + 96], device_id=device, source_id=source).encode("utf-8")
             for (device, source), texts in by_source.items() for i in range(0, len(texts), 96)]
 
@@ -289,7 +324,11 @@ def _state(url, role_set, onboarding, tmp_path, monkeypatch, capsys) -> dict:
                                           "ORDER BY night_date, revision", s=s),
             "litres_month": month,
         }
-        return {"raw": out, "normalised": {k: normalised(v) for k, v in out.items()}}
+        evidence = {str(r["id"]): f"evidence:{r['device_id']}/{r['signal_id']}#{r['sequence']}"
+                    for r in _rows(engine, "SELECT id, device_id, signal_id, sequence FROM accepted_evidence "
+                                           "WHERE site_id = :s", s=s)}
+        assert len(set(evidence.values())) == len(evidence) == len(rows)
+        return {"raw": out, "normalised": {k: normalised(v, evidence) for k, v in out.items()}}
     finally:
         pg_harness.dispose(*holders)
 
@@ -306,18 +345,19 @@ def test_kobo_under_roles_4_and_roles_5_computes_byte_equal_outputs(tmp_path, mo
 
     four, five = states["minigrid-roles-4"], states["minigrid-roles-5"]
     raw = five["raw"]
-    # Non-vacuous: every compared set holds something real.
-    assert raw["mini_depth"], "no mini-depth revision"
-    assert any(r["assessment_key"].startswith("dispatch:interval") or "interval" in r["assessment_key"]
-               for r in raw["dispatch_revisions"]), [r["assessment_key"] for r in raw["dispatch_revisions"]]
-    assert raw["dispatch_runs"], "no dispatch run"
-    assert [w["state"] for w in raw["fuel_balance"]] and raw["fuel_balance"][-1]["state"] != "NOT_ASSESSED", \
-        raw["fuel_balance"]
-    assert raw["litres_month"].values, "an empty litres month"
-    dump = os.environ.get("DD3C_PARITY_DUMP")
+    dump = os.environ.get("DD3C_PARITY_DUMP")  # a directory for both normalised states, when diagnosing
     if dump:
         for role_set, state in states.items():
             Path(dump, f"{role_set}.json").write_text(json.dumps(state["normalised"], indent=1), encoding="utf-8")
+    # Non-vacuous: every compared set holds something real.
+    assert raw["mini_depth"], "no mini-depth revision"
+    assert any("interval" in r["assessment_key"] for r in raw["dispatch_revisions"]), \
+        [r["assessment_key"] for r in raw["dispatch_revisions"]]
+    assert raw["dispatch_runs"], "no dispatch run"
+    assert raw["fuel_balance"] and raw["fuel_balance"][-1]["state"] != "NOT_ASSESSED", \
+        [(w["state"], w["reason"]) for w in raw["fuel_balance"]]
+    assert raw["litres_month"].values, "an empty litres month"
+    assert {v.missing.note for v in raw["litres_month"].values.values()} == {"RUNNING_RECORD_GAP"}
     for name in five["normalised"]:
         a, b = four["normalised"][name], five["normalised"][name]
         if a != b:
