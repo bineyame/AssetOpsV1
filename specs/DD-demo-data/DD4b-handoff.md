@@ -41,7 +41,13 @@ Packet `packet-DD4b.md`.
   differs (DD4.3's roster to 6 Nov, run 1).
 - Cold measured October (kWh / bill): Mwea 1576.300 / 315.26, Thika 1771.350 / 354.27, Kirinyaga 2113.603 / 422.72
   (D-DD.144 projected 315.26, 354.26, 422.72). Statement Oct: revenue 4588.00, energy_cost 1092.25.
-- EV plant: EV_PLANT_LINE
+- EV plant: 3 depots one process 1608.9 s, **3.8 GB peak** (risk: the minute import dict and day rows; check before
+  DD6's world build). 5,379 departures: Embakasi 2560 met, Ruiru 1792 met, Kasarani 1017 met / 10 short (B03, B04 on
+  1 Nov; B07, B08 on 2-5 Nov), as run 2's plant. October invoice: Embakasi PEAK 40579.000 kWh 9738.96, OFFPEAK
+  46355.767 kWh 5562.69, DEMAND 492.667 kW 5912.00 (peak share 46.7 %); Ruiru PEAK 12193.333, OFFPEAK 48566.667,
+  DEMAND 400.000 kW; Kasarani FLAT 37200.000 kWh 5580.00.
+- Both tenants' measured.json are committed as `simulator/tests/world/fixtures/measured/*.measured.json` (from this
+  run, revision 059f211ad) for step 1's samples; the scratch plant files are deleted.
 
 ## Risks
 - `meter_billed` EV leaves `kwh_2200_2400`, `kwh_0000_0500` are written `metered: null`: D-DD.99's EV key set has no
