@@ -1,4 +1,4 @@
-# 6f rulings (D-P6.42 to D-P6.58, D-P6.72 to D-P6.79): the Decisions screen, and 6h
+# 6f rulings (D-P6.42 to D-P6.58, D-P6.72 to D-P6.80): the Decisions screen, and 6h
 
 Architect (Claude), 2026-11-22, with `spec.md` rev 0. Code read on `main` at `591458c38` (6a and 6c merged) and IA-P1
 on `task/IA-P1-frame-portfolio` (`1a19442e2`). Each ruling is a default applied now (W3); the owner answers in the
@@ -413,3 +413,17 @@ these rulings. No figure moves. The owner is told of the unit card (D-P6.79) and
 - **Why.** The words and the shared formats change are U1's; the parity golden is the 22 Nov rule's cost.
 - **Owner.** Told of the +0.5 u. The client words of D-P6.72 to D-P6.75 are defaults the owner may reword at the
   walkthrough; none blocks. D-P6.65 (Thika's comparison) is still the owner's open question.
+
+## D-P6.80 U1 build deviations accepted: five `effect` variants; two named `test_sc1_statements.py` lines; `frame_kind` null
+
+- **Ruling.** (1) `decision_page.effect` has five variants: `QUANTITY` (a `unit` word, 1 place), `COUNT` (a `noun`
+  word, 0 places), `PERCENT`, `PRICE`, `MONEY`. One SC-1 slot carries one `places` setting, so D-P6.73's `QUANTITY`
+  splits in two. The texts are D-P6.73's examples exactly. (2) D-P6.76's parity list is amended. In
+  `test_sc1_statements.py`, T8 (the statement set: `decision_page.*` added) and T12 (`signed` in the `price` and
+  `percent` options) change their named lines only. Every other test there, and the words parity golden, stays byte
+  for byte. (3) A run with no study identity has `RunSummary.frame_kind` None, as do `study_days` and
+  `study_input_class`. D-P6.77 Q7 overrides §3.1's "`DECLARED_SEASON` when absent", which now applies only when an
+  identity exists without `frame`.
+- **Why.** (1) and (2) are consequences of D-P6.73 that the ruling did not foresee: no behaviour or word moves.
+  (3) A named-option run has no season, so naming one would be false.
+- **Reverse:** none needed.

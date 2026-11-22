@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-IA.61 to D-IA.81, D-P6.68 to D-P6.79, D-IAP.34, D-DD.97 to D-DD.101)
+# Decision index: Demo-sprint and later rulings (index only) (D-IA.61 to D-IA.81, D-P6.68 to D-P6.80, D-IAP.34, D-DD.97 to D-DD.101)
 
 - `D-IA.61` IA-2b is the list shape only, split 2b1/2b2; 2b2 waits for the owner's IA-2a walkthrough · live · specs/IA-1-shape-rebuild/rulings-5.md
 - `D-IA.62` One list component; filters, sort, search, show-all in the address; focus keep · live · specs/IA-1-shape-rebuild/rulings-5.md
@@ -33,6 +33,7 @@
 - `D-P6.77` 6f1 pre-flight Q4-Q12 (name_of, option records via 6h4, no-study source SIMULATED_RECORDS, refusals, SC-1 glyphs) · live · specs/6f-decisions-screen/rulings.md
 - `D-P6.78` 6f1 pre-flight Q13-Q19 (reader per kind, watching dropped, empty words, one DecisionService, route) · live · specs/6f-decisions-screen/rulings.md
 - `D-P6.79` 6f1 unit card 4.25 u (U1 2.0); owner told; words are defaults · live · specs/6f-decisions-screen/rulings.md
+- `D-P6.80` 6f1 U1 deviations: effect has 5 variants (QUANTITY and COUNT split); T8 and T12 of test_sc1_statements change named lines; frame_kind None with no study · live · specs/6f-decisions-screen/rulings.md
 - `D-IAP.34` period body names Sites left out: E2 body.out (5c out_line), k/n from one set, lead lines (MD-IAP-16); parity test; IA-P2 5.5 u · live · specs/IA-P-product-shape/rulings.md
 - `D-DD.97` owner-approved 22 Nov: Kobo's weakest assumed figure is the load timing (residential evening block from 18:00); Oct ~634 L, stand-in candidate ~25 L, bridge ~-31; no sourced figure nears 1,180 L · draft · specs/DD-demo-data/rulings.md
 - `D-DD.98` DD4b Q10: depot rotates full buses off connectors (5 min), spare charges by day; readings stand; M's pooled capacity stage gives 1 short vs room 2: structure finding, owner asked · live · specs/DD-demo-data/rulings.md
