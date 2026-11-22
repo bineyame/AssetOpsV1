@@ -1,0 +1,22 @@
+{
+  "schema": "assetops.source-profile",
+  "schema_version": 1,
+  "profile_id": "cold-budget-illustrative",
+  "status": "ILLUSTRATIVE",
+  "source_type": "budget_workbook",
+  "source_system": "cold-budget-workbook",
+  "file": {"format": "csv", "encoding": "utf-8", "delimiter": ",", "header_row": 1},
+  "values": {"decimal_mark": ".", "thousands_mark": "", "negative": "minus", "date_format": "YYYY-MM-DD", "time_format": "HH:MM", "month_format": "YYYY-MM", "timezone": "Africa/Nairobi"},
+  "version": {"from": "constant", "value": "1"},
+  "columns": [
+    {"header": "Line ID", "paths": [{"path": "source_record_id", "type": "text"}]},
+    {"header": "Site", "paths": [{"path": "site_code", "type": "text"}]},
+    {"header": "Month", "paths": [{"path": "clocks.recognition_period", "type": "month"}]},
+    {"header": "Line", "paths": [{"path": "body.line_ref", "type": "text"}, {"path": "body.factor_id", "type": "text", "map": {"crate_days": "crate_days", "kwh": "kwh", "staff": "staff", "maint": "maint", "liability": "liability"}}]},
+    {"header": "Value", "paths": [{"path": "body.value", "type": "number"}]},
+    {"header": "Currency", "paths": [{"path": "body.currency", "type": "text"}]},
+    {"header": "Budget version", "paths": [{"path": "body.version_ref", "type": "text"}]}
+  ],
+  "constants": {"kind": "BUDGET_LINE"},
+  "personal": []
+}

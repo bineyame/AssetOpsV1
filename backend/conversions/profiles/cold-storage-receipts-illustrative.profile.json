@@ -1,0 +1,24 @@
+{
+  "schema": "assetops.source-profile",
+  "schema_version": 1,
+  "profile_id": "cold-storage-receipts-illustrative",
+  "status": "ILLUSTRATIVE",
+  "source_type": "customer_invoicing",
+  "source_system": "cold-storage-receipts",
+  "file": {"format": "csv", "encoding": "utf-8", "delimiter": ",", "header_row": 1},
+  "values": {"decimal_mark": ".", "thousands_mark": "", "negative": "minus", "date_format": "YYYY-MM-DD", "time_format": "HH:MM", "month_format": "YYYY-MM", "timezone": "Africa/Nairobi"},
+  "version": {"from": "row_digest"},
+  "columns": [
+    {"header": "Receipt", "paths": [{"path": "source_record_id", "type": "text"}]},
+    {"header": "Site", "paths": [{"path": "site_code", "type": "text"}]},
+    {"header": "Customer", "paths": [{"path": "subject.ref", "type": "text"}, {"path": "body.payer_ref", "type": "text"}]},
+    {"header": "Paid at", "paths": [{"path": "clocks.occurred_at", "type": "datetime"}]},
+    {"header": "Month", "paths": [{"path": "clocks.recognition_period", "type": "month"}]},
+    {"header": "Amount", "paths": [{"path": "amount.value", "type": "number"}]},
+    {"header": "Currency", "paths": [{"path": "amount.currency", "type": "text"}]},
+    {"header": "Method", "paths": [{"path": "body.method", "type": "text", "map": {"M-Pesa": "MOBILE_MONEY", "Bank": "BANK", "Cash": "CASH"}}]},
+    {"header": "State", "paths": [{"path": "status", "type": "text", "map": {"Collected": "COLLECTED", "In transit": "PAID_IN_TRANSIT"}}]}
+  ],
+  "constants": {"kind": "RECEIPT", "subject.kind": "CUSTOMER"},
+  "personal": []
+}

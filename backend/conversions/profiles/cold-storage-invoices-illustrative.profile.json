@@ -1,0 +1,25 @@
+{
+  "schema": "assetops.source-profile",
+  "schema_version": 1,
+  "profile_id": "cold-storage-invoices-illustrative",
+  "status": "ILLUSTRATIVE",
+  "source_type": "customer_invoicing",
+  "source_system": "cold-storage-invoices",
+  "file": {"format": "csv", "encoding": "utf-8", "delimiter": ",", "header_row": 1},
+  "values": {"decimal_mark": ".", "thousands_mark": "", "negative": "minus", "date_format": "YYYY-MM-DD", "time_format": "HH:MM", "month_format": "YYYY-MM", "timezone": "Africa/Nairobi"},
+  "version": {"from": "constant", "value": "1"},
+  "columns": [
+    {"header": "Invoice", "paths": [{"path": "source_record_id", "type": "text"}]},
+    {"header": "Site", "paths": [{"path": "site_code", "type": "text"}]},
+    {"header": "Customer", "paths": [{"path": "subject.ref", "type": "text"}, {"path": "body.account_ref", "type": "text"}]},
+    {"header": "From", "paths": [{"path": "clocks.effective_from", "type": "date"}]},
+    {"header": "To", "paths": [{"path": "clocks.effective_to", "type": "date"}]},
+    {"header": "Month", "paths": [{"path": "clocks.recognition_period", "type": "month"}]},
+    {"header": "Crate-days", "paths": [{"path": "quantity.value", "type": "number"}]},
+    {"header": "Amount", "paths": [{"path": "amount.value", "type": "number"}]},
+    {"header": "Currency", "paths": [{"path": "amount.currency", "type": "text"}]},
+    {"header": "Tariff", "paths": [{"path": "body.tariff_code", "type": "text"}]}
+  ],
+  "constants": {"kind": "CHARGE", "subject.kind": "CUSTOMER", "quantity.unit": "crate_day", "body.line_type": "STORAGE"},
+  "personal": []
+}

@@ -1,0 +1,85 @@
+[
+  {
+    "body": {
+      "factor_id": "crate_days",
+      "line_ref": "crate_days",
+      "value": "8680",
+      "version_ref": "budget-2026-v1"
+    },
+    "clocks": {
+      "recognition_period": "2026-07"
+    },
+    "format_version": 1,
+    "kind": "BUDGET_LINE",
+    "site_code": "COLD-THIKA",
+    "source_record_id": "gen:COLD-THIKA:2026-07:plan:crate_days",
+    "source_version": "1"
+  },
+  {
+    "format_version": 1,
+    "kind": "BUDGET_LINE",
+    "source_record_id": "gen:COLD-THIKA:2026-07:plan:kwh",
+    "source_version": "1",
+    "site_code": "COLD-THIKA",
+    "clocks": {
+      "recognition_period": "2026-07"
+    },
+    "body": {
+      "factor_id": "kwh",
+      "value": "3720",
+      "version_ref": "budget-2026-v1",
+      "line_ref": "kwh"
+    }
+  },
+  {
+    "body": {
+      "currency": "USD",
+      "factor_id": "staff",
+      "line_ref": "staff",
+      "value": "350.00",
+      "version_ref": "budget-2026-v1"
+    },
+    "clocks": {
+      "recognition_period": "2026-07"
+    },
+    "format_version": 1,
+    "kind": "BUDGET_LINE",
+    "site_code": "COLD-THIKA",
+    "source_record_id": "gen:COLD-THIKA:2026-07:plan:staff",
+    "source_version": "1"
+  },
+  {
+    "body": {
+      "currency": "USD",
+      "factor_id": "maint",
+      "line_ref": "maint",
+      "value": "80.00",
+      "version_ref": "budget-2026-v1"
+    },
+    "clocks": {
+      "recognition_period": "2026-07"
+    },
+    "format_version": 1,
+    "kind": "BUDGET_LINE",
+    "site_code": "COLD-THIKA",
+    "source_record_id": "gen:COLD-THIKA:2026-07:plan:maint",
+    "source_version": "1"
+  },
+  {
+    "body": {
+      "currency": "USD",
+      "factor_id": "liability",
+      "line_ref": "liability",
+      "value": "0.00",
+      "version_ref": "budget-2026-v1"
+    },
+    "clocks": {
+      "recognition_period": "2026-07"
+    },
+    "format_version": 1,
+    "kind": "BUDGET_LINE",
+    "site_code": "COLD-THIKA",
+    "source_record_id": "gen:COLD-THIKA:2026-07:plan:liability",
+    "source_version": "1"
+  }
+]
