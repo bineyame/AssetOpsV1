@@ -13,7 +13,9 @@
 //   R3 each landed page's regions (P1: the Evidence & records H1 and its tab row with the current tab);
 //   R4 at 390 the page width equals the viewport;
 //   R5 no page error;
-//   R6 no visible text under 12 px.
+//   R6 no visible text under 12 px;
+//   R7 /findings on a 61-day range sends from=2026-10-01 and the bar tags it "inside";
+//   R8 the rail Portfolio link from that page keeps from=2026-09-01.
 // Expected values are spec literals held here, never read from the app's modules (W2 independence).
 //
 // In-page plants (`--plant`): `wide` (a 600 px block at 390 fails R4), `tiny` (an 11 px text fails R6). The source
@@ -200,6 +202,32 @@ async function checkAlias(browser, args, routes, [from, target, own]) {
   return { gate: "alias", from, landed: `${url.pathname}${url.search}`, failures, pass: failures.length === 0 };
 }
 
+/** R7 and R8 (spec-period.md P.9): a 61-day range on /findings reads the last 31 days; Portfolio keeps the whole range. */
+async function checkLongRange(browser, args, routes) {
+  const { ctx, page, errors } = await openPage(browser, routes, { w: 1440, h: 900, dark: false });
+  const sent = [];
+  page.on("request", (r) => {
+    const u = new URL(r.url());
+    if (u.pathname === "/api/estate/findings") sent.push(u.searchParams.get("from") || "");
+  });
+  await page.goto(`${args.base}/findings?from=2026-09-01&to=2026-10-31`);
+  await page.waitForSelector("[data-shared-range-focus]", { timeout: 10000 }).catch(() => {});
+  await page.waitForTimeout(500);
+  const failures = [];
+  if (sent.length === 0) failures.push("R7: no request reached /api/estate/findings");
+  else if (!/^2026-10-01/.test(sent[0])) failures.push(`R7: /api/estate/findings got from=${sent[0]}, expected 2026-10-01`);
+  const tag = await page.evaluate(() => document.querySelector("[data-shared-range-focus]")?.getAttribute("data-shared-range-focus") ?? null);
+  if (tag !== "inside") failures.push(`R7: the bar's tag is ${tag}, expected inside`);
+  const href = await page.evaluate(() => {
+    const a = Array.from(document.querySelectorAll('nav[aria-label="Operator routes"] a')).find((x) => x.textContent.trim() === "Portfolio");
+    return a ? decodeURIComponent(a.getAttribute("href") || "") : "";
+  });
+  if (!/from=2026-09-01/.test(href)) failures.push(`R8: the Portfolio rail link is ${href}, expected from=2026-09-01`);
+  if (errors.length > 0) failures.push(`R5: ${errors.length} page errors (${errors[0]})`);
+  await ctx.close();
+  return { gate: "long-range", sent, tag, href, failures, pass: failures.length === 0 };
+}
+
 (async () => {
   const args = parseArgs(process.argv.slice(2));
   const routes = loadRoutes();
@@ -211,6 +239,7 @@ async function checkAlias(browser, args, routes, [from, target, own]) {
     if (!r.pass) failed = true;
   };
   try {
+    report(await checkLongRange(browser, args, routes));
     for (const alias of ALIASES) report(await checkAlias(browser, args, routes, alias));
     const views = [];
     for (const [w, h] of [[1440, 900], [390, 844]]) for (const dark of [false, true]) views.push({ name: `${w}x${h}-${dark ? "dark" : "light"}`, w, h, dark });

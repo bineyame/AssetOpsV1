@@ -1,4 +1,4 @@
-# IA-P1 handoff (partial: P1 done; P0 started; P2 not started)
+# IA-P1 handoff (partial: P1 and P0 done; P2 not started)
 
 Builder (Claude), 2026-11-22. Branch `task/IA-P1-frame-portfolio` (worktree `/opt/assetecon/AssetOpsV1-iap1`; the spec names
 `task/IA-P1-frame-range-lists`, the dispatch named this one). Stopped near the context limit as the dispatch requires.
@@ -42,39 +42,52 @@ P1 plants (each a one-line edit, shown failing, then reverted with `git checkout
 - `activeLabel={null}` (I16): rail fixtures case "IA-P1: activeLabel={null} (plant)" expects the call-form failure.
 - In-page: `--plant wide` fails R4 ("page width 616 px at a 390 px viewport"), `--plant tiny` fails R6.
 
-## Next: P0 (the long range; spec-period.md P.9)
+## Done (P0, the long range; commit "IA-P P0")
 
-Written, not yet green: `p0-pending-tests.md` (copy each block to `frontend/src/ui/__tests__/`; they fail until the
-source lands). The plan, already surveyed:
-- `sharedRange.ts`: `RANGE_MAX_DAYS = 731`; `WHOLE_RANGE_PAGES = /^\/(?:portfolio(?:\/outcomes)?|sites)\/?$/`;
-  `readWindow(params, now?)` → `{from, to, known_at} | null` (DayRange plus `known_at`); `windowBound(params, key)` (the
-  request bound in the address's own form: raw within 31 days, the window's `from` beyond); a link-side helper returning
-  the raw whole-range bound (`linkBound`) so link builders keep the whole range (P.9 "Links").
-- Raw `get("from")`/`get("to")` sites (request → `windowBound`, link → `linkBound`): `shell/SiteAnalyticsFrames.tsx`
-  491, 1330, 1352, 1471, 1886, 2042, 2263, 2282, 2555 (requests); `estate/estateShared.tsx` 44 (request; give the query
-  a whole-range `link` pair that `estateHref` prefers, so pager/state/lens links keep the whole range);
-  `sites/MiniOpportunity.tsx` 174 (link from a server link); `sites/SiteEvidence.tsx` 105; `sites/coldAssessmentClient.ts`
-  221; `sites/miniDepthClient.ts` 438, 491, 539, 548, 566; `sites/EvFoundationViews.tsx` 70 (link);
-  `work/globalWorkParts.tsx` 337; `sites/SiteRangeOverview.tsx` 464 (rewrite on `rangeWindow(range)`);
-  `sites/LedgerSiteEvidence.tsx` 1165. Also `work/globalWorkClient.ts:793` reads `getAll("from")` (the global Work
-  window, capped at 31): window it too, and keep `globalWorkHref` links on the whole range.
-- Helper callers that build requests (move to `readWindow`): `SiteHealthFrames.tsx:162`, `SiteFinancials.tsx:968`,
-  `MiniPerformance.tsx:460,1705`, `SiteWindowOverview.tsx:302`, `SiteOverview.tsx:103`, `EvidenceClaimLimit.tsx:273`,
-  `PerformanceDispatch.tsx:121`, `miniDepthClient.ts:444,498,542,571`. `FocusPicker` and the bar keep the whole range.
-- `SharedRangeBar.tsx` (line ~31 `const focus = useRangeFocus()`): with no declared focus, a range over 31 days and a
-  page outside `WHOLE_RANGE_PAGES`, treat the window as a declared span (`data-shared-range-focus="inside"`, "Showing
-  {span} of the range"). Open point (mid-build question to raise): apply it only where `readsSharedRange` is true (a page
-  that does not use the range keeps "Not used on this page"); default applied: yes.
-- `ui/RangePartNote.tsx` (new), `sharedRangeBar.test` (61-day `/findings` inside, `/portfolio` All pages), one request
-  test per read family, plants `rawread` and `nowindow`, gates R7 and R8 in `iap_gates.cjs`.
+- `ui/sharedRange.ts`: `RANGE_MAX_DAYS` 731, `READ_WINDOW_DAYS` 31, `WHOLE_RANGE_PAGES`, `readWindow`, `capWindow` (the
+  arithmetic for a range already read), `windowBound` (request bound in the address's own form), `linkBound` (the
+  whole-range bound, for links and server links).
+- The sweep: every raw `get("from")`/`get("to")` now goes through `windowBound` or `linkBound` (`noRawRangeReads`
+  scans the tree). Range-state callers window with `capWindow`/`readWindow`: `useRangeOverview`, `SiteHealthFrames`,
+  `EvidenceClaimLimit`, `MiniPerformance` fuel nights, `miniDepthClient` (two builders). Estate: `EstateQuery.link` and
+  `GlobalWorkQuery.link` hold the whole range when windowed; `estateHref` and `globalWorkHref` prefer it, so pager, state
+  and lens links keep the whole range. `globalWorkPageQuery` windows a 32 to 731 day range (it refused before).
+- The bar (`SharedRangeBar.tsx`): with no declared focus, a range over 31 days, a non-whole page that `readsSharedRange`
+  (the open point's handoff default: range pages only), it declares `capWindow(range)` as a span: tag "inside", "Showing
+  1-31 Oct of the range". `focusSpanLabel` and `FOCUS_INSIDE` moved to `ui/rangeFocus.tsx` (re-exported from the bar).
+- `ui/RangePartNote.tsx` (new, tested; no page uses it yet: its blocks are P3 and P4).
+- Tests: `readWindow.test.ts`, `noRawRangeReads.test.ts` (parked tests, one literal corrected: 2024-10-31 to 2026-10-31
+  is 731 days, 2024-10-30 is 732), `rangePartNote.test.tsx`, a bar test and an R7/R8 request test in
+  `shell/__tests__/sharedRange.test.tsx`, a four-family request test in `sr2RequestUrls.test.tsx` (health, mini depth,
+  cold, EV). Old "longer than 31 days" refusal tests moved to a 2024 start (they now refuse at 731).
+- Plants shown failing, then reverted: `rawread` (`SiteEvidence.tsx` back to `params.get("from")`) fails
+  `noRawRangeReads` ("../../sites/SiteEvidence.tsx:106"); `nowindow` (the bar's auto-span returns `null`) fails the new
+  bar test.
+- Gates R7 and R8 in `tools/iap_gates.cjs` (`checkLongRange`).
+- P1 test fallout fixed (rail labels, `/` alias, Evidence & records label) in operatorSiteTabs, sitesIndexRoute,
+  simulatorLabWorkspaceEntryPoint, estatePortfolioRoutes.
 
-## Then: P2 (lists)
+Known, not mine (fail on the unchanged P1 head too): `siteRangeMatrix.test.tsx` (`/sites/:siteId/uploads` has no matrix
+row; mini `/health` has an extra read) and `sr2RequestUrls.test.tsx` "SR-6b mini-grid Health" (an extra uploads read).
+Links inside Site pages that rebuild from the raw window (SiteAnalyticsFrames action `window=`) were windowed with their
+requests, not split; a Site-side `link` pair is not added (the spec names only the estate and Work links).
 
-Not started. Read IA-2b rev 2 at `task/IA-2b1-lists` `b3102080c` (`git show b3102080c:specs/IA-1-shape-rebuild/spec-IA-2b.md`),
-then spec §5.2 and the P2 card. P2 adds Decisions to `IA_HOMES` (recommendation and alternatives views light Decisions),
-makes the rail item live (update `navigation-truthfulness.ps1`, its fixtures, `iap_gates.cjs` RAIL), adds the P2
-aliases to `LEGACY_ROUTES`, `/decisions` to `RANGE_PAGES`/`FILLED_PAGES`, `act-first` out of `PORTFOLIO_TABS`, and the
-estate list fixtures to `fixtures/iap/routes.json`. Register MD-IAP-2 and MD-IAP-6.
+## Next: P2 (lists; not started)
+
+Read in this order: spec.md §5.2 (the React transcription, the four defs table), §6 "P2" (files, tests, plants, gates
+L1 to L3), and IA-2b rev 2 (`git show b3102080c:specs/IA-1-shape-rebuild/spec-IA-2b.md`): §3.1 model steps 1 to 7 (tier,
+facets, search, sort, cap 10, keep-first, groups) and `iaListHref`'s order; §3.2 markup and chips; §3.3 write and
+restore; §3.4 format; §7 copy; §8 Block A (the `homeListModel.test.ts` cases: tiers at 2, 3, 10, 11, 25). The model is
+pure, so write `ui/__tests__/homeListModel.test.ts` first with literals.
+
+Build order: `ui/homeListModel.ts` + test, `ui/HomeList.tsx` + `homeList.css`, `estate/homeLists.tsx` (decisions,
+findings, actions defs) + test, `estate/estateReadCache.tsx` (mount in `OperatorShellLayout`), rewire `findingIndex.tsx`
+and `actionIndex.tsx` and add `EstateDecisionsFrame` in `shell/EstateRootFrames.tsx`, App.tsx `/decisions` and the
+aliases, `portfolioWords.ts` (`act-first` out of `PORTFOLIO_TABS`), `iaRoutes.ts` (Decisions in `IA_HOMES`, P2 aliases
+in `LEGACY_ROUTES`, Decisions rail item live in `OperatorShellLayout`, `navigation-truthfulness.ps1` and its fixtures,
+`iap_gates.cjs` RAIL and PAGES, `routes.json` estate bodies), `sharedRange.ts` (`/decisions` in `RANGE_PAGES`,
+`FILLED_PAGES`), gates L1 to L3, plants `tile rowctl restore cap dropref`, MD-IAP-2 and MD-IAP-6 register rows,
+`iaRouteMap` growth, then the packet.
 
 ## Risks
 
