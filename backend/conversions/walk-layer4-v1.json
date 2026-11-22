@@ -14,5 +14,6 @@
   "expect": {"tenant": "lakeside-power", "month": "2026-10", "contribution_actual": "1443.00",
              "contribution_target": "2295.00", "reconciled": true},
   "pages": ["/portfolio", "/portfolio/month?month=2026-10", "/sites", "/sites/{code}", "/findings", "/actions",
-            "/evidence", "/financials"]
+            "/evidence", "/financials", "/decisions", "/results", "/portfolio/outcomes",
+            "/portfolio/demand-and-capacity"]
 }
