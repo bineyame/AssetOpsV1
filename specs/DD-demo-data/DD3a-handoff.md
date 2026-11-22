@@ -232,3 +232,13 @@ a linear scan of every step start) for every cause at every boundary: 250k calls
 - Moved figures from D-DD.76 so far: the writer's Kobo tank start (200 to 1250 L) and bound (400 to 2500 L); any run at a Lakeside
   Site now freezes `fuel-tank-capacity` 2500/5000/1000 from the foundation (`runs/profiles.py:910`), which bounds its tank and its
   operational actions (`runs/operational_actions.py:200`). No story figure moves.
+
+---
+# Update 6 (session 5). D-DD.80 done; commit 1b and commit 2 done; packet written (`packet-DD3a.md`), state 205.
+- (4a) `a7b758a47` C1, C2, S2 goldens from main's kernel (W1 re-pinned: inputs moved with ab349bb8d). (4b) `5f40dee24`
+  cause index; parity 20/20; two mutation probes caught. Target met: 7/14/28 d 4.7/8.5/16.2 s (ratio 1.90); 123 d
+  0.62 138 s (rerun 106 s), 3.3 66 s. Commit 2 `e5fd43bfa`, `7c2709005` (C-DD16), `39ac029c1` (W1 re-pinned again).
+- Open, for the coordinator/Architect (packet Q1-Q4): overfill bound hit Aug-Oct (D-DD.19 gate); five test figures still
+  at the pre-commit-2 world (2 in the scope run: `test_dd3_datasheet_template` CLI check, `test_dd3_telemetry` frozen;
+  plus `test_dd2_nodes`, `test_dd2_checker`, backend `test_dd2_check` July); C-DD11 fails because `site-inputs` reads every
+  `*.onboarding.json` in `backend/tests/fixtures/on1` (KeyError 'rating', `telemetry.py:151`); `worked-portfolios.md:74`.

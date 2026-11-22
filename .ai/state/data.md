@@ -681,3 +681,12 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
 - Left open: DD5.3 loads `<slug>/staged/` as step `L1.staged:<slug>` and DD5.2 writes the meter register; the EV
   utility-invoice rows are DD4.4's. `test_ddr_rehearsal_postgres.py` fails 9 tests (the loader does not read cold files),
   the same at the DD2b head: DD5's.
+
+## DD3a: Kobo's operating reality and data sheets (in_review; `specs/DD-demo-data/packet-DD3a.md`)
+- Settled: the pure telemetry writer on v8 (`world/telemetry.py`, `world_history.py site-inputs|telemetry`,
+  `tools/dd3_pure_run.py`); Kobo's data sheets in Lakeside's `/2` file and the manifest (rev 16.18) with the world
+  regenerated; DATASHEET_FIT in fuel-cost-2 and the client words; tanks 5000/2500/1000 L; the kernel indexes forcings
+  (D-DD.75) and causes (D-DD.80) by step, byte-identical (parity K1-K8, D1, F1, X1, W1, S1, C1, C2, S2): 123 days in
+  about 1-2 min. C-DD12, C-DD16, C-DD21 live and passing.
+- Open: overfill bound hit Aug-Oct in the pure run (D-DD.19, Architect); C-DD11 fails (`site-inputs` reads every
+  onboarding file in the directory); five hand-written test figures still at the pre-commit-2 world.
