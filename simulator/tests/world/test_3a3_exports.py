@@ -249,12 +249,15 @@ def test_e9_unwritten_never_lists_a_written_field(result) -> None:
 
 def test_tool_exports_writes_files_and_refuses(tmp_path) -> None:
     out = tmp_path / "exports"
-    run = subprocess.run([sys.executable, str(CLI), "exports", "--manifest", str(FIXTURE), "--out", str(out)],
-                         capture_output=True, text=True, timeout=300)
+    extras = tmp_path / "extras"
+    run = subprocess.run([sys.executable, str(CLI), "exports", "--manifest", str(FIXTURE), "--out", str(out),
+                          "--extras", str(extras)], capture_output=True, text=True, timeout=300)
     assert run.returncode == 0, run.stderr
-    assert sorted(p.name for p in out.iterdir()) == sorted([
-        *PINNED_ALL_MONTHS, "harvest-cold.customer_invoicing.json", "lakeside-power.statements.json", "unwritten.json"])
+    # the CSV directory holds the four files and unwritten.json only (the loader reads a directory whole)
+    assert sorted(p.name for p in out.iterdir()) == sorted([*PINNED_ALL_MONTHS, "unwritten.json"])
     assert {n: hashlib.sha256((out / n).read_bytes()).hexdigest() for n in PINNED_ALL_MONTHS} == PINNED_ALL_MONTHS
+    assert sorted(p.name for p in extras.iterdir()) == ["harvest-cold.customer_invoicing.json",
+                                                         "lakeside-power.statements.json"]
     again = subprocess.run([sys.executable, str(CLI), "exports", "--manifest", str(FIXTURE), "--out", str(out)],
                            capture_output=True, text=True, timeout=300)
     assert again.returncode == 3 and again.stderr.strip() == "DS1B_OUT not-empty"
