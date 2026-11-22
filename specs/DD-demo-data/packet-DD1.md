@@ -34,8 +34,7 @@ Branch `task/DD1-operators`. Implementer (Claude), 2026-11-22. Status: `in_revie
   Wall 61 s for the first run.
 - `test_dd1_onboarding_postgres.py` (4): harvest-cold and metro-bus apply with bindings: every gateway `edge-<code>` and
   every source enabled, one binding set per Site, a second apply leaves event and binding counts equal; a missing
-  conversion refuses before any write; Lakeside is refused (Q-DD1.7).
-- Not run as asserted: the spec's "one published binding set per Site" for Kisiwa and Mto (Q-DD1.7).
+  conversion refuses before any write; the Lakeside cases are listed under round 2.
 - `tools/dd_check.py`: C-DD1 and C-DD13 are live; C-DD2 to C-DD12 and C-DD14 to C-DD20 are stubs that FAIL and name their
   unit. It was not run against a database here: an operator database holds one operator (`ONBOARD_DATABASE_NOT_EMPTY`), so
   C-DD1 over three tenants needs the DD6 world clone. Its unit tests (7) pass.
@@ -45,6 +44,23 @@ Branch `task/DD1-operators`. Implementer (Claude), 2026-11-22. Status: `in_revie
   `tools/checks/statement-handbuilt-baseline.json` (ratchet count unchanged); the guard now prints OK. The `--self-test`
   was started again after the fix (see the review for its result); the full check-all was not re-run.
 
+## DD1.2 round 2 (D-DD.41 to D-DD.43; branch merged with main first)
+- `binding_roles.py`: `ROLE_SET_MINIGRID_5`/`MINIGRID_ROLES_5` (roles-4 with the five unit roles PER_ASSET, order kept),
+  in `ROLES_BY_SET`, `SERVED_ROLE_SETS_BY_SITE_TYPE["MINIGRID"]` and `VERIFICATION_ROLE_SETS`. roles-4 untouched.
+- `binding_service.py`: roles-5 beside roles-4 in `_V4_TABLE_BY_ROLE_SET`, `_MIXED_V4_ROLES_BY_ROLE_SET`; class fix:
+  readiness and verification-missing cover every PER_ASSET role over components of its asset type (not only LOAD).
+  Cold PER_ASSET roles (chamber, compressor, door...) now also take this branch; their tests pass unchanged.
+- Kisiwa and Mto conversions: `role_set` roles-5 (each unit's signals already carried its own `asset_code`). Kobo roles-4.
+- `gen-ks-02` loses `minimum-runtime`, `start-soc-threshold`, `stop-soc-threshold`, `start-delay`; no existing test needed them.
+- Tests: `test_dd1_onboarding_postgres` (7): Lakeside `--bindings` exit 0, 3 sets, Kisiwa/Mto roles-5, second apply no-op;
+  roles-4 still `BINDING_ROLE_AMBIGUOUS`; `BINDING_ROLE_CONFLICT` (a second channel of `generator_power` on one unit);
+  readiness names `Generator power - Generator 02` when gen-ks-02 is unbound and not unit 01.
+  `test_dd1_site_limits` (new): 10,000-node at-limit parses / over refuses; 96 devices parse / 97 names the cap; 256 KiB kept.
+  `test_dd1_operator_files`: non-lead policy check, role-set expectation (Kisiwa, Mto roles-5). `test_s3_role_vocabulary`,
+  `test_w402_roles_properties`: roles-5 served, only the five roles differ.
+- Runs: 1,158 unit tests (bindings, roles, foundation, dd1, site, cold/ev) pass after two expectation updates; Postgres
+  binding/dd1/w201/w205/w402/k1 set: see the hand-back.
+
 ## Plants
 - Provision guard: the five D-DD.35 cases; the pre-change code refuses `lakeside-power` with the served variable set, so
   `test_set_and_same_tenant_runs` fails on `main`.
@@ -53,18 +69,14 @@ Branch `task/DD1-operators`. Implementer (Claude), 2026-11-22. Status: `in_revie
 - Files: a changed role, a missing person or a wrong site fails `test_people_follow_the_manifest_workflow` (set equality).
 
 ## Known deviations and questions (defaults applied)
-- **Q-DD1.7 (blocks Kisiwa and Mto bindings).** `minigrid-roles-4` roles `generator_state`, `generator_power` (required) and
-  `pv_power`, `pv_available_power` are cardinality ONE, and `BindingService.publish` refuses a Foundation with two
-  GENERATOR (Kisiwa) or two INVERTER (Mto) components, `BINDING_ROLE_AMBIGUOUS`, whatever is bound. The two conversions
-  list every unit's device as the spec says and are refused today; a Lakeside apply with `--bindings` stops at Kisiwa
-  (exit 3). Needs an Architect ruling (PER_ASSET roles in a new role set, or a per-unit rule). Default: nothing changed.
-- **Q-DD1.8 (applied).** Site documents were bounded at 2,000 nodes and 64 devices. A depot at ev-lab-001 detail is 2,271
+- **Q-DD1.7 (ruled D-DD.41, built round 2).** See DD1.2 round 2 below; no longer open.
+- **Q-DD1.8 (ruled D-DD.42; constants' comments now name it and the basis).** Site documents were bounded at 2,000 nodes and 64 devices. A depot at ev-lab-001 detail is 2,271
   (Kasarani) to 6,623 (Ruiru) nodes and 73 devices. Applied: `SITE_DOCUMENT_LIMITS.max_nodes` 10,000,
   `MAX_DEVICES` 96, template `MAX_DOCUMENT_NODES` 10,000 (keeps the device cap under the ceiling; the existing cap tests
   still pass). Guard changes outside the spec; for review.
 - **Q-DD1.9 (applied).** Where the manifest is silent, Lakeside takes template v3's values: PCS 30 kW, tank 400 L, load
-  ratings 25/10/40 kW, Kisiwa inverter equal to its PV (30 kW), Mto inverters 25 kW, the full generator policy properties
-  on every unit. DD3.3 adds `pv-array-share` and no-load rates.
+  ratings 25/10/40 kW, Kisiwa inverter equal to its PV (30 kW), Mto inverters 25 kW, the generator policy properties on the lead unit only
+  (D-DD.43; `gen-ks-02` carries unit properties). DD3.3 adds `pv-array-share` and no-load rates.
 - Kobo's component ids changed from `/1`'s (`inverter` to `pv-inverter`, plus `battery-pcs`, `fuel-tank`, `ac-bus`, loads).
 - The `lakeside-power.v1` copy (`fixtures/on1/lakeside-power.v1.onboarding.json`, DD1.1) stays the `/1` fixture of
   `test_on1_operator_file`; `lakeside-power.onboarding.json` is now `/2` and is what the ON1 Postgres test applies.
