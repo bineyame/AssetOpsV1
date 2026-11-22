@@ -41,8 +41,8 @@ STUBS = {
     "C-DD19": "DD3.3", "C-DD20": "DD4.4",
 }
 #: D-DD.121: C-DD6 is live by vertical (so in LIVE, not STUBS); its clauses not yet producible, each with the unit that makes it live.
-PENDING = {"C-DD6": ("EV-KAS CH-K2 2026-11-01T23:40 DD4b", "EV-RUI CH-R7 c2 2026-10-06 DD4b",
-                  "KISIWA-001 GEN-KS-01 2026-10-30T18:40 DD3b", "MTO-001 INV-MT-02 2026-10-28T11:02 DD3b")}
+#: D-DD.146: Kisiwa's and Mto's clauses are live (FAILURES_LIVE), judged on the channel the product admits for the unit.
+PENDING = {"C-DD6": ("EV-KAS CH-K2 2026-11-01T23:40 DD4b", "EV-RUI CH-R7 c2 2026-10-06 DD4b")}
 ORDER = tuple(f"C-DD{i}" for i in range(1, 22))
 
 
@@ -525,31 +525,90 @@ def stub(check: str) -> Result:
     return Result(check, False, [f"not live: its unit {STUBS[check]} has not landed"])
 
 
-#: C-DD6's live clauses (D-DD.121), the checker's own reading of `M`: Thika's failure on its own unit at its minute
-#: (GEN-CR-01 is the generator controller's channel), and the two batches present that night with their limits.
+#: C-DD6's live clauses (D-DD.121, D-DD.146), the checker's own reading of `M`. Each names its evidence: `event` a
+#: value-null FAILED event row (Thika's GEN-CR-01, whose role set has the start-result event); `state` a STATE row FAILED
+#: starting at the minute on the unit's own source (Kisiwa's GEN-KS-01, roles-5 `generator_state`); `power` the
+#: inverter's 5-minute mean at 0 from the step holding the minute to the span end (Mto's INV-MT-02, roles-5 `pv_power`;
+#: the minute is the O&M record's, not a reading).
 FAILURES_LIVE = ({"site": "COLD-THIKA", "unit": "GEN-CR-01", "source_id": "generator-controller",
-                  "at": "2026-10-06T19:11"},)
+                  "at": "2026-10-06T19:11", "evidence": "event"},
+                 {"site": "KISIWA-001", "unit": "GEN-KS-01", "source_id": "gen-ks-01-controller",
+                  "at": "2026-10-30T18:40", "evidence": "state"},
+                 {"site": "MTO-001", "unit": "INV-MT-02", "source_id": "inv-mt-02-controller",
+                  "at": "2026-10-28T11:02", "evidence": "power", "healthy": "inv-mt-01-controller"})
 EXCURSIONS = ({"site": "COLD-THIKA", "batch": "B-1031", "day": "2026-10-06", "limit_c": Decimal(5), "above_minutes": 15},
               {"site": "COLD-THIKA", "batch": "B-1034", "day": "2026-10-06", "limit_c": Decimal(12)})
 CHAMBER = "chamber-probe"
+STEP = 5  # minutes: the readings' step
+
+
+def _step_of(minute: str) -> str:
+    """The 5-minute step holding a local minute `YYYY-MM-DDTHH:MM`."""
+    return f"{minute[:14]}{int(minute[14:16]) // STEP * STEP:02d}"
+
+
+def _failed_sources(rows: list[dict], at: str, unit: str) -> set[str]:
+    return {r["source_id"] for r in rows if r.get("unit") == unit and r["start"][:16] == at and (
+        r["event"].get("outcome") == "FAILED" if unit == "event" else r.get("value") == "FAILED")}
+
+
+def _judge_power_clause(clause: dict, rows: list[dict]) -> list[str]:
+    """The inverter's mean power is 0 from the step holding the minute to the span end, above 0 the step before, while
+    irradiance and the healthy inverter are above 0 at that step."""
+    at = _step_of(clause["at"])
+    power: dict[str, dict[str, Decimal]] = {}
+    for r in rows:
+        if r["signal_id"] in ("ac-power", "irradiance"):
+            power.setdefault(r["source_id"] if r["signal_id"] == "ac-power" else "irradiance", {})[r["start"][:16]] = \
+                Decimal(r["value"])
+    own, before = power.get(clause["source_id"], {}), None
+    earlier = sorted(m for m in own if m < at)
+    before = own[earlier[-1]] if earlier else None
+    after = {m: v for m, v in own.items() if m >= at}
+    why = []
+    if at not in after or any(v != 0 for v in after.values()):
+        why.append(f"not 0 from {at[11:]} to the span end ({sorted(m[11:] for m, v in after.items() if v != 0)[:3]})")
+    if before is None or before <= 0:
+        why.append(f"not above 0 the step before ({before})")
+    for name, label in ((clause["healthy"], "the other inverter"), ("irradiance", "irradiance")):
+        if not power.get(name, {}).get(at, Decimal(0)) > 0:
+            why.append(f"{label} not above 0 at {at[11:]}")
+    return why
 
 
 def judge_failures_at_instant(readings: dict[str, list[dict]]) -> Result:
-    """C-DD6 on readings rows (`{site code: rows}`, the writer's row shape): each live failure is a FAILED event on its
-    own channel at its local minute, and on no other channel then; B-1031 is above 5 degC for more than 15 minutes by
-    the 5-minute readings' lower bound ((n - 1) x 5 for n consecutive readings above); B-1034 stays below 12 degC."""
-    detail = []
+    """C-DD6 on readings rows (`{site code: rows}`, the writer's row shape): each live failure is on its own unit at its
+    local minute by its clause's evidence (D-DD.146), and no other source shows FAILED then; B-1031 is above 5 degC for
+    more than 15 minutes by the 5-minute readings' lower bound ((n - 1) x 5 for n consecutive readings above); B-1034
+    stays below 12 degC. Failing lines name FAIL; information lines do not."""
+    detail, failing = [], []
+
+    def fail(line: str) -> None:
+        detail.append(line)
+        failing.append(line)
     for clause in FAILURES_LIVE:
-        rows = readings.get(clause["site"], [])
-        failed = {r["source_id"] for r in rows if r.get("unit") == "event" and r["event"].get("outcome") == "FAILED"
-                  and r["start"][:16] == clause["at"]}
+        rows, head = readings.get(clause["site"], []), f"{clause['site']} {clause['unit']}"
+        if clause["evidence"] == "power":
+            why = _judge_power_clause(clause, rows)
+            if why:
+                fail(f"{head}: power clause FAILS at {clause['at']}: {'; '.join(why)}")
+            detail.append(f"{head}: power 0 from the {_step_of(clause['at'])[11:]} step; the minute {clause['at'][11:]} "
+                          f"is the O&M record's (M operations), not a reading")
+            continue
+        unit = clause["evidence"]
+        failed = _failed_sources(rows, clause["at"], unit)
+        if unit == "state" and failed == {clause["source_id"]}:
+            prior = [r for r in rows if r["source_id"] == clause["source_id"] and r.get("unit") == "state"
+                     and r["start"][:16] < clause["at"]]
+            if prior and max(prior, key=lambda r: r["start"])["value"] == "FAILED":
+                fail(f"{head}: FAILED state does not start at {clause['at']} (already FAILED before)")
         if failed != {clause["source_id"]}:
-            detail.append(f"{clause['site']} {clause['unit']}: FAILED at {clause['at']} on {sorted(failed) or 'nothing'}")
+            fail(f"{head}: FAILED {unit} at {clause['at']} on {sorted(failed) or 'nothing'}")
     for clause in EXCURSIONS:
         chamber = [(r["start"], Decimal(r["value"])) for r in readings.get(clause["site"], [])
                    if r["source_id"] == CHAMBER and r["start"].startswith(clause["day"])]
         if not chamber:
-            detail.append(f"{clause['site']} {clause['batch']}: no chamber readings on {clause['day']}")
+            fail(f"{clause['site']} {clause['batch']}: no chamber readings on {clause['day']}")
             continue
         if "above_minutes" in clause:
             run = longest = 0
@@ -558,14 +617,14 @@ def judge_failures_at_instant(readings: dict[str, list[dict]]) -> Result:
                 longest = max(longest, run)
             bound = max(longest - 1, 0) * 5
             if bound <= clause["above_minutes"]:
-                detail.append(f"{clause['site']} {clause['batch']}: above {clause['limit_c']} degC at least {bound} "
+                fail(f"{clause['site']} {clause['batch']}: above {clause['limit_c']} degC at least {bound} "
                               f"minutes, not more than {clause['above_minutes']}")
         else:
             peak = max(value for _at, value in chamber)
             if peak >= clause["limit_c"]:
-                detail.append(f"{clause['site']} {clause['batch']}: peak {peak} degC is not below {clause['limit_c']}")
+                fail(f"{clause['site']} {clause['batch']}: peak {peak} degC is not below {clause['limit_c']}")
     pending = [f"{p} pending" for p in PENDING["C-DD6"]]
-    return Result("C-DD6", not detail, detail, pending)
+    return Result("C-DD6", not failing, detail, pending)
 
 
 def stored_readings(database_url: str) -> dict[str, list[dict]]:
@@ -576,6 +635,269 @@ def stored_readings(database_url: str) -> dict[str, list[dict]]:
 
 def check_failures(inputs: "Inputs") -> Result:
     return judge_failures_at_instant(stored_readings(inputs.database_url))
+
+
+# --- D-DD.132: the pure-run checks, from the pure run's files alone (no database) ----------------------------------
+
+PURE_CHECKS = ("C-DD8", "C-DD17", "C-DD20")
+ONBOARDING_FILE = ROOT / "backend/tests/fixtures/on1/lakeside-power.onboarding.json"
+ON_STATES = ("STARTING", "RUNNING")
+CANDIDATE_PV_SHARE = Decimal("1.1")  # dispatch-3.2's candidate rule: PV >= 1.1 x load (domain models §3.4)
+UNEXPLAINED_TOLERANCE = Decimal("0.02")  # the fuel balance's investigation tolerance, 2 % (domain models §3.3)
+KOBO_OCTOBER_UNEXPLAINED_L = Decimal(120)  # the manifest's Kobo October residual, printed beside the balance
+KISIWA_STORY = {"site": "KISIWA-001", "restored": "2026-08-17T11:00", "failed": "2026-10-30T18:40"}
+MTO_STORY = {"site": "MTO-001", "at": "2026-10-28T11:02"}
+_ROLE_BY_NAME = {"fuel-level": "fuel_level", "status": "generator_state", "active-power": "feeder_demand",
+                 "irradiance": "pv_irradiance"}
+
+
+def _role(source: str, signal: str) -> str | None:
+    """A row's role by the readings' names (the run's manifest `mappings` take precedence when present)."""
+    if signal == "ac-power":
+        return "generator_power" if source.startswith("gen") else "pv_power" if source.startswith(("inv", "pv-")) else None
+    return _ROLE_BY_NAME.get(signal)
+
+
+def pure_steps(rows, roles: dict[tuple[str, str], str] | None = None) -> dict[str, dict]:
+    """Readings rows reduced to one record per local step minute: tank litres, generator kW and state per unit (the
+    source id without `-controller`), PV kW (sum and per inverter source), feeder kW (sum), irradiance."""
+    steps: dict[str, dict] = {}
+    for r in rows:
+        role = (roles or {}).get((r["source_id"], r["signal_id"])) or _role(r["source_id"], r["signal_id"])
+        if role is None or r.get("unit") == "event":
+            continue
+        step = steps.setdefault(r["start"][:16], {"gen_kw": {}, "gen_state": {}, "inv": {}, "pv_kw": Decimal(0),
+                                                    "load_kw": Decimal(0)})
+        unit = r["source_id"].removesuffix("-controller")
+        if role == "generator_state":
+            step["gen_state"][unit] = r["value"]
+            continue
+        value = Decimal(r["value"])
+        if role == "fuel_level":
+            step["tank"] = value
+        elif role == "generator_power":
+            step["gen_kw"][unit] = value
+        elif role == "pv_power":
+            step["inv"][r["source_id"]] = value
+            step["pv_kw"] += value
+        elif role == "feeder_demand":
+            step["load_kw"] += value
+        elif role == "pv_irradiance":
+            step["irr"] = value
+    return steps
+
+
+def read_pure(directory: Path) -> dict:
+    """The pure run's files: `<tenant>/telemetry/<CODE>.<day>.readings.json`, `<CODE>.manifest.json` and
+    `measured.json`. Returns `{"sites": {code: {"steps", "manifest"}}, "measured": {code: months}}`."""
+    sites: dict[str, dict] = {}
+    measured: dict[str, dict] = {}
+    for path in sorted(Path(directory).rglob("*.manifest.json")):
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        if "site_code" in manifest:
+            sites.setdefault(manifest["site_code"], {"steps": {}})["manifest"] = manifest
+    for path in sorted(Path(directory).rglob("*.readings.json")):
+        code = path.name.split(".")[0]
+        site = sites.setdefault(code, {"steps": {}, "manifest": {}})
+        roles = {(m["source_id"], m["signal_id"]): m["role"] for m in site.get("manifest", {}).get("mappings", [])}
+        site["steps"].update(pure_steps(json.loads(path.read_text(encoding="utf-8"))["readings"], roles))
+    for path in sorted(Path(directory).rglob("measured.json")):
+        measured.update(json.loads(path.read_text(encoding="utf-8"))["sites"])
+    if not sites:
+        raise InputError(f"{directory}: no pure-run readings")
+    return {"sites": sites, "measured": measured}
+
+
+def _components(onboarding: dict, code: str, kind: str) -> list[dict]:
+    site = next((s for s in onboarding.get("sites", []) if s.get("code") == code), {})
+    return [c for c in site.get("components", []) if c.get("type") == kind]
+
+
+def generator_kit(onboarding: dict, code: str) -> dict[str, tuple]:
+    """Per generator unit: (rated kW, SFC L/kWh, no-load L/h) from the Site's `/2` foundation."""
+    kit = {}
+    for c in _components(onboarding, code, "GENERATOR"):
+        props = {p["property_key"]: p["value"] for p in c.get("properties", [])}
+        kit[c["id"]] = (props["generator-rated-power"], props["specific-fuel-consumption"],
+                        props["generator-no-load-fuel-rate"])
+    return kit
+
+
+def step_litres(step: dict, kit: dict[str, tuple], step_minutes: int = STEP) -> Decimal:
+    """Litres the data-sheet curve gives for one step: per unit on (STARTING or RUNNING), no-load x h + (SFC - no-load
+    / rated) x kWh. The checker's own arithmetic on the `/2` values."""
+    hours = Decimal(step_minutes) / 60
+    litres = Decimal(0)
+    for unit, (rated, sfc, no_load) in kit.items():
+        if step.get("gen_state", {}).get(unit) not in ON_STATES:
+            continue
+        rated, sfc, no_load = Decimal(str(rated)), Decimal(str(sfc)), Decimal(str(no_load))
+        litres += no_load * hours + (sfc - no_load / rated) * Decimal(str(step["gen_kw"].get(unit, 0))) * hours
+    return litres
+
+
+def tank_outside_bounds(sites: dict[str, dict], onboarding: dict) -> list[str]:
+    """C-DD8: every tank reading within [0, capacity] (capacity: the tank's declared rating)."""
+    out = []
+    for code, steps in sorted(sites.items()):
+        tanks = _components(onboarding, code, "FUEL_TANK")
+        if len(tanks) != 1:
+            out.append(f"{code}: {len(tanks)} declared tanks, not one")
+            continue
+        capacity = Decimal(str(tanks[0]["rating"]["value"]))
+        bad = [(m, s["tank"]) for m, s in sorted(steps.items()) if "tank" in s and not 0 <= s["tank"] <= capacity]
+        if bad:
+            out.append(f"{code}: tank outside [0, {capacity}] L at {len(bad)} steps, first {bad[0][0]} {bad[0][1]} L")
+    return out
+
+
+def candidate_minutes(steps: dict[str, dict], step_minutes: int = STEP) -> dict[str, int]:
+    """Per month, minutes a generator runs while PV could carry the load (PV >= 1.1 x feeder load)."""
+    out: dict[str, int] = {}
+    for minute, s in sorted(steps.items()):
+        month = minute[:7]
+        out.setdefault(month, 0)
+        if any(v > 0 for v in s["gen_kw"].values()) and s["pv_kw"] >= CANDIDATE_PV_SHARE * s["load_kw"]:
+            out[month] += step_minutes
+    return out
+
+
+def month_balances(steps: dict[str, dict], notes: list[dict], kit: dict[str, tuple]) -> dict[str, dict[str, Decimal]]:
+    """Per month: opening dip (the month's first tank reading), deliveries (notes in [opening, closing)), closing dip
+    (the next month's first reading, else the month's last), burned (the curve over the steps between), consumed =
+    opening + deliveries - closing, balance = consumed - burned (the product definition's unexplained litres)."""
+    tank = sorted((m, s["tank"]) for m, s in steps.items() if "tank" in s)
+    months = sorted({m[:7] for m, _ in tank})
+    out = {}
+    for i, month in enumerate(months):
+        first = next(m for m, _ in tank if m.startswith(month))
+        later = [m for m, _ in tank if m[:7] > month]
+        last = later[0] if later else max(m for m, _ in tank if m.startswith(month))
+        level = dict(tank)
+        delivered = sum((Decimal(str(n["litres"])) for n in notes if first <= n["at"][:16] < last), Decimal(0))
+        burned = sum((step_litres(steps[m], kit) for m in steps if first <= m < last), Decimal(0))
+        consumed = level[first] + delivered - level[last]
+        out[month] = {"open": level[first], "delivered": delivered, "close": level[last], "burned": burned,
+                      "consumed": consumed, "balance": consumed - burned}
+    return out
+
+
+def _minute_shift(minute: str, days: int) -> str:
+    from datetime import datetime, timedelta
+
+    return (datetime.fromisoformat(minute) + timedelta(days=days)).strftime("%Y-%m-%dT%H:%M")
+
+
+def litres_per_day_rise(steps: dict[str, dict], kit: dict[str, tuple], at: str,
+                        step_minutes: int = STEP) -> tuple[bool, str]:
+    """C-DD20 Mto: generator litres per day from the step holding `at` to the span end exceed the 28 days before.
+    The 28 days must be covered by readings, else the clause fails."""
+    if step_minutes == STEP:
+        at = _step_of(at)
+    start = _minute_shift(at, -28)
+    before = [m for m in steps if start <= m < at]
+    after = [m for m in steps if m >= at]
+    if len(before) != 28 * 1440 // step_minutes or not after:
+        return False, f"the 28 days before {at} hold {len(before)} steps and after {len(after)}: not covered"
+    per_day = [sum((step_litres(steps[m], kit, step_minutes) for m in part), Decimal(0)) * 1440 /
+               (len(part) * step_minutes) for part in (before, after)]
+    return per_day[1] > per_day[0], (f"generator litres per day: {per_day[0]:.2f} in the 28 days before {at}, "
+                                     f"{per_day[1]:.2f} after")
+
+
+def judge_pure_c_dd8(pure: dict, onboarding: dict) -> Result:
+    sites = {code: site["steps"] for code, site in pure["sites"].items()}
+    failing = tank_outside_bounds(sites, onboarding)
+    detail = list(failing)
+    kobo = pure["sites"].get("KOBO-001")
+    october = month_balances(kobo["steps"], kobo["manifest"].get("conditions", {}).get("fuel_notes", []),
+                             generator_kit(onboarding, "KOBO-001")).get("2026-10") if kobo else None
+    if october is None:
+        failing.append("KOBO-001: no October readings for the balance")
+    else:
+        line = (f"KOBO-001 October balance {october['open']:.1f} + {october['delivered']:.1f} - {october['close']:.1f}"
+                f" - burned {october['burned']:.1f} = {october['balance']:.1f} L (the manifest's "
+                f"{KOBO_OCTOBER_UNEXPLAINED_L} L)")
+        (failing if october["balance"] < 0 else detail).append(line)
+        critical = (kobo["manifest"].get("conditions", {}).get("critical_load_order") or ["clinic"])[0]
+        unserved = Decimal(pure["measured"].get("KOBO-001", {}).get("2026-10", {}).get("unserved_kwh", {})
+                           .get(critical, "0"))
+        (failing if unserved != 0 else detail).append(f"KOBO-001 October unserved {critical} energy {unserved} kWh (MG-5)")
+    kisiwa = pure["sites"].get("KISIWA-001")
+    if kisiwa is None:
+        failing.append("KISIWA-001: no readings for candidate minutes")
+    else:
+        minutes = candidate_minutes(kisiwa["steps"])
+        (failing if any(minutes.values()) else detail).append(f"KISIWA-001 candidate minutes by month {minutes} (OR-MG-2)")
+    return Result("C-DD8", not failing, [f"FAIL {d}" if d in failing else d for d in dict.fromkeys(detail + failing)])
+
+
+def judge_pure_c_dd17(pure: dict, onboarding: dict) -> Result:
+    """C-DD17 pure part: Kobo's unexplained litres (the balance) >= 0 every month, within 2 % of consumed July to
+    September and above it in October."""
+    kobo = pure["sites"].get("KOBO-001")
+    if kobo is None:
+        return Result("C-DD17", False, ["FAIL KOBO-001: no readings"])
+    balances = month_balances(kobo["steps"], kobo["manifest"].get("conditions", {}).get("fuel_notes", []),
+                              generator_kit(onboarding, "KOBO-001"))
+    detail, ok = [], True
+    for month in ("2026-07", "2026-08", "2026-09", "2026-10"):
+        b = balances.get(month)
+        if b is None:
+            detail.append(f"FAIL {month}: no readings")
+            ok = False
+            continue
+        share = b["balance"] / b["consumed"] if b["consumed"] else Decimal(0)
+        good = b["balance"] >= 0 and ((share > UNEXPLAINED_TOLERANCE) if month == "2026-10" else
+                                      (share <= UNEXPLAINED_TOLERANCE))
+        ok &= good
+        detail.append(f"{'' if good else 'FAIL '}{month}: unexplained {b['balance']:.1f} L of consumed {b['consumed']:.1f} "
+                      f"({share * 100:.2f} %, tolerance {UNEXPLAINED_TOLERANCE * 100:.0f} %)")
+    return Result("C-DD17", ok, detail)
+
+
+def judge_pure_c_dd20(pure: dict, onboarding: dict) -> Result:
+    """C-DD20's Kisiwa and Mto clauses (by direction; nothing tuned). Kisiwa from `measured.json`'s months: unserved
+    energy in October (the month holding 30 Oct 18:40) and none in a month wholly between 17 Aug 11:00 and then (the
+    month totals do not resolve 17-31 Aug or 1-30 Oct; stated). Mto: generator litres per day rise after 28 Oct 11:02."""
+    detail, ok = [], True
+    months = pure["measured"].get(KISIWA_STORY["site"])
+    if months is None:
+        detail.append("FAIL KISIWA-001: no measured months")
+        ok = False
+    else:
+        total = {m: sum((Decimal(v) for v in row.get("unserved_kwh", {}).values()), Decimal(0)) for m, row in months.items()}
+        between = [m for m in total if KISIWA_STORY["restored"][:7] < m < KISIWA_STORY["failed"][:7]]
+        good = total.get(KISIWA_STORY["failed"][:7], Decimal(0)) > 0 and bool(between) and all(total[m] == 0 for m in between)
+        ok &= good
+        detail.append(f"{'' if good else 'FAIL '}KISIWA-001 unserved kWh by month {{{', '.join(f'{m}: {v}' for m, v in sorted(total.items()))}}};"
+                      f" months wholly between 17 Aug 11:00 and 30 Oct 18:40: {between} (17-31 Aug and 1-30 Oct are "
+                      f"inside month totals)")
+    mto = pure["sites"].get(MTO_STORY["site"])
+    if mto is None:
+        detail.append("FAIL MTO-001: no readings")
+        ok = False
+    else:
+        good, line = litres_per_day_rise(mto["steps"], generator_kit(onboarding, MTO_STORY["site"]), MTO_STORY["at"])
+        ok &= good
+        detail.append(f"{'' if good else 'FAIL '}MTO-001 {line}")
+    return Result("C-DD20", ok, detail)
+
+
+PURE: dict[str, Callable[[dict, dict], Result]] = {"C-DD8": judge_pure_c_dd8, "C-DD17": judge_pure_c_dd17,
+                                                   "C-DD20": judge_pure_c_dd20}
+
+
+def run_pure(directory: Path, only: tuple[str, ...] = PURE_CHECKS) -> list[Result]:
+    pure = read_pure(directory)
+    onboarding = json.loads(ONBOARDING_FILE.read_text(encoding="utf-8"))
+    results = []
+    for check in only:
+        try:
+            results.append(PURE[check](pure, onboarding))
+        except Exception as error:  # noqa: BLE001 - an unreadable input is a FAIL with its detail
+            results.append(Result(check, False, [f"could not be judged: {type(error).__name__}: {error}"]))
+    return results
 
 
 GENERATOR_MODULES = ("simulator/assetops_simulator/world", "tools/world_history.py")
@@ -650,11 +972,27 @@ def check_two_processes_agree(inputs: Inputs, first: str = "2026-07-01", last: s
     return Result("C-DD11", not differing and all(kinds.values()), detail + [f"differs: {k}" for k in differing[:10]])
 
 
+def judge_v9_rows(values: dict[str, tuple], units: dict[str, tuple[str, ...]], needs: list[tuple]) -> list[str]:
+    """C-DD21's v9 row on Kisiwa: every per-unit need (and every v9 need) is answered at each unit of its component type
+    with the table's unit and dimension, and the units' `pv-array-share` values sum to 1. `values` maps an address to
+    (value, unit, dimension); `needs` rows are (state key, component type, unit, dimension, per unit)."""
+    detail = []
+    for key, kind, unit, dimension, per_unit in needs:
+        for component in units.get(kind, ()) if per_unit else units.get(kind, ())[:1]:
+            got = values.get(f"{key}@{component}")
+            if got is None or tuple(got[1:]) != (unit, dimension):
+                detail.append(f"{key}@{component}: {got} is not answered as ({unit}, {dimension})")
+    shares = [values[f"pv-array-share@{c}"][0] for c in units.get("INVERTER", ()) if f"pv-array-share@{c}" in values]
+    if shares and sum(shares) != 1:
+        detail.append(f"pv-array-share sums to {sum(shares)}, not 1")
+    return detail
+
+
 def check_property_table_parity(inputs: Inputs) -> Result:
     """C-DD21: the writer's property-to-address table (`telemetry.NEEDS`) equals the backend's, which the product freezes.
     Compared on Kobo's v8 draft built through the host adapter: every initial value's address, state key, unit and
     dimension, and the writer's table row for it; and the pack's foundation needs by name."""
-    for part in ("host", "host/tests", "backend", "contracts", "simulator"):
+    for part in ("host", "host/tests", "backend", "contracts", "simulator", "tools"):
         sys.path.insert(0, str(ROOT / part))
     from assetops_simulator.world import telemetry
     from execution_adapter import frozen_world_inputs
@@ -671,7 +1009,24 @@ def check_property_table_parity(inputs: Inputs) -> Result:
     needs = set(MINI_GRID_V8_MODEL.foundation_needs)
     missing = sorted(needs - {n.state_key for n in telemetry.NEEDS} - {"pv-rated-power"} - set(backend) - {"fuel-tank-capacity"})
     detail += [f"foundation need {m} has no writer row" for m in missing]
-    return Result("C-DD21", not detail, detail[:20] or [f"{len(table)} rows equal the backend's frozen initial values"])
+    # the v9 rows on Kisiwa: the writer's frozen inputs answer each unit (DD3b2; the v8 product freezes no v9 row)
+    import world_history
+
+    onboarding = json.loads(ONBOARDING_FILE.read_text(encoding="utf-8"))
+    bindings = json.loads((ROOT / "backend/conversions/world/KISIWA-001-bindings.json").read_text(encoding="utf-8"))
+    site = next(s for s in telemetry.site_inputs(onboarding, {"KISIWA-001": bindings})["sites"] if s["code"] == "KISIWA-001")
+    books = telemetry.books_for(world_history.load_view(MANIFEST), json.loads(HISTORY.read_text(encoding="utf-8")),
+                                {"lakeside-power": ""})["KISIWA-001"]
+    kisiwa = telemetry.frozen_inputs(site, books, "2026-10-30", "2026-10-30")
+    values = {v.address: (v.value, v.canonical_unit, v.dimension) for v in kisiwa.initial_values}
+    units = {kind: tuple(c["id"] for c in _components(onboarding, "KISIWA-001", kind)) for kind in ("GENERATOR", "INVERTER")}
+    v9 = judge_v9_rows(values, units, [(n.state_key, n.component_type, n.unit, n.dimension, n.per_unit)
+                                       for n in telemetry.NEEDS if n.version == 9 or n.per_unit])
+    detail += [f"KISIWA-001 v{kisiwa.model_profile_version} {line}" for line in v9]
+    if kisiwa.model_profile_version != 9:
+        detail.append(f"KISIWA-001 runs v{kisiwa.model_profile_version}, not v9")
+    return Result("C-DD21", not detail, detail[:20] or [f"{len(table)} rows equal the backend's frozen initial values",
+                                                        f"KISIWA-001 v9: every unit answered, pv-array-share sums to 1"])
 
 
 DATASHEET_SLOT = ROOT / "config/datasheets/kobo-equipment.json"
@@ -795,7 +1150,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--database-url", default=os.environ.get("DATABASE_URL"))
     parser.add_argument("--only", default=",".join(ORDER))
     parser.add_argument("--json", action="store_true")
+    parser.add_argument("--pure", type=Path, help="the pure run's directory: C-DD8, C-DD17 and C-DD20 (D-DD.132)")
     args = parser.parse_args(argv)
+    if args.pure is not None:
+        only = tuple(c.strip() for c in args.only.split(",") if c.strip() in PURE_CHECKS) or PURE_CHECKS
+        try:
+            results = run_pure(args.pure, only)
+        except (InputError, OSError, KeyError, ValueError) as error:
+            print(f"DD_CHECK_INPUT {error}", file=sys.stderr)
+            return 2
+        return _print(results, args.json)
     only = tuple(c.strip() for c in args.only.split(",") if c.strip())
     unknown = sorted(set(only) - set(ORDER))
     if unknown or not args.database_url:
@@ -807,8 +1171,11 @@ def main(argv: list[str] | None = None) -> int:
     except (InputError, OSError, KeyError, ValueError) as error:
         print(f"DD_CHECK_INPUT {error}", file=sys.stderr)
         return 2
-    results = run(inputs, only)
-    if args.json:
+    return _print(run(inputs, only), args.json)
+
+
+def _print(results: list[Result], as_json: bool) -> int:
+    if as_json:
         print(json.dumps([r.__dict__ for r in results], indent=1))
     else:
         for r in results:

@@ -105,22 +105,27 @@ def test_pure_tank_bound_holds_on_the_writer_rows_and_fails_on_an_overfill(kisiw
 
 
 def test_pure_kisiwa_candidate_minutes_count_generator_running_while_pv_carries_the_load(kisiwa) -> None:
-    assert dd_check.candidate_minutes(dd_check.pure_steps(kisiwa)) == {"2026-10": 0}
+    # the counter, not the world: the world's own count is C-DD8's to judge on the pure run (reported, never tuned)
+    base = dd_check.candidate_minutes(dd_check.pure_steps(kisiwa))["2026-10"]
     noon = [dict(r, value="20.000") if r["source_id"] == "gen-ks-02-controller" and r["signal_id"] == "ac-power"
-            and r["start"][11:16] == "12:00" else r for r in kisiwa]
-    assert dd_check.candidate_minutes(dd_check.pure_steps(noon)) == {"2026-10": 5}
+            and r["start"][11:16] == "10:20" else r for r in kisiwa]  # PV charging the battery
+    assert dd_check.candidate_minutes(dd_check.pure_steps(noon)) == {"2026-10": base + 5}
+    night = [dict(r, value="20.000") if r["source_id"] == "gen-ks-02-controller" and r["signal_id"] == "ac-power"
+             and r["start"][11:16] == "21:00" else r for r in kisiwa]  # PV carries nothing at night: necessary
+    assert dd_check.candidate_minutes(dd_check.pure_steps(night)) == {"2026-10": base}
 
 
 def test_pure_mto_generator_litres_per_day_rise_after_the_trip_or_fail() -> None:
     kit = {"gen": (25, "0.30", "2.4")}  # rated kW, SFC L/kWh, no-load L/h
 
     def steps(before_kw, after_kw):
-        out = {}
-        for day in range(1, 32):
-            for hour in range(24):
-                at = f"2026-10-{day:02d}T{hour:02d}:00" if day <= 31 else None
-                kw = before_kw if at < "2026-10-28T11:00" else after_kw
-                out[at] = {"gen_kw": {"gen": kw}, "gen_state": {"gen": "RUNNING" if kw else "STOPPED"}}
+        from datetime import datetime, timedelta
+        out, at = {}, datetime(2026, 9, 29)
+        while at < datetime(2026, 11, 1):
+            minute = at.strftime("%Y-%m-%dT%H:%M")
+            kw = before_kw if minute < "2026-10-28T11:00" else after_kw
+            out[minute] = {"gen_kw": {"gen": kw}, "gen_state": {"gen": "RUNNING" if kw else "STOPPED"}}
+            at += timedelta(hours=1)
         return out
     assert dd_check.litres_per_day_rise(steps(5, 10), kit, "2026-10-28T11:00", step_minutes=60)[0]
     assert not dd_check.litres_per_day_rise(steps(10, 5), kit, "2026-10-28T11:00", step_minutes=60)[0]
@@ -133,6 +138,8 @@ def test_pure_is_judged_without_a_database_url(books, tmp_path: Path, capsys) ->
     for name, data in result.files:
         (tmp_path / name).parent.mkdir(parents=True, exist_ok=True)
         (tmp_path / name).write_bytes(data)
+    for name, manifest in result.manifests:
+        (tmp_path / name).write_text(json.dumps(manifest), encoding="utf-8")
     code = dd_check.main(["--pure", str(tmp_path)])
     out = capsys.readouterr().out
     assert code in (0, 1) and "DD_CHECK_USAGE" not in out
