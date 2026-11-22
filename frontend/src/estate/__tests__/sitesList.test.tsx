@@ -39,11 +39,11 @@ function directory(sites: SiteSummary[] = []): SiteDirectoryClient {
   return { listSites: () => Promise.resolve({ status: "loaded", sites }) };
 }
 
-function labSite(site_id: string, display_name: string): SiteSummary {
+function labSite(site_id: string, display_name: string, site_type = "MINIGRID"): SiteSummary {
   return {
     site_id,
     display_name,
-    site_type: "MINIGRID",
+    site_type,
     location: { country: "KE", region: "Nairobi", latitude: null, longitude: null },
     timezone: "Africa/Nairobi",
     lifecycle_status: "ACTIVE",
@@ -219,17 +219,27 @@ describe("IA-P P4b: the Sites list on E1", () => {
     expect(cells("Kobo")["Waiting for a choice"]).toBe("Not available yet");
   });
 
-  it("a directory Site that E1 does not hold is listed after E1's rows (pre-flight Q1)", async () => {
-    renderAt(`/sites?${OCT}`, sitesClient(BY_RANGE), estateClient(), directory([labSite("kobo-001", "Kobo"), labSite("LAB-SITE-9", "Lab Site")]));
+  it("a directory Site that E1 does not hold is listed after E1's rows: Group from site_type, waiting from E0 (D-IAP.35 Q1)", async () => {
+    const body = parse<EstatePortfolioBody>(PORTFOLIO);
+    const withLab = { ...body, summary: { ...body.summary, waiting_by_site: { ...body.summary.waiting_by_site, "LAB-SITE-9": 2 } } } as EstatePortfolioBody;
+    renderAt(
+      `/sites?${OCT}`,
+      sitesClient(BY_RANGE),
+      estateClient(withLab),
+      directory([labSite("kobo-001", "Kobo"), labSite("LAB-SITE-9", "Lab Site", "COLDCHAIN"), labSite("LAB-SITE-10", "Lab Ten", "EV_CHARGING"), labSite("LAB-X", "Lab Odd", "SOLAR_PUMP")]),
+    );
     await settledScreen();
-    expect(titles()).toEqual(["Kobo", "Kisiwa", "Mto", "Cold Room", "Charge Hub", "Lab Site"]);
+    expect(titles()).toEqual(["Kobo", "Kisiwa", "Mto", "Cold Room", "Charge Hub", "Lab Site", "Lab Ten", "Lab Odd"]);
     expect(cells("Lab Site")).toEqual({
-      Group: "Not available yet",
+      Group: "Cold-chain",
       Contribution: "Not available yet",
       "Gap to target": "Not available yet",
       "Largest driver against target": "Not available yet",
-      "Waiting for a choice": "Not available yet",
+      "Waiting for a choice": "2",
     });
+    // Absent from waiting_by_site: 0, like any row; an unmapped site_type: "Not available yet".
+    expect(cells("Lab Ten")).toMatchObject({ Group: "EV charging", "Waiting for a choice": "0" });
+    expect(cells("Lab Odd")).toMatchObject({ Group: "Not available yet", "Waiting for a choice": "0" });
     expect(daysOf(within(list()).getByRole("link", { name: "Lab Site" }).getAttribute("href")!)).toEqual(["/sites/LAB-SITE-9", "2026-10-01", "2026-10-31", ""]);
   });
 
@@ -304,6 +314,15 @@ describe("IA-P P4b: the Outcomes tab", () => {
     const l1 = document.querySelector<HTMLElement>('[data-portfolio-tab-panel="outcomes"] [data-level="L1"]')!;
     expect(l1.querySelector("[data-sites-headline]")).toBeNull();
     expect([...l1.querySelectorAll("[role=note]")].map((n) => n.textContent)).toEqual(parse<PortfolioSites>(SITES_NONE).notes);
+  });
+
+  it("eleven Sites: the singular More line (D-IAP.35 Q5)", async () => {
+    const body = parse<PortfolioSites>(SITES_OCT);
+    const extra = Array.from({ length: 6 }, (_, k) => ({ ...body.rows[4], site_code: `EV-1${k}`, site: `Depot ${k}` }));
+    renderAt(`/portfolio/outcomes?${OCT}`, sitesClient({ "2026-10-01|2026-10-31": { ...body, rows: [...body.rows, ...extra] } }));
+    await settledScreen();
+    expect(list().querySelectorAll("tbody tr")).toHaveLength(10);
+    expect(list().querySelector(".hl-more")!.textContent).toBe("Not shown: 1 Site. Show all 11");
   });
 
   it("more than ten Sites: Show all links to /sites?show=all with the range", async () => {

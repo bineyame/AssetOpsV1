@@ -28,11 +28,16 @@ const NA = "Not available yet";
 export const FOR_EVERY_SITE_ONLY = "For every Site only";
 export const SITES_LOADING = "Loading Sites…";
 
-/** A row of the list: an E1 row, or a directory Site E1 does not hold (pre-flight Q1; every cell "Not available yet"). */
+/**
+ * A row of the list: an E1 row, or a directory Site E1 does not hold (D-IAP.35 Q1: its Group from `site_type`, its waiting
+ * count from E0, every other cell "Not available yet").
+ */
 export interface SiteItem {
   code: string;
   name: string;
   row: PortfolioSiteRow | null;
+  /** The Group word: E1's, or `DOMAIN_WORD` of the directory `site_type` (null when unmapped). */
+  group: string | null;
   /** E0's count as text: the count, 0 for a Site with no member, or "Not available yet" without E0. */
   waiting: string;
 }
@@ -46,11 +51,13 @@ export function siteItems(
   directory: readonly SiteSummary[] = [],
 ): SiteItem[] {
   const waiting = (code: string) => (waitingBySite === null || waitingBySite === undefined ? NA : String(waitingBySite[code] ?? 0));
-  const items: SiteItem[] = body.rows.map((row) => ({ code: row.site_code, name: row.site, row, waiting: waiting(row.site_code) }));
+  const items: SiteItem[] = body.rows.map((row) => ({ code: row.site_code, name: row.site, row, group: row.group, waiting: waiting(row.site_code) }));
   // Site identity is case-blind (`site_id_key`): a directory Site already in E1 is not listed twice.
   const held = new Set(body.rows.map((r) => r.site_code.toLowerCase()));
   for (const site of directory) {
-    if (!held.has(site.site_id.toLowerCase())) items.push({ code: site.site_id, name: site.display_name, row: null, waiting: NA });
+    if (held.has(site.site_id.toLowerCase())) continue;
+    const group = (DOMAIN_WORD as Record<string, string>)[site.site_type] ?? null;
+    items.push({ code: site.site_id, name: site.display_name, row: null, group, waiting: waiting(site.site_id) });
   }
   return items;
 }
@@ -79,7 +86,7 @@ export function sitesDef(body: PortfolioSites, waitingNote: string | null = null
     target: (i) => siteDetailHref(i.code),
     firstColumn: "Site",
     columns: [
-      { label: "Group", cell: (i) => i.row?.group ?? NA },
+      { label: "Group", cell: (i) => i.group ?? NA },
       { label: "Contribution", cell: (i) => (i.row === null ? NA : cell(i.row.contribution, i.row.months_text)) },
       { label: "Gap to target", cell: (i) => (i.row === null ? NA : cell(i.row.gap, i.row.gap_word)) },
       { label: "Largest driver against target", cell: (i) => (i.row === null ? NA : cell(i.row.driver, i.row.driver_heading)) },
@@ -104,9 +111,9 @@ export function sitesDef(body: PortfolioSites, waitingNote: string | null = null
       { key: "gap", label: "Gap to target" },
       { key: "name", label: "Name", compare: (a, b) => a.name.localeCompare(b.name) },
     ],
-    text: (i) => [i.name, i.row?.group, i.row?.contribution, i.row?.gap, i.row?.driver].filter(Boolean).join(" "),
+    text: (i) => [i.name, i.group, i.row?.contribution, i.row?.gap, i.row?.driver].filter(Boolean).join(" "),
     site: (i) => i.code,
-    domain: (i) => (i.row === null ? null : DOMAIN_OF_WORD[i.row.group] ?? null),
+    domain: (i) => (i.group === null ? null : DOMAIN_OF_WORD[i.group] ?? null),
     scopeWord: (s) => (s.startsWith("group:") ? (DOMAIN_WORD as Record<string, string>)[s.slice(6)] ?? s : s.slice(5)),
     tiles: (_m, rows, whole): HomeListTile[] => [
       { label: "Below target", role: "part", value: none ? NA : rows.filter((i) => i.row?.below === true).length },
@@ -115,7 +122,8 @@ export function sitesDef(body: PortfolioSites, waitingNote: string | null = null
         ? { label: "Gap to target", role: "total", value: body.total.gap, ...(body.without_target.text ? { note: body.without_target.text } : {}) }
         : { label: "Gap to target", role: "total", value: NA, ...(none ? {} : { note: FOR_EVERY_SITE_ONLY }) },
     ],
-    more: (hidden) => `Not shown: ${hidden.length} Sites.`,
+    // D-IAP.35 Q5: two strings, singular and plural.
+    more: (hidden) => (hidden.length === 1 ? "Not shown: 1 Site." : `Not shown: ${hidden.length} Sites.`),
     none: "No Sites in this scope.",
   };
 }
