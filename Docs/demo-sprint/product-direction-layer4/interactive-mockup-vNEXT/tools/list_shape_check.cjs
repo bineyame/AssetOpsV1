@@ -4,7 +4,7 @@
    B live: every operator x the four lists x the views of spec §8 row 2, against its own rows and literal tables (D-IA.73).
    C the scope menu on a list. D the fixture (tools/list_fixture.cjs), rendered by the real route.
    Plants (LIST_PLANT): A cap, keep, scope, search, sort, invalid, group, canon, tier; B tile, rowctl, restore, own, stakesort, notarget;
-   C scopemenu; D remainder (tier and group also bite D). A source plant rewrites the product function at its rule; a rule the source
+   C scopemenu, foldquery, palettealias; D remainder (tier and group also bite D). A source plant rewrites the product function at its rule; a rule the source
    lacks exits 2, so a plant cannot pass unbitten. */
 const { boot, OPS, sleep, classifier } = require('./ia_crawl.cjs');
 const F = require('./list_fixture.cjs');
@@ -22,8 +22,10 @@ const SRC = {
   canon: ['iaListHref', ['v.sort !== def.sorts[0].key', '!!v.sort']],
   tier: ['iaListTier', ['ns <= IA_LIST_CAP ? 1 : 2', '2']],
   tile: ['iaListTiles', ['const n = m.n;', 'const n = m.shown.length;']],
+  palettealias: ['iaPaletteFilter', [' && !iaIsListAlias(id)', '']],
+  foldquery: ['shapeHubOutcomes', ['{ ...ctx, query: {} }', 'ctx']],
   scopemenu: ['iaScopeEntries', ["route && route.shape === 'list'", 'false']] };
-const BLOCK = { cap: 'A', keep: 'AD', scope: 'A', search: 'A', sort: 'A', invalid: 'A', group: 'AD', canon: 'A', tier: 'AD', scopemenu: 'C', remainder: 'D', tile: 'BD', rowctl: 'B', restore: 'B', own: 'B', stakesort: 'B', notarget: 'B' };
+const BLOCK = { cap: 'A', keep: 'AD', scope: 'A', search: 'A', sort: 'A', invalid: 'A', group: 'AD', canon: 'A', tier: 'AD', scopemenu: 'C', foldquery: 'C', palettealias: 'C', remainder: 'D', tile: 'BD', rowctl: 'B', restore: 'B', own: 'B', stakesort: 'B', notarget: 'B' };
 if (PLANT && !BLOCK[PLANT]) { console.error(`list_shape_check: unknown plant ${PLANT}`); process.exit(2); }
 function plantSource(w, block) {
   if (!PLANT || !BLOCK[PLANT].includes(block)) return;
@@ -127,6 +129,22 @@ async function blockC(fails, log) {
     if (B.errors.length) fails.push(`C ${B.opName}: script error ${B.errors[0]}`);
     B.dom.window.close();
   }
+  /* IA-2b1 review L2: the Outcomes fold's list is built from the scope alone; a typed ?sort= or ?target= changes neither its rows nor their order */
+  /* IA-2b1 review L1: the command palette names each place once; a list alias (Act first, the old Findings pages) adds no second entry */
+  let pn = 0;
+  for (const op of OPS) { const B = await boot(op, 'portfolio'), { w } = B; plantSource(w, 'C');
+    const cmds = w.eval('uxCommands()').map(([l, k, id]) => [l, k, id]), seen = {};
+    for (const [l, k, id] of cmds) { pn++; if (k === 'Portfolio' || k === 'Go to') (seen[id] = seen[id] || []).push(`${l} (${k})`); }
+    for (const [id, names] of Object.entries(seen)) if (names.length > 1) fails.push(`C ${op}: the palette has ${names.length} entries for #/${id}: ${names.join(' · ')}`);
+    B.dom.window.close(); }
+  log.push(`C · ${pn} palette entries over 3 operators, each place named by one Portfolio or Go to entry`);
+  let fq = 0;
+  for (const op of OPS) {
+    const keys = async q => { const B = await boot(op, 'portfolio/outcomes' + q), { w, doc } = B; plantSource(w, 'C'); const r = [...doc.querySelectorAll('tr[data-row]')].map(x => x.getAttribute('data-row')); B.dom.window.close(); return r; };
+    const base = await keys(''); if (base.length < 2) fails.push(`C ${op}: the Outcomes fold has ${base.length} rows, too few to prove the order`);
+    for (const q of ['?sort=name', '?sort=gap', '?target=on', '?target=below', '?q=zzqx']) { fq++; const got = await keys(q); if (got.join() !== base.join()) fails.push(`C ${op}: #/portfolio/outcomes${q} changes the fold's rows (${got.join(' ') || 'none'}; without it ${base.join(' ')})`); }
+  }
+  log.push(`C · ${fq} typed queries on the Outcomes fold over 3 operators leave its rows and order as they are`);
   log.push(`C · ${n} scope entries on Decisions?state=waiting&sort=due&q=the&show=all over 3 operators`);
 }
 /* ---- Block D: the scale case on the fixture (tools/list_fixture.cjs), injected through items(op) and rendered by the real route ---- */

@@ -177,6 +177,7 @@ function iaScreen(route, path) {
   const ctx = iaCtx(path, iaPattern(route.id, path), iaParse(location.hash).query);
   return { id: path, ia: route, ctx, title: route.title(ctx), docTitle: route.docTitle ? route.docTitle(ctx) : route.title(ctx), root: route.home || '', section: '', loop: true, opScoped: true, noFigures: !!route.noFigures, book: false, question: '', anchor: '' };
 }
+function iaIsListAlias(href) { const t = iaAliasTarget(iaParse(href).path), m = t && iaMatch(t.path); return !!(m && m.route.shape === 'list'); }
 /* the palette lists only what is live, at its canonical address (R9) */
 /* IA-2b1 (spec-IA-2b §5): from IA-2b1 the index also holds each Finding and each Action at its row's target, then Decisions and Sites */
 function iaPaletteFilter(out) {
@@ -184,7 +185,8 @@ function iaPaletteFilter(out) {
     ...uxFindingRows(op).map(x => [x.text, `Finding · ${x.site}`, x.d ? `decision/${x.d.id}` : `decision/${x.f.decision}`]),
     ...(WF(op).actions || []).map(a => { const d = iaActionDec(op, a), p = personOf(op, a.owner); return [a.action, `Action · ${p ? p.name : a.owner}`, d ? `decision/${d.id}` : 'plan']; }),
     ['Decisions', 'Go to', 'decisions'], ['Sites', 'Go to', 'sites']];
-  return [...out, ...add].filter(([, , id]) => iaLive(id)).map(([l, k, id]) => [l, k, iaCanon(id).replace(/^#\//, '')]);
+  /* L1 (IA-2b1 review): a list alias stays an address, not a second palette entry; the list's own entry (Decisions, Sites) is the one name */
+  return [...out, ...add].filter(([, , id]) => iaLive(id) && !iaIsListAlias(id)).map(([l, k, id]) => [l, k, iaCanon(id).replace(/^#\//, '')]);
 }
 
 /* D-IA.36: an in-page link (#<id>) scrolls to that element on the page it is on; it is never a route */

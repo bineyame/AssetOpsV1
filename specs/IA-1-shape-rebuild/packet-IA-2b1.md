@@ -62,8 +62,7 @@ on 18 scenarios. Live cents fallbacks: **0** (expected 0).
    address, and `iaCanon` (D-IA.78) is the one merger of alias and typed queries. The default would have given `iaLiveAlias`, a lookup,
    hidden state, and made `iaScreen` write the address a second time. The ALIAS, landing, foreign and landed branches are unchanged.
 2. **The aliases pulled forward from unit 4 (Q5).** Spec §9 puts "the aliases" in 4(a). Unit 3 added the four, dormant, so `aliasq`
-   could be proved under force. Observation (coordinator): the palette still lists "Act first (Portfolio)", which now goes to
-   `#/decisions` beside "Decisions · Go to". No hub shows an "Act first" link. Left as it is.
+   could be proved under force. Correction (review round 1, L1): the palette did not "still list" "Act first (Portfolio)"; the alias made it live, a second entry beside "Decisions · Go to". Fixed: `iaPaletteFilter` drops list-alias entries (the alias stays an address).
 
 ## Known deviations (register R761-R765)
 - `MOCK DEVIATION` D2: no "at stake" tile and no stake sort on three lists (R761).

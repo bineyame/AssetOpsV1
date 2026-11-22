@@ -19,7 +19,7 @@ const PLANTS = {
     ['shape_check', 'SHAPE_PLANT', ['doctitle']], ['click_depth_check', 'G1_PLANT', ['plantabs']], ['plan_switch_check', 'PS_PLANT', ['crewtile', 'release', 'leftout']],
     ['ux_interaction_check', 'UXI_PLANT', ['planans', 'planwait']], ['copy_check', 'COPY_PLANT', ['plan']], ['qty_check', 'QTY_PLANT', ['clause', 'wait', 'gap', 'items']]],
   /* spec-IA-2b §8 (2b1 rows), D-IA.66 to D-IA.80; the OUT_PLANT set stays in IA-1b's row and, with IA-2b1 landed, bites the component */
-  'IA-2b1': [['list_shape_check', 'LIST_PLANT', ['cap', 'keep', 'scope', 'search', 'sort', 'invalid', 'group', 'canon', 'tier', 'tile', 'rowctl', 'restore', 'own', 'stakesort', 'notarget', 'scopemenu', 'remainder']],
+  'IA-2b1': [['list_shape_check', 'LIST_PLANT', ['cap', 'keep', 'scope', 'search', 'sort', 'invalid', 'group', 'canon', 'tier', 'tile', 'rowctl', 'restore', 'own', 'stakesort', 'notarget', 'scopemenu', 'foldquery', 'palettealias', 'remainder']],
     ['shape_check', 'SHAPE_PLANT', ['aliasq', 'deccrumb']], ['click_depth_check', 'G1_PLANT', ['listrail']], ['copy_check', 'COPY_PLANT', ['list']],
     ['qty_check', 'QTY_PLANT', ['counts', 'tilecount', 'sitegap', 'listcents', 'gapnet']]]
 };

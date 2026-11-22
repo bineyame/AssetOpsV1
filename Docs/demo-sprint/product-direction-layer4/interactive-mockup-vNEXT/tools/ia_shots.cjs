@@ -27,11 +27,11 @@
    and 390 light: the Approve dialog open, after Approve, after Send back; the thresholds drawer at 1440 and 390; Lakeside 6500/No on Left out at
    1440. SHOTS_ONLY=plan runs only this set; otherwise it prints "IA-2a not landed; dormant". Plant SHOTS_PLANT=approvefold (a 900 px block
    before the band) must fail.
-   IA-2b1 (D-IA.72): the list set S1 to S9 (listSet, below), SHOTS_ONLY=lists; plants listkeep, listwrap, emptytools.
+   IA-2b1 (D-IA.72): the list set S1 to S9 (listSet, below), SHOTS_ONLY=lists; plants listkeep, listwrap, emptytools, listcell (the cell wrapper dropped; fails S1 at 390).
 */
 const { chromium } = require(process.env.PW), fs = require('fs');
 const base = 'file://' + process.argv[2], out = process.argv[3]; fs.mkdirSync(out, { recursive: true });
-const PLANT = process.env.SHOTS_PLANT || '', LAST = {}; let relN = 0, SW_ORDER = false, IA2A_ON = false, tilesN = 0;
+const PLANT = process.env.SHOTS_PLANT || '', LAST = {}; let relN = 0, SW_ORDER = false, IA2A_ON = false, tilesN = 0, cellsN = 0;
 const path = require('path'), IA2A_FORCED = String(process.env.IA_FORCE_LANDED || '').split(',').map(x => x.trim()).includes('IA-2a');
 const PLAN_STUB = fs.readFileSync(path.join(__dirname, 'fixtures', 'plan_stub.js'), 'utf8');
 const IA2B1_FORCED = String(process.env.IA_FORCE_LANDED || '').split(',').map(x => x.trim()).includes('IA-2b1'); let IA2B1_ON = false;
@@ -82,13 +82,18 @@ const listMeasure = () => { const W = innerWidth, past = [], L = document.queryS
   const squeezed = []; document.querySelectorAll('.ia-list-tools select, .ia-list-tools input, .ia-list-tools button').forEach(e => { const c = e.cloneNode(true); c.removeAttribute('name'); c.removeAttribute('id'); c.style.cssText = 'position:absolute;visibility:hidden;width:auto;max-width:none;min-width:0;flex:none;left:0;top:0';
     e.parentElement.appendChild(c); const nat = c.getBoundingClientRect().width; c.remove(); const fw = e.closest('.ia-list-tools').clientWidth, w = e.getBoundingClientRect().width;
     if (w < Math.min(nat, fw) - 1) squeezed.push(`${e.tagName.toLowerCase()}${e.getAttribute('name') ? `[name=${e.getAttribute('name')}]` : ''} ${Math.round(w)} px, its own width ${Math.round(nat)}`); });
+  /* IA-2b1 review M1: in a stacked card every line of a cell's value starts at the value column or right of it (a second line must not fall under the label) */
+  const cellBad = []; let cellN = 0; if (innerWidth <= 760) document.querySelectorAll('table.ia-list.ux-stack tbody td[data-label]').forEach(td => { const cs = getComputedStyle(td); if (cs.display !== 'grid') return; cellN++;
+    const vl = td.getBoundingClientRect().left + (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.gridTemplateColumns) || 0) + (parseFloat(cs.columnGap) || 0), tw = document.createTreeWalker(td, NodeFilter.SHOW_TEXT); let n;
+    while ((n = tw.nextNode())) { if (!n.textContent.trim()) continue; const rg = document.createRange(); rg.selectNodeContents(n); for (const r of rg.getClientRects()) if (r.width > 0 && r.left < vl - 1) { cellBad.push(`"${n.textContent.trim().slice(0, 30)}" under the label of ${td.dataset.label} (starts at ${Math.round(r.left)}, value column at ${Math.round(vl)})`); break; } } });
   const tabs = [...document.querySelectorAll('table.ia-list.ux-stack')].map(t => { const th = t.querySelector('thead'), td = t.querySelector('tbody td'); return { head: th ? getComputedStyle(th).display : 'none', td: td ? getComputedStyle(td).display : null }; });
   const q = s => L && L.querySelector(s);
-  return { past: [...new Set(past)], squeezed, tabs, list: !!L, rows: L ? L.querySelectorAll('tr[data-row]').length : 0, tools: !!q('form[data-ia-list-tools]'), sort: (q('[data-ia-list-tools] select[name="sort"]') || {}).value || null,
+  return { past: [...new Set(past)], squeezed, cellBad, cellN, tabs, list: !!L, rows: L ? L.querySelectorAll('tr[data-row]').length : 0, tools: !!q('form[data-ia-list-tools]'), sort: (q('[data-ia-list-tools] select[name="sort"]') || {}).value || null,
     qv: q('[data-ia-list-tools] input[name="q"]') ? q('[data-ia-list-tools] input[name="q"]').value : null, chips: L ? [...L.querySelectorAll('.ia-list-chips .ia-chip')].map(txt) : [], empty: txt(q('.ux-empty')), more: txt(q('.ux-more')),
     states: L ? [...L.querySelectorAll('tr[data-row] .status-pill')].map(txt) : [] }; };
 async function listPlant(p) {
   if (PLANT === 'listwrap') await p.addStyleTag({ content: '.ia-list-tools,.ia-list-chips{flex-wrap:nowrap!important}' });
+  if (PLANT === 'listcell') await p.evaluate(() => { const o = iaListBody; iaListBody = function (...a) { return o.apply(this, a).replace(/(<td data-label="[^"]*">)<span class="ux-cell">/g, '$1').replace(/<\/span><\/td>/g, '</td>'); }; render(); });
   if (PLANT === 'listkeep') await p.evaluate(() => window.removeEventListener('hashchange', iaListRestore));
   if (PLANT === 'emptytools') await p.evaluate(() => { const o = iaListBody; iaListBody = function (...a) { const h = o.apply(this, a); return /Nothing matches these filters\./.test(h) ? h.replace(/<p class="ia-list-chips"[\s\S]*?<\/p>/, '').replace(/<form class="ia-list-tools"[\s\S]*?<\/form>/, '') : h; }; render(); });
 }
@@ -106,6 +111,7 @@ async function listSet(b, lines) {
   const common = (m, lm, w, errs) => { const why = [];
     if (!m.frame) why.push('no frame'); if (!lm.list) why.push('no list section'); if (m.hscroll) why.push('sideways scroll'); if (errs.length) why.push(`page error ${errs[0].slice(0, 80)}`);
     if (lm.past.length) why.push(`the tools or chips row runs past the page (${lm.past[0]})`);
+    cellsN += lm.cellN; if (lm.cellBad.length) why.push(`a stacked cell's later line starts in the label column (${lm.cellBad.length}: ${lm.cellBad[0]}) (listcell)`);
     if (lm.squeezed.length) why.push(`the tools row squeezes a control (${lm.squeezed[0]}) (listwrap)`);
     for (const t of m.tiles) { tilesN++; if (Math.abs(t.gap) > 2) why.push(`a ${t.n}-tile row stops ${t.gap} px short of its row's right edge (tilefill)`); }
     if (w === 390) { lm.tabs.forEach(t => { if (t.head !== 'none' || (t.td && !['block', 'grid'].includes(t.td))) why.push(`table.ia-list not stacked (thead ${t.head}, td ${t.td})`); }); if (m.stackBad.length) why.push(`stacked table does not fit: ${m.stackBad[0]}`); }
@@ -249,7 +255,7 @@ async function listSet(b, lines) {
   { const ctx = await b.newContext(), p = await ctx.newPage(); await p.goto(`${base}#/plan`); await p.waitForTimeout(300); IA2B1_ON = IA2B1_FORCED || await p.evaluate(() => IA_LANDED.has('IA-2b1')); await ctx.close(); }
   if (!IA2B1_ON) { lines.push('IA-2b1 not landed; dormant'); if (ONLY === 'lists') { await b.close(); console.log(lines.join('\n')); process.exit(0); } }
   else if (!ONLY || ONLY === 'lists') { const r2 = await listSet(b, lines); bad += r2;
-    if (ONLY === 'lists') { await b.close(); console.log(lines.join('\n') + `\ntile rows measured: ${tilesN}`); console.log(`shots: ${lines.filter(l => /^(ok |BAD)/.test(l)).length} measured, ${bad} bad`); process.exit(bad ? 1 : 0); } }
+    if (ONLY === 'lists') { await b.close(); console.log(lines.join('\n') + `\ntile rows measured: ${tilesN}; stacked cells measured: ${cellsN}`); console.log(`shots: ${lines.filter(l => /^(ok |BAD)/.test(l)).length} measured, ${bad} bad`); process.exit(bad ? 1 : 0); } }
   /* IA-2a: the four plan routes (landed, or forced) */
   { const ctx = await b.newContext(), p = await ctx.newPage(); await p.goto(`${base}#/plan`); await p.waitForTimeout(300); IA2A_ON = IA2A_FORCED || await p.evaluate(() => IA_LANDED.has('IA-2a')); await ctx.close(); }
   if (!IA2A_ON) { lines.push('IA-2a not landed; dormant'); if (ONLY === 'plan') { await b.close(); console.log(lines.join('\n') + `\ntile rows measured: ${tilesN}`); process.exit(0); } }

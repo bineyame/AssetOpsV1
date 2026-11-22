@@ -354,7 +354,7 @@ const REPLAY_RE=new RegExp(REPLAY_PATTERNS.join('|')); /* derived from the manif
 const DV_CONTAINER='tr,li,p,dd,.hero,.path,.total,.evhead';
 function tagReplay(root){if(!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),conts=new Set();let n;
  while((n=w.nextNode())){const pe=n.parentElement;if(pe.closest('.dv,.vh,select,option,details.tech,script,style'))continue;if(REPLAY_RE.test(n.textContent)){const c=pe.closest(DV_CONTAINER);if(c&&!c.querySelector('.dv'))conts.add(c);}}
- conts.forEach(c=>{const t=c.tagName==='TR'?c.lastElementChild:c.matches('.ux-q')?(c.querySelector('.ux-q-stake')||c):c;t.insertAdjacentHTML('beforeend',' '+dvTag());});}
+ conts.forEach(c=>{const t=c.tagName==='TR'?c.lastElementChild:c.matches('.ux-q')?(c.querySelector('.ux-q-stake')||c):c;(t.tagName==='TD'&&t.lastElementChild&&t.lastElementChild.matches('.ux-cell')?t.lastElementChild:t).insertAdjacentHTML('beforeend',' '+dvTag());}); /* IA-2b1 review M1: inside the cell's wrapper, so a stacked card keeps the mark in the value column */}
 /* ---------- plain words (owner, 19 Nov: no technical words on anything user-facing) ----------
    One display vocabulary for every string a loop screen shows, whether typed in these modules or read from the demo
    data file: applied to the text of the canvas and of each evidence drawer after render. Figures are never touched

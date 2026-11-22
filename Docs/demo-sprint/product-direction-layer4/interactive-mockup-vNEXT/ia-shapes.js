@@ -164,7 +164,7 @@ function shapeHubOverview(ctx) {
 }
 function shapeHubOutcomes(ctx) {
   const op = ctx.op, cost = OPS[op].kind === 'cost', rows = iaOutcomeScope(iaOutcomeRows(op), ctx.scope);
-  return shapeHub(ctx, { l1: `<p class="headline ux-headline">${iaOutcomeHeadline(rows, cost, iaMonth())}</p>`, l2: iaListBody('sites', ctx, { tools: false, tiles: false }), l3: uxInsight(op) });
+  return shapeHub(ctx, { l1: `<p class="headline ux-headline">${iaOutcomeHeadline(rows, cost, iaMonth())}</p>`, l2: iaListBody('sites', { ...ctx, query: {} }, { tools: false, tiles: false }), l3: uxInsight(op) });
 }
 function shapeHubDemand(ctx) { return shapeHub(ctx, { l1: uxChain(ctx.op), l3: opportunityScreen() }); }
 function shapeHubSite(ctx) {
@@ -302,7 +302,7 @@ function iaListBody(key, ctx, opts = {}, model) {
   if (!m.ns) return `${head}<p class="ux-empty" role="status">${def.none}</p>`;
   if (!m.n) return `${head}<p class="ux-empty" role="status">Nothing matches these filters. <a class="ux-link" href="#/${iaListHref(key, { ...ctx, query: {} }, {})}">Clear filters</a></p>`;
   const cols = def.cols, row = it => { const r = def.row(it, ctx, qk);
-    return `<tr data-row="${escapeHtml(r.key)}"><th scope="row"><a class="ia-row-go" href="#/${r.href}">${r.title}</a>${r.small ? ` <small>${r.small}</small>` : ''}</th>${(r.cells || []).map((c, i) => `<td data-label="${cols[i + 1]}">${c}</td>`).join('')}</tr>`; };
+    return `<tr data-row="${escapeHtml(r.key)}"><th scope="row"><a class="ia-row-go" href="#/${r.href}">${r.title}</a>${r.small ? ` <small>${r.small}</small>` : ''}</th>${(r.cells || []).map((c, i) => `<td data-label="${cols[i + 1]}"><span class="ux-cell">${c}</span></td>`).join('')}</tr>`; };
   const thead = `<thead><tr>${cols.map(c => `<th scope="col">${c}</th>`).join('')}</tr></thead>`, word = g => (def.groupWord ? def.groupWord(g) : IA_GROUP_WORD[g]) || g;
   const body = m.groups ? m.groups.map(({ g, n_g }) => `<tbody data-group="${g}"><tr class="ia-list-group"><th colspan="${cols.length}" scope="rowgroup">${word(g)} ${`<span class="ux-count" data-qty="${key}:n:${qk}" data-qty-role="part" data-qty-kind="count">${num(n_g)}</span>`}</th></tr>${m.shown.filter(it => def.group(it) === g).map(row).join('')}</tbody>`).join('')
     : `<tbody>${m.shown.map(row).join('')}</tbody>`;

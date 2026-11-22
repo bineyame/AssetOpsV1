@@ -81,9 +81,9 @@ date, no date last.
 the four list aliases were added in unit 3, dormant (their targets unlanded, so `iaLiveAlias` returned null until the flip), and
 `aliasq` was proved under `IA_FORCE_LANDED=IA-2b1` there. Unit 4 adds none. **Asked (at review):** does the Architect accept the
 aliases pulled forward a unit?
-**Observed at the close (coordinator, default kept):** the command palette still lists "Act first (Portfolio)", which now goes to
-`#/decisions` through the alias, beside "Decisions · Go to" (two entries, one place). No hub shows an "Act first" link. The
-palette entry is left as it is for the Architect's call.
+**Observed at the close (coordinator), corrected by review round 1 (L1):** the palette did not "still list" "Act first (Portfolio)": the
+alias made that entry live, so it was new in this slice, beside "Decisions · Go to" (two entries, one place). Fixed on the branch: `iaPaletteFilter`
+drops an entry whose source address is a list alias (`iaIsListAlias`); the alias itself stays. The palette lists "Decisions" only.
 
 **Q6 (unit 4(b), `plan_switch_check`, spec §5).** The check reads `#/portfolio/act-first`, which becomes an alias of `#/decisions`
 at the flip; the reviewed act-first screen stays registered. **Default:** the check deletes that one alias in its own window and

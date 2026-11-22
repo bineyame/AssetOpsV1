@@ -3451,7 +3451,7 @@ const REPLAY_RE=new RegExp(REPLAY_PATTERNS.join('|')); /* derived from the manif
 const DV_CONTAINER='tr,li,p,dd,.hero,.path,.total,.evhead';
 function tagReplay(root){if(!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),conts=new Set();let n;
  while((n=w.nextNode())){const pe=n.parentElement;if(pe.closest('.dv,.vh,select,option,details.tech,script,style'))continue;if(REPLAY_RE.test(n.textContent)){const c=pe.closest(DV_CONTAINER);if(c&&!c.querySelector('.dv'))conts.add(c);}}
- conts.forEach(c=>{const t=c.tagName==='TR'?c.lastElementChild:c.matches('.ux-q')?(c.querySelector('.ux-q-stake')||c):c;t.insertAdjacentHTML('beforeend',' '+dvTag());});}
+ conts.forEach(c=>{const t=c.tagName==='TR'?c.lastElementChild:c.matches('.ux-q')?(c.querySelector('.ux-q-stake')||c):c;(t.tagName==='TD'&&t.lastElementChild&&t.lastElementChild.matches('.ux-cell')?t.lastElementChild:t).insertAdjacentHTML('beforeend',' '+dvTag());}); /* IA-2b1 review M1: inside the cell's wrapper, so a stacked card keeps the mark in the value column */}
 /* ---------- plain words (owner, 19 Nov: no technical words on anything user-facing) ----------
    One display vocabulary for every string a loop screen shows, whether typed in these modules or read from the demo
    data file: applied to the text of the canvas and of each evidence drawer after render. Figures are never touched
@@ -6001,6 +6001,7 @@ function iaScreen(route, path) {
   const ctx = iaCtx(path, iaPattern(route.id, path), iaParse(location.hash).query);
   return { id: path, ia: route, ctx, title: route.title(ctx), docTitle: route.docTitle ? route.docTitle(ctx) : route.title(ctx), root: route.home || '', section: '', loop: true, opScoped: true, noFigures: !!route.noFigures, book: false, question: '', anchor: '' };
 }
+function iaIsListAlias(href) { const t = iaAliasTarget(iaParse(href).path), m = t && iaMatch(t.path); return !!(m && m.route.shape === 'list'); }
 /* the palette lists only what is live, at its canonical address (R9) */
 /* IA-2b1 (spec-IA-2b §5): from IA-2b1 the index also holds each Finding and each Action at its row's target, then Decisions and Sites */
 function iaPaletteFilter(out) {
@@ -6008,7 +6009,8 @@ function iaPaletteFilter(out) {
     ...uxFindingRows(op).map(x => [x.text, `Finding · ${x.site}`, x.d ? `decision/${x.d.id}` : `decision/${x.f.decision}`]),
     ...(WF(op).actions || []).map(a => { const d = iaActionDec(op, a), p = personOf(op, a.owner); return [a.action, `Action · ${p ? p.name : a.owner}`, d ? `decision/${d.id}` : 'plan']; }),
     ['Decisions', 'Go to', 'decisions'], ['Sites', 'Go to', 'sites']];
-  return [...out, ...add].filter(([, , id]) => iaLive(id)).map(([l, k, id]) => [l, k, iaCanon(id).replace(/^#\//, '')]);
+  /* L1 (IA-2b1 review): a list alias stays an address, not a second palette entry; the list's own entry (Decisions, Sites) is the one name */
+  return [...out, ...add].filter(([, , id]) => iaLive(id) && !iaIsListAlias(id)).map(([l, k, id]) => [l, k, iaCanon(id).replace(/^#\//, '')]);
 }
 
 /* D-IA.36: an in-page link (#<id>) scrolls to that element on the page it is on; it is never a route */
@@ -6259,7 +6261,7 @@ function shapeHubOverview(ctx) {
 }
 function shapeHubOutcomes(ctx) {
   const op = ctx.op, cost = OPS[op].kind === 'cost', rows = iaOutcomeScope(iaOutcomeRows(op), ctx.scope);
-  return shapeHub(ctx, { l1: `<p class="headline ux-headline">${iaOutcomeHeadline(rows, cost, iaMonth())}</p>`, l2: iaListBody('sites', ctx, { tools: false, tiles: false }), l3: uxInsight(op) });
+  return shapeHub(ctx, { l1: `<p class="headline ux-headline">${iaOutcomeHeadline(rows, cost, iaMonth())}</p>`, l2: iaListBody('sites', { ...ctx, query: {} }, { tools: false, tiles: false }), l3: uxInsight(op) });
 }
 function shapeHubDemand(ctx) { return shapeHub(ctx, { l1: uxChain(ctx.op), l3: opportunityScreen() }); }
 function shapeHubSite(ctx) {
@@ -6397,7 +6399,7 @@ function iaListBody(key, ctx, opts = {}, model) {
   if (!m.ns) return `${head}<p class="ux-empty" role="status">${def.none}</p>`;
   if (!m.n) return `${head}<p class="ux-empty" role="status">Nothing matches these filters. <a class="ux-link" href="#/${iaListHref(key, { ...ctx, query: {} }, {})}">Clear filters</a></p>`;
   const cols = def.cols, row = it => { const r = def.row(it, ctx, qk);
-    return `<tr data-row="${escapeHtml(r.key)}"><th scope="row"><a class="ia-row-go" href="#/${r.href}">${r.title}</a>${r.small ? ` <small>${r.small}</small>` : ''}</th>${(r.cells || []).map((c, i) => `<td data-label="${cols[i + 1]}">${c}</td>`).join('')}</tr>`; };
+    return `<tr data-row="${escapeHtml(r.key)}"><th scope="row"><a class="ia-row-go" href="#/${r.href}">${r.title}</a>${r.small ? ` <small>${r.small}</small>` : ''}</th>${(r.cells || []).map((c, i) => `<td data-label="${cols[i + 1]}"><span class="ux-cell">${c}</span></td>`).join('')}</tr>`; };
   const thead = `<thead><tr>${cols.map(c => `<th scope="col">${c}</th>`).join('')}</tr></thead>`, word = g => (def.groupWord ? def.groupWord(g) : IA_GROUP_WORD[g]) || g;
   const body = m.groups ? m.groups.map(({ g, n_g }) => `<tbody data-group="${g}"><tr class="ia-list-group"><th colspan="${cols.length}" scope="rowgroup">${word(g)} ${`<span class="ux-count" data-qty="${key}:n:${qk}" data-qty-role="part" data-qty-kind="count">${num(n_g)}</span>`}</th></tr>${m.shown.filter(it => def.group(it) === g).map(row).join('')}</tbody>`).join('')
     : `<tbody>${m.shown.map(row).join('')}</tbody>`;

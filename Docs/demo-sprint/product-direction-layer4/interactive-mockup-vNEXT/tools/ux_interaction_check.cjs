@@ -610,7 +610,7 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=anchor: (D-IA.36) iaInPa
       await p.click('.toast [data-ux-undo]'); await p.waitForTimeout(400); const b = await ST(); if (b.chip !== 'PROPOSED') fails.push(`Undo gives ${b.chip}`); if (b.focus === 'BODY') fails.push('focus on the page body after Undo (M7)');
       /* M1: every page agrees with the approval */
       await p.click('.ux-planband [data-ux-act="approve-plan"]'); await p.waitForTimeout(250); await p.click('#uxact [data-ux-act-go]'); await p.waitForTimeout(400);
-      const dec = { lakeside: 'kisiwa-genset', harvest: 'kirinyaga-energy', metro: 'embakasi-schedule' }[op], routes = ['portfolio', 'portfolio/act-first', 'portfolio/what-changed', `decision/${dec}`, 'plan'];
+      const dec = { lakeside: 'kisiwa-genset', harvest: 'kirinyaga-energy', metro: 'embakasi-schedule' }[op], routes = ['portfolio', 'portfolio/act-first', 'decisions', 'actions', 'portfolio/what-changed', `decision/${dec}`, 'plan'];
       if (IA2) routes.splice(routes.length - 1, 0, ...TABS2); /* plan stays last: the Send back and case flows below run on it */
       for (const rt of routes) { await p.goto(base + '#/' + rt); await p.waitForTimeout(300); await prep(p); await p.waitForTimeout(100); await actFirst(p, rt);
         const s = await p.evaluate(src => { const k = document.querySelector('.canvas').cloneNode(true); k.querySelectorAll('.ux-dsteps').forEach(x => x.remove()); /* the stage list names its steps */ const t = k.textContent.replace(/\s+/g, ' '), m = t.match(new RegExp('.{0,40}(?:' + src + ').{0,20}', 'i')); return { say: m ? m[0] : '', waiting: document.querySelectorAll('[data-release="WAITING"]').length }; }, WAIT.source);
