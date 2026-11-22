@@ -307,7 +307,7 @@ tenants:
         - {id: MTO-INV-NOACT, kind: NO_ACTION, disposition: REJECTED, reason: "fails the cover bound: no notice is filed, so the warranty lapses on its {rec:tenants[lakeside-power].sites[Mto].entitlement.notice_deadline} deadline and {fig:options.MTO-INV-NOACT.rights.cover_lost} of cover is lost (evaluated); half daytime capacity continues on the generator"}
 
   portfolio:
-    protect_effects:   # rev 8 (re-review CP-2): each option's effect on Protect measures, evaluated through the structure over a stated horizon; design values where a replay is involved
+    protect_effects:   # rev 8 (re-review CP-2): each option's effect on Protect measures, evaluated through the structure over a stated horizon; where a replay is involved, the replay study's figure with its `source` (0K4m, K6)
       - decision: "Kisiwa generator 1 failed"
         horizon: "evenings 18:00-23:00 from the decision (as_of {rec:as_of}) to {fig:horizons.protect_horizon_end}: {fig:options.KIS-NOACT.params.days_to_restore} evenings"
         observed_before_decision: {evenings: "1-5 Nov", hours: 25, note: "on one generator under every option; observed, not an option effect"}
@@ -949,7 +949,7 @@ factor_map:   # how each vertical's source records become leaf factors (record =
     penalty_rate: "incident.penalty_per_missed_departure | 0"
 
 evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is compared with, its parameters (taken from the option
-              # rows where they exist, or declared here with their provenance: design value of a calibration spike, assumption, or quote),
+              # rows where they exist, or declared here with their provenance: a replay study's figure through `source:` (replay_studies), assumption, or quote),
               # its factor changes as expressions over those parameters and the site's observed factors, and its cost lines with the right
               # that decides who bears each line. Value = (outcome under the option - outcome under the reference) x months - operator-borne
               # one-off cost. An option is "valued in money" only when it changes a money node of the structure; otherwise its spend is

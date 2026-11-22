@@ -1269,7 +1269,7 @@ def empty_states(root, doc):
 # are the base commit's October digests (H8, H10). Lifetime (R14): the next slice that changes October replaces them in its diff.
 H8_DERIVED_SHA = "0b12008134142e52c217fd9cff4c24b432ab908deb574907d9c3e82a5279eaba"   # derived-values.json at the 0K4m base (was the DS1p base)
 H8_MISSING_SHA = "617497a3306dee2c86d263b431156a0d4ab353cae634ed7cefa911367ee02ca3"   # missing-records.json at the 0K4m base (was the DS1p base)
-H10_MANIFEST_SHA = "e98d4faf2d6e16e5002b5c7f33c5d535a82012d61fb07ccf826a6e058283f556"  # the manifest at the DS1p base, plus
+H10_MANIFEST_SHA = "8936da9d80c361e10d4acfd3e7ebe3072720c2091a8f4234c6128549eec5c131"  # the manifest at the DS1p base, plus
 # `home_categories.reconciliation` (ruling D-RECON.4, 20 Nov): a declaration no evaluator, model or generator reads and outside
 # view_digest; October values (H8), history.json and H11 are unchanged. The DS1p base was 8c027d0405936e4730426633ee703de5623bea3da6ddec36933b50b77a2edb4c.
 # Re-based again (20 Nov) for the data lane of rulings D-RECON.5 to D-RECON.7, all before `history:` and none read by the

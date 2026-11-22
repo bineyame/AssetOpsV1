@@ -474,13 +474,16 @@ def main(path, variants=True) -> dict:
                 res[k] = out_money(ref[nn])
         return res
 
+    RAW, RAW_SENS = {}, {}   # N6: unrounded option and sensitivity values; plan sums are rounded once, at output
     for oid, spec in EV["options"].items():
         r = run(oid)
         sens = {}
+        RAW[oid], RAW_SENS[oid] = r["_value"], {}
         for sn, sp in (spec.get("sensitivities") or {}).items():
             rs = run(oid, sp.get("params"), sp.get("factors"))
             # computed as the value is (unrounded monthly change), never from the rounded output fields
             sens[sn] = None if "not_available" in r or "not_available" in rs else money(rs["_value"])
+            RAW_SENS[oid][sn] = None if sens[sn] is None else rs["_value"]
         if sens:
             r["sensitivities"] = sens
         r.pop("_nodes"); r.pop("_value")
@@ -562,15 +565,13 @@ def main(path, variants=True) -> dict:
                     for o, (ok, w) in conn.items():
                         if not ok: why_not[o] = w
                     continue
-                if any(not d.get("optional", True) and not (set(items) & set(d["options"])) for d in valued if d["kind"] == "valued"):
-                    continue
                 spend = sum(D_(O[o]["operator_one_off"]) for o in items)
                 if any(O[o]["crew_visits"] is None for o in items):   # unknown visits are never defaulted (spec §5.7)
                     continue
                 crews = sum(O[o]["crew_visits"] for o in items)
                 if spend > budget or crews > crew_limit:
                     continue
-                v = sum(D_((sens or {}).get(o, O[o]["value_if_admissible"])) for o in items if O[o]["money_changes"])
+                v = sum(((sens or {}).get(o, RAW[o]) for o in items if O[o]["money_changes"]), D(0))   # unrounded (N6)
                 pen = sum(viol(o, dec_of[o]) for o in items if dec_of[o]["name"] in lvd)
                 key = (-pen, v, -spend)
                 if res is None or key > res[0]:
@@ -621,7 +622,7 @@ def main(path, variants=True) -> dict:
             sens = None
             for k, mp in (pl.get("switch_sensitivity") or {}).items():
                 if mp.get(sw[k]):
-                    sens = {o: O[o]["sensitivities"][mp[sw[k]]] for o in O if mp[sw[k]] in O[o].get("sensitivities", {})}
+                    sens = {o: RAW_SENS[o][mp[sw[k]]] for o in O if mp[sw[k]] in RAW_SENS[o]}
             cases["/".join(str(v) for v in combo)] = best(bud(sw), sw, sens=sens)
         default = best(bud(defaults), defaults)
         downs = {}
@@ -632,8 +633,8 @@ def main(path, variants=True) -> dict:
             for sn in O[o].get("sensitivities", {}):
                 if sn in downs or any(sn in mp.values() for mp in (pl.get("switch_sensitivity") or {}).values()):
                     continue
-                sens = {oo: O[oo]["sensitivities"][sn] for oo in default["valued_options"] if sn in O[oo].get("sensitivities", {})}
-                downs[sn] = {"value": money(sum(D_(sens.get(oo, O[oo]["value_if_admissible"])) for oo in default["valued_options"])), "valued_options": default["valued_options"]}
+                sens = {oo: RAW_SENS[oo][sn] for oo in default["valued_options"] if sn in RAW_SENS[oo]}
+                downs[sn] = {"value": money(sum((sens.get(oo, RAW[oo]) for oo in default["valued_options"]), D(0))), "valued_options": default["valued_options"]}
         for k, mp in (pl.get("switch_sensitivity") or {}).items():
             for swv, sn in mp.items():
                 c_ = cases["/".join(str(swv if kk == k else defaults[kk]) for kk in names)]
