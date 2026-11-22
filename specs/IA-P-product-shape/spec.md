@@ -1,10 +1,11 @@
 # IA-P: the real app on the agreed shape (implementer spec)
 
-Status: live, rev 1, spec written; handshake next. Architect (Claude), 2026-11-22.
+Status: live, **rev 2** (2026-11-22: the Overview follows the top-bar range, owner Q2; `spec-period.md`), handshake next.
+Architect (Claude). Rev 1 was merged earlier on 2026-11-22.
 Owner request: `owner/owner-merge-on-accept-ia-shape-k10-2026-11-22.md`. The owner reviews once the product is close to the
 shape, then iterates. UI slices merge on review ACCEPT, with one combined walkthrough at the end.
 
-**Decisions:** `rulings.md`, D-IAP.1 to D-IAP.14. **Reviewer guide:** `reviewer-guide.md`. `USER_REVIEW_REQUIRED: true`.
+**Decisions:** `rulings.md`, D-IAP.1 to D-IAP.23 (rev 2: D-IAP.15 on). **Binding parts:** this file and `spec-period.md`. **Reviewer guide:** `reviewer-guide.md`. `USER_REVIEW_REQUIRED: true`.
 **Mock (governs, `.ai/RULES.md` §6):** vNEXT (`Docs/demo-sprint/product-direction-layer4/interactive-mockup-vNEXT/`)
 as built by IA-1a/1b/1c, IA-2a and IA-2b1:
 - `ia-routes.js` `IA_RAIL`, `IA_TAB_GROUPS`, `IA_ALIASES`;
@@ -19,15 +20,15 @@ Visual style: `frontend/mockups/v72/foundation-sheet.html` tokens. Standing brie
 - IA-1 `spec.md` §1, §2.2 (registry, aliases, rail), §3.1 and §3.2, §4.3;
 - `spec-IA-2b.md` §1, §3 and §4 (on `main` once IA-2b1 merges; until then `git show task/IA-2b1-lists:specs/IA-1-shape-rebuild/spec-IA-2b.md`);
 - 5c `spec.md` §3.1, §5.1 to §5.3;
-- this spec's §2 and the §6 card of your unit.
+- this spec's §2, `spec-period.md` P.1 (every unit) and the §6 card of your unit.
 
 ## 0. Existing, then new
 
 **What exists today and stays.** The live product (`frontend/src`) already has the reads an executive needs:
 - the estate Portfolio read (`/api/estate/portfolio`): placement queue, value cards, objectives, progress;
 - the Finding, Action, Evidence and Financials roots;
-- the month read built by 5c (`/api/portfolio/month`, `DeepDiveMonth.tsx`): contribution against target, the bridge,
-  cash, the four outcome cards, every figure with its evidence word;
+- the month read built by 5c (`/api/portfolio/month`, `DeepDiveMonth.tsx`): contribution against target for one calendar
+  month, the bridge, cash, the four outcome cards, every figure with its evidence word;
 - 8 Site tabs over three verticals, the shared date range (SR-1) and its span declaration (SR-4c, `ui/rangeFocus.tsx`).
 
 Every one of these is reused. No read is rewritten.
@@ -47,7 +48,7 @@ object in one home.
 ```
  MENU (rail)                     PORTFOLIO (/portfolio)                SITE (/sites/:id)
  Operations  Portfolio           [Overview][Outcomes][Demand & cap.]   [Overview][Operations][Performance]
-             Sites               Overview = the month (5c), hub:       [Financials][Evidence][Setup]
+             Sites               Overview = the range's months (5c):   [Financials][Evidence][Setup]
              Assets & cover (-)    L1 headline + 4 tiles
  Intell.     Findings              L2 Decisions rows (6) + Actions     LISTS: one component (IA-2b)
  Work        Decisions  <- new     L3 bridge · cash · by outcome       /decisions /findings /actions /sites
@@ -63,7 +64,7 @@ object in one home.
 
 **Mechanism to value.** The executive's loop stays outcome → drivers → evidence → lever → action → verify. IA-P puts each
 step at one address:
-- the outcome and its drivers are on the Overview (the month bridge);
+- the outcome and its drivers are on the Overview (5c's bridge, for the whole months in the range);
 - the choices waiting are in Decisions and in "Waiting for you";
 - the Actions are in Actions, and what changed is in Results.
 
@@ -74,7 +75,7 @@ chooses and acts under their own names (6a and 3C2 record who).
 
 An operator executive opens the served app and sees:
 - the approved menu;
-- a three-tab Portfolio whose Overview is the month;
+- a three-tab Portfolio whose Overview shows contribution against target for the whole months in the top-bar range;
 - live lists of decisions, Findings, Actions and Sites in the menu;
 - six Site tabs on every vertical;
 - a "Waiting for you" control.
@@ -99,7 +100,7 @@ The groups, the order and the labels follow D-IA.1 (vNEXT `IA_RAIL`). The group 
 | WORK | Actions | `/actions` | live | `action` | (kept; the list from P2) |
 | WORK | Incidents | `/incidents` | live | `incident` | (kept) |
 | WORK | Maintenance | `/maintenance` | live | `work` | (kept) |
-| ASSURANCE | Results | `/results` | live | `book` | P1 unavailable, P3 live |
+| ASSURANCE | Results | `/results` | live | `book` | P1 unavailable, P3b live |
 | ASSURANCE | Evidence & records | `/evidence` | live | `evidence` | P1 (relabel from "Evidence") |
 | BUSINESS | Financials | `/financials` | live | `money` | (kept) |
 | ADMIN | Settings | — | unavailable (IA-2e) | `gear` | (kept) |
@@ -152,15 +153,15 @@ tablist (as `PortfolioTabs` does today). Every tab link carries the address's sh
 | Current address | New home | How | Unit |
 |---|---|---|---|
 | `/` | `/portfolio` (D-IA.15: the start is the Portfolio) | alias | P1 |
-| `/portfolio` (old Overview: cards, pulse, top three) | `/portfolio` is the month (§3). Cards go to Outcomes L3, the top three to Overview L2 (Decisions rows), the pulse is retired (D-IAP.12) | kept, re-housed | P3 |
-| `/portfolio/month` | `/portfolio` (keeps `?month=`) | alias | P3 |
+| `/portfolio` (old Overview: cards, pulse, top three) | `/portfolio` is 5c's screen on the range (§3). Cards go to Outcomes L3, the top three to Overview L2 (Decisions rows), the pulse is retired (D-IAP.12) | kept, re-housed | P3b |
+| `/portfolio/month?month=YYYY-MM` | `/portfolio?from={first day}&to={last day}` of that month; `month` dropped; it wins over a range in the address; an invalid or absent month goes to `/portfolio` (D-IAP.18) | alias | P3b |
 | `/portfolio/act-first` (`?lens=`) | `/decisions` (`lens` kept as the Finding-type facet) | alias | P2 |
-| `/portfolio/outcomes` | `/portfolio/outcomes` (L2 Sites rows from P4) | kept | P3, P4 |
-| `/portfolio/opportunity` | `/portfolio/demand-and-capacity` | alias | P3 |
-| `/portfolio/changes` | `/results` | alias | P3 |
-| `/portfolio/scope` | `/evidence` (its second section, "Scope & coverage") | alias | P3 |
+| `/portfolio/outcomes` | `/portfolio/outcomes` (L2 Sites rows from P4) | kept | P3b, P4 |
+| `/portfolio/opportunity` | `/portfolio/demand-and-capacity` | alias | P3b |
+| `/portfolio/changes` | `/results` | alias | P3b |
+| `/portfolio/scope` | `/evidence` (its second section, "Scope & coverage") | alias | P3b |
 | any other `/portfolio/:tab` | `/portfolio` (today's rule) | kept | — |
-| `/sites` | `/sites` (the Sites list) | kept, rebuilt as a list | P4 |
+| `/sites` | `/sites` (the Sites list; its figures follow the range, D-IAP.19) | kept, rebuilt as a list | P4 |
 | `/sites/:id` and every Site sub-route | the same address, lit under its §2.3 tab | kept | P5 |
 | `/sites/:id/findings` | `/findings?scope=site:{id}` | alias (after the parity test) | P5 |
 | `/sites/:id/configuration` | today's redirect, unchanged | kept | — |
@@ -174,53 +175,70 @@ tablist (as `PortfolioTabs` does today). Every tab link carries the address's sh
 | `/financials` | the same | kept | — |
 | `/simulator-lab/*` | the same (workspace footer) | kept | — |
 | `*` | `RouteNotAvailableFrame` | kept | — |
-| — | `/decisions` (new list), `/results` (new page), `/portfolio/demand-and-capacity` (new tab), `/evidence/records` (new tab) | new | P2, P3, P1 |
+| — | `/decisions` (new list), `/results` (new page), `/portfolio/demand-and-capacity` (new tab), `/evidence/records` (new tab) | new | P2, P3b, P1 |
 
 The Plan (`/plan`) and the inbox have no route. The Plan is an unavailable rail item. The inbox is a drawer opened from the
 top bar (IA-1 §4.3: "no address until IA-2d").
 
-## 3. Where 5c's month view lives (D-IAP.2)
+## 3. The Overview: 5c's screen on the top-bar range (D-IAP.2, D-IAP.15 to D-IAP.19)
 
-**Recommendation: the month is the Portfolio Overview, at `/portfolio`.** `/portfolio/month` aliases to it, keeping
-`?month=`, so the DDR and WK addresses still land.
+**Owner, 2026-11-22.**
+- Q1: "Month is the Overview". `/portfolio` renders 5c's screen, and there is no fourth tab.
+- Q2: "Follow the date range". The Overview follows the top-bar range like every other page. Rev 1's month exception
+  (D-IAP.2's SR-4c month span, and the server's default month) is withdrawn (D-IAP.15).
 
-**The reason.** The governing mock's Overview is this screen. 5c was built to vNEXT `#/portfolio`'s hub shape, and its
-MD7 names "IA-2's live rebuild of the Overview" as its resolving unit. Two front pages would show the portfolio's
-contribution against target twice, which breaks the owner's one-figure rule and the three-tab IA.
+**The period rule** (`spec-period.md` P.1, binding). Contribution against target is kept per whole calendar month. So the
+Overview counts the whole, closed months inside the range. Each month it cannot count is named on the page, and nothing is
+cut by day. E2 (`GET /api/portfolio/period?from=&to=`) resolves the range on the server and returns a mode:
 
-**The alternative.** Keep "The month" as a fourth Portfolio tab and leave today's range Overview. That costs one unit
-less, but it keeps two summaries and needs a D2 departure from the three tabs.
+| Mode | When | What the Overview renders (hub shape, 5c classes) |
+|---|---|---|
+| `month` | exactly one served whole month | 5c's month screen for E2's month, unchanged in L1 to L3. The header's ‹ › links come from E2's `nav` and set the range to that month (`from` and `to` replaced, every other parameter kept). E2's `notes` sit under the header |
+| `period` | two or more | the period hub (`spec-period.md` P.5). L1 is the headline and the four tiles, summed. L2 is the Decisions rows and Actions in hand. L3 is "Month by month" (one row per month, its link setting the range to that month) and "By outcome" (MD-IAP-10) |
+| `none` | no served whole month (a 7-day range, "This month", a range inside one month, or a store with no snapshot) | the header, E2's `notes`, the link "Show {month}" (E2's `suggest`, setting the range to the latest served month), then L2. L1 and L3 are omitted (MD-IAP-11). No figure is invented |
 
-**Consequences** (each ruled in D-IAP.2 and D-IAP.12):
-- **The period.** The Overview shows a calendar month, not the top-bar range. It declares the month's span through the
-  existing SR-4c hook: `useDeclareRangeSpan('{month}-01', '{month}-{last day}')`. So the top bar names the month, and the
-  range stays in the address for every other page.
-  - The month comes from `?month=`, and otherwise from the server's default (the previous closed month).
-  - The month links (‹ ›) stay where 5c put them, in the hub header.
-  - This is an exception to the owner's range rule on one page. The owner decides it: queue Q2.
-- **Overview L2.** 5c's "Decisions" panel (MD2, "Not available yet") becomes the Decisions list's rows: capped at 6, no tools,
-  then "View all {n}" (IA-2b §6). They are read for the month's bounds. "Actions in hand" stays beside them.
-- **The old Overview's content.** The four range category cards (with 1a's scope line) move to Outcomes L3. The top three
-  becomes Overview L2. The pulse is retired, because each of its links now has a menu item or tab. The coverage line and
-  the scope disclosure move to Evidence & records › Coverage.
-- **On a database with no served month** (NO_SNAPSHOT, or no tenant), the Overview shows 5c's own `state_text` under the
-  header and tab row, and the L2 Decisions rows still render. Nothing is invented.
+**Consequences.**
+- **The top-bar note (SR-4c; D-IAP.18).** The Overview declares `useDeclareRangeSpan(shown.from, shown.to)` only when E2's
+  `shown` is not null, that is, when the months counted differ from the range. The bar then says "This page shows part of
+  it". When the range is exactly whole months, or in mode `none`, nothing is declared and the bar says "All pages". The
+  browser does no date arithmetic for this: `shown`, `nav` and `suggest` carry their days from the server.
+- **Fresh entry (D-IAP.21; owner may veto, Q9).** When the address has no range and no session range is stored,
+  `entryRange('/portfolio')` gives "Last month" (a WARM-1 preset), not "Last 7 days". The front page then opens on figures.
+  Every other page's entry stays "Last 7 days".
+- **Overview L2.** 5c's "Decisions" panel (MD2) becomes the Decisions list's rows for the range: capped at 6, no tools,
+  then "View all {n}" to `/decisions` with the range (IA-2b §6). "Actions in hand" stays beside them, from the month body in
+  mode `month` and from the period body in mode `period`.
+- **The old Overview's content.** The four range category cards (with 1a's scope line) move to Outcomes L3, and the top
+  three becomes Overview L2. The pulse is retired: each of its links now has a menu item or tab. The coverage line and the
+  scope disclosure move to Evidence & records › Coverage.
+- **One figure.** A month row's gap is that month's Overview tile 2, string for string. The period's tile 2 is their exact
+  sum. For the same range, E1's `total.gap` is the Overview's tile 2 (gate S1, on a one-month and a two-month range).
+- **No tenant or no read:** E2's 503 text with "Try again". A store with no snapshot is mode `none`, with the months'
+  `missing` sentence.
 
-## 4. What each surface reads (D-IAP.8, D-IAP.9)
+**The page by Site-type range matrix** (the owner's range rule; every page follows the range for every Site type):
+
+| Page | Mini-grid | Cold-chain | EV charging |
+|---|---|---|---|
+| Overview (E2 and 5c) | counted per whole month | named as not compared (5c's `out` reason and "Compared for k of n Sites") | the same as cold-chain |
+| Outcomes L1 and L2, Sites list (E1) | rows with figures for the same months | a row reading "Not available yet" | the same |
+| Outcomes L3, Demand & capacity, Decisions, Findings, Actions, Results, Evidence | the range, as today | the range | the range |
+
+## 4. What each surface reads (D-IAP.8, D-IAP.9, D-IAP.17, D-IAP.20)
 
 ### 4.1 The reads per surface
 
-Every read below exists except E1. E0 adds one field to an existing body.
+Every read below exists except E1 and E2. E0 adds one field to an existing body.
 
 | Surface | Reads (client · endpoint) | Notes |
 |---|---|---|
-| Overview | `deepDiveMonthClient.fetchDeepDiveMonth(month)` · `GET /api/portfolio/month`; `estateClient.portfolio` · `GET /api/estate/portfolio` (the month's bounds, lens `all`, every page) | figures are only the month's; the rows are only the placement queue's |
-| Outcomes | E1 `GET /api/portfolio/sites?month=`; `estateClient.portfolio` (the range: E0 `waiting_by_site`, and L3 with `getOutcomeSummary`) | L1 headline and L2 rows from E1; L3 range cards as today |
+| Overview | E2 `portfolioPeriodClient.fetchPeriod(from, to)` · `GET /api/portfolio/period`; in mode `month`, `fetchDeepDiveMonth(served[0])` · `GET /api/portfolio/month`; `estateClient.portfolio` · `GET /api/estate/portfolio` (the range, lens `all`, every page) | figures come only from E2 and the month read; the rows only from the placement queue |
+| Outcomes | E1 `GET /api/portfolio/sites?from=&to=` (the range); `estateClient.portfolio` (the range: E0 `waiting_by_site`, and L3 with `getOutcomeSummary`) | L1 headline (or E1's notes) and L2 rows from E1; L3 range cards as today |
 | Demand & capacity | `estateClient.portfolio` (the range) | `OpportunityPanel` as today |
 | Decisions list | `estateClient.portfolio` (the range, lens `all`, every page) | one row per placed Finding (D-IAP.3) |
 | Findings list | `estateClient.findings` (the range, lens `all`, state `all`, every page) + the Decisions read (same key, shared cache) | "Its decision" joins on `finding_id` |
 | Actions list | `estateClient.actions` (the range, every page) | |
-| Sites list | `siteDirectoryClient` · `GET /api/sites`; E1 (the month of the range's `to`, else the server default); E0 | the rows come from E1, in E1's order |
+| Sites list | `siteDirectoryClient` · `GET /api/sites`; E1 (the range); E0 | the rows come from E1, in E1's order; E1's notes under the header |
 | Results | `estateClient.portfolio` (the range) `progress` | `ProgressPanel`, moved verbatim |
 | Evidence & records | Coverage: `estateEvidenceMoney` (as today) + `estateClient.portfolio` (`scope_disclosure`, footer, coverage line); Records: `globalWork` operational records (as today) | |
 | Site tabs | unchanged per page | |
@@ -256,82 +274,10 @@ and search does not re-read. It is dropped when the range changes.
   - The Sites row's "Waiting for a choice" is `waiting_by_site[code]`, and 0 when the Site has no member.
   - When the field is absent, the cell is "Not available yet".
 
-### 4.3 E1: `GET /api/portfolio/sites?month=YYYY-MM` (new; D-IAP.9)
+### 4.3 E1: `GET /api/portfolio/sites?from=&to=` (new; D-IAP.9, D-IAP.20)
 
-**Where.**
-- The pure view: `backend/assetops_backend/deep_dive/sites.py`, `sites_view(*, month: str, served, standing: Standing,
-  sites: Sequence[SiteRef], now) -> dict`.
-- The read: `DeepDiveRead.sites(tenant, month, sites)`, with the same month parsing, served read and standing read as
-  `month()`.
-- The route: in `deep_dive_api.py`, on the same router.
-  - The refusals are the month route's: 503 `DEEP_DIVE_UNAVAILABLE`, 401 `PERSON_REQUIRED` on real data, 422 `BAD_MONTH`.
-  - 200 sets `Cache-Control: no-store`.
-- `SiteRef(code, name, domain)` comes from `registry.imported_sites()`, in registry order.
-- No migration and no new store.
-
-**The JSON** (`schema` `portfolio-sites-1`; keys in this order):
-
-| Key | Value |
-|---|---|
-| `schema`, `month`, `month_words` | as 5c (`W.render_month`) |
-| `state`, `state_text` | `served.state`; 5c's state text, or null |
-| `as_of_text` | 5c's `as_of` sentence, or null |
-| `headline` | `{"text", "evidence"}` from `portfolio_sites.headline`, or null when not SERVED |
-| `columns` | `["Site", "Group", "Contribution", "Gap to target", "Largest driver against target", "Waiting for a choice"]` |
-| `rows` | one per `SiteRef` (below) |
-| `total` | `{"gap": W.amount(R.effect, R.currency, "SIGNED") or null, "word": tile 2's word or null}`. `R` is 5c's root row |
-| `without_target` | `{"count": k, "text": portfolio_sites.without_target or null}` |
-
-**A row** is `{"site_code", "site", "group", "contribution", "gap", "gap_word", "driver", "driver_heading", "below"}`:
-
-- `group` comes from `portfolio_sites.group`: domain MINIGRID "Mini-grid", COLDCHAIN "Cold-chain", EV_CHARGING "EV
-  charging". These are the live `DOMAIN_WORD`s; a test pins equality with a fixture copy.
-- **Compared** (the Site is in `R`'s k, so it has an actual and a target):
-  - `contribution` is `portfolio_sites.contribution` ("{actual} against a target of {target}", money as `W.amount`);
-  - `gap` is the Site root's effect, signed;
-  - `gap_word` is 5c's figure word through `money_word` with the standing;
-  - `below` is `effect < 0`;
-  - `driver` and `driver_heading`: among the Site's `STEPS` rows with an effect below 0, the most negative (ties in `STEPS`
-    order). `driver` is `"{W.factor_label(step)} {W.amount(effect, cur, 'SIGNED')}"` and `driver_heading` is
-    `W.heading_label(home)`. With none below 0, `driver` is `portfolio_sites.no_driver` and `driver_heading` is null.
-- **Not compared** (any other Site):
-  - `contribution`, `gap` and `driver` are `W.text("NOT_AVAILABLE")` ("Not available yet");
-  - `gap_word` and `driver_heading` are null, and `below` is false.
-- **Order.** Compared rows by effect ascending (exact Decimal; ties in `snap.asked` order), then the rest in registry order.
-- **One figure** (owner, 2026-11-21). The compared rows' effects sum exactly to `R.effect`. `total.gap` is the Overview's
-  tile 2 value, string for string. A test fails if either breaks; a break is fixed in the bridge, never in this view.
-
-**Statements** (`i18n/statements/en/portfolio_sites.py`, SC-1 pure literal data, the 1a pattern, `"rephrase": "never"`):
-- `portfolio_sites.headline` has slots `below` (count), `compared` (count) and `month` (month name), and variants:
-  - `some` when `below` > 0: "{below} of {compared} Sites are below target in {month}";
-  - `none`: "Every Site is on or above target in {month}" (IA-1 §3.3; contribution kind only, D-IAP.9).
-- `portfolio_sites.contribution`: "{actual} against a target of {target}".
-- `portfolio_sites.no_driver`: "No driver widens the gap".
-- `portfolio_sites.without_target`, slot `count`: "{count} Sites without a target are not in this figure", and "1 Site
-  without a target is not in this figure" when the count is 1.
-- `portfolio_sites.group`, slot `domain` (state): "Mini-grid", "Cold-chain" and "EV charging".
-
-The catalogue check and the hand-built-sentence guard (SC-1) must pass. No sentence is built outside the renderer.
-
-**Tests** (`backend/tests/test_iap_portfolio_sites.py`; written first, W2; pure, on 5c World A and D's fixtures). Every
-string is exact:
-1. **World A.**
-   - Rows, in order:
-     - Kobo: "$883.00 against a target of $1,445.00", "−$562.00", "Fuel cost −$600.00", heading "Optimize cost and
-       efficiency", `below` true;
-     - Kisiwa: "−$250.00 against a target of −$65.00", "−$185.00", "Fuel cost −$130.00", heading "Optimize cost and
-       efficiency";
-     - Mto: "$810.00 against a target of $915.00", "−$105.00", "Revenue −$80.00", heading "Grow revenue".
-   - `total.gap` "−$852.00".
-   - Headline "3 of 3 Sites are below target in October", evidence ["Estimated, not yet reconciled"].
-   - `without_target.count` 0.
-2. A `SiteRef` for a COLDCHAIN Site appended: its row is last, with "Not available yet" ×3 and group "Cold-chain". `count` 1
-   with "1 Site without a target is not in this figure".
-3. NO_SNAPSHOT: header keys only. `rows` still lists every Site, each not compared. `headline` and `total.gap` are null.
-4. The sum check: a fabricated `Served` whose Site effects do not sum to `R.effect` raises `AssertionError("SITES_SUM")`.
-5. The route: 200 with schema; 422 on `month=2026-13`; 503 when the read is absent; 401 on real data with no person. These
-   reuse `test_deep_dive_api.py`'s app fakes.
-6. The headline `none` variant (a world with every effect ≥ 0), and Kisiwa's heading words equal `W.heading_label`.
+E1 is specified in `spec-period.md` P.8 (binding): the Sites rows for the same months as the Overview, ordered on the
+server, with their statements and tests. It moved there in rev 2 because it shares E2's resolver.
 
 ## 5. Shared rules (every unit)
 
@@ -414,11 +360,15 @@ It is IA-2b §3 transcribed to React, with the live tokens. Markup:
 - **Copy.** Every new string is in this spec. Any other word is a reused constant. Never type a month: it comes from the
   server or `formatDayTime`.
 
-## 6. Units (each 1 to 3 commits; the app works after each; D-IAP.13)
+## 6. Units (each 1 to 3 commits; the app works after each; D-IAP.13, D-IAP.22)
 
 Two parts, one branch each, one discovery review per part:
-- **IA-P1** is P1 to P3 (3.75 units), on `task/IA-P1-frame-portfolio`.
-- **IA-P2** is P4 to P7 (4.75 units), on `task/IA-P2-sites-site-inbox`, branched from IA-P1's merge.
+- **IA-P1** is P1, P2, P3a and P3b (5.75 units), on `task/IA-P1-frame-portfolio`.
+- **IA-P2** is P4 to P7 (5.0 units), on `task/IA-P2-sites-site-inbox`, branched from IA-P1's merge.
+
+**Range pages (D-IAP.19; a class fix).** Each unit that lands a page whose content follows the range adds it to
+`RANGE_PAGES` and `FILLED_PAGES` (`ui/sharedRange.ts`): P1 `/evidence/records`, P2 `/decisions`, P3b `/results` and P4
+`/sites`. The shared-range test asserts the bar says "All pages" on each one.
 
 **Every unit runs:**
 - `tsc`;
@@ -452,6 +402,7 @@ Each later unit adds its own checks.
   - `ui/SectionTabs.tsx` (new);
   - `App.tsx` (the `/evidence/records` route, `LegacyRedirect` mounting, `/` alias);
   - `estate/EstateEvidence.tsx` and `work/OperationalRecords.tsx` (header "Evidence & records" plus the tab row);
+  - `ui/sharedRange.ts` (`/evidence/records` as a range page);
   - `tools/checks/navigation-truthfulness.ps1`.
 - **Tests first:**
   - `shell/__tests__/iaRoutes.test.ts`: `railHomeOf` for one path per §2.4 family; `LEGACY_ROUTES` landed filtering; the
@@ -476,7 +427,8 @@ Each later unit adds its own checks.
   - `shell/EstateRootFrames.tsx` (`EstateDecisionsFrame`);
   - `App.tsx` (the `/decisions` route; the aliases `/portfolio/act-first`, `/findings/cost|risks|opportunities`);
   - `estate/portfolioWords.ts` (`act-first` leaves `PORTFOLIO_TABS`);
-  - `iaRoutes.ts` (Decisions live).
+  - `iaRoutes.ts` (Decisions live);
+  - `ui/sharedRange.ts` (`/decisions` as a range page).
 - **Tests first:**
   - `ui/__tests__/homeListModel.test.ts`: IA-2b §8 Block A on a synthetic 25-item store. It covers tiers at 2, 3, 10, 11
     and 25; a facet; an invalid value ignored; words ANDed; stable sort; cap; keep-first; groups; href order;
@@ -500,43 +452,93 @@ Each later unit adds its own checks.
   - **L3** `/portfolio/act-first?lens=cost` lands on `/decisions?lens=cost`, showing the chip "Cost · All findings".
 - **Shots:** each list at 1440, 768 and 390, light and dark; `/decisions` with one facet set.
 
-### P3: the Portfolio hub (1.25 units; IA-P1)
+### P3a: E2, the period read (1.5 units; IA-P1)
+
+- **Files:**
+  - `deep_dive/period.py` (new: `Period`, `MonthServed`, `month_days`, `resolve`, `header`, `period_view`);
+  - `deep_dive/read.py` (`period`);
+  - `deep_dive_api.py` (the route);
+  - `i18n/statements/en/portfolio_period.py` (new);
+  - the fixtures `frontend/src/estate/__tests__/fixtures/iap/period-month-2026-10.json`, `period-period-2026-09-10.json`
+    and `period-none-2026-11.json`, written from the view (test 10 keeps them current).
+- **Tests first:** `spec-period.md` P.7, tests 1 to 10.
+- **Plants:**
+  - `dayscut` (`resolve` counts a PARTIAL month) fails test 1;
+  - `onefig` (a month row's gap formatted again instead of taken from `V_m.tiles()[1]`, with one rounding changed) fails
+    test 3;
+  - `handbuilt` (an f-string sentence in `period.py`) fails the SC-1 guard.
+- `view.py`'s month view and its tests are unchanged. `git diff` there is empty.
+
+### P3b: the Portfolio hub on the range (1.75 units; IA-P1)
 
 - **Files:**
   - `estate/portfolioWords.ts` (three tabs: overview `null`, outcomes `outcomes`, demand `demand-and-capacity`);
   - `estate/PortfolioTabs.tsx` (draws `SectionTabs`; carries the address range);
-  - `estate/DeepDiveMonth.tsx` (rendered at `/portfolio`; declares the month span; L2's Decisions panel becomes
-    `HomeList` decisions, `{tools: false, tiles: false, cap: 6}` over the month's bounds, with "View all {n}" to
-    `/decisions?from={first}&to={last}`; the header, L1 and L3 are unchanged);
-  - `estate/EstatePortfolio.tsx`:
-    - its Overview branch, pulse and `TopThree` are removed;
-    - `outcomes` renders `ObjectivesPanel` (L2) then `CategoryCards` (L3) until P4;
-    - `demand` renders `OpportunityPanel`;
-    - the `act-first`, `changes` and `scope` branches move out;
-  - `estate/Results.tsx` (new; `ProgressPanel` moved verbatim);
-  - `estate/EstateEvidence.tsx` (the second section "Scope & coverage": `PortfolioCoverage` line, `ScopeDisclosure`,
-    `ContextFooter`, moved verbatim);
-  - `App.tsx` (`/portfolio` → the month frame; `/portfolio/:tab` kept for outcomes and demand; `/results`; the aliases
-    `/portfolio/month`, `/portfolio/opportunity`, `/portfolio/changes`, `/portfolio/scope`).
+  - `estate/portfolioPeriodClient.ts` (new; `fetchPeriod(from, to)`; a body whose `schema` is not `portfolio-period-1` is
+    an error);
+  - `estate/PortfolioOverview.tsx` (new; the `/portfolio` frame):
+    - it reads E2 for the address range and renders by mode (§3);
+    - it declares `shown` (SR-4c);
+    - it shows "Preparing the figures…" while loading, and E2's refusal texts with "Try again";
+  - `estate/DeepDiveMonth.tsx`:
+    - it takes `month`, `nav` and `notes` as props and no longer reads `?month=`;
+    - the header links come from `nav` (§3);
+    - the notes are `<p class="dd-period" role="note">` in the header;
+    - L2's Decisions panel becomes `HomeList` decisions, `{tools: false, tiles: false, cap: 6}` for the range, with "View
+      all {n}" to `/decisions` and the range;
+    - its tile, outcome-card and actions-panel markup is exported as `DdTiles`, `DdOutcomes` and `DdActions`. L1 and L3
+      are otherwise unchanged;
+  - `estate/PortfolioPeriod.tsx` (new; the period body):
+    - the header with `<b>{period_words}</b>` and the notes;
+    - L1 `dd-lead` and `DdTiles`;
+    - L2 as in the month;
+    - L3 "Month by month": a `<table>`, the first cell `<th scope="row"><Link>{month_words}</Link></th>` (one target per
+      row, setting the range to that month), the other cells text with the gap word as a chip; then `DdOutcomes`;
+  - `ui/sharedRange.ts` (`entryRange(pathname?)` gives `lastmonth` for `/portfolio` with no stored range; `/results`
+    joins `RANGE_PAGES` and `FILLED_PAGES`);
+  - `estate/EstatePortfolio.tsx`, `estate/Results.tsx`, `estate/EstateEvidence.tsx`: as in rev 1 (the Overview branch,
+    pulse and `TopThree` removed; outcomes and demand kept; `ProgressPanel` and the scope section moved verbatim);
+  - `App.tsx` (`/portfolio` → `PortfolioOverview`; `/portfolio/:tab` for outcomes and demand; `/results`; the aliases of
+    §2.4 for P3b, `/portfolio/month` with its `to` function using `month_days`' frontend twin `monthDays(code)` in
+    `sharedRange.ts`);
+  - `tools/deep_dive_gates.cjs` (URL argument; it also answers `/api/portfolio/period*` with `period-month-2026-10.json`
+    and `/api/estate/portfolio*` with the IA-P fixture; the checks are unchanged);
+  - the DDR runbook's S7 line, which now reads `/portfolio?from=2026-10-01&to=2026-10-31`.
 - **Tests first:**
-  - `estate/__tests__/portfolioHub.test.tsx`: the three tabs with the range kept; Overview = the month body; L2 rows = the
-    Decisions rows for the month's bounds, at most 6, then "View all {n}"; `/portfolio/month?month=2026-10` →
-    `/portfolio?month=2026-10`; NO_SNAPSHOT shows `state_text` and the rows;
-  - `DeepDiveMonth.test.tsx`: the decisions-panel assertions are updated (named in the packet); every other assertion is
-    kept;
-  - `Results.test.tsx`; `estateEvidence` scope section.
+  - `estate/__tests__/portfolioHub.test.tsx`:
+    - the three tabs keep the range;
+    - mode `month` reads the month read for `served[0]`, not for the range's `to`;
+    - the nav links equal E2's `nav` days;
+    - mode `period` renders one link per month row and no `[data-portfolio-card-value]`;
+    - mode `none` renders the notes and the suggest link, and no L1 or L3;
+    - the L2 rows are the Decisions rows for the range, at most 6, then "View all {n}";
+    - `/portfolio/month?month=2026-10` → `/portfolio?from=2026-10-01&to=2026-10-31`, also when the address held another
+      range;
+    - the span is declared exactly when `shown` is not null;
+    - `entryRange('/portfolio')` with an empty session is last month, and `entryRange('/findings')` is 7 days;
+  - `DeepDiveMonth.test.tsx`: the decisions-panel and nav assertions are updated (named in the packet); every other
+    assertion is kept;
+  - `Results.test.tsx`; the `estateEvidence` scope section.
 - **Plants:**
   - `fourtab` (a fourth tab) fails `portfolioHub` and gate H1;
   - `window` (the tabs lose the range) fails `portfolioHub`;
-  - `twofig` (the old category cards rendered on the Overview) fails gate H2.
+  - `twofig` (the old category cards rendered on the Overview) fails gate H2;
+  - `browsermonth` (the month read for the range's `to` month) fails `portfolioHub`;
+  - `span` (`shown` ignored) fails `portfolioHub` and gate H6.
 - **Gates added:**
   - **H1** three tabs in §2.2's order;
-  - **H2** the Overview has at most 6 blocks and holds no `[data-portfolio-card-value]`;
-  - **H3** `deep_dive_gates.cjs` passes at `/portfolio?month=2026-10` (its URL argument changed; the checks unchanged).
-- **Shots:** the three tabs, `/results` and `/evidence` with the scope section, at the three widths, light and dark.
-- **IA-P1's review follows P3.**
+  - **H2** in every mode, the Overview has at most 6 blocks and holds no `[data-portfolio-card-value]`;
+  - **H3** `deep_dive_gates.cjs` passes at `/portfolio?from=2026-10-01&to=2026-10-31`;
+  - **H4** `/portfolio?from=2026-09-01&to=2026-10-31` (mode `period`): the hub regions, R4 at 390, the bar's "All pages",
+    and each month row landing on its month;
+  - **H5** `/portfolio?from=2026-11-15&to=2026-11-21` (mode `none`): the notes are visible, and "Show October 2026" lands on
+    October's range and renders the month;
+  - **H6** `/portfolio?from=2026-10-01&to=2026-11-21`: the bar's tag is `data-shared-range-focus="inside"`.
+- **Shots:** the three tabs and the Overview in each mode, `/results` and `/evidence` with the scope section, at the three
+  widths, light and dark.
+- **IA-P1's review follows P3b.**
 
-### P4: the Sites list, Outcomes, E0 and E1 (1.75 units; IA-P2)
+### P4: the Sites list, Outcomes, E0 and E1 (2.0 units; IA-P2)
 
 - **Files:**
   - backend: `deep_dive/sites.py`, `deep_dive/read.py` (`sites`), `deep_dive_api.py` (route),
@@ -545,16 +547,21 @@ Each later unit adds its own checks.
     `shell/SitesFrame.tsx` (renders the Sites list; the directory table and the Lifecycle column are removed),
     `estate/EstatePortfolio.tsx` (outcomes: L1 E1 headline; L2 `HomeList` sites `{tools: false, tiles: false}` with "Show
     all" to `/sites?show=all`; L3 `CategoryCards`, then `ObjectivesPanel` inside `Disclosure` "Each Site's objectives"),
-    `estate/estateClient.ts` (E0 type).
-- **Tests first:** §4.2 and §4.3's backend tests; `estate/__tests__/sitesList.test.tsx` (World A's E1 fixture: the rows in
-  E1 order; the gap tile "−$852.00" equals the Overview's tile 2 string; the target facet; "Not available yet" rows last;
-  the Outcomes rows = the Sites list rows).
+    `estate/estateClient.ts` (E0 type), `ui/sharedRange.ts` (`/sites` as a range page). In mode `none` the Sites tiles
+    "Below target" and "Gap to target" read "Not available yet", the target facet is not offered, and E1's notes show
+    under the header. Outcomes L1 shows them in place of the headline.
+- **Tests first:** §4.2's and `spec-period.md` P.8's backend tests (1 to 8); `estate/__tests__/sitesList.test.tsx`:
+  - World A's E1 fixture: the rows in E1 order; the gap tile "−$852.00" equals the Overview's tile 2 string; the target
+    facet; "Not available yet" rows last; the Outcomes rows = the Sites list rows;
+  - World P's fixture: the gap tile "−$1,704.00";
+  - mode `none`: the tiles and the notes.
 - **Plants:**
   - `sum` (one Site effect altered in the view) fails test 4;
   - `order` (registry order) fails test 1;
   - `browsersort` (the frontend sorts by gap) fails `sitesList` (the order must be E1's);
   - `handbuilt` (an f-string sentence in `sites.py`) fails the SC-1 guard.
-- **Gates added:** **S1** `/sites` tile "Gap to target" = `/portfolio` tile 2, by text.
+- **Gates added:** **S1** `/sites` tile "Gap to target" = `/portfolio` tile 2, by text, at 2026-10-01 to 2026-10-31 and at
+  2026-09-01 to 2026-10-31.
 - **Shots:** `/sites`, `/portfolio/outcomes` at the three widths, light and dark.
 
 ### P5: the Site's six tabs (1.0 unit; IA-P2)
@@ -635,50 +642,51 @@ Each later unit adds its own checks.
 |---|---|---|---|---|
 | MD-IAP-1 | Plan rail item and the `plan` shape (IA-2a) | D1 | no plan record in the live product; the item is unavailable, as the rail's rule is. It resolves when a plan record exists (not specified yet) | P1 |
 | MD-IAP-2 | Decisions list rows (IA-2b §4 `decisions`) | D1 | rows are placed Findings (D-IAP.3). Due and Who decides read "Not available yet"; State has two of the four words. Resolving unit: 6f (on 6a) | P2 |
-| MD-IAP-3 | Demand & capacity L1 `uxChain` | D1 | no portfolio demand-to-capacity read; the region is omitted (an empty slot omits its region); L3 as the mock | P3 |
+| MD-IAP-3 | Demand & capacity L1 `uxChain` | D1 | no portfolio demand-to-capacity read; the region is omitted (an empty slot omits its region); L3 as the mock | P3b |
 | MD-IAP-4 | Inbox "For you", and the plan row | D1 | who decides is not recorded (6a); there is no plan | P6 |
 | MD-IAP-5 | Scope on the Overview (the month read has no scope) | D5 | a chip says the page shows every Site. Resolving unit: a scoped month read (to be specified) | P7 |
 | MD-IAP-6 | Actions list tiles | D2 | today's four server figures kept as a caption line under the list tiles (extended, not dropped) | P2 |
-| MD-IAP-7 | Outcomes L3 `uxInsight` ("Sites that look alike") | D1 + D2 | no live source (D1); the range category cards and the objectives matrix sit there instead (D2, flagged: Q8) | P3, P4 |
+| MD-IAP-7 | Outcomes L3 `uxInsight` ("Sites that look alike") | D1 + D2 | no live source (D1); the range category cards and the objectives matrix sit there instead (D2, flagged: Q8) | P3b, P4 |
 | MD-IAP-8 | Site paths `/setup`, `/operations` (IA route names) | D2 | today's segments kept, labels changed (Q5) | P5 |
 | MD-IAP-9 | Group words "Mini-grids", "Cold rooms", "EV depots" | D4 | the live product's domain words, as the Type column has always read | P4, P7 |
+| MD-IAP-10 | Overview L3 "Where the gap comes from" and cash, on a range of two or more months | D2 | "Month by month" stands in their place: each month's row opens that month's full bridge and cash (one click). A summed bridge is Q10 | P3b |
+| MD-IAP-11 | Overview L1 and L3 on a range with no served whole month | D1 | figures exist only per whole month; the page states why and links to the latest served month. Nothing is cut by day | P3b |
 
-5c's MD2 closes in P3, and MD7 closes in P3 (the month is the Overview).
+5c's MD2 and MD7 close in P3b (the month is the Overview).
 
-## 8. Size, and the effect on the world ladder and the WK and DDR serves
+## 8. Size, and the effect on the world ladder and the WK and DDR serves (D-IAP.22)
 
-**Size: 8.5 units, about 14 commits.**
-- IA-P1 is 3.75 units: P1 1.0, P2 1.5, P3 1.25.
-- IA-P2 is 4.75 units: P4 1.75, P5 1.0, P6 0.75, P7 1.25.
+**Size: 10.75 units, about 18 commits** (rev 1 was 8.5; rev 2 adds E2 and the three modes).
+- IA-P1 is 5.75 units: P1 1.0, P2 1.5, P3a 1.5, P3b 1.75.
+- IA-P2 is 5.0 units: P4 2.0, P5 1.0, P6 0.75, P7 1.25.
 - Each part is under the 6-unit cap.
-- Opus does the first builds; Sonnet does the fix rounds. There is one discovery review per part (W5: P4 has a money figure
-  and a new endpoint).
+- Opus does the first builds; Sonnet does the fix rounds. There is one discovery review per part (W5: each part now adds
+  money figures and an endpoint).
 
 **The world ladder.** `tools/world.py` keys the world on `CODE_PATHS` (`backend/assetops_backend`, …), not on `frontend/`.
-- P1 to P3 and P5 to P7 do not change the key.
-- P4 changes `backend/assetops_backend` (E0, E1, statements), so the L2 template is refused as stale, naming the `code`
-  part. The coordinator rebuilds the current rung once after P4 merges, before the next WK run. There is no migration.
+- P3a (E2) and P4 (E0, E1) change `backend/assetops_backend`. So each part's merge stales the L2 template, naming the
+  `code` part.
+- The coordinator rebuilds the current rung once after each part merges, before the next WK run. If both parts merge
+  before a WK run, one rebuild covers both. There is no migration.
 
 **WK.** The walk pages (`backend/conversions/walk-layer4-v1.json`) all still land:
-- `/portfolio` is now the month;
-- `/portfolio/month?month=2026-10` aliases to `/portfolio?month=2026-10`;
+- `/portfolio` with no range opens on last month (D-IAP.21);
+- `/portfolio/month?month=2026-10` aliases to `/portfolio?from=2026-10-01&to=2026-10-31`;
 - `/sites`, `/sites/{code}`, `/findings`, `/actions`, `/evidence` and `/financials` stay.
 
-New reads on those pages: E1 on `/sites`, and the estate portfolio read on `/portfolio`. Neither returns 500 on a
-NO_SNAPSHOT tenant; test 3 proves it. P7 adds `/decisions`, `/results`, `/portfolio/outcomes` and
-`/portfolio/demand-and-capacity` to `pages`. That changes the walk definition only, not the world key. S4's census is
-unaffected: E0 enlarges stored `chain_response` bodies, which may grow (D-WK.16).
+New reads on those pages: E2 and the estate portfolio read on `/portfolio`, and E1 on `/sites`. None returns 500 on a
+NO_SNAPSHOT tenant (mode `none`, `spec-period.md` P.7 test 6, E1 test 3). P7 adds `/decisions`, `/results`,
+`/portfolio/outcomes` and `/portfolio/demand-and-capacity` to `pages`, which changes the walk definition only. S4's census
+is unaffected: E0 enlarges stored `chain_response` bodies, which may grow (D-WK.16).
 
-**DDR.** S7's browser path `/portfolio/month?month=2026-10` aliases to the Overview, and the month API body is unchanged
-(E1 is a separate route). The runbook's step text should read `/portfolio?month=2026-10` after P3; that is a one-line runbook
-edit in P3.
+**DDR.** S7's browser path `/portfolio/month?month=2026-10` aliases to the October range, and the month API body is
+unchanged (E1 and E2 are separate routes). The runbook's step text reads `/portfolio?from=2026-10-01&to=2026-10-31` after
+P3b.
 
 ## 9. Decision queue (W3; the defaults apply now)
 
 | # | Question (owner) | Default | Why |
 |---|---|---|---|
-| Q1 | Where the month lives | **The Portfolio Overview** (§3) | the mock's Overview is this screen; one figure for the portfolio. Alternative: a fourth tab "The month" |
-| Q2 | The Overview shows a closed month, not the top-bar range (the one page excepted from the range rule) | **Yes**; the top bar names the month there (SR-4c) | targets and management accounts exist per month; a partial range would show a figure the accounts cannot reconcile |
 | Q3 | Until decision records exist (6a, awaiting P6), Decisions lists the Findings waiting for an agreed Action | **Yes**, labelled MD-IAP-2 | Act first's reviewed queue moves to its approved home instead of an empty list |
 | Q4 | Plan in the menu before a plan record exists | **"Not available yet"** | a mock plan shown live would present modelled figures as the operator's |
 | Q5 | Site paths keep `foundation` and `work` under the new labels | **Keep** | 30+ addresses and their tests unchanged; the labels are what people see |
@@ -686,16 +694,22 @@ edit in P3.
 | Q7 | "Waiting for you" before who decides is recorded | **Badge and "In your portfolio" from the waiting decisions; "For you" not available yet** | the control earns its place now; nothing is attributed to a person falsely |
 | Q8 | Outcomes L3 holds the range category cards (with 1a's line) and the objectives matrix | **Yes** (D2) | reviewed content is kept and placed where outcomes live; the mock's insight block has no source |
 
-I would like the owner to weigh in on Q1 and Q2 at the walkthrough. Everything else can stand on the defaults.
+| Q9 | A fresh entry to the Portfolio (no range in the address or the session) opens on "Last month", not "Last 7 days" | **Yes** (D-IAP.21) | the front page opens on figures; a 7-day range holds no whole month. Without it, the page opens on the notes and "Show {month}" |
+| Q10 | On a range of two or more months, Overview L3 shows "Month by month" with each month's bridge one click away, not a bridge summed across months | **Month by month** (MD-IAP-10) | each figure stays the one the month's accounts hold; a summed bridge would need a cross-month split rule (prices and rates do not add across months) |
+
+Q1 and Q2 are answered (owner, 2026-11-22; D-IAP.15) and are removed from this queue. I would like the owner to weigh in on
+Q9 and Q10 at the walkthrough. Everything else can stand on the defaults.
 
 ## 10. Done (questions; each can fail)
 
 1. Does the rail equal §2.1, and does every §2.4 address land on its home with the range kept (R1, R2, `iaRouteMap`)?
-2. Does the Portfolio show exactly three tabs, the Overview the month, with no old category card on it, and does
-   `deep_dive_gates.cjs` pass at `/portfolio?month=2026-10`?
+2. Does the Portfolio show exactly three tabs, with no old category card on the Overview? Does the Overview follow the
+   range in all three modes (H3 to H6), with each uncounted month named? Does `deep_dive_gates.cjs` pass at the October
+   range?
 3. Is each list drawn by the one component? Do the tiles equal the list, and does the address restore the view? Does each
    row have one target?
-4. Does E1 return World A's rows exactly, with the Sites gap tile = the Overview's tile 2, string for string?
+4. Do E1 and E2 return World A's and World P's literals exactly, with the Sites gap tile = the Overview's tile 2, string
+   for string, on one-month and two-month ranges?
 5. Are there six Site tabs on every vertical, with object pages showing three-part crumbs?
 6. Does the inbox badge equal the Decisions waiting tile?
 7. Does every page pass at 390 (no sideways scroll), light and dark, with fonts on the scale?
@@ -706,8 +720,8 @@ I would like the owner to weigh in on Q1 and Q2 at the walkthrough. Everything e
 - IA-P does not build the content of IA-2c (Asset pages, Assets & cover), IA-2d (drawer addresses, Finding and Action record
   pages in the IA shape) or IA-2e (statement, Settings). Their routes stay as today until the mock's units land and are
   ruled for the real app.
-- IA-P builds no plan, no decision record and no person attribution.
-- The only backend changes are E0 and E1.
+- IA-P builds no plan, no decision record and no person attribution, and no bridge summed across months (Q10).
+- The only backend changes are E0, E1 and E2.
 - No reviewed figure, word or read changes, except where §3 and §6 name the move.
 
 **Packet:** `specs/IA-P-product-shape/packet-IA-P1.md` and `packet-IA-P2.md`. Each holds the shots by path, every plant's
