@@ -514,7 +514,7 @@ describe("5c test 12: states and the month links", () => {
 });
 
 // IA-P2 P3b (spec §2.2, D-IAP.4): 5c test 13 pinned the tab row of the old five-tab Portfolio (counts, "The month" as a
-// second tab) against `portfolioTabsOverview.before.html`. The spec replaced that row with three tabs and no counts; its
+// second tab) against a before-file. The spec replaced that row with three tabs and no counts; its
 // replacement is `portfolioHub.test.tsx` "shows exactly three tabs in order, each keeping the address's range".
 
 describe("5c rev 4 screen fix: bars and scale (D-5C.27), the mute rule (D-5C.26), drawers (L1, L2)", () => {

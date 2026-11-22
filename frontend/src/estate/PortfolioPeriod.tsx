@@ -69,7 +69,12 @@ function MonthByMonth({ months }: { months: PeriodBody["months"] }) {
               <tr key={row.month} data-period-month={row.month}>
                 <th scope="row">
                   <Link to={monthRangeHref(row, params)}>{row.month_words}</Link>
-                  {row.sites !== null ? <small className="dd-meta">{row.sites}</small> : null}
+                  {row.sites !== null ? (
+                    <>
+                      {" "}
+                      <small className="dd-meta dd-meta--line">{row.sites}</small>
+                    </>
+                  ) : null}
                 </th>
                 <td data-label={rest[0]}>{row.contribution}</td>
                 <td data-label={rest[1]}>
@@ -85,7 +90,12 @@ function MonthByMonth({ months }: { months: PeriodBody["months"] }) {
                 </td>
                 <td data-label={rest[2]}>
                   {row.driver ?? ""}
-                  {row.driver_heading !== null ? <small className="dd-meta">{row.driver_heading}</small> : null}
+                  {row.driver_heading !== null ? (
+                    <>
+                      {" "}
+                      <small className="dd-meta dd-meta--line">{row.driver_heading}</small>
+                    </>
+                  ) : null}
                 </td>
               </tr>
             ))}
@@ -112,9 +122,9 @@ export function PortfolioPeriod({
   return (
     <section data-shape="hub" className="dd-month" data-overview-mode="period">
       <DdHead operator={operator}>
-        <nav className="dd-nav">
+        <div className="dd-nav">
           <b className="dd-nav__current">{periodWords}</b>
-        </nav>
+        </div>
         <DdNotes notes={notes} />
       </DdHead>
       <div data-level="L1">

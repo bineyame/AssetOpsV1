@@ -366,6 +366,21 @@ def test_13_one_set_for_the_count_and_the_names() -> None:  # plants `countonly`
     assert clean["out"] == [] and "Compared for" not in clean["headline"]["text"]
 
 
+def test_13b_out_line_comes_from_the_latest_month_the_site_is_out(monkeypatch) -> None:
+    """P.5 / D-IAP.34 (review L1): out in August and September of three months, the line is September's own sentence,
+    not August's (the month's reasons can change the sentence)."""
+    served = _world_p("G")["2026-10"]
+    snap = served.snapshot
+    months = {m: copy_to(served, m) for m in ("2026-08", "2026-09")}
+    asked = tuple(c for c in snap.asked if c != "THIKA-001")
+    excluded = {c: r for c, r in snap.sites_excluded.items() if c != "THIKA-001"}
+    months["2026-10"] = replace(served, snapshot=replace(snap, asked=asked, sites_excluded=excluded))
+    monkeypatch.setattr(V._View, "out_line", lambda self, code, reasons: f"{code} out as read in {self.snap.month}.")
+    got = period(months, "2026-08-01", "2026-10-31", {**NAMES, "THIKA-001": "Thika"})["body"]
+    assert len(got["out"]) == 1
+    assert got["out"][0].startswith("THIKA-001 out as read in 2026-09."), got["out"]
+
+
 def test_14_parity_the_month_view_is_untouched_by_the_period_out() -> None:
     """D-IAP.34 reach: only `period-period-*.json` bodies gain `out`; modes month and none stay `body` null. The `view.py`
     diff and the byte-identity of the month, none and sites fixtures are the packet's `git diff` (tests 10 and the

@@ -257,6 +257,11 @@ body.dd-locked {
   color: var(--text-secondary);
 }
 
+/* IA-P2 M1: a cell's second part is its own line, so year and count never read as one figure. */
+.dd-meta--line {
+  display: block;
+}
+
 /* ---------- L3: the bridge ---------- */
 .dd-section__title {
   color: var(--text-secondary);

@@ -271,4 +271,24 @@ describe("IA-P R2 (D-IAP.25): the page by Site-type matrix on the Overview", () 
     const rows = [...document.querySelectorAll("[data-period-months] tbody tr")];
     expect(rows.map((r) => r.querySelector("th small")!.textContent)).toEqual(["3 of 4 Sites", "3 of 4 Sites"]);
   });
+
+  it("IA-P2 L3: the period header draws no unnamed or empty navigation landmark", async () => {
+    renderAt("/portfolio?from=2026-09-01&to=2026-10-31", parse(PERIOD_PERIOD_G));
+    await settled();
+    for (const nav of document.querySelectorAll("nav")) {
+      expect(nav.getAttribute("aria-label") ?? nav.getAttribute("aria-labelledby")).toBeTruthy();
+      expect(nav.querySelector("a, button")).not.toBeNull();
+    }
+  });
+
+  it("IA-P2 M1: a month row's two parts never run together in the text (year then count, figure then driver)", async () => {
+    renderAt("/portfolio?from=2026-09-01&to=2026-10-31", parse(PERIOD_PERIOD_G));
+    await settled();
+    for (const row of document.querySelectorAll("[data-period-months] tbody tr")) {
+      const head = row.querySelector("th")!;
+      expect(head.querySelector("a")!.textContent).toMatch(/^[A-Z][a-z]+ 2026$/);
+      expect(head.textContent).not.toMatch(/\d{5}/);
+      for (const cell of row.querySelectorAll("td")) expect(cell.textContent).not.toMatch(/\d[A-Z]/);
+    }
+  });
 });

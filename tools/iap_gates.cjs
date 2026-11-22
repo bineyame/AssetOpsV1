@@ -27,7 +27,7 @@
 //   H6 /portfolio?from=2026-10-01&to=2026-11-21: the bar's tag is data-shared-range-focus="inside".
 // Expected values are spec literals held here, never read from the app's modules (W2 independence).
 //
-// In-page plants (`--plant`): `wide` (a 600 px block at 390 fails R4), `tiny` (an 11 px text fails R6). The source
+// In-page plants (`--plant`): `wide` (a 600 px block at 390 fails R4), `tiny` (an 11 px text fails R6), `inline` (month cells' second part drawn inline fails H4/M1). The source
 // plants of spec §6 (`rail`, `alias`, …) are one-line edits rebuilt and run without `--plant`.
 "use strict";
 const fs = require("fs");
@@ -37,14 +37,19 @@ const { assertHeavySlot } = require("./heavy_slot_check.cjs");
 assertHeavySlot("browser capture");
 
 const FIXTURES = path.join(__dirname, "..", "frontend", "src", "estate", "__tests__", "fixtures", "iap");
-const PLANTS = ["wide", "tiny"];
+const PLANTS = ["wide", "tiny", "inline"];
 const WORLD_A_MONTH = path.join(__dirname, "..", "backend", "tests", "fixtures", "5c", "deep_dive_lakeside_2026-10.json");
-/** E2 (`/api/portfolio/period`) by the range asked (IA-P2 P3b): a range not listed answers the one-month body. */
+/** E2 (`/api/portfolio/period`) by the range asked (IA-P2 P3b, review M2): each body is the one made for its range; a range not listed is a 404, never another range's body. */
 const PERIOD_BY_RANGE = {
+  "2026-10-01|2026-10-31": "period-month-g-2026-10.json",
   "2026-09-01|2026-10-31": "period-period-2026-09-10.json",
   "2026-11-15|2026-11-21": "period-none-2026-11.json",
 };
-const PERIOD_DEFAULT = "period-month-2026-10.json";
+/** H6's range (October served, November partial): E2's month-g body restated for it, with the November note and `shown` October. */
+function periodReachingNovember() {
+  const b = JSON.parse(fs.readFileSync(path.join(FIXTURES, PERIOD_BY_RANGE["2026-10-01|2026-10-31"]), "utf8"));
+  return JSON.stringify({ ...b, to: "2026-11-21", shown: { from: "2026-10-01", to: "2026-10-31" }, notes: ["November is not complete yet, so it is not in these figures."] });
+}
 const RANGE = "from=2026-10-01&to=2026-10-31";
 
 /** Spec §2.1 after IA-P1's P2 (kind|label|group): Decisions is live. */
@@ -119,7 +124,8 @@ async function openPage(browser, routes, view) {
     let body = routes.get(url.pathname);
     if (url.pathname === "/api/portfolio/period") {
       const key = `${url.searchParams.get("from")}|${url.searchParams.get("to")}`;
-      body = fs.readFileSync(path.join(FIXTURES, PERIOD_BY_RANGE[key] ?? PERIOD_DEFAULT), "utf8");
+      if (key === "2026-10-01|2026-11-21") body = periodReachingNovember();
+      else if (PERIOD_BY_RANGE[key]) body = fs.readFileSync(path.join(FIXTURES, PERIOD_BY_RANGE[key]), "utf8");
     } else if (url.pathname === "/api/portfolio/month") body = fs.readFileSync(WORLD_A_MONTH, "utf8");
     if (body !== undefined) return route.fulfill({ status: 200, contentType: "application/json", headers: { "Cache-Control": "no-store" }, body });
     return route.fulfill({ status: 404, contentType: "application/json", body: "{}" });
@@ -375,6 +381,19 @@ async function checkOverview(browser, args, routes) {
     results.push({ gate: "H1H2", mode, levels: h.levels, blocks: h.blocks, tabs: h.tabs.map((t) => t.text), failures, pass: failures.length === 0 });
     await ctx.close();
   }
+  // Review M2 (spec §6 P3b shots): the Overview in each mode at the three widths, light and dark.
+  if (args.shots && args.plant === null) {
+    fs.mkdirSync(args.shots, { recursive: true });
+    for (const [mode, range] of modes) {
+      for (const [w, h] of [[1440, 900], [1280, 800], [390, 844]]) {
+        for (const dark of [false, true]) {
+          const { ctx, page } = await openPortfolio(browser, routes, `${args.base}/portfolio?${range}`, { w, h, dark });
+          await page.screenshot({ path: path.join(args.shots, `overview-${mode}-${w}x${h}-${dark ? "dark" : "light"}.png`), fullPage: true });
+          await ctx.close();
+        }
+      }
+    }
+  }
   // H4: mode period, at 390.
   {
     const range = "from=2026-09-01&to=2026-10-31";
@@ -397,6 +416,22 @@ async function checkOverview(browser, args, routes) {
     }
     const want = ["/portfolio?from=2026-09-01&to=2026-09-30", "/portfolio?from=2026-10-01&to=2026-10-31"];
     if (landed.join() !== want.join()) failures.push(`H4: month rows landed on [${landed.join(", ")}], expected [${want.join(", ")}]`);
+    // M1: each cell's second part is its own line below the first (and no five-digit year or figure-then-word run in the text).
+    const runTogether = await page.evaluate((plant) => {
+      const bad = [];
+      for (const tr of document.querySelectorAll("[data-period-months] tbody tr")) {
+        for (const small of tr.querySelectorAll("small")) {
+          if (plant === "inline") small.style.display = "inline";
+          const first = small.previousElementSibling ?? small.parentElement.firstElementChild;
+          const own = first && first !== small ? first : null;
+          if (own && small.getBoundingClientRect().top < own.getBoundingClientRect().bottom - 1) bad.push(`${small.textContent} sits on the line of ${own.textContent || "its figure"}`);
+        }
+        for (const e of tr.querySelectorAll("th")) if (/\d{5}/.test(e.innerText)) bad.push(e.innerText);
+        for (const e of tr.querySelectorAll("td")) if (/\d[A-Z]/.test(e.innerText)) bad.push(e.innerText);
+      }
+      return bad;
+    }, args.plant);
+    if (runTogether.length > 0) failures.push(`H4/M1: month cells run text together: ${JSON.stringify(runTogether)}`);
     if (errors.length > 0) failures.push(`R5: ${errors.length} page errors (${errors[0]})`);
     results.push({ gate: "H4", levels: h.levels, hrefs, landed, bar: h.barText, failures, pass: failures.length === 0 });
     await ctx.close();

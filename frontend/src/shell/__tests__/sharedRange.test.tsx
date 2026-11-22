@@ -263,7 +263,11 @@ describe("SR-1 the shared range bar", () => {
   });
 
   it("IA-P P0 (R7): /findings on a 61-day range reads the last 31 days, and the rail Portfolio link keeps the whole range (R8)", async () => {
-    const client = fakeClient((lens) => loaded(findingsBody(lens)));
+    // The rail Portfolio link mounts the Overview, whose decisions read `portfolio`: answer it (no unhandled rejection).
+    const client = {
+      ...fakeClient((lens) => loaded(findingsBody(lens))),
+      portfolio: () => Promise.resolve(loadedPortfolio(portfolioBody())),
+    };
     renderApp(`/findings?from=2026-09-01&to=2026-10-31`, client);
     await settledScreen();
     const reads = (client.calls as { kind: string; from: string; to: string }[]).filter((c) => c.kind === "findings");

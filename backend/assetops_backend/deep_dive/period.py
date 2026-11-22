@@ -294,7 +294,7 @@ def _body(read: Sequence[MonthServed], names: Mapping[str, str], actions) -> dic
         months_out = [r.month for r, v in zip(M, vs) if code in dict(v.R.out)]
         if not months_out:
             continue
-        line = next(v.out_line(code, dict(v.R.out)[code]) for v in (latest, *vs[:-1]) if code in dict(v.R.out))
+        line = next(v.out_line(code, dict(v.R.out)[code]) for v in reversed(vs) if code in dict(v.R.out))
         if len(months_out) < len(M):
             line = render(message("portfolio_period.out_only", line=Name(line, "portfolio_period.out_line"),
                                   months=Items(tuple(_names(months_out)))))
