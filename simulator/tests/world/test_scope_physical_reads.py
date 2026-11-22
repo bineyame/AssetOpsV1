@@ -64,6 +64,8 @@ def test_cold_history_json_blocks_equal_main() -> None:
 
 
 # ---- kit invariance: unread keys never re-seed ----------------------------------------
+# Every scope block (its digest included) is compared; `meta.view_digest` covers the whole view by design (DS1) and
+# moves with any view change, so it is not a scope block.
 
 
 def _with_physical(view: dict, tenant: str, site: str, change) -> dict:
@@ -87,13 +89,13 @@ def test_unread_keys_changed_leave_every_block_identical(tenant: str, site: str)
         return physical
 
     after = generate_history(_with_physical(view, tenant, site, change))
-    assert canonical_bytes(after) == canonical_bytes(base)
+    assert canonical_bytes(scope_blocks(after)) == canonical_bytes(scope_blocks(base))
 
 
 def test_kobo_main_kit_leaves_every_block_identical() -> None:
     base = generate_history(load_fixture())
     view = _with_physical(load_fixture(), "lakeside-power", "Kobo", lambda p: {**p, **MAIN_KOBO_KIT})
-    assert canonical_bytes(generate_history(view)) == canonical_bytes(base)
+    assert canonical_bytes(scope_blocks(generate_history(view))) == canonical_bytes(scope_blocks(base))
 
 
 def test_history_json_is_the_fixture_views_history() -> None:
