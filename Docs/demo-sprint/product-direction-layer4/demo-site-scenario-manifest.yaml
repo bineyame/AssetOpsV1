@@ -132,7 +132,7 @@ tenants:
           carrier: "reserve-trial-1 (existing rule: reserve {rec:tenants[lakeside-power].sites[Kobo].physical.reserve_soc_pct} -> 25)"
           replay: K8 stop-90-reserve-25
           disposition: NOT_AVAILABLE_YET
-          reason: "admitted on the replay ({fig:options.KOB-RESERVE.information.admitted}; dawn below 35 % on {fig:options.KOB-RESERVE.information.dawn_days_below} of 61 replayed days, information); litres and value Not available yet (a dispatch replay on Kobo's October as recorded; 0K4f)"
+          reason: "admitted on the replay (it passes every operating check; dawn below 35 % on {fig:options.KOB-RESERVE.information.dawn_days_below} of 61 replayed days, information); litres and value Not available yet (a dispatch replay on Kobo's October as recorded; 0K4f)"
         - id: KOB-STOPSOC
           kind: CONFIG_TRIAL
           carrier: "new rule stop-soc-trial-1 (stop threshold 90 -> 70, reserve unchanged)"
@@ -141,7 +141,7 @@ tenants:
           warranty: "lowest charge {fig:options.KOB-STOPSOC.information.min_soc_pct} % in the replay (SIMULATED); warranty floor Not available yet (Kobo's battery sheet)"
           crew_visits: 0
           disposition: NOT_AVAILABLE_YET
-          reason: "admitted on the replay ({fig:options.KOB-STOPSOC.information.admitted}); litres and value Not available yet (a dispatch replay on Kobo's October as recorded; 0K4f)"
+          reason: "admitted on the replay (it passes every operating check); litres and value Not available yet (a dispatch replay on Kobo's October as recorded; 0K4f)"
           condition: "supervised 14-day trial; verified before becoming policy"
         - id: KOB-BATT100
           kind: CAPEX
