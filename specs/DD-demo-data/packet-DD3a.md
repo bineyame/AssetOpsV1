@@ -253,6 +253,12 @@ None of the reported items is changed in this round.
   `screen-manifest-vnext.json`) go to the design-doc alignment pass queued in `.ai/NOW.md`, not this slice.
 - **L3.** `.ai/state/data.md` and `.ai/state/index-3.md` "Open" now name the true open items (D-DD.92, D-DD.103, D-DD.104, D-DD.97, mock kit).
 
+- **Checks (run 2).** Every test file importing a touched module (101 files; 66 backend, the rest host, simulator, tools/checks):
+  branch backend 2244 passed, 3 errors (400 s); main 2219 passed, same 3 errors (359 s; `test_ch6b_estate_postgres` x3,
+  TEMPLATE_STALE, same on both). Branch simulator+host+tools 952 passed, 1 failed (my own comment tripped `test_t6_greps[\b31\b]`;
+  reworded in 4a184a02d, that test then passes; 886 passed on main, 399 s, 15 files fewer on main). `check_manifest.py`: 7795 passed, same 6 failed as the
+  baseline. Architecture, workflow and `statement_catalogue.py` (exit 0) pass.
+
 ## Residual risk and questions
 - Q1 (gate, D-DD.19): overfill bound hit Aug-Oct at both rates (about 270-670 L refused a month). The stated fallback
   (notes restated from a reorder rule at 25 %) is the Architect's call; it would move the books and history again.
