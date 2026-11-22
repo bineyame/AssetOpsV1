@@ -574,7 +574,9 @@ class World:
         exports = self.state / "tmp" / f"exports-{pid}"
         staged = self.state / "tmp" / f"inputs-{pid}"
         try:
-            argv = ["tools/world_history.py", "exports", "--manifest", d.manifest, "--out", str(exports)]
+            extras = self.state / "tmp" / f"extras-{pid}"
+            argv = ["tools/world_history.py", "exports", "--manifest", d.manifest, "--out", str(exports),
+                    "--extras", str(extras)]
             self.run_step("-", "L1.exports", argv, self.env(None))
             slugs = [t.slug for t in d.tenants]
             for slug in slugs:
@@ -588,6 +590,13 @@ class World:
                 if owner is None:
                     raise Refused("WORLD_INPUT_UNPLACED", f.name)
                 shutil.copyfile(f, staged / owner / "commercial" / f.name)
+            # D-DD.54: DS1b's staged JSON is placed for the tenants the definition names; a tenant it does not name has
+            # no world, so its file is not placed. The statements reader is DD5 / WK: the loader refuses that file in
+            # commercial/, so it is not staged.
+            for f in sorted(extras.iterdir(), key=lambda p: p.name) if extras.is_dir() else []:
+                owner = next((s for s in slugs if f.name.startswith(f"{s}.")), None)
+                if owner is not None and not f.name.endswith(".statements.json"):
+                    shutil.copyfile(f, staged / owner / "commercial" / f.name)
             files = {p.relative_to(staged).as_posix(): sha256_file(p) for p in sorted(staged.rglob("*")) if p.is_file()}
             digest = inputs_digest(files, {t.slug: sha256_file(REPO / t.onboarding) for t in d.tenants})
             final = self.state / "inputs" / digest[:12]
@@ -596,6 +605,7 @@ class World:
             return digest, final, files
         finally:
             shutil.rmtree(exports, ignore_errors=True)
+            shutil.rmtree(self.state / "tmp" / f"extras-{pid}", ignore_errors=True)
             shutil.rmtree(staged, ignore_errors=True)
 
     # keys

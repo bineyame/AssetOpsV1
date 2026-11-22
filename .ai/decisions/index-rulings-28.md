@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-P6.42 to D-P6.67, D-DD.48 to D-DD.57)
+# Decision index: Demo-sprint and later rulings (index only) (D-P6.42 to D-P6.67, D-DD.48 to D-DD.66)
 
 - `D-P6.42` 6f split: 6f1 (list source + read-only page, 4.0 u) after IA-P1/IA-P2; 6f2 carded after 6b/6d specs · live · specs/6f-decisions-screen/rulings.md
 - `D-P6.43` Decisions list union of records and uncovered placed Findings · withdrawn by D-P6.52 · specs/6f-decisions-screen/rulings.md
@@ -36,3 +36,13 @@
 - `D-DD.55` C-DD2-4 by SQL, failing until DD5; C-DD4 node clause by the checker's own evaluator of M structures/factor_map · live · specs/DD-demo-data/rulings.md
 - `D-DD.56` bool map miss refused NATIVE_VALUE · live · specs/DD-demo-data/rulings.md
 - `D-DD.57` DD2 6.25 u splits: DD2a 3.0 u, DD2b 3.25 u; DD 34.25 u in eight parts · live · specs/DD-demo-data/rulings.md
+- `D-DD.58` C-DD3: missing figure is a FAIL line, never an exception; EV clause = line amount = quantity x M band price, pending until DD4.4; DD2a L1-L3 · live · specs/DD-demo-data/rulings.md
+- `D-DD.59` cold invoicing is one customer_invoicing export (invoices, receipts, credit notes; Type column); Thika ADJUSTMENT a credit-note row, not staged · live · specs/DD-demo-data/rulings.md
+- `D-DD.60` EMU_SOURCE_SWITCH guard at export (D-3A6.5 mirrored); staged JSON in <slug>/staged/, loaded as L1.staged · live · specs/DD-demo-data/rulings.md
+- `D-DD.61` tariff schedules from M by world/tariffs.py (cold rate card, EV utility schedules; mini none); MAP-1 meter register by DD5.2; WORKAROUND OFFPEAK-AM/PM bands · live · specs/DD-demo-data/rulings.md
+- `D-DD.62` one NODES table world/nodes.py; merge DD2a then DD2b, DD2b owns conflicts · live · specs/DD-demo-data/rulings.md
+- `D-DD.63` cold ledger rule: stored-night crate-days, month carry, standard + remainder batch, opening stock, November by DD4.2 · live · specs/DD-demo-data/rulings.md
+- `D-DD.64` DD2b deviations 1, 2, 4-8 ratified, spec amended · live · specs/DD-demo-data/rulings.md
+- `D-DD.65` Kirinyaga at 400-crate capacity accepted; DD4.1 full-room test · live · specs/DD-demo-data/rulings.md
+- `D-DD.65a` review-DD2b Lows: L1 to DD4.4, L2 in D-DD.63, L3 in D-DD.65, L4 and file sha256 pins to DD2b fix round · live · specs/DD-demo-data/rulings.md
+- `D-DD.66` DD2b 4.0 u, DD5 5.25 u; DD 35.25 u in eight parts · live · specs/DD-demo-data/rulings.md
