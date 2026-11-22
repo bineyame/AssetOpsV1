@@ -137,6 +137,108 @@ the tank) is DD3b's and is not built. Units 5.75 (D-DD.96).
   branch's new files). No failures when each tree runs in its own call (a mixed backend+simulator call collides on the
   module name `world`: `test_ds4_world.py` 24 failures and 39 errors, the same on main).
 
+## Fix round 2, run 1 (D-DD.102)
+Commits `f33745834` (merge main, L6), `aaec9b147` (cold golden from main, before the change), `23b22334b` tests first
+(16 red on the pre-change code), `0945812c2` the change, `0aec5ea16` regeneration and re-pins. Run 2 (L2, L3, L5, slice end)
+is not built here.
+- **L6 merge.** Main at `108af5378` merged. Conflicts: `.ai/state/index-3.md` (both rows kept: IA-P2 is 205, DD3a
+  becomes 206) and `backend/tests/test_sc1_statements.py` (both key lists kept). `tools/checks/statement_catalogue.py`
+  on the merged head: "OK statement catalogue: load, coverage, legacy, scan (9 adopted), keys, imports", exit 0, output
+  identical to main's (3 ALLOWED entries).
+- **Change.** `world/scope.py`: `PHYSICAL_READS = {"fleet_kwh": ("buses", "kwh_per_bus_night"), "fleet_nights":
+  ("buses",)}` and `physical_read(site_doc, rules)` (first whitespace token of every string rule on both sides; sorted
+  read keys present in the block; `{}` without a block). `scope_input` writes `site.physical` only when non-empty.
+  `world/history.py`: `_Scope` stores the restricted dict and `_Scope.physical(name, leaf)` reads only it, so a read not
+  declared for its word refuses `HISTORY_RULE_REF` (tested by narrowing the table). Naming deviation: the ruling says
+  `self.physical = physical_read(...)`, but `physical` is already the read method, so the attribute is `physical_keys`.
+- **Tests** `simulator/tests/world/test_scope_physical_reads.py` (23): cold fixture scopes and cold `history.json` blocks
+  equal the golden `simulator/tests/world/golden/physical_reads_cold_main.json` (computed from main's files at
+  `108af5378` with main's scope/history modules, which the branch had not changed; committed before the change); kit
+  invariance at all six Sites with a block (every unread key replaced and a new key added; Kobo with main's 40 / 0.30 /
+  200) leaves every scope block, digest included, byte-identical; Embakasi `buses` + 1 moves exactly Embakasi's three
+  scopes; mini-grid and cold scope inputs have no `physical`; depot inputs hold exactly `buses`, `kwh_per_bus_night`;
+  the table as declared; an undeclared read refuses; `history.json` is the fixture view's history. The comparison is
+  of scope blocks: `meta.view_digest` covers the whole view (DS1) and moves with any view change, by design.
+- **Regeneration** (as commit 2 ran it): the view is unchanged (`world_history.py view` = `view_v1.json`);
+  `world_history.py generate` then `check` (exit 0); history golden by `--update-golden` on `test_t2_golden`;
+  `gen_fixtures.py` (evaluate_structure.py; "evaluator vs stated fields: 0 differences") and `build.mjs`. Only the
+  `history` part of `derived-values.json` moved; `missing-records.json` unchanged.
+- **Re-pins** (D-DD.93's rule, each literal the regenerated value): K8 `history.json` 329181f2... -> 6fd61089...; K13
+  `derived-values.json` history 3de20420... -> 57bac43d...; `PINNED_ALL_MONTHS` billing 60c2ac9e... -> 96fc678b...,
+  collections 1ae56f43... -> 6f45cdb5..., expenses 8a0a1102... -> bc991181... (budget, `PINNED`, `PINNED_COLD_EV`
+  unchanged); `test_dd2_nodes` Kobo July billed 8329 -> 8318, revenue 3331.60 -> 3327.20, collected 3063.78 -> 3059.74,
+  fuel 730+265+12 -> 703+257+12; `test_dd2_checker_on_emulated_rows` plant "8330 != 8329" -> "8319 != 8318"; backend
+  `test_dd2_check` July 8329 -> 8318, 3331.6 -> 3327.2, 3063.78 -> 3059.74, diesel 1007 -> 972, fuel cost 1258.75 -> 1215.
+  `dd_check` reads the history golden's `file_sha256`, so it follows the golden.
+
+### Moved figures (D-DD.102), by Site
+history.json leaves, actual side only (plan unchanged everywhere):
+- **Kobo** Jul: delivered 8767->8755, technical loss 395->394, necessary L 730->703, candidate L 265->257, outstanding
+  26782->26746 c. Aug: delivered 8663->8577, loss 390->386, adjustments 43->42, necessary 721->717, candidate 266->273,
+  outstanding 26466->26201. Sep: delivered 8870->8690, loss 400->392, adjustments 44->43, necessary 662->648, candidate
+  363->344, outstanding 27097->26549.
+- **Kisiwa** Jul: delivered 7654->7697, loss 501->503, necessary 2377->2333, outstanding 25996->26142. Aug: 7582->7651,
+  496->500, 2286->2320, 25750->25983. Sep: 7619->7812, 498->511, 2165->2116, 25876->26530.
+- **Mto** Jul: delivered 5726->5881, adjustments 38->39, expected technical loss 286->294, unexplained 115->118, necessary
+  314->319, outstanding 11452->11761. Aug: 5676->5831, 38->39, 284->292, 114->117, 309->318, 11351->11662. Sep: delivered
+  5821->5825, necessary 288->293, outstanding 11643->11650.
+- **Embakasi, Kasarani, Ruiru**: the nine scope digests only (their `physical` input is now `buses` and
+  `kwh_per_bus_night`); no leaf moved (the EV rules take no jitter), so no export or derived figure moved.
+- **Room A, B, C**: none (golden parity, 9 + 9 scopes).
+
+derived-values.json `history` (actual nodes; plan unchanged):
+- Kisiwa 2026-07: billed_kwh 7124->7165; collected 3658.24->3679.33; contribution -397.9->-318.15; cost_to_serve 4316.1->4258.9; delivered_kwh 7654->7697; diesel_l 2397->2353; fuel_cost 3116.1->3058.9; metered_kwh 7153->7194; necessary_l 2377->2333; outstanding 259.96->261.42; revenue 3918.2->3940.75; technical_loss_kwh 501->503.
+- Kisiwa 2026-08: billed_kwh 7057->7122; collected 3623.85->3657.27; contribution -315.15->-323.6; cost_to_serve 4196.5->4240.7; delivered_kwh 7582->7651; diesel_l 2305->2339; fuel_cost 2996.5->3040.7; metered_kwh 7086->7151; necessary_l 2286->2320; outstanding 257.5->259.83; revenue 3881.35->3917.1; technical_loss_kwh 496->500.
+- Kisiwa 2026-09: billed_kwh 7092->7272; collected 3641.84->3734.3; contribution -137.3->25.4; cost_to_serve 4037.9->3974.2; delivered_kwh 7619->7812; diesel_l 2183->2134; fuel_cost 2837.9->2774.2; metered_kwh 7121->7301; necessary_l 2165->2116; outstanding 258.76->265.3; revenue 3900.6->3999.6; technical_loss_kwh 498->511.
+- Kobo 2026-07: billed_kwh 8329->8318; candidate_l 265->257; collected 3063.78->3059.74; contribution 972.85->1012.2; cost_to_serve 2358.75->2315; delivered_kwh 8767->8755; diesel_l 1007->972; fuel_cost 1258.75->1215; metered_kwh 8372->8361; necessary_l 730->703; outstanding 267.82->267.46; revenue 3331.6->3327.2; technical_loss_kwh 395->394.
+- Kobo 2026-08: adjustments_kwh 43->42; billed_kwh 8230->8149; candidate_l 266->273; collected 3027.34->2997.59; contribution 943.25->907.1; cost_to_serve 2348.75->2352.5; delivered_kwh 8663->8577; diesel_l 999->1002; fuel_cost 1248.75->1252.5; metered_kwh 8273->8191; necessary_l 721->717; outstanding 264.66->262.01; revenue 3292->3259.6; technical_loss_kwh 390->386.
+- Kobo 2026-09: adjustments_kwh 44->43; billed_kwh 8426->8255; candidate_l 363->344; collected 3099.43->3036.51; contribution 975.4->948.25; cost_to_serve 2395->2353.75; delivered_kwh 8870->8690; diesel_l 1036->1003; fuel_cost 1295->1253.75; metered_kwh 8470->8298; necessary_l 662->648; outstanding 270.97->265.49; revenue 3370.4->3302; technical_loss_kwh 400->392.
+- Mto 2026-07: adjustments_kwh 38->39; billed_kwh 5287->5430; collected 2000.28->2054.39; contribution 772.3->823.25; cost_to_serve 1342.5->1348.75; delivered_kwh 5726->5881; diesel_l 314->319; fuel_cost 392.5->398.75; metered_kwh 5325->5469; necessary_l 314->319; outstanding 114.52->117.61; revenue 2114.8->2172; technical_loss_kwh 286->294; unexplained_loss_kwh 115->118.
+- Mto 2026-08: adjustments_kwh 38->39; billed_kwh 5240->5383; collected 1982.49->2036.58; contribution 759.75->805.7; cost_to_serve 1336.25->1347.5; delivered_kwh 5676->5831; diesel_l 309->318; fuel_cost 386.25->397.5; metered_kwh 5278->5422; necessary_l 309->318; outstanding 113.51->116.62; revenue 2096->2153.2; technical_loss_kwh 284->292; unexplained_loss_kwh 114->117.
+- Mto 2026-09: billed_kwh 5375->5379; collected 2033.57->2035.1; contribution 840->835.35; cost_to_serve 1310->1316.25; delivered_kwh 5821->5825; diesel_l 288->293; fuel_cost 360->366.25; metered_kwh 5414->5418; necessary_l 288->293; outstanding 116.43->116.5; revenue 2150->2151.6.
+- Site contribution Jul/Aug/Sep: Kobo 972.85->1012.20, 943.25->907.10, 975.40->948.25; Kisiwa -397.90->-318.15,
+  -315.15->-323.60, -137.30->+25.40 (September turns positive); Mto 772.30->823.25, 759.75->805.70, 840.00->835.35.
+- Site gap Jul/Aug/Sep: Kobo -472.15->-432.80, -501.75->-537.90, -387.95->-415.10; Kisiwa -332.90->-253.15,
+  -250.15->-258.60, -35.40->+127.30; Mto -142.70->-91.75, -155.25->-109.30, -15.10->-19.75.
+- Lakeside portfolio contribution 1347.25->1517.30, 1387.85->1389.20, 1678.10->1809.00; gap -947.75->-777.70,
+  -907.15->-905.80, -438.45->-307.55. October unchanged (H8). Metro-bus and harvest-cold: no derived figure moved.
+
+### Sweep (W6): every digest-input key and the rule word that reads it
+Words in use: mini-grid `fixed, per_day, plan_value, scale, zero`; EV `fixed, fleet_kwh, per_day, plan_value, rest, share`;
+cold `cold_kwh, fixed, occupancy, per_day, plan_value, ratio, zero`.
+- `generator`: no rule; the generator identity (a version constant whose change is meant to re-seed). Reported.
+- `month`: every word (days, season weight, seed key).
+- `history_global.months`: list rules `occupancy`, `cold_kwh`, `share` (the Jul/Aug/Sep position); no mini-grid word
+  reads it (it is also the scope set itself). Reported: unread by mini-grid scopes.
+- `history_global.anchor_period`: `per_day` (anchor days), the family words' weight ratio, `occupancy`/`cold_kwh` anchor.
+- `history_global.seasons`, `day_classes`, `families`: the family words `scale` (mini-grid) and `cold_kwh` (cold); no
+  EV word reads them. `seasons` is D-DD.90's (DD4a). Reported: `day_classes` and `families` unread by EV scopes.
+- `history_global.money_leaves`: every word reading an October money leaf (cents conversion).
+- `rules`: every word (the scope's own rules).
+- `tenant.tenant`, `tenant.vertical`: the scope key and the rule table chosen; `tenant.energy_model`: `cold_kwh`;
+  `tenant.capacity_crates_per_room`: `occupancy` (both only on the cold tenant, whose rules read them).
+- `site.site`: the scope key; `site.code`: no rule reads it. Reported.
+- `site.period`: every word reading October (`per_day, fixed, plan_value, scale, ratio, share, occupancy, cold_kwh`).
+- `site.physical`: now exactly `PHYSICAL_READS` (`fleet_kwh`, `fleet_nights`), D-DD.102.
+None of the reported items is changed in this round.
+
+### Checks (branch at `0aec5ea16`; main at `108af5378` in a temporary detached worktree, removed after)
+- `ASSETOPS_GUARD_PYTHON=... pwsh tools/check-architecture.ps1`: "Architecture check passed."; `check-agent-workflow.ps1`:
+  "Agent workflow check passed."; `statement_catalogue.py`: exit 0, output identical to main's (above).
+- Simulator, all `simulator/tests/world/test_*.py` (`heavy-slot.sh -- run-host-tests.ps1`): branch 275 passed (37 s;
+  before the re-pins: 5 failed, 8 errors, all pins and the dd_check golden sha); main 231 passed (25 s; the branch adds
+  the 23 new tests and DD3a's own).
+- Backend + host, one `--db` call per tree: the importers of a touched module or file (`test_3a1`, `test_3a3_load_emulated`,
+  `test_3b1`-`3b4`, `test_3b6`, `test_4b_money_leaves`, `test_5a_targets`, `test_5b_attribution`, `test_dd1_check`,
+  `test_ddr_rehearsal_postgres`, `test_ds4_world`, `test_on1_served_tenant`, `test_wk_walk_world`,
+  `test_2a_canonical_manifest_parity`, `test_dd2_check`, `test_dd3_*` (3), `test_sc1_statements`,
+  `host/tests/test_kernel_forcing_index_parity.py`, `host/tests/test_0m_mto_headroom.py`,
+  `tools/checks/test_select_tests_neutral.py`): branch 1200 passed, 2 failed, 1 skipped (340 s); main (the four
+  branch-only files absent) 1155 passed, 2 failed, 1 skipped (284 s). The 2 are the same on both: `test_3b1 ... t1_leaf_sources`
+  and `test_3b3 ... t6_each_state` ("dispatch-3.3" vs the manifest's "dispatch-3.2"), main's failures.
+- `check_manifest.py`: 7795 passed, 6 failed (walkthroughs, A1, A2, A3, A5, H9: the branch baseline the review lists).
+  K8 and K13 failed before their re-base and pass after.
+
 ## Residual risk and questions
 - Q1 (gate, D-DD.19): overfill bound hit Aug-Oct at both rates (about 270-670 L refused a month). The stated fallback
   (notes restated from a reorder rule at 25 %) is the Architect's call; it would move the books and history again.
