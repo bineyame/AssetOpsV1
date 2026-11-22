@@ -100,4 +100,5 @@ Run: `src/shell` 65 files passed, 3 failed files; 5 failed, 1598 passed (3 are m
 full-suite load and passed on a rerun of those two files: 2 failed = main's two matrix tests). `src/ui src/estate src/work`: 585 passed.
 tsc clean; fresh build; `iap_gates.cjs` 29 of 29, exit 0; architecture (needs `ASSETOPS_GUARD_PYTHON`, the worktree has no `.venv`),
 agent-workflow, missing-claim (44 tagged, 10 baselined), hard-wiring (12/20/69/50/3), navigation x2 pass.
-Why the range read lands later than on main is not investigated; no behaviour test fails on it.
+Investigated (c): `siteOverviewScreen` "renders one card per profile domain" makes the same client calls in the same order on the branch and on main
+(getSite x2, then one getRangeOverview per range, no waterfall), so the later landing is render timing only; nothing changed.
