@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-P6.20 to D-P6.29, D-IAP.24 to D-IAP.33)
+# Decision index: Demo-sprint and later rulings (index only) (D-P6.20 to D-P6.29, D-IAP.24 to D-IAP.33, D-DD.1 to D-DD.16)
 
 - `D-P6.20` 6a's DecisionStore gains site_by_id (Protocol, memory, adapter); 6c E3/E4 use it · live · specs/6-decision-valued/rulings.md
 - `D-P6.21` setting_changes and EvaluationService take grid_changes (default SETTING_GRID_CHANGES); tests inject F1's lever · live · specs/6-decision-valued/rulings.md
@@ -20,3 +20,19 @@
 - `D-IAP.31` object pages incl. verification pages; failed-parity Findings index lit under Evidence (MD-IAP-15); live rail icons (MD-IAP-14) · live · specs/IA-P-product-shape/rulings.md
 - `D-IAP.32` rev 3 units: P0 added, P4 split; IA-P1 4.5, IA-P2 5.0, IA-P3 4.5 (14.0 u); one rung rebuild after IA-P2 · live · specs/IA-P-product-shape/rulings.md
 - `D-IAP.33` owner Q9 Last month (D-IAP.21 stands), Q10 Month by month (MD-IAP-10 stands) · live · specs/IA-P-product-shape/rulings.md
+- `D-DD.1` demo cast: manifest's 3 operators, 9 Sites; beats and outcome categories per Site · live · specs/DD-demo-data/spec.md
+- `D-DD.2` books Jul-Oct 2026 every Site plus manifest's dated Nov records; 6 months is owner Q2 · live · specs/DD-demo-data/spec.md
+- `D-DD.3` telemetry in, 1 Jul-6 Nov 06:00 every Site, one cadence per signal; inputs scaled, outputs never · live · specs/DD-demo-data/spec.md
+- `D-DD.4` versions: mini-grid v8, cold-thermal 1, ev-charger 1, history 1, exports source 2, writer 1, synthetic · live · specs/DD-demo-data/spec.md
+- `D-DD.5` emulated sources: mini-grid layouts, cold/EV as 3A6 profiles, statements file; illustrative, no vendor claim · live · specs/DD-demo-data/spec.md
+- `D-DD.6` onboarding /2: MINI_GRID, COLD_CHAIN, EV_DEPOT; optional devices, topology, component properties · live · specs/DD-demo-data/spec.md
+- `D-DD.7` gateways, sources, binding sets through Site import and binding conversion at apply · live · specs/DD-demo-data/spec.md
+- `D-DD.8` id-free readings files; load_world_inputs seals batches with the database's ids · live · specs/DD-demo-data/spec.md
+- `D-DD.9` cold and EV on the bulk path only with parity tests; closes D-DS4.2 · live · specs/DD-demo-data/spec.md
+- `D-DD.10` Kobo kit: FG Wilson P50-3 36 kW, 42 Pylontech US5000 191.5 kWh; Declared/Assumed; amends D-0K4.44 scope · live · specs/DD-demo-data/spec.md
+- `D-DD.11` L2 snapshots per tenant follow snapshot_months; cold/EV after the Q11 unit · live · specs/DD-demo-data/spec.md
+- `D-DD.12` WK: per-tenant walk definitions, one operator served at a time, statements file · live · specs/DD-demo-data/spec.md
+- `D-DD.13` sequencing: DD4 build is IA-P2's rung rebuild; one rebuild after 0K4f and Q11 · live · specs/DD-demo-data/spec.md
+- `D-DD.14` independent checker tools/dd_check.py, C-DD1-16, world check C8 · live · specs/DD-demo-data/spec.md
+- `D-DD.15` build cap 8 h; DS7 pulled only if measured L2 exceeds 4 h · live · specs/DD-demo-data/spec.md
+- `D-DD.16` owner queue Q1-Q6 with defaults applied; Q5 keeps D-P6.2 · live · specs/DD-demo-data/spec.md
