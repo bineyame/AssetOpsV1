@@ -165,3 +165,34 @@ Batched; each has a recommended default. None blocks the branch fixes in M1 and 
   Site would close both.
 - `horizon_change = monthly × horizon_months` (`evaluate.py:90`) runs outside `evaluate`'s 34-digit context (default
   28 digits). Harmless at these magnitudes; noted for consistency with "nothing quantised".
+
+## Verification (fix round 1)
+
+Verdict: ACCEPT. No findings. Head 4c8c9074f; diff c152bbc6f..HEAD.
+
+Checks: `tools/heavy-slot.sh --db -- pwsh tools/run-host-tests.ps1 -- <6c, 0K4d, 6a test files>`: 255 passed. `check-agent-workflow.ps1`
+passed. `check-architecture.ps1` passed once `ASSETOPS_GUARD_PYTHON` points at the main `.venv` (the worktree has no `.venv`, so
+the chain-structure guard cannot run there without it; environment, not a defect).
+
+Each §12 item (generators, structure-read catch and adapter, keyword-only `levers`/`grid_changes`, closed missing names,
+zero-denominator tag, zero-money currency, assumed leaves, F1j/F1b rows, test 1/4/5/6 additions, plants) is present as ruled.
+
+1. Test 6 is real wiring coverage, not a valued-path test: it runs the production composition (decision store, accounts,
+   guarded Postgres structure read, real ON1 data) through prepare, one-offs, evaluate and `latest_run`, and asserts every
+   option's disposition, reason and named missing records. It exercises only the missing path, which is what Lakeside holds.
+   Recommendation: a valued path needs a tenant seeded (test-only) with a fuel price, a wear-rate assumption and a dispatch
+   or throughput record for 2026-10 (the DD1 demo data once it lands), asserting a recommended value against the literal F1b
+   figures. Clock: real, but the only use is the single E4 `now` stamp on the run; no value depends on it, so the test is
+   deterministic.
+2. `structure_read.py` is read-only (imports only the `SQLAlchemyError` class, runs no SQL, wraps a read). Adding it to
+   `$pgReaders` is right: the SQL-write refusal still applies to listed readers.
+3. Acceptable. `composition.py`'s `except BaseException` cleans up and re-raises, so nothing is swallowed. `cli.py`'s
+   `except Exception` is 6a's composition catch mapping to DECISIONS_UNAVAILABLE; it is outside D-P6.41's scope (the
+   structure read), though it can mask a composition defect. Residual note for 6a, not a 6c finding.
+4. Acceptable. Plant 13's survivor is the LEVER_UNKNOWN raise in `option_inputs`, unreachable behind E3 and labelled
+   defence in depth; the reachable behaviour is covered by the plant that removes the E3 refusal.
+5. Recomputed from F1B_EFFECTS with price 1.25 and wear 0.05: stop-80-reserve-30 fuel 180 x 1.25 = 225.00, wear 10 x 0.05
+   = 0.50, monthly 224.50, x 12 = 2694.00, less one-off 90 = 2604.00 (matches). stop-60-reserve-25 fuel 312.50, wear 7.50,
+   monthly 305.00 (matches). stop-90-reserve-25: 6.25 x 12 = 75.00, less 90 = -15.00 (matches).
+
+Not verified: the 15 plants were not re-run; I relied on the packet table and the green suite.
