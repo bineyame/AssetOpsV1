@@ -10,8 +10,22 @@
    page -> A, page -> D and D -> B, never page -> B.
    Output: one line per surface, "op · surface · depth · path".
    Run: node tools/click_depth_check.cjs   Plants: G1_PLANT=engine, details (every unit), tile, driver, hidden, closed, siteclosed (from IA-1b), inbox (IA-1c).
-   D-IA.32: a closed details is a node <owner>#details=<k> (k its id, else its index among the owner's details); its summary is the owner's edge to it. */
-const { boot, identity, OPS } = require('./ia_crawl.cjs');
+   D-IA.32: a closed details is a node <owner>#details=<k> (k its id, else its index among the owner's details); its summary is the owner's edge to it.
+   IA-2a (D-IA.49, D-IA.53): with IA-2a in IA_LANDED or IA_FORCE_LANDED=IA-2a, each booted window loads tools/fixtures/plan_stub.js when it has
+   no shapePlan (before any plant and the crawl), and IA_G1_SURFACES adds "plan tab: Left out|Review|History" (2, via any); "plan item: …" is then
+   limit 3 with report: true, a measured row printed "reported" that never fails. Otherwise the IA-2a part prints "IA-2a not landed; dormant".
+   Plant G1_PLANT=plantabs (IA-2a landed or forced): IA_TAB_GROUPS.Plan returns Items only, so the three tab surfaces are unreachable.
+   IA-2b1 (spec-IA-2b §8, D-IA.79): with IA-2b1 landed or forced, each list (Decisions, Findings, Actions, Sites) is at 1 via the rail: the
+   origin's rail (nav.rail) holds a link to #/<list> labelled with the list's name whose route is landed (the crawl's classifier, its own
+   code), printed "op · list: <name> · 1 · portfolio › <list> (via rail)". Otherwise "IA-2b1 not landed; dormant".
+   Plant G1_PLANT=listrail (IA-2b1 landed or forced): the rail's Findings item unlanded. */
+const fs = require('fs'), path = require('path');
+const { boot, identity, OPS, classifier } = require('./ia_crawl.cjs');
+const LISTS = [['decisions', 'Decisions'], ['findings', 'Findings'], ['actions', 'Actions'], ['sites', 'Sites']];
+const STUB = path.join(__dirname, 'fixtures', 'plan_stub.js');
+/* IA-2a on in this window (landed, or forced by boot); then the stub stands in for the builders when the window has none */
+const plan2 = w => w.eval("IA_LANDED.has('IA-2a')");
+const planStub = w => { if (plan2(w) && w.eval('typeof shapePlan') !== 'function') w.eval(fs.readFileSync(STUB, 'utf8')); };
 const PLANT = process.env.G1_PLANT || '';
 const fails = [], out = [];
 /* the engine: breadth-first depth from an origin over a graph { node: [[label, target], ...] }; returns depth and path */
@@ -58,6 +72,10 @@ const APP = {
   siteclosed: `shapeHubSite = eval('(' + shapeHubSite.toString().replace('3, true)', '3, false)') + ')');`,
   /* IA-1c: one waiting decision dropped from the inbox rows (its via-inbox surface becomes unreached) */
   inbox: `{ const _f = iaInboxDrawer; iaInboxDrawer = op => _f(op).replace(/<li><a href="#\\/decision\\/[^"]*" data-ia-row="decision:[^"]*">[\\s\\S]*?<\\/a><\\/li>/, ''); }`,
+  /* IA-2a (D-IA.49 R11d): the Plan group returns Items only, so no plan tab strip is drawn */
+  plantabs: `IA_TAB_GROUPS.Plan = ctx => [['Items', 'plan']];`,
+  /* IA-2b1 (D-IA.79): one list's rail item unlanded, so the list is unreachable via the rail */
+  listrail: `IA_RAIL.find(i => i.route === 'findings').unit = 'IA-unlanded';`,
   driver: `{ const r = IA_ROUTES.find(x => x.id === 'site/:site'), _r = r.render; r.render = ctx => _r(ctx).replace(/data-ux-drawer="(uxsdrv-[^"]*)"/g, 'data-ux-plant="$1"'); }`
 };
 (async () => {
@@ -70,7 +88,18 @@ const APP = {
     const landed = B0.w.eval('!!iaLanded("portfolio")'); B0.dom.window.close();
     if (!landed) { if (['tile', 'driver', 'hidden', 'closed', 'siteclosed', 'inbox'].includes(PLANT)) { console.error(`click_depth_check: plant ${PLANT} applies from IA-1b`); process.exit(2); }
       out.push('G1: origin lands in IA-1b; 0 live surfaces'); return finish(); } }
-  for (const op of OPS) { const B = await boot(op, 'portfolio'); if (APP[PLANT]) B.w.eval(APP[PLANT]);
+  if (PLANT && !APP[PLANT] && PLANT !== 'engine' && PLANT !== 'details' && PLANT !== 'hidden') { console.error(`click_depth_check: unknown plant ${PLANT}`); process.exit(2); }
+  for (const op of OPS) { const B = await boot(op, 'portfolio'), on = plan2(B.w); planStub(B.w);
+    if (PLANT === 'plantabs' && !on) { console.error('click_depth_check: plant plantabs applies with IA-2a landed or forced (IA_FORCE_LANDED=IA-2a)'); process.exit(2); }
+    if (APP[PLANT]) { B.w.eval(APP[PLANT]); B.w.eval('render()'); }
+    if (!on && op === OPS[0]) out.push('IA-2a not landed; dormant');
+    const on2b = B.w.eval("IA_LANDED.has('IA-2b1')");
+    if (PLANT === 'listrail' && !on2b) { console.error('click_depth_check: plant listrail applies with IA-2b1 landed or forced (IA_FORCE_LANDED=IA-2b1)'); process.exit(2); }
+    if (on2b) { await B.go('portfolio'); const cls = classifier(B.w, op);
+      for (const [key, name] of LISTS) { const a = [...B.doc.querySelectorAll('nav.rail a[href]')].find(x => x.getAttribute('href') === `#/${key}`), lab = a ? a.textContent.trim() : '', c = a ? cls(a.getAttribute('href')) : 'no rail link';
+        const ok = a && lab === name && c === 'good'; out.push(`${B.opName} · list: ${name} · ${ok ? 1 : '∞'} · ${ok ? `portfolio › ${key}` : `unreached (${a ? `"${lab}", ${c}` : c})`} (via rail)`);
+        if (!ok) fails.push(`${B.opName} · list: ${name}: not at 1 via the rail (${a ? `"${lab}", ${c}` : c})`); } }
+    else if (op === OPS[0]) out.push('IA-2b1 not landed; dormant');
     const graph = {}, kinds = {}, q = ['portfolio'], seen = new Set(q);
     while (q.length) { const h = q.shift(); await B.go(h);
       for (const [f, l, t, k] of readEdges(B.doc.getElementById('ia-root') || B.doc.body, identity(h))) { (graph[f] = graph[f] || []).push([l, t]); (kinds[f] = kinds[f] || []).push([l, t, k]);
@@ -80,7 +109,8 @@ const APP = {
     const S = B.w.eval('typeof IA_G1_SURFACES === "function" ? IA_G1_SURFACES() : []').filter(x => x.op === op);
     for (const s of S) { if (!s.route) { out.push(`${B.opName} · ${s.surface} · n/a · ${s.na || 'no surface'}`); continue; }
       const g = D[s.via || 'any'].get(s.route), d = g ? g.d : '∞';
-      out.push(`${B.opName} · ${s.surface} · ${d} · ${g ? g.path.join(' › ') : 'unreached'}${s.via && s.via !== 'any' ? ` (via ${s.via})` : ''}`); if (!g || g.d > s.limit) fails.push(`${B.opName} · ${s.surface}: depth ${d} > ${s.limit}`); }
+      out.push(`${B.opName} · ${s.surface} · ${d} · ${g ? g.path.join(' › ') : 'unreached'}${s.via && s.via !== 'any' ? ` (via ${s.via})` : ''}${s.report ? ` · reported (measured against ${s.limit}, does not fail)` : ''}`);
+      if (!s.report && (!g || g.d > s.limit)) fails.push(`${B.opName} · ${s.surface}: depth ${d} > ${s.limit}`); }
     out.push(`${B.opName} · graph: ${Object.keys(graph).length} nodes with edges, ${seen.size} pages`);
     B.dom.window.close(); }
   finish();

@@ -197,8 +197,8 @@ describe("operator route navigation", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: "Findings" }),
     ).toBeInTheDocument();
-    // W3-01: `/findings` is the estate All root now, not the T028 global index.
-    expect(document.querySelector('[data-estate-root="all"]')).not.toBeNull();
+    // IA-P P2: `/findings` is the Findings list (data-estate-root=findings), not the T028 global index.
+    expect(document.querySelector('[data-estate-root="findings"]')).not.toBeNull();
     expect(screen.queryByText(EMPTY_ANALYTICS_STATEMENT)).toBeNull();
 
     fireEvent.click(within(operatorNavigation).getByRole("link", { name: "Actions" }));
@@ -226,17 +226,17 @@ describe("operator route navigation", () => {
       within(operatorNavigation)
         .getAllByRole("link")
         .map((link) => [link.textContent, link.getAttribute("href")]),
-    // W6-01e: Operational records rail root is live.
+    // IA-P P1 (spec §2.1): Operational records left the rail; Evidence & records is the one root.
     ).toEqual(
       [
         ["Portfolio", "/portfolio"],
         ["Sites", "/sites"],
         ["Findings", "/findings"],
+        ["Decisions", "/decisions"],
         ["Actions", "/actions"],
         ["Incidents", "/incidents"],
         ["Maintenance", "/maintenance"],
-        ["Operational records", "/operational-records"],
-        ["Evidence", "/evidence"],
+        ["Evidence & records", "/evidence"],
         ["Financials", "/financials"],
       ].map(([label, to]) => [label, `${to}${carried}`]),
     );
@@ -272,20 +272,21 @@ describe("operator route navigation", () => {
     expect(groups).toEqual([
       [
         [["OPERATIONS", "OPERATIONS"]],
-        ["Portfolio | live", "Sites | live", `Assets | ${off}`],
+        ["Portfolio | live", "Sites | live", `Assets & cover | ${off}`],
       ],
       [[["INTELLIGENCE", "INTELLIGENCE"]], ["Findings | live"]],
       [
         [["WORK", "WORK"]],
         [
+          // IA-P P1 (spec §2.1)
+          "Decisions | live",
+          `Plan | ${off}`,
           "Actions | live",
           "Incidents | live",
           "Maintenance | live",
-          // W6-01e: Operational records rail root is live.
-          "Operational records | live",
         ],
       ],
-      [[["ASSURANCE", "ASSURANCE"]], ["Evidence | live"]],
+      [[["ASSURANCE", "ASSURANCE"]], [`Results | ${off}`, "Evidence & records | live"]],
       [[["BUSINESS", "BUSINESS"]], ["Financials | live"]],
       [[["ADMIN", "ADMIN"]], [`Settings | ${off}`]],
     ]);

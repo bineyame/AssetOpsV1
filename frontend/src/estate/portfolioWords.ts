@@ -21,17 +21,18 @@ export const PORTFOLIO_PATH = "/portfolio";
 export const PORTFOLIO_TITLE = "Portfolio Value & Operations";
 export const PORTFOLIO_SUBTITLE = "Operating decisions across the estate: cost, service, productive use and asset value";
 export const PORTFOLIO_PAGE_SIZE = 50;
+/** IA-P P2 (D-IAP.3): the Decisions list, where Act first went. */
+export const DECISIONS_PATH = "/decisions";
 
 /**
  * PF-T: the Portfolio section tabs (owner-approved names, walkthrough item 5.1; proposal 2026-11-10 §6). Each tab is
  * an address under `/portfolio/:tab?`; Overview is the bare root. `scope` is the deep tab, set apart at the right.
  */
-export type PortfolioTab = "overview" | "month" | "act-first" | "outcomes" | "opportunity" | "changes" | "scope";
+export type PortfolioTab = "overview" | "month" | "outcomes" | "opportunity" | "changes" | "scope";
 export const PORTFOLIO_TABS: readonly { tab: PortfolioTab; label: string; segment: string | null }[] = [
   { tab: "overview", label: "Overview", segment: null },
   // 5c (spec §5.1, D-5C.1): "The month", the one deep-dive screen, at the plain `/portfolio/month` (no window, no lens).
   { tab: "month", label: "The month", segment: "month" },
-  { tab: "act-first", label: "Act first", segment: "act-first" },
   { tab: "outcomes", label: "Outcomes by site", segment: "outcomes" },
   { tab: "opportunity", label: "Opportunity", segment: "opportunity" },
   { tab: "changes", label: "What changed", segment: "changes" },

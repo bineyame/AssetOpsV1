@@ -1,0 +1,6 @@
+{
+  "_note": "IA-P (handshake I11): API pathname -> fixture file in this folder; any other /api/* answers 404. P2 adds the three estate list bodies (8 Decisions rows: tier 1, so a set lens is a chip, L3).",
+  "/api/estate/portfolio": "portfolio.json",
+  "/api/estate/findings": "findings.json",
+  "/api/estate/actions": "actions.json"
+}

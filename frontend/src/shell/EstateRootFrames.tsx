@@ -1,21 +1,20 @@
-import { EstateActionsPage } from "../estate/actionIndex";
-import type { EstateClient, EstateLens } from "../estate/estateClient";
+import { ActionsListPage, DecisionsListPage, FindingsListPage } from "../estate/homeLists";
+import type { EstateClient } from "../estate/estateClient";
 import { EstateEvidencePage } from "../estate/EstateEvidence";
 import type { EstateEvidenceMoneyClient } from "../estate/estateEvidenceMoneyClient";
 import { EstateFinancialsPage } from "../estate/EstateFinancials";
 import type { EstateFinancialsClient } from "../estate/estateEvidenceMoneyClient";
-import { EstateFindingsPage } from "../estate/findingIndex";
 import { EstatePortfolioPage } from "../estate/EstatePortfolio";
 
 /**
  * W3-01 commit 3: the operator shell's frames for the estate roots. Each estate page renders its own
  * `PageHeader`; the frame supplies the `<main>` landmark every operator frame owns (Lane B's pages are tested under
- * a local router without one). A lens change remounts the page, so its window and cursor state restart.
+ * a local router without one).
  */
-export function EstateFindingsFrame({ lens, client }: { lens: EstateLens; client: EstateClient }) {
+export function EstateFindingsFrame({ client }: { client: EstateClient }) {
   return (
     <main aria-label="Findings">
-      <EstateFindingsPage key={lens} lens={lens} client={client} />
+      <FindingsListPage client={client} />
     </main>
   );
 }
@@ -23,7 +22,16 @@ export function EstateFindingsFrame({ lens, client }: { lens: EstateLens; client
 export function EstateActionsFrame({ client }: { client: EstateClient }) {
   return (
     <main aria-label="Actions">
-      <EstateActionsPage client={client} />
+      <ActionsListPage client={client} />
+    </main>
+  );
+}
+
+/** IA-P P2: the Decisions list (D-IAP.3): one row per placed Finding. */
+export function EstateDecisionsFrame({ client }: { client: EstateClient }) {
+  return (
+    <main aria-label="Decisions">
+      <DecisionsListPage client={client} />
     </main>
   );
 }

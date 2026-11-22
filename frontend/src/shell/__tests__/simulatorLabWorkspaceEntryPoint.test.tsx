@@ -32,7 +32,8 @@ const ENABLED = featureFlagsWith(true);
  * is addressed under a site and is covered in `siteConfigurationRoute.test.tsx`
  * in both gate states.
  */
-const OPERATOR_ROUTES = ["/", "/sites"];
+// IA-P P1: "/" is an alias of /portfolio, which has no root breadcrumb; the Sites index is the route these cases cover.
+const OPERATOR_ROUTES = ["/sites"];
 
 /**
  * The operator route list, which the gate must never change.
@@ -48,7 +49,7 @@ const OPERATOR_ROUTES = ["/", "/sites"];
  * capability, so it is listed in both gate states like Sites.
  */
 // W6-01e: Operational records rail root is live.
-const OPERATOR_NAVIGATION_LABELS = ["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Operational records", "Evidence", "Financials"];
+const OPERATOR_NAVIGATION_LABELS = ["Portfolio", "Sites", "Findings", "Decisions", "Actions", "Incidents", "Maintenance", "Evidence & records", "Financials"];
 
 /** Injected and empty: placement assertions must not depend on a store. */
 const EMPTY_SITE_DIRECTORY: SiteDirectoryClient = {

@@ -11,7 +11,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
-import { OPERATIONAL_RECORDS_PATH } from "../../shell/operatorSiteRoutes";
+import { EVIDENCE_RECORDS_PATH } from "../../shell/operatorSiteRoutes";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import { expectOneHeadline } from "../../test/headline";
@@ -30,7 +30,8 @@ const FROM = "2026-10-14T00:00:00Z";
 const TO = "2026-10-21T00:00:00Z";
 const KNOWN = "2026-10-21T12:00:00Z";
 const WINDOW = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`;
-const PAGE = `/operational-records?${WINDOW}`;
+// IA-P P1 (spec §2.4): the page renders at /evidence/records; /operational-records is a redirect alias.
+const PAGE = `${EVIDENCE_RECORDS_PATH}?${WINDOW}`;
 const LONG = "Operator checked the panel and logged readings ".repeat(90).slice(0, 4000);
 // A 128-character id that is not a `service:` id, so the By cell still shows it as stored (E5-FX, MD-E5-1).
 const ACTOR128 = "user:".concat("x".repeat(123));
@@ -129,7 +130,7 @@ function mount(path: string, reads: GlobalWorkClient, state?: unknown) {
   return render(
     <MemoryRouter initialEntries={[state === undefined ? path : { pathname: path.split("?")[0], search: `?${path.split("?")[1] ?? ""}`, state }]}>
       <Routes>
-        <Route path={OPERATIONAL_RECORDS_PATH} element={<OperationalRecordsFrame client={reads} />} />
+        <Route path={EVIDENCE_RECORDS_PATH} element={<OperationalRecordsFrame client={reads} />} />
       </Routes>
       <Where />
     </MemoryRouter>,
@@ -202,23 +203,23 @@ describe("W6-01e E2: global Operational records", () => {
 
     // CL3-1: the loading sentence stands in for the cards and table body; the heading and controls stay.
     expect(text(document.querySelector("[data-global-work-loading]"))).toBe("Loading the operational records across the estate.");
-    expect(screen.getByRole("heading", { level: 1, name: "Operational records" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Evidence & records" })).toBeInTheDocument();
     expect(cards()).toBeNull();
     release();
     await settled();
     // UQ-FI-2 (rev 6 6.1 P7): one h1, the page title, first in its header.
-    expectOneHeadline("Operational records");
+    expectOneHeadline("Evidence & records");
 
     expect(reads.calls).toEqual([{ from: FROM, to: TO, known_at: null, cursor: null }]);
     expectV69Panels("oprecords");
     expectPlantedPanelRejected("oprecords");
-    expect(screen.getByRole("main", { name: "Operational records" })).toBeInTheDocument();
+    expect(screen.getByRole("main", { name: "Evidence & records" })).toBeInTheDocument();
     const root = document.querySelector('[data-global-work-root="operational-records"]') as HTMLElement;
     expect(root.className).toContain("global-work--oprecords");
 
     // P-E2-7: plain breadcrumb, subtitle, no tabs, the labelled window form.
     const crumbs = screen.getByRole("navigation", { name: "Breadcrumb" });
-    expect(Array.from(crumbs.querySelectorAll("li")).map(text)).toEqual(["Operational records"]);
+    expect(Array.from(crumbs.querySelectorAll("li")).map(text)).toEqual(["Evidence & records"]);
     expect(crumbs.querySelector("a")).toBeNull();
     expect(document.body.textContent).toContain("Operator logs, manual readings, shift notes and site visits");
     expect(document.querySelector("[data-global-work-tabs], nav[aria-label='Context tabs']")).toBeNull();
@@ -489,7 +490,7 @@ describe("W6-01e E2: global Operational records", () => {
     expect(document.querySelector("[data-global-work-zero]")).toBeNull();
     cleanup();
     const none = client({});
-    mount(`/operational-records?from=${encodeURIComponent(FROM)}&kind=OPERATOR_LOG`, none);
+    mount(`${EVIDENCE_RECORDS_PATH}?from=${encodeURIComponent(FROM)}&kind=OPERATOR_LOG`, none);
     await settledScreen();
     expect(text(document.querySelector("[data-page-refusal='INVALID_WINDOW']"))).toBe("Choose a valid date range of at most 31 days.");
     expect(none.calls).toHaveLength(0);
@@ -582,8 +583,8 @@ describe("W6-01e E2: the operational records client", () => {
   });
 });
 
-describe("W6-01e E2: the /operational-records route in the app shell", () => {
-  it("mounts the page under the operator shell with the rail's Operational records root current", async () => {
+describe("W6-01e E2: the /evidence/records route in the app shell", () => {
+  it("mounts the page under the operator shell with the rail's Evidence & records root current", async () => {
     const reads = client({ "page-one": loaded(body([row(1)])) });
     render(
       <MemoryRouter initialEntries={[PAGE]}>
@@ -591,11 +592,25 @@ describe("W6-01e E2: the /operational-records route in the app shell", () => {
       </MemoryRouter>,
     );
     await settled();
-    expect(screen.getByRole("main", { name: "Operational records" })).toBeInTheDocument();
+    expect(screen.getByRole("main", { name: "Evidence & records" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { level: 1, name: "Page not available" })).toBeNull();
     const rail = screen.getByRole("navigation", { name: "Operator routes" });
-    expect(within(rail).getByRole("link", { name: "Operational records" })).toHaveAttribute("aria-current", "page");
+    expect(within(rail).getByRole("link", { name: "Evidence & records" })).toHaveAttribute("aria-current", "page");
     expect(reads.calls).toHaveLength(1);
+  });
+
+  // IA-P P1 (spec §2.4): the old address redirects to the Records tab, keeping the query.
+  it("redirects /operational-records to /evidence/records and keeps the query", async () => {
+    const reads = client({ "page-one": loaded(body([row(1)])) });
+    render(
+      <MemoryRouter initialEntries={[`/operational-records?${WINDOW}`]}>
+        <App flags={featureFlagsWith(false)} globalWork={reads} />
+        <Where />
+      </MemoryRouter>,
+    );
+    await settled();
+    expect(screen.getByRole("main", { name: "Evidence & records" })).toBeInTheDocument();
+    expect(text(document.querySelector("[data-testid='where']") ?? document.body)).toContain(`${EVIDENCE_RECORDS_PATH}?${WINDOW}`);
   });
 });
 

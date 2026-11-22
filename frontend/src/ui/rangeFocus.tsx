@@ -10,6 +10,8 @@
  */
 import { createContext, useContext, useLayoutEffect, useMemo, useState, type ReactNode } from "react";
 
+import { formatDay } from "./time";
+
 /** D-SR.64: "own period" is one record read at its own period (a Finding), never re-cut by the range. */
 export type RangeNotUsedNote = "shows now" | "current settings" | "prices valid now" | "own period";
 
@@ -73,3 +75,14 @@ export function RangeSpan({ from, to }: { from: string | null; to: string | null
   useDeclareRangeSpan(from, to);
   return null;
 }
+
+/** The bar's words for a span inside the range: `Showing 1–31 Oct of the range` (`FOCUS_INSIDE`). */
+export const FOCUS_INSIDE = "of the range";
+const focusDayLabel = (day: string): string => formatDay(`${day}T00:00:00Z`, { year: false });
+/** `9 Nov` or `5–9 Nov` (`30 Oct – 2 Nov` across months). */
+export const focusSpanLabel = (from: string, to: string): string => {
+  if (from === to) return focusDayLabel(from);
+  const last = focusDayLabel(to);
+  const first = focusDayLabel(from);
+  return from.slice(0, 7) === to.slice(0, 7) ? `${first.split(" ")[0]}–${last}` : `${first} – ${last}`;
+};

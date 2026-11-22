@@ -14,8 +14,12 @@ import { useEffect } from "react";
 import { useSearchParams, type To } from "react-router-dom";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-/** The longest range any shared-range page accepts (estate and Work: 1-31 days). */
-export const RANGE_MAX_DAYS = 31;
+/** The longest range the address accepts (IA-P P0, D-IAP.24). Reads other than the whole-range pages take `readWindow`. */
+export const RANGE_MAX_DAYS = 731;
+/** The longest window any capped read accepts: the estate, Site, cold, EV, actions and source-health servers refuse more. */
+export const READ_WINDOW_DAYS = 31;
+/** D-IAP.24: the pages whose reads (E1, E2) take the whole range; every other page reads `readWindow`. */
+export const WHOLE_RANGE_PAGES = /^\/(?:portfolio(?:\/outcomes)?|sites)\/?$/;
 export const SHARED_RANGE_SESSION_KEY = "assetops.sharedRange";
 
 export type RangePreset = "yesterday" | "7d" | "7dwork" | "30d" | "month" | "lastmonth" | "custom";
@@ -133,6 +137,39 @@ export function readSharedRange(params: URLSearchParams, now: number = Date.now(
   return { status: "set", from, to, known_at, preset: presetOf(from, to, now) };
 }
 
+/**
+ * IA-P P0 (spec-period.md P.9, D-IAP.24): the window a capped read takes. It keeps `to` and `known_at` and sets `from`
+ * to max(from, to - 30 days), so a range of 31 days or fewer is read whole and a longer one as its last 31 days.
+ * `null` when the address holds no valid range. It is the only day arithmetic the browser adds, beside `monthDays`.
+ */
+export function readWindow(params: URLSearchParams, now: number = Date.now()): (DayRange & { known_at: string | null }) | null {
+  const state = readSharedRange(params, now);
+  return state.status === "set" ? capWindow<string | null>(state) : null;
+}
+
+/** The window of a range already read (`readWindow`'s arithmetic): `from` is max(from, to - 30 days). */
+export function capWindow<K extends string | null = string | null>(range: DayRange & { known_at?: K }): DayRange & { known_at: K } {
+  const floor = dayOf(dayMs(range.to) - (READ_WINDOW_DAYS - 1) * DAY_MS);
+  return { from: range.from > floor ? range.from : floor, to: range.to, known_at: range.known_at as K };
+}
+
+/**
+ * One request bound of the address, in the address's own form: the raw value when the range is within 31 days (or the
+ * address holds no valid range), else the window's `from` (`to` is never moved). Every page that builds a request from
+ * `from`/`to` reads it here and never with `params.get`.
+ */
+export function windowBound(params: URLSearchParams, key: "from" | "to"): string | null {
+  const raw = params.get(key);
+  if (key === "to" || raw === null) return raw;
+  const window = readWindow(params);
+  const state = readSharedRange(params);
+  if (window === null || state.status !== "set" || window.from === state.from) return raw;
+  return DAY.test(raw) ? window.from : `${window.from}T00:00:00Z`;
+}
+
+/** The whole-range bound of an address or a server link, as written: for links (they keep the whole range, P.9 "Links"). */
+export const linkBound = (params: URLSearchParams, key: "from" | "to"): string | null => params.get(key);
+
 /** The range's half-open instant window: `from` 00:00Z and the day after `to` 00:00Z. */
 export function rangeWindow(range: DayRange): { from: string; to: string } {
   return { from: `${range.from}T00:00:00Z`, to: `${dayOf(dayMs(range.to) + DAY_MS)}T00:00:00Z` };
@@ -225,7 +262,7 @@ export function useSharedRange(): SharedRangeState {
  * last 7 full UTC days ending yesterday, S17), so filling the address changes no request. Work and Site pages keep
  * their own defaults until SR-2 moves them onto the range (R338, Site-local days, Cold/EV selected event).
  */
-const FILLED_PAGES = /^\/(?:portfolio(?:\/[^/]+)?|findings(?:\/(?:cost|risks|opportunities))?|actions|evidence|financials)\/?$/;
+const FILLED_PAGES = /^\/(?:portfolio(?:\/[^/]+)?|findings|decisions|actions|evidence(?:\/records)?|financials)\/?$/;
 export const fillsRangeOnEntry = (pathname: string): boolean => FILLED_PAGES.test(pathname);
 
 /**
@@ -235,7 +272,7 @@ export const fillsRangeOnEntry = (pathname: string): boolean => FILLED_PAGES.tes
  * it. SR-2 adds a page here when it moves onto the range.
  */
 const RANGE_PAGES =
-  /^\/(?:portfolio(?:\/[^/]+)?|findings(?:\/(?:cost|risks|opportunities))?|actions|evidence|financials|incidents|maintenance(?:\/preventive)?|operational-records)\/?$/;
+  /^\/(?:portfolio(?:\/[^/]+)?|findings|decisions|actions|evidence(?:\/records)?|financials|incidents|maintenance(?:\/preventive)?)\/?$/;
 /**
  * SR-2 review (Medium): Site pages (Evidence, Findings, Cold, Renewable, Service, EV) load their content from the
  * address's from/to/known_at, so a Site or performance page whose address carries a range IS using it. A Site page

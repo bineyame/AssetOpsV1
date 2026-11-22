@@ -1,8 +1,10 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 
 import { featureFlags, type FeatureFlags } from "./config/featureFlags";
 import { LegacySiteConfigurationRedirect } from "./shell/LegacySiteConfigurationRedirect";
 import { OperatorShellLayout } from "./shell/OperatorShellLayout";
+import { LegacyRedirect } from "./shell/LegacyRedirect";
+import { liveLegacyRoutes } from "./shell/iaRoutes";
 import { RouteNotAvailableFrame } from "./shell/RouteNotAvailableFrame";
 import { SiteEvidenceFrame } from "./shell/SiteEvidenceFrame";
 import {
@@ -31,18 +33,16 @@ import {
   ACTIONS_PATH,
   EVIDENCE_PATH,
   FINANCIALS_PATH,
+  DECISIONS_ROOT_PATH,
   PORTFOLIO_ROOT_PATH,
   INCIDENTS_PATH,
   MAINTENANCE_PATH,
-  OPERATIONAL_RECORDS_PATH,
+  EVIDENCE_RECORDS_PATH,
   MAINTENANCE_PREVENTIVE_PATH,
   WORK_REQUEST_HISTORY_ROUTE_PATH,
   WORK_REQUEST_RECORD_ROUTE_PATH,
   WORK_REQUEST_ROUTE_PATH,
-  FINDINGS_COST_PATH,
-  FINDINGS_OPPORTUNITIES_PATH,
   FINDINGS_PATH,
-  FINDINGS_RISKS_PATH,
   FINDING_ROUTE_PATH,
   FINDING_TAB_ROUTE_PATH,
   LEGACY_SITE_CONFIGURATION_ROUTE_PATH,
@@ -139,6 +139,7 @@ import { DeepDiveMonthFrame } from "./estate/DeepDiveMonth";
 import { createDeepDiveMonthClient, type DeepDiveMonthClient } from "./estate/deepDiveMonthClient";
 import {
   EstateActionsFrame,
+  EstateDecisionsFrame,
   EstateEvidenceFrame,
   EstateFinancialsFrame,
   EstateFindingsFrame,
@@ -351,7 +352,10 @@ export function App({
     <Routes>
       <Route element={<WorkspaceShellLayout flags={flags} />}>
         <Route element={<OperatorShellLayout />}>
-          <Route path="/" element={<Navigate to={SITES_PATH} replace />} />
+          {/* IA-P (spec §5.1, D-IAP.4): one redirect per live alias (`LEGACY_ROUTES`), before the target's route. */}
+          {liveLegacyRoutes().map((route) => (
+            <Route key={route.from} path={route.prefix ? `${route.from}/*` : route.from} element={<LegacyRedirect route={route} />} />
+          ))}
           <Route
             path={SITES_PATH}
             element={
@@ -529,13 +533,9 @@ export function App({
           <Route path={SITE_FUEL_VERIFICATION_ROUTE_PATH} element={<SiteFuelVerificationFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
           {/* W3-01: the estate Finding lens roots and the Actions root, registered before the legacy
               `/findings/:siteId/:assessmentId[/:findingTab]` patterns; those keep their handlers. */}
-          <Route path={FINDINGS_PATH} element={<EstateFindingsFrame lens="all" client={estateIndex} />} />
-          <Route path={FINDINGS_COST_PATH} element={<EstateFindingsFrame lens="cost" client={estateIndex} />} />
-          <Route path={FINDINGS_RISKS_PATH} element={<EstateFindingsFrame lens="risks" client={estateIndex} />} />
-          <Route
-            path={FINDINGS_OPPORTUNITIES_PATH}
-            element={<EstateFindingsFrame lens="opportunities" client={estateIndex} />}
-          />
+          <Route path={FINDINGS_PATH} element={<EstateFindingsFrame client={estateIndex} />} />
+          {/* IA-P P2 (D-IAP.3): the Decisions list, one row per placed Finding. */}
+          <Route path={DECISIONS_ROOT_PATH} element={<EstateDecisionsFrame client={estateIndex} />} />
           <Route path={ACTIONS_PATH} element={<EstateActionsFrame client={estateIndex} />} />
           {/* W3-02: the estate Evidence root (`ESTATE_EVIDENCE_PATH`; a shell test pins the equality). */}
           <Route path={EVIDENCE_PATH} element={<EstateEvidenceFrame client={estateEvidenceMoney} />} />
@@ -560,8 +560,8 @@ export function App({
           <Route path={WORK_REQUEST_HISTORY_ROUTE_PATH} element={<WorkRequestHistoryFrame client={globalWork} />} />
           {/* Post-W6 W6 Q13 (R371): any other request section is stated in the shell, never the bare catch-all. */}
           <Route path="/maintenance/requests/:caseId/*" element={<WorkRequestUnknownSectionFrame />} />
-          {/* W6-01e E2: the global Operational records root (`OPERATIONAL_RECORDS_PATH`). */}
-          <Route path={OPERATIONAL_RECORDS_PATH} element={<OperationalRecordsFrame client={globalWork} />} />
+          {/* W6-01e E2: the global Operational records, now the Records tab of Evidence & records (IA-P P1). */}
+          <Route path={EVIDENCE_RECORDS_PATH} element={<OperationalRecordsFrame client={globalWork} />} />
           {[FINDING_ROUTE_PATH, FINDING_TAB_ROUTE_PATH].map((path) => (
             <Route
               key={path}

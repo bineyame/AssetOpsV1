@@ -781,3 +781,144 @@ WORKAROUND in D-DD.61 is reported for the owner's review).
   - DD2a: no change (D-DD.58 is M1's fix round).
   - DD5, 5.0 to **5.25 u**: D-DD.61's meter-register file in DD5.2, and the `L1.staged` step in DD5.3 (+0.25).
   - DD2 is 7.0 u (DD2a 3.0, DD2b 4.0). DD goes from 34.25 to **35.25 u**, each part at or under 6 u.
+
+# DD rulings, round 8 (D-DD.67 to D-DD.73): DD3a mid-build questions and deviations
+
+Architect (Claude), 2026-11-22. Input: `DD3a-handoff.md` on `task/DD3a-mini-reality` at e32b5d57f ("Risks and
+Architect questions" and "Defaults taken"). Checked against code on that branch: `financials/fuel_cost_v2.py:35,158`
+(`NO_LOAD_BASES`, the `NO_LOAD_RATE_BASIS_MISSING` refusal; the set is not in `PARAMETER_VERSION`),
+`fuel_balance/service.py:25` (follows `STATE_PROPERTY_VALUES`), `structure/litres/inputs.py:22,107` (imports fuel
+balance's set), `chain/vocabulary.py:117`, `site_outcomes/mini.py:74,446`, `actions/verification.py:1298`,
+`financials/trial_fuel_comparison.py:69`, `packs/mini_grid.py:93-113` (`GENERATOR_LIFECYCLE`
+`initial_values_supported` = {STOPPED, FAILED}), `sites/models.py:97,432-449` (`COMPONENT_PROPERTY_SOURCES` =
+{TEMPLATE, SITE}; `source_version` = the declaring document's version) and `KOBO-001-bindings.json` (rows keyed by
+`device_id`, `signal_id`). Owner rule applied: "one model-computed figure per quantity, loyal to the operating world;
+fix model faults in the model". Owner informed; no weigh-in needed (no WORKAROUND).
+
+- **D-DD.67 The no-load basis has one vocabulary; fuel-cost-2 and the client words read DATASHEET_FIT** (handoff risks
+  (a) and (b); amends spec §6 "Labels"; the class behind both).
+  - *Fault.* D-DD.17 added `DATASHEET_FIT` to `generator-no-load-fuel-rate-basis`, but two readers keep their own copy
+    of the value set. fuel-cost-2 would refuse Kobo's 0.62 L/h `NO_LOAD_RATE_BASIS_MISSING`, so the fuel cost would
+    read "not available" while the fuel balance and the litres structure (which follow `STATE_PROPERTY_VALUES`) show
+    0.62, and the world's v8 burn uses 0.62. One quantity would have two answers. The fault is in the model, and it is
+    fixed there.
+  - *fuel-cost-2.* `NO_LOAD_BASES = ("GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST", "DATASHEET_FIT")`. It stays
+    a literal: the financials models import nothing outside `financials/` and stay pure. `PARAMETER_VERSION` is not
+    touched, so `PARAMETER_SHA256`, `FORMULA_VERSION` and `REVIEWED_PARAMETER_SHA256` are unchanged and no new
+    parameter version is cut. The basis set is not in the reviewed parameter record. The formula and the inequality
+    hold for "the declared no-load fuel rate with its declared basis", whatever the basis is. The `limitation` text
+    (GENERIC_DEFAULT is a generic figure) stays true. A fitted rate is this generator's own figure, labelled Assumed
+    by D-DD.17.
+  - *Client words.* `NO_LOAD_BASIS_WORDS["DATASHEET_FIT"] = "the datasheet-fitted idle fuel rate"`. It renders "counted
+    at the datasheet-fitted idle fuel rate of 0.62 L/h, not measured" (`COST_IDLE`) and "modelled from the
+    datasheet-fitted idle fuel rate, not measured by a fuel meter" (`FUEL_VALUE_PAGE`). Guard V holds (no "no-load",
+    no "load"). The words match D-DD.17's Foundation label ("Assumed: fitted to the data sheet's stated points").
+  - *Sweep (every reader of the basis).* fuel-cost-2 and `NO_LOAD_BASIS_WORDS` change. These need no change:
+    `fuel_balance/service.py` and `structure/litres/inputs.py` (they already follow the vocabulary); the Action and
+    consequence stores and `chain/outcomes.py` (they pass the basis through); `site_outcomes/mini.py` and
+    `actions/verification.py` (they read the words). In `trial_fuel_comparison.py:69`, the comment "one of the three
+    states" becomes "one of the basis states". No frontend reads the basis.
+  - *So it cannot recur.* One test asserts `set(fuel_cost_v2.NO_LOAD_BASES) ==
+    STATE_PROPERTY_VALUES["generator-no-load-fuel-rate-basis"]` and `set(NO_LOAD_BASIS_WORDS) - {None}` equal to the
+    same set. A basis value added later without both readers then fails a test.
+  - *Acceptance (questions).* Does `fuel_cost_v2.quantify`, given a Foundation revision declaring 0.62 L/h
+    `DATASHEET_FIT` with an idle reading, return AVAILABLE with rate 0.62 and basis `DATASHEET_FIT`? Does the idle
+    cost row read the DATASHEET_FIT words? Does an unknown basis string still refuse `NO_LOAD_RATE_BASIS_MISSING`?
+  - *Reach.* Mini-grid Sites only: Sites whose generator declares a no-load rate (Lakeside/Kobo, Kisiwa, Mto, and the
+    test fixtures), on every mini-grid role set. Cold-chain and EV Sites declare no generator no-load rate, so
+    fuel-cost-2 is never selected for them and the words never render. The change only admits one more value: no
+    existing basis changes outcome. Parity: D-DD.68.
+
+- **D-DD.68 Parity test for D-DD.67, golden from main** (standing rule, 22 Nov audit). File
+  `backend/tests/test_dd3_no_load_basis_parity.py`. The goldens are generated on `main` 80661e824 before the change
+  and committed beside the test. Each must match:
+  - canonical JSON of `fuel_cost_v2.quantify` on the existing `test_fuel_cost_v2.py` fixtures, one each for
+    GENERIC_DEFAULT, MANUFACTURER_DATASHEET and SITE_TEST, one for a missing basis (`NO_LOAD_RATE_BASIS_MISSING`) and
+    one with no rate declared;
+  - `PARAMETER_SHA256` and `FORMULA_VERSION`;
+  - the three existing `NO_LOAD_BASIS_WORDS` entries and the `None` entry;
+  - `COST_IDLE` as rendered for GENERIC_DEFAULT.
+  The no-rate case (fuel-cost-1's result returned byte-equal) stands for cold-chain and EV, which declare no rate.
+  Kisiwa and Mto (GENERIC_DEFAULT) are the GENERIC_DEFAULT case.
+
+- **D-DD.69 The writer runs one continuous execution per Site, advanced one local day at a time** (deviation 1;
+  amends spec §4.1 "Per Site-day").
+  - Per Site there is one pack execution over the span. It starts at the span's first local midnight from the
+    declared initial state: generator STOPPED, the tank at 50 % (D-DD.19), the rest as §4.2. It advances one local
+    day at a time. Kobo, Kisiwa and Mto are on Africa/Nairobi, which has no DST, so a day is 288 five-minute steps.
+    Each day's readings file is written from that day's steps. Day d+1 starts from day d's end state by
+    construction. That includes a RUNNING or STARTING generator, which v8 cannot declare at a run start.
+  - The rule holds for every pack the writer drives (DD4.2 and DD4.3 included), so there is one chaining mechanism.
+    A refusal on any day is `TEL_PACK` naming the day.
+  - *Test.* For Kobo, the readings from advancing 288 steps twice are byte-equal to the readings from advancing 576
+    steps once.
+  - *Why.* This is the same thing as chaining day to day, without a generator forced to STOPPED at every midnight.
+    That forced stop would add starts and cut runs that the operating world does not have.
+
+- **D-DD.70 Kisiwa's and Mto's pure run under D-DD.19 moves to DD3b** (deviation 2; amends D-DD.19 "Known before the
+  build", spec §6 "Order inside DD3.2" and §7 DD3.2, DD3.3).
+  - In DD3a, DD3.2 commit 1b runs the writer purely on Kobo, July to October, at 0.62 and at 3.3 L/h. It prints D-DD.19's
+    table per month. Any bound hit, or a Kobo C-DD8 or C-DD17 failure, goes to the Architect before DD3a merges.
+  - In DD3b, DD3.3 runs Kisiwa and Mto purely on v9, July to October, and prints the same table. A failure goes to the
+    Architect before DD3b merges, which is still before DD4 and before DD5 loads their readings. D-DD.19's fallback
+    applies per Site, unchanged.
+  - *Why.* Kisiwa and Mto have two generators or two inverters, and v8 holds one of each (§0). A v8 run of them would
+    print figures from a Site that does not exist.
+
+- **D-DD.71 The data-sheet tool writes `source` "SITE", `source_version` 1** (deviation 3; amends spec §6 "The
+  mapping"). Every property the tool writes carries these, and so does its `-basis` sibling.
+  - *Why.* The closed set is {TEMPLATE, SITE}, and D-DD.17 allows no new value. The values are the Site's own equipment
+    records, not a template copy (`sites/models.py:432`). Version 1 is the Site's first declaration of them. A later
+    re-read of a sheet that changes a value writes the next integer.
+
+- **D-DD.72 A reading's `source_id` is its binding row's `device_id`** (deviation 4; amends spec §4.1 "Output" and
+  "Public records to readings").
+  - In `assetops.world-readings/1`, `source_id` is the `device_id` and `signal_id` the `signal_id` of the Site's binding
+    row for the record's role. The manifest's `mappings` lists (pack record, role, `source_id`, `signal_id`).
+  - A public record with no binding row, or with two, refuses `TEL_BINDING <site> <role>`. This is a new refusal code
+    in §4.1's list.
+  - *Test.* Every pair written for Kobo resolves to exactly one row of `KOBO-001-bindings.json`.
+  - *Why.* The binding conversion keys its rows by `device_id`, and §4.6 resolves each `source_id` through the
+    foundation store's devices. A second identifier would be a second name for one device.
+
+- **D-DD.73 Units: DD3a +0.25 u, DD3b +0.25 u; DD 35.75 u in eight parts** (W4).
+  - DD3a, 3.75 to **4.0 u** (DD3.2 2.0 to 2.25): D-DD.67 and D-DD.68. D-DD.69, D-DD.71 and D-DD.72 are inside DD3.1
+    and DD3.2 as built.
+  - DD3b, 4.75 to **5.0 u** (DD3.3 2.25 to 2.5): D-DD.70's pure-run table and gate.
+  - DD3 is 9.0 u. DD goes from 35.25 to **35.75 u**, and each part stays at or under 6 u.
+
+- **D-DD.74 DD2b merges on its own once its consumers select their tenant: `exports --tenant`** (W6; amends spec §7
+  DD2.3 and DD2.4, and DDR spec S3). Rules option (c) of review-DD2b V1, as a fix, not a workaround; (a) and (b) are
+  refused.
+  - *The class.* DD2b widened `tools/world_history.py exports` from Lakeside's mini-grid files to every manifest
+    tenant's books in one flat directory. Every consumer reads one tenant's (or the definition's tenants') files and
+    refuses a stranger: `load_emulated_exports --tenant` (`EXPORT_FILE_UNKNOWN`) and `tools/world.py` L1.exports
+    (`WORLD_INPUT_UNPLACED`). The 12 red main tests (9 `test_ddr_rehearsal_postgres.py`, 3 `test_ds4_world_postgres.py`
+    t12-t14) are two instances of it; the DDR spec's S3 and two runbooks carry the same command and would fail the same
+    way in use. The producer's widened contract is DD2b's, so the consumer sweep is DD2b's too.
+  - *Why not (a).* DD5 would not cure it: the definition `/2` places all three tenants (t12-t14 go green), but the DDR
+    rehearsal and both runbooks load one tenant's directory and would stay red. Holding DD2b also holds DD3a, DD3b and
+    DD4, which build on its files. *Why not (b).* Marking accepted tests expected-failing leaves main red in substance
+    and is a workaround with no owning unit. *Why not loosen a consumer.* Skipping unknown files in either loader
+    weakens a guard that catches real misplacement; both refusals keep their full meaning.
+  - *Change list (DD2b fix round 8, 0.5 u):*
+    1. `tools/world_history.py exports` gains `--tenant SLUG`, repeatable, optional. With it, the export directory and
+       `--extras` hold only files whose name starts with `<slug>.` for a named slug; `unwritten.json` is written whole
+       (it lists what the world did not write; every loader skips it by name). A slug that is not a manifest
+       `tenant` prints `EMU_TENANT_UNKNOWN <slug>` and exits 3. Without `--tenant`, all tenants, as now. The filter runs
+       on `build_books`' result; `build_books` is unchanged.
+    2. `tools/world.py` `inputs()`: the L1.exports argv adds `--tenant <slug>` for each definition tenant. The
+       `WORLD_INPUT_UNPLACED` refusal and the extras loop stay as they are (they now see only named tenants' files).
+       Any `test_ds4_world.py` argv assertion follows.
+    3. `backend/tests/test_ddr_rehearsal_postgres.py` S3 adds `--tenant lakeside-power`; the same in DDR spec S3
+       (`specs/DDR-rehearsal/spec.md` row S3), `specs/ON1-operator-tenant/runbook.md` and
+       `Docs/engineering/operator-deep-dive-runbook.md` at their `exports --manifest` lines.
+    4. Tests (`simulator/tests/world/test_dd2b_round7.py` or a new `test_dd2b_tenant_filter.py`): `--tenant
+       lakeside-power` writes no `harvest-cold.` or `metro-bus.` file and the same Lakeside bytes as the unfiltered run;
+       two `--tenant` flags write both tenants' files; an unknown slug exits 3 with `EMU_TENANT_UNKNOWN`.
+  - *Gate.* Before merge, the verifier's nine backend files run green on the branch (the 12 included), and
+    `simulator/tests` stays green.
+  - *DD5.* Nothing moves out of DD5 and its 5.25 u stand: DD5.3's L1 places cold and EV by naming their tenants in the
+    `/2` definition, and item 2 carries them through unchanged.
+  - *Units.* DD2b 4.0 to **4.5 u** (DD2.3 2.25 to 2.5, DD2.4 1.5 to 1.75); DD2 7.5 u; DD goes from 35.75 to
+    **36.25 u**, each part at or under 6 u.
