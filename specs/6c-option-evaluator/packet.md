@@ -113,3 +113,27 @@ Layout evidence: not run (no screen; non-UI slice).
 
 `structure/difference.py` against §2 operator by operator (used/evidence for changed leaves: LeafChange plus the base
 value when read); `decisions/evaluate.py` R0-R4 and the run outcome; deviations 1-4.
+
+## Fix round 1 (D-P6.34 to D-P6.41, spec §12)
+
+Merged `main` first (rulings and §12; `specs/INDEX.md` conflict kept both rows). Tests were written before the code:
+the first run showed 8 failing in `test_6c_difference.py` + `test_6c_evaluate.py` and 3 in `test_6c_run.py` (before
+the code commits), then all green.
+
+- **M1 / L1 / D-P6.40:** planted registries in `option_fixtures.py` (`OPS`, `PRODUCT`, `NEUTRAL`, `ASSUMING`,
+  `DIVISION`, `OUTCOME_LEAF`). Literals: a 250 to 350, b 100, c 300: `a/b` +1, `ceil` +1, `floor` +1, `min(a,c)` +50,
+  `max(a,c)` +50, outcome +103; `a x b` with b's base missing is missing and names `b_record`; `q = a x n x x` is 0;
+  F1b with one EUR one-off: `ONE_OFF_CURRENCY`, value None, DEFERRED, `RANKING_INCOMPLETE`. Ranking cases: 1000.00 vs
+  900.00 at exactly x 0.9 (nearer wins), a distance tie (1000.00 over 950.00), `AT_GRID_EDGE` above today, R0 EMULATED
+  over RECORDED.
+- **D-P6.34:** a zero money effect takes the option's currency (`_effect_currency`); F1b/F1j effect rows are literals
+  (`F1B_EFFECTS`), `battery_wear` of `stop-90-reserve-25` is 0 USD; F1a's missing wear stays null.
+- **D-P6.36:** `assumed` = used assumed leaves plus `v0[node].assumed_leaves`, registry order (`ASSUMING`: w).
+- **D-P6.37:** `Delta.zero_denominators`; `_missing_inputs` writes the closed list; a node with no value is named by
+  its `missing_leaves`; a name outside the list raises `RuntimeError`.
+- **D-P6.38:** `NO_ACTION`/`SETTING_GRID` by name; any other generator (option or lever) refuses `LEVER_UNKNOWN` at E3
+  before the study and the read; `STUDY_REQUIRED` only for a `SETTING_GRID` lever.
+- **D-P6.41:** the catch is `(StructureError, StoreUnavailable)`; `decisions/adapters/structure_read.py` maps
+  `SQLAlchemyError`; `build_evaluation(..., levers=, grid_changes=)`; `horizon_change` and `value` in the 34-digit
+  context. Sweep: `composition.py`'s `except BaseException` re-raises after cleanup (kept); `cli.py`'s
+  `except Exception` is 6a's composition catch (not changed).

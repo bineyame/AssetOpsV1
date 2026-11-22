@@ -74,6 +74,61 @@ def test_6_f1b_through_the_adapter(onboarded, engine) -> None:  # noqa: F811
         accounts._store.dispose()
 
 
+FUEL = ("EXPENSE (FUEL)", "COMMERCIAL_RECORD", "diesel_price")
+WEAR = ("battery_wear_rate_assumption", "DECLARED", "wear_rate")
+#: what the evaluation says of each option when only ON1's onboarding is stored for KOBO-001 (see the packet): the
+#: option's disposition, reason and the records its figure lacks
+E2E = {
+    "stop-90-reserve-25": ("DEFERRED", "VALUE_NOT_AVAILABLE", [FUEL]),
+    "stop-80-reserve-30": ("DEFERRED", "VALUE_NOT_AVAILABLE", [FUEL, WEAR]),
+    "stop-80-reserve-25": ("REJECTED", "NOT_ADMITTED_STARTS", [FUEL, WEAR]),
+    "stop-70-reserve-30": ("DEFERRED", "VALUE_NOT_AVAILABLE", [FUEL, WEAR]),
+    "stop-70-reserve-25": ("DEFERRED", "VALUE_NOT_AVAILABLE", [FUEL, WEAR]),
+    "stop-60-reserve-30": ("DEFERRED", "VALUE_NOT_AVAILABLE", [FUEL, WEAR]),
+    "stop-60-reserve-25": ("REJECTED", "NOT_ADMITTED_FULL_CHARGE", [FUEL, WEAR]),
+}
+
+
+def test_6_build_evaluation_end_to_end_on_lakeside_kobo(onboarded, engine) -> None:  # noqa: F811
+    """D-P6.41: the real composition (decision store, accounts, the structure read over Postgres) on KOBO-001's
+    2026-10, F1's test lever, grid and study. ON1 stores no fuel price, no wear rate and no dispatch for the Site, so
+    no option has a money figure: each names the records it lacks and the run is RANKING_INCOMPLETE."""
+    from assetops_backend.decisions.composition import build_evaluation
+
+    levers = {"test_stop_reserve": TEST_LEVER}
+    adapter = PostgresDecisionStore(URL)
+    accounts = build_account_service(URL)
+    built = build_evaluation(URL, levers=levers, grid_changes=TEST_GRID)
+    try:
+        decisions = DecisionService(adapter, accounts, clock=lambda: T, levers=levers)
+        prepared = decisions.prepare(tenant_slug=SLUG, as_email="wanjiru@lakeside-power.example",
+                                     site_code="KOBO-001", lever_id="test_stop_reserve", period="2026-10",
+                                     current=CURRENT, finding_id=None)
+        for option in prepared.options[1:]:
+            decisions.state_one_off(tenant_slug=SLUG, as_email="peter@lakeside-power.example",
+                                    decision_id=prepared.decision.id, option_key=option.option_key,
+                                    amount=Decimal("90.00"), currency="USD", crew_visits=0,
+                                    basis="Technician sets the controller on a routine visit")
+        run = built.service.evaluate(tenant_slug=SLUG, as_email="wanjiru@lakeside-power.example",
+                                     decision_id=prepared.decision.id, study_path=FIXTURES / "study-f1.json")
+        back = adapter.latest_run(run.tenant_id, prepared.decision.id)
+        assert back is not None and back.id == run.id and back.outcome == "RANKING_INCOMPLETE"
+        keys = {o.id: o.option_key for o in prepared.options}
+        rows = {keys[e.option_id]: e for e in back.evaluations}
+        assert (rows["no-action"].disposition, rows["no-action"].value, rows["no-action"].source_class) \
+            == ("COMPARISON", Decimal(0), "SIMULATED")
+        for key, (disposition, reason, missing) in E2E.items():
+            row = rows[key]
+            assert (row.disposition, row.reason_code, row.rank, row.value, row.monthly_change, row.horizon_change) \
+                == (disposition, reason, None, None, None, None), key
+            assert [(m.record_kind, m.source_family, m.factor_id) for m in row.missing] == missing, key
+            assert row.assumed == (), key
+    finally:
+        built.dispose()
+        adapter.dispose()
+        accounts._store.dispose()
+
+
 def test_6_one_alembic_head() -> None:
     import pg_harness
     from alembic.script import ScriptDirectory
