@@ -89,8 +89,9 @@ months" stays "Not available yet", D-P6.9), every 6a/6c record and rule.
   twin when the lever's generator is `STATED_OPTIONS`. Noun `count` uses `option`.
 - **New variants:**
   - `missing`: `OPTION_STUDY` "Not available yet: needs {study}" (`decision_lever.study`, site, decision month) ·
-    `OPTION_RECORD` "Not available yet: needs {record}" (`decision_lever.record` of `<LEVER>__<LEAF>`) ·
-    `OPTION_RECORD_CURRENCY` "Not available yet: a stated record is in another currency than the one-off cost".
+    `OPTION_RECORD` "Not available yet: needs {record}" (`decision_lever.record` of `<LEVER>__<LEAF>`).
+    (`OPTION_RECORD_CURRENCY` withdrawn by D-P6.62: a record in another currency reads the existing
+    `CURRENCY_MISMATCH` or `ONE_OFF_CURRENCY`.)
   - `at_stake` `BOUNDS` "Valued; no option recommended until the limits are checked" · `outcome_note` `BOUNDS` "No
     option is recommended until the limits for this decision are checked; each option's value and what it protects
     are shown." · `eyebrow` uses `NONE` · `disposition` `CONDITIONAL` "Valued; limits not checked yet" · `reason`
@@ -104,7 +105,7 @@ months" stays "Not available yet", D-P6.9), every 6a/6c record and rule.
     option reads an option record (6h4).
 - **States (§5.3)** gain `BOUNDS_NOT_CHECKED`: the rec card uses `eyebrow` `NONE` and `outcome_note` `BOUNDS`; cards in
   display order with `CONDITIONAL` after the baseline.
-- **Fixtures (§6.1)** gain **F6-N** (6h N1, Mwea, recommended), **F6-T** (6h T1, Thika, bounds) and **F6-S** (6h S1,
+- **Fixtures (§6.1)** gain **F6-N** (6h N1, Mwea, recommended), **F6-T** (6h T1 as of 6h rev 1, Thika, bounds; `self-repair` names `uncovered_nights` and the one-off only, D-P6.59) and **F6-S** (6h S1,
   Embakasi, missing study); test 1 asserts their pages as literals; `decision_page_*.json` adds the three.
 
 ## 3. Unit 1: the server read (1.5 units; `task/6f1-decisions`)

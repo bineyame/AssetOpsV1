@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-P6.42 to D-P6.58, D-DD.48 to D-DD.57)
+# Decision index: Demo-sprint and later rulings (index only) (D-P6.42 to D-P6.67, D-DD.48 to D-DD.57)
 
 - `D-P6.42` 6f split: 6f1 (list source + read-only page, 4.0 u) after IA-P1/IA-P2; 6f2 carded after 6b/6d specs · live · specs/6f-decisions-screen/rulings.md
 - `D-P6.43` Decisions list union of records and uncovered placed Findings · withdrawn by D-P6.52 · specs/6f-decisions-screen/rulings.md
@@ -17,6 +17,15 @@
 - `D-P6.56` decisions prepared by the analyst or DD's walk; no auto-prepare before 7a · live · specs/6f-decisions-screen/rulings.md
 - `D-P6.57` protective levers: outcome BOUNDS_NOT_CHECKED, options CONDITIONAL; purpose-factor closure shown · live · specs/6f-decisions-screen/rulings.md
 - `D-P6.58` option record = a document's monthly level, model computes the change; lever words in decision_lever.py · live · specs/6f-decisions-screen/rulings.md
+- `D-P6.59` 6h backup_cover moves uncovered_nights only; BACKUP_UNPROVEN_DAYS record word dropped · live · specs/6h-named-option-levers/rulings.md
+- `D-P6.60` an option's unrecorded changed leaves are named (after outcome misses, before ONE_OFF); value null · live · specs/6h-named-option-levers/rulings.md
+- `D-P6.61` option row evidence and source class include known-delta changed leaves; NEUTRAL falls back to all · live · specs/6h-named-option-levers/rulings.md
+- `D-P6.62` LeafChange.currency enters the difference; OPTION_RECORD_CURRENCY withdrawn · live · specs/6h-named-option-levers/rulings.md
+- `D-P6.63` lever branches 6-13 run for SETTING_GRID only; branch 17 refuses STATED_OPTIONS with a key_template · live · specs/6h-named-option-levers/rulings.md
+- `D-P6.64` gate G4: 6h done on K2; DD-world Kasarani reads 150.00 once November inputs read (Q11) · live · specs/6h-named-option-levers/rulings.md
+- `D-P6.65` no-action level = decision month's leaf; Thika uncovered nights -26; owner asked to weigh in · live · specs/6h-named-option-levers/rulings.md
+- `D-P6.66` 6h handshake N1-N12 rulings (KEEP_SETTINGS, record words, three tests, helpers, option_inputs, N10 plant) · live · specs/6h-named-option-levers/rulings.md
+- `D-P6.67` 6h shared-change reach, parity golden test 8, unit card 4.25 u · live · specs/6h-named-option-levers/rulings.md
 - `D-DD.48` mini-grid billed/revenue/collected/litres/fuel cost are structures.MINI_GRID nodes evaluated every month from leaves (both sides); October EMU_NODE; spec §5.1 defect, not a generator gap · live · specs/DD-demo-data/rulings.md
 - `D-DD.49` cold/EV budget workbooks via source profiles; expenses-illustrative-1 unchanged; no PENALTY rows (penalties a node); no contract change · live · specs/DD-demo-data/rulings.md
 - `D-DD.50` cold revenue and received are structure nodes (crate_days x rate; revenue - outstanding), all COLLECTED · live · specs/DD-demo-data/rulings.md
