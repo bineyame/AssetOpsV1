@@ -65,9 +65,15 @@ Commits `1607351ac` (P5 build) and `bbb707964` (test migration), on `7e3c92e99`.
 
 ## Next (P5 remainder, in order)
 
-1. Server parity test `backend/tests/test_iap_site_findings_parity_postgres.py` (written by a subagent, UNCOMMITTED and
-   unverified if still uncommitted: check `git status`; its result per vertical decides the alias). Fixtures
-   `frontend/src/estate/__tests__/fixtures/iap/parity-{mini,cold,ev}-{site,estate}.json`.
+1. Server parity test `backend/tests/test_iap_site_findings_parity_postgres.py` (committed; only its fail-first run
+   happened, 4126 s wall, 74.5 s of tests, the rest a DB-slot wait). Results: MINI (Kobo `guardrail`, KOBO-001) FAILS
+   the subset, SPEC_AMBIGUITY: the Site read is PARTIAL with 2 ids (month) and 3 (61-day), the estate is UNKNOWN with 0
+   rows and `total_count` null (`estate/coverage.py` ~252 withholds heads touching an unchecked day on a PARTIAL mini
+   Site; `estate/index.py` ~451 nulls the count unless COMPLETE). COLD (fx_cold_linked, COLD-LAB-001) passes parity, 2
+   of 2 ids, both windows; EV (w504 positive, EV-LAB-001) passes, 1 of 1. No fuel Finding, no extra estate ids. Both
+   then fail only on the missing fixtures. Fixtures cannot be byte-current as D-IAP.39 asks: Finding ids are `uuid4`
+   (`analytics/finding_episode.py:669`) and the COLD world moves with the wall clock. Two Architect questions follow.
+   No `known_at` is sent (the Site tab link carries none; a DB-now one is refused by EV with 422 `EV_TIME_INVALID`).
 2. Client layer `estate/__tests__/siteFindingsParity.test.ts` (D-IAP.39 layer 2: `loadAllPages` → `findingItems` →
    `homeListModel(findingsDef(), items, {show:"all"}, "site:{code}")` ⊇ Site ids); plant `parity` (`site:` keyed on
    `row.site_id` in `estate/homeLists.tsx` `findingsDef().site`).
@@ -86,3 +92,11 @@ Commits `1607351ac` (P5 build) and `bbb707964` (test migration), on `7e3c92e99`.
 - Foundation pages show "Change & effect" in the Foundation sub-tabs and "Changes" in the Setup line (both by spec).
 - Assets/Asset crumbs still read Sites › {Site} › Health › Battery although the page lights Setup.
 - Mini Finding views whose h1 is "Finding" carry "Finding" as the crumb title.
+
+## Questions for the Architect (run 3)
+
+- Q-P5-1 (SPEC_AMBIGUITY, MINI): the estate withholds a PARTIAL mini Site's Findings that the Site index shows. Is MINI
+  MD-IAP-15 (index kept, lit under Evidence) and the alias COLD and EV only, or is the estate rule to change?
+- Q-P5-2: the pinned bodies cannot be byte-current (uuid4 ids, clock-relative COLD world). Pin a normalised body (ids
+  and dates replaced by stable tokens, the subset relation kept), or pin once and assert shape and the subset only?
+- Coordinator Q1 and Q2 (packet §5) are still open; R795 is the candidate row; `sites/SitesIndex.tsx` kept.
