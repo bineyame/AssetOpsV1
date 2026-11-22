@@ -72,7 +72,14 @@ comment; delete it when convenient. (2) See Risks 1: the demo's prebuilt-respons
 
 ## 5. Counts (head against main)
 
-COUNTS_PLACEHOLDER
+| Run | Main `fed238c25` (scratch worktree) | Head |
+|---|---|---|
+| vitest `src/estate src/shell src/ui` (94 files at head) | 1981 tests: 1977 passed, 4 failed | 1998 tests: 1990 passed, 8 failed. Of the 8: `siteRangeMatrix` 2 and `sr2RequestUrls` SR-6b 1 (the same three fail on main); `s502OverviewFindingList` 4 and `simulatorLabGate` 1, timing flakes in a run made while a Postgres job ran (main's first run failed one `s502` test; each file is green in isolation at head; main's `s502` failed 2 of 37 in one isolated run). Net of the flakes, head fails exactly main's three. |
+| Backend, 43 files importing a touched module (`estate/portfolio.py`, `deep_dive/*`, `deep_dive_api.py`, `i18n/statements`; list = `grep` of imports), one `--db` call per tree | 1139 tests: 1138 passed, 1 failed (`test_fix_cold_drain_tick_postgres.py::test_p4_mini_only_site_unchanged_apart_from_four_zero_count_keys`: `No product database is configured`, fails on main) ; 9 min 44 s | 1223 tests: 1 failed (the same main failure) ; first run 2 failed, the second was `test_w303_portfolio_api.py::test_full_scope_projections_ignore_page_size_and_empty_scope`, a pin of the old summary key set: (b), migrated to E0's `waiting_count` and `waiting_by_site` (§4.2), green after (482 passed over it and the four `test_iap_*`/`test_sc1_statements` files); first run 9 min 15 s |
+| `tsc --noEmit` over `src` (tests included) | not run | clean |
+
+The new tests account for the difference: backend +84 (`test_iap_portfolio_period.py`, `test_iap_portfolio_sites.py`, `test_iap_waiting_counts.py`, the `out_only` case), frontend +17 net (new `portfolioHub`, `Results`, scope-section and D-IAP.34 tests, less the retired ones).
+
 
 ## 6. Known deviations (all 16 of the handoff plus the session's)
 
