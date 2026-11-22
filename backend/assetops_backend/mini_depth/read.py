@@ -478,8 +478,8 @@ class MiniDepthRead:
     def feeder_month(self, *, tenant_id: UUID, site_id: UUID, lo: datetime, hi: datetime,
                      known_at: datetime | None) -> FeederMonthRows:
         """4a (spec §4.2): the `minigrid-roles-4` or `-5` binding sets (D-DD.109) and their `feeder_demand` bindings,
-        the Site's assets, the Foundation revisions and the accepted feeder interval readings, all known at the cutoff and overlapping
-        `[lo, hi)`. SELECT only; a refusal or an outage propagates (D-4A.23)."""
+        the Site's assets, the Foundation revisions and the accepted feeder interval readings, all known at the cutoff
+        and overlapping `[lo, hi)`. SELECT only; a refusal or an outage propagates (D-4A.23)."""
         def work(c: Connection, known: datetime) -> FeederMonthRows:
             p = {"t": tenant_id, "s": site_id, "k": known, "lo": lo, "hi": hi}
             sets = c.execute(text(

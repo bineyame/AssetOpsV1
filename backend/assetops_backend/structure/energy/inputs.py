@@ -1,8 +1,8 @@
 """4a unit 2 (spec §4.2; D-4A.2, D-4A.3, D-4A.14, D-4A.23, D-4A.24): the energy inputs of one Site-month.
 
 `feeder_month` (pure) turns the mini-depth reader's feeder rows into `FeederMonth`: one `minigrid-roles-4` or `-5` set
-(D-DD.109) in force over the whole month, its `feeder_demand` assets, each Site-local day's kWh from `productive_energy` (a day counts
-only when fully measured without conflict), the origin of the readings used (SIMULATED is `demo-simulated`, any
+(D-DD.109) in force over the whole month, its `feeder_demand` assets, each Site-local day's kWh from
+`productive_energy` (a day counts only when fully measured without conflict), the origin of the readings used (SIMULATED is `demo-simulated`, any
 other `unknown`) and the declared band of each feeder over every Foundation revision. `StoreEnergyInputs` adds the
 commercial records (one `latest_revisions` call, one cutoff). A live read passes `known_at` None to both reads.
 Nothing here catches a refusal or an outage.

@@ -234,7 +234,7 @@ def test_t3_a_roles4_and_a_roles5_set_give_no_job_and_python_refuses(mg, engine)
 
     if CAPTURE:
         pytest.skip("T3 is ruled (D-DD.108 Q1), not a main parity")
-    with labelled(engine, mg, R4):
+    with labelled(engine, mg, R4), pv_units(engine, mg, 1):
         set_id, twin = covering_set(engine, mg), uuid4()
         with engine.connect() as c:
             cols = [r[0] for r in c.execute(text(
@@ -245,17 +245,16 @@ def test_t3_a_roles4_and_a_roles5_set_give_no_job_and_python_refuses(mg, engine)
                          f"{', '.join(over.get(x, x) for x in cols)} FROM signal_binding_set_revision "
                          f"WHERE id = '{set_id}'")
         try:
-            with pv_units(engine, mg, 1):
-                assert from_evidence(engine, mg) == []
-                assert from_publish(engine, mg) == []
-                with engine.begin() as c:
-                    c.execute(text("SELECT mini_enqueue_hour(:t, :s, 'mini_fuel', :lo, :hi, NULL, now())"),
-                              mg.ctx.p(lo=at(mg, DAY, 9), hi=at(mg, DAY, 10)))
-                assert not mini_jobs(engine, mg.ctx.s)
-                k = scalar(engine, "SELECT now()") + timedelta(hours=1)
-                with engine.connect() as c, pytest.raises(MiniInputsRefused) as refused:
-                    load_hour_inputs(c, mg.ctx.t, mg.ctx.s, rules.Window(at(mg, DAY, 9), at(mg, DAY, 10)), k)
-                assert refused.value.code == CONFIGURATION_MISSING
+            assert from_evidence(engine, mg) == []
+            assert from_publish(engine, mg) == []
+            with engine.begin() as c:
+                c.execute(text("SELECT mini_enqueue_hour(:t, :s, 'mini_fuel', :lo, :hi, NULL, now())"),
+                          mg.ctx.p(lo=at(mg, DAY, 9), hi=at(mg, DAY, 10)))
+            assert not mini_jobs(engine, mg.ctx.s)
+            k = scalar(engine, "SELECT now()") + timedelta(hours=1)
+            with engine.connect() as c, pytest.raises(MiniInputsRefused) as refused:
+                load_hour_inputs(c, mg.ctx.t, mg.ctx.s, rules.Window(at(mg, DAY, 9), at(mg, DAY, 10)), k)
+            assert refused.value.code == CONFIGURATION_MISSING
         finally:
             _replica(engine, f"DELETE FROM signal_binding_set_revision WHERE id = '{twin}'")
 
@@ -369,7 +368,7 @@ def python_reads(engine, mg) -> dict:  # noqa: F811
             daylight = daylight_hours(c, mg.ctx.t, mg.ctx.s, DAY, k)
         feeders = MiniDepthRead(engine, link_rows=None).feeder_month(
             tenant_id=mg.ctx.t, site_id=mg.ctx.s, lo=at(mg, DAY, 0), hi=at(mg, DAY + timedelta(days=1), 0),
-            known_at=k)
+            known_at=None)  # live: a future cutoff is refused by the read
     assert len(raw.binding_sets) == 1 and ids and feeders.binding_sets and daylight.measured  # non-empty
     return {"sets": [list(map(str, s)) for s in raw.binding_sets], "inputs": repr(inputs), "ids": ids,
             "daylight": repr(daylight), "feeders": repr(feeders)}
