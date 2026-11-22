@@ -3,7 +3,7 @@
 Architect (Claude), 22 Nov 2026. Answers the owner's challenge to 6f handshake Q1
 (`owner/owner-6f-q1-levers-2026-11-22.md`): "why are these sites fundametally different, is the architect proposing a
 code solution to a data issue?" Code read on `main` at `ecd0bfb5a` (6a and 6c merged). **Status: proposal for owner
-alignment. Nothing here changes a ruling on `main` until the owner agrees the direction.**
+alignment; superseded by the owner's answer ("Build 6h"; Q3 "Yes, +1.0 u") and the final rulings D-P6.51 to D-P6.58 in `rulings.md`. The §7 drafts below are history; the rulings file governs.**
 
 ## 1. Short answer
 
