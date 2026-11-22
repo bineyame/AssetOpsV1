@@ -603,7 +603,7 @@ describe("estate Portfolio page", () => {
     const main = document.querySelector(".estate-portfolio") as HTMLElement;
     // PF-T (v71 `portfolio-tabs.html` supersedes the v69 one-page composition): the title, the cutoff line (SR-1: the
     // range itself is in the shell's shared top bar) and the context row sit above the tab row, and the panel follows.
-    const order = ["h1", "[data-portfolio-cutoff]", "[data-portfolio-context]", "[data-portfolio-tabs]", "[data-portfolio-tab-panel]"];
+    const order = ["h1", "[data-portfolio-cutoff]", "[data-portfolio-context]", "[data-section-tabs]", "[data-portfolio-tab-panel]"];
     const nodes = order.map((sel) => main.querySelector(sel) as HTMLElement);
     nodes.forEach((n) => expect(n).not.toBeNull());
     for (let i = 1; i < nodes.length; i += 1) {
@@ -832,8 +832,8 @@ describe("post-W6 W3-estate Portfolio links, scope disclosure and refused window
 
   it("refusedWindowUsesTheSharedSentencesAndNeverEchoesDates", async () => {
     const cases: [string, string][] = [
-      ["/portfolio?from=2026-10-07T00:00:00Z&to=2026-10-05T00:00:00Z", "The selected window needs both a start and an end, with the start before the end."],
-      ["/portfolio?from=2024-08-01T00:00:00Z&to=2026-10-01T00:00:00Z", "The selected window is longer than 31 days."],
+      ["/portfolio/outcomes?from=2026-10-07T00:00:00Z&to=2026-10-05T00:00:00Z", "The selected window needs both a start and an end, with the start before the end."],
+      ["/portfolio/outcomes?from=2024-08-01T00:00:00Z&to=2026-10-01T00:00:00Z", "The selected window is longer than 31 days."],
       [ENTRY, "The selected window is invalid."],
     ];
     for (const [entry, copy] of cases) {
@@ -855,17 +855,8 @@ describe("post-W6 W3-estate Portfolio links, scope disclosure and refused window
   });
 });
 
-describe("CC-R2 Portfolio placement groups (D5)", () => {
-  it("namesOnePrioritySiteInTheSingular", async () => {
-    const base = portfolioBody();
-    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ summary: { ...base.summary, priority_site_count: 1 } }))));
-    await settledScreen();
-    const pulse = text(document.querySelector("[data-portfolio-pulse]"));
-    expect(pulse).toContain("1 priority site");
-    expect(pulse).not.toContain("priority sites");
-  });
-
-});
+// IA-P2 P3b (D-IAP.12): `namesOnePrioritySiteInTheSingular` pinned the pulse's "1 priority site"; the pulse left the
+// Portfolio with the Overview branch, so the test is retired (no replacement: the pulse no longer exists).
 
 describe("OUT-A A6: Portfolio outcome category cards", () => {
   const card = (key: string) => document.querySelector(`[data-portfolio-card='${key}']`) as HTMLElement;
@@ -919,9 +910,9 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
     const scan = scanProductVocabulary(grid, "portfolio", { set: "w1" });
     expect(scan.scanned).toBeGreaterThan(10);
     expect(describeViolations(scan.violations)).toBe("");
-    // PF-T: the Overview tab (v71) holds the cards, the strip and the top-3 panel; per-tab titles are pinned in
+    // IA-P2 P3b: the Outcomes tab holds the cards and the objectives panel; per-tab titles are pinned in
     // rendersMeasuredPanelHierarchyAndScrollContainers.
-    expect(renderedPanelTitles()).toEqual(["Overview", "Where management should act first"]);
+    expect(renderedPanelTitles()).toEqual(["Outcomes across the estate"]);
   });
 
   it("protectRendersTheServerValueSmallAndToneForEveryCount", async () => {
@@ -1116,7 +1107,6 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
 });
 
 describe("OUT-C U5: Portfolio early warnings", () => {
-  const pulseWarnings = () => text(document.querySelector("[data-portfolio-pulse-warnings]"));
   const protectDetail = () => text(document.querySelector("[data-portfolio-card='PROTECT_ASSET'] [data-portfolio-card-detail]"));
   const withWarnings = (warnings: OutcomeWarning[], protect = 0) => {
     const base = outcomeSummaryBody();
@@ -1145,10 +1135,9 @@ describe("OUT-C U5: Portfolio early warnings", () => {
     // IA-P P2: the warning list under the ranked table left with the table; the pulse and the Protect card stay.
     renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "loaded", value: withWarnings(five(), 4) }));
     await settledScreen();
-    expect(pulseWarnings()).toBe("5 warnings not yet priced");
-    const pulse = document.querySelector("[data-portfolio-pulse]") as HTMLElement;
-    expect(pulse.querySelector("[data-portfolio-pulse-warnings] + .pulse-note")).not.toBeNull();
-    expect(pulse.querySelector("[data-portfolio-pulse-warnings] svg")).toBeNull();
+    // IA-P2 P3b (D-IAP.12): the pulse's "{n} warnings not yet priced" line left with the pulse; the Protect card's own
+    // server line (below) is the one place the count shows.
+    expect(document.querySelector("[data-portfolio-pulse]")).toBeNull();
     expect(protectDetail()).toBe("Service disruptions recorded as findings · 4 early warnings, counted separately · loss not priced");
     expect(document.querySelector("[data-early-warnings]")).toBeNull();
   });
@@ -1156,7 +1145,6 @@ describe("OUT-C U5: Portfolio early warnings", () => {
   it("oneWarningIsSingularAndZeroIsShownWithNoList", async () => {
     renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "loaded", value: withWarnings([planWarning()], 1) }));
     await settledScreen();
-    expect(pulseWarnings()).toBe("1 warning not yet priced");
     expect(protectDetail()).toBe("Service disruptions recorded as findings · 1 early warning, counted separately · loss not priced");
     cleanup();
     renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "loaded", value: withWarnings([], 0) }));
@@ -1164,7 +1152,6 @@ describe("OUT-C U5: Portfolio early warnings", () => {
     await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
-    expect(pulseWarnings()).toBe("0 warnings not yet priced");
     expect(protectDetail()).toBe("Service disruptions recorded as findings · 0 early warnings, counted separately · loss not priced");
     expect(document.querySelector("[data-early-warnings]")).toBeNull();
   });
@@ -1175,7 +1162,6 @@ describe("OUT-C U5: Portfolio early warnings", () => {
     await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
-    expect(pulseWarnings()).toBe("Unknown warnings not yet priced");
     expect(text(document.querySelector("[data-portfolio-card='PROTECT_ASSET'] [data-portfolio-card-value]"))).toBe("Not known yet");
     expect(document.querySelector("[data-portfolio-card='PROTECT_ASSET'] [data-portfolio-card-detail]")).toBeNull();
     expect(document.querySelector("[data-early-warnings]")).toBeNull();
@@ -1190,13 +1176,18 @@ describe("OUT-C U5: Portfolio early warnings", () => {
       { day: "2026-10-11", state: "UNASSESSED", reason: "NO_READINGS" },
       { day: "2026-10-12", state: "UNASSESSED", reason: "NOT_ANALYSED" },
     ];
-    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(body)), { status: "loaded", value: outcomeSummaryBody({ coverage_line: COVERAGE_INCOMPLETE }) }));
+    const client = withOutcomeSummary(portfolioClient(loadedPortfolio(body)), { status: "loaded", value: outcomeSummaryBody({ coverage_line: COVERAGE_INCOMPLETE }) });
+    // IA-P2 P3b: the context row stays on the tabs; the coverage line and the scope drawer are the Evidence section's.
+    renderAt(ENTRY, client);
     await settledScreen();
     const context = document.querySelector("[data-portfolio-context]") as HTMLElement;
     expect(context.getAttribute("data-portfolio-context")).toBe("PARTIAL");
     expect(text(context.querySelector(".portfolio-badge"))).toBe("Some days incomplete");
     expect(text(context.querySelector("[data-portfolio-sentence]"))).toBe("Portfolio: Some sites have incomplete days");
     expect(context.querySelector("[data-portfolio-partial]")).toBeNull(); // R620's per-Site notes are gone
+    cleanup();
+    renderScope(client);
+    await settledScreen();
     const line = await coverageLine();
     expect(line.getAttribute("data-portfolio-coverage")).toBe("INCOMPLETE");
     expect(text(line.querySelector("[data-portfolio-coverage-lead]"))).toBe("Some days have incomplete readings · 1 site with incomplete days");
@@ -1204,7 +1195,7 @@ describe("OUT-C U5: Portfolio early warnings", () => {
       "Kobo: complete readings on 5 of 7 days · 1 with partial readings · 11 Oct: no readings · 12 Oct: not analysed yet",
       "GreenHarvest: complete readings on 7 of 7 days",
     ]);
-    showTab("Scope & coverage");
+    // IA-P2 P3b: the scope section is Evidence & records' (renderScope), not a tab.
     const drawer = document.querySelector("[data-portfolio-drawer='scope']") as HTMLElement;
     const cell = drawer.querySelector("[data-portfolio-scope-site='KOBO-001'] [data-portfolio-scope-coverage]");
     // review L1: the incomplete days sit on their own line under the coverage words
@@ -1237,7 +1228,7 @@ describe("OUT-C U5: Portfolio early warnings", () => {
     const kobo = body.coverage.sites[0].days!;
     kobo.gaps = [{ day: "2026-11-04", state: "UNASSESSED", reason }];
     body.rows = [COLD_ROW, row()]; // the analysed-day row carries its stored amount
-    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(body)), { status: "loaded", value: outcomeSummaryBody({ coverage_line: COVERAGE_INCOMPLETE }) }));
+    renderScope(withOutcomeSummary(portfolioClient(loadedPortfolio(body)), { status: "loaded", value: outcomeSummaryBody({ coverage_line: COVERAGE_INCOMPLETE }) }));
     await settledScreen();
     const line = await coverageLine();
     // IA-P P2: the row value is the Decisions list's At stake cell, built by the same consequenceFirst.
@@ -1253,7 +1244,7 @@ describe("OUT-C U5: Portfolio early warnings", () => {
   it("partialSiteMoreThanThreeGapDaysReadAsACountInTheMoneyLabel", async () => {
     const body = partialBody(["2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04"], 14);
     body.rows = [COLD_ROW, row()];
-    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(body)), { status: "loaded", value: outcomeSummaryBody({ coverage_line: COVERAGE_INCOMPLETE }) }));
+    renderScope(withOutcomeSummary(portfolioClient(loadedPortfolio(body)), { status: "loaded", value: outcomeSummaryBody({ coverage_line: COVERAGE_INCOMPLETE }) }));
     await settledScreen();
     expect(consequenceFirst(body.rows[1], body.coverage.sites[0])).toBe(
       "$3.31–$3.97 for 10 of 14 days analysed · 4 days without a usable result",
@@ -1263,20 +1254,20 @@ describe("OUT-C U5: Portfolio early warnings", () => {
   // D-E5.46: days sharing a reason are grouped; more than 3 gap days read as one count (the deep tab lists all).
   it("incompleteSiteWithManyGapsReadsACountAndTheScopeTabListsThem", async () => {
     const gaps = ["2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04"];
-    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(partialBody(gaps, 14))), { status: "loaded", value: outcomeSummaryBody({ coverage_line: COVERAGE_INCOMPLETE }) }));
+    renderScope(withOutcomeSummary(portfolioClient(loadedPortfolio(partialBody(gaps, 14))), { status: "loaded", value: outcomeSummaryBody({ coverage_line: COVERAGE_INCOMPLETE }) }));
     await settledScreen();
     const line = await coverageLine();
     expect(text(line.querySelector("[data-portfolio-coverage-site]"))).toBe(
       "Kobo: complete readings on 5 of 7 days · 1 with partial readings · 4 days without a usable result",
     );
-    showTab("Scope & coverage");
+    // IA-P2 P3b: the scope section is Evidence & records' (renderScope), not a tab.
     // an older body's reason (NO_ASSESSED_SELECTION) reads as system work, never as a code
     expect(text(document.querySelector("[data-portfolio-scope-gaps]"))).toBe("Incomplete days: 1, 2, 3, 4 Oct: not analysed yet");
   });
 
   it("coverageLineCollapsesWhenEveryDayIsCompleteAndExplainsItsWords", async () => {
     const complete = { ...COVERAGE_INCOMPLETE, state: "COMPLETE" as const, lead: "Complete readings on every day" };
-    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "loaded", value: outcomeSummaryBody({ coverage_line: complete }) }));
+    renderScope(withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "loaded", value: outcomeSummaryBody({ coverage_line: complete }) }));
     await settledScreen();
     const line = await coverageLine();
     expect(line.getAttribute("data-portfolio-coverage")).toBe("COMPLETE");
@@ -1287,15 +1278,16 @@ describe("OUT-C U5: Portfolio early warnings", () => {
       "Complete readings", "Partial readings", "Too few readings", "No readings received",
       "Not enough readings", "Conflicting readings", "Still processing", "Not analysed yet",
     ]);
-    expect(line.querySelector("[data-portfolio-coverage-link]")?.getAttribute("href")).toContain("/portfolio/scope");
-    // placement (v71): after the context row, before the tabs
-    const order = ["[data-portfolio-context]", "[data-portfolio-coverage]", "[data-portfolio-tabs]"].map((s) => document.querySelector(s)!);
+    expect(line.querySelector("[data-portfolio-coverage-link]")?.getAttribute("href")).toContain("/evidence");  // IA-P2 P3b: the scope link goes to Evidence & records (spec §2.4)
+    // IA-P2 P3b placement: the coverage line leads the scope section (it was after the context row, before the tabs),
+    // ahead of the scope drawer and the context footer.
+    const order = ["[data-portfolio-coverage]", "[data-portfolio-drawer='scope']", "[data-portfolio-footer]"].map((sel) => document.querySelector(sel)!);
     expect(order[0].compareDocumentPosition(order[1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(order[1].compareDocumentPosition(order[2]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("coverageLineSaysNotKnownUntilTheSummaryLoads", async () => {
-    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody())));
+    renderScope(portfolioClient(loadedPortfolio(portfolioBody())));
     await settledScreen();
     const line = document.querySelector("[data-portfolio-coverage]") as HTMLElement;
     expect(line.getAttribute("data-portfolio-coverage")).toBe("LOADING");
@@ -1339,7 +1331,6 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
   const value = (key: string) => text(card(key).querySelector("[data-portfolio-card-value]"));
   const detail = (key: string) => text(card(key).querySelector("[data-portfolio-card-detail]"));
   const basis = (key: string) => text(card(key).querySelector("[data-portfolio-card-basis]"));
-  const pulse = () => text(document.querySelector("[data-portfolio-pulse]"));
   const protect = (n: number | null) => ({
     GROW_REVENUE: { open_findings: null, sites_with_primary_finding: null },
     OPTIMIZE_COST: { open_findings: null, sites_with_primary_finding: null },
@@ -1407,9 +1398,6 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     expect(detail("OPTIMIZE_COST")).toBe("At Kobo · not added across sites");
     expect(whyOf("OPTIMIZE_COST").querySelector("[data-portfolio-card-days]")).toBeNull();
     expect(whyOf("OPTIMIZE_COST").querySelector("[data-portfolio-card-note]")).toBeNull();
-    // The pulse strip keeps its own (non-card) checked-days wording.
-    expect(pulse()).toContain("0 opportunities");
-    expect(pulse()).toContain("Site evidence gaps: None found on the days assessed");
     expect(scanCards()).toBe("");
   });
 
@@ -1423,8 +1411,6 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     expect(value("PROTECT_ASSET")).toBe("2 sites disrupted");
     // PF-C2: a card days line is the exception to the coverage line, so it is labelled "Different days:"
     expect(dayText("PROTECT_ASSET")).toBe("Different days: Kobo: Complete readings on 3 of 5 days · Harbour: Complete readings on 2 of 5 days");
-    expect(pulse()).toContain("0 opportunities");
-    expect(pulse()).toContain("1 site evidence gaps");
   });
 
   it("withheldFindingsRenderTheServerValueAndNote", async () => {
@@ -1438,8 +1424,6 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     expect(card("PROTECT_ASSET").querySelector("[data-portfolio-card-value] small")).toBeNull();
     expect(noteText("PROTECT_ASSET")).toBe("Findings next to unchecked days are not shown yet");
     // CH-4: the opportunity count comes from the opportunity read, not from Finding coverage.
-    expect(pulse()).toContain("0 opportunities");
-    expect(pulse()).toContain("Site evidence gaps: None found on the days assessed");
     expect(scanCards()).toBe("");
   });
 
@@ -1449,7 +1433,6 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     expect(value("PROTECT_ASSET")).toBe("No sites disrupted");
     expect(whyOf("PROTECT_ASSET").querySelector("[data-portfolio-card-days]")).toBeNull();
     expect(whyOf("PROTECT_ASSET").querySelector("[data-portfolio-card-note]")).toBeNull();
-    expect(pulse()).toContain("0 opportunities");
   });
 
   it("pv1AssureCardRendersEachValueLineThenItsClauseAndTheBodyNoteAlone", async () => {
@@ -1530,28 +1513,9 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     }
   });
 
-  it("ch4_strip_counts_opportunities_from_the_opportunity_read_with_their_labels", async () => {
-    // CH-4 (§5): one count from one source; the board's open signal is no longer named beside it.
-    const opp = () => text(document.querySelector("[data-portfolio-pulse-opportunity]"));
-    const strip = (extra: Partial<Summary>) => withOutcomeSummary(portfolioClient(loadedPortfolio(checked(0, [kobo], extra))));
-    renderAt(ENTRY, strip({ opportunity_count: 1, opportunity_labels: ["Kobo daytime solar"] }));
-    await settledScreen();
-    expect(opp()).toBe("1 opportunity: Kobo daytime solar");
-    expect(text(document.querySelector("[data-portfolio-pulse-opportunity] strong"))).toBe("1");
-    expect(pulse()).not.toContain("open opportunity on its board");
-    cleanup();
-    renderAt(ENTRY, strip({ opportunity_count: 2, opportunity_labels: ["Kobo daytime solar", "Depot daytime solar"] }));
-    await settledScreen();
-    expect(opp()).toBe("2 opportunities: Kobo daytime solar · Depot daytime solar");
-    cleanup();
-    renderAt(ENTRY, strip({ opportunity_count: 0, opportunity_labels: [] }));
-    await settledScreen();
-    expect(opp()).toBe("0 opportunities");
-    cleanup();
-    renderAt(ENTRY, strip({ opportunity_count: null, opportunity_labels: null }));
-    await settledScreen();
-    expect(opp()).toBe("Unknown opportunities");
-  });
+  // IA-P2 P3b (D-IAP.12): `ch4_strip_counts_opportunities_from_the_opportunity_read_with_their_labels` pinned the pulse
+  // strip's opportunity count; the strip left with the pulse, so the test is retired (the Demand & capacity panel's own
+  // opportunity read is pinned by the ch4_opportunity_panel_* tests above).
 
   it("walk1_6_d4_card_dots_say_no_target_for_this_outcome", async () => {
     // WALK1-6 D4 (R697): the fixture's Kobo Protect row is NO_OBJECTIVE; its card dot reads per outcome.
