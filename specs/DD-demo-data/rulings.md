@@ -1568,3 +1568,185 @@ fuel story moves), and is told the Thika figures D-DD.89 moves.
   - *DD3a fix-round order:* D-DD.95, D-DD.93, D-DD.94, then the guards and the packet.
   - *DD4a, after DD3a merges:* D-DD.90, the join with D-DD.91, D-DD.89's `M` commit and sweep, then the writer run,
     `test_dd4_thika_incident.py` and C-DD6.
+
+---
+
+# DD rulings, round 13 (D-DD.97 to D-DD.101): Kobo's plant figure (DRAFT), DD4b pre-flight Q1-Q18
+
+Architect (Claude), 2026-11-22, fresh hand-off after round 12. Read: `owner/owner-demo-data-answers-2026-11-22.md`
+§"D-DD.92 Kobo fuel story" and its follow-up ("Revisit a plant figure"; "None: have the Architect propose");
+`/opt/assetecon/evidence/kobo-datasheets/datasheets.md`; `specs/DD-demo-data/DD4b-preflight.md` on
+`task/DD4b-ev-measured` at 8d519ef49; DD3a's writer on `task/DD3a-mini-reality` (worktree head 193a7cb5f with the
+fix round's uncommitted D-DD.95 edits), run read-only from the session scratchpad.
+
+The owner is informed of all five. **D-DD.97 is a DRAFT awaiting owner approval**; nothing is built from it until the
+owner approves. The owner is asked to weigh in on **D-DD.98**'s story consequence (Kasarani's November departures).
+
+- **D-DD.97 (DRAFT, awaiting owner approval) Kobo's weakest assumed plant figure is the load profile's timing: the
+  residential evening block starts at dark. Honestly run, it does not enlarge the fuel story** (would amend spec §4.1
+  `LOAD_SHAPE_KW`; owner rule: loyal to the operating world, nothing fitted).
+  - *The three candidates, by provenance.*
+    - *Solar 60 kWp.* The Site's declared size. With the writer's sun (clear day 6.6 kWh/m², performance 0.80), Kobo's
+      October yield is about 4.4 kWh/kWp a day (23 clear, 8 overcast days), within the 4.3-4.5 kWh/kWp a day that
+      Kenyan PV typically yields. Against about 283 kWh/day of sold load, 60 kWp is a plausible size. No source for a
+      comparable site gives a better figure. Not the weakest.
+    - *Start/stop SOC 35/90 %.* Operator settings inside common practice: inverter makers' generator-start examples
+      run 30-40 % (SMA Sunny Island manual, parameters 235.03/235.04, example start 40 % by day, 30 % at night), and
+      cycle charging commonly stops at 80-90 %. Defensible as declared. Not the weakest.
+    - *Load profile.* `LOAD_SHAPE_KW` was copied from a test fixture's blocks (`host/tests/kobo_season.py`, season v2),
+      not from a source. Its residential peak (14 kW) runs 16:00-19:59. Kobo is near the equator (Africa/Nairobi),
+      where sunset is about 18:30-18:50 all year, and the writer's own sun is zero from 18:00. So half of the evening
+      peak sits in daylight, when households are out working. Measured East-African mini-grid data put household use
+      from 18:00 (Hartvigsson and Ahlgren 2018, *Energy for Sustainable Development* 43:186-195, Tanzania, measured
+      household spike at 18:00). Tanzanian micro-grid segmentation work puts the peak at about 19:00-20:00, with
+      lights, radio and TV mostly 18:00-22:00 (search excerpt, secondary read). **This is the weakest figure.**
+  - *Proposed value (Assumed).* The residential evening block (14, 14, 14, 14, 9, 9, 5, 5) starts at dark, 18:00
+    local instead of 16:00. The two afternoon hours it leaves (16:00-17:59) take the afternoon level, 8 kW. Hours
+    00:00-01:59 take the block's tail, 5 kW. Result: `res` = (5, 5, 3, 3, 3, 5, 8, 8, 6, 6, 5, 5, 6, 6, 8, 8, 8, 8,
+    14, 14, 14, 14, 9, 9). Clinic and mill are unchanged. The month's load energy stays the books' `delivered_kwh`
+    (largest remainder), so only the timing and the feeders' shares move. Basis line in `conditions`: "residential
+    evening use from dark (18:00 local); Assumed from measured East-African mini-grid profiles".
+  - *Outcome (DD3a writer, `tools/dd3_pure_run.py`'s table, 1 Jul-31 Oct, no-load 0.62, the books' notes, run
+    read-only).*
+
+    | Kobo, October | Declared shape (D-DD.92) | Proposed shape | Story (`M`) |
+    |---|---|---|---|
+    | Burned (readings) | 507.86 L | 514.22 L | |
+    | Consumption (burned + 120 L declared draw) | about 628 L | **about 634 L** | 1,180 L |
+    | Candidate (the writer's stand-in: slots the battery could have carried) | 42.03 L | **24.56 L** | 330 L |
+    | CANDIDATE_RUNNING bridge at 1.25 $/L | about −52.54 | **about −30.70** | −412.50 |
+    | Generator hours | 51.2 | 51.3 | |
+
+    September moves 772.86 → 782.91 L; July and August are unchanged to 0.1 L. The fuel is set by October's eight
+    overcast days (PV about 110 kWh against about 283 kWh of load). The battery carries the later evening. So the
+    timing barely moves the litres, and the candidate falls, because more of the generator's slots are ones the
+    battery could not have carried.
+  - *Sensitivities, run the same way (information only; none is proposed):* start/stop 40/80 % gives October
+    burned 460.43 L (consumption about 580 L, stand-in 26.43 L); PV 50 kWp gives 548.59 L (about 669 L, stand-in
+    9.45 L). **No sourced value of any of the three figures comes close to 1,180 L.** About 1,060 L burned would
+    need the generator to carry about 40 % of October's load.
+  - *Alternative.* None of the three is a close contender. The honest alternative is D-DD.92's default: keep the
+    declared plant (about 628 L, candidate about 42 L, bridge about −52). The proposed shape costs one constant and
+    a re-pin, and its effect on the story is small. Kobo's fuel story is then the smaller one. Its value rests on
+    the 120 L unexplained draw and the overcast-spell runs, not on a 330 L candidate.
+  - *Reach if approved.* `LOAD_SHAPE_KW` is one shape at every mini-grid Site, so Kisiwa and Mto move with Kobo. That
+    is the class: one world, one shape. `host/tests/kobo_season.py` (0K4's fixture) is not touched. DD3b applies it,
+    in DD3.3, before D-DD.92's restated notes (or DD3a's fix round if it has not merged, D-DD.101). The writer's frozen-input pins and DD3a's goldens that read the shape
+    are re-pinned from the regenerated source (D-DD.93's rule), and the packet lists old → new. If approved, +0.25 u
+    (D-DD.101).
+
+- **D-DD.98 DD4b Q10: real depot practice rotates a full bus off its connector, and the spare bus charges by day. The
+  readings stand; `M`'s capacity stage pools energy that one bus cannot draw, so Kasarani's November departures move
+  in the story, not the room** (amends spec §4.5; replaces Q9's spare row; the owner is asked to weigh in).
+  - *Practice (world, §4.5).*
+    - Depots with fewer connectors than buses rotate plugs overnight. The attendant unplugs a bus that has its charge
+      and plugs in a waiting one.
+    - **Rule:** at the first minute a bus is waiting and a plugged bus has its `required_kwh`, the full bus `UNPLUG`s
+      (session END). The longest-waiting bus (ties: roster order) plugs in on that connector `ROTATION_MINUTES` = 5
+      later (Assumed attendant handling, in `conditions`). An unplugged full bus stays parked until its departure.
+    - The load manager is unchanged: 1 kW round-robin quanta, as §4.5.
+    - A fault-aborted bus is a waiting bus (Q7).
+  - *The spare (replaces Q9's ninth night bus).* A spare is a free bus kept charged; it is not queued against the
+    night's buses.
+    - On each spare night it arrives at 10:00 local on the night's start date (Assumed), plugs in on arrival and
+      charges on the idle daytime chargers.
+    - It is unplugged by the rotation rule at 22:00, when the returning buses wait, and departs at 05:00 with
+      150.000 kWh.
+    - Roster row: bus `EV-KAS-S01`, block `EV-KAS-BLK-S01`, `return_at` 10:00 local, departure 05:00,
+      `required_kwh` 150.000.
+    - Spare nights: 2, 3 and 4 Nov (Q9's dates, ratified, `SPARE_NIGHTS` with its parity test).
+    - Its daytime kWh is in the Site import and the FLAT invoice: a measured figure.
+    - In the departure log the spare's row (`block_met` true) is the cover. The measured departures missed are the
+      short rows less the spare rows met, as `M`'s `departures_missed` counts them.
+  - *Reach.* Rotation acts only where a bus waits. Embakasi has 20 connectors for 20 buses. Ruiru has 23 working
+    connectors for 14 buses. So only Kasarani after 1 Nov 23:40 changes. Parity test (golden from the branch at
+    8d519ef49): the Embakasi and Ruiru plant days in the pre-flight are byte-identical.
+  - *Physics (projection; the writer measures).*
+    - A bus draws from one charger, and a 50 kW charger delivers 350 kWh in the 7-hour window. That is two full
+      buses (300 kWh) and 50 kWh spare.
+    - With three chargers, at most **six** buses are full. Two are short each night, at about 46 kWh each (04:05 to
+      05:00 at 50 kW), with or without rotation. Night 1 is similar, with B03 and B04 at about 87 kWh.
+    - Rotation lifts night energy from 900 to about 990 kWh. It cannot make a seventh bus full without moving a bus
+      across chargers twice a night. That is refused as contrived practice.
+  - *Where the figures differ.* `M` `EV_DEPOT_CAPTIVE` gives `buses_short_per_night` =
+    ceil((1,200 − 3 × 50 × 7) / 150) = **1**: energy pooled across chargers. The room gives **2**. So `M` counts
+    departures missed 5 × 1 − 3 = 2 (penalties 240.00), and the readings give about 5 × 2 − 3 = 7 (about 840.00).
+    The class is two figures for one quantity, and the readings are the loyal one (D-DD.92's precedent). No world
+    figure is tuned to `M`'s.
+  - *Default, applied pending the owner:*
+    - DD4b builds the practice above. The departure log and invoices are the readings'. `meter_billed` prints `M`'s
+      figures beside them, as information (§5.6). C-DD7 is unchanged: readings against books.
+    - The structure fault goes to the structure's owner as a finding, not a DD edit. The capacity stage should bound
+      buses by charger as well as by energy: `buses_short_per_night` = max(the energy bound, `buses` −
+      `chargers_in_service` × floor(min(`charger_kw`, `connector_kw`) × `window_h` / `kwh_per_bus_night`)). For every
+      Site and option where the per-charger bound does not bind, which is all of them except Kasarani from 1 Nov, the
+      figure is unchanged. The code is `backend/assetops_backend/structure/rows_ev_depot.py` and `M`'s
+      `EV_DEPOT_CAPTIVE`, with a parity test from `backend/tests/golden/6h_parity.json` for every other figure.
+    - Kasarani's November story (2 missed, 240.00, the stopgap's covered bus-nights) is restated only after that
+      change and the owner's answer.
+  - *Owner (asked to weigh in).* Kasarani's charger fault story grows: about 7 missed departures and about 840 in
+    penalties, against 2 and 240, unless the spare is lent on more nights. The alternative is a depot that moves a
+    bus across chargers to fill a seventh. That is a workaround: it is not common practice, and it is not proposed.
+
+- **D-DD.99 DD4b Q16: the `measured.json` schema is DD3a's `assetops.world-measured/1`, extended per vertical; DD4.4
+  starts after DD3a, DD4a and the join are on main** (amends spec §4.1 "Output" and §5.6; unblocks DD4.4).
+  - *One file per tenant*, `<slug>/telemetry/measured.json`, written by the frame:
+    `{"schema": "assetops.world-measured/1", "tenant": <slug>, "sites": {<code>: {<YYYY-MM>: <month>}},
+    "departures": [...]}`.
+    - Only the EV tenant's file has a `departures` key; no file writes an empty list.
+    - Mini-grid months are byte-identical to DD3a's `measured_for`.
+  - *`<month>` by vertical (key set fixed per vertical; any other key refuses `TEL_FOUNDATION` at read):*
+    - mini-grid: DD3a's `{"demand_kwh": {feeder: kWh}, "served_kwh": {...}, "unserved_kwh": {...},
+      "generator_kwh"}`, unchanged;
+    - cold: `{"room_kwh"}`, the Site's room meter, Σ over the month's 5-minute slots of the exact slot energy;
+    - EV: `{"bands": {<price class>: kWh}, "demand_kw", "import_kwh"}`. The price classes are those of the Site's
+      schedule in that month (`PEAK`/`OFFPEAK`, plus `NIGHT` at Embakasi from 1 Nov, `FLAT` at Kasarani).
+      `import_kwh` = Σ bands. `demand_kw` = the largest mean of six consecutive 5-minute slots aligned to :00 and
+      :30 (Q17).
+  - *Months.* Every month the readings touch. A month the span ends inside (November, to 6 Nov 06:00 local) carries
+    `"partial_to": "<ISO local instant>"`. `exports_measured` writes bills and invoices for whole months only (July to
+    October). The departure log covers every bus-night in the span.
+  - *`departures`*: one object per roster bus-night, sorted by (`site_code`, `departure_at`, `vehicle_ref`). Fields:
+    `site_code`, `vehicle_ref`, `block_ref`, `service_day`, `departure_at` (roster), `required_kwh`,
+    `kwh_at_departure`. `block_met` and undelivered kWh are not stored: they are derived (one fact, one field;
+    C-DD7 derives them).
+  - *Numbers.* Every value is exact decimal text written by DD3a's `_decimal` (half-even to 0.001). Sums are taken
+    over exact fractions and rounded once, at writing. `exports_measured` reads the written text, so a book equals
+    the file exactly.
+  - *Who.* DD4.4, after DD3a, DD4a and the join are on main (builder default, ratified). The schema is written in the
+    frame (`measured_for` extended), with one test per vertical and a parity test: the mini-grid bytes equal DD3a's.
+
+- **D-DD.100 DD4b Q1-Q9, Q11-Q15, Q17-Q18: the builder's defaults are ratified, with three amendments** (amends
+  spec §4.5 where named).
+  - *Ratified as written:*
+    - Q1: `max_plugs`, v1 byte-identical;
+    - Q2: always enabled;
+    - Q3: declared component order, not string order; CLOCK-1's third charger is `ch-e3`;
+    - Q4: `telemetry_ev.py` writes ev-publication/1's record set itself, with no ev-observation/1;
+    - Q6: shares capped by need × 60 kW;
+    - Q7: an aborted bus rejoins the queue;
+    - Q8: November nights 1-5. Ruiru's `M` `nights: 6` beside 5 night records is information for the meter_billed
+      line, not changed here;
+    - Q11: an empty depot at 1 Jul 00:00;
+    - Q12: CLOCK-1 shifts the session rows only;
+    - Q13: deterministic tokens;
+    - Q14: the `p_m` table with a parity test;
+    - Q15: D-DD.87's denominator test;
+    - Q17: band kWh and DEMAND, written per D-DD.99;
+    - Q18: departure kWh, rounded per D-DD.99.
+  - *Amended:*
+    - Q5: "the bus stays plugged" holds only until D-DD.98's rotation rule unplugs a full bus;
+    - Q9: the spare is a daytime-charged bus (D-DD.98), not a ninth night bus;
+    - Q4's rows: a 5-minute `INTERVAL_MEAN` split at a session boundary is still one row per slot per connector,
+      with the mean over the minutes the session held. The reviewer checks Σ row energy = meter delta per session.
+  - All Assumed practice (5-minute rotation handling, the spare's 10:00 arrival, the empty start) is written in the
+    readings manifest's `conditions`.
+
+- **D-DD.101 Units** (W4).
+  - DD4b: 3.25 → **3.75 u** (D-DD.98 +0.5: rotation, the daytime spare, the parity test).
+  - D-DD.99 adds no units: DD4.4 already holds the measured books.
+  - DD: 41.5 → **42.0 u**.
+  - If the owner approves D-DD.97, it adds +0.25 u. If DD3a has not merged, it lands in DD3a's fix round (5.75 →
+    6.0 u). Otherwise it lands in DD3b, whose 6.25 u would exceed W4's 6 u, so the Architect then splits DD3b
+    before it starts. DD is then 42.25 u either way.
+  - Every part stays at 6 u or less.

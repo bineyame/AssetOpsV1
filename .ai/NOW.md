@@ -18,8 +18,9 @@ Coordinator state: `.agent/coordinator-handoff.md`. Owner words: `owner/SUMMARY.
 
 ## DD: demo data
 - Branch `task/DD-handshake`; spec `specs/DD-demo-data/spec.md`.
-- 41.5 u in nine parts (D-DD.44, D-DD.57, D-DD.66, D-DD.73, D-DD.80, D-DD.88, D-DD.96: DD2 split into DD2a and DD2b, DD4 into DD4a and DD4b): 3 operators, 9 Sites, books Jul-Oct, readings
+- 42.0 u in nine parts (D-DD.44, D-DD.57, D-DD.66, D-DD.73, D-DD.80, D-DD.88, D-DD.96, D-DD.101: DD2 split into DD2a and DD2b, DD4 into DD4a and DD4b): 3 operators, 9 Sites, books Jul-Oct, readings
   1 Jul-6 Nov, telemetry. Handshake answered; owner Q7-Q9 answered.
+- D-DD.97 (Kobo plant figure) is a DRAFT awaiting owner approval; D-DD.98 asks the owner on Kasarani's November story.
 
 ## 0K4f: Kobo on its own records
 - Spec `specs/0K4-dispatch-model-review/rulings-2.md` (D-0K4.45).
