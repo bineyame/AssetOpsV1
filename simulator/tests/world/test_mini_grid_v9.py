@@ -249,3 +249,31 @@ def test_the_unit_path_forced_on_one_of_each_moves_v8s_stocks_states_and_reading
     key = lambda t: (t.at_offset_minutes, t.address, t.previous, t.next)  # noqa: E731
     assert [key(t) for t in units.discrete_transitions] == [key(t) for t in v8.discrete_transitions]
     assert any(t.next == "RUNNING" for t in v8.discrete_transitions)
+
+
+# --- D-DD.145: deviations 2 and 3 confirmed, with their tests ----------------------------------------------------
+
+
+def test_the_requested_generator_power_is_never_negative(books: dict) -> None:
+    """D-DD.145 (deviation 2): P = max(0, demand + the battery's acceptance - available solar). At a sunny midday
+    the solar exceeds both, so P is 0 there, never a negative request."""
+    frozen = _v9(_second_generator(_lead_rated(tel.frozen_inputs(_kobo(), books, "2026-10-01", "2026-10-02"),
+                                               Fraction(20))))
+    requested = [b.control_step.view.value("generator-requested-power") for b in _run(frozen, V9).boundaries[:-1]]
+    assert min(requested) == 0
+    assert max(requested) > 0
+
+
+def test_a_fuel_limited_segment_never_burns_more_than_the_tank(books: dict) -> None:
+    """D-DD.145 (deviation 3): two sets running on a nearly empty tank; each step burns at most what the tank held
+    at its start, the tank never goes below 0, and the tank is emptied by the sets (the cap is reached)."""
+    frozen = _v9(_second_generator(_lead_rated(tel.frozen_inputs(_kobo(), books, "2026-10-01", "2026-10-02"),
+                                               Fraction(20))))
+    tank = "fuel-tank-volume@fuel-tank"
+    frozen = dataclasses.replace(frozen, causes=(), initial_values=tuple(
+        dataclasses.replace(v, value=Fraction(3, 10)) if v.address == tank else v for v in frozen.initial_values))
+    run = _run(frozen, V9)
+    levels = [b.stock(tank) for b in run.boundaries]
+    assert all(level >= 0 for level in levels)
+    assert all(before - after <= before for before, after in zip(levels, levels[1:]))
+    assert levels[-1] == 0  # the sets ran the tank dry: the fuel-limited segment was reached
