@@ -269,3 +269,18 @@ loop-decisions.js, loop-portfolio.js, index.html, fixture-mapping.md, derivation
    anchors; then rerun `CHECK_LABELS=<file> check_manifest.py`, rebuild the ledger with the same script logic (S/c2 has none saved;
    the ledger header in evidence names the method), set `H9_BASELINE` with its by-section comment, and confirm 0 failed.
 3. Boundary rerun for every commit; plants, fast check-all, packet, state entry (later step).
+
+## Rulings applied (rev 3; head after `d346ddd36`)
+
+- Merged main (`d5530f84e`, rulings 1d4713cc8) and `task/0K4m-model-rounding` (`cd9582d26`, N6 on the model side; file not opened).
+- Checker fixes 2 and 3 (`bcf9f48c0`): MODEL_PENDING entries checked against the side's `not_available` words; H2 reads nested
+  alternatives over October's keys the history generator emits. Plants: dropped words fail; a history month without `necessary_l` fails.
+- D-0K4.40: boundary.py (scratch) maps a comment or blank line outside every root entry to `<root>`, allowed. P20 (comment inside
+  Kobo `physical`, scratch clone) FAILS: `FORBIDDEN +90 tenants.0.sites.0.physical [SITE key physical]`; P21 (comment above the
+  first key) PASSES (`/opt/assetecon/evidence/0K4m/boundary-plants-p20-p21.txt`). Every commit main..HEAD: BOUNDARY PASS.
+- `d346ddd36`: N5 (no money clause; "take none" when optional or no candidate), N6 (params half-even 6 places, money half-even once
+  at output), Q15 (MTO-WELDING break-even removed), D-0K4.44 (slice 0K4f in the evaluator, Kobo's words "(0K4f)" in factor_sources,
+  bridge basis and finding; `queued_slices` row `0K4f` as §2.4, no `0K4e` row). Plan figures unchanged by N5. H8/H10 re-based again.
+- `check_manifest.py` at `d346ddd36`: `7475 checks passed (2880 history checks), 337 failed`: anchors() 308, documents() 4, K11 18
+  (units 2-3); outside them: **H4b x6** (Kobo Jul-Sep plan/actual: the independent model still writes MODEL_PENDING slice `0K4e`,
+  the evaluator `0K4f` per D-0K4.44: a model-side fix) and H9 (set in closing commit 6, D-0K4.43). Param failures gone.
