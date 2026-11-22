@@ -1579,10 +1579,10 @@ Architect (Claude), 2026-11-22, fresh hand-off after round 12. Read: `owner/owne
 `task/DD4b-ev-measured` at 8d519ef49; DD3a's writer on `task/DD3a-mini-reality` (worktree head 193a7cb5f with the
 fix round's uncommitted D-DD.95 edits), run read-only from the session scratchpad.
 
-The owner is informed of all five. **D-DD.97 is a DRAFT awaiting owner approval**; nothing is built from it until the
+The owner is informed of all five. **D-DD.97 was approved by the owner on 22 Nov ("Approve 18:00 peak"; owner-demo-data-answers-2026-11-22.md)**; nothing is built from it until the
 owner approves. The owner is asked to weigh in on **D-DD.98**'s story consequence (Kasarani's November departures).
 
-- **D-DD.97 (DRAFT, awaiting owner approval) Kobo's weakest assumed plant figure is the load profile's timing: the
+- **D-DD.97 (owner-approved 22 Nov) Kobo's weakest assumed plant figure is the load profile's timing: the
   residential evening block starts at dark. Honestly run, it does not enlarge the fuel story** (would amend spec §4.1
   `LOAD_SHAPE_KW`; owner rule: loyal to the operating world, nothing fitted).
   - *The three candidates, by provenance.*

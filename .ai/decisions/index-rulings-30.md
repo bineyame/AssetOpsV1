@@ -26,7 +26,7 @@
 - `D-P6.70` no sign rule on option record values; later only as per-leaf data · live · specs/6h-named-option-levers/rulings.md
 - `D-P6.71` 6h packet Q1-Q3 accepted as built (standby-generator title, unused levers arg, prepare parity) · live · specs/6h-named-option-levers/rulings.md
 - `D-IAP.34` period body names Sites left out: E2 body.out (5c out_line), k/n from one set, lead lines (MD-IAP-16); parity test; IA-P2 5.5 u · live · specs/IA-P-product-shape/rulings.md
-- `D-DD.97` DRAFT awaiting owner: Kobo's weakest assumed figure is the load timing (residential evening block from 18:00); Oct ~634 L, stand-in candidate ~25 L, bridge ~-31; no sourced figure nears 1,180 L · draft · specs/DD-demo-data/rulings.md
+- `D-DD.97` owner-approved 22 Nov: Kobo's weakest assumed figure is the load timing (residential evening block from 18:00); Oct ~634 L, stand-in candidate ~25 L, bridge ~-31; no sourced figure nears 1,180 L · draft · specs/DD-demo-data/rulings.md
 - `D-DD.98` DD4b Q10: depot rotates full buses off connectors (5 min), spare charges by day; readings stand; M's pooled capacity stage gives 1 short vs room 2: structure finding, owner asked · live · specs/DD-demo-data/rulings.md
 - `D-DD.99` DD4b Q16: measured.json = DD3a's world-measured/1 extended per vertical (cold room_kwh; EV bands, demand_kw, import_kwh; EV departures); partial_to; DD4.4 after the join · live · specs/DD-demo-data/rulings.md
 - `D-DD.100` DD4b Q1-Q9, Q11-Q15, Q17-Q18 ratified; Q5, Q9 amended by D-DD.98; split-slot rows checked against meter delta · live · specs/DD-demo-data/rulings.md
