@@ -22,11 +22,22 @@ Assert: the Site set is non-empty; Site ids are a subset of estate ids with `sit
 `total_count` < 1,000 (`ALL_PAGES_LIMIT * ALL_PAGES_MAX`). Extra estate ids are printed (`IAP-PARITY` lines, `-s`).
 The whole-month Site and estate bodies (page one) are written to `fixtures/iap/parity-*.json` under
 `IAP_WRITE_FIXTURES=1` and otherwise must be current (as `test_iap_portfolio_sites.test_9_fixtures_are_current`).
+
+D-IAP.42: MINI is flipped. Its Site ids missing from the estate read must all belong to a Site whose estate coverage is
+neither CURRENT nor HISTORICAL (the PARTIAL withholding rule); a full subset fails with "MINI parity holds: ship the
+MINI alias (D-IAP.42)". MINI pins no body.
+D-IAP.43: the COLD and EV bodies are pinned normalised (`_normalise`): `finding_id` and `finding_revision_id` values to
+`00000000-0000-4000-8000-{n:012d}` in order of first appearance (Site body, then estate body), any other uuid to its own
+series `00000000-0000-4000-a000-{n:012d}`, every ISO timestamp and date shifted by one constant so the month window's
+`from` is 2026-10-01T00:00:00Z; the compare is byte for byte on sorted keys, 2-space indent. The subset relation is
+asserted on the raw bodies and again on the normalised ones. COLD's month window is the 31 days ending on the data day
+(the world moves with the wall clock, so a calendar month would put the data on a different day of it each day).
 """
 from __future__ import annotations
 
 import json
 import os
+import re
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from urllib.parse import urlencode
@@ -145,26 +156,110 @@ def _parity(c, vertical: str, code: str, windows: dict[str, dict], why: str = ""
                   f"site_rows={[(r['finding_id'][:8], r.get('episode_start'), r.get('episode_end')) for r in site_rows]}")
         if not site_ids:
             failures.append(f"{name}: the Site Findings read is empty (a vacuous pass fails)")
-        if missing:
-            failures.append(f"{name}: Site ids missing from the estate read: {missing}")
         if wrong_code:
             failures.append(f"{name}: estate rows with another site_code: {wrong_code}")
-        if total is None or total >= PAGE_LIMIT * PAGES_MAX:
-            failures.append(f"{name}: estate total_count {total} is not under {PAGE_LIMIT * PAGES_MAX}")
+        if vertical == "mini":  # D-IAP.42: flipped; the withheld ids belong to a Site the estate does not cover
+            states = {s.get("site_code"): s.get("state") for s in (first.get("coverage") or {}).get("sites", [])}
+            if not missing:
+                failures.append(f"{name}: MINI parity holds: ship the MINI alias (D-IAP.42)")
+            elif states.get(code) in ("CURRENT", "HISTORICAL"):
+                failures.append(f"{name}: Site ids {missing} are missing from the estate read although {code} is "
+                                f"{states.get(code)} there")
+        else:
+            if missing:
+                failures.append(f"{name}: Site ids missing from the estate read: {missing}")
+            if total is None or total >= PAGE_LIMIT * PAGES_MAX:
+                failures.append(f"{name}: estate total_count {total} is not under {PAGE_LIMIT * PAGES_MAX}")
         if name == "month":
-            out = {"site": site_bodies[0], "estate": first, "pages": (len(site_bodies), len(estate_bodies))}
+            out = {"site": site_bodies[0], "estate": first, "pages": (len(site_bodies), len(estate_bodies)),
+                   "window": w, "site_key": site_key}
     assert not failures, f"SPEC_AMBIGUITY: {vertical} {code}: " + "; ".join(failures) + (f" ({why})" if why else "")
     return out
 
 
-def _pin(vertical: str, bodies: dict) -> None:
-    files = {f"parity-{vertical}-{part}.json": bodies[part] for part in ("site", "estate")}
+_UUID = re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
+_STAMP = re.compile(r"(\d{4}-\d{2}-\d{2})(T\d{2}:\d{2}:\d{2}(?:\.\d+)?)?(Z|[+-]\d{2}:\d{2})?(?!\d)")
+_ANCHOR = datetime(2026, 10, 1)
+_FINDING_KEYS = ("finding_id", "finding_revision_id")
+
+
+def _walk(v, fn, key=None):
+    if isinstance(v, dict):
+        return {k: _walk(x, fn, k) for k, x in v.items()}
+    if isinstance(v, list):
+        return [_walk(x, fn, key) for x in v]
+    return fn(key, v)
+
+
+def _normalise(site: dict, estate: dict, window_from: str) -> tuple[dict, dict]:
+    """D-IAP.43: uuid tokens (finding series, then any other uuid in its own series) and one time shift per vertical
+    so the month window's `from` becomes 2026-10-01T00:00:00Z (whole days, so dates shift with timestamps)."""
+    ids: dict[str, str] = {}
+    others: dict[str, str] = {}
+
+    def collect_findings(key, v):
+        if key in _FINDING_KEYS and isinstance(v, str) and _UUID.fullmatch(v) and v not in ids:
+            ids[v] = f"00000000-0000-4000-8000-{len(ids) + 1:012d}"
+        return v
+
+    def collect_others(key, v):
+        if isinstance(v, str):
+            for u in _UUID.findall(v):
+                if u not in ids and u not in others:
+                    others[u] = f"00000000-0000-4000-a000-{len(others) + 1:012d}"
+        return v
+
+    for body in (site, estate):
+        _walk(body, collect_findings)
+    for body in (site, estate):
+        _walk(body, collect_others)
+    start = datetime.fromisoformat(window_from.replace("Z", "+00:00")).replace(tzinfo=None)
+    delta = _ANCHOR - start
+
+    def shift(m: re.Match) -> str:
+        day, clock, zone = m.group(1), m.group(2), m.group(3)
+        if clock is None:
+            return (date.fromisoformat(day) + delta).isoformat() + (zone or "")
+        frac = "." in clock
+        t = datetime.fromisoformat(day + clock) + delta
+        out = t.isoformat(timespec="microseconds" if frac else "seconds")
+        if frac and len(clock.split(".")[1]) != 6:  # keep the source's fraction width
+            out = out[:out.index(".") + 1 + len(clock.split(".")[1])]
+        return out + (zone or "")
+
+    def fix(key, v):
+        if isinstance(v, str):
+            v = _UUID.sub(lambda m: ids.get(m.group(0)) or others[m.group(0)], v)
+            v = _STAMP.sub(shift, v)
+        return v
+
+    return _walk(site, fix), _walk(estate, fix)
+
+
+def _dump(body) -> str:
+    return json.dumps(body, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+
+
+def _subset(vertical: str, site: dict, estate: dict, code: str, site_key: str, when: str) -> None:
+    site_ids = {r["finding_id"] for r in site.get(site_key) or []}
+    estate_ids = {r["finding_id"] for r in estate.get("rows") or [] if r.get("site_code") == code}
+    assert site_ids, f"{vertical} {when}: the pinned Site body has no Findings"
+    assert site_ids <= estate_ids, f"{vertical} {when}: Site ids not in the estate body: {sorted(site_ids - estate_ids)}"
+
+
+def _pin(vertical: str, code: str, bodies: dict) -> None:
+    """D-IAP.43: subset on the raw page-one bodies, normalise, subset again, then byte compare (or write)."""
+    _subset(vertical, bodies["site"], bodies["estate"], code, bodies["site_key"], "before normalising")
+    site, estate = _normalise(bodies["site"], bodies["estate"], bodies["window"]["from"])
+    _subset(vertical, site, estate, code, bodies["site_key"], "after normalising")
+    files = {f"parity-{vertical}-site.json": _dump(site), f"parity-{vertical}-estate.json": _dump(estate)}
     if os.environ.get("IAP_WRITE_FIXTURES") == "1":
-        for name, body in files.items():
-            (FIXTURES / name).write_text(json.dumps(body, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    for name, body in files.items():
-        pinned = json.loads((FIXTURES / name).read_text(encoding="utf-8"))
-        assert pinned == body, (name, _diff(pinned, body))
+        FIXTURES.mkdir(parents=True, exist_ok=True)
+        for name, text in files.items():
+            (FIXTURES / name).write_text(text, encoding="utf-8")
+    for name, text in files.items():
+        pinned = (FIXTURES / name).read_text(encoding="utf-8")
+        assert pinned == text, (name, _diff(json.loads(pinned), json.loads(text)))
 
 
 def _month_and_61(month_first: date, month_last: date, last_61: date, known_at: str | None) -> dict[str, dict]:
@@ -184,8 +279,7 @@ def test_mini_kobo_site_findings_are_in_the_estate_findings(monkeypatch, tmp_pat
             # Kobo's data is 2026-10-05..11-03 (ch5c2 DAYS); the 61-day range 2026-09-04..11-03 reads 10-04..11-03
             bodies = _parity(c, "mini", "KOBO-001",
                              _month_and_61(date(2026, 10, 1), date(2026, 10, 31), date(2026, 11, 3), known_at))
-    print(f"\nIAP-PARITY mini month pages (site, estate) = {bodies['pages']}")
-    _pin("mini", bodies)
+    print(f"\nIAP-PARITY mini month pages (site, estate) = {bodies['pages']}")  # D-IAP.42: no MINI pin
 
 
 def test_cold_linked_site_findings_are_in_the_estate_findings(monkeypatch, tmp_path) -> None:
@@ -207,14 +301,13 @@ def test_cold_linked_site_findings_are_in_the_estate_findings(monkeypatch, tmp_p
         known_at = None
         _serve(monkeypatch, url, tmp_path)
         d = day.date()
-        month_first = d.replace(day=1)
-        month_last = (month_first + timedelta(days=32)).replace(day=1) - timedelta(days=1)
         with _client() as c:
-            # the cold world is shifted to yesterday (`w502_cold_work_cases.target_delta`); the 61-day range ends today
-            bodies = _parity(c, "cold", "COLD-LAB-001", _month_and_61(month_first, month_last, d + timedelta(days=1),
+            # the cold world is shifted to yesterday (`w502_cold_work_cases.target_delta`); the 61-day range ends today.
+            # The month is the 31 days ending on the data day (D-IAP.43: stable under the shift; see the docstring)
+            bodies = _parity(c, "cold", "COLD-LAB-001", _month_and_61(d - timedelta(days=30), d, d + timedelta(days=1),
                                                                        known_at))
     print(f"\nIAP-PARITY cold data day={d} month pages (site, estate) = {bodies['pages']}")
-    _pin("cold", bodies)
+    _pin("cold", "COLD-LAB-001", bodies)
 
 
 def test_ev_w504_site_findings_are_in_the_estate_findings(monkeypatch, tmp_path) -> None:
@@ -233,4 +326,4 @@ def test_ev_w504_site_findings_are_in_the_estate_findings(monkeypatch, tmp_path)
             bodies = _parity(c, "ev", "EV-LAB-001", _month_and_61(month_first, month_last, e_day + timedelta(days=28),
                                                                    known_at))
     print(f"\nIAP-PARITY ev E day={e_day} month pages (site, estate) = {bodies['pages']}")
-    _pin("ev", bodies)
+    _pin("ev", "EV-LAB-001", bodies)
