@@ -348,39 +348,38 @@ def test_t7_dispatch_role_coverage_roles5_equals_roles4(mg, engine) -> None:  # 
 
 # --- P1-P4: the Python readers read roles-5 as roles-4 (same rows, relabelled) -------------------------------------
 
-def python_reads(engine, mg) -> dict:  # noqa: F811
+def python_reads(engine, mg, k) -> dict:  # noqa: F811
     from assetops_backend.mini_depth import rules
     from assetops_backend.mini_depth.inputs import QUERY_ROLES, load_hour_inputs
     from assetops_backend.mini_depth.read import MiniDepthRead, _hour_ids
     from assetops_backend.mini_depth.store import daylight_hours, read_hour_rows
     from assetops_backend.sites.binding_roles import MINI_DEPTH_ROLE_SETS
 
-    with pv_units(engine, mg, 1):
-        for r, h, v in EVIDENCE:
-            reading(mg, role=r, hour=h, value=v)
-        k = scalar(engine, "SELECT now()") + timedelta(hours=1)
-        window = rules.Window(at(mg, DAY, 9), at(mg, DAY, 10))
-        with engine.connect() as c:
-            raw = read_hour_rows(c, mg.ctx.t, mg.ctx.s, window.start, window.end, k, role_sets=MINI_DEPTH_ROLE_SETS,
-                                 roles=QUERY_ROLES, supply_role=rules.SITE_SUPPLY)
-            inputs = load_hour_inputs(c, mg.ctx.t, mg.ctx.s, window, k)
-            ids = _hour_ids(c, mg.ctx.t, mg.ctx.s, window, k)
-            daylight = daylight_hours(c, mg.ctx.t, mg.ctx.s, DAY, k)
-        feeders = MiniDepthRead(engine, link_rows=None).feeder_month(
-            tenant_id=mg.ctx.t, site_id=mg.ctx.s, lo=at(mg, DAY, 0), hi=at(mg, DAY + timedelta(days=1), 0),
-            known_at=None)  # live: a future cutoff is refused by the read
+    window = rules.Window(at(mg, DAY, 9), at(mg, DAY, 10))
+    with engine.connect() as c:
+        raw = read_hour_rows(c, mg.ctx.t, mg.ctx.s, window.start, window.end, k, role_sets=MINI_DEPTH_ROLE_SETS,
+                             roles=QUERY_ROLES, supply_role=rules.SITE_SUPPLY)
+        inputs = load_hour_inputs(c, mg.ctx.t, mg.ctx.s, window, k)
+        ids = _hour_ids(c, mg.ctx.t, mg.ctx.s, window, k)
+        daylight = daylight_hours(c, mg.ctx.t, mg.ctx.s, DAY, k)
+    feeders = MiniDepthRead(engine, link_rows=None).feeder_month(
+        tenant_id=mg.ctx.t, site_id=mg.ctx.s, lo=at(mg, DAY, 0), hi=at(mg, DAY + timedelta(days=1), 0),
+        known_at=None)  # live: a future cutoff is refused by the read
     assert len(raw.binding_sets) == 1 and ids and feeders.binding_sets and daylight.measured  # non-empty
     return {"sets": [list(map(str, s)) for s in raw.binding_sets], "inputs": repr(inputs), "ids": ids,
             "daylight": repr(daylight), "feeders": repr(feeders)}
 
 
 def test_p1_p4_python_readers_read_roles5_as_roles4(mg, engine) -> None:  # noqa: F811
+    """The same rows (one write) and one cutoff, read under each set name."""
     if CAPTURE:
         pytest.skip("in-run parity: the same rows under each set name")
-    with labelled(engine, mg, R4):
-        four = python_reads(engine, mg)
-    _replica(engine, "DELETE FROM ingestion_disposition WHERE ordinal > 100000",
-             "DELETE FROM accepted_evidence WHERE message_id LIKE 'w206-enq-%'")
-    with labelled(engine, mg, R5):
-        five = python_reads(engine, mg)
+    with pv_units(engine, mg, 1):
+        for r, h, v in EVIDENCE:
+            reading(mg, role=r, hour=h, value=v)
+        k = scalar(engine, "SELECT now()") + timedelta(hours=1)
+        with labelled(engine, mg, R4):
+            four = python_reads(engine, mg, k)
+        with labelled(engine, mg, R5):
+            five = python_reads(engine, mg, k)
     assert normalise(five) == normalise(four)
