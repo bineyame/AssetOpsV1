@@ -486,6 +486,9 @@ export interface EstatePortfolioBody extends Omit<EstateEnvelope, "status" | "co
     combined_value_state: "NOT_COMPARABLE";
     /** CC-R2: rows per placement group over every member (all lenses); null unless Finding coverage is known. */
     placement_counts: Record<EstatePlacementGroup, number | null>;
+    /** IA-P E0 (spec §4.2): the placed Findings with no Action and not in `MONITOR`; absent on an older body. */
+    waiting_count?: number | null;
+    waiting_by_site?: Record<string, number> | null;
     /** OUT-A A2: per outcome category, counts null unless Finding coverage is known; absent on an older body. */
     category_counts?: Record<OutcomeCategoryKey, { open_findings: number | null; sites_with_primary_finding: number | null }>;
     /** WALK1-1 (WN-2): COMPLETE counts on complete coverage, CHECKED_DAYS over the checked days of a partly checked

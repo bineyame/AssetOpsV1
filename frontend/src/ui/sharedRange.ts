@@ -262,7 +262,7 @@ export function useSharedRange(): SharedRangeState {
  * last 7 full UTC days ending yesterday, S17), so filling the address changes no request. Work and Site pages keep
  * their own defaults until SR-2 moves them onto the range (R338, Site-local days, Cold/EV selected event).
  */
-const FILLED_PAGES = /^\/(?:portfolio(?:\/[^/]+)?|findings(?:\/(?:cost|risks|opportunities))?|actions|evidence(?:\/records)?|financials)\/?$/;
+const FILLED_PAGES = /^\/(?:portfolio(?:\/[^/]+)?|findings|decisions|actions|evidence(?:\/records)?|financials)\/?$/;
 export const fillsRangeOnEntry = (pathname: string): boolean => FILLED_PAGES.test(pathname);
 
 /**
@@ -272,7 +272,7 @@ export const fillsRangeOnEntry = (pathname: string): boolean => FILLED_PAGES.tes
  * it. SR-2 adds a page here when it moves onto the range.
  */
 const RANGE_PAGES =
-  /^\/(?:portfolio(?:\/[^/]+)?|findings(?:\/(?:cost|risks|opportunities))?|actions|evidence(?:\/records)?|financials|incidents|maintenance(?:\/preventive)?)\/?$/;
+  /^\/(?:portfolio(?:\/[^/]+)?|findings|decisions|actions|evidence(?:\/records)?|financials|incidents|maintenance(?:\/preventive)?)\/?$/;
 /**
  * SR-2 review (Medium): Site pages (Evidence, Findings, Cold, Renewable, Service, EV) load their content from the
  * address's from/to/known_at, so a Site or performance page whose address carries a range IS using it. A Site page

@@ -41,10 +41,7 @@ import {
   WORK_REQUEST_HISTORY_ROUTE_PATH,
   WORK_REQUEST_RECORD_ROUTE_PATH,
   WORK_REQUEST_ROUTE_PATH,
-  FINDINGS_COST_PATH,
-  FINDINGS_OPPORTUNITIES_PATH,
   FINDINGS_PATH,
-  FINDINGS_RISKS_PATH,
   FINDING_ROUTE_PATH,
   FINDING_TAB_ROUTE_PATH,
   LEGACY_SITE_CONFIGURATION_ROUTE_PATH,
@@ -122,6 +119,7 @@ import { createEvScenariosClient, type EvScenariosClient } from "./sites/evScena
 import { SiteEvFrame } from "./shell/evSiteRoutes";
 import { createColdSiteClient, type ColdSiteClient } from "./sites/coldSiteClient";
 import { createEstateClient, type EstateClient } from "./estate/estateClient";
+import { DECISIONS_PATH } from "./estate/portfolioWords";
 import { createGlobalWorkClient, type GlobalWorkClient } from "./work/globalWorkClient";
 import { GlobalIncidentsFrame } from "./work/GlobalIncidents";
 import { GlobalMaintenanceFrame } from "./work/GlobalMaintenance";
@@ -141,6 +139,7 @@ import { DeepDiveMonthFrame } from "./estate/DeepDiveMonth";
 import { createDeepDiveMonthClient, type DeepDiveMonthClient } from "./estate/deepDiveMonthClient";
 import {
   EstateActionsFrame,
+  EstateDecisionsFrame,
   EstateEvidenceFrame,
   EstateFinancialsFrame,
   EstateFindingsFrame,
@@ -534,13 +533,9 @@ export function App({
           <Route path={SITE_FUEL_VERIFICATION_ROUTE_PATH} element={<SiteFuelVerificationFrame detail={siteDetail} sitesPath={SITES_PATH} />} />
           {/* W3-01: the estate Finding lens roots and the Actions root, registered before the legacy
               `/findings/:siteId/:assessmentId[/:findingTab]` patterns; those keep their handlers. */}
-          <Route path={FINDINGS_PATH} element={<EstateFindingsFrame lens="all" client={estateIndex} />} />
-          <Route path={FINDINGS_COST_PATH} element={<EstateFindingsFrame lens="cost" client={estateIndex} />} />
-          <Route path={FINDINGS_RISKS_PATH} element={<EstateFindingsFrame lens="risks" client={estateIndex} />} />
-          <Route
-            path={FINDINGS_OPPORTUNITIES_PATH}
-            element={<EstateFindingsFrame lens="opportunities" client={estateIndex} />}
-          />
+          <Route path={FINDINGS_PATH} element={<EstateFindingsFrame client={estateIndex} />} />
+          {/* IA-P P2 (D-IAP.3): the Decisions list, one row per placed Finding. */}
+          <Route path={DECISIONS_PATH} element={<EstateDecisionsFrame client={estateIndex} />} />
           <Route path={ACTIONS_PATH} element={<EstateActionsFrame client={estateIndex} />} />
           {/* W3-02: the estate Evidence root (`ESTATE_EVIDENCE_PATH`; a shell test pins the equality). */}
           <Route path={EVIDENCE_PATH} element={<EstateEvidenceFrame client={estateEvidenceMoney} />} />

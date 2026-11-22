@@ -44,6 +44,7 @@ export const IA_HOMES: IaHome[] = [
   { pattern: /^\/sites\/[^/]+(?:\/.*)?$/, home: "Sites", tabGroup: "Site" },
   { pattern: /^\/sites\/?$/, home: "Sites", tabGroup: null },
   { pattern: /^\/findings(?:\/.*)?$/, home: "Findings", tabGroup: null },
+  { pattern: /^\/decisions\/?$/, home: "Decisions", tabGroup: null },
   { pattern: /^\/actions\/?$/, home: "Actions", tabGroup: null },
   { pattern: /^\/incidents\/?$/, home: "Incidents", tabGroup: null },
   { pattern: /^\/maintenance(?:\/.*)?$/, home: "Maintenance", tabGroup: null },
@@ -74,6 +75,11 @@ export const LEGACY_ROUTES: LegacyRoute[] = [
   { from: "/", to: "/portfolio", unit: "IA-P1" },
   // D-IAP.5: Operational records is the Records tab of Evidence & records.
   { from: "/operational-records", to: "/evidence/records", unit: "IA-P1" },
+  // D-IAP.3, D-IAP.4: Act first is the Decisions list; the Finding lens roots are the Findings list's `lens` facet.
+  { from: "/portfolio/act-first", to: "/decisions", unit: "IA-P1" },
+  { from: "/findings/cost", to: "/findings?lens=cost", unit: "IA-P1" },
+  { from: "/findings/risks", to: "/findings?lens=risks", unit: "IA-P1" },
+  { from: "/findings/opportunities", to: "/findings?lens=opportunities", unit: "IA-P1" },
 ];
 
 /** The aliases whose unit has landed. */

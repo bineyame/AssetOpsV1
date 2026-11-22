@@ -3,6 +3,7 @@ import { useLocation, useOutletContext, useSearchParams } from "react-router-dom
 
 import { AppHeader, NavRail, type NavRailItem } from "../ui";
 import { RangeFocusProvider } from "../ui/rangeFocus";
+import { EstateReadCacheProvider } from "../estate/estateReadCache";
 import { railHomeOf } from "./iaRoutes";
 import { SharedRangeBar, SharedRangeOutlet } from "./SharedRangeBar";
 import { rangeSearch } from "./sharedRange";
@@ -63,7 +64,7 @@ const operatorRailItems: NavRailItem[] = [
   { kind: "live", to: "/sites", label: "Sites", end: false, group: "OPERATIONS", icon: "site" },
   { kind: "unavailable", label: "Assets & cover", group: "OPERATIONS", icon: "asset" },
   { kind: "live", to: "/findings", label: "Findings", end: false, group: "INTELLIGENCE", icon: "finding" },
-  { kind: "unavailable", label: "Decisions", group: "WORK", icon: "decide" },
+  { kind: "live", to: "/decisions", label: "Decisions", end: false, group: "WORK", icon: "decide" },
   { kind: "unavailable", label: "Plan", group: "WORK", icon: "clock" },
   { kind: "live", to: "/actions", label: "Actions", end: false, group: "WORK", icon: "action" },
   { kind: "live", to: "/incidents", label: "Incidents", end: false, group: "WORK", icon: "incident" },
@@ -139,6 +140,7 @@ export function OperatorShellLayout() {
         </div>
       </div>
 
+      <EstateReadCacheProvider>
       <RangeFocusProvider>
       <div className="app-frame__body">
         {/* SR-1 (v71 Change 0b): the top-bar row holds the one shared date range; the demonstration banner stays. */}
@@ -153,6 +155,7 @@ export function OperatorShellLayout() {
         </div>
       </div>
       </RangeFocusProvider>
+      </EstateReadCacheProvider>
     </div>
   );
 }
