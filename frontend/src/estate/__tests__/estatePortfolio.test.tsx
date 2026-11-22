@@ -1028,7 +1028,7 @@ describe("post-W6 W3-estate Portfolio links, scope disclosure and refused window
   it("refusedWindowUsesTheSharedSentencesAndNeverEchoesDates", async () => {
     const cases: [string, string][] = [
       ["/portfolio?from=2026-10-07T00:00:00Z&to=2026-10-05T00:00:00Z", "The selected window needs both a start and an end, with the start before the end."],
-      ["/portfolio?from=2026-08-01T00:00:00Z&to=2026-10-01T00:00:00Z", "The selected window is longer than 31 days."],
+      ["/portfolio?from=2024-08-01T00:00:00Z&to=2026-10-01T00:00:00Z", "The selected window is longer than 31 days."],
       [ENTRY, "The selected window is invalid."],
     ];
     for (const [entry, copy] of cases) {

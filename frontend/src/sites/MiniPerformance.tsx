@@ -61,7 +61,7 @@ import "./w4-mini-performance.css";
 import { formatDayTime, formatRange } from "../ui/time";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { RangeSpan } from "../ui/rangeFocus";
-import { addressRange, rangeWindow, useSharedRange } from "../ui/sharedRange";
+import { addressRange, capWindow, rangeWindow, useSharedRange } from "../ui/sharedRange";
 import { MiniServiceRange } from "./MiniServiceRange";
 import { MiniBackupRange } from "./MiniBackupRange";
 import { BackToRange } from "./SiteRangeParts";
@@ -1706,7 +1706,7 @@ export function MiniFuel({
   const nights = useFuelNights(
     fuelBalance,
     siteCode,
-    shared.status === "set" ? { ...rangeWindow(shared), ...(shared.known_at ? { known_at: shared.known_at } : {}) } : null,
+    shared.status === "set" ? { ...rangeWindow(capWindow(shared)), ...(shared.known_at ? { known_at: shared.known_at } : {}) } : null,
   );
   const key = `${siteCode}|${window?.from ?? ""}|${window?.to ?? ""}|${window?.known_at ?? ""}`;
   const ranged = range !== undefined && range !== null;

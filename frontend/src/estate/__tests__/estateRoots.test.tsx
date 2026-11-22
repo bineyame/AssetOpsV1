@@ -843,7 +843,7 @@ describe("post-W6 W3-estate Findings and Actions roots", () => {
     // Q14: classified from the page query; the window line says `Window not valid` without echoing the dates.
     const cases: [string, string][] = [
       ["from=2026-10-07T00:00:00Z&to=2026-10-05T00:00:00Z", "The selected window needs both a start and an end, with the start before the end."],
-      ["from=2026-08-01T00:00:00Z&to=2026-10-01T00:00:00Z", "The selected window is longer than 31 days."],
+      ["from=2024-08-01T00:00:00Z&to=2026-10-01T00:00:00Z", "The selected window is longer than 31 days."],
       [WINDOW, "The selected window is invalid."],
     ];
     const refusedRead = { status: "refused" as const, httpStatus: 422, code: "INVALID_WINDOW", copy: "server copy" };

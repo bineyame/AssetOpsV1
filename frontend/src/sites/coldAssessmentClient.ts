@@ -12,6 +12,7 @@
  * a valid 200 `UNKNOWN` read with null values and empty arrays; refusals are `{error:{code,message}}`.
  */
 
+import { windowBound } from "../ui/sharedRange";
 import { SITES_API_PATH } from "./siteDirectoryClient";
 import { isObject } from "./evidenceRead";
 import type { OutcomeCategories } from "./outcomeCategories";
@@ -218,7 +219,7 @@ export function coldWindowSearch(window: ColdWindowQuery): string {
 }
 
 export function coldWindowFromParams(params: URLSearchParams): ColdWindowQuery {
-  return { from: params.get("from"), to: params.get("to"), known_at: params.get("known_at") };
+  return { from: windowBound(params, "from"), to: windowBound(params, "to"), known_at: params.get("known_at") };
 }
 
 function isEnvelope(value: unknown): value is ColdEnvelope {

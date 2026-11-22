@@ -8,6 +8,7 @@
  * no rows and no count.
  */
 
+import { RANGE_MAX_DAYS } from "../ui/sharedRange";
 import { formatDayTime } from "../ui/time";
 import type { OpenNow } from "./openNow";
 
@@ -226,6 +227,8 @@ export interface GlobalWorkQuery {
   known_at: string | null;
   cursor: string | null;
   kind?: GlobalOperationalKind;
+  /** IA-P P0: the whole range of an address longer than 31 days; `from`/`to` hold the read window, links keep this. */
+  link?: { from: string; to: string };
 }
 
 export type GlobalWorkRefusalCode =
@@ -795,6 +798,7 @@ export function globalWorkPageQuery(params: URLSearchParams, now?: number): Glob
   const knowns = params.getAll("known_at");
   const cursors = params.getAll("cursor");
   let window: { from: string; to: string };
+  let link: { from: string; to: string } | undefined;
   if (froms.length === 0 && tos.length === 0) {
     window = defaultGlobalWorkWindow(now);
   } else {
@@ -802,15 +806,18 @@ export function globalWorkPageQuery(params: URLSearchParams, now?: number): Glob
     const [from, to] = [froms[0], tos[0]];
     if (!validMidnight(from) || !validMidnight(to)) return { status: "invalid", code: "INVALID_WINDOW" };
     const days = (Date.parse(to) - Date.parse(from)) / DAY_MS;
-    if (days < 1 || days > 31) return { status: "invalid", code: "INVALID_WINDOW" };
-    window = { from, to };
+    if (days < 1 || days > RANGE_MAX_DAYS) return { status: "invalid", code: "INVALID_WINDOW" };
+    // IA-P P0 (D-IAP.24): a range over 31 days reads its last 31 days; links keep the whole range.
+    if (days > 31) link = { from, to };
+    window = { from: days > 31 ? new Date(Date.parse(to) - 31 * DAY_MS).toISOString() : from, to };
+    window = { ...window, from: window.from.replace(/\.000Z$/, "Z") };
   }
   if (knowns.length > 1) return { status: "invalid", code: "INVALID_KNOWN_AT" };
   const known = knowns.length === 1 ? knowns[0] : null;
   if (known !== null && (!INSTANT.test(known) || Number.isNaN(Date.parse(known)))) {
     return { status: "invalid", code: "INVALID_KNOWN_AT" };
   }
-  return { status: "valid", query: { ...window, known_at: known, cursor: cursors.length > 0 ? cursors[0] : null } };
+  return { status: "valid", query: { ...window, known_at: known, cursor: cursors.length > 0 ? cursors[0] : null, ...(link ? { link } : {}) } };
 }
 
 /**
@@ -819,10 +826,10 @@ export function globalWorkPageQuery(params: URLSearchParams, now?: number): Glob
  */
 export function globalWorkHref(
   path: string,
-  query: Pick<GlobalWorkQuery, "from" | "to" | "known_at" | "kind">,
+  query: Pick<GlobalWorkQuery, "from" | "to" | "known_at" | "kind" | "link">,
   cursor?: string | null,
 ): string {
-  const params = new URLSearchParams({ from: query.from, to: query.to });
+  const params = new URLSearchParams({ from: query.link?.from ?? query.from, to: query.link?.to ?? query.to });
   if (query.known_at) params.set("known_at", query.known_at);
   if (query.kind) params.set("kind", query.kind);
   if (cursor) params.set("cursor", cursor);

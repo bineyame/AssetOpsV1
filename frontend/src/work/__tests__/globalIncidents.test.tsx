@@ -400,7 +400,7 @@ describe("W6-01a A2: global Incidents", () => {
   it.each([
     ["one bound missing", `/incidents?from=${encodeURIComponent(FROM)}`, "INVALID_WINDOW"],
     ["not a UTC midnight", `/incidents?from=2026-10-14T01:00:00Z&to=${encodeURIComponent(TO)}`, "INVALID_WINDOW"],
-    ["more than 31 days", `/incidents?from=2026-09-01T00:00:00Z&to=${encodeURIComponent(TO)}`, "INVALID_WINDOW"],
+    ["more than 31 days", `/incidents?from=2024-09-01T00:00:00Z&to=${encodeURIComponent(TO)}`, "INVALID_WINDOW"],
     ["out of order", `/incidents?from=${encodeURIComponent(TO)}&to=${encodeURIComponent(FROM)}`, "INVALID_WINDOW"],
     ["repeated from", `${PAGE}&from=${encodeURIComponent(FROM)}`, "INVALID_WINDOW"],
     ["bad cutoff", `${PAGE}&known_at=yesterday`, "INVALID_KNOWN_AT"],

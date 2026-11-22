@@ -613,6 +613,8 @@ export interface EstateQuery {
   known_at: string | null;
   limit?: number | null;
   cursor: string | null;
+  /** IA-P P0: the address's whole range when it is over 31 days (`from`/`to` hold the read window); links keep it. */
+  link?: { from: string; to: string };
 }
 
 export interface EstateFindingsQuery extends EstateQuery {

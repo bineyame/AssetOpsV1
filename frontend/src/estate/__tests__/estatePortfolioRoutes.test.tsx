@@ -67,7 +67,7 @@ describe("W3-03 Portfolio shell route", () => {
       .filter((li) => li.querySelector("a") === null && li.querySelector(".nav-rail__label") !== null)
       .map((li) => li.querySelector(".nav-rail__label")?.textContent);
     // W6-01e: Operational records rail root is live.
-    expect(unavailable).toEqual(["Assets", "Settings"]);
+    expect(unavailable).toEqual(["Assets & cover", "Decisions", "Plan", "Results", "Settings"]);
     view.unmount();
 
     // The risk root stays the estate Findings risk lens; it is not the Portfolio and not `/findings`.

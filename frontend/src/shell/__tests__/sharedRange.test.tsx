@@ -124,7 +124,7 @@ describe("SR-1 useSharedRange reads both address forms", () => {
     for (const bad of [
       "from=2026-10-06",
       "from=2026-10-06&to=2026-10-01",
-      "from=2026-08-01&to=2026-10-01",
+      "from=2024-08-01&to=2026-10-01",
       "from=yesterday&to=2026-10-01",
       "from=2026-10-01&to=2026-10-02&known_at=noon",
       // SR-4 D-SR.41a: a first instant that is not before the last is invalid, though both round to one valid day.
@@ -240,6 +240,32 @@ describe("SR-1 the shared range bar", () => {
     expect(document.querySelector("[data-estate-date-bar]")).toBeNull();
   });
 
+  it("IA-P P0: a 61-day range is the window inside the range on /findings, and All pages on /portfolio", async () => {
+    const long = "from=2026-09-01&to=2026-10-31";
+    const first = renderApp(`/findings?${long}`);
+    await settledScreen();
+    const tag = document.querySelector("[data-shared-range-focus]") as HTMLElement;
+    expect(tag.getAttribute("data-shared-range-focus")).toBe("inside");
+    expect(tag.textContent).toContain("1 Oct");
+    first.unmount();
+    renderApp(`/portfolio?${long}`);
+    await settledScreen();
+    expect(document.querySelector("[data-shared-range-focus]")).toBeNull();
+    expect(within(rangeButton()).getByText("All pages")).toBeTruthy();
+  });
+
+  it("IA-P P0 (R7): /findings on a 61-day range reads the last 31 days, and the rail Portfolio link keeps the whole range (R8)", async () => {
+    const client = fakeClient((lens) => loaded(findingsBody(lens)));
+    renderApp(`/findings?from=2026-09-01&to=2026-10-31`, client);
+    await settledScreen();
+    const reads = (client.calls as { kind: string; from: string; to: string }[]).filter((c) => c.kind === "findings");
+    expect(reads.length).toBeGreaterThan(0);
+    expect(reads[0].from).toBe("2026-10-01T00:00:00Z");
+    expect(reads[0].to).toBe("2026-11-01T00:00:00Z");
+    const portfolio = within(screen.getByRole("navigation", { name: "Operator routes" })).getByRole("link", { name: "Portfolio" });
+    expect(decodeURIComponent(portfolio.getAttribute("href") ?? "")).toContain("from=2026-09-01T00:00:00Z");
+  });
+
   it("opens with focus on the selected preset; Escape and Cancel close it and return focus to the button", async () => {
     renderApp(`/portfolio?${WEEK}`);
     await settledScreen();
@@ -302,7 +328,7 @@ describe("SR-1 the shared range bar", () => {
     fireEvent.change(to, { target: { value: "2026-10-01" } });
     fireEvent.click(within(dialog).getByRole("button", { name: "Apply" }));
     expect(where()).toBe(`/portfolio?${WEEK}`);
-    expect(within(dialog).getByRole("alert").textContent).toBe("Choose a first day on or before the last day, 31 days at most.");
+    expect(within(dialog).getByRole("alert").textContent).toBe("Choose a first day on or before the last day, 731 days at most.");
     fireEvent.change(to, { target: { value: "2026-10-06" } });
     fireEvent.click(within(dialog).getByRole("button", { name: "Apply" }));
     await settledScreen();

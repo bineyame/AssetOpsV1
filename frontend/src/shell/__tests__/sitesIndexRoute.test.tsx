@@ -57,7 +57,7 @@ const SITE: SiteSummary = {
  * the site row nor the gated create action is a navigation item.
  */
 // W6-01e: Operational records rail root is live.
-const OPERATOR_NAVIGATION_LABELS = ["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Operational records", "Evidence", "Financials"];
+const OPERATOR_NAVIGATION_LABELS = ["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Evidence & records", "Financials"];
 
 const SITE_DETAIL: SiteDetailReadModel = {
   ...SITE,
