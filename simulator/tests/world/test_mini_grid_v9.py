@@ -232,3 +232,20 @@ def test_an_inverter_without_its_state_or_shares_not_summing_to_one_refuses(book
     execution = start_execution(_v9(uneven, inverters=("pv-inverter", "pv-inverter-b")), V9)
     execution.run_to_end()
     assert execution.outcome != "COMPLETED"
+
+
+def test_the_unit_path_forced_on_one_of_each_moves_v8s_stocks_states_and_readings(
+    books: dict, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The multi-unit code is v8's rule lifted to units: forced onto Kobo's one of each for a week it moves every
+    stock, every lifecycle transition and every interval measurement exactly as v8 does."""
+    frozen = tel.frozen_inputs(_kobo(), books, "2026-10-01", "2026-10-07")
+    v8 = _run(frozen, V8)
+    monkeypatch.setattr(mini_grid, "_fast", lambda context: False)
+    units = _run(_v9(frozen), V9)
+    assert units.boundaries[1].control_step.accepted.flows[0].to_address == "inverters"  # the unit path ran
+    assert [b.stocks for b in units.boundaries] == [b.stocks for b in v8.boundaries]
+    assert [b.interval_measurements for b in units.boundaries] == [b.interval_measurements for b in v8.boundaries]
+    key = lambda t: (t.at_offset_minutes, t.address, t.previous, t.next)  # noqa: E731
+    assert [key(t) for t in units.discrete_transitions] == [key(t) for t in v8.discrete_transitions]
+    assert any(t.next == "RUNNING" for t in v8.discrete_transitions)
