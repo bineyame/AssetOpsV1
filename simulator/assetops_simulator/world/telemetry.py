@@ -486,6 +486,7 @@ class SiteRun:
         self.strict = True  # False: a bounded transition is recorded, not refused (the pure run's table only)
         self.next_day = 0
         self.ledger: dict[str, dict] = {}
+        self._day_rows: dict[date, list[dict]] = {}
         values = {row.state_key: row.value for row in self.frozen.initial_values}
         self._curve = generator_curve.fuel_curve(values["generator-specific-fuel-consumption"],
                                                  values["generator-no-load-fuel-rate"], values["generator-rated-power"])
@@ -618,6 +619,15 @@ class SiteRun:
         first = index * STEPS_PER_DAY + 1
         return self.readings_for_steps(first, first + self.day_steps[index] - 1)
 
+    def advance_day(self) -> date:
+        """D-DD.81's day-level protocol: step the next local day and keep its rows (already bound by this frame)."""
+        day = self.days[self.next_day]
+        self._day_rows[day] = self.next_day_readings()
+        return day
+
+    def day_records(self, day: date) -> list[dict]:
+        return self._day_rows.pop(day)
+
     @property
     def end_local(self) -> datetime:
         """The span's end instant, local time (D-DD.103)."""
@@ -657,6 +667,68 @@ def day_file(site: dict, day: date, rows: list[dict]) -> bytes:
     return (head[:-1] + ',"readings":[\n' + body + "\n]}\n").encode("utf-8")
 
 
+#: D-DD.81: a Site's pack family, by its binding role set's family (the role set's name before its version).
+PACK_FAMILIES = {"minigrid-roles": "mini-grid", "cold-roles": "cold-thermal", "ev-roles": "ev-charger"}
+#: The vertical pack each family's run drives (model, version), written in its readings manifest.
+VERTICAL_PACKS = {"cold-thermal": ("cold-thermal", 2)}
+
+
+def pack_family(site: dict) -> str | None:
+    return PACK_FAMILIES.get(site["role_set"].rsplit("-", 1)[0])
+
+
+class VerticalBinding:
+    """The frame's binding of a vertical run's pack rows (D-DD.81, D-DD.91): each `(device_id, signal_id)` resolves to
+    exactly one binding row; a value is rounded to the millesimal or checked against the binding's state map; an event
+    row has value null, unit `event` and its `event` object. Rows sort by (start, source_id, signal_id, ordinal)."""
+
+    def __init__(self, site: dict) -> None:
+        self.code, self.zone = site["code"], _zone(site)
+        self.rows_by_channel: dict[tuple[str, str], dict] = {}
+        for row in site["bindings"]:
+            key = (row["device_id"], row["signal_id"])
+            if key in self.rows_by_channel:
+                raise TelemetryRefused("TEL_BINDING", f"{self.code} {key[0]}/{key[1]} has two binding rows")
+            self.rows_by_channel[key] = row
+        self.used: set[tuple[str, str]] = set()
+
+    def rows(self, pack_rows: list[tuple]) -> list[dict]:
+        out = []
+        for device, signal, start, end, value, unit, event in pack_rows:
+            binding = self.rows_by_channel.get((device, signal))
+            if binding is None:
+                raise TelemetryRefused("TEL_BINDING", f"{self.code} {device}/{signal} has no binding row")
+            self.used.add((device, signal))
+            row = {"source_id": binding["device_id"], "signal_id": binding["signal_id"],
+                   "start": start.astimezone(self.zone).isoformat(), "end": end.astimezone(self.zone).isoformat()}
+            if event is not None:
+                if binding["source_unit"] != "event":
+                    raise TelemetryRefused("TEL_BINDING", f"{self.code} {device}/{signal} is an event channel bound "
+                                                          f"as {binding['source_unit']}")
+                row.update(value=None, unit="event", event=dict(event))
+            else:
+                if unit != binding["source_unit"]:
+                    raise TelemetryRefused("TEL_BINDING", f"{self.code} {device}/{signal} {unit} bound as "
+                                                          f"{binding['source_unit']}")
+                if isinstance(value, Fraction):
+                    text = _decimal(value)
+                elif isinstance(value, str):
+                    allowed = binding["conversion"].get("parameters", {}).get("map", {})
+                    if allowed and value not in allowed:
+                        raise TelemetryRefused("TEL_BINDING", f"{self.code} {device}/{signal} state {value}")
+                    text = value
+                else:
+                    raise TelemetryRefused("TEL_PACK", f"{self.code} {start.isoformat()} {device}/{signal} has no value")
+                row.update(value=text, unit=binding["source_unit"])
+            out.append(row)
+        return sorted(out, key=lambda r: (r["start"], r["source_id"], r["signal_id"],
+                                          r["event"]["ordinal"] if "event" in r else 0))
+
+    def mappings(self) -> list[dict]:
+        return [{"record": self.rows_by_channel[k]["asset_code"], "role": self.rows_by_channel[k]["role"],
+                 "source_id": k[0], "signal_id": k[1]} for k in sorted(self.used)]
+
+
 def supported(site: dict) -> bool:
     kinds = [c["type"] for c in site["foundation"]["components"]]
     return all(kinds.count(kind) == 1 for kind in ("GENERATOR", "INVERTER", "BATTERY", "FUEL_TANK"))
@@ -673,14 +745,18 @@ def build_telemetry(view: dict, sites: dict, decided_books: dict, *, start: str,
         code = site["code"]
         if only is not None and code not in only:
             continue
-        if not supported(site):
+        family = pack_family(site)
+        if family in VERTICAL_PACKS:
+            files += _vertical(site, family, decided_books[code], start, end, manifests)
+            continue
+        if family != "mini-grid" or not supported(site):
             manifests.append((f"{site['tenant']}/telemetry/{code}.manifest.json", {"schema": MANIFEST_SCHEMA, "site_code": code,
                                                         "not_written": "TEL_PACK no pack for this structure yet (DD3.3)"}))
             continue
         run = SiteRun(site, decided_books[code], start, end)
         digests: dict[str, "hashlib._Hash"] = {}
         for day in run.days:
-            data = day_file(site, day, run.next_day_readings())
+            data = day_file(site, run.advance_day(), run.day_records(day))
             files.append((f"{site['tenant']}/telemetry/{code}.{day.isoformat()}.readings.json", data))
             digests.setdefault(day.strftime("%Y-%m"), hashlib.sha256()).update(data)
         by_tenant.setdefault(site["tenant"], []).append(run)
@@ -689,6 +765,29 @@ def build_telemetry(view: dict, sites: dict, decided_books: dict, *, start: str,
     for slug, runs in sorted(by_tenant.items()):
         files.append((f"{slug}/telemetry/measured.json", file_bytes(measured_for(slug, runs))))
     return TelemetryResult(tuple(files), tuple(manifests))
+
+
+def _vertical(site: dict, family: str, books: dict, start: str, end: str, manifests: list) -> list[tuple[str, bytes]]:
+    """A vertical Site's run (D-DD.81): its pack rows bound, rounded and written by this frame, a day at a time."""
+    from .telemetry_cold import ColdSiteRun
+
+    run = ColdSiteRun(site, books, start, end)
+    binding = VerticalBinding(site)
+    files, digests = [], {}
+    for day in run.days:
+        run.advance_day()
+        data = day_file(site, day, binding.rows(run.day_records(day)))
+        files.append((f"{site['tenant']}/telemetry/{site['code']}.{day.isoformat()}.readings.json", data))
+        digests.setdefault(day.strftime("%Y-%m"), hashlib.sha256()).update(data)
+    model, version = VERTICAL_PACKS[family]
+    manifests.append((f"{site['tenant']}/telemetry/{site['code']}.manifest.json", {
+        "schema": MANIFEST_SCHEMA, "generator": GENERATOR, "site_code": site["code"], "role_set": site["role_set"],
+        "pack": {"model": model, "version": version}, "foundation_digest": site["foundation_digest"],
+        "span": {"first": run.days[0].isoformat(), "last": run.days[-1].isoformat(),
+                 "to": run.end.astimezone(_zone(site)).isoformat()},
+        "private_parameters": run.private_parameters(), "conditions": run.conditions(),
+        "mappings": binding.mappings(), "golden_digests": {m: d.hexdigest() for m, d in sorted(digests.items())}}))
+    return files
 
 
 def site_manifest(site: dict, run: SiteRun, books: dict, golden: dict[str, str]) -> dict:

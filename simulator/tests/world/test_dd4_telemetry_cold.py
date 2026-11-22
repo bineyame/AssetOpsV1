@@ -8,6 +8,7 @@ from fractions import Fraction
 import pytest
 
 from assetops_simulator.packs.cold import DEFAULT_PROPERTY_VALUES, PROPERTY_FIELDS
+from assetops_simulator.world.telemetry import TelemetryRefused
 from assetops_simulator.world.telemetry_cold import ColdSiteRun
 
 NAIROBI = timezone(timedelta(hours=3))
@@ -95,10 +96,11 @@ def test_thika_sequence_is_native():
               {"kind": "GRID_RESTORE", "at": "2026-09-30T22:00:00+03:00", "source": "Assumed"}]
     run = _run(events=events)
     rows = run.day_records(date(2026, 9, 30))
-    gen = [(_local(r[2]), r[4]) for r in rows if r[1] == "start-event"]
-    assert gen == [("2026-09-30T19:11", "START_REQUEST REQUESTED CONTROLLER"),
-                   ("2026-09-30T19:11", "START_RESULT FAILED CONTROLLER"),
-                   ("2026-09-30T19:14", "START_RESULT SUCCEEDED OPERATOR")]
+    gen = [(_local(r[2]), r[4], r[5], r[6]["record_kind"], r[6]["outcome"], r[6]["actor"], r[6]["ordinal"])
+           for r in rows if r[1] == "start-event"]  # D-DD.91: value None, unit event, the v4 fields
+    assert gen == [("2026-09-30T19:11", None, "event", "START_REQUEST", "REQUESTED", "CONTROLLER", 1),
+                   ("2026-09-30T19:11", None, "event", "START_RESULT", "FAILED", "CONTROLLER", 2),
+                   ("2026-09-30T19:14", None, "event", "START_RESULT", "SUCCEEDED", "OPERATOR", 3)]
     bus = [(_local(r[2]), r[4]) for r in rows if r[0] == "backup-bus-meter" and "19:1" in _local(r[2])]
     assert ("2026-09-30T19:11", "UNPOWERED") in bus and ("2026-09-30T19:15", "POWERED") in bus
     assert {c["condition"] for c in run.conditions()} >= {"GRID_LOSS", "GENERATOR_HAND_START", "GRID_RESTORE"}
@@ -114,6 +116,6 @@ def test_thika_sequence_is_native():
      "TEL_PACK"),
 ])
 def test_refusals_carry_their_code(make, code):
-    with pytest.raises(ValueError) as caught:
+    with pytest.raises(TelemetryRefused) as caught:  # the frame's class since the join (D-DD.81)
         make()
-    assert str(caught.value).split()[0] == code
+    assert caught.value.code == code and str(caught.value).split()[0] == code

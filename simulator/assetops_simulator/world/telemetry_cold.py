@@ -20,8 +20,8 @@ days `first..last`, one continuous execution advanced one local day at a time (D
   not 1.
 - Initial state (stated in `conditions`): the chamber at the room's control low, the first day's ambient, the crates
   of the movements before `first` (no field heat carried), generator STOPPED, grid AVAILABLE.
-- Refusals are `ValueError`s whose message starts with the `TEL_*` code (D-DD.81: the frame's `TelemetryRefused`
-  replaces them at the join): `TEL_FOUNDATION`, `TEL_EVENT_UNPLACED`, `TEL_PACK`.
+- Refusals are the frame's `TelemetryRefused` (D-DD.81's join): `TEL_FOUNDATION`, `TEL_EVENT_UNPLACED`, `TEL_PACK`.
+- `day_records` rows carry a seventh element, the event's v4 fields or None (D-DD.91); the frame binds and writes them.
 
 Standard library and the simulator's cold pack only.
 """
@@ -36,7 +36,7 @@ from zoneinfo import ZoneInfo
 from ..packs.cold import (DD_LOAD_PARAMETERS, FORCING_EFFECTS, PROPERTY_FIELDS, V2_FORCING_ASSETS, ColdForcingRow,
                           ColdPack, ColdParameters, ColdState)
 from ..packs.errors import PhysicallyUnacceptable
-from .telemetry import span_days
+from .telemetry import TelemetryRefused, span_days
 
 STEP = timedelta(minutes=1)
 DOOR_MINUTES = 5  # spec §4.4: door per movement
@@ -47,8 +47,8 @@ EVENT_FORCINGS = {kind: effect for kind, effect in FORCING_EFFECTS.items() if ki
     "GENERATOR_HAND_START": ("generator-1", "RUNNING")}
 
 
-def _refuse(code: str, detail: str) -> ValueError:
-    return ValueError(f"{code} {detail}")
+def _refuse(code: str, detail: str) -> TelemetryRefused:
+    return TelemetryRefused(code, detail)
 
 
 def _text(value: object) -> str:
@@ -219,17 +219,20 @@ class ColdSiteRun:
 
     @staticmethod
     def _row(r) -> tuple:
-        if r.measurement is None:  # an event: its kind, outcome and actor as the value
-            return (r.device_id, r.signal_id, r.source_time, r.source_time,
-                    f"{r.record_kind} {r.outcome} {r.actor}", "event")
+        if r.measurement is None:  # an event (D-DD.91): the v4 EVENT fields, the ids are formed at sealing
+            event = {"record_kind": r.record_kind, "outcome": r.outcome, "actor": r.actor,
+                     "component_id": r.component_id, "ordinal": r.transition_ordinal,
+                     "correlation": None if r.correlation_key is None else list(r.correlation_key)}
+            return (r.device_id, r.signal_id, r.source_time, r.source_time, None, "event", event)
         start = r.interval_start if r.measurement == "INTERVAL_MEAN" else r.source_time
-        return (r.device_id, r.signal_id, start, r.source_time, r.value, r.unit)
+        return (r.device_id, r.signal_id, start, r.source_time, r.value, r.unit, None)
 
     def day_records(self, day: date) -> list[tuple]:
-        """The day's pack rows `(device_id, signal_id, start, end, value, unit)`, UTC instants, exact values."""
+        """The day's pack rows `(device_id, signal_id, start, end, value, unit, event)`, UTC instants, exact values;
+        `event` is the event's fields (D-DD.91) or None for a measurement."""
         if day not in self._records:
             raise _refuse("TEL_EVENT_UNPLACED", f"{self.code} {day.isoformat()} is not advanced")
-        return sorted(self._records[day], key=lambda r: (r[2], r[3], r[0], r[1]))
+        return sorted(self._records[day], key=lambda r: (r[2], r[3], r[0], r[1], r[6]["ordinal"] if r[6] else 0))
 
     def conditions(self) -> list[dict]:
         return list(self._conditions)
