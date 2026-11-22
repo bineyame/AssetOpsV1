@@ -44,4 +44,4 @@
 - `D-T1.25` T1b No new capacity: a lane holds a T1 slot; lane runs at most -n 2 · live · specs/T1-heavy-tool-slot-pool/rulings.md
 - `D-T1.26` T1b Second database created by idempotent createdb, not migrated; 1.0 u · live · specs/T1-heavy-tool-slot-pool/rulings.md
 - `D-DD.143` DD4a Q1: Mwea has no efficiency condition (f = 1); f_m table only where the story declares one (Kirinyaga); amends D-DD.119 · live · specs/DD-demo-data/rulings.md
-- `D-DD.144` DD4a Q2 DRAFT: M's cold energy model (0.25 kWh/crate-day) is the wrong side; room stands; model refitted on Mwea+Thika Jul-Sep meter, Kirinyaga +14 %; DD4.6 +1.0 u if approved; owner asked · live · specs/DD-demo-data/rulings.md
+- `D-DD.144` DD4a Q2, owner-approved 22 Nov: M's cold energy model (0.25 kWh/crate-day) is the wrong side; room stands; model refitted on Mwea+Thika Jul-Sep meter, Kirinyaga +14 %; DD4.6 +1.0 u if approved; owner asked · live · specs/DD-demo-data/rulings.md

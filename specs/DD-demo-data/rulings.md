@@ -2457,7 +2457,7 @@ applied: loyal to the operating world, one model-computed figure per quantity, n
 Kobo precedent (D-DD.92: "Revisit a plant figure", then "Architect proposes, owner approves", D-DD.97; D-DD.98 and
 D-DD.125: the readings stand and the story moves).
 
-The owner is informed of both. **D-DD.144 is a DRAFT awaiting the owner**: nothing beyond D-DD.20's meter bill is
+The owner is informed of both. **D-DD.144 was approved by the owner on 22 Nov ("Approve rebuild"; owner-demo-data-answers-2026-11-22.md); DD4.6 is in scope**: nothing beyond D-DD.20's meter bill is
 built from it until the owner approves.
 
 - **D-DD.143 Q1: Mwea has no efficiency condition, f = 1 in every month; the ruling's test holds and its text is
