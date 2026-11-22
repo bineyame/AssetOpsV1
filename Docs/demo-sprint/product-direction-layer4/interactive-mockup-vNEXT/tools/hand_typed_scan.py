@@ -122,11 +122,8 @@ MALLOW = [
     ('tenants[lakeside-power].sites[Kobo].entitlement.evidence.cycles', '6000', 'of 6000', 'warranty limit quoted in the evidence record'),
     ('tenants[lakeside-power].sites[Kobo].entitlement.evidence.throughput', '600', 'of 600 MWh', 'warranty limit quoted in the evidence record'),
     ('tenants[lakeside-power].sites[Kisiwa].period.bridge[DEMAND_VOLUME].basis', '100', '100 kWh', 'bridge quantity = actual - plan billed kWh; no single node (export requested)'),
-    ('tenants[lakeside-power].sites[Kisiwa].period.bridge[SOLAR_SHORTFALL_NECESSARY_GEN].basis', '80', '80 L', 'bridge quantity = actual - plan needed litres; no single node (export requested)'),
-    ('tenants[lakeside-power].sites[Kobo].period.bridge[EVENING_LOAD_GROWTH].basis', '30', '30 L', 'bridge quantity = actual - plan needed litres; no single node (export requested)'),
     ('tenants[lakeside-power].sites[Mto].period.bridge[DEMAND_VOLUME].basis', '20', '20 kWh', 'bridge quantity = actual - plan metered kWh; no single node (export requested)'),
-    ('tenants[lakeside-power].sites[Mto].period.bridge[EVENING_NECESSARY_GEN].basis', '20', '20 L', 'bridge quantity = actual - plan needed litres; no single node (export requested)'),
-    ('tenants[metro-bus].sites[Embakasi].period.bridge[PEAK_ENERGY_SHARE].basis', '30', 'vs 30%', 'plan peak share; no node (export requested)'),
+    ('tenants[metro-bus].sites[Embakasi].period.bridge[PEAK_ENERGY_SHARE].basis', '30', 'against 30%', 'plan peak share; no node (export requested)'),
     ('tenants[metro-bus].sites[Embakasi].period.bridge[PEAK_ENERGY_SHARE].basis', '0.12', '0.12 premium', 'peak minus off-peak price; no single node (export requested)'),
     ('tenants[metro-bus].portfolio.operations.measures[deliverable_energy_used].binding_limit.Embakasi', '600', 'chargers 600 kW', 'chargers x charger kW; no node (export requested)'),
     ('tenants[metro-bus].portfolio.operations.measures[deliverable_energy_used].binding_limit.Ruiru', '720', 'chargers 720 kW', 'chargers x charger kW; no node (export requested)'),
@@ -178,3 +175,5 @@ unused = [a for i, a in enumerate(allow_all) if i not in used]
 json.dump({'count': len(uniq) + len(mhits) + len(unused), 'hits': uniq, 'manifest_strings_scanned': len(rendered), 'manifest_count': len(mhits),
            'manifest_hits': mhits, 'allow_total': len(allow_all), 'allow_used': len(used), 'allow_unused': unused, 'allow': allow_all},
           sys.stdout, ensure_ascii=False, indent=0)
+# 0K4m (spec §4): exit 1 on any hit not on the allow-list, and on an allow entry that suppresses nothing
+sys.exit(1 if (len(uniq) + len(mhits) + len(unused)) else 0)
