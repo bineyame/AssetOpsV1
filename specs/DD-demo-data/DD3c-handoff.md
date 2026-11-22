@@ -65,6 +65,15 @@
   - Tests `backend/tests/test_dd3c_readers_units.py` (14). Plants, reverted: sum under roles-4 (2 dispatch tests
     fail), replay first unit only, verification first unit's kWh, night note lead SFC (each its test fails).
   - Checks on 31abdf4da: architecture passed, agent workflow passed, statement catalogue exit 0.
+  - Targeted `--db` run (31abdf4da, 66 files: `test_dd3c_*` and every test importing dispatch_v3,
+    verification*, replay_series, fuel_balance/, night_text): 1197 passed, 15 failed, 1 skipped, 1429 s. Fixed in
+    420dc4a0e: 12 s6 evaluator/holds tests (their window fake took no `unit_roles` keyword; the keyword is now passed
+    only when a bound set names a unit role, so the roles-4 call is unchanged) and the replay_series import pin.
+    Rerun on 420dc4a0e (s6 x2, 0k3 replay_series, w403, 3b1; same `--db` call as the main check): 134 passed,
+    2 failed. Those 2 (`test_w403...unchanged_fence_tick...`, `test_3b1...leaf_sources...manifest`) fail identically
+    on main 23d2cd9f6 (detached temp worktree, removed after the run): 82 passed, 2 failed. `test_ch5c2_clock_guard`
+    fails as on main (baseline 23d2cd9f6). One-unit Sites (Kobo): every Kobo Postgres pin in the set passes, and the
+    pure one-unit identity tests hold.
 - Open points for review: (1) the night note's form (summed figure, blended L/kWh) is the default the coordinator
   named, to be confirmed; per-unit terms would need a new catalogued template. (2) minimum-runtime refusal raises
   (the dispatch job fails loud) rather than adding a limit: a limit line would be new text (D-DD.108 Q6).
