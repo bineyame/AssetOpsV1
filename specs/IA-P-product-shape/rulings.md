@@ -1,8 +1,8 @@
 # IA-P rulings (Architect, Claude, 2026-11-22)
 
 Each ruling has its reason. The owner asked for this spec on 22 Nov (`owner/owner-merge-on-accept-ia-shape-k10-2026-11-22.md`)
-and reviews once the product is close to the shape. The open owner questions are spec §9 (Q1 to Q8, with the defaults
-applied).
+and reviews once the product is close to the shape. The open owner questions are spec §9 (Q3 to Q10, with the defaults
+applied). Q1 and Q2 were answered on 22 Nov (D-IAP.15). Rev 2 rulings are D-IAP.15 to D-IAP.23, at the end.
 
 - **D-IAP.1 Scope and boundary.**
   - IA-P brings the real app onto the agreed shape for these parts: the menu, the Portfolio's three tabs and its Overview,
@@ -13,7 +13,8 @@ applied).
   - Reason: the owner named exactly these three things (Portfolio, live lists, a home for the month), and "no screen lost"
     needs every other route mapped, not rebuilt.
 
-- **D-IAP.2 The month is the Portfolio Overview.**
+- **D-IAP.2 The month is the Portfolio Overview.** *(Amended by D-IAP.15 and D-IAP.18: the month exception and the
+  month span are withdrawn; the Overview follows the range.)*
   - `/portfolio` renders 5c's month screen, and `/portfolio/month` aliases to it, keeping `?month=`.
   - The page declares the month's span through SR-4c (`useDeclareRangeSpan`). The month links stay in the hub header.
   - Reason: the mock's Overview is this screen (5c MD7 names this rebuild as its resolving unit), and two front pages would
@@ -64,7 +65,7 @@ applied).
   same members as `placement_counts`, counting members with no matched Action. Reason: the Sites list's "Waiting for a
   choice" needs a per-Site count across pages. The server already holds the rows; the browser must not count a partial page.
 
-- **D-IAP.9 E1, `GET /api/portfolio/sites`.**
+- **D-IAP.9 E1, `GET /api/portfolio/sites`.** *(Amended by D-IAP.20: it takes `from` and `to`, not `month`.)*
   - It is the Sites list and the Outcomes rows: every registry Site, ordered on the server by gap (most adverse first),
     then the not-compared Sites last.
   - Its strings come from SC-1 `portfolio_sites.*`. The largest driver is the most negative STEPS row.
@@ -86,7 +87,7 @@ applied).
   - Search covers Sites, decisions, Findings, Actions and live rail items. It is lazy, through the shared cache, with words
     ANDed and 20 results shown.
 
-- **D-IAP.12 The old Overview's content, re-housed.**
+- **D-IAP.12 The old Overview's content, re-housed.** *(Amended by D-IAP.18: the L2 rows are for the range.)*
   - The range category cards (with 1a's line) go to Outcomes L3. The objectives matrix goes in a disclosure there from P4.
   - The top three becomes Overview L2: Decisions rows, for the month's bounds, at most 6, then "View all {n}" carrying those
     bounds.
@@ -94,7 +95,7 @@ applied).
   - The coverage line and the scope disclosure go to Evidence & records › Coverage. What changed goes to Results.
   - Reason: proposal §6 and the owner's rule to move reviewed constructs, not drop them.
 
-- **D-IAP.13 Units and gates.**
+- **D-IAP.13 Units and gates.** *(Sizes amended by D-IAP.22.)*
   - The units run in the order P1 to P7, in two parts:
     - IA-P1 is P1 to P3 (3.75 units); its review follows P3;
     - IA-P2 is P4 to P7 (4.75 units); its review follows P7.
@@ -103,9 +104,83 @@ applied).
   - Plants are one-line edits shown failing.
   - Discovery review per part: P4 adds a money figure and an endpoint.
 
-- **D-IAP.14 Ladder, WK and DDR.**
+- **D-IAP.14 Ladder, WK and DDR.** *(Amended by D-IAP.22: P3a also stales the key.)*
   - Only P4 changes `backend/assetops_backend`, so only P4 stales the world key (`CODE_PATHS`). The coordinator rebuilds
     the current rung once after P4 merges, before the next WK run.
   - The walk pages all still land (the month path through its alias). P7 adds the new pages to
     `walk-layer4-v1.json`.
   - DDR's S7 browser path is aliased; its runbook text is updated in P3.
+
+## Rev 2 (Architect, Claude, 2026-11-22; owner answers `owner/owner-iap-q1-q2-kobo-datasheets-2026-11-22.md`)
+
+- **D-IAP.15 The owner's answers to Q1 and Q2.**
+  - Q1, "Month is the Overview": D-IAP.2 stands. `/portfolio` renders 5c's screen, with no fourth tab.
+  - Q2, "Follow the date range": the Overview follows the top-bar range like every other page. Rev 1's exception (a
+    calendar month whatever the range, with its SR-4c month span and the server's default month) is withdrawn.
+  - Both leave the spec §9 queue as answered.
+
+- **D-IAP.16 The period rule.**
+  - The Overview counts the whole, closed calendar months inside the range.
+  - A month the range only touches (PARTIAL), or holds but which has not closed (OPEN), is named and not counted. A whole
+    month with no served snapshot is named as missing.
+  - The modes are `none` (no served month), `month` (one) and `period` (two or more). The cap is 24 months, and
+    `known_at` does not re-cut the snapshots.
+  - Reason: targets and management accounts exist per month and there is no daily snapshot. Cutting by day would invent a
+    target split, which breaks the honest-numbers rule. Counting every whole month and naming the rest gives output for
+    the range wherever the data can carry it (the owner's range rule).
+  - Spec: `spec-period.md` P.1, P.2.
+
+- **D-IAP.17 E2, `GET /api/portfolio/period?from=&to=`, and the period body.**
+  - The server resolves the range and returns the mode, the months, the notes, `shown`, `nav` and `suggest`. In mode
+    `period` it also returns a body.
+  - The body sums the months' root rows and heading sums exactly, reusing 5c's `_View` per month. It is None on any
+    missing term or mixed currency. Its word is the weakest, under the period standing (reconciled only when every month
+    is).
+  - A month row's gap is that month's tile 2 string.
+  - Reason: effects add across months as 5b's rule makes them add across Sites. Resolving months and days, and summing,
+    are server work: the browser never compares or adds a figure (D-5C.2), and it never types a month.
+  - 5c's month read is unchanged.
+
+- **D-IAP.18 The hub on the range.**
+  - Mode `month` renders 5c's screen for E2's month, with ‹ › from E2's `nav` setting the range. Mode `period` renders the
+    period hub ("Month by month" in L3, MD-IAP-10). Mode `none` renders the notes, "Show {month}" and L2 (MD-IAP-11).
+  - The page declares an SR-4c span only when E2's `shown` is not null, so the bar says "This page shows part of it"
+    exactly when the counted months differ from the range.
+  - Overview L2's Decisions rows are for the range.
+  - `/portfolio/month?month=` aliases to that month's range, and `month` wins over a range in the address.
+  - Reason: one page, one period, the same as the bar. The DDR, WK and bookmarked month addresses still land on their
+    month.
+
+- **D-IAP.19 Range pages: the class fix.**
+  - Every IA-P page whose content follows the range joins `RANGE_PAGES` and `FILLED_PAGES` in the unit that lands it:
+    `/evidence/records` (P1), `/decisions` (P2), `/results` (P3b) and `/sites` (P4).
+  - Reason: rev 1 added these pages without the bar's registry, so the bar would have said the range is not used on pages
+    that use it. The sweep covers every new route in spec §2.4.
+
+- **D-IAP.20 E1 follows the same period.**
+  - E1 takes `from` and `to` and uses E2's resolver and header.
+  - In mode `period` a row sums the months in which its Site is compared, with "Compared in k of m months" when fewer than
+    all. The compared rows sum to the period's effect, and `total.gap` is the Overview's tile 2 for the same range.
+  - Reason: the one-figure rule across the Overview, Outcomes and Sites for any range. The Outcomes tab no longer mixes a
+    month (L1, L2) with the range (L3).
+
+- **D-IAP.21 A fresh Portfolio entry opens on last month.**
+  - With no range in the address and none stored for the session, `/portfolio` (and `/` through its alias) fills "Last
+    month" instead of "Last 7 days". Other pages keep "Last 7 days".
+  - Reason: a 7-day range holds no whole month, so the front page would open on notes. "Last month" is a WARM-1 preset,
+    so it stays warm.
+  - The owner may veto: spec §9 Q9.
+
+- **D-IAP.22 Units, sizes and the ladder (rev 2).**
+  - P3 splits into P3a (E2, 1.5) and P3b (the hub on the range, 1.75), and P4 grows to 2.0.
+  - IA-P1 is 5.75 units and IA-P2 is 5.0, 10.75 in all, each under the 6-unit cap.
+  - P3a and P4 both change `backend/assetops_backend`. The coordinator rebuilds the rung after each part merges before
+    the next WK run, or once if both merge first.
+  - IA-P1's review is now discovery-depth for a money endpoint too.
+
+- **D-IAP.23 Kobo stays Simulated (owner, 22 Nov).**
+  - IA-P renders Kobo's figures on the Overview, the month rows and the Sites rows. Each takes its word through 5c's
+    `figure_word`/`W.word` from the served evidence. So a Kobo figure carries the same word on every surface, the word its
+    evidence gives on 5c's screen today. IA-P adds no label of its own.
+  - No IA-P change follows. The data sheet replacement is the owner's prospect ask (0K4f), outside IA-P.
+
