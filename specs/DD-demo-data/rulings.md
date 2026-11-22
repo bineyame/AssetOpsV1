@@ -281,3 +281,89 @@ Architect (Claude), 2026-11-22. Answers Q-DD1.1 to Q-DD1.6 of `handoff-DD1.md` (
 - **D-DD.40 C-DD13's TENANT-1 clause is pending until DD5.2** (Q-DD1.1). Confirmed. Until DD5.2 C-DD13 is judged on the
   cross-tenant reads and prints `TENANT-1: pending (DD5.2)` beside its result. DD5.2 makes the clause live, and from
   then C-DD13 passes only when both hold. A checker test asserts the pending line.
+
+---
+
+# DD rulings, round 4 (D-DD.41 to D-DD.44): DD1 questions Q-DD1.7 to Q-DD1.9
+
+Architect (Claude), 2026-11-22. Answers Q-DD1.7 to Q-DD1.9 of `packet-DD1.md` (branch `task/DD1-operators`, commit
+`68c799339`). Architect-level calls, logged for owner review; the owner may want to weigh in on D-DD.41 (it adds a
+unit of work, D-DD.44).
+
+- **D-DD.41 Multi-unit role binding: `minigrid-roles-5`, unit roles PER_ASSET, Site figures by one aggregation rule**
+  (Q-DD1.7; the blocker; completes D-DD.21 on the evidence side).
+  - *The fault (a class, W6).* `minigrid-roles-4` says "one generator, one PV inverter per Site": its GENERATOR and
+    INVERTER roles are cardinality ONE, and `BindingService.publish` refuses a Foundation with two such components
+    (`BINDING_ROLE_AMBIGUOUS`). v9 (D-DD.21) models several units, and the Protect beats need each unit's own
+    evidence. Binding only unit 01, or a Site-total channel, would hide the failed unit or add a second figure for one
+    quantity; both rejected. The fix is in the role model, not the data.
+  - *Rule.* A role is PER_ASSET in `minigrid-roles-5` exactly when its asset type is a unit type of v9 (GENERATOR,
+    INVERTER): `generator_state`, `generator_power`, `mini_backup_start_event`, `pv_power`, `pv_available_power`.
+    Every other role, label, unit, value kind, `required` flag, `states` and `event_kinds` is `minigrid-roles-4`'s,
+    unchanged. Immutable, a new named version beside roles-4; roles-4 is untouched and still refuses (it stays
+    interpretable for the sets published under it).
+  - *Site figures from unit evidence (one rule, one module; built in DD3.4, D-DD.44).* Power roles: the Site value at a
+    step is the sum of the bound units' values; a unit with no value at that step makes the Site value absent there,
+    named by unit (no imputation). `generator_state`: RUNNING if any unit runs, else STARTING if any starts, else
+    STOPPED if any unit is not FAILED, else FAILED. `mini_backup_start_event`: the union in time order, each event
+    keeping its unit. Unit property reads: Site generator rating = the sum of non-FAILED units' `generator-rated-power`;
+    burn per unit on its own curve, Site litres = the sum; Site policy from the lead unit (D-DD.43). One unit gives the
+    unit's own value byte for byte, so a one-unit Site reads as today. Protect reads (C-DD6, the failure on its own unit)
+    read the unit series, never the Site series.
+  - *DD1 now (publish side only).* Kisiwa and Mto publish under roles-5; Kobo stays roles-4 until DD3.4 moves it with a
+    parity proof, so the live Kobo figures are not touched before their readers accept roles-5. Until DD3.4 merges no
+    reader selects a roles-5 set, so Kisiwa and Mto show no generator or PV figure rather than a wrong one; their
+    readings are not loaded before DD5 in any case.
+  - *Builder's change list (DD1.2):*
+    1. `sites/binding_roles.py`: `ROLE_SET_MINIGRID_5 = "minigrid-roles-5"`; `MINIGRID_ROLES_5` = roles-4 with the five
+       roles above as PER_ASSET (built by replacing those five entries, order kept); add it to `ROLES_BY_SET` and to
+       `SERVED_ROLE_SETS_BY_SITE_TYPE["MINIGRID"]`. `ROLE_SET_BY_SITE_TYPE` unchanged.
+    2. `sites/binding_service.py`: roles-5 beside roles-4 in `_V4_TABLE_BY_ROLE_SET` and `_MIXED_V4_ROLES_BY_ROLE_SET`
+       (same entries), and at its third roles-4 reference. Class fix: the readiness branch (`role.cardinality ==
+       "PER_ASSET" and role.asset_type == "LOAD"`, about `:814`) and the verification-missing branch (about `:908`)
+       apply to every PER_ASSET role over the Site's components of `role.asset_type`, so an unbound unit of a required
+       role is named as missing (LOAD output byte-identical).
+    3. `conversions/world/KISIWA-001-bindings.json`, `MTO-001-bindings.json`: `role_set` `minigrid-roles-5`, each
+       unit's device signals bound with that unit's `asset_code`. KOBO-001 unchanged.
+    4. Tests: roles-5 publishes Kisiwa (2 GENERATOR) and Mto (2 INVERTER); roles-4 on the same Foundation still refuses
+       `BINDING_ROLE_AMBIGUOUS` (plant); two bindings of one unit role on one unit refuse `BINDING_ROLE_CONFLICT`;
+       readiness lists `generator_power - <unit>` missing when one unit is unbound; LOAD readiness unchanged on an
+       existing fixture; `test_dd1_onboarding_postgres` Lakeside apply with `--bindings` exits 0, one published set per
+       Site, second apply unchanged (replaces the Q-DD1.7 refusal case).
+  - Not in DD1: every reader (`analytics/assessment_worker`, `mini_depth/*`, migration 0029's lift, `dispatch_v3`,
+    `fuel_balance`, `actions/verification*`, `finding_episode`, `financials/fuel_cost`, `chain/measure_impls`,
+    `runs/replay_*`, `structure/energy/inputs`): DD3.4.
+
+- **D-DD.42 Site document limits: 10,000 nodes, 96 devices, accepted with their basis** (Q-DD1.8).
+  - Accepted. The limits guard parsing cost and refuse runaway documents; they are not product rules. The byte bound
+    (256 KiB) stays and is the binding memory limit (10,000 nodes fit it at about 25 bytes a node). Basis: the largest
+    real demo Site is Ruiru, 6,623 nodes and 73 devices; 10,000 and 96 leave about 1.5x and 1.3x. The template
+    `MAX_DOCUMENT_NODES` moves with them so the device cap stays under the ceiling.
+  - Builder: the three constants' comments name this ID and the basis; one test each that a document at the new
+    limit parses and one over it refuses with the existing code. The user-facing refusal sentences, if they quote a
+    number, quote the new one (statement baseline re-hashed, ratchet count unchanged).
+
+- **D-DD.43 Lakeside template fill accepted; the Site's generator policy is held once, on the lead unit** (Q-DD1.9).
+  - Accepted as applied: where the manifest is silent, template v3's values (PCS 30 kW, tank 400 L, load ratings
+    25/10/40 kW, Kisiwa inverter 30 kW). Values taken from the manifest (Kisiwa SFC 0.31, Mto inverters 25 kW) are
+    labelled `TEMPLATE` today; DD3.2's basis vocabulary relabels Lakeside's `/2` values (Declared, Assumed), as planned.
+    C-DD8 (tank within [0, capacity]) is the check on the 400 L tanks; a breach stops for the Architect.
+  - Amended: start and stop SOC, start delay and minimum runtime are the Site's one control policy (spec §4.3). Copied
+    onto both Kisiwa units they are two stored figures for one quantity. They are held once, on the lead unit (first
+    GENERATOR in declared order, `gen-ks-01`), as a lead set's controller holds a plant's set points. `gen-ks-02`
+    carries only its unit properties (`generator-rated-power`, `specific-fuel-consumption`; DD3.3 adds no-load rate and
+    minimum load). DD3.3's v9 reads the policy from the lead unit and refuses `TEL_FOUNDATION` when a non-lead unit
+    carries one; DD3.4's readers do the same.
+  - Builder (DD1.2): remove the four policy properties from `gen-ks-02` in `lakeside-power.onboarding.json`; a test
+    that no non-lead GENERATOR in the three files carries a policy property. If an existing DD1 test or readiness check
+    requires them on every GENERATOR, stop and report (do not restore them).
+
+- **D-DD.44 DD restated: 33.0 u in seven parts** (amends D-DD.33).
+  - DD1.2 grows 0.5 u (2.25; DD1 4.5 u): D-DD.41's publish side and D-DD.43's edit.
+  - New **DD3.4 Unit roles in the readers (2.5 u)**: one module (`sites/unit_roles.py`: the D-DD.41 aggregation and
+    the lead-unit policy read) that every listed reader calls for a roles-5 set; no reader sums units itself. A new
+    migration lets the mini-depth lift accept one roles-4 or roles-5 set in force. Kobo's world conversion moves to
+    roles-5, and a parity test shows Kobo's product outputs equal under roles-4 and roles-5 (as C-DD19 for v9). The
+    Planner's code-reality check confirms the size; over 3 u stops for the Architect.
+  - DD3 (8.5 u) splits at its seam: **DD3a** DD3.1 and DD3.2 (3.75 u; `task/DD3a-mini-reality`), then **DD3b** DD3.3
+    and DD3.4 (4.75 u; `task/DD3b-mini-units`). DD3.4 must merge before DD5.1 loads Kisiwa's or Mto's readings.
