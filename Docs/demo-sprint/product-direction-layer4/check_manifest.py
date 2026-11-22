@@ -2584,6 +2584,34 @@ def k9(root, doc, im):
     direct = im.evaluate('unavailable("x") | 0', lambda n: None)
     out.append((f"K9 self-test (P17): unavailable(\"x\") | 0 is not available, never 0 (side node {got[0]!r}, words {got[1]!r}; "
                 f"direct {direct!r})", got == (None, "x") and im.is_na(direct) and direct.words == "x" and im.r2(direct) is None))
+    # P25 (rev 4, D-0K4.49), the M1 probe: all four MTO-INV extra_l_per_day not available. Every MTO-INV option is then not
+    # available, the decision takes none, and the plan is feasible on the other options (KIS-REPAIR + BAT-EVIDENCE, spend 2,230).
+    p = _copy.deepcopy(doc)
+    for oid in ("MTO-INV-CLAIM", "MTO-INV-BUYNOW", "MTO-INV-NOACT", "MTO-INV-LOCAL"):
+        p["evaluation"]["options"][oid]["params"]["extra_l_per_day"] = 'unavailable("probe")'
+    try:
+        d = im.Model(p).compute()["plans"]["lakeside-power"]["default"]
+        got = (d["value"] is not None, sorted(d["items"]), d["spend"])
+    except Exception as ex:   # noqa: BLE001
+        got = (f"raised {ex!r}", None, None)
+    out.append((f"K9 self-test (P25): with all four MTO-INV options not available the plan takes none of them and is feasible "
+                f"(feasible {got[0]}, items {got[1]}, spend {got[2]}; want KIS-REPAIR + BAT-EVIDENCE, 2230)",
+                got == (True, ["BAT-EVIDENCE", "KIS-REPAIR"], 2230.0)))
+    # P24 (rev 4, D-0K4.46): every option of one protective decision not available: it takes none, with its stated how
+    p = _copy.deepcopy(doc)
+    dec = next(d for d in p["plans"]["lakeside-power"]["decisions"] if d.get("kind") == "protective")
+    for oid in dec["options"]:
+        p["evaluation"]["options"][oid].setdefault("params", {})["probe_p24"] = 'unavailable("probe")'
+    try:
+        d = im.Model(p).compute()["plans"]["lakeside-power"]["default"]
+        got = (d["value"] is not None, d["protective_choices"].get(dec["name"], "absent"), d["protective_detail"].get(dec["name"]))
+    except Exception as ex:   # noqa: BLE001
+        got = (f"raised {ex!r}", None, None)
+    out.append((f"K9 self-test (P24): every option of protective decision {dec['name']} not available: it takes none, never infeasible "
+                f"(feasible {got[0]}, chosen {got[1]!r}, entry {got[2]!r})",
+                got[0] is True and got[1] is None and isinstance(got[2], dict) and got[2].get("chosen") is None
+                and got[2].get("admissible") == [] and got[2].get("how") == "no candidate: every option is not available"
+                and "trade_off" not in got[2]))
     return out
 
 
