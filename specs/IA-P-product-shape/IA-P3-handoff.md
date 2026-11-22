@@ -29,7 +29,8 @@ Main baseline worktree `/opt/assetecon/AssetOpsV1-iap3main` (detached at `main` 
 
 1. **Migrate the existing tests that P4b broke.** vitest `src/estate src/shell src/ui` at `01aaf02cd`: 2021 tests, 47
    failed in 18 files (log: scratch `vitest-branch.log`; re-run to list them). Compare with main's run of the same set,
-   and migrate per file with IA-P2's (a)/(b) rule (`packet-IA-P2.md` §2). The causes seen so far:
+   (main `4b648381c`, same set: 2000 tests, 5 failed: `s502` 2, `siteRangeMatrix` 2, `sr2` SR-6b 1; 69 s; the branch took
+   202 s), so 43 of the branch's failures are new. Migrate per file with IA-P2's (a)/(b) rule (`packet-IA-P2.md` §2). The causes seen so far:
    - `sitesIndexRoute` (18), `operatorRouteFrames` (3), `simulatorLabGate` (4), `simulatorLabWorkspaceEntryPoint`,
      `siteDetailRoute`, `siteTemplateCatalog`, `siteTemplateLineage`, `overflowContainment` (3), `siteRangeCarry` (2),
      `operatorSiteTabs` "does not render on the Sites index": these pin the old directory table ("Site inventory", "In
