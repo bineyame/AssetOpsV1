@@ -20,7 +20,7 @@
 
 | Decision | Site | Its Finding | Finding's factor | Lever | Heading |
 |---|---|---|---|---|---|
-| `kobo-generator` | Kobo | Candidate running: the generator runs while solar and the battery could carry the load | `candidate_l` | `candidate_l` | Optimize |
+| `kobo-generator` | Kobo | Candidate running: the generator runs while solar and the battery could carry the load | `candidate_l` | `generator_l` | Optimize |
 | `kobo-battery` | Kobo | Risk to a right: the battery warranty cannot be claimed without a capacity test and a temperature record | `cover_not_claimable` | `cover_not_claimable` | Protect |
 | `kisiwa-genset` | Kisiwa | At its limit: the evening supply runs on one generator since generator 1 failed | `obligation_hours_without_redundancy` | `obligation_hours_without_redundancy` | Protect |
 | `kisiwa-om` | Kisiwa | Late repair response: 96 h against the O&M contract's 48 h, so a fee credit may be due | `om` | `om` | Optimize |

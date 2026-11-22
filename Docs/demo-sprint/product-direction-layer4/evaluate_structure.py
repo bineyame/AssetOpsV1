@@ -47,11 +47,39 @@ class Missing(Exception):
     pass
 
 
+class NotAvailable:
+    """N1 (0K4m): a value that is not available yet, naming its record or unit. Its own value, never a missing record: `a | b`
+    falls through only on Missing; arithmetic, min/max/ceil/floor and money() return it whenever an operand is one."""
+    __slots__ = ("words",)
+
+    def __init__(self, words):
+        self.words = words
+
+    def __repr__(self):
+        return f"not available ({self.words})"
+
+    def _same(self, *_):
+        return self
+    __add__ = __radd__ = __sub__ = __rsub__ = __mul__ = __rmul__ = __truediv__ = __rtruediv__ = _same
+
+    def __neg__(self):
+        return self
+
+
+def na(x):
+    return isinstance(x, NotAvailable)
+
+
+def first_na(*xs):
+    return next((x for x in xs if na(x)), None)
+
+
 NOTIFIED = ("NOTIFIED", "ACKNOWLEDGED", "ACCEPTED", "DENIED", "REJECTED")   # a notice has been given (brief l.430 claim states)
 
 
 BIN = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul, ast.Div: operator.truediv}
 FUNCS = {"min": min, "max": max, "ceil": lambda x: D(math.ceil(x)), "floor": lambda x: D(math.floor(x))}
+RESERVED = "unavailable"   # N1 (I6): a reserved call, read before FUNCS; the only place a string argument is legal
 DATE_FUNCS = {"days_incl": lambda a, b: D((b - a).days + 1), "days_between": lambda a, b: D((b - a).days)}
 
 
@@ -109,21 +137,31 @@ class Env:
             return num(node.value)
         if isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr):
             try:
-                return self.ev(node.left)
+                return self.ev(node.left)   # a not-available left side is the result: `|` falls through only on a missing record
             except Missing:
                 return self.ev(node.right)
         if isinstance(node, ast.BinOp):
-            return BIN[type(node.op)](self.ev(node.left), self.ev(node.right))
+            a, b = self.operands([node.left, node.right])
+            return first_na(a, b) or BIN[type(node.op)](a, b)
         if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.USub):
-            return -self.ev(node.operand)
+            x = self.ev(node.operand)
+            return x if na(x) else -x
         if isinstance(node, ast.Call):
+            if node.func.id == RESERVED:
+                if len(node.args) != 1 or node.keywords or not isinstance(node.args[0], ast.Constant) \
+                        or not isinstance(node.args[0].value, str) or not node.args[0].value.strip():
+                    raise ValueError(f"{RESERVED}() takes one non-empty string: {ast.unparse(node)}")
+                return NotAvailable(node.args[0].value)
+            if any(isinstance(a, ast.Constant) and isinstance(a.value, str) for a in node.args):
+                raise ValueError(f"a string argument is legal only in {RESERVED}(): {ast.unparse(node)}")
             if node.func.id == "nights_listed":   # dated roster records: how many listed nights fall in [from, to)
                 lst, a, b = self.path(node.args[0]), as_date(self.path(node.args[1])), self.path(node.args[2])
                 b = as_date(b) if b is not None else None
                 return D(sum(1 for x in lst if a <= as_date(x) and (b is None or as_date(x) < b)))
             if node.func.id in DATE_FUNCS:
                 return DATE_FUNCS[node.func.id](*[as_date(self.path(a)) for a in node.args])
-            return FUNCS[node.func.id](*[self.ev(a) for a in node.args])
+            args = self.operands(node.args)
+            return first_na(*args) or FUNCS[node.func.id](*args)
         if isinstance(node, ast.Name):
             if node.id in self.values:
                 return self.values[node.id]
@@ -133,17 +171,49 @@ class Env:
             return num(self.path(node))
         return num(self.path(node))
 
+    def operands(self, nodes):
+        """Every operand is evaluated; a not-available one wins over a missing record on either side."""
+        vals, miss = [], None
+        for n_ in nodes:
+            try:
+                vals.append(self.ev(n_))
+            except Missing as m:
+                miss = miss or m
+                vals.append(None)
+        if first_na(*vals):
+            return [first_na(*vals)] * len(vals)
+        if miss:
+            raise miss
+        return vals
+
     def expr(self, text):
         return self.ev(ast.parse(str(text), mode="eval"))
 
     def all_nodes(self):
         out = {n: self.expr(n) for n in self.structure}
-        out.update({k: v for k, v in self.values.items() if isinstance(v, D)})
+        out.update({k: v for k, v in self.values.items() if isinstance(v, D) or na(v)})
         return out
 
 
 def money(x):
+    if na(x):
+        return x
     return None if x is None else float(D(x).quantize(D("0.01")))
+
+
+def out_money(x):
+    """money() for an output field: a not-available value is written as null (its words go to a `not_available` map)."""
+    x = money(x)
+    return None if na(x) else x
+
+
+def side_nodes(nodes):
+    """An evaluated side: every node as money, null where not available, and the words of each not-available node."""
+    res = {"status": "evaluated", "nodes": {nn: out_money(v) for nn, v in nodes.items()}}
+    words = {nn: v.words for nn, v in nodes.items() if na(v)}
+    if words:
+        res["not_available"] = words
+    return res
 
 
 def add_business_days(d: dt.date, n: int) -> dt.date:
@@ -167,7 +237,7 @@ def observe_side(S, FM, vert, t, s_, record, obs, incident, entitlement, period_
         factors = {f: env.expr(x) for f, x in fm.items()}
         env = Env(S[vert], factors, ctx)
         nodes = env.all_nodes()
-        return {"status": "evaluated", "nodes": {nn: money(v) for nn, v in nodes.items()}}, ctx, factors
+        return side_nodes(nodes), ctx, factors
     except Missing as m:
         stated = record.get("contribution", record.get("total"))
         return {"status": f"not decomposed: stated total (missing leaf {m})", "stated_total": stated}, ctx, None
@@ -350,15 +420,19 @@ def main(path, variants=True) -> dict:
             amt = resolve(lv["amount"] if isinstance(lv, dict) else lv, ctx, row, params, opt)
             cov = lv.get("covered_by") if isinstance(lv, dict) else None
             share = D(0) if cov and covered(rights.get(cov)) else D(1)
-            lines[ln] = {"amount": money(amt), "covered_by": cov, "right_eligibility": rights.get(cov, {}).get("eligibility") if cov else None,
+            lines[ln] = {"amount": out_money(amt), "covered_by": cov, "right_eligibility": rights.get(cov, {}).get("eligibility") if cov else None,
                          "claim_state": rights.get(cov, {}).get("claim_state") if cov else None, "operator_share": float(share)}
             one_off += amt * share
         # declared bounds, evaluated absolutely on the option's counterfactual
-        violations = {}
+        violations, na_bounds = {}, []
         for b in EV["bounds"].get(vert, []):
             if b["node"] in opt:
                 limit = Env(struct, dict(opt), ctx).expr(b["max"])
-                violations[b["id"]] = money(max(opt[b["node"]] - limit, D(0)))
+                over = opt[b["node"]] - limit
+                # N1: a bound over a not-available node neither passes nor fails (null); the option is then not available
+                violations[b["id"]] = None if na(over) else money(max(over, D(0)))
+                if na(over):
+                    na_bounds.append(over)
         try:   # crew visits: from the option row, or declared on the option with its basis; never defaulted
             crews = int(resolve(spec["crew_visits"], ctx, row, params)) if "crew_visits" in spec else int(row["crew_visits"])
         except (KeyError, Missing):
@@ -366,26 +440,38 @@ def main(path, variants=True) -> dict:
         if restore_spec_crews is not None:   # the operator's own procurement replaces the supplier's work (spec §4.2)
             crews = int(resolve(restore_spec_crews, ctx, row, params))
         PROTECT = EV["protect_nodes"][vert]
-        res = {"site": site, "monthly_or_horizon_change": money(dmoney), "months": float(months), "operator_one_off": money(one_off),
+        # N1: the option is not available when a param, its value, or a bound over its nodes is; the words are the first
+        # not-available param's (params order), else the value's, else the first not-available bound's
+        order = [pn for pn in (spec.get("params") or {}) if pn in params]
+        value_na = first_na(dmoney, one_off)
+        na_why = first_na(*[params[pn] for pn in order]) or value_na or first_na(*na_bounds)
+        res = {"site": site, "monthly_or_horizon_change": out_money(dmoney), "months": float(months), "operator_one_off": out_money(one_off),
                "reference_one_off": money(ref_one_off), "net_one_off": money(one_off - ref_one_off), "crew_visits": crews,
-               "cost_lines": lines, "money_changes": dmoney != 0 and "comparator" not in spec and not spec.get("is_reference"),
-               "formula": f"(contribution under option {money(opt['contribution'])} - under reference {money(ref['contribution'])}) x {months} - (operator-borne one-off {money(one_off)} - reference path's {money(ref_one_off)})",
-               "protect": {k: money(opt[k]) for k in PROTECT if k in opt}, "reference_protect": {k: money(ref[k]) for k in PROTECT if k in ref},
+               "cost_lines": lines, "money_changes": na_why is None and dmoney != 0 and "comparator" not in spec and not spec.get("is_reference"),
+               "formula": f"(contribution under option {out_money(opt['contribution'])} - under reference {out_money(ref['contribution'])}) x {months} - (operator-borne one-off {out_money(one_off)} - reference path's {money(ref_one_off)})",
+               "protect": {k: out_money(opt[k]) for k in PROTECT if k in opt}, "reference_protect": {k: out_money(ref[k]) for k in PROTECT if k in ref},
                "rights": {"claimable_cover": money(opt["claimable_cover"]), "unclaimable_cover": money(opt["unclaimable_cover"]), "cover_lost": money(lost),
                           "lapsed": lapsed, "states": {a: r["eligibility"] for a, r in rights.items() if r["site"] == site}},
                "violations": violations, "restore_basis": restore_basis,
-               "restore_date": restore.isoformat() if restore else None, "params": {k: float(v) for k, v in params.items()},
-               "design_values": sorted({ps["design_value"] for ps in (spec.get("params") or {}).values() if isinstance(ps, dict) and "design_value" in ps}),
+               "restore_date": restore.isoformat() if restore else None, "params": {k: None if na(v) else float(v) for k, v in params.items()},
+               # N4: the replay studies the option's `source:` params and its information read
+               "replay_sources": sorted({ps["source"]["study"] for ps in (spec.get("params") or {}).values() if isinstance(ps, dict) and "source" in ps}
+                                        | ({spec["information"]["source"]["study"]} if "source" in (spec.get("information") or {}) else set())),
                "assumptions": [ps["assumption"] for ps in (spec.get("params") or {}).values() if isinstance(ps, dict) and "assumption" in ps] + ([spec["assumption"]] if "assumption" in spec else []),
                "_nodes": opt}
         res["value_if_admissible"] = money(dmoney * months - (one_off - ref_one_off)) if res["money_changes"] else None
+        res["_value"] = None if na_why is not None else dmoney * months - (one_off - ref_one_off)   # unrounded, for sensitivities
+        if "information" in spec:   # N3: copied verbatim; not a node, not a param, never bounded
+            res["information"] = copy.deepcopy(spec["information"])
+        if na_why is not None:
+            res["not_available"] = na_why.words
         det = EV.get("option_detail", {}).get(vert) or {}   # per-vertical detail nodes shown with an option (declared, not coded)
         if det:
-            res["bound"] = {k: money(opt[k]) for k in det.get("capacity", [])}
+            res["bound"] = {k: out_money(opt[k]) for k in det.get("capacity", [])}
             for k, nn in (det.get("option_nodes") or {}).items():
-                res[k] = money(opt[nn])
+                res[k] = out_money(opt[nn])
             for k, nn in (det.get("reference_nodes") or {}).items():
-                res[k] = money(ref[nn])
+                res[k] = out_money(ref[nn])
         return res
 
     for oid, spec in EV["options"].items():
@@ -393,10 +479,11 @@ def main(path, variants=True) -> dict:
         sens = {}
         for sn, sp in (spec.get("sensitivities") or {}).items():
             rs = run(oid, sp.get("params"), sp.get("factors"))
-            sens[sn] = money(D(str(rs["monthly_or_horizon_change"])) * D(str(rs["months"])) - D(str(rs["net_one_off"])))
+            # computed as the value is (unrounded monthly change), never from the rounded output fields
+            sens[sn] = None if "not_available" in r or "not_available" in rs else money(rs["_value"])
         if sens:
             r["sensitivities"] = sens
-        r.pop("_nodes")
+        r.pop("_nodes"); r.pop("_value")
         out["options"][oid] = r
 
     # ---------------- M4 Choose ----------------
@@ -412,15 +499,22 @@ def main(path, variants=True) -> dict:
         dec_of = {o: d for d in pl["decisions"] for o in d["options"]}
 
         def viol(o, d):
-            return sum(D_(O[o]["violations"].get(b, 0)) for b in d.get("hard", []))
+            v_ = [O[o]["violations"].get(b, 0) for b in d.get("hard", [])]
+            return None if None in v_ else sum(D_(x) for x in v_)   # None: a hard bound over a not-available node
 
         def admissible(o, d):
-            return viol(o, d) == 0
+            v_ = viol(o, d)
+            return None if v_ is None else v_ == 0
 
         def candidates(d, drops=()):
             """Options a decision may take: those meeting its hard bounds; if none can and it declares the fallback, all of them
             (violation is then minimised jointly with the rest of the plan)."""
-            opts = [o for o in d["options"] if o not in drops and (d["kind"] == "protective" or O[o]["value_if_admissible"] is not None)]
+            # N1: a not-available option is never chosen. A decision that must take one (protective, or valued with optional:
+            # false) may take an option that changes no money node: its spend counts, its value is not valued in money (0K4m: the
+            # Mto inverter paths once M8's extra fuel is 0)
+            must = d["kind"] == "protective" or not d.get("optional", True)
+            opts = [o for o in d["options"] if o not in drops and "not_available" not in O[o]
+                    and (must or O[o]["value_if_admissible"] is not None)]
             ok = [o for o in opts if admissible(o, d)]
             return (ok, False) if ok or d.get("fallback") != "least_violation" else (opts, True)
 
@@ -516,7 +610,7 @@ def main(path, variants=True) -> dict:
                 O[o]["value"] = O[o]["value_if_admissible"] if (O[o]["admissible"] or (chosen and O[o]["money_changes"])) else None
                 O[o]["valued_in_money"] = O[o]["value"] is not None
                 O[o]["decision"] = d["name"]
-                if not O[o]["admissible"]:
+                if O[o]["admissible"] is False:
                     O[o]["bound_failure"] = ("least violation: " if chosen else "hard bound: ") + \
                         ", ".join(f"{b} exceeded by {O[o]['violations'][b]}" for b in d.get("hard", []) if O[o]["violations"].get(b))
 
@@ -548,6 +642,9 @@ def main(path, variants=True) -> dict:
                 downs[sn] = {"value": c_["value"], "valued_options": c_["valued_options"]}
         out["plans"][tid] = {"protective_choices": default["protective_choices"], "default": default, "switch_cases": cases, "sensitivity_values": downs,
                              "downside": min((v["value"] for v in downs.values() if v["value"] is not None), default=None) if downs else default["value"]}
+        nav = {o: O[o]["not_available"] for d in pl["decisions"] for o in d["options"] if "not_available" in O[o]}
+        if nav:   # N1: every not-available option of the plan's decisions, in declaration order
+            out["plans"][tid]["not_available"] = nav
 
     # ---------------- portfolio composition and O2 ----------------
     for t in doc["tenants"]:
@@ -559,6 +656,8 @@ def main(path, variants=True) -> dict:
                 continue
             ev_ = [x for _, x in sites if x["status"] == "evaluated"]
             names = sorted({nn for x in ev_ for nn in x["nodes"]})
+            # N1: a node not available on any site has no portfolio sum (left out; its words stay on the site)
+            names = [nn for nn in names if not any(nn in (x.get("not_available") or {}) for x in ev_)]
             sums = {nn: money(sum(D(str(x["nodes"].get(nn, 0))) for x in ev_)) for nn in names}
             if len(ev_) < len(sites):
                 stated = sum(D(str(s_["period"][k].get("contribution", s_["period"][k].get("total")))) for s_ in t["sites"])
@@ -659,6 +758,15 @@ def missing_entry(side, subject, row, cause, carried_as, blocks, **extra):
     return e
 
 
+MODEL_PENDING, MODEL_PENDING_SLICE = "MODEL_PENDING", "0K4e"   # 0K4m spec §2.4: a computed leaf whose model version is pending
+
+
+def pending_leaves(side, fm, vals, leaf_sources, struct):
+    """N1 (0K4m): a leaf declared `unavailable(...)` on a side: missing with cause MODEL_PENDING, never carried, never own."""
+    return [missing_entry(side, {"leaf": f}, {**leaf_sources[f], "slice": MODEL_PENDING_SLICE}, MODEL_PENDING, None, ancestors(struct, [f]))
+            for f in fm if na(vals[f])]
+
+
 def unreceived_leaves(side, fm, vals, leaf_sources, struct):
     """An observed side's entries: a leaf whose record is absent and that nothing else fills (missing_records and history)."""
     return [missing_entry(side, {"leaf": f}, leaf_sources[f], "NOT_RECEIVED", None, ancestors(struct, [f])) for f in fm if vals[f] is None]
@@ -721,9 +829,9 @@ def missing_records(doc) -> dict:
             entry = missing_entry
             # observed sides: a leaf whose record is absent and that nothing else fills
             for k, _ in sides[1:]:
-                ents += unreceived_leaves(k, fm, vals[k], LS[vert], S[vert])
+                ents += unreceived_leaves(k, fm, vals[k], LS[vert], S[vert]) + pending_leaves(k, fm, vals[k], LS[vert], S[vert])
             # the target side: not decomposed (residual), or leaves without a target line of their own (labelled assumption)
-            ents += target_side_entries(doc, vert, fm, vals, own)
+            ents += target_side_entries(doc, vert, fm, vals, own) + pending_leaves("plan", fm, vals["plan"], LS[vert], S[vert])
             # actual lines carried at target (coverage ESTIMATED)
             for line, state in (s_["period"].get("coverage") or {}).items():
                 if state == "ESTIMATED":
@@ -811,11 +919,12 @@ def evaluate_history(doc, hist, out) -> dict:
                     unobserved = [missing_entry(side, {"leaf": f}, ES["leaf_sources"][vert][f], cause, None, ancestors(S[vert], [f])) for f in from_obs]
                     # (b) the entries October's same side gets, on the history records, less the October-only kinds (coverage
                     # ESTIMATED and rights conditions; review DS1p M1, MB5)
+                    pending = [e for e in pending_leaves(side, fm, vals[side], ES["leaf_sources"][vert], S[vert]) if e["leaf"] not in from_obs]
                     if side == "plan":
-                        missing = target_side_entries(doc, vert, fm, vals, own)
+                        missing = target_side_entries(doc, vert, fm, vals, own) + pending
                     else:
                         missing = [e for e in unreceived_leaves(side, fm, vals[side], ES["leaf_sources"][vert], S[vert]) if e["leaf"] not in from_obs]
-                        missing += field_assumption_entries(ES, s_) + deferred_stage_entries(ES, vert)
+                        missing += pending + field_assumption_entries(ES, s_) + deferred_stage_entries(ES, vert)
                     missing += unobserved
                     not_obs = sorted({b for e in unobserved for b in e["blocks"]})
                     if {"contribution", "cost_to_serve"} & set(not_obs):
@@ -823,6 +932,9 @@ def evaluate_history(doc, hist, out) -> dict:
                     side_out = {"status": r["status"]}
                     if r["status"] == "evaluated":   # MB4: the observation leaves themselves leave `nodes` too
                         side_out["nodes"] = {k: v for k, v in r["nodes"].items() if k not in not_obs and k not in from_obs}
+                        nav = {k: w for k, w in (r.get("not_available") or {}).items() if k in side_out["nodes"]}
+                        if nav:   # N1: the words of each not-available node (null in `nodes`)
+                            side_out["not_available"] = nav
                     else:
                         side_out["stated_total"], side_out["nodes"] = money(D(str(r["stated_total"]))), {}
                     side_out["not_observed"], side_out["missing"] = not_obs, missing
