@@ -322,8 +322,19 @@ ALLOWED = {"backend/assetops_backend/rehearsal_check.py", "backend/assetops_back
            "backend/assetops_backend/structure_snapshot/adapters/postgres_structure_snapshot_store.py"}
 
 
+def _ddr_merge_range() -> str:
+    """DDR's own commits: the second parent's side of DDR's merge on main's history (found by its subject)."""
+    found = subprocess.run(["git", "-C", str(REPO), "log", "--merges", "--format=%H", "--grep",
+                            "^Merge DDR: deep-dive rehearsal checker", "HEAD"], capture_output=True, text=True,
+                           timeout=60)
+    assert found.returncode == 0, found.stderr
+    merges = found.stdout.split()
+    assert merges, "DDR's merge commit is not in this history"
+    return f"{merges[-1]}^1...{merges[-1]}^2"
+
+
 def test_5_no_code_for_the_new_layout() -> None:
-    run = subprocess.run(["git", "-C", str(REPO), "diff", "--name-only", "main...HEAD"], capture_output=True,
+    run = subprocess.run(["git", "-C", str(REPO), "diff", "--name-only", _ddr_merge_range()], capture_output=True,
                          text=True, timeout=60)
     assert run.returncode == 0, run.stderr
     changed = set(run.stdout.split())
