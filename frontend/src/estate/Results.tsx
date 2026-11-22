@@ -11,8 +11,10 @@ import { createEstateClient, type EstateClient, type EstatePortfolioBody, type E
 import { EstateCutoffLine, EstateRefusal, estateHref, queryFromParams } from "./estateShared";
 import { barBody, ProgressPanel } from "./EstatePortfolio";
 import { PORTFOLIO_PAGE_SIZE } from "./portfolioWords";
+import { RESULTS_PATH } from "../shell/operatorSiteRoutes";
 
-export const RESULTS_PATH = "/results";
+export { RESULTS_PATH };
+
 export const RESULTS_TITLE = "Results";
 export const RESULTS_SUBTITLE = "What changed in this review";
 

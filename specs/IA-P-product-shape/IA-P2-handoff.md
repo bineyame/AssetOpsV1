@@ -1,4 +1,4 @@
-# IA-P2 handoff (PARTIAL: P3a and P4a built; P3b not started)
+# IA-P2 handoff (PARTIAL: P3a and P4a built; P3b code built, its test migration, gates and slice end not done)
 
 Branch `task/IA-P2-portfolio-figures`, worktree `/opt/assetecon/AssetOpsV1-iap2b` (the brief's
 `/opt/assetecon/AssetOpsV1-iap2` already held another clean worktree, `task/IA-P-spec-rev2`; left untouched).
@@ -79,3 +79,71 @@ Head after this file: see `git log -3`. No DB used, no process left running, no 
 ## Risks
 - `estate/portfolio.py` summary grew two keys: stored `chain_response` bodies grow (spec section 8, D-WK.16).
 - Not yet run: the Postgres tests over `estate/portfolio.py`, and check-all.
+
+## Session 2 (2026-11-22): P3b code (PARTIAL; stopped at the context budget)
+
+`git merge main` (`1979bbef1`, brings the statement-catalogue allow entry for `structure_read.py:24`). Then
+`a2b806502` (P3b code and its new tests) and the commit carrying this section (RESULTS_PATH moved for `iaRouteMap`).
+`frontend/node_modules` is a symlink to the main checkout's (the convention of the other worktrees; gitignored).
+
+### Built (P3b card)
+- `portfolioWords.ts` three tabs (`overview`, `outcomes`, `demand` = `demand-and-capacity`), `PORTFOLIO_HUB_TITLE`.
+- `PortfolioTabs.tsx` draws `SectionTabs` (range carried by `withRange`); `portfolioHref(window, tab)`, `decisionsHref`.
+- `portfolioPeriodClient.ts` (`fetchPeriod`, `createPortfolioPeriodClient`, schema check `portfolio-period-1`).
+- `PortfolioOverview.tsx`: E2 for the address range in days (`readSharedRange`; the entry fill writes instants),
+  modes month / period / none, `useDeclareRangeSpan(shown)`, "Preparing the figures…", 401/422/503 handling, an old
+  `?lens=` goes to `/decisions`.
+- `PortfolioPeriod.tsx`: header with `period_words` and notes, L1 lead + `DdTiles`, L2 `DdQueue`, L3 "Month by month"
+  (`DataTable`, one `<Link>` per row in `<th scope=row>`, gap word as chip, `sites` as `<small>`) + `DdOutcomes`.
+- `DeepDiveMonth.tsx`: props `month`, `nav` (E2's), `notes`; `MONTHS`, `monthWords`, `monthAfter`, `monthHref` deleted
+  (I1); no next control when `next` null; exports `DdTiles`, `DdOutcomes` (takes `cards`, `na | null`), `DdActions`,
+  plus `DdQueue`, `DdHead`, `DdNotes`, `monthRangeHref`, `useDrawers`, `DrawerApi`; `DeepDiveMonthFrame` kept for tests
+  only (not routed). `.dd-period` style in `deepDiveMonth.css`.
+- `homeLists.tsx` `DecisionsRows` (HomeList decisions, `{tools:false, tiles:false, cap:6}`, `RangePartNote`).
+- `sharedRange.ts`: `entryRange(pathname?, now)` (Last month on `/portfolio`), `monthDays`, `/results` in
+  `RANGE_PAGES` and `FILLED_PAGES`; `SharedRangeBar.tsx` passes `location.pathname`.
+- `EstatePortfolio.tsx`: Overview branch, pulse, `TopThree`, `PulseCount`, `episodeText` removed; Outcomes =
+  `ObjectivesPanel` + `CategoryCards`; Demand = `OpportunityPanel`; header "Portfolio" (§5.3); coverage line moved out;
+  `ProgressPanel`, `ScopeDisclosure`, `ContextFooter` exported; new `PortfolioScopeSection` (coverage line, disclosure,
+  footer) rendered as the last section of `EstateEvidence.tsx` (estate client passed via `EstateEvidenceFrame`).
+- `Results.tsx` (`ResultsPage`, `ResultsFrame`); `RESULTS_PATH` in `shell/operatorSiteRoutes.ts`.
+- `App.tsx`: `/portfolio` → `PortfolioOverview`, `/portfolio/:tab`, `/results`; `/portfolio/month` route removed.
+- `iaRoutes.ts`: four `IA-P2` aliases (month via `monthDays`, dropping `month`), `/results` home, `IA_LANDED` has
+  `IA-P2` already (needed by the alias tests). Rail: Results live (`OperatorShellLayout.tsx`, guard
+  `navigation-truthfulness.ps1`, `iap_gates.cjs` R1 table).
+- Tests (new, green): `portfolioHub.test.tsx` 14 (the card's nine, the `/` landing, R2 matrix one- and two-month),
+  `Results.test.tsx` 2, `estateEvidence.test.tsx` scope section 2. Backend test 10 now also writes the World G
+  fixtures `month-g-2026-10.json`, `period-month-g-2026-10.json`, `period-period-g-2026-09-10.json`.
+- `settled.ts` regex learns "Preparing the figures…" and "Loading Results…".
+
+### Next (in order)
+1. Failing-first proof of the new tests: a scratch worktree at `1979bbef1` with the three test files and fixtures
+   copied in (collection failure, module absent), as P3a/P4a did.
+2. Migrate the existing tests (vitest `src/estate src/shell src/ui` at `a2b806502`: 146 failed / 1850 passed, 19 files):
+   `DeepDiveMonth.test.tsx` 24 (mount `DeepDiveMonthFrame` with `month`, `nav`, `notes`, an estate client; rewrite
+   the month-links test to E2 nav and the tab-row tests 13; name each in the packet), `estatePortfolio.test.tsx` 68
+   (Overview card tests → `/portfolio/outcomes`; pulse and top-three tests retired with D-IAP.12; scope tests →
+   Evidence; the progress test already moved to `Results.test.tsx`; PF-T tab tests → three tabs),
+   `estatePortfolioRoutes` 3, `estateEvidence` 2 (v69 `globalevidence` panel structure: check the v69 part with the
+   scope section removed and assert the section separately), `operatorRailInventory` 22 (Results live: ten links),
+   `operatorRouteFrames` 2, `sharedRange` 2, `s502OverviewFindingList` 5, `siteDetailRoute` 3,
+   `siteFoundationRoute` 3, `siteRangeMatrix` 2, `sitesIndexRoute` 2, `sr2RequestUrls` 2, `operatorSiteTabs` 1,
+   `simulatorLabGate` 1, `simulatorLabWorkspaceEntryPoint` 1, `w301EstateShellRoutes` 1,
+   `sharedVisualVocabulary` 2. Compare each with main (some may be pre-existing). Log:
+   scratchpad `vt1.log` (not kept).
+3. Plants `fourtab`, `window`, `twofig`, `browsermonth`, `span`; gates H1 to H6 in `iap_gates.cjs`;
+   `deep_dive_gates.cjs` URL argument and the period/estate fixtures; DDR runbook S7 line; register MD-IAP-3,
+   MD-IAP-7 (P3b), MD-IAP-10, MD-IAP-11, MD-IAP-12 from R784; shots.
+4. Slice end as the brief.
+
+### Deviations added (carry into the packet)
+12. R2's two-month matrix: P.5 (binding, built in P3a) serves counts, not names, in mode `period`; the Overview states
+    "Compared for 3 of 4 Sites" (headline, tile 1, each row) but names Thika only inside a month's step drawer (one
+    click via the month row). The one-month test opens a step drawer to find "Thika: not a mini-grid Site, not
+    included." Question for the Architect: is the count enough on the two-month Overview?
+13. PortfolioTabs lost its counts (SectionTabs has none; the Opportunity and What changed counts had no tab left).
+14. `ProgressPanel`, `ScopeDisclosure`, `ContextFooter` are exported from `EstatePortfolio.tsx` and rendered verbatim
+    by `Results.tsx` and `PortfolioScopeSection`, not moved file to file.
+15. The month alias's `to` function deletes `month` from the search it is given (the redirect then merges the rest).
+16. New words beyond the spec: "Loading Results…" (§5.3's list pattern), the period header without operator (E2 serves
+    none), "Decisions" as the L2 title outside mode `month` (menu label).
