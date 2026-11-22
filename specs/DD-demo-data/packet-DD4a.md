@@ -1,28 +1,9 @@
-# Review packet: DD4a cold operating reality, part 1 (run 2: D-DD.90, D-DD.103, the join; C-DD6 still open)
+# Review packet: DD4a cold operating reality, part 1 (run 3: D-DD.89, D-DD.119-122; C-DD6 live for cold)
 
 Branch `task/DD4-cold-ev-reality`; spec `spec.md` §4.4, §7 DD4; rulings D-DD.81-88 (DD4a change list and order);
 run 2: D-DD.96's DD4a list after DD3a (D-DD.90, the join with D-DD.91) and D-DD.103. Not in run 2: D-DD.89's `M`
 commit, the writer run, `test_dd4_thika_incident.py`, C-DD6 (next run).
-USER_REVIEW_REQUIRED: true (C-DD6's B-1031 clause fails on the declared room; story figures vs room figures is the owner's call).
-
-## Outcome
-Cold-thermal 2 completed per D-DD.87, D-DD.83, D-DD.85 (pack part), the ledger received in lots (D-DD.85), and
-`ColdSiteRun` on D-DD.81's protocol with D-DD.86's forcings. The join (step 5) is not built: DD3a is not on main.
-
-## Files
-- `simulator/assetops_simulator/packs/cold.py`: `temperature_quantum` + `rounding_total` (residual books it);
-  `start_failure_at_request`; `GENERATOR_HAND_START` (FAILED -> RUNNING, OPERATOR, transfer after its delay),
-  `GENERATOR_RESET` removed; pulse carries its admission ambient, field-heat guard.
-- `simulator/assetops_simulator/world/exports_cold.py`: `Batch.ins` lots, per-lot crate-days/presence, `_named` lots,
-  `_fill` on free receiving times (08:00/16:00) with the ruled key, `EMU_RECEIVING <site> <month>`, `in-k` Movement ids
-  for multi-lot batches, November shifts lots.
-- `simulator/assetops_simulator/world/telemetry_cold.py` (new): `ColdSiteRun`, `cold_parameters`, `day_ambient`.
-- Tests: `test_cold_thermal2.py` (+7, 2 reset tests replaced), `world/test_dd4_cold_receiving.py` (3, new),
-  `world/test_dd4_telemetry_cold.py` (8, new), `test_dd2b_cold.py` / `test_dd4_cold_ledger.py` (read lots).
-- Goldens: `books_support.PINNED_COLD_EV` cold ledger + invoicing only; `backend/conversions/profiles/cold-storage-
-  {ledger,invoicing}-illustrative.{sample.csv,expected.json}` via `--update-golden`.
-
-## Acceptance (ruling tests)
+USER_REVIEW_REQUIRED: false (run 3 reproduces D-DD.89's story figures from the readings; the owner already chose "Change the event"; no UI).
 - D-DD.87: zero-terms v1 digest unchanged; every step's temperature denominator divides 10^6; residual holds and fails
   without the booked rounding; 6 h exact vs grid agree within 1e-5 degC (see deviation 1). Timing: one room 7 days
   1.3 s (0.19 s/day); Thika 123 days through `ColdSiteRun` 23.9 s. Stop rule (15 min) not reached.
@@ -134,3 +115,76 @@ Commits: d47713bd7 (D-DD.90), cd71da771 (D-DD.103), 4ec8033db (join, D-DD.81 + D
 ## Residual risk / review focus
 `_fill` key and free-slot search; `presence_by_date` per-lot rewrite; day boundary handling of the last interval mean
 (closing read without next-day forcings); refusal codes as message first word (replaced at the join).
+
+## Run 3 (D-DD.119, D-DD.120, D-DD.89, D-DD.122, D-DD.121; main merged at 34928040d)
+Commits: 085f94dd3 (D-DD.119 cold books + CLI `TEL_BOOKS`, D-DD.120 `STORY_EVENTS`), 0c5d5fab7 (D-DD.89 `M` rev 16.19,
+regeneration, sweep), 0707ce3c1 (`test_dd4_thika_incident.py`, C-DD6 live for cold, C-DD11 gains Mwea).
+- **D-DD.119.** `telemetry_cold.cold_books_for(view, history, records, *, ledgers=None)`: ledger rows of
+  `build_cold_exports`' `profile.cold-storage-ledger` file per Site; `cooling`/`seasons`/`day_classes` from the view;
+  `efficiency` from the Site's own `actual.kwh` rule read by `history._parse`/`_Scope.listed`, the accounting period
+  `kwh / kwh_model`, the months after it at that value. `tools/world_history.py telemetry` builds records, re-renders
+  each cold ledger with its profile, compares with `<books>/<file>` and refuses `TEL_BOOKS <file>` (exit 3).
+- **D-DD.120.** `STORY_EVENTS["COLD-THIKA"]` exactly as ruled; parity test reads `M`'s three instants.
+- **D-DD.89.** `M` lines 463, 480, 481, 487, 538, 539, 1867, 2024, 2025 per the ruling (rev 16.19 header line). The view
+  and history.json are byte-identical (no scope digest, mini-grid or EV pin moves). Regenerated: derived-values.json
+  (Thika unavailable 72, 99.839 %; portfolio 99.946), mock fixtures.js and index.html (gen_fixtures.py, build.mjs).
+  Hand sweep (19:14->20:22, 19:15->20:23, 19:19->20:25, 19:45->20:55, 8.2->5.4, 25-35->75-85, 4->72 min,
+  99.997->99.946): vNEXT screens.js 86, 92, 178, 214, 221, 240, 393, 400, 401, 416, 417, 419, 420, 457, 559, 592, 627,
+  700, 832, 1038, 1040, 1044, 1117; outcomes.js 84, 85, 129, 136; portfolio.js 18, 21; loop-decisions.js 351;
+  CHANGE-REGISTER.md 289; tools/gen_docs.cjs 114; worked-portfolios.md 24, 375; integration-source-to-canonical-design.md
+  173, 296, 319, 321, 324, 333; domain-and-decision-models.md 260, 273, 364; economic-metric-and-effect-contracts.md 176;
+  derivation-register.md 1982, 2451. Content only; no MOCK DEVIATION. `check_manifest.py` re-based H8, H10, K13 with
+  dated notes; it exits 1 with 7 failures that failed before this change too (H9, K8, A1, A2, A3, A5 alignment);
+  regenerating the stale fixtures.js/index.html cleared 5 earlier failures (K11 x4, K7).
+- **Writer run (D-DD.122).** Output `/opt/assetecon/worlds/DD4a-0c5d5fab7b90/` (books, sites.json, one telemetry tree
+  per room). exports 1.7 s; COLD-MWEA 29.4 s, COLD-KIRI 30.1 s, COLD-THIKA 30.7 s (one process each, ~0.23 s per
+  Site-day); 129 day files per room, 41.27 / 41.32 / 41.32 MB (~320 kB per Site-day); each room's last row ends
+  2026-11-06T06:00+03:00 and `span.to` is that instant. Thika 6 Oct 5-minute readings above 5 degC: 20:10 5.081,
+  20:15 5.223, 20:20 5.365, 20:25 5.422, 20:30 5.147. Events: START_REQUEST/START_RESULT FAILED (CONTROLLER) and
+  POWER_LOSS 19:11; START_RESULT SUCCEEDED (OPERATOR) 20:22; TRANSFER_RESULT 20:23; POWER_RESTORED and transfer 22:00.
+- **D-DD.89 reproduced (`test_dd4_thika_incident.py`, Thika 1 Jul-7 Oct via `build_telemetry`, per-minute chamber
+  captured from the pack's own steps).** Peak 5.477 degC at 20:24; above 5 degC 20:08-20:32 = 25 min; cooling
+  unavailable (bus unpowered) 72 min; five 5-minute readings above 5 (largest 5.422 at 20:25), bound 20-30; readings
+  above 4 from 19:35 to 20:50 (16, bound 75-85); first in band 20:55 at 3.793. Above 4 degC: see deviation 13.
+- **C-DD6 (D-DD.121).** `dd_check.judge_failures_at_instant({code: rows})`: GEN-CR-01 = a FAILED event on
+  `generator-controller` (and no other channel) at 2026-10-06T19:11; B-1031 above 5 degC more than 15 min by the
+  5-minute lower bound (n-1)x5 of the longest run; B-1034 peak below 12. `STUBS["C-DD6"]` is the pending list (EV-KAS
+  CH-K2, EV-RUI CH-R7 c2: DD4b; KISIWA-001 GEN-KS-01 18:40, MTO-001 INV-MT-02: DD3b), returned as `Result.pending`.
+  Live on the writer's Thika rows; a FAILED moved to 19:12, a 12.5 degC reading, or no rows each fail.
+  `check_two_processes_agree` (C-DD11) adds `--site COLD-MWEA` for 1-2 Jul.
+
+### Run 3 red first (scratch logs)
+- `test_dd4_cold_books.py`: collection error (no `STORY_EVENTS`/`cold_books_for`); after the code 7 passed, the `M`
+  parity test failed (`19:14` != `20:22`) until 0c5d5fab7.
+- `test_dd4_thika_incident.py` with `tools/dd_check.py` at HEAD: 4 failed (the judge missing, plus two measurement
+  windows of mine that were too wide, fixed to the excursion run before the green run).
+
+### Run 3 checks
+- Reach set (preflight-remaining §4, DD4a), head 0707ce3c1/0c5d5fab7: simulator world 17 files (`test_dd4_*`,
+  `test_dd3_telemetry`, `test_telemetry_join_parity`, `test_scope_seasons_parity`, `test_dd2b_*`, `test_history*`,
+  `test_records*`) 207 passed, 95 s; backend `test_dd1_check`, `test_dd2_check`, `test_dd3_datasheet_check` 24 passed;
+  `test_ddr_rehearsal_postgres.py` (`--db`) 12 passed, 224 s. Layer-4 chain (step 3 run): backend 13 files reading `M`
+  or derived-values 678 passed, 2 failed (the two main fails of run 2: `test_3b1...t1_leaf_sources`,
+  `test_3b3...t6_each_state`), 1 skipped; host `test_0m_mto_headroom` 9 passed. Main: `.agent/main-baseline/23d2cd9f6.md`
+  does not list these files; run 2's main figures stand for the unchanged files.
+- Parity: `test_telemetry_join_parity` (Kobo W1 7 days byte-identical) and `test_dd2b_*` (mini-grid and EV book pins)
+  green; the view and history.json unchanged by the `M` commit; no cold book changes in this run.
+- `statement_catalogue.py`: exit 0. `check-architecture.ps1` (ASSETOPS_GUARD_PYTHON set): passed, 202 s. `check-agent-workflow.ps1`: passed. Layout evidence: not run (no
+  UI code; the mock's content strings only).
+
+### Run 3 known deviations / builder defaults (for the reviewer to confirm)
+13. D-DD.89's "above 4 degC 82 minutes": the excursion itself is 79 min (19:33-20:51, back at or below 4 by 20:52 as
+    ruled); 82 is the count of minutes above 4 over 18:00-23:30, which adds 22:37-22:39 after the grid restore. The
+    test asserts both. Not a stop: peak and minutes above 5 degC reproduce exactly.
+14. D-DD.119's efficiency: only a Site with its own `history.sites` `actual.kwh` rule has a table (Kirinyaga), as the
+    ruling's test requires; Mwea's period ratio 2650/2635 is therefore not applied (f = 1). An `anchor` entry gets no
+    month entry.
+15. C-DD6's clone fetch (`stored_readings`) returns no rows: the world's readings reach the store only through DD5's
+    loader, so the check fails on the clone until then, as D-DD.121 says.
+16. Order: the Thika test and C-DD6 were written while the `M` commit ran in parallel, before the writer run; the
+    writer run's 6 Oct rows equal the test's.
+17. Sweep choices no ruling fixes (step 3): the excursion window text "began 19:30-19:35, ended 20:50-20:55"; "from
+    about 19:35"; "peak came two minutes after cooling resumed"; screens.js:214 arrival 20:03 -> 21:03; a sample
+    source_time 17:25Z. Left for a content pass from the writer's readings: the mock's temperature and recovery chart
+    series (screens.js:71, 77-78, still peaking at 8.2 on a 19:00-20:00 axis), "Exposure size 50-90 degC-min"
+    (screens.js:400); historical review records untouched.
