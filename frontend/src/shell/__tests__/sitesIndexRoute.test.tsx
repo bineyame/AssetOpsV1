@@ -160,7 +160,7 @@ describe("the Sites index is an operator capability", () => {
     const enabledListing = (await findList()).outerHTML;
     enabled.unmount();
 
-    const disabled = renderSites(DISABLED, [SITE]);
+    renderSites(DISABLED, [SITE]);
     const disabledListing = (await findList()).outerHTML;
 
     expect(disabledListing).toContain("Kalangala Mini-Grid");
