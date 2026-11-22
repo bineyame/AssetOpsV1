@@ -68,3 +68,56 @@ Owner Q7 is answered: 0.62 L/h, DATASHEET_FIT (`owner/owner-demo-data-answers-20
   needs them as input files: run DD2a's exports from its own checkout, or wait for it to merge. Commit 2's export
   digests depend on DD2a too, so regenerate after both merge.
 - The architecture guard and the statement-catalogue guard have not been run yet.
+
+
+---
+# Update 2 (session 2; PARTIAL; context limit). Head after this note: see `git log -1`.
+
+## Done since
+- `git merge main` (DD2a and rulings round 8 in). Commit `2e2b697cc`: D-DD.67 and D-DD.68 complete.
+  - `fuel_cost_v2.NO_LOAD_BASES` and `NO_LOAD_BASIS_WORDS` carry DATASHEET_FIT; `trial_fuel_comparison.py:69` comment.
+  - `backend/tests/test_dd3_no_load_basis_parity.py` (5 tests) plus golden `backend/tests/fixtures/dd3_no_load_basis_parity.json`,
+    generated before the change from main's code (this branch's financials/vocabulary were identical to main 80661e824 then).
+    Shown failing first: the one-vocabulary test, the AVAILABLE test and the words test failed (KeyError DATASHEET_FIT); the golden test passed.
+  - Not yet run: the wider "every test importing a touched module" scope (models.py, fuel_cost_v2, vocabulary), the architecture guard,
+    the statement-catalogue guard. Do these before the packet.
+
+## Survey for the writer (all verified this session; saves a re-survey)
+- Inputs live in `/2` file `backend/tests/fixtures/on1/lakeside-power.onboarding.json` (`assetops.operator-onboarding/2`; keys
+  format, data, operator, sites[code,name,timezone,country,locality,lifecycle,valid_from,components,devices,topology], people).
+  Binding rows: `backend/conversions/world/KOBO-001-bindings.json` (`bindings[]`: device_id, signal_id, asset_code, role, canonical_unit;
+  roles pv_power, pv_available_power, pv_irradiance, battery_power, battery_soc, pcs_discharge_capability, generator_power,
+  generator_state, fuel_level, feeder_demand x3 on residential-meter / clinic-meter / mill-meter).
+- A pure writer cannot import `assetops_backend` (simulator package). So it builds `FrozenWorldInputs` itself. The harness
+  (`host/tests/kobo_season.py base_run(days, version=8, site_edit=season_site_v2)` + `host/execution_adapter.frozen_world_inputs`)
+  gave this shape for Kobo v8 (probe at `/tmp/claude-1001/.../scratchpad/probe1.py`, delete not needed):
+  - run_id, execution_contract_version 9, scenario_version 2, model `mini-grid` v8, publication `simulator-lab-publication` v3, seed 20260929.
+  - `initial_values` (address; parameter_id; unit; dimension; answered_by): pv-rated-power@pv-array, inverter-ac-limit@pv-inverter,
+    battery-energy-capacity@battery, pcs-charge-limit / pcs-discharge-limit / pcs-conversion-efficiency@battery-pcs,
+    battery-reserve-state-of-charge@battery (`model-need:<foundation key>`, SITE_FOUNDATION); generator-rated-power,
+    generator-specific-fuel-consumption (L/kWh), generator-start-soc-threshold, generator-stop-soc-threshold,
+    generator-minimum-runtime (min), generator-start-delay (min), generator-no-load-fuel-rate (**L/min**: 3.3 L/h is 11/200),
+    generator-minimum-load, battery-charge-taper-start @generator/@battery; fuel-tank-capacity@fuel-tank;
+    scenario ones: battery-state-of-charge@battery (`starting-state-of-charge`, SCENARIO), fuel-tank-volume@fuel-tank (`starting-fuel`).
+  - `discrete_initial_values`: generator-state@generator STOPPED (SCENARIO). `bounds` empty (add the UPPER bound on the tank for TEL_PACK overfill).
+  - `site_controls`: source-priority (pv-array, battery, generator); critical-load-priority (load-clinic, load-res, load-mill).
+  - `bus_attachments`: PV_SOURCE pv-array via pv-inverter, STORAGE battery via battery-pcs, GENERATION generator, loads; bus ac-bus.
+  - forcings WINDOW per step: `site:plane-of-array-irradiance` (W/m2) and `load-demand@load-res|load-clinic|load-mill` (kW).
+  - model: `host/execution_adapter.model_for(run)` resolves `EXECUTABLE_MODELS`; the pack model is `MINI_GRID_V8_MODEL` in
+    `backend/.../runs/profiles.py:1419` (the executable `ModelSpec` lives in `simulator/.../packs/mini_grid.py`).
+- Public records (what each device signal reads): publication profile `simulator-lab-publication` (`backend/.../runs/profiles.py:1492-1650`):
+  fuel-level-sensor/fuel-level = fuel-tank-volume STATE (L); generator-controller/ac-power = generator-output-power INTERVAL (kW);
+  generator-controller/status = generator-state (discrete, text); battery-pcs-controller/state-of-charge = battery-state-of-charge STATE (%);
+  battery-pcs-controller/ac-power = battery-ac-power INTERVAL; pv-inverter-controller/ac-power = pv-ac-power INTERVAL;
+  residential|clinic|mill-meter/active-power = load-served-power INTERVAL. Value rule: `observation/transform.py:69 world_value`
+  (STATE reads `boundary.state_sample(address)`, discrete `boundary.discrete_state`, INTERVAL `interval_measurement / (span/60)`).
+  `available-power`, `discharge-capability` and irradiance have their own measures (v2/v3 `_add_*_measures` in `packs/mini_grid.py`).
+  The writer calls `world_value`-style reads directly (no dropout, bias or cadence: every 5-minute step), quantised as spec §4.1 says.
+- Kernel: `kernel/execute.py:1880 start(inputs, model)`, `Execution.advance(n)`; boundaries are `BoundaryState` (`contracts/.../trajectory.py:240`).
+
+## Next (unchanged order)
+1. DD3.1: `simulator/assetops_simulator/world/telemetry.py` (`build_telemetry`), `tools/world_history.py site-inputs|telemetry`, C-DD11/12
+   (append to `tools/dd_check.py`), tests: 288x2 == 576 bytes, TEL_BINDING + every Kobo pair resolves to one binding row, TEL_INPUT_TOTAL,
+   TEL_PACK on overfill, determinism across two processes.
+2. DD3.2 commit 1b (pure run, gate 0.62 and 3.3), commit 2 (the /2 write by `tools/datasheet_template.py --write`, manifest Kobo physical, regenerate).
+3. Packet `specs/DD-demo-data/packet-DD3a.md`, state entry in `.ai/state/index-3.md`, spec status.
