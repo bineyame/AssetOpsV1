@@ -222,4 +222,4 @@ def test_outcome_fuel_value_only_for_verified_with_priced_total() -> None:
 def test_each_new_literal_formats_with_every_basis_word() -> None:
     lines = [FUEL_VALUE_PAGE.format(l="3.3", amount="4.12 USD", p="1.25", cur="USD", basis=w)
              for w in NO_LOAD_BASIS_WORDS.values()]
-    assert len(set(lines)) == 4 and not any(" load" in x or "-load" in x for x in lines)
+    assert len(set(lines)) == len(NO_LOAD_BASIS_WORDS) and not any(" load" in x or "-load" in x for x in lines)

@@ -103,6 +103,9 @@ class TestTypedProperties:
                        "battery-charge-taper-start-basis": ("state", "PHYSICAL"),
                        "fuel-level-sensor-accuracy": ("L", "PHYSICAL"),  # DIESEL-1 K1
                        "fuel-level-sensor-accuracy-basis": ("state", "PHYSICAL"),
+                       "generator-rated-power-basis": ("state", "PHYSICAL"),  # DD3.2 (D-DD.17)
+                       "specific-fuel-consumption-basis": ("state", "PHYSICAL"),
+                       "battery-energy-capacity-basis": ("state", "PHYSICAL"),
                        "technical-loss-band": ("%", "PHYSICAL")}  # 4a (D-4A.3)
         assert MINIGRID_PROPERTY_CARRIERS == {"pv-available-uncertainty": "INVERTER",
                                               "renewable-retained-margin": "AC_BUS",
@@ -116,6 +119,9 @@ class TestTypedProperties:
                                               "battery-charge-taper-start-basis": "BATTERY",
                                               "fuel-level-sensor-accuracy": "FUEL_TANK",
                                               "fuel-level-sensor-accuracy-basis": "FUEL_TANK",
+                                              "generator-rated-power-basis": "GENERATOR",  # DD3.2 (D-DD.17)
+                                              "specific-fuel-consumption-basis": "GENERATOR",
+                                              "battery-energy-capacity-basis": "BATTERY",
                                               "technical-loss-band": "LOAD"}  # 4a (D-4A.3)
 
     @pytest.mark.parametrize(("component", "key", "value"), [

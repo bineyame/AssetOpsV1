@@ -134,7 +134,8 @@ class TestVocabulary:
                                                                          "ESSENTIAL_SERVICE"}),
                                                 # FUEL-1 A1: the declared no-load fuel rate's basis
                                                 "generator-no-load-fuel-rate-basis": frozenset({
-                                                    "GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST"}),
+                                                    "GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST",
+                                                    "DATASHEET_FIT"}),
                                                 # DIESEL-1 K1: the fuel level sensor accuracy basis
                                                 "fuel-level-sensor-accuracy-basis": frozenset({
                                                     "GENERIC_DEFAULT", "MANUFACTURER_DATASHEET",
@@ -143,7 +144,13 @@ class TestVocabulary:
                                                 "generator-minimum-load-basis": frozenset({
                                                     "GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST"}),
                                                 "battery-charge-taper-start-basis": frozenset({
-                                                    "GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST"})}
+                                                    "GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST"}),
+                                                # DD3.2 (spec §6 Labels): the data-sheet mapping's three siblings
+                                                **{key: frozenset({"GENERIC_DEFAULT", "MANUFACTURER_DATASHEET",
+                                                                   "SITE_TEST"})
+                                                   for key in ("generator-rated-power-basis",
+                                                               "specific-fuel-consumption-basis",
+                                                               "battery-energy-capacity-basis")}}
 
 
 class TestParserAndRender:
