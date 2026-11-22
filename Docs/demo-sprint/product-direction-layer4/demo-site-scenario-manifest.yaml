@@ -42,7 +42,7 @@ chain_model:   # main design §2.1: one economic reality per site-period; stages
 
 time_scales:
   ledger_history:
-    purpose: "actual vs plan, variance bridge, seasonality context"
+    purpose: "actual against target, variance bridge, seasonality context"
     span: "2026-07 .. 2026-10 (4 monthly periods)"
     resolution: "record-level commercial facts, monthly plan lines"
     generation: "direct from a coherent ledger generator (no physics); emitted as source-shaped CSV"
@@ -112,7 +112,7 @@ tenants:
         - {driver: DEMAND_VOLUME, overlap_group: KOBO-2026-10-REV, amount: 38.00, basis: "95 kWh x {rec:tenants[lakeside-power].prices.tariff_usd_per_kwh.Kobo}", class: ECONOMIC_ACTUAL}
         - {driver: CANDIDATE_RUNNING, overlap_group: KOBO-2026-10-FUEL, amount: -412.50, basis: "{fig:sites[lakeside-power/Kobo].actual.nodes.candidate_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kobo}: generator running while solar could carry the load (dispatch-3.2 Candidate; plan {fig:sites[lakeside-power/Kobo].plan.nodes.candidate_l} L); model-implied litres from metered generator energy x SFC", class: DERIVED,
            note: "observed factor; how much of it an option avoids is that option's effect (M3), never a node of the observed structure"}
-        - {driver: EVENING_LOAD_GROWTH, overlap_group: KOBO-2026-10-FUEL, amount: -37.50, basis: "{fig:sites[lakeside-power/Kobo].actual.nodes.necessary_l} L against plan {fig:sites[lakeside-power/Kobo].plan.nodes.necessary_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kobo} (Necessary by dispatch classification of metered generator energy x declared consumption rate)", class: DERIVED}
+        - {driver: EVENING_LOAD_GROWTH, overlap_group: KOBO-2026-10-FUEL, amount: -37.50, basis: "{fig:sites[lakeside-power/Kobo].actual.nodes.necessary_l} L against a target of {fig:sites[lakeside-power/Kobo].plan.nodes.necessary_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kobo} (Necessary by dispatch classification of metered generator energy x declared consumption rate)", class: DERIVED}
         - {driver: UNEXPLAINED_RESIDUAL, overlap_group: KOBO-2026-10-FUEL, amount: -150.00, basis: "{fig:sites[lakeside-power/Kobo].actual.nodes.unexplained_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kobo} consumed minus modelled; investigate (MG-L5)", class: DERIVED}
       fuel_balance: {opening_dip_l: 220, deliveries_l: 1200, closing_dip_l: 240, consumed_l: 1180, model_implied_l: 1060, residual_l: 120, tolerance_pct: 2.0}
     findings_expected:
@@ -190,7 +190,7 @@ tenants:
       variance: -185.00
       bridge:
         - {driver: DEMAND_VOLUME, overlap_group: KIS-2026-10-REV, amount: -55.00, basis: "100 kWh x {rec:tenants[lakeside-power].prices.tariff_usd_per_kwh.Kisiwa}", class: ECONOMIC_ACTUAL}
-        - {driver: SOLAR_SHORTFALL_NECESSARY_GEN, overlap_group: KIS-2026-10-FUEL, amount: -104.00, basis: "{fig:sites[lakeside-power/Kisiwa].actual.nodes.necessary_l} L against plan {fig:sites[lakeside-power/Kisiwa].plan.nodes.necessary_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kisiwa} (rainy month; all generator time Necessary by dispatch classification)", class: DERIVED}
+        - {driver: SOLAR_SHORTFALL_NECESSARY_GEN, overlap_group: KIS-2026-10-FUEL, amount: -104.00, basis: "{fig:sites[lakeside-power/Kisiwa].actual.nodes.necessary_l} L against a target of {fig:sites[lakeside-power/Kisiwa].plan.nodes.necessary_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kisiwa} (rainy month; all generator time Necessary by dispatch classification)", class: DERIVED}
         - {driver: UNEXPLAINED_RESIDUAL, overlap_group: KIS-2026-10-FUEL, amount: -26.00, basis: "{fig:sites[lakeside-power/Kisiwa].actual.nodes.unexplained_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kisiwa}; within 2% tolerance, reported not investigated", class: DERIVED}
       fuel_balance: {model_implied_l: 2380, consumed_l: 2400, residual_l: 20, tolerance_pct: 2.0}
     findings_expected:
@@ -246,7 +246,7 @@ tenants:
         - {driver: DEMAND_VOLUME, overlap_group: MTO-2026-10-REV, amount: -8.00, basis: "20 kWh x {rec:tenants[lakeside-power].prices.tariff_usd_per_kwh.Mto}", class: ECONOMIC_ACTUAL}
         - {driver: METER_MAPPING_UNBILLED, overlap_group: MTO-2026-10-REV, amount: -56.00, basis: "{fig:sites[lakeside-power/Mto].actual.nodes.unmapped_kwh} kWh x {rec:tenants[lakeside-power].prices.tariff_usd_per_kwh.Mto}; 6 customers, meter swap 3 Oct not applied", class: ECONOMIC_ACTUAL}
         - {driver: AUTHORISED_ADJUSTMENT, overlap_group: MTO-2026-10-REV, amount: -16.00, basis: "{fig:sites[lakeside-power/Mto].actual.nodes.adjustments_kwh} kWh x {rec:tenants[lakeside-power].prices.tariff_usd_per_kwh.Mto} clinic allowance, approved", class: ECONOMIC_ACTUAL}
-        - {driver: EVENING_NECESSARY_GEN, overlap_group: MTO-2026-10-FUEL, amount: -25.00, basis: "{fig:sites[lakeside-power/Mto].actual.nodes.necessary_l} L against plan {fig:sites[lakeside-power/Mto].plan.nodes.necessary_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Mto} (Necessary evening running by dispatch classification)", class: DERIVED}
+        - {driver: EVENING_NECESSARY_GEN, overlap_group: MTO-2026-10-FUEL, amount: -25.00, basis: "{fig:sites[lakeside-power/Mto].actual.nodes.necessary_l} L against a target of {fig:sites[lakeside-power/Mto].plan.nodes.necessary_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Mto} (Necessary evening running by dispatch classification)", class: DERIVED}
     energy_to_cash:
       chain: "delivered 6,000 -> expected loss 300 -> metered 5,580 (+120 unexplained) -> billed 5,400 (140 unmapped, 40 authorised) -> collected 1,890 + in transit 150 + outstanding 120 = 2,160"
       unexplained_kwh_money: null   # deliberately unpriced: investigation, not theft, not collectible
@@ -610,8 +610,8 @@ tenants:
       coverage: {energy: RECORDED, demand: RECORDED, maintenance: RECORDED}
       variance: -3204.00
       bridge:
-        - {driver: PEAK_ENERGY_SHARE, overlap_group: EMB-2026-10-ENERGY, amount: -2604.00, basis: "21,700 kWh more at peak than plan (55% vs 30%) x 0.12 premium", class: ECONOMIC_ACTUAL}
-        - {driver: DEMAND_CHARGE, overlap_group: EMB-2026-10-DEMAND, amount: -600.00, basis: "monthly peak {fig:sites[metro-bus/Embakasi].actual.nodes.max_kw} kW vs plan {fig:sites[metro-bus/Embakasi].plan.nodes.max_kw} kW x {fig:sites[metro-bus/Embakasi].actual.nodes.demand_rate}", class: ECONOMIC_ACTUAL}
+        - {driver: PEAK_ENERGY_SHARE, overlap_group: EMB-2026-10-ENERGY, amount: -2604.00, basis: "21,700 kWh more at peak price than the target (55% against 30%) x 0.12 premium", class: ECONOMIC_ACTUAL}
+        - {driver: DEMAND_CHARGE, overlap_group: EMB-2026-10-DEMAND, amount: -600.00, basis: "monthly peak {fig:sites[metro-bus/Embakasi].actual.nodes.max_kw} kW against a target of {fig:sites[metro-bus/Embakasi].plan.nodes.max_kw} kW x {fig:sites[metro-bus/Embakasi].actual.nodes.demand_rate}", class: ECONOMIC_ACTUAL}
     decision:
       thread: "Embakasi pays peak prices for charging that could wait"
       origin: PLAN_VARIANCE

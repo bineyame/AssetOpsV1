@@ -100,6 +100,10 @@ for h in hits:
 # ---- Part B: rendered manifest strings ----
 MALLOW = [
     # (manifest path, exact literal, context substring, reason)
+    ('replay_studies.M8.assumptions[0]', '0.08', '0.08 L/h per kW', 'the study\'s declared assumption, verbatim from the extract (K3), shown in the drawer (0K4m)'),
+    ('replay_studies.M8.assumptions[0]', '30', 'x 30 kW', 'the study\'s declared assumption (generator rating), verbatim from the extract (K3)'),
+    ('replay_studies.M8.assumptions[1]', '30', 'minimum-load 30 %', 'the study\'s declared assumption, verbatim from the extract (K3)'),
+    ('tenants[lakeside-power].sites[Kobo].decision.verification_plan.causal', '10', 'PV +/-10%', 'declared comparability bands (PV and load) of the verification plan, read by the verify line (D-0K4.55)'),
     ('sources.cold_chain[1].cadence', '5', '5 min', 'declared source cadence'),
     ('sources.mini_grid[0].cadence', '5', '5 min in evidence', 'declared source cadence'),
     ('sources.mini_grid[0].cadence', '15', '15 min context', 'declared source cadence'),
@@ -121,13 +125,9 @@ MALLOW = [
     ('tenants[lakeside-power].sites[Kobo].decision.options[KOB-STOPSOC].carrier', '90', 'threshold 90 -> 70', 'declared controller settings (current and new)'),
     ('tenants[lakeside-power].sites[Kobo].entitlement.evidence.cycles', '6000', 'of 6000', 'warranty limit quoted in the evidence record'),
     ('tenants[lakeside-power].sites[Kobo].entitlement.evidence.throughput', '600', 'of 600 MWh', 'warranty limit quoted in the evidence record'),
-    ('tenants[metro-bus].sites[Embakasi].decision.options[EMB-DEADLINE].replay', '21', '21-bus night', 'spike E replay basis (design value)'),
     ('tenants[lakeside-power].sites[Kisiwa].period.bridge[DEMAND_VOLUME].basis', '100', '100 kWh', 'bridge quantity = actual - plan billed kWh; no single node (export requested)'),
-    ('tenants[lakeside-power].sites[Kisiwa].period.bridge[SOLAR_SHORTFALL_NECESSARY_GEN].basis', '80', '80 L', 'bridge quantity = actual - plan needed litres; no single node (export requested)'),
-    ('tenants[lakeside-power].sites[Kobo].period.bridge[EVENING_LOAD_GROWTH].basis', '30', '30 L', 'bridge quantity = actual - plan needed litres; no single node (export requested)'),
     ('tenants[lakeside-power].sites[Mto].period.bridge[DEMAND_VOLUME].basis', '20', '20 kWh', 'bridge quantity = actual - plan metered kWh; no single node (export requested)'),
-    ('tenants[lakeside-power].sites[Mto].period.bridge[EVENING_NECESSARY_GEN].basis', '20', '20 L', 'bridge quantity = actual - plan needed litres; no single node (export requested)'),
-    ('tenants[metro-bus].sites[Embakasi].period.bridge[PEAK_ENERGY_SHARE].basis', '30', 'vs 30%', 'plan peak share; no node (export requested)'),
+    ('tenants[metro-bus].sites[Embakasi].period.bridge[PEAK_ENERGY_SHARE].basis', '30', 'against 30%', 'plan peak share; no node (export requested)'),
     ('tenants[metro-bus].sites[Embakasi].period.bridge[PEAK_ENERGY_SHARE].basis', '0.12', '0.12 premium', 'peak minus off-peak price; no single node (export requested)'),
     ('tenants[metro-bus].portfolio.operations.measures[deliverable_energy_used].binding_limit.Embakasi', '600', 'chargers 600 kW', 'chargers x charger kW; no node (export requested)'),
     ('tenants[metro-bus].portfolio.operations.measures[deliverable_energy_used].binding_limit.Ruiru', '720', 'chargers 720 kW', 'chargers x charger kW; no node (export requested)'),
@@ -156,7 +156,7 @@ MASKS = [r'\{(?:fig|rec):[^{}]+\}',                                   # placehol
          r'\b[A-Za-z][A-Za-z0-9]*(?:[-.][A-Za-z0-9]+)*-[A-Za-z0-9]*\d[A-Za-z0-9-]*\b',  # ID codes (CN-0412, GEN-KS-02, MG-L5)
          r'\b[A-Z]{1,3}\d+(?:\.\d+)*[A-Za-z]?\b',                       # short codes (P1, O2, L1.1, A17, 1.6J)
          r'\b\d{1,2}(?:/\d{1,2})?(?:-\d{1,2}(?:/\d{1,2})?)?\s(?:' + '|'.join(MON) + r')\b(?:/\d{1,2}\s(?:' + '|'.join(MON) + r'))?',  # dates and ranges
-         r'\b\d{4}-\d{2}-\d{2}(?:T[\d:+.-]+)?\b', r'\b24/7\b', r'\bv\d+(?:\.\d+)*\b', r'\b\d+-(?:day|hour|year|month|minute)\b']
+         r'\b\d{4}-\d{2}(?:-\d{2}(?:T[\d:+.-]+)?)?\b', r'\b24/7\b', r'\bv\d+(?:\.\d+)*\b', r'\b\d+-(?:day|hour|year|month|minute)\b']
 mhits = []
 for path in rendered:
     s = mget(man, path)
@@ -179,3 +179,5 @@ unused = [a for i, a in enumerate(allow_all) if i not in used]
 json.dump({'count': len(uniq) + len(mhits) + len(unused), 'hits': uniq, 'manifest_strings_scanned': len(rendered), 'manifest_count': len(mhits),
            'manifest_hits': mhits, 'allow_total': len(allow_all), 'allow_used': len(used), 'allow_unused': unused, 'allow': allow_all},
           sys.stdout, ensure_ascii=False, indent=0)
+# 0K4m (spec §4): exit 1 on any hit not on the allow-list, and on an allow entry that suppresses nothing
+sys.exit(1 if (len(uniq) + len(mhits) + len(unused)) else 0)
