@@ -22,7 +22,7 @@ figures where today they refuse; Kobo now publishes under roles-5 with its store
 4. `structure/litres/{rules,inputs}.py` (D-DD.113); `test_dd3c_litres_units.py` (6).
 5. `conversions/world/KOBO-001-bindings.json` `role_set` -> `minigrid-roles-5` (09e958005); pins
    `test_dd1_operator_files.py`, `test_dd1_onboarding_postgres.py`, `simulator/tests/world/test_dd3_telemetry.py`;
-   parity `test_dd3c_kobo_parity_postgres.py` (PARITY_COMMIT).
+   parity `test_dd3c_kobo_parity_postgres.py` (2f5a91e10).
 
 ## Acceptance, one by one
 - D-DD.111/112 state and ratings: 39 unit tests; plants (empty sum, RUNNING after absent) fail, reverted.
@@ -33,11 +33,24 @@ figures where today they refuse; Kobo now publishes under roles-5 with its store
   Kobo golden byte-equal after parts 3-4; plants fail. `fuel_basis` grep: reached only by `main.py:418` (ingestion
   listener); `load_world_inputs.py` and `evidence/bulk_load.py` have no hit; backlog line is the coordinator's.
 - D-DD.113 litres per unit: 6 tests; plants (one curve, first unit's window) fail.
-- D-DD.114 Kobo move and parity: PARITY_RESULT
+- D-DD.114 Kobo move and parity: `test_dd3c_kobo_parity_postgres.py` (2f5a91e10): 1 passed, 65 s. Roles-4 and roles-5 worlds
+  compared through D-DD.45's normaliser. Plant: +5 L on the roles-5 opening level at 18:00 fails at the fuel_balance
+  residuals, as it should. Deviations for the reviewer: (1) evidence ids are rewritten to
+  `evidence:<device>/<signal>#<sequence>` and sorted before the normaliser, because random ids reorder the lists;
+  (2) `committed_watermark` is masked as wall clock. Weak part: the litres-month parity is weak, all values are
+  NOT_AVAILABLE with about 1.5 days loaded. KOBO-001's tank got sensor accuracy 10 L GENERIC_DEFAULT in the onboarding copy only.
 
 ## Checks run
-- REACH_SET_RESULT
-- Architecture, agent-workflow, statement catalogue: GUARDS_RESULT
+- Reach set (84 files by import grep of the touched modules plus the 9 `test_dd3c_*`, 6a/6h migrations, dd1 x3, 4d litres;
+  the handoff's 85-file list was not recorded, so this is a reconstruction): one `--db-lane` call. Its pytest summary line was
+  lost (the log file was removed from under the run); the progress lines to 88% survived and show failures only in
+  `test_3b1_structure_registry`, `test_ch5c2_clock_guard`, `test_k7_kisiwa_story`, `test_pr3_price_entry_postgres` x2. Files after 88%
+  and every failing file were rerun in one more `--db-lane` call: 386 items, 380 passed, 6 failed (above five plus
+  `test_w403_opportunity_job_isolation_postgres::test_unchanged_fence_tick...`), 634 s. Against `.agent/main-baseline/23d2cd9f6.md`
+  (main's failures: ch5c2, w204 TestMigration0023): ch5c2 matches. The other five fail identically at merge-base 0c44ae75b
+  (4 files, 5 failed, 184 passed, 145 s), so they are main's own, newer than the baseline. `test_w204_cold_migration` is not in
+  this set. The first-run total counts are not available.
+- Architecture, agent-workflow: passed. Statement catalogue: exit 0 (OK, 9 adopted, 3 allowed entries).
 
 ## Known deviations
 1. Pins beyond D-DD.114's three. The role-set name enters the site-inputs bytes (`role_set`, and `foundation_digest`
