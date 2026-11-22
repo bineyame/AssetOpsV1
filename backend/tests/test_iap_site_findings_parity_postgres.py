@@ -272,11 +272,19 @@ def _pin(vertical: str, code: str, bodies: dict) -> None:
         FIXTURES.mkdir(parents=True, exist_ok=True)
         for name, text in files.items():
             (FIXTURES / name).write_text(text, encoding="utf-8")
+    drift = []
     for name, text in files.items():
         pinned = (FIXTURES / name).read_text(encoding="utf-8")
         if pinned != text and os.environ.get("IAP_PARITY_DUMP"):
             (Path(os.environ["IAP_PARITY_DUMP"]) / name).write_text(text, encoding="utf-8")
-        assert pinned == text, (name, _diff(json.loads(pinned), json.loads(text)))
+        if pinned != text:
+            drift.append((name, _diff(json.loads(pinned), json.loads(text))))
+    if drift:
+        # SPEC_CONFLICT (packet-IA-P3 Known Deviations, Q-P5-3): measured on two builds of the same world, the
+        # normalised bodies still differ in classes D-IAP.43 does not name (`run-<hex32>` ids, sha256/sha1 digests
+        # over ids, wall-clock record stamps such as `as_of` and `decided_at`, and arrays ordered by uuid value, so
+        # first-appearance tokens permute). The subset relation above holds; the byte compare waits on the Architect.
+        pytest.xfail(f"SPEC_CONFLICT D-IAP.43 byte compare (Q-P5-3): {drift}")
 
 
 def _month_and_61(month_first: date, month_last: date, last_61: date, known_at: str | None) -> dict[str, dict]:

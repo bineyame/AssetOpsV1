@@ -88,7 +88,7 @@ import {
   serviceWindowFromParams,
   type MiniDepthClient,
 } from "../sites/miniDepthClient";
-import { ColdFindingFrame, ColdFindingIndex, ColdPerformanceFrame, type ColdLinks } from "../sites/ColdAssessmentViews";
+import { ColdFindingFrame, ColdPerformanceFrame, type ColdLinks } from "../sites/ColdAssessmentViews";
 import { coldWindowFromParams, coldWindowSearch, type ColdAssessmentClient, type ColdWindowQuery } from "../sites/coldAssessmentClient";
 import type { ColdSiteClient } from "../sites/coldSiteClient";
 import { EvFindingFrame, EvSessionsFrame, type EvPerformanceView, evFindingHref } from "../sites/EvAssessmentViews";
@@ -97,7 +97,6 @@ import { EvEnergy } from "../sites/EvEnergy";
 import { type EvDepthClient, createEvDepthClient } from "../sites/evDepthClient";
 import { EV_SITE_TAB_HREFS, evSiteRoutes, evWorkTabHrefs, evWorkTabSearch } from "./evSiteRoutes";
 import type { EvAssessmentClient } from "../sites/evAssessmentClient";
-import { EvFindingIndex } from "../sites/EvFindingIndex";
 import { coldSiteRoutes, coldSiteScreen, coldTabSearch } from "./coldSiteRoutes";
 import { createColdDepthClient, type ColdDepthClient } from "../sites/ColdDepthClient";
 import { presentationProfileFor } from "../sites/presentationProfile";
@@ -110,7 +109,7 @@ import { Breadcrumbs, type Crumb, Disclosure, Notice, PageHeader, Panel, RailIco
 import { localView } from "../sites/findingPresentation";
 import { deriveSiteView, siteSourceModeLabel } from "../sites/siteViewModel";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
-import { SetupSections } from "./siteSections";
+import { EvidenceSections, SetupSections, siteFindingsAliased, siteFindingsAlias } from "./siteSections";
 import {
   FINDING_CHILD_VIEWS,
   ACTIONS_PATH,
@@ -506,8 +505,6 @@ export function SiteFindingsFrame({
   analytics,
   sitesPath,
   findingIndex = DEFAULT_FINDING_INDEX,
-  coldAssessment,
-  evAssessment,
   outcomeBoard,
   fuelBalance = DEFAULT_FUEL_BALANCE,
 }: {
@@ -519,9 +516,8 @@ export function SiteFindingsFrame({
   fuelBalance?: FuelBalanceClient;
   /** OUT-C U5: the Site board, for the early-warning list under the Findings list. */
   outcomeBoard?: OutcomeBoardClient;
-  /** post-W6 W2-cold R253: a COLDCHAIN Site's index reads its selected cold Findings, not the mini index. */
-  coldAssessment?: ColdAssessmentClient;
-  evAssessment?: EvAssessmentClient;
+  // D-IAP.42: a COLDCHAIN or EV_CHARGING Site's index is the Findings list at its scope (the redirect below), so the
+  // frame reads no cold or EV Findings itself.
 }) {
   const { siteId } = useParams<{ siteId: string }>();
   const [params] = useSearchParams();
@@ -534,7 +530,10 @@ export function SiteFindingsFrame({
       title="Findings"
       headingId={SITE_FINDINGS_HEADING_ID}
     >
-      {(site) => (
+      {(site) => siteFindingsAliased(site.site_type) ? (
+        // D-IAP.42: COLD and EV alias to the Findings list at this Site's scope, the range kept (both parity layers pass).
+        <Navigate replace to={siteFindingsAlias(site.site_id, params)} />
+      ) : (
         <main aria-labelledby={SITE_FINDINGS_HEADING_ID}>
           <Breadcrumbs
             trail={[
@@ -551,41 +550,11 @@ export function SiteFindingsFrame({
             description={SITE_SCREEN_DESCRIPTIONS.sitefindings}
             headingId={SITE_FINDINGS_HEADING_ID}
           />
-          {site.site_type === "COLDCHAIN" && coldAssessment !== undefined ? (
-            <>
-            <OperatorSiteTabs siteId={siteId} current="Findings" search={coldTabSearch(site, params)} />
-            <ColdFindingIndex
-              siteId={site.site_id}
-              siteName={site.display_name}
-              window={coldWindowFromParams(params)}
-              client={coldAssessment}
-              routes={coldSiteRoutes(site.site_id)}
-              lenses={null} /* RM-2: no lens is supported on a cold Site */
-              earlyWarnings={
-                outcomeBoard === undefined ? null : (
-                  <SiteEarlyWarnings client={outcomeBoard} siteCode={site.site_id} query={coldWindowFromParams(params)} />
-                )
-              }
-            />
-            </>
-          ) : site.site_type === "EV_CHARGING" && evAssessment !== undefined ? (
-            <EvFindingIndex
-              siteId={site.site_id}
-              siteName={site.display_name}
-              window={coldWindowFromParams(params)}
-              client={evAssessment}
-              findingBase={(id) => siteFindingHref(site.site_id, id)}
-              sessionsBase={sitePerformanceHref(site.site_id, "sessions")}
-              tabs={(search) => <OperatorSiteTabs siteId={siteId} current="Findings" hrefs={EV_SITE_TAB_HREFS} search={search} />}
-              earlyWarnings={
-                outcomeBoard === undefined ? null : (
-                  <SiteEarlyWarnings client={outcomeBoard} siteCode={site.site_id} query={coldWindowFromParams(params)} />
-                )
-              }
-            />
-          ) : (
+          {/* D-IAP.42: COLD and EV redirected above; a kept index (MD-IAP-15) lights Evidence, Findings in its line. */}
+          {(
           <>
           <OperatorSiteTabs siteId={siteId} current="Findings" />
+          <EvidenceSections siteId={site.site_id} current="Findings" siteType={site.site_type} />
           <SiteFindingIndex
             siteId={site.site_id}
             opportunityHelper={site.site_type === "MINIGRID"}

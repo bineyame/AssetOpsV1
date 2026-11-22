@@ -113,8 +113,8 @@ export function SiteEvidenceFrame({
       coldAssessment,
       tabs: (
         <>
+          {/* IA-P P5: the cold Evidence page draws the one Evidence line itself (Records · Analysis · Uploads). */}
           <OperatorSiteTabs siteId={siteId} current="Evidence" search={coldTabSearch(site, params)} />
-          <EvidenceSections siteId={site.site_id} current="Records" />
         </>
       ),
       sitesPath,
@@ -139,7 +139,7 @@ export function SiteEvidenceFrame({
         headingId={SITE_EVIDENCE_HEADING_ID}
       />
       <OperatorSiteTabs siteId={siteId} current="Evidence" />
-      <EvidenceSections siteId={site.site_id} current="Records" />
+      <EvidenceSections siteId={site.site_id} current="Records" siteType={site.site_type} />
       <SiteEvidence
         siteId={site.site_id}
         client={evidence}

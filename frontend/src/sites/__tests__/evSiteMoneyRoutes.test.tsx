@@ -360,9 +360,10 @@ describe("W2-07 EV Site routes", () => {
   it("ev_evidence_tabs_and_record_limit", async () => {
     await renderAt(PATHS["ev-evidence"], client());
     expectV69Panels("ev-evidence");
-    // IA-P P5 (spec §2.3): Evidence's section line is Records · Uploads (the EV Records link first), then the page's own Overview and Analysis.
+    // IA-P P5 (spec §2.3): one Evidence line, Records · Analysis · Uploads (the page's Analysis view next to Records).
     const actual = subtabs("Evidence sections");
-    expect(actual.map((t) => t.text)).toEqual(["Records", "Uploads", "Overview", "Analysis"]);
+    expect(actual.map((t) => t.text)).toEqual(["Records", "Analysis", "Uploads"]);
+    expect(document.querySelectorAll('nav[aria-label="Evidence sections"]')).toHaveLength(1);
     const conclude = panelTitled("What we can conclude now");
     const rows = Array.from(conclude.querySelectorAll("tbody tr"));
     expect(rows.map((r) => r.querySelector("th")?.textContent)).toEqual(["Session outcomes", "Connector availability", "Delivered energy", "Cause of interruption"]);
@@ -402,8 +403,9 @@ describe("W2-07 EV Site routes", () => {
     // Analysis tab: real accepted rows only, closed to three; the claim limit has its two exact blocks.
     cleanup();
     await renderAt(PATHS["ev-evidence-analysis"], client());
-    // IA-P P5 (spec §2.3): the line leads with Evidence's Records and Uploads links, then the page's own Overview and Analysis.
-    expect(subtabs("Evidence sections").map((t) => [t.text, t.current])).toEqual([["Records", "page"], ["Uploads", null], ["Overview", null], ["Analysis", "page"]]);
+    // IA-P P5 (spec §2.3): the one Evidence line; Analysis is current on the Analysis view.
+    expect(subtabs("Evidence sections").map((t) => [t.text, t.current])).toEqual([["Records", null], ["Analysis", "page"], ["Uploads", null]]);
+    expect(document.querySelectorAll('nav[aria-label="Evidence sections"]')).toHaveLength(1);
     expect(strip()).toContain("6 accepted records");
     const headers = Array.from(panelTitled("Accepted records behind the conclusions").querySelectorAll("thead th")).map((th) => th.textContent);
     expect(headers).toEqual(["Source · reading", "Value", "Measured (EAT)", "Sent (EAT)", "Received (EAT)", "Record"]);

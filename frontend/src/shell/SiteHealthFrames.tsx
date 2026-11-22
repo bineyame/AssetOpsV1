@@ -326,7 +326,7 @@ export function SiteUploadsFrame({ detail, sitesPath, uploads }: {
           />
           {/* D-IAP.38 Q18: Uploads gains the tab row and lights Evidence. */}
           <OperatorSiteTabs siteId={site.site_id} current="Evidence" />
-          <EvidenceSections siteId={site.site_id} current="Uploads" />
+          <EvidenceSections siteId={site.site_id} current="Uploads" siteType={site.site_type} />
           <ReadingUploadPage
             siteId={site.site_id}
             siteName={site.display_name}

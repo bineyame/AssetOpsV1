@@ -20,6 +20,7 @@ import {
   siteHealthHref,
   sitePerformanceHref,
   siteWorkMaintenanceHref,
+  siteUploadsHref,
 } from "./operatorSiteRoutes";
 
 /**
@@ -53,6 +54,7 @@ export function coldSiteRoutes(siteId: string): ColdSiteRoutes {
     foundation: siteFoundationHref(siteId),
     // The Foundation SLD view with no `at` (the same base as `siteFoundationViewHref(siteId, "sld", null)`).
     sld: `${siteFoundationHref(siteId)}/sld`,
+    uploads: siteUploadsHref(siteId),
     workMaintenance: siteWorkMaintenanceHref(siteId),
     portfolioEvidence: EVIDENCE_PATH,
   };
