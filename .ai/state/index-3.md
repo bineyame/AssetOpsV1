@@ -21,3 +21,4 @@ One line per slice, continuing `index-2.md` (number, slice ID, summary, file in 
 196. `6a` decision records: migration 0072 (seven append-only tables), levers, `DecisionService`, Postgres store, three commands, one writer guard block; in_review · work.md
 197. `6c` option evaluator: `structure/difference.py`, study reader, lever models, `evaluate_options` command; a declared season values nothing; fix round 1 (D-P6.34-41) done; in_review · work.md
 198. `DD1` three operators: `/2` onboarding files and nine conversions, `apply --bindings`, served-tenant gateway guard, `24:00` schedules, `dd_check` C-DD1/C-DD13; Kisiwa/Mto on minigrid-roles-5 (D-DD.41), every_component readiness flag (D-DD.45), bindings pre-write check (D-DD.47); re-review ACCEPT · data.md
+199. `DD2a` mini-grid books for Jul-Oct from the structure's nodes (D-DD.48), dated fuel notes, staged DS1b JSON, Lakeside statements, `dd_check` evaluator + C-DD2..C-DD4 live; bool Lows; in_review · data.md

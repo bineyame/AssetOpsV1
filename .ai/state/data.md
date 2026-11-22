@@ -659,3 +659,11 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
   follows the served tenant (D-DD.35). `tools/dd_check.py` has C-DD1 and C-DD13 live, 18 stubs.
 - Left open: Kisiwa and Mto bindings are refused by the product's ONE-per-Site roles (Q-DD1.7); Site document bounds were
   raised (Q-DD1.8); `tools/world.py` L1 does not pass `--bindings` yet.
+
+## DD2a: four months of mini-grid books, notes, staging, statements, C-DD2 to C-DD4 (in_review; `specs/DD-demo-data/packet-DD2a.md`)
+
+- Settled: `exports.py` evaluates billed kWh, revenue, collections and fuel as nodes of `structures.MINI_GRID` every month
+  (`NODES`, parity test; October must equal its period or `EMU_NODE`); `months=`; dated fuel notes (OOO-1 on 26 Oct);
+  `SOURCE_VERSION` "2" (receipts keep "1"); staged DS1b JSON and the Lakeside statements via `world_history.py exports --extras`;
+  `dd_check` has its own formula evaluator and C-DD2 to C-DD4 live (fail until DD5 loads the books); `bool` refused on coded paths.
+- Left open: cold and EV books and profiles (DD2b); DS1b writes no METER_ASSIGNMENT/TARIFF_SCHEDULE; statements reader (DD5/WK).
