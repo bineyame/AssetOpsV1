@@ -15,7 +15,7 @@ from assetops_simulator.world.exports import ExportFile, file_name
 from assetops_simulator.world.profile_csv import PROFILES_DIR
 from assetops_simulator.world.tariffs import tariff_schedules
 
-from .books_support import COLD, EV, HAND_SAMPLES, PINNED_COLD_EV, build, built, files_by_name, m_site, m_tenant, \
+from .books_support import COLD, EV, PINNED_COLD_EV, build, built, emulated_files, files_by_name, m_site, m_tenant, \
     manifest, sample_of, tenant_view
 from .conftest import load_fixture, site_of
 
@@ -177,10 +177,11 @@ def test_r12_every_invoice_tariff_code_is_a_schedule_in_force() -> None:
         if r["kind"] == "CHARGE":
             assert _in_force(COLD, r["site_code"], r["body"]["tariff_code"], r["clocks"]["effective_from"]), r
             checked += 1
-    for r in HAND_SAMPLES["ev-utility-invoice-illustrative"]:  # the EV invoice rows are DD4.4's; the samples are held
+    invoice = emulated_files()[f"{EV}.profile.ev-utility-invoice.csv"].records  # DD4.4: from the measured fixture
+    for r in invoice:
         assert _in_force(EV, r["site_code"], r["body"]["tariff_code"], r["clocks"]["effective_from"]), r
         checked += 1
-    assert checked > 50
+    assert len(invoice) >= 28 and checked > 50
     assert not _in_force(COLD, "COLD-THIKA", "T-STORAGE", "2026-06-30")  # the rule can fail
 
 
