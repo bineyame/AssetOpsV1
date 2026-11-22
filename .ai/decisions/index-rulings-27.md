@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-DD.17 to D-DD.44)
+# Decision index: Demo-sprint and later rulings (index only) (D-DD.17 to D-DD.44, D-P6.34 to D-P6.41)
 
 - `D-DD.17` data-sheet labels reuse -basis properties; DATASHEET_FIT; Kobo no-load 0.62 L/h Assumed, owner Q7 · live · specs/DD-demo-data/rulings.md
 - `D-DD.18` served fuel split is the readings-fed one; history split only makes delivered litres · live · specs/DD-demo-data/rulings.md
@@ -28,3 +28,11 @@
 - `D-DD.42` Site document limits 10,000 nodes, 96 devices, basis Ruiru 6,623/73; 256 KiB byte bound kept · live · specs/DD-demo-data/rulings.md
 - `D-DD.43` Lakeside template fill accepted; generator policy held once on the lead unit (gen-ks-01) · live · specs/DD-demo-data/rulings.md
 - `D-DD.44` DD restated: 33.0 u in seven parts; DD1.2 +0.5 u; DD3.4 readers 2.5 u; DD3 splits DD3a/DD3b · live · specs/DD-demo-data/rulings.md
+- `D-P6.34` a money effect exactly 0 with no money read carries the option's currency; a missing one stays null · live · specs/6-decision-valued/rulings.md
+- `D-P6.35` F1j's zero row: `assumed` [] accepted; §5 amended · live · specs/6-decision-valued/rulings.md
+- `D-P6.36` `assumed` = used assumed leaves plus each used node's assumed_leaves, registry order · live · specs/6-decision-valued/rulings.md
+- `D-P6.37` ZERO_DENOMINATOR only for a zero denominator (tagged); other nodes named by their missing leaves; else raise · live · specs/6-decision-valued/rulings.md
+- `D-P6.38` option_inputs branches NO_ACTION/SETTING_GRID by name; other generators refuse LEVER_UNKNOWN at E3 · live · specs/6-decision-valued/rulings.md
+- `D-P6.39` 6c deviations 6-8 accepted as built; recorded in spec rev 3 · live · specs/6-decision-valued/rulings.md
+- `D-P6.40` eight new plants (M1, L1 rules) in §6; test 4 effect rows literal · live · specs/6-decision-valued/rulings.md
+- `D-P6.41` site_inputs catch narrowed to StructureError/StoreUnavailable (adapter maps SQLAlchemyError); build_evaluation tested end to end · live · specs/6-decision-valued/rulings.md
