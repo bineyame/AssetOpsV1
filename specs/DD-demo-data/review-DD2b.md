@@ -113,3 +113,21 @@ would be deterministic.
   two runs' bytes: the CLI's second run in `test_3a3_exports.py` only checks the `DS1B_OUT not-empty` refusal.
   Determinism rests on the code using no clock or randomness (I found none; L4 is test-only). DD2a or DD5 could pin
   the cold and EV files' sha256 as 3A3 does for mini-grid.
+
+## Verification (fix round 7; head ffeac72d3)
+
+**Summary.**
+- **Verdict: ACCEPT, with one Medium to carry (V1) that must be named before the merge.** M1, M2 and L1-L4 are closed
+  by D-DD.59, .60, .61, .63 and .65a; the `build_books` mis-merge is fixed (staged and statements pairs come through).
+- Checks I ran (worktree root): architecture and workflow guards pass; `simulator/tests` 645 passed (matches packet).
+- Backend, nine files via `run-host-tests.ps1` (ddr_rehearsal_postgres, ds4_world, ds4_world_postgres, dd1_check,
+  dd2_check, 3a3_load_emulated, 3a1_commercial_service, on1_served_tenant; dd2b_profile_admission exists only on the
+  branch): branch 9 failed, 166 passed, 3 errors; main (658e000fb, scratch worktree, removed): 167 passed, 0 failed.
+- **V1 (Medium; merge risk, not a defect in the round's code).** The same files are green on main and red on the
+  branch: 9 `test_ddr_rehearsal_postgres.py` failures (`EXPORT_FILE_UNKNOWN harvest-cold.expenses.csv`) and 3
+  `test_ds4_world_postgres.py` errors (`WORLD_INPUT_UNPLACED harvest-cold.expenses.csv`, test_t12/t13/t14; not in the
+  packet's list). Both are the loader and `tools/world.py` meeting cold and EV files, which DD5 owns. Merging DD2b ahead
+  of DD5 turns 12 main tests red. Needs an Architect or coordinator call: merge with DD5, mark these expected-failing
+  with a DD5 reference, or have the loaders skip non-Lakeside files. The packet compared only against the old DD2b head.
+- No other findings. Residual risk: the new tests were written after the code (plants shown by the builder; I did not
+  re-run them).
