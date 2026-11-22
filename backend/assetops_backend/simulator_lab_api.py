@@ -110,6 +110,7 @@ from assetops_backend.runs.profiles import (
 from assetops_backend.runs.identity import RUN_ID_RULE, validate_run_id
 from assetops_backend.runs.provenance import frozen_inputs
 from assetops_backend.runs.refusals import RunSetupRefused
+from assetops_backend.served_text import served_text
 from assetops_backend.runs.service import RunInventoryService, RunSetupService
 from assetops_backend.scenarios.execution import (
     BOUNDARY_CYCLE,
@@ -877,7 +878,7 @@ def run_profile_summary(profile: ModelProfile) -> dict[str, object]:
         "model_profile_id": profile.model_profile_id,
         "model_profile_version": profile.model_profile_version,
         "display_name": profile.display_name,
-        "statement": profile.statement,
+        "statement": served_text(profile.statement),
         "supported_states": [
             {
                 "state_key": state.state_key,
@@ -886,7 +887,7 @@ def run_profile_summary(profile: ModelProfile) -> dict[str, object]:
                 # resolves it on is the scenario's and the site's.
                 "scope": state.scope,
                 "supported_roles": sorted(state.supported_roles),
-                "statement": state.statement,
+                "statement": served_text(state.statement),
             }
             for state in profile.supported_states
         ],

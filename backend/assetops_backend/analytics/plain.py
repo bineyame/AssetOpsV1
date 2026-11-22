@@ -18,6 +18,8 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from assetops_backend.i18n import render
+
 from . import dispatch, dispatch_v3
 
 CANDIDATE, NECESSARY, INDETERMINATE = dispatch.CANDIDATE, dispatch.NECESSARY, dispatch.INDETERMINATE
@@ -37,7 +39,7 @@ INPUT_NAMES = {
     dispatch.INPUT_LABELS["reserve"]: "Minimum battery reserve",
     dispatch.INPUT_LABELS["discharge_capability"]: "Available battery output",
     "Generator state (status or output)": "Generator operation",
-    # AP-1: the stored dispatch-3.2 input labels a stored Site's readiness gaps name.
+    # AP-1: the stored dispatch-3.2/3.3 input labels a stored Site's readiness gaps name.
     dispatch_v3.LABELS[dispatch_v3.LOAD]: "Site demand",
     dispatch_v3.LABELS[dispatch_v3.PV_AVAILABLE]: "Available solar power",
     dispatch_v3.LABELS[dispatch_v3.DISCHARGE]: "Available battery output",
@@ -289,9 +291,23 @@ def _fuel(a: dict[str, Any]) -> dict[str, Any]:
             "text": None, "note": reason}
 
 
+#: 0K4e (D-0K4.24): which stored energy-cover entry explains a segment, first by state, then earliest.
+_COVER_LEAD = ("NOT_CONFIGURED", "GAP", "NOT_REACHED", "SHORT", "COVERED")
+
+
+def _cover_lead(s: dict[str, Any]) -> dict[str, Any] | None:
+    entries = s.get("energy_cover") or []
+    return min(entries, key=lambda e: (_COVER_LEAD.index(e["state"]), e["at"])) if entries else None
+
+
 def _segment(s: dict[str, Any]) -> dict[str, Any]:
     level = s["classification"]
     missing = [missing_text(m) for m in s.get("missing", [])]
+    lead = _cover_lead(s)
+    if s["observed"] and lead is not None and (
+            (level == CANDIDATE and lead["state"] == "COVERED")
+            or (level == INDETERMINATE and not missing and lead["state"] != "COVERED")):
+        return {"outcome": OUTCOMES[level], "reason": render(dispatch_v3.cover_message(lead)), "missing": missing}
     if not s["observed"]:
         reason = "Generator operation was not recorded between these times."
     elif level == NECESSARY:

@@ -203,12 +203,35 @@ plus Addendum 1. Packet `archive/agent-history/COV-PARTIAL-packet.md`. Decision 
   headline (Lane B, PB-2). The S+1 Readings chip still shows readiness "Unknown" beside "readings complete".
 
 
+## 5c unit 3 - "The month" screen (built, in_review; branch `task/5c-unit3-screen`)
+
+- `/portfolio/month?month=YYYY-MM` (App route before `/portfolio/:tab?`), Portfolio tab "The month" second after
+  Overview (`portfolioWords.ts`; `portfolioHref` gives it the plain path). `PortfolioTabs` and `portfolioHref` moved
+  verbatim to `estate/PortfolioTabs.tsx` (`counts` optional), re-exported from `EstatePortfolio.tsx`.
+- `estate/DeepDiveMonth.tsx` renders `deep-dive-month-1` as served (D-5C.2; the bar's ratio is the one arithmetic):
+  hub shape, `data-level` L1/L2/L3, 6 blocks; drawers are dialogs inside their sections. Caps on screen (10 Sites,
+  8 not-available rows; D-5C.22); drivers nest by their `children` (D-5C.21), one `<ul>` per level. Client
+  `deepDiveMonthClient.ts`; styles `deepDiveMonth.css` (live tokens, no dark theme: the product has none).
+- `tools/deep_dive_gates.cjs`: the hub gates with eight plants (spec §5.4). `test/settled.ts` knows "Preparing the
+  month…". `chain_coherence/screen_routes.json` gains `/portfolio/month`.
+- On the merged backend (fix rounds 1-4): drivers typed with `key` and `children`; screen fixtures World H and the
+  currency-mismatch World X are written by `backend/tests/fixtures/5c/make_screen_worlds.py` from the backend view;
+  every figure renders in its served currency (tests check each shown money figure is a served one).
+- Screen fix (rev 4, main's backend fix r5 merged): each step draws its served `bar` on a track column and the
+  bridge's served `scale` marks above (D-5C.27, R767 resolved; no page arithmetic); a value whose `word` is null is
+  muted with `dd-na`, a card when its word and drawer are null (D-5C.26; no key test); drawer keys on `document`,
+  focus to the first newly shown row after "Show all", `body.dd-locked` while open (L1, L2); D-headline gate views
+  for World A only (L5). `make_screen_worlds.py` uses `tests/deep_dive_worlds.py` only;
+  `test_5c_screen_worlds_fresh.py` fails on a stale committed world (L4).
+- Open: dark theme; `StoreAgreedActions` (3C2 unit 2); "Show all" in the by-Site tables (outside drawers) still drops
+  focus; the pre-existing `chainScreenRoutes` failure (`/sites/:siteId/uploads` missing from the routes fixture).
+
 ## 1a - Optimize card states its day and scope (built, in_review; merge held for the owner's walkthrough)
 
 - Settled: the Portfolio Optimize card's figure stays one lead issue's stored cost (pinned: `window_day` rule 3,
   `summary_window` DAY, `lead_finding`, the card's keys). `_summary` fills `CostScope` per Site (claim day: the
   DAY board day, a one-day PERIOD window's day, else None; window days); `_optimize_card(..., scope=)` adds the last
   key `scope_text`, the SC-1 statement `portfolio_card.cost_scope` (six variants, D-1A.9; `noun.day`). The face shows
-  it in v70's `oc-pfdays` slot (`data-portfolio-card-scope`, Optimize only; MD-1A-1, register R757).
+  it in v70's `oc-pfdays` slot (`data-portfolio-card-scope`, Optimize only; MD-1A-1, register R770).
 - Left open: the period's cost figure (`7g`); the site board's hidden fields (`1b`); cold-chain and EV cost claims are
   not priced yet (the statement covers them).

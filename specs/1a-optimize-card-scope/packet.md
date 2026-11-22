@@ -32,7 +32,7 @@ hold the merge for the owner's walkthrough.
     `portfolio_card.cost_scope`. This is the same edit each earlier adopter made.
 - Evidence tooling: `tools/optimize_card_capture.cjs` and `frontend/e2e-fixtures/1a/{one,two}/*.json`, generated from
   `portfolioFixtures.ts` plus the S1 and S4 cards.
-- Register: `.agent/mock-departure-register.md` row R757 (MOCK DEVIATION MD-1A-1, format).
+- Register: `.agent/mock-departure-register.md` row R770 (MOCK DEVIATION MD-1A-1, format).
 - Not touched: `chain/vocabulary.py`, `tools/checks/*`, `tools/demo_combined_rows.py`, legacy card texts and baselines.
 
 ## Acceptance (spec §4)

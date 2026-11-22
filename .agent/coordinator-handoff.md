@@ -1,35 +1,39 @@
-# Coordinator handoff (21 Nov evening)
+# Coordinator handoff (21 Nov, late evening)
 
-Read this first on resume. The day's earlier blocks are in `.ai/history/coordinator-handoff-2026-11-21-day.md`.
+Read this first on resume. Earlier blocks: `.ai/history/coordinator-handoff-2026-11-21-day.md`, `-evening.md`.
 
 ## Mode
-Owner away from ~18:00 UTC; the Architect stands in (`owner/owner-away-architect-stands-in-2026-11-21b.md`). Push to complete the fortnight (`Docs/demo-sprint/product-direction-layer4/two-week-build-plan.md` §0). Log calls in `specs/OWNER-AWAY/decisions-2026-11-21.md` (last row 52; 44-46 reserved). Reviews gate merges. UI merges (IA-2a, 5c, IA-2b1) wait for the owner's walkthrough. No guard change unless already approved. Standing owner rule: one model-computed figure per quantity, no design value beside it (`owner/owner-one-figure-loyal-to-operating-world-2026-11-21.md`).
+Owner away since ~18:00 UTC; the Architect stands in (`owner/owner-away-architect-stands-in-2026-11-21b.md`). Goal: finish the fortnight. Log owner-level calls in `specs/OWNER-AWAY/decisions-2026-11-21.md` (rows to 69; 64 held for IA-2b1). Reviews gate merges. UI merges wait for the owner's walkthrough. Rule: one model-computed figure per quantity (`owner/owner-one-figure-loyal-to-operating-world-2026-11-21.md`).
 
-## Git and scratch rules
-- Agents work only in their own worktrees and never switch or commit in /opt/assetecon/AssetOpsV1. Before every merge, check that `git branch --show-current` prints main.
-- Each agent gets its own scratch subfolder. Logs go to /opt/assetecon/evidence/<unit>/.
-- `.agent/` is git-ignored; commit with `git commit -- <path>`.
+## Rules
+- Agents work only in their own worktrees and never switch or commit in /opt/assetecon/AssetOpsV1. Before every merge, check `git branch --show-current` = main.
+- Each agent has its own scratch subfolder.
+- Postgres tests: `heavy-slot.sh --db -- pwsh tools/run-host-tests.ps1 -- <files>` (sets the DB URL). Run pytest from `backend/`.
+- Keep this file under 8000 bytes.
 
-## Main
-Main is green except two items being fixed: this file's size cap (trimmed now) and the heavy-slot A11 100 ms bound under load (timing fixer, branch `fix/load-aware-timing-a11`). Migrations up to 0071.
-
-Merged on 21 Nov: SC-1a, ENV-1, 0K3, 3A7, 3C2, 3C1b, the 3A3 scan fix, the timing fix, and specs and rulings for DS4 r2, SC-1f, 0K4 review, 3A7 D1/D4.
+## Merged to main on 21 Nov
+SC-1a, SC-1f, ENV-1, 0K3, 3A7, 3C2, 3C1b, 3C2 unit 2, DS4 unit 3, 0K4a/b/c/e, 5c units 1-2 (backend), the timing fixes, the 3A3 and six-failures test fixes. Main green at 45 guards; last checked after 3C2 unit 2, except this file's size cap.
 
 ## In flight
-
-| Lane | Branch · worktree | State · next |
+| Lane | Branch · worktree | Next |
 |---|---|---|
-| 5c | `task/5c-deep-dive-screen` · -5c | Build. Then review, then held for the walkthrough. DDR after 5c |
-| DS4 unit 3 | `task/DS4-template-ladder` · -ds4 | Fix round done (B5 done; 13.497 s/Site-day; ds7 not triggered). Verification review running, then merge. New kept L2 is `assetops_world_audit_l2_1906a5d074a0` (check_passed) |
-| WK | (spec by Architect) | After DS4 merges: copy the new L2 into `assetops_polish_walk<MMDD>_test` (row 36 b) and serve |
-| SC-1f | `task/SC-1f-declared-word` · -sc1f | Build ("Declared"; logger rule; allow helper). Then review, then merge, then 5c follows the wording |
-| IA-2b1 | `task/IA-2b1-lists` · -ia2b1 | Units 1-2 builder running, from `handoff-IA-2b1.md`. Units 3-4 next. Q1 alias needs Architect confirmation at review |
-| 0K4 | `task/0K4-specs` · -0k4spec | Architect writing the 0K4a-d specs, the candidate energy fix, the one-figure change list and the operator request |
-| 1a and WK specs | `task/1a-WK-specs` · -1awk | Architect writing the specs and the pull order to day 14 (incl. 6c) |
-| Timing A11 | `fix/load-aware-timing-a11` · -timing | Fixer running |
+| 5c backend fix r5 | `fix/5c-backend-r5` · -5cfix | KD2 (gap 0 → no rest line) being fixed, then fresh review, then merge |
+| 5c screen | `task/5c-unit3-screen` · -5c | READY FOR WALKTHROUGH (bc2df265f). After r5 merges: screen fix per spec rev 4 §11 (mute rule, bars, L1 focus, L2 lock, L4 fixture freshness), then re-review |
+| WK tool | `task/WK-walk-world` · -wk | Fix round (safe stop by start time and pgid, smoke heavy slot, L1-L4), then verification, then merge |
+| DDR | `task/DDR-rehearsal` · -ddr | Phase 2 (checker, gates, tests). 3C2 unit 2 is merged, so G10/S11 run |
+| 0K4d | `task/0K4d-rerun-restate` · -0k4d | Commits 2-3 (v8 + season v2 reruns, restate per D-0K4.29), then review. USER_REVIEW (figures) |
+| IA-2b1 | `task/IA-2b1-lists` · -ia2b1 | Unit 4 (lists, flip, plant proofs, full gate). Packet must explain the loop-core.js change (Q1 default overridden) |
+| 1a | `task/1a-optimize-card-scope` · -1a | Ready for walkthrough |
+| IA-2a | `task/IA-2a-plan` · -ia2a | Ready for walkthrough |
+
+## Coordinator jobs, in order
+1. When 5c r5 and WK have merged: `world build` then `world check` (~26 min, quiet DB slot). C4 FAIL = stop, then the Architect. Then WK §5 run: copy, prepare, check, serve 8991/5491, smoke, with NO main merges between copy and check. Export no `PG*` variables.
+2. DDR merge, then rehearsal (§5.1), then serve on 8992/5492 from detached `-ddrserve`.
+3. Quiet moment: rebuild the harness template (md0, 1a `test_ch6b_estate_postgres`), and the 300-file container suite for 0K4a.
+4. Log as owner-away rows: the 5c M3/L7 literals; KD1 (heading evidence) and KD2 (gap 0).
 
 ## For the owner on return
-- Walkthroughs ready or coming: IA-2a (ready); 5c and IA-2b1 (building).
-- Wording to confirm at the 5c walkthrough: "Declared" for settings; the accounts figure as Recorded.
-- Architect calls made while away: see the owner-away log, rows 51 onward.
-- Backlog Lows: `.agent/backlog-post-demo.md`.
+- Walkthroughs: IA-2a, 1a, 5c (after its screen fix), IA-2b1 (after unit 4), the WK-served world, and the DDR rehearsal.
+- 0K4 figures from 0K4d (v8, SIMULATED), with the admission verdicts.
+- Architect calls: owner-away rows 51-69.
+- Backlog: `.agent/backlog-post-demo.md`.

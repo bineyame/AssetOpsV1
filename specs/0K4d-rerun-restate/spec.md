@@ -1,6 +1,6 @@
 # 0K4d: the admission rule, the rerun on v8 and season v2, and the restated MG-T lines (implementer spec)
 
-Status: live, rev 2 (Architect, Claude, 2026-11-21; handshake answered by D-0K4.26 to D-0K4.30). **2.25 units.** Discovery review (W5): the
+Status: in_review, rev 2 (Architect, Claude, 2026-11-21; handshake answered by D-0K4.26 to D-0K4.30). **2.25 units.** Discovery review (W5): the
 figures that will reach the option card and its money. Non-screen. No migration. No database.
 `USER_REVIEW_REQUIRED: true` (the figures go to the owner; nothing served). Rulings: `specs/0K4-dispatch-model-review/
 rulings.md` (D-0K4.7, D-0K4.9, D-0K4.11, D-0K4.12, D-0K4.16, D-0K4.26 to D-0K4.29). Reviewer guide: `reviewer-guide.md`.

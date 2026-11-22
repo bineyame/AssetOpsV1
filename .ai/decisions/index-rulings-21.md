@@ -38,7 +38,7 @@
 - `D-WK.2` Parent = L2 at today's key, check passed on today's inputs (current_l2, check_state) · live · specs/WK-walkthrough-database/rulings.md
 - `D-WK.3` Adds two emulated statements and one rebuild; no Action (owner-away row 53) · live · specs/WK-walkthrough-database/rulings.md
 - `D-WK.4` Clean and good for the copy = W1-W7 · live · specs/WK-walkthrough-database/rulings.md
-- `D-WK.5` Serve in the 13 Nov shape on 8991/5491; no key or switches (owner-away row 54) · live · specs/WK-walkthrough-database/rulings.md
+- `D-WK.5` Serve in the 13 Nov shape on 8991/5491; no key or switches (owner-away row 54) · live; amended by D-WK.15 (cursor keys) · specs/WK-walkthrough-database/rulings.md
 - `D-WK.6` A walk serves exactly its copy commit; newer main = new label · live · specs/WK-walkthrough-database/rulings.md
 - `D-WK.7` Teardown on the owner's word: stop by PID, drop without FORCE, remove worktree · live · specs/WK-walkthrough-database/rulings.md
 - `D-WK.8` 1.25 units, one commit; standard review · live · specs/WK-walkthrough-database/rulings.md

@@ -567,3 +567,21 @@ def test_c2_the_guard_reports_a_missing_case() -> None:
     finally:
         guard._cases = original
     assert "CASE_MISSING agreed_action.refused bad_due" in out
+
+
+# Unit 2 (spec section 3, test 9(e); D-3C2.16): the screen's one source is the agreed-action service. Plant P16.
+def test_9e_deep_dive_imports_only_the_agreed_seam_from_actions() -> None:
+    allowed = {"assetops_backend.actions.agreed", "assetops_backend.actions.agreed_composition"}
+    for name in ("actions.py", "composition.py"):
+        path = PKG / "deep_dive" / name
+        found = {m for m in _imports(path) if m == "assetops_backend.actions" or m.startswith("assetops_backend.actions.")}
+        assert found <= allowed, (name, found - allowed)
+        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+            if isinstance(node, ast.ImportFrom) and node.module == "assetops_backend":
+                assert not {a.name for a in node.names} & {"actions"}, name
+    actions = PKG / "deep_dive" / "actions.py"
+    tree = ast.parse(actions.read_text(encoding="utf-8"))
+    cls = next(n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == "StoreAgreedActions")
+    init = next(n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name == "__init__")
+    a = init.args
+    assert [x.arg for x in a.args] == ["self", "service"] and not (a.posonlyargs or a.kwonlyargs or a.vararg or a.kwarg)

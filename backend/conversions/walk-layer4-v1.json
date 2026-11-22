@@ -1,0 +1,18 @@
+{
+  "format": "assetops.walk-definition/1",
+  "world": "layer4",
+  "statements": [
+    {"tenant": "lakeside-power", "as": "joseph@lakeside-power.example", "period": "2026-10", "currency": "USD",
+     "revenue": "9700.00", "fuel_cost": "5100.00",
+     "source_ref": "Emulated management accounts, October 2026, draft"},
+    {"tenant": "lakeside-power", "as": "joseph@lakeside-power.example", "period": "2026-10", "currency": "USD",
+     "revenue": "9700.00", "fuel_cost": "5000.00",
+     "source_ref": "Emulated management accounts, October 2026, final"}
+  ],
+  "rebuild_by": "service:world-build",
+  "serve": {"tenant": "lakeside-power", "port": 8991, "web_port": 5491},
+  "expect": {"tenant": "lakeside-power", "month": "2026-10", "contribution_actual": "1443.00",
+             "contribution_target": "2295.00", "reconciled": true},
+  "pages": ["/portfolio", "/portfolio/month?month=2026-10", "/sites", "/sites/{code}", "/findings", "/actions",
+            "/evidence", "/financials"]
+}

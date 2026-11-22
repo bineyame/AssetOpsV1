@@ -83,18 +83,22 @@ RUNBOOK = REPO / "Docs" / "engineering" / "operator-deep-dive-runbook.md"
 SPEC_RUNBOOK = REPO / "specs" / "ON1-operator-tenant" / "runbook.md"
 #: Spec §6 settings 3: exactly these command lines, in this order (rev 3: the rehearsal and erasure).
 EXPECTED = ["onboard_operator digest", "onboard_operator check", "onboard_operator apply",
-            "accounts.onboard set-password", "world_history exports", "load_emulated_exports",
-            "commercial.pseudonym_key erase"]
+            "accounts.onboard set-password", "source_profile admit", "source_profile list", "world_history exports",
+            "load_emulated_exports", "reconcile_month record", "build_structure_snapshot build", "record_action",
+            "rehearsal_check", "commercial.pseudonym_key erase"]
 #: One value per variable the runbook declares in its "Shell variables" line.
 VALUES = {"REHEARSAL": "ddr1", "FILE": "backend/tests/fixtures/on1/lakeside-power.onboarding.json",
-          "DIGEST": "0" * 64, "KEY_DIR": "/opt/assetecon/keys/assetops_rehearsal_ddr1", "DB_PASSWORD": "pw",
+          "DIGEST": "0" * 64, "KEY_DIR": "/opt/assetecon/keys/assetops_rehearsal_ddr1_test", "DB_PASSWORD": "pw",
           "EMAIL": "amina@lakeside-power.example", "DIR": "/tmp/exports",
-          "TENANT_ID": "00000000-0000-0000-0000-000000000001"}
+          "TENANT_ID": "00000000-0000-0000-0000-000000000001",
+          "ADMITTED_BY": "00000000-0000-0000-0000-000000000002", "PERIOD": "2026-10", "REVENUE": "9700.00",
+          "FUEL_COST": "5100.00", "SOURCE_REF": "Management accounts, October 2026, draft"}
 _VAR = re.compile(r"\$\{?([A-Za-z_][A-Za-z0-9_]*)\}?")
 
 
 def _parsers() -> dict[str, Callable[[], argparse.ArgumentParser]]:
-    from assetops_backend import load_emulated_exports, onboard_operator
+    from assetops_backend import (build_structure_snapshot, load_emulated_exports, onboard_operator, reconcile_month,
+                                  record_action, rehearsal_check, source_profile)
     from assetops_backend.accounts import onboard
     from assetops_backend.commercial import pseudonym_key
 
@@ -103,7 +107,10 @@ def _parsers() -> dict[str, Callable[[], argparse.ArgumentParser]]:
 
     return {"onboard_operator": onboard_operator.build_parser, "accounts.onboard": onboard.build_parser,
             "load_emulated_exports": load_emulated_exports.build_parser,
-            "commercial.pseudonym_key": pseudonym_key.build_parser, "world_history": world_history.build_parser}
+            "commercial.pseudonym_key": pseudonym_key.build_parser, "world_history": world_history.build_parser,
+            "source_profile": source_profile.build_parser, "reconcile_month": reconcile_month.build_parser,
+            "build_structure_snapshot": build_structure_snapshot.build_parser,
+            "record_action": record_action.build_parser, "rehearsal_check": rehearsal_check.build_parser}
 
 
 def _declared(text: str) -> set[str]:

@@ -1,7 +1,7 @@
-# WK rulings (D-WK.1 to D-WK.9)
+# WK rulings (D-WK.1 to D-WK.16)
 
 Architect (Claude), 2026-11-21, on the owner's delegation (`owner/owner-away-architect-stands-in-2026-11-21b.md`).
-Owner-level calls are logged in `specs/OWNER-AWAY/decisions-2026-11-21.md` rows 53 and 54. Row 36 (owner: option b)
+Owner-level calls are logged in `specs/OWNER-AWAY/decisions-2026-11-21.md` rows 53, 54, 66, 67 and 76 (D-WK.15, D-WK.16, 2026-11-22). Row 36 (owner: option b)
 is the authority for the copy.
 
 ## D-WK.1 WK is one coordinator-only tool over DS4's world
@@ -81,3 +81,138 @@ WK builds after 5c units 1 and 2 (the read and `GET /api/portfolio/month`), beca
 screen is a UI merge, held for the owner's walkthrough, and the owner walks it first on DDR's rehearsed tenant (5c
 §9). So WK does not wait for it. When the screen is on `main`, the copy serves it, and `/portfolio/month` is in the
 smoke's page list either way.
+
+## D-WK.10 After 0K4a, 0K4b and 0K4e, a C4 FAIL on the new L2 is a stop, never absorbed by the oracle (R2)
+
+- **Ruling.** WK's run builds and checks a new L2 (spec §5 step 1). C4 judges each factor's value and whether a blank
+  names its record. It never judges the record's text. The only expected change is that the honesty list names
+  `dispatch-3.3` where it named `dispatch-3.2`, which cannot fail C4. Any C4 FAIL line is a stop: a class-B factor with
+  a value, an E factor unequal, `uncontracted`, `not_in_product`, or a Site-set line. The run does not copy. Nobody
+  edits `C4_CONTRACT`, `C4_SITE_CLASSES` or `C4_KNOWN_FINDINGS` from the run (it stays empty, D-DS4.27). The lines go
+  to the Architect as a DS4 finding, who rules with an independent derivation (W2) before any re-check.
+- **Why.** By construction, the three merges cannot move a C4 cell in this world.
+  - 0K4e changes only the need strings of `necessary_l`, `candidate_l` and `unexplained_l`
+    (`structure/rows_mini_grid.py`). It adds no factor row.
+  - 0K4b's assumed values are Foundation properties (minimum load, taper start, `sites/models.py`). They are read only
+    by the dispatch model and simulator v8, over readings.
+  - 0K4a's v8 is a simulator version no world uses (owner-away row 56). v1 to v7 are byte-identical.
+  - The world has no telemetry, so every litre leaf stays blank (DS4 §2.1, Src T).
+  So a FAIL would mean the product changed meaning without a contract change. Absorbing it from the run would make the
+  checker share its expected figure with the code, which W2 forbids.
+- **Reversible.** The Architect amends §2.1's contract (an independent derivation, and T9b updated) if a finding
+  shows the contract was wrong.
+
+## D-WK.11 WK reaches the walk database only through its own guarded `walk_url` (I2)
+
+- **Ruling.** Spec §3.1. One function builds the walk URL, after the label rule, the protected-name refusal and
+  `walk_name_ok`. `walk_name_ok` refuses `assetops_polish_walk1113_test`, any case of `assetops_op*`, any `assetops_world*`
+  rung, and anything not `assetops_polish_walk<4 digits>[a-z]_test`. RC4-F1's `database_target` must agree on name, host
+  and port. `World.census`, `World.exists` and `check_name` are never called on it. `check_name`'s refusal of `walk`
+  and `serve` stays as it is, the right rule for the world tool.
+- **Why.** `check_name` is the world tool's tripwire against touching a walkthrough database, so WK cannot use it, and
+  must not weaken it. A second, narrower guard is used only by WK. It admits exactly the one shape WK creates, and it
+  keeps the 13 Nov database and every operator database out by name before any connection.
+
+## D-WK.12 Two figures for one quantity only where the operator acts or reconciles: the allowed pairs (R4; DDR R16; owner-level)
+
+- **Ruling.** On the served pages (WK) and the rehearsed screen (DDR), a quantity is shown once, except in these pairs:
+  plan against actual (the contribution bar and the budget lines against actuals); Kisiwa's budget notice (the
+  stated −$60.00 against its lines' −$65.00, a reconcile); and the finance lead's statement against the records,
+  only while they do not match (DDR's S7 read). Once reconciled, the screen says so in words and does not repeat the
+  statement's figure. Kobo's stop-70 litres and value read "Not available yet" (no EMS export in either world). The
+  reviewers read the smoke PNGs (WK) and the expectation file's `screen` (DDR). A breach is a product finding for the
+  Architect; neither unit adds product code to fix it. Logged as owner-away row 66.
+- **Why.** The owner's rule (`owner/owner-one-figure-loyal-to-operating-world-2026-11-21.md`): two numbers confuse
+  unless they set up something to act on or reconcile; plan against actual is the owner's own example. The statement
+  pair is a reconcile only while it is open.
+- **Reversible.** Add or remove a pair here; the reviewers' reads change with it.
+
+## D-WK.13 The copy is checked clean again after the serve (R3)
+
+- **Ruling.** Smoke S4 re-runs W3's census judge, read-only, after the browser pages. Any table outside the declared
+  deltas FAILs, naming it. This is T5's judge with no new mechanism.
+- **Why.** The owner walks only a clean database. A read path that writes (a cache, a response store) would make the
+  walked copy differ from the checked one without anyone seeing it.
+
+## D-WK.14 Day 14: 3C2 unit 2, the world build and check, WK, then DDR; sizes restated (owner-level, row 67)
+
+- **Ruling.** Order and sizes:
+  1. **3C2 unit 2** (0.25 unit, lane C, build now, verification review; D-3C2.16).
+  2. **WK's tool** (1.4 units) and **DDR** (1.5 units) build at once in their own lanes.
+  3. **World build and check** (WK §5 step 1, about 26 minutes, the one heavy database job), as soon as 3C2 unit 2
+     has merged.
+  4. **WK's run**, steps 3 to 11, once WK has merged. No merge to `main` from step 3 to step 5. The owner's walk
+     database is then ready, and the 5c screen is walked on the rehearsed tenant.
+  5. **DDR merges** after WK's step 5. The coordinator's rehearsal (DDR §5.1) follows, then its serve on 8992/5492
+     (D-DDR.13).
+- **Why.** WK's walk database must show the connected "Actions in hand", so that an agreed change recorded live
+  appears (WK §5 step 10). So 3C2 unit 2 must be on `main` before the L2 is built, because unit 2 changes
+  `backend/assetops_backend`, the world key. DDR's merge changes the same tree, but nothing served, so it waits until
+  WK's copy is checked. The other order would stale the L2 and cost a second 26-minute build. Building in parallel
+  keeps DDR on time, and the owner sees the deep-dive rehearsed before the 5c walkthrough.
+- **Reversible.** Reorder; only the coordinator's run timing depends on it.
+
+## D-WK.15 The walk serve's API carries two fresh cursor keys (smoke S3, label 1122; amends D-WK.5; owner-away row 76)
+
+- **Ruling.** `api_env` adds `ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX` and `ASSETOPS_WORK_CURSOR_KEY_HEX`, each a
+  fresh `secrets.token_hex(32)` made by `serve` for that serve alone. They are never read from the parent environment,
+  never written to the manifest, a log or evidence, and never printed. A restart makes new keys, so an old page-two
+  cursor is refused as `INVALID_CURSOR`, which is the designed answer. T8's exact API key list gains the two names.
+  DDR §5.2 step 3 carries the same two names (D-DDR.16).
+- **Why.** Both keys have no default by design (`estate/scope.py:313-325`, `work/global_index.py:63`): without them
+  every estate and work-index route answers 503 `ESTATE_STORE_UNAVAILABLE`, which is what smoke S3 found. The 13 Nov
+  serve, the shape D-WK.5 copies, makes the same two keys (`tools/demo_combined.py:78`, `:1073`), so D-WK.5 left them
+  out by mistake. They are HMAC secrets for pagination cursors only. They name no path, open no upload, real-data or
+  entry switch, and carry no data, so D-WK.5's "no key folder, no switch" still holds.
+- **Class and sweep.** The class is a variable the API requires with no default, left out of a built environment. Every
+  `ASSETOPS_*` name the backend, host and gateway read was swept against the 13 Nov serve. These two are the only
+  required secrets; every other name is an opt-in that stays off, or is on D-WK.5's deny list.
+- **Reversible.** Remove the two names, and the estate routes answer 503 again.
+
+## D-WK.16 After the serve, `chain_response` may only grow; every other table stays exact (smoke S4, label 1122; amends D-WK.13 and T5; owner-away row 76)
+
+- **Ruling.** The census judge gains one declared after-serve allowance, `SERVE_GROWTH_TABLES = ("chain_response",)`.
+  This allowance applies only in smoke S4. There, a table in that tuple passes when its count is at least the
+  manifest's (prepared) count, and fails when it is lower. Every other table must equal the parent census plus the
+  declared deltas, as before. W3, the judge before the serve, stays exact for every table, `chain_response` included.
+  S4 prints the growth as a fact (`chain_response +3 (D-WK.16)`), and its PASS still names every other table as exact.
+  The serve keeps the response store on, the 13 Nov shape. Adding any other table to the tuple needs a new ruling.
+- **Why.** `chain_response` holds derived bytes, which the CH-5c response store writes on a cache miss by design
+  (CH-5c R6; OWN-GAPS rulings-8:356). It keys them to the database watermark, and no source table, figure or Action
+  reads it as evidence. The walked copy therefore shows exactly what the checked copy computes. D-WK.13 is there to
+  catch a read that changes what the owner sees, and every source table still catches that. Option (b), serving with
+  `ASSETOPS_RESPONSE_STORE=compose`, was declined. It keeps D-WK.13's wording but walks a shape no operator gets, with
+  cold pages over 2 s before prebuild. That buys the letter of the rule at the cost of the walk it protects. `off` was
+  not considered.
+- **Class and sweep.** The class is a derived cache table, written by a read path, inside a census meant to catch
+  source writes. `chain_response` is the only cache table the serve writes (the only difference label 1122's census reported).
+- **Tests (T5).** These cases are added: after-serve `chain_response` +3 PASSes; `chain_response` -1 FAILs; +1 in any
+  other table still FAILs naming it; W3 with `chain_response` +1 FAILs.
+- **Reversible.** Empty the tuple and serve with `ASSETOPS_RESPONSE_STORE=compose` (option b).
+
+## Handshake answers (round 1)
+
+Architect (Claude), 2026-11-21, on `task/DDR-WK-handshake-answers` (questions at 99b1d8279; `main` 83419e876 merged
+in). Folded into `spec.md` rev 2 and `reviewer-guide.md` rev 2.
+
+### Reviewer
+
+- **R1 (High).** Accepted. Spec §5 step 1 is written for a stale L2 (about 26 minutes), with step 0's start condition
+  and merge freeze (D-WK.14). 0K4a (83419e876) also changed `simulator/assetops_simulator` since the question, which
+  is the same class.
+- **R2 (High).** D-WK.10: a C4 FAIL is a stop. The `dispatch-3.3` text cannot fail C4.
+- **R3 (Medium).** Accepted: D-WK.13 (smoke S4; T5).
+- **R4 (Medium).** D-WK.12 (owner-away row 66).
+- **R5 (Medium).** Accepted as written. The reviewer greps `source_ref` in the diff and in every `*_api.py`.
+- **R6 (Low).** Accepted: T12 asserts the two paths, and `serve --tree` refuses the 13 Nov tree (T8).
+
+### Implementer
+
+- **I1 (High).** Accepted: W4 unpacks and disposes the read, builds `TenantRef` from the walk database, and takes
+  `names` as the route does.
+- **I2 (High).** D-WK.11.
+- **I3 (Medium).** Accepted: the smoke's `node` env is exactly six names (T8).
+- **I4 (Medium).** Accepted: `WalkDeps` (§3.1).
+- **I5 (Low).** Accepted: `main.py:693` and exit 69 are fixed in the spec. `ASSETOPS_LIVE_FIELD_*` stays on the deny
+  list. The Vite child is WK's own. The packet notes each.
+- **I6 (Low).** No change.

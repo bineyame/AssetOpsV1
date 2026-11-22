@@ -281,7 +281,7 @@ export function CategoryCards({
                 {c.value}
               </div>
               {/* 1a (D-1A.3): v70 pfCard (index.html:494) keeps the days line under the figure; the Optimize card's day
-                  and scope stay on the face, because its figure misleads without them. MOCK DEVIATION MD-1A-1 (R757,
+                  and scope stay on the face, because its figure misleads without them. MOCK DEVIATION MD-1A-1 (R770,
                   format): SC-1's one day format, not v70's "6 Oct". */}
               {c.scope ? (
                 <small className="ob-days oc-pfdays" data-portfolio-card-scope>

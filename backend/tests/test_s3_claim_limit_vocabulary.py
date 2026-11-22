@@ -1,4 +1,4 @@
-"""The claim-limit read maps dispatch-3.2 problem text to coverage statuses by substring. This ties that table to
+"""The claim-limit read maps dispatch-3.2/3.3 problem text to coverage statuses by substring. This ties that table to
 the model, so a wording change without a model bump fails here instead of silently reading as COVERED."""
 
 from assetops_backend.analytics import claim_limit_read as read
@@ -11,7 +11,8 @@ EXPECTED = {"UNBOUND": read.MISSING, "MULTIPLE_BINDINGS": read.MISSING, "MISSING
 
 
 def test_every_dispatch_problem_text_maps_to_its_status_by_a_table_needle() -> None:
-    assert dispatch_v3.MODEL_VERSION == "dispatch-3.2", "model changed: re-derive claim_limit_read._PROBLEM_STATUS"
+    # 0K4e: dispatch-3.3 adds no problem text (its energy-cover outcome is stored as codes, D-0K4.24).
+    assert dispatch_v3.MODEL_VERSION == "dispatch-3.3", "model changed: re-derive claim_limit_read._PROBLEM_STATUS"
     assert set(dispatch_v3._PROBLEM_TEXT) == set(EXPECTED), "new/removed problem code: extend the table"
     for code, text in dispatch_v3._PROBLEM_TEXT.items():
         matched = [status for needle, status in read._PROBLEM_STATUS if needle in text]

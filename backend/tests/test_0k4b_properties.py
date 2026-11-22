@@ -114,18 +114,20 @@ NEED_SENTENCES = {
 }
 
 
-def test_p4_the_curve_needs_are_declared_and_on_no_profile_yet():
+def test_p4_the_curve_needs_are_declared_and_v8_is_excluded():
     assert [(n.state_key, n.foundation_binding.property_key, n.foundation_binding.unit,
              n.foundation_binding.component_type) for n in GENERATOR_CURVE_NEEDS] == [
         ("generator-no-load-fuel-rate", "generator-no-load-fuel-rate", "L/h", "GENERATOR"),
         ("generator-minimum-load", "generator-minimum-load", "%", "GENERATOR"),
         ("battery-charge-taper-start", "battery-charge-taper-start", "%", "BATTERY"),
     ]
-    for profile in MODEL_PROFILES:
+    # 0K4a puts the needs on `mini-grid` v8 (its own test, `test_0k4a_profile_words.py`); every other profile has none.
+    for profile in (p for p in MODEL_PROFILES if (p.model_profile_id, p.model_profile_version) != ("mini-grid", 8)):
         assert not any(need in profile.supported_states for need in GENERATOR_CURVE_NEEDS), profile.model_profile_id
         assert not {"generator-minimum-load", "battery-charge-taper-start"} & set(profile.foundation_needs)
     assert {n.state_key: served_text(n.statement) for n in GENERATOR_CURVE_NEEDS} == NEED_SENTENCES
-    assert sorted(NEED_SENTENCES.values()) == sorted(c.english for c in model_profile_cases.CASES)
+    assert sorted(NEED_SENTENCES.values()) == sorted(
+        c.english for c in model_profile_cases.CASES if c.key == "model_profile.need")
 
 
 NAMES = {

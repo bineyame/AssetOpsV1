@@ -21,6 +21,7 @@ from assetops_backend.i18n.catalogue import CatalogueError
 from assetops_backend.i18n.statements.en.vocabulary import VOCABULARY
 from statement_cases import common as common_cases
 from statement_cases import worked
+from assetops_backend.i18n.statements.en.deep_dive import STATEMENTS as DEEP_DIVE_STATEMENTS  # 5c (D-SC1.28)
 
 FIN, EMU = worked.FIN, worked.EMU
 DECLARED = Evidence("DECLARED", FIN)
@@ -352,10 +353,14 @@ def test_t8_shipped_catalogue_loads():
                                          # 1a (D-1A.9): the Optimize card's day and scope.
                                          "portfolio_card.cost_scope",
                                          # 0K4b (D-0K4.19): Foundation property names and model-profile needs.
-                                         "foundation.property_name", "model_profile.need"}
+                                         "foundation.property_name", "model_profile.need",
+                                         # 0K4a (D-0K4.19): mini-grid v8's description and restated fuel-tank state.
+                                         "model_profile.description", "model_profile.state",
+                                         # 0K4e (D-0K4.24): energy-cover entries.
+                                         "dispatch.energy_cover", "dispatch.energy_cover_cause"} | set(DEEP_DIVE_STATEMENTS)
     assert set(cat.vocabulary["en"]) == {"factor", "heading", "headline_subject", "record", "record_noun",
                                          "evidence", "unit", "noun", "month", "format", "action_state",
-                                         "foundation_property"}
+                                         "foundation_property", "dispatch_input", "reading_problem"}
 
 
 def test_t8_a_module_with_a_docstring_loads_by_its_assignment_value():
