@@ -708,3 +708,16 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
   C-DD6 live for cold (judge on readings rows; other verticals pending with their unit).
 - Left open: C-DD6's clone fetch (DD5 loads readings); the mock's two Thika chart series (screens.js:71, 77-78) and
   "50-90 degC-min" await a content pass from the writer's readings; DD4b (EV).
+
+## DD3b1: mini-grid v9 units (in_review, part 1 of 3; `specs/DD-demo-data/packet-DD3b.md`)
+
+- Settled: `MINI_GRID_V9_MODEL` in `packs/mini_grid.py` (D-DD.127): generator and PV-inverter units in component
+  code order, own lifecycles (generator FAILED reachable; `inverter-state` AVAILABLE/FAILED, scenario-owned), the
+  `unit-fail`/`unit-restore` events, `pv-array-share`, the shortest-prefix running set by requested power, the
+  rating-proportional split with per-unit minimum and fuel caps, each unit on its own curve from one tank. One of
+  each runs v8's callables (C-DD19 Kobo October digest test); the unit path forced on one of each equals v8 too.
+  v1-v8, the kernel and the writer are untouched; no figure moved.
+- Open: unit events are read from step exposures, so the writer must declare them as one-minute windows: the kernel
+  never exposes a POINT forcing (packet Known Deviations 1, question to the Architect). DD3b2 (writer units, kit,
+  pure runs, D-DD.97/104/126/128/129/132) and DD3b3 (notes and leaves) follow; `EXECUTABLE_MODELS` not registered.
+
