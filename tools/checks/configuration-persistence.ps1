@@ -1104,6 +1104,9 @@ function Invoke-ConfigurationPersistenceCheck {
     # W4-01 Run 3 ruling 7: the work read adapter is a named reader (no write; the work store stays the sole writer).
     $pgReaders = @("$backendRoot/estate/adapters/postgres_estate_read.py", "$backendRoot/estate/adapters/postgres_evidence_money_read.py",
         "$backendRoot/work/adapters/postgres_work_read.py",
+        # 6c (D-P6.41): the structure read's wrapper imports only the driver's exception class, to map it to
+        # StoreUnavailable; it runs no SQL, and the SQL-write refusal still applies to it.
+        "$backendRoot/decisions/adapters/structure_read.py",
         # W6-01a A1Q G1: the read-only global work reader; the SQL-write refusal still applies to it.
         "$backendRoot/work/adapters/postgres_global_read.py",
         # DIESEL-K2 (build sheet DIESEL-1 §9c.2): the read-only as-known fuel records reader (K3's port); the SQL-write
