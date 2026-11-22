@@ -135,3 +135,11 @@
   `analytics/adapters/postgres_assessment_store.py:1643` takes the top-level revision ids only. Neither is in
   D-DD.117's text; one-unit Sites are unaffected. The refusal text "v1 assesses one fuel tank and one generator" is
   kept unchanged (no statement-catalogue move); it now fires for zero generators or not one tank.
+- Part 5 (this run): 09e958005 moves `KOBO-001-bindings.json` to roles-5; three pins failed first (3 failed) and pass;
+  four further world pins (join parity x2, host W1, LAKESIDE_ALONE_SHA256) handled as packet deviation 1. Packet
+  `packet-DD3c.md` drafted with PARITY_RESULT / REACH_SET_RESULT placeholders; state 209 and spec status in_review
+  written. Guards on the working tree: architecture, agent workflow pass; statement catalogue exit 0.
+- Open (partial): `test_dd3c_kobo_parity_postgres.py` was delegated to a helper still running at hand-back; not yet
+  verified or committed by this run. Next: confirm the parity file's result and plant, fill the packet placeholders,
+  run the reach set once (list: 85 files, every `test_dd3c_*`, importers of dispatch_v3/verification*/replay_series/
+  fuel_balance/litres, w2 fuel, diesel_k, 4d litres, dd1 x3) in one `--db-lane` call, cite `.agent/main-baseline/23d2cd9f6.md`.

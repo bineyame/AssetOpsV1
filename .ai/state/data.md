@@ -708,3 +708,13 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
   C-DD6 live for cold (judge on readings rows; other verticals pending with their unit).
 - Left open: C-DD6's clone fetch (DD5 loads readings); the mock's two Thika chart series (screens.js:71, 77-78) and
   "50-90 degC-min" await a content pass from the writer's readings; DD4b (EV).
+## DD3c: unit roles in the readers (DD3.4; in_review; `specs/DD-demo-data/packet-DD3c.md`)
+- Settled: `sites/unit_roles.py` gives a Site's state, installed/available rating and lead-unit policy from its units
+  (D-DD.111, D-DD.112, D-DD.43); `MINI_DEPTH_ROLE_SETS` and migration 0074 open every mini-depth gate to one roles-4
+  or roles-5 set (D-DD.109); dispatch_v3, verification (cost check per unit summed), replay series, fuel balance (lead
+  unit names the window, every unit burns on its own SFC; D-DD.117) and litres (D-DD.113) sum PER_ASSET units under
+  roles-5 and keep today's refusals under roles-4; one-unit outputs byte-identical to main (goldens). Kobo's world
+  conversion binds roles-5 with stored-Postgres parity of its product outputs against roles-4 (D-DD.114).
+- Left open: the multi-unit night note's blended form and the cost check's multi-unit wire shape (to confirm in
+  review); `analytics/service.fuel_basis` first-match on multi-unit Sites (backlog, D-DD.118); Kisiwa's and Mto's
+  readings load with DD5.1.
