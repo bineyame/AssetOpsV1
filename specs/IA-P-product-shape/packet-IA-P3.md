@@ -148,3 +148,16 @@ new "alias rows" describe asserts the redirect to `/findings` with `scope=site:{
 - `check-architecture` (site-substrate pattern widened in run 4 to `SiteFindingIndex` and `SiteControlsTable`): planted
   `export function SiteFindingIndex()` in `frontend/src/shell/PlantSubstrate.tsx`; it failed with "Site presentation
   component declared outside the shared substrate in frontend/src/shell/PlantSubstrate.tsx:1"; file removed, guard clean.
+
+### 7.6 Counts and plants at head
+
+- Parity (`--db-lane`, whole file): 3 passed in 78 s, hard projection assert, no xfail. Plants: `estatedrift` (`estate/index.py`
+  row `site_name` = site code): cold and ev failed ("`$.estate[0].site_name: 'Cold replay lab' != 'COLD-LAB-001'`");
+  `sitedrop` (cold Site findings read minus its last item): cold failed on `$.site` while the subset held; both reverted.
+- vitest `src/estate src/shell src/ui src/sites` at head: 186 files, 11 failed / 4115 passed (4126), 126 s. Main
+  `12e618be3`: 12 failed / 4081 passed (4093), 184 files, 213 s. Failures at head are main's set (s502 2, siteRangeMatrix 2,
+  sr2RequestUrls, domainActionVerification, evActionFixRound, evSiteMoneyRoutes 2, siteWorkCases) plus `evScenarios` R347
+  (fails only in the full run: the Site tabs read the window before the read settled; passes alone on head and on main, 4 of
+  4). Not failing at head: `linkRefOnly` (main flake), `siteFindingsAlias` COLD, `coldWorkCases`, `simulatorLabGate` (it fails
+  alone on main and head, passes in the full run: order/timing, not this slice).
+- `tsc` clean; `check-architecture` passed (clean, and the planted `SiteFindingIndex` outside `sites/` failed it).

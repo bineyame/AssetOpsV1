@@ -175,3 +175,8 @@ Merged main `12e618be3` (conflicts in spec Status and state index resolved: DD3a
   normalisation, or which projection, is the byte compare to run on?
 - Q-P5-4: `ColdFindingIndex` and `EvFindingIndex` (and their tests) are unmounted by the alias: delete, or keep and
   re-mount their tests directly?
+
+## Run 5 (P5 complete; in_review)
+
+D-IAP.46 and D-IAP.47 applied; 19 tests sorted, siteRangeMatrix alias rows, plants, counts: see `packet-IA-P3.md` §7.
+Open: P6, P7. The `evScenarios` R347 full-run-only failure is unexplained (passes alone).
