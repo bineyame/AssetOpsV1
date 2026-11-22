@@ -55,7 +55,7 @@ Two focused Postgres runs now proceed side by side: `--db-lane` / `-DbLane` take
 - `pytest backend/tests/test_t1b_db_lanes.py`: 27 passed. `node --test tools/checks/test_heavy_slot_inventory.mjs`:
   8/8. `tools/check-architecture.ps1` (guard python set): `Architecture check passed.` (108.8 s).
   `statement_catalogue.py`: exit 0, `OK statement catalogue`. `check-decision-index.py`: OK.
-  `check-agent-workflow.ps1`: see closing commit run (recorded in the handback).
+  `check-agent-workflow.ps1`: `Agent workflow check passed.` (on the closing commit).
 - Not run: full suites (not scheduled; both conftests are ALWAYS_FULL, D-T1.17: full suites at the next milestone).
   Layout evidence: not applicable (no UI).
 
