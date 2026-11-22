@@ -127,3 +127,11 @@ files (1223, the one main failure), `iap_gates` 50/50, `deep_dive_gates` A 9/9 a
 3. **World ladder L2 `code` rebuild after merge (packet Risk 3) and the load flakes (Risk 4).** **Default:** the
    coordinator rebuilds the current rung once after merge, as spec §8 says; the `s502OverviewFindingList` and
    `simulatorLabGate` flakes go to the test-suite speedup backlog with their file names, not fixed here.
+
+## Verification (fix round 1)
+
+Head 24810f21d. Verdict: ACCEPT. M1, M2, L1-L4 verified fixed by the diff 772f88e66..HEAD (month cells on `.dd-meta--line` with tests; range-keyed E2 stub and mode shots; `reversed(vs)` with test_13b; sharedRange answers `portfolio`; `<div className="dd-nav">`; dead fixture deleted).
+
+Full vitest (src/estate src/shell src/ui) at head, two runs: 1994 passed / 6 failed / 0 errors (first run 4 files failed, second 3). Main: 1977 passed / 4 failed / 4 errors (unhandled rejections gone on the branch). Stable shared failures (3, also on main): siteRangeMatrix x2, sr2RequestUrls SR-6b. The other 3 are `s502OverviewFindingList`, which is flaky on both sides: a different test fails on every run, including isolated (head 2 failed, main 1 failed, different tests each). Not branch-caused. The w301 rejection fix did not regress anything.
+
+Not rerun: backend, gates, tsc, shots (builder's results taken as stated).
