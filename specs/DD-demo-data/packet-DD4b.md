@@ -1,4 +1,4 @@
-# DD4b review packet (PARTIAL: DD4.3 and the rejoin; DD4.4 and DD4.5 to come)
+# DD4b review packet (PARTIAL: DD4.3, the rejoin and DD4.4's measured hooks and books; DD4.4's samples and checks, DD4.5, DD4.6 to come)
 
 Branch `task/DD4b-ev-measured`. Spec `spec.md` §4.5 and §5.6; rulings D-DD.81, D-DD.91, D-DD.98, D-DD.100, D-DD.123;
 pre-flight `DD4b-preflight.md`, `preflight-remaining.md` §DD4b. Not ready for review until DD4.4 lands. The
@@ -15,6 +15,18 @@ handoff is `DD4b-handoff.md`.
 | `313330d02` | D-DD.98 rotation rule, `ROTATION_MINUTES = 5`, `SPARE_ARRIVAL` 10:00; `test_r3` now asserts 10:00 | v1-v3 pass |
 | `03ad50d4a` | D-DD.123 rejoin (see the handoff's Done) | `test_dd4_ev_join.py` j1-j5 failed first (KeyError `ev-charger`, no `EV_FAULTS`, `ValueError` not `TelemetryRefused`, no `ROSTER_KEY`), then pass |
 
+## Run 3 (DD4.4, part; main merged at `0c44ae75b`)
+| Commit | What | Tests first |
+|---|---|---|
+| `95f50faa4` | `test_dd4_measured.py` m1-m7; `golden/measured_kobo_main.json` from main 0c44ae75b | m1-m5, m7 failed (no `measured_months`/`end_local`); m6 passed (parity golden) |
+| `200ad01f4` | measured hooks (D-DD.99, D-DD.123), `measured_for` over every run, EV departures, `SHARE_STEP_KW` | m1-m7 pass (m4's partial_to expectation corrected: a span ending 2 Nov 00:00 is inside November) |
+| `daecd9589`, `312b95bfa`, `059f211ad` | `test_dd4_exports_measured.py` e1-e9, then `exports_measured.py` + cold bill profile (with e10-e11), then `exports --telemetry` | e1-e9 ImportError, e10-e11 failed, then 11 pass |
+
+Run 3 evidence (plain pytest from `simulator/`, PYTHONPATH the worktree): `test_dd4_measured, test_dd4_ev_join,
+test_telemetry_join_parity, test_dd4_telemetry_cold, test_dd4_telemetry_ev, test_dd4_ev_rotation, test_dd4_span_end,
+test_dd3_telemetry`: 66 passed (121 s) after the j2 tariff fix; `test_dd4_exports_measured, test_dd2b_tenant_filter,
+test_cli`: 18 passed. Plants and parity: `DD4b-handoff.md` "Plants". Reach set, guards: not run yet.
+
 ## Evidence
 - Focused (revision `03ad50d4a`, plain pytest from `simulator/`):
   `test_dd4_telemetry_ev, test_dd4_ev_rotation, test_dd4_ev_join, test_telemetry_join_parity, test_dd4_telemetry_cold`:
@@ -27,6 +39,12 @@ handoff is `DD4b-handoff.md`.
 - Plant, Kasarani 1 Nov to 6 Nov 06:00 with CH-K2 (9.3 s): see the handoff's Risks (7 missed = 10 short - 3 spare).
 
 ## Known deviations (so far)
+5. `measured.json` for a vertical run is taken from a `_measured_view` snapshot when the run ends, so the frame does
+   not hold 130 days of rows per Site until the tenant's file is written.
+6. `meter_billed` rows carry `manifest_path` beside D-DD.124's five fields (where the manifest value was read), and
+   EV `kwh_2200_2400` / `kwh_0000_0500` are `metered: null` (not in D-DD.99's EV key set).
+7. `exports --telemetry` is repeatable (one directory per writer process); each kept cold/EV tenant needs exactly one
+   `measured.json`, else `EMU_MEASURED` exit 3.
 1. `VERTICAL_RUNS` is read through the frame module's `__getattr__`: a module-level table would import the vertical
    modules while they import the frame (circular). One table, one place (`_vertical_runs`).
 2. `VerticalBinding` resolves a channel by `asset_code` when no `device_id` matches (EV rows name the bound asset,

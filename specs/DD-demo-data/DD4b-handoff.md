@@ -1,39 +1,49 @@
-# DD4b handoff (PARTIAL: rejoin done; DD4.4 not started)
+# DD4b handoff (PARTIAL: rejoin done; DD4.4 run 3 stopped at the context budget)
 
-Branch `task/DD4b-ev-measured`, worktree `/opt/assetecon/AssetOpsV1-dd4b`. Main merged at `a4dd5e801` (DD3a, DD4a,
-T1b, rulings through D-DD.144). Packet `packet-DD4b.md`. Stopped at the context budget, before DD4.4's code.
+Branch `task/DD4b-ev-measured`, worktree `/opt/assetecon/AssetOpsV1-dd4b`. Main merged at `0c44ae75b` (`12af8de92`).
+Packet `packet-DD4b.md`.
 
-## Done (this run)
-- `724d95113` tests first: `world/test_dd4_ev_rotation.py` (plant-day physics golden from the pre-rotation code).
-- `313330d02` D-DD.98: `ROTATION_MINUTES = 5` rotation rule; spare `EV-KAS-S01` returns 10:00 (`SPARE_ARRIVAL`).
-- `03ad50d4a` (tests first in the commit before it) D-DD.123 rejoin: `VERTICAL_PACKS["ev-charger"]`,
-  `VERTICAL_RUNS` (lazy, module `__getattr__`: the vertical modules import the frame), seven-element rows with
-  D-DD.91 event objects + `session_id`/`connector_id`, `TelemetryRefused`, `span_days` end instant,
-  `VerticalBinding.by_asset`, `EV_FAULTS`/`EV_CLOCK` (pinned to `M`), `ev_roster_files`/`ev_books_for`, CLI
-  `TEL_BOOKS` byte check of the roster (only for tenants the run writes).
+## Done
+- Run 2 (rejoin, D-DD.98, D-DD.123): see the packet.
+- Run 3 (DD4.4, part):
+  - `95f50faa4` tests first `world/test_dd4_measured.py` m1-m7 (6 failed first; m6 is the Kobo parity golden
+    `golden/measured_kobo_main.json`, captured from main 0c44ae75b before the change).
+  - `200ad01f4` measured hooks: `ColdSiteRun.measured_months()` (`room_kwh`: compressor-meter 5-minute means x slot
+    hours, exact, by local month), `EvSiteRun.measured_months()` (bands per price class of the TARIFF_SCHEDULE in force
+    each local day, class = band name before `-`; `demand_kw` = max 30-minute :00/:30 mean of the minute import;
+    `import_kwh` = sum of bands; TEL_BOOKS when no single schedule is in force), `SiteRun.measured_months()` (DD3a's
+    months), `end_local` on both vertical runs; `measured_for` asks every run, writes `departures` for EV only
+    (sorted site, departure_at, vehicle; `kwh_at_departure` = exact delivered rounded once); `_vertical` returns a
+    light `_measured_view` so day rows are not held. `QUANTUM_KW` -> `SHARE_STEP_KW` (manifest key `share_step_kw`).
+    `test_dd4_ev_join` j2 now passes real tariffs (the frame needs them) and asserts measured.json.
+  - `test_dd4_exports_measured.py` e1-e9 (`daecd9589`, failed first: no module), e10-e11 CLI (failed
+    first), then `world/exports_measured.py`, `cold-electricity-bill-illustrative.profile.json`, `world_history.py
+    exports --telemetry DIR` (repeatable; each cold/EV tenant kept needs exactly one measured.json; TEL_ exit 3).
 
-## Anchors
-- `world/telemetry_ev.py`: `_minute` (rotation after assignment), `_plug`, `_manage`, `_event`, `unplugs()`,
-  `departures()` (exact `delivered_kwh`), `import_by_minute()`, `ev_books_for` (gives `tariffs`: TARIFF_SCHEDULE).
-- `world/telemetry.py`: `_vertical`, `_vertical_runs`, `measured_for` (mini-grid only so far).
-- `tools/world_history.py` `_telemetry`.
+## Next (rest of DD4.4)
+1. Samples (D-DD.65a L1): `HAND_SAMPLES` empty. Service tickets -> `SAMPLES` slice (2 emulated rows) + the 3 hand
+   tickets in `SAMPLE_EXTRAS` (statuses). Invoice, departures and the new cold bill: slices of `exports_measured` rows
+   over committed fixture docs `simulator/tests/world/fixtures/measured/{harvest-cold,metro-bus}.measured.json`, copied
+   from the plant run below; then `--update-golden` for sample/expected; `test_dd2b_books` b4 list + backend
+   `test_dd2b_profile_admission` a0 (nine profiles); `test_dd2b_round7` r12 reads the sample/fixture invoice rows.
+2. `tools/dd_check.py`: C-DD5, C-DD7, C-DD20 out of `STUBS`; C-DD6 EV clauses out of `PENDING` (Kisiwa/Mto stay DD3b,
+   D-DD.146). Judges on rows (D-DD.55/124), fetch returns {} until DD5. `backend/tests/test_dd4_check.py` (new) on hand
+   rows, plus simulator tests on emulated rows. Open point: the readings manifest declares no cadence and rows carry no
+   `source_mode` (a store field): judge against the checker's own table and take source modes as a separate input.
+   C-DD20 cold needs crate-days per month (history `crate_days`, or the ledger).
+3. Reach set once at the end (preflight-remaining §4 DD4b list); architecture guard; statement catalogue.
+4. Packet: evidence below; Known deviations 5-7 (see packet).
 
-## Next (DD4.4, 1.5 u; tests first)
-1. Measured hooks (D-DD.99/.123): `ColdSiteRun.measured_months()` -> `{"room_kwh"}` (compressor-meter/power means x
-   interval, exact); `EvSiteRun.measured_months()` -> `{"bands", "demand_kw", "import_kwh"}` with price classes from
-   `books["tariffs"]` (band name before `-`: OFFPEAK-AM/PM -> OFFPEAK), demand = max 30-min aligned mean of minute
-   import; `partial_to` for November. `_vertical` collects runs; `measured_for` takes every run (mini-grid bytes =
-   DD3a's, parity test) and writes `departures` only for EV tenants (sorted site, departure_at, vehicle).
-2. `world/exports_measured.py`: cold bill (`T-GRID-COLD` 0.20 with `M` parity, `<CODE>-UTIL`), EV invoice
-   (`body.band`, DEMAND row, D-DD.81 flat key `tariff.usd_per_kwh`), departure log, `<slug>.meter-billed.json`,
-   statements (EV without `revenue`); `exports --telemetry DIR`; `HAND_SAMPLES` empty; profile
-   `cold-electricity-bill-illustrative` + sample + expected.
-3. `tools/dd_check.py`: C-DD5, C-DD6 (EV clauses), C-DD7, C-DD20 live; `backend/tests/test_dd4_check.py` (new).
-4. Reach set once at the end (preflight-remaining §4 DD4b list) and the plants.
+## Plants (run 3, revision 059f211ad, scratch /tmp/claude-1001/.../ce5c6176.../scratchpad/dd44)
+- Main goldens (main 0c44ae75b): exports + extras sha256, COLD-MWEA full-span telemetry (31.1 s), Kobo W1 hashes.
+- Branch: cold 3 rooms one process 87.8 s, 199 MB peak. COLD-MWEA's 129 day files + manifest byte-identical to main;
+  every mini-grid and cold book and the extras identical to main; only `metro-bus.profile.ev-fleet-roster.csv`
+  differs (DD4.3's roster to 6 Nov, run 1).
+- Cold measured October (kWh / bill): Mwea 1576.300 / 315.26, Thika 1771.350 / 354.27, Kirinyaga 2113.603 / 422.72
+  (D-DD.144 projected 315.26, 354.26, 422.72). Statement Oct: revenue 4588.00, energy_cost 1092.25.
+- EV plant: EV_PLANT_LINE
 
 ## Risks
-- Kasarani 1-5 Nov plant (rotation, spare): 10 short rows (night 1 B03/B04 63.33 kWh; nights 2-5 B07/B08 22-26
-  kWh), 3 spare rows met -> 7 missed, as D-DD.98 projected. Night shortfalls are smaller than the projection's 46 kWh.
-- `QUANTUM_KW` and `_milli` (meter 0.001) remain in `telemetry_ev.py`: pack quanta and the meter's register, not the
-  frame's rounding; the reviewer's D-DD.81 grep will hit `QUANTUM`.
-- Not run yet: the DD4b reach set (only focused files ran), the full-span EV writer run.
+- `meter_billed` EV leaves `kwh_2200_2400`, `kwh_0000_0500` are written `metered: null`: D-DD.99's EV key set has no
+  hour sums (question for the Architect; default: not measured, never derived).
+- `_vertical`'s run is dropped after `_measured_view`; a caller wanting the run must keep its own.
