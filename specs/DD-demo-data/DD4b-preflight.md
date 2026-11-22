@@ -17,9 +17,10 @@ therefore builds `EvSiteRun` on D-DD.81's protocol and tests it directly, as DD4
 ## DD4.3
 
 1. **ev-charger/1 admits two sessions per pack instance** (`PLUG_LABELS = ("session-1", "session-2")`). A charger
-   over 129 nights needs about 260. *Default:* the label sequence generalises to `session-<n>`, n = plugs + 1, in
-   `packs/ev_charger.py`; the first two labels are v1's, so every v1 run (the Lab EV Sites, `host/ev_publication.py`)
-   is byte-identical. A test pins a v1 run's `content_digest` before and after. Reach: that one rule.
+   over 129 nights needs about 260. *Default (as built):* `EvChargerPack(..., max_plugs=2)` by default; the world
+   passes `None` and plugs `session-<n>` in order, n = plugs + 1. The first two labels are v1's and v1 still refuses
+   a third plug, so every v1 run (the Lab EV Sites, `host/ev_publication.py`) is byte-identical; the existing pack
+   suite, with its pinned digest, guards it. Reach: that one rule.
 2. **Enable schedule.** The `/2` file declares `ev-connector-enabled` ENABLED and no schedule. *Default:*
    `enabled_from 00:00`, `enabled_to time.max` (every UTC minute enabled); no pack change.
 3. **Id order.** "Lowest-id connector", "(charger, connector) id order" and "the third charger" read string ids
@@ -56,10 +57,13 @@ therefore builds `EvSiteRun` on D-DD.81's protocol and tests it directly, as DD4
    each night inside `short_nights_from`..`period_end`, `spare_buses` = 1). The spare is one more roster row: bus
    `EV-KAS-S01`, block `EV-KAS-BLK-S01`, return 22:00, departure 05:00, `required_kwh` 150.000, plugged in after
    B01..B08.
-10. **Prediction, for the Architect (nothing tuned).** With CH-K2 out, three 50 kW chargers over 22:01-05:00 give at
-    most about 1,047 kWh against 1,200 required (1,350 on a spare night). By the connector rule the shortfall falls
-    on the buses that wait, two a night (three on a spare night), where `M` counts one bus short a night. The plant
-    run measures it; the readings stand.
+10. **Prediction, for the Architect (nothing tuned); measured.** With CH-K2 out, Kasarani has six connectors for
+    eight buses (nine on a spare night). By spec §4.5 a full bus stays plugged until departure (it "stops
+    requesting" and "unplugs at departure"), so the buses that wait never get a connector. Measured (plant, 1-5 Nov):
+    night 1, B03 and B04 aborted at 23:40 with 41.25 kWh each and never re-connected (982.5 kWh delivered); nights
+    2-4, B07, B08 and the spare S01 at 0 kWh (900 kWh delivered). `M` counts one bus short a night and 5,250 kWh over
+    5 nights. The readings stand; the Architect chooses whether a full bus is unplugged (freeing its connector) or the
+    story follows the room. The spare, as a ninth bus charged at the depot, adds a short bus rather than covering one.
 11. **Initial state.** *Default:* 1 Jul 00:00 local, every connector UNPLUGGED, no bus at the depot before its
     first roster return (no 30 Jun night). In `conditions`.
 12. **CLOCK-1's rows.** *Default:* every row of `ch-e3`'s connectors whose true `end` falls on 2026-10-15 local while
@@ -88,3 +92,14 @@ therefore builds `EvSiteRun` on D-DD.81's protocol and tests it directly, as DD4
 19. **C-DD19 in C5 (D-DD.84).** No question; it lands in DD4.4 as ruled.
 
 No question is a BLOCKER for DD4.3. The builder builds DD4.3 on these defaults.
+
+## DD4.3 plants (measured on the branch, `EvSiteRun` direct, 2026-11-22)
+
+- Kasarani 1-5 Nov with CH-K2: as Q10 above. 1.34 s and about 19,300 rows per Site-day.
+- Embakasi, one local day per month (15 Jul, Aug, Sep, Oct; 3 Nov): Site-import peak share (18:00-22:00) 0.480,
+  0.559, 0.590, 0.619, 0.619; max import 500 kW every day; no bus short on the 14 Oct night. C-DD20's direction
+  (rising each month) holds; the shares sit above the books' 0.36-0.55 (a local day, not a billing month; DD4.4's
+  invoice and C-DD7 measure the month). 3.3-3.9 s and about 47,400 rows per Site-day.
+- Ruiru 5-7 Oct with CH-R7 c2 at 6 Oct 00:00: the 14th bus is aborted, rejoins the queue and is re-connected; 0 of
+  28 departures short. 3.7 s per Site-day.
+- Projection: about 129 x (3.6 + 1.3 + 3.7) s, near 19 minutes for the three depots; DD6.3 measures the build.
