@@ -1218,8 +1218,16 @@ def empty_state_problems(doc, slices, mr, dv):
                 bad.append(f"missing-records {key}: leaf {e['leaf']} is not a registry leaf")
             if "stage" in e and e["stage"] not in DS_:
                 bad.append(f"missing-records {key}: stage {e['stage']} is not a deferred stage")
-            if e.get("carried_as") is None and "leaf" in e and (dv["sites"].get(key) or {}).get(e["side"], {}).get("status") == "evaluated":
-                bad.append(f"missing-records {key}: {e['leaf']} is shown as not available on a side that is evaluated (stale empty state)")
+            side_dv = (dv["sites"].get(key) or {}).get(e.get("side"), {})
+            if e.get("cause") == "MODEL_PENDING" and "leaf" in e:
+                # 0K4m (N1, spec §2.4): a not-available leaf sits on an evaluated side, null with its words; the entry is stale
+                # only when the evaluator no longer reports the leaf as not available there
+                if side_dv.get("status") != "evaluated" or e["leaf"] not in (side_dv.get("not_available") or {}) \
+                        or (side_dv.get("nodes") or {}).get(e["leaf"], 0) is not None:
+                    bad.append(f"missing-records {key}: {e['leaf']} is MODEL_PENDING but the {e.get('side')} side does not report it null with words (stale empty state)")
+            elif e.get("carried_as") is None and "leaf" in e and side_dv.get("status") == "evaluated":
+                if not (e.get("cause") == "MODEL_PENDING" and e.get("slice") == "0K4e"):   # spec 0K4m §2.4: a pending model version, not a stale empty state
+                    bad.append(f"missing-records {key}: {e['leaf']} is shown as not available on a side that is evaluated (stale empty state)")
     return bad
 
 
@@ -1344,7 +1352,8 @@ def view_object(doc):
 
 
 def first_present_keys(fm, keys):
-    """H2 (P1): for each factor-map leaf, the record.* names of its first alternative whose record names are all present."""
+    """H2 (P1): for each factor-map leaf, the record.* names of its first alternative whose record names are all present.
+    A name inside a nested `(x | <constant>)` has a default, so it is optional: taken when present, never required."""
     import ast as _ast
     out = set()
 
@@ -1352,12 +1361,34 @@ def first_present_keys(fm, keys):
         if isinstance(n, _ast.BinOp) and isinstance(n.op, _ast.BitOr):
             return alts(n.left) + alts(n.right)
         return [n]
+
+    def rec_name(n):
+        return n.attr if isinstance(n, _ast.Attribute) and isinstance(n.value, _ast.Name) and n.value.id == "record" else None
+
+    def need(n):
+        """(required names, optional names) of one alternative."""
+        if isinstance(n, _ast.BinOp) and isinstance(n.op, _ast.BitOr):
+            parts = alts(n)
+            if isinstance(parts[-1], _ast.Constant):
+                req, opt = set(), set()
+                for p in parts[:-1]:
+                    r, o = need(p)
+                    opt |= r | o
+                return req, opt
+        req, opt = set(), set()
+        for c in _ast.iter_child_nodes(n):
+            r, o = need(c)
+            req |= r
+            opt |= o
+        nm = rec_name(n)
+        if nm:
+            req.add(nm)
+        return req, opt
     for x in fm.values():
         for a in alts(_ast.parse(str(x), mode="eval").body):
-            names = {n.attr for n in _ast.walk(a) if isinstance(n, _ast.Attribute) and isinstance(n.value, _ast.Name)
-                     and n.value.id == "record"}
-            if names and names <= keys:
-                out |= names
+            req, opt = need(a)
+            if req and req <= keys:
+                out |= req | (opt & keys)
                 break
     return out
 
@@ -1405,7 +1436,9 @@ def history_checks(doc, dv, root, path, im):
                     # H2: leaf sets, status, zero-rule leaves
                     oct_keys = set(s_["period"][side])
                     if oct_side["status"] == "evaluated":
-                        want = first_present_keys(fm, oct_keys)
+                        # 0K4m: alternatives are read over October's keys that the history generator emits on this side
+                        # (history.rules); a leaf October reads from a field no history month holds takes its next alternative
+                        want = first_present_keys(fm, oct_keys & set(rules[side]))
                         bases = {r.split()[1] for lf, r in rules[side].items() if lf in rec and r.split()[0] in H_RULE_BASES} & oct_keys - want
                         check(f"H2 {scope}: keys {sorted(rec)} == first-present {sorted(want)} plus share/rest bases {sorted(bases)}, "
                               f"among October's keys (MB3)", set(rec) - bases == want)
