@@ -1,4 +1,4 @@
-# IA-P3 handoff after run 1 (pre-flight and P4b code; PARTIAL: the existing-test migration is not done)
+# IA-P3 handoff after run 2 (P4b with D-IAP.35 and its test migration done; P5 to P7 not built)
 
 Branch `task/IA-P3-sites-site-inbox`, worktree `/opt/assetecon/AssetOpsV1-iap3`, from `main` `8f8b3ad16`.
 Main baseline worktree `/opt/assetecon/AssetOpsV1-iap3main` (detached at `main` `4b648381c`, `npm ci` done; delete with
@@ -25,28 +25,17 @@ Main baseline worktree `/opt/assetecon/AssetOpsV1-iap3main` (detached at `main` 
     `statement_catalogue.py` exit 0, `tsc --noEmit` clean.
   - Backend, `test_iap_portfolio_sites.py`, `_period.py` and `_waiting_counts.py`: 85 passed on the branch and 85 on main.
 
+## Run 2 (D-IAP.35 and the test migration; done)
+
+- D-IAP.35 Q1 and Q5 built test-first; the 41 broken tests migrated, 41 (b), plus one (a) fix (`HomeList`
+  `labelledBy`). Per-file table, counts against main and gates: `packet-IA-P3.md`. Spec `Status` says P4b in_review.
+- Baseline worktree `/opt/assetecon/AssetOpsV1-iap3main` is at main `3cf6f893b` (detached).
+
 ## Next (in order)
 
-1. **Migrate the existing tests that P4b broke.** vitest `src/estate src/shell src/ui` at `01aaf02cd`: 2021 tests, 47
-   failed in 18 files (log: scratch `vitest-branch.log`; re-run to list them). Compare with main's run of the same set,
-   (main `4b648381c`, same set: 2000 tests, 5 failed: `s502` 2, `siteRangeMatrix` 2, `sr2` SR-6b 1; 69 s; the branch took
-   202 s), so 43 of the branch's failures are new. Migrate per file with IA-P2's (a)/(b) rule (`packet-IA-P2.md` §2). The causes seen so far:
-   - `sitesIndexRoute` (18), `operatorRouteFrames` (3), `simulatorLabGate` (4), `simulatorLabWorkspaceEntryPoint`,
-     `siteDetailRoute`, `siteTemplateCatalog`, `siteTemplateLineage`, `overflowContainment` (3), `siteRangeCarry` (2),
-     `operatorSiteTabs` "does not render on the Sites index": these pin the old directory table ("Site inventory", "In
-     setup", lifecycle, the template-lineage note, the Sites crumb and its empty sentences). This is (b), §6 P4b.
-     Re-point each to the list (rows, `Detail`, the gate's create action). The template-lineage note and "In setup" have no
-     place in the list: record them as known deviations, or ask.
-   - `operatorRailInventory`, `w301EstateShellRoutes`, `w302EstateEvidenceShellRoute`, `sharedVisualVocabulary` (3):
-     the rail's Sites link now carries the range, because `/sites` fills its range on entry. This is (b), spec §6 "Range
-     pages".
-   - `estatePortfolio` (2): "Outcomes across the estate" is now inside the closed `Disclosure` (b, §6 P4b). Open it, or
-     query hidden.
-   - `sr2RequestUrls` (1: an extra `/api/sites/KOBO-001/…` request) and `siteRangeMatrix` (2): check them against main.
-     IA-P2's packet lists `siteRangeMatrix` (2) and `sr2` SR-6b as failing on main too. `s502OverviewFindingList` is a
-     known load flake.
-2. Write the packet `packet-IA-P3.md` (P4b section; §5 counts branch against main), and set spec `Status` for IA-P3 P4b.
-3. Then P5 (Q21 needs the Architect first), P6 and P7.
+1. The coordinator's answer to `packet-IA-P3.md` §5 (lineage note, "In setup", `SitesIndex.tsx`).
+2. P5 (D-IAP.38, D-IAP.39), P6 (D-IAP.37), P7 (D-IAP.40). Route tests that mount `/sites` pass `sitesE1()` and
+   `estateE0()` from `frontend/src/test/sitesE1.ts`; rail tests at `/sites` use `test/rangeHrefs.ts`.
 
 ## Risks
 

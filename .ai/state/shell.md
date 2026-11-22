@@ -513,4 +513,9 @@ Branch `task/W1-UX-07` (base main `3bb1b8b2`). Packet `archive/agent-history/W1-
   "Waiting for a choice" from E0 with the 31-day window note in the column heading; mode `none`: notes, no target facet.
   Outcomes: L1 E1 headline, L2 the same rows (no tools, no tiles), L3 cards then "Each Site's objectives". `/sites` is a
   range page. `HomeList` gained `def.more` and a column `note`. Gate S1 in `tools/iap_gates.cjs`.
-- Left open: P5, P6, P7; the demo's prebuilt responses do not answer `/api/portfolio/sites`; register R790 to R793.
+- D-IAP.35 applied: a directory-only row takes its Group from `site_type` (`DOMAIN_WORD`) and its waiting count from E0;
+  the More line has the singular "Not shown: 1 Site.". `HomeList` gained `options.labelledBy` (the `/sites` table is a
+  named keyboard region again). 41 existing tests migrated (`packet-IA-P3.md` §2); test helpers `test/sitesE1.ts`,
+  `test/rangeHrefs.ts`; `settledScreen` waits on "Loading Sites…".
+- Left open: P5, P6, P7; the demo prebuild (part IA-PD, D-IAP.36); register R790 to R793; the template-lineage note and
+  "In setup" have no place on the list (packet questions); `sites/SitesIndex.tsx` is mounted by no route.
