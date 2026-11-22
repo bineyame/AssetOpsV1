@@ -1,8 +1,8 @@
 # 6c: options valued against doing nothing (the evaluator; implementer spec)
 
-**Status: rev 1, ready for the handshake.** P6 approved by the owner, 22 Nov 2026 ("accept all p6 defaults",
+**Status: rev 2, handshake answered (`handshake.md`; D-P6.20 to D-P6.29); ready to build after 6a.** P6 approved by the owner, 22 Nov 2026 ("accept all p6 defaults",
 `owner/owner-accept-p6-defaults-2026-11-22.md`); every default is decided (§11) and logged as D-P6.1 to D-P6.19
-(`specs/6-decision-valued/rulings.md`). Architect (Claude), 2026-11-21 rev 0, 2026-11-22 rev 1. Lane 3 (`delivery-plan.md` §2, row `6c`). **3.0 units**,
+(`specs/6-decision-valued/rulings.md`). Architect (Claude), 2026-11-21 rev 0, 2026-11-22 rev 1 and rev 2. Lane 3 (`delivery-plan.md` §2, row `6c`). **3.0 units**,
 three commits. Discovery review (W5): a money figure and a new mechanism. `USER_REVIEW_REQUIRED: true` (these are the
 figures the executive will choose by; no screen).
 
@@ -39,7 +39,9 @@ figures the executive will choose by; no screen).
 ## 0. Before you start (gates)
 
 - **Gate P (owner): met.** P6 approved, 22 Nov 2026; §11 holds the decided answers.
-- **Gate 6a.** `git grep -n "def add_run" main -- backend/assetops_backend/decisions/records.py` gives one line.
+- **Gate 6a.** `git grep -n "def add_run" main -- backend/assetops_backend/decisions/` shows at least the Protocol's
+  line and the adapter's; `git grep -n "def site_by_id" main -- backend/assetops_backend/decisions/` likewise
+  (D-P6.20; if absent, 6c adds it in commit 3 and the packet names 6a's files touched).
 - **Gate K: met.** `git show main:backend/assetops_backend/runs/admission.py` exists (0K4d merged).
 - **Pre-flight (in the packet, before code; answered from `main` by D-P6.11, confirm each):** (1) `evaluate()` takes a
   leaf map whatever its sign (`_check_leaf` has no sign check); the evaluator passes deltas to `difference`, never to
@@ -109,14 +111,15 @@ def difference(registry: Registry, base: Mapping[str, LeafValue],
     `v0` value, a node over a changed leaf folded again from its expression. If any value needed is `None`, the
     result is MISSING, naming that value's missing leaves (a leaf names itself; a node names its `missing_leaves`;
     a changed leaf with no `delta` names itself). A MISSING operand and a missing value it needs both name their
-    leaves, as one union in registry order.
+    leaves, as one union in registry order. So `val1(b)` is folded even when `d(a)` is MISSING, and what it reads
+    counts in `used` (F1h's `diesel_price`).
   - "Exactly 0" compares numerically: `Decimal("0.00") == 0`. A zero change needs no value of the other operand. That
     is the only short cut, and it holds because nothing changed. It is not a missing value read as zero.
 - `used`, `evidence`, `origins`: every factor whose value a `val0` or `val1` read, plus the changed leaves (each
   changed leaf contributes its `LeafChange.evidence` and `origins`).
   `evidence` is the weakest by `EVIDENCE_ORDER`. `currency` is the one currency of the money leaves used. If two
-  differ, the change is MISSING with the missing leaves `("currency",)`. That is a planted case, and no fixture has
-  it in real data.
+  differ, the change is MISSING with the missing leaves `("currency",)`, which §3.4 step 1 maps to
+  `MissingInput("CURRENCY_MISMATCH", "STRUCTURE", None)`. That is a planted case, and no fixture has it in real data.
 - **Parity test (W2):** a private `_fold(expr, values)` computes `val0` and `val1`. For every node of all three
   registries, on a leaf map where every leaf has a value, `_fold(parsed_text(row.expression), v)` equals
   `evaluate(...)[node].value`.
@@ -143,16 +146,23 @@ class StudyInput:
     sha256: str; identity: Mapping[str, Any]; input_class: str; days: int
     frame: str; frame_tenant: str | None; frame_site_code: str | None     # D-P6.2
     baseline: CaseInput; cases: Mapping[str, CaseInput]      # by case_id, file order kept
-def read_study(path: Path) -> StudyInput                    # raises StudyRefused(code)
+def read_study(path: Path) -> StudyInput                    # raises StudyRefused(code); header identity only
 ```
 - A number is `{"exact": "n/d", ...}` → `Fraction(int(n), int(d))`. Only `exact` is read. `reading` is ignored.
 - **Header keys read** (all required): `input_class` (in `runs/replay_study.py` `INPUT_CLASSES`), `evidence_class`
   (`MODELLED`), `commit`, `model`, `season`, `season_inputs_digest`, `trajectory_digests`, `assumptions`,
   `admission_rule`, `status`, `window_start`, `days`, `baseline`, `cases`. **Optional:** `frame`. Absent, or with a
   `kind` other than `SITE_RECORD`, the frame is `DECLARED_SEASON`; `SITE_RECORD` requires `tenant` and `site_code`
-  strings, else `STUDY_UNREADABLE`. `identity` is the required keys except `baseline` and `cases`, plus `"frame"`
-  (the kind, and tenant and Site when set), `"ignored_cases"` (§3.3) and `"months_averaged"` (§3.3), as stored on the
-  run.
+  strings, else `STUDY_UNREADABLE`. `read_study`'s `identity` is the required keys except `baseline` and `cases`, plus
+  `"frame"` (`{"kind", "tenant", "site_code"}`, the last two null for a declared season). `run.py` adds
+  `"ignored_cases"` and `"months_averaged"` (§3.3) before `add_run`; the stored identity has all of them.
+- **Types (one key-to-type table in the module; a wrong type is `STUDY_UNREADABLE`):** `{"exact"}` objects:
+  `stop_soc_pct`, `reserve_soc_pct`, `unserved_kwh`, `worst_dawn_soc_pct`, each `*_by_month` entry's `value`, each
+  admission part's `limit` (or null). JSON integers: top-level `days`, entry `days`, `reserve_breach_steps`,
+  `max_starts_in_a_day`, `longest_days_without_full_charge`, `dawn_days_below`. Strings: `case_id`, `month`, the header
+  labels, `commit`, `model`, `season`, `season_inputs_digest`, `window_start`, `status`. A list of date strings:
+  `new_dawn_days_below`. Objects: `trajectory_digests` (string values), `frame`. Lists of strings: `assumptions`,
+  `admission_rule`. Booleans: `admitted`, `passed`.
 - **Case keys read** (baseline the same, without `admission`): `case_id`, `stop_soc_pct`, `reserve_soc_pct`,
   `avoided_l_by_month`, `added_throughput_kwh_by_month` (each entry `month` `YYYY-MM`, `days` int, `value` number),
   `unserved_kwh`, `reserve_breach_steps`, `max_starts_in_a_day`, `longest_days_without_full_charge`,
@@ -176,7 +186,8 @@ def judge(baseline: AdmissionMeasures, case: AdmissionMeasures,
 ```
 `admit()` builds its parts as `judge(AdmissionMeasures.of(baseline), AdmissionMeasures.of(case), rule)`. Nothing
 else in `admit` changes. 0K4d's `test_0k4d_admission` and `test_0k4d_v8_study` pass unchanged (run both).
-`__all__` gains the two names.
+`__all__` gains the two names and `DAWN_LIMIT_PCT = Fraction(35)`, which becomes `admit`'s `dawn_limit_pct` default
+(D-P6.22); 6c imports it for `margin_points` and writes no 35.
 
 ### 3.3 `decisions/models.py` (the lever models; the only place a factor or field name of a lever's model is written)
 
@@ -191,7 +202,8 @@ ORIGIN_OF_INPUT = MappingProxyType({"RECORDED": "field-integrated", "EMULATED": 
                                     "SIMULATED": "demo-simulated"})
 def full_months(case: CaseInput, fields: tuple[str, ...]) -> tuple[str, ...]
     # months whose entry, in every field, has days == calendar.monthrange's days; file order
-def setting_changes(lever: Lever, case: CaseInput, study: StudyInput) -> Mapping[str, LeafChange]
+def setting_changes(lever: Lever, case: CaseInput, study: StudyInput, *,
+                    grid_changes=SETTING_GRID_CHANGES) -> Mapping[str, LeafChange]       # D-P6.21
     # SITE_RECORD: leaf -> LeafChange(sign × mean of the field's full-month values, "MODELLED", ("replay-study",),
     #   (ORIGIN_OF_INPUT[study.input_class],), None), the mean as Decimal(num) / Decimal(den) in evaluate's context
     # DECLARED_SEASON: leaf -> LeafChange(None, "MODELLED", ("replay-study",), (origin,), SITE_MONTH_MISSING)
@@ -208,7 +220,9 @@ def setting_changes(lever: Lever, case: CaseInput, study: StudyInput) -> Mapping
   allowed only if their settings equal the decision's `current_settings`; they are listed in
   `identity["ignored_cases"]`. Any other extra case is refused.
 - The study's baseline settings must equal the decision's `current_settings`, else `STUDY_BASELINE_MISMATCH`.
-- `SETTING_GRID_CHANGES[lever]`'s leaves must equal `lever.changes` (a start-up assertion in the module's test).
+- `grid_changes[lever_id]`'s leaves must equal `lever.changes`, for every entry passed in (a start-up assertion in
+  `EvaluationService.__init__` and the module's test). Tests inject `{"test_stop_reserve":
+  SETTING_GRID_CHANGES["generator_stop_reserve"]}` (D-P6.21); product code passes the default only.
 
 ### 3.4 `decisions/evaluate.py` (pure; no structure key and no factor id is written in it)
 
@@ -232,12 +246,16 @@ def evaluate_options(registry: Registry, base: Mapping[str, LeafValue], decision
    change.missing[1], leaf)` when it is a changed leaf with no delta (D-P6.2), else `MissingInput(leaf.missing.record_kind,
    leaf.missing.source_family, leaf)` from the base leaf; then `("ONE_OFF", "DECISION", None)` when no one-off is
    stated; then `("ONE_OFF_CURRENCY", "DECISION", None)` when its currency differs from `currency`. Any missing input
-   leaves `value` `None`. A missing one-off leaves `monthly_change` and `horizon_change` set.
+   leaves `value` `None`. A missing one-off leaves `monthly_change` and `horizon_change` set. **Zero change
+   (D-P6.29):** when the change is exactly 0 and `currency` is None (no money leaf read), the option's currency is the
+   one-off's and no `ONE_OFF_CURRENCY` is added.
 2. `effects`: one `EffectRow` per `Delta` in the result, in its order. `unit` is `str(row.unit)`.
-3. `source_class`: `SIMULATED` if `demo-simulated` is in the outcome's `origins`; else `EMULATED` if
-   `source-emulated` is; else `RECORDED`. `evidence_class` is the outcome's `evidence`. `assumed` lists the used
-   leaves whose base `missing.carried_as` is `ASSUMPTION`, in registry order.
-4. `admission`, `dawn`: stored as given (decimal strings, §3.5).
+3. `source_class` (D-P6.25): `SIMULATED` if `demo-simulated` is in the outcome's `origins`; else `EMULATED` if
+   `source-emulated` is; else `RECORDED`, which means "no simulated or emulated input": `unknown`,
+   `observed-financial`, `field-integrated` and `bench-tested` all read RECORDED. The evidence class carries the rest:
+   `evidence_class` is the outcome's `evidence`. `assumed` lists the used leaves whose base `missing.carried_as` is
+   `TARGET` or `ASSUMPTION` (`evaluate`'s `_ASSUMED`), in registry order.
+4. `admission`, `dawn`: stored as §3.5 gives them.
 
 **Dispositions, in this order:**
 - **R0.** No action is `COMPARISON`, with value 0, monthly and horizon changes 0, `currency` `None`, `evidence_class`
@@ -275,33 +293,39 @@ change has no delta and names `SITE_MONTH_SIMULATION`). `admission = judge(basel
 recomputed, in the study's own frame. It must equal the file's `admitted`, `first_failing_part` and each part's
 `passed`, and the file's limits must equal `AdmissionRule()`'s (starts 6, full charge `7 − 1`), else
 `STUDY_ADMISSION_MISMATCH`. Stored as `{"admitted", "first_failing_part", "parts": [{"name", "case_value",
-"baseline_value", "limit", "judged", "passed"}]}` (fractions as `"n/d"`). `dawn = {"worst_soc_pct", "margin_points"`
-(worst − 35), `"days_below", "new_days_below", "days"` (the study's `days`, so 6f can say "of 61 simulated days")`}`.
+"baseline_value", "limit", "judged", "passed"}]}`. `dawn = {"worst_soc_pct", "margin_points"`
+(worst − `DAWN_LIMIT_PCT`), `"days_below", "new_days_below", "days"` (the study's `days`, so 6f can say "of 61 simulated days")`}`. Every
+fraction in `admission` and `dawn` is `"n/d"` in lowest terms; integers are JSON numbers (D-P6.27).
 
 ## 4. Commit 3: the command and the run
 
 `EvaluationService(decisions: DecisionService's store, accounts, structure_read, *, clock, new_id, levers=LEVERS,
-registries=REGISTRIES).evaluate(*, tenant_slug, as_email, decision_id, study_path: Path | None) -> RunRow`. The steps
+registries=REGISTRIES, grid_changes=SETTING_GRID_CHANGES).evaluate(*, tenant_slug, as_email, decision_id, study_path: Path | None) -> RunRow`. The steps
 run in order, and the first that fails refuses:
 - **E0.** The common steps C1 to C3 of 6a §3.3, with command `decision.evaluate`: `(ANALYST,)`, added to
   `COMMAND_ROLES`.
 - **E1.** No such decision: `DECISION_NOT_FOUND`.
 - **E2.** The lever's generator is `SETTING_GRID` and there is no study path: `STUDY_REQUIRED`.
-- **E3.** `read_study`; the §3.3 frame checks (`SITE_RECORD` only) and matching.
+- **E3.** In order: `read_study` (`STUDY_UNREADABLE`, `STUDY_NOT_CALIBRATED`, `STUDY_LABELS_INVALID`); the Site by
+  `store.site_by_id` (D-P6.20; None → `DECISIONS_UNAVAILABLE`, exit 3); for SITE_RECORD, `STUDY_FRAME_MISMATCH` then
+  `STUDY_MONTH_NOT_COVERED`; `STUDY_BASELINE_MISMATCH`; `STUDY_GRID_MISMATCH`; the admission recomputation over every
+  case, ignored cases included (`STUDY_ADMISSION_MISMATCH`, §3.5). All before E4: a bad file never reads the
+  structure.
 - **E4.** `known_at = now` (one clock read). `base = structure_read.site_inputs(site_ref, decision.period,
-  known_at).leaves`. Any exception: `STRUCTURE_UNAVAILABLE` (exit 3).
+  known_at).leaves`, with E3's `SiteRef`. Any exception: `STRUCTURE_UNAVAILABLE` (exit 3).
 - **E5.** The latest one-offs: `store.latest_one_offs`.
-- **E6.** `evaluate_options`.
+- **E6.** `evaluate_options`. A `StructureError` raised inside refuses `STRUCTURE_UNAVAILABLE` (exit 3); nothing is
+  written.
 - **E7.** `store.add_run(RunRow(...))`, with study identity and sha256 set.
 
 Every call writes a new run, because a valuation is dated. The latest run is the one a choice binds (6a H3).
 
 Command: `python -m assetops_backend.evaluate_options --tenant SLUG --as EMAIL --decision UUID [--study PATH]`.
-Its main, its refusal output and its exit codes follow 6a §4. Success prints one JSON line with these keys: `run_id`,
-`decision_id`, `outcome`, `source_class`, and `options`. `options` holds one entry per option in position order:
+Its main, its refusal output and its exit codes follow 6a §4. Success prints one JSON line with these top-level keys, in
+order: `run_id`, `decision_id`, `outcome`, `source_class`, `frame` (`{"kind", "tenant", "site_code"}`, the last two
+null for a declared season), `months_averaged`, `options`. `options` holds one entry per option in position order:
 `option_key`, `disposition`, `reason_code`, `rank`, `monthly_change`, `horizon_change`, `value`, `currency`,
-`missing` (a list of `[record_kind, source_family, factor_id]`), and `admitted` (true, false or null), plus the run's
-`frame` and `months_averaged`. Figures are decimal strings rounded half-even once from the stored figure (D-P6.6):
+`missing` (a list of `[record_kind, source_family, factor_id]`), and `admitted` (true or false; null for `no-action`). Figures are decimal strings rounded half-even once from the stored figure (D-P6.6):
 money (`monthly_change`, `horizon_change`, `value`) to cents, any other quantity to 6 places; the stored rows stay
 unrounded. Display formats stay `6f`'s. The codes join 6a's one statement `decision.refused` (6a §3.4, D-P6.7) as
 variants, with these sentences (the words "simulation" per D-0K4.50; no digit in a template):
@@ -321,7 +345,8 @@ variants, with these sentences (the words "simulation" per D-0K4.50; no digit in
 **Leaf helper** (tests only): `leaves_for(registry, given)` gives every leaf of the registry:
 - each `given` leaf as written;
 - each OPTION_ONLY leaf NEUTRAL at its neutral;
-- each CALENDAR leaf DERIVED;
+- each CALENDAR leaf DERIVED with a value and no origins: `period_days` and `nights_in_period` the month's days (31
+  for 2026-10), `minutes_per_day` 1440;
 - every other leaf NOT_AVAILABLE, with `Missing(fb.kind, fb.family, "NOT_RECEIVED", None, (), fb.words, None)`.
 
 A priced or declared leaf has origins `("unknown",)`, as `sources.py` gives today.
@@ -331,11 +356,12 @@ A priced or declared leaf has origins `("unknown",)`, as `sources.py` gives toda
   `generator_stop_reserve`. The current settings are {90, 30}, so the decision has 7 options plus no action. Period
   2026-10, horizon 12.
 - Each option's one-off: 90.00 USD, 0 crew visits, stated by Peter.
-- Base leaves: `diesel_price` 1.25 USD (ESTIMATED, carried ASSUMPTION). `wear_rate` is NOT_AVAILABLE in F1a and 0.05
+- Base leaves: `diesel_price` 1.25 USD (ESTIMATED; `Missing(..., cause "NOT_RECEIVED", carried_as "ASSUMPTION",
+  blocks (), ...)`, currency `USD`). `wear_rate` is NOT_AVAILABLE in F1a and 0.05
   USD DECLARED in F1b.
 - The study file is `backend/tests/fixtures/decisions/study-f1.json`. Its header: `input_class` SIMULATED,
-  `evidence_class` MODELLED, `commit` "f1" repeated 20 times, `model` "mini-grid/8", `season` "v2", digests "a" × 64
-  and "b" × 64, `assumptions` ["fixture"], `admission_rule` ["fixture"], `status` CALIBRATED, `window_start`
+  `evidence_class` MODELLED, `commit` "f1" repeated 20 times, `model` "mini-grid/8", `season` "v2",
+  `season_inputs_digest` "a" × 64, `trajectory_digests` `{"site": "b" × 64}`, `assumptions` ["fixture"], `admission_rule` ["fixture"], `status` CALIBRATED, `window_start`
   "2026-09-30T21:00:00Z", `days` 31, `frame` `{"kind": "SITE_RECORD", "tenant": "lakeside-power", "site_code":
   "KOBO-001"}`. Each case's two `*_by_month` lists hold one entry, `month` "2026-10", `days` 31; the baseline's are 0.
 - Its baseline (`case_id` "baseline", settings {90, 30}): unserved 0, breaches 0, most starts 2, longest without a
@@ -369,7 +395,9 @@ NOT_AVAILABLE (the helper) and is never needed (D-P6.3). Run outcome `RECOMMENDE
 | `stop-60-reserve-30` | 182.50 | 2190.00 | 2100.00 | ACCEPTABLE | 4 | — |
 | `stop-60-reserve-25` | 305.00 | 3660.00 | 3570.00 | REJECTED | — | NOT_ADMITTED_FULL_CHARGE |
 
-Every option: `source_class` SIMULATED, `evidence_class` MODELLED, `assumed` ["diesel_price"].
+Every `SETTING_GRID` option: `source_class` SIMULATED, `evidence_class` MODELLED, `assumed` ["diesel_price"],
+`currency` USD; money effects carry `USD`, others null. `no-action`: SIMULATED, `DERIVED`, `assumed` [], `missing` [],
+no effects.
 
 - **F1a** (wear missing):
   - `stop-90-reserve-25` is as F1b (−15.00, DEFERRED). Its throughput change is exactly 0, so no wear value is
@@ -385,17 +413,22 @@ Every option: `source_class` SIMULATED, `evidence_class` MODELLED, `assumed` ["d
 - **F1d** (F1b with every one-off 4000.00): every admitted value is ≤ −898.00, so the run outcome is
   `NO_ACTION_BEST`.
 - **F1e** (F1b with every case's file admission false on `starts`, and most starts 7): run outcome `NOTHING_ADMITTED`.
+  `stop-60-reserve-25` (longest 8) fails `full_charge` too: its file parts say so, first failing `starts`.
 - **F1f** (exact tie; F1b with `stop-90-reserve-25`'s one-off 75.00): its value is 0.00, `DEFERRED`,
   `WORTH_THE_SAME_AS_NO_ACTION`, no rank; every other row as F1b (D-P6.5).
 - **F1h** (declared season; F1b's base and one-offs, the study `study-f1h.json` = F1's without the `frame` key):
   every `SETTING_GRID` option's value, monthly and 12-month changes are `None`, with `missing`
   `[["SITE_MONTH_SIMULATION", "SIMULATION", "candidate_l"], ["SITE_MONTH_SIMULATION", "SIMULATION",
   "battery_throughput_kwh"]]`; the two not admitted are REJECTED as in F1b; the other five DEFERRED,
-  `VALUE_NOT_AVAILABLE`; `admission` and `dawn` stored as in F1b; `months_averaged` []; run outcome
+  `VALUE_NOT_AVAILABLE`; each `SETTING_GRID` row SIMULATED, MODELLED, `assumed` ["diesel_price"] (read by `val1`,
+  §2); `admission` and `dawn` stored as in F1b; `months_averaged` []; run outcome
   `RANKING_INCOMPLETE` (D-P6.2). Its 2026-10 entries are present and never read.
 - **F1i** (`setting_changes` only): a SITE_RECORD case with `avoided_l_by_month` September (30 days) 100 and October
   (31 days) 200, and an August entry of 12 days 999: the `candidate_l` delta is −150 exactly, `months_averaged`
-  ["2026-09", "2026-10"] (August is partial and left out).
+  ["2026-09", "2026-10"] (August is partial and left out). Its `added_throughput_kwh_by_month` holds the same months
+  and days (values 0, 0, 0).
+- **F1j** (zero change, D-P6.29): F1b with a case `stop-90-reserve-25` of 0 L and 0 kWh: value −90.00, currency USD,
+  `DEFERRED`, `NOT_WORTH_MORE_THAN_NO_ACTION`, no `ONE_OFF_CURRENCY`; every other row as F1b.
 - **F1g** (grid edge): F1b, with the injected lever's stop axis cut to (90, 60), so the options are
   `stop-90-reserve-25`, `stop-60-reserve-30` and `stop-60-reserve-25`. The study file is `study-f1g.json`: F1's
   header and baseline, and only those three cases. `stop-60-reserve-30` is RECOMMENDED, `AT_GRID_EDGE`.
@@ -417,8 +450,11 @@ Every option: `source_class` SIMULATED, `evidence_class` MODELLED, `assumed` ["d
 - The option's change: `model_factor` by −0.1, to 0.9 from its neutral 1 (`LeafChange`, MODELLED, `field-integrated`;
   D-P6.3). One-off 400.00 USD.
 - Expected effects: `model_factor` −0.1, `kwh_model` −500, `kwh` −500, `energy` −100.00, `cost_to_serve` −100.00,
-  `contribution` 100.00. 12 months 1200.00, value 800.00, RECOMMENDED, rank 1, `source_class` RECORDED.
-- **C1b:** `base_kwh` NOT_AVAILABLE. Value `None`, missing names `base_kwh`, outcome `RANKING_INCOMPLETE`.
+  `contribution` 100.00. 12 months 1200.00, value 800.00, RECOMMENDED, rank 1, `source_class` RECORDED (the declared
+  leaves' origin `unknown` reads RECORDED, D-P6.25), `evidence_class` MODELLED, `assumed` []; money effects `USD`.
+- **C1e** (plant fixture): C1 with `crate_days` of origin `source-emulated`: `source_class` EMULATED.
+- **C1b:** `base_kwh` NOT_AVAILABLE. Value `None`, missing names `base_kwh`, outcome `RANKING_INCOMPLETE`;
+  `source_class` RECORDED, `evidence_class` MODELLED, `assumed` [].
 
 **E1, an EV depot (EV_DEPOT_CAPTIVE; one option `night-schedule`).**
 - Base: `peak_kwh` 5000, `kwh_0000_0500` 2000, `peak_price` 0.30 USD, `night_price` 0.10 USD (all RECORDED,
@@ -428,7 +464,7 @@ Every option: `source_class` SIMULATED, `evidence_class` MODELLED, `assumed` ["d
 - Expected effects, in registry order: the two leaves −1000 and +1000; `scheduled_kwh_night`, `supplied_kwh_night`,
   `buses_short_per_night` and `departures_missed` 0; `peak_cost` −300.00; `night_cost` 100.00; `energy_cost`
   −200.00; `penalties` 0; `cost_to_serve` −200.00; `contribution` 200.00.
-- 12 months 2400.00, value 2400.00, RECOMMENDED. `cost_per_departure_met` and `departures_met` are not in the result
+- 12 months 2400.00, value 2400.00, RECOMMENDED, `source_class` RECORDED, `evidence_class` MODELLED, `assumed` []. `cost_per_departure_met` and `departures_met` are not in the result
   (they are outside the outcome's closure).
 
 **K1, the real file's shape.** `backend/tests/fixtures/decisions/kobo-61d-study.json`: 0K4d's
@@ -437,8 +473,11 @@ on 22 Nov), keeping only §3.1's keys. Its provenance goes in a sibling `.md`: t
 It has no `frame` key, so it is a declared season.
 - With the real lever and current settings {90, 30}: 13 options match, and `stop-90-reserve-30` is ignored and listed.
 - Admission is recomputed equal on all 14 cases; every case is admitted (0K4d packet §2).
-- With F1b's base leaves (wear present): every `SETTING_GRID` value is `None` with F1h's two `missing` entries; run
-  outcome `RANKING_INCOMPLETE`; `stop-70-reserve-30`'s dawn is worst 34.795 with 4 of 61 days below.
+- With F1b's base leaves (wear present): every one of the 13 `SETTING_GRID` rows is `DEFERRED`,
+  `VALUE_NOT_AVAILABLE`, value `None`, F1h's two `missing` entries, admission `admitted` true, SIMULATED, MODELLED,
+  `assumed` ["diesel_price"]; `no-action` `COMPARISON`; run outcome `RANKING_INCOMPLETE`. `stop-70-reserve-30`'s dawn:
+  `worst_soc_pct` "6611/190", `margin_points` "-39/190", `days_below` 4, `days` 61 (the file's `reading` 34.795 is
+  never read).
 - Plant: read the file's `2026-10` entry for `stop-70-reserve-30` (242.444 L) as the month; test 4's K1 case fails.
 
 ## 6. Tests (written first)
@@ -452,20 +491,24 @@ It has no `frame` key, so it is a declared season.
    F1i's `months_averaged` and delta.
 3. `judge`: equal to `admit`'s parts on 0K4d's own test cases. 0K4d's two test files,
    `backend/tests/test_0k4d_admission.py` and `host/tests/test_0k4d_v8_study.py`, pass unchanged.
-4. `evaluate_options`: F1a to F1i, C1, C1b, E1 and K1, every field of every row as a literal.
-5. `EvaluationService` with the memory store: F1b end to end, with the stored run equal to test 4's rows; every refusal.
+4. `evaluate_options`: F1a to F1j, C1, C1b, C1e, E1 and K1, every field of every row as a literal.
+5. `EvaluationService` with the memory store (F1's lever injected with `grid_changes`, D-P6.21): F1b end to end, with
+   the stored run equal to test 4's rows and the stored identity complete; every refusal in E3's order, each with the
+   structure read not called; a `StructureError` in E6 refuses `STRUCTURE_UNAVAILABLE`, nothing written.
 6. Postgres: F1b's run through 6a's adapter; the run's deferred completeness check holds; one `alembic heads`.
 7. The command: the F1b JSON line, exact; each refusal's stderr and exit; no `@`.
 8. No vertical code and no design value:
    - `decisions/evaluate.py` and `structure/difference.py` hold no registry structure key and no factor id literal
      (an AST scan of string constants against every registry's ids, except `OUTCOME_FACTOR`);
-   - `decisions/` holds no numeric literal outside `TIE`, the signs ±1 of `SETTING_GRID_CHANGES`, and 0 and 1 (an
-     AST scan); no `30` and no division by `days` anywhere under `decisions/` (D-P6.2);
+   - 6c's modules (`decisions/study_input.py`, `models.py`, `evaluate.py`, `run.py`, `structure/difference.py`;
+     D-P6.22) hold no numeric literal outside `TIE`, the signs ±1 of `SETTING_GRID_CHANGES`, and 0 and 1 (an AST
+     scan); no `30`, no `35` and no division by `days` (D-P6.2). 6a's `records.py` holds rules and is out of scope;
    - the R5 regex of 0K4d (`\b(210|2,?916|68)\b`, `\b(20|150) ?L\b`) has no hit under `decisions/`.
 9. Seams:
-   - `decisions/evaluate.py` imports `structure.difference`, `structure.registry`, `runs.admission` (types only) and
-     `decisions.records`, and nothing under `runs/` that replays;
-   - nothing imports `simulator` or `host`;
+   - D-P6.28's allowlist: under `decisions/`, only `study_input.py`, `models.py`, `evaluate.py` and `run.py` import
+     `runs.admission` and `runs.replay_study`, and only names in their `__all__` or constants (6c amends 6a's test 9);
+   - nothing imports `simulator` or `host` directly, and after `import assetops_backend.decisions.run` no
+     `simulator*` or `host*` module is in `sys.modules`;
    - `structure/difference.py` imports only `structure.*` and the standard library.
 
 **Plants** (each fails its named test; shown once in a scratch copy, with the run in the packet):
@@ -478,6 +521,7 @@ It has no `frame` key, so it is a declared season.
 - use the dawn days as a gate (4: F1b dispositions change);
 - multiply `d(a) × val0(b)` in place of `val1(b)` (1: a planted case where the price also changes);
 - skip the admission recomputation (5: the mismatch fixture passes);
+- read `unknown` as the weakest class (4: C1 becomes SIMULATED), or ignore `source-emulated` (4: C1e stays RECORDED);
 - write `"MINI_GRID"` in `evaluate.py` (8);
 - the month as the window × 30 / days (2: F1i gives −147.54, 300 L × 30 / 61, not −150);
 - the K1 plant above (4).
@@ -501,14 +545,16 @@ It has no `frame` key, so it is a declared season.
 Costed and hard bounds as rows (`6b`). Applying the setting (`6d`). Verifying it (`6e`). The screen and its words and
 rounding (`6f`). Revenue-side options and quotes (`6g`). The plan's set search across decisions (`7c`). Sensitivity
 and break-even (0K4d restated these as "Not available yet (`6c`)"; a later unit, §11 Q6). A study stored in the
-database (§11 Q5). Running the simulation from the command. Writing the `frame` header into study files (0K4f).
+database (§11 Q5). Running the simulation from the command. Writing the `frame` header into study files (0K4f): its acceptance
+derives `frame` from the replay's input (the Site's stored readings), never from a flag or `StudyFrame`, and records a
+`site_readings_digest` (D-P6.26; 6c's packet names this residual risk).
 
 ## 9. Units and dependencies
 
 | Commit | Scope | Units |
 |---|---|---:|
 | 1 | `structure/difference.py`, parity, C1, E1 (tests 1, 9 in part) | 1.0 |
-| 2 | `study_input.py`, `admission.py` measures, `models.py`, `evaluate.py`, F1a-F1g (tests 2-4, 8) | 1.25 |
+| 2 | `study_input.py`, `admission.py` measures and `DAWN_LIMIT_PCT`, `models.py`, `evaluate.py`, F1a-F1j, C1e (tests 2-4, 8) | 1.25 |
 | 3 | `run.py`, the command, permissions, statements, K1, Postgres (tests 5-7) | 0.75 |
 | | **6c** | **3.0** |
 

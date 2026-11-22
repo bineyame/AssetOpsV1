@@ -1,6 +1,6 @@
 # 6c reviewer guide
 
-**Rev 1, ready for the handshake** (P6 approved by the owner, 22 Nov 2026). Architect (Claude), 2026-11-21 rev 0,
+**Rev 2, handshake answered** (`handshake.md`, D-P6.20 to D-P6.29) (P6 approved by the owner, 22 Nov 2026). Architect (Claude), 2026-11-21 rev 0,
 2026-11-22 rev 1. Discovery review (W5): a money figure and a new mechanism. Read `spec.md`, the P6 proposal and its
 rulings D-P6.1 to D-P6.19 (`specs/6-decision-valued/rulings.md`; D-P6.2 to D-P6.6 most), D-0K4.38, 0K4d's
 `packet.md` §2 and `review.md` item 3 (the residual risk), 6a `spec.md` §2 to §3, then the diff. The unit is done when every question in spec §7 is answered yes with evidence,
@@ -49,7 +49,9 @@ and every plant in spec §6 fails its named test.
    source. `ignored_cases` lists `stop-90-reserve-30`.
 9. **Seams.**
    - Test 9's import rules hold.
-   - `runs/admission.py` changes only by adding `AdmissionMeasures` and `judge`, with `admit` delegating to `judge`.
+   - `runs/admission.py` changes only by adding `AdmissionMeasures`, `judge` and `DAWN_LIMIT_PCT` (as `admit`'s
+     default), with `admit` delegating to `judge` (D-P6.22).
+   - D-P6.28's import allowlist and the `sys.modules` check hold; `grid_changes` is injected only by tests (D-P6.21).
    - Nothing imports `simulator` or `host`.
    - The evaluator never runs a replay.
 10. **Writes.** Only 6a's adapter writes, through `add_run`. The deferred completeness check holds in test 6.

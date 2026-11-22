@@ -1,6 +1,6 @@
 # 6a reviewer guide
 
-**Rev 1, ready for the handshake** (P6 approved by the owner, 22 Nov 2026). Architect (Claude), 2026-11-21 rev 0,
+**Rev 2, handshake answered** (`handshake.md`, D-P6.20 to D-P6.29) (P6 approved by the owner, 22 Nov 2026). Architect (Claude), 2026-11-21 rev 0,
 2026-11-22 rev 1. Discovery review (W5): a new schema, a person rule, and the record that every step-6 money figure
 hangs on. Read `spec.md`, the P6 proposal (`specs/6-decision-valued/P6-proposal.md`), its rulings D-P6.1 to D-P6.19
 (`specs/6-decision-valued/rulings.md`), 3C2 `spec.md` §2 (the pattern this copies), then the diff. The unit is
@@ -38,6 +38,10 @@ done when every question in spec §7 is answered yes with evidence, and every pl
     period filter; test 7 covers all five states. No route and no served string change (D-P6.9).
 11. **Seams.** `git diff main...HEAD --stat` lists only spec §2 to §4's files. `structure/levers.py` and
     `decisions/records.py` import as test 9 states.
+
+12. **Handshake answers.** `site_by_id` (D-P6.20) in all three layers; the role order of D-P6.24; the fourteen lever
+    branches and the any-pin rule (D-P6.23); named CHECKs asserted by name; the seven-pattern guard admitting only
+    `CAST(:name AS jsonb)`; 3C2's tests pass after the people helper move.
 
 ## Open for the handshake
 

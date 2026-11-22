@@ -1,4 +1,4 @@
-# Step 6 rulings (D-P6.1 to D-P6.19): decisions valued against doing nothing, 6a and 6c
+# Step 6 rulings (D-P6.1 to D-P6.29): decisions valued against doing nothing, 6a and 6c
 
 Architect (Claude), 2026-11-22. They apply the owner's acceptance of the seven P6 defaults ("accept all p6 defaults",
 `owner/owner-accept-p6-defaults-2026-11-22.md`) to `6a-decision-records/spec.md` and `6c-option-evaluator/spec.md`,
@@ -106,7 +106,8 @@ Simulated). Code read on `main` at `a26444647`. D-P6.13 to D-P6.19 are the owner
 
 ## D-P6.10 Sizes, order and gates
 
-- **Ruling.** 6a 3.0 u (1.0, 1.25, 0.75) and 6c 3.0 u (1.0, 1.25, 0.75), as drafted; both under the 6-unit cap. Order:
+- **Ruling.** 6a 3.0 u (1.0, 1.25, 0.75) and 6c 3.0 u (1.0, 1.25, 0.75), as drafted (6a 3.25 u at rev 2, commit 3
+  1.0, after the handshake); both under the 6-unit cap. Order:
   6a reviewed and merged, then 6c; 6d and 6e may build beside 6c after 6a. Gates P and K are met; gate A is read at
   build (head `0071_person_on_actions`). The handshake runs before each slice's first commit.
 - **Why.** The frame rule replaces the × 30 / days path rather than adding to it; the read's state and period filter are
@@ -164,10 +165,79 @@ Simulated). Code read on `main` at `a26444647`. D-P6.13 to D-P6.19 are the owner
 - **Ruling.** When no admitted, valued option beats doing nothing, the run is `NO_ACTION_BEST`; 6f renders the owner's
   sentence. An exact tie is D-P6.5's. Rule: 6c §3.4; F1d.
 
-## Decision queue (W3; defaults applied, owner answers in a batch)
+## D-P6.20 6a's store reads a Site by id (handshake 6a I1, 6c I2)
 
-| # | Question | Default applied | Why the owner should weigh in |
-|---|---|---|---|
-| Q1 | Kobo's fuel saved: P6 said it shows today; D-0K4.38 and your 21 Nov rule say "Not available yet" until 0K4f simulates Kobo's own October | "Not available yet" for litres and value; service checks shown; default #2 applies from 0K4f (D-P6.2) | Your P6 acceptance and your 21 Nov rule differ on Kobo today |
-| Q2 | 5c's tile "Plan value, 12 months" before a plan record exists | Stays "Not available yet" until 7a/7c (D-P6.9) | The tile's line says "once decisions are recorded" |
-| Q3 | Step 6 is invisible until 6f (after 6b and 6d) | Split 6f: 6f1 (Decisions rows and a read-only decision page from this read) right after 6c; 6f2 (the choice) after 6b/6d | Visible usefulness first (owner, 18 Nov) |
+- **Ruling.** `DecisionStore.site_by_id(tenant_id, site_id) -> SiteRef | None` in 6a's Protocol, memory store and
+  adapter. 6c's E3 (frame check) and E4 (`site_inputs`) use it.
+- **Why.** `DecisionRow` holds `site_id` only; without it 6c would edit 6a's three layers after 6a merged.
+
+## D-P6.21 The setting-grid model is injectable (6c I1)
+
+- **Ruling.** `setting_changes(..., *, grid_changes=SETTING_GRID_CHANGES)`; `EvaluationService(..., grid_changes=...)`.
+  The start-up assertion (leaves equal `lever.changes`) runs over every entry passed in.
+- **Why.** F1's injected lever must run end to end; the real map stays the only one in product code.
+
+## D-P6.22 The no-figure scan covers 6c's modules; the dawn limit is a named constant (6c I3)
+
+- **Ruling.** Test 8's numeric-literal scan covers `decisions/study_input.py`, `models.py`, `evaluate.py`, `run.py` and
+  `structure/difference.py`; 6a's `records.py` holds rules (bounds, exits), not figures, and is out of scope by name.
+  `runs/admission.py` gains `DAWN_LIMIT_PCT = Fraction(35)` as `admit`'s default; 6c imports it.
+- **Why.** The scan exists to catch design figures; a 35 written into 6c would be a second home for the limit.
+
+## D-P6.23 OD-25 at start-up: any disagreeing pin refuses (6a R2)
+
+- **Ruling.** `check_levers` refuses a lever whose purpose factor's home category differs from that of any pinned
+  factor that lists it.
+- **Why.** One disagreeing pin is enough for `home_category` to disagree at run time.
+
+## D-P6.24 A one-off's role: held at C3, covering the Site after the decision is read (6a I2)
+
+- **Ruling.** C3 checks a held role of the command at any Site. After the decision is read, the recorded role is the
+  first in `roles_of` order covering its Site (FINANCE every Site, SITE_MANAGER granted Sites), else
+  `PERSON_ROLE_REQUIRED`.
+- **Why.** The Site is known only after the decision is read; refusal order must be total.
+
+## D-P6.25 The source label speaks for simulation and emulation only (6c R3)
+
+- **Ruling.** `source_class` is SIMULATED when a `demo-simulated` origin is used, else EMULATED when `source-emulated`
+  is, else RECORDED, which means "no simulated or emulated input" (`unknown` included). The evidence class carries
+  declared, estimated and modelled inputs.
+- **Why.** The chip warns of model-world inputs. Reading `unknown` as weakest would mark every priced Site SIMULATED,
+  untrue the other way. Reverse: an `UNKNOWN` class (6a schema change).
+
+## D-P6.26 The SITE_RECORD frame must be earned by 0K4f (6c R1)
+
+- **Ruling.** 6c trusts the header. 0K4f's acceptance (its spec, when written) requires: the writer derives `frame`
+  from the replay's input (the Site's stored readings by tenant and Site), never from a flag, never from
+  `StudyFrame`; and the study records `site_readings_digest` for a later check. 6c's packet names the residual risk.
+- **Why.** A stamped header on 0K4d's season file would value Kobo's October, D-0K4.38's forbidden case.
+
+## D-P6.27 Storage and output forms (6a I5, I9; 6c I4, R6)
+
+- **Ruling.** jsonb: `missing` a list of `[record_kind, source_family, factor_id|null]`; `assumed` a list of factor
+  ids; `admission` and `dawn` 6c §3.5's objects with fractions `"n/d"` in lowest terms and integers as numbers;
+  `settings` decimal strings. JSON lines: decimal strings (money two places), times `%Y-%m-%dT%H:%M:%SZ`, names for
+  people, codes for categories; 6c's top-level keys `run_id, decision_id, outcome, source_class, frame,
+  months_averaged, options`.
+- **Why.** 6c and 6f read what 6a stores; one form each, written once.
+
+## D-P6.28 The slices' import rules (6c R4)
+
+- **Ruling.** Under `decisions/`, only `study_input.py`, `models.py`, `evaluate.py` and `run.py` import
+  `runs.admission` and `runs.replay_study`, and only names in their `__all__` or constants. Importing `decisions.run`
+  loads no `simulator*` or `host*` module. 6c amends 6a's test 9 to this allowlist.
+- **Why.** 6a's blanket ban and 6c's need collided; the real seam is "never runs a simulation".
+
+## D-P6.29 A zero change takes the one-off's currency (6c I5)
+
+- **Ruling.** When the outcome's change is exactly 0 and reads no money leaf, the option's currency is its one-off's,
+  and no `ONE_OFF_CURRENCY` is added. With no one-off, `ONE_OFF` is missing as usual.
+- **Why.** Otherwise a valued option is refused by 6a's currency check or wrongly reads as missing.
+
+## Decision queue (W3; owner answers in)
+
+| # | Question | Answer |
+|---|---|---|
+| Q1 | Kobo's fuel saved before 0K4f | Owner, 22 Nov: "Not available yet (Recommended)" (`owner/owner-iap-q1-q2-kobo-datasheets-2026-11-22.md`); D-P6.2 stands |
+| Q2 | 5c's tile "Plan value, 12 months" before a plan record | Default applied: "Not available yet" until 7a/7c (D-P6.9); no owner answer yet |
+| Q3 | 6f split | Owner accepted: 6f1 (Decisions rows, read-only page) after 6c; 6f2 (the choice) after 6b/6d |
