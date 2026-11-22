@@ -180,3 +180,15 @@ decision `D-2026-10-31-board-action-refresh-lineage`; packet `archive/agent-hist
   (`state_words`, `refusal_sentence`; view gains `state_words`); stderr `<CODE> <sentence>`, success `state` the word.
   Writer block approved by the owner (2026-11-21); MB1 answered (D-3C2.15). Open: unit 2 (gate C); re-point 0070 on
   3A7's `0069_commercial_reconciliation` when 3A7 merges; packet Q1 (upper-cased category codes).
+
+## 6a: decisions, options and their records (2026-11-22, `task/6a-decision-records`, in review)
+
+- Migration `0072_decision_records` (down_revision `0071_person_on_actions`): seven append-only tables (`decision`,
+  `decision_option`, `option_one_off`, `option_evaluation_run`, `option_evaluation`, `option_effect`, `decision_choice`), two
+  deferred triggers (a decision has its one no-action option; a run covers every option). `structure/levers.py` (lever
+  `generator_stop_reserve`), `check_levers` in `check_all()`; `decisions/records.py` (`DecisionService`, memory store,
+  `for_tenant` read, SC-1 statement `decision.refused`, ADOPTED); `decisions/adapters/postgres_decision_store.py` (sole
+  writer, seven plain INSERTs, persistence guard block); commands `prepare_decision`, `state_one_off`, `choose_option`;
+  `tests/lakeside_people.py` shared by 3C2 and 6a. No value computed, no route, no served string.
+- Open: `6c` writes runs through `add_run`; `6b` bounds; `6f` screen. Packet Q1 (shadowed `option_effect_missing_check`)
+  and Q2 (one error for a refused record). Pre-existing: 3B1 t1, 3B3 t6.
