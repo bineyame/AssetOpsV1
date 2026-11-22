@@ -8,3 +8,4 @@
 - IA-P rev 2 Q10, ranges of two or more months: "Month by month (Recommended)".
 - IA-P rev 3 Q11, cold-chain and EV monthly figures: "Queue after IA-P (Recommended)". Rows state the gap now; the Architect specs the unit to build right after IA-P.
 - IA-P rev 3 Q12, the 31-day cap on other pages: "Labelled window now, fix after (Recommended)". Ship with "Showing {span} of the range"; a measured task lifts the cap on every page after IA-P.
+- Kobo data sheets (22 Nov, after the coordinator explained 0K4f): "get a representative datasheet for popular equipments in afrcia and use that". The coordinator sources a representative, publicly published generator (~40 kW) and LFP battery (~200 kWh) data sheet for equipment common in African mini-grids; the values replace Kobo's assumed equipment values, cited by maker, model and document.
