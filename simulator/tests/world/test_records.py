@@ -577,3 +577,27 @@ def test_t9_no_budget_line_for_an_assumption() -> None:
         if r.clocks["recognition_period"] == october:
             assert r.body["factor_id"] not in assumed.get(r.site_code, set()), r.source_record_id
         assert r.body["factor_id"] not in {"delivered_kwh", "necessary_l", "kwh_2200_2400"}, r.source_record_id
+
+
+# ---- D-DD.106 L2: the calendar end is derived from the declared length, the CLI end from the books --------------
+
+
+def test_l2_season_v2_last_day_is_day_zero_plus_declared_length() -> None:
+    from assetops_simulator.world import telemetry as tel
+    assert tel.SEASON_V2_DAYS == 61
+    assert (tel.SEASON_V2_LAST_DAY - tel.SEASON_V2_DAY_ZERO).days == tel.SEASON_V2_DAYS - 1
+    assert tel.SEASON_V2_LAST_DAY.isoformat() == "2026-10-31"
+
+
+def test_l2_cli_end_default_is_readings_span_since_d_dd_103() -> None:
+    """D-DD.106 L2's `None` default resolved to the accounting period's end until D-DD.103 replaced it with
+    `READINGS_SPAN` (no literal, no allowance)."""
+    from assetops_simulator.world.telemetry import READINGS_SPAN
+
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("world_history_cli", CLI)
+    cli = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(cli)
+    args = cli.build_parser().parse_args(["telemetry", "--manifest", "m", "--sites", "s", "--books", "b", "--out", "o"])
+    assert (args.start, args.end) == READINGS_SPAN
+    assert "period_end" not in CLI.read_text(encoding="utf-8")

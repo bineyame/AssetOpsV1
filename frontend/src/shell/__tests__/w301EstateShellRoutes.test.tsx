@@ -7,7 +7,8 @@ import { featureFlagsWith } from "../../config/featureFlags";
 import { ESTATE_ACTIONS_PATH } from "../../estate/actionIndex";
 import { ESTATE_API_PATH, type EstateClient } from "../../estate/estateClient";
 import { ESTATE_FINDING_LENS_PATHS } from "../../estate/findingIndex";
-import { fakeClient, findingsBody, loaded } from "../../estate/__tests__/estateFixtures";
+import { fakeClient as baseClient, findingsBody, loaded } from "../../estate/__tests__/estateFixtures";
+import { loadedPortfolio, portfolioBody } from "../../estate/__tests__/portfolioFixtures";
 import { CANDIDATE_ID, analyticsClient } from "../../sites/__tests__/analyticsFixtures";
 import { POPULATED_EVIDENCE, evidenceClient } from "../../sites/__tests__/evidenceFixtures";
 import { indexBody, indexClient } from "../../sites/__tests__/findingIndexFixtures";
@@ -30,6 +31,9 @@ import {
  * patterns, the rail's Actions root is live, and the legacy Finding routes, `/api/findings` and the Site Findings
  * lens chips are unchanged.
  */
+
+// IA-P2: the shell reads `portfolio` for the Overview's decisions, so every client here answers it (an unanswered read is an unhandled rejection).
+const fakeClient: typeof baseClient = (...args) => ({ ...baseClient(...args), portfolio: () => Promise.resolve(loadedPortfolio(portfolioBody())) });
 
 const SITE_ID = HYBRID_MINI_GRID_SITE.site_id;
 const DIRECTORY: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "loaded", sites: [] }) };
@@ -166,6 +170,7 @@ describe("W3-01 estate roots in the operator shell", () => {
       ["Actions", "/actions"],
       ["Incidents", "/incidents"],
       ["Maintenance", "/maintenance"],
+      ["Results", "/results"],
       ["Evidence & records", "/evidence"],
       ["Financials", "/financials"],
     ]);

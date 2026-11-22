@@ -19,7 +19,7 @@ from . import GENERATOR
 from .allocate import allocate
 from .leaves import MONEY_LEAVES, is_money
 from .months import dates_of, day_class, days_in, next_month, parse_month, period_end
-from .scope import SIDES, merged_rules, scope_digest, scope_input, scope_key, seed, unit_interval
+from .scope import SIDES, merged_rules, physical_read, scope_digest, scope_input, scope_key, seed, unit_interval
 from .view import ManifestView, view_digest
 
 SCHEMA = "assetops.history/1"
@@ -161,6 +161,7 @@ class _Scope:
         if rules is None:
             raise _refuse("HISTORY_RULE_UNKNOWN", self.key, tenant["vertical"])
         self.rules = rules
+        self.physical_keys = physical_read(site, rules)   # D-DD.102: only what the rules read
         self.digest = scope_digest(scope_input(view, tenant, site, month, rules))
         self._factors: dict = {}
 
@@ -181,8 +182,8 @@ class _Scope:
         return _number(node, self.key, leaf)
 
     def physical(self, name: str, leaf: str) -> Fraction:
-        physical = self.site.get("physical")
-        if not isinstance(physical, dict) or name not in physical:
+        physical = self.physical_keys
+        if name not in physical:
             raise _refuse("HISTORY_RULE_REF", self.key, leaf)
         return _number(physical[name], self.key, leaf)
 

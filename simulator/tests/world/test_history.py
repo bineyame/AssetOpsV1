@@ -84,7 +84,9 @@ def test_t3b_name_absent_from_generator() -> None:
     world = REPOSITORY_ROOT / "simulator" / "assetops_simulator" / "world"
     files = [f for f in sorted(world.rglob("*")) if f.is_file() and "__pycache__" not in f.parts] + [CLI]
     assert len(files) >= 8
-    hits = [str(f) for f in files if re.search(PRIVATE.encode(), f.read_bytes(), re.IGNORECASE)]
+    # DD3.1's `telemetry.py` is the one reader that names the answer block, to refuse it (`TEL_ORACLE_READ`); C-DD12
+    # (`tools/dd_check.py` ANSWER_BLOCK_ALLOWED) scans it for any other use.
+    hits = [str(f) for f in files if f.name != "telemetry.py" and re.search(PRIVATE.encode(), f.read_bytes(), re.IGNORECASE)]
     assert hits == []
 
 

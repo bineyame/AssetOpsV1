@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-DD.67 to D-DD.88)
+# Decision index: Demo-sprint and later rulings (index only) (D-DD.67 to D-DD.96)
 
 - `D-DD.67` no-load basis one vocabulary: fuel-cost-2 admits DATASHEET_FIT (no parameter version change), client words "the datasheet-fitted idle fuel rate", set-equality test · live · specs/DD-demo-data/rulings.md
 - `D-DD.68` parity test for D-DD.67, goldens from main 80661e824 (three bases, missing basis, no rate, parameter digest, words) · live · specs/DD-demo-data/rulings.md
@@ -22,3 +22,11 @@
 - `D-DD.86` AMBIENT and EFFICIENCY ratified as private v2 forcings at local midnights; ambient public via the probe, f_m private · live · specs/DD-demo-data/rulings.md
 - `D-DD.87` cold-thermal 2 temperature on a 1e-6 degC grid, rounding booked in the energy ledger (unbounded denominators otherwise) · live · specs/DD-demo-data/rulings.md
 - `D-DD.88` DD4 7.25 u split: DD4a cold 4.0 u, DD4b EV + measured books 3.25 u; DD 39.0 u; DD4a join waits for DD3a only · live · specs/DD-demo-data/rulings.md
+- `D-DD.89` B-1031: Thika hand start 19:14 -> 20:22 (per-minute 25 min above 5 C, readings bound 20-30, peak 5.477); room unchanged; M chamber, cooling 4 -> 72 min, KPI 99.946; CN-0412 unchanged; sweep · live · specs/DD-demo-data/rulings.md
+- `D-DD.90` no June season (span from 1 Jul; no field heat to carry); 2026-11 short_rains in history.seasons; scope digest covers months+anchor only (parity) · live · specs/DD-demo-data/rulings.md
+- `D-DD.91` event readings row: value null, unit event, `event` object (kind, outcome, actor, component, ordinal, correlation); ids at sealing · live · specs/DD-demo-data/rulings.md
+- `D-DD.92` mini-grid fuel: books wrong side; purchases by reorder rule on the tank (fuel-notes.json), consumption from readings; Kobo+Kisiwa+Mto in DD3b; owner asked · live · specs/DD-demo-data/rulings.md
+- `D-DD.93` DD3a five test figures re-pinned from the regenerated sources; CLI test on a tmp copy · live · specs/DD-demo-data/rulings.md
+- `D-DD.94` worked-portfolios Kobo rate 0.30 -> declared 0.2917 reference; hand-typed Kobo figures swept · live · specs/DD-demo-data/rulings.md
+- `D-DD.95` site-inputs reads /2 only (SKIPPED), rating optional, duplicate code refuses; F parity; C-DD11 green · live · specs/DD-demo-data/rulings.md
+- `D-DD.96` statement_catalogue.py a required DD guard; DD3a 5.75, DD3b 6.0, DD4a 5.0 u; DD 41.5 u · live · specs/DD-demo-data/rulings.md

@@ -1,0 +1,174 @@
+{
+  "schema": "portfolio-period-1",
+  "from": "2026-09-01",
+  "to": "2026-10-31",
+  "mode": "period",
+  "months": [
+    {
+      "month": "2026-09",
+      "month_words": "September 2026",
+      "from": "2026-09-01",
+      "to": "2026-09-30",
+      "state": "SERVED"
+    },
+    {
+      "month": "2026-10",
+      "month_words": "October 2026",
+      "from": "2026-10-01",
+      "to": "2026-10-31",
+      "state": "SERVED"
+    }
+  ],
+  "served": [
+    "2026-09",
+    "2026-10"
+  ],
+  "period_words": "September and October",
+  "notes": [],
+  "shown": null,
+  "nav": null,
+  "suggest": null,
+  "body": {
+    "as_of_text": "Figures as of 20 November 2026, 08:00 UTC.",
+    "status_line": "Figures as of 20 November 2026, 08:00 UTC. Not yet reconciled with the management accounts. Kisiwa's budget disagrees with its own lines.",
+    "fresh": null,
+    "headline": {
+      "text": "Contribution is $1,704.00 below target across September and October; cost and efficiency explain $1,510.00 of it.",
+      "evidence": [
+        "Estimated, not yet reconciled"
+      ]
+    },
+    "tiles": [
+      {
+        "key": "contribution",
+        "label": "Contribution",
+        "value": "$2,886.00",
+        "word": "Estimated, not yet reconciled",
+        "lines": [
+          "Target $4,590.00 · 63% of target",
+          "3 of 3 Sites"
+        ],
+        "bar": {
+          "actual": "2886.00",
+          "target": "4590.00"
+        }
+      },
+      {
+        "key": "gap",
+        "label": "Gap to target",
+        "value": "−$1,704.00",
+        "word": "Estimated, not yet reconciled",
+        "lines": [
+          "Grow −$194.00 · Optimize −$1,510.00"
+        ],
+        "bar": null
+      },
+      {
+        "key": "plan_spend",
+        "label": "Plan spend",
+        "value": "Not available yet",
+        "word": null,
+        "lines": [
+          "No plan has been made yet"
+        ],
+        "bar": null
+      },
+      {
+        "key": "plan_value",
+        "label": "Plan value, 12 months",
+        "value": "Not available yet",
+        "word": null,
+        "lines": [
+          "Each change is valued against doing nothing when decisions are recorded"
+        ],
+        "bar": null
+      }
+    ],
+    "notices": [],
+    "out": [],
+    "months": {
+      "title": "Month by month",
+      "columns": [
+        "Month",
+        "Contribution",
+        "Gap to target",
+        "Largest driver against target"
+      ],
+      "rows": [
+        {
+          "month": "2026-09",
+          "month_words": "September 2026",
+          "from": "2026-09-01",
+          "to": "2026-09-30",
+          "state": "SERVED",
+          "contribution": "$1,443.00 against a target of $2,295.00",
+          "gap": "−$852.00",
+          "gap_word": "Estimated, not yet reconciled",
+          "driver": "Fuel cost −$755.00",
+          "driver_heading": "Optimize cost and efficiency",
+          "sites": "3 of 3 Sites"
+        },
+        {
+          "month": "2026-10",
+          "month_words": "October 2026",
+          "from": "2026-10-01",
+          "to": "2026-10-31",
+          "state": "SERVED",
+          "contribution": "$1,443.00 against a target of $2,295.00",
+          "gap": "−$852.00",
+          "gap_word": "Estimated, not yet reconciled",
+          "driver": "Fuel cost −$755.00",
+          "driver_heading": "Optimize cost and efficiency",
+          "sites": "3 of 3 Sites"
+        }
+      ]
+    },
+    "outcomes": [
+      {
+        "key": "grow",
+        "label": "Grow revenue",
+        "value": "−$194.00",
+        "word": "Emulated, not yet reconciled",
+        "line": "Revenue against target, over 2 months",
+        "drawer": null
+      },
+      {
+        "key": "optimize",
+        "label": "Optimize cost and efficiency",
+        "value": "−$1,510.00",
+        "word": "Estimated, not yet reconciled",
+        "line": "Fuel, O&M and staff against target; cash collected is shown apart",
+        "drawer": null
+      },
+      {
+        "key": "protect",
+        "label": "Protect asset and capital",
+        "value": "Not available yet",
+        "word": null,
+        "line": "Limits, warranties and rights are not set up yet",
+        "drawer": null
+      },
+      {
+        "key": "assure",
+        "label": "Assure performance and returns",
+        "value": "Not yet reconciled",
+        "word": null,
+        "line": "0 of 2 months reconciled",
+        "drawer": {
+          "title": "Reconciliation with the management accounts",
+          "lines": [
+            "September 2026: Not yet reconciled: September 2026 (the organisation) does not match the management accounts within 1%.",
+            "October 2026: Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1%."
+          ]
+        }
+      }
+    ],
+    "actions": {
+      "title": "Actions in hand",
+      "connected": false,
+      "text": "Not available yet: an agreed change is recorded as an Action with its owner and due date.",
+      "rows": [],
+      "more": 0
+    }
+  }
+}

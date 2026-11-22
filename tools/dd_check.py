@@ -35,12 +35,15 @@ SITE_TYPE = {"MINI_GRID": "MINIGRID", "COLD_CHAIN": "COLDCHAIN", "EV_DEPOT": "EV
 
 #: Stubs: each check's question and the unit that makes it live (spec §8.1 "Live from").
 STUBS = {
-    "C-DD5": "DD4.4", "C-DD6": "DD4.4", "C-DD7": "DD4.4",
-    "C-DD8": "DD3.3", "C-DD9": "DD6.1", "C-DD10": "DD6.1", "C-DD11": "DD3.1", "C-DD12": "DD3.1",
-    "C-DD14": "DD5.2", "C-DD15": "DD6.1", "C-DD16": "DD3.2", "C-DD17": "DD3.3", "C-DD18": "DD6.1",
+    "C-DD5": "DD4.4", "C-DD7": "DD4.4",
+    "C-DD8": "DD3.3", "C-DD9": "DD6.1", "C-DD10": "DD6.1",
+    "C-DD14": "DD5.2", "C-DD15": "DD6.1", "C-DD17": "DD3.3", "C-DD18": "DD6.1",
     "C-DD19": "DD3.3", "C-DD20": "DD4.4",
 }
-ORDER = tuple(f"C-DD{i}" for i in range(1, 21))
+#: D-DD.121: C-DD6 is live by vertical (so in LIVE, not STUBS); its clauses not yet producible, each with the unit that makes it live.
+PENDING = {"C-DD6": ("EV-KAS CH-K2 2026-11-01T23:40 DD4b", "EV-RUI CH-R7 c2 2026-10-06 DD4b",
+                  "KISIWA-001 GEN-KS-01 2026-10-30T18:40 DD3b", "MTO-001 INV-MT-02 2026-10-28T11:02 DD3b")}
+ORDER = tuple(f"C-DD{i}" for i in range(1, 22))
 
 
 class InputError(Exception):
@@ -522,9 +525,255 @@ def stub(check: str) -> Result:
     return Result(check, False, [f"not live: its unit {STUBS[check]} has not landed"])
 
 
+#: C-DD6's live clauses (D-DD.121), the checker's own reading of `M`: Thika's failure on its own unit at its minute
+#: (GEN-CR-01 is the generator controller's channel), and the two batches present that night with their limits.
+FAILURES_LIVE = ({"site": "COLD-THIKA", "unit": "GEN-CR-01", "source_id": "generator-controller",
+                  "at": "2026-10-06T19:11"},)
+EXCURSIONS = ({"site": "COLD-THIKA", "batch": "B-1031", "day": "2026-10-06", "limit_c": Decimal(5), "above_minutes": 15},
+              {"site": "COLD-THIKA", "batch": "B-1034", "day": "2026-10-06", "limit_c": Decimal(12)})
+CHAMBER = "chamber-probe"
+
+
+def judge_failures_at_instant(readings: dict[str, list[dict]]) -> Result:
+    """C-DD6 on readings rows (`{site code: rows}`, the writer's row shape): each live failure is a FAILED event on its
+    own channel at its local minute, and on no other channel then; B-1031 is above 5 degC for more than 15 minutes by
+    the 5-minute readings' lower bound ((n - 1) x 5 for n consecutive readings above); B-1034 stays below 12 degC."""
+    detail = []
+    for clause in FAILURES_LIVE:
+        rows = readings.get(clause["site"], [])
+        failed = {r["source_id"] for r in rows if r.get("unit") == "event" and r["event"].get("outcome") == "FAILED"
+                  and r["start"][:16] == clause["at"]}
+        if failed != {clause["source_id"]}:
+            detail.append(f"{clause['site']} {clause['unit']}: FAILED at {clause['at']} on {sorted(failed) or 'nothing'}")
+    for clause in EXCURSIONS:
+        chamber = [(r["start"], Decimal(r["value"])) for r in readings.get(clause["site"], [])
+                   if r["source_id"] == CHAMBER and r["start"].startswith(clause["day"])]
+        if not chamber:
+            detail.append(f"{clause['site']} {clause['batch']}: no chamber readings on {clause['day']}")
+            continue
+        if "above_minutes" in clause:
+            run = longest = 0
+            for _at, value in chamber:
+                run = run + 1 if value > clause["limit_c"] else 0
+                longest = max(longest, run)
+            bound = max(longest - 1, 0) * 5
+            if bound <= clause["above_minutes"]:
+                detail.append(f"{clause['site']} {clause['batch']}: above {clause['limit_c']} degC at least {bound} "
+                              f"minutes, not more than {clause['above_minutes']}")
+        else:
+            peak = max(value for _at, value in chamber)
+            if peak >= clause["limit_c"]:
+                detail.append(f"{clause['site']} {clause['batch']}: peak {peak} degC is not below {clause['limit_c']}")
+    pending = [f"{p} pending" for p in PENDING["C-DD6"]]
+    return Result("C-DD6", not detail, detail, pending)
+
+
+def stored_readings(database_url: str) -> dict[str, list[dict]]:
+    """C-DD6's fetch from the clone. The world's readings reach the store only through DD5's loader (DD5.1); until it
+    lands the store holds none, so the check fails on the clone naming the missing rows (D-DD.121)."""
+    return {}
+
+
+def check_failures(inputs: "Inputs") -> Result:
+    return judge_failures_at_instant(stored_readings(inputs.database_url))
+
+
+GENERATOR_MODULES = ("simulator/assetops_simulator/world", "tools/world_history.py")
+#: Names the writer's own refusal may carry; every other mention of the answer block in a generator module fails C-DD12.
+ANSWER_BLOCK_ALLOWED = ("refuse_oracle", "TEL_ORACLE_READ", "ORACLE_KEY")
+
+
+def check_no_oracle_read(inputs: Inputs) -> Result:
+    """C-DD12: no generator module imports, names or indexes the answer block (static scan of the sources; the writer's
+    own `TEL_ORACLE_READ` refusal is the runtime half). Docstrings and comments are not code."""
+    import ast
+
+    detail = []
+    paths = sorted(p for part in GENERATOR_MODULES for p in
+                   ((ROOT / part).rglob("*.py") if (ROOT / part).is_dir() else [ROOT / part]))
+    for path in paths:
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        docstrings = {id(n.body[0].value) for n in ast.walk(tree)
+                      if isinstance(n, (ast.Module, ast.FunctionDef, ast.ClassDef)) and n.body
+                      and isinstance(n.body[0], ast.Expr) and isinstance(n.body[0].value, ast.Constant)}
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Name):
+                text = node.id
+            elif isinstance(node, ast.Attribute):
+                text = node.attr
+            elif isinstance(node, (ast.FunctionDef, ast.ClassDef)):
+                text = node.name
+            elif isinstance(node, (ast.Import, ast.ImportFrom)):
+                text = " ".join([getattr(node, "module", None) or "", *[a.name for a in node.names]])
+            elif isinstance(node, ast.Constant) and isinstance(node.value, str) and id(node) not in docstrings:
+                text = node.value
+            else:
+                continue
+            if "oracle" in text.lower() and not any(a in text for a in ANSWER_BLOCK_ALLOWED):
+                detail.append(f"{path.relative_to(ROOT)}:{getattr(node, 'lineno', 0)} {text[:60]}")
+    return Result("C-DD12", not detail, [f"{len(paths)} modules scanned"] + detail[:20] if detail else
+                  [f"{len(paths)} modules scanned, none names the answer block"])
+
+
+def _run_world(args: list[str]) -> None:
+    import subprocess
+
+    done = subprocess.run([sys.executable, str(ROOT / "tools/world_history.py"), *args], capture_output=True, text=True)
+    if done.returncode != 0:
+        raise RuntimeError(f"world_history.py {args[0]} exited {done.returncode}: {done.stderr.strip()[:300]}")
+
+
+def check_two_processes_agree(inputs: Inputs, first: str = "2026-07-01", last: str = "2026-07-02") -> Result:
+    """C-DD11: two generator runs in separate processes give identical bytes for books, readings and measured books.
+    A two-day window of Kobo and Mwea (the writer is deterministic by construction; this is the proof it is)."""
+    import tempfile
+
+    onboarding = ROOT / "backend/tests/fixtures/on1"
+    manifest = str(MANIFEST)
+    digests = []
+    with tempfile.TemporaryDirectory(prefix="ddcheck-") as scratch:
+        for run in ("a", "b"):
+            base = Path(scratch) / run
+            _run_world(["exports", "--manifest", manifest, "--out", str(base / "books")])
+            _run_world(["site-inputs", "--onboarding", str(onboarding), "--bindings",
+                        str(ROOT / "backend/conversions/world"), "--out", str(base / "sites.json")])
+            _run_world(["telemetry", "--manifest", manifest, "--sites", str(base / "sites.json"), "--books",
+                        str(base / "books"), "--out", str(base / "telemetry"), "--start", first, "--end", last,
+                        "--site", "KOBO-001", "--site", "COLD-MWEA"])  # Mwea from DD4a (D-DD.122)
+            digests.append({str(p.relative_to(base)): hashlib.sha256(p.read_bytes()).hexdigest()
+                            for p in sorted(base.rglob("*")) if p.is_file()})
+    differing = sorted(k for k in set(digests[0]) | set(digests[1]) if digests[0].get(k) != digests[1].get(k))
+    kinds = {"books": any(k.startswith("books/") for k in digests[0]),
+             "readings": any(k.endswith(".readings.json") for k in digests[0]),
+             "measured": any(k.endswith("measured.json") for k in digests[0])}
+    detail = [f"{len(digests[0])} files compared; books/readings/measured present: {kinds}"]
+    return Result("C-DD11", not differing and all(kinds.values()), detail + [f"differs: {k}" for k in differing[:10]])
+
+
+def check_property_table_parity(inputs: Inputs) -> Result:
+    """C-DD21: the writer's property-to-address table (`telemetry.NEEDS`) equals the backend's, which the product freezes.
+    Compared on Kobo's v8 draft built through the host adapter: every initial value's address, state key, unit and
+    dimension, and the writer's table row for it; and the pack's foundation needs by name."""
+    for part in ("host", "host/tests", "backend", "contracts", "simulator"):
+        sys.path.insert(0, str(ROOT / part))
+    from assetops_simulator.world import telemetry
+    from execution_adapter import frozen_world_inputs
+    from kobo_season import base_run, season_site_v2
+    from assetops_backend.runs.profiles import MINI_GRID_V8_MODEL
+
+    frozen = frozen_world_inputs(base_run(1, version=8, site_edit=season_site_v2))
+    backend = {r.state_key: (r.address.split("@")[0], r.canonical_unit, r.dimension, r.parameter_id.removeprefix("model-need:"))
+               for r in frozen.initial_values if r.answered_by == "SITE_FOUNDATION"}
+    table = {n.state_key: (n.state_key, n.unit, n.dimension, n.property_key) for n in telemetry.NEEDS}
+    detail = [f"{k}: backend {backend.get(k)} != writer {table.get(k)}" for k in sorted(set(backend) | set(table))
+              if backend.get(k) != table.get(k)]
+    needs = set(MINI_GRID_V8_MODEL.foundation_needs)
+    missing = sorted(needs - {n.state_key for n in telemetry.NEEDS} - {"pv-rated-power"} - set(backend) - {"fuel-tank-capacity"})
+    detail += [f"foundation need {m} has no writer row" for m in missing]
+    return Result("C-DD21", not detail, detail[:20] or [f"{len(table)} rows equal the backend's frozen initial values"])
+
+
+DATASHEET_SLOT = ROOT / "config/datasheets/kobo-equipment.json"
+DATASHEET_FILE = ROOT / "backend/tests/fixtures/on1/lakeside-power.onboarding.json"
+DATASHEET_SITE = "KOBO-001"
+
+
+def _half_even(value, quantum: str) -> str:
+    from fractions import Fraction
+
+    value = Fraction(value)
+    return str((Decimal(value.numerator) / Decimal(value.denominator)).quantize(Decimal(quantum), rounding=ROUND_HALF_EVEN))
+
+
+def datasheet_expectation(slot: dict) -> dict[str, dict[str, tuple[str, str]]]:
+    """C-DD16: the checker's own reading of spec §6's mapping table (exact arithmetic; shares nothing with the tool).
+    Per component type: property key -> (value text, basis code). Raises ValueError when the slot cannot be mapped."""
+    from fractions import Fraction
+
+    gen, bat = slot["generator"], slot["battery"]
+    assumed = {a["item"]: a for a in slot.get("assumed", [])}
+
+    def stated_or_assumed(stated, item: str) -> tuple[str, str]:
+        if stated is not None:
+            return str(stated), "MANUFACTURER_DATASHEET"
+        entry = assumed.get(item) or {}
+        if "value" not in entry or not entry.get("basis_code"):
+            raise ValueError(f"{item}: neither stated nor assumed with a basis code")
+        return str(entry["value"]), entry["basis_code"]
+
+    prime = Fraction(gen["prime_kw"])
+    pts = [(Fraction(int(pct), 100) * prime, Fraction(v)) for pct, v in gen["fuel_l_per_h"].items() if v is not None]
+    sfc = _half_even(Fraction(gen["fuel_l_per_h"]["100"]) / prime, "0.0001")
+    if gen.get("no_load_l_per_h") is not None:
+        no_load = (str(gen["no_load_l_per_h"]), "MANUFACTURER_DATASHEET")
+    else:
+        no_load = stated_or_assumed(None, "generator.no_load_l_per_h")
+        if no_load[1] == "DATASHEET_FIT":
+            n = len(pts)
+            mx, my = sum(x for x, _ in pts) / n, sum(y for _, y in pts) / n
+            slope = sum((x - mx) * (y - my) for x, y in pts) / sum((x - mx) ** 2 for x, _ in pts)
+            fitted = _half_even(my - slope * mx, "0.01")
+            if Decimal(no_load[0]) != Decimal(fitted):
+                raise ValueError(f"the slot's DATASHEET_FIT no-load {no_load[0]} is not the fit's {fitted}")
+    capacity = _half_even(bat["modules"] * Fraction(bat["module_usable_kwh"]), "0.1")
+    return {"GENERATOR": {"generator-rated-power": (str(gen["prime_kw"]), "MANUFACTURER_DATASHEET"),
+                          "specific-fuel-consumption": (sfc, "MANUFACTURER_DATASHEET"),
+                          "generator-no-load-fuel-rate": no_load,
+                          "generator-minimum-load": stated_or_assumed(gen.get("minimum_load_pct"), "generator.minimum_load_pct")},
+            "BATTERY": {"battery-energy-capacity": (capacity, "MANUFACTURER_DATASHEET"),
+                        "battery-charge-taper-start": stated_or_assumed(bat.get("charge_taper_start_soc_pct"),
+                                                                        "battery.charge_taper_start_soc_pct")}}
+
+
+def judge_datasheet(slot: dict, document: dict, site_code: str = DATASHEET_SITE) -> Result:
+    """C-DD16: the world's Kobo Site (its `/2` foundation, which the writer runs on) carries each mapped value and its
+    `-basis` sibling, each with source SITE, version 1, and the generator's and battery's ratings equal the mapped ones."""
+    try:
+        want = datasheet_expectation(slot)
+    except (ValueError, KeyError, ZeroDivisionError) as error:
+        return Result("C-DD16", False, [f"slot cannot be mapped (fit or slot): {error}"])
+    site = next((s for s in document.get("sites", []) if s.get("code") == site_code), None)
+    if site is None:
+        return Result("C-DD16", False, [f"{site_code} is not in the /2 file"])
+    detail, compared = [], 0
+    rating_of = {"GENERATOR": "generator-rated-power", "BATTERY": "battery-energy-capacity"}
+    for kind, values in want.items():
+        found = [c for c in site.get("components", []) if c.get("type") == kind]
+        if len(found) != 1:
+            detail.append(f"{site_code} has {len(found)} {kind} components, not one")
+            continue
+        props = {p.get("property_key"): p for p in found[0].get("properties", [])}
+        rating = (found[0].get("rating") or {}).get("value")
+        if rating is None or Decimal(str(rating)) != Decimal(values[rating_of[kind]][0]):
+            detail.append(f"{kind} rating {rating} != {values[rating_of[kind]][0]}")
+        for key, (text, basis) in values.items():
+            for name, expected in ((key, text), (f"{key}-basis", basis)):
+                compared += 1
+                p = props.get(name)
+                if p is None:
+                    detail.append(f"{kind} {name}: missing (want {expected})")
+                    continue
+                got = p.get("value")
+                same = (got == expected) if name.endswith("-basis") else (
+                    not isinstance(got, (str, bool)) and got is not None and Decimal(str(got)) == Decimal(expected))
+                if not same:
+                    detail.append(f"{kind} {name}: {got!r} != {expected}")
+                if (p.get("source"), p.get("source_version")) != ("SITE", 1):
+                    detail.append(f"{kind} {name}: source {p.get('source')} v{p.get('source_version')} != SITE v1")
+    return Result("C-DD16", not detail, detail[:20] or [f"{compared} properties and 2 ratings equal the slot's mapping"])
+
+
+def check_datasheet(inputs: Inputs) -> Result:
+    """C-DD16 on the committed slot and Lakeside's `/2` file."""
+    return judge_datasheet(json.loads(DATASHEET_SLOT.read_text(encoding="utf-8")),
+                           json.loads(DATASHEET_FILE.read_text(encoding="utf-8")))
+
+
 LIVE: dict[str, Callable[[Inputs], Result]] = {
+    "C-DD11": check_two_processes_agree, "C-DD12": check_no_oracle_read, "C-DD21": check_property_table_parity,
+    "C-DD16": check_datasheet,
     "C-DD1": check_cast, "C-DD2": _judged(judge_kinds), "C-DD3": _judged(judge_identities),
-    "C-DD4": _judged(judge_leaves_and_nodes), "C-DD13": check_tenant_isolation}
+    "C-DD4": _judged(judge_leaves_and_nodes), "C-DD13": check_tenant_isolation, "C-DD6": check_failures}
 
 
 def run(inputs: Inputs, only: tuple[str, ...] = ORDER) -> list[Result]:

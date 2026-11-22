@@ -1,13 +1,13 @@
 # 6f: the Decisions screen (implementer spec, with its reviewer guide)
 
-**Status: rev 1 (D-P6.51 to D-P6.58: the union is withdrawn, the list is records only, lever words come from 6h).
+**Status: rev 2 (D-P6.72 to D-P6.79: the 6f1 pre-flight answered, §2b; 6f1 4.25 u). Rev 1 (D-P6.51 to D-P6.58: the union is withdrawn, the list is records only, lever words come from 6h).
 Handshake Q1 answered by the owner ("Build 6h"); Q2-Q8 accepted.** Architect (Claude), 2026-11-22. Demo-critical.
 **Rulings:** `rulings.md` (this folder), D-P6.42 to D-P6.58 (D-P6.43 withdrawn, D-P6.44 amended). **Owner rulings it applies:** D-P6.8, D-P6.9, D-IAP.3, D-P6.13 to D-P6.19, D-P6.37 and the 6f split (`specs/6-decision-valued/rulings.md` queue Q3, owner:
 "6f1 (Decisions rows, read-only page) after 6c; 6f2 (the choice) after 6b/6d"). `USER_REVIEW_REQUIRED: true` (UI,
 evidence interpretation, demo narrative). W5: **discovery review** (money figures on screen, a new read and route).
 
 **Parts.** **6f1** (this spec, binding): the Decisions list's source and the read-only decision page, **3.75 units** in
-three units. **6f2** (the choice on screen): its structure is fixed in §11; its unit card is written after the 6b and
+three units (4.25 u from rev 2, D-P6.79). **6f2** (the choice on screen): its structure is fixed in §11; its unit card is written after the 6b and
 6d specs, so their bounds and Action carrier fold in (D-P6.42). Each part is under the 6-unit cap.
 
 **Read first (by section):** this spec; `rulings.md`; 6a `spec.md` §2, §3.5; 6c `spec.md` §3.4, §3.5, §12; IA-P
@@ -108,7 +108,37 @@ months" stays "Not available yet", D-P6.9), every 6a/6c record and rule.
 - **Fixtures (§6.1)** gain **F6-N** (6h N1, Mwea, recommended), **F6-T** (6h T1 as of 6h rev 1, Thika, bounds; `self-repair` names `uncovered_nights` and the one-off only, D-P6.59) and **F6-S** (6h S1,
   Embakasi, missing study); test 1 asserts their pages as literals; `decision_page_*.json` adds the three.
 
-## 3. Unit 1: the server read (1.5 units; `task/6f1-decisions`)
+## 2b. Rev 2 amendments: the pre-flight answered (D-P6.72 to D-P6.79, `rulings.md`; binding over §3 to §6)
+
+Questions: `6f1-preflight.md` on `task/6f1-decisions` (`2cd32aec9`). The words, tables and examples are in the
+rulings; this section says where each lands.
+- **Factor words (D-P6.72).** U1 adds the 53 `factor` entries of D-P6.72's table to the vocabulary. Test 1 asserts,
+  from a set it computes itself (closure of `contribution` and of each lever's purpose factor), that each has all
+  three forms. Plant `noword`.
+- **Effects (D-P6.73; replaces §3.3 "Effects" unit sentence).** `contribution` is always the last row. `L`, `KWH`,
+  `MONEY`, `KWH/HOUR` format by unit; every other unit goes through `decision_page/tables.py` `EFFECT_FORMAT` (factor
+  → unit, fact, noun or unit word, places), and a stored unit that differs raises. The vocabulary gains six `noun`s and
+  three `unit`s; `formats.quantity` takes a `noun` key with one/other agreement; `price` and `percent` gain `signed`.
+  §3.4 gains `effect` (`QUANTITY`, `PERCENT`, `PRICE`, `MONEY`). Test 1's "the generator lever's effect units are L,
+  KWH, MONEY" becomes D-P6.73's scope check over every lever. Plant `nounit`.
+- **Heading (D-P6.74).** Vocabulary `heading` gains `ABOVE` "All headings"; the contribution row shows it.
+- **Study words (D-P6.75).** `decision_lever.study` `CHARGING_SCHEDULE` reads "a simulation of {site}'s own charging in
+  {month} under this schedule"; test 1 runs §6.4's banned words over every `decision_lever.*` case.
+- **Reach and parity (D-P6.76).** New `backend/tests/test_6f1_words_parity.py` (golden from 6f1's base, written
+  first); the named suites and `statement_catalogue.py` stay unchanged except the named lines.
+- **U1 answers (D-P6.77).** `name_of` through `DecisionService`; option records through 6h4's
+  `latest_option_records`; with no study identity, `horizon_basis` `STATED` and `source` by `source_class`, with new
+  `SIMULATED_RECORDS` and `SIMULATED_RECORDS_STATED` variants (§3.4 `source`); `NEUTRAL` evidence raises;
+  `refused` has three variants and 401 reuses `person.person_required`; the SC-1 glyphs are those of
+  D-P6.77 Q12.
+- **U2/U3 answers (D-P6.78).** Cache `get` takes a reader per kind; `watching` dropped; "No decisions in this
+  range."; "Its decision" with no match reads "Not available yet"; tile = E0; one `DecisionService` in `main.py` for
+  the page read and `DecisionWaiting`; route `/decisions/:decisionId`.
+- **Fixtures.** F6-T's effect rows: `uncovered_nights` "−26 nights" (Protect asset and capital),
+  `nights_without_backup_cover` "−26 nights" (Protect asset and capital), `contribution` last (All headings). F6-N,
+  F6-T, F6-S assert their `source` line (`SIMULATED_RECORDS*` on the DD world, else as their `source_class`).
+
+## 3. Unit 1: the server read (1.5 units; `task/6f1-decisions`; 2.0 from rev 2)
 
 ### 3.1 6a's store and read gain three things (records.py, memory store, adapter)
 
@@ -292,7 +322,7 @@ against doing nothing, unsigned for a one-off.
 | `assumed` | "Assumed, not recorded: {factors}" |
 | `action_line` | "{title}, owned by {person}, due {day}: {state}" |
 | `how` | "AssetOps values each option against doing nothing, with the same figures that make up the month's contribution, and recommends one. {who} chooses an option, or none, and the choice is kept under their name with the time. The change is then made through an Action and checked against the days before it." |
-| `refused` | `DECISIONS_UNAVAILABLE` "Decisions cannot be read right now." · `PERSON_REQUIRED` (reuse `person.person_required`) · `BAD_RANGE` "Choose a date range with a start and an end." · `DECISION_NOT_FOUND` "This decision is not available." |
+| `refused` | (rev 2, D-P6.77 Q9: three variants; 401 renders `person.person_required`) `DECISIONS_UNAVAILABLE` "Decisions cannot be read right now." · `BAD_RANGE` "Choose a date range with a start and an end." · `DECISION_NOT_FOUND` "This decision is not available." |
 
 - The `missing` variant for an entry `[kind, family, factor]` (D-P6.46): `SITE_MONTH_SIMULATION` → `SIMULATION` (site,
   decision month); `ONE_OFF`, `ONE_OFF_CURRENCY`, `CURRENCY_MISMATCH`, `ZERO_DENOMINATOR` → their own (factor from

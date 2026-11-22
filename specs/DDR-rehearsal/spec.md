@@ -46,7 +46,7 @@ review (W5) of a non-product check, discovery for the one store read it adds.
 | S4 | Submit and accept | `load_emulated_exports --dir "$DIR" --tenant lakeside-power --submit-as wanjiru@lakeside-power.example --accept-as joseph@lakeside-power.example` | accepted uploads, records |
 | S5 | The finance lead's first figures | `reconcile_month record --tenant lakeside-power --as joseph@lakeside-power.example --period 2026-10 --currency USD --revenue 9700.00 --fuel-cost 5100.00 --source-ref "Management accounts, October 2026, draft"` | statement 1 (not matched) |
 | S6 | Prepare the month | `build_structure_snapshot build --tenant lakeside-power --month 2026-10 --by person:<Wanjiru's id from S2>` | snapshot A |
-| S7 | Read the screen | `GET /api/portfolio/month?month=2026-10` (browser: `/portfolio/month?month=2026-10`) | none (a read) |
+| S7 | Read the screen | `GET /api/portfolio/month?month=2026-10` (browser: `/portfolio?from=2026-10-01&to=2026-10-31`; IA-P2 P3b) | none (a read) |
 | S8 | The corrected figures | as S5 with `--fuel-cost 5000.00 --source-ref "Management accounts, October 2026, final"` | statement 2 (opens) |
 | S9 | Prepare the month again | as S6 | snapshot B |
 | S10 | Read the screen | as S7 | none |

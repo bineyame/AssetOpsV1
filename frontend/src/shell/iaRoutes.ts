@@ -10,6 +10,8 @@
  * or `*` (the "no screen lost" control, D-IAP.27).
  */
 
+import { monthDays } from "../ui/sharedRange";
+
 export type RailLabel =
   | "Portfolio"
   | "Sites"
@@ -27,7 +29,7 @@ export type RailLabel =
 
 export type IaTabGroup = "Portfolio" | "Evidence & records" | "Site" | null;
 
-export const IA_LANDED = new Set<string>(["IA-P1"]);
+export const IA_LANDED = new Set<string>(["IA-P1", "IA-P2"]);
 
 export interface IaHome {
   pattern: RegExp;
@@ -46,6 +48,7 @@ export const IA_HOMES: IaHome[] = [
   { pattern: /^\/findings(?:\/.*)?$/, home: "Findings", tabGroup: null },
   { pattern: /^\/decisions\/?$/, home: "Decisions", tabGroup: null },
   { pattern: /^\/actions\/?$/, home: "Actions", tabGroup: null },
+  { pattern: /^\/results\/?$/, home: "Results", tabGroup: null },
   { pattern: /^\/incidents\/?$/, home: "Incidents", tabGroup: null },
   { pattern: /^\/maintenance(?:\/.*)?$/, home: "Maintenance", tabGroup: null },
   { pattern: /^\/evidence(?:\/records)?\/?$/, home: "Evidence & records", tabGroup: "Evidence & records" },
@@ -80,7 +83,24 @@ export const LEGACY_ROUTES: LegacyRoute[] = [
   { from: "/findings/cost", to: "/findings?lens=cost", unit: "IA-P1" },
   { from: "/findings/risks", to: "/findings?lens=risks", unit: "IA-P1" },
   { from: "/findings/opportunities", to: "/findings?lens=opportunities", unit: "IA-P1" },
+  // D-IAP.18: a month is its days on the Overview; `month` is dropped and its days win over a range in the address.
+  // An invalid or absent month goes to the Overview (the address's range kept).
+  { from: "/portfolio/month", to: (_params, search) => monthAlias(search), unit: "IA-P2" },
+  // D-IAP.4: the old Portfolio tabs' homes.
+  { from: "/portfolio/opportunity", to: "/portfolio/demand-and-capacity", unit: "IA-P2" },
+  { from: "/portfolio/changes", to: "/results", unit: "IA-P2" },
+  { from: "/portfolio/scope", to: "/evidence", unit: "IA-P2" },
 ];
+
+/**
+ * The `/portfolio/month?month=YYYY-MM` alias target. `month` is removed from the search the redirect merges (so it is
+ * dropped), and the month's own days (`monthDays`, the server's `month_days` twin) are the target's query, which wins.
+ */
+function monthAlias(search: URLSearchParams): string {
+  const days = monthDays(search.get("month"));
+  search.delete("month");
+  return days === null ? "/portfolio" : `/portfolio?from=${days.from}&to=${days.to}`;
+}
 
 /** The aliases whose unit has landed. */
 export function liveLegacyRoutes(landed: ReadonlySet<string> = IA_LANDED): LegacyRoute[] {

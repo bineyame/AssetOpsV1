@@ -290,6 +290,17 @@ COMPONENT_PROPERTY_DEFINITIONS: dict[str, PropertyDefinition] = {
     "generator-no-load-fuel-rate-basis": PropertyDefinition(
         unit="state", kind="PHYSICAL", display_name="Generator no-load fuel rate basis"
     ),
+    # DD3.2 (D-DD.17): where a declared rated power, SFC and battery capacity come from (the manufacturer data sheet,
+    # a generic default or a Site test); the same value set as the no-load basis.
+    "generator-rated-power-basis": PropertyDefinition(
+        unit="state", kind="PHYSICAL", display_name="Generator rated power basis"
+    ),
+    "specific-fuel-consumption-basis": PropertyDefinition(
+        unit="state", kind="PHYSICAL", display_name="Specific fuel consumption basis"
+    ),
+    "battery-energy-capacity-basis": PropertyDefinition(
+        unit="state", kind="PHYSICAL", display_name="Battery energy capacity basis"
+    ),
     # 0K4b (D-0K4.4 minimum load, D-0K4.6 charge taper): the two settings `mini-grid` v8 reads beside the no-load
     # rate, each with where its value comes from. Their names are SC-1 (D-0K4.19).
     "generator-minimum-load": PropertyDefinition(
@@ -339,7 +350,13 @@ STATE_PROPERTY_VALUES: dict[str, frozenset[str]] = {
     "ev-connector-enabled": frozenset({"ENABLED", "DISABLED"}),
     "supply-use": frozenset({"PRODUCTIVE", "HOUSEHOLD", "ESSENTIAL_SERVICE"}),
     # FUEL-1 A1: where a declared generator no-load fuel rate comes from.
-    "generator-no-load-fuel-rate-basis": frozenset({"GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST"}),
+    # DD3.2 (D-DD.17): DATASHEET_FIT, a rate fitted to the sheet's stated points (Assumed), on the no-load rate only.
+    "generator-no-load-fuel-rate-basis": frozenset(
+        {"GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST", "DATASHEET_FIT"}),
+    # DD3.2 (D-DD.17): the data-sheet siblings.
+    "generator-rated-power-basis": frozenset({"GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST"}),
+    "specific-fuel-consumption-basis": frozenset({"GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST"}),
+    "battery-energy-capacity-basis": frozenset({"GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST"}),
     # 0K4b: where a declared minimum load and taper start come from.
     "generator-minimum-load-basis": frozenset({"GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST"}),
     "battery-charge-taper-start-basis": frozenset({"GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST"}),
@@ -373,6 +390,9 @@ MINIGRID_PROPERTY_CARRIERS: dict[str, str] = {
     "supply-use": "LOAD",  # WALK1-3 §4.2
     "generator-no-load-fuel-rate": "GENERATOR",  # FUEL-1 A1
     "generator-no-load-fuel-rate-basis": "GENERATOR",  # FUEL-1 A1
+    "generator-rated-power-basis": "GENERATOR",  # DD3.2 (D-DD.17)
+    "specific-fuel-consumption-basis": "GENERATOR",  # DD3.2 (D-DD.17)
+    "battery-energy-capacity-basis": "BATTERY",  # DD3.2 (D-DD.17)
     "generator-minimum-load": "GENERATOR",  # 0K4b (D-0K4.4)
     "generator-minimum-load-basis": "GENERATOR",  # 0K4b
     "battery-charge-taper-start": "BATTERY",  # 0K4b (D-0K4.6)

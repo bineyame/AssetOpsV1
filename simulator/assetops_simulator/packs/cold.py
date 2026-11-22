@@ -29,6 +29,8 @@ from typing import Mapping
 from assetops_simulator.packs.errors import PhysicallyUnacceptable
 
 MODEL_PROFILE = ("cold-thermal", 1)
+#: cold-thermal 2 (DD4.1, D-DD.22): cold-thermal 1 plus private load parameters (`ColdLoadParameters`).
+MODEL_PROFILE_V2 = ("cold-thermal", 2)
 STEP = timedelta(minutes=1)
 SLOT_MINUTES = 5
 
@@ -124,6 +126,47 @@ class ColdParameters:
 
 
 @dataclass(frozen=True)
+class ColdLoadParameters:
+    """cold-thermal 2's private load parameters (spec DD section 4.4): passed by the writer, never Foundation.
+
+    Heat per minute adds `crates x respiration` and the field-heat pulses: an admission of n crates at ambient Ta
+    adds n x field_heat x (Ta - target) kWh spread evenly over `field_heat_minutes`. Compressor electrical kW =
+    cooling kW x f / cop (f is the efficiency condition, forcing `EFFICIENCY`); the meter adds `auxiliary_kw` on a
+    powered bus.
+    """
+
+    respiration_kw_per_crate: Fraction
+    field_heat_kwh_per_crate_degc: Fraction
+    cop: Fraction
+    auxiliary_kw: Fraction
+    field_heat_minutes: int = 360
+    field_heat_target_degc: Fraction = Fraction(4)
+    #: D-DD.87: the chamber temperature is held on this grid (degC); the rounding is booked in `rounding_total`.
+    temperature_quantum: Fraction | None = None
+    #: D-DD.83: a start requested while the generator is faulted fails in the request minute (the start
+    #: controller reports it); False keeps v1's rule (FAILED only at the start timeout).
+    start_failure_at_request: bool = False
+
+    def __post_init__(self) -> None:
+        if self.temperature_quantum is not None and self.temperature_quantum <= 0:
+            raise PhysicallyUnacceptable(f"temperature quantum {self.temperature_quantum} is not positive")
+        if self.cop <= 0:
+            raise PhysicallyUnacceptable(f"cop {self.cop} is not positive")
+        for name in ("respiration_kw_per_crate", "field_heat_kwh_per_crate_degc", "auxiliary_kw"):
+            if getattr(self, name) < 0:
+                raise PhysicallyUnacceptable(f"{name} {getattr(self, name)} is negative")
+        if self.field_heat_minutes <= 0:
+            raise PhysicallyUnacceptable("field heat spread is not a positive minute count")
+
+
+#: The DD world's values, all rooms (spec section 4.4's table; Assumed, written in the readings manifest).
+DD_LOAD_PARAMETERS = ColdLoadParameters(
+    respiration_kw_per_crate=Fraction(15, 10000), field_heat_kwh_per_crate_degc=Fraction(37, 1800),
+    cop=Fraction(2), auxiliary_kw=Fraction(1), temperature_quantum=Fraction(1, 1000000),
+    start_failure_at_request=True)
+
+
+@dataclass(frozen=True)
 class ColdForcingRow:
     """One private forcing at a UTC minute. `PROBE_FAILURE` exists for unit tests only (no scenario kind)."""
 
@@ -140,6 +183,12 @@ FORCING_EFFECTS: Mapping[str, tuple[str, str]] = {
     "DOOR_OPEN": ("door-1", "OPEN"),
     "DOOR_CLOSE": ("door-1", "CLOSED"),
     "PROBE_FAILURE": ("probe-1", "FAILED"),
+}
+
+#: cold-thermal 2's forcings; the value is the count (crates), the new ambient (degC) or f (exact rational).
+V2_FORCING_ASSETS: Mapping[str, str] = {
+    "CRATES_IN": "room-1", "CRATES_OUT": "room-1", "AMBIENT": "ambient-1", "EFFICIENCY": "compressor-1",
+    "GENERATOR_HAND_START": "generator-1",
 }
 
 
@@ -193,12 +242,19 @@ class ColdState:
     initial_temperature: Fraction = Fraction(0)
     heat_total: Fraction = Fraction(0)
     cool_total: Fraction = Fraction(0)
+    #: D-DD.87: thermal_capacity x (exact - gridded temperature), summed (kWh); 0 without a quantum
+    rounding_total: Fraction = Fraction(0)
     compressor_energy_slot: Fraction = Fraction(0)
     # public transition ordinals per event channel and correlation counters
     ordinals: tuple[tuple[str, int], ...] = ()
     outage: int = 0
     door_cycle: int = 0
     probe_reported_failure: bool = False
+    # cold-thermal 2: crates in the room, the efficiency condition f and active field-heat pulses
+    # (last minute inclusive, kWh per minute, the lot's admission ambient in degC: D-DD.85)
+    crates: int = 0
+    efficiency: Fraction = Fraction(1)
+    pulses: tuple[tuple[datetime, Fraction, Fraction], ...] = ()
 
     def __post_init__(self) -> None:
         for name, allowed in (("door", DOOR_STATES), ("compressor", COMPRESSOR_STATES), ("grid", GRID_STATES),
@@ -208,6 +264,8 @@ class ColdState:
                 raise PhysicallyUnacceptable(f"{name} {getattr(self, name)!r} is not a cold-thermal/1 state")
         if not TEMPERATURE_FLOOR <= self.temperature <= TEMPERATURE_CEILING:
             raise PhysicallyUnacceptable(f"chamber temperature {self.temperature} degC is outside [-40, 60]")
+        if self.crates < 0:
+            raise PhysicallyUnacceptable(f"crates {self.crates} is negative")
 
     @classmethod
     def initial(cls, minute: datetime, temperature: Fraction, ambient: Fraction) -> "ColdState":
@@ -229,6 +287,8 @@ _GENERATOR_MOVES = {("STOPPED", "STARTING"), ("STARTING", "RUNNING"), ("STARTING
                     ("RUNNING", "STOPPED"), ("STARTING", "STOPPED")}
 _TRANSFER_MOVES = {("GRID", "OPEN"), ("OPEN", "BACKUP"), ("OPEN", "GRID"), ("BACKUP", "GRID"),
                    ("BACKUP", "OPEN")}
+#: D-DD.83: a start by hand moves a FAILED generator straight to RUNNING.
+_GENERATOR_MOVES_V2 = _GENERATOR_MOVES | {("FAILED", "RUNNING")}
 
 _STATE_CHANNELS = (
     ("grid-meter", "grid"), ("generator-controller", "generator"),
@@ -237,27 +297,30 @@ _STATE_CHANNELS = (
 
 
 def check_move(kind: str, before: str, after: str) -> None:
-    moves = {"compressor": _COMPRESSOR_MOVES, "generator": _GENERATOR_MOVES, "transfer": _TRANSFER_MOVES}[kind]
+    moves = {"compressor": _COMPRESSOR_MOVES, "generator": _GENERATOR_MOVES, "transfer": _TRANSFER_MOVES,
+             "generator-hand-start": _GENERATOR_MOVES_V2}[kind]
     if before != after and (before, after) not in moves:
         raise PhysicallyUnacceptable(f"{kind} cannot move from {before} to {after}")
 
 
 def check_residual(params: ColdParameters, state: ColdState) -> None:
-    """Stored thermal energy since the start must equal integrated heat minus cooling, exactly."""
+    """Stored thermal energy since the start must equal integrated heat minus cooling minus the booked grid
+    rounding (D-DD.87), exactly."""
     stored = params.thermal_capacity * (state.temperature - state.initial_temperature)
-    residual = stored - (state.heat_total - state.cool_total)
+    residual = stored - (state.heat_total - state.cool_total - state.rounding_total)
     if residual != 0:
         raise PhysicallyUnacceptable(f"energy residual {residual} kWh is not zero")
 
 
 class ColdPack:
-    """`cold-thermal/1`: a deterministic one-minute step over `ColdState`."""
+    """`cold-thermal/1`, or `cold-thermal/2` with `load`: a deterministic one-minute step over `ColdState`."""
 
-    profile = MODEL_PROFILE
-
-    def __init__(self, parameters: ColdParameters, *, backup_enabled: bool = True) -> None:
+    def __init__(self, parameters: ColdParameters, *, backup_enabled: bool = True,
+                 load: ColdLoadParameters | None = None) -> None:
         self.p = parameters
         self.backup_enabled = backup_enabled
+        self.load = load
+        self.profile = MODEL_PROFILE if load is None else MODEL_PROFILE_V2
 
     # -- the step ---------------------------------------------------------------------------------
 
@@ -283,6 +346,14 @@ class ColdPack:
         for f in sorted(forcings, key=lambda r: (r.at, r.kind, r.asset)):
             if f.at != t:
                 raise PhysicallyUnacceptable(f"forcing at {f.at} applied at {t}")
+            if self.load is not None and f.kind in V2_FORCING_ASSETS:
+                if f.asset != V2_FORCING_ASSETS[f.kind]:
+                    raise PhysicallyUnacceptable(f"forcing {f.kind} {f.asset} is not cold-thermal/2")
+                s = self._v2_forcing(s, f)
+                if f.kind == "GENERATOR_HAND_START":
+                    event("generator-controller", "start-event", "START_RESULT", "SUCCEEDED", "generator-1",
+                          "OPERATOR", ("outage", s.outage))
+                continue
             if FORCING_EFFECTS.get(f.kind) != (f.asset, f.value):
                 raise PhysicallyUnacceptable(f"forcing {f.kind} {f.asset} {f.value} is not cold-thermal/1")
             if f.kind == "GRID_LOSS":
@@ -358,6 +429,11 @@ class ColdPack:
                         generator_timeout_due=t + STEP * int(self.p.start_timeout))
             event("generator-controller", "start-event", "START_REQUEST", "REQUESTED", "generator-1",
                   "CONTROLLER", ("outage", s.outage))
+            if self.load is not None and self.load.start_failure_at_request and s.generator_fault:
+                check_move("generator", s.generator, "FAILED")
+                s = replace(s, generator="FAILED", generator_running_due=None, generator_timeout_due=None)
+                event("generator-controller", "start-event", "START_RESULT", "FAILED", "generator-1",
+                      "CONTROLLER", ("outage", s.outage))
         demand = s.demand
         if s.temperature >= self.p.control_high:
             demand = True
@@ -409,16 +485,68 @@ class ColdPack:
         cool = (self.p.cooling_capacity if running else Fraction(0)) * Fraction(1, 60)
         if cool < 0:
             raise PhysicallyUnacceptable("negative cooling power")
-        t_next = s.temperature + (heat - cool) / self.p.thermal_capacity
         compressor_kw = self.p.cooling_capacity if running else Fraction(0)
+        if self.load is not None:
+            heat += s.crates * self.load.respiration_kw_per_crate * Fraction(1, 60)
+            active = [(kwh, produce) for last, kwh, produce in s.pulses if t <= last]
+            if any(s.temperature >= produce for _kwh, produce in active):
+                # D-DD.85: the even spread holds only while the chamber is colder than the produce
+                raise PhysicallyUnacceptable("field heat beyond the produce temperature")
+            heat += sum((kwh for kwh, _produce in active), Fraction(0))
+            s = replace(s, pulses=tuple(p for p in s.pulses if p[0] > t))
+            compressor_kw = compressor_kw * s.efficiency / self.load.cop
+            if s.bus == "POWERED":
+                compressor_kw += self.load.auxiliary_kw
+        t_next = s.temperature + (heat - cool) / self.p.thermal_capacity
+        rounding_total = s.rounding_total
+        if self.load is not None and self.load.temperature_quantum is not None:
+            q = self.load.temperature_quantum
+            t_grid = round(t_next / q) * q  # round half to even
+            rounding_total += self.p.thermal_capacity * (t_next - t_grid)
+            t_next = t_grid
         # 5. energy integration
         after = replace(s, minute=t + STEP, temperature=t_next, heat_total=s.heat_total + heat,
+                        rounding_total=rounding_total,
                         cool_total=s.cool_total + cool, compressor_energy_slot=s.compressor_energy_slot + compressor_kw,
                         ordinals=tuple(sorted(ordinals.items())))  # __post_init__ enforces [-40, 60]
         # 6. invariant
         check_residual(self.p, after)
         # 7. public boundary
         return ColdTransition(state, after, heat, cool, tuple(records))
+
+
+    def _v2_forcing(self, s: ColdState, f: ColdForcingRow) -> ColdState:
+        """cold-thermal 2's private forcings (spec section 4.4)."""
+        load = self.load
+        assert load is not None
+        if f.kind in ("CRATES_IN", "CRATES_OUT"):
+            n = int(f.value)
+            if n <= 0 or str(n) != f.value:
+                raise PhysicallyUnacceptable(f"{f.kind} {f.value!r} is not a positive whole crate count")
+            if f.kind == "CRATES_OUT":
+                return replace(s, crates=s.crates - n)  # __post_init__ raises below zero
+            total = n * load.field_heat_kwh_per_crate_degc * (s.ambient - load.field_heat_target_degc)
+            last = s.minute + STEP * (load.field_heat_minutes - 1)
+            return replace(s, crates=s.crates + n,
+                           pulses=s.pulses + ((last, total / load.field_heat_minutes, s.ambient),))
+        if f.kind == "AMBIENT":
+            return replace(s, ambient=Fraction(f.value))
+        if f.kind == "EFFICIENCY":
+            value = Fraction(f.value)
+            if value <= 0:
+                raise PhysicallyUnacceptable(f"efficiency {value} is not positive")
+            return replace(s, efficiency=value)
+        # GENERATOR_HAND_START (D-DD.83): an operator starts the FAILED generator by hand; it runs at this minute
+        if f.value != "RUNNING":
+            raise PhysicallyUnacceptable(f"generator hand start {f.value!r} is not RUNNING")
+        if s.generator != "FAILED":
+            raise PhysicallyUnacceptable(f"generator hand start while {s.generator}, not FAILED")
+        check_move("generator-hand-start", s.generator, "RUNNING")
+        s = replace(s, generator="RUNNING", generator_fault=False, generator_running_due=None,
+                    generator_timeout_due=None)
+        if s.transfer == "OPEN":
+            s = replace(s, transfer_due=s.minute + STEP * self.p.transfer_delay)
+        return s
 
 
 @dataclass(frozen=True)
@@ -463,7 +591,8 @@ def run_window(pack: ColdPack, *, start: datetime, end: datetime, initial_temper
 
 
 __all__ = [
-    "BUS_STATES", "COMPRESSOR_STATES", "ColdForcingRow", "ColdPack", "ColdParameters", "ColdRun", "ColdState",
+    "BUS_STATES", "COMPRESSOR_STATES", "DD_LOAD_PARAMETERS", "MODEL_PROFILE_V2", "ColdForcingRow",
+    "ColdLoadParameters", "V2_FORCING_ASSETS", "ColdPack", "ColdParameters", "ColdRun", "ColdState",
     "ColdTransition", "DEFAULT_PROPERTY_VALUES", "GENERATOR_STATES", "MODEL_PROFILE", "PROPERTY_FIELDS",
     "PhysicallyUnacceptable", "PublicRecord", "check_move", "check_residual", "run_window",
 ]

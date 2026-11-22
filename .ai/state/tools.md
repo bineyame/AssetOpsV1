@@ -80,6 +80,19 @@ Branch `task/OPS-02-writer-guard-ast` from main `5bfff665`; packet `archive/agen
 - Open: the tsc shim is installed on main's `node_modules` only after the merge (A16); the `.claude/agents`
   briefs are not yet pooled (mid-build Q1); a refused vitest leaves a Vite temp config file (Q2).
 
+## T1b: a second Postgres test lane (2026-11-22, `task/T1b-db-lanes`, in review)
+
+- Two database lanes, each a lock bound to one base database: lane a `db-job.lock` / `assetops_test`, lane b
+  `db-job-b.lock` / `assetops_b_test` (`LANE_DATABASES` in `tools/heavy_slot_check.py`). `--db-lane` / `-DbLane`
+  takes the first free lane; `--db` / `-Db` keeps its meaning and takes both (a, then b). Markers
+  `ASSETOPS_HEAVY_DB`, `ASSETOPS_HEAVY_DB_B`, `ASSETOPS_HEAVY_DB_LANE`; `db=True` needs both exclusive markers.
+- Both conftests require `lane=True` and refuse at configure time (69) a base that is unclear, not `*_test`, off
+  this machine or the other lane's; a lane-only run is refused above `-n 2`. `run-host-tests.ps1` picks the lane's
+  database. `_case_db` names are stem-derived (lane a byte-identical); T-L5 lists every create-database file.
+  `-Server shared` container runs and the slow-tier demo fixture need `--db`.
+- Open: the ROLE_CONFIG brief footer switches to `--db-lane` at merge (coordinator); two lanes on one private base
+  collide (documented gap); a FIFO for `--db` is still a follow-up (D-T1.18).
+
 ## T2: the neutral packages' tests run in check-all (2026-11-20, `task/T2-neutral-package-tests`, in review)
 
 - `tools/checks/neutral_tests.py` runs `simulator/tests` (455) and `contracts/tests` (6) against this tree's packages,

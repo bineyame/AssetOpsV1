@@ -26,6 +26,30 @@
   {
     "format_version": 1,
     "kind": "STORAGE_MOVEMENT",
+    "source_record_id": "gen:COLD-KIRI:COLD-KIRI-B0034:in",
+    "source_version": "1",
+    "site_code": "COLD-KIRI",
+    "subject": {
+      "kind": "BATCH",
+      "ref": "COLD-KIRI-B0034"
+    },
+    "clocks": {
+      "occurred_at": "2026-06-25T16:00:00+03:00"
+    },
+    "quantity": {
+      "value": "40",
+      "unit": "crate"
+    },
+    "body": {
+      "batch_ref": "COLD-KIRI-B0034",
+      "customer_ref": "COLD-KIRI-K-04",
+      "commodity": "Mangoes",
+      "direction": "IN"
+    }
+  },
+  {
+    "format_version": 1,
+    "kind": "STORAGE_MOVEMENT",
     "source_record_id": "gen:COLD-KIRI:COLD-KIRI-B0008:in",
     "source_version": "1",
     "site_code": "COLD-KIRI",
@@ -34,7 +58,7 @@
       "ref": "COLD-KIRI-B0008"
     },
     "clocks": {
-      "occurred_at": "2026-06-25T08:00:00+03:00"
+      "occurred_at": "2026-06-26T08:00:00+03:00"
     },
     "quantity": {
       "value": "40",
@@ -44,30 +68,6 @@
       "batch_ref": "COLD-KIRI-B0008",
       "customer_ref": "COLD-KIRI-K-02",
       "commodity": "Cabbage",
-      "direction": "IN"
-    }
-  },
-  {
-    "format_version": 1,
-    "kind": "STORAGE_MOVEMENT",
-    "source_record_id": "gen:COLD-KIRI:COLD-KIRI-B0012:in",
-    "source_version": "1",
-    "site_code": "COLD-KIRI",
-    "subject": {
-      "kind": "BATCH",
-      "ref": "COLD-KIRI-B0012"
-    },
-    "clocks": {
-      "occurred_at": "2026-06-25T08:00:00+03:00"
-    },
-    "quantity": {
-      "value": "40",
-      "unit": "crate"
-    },
-    "body": {
-      "batch_ref": "COLD-KIRI-B0012",
-      "customer_ref": "COLD-KIRI-K-06",
-      "commodity": "Avocado",
       "direction": "IN"
     }
   },
@@ -98,12 +98,12 @@
   {
     "format_version": 1,
     "kind": "STORAGE_MOVEMENT",
-    "source_record_id": "gen:COLD-KIRI:COLD-KIRI-B0008:out-1",
+    "source_record_id": "gen:COLD-KIRI:COLD-KIRI-B0034:out-1",
     "source_version": "1",
     "site_code": "COLD-KIRI",
     "subject": {
       "kind": "BATCH",
-      "ref": "COLD-KIRI-B0008"
+      "ref": "COLD-KIRI-B0034"
     },
     "clocks": {
       "occurred_at": "2026-07-02T16:00:00+03:00"
@@ -113,33 +113,33 @@
       "unit": "crate"
     },
     "body": {
-      "batch_ref": "COLD-KIRI-B0008",
-      "customer_ref": "COLD-KIRI-K-02",
-      "commodity": "Cabbage",
+      "batch_ref": "COLD-KIRI-B0034",
+      "customer_ref": "COLD-KIRI-K-04",
+      "commodity": "Mangoes",
       "direction": "OUT"
     }
   },
   {
     "format_version": 1,
     "kind": "STORAGE_MOVEMENT",
-    "source_record_id": "gen:COLD-KIRI:COLD-KIRI-B0012:out-1",
+    "source_record_id": "gen:COLD-KIRI:COLD-KIRI-B0073:out-1",
     "source_version": "1",
     "site_code": "COLD-KIRI",
     "subject": {
       "kind": "BATCH",
-      "ref": "COLD-KIRI-B0012"
+      "ref": "COLD-KIRI-B0073"
     },
     "clocks": {
       "occurred_at": "2026-07-02T16:00:00+03:00"
     },
     "quantity": {
-      "value": "40",
+      "value": "1",
       "unit": "crate"
     },
     "body": {
-      "batch_ref": "COLD-KIRI-B0012",
-      "customer_ref": "COLD-KIRI-K-06",
-      "commodity": "Avocado",
+      "batch_ref": "COLD-KIRI-B0073",
+      "customer_ref": "COLD-KIRI-K-01",
+      "commodity": "Tomatoes",
       "direction": "OUT"
     }
   }

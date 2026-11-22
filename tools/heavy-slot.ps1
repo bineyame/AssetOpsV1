@@ -1,6 +1,6 @@
 # T1: run one heavy command inside the heavy-tool slot pool (specs/T1-heavy-tool-slot-pool/spec.md §3.2).
 #
-#   pwsh -NoProfile -File tools/heavy-slot.ps1 [-Db] [-SlotWaitSeconds <n>] [-Label <text>] -- <command> [args...]
+#   pwsh -NoProfile -File tools/heavy-slot.ps1 [-Db | -DbLane] [-SlotWaitSeconds <n>] [-Label <text>] -- <command> [args...]
 #   pwsh -NoProfile -File tools/heavy-slot.ps1 -Status
 #
 # Only the `pwsh -NoProfile -File` form is supported (I3). pwsh splits a `-name:value` argument into two, so give a
@@ -13,7 +13,7 @@
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'checks/_heavy_slot.ps1')
 
-$usage = "usage: pwsh -NoProfile -File tools/heavy-slot.ps1 [-Db] [-SlotWaitSeconds <n>] [-Label <text>] -- <command> [args...]`n" +
+$usage = "usage: pwsh -NoProfile -File tools/heavy-slot.ps1 [-Db | -DbLane] [-SlotWaitSeconds <n>] [-Label <text>] -- <command> [args...]`n" +
          "       pwsh -NoProfile -File tools/heavy-slot.ps1 -Status"
 function Exit-Usage([string]$why) {
     if ($why) { [Console]::Error.WriteLine("heavy-slot: $why") }
@@ -22,6 +22,7 @@ function Exit-Usage([string]$why) {
 }
 
 $db = $false
+$dbLane = $false
 $wait = 1200
 $label = $null
 $status = $false
@@ -31,6 +32,7 @@ for ($i = 0; $i -lt $all.Count; $i++) {
     $a = [string]$all[$i]
     if ($a -eq '--') { $command = @($all | Select-Object -Skip ($i + 1)); break }
     elseif ($a -ieq '-Db') { $db = $true }
+    elseif ($a -ieq '-DbLane') { $dbLane = $true }
     elseif ($a -ieq '-Status') { $status = $true }
     elseif ($a -ieq '-SlotWaitSeconds') {
         $n = 0
@@ -153,7 +155,7 @@ public static class HeavySlotReaper {
     $reaper = $true
 } else { $reaper = $false }
 
-$handle = Enter-HeavySlot -SlotDir $slotDir -WaitSeconds $wait -Db:$db -Label $label -AnnounceTo Error `
+$handle = Enter-HeavySlot -SlotDir $slotDir -WaitSeconds $wait -Db:$db -DbLane:$dbLane -Label $label -AnnounceTo Error `
     -Announce "heavy-slot: both heavy slots are busy (tools/heavy-slot.sh --status); waiting up to $wait s."
 if (-not $handle) {
     [Console]::Error.WriteLine("heavy-slot: no slot came free in $wait s (-SlotWaitSeconds).")
@@ -167,12 +169,14 @@ try {
     $psi.UseShellExecute = $false
     $psi.WorkingDirectory = (Get-Location).Path
     if (-not $handle.Nested) {
-        # The marker lives in the child's environment only.
+        # The markers live in the child's environment only (T1b §2: -Db both exclusive markers, -DbLane its lane's).
         $psi.Environment['ASSETOPS_HEAVY_SLOT'] = $handle.SlotPath
+        foreach ($name in @('ASSETOPS_HEAVY_DB', 'ASSETOPS_HEAVY_DB_B', 'ASSETOPS_HEAVY_DB_LANE')) { [void]$psi.Environment.Remove($name) }
         if ($handle.DbPath) { $psi.Environment['ASSETOPS_HEAVY_DB'] = $handle.DbPath }
-        else { [void]$psi.Environment.Remove('ASSETOPS_HEAVY_DB') }
+        if ($handle.DbBPath) { $psi.Environment['ASSETOPS_HEAVY_DB_B'] = $handle.DbBPath }
+        if ($handle.LanePath) { $psi.Environment['ASSETOPS_HEAVY_DB_LANE'] = $handle.LanePath }
         if ($reaper) {
-            [HeavySlotReaper]::SetOwners(@(@($handle.SlotPath, $handle.DbPath) | Where-Object { $_ } | ForEach-Object { Get-HeavyOwnerPath $_ }))
+            [HeavySlotReaper]::SetOwners(@(@($handle.SlotPath, $handle.DbPath, $handle.DbBPath, $handle.LanePath) | Where-Object { $_ } | ForEach-Object { Get-HeavyOwnerPath $_ }))
         }
     }
     $child = [System.Diagnostics.Process]::Start($psi)

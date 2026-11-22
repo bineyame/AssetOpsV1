@@ -66,7 +66,7 @@ class NoLoadValue:
     value_l_per_h: Decimal
     valid_from: datetime
     valid_to: datetime | None
-    #: FUEL-1 A3-R G4(b): the same revision's `generator-no-load-fuel-rate-basis` (one of the three states), else None.
+    #: FUEL-1 A3-R G4(b): the same revision's `generator-no-load-fuel-rate-basis` (one of the basis states), else None.
     #: Stored in the result's `no_load` block only; never a digest input.
     basis: str | None = None
 

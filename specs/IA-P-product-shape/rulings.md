@@ -2,7 +2,7 @@
 
 Each ruling has its reason. The owner asked for this spec on 22 Nov (`owner/owner-merge-on-accept-ia-shape-k10-2026-11-22.md`)
 and reviews once the product is close to the shape. The open owner questions are spec §9 (Q3 to Q10, with the defaults
-applied). Q1 and Q2 were answered on 22 Nov (D-IAP.15). Rev 2 rulings are D-IAP.15 to D-IAP.23, rev 3 rulings (the handshake) D-IAP.24 to D-IAP.33, and build rulings from D-IAP.34, at the end.
+applied). Q1 and Q2 were answered on 22 Nov (D-IAP.15). Rev 2 rulings are D-IAP.15 to D-IAP.23, rev 3 rulings (the handshake) D-IAP.24 to D-IAP.33, and build rulings from D-IAP.34, at the end (IA-P3 pre-flight: D-IAP.35 to D-IAP.41).
 
 - **D-IAP.1 Scope and boundary.**
   - IA-P brings the real app onto the agreed shape for these parts: the menu, the Portfolio's three tabs and its Overview,
@@ -293,3 +293,184 @@ applied). Q1 and Q2 were answered on 22 Nov (D-IAP.15). Rev 2 rulings are D-IAP.
   - Reason: honest numbers and the range rule (a cold-chain or EV Site never leaves a page without its name and why);
     one sentence per fact (5c's `out` line reused, not rewritten); the count and the names come from one set, so they
     cannot disagree.
+
+## IA-P3 pre-flight (Architect, Claude, 2026-11-22; `IA-P3-preflight.md` on `task/IA-P3-sites-site-inbox` at `52311d4f1`)
+
+All 28 questions are ruled here, in one round (`.ai/RULES.md` §4). "Accepted" means the builder's default stands as
+written in the pre-flight, which is then binding with the amendments named.
+
+- **D-IAP.35 P4b answers (Q1 to Q10).**
+  - Q1 accepted, amended: a directory Site that E1 lacks is a row after E1's rows, in directory order, linked to
+    `/sites/{site_id}`. Its Group is `DOMAIN_WORD` of the directory `site_type` (no quoted literal; "Not available yet"
+    when unmapped), and its "Waiting for a choice" is E0 like any row (0 when absent from `waiting_by_site`). Every
+    other cell reads "Not available yet". A refused directory read renders E1's rows alone. Reason: the range rule
+    (a Site never leaves a page) and honest numbers (a known fact is shown, not blanked).
+  - Q2, Q3, Q4, Q6, Q7, Q8, Q9 and Q10 accepted.
+  - Q5 accepted, amended: the More line has a singular, "Not shown: 1 Site.", and "Not shown: {h} Sites." for `h` of 2
+    or more. Two strings, no figure (D-IAP.28). Reason: plain client copy.
+
+- **D-IAP.36 Demo prebuilt routes and the whole-month link (Q11, and the IA-P2 review Q1 backlog item), one unit.**
+  - Fact: `/api/portfolio/period`, `/api/portfolio/month` and `/api/portfolio/sites` are composed live
+    (`deep_dive_api.py`); none is a `StoredRoute`. Adding them to the prebuilt list stores nothing. It makes the
+    prebuild ask them on the demo DB, so a non-200 fails the build (`prebuild.run`: `non_200` gives `FAILED`) before
+    anyone opens the page. That answer check is the purpose. Storing them would be a backend change and is not
+    ruled (a measured follow-up only if the demo walk shows them slow).
+  - `story_links` gains, after the week links, "Portfolio, last whole month before S" (`/portfolio?from={first}&to={last}`
+    of the calendar month that ends before S's month) and "Sites, last whole month before S" (`/sites?` the same range).
+    The week links stay for the lists. `LINK_FORMS` gains `/sites?`.
+  - `prebuilt_routes`: for each `/portfolio?` link, `/api/portfolio/period?from&to` (the link's dates); for the
+    whole-month link also `/api/portfolio/month?month=YYYY-MM`; for each `/sites?` link `/api/portfolio/sites?from&to`
+    and `/api/estate/portfolio` (lens `all`, E0). Query forms copy the frontend clients' query strings byte for byte
+    (as WARM-1's test does), pinned by a test in `test_e4_prebuilt_routes_generator.py`.
+  - **Owner:** a new part **IA-PD** (unit PD, 0.5 unit), branch `task/IA-PD-demo-routes` from `main`, files
+    `tools/demo_combined.py` and its tests only. It shares no file with IA-P3, so it runs in parallel and merges on its
+    own ACCEPT (Sonnet build, one verification review). It must merge before the next demo build. The `/sites` link
+    is harmless before IA-P3 merges (E1 is on `main`).
+  - Reason: the walkthrough's first Portfolio click must open on figures (mode `month`), and a dead read must fail the
+    build, not the demo.
+
+- **D-IAP.37 P6 answers (Q12 to Q16).**
+  - Q12 accepted: the inbox and search build rows only through `decisionItems(loaded.first, loaded.rows)` on the
+    Decisions read's cache key (no second read). The packet lists `grep -rn "decisionItems(" frontend/src` so 6f1 U2's
+    §4.4 sweep has its expected hit list. If 6f1 U2 merges first, D-P6.78 Q17 applies (IA-P3 calls `useDecisionItems`).
+  - Q13 accepted: one exported function gives the waiting total for the tile and the badge, so badge = tile in every
+    case, truncated included. 6f1 U2 (tile = E0, D-P6.78) re-sources that one function.
+  - Q14 accepted: `Drawer` moves to `ui/Drawer.tsx` unchanged; `DeepDiveMonth`'s tests pass unchanged (parity).
+  - Q15 and Q16 accepted.
+
+- **D-IAP.38 P5 answers (Q17 to Q20, Q22).** All accepted: §2.3's order (old-eight tests migrated as (b)); Assets lights
+  Setup and Uploads gains the tab row, lights Evidence, and its crumb is Sites › {Site} › Upload readings; R383 is
+  closed by P5 (register row marked closed, citing this ruling); every object page uses `ui/Breadcrumbs` with three
+  parts; T1 and T2 Site detail fixtures in `fixtures/iap/`, sources in the packet.
+
+- **D-IAP.39 The Findings alias parity proof (Q21, the P5 BLOCKER).** Fixture-level parity on hand-aligned fixtures
+  is **not** the proof: fixtures made from the same Finding ids pass by construction and cannot catch the server's two
+  reads selecting differently (estate rows exist only where `site_coverage` yields rows; the estate window rule is
+  `start < to and end > from`; the fuel Finding joins only the estate read). The proof has two layers, per vertical
+  (MINI, COLD, EV):
+  1. **Server layer** (new `backend/tests/test_iap_site_findings_parity_postgres.py`; `backend/assetops_backend`
+     untouched; test DB per `.ai/RULES.md` §7). One existing built world per vertical, served by one app: MINI the
+     Kobo world (`test_out_b4_board_postgres._build_kobo`, as `test_ch5c2_real_composers_postgres.py` serves both
+     reads); COLD the `test_fx_cold_linked_postgres.py` world; EV an existing EV world that serves `/ev/findings` and
+     `/api/estate/findings` from one app (the builder names it in the packet). Two windows each: a whole month inside
+     the world's data, and a 61-day range, each passed through `readWindow` (the same `from`, `to`, `known_at` on both
+     reads). Read every page of the Site read exactly as the Site page asks it (MINI `finding-index?domain=mini-grid-dispatch`;
+     COLD and EV `…/findings?from&to&known_at`) and every page of `/api/estate/findings?…&lens=all&state=all`.
+     Assert: the Site set is non-empty (a vacuous pass fails); Site ids ⊆ estate ids with `site_code == code`; the
+     estate `total_count` is under 1,000 (the client cap). Extra estate ids (the fuel Finding) are allowed and listed in
+     the packet.
+  2. **Client layer** (`estate/__tests__/siteFindingsParity.test.ts`). The server test writes the six bodies it read
+     (one Site body and one estate body per vertical, the whole-month window) to
+     `frontend/src/estate/__tests__/fixtures/iap/parity-{mini,cold,ev}-{site,estate}.json` under `IAP_WRITE_FIXTURES=1`,
+     and otherwise asserts they are byte-current (as P4b test 9 does). The vitest parses the Site body with the Site
+     page's own client parser, runs the estate body through the Findings list path (`loadAllPages` result →
+     `findingItems` → `homeListModel(findingsDef(), items, q, scope)` with `show=all` in `q` and scope `site:{code}`),
+     and asserts the shown row keys ⊇ the Site ids.
+  - Plant `parity`: the scope filter keys on `site_id` instead of `site_code`; the vitest fails it.
+  - A vertical whose server layer fails, or for which no existing world serves both reads without a code change,
+    stops with `SPEC_AMBIGUITY` (§6 P5): no alias for it, its index stays lit under Evidence (MD-IAP-15, D-IAP.31).
+  - Size: +0.5 unit on P5 (1.75).
+  - Reason: the alias removes a page; "nothing is lost" must be shown on what the server serves, and honest numbers
+    forbid a proof that cannot fail.
+
+- **D-IAP.40 P7 answers (Q23 to Q26).**
+  - Q23 amended (class fix, one interaction grammar): every surface drawn by `HomeList` applies the address `scope`
+    through `homeListModel`, Outcomes L2 included (its "Show all" carries the scope). Every page that keeps a non-all
+    `scope` in the address but shows every Site carries the chip "This page shows every Site": the Overview, Demand &
+    capacity, Outcomes (above L1; L2 follows scope), Results and Evidence & records. Site pages keep the parameter and
+    show nothing more (a Site page is one Site). MD-IAP-5 (D5) covers every chip page.
+  - Q24, Q25 and Q26 accepted.
+
+- **D-IAP.41 Shared answers and sizes (Q27, Q28).**
+  - Q27 accepted: IA-P3 takes register rows R790 onward; whoever merges second renumbers at the merge (rows are cited
+    by MD ID). Q28 accepted: each unit's gates join the always-run set.
+  - Sizes: P5 1.75 (D-IAP.39), so IA-P3 is 5.0 units (under 6). IA-PD is 0.5. IA-P is 15.5 units.
+  - Owner: nothing blocks. The owner is informed of D-IAP.40's wider chip (MD-IAP-5) and D-IAP.36's new demo links.
+
+## IA-P3 P5 run 3 questions (Architect, Claude, 2026-11-22; `IA-P3-handoff.md` run 3 on `task/IA-P3-sites-site-inbox` at `85148bb7b`)
+
+- **D-IAP.42 MINI takes MD-IAP-15; the alias ships for COLD and EV (Q-P5-1).**
+  - Fact: on a PARTIAL mini-grid Site the estate read withholds every head that touches an unchecked day
+    (`estate/coverage.py` §2.5 rule) and reports the Site UNKNOWN with `total_count` null (`estate/index.py`). The Site
+    index shows those heads. The estate rule is a reviewed coverage rule, not a fault IA-P3 may change (§11: the only
+    backend changes are E0, E1 and E2).
+  - So MINI gets no alias. Its Findings index stays, lit under Evidence with "Findings" in its section line
+    (MD-IAP-15, D-IAP.31). COLD and EV alias `/sites/:siteId/findings` to `/findings?scope=site:{id}`, through a
+    type-aware redirect in `SiteFindingsFrame` (no `LEGACY_ROUTES` entry, because the alias is not for every Site).
+  - The server test keeps MINI, flipped: it asserts that every Site id missing from the estate read belongs to a Site
+    whose estate coverage is not CURRENT or HISTORICAL. If MINI ever reaches the full subset, the test fails with
+    "MINI parity holds: ship the MINI alias (D-IAP.42)". A change in either rule is then seen, not missed.
+  - Queued, not in IA-P: one withholding rule for a PARTIAL mini Site across the Site index and the estate read. Until
+    then, the same Finding shows on the Site's index and is withheld from the estate Findings list, which says why
+    through its coverage state. The resolving unit is to be specified; the owner is informed.
+  - Reason: honest numbers. An alias would send a Kobo user from Findings they can see to a list that withholds
+    them.
+
+- **D-IAP.43 The pinned parity bodies are normalised (Q-P5-2).** "Shape and subset only" is rejected, because it cannot
+  fail on content drift.
+  - The server test writes and compares a normalised body for COLD and EV (MINI needs no client fixture, D-IAP.42).
+  - Ids: every `finding_id` and `finding_revision_id` is mapped, consistently across a vertical's Site and estate body,
+    to `00000000-0000-4000-8000-{n:012d}`. `n` follows the order of the first appearance in the Site body, then the
+    estate body. Any other uuid4 field gets the same mapping in its own series.
+  - Times: every ISO timestamp is shifted by one constant per vertical, so the window's `from` becomes
+    `2026-10-01T00:00:00Z`. The format and relative order are kept.
+  - The byte compare runs on the normalised JSON (sorted keys, 2-space indent). The subset relation is asserted
+    before and after normalisation.
+  - The vitest runs on the normalised bodies; the tokens are uuid-shaped, so the clients' parsers accept them.
+
+- **D-IAP.44 Lifecycle gets a home on the Sites list; the lineage note stays on the Site (packet-IA-P3 §5 Q1).**
+  - "In setup" is a recorded fact (the directory's lifecycle), so it is not dropped. On every Sites row and Outcomes
+    L2 row, a Site whose directory lifecycle is not Active carries its lifecycle word (the `deriveSiteView`
+    `lifecycleStatus` word, reused, no new string) as the title's `<small>`. The join is by `site_code` to the
+    directory read the list already makes. A refused directory read shows no lifecycle word, and the rows stand.
+  - The template-lineage note belongs to the Site, not the list. It stays where the Site page already shows
+    "Created from template" (Setup, `SiteConfiguration`), behind the same gate.
+  - R795 is registered as MOCK DEVIATION D2 (re-housed at its level), naming both homes. The v69 "In setup" panel's
+    own table is retired: its content is the row word.
+  - Test: a `sitesList` case with one non-Active directory Site shows the word under its title. Plant `nolife`
+    (the word dropped) fails it.
+  - Reason: missing data is named, never hidden; each element sits at its own level (the owner's UI standing brief).
+
+- **D-IAP.45 `sites/SitesIndex.tsx` and its test are deleted in P5 (packet-IA-P3 §5 Q2).**
+  - Any export still imported elsewhere (`tsc` and grep decide) moves unchanged to its own file first.
+  - `ui/__tests__/sharedVisualVocabulary.test.tsx` drops or re-points its `SitesIndex` reference as (b).
+  - Reason: a component no route mounts is dead code, and its test pins a retired screen.
+  - Size (D-IAP.42 to D-IAP.45): absorbed in P5's 1.75. IA-P3 stays 5.0 units, and IA-P 15.5.
+
+## IA-P3 P5 run 4 questions (Architect, Claude, 2026-11-22; `IA-P3-handoff.md` run 4 on `task/IA-P3-sites-site-inbox` at `3eab8ef28`)
+
+- **D-IAP.46 The parity pin compares a named projection, not bytes (Q-P5-3; amends D-IAP.43).**
+  - Fact: a second build differs after D-IAP.43's normalising, in run ids (`run-<hex32>`), digests over ids, wall-clock
+    stamps (`as_of`, `decided_at`, `committed_watermark`) and uuid-ordered arrays. These are build facts, not part of
+    what the client shows. Tokenising each one would chase the store's internals, so the assertion changes instead.
+  - The pinned files stay the full normalised bodies (D-IAP.43, written under `IAP_WRITE_FIXTURES=1`), because the
+    vitest runs on them. The hard assert, with no xfail, is `projection(fresh) == projection(pinned)`, per vertical and
+    body:
+    - The envelope: `schema_version`, `status`, `total_count`.
+    - Each row: the token of `finding_id`, `site_code`, `site_name`, `title`, `finding_label`, `lifecycle`,
+      `lens_flags`, `categories` item labels, `status`, the sorted key set of `link_refs`, and `episode_start` shifted
+      as in D-IAP.43. On the Site body, a row's fields are the ones present among these names.
+    - Tokens are assigned in the order (shifted `episode_start`, `title`, Site body before estate body), not by first
+      appearance. Rows are compared sorted by token.
+    - Excluded by name: run ids, digests, `as_of`, `decided_at`, `committed_watermark`, `selection_token`,
+      `next_cursor`, and every other uuid outside the projection.
+  - The subset is still asserted on the fresh bodies.
+  - Plants (each must fail the projection compare, then is reverted):
+    - `estatedrift`: `estate/index.py` row `site_name` set from `site["site_code"]`;
+    - `sitedrop`: the COLD Site findings read returns its rows minus the last. The subset still holds, so only the
+      projection catches it.
+  - Reason: the check must fail on what a person would see change (a Finding gained or lost, its title, state, lens
+    or link), and stay quiet on build noise.
+
+- **D-IAP.47 `ColdFindingIndex` and `EvFindingIndex` are deleted (Q-P5-4; the class of D-IAP.45).**
+  - No route mounts them since D-IAP.42's COLD and EV alias. Delete `sites/EvFindingIndex.tsx`, the `ColdFindingIndex`
+    function in `sites/ColdAssessmentViews.tsx`, and any helper or word used only by them (`tsc`, grep and
+    `statement_catalogue.py` decide). Anything else imports stays unchanged.
+  - The 19 tests in `coldFindingIndex.test.tsx` (10) and `evFindingIndex.test.tsx` (9) are each sorted in the packet:
+    - (b), moved: a test whose behaviour the Findings list at `scope=site:{id}` must keep (the range carried, the
+      window note, the empty state, the refusal) is re-pointed to `siteFindingsAlias` or the findings list tests;
+    - deleted with the component: a test of content only the old index drew. Its content is named in the packet
+      (missing content is named, never dropped silently), for the walkthrough.
+  - The `siteRangeMatrix` cold and EV `/findings (R)` rows become alias rows: the redirect keeps `from`, `to` and
+    `known_at`.
+  - Size: absorbed in P5's 1.75. IA-P3 5.0 units, IA-P 15.5.
