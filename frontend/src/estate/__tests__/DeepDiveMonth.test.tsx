@@ -10,18 +10,12 @@ import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
-import { App } from "../../App";
-import { featureFlagsWith } from "../../config/featureFlags";
-import type { SiteDetailClient, SiteDirectoryClient } from "../../sites/siteDirectoryClient";
-import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import { settledScreen } from "../../test/settled";
 import { DeepDiveMonthFrame } from "../DeepDiveMonth";
 import type { DeepDiveDriver, DeepDiveMonthBody, DeepDiveMonthClient, DeepDiveResult } from "../deepDiveMonthClient";
-import { PORTFOLIO_TABS } from "../portfolioWords";
 import { fakeClient, findingsBody, loaded } from "./estateFixtures";
 import { loadedPortfolio, portfolioBody } from "./portfolioFixtures";
 import FIXTURE_TEXT from "../../../../backend/tests/fixtures/5c/deep_dive_lakeside_2026-10.json?raw";
-import TABS_BEFORE from "./fixtures/portfolioTabsOverview.before.html?raw";
 import WORLD_H_TEXT from "./fixtures/deep_dive_world_h.json?raw";
 import WORLD_X_TEXT from "./fixtures/deep_dive_currency_mismatch.json?raw";
 import PAGE_SOURCE from "../DeepDiveMonth.tsx?raw";
@@ -37,6 +31,9 @@ const MONEY = /[−+]?(?:\$|[A-Z]{3} )\d[\d,]*(?:\.\d+)?/g;
 const NOT_SHOWN = new Set(["schema", "month", "nav", "state", "as_of", "reason", "reconciled", "key", "bar", "scale", "connected", "more", "standing"]);
 // `fresh.untracked_text` is read in the Assure drawer (its last line), not on the page itself.
 NOT_SHOWN.add("untracked_text");
+// IA-P2 P3b (spec §6 P3b): the month JSON's `decisions` panel is replaced by the Decisions list (HomeList over the estate
+// rows); its served text is no longer drawn, so it is not among the strings expected on the page.
+NOT_SHOWN.add("decisions");
 
 function strings(value: unknown, out: string[] = []): string[] {
   if (typeof value === "string") out.push(value);
@@ -113,11 +110,35 @@ function LocationProbe() {
   return <div data-location>{`${location.pathname}${location.search}`}</div>;
 }
 
-function renderMonth(client: DeepDiveMonthClient, path = "/portfolio/month?month=2026-10") {
+/**
+ * IA-P2 P3b (spec §6 P3b): the month page takes `month`, `nav` and `notes` as props (E2 serves them) and reads no
+ * `?month=`. The mount is the Overview's mode `month` body at the October range, with E2's nav for September (October
+ * is the latest served month, so no next).
+ */
+const SEPTEMBER = { month_words: "September 2026", from: "2026-09-01", to: "2026-09-30" };
+const NOVEMBER = { month_words: "November 2026", from: "2026-11-01", to: "2026-11-30" };
+const OCT_RANGE = "from=2026-10-01&to=2026-10-31";
+
+function renderMonth(
+  client: DeepDiveMonthClient,
+  props: { month?: string; nav?: { previous: typeof SEPTEMBER | null; next: typeof NOVEMBER | null } | null; notes?: string[] } = {},
+) {
+  const estate = { ...fakeClient((lens) => loaded(findingsBody(lens))), portfolio: () => Promise.resolve(loadedPortfolio(portfolioBody())) };
   return render(
-    <MemoryRouter initialEntries={[path]}>
+    <MemoryRouter initialEntries={[`/portfolio?${OCT_RANGE}`]}>
       <Routes>
-        <Route path="/portfolio/month" element={<DeepDiveMonthFrame client={client} />} />
+        <Route
+          path="/portfolio"
+          element={
+            <DeepDiveMonthFrame
+              client={client}
+              estate={estate}
+              month={props.month ?? "2026-10"}
+              nav={props.nav === undefined ? { previous: SEPTEMBER, next: null } : props.nav}
+              notes={props.notes ?? []}
+            />
+          }
+        />
       </Routes>
       <LocationProbe />
     </MemoryRouter>,
@@ -322,7 +343,12 @@ describe("5c test 11: the served worlds (backend-written H and the currency mism
   const moneyIn = (root: Element) => {
     const out: string[] = [];
     const walk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-    for (let n = walk.nextNode(); n !== null; n = walk.nextNode()) out.push(...money(n.textContent ?? ""));
+    for (let n = walk.nextNode(); n !== null; n = walk.nextNode()) {
+      // IA-P2 P3b (spec §6 P3b): L2's Decisions are the list component's rows over the estate Findings (the estate
+      // read's own figures, pinned in portfolioHub), no longer part of the month JSON, so they are not checked here.
+      if (n.parentElement?.closest("[data-home-list]")) continue;
+      out.push(...money(n.textContent ?? ""));
+    }
     return out;
   };
   const served = (body: unknown) => new Set(money(JSON.stringify(body)));
@@ -449,67 +475,47 @@ describe("5c test 12: states and the month links", () => {
     expect(document.querySelector("[data-level]")).toBeNull();
   });
 
-  it("the month links set ?month= and read that month; next is disabled without a next month", async () => {
-    const client = clientOf((month) =>
-      month === "2026-09"
-        ? { status: "loaded", body: stateBody("NO_SNAPSHOT", "The figures for September 2026 have not been prepared yet.") }
-        : { status: "loaded", body: worldA() },
-    );
+  // IA-P2 P3b (spec §6 P3b, I1; D-IAP.17): the ‹ › links are E2's `nav` days and set the range to that month's days;
+  // the page reads no `?month=`, so it no longer re-reads a month on a click (the Overview remounts it per month).
+  it("the ‹ › links are E2's nav days: they set the range to that month and no ?month=; next is absent when null", async () => {
+    const client = clientOf(() => ({ status: "loaded", body: worldA() }));
     renderMonth(client);
     await settled();
     expect(client.calls).toEqual(["2026-10"]);
-    const next = screen.getByRole("button", { name: /November 2026/ });
-    expect((next as HTMLButtonElement).disabled).toBe(true);
-    fireEvent.click(screen.getByRole("link", { name: /September 2026/ }));
-    await settled();
-    expect(document.querySelector("[data-location]")!.textContent).toBe("/portfolio/month?month=2026-09");
-    expect(client.calls).toEqual(["2026-10", "2026-09"]);
-    expect(screen.getByRole("link", { name: /October 2026/ }).getAttribute("href")).toBe("/portfolio/month?month=2026-10");
+    const nav = screen.getByRole("navigation", { name: "Month" });
+    expect(within(nav).queryByRole("link", { name: /November 2026/ })).toBeNull();
+    expect(within(nav).queryByRole("button")).toBeNull();
+    const previous = within(nav).getByRole("link", { name: /September 2026/ });
+    expect(previous.getAttribute("href")).toBe("/portfolio?from=2026-09-01&to=2026-09-30");
+    fireEvent.click(previous);
+    expect(document.querySelector("[data-location]")!.textContent).toBe("/portfolio?from=2026-09-01&to=2026-09-30");
   });
 
-  it("with no ?month= the client is asked for the server's default month", async () => {
+  it("with a next month in E2's nav the next link sets the range to its days", async () => {
+    renderMonth(clientOf(() => ({ status: "loaded", body: worldA() })), { nav: { previous: SEPTEMBER, next: NOVEMBER } });
+    await settled();
+    const next = within(screen.getByRole("navigation", { name: "Month" })).getByRole("link", { name: /November 2026/ });
+    expect(next.getAttribute("href")).toBe("/portfolio?from=2026-11-01&to=2026-11-30");
+  });
+
+  it("the page reads the month it is given, never one from the address (the month prop, not ?month=)", async () => {
     const client = clientOf(() => ({ status: "loaded", body: worldA() }));
-    renderMonth(client, "/portfolio/month");
+    renderMonth(client, { month: "2026-09" });
     await settled();
-    expect(client.calls).toEqual([undefined]);
+    expect(client.calls).toEqual(["2026-09"]);
+  });
+
+  it("E2's notes are drawn as period notes in the header", async () => {
+    renderMonth(clientOf(() => ({ status: "loaded", body: stateBody("NO_SNAPSHOT", "x") })), { notes: ["A note from E2."] });
+    await settled();
+    const note = document.querySelector(".dd-head .dd-period[role=note]");
+    expect(note!.textContent).toBe("A note from E2.");
   });
 });
 
-describe("5c test 13: the tab row moves to PortfolioTabs.tsx unchanged", () => {
-  const DIRECTORY: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "loaded", sites: [] }) };
-  const DETAIL: SiteDetailClient = { getSite: () => Promise.resolve({ status: "loaded", site: HYBRID_MINI_GRID_SITE }) };
-  const normal = (html: string) => html.replace(/from=[^&"]*&amp;to=[^&"]*/g, "from=FROM&amp;to=TO").trim();
-
-  it("the Overview's tab row (with counts) equals its markup before the move, plus the month tab", async () => {
-    const before = TABS_BEFORE;
-    const client = { ...fakeClient((lens) => loaded(findingsBody(lens))), portfolio: () => Promise.resolve(loadedPortfolio(portfolioBody())) };
-    const view = render(
-      <MemoryRouter initialEntries={["/portfolio"]}>
-        <App flags={featureFlagsWith(false)} siteDirectory={DIRECTORY} siteDetail={DETAIL} estateIndex={client} />
-      </MemoryRouter>,
-    );
-    await settledScreen();
-    const row = view.container.querySelector("[data-portfolio-tabs]")!;
-    const items = row.querySelectorAll("li");
-    expect(items[1].textContent).toBe("The month");
-    expect(items[1].querySelector("a")!.getAttribute("href")).toBe("/portfolio/month");
-    expect(items[1].querySelector("[data-pf-tab-count]")).toBeNull();
-    const clone = row.cloneNode(true) as HTMLElement;
-    clone.querySelectorAll("li")[1].remove();
-    expect(normal(clone.outerHTML)).toBe(normal(before));
-    expect(PORTFOLIO_TABS[1]).toEqual({ tab: "month", label: "The month", segment: "month" });
-  });
-
-  it("the month page shows the tab row with The month current and no counts", async () => {
-    renderMonth(clientOf(() => ({ status: "loaded", body: worldA() })));
-    await settled();
-    const row = document.querySelector("[data-portfolio-tabs]")!;
-    expect(row.querySelector("[aria-current=page]")!.textContent).toBe("The month");
-    expect(row.querySelector("[data-pf-tab-count]")).toBeNull();
-    const overview = within(row as HTMLElement).getByRole("link", { name: "Overview" });
-    expect(overview.getAttribute("href")).toMatch(/^\/portfolio\?from=/);
-  });
-});
+// IA-P2 P3b (spec §2.2, D-IAP.4): 5c test 13 pinned the tab row of the old five-tab Portfolio (counts, "The month" as a
+// second tab) against a before-file. The spec replaced that row with three tabs and no counts; its
+// replacement is `portfolioHub.test.tsx` "shows exactly three tabs in order, each keeping the address's range".
 
 describe("5c rev 4 screen fix: bars and scale (D-5C.27), the mute rule (D-5C.26), drawers (L1, L2)", () => {
   const track = (root: ParentNode, key: string) => root.querySelector(`[data-dd-step="${key}"] .dd-wf__track`) as HTMLElement;

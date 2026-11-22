@@ -62,6 +62,17 @@ body.dd-locked {
   font-size: var(--font-size-300);
   line-height: 20px;
 }
+/* IA-P P3b: E2's notes and the "Show {month}" link under the header (spec §3). */
+.dd-period {
+  margin: 0;
+  flex-basis: 100%;
+  font-size: var(--font-size-300);
+  line-height: 20px;
+  color: var(--text-secondary);
+}
+.dd-period a {
+  color: var(--accent);
+}
 .dd-nav__link {
   color: var(--accent);
   background: none;
@@ -244,6 +255,11 @@ body.dd-locked {
   font-size: var(--font-size-200);
   line-height: 18px;
   color: var(--text-secondary);
+}
+
+/* IA-P2 M1: a cell's second part is its own line, so year and count never read as one figure. */
+.dd-meta--line {
+  display: block;
 }
 
 /* ---------- L3: the bridge ---------- */

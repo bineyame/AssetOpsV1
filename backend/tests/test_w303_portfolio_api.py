@@ -414,6 +414,9 @@ def test_full_scope_projections_ignore_page_size_and_empty_scope(world) -> None:
                                   {"open_findings": 0, "sites_with_primary_finding": 0}),
                               # CH-5a2b (§B14 Q9): the basis is the day-grade rule over the claims; this
                               # service has no count computation injected, so it and the claims are not known.
+                              # IA-P2 P4a (E0, spec §4.2): the four rows wait for a choice (none MONITOR, none matched to an
+                              # Action), two per Site; the keys follow `category_counts`.
+                              "waiting_count": 4, "waiting_by_site": {"COLD-1": 2, "KOBO 001": 2},
                               "count_basis": "NOT_KNOWN", "checked_days": [],
                               "claims": {k: NOT_KNOWN_CLAIM(k) for k in (
                                   "count.open_threads", "count.verified_results", "count.opportunities",

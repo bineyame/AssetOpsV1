@@ -27,9 +27,11 @@ import json  # noqa: E402
 from assetops_contracts.canonical import to_canonical_json  # noqa: E402
 
 from assetops_simulator.world.canonical import file_bytes, write_canonical_file  # noqa: E402
+from assetops_simulator.world import telemetry as telemetry_writer  # noqa: E402
 from assetops_simulator.world.books import build_books  # noqa: E402
 from assetops_simulator.world.exports import file_name  # noqa: E402
 from assetops_simulator.world.history import generate_history  # noqa: E402
+from assetops_simulator.world.months import period_end  # noqa: E402
 from assetops_simulator.world.records import batch_file_name, build_records  # noqa: E402
 from assetops_simulator.world.view import ManifestView  # noqa: E402
 
@@ -133,6 +135,67 @@ def _exports(manifest: Path, out: Path, extras: Path | None = None, tenants: lis
     return 0
 
 
+ONBOARDING_FORMAT = "assetops.operator-onboarding/2"
+
+
+def _site_inputs(onboarding: Path, bindings: Path, out: Path) -> int:
+    documents = []
+    seen: dict[str, str] = {}
+    try:
+        for path in sorted(onboarding.glob("*.onboarding.json")):
+            document = json.loads(path.read_text(encoding="utf-8"))
+            if document.get("format") != ONBOARDING_FORMAT:  # D-DD.95: `/2` documents only
+                print(f"SKIPPED {path.name} {document.get('format')}", file=sys.stderr)
+                continue
+            for site in document["sites"]:
+                if site["code"] in seen:
+                    raise telemetry_writer.TelemetryRefused(
+                        "TEL_FOUNDATION", f"{site['code']} is in {seen[site['code']]} and {path.name}")
+                seen[site["code"]] = path.name
+            documents.append(document)
+    except telemetry_writer.TelemetryRefused as error:
+        print(error, file=sys.stderr)
+        return 3
+    joined = {"schema": telemetry_writer.SITE_INPUTS_SCHEMA, "generator": telemetry_writer.GENERATOR, "sites": []}
+    by_code = {}
+    for path in sorted(bindings.glob("*-bindings.json")):
+        document = json.loads(path.read_text(encoding="utf-8"))
+        by_code[document["site_code"]] = document
+    try:
+        for document in documents:
+            joined["sites"] += telemetry_writer.site_inputs(document, by_code)["sites"]
+    except telemetry_writer.TelemetryRefused as error:
+        print(error, file=sys.stderr)
+        return 3
+    joined["sites"].sort(key=lambda s: (s["tenant"], s["code"]))
+    write_canonical_file(joined, out)
+    return 0
+
+
+def _telemetry(manifest: Path, sites: Path, books: Path, out: Path, start: str, end: str | None,
+               only: tuple[str, ...] | None) -> int:
+    try:
+        target = _out_dir(out)
+        view = load_view(manifest)
+        history = generate_history(view)
+        end = end or period_end(view["accounting_period"]).isoformat()
+        expenses = {p.name.removesuffix(".expenses.csv"): p.read_text(encoding="utf-8")
+                    for p in books.glob("*.expenses.csv")}
+        result = telemetry_writer.build_telemetry(
+            view, json.loads(sites.read_text(encoding="utf-8")), telemetry_writer.books_for(view, history, expenses),
+            start=start, end=end, only=only)
+    except telemetry_writer.TelemetryRefused as error:
+        print(error, file=sys.stderr)
+        return 3
+    for name, data in result.files:
+        (target / name).parent.mkdir(parents=True, exist_ok=True)
+        (target / name).write_bytes(data)
+    for name, document in result.manifests:
+        (target / name).parent.mkdir(parents=True, exist_ok=True)
+        write_canonical_file(document, target / name)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     """ON1 (spec §4): public, so the runbook test parses its command line."""
     parser = argparse.ArgumentParser(prog="world_history.py", description="DS1 world history generator")
@@ -151,6 +214,19 @@ def build_parser() -> argparse.ArgumentParser:
                          help="a new or empty directory outside the repository for the staged DS1b JSON and statements")
     exports.add_argument("--tenant", action="append", default=None, metavar="SLUG",
                          help="keep only this tenant's files (repeatable; default every tenant) (D-DD.74)")
+    inputs = commands.add_parser("site-inputs", help="join each /2 Site with its binding conversion (DD3.1, D-DD.28)")
+    inputs.add_argument("--onboarding", required=True, type=Path, help="a directory of *.onboarding.json")
+    inputs.add_argument("--bindings", required=True, type=Path, help="a directory of *-bindings.json")
+    inputs.add_argument("--out", required=True, type=Path)
+    telemetry = commands.add_parser("telemetry", help="write the Sites' readings (DD3.1)")
+    telemetry.add_argument("--manifest", required=True, type=Path)
+    telemetry.add_argument("--sites", required=True, type=Path)
+    telemetry.add_argument("--books", required=True, type=Path, help="the directory `exports` wrote")
+    telemetry.add_argument("--out", required=True, type=Path, help="a new or empty directory outside the repository")
+    telemetry.add_argument("--start", default="2026-07-01", help="first local day of the span")
+    telemetry.add_argument("--end", default=None,
+                           help="last local day of the span (default: the last day of the accounting period)")
+    telemetry.add_argument("--site", action="append", default=None, help="a Site code; repeat for several")
     check = commands.add_parser("check")
     check.add_argument("--manifest", required=True, type=Path)
     check.add_argument("--history", required=True, type=Path)
@@ -163,6 +239,11 @@ def main(argv: list[str]) -> int:
         return _records(args.manifest, args.out)
     if args.command == "exports":
         return _exports(args.manifest, args.out, args.extras, args.tenant)
+    if args.command == "site-inputs":
+        return _site_inputs(args.onboarding, args.bindings, args.out)
+    if args.command == "telemetry":
+        return _telemetry(args.manifest, args.sites, args.books, args.out, args.start, args.end,
+                          tuple(args.site) if args.site else None)
 
     view = load_view(args.manifest)
     if args.command == "view":

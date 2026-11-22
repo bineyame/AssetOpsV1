@@ -37,10 +37,10 @@ export function EstateDecisionsFrame({ client }: { client: EstateClient }) {
 }
 
 /** W3-02 commit 2: the estate Evidence root. */
-export function EstateEvidenceFrame({ client }: { client: EstateEvidenceMoneyClient }) {
+export function EstateEvidenceFrame({ client, estate }: { client: EstateEvidenceMoneyClient; estate?: EstateClient }) {
   return (
     <main aria-label="Evidence">
-      <EstateEvidencePage client={client} />
+      <EstateEvidencePage client={client} estate={estate} />
     </main>
   );
 }

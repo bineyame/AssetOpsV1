@@ -1346,3 +1346,730 @@ D-DD.85 (the receiving rule changes Assumed admission times; no story figure mov
     2. D-DD.85's ledger, goldens and parity.
     3. `ColdSiteRun` on the protocol, with D-DD.86's forcings.
     4. After DD3a merges: the join, its parity, and the writer run, measuring Thika against C-DD6.
+
+---
+
+# DD rulings, round 12 (D-DD.89 to D-DD.96): B-1031 resized, DD4a Q1-Q2, DD3a Q1-Q4, the catalogue guard
+
+Architect (Claude), 2026-11-22. Inputs: `packet-DD3a.md` and `DD3a-handoff.md` Update 6 on `task/DD3a-mini-reality`
+(816774bc8); `packet-DD4a.md` and `DD4-handoff.md` on `task/DD4-cold-ev-reality` (239980d64). Owner words:
+`owner/owner-demo-data-answers-2026-11-22.md` §"B-1031 / CN-0412" ("Change the event": keep the room's declared
+physics, resize the incident so it really breaches 5 °C, computed from the room model, not tuned) and
+`owner/owner-one-figure-loyal-to-operating-world-2026-11-21.md`. Checked against code on those branches:
+`packs/cold.py` (stage 3 demand at 2/4 °C, stage 4 heat terms, probe on the 5-minute slot), `world/telemetry_cold.py`,
+`world/telemetry.py` (`site_inputs`, `_sun`, `DEFAULT_SUN_WEIGHTS`, the readings row), `world/scope.py:15,50`
+(`GLOBAL_KEYS` into every scope digest), `world/history.py:104-109`, `world/exports.py` (`NOTE_HOUR`, `_notes`),
+`host/cold_publication.py:127-160` (event and correlation ids), `contracts/.../source_envelope_v4.py` (EVENT payload),
+`tools/dd_check.py:569` (C-DD11 runs 1-2 Jul), and `M` (Thika `incident`, `kpis`, Kobo `physical` and `period`).
+
+**Measurement (read-only, DD4 branch, scratch script deleted).** Thika as `packet-DD4a.md` ran it: the fixture-view
+ledger, cold-lab-001 values with 6 kW cooling, M's seasons, `ColdSiteRun` 1 Jul to 5 Oct, then 6 Oct stepped minute by
+minute with GRID_LOSS and GENERATOR_FAILURE at 19:11, GRID_RESTORE at 22:00 and the hand start at minute H. H = 19:14
+reproduces the packet (peak 4.049 °C at 21:20, 0 minutes above 5 °C). At 19:11 the compressor is OFF at 3.341 °C;
+without cooling the chamber warms by about 0.029 °C a minute (leak 0.08 kW/°C × about 20.5 °C, plus 320 crates'
+respiration, over 1.2 kWh/°C) and reaches 5 °C at 20:08. With cooling back it falls about 0.055 °C a minute.
+
+| H (hand start) | per-minute above 5 °C | 5-minute readings above 5 °C | bound from readings | peak (per minute) |
+|---|---|---|---|---|
+| 20:10 | 7 | 1 | 0-10 | 5.138 |
+| 20:20 | 22 | 4 | 15-25 | 5.421 |
+| 20:21 | 24 | 5 | 20-30 | 5.449 |
+| **20:22** | **25** | **5 (20:10-20:30)** | **20-30** | **5.477 at 20:24** |
+| 20:25 | 30 | 6 | 25-35 | 5.561 |
+| none (grid at 22:00) | 168 | 34 | | 8.061 at 22:01 |
+
+The owner is informed of all eight. The owner is asked to weigh in on **D-DD.92** before DD3b starts (Kobo's
+fuel story moves), and is told the Thika figures D-DD.89 moves.
+
+- **D-DD.89 B-1031: the hand start moves to 20:22, so the chamber really holds B-1031 above 5 °C for 25 minutes; the
+  room is unchanged** (owner: "Change the event"; amends D-DD.83's Thika events and spec §4.4 "Thika").
+  - *Failure mode.* As `M` states it: the start controller fails the automatic start at 19:11 (D-DD.83's mechanisms
+    unchanged). What is resized is the time to a start by hand, not the room. The story already says why it was late:
+    "no manual-start rota in October" (`observations.october.stock_and_rota_basis`), and the stopgap it recommends is a
+    night manual-start rota plus an SMS alarm relay (`THIKA-EPC-STOPGAP`).
+  - *Rule (declared, from `M`'s own figure).* The hand start is the minute at which the room's per-minute time above
+    B-1031's 5 °C limit equals the midpoint of `M`'s `above_limit_minutes` "20-30" (25 minutes). That is **20:22**. At
+    20:22 the 5-minute readings bound the excursion at 20-30 minutes, as `M` says. 20:21 also reads 20-30, but its
+    20:30 reading is 5.064 °C (0.06 °C from the limit); 20:22's is 5.147 °C. The room and its parameters are not
+    touched. Nothing in the room is fitted.
+  - *New events (writer, from `M` `incident.backup`):* `GRID_LOSS` and `GENERATOR_FAILURE` at 19:11 (requested
+    19:11:05, failed 19:11:10), `GENERATOR_HAND_START` at **20:22**, `GRID_RESTORE` at 22:00 (Assumed).
+  - *Expected readings, which the DD4a writer run must reproduce:*
+    - `START_RESULT SUCCEEDED` (OPERATOR) at 20:22; transfer and bus POWERED at 20:23.
+    - Per minute: peak 5.477 °C at 20:24, above 5 °C 20:08-20:32 (25 minutes), above 4 °C 82 minutes, back at or below
+      4 °C by 20:52.
+    - 5-minute readings: above 5 °C at 20:10, 20:15, 20:20, 20:25 and 20:30 (largest 5.422 °C at 20:25); above 4 °C
+      from 19:35 to 20:50 (bound 75-85 minutes); first reading in band 20:55 (3.793 °C).
+    - B-1034 peaks at 5.48 °C, below its 12 °C limit. Cooling unavailable 19:11 to 20:23: 72 minutes.
+  - *What moves in `M`* (DD4a, one commit, manifest rev bump):
+    - `incident.backup`: "started by hand 20:22; cooling running 20:23".
+    - `incident.chamber`: `above_4c_minutes` "75-85 (bounded by 5-minute readings)", `peak_c` 5.4, `peak_at` "20:25",
+      `back_in_band` "by 20:55".
+    - B-1034's `reason`: "peak 5.4 C is below its 12 C limit".
+    - `observations.october.cooling_minutes_unavailable` and the incident consequence `cooling_minutes_unavailable`:
+      4 → **72**.
+    - `kpis` `cooling_availability`: Thika `minutes_unavailable` 4 → 72, `portfolio_pct` 99.997 → **99.946**, and the
+      basis "Thika lost cooling 19:11-20:23 on 6 Oct".
+    - The `thika-gen-2026-10-06` summary: "started by hand at 20:22".
+  - *What stays:* B-1031 `above_limit_minutes` "20-30", `crate_minutes_above_limit` "2,400-3,600", exposure 2,160.00,
+    QA (6 crates on 7 Oct), CN-0412 (108.00, `SPOILAGE_CREDIT`), liability 108.00, insurance (below the 500
+    deductible), the EPC claim and its dates, and `days_backup_start_unproven` 26.
+  - *Books and statements.* Neither the credit note nor any decided book changes. The readings' event rows move
+    (above). The cold electricity bill (DD4b, metered, C-DD7 exact) moves a little, because the bus is unpowered for
+    72 minutes instead of 4: that is a measured figure, not a story figure. World statements that quote
+    `incident.backup` or `chamber` follow `M` through their regeneration.
+  - *Sweep (W6, the class: a story figure typed by hand beside the world's).* Grep the Layer-4 docs, the vNEXT mock
+    (`fixtures.js`, `screens.js`, `loop-decisions.js`, `CHANGE-REGISTER.md`) and `derived-values.json` for `19:14`,
+    `19:15`, `19:19`, `19:45`, `8.2`, `99.997` and Thika's "4 minutes". Regenerate whatever the D-DD.30 chain
+    regenerates. Edit the hand-typed text to the figures above and list each file and line in the packet. These are
+    content changes only: the mock's form does not move, so there is no MOCK DEVIATION. `backend/`, `frontend/src`,
+    `simulator/` and `tools/` hold none of these strings (grep, main 422518cce).
+  - *Test (DD4a, after the join):* `simulator/tests/world/test_dd4_thika_incident.py` runs Thika 1 Jul to 7 Oct
+    through `build_telemetry` and asserts the event rows, the five readings above 5 °C, and the bound 20-30.
+    If any expected figure is not reproduced, stop and report to the Architect. The event is not moved again by hand.
+  - *Reach.* Cold only, Thika only. Mwea and Kirinyaga have no events. D-DD.83's mechanism test
+    (`test_thika_sequence_is_native`, synthetic 30 Sep) is unchanged.
+
+- **D-DD.90 DD4a Q1: June needs no season; November is declared `short_rains` in the one season map, and the scope
+  digest covers only the history's months** (amends spec §2 and §4.4 "Ambient per day"; ratifies DD4a deviation 4).
+  - *June.* The span starts on 1 Jul at 00:00 local (D-DD.3), so no reading needs a June ambient. June movements are
+    opening crates (spec §5.2). Carrying no field heat is exact, not an approximation: the latest June lot is
+    received at 16:00 on 30 Jun, and its 360-minute pull-down ends at 22:00 the same day (D-DD.85). The initial chamber
+    at control low stays Assumed and stated in `conditions` (deviation 4, ratified).
+  - *November (the class: every vertical's readings reach 6 Nov; mini-grid sun and cold ambient both refuse
+    `TEL_FOUNDATION` there).* `M` `history.seasons` gains `"2026-11": short_rains`. The short rains run from October
+    to December, and the family weights already declare `short_rains`. So the cold ambient on 1-6 Nov is 24.0 °C, and
+    Kobo's sun on 1-6 Nov is the clear shape × 1.00 (D-DD.77's rule). One map holds the season of every month the
+    world runs. No second map is added.
+  - *Digests unchanged.* `scope.py:50` puts all of `seasons` into every scope digest, so a new key would move every
+    seed and history figure. Rule: a scope digest covers exactly what its rules read, so `history_global["seasons"]`
+    is restricted to the keys in `months` plus `anchor_period`. Today that is the whole map, so every digest is
+    byte-identical. Parity test `simulator/tests/world/test_scope_seasons_parity.py`, golden from main: every scope
+    digest of the fixture view, and sha256(history.json) (K8), equal main's.
+  - *The default sun table follows its source.* `telemetry.py` `DEFAULT_SUN_WEIGHTS["seasons"]` gains `2026-11`. A
+    test asserts it equals `M`'s `history.seasons`.
+  - *Who.* DD4a, at the join (DD3a on main), one commit before the writer run. If `check_manifest.py` or
+    `history.py` refuses the extra key, the check is changed to "`seasons` covers `months` and `anchor_period` and may
+    declare later months of the readings span". The packet lists any pin that moves. None is expected.
+
+- **D-DD.91 DD4a Q2: an event row is a readings row with the v4 EVENT payload fields in an `event` object; the ids
+  are formed at sealing** (deviation 3 replaced; amends spec §4.1 "Output" and D-DD.81's `day_records`).
+  - *Why.* `source_envelope_v4` EVENT carries `record_kind`, `outcome`, `actor`, `component_id`, `event_id` and
+    `correlation_id`, and `host/cold_publication.py` forms the two ids from the pack's `transition_ordinal` and
+    `correlation_key`. A `"<KIND> <OUTCOME> <ACTOR>"` string drops the ordinal and the correlation, and it would need a
+    second parser at load. One field per fact.
+  - *Row.* `{"source_id", "signal_id", "start", "end", "value": null, "unit", "event": {"record_kind", "outcome",
+    "actor", "component_id", "ordinal", "correlation": [kind, ordinal]}}`:
+    - `start` = `end` = the source time;
+    - `unit` is the binding row's `source_unit`, which must be `event` (`TEL_BINDING` otherwise);
+    - `ordinal` is the pack's per-channel `transition_ordinal`, continuous over the span (one execution, D-DD.69);
+    - `correlation` is the pack's `correlation_key` (`outage` or `door`, one-based).
+  - *Order.* Sorted by (start, source_id, signal_id, `event.ordinal`, with 0 for a measurement row), so 19:11's
+    request and failure on `start-event` keep the pack's order.
+  - *Measurement rows have no `event` key*, so mini-grid bytes are unchanged: the D-DD.81 join parity covers it.
+  - *Protocol.* `day_records` returns a seventh element, the event dict or None. `ColdSiteRun._row`'s string packing
+    is removed; the reviewer greps for `record_kind} {r.outcome`.
+  - *At load (DD5.1, recorded here so nothing is designed there).* `event_id` =
+    `cold_event_id(scenario_sha256=<the Site's foundation_digest in F>, device_id, signal_id,
+    transition_ordinal=ordinal)`, and `correlation_id` = `cold_correlation_id(<the same digest>, tuple(correlation))`.
+    The readings files stay id-free (D-DD.8).
+  - *EV (DD4b).* The same object, plus `session_id` and `connector_id` keys only when its pack gives them.
+
+- **D-DD.92 DD3a Q1 (D-DD.19 gate): the books are the wrong side. A mini-grid Site's fuel purchases follow its tank
+  by a declared reorder rule, and its consumption is the readings'. Kobo moves with Kisiwa and Mto in DD3b**
+  (amends D-DD.32's delivered litres, D-DD.19's fallback and D-DD.76's restated fallback; the owner is asked to weigh
+  in).
+  - *Which side is wrong.* The declared plant is PV 60 kW (50 kW AC), battery 191.5 kWh, start at 35 % and stop at
+    90 %, with load equal to the books' delivered kWh. It burns 37 / 0 / 744 / 508 L, July to October, at 0.62. That
+    is physics on declared figures:
+    - a July day yields about 6.6 × 0.80 × 60 ≈ 300 kWh of PV against about 283 kWh of load;
+    - the battery's 105 kWh between 90 and 35 % carries the night load of about 81 kWh;
+    - so the generator runs only after overcast spells (September and October's calendar).
+    The notes' 983 / 967 / 1035 / 1180 L were never computed by any plant. D-DD.32 makes them from `history.json`'s
+    `necessary_l + candidate_l + unexplained_l`, the history generator's fuel family, whose split D-DD.18 already
+    refuses to serve. Overfill is the symptom. The cause is two figures for one quantity (fuel used), and the model's
+    is the loyal one. Tuning the Assumed sun or load shape to reach the books' litres is refused.
+  - *Fix at the source: purchases and consumption are two quantities.*
+    - *Purchases* (delivery notes, the expense ledger, `fuel_balance.deliveries_l`) follow the operator's reorder
+      practice on the world's tank. When the level at a step boundary first falls below 25 % of capacity, notes are
+      placed at the next 10:00 local (`NOTE_HOUR`; the same day if the crossing is before 10:00). There are as many
+      400 L notes as fit in the free space at that instant, at most two. A note dated by a disorder test keeps its date
+      (D-DD.53: OOO-1's 400 L enters on 26 Oct).
+    - *Consumption* (`diesel_l` = burned + declared draw; necessary, candidate; `diesel_cost` = consumption × price)
+      is the readings' (D-DD.18). The declared unexplained draw (D-DD.19) stays a cause in the world.
+    - The tool `tools/dd3_pure_run.py --restate-notes --site CODE` iterates: pure run, first crossing, place the notes,
+      rerun, until no new crossing in the span. It writes `config/world/fuel-notes.json`
+      (`assetops.world-fuel-notes/1`: per Site `site_code`, `rule` "D-DD.92", `tank_l`, and `notes`
+      `[{"at", "litres": "400", "basis": "REORDER" | "STORY:OOO-1"}]`). `--check` exits 1 when the file differs from
+      what the rule gives. `exports.py` reads that file's notes for a Site present in it.
+  - *Tanks stay* (Kobo 2500, Kisiwa 5000, Mto 1000 L): they are declared Site figures now. D-DD.76's rule is not
+    re-run on restated books, which would be circular.
+  - *Projected for Kobo at 0.62 (the DD3b run gives the figures):* notes Jul 0, Aug 0, Sep two (800 L), Oct OOO-1 only
+    (400 L). October consumption about 628 L (burned 508 + draw 120) against `M`'s 1,180. The candidate is about
+    42 L against 330, so the CANDIDATE_RUNNING bridge goes from −412.50 to about −52.
+  - *Where and when.* DD3b, DD3.3, for all three Sites at once (the class; Kisiwa and Mto after their D-DD.70 pure
+    runs). DD3a merges without it. C-DD11 runs 1-2 Jul and the D-DD.81 parity runs 1-7 Jul, and neither reaches an
+    overfill. The leaf-by-leaf list (history.json's Kobo fuel nodes, `M` October `period.actual` fuel leaves,
+    `fuel_balance`, the bridge, `findings_expected`, derived values) is written as a ruling before DD3b starts, after
+    the owner answers.
+  - *Owner (asked to weigh in before DD3b).* Kobo is the hero, and its fuel figures move about 2× in consumption and
+    about 8× in the candidate. Default: as above, loyal to the declared plant. The alternative is the owner's, as for
+    Thika: keep the story's fuel and revisit a declared plant figure (PV size, battery, dispatch). Fitting the
+    Assumed inputs is never an option.
+
+- **D-DD.93 DD3a Q2: the five test figures are re-pinned to the new world in DD3a's fix round** (confirmed).
+  - The five are:
+    - `test_dd3_datasheet_template` CLI check;
+    - `test_dd3_telemetry` frozen inputs (40 → 36, 0.3 → 0.2917);
+    - `test_dd2_nodes` July;
+    - `test_dd2_checker` C-DD4 plant;
+    - backend `test_dd2_check` July.
+  - Each is re-pinned to the regenerated source's value. Where the test already reads a file or golden, it asserts
+    the read value. A literal is set to the regenerated figure, never a hand computation, and the packet lists old →
+    new.
+  - The CLI test stops depending on the repo's state. It copies the slot file to `tmp_path` with one property
+    reverted, asserts `--check` exit 1 and the diff line, runs `--write`, then asserts exit 0.
+  - The earlier edit was refused by the permission system. The coordinator grants the fix-round builder edits on
+    these five files.
+
+- **D-DD.94 DD3a Q3: `worked-portfolios.md:74` cites the declared rate instead of typing 0.30** (amends nothing;
+  W6 sweep).
+  - "× 0.30 L/kWh" becomes "× 0.2917 L/kWh" with the reference `rec:tenants[lakeside-power].sites[Kobo].physical.sfc_l_per_kwh` in the line's comment, as the other figures there carry. 1,060 L
+    stays `M`'s October `model_implied_l` until D-DD.92 moves October's fuel in DD3b.
+  - Sweep: Kobo figures typed by hand that commit 2 moved (0.30 L/kWh, a 40 kW genset, a 200 kWh battery) across the
+    Layer-4 docs and the vNEXT mock become their `rec`/`fig` references. They are listed in the packet.
+    `check_alignment.py` and `check_manifest.py` stay at their base counts.
+
+- **D-DD.95 DD3a Q4: `site-inputs` reads `/2` onboarding documents only, and `rating` is optional, so `F` serves
+  every Site type** (fixes a DD3.1 defect; amends spec §4.1 "`F` is written by").
+  - The class: `F` is per Site for every Site type (D-DD.28), but `site_inputs` assumed a mini-grid component.
+  - *Change.*
+    - `_site_inputs` reads documents whose `format` is `assetops.operator-onboarding/2`. Every other document is
+      skipped with a stderr line `SKIPPED <file> <format>`.
+    - A component's `rating` is written only when it has one.
+    - A Site code in two read documents refuses `TEL_FOUNDATION`.
+    - The mini writer's own needs still refuse `TEL_FOUNDATION` when a needed value is absent.
+  - *Parity.* `F`'s Lakeside entries built from `backend/tests/fixtures/on1` are byte-identical to `F` built from the
+    `/2` Lakeside file alone. The golden comes from the branch's current `/2`-only run, since main has no
+    `site-inputs`.
+  - Tests: a `/1` file is skipped, a cold component without a rating passes, and a duplicate code refuses. C-DD11
+    must then PASS.
+
+- **D-DD.96 The statement catalogue is a required guard for every DD builder; units** (coordinator: main was broken
+  by a merge that skipped it; amends spec §8.3 and §7).
+  - Every DD packet runs `tools/checks/statement_catalogue.py`. It must exit 0, or give output identical to main's,
+    run at the same time on the same base, with both outputs cited (ROLE_CONFIG brief footer). A builder whose diff
+    adds a line fails.
+  - *Units (W4).*
+    - DD3a: 5.25 → **5.75 u** (D-DD.93/94 +0.25, D-DD.95 +0.25).
+    - DD3b: 5.0 → **6.0 u** (D-DD.92 +1.0: the tool, the notes file, `exports.py`, regeneration and the moved list).
+    - DD4a: 4.0 → **5.0 u** (D-DD.89 +0.5, D-DD.90 +0.25, D-DD.91 +0.25).
+    - DD: 39.0 → **41.5 u**. Every part stays at 6 u or less.
+  - *DD3a fix-round order:* D-DD.95, D-DD.93, D-DD.94, then the guards and the packet.
+  - *DD4a, after DD3a merges:* D-DD.90, the join with D-DD.91, D-DD.89's `M` commit and sweep, then the writer run,
+    `test_dd4_thika_incident.py` and C-DD6.
+
+---
+
+# DD rulings, round 13 (D-DD.97 to D-DD.101): Kobo's plant figure (DRAFT), DD4b pre-flight Q1-Q18
+
+Architect (Claude), 2026-11-22, fresh hand-off after round 12. Read: `owner/owner-demo-data-answers-2026-11-22.md`
+§"D-DD.92 Kobo fuel story" and its follow-up ("Revisit a plant figure"; "None: have the Architect propose");
+`/opt/assetecon/evidence/kobo-datasheets/datasheets.md`; `specs/DD-demo-data/DD4b-preflight.md` on
+`task/DD4b-ev-measured` at 8d519ef49; DD3a's writer on `task/DD3a-mini-reality` (worktree head 193a7cb5f with the
+fix round's uncommitted D-DD.95 edits), run read-only from the session scratchpad.
+
+The owner is informed of all five. **D-DD.97 was approved by the owner on 22 Nov ("Approve 18:00 peak"; owner-demo-data-answers-2026-11-22.md)**; nothing is built from it until the
+owner approves. The owner is asked to weigh in on **D-DD.98**'s story consequence (Kasarani's November departures).
+
+- **D-DD.97 (owner-approved 22 Nov) Kobo's weakest assumed plant figure is the load profile's timing: the
+  residential evening block starts at dark. Honestly run, it does not enlarge the fuel story** (would amend spec §4.1
+  `LOAD_SHAPE_KW`; owner rule: loyal to the operating world, nothing fitted).
+  - *The three candidates, by provenance.*
+    - *Solar 60 kWp.* The Site's declared size. With the writer's sun (clear day 6.6 kWh/m², performance 0.80), Kobo's
+      October yield is about 4.4 kWh/kWp a day (23 clear, 8 overcast days), within the 4.3-4.5 kWh/kWp a day that
+      Kenyan PV typically yields. Against about 283 kWh/day of sold load, 60 kWp is a plausible size. No source for a
+      comparable site gives a better figure. Not the weakest.
+    - *Start/stop SOC 35/90 %.* Operator settings inside common practice: inverter makers' generator-start examples
+      run 30-40 % (SMA Sunny Island manual, parameters 235.03/235.04, example start 40 % by day, 30 % at night), and
+      cycle charging commonly stops at 80-90 %. Defensible as declared. Not the weakest.
+    - *Load profile.* `LOAD_SHAPE_KW` was copied from a test fixture's blocks (`host/tests/kobo_season.py`, season v2),
+      not from a source. Its residential peak (14 kW) runs 16:00-19:59. Kobo is near the equator (Africa/Nairobi),
+      where sunset is about 18:30-18:50 all year, and the writer's own sun is zero from 18:00. So half of the evening
+      peak sits in daylight, when households are out working. Measured East-African mini-grid data put household use
+      from 18:00 (Hartvigsson and Ahlgren 2018, *Energy for Sustainable Development* 43:186-195, Tanzania, measured
+      household spike at 18:00). Tanzanian micro-grid segmentation work puts the peak at about 19:00-20:00, with
+      lights, radio and TV mostly 18:00-22:00 (search excerpt, secondary read). **This is the weakest figure.**
+  - *Proposed value (Assumed).* The residential evening block (14, 14, 14, 14, 9, 9, 5, 5) starts at dark, 18:00
+    local instead of 16:00. The two afternoon hours it leaves (16:00-17:59) take the afternoon level, 8 kW. Hours
+    00:00-01:59 take the block's tail, 5 kW. Result: `res` = (5, 5, 3, 3, 3, 5, 8, 8, 6, 6, 5, 5, 6, 6, 8, 8, 8, 8,
+    14, 14, 14, 14, 9, 9). Clinic and mill are unchanged. The month's load energy stays the books' `delivered_kwh`
+    (largest remainder), so only the timing and the feeders' shares move. Basis line in `conditions`: "residential
+    evening use from dark (18:00 local); Assumed from measured East-African mini-grid profiles".
+  - *Outcome (DD3a writer, `tools/dd3_pure_run.py`'s table, 1 Jul-31 Oct, no-load 0.62, the books' notes, run
+    read-only).*
+
+    | Kobo, October | Declared shape (D-DD.92) | Proposed shape | Story (`M`) |
+    |---|---|---|---|
+    | Burned (readings) | 507.86 L | 514.22 L | |
+    | Consumption (burned + 120 L declared draw) | about 628 L | **about 634 L** | 1,180 L |
+    | Candidate (the writer's stand-in: slots the battery could have carried) | 42.03 L | **24.56 L** | 330 L |
+    | CANDIDATE_RUNNING bridge at 1.25 $/L | about −52.54 | **about −30.70** | −412.50 |
+    | Generator hours | 51.2 | 51.3 | |
+
+    September moves 772.86 → 782.91 L; July and August are unchanged to 0.1 L. The fuel is set by October's eight
+    overcast days (PV about 110 kWh against about 283 kWh of load). The battery carries the later evening. So the
+    timing barely moves the litres, and the candidate falls, because more of the generator's slots are ones the
+    battery could not have carried.
+  - *Sensitivities, run the same way (information only; none is proposed):* start/stop 40/80 % gives October
+    burned 460.43 L (consumption about 580 L, stand-in 26.43 L); PV 50 kWp gives 548.59 L (about 669 L, stand-in
+    9.45 L). **No sourced value of any of the three figures comes close to 1,180 L.** About 1,060 L burned would
+    need the generator to carry about 40 % of October's load.
+  - *Alternative.* None of the three is a close contender. The honest alternative is D-DD.92's default: keep the
+    declared plant (about 628 L, candidate about 42 L, bridge about −52). The proposed shape costs one constant and
+    a re-pin, and its effect on the story is small. Kobo's fuel story is then the smaller one. Its value rests on
+    the 120 L unexplained draw and the overcast-spell runs, not on a 330 L candidate.
+  - *Reach if approved.* `LOAD_SHAPE_KW` is one shape at every mini-grid Site, so Kisiwa and Mto move with Kobo. That
+    is the class: one world, one shape. `host/tests/kobo_season.py` (0K4's fixture) is not touched. DD3b applies it,
+    in DD3.3, before D-DD.92's restated notes (or DD3a's fix round if it has not merged, D-DD.101). The writer's frozen-input pins and DD3a's goldens that read the shape
+    are re-pinned from the regenerated source (D-DD.93's rule), and the packet lists old → new. If approved, +0.25 u
+    (D-DD.101).
+
+- **D-DD.98 DD4b Q10: real depot practice rotates a full bus off its connector, and the spare bus charges by day. The
+  readings stand; `M`'s capacity stage pools energy that one bus cannot draw, so Kasarani's November departures move
+  in the story, not the room** (amends spec §4.5; replaces Q9's spare row; the owner is asked to weigh in).
+  - *Practice (world, §4.5).*
+    - Depots with fewer connectors than buses rotate plugs overnight. The attendant unplugs a bus that has its charge
+      and plugs in a waiting one.
+    - **Rule:** at the first minute a bus is waiting and a plugged bus has its `required_kwh`, the full bus `UNPLUG`s
+      (session END). The longest-waiting bus (ties: roster order) plugs in on that connector `ROTATION_MINUTES` = 5
+      later (Assumed attendant handling, in `conditions`). An unplugged full bus stays parked until its departure.
+    - The load manager is unchanged: 1 kW round-robin quanta, as §4.5.
+    - A fault-aborted bus is a waiting bus (Q7).
+  - *The spare (replaces Q9's ninth night bus).* A spare is a free bus kept charged; it is not queued against the
+    night's buses.
+    - On each spare night it arrives at 10:00 local on the night's start date (Assumed), plugs in on arrival and
+      charges on the idle daytime chargers.
+    - It is unplugged by the rotation rule at 22:00, when the returning buses wait, and departs at 05:00 with
+      150.000 kWh.
+    - Roster row: bus `EV-KAS-S01`, block `EV-KAS-BLK-S01`, `return_at` 10:00 local, departure 05:00,
+      `required_kwh` 150.000.
+    - Spare nights: 2, 3 and 4 Nov (Q9's dates, ratified, `SPARE_NIGHTS` with its parity test).
+    - Its daytime kWh is in the Site import and the FLAT invoice: a measured figure.
+    - In the departure log the spare's row (`block_met` true) is the cover. The measured departures missed are the
+      short rows less the spare rows met, as `M`'s `departures_missed` counts them.
+  - *Reach.* Rotation acts only where a bus waits. Embakasi has 20 connectors for 20 buses. Ruiru has 23 working
+    connectors for 14 buses. So only Kasarani after 1 Nov 23:40 changes. Parity test (golden from the branch at
+    8d519ef49): the Embakasi and Ruiru plant days in the pre-flight are byte-identical.
+  - *Physics (projection; the writer measures).*
+    - A bus draws from one charger, and a 50 kW charger delivers 350 kWh in the 7-hour window. That is two full
+      buses (300 kWh) and 50 kWh spare.
+    - With three chargers, at most **six** buses are full. Two are short each night, at about 46 kWh each (04:05 to
+      05:00 at 50 kW), with or without rotation. Night 1 is similar, with B03 and B04 at about 87 kWh.
+    - Rotation lifts night energy from 900 to about 990 kWh. It cannot make a seventh bus full without moving a bus
+      across chargers twice a night. That is refused as contrived practice.
+  - *Where the figures differ.* `M` `EV_DEPOT_CAPTIVE` gives `buses_short_per_night` =
+    ceil((1,200 − 3 × 50 × 7) / 150) = **1**: energy pooled across chargers. The room gives **2**. So `M` counts
+    departures missed 5 × 1 − 3 = 2 (penalties 240.00), and the readings give about 5 × 2 − 3 = 7 (about 840.00).
+    The class is two figures for one quantity, and the readings are the loyal one (D-DD.92's precedent). No world
+    figure is tuned to `M`'s.
+  - *Default, applied pending the owner:*
+    - DD4b builds the practice above. The departure log and invoices are the readings'. `meter_billed` prints `M`'s
+      figures beside them, as information (§5.6). C-DD7 is unchanged: readings against books.
+    - The structure fault goes to the structure's owner as a finding, not a DD edit. The capacity stage should bound
+      buses by charger as well as by energy: `buses_short_per_night` = max(the energy bound, `buses` −
+      `chargers_in_service` × floor(min(`charger_kw`, `connector_kw`) × `window_h` / `kwh_per_bus_night`)). For every
+      Site and option where the per-charger bound does not bind, which is all of them except Kasarani from 1 Nov, the
+      figure is unchanged. The code is `backend/assetops_backend/structure/rows_ev_depot.py` and `M`'s
+      `EV_DEPOT_CAPTIVE`, with a parity test from `backend/tests/golden/6h_parity.json` for every other figure.
+    - Kasarani's November story (2 missed, 240.00, the stopgap's covered bus-nights) is restated only after that
+      change and the owner's answer.
+  - *Owner (asked to weigh in).* Kasarani's charger fault story grows: about 7 missed departures and about 840 in
+    penalties, against 2 and 240, unless the spare is lent on more nights. The alternative is a depot that moves a
+    bus across chargers to fill a seventh. That is a workaround: it is not common practice, and it is not proposed.
+
+- **D-DD.99 DD4b Q16: the `measured.json` schema is DD3a's `assetops.world-measured/1`, extended per vertical; DD4.4
+  starts after DD3a, DD4a and the join are on main** (amends spec §4.1 "Output" and §5.6; unblocks DD4.4).
+  - *One file per tenant*, `<slug>/telemetry/measured.json`, written by the frame:
+    `{"schema": "assetops.world-measured/1", "tenant": <slug>, "sites": {<code>: {<YYYY-MM>: <month>}},
+    "departures": [...]}`.
+    - Only the EV tenant's file has a `departures` key; no file writes an empty list.
+    - Mini-grid months are byte-identical to DD3a's `measured_for`.
+  - *`<month>` by vertical (key set fixed per vertical; any other key refuses `TEL_FOUNDATION` at read):*
+    - mini-grid: DD3a's `{"demand_kwh": {feeder: kWh}, "served_kwh": {...}, "unserved_kwh": {...},
+      "generator_kwh"}`, unchanged;
+    - cold: `{"room_kwh"}`, the Site's room meter, Σ over the month's 5-minute slots of the exact slot energy;
+    - EV: `{"bands": {<price class>: kWh}, "demand_kw", "import_kwh"}`. The price classes are those of the Site's
+      schedule in that month (`PEAK`/`OFFPEAK`, plus `NIGHT` at Embakasi from 1 Nov, `FLAT` at Kasarani).
+      `import_kwh` = Σ bands. `demand_kw` = the largest mean of six consecutive 5-minute slots aligned to :00 and
+      :30 (Q17).
+  - *Months.* Every month the readings touch. A month the span ends inside (November, to 6 Nov 06:00 local) carries
+    `"partial_to": "<ISO local instant>"`. `exports_measured` writes bills and invoices for whole months only (July to
+    October). The departure log covers every bus-night in the span.
+  - *`departures`*: one object per roster bus-night, sorted by (`site_code`, `departure_at`, `vehicle_ref`). Fields:
+    `site_code`, `vehicle_ref`, `block_ref`, `service_day`, `departure_at` (roster), `required_kwh`,
+    `kwh_at_departure`. `block_met` and undelivered kWh are not stored: they are derived (one fact, one field;
+    C-DD7 derives them).
+  - *Numbers.* Every value is exact decimal text written by DD3a's `_decimal` (half-even to 0.001). Sums are taken
+    over exact fractions and rounded once, at writing. `exports_measured` reads the written text, so a book equals
+    the file exactly.
+  - *Who.* DD4.4, after DD3a, DD4a and the join are on main (builder default, ratified). The schema is written in the
+    frame (`measured_for` extended), with one test per vertical and a parity test: the mini-grid bytes equal DD3a's.
+
+- **D-DD.100 DD4b Q1-Q9, Q11-Q15, Q17-Q18: the builder's defaults are ratified, with three amendments** (amends
+  spec §4.5 where named).
+  - *Ratified as written:*
+    - Q1: `max_plugs`, v1 byte-identical;
+    - Q2: always enabled;
+    - Q3: declared component order, not string order; CLOCK-1's third charger is `ch-e3`;
+    - Q4: `telemetry_ev.py` writes ev-publication/1's record set itself, with no ev-observation/1;
+    - Q6: shares capped by need × 60 kW;
+    - Q7: an aborted bus rejoins the queue;
+    - Q8: November nights 1-5. Ruiru's `M` `nights: 6` beside 5 night records is information for the meter_billed
+      line, not changed here;
+    - Q11: an empty depot at 1 Jul 00:00;
+    - Q12: CLOCK-1 shifts the session rows only;
+    - Q13: deterministic tokens;
+    - Q14: the `p_m` table with a parity test;
+    - Q15: D-DD.87's denominator test;
+    - Q17: band kWh and DEMAND, written per D-DD.99;
+    - Q18: departure kWh, rounded per D-DD.99.
+  - *Amended:*
+    - Q5: "the bus stays plugged" holds only until D-DD.98's rotation rule unplugs a full bus;
+    - Q9: the spare is a daytime-charged bus (D-DD.98), not a ninth night bus;
+    - Q4's rows: a 5-minute `INTERVAL_MEAN` split at a session boundary is still one row per slot per connector,
+      with the mean over the minutes the session held. The reviewer checks Σ row energy = meter delta per session.
+  - All Assumed practice (5-minute rotation handling, the spare's 10:00 arrival, the empty start) is written in the
+    readings manifest's `conditions`.
+
+- **D-DD.101 Units** (W4).
+  - DD4b: 3.25 → **3.75 u** (D-DD.98 +0.5: rotation, the daytime spare, the parity test).
+  - D-DD.99 adds no units: DD4.4 already holds the measured books.
+  - DD: 41.5 → **42.0 u**.
+  - If the owner approves D-DD.97, it adds +0.25 u. If DD3a has not merged, it lands in DD3a's fix round (5.75 →
+    6.0 u). Otherwise it lands in DD3b, whose 6.25 u would exceed W4's 6 u, so the Architect then splits DD3b
+    before it starts. DD is then 42.25 u either way.
+  - Every part stays at 6 u or less.
+
+---
+
+# DD rulings, round 14 (D-DD.102 to D-DD.107): DD3a review round 1 (M1, M2, L1-L6, Q1-Q4) and D-DD.97's placement
+
+Architect (Claude), 2026-11-22, fresh hand-off after round 13. Read: `specs/DD-demo-data/review-DD3a.md` on
+`task/DD3a-mini-reality` (35ac7f958); spec §2, §4.1, §4.2, §7, §8.2; rulings D-DD.48 to D-DD.101. Checked against code
+on that branch: `world/scope.py` (`scope_input`, `GLOBAL_KEYS`), `world/history.py` (`_Scope`, `_parse`, `_value`'s
+`fleet_kwh`/`fleet_nights`, the only `scope.physical` reads), `world/telemetry.py` (`frozen_inputs`, `_draws`,
+`books_for`, `SEASON_V2_LAST_DAY`), `tools/world_history.py` (`--end`), `host/tests/kobo_season.py` (`SEASON_DAYS`),
+and `M` (`as_of`, every `physical` block: Kobo, Kisiwa, Mto and the three depots; no cold Site has one).
+
+**Measurement (read-only, DD3a head, scratch deleted).** Lakeside's books from `world_history.py exports`, Kobo through
+`tools/dd3_pure_run.py`'s path (no-load 0.62), July only, the starting state of charge varied:
+
+| Start SOC | July generator hours | July burned (readings) | SOC at 23:55, 1 Jul | 2 Jul min / 23:55 |
+|---|---|---|---|---|
+| 40 % (today's hidden default) | 3.75 h | 37.39 L | 60.402 % | 44.6 % / 60.402 % |
+| 55 %, 70 % | 0 | 0 | | |
+| 90 % | 0 | 0 | 60.402 % | 44.6 % / 60.402 % |
+
+So Kobo's whole July fuel (D-DD.92's "37 L in July, 0 in August") is the undeclared 40 % start: from 40 % the battery
+crosses the 35 % start in the first night. Any start of 55 % or more burns nothing, and the plant's own midnight state
+is about 60.4 %, reached within one day from either end. L1 is therefore a story figure, not a label.
+
+The owner is informed of all six. No ruling needs the owner's decision. Two story consequences are reported
+(D-DD.102: July-September figures re-drawn once at six Sites; D-DD.104: Kobo burns no fuel in July).
+
+- **D-DD.102 Q1 (M1): a scope digest covers only the `physical` keys its rules read; the read set is declared beside
+  the rules that read it** (amends `scope.py`'s digest input; the D-DD.90 class, for `physical`; not the reviewer's
+  default as written).
+  - *Why the default cannot hold as stated.* Main's Kobo digest contains main's whole `physical` block (40 kW, 0.30,
+    200 kWh). Any rule that drops or changes those bytes gives a digest different from main's. So "Kobo's digests
+    equal main's" is impossible without keeping the old kit in the digest, which is the fault itself. And restricting
+    `physical` necessarily changes every scope whose block holds an unread key: the three mini-grid Sites (no rule
+    reads any) and the three depots (rules read `buses` and `kwh_per_bus_night`; the block also holds `chargers`,
+    `charger_kw`, `import_limit_kw` and others). Only the cold scopes (no `physical`) are untouched.
+  - *Decision.* Fix the class now: a one-time re-draw of the jittered July-September leaves at six Sites, after which
+    no kit correction (Kobo's sheets, a future Kisiwa or Mto sheet, a depot import limit) ever re-seeds a history.
+    Rejected: an instance fix for Kobo (a fitted seed or an excluded key list), which leaves the leak at five Sites.
+    Rejected: carrying M1, because a data-sheet correction moving demand breaks "one figure, loyal to the operating
+    world".
+  - *Change (`world/scope.py`).*
+    - `PHYSICAL_READS: dict[str, tuple[str, ...]] = {"fleet_kwh": ("buses", "kwh_per_bus_night"),
+      "fleet_nights": ("buses",)}`: per rule word, the `physical` keys it reads. A rule word absent from the table
+      reads none.
+    - `physical_read(site_doc: dict, rules: dict) -> dict`: the words are the first whitespace token of every string
+      rule on both sides of `rules` (the split `_parse` uses, without its checks); the result is
+      `{k: site_doc["physical"][k] for k in sorted(union of PHYSICAL_READS[word]) if k in site_doc["physical"]}`, or
+      `{}` when the Site has no block.
+    - `scope_input` writes `site["physical"] = physical_read(site_doc, rules)` only when it is non-empty; otherwise the
+      key is absent.
+  - *Change (`world/history.py`).* `_Scope.__init__` stores `self.physical = physical_read(site, rules)`, and
+    `_Scope.physical` reads that dict, not `self.site["physical"]`. A rule reading a key not declared for its word
+    therefore refuses with the existing missing-key refusal: the table cannot drift from the reads.
+  - *Sweep (W6).* The builder lists, in the packet, every key of the digest input (`history_global` keys, `rules`,
+    `tenant`, `site`) and the rule word that reads it. `seasons` is D-DD.90's (DD4a). Any other unread input is
+    reported to the Architect and not changed in this round.
+  - *Tests (shared behaviour: every Site type named).* New `simulator/tests/world/test_scope_physical_reads.py`:
+    - cold (unchanged): every cold scope digest of the fixture view, and the cold blocks of `history.json`, equal
+      main's (golden from main at the fix round's base);
+    - kit invariance: for every Site with a block, every key outside its read set changed (for Kobo: DD3a's kit
+      replaced by main's 40 / 0.30 / 200) leaves every scope digest and every `history.json` block byte-identical;
+    - read sensitivity: Embakasi's `buses` changed moves Embakasi's three scopes and no other;
+    - every mini-grid scope input has no `physical` key.
+  - *Regeneration.* `history.json` and the D-DD.30 chain (exports, the Layer-4 derived values, the mock's generated
+    fixtures) are rerun as commit 2 ran them. Pins re-pin by D-DD.93's rule (K8, `PINNED_ALL_MONTHS`, the DD2 node and
+    checker pins, backend `test_dd2_check`; a literal is the regenerated value, never a hand computation). The packet's
+    moved list is grouped by Site: Kobo, Kisiwa, Mto, Embakasi, Kasarani, Ruiru; the three cold rooms must show none.
+    Kobo's July-September figures do not return to main's: they are a third draw, and from here on independent of its
+    kit.
+  - *Who.* DD3a's fix round, first. DD4a and DD4b rebase on it (both follow DD3a) and re-pin by the same rule.
+
+- **D-DD.103 Q2 (M2): the readings span is one declared constant; a month with no books runs at the last booked
+  month's rate; the last day file ends at 06:00. DD4a builds it with D-DD.90** (amends spec §2, §4.1 "CLI", §4.2
+  "Load" and "Fuel"; not the reviewer's default on the draw).
+  - *Span.* `world/telemetry.py` declares `READINGS_SPAN = ("2026-07-01T00:00", "2026-11-06T06:00")`, local time, once.
+    The mini-grid, cold and EV writers, the CLI defaults and DD5's world manifest `span` read it. A test asserts its
+    end date equals `M` `as_of` and its start is `M` `history.months`' first day.
+  - *The end instant.* The execution horizon ends at the end instant: no step is computed after 06:00 on 6 Nov. The
+    last day file, `<SITE>.2026-11-06.readings.json`, keeps schema `assetops.world-readings/1` and holds the rows whose
+    `end` is at or before 06:00. The Site manifest's `span` gains `"to": "<ISO local instant>"`. C-DD5 counts 6 Nov as a
+    span day with readings to 06:00. `measured.json`'s November month carries `partial_to` (D-DD.99).
+  - *CLI.* `--start` and `--end` default to `READINGS_SPAN`. `--end` takes a local date (the whole day: end instant at
+    the next midnight, as today) or a local instant `YYYY-MM-DDTHH:MM`.
+  - *Load in a month with no books (the class: every mini-grid Site, any day past the accounting period).* `books_for`
+    writes the month as `{"rate_of": <accounting period>, "delivered_kwh": E}`. With `W(d)` the demand day weight and
+    `S(h)` the summed load shape (kW) at hour `h`: the intensity is `k = delivered_kwh(October) /
+    Σ_{d in October} W(d)·Σ_{h<24} S(h)`, and `E = round_half_even(k · Σ_{d in the month, in the span} W(d)·Σ_{h in
+    the span on d} S(h))` kWh. The month's blocks inside the span are then scaled to `E` by largest remainder, as every
+    month. October is the source because it is the last month booked and November shares its season (D-DD.90).
+  - *Draw.* The declared unexplained draw is a cause in the world (D-DD.19), and nothing records its end. It does not
+    stop at a month boundary. A `rate_of` month's day `n` draws the rate month's day-`n` part (the same centilitres,
+    at 02:00), so 1-6 Nov draw October's first six parts. That includes 6 Nov at 02:00, which is inside the span. This
+    is the cold ledger's rule (D-DD.63's extension repeats 1-6 Oct). The reviewer's "no draw" would make the cause
+    vanish at all three Sites on 1 Nov, which no record says happened.
+  - *Conditions.* `conditions.month_without_books = {"rule": "D-DD.103", "load": "the rate month's kWh per weighted
+    shape unit", "draw": "the rate month's daily parts by day of month", "rate_of": "2026-10"}`.
+  - *Tests (`simulator/tests/world/test_dd4_span_end.py`).* Kobo from 1 Nov to the span end writes six files. The last
+    one's rows all end at or before 06:00, each 5-minute signal has 72 slots, and the last `end` is 06:00. November's
+    load energy equals `E`. There are six draw rows at 02:00. A cold room (Mwea) ends at the same instant. Days 1 Jul to
+    31 Oct are unchanged (C-DD11's golden digests stand).
+  - *Who.* DD4a, at the join, after D-DD.90's map commit and before the writer run (+0.5 u). It belongs with D-DD.90:
+    both make every vertical reach 6 Nov. A full Kobo run to 6 Nov 06:00 needs D-DD.92's notes (the overfill), so DD3b's
+    notes run comes after DD4a is on main (D-DD.107).
+
+- **D-DD.104 Q3 (L1): the starting state of charge is the plant's own midnight state, from one warm-up day; 40 % is
+  removed** (amends spec §4.2; replaces the reviewer's default, which would have kept a figure that creates July's fuel).
+  - *Rule.* Before the span's execution starts, the writer runs one warm-up day: the span's first day's inputs (load,
+    sun, no fuel note and no draw), from the Site's declared stop SOC threshold (`generator-stop-soc-threshold`, Kobo
+    90 %), with the tank as declared (D-DD.19). The SOC at the warm-up's end is the execution's `starting-state-of-charge`,
+    exact, `answered_by` "SCENARIO". The warm-up writes no readings and no ledger row. Measured on DD3a's head, Kobo's is
+    about 60.4 % (table above). A second warm-up day gives the same 23:55 value.
+  - *Written.* `conditions.start_soc = {"value": <exact>, "unit": "%", "basis": "Derived: the 00:00 state after one
+    warm-up day of the span's first day from the declared stop threshold (D-DD.104)"}`. `books.get("start_soc", 40)`
+    is deleted. No book carries a SOC.
+  - *Sweep (W6: every execution's starting state).* SOC is the only state with a daily cycle. The tank stays 50 %
+    Assumed (D-DD.19; a level depends on delivery history, not the day), the generator starts OFF, the cold chamber at
+    control low (D-DD.90), and EV with empty batteries (D-DD.100). Each is already written in `conditions`.
+  - *Reach.* Mini-grid only (Kobo, Kisiwa, Mto, one rule). Kobo's July burned goes 37.39 → 0 L, so its July consumption
+    is the 12 L draw. Cold and EV are untouched. W1's frozen inputs move, so its golden is regenerated with main's
+    kernel (D-DD.68's path). The writer's frozen-input pins and C-DD11's golden digests re-pin by D-DD.93's rule.
+  - *Who.* DD3b, in DD3.3, with D-DD.97 and before D-DD.92's notes: both move the litres the notes follow (+0.25 u).
+    L1 is carried out of DD3a with this reason. Nothing reads DD3a's readings before DD5.
+
+- **D-DD.105 Q4 (L4): the vNEXT mock's hand-typed Kobo kit goes to the design-doc alignment pass** (amends D-DD.94's
+  sweep, mock part only).
+  - "200 kWh" (`screens.js` 18 times, `screen-manifest-vnext.json` 5), "40 kW" (4) and "0.30 L/kWh" (`screens.js`
+    lines 112, 279 and 478) become `rec`/`fig` references, or the declared figures, in the alignment pass that
+    `.ai/NOW.md` queues after IA-P and DD. The mock has no reference mechanism in those strings, and that pass
+    regenerates it from its audit. The mock is a destination reference, not the live product, so nothing served shows
+    the old kit.
+  - D-DD.94's Layer-4 document part stands as done in DD3a. The coordinator adds "Kobo kit strings (D-DD.105)" to the
+    alignment-pass line in `.ai/NOW.md`. DD3a's packet records the deferral in one line.
+
+- **D-DD.106 L2, L3, L5, L6: fixed in DD3a's fix round, as the reviewer proposes, with L2 made exact.**
+  - *L2.* `telemetry.py` declares `SEASON_V2_DAYS = 61` (D-0K2.1's calendar length) and `SEASON_V2_LAST_DAY =
+    SEASON_V2_DAY_ZERO + timedelta(days=SEASON_V2_DAYS - 1)`. A host test asserts `SEASON_V2_DAYS ==
+    kobo_season.SEASON_DAYS` (host/tests, where `kobo_season` imports). The `world_history.py telemetry --end` default
+    becomes `None`, resolved to `period_end(view["accounting_period"])` (the last day of the last booked month) until
+    D-DD.103 replaces it with `READINGS_SPAN`. No literal is written to pass a guard, and no guard gets an allowance.
+  - *L3.* `.ai/state/data.md` (DD3a's section) and `.ai/state/index-3.md` "Open" become the true open items: D-DD.92's
+    overfill and notes (DD3b), D-DD.103 (DD4a), D-DD.104 and D-DD.97 (DD3b), and the mock kit strings (D-DD.105).
+  - *L5.* One packet line names the tank's product readers: `runs/profiles.py:910-920` (frozen into lab runs) and
+    `runs/operational_actions.py:76`. Nothing served moves before DD5 loads the `/2` file.
+  - *L6.* Merge main into the branch, resolve `.ai/state/index-3.md` and `backend/tests/test_sc1_statements.py` by
+    keeping both sides' entries, then rerun `statement_catalogue.py` and `test_sc1_statements.py` on the merged head
+    (D-DD.96).
+  - *DD3a fix-round order (two builder runs, one part each).* Run 1: L6 (merge main first, so the regeneration is on
+    the current base), then D-DD.102 with its tests, the regeneration and the re-pins. Run 2: L2, L5, the D-DD.105
+    packet line, L3, then the slice end: full scope against main, the catalogue and the packet.
+
+- **D-DD.107 D-DD.97 lands in DD3b; DD3b splits; units and order** (W4; amends D-DD.101's placement and spec §7,
+  §8.2).
+  - *D-DD.97 (owner-approved 22 Nov) in DD3b, not DD3a's fix round.* DD3a at 5.75 u plus D-DD.102 is 6.0 u, and adding
+    D-DD.97 would exceed W4's 6 u. D-DD.97 also belongs where its own text puts it: in DD3.3, before D-DD.92's restated
+    notes, which follow the shape. DD3b applies it in its first run, with D-DD.104.
+  - *Split (as D-DD.101 foresaw).* DD3b = DD3.3 (2.5) + D-DD.92 (1.0) + D-DD.97 (0.25) + D-DD.104 (0.25) = **4.0 u**,
+    `task/DD3b-mini-units` kept. New **DD3c** = DD3.4 (unit roles in the readers, 2.5 u), `task/DD3c-unit-roles`, own
+    discovery review. DD3c touches `sites/` readers and a migration, not the simulator, so it may run beside DD3b
+    (no shared files). It merges before DD5.1 loads Kisiwa's or Mto's readings.
+  - *Units.* DD3a 5.75 → **6.0 u** (D-DD.102 +0.25; the Lows are packet and merge work). DD4a 5.0 → **5.5 u** (D-DD.103
+    +0.5). DD3b 6.0 → **4.0 u** and DD3c **2.5 u**. DD: 42.0 → **43.25 u** (D-DD.97 +0.25, D-DD.102 +0.25, D-DD.103
+    +0.5, D-DD.104 +0.25), in **ten parts**, each at or under 6 u.
+  - *Order.* DD3a (fix round) → DD4a (D-DD.90, D-DD.103, the join) ∥ DD3b runs 1-2 (D-DD.97, D-DD.104, v9, Kisiwa and Mto)
+    ∥ DD3c. DD3b's D-DD.92 notes run starts once DD4a is on main, because the notes rule iterates over the whole span
+    to 6 Nov 06:00. DD5 follows DD3b, DD3c and DD4b.
+  - *Mid-build count.* The reviewer counted four Architect rounds inside DD3a. D-DD.104 shows one more fault, which
+    the code-reality pre-flight would have found by varying one undeclared input. DD3b's pre-flight lists every
+    writer default (`.get(..., <literal>)`) and its declared source before code.
+
+---
+
+# DD rulings, round 15 (D-DD.108 to D-DD.116): DD3c pre-flight Q1-Q12, the all-FAILED rating, DD3a's digest sweep
+
+Architect (Claude), 2026-11-22, fresh hand-off after round 14. Read: `specs/DD-demo-data/DD3c-preflight.md` and
+`DD3c-handoff.md` on `task/DD3c-unit-roles` (`f98233038`); rulings D-DD.41, .43, .44, .45, .70, .102, .107; spec §7
+DD3. Checked against code on that branch: migrations `0029` (the final gate, `:196-205`), `0048` (`RENEWABLE_HOUR`,
+`_functions_0048`), `0049` (calls `mini_enqueue_hour`, redefines nothing); `mini_depth/{inputs,read,store}.py`;
+`analytics/assessment_worker.py:62-63` and `assessment_inputs.role_coverage`; `runs/replay_series.py:40,340`;
+`structure/litres/{inputs,rules}.py`; `analytics/service.py:43-54,142` and `main.py:406-417`;
+`sites/unit_roles.py`. DD3a's W6 digest sweep: `packet-DD3a.md` §"Sweep (W6)" on `task/DD3a-mini-reality`.
+
+Two findings the pre-flight missed, both ruled below: `assessment_worker.ROLES_BY_SET` lists roles-1..4 only, so a
+roles-5 set gets an empty role-coverage block in the dispatch input set (D-DD.109); and the litres split refuses every
+multi-unit Site (D-DD.113). The owner is informed of all nine; none needs the owner's decision. The owner may want to
+weigh in on D-DD.113's consequence (Kisiwa gets a litres split in the demo) and on D-DD.110's replay note.
+
+- **D-DD.108 Q1, Q6, Q7, Q8 accepted as applied.**
+  - *Q1.* "Exactly one set in force" counts `minigrid-roles-4` and `minigrid-roles-5` together, in Python and SQL;
+    two overlapping sets of either name give no work (SQL) and the reader's existing `CONFIGURATION_MISSING` (Python).
+    No new constraint: the world is built fresh (DD6), so no Site carries both. One Postgres test publishes a roles-4
+    and a roles-5 set over one hour on one Site and asserts no job is enqueued and the mini-depth reader refuses.
+  - *Q6.* `UnitRolesRefused(code="TEL_FOUNDATION", unit=...)`, mapped by each reader to its existing Foundation or
+    configuration refusal; no new user-facing string.
+  - *Q7.* Missing units' asset codes go into the existing detail or limit field; reason codes and text unchanged.
+  - *Q8.* Events: union in time order; equal times in declared Foundation order (the order that also names the lead).
+
+- **D-DD.109 Q2: migration `0074_unit_role_sets` accepted, with exact counts; one Python constant; every reach of the
+  gate named with its parity test** (protected seam: the mini-depth enqueue gate).
+  - *Constant.* `sites/binding_roles.py`: `MINI_DEPTH_ROLE_SETS: tuple[str, ...] = (ROLE_SET_MINIGRID_4,
+    ROLE_SET_MINIGRID_5)`, comment citing this ID. Every Python gate below reads it; none names roles-4 alone.
+  - *Migration.* Built in 0048's style from 0048's own texts (load 0048 as 0048 loads 0029). Upgrade:
+    `_functions_0048()` with `b.role_set = 'minigrid-roles-4'` replaced by `b.role_set IN ('minigrid-roles-4',
+    'minigrid-roles-5')` (count exactly 1, in `mini_enqueue_hour`) and the gate comment's "current `minigrid-roles-4`
+    binding set" by "current `minigrid-roles-4` or `minigrid-roles-5` binding set" (count exactly 1);
+    `RENEWABLE_HOUR` as `CREATE OR REPLACE` with `s.role_set = 'minigrid-roles-4'` replaced likewise (count exactly 1).
+    Any other count raises. `mini_enqueue_accepted` and `mini_enqueue_configuration` hold no role-set text and are
+    re-created unchanged inside the same body. Downgrade executes `_functions_0048()` and `RENEWABLE_HOUR` (as `CREATE
+    OR REPLACE`) unchanged. No data change, no trigger change. The migration writes its own literals (migrations do not
+    import live code); a test asserts they equal `MINI_DEPTH_ROLE_SETS`.
+  - *Reaches (every place the gate's meaning is read).* SQL: (S1) `mini_enqueue_hour`'s final gate, reached by the
+    `mini_enqueue_accepted` trigger (accepted evidence), by `mini_enqueue_configuration` (called at publish,
+    `postgres_foundation_store.py:758`), and by 0049's one-time backfill (history, not re-run); (S2)
+    `mini_renewable_hour`, reached by `mini_enqueue_hour`'s hour check and by both enqueue loops. Python: (P1)
+    `mini_depth/store.read_hour_rows` (`role_set = :rs` becomes `role_set = ANY(:rs)` over the constant; the parameter
+    becomes `role_sets`); (P2) `mini_depth/inputs.py:216,227` (the count spans both names); (P3) `mini_depth/read.py:220`
+    and `:487-488` (feeder sets, hence `structure/energy/inputs.feeder_month`); (P4) `mini_depth/store.py:376-386`
+    `_PV_BOUND` (hence `mini_decisions/projection` `daylight_hours`); (P5) `analytics/assessment_worker.ROLES_BY_SET`,
+    hence `runs/replay_series.py:340`: today roles-1..4, so a roles-5 set gets no role-coverage rows. It becomes
+    `{s: tuple(roles_for(s)) for s in sorted(SERVED_ROLE_SETS_BY_SITE_TYPE["MINIGRID"])}` (the served sets, not a
+    hand list; W6). The refusal detail at `inputs.py:227` names both sets; if `statement_catalogue.py` covers it, the
+    one changed line is re-hashed citing this ID and reported, nothing else may move.
+  - *Parity tests (Postgres, `*_test` DB).* T1 roles-4 unchanged: on the existing 0029/0048 fixtures, the job rows
+    (domain, window, cause) after upgrade equal those before, and after downgrade-upgrade; the existing 0029/0048
+    tests pass untouched. T2 roles-5 one set: Kobo published under roles-5 enqueues the same job rows as under roles-4
+    for one October day, from evidence and from publish. T3 both sets (D-DD.108 Q1): no job; Python refuses. T4 other
+    sets: a roles-1..3 Site, a cold and an EV Site enqueue nothing, as on main. T5 renewable hour on two inverters: a
+    positive `pv_available_power` on either unit makes the hour renewable; on neither, not; unbound, the 12:00 rule.
+    T6 migration text: each replacement counted once, the downgrade body byte-equal to 0048's, literals equal the
+    constant. T7 coverage: Kobo's dispatch input-set role coverage under roles-5 equals roles-4's after replacing the
+    role-set name and UUIDs (D-DD.114's normaliser). Plant (reverted): drop roles-5 from the SQL list; T2 and T5 fail.
+
+- **D-DD.110 Q3 and Q10 accepted; Kisiwa's replay refusal is honest output.**
+  - *Q3.* The Site-figure readers call `sites/unit_roles.py` whatever the role set, as listed; one unit gives the
+    unit's value byte for byte. The per-unit readers stay per unit, one two-unit test each. Plus D-DD.109 P5.
+  - *Q10.* `replay_series` builds the Site series through `unit_roles`; `replay_study`/`headroom_replay` unchanged.
+    Their v8 model needs refuse a two-unit Site. That refusal is honest, not a gap: v8 holds one generator and one
+    inverter (§0), and a v8 replay of Kisiwa or Mto would print figures for a Site that does not exist (D-DD.70's
+    reason). A v9 replay is a new capability, not a reader fix; the coordinator logs "v9 replay for multi-unit Sites"
+    in `.agent/backlog-post-demo.md`. The owner may weigh in if a what-if at Kisiwa is demo-critical.
+
+- **D-DD.111 Q4 amended: a Site state the known units decide is stated; otherwise absent, named by unit.**
+  - D-DD.41's state rule is an "any" cascade, so some steps are decided whatever an absent unit holds. Per step:
+    RUNNING if any unit with a state is RUNNING; else, if any unit has no state, absent (named by unit); else D-DD.41's
+    cascade (STARTING if any starts, STOPPED if any is not FAILED, else FAILED).
+  - *Why.* With one unit running and the other silent, the Site is running whatever the silent unit does; saying
+    "absent" there drops a known fact. STARTING, STOPPED and FAILED depend on every unit, so a silent unit leaves them
+    undecided. Nothing is imputed: the stated value holds for every value the absent unit could take.
+  - *Builder.* `site_generator_state` in part 1's module; two tests (RUNNING + absent gives RUNNING; STOPPED + absent
+    gives absent naming the unit); the one-unit identity test unchanged. Power keeps D-DD.41's rule (a sum is
+    undecided while any term is absent).
+
+- **D-DD.112 Q5 and the open point: installed and available rating are two quantities; every unit FAILED gives 0 kW
+  available** (amends D-DD.41's rating sentence by naming the two).
+  - *Two quantities, one figure each.* `site_installed_rating(components)`: the sum of every GENERATOR unit's
+    `generator-rated-power` (a unit without exactly one gives absent, named by unit). `site_available_rating(components,
+    states)`: at a step, the sum over units whose state is not FAILED; a unit with no state at the step gives absent,
+    named by unit (its inclusion is undecided). `site_rating` with its optional `states` is replaced by these two, so
+    no caller gets one quantity under two meanings. No reader reads a Site rating today (`generator-rated-power` is read
+    only by `runs/profiles.py` and the module), so neither is wired into a reader in DD3c.
+  - *All units FAILED: available rating 0 kW, not absent.* Every unit's state is known, and each says the unit gives
+    no power: the evidence decides the sum, and it is zero (`Decimal("0")`, unit kW, no missing units). "Missing is
+    never zero" forbids turning an unknown into 0; here nothing is unknown. D-DD.41's "absent if any unit is absent"
+    is about absent values, and a FAILED state is a present value. Absent stays for: a unit with no state (undecided)
+    and a Site with no GENERATOR (nothing declared). Builder: the empty-sum path returns the zero, not absent; one test
+    each for all-FAILED (0, no missing), no GENERATOR (absent), one FAILED plus one silent (absent, naming the silent).
+
+- **D-DD.113 Q9: Kisiwa's litres saying `NOT_ONE_EACH` is a gap, fixed in DD3c; `fuel_basis` checked, not changed**
+  (W6: the class is "every reader of a GENERATOR unit quantity", wider than D-DD.41's list).
+  - *Why a gap.* Kisiwa's generator readings and tank records exist, and D-DD.41 gives the rule (each unit burns on
+    its own curve; Site litres are the sum; one tank). The refusal predates the rule; it is not a statement about the
+    evidence. Left, Kisiwa would show no litres split where Kobo shows one from the same kind of data (owner: data in
+    range gives output on every page, the same for every Site).
+  - *Change (`structure/litres`).* `rules.py`: new `UnitFuel(unit: str, use: Callable[[datetime, datetime], SpanUse],
+    curve: FuelCurve)`; `LitreInputs.use` and `.curve` are replaced by `units: tuple[UnitFuel, ...]` in declared
+    Foundation order; `held` stays Site-level (any unit's power or state reading). `_piece` evaluates each unit as
+    today and sums: any unit `USE_INCOMPLETE` gives that note first, then any `NO_LOAD_RATE_MISSING`; `idle` is any
+    unit's. `FUEL_CURVE_MISSING` when any unit's `sfc` is None. The curve's validity window is the intersection of the
+    units' windows (None if any is None). Sources list each unit's refs in unit order through `_unique`. `inputs.py`:
+    the condition becomes one FUEL_TANK and at least one GENERATOR; each unit gets its own `sfc_for`/`no_load_for`
+    reads and its own `_Readings(..., unit id)`; `relevant_readings` takes every unit's id. The values `"ONE_EACH"` and
+    `"NOT_ONE_EACH"` are kept (pinned by 4d's tests); their comment now reads "one tank and every GENERATOR unit"
+    citing this ID. No new note, no new copy.
+  - *Tests.* Kobo's October litres month byte-equal to main (one unit); a two-unit fixture with different SFCs gives
+    the per-unit sum; one unit without a curve gives `FUEL_CURVE_MISSING`; two tanks still give `NOT_ONE_EACH`. Plant:
+    one curve applied to both units' kWh; the two-unit test fails.
+  - *`analytics/service.fuel_basis` (first GENERATOR with an SFC, legacy dispatch on the ingestion listener,
+    `main.py:417`).* Builder checks whether DD5's `load_world_inputs` path reaches `AssessmentService.assess_site`. If
+    not, it is logged in `.agent/backlog-post-demo.md` ("fuel_basis first-match on multi-unit Sites") and untouched.
+    If it does, the builder stops and reports to the Architect before part 4.
+  - `mini_decisions/projection.py:85` is fixed by D-DD.109 P4, as the pre-flight says.
+
+- **D-DD.114 Q11 accepted, with the parity defined.** Only `conversions/world/KOBO-001-bindings.json` moves to roles-5
+  (and its three test pins); the demo-config and w402 conversions stay roles-4. The parity run publishes Kobo under
+  roles-4 in one fresh scratch state and under roles-5 in another (never both sets on one Site; D-DD.108). Compared,
+  for one October day (the month for litres): mini-depth revision values (figures, states, reasons, limits), the
+  dispatch assessment (interval classes, limits, input-set coverage), the fuel balance, and the litres month. Each is
+  serialised with `sort_keys`, UUIDs replaced by `uuid-<n>` in first-appearance order and the role-set name by
+  `<role-set>` (D-DD.45's normaliser); then byte-equal. A stored digest is compared directly only if it embeds neither
+  ids nor the role-set name; the packet lists which digests were compared which way. Any other difference stops for
+  the Architect.
+
+- **D-DD.115 DD3a's W6 digest sweep: `generator`, `site.code`, mini-grid `months`, EV `day_classes`/`families` stay
+  in the scope digest; no re-draw before the demo** (coordinator item; D-DD.102's class, for the other keys).
+  - *The class D-DD.102 fixed* is a digest input that is a world fact expected to be corrected (kit figures as data
+    sheets arrive), so a truer world re-seeds history. These four are not that: `generator` is the generator's version
+    constant, meant to re-seed when it changes; `site.code` is the Site's fixed identity (beside the key `site.site`);
+    `months` is the fixed four-month calendar (D-DD.2); `day_classes`/`families` are fixed global shape tables. Each
+    changes only by a deliberate design change that re-draws history anyway. None is wrong today, and removing any
+    re-draws July-September at every affected Site for no change in any figure's meaning.
+  - *Later.* The general form (each scope's digest covers exactly the keys its rules read, declared beside the rules,
+    as D-DD.102 did for `physical`) goes to `.agent/backlog-post-demo.md` with the four keys named, for the first slice
+    after the demo that re-draws history for its own reason. A digest change is a re-draw and needs that reason.
+
+- **D-DD.116 Q12 and units: DD3c 2.5 → 3.25 u in five parts; DD 43.25 → 44.0 u** (W4; D-DD.44's 3 u stop, ruled here).
+  - +0.25 u: the builder's survey (five readers, four per-unit checks, D-DD.109 P5 and T1-T7). +0.5 u: D-DD.113's
+    litres per unit. D-DD.111 and D-DD.112 are small edits inside part 1. DD3c stays under W4's 6 u.
+  - *Parts.* (1) `unit_roles.py` (done) plus D-DD.111, D-DD.112; (2) migration 0074, `MINI_DEPTH_ROLE_SETS`, the
+    mini_depth and structure/energy readers, `ROLES_BY_SET`, T1-T7; (3) dispatch_v3, verification, replay_series,
+    fuel_balance and the per-unit checks; (4) litres per unit (D-DD.113) and the `fuel_basis` check; (5) Kobo to
+    roles-5 and D-DD.114's parity.
+  - DD: 43.25 → **44.0 u** in ten parts, each at or under 6 u. Order unchanged (D-DD.107).

@@ -41,6 +41,7 @@ SOURCE_CLASSES = ("SIMULATED", "EMULATED", "RECORDED")  # weakest first
 STATE_NOT_VALUED, STATE_WAITING, STATE_CHOSEN, STATE_UNDER_WAY, STATE_KEPT = (
     "NOT_VALUED", "WAITING", "CHOSEN", "UNDER_WAY", "KEPT_AS_IS")
 AMOUNT_PLACES, AMOUNT_INTEGER_DIGITS, CURRENCY_LETTERS, BASIS_MAX = 2, 12, 3, 200
+_ORIGIN_EMULATED, _ORIGIN_FINANCIAL = "source-emulated", "observed-financial"  # stored provenance codes, not words
 RECORD_PLACES, RECORD_INTEGER_DIGITS = 6, 14  # 6h4 (spec §6.2 R6): numeric(20, 6)
 
 #: §3.3 refusal codes and their exit codes (3 only for the store).
@@ -545,7 +546,7 @@ class DecisionService:
         if cleaned_basis is None:
             raise DecisionRefused("BAD_BASIS")
         row = OptionRecordRow(self._new_id(), tenant_id, option.id, factor_id, value, unit, currency,  # R9
-                              "source-emulated" if emulated else "observed-financial", cleaned_document,
+                              _ORIGIN_EMULATED if emulated else _ORIGIN_FINANCIAL, cleaned_document,
                               cleaned_basis, person.person_id, role, True, now)
         return self._call(self._store.add_option_record, row)
 

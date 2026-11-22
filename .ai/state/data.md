@@ -682,6 +682,14 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
   utility-invoice rows are DD4.4's. `test_ddr_rehearsal_postgres.py` fails 9 tests (the loader does not read cold files),
   the same at the DD2b head: DD5's.
 
+## DD3a: Kobo's operating reality and data sheets (in_review; `specs/DD-demo-data/packet-DD3a.md`)
+- Settled: the pure telemetry writer on v8 (`world/telemetry.py`, `world_history.py site-inputs|telemetry`,
+  `tools/dd3_pure_run.py`); Kobo's data sheets in Lakeside's `/2` file and the manifest (rev 16.18) with the world
+  regenerated; DATASHEET_FIT in fuel-cost-2 and the client words; tanks 5000/2500/1000 L; the kernel indexes forcings
+  (D-DD.75) and causes (D-DD.80) by step, byte-identical (parity K1-K8, D1, F1, X1, W1, S1, C1, C2, S2): 123 days in
+  about 1-2 min. C-DD12, C-DD16, C-DD21 live and passing.
+- Open (after fix rounds D-DD.93-106; C-DD11 and the five test figures are fixed): D-DD.92's overfill and notes (DD3b);
+  D-DD.103's readings span (DD4a); D-DD.104 and D-DD.97 (DD3b); the mock's Kobo kit strings (D-DD.105, alignment pass).
 ## DD4a: cold operating reality, part 1 (in_review, stopped for the owner at C-DD6; `specs/DD-demo-data/packet-DD4a.md`)
 - Settled: cold-thermal 2 holds the chamber on a 1e-6 degC grid with the rounding in `rounding_total` (D-DD.87; v1
   bytes unchanged); a faulted start fails in the request minute and `GENERATOR_HAND_START` replaces `GENERATOR_RESET`
