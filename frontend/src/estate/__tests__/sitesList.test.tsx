@@ -39,14 +39,14 @@ function directory(sites: SiteSummary[] = []): SiteDirectoryClient {
   return { listSites: () => Promise.resolve({ status: "loaded", sites }) };
 }
 
-function labSite(site_id: string, display_name: string, site_type = "MINIGRID"): SiteSummary {
+function labSite(site_id: string, display_name: string, site_type = "MINIGRID", lifecycle_status = "ACTIVE"): SiteSummary {
   return {
     site_id,
     display_name,
     site_type,
     location: { country: "KE", region: "Nairobi", latitude: null, longitude: null },
     timezone: "Africa/Nairobi",
-    lifecycle_status: "ACTIVE",
+    lifecycle_status,
     origin: "LAB",
     source: { kind: "LAB" },
     template: null,
@@ -243,6 +243,32 @@ describe("IA-P P4b: the Sites list on E1", () => {
     expect(daysOf(within(list()).getByRole("link", { name: "Lab Site" }).getAttribute("href")!)).toEqual(["/sites/LAB-SITE-9", "2026-10-01", "2026-10-31", ""]);
   });
 
+  it("a Site that is not Active carries its lifecycle word under its title; an Active one none (D-IAP.44, plant nolife)", async () => {
+    renderAt(
+      `/sites?${OCT}`,
+      sitesClient(BY_RANGE),
+      estateClient(),
+      directory([labSite("kobo-001", "Kobo", "MINIGRID", "PLANNED"), labSite("LAB-SITE-9", "Lab Site", "COLDCHAIN", "COMMISSIONED"), labSite("LAB-SITE-10", "Lab Ten", "EV_CHARGING")]),
+    );
+    await settledScreen();
+    const word = (title: string) => {
+      const tr = [...list().querySelectorAll("tbody tr")].find((r) => r.querySelector("th a, th span")!.textContent === title)!;
+      return tr.querySelector("th small[data-lifecycle]")?.textContent ?? null;
+    };
+    expect(word("Kobo")).toBe("Planned");
+    expect(word("Lab Site")).toBe("Commissioned");
+    expect(word("Lab Ten")).toBeNull();
+    expect(word("Kisiwa")).toBeNull();
+  });
+
+  it("a refused directory read shows no lifecycle word, and the rows stand (D-IAP.44)", async () => {
+    const refused: SiteDirectoryClient = { listSites: () => Promise.resolve({ status: "refused", httpStatus: 503 } as never) };
+    renderAt(`/sites?${OCT}`, sitesClient(BY_RANGE), estateClient(), refused);
+    await settledScreen();
+    expect(titles()).toEqual(["Kobo", "Kisiwa", "Mto", "Cold Room", "Charge Hub"]);
+    expect(list().querySelector("th small[data-lifecycle]")).toBeNull();
+  });
+
   it("a refused E1 shows the served text and Try again, which reads again", async () => {
     let n = 0;
     const e1: PortfolioSitesClient = {
@@ -294,6 +320,14 @@ describe("IA-P P4b: the Outcomes tab", () => {
     expect(cards).not.toBeNull();
     expect(objectives.closest("details")!.querySelector("summary")!.textContent).toContain("Each Site's objectives");
     expect(cards!.compareDocumentPosition(objectives) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("an Outcomes L2 row whose Site is not Active carries its lifecycle word; L2 gains no directory-only row (D-IAP.44)", async () => {
+    renderAt(`/portfolio/outcomes?${OCT}`, sitesClient(BY_RANGE), estateClient(), directory([labSite("KOBO-001", "Kobo", "MINIGRID", "DECOMMISSIONED"), labSite("LAB-SITE-9", "Lab Site", "COLDCHAIN", "PLANNED")]));
+    await settledScreen();
+    expect(titles()).toEqual(["Kobo", "Kisiwa", "Mto", "Cold Room", "Charge Hub"]);
+    const kobo = [...list().querySelectorAll("tbody tr")].find((r) => r.querySelector("th a, th span")!.textContent === "Kobo")!;
+    expect(kobo.querySelector("th small[data-lifecycle]")!.textContent).toBe("Decommissioned");
   });
 
   it("the Outcomes rows are the Sites list rows", async () => {

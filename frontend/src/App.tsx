@@ -559,7 +559,7 @@ export function App({
           {/* IA-P P3b (spec §3): the Overview is 5c's screen on the top-bar range (E2 decides the mode). */}
           <Route path={PORTFOLIO_ROOT_PATH} element={<PortfolioOverview period={portfolioPeriod} month={deepDive} estate={estateIndex} />} />
           {/* PF-T: one mounted route for Outcomes and Demand & capacity, so a tab switch keeps the page and its reads. */}
-          <Route path={`${PORTFOLIO_ROOT_PATH}/:tab`} element={<EstatePortfolioFrame client={estateIndex} sites={portfolioSites} />} />
+          <Route path={`${PORTFOLIO_ROOT_PATH}/:tab`} element={<EstatePortfolioFrame client={estateIndex} sites={portfolioSites} directory={siteDirectory} />} />
           {/* IA-P P3b (I14): Results, the old "What changed" tab. */}
           <Route path={RESULTS_PATH} element={<ResultsFrame client={estateIndex} />} />
           {/* W6-01a: the global Incidents root (`INCIDENTS_PATH`). */}

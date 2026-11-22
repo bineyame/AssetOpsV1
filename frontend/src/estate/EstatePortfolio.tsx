@@ -77,6 +77,7 @@ import { PortfolioTabs, portfolioHref } from "./PortfolioTabs";
 import { PortfolioCoverage } from "./PortfolioCoverage";
 import type { PortfolioSitesClient } from "./portfolioSitesClient";
 import { OutcomesSites } from "./sitesList";
+import type { SiteDirectoryClient } from "../sites/siteDirectoryClient";
 import { RangePartNote } from "../ui/RangePartNote";
 import { readSharedRange, type DayRange } from "../ui/sharedRange";
 import { RETRYING_COPY, TEMPORARILY_UNAVAILABLE } from "../sites/temporarilyUnavailable";
@@ -548,6 +549,7 @@ function Loaded({
   summary,
   sites,
   range,
+  directory,
 }: {
   tab: HubTab;
   body: EstatePortfolioBody;
@@ -555,6 +557,7 @@ function Loaded({
   summary: EstateResult<EstateOutcomeSummaryBody> | null;
   sites?: PortfolioSitesClient;
   range: DayRange | null;
+  directory?: SiteDirectoryClient;
 }) {
   const ctx = contextWords(body.status, body.window.known_at);
   const panelRef = useFocusPanelHeading(tab);
@@ -575,7 +578,7 @@ function Loaded({
         {tab === "outcomes" ? (
           <>
             {/* IA-P P4b (spec §6 P4b): L1 E1's headline, L2 the Sites rows (the Sites list's def). */}
-            <OutcomesSites sites={sites} waitingBySite={body.summary.waiting_by_site} />
+            <OutcomesSites sites={sites} waitingBySite={body.summary.waiting_by_site} directory={directory} />
             {/* L3 (MD-IAP-7, Q8): the range category cards, then each Site's objectives in a disclosure; the estate read's
                 31-day window is said when it is not the range (P0, pre-flight Q7). */}
             <div data-level="L3">
@@ -601,7 +604,7 @@ type Read = { key: string; windowKey: string; lens: EstateLens; first: EstateRes
  * IA-P P3b (spec §2.2, §2.4): the mounted route `/portfolio/:tab` for Outcomes and Demand & capacity. A segment that
  * names no tab (or names the Overview) goes to `/portfolio`, keeping the range, before any read.
  */
-export function EstatePortfolioPage({ client, sites }: { client?: EstateClient; sites?: PortfolioSitesClient }) {
+export function EstatePortfolioPage({ client, sites, directory }: { client?: EstateClient; sites?: PortfolioSitesClient; directory?: SiteDirectoryClient }) {
   const { tab: segment } = useParams();
   const [params] = useSearchParams();
   const tab = portfolioTabFrom(segment);
@@ -610,10 +613,10 @@ export function EstatePortfolioPage({ client, sites }: { client?: EstateClient; 
     const path = portfolioTabPath("overview");
     return <Navigate replace to={search === "" ? path : `${path}?${search}`} />;
   }
-  return <PortfolioTabsPage client={client} sites={sites} tab={tab} />;
+  return <PortfolioTabsPage client={client} sites={sites} tab={tab} directory={directory} />;
 }
 
-function PortfolioTabsPage({ client, sites, tab }: { client?: EstateClient; sites?: PortfolioSitesClient; tab: HubTab }) {
+function PortfolioTabsPage({ client, sites, tab, directory }: { client?: EstateClient; sites?: PortfolioSitesClient; tab: HubTab; directory?: SiteDirectoryClient }) {
   const reads = useMemo(() => client ?? createEstateClient(), [client]);
   const [params] = useSearchParams();
   const sharedRange = readSharedRange(params);
@@ -700,7 +703,7 @@ function PortfolioTabsPage({ client, sites, tab }: { client?: EstateClient; site
       ) : first.status === "refused" ? (
         <EstateRefusal code={first.code} copy={first.copy} window={window} firstPage={portfolioHref(window, tab)} />
       ) : (
-        <Loaded tab={tab} body={first.value} window={window} summary={currentSummary} sites={sites} range={sharedRange.status === "set" ? sharedRange : null} />
+        <Loaded tab={tab} body={first.value} window={window} summary={currentSummary} sites={sites} range={sharedRange.status === "set" ? sharedRange : null} directory={directory} />
       )}
     </div>
   );

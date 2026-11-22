@@ -160,8 +160,8 @@ describe("the Simulator Lab rail lists only truthful destinations", () => {
 
 describe("a badge renders only where a record supplies its value", () => {
   // IA-P P4b (spec §6 P4b; D-IAP.6 "text-only cells"): `/sites` is the Sites list, whose cells are text. The mode,
-  // lifecycle and origin badges and the template-provenance cell left with the directory table (`SitesIndex`, which no
-  // route mounts now). The rule kept here is the one about absent values: the list's row carries no badge, whether or
+  // lifecycle and origin badges and the template-provenance cell left with the directory table (deleted, D-IAP.45;
+  // the lifecycle word is the title's small, D-IAP.44, and the lineage note stays on Site Setup). The rule kept here is the one about absent values: the list's row carries no badge, whether or
   // not the record came from a template.
   it.each([
     ["from a template", FROM_TEMPLATE],

@@ -15,6 +15,7 @@ import { linkBound, readSharedRange } from "../ui/sharedRange";
 import { siteDetailHref } from "../shell/operatorSiteRoutes";
 import type { SiteDirectoryClient } from "../sites/siteDirectoryClient";
 import type { SiteSummary } from "../sites/siteReadModel";
+import { deriveSiteView } from "../sites/siteViewModel";
 import { DD_COPY } from "./DeepDiveMonth";
 import { createEstateClient, type EstateClient } from "./estateClient";
 import { useEstateRead } from "./estateReadCache";
@@ -71,10 +72,44 @@ function cell(text: string, small: string | null | undefined): ReactNode {
   );
 }
 
+/**
+ * D-IAP.44: the lifecycle word of each directory Site that is not Active (the `deriveSiteView` word), by its code in
+ * lower case (Site identity is case-blind). The join is by `site_code`; a refused directory read gives none.
+ */
+export function lifecycleWords(directory: readonly SiteSummary[]): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const site of directory) {
+    if (site.lifecycle_status === "ACTIVE") continue;
+    out[site.site_id.toLowerCase()] = deriveSiteView(site).lifecycleStatus;
+  }
+  return out;
+}
+
+/** The directory read the Sites list makes; only a loaded read lists Sites (a refused one leaves the rows alone). */
+export function useDirectorySites(directory: SiteDirectoryClient | undefined): readonly SiteSummary[] {
+  const [listed, setListed] = useState<readonly SiteSummary[]>([]);
+  useEffect(() => {
+    if (directory === undefined) return;
+    let live = true;
+    // A refused directory read leaves E1's rows alone (pre-flight Q1).
+    void directory.listSites().then((r) => {
+      if (live && r.status === "loaded") setListed(r.sites);
+    });
+    return () => {
+      live = false;
+    };
+  }, [directory]);
+  return listed;
+}
+
 /** A compared row carries its figure word (P.8: a row not compared has `gap_word` null; pre-flight Q3). */
 const compared = (i: SiteItem) => i.row !== null && i.row.gap_word !== null;
 
-export function sitesDef(body: PortfolioSites, waitingNote: string | null = null): HomeListDef<SiteItem> {
+export function sitesDef(
+  body: PortfolioSites,
+  waitingNote: string | null = null,
+  lifecycle: Readonly<Record<string, string>> = {},
+): HomeListDef<SiteItem> {
   const none = body.mode === "none";
   return {
     key: "sites",
@@ -83,6 +118,11 @@ export function sitesDef(body: PortfolioSites, waitingNote: string | null = null
     tileLabel: "Sites",
     rowKey: (i) => i.code,
     title: (i) => i.name,
+    // D-IAP.44: a Site that is not Active carries its lifecycle word as the title's small.
+    small: (i) => {
+      const word = lifecycle[i.code.toLowerCase()];
+      return word === undefined ? null : <small data-lifecycle>{word}</small>;
+    },
     target: (i) => siteDetailHref(i.code),
     firstColumn: "Site",
     columns: [
@@ -209,20 +249,11 @@ export function SitesListPage({
 }) {
   const { result, retry } = usePortfolioSites(sites);
   const waiting = useWaiting(estate);
-  const [listed, setListed] = useState<readonly SiteSummary[]>([]);
-  useEffect(() => {
-    let live = true;
-    // A refused directory read leaves E1's rows alone (pre-flight Q1).
-    void directory.listSites().then((r) => {
-      if (live && r.status === "loaded") setListed(r.sites);
-    });
-    return () => {
-      live = false;
-    };
-  }, [directory]);
+  const listed = useDirectorySites(directory);
   const body = result?.status === "loaded" ? result.body : null;
   const items = useMemo(() => (body === null ? [] : siteItems(body, waiting.bySite, listed)), [body, waiting.bySite, listed]);
-  const def = useMemo(() => (body === null ? null : sitesDef(body, waiting.note)), [body, waiting.note]);
+  const lifecycle = useMemo(() => lifecycleWords(listed), [listed]);
+  const def = useMemo(() => (body === null ? null : sitesDef(body, waiting.note, lifecycle)), [body, waiting.note, lifecycle]);
   return (
     <div className="estate-page" data-estate-root="sites">
       <PageHeader title="Sites" headingId="sites-heading" actions={actions} />
@@ -245,16 +276,21 @@ export function SitesListPage({
 export function OutcomesSites({
   sites,
   waitingBySite,
+  directory,
 }: {
   sites?: PortfolioSitesClient;
+  /** D-IAP.44: the directory read, for the lifecycle word only (Outcomes L2 lists E1's rows alone). */
+  directory?: SiteDirectoryClient;
   /** E0 from the Outcomes tab's own estate portfolio read (the same query; no second read). */
   waitingBySite: Record<string, number> | null | undefined;
 }) {
   const { result, retry } = usePortfolioSites(sites);
   const note = useWindowNote();
   const body = result?.status === "loaded" ? result.body : null;
+  const listed = useDirectorySites(directory);
   const items = useMemo(() => (body === null ? [] : siteItems(body, waitingBySite)), [body, waitingBySite]);
-  const def = useMemo(() => (body === null ? null : sitesDef(body, note)), [body, note]);
+  const lifecycle = useMemo(() => lifecycleWords(listed), [listed]);
+  const def = useMemo(() => (body === null ? null : sitesDef(body, note, lifecycle)), [body, note, lifecycle]);
   if (result === null) return <p className="estate-loading">{SITES_LOADING}</p>;
   if (result.status === "refused") return <SitesRefusal result={result} retry={retry} />;
   return (

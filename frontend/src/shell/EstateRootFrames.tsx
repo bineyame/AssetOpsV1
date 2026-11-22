@@ -1,5 +1,6 @@
 import { ActionsListPage, DecisionsListPage, FindingsListPage } from "../estate/homeLists";
 import type { PortfolioSitesClient } from "../estate/portfolioSitesClient";
+import type { SiteDirectoryClient } from "../sites/siteDirectoryClient";
 import type { EstateClient } from "../estate/estateClient";
 import { EstateEvidencePage } from "../estate/EstateEvidence";
 import type { EstateEvidenceMoneyClient } from "../estate/estateEvidenceMoneyClient";
@@ -56,10 +57,10 @@ export function EstateFinancialsFrame({ client }: { client: EstateFinancialsClie
 }
 
 /** W3-03 run 2: the estate Portfolio root. */
-export function EstatePortfolioFrame({ client, sites }: { client: EstateClient; sites?: PortfolioSitesClient }) {
+export function EstatePortfolioFrame({ client, sites, directory }: { client: EstateClient; sites?: PortfolioSitesClient; directory?: SiteDirectoryClient }) {
   return (
     <main aria-label="Portfolio">
-      <EstatePortfolioPage client={client} sites={sites} />
+      <EstatePortfolioPage client={client} sites={sites} directory={directory} />
     </main>
   );
 }
