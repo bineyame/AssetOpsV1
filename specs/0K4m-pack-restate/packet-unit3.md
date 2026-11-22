@@ -72,16 +72,28 @@ The mock's existing `PLAIN` entry for the Embakasi peak line no longer matches a
 | `protect_effects.design_value` | loop-protect | `pe.source` |
 | (no recommended option at Kobo) | Sites "Recommended move" | the option's gap words |
 
-## Gate
+## Gate (head `ef2b52cee`)
 
-- `check_manifest.py` at the head: see the count line in the report; failures by section below. No failure remains on a
-  mock file.
+- `check_manifest.py`: `7497 checks passed (2867 history checks), 294 failed` (`check_manifest-head.txt` in evidence).
+  On mock files, one failure remains: K11 `interactive-mockup-vNEXT/browser-audit.md` lines 59 and 61. Those lines are the
+  audit's recorded overview-note text, generated from `tools/audit-results.json` (18 Nov). They clear when the audit is rerun
+  and `gen_docs.cjs` regenerates the file; see Known Deviation 8. The walkthroughs anchors, the untraced line and K11 on
+  `index.html`, `fixture-mapping.md` and `walkthroughs.md` all pass.
+  Failures outside the mock, by section:
+  - anchors() and documents(): unit 2's documents, plus `../../go-to-market/` (unit 2);
+  - K11 on 14 pack documents (unit 2);
+  - K10 (commit 6, D-0K4.56);
+  - H9 (commit 6);
+  - H10 (Known Deviation 1, commit 6).
 - `check_alignment.py`: `alignment: 114 checks passed, 0 failed`.
-- Boundary proof (scratch `boundary.py`, every commit main..HEAD and the tree): (a) view sha `7ed4a720…` equal; (b)
-  `world_history.py check` exit 0; (c) 0 forbidden lines; BOUNDARY PASS (`boundary.txt` in evidence). (d) K13: 11 of 11 pass.
-- `render_text.cjs`: 237 renders, 0 script errors; `vocab_check`: 0 hits; `copy_check`: 0 hits; `hand_typed_scan.py`: exit 0.
-- Audit: see `audit-summary.txt` in evidence. The audit's two drawer-click loops now skip an evidence button that is not visible
-  (inside a side drawer that Escape closed). Main's mock behaves the same, and the audit timed out there (`audit.mjs:68-69`).
+- Boundary proof (every commit main..HEAD): (a) view sha `7ed4a720…` equal; (b) `world_history.py check` exit 0; (c) 0
+  forbidden lines. Result: BOUNDARY PASS (`boundary.txt`). (d) K13: 11 of 11 pass.
+- `render_text.cjs`: 237 renders, 0 script errors. `vocab_check`: 0 hits. `copy_check`: 0 hits. `hand_typed_scan.py`: exit 0.
+- Console errors (scratch `errs.cjs`, every route the audit scopes, Playwright, 1440): 207 routes, `consoleErrorRoutes: 0`
+  (`console-errors.json`).
+- `audit.mjs`: **not run to completion**. It is stale against the IA-1 mock on main (Known Deviation 8).
+- Shots: 48 PNGs in `/opt/assetecon/evidence/0K4m/u3/`, taken from a scratch copy. They cover the overview, Kobo, Mto demand,
+  the Mto inverter, Kisiwa, Act first, Sites and Embakasi, at 1440, 768 and 390, in light and dark. 0 page errors.
 
 ## Plants
 
@@ -103,5 +115,19 @@ The mock's existing `PLAIN` entry for the Embakasi peak line no longer matches a
    days (K8 and M8 are both 61).
 5. `VERIFY` is keyed by site (`Kobo`), because the manifest's decision has no id.
 6. Assumption derivations show ISO dates as "7 Nov" (the audit bans ISO dates on screen).
+8. **The browser audit is stale on main.** `tools/audit-results.json` dates from 18 Nov. IA-1 changed the mock after that
+   date. Run against `ef2b52cee`, `audit.mjs` stops with Playwright timeouts in three places, and main's mock behaves the
+   same in each:
+   - evidence buttons inside a side drawer that Escape closes (`:68-69`);
+   - the review bar's operator select, which is hidden at 390 px (`:78`);
+   - `footer [data-notes]`, which opens no drawer (`:113`).
+
+   I tried guards for the first two, then reverted them, because a full pass needs more than unit 3's labels. So
+   `CHANGE-REGISTER.md`, `browser-audit.md`, `screen-manifest-vnext.json` and `audit-results.json` stay at their last
+   complete audit. The 0K4m register rows (section 7k) are in `gen_docs.cjs`, ready for the next regeneration. Repairing
+   the audit is a separate unit of work, routed to the coordinator.
+9. `hand_typed_scan.py`'s masks now treat a year-month ("2026-10") as a date. Four allow entries were added: three for the
+   M8 study's declared assumption text, which the drawer now shows, and one for the Kobo verification bands (±10 %),
+   which the verify line now reads.
 7. A sourceless gap shows as figure "Not available yet" with its words as the note where the layout has a figure and a note
    (cards and tables). Elsewhere it shows the whole exact string.

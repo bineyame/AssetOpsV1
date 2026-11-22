@@ -644,9 +644,9 @@ Branch `task/DDR-rehearsal` (main with 3C2 unit 2 merged in); spec `specs/DDR-re
 - Settled: `python -m assetops_backend.rehearsal_check` (ten gates G1-G10, one JSON line each, codes and facts only, `DDR_GATE_FAILED G<n> <CODE>`); `StructureSnapshotStore.portfolio_history`; the board-budget profile fixtures and `lakeside-2026-10.expect.json`; runbook sections 6-12 (admit before load, `_test` names); test 1 runs S1-S12 through the commands with the first failing gate G2 -> ... -> none.
 - Open: the rehearsal itself and its serve (spec §5, coordinator); MB2 and MB3 defaults (stored profile status `ILLUSTRATIVE`; tariff received drops four screen literals); PF1 (the emulated budget's driver lines make the 5c screen answer 500, `VOCABULARY_UNKNOWN actual_quantity`).
 
-## 0K4m unit 3 - the mock restated to the evaluated figures (built, held for the owner, 22 Nov)
+## 0K4m unit 3 - the mock restated to the evaluated figures (in review, held for the owner, 22 Nov)
 
 Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m-pack-restate/spec.md` rev 5 §4, rulings D-0K4.50-.56; packet `specs/0K4m-pack-restate/packet-unit3.md`. Mock only, plus five manifest prose strings (D-0K4.52).
 
 - Settled: the Simulated chip (`srcTag`, title per study's days) replaces the design-value tag; the tagger and the audit read the source set from the fixtures (`SOURCE_PATTERNS`/`SOURCE_LABELS`) and independently (`tools/replay_values.py`); Kobo's settings, KIS-BATT60 and Embakasi per-bus timing read "Not available yet: needs a simulation ..."; admission and dawn lines from `information`; every reader of a removed field reads the evaluator or states its gap; `hand_typed_scan.py` exits 1 on a hit.
-- Open: H10 re-base (manifest prose edit) and H9/K10 in commit 6; P15 as worded cannot fail (212.8 L is no longer an evaluated figure; P15b with an evaluated figure does).
+- Open: H10 re-base (manifest prose edit), H9 and K10 in commit 6; the browser audit is stale against the IA-1 mock (audit docs left at 18 Nov; browser-audit.md K11 clears on regeneration); P15 as worded cannot fail (P15b does).
