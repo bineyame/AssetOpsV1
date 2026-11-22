@@ -166,3 +166,69 @@ The full 123-day Kobo pure run did not finish in over 15 minutes (7 days: 11 s).
 Options for the Architect (not taken): (a) a kernel exposure index by offset (protected seam), (b) the writer runs the span in
 windows with a hand-off of end state (conflicts with D-DD.69 for RUNNING generators), (c) wider constant windows. Ask before building more.
 The pure-run table at 0.62 and 3.3 is therefore NOT produced; commit 1b and commit 2 are not started.
+
+---
+# Update 5 (session 4; PARTIAL; D-DD.75 stop rule hit). Head: see `git log -1`.
+
+## Done (D-DD.79 order)
+- `git merge main` (05ecb21d4): conflicts resolved in `tools/world_history.py` (telemetry + site-inputs commands kept beside
+  D-DD.74 `--tenant`) and `backend/tests/test_sc1_statements.py` (key set holds both `component_property.basis` and 6h's lever keys).
+- (1) `e347205d6` parity golden on the unchanged kernel (`git diff main -- simulator/assetops_simulator/kernel` empty):
+  `host/tests/test_kernel_forcing_index_parity.py` + `host/tests/fixtures/kernel_forcing_index_parity.json`, cases K1-K8, D1, F1,
+  X1, W1, S1; shown failing first (no golden). Regenerate an entry only when its INPUTS move:
+  `python host/tests/test_kernel_forcing_index_parity.py --reference main W1` (loads main's `kernel/execute.py` as a separate module).
+  Interpretations: K cases use `season_inputs(run, 2)` (= `frozen_world_inputs` + the season's forcings) because the bare frozen
+  inputs carry 8 h of sun and every version FAILS at 480 min; K8 adds `assumed_site` (v8 is BLOCKED without it, as 0K4a runs it);
+  every case pins `run_id` (a draft's id is random and is in the digest); W1 uses books fixed in the test and sets the tank and
+  curve rows itself, so later commits move it only through the writer's rules.
+- (2) `776285ae1` lazy `_forcing_index` in `kernel/execute.py` exactly as D-DD.75; parity 14/14 green. Cold/EV: grep confirms
+  only `_compute_exposures`' two callers in `execute.py` reach it (`ColdExecution` does not).
+  Edge (packet): a zero-length forcing (POINT, or WINDOW of 0) that passes `_excluded` and has a handler made the old loop raise
+  `ValueError` from `window_span`; the index skips it (`end <= start`, as ruled). No case reaches it.
+- (3) `afce2bd40` D-DD.77 sun: `_sun` in `world/telemetry.py`; books carry `sun_weights` from the view's `solar_surplus` family
+  (`DEFAULT_SUN_WEIGHTS` mirrors the manifest); manifest `conditions.sun_outside_calendar`. 3 tests failing first. W1 golden
+  regenerated with main's kernel.
+- (4) `ab349bb8d` D-DD.76 tanks in the `/2` file: Kisiwa 5000, Kobo 2500, Mto 1000 L, source SITE v1. Inputs printed by a rule
+  test: Kisiwa Jul 2397 / Aug 2305 / Sep 2183 / Oct 2400; Kobo 983 / 967 / 1035 / 1180; Mto 314 / 309 / 288 / 320.
+  **Deviation:** `lakeside-power.v1.onboarding.json` declares no FUEL_TANK (four rated components a Site, no property rows), so
+  there is no tank row to change there; nothing added (would be design). Sweep: 111 pass in the 4 non-Postgres backend files
+  reading the `/2` file; `test_dd3_telemetry.py` 17 pass. Architecture guard passes.
+
+## Timings (wall)
+- 7-day Kobo pure run: 7.3 s before the index, 5.5 s after, output byte-identical.
+- 14 days 15.3 s; 28 days 74.8 s; 123 days at 0.62 L/h (400 L tank, before D-DD.77): over 10 min (stopped at about 10.5 min).
+  3.3 not run. **Stop rule hit: no further kernel edit made.**
+
+## cProfile, 28 days (`python -m cProfile tools/dd3_pure_run.py --end 2026-07-28`, 99.7 s), top 15 by tottime
+```
+         60034538 function calls (60008327 primitive calls) in 99.668 seconds
+   249984   53.211    0.000   53.211    0.000 contracts/assetops_contracts/execution_contract.py:1671(point_due_at)
+   983860    4.944    0.000    9.434    0.000 simulator/assetops_simulator/packs/minigrid.py:372(_one)
+ 17956488    4.670    0.000    4.670    0.000 {method 'split' of 'str' objects}
+  2082153    2.015    0.000    2.490    0.000 fractions.py:317(_from_coprime_ints)
+    72580    1.594    0.000    8.746    0.000 simulator/assetops_simulator/packs/minigrid.py:423(_plant)
+  2050217    1.537    0.000    7.789    0.000 fractions.py:613(forward)
+     8064    1.472    0.000   12.789    0.002 simulator/assetops_simulator/packs/mini_grid.py:1494(_resolve_cycle)
+    64515    1.282    0.000    6.645    0.000 simulator/assetops_simulator/packs/mini_grid.py:266(_generator)
+   112900    1.005    0.000    1.268    0.000 simulator/assetops_simulator/kernel/model.py:535(exposures_of)
+   901318    1.000    0.000    1.988    0.000 fractions.py:710(_add)
+  3331604    0.949    0.000    1.835    0.000 {built-in method builtins.isinstance}
+   872930    0.896    0.000    1.126    0.000 fractions.py:186(__new__)
+     8067    0.893    0.000    0.893    0.000 contracts/assetops_contracts/world_inputs.py:77(step_starts)
+   479544    0.819    0.000    1.220    0.000 {built-in method builtins.sorted}
+     8065    0.808    0.000   95.071    0.012 simulator/assetops_simulator/kernel/execute.py:1845(_advance_one)
+```
+Reading (for the Architect; not acted on): the remaining O(steps^2) term is the same class as D-DD.75, for CAUSES.
+`_phase_apply_events` (`kernel/execute.py:1079`, cause loop at ~1100) calls `point_due_at` (`contracts/.../execution_contract.py:1671`,
+a linear scan of every step start) for every cause at every boundary: 250k calls, 53 s of 100 at 28 days (fuel notes and one
+02:00 draw a day are POINT causes). `interval.step_starts` (`world_inputs.py:77`) is also rebuilt once per boundary (8064 calls).
+
+## Next (blocked on the Architect)
+- A ruling on the cause path, then: the 123-day pure run at 0.62 and 3.3 on the 2500 L tank (commit 1b, gates the merge);
+  commit 2 (§6: `datasheet_template.py --write`, manifest Kobo `physical` + rev note, regenerate history.json / goldens / PINNED /
+  derived-values.json, check_manifest + check_alignment, moved figures, C-DD16, C-DD11 green); scope runs on branch and main incl.
+  Postgres files; statement-catalogue guard; packet; state entry (index-3, next free 205).
+- Owner Q7 is answered 0.62 L/h (`owner/owner-demo-data-answers-2026-11-22.md`), so commit 2 takes the default.
+- Moved figures from D-DD.76 so far: the writer's Kobo tank start (200 to 1250 L) and bound (400 to 2500 L); any run at a Lakeside
+  Site now freezes `fuel-tank-capacity` 2500/5000/1000 from the foundation (`runs/profiles.py:910`), which bounds its tank and its
+  operational actions (`runs/operational_actions.py:200`). No story figure moves.
