@@ -32,7 +32,7 @@ RULE_VERSION = "decision-prepare-1"
 HORIZON_DEFAULT = 12  # D-P6.15
 HORIZON_MIN, HORIZON_MAX = 1, 60
 COMMANDS = MappingProxyType({"prepare": "decision.prepare", "one_off": "decision.one_off",
-                             "choose": "decision.choose"})
+                             "choose": "decision.choose", "evaluate": "decision.evaluate"})
 DISPOSITIONS = ("COMPARISON", "RECOMMENDED", "CONDITIONAL", "ACCEPTABLE", "DEFERRED", "REJECTED")
 RUN_OUTCOMES = ("RECOMMENDED", "NO_ACTION_BEST", "RANKING_INCOMPLETE", "NOTHING_ADMITTED")
 SOURCE_CLASSES = ("SIMULATED", "EMULATED", "RECORDED")  # weakest first
@@ -48,8 +48,11 @@ REFUSAL_EXIT: Mapping[str, int] = MappingProxyType({
         "ALREADY_PREPARED_OTHER", "DECISION_NOT_FOUND", "OPTION_NOT_FOUND", "NO_ACTION_ONE_OFF", "BAD_AMOUNT",
         "BAD_CURRENCY", "BAD_CREW_VISITS", "BAD_BASIS", "ALREADY_CHOSEN", "NOT_EVALUATED", "CHOOSE_NONE_INSTEAD",
         "OPTION_REJECTED", "ACTION_NOT_FOUND", "ACTION_SITE_MISMATCH", "BAD_UUID", "NO_DATABASE",
-        "RECORD_INVALID")},
-    "DECISIONS_UNAVAILABLE": 3})
+        "RECORD_INVALID",
+        # 6c (spec §4): the evaluation's refusals
+        "STUDY_REQUIRED", "STUDY_UNREADABLE", "STUDY_NOT_CALIBRATED", "STUDY_LABELS_INVALID", "STUDY_BASELINE_MISMATCH",
+        "STUDY_GRID_MISMATCH", "STUDY_ADMISSION_MISMATCH", "STUDY_FRAME_MISMATCH", "STUDY_MONTH_NOT_COVERED")},
+    "DECISIONS_UNAVAILABLE": 3, "STRUCTURE_UNAVAILABLE": 3})
 
 
 @dataclass(frozen=True)
@@ -334,6 +337,21 @@ def _amount_ok(amount: Decimal) -> bool:
     return len(str(int(amount))) <= AMOUNT_INTEGER_DIGITS
 
 
+def admit_person(accounts: AccountService, command: str, tenant_slug: str, as_email: str):
+    """C1 to C3: the tenant, the active person, a held role of the command's at any Site (6a; 6c's E0)."""
+    tenant_id = accounts.tenant_by_slug(tenant_slug)
+    if tenant_id is None:
+        raise DecisionRefused("UNKNOWN_TENANT")
+    person = accounts.onboard_person(as_email)
+    if person is None or person.tenant_slug != tenant_slug or not person.active:
+        raise DecisionRefused("PERSON_NOT_FOUND")
+    held = {role for role, _ in person.roles}
+    role = next((r for r in roles_of(command) if r in held), None)
+    if role is None:
+        raise DecisionRefused("PERSON_ROLE_REQUIRED")
+    return tenant_id, person, role
+
+
 class DecisionService:
     def __init__(self, store: DecisionStore, accounts: AccountService, *, clock: Callable[[], datetime],
                  new_id: Callable[[], UUID] = uuid4, levers: Mapping[str, Lever] = LEVERS) -> None:
@@ -350,18 +368,7 @@ class DecisionService:
             raise DecisionRefused("DECISIONS_UNAVAILABLE") from None
 
     def _admit(self, command: str, tenant_slug: str, as_email: str):
-        """C1 to C3: the tenant, the active person, a held role of the command's at any Site."""
-        tenant_id = self._accounts.tenant_by_slug(tenant_slug)
-        if tenant_id is None:
-            raise DecisionRefused("UNKNOWN_TENANT")
-        person = self._accounts.onboard_person(as_email)
-        if person is None or person.tenant_slug != tenant_slug or not person.active:
-            raise DecisionRefused("PERSON_NOT_FOUND")
-        held = {role for role, _ in person.roles}
-        role = next((r for r in roles_of(command) if r in held), None)
-        if role is None:
-            raise DecisionRefused("PERSON_ROLE_REQUIRED")
-        return tenant_id, person, role
+        return admit_person(self._accounts, command, tenant_slug, as_email)
 
     # --- prepare -----------------------------------------------------------------------------------------------
 

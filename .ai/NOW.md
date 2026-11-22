@@ -12,9 +12,9 @@ Coordinator state: `.agent/coordinator-handoff.md`. Owner words: `owner/SUMMARY.
   more months show Month by month.
 
 ## 6a, 6c: decisions valued against doing nothing
-- Branch `task/6a-decision-records`; specs `specs/6-decision-valued/`
+- Branch `task/6c-option-evaluator`; specs `specs/6-decision-valued/`
   (`P6-proposal.md`, `6a-decision-records/`, `6c-option-evaluator/`).
-- 6a built, in review. 6c next, after 6a merges. 6f and 6b/6d/6e not yet specced.
+- 6a merged. 6c built, in review. 6f and 6b/6d/6e not yet specced.
 
 ## DD: demo data
 - Branch `task/DD-handshake`; spec `specs/DD-demo-data/spec.md`.

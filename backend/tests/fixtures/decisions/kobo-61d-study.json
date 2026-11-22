@@ -1,0 +1,1448 @@
+{
+ "input_class": "SIMULATED",
+ "evidence_class": "MODELLED",
+ "commit": "6fd0d6bb6b17b851a0e27d3098a592a656f56fc1",
+ "model": "mini-grid/8",
+ "season": "v2",
+ "season_inputs_digest": "465ab6e0818f3fbd6d15a3fbb2a30b6ab75ad1e3cfaa250d6c3b9807f4cdb1a8",
+ "trajectory_digests": {
+  "site": "7be8f02e64fa91a8d7f779b38b61c0bc4ee5ba0425d63fdc5d58769d6e3fba1d"
+ },
+ "assumptions": [
+  "generator-no-load-fuel-rate 3.3 L/h (assumed, GENERIC_DEFAULT: the owner's value of 2026-11-07 for a 40 kW set; the generic rule of about 0.08 L/h per kW of rating gives 3.2)",
+  "generator-minimum-load 30 % (assumed, GENERIC_DEFAULT: a typical diesel controller setting, until Kobo's controller settings)",
+  "battery-charge-taper-start 95 % (assumed, GENERIC_DEFAULT: a lithium iron phosphate battery, until Kobo's battery sheet)",
+  "specific-fuel-consumption 0.3 L/kWh (assumed, TEMPLATE: the Kobo template's value, read as consumption at rated output, until Kobo's fuel sheet)"
+ ],
+ "admission_rule": [
+  "max-starts-per-day 6 per day (assumed, GENERIC_DEFAULT: a typical maker's limit, until Kobo's generator sheet)",
+  "full-charge-every-days 7 days (assumed, GENERIC_DEFAULT: lithium iron phosphate, until Kobo's battery sheet)"
+ ],
+ "status": "CALIBRATED",
+ "window_start": "2026-08-31T21:00:00Z",
+ "days": 61,
+ "baseline": {
+  "case_id": "baseline",
+  "stop_soc_pct": {
+   "exact": "90/1",
+   "reading": "90.000"
+  },
+  "reserve_soc_pct": {
+   "exact": "30/1",
+   "reading": "30.000"
+  },
+  "avoided_l_by_month": [
+   {
+    "month": "2026-09",
+    "days": 30,
+    "value": {
+     "exact": "0/1",
+     "reading": "0.000"
+    }
+   },
+   {
+    "month": "2026-10",
+    "days": 31,
+    "value": {
+     "exact": "0/1",
+     "reading": "0.000"
+    }
+   }
+  ],
+  "added_throughput_kwh_by_month": [
+   {
+    "month": "2026-09",
+    "days": 30,
+    "value": {
+     "exact": "0/1",
+     "reading": "0.000"
+    }
+   },
+   {
+    "month": "2026-10",
+    "days": 31,
+    "value": {
+     "exact": "0/1",
+     "reading": "0.000"
+    }
+   }
+  ],
+  "unserved_kwh": {
+   "exact": "0/1",
+   "reading": "0.000"
+  },
+  "reserve_breach_steps": 0,
+  "max_starts_in_a_day": 2,
+  "longest_days_without_full_charge": 4,
+  "worst_dawn_soc_pct": {
+   "exact": "6611/190",
+   "reading": "34.795"
+  },
+  "dawn_days_below": 4,
+  "new_dawn_days_below": []
+ },
+ "cases": [
+  {
+   "case_id": "stop-90-reserve-30",
+   "stop_soc_pct": {
+    "exact": "90/1",
+    "reading": "90.000"
+   },
+   "reserve_soc_pct": {
+    "exact": "30/1",
+    "reading": "30.000"
+   },
+   "avoided_l_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "0/1",
+      "reading": "0.000"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "0/1",
+      "reading": "0.000"
+     }
+    }
+   ],
+   "added_throughput_kwh_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "0/1",
+      "reading": "0.000"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "0/1",
+      "reading": "0.000"
+     }
+    }
+   ],
+   "unserved_kwh": {
+    "exact": "0/1",
+    "reading": "0.000"
+   },
+   "reserve_breach_steps": 0,
+   "max_starts_in_a_day": 2,
+   "longest_days_without_full_charge": 4,
+   "worst_dawn_soc_pct": {
+    "exact": "6611/190",
+    "reading": "34.795"
+   },
+   "dawn_days_below": 4,
+   "new_dawn_days_below": [],
+   "admission": {
+    "admitted": true,
+    "first_failing_part": null,
+    "parts": [
+     {
+      "name": "energy_not_served",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "reserve_breaches",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "starts",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     },
+     {
+      "name": "full_charge",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "case_id": "stop-90-reserve-25",
+   "stop_soc_pct": {
+    "exact": "90/1",
+    "reading": "90.000"
+   },
+   "reserve_soc_pct": {
+    "exact": "25/1",
+    "reading": "25.000"
+   },
+   "avoided_l_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "325949/10000",
+      "reading": "32.595"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "14216493/160000",
+      "reading": "88.853"
+     }
+    }
+   ],
+   "added_throughput_kwh_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "45899/380",
+      "reading": "120.787"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "1349/12",
+      "reading": "112.417"
+     }
+    }
+   ],
+   "unserved_kwh": {
+    "exact": "0/1",
+    "reading": "0.000"
+   },
+   "reserve_breach_steps": 0,
+   "max_starts_in_a_day": 2,
+   "longest_days_without_full_charge": 4,
+   "worst_dawn_soc_pct": {
+    "exact": "1133/38",
+    "reading": "29.816"
+   },
+   "dawn_days_below": 11,
+   "new_dawn_days_below": [
+    "2026-09-03",
+    "2026-09-12",
+    "2026-09-14",
+    "2026-09-16",
+    "2026-09-29",
+    "2026-10-12",
+    "2026-10-25"
+   ],
+   "admission": {
+    "admitted": true,
+    "first_failing_part": null,
+    "parts": [
+     {
+      "name": "energy_not_served",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "reserve_breaches",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "starts",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     },
+     {
+      "name": "full_charge",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "case_id": "stop-85-reserve-30",
+   "stop_soc_pct": {
+    "exact": "85/1",
+    "reading": "85.000"
+   },
+   "reserve_soc_pct": {
+    "exact": "30/1",
+    "reading": "30.000"
+   },
+   "avoided_l_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "3389177/160000",
+      "reading": "21.182"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "5178491/160000",
+      "reading": "32.366"
+     }
+    }
+   ],
+   "added_throughput_kwh_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "-72331/1140",
+      "reading": "-63.448"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "8059/190",
+      "reading": "42.416"
+     }
+    }
+   ],
+   "unserved_kwh": {
+    "exact": "0/1",
+    "reading": "0.000"
+   },
+   "reserve_breach_steps": 0,
+   "max_starts_in_a_day": 2,
+   "longest_days_without_full_charge": 4,
+   "worst_dawn_soc_pct": {
+    "exact": "6611/190",
+    "reading": "34.795"
+   },
+   "dawn_days_below": 4,
+   "new_dawn_days_below": [],
+   "admission": {
+    "admitted": true,
+    "first_failing_part": null,
+    "parts": [
+     {
+      "name": "energy_not_served",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "reserve_breaches",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "starts",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     },
+     {
+      "name": "full_charge",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "case_id": "stop-85-reserve-25",
+   "stop_soc_pct": {
+    "exact": "85/1",
+    "reading": "85.000"
+   },
+   "reserve_soc_pct": {
+    "exact": "25/1",
+    "reading": "25.000"
+   },
+   "avoided_l_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "9699733/80000",
+      "reading": "121.247"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "25008889/160000",
+      "reading": "156.306"
+     }
+    }
+   ],
+   "added_throughput_kwh_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "23509/285",
+      "reading": "82.488"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "19527/190",
+      "reading": "102.774"
+     }
+    }
+   ],
+   "unserved_kwh": {
+    "exact": "0/1",
+    "reading": "0.000"
+   },
+   "reserve_breach_steps": 0,
+   "max_starts_in_a_day": 2,
+   "longest_days_without_full_charge": 5,
+   "worst_dawn_soc_pct": {
+    "exact": "1133/38",
+    "reading": "29.816"
+   },
+   "dawn_days_below": 11,
+   "new_dawn_days_below": [
+    "2026-09-03",
+    "2026-09-10",
+    "2026-09-12",
+    "2026-09-14",
+    "2026-09-16",
+    "2026-09-29",
+    "2026-10-12"
+   ],
+   "admission": {
+    "admitted": true,
+    "first_failing_part": null,
+    "parts": [
+     {
+      "name": "energy_not_served",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "reserve_breaches",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "starts",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     },
+     {
+      "name": "full_charge",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "case_id": "stop-80-reserve-30",
+   "stop_soc_pct": {
+    "exact": "80/1",
+    "reading": "80.000"
+   },
+   "reserve_soc_pct": {
+    "exact": "30/1",
+    "reading": "30.000"
+   },
+   "avoided_l_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "1263339/16000",
+      "reading": "78.959"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "15001937/160000",
+      "reading": "93.762"
+     }
+    }
+   ],
+   "added_throughput_kwh_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "-27541/1140",
+      "reading": "-24.159"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "11161/570",
+      "reading": "19.581"
+     }
+    }
+   ],
+   "unserved_kwh": {
+    "exact": "0/1",
+    "reading": "0.000"
+   },
+   "reserve_breach_steps": 0,
+   "max_starts_in_a_day": 2,
+   "longest_days_without_full_charge": 4,
+   "worst_dawn_soc_pct": {
+    "exact": "6611/190",
+    "reading": "34.795"
+   },
+   "dawn_days_below": 4,
+   "new_dawn_days_below": [],
+   "admission": {
+    "admitted": true,
+    "first_failing_part": null,
+    "parts": [
+     {
+      "name": "energy_not_served",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "reserve_breaches",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "starts",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     },
+     {
+      "name": "full_charge",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "case_id": "stop-80-reserve-25",
+   "stop_soc_pct": {
+    "exact": "80/1",
+    "reading": "80.000"
+   },
+   "reserve_soc_pct": {
+    "exact": "25/1",
+    "reading": "25.000"
+   },
+   "avoided_l_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "10893689/80000",
+      "reading": "136.171"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "13601979/80000",
+      "reading": "170.025"
+     }
+    }
+   ],
+   "added_throughput_kwh_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "6123/190",
+      "reading": "32.226"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "7294/57",
+      "reading": "127.965"
+     }
+    }
+   ],
+   "unserved_kwh": {
+    "exact": "0/1",
+    "reading": "0.000"
+   },
+   "reserve_breach_steps": 0,
+   "max_starts_in_a_day": 2,
+   "longest_days_without_full_charge": 4,
+   "worst_dawn_soc_pct": {
+    "exact": "1133/38",
+    "reading": "29.816"
+   },
+   "dawn_days_below": 14,
+   "new_dawn_days_below": [
+    "2026-09-03",
+    "2026-09-11",
+    "2026-09-12",
+    "2026-09-14",
+    "2026-09-16",
+    "2026-09-22",
+    "2026-09-29",
+    "2026-10-05",
+    "2026-10-12",
+    "2026-10-25"
+   ],
+   "admission": {
+    "admitted": true,
+    "first_failing_part": null,
+    "parts": [
+     {
+      "name": "energy_not_served",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "reserve_breaches",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "starts",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     },
+     {
+      "name": "full_charge",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "case_id": "stop-75-reserve-30",
+   "stop_soc_pct": {
+    "exact": "75/1",
+    "reading": "75.000"
+   },
+   "reserve_soc_pct": {
+    "exact": "30/1",
+    "reading": "30.000"
+   },
+   "avoided_l_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "969543/8000",
+      "reading": "121.193"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "25728937/160000",
+      "reading": "160.806"
+     }
+    }
+   ],
+   "added_throughput_kwh_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "-5881/380",
+      "reading": "-15.476"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "26703/380",
+      "reading": "70.271"
+     }
+    }
+   ],
+   "unserved_kwh": {
+    "exact": "0/1",
+    "reading": "0.000"
+   },
+   "reserve_breach_steps": 0,
+   "max_starts_in_a_day": 3,
+   "longest_days_without_full_charge": 4,
+   "worst_dawn_soc_pct": {
+    "exact": "6611/190",
+    "reading": "34.795"
+   },
+   "dawn_days_below": 4,
+   "new_dawn_days_below": [],
+   "admission": {
+    "admitted": true,
+    "first_failing_part": null,
+    "parts": [
+     {
+      "name": "energy_not_served",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "reserve_breaches",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "starts",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     },
+     {
+      "name": "full_charge",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "case_id": "stop-75-reserve-25",
+   "stop_soc_pct": {
+    "exact": "75/1",
+    "reading": "75.000"
+   },
+   "reserve_soc_pct": {
+    "exact": "25/1",
+    "reading": "25.000"
+   },
+   "avoided_l_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "17608581/80000",
+      "reading": "220.107"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "39187297/160000",
+      "reading": "244.921"
+     }
+    }
+   ],
+   "added_throughput_kwh_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "-8051/285",
+      "reading": "-28.249"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "5042/57",
+      "reading": "88.456"
+     }
+    }
+   ],
+   "unserved_kwh": {
+    "exact": "0/1",
+    "reading": "0.000"
+   },
+   "reserve_breach_steps": 0,
+   "max_starts_in_a_day": 2,
+   "longest_days_without_full_charge": 4,
+   "worst_dawn_soc_pct": {
+    "exact": "1133/38",
+    "reading": "29.816"
+   },
+   "dawn_days_below": 11,
+   "new_dawn_days_below": [
+    "2026-09-03",
+    "2026-09-12",
+    "2026-09-14",
+    "2026-09-29",
+    "2026-10-05",
+    "2026-10-12",
+    "2026-10-25"
+   ],
+   "admission": {
+    "admitted": true,
+    "first_failing_part": null,
+    "parts": [
+     {
+      "name": "energy_not_served",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "reserve_breaches",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "starts",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     },
+     {
+      "name": "full_charge",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "case_id": "stop-70-reserve-30",
+   "stop_soc_pct": {
+    "exact": "70/1",
+    "reading": "70.000"
+   },
+   "reserve_soc_pct": {
+    "exact": "30/1",
+    "reading": "30.000"
+   },
+   "avoided_l_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "3802991/20000",
+      "reading": "190.150"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "38791079/160000",
+      "reading": "242.444"
+     }
+    }
+   ],
+   "added_throughput_kwh_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "1507/60",
+      "reading": "25.117"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "54061/570",
+      "reading": "94.844"
+     }
+    }
+   ],
+   "unserved_kwh": {
+    "exact": "0/1",
+    "reading": "0.000"
+   },
+   "reserve_breach_steps": 0,
+   "max_starts_in_a_day": 3,
+   "longest_days_without_full_charge": 5,
+   "worst_dawn_soc_pct": {
+    "exact": "6611/190",
+    "reading": "34.795"
+   },
+   "dawn_days_below": 4,
+   "new_dawn_days_below": [],
+   "admission": {
+    "admitted": true,
+    "first_failing_part": null,
+    "parts": [
+     {
+      "name": "energy_not_served",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "reserve_breaches",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "starts",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     },
+     {
+      "name": "full_charge",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "case_id": "stop-70-reserve-25",
+   "stop_soc_pct": {
+    "exact": "70/1",
+    "reading": "70.000"
+   },
+   "reserve_soc_pct": {
+    "exact": "25/1",
+    "reading": "25.000"
+   },
+   "avoided_l_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "8151603/40000",
+      "reading": "203.790"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "10399537/40000",
+      "reading": "259.988"
+     }
+    }
+   ],
+   "added_throughput_kwh_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "22639/1140",
+      "reading": "19.859"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "26461/228",
+      "reading": "116.057"
+     }
+    }
+   ],
+   "unserved_kwh": {
+    "exact": "0/1",
+    "reading": "0.000"
+   },
+   "reserve_breach_steps": 0,
+   "max_starts_in_a_day": 3,
+   "longest_days_without_full_charge": 5,
+   "worst_dawn_soc_pct": {
+    "exact": "1133/38",
+    "reading": "29.816"
+   },
+   "dawn_days_below": 12,
+   "new_dawn_days_below": [
+    "2026-09-03",
+    "2026-09-04",
+    "2026-09-12",
+    "2026-09-14",
+    "2026-09-16",
+    "2026-09-29",
+    "2026-09-30",
+    "2026-10-12"
+   ],
+   "admission": {
+    "admitted": true,
+    "first_failing_part": null,
+    "parts": [
+     {
+      "name": "energy_not_served",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "reserve_breaches",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "starts",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     },
+     {
+      "name": "full_charge",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "case_id": "stop-65-reserve-30",
+   "stop_soc_pct": {
+    "exact": "65/1",
+    "reading": "65.000"
+   },
+   "reserve_soc_pct": {
+    "exact": "30/1",
+    "reading": "30.000"
+   },
+   "avoided_l_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "3373471/20000",
+      "reading": "168.674"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "10646153/40000",
+      "reading": "266.154"
+     }
+    }
+   ],
+   "added_throughput_kwh_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "7729/380",
+      "reading": "20.339"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "7209/95",
+      "reading": "75.884"
+     }
+    }
+   ],
+   "unserved_kwh": {
+    "exact": "0/1",
+    "reading": "0.000"
+   },
+   "reserve_breach_steps": 0,
+   "max_starts_in_a_day": 3,
+   "longest_days_without_full_charge": 4,
+   "worst_dawn_soc_pct": {
+    "exact": "6611/190",
+    "reading": "34.795"
+   },
+   "dawn_days_below": 4,
+   "new_dawn_days_below": [],
+   "admission": {
+    "admitted": true,
+    "first_failing_part": null,
+    "parts": [
+     {
+      "name": "energy_not_served",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "reserve_breaches",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "starts",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     },
+     {
+      "name": "full_charge",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "case_id": "stop-65-reserve-25",
+   "stop_soc_pct": {
+    "exact": "65/1",
+    "reading": "65.000"
+   },
+   "reserve_soc_pct": {
+    "exact": "25/1",
+    "reading": "25.000"
+   },
+   "avoided_l_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "5533447/20000",
+      "reading": "276.672"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "2051389/6400",
+      "reading": "320.530"
+     }
+    }
+   ],
+   "added_throughput_kwh_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "39679/1140",
+      "reading": "34.806"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "67121/570",
+      "reading": "117.756"
+     }
+    }
+   ],
+   "unserved_kwh": {
+    "exact": "0/1",
+    "reading": "0.000"
+   },
+   "reserve_breach_steps": 0,
+   "max_starts_in_a_day": 3,
+   "longest_days_without_full_charge": 5,
+   "worst_dawn_soc_pct": {
+    "exact": "113959648033653901223/3825205248000000000",
+    "reading": "29.792"
+   },
+   "dawn_days_below": 15,
+   "new_dawn_days_below": [
+    "2026-09-03",
+    "2026-09-10",
+    "2026-09-12",
+    "2026-09-14",
+    "2026-09-16",
+    "2026-09-20",
+    "2026-09-23",
+    "2026-09-29",
+    "2026-10-10",
+    "2026-10-12",
+    "2026-10-24",
+    "2026-10-25"
+   ],
+   "admission": {
+    "admitted": true,
+    "first_failing_part": null,
+    "parts": [
+     {
+      "name": "energy_not_served",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "reserve_breaches",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "starts",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     },
+     {
+      "name": "full_charge",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "case_id": "stop-60-reserve-30",
+   "stop_soc_pct": {
+    "exact": "60/1",
+    "reading": "60.000"
+   },
+   "reserve_soc_pct": {
+    "exact": "30/1",
+    "reading": "30.000"
+   },
+   "avoided_l_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "63407/250",
+      "reading": "253.628"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "58601859/160000",
+      "reading": "366.262"
+     }
+    }
+   ],
+   "added_throughput_kwh_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "34097/1140",
+      "reading": "29.910"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "85513/570",
+      "reading": "150.023"
+     }
+    }
+   ],
+   "unserved_kwh": {
+    "exact": "0/1",
+    "reading": "0.000"
+   },
+   "reserve_breach_steps": 0,
+   "max_starts_in_a_day": 4,
+   "longest_days_without_full_charge": 4,
+   "worst_dawn_soc_pct": {
+    "exact": "6611/190",
+    "reading": "34.795"
+   },
+   "dawn_days_below": 4,
+   "new_dawn_days_below": [],
+   "admission": {
+    "admitted": true,
+    "first_failing_part": null,
+    "parts": [
+     {
+      "name": "energy_not_served",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "reserve_breaches",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "starts",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     },
+     {
+      "name": "full_charge",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "case_id": "stop-60-reserve-25",
+   "stop_soc_pct": {
+    "exact": "60/1",
+    "reading": "60.000"
+   },
+   "reserve_soc_pct": {
+    "exact": "25/1",
+    "reading": "25.000"
+   },
+   "avoided_l_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "11805407/40000",
+      "reading": "295.135"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "56033523/160000",
+      "reading": "350.210"
+     }
+    }
+   ],
+   "added_throughput_kwh_by_month": [
+    {
+     "month": "2026-09",
+     "days": 30,
+     "value": {
+      "exact": "103513/1140",
+      "reading": "90.801"
+     }
+    },
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "149477/1140",
+      "reading": "131.120"
+     }
+    }
+   ],
+   "unserved_kwh": {
+    "exact": "0/1",
+    "reading": "0.000"
+   },
+   "reserve_breach_steps": 0,
+   "max_starts_in_a_day": 3,
+   "longest_days_without_full_charge": 4,
+   "worst_dawn_soc_pct": {
+    "exact": "47343/1600",
+    "reading": "29.589"
+   },
+   "dawn_days_below": 20,
+   "new_dawn_days_below": [
+    "2026-09-03",
+    "2026-09-04",
+    "2026-09-10",
+    "2026-09-14",
+    "2026-09-19",
+    "2026-09-20",
+    "2026-09-22",
+    "2026-09-26",
+    "2026-09-29",
+    "2026-09-30",
+    "2026-10-11",
+    "2026-10-12",
+    "2026-10-17",
+    "2026-10-22",
+    "2026-10-25",
+    "2026-10-30"
+   ],
+   "admission": {
+    "admitted": true,
+    "first_failing_part": null,
+    "parts": [
+     {
+      "name": "energy_not_served",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "reserve_breaches",
+      "passed": true,
+      "limit": null
+     },
+     {
+      "name": "starts",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     },
+     {
+      "name": "full_charge",
+      "passed": true,
+      "limit": {
+       "exact": "6/1",
+       "reading": "6.000"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}
