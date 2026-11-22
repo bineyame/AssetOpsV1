@@ -886,3 +886,39 @@ fix model faults in the model". Owner informed; no weigh-in needed (no WORKAROUN
     and DD3.2 as built.
   - DD3b, 4.75 to **5.0 u** (DD3.3 2.25 to 2.5): D-DD.70's pure-run table and gate.
   - DD3 is 9.0 u. DD goes from 35.25 to **35.75 u**, and each part stays at or under 6 u.
+
+- **D-DD.74 DD2b merges on its own once its consumers select their tenant: `exports --tenant`** (W6; amends spec §7
+  DD2.3 and DD2.4, and DDR spec S3). Rules option (c) of review-DD2b V1, as a fix, not a workaround; (a) and (b) are
+  refused.
+  - *The class.* DD2b widened `tools/world_history.py exports` from Lakeside's mini-grid files to every manifest
+    tenant's books in one flat directory. Every consumer reads one tenant's (or the definition's tenants') files and
+    refuses a stranger: `load_emulated_exports --tenant` (`EXPORT_FILE_UNKNOWN`) and `tools/world.py` L1.exports
+    (`WORLD_INPUT_UNPLACED`). The 12 red main tests (9 `test_ddr_rehearsal_postgres.py`, 3 `test_ds4_world_postgres.py`
+    t12-t14) are two instances of it; the DDR spec's S3 and two runbooks carry the same command and would fail the same
+    way in use. The producer's widened contract is DD2b's, so the consumer sweep is DD2b's too.
+  - *Why not (a).* DD5 would not cure it: the definition `/2` places all three tenants (t12-t14 go green), but the DDR
+    rehearsal and both runbooks load one tenant's directory and would stay red. Holding DD2b also holds DD3a, DD3b and
+    DD4, which build on its files. *Why not (b).* Marking accepted tests expected-failing leaves main red in substance
+    and is a workaround with no owning unit. *Why not loosen a consumer.* Skipping unknown files in either loader
+    weakens a guard that catches real misplacement; both refusals keep their full meaning.
+  - *Change list (DD2b fix round 8, 0.5 u):*
+    1. `tools/world_history.py exports` gains `--tenant SLUG`, repeatable, optional. With it, the export directory and
+       `--extras` hold only files whose name starts with `<slug>.` for a named slug; `unwritten.json` is written whole
+       (it lists what the world did not write; every loader skips it by name). A slug that is not a manifest
+       `tenant` prints `EMU_TENANT_UNKNOWN <slug>` and exits 3. Without `--tenant`, all tenants, as now. The filter runs
+       on `build_books`' result; `build_books` is unchanged.
+    2. `tools/world.py` `inputs()`: the L1.exports argv adds `--tenant <slug>` for each definition tenant. The
+       `WORLD_INPUT_UNPLACED` refusal and the extras loop stay as they are (they now see only named tenants' files).
+       Any `test_ds4_world.py` argv assertion follows.
+    3. `backend/tests/test_ddr_rehearsal_postgres.py` S3 adds `--tenant lakeside-power`; the same in DDR spec S3
+       (`specs/DDR-rehearsal/spec.md` row S3), `specs/ON1-operator-tenant/runbook.md` and
+       `Docs/engineering/operator-deep-dive-runbook.md` at their `exports --manifest` lines.
+    4. Tests (`simulator/tests/world/test_dd2b_round7.py` or a new `test_dd2b_tenant_filter.py`): `--tenant
+       lakeside-power` writes no `harvest-cold.` or `metro-bus.` file and the same Lakeside bytes as the unfiltered run;
+       two `--tenant` flags write both tenants' files; an unknown slug exits 3 with `EMU_TENANT_UNKNOWN`.
+  - *Gate.* Before merge, the verifier's nine backend files run green on the branch (the 12 included), and
+    `simulator/tests` stays green.
+  - *DD5.* Nothing moves out of DD5 and its 5.25 u stand: DD5.3's L1 places cold and EV by naming their tenants in the
+    `/2` definition, and item 2 carries them through unchanged.
+  - *Units.* DD2b 4.0 to **4.5 u** (DD2.3 2.25 to 2.5, DD2.4 1.5 to 1.75); DD2 7.5 u; DD goes from 35.75 to
+    **36.25 u**, each part at or under 6 u.
