@@ -3,11 +3,11 @@
 Status: **rev 2, 2026-11-22; DD1 in_review (`packet-DD1.md`); DD2a in_review (`packet-DD2a.md`)**: the combined handshake (`handshake.md`, R1-R10, I1-I15) is answered there under "Answers
 (Architect)" and ruled in `rulings.md` (D-DD.17 to D-DD.34). Rev 1 (same day) had 19.5 u in four parts; rev 2 has
 **30.0 u in six parts** (§7); restated by D-DD.44 to **33.0 u in seven parts** (DD3 splits into DD3a, DD3b), by D-DD.47 to 33.5 u, and by D-DD.57 to
-**34.25 u in eight parts** (DD2 splits into DD2a, DD2b), and by D-DD.66 to **35.25 u**. Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
+**34.25 u in eight parts** (DD2 splits into DD2a, DD2b), by D-DD.66 to **35.25 u**, and by D-DD.73 to **35.75 u**. Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
 it grounded on the product goals"); owner answers to Q1-Q6: `owner/owner-demo-data-answers-2026-11-22.md`. Owner words on
 Kobo's equipment: `owner/owner-iap-q1-q2-kobo-datasheets-2026-11-22.md`. **Rulings:** D-DD.1 to D-DD.16 (§9) and
-D-DD.17 to D-DD.66 (`rulings.md`); index lines in `.ai/decisions/index-rulings-26.md`, `index-rulings-27.md` and
-`index-rulings-28.md`.
+D-DD.17 to D-DD.73 (`rulings.md`); index lines in `.ai/decisions/index-rulings-26.md`, `index-rulings-27.md`,
+`index-rulings-28.md` and `index-rulings-29.md`.
 **Reviewer guide:** `reviewer-guide.md` (rev 2). `USER_REVIEW_REQUIRED: true` (demo narrative, evidence labels, what the
 served app shows; owner Q7-Q9 open with defaults applied).
 
@@ -249,8 +249,9 @@ cold and EV Site-days were never measured. DD6.3 measures; owner Q4 governs (cap
   - `decided_books` is the writer's read of the staged decided files (fuel notes, storage ledger, roster).
 - `F` is written by `tools/world_history.py site-inputs --onboarding DIR --bindings DIR --out F`, a pure function in
   DD3.1. It joins each `/2` Site with its binding conversion.
-- **Per Site-day**, in date order, the pack runs the day from the previous day's end state (SOC, tank, temperature,
-  crates, sessions), so days chain. Inputs are scaled by largest remainder so the month's input totals equal the books
+- **Per Site, one continuous execution advanced one local day at a time** (D-DD.69; every pack): it starts at the
+  span's first local midnight from the declared initial state, and each day's file is written from that day's steps,
+  so day d+1 starts from day d's end state (SOC, tank, temperature, crates, sessions, a RUNNING generator). Inputs are scaled by largest remainder so the month's input totals equal the books
   exactly (`TEL_INPUT_TOTAL` otherwise).
 - **Story conditions and events** are read from `M` `operations` (each event's `asset` and `at`),
   `tenants.*.sites.*.incident` and `observations`, never from `oracle`. A date-only instant means 00:00 local. Each is
@@ -263,7 +264,7 @@ cold and EV Site-days were never measured. DD6.3 measures; owner Q4 governs (cap
     per Site-month;
   - per tenant, `<slug>/telemetry/measured.json`: the meter month totals the measured books are written from (§5.6).
 - **Public records to readings.** The writer maps each pack public record (device, signal) to the role set's
-  `source_id` and `signal_id`; the map is written in the readings manifest's `mappings`. `S/observation/transform.py` is
+  `source_id` and `signal_id`, where `source_id` is the binding row's `device_id` (D-DD.72); the map is written in the readings manifest's `mappings`. `S/observation/transform.py` is
   not on this path.
 - Values are exact decimal strings. Seeds: `sha256(scope digest | site code | day | stream)`; sorted iteration.
 - **Refusals** (exit 3 on `world_history.py telemetry`, stderr `<CODE> <detail>`):
@@ -271,7 +272,8 @@ cold and EV Site-days were never measured. DD6.3 measures; owner Q4 governs (cap
   - `TEL_EVENT_UNPLACED` (an instant outside the span);
   - `TEL_PACK` (the pack refused, including a tank overfill; the pack's code follows);
   - `TEL_ORACLE_READ`;
-  - `TEL_FOUNDATION` (a Site in `F` lacks a property its pack needs).
+  - `TEL_FOUNDATION` (a Site in `F` lacks a property its pack needs);
+  - `TEL_BINDING` (a public record with no binding row, or two; D-DD.72).
 - CLI: `tools/world_history.py telemetry --manifest M --sites F --books DIR --out DIR`.
 
 ### 4.2 Mini-grid inputs (DD3.1, DD3.3)
@@ -719,6 +721,10 @@ line's: 10.50 / 10.50; 7.80 / 8.03; 5.60 / 5.56. The packet quotes these residua
   `battery-energy-capacity-basis` (`{GENERIC_DEFAULT, MANUFACTURER_DATASHEET, SITE_TEST}`), and `DATASHEET_FIT` in
   `generator-no-load-fuel-rate-basis`.
 - The SC-1 statement `component_property.basis` renders D-DD.17's three sentences.
+- D-DD.67: `financials/fuel_cost_v2.py` `NO_LOAD_BASES` gains `DATASHEET_FIT` (no parameter version change), and
+  `chain/vocabulary.py` `NO_LOAD_BASIS_WORDS` gains "the datasheet-fitted idle fuel rate"; a test holds both equal to
+  the state set, and D-DD.68's parity test holds the other bases unchanged.
+- D-DD.71: every property the tool writes, and its `-basis` sibling, carries `source` "SITE", `source_version` 1.
 - Cycle life, module currents and round-trip efficiency stay in the slot only (owner Q5: battery wear cost "Not
   available yet").
 
@@ -729,8 +735,8 @@ line's: 10.50 / 10.50; 7.80 / 8.03; 5.60 / 5.56. The packet quotes these residua
 - every moved figure is listed for 0K4f (D-DD.30).
 
 **Order inside DD3.2.**
-- Commit 1: the tool, the basis vocabulary, the slot, and the pure run of D-DD.19 (all three mini-grid Sites, July to
-  October; Kobo at 0.62 and at 3.3 L/h).
+- Commit 1: the tool, the basis vocabulary, the slot, and the pure run of D-DD.19 on Kobo, July to October, at 0.62
+  and at 3.3 L/h (D-DD.70: Kisiwa's and Mto's pure run is DD3.3's, on v9).
 - Commit 2, after the coordinator has put Q7 to the owner: Lakeside's `/2` values at the answer or the default, the
   manifest's Kobo `physical`, and the regeneration.
 
@@ -794,15 +800,16 @@ Order: DD1 → (DD2a → DD2b ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merg
   `measured.json` and tested on a fixture. C-DD2 to C-DD4 go live for the decided books, with C-DD4's node clause and
   the checker's own evaluator (D-DD.55).
 
-### DD3: the mini-grid's operating reality (8.5 u in two parts, D-DD.44: DD3a = DD3.1, DD3.2, 3.75 u, `task/DD3a-mini-reality`; DD3b = DD3.3, DD3.4, 4.75 u, `task/DD3b-mini-units`)
+### DD3: the mini-grid's operating reality (9.0 u in two parts, D-DD.44, D-DD.73: DD3a = DD3.1, DD3.2, 4.0 u, `task/DD3a-mini-reality`; DD3b = DD3.3, DD3.4, 5.0 u, `task/DD3b-mini-units`)
 
 - **DD3.1 Writer core and Kobo on v8 (1.75).** §4.1 and §4.2 for Kobo: `site-inputs`, scaling, chaining, the tank's
   deliveries and declared draw, golden digests. C-DD11 and C-DD12 go live.
-- **DD3.2 Kobo's data sheets (2.0).** §6: the tool, basis vocabulary, slot, Lakeside's `/2` values, the manifest's Kobo
-  `physical` and the regeneration (D-DD.30), and the pure-run gate of D-DD.19. Two commits, in §6's order; the packet
+- **DD3.2 Kobo's data sheets (2.25).** §6: the tool, basis vocabulary, slot, Lakeside's `/2` values, the manifest's Kobo
+  `physical` and the regeneration (D-DD.30), D-DD.67 and its parity test (D-DD.68), and the pure-run gate of D-DD.19
+  for Kobo (D-DD.70). Two commits, in §6's order; the packet
   lists every moved figure. C-DD16 goes live.
-- **DD3.3 Mini-grid v9 (2.25).** §4.3: the model, the forcings, the parity test against v8 on Kobo's October, and
-  Kisiwa and Mto in the writer. C-DD19 (mini part) goes live, and C-DD8 runs on the pure output.
+- **DD3.3 Mini-grid v9 (2.5).** §4.3: the model, the forcings, the parity test against v8 on Kobo's October, and
+  Kisiwa and Mto in the writer, with their D-DD.19 pure-run table and gate (D-DD.70). C-DD19 (mini part) goes live, and C-DD8 runs on the pure output.
 - **DD3.4 Unit roles in the readers (2.5; D-DD.41, D-DD.44).** `sites/unit_roles.py`: the Site-from-units rule and
   the lead-unit policy read, called by every reader D-DD.41 lists for a `minigrid-roles-5` set; a migration lets the
   mini-depth lift accept one roles-4 or roles-5 set; Kobo's world conversion moves to roles-5 with a parity test of its
@@ -861,7 +868,7 @@ Order: DD1 → (DD2a → DD2b ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merg
   - Fold in the DDR runbook's ten queued clarity notes.
   - Evidence goes to `/opt/assetecon/evidence/DD/<run>/`.
 
-**Size: 35.25 units (D-DD.66; D-DD.57: 34.25 u; D-DD.47: 33.5 u; D-DD.44: 33.0 u; rev 2: 30.0 u), about 54 commits** (rev 1: 19.5 u). Each part is at or under 6 units. 0K4f grows by 0.5 u
+**Size: 35.75 units (D-DD.73; D-DD.66: 35.25 u; D-DD.57: 34.25 u; D-DD.47: 33.5 u; D-DD.44: 33.0 u; rev 2: 30.0 u), about 54 commits** (rev 1: 19.5 u). Each part is at or under 6 units. 0K4f grows by 0.5 u
 (D-DD.30).
 
 ---
@@ -938,7 +945,7 @@ The checker shares no logic, list or expected figure with the generators. Expect
 
 - **D-DD.1 to D-DD.16** as in rev 1, kept below. D-DD.4 is amended by D-DD.21 and D-DD.22, D-DD.5 by D-DD.24, and
   D-DD.10 by D-DD.17 and D-DD.30.
-- **D-DD.17 to D-DD.66**: `rulings.md`.
+- **D-DD.17 to D-DD.73**: `rulings.md`.
 
 - **D-DD.1 The cast.** The manifest's three operators and nine Sites, as §1's table. *Why:* one world drives the
   manifest, mock, documents and product. *Reverse:* a cast change is a manifest change first.
