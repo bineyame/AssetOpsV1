@@ -665,8 +665,8 @@ function uxDecStatus(id, st) {
 /* the honest reason when nothing is recommended, from the dispositions shown */
 function uxNoRecReason(id) {
   const d = decById(id), op = SK[d.site].op, D = deciderOf(id), opts = d.opts.filter(o => !isNoAction(o)), n = k => opts.filter(o => uxDisp(o) === k).length;
-  const rej = n('REJECTED'), def = n('DEFERRED'), other = opts.length - rej - def;
-  const parts = [rej ? `${num(rej)} ${rej === 1 ? 'is' : 'are'} rejected` : '', def ? `${num(def)} ${def === 1 ? 'is' : 'are'} deferred` : '', other ? `${num(other)} ${other === 1 ? 'is' : 'are'} allowed but none does better than ${(BASIS_WORDS[decBasis(d)] || 'against the reference').replace(/^against /, '')} within the limits` : ''].filter(Boolean);
+  const rej = n('REJECTED'), def = n('DEFERRED'), na = n('NOT_AVAILABLE_YET'), other = opts.length - rej - def - na;
+  const parts = [rej ? `${num(rej)} ${rej === 1 ? 'is' : 'are'} rejected` : '', def ? `${num(def)} ${def === 1 ? 'is' : 'are'} deferred` : '', na ? `${num(na)} ${na === 1 ? 'has' : 'have'} no value yet (${uxLcFirst(naText(opts.find(o => uxDisp(o) === 'NOT_AVAILABLE_YET')))})` : '', other ? `${num(other)} ${other === 1 ? 'is' : 'are'} allowed but none does better than ${(BASIS_WORDS[decBasis(d)] || 'against the reference').replace(/^against /, '')} within the limits` : ''].filter(Boolean);
   return `No option is recommended: of ${num(opts.length)} option${opts.length === 1 ? '' : 's'}, ${parts.join(' and ')}. ${who(op, D.p)} can still choose ${rej === opts.length ? 'to do nothing' : 'one, or none'}.`;
 }
 /* the question is the page's title (review r1 L5): the decision's name, as a question */

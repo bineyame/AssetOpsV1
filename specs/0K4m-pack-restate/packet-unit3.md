@@ -80,13 +80,14 @@ The mock's existing `PLAIN` entry for the Embakasi peak line no longer matches a
 - Boundary proof (scratch `boundary.py`, every commit main..HEAD and the tree): (a) view sha `7ed4a720…` equal; (b)
   `world_history.py check` exit 0; (c) 0 forbidden lines; BOUNDARY PASS (`boundary.txt` in evidence). (d) K13: 11 of 11 pass.
 - `render_text.cjs`: 237 renders, 0 script errors; `vocab_check`: 0 hits; `copy_check`: 0 hits; `hand_typed_scan.py`: exit 0.
-- Audit: see `audit-summary.txt` in evidence.
+- Audit: see `audit-summary.txt` in evidence. The audit's two drawer-click loops now skip an evidence button that is not visible
+  (inside a side drawer that Escape closed). Main's mock behaves the same, and the audit timed out there (`audit.mjs:68-69`).
 
 ## Plants
 
 | Plant | Result |
 |---|---|
-| P14: the old DVTEXT string restored in `loop-site.js` | `vocab_check` fails (evidence) |
+| P14: the old DVTEXT string restored in `loop-site.js` | `vocab_check` exit 1, 3 hits of the retired-label rule (scratch copy of the mock; `plant-p14-vocab.json`) |
 | P15: "212.8 L" hand-typed in `loop-decisions.js` | does **not** fail: 212.8 is not a figure the evaluator produces any more, and the scan's class is evaluated figures (Known Deviation 2) |
 | P15b: "$284.44 a month" (an evaluated figure) hand-typed in `loop-decisions.js` | `hand_typed_scan.py` exit 1 |
 

@@ -3579,7 +3579,8 @@ const NODE_FIELD={contribution:'contribution',revenue:'revenue',fuel_cost:'diese
    Object.entries(X.nodes).forEach(([n,v])=>{const f=n==='cost_to_serve'&&cost?'total':n==='contribution'&&cost?null:NODE_FIELD[n];if(f&&P[f]!==undefined)P[f]=v;});});});
  Object.entries(DERIVED.options).forEach(([id,d])=>{const o=OPT[id];if(!o)return;o._derived=d;const e=o.economics||(o.economics={});
   if(d.valued_in_money&&d.value!==null){if(id==='KIS-BATT60'){o.net_12m=d.value;o.monthly_fuel_saving_modelled=d.monthly_or_horizon_change;}
-   else if(e.net_contract!==undefined)e.net_contract=d.value;else if(e.net_12m!==undefined)e.net_12m=d.value;
+   else if(e.net_contract!==undefined)e.net_contract=d.value;else if(e.net_12m!==undefined||typeof e.value==='string')e.net_12m=d.value; /* 0K4m: an option whose stated value became a {fig:} placeholder takes the evaluator's */
+   if(typeof e.value==='string'&&d.months>1&&e.net_monthly===undefined)e.net_monthly=d.monthly_or_horizon_change;
    if(d.months>1)['net_monthly','monthly','saving_monthly'].forEach(k=>{if(e[k]!==undefined)e[k]=d.monthly_or_horizon_change;});
    /* the one-off is what the operator bears (net_one_off); the option's value adds its money effect to the restore (Mto's extra
       fuel, under Optimize), so the value is never shown as a one-off cost (rev 16.12 §2.0) */
@@ -3649,12 +3650,13 @@ const REASON_RULES=[[/\((\d[\d,]*(?:\.\d+)?) lost; evaluated\)/g,'($$$1 of cover
 const plainReason=t=>idPlain(REASON_RULES.reduce((a,[r,s])=>a.replace(r,s),String(t)));
 const fx = t => {if(!t)return '';return cap(plainReason(t));};
 const NOACT_WHY = {'EMB-NOACT':()=>{const d=DOPT('EMB-DEADLINE'),na=OPT['EMB-NOACT'].economics;return `October’s pattern under the November tariff: ${usd(d.energy_bill_reference)} a month; the new 00:00–05:00 rate lowers it by ${usd(na.tariff_tier_windfall_monthly)} with no action, and that is never credited to an option.`;},'MWEA-NOACT':()=>'Nothing is broken; the room stays underused.','KIRI-NOACT':()=>`The extra ${usd(-BR('kirinyaga','ENERGY_EFFICIENCY').amount)} a month of electricity continues.`,'KOB-NOACT':()=>`Candidate running continues (${num(qtyOf(BR('kobo','CANDIDATE_RUNNING').basis)[0])} L in October); what stopping at 70% would avoid: ${NA_KOBO}.`};
-function optWhy(o){if(NOACT_WHY[o.id])return NOACT_WHY[o.id]();if(naText(o.id))return [naText(o.id),admissionLine(o.id),dawnLine(o.id)].filter(Boolean).join('. ')+'.'; /* D-0K4.54: the mock's own copy, never the manifest reason */if(o.disposition==='CONDITIONAL')return conditionFromCases(o.id);return fx(o.reason)||fx(o.note)||(o.condition?fx(o.condition):'');}
+function optWhy(o){if(NOACT_WHY[o.id])return NOACT_WHY[o.id]();if(naText(o.id)){const l=[admissionLine(o.id),dawnLine(o.id)].filter(Boolean);return l.length?l.join('. ')+'.':naText(o.id)+'.';} /* the gap itself is the option's result */ /* D-0K4.54: the mock's own copy, never the manifest reason */if(o.disposition==='CONDITIONAL')return conditionFromCases(o.id);return fx(o.reason)||fx(o.note)||(o.condition?fx(o.condition):'');}
 function optCost(o){
  if(o.capex!==undefined)return [o.capex===0?'$0':usd(o.capex),'capital purchase'];
  if(o.cost!==undefined)return [usd(o.cost),'one-off cost'];
  if(o.residual_cost!==undefined)return [usd(o.residual_cost),o.nights?`in total for ${o.nights} bus-nights`:'our cost after the supplier’s remedy'];
  if(o.economics?.one_off!==undefined)return [usd(o.economics.one_off),'one-off set-up'];
+ if(o.economics?.one_off_detail&&DOPT(o.id)?.operator_one_off!=null)return [usd(DOPT(o.id).operator_one_off),'one-off set-up']; /* 0K4m: the evaluator's one-off (the stated figure left the manifest) */
  if(o.kind==='NO_ACTION')return ['$0','no spend'];
  if(o.kind==='COMMERCIAL_CORRECTION'||o.kind==='RIGHTS_REVIEW')return ['$0','office work'];
  if(o.id==='RUI-CONN-CLAIM')return ['$0','on the next routine visit'];
@@ -5396,8 +5398,8 @@ function uxDecStatus(id, st) {
 /* the honest reason when nothing is recommended, from the dispositions shown */
 function uxNoRecReason(id) {
   const d = decById(id), op = SK[d.site].op, D = deciderOf(id), opts = d.opts.filter(o => !isNoAction(o)), n = k => opts.filter(o => uxDisp(o) === k).length;
-  const rej = n('REJECTED'), def = n('DEFERRED'), other = opts.length - rej - def;
-  const parts = [rej ? `${num(rej)} ${rej === 1 ? 'is' : 'are'} rejected` : '', def ? `${num(def)} ${def === 1 ? 'is' : 'are'} deferred` : '', other ? `${num(other)} ${other === 1 ? 'is' : 'are'} allowed but none does better than ${(BASIS_WORDS[decBasis(d)] || 'against the reference').replace(/^against /, '')} within the limits` : ''].filter(Boolean);
+  const rej = n('REJECTED'), def = n('DEFERRED'), na = n('NOT_AVAILABLE_YET'), other = opts.length - rej - def - na;
+  const parts = [rej ? `${num(rej)} ${rej === 1 ? 'is' : 'are'} rejected` : '', def ? `${num(def)} ${def === 1 ? 'is' : 'are'} deferred` : '', na ? `${num(na)} ${na === 1 ? 'has' : 'have'} no value yet (${uxLcFirst(naText(opts.find(o => uxDisp(o) === 'NOT_AVAILABLE_YET')))})` : '', other ? `${num(other)} ${other === 1 ? 'is' : 'are'} allowed but none does better than ${(BASIS_WORDS[decBasis(d)] || 'against the reference').replace(/^against /, '')} within the limits` : ''].filter(Boolean);
   return `No option is recommended: of ${num(opts.length)} option${opts.length === 1 ? '' : 's'}, ${parts.join(' and ')}. ${who(op, D.p)} can still choose ${rej === opts.length ? 'to do nothing' : 'one, or none'}.`;
 }
 /* the question is the page's title (review r1 L5): the decision's name, as a question */
