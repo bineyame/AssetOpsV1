@@ -203,12 +203,16 @@ async function checkList(page, spec, view) {
   const shapes = await page.evaluate(() => [...document.querySelectorAll("[data-shape='list']")].map((e) => e.getAttribute("data-home-list")));
   if (shapes.join() !== spec.list) failures.push(`L1: ${spec.path} draws lists [${shapes.join(", ")}], expected one "${spec.list}"`);
   const rows = await page.evaluate(() =>
-    [...document.querySelectorAll("[data-shape='list'] tbody tr[data-row]")].map((tr) =>
-      tr.querySelectorAll("a, button, input, select, textarea, [tabindex]:not([tabindex='-1'])").length),
+    [...document.querySelectorAll("[data-shape='list'] tbody tr[data-row]")].map((tr) => ({
+      n: tr.querySelectorAll("a, button, input, select, textarea, [tabindex]:not([tabindex='-1'])").length,
+      said: /Detail not available yet/.test(tr.textContent || ""),
+    })),
   );
   if (rows.length === 0) failures.push(`L2: ${spec.path} has no rows to check`);
-  const bad = rows.filter((n) => n !== 1).length;
-  if (bad > 0) failures.push(`L2: ${bad} of ${rows.length} rows on ${spec.path} do not hold exactly one interactive element`);
+  // Spec 5.2: a row holds its one control, or none and says "Detail not available yet" (a text row).
+  const bad = rows.filter((r) => r.n > 1 || (r.n === 0 && !r.said)).length;
+  if (bad > 0) failures.push(`L2: ${bad} of ${rows.length} rows on ${spec.path} do not hold one interactive element, or none with the words Detail not available yet`);
+  if (!rows.some((r) => r.n === 0 && r.said)) failures.push(`L2: ${spec.path} fixtures hold no text row, so the no-link path is not covered`);
   if (view.w === 1440 && !view.dark && rows.length >= 2) {
     const first = await page.$("[data-shape='list'] tbody tr[data-row] a");
     if (first) {
