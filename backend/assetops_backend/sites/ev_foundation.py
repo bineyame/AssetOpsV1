@@ -76,6 +76,7 @@ _NONNEGATIVE = ("ev-meter-error-bound",)
 #: Cadence ceilings in minutes (Q4): state <= 60 s, meter-governed channels <= 300 s.
 CADENCE_CEILING_MINUTES: dict[str, float] = {"ev-status-cadence": 1.0, "ev-meter-cadence": 5.0}
 
+END_OF_DAY = "24:00"
 _LOCAL_TIME = re.compile(r"^([01][0-9]|2[0-3]):([0-5][0-9])$")
 
 #: Through when an open-ended revision's zone must keep one offset: past the end of the explicit transition table
@@ -273,6 +274,8 @@ def _validate_schedules(foundation: SiteFoundation, types: Mapping[str, str], in
                 _refuse(f"{item}.weekday", f"weekday must be one of {list(WEEKDAYS)}, got {interval.weekday!r}",
                         source)
             start, end = _minutes(interval.local_start), _minutes(interval.local_end)
+            if end is None and interval.local_end == END_OF_DAY:  # D-DD.39: `24:00` ends a local day, never starts one
+                end = 24 * 60
             if start is None:
                 _refuse(f"{item}.local_start", f"local time must be HH:MM, got {interval.local_start!r}", source)
             if end is None:

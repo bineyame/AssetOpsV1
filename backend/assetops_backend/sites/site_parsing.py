@@ -94,7 +94,7 @@ RATING_KEYS = frozenset({"value", "unit"})
 # index with rows nobody can scroll past, and an index that cannot be opened
 # is worse than a create that was refused.
 SITE_DOCUMENT_LIMITS = DocumentLimits(
-    max_nodes=2_000,
+    max_nodes=10_000,  # DD1.2 Q-DD1.8: a 12-charger depot at ev-lab-001 detail is about 6,700 nodes
     max_text_length=64_000,
     max_nesting_depth=8,
 )

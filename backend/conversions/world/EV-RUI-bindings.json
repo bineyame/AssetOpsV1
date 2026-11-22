@@ -1,0 +1,2451 @@
+{
+  "schema": {
+    "id": "assetops.binding-conversion",
+    "version": 1
+  },
+  "status": "DD1.2 demo world (specs/DD-demo-data/spec.md DD1.2); emulated, configuration only, no observation.",
+  "site_code": "EV-RUI",
+  "role_set": "ev-roles-1",
+  "effective_from": "2026-06-30T21:00:00Z",
+  "note": "First ev-roles-1 binding set for EV-RUI: the ev-lab-001 channels per connector.",
+  "declare_signals": [],
+  "bindings": [
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r1-c1-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "ch-r1-c1",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r1-c1-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "ch-r1-c1",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r1-c1-connector-controller",
+      "signal_id": "state",
+      "asset_code": "ch-r1-c1",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r1-c1-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "ch-r1-c1",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r1-c1-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "ch-r1-c1",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r1-c1-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "ch-r1-c1",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r1-c1-connector-meter",
+      "signal_id": "power",
+      "asset_code": "ch-r1-c1",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r1-c2-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "ch-r1-c2",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r1-c2-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "ch-r1-c2",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r1-c2-connector-controller",
+      "signal_id": "state",
+      "asset_code": "ch-r1-c2",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r1-c2-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "ch-r1-c2",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r1-c2-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "ch-r1-c2",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r1-c2-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "ch-r1-c2",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r1-c2-connector-meter",
+      "signal_id": "power",
+      "asset_code": "ch-r1-c2",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r2-c1-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "ch-r2-c1",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r2-c1-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "ch-r2-c1",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r2-c1-connector-controller",
+      "signal_id": "state",
+      "asset_code": "ch-r2-c1",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r2-c1-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "ch-r2-c1",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r2-c1-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "ch-r2-c1",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r2-c1-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "ch-r2-c1",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r2-c1-connector-meter",
+      "signal_id": "power",
+      "asset_code": "ch-r2-c1",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r2-c2-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "ch-r2-c2",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r2-c2-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "ch-r2-c2",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r2-c2-connector-controller",
+      "signal_id": "state",
+      "asset_code": "ch-r2-c2",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r2-c2-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "ch-r2-c2",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r2-c2-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "ch-r2-c2",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r2-c2-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "ch-r2-c2",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r2-c2-connector-meter",
+      "signal_id": "power",
+      "asset_code": "ch-r2-c2",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r3-c1-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "ch-r3-c1",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r3-c1-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "ch-r3-c1",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r3-c1-connector-controller",
+      "signal_id": "state",
+      "asset_code": "ch-r3-c1",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r3-c1-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "ch-r3-c1",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r3-c1-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "ch-r3-c1",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r3-c1-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "ch-r3-c1",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r3-c1-connector-meter",
+      "signal_id": "power",
+      "asset_code": "ch-r3-c1",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r3-c2-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "ch-r3-c2",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r3-c2-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "ch-r3-c2",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r3-c2-connector-controller",
+      "signal_id": "state",
+      "asset_code": "ch-r3-c2",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r3-c2-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "ch-r3-c2",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r3-c2-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "ch-r3-c2",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r3-c2-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "ch-r3-c2",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r3-c2-connector-meter",
+      "signal_id": "power",
+      "asset_code": "ch-r3-c2",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r4-c1-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "ch-r4-c1",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r4-c1-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "ch-r4-c1",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r4-c1-connector-controller",
+      "signal_id": "state",
+      "asset_code": "ch-r4-c1",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r4-c1-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "ch-r4-c1",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r4-c1-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "ch-r4-c1",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r4-c1-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "ch-r4-c1",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r4-c1-connector-meter",
+      "signal_id": "power",
+      "asset_code": "ch-r4-c1",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r4-c2-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "ch-r4-c2",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r4-c2-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "ch-r4-c2",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r4-c2-connector-controller",
+      "signal_id": "state",
+      "asset_code": "ch-r4-c2",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r4-c2-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "ch-r4-c2",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r4-c2-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "ch-r4-c2",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r4-c2-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "ch-r4-c2",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r4-c2-connector-meter",
+      "signal_id": "power",
+      "asset_code": "ch-r4-c2",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r5-c1-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "ch-r5-c1",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r5-c1-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "ch-r5-c1",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r5-c1-connector-controller",
+      "signal_id": "state",
+      "asset_code": "ch-r5-c1",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r5-c1-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "ch-r5-c1",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r5-c1-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "ch-r5-c1",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r5-c1-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "ch-r5-c1",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r5-c1-connector-meter",
+      "signal_id": "power",
+      "asset_code": "ch-r5-c1",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r5-c2-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "ch-r5-c2",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r5-c2-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "ch-r5-c2",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r5-c2-connector-controller",
+      "signal_id": "state",
+      "asset_code": "ch-r5-c2",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r5-c2-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "ch-r5-c2",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r5-c2-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "ch-r5-c2",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r5-c2-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "ch-r5-c2",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r5-c2-connector-meter",
+      "signal_id": "power",
+      "asset_code": "ch-r5-c2",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r6-c1-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "ch-r6-c1",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r6-c1-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "ch-r6-c1",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r6-c1-connector-controller",
+      "signal_id": "state",
+      "asset_code": "ch-r6-c1",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r6-c1-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "ch-r6-c1",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r6-c1-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "ch-r6-c1",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r6-c1-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "ch-r6-c1",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r6-c1-connector-meter",
+      "signal_id": "power",
+      "asset_code": "ch-r6-c1",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r6-c2-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "ch-r6-c2",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r6-c2-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "ch-r6-c2",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r6-c2-connector-controller",
+      "signal_id": "state",
+      "asset_code": "ch-r6-c2",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r6-c2-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "ch-r6-c2",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r6-c2-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "ch-r6-c2",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r6-c2-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "ch-r6-c2",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r6-c2-connector-meter",
+      "signal_id": "power",
+      "asset_code": "ch-r6-c2",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r7-c1-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "ch-r7-c1",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r7-c1-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "ch-r7-c1",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r7-c1-connector-controller",
+      "signal_id": "state",
+      "asset_code": "ch-r7-c1",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r7-c1-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "ch-r7-c1",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r7-c1-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "ch-r7-c1",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r7-c1-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "ch-r7-c1",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r7-c1-connector-meter",
+      "signal_id": "power",
+      "asset_code": "ch-r7-c1",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r7-c2-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "ch-r7-c2",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r7-c2-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "ch-r7-c2",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r7-c2-connector-controller",
+      "signal_id": "state",
+      "asset_code": "ch-r7-c2",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r7-c2-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "ch-r7-c2",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r7-c2-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "ch-r7-c2",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r7-c2-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "ch-r7-c2",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r7-c2-connector-meter",
+      "signal_id": "power",
+      "asset_code": "ch-r7-c2",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r8-c1-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "ch-r8-c1",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r8-c1-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "ch-r8-c1",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r8-c1-connector-controller",
+      "signal_id": "state",
+      "asset_code": "ch-r8-c1",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r8-c1-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "ch-r8-c1",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r8-c1-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "ch-r8-c1",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r8-c1-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "ch-r8-c1",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r8-c1-connector-meter",
+      "signal_id": "power",
+      "asset_code": "ch-r8-c1",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r8-c2-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "ch-r8-c2",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r8-c2-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "ch-r8-c2",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r8-c2-connector-controller",
+      "signal_id": "state",
+      "asset_code": "ch-r8-c2",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r8-c2-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "ch-r8-c2",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r8-c2-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "ch-r8-c2",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r8-c2-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "ch-r8-c2",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r8-c2-connector-meter",
+      "signal_id": "power",
+      "asset_code": "ch-r8-c2",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r9-c1-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "ch-r9-c1",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r9-c1-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "ch-r9-c1",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r9-c1-connector-controller",
+      "signal_id": "state",
+      "asset_code": "ch-r9-c1",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r9-c1-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "ch-r9-c1",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r9-c1-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "ch-r9-c1",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r9-c1-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "ch-r9-c1",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r9-c1-connector-meter",
+      "signal_id": "power",
+      "asset_code": "ch-r9-c1",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r9-c2-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "ch-r9-c2",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r9-c2-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "ch-r9-c2",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r9-c2-connector-controller",
+      "signal_id": "state",
+      "asset_code": "ch-r9-c2",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r9-c2-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "ch-r9-c2",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r9-c2-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "ch-r9-c2",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r9-c2-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "ch-r9-c2",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r9-c2-connector-meter",
+      "signal_id": "power",
+      "asset_code": "ch-r9-c2",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r10-c1-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "ch-r10-c1",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r10-c1-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "ch-r10-c1",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r10-c1-connector-controller",
+      "signal_id": "state",
+      "asset_code": "ch-r10-c1",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r10-c1-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "ch-r10-c1",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r10-c1-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "ch-r10-c1",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r10-c1-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "ch-r10-c1",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r10-c1-connector-meter",
+      "signal_id": "power",
+      "asset_code": "ch-r10-c1",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r10-c2-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "ch-r10-c2",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r10-c2-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "ch-r10-c2",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r10-c2-connector-controller",
+      "signal_id": "state",
+      "asset_code": "ch-r10-c2",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r10-c2-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "ch-r10-c2",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r10-c2-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "ch-r10-c2",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r10-c2-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "ch-r10-c2",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r10-c2-connector-meter",
+      "signal_id": "power",
+      "asset_code": "ch-r10-c2",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r11-c1-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "ch-r11-c1",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r11-c1-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "ch-r11-c1",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r11-c1-connector-controller",
+      "signal_id": "state",
+      "asset_code": "ch-r11-c1",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r11-c1-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "ch-r11-c1",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r11-c1-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "ch-r11-c1",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r11-c1-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "ch-r11-c1",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r11-c1-connector-meter",
+      "signal_id": "power",
+      "asset_code": "ch-r11-c1",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r11-c2-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "ch-r11-c2",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r11-c2-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "ch-r11-c2",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r11-c2-connector-controller",
+      "signal_id": "state",
+      "asset_code": "ch-r11-c2",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r11-c2-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "ch-r11-c2",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r11-c2-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "ch-r11-c2",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r11-c2-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "ch-r11-c2",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r11-c2-connector-meter",
+      "signal_id": "power",
+      "asset_code": "ch-r11-c2",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r12-c1-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "ch-r12-c1",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r12-c1-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "ch-r12-c1",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r12-c1-connector-controller",
+      "signal_id": "state",
+      "asset_code": "ch-r12-c1",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r12-c1-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "ch-r12-c1",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r12-c1-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "ch-r12-c1",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r12-c1-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "ch-r12-c1",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r12-c1-connector-meter",
+      "signal_id": "power",
+      "asset_code": "ch-r12-c1",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r12-c2-charger-controller",
+      "signal_id": "session-event",
+      "asset_code": "ch-r12-c2",
+      "role": "ev_session_event",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r12-c2-connector-controller",
+      "signal_id": "fault-event",
+      "asset_code": "ch-r12-c2",
+      "role": "ev_connector_fault",
+      "source_unit": "event",
+      "canonical_unit": "event",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r12-c2-connector-controller",
+      "signal_id": "state",
+      "asset_code": "ch-r12-c2",
+      "role": "ev_connector_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "AVAILABLE": "AVAILABLE",
+            "UNPLUGGED": "UNPLUGGED",
+            "PLUGGED": "PLUGGED",
+            "AUTHORIZING": "AUTHORIZING",
+            "CHARGING": "CHARGING",
+            "FAULTED": "FAULTED",
+            "DISABLED": "DISABLED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r12-c2-connector-controller",
+      "signal_id": "requested-power",
+      "asset_code": "ch-r12-c2",
+      "role": "ev_requested_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r12-c2-connector-controller",
+      "signal_id": "allocated-limit",
+      "asset_code": "ch-r12-c2",
+      "role": "ev_allocated_limit",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r12-c2-connector-meter",
+      "signal_id": "energy",
+      "asset_code": "ch-r12-c2",
+      "role": "ev_connector_energy",
+      "source_unit": "kWh",
+      "canonical_unit": "kWh",
+      "conversion": {
+        "kind": "IDENTITY_KWH",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "ch-r12-c2-connector-meter",
+      "signal_id": "power",
+      "asset_code": "ch-r12-c2",
+      "role": "ev_connector_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "site-meter",
+      "signal_id": "import",
+      "asset_code": "site-meter-1",
+      "role": "ev_site_import",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    }
+  ]
+}
