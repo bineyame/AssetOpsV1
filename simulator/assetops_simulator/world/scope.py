@@ -15,6 +15,10 @@ from .canonical import canonical_bytes, sha256_hex
 GLOBAL_KEYS = ("months", "anchor_period", "seasons", "day_classes", "families", "money_leaves")
 SIDES = ("plan", "actual")
 
+#: D-DD.102: per rule word, the `physical` keys it reads. A rule word absent from the table reads none, so a kit
+#: correction (a data sheet, an import limit) re-seeds no scope whose rules do not read it.
+PHYSICAL_READS: dict[str, tuple[str, ...]] = {"fleet_kwh": ("buses", "kwh_per_bus_night"), "fleet_nights": ("buses",)}
+
 
 def scope_key(tenant: str, site: str, month: str) -> str:
     return f"{tenant}/{site}/{month}"
@@ -35,6 +39,20 @@ def merged_rules(history: dict, vertical: str, tenant: str, site: str) -> dict |
     return merged
 
 
+def physical_read(site_doc: dict, rules: dict) -> dict:
+    """The part of the Site's `physical` block that the scope's rules read (D-DD.102): the words are the first
+    whitespace token of every string rule on both sides; `{}` when the Site has no block."""
+    physical = site_doc.get("physical")
+    if not isinstance(physical, dict):
+        return {}
+    keys: set[str] = set()
+    for side in SIDES:
+        for rule in rules.get(side, {}).values():
+            if isinstance(rule, str) and rule.split():
+                keys.update(PHYSICAL_READS.get(rule.split()[0], ()))
+    return {k: physical[k] for k in sorted(keys) if k in physical}
+
+
 def scope_input(view: dict, tenant_doc: dict, site_doc: dict, month: str, rules: dict) -> dict:
     history = view["history"]
     tenant = {"tenant": tenant_doc["tenant"], "vertical": tenant_doc["vertical"]}
@@ -42,8 +60,9 @@ def scope_input(view: dict, tenant_doc: dict, site_doc: dict, month: str, rules:
         if optional in tenant_doc:
             tenant[optional] = tenant_doc[optional]
     site = {"site": site_doc["site"], "code": site_doc["code"], "period": site_doc["period"]}
-    if "physical" in site_doc:
-        site["physical"] = site_doc["physical"]
+    physical = physical_read(site_doc, rules)
+    if physical:
+        site["physical"] = physical
     return {
         "generator": GENERATOR,
         "month": month,

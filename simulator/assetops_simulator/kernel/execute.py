@@ -38,10 +38,11 @@ makes `EXACT_RATIONAL` a description rather than an aspiration: 311/1000 times
 
 from __future__ import annotations
 
+from bisect import bisect_right
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from fractions import Fraction
-from typing import Callable
+from typing import Callable, Iterator
 
 from assetops_contracts.execution_contract import (
     BOUNDARY_CYCLE,
@@ -195,6 +196,16 @@ class _World:
     #: exposures are already computed, and the step's view, intent and
     #: acceptance. Rebuilt at every instant.
     exposures_ready: bool = False
+    #: D-DD.75: for each step start, the positions in `inputs.forcings` whose
+    #: span overlaps that step, ascending. Built once, lazily, from the frozen
+    #: inputs alone (`_forcing_index`).
+    forcings_by_step: dict[int, tuple[int, ...]] | None = None
+    #: D-DD.80: for each step start, the positions in `inputs.causes` due
+    #: there: POINT causes at the offset `point_due_at` names, and WINDOW or
+    #: INTERVAL_WIDE causes at every step their span overlaps, ascending. Built
+    #: once, lazily, from the frozen inputs alone (`_cause_index`).
+    point_causes_by_step: dict[int, tuple[int, ...]] | None = None
+    spread_causes_by_step: dict[int, tuple[int, ...]] | None = None
     view_now: ControllerView | None = None
     intent_now: ControlIntent | None = None
     accepted_now: AcceptedFlowSet | None = None
@@ -239,6 +250,94 @@ def _entry_span(
         return entry.offset_minutes, entry.offset_minutes
     length = entry.duration_minutes or 0
     return entry.offset_minutes, entry.offset_minutes + length
+
+
+def _steps_overlapping(
+    step_starts: tuple[int, ...],
+    timestep: int,
+    duration: int,
+    start: int,
+    end: int,
+) -> Iterator[int]:
+    """D-DD.75, D-DD.80: each step start whose step overlaps [start, end).
+
+    The predicate every per-step reader of a span applies (a positive
+    `overlap_minutes` of the step and the span), walked from the step holding
+    `start` only, so an entry costs the steps it spans and not the run's.
+    """
+    cursor = max(bisect_right(step_starts, start) - 1, 0)
+    while cursor < len(step_starts) and step_starts[cursor] < end:
+        step = step_starts[cursor]
+        length = min(step + timestep, duration) - step
+        if overlap_minutes(step, length, start, end - start) > 0:
+            yield step
+        cursor += 1
+
+
+def _forcing_index(inputs: FrozenWorldInputs) -> dict[int, tuple[int, ...]]:
+    """D-DD.75: each step start's overlapping forcings, by position, in input order.
+
+    The same predicate `_compute_exposures` applies at every step (a positive
+    `overlap_minutes` of the step and the entry's span), computed once, so a run
+    costs O(steps + forcings x steps each spans) instead of O(steps x forcings).
+    """
+    interval = inputs.interval
+    duration, timestep = interval.duration_minutes, interval.timestep_minutes
+    step_starts = interval.step_starts
+    index: dict[int, list[int]] = {}
+    for position, forcing in enumerate(inputs.forcings):
+        start, end = _entry_span(forcing, duration)
+        if end <= start:
+            continue
+        for step in _steps_overlapping(
+            step_starts, timestep, duration, start, end
+        ):
+            index.setdefault(step, []).append(position)
+    return {step: tuple(positions) for step, positions in index.items()}
+
+
+def _cause_index(
+    inputs: FrozenWorldInputs,
+) -> tuple[dict[int, tuple[int, ...]], dict[int, tuple[int, ...]]]:
+    """D-DD.80: the declared causes due at each step start, by position, in input order.
+
+    The first map holds each POINT cause at the one offset the contract's
+    `point_due_at` names (called once per cause); the second holds each WINDOW
+    or INTERVAL_WIDE cause at every step its span overlaps. A spread cause of
+    no length sits at step 0, where the old per-step loop first reached it.
+    Read once, so a boundary costs the causes due there and not the run's.
+    """
+    interval = inputs.interval
+    duration, timestep = interval.duration_minutes, interval.timestep_minutes
+    step_starts = interval.step_starts
+    points: dict[int, list[int]] = {}
+    spread: dict[int, list[int]] = {}
+    for position, cause in enumerate(inputs.causes):
+        if cause.shape == "POINT":
+            due = point_due_at(step_starts, timestep, cause.offset_minutes)
+            if due is not None:
+                points.setdefault(due, []).append(position)
+            continue
+        start, end = _entry_span(cause, duration)
+        if end <= start:
+            spread.setdefault(0, []).append(position)
+            continue
+        for step in _steps_overlapping(
+            step_starts, timestep, duration, start, end
+        ):
+            spread.setdefault(step, []).append(position)
+    return (
+        {step: tuple(positions) for step, positions in points.items()},
+        {step: tuple(positions) for step, positions in spread.items()},
+    )
+
+
+def _ensure_cause_index(world: _World) -> None:
+    if world.point_causes_by_step is None:
+        (
+            world.point_causes_by_step,
+            world.spread_causes_by_step,
+        ) = _cause_index(world.inputs)
 
 
 def _refuse_entries_outside_the_interval(world: _World) -> None:
@@ -1065,18 +1164,10 @@ def _phase_apply_events(world: _World) -> None:
         _apply_due_lifecycle(world)
         return
 
-    step_starts = world.inputs.interval.step_starts
+    _ensure_cause_index(world)
     grouped: dict[str, list[_Contribution]] = {}
-    for cause in world.inputs.causes:
-        if cause.shape != "POINT":
-            continue
-        due = point_due_at(
-            step_starts,
-            world.inputs.interval.timestep_minutes,
-            cause.offset_minutes,
-        )
-        if due != world.offset:
-            continue
+    for position in world.point_causes_by_step.get(world.offset, ()):
+        cause = world.inputs.causes[position]
         if _excluded(world, cause.address, "CAUSAL_INPUT"):
             continue
         grouped.setdefault(cause.address, []).append(
@@ -1277,7 +1368,10 @@ def _compute_exposures(world: _World) -> None:
     step_end = world.offset + world.step_length
     exposed_by_address: dict[str, list[tuple[ForcingInput, int, int]]] = {}
 
-    for forcing in world.inputs.forcings:
+    if world.forcings_by_step is None:
+        world.forcings_by_step = _forcing_index(world.inputs)
+    for position in world.forcings_by_step.get(world.offset, ()):
+        forcing = world.inputs.forcings[position]
         if _excluded(world, forcing.address, "FORCING_INPUT"):
             continue
         if world.model.handler(
@@ -1352,12 +1446,12 @@ def _phase_evolve(world: _World) -> None:
     if not world.begins_a_step:
         return
 
+    _ensure_cause_index(world)
     interval = world.inputs.interval.duration_minutes
     grouped: dict[str, list[_Contribution]] = {}
 
-    for cause in world.inputs.causes:
-        if cause.shape == "POINT":
-            continue
+    for position in world.spread_causes_by_step.get(world.offset, ()):
+        cause = world.inputs.causes[position]
         if _excluded(world, cause.address, "CAUSAL_INPUT"):
             continue
         start, end = _entry_span(cause, interval)

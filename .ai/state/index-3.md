@@ -28,4 +28,5 @@ One line per slice, continuing `index-2.md` (number, slice ID, summary, file in 
 203. `DD2b` cold and EV books: ledger, one invoicing export (Type column), roster/tickets/budget in 8 source profiles; one NODES table, tariff schedules, EMU_SOURCE_SWITCH guard, staged dir, byte pins (D-DD.50-63); in_review · data.md
 204. `6h` named-option levers: `STATED_OPTIONS` generator, nine levers on cold-chain, EV and mini-grid, `option_record` (migration 0073), `state_option_record`, `BOUNDS_NOT_CHECKED` for protective levers, parity golden; in_review · work.md
 205. `IA-P2` Portfolio on the date range: E2 period read with `out` (D-IAP.34), Overview hub by mode on three tabs, Results live, E0 waiting counts and E1 Sites read; in_review · shell.md
-206. `IA-P3` Sites list and Outcomes on E1 (P4b: one list component, E1 order, server gap tile, E0 waiting column); P5-P7 not built; in_review · shell.md
+206. `DD3a` Kobo operating reality: pure v8 telemetry writer, data sheets in `/2` + manifest rev 16.18, kernel forcing and cause indexes (byte-identical, 123 days in 1-2 min); open: D-DD.92 overfill and notes, D-DD.103, D-DD.104, D-DD.97, mock kit strings (in_review) · data.md
+207. `IA-P3` Sites list and Outcomes on E1 (P4b: one list component, E1 order, server gap tile, E0 waiting column); P5-P7 not built; in_review · shell.md

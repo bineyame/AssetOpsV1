@@ -115,7 +115,8 @@ EXAMPLE_SOURCES = ("REGISTERED_SIMULATION", "AUTHORED_DEMONSTRATION")
 #: FUEL-1 A3-R: the declared idle (no-load) fuel rate's basis in client words; guard V refuses "no-load" and "load".
 #: None = a rate whose basis is not stored (the trial row's basis differs between hours, or is missing).
 NO_LOAD_BASIS_WORDS = {"GENERIC_DEFAULT": "a generic idle fuel rate", "MANUFACTURER_DATASHEET": "the datasheet idle fuel rate",
-                       "SITE_TEST": "the site-tested idle fuel rate", None: "a declared idle fuel rate"}
+                       "SITE_TEST": "the site-tested idle fuel rate",
+                       "DATASHEET_FIT": "the datasheet-fitted idle fuel rate", None: "a declared idle fuel rate"}
 #: FUEL-1 A3-R G3: the trial verification page's money line (MOCK DEVIATION MD-FUEL-A3-1).
 FUEL_VALUE_PAGE = ("About {l} L less diesel in the trial hour, about {amount} at {p} {cur} per litre · modelled from "
                    "{basis}, not measured by a fuel meter")

@@ -1,11 +1,11 @@
 # IA-P: the real app on the agreed shape (implementer spec)
 
-Status: in_review (IA-P1: P0, P1 and P2 built, `packet-IA-P1.md`; IA-P2: P3a, P3b, P4a and D-IAP.34 built, `packet-IA-P2.md`; IA-P3 P4b built and in_review, `packet-IA-P3.md`, P5 to P7 next; IA-P3 pre-flight ruled, D-IAP.35 to D-IAP.41). **rev 3** (2026-11-22: handshake answered, `handshake.md`; the long range, P0; three parts).
+Status: in_review (IA-P1: P0, P1 and P2 built, `packet-IA-P1.md`; IA-P2: P3a, P3b, P4a and D-IAP.34 built, `packet-IA-P2.md`; IA-P3 P4b built and in_review, `packet-IA-P3.md`, P5 to P7 next; IA-P3 pre-flight ruled, D-IAP.35 to D-IAP.41; P5 run 3 ruled, D-IAP.42 to D-IAP.45). **rev 3** (2026-11-22: handshake answered, `handshake.md`; the long range, P0; three parts).
 Architect (Claude). Rev 2 (the Overview follows the range) and rev 1 were merged on 2026-11-22.
 Owner request: `owner/owner-merge-on-accept-ia-shape-k10-2026-11-22.md`. The owner reviews once the product is close to the
 shape, then iterates. UI slices merge on review ACCEPT, with one combined walkthrough at the end.
 
-**Decisions:** `rulings.md`, D-IAP.1 to D-IAP.41 (rev 2: D-IAP.15 on; rev 3: D-IAP.24 on; build rulings: D-IAP.34 on; IA-P3 pre-flight: D-IAP.35 to D-IAP.41, binding over `IA-P3-preflight.md`'s defaults). **Binding parts:** this file,
+**Decisions:** `rulings.md`, D-IAP.1 to D-IAP.45 (rev 2: D-IAP.15 on; rev 3: D-IAP.24 on; build rulings: D-IAP.34 on; IA-P3 pre-flight: D-IAP.35 to D-IAP.41, binding over `IA-P3-preflight.md`'s defaults). **Binding parts:** this file,
 `spec-period.md` and `handshake.md` "Answers (Architect)". **Reviewer guide:** `reviewer-guide.md`. `USER_REVIEW_REQUIRED: true`.
 **Mock (governs, `.ai/RULES.md` §6):** vNEXT (`Docs/demo-sprint/product-direction-layer4/interactive-mockup-vNEXT/`)
 as built by IA-1a/1b/1c, IA-2a and IA-2b1:
@@ -587,7 +587,7 @@ Each later unit adds its own checks.
     under the header. Outcomes L1 shows them in place of the headline.
 - **The tile rule (R6, MD-IAP-13).** The "Gap to target" tile shows `total.gap` only at scope `all` with no facet and no `q`.
   Otherwise it reads "Not available yet", with the line "For every Site only". The More line is "Not shown: {h} Sites."
-  ("Not shown: 1 Site." when `h` is 1; D-IAP.35). A directory Site that E1 lacks follows E1's rows (D-IAP.35 Q1).
+  ("Not shown: 1 Site." when `h` is 1; D-IAP.35). A directory Site that E1 lacks follows E1's rows (D-IAP.35 Q1). A non-Active directory lifecycle is the row title's `<small>` (D-IAP.44).
 - **Tests first:** `estate/__tests__/sitesList.test.tsx` (and `estate/__tests__/siteTypeMatrix.test.tsx`: Thika is named on
   the Overview, Outcomes and the Sites list on a one-month and a two-month fixture, D-IAP.25 and D-IAP.26):
   - World A's E1 fixture: the rows in E1 order; the gap tile "−$852.00" equals the Overview's tile 2 string; the target
@@ -619,7 +619,8 @@ Each later unit adds its own checks.
     (server: Site ids ⊆ estate ids on one built world, two windows through `readWindow`, non-empty, under the 1,000 cap;
     it writes and pins the six `fixtures/iap/parity-*.json` bodies) and `estate/__tests__/siteFindingsParity.test.ts`
     (client: those bodies through the Findings list path at `scope=site:{code}`). Plant `parity` (scope keyed on
-    `site_id`) fails the vitest.
+    `site_id`) fails the vitest. MINI has no alias (D-IAP.42: MD-IAP-15, flipped MINI test); COLD and EV redirect in
+    `SiteFindingsFrame`; the pinned bodies are normalised (D-IAP.43). `sites/SitesIndex.tsx` and its test go (D-IAP.45).
   - **If the parity test fails for a vertical, stop that part and raise `SPEC_AMBIGUITY`.** Do not ship the alias for it.
 - **Plants:**
   - `seventab` (Findings kept in the row) fails `operatorSiteTabs` and gate T1;

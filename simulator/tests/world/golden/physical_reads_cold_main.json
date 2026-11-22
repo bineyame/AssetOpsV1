@@ -1,0 +1,80 @@
+{
+  "base": "108af5378",
+  "fixture_view": {
+    "harvest-cold/Room A · Mwea/2026-07": {
+      "block_sha256": "e67625abdf9d079411d1442b3c3de3ddbfcf28412e5844b9addac70395db3005",
+      "scope_digest": "667b5d562c2474b00bba640f7171c0bdfa05abf2f858a2d90fdf79437f6e6dc4"
+    },
+    "harvest-cold/Room A · Mwea/2026-08": {
+      "block_sha256": "fc1e58eee5ebfd096873e091da1473d31e22d1caf94030396e932a349fbc8d25",
+      "scope_digest": "233162c95aacdaa0386a26ff2b5369e5a70f199ccc840935493e1ad5f4d868f9"
+    },
+    "harvest-cold/Room A · Mwea/2026-09": {
+      "block_sha256": "25a06eb8f2d4ae00690534d83d0a315ab3fcb028c932884e8b072d1e2401e0de",
+      "scope_digest": "65e732b5eabeb65c4f1840f9d2394dcfbdc0b47862c70bb8e9c68cac07389ef9"
+    },
+    "harvest-cold/Room B · Thika/2026-07": {
+      "block_sha256": "ea2473d31442120d217a82d8f66e179088410dbfa08f685faef444789b17d88e",
+      "scope_digest": "c26bf50701977f58bcc459b19d9d8e7107ae367800e386809da31bb919debcb5"
+    },
+    "harvest-cold/Room B · Thika/2026-08": {
+      "block_sha256": "735a005a69ca71b2267b3bbfb158f24f9d690c950f1584d312d192e614367c92",
+      "scope_digest": "3ec2308d176a8dacfcdc1c88c7ab07ea66cbe3371e50af03a6b39a78d62fdd68"
+    },
+    "harvest-cold/Room B · Thika/2026-09": {
+      "block_sha256": "4cf695b1901f35e3784ff5f0bcc8432709f5e9bc89755559e157321cbc10114b",
+      "scope_digest": "5f5c6db6666fe1312fbbdddc81d0a4859fd8538612e9d28cf6500afcd5443b85"
+    },
+    "harvest-cold/Room C · Kirinyaga/2026-07": {
+      "block_sha256": "d7c52494d11749c2eec5b392b3fc3e2934b65bec654b42babf04fe560a70d7d1",
+      "scope_digest": "044881aad54e6b06956e6da3f85a86c0ecd8d1fb7c2fafd04ad344d7c2711820"
+    },
+    "harvest-cold/Room C · Kirinyaga/2026-08": {
+      "block_sha256": "6028c2e1ada008bd362a6ce41951d281aefd4b1ba1e30c9687a1547bf84cccbd",
+      "scope_digest": "c56b302efb52483318c98603008d37573fff6f0b6ef51e62905200241f49b2e8"
+    },
+    "harvest-cold/Room C · Kirinyaga/2026-09": {
+      "block_sha256": "be8c9a24edbd1e18ba9ad0c1a00fd540ff0af000220ae33d49532dbec9c79a3b",
+      "scope_digest": "5e20195dce062b7eea89f34582ba6d3ee6b68964214cb8a642d58367f25fd885"
+    }
+  },
+  "history_json": {
+    "harvest-cold/Room A · Mwea/2026-07": {
+      "block_sha256": "e67625abdf9d079411d1442b3c3de3ddbfcf28412e5844b9addac70395db3005",
+      "scope_digest": "667b5d562c2474b00bba640f7171c0bdfa05abf2f858a2d90fdf79437f6e6dc4"
+    },
+    "harvest-cold/Room A · Mwea/2026-08": {
+      "block_sha256": "fc1e58eee5ebfd096873e091da1473d31e22d1caf94030396e932a349fbc8d25",
+      "scope_digest": "233162c95aacdaa0386a26ff2b5369e5a70f199ccc840935493e1ad5f4d868f9"
+    },
+    "harvest-cold/Room A · Mwea/2026-09": {
+      "block_sha256": "25a06eb8f2d4ae00690534d83d0a315ab3fcb028c932884e8b072d1e2401e0de",
+      "scope_digest": "65e732b5eabeb65c4f1840f9d2394dcfbdc0b47862c70bb8e9c68cac07389ef9"
+    },
+    "harvest-cold/Room B · Thika/2026-07": {
+      "block_sha256": "ea2473d31442120d217a82d8f66e179088410dbfa08f685faef444789b17d88e",
+      "scope_digest": "c26bf50701977f58bcc459b19d9d8e7107ae367800e386809da31bb919debcb5"
+    },
+    "harvest-cold/Room B · Thika/2026-08": {
+      "block_sha256": "735a005a69ca71b2267b3bbfb158f24f9d690c950f1584d312d192e614367c92",
+      "scope_digest": "3ec2308d176a8dacfcdc1c88c7ab07ea66cbe3371e50af03a6b39a78d62fdd68"
+    },
+    "harvest-cold/Room B · Thika/2026-09": {
+      "block_sha256": "4cf695b1901f35e3784ff5f0bcc8432709f5e9bc89755559e157321cbc10114b",
+      "scope_digest": "5f5c6db6666fe1312fbbdddc81d0a4859fd8538612e9d28cf6500afcd5443b85"
+    },
+    "harvest-cold/Room C · Kirinyaga/2026-07": {
+      "block_sha256": "d7c52494d11749c2eec5b392b3fc3e2934b65bec654b42babf04fe560a70d7d1",
+      "scope_digest": "044881aad54e6b06956e6da3f85a86c0ecd8d1fb7c2fafd04ad344d7c2711820"
+    },
+    "harvest-cold/Room C · Kirinyaga/2026-08": {
+      "block_sha256": "6028c2e1ada008bd362a6ce41951d281aefd4b1ba1e30c9687a1547bf84cccbd",
+      "scope_digest": "c56b302efb52483318c98603008d37573fff6f0b6ef51e62905200241f49b2e8"
+    },
+    "harvest-cold/Room C · Kirinyaga/2026-09": {
+      "block_sha256": "be8c9a24edbd1e18ba9ad0c1a00fd540ff0af000220ae33d49532dbec9c79a3b",
+      "scope_digest": "5e20195dce062b7eea89f34582ba6d3ee6b68964214cb8a642d58367f25fd885"
+    }
+  },
+  "note": "D-DD.102: cold scopes (no `physical` block) from main at the DD3a fix round's base; must stay byte-identical"
+}

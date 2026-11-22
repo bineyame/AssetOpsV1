@@ -270,8 +270,8 @@
       }
      },
      "physical": {
-      "battery_kwh": 200,
-      "genset_kw": 40,
+      "battery_kwh": "191.5",
+      "genset_kw": 36,
       "inverter_ac_kw": 50,
       "loads": {
        "clinic_kw": 10,
@@ -282,7 +282,7 @@
       "pcs_kw": 30,
       "pv_kw": 60,
       "reserve_soc_pct": 30,
-      "sfc_l_per_kwh": "0.3",
+      "sfc_l_per_kwh": "0.2917",
       "start_soc_pct": 35,
       "stop_soc_pct": 90
      },
