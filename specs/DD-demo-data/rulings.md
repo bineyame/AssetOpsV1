@@ -922,3 +922,121 @@ fix model faults in the model". Owner informed; no weigh-in needed (no WORKAROUN
     `/2` definition, and item 2 carries them through unchanged.
   - *Units.* DD2b 4.0 to **4.5 u** (DD2.3 2.25 to 2.5, DD2.4 1.5 to 1.75); DD2 7.5 u; DD goes from 35.75 to
     **36.25 u**, each part at or under 6 u.
+
+---
+
+# DD rulings, round 9 (D-DD.75 to D-DD.79): DD3a blockers (kernel speed, Kobo's tank) and the Update 4 deviations
+
+Architect (Claude), 2026-11-22. Input: `DD3a-handoff.md` Update 4 and its addendum on `task/DD3a-mini-reality` at
+0bc54a00f. Checked against code on that branch: `kernel/execute.py:1263-1340` (`_compute_exposures`: every forcing,
+every step), `:228` (`_entry_span`), `:282` (`_excluded` reads the frozen inputs only), `:1641`, `:1813-1826`
+(`Execution`, `_advance_one`, `begins_a_step`, `step_length`), `:1994` (`ColdExecution` takes its own runner and never
+reaches `_compute_exposures`), `host/execution_adapter.py:130` (`EXECUTABLE_MODELS`, ten `ModelSpec`s, all mini-grid
+or fuel), `contracts/.../execution_contract.py:1596` (`overlap_minutes`), `contracts/.../trajectory.py:456`
+(`content_digest`), `world/telemetry.py:60,175-181,287-297,310`, the Lakeside `/2` and `/1` files (all three tanks
+`tank-capacity` 400 L, source TEMPLATE), the manifest's `history` block (`seasons`, `families.solar_surplus`) and
+`history.json` fuel leaves. The kernel directory on the branch equals main's. The owner is informed of all five; the
+owner is asked to weigh in on D-DD.76 (it declares three Site tanks).
+
+- **D-DD.75 The kernel indexes forcings by step: option (a); (b) and (c) are refused** (addendum; protected seam,
+  no contract change).
+  - *The fault (a class, W6).* `_compute_exposures` walks `inputs.forcings` whole at every step, so one execution
+    costs O(steps × forcings). Every long execution on the `Execution` path has it, not only the writer's; the writer
+    is the first caller with a 123-day span. The fix is in the kernel, once.
+  - *Change (`kernel/execute.py` only).*
+    1. `_World` gains `forcings_by_step: dict[int, tuple[int, ...]] | None = None`.
+    2. New pure function `_forcing_index(inputs) -> dict[int, tuple[int, ...]]`: for each position `p` of
+       `inputs.forcings`, in order, `(start, end) = _entry_span(forcing, duration)`; skip when `end <= start`; for each
+       step start `s` of `inputs.interval.step_starts` (found from `bisect_right(step_starts, start) - 1`, floor 0,
+       while `s < end`) with `length = min(s + timestep, duration) - s`, append `p` to `s`'s list when
+       `overlap_minutes(s, length, start, end - start) > 0`. Values are tuples, ascending by construction.
+    3. In `_compute_exposures`, after the `begins_a_step` return: if `world.forcings_by_step is None`, build it. The loop
+       at `:1280` becomes `for position in world.forcings_by_step.get(world.offset, ()):` with
+       `forcing = world.inputs.forcings[position]` as its first line. Every line after it is unchanged, including the
+       `_excluded`, handler and `overlap_minutes` checks.
+    4. Nothing else changes: no other scan, no setup check, no contract, no pack.
+  - *Why it is byte-identical.* The index holds exactly the forcings whose overlap with the step is positive, by the
+    same predicate with the same arguments; the old loop skipped every other forcing with `continue` after pure reads
+    (frozen inputs, the model's handler table), with no side effect. The kept forcings are visited in input order, so
+    `exposed_by_address`, its stable sort, the ledger records and the exposures are the same. The lazy build covers
+    every way a `_World` is made.
+  - *Reach.* One Site type: mini-grid, through the ten `EXECUTABLE_MODELS` (minimal fuel tank, daytime mini-grid,
+    mini-grid v1 to v8) and the DD3 writer. Cold chain (`ColdExecution`, its own runner) and EV charging (its own
+    path, `execution_path_for` = EV) do not call `_compute_exposures` and are unchanged; the builder confirms by grep
+    and adds them to the parity test if either does.
+  - *Parity test (golden from main's kernel), `host/tests/test_kernel_forcing_index_parity.py` plus
+    `host/tests/fixtures/kernel_forcing_index_parity.json` (case id → `PrivateTrajectory.content_digest`).* The golden
+    is written and committed on the DD3a branch BEFORE the kernel edit (the kernel directory equals main's; the packet
+    shows `git diff main -- simulator/assetops_simulator/kernel` empty at that commit), and the test passes there.
+    Cases: K1 to K8, `host/tests/kobo_season.py base_run(2, version=N)` for N = 1 to 8 through
+    `execution_adapter.frozen_world_inputs` and `model_for`; D1, the first run `host/tests/test_daytime_mini_grid.py`
+    builds; F1, the first run `simulator/tests/test_fuel_trajectory.py` builds; X1, the `FORCING_VALUE_AMBIGUOUS` case of
+    `simulator/tests/test_execution_failures.py` (failure and offset are in the digest); W1, the writer's Kobo 7 days
+    from 2026-07-01 with the tank set to 2500 L inside the test; S1, K8 advanced one boundary at a time, equal to K8's
+    digest.
+  - *Timing (packet).* Wall time of the 7-day Kobo writer run before and after (11 s before), and of the 123-day pure
+    run at 0.62 and 3.3. Stop rule: if the 123-day run takes over 10 minutes, the builder hands the top 15 lines of
+    `cProfile` to the Architect and makes no further kernel change.
+  - *Why not (b).* A window hand-off must start a RUNNING or STARTING generator, which v8 refuses
+    (`mini_grid.py:93-113`); making it start would change a pack's admitted initial states, a larger seam than an
+    index, and it would add a second chaining mechanism beside D-DD.69's. *Why not (c).* Season v2's load is already
+    2-hour blocks; wider windows would flatten the world's inputs to suit the tool, and at 2-hour windows the cost is
+    still O(steps × forcings) (about 35k × 5.9k).
+
+- **D-DD.76 The three mini-grid tanks are declared by the Site, sized by a stated storage rule; the notes stay as
+  dated** (tank blocker; amends spec §4.2 "Fuel" and §6's "tank" row, and D-DD.19's fallback). The owner is asked to
+  weigh in.
+  - *What the world is.* The 400 L is not Kobo's tank: all three Sites carry `tank-capacity` 400 L with source TEMPLATE,
+    copied from the Kobo 60 kW Lab template, which was made for runs of hours. No operator takes 400 L notes into a
+    400 L tank (it would accept one only when empty), and Kisiwa's 2,400 L a month would be six of them. The notes are
+    the operator's records: their litres are the books' (D-DD.32, D-DD.48) and their days are set (D-DD.53, OOO-1);
+    changing them would move story figures to fit a placeholder. Sizing deliveries to free space would make the books
+    follow a placeholder, and D-DD.19's fallback cannot work at 400 L either (two notes, 800 L, into a tank below
+    100 L). So the wrong figure is the tank.
+  - *Rule (declared, computed from the books, never from a run).* Each mini-grid Site holds on-site storage for two
+    months of its largest month of delivered litres July to October (D-DD.32 litres: `necessary_l + candidate_l +
+    unexplained_l` of `history.json`, October `period.actual.diesel_l`), rounded up to the next standard size of 500,
+    1000, 1500, 2000, 2500, 3000, 4000, 5000 or 10000 L. Two months: a remote Site keeps a month's reserve above a
+    month's deliveries (road and rains). The rule is fixed here, before any run at the new size.
+  - *Figures.* Kobo max 1180 (Oct) → 2360 → **2500 L**; Kisiwa max 2400 (Oct) → 4800 → **5000 L**; Mto max 320
+    (Oct) → 640 → **1000 L**. The start stays 50 % (D-DD.19): 1250, 2500 and 500 L. If the builder finds other leaf
+    values, the rule stands and the figures follow; the packet prints the inputs.
+  - *Where.* `tank-capacity` of each Site's `fuel-tank` in `backend/tests/fixtures/on1/lakeside-power.onboarding.json`
+    and `lakeside-power.v1.onboarding.json` (one figure in both files), `source` "SITE", `source_version` 1
+    (D-DD.71's rule: the Site's own first declaration). Lab templates and scenarios keep 400 L (they are the template's
+    figure). The writer reads the tank only from the foundation, as now.
+  - *Gate unchanged.* The D-DD.19 / D-DD.70 pure run then runs. A bound hit is still reported, never tuned.
+  - *D-DD.19's fallback, restated.* When a Site's dip falls below 25 % of capacity, the next notes are placed then:
+    as many 400 L notes as fit in the free space, at most two. The books follow the tank and the owner is told the moved
+    figures before DD4.
+  - *Moved figures.* Any product figure computed from the tank (level as a share of capacity, days of cover) moves at
+    Lakeside's three Sites; the packet lists them. No story figure moves.
+
+- **D-DD.77 Kobo's July and August sun follow the world's declared season, not "all clear"** (Update 4 deviation:
+  changed; amends spec §4.2 "Sun").
+  - Season v2's calendar covers 1 September to 31 October only. For a Kobo day outside it, the irradiance is season
+    v2's clear-day shape (`SUN_W_PER_M2["clear"]`) times the `solar_surplus` day weight (season × day class, no
+    jitter): July and August are `cool_dry`, 0.80. This is the rule Kisiwa and Mto use (§4.2), so there is one rule
+    for a day without a calendar. Hourly values are exact (`Fraction`) and the manifest's `conditions` record the rule.
+  - *Why.* "All clear" in July and August is a fill the world does not declare: the manifest declares less sun in
+    `cool_dry` (0.80) than in `warm_dry` (1.10).
+
+- **D-DD.78 The other Update 4 deviations are ratified.**
+  1. Load and sun are hour-block WINDOW forcings (96 a day at Kobo). Season v2's shape is 2-hour blocks, so hourly
+     windows carry it whole; 5-minute windows would repeat values and add nothing. Kept after D-DD.75.
+  2. Watt-hours by largest remainder per (day, feeder, hour) over the month, month totals exact (§4.1).
+  3. The load shape is season v2's (`LOAD_SHAPE_KW`) and the day weight the `demand` family's.
+  4. Critical-load order clinic, residential, mill (season v2's `critical-load-priority`).
+  5. Notes outside the span are skipped; Kobo only in DD3a, Kisiwa and Mto `not_written` (D-DD.70).
+  6. Readings to the thousandth, half-even, one JSON line per row.
+  7. Fuel-limited burn when the tank is low (unserved appears); an empty tank from a declared draw is
+     `INTEGRATION_BOUND_FAILURE`, an overfill `BOUNDED_AND_RECORDED`; both are `TEL_PACK` naming the day (D-DD.69) in
+     the writer, and tabled in the pure run.
+  8. C-DD21 (writer `NEEDS` table against the backend's frozen Kobo v8 initial values) is a new check in
+     `tools/dd_check.py`; spec §8.1 lists it.
+
+- **D-DD.79 Units: DD3a +0.75 u; DD 37.0 u** (W4). DD3.1 1.75 to **2.25** (D-DD.75 index, parity test and timing;
+  D-DD.77); DD3.2 2.25 to **2.5** (D-DD.76: the tank rows in both files, the test sweep, the moved-figure list). DD3a
+  4.0 to **4.75 u**, DD3 9.75 u; DD goes from 36.25 to **37.0 u**, each part at or under 6 u.
+  - *Order inside DD3a.* (1) the parity golden on the unchanged kernel, committed; (2) the index, parity green, timing;
+    (3) D-DD.77; (4) D-DD.76's tank rows, then commit 1b's pure run on the new tank; (5) commit 2 as §6 says.
