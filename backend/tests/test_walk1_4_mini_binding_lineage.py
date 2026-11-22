@@ -126,7 +126,7 @@ def test_read_hour_rows_returns_as_accepted_binding_of_a_superseded_set(store, e
                      f"WHERE id = '{installed.binding_set.id}'")
     with engine.connect() as c:
         raw = read_hour_rows(c, tenant_id, site_id, window.start, window.end, RECEIVED,
-                             role_set="minigrid-roles-4", roles=mini_inputs.QUERY_ROLES, supply_role="site_supply_state")
+                             role_sets=("minigrid-roles-4",), roles=mini_inputs.QUERY_ROLES, supply_role="site_supply_state")
     assert raw.binding_sets == [] and raw.bindings == []  # the set is no longer known at the cutoff
     used = {r[13] for r in raw.accepted}
     assert used and set(raw.row_bindings) == used  # non-empty: every row's own binding is read by id

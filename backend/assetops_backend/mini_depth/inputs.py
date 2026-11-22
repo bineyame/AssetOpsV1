@@ -27,7 +27,7 @@ from assetops_backend.mini_depth.store import read_hour_rows
 from assetops_backend.mini_depth.rules import (
     FuelInputs, LoadAsset, Observation, Reading, RenewableInputs, SfcValue, Window,
 )
-from assetops_backend.sites.binding_roles import ROLE_SET_MINIGRID_4
+from assetops_backend.sites.binding_roles import MINI_DEPTH_ROLE_SETS
 
 #: Migration 0029's closed mini-depth gate roles: the only roles the hour query selects.
 QUERY_ROLES: tuple[str, ...] = (
@@ -213,7 +213,7 @@ def load_hour_inputs(c: Any, tenant_id: UUID, site_id: UUID, window: Window,
                      knowledge_cutoff: datetime) -> HourInputs:
     """Select (on the caller's connection) and adapt every input of one Site-local hour known at the cutoff."""
     k = knowledge_cutoff
-    raw = read_hour_rows(c, tenant_id, site_id, window.start, window.end, k, role_set=ROLE_SET_MINIGRID_4,
+    raw = read_hour_rows(c, tenant_id, site_id, window.start, window.end, k, role_sets=MINI_DEPTH_ROLE_SETS,
                          roles=QUERY_ROLES, supply_role=rules.SITE_SUPPLY)
     tz_name = raw.timezone
     zone(tz_name)
@@ -224,7 +224,8 @@ def load_hour_inputs(c: Any, tenant_id: UUID, site_id: UUID, window: Window,
     f_id, content = foundations[0][0], _content(foundations[0][3])
     sets = raw.binding_sets
     if len(sets) != 1 or sets[0][1] > window.start or (sets[0][2] is not None and sets[0][2] < window.end):
-        raise MiniInputsRefused(CONFIGURATION_MISSING, f"exactly one {ROLE_SET_MINIGRID_4} set must cover the hour")
+        raise MiniInputsRefused(CONFIGURATION_MISSING,
+                                f"exactly one {MINI_DEPTH_ROLE_SETS[0]} or {MINI_DEPTH_ROLE_SETS[1]} set must cover the hour")
     set_id = sets[0][0]
     bindings = raw.bindings
     by_id = {b[0]: b for b in bindings}
