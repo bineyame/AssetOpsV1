@@ -74,24 +74,30 @@ async function renderAt(path: string) {
 
 const at = () => document.querySelector("[data-location]")!.textContent!;
 const RANGE = "from=2026-10-01T00%3A00%3A00Z&to=2026-11-01T00%3A00%3A00Z";
+const KNOWN = "2026-11-01T06%3A00%3A00Z";
 
 describe("IA-P P5: the Site Findings alias per vertical (D-IAP.42)", () => {
   it.each([
     ["COLD", "COLD-001"],
     ["EV", "EV-1"],
   ])("%s: /sites/:id/findings redirects to /findings?scope=site:{id}, the range kept", async (_v, id) => {
-    await renderAt(`/sites/${id}/findings?${RANGE}&domain=x`);
+    await renderAt(`/sites/${id}/findings?${RANGE}&known_at=${KNOWN}&domain=x`);
     const url = new URL(at(), "http://x");
     expect(url.pathname).toBe("/findings");
     expect(url.searchParams.get("scope")).toBe(`site:${id}`);
     expect(url.searchParams.get("from")).toBe("2026-10-01T00:00:00Z");
     expect(url.searchParams.get("to")).toBe("2026-11-01T00:00:00Z");
+    expect(url.searchParams.get("known_at")).toBe("2026-11-01T06:00:00Z");
     expect(url.searchParams.get("domain")).toBeNull();
   });
 
   it("MINI: the index stays (MD-IAP-15), lit under Evidence, with Findings current in its section line", async () => {
-    await renderAt(`/sites/MG-1/findings?${RANGE}`);
+    await renderAt(`/sites/MG-1/findings?${RANGE}&known_at=${KNOWN}`);
     expect(new URL(at(), "http://x").pathname).toBe("/sites/MG-1/findings");
+    // moved from coldFindingIndex (D-IAP.47, SR-4): a valid address `known_at` travels on every main tab of the kept mini index
+    const tabs = Array.from(document.querySelectorAll("nav.site-tabs:not(.site-subtabs) a.site-tabs__link"));
+    expect(tabs.length).toBeGreaterThan(0);
+    for (const a of tabs) expect(new URLSearchParams((a.getAttribute("href") ?? "").split("?")[1] ?? "").get("known_at")).toBe("2026-11-01T06:00:00Z");
     const row = screen.getByRole("navigation", { name: "Site sections" });
     expect(within(row).queryByRole("link", { name: "Findings" })).toBeNull();
     expect(within(row).getByRole("link", { name: "Evidence" })).toHaveAttribute("aria-current", "page");

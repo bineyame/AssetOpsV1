@@ -295,6 +295,28 @@ describe("Findings list", () => {
   });
 });
 
+describe("Findings list at scope=site:{id} (D-IAP.47: where the COLD and EV Site Findings alias lands)", () => {
+  const COLD = "COLD-LAB-001";
+  const rows = [
+    findingRow(1, { finding_id: id(11), title: "Chamber above policy", site_code: COLD }),
+    findingRow(2, { finding_id: id(12), title: "Other Site finding", site_code: "KOBO-001" }),
+  ];
+  const c: EstateClient = { ...client(decisionRows(1)), findings: async () => loaded(findingsBody("all", { rows, total_count: 2 })) };
+
+  it("keeps only that Site's Findings and reads the range from the address", async () => {
+    mount(<FindingsListPage client={c} />, `/findings?${RANGE}&scope=site:${COLD}`, "/findings");
+    await settledScreen();
+    expect(rowsOf().map((r) => r.getAttribute("data-row"))).toEqual([id(11)]);
+  });
+
+  it("says the def's words when the Site has no Finding in the range (the old index's empty state)", async () => {
+    mount(<FindingsListPage client={c} />, `/findings?${RANGE}&scope=site:NONE-001`, "/findings");
+    await settledScreen();
+    expect(rowsOf()).toEqual([]);
+    expect(document.body.textContent).toMatch(/No Findings in this (range|scope)|Nothing matches/);
+  });
+});
+
 describe("Findings list, Its decision while the Decisions read is not loaded (M2)", () => {
   const f1 = findingRow(1, { finding_id: id(3), title: "Has a decision" });
   const findings = async () => loaded(findingsBody("all", { rows: [f1], total_count: 1 }));
