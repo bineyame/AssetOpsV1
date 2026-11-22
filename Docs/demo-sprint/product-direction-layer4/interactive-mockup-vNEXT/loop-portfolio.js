@@ -177,17 +177,18 @@ const findingHeading=([k,t,s,txt,d,fid])=>findingFactorHeading(fid,`${s}:${d}`);
    names no money factor: its billed charges are listed under Optimize (unmapped meters, O3), not summed. */
 const OPT_HOME_GAPS=[];window.OPT_HOME_GAPS=OPT_HOME_GAPS;
 const COST_LINES=['fuel_monthly','collection_cost_monthly','energy_monthly','handling_monthly'];
-function optHeadings(id){const x=OPT[id];if(!x)return [];const e=x.economics||{},dd=DOPT(id),out=[],sk=x._site,v=sk?OPS[SK[sk].op].vertical:null;
+function optHeadings(id,withMissing){const x=OPT[id];if(!x)return [];const e=x.economics||{},dd=DOPT(id),out=[],sk=x._site,v=sk?OPS[SK[sk].op].vertical:null;
  const F=(HC.option_money_factors||{})[id]||[],rows=F.map(f=>v?homeRow(v,f):null),hs=[...new Set(rows.filter(Boolean).map(r=>r[0]))];
  const gap=()=>{if(!OPT_HOME_GAPS.includes(id))OPT_HOME_GAPS.push(id);};
  if(F.length){if(rows.some(r=>!r)||hs.some(h=>h!=='grow'&&h!=='optimize'))gap();
-  else if(hs.length===2){const c=COST_LINES.reduce((a,k)=>a+(e[k]||0),0);if(e.revenue_monthly!=null&&e.net_monthly!=null&&Math.abs(e.revenue_monthly-c-e.net_monthly)<0.005){out.push(['grow',`${usd(e.revenue_monthly,true)} a month`,e.revenue_monthly]);out.push(['optimize',`${usd(-c,true)} a month`,-c]);}else gap();}
+  else if(hs.length===2){const c=COST_LINES.reduce((a,k)=>a+(e[k]||0),0);if(e.revenue_monthly!=null&&dd&&dd.valued_in_money&&dd.monthly_or_horizon_change!=null&&Math.abs(e.revenue_monthly-c-dd.monthly_or_horizon_change)<0.005){out.push(['grow',`${usd(e.revenue_monthly,true)} a month`,e.revenue_monthly]);out.push(['optimize',`${usd(-c,true)} a month`,-c]);}else gap();}
   else if(hs.length===1&&e.charges_monthly!=null&&!(dd&&dd.valued_in_money))out.push([hs[0],`${usd(e.charges_monthly,true)} a month of restored charges, listed, not added`,e.charges_monthly]);
   else if(dd&&dd.valued_in_money&&dd.value!=null&&dd.monthly_or_horizon_change)out.push([hs[0],`${usd(dd.monthly_or_horizon_change,true)} ${dd.months>1?'a month':'to the restore'}`,dd.monthly_or_horizon_change]);}
  else if(e.charges_monthly!=null)out.push(['optimize',`${usd(e.charges_monthly,true)} a month of billed charges`,e.charges_monthly]);
  const pe=protectEffectLine(id);if(pe)out.push(['protect',cap(pe)+' (not money)',null]);
+ if(withMissing&&F.length)hs.forEach(h=>{if((h==='grow'||h==='optimize')&&!out.some(o=>o[0]===h))out.push([h,'Not available yet',null]);}); /* 0K4m: an option the evaluation does not value in money (or whose split it cannot make) says so under its heading */
  return out;}
-function byHeading(id){const h=optHeadings(id);return h.length?`<ul class="byhead">${h.map(([k,t])=>`<li data-heading="${k}">${lensTag(k)} <span>${t}</span></li>`).join('')}</ul>`:'<span class="muted">No effect under a heading yet</span>';}
+function byHeading(id){const h=optHeadings(id,true);return h.length?`<ul class="byhead">${h.map(([k,t])=>`<li data-heading="${k}">${lensTag(k)} <span>${t}</span></li>`).join('')}</ul>`:'<span class="muted">No effect under a heading yet</span>';}
 const CAT_NOTE={grow:'Factor effects on contribution',optimize:'Factor effects on contribution',protect:'Measures against target'};
 function evidenceMix(op){const c={};OPS[op].sites.forEach(sk=>walk(tree(sk),n=>{if(n.cls&&!n.kids){const w=ecw(n.cls);c[w]=(c[w]||0)+1;}}));return Object.entries(c).sort((a,b)=>b[1]-a[1]).map(([w,n])=>`${w} ${num(n)}`).join(' · ');}
 /* collection of what was billed (design rev 16.10 §2.0, Optimize: billed against collected): cash, outside the contribution gap */

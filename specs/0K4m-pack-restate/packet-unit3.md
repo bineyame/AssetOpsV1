@@ -155,3 +155,9 @@ Fixes on the branch (heads `123bd229a`, `489feb839`, `3bb3d2d68`, `f251c0b8b`, `
 Gates at head `5724b08b8`: `check_manifest.py` `7798 checks passed (2869 history checks), 0 failed`;
 `check_alignment.py` 114 of 114; `hand_typed_scan.py` count 0, allow 48 of 48 used; audit 207 of 207 routes ok,
 console errors 0, unresolved 0; full `ia_gates` 0 BAD. Known Deviation 1 (H10) is closed by commit 6.
+
+## vNEXT mockup fallout fix (branch fix/vnext-0k4m-fallout)
+
+Cause: 0K4m removed the demand options' stated `revenue_monthly`/`fuel_monthly` and left Kobo's settings and MTO-INV-CLAIM unvalued (D-0K4.38, .45 to .48). The mock still read the removed fields (huller "+undefined / NaN") and drew nothing for unvalued options.
+Mock: `loop-decisions.js` fills the huller's and welder's revenue and fuel from the evaluator's params at the tenant prices (as OPT_WORK already worked them); `loop-portfolio.js` splits on the evaluator's monthly change and an option with money factors but no figure shows "Not available yet" under its heading.
+Checks changed only where 0K4m changed the data: `plan_switch_check` (huller from params; unvalued Mto claim reads "Not available yet"), `ux_interaction_check` (released-state check reads Thika, since Kobo has no released item; no-recommendation step path mirrors `uxDecSteps`).
