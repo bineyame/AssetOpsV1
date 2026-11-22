@@ -18,3 +18,8 @@ Owner answer: "Accept (Recommended)".
 
 Context: simulated honestly, Thika's chamber peaks at 4.05 °C on 6 Oct; B-1031 never exceeds 5 °C, so C-DD6's clause behind credit note CN-0412 fails.
 Owner answer: "Change the event (Recommended)" — keep the room's declared physics; the Architect resizes the incident so it really breaches 5 °C, computed from the room model, not tuned.
+
+## D-DD.92 Kobo fuel story (later the same day)
+
+Context: honestly simulated, Kobo's declared plant (60 kW PV, 191.5 kWh battery, 35/90 % dispatch) burns about 628 L in October against the story's 1,180 L; candidate saving about 42 L (bridge about -$52) instead of 330 L (-$412.50).
+Owner answer: "Revisit a plant figure" (keep a larger fuel story by correcting a declared plant figure to what the real site has; owner supplies or confirms the figure; nothing fitted to the story).
