@@ -3,7 +3,7 @@
 Branch `task/IA-P3-sites-site-inbox`, worktree `/opt/assetecon/AssetOpsV1-iap3`. Head: see `git log -1` (stated in the hand-back).
 Spec: `spec.md` rev 3 §6 P4b, §5.2, §5.3, §6 "Range pages"; `rulings.md` D-IAP.35 (merged from main `3cf6f893b`).
 `USER_REVIEW_REQUIRED`: no (a build slice; the owner walkthrough is after the IA shape is built, `owner-review-at-product-shape`).
-P5 and P6 are built (§7, §8); P7 is the next run.
+P5, P6 and P7 are built (§7, §8, §9); §10 lists every deviation. Ready for the one IA-P3 review.
 
 ## 1. What was built
 
@@ -288,6 +288,8 @@ top bar one row at 1280, 45 px high for a 32 px control).
 
 - `shell/__tests__/sr2RequestUrls.test.tsx` "SR-2 the demo's API requests are byte-identical", `/portfolio/outcomes` row:
   back to one `/api/estate/portfolio?…&limit=50` (P6 had pinned it twice, §8.3); (b), §8.4's double read is fixed.
+- `estate/__tests__/estatePortfolioRoutes.test.tsx` "a tab switch stays on the one mounted route and does not read
+  again": `portfolioCalls` 2 -> 1 (the tab and the shell share the read; the switch still adds none); (b), same cause.
 
 ### 9.4 Known deviations and risks (P7)
 
@@ -320,3 +322,35 @@ top bar one row at 1280, 45 px high for a 32 px control).
    `domain` (`homeListModel`, as a def without `site` ignores every scope)?
 2. `/results` reads page 1 outside the shared cache (twice with the shell): fold it into the cache as P7 did for the
    Portfolio tabs?
+
+### 9.6 Checks at head `6dbfb3a34` (evidence `/opt/assetecon/evidence/IA-P/IA-P3/p7/`)
+
+| Check | Head `6dbfb3a34` | Main `12e618be3` |
+| --- | --- | --- |
+| vitest `src/estate src/shell src/ui src/sites` (run from `frontend/`) | 190 files, 4158 tests: 10 failed, 4148 passed; 124 s | 184 files, 4093 tests: 12 failed, 4081 passed (run 4) |
+| Head's 10 failures, all in main's set | `s502OverviewFindingList` 2 (the load flake; names vary by run), `siteRangeMatrix` 2, `sr2RequestUrls` SR-6b, `domainActionVerification` R348, `evActionFixRound` L5, `evSiteMoneyRoutes` 2, `siteWorkCases` R322 | |
+| backend `test_iap_*` (4 files, one `--db-lane` call) | 88 passed, 75 s | |
+| `tsc --noEmit` (in the fresh `npm run build`) | clean; built | |
+| `check-architecture.ps1` (`ASSETOPS_GUARD_PYTHON`), `check-agent-workflow.ps1` | passed, passed (at head with this packet) | |
+| `tools/checks/statement_catalogue.py` | exit 0 | |
+| `backend/tests/test_wk_walk_world.py` | 103 passed | |
+| `tools/iap_gates.cjs` on `vite preview :5573` | 64 of 64 pass (fresh build; 301 s): T1 and T2 on the three verticals, W1 badge "6" = tile "6" with four top-bar children at top 6 (bar 45 px, control 32 px), K1 open, Ctrl K close and Escape close with focus returned; 12 P7 shots | |
+
+An earlier head run (`de2528004`) had 12 failed: the `estatePortfolioRoutes` pin migrated above, and `simulatorLabGate`
+"operator route /" (fails on main too, §7 table), which passed in the final run. A first run from the repo root read CSS
+by relative path and failed 38 with ENOENT; it is not counted.
+Layout evidence: the gates' page checks (1440, 768, 390, light and dark), W1 at 1280, and the P7 shots
+(`shots/p7-scope-*`, `shots/p7-search-*` at 1440, 1280, 390, light and dark); `layout-evidence.mjs` not run (the top
+bar is measured by W1).
+
+## 10. IA-P3 slice end: every deviation, in one list
+
+- §4: the template-lineage note and "In setup" left the Sites list (R795 re-housed them, D-IAP.44).
+- §7: MINI keeps its Site Findings index (MD-IAP-15, R796); the cold index's columns and the Site's early warnings have
+  no home on the Findings list (§7.3); one Changes name (R797); the Q-P5-3 byte compare rests on D-IAP.46's projection.
+- §8.4: a range-less address reads the default window once before it is completed.
+- §9.4: `EstateClientProvider` kept and widened with `directory`; a group scope on Findings and Actions shows no rows;
+  the Search button's visible text below 1360 px; the panel and menu light in dark mode (as the drawer); the Portfolio
+  tabs wait for every page of the shared read; `/results` still reads page 1 twice; `scope=` is not carried by links.
+- Register rows of IA-P3: R790 to R799.
+- `USER_REVIEW_REQUIRED`: no. IA-P3 (P4b to P7) is ready for its one review.
