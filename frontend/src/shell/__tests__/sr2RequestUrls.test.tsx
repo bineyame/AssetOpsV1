@@ -229,8 +229,8 @@ describe("SR-2 the demo's API requests are byte-identical", () => {
     // IA-P2 P3b (spec §3, D-IAP.2): the Overview reads E2 (`/api/portfolio/period`), not the estate portfolio; the
     // estate reads this row pinned (the same strings, byte for byte) now belong to the Outcomes tab.
     // IA-P P6: every operator page adds the shell's "Waiting for you" read (the Decisions read, every page, 50 each);
-    // where the page reads the same URL outside the shared cache (the Outcomes tab), it is requested twice.
-    ["/portfolio/outcomes?from=2026-10-25T00:00:00Z&to=2026-11-02T00:00:00Z", [`/api/estate/portfolio?${W}&limit=50`, `/api/estate/portfolio?${W}&limit=50`, `/api/estate/outcome-summary?${W}`]],
+    // IA-P P7 (packet §9): the Outcomes tab reads page 1 through the shared cache too, so the URL is requested once.
+    ["/portfolio/outcomes?from=2026-10-25T00:00:00Z&to=2026-11-02T00:00:00Z", [`/api/estate/portfolio?${W}&limit=50`, `/api/estate/outcome-summary?${W}`]],
     // IA-P P2: the Findings list reads its Findings and the Decisions it joins (the shared cache, every page, 50 each);
     // it no longer reads the Site scope or the outcome summary (the Site names come from the rows themselves, I8).
     ["/findings?from=2026-10-25T00:00:00Z&to=2026-11-02T00:00:00Z", [`/api/estate/findings?${W}&limit=50`, `/api/estate/portfolio?${W}&limit=50`]],

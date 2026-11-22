@@ -203,3 +203,12 @@ Open: P6, P7. The `evScenarios` R347 full-run-only failure is unexplained (passe
 - Risks: `/portfolio/outcomes` requests the portfolio page-1 URL twice (tab read outside the cache + the shell);
   a range-less address reads the default window once before `SharedRangeOutlet` completes it.
 - Next: P7 (scope and search).
+
+## Run 7 (P7 complete; IA-P3 slice end; in_review)
+
+- Merged main (`955771820`). P7 built on D-IAP.40/41: `shell/ScopeSwitch.tsx` (+ `EverySiteChip`), `shell/SearchPalette.tsx`,
+  `shell/scopeSearch.css`, the top bar order, `EstateClientProvider` `directory`, the Outcomes/Demand tabs on the shared
+  cache (§8.4 double read fixed there), walk pages +4, gate K1. Details, plants, deviations, questions: `packet-IA-P3.md` §9.
+- Counts, gates and shots: `packet-IA-P3.md` §9.6 and §10.
+- Next: the one review of IA-P3 (P4b to P7). Open: packet §9.5 questions (group scope on Findings/Actions; `/results`
+  page-1 read outside the cache).

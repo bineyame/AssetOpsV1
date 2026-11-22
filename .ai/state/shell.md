@@ -504,7 +504,7 @@ Branch `task/W1-UX-07` (base main `3bb1b8b2`). Packet `archive/agent-history/W1-
 - Left open: the demo's prebuilt `/portfolio` week requests (`tools/demo_combined.py`) no longer match what the Overview reads (E2);
   MD-IAP-3, -7, -10, -11, -12, -16 registered (R784 to R789); the world ladder's L2 `code` part is stale until the coordinator rebuilds it.
 
-## IA-P3 - Sites, the Site's six tabs, the inbox, scope and search (P4b, P5 and P6 built, in_review; P7 not built)
+## IA-P3 - Sites, the Site's six tabs, the inbox, scope and search (P4b, P5, P6 and P7 built; in_review)
 
 - Pre-flight for the whole part: `specs/IA-P-product-shape/IA-P3-preflight.md` (28 questions with defaults; Q21 blocks only
   P5's `/sites/:id/findings` alias). Meeting point with 6f1: `decisionItems(` (6f1 U2's W6 sweep, §4.4).
@@ -527,7 +527,13 @@ Branch `task/W1-UX-07` (base main `3bb1b8b2`). Packet `archive/agent-history/W1-
   (`packet-IA-P3.md` §7.3). Gates T1, T2. `RangeMatrixEntry.alias` marks the alias rows.
 - P6 (D-IAP.37): "Waiting for you" in the top bar (`shell/WaitingForYou.tsx`); badge = the Decisions tile through
   one function (`waitingForAChoice`, 6f1 U2 re-sources it); rows only via `decisionItems(` on the Decisions read's cache
-  key (`EstateClientProvider` in `App`); `ui/Drawer.tsx` (moved from DeepDiveMonth). Gate W1. Open: the Outcomes tab's
-  page-1 read and the shell's are the same URL twice; a range-less address reads the default window once first.
-- Left open: P7; the demo prebuild (part IA-PD, D-IAP.36); register R790 to R793; the template-lineage note and
-  "In setup" have no place on the list (packet questions); `sites/SitesIndex.tsx` is mounted by no route.
+  key (`EstateClientProvider` in `App`); `ui/Drawer.tsx` (moved from DeepDiveMonth). Gate W1.
+- P7 (D-IAP.40): top bar Scope · Search · range bar · Waiting for you. `shell/ScopeSwitch.tsx` (writes `scope=` keeping
+  the list's parameters; a Site entry off a list opens the Site; `EverySiteChip` "This page shows every Site" on the
+  Overview, Demand & capacity, Outcomes, Results, Evidence & records, MD-IAP-5, R798); `shell/SearchPalette.tsx` (Ctrl K,
+  Sites/Decisions/Findings/Actions/live rail items, ANDed words, first 20, reads only while open). The directory reaches
+  the shell through `EstateClientProvider`'s `directory`. The Outcomes and Demand tabs read page 1 from the shared cache
+  (one request with the shell's). Walk pages +4 (Q26). Gate K1.
+- Left open: the demo prebuild (part IA-PD, D-IAP.36); a group scope on Findings and Actions shows no rows (their rows
+  carry no domain; packet §9 question); `/results` still reads page 1 outside the cache (twice with the shell); a
+  range-less address reads the default window once first; scoped reads for the hub pages (MD-IAP-5).

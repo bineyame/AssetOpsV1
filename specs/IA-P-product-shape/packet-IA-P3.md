@@ -225,3 +225,98 @@ new "alias rows" describe asserts the redirect to `/findings` with `scope=site:{
 
 See `IA-P3-handoff.md` run 6 for the counts and shots. `iap_gates.cjs`: 63 of 63 pass (W1: badge "6" = tile "6"; the
 top bar one row at 1280, 45 px high for a 32 px control).
+
+## 9. P7 scope and search (spec §6 P7; D-IAP.40, D-IAP.41)
+
+### 9.1 What was built
+
+- `shell/ScopeSwitch.tsx` (new). The button reads "All sites ▾", "{domain word} ▾" or "{Site name} ▾" from the
+  address's `scope`. The menu (`role=menu`, arrow keys, Escape returns focus, a click outside closes) lists "All sites",
+  one entry per domain present (the directory's `site_type` through `DOMAIN_WORD`, in its order, no quoted literal; Q24),
+  then the Sites in directory order. On a list (`/decisions`, `/findings`, `/actions`, `/sites`) an entry writes
+  `scope=` and keeps every other parameter (facets, sort, `q`, the range); `show` goes, as `homeListHref` drops it.
+  On a Site page or a hub, a Site entry opens `/sites/{code}` with the range, and a group or all writes `scope=` (all
+  removes it) on the same address (Q23). The directory is read only when the menu opens or a Site is the scope.
+- `EverySiteChip` (same file), placed in `OperatorShellLayout` above the page: "This page shows every Site" on the
+  Overview, Demand & capacity, Outcomes (so above L1), Results and Evidence & records (and its Records tab) while the
+  scope is not all (D-IAP.40, MD-IAP-5, register R798). Site pages and lists show none.
+- Every `HomeList` surface already applied `scope` through `homeListModel` (Decisions, Findings, Actions, Sites, the
+  Overview's Decisions rows, Outcomes L2, whose "Show all" carries it through `homeListHref`); P7 adds the test that
+  Outcomes L2 follows a group scope.
+- `shell/SearchPalette.tsx` (new). The button (accessible name "Search Sites, decisions and Findings"; visible text the
+  full label above 1360 px, "Search" below, plus the "Ctrl K" hint above 640 px) and Ctrl K / ⌘ K open and close a
+  `role=dialog` with one `role=combobox` input and a `listbox`. Entries: Sites (`display_name`, "Site",
+  `/sites/{site_id}`), Decisions (`title`, "Decision · {Site}", `decisionsDef().target`), Findings (`title`,
+  "Finding · {Site}", `findingsDef().target`), Actions (`action_title`, "Action · {owner or Site}",
+  `link_refs.action`), then each live rail item (label, "Go to"); an entry with no target is not indexed (Q25). Words
+  ANDed, case-blind, over the label and its kind; the first 20 in that kind order. Arrow keys move
+  (`aria-activedescendant`), Enter opens with the range, Escape closes; focus returns to the element focused before.
+  The reads are the lists' cached reads (`useEstateRead`, same keys) and the directory, made only while it is open.
+  `decisionItems(` is called by that name (`shell/SearchPalette.tsx`) for 6f1 U2's §4.4 sweep.
+- `OperatorShellLayout`: the top bar is Scope · Search · range bar · Waiting for you; Scope and Search sit at the start,
+  and the bar wraps at <=640 px (`shell/scopeSearch.css`, tokens only; the panel and menu use P6's `--dd-` scrim and
+  shadow tokens).
+- `EstateClientProvider` (P6, kept: D-IAP.37 did not name it) gained an optional `directory` (`App` passes
+  `siteDirectory`), read by `useProvidedSiteDirectory()`.
+- §8.4's double read: the Outcomes and Demand & capacity tabs (`PortfolioTabsPage`, `estate/EstatePortfolio.tsx`) now
+  take page 1 from `useEstateRead(reads, "portfolio", window)`. The shared key `(client, "portfolio", range)` already
+  allowed it: the cache's first page is the tab's former query (`lens=all`, `limit=50` = `ALL_PAGES_LIMIT`,
+  `cursor=null`). No design choice was needed. The tab's own per-key `Map` and the PL-1 held read (a lens change; the
+  lens is always `all` on these tabs) are gone.
+- Walk (Q26): `backend/conversions/walk-layer4-v1.json` `pages` adds `/decisions`, `/results`, `/portfolio/outcomes`,
+  `/portfolio/demand-and-capacity`; `test_t11_smoke_pages`'s literal and `test_t8_smoke_node_env_is_exactly_six`'s page
+  count (10 -> 14) in the same commit (`backend/tests/test_wk_walk_world.py`; red first: 1 failed, then 103 passed).
+- Gate K1 in `tools/iap_gates.cjs` (`checkSearch`): on `/decisions` at 1280, Ctrl K opens the dialog with the input
+  focused, Ctrl K closes it with focus back on the Search button, Escape does the same; with `--shots`, the scope menu
+  and the palette at 1440, 1280 and 390, light and dark (a `/api/sites` directory of the E1 Sites served for K1 only).
+
+### 9.2 Tests first, plants
+
+- Red first (`2fa9f30b3`, tests only): 14 failed of 18. `shell/__tests__/scopeSwitch.test.tsx` 12 failed (no
+  `[data-scope-switch]`, no chip; its Outcomes L2 test and the three "does not" chip rows passed, since `HomeList`
+  already scoped L2); `shell/__tests__/searchPalette.test.tsx` failed to load (module missing);
+  `estate/__tests__/outcomesOneRead.test.tsx` 2 failed ("expected [ {…}, {…} ] to have a length of 1 but got 2" on
+  `/portfolio/outcomes` and `/portfolio/demand-and-capacity`). After `fb0aee8cd`: 24 of 24 pass.
+- Plant `scopedrop` (`scopeTarget` keeps only the range): `scopeSwitch` 2 failed (the two "on a list" tests); reverted.
+- Plant `deadlink` (`searchEntries` indexes every rail item, `to ?? "/"`): `searchPalette` 2 failed (the entries test and
+  the in-shell "plan" query); reverted.
+- Plant for K1 (no focus return: the `focus()` in `SearchPalette`'s close effect removed, rebuilt): `iap_gates.cjs` 1
+  failed of 64, K1 only ("Ctrl K did not close it with focus returned", "Escape did not close it with focus returned");
+  reverted and rebuilt.
+
+### 9.3 Existing tests migrated
+
+- `shell/__tests__/sr2RequestUrls.test.tsx` "SR-2 the demo's API requests are byte-identical", `/portfolio/outcomes` row:
+  back to one `/api/estate/portfolio?…&limit=50` (P6 had pinned it twice, §8.3); (b), §8.4's double read is fixed.
+
+### 9.4 Known deviations and risks (P7)
+
+- **`EstateClientProvider` kept** (P6; D-IAP.37 did not name it) and widened: it now also carries the Site directory
+  (`directory`, `useProvidedSiteDirectory`) so the shell's scope menu and search reach `App`'s `siteDirectory` (the shell
+  takes no props: `navigation-truthfulness.ps1` pins `<Route element={<OperatorShellLayout />}>`). For the reviewer.
+- **A group scope on Findings and Actions shows no rows.** `findingsDef` and `actionsDef` have `site` but no `domain`
+  (their rows carry no domain), and `homeListModel`'s `inScope` refuses a `group:` scope on a def without `domain`.
+  Before P7 no control offered a group scope on those lists; the switch now does. Resolving it needs a domain source
+  for those rows (the directory by `site_code`, or a served field): a design choice, not made (question 1 below).
+- **Search button text**: the accessible name is the spec's "Search Sites, decisions and Findings"; the full label is
+  visible only above 1360 px, "Search" below (the 1280 top bar stays one line, gate W1), and the "Ctrl K" hint is shown
+  above 640 px on every platform (⌘ K works but is not drawn).
+- **The palette's panel and the scope menu use `--surface-raised`**, as P6's drawer does: in dark mode they draw light
+  (the dark shots show it), the same as the month's drawers today.
+- **The Outcomes and Demand tabs now wait for every page of the shared read** (up to 20 × 50 rows) instead of page 1
+  alone, and a later page's refusal (not a first-page code) shows as the tab's refusal. The shell already made those
+  pages on every operator page since P6, so no request is added.
+- **`/results` still reads page 1 outside the cache** (`estate/Results.tsx:30`, the same URL as the shell's first page),
+  so it is requested twice there; a range-less address reads the default window once before `SharedRangeOutlet`
+  completes it (P6). Neither was in P7's brief; left for the coordinator.
+- **Scope on a Site page** (`/sites/{code}?scope=…`): the button reads the scope, the page is unchanged (D-IAP.40); the
+  rail and in-page links carry only the range, so leaving a list drops `scope=` (as before P7).
+- Register: R798 (MD-IAP-5, D5, open until scoped reads) and R799 (MD-IAP-9's scope-menu part, D4) appended after R797.
+
+### 9.5 Questions (P7)
+
+1. A group scope on `/findings` and `/actions`: should their defs take a domain (from the directory by `site_code`, which
+   adds the directory read to those lists, or from a served field), or should a `group:` scope be ignored on a def without
+   `domain` (`homeListModel`, as a def without `site` ignores every scope)?
+2. `/results` reads page 1 outside the shared cache (twice with the shell): fold it into the cache as P7 did for the
+   Portfolio tabs?
