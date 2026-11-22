@@ -21,6 +21,7 @@ from assetops_contracts.native.layouts_v1 import (
     CODED_PATHS,
     DATE_FORMATS,
     MONTH_FORMATS,
+    BOOL_VALUES,
     TIME_FORMATS,
     TYPES,
     Column,
@@ -197,13 +198,15 @@ def compile_profile(obj: object, version: int) -> Layout:
                 raise ProfileInvalid(f"{pw}.type")
             if "map" in p:
                 mapping = p["map"]
-                if (type_ != "text" or path not in CODED_PATHS or not isinstance(mapping, dict) or not mapping
+                allowed = (type_ == "bool") or (type_ == "text" and path in CODED_PATHS)
+                if (not allowed or not isinstance(mapping, dict) or not mapping
                         or any(not isinstance(k, str) or not isinstance(v, str) or not k or not v
                                or _has_control(k) or _has_control(v) for k, v in mapping.items())
-                        or len(set(mapping.values())) != len(mapping)):
+                        or len(set(mapping.values())) != len(mapping)
+                        or (type_ == "bool" and set(mapping.values()) != BOOL_VALUES)):
                     raise ProfileInvalid(f"{pw}.map")
                 maps[path] = MappingProxyType(dict(mapping))
-            elif path in CODED_PATHS:
+            elif path in CODED_PATHS or type_ == "bool":
                 raise ProfileInvalid(f"{pw}.map")
             if "scale" in p:
                 scale = p["scale"]
@@ -353,8 +356,8 @@ def run_probes(layout: Layout, header: Sequence[str], rows: Sequence[tuple[int, 
 
     for i, column in enumerate(layout.columns):
         for path in column.paths:
-            if column.types.get(path, "text") == "text":
-                continue
+            if column.types.get(path, "text") == "text" or path in column.maps:
+                continue  # a mapped path (DD2.2 `bool`) is probed by P4
             k = _first_filled(base, i)
             if k is None:
                 return ("P5", column.header)
