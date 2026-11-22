@@ -8,7 +8,8 @@ from statement_cases import Case
 
 #: The facts every refusal sentence is rendered with (`records.refusal_sentence`): the code and the bounds.
 _FACTS = {"least": Count(1, "month"), "most": Count(60, "month"), "places": Count(2, "character"),
-          "letters": Count(3, "character"), "chars": Count(200, "character")}
+          "letters": Count(3, "character"), "chars": Count(200, "character"),
+          "value_places": Count(6, "character")}
 
 
 def _refused(code: str, english: str) -> Case:
@@ -54,5 +55,11 @@ CASES = [
     _refused("STUDY_ADMISSION_MISMATCH", "The simulation's service checks do not match the rule."),
     _refused("STUDY_FRAME_MISMATCH", "The simulation is of another Site's record."),
     _refused("STUDY_MONTH_NOT_COVERED", "The simulation does not cover the whole of this decision's month."),
+    _refused("NO_ACTION_RECORD", "Doing nothing has no records to state."),
+    _refused("RECORD_NOT_ON_OPTION", "That option does not change that figure, or its change comes from a simulation."),
+    _refused("BAD_RECORD_UNIT", "The unit does not match that figure's unit."),
+    _refused("BAD_VALUE", "Give a number with at most 6 decimal places."),
+    _refused("BAD_DOCUMENT", "Name the document, in 1 month to 200 characters."),
+    _refused("STUDY_NOT_FOR_LEVER", "This kind of change is not valued from a simulation file."),
     _refused("STRUCTURE_UNAVAILABLE", "The month's figures cannot be read right now."),
 ]
