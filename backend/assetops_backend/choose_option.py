@@ -46,7 +46,7 @@ def main(argv: Sequence[str] | None = None, *, services: Any = None,
                              option_key=args.option, agreed_action_id=action)
         c = got.choice
         view = next(v for v in service.for_tenant(c.tenant_id) if v.decision_id == str(decision_id))
-        return {"decision_id": str(decision_id), "option_key": args.option, "run_id": str(c.run_id),
+        return {"decision_id": str(decision_id), "option_key": view.choice.option_key, "run_id": str(c.run_id),
                 "agreed_action_id": None if c.agreed_action_id is None else str(c.agreed_action_id),
                 "chosen_by": view.choice.chosen_by_name, "chosen_at": cli.iso_seconds(c.chosen_at),
                 "already_chosen": got.already_chosen}

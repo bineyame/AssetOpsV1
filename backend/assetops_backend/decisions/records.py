@@ -47,7 +47,8 @@ REFUSAL_EXIT: Mapping[str, int] = MappingProxyType({
         "LEVER_UNKNOWN", "LEVER_SITE_TYPE", "FINDING_NOT_FOUND", "FINDING_NOT_ON_LEVER", "BAD_CURRENT",
         "ALREADY_PREPARED_OTHER", "DECISION_NOT_FOUND", "OPTION_NOT_FOUND", "NO_ACTION_ONE_OFF", "BAD_AMOUNT",
         "BAD_CURRENCY", "BAD_CREW_VISITS", "BAD_BASIS", "ALREADY_CHOSEN", "NOT_EVALUATED", "CHOOSE_NONE_INSTEAD",
-        "OPTION_REJECTED", "ACTION_NOT_FOUND", "ACTION_SITE_MISMATCH", "BAD_UUID", "NO_DATABASE")},
+        "OPTION_REJECTED", "ACTION_NOT_FOUND", "ACTION_SITE_MISMATCH", "BAD_UUID", "NO_DATABASE",
+        "RECORD_INVALID")},
     "DECISIONS_UNAVAILABLE": 3})
 
 
@@ -495,6 +496,8 @@ class DecisionService:
         row = ChoiceRow(self._new_id(), tenant_id, decision.id, wanted_id, run.id, agreed_action_id,  # H6
                         person.person_id, role, True, now)
         stored, already = self._call(self._store.add_choice, row)
+        if already and (stored.option_id != wanted_id or stored.agreed_action_id != agreed_action_id):
+            raise DecisionRefused("ALREADY_CHOSEN")  # a race past H2: the stored choice differs (D-P6.33)
         return Chosen(stored, already)
 
     # --- the read (§3.5) ---------------------------------------------------------------------------------------
@@ -642,6 +645,10 @@ class MemoryDecisionStore:
 
     def add_run(self, run: RunRow) -> RunRow:
         ids = [o.id for o in self.options if o.decision_id == run.decision_id]  # option_evaluation_run_complete
+        of = {r.id: r.option_id for r in self.one_offs if r.tenant_id == run.tenant_id}
+        for e in run.evaluations:  # D-P6.30: the evaluation's option is the decision's; the one-off is its option's
+            if e.option_id not in ids or (e.one_off_id is not None and of.get(e.one_off_id) != e.option_id):
+                raise DecisionRefused("RECORD_INVALID")
         if sorted(e.option_id for e in run.evaluations) != sorted(ids):
             raise DecisionRefused("RECORD_INVALID")
         self.runs.append(run)
@@ -658,6 +665,10 @@ class MemoryDecisionStore:
         stored = self.choice(row.tenant_id, row.decision_id)
         if stored is not None:
             return stored, True
+        run = next((r for r in self.runs if r.tenant_id == row.tenant_id and r.id == row.run_id), None)
+        ids = {o.id for o in self.options if o.decision_id == row.decision_id}
+        if run is None or run.decision_id != row.decision_id or (row.option_id is not None and row.option_id not in ids):
+            raise DecisionRefused("RECORD_INVALID")  # D-P6.30
         self.choices.append(row)
         return row, False
 

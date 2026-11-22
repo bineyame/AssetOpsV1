@@ -546,6 +546,65 @@ def test_5_the_memory_store_refuses_a_run_missing_an_option(w) -> None:
         w.store.add_run(short)
 
 
+def _whole_run(w, prepared):
+    """A complete run that is not stored (the world's `run` stores it)."""
+    stored = w.run(prepared)
+    w.store.runs.remove(stored)
+    return dataclasses.replace(stored, id=uuid4())
+
+
+def test_5_cross_row_an_evaluation_of_another_decisions_option_is_refused(w) -> None:  # D-P6.30
+    one, two = w.prepare(), w.prepare(period="2026-09")
+    run = _whole_run(w, one)
+    foreign = dataclasses.replace(run.evaluations[0], option_id=two.options[0].id)  # same count, a foreign option
+    with refused("RECORD_INVALID"):
+        w.store.add_run(dataclasses.replace(run, evaluations=(foreign, *run.evaluations[1:])))
+    assert w.store.runs == []
+    w.store.add_run(run)
+
+
+def test_5_cross_row_a_one_off_of_another_option_is_refused(w) -> None:  # D-P6.30
+    prepared = w.prepare()
+    other = w.one_off(prepared.decision.id, "stop-70-reserve-30")
+    run = _whole_run(w, prepared)
+    own = next(e for e in run.evaluations if e.option_id == other.option_id)
+    wrong = next(e for e in run.evaluations if e.option_id != other.option_id)
+    for e, ok in ((wrong, False), (own, True)):
+        priced = dataclasses.replace(run, id=uuid4(), evaluations=tuple(
+            dataclasses.replace(x, one_off_id=other.id) if x is e else x for x in run.evaluations))
+        if ok:
+            w.store.add_run(priced)
+        else:
+            with refused("RECORD_INVALID"):
+                w.store.add_run(priced)
+
+
+def test_5_cross_row_a_choice_of_another_decisions_option_or_run_is_refused(w) -> None:  # D-P6.30
+    one, two = w.prepare(), w.prepare(period="2026-09")
+    run_one, run_two = w.run(one), w.run(two)
+    me = w.p.people["Amina"]
+
+    def row(decision, option, run):
+        return ChoiceRow(uuid4(), decision.tenant_id, decision.id, option, run.id, None, me, EXEC, True, CLOCK)
+
+    with refused("RECORD_INVALID"):
+        w.store.add_choice(row(one.decision, two.options[1].id, run_one))  # an option of another decision
+    with refused("RECORD_INVALID"):
+        w.store.add_choice(row(one.decision, one.options[1].id, run_two))  # a run of another decision
+    assert w.store.choices == []
+    w.store.add_choice(row(one.decision, one.options[1].id, run_one))
+
+
+def test_5_a_choice_that_loses_a_race_is_refused_when_it_differs(w) -> None:  # F2, D-P6.33
+    prepared = w.prepare()
+    w.run(prepared)
+    w.choose(prepared.decision.id, "stop-70-reserve-30")
+    real, seen = w.store.choice, []
+    w.store.choice = lambda t, d: None if not seen and not seen.append(1) else real(t, d)  # H2 sees nothing
+    with refused("ALREADY_CHOSEN"):
+        w.choose(prepared.decision.id, "stop-80-reserve-30")
+
+
 # --- statements (D-P6.7) ------------------------------------------------------------------------------------------
 
 SENTENCES = {
@@ -576,6 +635,7 @@ SENTENCES = {
     "ACTION_SITE_MISMATCH": "That Action is for another Site.",
     "BAD_UUID": "Write the reference as it was printed.",
     "NO_DATABASE": "Set DATABASE_URL to the operator's database.",
+    "RECORD_INVALID": "This record does not fit the decision it names, so nothing was stored.",
     "DECISIONS_UNAVAILABLE": "The decisions store cannot be reached right now.",
 }
 

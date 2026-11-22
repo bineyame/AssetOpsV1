@@ -375,8 +375,9 @@ def _lever_fault(lever: "_levers.Lever", registries: Mapping[str, Registry], pin
 def check_levers(levers: Mapping[str, "_levers.Lever"] | None = None,
                  registries: Mapping[str, Registry] | None = None,
                  pins: Mapping[str, "_pins.Pin"] | None = None) -> None:
-    """6a (spec §3.1): raise the first lever fault as `STRUCTURE_LEVER <structure_key>/<lever_id>`, branch by branch
-    (a branch runs over every lever before the next starts). A `None` argument reads the real table at call time."""
+    """6a (spec §3.1): raise the first lever fault as `STRUCTURE_LEVER <structure_key>/<lever_id>`, lever by lever
+    (all of a lever's branches, 2 to 14, run in order before the next lever starts). A `None` argument reads the
+    real table at call time."""
     levers = _levers.LEVERS if levers is None else levers
     registries = _registry.REGISTRIES if registries is None else registries
     pins = _pins.PINS if pins is None else pins

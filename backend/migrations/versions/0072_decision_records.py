@@ -167,7 +167,8 @@ CREATE TABLE option_effect (
     unit text NOT NULL CHECK (char_length(unit) BETWEEN 1 AND 32),
     currency text NULL CHECK (currency IS NULL OR currency ~ '^[A-Z]{{3}}$'),
     missing jsonb NOT NULL CHECK (jsonb_typeof(missing) = 'array'),
-    CONSTRAINT option_effect_change_or_missing CHECK ((change_per_month IS NULL) = (jsonb_array_length(missing) > 0)),
+    CONSTRAINT option_effect_change_or_missing CHECK (CASE WHEN jsonb_typeof(missing) = 'array'
+        THEN (change_per_month IS NULL) = (jsonb_array_length(missing) > 0) END),
     CONSTRAINT option_effect_once UNIQUE (evaluation_id, factor_id),
     FOREIGN KEY (tenant_id, evaluation_id) REFERENCES option_evaluation (tenant_id, id)
 );

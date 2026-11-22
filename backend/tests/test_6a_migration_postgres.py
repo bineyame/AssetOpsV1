@@ -99,11 +99,8 @@ INDEXES = {"decision_once", "decision_tenant", "option_one_off_latest", "option_
            "option_evaluation_one_recommended"}
 
 
-#: Postgres runs a table's CHECKs in name order: `option_effect_change_or_missing` calls `jsonb_array_length(missing)`
-#: before `option_effect_missing_check` runs, so a non-array `missing` is refused by that call's error (SQLSTATE
-#: 22023), never by name (packet, mid-build question Q1). `option_evaluation_missing_check` sorts before
-#: `option_evaluation_value_or_missing` and is reached by name.
-SHADOWED = {"option_effect_missing_check": "cannot get array length of a non-array"}
+#: D-P6.32: `option_effect_change_or_missing` is guarded on the array type, so a non-array `missing` reaches
+#: `option_effect_missing_check` and is refused by its name like every other constraint.
 
 
 # --- hand rows ------------------------------------------------------------------------------------------------------
@@ -433,7 +430,7 @@ def test_6b_every_constraint_refuses_by_name(world, engine) -> None:  # noqa: F8
         "decision_tenant", "option_one_off_latest", "option_evaluation_run_latest"}
     assert every - unreachable <= named, sorted(every - unreachable - named)
     for name, rows in cases:
-        _refused(engine, rows, SHADOWED.get(name, rf'"{name}"'))
+        _refused(engine, rows, rf'"{name}"')
     # Positive controls: a choice of none on D2 (null option) with no agreed Action is stored.
     with engine.begin() as c:
         _insert(c, "decision_choice", _choice(world, world["d2"]["decision"]["id"], world["d2"]["run"]["id"], None))

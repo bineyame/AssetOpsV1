@@ -21,7 +21,8 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from assetops_backend.chain.ports import SiteRef
 from assetops_backend.decisions.records import (ChoiceRow, DecisionBundle, DecisionRow, EffectRow, EvaluationRow,
-                                                MissingInput, OneOffRow, OptionRow, RunRow, StoreUnavailable)
+                                                DecisionRefused, MissingInput, OneOffRow, OptionRow, RunRow,
+                                                StoreUnavailable)
 
 _DECISION_ONCE = "decision_once"
 _CHOICE_ONCE = "decision_choice_once"
@@ -147,6 +148,16 @@ def _constraint(error: IntegrityError) -> str | None:
     return getattr(getattr(error.orig, "diag", None), "constraint_name", None)
 
 
+def _sqlstate(error: SQLAlchemyError) -> str:
+    return str(getattr(getattr(error, "orig", None), "sqlstate", None) or getattr(
+        getattr(error, "orig", None), "pgcode", None) or "")
+
+
+_OPTION_IDS = text("SELECT id FROM decision_option WHERE tenant_id = :t AND decision_id = :d")
+_ONE_OFF_OPTIONS = text("SELECT id, option_id FROM option_one_off WHERE tenant_id = :t AND id = ANY(:ids)")
+_RUN_DECISION = text("SELECT decision_id FROM option_evaluation_run WHERE tenant_id = :t AND id = :r")
+
+
 class PostgresDecisionStore:
     def __init__(self, url: str) -> None:
         self._engine = create_engine(url, pool_pre_ping=True, hide_parameters=True)
@@ -158,7 +169,9 @@ class PostgresDecisionStore:
     def _unavailable(self) -> Iterator[None]:
         try:
             yield
-        except SQLAlchemyError:
+        except SQLAlchemyError as error:
+            if _sqlstate(error)[:2] in ("22", "23"):  # D-P6.31: a refused record, not an unreachable store
+                raise DecisionRefused("RECORD_INVALID") from None
             raise StoreUnavailable() from None
 
     # --- reads ---------------------------------------------------------------------------------------------------
@@ -311,6 +324,14 @@ class PostgresDecisionStore:
 
     def add_run(self, run: RunRow) -> RunRow:
         with self._unavailable(), self._engine.begin() as c:
+            # D-P6.30: the cross-row checks, read in this transaction before any insert.
+            options = {r.id for r in c.execute(_OPTION_IDS, {"t": run.tenant_id, "d": run.decision_id})}
+            wanted = [e.one_off_id for e in run.evaluations if e.one_off_id is not None]
+            of = {r.id: r.option_id for r in c.execute(_ONE_OFF_OPTIONS, {"t": run.tenant_id, "ids": wanted})} \
+                if wanted else {}
+            for e in run.evaluations:
+                if e.option_id not in options or (e.one_off_id is not None and of.get(e.one_off_id) != e.option_id):
+                    raise DecisionRefused("RECORD_INVALID")
             c.execute(_INSERT_RUN, {
                 "id": run.id, "tenant_id": run.tenant_id, "decision_id": run.decision_id,
                 "evaluator_version": run.evaluator_version, "outcome": run.outcome,
@@ -342,6 +363,10 @@ class PostgresDecisionStore:
                     found = c.execute(_CHOICE, {"t": row.tenant_id, "d": row.decision_id}).one_or_none()
                     if found is not None:
                         return _choice_row(found), True
+                    run_of = c.execute(_RUN_DECISION, {"t": row.tenant_id, "r": row.run_id}).scalar_one_or_none()
+                    options = {r.id for r in c.execute(_OPTION_IDS, {"t": row.tenant_id, "d": row.decision_id})}
+                    if run_of != row.decision_id or (row.option_id is not None and row.option_id not in options):
+                        raise DecisionRefused("RECORD_INVALID")  # D-P6.30
                     c.execute(_INSERT_CHOICE, {
                         "id": row.id, "tenant_id": row.tenant_id, "decision_id": row.decision_id,
                         "option_id": row.option_id, "run_id": row.run_id, "agreed_action_id": row.agreed_action_id,

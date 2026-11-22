@@ -32,8 +32,8 @@ if URL:
     from assetops_backend.decisions.adapters import postgres_decision_store as store_module
     from assetops_backend.decisions.adapters.postgres_decision_store import PostgresDecisionStore
     from assetops_backend.decisions.composition import build_decisions
-    from assetops_backend.decisions.records import (ChoiceRow, EffectRow, EvaluationRow, MissingInput, RunRow,
-                                                    StoreUnavailable)
+    from assetops_backend.decisions.records import (ChoiceRow, DecisionRefused, EffectRow, EvaluationRow, MissingInput,
+                                                    OneOffRow, RunRow, StoreUnavailable)
     from test_3c0a_accounts_postgres import seed_tenant
     from test_3c2_agreed_actions import r1
 
@@ -313,11 +313,55 @@ def test_7h_a_run_missing_an_option_is_refused_at_commit(lake, engine, capsys) -
                    run.run_by_person_id, "ANALYST", True, T, fresh)
     short = dataclasses.replace(whole, id=uuid4(), evaluations=tuple(dataclasses.replace(e, id=uuid4())
                                                                       for e in run.evaluations[:-1]))
-    with pytest.raises(StoreUnavailable):  # the deferred trigger refuses it at commit
+    with pytest.raises(DecisionRefused) as caught:  # the deferred trigger refuses it at commit (D-P6.31)
         lake["adapter"].add_run(short)
+    assert (caught.value.code, caught.value.exit) == ("RECORD_INVALID", 2)
     assert _count(engine, "option_evaluation_run") == 1 and _count(engine, "option_evaluation") == 14
     lake["adapter"].add_run(whole)  # the same rows, complete, with fresh ids: stored
     assert _count(engine, "option_evaluation_run") == 2 and _count(engine, "option_evaluation") == 28
+
+
+def test_7j_a_refused_check_is_record_invalid_exit_two(lake, capsys) -> None:  # noqa: F811  D-P6.31
+    d = UUID(json.loads(_prepare(capsys)[1])["decision_id"])
+    _, options = lake["adapter"].decision(lake["tenant"], d)
+    bad = OneOffRow(uuid4(), lake["tenant"], options[1].id, D("-1"), "USD", 0, "x", lake["people"]["Peter"],
+                    "SITE_MANAGER", True, T)  # a negative amount: the table's CHECK refuses it
+    with pytest.raises(DecisionRefused) as caught:
+        lake["adapter"].add_one_off(bad)
+    assert (caught.value.code, caught.value.exit) == ("RECORD_INVALID", 2)
+
+
+def test_7k_cross_row_checks_refuse_before_any_insert(lake, engine, capsys) -> None:  # noqa: F811  D-P6.30
+    one = UUID(json.loads(_prepare(capsys)[1])["decision_id"])
+    two = UUID(json.loads(_prepare(capsys, period="2026-09")[1])["decision_id"])
+    adapter = lake["adapter"]
+    _, options_one = adapter.decision(lake["tenant"], one)
+    _, options_two = adapter.decision(lake["tenant"], two)
+    run_one, run_two = _store_run(lake, one), _store_run(lake, two)
+    before = _counts(engine)
+
+    def whole(evals):
+        return RunRow(uuid4(), lake["tenant"], one, "option-evaluator-1", "RANKING_INCOMPLETE", None, None, T,
+                      lake["people"]["Wanjiru"], "ANALYST", True, T, tuple(evals))
+
+    fresh = [dataclasses.replace(e, id=uuid4()) for e in run_one.evaluations]
+    foreign = [dataclasses.replace(fresh[0], option_id=options_two[0].id), *fresh[1:]]  # same count, a foreign option
+    pricing = adapter.add_one_off(OneOffRow(uuid4(), lake["tenant"], options_one[1].id, D("9"), "USD", 0, "x",
+                                            lake["people"]["Peter"], "SITE_MANAGER", True, T))
+    wrong = [dataclasses.replace(fresh[2], one_off_id=pricing.id), *fresh[:2], *fresh[3:]]  # another option's one-off
+    for evaluations in (foreign, wrong):
+        with pytest.raises(DecisionRefused) as caught:
+            adapter.add_run(whole(evaluations))
+        assert (caught.value.code, caught.value.exit) == ("RECORD_INVALID", 2)
+    me = lake["people"]["Amina"]
+    for option, run in ((options_two[1].id, run_one.id), (options_one[1].id, run_two.id)):
+        with pytest.raises(DecisionRefused) as caught:
+            adapter.add_choice(ChoiceRow(uuid4(), lake["tenant"], one, option, run, None, me, "OPERATOR_EXECUTIVE",
+                                         True, T))
+        assert caught.value.code == "RECORD_INVALID"
+    assert _counts(engine) == {**before, "option_one_off": before["option_one_off"] + 1}
+    adapter.add_choice(ChoiceRow(uuid4(), lake["tenant"], one, options_one[1].id, run_one.id, None, me,
+                                 "OPERATOR_EXECUTIVE", True, T))
 
 
 def test_7i_an_unreachable_store_is_exit_three(monkeypatch, capsys) -> None:
