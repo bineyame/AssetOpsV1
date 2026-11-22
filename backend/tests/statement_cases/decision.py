@@ -43,5 +43,6 @@ CASES = [
     _refused("ACTION_SITE_MISMATCH", "That Action is for another Site."),
     _refused("BAD_UUID", "Write the reference as it was printed."),
     _refused("NO_DATABASE", "Set DATABASE_URL to the operator's database."),
+    _refused("RECORD_INVALID", "This record does not fit the decision it names, so nothing was stored."),
     _refused("DECISIONS_UNAVAILABLE", "The decisions store cannot be reached right now."),
 ]

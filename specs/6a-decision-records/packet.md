@@ -4,7 +4,7 @@ Task: `specs/6a-decision-records/spec.md` (rev 2; 3.25 u). Branch `task/6a-decis
 (`main` now `c8643fbd1`; no migration since). Implementer: Claude, 22 Nov 2026. Not merged. `USER_REVIEW_REQUIRED: true`.
 
 ## Gates
-- **P** met (owner, 22 Nov). **A**: `main`'s head is `0071_person_on_actions`; the file is `0072_decision_records`
+- **P** met (owner, 22 Nov; `git log -1 -- owner/owner-accept-p6-defaults-2026-11-22.md` is `c1acf3455`). **A**: `main`'s head is `0071_person_on_actions`; the file is `0072_decision_records`
   (`down_revision = "0071_person_on_actions"`). **B** at merge: renumber on any newer head, one `alembic heads`.
 - **S**: both greps hit (`PINS` at `structure/pins.py:37`; `def tenant_by_slug` at `accounts/service.py:129`).
 
@@ -18,7 +18,8 @@ tests 7 and 8 (one commit, with this packet).
   `test_3c2_agreed_actions.py`: 227 passed, 31 s.
 - Postgres: `test_6a_decisions_postgres.py` (test 7, 9), `test_6a_migration_postgres.py` (test 6, 4),
   `test_3c2_agreed_actions_postgres.py`, `test_3c1b_person_actions_postgres.py`: 25 passed, 50 s.
-- Fast check-all at `4a232a2f2` (frontend/node_modules symlinked, then removed): **43 of 43** guards passed, 326 s wall
+- Fast check-all at `4a232a2f2` (an amended commit not on the branch; `git diff 4a232a2f2 f72e9beac` touches only
+  `.ai/state/*`, `packet.md`, `spec.md`, `specs/INDEX.md`, so the run stands for the code at `f72e9beac`) (frontend/node_modules symlinked, then removed): **43 of 43** guards passed, 326 s wall
   (the estate self-test ran because the persistence guard changed; SC-1 self-test 78 of 78 plants).
 - **Pre-existing on `main`, not 6a's:** `test_3b1_structure_registry.py::test_t1_leaf_sources_absence_and_words_equal_the_manifest`
   and `test_3b3_structure_evaluate.py::test_t6_each_state_yields_its_leaf_value_on_its_own_record`.
@@ -57,8 +58,38 @@ refusal line, flag parsers and compose-and-run; keeps the three commands thin), 
 - **Q1** (default applied): `option_effect_missing_check` is shadowed by `option_effect_change_or_missing`, which
   runs first and raises `cannot get array length of a non-array` (22023) on a non-array; the row is refused, not by the
   named check. Test 6b asserts that message (`SHADOWED`). Alternative: guard the rule with `jsonb_typeof` or rename it.
-- Q2: keep deviation 4 as is, or give both stores one error for a refused record? (6c writes runs through it.)
+- Q2: settled by D-P6.31 (fix round 1).
 
 ## Review focus
 Spec §7 questions 1-6; the two deferred triggers; the guard's nested `CAST(:name AS jsonb)` pattern (I6); the lock and
 `decision_once` race; names, never emails, in every command line and the read.
+
+## Fix round 1 (review F1-F7; rulings D-P6.30 to D-P6.33)
+Main merged into the branch first (conflicts in `specs/INDEX.md` and `.ai/state/index-3.md` only; the 6a state line
+is now entry 196). The statement catalogue's case file (`tests/statement_cases/decision.py`) gained the `record_invalid` case (the first
+  check-all run failed 2 guards on `CASE_MISSING`; fixed).
+- **F1, D-P6.30:** the four cross-row checks in `add_run` and `add_choice`, read inside the write's transaction
+  before any insert, in both stores (the memory store gains the `one_off_id` check). `RECORD_INVALID` joins
+  `REFUSAL_EXIT` (exit 2) and `decision.refused` as variant `record_invalid`. Tests: memory test 5 (three cases:
+  run option, one-off, choice option and run, plus the statement sentence); Postgres tests 7k (all four checks, no
+  row stored) and 7h, 7j.
+- **D-P6.31:** `_unavailable` maps SQLSTATE class 22 or 23 to `DecisionRefused("RECORD_INVALID")`, every other
+  `SQLAlchemyError` stays `StoreUnavailable`. Test 7h (deferred trigger) and 7j (a CHECK: negative one-off amount)
+  assert code and exit 2; 7i still shows exit 3 for an unreachable store. Deviation 4 is closed.
+- **D-P6.32:** migration 0072's `option_effect_change_or_missing` is `CASE WHEN jsonb_typeof(missing) = 'array'
+  THEN ... END`; `SHADOWED` removed; test 6b asserts every name, `option_effect_missing_check` included. Q1 closed.
+- **F2, D-P6.33:** after `add_choice` returns `already=True`, `choose` refuses `ALREADY_CHOSEN` when the stored
+  choice's option or Action differs; the command prints the stored choice's option key. Test: memory test 5 (race
+  simulated by a first `choice` read that sees nothing).
+- **F6:** gate P and the `4a232a2f2` run cited above. **F7:** `check_levers` docstring now says lever by lever.
+- **F5 stays queued** (D-P6.33): a `name_of(tenant_id, person_id)` store read; deviation 3 stands until then.
+  Not added to any backlog file.
+- **Plants (each reverted):** memory one-off check (test 5 one-off: failed) · memory choice check (test 5 choice:
+  failed) · F2 comparison (test 5 race: failed) · statement variant removed (catalogue refuses at load) · Postgres
+  option check, one-off check, choice check (7k: failed each) · SQLSTATE mapping off (7h and 7j: 2 failed) · migration
+  guard removed (6b: failed). The memory run-option check alone survives its plant because the existing set-equality
+  check refuses the same record in the memory store; the Postgres plant (7k) is the one that proves the check.
+- **Runs:** unit `test_6a_decisions.py`, `test_6a_commands.py`, `test_3c2_agreed_actions.py` 231 passed (32 s);
+  Postgres `test_6a_decisions_postgres.py`, `test_6a_migration_postgres.py`, `test_3c2_agreed_actions_postgres.py`
+  22 passed (36 s). Fast check-all (frontend/node_modules symlinked, then removed): 343 s wall, no guard failed (first run: 2 of 43 failed
+  on the missing catalogue case, fixed).
