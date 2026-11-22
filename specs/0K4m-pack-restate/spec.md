@@ -1,11 +1,14 @@
 # 0K4m: the pack and the vNEXT mock-up restated once from 0K4d's figures (implementer spec)
 
-Status: ready to build, rev 2 (Architect, Claude, 2026-11-21; handshake answered, `handshake.md`; owner away,
-Architect standing in under `owner/owner-away-architect-stands-in-2026-11-21b.md`). **3.5 units in three units of work**
-(D-0K4.39; rev 1 had 2.75, D-0K4.37). Discovery review (W5): new evaluator semantics and money figures. Non-product: no
+Status: ready to build, rev 5 (Architect, Claude, 2026-11-22: unit 3 pre-flight rulings D-0K4.50 to D-0K4.56, marked
+**(rev 5)**, owner-away row 79. Rev 4, 2026-11-22: unit 1 review rulings D-0K4.45 to D-0K4.49, marked
+**(rev 4)**; the product-parity seam, §2.3a, is the largest. Rev 3, 2026-11-22: unit 1 rulings D-0K4.40 to D-0K4.44, marked **(rev 3)**;
+rev 2, 2026-11-21: handshake answered, `handshake.md`; owner away,
+Architect standing in under `owner/owner-away-architect-stands-in-2026-11-21b.md`). **4.0 units in three units of work**
+(D-0K4.49; rev 3 had 3.5, D-0K4.39; rev 1 had 2.75, D-0K4.37). Discovery review (W5): new evaluator semantics and money figures. Non-product: no
 backend, frontend, simulator, config, contract or database file changes. `USER_REVIEW_REQUIRED: true` (the owner sees
 the restated figures and mock). Rulings: D-0K4.9, D-0K4.11, D-0K4.13 and D-0K4.27 to D-0K4.29 in
-`specs/0K4-dispatch-model-review/rulings.md`; this unit's D-0K4.31 to D-0K4.39 in
+`specs/0K4-dispatch-model-review/rulings.md`; this unit's D-0K4.31 to D-0K4.56 in
 `specs/0K4-dispatch-model-review/rulings-2.md`. Change list: `specs/0K4-dispatch-model-review/one-figure-change-list.md`
 rows 13 and 16-31. Reviewer guide: `reviewer-guide.md`. Rev 2 marks each handshake answer **(rev 2, Rn or In)** where
 it applies; the largest is the world-month rule (§1.3, D-0K4.38, owner-away row 75).
@@ -42,12 +45,15 @@ it applies; the largest is the world-month rule (§1.3, D-0K4.38, owner-away row
        the history regenerates;
      - (c) a scratch script maps each changed line of `git diff -U0 main -- <M>` to its YAML key path, from
        `yaml.compose` node marks (removed lines on main's file, added lines on the commit's file; a comment line takes
-       the path of the node it sits in). It asserts that no line, comment lines included, falls inside a node the view
+       the path of the innermost node whose span, key start mark to value end mark, holds it). **(rev 3, D-0K4.40)** A
+       comment or blank line that no root entry's span holds (above the first key, or between two root entries) maps to
+       `<root>` and is allowed, so the rev line under the header passes. It asserts that no line, comment lines included, falls inside a node the view
        copies (`view.py:17-20`): a TOP key; a tenant's `tenant`, `vertical`, `prices`, `energy_model` or
        `capacity_crates_per_room`; a site's `site`, `code`, `physical` or `tariff`; or a site's `period.plan`,
        `period.actual` or `period.coverage`. Lines under `period:` outside those three (the bridge rows and
        `variance`) are allowed, and so are a site's keys outside SITE_KEYS (`factor_sources`, the option rows). The
        script stays in scratch; its output goes to evidence.
+     - **(rev 4, D-0K4.45) (d)**, from commit 2b on: K13 passes (the product-parity seam, §2.3a, equals main's).
   4. `sha256sum` of both study files, equal to the values above. If either file is gone (evidence retention), stop and
      report: the extract in §2.1 must be made from the files themselves.
 - The handshake is answered (`handshake.md`). Batch any new open point into one Architect request before you code.
@@ -83,9 +89,10 @@ values sit inside it:
 - Kobo's `period.actual` `necessary_l: 730, candidate_l: 330`;
 - Mto's `physical.extra_l_per_day_at_half_inverter_capacity: 5` and its `extra_l_basis`.
 
-Both stay in the file and move with 0K4f, which rebuilds the world (D-0K4.13). In 0K4m nothing reads either one. The
-evaluator reads Kobo's split as "Not available yet" through `factor_sources`, which is outside the view (§2.3), and the
-Mto inverter options read the M8 figure (§2.4). Check K7 proves nothing reads them, and the view hash proves nothing
+Both stay in the file and move with 0K4f, which rebuilds the world (D-0K4.13). **(rev 4, D-0K4.45)** Kobo's split is
+read as the simulated world's own record by the structure's sides, exactly as on main, because those sides are the
+product's oracle (§2.3a). It is labelled by its source (dispatch-3.2; dispatch-3.3 re-classifies it in 0K4f). No
+`factor_sources` overrides it. Mto's 5 L a day is read by nothing: the Mto inverter options read the M8 figure (§2.4). Check K7 proves nothing reads them, and the view hash proves nothing
 changed.
 
 **(rev 2, I1) `VIEW_HELD`.** `check_manifest.py` holds the list of view paths that keep a design value for 0K4f,
@@ -176,15 +183,43 @@ the failures in the packet.
   its value reads, is not available gets `value: null`, `value_if_admissible: null`, `valued_in_money: false`,
   `not_available: "<record words>"`. The allocator never chooses it, and the plan lists it under
   `not_available: {<option>: "<record words>"}`.
+  **(rev 4, D-0K4.47) Words and bounds:**
+  - An option's words are those of the first not-available param, in declared `params` order. If no param is not
+    available, they are the value's words: the monthly change's, then the one-off's. If neither is, they are the words
+    of the first not-available bound, in `evaluation.bounds.<vertical>` order.
+  - A not-available value carries the words of its leftmost not-available operand.
+  - A not-available operand wins over a missing record on either side of every operator except `|`.
+  - A bound over a not-available node has `violations.<id>: null`.
+  - `admissible` is null when any hard bound of the option's decision has a null violation. Otherwise it is true
+    exactly when the hard violations sum to 0.
 - **N2 `source:` params.** A param `{value: <number>, source: {study: K8|M8, case: <id>, field: <dotted>}}` evaluates to
   `value`. The value is the extract's `exact`, rounded half-even to 6 decimal places, written as a YAML number.
 - **N3 `information:`.** An option may carry `information: {source: {study, case}, <field>: <value>, …}`. The evaluator
   copies it verbatim into the option's output as `information`. It is not a node, not a param and never bounded.
 - **N4 `replay_sources`.** The option output key `design_values` is replaced by `replay_sources`: the sorted
   `study` ids its params and information read.
+- **(rev 3, D-0K4.41) N5 candidates.** An option is a candidate of a decision when it is available (N1) and meets
+  the decision's hard bounds; when no option does and the decision declares `fallback: least_violation`, every
+  available option is a candidate. Whether the option changes a money node never affects candidacy, whatever the
+  decision's kind. An option with `money_changes: false` (every money node equals its basis's) adds 0 to plan value
+  and its one-off to spend, and is listed under `not_valued_in_money`. "Take none" is a choice only in a decision
+  with `optional: true` or with no candidate. Rank: least total violation, then highest value, then lowest spend; a
+  tie keeps the first combination in declared option order, "take none" first.
+  **(rev 4, D-0K4.46)** "No candidate" applies to every decision kind, protective included. A decision has no candidate
+  when every option is not available, or when no available option meets the hard bounds and the decision has no
+  fallback. It then takes none, and a plan is never infeasible for that reason alone. A protective decision's
+  `protective_choices` entry is `{chosen: null, admissible: [], how: "no candidate: every option is not available"}`,
+  or the same with `how: "no candidate: no option meets <hard ids, comma-separated, declared order> and the decision
+  declares no fallback"`. It has no `trade_off`.
+- **(rev 3, D-0K4.42) N6 output precision.** Each output `params` value is rounded half-even to 6 decimal places
+  (null when not available). Every money output, `value`, `value_if_admissible` and each `sensitivities` value
+  included, is rounded half-even to cents once, at output, from the unrounded computation (the monthly change is never
+  rounded before `x months`). Node, bound and protect outputs stay at cents. **(rev 4, D-0K4.48)** Each
+  `sensitivities` value is null when the option's `value` is null (not available, or not valued in money).
 - **(rev 2, R4) `evaluator()` compares presence.** For each dict it compares, a key present on one side and absent
   on the other fails. A null and an absent key are different results.
-- **(rev 2, I3)** `MODEL_PENDING` joins `CAUSES` (`check_manifest.py:999`), defined as in §2.4.
+- ~~**(rev 2, I3)** `MODEL_PENDING` joins `CAUSES`~~ **(rev 4, D-0K4.45)** No entry uses `MODEL_PENDING`, so it leaves
+  `CAUSES`, the vocabulary and both models.
 - New checks, section 15 `replay_sources()`, run after `operations()`. That keeps H9's base count free of them. Each check
   is one `check()` line per item:
   - **K1.** No `design_value` key anywhere in the manifest. No string value contains "design value" or "design estimate"
@@ -208,9 +243,16 @@ the failures in the packet.
   - **K9.** Self-test on planted copies, as the other sections do: a re-added `design_value` fails K1; MTO-HULLER's
     `litres_per_kwh` set to 0.3 fails K2; a restored `dawn_adequacy` bound fails K5; a KOB-STOPSOC `avoided_l` on a
     K8 `scaled_to_30_days.avoided_l` source fails K12; a scratch factor `unavailable("x") | 0` evaluates to not
-    available (P17).
-  - **K10.** For every site whose `period.actual` holds a non-zero `candidate_l`, its `factor_sources` sets both
-    `candidate_l` and `necessary_l` to `unavailable(...)` (D-0K4.35's class rule).
+    available (P17). **(rev 4)** The M1 probe (P25): all four MTO-INV `extra_l_per_day` set `unavailable("probe")`,
+    and the plan is feasible and equal in both models. The protective probe (P24, D-0K4.46).
+  - ~~**K10.**~~ Retired (rev 4, D-0K4.45): no `factor_sources` overrides a structure leaf; K13 holds the class.
+  - **K13 (rev 4, D-0K4.45), the product-parity seam.** One `check()` per part. The canonical sha256
+    (`json.dumps(sort_keys=True, separators=(",", ":"))`) of each part must equal a literal computed from main's files
+    at `1d4713cc8` and written out in full. The parts:
+    - in the manifest (parsed YAML): `structures`, `factor_map`, `empty_states.leaf_sources`, `home_categories.nodes`,
+      `home_categories.findings`, `chain_model` and `history.rules`;
+    - in `derived-values.json`: `sites`, `portfolio` and `history`;
+    - in `missing-records.json`: `sites`.
   - **K12 (rev 2, R2; §1.3).** No `source:` names a field under `scaled_to_30_days.`. Every `source:` param that a
     `changes` expression reads, other than the option-only leaf `admission_parts_failed`, has a field in
     `RATE_FIELDS`, and that expression multiplies it by the option's own quantity: `litres_per_customer_kwh` by
@@ -220,9 +262,8 @@ the failures in the packet.
     estimate" (case-insensitive). The exclusions: `REVIEW.md`, `REVIEW-response.md`, `regeneration/`,
     `interactive-mockup-vNEXT/CHANGE-REGISTER.md` rows dated before 2026-11-21, and the history header lines named in
     §3.
-- `independent_model.compute()` and `compute_history()` implement N1 to N4. Kobo's `factor_sources` (§2.3) apply to
-  both sides and to its history months, so its plan's, October's and those months' `candidate_l` and `necessary_l`
-  are null **(rev 2, I2)**.
+- `independent_model.compute()` and `compute_history()` implement N1 to N6. ~~Kobo's `factor_sources` apply to both sides~~
+  **(rev 4, D-0K4.45)** Kobo has no `factor_sources`. Its sides and history months equal main's (K13).
 
 ### 2.3 Commit 2: the manifest, place by place
 
@@ -235,7 +276,7 @@ Edit the manifest outside the view only (§1.2). Add a rev line under the header
 |---|---|---|
 | `structures.MINI_GRID.diesel_l` | `necessary_l + candidate_l + unexplained_l + extra_l` | `generator_l + unexplained_l + extra_l`. `necessary_l` and `candidate_l` stay as factors (a decomposition), and no node reads them |
 | `factor_map.MINI_GRID` | none | **(rev 2, I2)** `generator_l: "record.diesel_l - (record.unexplained_l \| 0) \| record.necessary_l + record.candidate_l"` (on a history month, which has no `diesel_l`, the recorded generator litres; it reads the records, not the overridden factors) and `admission_parts_failed: "0"` |
-| Kobo site, new `factor_sources` (outside the view) | none | `necessary_l: 'unavailable("dispatch-3.3 classification of Kobo''s October generator, solar and battery readings (0K4e, 4d)")'`, and `candidate_l` the same |
+| Kobo site, new `factor_sources` (outside the view) | none | `necessary_l: 'unavailable("dispatch-3.3 classification of Kobo''s October generator, solar and battery readings (0K4f)")'` **(rev 3, D-0K4.44)**, and `candidate_l` the same |
 | `structures.MINI_GRID.replayed_dawn_days_below_safeguard` | node | removed, with its rows in `protect_nodes.MINI_GRID`, `home_categories` (line 1412), `empty_states` and the traceability CSV (regenerated) |
 | `evaluation.bounds.MINI_GRID` `dawn_adequacy` | bound | replaced by `{id: admission, node: admission_parts_failed, max: "0", reason: "the owner's admission rule (D-0K4.9, runs/admission.py): against no action over the same replayed days, energy not served and reserve breaches do not rise, starts stay within the maker's limit, the battery reaches full charge regularly; the dawn margin is information, never a gate"}` |
 | **(rev 2, I3)** `home_categories.option_money_factors`, `decisions`, `findings`, `bridge_drivers` | KOB-STOPSOC `[candidate_l, …]`, KIS-BATT60 `[necessary_l]`, no KOB-RESERVE row; kobo-generator `lever: candidate_l` | KOB-STOPSOC and KOB-RESERVE `[generator_l, battery_throughput_kwh]`; KIS-BATT60 `[generator_l]`; the lever `generator_l` (home `[optimize, O1]`, as `candidate_l`'s). The kobo-candidate Finding keeps `factor: candidate_l`, now Not available yet. `CANDIDATE_RUNNING` and `EVENING_LOAD_GROWTH` leave `bridge_drivers` once no row uses them |
@@ -248,12 +289,51 @@ Edit the manifest outside the view only (§1.2). Add a rev line under the header
 | tenant row `KOB-RESERVE` | `forward_replay`, `safeguard … FAIL`, `REJECTED`, reason with 20 L and 61 days | `replay: K8 stop-90-reserve-25`; `disposition` and `reason` copied from the evaluator's plan result (not available, admitted on the replay), with `{fig:}` placeholders for every figure |
 | tenant row `KOB-STOPSOC` | `forward_replay`, `safeguards` (MG5 PASS, MG4 12.00, warranty 30 % ≥ 10 %), `economics`, `sensitivity` | `replay: K8 stop-70-reserve-30`; **(rev 2, R2)** `economics: {class: MODELLED, input_class: SIMULATED, value: "Not available yet (a dispatch replay on Kobo's October as recorded; 0K4f)", one_off_detail: <unchanged>}`; `warranty: "lowest charge {fig:options.KOB-STOPSOC.information.min_soc_pct} % in the replay (SIMULATED); warranty floor Not available yet (Kobo's battery sheet)"`; `sensitivity` removed (it follows the value) |
 | `KOB-NOACT.note` | "262.50/month avoidable fuel" | `"baseline: the generator keeps running after it has charged the battery; what a setting avoids is that setting's replay figure"` |
-| bridge note (line 113) and rows `CANDIDATE_RUNNING` −412.50, `EVENING_LOAD_GROWTH` −37.50 | two rows on the 3.2 split | one row `{driver: GENERATOR_RUNNING, overlap_group: KOBO-2026-10-FUEL, amount: <evaluator's (actual - plan) generator_l x price>, basis: "{fig:…actual.nodes.generator_l} L against plan {fig:…plan.nodes.generator_l} L x {rec:…diesel_usd_per_l.Kobo}; the split into candidate and needed running: Not available yet (dispatch-3.3 on Kobo's October readings; 0K4e, 4d)", class: DERIVED}`; the note says that what an option avoids is the option's effect (M3). The drivers map gains `GENERATOR_RUNNING: generator_l` and loses `CANDIDATE_RUNNING` if nothing else uses it |
-| `findings_expected` `GENERATOR_SUPPORT_CANDIDATE` | `days 11 of 31`, `[0, 330]`, `[0.00, 412.50]` | `{mechanism: GENERATOR_SUPPORT_CANDIDATE, status: NOT_AVAILABLE_YET, record: "dispatch-3.3 on Kobo's October readings (0K4e); fuel-cost-1 bounds over 3.3 Candidate time"}` |
+| bridge note (line 113) and rows `CANDIDATE_RUNNING` −412.50, `EVENING_LOAD_GROWTH` −37.50 | two rows on the 3.2 split | one row `{driver: GENERATOR_RUNNING, overlap_group: KOBO-2026-10-FUEL, amount: <evaluator's (actual - plan) generator_l x price>, basis: "{fig:…actual.nodes.generator_l} L against plan {fig:…plan.nodes.generator_l} L x {rec:…diesel_usd_per_l.Kobo}; the split into candidate and needed running: Not available yet (dispatch-3.3 on Kobo's October readings; 0K4f)", class: DERIVED}`; the note says that what an option avoids is the option's effect (M3). The drivers map gains `GENERATOR_RUNNING: generator_l` and loses `CANDIDATE_RUNNING` if nothing else uses it |
+| `findings_expected` `GENERATOR_SUPPORT_CANDIDATE` | `days 11 of 31`, `[0, 330]`, `[0.00, 412.50]` | `{mechanism: GENERATOR_SUPPORT_CANDIDATE, status: NOT_AVAILABLE_YET, record: "dispatch-3.3 on Kobo's October readings (0K4f); fuel-cost-1 bounds over 3.3 Candidate time"}` |
 | `service_obligations[1]`, `verification_plan.operational_target` | "SOC at 05:00 >= 35% on every day" | "the dawn margin (05:00 SOC against 35 %) is reported beside every setting, never a gate"; target: "candidate generator minutes down on comparable days; the four admission parts hold over the trial against the matched baseline (runs/admission.py)" |
 | `protect_effects` "Kobo generator stop setting" | `{0, 0, 4}`, `design_value: true` | `measure: "days with the battery below 35 % at 5 am (information, never a gate)"`, `horizon: "61 replayed days (K8)"`, `options` with KOB-NOACT the baseline count and the two settings their case counts, **(rev 2, I5)** `source: {study: K8, field: dawn_days_below, cases: {KOB-NOACT: baseline, KOB-STOPSOC: stop-70-reserve-30, KOB-RESERVE: stop-90-reserve-25}}`, `class: MODELLED`. K6 checks it (a planted 0 fails), and `stated()` (`check_manifest.py:256-262`) accepts a `source` only when K6 has checked it |
 | `plans.lakeside-power` `kobo_generator` | `hard: [dawn_adequacy]` | `hard: [admission]` |
 | `oracle` OR-MG-1 | "… KOB-RESERVE REJECTED by MG5_DAWN_ADEQUACY" | **(rev 2, R2)** "Kobo: candidate running Not available yet (dispatch-3.3); both settings admitted on K8's replayed days; their litres and value Not available yet (a dispatch replay on Kobo's October as recorded, 0K4f)" |
+
+**(rev 4, D-0K4.45) Rows above superseded by §2.3a:** `diesel_l`, `factor_map.MINI_GRID`, Kobo's `factor_sources`, the
+removal of `replayed_dawn_days_below_safeguard` (except its `protect_nodes` row), the `home_categories` and
+`leaf_sources` rows, the KOB-STOPSOC `changes` row's `generator_l`, the bridge row, `findings_expected` and OR-MG-1. All
+other Kobo rows stand.
+
+### 2.3a The product-parity seam (rev 4, D-0K4.45; commit 2b)
+
+The product, its world and `tools/world.py`'s C4 check read the parts that K13 lists. 0K4m changes none of them, and
+the structure-layer restatement moves to 0K4f with the product and the world. Commit 2b, on top of commit 2 and the
+review fixes:
+
+| Place | Becomes |
+|---|---|
+| `structures.MINI_GRID`, `factor_map.MINI_GRID`, `empty_states.leaf_sources.MINI_GRID`, `home_categories.nodes.MINI_GRID` | as on main: `diesel_l: necessary_l + candidate_l + unexplained_l + extra_l`; `replayed_dawn_days_below_safeguard` kept; no `generator_l` and no `admission_parts_failed` leaf |
+| the dawn node's `empty_states` rows; the traceability CSV | as on main (regenerated) |
+| Kobo `factor_sources` | removed. The sides read the world's record, 330 and 730 on the actual side and 700 and 0 on the plan |
+| `MODEL_PENDING`, its missing entries, `empty_states.queued_slices.0K4f` | removed (nothing uses them) |
+| `evaluation.forward_baseline.MINI_GRID` | `{reduced_days: "0", admission_parts_failed: "0"}`: the admission count is an option-only leaf. The `admission` bound, `hard: [admission]` and the settings' `admission_parts_failed: "admission_parts_failed_option"` change are unchanged |
+| `protect_nodes.MINI_GRID` | loses `replayed_dawn_days_below_safeguard`, because the dawn is `information` |
+| KOB-STOPSOC, KOB-RESERVE `changes` | `candidate_l: "candidate_l - avoided_l"`, `battery_throughput_kwh: "battery_throughput_kwh + added_throughput_kwh"`, `admission_parts_failed: "admission_parts_failed_option"`; params as §2.3 (D-0K4.38) |
+| KIS-BATT60 `changes` | `necessary_l: "necessary_l - shifted_fuel_l"`; `shifted_fuel_l` stays `unavailable(...)` |
+| `home_categories.option_money_factors` | KOB-STOPSOC and KOB-RESERVE `[candidate_l, battery_throughput_kwh]`; KIS-BATT60 `[necessary_l]` |
+| `home_categories.decisions` (lever), `bridge_drivers`, Kobo's bridge rows `CANDIDATE_RUNNING` and `EVENING_LOAD_GROWTH` with their basis, `findings_expected.GENERATOR_SUPPORT_CANDIDATE`, Kisiwa's and Mto's bridge drivers | as on main. Bridge bases that hand-type a figure take `{fig:}` placeholders (L4) |
+| `oracle` OR-MG-1 | "Kobo: candidate running {fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l} L as the world records it (dispatch-3.2; dispatch-3.3 re-classifies it in 0K4f); both settings admitted on K8's replayed days; their litres and value Not available yet (a dispatch replay on Kobo's October as recorded, 0K4f)" |
+| sensitivities (D-0K4.48), protective no-candidate (D-0K4.46) | both models |
+
+- **Product-parity run (packet and merge gate).** At 2b's head and at the branch head, run each file on its own, with
+  `DATABASE_URL` unset and `ASSETOPS_TEST_DATABASE_URL='postgresql+psycopg://x:y@127.0.0.1:1/nodb_test'` (unreachable,
+  so no database is touched):
+  `bash tools/heavy-slot.sh -- pwsh -NoProfile -File tools/run-host-tests.ps1 -- <file> -q -p no:cacheprovider -rf`.
+  The files are `backend/tests/test_3b1_structure_registry.py`, `test_2a_canonical_manifest_parity.py`,
+  `test_3b3_structure_evaluate.py`, `test_3b4_observer.py`, `test_5a_targets.py`, `test_ds4_world.py`,
+  `test_wk_walk_world.py` and `simulator/tests/world/test_records.py`. The failing node ids must equal main's (today
+  two: `test_3b1…::test_t1_leaf_sources_absence_and_words_equal_the_manifest` and
+  `test_3b3…::test_t6_each_state_yields_its_leaf_value_on_its_own_record`).
+- **After the held merge** (coordinator): rerun `world check` in a quiet DB slot before the next WK run. No build is
+  needed, because no CODE_PATHS, migrations or definition file change. C4 must PASS. A FAIL is a stop, and it goes to
+  the Architect.
 
 **Mto** (D-0K4.34)
 
@@ -262,12 +342,13 @@ Edit the manifest outside the view only (§1.2). Add a rev line under the header
 | `MTO-HULLER.params.added_fuel_l 68 M` | `litres_per_kwh: {value, source: {study: M8, case: mto-huller, field: litres_per_customer_kwh}}`; change `extra_l: "extra_l + litres_per_kwh * load_kw * load_hours_per_day * days"` |
 | tenant row `MTO-HULLER` `forward_replay`, `economics` | `replay: M8 mto-huller`; `economics: {class: MODELLED, input_class: SIMULATED, value: "{fig:options.MTO-HULLER.value}", one_off: 1200.00}`; `information` with `days_without_headroom` (as "<n> of 61 replayed days"), `extra_starts`, `dawn_days_below` |
 | `MTO-WELDING.params.sfc`, change, `note` | `litres_per_kwh` from M8 `mto-welder` (**rev 2, R3**: the FULL-inverter case, because every admitted restore path restores within 6 days; the packet says so); change `extra_l: "extra_l + load_kw * load_hours_per_day * days * litres_per_kwh"`; note: "litres per welder kWh from the M8 replay (SIMULATED)"; row `economics` → `{fig:}` placeholders |
+| **(rev 3, Q15)** MTO-WELDING row `break_even_tariff_usd_per_kwh: 0.42` | removed (a computed quantity typed from the old fuel rate, §1.1); its readers (`derivation-register.md`, `fixture-mapping.md`, `loop-decisions.js`, `loop-portfolio.js`, `index.html`) show the evaluator's welder value in units 2 and 3 |
 | `MTO-INV-CLAIM`, `-BUYNOW`, `-LOCAL`, `-NOACT` `extra_l_per_day` | `{value, source: {study: M8, case: reduced, field: extra_fuel_l_per_day}}`, plus **(rev 2, R3)** `information: {source: {study: M8, case: reduced}, extra_generator_kwh, extra_unserved_kwh, reason: "over the 61 replayed days the 25 kW limit adds no generator energy and no unserved energy"}`, the two figures sourced and checked by K6 |
 | `physical.extra_l_per_day_at_half_inverter_capacity` | unchanged (view; 0K4f); read by nothing (K7) |
 | `oracle` OR-MG-3 | "Mto: MTO-HULLER valued on M8 litres per kWh; MTO-WELDING as the evaluator gives" |
 
 **Kisiwa:** `KIS-BATT60.params.shifted_fuel_l: 'unavailable("a Kisiwa battery replay (queue Q7)")'`, and its change
-becomes `generator_l: "generator_l - shifted_fuel_l"`. The tenant row loses `monthly_fuel_saving_modelled` and `net_12m`;
+becomes `necessary_l: "necessary_l - shifted_fuel_l"` **(rev 4, §2.3a)**. The tenant row loses `monthly_fuel_saving_modelled` and `net_12m`;
 its reason reads "value Not available yet (a Kisiwa battery replay; queue Q7)". So does `allocation.excluded`.
 
 **Embakasi (D-0K4.36):** `EMB-DEADLINE.params` loses `feasible_nights` and `bus_short_on_infeasible_night`, and
@@ -293,26 +374,38 @@ reconciliation table says so.
 
 ### 2.4 Commit 2: the evaluator, regeneration and re-basing
 
-- `evaluate_structure.py` implements N1 to N4 from this spec, sharing no code with the checker.
+- `evaluate_structure.py` implements N1 to N6 from this spec, sharing no code with the checker.
 - Regenerate: `python3 evaluate_structure.py` (writes `derived-values.json` and `missing-records.json`), then
-  `python3 regenerate_traceability_columns.py`. `missing-records.json` gains Kobo's `candidate_l` and `necessary_l`
+  `python3 regenerate_traceability_columns.py`. **(rev 4, D-0K4.45: the rest of this item is superseded; `missing-records.json`
+  `sites` equals main's, K13.)** ~~`missing-records.json` gains Kobo's `candidate_l` and `necessary_l`
   on the plan side, the actual side and the history months **(rev 2, I2)**, with cause `MODEL_PENDING`. That is a new cause value, added to the
-  `empty_states` comment vocabulary and to both models, defined as "a computed leaf whose model version is pending".
-  Its slice is `0K4e`. Never hand-edit a generated file.
+  `empty_states` comment vocabulary and to both models, defined as "a computed leaf whose model has not yet run on
+  this world's records". **(rev 3, D-0K4.44)** Its slice is `0K4f` (0K4e and 4d are merged; the world on v8 is
+  pending), declared in `empty_states.queued_slices`, never in `plan_model.py` SLICES: `0K4f: {name: "The fuel law and
+  the worlds on v8: the product's fuel law reads v8's curve, the Kobo template and DS2's telemetry writer adopt v8,
+  the demo database is rebuilt, and Kobo's October readings are classified by dispatch-3.3", lane: STR, units: 2,
+  deps: [0K4e, 4d]}`; no `0K4e` row.~~ Never hand-edit a generated file.
 - **Re-base H8, H9, H10, with a ledger.** Set `H8_DERIVED_SHA`, `H8_MISSING_SHA` and `H10_MANIFEST_SHA` to the new
   hashes. Add a comment line in the existing style: "Re-based (21 Nov) for 0K4m (D-0K4.31 to D-0K4.38): …; history.json
-  and the view unchanged". Set `H9_BASELINE` to the measured count. **(rev 2, R5) The ledger** is the per-section
+  and the view unchanged". **(rev 3, D-0K4.43)** `H9_BASELINE` is set in closing commit 6, at the branch head (§4),
+  to the measured count; commit 2 prints the ledger marked provisional. **(rev 2, R5) The ledger** is the per-section
   multiset diff of the `CHECK_LABELS` output of commit 1a on main's manifest against the branch head, saved to
   evidence. The H9 comment sums it by section from 4502 − 6 (0K4d's anchors); the reviewer reruns the same diff. The
   ledger must sum to the new figure. H11 must pass **unchanged** (the view digest), and so must K8.
 - **(rev 2, I2)** If any unit-1 check runs `motivation_figures.py`, its fix (below, unit 2) moves into commit 2.
-- `check_manifest.py`: **0 failed**.
+- **(rev 3, D-0K4.43)** `check_manifest.py` at commit 2 fails only in `anchors()`, `documents()` and K11, and only on
+  files unit 2 or 3 restates; every other check passes. The packet lists those failures by file. **0 failed** is judged
+  at the branch head (commit 6).
 
 ## 3. Unit 2 (0.75 units; commit 3): the companion documents
 
 - **The rule for each document:** every figure that the evaluator or a study produces carries its `<!--fig:path-->`
   anchor, and an anchor is removed with its figure. Every design value goes, as in §1.1. `check_manifest.py`
   (anchors(), documents()) and `check_alignment.py` both pass.
+- **(rev 3, D-0K4.43) Scope, as a class:** every document the checker reads outside the mock, the pack's and
+  `Docs/go-to-market/`'s (`website-content.md`, `commercial-plan.md`, and their `.html` twins regenerated by
+  `render_website_content_html.py` and `render_commercial_plan_html.py`). At unit 2's head the only failures are on
+  `interactive-mockup-vNEXT/` files.
 - **Places** (change-list row 25 plus 0K4d's hand-over):
   - `domain-and-decision-models.md`:
     - line 5 (210/20/68 L "as design values", 4-of-61, 0-of-61), lines 21, 205 and 209 (330, 730, 11 of 31);
@@ -341,8 +434,16 @@ reconciliation table says so.
     value keep "Not available yet" with those words (in place of "`6c` values it"), and MG-T3 stays not available. The
     "Avoidable L/month" column heading reads "Avoidable L per 30 replayed days": its cells are the model's test
     vectors on season v2, in the season's frame. D-0K4.32's amendment of those cells now covers the Mto options only.
-  - **(rev 2, I2)** `motivation_figures.py` shows "Generator running" from `generator_l`, and "Not available yet" in
-    the split boxes; Figures 2-3 of `layer4-transformation-design.md` are regenerated and its `--check` passes.
+  - ~~**(rev 2, I2)** `motivation_figures.py` shows "Generator running" from `generator_l`~~ **(rev 4, D-0K4.45)**
+    `motivation_figures.py` keeps main's split boxes, which read the world's record. Its `--check` passes.
+  - **(rev 4, D-0K4.45)** Kobo's October split (330, 730, 11 of 31, 412.50, 37.50) reads, in every document, as the
+    world's record, anchored, with the words "as the simulated world records it (dispatch-3.2); dispatch-3.3
+    re-classifies it in 0K4f". The sweep lists these hits as kind 1, with the reason "world record, §2.3a". Kobo's two
+    settings stay "Not available yet" (D-0K4.38).
+  - **(rev 4, D-0K4.49)** In the decision-history files (`design-questions-and-decisions.md`, `decisions-register.md`),
+    a row dated before 21 Nov keeps its words and loses its anchor, and a row from 21 Nov on is anchored. If
+    `documents()` flags an untagged history figure, both files join its history exclusion by name.
+  - **(rev 4, D-0K4.48)** No document or screen shows a sensitivity for an option with no value.
   - Regenerate the `.html` twins with `render_design_html.py`. Rerun `motivation_figures.py` and `plan_model.py` if they
     read any changed key: name in the packet which ones do.
 - **The sweep (W6), its result in the packet.** Run the regexes `\b(210|330|730|2,?916(\.00)?|412\.50|262\.50|6,?088\.50|2,?286|2,?166|95,?634|3,?540|367\.50|2,?947\.50|195\.00|11,?660)\b`,
@@ -368,24 +469,31 @@ every number honest with its basis.
   (`loop-core.js:288`) goes; the drawer reads the source from the fixtures (fix the class, not the instance).
   **(rev 2, I4)** `tools/replay_values.py`, the audit's independent replay set (`audit.mjs:16`), is rewritten to read
   `source:`, `information:` and `replay_studies`, sharing nothing with `gen_fixtures.py`.
-- **Labels (exact copy, plain language, no system vocabulary).**
-  - `DVTEXT` and `dvTag` (`loop-portfolio.js:269-270`) become `SIMTEXT` = `'Simulated: a replay of a declared ' +
-    <replay_studies.K8.days from the fixtures> + '-day season, not your recorded data'` and `srcTag`, which renders
+- **Labels (exact copy, plain language, no system vocabulary).** **(rev 5, D-0K4.50)** "replay" never appears on screen
+  (`vocab_check.cjs` keeps its ban); the struck strings below are replaced by D-0K4.50's exact strings, and every
+  exact string is run through the guard before coding.
+  - `DVTEXT` and `dvTag` (`loop-portfolio.js:269-270`) become `SIMTEXT` = ~~`'Simulated: a replay of a declared ' +
+    <replay_studies.K8.days from the fixtures> + …`~~ **(rev 5)** `'Simulated: from a simulation of a declared ' + <days of
+    the study the figure's own source names (D-0K4.53)> + '-day season, not your recorded data'` and `srcTag`, which renders
     **(rev 2, I4)** the mock's per-figure chip, `<span class="ux-chip is-neutral" title="<SIMTEXT>">Simulated</span>`
     (`loop-ux.js:42, 710`; `ux.css:105`). `.ux-prov` stays the page's "About these figures" popover, with the copy
     below. The "†" goes.
   - The drawer lists the study's four assumptions as `<key in words> <value> <unit> (assumed: <derivation>)` or
     `(declared: …)`, without the basis code.
-  - Not-available text: `'Not available yet: ' + <words>`. The words: Kobo's candidate split, "needs Kobo's generator,
-    solar and battery readings for October"; KIS-BATT60, "needs a replay of a Kisiwa battery"; Embakasi per-bus
-    timing, "needs a replay of the charging schedule"; the warranty floor, "needs Kobo's battery sheet".
-  - **(rev 2, R2)** Kobo's two settings: litres and value `'Not available yet: needs a replay of Kobo''s own October'`,
+  - Not-available text: `'Not available yet: ' + <words>`. The words: ~~Kobo's candidate split~~ (rev 4, D-0K4.45:
+    the split shows the world's record from the fixtures, and `loop-core.js:243` reads its days from them); KIS-BATT60, ~~"needs a replay of a Kisiwa battery"~~ **(rev 5)** "needs a simulation with a Kisiwa battery"; Embakasi per-bus
+    timing, ~~"needs a replay of the charging schedule"~~ **(rev 5)** "needs a simulation of the charging schedule"; the warranty floor, "needs Kobo's battery sheet".
+  - **(rev 2, R2)** Kobo's two settings: litres and value ~~`'Not available yet: needs a replay of Kobo''s own October'`~~ **(rev 5)** `'Not available yet: needs a simulation of
+    Kobo''s own October'`,
     with the admission line and the dawn line beside them; no litres or money figure on their cards, the overview
     tile or the drawer.
   - The dawn line: `'Dawn: lowest 5 am charge <worst> % (<n> of 61 days below 35 %; information, not a limit)'`, with
     every figure from `information`. The admission line: `'Passes the operating checks: energy served, reserve kept,
     starts within the maker's limit, regular full charge'`, or, where it fails, the first failing part in words.
   - `DV_KIRI` ("Assumption: recovery share 80 %") stays (change-list row 31).
+  - **(rev 5, D-0K4.51)** Kobo's split (330 / 730): no chip; beside it `'as October''s records classify it; to be
+    re-checked against Kobo''s own 5-minute readings'`; the code 0K4f only in the drawer's "For reviewers" block.
+  - **(rev 5, D-0K4.54)** For Kobo's settings and KIS-BATT60 the mock renders these strings, never the manifest's `reason`.
 - **Places** (from the read of the mock; each moves to fixtures or to the labels above):
   - option and decision labels: `loop-site.js:35-37, 59, 63`; `loop-portfolio.js:45, 298-304, 478, 489-491`;
   - queue and overview: `loop-ux.js:69, 141, 341, 701, 711, 724-727`;
@@ -393,11 +501,19 @@ every number honest with its basis.
   - the prose: `loop-decisions.js:273-275` (no "35 % at 5 am on every day", no "160 L") and `:363` (no "21-bus …
     406 kW");
   - `loop-protect.js:88` (`pe.design_value` becomes `pe.source`);
-  - the popover, `loop-core.js:425`: "Simulated figures come from a replay of a declared season; 'Not available yet'
+  - the popover, `loop-core.js:425`: ~~"Simulated figures come from a replay of a declared season;~~ **(rev 5)** "Simulated figures
+    come from a simulation of a declared season; 'Not available yet'
     names the record that would fill it";
   - `loop-core.js:243` "(11 of 31 October days)" becomes the not-available text;
   - each hand-typed "of 61" (`loop-decisions.js:75, 273, 274`, `loop-site.js:37`) reads `replay_studies.K8.days` from the
     fixtures.
+  - **(rev 5, D-0K4.55) The reader class.** Every mock reader reads a field the regenerated fixtures carry (evaluator
+    option figure or manifest record), swept from the keys main's `fixtures.js` has and the new one lacks
+    (`forward_replay.*`, `days_without_headroom`, `economics.*`, the break-even); an element with no source keeps its
+    place and reads `'Not available yet: ' + <words>`; no row is dropped. Kobo's verify line, the KOB-STOPSOC wear
+    line and the Mto prose take D-0K4.55's exact copy. `audit.mjs` reports `consoleErrorRoutes: 0`.
+  - **(rev 5, D-0K4.52)** The manifest's three bridge `basis` strings (`:115, 193, 249`) read "against a target of";
+    every manifest string is swept for OD-6's retired forms (words only; no K13 part).
 - **Documents:**
   - `walkthroughs.md:33, 48, 53, 94, 115`: anchored figures; "design estimate" goes; the dawn reads as information;
   - `fixture-mapping.md:25, 60, 75, 76, 108, 111, 128, 148, 153` (hand-written);
@@ -408,20 +524,26 @@ every number honest with its basis.
   - `tools/vocab_check.cjs` fails on "Design estimate", "design value" and "†" in rendered text;
   - `tools/hand_typed_scan.py` exits 1 on any hit not on its allow-list. Its `:124` "21-bus night" entry goes;
   - regenerate `tools/rendered-manifest-strings.json` (`rendered_strings.cjs`);
-  - run `tools/run-audit.sh --shots` through `tools/heavy-slot.sh`, with `/opt/assetecon/tools/pw/env.sh`. Evidence
-    goes to `/opt/assetecon/evidence/0K4m/`, never `screenshots/`.
-- **Merge of unit 3 is held for the owner** (owner-away terms: UI-facing changes wait for the owner's look; D-0K4.37).
-  Units 1-2 merge on review.
+  - run `tools/run-audit.sh` ~~`--shots`~~ through `tools/heavy-slot.sh`, with `/opt/assetecon/tools/pw/env.sh`. Evidence
+    goes to `/opt/assetecon/evidence/0K4m/`, never `screenshots/`. **(rev 5, D-0K4.53)** In the repo without `--shots`;
+    shots from a scratch copy into `/opt/assetecon/evidence/0K4m/u3/`, the copy deleted after.
+- **(rev 3, D-0K4.43) Closing commit 6**, by whichever unit finishes last: set `H9_BASELINE` from the ledger
+  (commit 1a's labels on main against the branch head), with its by-section comment; **(rev 5, D-0K4.56)** remove
+  `k10()` and its call (K10 was retired in rev 4 and still runs at `ba2da1c4e`); the head prints `0 failed`.
+- **The branch merges once, at commit 6, held for the owner** (owner-away terms: UI-facing changes wait for the
+  owner's look; D-0K4.37, extended to the branch by D-0K4.43). Units 1-2 are reviewed together, unit 3 after them.
 
 ## 5. Acceptance (questions the pack and mock must answer yes)
 
-1. Does `check_manifest.py` print `0 failed`, with H9's ledger summing to its baseline and H11 unchanged?
+1. Does `check_manifest.py` print `0 failed` at the branch head, with H9's ledger summing to its baseline and H11
+   unchanged, and does commit 2 fail only on the document files units 2 and 3 restate (rev 3, D-0K4.43)?
 2. Are `history.json` and the world-view file byte-identical to the pre-flight hashes at every commit?
 3. Does every param and `information` value with a `source` equal `replay-studies.json`, and does
    `extract_replay_studies.py --check` pass against the two study files?
 4. Is the dawn bounded nowhere, and is Kobo's choice made only among settings the admission line admits?
-5. Do Kobo's candidate and necessary litres read null with their record words, on the plan, October and history
-   months, while Kobo's October contribution, variance and bridge still evaluate?
+5. (rev 4, D-0K4.45) Do Kobo's candidate and necessary litres read the world's record, equal to main's on the plan,
+   October and history months (K13), and are they labelled with their source and 0K4f in every document and on the mock (rev 5, D-0K4.51: on the mock, the
+   source in words on screen and 0K4f in the reviewer block only)?
 5a. (rev 2, R2) Do Kobo's two settings read litres, throughput and value "Not available yet" with their words, admitted
    on the replay, with no K8 amount applied to the world's month (K12)? Does the boundary proof print (a), (b) and (c)
    for every commit?
@@ -431,6 +553,10 @@ every number honest with its basis.
 8. Does the mock render no "Design estimate", no "†" and no hand-typed replay figure, with every Simulated figure
    carrying its chip and every gap its record?
 9. Are the packet's figures the evaluator's, with one reconciliation table for what moved?
+10. (rev 4, D-0K4.45) Does K13 pass at every commit from 2b on? At the branch head, does the DB-free product-parity
+    run (§2.3a) fail exactly main's node ids?
+11. (rev 4, D-0K4.46, D-0K4.48) Does a protective decision with no candidate take none, with its reason, in both
+    models? Is every sensitivity of an option with no value null?
 
 ## 6. Plants (each must fail the named check, then be reverted)
 
@@ -443,7 +569,7 @@ every number honest with its basis.
 | P5 | `dawn_adequacy` bound and `hard: [dawn_adequacy]` restored | K5 |
 | P6 | KOB-STOPSOC `information.dawn_days_below` set to 0; and the Kobo `protect_effects` KOB-STOPSOC count set to 0 (I5) | K6 |
 | P7 | MTO-INV-CLAIM `extra_l_per_day` back to `physical.extra_l_per_day_at_half_inverter_capacity` | K7 (and K2) |
-| P8 | Kobo `factor_sources` removed | K10, and evaluator() (330 is back) |
+| ~~P8~~ | retired (rev 4): Kobo has no `factor_sources`; see P26 | |
 | P9 | Kobo `period.actual.candidate_l` changed to 331 | H11 and the view hash |
 | P10 | `independent_model.py` reads `unavailable` as 0 | evaluator() (null against 0) |
 | P11 | untagged "2,916.00" added to `walkthroughs.md` | documents() / anchors() |
@@ -455,10 +581,19 @@ every number honest with its basis.
 | P17 (rev 2, R4) | a scratch factor `unavailable("x") \| 0` in K9's self-test | must yield null, not 0 |
 | P18 (rev 2, R2) | KOB-STOPSOC `avoided_l` given a K8 `scaled_to_30_days.avoided_l` source | K12 |
 | P19 (rev 2, I1) | a "design value" string added to Kobo's `physical` (scratch copy) | K1 (not on `VIEW_HELD`), and the boundary proof (c) |
+| P20 (rev 3, D-0K4.40) | a comment line added inside Kobo's `physical` (scratch copy) | the boundary proof (c) |
+| P21 (rev 3, D-0K4.40) | a comment line added above the first key (scratch copy) | must pass (c): the `<root>` class is scoped |
+| P22 (rev 3, D-0K4.42) | the independent model emits params at cents | evaluator() (0.094815 against 0.09) |
+| P23 (rev 4, D-0K4.45) | `generator_l` re-added to `factor_map.MINI_GRID` (scratch copy) | K13 |
+| P24 (rev 4, D-0K4.46) | every option of one Lakeside protective decision `unavailable("probe")` (scratch copy) | must pass: both models take none with the stated `how`, equal plans, no crash |
+| P25 (rev 4, D-0K4.49) | all four MTO-INV `extra_l_per_day` `unavailable("probe")` (K9 self-test) | must pass: feasible, equal plans |
+| P26 (rev 4, D-0K4.45; rev 5, D-0K4.56) | Kobo's `factor_sources: {candidate_l: "0"}` re-added (scratch copy; P26b; a null crashes the history series first) | K13 (`derived-values.json` `sites`) |
 
 ## 7. Scope limits
 
 - No product code, test, config or database change. No edit to the world view or `history.json`. 0K4f owns them.
+- **(rev 4, D-0K4.45)** No change to the product-parity seam (K13's parts). 0K4f restates the structure layer with the
+  product and the world.
 - No new replay, study or season. No Kisiwa battery replay. No Embakasi schedule replay.
 - No change to `runs/admission.py`. The pack reads its results from the study.
 - No change to the pack's prices or assumptions. The wear rate stays a labelled assumption (queue Q11).
@@ -468,10 +603,14 @@ every number honest with its basis.
 | Unit | Commits | Size |
 |---|---|---|
 | 1: labels (1a); extract, checker (N1-N4, K1-K12, `VIEW_HELD`), manifest, evaluator, regeneration, re-base with ledger | 1a, 1b, 2 | 1.75 |
+| 1, rework (rev 4): the seam (§2.3a, K13), N5 protective, sensitivities, P23-P26; evaluator side and model side | 2b | 0.5 |
 | 2: companion documents (with I4's added files), sweep, motivation figures | 3 | 0.75 |
 | 3: mock fixtures, labels, `replay_values.py`, documents, checks, audit | 4-5 | 1.0 |
-| **Total** | 6 | **3.5** |
+| closing: H9 re-base at the branch head (rev 3; moved from commit 2) | 6 | in the above |
+| **Total** | 8 | **4.0** |
 
-**(rev 2) Order.** Unit 1 builds first: every other unit reads its `derived-values.json`, and commit 1a is the cheapest
-start. Units 2 and 3 can then build in parallel on unit 1's reviewed head (different files). Units 1-2 are reviewed
-together and merge on review; unit 3 is reviewed after them, and its merge is held for the owner (D-0K4.37).
+**(rev 3, D-0K4.43) Order.** Unit 1 builds first: every other unit reads its `derived-values.json`, and commit 1a is
+the cheapest start. Units 2 and 3 then build in parallel on ~~commit 2's~~ **commit 2b's (rev 4, D-0K4.49)** head
+(different files). Green is judged once, at
+the branch head (commit 6). Units 1-2 are reviewed together, unit 3 after them, and the branch merges once, held for
+the owner (D-0K4.37, D-0K4.43).

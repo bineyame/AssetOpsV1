@@ -1,7 +1,7 @@
-# WK rulings (D-WK.1 to D-WK.14)
+# WK rulings (D-WK.1 to D-WK.16)
 
 Architect (Claude), 2026-11-21, on the owner's delegation (`owner/owner-away-architect-stands-in-2026-11-21b.md`).
-Owner-level calls are logged in `specs/OWNER-AWAY/decisions-2026-11-21.md` rows 53, 54, 66 and 67. Row 36 (owner: option b)
+Owner-level calls are logged in `specs/OWNER-AWAY/decisions-2026-11-21.md` rows 53, 54, 66, 67 and 76 (D-WK.15, D-WK.16, 2026-11-22). Row 36 (owner: option b)
 is the authority for the copy.
 
 ## D-WK.1 WK is one coordinator-only tool over DS4's world
@@ -151,6 +151,44 @@ smoke's page list either way.
   WK's copy is checked. The other order would stale the L2 and cost a second 26-minute build. Building in parallel
   keeps DDR on time, and the owner sees the deep-dive rehearsed before the 5c walkthrough.
 - **Reversible.** Reorder; only the coordinator's run timing depends on it.
+
+## D-WK.15 The walk serve's API carries two fresh cursor keys (smoke S3, label 1122; amends D-WK.5; owner-away row 76)
+
+- **Ruling.** `api_env` adds `ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX` and `ASSETOPS_WORK_CURSOR_KEY_HEX`, each a
+  fresh `secrets.token_hex(32)` made by `serve` for that serve alone. They are never read from the parent environment,
+  never written to the manifest, a log or evidence, and never printed. A restart makes new keys, so an old page-two
+  cursor is refused as `INVALID_CURSOR`, which is the designed answer. T8's exact API key list gains the two names.
+  DDR §5.2 step 3 carries the same two names (D-DDR.16).
+- **Why.** Both keys have no default by design (`estate/scope.py:313-325`, `work/global_index.py:63`): without them
+  every estate and work-index route answers 503 `ESTATE_STORE_UNAVAILABLE`, which is what smoke S3 found. The 13 Nov
+  serve, the shape D-WK.5 copies, makes the same two keys (`tools/demo_combined.py:78`, `:1073`), so D-WK.5 left them
+  out by mistake. They are HMAC secrets for pagination cursors only. They name no path, open no upload, real-data or
+  entry switch, and carry no data, so D-WK.5's "no key folder, no switch" still holds.
+- **Class and sweep.** The class is a variable the API requires with no default, left out of a built environment. Every
+  `ASSETOPS_*` name the backend, host and gateway read was swept against the 13 Nov serve. These two are the only
+  required secrets; every other name is an opt-in that stays off, or is on D-WK.5's deny list.
+- **Reversible.** Remove the two names, and the estate routes answer 503 again.
+
+## D-WK.16 After the serve, `chain_response` may only grow; every other table stays exact (smoke S4, label 1122; amends D-WK.13 and T5; owner-away row 76)
+
+- **Ruling.** The census judge gains one declared after-serve allowance, `SERVE_GROWTH_TABLES = ("chain_response",)`.
+  This allowance applies only in smoke S4. There, a table in that tuple passes when its count is at least the
+  manifest's (prepared) count, and fails when it is lower. Every other table must equal the parent census plus the
+  declared deltas, as before. W3, the judge before the serve, stays exact for every table, `chain_response` included.
+  S4 prints the growth as a fact (`chain_response +3 (D-WK.16)`), and its PASS still names every other table as exact.
+  The serve keeps the response store on, the 13 Nov shape. Adding any other table to the tuple needs a new ruling.
+- **Why.** `chain_response` holds derived bytes, which the CH-5c response store writes on a cache miss by design
+  (CH-5c R6; OWN-GAPS rulings-8:356). It keys them to the database watermark, and no source table, figure or Action
+  reads it as evidence. The walked copy therefore shows exactly what the checked copy computes. D-WK.13 is there to
+  catch a read that changes what the owner sees, and every source table still catches that. Option (b), serving with
+  `ASSETOPS_RESPONSE_STORE=compose`, was declined. It keeps D-WK.13's wording but walks a shape no operator gets, with
+  cold pages over 2 s before prebuild. That buys the letter of the rule at the cost of the walk it protects. `off` was
+  not considered.
+- **Class and sweep.** The class is a derived cache table, written by a read path, inside a census meant to catch
+  source writes. `chain_response` is the only cache table the serve writes (the only difference label 1122's census reported).
+- **Tests (T5).** These cases are added: after-serve `chain_response` +3 PASSes; `chain_response` -1 FAILs; +1 in any
+  other table still FAILs naming it; W3 with `chain_response` +1 FAILs.
+- **Reversible.** Empty the tuple and serve with `ASSETOPS_RESPONSE_STORE=compose` (option b).
 
 ## Handshake answers (round 1)
 

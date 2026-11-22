@@ -33,6 +33,8 @@ _LATEST_SITE = text("SELECT " + _COLUMNS + " FROM structure_snapshot WHERE tenan
                     "AND period = :p ORDER BY as_of DESC LIMIT 1")
 _LATEST_PORTFOLIO = text("SELECT " + _COLUMNS + " FROM structure_snapshot WHERE tenant_id = :t AND site_id IS NULL "
                          "AND period = :p ORDER BY as_of DESC LIMIT 1")
+_PORTFOLIO_HISTORY = text("SELECT " + _COLUMNS + " FROM structure_snapshot WHERE tenant_id = :t AND site_id IS NULL "
+                          "AND period = :p ORDER BY as_of")
 _BY_IDS = text("SELECT " + _COLUMNS + " FROM structure_snapshot WHERE tenant_id = :t AND id = ANY(:ids)")
 _UNIQUE_VIOLATION = "23505"
 
@@ -91,6 +93,10 @@ class PostgresStructureSnapshotStore:
         with self._engine.connect() as c:
             r = c.execute(_LATEST_PORTFOLIO, {"t": tenant_id, "p": period}).one_or_none()
         return None if r is None else _row(r)
+
+    def portfolio_history(self, tenant_id: UUID, period: str) -> tuple[SnapshotRow, ...]:
+        with self._engine.connect() as c:
+            return tuple(_row(r) for r in c.execute(_PORTFOLIO_HISTORY, {"t": tenant_id, "p": period}).all())
 
     def get(self, tenant_id: UUID, ids: Sequence[UUID]) -> tuple[SnapshotRow, ...]:
         ids = list(ids)

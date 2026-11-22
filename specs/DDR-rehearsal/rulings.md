@@ -1,6 +1,6 @@
 # DDR rulings
 
-Architect (Claude), 2026-11-20; rev 2 the same day (D-DDR.7 to D-DDR.10, handshake answers below); rev 3 on
+Architect (Claude), 2026-11-20; rev 2 the same day (D-DDR.7 to D-DDR.10, handshake answers below); rev 4 on 2026-11-22 (D-DDR.16, owner-away row 76); rev 3 on
 2026-11-21 (D-DDR.11 to D-DDR.15, "Handshake answers (round 2)"; owner-away delegation
 `owner/owner-away-architect-stands-in-2026-11-21b.md`). Each ruling is indexed in `.ai/decisions/index-rulings-13.md`
 (D-DDR.1 to D-DDR.10) or `.ai/decisions/index-rulings-23.md` (D-DDR.11 on).
@@ -136,6 +136,16 @@ Architect (Claude), 2026-11-20; rev 2 the same day (D-DDR.7 to D-DDR.10, handsha
   ON1's test 3 requires exactly the listed commands, a parser for each program, every declared variable, and identical
   copies (D-ON1.13, D-ON1.19). Without the edit, DDR's runbook breaks ON1's tests at review, which would be a
   mid-build question.
+
+## D-DDR.16 §5.2's API environment carries the two cursor keys (D-WK.15; amends D-DDR.13; owner-away row 76)
+
+- **Ruling.** §5.2 step 3 adds `ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX` and `ASSETOPS_WORK_CURSOR_KEY_HEX`, each a
+  fresh 64-hex value per serve, generated in the shell and passed only through `env -i`. They are never written to a
+  file or the log.
+- **Why.** The rule is D-WK.15's, from the reviewed list this serve copies. Without the keys the estate routes answer
+  503 `ESTATE_STORE_UNAVAILABLE`. The coordinator restarted the DDR serve this way on 2026-11-22, and those routes
+  answer 200.
+- **Reversible.** Remove the two names from step 3.
 
 ## Handshake answers (round 1)
 
