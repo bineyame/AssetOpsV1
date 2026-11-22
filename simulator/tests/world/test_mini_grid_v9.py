@@ -150,14 +150,24 @@ def test_c_dd19_one_of_each_is_v8_on_kobo_october(books: dict) -> None:
 # --- units ----------------------------------------------------------------------------------------------------------
 
 
+def _lead_rated(frozen, rated: Fraction):
+    """Kobo's set re-rated to `rated` kW (the test's own figure, so one set cannot carry the evening alone)."""
+    return dataclasses.replace(frozen, initial_values=tuple(
+        dataclasses.replace(v, value=rated) if v.address == "generator-rated-power@generator" else v
+        for v in frozen.initial_values))
+
+
 def test_two_generators_run_in_order_and_share_by_rating(books: dict) -> None:
-    frozen = _v9(_second_generator(tel.frozen_inputs(_kobo(), books, "2026-10-01", "2026-10-02")))
+    """Kobo's evening asks about 34 kW of the set (load plus the battery's acceptance); a 20 kW lead cannot carry it,
+    so the 24 kW second set joins and each carries the set's output in proportion to its rating."""
+    frozen = _v9(_second_generator(_lead_rated(tel.frozen_inputs(_kobo(), books, "2026-10-01", "2026-10-02"),
+                                               Fraction(20))))
     run = _run(frozen, V9)
     lead, second = _interval(run, "generator-output-power@generator"), _interval(run, "generator-output-power@generator-b")
     both = [i for i, (a, b) in enumerate(zip(lead, second)) if a and b]
     assert both, "no step had both sets carrying"
     for i in both:
-        assert lead[i] * 24 == second[i] * 36  # P x rating / the set's summed rating
+        assert lead[i] * 24 == second[i] * 20  # P x rating / the set's summed rating
     assert all(b == 0 for a, b in zip(lead, second) if not a)  # the second never carries before the lead
     total = [next(f.energy for f in b.control_step.accepted.flows if f.flow_id == "generator_output")
              for b in run.boundaries[:-1]]
