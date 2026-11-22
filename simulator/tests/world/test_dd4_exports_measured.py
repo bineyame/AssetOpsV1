@@ -83,7 +83,8 @@ def test_e1_cold_bill_is_the_room_meter_at_the_declared_grid_tariff(result) -> N
         assert r["body"] == {"account_ref": f"{r['site_code']}-UTIL", "line_type": "USAGE", "tariff_code": "T-GRID-COLD"}
         month = r["clocks"]["recognition_period"]
         assert (r["clocks"]["effective_from"], r["subject"]) == (f"{month}-01", {"kind": "SITE", "ref": r["site_code"]})
-    july = next(r for r in rows if r["clocks"]["recognition_period"] == "2026-07")
+    first = tenant(COLD)["sites"][0]["code"]
+    july = next(r for r in rows if r["clocks"]["recognition_period"] == "2026-07" and r["site_code"] == first)
     assert july["amount"]["value"] == "300.06" and july["clocks"]["effective_to"] == "2026-08-01"  # 1500.325 x 0.20, half-even
 
 
@@ -180,3 +181,46 @@ def test_e9_a_changed_electricity_price_refuses() -> None:
     next(t for t in changed["tenants"] if t["tenant"] == COLD)["prices"]["electricity_usd_per_kwh"] = "0.21"
     with pytest.raises(em.MeasuredRefused, match="T-GRID-COLD"):
         em.build_measured_exports(changed, history, books.files, {COLD: cold_doc()})
+
+
+def _cli(*args: str):
+    import subprocess
+    import sys
+
+    from .conftest import CLI
+    from .books_support import MANIFEST
+
+    return subprocess.run([sys.executable, str(CLI), "exports", "--manifest", str(MANIFEST), *args],
+                          capture_output=True, text=True, timeout=600)
+
+
+def test_e10_exports_telemetry_writes_the_measured_books_after_the_decided(tmp_path) -> None:
+    for slug, doc in ((COLD, cold_doc()), (EV, ev_doc())):
+        target = tmp_path / f"tel-{slug}" / slug / "telemetry"
+        target.mkdir(parents=True)
+        (target / "measured.json").write_text(json.dumps(doc), encoding="utf-8")
+    plain, measured = tmp_path / "plain", tmp_path / "measured"
+    assert _cli("--out", str(plain / "b"), "--extras", str(plain / "x")).returncode == 0
+    done = _cli("--out", str(measured / "b"), "--extras", str(measured / "x"),
+                "--telemetry", str(tmp_path / f"tel-{COLD}"), "--telemetry", str(tmp_path / f"tel-{EV}"))
+    assert done.returncode == 0, done.stderr
+    before = {p.name: p.read_bytes() for p in (plain / "b").iterdir()}
+    after = {p.name: p.read_bytes() for p in (measured / "b").iterdir()}
+    assert {k: v for k, v in after.items() if k in before} == before  # the decided books are unchanged
+    assert set(after) - set(before) == {f"{COLD}.profile.cold-electricity-bill.csv", f"{EV}.profile.ev-utility-invoice.csv",
+                                        f"{EV}.profile.ev-departures.csv"}
+    extras = {p.name for p in (measured / "x").iterdir()}
+    assert {f"{COLD}.meter-billed.json", f"{EV}.meter-billed.json", f"{COLD}.statements.json",
+            f"{EV}.statements.json"} <= extras
+    assert {p.name: p.read_bytes() for p in (plain / "x").iterdir()} == {
+        n: (measured / "x" / n).read_bytes() for n in (p.name for p in (plain / "x").iterdir())}  # mini statements
+
+
+def test_e11_exports_telemetry_refuses_a_tenant_without_its_measured_file(tmp_path) -> None:
+    target = tmp_path / "tel" / COLD / "telemetry"
+    target.mkdir(parents=True)
+    (target / "measured.json").write_text(json.dumps(cold_doc()), encoding="utf-8")
+    done = _cli("--out", str(tmp_path / "b"), "--extras", str(tmp_path / "x"), "--telemetry", str(tmp_path / "tel"))
+    assert done.returncode == 3 and done.stderr.startswith(f"EMU_MEASURED {EV}"), done.stderr
+    assert _cli("--out", str(tmp_path / "b2"), "--extras", str(tmp_path / "x2"), "--tenant", COLD,
+                "--telemetry", str(tmp_path / "tel")).returncode == 0  # only the named tenants need their file
