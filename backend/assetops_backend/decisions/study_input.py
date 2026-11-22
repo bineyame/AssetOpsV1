@@ -1,5 +1,5 @@
-"""6c (`specs/6c-option-evaluator/spec.md` §3.1; D-P6.2, D-P6.27): one replay study file, read. Pure apart from reading
-the file's bytes.
+"""6c (`specs/6c-option-evaluator/spec.md` §3.1; D-P6.2, D-P6.27): one replay study file, read. Pure: the file's bytes are
+read by the injected adapter.
 
 `read_study(path)` reads only the keys the evaluator needs: the header's identity, the frame (a simulation on the
 Site's own record, or a declared season), and per case its settings, its monthly amounts, the four measures the
@@ -11,10 +11,10 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from fractions import Fraction
-from pathlib import Path
+from os import PathLike
 from types import MappingProxyType
 from typing import Any
 
@@ -181,10 +181,11 @@ def _case(obj: object, where: str, with_admission: bool) -> CaseInput:
         c["new_dawn_days_below"])
 
 
-def read_study(path: Path) -> StudyInput:
-    """The study at `path`, or `StudyRefused`: STUDY_UNREADABLE, STUDY_NOT_CALIBRATED, STUDY_LABELS_INVALID."""
+def read_study(path: str | PathLike, read_bytes: Callable[[str | PathLike], bytes]) -> StudyInput:
+    """The study at `path`, its bytes read by the injected `read_bytes` (the adapter `read_study_bytes`), or
+    `StudyRefused`: STUDY_UNREADABLE, STUDY_NOT_CALIBRATED, STUDY_LABELS_INVALID."""
     try:
-        raw = Path(path).read_bytes()
+        raw = read_bytes(path)
         doc = json.loads(raw)
     except (OSError, ValueError, TypeError):
         raise _unreadable("file") from None

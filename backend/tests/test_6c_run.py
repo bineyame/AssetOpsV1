@@ -13,6 +13,7 @@ from uuid import UUID
 import pytest
 
 from assetops_backend import evaluate_options as command
+from assetops_backend.decisions.adapters.study_file import read_study_bytes
 from assetops_backend.decisions.models import SETTING_GRID_CHANGES
 from assetops_backend.decisions.records import DecisionRefused, DecisionService, MemoryDecisionStore, refusal_sentence
 from assetops_backend.decisions.run import EvaluationService
@@ -79,7 +80,7 @@ class World:
                                     basis="Technician sets the controller on a routine visit")
         self.read = FakeRead(f1_base() if leaves is None else leaves)
         self.service = EvaluationService(self.store, self.p.accounts, self.read, clock=lambda: CLOCK, new_id=new_id,
-                                         levers=LEVERS, grid_changes=TEST_GRID)
+                                         levers=LEVERS, grid_changes=TEST_GRID, read_bytes=read_study_bytes)
 
     def evaluate(self, study=F1, who="wanjiru"):
         return self.service.evaluate(tenant_slug=SLUG, as_email=email(who), decision_id=self.decision_id,
@@ -215,8 +216,9 @@ def test_5_a_refused_record_is_record_invalid(w, monkeypatch) -> None:
 def test_5_the_start_up_assertion_runs_over_every_entry(w) -> None:
     with pytest.raises(ValueError):
         EvaluationService(w.store, w.p.accounts, w.read, clock=lambda: CLOCK, levers=LEVERS,
-                          grid_changes={"test_stop_reserve": SETTING_GRID_CHANGES["generator_stop_reserve"][:1]})
-    EvaluationService(w.store, w.p.accounts, w.read, clock=lambda: CLOCK)  # the product's default map
+                          grid_changes={"test_stop_reserve": SETTING_GRID_CHANGES["generator_stop_reserve"][:1]},
+                          read_bytes=read_study_bytes)
+    EvaluationService(w.store, w.p.accounts, w.read, clock=lambda: CLOCK, read_bytes=read_study_bytes)  # default map
 
 
 # --- test 7: the command --------------------------------------------------------------------------------------------

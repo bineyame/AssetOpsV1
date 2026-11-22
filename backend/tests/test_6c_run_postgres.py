@@ -21,6 +21,7 @@ if URL:
     from test_s1_bindings_postgres import engine, store  # noqa: F401
     from assetops_backend.accounts.composition import build_account_service
     from assetops_backend.decisions.adapters.postgres_decision_store import PostgresDecisionStore
+    from assetops_backend.decisions.adapters.study_file import read_study_bytes
     from assetops_backend.decisions.records import DecisionService
     from assetops_backend.decisions.run import EvaluationService
 
@@ -53,7 +54,7 @@ def test_6_f1b_through_the_adapter(onboarded, engine) -> None:  # noqa: F811
                                     amount=Decimal("90.00"), currency="USD", crew_visits=0,
                                     basis="Technician sets the controller on a routine visit")
         service = EvaluationService(adapter, accounts, _Read(), clock=lambda: T, levers=levers,
-                                    grid_changes=TEST_GRID)
+                                    grid_changes=TEST_GRID, read_bytes=read_study_bytes)
         run = service.evaluate(tenant_slug=SLUG, as_email="wanjiru@lakeside-power.example",
                                decision_id=prepared.decision.id, study_path=FIXTURES / "study-f1.json")
         back = adapter.latest_run(run.tenant_id, prepared.decision.id)

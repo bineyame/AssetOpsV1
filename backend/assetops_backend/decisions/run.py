@@ -9,7 +9,7 @@ from __future__ import annotations
 import dataclasses
 from collections.abc import Callable, Mapping
 from datetime import datetime
-from pathlib import Path
+from os import PathLike
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -67,7 +67,7 @@ def option_inputs(options: tuple[OptionRow, ...], lever: Lever, study: StudyInpu
 class EvaluationService:
     def __init__(self, store: DecisionStore, accounts, structure_read, *, clock: Callable[[], datetime],
                  new_id: Callable[[], UUID] = uuid4, levers: Mapping[str, Lever] = LEVERS, registries=REGISTRIES,
-                 grid_changes=SETTING_GRID_CHANGES) -> None:
+                 grid_changes=SETTING_GRID_CHANGES, read_bytes: Callable[[str | PathLike], bytes]) -> None:
         check_grid_changes(levers, grid_changes)  # D-P6.21: the start-up assertion
         self._store = store
         self._accounts = accounts
@@ -77,6 +77,7 @@ class EvaluationService:
         self._levers = levers
         self._registries = registries
         self._grid_changes = grid_changes
+        self._read_bytes = read_bytes
 
     def _call(self, fn, *args):
         try:
@@ -84,7 +85,7 @@ class EvaluationService:
         except StoreUnavailable:
             raise DecisionRefused("DECISIONS_UNAVAILABLE") from None
 
-    def evaluate(self, *, tenant_slug: str, as_email: str, decision_id: UUID, study_path: Path | None) -> RunRow:
+    def evaluate(self, *, tenant_slug: str, as_email: str, decision_id: UUID, study_path: str | PathLike | None) -> RunRow:
         tenant_id, person, role = admit_person(self._accounts, COMMANDS["evaluate"], tenant_slug, as_email)  # E0
         found = self._call(self._store.decision, tenant_id, decision_id)  # E1
         if found is None:
@@ -96,7 +97,7 @@ class EvaluationService:
         if study_path is None:  # E2: a SETTING_GRID lever (the only generator) needs its study
             raise DecisionRefused("STUDY_REQUIRED")
         try:  # E3
-            study = read_study(study_path)
+            study = read_study(study_path, self._read_bytes)
             site = self._call(self._store.site_by_id, tenant_id, decision.site_id)
             if site is None:
                 raise DecisionRefused("DECISIONS_UNAVAILABLE")

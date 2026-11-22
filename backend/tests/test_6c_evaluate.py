@@ -16,7 +16,9 @@ from assetops_backend.decisions.evaluate import OptionInput, evaluate_options
 from assetops_backend.decisions.models import (SETTING_GRID_CHANGES, check_grid_changes, full_months, match_cases,
                                                months_averaged, setting_changes)
 from assetops_backend.decisions.run import option_inputs, recompute_admission
-from assetops_backend.decisions.study_input import StudyRefused, read_study
+from assetops_backend.decisions.adapters.study_file import read_study_bytes
+from assetops_backend.decisions.study_input import StudyRefused
+from assetops_backend.decisions.study_input import read_study as _read_study
 from assetops_backend.runs.admission import AdmissionMeasures, admit, judge
 from assetops_backend.structure.registry import REGISTRIES
 from option_fixtures import (C1_CHANGES, CC, E1_CHANGES, EV, F1G_LEVER, FIXTURES, MG, REAL_LEVER, TEST_GRID,
@@ -24,6 +26,13 @@ from option_fixtures import (C1_CHANGES, CC, E1_CHANGES, EV, F1G_LEVER, FIXTURES
                              write_study)
 
 D = Decimal
+
+
+def read_study(path):
+    """The study file through the product's adapter (the only file read, D-P6.22's guard home)."""
+    return _read_study(path, read_study_bytes)
+
+
 PKG = Path(__file__).resolve().parents[1] / "assetops_backend"
 USD = "USD"
 DIESEL = ("diesel_price",)

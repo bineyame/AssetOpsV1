@@ -8,6 +8,7 @@ from typing import Callable
 
 from assetops_backend.accounts.composition import build_account_service
 from assetops_backend.decisions.adapters.postgres_decision_store import PostgresDecisionStore
+from assetops_backend.decisions.adapters.study_file import read_study_bytes
 from assetops_backend.decisions.records import DecisionService
 from assetops_backend.decisions.run import EvaluationService
 
@@ -59,4 +60,5 @@ def build_evaluation(database_url: str, *, clock: Callable[[], datetime] = _now)
         accounts._store.dispose()
         structure.dispose()
 
-    return EvaluationsService(EvaluationService(store, accounts, structure.read, clock=clock), dispose)
+    return EvaluationsService(EvaluationService(store, accounts, structure.read, clock=clock,
+                                                read_bytes=read_study_bytes), dispose)
