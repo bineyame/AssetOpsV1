@@ -1,4 +1,4 @@
-# DD3c handoff (partial: parts 1, 2 and 3 of 5, part 3's trial fuel comparison per unit open; D-DD.116)
+# DD3c handoff (partial: parts 1 to 4 of 5 done; part 5, Kobo roles-5 publishing and parity on Postgres, next; D-DD.116)
 
 - Done, part 1 (+ D-DD.111, D-DD.112): `backend/assetops_backend/sites/unit_roles.py`. `site_generator_state` states
   RUNNING when any unit with a state runs, else absent (named by unit) while any unit is silent, else D-DD.41's
@@ -74,14 +74,59 @@
     on main 23d2cd9f6 (detached temp worktree, removed after the run): 82 passed, 2 failed. `test_ch5c2_clock_guard`
     fails as on main (baseline 23d2cd9f6). One-unit Sites (Kobo): every Kobo Postgres pin in the set passes, and the
     pure one-unit identity tests hold.
+- Kobo one-unit golden (this run, before any part 3-4 change): `backend/tests/test_dd3c_kobo_one_unit_golden.py`
+  `capture()` run on main a4dd5e801's code (detached temp worktree, removed) wrote
+  `backend/tests/fixtures/dd3c/kobo-one-unit-golden.json`, committed alone in 6b80566ed. Cases (Kobo-shape pure
+  fixtures the existing tests pin: one generator, one PV, one tank): dispatch_v3 (S3 feed: pv_alone, default,
+  near_reserve; result + input digest), verification (`VerificationService._cost_check` over S6 windows through
+  fakes: improvement, no improvement, idle; windows + stored row), night text (K5's F0 nights 1-4 + night 4 gap/idle),
+  litres (4d's `kobo()` October month, plain and with idle). Byte-equal on the branch after parts 3 and 4. Plants:
+  a millilitre added to each unit piece, and `generator_units` emitted at one unit: the golden fails (reverted).
+  Kobo's stored data on Postgres is part 5's parity (D-DD.114), not this golden.
+- Done, part 3 remainder (D-DD.118 "the fuel comparison per unit summed"), commits 111f242d6 (tests, 7 failed first:
+  KeyError `generator_units`, no `TrialUnit`, two-unit Site UNAVAILABLE SFC_MISSING) and b24153e52 (which also resets S6's module id counter in the golden builder so the capture is order-independent; captured data unchanged):
+  - `verification_rules.window_evidence`: when `generator_power` is a unit role reported by several assets, the
+    result gains `generator_units: {asset: {generator_kwh, idle_seconds}}` (A2's idle rule over the unit's own state
+    and kWh; unknown without a unit state). Not in `details` (explicit key list), not in `plan_sha256`.
+  - `trial_fuel_comparison`: `TrialUnit(asset_id, sfc, no_load)`, `WindowFacts.units`; `compare(..., units=)` above
+    one unit: each unit on its own SFC (and own rate under `/2`, which needs every unit's rate over both windows),
+    summed. Reasons reuse `_reason` (combined per-unit tuples): any unit without SFC SFC_MISSING, a unit's SFC or rate
+    differing across windows SFC_DIFFERS / NO_LOAD_RATE_DIFFERS, a unit's kWh/idle unknown GENERATOR_KWH_UNKNOWN /
+    IDLE_SECONDS_UNKNOWN. Above one unit only: `windows.*.units`, `basis.units`, `sfc: None`, basis
+    `sfc_l_per_kwh`/`no_load_l_per_h` None per window, `no_load = {value_l_per_h: None, basis: common basis or None}`.
+  - `verification._cost_check`: units passed only when the plan's baseline bindings name `generator_power` a unit
+    role (`_unit_roles`, roles-5) and there are 2+ generators; roles-4 with two generators keeps today's UNAVAILABLE.
+  - Tests `backend/tests/test_dd3c_cost_check_units.py` (9). Plants, reverted: one SFC for all units (c2-c5, c7
+    fail); the first unit's rate for all (c3 fails); units never passed (c7 fails).
+- Done, part 4 (D-DD.113), commits 155629390 (tests; collection ImportError `UnitFuel`) and d24539e37:
+  - `structure/litres/rules.py`: `UnitFuel(unit, use, curve)`; `LitreInputs.use`/`.curve` replaced by `units`
+    (declared order); `held` Site-level. `_piece` sums `_unit_piece` per unit (USE_INCOMPLETE first, then
+    NO_LOAD_RATE_MISSING); FUEL_CURVE_MISSING when any unit has no SFC; `_curve_valid` = the units' intersection
+    (None if any is None); `_sources` lists each unit's refs in unit order through `_unique`. ONE_EACH/NOT_ONE_EACH
+    kept, comments cite D-DD.113. No new note, no new copy.
+  - `structure/litres/inputs.py`: one FUEL_TANK and at least one GENERATOR; units through
+    `fuel_balance.service.declared_order` (the tx's `component_order`); each unit its own `sfc_for`/`no_load_for` and
+    `_Readings`; `relevant_readings` every unit's id; `held` = any unit's (one unit: that unit's, unchanged).
+  - Fixture construction moved to one `UnitFuel`, assertions untouched: `test_4d_litre_split.py` `World.inputs`,
+    `test_0k4e_dispatch_33_postgres.py` `_litres`.
+  - Tests `backend/tests/test_dd3c_litres_units.py` (6). Plants, reverted: one curve for both units (l1, l4 fail,
+    the ruling's plant); curve window of the first unit only (l3 fails).
+- Checks on d24539e37: architecture passed, agent workflow passed, statement catalogue exit 0 (no new text).
+- Targeted run (d24539e37, one `--db-lane` call, 42 files: every backend/host test importing
+  `trial_fuel_comparison`, `structure/litres`, `verification_rules` or `actions/verification`, incl. the five
+  `test_dd3c_*` pure files): 1098 passed, 3 failed, 489 s pytest, 565 s wall. The 3 fail identically on main
+  (0c44ae75b, detached temp worktree, removed; same `--db-lane` form over the two files: 2 passed, 3 failed, 52 s):
+  `test_pr3_price_entry_postgres` x2 (422 REASON_REQUIRED "This date changes figures already shown") and
+  `host/tests/test_dd1a2_r3...::test_h1...` (`demo_combined_kobo.days_label` KeyError 'source'). Main baseline for
+  the rest: `.agent/main-baseline/23d2cd9f6.md`.
 - Open points for review: (1) the night note's form (summed figure, blended L/kWh) is the default the coordinator
-  named, to be confirmed; per-unit terms would need a new catalogued template. (2) minimum-runtime refusal raises
-  (the dispatch job fails loud) rather than adding a limit: a limit line would be new text (D-DD.108 Q6).
-- Next, part 3 remainder: `actions/verification._cost_check` (L1160-1170) still gives an empty SFC history unless
-  exactly one generator (the cost check reads UNAVAILABLE at a two-unit Site, honest absence). D-DD.118 wants the
-  fuel comparison per unit summed: needs per-unit `generator_kwh`/idle per window (now in each slot's `units`) and
-  `financials/trial_fuel_comparison.compare` taking per-unit SFC/no-load; not built.
-  - Then part 4 (D-DD.113 litres; `structure/litres/inputs.py:54,96-98`), part 5 (Kobo roles-5, D-DD.114).
+  named, to be confirmed. (2) minimum-runtime refusal raises rather than adding a limit (D-DD.108 Q6). (3) the cost
+  check's multi-unit wire shape (`units` lists, `sfc: None`, `no_load.value_l_per_h: None`) is the builder's, in
+  D-DD.117's pattern; no reader shows those keys (`_fuel_value` reads only `priced_total`, `price`, `no_load.basis`).
+- Next, part 5 (D-DD.114): `conversions/world/KOBO-001-bindings.json` to roles-5 with its three test pins; parity
+  publishing Kobo under roles-4 and roles-5 in two fresh scratch states, one October day: mini-depth values,
+  dispatch assessment, fuel balance, litres month. Then packet `specs/DD-demo-data/` per RULES §5/§9, Status
+  in_review, built-state entry.
 - Risks: T2/T3/T5/T7 relabel the KOBO-001 PowerSite fixture's sets as replica; they do not publish under roles-5
   (part 5 does). The publish reach is the direct `mini_enqueue_configuration` call that publish makes. The
   architecture and agent-workflow checks passed on 450d5ed58.
