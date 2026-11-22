@@ -175,6 +175,33 @@ def test_readings_are_exact_decimal_strings_with_the_interval_stated(sites_file:
     assert readings == sorted(readings, key=lambda r: (r["start"], r["source_id"], r["signal_id"]))
 
 
+def _sun(inputs, day_index: int) -> list[Fraction]:
+    return [f.value for f in inputs.forcings if f.state_key == "plane-of-array-irradiance"
+            and day_index * 1440 <= f.offset_minutes < (day_index + 1) * 1440]
+
+
+def test_kobo_sun_outside_season_v2_is_the_clear_shape_times_the_solar_surplus_weight(sites_file: dict) -> None:
+    """D-DD.77: July and August are `cool_dry` (solar_surplus 0.80, every day class 1.00); 1 Sep to 31 Oct keep
+    season v2's calendar (2 Sep, index 1, clear; 3 Sep, index 2, overcast)."""
+    clear = [0, 0, 0, 0, 0, 0, 150, 150, 550, 550, 900, 900, 950, 950, 600, 600, 150, 150, 0, 0, 0, 0, 0, 0]
+    overcast = [0, 0, 0, 0, 0, 0, 50, 50, 190, 190, 310, 310, 330, 330, 210, 210, 50, 50, 0, 0, 0, 0, 0, 0]
+    july = tel.frozen_inputs(_kobo(sites_file), _books()["KOBO-001"], "2026-07-04", "2026-07-05")  # Sat, Sun
+    assert _sun(july, 0) == _sun(july, 1) == [Fraction(v) * Fraction(4, 5) for v in clear]
+    books = {**_books()["KOBO-001"], "months": {"2026-09": {"delivered_kwh": 8592, "unexplained_l": 12}}}
+    september = tel.frozen_inputs(_kobo(sites_file), books, "2026-09-02", "2026-09-03")
+    assert _sun(september, 0) == [Fraction(v) for v in clear]
+    assert _sun(september, 1) == [Fraction(v) for v in overcast]
+
+
+def test_the_manifest_records_the_sun_rule(sites_file: dict) -> None:
+    books = _books()["KOBO-001"]
+    run = tel.SiteRun(_kobo(sites_file), books, "2026-07-01", "2026-07-01")
+    conditions = tel.site_manifest(run.site, run, books, {})["conditions"]
+    assert conditions["sun_outside_calendar"]["rule"] == (
+        "clear shape x solar_surplus day weight (season x day class, no jitter) (D-DD.77)")
+    assert conditions["sun_outside_calendar"]["weights"]["season"]["cool_dry"] == "0.80"
+
+
 def test_the_writer_never_reads_the_oracle() -> None:
     import ast
     import inspect
@@ -204,3 +231,16 @@ def test_the_writer_never_reads_the_oracle() -> None:
     with pytest.raises(tel.TelemetryRefused) as refusal:
         tel.refuse_oracle({"tenants": [{"sites": [{"code": "X", "oracle": {"a": 1}}]}]})
     assert str(refusal.value).startswith("TEL_ORACLE_READ")
+
+
+def test_books_carry_the_views_solar_surplus_weights() -> None:
+    """D-DD.77: the sun weights come from the view's `history` block, not the default."""
+    view = {"accounting_period": "2026-10", "history": {
+        "seasons": {"2026-07": "cool_dry"}, "day_classes": {"WD": [1, 2, 3, 4, 5], "SA": [6], "SU": [7]},
+        "families": {"demand": {"day": {"WD": "1.00", "SA": "0.97", "SU": "0.90"}},
+                     "solar_surplus": {"season": {"cool_dry": "0.70"}, "day": {"WD": "1.00", "SA": "1.00", "SU": "0.50"}}}},
+        "tenants": [{"tenant": "t", "vertical": "MINI_GRID",
+                     "sites": [{"site": "s", "code": "X-001", "period": {"actual": {"delivered_kwh": 1}}}]}]}
+    sun = tel.books_for(view, {"tenants": {"t": {"s": {}}}}, {})["X-001"]["sun_weights"]
+    assert sun == {"seasons": {"2026-07": "cool_dry"}, "classes": {"WD": [1, 2, 3, 4, 5], "SA": [6], "SU": [7]},
+                   "season": {"cool_dry": "0.70"}, "day": {"WD": "1.00", "SA": "1.00", "SU": "0.50"}}

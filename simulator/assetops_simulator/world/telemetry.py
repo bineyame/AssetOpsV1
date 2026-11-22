@@ -11,7 +11,8 @@ included.
 
 **Inputs the readings follow.** Load is the declared hourly shape (`LOAD_SHAPE_KW`) times the `demand` family's day
 weight, scaled by largest remainder so a month's load energy equals the month's `delivered_kwh` exactly
-(`TEL_INPUT_TOTAL` otherwise). Sun is `SUN_W_PER_M2`, a clear or an overcast day. Deliveries are tank INCREASE points
+(`TEL_INPUT_TOTAL` otherwise). Sun is `SUN_W_PER_M2`: season v2's clear or overcast day on its calendar (1 Sep to
+31 Oct), any other day the clear shape times the `solar_surplus` day weight, season x day class (D-DD.77). Deliveries are tank INCREASE points
 at each note's instant; the unexplained draw is a tank DECREASE point of the month's `unexplained_l`, in equal daily
 parts at 02:00 local, largest remainder to 0.01 L. The tank starts at 50 % of its capacity. Each is written in the
 readings manifest's `conditions`; the story's answer block is never read (`TEL_ORACLE_READ`).
@@ -180,6 +181,15 @@ SUN_W_PER_M2: dict[str, tuple[int, ...]] = {
 #: Season v2's overcast days, indexed from 2026-09-01 (`host/tests/kobo_season.py` OVERCAST_V2); no other day is.
 OVERCAST_DAYS = frozenset({2, 3, 7, 8, 9, 13, 17, 18, 19, 20, 24, 25, 28, 33, 38, 39, 45, 50, 51, 52, 57})
 SEASON_V2_DAY_ZERO = date(2026, 9, 1)
+SEASON_V2_LAST_DAY = date(2026, 10, 31)  # the calendar covers 1 Sep to 31 Oct only
+#: D-DD.77: the `solar_surplus` family of the manifest's `history` block, the default (books carry the view's own).
+#: A day outside season v2's calendar gets the clear shape times season x day-class weight, no jitter.
+DEFAULT_SUN_WEIGHTS = {
+    "seasons": {"2026-07": "cool_dry", "2026-08": "cool_dry", "2026-09": "warm_dry", "2026-10": "short_rains"},
+    "classes": {"WD": [1, 2, 3, 4, 5], "SA": [6], "SU": [7]},
+    "season": {"cool_dry": "0.80", "warm_dry": "1.10", "short_rains": "1.00"},
+    "day": {"WD": "1.00", "SA": "1.00", "SU": "1.00"}}
+SUN_RULE = "clear shape x solar_surplus day weight (season x day class, no jitter) (D-DD.77)"
 #: Critical-load order (clinic first), by the load component's id; others follow by id.
 CRITICAL_ORDER = ("clinic", "res", "mill")
 #: `demand` family day weights by day class (`history.families.demand.day` of the manifest), the default.
@@ -265,6 +275,18 @@ def _draws(month: str, books: dict) -> dict[date, Fraction]:
     return {day: Fraction(c, 100) for day, c in zip(days, centilitres)}
 
 
+def _sun(day: date, weights: dict, code: str) -> tuple[Fraction, ...]:
+    """Season v2's day on its calendar; any other day the clear shape times the `solar_surplus` weight (D-DD.77)."""
+    if SEASON_V2_DAY_ZERO <= day <= SEASON_V2_LAST_DAY:
+        kind = "overcast" if (day - SEASON_V2_DAY_ZERO).days in OVERCAST_DAYS else "clear"
+        return tuple(Fraction(v) for v in SUN_W_PER_M2[kind])
+    season = weights["seasons"].get(day.strftime("%Y-%m"))
+    if season is None:
+        raise TelemetryRefused("TEL_FOUNDATION", f"{code} {day.isoformat()} has no declared season for the sun")
+    weight = Fraction(weights["season"][season]) * Fraction(weights["day"][day_class(day, weights["classes"])])
+    return tuple(Fraction(v) * weight for v in SUN_W_PER_M2["clear"])
+
+
 def frozen_inputs(site: dict, books: dict, first: str, last: str) -> FrozenWorldInputs:
     """The Site's one frozen input record for the span (D-DD.69), from `F` and the books alone."""
     code, foundation, zone = site["code"], site["foundation"], _zone(site)
@@ -307,12 +329,12 @@ def frozen_inputs(site: dict, books: dict, first: str, last: str) -> FrozenWorld
     for index, day in enumerate(days):
         base = index * 1440
         month_blocks = blocks[day.strftime("%Y-%m")]
-        sun = SUN_W_PER_M2["overcast" if (day - SEASON_V2_DAY_ZERO).days in OVERCAST_DAYS else "clear"]
+        sun = _sun(day, books.get("sun_weights", DEFAULT_SUN_WEIGHTS), code)
         for hour in range(24):
             offset = base + hour * 60
             forcings.append(ForcingInput(
                 event_id=f"sun:{offset}", address=IRRADIANCE, state_key="plane-of-array-irradiance",
-                parameter_id="world-sun", value=Fraction(sun[hour]), canonical_unit="W/m2", dimension="IRRADIANCE",
+                parameter_id="world-sun", value=sun[hour], canonical_unit="W/m2", dimension="IRRADIANCE",
                 shape="WINDOW", offset_minutes=offset, duration_minutes=60, requirement="REQUIRED"))
             for feeder in sorted(load_ids):
                 kw = month_blocks[(day, feeder, hour)] / 1000  # Wh over one hour is Wh / 1000 kW
@@ -621,6 +643,9 @@ def site_manifest(site: dict, run: SiteRun, books: dict, golden: dict[str, str])
             "load_shape_kw": {k: list(v) for k, v in sorted(LOAD_SHAPE_KW.items())},
             "sun_w_per_m2": {k: list(v) for k, v in sorted(SUN_W_PER_M2.items())},
             "overcast_days_from": SEASON_V2_DAY_ZERO.isoformat(), "overcast_day_indices": sorted(OVERCAST_DAYS),
+            "sun_outside_calendar": {"rule": SUN_RULE, "calendar": [SEASON_V2_DAY_ZERO.isoformat(),
+                                                                     SEASON_V2_LAST_DAY.isoformat()],
+                                     "weights": books.get("sun_weights", DEFAULT_SUN_WEIGHTS)},
             "day_weights": books["day_weights"], "tank_start": "50 % of tank-capacity (Assumed, D-DD.19)",
             "declared_draw": "month unexplained_l in equal daily parts at 02:00 local (D-DD.19)",
             "fuel_notes": books.get("fuel_notes", []), "critical_load_order": list(CRITICAL_ORDER)},
@@ -638,6 +663,10 @@ def books_for(view: dict, history: dict, expenses: dict[str, str]) -> dict[str, 
 
     families = view["history"]["families"]["demand"]["day"]
     weights = {"classes": view["history"]["day_classes"], **{k: str(v) for k, v in families.items()}}
+    surplus = view["history"]["families"]["solar_surplus"]
+    sun_weights = {"seasons": dict(view["history"]["seasons"]), "classes": view["history"]["day_classes"],
+                   "season": {k: str(v) for k, v in surplus["season"].items()},
+                   "day": {k: str(v) for k, v in surplus["day"].items()}}
     accounting = view["accounting_period"]
     out: dict[str, dict] = {}
     for tenant in view["tenants"]:
@@ -655,7 +684,7 @@ def books_for(view: dict, history: dict, expenses: dict[str, str]) -> dict[str, 
                                  "unexplained_l": block["actual"].get("unexplained_l", 0)}
             actual = site["period"]["actual"]
             months[accounting] = {"delivered_kwh": actual["delivered_kwh"], "unexplained_l": actual.get("unexplained_l", 0)}
-            out[site["code"]] = {"months": months, "day_weights": weights,
+            out[site["code"]] = {"months": months, "day_weights": weights, "sun_weights": sun_weights,
                                  "fuel_notes": sorted(notes.get(site["code"], []), key=lambda n: n["at"])}
     return out
 
