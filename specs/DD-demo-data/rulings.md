@@ -1139,3 +1139,210 @@ branch is D-DD.75's index only. The owner is informed; no owner weigh-in is need
     green, timings; then commit 1b's pure run and (5) as D-DD.79 says.
   - *Units (W4).* DD3.1 2.25 to **2.75** (the index, three parity cases, timings). DD3a 4.75 to **5.25 u**, DD3 10.25 u,
     DD 37.0 to **37.5 u**; each part at or under 6 u. (A parallel DD4 ruling restates DD4 only; the DD total adds both.)
+
+# DD rulings, round 11 (D-DD.81 to D-DD.88): DD4 mid-build questions Q1 to Q5 and the deviation
+
+Architect (Claude), 2026-11-22. Input: `DD4-handoff.md` on `task/DD4-cold-ev-reality` at 66e0ae15d. Checked against
+code on that branch: `packs/cold.py` (`ColdLoadParameters`, `step` stages 1 to 7, `_v2_forcing`, the v2 move set),
+`world/exports_cold.py` (`_fill`, `_named`, `presence_peak`, `_november`), and on main `tools/dd_check.py:393-451`
+(`_EV_PRICE`, `_site_prices`), `world/tariffs.py:62-65` (FLAT reads `tariff.usd_per_kwh`), `tools/world.py:1099` (C5
+runs parity files as subprocesses), DD3a's `world/telemetry.py` at c35c50e92 (`SiteRun`, the frame helpers), and `M`
+(Kasarani `tariff`, Thika `incident.backup`, the `cooling` family). Two measurements, run read-only on the DD4 branch:
+- *Ledger stacking.* The built ledger admits up to 320 crates at one instant (Kirinyaga, every 8 days from 25 Jun;
+  Thika and Mwea up to 280). `_fill`'s key (the fewest crates over the stay, ties the earlier day) puts the room's
+  batches in lockstep, so admissions stack on the same mornings.
+- *Exact arithmetic.* One cold-thermal 2 room stepped minute by minute: the temperature's denominator grows by about
+  4,260 digits a day (the leak term multiplies it by 900 each minute), and day 6 alone takes 35 s, so cost grows with
+  the square of the span. A 130-day room run would take many hours. Q4's "measured by the writer run" cannot be
+  measured until D-DD.87 lands.
+
+The owner is informed of all eight and is asked to weigh in on D-DD.83's prediction (the Thika chamber) and on
+D-DD.85 (the receiving rule changes Assumed admission times; no story figure moves).
+
+- **D-DD.81 Deviation accepted: `world/telemetry_cold.py` and `world/telemetry_ev.py` drive their packs, and DD3a's
+  `world/telemetry.py` stays the only frame** (amends spec §4.1's module line).
+  - *Why.* Each vertical's inputs and pack drive are their own (ledger and rooms; roster, practice and the depot load
+    manager). The frame (span, day chaining by D-DD.69, binding map by D-DD.72, rounding, file bytes, manifest,
+    refusals) is shared and is written once.
+  - *Vertical protocol.* Each module has one class, `ColdSiteRun` and `EvSiteRun`. Each takes `(site, books, first,
+    last)` and offers `advance_day()` (one local day, D-DD.69) and `day_records(day)`. `day_records` returns pack
+    rows `(device_id, signal_id, start, end, value, unit)`, with UTC instants and exact `Fraction` or state values.
+    Each also offers `conditions()` (each with its source key) and `private_parameters()`. The vertical modules do
+    not map `source_id`, round, write bytes or build a manifest.
+  - *Before DD3a merges,* DD4 tests these classes directly. A refusal is raised with its `TEL_*` code as the message's
+    first word, and the tests assert that word.
+  - *The join (one commit, after DD4 merges a main that holds DD3a).*
+    - `build_telemetry` dispatches on the Site's pack family: mini-grid to DD3a's run, `cold-thermal` to
+      `ColdSiteRun`, `ev-charger` to `EvSiteRun`.
+    - The vertical modules import the frame's `TelemetryRefused`. No second refusal class, `QUANTUM`,
+      `readings_bytes` or binding map remains: the reviewer greps for each.
+    - If DD3a's mini-grid run is step-based, the join puts it behind the same day-level protocol.
+  - *Reach and parity.* Mini-grid must stay unchanged. Parity test: `simulator/tests/world/test_telemetry_join_parity.py`
+    with a golden written from main at DD3a's merge, before the join. Kobo's 7 days from 2026-07-01 (D-DD.75 W1's
+    inputs), readings bytes and readings manifest are byte-identical. Cold and EV are new outputs.
+
+- **D-DD.82 Q1: C-DD3 reads a FLAT Site's price at `tariff.usd_per_kwh`, as `M` states it** (default taken; amends
+  spec §8.1 C-DD3).
+  - `M` gives the FLAT type its one price at `tariff.usd_per_kwh`, and `world/tariffs.py` writes the FLAT band from
+    that key. The checker reads the same place in `M` with its own code.
+  - `_EV_PRICE` becomes a map from band to a path under the Site's `tariff`: `PEAK` → `prices.peak`, `OFFPEAK` →
+    `prices.offpeak`, `NIGHT` → `prices.night_from_1_nov`, `FLAT` → `usd_per_kwh`, `DEMAND` →
+    `prices.demand_per_kw_month`. `_site_prices` returns the whole `tariff` block. A missing path stays a FAIL line.
+  - *Reach.* The checker's EV clause only. Mini and cold clauses are unchanged; the existing `test_dd1_check` cases
+    stay green. Add one case: a FLAT line priced at 0.15 passes, and at 0.16 it FAILs naming `usd_per_kwh`.
+
+- **D-DD.83 Q2: the Thika sequence comes from two v2 mechanisms that match `M`'s backup line; the builder's default
+  (reset at the later minute) is refused** (amends spec §4.4 "New forcing" and "Thika").
+  - *Why the default is refused.* `M` says: start requested 19:11:05, failed 19:11:10 (start controller), started by
+    hand 19:14, cooling running 19:15, `cooling_minutes_unavailable` 4. With the 5-minute timeout the pack reports
+    FAILED at 19:16. A reset after that, plus the automatic 2-minute start, gives cooling at about 19:19 and 8
+    minutes without cooling. That moves a story figure to fit the model's gap. The gap is in the model, in two places:
+    - v1 can report a failed start only at the timeout, but the start controller here reports the failure within the
+      same minute;
+    - `GENERATOR_RESET` (FAILED → STOPPED, then an automatic start) is not a start by hand.
+  - *Mechanism 1: a failed start is reported when it happens.* `ColdLoadParameters` gains
+    `start_failure_at_request: bool = False`; `DD_LOAD_PARAMETERS` sets True. In stage 3, a `START_REQUEST` made while
+    `generator_fault` is set moves STARTING → FAILED in the same minute and emits `START_RESULT FAILED` (actor
+    CONTROLLER, the same correlation) after the request, with both due times cleared. With False, v1's timeout rule
+    holds. The timeout still governs a start that neither succeeds nor reports.
+  - *Mechanism 2: `GENERATOR_HAND_START` replaces `GENERATOR_RESET`.* It is a v2 forcing on `generator-1` with value
+    `RUNNING`.
+    - Its move is FAILED → RUNNING at the forcing minute. The v2 move set holds `("FAILED", "RUNNING")` and drops
+      `("FAILED", "STOPPED")`.
+    - It clears `generator_fault` and emits `START_RESULT SUCCEEDED` with actor OPERATOR (in `V4_ACTORS`).
+    - If the transfer is OPEN, it sets `transfer_due = t + transfer_delay`, as stage 2's success branch does.
+    - A hand start on a generator that is not FAILED raises.
+  - *Thika events (writer):* `GRID_LOSS` and `GENERATOR_FAILURE` at 19:11, `GENERATOR_HAND_START` at 19:14, and
+    `GRID_RESTORE` at 22:00 (Assumed). By the pack's own delays this gives:
+    - request and FAILED at 19:11;
+    - running at 19:14;
+    - transfer to backup and the bus powered at 19:15;
+    - the compressor by demand from 19:15;
+    - 4 minutes, 19:11 to 19:14, without cooling available.
+  - *C-DD6* judges GEN-CR-01's failure as the 19:11 `START_RESULT FAILED`, which is now native.
+  - *Reach.* cold-thermal 2 only. v1 (the product's `ColdExecution` and the Lab cold Sites) is unchanged; DD4.1's v1
+    parity digest and the cold suites guard it. Tests: the failure lands in the request minute; a hand start runs at
+    its minute and transfers one minute later; a hand start while STOPPED raises; with the flag False the timeout
+    rule holds.
+  - *Prediction, for the owner (nothing tuned).* The declared room has 1.2 kWh/°C and 6 kW of cooling. With 2 to 5
+    kW of leak, respiration and any lot still pulling down, 4 minutes without cooling warms the chamber by about 0.1
+    to 0.3 °C. `M`'s
+    chamber figures (peak 8.2 °C at 19:19, 25 to 35 minutes above 4 °C) and C-DD6's "B-1031 above 5 °C for more than
+    15 minutes" are not expected to follow from the declared room and the declared 4 minutes. The story's exposure and
+    the credit note CN-0412 rest on that clause. The builder measures it in DD4a and stops for the owner if C-DD6's
+    B-1031 clause fails, with the measured peak and minutes. The Architect's default for that stop: the readings
+    stand, and the owner chooses whether the story's chamber figures follow the room or the room's declared figures
+    are revisited.
+
+- **D-DD.84 Q3: C-DD19 is judged by `world check` C5, which runs the two simulator parity tests in a subprocess;
+  `dd_check` does not import or run the simulator** (default amended; amends spec §8.1 C-DD19).
+  - *Why.* C-DD19 asks whether the simulator agrees with itself, so only a run of the simulator can answer it. The
+    checker's independence (D-DD.14) concerns expected figures, and a parity has none. C5 already runs parity files as
+    subprocesses (`tools/world.py:1099`), so this uses the existing mechanism.
+  - *Change.*
+    - C5 gains the cold node id (DD4.1's v1 digest test in `simulator/tests/test_cold_thermal2.py`) now, and DD3.3's
+      v8/v9 test when it lands. It runs them with the simulator's interpreter, and the test files go into
+      `CHECK_CODE`.
+    - `dd_check`'s C-DD19 entry stops being a stub check. It prints `C-DD19 judged in world check C5 (D-DD.84)` and
+      is excluded from its pass count; the table in §8.1 says so.
+  - *Reach.* `tools/world.py` C5 and `tools/dd_check.py` only. C5's existing bulk-path parity files are unchanged,
+    and a `tools/tests` case covers the new node ids with a fake runner.
+
+- **D-DD.85 Q4: a room receives produce in lots at receiving times its declared cooling can pull down, and the pack
+  refuses field heat beyond the produce's own temperature** (amends D-DD.63's "Fill", "Clock" and the named batches,
+  D-DD.64 (4), and spec §4.4 and §5.2).
+  - *What a real cold store does.* A store without a pre-cooler schedules deliveries so that each lot's field heat is
+    pulled down before the next lot arrives, and it caps a lot at what the room's spare cooling can take. It never
+    takes 320 crates at 24 °C into a 6 kW room in one morning. The 320-crate mornings are an artefact of `_fill`'s
+    key, not an operator's practice. The pack's refusal is the honest result of an input no operator would create,
+    so the input is fixed. The cooling (a Foundation figure the product sees) and the load table stay as they are.
+  - *Receiving rule (declared, from the room's figures).* Each date has two receiving times, 08:00 and 16:00 local.
+    Every IN movement takes one free receiving time and carries at most 40 crates (one lot). These figures follow
+    from the room's figures:
+    - At the world's warmest declared day (the `cooling` family's `warm_dry` 1.02, which gives 24.8 °C) and a full
+      room of 400 crates at control low (2 °C), the sustained load is leak 1.824 kW + respiration 0.600 kW + one
+      40-crate lot's field heat 2.850 kW (40 × 37/1800 × 20.8 / 6), which is 5.274 kW, inside 6 kW. The largest lot
+      that fits is 50 crates. The 40-crate standard batch is one lot.
+    - A pull-down lasts 6 h (§4.4), so receiving times 8 h apart never overlap two lots' field heat.
+    - The door's 5 minutes per movement (1.2 kW) is a transient of 0.04 kWh and is not part of the sustained budget.
+  - *Fill (replaces D-DD.63's placement key).* Standard batches go one at a time to the free receiving time chosen by
+    `(crates already admitted that date, the crowd over the stay as now, date, 08:00 before 16:00)`, while their
+    in-month crate-days fit in `need`. The remainder batch is placed the same way. A batch leaves at 16:00 seven dates
+    later, so crate-days per batch are unchanged. Opening stock uses the same rule, and November keeps 1 to 6
+    October's receiving times shifted 31 days. If a month's `need` cannot be placed, `EMU_RECEIVING <site> <month>`
+    stops the build for the Architect.
+  - *Named batches are received in lots.* They are placed before any fill, in `NAMED_BATCHES` order. Each lot takes
+    the latest free receiving time at or before the named instant, full lots last. All lots of a batch share its ref
+    and leave at its named OUT instant:
+    - B-1029 (60): 40 on 28 Sep 08:00 and 20 on 27 Sep 16:00;
+    - B-1031 (120): 40 each on 1 Oct 08:00, 30 Sep 16:00 and 30 Sep 08:00;
+    - B-1034 (80): 40 each on 29 Sep 16:00 and 29 Sep 08:00.
+
+    A batch now has one or more IN rows (each its own Movement id) and one or more OUT rows. `Batch` holds `ins` as it
+    holds `outs`, and `crate_days_in` and `presence_*` count per lot.
+  - *Pack guard.* §4.4's even spread is valid while the chamber is colder than the produce. Each pulse records its
+    lot's admission ambient. A minute in which a pulse is active while the chamber is at or above that ambient raises
+    `PhysicallyUnacceptable("field heat beyond the produce temperature")`, which the writer reports as `TEL_PACK`. The
+    model then never heats a room past its produce. Under the receiving rule it should never fire, and if it does it
+    goes to the Architect.
+  - *Reach.* Cold only. Mini-grid and EV books are byte-identical (the DD2a and DD2b `books_support` goldens for
+    lakeside-power and metro-bus, as the parity). Cold month totals of crate-days, revenue and received are unchanged
+    (C-DD3, C-DD4). The ledger and the invoicing CSVs move: they are the pinned goldens, regenerated, and the customer
+    split per month may shift. `test_dd4_cold_ledger` asserts unique refs over generated batches only. A new test
+    checks three things: no receiving time holds two INs, no IN exceeds 40 crates, and every IN is at 08:00 or 16:00.
+  - *Moved, Assumed:* admission times, and the named batches' receipts from 27 Sep. No story figure moves.
+
+- **D-DD.86 Q5: AMBIENT and EFFICIENCY are ratified as private v2 forcings, placed by the writer at local midnights**
+  (amends spec §4.4 "Efficiency condition" and "Ambient per day").
+  - `AMBIENT` (`ambient-1`) is placed at 00:00 local of each day after the run's first day. Its value is the day's
+    ambient as exact decimal text: 24 + (w_d − 1)/0.025, where w_d is the `cooling` family's season × day class with
+    no jitter (D-DD.77's rule). That gives 22.8 °C in `cool_dry`, 24.8 °C in `warm_dry` and 24.0 °C in
+    `short_rains`. The run's first day takes its ambient from the initial state.
+  - `EFFICIENCY` (`compressor-1`) is placed at 00:00 local on a room-month's first day when `f_m` differs from the
+    month before (and at the run's first minute when `f_m` ≠ 1). Its value is exact fraction text (`21/20`, `11/10`,
+    `117/100`, `500/403`).
+  - *Visibility.* The ambient is public: the ambient probe reports it, as in v1, so it needs its binding row
+    (`TEL_BINDING` otherwise). `f_m` is written only under the readings manifest's `private_parameters`; the product
+    never sees it (D-DD.22).
+  - *Assumed.* A day-constant ambient is the resolution `M` declares; the readings manifest's `conditions` say so.
+
+- **D-DD.87 cold-thermal 2 holds the chamber temperature on a declared 10⁻⁶ °C grid and books the rounding in its
+  energy ledger** (found in this round; amends spec §4.4).
+  - *The fault (a class, W6).* Exact rational stepping of a leak-coupled temperature has unbounded denominators (see
+    the measurement above). Every long cold-thermal run has it. The fix is in the pack, once.
+  - *Change (`packs/cold.py`, v2 only).*
+    - `ColdLoadParameters` gains `temperature_quantum: Fraction | None = None`; `DD_LOAD_PARAMETERS` sets `1/1000000`.
+    - After stage 4, `T_q = round_half_even(t_next / q) × q`. `rounding_kwh = thermal_capacity × (t_next − T_q)` is
+      added to a new state field `rounding_total`.
+    - `check_residual` checks `C × (T − T0) = heat_total − cool_total − rounding_total` exactly.
+    - With `None`, `rounding_total` stays 0 and every byte is v1's.
+  - *Why it is honest.* The grid is 10⁵ times finer than the probe's 0.1 °C error. The energy ledger stays exact, with
+    the rounding stated, so nothing is hidden or clipped. The readings manifest writes the quantum and each
+    room-month's `rounding_total`.
+  - *Tests.*
+    - Zero-terms parity unchanged (quantum None).
+    - Every step's temperature denominator divides 10⁶.
+    - A 6-hour run, exact against quantised, gives identical probe readings to the thousandth.
+    - The residual holds.
+    - Timing in the packet: one room for 7 days, and the projected full span.
+    - Stop rule: if one room's full span takes over 15 minutes, hand the top 15 `cProfile` lines to the Architect and
+      change nothing further.
+  - *Reach.* cold-thermal 2 only; v1 is guarded as in D-DD.83. EV: the builder checks `ev-charger` denominators over
+    7 days; if they grow, it stops and asks, and does not fix it silently. Mini-grid ran 123 days in DD3a and is not
+    touched.
+
+- **D-DD.88 Units: DD4 +1.5 u to 7.25 u, split into DD4a (4.0 u) and DD4b (3.25 u); DD 37.5 u to 39.0 u (after D-DD.80)** (W4: parts of at
+  most 6 u; amends spec §7 DD4 and §8.2).
+  - **DD4a, cold (`task/DD4-cold-ev-reality`, continuing): 4.0 u.**
+    - DD4.1, 1.5 to 2.0 u: D-DD.83 +0.25, D-DD.87 +0.25.
+    - DD4.2, 1.25 to 2.0 u: D-DD.85 +0.5, D-DD.81's join and mini parity +0.25.
+    - D-DD.82 and D-DD.86 fall inside their units.
+  - **DD4b, EV and measured books (`task/DD4b-ev-measured`, from main after DD4a merges): 3.25 u.**
+    - DD4.3, 1.75 u.
+    - DD4.4, 1.25 to 1.5 u: D-DD.84 +0.25.
+  - *Sequencing.* DD4a's join waits for DD3a on main (not DD3b). DD4b follows DD4a. DD5 follows DD3b and DD4b.
+  - *Builder order in DD4a.*
+    1. D-DD.87, then D-DD.83, in `packs/cold.py` with their tests (v1 digest green at each commit).
+    2. D-DD.85's ledger, goldens and parity.
+    3. `ColdSiteRun` on the protocol, with D-DD.86's forcings.
+    4. After DD3a merges: the join, its parity, and the writer run, measuring Thika against C-DD6.
