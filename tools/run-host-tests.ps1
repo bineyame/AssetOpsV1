@@ -12,8 +12,9 @@
 #
 # Interpreter (named only, never positional): -Interpreter, else $env:ASSETOPS_TEST_PYTHON, else $env:ASSETOPS_GUARD_PYTHON,
 # else this checkout's .venv (Scripts\python.exe or bin/python), else /opt/assetecon/AssetOpsV1/.venv/bin/python.
-# Database: ASSETOPS_TEST_DATABASE_URL as set; when unset, the shared development server's `assetops_test`
-# (backend/TESTING.md). It never prints the URL.
+# Database: ASSETOPS_TEST_DATABASE_URL as set (the conftest checks it against the lane); when unset, the shared
+# development server's lane database (T1b D-T1.23): `assetops_b_test` when the leaf of ASSETOPS_HEAVY_DB_LANE is
+# db-job-b.lock (lane b), else `assetops_test` (backend/TESTING.md). It never prints the URL.
 # No param() block on purpose: a CmdletBinding script gets the common parameters, so under `powershell -File` a `--` is
 # "ambiguous" and a bare -v becomes -Verbose. The two script options are parsed by hand from $args (exact names only,
 # case-insensitive); everything else, `--` aside, is a pytest argument, so the interpreter is never positional.
@@ -90,8 +91,10 @@ if (-not $env:ASSETOPS_TEST_DATABASE_URL) {
     if (-not $password) { $password = 'assetops-local-dev' }
     $port = $env:ASSETOPS_PG_PORT
     if (-not $port) { $port = '55432' }
+    $laneLeaf = if ($env:ASSETOPS_HEAVY_DB_LANE) { [IO.Path]::GetFileName($env:ASSETOPS_HEAVY_DB_LANE) } else { '' }
+    $database = if ($laneLeaf -eq 'db-job-b.lock') { 'assetops_b_test' } else { 'assetops_test' }
     $env:ASSETOPS_TEST_DATABASE_URL =
-        'postgresql+psycopg://assetops:{0}@127.0.0.1:{1}/assetops_test' -f [uri]::EscapeDataString($password), $port
+        'postgresql+psycopg://assetops:{0}@127.0.0.1:{1}/{2}' -f [uri]::EscapeDataString($password), $port, $database
 }
 
 # Import-origin check: every AssetOps package must come from this worktree. (No double quotes in the probe:

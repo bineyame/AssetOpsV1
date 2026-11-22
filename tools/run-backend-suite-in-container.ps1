@@ -49,6 +49,8 @@ $worktree = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 . (Join-Path $PSScriptRoot 'checks/_heavy_slot.ps1')
 Assert-HeavySlotHeld -Tool "the container test runner"
 $env:ASSETOPS_HEAVY_SLOT_CONTAINER = Get-HeavyContainerMarker
+# T1b (D-T1.24): the shared server holds both database lanes' bases, so a container run there is a database job.
+if ($Server -eq 'shared') { Assert-HeavySlotHeld -Tool "the container test runner on the shared server" -Db }
 $project = 'assetopsv1'
 $pgService = if ($Server -eq 'dedicated') { 'postgres-test' } else { 'postgres' }
 $pgContainer = "assetopsv1-$pgService-1"

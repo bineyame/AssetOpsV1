@@ -120,7 +120,8 @@ function markerTest(value, name, { slotDir: dir, pid, procRoot, platform }) {
   const pool = { ok: false, reason: "the marker is not a slot of this machine's pool" };
   if (!dir) return pool;
   const leaf = path.basename(value);
-  if (!(name === "db" ? /^db-job\.lock$/ : /^slot-[12]\.lock$/).test(leaf)) return pool;
+  const leafPattern = name === "db" ? /^db-job\.lock$/ : name === "dbb" ? /^db-job-b\.lock$/ : /^slot-[12]\.lock$/;
+  if (!leafPattern.test(leaf)) return pool;
   if (!samePath(canonical(path.dirname(value)), dir, platform)) return pool;
   const lock = path.join(dir, leaf);
   if (platform !== "win32" && !isAncestor(readOwnerPid(lock), pid, procRoot)) {
@@ -130,7 +131,8 @@ function markerTest(value, name, { slotDir: dir, pid, procRoot, platform }) {
   return { ok: true, reason: "" };
 }
 
-// The tripwire's test. `db`: the caller is a database job, so ASSETOPS_HEAVY_DB must pass too.
+// The tripwire's test. `db`: the caller is a database job, so exclusive must pass too: ASSETOPS_HEAVY_DB and
+// ASSETOPS_HEAVY_DB_B, both lanes (T1b spec-T1b.md §2). No lane API here: no JS tool runs Postgres.
 function checkMarker(env, { slotDir: dir, pid = process.pid, procRoot = "/proc", platform = process.platform,
                            inContainer = false, db = false } = {}) {
   if (inContainer) {
@@ -144,7 +146,7 @@ function checkMarker(env, { slotDir: dir, pid = process.pid, procRoot = "/proc",
   const opts = { slotDir: dir, pid, procRoot, platform };
   const slot = markerTest(env.ASSETOPS_HEAVY_SLOT, "slot", opts);
   if (!slot.ok) return slot;
-  if (db && !markerTest(env.ASSETOPS_HEAVY_DB, "db", opts).ok) {
+  if (db && !(markerTest(env.ASSETOPS_HEAVY_DB, "db", opts).ok && markerTest(env.ASSETOPS_HEAVY_DB_B, "dbb", opts).ok)) {
     return { ok: false, reason: "a database job needs --db on the outermost wrapper" };
   }
   return { ok: true, reason: "" };

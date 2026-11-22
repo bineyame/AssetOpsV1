@@ -1,6 +1,6 @@
 # T1b: a second Postgres test lane (implementer spec)
 
-Status: spec rev 1, 2026-11-22. Architect: Claude. Rulings `D-T1.19`-`D-T1.26` (`rulings.md`, "T1b rulings").
+Status: in_review (built 2026-11-22, `packet-T1b.md`); spec rev 1, 2026-11-22. Architect: Claude. Rulings `D-T1.19`-`D-T1.26` (`rulings.md`, "T1b rulings").
 Owner approval, verbatim: `owner/owner-second-db-lane-2026-11-22.md` ("proceed").
 Branch `task/T1b-db-lanes` from `main`, own worktree. Review depth: discovery (W5), one fresh Claude reviewer.
 `USER_REVIEW_REQUIRED: false`. Size: **1.0 u** (§11).
@@ -165,7 +165,7 @@ All four halves keep parity (T1 §2). Messages are byte-identical between bash a
 | Run template and its migration to head | one run (`<stem>_pt<run>_tpl_test`) | not shared; no lock needed. Each run migrates its own template once, as today |
 | Base database (admin lease, sweep, advisory keys) | all runs of a base | one lane per base, so one run per base at a time |
 | `_case_db` databases `assetops_out_<slice>_<case>_test` (9 modules) | **every run on the server** (fixed name) | stem-derived, §6: lane-scoped; lane a's names are byte-identical |
-| Setup-cache snapshots `assetops_sc_<code>_<key>_test`; mechanism templates `assetops_mechanism_<kind>_<fp8>_test` | content-keyed, shared on purpose | unchanged: built under an advisory lock or by an exclusive `--db` job, published by staging + rename, read by `CREATE DATABASE … TEMPLATE` (a share lock) |
+| Setup-cache snapshots `assetops_sc_<code>_<key>_test`; mechanism templates `assetops_mechanism_<kind>_<fp8>_test` | content-keyed, shared on purpose | unchanged: built under an advisory lock (per database, so it serialises runs of one base only; host lanes do not enable the cache, D-T1.19) or by an exclusive `--db` job, published by staging + rename, read by `CREATE DATABASE … TEMPLATE` (a share lock) |
 | A heavy database job, a slow-tier run (`test_demo_combined_postgres.py`'s prepare) | the server's disk and memory | stays exclusive (`--db`) |
 | The dedicated container server `postgres-test` and its setup-cache sweep | container runs | unchanged (no lane); `-Server shared` puts a container run on `assetopsv1-postgres-1`, so it needs `--db` |
 

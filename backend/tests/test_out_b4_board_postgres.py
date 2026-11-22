@@ -67,15 +67,24 @@ def _record(key: str, value: object) -> None:
 
 # ------------------------------------------------------------------ one database per case (addendum 5 #2)
 
+def _case_db_name(case: str, slice_: str = "b") -> str:
+    """`<stem>_out_<slice>_<case>_test`, the stem from the run's base (T1b §6): lane a (`assetops_test`) gives
+    `assetops_out_<slice>_<case>_test` as before, lane b (`assetops_b_test`) `assetops_b_out_<slice>_<case>_test`."""
+    from sqlalchemy.engine import make_url
+
+    stem = make_url(os.environ.get(pg_harness.BASE_ENV) or URL).database[: -len("_test")]
+    return f"{stem}_out_{slice_}_{case}_test"
+
+
 @contextlib.contextmanager
 def _case_db(case: str, slice_: str = "b"):
-    """`assetops_out_<slice>_<case>_test` on the harness server: a clone of this run's migrated template when routed,
+    """`_case_db_name(case, slice_)` (`assetops_out_<slice>_<case>_test` on lane a) on the harness server: a clone of this run's migrated template when routed,
     else created blank and migrated. Dropped (FORCE) on exit. OUT-C passes `slice_="c"`."""
     from sqlalchemy import create_engine, text
     from sqlalchemy.engine import make_url
     from sqlalchemy.pool import NullPool
 
-    name = f"assetops_out_{slice_}_{case}_test"
+    name = _case_db_name(case, slice_)
     base = make_url(os.environ.get(pg_harness.BASE_ENV) or URL)
     url = base.set(database=name).render_as_string(hide_password=False)
     engine = None
