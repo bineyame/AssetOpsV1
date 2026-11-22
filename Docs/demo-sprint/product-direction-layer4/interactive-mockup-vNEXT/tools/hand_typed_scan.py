@@ -122,6 +122,8 @@ MALLOW = [
     ('tenants[metro-bus].sites[Kasarani].entitlement.options[KAS-OEM-STOPGAP].detail', '10', 'energy 10', 'cost-per-bus-night quote breakdown (record text)'),
     ('tenants[lakeside-power].sites[Kobo].daytime_headroom.usable_kw', '20', '18-20', 'recorded headroom range'),
     ('tenants[lakeside-power].sites[Kobo].decision.options[KOB-RESERVE].carrier', '25', '-> 25', 'declared option setting (reserve after the change)'),
+    ('tenants[lakeside-power].sites[Kobo].decision.options[KOB-STOPSOC].economics.one_off_detail', '60', 'reconfiguration 60 +', 'the vendor quote breakdown quoted as record text (same class as KAS-OEM-STOPGAP detail); the one-off total shown is the evaluator\'s (0K4m audit rerun)'),
+    ('tenants[lakeside-power].sites[Kobo].decision.options[KOB-STOPSOC].economics.one_off_detail', '30', 'supervision 30', 'the vendor quote breakdown quoted as record text (same class as KAS-OEM-STOPGAP detail); the one-off total shown is the evaluator\'s (0K4m audit rerun)'),
     ('tenants[lakeside-power].sites[Kobo].decision.options[KOB-STOPSOC].carrier', '90', 'threshold 90 -> 70', 'declared controller settings (current and new)'),
     ('tenants[lakeside-power].sites[Kobo].entitlement.evidence.cycles', '6000', 'of 6000', 'warranty limit quoted in the evidence record'),
     ('tenants[lakeside-power].sites[Kobo].entitlement.evidence.throughput', '600', 'of 600 MWh', 'warranty limit quoted in the evidence record'),

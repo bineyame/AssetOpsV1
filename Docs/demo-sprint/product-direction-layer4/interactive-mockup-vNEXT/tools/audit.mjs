@@ -15,7 +15,7 @@ const v70 = pathToFileURL(path.resolve(root, '../../../../frontend/mockups/v70/i
 const shots = process.argv.includes('--shots');
 const REPLAY = JSON.parse(execFileSync('python3', [path.join(here, 'replay_values.py')]).toString());
 
-const out = { dvScan: { occurrences: 0, unlabelled: [], drawersOpened: 0, byFigure: {} }, idHits: [], idHitsPreserved: [], roleHits: [], routes: [], overflow390: [], vocab: [], drawer: {}, focus: [], contrast: [], switches: {}, operator: {}, filters: [], preservedText: [], errors: [], links: {} };
+const out = { dvScan: { occurrences: 0, unlabelled: [], drawersOpened: 0, unreachable: [], byFigure: {} }, idHits: [], idHitsPreserved: [], roleHits: [], routes: [], overflow390: [], vocab: [], drawer: {}, focus: [], contrast: [], switches: {}, operator: {}, filters: [], preservedText: [], errors: [], links: {} };
 const browser = await chromium.launch({ executablePath: process.env.CHROME, args: ['--no-sandbox', '--disable-gpu'] });
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
 const page = await ctx.newPage();
@@ -23,6 +23,11 @@ let errs = [];
 page.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
 page.on('pageerror', e => errs.push(String(e)));
 const go = async (u) => { await page.goto(u); await page.waitForFunction(() => window.mockupReady); };
+/* 0K4m audit repair: an evidence button can sit inside a side drawer (.ux-drawer) that is closed until its opener is pressed, or in a collapsed details section (Playwright sees both hidden). evClick opens that drawer first, so every button is still clicked; evClose leaves nothing open. */
+const evClick = async (k) => { const el = page.locator('.ev-num').nth(k); const did = await el.evaluate(e => e.closest('.ux-drawer')?.id || null); if (did) { const op = page.locator(`[data-ux-drawer="${did}"]:visible`).first(); if (!(await op.count())) { out.dvScan.unreachable.push(did + ' ' + page.url().split('#')[1]); return false; } await op.click(); } for (let i = 0; i < 3; i++) { const sm = el.locator('xpath=(ancestor::details[not(@open)])[1]/summary'); if (!(await sm.count())) break; await sm.click(); } /* a closed details section holds some evidence buttons: open it as a reader does */ await el.click(); return true; };
+const evClose = async () => { for (let i = 0; i < 3 && await page.evaluate(() => !!document.querySelector('.drawer,.ux-drawer[data-open="true"]')); i++) await page.keyboard.press('Escape'); };
+/* at 390 px the review bar hides the operator select (CSS, max-width 600px); the control only writes the operator to sessionStorage 'l4-op' (setOp), so the audit writes the same value and reloads */
+const setOp = async (op) => { if (await page.locator('#op-switch').isVisible()) await page.selectOption('#op-switch', op); else { await page.evaluate(o => sessionStorage.setItem('l4-op', o), op); await page.reload(); await page.waitForFunction(() => window.mockupReady); } };
 await go(url);
 const manifest = await page.evaluate(() => window.mockupManifest);
 out.oracleShipped = await page.evaluate(() => 'oracle' in MANIFEST);
@@ -65,8 +70,8 @@ for (const op of ['lakeside', 'harvest', 'metro']) {
         else if (LOOPLIKE(s)) { const ph = await page.evaluate(() => [...document.querySelectorAll('.slim-banner,.tabs a')].map(e => e.textContent).join(' ')); if (/\b(?:CEO|COO|CFO|CCO)\b/.test(ph)) out.roleHits.push({ op, id, kind: 'role in banner or tab' }); }
         if (!LOOPLIKE(s) && op === 'lakeside') { const h2 = await page.evaluate(ID_CHECK, '.canvas'); h2.forEach(x => out.idHitsPreserved.push({ op, id, ...x })); } } }
     { const d = await page.evaluate(DV_SCAN, ['.canvas', REPLAY.patterns]); if (s === 'Preserved') { d.bad.forEach(b => (out.dvScan.preservedCoincidences = out.dvScan.preservedCoincidences || []).push({ op, id, ...b })); } else { out.dvScan.occurrences += d.n; d.bad.forEach(b => out.dvScan.unlabelled.push({ op, id, ...b })); }
-      const nb = await page.locator('.ev-num').count(); for (let k = 0; k < Math.min(nb, 60); k++) { await page.locator('.ev-num').nth(k).click(); out.dvScan.drawersOpened++; const dd = await page.evaluate(DV_SCAN, ['.drawer', REPLAY.patterns]); out.dvScan.occurrences += dd.n; dd.bad.forEach(b => out.dvScan.unlabelled.push({ op, id: id + ' (drawer ' + k + ')', ...b })); await page.keyboard.press('Escape'); } }
-    if (DRAWER_SAMPLE.has(id)) { const n = await page.locator('.ev-num').count(); for (let k = 0; k < Math.min(n, 6); k++) { await page.locator('.ev-num').nth(k).click(); const dt = (await page.evaluate(() => { const d = document.querySelector('.drawer').cloneNode(true); d.querySelectorAll('details.tech,.srcrows thead').forEach(x => x.remove()); return d.textContent; })); const dh = await page.evaluate(ID_CHECK, '.drawer'); if (/\b(?:CEO|COO|CFO|CCO)\b|Which sites and investments|Where should limited crews|Why is performance off plan|Which demand can be sold/.test(dt)) out.roleHits.push({ op, id: id + ' (drawer ' + k + ')', kind: 'role or question stem in drawer' }); dh.forEach(x => out.idHits.push({ op, id: id + ' (drawer ' + k + ')', ...x })); const m2 = dt.match(VOCAB); if (m2) out.vocab.push({ op, id: id + ' (drawer ' + k + ')', match: m2[0], at: dt.slice(Math.max(0, m2.index - 50), m2.index + 50) }); await page.keyboard.press('Escape'); } }
+      const nb = await page.locator('.ev-num').count(); for (let k = 0; k < Math.min(nb, 60); k++) { if (!(await evClick(k))) continue; out.dvScan.drawersOpened++; const dd = await page.evaluate(DV_SCAN, ['.drawer', REPLAY.patterns]); out.dvScan.occurrences += dd.n; dd.bad.forEach(b => out.dvScan.unlabelled.push({ op, id: id + ' (drawer ' + k + ')', ...b })); await evClose(); } }
+    if (DRAWER_SAMPLE.has(id)) { const n = await page.locator('.ev-num').count(); for (let k = 0; k < Math.min(n, 6); k++) { if (!(await evClick(k))) continue; const dt = (await page.evaluate(() => { const d = document.querySelector('.drawer').cloneNode(true); d.querySelectorAll('details.tech,.srcrows thead').forEach(x => x.remove()); return d.textContent; })); const dh = await page.evaluate(ID_CHECK, '.drawer'); if (/\b(?:CEO|COO|CFO|CCO)\b|Which sites and investments|Where should limited crews|Why is performance off plan|Which demand can be sold/.test(dt)) out.roleHits.push({ op, id: id + ' (drawer ' + k + ')', kind: 'role or question stem in drawer' }); dh.forEach(x => out.idHits.push({ op, id: id + ' (drawer ' + k + ')', ...x })); const m2 = dt.match(VOCAB); if (m2) out.vocab.push({ op, id: id + ' (drawer ' + k + ')', match: m2[0], at: dt.slice(Math.max(0, m2.index - 50), m2.index + 50) }); await evClose(); } }
     out.routes.push({ op, id, status: s, ok: !!r.h1 && errs.length === 0, h1: r.h1, landed: r.hash.slice(2), errors: errs.slice(0, 3), topbarOperatorSelect: r.topbarOp, reviewOperatorSelect: r.reviewOp });
     if (shots && op !== 'lakeside' && ['portfolio', 'portfolio/act-first', 'plan', 'portfolio/outcomes-by-site', 'portfolio/demand-and-capacity'].includes(id)) await page.screenshot({ path: path.join(root, `screenshots/vnext/${op}-${id.replace(/\//g, '_')}-1440.png`), fullPage: true });
     if (shots && op === 'lakeside' && LOOPLIKE(s) && (id.startsWith('portfolio') || id.startsWith('decision/') || /^site\/(kobo|thika|ruiru|kisiwa|kasarani)(\/economics)?$/.test(id) || ['sites', 'globalfinancials', 'mini', 'findings', 'ev-health'].includes(id))) await page.screenshot({ path: path.join(root, `screenshots/vnext/${id.replace(/\//g, '_')}-1440.png`), fullPage: true });
@@ -75,7 +80,7 @@ for (const op of ['lakeside', 'harvest', 'metro']) {
 /* 390 px overflow, every route (Lakeside, plus portfolio routes for each operator) */
 await page.setViewportSize({ width: 390, height: 844 });
 for (const op of ['lakeside', 'harvest', 'metro']) {
-  await go(url); await page.selectOption('#op-switch', op);
+  await go(url); await setOp(op);
   for (const id of ids) {
     if (op !== 'lakeside' && !id.startsWith('portfolio')) continue;
     await go(url + '#/' + id);
@@ -110,7 +115,7 @@ for (const [v, sp, val] of [['yes', ...VS(MD.switch_cases.True).filter((x, i) =>
 await page.check('input[name="sw-tou"][value="yes"]');
 /* owner rule also covers drawers and tab/section names: review-notes drawer on every added screen, tab rows on every added/changed screen */
 await page.selectOption('#op-switch', 'lakeside');
-for (const s of manifest.filter(m => m.layer4_status === 'Added' || ['portfolio', 'sites', 'globalfinancials'].includes(m.id))) { await go(url + '#/' + s.id); await page.click('footer [data-notes]'); const d = await page.evaluate(() => document.querySelector('.drawer').textContent + ' ' + [...document.querySelectorAll('.tabs a')].map(a => a.textContent).join(' ')); const m = d.match(/\b(?:CEO|COO|CFO|CCO)\b|Which sites and investments|Where should limited crews|Why is performance off plan|Which demand can be sold/); if (m) out.roleHits.push({ id: s.id + ' (review notes or tabs)', kind: 'role or question stem', match: m[0] }); await page.keyboard.press('Escape'); }
+for (const s of manifest.filter(m => m.layer4_status === 'Added' || ['portfolio', 'sites', 'globalfinancials'].includes(m.id))) { await go(url + '#/' + s.id); await page.click('footer [data-notes]', { timeout: 5000 }); const opened = await page.evaluate(() => !!document.querySelector('.drawer')); if (!opened) (out.reviewNotesNoDrawer = out.reviewNotesNoDrawer || []).push(s.id); /* the mock's review-notes button opens no drawer on a landed route (its handler throws on a screen without .models); recorded, not hidden */ const d = await page.evaluate(() => (document.querySelector('.drawer')?.textContent || '') + ' ' + [...document.querySelectorAll('.tabs a')].map(a => a.textContent).join(' ')); const m = d.match(/\b(?:CEO|COO|CFO|CCO)\b|Which sites and investments|Where should limited crews|Why is performance off plan|Which demand can be sold/); if (m) out.roleHits.push({ id: s.id + ' (review notes or tabs)', kind: 'role or question stem', match: m[0] }); await page.keyboard.press('Escape'); }
 out.reviewNotesChecked = true;
 /* rev 5: Protect measures shown with targets; plan figure labelled per the file */
 out.rev5 = {};
@@ -155,7 +160,10 @@ out.tabsKeyboard = await page.evaluate(() => [...document.querySelectorAll('.can
 /* focus visible */
 for (const sel of ['.rail a', '.tabs a', '.ev-num', '#op-switch', 'button.wfrow', 'input[name="sw-budget"]', 'details.astable summary']) {
   const target = sel === 'button.wfrow' || sel === 'details.astable summary' ? 'portfolio/outcomes-by-site' : sel.startsWith('input') ? 'plan' : 'portfolio';
-  await go(url + '#/' + target); const el = page.locator(sel).first(); await el.focus(); await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Tab');
+  await go(url + '#/' + target); const el = page.locator(sel).first();
+  /* 0K4m audit repair: the waterfall rows and the table disclosure were on the old Outcomes-by-site page; the landed frame (portfolio/outcomes) has neither, so these two focus checks have no target. Listed in audit-results.json, not silently passed; every other selector must still exist. */
+  if ((sel === 'button.wfrow' || sel === 'details.astable summary') && !(await el.count())) { (out.focusTargetsGone = out.focusTargetsGone || []).push({ sel, route: target }); continue; }
+  await el.focus(); await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Tab');
   const o = await page.evaluate(() => { const e = document.activeElement, s = getComputedStyle(e); return { tag: e.tagName, outline: s.outlineStyle + ' ' + s.outlineWidth, shadow: s.boxShadow }; });
   out.focus.push({ sel, ...o, visible: !/none|0px/.test(o.outline) || o.shadow !== 'none' });
 }

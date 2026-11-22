@@ -5,7 +5,7 @@
   "root": "Portfolio",
   "section": "",
   "anchor": "Layer 4 design rev 4 §6.2",
-  "question": "Outcomes against plan with the factors that make them, factors needing attention, and the first moves of the plan.",
+  "question": "Outcomes against target with the factors that make them, factors needing attention, and the first moves of the plan.",
   "models": [
    "Factor structure (site × period)",
    "Portfolio composition",
@@ -70,7 +70,7 @@
   "root": "Sites",
   "section": "",
   "anchor": "8.2",
-  "question": "The operator’s sites: outcome against plan, factor needing attention, recommended move.",
+  "question": "The operator’s sites: outcome against target, factor needing attention, recommended move.",
   "models": [
    "SiteDirectorySummary",
    "SiteAssessmentSummary",
@@ -105,11 +105,11 @@
   "subtitle": "Lakeside Power · October 2026",
   "opScoped": true,
   "layer4_status": "Changed",
-  "layer4_note": "Directory re-based on the selected demo operator: three sites with their outcome against plan, the factor needing attention and the recommended move."
+  "layer4_note": "Directory re-based on the selected demo operator: three sites with their outcome against target, the factor needing attention and the recommended move."
  },
  {
   "id": "mini",
-  "title": "Kobo Mini-grid",
+  "title": "Kobo",
   "root": "Sites",
   "section": "Overview",
   "anchor": "8.18",
@@ -131,7 +131,7 @@
  },
  {
   "id": "foundation",
-  "title": "Kobo Mini-grid",
+  "title": "Kobo",
   "root": "Sites",
   "section": "Foundation",
   "anchor": "8.10",
@@ -152,7 +152,7 @@
  },
  {
   "id": "readiness",
-  "title": "Kobo Mini-grid",
+  "title": "Kobo",
   "root": "Sites",
   "section": "Foundation",
   "anchor": "8.10 · 8.35",
@@ -172,7 +172,7 @@
  },
  {
   "id": "changes",
-  "title": "Kobo Mini-grid",
+  "title": "Kobo",
   "root": "Sites",
   "section": "Foundation",
   "anchor": "8.11",
@@ -192,7 +192,7 @@
  },
  {
   "id": "dispatch",
-  "title": "Kobo Mini-grid",
+  "title": "Kobo",
   "root": "Sites",
   "section": "Performance",
   "anchor": "8.21 · 8.37",
@@ -212,7 +212,7 @@
  },
  {
   "id": "renewable",
-  "title": "Kobo Mini-grid",
+  "title": "Kobo",
   "root": "Sites",
   "section": "Performance",
   "anchor": "8.23",
@@ -233,7 +233,7 @@
  },
  {
   "id": "evidence",
-  "title": "Kobo Mini-grid",
+  "title": "Kobo",
   "root": "Sites",
   "section": "Evidence",
   "anchor": "8.35 · 8.37",
@@ -269,7 +269,7 @@
   "preserved": "Claim, confidence and workflow state are distinct. Finding owns classification; finance only translates consequence.",
   "adapted": "Retains the owner-approved Analysis destination and plain-language default.",
   "deferred": "A claim of proven waste or net realized savings.",
-  "subtitle": "F-104 · Kobo Mini-grid · generator dispatch · 6 Oct 2026",
+  "subtitle": "F-104 · Kobo · generator dispatch · 6 Oct 2026",
   "v70": "Rev 5 §4.3: one “Affects / Also check” line above the page.",
   "layer4_status": "Preserved",
   "layer4_note": "Unchanged apart from re-based display names where they occur."
@@ -297,7 +297,7 @@
  },
  {
   "id": "financials",
-  "title": "Kobo Mini-grid",
+  "title": "Kobo",
   "root": "Sites",
   "section": "Financials",
   "anchor": "8.36 · 6",
@@ -316,7 +316,7 @@
  },
  {
   "id": "assumptions",
-  "title": "Kobo Mini-grid",
+  "title": "Kobo",
   "root": "Sites",
   "section": "Financials",
   "anchor": "8.36",
@@ -391,14 +391,14 @@
   "preserved": "Asset Health owns condition; Site Health only summarizes. Unknown historical stress stays unknown.",
   "adapted": "Lifecycle risk is a bounded section in Health rather than a new root.",
   "deferred": "Precise RUL, Warranty and validated degradation prediction.",
-  "subtitle": "BAT-001 · 200 kWh nominal · site: Kobo Mini-grid",
+  "subtitle": "BAT-001 · 200 kWh nominal · site: Kobo",
   "window": "Illustrative asset history · last 30 days",
   "layer4_status": "Preserved",
   "layer4_note": "Unchanged apart from re-based display names where they occur."
  },
  {
   "id": "health",
-  "title": "Kobo Mini-grid",
+  "title": "Kobo",
   "root": "Sites",
   "section": "Health",
   "anchor": "8.19",
@@ -439,7 +439,7 @@
  },
  {
   "id": "cold",
-  "title": "Thika cold room",
+  "title": "Thika",
   "root": "Sites",
   "section": "Overview",
   "anchor": "8.28",
@@ -461,7 +461,7 @@
  },
  {
   "id": "temperature",
-  "title": "Thika cold room",
+  "title": "Thika",
   "root": "Sites",
   "section": "Performance",
   "anchor": "8.29",
@@ -481,7 +481,7 @@
  },
  {
   "id": "cooling",
-  "title": "Thika cold room",
+  "title": "Thika",
   "root": "Sites",
   "section": "Performance",
   "anchor": "8.30",
@@ -501,7 +501,7 @@
  },
  {
   "id": "coldbackup",
-  "title": "Thika cold room",
+  "title": "Thika",
   "root": "Sites",
   "section": "Performance",
   "anchor": "8.31",
@@ -521,7 +521,7 @@
  },
  {
   "id": "ev",
-  "title": "Ruiru depot",
+  "title": "Ruiru",
   "root": "Sites",
   "section": "Overview",
   "anchor": "2.2 / 2.4 pattern · EV extrapolation",
@@ -542,7 +542,7 @@
  },
  {
   "id": "sessions",
-  "title": "Ruiru depot",
+  "title": "Ruiru",
   "root": "Sites",
   "section": "Performance",
   "anchor": "2.2 pattern · 8.32 / 8.35 · EV extrapolation",
@@ -562,7 +562,7 @@
  },
  {
   "id": "availability",
-  "title": "Ruiru depot",
+  "title": "Ruiru",
   "root": "Sites",
   "section": "Performance",
   "anchor": "8.35 pattern · EV extrapolation",
@@ -581,7 +581,7 @@
  },
  {
   "id": "energy",
-  "title": "Ruiru depot",
+  "title": "Ruiru",
   "root": "Sites",
   "section": "Performance",
   "anchor": "8.36 pattern · EV extrapolation",
@@ -642,7 +642,7 @@
  },
  {
   "id": "service",
-  "title": "Kobo Mini-grid",
+  "title": "Kobo",
   "root": "Sites",
   "section": "Performance",
   "anchor": "8.20",
@@ -662,7 +662,7 @@
  },
  {
   "id": "fuel",
-  "title": "Kobo Mini-grid",
+  "title": "Kobo",
   "root": "Sites",
   "section": "Performance",
   "anchor": "8.22",
@@ -682,7 +682,7 @@
  },
  {
   "id": "backup",
-  "title": "Kobo Mini-grid",
+  "title": "Kobo",
   "root": "Sites",
   "section": "Performance",
   "anchor": "8.24",
@@ -702,7 +702,7 @@
  },
  {
   "id": "sitefindings",
-  "title": "Kobo Mini-grid",
+  "title": "Kobo",
   "root": "Sites",
   "section": "Findings",
   "anchor": "8.25",
@@ -721,7 +721,7 @@
  },
  {
   "id": "sitework",
-  "title": "Kobo Mini-grid",
+  "title": "Kobo",
   "root": "Sites",
   "section": "Work",
   "anchor": "8.26",
@@ -741,7 +741,7 @@
  },
  {
   "id": "sitework-incidents",
-  "title": "Kobo Mini-grid",
+  "title": "Kobo",
   "root": "Sites",
   "section": "Work",
   "anchor": "8.26 · 8.6",
@@ -760,7 +760,7 @@
  },
  {
   "id": "sitework-maintenance",
-  "title": "Kobo Mini-grid",
+  "title": "Kobo",
   "root": "Sites",
   "section": "Work",
   "anchor": "8.26 · 8.7",
@@ -779,7 +779,7 @@
  },
  {
   "id": "evidence-analysis",
-  "title": "Kobo Mini-grid",
+  "title": "Kobo",
   "root": "Sites",
   "section": "Evidence",
   "anchor": "8.35 · 8.37",
@@ -827,8 +827,8 @@
    ]
   ],
   "subtitle": "Physical asset inventory · site context, condition and work",
-  "layer4_status": "Changed",
-  "layer4_note": "Slim banner: example items from the three demo operators shown together."
+  "layer4_status": "Preserved",
+  "layer4_note": "Unchanged apart from re-based display names where they occur."
  },
  {
   "id": "findings",
@@ -836,7 +836,7 @@
   "root": "Findings",
   "section": "",
   "anchor": "8.4",
-  "question": "Which supported conclusions deserve action?",
+  "question": "What is wrong at our Sites, and what is being done about each?",
   "models": [
    "FindingIndex",
    "FinancialConsequence",
@@ -864,10 +864,12 @@
     "findings-opportunities"
    ]
   ],
-  "subtitle": "Evidence-backed operating conclusions · one global object model",
+  "subtitle": "Lakeside Power · October 2026",
   "v70": "Owner answer 29 Oct 2026: each finding shows every category it belongs to (solid: moves it; outlined: checked against it), so one finding can sit in more than one category; lens chips stay as cross-cutting filters. Rev 5 §4.3, §5: each finding shows the outcome it affects and how often it recurs; early warnings for the same lens sit under the table.",
-  "layer4_status": "Changed",
-  "layer4_note": "Slim banner: example items from the three demo operators shown together."
+  "loop": true,
+  "opScoped": true,
+  "layer4_status": "Preserved",
+  "layer4_note": "Unchanged apart from re-based display names where they occur."
  },
  {
   "id": "actions",
@@ -875,7 +877,7 @@
   "root": "Actions",
   "section": "",
   "anchor": "8.5",
-  "question": "Who owns the next intervention and what will prove it worked?",
+  "question": "What has been set in motion under the plan, by whom, and is it released?",
   "models": [
    "ActionIndex",
    "VerificationSummary"
@@ -884,9 +886,11 @@
   "preserved": "Canonical root ownership, bounded claims, explicit evidence quality and contextual drill-down.",
   "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
   "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
-  "subtitle": "Interventions, owners and declared outcome criteria",
-  "layer4_status": "Changed",
-  "layer4_note": "Slim banner: example items from the three demo operators shown together."
+  "subtitle": "Lakeside Power · the plan for November and December",
+  "loop": true,
+  "opScoped": true,
+  "layer4_status": "Preserved",
+  "layer4_note": "Unchanged apart from re-based display names where they occur."
  },
  {
   "id": "incidents",
@@ -903,8 +907,8 @@
   "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
   "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
   "subtitle": "Operational event cases · linked Findings and work",
-  "layer4_status": "Changed",
-  "layer4_note": "Slim banner: example items from the three demo operators shown together."
+  "layer4_status": "Preserved",
+  "layer4_note": "Unchanged apart from re-based display names where they occur."
  },
  {
   "id": "maintenance",
@@ -933,8 +937,8 @@
   ],
   "subtitle": "Physical maintenance work and outcome verification",
   "v70": "Rev 5 §5.2: “Repeat visits without a result” replaces “Repeat findings 0”; earlier visits WR-011 and WR-016 added.",
-  "layer4_status": "Changed",
-  "layer4_note": "Slim banner: example items from the three demo operators shown together."
+  "layer4_status": "Preserved",
+  "layer4_note": "Unchanged apart from re-based display names where they occur."
  },
  {
   "id": "globalevidence",
@@ -952,8 +956,8 @@
   "adapted": "Compact domain-capability matrix for three sites.",
   "deferred": "A duplicate global raw-record browser.",
   "subtitle": "Cross-site claim readiness, recurring gaps and instrumentation priorities",
-  "layer4_status": "Changed",
-  "layer4_note": "Slim banner: example items from the three demo operators shown together."
+  "layer4_status": "Preserved",
+  "layer4_note": "Unchanged apart from re-based display names where they occur."
  },
  {
   "id": "globalfinancials",
@@ -961,7 +965,7 @@
   "root": "Financials",
   "section": "",
   "anchor": "8.9 · 8.36",
-  "question": "Economic statement: every site’s money factors against plan.",
+  "question": "Economic statement: every site’s money factors against target.",
   "models": [
    "PortfolioConsequenceRollup",
    "FinancialConsequenceRevision"
@@ -974,11 +978,11 @@
   "loop": true,
   "opScoped": true,
   "layer4_status": "Changed",
-  "layer4_note": "Becomes the operator’s economic statement: every site’s money factors against plan with evidence classes, and portfolio ratios composed as Σ ÷ Σ."
+  "layer4_note": "Becomes the operator’s economic statement: every site’s money factors against target with evidence classes, and portfolio ratios composed as Σ ÷ Σ."
  },
  {
   "id": "cold-foundation",
-  "title": "Thika cold room",
+  "title": "Thika",
   "root": "Sites",
   "section": "Foundation",
   "anchor": "8.10 · 8.11",
@@ -999,7 +1003,7 @@
  },
  {
   "id": "cold-health",
-  "title": "Thika cold room",
+  "title": "Thika",
   "root": "Sites",
   "section": "Health",
   "anchor": "8.28 · 8.30 · 8.31",
@@ -1019,7 +1023,7 @@
  },
  {
   "id": "cold-evidence",
-  "title": "Thika cold room",
+  "title": "Thika",
   "root": "Sites",
   "section": "Evidence",
   "anchor": "8.35 · 8.37",
@@ -1039,7 +1043,7 @@
  },
  {
   "id": "cold-evidence-analysis",
-  "title": "Thika cold room",
+  "title": "Thika",
   "root": "Sites",
   "section": "Evidence",
   "anchor": "8.35 · 8.37",
@@ -1059,7 +1063,7 @@
  },
  {
   "id": "cold-financials",
-  "title": "Thika cold room",
+  "title": "Thika",
   "root": "Sites",
   "section": "Financials",
   "anchor": "8.36",
@@ -1079,7 +1083,7 @@
  },
  {
   "id": "cold-assumptions",
-  "title": "Thika cold room",
+  "title": "Thika",
   "root": "Sites",
   "section": "Financials",
   "anchor": "8.36",
@@ -1098,7 +1102,7 @@
  },
  {
   "id": "cold-findings",
-  "title": "Thika cold room",
+  "title": "Thika",
   "root": "Sites",
   "section": "Findings",
   "anchor": "8.25 · 8.4",
@@ -1118,7 +1122,7 @@
  },
  {
   "id": "cold-work",
-  "title": "Thika cold room",
+  "title": "Thika",
   "root": "Sites",
   "section": "Work",
   "anchor": "8.26 · 8.5–8.7",
@@ -1138,7 +1142,7 @@
  },
  {
   "id": "cold-work-incidents",
-  "title": "Thika cold room",
+  "title": "Thika",
   "root": "Sites",
   "section": "Work",
   "anchor": "8.26 · 8.6",
@@ -1157,7 +1161,7 @@
  },
  {
   "id": "cold-work-maintenance",
-  "title": "Thika cold room",
+  "title": "Thika",
   "root": "Sites",
   "section": "Work",
   "anchor": "8.26 · 8.7",
@@ -1219,7 +1223,7 @@
  },
  {
   "id": "ev-foundation",
-  "title": "Ruiru depot",
+  "title": "Ruiru",
   "root": "Sites",
   "section": "Foundation",
   "anchor": "8.10 · 8.11",
@@ -1240,7 +1244,7 @@
  },
  {
   "id": "ev-health",
-  "title": "Ruiru depot",
+  "title": "Ruiru",
   "root": "Sites",
   "section": "Health",
   "anchor": "8.3 · 8.27 · domain-pack extrapolation",
@@ -1260,7 +1264,7 @@
  },
  {
   "id": "ev-evidence",
-  "title": "Ruiru depot",
+  "title": "Ruiru",
   "root": "Sites",
   "section": "Evidence",
   "anchor": "8.35 · 8.37",
@@ -1280,7 +1284,7 @@
  },
  {
   "id": "ev-evidence-analysis",
-  "title": "Ruiru depot",
+  "title": "Ruiru",
   "root": "Sites",
   "section": "Evidence",
   "anchor": "8.35 · 8.37",
@@ -1300,7 +1304,7 @@
  },
  {
   "id": "ev-financials",
-  "title": "Ruiru depot",
+  "title": "Ruiru",
   "root": "Sites",
   "section": "Financials",
   "anchor": "8.36",
@@ -1320,7 +1324,7 @@
  },
  {
   "id": "ev-assumptions",
-  "title": "Ruiru depot",
+  "title": "Ruiru",
   "root": "Sites",
   "section": "Financials",
   "anchor": "8.36",
@@ -1339,7 +1343,7 @@
  },
  {
   "id": "ev-findings",
-  "title": "Ruiru depot",
+  "title": "Ruiru",
   "root": "Sites",
   "section": "Findings",
   "anchor": "8.25 · 8.4",
@@ -1359,7 +1363,7 @@
  },
  {
   "id": "ev-work",
-  "title": "Ruiru depot",
+  "title": "Ruiru",
   "root": "Sites",
   "section": "Work",
   "anchor": "8.26 · 8.5–8.7",
@@ -1379,7 +1383,7 @@
  },
  {
   "id": "ev-work-incidents",
-  "title": "Ruiru depot",
+  "title": "Ruiru",
   "root": "Sites",
   "section": "Work",
   "anchor": "8.26 · 8.6",
@@ -1398,7 +1402,7 @@
  },
  {
   "id": "ev-work-maintenance",
-  "title": "Ruiru depot",
+  "title": "Ruiru",
   "root": "Sites",
   "section": "Work",
   "anchor": "8.26 · 8.7",
@@ -1704,7 +1708,7 @@
  },
  {
   "id": "scenarios",
-  "title": "Kobo Mini-grid",
+  "title": "Kobo",
   "root": "Sites",
   "section": "Financials",
   "anchor": "8.36",
@@ -1723,7 +1727,7 @@
  },
  {
   "id": "cold-scenarios",
-  "title": "Thika cold room",
+  "title": "Thika",
   "root": "Sites",
   "section": "Financials",
   "anchor": "8.36",
@@ -1742,7 +1746,7 @@
  },
  {
   "id": "ev-scenarios",
-  "title": "Ruiru depot",
+  "title": "Ruiru",
   "root": "Sites",
   "section": "Financials",
   "anchor": "8.36",
@@ -1761,7 +1765,7 @@
  },
  {
   "id": "cold-readiness",
-  "title": "Thika cold room",
+  "title": "Thika",
   "root": "Sites",
   "section": "Foundation",
   "anchor": "8.10 · 8.35 · 8.13 (fields)",
@@ -1782,7 +1786,7 @@
  },
  {
   "id": "ev-readiness",
-  "title": "Ruiru depot",
+  "title": "Ruiru",
   "root": "Sites",
   "section": "Foundation",
   "anchor": "8.10 · 8.35 · 8.13 (fields)",
@@ -1803,7 +1807,7 @@
  },
  {
   "id": "sld",
-  "title": "Kobo Mini-grid",
+  "title": "Kobo",
   "root": "Sites",
   "section": "Foundation",
   "anchor": "8.10 · 8.12 (structure)",
@@ -1823,7 +1827,7 @@
  },
  {
   "id": "cold-sld",
-  "title": "Thika cold room",
+  "title": "Thika",
   "root": "Sites",
   "section": "Foundation",
   "anchor": "8.10 · 8.12 (structure)",
@@ -1843,7 +1847,7 @@
  },
  {
   "id": "ev-sld",
-  "title": "Ruiru depot",
+  "title": "Ruiru",
   "root": "Sites",
   "section": "Foundation",
   "anchor": "8.12 structure · EV extrapolation",
@@ -1893,8 +1897,8 @@
    ]
   ],
   "subtitle": "Warranty cover, claims and vendor performance across assets",
-  "layer4_status": "Changed",
-  "layer4_note": "Slim banner: example items from the three demo operators shown together."
+  "layer4_status": "Preserved",
+  "layer4_note": "Unchanged apart from re-based display names where they occur."
  },
  {
   "id": "asset-register",
@@ -1926,8 +1930,8 @@
    ]
   ],
   "subtitle": "New asset · draft with validation",
-  "layer4_status": "Changed",
-  "layer4_note": "Slim banner: example items from the three demo operators shown together."
+  "layer4_status": "Preserved",
+  "layer4_note": "Unchanged apart from re-based display names where they occur."
  },
  {
   "id": "asset-overview",
@@ -1947,7 +1951,7 @@
   "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
   "book": false,
   "obj": "BAT-001",
-  "subtitle": "BAT-001 · 200 kWh nominal · site: Kobo Mini-grid",
+  "subtitle": "BAT-001 · 200 kWh nominal · site: Kobo",
   "layer4_status": "Preserved",
   "layer4_note": "Unchanged apart from re-based display names where they occur."
  },
@@ -2134,7 +2138,7 @@
   "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
   "book": false,
   "obj": "BAT-001",
-  "subtitle": "BAT-001 · 200 kWh nominal · site: Kobo Mini-grid",
+  "subtitle": "BAT-001 · 200 kWh nominal · site: Kobo",
   "layer4_status": "Preserved",
   "layer4_note": "Unchanged apart from re-based display names where they occur."
  },
@@ -2155,7 +2159,7 @@
   "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
   "book": false,
   "obj": "BAT-001",
-  "subtitle": "BAT-001 · 200 kWh nominal · site: Kobo Mini-grid",
+  "subtitle": "BAT-001 · 200 kWh nominal · site: Kobo",
   "layer4_status": "Preserved",
   "layer4_note": "Unchanged apart from re-based display names where they occur."
  },
@@ -2278,8 +2282,8 @@
   ],
   "subtitle": "Evidence-backed operating conclusions · one object model",
   "v70": "Rev 5 §5.2: Affects pill names the category; the repeated-maintenance warning sits under the Cost lens and Optimize cost and efficiency, as on the Thika overview.",
-  "layer4_status": "Changed",
-  "layer4_note": "Slim banner: example items from the three demo operators shown together."
+  "layer4_status": "Preserved",
+  "layer4_note": "Unchanged apart from re-based display names where they occur."
  },
  {
   "id": "findings-risks",
@@ -2316,8 +2320,8 @@
   ],
   "subtitle": "Evidence-backed operating conclusions · one object model",
   "v70": "Rev 5 §5.3: Affects pill; downtime and early warnings sit under the Risks lens.",
-  "layer4_status": "Changed",
-  "layer4_note": "Slim banner: example items from the three demo operators shown together."
+  "layer4_status": "Preserved",
+  "layer4_note": "Unchanged apart from re-based display names where they occur."
  },
  {
   "id": "findings-opportunities",
@@ -2354,8 +2358,8 @@
   ],
   "subtitle": "Evidence-backed operating conclusions · one object model",
   "v70": "Rev 5 §5: Affects pill; idle-charger warning sits under the Opportunities lens.",
-  "layer4_status": "Changed",
-  "layer4_note": "Slim banner: example items from the three demo operators shown together."
+  "layer4_status": "Preserved",
+  "layer4_note": "Unchanged apart from re-based display names where they occur."
  },
  {
   "id": "maintenance-preventive",
@@ -2383,8 +2387,8 @@
    ]
   ],
   "subtitle": "Scheduled maintenance by calendar or running hours",
-  "layer4_status": "Changed",
-  "layer4_note": "Slim banner: example items from the three demo operators shown together."
+  "layer4_status": "Preserved",
+  "layer4_note": "Unchanged apart from re-based display names where they occur."
  },
  {
   "id": "wr-overview",
@@ -2462,8 +2466,8 @@
   "adapted": "Populated example data and a concise operator-first hierarchy. Technical detail remains available through evidence and analysis.",
   "deferred": "Capabilities without a supporting data contract stay outside the implemented demo slice.",
   "subtitle": "Operator logs, manual readings, shift notes and site visits",
-  "layer4_status": "Changed",
-  "layer4_note": "Slim banner: example items from the three demo operators shown together."
+  "layer4_status": "Preserved",
+  "layer4_note": "Unchanged apart from re-based display names where they occur."
  },
  {
   "id": "settings-policies",
@@ -2486,19 +2490,19 @@
     "settings-policies"
    ],
    [
-    "Tenant configuration",
+    "Organisation settings",
     "settings-tenant"
    ]
   ],
   "subtitle": "Versioned operating policies",
-  "layer4_status": "Changed",
-  "layer4_note": "Slim banner: example items from the three demo operators shown together."
+  "layer4_status": "Preserved",
+  "layer4_note": "Unchanged apart from re-based display names where they occur."
  },
  {
   "id": "settings-tenant",
   "title": "Settings",
   "root": "Settings",
-  "section": "Tenant configuration",
+  "section": "Organisation settings",
   "anchor": "3.10 · demo scope",
   "question": "How is this organisation set up?",
   "models": [
@@ -2515,20 +2519,20 @@
     "settings-policies"
    ],
    [
-    "Tenant configuration",
+    "Organisation settings",
     "settings-tenant"
    ]
   ],
   "subtitle": "Organisation, users, roles and feature switches",
-  "layer4_status": "Changed",
-  "layer4_note": "Slim banner: example items from the three demo operators shown together."
+  "layer4_status": "Preserved",
+  "layer4_note": "Unchanged apart from re-based display names where they occur."
  },
  {
   "id": "portfolio/outcomes-by-site",
   "title": "Portfolio",
   "root": "Portfolio",
   "section": "",
-  "question": "Each outcome by site, broken down through its factors to plan against actual; Protect measures against their targets.",
+  "question": "Each outcome by site, broken down through its factors to target against actual; Protect measures against their targets.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -2546,7 +2550,7 @@
   "opScoped": true,
   "subtitle": "Lakeside Power · Outcomes by site · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "Each outcome by site, broken down through its factors to plan against actual; Protect measures against their targets."
+  "layer4_note": "Each outcome by site, broken down through its factors to target against actual; Protect measures against their targets."
  },
  {
   "id": "portfolio/demand-and-capacity",
@@ -2578,7 +2582,7 @@
   "title": "Portfolio",
   "root": "Portfolio",
   "section": "",
-  "question": "The plan for November and December under budget, crew visits and deadlines, with the switches that re-compute it.",
+  "question": "The issues needing a decision, each with who decides, and beside them the plan for November and December awaiting approval.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -2596,7 +2600,7 @@
   "opScoped": true,
   "subtitle": "Lakeside Power · Act first · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "The plan for November and December under budget, crew visits and deadlines, with the switches that re-compute it."
+  "layer4_note": "The issues needing a decision, each with who decides, and beside them the plan for November and December awaiting approval."
  },
  {
   "id": "portfolio/what-changed",
@@ -2619,7 +2623,7 @@
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "opScoped": true,
-  "subtitle": "Lakeside Power · What changed · October 2026",
+  "subtitle": "Lakeside Power · Actions and verdicts · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Actions (each chosen option) with frozen predictions and three verdicts; contract rights and their states."
  },
@@ -2675,6 +2679,58 @@
   "layer4_note": "Deep-dive and pilot: minimum records, what you get, and the steps to a subscription."
  },
  {
+  "id": "portfolio/act-first/plan",
+  "title": "The plan for November and December",
+  "root": "Portfolio",
+  "section": "",
+  "question": "The plan: its items and the Actions under each, with creator, owner, due date and release; the approval; items left out and why.",
+  "domain": "mini",
+  "loop": true,
+  "book": false,
+  "anchor": "Layer 4 design rev 4 §6.2",
+  "models": [
+   "Factor structure (site × period)",
+   "Portfolio composition",
+   "Decision and options",
+   "Allocation run",
+   "Actions and rights"
+  ],
+  "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
+  "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
+  "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
+  "opScoped": true,
+  "ptab": "portfolio/act-first",
+  "crumbLabel": "The plan",
+  "subtitle": "Lakeside Power · version 1, proposed",
+  "layer4_status": "Added",
+  "layer4_note": "The plan: its items and the Actions under each, with creator, owner, due date and release; the approval; items left out and why."
+ },
+ {
+  "id": "not-found",
+  "title": "Page not found",
+  "root": "",
+  "section": "",
+  "question": "",
+  "domain": "mini",
+  "loop": true,
+  "book": false,
+  "anchor": "Layer 4 design rev 4 §6.2",
+  "models": [
+   "Factor structure (site × period)",
+   "Portfolio composition",
+   "Decision and options",
+   "Allocation run",
+   "Actions and rights"
+  ],
+  "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
+  "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
+  "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
+  "opScoped": true,
+  "noFigures": true,
+  "layer4_status": "Added",
+  "layer4_note": ""
+ },
+ {
   "id": "site/kobo",
   "title": "Kobo",
   "root": "Sites",
@@ -2705,7 +2761,7 @@
   "title": "Kobo",
   "root": "Sites",
   "section": "Financials",
-  "question": "Kobo economics: every factor against plan, prices and models used.",
+  "question": "Kobo economics: every factor against target, prices and models used.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -2724,7 +2780,7 @@
   "siteTab": "Financials",
   "subtitle": "Mini-grid · Lakeside Power · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "Kobo economics: every factor against plan, prices and models used."
+  "layer4_note": "Kobo economics: every factor against target, prices and models used."
  },
  {
   "id": "site/kisiwa",
@@ -2757,7 +2813,7 @@
   "title": "Kisiwa",
   "root": "Sites",
   "section": "Financials",
-  "question": "Kisiwa economics: every factor against plan, prices and models used.",
+  "question": "Kisiwa economics: every factor against target, prices and models used.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -2776,7 +2832,7 @@
   "siteTab": "Financials",
   "subtitle": "Mini-grid · Lakeside Power · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "Kisiwa economics: every factor against plan, prices and models used."
+  "layer4_note": "Kisiwa economics: every factor against target, prices and models used."
  },
  {
   "id": "site/kisiwa/foundation",
@@ -2800,6 +2856,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "kisiwa",
   "siteTab": "Foundation",
+  "stub": true,
   "subtitle": "Mini-grid · Lakeside Power · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Foundation views for Kisiwa (not built in this mock-up)."
@@ -2826,6 +2883,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "kisiwa",
   "siteTab": "Health",
+  "stub": true,
   "subtitle": "Mini-grid · Lakeside Power · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Health views for Kisiwa (not built in this mock-up)."
@@ -2852,6 +2910,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "kisiwa",
   "siteTab": "Performance",
+  "stub": true,
   "subtitle": "Mini-grid · Lakeside Power · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Performance views for Kisiwa (not built in this mock-up)."
@@ -2878,6 +2937,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "kisiwa",
   "siteTab": "Findings",
+  "stub": true,
   "subtitle": "Mini-grid · Lakeside Power · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Findings views for Kisiwa (not built in this mock-up)."
@@ -2904,6 +2964,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "kisiwa",
   "siteTab": "Work",
+  "stub": true,
   "subtitle": "Mini-grid · Lakeside Power · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Work views for Kisiwa (not built in this mock-up)."
@@ -2930,6 +2991,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "kisiwa",
   "siteTab": "Evidence",
+  "stub": true,
   "subtitle": "Mini-grid · Lakeside Power · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Evidence views for Kisiwa (not built in this mock-up)."
@@ -2965,7 +3027,7 @@
   "title": "Mto",
   "root": "Sites",
   "section": "Financials",
-  "question": "Mto economics: every factor against plan, prices and models used.",
+  "question": "Mto economics: every factor against target, prices and models used.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -2984,7 +3046,7 @@
   "siteTab": "Financials",
   "subtitle": "Mini-grid · Lakeside Power · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "Mto economics: every factor against plan, prices and models used."
+  "layer4_note": "Mto economics: every factor against target, prices and models used."
  },
  {
   "id": "site/mto/foundation",
@@ -3008,6 +3070,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "mto",
   "siteTab": "Foundation",
+  "stub": true,
   "subtitle": "Mini-grid · Lakeside Power · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Foundation views for Mto (not built in this mock-up)."
@@ -3034,6 +3097,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "mto",
   "siteTab": "Health",
+  "stub": true,
   "subtitle": "Mini-grid · Lakeside Power · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Health views for Mto (not built in this mock-up)."
@@ -3060,6 +3124,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "mto",
   "siteTab": "Performance",
+  "stub": true,
   "subtitle": "Mini-grid · Lakeside Power · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Performance views for Mto (not built in this mock-up)."
@@ -3086,6 +3151,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "mto",
   "siteTab": "Findings",
+  "stub": true,
   "subtitle": "Mini-grid · Lakeside Power · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Findings views for Mto (not built in this mock-up)."
@@ -3112,6 +3178,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "mto",
   "siteTab": "Work",
+  "stub": true,
   "subtitle": "Mini-grid · Lakeside Power · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Work views for Mto (not built in this mock-up)."
@@ -3138,6 +3205,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "mto",
   "siteTab": "Evidence",
+  "stub": true,
   "subtitle": "Mini-grid · Lakeside Power · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Evidence views for Mto (not built in this mock-up)."
@@ -3173,7 +3241,7 @@
   "title": "Mwea",
   "root": "Sites",
   "section": "Financials",
-  "question": "Mwea economics: every factor against plan, prices and models used.",
+  "question": "Mwea economics: every factor against target, prices and models used.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -3192,7 +3260,7 @@
   "siteTab": "Financials",
   "subtitle": "Cold room A · Harvest Cold Network · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "Mwea economics: every factor against plan, prices and models used."
+  "layer4_note": "Mwea economics: every factor against target, prices and models used."
  },
  {
   "id": "site/mwea/foundation",
@@ -3216,6 +3284,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "mwea",
   "siteTab": "Foundation",
+  "stub": true,
   "subtitle": "Cold room A · Harvest Cold Network · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Foundation views for Mwea (not built in this mock-up)."
@@ -3242,6 +3311,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "mwea",
   "siteTab": "Health",
+  "stub": true,
   "subtitle": "Cold room A · Harvest Cold Network · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Health views for Mwea (not built in this mock-up)."
@@ -3268,6 +3338,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "mwea",
   "siteTab": "Performance",
+  "stub": true,
   "subtitle": "Cold room A · Harvest Cold Network · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Performance views for Mwea (not built in this mock-up)."
@@ -3294,6 +3365,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "mwea",
   "siteTab": "Findings",
+  "stub": true,
   "subtitle": "Cold room A · Harvest Cold Network · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Findings views for Mwea (not built in this mock-up)."
@@ -3320,6 +3392,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "mwea",
   "siteTab": "Work",
+  "stub": true,
   "subtitle": "Cold room A · Harvest Cold Network · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Work views for Mwea (not built in this mock-up)."
@@ -3346,6 +3419,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "mwea",
   "siteTab": "Evidence",
+  "stub": true,
   "subtitle": "Cold room A · Harvest Cold Network · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Evidence views for Mwea (not built in this mock-up)."
@@ -3381,7 +3455,7 @@
   "title": "Thika",
   "root": "Sites",
   "section": "Financials",
-  "question": "Thika economics: every factor against plan, prices and models used.",
+  "question": "Thika economics: every factor against target, prices and models used.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -3400,7 +3474,7 @@
   "siteTab": "Financials",
   "subtitle": "Cold room B · Harvest Cold Network · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "Thika economics: every factor against plan, prices and models used."
+  "layer4_note": "Thika economics: every factor against target, prices and models used."
  },
  {
   "id": "site/kirinyaga",
@@ -3433,7 +3507,7 @@
   "title": "Kirinyaga",
   "root": "Sites",
   "section": "Financials",
-  "question": "Kirinyaga economics: every factor against plan, prices and models used.",
+  "question": "Kirinyaga economics: every factor against target, prices and models used.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -3452,7 +3526,7 @@
   "siteTab": "Financials",
   "subtitle": "Cold room C · Harvest Cold Network · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "Kirinyaga economics: every factor against plan, prices and models used."
+  "layer4_note": "Kirinyaga economics: every factor against target, prices and models used."
  },
  {
   "id": "site/kirinyaga/foundation",
@@ -3476,6 +3550,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "kirinyaga",
   "siteTab": "Foundation",
+  "stub": true,
   "subtitle": "Cold room C · Harvest Cold Network · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Foundation views for Kirinyaga (not built in this mock-up)."
@@ -3502,6 +3577,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "kirinyaga",
   "siteTab": "Health",
+  "stub": true,
   "subtitle": "Cold room C · Harvest Cold Network · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Health views for Kirinyaga (not built in this mock-up)."
@@ -3528,6 +3604,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "kirinyaga",
   "siteTab": "Performance",
+  "stub": true,
   "subtitle": "Cold room C · Harvest Cold Network · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Performance views for Kirinyaga (not built in this mock-up)."
@@ -3554,6 +3631,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "kirinyaga",
   "siteTab": "Findings",
+  "stub": true,
   "subtitle": "Cold room C · Harvest Cold Network · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Findings views for Kirinyaga (not built in this mock-up)."
@@ -3580,6 +3658,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "kirinyaga",
   "siteTab": "Work",
+  "stub": true,
   "subtitle": "Cold room C · Harvest Cold Network · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Work views for Kirinyaga (not built in this mock-up)."
@@ -3606,6 +3685,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "kirinyaga",
   "siteTab": "Evidence",
+  "stub": true,
   "subtitle": "Cold room C · Harvest Cold Network · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Evidence views for Kirinyaga (not built in this mock-up)."
@@ -3641,7 +3721,7 @@
   "title": "Embakasi",
   "root": "Sites",
   "section": "Financials",
-  "question": "Embakasi economics: every factor against plan, prices and models used.",
+  "question": "Embakasi economics: every factor against target, prices and models used.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -3660,7 +3740,7 @@
   "siteTab": "Financials",
   "subtitle": "Bus depot · Metro Bus Depots · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "Embakasi economics: every factor against plan, prices and models used."
+  "layer4_note": "Embakasi economics: every factor against target, prices and models used."
  },
  {
   "id": "site/embakasi/foundation",
@@ -3684,6 +3764,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "embakasi",
   "siteTab": "Foundation",
+  "stub": true,
   "subtitle": "Bus depot · Metro Bus Depots · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Foundation views for Embakasi (not built in this mock-up)."
@@ -3710,6 +3791,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "embakasi",
   "siteTab": "Health",
+  "stub": true,
   "subtitle": "Bus depot · Metro Bus Depots · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Health views for Embakasi (not built in this mock-up)."
@@ -3736,6 +3818,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "embakasi",
   "siteTab": "Performance",
+  "stub": true,
   "subtitle": "Bus depot · Metro Bus Depots · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Performance views for Embakasi (not built in this mock-up)."
@@ -3762,6 +3845,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "embakasi",
   "siteTab": "Findings",
+  "stub": true,
   "subtitle": "Bus depot · Metro Bus Depots · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Findings views for Embakasi (not built in this mock-up)."
@@ -3788,6 +3872,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "embakasi",
   "siteTab": "Work",
+  "stub": true,
   "subtitle": "Bus depot · Metro Bus Depots · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Work views for Embakasi (not built in this mock-up)."
@@ -3814,6 +3899,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "embakasi",
   "siteTab": "Evidence",
+  "stub": true,
   "subtitle": "Bus depot · Metro Bus Depots · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Evidence views for Embakasi (not built in this mock-up)."
@@ -3849,7 +3935,7 @@
   "title": "Kasarani",
   "root": "Sites",
   "section": "Financials",
-  "question": "Kasarani economics: every factor against plan, prices and models used.",
+  "question": "Kasarani economics: every factor against target, prices and models used.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -3868,7 +3954,7 @@
   "siteTab": "Financials",
   "subtitle": "Bus depot · Metro Bus Depots · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "Kasarani economics: every factor against plan, prices and models used."
+  "layer4_note": "Kasarani economics: every factor against target, prices and models used."
  },
  {
   "id": "site/kasarani/foundation",
@@ -3892,6 +3978,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "kasarani",
   "siteTab": "Foundation",
+  "stub": true,
   "subtitle": "Bus depot · Metro Bus Depots · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Foundation views for Kasarani (not built in this mock-up)."
@@ -3918,6 +4005,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "kasarani",
   "siteTab": "Health",
+  "stub": true,
   "subtitle": "Bus depot · Metro Bus Depots · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Health views for Kasarani (not built in this mock-up)."
@@ -3944,6 +4032,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "kasarani",
   "siteTab": "Performance",
+  "stub": true,
   "subtitle": "Bus depot · Metro Bus Depots · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Performance views for Kasarani (not built in this mock-up)."
@@ -3970,6 +4059,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "kasarani",
   "siteTab": "Findings",
+  "stub": true,
   "subtitle": "Bus depot · Metro Bus Depots · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Findings views for Kasarani (not built in this mock-up)."
@@ -3996,6 +4086,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "kasarani",
   "siteTab": "Work",
+  "stub": true,
   "subtitle": "Bus depot · Metro Bus Depots · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Work views for Kasarani (not built in this mock-up)."
@@ -4022,6 +4113,7 @@
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "kasarani",
   "siteTab": "Evidence",
+  "stub": true,
   "subtitle": "Bus depot · Metro Bus Depots · October 2026",
   "layer4_status": "Added",
   "layer4_note": "Evidence views for Kasarani (not built in this mock-up)."
@@ -4057,7 +4149,7 @@
   "title": "Ruiru",
   "root": "Sites",
   "section": "Financials",
-  "question": "Ruiru economics: every factor against plan, prices and models used.",
+  "question": "Ruiru economics: every factor against target, prices and models used.",
   "domain": "mini",
   "loop": true,
   "book": false,
@@ -4076,7 +4168,7 @@
   "siteTab": "Financials",
   "subtitle": "Bus depot · Metro Bus Depots · October 2026",
   "layer4_status": "Added",
-  "layer4_note": "Ruiru economics: every factor against plan, prices and models used."
+  "layer4_note": "Ruiru economics: every factor against target, prices and models used."
  },
  {
   "id": "decision/kobo-generator",
@@ -4099,7 +4191,7 @@
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "kobo",
-  "subtitle": "Kobo · Lakeside Power · options compared with no action",
+  "subtitle": "Kobo · Lakeside Power · options compared against doing nothing",
   "layer4_status": "Added",
   "layer4_note": "Kobo generator stop setting"
  },
@@ -4124,7 +4216,7 @@
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "kobo",
-  "subtitle": "Kobo · Lakeside Power · options compared with no action",
+  "subtitle": "Kobo · Lakeside Power · options compared against doing nothing",
   "layer4_status": "Added",
   "layer4_note": "Kobo battery warranty evidence"
  },
@@ -4149,7 +4241,7 @@
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "kisiwa",
-  "subtitle": "Kisiwa · Lakeside Power · options compared with no action",
+  "subtitle": "Kisiwa · Lakeside Power · options compared against doing nothing",
   "layer4_status": "Added",
   "layer4_note": "Kisiwa evening backup generator"
  },
@@ -4174,7 +4266,7 @@
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "kisiwa",
-  "subtitle": "Kisiwa · Lakeside Power · options compared with no action",
+  "subtitle": "Kisiwa · Lakeside Power · options compared against doing nothing",
   "layer4_status": "Added",
   "layer4_note": "Kisiwa late repair response and service credit"
  },
@@ -4199,7 +4291,7 @@
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "mto",
-  "subtitle": "Mto · Lakeside Power · options compared with no action",
+  "subtitle": "Mto · Lakeside Power · options compared against doing nothing",
   "layer4_status": "Added",
   "layer4_note": "Mto new daytime demand"
  },
@@ -4224,9 +4316,34 @@
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "mto",
-  "subtitle": "Mto · Lakeside Power · options compared with no action",
+  "subtitle": "Mto · Lakeside Power · options compared against doing nothing",
   "layer4_status": "Added",
   "layer4_note": "Mto billing after the meter swap"
+ },
+ {
+  "id": "decision/mto-losses",
+  "title": "Mto energy not explained after expected losses",
+  "root": "Portfolio",
+  "section": "Decision",
+  "question": "Mto energy not explained after expected losses",
+  "domain": "mini",
+  "loop": true,
+  "book": false,
+  "anchor": "Layer 4 design rev 4 §6.2",
+  "models": [
+   "Factor structure (site × period)",
+   "Portfolio composition",
+   "Decision and options",
+   "Allocation run",
+   "Actions and rights"
+  ],
+  "preserved": "v7.0 shell, left menu, tab frame, drawer and accessibility patterns.",
+  "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
+  "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
+  "site": "mto",
+  "subtitle": "Mto · Lakeside Power · options compared against doing nothing",
+  "layer4_status": "Added",
+  "layer4_note": "Mto energy not explained after expected losses"
  },
  {
   "id": "decision/mto-inverter",
@@ -4249,7 +4366,7 @@
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "mto",
-  "subtitle": "Mto · Lakeside Power · options compared with no action",
+  "subtitle": "Mto · Lakeside Power · options compared against an immediate restore at no cost",
   "layer4_status": "Added",
   "layer4_note": "Mto inverter 2 restore path"
  },
@@ -4274,7 +4391,7 @@
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "mwea",
-  "subtitle": "Mwea · Harvest Cold Network · options compared with no action",
+  "subtitle": "Mwea · Harvest Cold Network · options compared against doing nothing",
   "layer4_status": "Added",
   "layer4_note": "Mwea occupancy"
  },
@@ -4299,7 +4416,7 @@
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "thika",
-  "subtitle": "Thika · Harvest Cold Network · options compared with no action",
+  "subtitle": "Thika · Harvest Cold Network · options compared against doing nothing",
   "layer4_status": "Added",
   "layer4_note": "Thika stock cover until the start controller is replaced"
  },
@@ -4324,7 +4441,7 @@
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "kirinyaga",
-  "subtitle": "Kirinyaga · Harvest Cold Network · options compared with no action",
+  "subtitle": "Kirinyaga · Harvest Cold Network · options compared against doing nothing",
   "layer4_status": "Added",
   "layer4_note": "Kirinyaga electricity above the occupancy model"
  },
@@ -4349,7 +4466,7 @@
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "embakasi",
-  "subtitle": "Embakasi · Metro Bus Depots · options compared with no action",
+  "subtitle": "Embakasi · Metro Bus Depots · options compared against doing nothing",
   "layer4_status": "Added",
   "layer4_note": "Embakasi charging schedule"
  },
@@ -4374,7 +4491,7 @@
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "kasarani",
-  "subtitle": "Kasarani · Metro Bus Depots · options compared with no action",
+  "subtitle": "Kasarani · Metro Bus Depots · options compared against doing nothing",
   "layer4_status": "Added",
   "layer4_note": "Kasarani departures while charger 2 is repaired"
  },
@@ -4399,7 +4516,7 @@
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "ruiru",
-  "subtitle": "Ruiru · Metro Bus Depots · options compared with no action",
+  "subtitle": "Ruiru · Metro Bus Depots · options compared, not valued in money",
   "layer4_status": "Added",
   "layer4_note": "Ruiru route expansion: extra buses"
  },
@@ -4424,7 +4541,7 @@
   "adapted": "Content re-based on the five mechanics: outcomes computed from declared factors; deviations seen at the factor where they arise.",
   "deferred": "Live data, persistence and the v7.2 visual foundation (owner question).",
   "site": "ruiru",
-  "subtitle": "Ruiru · Metro Bus Depots · options compared with no action",
+  "subtitle": "Ruiru · Metro Bus Depots · options compared against doing nothing",
   "layer4_status": "Added",
   "layer4_note": "Ruiru idle connector claim"
  }
