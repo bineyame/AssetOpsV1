@@ -38,6 +38,14 @@ needs_v2 = pytest.mark.skipif(getattr(finding_index, "POLICY_VERSION", None) != 
 
 @pytest.fixture(scope="module")
 def demo():
+    import importlib.util
+
+    # T1b (D-T1.24): the slow-tier prepare is a heavy database job; a --db-lane run may not start it.
+    spec = importlib.util.spec_from_file_location(
+        "heavy_slot_check", Path(__file__).resolve().parents[2] / "tools" / "heavy_slot_check.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    module.require("the slow-tier prepare", db=True)
     from sqlalchemy.engine import make_url
 
     base = os.environ.get("ASSETOPS_TEST_DATABASE_BASE_URL") or os.environ.get("ASSETOPS_TEST_DATABASE_URL")
