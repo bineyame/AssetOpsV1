@@ -19,7 +19,7 @@ import { DataTable, MetricCard, MetricCards, Panel, StatusBar } from "../ui";
 import { RangeLink as Link } from "../ui/RangeLink";
 import { dayGapWords } from "../ui/productWords";
 import { formatDay } from "../ui/time";
-import { rangeParams, type DayRange } from "../ui/sharedRange";
+import { capWindow, rangeWindow, type DayRange } from "../ui/sharedRange";
 import { analysedDaysMoney, coverageStateWords, gapReasonClause, PARTIAL_MONEY_NOT_ADDED, STILL_PROCESSING } from "../estate/portfolioWords";
 import { moneyText } from "../estate/estateFinancialsWords";
 import { FINDING_INDEX_DOMAIN, type FindingIndexClient, type FindingIndexResult } from "./findingIndexClient";
@@ -460,10 +460,10 @@ export function useRangeOverview(
 ): RangeOverviewState {
   const [read, setRead] = useState<RangeOverviewRead | null>(null);
   const [retrying, setRetrying] = useState(false);
-  const query = range === null ? null : rangeParams(range);
-  const from = query?.get("from") ?? "";
-  const to = query?.get("to") ?? "";
-  const knownAt = query?.get("known_at") ?? null;
+  const query = range === null ? null : { ...rangeWindow(capWindow(range)), known_at: range.known_at };
+  const from = query?.from ?? "";
+  const to = query?.to ?? "";
+  const knownAt = query?.known_at ?? null;
   useEffect(() => {
     let active = true;
     setRead(null);

@@ -1509,8 +1509,6 @@ h2 .ux-split{font-size:var(--fs-sm);font-weight:400;color:var(--text-2)}
 .reviewbar .ux-rebuild .ux-pop-menu{right:0;left:auto;max-width:420px;white-space:normal}
 /* IA-1b (D-IA.22): levels are structure only, so the reviewed layout does not move */
 [data-shape="hub"]>[data-level],[data-shape="decision"]>[data-level],[data-ia-drawers]{display:contents}
-.ia-outcomes td small{display:block;color:var(--text-2);font-weight:400}
-.table-wrap:has(>.ia-outcomes){margin-bottom:var(--s4,16px)}
 /* IA-1c (spec §4.3): the "Waiting for you" control in the top bar, sized with the theme toggle; at 390 its label is visually hidden and the
    icon and badge stay */
 .ia-inbox{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px;border:1px solid var(--line-strong);border-radius:var(--r1);background:var(--surface);color:var(--text);font-size:var(--fs-xs);font-weight:550;white-space:nowrap;cursor:pointer;flex:none}
@@ -1559,6 +1557,34 @@ h2 .ux-split{font-size:var(--fs-sm);font-weight:400;color:var(--text-2)}
 .ia-frame .topbar[data-fit="5"] .ux-scope-sw{flex:1 1 0;min-width:0;max-width:max-content}
 .ia-frame .topbar[data-fit="5"] .ux-scope-sw>summary{white-space:normal;overflow-wrap:normal;word-break:normal}
 .ia-frame .topbar[data-fit="5"] .searchbox::after{display:none}
+/* IA-2a (spec §5.1.7, D-IA.51): the plan's stepper, the thresholds opener and the case line */
+.ia-plan-steps{margin:0 0 var(--s3,12px)}
+.ia-plan-rules{margin:var(--s2,8px) 0 0}
+.ia-plan-case{margin:var(--s2,8px) 0 0}
+
+.ia-plan-released{margin:var(--s2,8px) 0 0;font-size:var(--fs-sm);color:var(--text-2)} /* D-IA.60 L6: the release line's type (.approval-releases) */
+[data-ia-tabs]{display:contents}
+/* D-IA.56: a tile row fills its row; below 1280 two tracks and an odd last tile spans the row */
+@media (min-width:1280px){.ia-frame .heroes.ux-kpis:has(>:last-child:nth-child(3)){grid-template-columns:repeat(3,minmax(0,1fr))}.ia-frame .heroes.ux-kpis:has(>:last-child:nth-child(2)){grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:1279px){.ia-frame .heroes.ux-kpis>:last-child:nth-child(odd){grid-column:1/-1}}
+/* D-IA.55: on a phone the plan's L1 notes sit closer, so the tab's content still starts inside a viewport once the strip is at the top */
+@media (max-width:600px){.ia-plan-released,.ia-plan-rules,.ia-plan-case{margin-top:var(--s1,4px)}.ia-plan-rules{margin-top:0}}
+/* IA-2b1 (spec-IA-2b §3.2): the list shape. Levels are structure only; the tools and chips rows wrap inside the page; one stretched link
+   per row (D-IA.9), focus shown on the row */
+[data-shape="list"]>[data-level]{display:contents}
+.ia-list-tools,.ia-list-chips{display:flex;flex-wrap:wrap;gap:var(--s2,8px);align-items:end}
+.ia-list-tools{margin:0 0 var(--s3,12px)}
+.ia-list-tools label{display:flex;flex-direction:column;gap:4px;min-width:0;max-width:100%;font-size:var(--fs-sm);color:var(--text-2)}
+.ia-list-tools select,.ia-list-tools input{max-width:100%}
+.ia-list-chips{margin:0 0 var(--s3,12px);align-items:center;font-size:var(--fs-sm)}
+.ia-chip{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px;max-width:100%;padding:2px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface-2)}
+.ia-list tbody tr{position:relative}.ia-row-go::after{content:"";position:absolute;inset:0}.ia-list tbody tr:focus-within{outline:2px solid var(--focus,#2563eb);outline-offset:-2px}
+.ia-list tbody tr[data-row]:hover{background:var(--surface-2)}
+.ia-list th small,.ia-list td small{display:block;color:var(--text-2);font-weight:400}
+.ia-list .ia-list-group th{background:var(--surface-2);font-weight:600}
+.table-wrap:has(>.ia-list){margin-bottom:var(--s4,16px)}
+/* IA-2b1 unit 4 (ia_shots S1, D-IA.35 L5): the stacked row title and state pill wrap; the global th{white-space:nowrap} (mockups.css) and the pill's nowrap (theme.css) clipped them at 390 */
+@media (max-width:760px){.ia-list tbody th{white-space:normal;overflow-wrap:break-word}.ia-list td .status-pill{white-space:normal;max-width:100%;height:auto;min-height:22px;padding-block:3px;line-height:1.25}}
 
 /* brand.css: brand packs (UI/UX guide §4.7). A pack changes only brand tokens: surfaces' warmth, the interactive accent, the
    rail, the brand mark and the motif accents (a header band, the brand mark, empty and loading states). It never changes
@@ -2912,7 +2938,7 @@ function render(){
  const s=currentScreen();document.querySelector('.conf-pop')?.remove();
  $('#overlay').innerHTML='';document.body.style.overflow='';
  /* IA-1 (spec §2.1, §2.4): a landed IA route renders in the frame, through iaRender only */
- if(typeof IA_ROUTES!=='undefined'){IA_ROUTE_ACTIVE=!!s.ia;if(s.ia&&!new URLSearchParams(location.search).has('book')){document.title=`${s.title} · ${OPS[LS.op].name}`;$('#app').innerHTML=`${reviewBar(s)}<div id="ia-root"></div>`;iaRender(s.ia,s.ctx);afterRender(s);window.mockupReady=true;return;}}
+ if(typeof IA_ROUTES!=='undefined'){IA_ROUTE_ACTIVE=!!s.ia;if(s.ia&&!new URLSearchParams(location.search).has('book')){document.title=`${s.docTitle||s.title} · ${OPS[LS.op].name}`;$('#app').innerHTML=`${reviewBar(s)}<div id="ia-root"></div>`;iaRender(s.ia,s.ctx);afterRender(s);window.mockupReady=true;return;}}
  document.title=`AssetOps · ${s.title}${s.section?' / '+s.section:''} · Screen review`;
  if(new URLSearchParams(location.search).has('book')){
   const pages=SCREENS.filter(x=>x.book!==false&&(x.root!=='Simulator Lab'||(typeof iaDev!=='function'||iaDev())));
@@ -3410,7 +3436,7 @@ const ALIAS = {'portfolio/opportunity':'portfolio/demand-and-capacity',financial
 function resolveScreen(id){
  /* IA-1 (spec §2.2, P8): a live IA alias first, else ALIAS, never chained; a landed IA route renders in the frame */
  const IA=typeof IA_ROUTES!=='undefined',iaT=IA?iaLiveAlias(id):null;
- let target=id;if(iaT){target=iaT;try{const q=location.hash.indexOf('?');history.replaceState(null,'','#/'+target+(q<0?'':location.hash.slice(q)));}catch{}}else if(ALIAS[id]){target=ALIAS[id];try{history.replaceState(null,'','#/'+target);}catch{}}
+ let target=id;if(iaT){target=iaT;try{const q=location.hash.indexOf('?');history.replaceState(null,'',iaCanon('#/'+id+(q<0?'':location.hash.slice(q))));}catch{}} /* D-IA.78: the alias's own query too (iaCanon) */else if(ALIAS[id]){target=ALIAS[id];try{history.replaceState(null,'','#/'+target);}catch{}}
  if(IA&&!target&&typeof iaLanding==='function'){const l=iaLanding(),m=l&&iaLanded(l);if(m)return iaScreen(m.route,l);} /* D-IA.29: the empty hash renders iaStart() */
  if(IA&&typeof iaForeign==='function'&&iaForeign(target)){const m=iaLanded('not-found');if(m)return iaScreen(m.route,'not-found');} /* D-IA.28: another operator's Site or decision */
  if(IA&&target!=='not-found'){const m=iaLanded(target);if(m)return iaScreen(m.route,target);}
@@ -3429,7 +3455,7 @@ const studyAssumptions=st=>(STUDY(st).assumptions||[]).map(a=>{const m=String(a)
 const DV_CONTAINER='tr,li,p,dd,.hero,.path,.total,.evhead';
 function tagReplay(root){if(!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),conts=new Map();let n;
  while((n=w.nextNode())){const pe=n.parentElement;if(pe.closest(SRC_SEL+',.vh,select,option,details.tech,script,style'))continue;const i=SOURCE_RE.findIndex(r=>r.test(n.textContent));if(i>=0){const c=pe.closest(DV_CONTAINER);if(c&&!c.querySelector(SRC_SEL)&&!conts.has(c))conts.set(c,SOURCE_LABELS[i]);}}
- conts.forEach((st,c)=>{const t=c.tagName==='TR'?c.lastElementChild:c.matches('.ux-q')?(c.querySelector('.ux-q-stake')||c):c;t.insertAdjacentHTML('beforeend',' '+srcTag(st));});}
+ conts.forEach((st,c)=>{const t=c.tagName==='TR'?c.lastElementChild:c.matches('.ux-q')?(c.querySelector('.ux-q-stake')||c):c;(t.tagName==='TD'&&t.lastElementChild&&t.lastElementChild.matches('.ux-cell')?t.lastElementChild:t).insertAdjacentHTML('beforeend',' '+srcTag(st));});} /* IA-2b1 review M1: inside the cell's wrapper, so a stacked card keeps the mark in the value column */
 /* ---------- plain words (owner, 19 Nov: no technical words on anything user-facing) ----------
    One display vocabulary for every string a loop screen shows, whether typed in these modules or read from the demo
    data file: applied to the text of the canvas and of each evidence drawer after render. Figures are never touched
@@ -4497,14 +4523,17 @@ function itemActions(op,id){return laterActions(op,id)||actionRows(op,actionsOf(
 /* a declared proactive item (design §2.5; OD-5): no issue behind it, its own spend and crew visit, a dependency and a date */
 function proactiveCard(op,it,P){const ms=crewByMonth(op,P),m=ms.find(x=>x.ym===it.crew_month),dep=it.depends_on,inCase=!dep||P.ids.includes(dep);
  return `<article class="plan-item proactive" data-item="${it.item}"><header class="plan-item-head"><div><div class="eyebrow">${SK[siteKeyOf(op,it.site)]?.name||it.site} · Declared work</div><h3>${it.label}</h3></div></header>${itemOwnerLine(op,it.item)}<dl class="plan-item-figs"><div><dt>One-off from this budget · basis</dt><dd>${usd(it.planned_spend||0)} <small class="cellnote">${it.spend_basis}</small></dd></div><div><dt>${cap(OPS[op].crewWord)}</dt><dd>${num(it.crew_visits||0)} in ${it.crew_month?monthOf(it.crew_month):'the period'}${m?` <small class="cellnote">${num(m.used)} of ${num(m.limit)} ${OPS[op].crewWord} used in ${m.month}</small>`:''}</dd></div><div><dt>Factor it moves · value</dt><dd>${cap(it.factor)} <small class="cellnote">Upkeep, no value claimed</small></dd></div>${dep?`<div><dt>Depends on</dt><dd>${itemShort(op,dep)}${inCase?'':' <small class="cellnote">not in this case</small>'} <small class="cellnote">${cap(it.depends_reason)}</small></dd></div>`:''}${it.service_date?`<div><dt>Service date</dt><dd>${fdate(it.service_date)}</dd></div>`:''}<div><dt>Effect under each heading</dt><dd><ul class="byhead"><li data-heading="protect">${lensTag('protect')} <span>Upkeep, no value claimed</span></li></ul></dd></div></dl>${itemActions(op,it.item)}</article>`;}
-function approvalPanel(op,P,budget){const S0=PSTATE(),S=uxPlanState(op),W=waitingSummary(op,planCaseIds(op)),def=DEFAULT_CASE(op),pre=S.state==='PROPOSED';
- return `<section class="panel approval" aria-labelledby="ap-h"><h2 id="ap-h">Approval</h2>${planStatusBlock(op)}
- ${kv([['Opened',`${fdate(S0.opened)}, by the system, within the executive’s limits`],['Proposed',`${fdate(S0.proposed)}, by the system`]])}
- ${meter('Budget used',P.spend,budget,usd)}${crewMeters(op,P)}
- <p class="approval-releases">${S.state==='DRAFT'?'Sent back to draft: nothing is released. Each changed item returns to its creator with the reason.':`${pre?'Approving releases':'Released with the approval:'} ${num(W.wait)} waiting Action${W.wait===1?'':'s'} and ${num(W.waitItems.length)} item${W.waitItems.length===1?'':'s'}, ${usd(W.spend)} of one-off spend${W.capital.length?`, including ${usd(W.capSpend)} of capital (${W.capital.map(id=>itemProse(op,id)).join(', ')})`:''}.${W.later.length?` ${pre?'After approval':'Now'}, ${W.later.map(id=>`${itemOf(op,id)?.owner||'its owner'} ${pre?'creates':'creates'} the Action for ${itemProse(op,id)}`).join('; ')}.`:''}`}</p>
- ${def||!pre?'':`<p class="notice">The case shown is not the proposed version. Version ${num(S0.version)} was proposed for the default switches; approving this case makes version ${num(S0.version+1)}.</p>`}
- <p class="note">Recorded under the executive’s name and the time. Sending it back returns each changed item to its creator with the reason.</p>
- <h3 class="h3s">Release thresholds</h3>${thresholdsKv(op)}${ILLUS}</section>`;}
+/* D-IA.46: the approval panel in its parts; approvalPanel() joins them into exactly the reviewed string */
+function approvalParts(op,P,budget){const S0=PSTATE(),S=uxPlanState(op),W=waitingSummary(op,planCaseIds(op)),def=DEFAULT_CASE(op),pre=S.state==='PROPOSED';
+ const thrBody=`${thresholdsKv(op)}${ILLUS}`;
+ return {status:planStatusBlock(op),kv:`${kv([['Opened',`${fdate(S0.opened)}, by the system, within the executive’s limits`],['Proposed',`${fdate(S0.proposed)}, by the system`]])}`,meters:`${meter('Budget used',P.spend,budget,usd)}${crewMeters(op,P)}`,releases:`<p class="approval-releases">${S.state==='DRAFT'?'Sent back to draft: nothing is released. Each changed item returns to its creator with the reason.':`${pre?'Approving releases':'Released with the approval:'} ${num(W.wait)} waiting Action${W.wait===1?'':'s'} and ${num(W.waitItems.length)} item${W.waitItems.length===1?'':'s'}, ${usd(W.spend)} of one-off spend${W.capital.length?`, including ${usd(W.capSpend)} of capital (${W.capital.map(id=>itemProse(op,id)).join(', ')})`:''}.${W.later.length?` ${pre?'After approval':'Now'}, ${W.later.map(id=>`${itemOf(op,id)?.owner||'its owner'} ${pre?'creates':'creates'} the Action for ${itemProse(op,id)}`).join('; ')}.`:''}`}</p>`,notice:`${def||!pre?'':`<p class="notice">The case shown is not the proposed version. Version ${num(S0.version)} was proposed for the default switches; approving this case makes version ${num(S0.version+1)}.</p>`}`,note:`<p class="note">Recorded under the executive’s name and the time. Sending it back returns each changed item to its creator with the reason.</p>`,thrBody,thresholds:`<h3 class="h3s">Release thresholds</h3>${thrBody}`};}
+function approvalPanel(op,P,budget,a=approvalParts(op,P,budget)){return `<section class="panel approval" aria-labelledby="ap-h"><h2 id="ap-h">Approval</h2>${a.status}
+ ${a.kv}
+ ${a.meters}
+ ${a.releases}
+ ${a.notice}
+ ${a.note}
+ ${a.thresholds}</section>`;}
 /* D-IA.20: the plan page in its parts; planScreen() joins them into exactly the reviewed string */
 function planParts(op){const o=OPS[op],A=o.t.portfolio.allocation,M=o.t.portfolio_constraints,P=planCase(op),budget=op==='lakeside'?LS.budget:M.budget_usd_nov_dec;
  const rows=P.ids.map(id=>{const x=OPT[id],[cv,cn]=optCost(x),[ev,en]=PLAN_EFFECT[id]?PLAN_EFFECT[id]():optEffect(x),d=DEC_SEE_ALSO[id]||decOf(id).id;
@@ -4525,15 +4554,16 @@ function planParts(op){const o=OPS[op],A=o.t.portfolio.allocation,M=o.t.portfoli
  const paths=op==='lakeside'?sec('Two ways to restore Mto’s inverter, under this assumption',`<div class="paths">${[P.win,P.lose].filter(Boolean).map((x,i)=>`<div class="path ${i===0?'win':''}"><div class="eyebrow">${i===0?'In the plan':'Competing path'}</div><h3>${optLabel(x.id)}</h3>${kv([['Plan spend',usd(x.spend)],[PLAN_TOTAL_TITLE,usdW(x.value,true)],['Inverter back',fdate(DOPT(x.id).restore_date)],['Rice huller',x.huller?'Kept':cap(hullerCell(x.id))],['Fits the budget',x.spend<=budget?'Yes':'No']])}</div>`).join('')}</div><p class="note">${mtoCapacityLine()}</p>`,'Both paths shown side by side; the proposal takes the better one that fits; you choose.'):'';
  const fieldRows=P.ids.map(id=>[VISIT[id]?.[1]==='field'?'Field work':VISIT[id]?.[1]==='contractor'?'Contractor':'Remote or office',`${SK[OPT[id]._site].name}: ${optLabel(id)}`,VISIT[id]?.[0]?.()||'—']).concat(proactiveOf(op).map(it=>['Field work',`${SK[siteKeyOf(op,it.site)]?.name||it.site}: ${it.label}`,`${num(it.crew_visits||0)} ${it.crew_visits===1?crewOne(op):o.crewWord}${it.crew_month?` in ${monthOf(it.crew_month)}`:''}${it.service_date?`, on ${fdate(it.service_date)}`:''}`])).sort((a,b)=>a[0].localeCompare(b[0]));
  const v1=planItemsV1(op),gone=WF(op).actions.filter(x=>v1.includes(x.item)&&!P.ids.includes(x.item));
+ const diff=uxPlanDiff(op,P),crew=uxSecAx(`${cap(o.crewWord)} and remote changes`,region(`${cap(o.crewWord)} and remote changes`,table(['Kind','Work','Who'],fieldRows)),`${num(fieldRows.filter(r=>r[0]==='Field work').length)} field visits, ${num(fieldRows.filter(r=>r[0]!=='Field work').length)} remote, office or contractor`),listedS=uxSecAx('Listed beside the plan, not added',region('Listed beside the plan',table(['Item','Amount','Evidence','Why it is not added'],listed.map(([a,b,c,d])=>[a,b,ec(c),d]))),`${num(listed.length)} values, never added`),leftBody=region('Options left out',table(['Option','Site','Reason'],excl.map(([id,r])=>[link(`decision/${DEC_SEE_ALSO[id]||decOf(id).id}`,optLabel(id)),SK[OPT[id]._site].name,r]))),leftAns=`${num(excl.length)} options, each with its reason`,left=uxSecAx('Left out of the plan, and why',leftBody,leftAns),cases=op==='lakeside'?uxSecAx('All four cases of the two assumptions',region('Four cases',table(['Budget','Letter extended','Inverter path','Rice huller','Spend',PLAN_TOTAL_TITLE],Object.entries(DERIVED.plans['lakeside-power'].switch_cases).map(([k,c])=>{const [b,l]=k.split('/');return [usd(+b),l==='True'?'Yes':'No',optLabel(inv0(c)),c.items.includes('MTO-HULLER')?'Kept':'Lost',usd(c.spend),usd(c.value,true)];}))),'More budget never lowers the result; whether the letter is extended is what changes the path.'):'',returned=gone.length?sec('Actions that return to their creator in this case',actionRows(op,gone,()=>false,true),'Their item is in the proposed version but left out under these switches.'):'',swS=`<section class="panel controls" aria-labelledby="sw-h"><h2 id="sw-h">Try another case</h2><p class="note">Change an assumption to see the plan worked out again.</p>${switches(op)}<p id="plan-live" class="vh" role="status" aria-live="polite" data-say="${escapeHtml(say)}"></p></section>`,ap=approvalParts(op,P,budget);
  return {sticky:uxPlanSticky(op,P,budget),band:uxPlanBand(op,P,budget),l2:`
  ${sec(`The plan for ${periodWords()}: items and their Actions`,`<div class="ux-items">${uxItemHead()}${rows.join('')}</div>`+total+`<details class="ux-about ux-about-inline"><summary>How the plan is chosen</summary><p>One search over all the decisions together: one option for each, within the budget, ${o.crewWord}, deadlines and dependencies. An option that breaks a hard limit is left out unless no option can keep it. The plan breaks the limits least, then is worth most, then spends least. Each item lists the Actions people created for it.</p></details>`+ILLUS,`One option per decision, within the budget, ${o.crewWord}, deadlines and dependencies.`)}`,l3:`
- ${uxPlanDiff(op,P)}
+ ${diff}
  ${paths}
- <div class="grid2">${uxSecAx(`${cap(o.crewWord)} and remote changes`,region(`${cap(o.crewWord)} and remote changes`,table(['Kind','Work','Who'],fieldRows)),`${num(fieldRows.filter(r=>r[0]==='Field work').length)} field visits, ${num(fieldRows.filter(r=>r[0]!=='Field work').length)} remote, office or contractor`)}${uxSecAx('Listed beside the plan, not added',region('Listed beside the plan',table(['Item','Amount','Evidence','Why it is not added'],listed.map(([a,b,c,d])=>[a,b,ec(c),d]))),`${num(listed.length)} values, never added`)}</div>
- ${uxSecAx('Left out of the plan, and why',region('Options left out',table(['Option','Site','Reason'],excl.map(([id,r])=>[link(`decision/${DEC_SEE_ALSO[id]||decOf(id).id}`,optLabel(id)),SK[OPT[id]._site].name,r]))),`${num(excl.length)} options, each with its reason`)}
- ${op==='lakeside'?uxSecAx('All four cases of the two assumptions',region('Four cases',table(['Budget','Letter extended','Inverter path','Rice huller','Spend',PLAN_TOTAL_TITLE],Object.entries(DERIVED.plans['lakeside-power'].switch_cases).map(([k,c])=>{const [b,l]=k.split('/');return [usd(+b),l==='True'?'Yes':'No',optLabel(inv0(c)),c.items.includes('MTO-HULLER')?'Kept':'Lost',usd(c.spend),usd(c.value,true)];}))),'More budget never lowers the result; whether the letter is extended is what changes the path.'):''}
- ${gone.length?sec('Actions that return to their creator in this case',actionRows(op,gone,()=>false,true),'Their item is in the proposed version but left out under these switches.'):''}
- `,aside:`${approvalPanel(op,P,budget)}<section class="panel controls" aria-labelledby="sw-h"><h2 id="sw-h">Try another case</h2><p class="note">Change an assumption to see the plan worked out again.</p>${switches(op)}<p id="plan-live" class="vh" role="status" aria-live="polite" data-say="${escapeHtml(say)}"></p></section>`};}
+ <div class="grid2">${crew}${listedS}</div>
+ ${left}
+ ${cases}
+ ${returned}
+ `,aside:`${approvalPanel(op,P,budget,ap)}${swS}`,P,budget,diff,paths,crew,listed:listedS,leftBody,leftAns,left,cases,returned,switches:swS,ap};}
 function planScreen(){const p=planParts(LS.op);return `${p.sticky}${p.band}<div class="layout-main-side"><div>${p.l2}${p.l3}</div><aside class="side-panel">${p.aside}</aside></div>`;}
 
 /* ---------- Outcomes by site: each outcome's factor structure by site ---------- */
@@ -4606,21 +4636,23 @@ function commitState(op,d,note){const dec=decById(d),id=dec?dec.opts.find(x=>ite
  if(it.capital&&!A.length)return `<span class="status-pill is-waiting" data-commit-state="CAPITAL">Waiting for the executive’s capital approval</span><small class="cellnote">${ex?ex.name+' approves it as capital. ':''}No Action yet: ${it.owner} creates it after that approval</small>`;
  const rel=A.length&&A.every(a=>releaseOf(op,a.item).at)||planReleasedItem(op,id);
  return rel?`<span class="status-pill is-approved" data-commit-state="RELEASED">Released</span><small class="cellnote">${note}</small>`:`<span class="status-pill is-waiting" data-commit-state="WAITING">Waiting for approval</span><small class="cellnote">${A.length?`${num(A.length)} Action${A.length===1?'':'s'} waiting for the plan’s approval`:'No Action yet'}</small>`;}
-function whatChangedScreen(){const op=LS.op;
+/* D-IA.46: What changed in its parts; whatChangedScreen() joins them into exactly the reviewed string */
+function whatChangedParts(op){
  const rows=COMMIT[op].map(([d,what,pred,state])=>[link(`decision/${d}`,what),pred+ec('MODELLED'),commitState(op,d,state),badge('Not yet','amber'),badge('Not yet','amber'),badge('Not yet','amber')]);
  const rt=RIGHTS_OF_OP[op].map(k=>{const r=rightsOf(k),cur=STAGE_IX[r.state];return [link(`decision/${r.dec}`,r.asset),r.type,`<span class="ministeps" aria-label="Stage ${cur+1} of 8: ${cur>=0?STAGES[cur]:'no claim stage'}">${STAGES.map((st,i)=>`<i class="${i<=cur?'on':''}" title="${st}"></i>`).join('')}</span><small class="cellnote">${cur>=0?STAGES[cur]:'No claim possible'}${r.stopped?' · '+r.stopped:''}</small>`,r.deadline?`${fdate(r.deadline)} <small class="cellnote">${daysUntil(r.deadline)} days</small>`:'—',r.cost,'None'];});
  const S=uxPlanState(op),v1=planItemsV1(op),acts=WF(op).actions;
- const review=v1.map(id=>{const it=itemOf(op,id),A=actionsOf(op,id),st=itemStateOf(op,id);
+ const reviewRows=v1.map(id=>{const it=itemOf(op,id),A=actionsOf(op,id),st=itemStateOf(op,id);
   const site=isProactive(op,id)?(SK[siteKeyOf(op,it.site)]?.name||it.site):SK[OPT[id]._site].name;
   const pred=isProactive(op,id)?`${cap(it.factor)} <small class="cellnote">Upkeep, no value claimed</small>`:(()=>{const [ev,en]=PLAN_EFFECT[id]?PLAN_EFFECT[id]():optEffect(OPT[id]);return `${ev} <small class="cellnote">${en}</small>`;})();
   const acts=A.length?A.map(a=>who(op,a.owner)).filter((v,i,l)=>l.indexOf(v)===i).join('<br>'):it?.capital?`None yet <small class="cellnote">${it.owner} creates it after approval, as capital</small>`:isProactive(op,id)?`None yet <small class="cellnote">${cap(it.action_note)}</small>`:'None yet';
   return [`<b>${itemName(op,id)}</b><small class="cellnote">${site}</small>`,pred,it?who(op,it.owner):'not available yet',st?statePill(st):'not available yet',acts,'Not yet',badge('Not yet','amber')];});
- return `<div class="kpi-row"><div class="kpi"><div class="kpi-label">The plan</div><div class="kpi-value">Version ${num(S.version)}</div><div class="kpi-sub">${STATE_WORD[S.state]}${S.state==='PROPOSED'?', awaiting the operator executive’s approval':S.by?` by ${S.by} in this demonstration`:''}</div></div><div class="kpi"><div class="kpi-label">Actions</div><div class="kpi-value">${num(acts.length)}</div><div class="kpi-sub">${waitingSummary(op).approved?`${num(acts.length)} released`:`${num(waitingSummary(op).rel)} released, ${num(waitingSummary(op).wait)} waiting for ${waitingSummary(op).draft?'a new version of the plan':'approval'}`}${waitingSummary(op).later.length?`; ${num(waitingSummary(op).later.length)} item${waitingSummary(op).later.length===1?'':'s'} ${waitingSummary(op).approved?'now create':'create'}${waitingSummary(op).later.length===1&&!waitingSummary(op).approved?'s':''} ${waitingSummary(op).later.length===1?'its Action':'theirs'}${waitingSummary(op).approved?'':' after approval'}`:''}</div></div><div class="kpi"><div class="kpi-label">Overdue</div><div class="kpi-value">${num(acts.filter(a=>daysUntil(a.due)<0).length)}</div><div class="kpi-sub">as of ${fdate(AS_OF)}</div></div><div class="kpi"><div class="kpi-label">Plan review</div><div class="kpi-value">${fdate(periodEnd())}</div><div class="kpi-sub">when the period ends</div></div></div>
- ${sec('Actions and their owners',actionRows(op,acts,()=>true,true)+ILLUS,'Every Action with who created it, who owns it, when it is due and whether it is released. Overdue is shown when a due date passes.',btn('portfolio/act-first/plan','Open the plan'))}
- ${sec('The plan’s review',region('Plan review',table(['Item','Predicted change','Item owner','Item state','Action owners','Observed change','Review'],review))+`<p class="note">At the end of the period, ${fdate(periodEnd())}, each item’s predicted factor change is set against what was observed. The plan’s realised value comes only from the money verdicts. Not run yet: the period is open.</p>`)}
- ${sec('What was chosen: its frozen prediction and three verdicts',region('Chosen options',table(['The chosen option','Frozen prediction','State','Operational verdict: factor moved, limits held','Economic verdict: money moved','Causal verdict: strength of attribution'],rows))+'<p class="note">Each chosen option is tracked from the moment it is chosen, through the Actions people create for it. Each verdict is separate. Not proven yet is a verdict, not a pass; a prediction is never relabelled as realised.</p>')}
- ${sec('Rights measures by contract and period (as of 6 Nov)',rightsMeasures(op))}
- ${sec('Rights tracker',region('Rights tracker',table(['Asset or contract','Type','State','Deadline','Our cost','Money recorded'],rt))+'<p class="note">Every state is set by a person from a recorded document or event. Money is recorded only when a credit note or receipt arrives.</p><p class="legal">This is not a legal decision. Coverage is decided by the supplier or insurer.</p>')}`;}
+ return {kpis:`<div class="kpi-row"><div class="kpi"><div class="kpi-label">The plan</div><div class="kpi-value">Version ${num(S.version)}</div><div class="kpi-sub">${STATE_WORD[S.state]}${S.state==='PROPOSED'?', awaiting the operator executive’s approval':S.by?` by ${S.by} in this demonstration`:''}</div></div><div class="kpi"><div class="kpi-label">Actions</div><div class="kpi-value">${num(acts.length)}</div><div class="kpi-sub">${waitingSummary(op).approved?`${num(acts.length)} released`:`${num(waitingSummary(op).rel)} released, ${num(waitingSummary(op).wait)} waiting for ${waitingSummary(op).draft?'a new version of the plan':'approval'}`}${waitingSummary(op).later.length?`; ${num(waitingSummary(op).later.length)} item${waitingSummary(op).later.length===1?'':'s'} ${waitingSummary(op).approved?'now create':'create'}${waitingSummary(op).later.length===1&&!waitingSummary(op).approved?'s':''} ${waitingSummary(op).later.length===1?'its Action':'theirs'}${waitingSummary(op).approved?'':' after approval'}`:''}</div></div><div class="kpi"><div class="kpi-label">Overdue</div><div class="kpi-value">${num(acts.filter(a=>daysUntil(a.due)<0).length)}</div><div class="kpi-sub">as of ${fdate(AS_OF)}</div></div><div class="kpi"><div class="kpi-label">Plan review</div><div class="kpi-value">${fdate(periodEnd())}</div><div class="kpi-sub">when the period ends</div></div></div>`,actions:sec('Actions and their owners',actionRows(op,acts,()=>true,true)+ILLUS,'Every Action with who created it, who owns it, when it is due and whether it is released. Overdue is shown when a due date passes.',btn('portfolio/act-first/plan','Open the plan')),review:sec('The plan’s review',region('Plan review',table(['Item','Predicted change','Item owner','Item state','Action owners','Observed change','Review'],reviewRows))+`<p class="note">At the end of the period, ${fdate(periodEnd())}, each item’s predicted factor change is set against what was observed. The plan’s realised value comes only from the money verdicts. Not run yet: the period is open.</p>`),chosen:sec('What was chosen: its frozen prediction and three verdicts',region('Chosen options',table(['The chosen option','Frozen prediction','State','Operational verdict: factor moved, limits held','Economic verdict: money moved','Causal verdict: strength of attribution'],rows))+'<p class="note">Each chosen option is tracked from the moment it is chosen, through the Actions people create for it. Each verdict is separate. Not proven yet is a verdict, not a pass; a prediction is never relabelled as realised.</p>'),rightsM:sec(`Rights measures by contract and period (as of ${fdate(AS_OF)})`,rightsMeasures(op)),rights:sec('Rights tracker',region('Rights tracker',table(['Asset or contract','Type','State','Deadline','Our cost','Money recorded'],rt))+'<p class="note">Every state is set by a person from a recorded document or event. Money is recorded only when a credit note or receipt arrives.</p><p class="legal">This is not a legal decision. Coverage is decided by the supplier or insurer.</p>')};}
+function whatChangedScreen(){const w=whatChangedParts(LS.op);return `${w.kpis}
+ ${w.actions}
+ ${w.review}
+ ${w.chosen}
+ ${w.rightsM}
+ ${w.rights}`;}
 
 /* ---------- Scope & coverage: by site × leaf factor ---------- */
 const MISSING_LEAVES = {
@@ -5131,13 +5163,18 @@ function uxOblSummary(html) {
 }
 
 /* ---------- The plan: an L1 band with the approval actions, and one line per item (review finding 6) ---------- */
-function uxPlanBand(op, P, budget) {
+function uxPlanBandParts(op, P, budget) {
   const o = OPS[op], S = uxPlanState(op), val = op === 'lakeside' ? P.value : op === 'harvest' ? harvestValue() : derivedPlan('metro').value, ms = crewByMonth(op, P);
+  return { spend: uxKpi('Plan spend', `${usdW(P.spend)} <small>of ${usdW(budget)}</small> ${uxMark('QUOTE')}`, [], uxMeterBar(P.spend, budget, `${usdW(P.spend)} of ${usdW(budget)} budget`)), crew: uxKpi(cap(o.crewWord), ms.length ? `${num(ms[0].used)} <small>of ${num(ms[0].limit)} in ${ms[0].month}</small>` : '—', ms.slice(1).map(m => `${num(m.used)} of ${num(m.limit)} in ${m.month}`)), value: uxKpi(PLAN_TOTAL_TITLE, `${val ? usdW(val, true) : '$0'} ${uxMark('MODELLED')}`, [planRestoreNote(op) || 'Not realised until records show it']), act: `<div class="ux-planact">${uxPlanStateChip(op)}${uxPlanActions(op)}<span class="ux-note">Proposed by the system on ${fdate(S.proposed)} · approver ${who(op, execOf(op))}</span></div>` };
+}
+/* D-IA.46: the band in its parts; uxPlanBand() joins them into exactly the reviewed string */
+function uxPlanBand(op, P, budget) {
+  const B = uxPlanBandParts(op, P, budget);
   return `<section class="ux-planband" aria-label="The plan at a glance"><div class="heroes ux-kpis">
- ${uxKpi('Plan spend', `${usdW(P.spend)} <small>of ${usdW(budget)}</small> ${uxMark('QUOTE')}`, [], uxMeterBar(P.spend, budget, `${usdW(P.spend)} of ${usdW(budget)} budget`))}
- ${uxKpi(cap(o.crewWord), ms.length ? `${num(ms[0].used)} <small>of ${num(ms[0].limit)} in ${ms[0].month}</small>` : '—', ms.slice(1).map(m => `${num(m.used)} of ${num(m.limit)} in ${m.month}`))}
- ${uxKpi(PLAN_TOTAL_TITLE, `${val ? usdW(val, true) : '$0'} ${uxMark('MODELLED')}`, [planRestoreNote(op) || 'Not realised until records show it'])}
- </div><div class="ux-planact">${uxPlanStateChip(op)}${uxPlanActions(op)}<span class="ux-note">Proposed by the system on ${fdate(S.proposed)} · approver ${who(op, execOf(op))}</span></div></section>`;
+ ${B.spend}
+ ${B.crew}
+ ${B.value}
+ </div>${B.act}</section>`;
 }
 /* the plan's state, version, who proposed it and who approves it, and the approver's two actions (one feedback pattern) */
 function uxPlanStateChip(op) { const S = uxPlanState(op); return `<span class="status-pill is-${S.state === 'PROPOSED' ? 'proposed' : S.state === 'APPROVED' ? 'approved' : 'waiting'}" data-plan-state="${S.state}">${S.state === 'DRAFT' && S.by ? `Draft, sent back by ${S.by}` : `${STATE_WORD[S.state]}${S.by ? ` by ${S.by}` : ''}`} · version ${num(S.version)}</span>`; }
@@ -5820,15 +5857,22 @@ function uxPlanSticky(op, P, budget) { return `<div class="ux-dsticky" role="reg
 
 /* ===== IA-1 (spec §2.2, D-IA.15 to D-IA.20): the route, alias and rail registry. One liveness rule (iaLive), applied before
    insertion by iaUnlink (ia-shapes.js) and by the palette. A unit adds its ID to IA_LANDED in its last commit. ===== */
-const IA_LANDED = new Set(['IA-1a', 'IA-1b', 'IA-1c']);
+const IA_LANDED = new Set(['IA-1a', 'IA-1b', 'IA-1c', 'IA-2a', 'IA-2b1']);
 const IA_SHAPES = ['frame', 'hub', 'list', 'decision', 'plan', 'record', 'asset', 'drawer', 'statement'];
 let IA_ROUTE_ACTIVE = false;
+/* IA-2b1 (spec-IA-2b §3.3, D-IA.75): the list control to keep in place across the hash change its own listener wrote; null otherwise */
+let IA_LIST_KEEP = null;
 /* the reviewed plan page's own labels (spec §2.6: the interim reuses them, no new copy) */
 const iaLegacy = id => SCREENS.find(x => x.id === id);
 const IA_ROUTES = [
-  { id: 'plan', shape: 'plan', object: 'plan', home: 'Plan', unit: 'IA-1a', tab: null,
+  /* IA-2a (spec §5.1.1, D-IA.43): the plan's four tabs; one H1 (the reviewed title), the tab in the document title */
+  { id: 'plan', shape: 'plan', object: 'plan', home: 'Plan', unit: 'IA-1a', tab: 'Items', tabGroup: 'Plan',
     title: ctx => iaLegacy('portfolio/act-first/plan').title, subtitle: ctx => iaLegacy('portfolio/act-first/plan').subtitle,
-    crumbs: ctx => [['Plan']], render: ctx => shapePlanInterim(ctx) },
+    crumbs: ctx => [['Plan']], render: ctx => shapePlan(ctx, 'items') },
+  ...[['plan/left-out', 'Left out', 'left-out'], ['plan/review', 'Review', 'review'], ['plan/history', 'History', 'history']].map(([id, tab, key]) => ({
+    id, shape: 'plan', object: 'plan', home: 'Plan', unit: 'IA-2a', tab, tabGroup: 'Plan',
+    title: ctx => iaLegacy('portfolio/act-first/plan').title, subtitle: ctx => iaLegacy('portfolio/act-first/plan').subtitle,
+    docTitle: ctx => `${tab} · ${iaLegacy('portfolio/act-first/plan').title}`, crumbs: ctx => [['Plan', 'plan'], [tab]], render: ctx => shapePlan(ctx, key) })),
   { id: 'not-found', shape: 'frame', object: null, home: null, unit: 'IA-1a', tab: null, noFigures: true,
     title: ctx => iaLegacy('not-found').title, crumbs: ctx => [['Page not found']], render: ctx => shapeNotFound(ctx) },
   /* IA-1b (spec §3, D-IA.25): the hub shape. The three Portfolio tabs and every Site's Overview; titles and subtitles are the
@@ -5840,16 +5884,20 @@ const IA_ROUTES = [
   { id: 'portfolio/demand-and-capacity', shape: 'hub', object: 'portfolio', home: 'Portfolio', unit: 'IA-1b', tab: 'Demand & capacity', tabGroup: 'Portfolio',
     title: ctx => 'Demand & capacity', crumbs: ctx => [['Portfolio', 'portfolio'], ['Demand & capacity']], render: ctx => shapeHubDemand(ctx) },
   { id: 'site/:site', shape: 'hub', object: 'site', home: 'Sites', unit: 'IA-1b', tab: 'Overview', tabGroup: 'Site',
-    title: ctx => SK[ctx.site].name, subtitle: ctx => iaLegacy(`site/${ctx.site}`).subtitle, crumbs: ctx => [['Sites'], [SK[ctx.site].name]], render: ctx => shapeHubSite(ctx) },
+    title: ctx => SK[ctx.site].name, subtitle: ctx => iaLegacy(`site/${ctx.site}`).subtitle, crumbs: ctx => [['Sites', 'sites'], [SK[ctx.site].name]], render: ctx => shapeHubSite(ctx) },
   /* IA-1c (spec §4, D-IA.26): the decision shape, every DEC entry of the operator's Sites. The H1 is the question while the decision waits
-     for a choice and its subject once chosen (C17, as reviewed); "Decisions" is text until IA-2b; the Site crumb is the way to the Site */
+     for a choice and its subject once chosen (C17, as reviewed); "Decisions" links to the Decisions list once IA-2b1 lands (a crumb to an unlanded route is text, iaFrame); the Site crumb is the way to the Site */
   { id: 'decision/:dec', shape: 'decision', object: 'decision', home: 'Decisions', unit: 'IA-1c', tab: null, tabGroup: null,
     title: ctx => { const d = decById(ctx.params.dec); return iaWaiting(d.id) ? uxDecQuestion(d) : d.q; },
-    crumbs: ctx => { const d = decById(ctx.params.dec); return [['Decisions'], [SK[d.site].name, `site/${d.site}`], [d.q]]; }, render: ctx => shapeDecisionPage(ctx) }
+    crumbs: ctx => { const d = decById(ctx.params.dec); return [['Decisions', 'decisions'], [SK[d.site].name, `site/${d.site}`], [d.q]]; }, render: ctx => shapeDecisionPage(ctx) },
+  /* IA-2b1 (spec-IA-2b §4, D-IA.63): the four home lists, one shape and one component; H1 and document title are the menu label */
+  ...[['decisions', 'decision', 'Decisions'], ['findings', 'finding', 'Findings'], ['actions', 'action', 'Actions'], ['sites', 'site', 'Sites']].map(([key, object, home]) => ({
+    id: key, shape: 'list', object, home, unit: 'IA-2b1', tab: null, tabGroup: null, title: ctx => home, crumbs: ctx => [[home]], render: ctx => shapeList(ctx, key) }))
 ];
 /* the hub tab groups (spec §3.1), keyed by route.tabGroup; only landed tabs are drawn, and a group with one landed tab draws none */
 const IA_TAB_GROUPS = {
   Portfolio: ctx => [['Overview', 'portfolio'], ['Outcomes', 'portfolio/outcomes'], ['Demand & capacity', 'portfolio/demand-and-capacity']],
+  Plan: ctx => [['Items', 'plan'], ['Left out', 'plan/left-out'], ['Review', 'plan/review'], ['History', 'plan/history']],
   Site: ctx => [['Overview', `site/${ctx.site}`], ['Operations', `site/${ctx.site}/operations`], ['Performance', `site/${ctx.site}/performance`], ['Financials', `site/${ctx.site}/financials`], ['Evidence', `site/${ctx.site}/evidence`], ['Setup', `site/${ctx.site}/setup`]]
 };
 /* old route -> new route; a value may be a function of the parameters. Live only once its target is a landed route. An alias key never
@@ -5867,17 +5915,19 @@ const IA_ALIASES = {
   recommendation: 'decision/kobo-generator', alternatives: 'decision/kobo-generator',
   'cold-recommendation': 'decision/thika-backup', 'ev-recommendation': 'decision/ruiru-connector',
   globalfinancials: 'financials',
-  'settings-policies': 'settings', 'settings-tenant': 'settings/organisation'
+  'settings-policies': 'settings', 'settings-tenant': 'settings/organisation',
+  /* IA-2b1 (spec-IA-2b §5, D-IA.64): the old act-first and Findings screens lead to the home lists, with their view as a query */
+  'portfolio/act-first': 'decisions', 'findings-cost': 'findings?heading=optimize', 'findings-risks': 'findings?heading=protect', 'findings-opportunities': 'findings?heading=grow'
 };
 /* the menu (D-IA.1), in its order and with its labels; an item whose unit has not landed is an unavailable root */
 const IA_RAIL = [
   { group: 'Operations', label: 'Portfolio', route: 'portfolio', unit: 'IA-1b', icon: 'grid' },
-  { group: 'Operations', label: 'Sites', route: 'sites', unit: 'IA-2b', icon: 'site' },
+  { group: 'Operations', label: 'Sites', route: 'sites', unit: 'IA-2b1', icon: 'site' },
   { group: 'Operations', label: 'Assets & cover', route: 'assets', unit: 'IA-2c', icon: 'asset' },
-  { group: 'Intelligence', label: 'Findings', route: 'findings', unit: 'IA-2b', icon: 'finding' },
-  { group: 'Work', label: 'Decisions', route: 'decisions', unit: 'IA-2b', icon: 'finding' },
+  { group: 'Intelligence', label: 'Findings', route: 'findings', unit: 'IA-2b1', icon: 'finding' },
+  { group: 'Work', label: 'Decisions', route: 'decisions', unit: 'IA-2b1', icon: 'finding' },
   { group: 'Work', label: 'Plan', route: 'plan', unit: 'IA-1a', icon: 'action' },
-  { group: 'Work', label: 'Actions', route: 'actions', unit: 'IA-2b', icon: 'action' },
+  { group: 'Work', label: 'Actions', route: 'actions', unit: 'IA-2b1', icon: 'action' },
   { group: 'Work', label: 'Incidents', route: 'incidents', unit: 'IA-2c', icon: 'incident' },
   { group: 'Work', label: 'Maintenance', route: 'maintenance', unit: 'IA-2c', icon: 'work' },
   { group: 'Assurance', label: 'Results', route: 'results', unit: 'IA-2d', icon: 'evidence' },
@@ -5913,12 +5963,15 @@ function iaForeign(path) {
 function iaMatch(path) { for (const route of IA_ROUTES) { const params = iaPattern(route.id, path); if (params) return { route, params }; } return null; }
 /* a landed route (never not-found: it is reached only by a typed address) */
 function iaLanded(path) { const m = iaMatch(path); return m && IA_LANDED.has(m.route.unit) ? m : null; }
-/* the alias's target, only when that target is a landed route */
-function iaLiveAlias(path) {
+/* D-IA.78: the one alias splitter. { path, query } for an alias key (a function value is called with its params first), else null */
+function iaAliasTarget(path) {
   for (const [k, v] of Object.entries(IA_ALIASES)) { const p = iaPattern(k, path); if (!p) continue;
-    const t = typeof v === 'function' ? v(p) : v; return t && iaLanded(t) && t !== 'not-found' ? t : null; }
+    const t = typeof v === 'function' ? v(p) : v; if (!t) return null; const i = String(t).indexOf('?');
+    return { path: i < 0 ? String(t) : String(t).slice(0, i), query: i < 0 ? '' : String(t).slice(i + 1) }; }
   return null;
 }
+/* the alias's target path, only when that path is a landed route */
+function iaLiveAlias(path) { const t = iaAliasTarget(path); return t && t.path !== 'not-found' && iaLanded(t.path) ? t.path : null; }
 function iaDev() { try { return sessionStorage.getItem('l4-dev') === '1'; } catch (e) { return false; } }
 /* D-IA.16: a landed route, a live alias, or the Lab under the developer switch; nothing else */
 function iaLive(href) {
@@ -5926,10 +5979,19 @@ function iaLive(href) {
   if (path === 'lab') return iaDev();
   return !!((iaLanded(path) && path !== 'not-found') || iaLiveAlias(path));
 }
-/* a live alias's canonical address, keeping the hash query */
+/* a live alias's canonical address: the value's query, then the href's own parameters not already set (D-IA.78); a list target is
+   written through iaListHref's order. An alias without a query keeps the href's query as typed */
 function iaCanon(href) {
-  const h = String(href).replace(/^#?\/?/, ''), i = h.indexOf('?'), t = iaLiveAlias(i < 0 ? h : h.slice(0, i));
-  return t ? `#/${t}${i < 0 ? '' : h.slice(i)}` : String(href);
+  const h = String(href).replace(/^#?\/?/, ''), i = h.indexOf('?'), src = i < 0 ? h : h.slice(0, i), own = i < 0 ? '' : h.slice(i + 1);
+  if (!iaLiveAlias(src)) return String(href);
+  const t = iaAliasTarget(src), m = iaMatch(t.path);
+  if (m && m.route.shape === 'list' && typeof IA_LIST_DEFS !== 'undefined' && IA_LIST_DEFS[t.path]) {
+    const q = Object.fromEntries(new URLSearchParams(t.query)); for (const [a, b] of new URLSearchParams(own)) if (!(a in q)) q[a] = b;
+    return '#/' + iaListHref(t.path, iaCtx(t.path, m.params, q), {});
+  }
+  if (!t.query) return `#/${t.path}${i < 0 ? '' : h.slice(i)}`;
+  const set = new Set([...new URLSearchParams(t.query)].map(([a]) => a)), rest = own.split('&').filter(x => x && !set.has(decodeURIComponent(x.split('=')[0])));
+  return `#/${t.path}?${[t.query, ...rest].join('&')}`;
 }
 function iaStart() { return IA_LANDED.has('IA-1b') ? 'portfolio' : 'plan'; }
 /* the empty hash renders iaStart() from IA-1b (D-IA.29) */
@@ -5941,18 +6003,21 @@ function IA_G1_SURFACES() {
   for (const op of Object.keys(OPS)) {
     if (!IA_LANDED.has('IA-1b')) continue;
     out.push({ op, surface: 'the plan', route: 'plan', limit: 1, via: 'any' });
+    /* IA-2a (D-IA.53): each plan tab is 2 from portfolio (plan 1, the tab strip 2) */
+    const plan2 = IA_LANDED.has('IA-2a');
+    if (plan2) [['Left out', 'plan/left-out'], ['Review', 'plan/review'], ['History', 'plan/history']].forEach(([t, r]) => out.push({ op, surface: `plan tab: ${t}`, route: r, limit: 2, via: 'any' }));
     OPS[op].sites.forEach(sk => out.push({ op, surface: `${SK[sk].name} Overview`, route: `site/${sk}`, limit: 2, via: 'any' }));
     OPS[op].sites.forEach(sk => { const r = iaLargestAdverse(sk);
       out.push(r ? { op, surface: `${SK[sk].name} largest driver against target (${r.s.lab})`, route: `site/${sk}#drawer=${r.id}`, limit: 3, via: 'any' }
         : { op, surface: `${SK[sk].name} largest driver against target`, route: null, limit: 3, via: 'any', na: 'no driver against target' }); });
     if (!IA_LANDED.has('IA-1c')) continue;
     /* IA-1c (spec §6): every queue decision (1, via the Overview queue), every waiting decision and the proposed plan (2, via the inbox),
-       every plan item's decision (2) */
+       every plan item's decision (2; from IA-2a 3 and reported only, D-IA.53: plan 1, the closed item 2, the decision 3) */
     const q = d => decById(d).q;
     iaQueueCap(uxMergeRows(ATTN[op]).map(m => m.d), 6).shown.forEach(d => out.push({ op, surface: `queue: ${q(d)}`, route: `decision/${d}`, limit: 1, via: 'queue' }));
     iaDecIds(op, { kind: 'all' }).filter(iaWaiting).forEach(d => out.push({ op, surface: `waiting: ${q(d)}`, route: `decision/${d}`, limit: 2, via: 'inbox' }));
     if (uxPlanState(op).state === 'PROPOSED') out.push({ op, surface: 'the proposed plan', route: 'plan', limit: 2, via: 'inbox' });
-    [...new Set(planCase(op).ids.map(id => DEC_SEE_ALSO[id] || (decOf(id) || {}).id).filter(Boolean))].forEach(d => out.push({ op, surface: `plan item: ${q(d)}`, route: `decision/${d}`, limit: 2, via: 'any' }));
+    [...new Set(planCase(op).ids.map(id => DEC_SEE_ALSO[id] || (decOf(id) || {}).id).filter(Boolean))].forEach(d => out.push(plan2 ? { op, surface: `plan item: ${q(d)}`, route: `decision/${d}`, limit: 3, via: 'any', report: true } : { op, surface: `plan item: ${q(d)}`, route: `decision/${d}`, limit: 2, via: 'any' }));
   }
   return out;
 }
@@ -5967,21 +6032,34 @@ function iaCtx(path, params, query) {
 /* resolveScreen's view of a landed route: the screen object the review bar and the legacy helpers read */
 function iaScreen(route, path) {
   const ctx = iaCtx(path, iaPattern(route.id, path), iaParse(location.hash).query);
-  return { id: path, ia: route, ctx, title: route.title(ctx), root: route.home || '', section: '', loop: true, opScoped: true, noFigures: !!route.noFigures, book: false, question: '', anchor: '' };
+  return { id: path, ia: route, ctx, title: route.title(ctx), docTitle: route.docTitle ? route.docTitle(ctx) : route.title(ctx), root: route.home || '', section: '', loop: true, opScoped: true, noFigures: !!route.noFigures, book: false, question: '', anchor: '' };
 }
+function iaIsListAlias(href) { const t = iaAliasTarget(iaParse(href).path), m = t && iaMatch(t.path); return !!(m && m.route.shape === 'list'); }
 /* the palette lists only what is live, at its canonical address (R9) */
-function iaPaletteFilter(out) { return out.filter(([, , id]) => iaLive(id)).map(([l, k, id]) => [l, k, iaCanon(id).replace(/^#\//, '')]); }
+/* IA-2b1 (spec-IA-2b §5): from IA-2b1 the index also holds each Finding and each Action at its row's target, then Decisions and Sites */
+function iaPaletteFilter(out) {
+  const op = LS.op, add = !IA_LANDED.has('IA-2b1') ? [] : [
+    ...uxFindingRows(op).map(x => [x.text, `Finding · ${x.site}`, x.d ? `decision/${x.d.id}` : `decision/${x.f.decision}`]),
+    ...(WF(op).actions || []).map(a => { const d = iaActionDec(op, a), p = personOf(op, a.owner); return [a.action, `Action · ${p ? p.name : a.owner}`, d ? `decision/${d.id}` : 'plan']; }),
+    ['Decisions', 'Go to', 'decisions'], ['Sites', 'Go to', 'sites']];
+  /* L1 (IA-2b1 review): a list alias stays an address, not a second palette entry; the list's own entry (Decisions, Sites) is the one name */
+  return [...out, ...add].filter(([, , id]) => iaLive(id) && !iaIsListAlias(id)).map(([l, k, id]) => [l, k, iaCanon(id).replace(/^#\//, '')]);
+}
 
 /* D-IA.36: an in-page link (#<id>) scrolls to that element on the page it is on; it is never a route */
+/* the sticky decision bar is shown only once the page is scrolled past the recommendation: measure its height now, so a scroll target stops below it (top of the view, wide screens only; on a phone the bar is at the bottom). One measure, used by in-page links and by the tab switch (D-IA.36, D-IA.58) */
+function iaStickyH() {
+  const sb = document.querySelector('[data-ux-sticky]'); let hh = 0;
+  if (sb && innerWidth > 600) { const was = sb.classList.contains('is-on'); sb.classList.add('is-on'); hh = Math.ceil(sb.getBoundingClientRect().bottom); if (!was) sb.classList.remove('is-on'); }
+  return hh;
+}
 function iaInPage(a) {
   const href = a.getAttribute('href') || '';
   if (!href.startsWith('#') || href === '#' || href.startsWith('#/')) return false;
   let id; try { id = decodeURIComponent(href.slice(1)); } catch (e) { return false; }
   const el = document.getElementById(id), app = document.getElementById('app');
   if (!el || !app || !app.contains(el)) return false;
-  /* the sticky decision bar is shown only once the page is scrolled past the recommendation: measure its height now, so the target stops below it (top of the view, wide screens only; on a phone the bar is at the bottom) */
-  const sb = document.querySelector('[data-ux-sticky]'); let hh = 0;
-  if (sb && innerWidth > 600) { const was = sb.classList.contains('is-on'); sb.classList.add('is-on'); hh = Math.ceil(sb.getBoundingClientRect().bottom); if (!was) sb.classList.remove('is-on'); }
+  const hh = iaStickyH();
   document.documentElement.style.setProperty('--ia-sticky-h', `${hh}px`);
   const calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   el.scrollIntoView({ block: 'start', behavior: calm ? 'auto' : 'smooth' });
@@ -6006,6 +6084,49 @@ function iaFitTopbar() {
   let raf = 0; window.addEventListener('resize', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => iaFitTopbar()); });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => iaFitTopbar());
 })();
+/* D-IA.55, D-IA.58: a tab switch shows its tab's content. On a hash change between two routes of one tab group, in a frame after render
+   (after screens.js's scrollTo(0,0)): when the content's first box starts below the fold (top > innerHeight - 48), the frame scrolls so that
+   box sits just under the sticky bar (iaStickyH + var(--s2)); otherwise it stays at 0. Then, if focus is on body, the active tab takes focus.
+   First load and deep links are not switches. */
+function iaTabSwitch(oldURL, newURL) {
+  const path = u => { const h = String(u || '').split('#')[1] || ''; return h.replace(/^\//, '').split('?')[0]; };
+  const a = iaMatch(path(oldURL)), b = iaMatch(path(newURL));
+  if (!a || !b || !a.route.tabGroup || a.route.tabGroup !== b.route.tabGroup) return;
+  requestAnimationFrame(() => {
+    const strip = document.querySelector('[data-ia-tabs]'), L2 = document.querySelector('[data-level="L2"]') || document.querySelector('[data-level]');
+    if (!strip || !L2) return;
+    const box = [L2, ...L2.querySelectorAll('*')].find(e => e.getClientRects().length), y = window.scrollY;
+    if (box && box.getBoundingClientRect().top + y > window.innerHeight - 48) {
+      const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--s2')) || 8;
+      window.scrollTo({ top: Math.max(0, box.getBoundingClientRect().top + y - iaStickyH() - gap), behavior: 'instant' }); }
+    if (document.activeElement === document.body || !document.activeElement) { const t = [...strip.querySelectorAll('a.active, .ux-tabmenu summary')].find(e => e.getClientRects().length); if (t) t.focus({ preventScroll: true }); }
+  });
+}
+/* a tab with no L2 (Portfolio Demand & capacity) starts at its first level box */
+window.addEventListener('hashchange', e => iaTabSwitch(e.oldURL, e.newURL));
+/* IA-2b1 (spec-IA-2b §3.3, D-IA.75): a list's tools write the address. A select applies on change, the search on submit (never the
+   form's default). The control's place is kept by iaListRestore, keyed to the address written here */
+function iaListWrite(e) {
+  const t = e.target, form = t && t.closest && t.closest('form[data-ia-list-tools]'); if (!form) return;
+  if (e.type === 'submit') e.preventDefault(); else if (t.tagName !== 'SELECT') return;
+  const el = e.type === 'submit' ? form.querySelector('input[name="q"]') : t; if (!el) return;
+  const key = form.dataset.iaListTools, P = iaParse(location.hash), h = iaListHref(key, iaCtx(P.path, P.params, P.query), { [el.name]: el.value });
+  if ('#/' + h === location.hash) return;
+  IA_LIST_KEEP = { hash: '#/' + h, name: el.name, top: el.getBoundingClientRect().top };
+  location.hash = '#/' + h;
+}
+document.addEventListener('change', iaListWrite);
+document.addEventListener('submit', iaListWrite);
+/* registered after iaTabSwitch's listener, so after the router's render(); scrollTo(0,0): it runs in the router's task, clears the keep on
+   every hash change, and applies it only to the address it was written for */
+function iaListRestore() {
+  const keep = IA_LIST_KEEP; IA_LIST_KEEP = null;
+  if (!keep || location.hash !== keep.hash) return;
+  const el = document.querySelector(`[data-ia-list-tools] [name="${keep.name}"]`); if (!el) return;
+  window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - keep.top, behavior: 'instant' });
+  el.focus({ preventScroll: true });
+}
+window.addEventListener('hashchange', iaListRestore);
 
 /* ===== IA-1 (spec §2.3, §2.4, §2.6): the frame, the one render path and the shapes. The markup is built as a string, finished on
    a detached fragment (iaFinish) and inserted once; after insertion only listeners, focus and the sticky bar's layout tick run
@@ -6014,7 +6135,11 @@ const IA_GROUP_WORD = { mini: 'Mini-grids', cold: 'Cold rooms', ev: 'EV depots' 
 const iaVertical = sk => SK[sk].type === 'Mini-grid' ? 'mini' : /^Cold room/.test(SK[sk].type) ? 'cold' : 'ev';
 /* the scope menu (D-IA.6): all Sites, a group (one per vertical the operator has), the Sites */
 function iaScopeEntries(ctx) {
-  const op = ctx.op, sites = OPS[op].sites, groups = [...new Set(sites.map(iaVertical))], here = `#/${ctx.path}`;
+  const op = ctx.op, sites = OPS[op].sites, groups = [...new Set(sites.map(iaVertical))], here = `#/${ctx.path}`, m = iaMatch(ctx.path), route = m && m.route;
+  /* IA-2b1 (spec-IA-2b §3.3): on a list, every entry keeps the list's facets, sort and search and drops show; a Site entry scopes the list */
+  if (route && route.shape === 'list') { const c = { ...ctx, query: { ...ctx.query, show: '' } }, H = sc => '#/' + iaListHref(ctx.path, c, { scope: sc });
+    return [['All sites', H('all'), ctx.scope.kind === 'all'], ...groups.map(g => [IA_GROUP_WORD[g], H(`group:${g}`), ctx.scope.kind === 'group' && ctx.scope.id === g]),
+      ...sites.map(k => [SK[k].name, H(`site:${k}`), ctx.scope.kind === 'site' && ctx.scope.id === k])]; }
   return [['All sites', `${here}?scope=all`, ctx.scope.kind === 'all'],
     ...groups.map(g => [IA_GROUP_WORD[g], `${here}?scope=group:${g}`, ctx.scope.kind === 'group' && ctx.scope.id === g]),
     ...sites.map(k => [SK[k].name, `#/site/${k}`, ctx.scope.kind === 'site' && ctx.scope.id === k])];
@@ -6036,11 +6161,12 @@ function iaRailHtml(route) {
 function iaTabsHtml(route, ctx) {
   const g = route.tab && IA_TAB_GROUPS[route.tabGroup || route.home]; if (!g) return '';
   const tabs = g(ctx).filter(([, id]) => { const m = iaMatch(id); return m && IA_LANDED.has(m.route.unit); });
-  return tabs.length > 1 ? uxTabs(tabs, ctx.path) : '';
+  return tabs.length > 1 ? `<div data-ia-tabs>${uxTabs(tabs, ctx.path)}</div>` : '';
 }
+/* a crumb links only when its target is live (D-IA.16); an unlanded home list's crumb is text */
 function iaFrame(route, ctx, body) {
   const title = route.title(ctx), sub = route.subtitle ? route.subtitle(ctx) : '';
-  const crumbs = `<div class="breadcrumbs">${route.crumbs(ctx).map(([t, id]) => id ? link(id, t) : escapeHtml(t)).join('<span>›</span>')}</div>`;
+  const crumbs = `<div class="breadcrumbs">${route.crumbs(ctx).map(([t, id]) => id && iaLive(id) ? link(id, t) : escapeHtml(t)).join('<span>›</span>')}</div>`;
   return `<div class="shell ia-frame" id="ia-root">${iaRailHtml(route)}<main class="workspace"><header class="topbar">${uxScopeSwitchHtml(iaScopeEntries(ctx), iaScopeLabel(ctx))}<div class="right"><button class="searchbox" data-index aria-label="Search Sites, decisions and Findings (Ctrl K)">${icon('search')}<span class="ia-search-t">Search Sites, decisions and Findings</span></button>${iaPeriodHtml(ctx.op)}${IA_LANDED.has('IA-1c') ? iaInboxControl(ctx.op) : ''}${themeToggle()}<span class="avatar" title="${avatarName()}, illustrative operator executive">${avatarInitial()}</span></div></header><div class="canvas"${["decision", "record", "asset"].includes(route.shape) ? ' data-ia-crumbs="keep"' : ''}>${crumbs}<div class="page-heading"><div><div class="title-row"><h1>${title}</h1></div>${sub ? `<p>${sub}</p>` : ''}</div></div>${iaTabsHtml(route, ctx)}${body}${footer()}</div>${IA_LANDED.has('IA-1c') ? iaInboxDrawer(ctx.op) : ''}</main></div>`;
 }
 /* D-IA.16: every link whose target is not live becomes text (its trailing arrow dropped); a tab to it is removed; a live alias
@@ -6078,10 +6204,37 @@ function iaBind(route) { setTimeout(() => typeof uxStickyTick === 'function' && 
 
 /* ---- shapes ---- */
 function shapeNotFound(ctx) { return `<section data-shape="frame">${uxNotFound()}</section>`; }
-/* spec §2.6 (D-IA.20): the reviewed plan page as one named interim, its parts placed in levels; it must not grow */
-function shapePlanInterim(ctx) {
-  const p = planParts(ctx.op);
-  return `<section data-shape="plan">${p.sticky}<div data-level="L1">${p.band}</div><div class="layout-main-side"><div><div data-level="L2">${p.l2}</div><div data-level="L3">${p.l3}</div></div><aside class="side-panel" data-level="L3">${p.aside}</aside></div></section>`;
+
+/* ---- IA-2a: the plan shape (spec §5.1.2 to §5.1.4, D-IA.43 to D-IA.47, D-IA.51) ---- */
+/* the stepper (§5.1.3): pure steps and the current index; REVISED shows as Proposed; an unknown state throws */
+const IA_PLAN_STEPS = ['DRAFT', 'PROPOSED', 'APPROVED', 'CLOSED'];
+function iaPlanSteps(state) { const cur = state === 'REVISED' ? 1 : IA_PLAN_STEPS.indexOf(state); if (cur < 0) throw new Error(`plan state ${state} has no step`); return { steps: IA_PLAN_STEPS.map(s => STATE_WORD[s]), cur }; }
+function iaPlanStepper(op) { const { steps, cur } = iaPlanSteps(uxPlanState(op).state); return `<ol class="ux-dsteps ia-plan-steps" aria-label="Where this plan is">${steps.map((s, i) => `<li class="${i < cur ? 'is-done' : i === cur ? 'is-current' : ''}"${i === cur ? ' aria-current="step"' : ''}>${s}</li>`).join('')}</ol>`; }
+/* one crew tile per month with a stated limit (crewByMonth), '' when there is none */
+function iaCrewTiles(op, P) { const o = OPS[op], ms = crewByMonth(op, P); return ms.map(m => uxKpi(`${cap(o.crewWord)} used${ms.length > 1 ? `, ${m.month}` : ''}`, `${num(m.used)} <small>of ${num(m.limit)}</small>`, [], uxMeterBar(m.used, m.limit, `${num(m.used)} of ${num(m.limit)} ${o.crewWord}${ms.length > 1 ? ` in ${m.month}` : ''}`))).join(''); }
+function iaPlanBand(op, P, budget) { const B = uxPlanBandParts(op, P, budget); return `<section class="ux-planband" aria-label="The plan at a glance"><div class="heroes ux-kpis">${B.spend}${iaCrewTiles(op, P) || B.crew}${B.value}</div>${B.act}</section>`; }
+/* D-IA.51: the case line. The Approve dialog has no case-label function, so the label is the reviewed switches' own words: each
+   fieldset's legend and its checked option, from switches(op) */
+function iaPlanCaseLabel(op) { const t = document.createElement('template'); t.innerHTML = switches(op); return [...t.content.querySelectorAll('fieldset')].map(f => `${f.querySelector('legend').textContent}: ${((f.querySelector('input[checked]') || {}).parentNode || { textContent: '' }).textContent.trim()}`).join('; '); }
+function iaPlanCaseLine(op, here) { return DEFAULT_CASE(op) ? '' : `<p class="ia-plan-case">Showing the case you chose: ${escapeHtml(iaPlanCaseLabel(op))}. <a href="${here ? '#sw-h' : '#/plan'}">Change the case</a></p>`; }
+/* D-IA.54: the part of the plan's spend that was released at creation, stated beside the waiting part so the figures add up */
+function iaPlanReleased(op) { const ids = planCaseIds(op).filter(id => releaseOf(op, id).at); return ids.length ? `<p class="ia-plan-released" data-qty="plan-spend" data-qty-role="part">Already released when ${ids.length === 1 ? 'its Action was' : 'their Actions were'} created, within the release thresholds: ${ids.map(id => `${itemProse(op, id)} (${usd(releaseOf(op, id).spend)})`).join('; ')}.</p>` : ''; }
+function iaPlanHead(op, p, here) { return `${iaPlanStepper(op)}${iaPlanBand(op, p.P, p.budget)}${p.ap.releases}${iaPlanReleased(op)}${p.ap.notice}${iaPlanCaseLine(op, here)}<p class="ia-plan-rules">${uxOpener('ia-plan-thresholds', 'Release thresholds', 'ux-link')}</p>`; }
+/* History (§5.1.4): the act log's plan entries newest first, then the proposal and the opening (PSTATE: no act changes them) */
+function iaPlanHistory(op) {
+  const S = uxPlanState(op), S0 = PSTATE(), L = (uxMock().log || []).filter(e => e.op === op && (e.key === 'approve-plan' || e.key === 'send-back'));
+  const rows = [...L.map((e, i) => `<li data-ia-hist="log:${i}">${e.toast} <small>${e.by} · ${hhmm(e.at) || ''}</small></li>`), `<li data-ia-hist="proposed">Version ${num(S0.version)} proposed <small>The system · ${fdate(S0.proposed)}</small></li>`, `<li data-ia-hist="opened">Opened within the executive’s limits <small>The system · ${fdate(S0.opened)}</small></li>`];
+  return sec('Versions and approvals', `<ul class="list ia-plan-history">${rows.join('')}</ul><p class="note">Changes made here are shown in this demonstration only.</p>`, `Version ${num(S.version)}, ${STATE_WORD[S.state].toLowerCase()}`);
+}
+/* the shape (§5.1.2): L1 identical on the four tabs; Items and Left out carry the case switches in the side panel */
+function shapePlan(ctx, tab) {
+  const op = ctx.op, p = planParts(op), side = tab === 'items' || tab === 'left-out', lv = (n, x) => x ? `<div data-level="${n}">${x}</div>` : '';
+  const l1 = `<div data-level="L1">${iaPlanHead(op, p, side)}</div>`, drawers = `<div data-ia-drawers>${uxDrawer('ia-plan-thresholds', 'Release thresholds', p.ap.thrBody)}</div>`;
+  if (side) {
+    const l2 = tab === 'items' ? p.l2 : uxSecA('Left out of the plan, and why', p.leftAns, p.leftBody, true), l3 = tab === 'items' ? `${p.diff}${p.paths}${p.crew}${p.cases}` : `${p.listed}${p.returned}`;
+    return `<section data-shape="plan">${p.sticky}${l1}<div class="layout-main-side"><div>${lv('L2', l2)}${lv('L3', l3)}</div><aside class="side-panel" data-level="L3">${p.switches}</aside></div>${drawers}</section>`;
+  }
+  return `<section data-shape="plan">${p.sticky}${l1}${lv('L2', tab === 'review' ? whatChangedParts(op).review : iaPlanHistory(op))}${drawers}</section>`;
 }
 
 /* ---- IA-1b: levels, the hub shape and its predicates (spec §3, D-IA.22, D-IA.24, D-IA.25, D-IA.27) ---- */
@@ -6116,37 +6269,23 @@ function iaCapMore(hidden) {
   return `<p class="ux-cap-more" data-ia-more="${hidden.length}">And ${num(hidden.length)} more: ${uxStateSplit(hidden)}.${inbox}</p>`;
 }
 const iaMonth = () => MONTHS[+String(MANIFEST.accounting_period).split('-')[1] - 1];
-/* the Outcomes table (D-IA.27): pure. rows { key, name, group, hasTarget, resultHtml, gapHtml, gap, driverHtml, waiting }. One row
-   per Site in scope, gap ascending (most adverse first), ties in the given order, Sites without a target last; capped at 10 the way
-   the Site board caps; grouped (one tbody per group, its word and count) only above 10 Sites in more than one group. */
+/* the Outcomes scope (D-IA.27): the rows of the Sites in scope; the headline counts them (the rows are the Sites list's, IA-2b1 D-IA.64) */
 function iaOutcomeScope(rows, scope) { return rows.filter(r => scope.kind === 'site' ? r.key === scope.id : scope.kind === 'group' ? r.group === scope.id : true); }
-function iaOutcomeTable(rows, { scope = { kind: 'all' }, cost = false, id = 'ia-outcomes' } = {}) {
-  const inScope = iaOutcomeScope(rows, scope);
-  const sorted = inScope.map((r, i) => [r, i]).sort(([a, i], [b, j]) => (a.hasTarget !== b.hasTarget ? (a.hasTarget ? -1 : 1) : a.hasTarget ? a.gap - b.gap : 0) || i - j).map(([r]) => r);
-  const groups = [...new Set(sorted.map(r => r.group))], grouped = sorted.length > 10 && groups.length > 1, NA = '<span class="ux-kpi-na">Not available yet</span>';
-  const word = g => IA_GROUP_WORD[g] || g;
-  const H = ['Site', 'Group', cost ? 'Cost per required departure met' : 'Contribution', 'Gap to target', 'Largest driver against target', 'Waiting for a choice'];
-  const row = (r, i) => `<tr data-site="${r.key}"${i >= 10 ? ' data-ux-over hidden' : ''}><th scope="row">${link(`site/${r.key}`, r.name)}</th><td data-label="${H[1]}">${word(r.group)}</td><td class="num" data-label="${H[2]}">${r.hasTarget ? r.resultHtml : NA}</td><td class="num" data-label="${H[3]}">${r.hasTarget ? r.gapHtml : NA}</td><td data-label="${H[4]}">${r.hasTarget ? r.driverHtml : NA}</td><td class="num" data-label="${H[5]}">${num(r.waiting)}</td></tr>`;
-  const head = `<thead><tr>${H.map(h => `<th>${h}</th>`).join('')}</tr></thead>`;
-  if (!grouped) return `<div class="table-wrap"><table class="ia-outcomes ux-stack" id="${id}">${head}<tbody>${sorted.map(row).join('')}</tbody></table></div>${uxCapNote(sorted.length, 10, id)}`;
-  return `<div class="table-wrap"><table class="ia-outcomes ia-outcomes-grouped ux-stack">${head}${groups.map(g => { const R = sorted.filter(r => r.group === g), gid = `${id}-${g}`;
-    return `<tbody id="${gid}" data-group="${g}"><tr class="ia-out-group"><th colspan="6" scope="rowgroup">${word(g)} <span class="ux-count">${num(R.length)}</span></th></tr>${R.map(row).join('')}${R.length > 10 ? `<tr><td colspan="6">${uxCapNote(R.length, 10, gid)}</td></tr>` : ''}</tbody>`; }).join('')}</table></div>`;
-}
 /* the Outcomes headline (spec §3.3): n counts Sites with a negative gap, m Sites with a target; pure */
 function iaOutcomeHeadline(rows, cost, mo) {
   const T = rows.filter(r => r.hasTarget), n = T.filter(r => r.gap < 0).length;
   if (!T.length) return `No Site in this scope has a target in ${mo}`;
   return n ? `${num(n)} of ${num(T.length)} Sites are ${cost ? 'over' : 'below'} target in ${mo}` : `Every Site is on or ${cost ? 'under' : 'above'} target in ${mo}`;
 }
-/* one Outcomes row per Site of the operator, each figure through the Site page's own call */
+/* one Outcomes row per Site of the operator, each figure through the Site page's own call. Text fields only (D-IA.76): the row is a
+   link to the Site hub, where each figure keeps its "show how this is worked out" button */
 function iaOutcomeRows(op) {
   const cost = OPS[op].kind === 'cost';
   return OPS[op].sites.map(sk => { const s = siteM(sk), t = tree(sk), d = t.plan != null ? iaLargestAdverse(sk) : null;
     const f = v => cost ? fmtU(v, t.unit) : usdW(v);
-    return { key: sk, name: SK[sk].name, group: iaVertical(sk), hasTarget: t.plan != null,
-      resultHtml: t.plan != null ? `${fig(`node:${sk}:root`, f(t.actual))} against a target of ${f(t.plan)}` : '',
-      gapHtml: t.plan != null ? figS('gap', sk, s.period.variance, usdW(s.period.variance, true)) : '', gap: s.period.variance,
-      driverHtml: d ? `${d.s.lab} ${usdW(d.vr, true)} <small>${LENS[d.k][0]}</small>` : cost ? 'No driver raises the cost' : 'No driver widens the gap',
+    return { key: sk, name: SK[sk].name, group: iaVertical(sk), hasTarget: t.plan != null, gap: s.period.variance,
+      result: t.plan != null ? `${f(t.actual)} against a target of ${f(t.plan)}` : '', gapText: t.plan != null ? usdW(s.period.variance, true) : '',
+      driver: d ? `${d.s.lab} ${usdW(d.vr, true)} <small>${LENS[d.k][0]}</small>` : cost ? 'No driver raises the cost' : 'No driver widens the gap',
       waiting: iaDecIds(op, sk).filter(iaWaiting).length }; });
 }
 function shapeHubOverview(ctx) {
@@ -6155,7 +6294,7 @@ function shapeHubOverview(ctx) {
 }
 function shapeHubOutcomes(ctx) {
   const op = ctx.op, cost = OPS[op].kind === 'cost', rows = iaOutcomeScope(iaOutcomeRows(op), ctx.scope);
-  return shapeHub(ctx, { l1: `<p class="headline ux-headline">${iaOutcomeHeadline(rows, cost, iaMonth())}</p>`, l2: iaOutcomeTable(rows, { scope: ctx.scope, cost }), l3: uxInsight(op) });
+  return shapeHub(ctx, { l1: `<p class="headline ux-headline">${iaOutcomeHeadline(rows, cost, iaMonth())}</p>`, l2: iaListBody('sites', { ...ctx, query: {} }, { tools: false, tiles: false }), l3: uxInsight(op) });
 }
 function shapeHubDemand(ctx) { return shapeHub(ctx, { l1: uxChain(ctx.op), l3: opportunityScreen() }); }
 function shapeHubSite(ctx) {
@@ -6202,6 +6341,192 @@ function iaPeriodChip(op) {
 function iaPeriodHtml(op) {
   return uxPeriodMenuHtml(op, iaPeriodChip(op)).replace('<small>current period</small>', `<small>current period · ${snapText(op)}</small>`);
 }
+
+/* ---- IA-2b1 unit 3: the list component (spec-IA-2b §3, D-IA.62, D-IA.67, D-IA.70, D-IA.80) ----
+   A def (IA_LIST_DEFS[key], unit 4) holds: key, title (tile 1's label and the H1), plural (the tools' aria-label), cols (the column
+   words, the first is the title column), items(op) (the one store, read at every render), site(it) (a Site key; none ignores the scope),
+   text(it) (the row's rendered text; else the row's own text), keep(it), group(it) with groupWord(g), facets [{ key, label, all,
+   options() -> [[value, word]], of(it) }], sorts [{ key, word, cmp }], row(it, ctx, qk) -> { key, href, title, small, cells },
+   tiles(m, ctx, qk) -> the tiles after tile 1, more(m, ctx, qk) (the hidden line; moreInline puts it in the "Show all" paragraph), none. */
+const IA_LIST_CAP = 10;
+const IA_LIST_DEFS = {};
+/* a Site key against a scope { kind: all | group | site, id } */
+function iaInScope(sk, scope) { const s = scope || { kind: 'all' }; return s.kind === 'site' ? sk === s.id : s.kind === 'group' ? !!SK[sk] && iaVertical(sk) === s.id : true; }
+/* the controls grow with the list (D-IA.67): none under 3 in scope, Sort only up to the cap, then facets, sort and search */
+function iaListTier(ns) { return ns < 3 ? 0 : ns <= IA_LIST_CAP ? 1 : 2; }
+/* a row's text as the search reads it: tags stripped, entities read, lower case, one space */
+function iaListText(html) { return String(html == null ? '' : html).replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim().toLowerCase(); }
+function iaListRowText(def, it) { const r = def.row(it, null, ''); return [r.title, r.small, ...(r.cells || [])].filter(x => x != null && x !== '').join(' '); }
+/* the model (spec §3.1), pure: scope, tier, facets, search, sort (stable), one cap ranked keep-first and shown in sort order, groups */
+function iaListModel(def, items, q, scope) {
+  q = q || {};
+  const inScope = def.site ? items.filter(it => iaInScope(def.site(it), scope)) : items.slice(), ns = inScope.length, tier = iaListTier(ns);
+  let rows = inScope;
+  for (const f of def.facets || []) { const v = q[f.key]; if (v == null || v === '') continue;
+    if (!f.options().some(([o]) => String(o) === String(v))) continue; rows = rows.filter(it => String(f.of(it)) === String(v)); }
+  const words = String(q.q || '').toLowerCase().split(/\s+/).filter(Boolean);
+  if (words.length) rows = rows.filter(it => { const t = iaListText(def.text ? def.text(it) : iaListRowText(def, it)); return words.every(x => t.includes(x)); });
+  const sort = (def.sorts || []).find(s => s.key === q.sort) || def.sorts[0];
+  rows = rows.map((it, i) => [it, i]).sort(([a, i], [b, j]) => sort.cmp(a, b) || i - j).map(([it]) => it);
+  const n = rows.length, rank = def.keep ? [...rows.filter(def.keep), ...rows.filter(it => !def.keep(it))] : rows;
+  const top = new Set(q.show === 'all' ? rank : rank.slice(0, IA_LIST_CAP));
+  let shown = rows.filter(it => top.has(it)), groups = null; const hidden = rows.filter(it => !top.has(it));
+  if (def.group) { const gs = [...new Set(rows.map(def.group))];
+    if (n > IA_LIST_CAP && gs.length > 1) { groups = gs.map(g => ({ g, n_g: rows.filter(it => def.group(it) === g).length })); shown = gs.flatMap(g => shown.filter(it => def.group(it) === g)); } }
+  return { rows, shown, hidden, n, ns, tier, groups, sort: sort.key, inScope };
+}
+/* the canonical address (pure): #/<key>, then scope, the facets in def order, sort, q, show, each only when not its default; a facet
+   change or a search drops show. change overrides ctx.query; change.scope is 'all', 'group:<g>' or 'site:<k>' */
+function iaListHref(key, ctx, change) {
+  const def = IA_LIST_DEFS[key], c = change || {}, v = { ...(ctx.query || {}), ...c }, p = [];
+  if ('q' in c || (def.facets || []).some(f => f.key in c)) delete v.show;
+  const s = 'scope' in c ? String(c.scope || 'all') : ctx.scope && ctx.scope.kind !== 'all' ? `${ctx.scope.kind}:${ctx.scope.id}` : 'all';
+  if (s !== 'all') p.push(`scope=${s}`);
+  (def.facets || []).forEach(f => { const x = v[f.key]; if (x != null && x !== '' && f.options().some(([o]) => String(o) === String(x))) p.push(`${f.key}=${encodeURIComponent(x)}`); });
+  if (v.sort && (def.sorts || []).some(o => o.key === v.sort) && v.sort !== def.sorts[0].key) p.push(`sort=${encodeURIComponent(v.sort)}`);
+  if (v.q && String(v.q).trim()) p.push(`q=${encodeURIComponent(String(v.q).trim())}`);
+  if (v.show === 'all') p.push('show=all');
+  return key + (p.length ? '?' + p.join('&') : '');
+}
+/* a view's figure key: the canonical query without show (spec §3.2) */
+function iaListQk(key, ctx) { const h = iaListHref(key, ctx, { show: '' }), i = h.indexOf('?'); return i < 0 ? '' : h.slice(i + 1); }
+/* one figure of a key (D-IA.71): counts carry data-qty-kind="count" */
+function iaQty(key, role, text, count) { return `<span data-qty="${key}" data-qty-role="${role}"${count ? ' data-qty-kind="count"' : ''}>${text}</span>`; }
+/* D-IA.59, D-IA.68: one form per key on a screen. The parts are the shown values as rendered (whole dollars) plus the hidden ones' sum;
+   when they add to the rounded total the key is whole dollars, else every figure of the key takes cents */
+function iaListCents(shown, hidden) { const tot = [...shown, ...hidden].reduce((a, x) => a + x, 0), r = shown.reduce((a, x) => a + Math.round(x), 0) + Math.round(hidden.reduce((a, x) => a + x, 0)); return r !== Math.round(tot); }
+/* the tiles (spec §3.2, §4): tile 1 is the list's count (n, the rows after filters and before the cap), then the def's own, at most 4 */
+function iaListTiles(def, m, ctx) {
+  const n = m.n;
+  const qk = iaListQk(def.key, ctx), t1 = uxKpi(def.title, iaQty(`${def.key}:n:${qk}`, 'total', num(n), true));
+  return [t1, ...(def.tiles ? def.tiles(m, ctx, qk) : [])].filter(Boolean).slice(0, 4).join('');
+}
+/* the view states no drawn control shows (D-IA.70), then "Clear filters" at 2 or more set */
+function iaListChips(def, m, ctx, drawn) {
+  const key = def.key, q = ctx.query || {}, chip = (word, href, out) => `<span class="ia-chip">${word} · <a class="ux-link" href="#/${href}">${out}</a></span>`, out = [];
+  if (ctx.scope && ctx.scope.kind !== 'all') out.push(chip(ctx.scope.kind === 'group' ? IA_GROUP_WORD[ctx.scope.id] : escapeHtml(SK[ctx.scope.id].name), iaListHref(key, ctx, { scope: 'all' }), 'All sites'));
+  const set = (def.facets || []).filter(f => q[f.key] != null && q[f.key] !== '' && f.options().some(([o]) => String(o) === String(q[f.key])));
+  set.forEach(f => { if (!drawn.includes(f.key)) out.push(chip(f.options().find(([o]) => String(o) === String(q[f.key]))[1], iaListHref(key, ctx, { [f.key]: '' }), f.all)); });
+  const qq = String(q.q || '').trim();
+  if (qq && m.tier < 2) out.push(chip(`Matching “${escapeHtml(qq)}”`, iaListHref(key, ctx, { q: '' }), 'Clear search'));
+  if (set.length + (qq ? 1 : 0) >= 2) out.push(`<a class="ux-link" href="#/${iaListHref(key, { ...ctx, query: {} }, {})}">Clear filters</a>`);
+  return out.length ? `<p class="ia-list-chips" aria-label="In this view">${out.join(' ')}</p>` : '';
+}
+/* the tools by tier (D-IA.67): tier 1 Sort only; tier 2 each facet with at least 2 options present in scope, Sort, Search */
+function iaListTools(def, m, ctx, drawn) {
+  if (!m.tier) return '';
+  const q = ctx.query || {}, opt = (v, w, cur) => `<option value="${escapeHtml(v)}"${String(cur) === String(v) ? ' selected' : ''}>${w}</option>`, plural = def.plural || def.title;
+  const facets = drawn.map(k => { const f = def.facets.find(x => x.key === k), os = f.options(), cur = os.some(([o]) => String(o) === String(q[k])) ? q[k] : '';
+    return `<label>${f.label} <select name="${k}">${opt('', 'All', cur)}${os.map(([v, w]) => opt(v, w, cur)).join('')}</select></label>`; }).join('');
+  const sort = `<label>Sort <select name="sort">${def.sorts.map(s => opt(s.key, s.word, m.sort)).join('')}</select></label>`;
+  const search = m.tier === 2 ? `<label>Search <input type="search" name="q" value="${escapeHtml(String(q.q || '').trim())}"></label><button type="submit" class="button">Search</button>` : '';
+  return `<form class="ia-list-tools" data-ia-list-tools="${def.key}" role="search" aria-label="${m.tier === 2 ? 'Filter and sort' : 'Sort'} ${plural}">${m.tier === 2 ? facets : ''}${sort}${search}</form>`;
+}
+/* the list's L2 (spec §3.2): chips, tools, the table (or the empty state) and the More line. opts.tools false: no chips and no tools
+   (the Outcomes fold, D-IA.64) */
+function iaListBody(key, ctx, opts = {}, model) {
+  const def = IA_LIST_DEFS[key], m = model || iaListModel(def, def.items(ctx.op), ctx.query, ctx.scope), qk = iaListQk(key, ctx), tools = opts.tools !== false;
+  const present = f => new Set(m.inScope.map(it => String(f.of(it))).filter(v => f.options().some(([o]) => String(o) === v))).size;
+  const drawn = m.tier === 2 ? (def.facets || []).filter(f => present(f) >= 2).map(f => f.key) : [];
+  const head = tools ? `${iaListChips(def, m, ctx, drawn)}${iaListTools(def, m, ctx, drawn)}` : '';
+  if (!m.ns) return `${head}<p class="ux-empty" role="status">${def.none}</p>`;
+  if (!m.n) return `${head}<p class="ux-empty" role="status">Nothing matches these filters. <a class="ux-link" href="#/${iaListHref(key, { ...ctx, query: {} }, {})}">Clear filters</a></p>`;
+  const cols = def.cols, row = it => { const r = def.row(it, ctx, qk);
+    return `<tr data-row="${escapeHtml(r.key)}"><th scope="row"><a class="ia-row-go" href="#/${r.href}">${r.title}</a>${r.small ? ` <small>${r.small}</small>` : ''}</th>${(r.cells || []).map((c, i) => `<td data-label="${cols[i + 1]}"><span class="ux-cell">${c}</span></td>`).join('')}</tr>`; };
+  const thead = `<thead><tr>${cols.map(c => `<th scope="col">${c}</th>`).join('')}</tr></thead>`, word = g => (def.groupWord ? def.groupWord(g) : IA_GROUP_WORD[g]) || g;
+  const body = m.groups ? m.groups.map(({ g, n_g }) => `<tbody data-group="${g}"><tr class="ia-list-group"><th colspan="${cols.length}" scope="rowgroup">${word(g)} ${`<span class="ux-count" data-qty="${key}:n:${qk}" data-qty-role="part" data-qty-kind="count">${num(n_g)}</span>`}</th></tr>${m.shown.filter(it => def.group(it) === g).map(row).join('')}</tbody>`).join('')
+    : `<tbody>${m.shown.map(row).join('')}</tbody>`;
+  const pre = def.more ? def.more(m, ctx, qk) || '' : '';
+  const all = `<a class="ux-link" href="#/${iaListHref(key, ctx, { show: 'all' })}" data-qty="${key}:n:${qk}" data-qty-role="total" data-qty-kind="count">Show all ${num(m.n)}</a>`;
+  const more = m.hidden.length ? (def.moreInline ? `<p class="ux-more">${pre ? pre + ' ' : ''}${all}</p>` : `${pre}<p class="ux-more">${all}</p>`) : def.moreInline ? '' : pre;
+  return `${head}<div class="table-wrap"><table class="ia-list ux-stack" id="ia-list-${key}">${thead}${body}</table></div>${more}`;
+}
+/* the list shape (spec §3.2): count tiles in L1; chips, tools, rows and More in L2 */
+function shapeList(ctx, key) {
+  const def = IA_LIST_DEFS[key], m = iaListModel(def, def.items(ctx.op), ctx.query, ctx.scope);
+  return `<section data-shape="list" data-ia-list="${key}"><div data-level="L1"><div class="heroes ux-kpis">${iaListTiles(def, m, ctx)}</div></div><div data-level="L2">${iaListBody(key, ctx, {}, m)}</div></section>`;
+}
+
+/* ---- IA-2b1 unit 4: the three classifiers (D-IA.77) and the four lists (spec-IA-2b §4, D-IA.63). Every option, word and figure is
+   read at render from the one source the hubs and the plan read (D-IA.74); items(op) is not cached ---- */
+const IA_DEC_STATE_WORD = { waiting: 'Waiting for a choice', approval: 'Awaiting approval', draft: 'With the plan sent back to draft', underway: 'Under way' };
+function iaDecStateKey(id) { const s = uxDecState(id); return ['choose', 'none'].includes(s.key) ? 'waiting' : s.key === 'approval' ? (s.draft ? 'draft' : 'approval') : 'underway'; }
+/* actionState's rule on the same helpers: left out of the case, else released as shown, else waiting */
+function iaActionStateKey(op, a) { return !planCaseIds(op).includes(a.item) ? 'returned' : releaseShown(op, a.item).at ? 'released' : 'waiting'; }
+function iaFindingSite(op, x) { return OPS[op].sites.find(k => SK[k].name === x.site) || null; }
+const iaPill = (key, label) => `<span class="status-pill is-${key === 'released' ? 'approved' : key === 'approval' ? 'waiting' : 'proposed'}">${label}</span>`;
+const IA_NA = '<span class="ux-kpi-na">Not available yet</span>';
+/* a decision's earliest due date over its issues (the queue's rule) */
+const iaDecDue = id => ATTN[LS.op].filter(r => r[4] === id).map(r => uxDueIso(id, r[3])).filter(Boolean).sort()[0] || '';
+const iaByDue = (a, b) => (!a) - (!b) || (a < b ? -1 : a > b ? 1 : 0);
+const iaCountOf = (rows, pred) => rows.filter(pred).length;
+/* an Action's Site and its one target: the decision whose options hold its item, else the plan */
+const iaActionSite = (op, a) => OPT[a.item]?._site || (itemOf(op, a.item)?.site || '').split(' · ').pop().toLowerCase();
+const iaActionDec = (op, a) => DEC.filter(d => OPS[op].sites.includes(d.site)).find(d => (d.opts || []).includes(a.item));
+/* the Sites gap key's form on this view (spec §3.4): one model per context */
+const IA_SITES_CENTS = new WeakMap();
+function iaSitesCents(ctx) {
+  if (!ctx) return false; if (IA_SITES_CENTS.has(ctx)) return IA_SITES_CENTS.get(ctx);
+  const def = IA_LIST_DEFS.sites, m = iaListModel(def, def.items(ctx.op), ctx.query, ctx.scope), g = r => r.filter(x => x.hasTarget).map(x => x.gap);
+  const c = iaListCents(g(m.shown), g(m.hidden)); IA_SITES_CENTS.set(ctx, c); return c;
+}
+const iaGapW = (v, cents) => cents ? usd2s(v) : usdW(v, true);
+const iaCost = () => OPS[LS.op].kind === 'cost';
+Object.assign(IA_LIST_DEFS, {
+  decisions: { key: 'decisions', title: 'Decisions', plural: 'decisions', cols: ['Decision', 'Site', 'State', 'At stake', 'Due', 'Who decides'],
+    items: op => iaDecIds(op, { kind: 'all' }), site: id => decById(id).site, keep: iaWaiting,
+    facets: [{ key: 'state', label: 'State', all: 'All states', options: () => Object.entries(IA_DEC_STATE_WORD), of: iaDecStateKey },
+      { key: 'due', label: 'Due', all: 'Any due date', options: () => Object.entries(UX_URG), of: id => uxUrgency(iaDecDue(id)) }],
+    sorts: [{ key: 'priority', word: 'Priority', cmp: () => 0 }, { key: 'due', word: 'Due date', cmp: (a, b) => iaByDue(iaDecDue(a), iaDecDue(b)) }],
+    row: id => { const d = decById(id), op = SK[d.site].op, due = iaDecDue(id), st = uxDecState(id), issues = ATTN[op].filter(r => r[4] === id).map(r => r[1]);
+      return { key: id, href: `decision/${id}`, title: uxTitle(d.q, SK[d.site].name), small: [...new Set(issues)].join(' · '),
+        cells: [escapeHtml(SK[d.site].name), iaPill(st.key, st.label), uxStake(id), due ? fdate(due) : UX_URG.none, who(op, deciderOf(id).p)] }; },
+    tiles: (m, ctx, qk) => [uxKpi('Waiting for a choice', iaQty(`decisions:waiting:${qk}`, 'total', num(iaCountOf(m.rows, iaWaiting)), true))],
+    more: m => iaCapMore(m.hidden), none: 'No decisions in this scope.' },
+  findings: { key: 'findings', title: 'Findings', plural: 'Findings', cols: ['Finding', 'Site', 'Heading', 'Its decision'],
+    items: op => uxFindingRows(op), site: x => iaFindingSite(LS.op, x),
+    facets: [{ key: 'heading', label: 'Heading', all: 'All headings', options: () => { const hs = new Set(uxFindingRows(LS.op).map(x => x.heading)); return Object.keys(LENS).filter(k => hs.has(k)).map(k => [k, LENS[k][0]]); }, of: x => x.heading }],
+    sorts: [{ key: 'priority', word: 'Priority', cmp: () => 0 }, { key: 'site', word: 'Site', cmp: (a, b) => a.site.localeCompare(b.site) }],
+    row: x => ({ key: x.f.id, href: `decision/${x.d ? x.d.id : x.f.decision}`, title: x.text, small: '',
+      cells: [escapeHtml(x.site), LENS[x.heading] ? LENS[x.heading][0] : '', x.st ? iaPill(x.st.key, x.st.label) : IA_NA] }),
+    tiles: (m, ctx, qk) => [uxKpi('Decision waiting for a choice', iaQty(`findings:waiting:${qk}`, 'total', num(iaCountOf(m.rows, x => x.d && iaWaiting(x.d.id))), true))],
+    none: 'No Findings in this scope.' },
+  actions: { key: 'actions', title: 'Actions', plural: 'Actions', cols: ['Action', 'Owner', 'Due', 'State'],
+    /* one row per Action; its key is {item}-{i}, i 1-based within its item's Actions in store order */
+    items: op => { const n = {}; return (WF(op).actions || []).map(a => { n[a.item] = (n[a.item] || 0) + 1; return { op, a, key: `${a.item}-${n[a.item]}` }; }); },
+    site: x => iaActionSite(x.op, x.a),
+    facets: [{ key: 'state', label: 'State', all: 'All states', options: () => [['released', RELEASE_WORD.RELEASED], ['waiting', RELEASE_WORD.WAITING], ['returned', RELEASE_WORD.RETURNED]], of: x => iaActionStateKey(x.op, x.a) },
+      { key: 'version', label: 'Plan version', all: 'All versions', options: () => { const v = uxPlanState(LS.op).version; return [[String(v), `Version ${num(v)}`]]; },
+        of: x => { const S = uxPlanState(x.op), ids = S.state === 'APPROVED' ? planApprovedIds(x.op) : planItemsV1(x.op); return ids.includes(x.a.item) ? String(S.version) : null; } }],
+    sorts: [{ key: 'due', word: 'Due date', cmp: (a, b) => iaByDue(a.a.due || '', b.a.due || '') },
+      { key: 'item', word: 'Plan item', cmp: (a, b) => { const v = planItemsV1(a.op), i = v.indexOf(a.a.item), j = v.indexOf(b.a.item); return (i < 0) - (j < 0) || i - j; } }],
+    row: x => { const { op, a } = x, d = iaActionDec(op, a), [pill] = actionState(op, a, planCaseIds(op).includes(a.item));
+      return { key: x.key, href: d ? `decision/${d.id}` : 'plan', title: a.action, small: itemShort(op, a.item),
+        cells: [who(op, a.owner), a.due ? `${fdate(a.due)}<small>${dueWords(a.due)}</small>` : UX_URG.none, pill] }; },
+    tiles: (m, ctx, qk) => { const k = s => iaCountOf(m.rows, x => iaActionStateKey(x.op, x.a) === s), ret = k('returned'), p = (l, v) => uxKpi(l, iaQty(`actions:n:${qk}`, 'part', num(v), true));
+      return [p(RELEASE_WORD.RELEASED, k('released')), p(RELEASE_WORD.WAITING, k('waiting')), ret > 0 ? p(RELEASE_WORD.RETURNED, ret) : '']; },
+    none: 'No Actions in this scope.' },
+  sites: { key: 'sites', title: 'Sites', plural: 'Sites',
+    get cols() { return ['Site', 'Group', iaCost() ? 'Cost per required departure met' : 'Contribution', 'Gap to target', 'Largest driver against target', 'Waiting for a choice']; },
+    items: op => iaOutcomeRows(op), site: r => r.key, group: r => r.group, groupWord: g => IA_GROUP_WORD[g],
+    facets: [{ key: 'target', label: 'Target', get all() { return iaCost() ? 'Over and under target' : 'Above and below target'; },
+      options: () => iaCost() ? [['below', 'Over target'], ['on', 'On or under target']] : [['below', 'Below target'], ['on', 'On or above target']],
+      of: r => r.hasTarget ? (r.gap < 0 ? 'below' : 'on') : null }],
+    /* D-IA.27's order: gap ascending (most adverse first), Sites without a target last */
+    sorts: [{ key: 'gap', word: 'Gap to target', cmp: (a, b) => (a.hasTarget !== b.hasTarget ? (a.hasTarget ? -1 : 1) : a.hasTarget ? a.gap - b.gap : 0) },
+      { key: 'name', word: 'Name', cmp: (a, b) => a.name.localeCompare(b.name) }],
+    row: (r, ctx, qk) => ({ key: r.key, href: `site/${r.key}`, title: escapeHtml(r.name), small: '',
+      cells: [IA_GROUP_WORD[r.group] || r.group, r.hasTarget ? r.result : IA_NA,
+        r.hasTarget ? `<span${figA('gap', r.key, r.gap)} data-qty="sites:gap:${qk}" data-qty-role="part">${iaSitesCents(ctx) ? usd2s(r.gap) : r.gapText}</span>` : IA_NA,
+        r.hasTarget ? r.driver : IA_NA, num(r.waiting)] }),
+    tiles: (m, ctx, qk) => { const c = iaSitesCents(ctx), T = r => r.filter(x => x.hasTarget), sh = T(m.shown), hd = T(m.hidden), k = m.rows.length - T(m.rows).length;
+      const tot = c ? [...sh, ...hd].reduce((a, x) => a + x.gap, 0) : sh.reduce((a, x) => a + Math.round(x.gap), 0) + Math.round(hd.reduce((a, x) => a + x.gap, 0));
+      return [uxKpi(iaCost() ? 'Over target' : 'Below target', iaQty(`sites:below:${qk}`, 'total', num(iaCountOf(m.rows, r => r.hasTarget && r.gap < 0)), true)),
+        uxKpi('Gap to target', iaQty(`sites:gap:${qk}`, 'total', iaGapW(tot, c)), [k > 0 ? `${num(k)} Sites without a target are not in this figure` : ''])]; },
+    more: (m, ctx, qk) => { if (!m.hidden.length) return ''; const hd = m.hidden.filter(x => x.hasTarget).reduce((a, x) => a + x.gap, 0);
+      return `Not shown: ${num(m.hidden.length)} Sites, gap to target <span data-qty="sites:gap:${qk}" data-qty-role="part">${iaGapW(iaSitesCents(ctx) ? hd : Math.round(hd), iaSitesCents(ctx))}</span>.`; },
+    moreInline: true, none: 'No Sites in this scope.' }
+});
 
 /* ===== Layer 4 rev 4 mock-up · screen registration, change status, initial render ===== */
 const V70IDS = new Set(SCREENS.map(s=>s.id));

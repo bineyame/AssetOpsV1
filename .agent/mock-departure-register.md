@@ -4,14 +4,14 @@ Architect classification, 2026-10-24; counts refreshed 2026-10-26 (post-W6 final
 
 | Category | Rows | Standing or open |
 | --- | ---: | ---: |
-| D1 data or feature unavailable | 140 | 139 |
+| D1 data or feature unavailable | 141 | 140 |
 | D2 improvement | 79 | 76 |
 | D3 structural oversight | 140 | 2 |
-| D4 illustrative placeholder | 53 | 53 |
+| D4 illustrative placeholder | 54 | 54 |
 | D5 build order | 8 | 2 |
 | D6 technical constraint | 0 | 0 |
 | Backlog (non-departure) | 1 | 1 |
-| **Total** | **421** | **274** |
+| **Total** | **423** | **276** |
 
 ## D1 — data or feature unavailable
 
@@ -732,3 +732,21 @@ R396; cold names R235; mini status strip R154).
 | R768 | 5c unit 3, KD4 (review R2-L3) | `portfolio/month` "Where the gap comes from" step row | Each step on one row beside its bar at all widths (`uxBridge`, 2 lines) | The step row stacks (label and value, then track) under 720 px of section width (container query), because the shell's navigation leaves 488 px of section at 768; spec §5.3's "above 600 px" is a viewport rule | D1 | At 488 px the five-column row does not fit. Spec line pending Architect (§5.3). | Architect | standing (owner walkthrough) |
 | R769 | 5c unit 3, KD4 (preference) | same | A stacked step takes 2 lines in the mock | The stacked step takes 5 lines. Preference for the owner's walkthrough, not a change: share, chip and Sites on one wrapping meta line would give about 3 | D1 | Review R2-L3 preference; no change made. | owner walkthrough | open |
 | R770 | 1a (D-1A.3, D-1A.6; MOCK DEVIATION MD-1A-1) | Portfolio, Optimize card (v70 `pfCard`, index.html:494) | The `oc-pfdays` line under the figure, `PFDAYS.cost` "Kobo: 6 Oct partly checked" | The SC-1 statement `portfolio_card.cost_scope` in that slot: "Cost of Kobo's lead issue on 30 October 2026, the last of the 30 days shown, not their total" | D2 | Format: SC-1's one `day` format (D-SC1.10), and the scope words the figure needs so it is not read as the period's total (D-1A.2). | 7g (a period figure replaces the value and the line) | 1a |
+| R771 | (was R757) IA-2a (spec §5.1.2, D-IA.43) | `#/plan` and its tabs, each operator | The approval panel beside the plan (state block, Opened and Proposed, meters, release line, version notice, recording note, thresholds) | No approval panel: the band carries state and meters, History holds Opened and Proposed, L1 holds the release line and version notice, the thresholds open in a drawer, the Approve dialog says "Recorded under" | D2 | Each reviewed fragment placed once; nothing repeats the band; mark "MOCK DEVIATION D2". | none (final) | IA-2a |
+| R772 | (was R758) IA-2a (spec §5.1.3, D-IA.48, OQ-IA.6) | `#/plan` and its tabs | Approve and Send back in the plan's title row | Approve and Send back in the band's act row under the meters, inside the first viewport at 1440 × 900 and 1280 × 720; the sticky bar repeats them | D2 | The act stays where the eye starts without a frame change for every shape; revisit at the IA-2 walkthrough; mark "MOCK DEVIATION D2". | IA-2 walkthrough | IA-2a |
+| R773 | (was R759) IA-2a (spec §5.1.2, D-IA.47) | `#/plan/review` | "Review against observed" with observed values | "Observed change: Not yet" and "Review: Not yet" while the period is open (the reviewed copy) | D1 | An honest gap inside the mock's structure; it fills only from Results' verdicts; mark "MOCK DEVIATION D1". | IA-2d | IA-2a |
+| R774 | (was R760) IA-2a (spec §5.1.4, D-IA.47; resolves IA-2d's entry addresses) | `#/plan/history` | "L4 versions": a drawer per version, an address per entry | One list of versions and approvals, newest first, from the act log and the manifest; no per-version drawer, no address per entry | D5 | The list is the versions; the act log is per browser tab; mark "MOCK DEVIATION D5". | none (final) | IA-2a |
+| R775 | (was R761) IA-2b1 (spec-IA-2b §4, D-IA.69) | `#/decisions`, `#/findings`, `#/actions` | Home list tiles "count · count · at stake" | Count tiles only; no "at stake" tile and no stake sort. The Sites list keeps a money tile: the gap to target, whose rows add up to the Overview's gap | D2 | Stakes of separate decisions are valued on different bases and horizons, and some are alternatives, so neither a sum nor an order is a true figure (honest numbers); mark "MOCK DEVIATION D2". | none (final) | IA-2b1 |
+| R776 | (was R762) IA-2b1 (spec-IA-2b §3.1, D-IA.67) | every home list above 10 rows in scope (the 30-Site fixture live) | The 30-Site frame: filter · sort · group heads · Show all 30 | Search is drawn with the filters from 11 rows in scope; up to 10, Sort only; under 3, no controls | D2 | One tier rule for every list (controls grow with the list); a list past the cap is searchable; mark "MOCK DEVIATION D2". | none (final) | IA-2b1 |
+| R777 | (was R763) IA-2b1 (spec-IA-2b §4, D-IA.68) | `#/sites` and the Outcomes tab, when rows are hidden by the cap | "Show all 42" with no figure | "Not shown: {h} Sites, gap to target {gap}." beside "Show all {n}" | D2 | The shown gaps and the hidden part add up to the tile on the same screen (D-IA.54); mark "MOCK DEVIATION D2". | none (final) | IA-2b1 |
+| R778 | (was R764) IA-2b1 (spec-IA-2b §4, D5) | `#/findings`, `#/actions` | "row → page or drawer": each row opens its object | A Finding's row opens its decision; an Action's row opens the decision whose option it carries out, or the plan | D5 | `finding/:id` and `action/:id` are IA-2d's; every row still opens one live page; mark "MOCK DEVIATION D5". | IA-2d | IA-2b1 |
+| R779 | (was R765) IA-2b1 (spec-IA-2b §10, D5) | the menu | Home lists for Assets, Incidents and Maintenance | Not available yet in the menu | D5 | Those lists are IA-2c's; nothing unbuilt is reachable; mark "MOCK DEVIATION D5". | IA-2c | IA-2b1 |
+
+## IA-P1 additions (2026-11-22; vNEXT, spec `specs/IA-P-product-shape/spec.md` §7)
+
+| ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| R780 | IA-P1 P1, MD-IAP-1 (spec §7) | vNEXT `IA_RAIL` WORK › Plan, and the `plan` shape (IA-2a) | Plan as a live rail item opening the plan page | Plan is an unavailable rail item ("Not available yet"), no route | D1 | No plan record exists in the live product (D-IAP.1); a modelled plan shown live would present modelled figures as the operator's. | a plan record (not specified yet) | open |
+| R781 | IA-P1 P1, MD-IAP-14 (spec §7, handshake I15) | vNEXT `IA_RAIL` icons | The mock's icon per rail item | The live icon set (`ui/RailIcon.tsx`), with `decide` new for Decisions so that two items do not share `finding` | D4 | The live product's icon vocabulary is kept; only the one missing icon is added. | none (standing) | standing |
+| R782 | IA-P1 P2, MD-IAP-2 (spec §7) | vNEXT Decisions list rows (IA-2b §4 `decisions`) | Rows with State in four words, Due and Who decides filled | Rows are the placed Findings (D-IAP.3). State has three words: Waiting for a choice, Being watched (MONITOR with no Action, D-IAP.29), Under way. Due and Who decides read "Not available yet". | D1 | No decision record exists yet, so no due date, owner or "decided" state can be shown without inventing it. | 6f (on 6a) | open |
+| R783 | IA-P1 P2, MD-IAP-6 (spec §7) | vNEXT Actions list tiles (IA-2b §4 `actions`) | Tiles for the Action states only | Tiles for the states present, and today's four server figures (open, due or overdue, verification window, verified in 30 days) kept as one caption line under them, with today's words | D2 | The four figures are live server numbers the operator reads today; they are extended into the list, not dropped. | none (standing) | standing |

@@ -10,5 +10,12 @@
    "class": "CODE",
    "why": "date-format tokens DD and MM swapped in a layout's format string; not served"
   }
+ ],
+ "backend/assetops_backend/decisions/adapters/structure_read.py": [
+  {
+   "fingerprint": "j:GuardedStructureRead.site_inputs:d0bac1208c82",
+   "class": "CODE",
+   "why": "a database error's own text carried into StoreUnavailable (D-P6.41); mapped to STRUCTURE_UNAVAILABLE, never served as words"
+  }
  ]
 }

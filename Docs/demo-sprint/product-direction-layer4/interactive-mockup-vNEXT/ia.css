@@ -25,8 +25,6 @@
 .reviewbar .ux-rebuild .ux-pop-menu{right:0;left:auto;max-width:420px;white-space:normal}
 /* IA-1b (D-IA.22): levels are structure only, so the reviewed layout does not move */
 [data-shape="hub"]>[data-level],[data-shape="decision"]>[data-level],[data-ia-drawers]{display:contents}
-.ia-outcomes td small{display:block;color:var(--text-2);font-weight:400}
-.table-wrap:has(>.ia-outcomes){margin-bottom:var(--s4,16px)}
 /* IA-1c (spec §4.3): the "Waiting for you" control in the top bar, sized with the theme toggle; at 390 its label is visually hidden and the
    icon and badge stay */
 .ia-inbox{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px;border:1px solid var(--line-strong);border-radius:var(--r1);background:var(--surface);color:var(--text);font-size:var(--fs-xs);font-weight:550;white-space:nowrap;cursor:pointer;flex:none}
@@ -75,3 +73,31 @@
 .ia-frame .topbar[data-fit="5"] .ux-scope-sw{flex:1 1 0;min-width:0;max-width:max-content}
 .ia-frame .topbar[data-fit="5"] .ux-scope-sw>summary{white-space:normal;overflow-wrap:normal;word-break:normal}
 .ia-frame .topbar[data-fit="5"] .searchbox::after{display:none}
+/* IA-2a (spec §5.1.7, D-IA.51): the plan's stepper, the thresholds opener and the case line */
+.ia-plan-steps{margin:0 0 var(--s3,12px)}
+.ia-plan-rules{margin:var(--s2,8px) 0 0}
+.ia-plan-case{margin:var(--s2,8px) 0 0}
+
+.ia-plan-released{margin:var(--s2,8px) 0 0;font-size:var(--fs-sm);color:var(--text-2)} /* D-IA.60 L6: the release line's type (.approval-releases) */
+[data-ia-tabs]{display:contents}
+/* D-IA.56: a tile row fills its row; below 1280 two tracks and an odd last tile spans the row */
+@media (min-width:1280px){.ia-frame .heroes.ux-kpis:has(>:last-child:nth-child(3)){grid-template-columns:repeat(3,minmax(0,1fr))}.ia-frame .heroes.ux-kpis:has(>:last-child:nth-child(2)){grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:1279px){.ia-frame .heroes.ux-kpis>:last-child:nth-child(odd){grid-column:1/-1}}
+/* D-IA.55: on a phone the plan's L1 notes sit closer, so the tab's content still starts inside a viewport once the strip is at the top */
+@media (max-width:600px){.ia-plan-released,.ia-plan-rules,.ia-plan-case{margin-top:var(--s1,4px)}.ia-plan-rules{margin-top:0}}
+/* IA-2b1 (spec-IA-2b §3.2): the list shape. Levels are structure only; the tools and chips rows wrap inside the page; one stretched link
+   per row (D-IA.9), focus shown on the row */
+[data-shape="list"]>[data-level]{display:contents}
+.ia-list-tools,.ia-list-chips{display:flex;flex-wrap:wrap;gap:var(--s2,8px);align-items:end}
+.ia-list-tools{margin:0 0 var(--s3,12px)}
+.ia-list-tools label{display:flex;flex-direction:column;gap:4px;min-width:0;max-width:100%;font-size:var(--fs-sm);color:var(--text-2)}
+.ia-list-tools select,.ia-list-tools input{max-width:100%}
+.ia-list-chips{margin:0 0 var(--s3,12px);align-items:center;font-size:var(--fs-sm)}
+.ia-chip{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px;max-width:100%;padding:2px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface-2)}
+.ia-list tbody tr{position:relative}.ia-row-go::after{content:"";position:absolute;inset:0}.ia-list tbody tr:focus-within{outline:2px solid var(--focus,#2563eb);outline-offset:-2px}
+.ia-list tbody tr[data-row]:hover{background:var(--surface-2)}
+.ia-list th small,.ia-list td small{display:block;color:var(--text-2);font-weight:400}
+.ia-list .ia-list-group th{background:var(--surface-2);font-weight:600}
+.table-wrap:has(>.ia-list){margin-bottom:var(--s4,16px)}
+/* IA-2b1 unit 4 (ia_shots S1, D-IA.35 L5): the stacked row title and state pill wrap; the global th{white-space:nowrap} (mockups.css) and the pill's nowrap (theme.css) clipped them at 390 */
+@media (max-width:760px){.ia-list tbody th{white-space:normal;overflow-wrap:break-word}.ia-list td .status-pill{white-space:normal;max-width:100%;height:auto;min-height:22px;padding-block:3px;line-height:1.25}}

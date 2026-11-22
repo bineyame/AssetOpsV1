@@ -9,12 +9,17 @@ if (!JSDOM) { console.error('ia_crawl: jsdom not found (set JSDOM_PATH)'); proce
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const OPS = ['lakeside', 'harvest', 'metro'];
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+const forced = () => String(process.env.IA_FORCE_LANDED || '').split(',').map(x => x.trim()).filter(Boolean);
 /* boot one operator at a hash; o.dev turns the developer switch on; o.before runs in beforeParse */
 async function boot(op, hash, o = {}) {
   const errors = [], vc = new VirtualConsole(); vc.on('jsdomError', e => errors.push(String(e.message || e).slice(0, 240)));
   const dom = new JSDOM(html, { virtualConsole: vc, runScripts: 'dangerously', pretendToBeVisual: true, url: 'http://x/' + (o.search || '') + '#/' + hash,
     beforeParse(w) { w.sessionStorage.setItem('l4-op', op); if (o.dev) w.sessionStorage.setItem('l4-dev', '1'); w.matchMedia = () => ({ matches: false, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {} }); w.scrollTo = () => {}; if (o.before) o.before(w); } });
-  const w = dom.window; await sleep(300);
+  const w = dom.window;
+  /* D-IA.49: IA_FORCE_LANDED=<unit>[,<unit>] adds the units to IA_LANDED in this booted window only (no product file changes), after the
+     scripts load; the page is rendered again before any check reads it */
+  const force = forced(); if (force.length) { force.forEach(u => w.eval(`IA_LANDED.add(${JSON.stringify(u)})`)); w.eval('render()'); }
+  await sleep(300);
   const go = async h => { if (w.location.hash === '#/' + h) w.eval('render()'); else w.location.hash = '#/' + h; await sleep(30); if (w.eval('LS.op') !== op) { w.eval(`setOp(${JSON.stringify(op)});render()`); await sleep(20); } };
   return { dom, w, doc: w.document, go, errors, opName: w.eval(`OPS[${JSON.stringify(op)}].name`) };
 }
@@ -46,4 +51,7 @@ function liveRoutes(w, op) {
 }
 /* the hrefs a crawl follows: links in #app outside the review bar and the workspace footer */
 function hrefsOf(doc) { return [...doc.querySelectorAll('#app a[href^="#/"]')].filter(a => !a.closest('.reviewbar, [data-ia-footer]')).map(a => a.getAttribute('href')); }
-module.exports = { boot, classifier, identity, liveRoutes, hrefsOf, OPS, sleep, html };
+/* D-IA.49: before 3(a) the plan shape's builders exist only as tools/fixtures/plan_stub.js; load it into a booted window when the window
+   has no shapePlan (the stub renders again itself). Returns true when the stub was loaded. */
+function planStub(w) { if (w.eval('typeof shapePlan') === 'function') return false; w.eval(fs.readFileSync(path.join(root, 'tools', 'fixtures', 'plan_stub.js'), 'utf8')); return true; }
+module.exports = { forced, boot, classifier, identity, liveRoutes, hrefsOf, OPS, sleep, html, planStub };

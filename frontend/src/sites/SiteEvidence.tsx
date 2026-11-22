@@ -15,6 +15,7 @@
  * `source=`, then `record=`), and the Site root and tab never change.
  */
 
+import { windowBound } from "../ui/sharedRange";
 import { awaitingMigration } from "./siteEvidenceClient";
 import { LedgerSiteEvidence } from "./LedgerSiteEvidence";
 import { isLedgerEvidence, type LedgerEvidence } from "./ledgerEvidenceClient";
@@ -102,8 +103,8 @@ export function SiteEvidence({
   timezone = null,
 }: SiteEvidenceProps) {
   const [params, setParams] = useSearchParams();
-  const from = params.get("from");
-  const to = params.get("to");
+  const from = windowBound(params, "from");
+  const to = windowBound(params, "to");
   const batch = params.get("batch");
   const [loaded, setLoaded] = useState<Loaded | null>(null);
 

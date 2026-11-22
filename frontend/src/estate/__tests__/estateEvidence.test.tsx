@@ -235,7 +235,7 @@ describe("W3-02 estate Evidence root", () => {
     renderAt(`${ESTATE_EVIDENCE_PATH}?${WINDOW}`, fake(loaded(body())));
     await settledScreen();
     expectV69Panels("globalevidence");
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Portfolio evidence");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Evidence & records");
     expect(main().textContent).toContain("Cross-site claim readiness, recurring gaps and instrumentation priorities");
     // SR-2: the range is shown once, in the shell's shared bar; the page keeps only its cutoff line.
     expect(main().querySelector("[data-estate-window]")).toBeNull();
@@ -549,7 +549,7 @@ describe("W3-02 estate Evidence root", () => {
     renderAt(`${ESTATE_EVIDENCE_PATH}?${WINDOW}`, fake(loaded(body())));
     await settledScreen();
     const h1 = screen.getByRole("heading", { level: 1 });
-    expect(h1.textContent).toBe("Portfolio evidence");
+    expect(h1.textContent).toBe("Evidence & records");
     const header = h1.closest("header") as HTMLElement;
     expect(header).not.toBeNull();
     const eyebrow = within(header).getByText(EVIDENCE_EYEBROW, { selector: ".page-header__eyebrow" });
@@ -722,7 +722,7 @@ describe("post-W6 W3-estate refused window", () => {
   it("classifiesInvalidWindowFromThePageQueryAndHidesTheDates", async () => {
     const cases: [string, string][] = [
       ["from=2026-10-07T00:00:00Z&to=2026-10-05T00:00:00Z", "The selected window needs both a start and an end, with the start before the end."],
-      ["from=2026-08-01T00:00:00Z&to=2026-10-01T00:00:00Z", "The selected window is longer than 31 days."],
+      ["from=2024-08-01T00:00:00Z&to=2026-10-01T00:00:00Z", "The selected window is longer than 31 days."],
       [WINDOW, "The selected window is invalid."],
     ];
     for (const [query, copy] of cases) {

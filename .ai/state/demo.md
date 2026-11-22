@@ -254,3 +254,28 @@ Branch `task/POLISH-PA-3-producers-rebuild` (worktree `AssetOpsV1-polA3`, from m
   `?state=no-recommendation` jumps to not-found (pre-existing on main); drawer addresses are IA-2d's (R753). G2 stop: the owner sees
   the hub and decision shapes before IA-2.
 
+
+## IA-2a - the plan shape: four tabs, stepper, crew tiles, History (in review 21 Nov)
+
+- Mock-up only. Live: `plan` (Items), `plan/left-out`, `plan/review`, `plan/history`, one shape `shapePlan(ctx, tab)`. L1, identical
+  on every tab: the stepper (Draft › Proposed › Approved › Closed), the band (spend with the budget meter, one crew tile per month with
+  a stated limit, value; Approve and Send back in its act row), the release line, the version notice, the case line when the case is
+  not the proposal (D-IA.51), "Release thresholds" (a drawer). The approval panel left the page (R771); History lists the act log's
+  plan entries, the proposal and the opening (R774). Tabbed routes may set `docTitle`.
+- Byte identity: `planParts`, `approvalParts`, `uxPlanBandParts`, `whatChangedParts` splits; `planScreen` and `whatChangedScreen` in
+  three plan states.
+- Gates: `plan_shape_check` (new), the `count_check` plan block (60 combinations), `shape_check` item 14 (distinct titles per tab
+  group), G1 plan tabs (2) and plan items' decisions (reported at 3), the `copy_check` plan block, `ia_shots` approvefold; plants under
+  `IA_FORCE_LANDED=IA-2a` before the flip; after it, an IA-2a check that prints "dormant" fails `ia_gates`.
+- Open: R772 (Approve in the band, not the title row) and R773 (Review "Not yet") revisit at the IA-2 walkthrough and IA-2d.
+
+## IA-2b1 - the list shape (built 21 Nov; in review, not merged)
+
+- Mock-up only. `IA-2b1` is in `IA_LANDED`: four home lists (Decisions, Findings, Actions, Sites) from one def table
+  (`IA_LIST_DEFS`) and one component (`shapeList`, `iaListModel`, tiers, chips, tools; `iaListRestore` keeps the control's place).
+  The Outcomes tab draws the Sites list's rows; act-first and the Findings aliases resolve to the lists with their queries; the
+  Decisions and Sites crumbs link.
+- Checks: `list_shape_check` (A to D), `qty_check` count and format modes with `EQUAL` (Sites gap = Overview gap), `shape_check`
+  items 7, 12 and 15, G1 lists at 1, the `copy_check` list block, `ia_shots` S1 to S9; every 2b1 plant fails in `ia_gates`.
+- Open: the Architect's check of the `resolveScreen` line (Q1 default overridden) and the aliases pulled into unit 3 (Q5); D5 rows
+  R778 (IA-2d) and R779 (IA-2c); R749 to R751 close in IA-2b2; the owner's walkthrough (`packet-IA-2b1.md`).

@@ -376,19 +376,16 @@ describe("the Site Evidence route", () => {
 });
 
 describe("the landing route", () => {
-  it("redirects / to the Sites index", async () => {
+  it("redirects / to the Portfolio (IA-P P1, D-IAP.4)", async () => {
     renderAt("/");
-    await screen.findByRole("table", { name: "Site inventory" });
-
-    expect(
-      screen.getByRole("heading", { level: 1, name: "Sites" }),
-    ).toBeInTheDocument();
+    const rail = await screen.findByRole("navigation", { name: "Operator routes" });
+    expect(within(rail).getByRole("link", { name: "Portfolio" })).toHaveAttribute("aria-current", "page");
     expect(
       within(screen.getByRole("navigation", { name: "Operator routes" }))
         .getAllByRole("link")
         .map((link) => link.textContent),
     // W6-01e: Operational records rail root is live.
-    ).toEqual(["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Operational records", "Evidence", "Financials"]);
+    ).toEqual(["Portfolio", "Sites", "Findings", "Decisions", "Actions", "Incidents", "Maintenance", "Evidence & records", "Financials"]);
   });
 });
 

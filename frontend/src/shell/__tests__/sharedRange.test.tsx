@@ -124,7 +124,7 @@ describe("SR-1 useSharedRange reads both address forms", () => {
     for (const bad of [
       "from=2026-10-06",
       "from=2026-10-06&to=2026-10-01",
-      "from=2026-08-01&to=2026-10-01",
+      "from=2024-08-01&to=2026-10-01",
       "from=yesterday&to=2026-10-01",
       "from=2026-10-01&to=2026-10-02&known_at=noon",
       // SR-4 D-SR.41a: a first instant that is not before the last is invalid, though both round to one valid day.
@@ -183,8 +183,9 @@ describe("SR-1 withRange and the rail search", () => {
     renderApp(`/portfolio?${WEEK}&known_at=2026-10-04T12%3A00%3A00Z`);
     await settledScreen();
     const carried = `?${WEEK}&known_at=2026-10-04T12%3A00%3A00Z`;
-    for (const label of ["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Operational records", "Evidence", "Financials"]) {
-      expect(railHref(label)).toBe(`/${label === "Operational records" ? "operational-records" : label.toLowerCase()}${carried}`);
+    for (const label of ["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Evidence & records", "Financials"]) {
+      // IA-P P1 (spec §2.1): Evidence & records is the one root, at /evidence.
+      expect(railHref(label)).toBe(`/${label === "Evidence & records" ? "evidence" : label.toLowerCase()}${carried}`);
     }
   });
 
@@ -214,7 +215,8 @@ describe("SR-1 filling in the address on entry", () => {
   });
 
   it("fills only the estate pages in SR-1; Work and Site pages keep their own default until SR-2", () => {
-    for (const path of ["/portfolio", "/portfolio/act-first", "/findings", "/findings/risks", "/actions", "/evidence", "/financials"]) {
+    for (const path of ["/portfolio", "/decisions", "/findings", "/actions", "/evidence", "/evidence/records", "/financials"]) {
+      // IA-P P1 (spec §2.1): /evidence/records is filled; the /operational-records alias redirects before it reads.
       expect(fillsRangeOnEntry(path)).toBe(true);
     }
     for (const path of ["/sites", "/sites/KOBO-001", "/incidents", "/maintenance", "/operational-records", "/findings/x/y"]) {
@@ -236,6 +238,32 @@ describe("SR-1 the shared range bar", () => {
     expect(within(rangeButton()).getByText("All pages")).toBeTruthy();
     // The Portfolio no longer has its own date form.
     expect(document.querySelector("[data-estate-date-bar]")).toBeNull();
+  });
+
+  it("IA-P P0: a 61-day range is the window inside the range on /findings, and All pages on /portfolio", async () => {
+    const long = "from=2026-09-01&to=2026-10-31";
+    const first = renderApp(`/findings?${long}`);
+    await settledScreen();
+    const tag = document.querySelector("[data-shared-range-focus]") as HTMLElement;
+    expect(tag.getAttribute("data-shared-range-focus")).toBe("inside");
+    expect(tag.textContent).toContain("1 Oct");
+    first.unmount();
+    renderApp(`/portfolio?${long}`);
+    await settledScreen();
+    expect(document.querySelector("[data-shared-range-focus]")).toBeNull();
+    expect(within(rangeButton()).getByText("All pages")).toBeTruthy();
+  });
+
+  it("IA-P P0 (R7): /findings on a 61-day range reads the last 31 days, and the rail Portfolio link keeps the whole range (R8)", async () => {
+    const client = fakeClient((lens) => loaded(findingsBody(lens)));
+    renderApp(`/findings?from=2026-09-01&to=2026-10-31`, client);
+    await settledScreen();
+    const reads = (client.calls as { kind: string; from: string; to: string }[]).filter((c) => c.kind === "findings");
+    expect(reads.length).toBeGreaterThan(0);
+    expect(reads[0].from).toBe("2026-10-01T00:00:00Z");
+    expect(reads[0].to).toBe("2026-11-01T00:00:00Z");
+    const portfolio = within(screen.getByRole("navigation", { name: "Operator routes" })).getByRole("link", { name: "Portfolio" });
+    expect(decodeURIComponent(portfolio.getAttribute("href") ?? "")).toContain("from=2026-09-01T00:00:00Z");
   });
 
   it("opens with focus on the selected preset; Escape and Cancel close it and return focus to the button", async () => {
@@ -261,30 +289,30 @@ describe("SR-1 the shared range bar", () => {
   });
 
   it("changes nothing until Apply; Apply writes the range, keeps the lens, restarts at page one and announces it", async () => {
-    renderApp(`/portfolio/act-first?${WEEK}&lens=cost&cursor=c9`);
+    renderApp(`/decisions?${WEEK}&lens=cost&cursor=c9`);
     await settledScreen();
     fireEvent.click(rangeButton());
     const dialog = screen.getByRole("dialog");
     fireEvent.click(within(dialog).getByRole("button", { name: "Last 30 days" }));
     expect(within(dialog).getByRole("button", { name: "Last 30 days" }).getAttribute("aria-pressed")).toBe("true");
     expect(within(dialog).getByRole("button", { name: "Last 7 days" }).getAttribute("aria-pressed")).toBe("false");
-    expect(where()).toBe(`/portfolio/act-first?${WEEK}&lens=cost&cursor=c9`);
+    expect(where()).toBe(`/decisions?${WEEK}&lens=cost&cursor=c9`);
     fireEvent.click(within(dialog).getByRole("button", { name: "Apply" }));
     await settledScreen();
-    expect(where()).toBe("/portfolio/act-first?from=2026-09-07T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&lens=cost");
+    expect(where()).toBe("/decisions?from=2026-09-07T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&lens=cost");
     expect(document.activeElement).toBe(rangeButton());
     expect(document.querySelector("[data-shared-range-live]")?.textContent).toBe("Every page now shows 7 Sep – 6 Oct 2026");
   });
 
   it("SR-2b L1: a range change clears an open record as well as the cursor, and keeps the lens", async () => {
-    renderApp(`/portfolio/act-first?${WEEK}&lens=cost&cursor=c9&record=r1`);
+    renderApp(`/decisions?${WEEK}&lens=cost&cursor=c9&record=r1`);
     await settledScreen();
     fireEvent.click(rangeButton());
     const dialog = screen.getByRole("dialog");
     fireEvent.click(within(dialog).getByRole("button", { name: "Last 30 days" }));
     fireEvent.click(within(dialog).getByRole("button", { name: "Apply" }));
     await settledScreen();
-    expect(where()).toBe("/portfolio/act-first?from=2026-09-07T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&lens=cost");
+    expect(where()).toBe("/decisions?from=2026-09-07T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&lens=cost");
   });
 
   it("a custom range has labelled date inputs and rejects a backwards range", async () => {
@@ -300,7 +328,7 @@ describe("SR-1 the shared range bar", () => {
     fireEvent.change(to, { target: { value: "2026-10-01" } });
     fireEvent.click(within(dialog).getByRole("button", { name: "Apply" }));
     expect(where()).toBe(`/portfolio?${WEEK}`);
-    expect(within(dialog).getByRole("alert").textContent).toBe("Choose a first day on or before the last day, 31 days at most.");
+    expect(within(dialog).getByRole("alert").textContent).toBe("Choose a first day on or before the last day, 731 days at most.");
     fireEvent.change(to, { target: { value: "2026-10-06" } });
     fireEvent.click(within(dialog).getByRole("button", { name: "Apply" }));
     await settledScreen();
@@ -331,7 +359,7 @@ describe("SR-1 the shared range bar", () => {
 
 describe("SR-1 review notes closed in SR-2", () => {
   it("Medium: the bar says All pages only on pages that read the range, and says so where it is not used", async () => {
-    for (const path of ["/portfolio", "/portfolio/act-first", "/findings/risks", "/actions", "/evidence", "/financials", "/incidents", "/maintenance", "/maintenance/preventive", "/operational-records"]) {
+    for (const path of ["/portfolio", "/decisions", "/findings", "/actions", "/evidence", "/financials", "/incidents", "/maintenance", "/maintenance/preventive", "/evidence/records"]) {
       expect(readsSharedRange(path)).toBe(true);
     }
     for (const path of ["/sites", "/sites/KOBO-001", "/sites/COLD-LAB-001", "/sites/EV-LAB-001/ev", "/findings/f-1", "/maintenance/requests/c-1"]) {

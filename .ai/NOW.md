@@ -18,7 +18,7 @@ Coordinator state: `.agent/coordinator-handoff.md`. Owner words: `owner/SUMMARY.
 
 ## DD: demo data
 - Branch `task/DD-handshake`; spec `specs/DD-demo-data/spec.md`.
-- 34.25 u in eight parts (D-DD.44, D-DD.57: DD2 split into DD2a and DD2b): 3 operators, 9 Sites, books Jul-Oct, readings
+- 35.75 u in eight parts (D-DD.44, D-DD.57, D-DD.66, D-DD.73: DD2 split into DD2a and DD2b): 3 operators, 9 Sites, books Jul-Oct, readings
   1 Jul-6 Nov, telemetry. Handshake answered; owner Q7-Q9 answered.
 
 ## 0K4f: Kobo on its own records
@@ -35,5 +35,7 @@ Coordinator state: `.agent/coordinator-handoff.md`. Owner words: `owner/SUMMARY.
 - Q11: monthly figures for cold-chain and EV Sites.
 - Q12: lift the 31-day cap on other pages (shipped as "Showing {span} of the range").
 - Design-doc alignment pass (design, roadmap, phase plan, mock), after IA-P and DD.
+
+IA-P (real app onto the IA shape): rev 3, `specs/IA-P-product-shape/spec.md`; IA-P1 (P0-P2) merged 22 Nov; IA-P2 next, then IA-P3.
 
 UI slices merge on review ACCEPT; one owner walkthrough at product shape.

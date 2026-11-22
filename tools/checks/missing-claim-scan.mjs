@@ -54,6 +54,20 @@ export const PATTERNS = [
 // entry is a guard change for review; this is not a general suppression of the phrase.
 export const REVIEWED_EXEMPTIONS = [
   {
+    file: 'frontend/src/estate/homeLists.tsx',
+    constName: 'NOT_AVAILABLE_YET',
+    text: 'Not available yet',
+    decision: 'D-IAP.3; specs/IA-P-product-shape/spec.md section 7 MD-IAP-2',
+    reason: 'The Decisions list column words for Due and Who decides, and the empty Finding-type heading, until decision records exist (resolving unit 6f); they describe a field the build has no record for, not a missing claim about a site, so it is not a mock_gaps placement. Review: a guard change, one const.',
+  },
+  {
+    file: 'frontend/src/ui/HomeList.tsx',
+    constName: 'DETAIL_NOT_AVAILABLE',
+    text: 'Detail not available yet',
+    decision: 'D-IAP.3; specs/IA-P-product-shape/spec.md section 5.2 (a row without a ref shows its words as text)',
+    reason: 'The words under a list row whose Finding or Action has no page to open (a Cold or EV Finding, a row without a link ref); it names a destination this build has not made, not a missing claim about a site, so it is not a mock_gaps placement. Review: a guard change, one const.',
+  },
+  {
     file: 'frontend/src/ui/NavRail.tsx',
     constName: 'NAV_RAIL_UNAVAILABLE_STATUS',
     text: 'Not available yet',

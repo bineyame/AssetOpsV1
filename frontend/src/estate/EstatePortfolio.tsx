@@ -13,10 +13,10 @@
  * MOCK DEVIATION PF-T-4: the Act first count is the read's `total_count` for the lens being read (the panel eyebrow's
  *   count), so it follows the lens on Act first.
  */
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { displayCode } from "../ui/displayCode";
 import { formatDayRange, formatDayTime } from "../ui/time";
-import { Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Navigate, useParams, useSearchParams } from "react-router-dom";
 import { RangeLink as Link } from "../ui/RangeLink";
 import { linkFor } from "../shell/operatorSiteRoutes";
 import { Badge, DataTable, Disclosure, PageHeader } from "../ui";
@@ -51,13 +51,10 @@ import {
   selectedAssessmentWords,
   CATEGORIES_SEPARATE,
   contextWords,
-  CURRENT_SITE_VIEW,
   DOMAIN_WORD,
   domainSummary,
   ENERGY_UNAVAILABLE,
   EV_COVERAGE_WARNING,
-  EVIDENCE_ASIDE,
-  LENS_LABELS,
   NO_ENERGY_TOTAL,
   NO_SNAPSHOT_NOTICE,
   OPPORTUNITY_NOTE,
@@ -71,29 +68,21 @@ import {
   type PortfolioTab,
   TOP3_SEE_ALL,
   TOP3_SUBTITLE,
-  PLACEMENT_CONFIDENCE_WORDS,
   PLACEMENT_GROUP_LABEL,
-  PLACEMENT_POLICY_FOOTER,
-  PLACEMENT_POLICY_LINES,
-  PLACEMENT_POLICY_SUMMARY,
-  PRIORITY_BOTTOM_LINE,
   PRIORITY_PANEL,
   mechanismWords,
-  PRIORITY_SUBTITLE,
   PROGRESS_PANEL,
   PROGRESS_REFERENCE,
   PULSE_NOTE,
   SCOPE_NOTICE,
   SCOPE_RULE,
   VALUE_OWNERSHIP,
+  DECISIONS_PATH,
 } from "./portfolioWords";
 import "./estatePortfolio.css";
-import { CategoryTags } from "../sites/outcomeCategories";
-import { EarlyWarningList } from "../sites/EarlyWarnings";
-import type { OutcomeWarning } from "../sites/outcomeBoardClient";
 import { amountOf, CategoryCards, OUTCOME_MATRIX_LABEL, OUTCOME_MATRIX_NOTE, OutcomeMatrixBody } from "./PortfolioOutcomes";
 import { PortfolioCoverage } from "./PortfolioCoverage";
-import { PortfolioTabs, portfolioHref } from "./PortfolioTabs";
+import { PortfolioTabs, decisionsHref, portfolioHref } from "./PortfolioTabs";
 import { RETRYING_COPY, TEMPORARILY_UNAVAILABLE } from "../sites/temporarilyUnavailable";
 
 /** INFRA-1 (D-E5.47): the summary read while it waits to retry a 503 `TEMPORARILY_UNAVAILABLE`. */
@@ -111,17 +100,12 @@ const SUMMARY_RETRYING: EstateResult<EstateOutcomeSummaryBody> = {
  */
 
 type Window = Pick<EstateQuery, "from" | "to" | "known_at">;
-const LENSES: readonly EstateLens[] = ["all", "cost", "risks", "opportunities"];
 export { portfolioHref };
 const EV_INCOMPLETE = new Set(["UNKNOWN", "PENDING_RECOMPUTE", "STALE_SOURCE"]);
 
-function lensFrom(params: URLSearchParams): EstateLens {
-  const lens = params.get("lens");
-  return LENSES.includes(lens as EstateLens) ? (lens as EstateLens) : "all";
-}
 
 /** The shared date bar reads only `status` and `window`; its HISTORICAL line keys off the same status word. */
-function barBody(body: EstatePortfolioBody | null): EstateEnvelope | null {
+export function barBody(body: EstatePortfolioBody | null): EstateEnvelope | null {
   return body === null ? null : (body as unknown as EstateEnvelope);
 }
 
@@ -159,7 +143,7 @@ export function partialConsequence(c: { state: string; source_revision_id: strin
   return c.source_revision_id === null ? "No consequence recorded" : c.state === "UNPRICED" ? "Unpriced" : VALUE_WITHHELD;
 }
 
-function consequenceFirst(row: EstatePortfolioRow, site: EstateCoverageSite | undefined): string {
+export function consequenceFirst(row: EstatePortfolioRow, site: EstateCoverageSite | undefined): string {
   const c = row.consequence;
   const siteState = site?.state;
   if (siteState === "PARTIAL" && !(c.state === "PRICED" && (c.amount_low ?? c.amount) != null)) return partialConsequence(c);
@@ -190,226 +174,6 @@ function episodeText(row: EstatePortfolioRow): string {
   );
 }
 
-function FindingRow({ row, siteState }: { row: EstatePortfolioRow; siteState: EstateCoverageSite | undefined }) {
-  const episode = episodeText(row);
-  // CH5a2-R4(c): every row link renders from its `link_refs` sibling; a row without one renders no link.
-  const links = {
-    site: linkFor(row.link_refs?.site),
-    finding: linkFor(row.link_refs?.finding),
-    action: linkFor(row.link_refs?.action),
-  };
-  const threadState = row.action_id === null && row.workflow_label !== "No action agreed yet";
-  return (
-    <tr data-portfolio-row={`${row.finding_id}|${row.finding_revision_id}`}>
-      <td>
-        {links.site !== null ? (
-          <Link to={links.site} data-portfolio-site-link>
-            <strong>{row.site_name}</strong>
-          </Link>
-        ) : (
-          <strong>Site detail unavailable</strong>
-        )}
-        <small>{DOMAIN_WORD[row.domain] ?? row.domain}</small>
-        {links.site !== null ? <small data-portfolio-current-view>{CURRENT_SITE_VIEW}</small> : null}
-      </td>
-      <td>
-        {links.finding !== null ? (
-          <Link to={links.finding} data-portfolio-finding-link>
-            <strong>{row.title}</strong>
-          </Link>
-        ) : (
-          <strong>{row.title}</strong>
-        )}
-        <small>
-          {mechanismWords(row.mechanism)}
-        </small>
-        <CategoryTags categories={row.categories} />
-        {links.finding === null ? <small>Finding detail unavailable</small> : null}
-      </td>
-      <td>
-        <strong className="impact" data-portfolio-value>
-          {consequenceFirst(row, siteState)}
-        </strong>
-        <small>{episode}</small>
-      </td>
-      <td data-portfolio-placement={row.placement.group}>
-        <strong>{PLACEMENT_GROUP_LABEL[row.placement.group]}</strong>
-        <small data-portfolio-placement-reasons>{row.placement.reasons.map((r) => r.text).join(" · ")}</small>
-      </td>
-      <td data-portfolio-confidence={row.confidence ?? undefined}>
-        <span className="badge badge--neutral">
-          {row.confidence === null ? "Not assessed" : (PLACEMENT_CONFIDENCE_WORDS[row.confidence] ?? row.confidence)}
-        </span>
-        <small>{row.confidence === null ? "No reviewed confidence measure" : row.confidence_reasons.join(" · ")}</small>
-      </td>
-      <td>
-        {row.action_id !== null && links.action !== null ? (
-          <Link to={links.action} data-portfolio-action-link>
-            <strong>{row.action_title}</strong>
-          </Link>
-        ) : threadState ? (
-          // MOCK DEVIATION MD-FUEL-K4-1 (Architect combined pass 2026-11-08, K8 L1): v69 has no fuel row; a fuel Action has no Action page, so the column shows the fuel thread's state in bold.
-          // MD-FUEL-K4-1, extended by R4.1 to Cold/EV rows: the Action column shows the row's thread state in bold when the Portfolio does not join the Site's Actions.
-          <strong data-portfolio-workflow>{row.workflow_label}</strong>
-        ) : (
-          <strong>{row.action_id !== null ? row.action_title : "No action yet"}</strong>
-        )}
-        {threadState ? null : (
-          <span className="workflow-text" data-portfolio-workflow>
-            {row.workflow_label}
-          </span>
-        )}
-        {row.action_id === null ? (
-          links.finding !== null ? (
-            <small>
-              <Link to={links.finding}>Review finding</Link>
-            </small>
-          ) : (
-            <small>Finding detail unavailable</small>
-          )
-        ) : null}
-      </td>
-    </tr>
-  );
-}
-
-const TABLE_HEADS = ["Site", "Finding / operating mechanism", "Value / consequence", "Placement", "Confidence", "Action / next move"];
-
-/** CC-R2: the loaded rows with one group heading before each group's first loaded row (once across pages). */
-function placementRows(
-  rows: EstatePortfolioRow[],
-  counts: EstatePortfolioBody["summary"]["placement_counts"],
-  siteState: Map<string, EstateCoverageSite>,
-) {
-  const out: ReactNode[] = [];
-  let group: string | null = null;
-  for (const row of rows) {
-    if (row.placement.group !== group) {
-      group = row.placement.group;
-      const count = counts?.[row.placement.group] ?? null;
-      out.push(
-        <tr key={`group|${group}`} className="placement-group" data-placement-group={group}>
-          <th colSpan={TABLE_HEADS.length} scope="colgroup">
-            {PLACEMENT_GROUP_LABEL[row.placement.group]}
-            {count === null ? "" : ` · ${count}`}
-          </th>
-        </tr>,
-      );
-    }
-    out.push(<FindingRow key={`${row.finding_id}|${row.finding_revision_id}`} row={row} siteState={siteState.get(row.site_id)} />);
-  }
-  return out;
-}
-
-function PriorityPanel({
-  body,
-  rows,
-  lens,
-  pending,
-  onLens,
-  window,
-  loadMore,
-  warnings,
-}: {
-  body: EstatePortfolioBody;
-  rows: EstatePortfolioRow[];
-  lens: EstateLens;
-  /** PL-1: the lens being read; the held rows belong to another lens and are not shown. */
-  pending: EstateLens | null;
-  onLens: (lens: EstateLens) => void;
-  window: Window;
-  loadMore: (() => void) | null;
-  warnings: readonly OutcomeWarning[];
-}) {
-  const siteState = new Map(body.coverage.sites.map((s) => [s.site_id, s]));
-  const incomplete = pending === null && (body.coverage.finding_state === "PARTIAL" || body.coverage.finding_state === "UNKNOWN");
-  const count = pending !== null ? "Loading" : body.total_count === null ? "Unknown" : String(body.total_count);
-  const pendingLabel = LENS_LABELS.find(([value]) => value === pending)?.[1] ?? "";
-  return (
-    <section
-      className="panel priority-panel"
-      aria-labelledby="portfolio-priority-heading"
-      aria-busy={pending !== null ? "true" : undefined}
-      data-portfolio-panel="priority"
-    >
-      <div className="panel-head">
-        <div>
-          <h2 id="portfolio-priority-heading">{PRIORITY_PANEL}</h2>
-          <p>{PRIORITY_SUBTITLE}</p>
-        </div>
-        {/* PF-C (proposal §4 C6): one copy of the count, on the lens row; the coverage line states the days. */}
-      </div>
-      <div className="portfolio-lenses" role="group" aria-label="Finding lens">
-        {LENS_LABELS.map(([value, label]) => (
-          <button
-            key={value}
-            type="button"
-            className="v69-chip chip"
-            aria-pressed={lens === value}
-            onClick={() => onLens(value)}
-          >
-            {label}
-          </button>
-        ))}
-        <span data-portfolio-count>
-          {count} findings{incomplete ? " · so far, some days incomplete" : ""}
-        </span>
-      </div>
-      <div className="portfolio-findings" data-portfolio-scroll="findings">
-        <DataTable>
-          <thead>
-            <tr>
-              {TABLE_HEADS.map((h) => (
-                <th key={h} scope="col">
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {pending !== null ? (
-              <tr>
-                <td colSpan={6} data-portfolio-loading-rows>
-                  Loading the {pendingLabel} findings.
-                </td>
-              </tr>
-            ) : rows.length === 0 ? (
-              <tr>
-                <td colSpan={6} data-portfolio-empty>
-                  {lens === "all" ? "No selected Findings for this window" : "No matching supported Findings"}
-                </td>
-              </tr>
-            ) : (
-              placementRows(rows, body.summary.placement_counts, siteState)
-            )}
-          </tbody>
-        </DataTable>
-      </div>
-      <EarlyWarningList warnings={warnings} max={4} showSite />
-      <details className="placement-policy" data-placement-policy>
-        <summary>{PLACEMENT_POLICY_SUMMARY}</summary>
-        <ul>
-          {PLACEMENT_POLICY_LINES.map((line) => (
-            <li key={line}>{line}</li>
-          ))}
-        </ul>
-        <p>{PLACEMENT_POLICY_FOOTER}</p>
-      </details>
-      {loadMore !== null ? (
-        <p className="portfolio-more">
-          <button type="button" className="v69-chip" onClick={loadMore}>
-            Load more Findings
-          </button>
-        </p>
-      ) : null}
-      <div className="panel-bottom">
-        <Link to={estateHref("/findings", window)}>Open all Findings →</Link>
-        {pending === null && rows.length > 0 ? <span>{PRIORITY_BOTTOM_LINE}</span> : null}
-      </div>
-    </section>
-  );
-}
-
 /**
  * OUT-B B6 (R521): the panel keeps its slot and shows the outcome matrix from `GET /api/estate/outcome-summary`
  * (mock `portfolio.js:50`, `outcomes.js:153-154`). The portfolio body's `objectives` wire stays but is not rendered.
@@ -430,25 +194,6 @@ function ObjectivesPanel({ summary }: { summary: EstateResult<EstateOutcomeSumma
   );
 }
 
-function EvidenceAside({ body, window }: { body: EstatePortfolioBody; window: Window }) {
-  const prompt = body.evidence_prompt;
-  return (
-    <div className="portfolio-evidence note" role="group" aria-labelledby="portfolio-evidence-heading" data-portfolio-prompt={prompt.state}>
-      <div>
-        <p className="portfolio-evidence__title" role="heading" aria-level={3} id="portfolio-evidence-heading">
-          {EVIDENCE_ASIDE}
-        </p>
-      </div>
-      <p>{prompt.text}</p>
-      {prompt.state === "AVAILABLE" && prompt.site_code !== null ? (
-        <p className="portfolio-evidence__site" data-portfolio-prompt-site={prompt.site_code}>
-          Site {prompt.site_code}
-        </p>
-      ) : null}
-      <Link to={estateHref(prompt.destination, window)}>Inspect the constraint →</Link>
-    </div>
-  );
-}
 
 /** CH-4: the opportunity panel's fixed words (mock `portfolio.js:53` literals; MD-CH4-4 for the right side). */
 export const OPPORTUNITY_NONE = "No opportunity found in this period";
@@ -821,7 +566,7 @@ function TopThree({ body, rows, pending, window }: { body: EstatePortfolioBody; 
           <h2 id="portfolio-top3-heading">{PRIORITY_PANEL}</h2>
           <p>{TOP3_SUBTITLE}</p>
         </div>
-        <Link to={portfolioHref(window, "all", "act-first")}>{TOP3_SEE_ALL(pending !== null ? null : body.total_count)}</Link>
+        <Link to={decisionsHref(window)}>{TOP3_SEE_ALL(pending !== null ? null : body.total_count)}</Link>
       </div>
       {pending !== null ? (
         <p data-portfolio-loading-rows>Loading the findings.</p>
@@ -883,9 +628,7 @@ function Loaded({
   rows,
   lens,
   pending,
-  onLens,
   window,
-  loadMore,
   summary,
   loadIds,
 }: {
@@ -895,9 +638,7 @@ function Loaded({
   rows: EstatePortfolioRow[];
   lens: EstateLens;
   pending: EstateLens | null;
-  onLens: (lens: EstateLens) => void;
   window: Window;
-  loadMore: (() => void) | null;
   summary: EstateResult<EstateOutcomeSummaryBody> | null;
 }) {
   const ctx = contextWords(body.status, body.window.known_at);
@@ -931,7 +672,6 @@ function Loaded({
         window={window}
         lens={lens}
         counts={{
-          "act-first": pending !== null ? null : body.total_count,
           opportunity: s.opportunity_count,
           changes: s.accepted_action_count,
         }}
@@ -945,7 +685,7 @@ function Loaded({
             {/* PF-T: each count links to the tab that holds it (v71 `pf-pulse`), so the Overview is also the contents. */}
             <div className="portfolio-pulse pf-pulse" data-portfolio-pulse>
               <span>
-                <Link to={portfolioHref(window, "all", "act-first")}>
+                <Link to={decisionsHref(window)}>
                   <strong>{countText(s.priority_site_count, "Not assessed")}</strong> {s.priority_site_count === 1 ? "priority site" : "priority sites"}
                 </Link>
               </span>
@@ -969,7 +709,7 @@ function Loaded({
                 </Link>
               </span>
               <span data-portfolio-pulse-warnings>
-                <Link to={portfolioHref(window, "all", "act-first")}>
+                <Link to={decisionsHref(window)}>
                   <strong>{countText(warningCount, "Unknown")}</strong> {warningCount === 1 ? "warning" : "warnings"} not yet priced
                 </Link>
               </span>
@@ -977,22 +717,6 @@ function Loaded({
             </div>
             <TopThree body={body} rows={rows} pending={pending} window={window} />
           </>
-        ) : tab === "act-first" ? (
-          <div className="portfolio-main">
-            <PriorityPanel
-              body={body}
-              rows={rows}
-              lens={lens}
-              pending={pending}
-              onLens={onLens}
-              window={window}
-              loadMore={loadMore}
-              warnings={warnings ?? []}
-            />
-            <aside className="portfolio-side" data-portfolio-side>
-              <EvidenceAside body={body} window={window} />
-            </aside>
-          </div>
         ) : tab === "outcomes" ? (
           <ObjectivesPanel summary={summary} />
         ) : tab === "opportunity" ? (
@@ -1030,7 +754,8 @@ export function EstatePortfolioPage({ client }: { client?: EstateClient }) {
   if (tab === null || (tab === "overview" && params.get("lens") !== null)) {
     const next = new URLSearchParams(params);
     if (tab === null) next.delete("lens");
-    const path = tab === null ? portfolioTabPath("overview") : portfolioTabPath("act-first");
+    // IA-P P2: Act first is the Decisions list; an old `?lens=` address goes there with its facet.
+    const path = tab === null ? portfolioTabPath("overview") : DECISIONS_PATH;
     const search = next.toString();
     return <Navigate replace to={search === "" ? path : `${path}?${search}`} />;
   }
@@ -1040,10 +765,9 @@ export function EstatePortfolioPage({ client }: { client?: EstateClient }) {
 function PortfolioTabsPage({ client, tab }: { client?: EstateClient; tab: PortfolioTab }) {
   const reads = useMemo(() => client ?? createEstateClient(), [client]);
   const [params] = useSearchParams();
-  const navigate = useNavigate();
   const base = queryFromParams(params);
   // PF-T: the lens belongs to Act first; every other tab reads (and keeps) the whole list.
-  const lens = tab === "act-first" ? lensFrom(params) : "all";
+  const lens: EstateLens = "all";
   const window: Window = { from: base.from, to: base.to, known_at: base.known_at };
   const key = `${window.from}|${window.to}|${window.known_at ?? ""}|${lens}`;
   const [read, setRead] = useState<Read | null>(null);
@@ -1098,21 +822,6 @@ function PortfolioTabsPage({ client, tab }: { client?: EstateClient; tab: Portfo
   const current = read?.key === key ? read : null;
   // PL-1 (D-E5.22): when only the lens changed, the held loaded read stays on screen whole until the new one replaces it.
   const held = current === null && read !== null && read.windowKey === windowKey && read.first.status === "loaded" ? read : null;
-  const loadMore =
-    current === null || current.next === null
-      ? null
-      : () => {
-          const cursor = current.next;
-          void reads.portfolio({ ...query, cursor }).then((page) => {
-            setRead((prev) => {
-              if (prev === null || prev.key !== key) return prev;
-              // Any refusal replaces everything shown, so no stale privileged row survives (401, 409, 503).
-              if (page.status !== "loaded") return { ...prev, first: page, more: [], next: null };
-              return { ...prev, more: [...prev.more, ...page.value.rows], next: page.value.next_cursor };
-            });
-          });
-        };
-
   const shown = current ?? held;
   const first = shown?.first ?? null;
   const body = first?.status === "loaded" ? first.value : null;
@@ -1145,9 +854,7 @@ function PortfolioTabsPage({ client, tab }: { client?: EstateClient; tab: Portfo
           rows={[...first.value.rows, ...(shown?.more ?? [])]}
           lens={lens}
           pending={held !== null ? lens : null}
-          onLens={(next) => navigate(portfolioHref(window, next, "act-first"))}
           window={window}
-          loadMore={loadMore}
           summary={currentSummary}
           loadIds={reads.portfolioScopeIds ? () => reads.portfolioScopeIds!({ ...query, lens: shown?.lens ?? lens }) : undefined}
         />

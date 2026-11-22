@@ -132,20 +132,22 @@ describe("W3-01 estate roots in the operator shell", () => {
     expect(ACTIONS_PATH).toBe(ESTATE_ACTIONS_PATH);
 
     // Each lens path renders its estate root, not the legacy Finding frame, and reads its own lens.
-    for (const lens of ["all", "cost", "risks", "opportunities"] as const) {
+    // IA-P P2: the cost, risks and opportunities lens addresses are aliases of the one Findings list, which carries
+    // the root name "findings" (data-estate-root); the three alias addresses are asserted to land on it below.
+    for (const lens of ["all"] as const) {
       const estate = fakeClient((asked) => loaded(findingsBody(asked)));
       const analytics = countedAnalytics();
       const view = renderAt(ESTATE_FINDING_LENS_PATHS[lens], { estate, analytics });
       await settledScreen();
-      expect(document.querySelector(`[data-estate-root="${lens}"]`), lens).not.toBeNull();
-      expect(screen.getByRole("main")).toContainElement(document.querySelector(`[data-estate-root="${lens}"]`) as HTMLElement);
+      expect(document.querySelector(`[data-estate-root="findings"]`), lens).not.toBeNull();
+      expect(screen.getByRole("main")).toContainElement(document.querySelector(`[data-estate-root="findings"]`) as HTMLElement);
       expect(screen.getByRole("heading", { level: 1, name: "Findings" })).toBeInTheDocument();
-      // One Findings read for the lens, plus the post-W6 W3-estate Q7 scope read (Site names for the cause copy).
-      expect(estate.calls).toHaveLength(2);
+      // IA-P P2 (I8): one Findings read; the list takes its Site names from the body's own rows, so no scope read.
+      expect(estate.calls).toHaveLength(1);
       expect(estate.calls.filter((call) => (call as { kind: string }).kind === "findings")).toEqual([
         expect.objectContaining({ kind: "findings", lens }),
       ]);
-      expect(estate.calls.filter((call) => (call as { kind: string }).kind === "scope")).toHaveLength(1);
+      expect(estate.calls.filter((call) => (call as { kind: string }).kind === "scope")).toHaveLength(0);
       expect(analytics.getAssessment).not.toHaveBeenCalled();
       expect(railCurrent()).toBe("Findings");
       view.unmount();
@@ -160,11 +162,11 @@ describe("W3-01 estate roots in the operator shell", () => {
       ["Portfolio", "/portfolio"],
       ["Sites", "/sites"],
       ["Findings", "/findings"],
+      ["Decisions", "/decisions"],
       ["Actions", "/actions"],
       ["Incidents", "/incidents"],
       ["Maintenance", "/maintenance"],
-      ["Operational records", "/operational-records"],
-      ["Evidence", "/evidence"],
+      ["Evidence & records", "/evidence"],
       ["Financials", "/financials"],
     ]);
     fireEvent.click(within(rail()).getByRole("link", { name: "Actions" }));

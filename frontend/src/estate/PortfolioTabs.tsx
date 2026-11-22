@@ -5,7 +5,7 @@ import { RangeLink as Link } from "../ui/RangeLink";
 import { useCurrentTabInView } from "../ui/useCurrentTabInView";
 import type { EstateLens, EstateQuery } from "./estateClient";
 import { estateHref } from "./estateShared";
-import { PORTFOLIO_TABS, PORTFOLIO_TABS_LABEL, portfolioTabPath, type PortfolioTab } from "./portfolioWords";
+import { DECISIONS_PATH, PORTFOLIO_TABS, PORTFOLIO_TABS_LABEL, portfolioTabPath, type PortfolioTab } from "./portfolioWords";
 
 type Window = Pick<EstateQuery, "from" | "to" | "known_at">;
 
@@ -13,11 +13,15 @@ type Window = Pick<EstateQuery, "from" | "to" | "known_at">;
  * A Portfolio URL: the tab's address with the accepted window and explicit cutoff, never a cursor. PF-T: a
  * non-default lens travels on Act first only. 5c: moved here from `EstatePortfolio.tsx` with the tab row.
  */
-export function portfolioHref(window: Window, lens: EstateLens, tab: PortfolioTab = "overview"): string {
+export function portfolioHref(window: Window, _lens: EstateLens, tab: PortfolioTab = "overview"): string {
   // 5c (spec §5.1): "The month" is the plain path; it carries no window and no lens (its state is `?month=`).
   if (tab === "month") return portfolioTabPath("month");
-  const href = estateHref(portfolioTabPath(tab), window);
-  return lens === "all" || tab !== "act-first" ? href : `${href}&lens=${lens}`;
+  return estateHref(portfolioTabPath(tab), window);
+}
+
+/** IA-P P2: the Decisions list at the page's window and cutoff (Act first's new home). */
+export function decisionsHref(window: Window): string {
+  return estateHref(DECISIONS_PATH, window);
 }
 
 /**

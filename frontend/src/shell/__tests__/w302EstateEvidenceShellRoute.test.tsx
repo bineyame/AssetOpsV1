@@ -104,7 +104,7 @@ describe("W3-02 estate Evidence root in the operator shell", () => {
     expect(screen.getByRole("heading", { level: 1, name: EVIDENCE_TITLE })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { level: 1, name: "Page not available" })).toBeNull();
     expect(client.calls).toHaveLength(1);
-    expect(railCurrent()).toBe("Evidence");
+    expect(railCurrent()).toBe("Evidence & records");
     view.unmount();
 
     // From another root, the rail's Evidence link opens the estate root; Financials is its own live root (commit 4).
@@ -113,10 +113,10 @@ describe("W3-02 estate Evidence root in the operator shell", () => {
     await settledScreen();
     expect(within(rail()).getByRole("link", { name: "Financials" })).toHaveAttribute("href", "/financials");
     expect(fromSites.calls).toEqual([]);
-    fireEvent.click(within(rail()).getByRole("link", { name: "Evidence" }));
+    fireEvent.click(within(rail()).getByRole("link", { name: "Evidence & records" }));
     await settledScreen();
     expect(where()).toBe("/evidence");
-    expect(railCurrent()).toBe("Evidence");
+    expect(railCurrent()).toBe("Evidence & records");
     expect(document.querySelector('[data-estate-root="evidence"]')).not.toBeNull();
     expect(fromSites.calls).toHaveLength(1);
   });
