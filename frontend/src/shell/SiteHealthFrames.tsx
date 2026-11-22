@@ -221,7 +221,7 @@ export function SiteAssetsFrame({
             trail={[
               { label: "Sites", to: sitesPath },
               { label: site.display_name, to: siteDetailHref(site.site_id) },
-              { label: "Health", to: siteHealthHref(site.site_id) },
+              // IA-P P5 (handoff run 3 risk): Assets lights Setup, so its crumb no longer goes through Health.
               { label: "Battery" },
             ]}
           />
@@ -263,7 +263,6 @@ export function SiteAssetFrame({
             trail={[
               { label: "Sites", to: sitesPath },
               { label: site.display_name, to: siteDetailHref(site.site_id) },
-              { label: "Health", to: siteHealthHref(site.site_id) },
               { label: "Battery", to: siteAssetsHref(site.site_id) },
               { label: title },
             ]}

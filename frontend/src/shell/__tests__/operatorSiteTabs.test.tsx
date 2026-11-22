@@ -566,7 +566,7 @@ describe("IA-P P5: the section links line (spec §2.3)", () => {
   it.each([
     ["/sites/MG-002/evidence", "Records"],
     ["/sites/MG-002/uploads", "Uploads"],
-  ])("on %s: In Evidence: Records · Uploads, %s current", async (path, current) => {
+  ])("on %s: In Evidence: Records · Uploads · Findings (a mini-grid Site keeps its index, D-IAP.42), %s current", async (path, current) => {
     renderAt(path);
     await settledScreen();
     const line = lineOf(sections("Evidence"));
@@ -574,6 +574,7 @@ describe("IA-P P5: the section links line (spec §2.3)", () => {
     expect(line.links).toEqual([
       ["Records", "/sites/MG-002/evidence"],
       ["Uploads", "/sites/MG-002/uploads"],
+      ["Findings", "/sites/MG-002/findings"],
     ]);
     expect(line.current).toEqual([current]);
   });

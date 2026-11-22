@@ -84,7 +84,9 @@ function changesHref(hrefFor: (view: FoundationView) => string): string {
   return `${hrefFor("model").split("?")[0].replace(/\/$/, "")}/${FOUNDATION_CHANGE_SUBTAB.segment}`;
 }
 
-export function FoundationSubtabs({ current, hrefFor, withChanges = true }: FoundationSubtabsProps) {
+// IA-P P5 (handoff run 3 risk; R797): the Setup section line carries "Changes", so the Foundation row no longer repeats it
+// as "Change & effect" unless a caller asks (the component's option is kept and tested).
+export function FoundationSubtabs({ current, hrefFor, withChanges = false }: FoundationSubtabsProps) {
   return (
     <nav className="site-tabs site-subtabs foundation-views" aria-label={FOUNDATION_SUBTABS_LABEL}>
       <ol className="site-tabs__list">

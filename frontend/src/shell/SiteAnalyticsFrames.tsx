@@ -1,7 +1,6 @@
 import { UnavailableTab } from "../ui/UnavailableEntry";
 import { displayCode } from "../ui/displayCode";
 import { linkBound, useLegacyFocusDayRewrite, windowBound } from "../ui/sharedRange";
-import { FoundationSubtabs, foundationViewSegment } from "../sites/FoundationSubtabs";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { RangeLink as Link } from "../ui/RangeLink";
@@ -137,7 +136,6 @@ import {
   sitePricesHref,
   siteFoundationChangeHref,
   siteFoundationHref,
-  siteFoundationViewHref,
   sitePerformanceHref,
   FINDINGS_OPPORTUNITIES_PATH,
   domainWorkQuery,
@@ -2090,7 +2088,7 @@ export function SiteFoundationChangeFrame({
               { label: site.display_name, to: siteDetailHref(site.site_id) },
               { label: "Foundation", to: siteFoundationHref(site.site_id) },
               // post-W6 shell R152 (Q16): the same leaf as the bare Changes route.
-              { label: "Change & effect" },
+              { label: "Changes" },
             ]}
           />
           {/* W1-F4: the mock's Site page heading; the change itself leads the status strip. */}
@@ -2099,7 +2097,6 @@ export function SiteFoundationChangeFrame({
           <SetupSections siteId={site.site_id} current="Changes" />
           {/* SR-4c (D-SR.6): Foundation shows the current settings; the bar says the range is not used. */}
           <RangeNotUsed note="current settings" />
-          <FoundationSubtabs current="changes" hrefFor={(target) => siteFoundationViewHref(site.site_id, foundationViewSegment(target), null)} />
           <SiteFoundationChange
             siteId={site.site_id}
             changeId={changeId ?? ""}
@@ -2123,7 +2120,7 @@ export function SiteFoundationChangesFrame({ detail, sitesPath }: { detail: Site
               { label: "Sites", to: sitesPath },
               { label: site.display_name, to: siteDetailHref(site.site_id) },
               { label: "Foundation", to: siteFoundationHref(site.site_id) },
-              { label: "Change & effect" },
+              { label: "Changes" },
             ]}
           />
           <ChangesWorkPageHeader site={site} screen="changes" headingId={SITE_CHANGE_HEADING_ID} />
@@ -2131,7 +2128,6 @@ export function SiteFoundationChangesFrame({ detail, sitesPath }: { detail: Site
           <SetupSections siteId={site.site_id} current="Changes" />
           {/* SR-4c (D-SR.6): Foundation shows the current settings; the bar says the range is not used. */}
           <RangeNotUsed note="current settings" />
-          <FoundationSubtabs current="changes" hrefFor={(target) => siteFoundationViewHref(site.site_id, foundationViewSegment(target), null)} />
           {/* W1-F5b: the changes screen's two v69 slots, with the no-selection gap inside each. */}
           <NoChangeSelected foundationHref={siteFoundationHref(site.site_id)} />
         </main>
