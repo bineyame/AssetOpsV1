@@ -187,7 +187,8 @@ SEASON_V2_LAST_DAY = SEASON_V2_DAY_ZERO + timedelta(days=SEASON_V2_DAYS - 1)
 #: D-DD.77: the `solar_surplus` family of the manifest's `history` block, the default (books carry the view's own).
 #: A day outside season v2's calendar gets the clear shape times season x day-class weight, no jitter.
 DEFAULT_SUN_WEIGHTS = {
-    "seasons": {"2026-07": "cool_dry", "2026-08": "cool_dry", "2026-09": "warm_dry", "2026-10": "short_rains"},
+    "seasons": {"2026-07": "cool_dry", "2026-08": "cool_dry", "2026-09": "warm_dry", "2026-10": "short_rains",
+                "2026-11": "short_rains"},
     "classes": {"WD": [1, 2, 3, 4, 5], "SA": [6], "SU": [7]},
     "season": {"cool_dry": "0.80", "warm_dry": "1.10", "short_rains": "1.00"},
     "day": {"WD": "1.00", "SA": "1.00", "SU": "1.00"}}

@@ -2141,7 +2141,7 @@ history:   # U9 (owner, 20 Nov): July-September 2026 history of the three demo o
   money_leaves: [energy_cost, in_transit, liability, maint, maintenance, om, outstanding, staff, total]
   label: {provenance: demo-simulated, evidence: Simulated}
   missing_cause: NOT_IN_HISTORY   # the record behind a history leaf DS1 does not generate (rev 16.13 vocabulary plus this one value)
-  seasons: {"2026-07": cool_dry, "2026-08": cool_dry, "2026-09": warm_dry, "2026-10": short_rains}
+  seasons: {"2026-07": cool_dry, "2026-08": cool_dry, "2026-09": warm_dry, "2026-10": short_rains, "2026-11": short_rains}   # D-DD.90: November, read by the readings span only (1-6 Nov)
   day_classes: {WD: [1, 2, 3, 4, 5], SA: [6], SU: [7]}   # ISO weekday
   families:   # day weight = season x day class; jitter = amplitude of the seeded month factor
     demand:        {season: {cool_dry: "0.96", warm_dry: "1.00", short_rains: "1.00"}, day: {WD: "1.00", SA: "0.97", SU: "0.90"}, jitter: "0.02"}

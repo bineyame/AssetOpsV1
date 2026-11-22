@@ -171,7 +171,8 @@
    "2026-07": "cool_dry",
    "2026-08": "cool_dry",
    "2026-09": "warm_dry",
-   "2026-10": "short_rains"
+   "2026-10": "short_rains",
+   "2026-11": "short_rains"
   },
   "shape_source": "synthetic",
   "sites": {

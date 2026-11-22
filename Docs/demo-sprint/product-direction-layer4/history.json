@@ -26,7 +26,7 @@
   ],
   "schema": "assetops.history/1",
   "shape_source": "synthetic",
-  "view_digest": "02e57ac889ffa60fb3cfee6456c31581169551c79883c30b67e2d67448fa9a5a"
+  "view_digest": "4f193c5a31a71990ba9506338fe6ae7d179d5e6e505480663c61563139630779"
  },
  "tenants": {
   "harvest-cold": {
