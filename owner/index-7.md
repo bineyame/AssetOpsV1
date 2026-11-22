@@ -24,3 +24,4 @@ One line per owner file (in `owner/`): date, file, topic, status (current / supe
 - 2026-11-22 `owner-demo-data-answers-2026-11-22.md` DD answers: readings 1 Jul-6 Nov, four months of books, one operator served at a time, Kobo kit FG Wilson P50-3 36 kW + Pylontech · current
 - 2026-11-22 `owner-docs-refresh-2026-11-22.md` Refresh NOW and SUMMARY now; one design-doc + mock alignment pass after IA-P and DD land · current
 - 2026-11-22 `owner-6f-q1-levers-2026-11-22.md` 6f Q1: union was a code fix for a lever gap; build 6h (levers for every Site type), withdraw union; 6h Q3 +1.0 u yes; Q2-Q8 accepted · current
+- 2026-11-22 `owner-second-db-lane-2026-11-22.md` Second Postgres test lane (per-worktree _test DB) approved: proceed · current
