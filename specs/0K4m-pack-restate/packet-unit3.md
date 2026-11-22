@@ -131,3 +131,27 @@ The mock's existing `PLAIN` entry for the Embakasi peak line no longer matches a
    which the verify line now reads.
 7. A sourceless gap shows as figure "Not available yet" with its words as the note where the layout has a figure and a note
    (cards and tables). Elsewhere it shows the whole exact string.
+
+## Fix round and commit 6 (units 2-3 review, 2026-11-22)
+
+Fixes on the branch (heads `123bd229a`, `489feb839`, `3bb3d2d68`, `f251c0b8b`, `5724b08b8`):
+- H1/M1 (`123bd229a`): excluded-option gap words render through the option's own words, codes banned on screen by a new
+  `vocab_check` rule, the chip carries the pill class. H2 (`489feb839`): register §3.1 marks removed leaves;
+  `check_register_paths.py` makes the path check repeatable. L4 (`3bb3d2d68`): the Lakeside "Today" sentence.
+- M2 (`f251c0b8b`): `gen_docs.cjs` prints the review-notes drawer count (71 routes) and the two missing focus targets in
+  `browser-audit.md`. The throwing review-notes handler is already in `.agent/backlog-post-demo.md`.
+- L1: `audit.mjs` exits 1 when `unresolvedPlaceholders > 0` (now 0). Not planted: one line, `process.exitCode = 1` on a
+  non-empty list. L2: `.ux-chip.is-neutral` is in the contrast set (22/22; was 21/21).
+- The new BAD `count_check · - · expected pass · got fail` was an environment fault, not a flake and not 0K4m: `run-audit.sh`
+  ran `ia_gates.cjs` before it exported `LD_LIBRARY_PATH`, so Chromium failed with `libatk-1.0.so.0` missing
+  (`exit 127`, shown as an unhandled rejection). `count_check.cjs` alone with the library path set: PASS here. The script now
+  sets the path first; the full `ia_gates` through `run-audit.sh`: 52 runs, all as expected, 0 BAD (746.5 s).
+- Commit 6 (`5724b08b8`): `k10()` and its call removed; `H10_MANIFEST_SHA` = `4cf82719a7a6…`; `H9_BASELINE` = 4533 with its
+  ledger comment. Ledger (commit 1a `b10354db7` against head, per-section multiset diff of `CHECK_LABELS`; method and script
+  in `/opt/assetecon/evidence/0K4m/h9-ledger-final.txt`, `h9-ledger.py`, `labels-main.tsv`, `labels-head.tsv`): 4496 + evaluator 50
+  - stated 15 + narratives 2 + anchors 9 - workflow 9 + homes 0 = 4533. Sections after H9 (reconciliation, option_basis,
+  operations, replay_sources, product_parity) and history_checks are not in the baseline.
+
+Gates at head `5724b08b8`: `check_manifest.py` `7798 checks passed (2869 history checks), 0 failed`;
+`check_alignment.py` 114 of 114; `hand_typed_scan.py` count 0, allow 48 of 48 used; audit 207 of 207 routes ok,
+console errors 0, unresolved 0; full `ia_gates` 0 BAD. Known Deviation 1 (H10) is closed by commit 6.

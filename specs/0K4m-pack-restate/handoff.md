@@ -334,3 +334,11 @@ loop-decisions.js, loop-portfolio.js, index.html, fixture-mapping.md, derivation
   decision registers (excluded by name).
 - Not covered by `hand_typed_scan.py` (it scans `loop-*.js` and rendered manifest strings only): the documents'
   hand-typed "61" day counts (one anchored, `rec:replay_studies.K8.days`, in website-content.md).
+
+## Units 2-3 fix round and commit 6 (done, 2026-11-22; branch head `5724b08b8`, not merged)
+
+Done: H1, H2, M1, M2, L1, L2, L4 fixed; L3 skipped (optional); commit 6 (K10 removed, H10 and H9 re-based with the ledger).
+Gates: check_manifest 7798 passed, 0 failed; alignment 114/114; hand_typed 0 (allow 48/48); audit 207/207, 0 console errors,
+0 unresolved; ia_gates 52 runs 0 BAD. The earlier count_check BAD was `run-audit.sh` running the gates before setting
+`LD_LIBRARY_PATH` (fixed). Details in `packet-unit3.md` (last section). Next: the coordinator's merge, held for the owner.
+Risk: the L1 exit-code guard was not planted (it needs a full audit run); the ledger by-section figures are in evidence, not in the repo.
