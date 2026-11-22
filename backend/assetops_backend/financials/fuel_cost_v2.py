@@ -32,7 +32,7 @@ MODEL_ID = "fuel-cost-2"
 NO_LOAD_PROPERTY = "generator-no-load-fuel-rate"
 NO_LOAD_UNIT = "L/h"
 NO_LOAD_BASIS_PROPERTY = "generator-no-load-fuel-rate-basis"
-NO_LOAD_BASES = ("GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST")
+NO_LOAD_BASES = ("GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST", "DATASHEET_FIT")
 
 # The immutable, reviewed parameter version of fuel-cost-2 (FUEL-1 §4.1). Never edited in place.
 PARAMETER_VERSION: dict[str, Any] = {
