@@ -1,0 +1,179 @@
+{
+ "K8": {
+  "source_file": "kobo-61d/study.json",
+  "source_sha256": "c52e475554e6d4e2c713b7d8face961426c8d27b991315cb95bb974eccc78b61",
+  "commit": "6fd0d6bb6b17b851a0e27d3098a592a656f56fc1",
+  "model": "mini-grid/8",
+  "season": "v2",
+  "season_inputs_digest": "465ab6e0818f3fbd6d15a3fbb2a30b6ab75ad1e3cfaa250d6c3b9807f4cdb1a8",
+  "trajectory_digest_site": "7be8f02e64fa91a8d7f779b38b61c0bc4ee5ba0425d63fdc5d58769d6e3fba1d",
+  "input_class": "SIMULATED",
+  "evidence_class": "MODELLED",
+  "status": "CALIBRATED",
+  "days": 61,
+  "month_basis": "window figure x 30 / 61",
+  "assumptions": [
+   "generator-no-load-fuel-rate 3.3 L/h (assumed, GENERIC_DEFAULT: the owner's value of 2026-11-07 for a 40 kW set; the generic rule of about 0.08 L/h per kW of rating gives 3.2)",
+   "generator-minimum-load 30 % (assumed, GENERIC_DEFAULT: a typical diesel controller setting, until Kobo's controller settings)",
+   "battery-charge-taper-start 95 % (assumed, GENERIC_DEFAULT: a lithium iron phosphate battery, until Kobo's battery sheet)",
+   "specific-fuel-consumption 0.3 L/kWh (assumed, TEMPLATE: the Kobo template's value, read as consumption at rated output, until Kobo's fuel sheet)"
+  ],
+  "admission_rule": [
+   "max-starts-per-day 6 per day (assumed, GENERIC_DEFAULT: a typical maker's limit, until Kobo's generator sheet)",
+   "full-charge-every-days 7 days (assumed, GENERIC_DEFAULT: lithium iron phosphate, until Kobo's battery sheet)"
+  ],
+  "basis": {
+   "fuel_l": {
+    "exact": "18770999/6400",
+    "reading": "2932.969"
+   },
+   "days": 61
+  },
+  "cases": {
+   "baseline": {
+    "dawn_days_below": 4,
+    "worst_dawn_soc_pct": {
+     "exact": "6611/190",
+     "reading": "34.795"
+    },
+    "min_soc_pct": {
+     "exact": "10100851/304000",
+     "reading": "33.226"
+    },
+    "max_starts_in_a_day": 2,
+    "longest_days_without_full_charge": 4
+   },
+   "stop-70-reserve-30": {
+    "scaled_to_30_days": {
+     "avoided_l": {
+      "exact": "207645021/976000",
+      "reading": "212.751"
+     },
+     "added_throughput_kwh": {
+      "exact": "136755/2318",
+      "reading": "58.997"
+     },
+     "added_starts": {
+      "exact": "510/61",
+      "reading": "8.361"
+     }
+    },
+    "dawn_days_below": 4,
+    "new_dawn_days_below": 0,
+    "worst_dawn_soc_pct": {
+     "exact": "6611/190",
+     "reading": "34.795"
+    },
+    "min_soc_pct": {
+     "exact": "2014997/60800",
+     "reading": "33.141"
+    },
+    "max_starts_in_a_day": 3,
+    "longest_days_without_full_charge": 5,
+    "admission": {
+     "admitted": true,
+     "first_failing_part": null
+    },
+    "admission_parts_failed": 0
+   },
+   "stop-90-reserve-25": {
+    "scaled_to_30_days": {
+     "avoided_l": {
+      "exact": "58295031/976000",
+      "reading": "59.729"
+     },
+     "added_throughput_kwh": {
+      "exact": "132926/1159",
+      "reading": "114.690"
+     },
+     "added_starts": {
+      "exact": "-150/61",
+      "reading": "-2.459"
+     }
+    },
+    "dawn_days_below": 11,
+    "new_dawn_days_below": 7,
+    "worst_dawn_soc_pct": {
+     "exact": "1133/38",
+     "reading": "29.816"
+    },
+    "min_soc_pct": {
+     "exact": "54227/1920",
+     "reading": "28.243"
+    },
+    "max_starts_in_a_day": 2,
+    "longest_days_without_full_charge": 4,
+    "admission": {
+     "admitted": true,
+     "first_failing_part": null
+    },
+    "admission_parts_failed": 0
+   }
+  }
+ },
+ "M8": {
+  "source_file": "mto-61d/study.json",
+  "source_sha256": "69a7b9bd8964d054c901c70422c637320eccf230b72e738994f0e5a0a5a2707d",
+  "commit": "6fd0d6bb6b17b851a0e27d3098a592a656f56fc1",
+  "model": "mini-grid/8",
+  "season": "v2",
+  "season_inputs_digest": "465ab6e0818f3fbd6d15a3fbb2a30b6ab75ad1e3cfaa250d6c3b9807f4cdb1a8",
+  "trajectory_digest_site": "afd2a3e376b8f75bb4969f381d6b5192c24b5e4444dd4653e2601c8addefa757",
+  "input_class": "SIMULATED",
+  "evidence_class": "MODELLED",
+  "status": "CALIBRATED",
+  "days": 61,
+  "month_basis": "rates only (litres per customer kWh, litres per day); no window figure is scaled",
+  "assumptions": [
+   "generator-no-load-fuel-rate 2.4 L/h (assumed, GENERIC_DEFAULT: the generic rule of 0.08 L/h per kW of rating x 30 kW; no owner value for Mto)",
+   "generator-minimum-load 30 % (assumed, GENERIC_DEFAULT: a typical diesel controller setting, until Kobo's controller settings)",
+   "battery-charge-taper-start 95 % (assumed, GENERIC_DEFAULT: a lithium iron phosphate battery, until Kobo's battery sheet)",
+   "specific-fuel-consumption 0.33 L/kWh (declared, MANIFEST: Mto's physical line, read as consumption at rated output)"
+  ],
+  "basis": {
+   "fuel_l": {
+    "exact": "620333/960",
+    "reading": "646.180"
+   },
+   "days": 61
+  },
+  "cases": {
+   "mto-huller": {
+    "litres_per_customer_kwh": {
+     "exact": "68267/720000",
+     "reading": "0.095"
+    },
+    "days_without_headroom": 16,
+    "extra_starts": 5,
+    "dawn_days_below": 0
+   },
+   "mto-welder": {
+    "litres_per_customer_kwh": {
+     "exact": "343061/1056000",
+     "reading": "0.325"
+    },
+    "days_without_headroom": 44,
+    "extra_starts": 14,
+    "dawn_days_below": 0
+   },
+   "reduced": {
+    "extra_fuel_l_per_day": {
+     "exact": "0/1",
+     "reading": "0.000"
+    },
+    "inverter_limit_kw": {
+     "exact": "25/1",
+     "reading": "25.000"
+    },
+    "extra_generator_kwh": {
+     "exact": "0/1",
+     "reading": "0.000"
+    },
+    "extra_unserved_kwh": {
+     "exact": "0/1",
+     "reading": "0.000"
+    }
+   }
+  }
+ }
+}

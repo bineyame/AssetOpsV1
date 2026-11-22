@@ -143,14 +143,53 @@ RENAME = {"valued_in_money": "money_changes"}
 NOT_COMPARED = {"money_changes", "value"}
 
 
+# R4 (0K4m spec §2.2): presence. A key the independent tree holds must be present in the evaluator's dict (a null and an absent
+# key are different results), and the evaluator's `not_available`, `information` and `replay_sources` keys and its null-valued
+# keys must be present in the independent tree. The evaluator's other extra keys (design_values, formula, ...) are its own
+# reporting, and these null-valued ones are evaluator bookkeeping the model does not compute (a naming list, as above):
+SCHEMA_ONLY_IN_EVALUATOR = {"covered_by", "right_eligibility", "claim_state", "restore_basis"}
+PRESENCE_REVERSE = {"not_available", "information", "replay_sources"}
+
+
+def _sub(tree, k):
+    """One step of get(): the exact key, else a case-insensitive match; (present, value)."""
+    if not isinstance(tree, dict):
+        return False, None
+    if k in tree:
+        return True, tree[k]
+    low = {str(x).lower(): x for x in tree}
+    if str(k).lower() in low:
+        return True, tree[low[str(k).lower()]]
+    return False, None
+
+
 def evaluator(ref, dv):
-    def walk(r, path):
+    def presence(r, g, path, opt_level):
+        # failure lines only: a presence miss is a fault in a check this walk already counts, so the count does not move
+        if not isinstance(g, dict):
+            failures.append(f"evaluator presence {path or '<root>'}: the independent tree holds a dict here, the evaluator's output has {type(g).__name__}")
+            return
+        mine = set()
+        for k in r:
+            if str(k) in SCHEMA_ONLY_IN_MODEL:
+                continue
+            k2 = RENAME.get(str(k), str(k)) if opt_level else k
+            mine.add(str(k2).lower()); mine.add(str(k).lower())
+            if not _sub(g, k2)[0]:
+                failures.append(f"evaluator presence {path + '.' if path else ''}{k2}: the independent tree holds the key, the evaluator's dict lacks it")
+        for k, v in g.items():
+            if (str(k) in PRESENCE_REVERSE or (v is None and str(k) not in SCHEMA_ONLY_IN_EVALUATOR)) and str(k).lower() not in mine:
+                failures.append(f"evaluator presence {path + '.' if path else ''}{k}: the evaluator's dict holds the key ({v!r:.60}), the independent tree lacks it")
+
+    def walk(r, path, g):
         if isinstance(r, dict):
+            opt_level = path.startswith("options.") and path.count(".") == 1
+            presence(r, g, path, opt_level)
             for k, v in r.items():
-                if str(k) in SCHEMA_ONLY_IN_MODEL or (path.startswith("options.") and path.count(".") == 1 and str(k) in NOT_COMPARED):
+                if str(k) in SCHEMA_ONLY_IN_MODEL or (opt_level and str(k) in NOT_COMPARED):
                     continue
-                k2 = RENAME.get(str(k), str(k)) if path.startswith("options.") and path.count(".") == 1 else k
-                walk(v, f"{path}.{k2}" if path else str(k2))
+                k2 = RENAME.get(str(k), str(k)) if opt_level else k
+                walk(v, f"{path}.{k2}" if path else str(k2), _sub(g, k2)[1])
         elif isinstance(r, list):
             got = get(dv, path)
             check(f"evaluator {path} = independent {r} (got {got})", isinstance(got, list) and [str(x) for x in got] == [str(x) for x in r])
@@ -166,7 +205,7 @@ def evaluator(ref, dv):
                 eq(f"evaluator {path}", got, r)
             else:
                 check(f"evaluator {path} = independent {r!r} (got {got!r})", got == r or str(got) == str(r))
-    walk(ref, "")
+    walk(ref, "", dv)
 
 
 # ---------------- 2. stated copies in the manifest and model-free identities ----------------
@@ -280,7 +319,9 @@ def stated(doc, ref):
                     continue
                 got = O[o]["protect"].get(pe["measure"])
                 if got is None:
-                    check(f"{pe['decision']} {o}: non-structure quantity only as a flagged design value or record count", bool(pe.get("design_value")) or pe.get("class") == "RECORDED")
+                    # 0K4m I5: a `source` is accepted only as K6 checks it (the extract's figure for the option's case)
+                    check(f"{pe['decision']} {o}: non-structure quantity only as a flagged design value or record count",
+                          bool(pe.get("design_value")) or pe.get("class") == "RECORDED" or ("source" in pe and k6_protect_cell(pe, o)[0]))
                 else:
                     eq(f"stated Protect effect {pe['decision']} {o}", v, got)
         if tid in ref["plans"]:
@@ -1020,7 +1061,7 @@ def derived_fig_docs(root):
 # ---------------- 10. empty states: the record behind every "not available yet" (structure-specification.md §3.1) ----------------
 FAMILIES = {"COMMERCIAL_RECORD", "READING", "OPERATIONAL_RECORD", "OBSERVER", "DECLARED", "DOCUMENT", "CALENDAR"}
 ABSENT = {"MISSING", "ZERO_WHEN_HELD", "OPTION_ONLY", "NEVER_EMPTY"}
-CAUSES = {"NOT_RECEIVED", "NOT_CONNECTED", "NOT_CALCULATED_YET"}
+CAUSES = {"NOT_RECEIVED", "NOT_CONNECTED", "NOT_CALCULATED_YET", "MODEL_PENDING"}   # MODEL_PENDING (0K4m I3, §2.4): a computed leaf whose model version is pending (slice 0K4e)
 CARRIED = {None, "TARGET", "ASSUMPTION", "RESIDUAL"}
 
 
@@ -1280,6 +1321,12 @@ def view_digest(doc):
             return {str(k): conv(v, f"{p}.{k}") for k, v in x.items()}
         return [conv(v, p) for v in x] if isinstance(x, list) else x
 
+    raw = json.dumps(conv(view_object(doc), "view"), sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(raw).hexdigest()
+
+
+def view_object(doc):
+    """The nodes the world view copies (spec §4.2 allowlist; 0K4m §1.2), as view_digest hashes them."""
     def pick(d, keys):
         return {k: d[k] for k in keys if k in d}
     view = pick(doc, ("manifest_version", "as_of", "accounting_period", "currency", "timezone_default", "history"))
@@ -1287,8 +1334,7 @@ def view_digest(doc):
                         "sites": [{**pick(s, ("site", "code", "physical", "tariff")),
                                    **({"period": pick(s["period"], ("plan", "actual", "coverage"))} if "period" in s else {})}
                                   for s in t["sites"]]} for t in doc["tenants"]]
-    raw = json.dumps(conv(view, "view"), sort_keys=True, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
-    return hashlib.sha256(raw).hexdigest()
+    return view
 
 
 def first_present_keys(fm, keys):
@@ -1374,7 +1420,12 @@ def history_checks(doc, dv, root, path, im):
                     if rside["status"] == "evaluated":
                         check(f"H3 {scope}: node set {sorted(set(nodes) ^ set(rside['nodes']))} differs", set(nodes) == set(rside["nodes"]))
                         for k in sorted(set(nodes) & set(rside["nodes"])):
-                            eq(f"H3 {scope}: node {k}", nodes[k], rside["nodes"][k])
+                            if rside["nodes"][k] is None:   # N1 (0K4m): a not-available node is null, with its words
+                                rw, gw = (rside.get("not_available") or {}).get(k), (hs.get("not_available") or {}).get(k)
+                                check(f"H3 {scope}: node {k} is null and not available ({nodes[k]!r}; words {gw!r} == independent {rw!r})",
+                                      nodes[k] is None and rw is not None and gw == rw)
+                            else:
+                                eq(f"H3 {scope}: node {k}", nodes[k], rside["nodes"][k])
                     # H4: not observed
                     no = hs.get("not_observed")
                     check(f"H4 {scope}: not_observed {no} == independent {rside['not_observed']}", no == rside["not_observed"])
@@ -1995,19 +2046,540 @@ def operations(root, doc):
     planted(lambda d: d["operations"]["sites"].pop(), "OP1", "a Site dropped")
 
 
+# ---------------- 15. replay sources: one figure per quantity (0K4m spec §1.2, §1.3, §2.2: K1-K12, VIEW_HELD; D-0K4.31 to D-0K4.38) ----------------
+# Written from the spec, the manifest and replay-studies.json alone (W2): no code is shared with evaluate_structure.py. It runs after
+# operations(), so H9's base count is free of it. Each K function returns its items [(label, passed)]; the section counts them, and
+# the K9 self-test runs the same functions on planted copies.
+import copy as _copy
+import fractions as _fractions
+import hashlib as _hashlib
+from decimal import ROUND_HALF_EVEN as _HALF_EVEN
+
+RS: dict = {}   # replay-studies.json, loaded by main()
+K_WORDS = re.compile(r"design (?:value|estimate)", re.I)
+UNAVAILABLE = re.compile(r"(?<![\w.])unavailable\s*\(")
+# I1 (§1.2): view paths that keep a design value for 0K4f. Each lies inside the world view, which 0K4m does not edit.
+VIEW_HELD = (
+    {"path": ("lakeside-power", "Mto", "physical", "extra_l_basis"), "until": "0K4f"},
+    {"path": ("lakeside-power", "Mto", "physical", "extra_l_per_day_at_half_inverter_capacity"), "until": "0K4f"},
+    {"path": ("lakeside-power", "Kobo", "period", "actual", "necessary_l"), "until": "0K4f"},
+    {"path": ("lakeside-power", "Kobo", "period", "actual", "candidate_l"), "until": "0K4f"},
+)
+HELD_KEYS = ("extra_l_basis", "extra_l_per_day_at_half_inverter_capacity")   # K7: names no expression or mock source reads
+IDENTITY = ("source_file", "source_sha256", "commit", "model", "season", "season_inputs_digest", "trajectory_digest_site",
+            "input_class", "evidence_class", "status", "days", "month_basis", "assumptions", "admission_rule")   # K3 (§2.1, R6)
+RATE_FIELDS = {"litres_per_customer_kwh": ("load_kw", "load_hours_per_day", "days"),   # K12 (§1.3): a rate times the option's
+               "extra_fuel_l_per_day": ("value_days_to_restore",)}                       # own declared quantity
+OPTION_ONLY_SOURCE = "admission_parts_failed"
+KOBO_SETTINGS = ("KOB-STOPSOC", "KOB-RESERVE")
+KOBO_SETTING_WORDS = "a dispatch replay on Kobo's October as recorded (0K4f)"   # §2.3, R2
+K8_HISTORY_SHA = "9cb1b6bfecd6b1cec0d10974c037161e2e454f7dac3694791a584bfd173fd4c9"   # history.json at the 0K4m base (K8)
+MOCK = "interactive-mockup-vNEXT"
+K11_EXCLUDED = {"REVIEW.md", "REVIEW-response.md"}   # and regeneration/ (never scanned)
+# K11: the decision-history registers (spec §3, I4: by name) and the mock's change register (rows before 21 Nov) are exempt
+# only for the rows they held at the 0K4m base (21 Nov), each by the sha256 of its stripped text; a row written from 21 Nov on
+# obeys the rule. Measured at commit 1b.
+K11_BASE_ROWS = {
+    "design-questions-and-decisions.md": {"7c19460e8539ab49", "db03d92bba59ccaf"},
+    "decisions-register.md": {"66b7c1267bd878fd", "b16c46d601dac4d5"},
+    "interactive-mockup-vNEXT/CHANGE-REGISTER.md": {"4bbf5c1909e415ca", "2201c2883f2cbc26", "55e3c6d6fe8b1111", "e3031bd3a60e1f80",
+                                                    "7450ce919f79debd", "ea87b95113465349"},
+}
+MANIFEST_LITERAL = re.compile(r"const MANIFEST = (\{.*?\});\n", re.S)
+
+
+def _walk_paths(o, path=()):
+    """(path, value) of every scalar; a tenant or site list item is named by its id, any other list item by its index."""
+    if isinstance(o, dict):
+        for k, v in o.items():
+            yield from _walk_paths(v, path + (str(k),))
+    elif isinstance(o, list):
+        for i, v in enumerate(o):
+            name = v.get("tenant", v.get("site")) if isinstance(v, dict) and path[-1:] in (("tenants",), ("sites",)) else None
+            yield from _walk_paths(v, path + (str(name if name is not None else i),))
+    else:
+        yield path, o
+
+
+def _walk_dicts(o, path=()):
+    if isinstance(o, dict):
+        yield path, o
+        for k, v in o.items():
+            yield from _walk_dicts(v, path + (str(k),))
+    elif isinstance(o, list):
+        for i, v in enumerate(o):
+            name = v.get("tenant", v.get("site", v.get("id"))) if isinstance(v, dict) else None
+            yield from _walk_dicts(v, path + (str(name if name is not None else i),))
+
+
+def _dotted(path):
+    return ".".join(path)
+
+
+def _held_view_path(p):
+    """A VIEW_HELD path as a path of _walk_paths over the manifest: tenants.<tenant>.sites.<site>.<rest>."""
+    return ("tenants", p[0], "sites", p[1]) + tuple(p[2:])
+
+
+def _view_at(view, p):
+    t = next((x for x in view["tenants"] if x.get("tenant") == p[0]), None)
+    s = next((x for x in (t or {}).get("sites", []) if x.get("site") == p[1]), None)
+    cur = s
+    for k in p[2:]:
+        if not isinstance(cur, dict) or k not in cur:
+            return False, None
+        cur = cur[k]
+    return s is not None, cur
+
+
+def rs_field(study, case, field):
+    """The extract's value at a study, case and dotted field; KeyError if absent."""
+    cur = RS[study]["cases"][case]
+    for part in field.split("."):
+        cur = cur[part]
+    return cur
+
+
+def n2(v):
+    """N2: the extract's exact p/q rounded half-even to 6 decimal places (a Decimal); an integer stays an integer."""
+    if isinstance(v, dict) and "exact" in v:
+        f = _fractions.Fraction(v["exact"])
+        return (D(f.numerator) / D(f.denominator)).quantize(D("0.000001"), rounding=_HALF_EVEN)
+    return v
+
+
+def same_as_extract(m, x):
+    """K2/K6: a manifest value against the extract's (rounded as N2). Booleans, strings and null must be equal."""
+    x = n2(x)
+    if isinstance(x, bool) or x is None or isinstance(x, str) or isinstance(m, bool) or m is None:
+        return type(m) is type(x) and m == x
+    if isinstance(m, (int, float)):
+        return D(str(m)) == D(x)
+    return False
+
+
+def unavailable_words(expr):
+    """The words of an `unavailable("...")` expression, '' when malformed or empty; None when the string is no such call."""
+    import ast as _ast
+    if not isinstance(expr, str) or not UNAVAILABLE.search(expr):
+        return None
+    try:
+        tree = _ast.parse(expr.strip(), mode="eval")
+    except SyntaxError:
+        return ""
+    calls = [n for n in _ast.walk(tree) if isinstance(n, _ast.Call) and isinstance(n.func, _ast.Name) and n.func.id == "unavailable"]
+    words = []
+    for c in calls:
+        a = c.args
+        if c.keywords or len(a) != 1 or not isinstance(a[0], _ast.Constant) or not isinstance(a[0].value, str) or not a[0].value.strip():
+            return ""
+        words.append(a[0].value)
+    return words[0] if words else ""
+
+
+def _sources(doc):
+    """Every `source:` dict in the manifest (the oracle is private and never holds one), with its path and parent dict."""
+    for path, d in _walk_dicts({k: v for k, v in doc.items() if k != "oracle"}):
+        if "source" in d:
+            yield path, d, d["source"]
+
+
+def k1(doc):
+    keys = [_dotted(p) for p, d in _walk_dicts(doc) if "design_value" in d]
+    held = {_held_view_path(h["path"]) for h in VIEW_HELD}
+    words = [_dotted(p) for p, v in _walk_paths(doc) if isinstance(v, str) and K_WORDS.search(v) and p not in held]
+    return [(f"K1 no design_value key in the manifest (found {len(keys)}: {keys[:3]})", not keys),
+            (f"K1 no string value says 'design value' or 'design estimate' outside VIEW_HELD (found {len(words)}: {words[:3]})", not words)]
+
+
+def k2(doc):
+    items = []
+    studies = doc.get("replay_studies") or {}
+    for path, parent, src in _sources(doc):
+        where = _dotted(path)
+        ok_study = isinstance(src, dict) and src.get("study") in studies and src.get("study") in RS
+        if not ok_study:
+            items.append((f"K2 {where}: source names a study in replay_studies and replay-studies.json ({src!r:.80})", False)); continue
+        st = RS[src["study"]]
+        if "cases" in src:   # a protect_effects row: one field over named cases
+            for o, case in (src.get("cases") or {}).items():
+                try:
+                    rs_field(src["study"], case, src["field"]); ok = True
+                except (KeyError, TypeError):
+                    ok = False
+                items.append((f"K2 {where}: {o} case {case!r} and field {src.get('field')!r} are in the extract", ok))
+        elif "field" in src:   # a param: {value, source: {study, case, field}}
+            try:
+                x = rs_field(src["study"], src["case"], src["field"]); found = True
+            except (KeyError, TypeError):
+                x, found = None, False
+            items.append((f"K2 {where}: value {parent.get('value')!r} == the extract's {src.get('study')} {src.get('case')} "
+                          f"{src.get('field')} {n2(x) if found else 'absent'}", found and "value" in parent and same_as_extract(parent["value"], x)))
+        else:   # information: {source: {study, case}, ...}
+            items.append((f"K2 {where}: case {src.get('case')!r} is in the extract's {src['study']}", src.get("case") in st["cases"]))
+    return items
+
+
+def k3(doc):
+    items = []
+    studies = doc.get("replay_studies") or {}
+    for sid in ("K8", "M8"):
+        m, x = studies.get(sid) or {}, RS.get(sid) or {}
+        for key in IDENTITY:
+            if key == "admission_rule" and sid == "M8":
+                continue
+            items.append((f"K3 replay_studies.{sid}.{key} == the extract's ({str(m.get(key))[:24]!r})", key in m and key in x and m[key] == x[key]))
+        items.append((f"K3 replay_studies.{sid}.extract == 'replay-studies.json'", m.get("extract") == "replay-studies.json"))
+    return items
+
+
+def _na_outputs(ref, href):
+    """Every not-available output of the independent model: (kind, path, words, check(dv) -> bool)."""
+    out = []
+    for site, sides in ref["sites"].items():
+        for side, e in sides.items():
+            for node, w in (e.get("not_available") or {}).items():
+                out.append((f"sites.{site}.{side}.nodes.{node}", w, ("sites", site, side), node))
+    for oid, o in ref["options"].items():
+        if o.get("not_available") is not None:
+            out.append((f"options.{oid}", o["not_available"], ("options", oid), None))
+    for tid, p in ref["plans"].items():
+        for oid, w in (p.get("not_available") or {}).items():
+            out.append((f"plans.{tid}.not_available.{oid}", w, ("plans", tid), oid))
+    for tid, t in (href or {}).get("tenants", {}).items():
+        for site, s in t["sites"].items():
+            for mo, sides in s["periods"].items():
+                for side, e in sides.items():
+                    for node, w in (e.get("not_available") or {}).items():
+                        out.append((f"history.{tid}.sites.{site}.periods.{mo}.{side}.nodes.{node}", w, ("history", tid, "sites", site, "periods", mo, side), node))
+    return out
+
+
+def _at(tree, keys):
+    for k in keys:
+        if not isinstance(tree, dict) or k not in tree:
+            return None
+        tree = tree[k]
+    return tree
+
+
+def k4(doc, ref, href, dv):
+    items, exprs = [], []
+    for p, v in _walk_paths({k: v for k, v in doc.items() if k != "oracle"}):
+        w = unavailable_words(v)
+        if w is not None:
+            exprs.append((_dotted(p), w))
+            items.append((f"K4 {_dotted(p)}: unavailable(...) has non-empty record words", bool(w and w.strip())))
+    na = _na_outputs(ref, href)
+    reached = {w for _, w, _, _ in na}
+    for where, w in exprs:
+        items.append((f"K4 {where}: its words reach the independent model's output", w in reached))
+    for label, w, base, key in na:
+        blk = _at(dv, base)
+        if base[0] == "options":
+            ok = (isinstance(blk, dict) and all(k in blk and blk[k] is None for k in ("value", "value_if_admissible"))
+                  and blk.get("valued_in_money") is False and blk.get("not_available") == w)
+        elif base[0] == "plans":
+            ok = isinstance(blk, dict) and (blk.get("not_available") or {}).get(key) == w
+        else:
+            nodes = (blk or {}).get("nodes") if isinstance(blk, dict) else None
+            ok = isinstance(nodes, dict) and key in nodes and nodes[key] is None and (blk.get("not_available") or {}).get(key) == w
+        items.append((f"K4 {label}: present in derived-values.json, null, with not_available {w!r:.50}", ok))
+    return items
+
+
+def k5(doc):
+    bounds = (doc.get("evaluation") or {}).get("bounds") or {}
+    bad = [f"{v}.{b.get('id')}" for v, bl in bounds.items() for b in bl or []
+           if "dawn" in str(b.get("node")) or "dawn" in str(b.get("max"))]
+    hard = [d.get("hard") for p in (doc.get("plans") or {}).values() for d in p.get("decisions") or [] if d.get("name") == "kobo_generator"]
+    adm = [b for b in bounds.get("MINI_GRID") or [] if b.get("id") == "admission"]
+    return [(f"K5 no bound reads a node whose name contains 'dawn' (found {bad})", not bad),
+            (f"K5 kobo_generator has hard: [admission] (got {hard})", hard == [["admission"]]),
+            (f"K5 MINI_GRID bound admission is on node admission_parts_failed with max '0' (got {adm})",
+             len(adm) == 1 and adm[0].get("node") == OPTION_ONLY_SOURCE and str(adm[0].get("max")) == "0")]
+
+
+def _info_field(src, key):
+    """K6: the extract field an information key reads: the key, admission.<key>, or the baseline case's <x> for baseline_<x>."""
+    study, case = src.get("study"), src.get("case")
+    for c, f in ((case, key), (case, f"admission.{key}"), ("baseline", key[len("baseline_"):] if key.startswith("baseline_") else None)):
+        if f is None:
+            continue
+        try:
+            return True, rs_field(study, c, f)
+        except (KeyError, TypeError):
+            continue
+    return False, None
+
+
+def k6_protect_cell(pe, o):
+    src = pe.get("source") or {}
+    v = (pe.get("options") or {}).get(o)
+    try:
+        x = rs_field(src.get("study"), (src.get("cases") or {})[o], src.get("field"))
+    except (KeyError, TypeError):
+        return False, None
+    return same_as_extract(v, x), n2(x)
+
+
+def k6(doc):
+    items = []
+    for path, d in _walk_dicts({k: v for k, v in doc.items() if k != "oracle"}):
+        info = d.get("information")
+        if isinstance(info, dict) and isinstance(info.get("source"), dict):
+            src = info["source"]
+            days = (RS.get(src.get("study")) or {}).get("days")
+            for key, v in info.items():
+                if key == "source":
+                    continue
+                found, x = _info_field(src, key)
+                if not found:
+                    if not isinstance(v, str):   # free words (a reason) have no extract field; a figure must have one
+                        items.append((f"K6 {_dotted(path)}.information.{key}: a figure with no extract field", False))
+                    continue
+                ok = same_as_extract(v, x) or (isinstance(v, str) and isinstance(x, int) and not isinstance(x, bool)
+                                               and v == f"{x} of {days} replayed days")
+                items.append((f"K6 {_dotted(path)}.information.{key} {v!r} == the extract's {n2(x)!r}", ok))
+    for t in doc["tenants"]:
+        for pe in t["portfolio"].get("protect_effects", []):
+            if "source" not in pe:
+                continue
+            for o in pe.get("options") or {}:
+                ok, x = k6_protect_cell(pe, o)
+                items.append((f"K6 {t['tenant']} protect effect {pe.get('decision')!r} {o} {pe['options'][o]!r} == the extract's {x!r}", ok))
+    return items
+
+
+def _mock_sources(root):
+    mock = root / MOCK
+    return sorted(mock.glob("*.js")) + [mock / "tools" / "gen_fixtures.py"]
+
+
+def _embedded_manifest(doc):
+    """The object gen_fixtures.py embeds as MANIFEST: the manifest less its private oracle, dates as ISO strings."""
+    import datetime as _dt
+    d = {k: v for k, v in doc.items() if k != "oracle"}
+    return json.loads(json.dumps(d, default=lambda o: o.isoformat() if isinstance(o, (_dt.date, _dt.datetime)) else str(o), ensure_ascii=False))
+
+
+def literal_skipped(text, doc):
+    """I1: the MANIFEST literal is skipped only when it parses to the embedded manifest; (text without it, guard result or None)."""
+    m = MANIFEST_LITERAL.search(text)
+    if not m:
+        return text, None
+    try:
+        same = json.loads(m.group(1)) == _embedded_manifest(doc)
+    except ValueError:
+        same = False
+    return (text[:m.start(1)] + "{}" + text[m.end(1):] if same else text), same
+
+
+def k7(root, doc):
+    pat = re.compile(r"\bextra_l_per_day_at_half_inverter_capacity\b")
+    scopes = [("structures", doc.get("structures")), ("factor_map", doc.get("factor_map")),
+              ("factor_sources", [s.get("factor_sources") for t in doc["tenants"] for s in t["sites"]]),
+              ("evaluation", doc.get("evaluation")), ("plans", doc.get("plans"))]
+    items = []
+    for name, tree in scopes:
+        hits = [_dotted(p) for p, v in _walk_paths(tree) if isinstance(v, str) and pat.search(v)]
+        items.append((f"K7 no expression in {name} reads extra_l_per_day_at_half_inverter_capacity (found {hits[:3]})", not hits))
+    held = re.compile(r"\b(?:%s)\b" % "|".join(HELD_KEYS))
+    for f in _mock_sources(root):
+        text = f.read_text(encoding="utf-8") if f.exists() else ""
+        text, _ = literal_skipped(text, doc)
+        n = len(held.findall(text))
+        items.append((f"K7 mock source {f.name} reads neither {' nor '.join(HELD_KEYS)} (found {n})", f.exists() and n == 0))
+    return items
+
+
+def k8(root):
+    got = _hashlib.sha256((root / "history.json").read_bytes()).hexdigest()
+    return [(f"K8 sha256(history.json) {got[:12]} == the 0K4m base {K8_HISTORY_SHA[:12]}", got == K8_HISTORY_SHA)]
+
+
+def k10(doc):
+    items = []
+    for t in doc["tenants"]:
+        for s in t["sites"]:
+            act = (s.get("period") or {}).get("actual") or {}
+            if not act.get("candidate_l"):
+                continue
+            fs = s.get("factor_sources") or {}
+            ok = all(unavailable_words(fs.get(k)) for k in ("candidate_l", "necessary_l"))
+            items.append((f"K10 {s['site']}: period.actual candidate_l {act['candidate_l']} != 0, so factor_sources sets candidate_l "
+                          f"and necessary_l to unavailable(...) (got {fs.get('candidate_l')!r:.40}, {fs.get('necessary_l')!r:.40})", ok))
+    return items
+
+
+def _mult_names(expr):
+    """The name sets of every maximal product in an expression (K12: a rate times its quantity)."""
+    import ast as _ast
+    tree = _ast.parse(str(expr).strip(), mode="eval").body
+    out = []
+
+    def factors(n):
+        if isinstance(n, _ast.BinOp) and isinstance(n.op, _ast.Mult):
+            return factors(n.left) + factors(n.right)
+        return [n]
+
+    def visit(n, inside):
+        if isinstance(n, _ast.BinOp) and isinstance(n.op, _ast.Mult):
+            if not inside:
+                out.append({x.id for f in factors(n) for x in [f] if isinstance(x, _ast.Name)})
+            visit(n.left, True); visit(n.right, True)
+            return
+        for c in _ast.iter_child_nodes(n):
+            visit(c, False)
+    visit(tree, False)
+    return out
+
+
+def k12(doc):
+    items = []
+    opts = (doc.get("evaluation") or {}).get("options") or {}
+    for oid, o in opts.items():
+        params = o.get("params") or {}
+        srcs = {k: p["source"] for k, p in params.items() if isinstance(p, dict) and isinstance(p.get("source"), dict)}
+        for k, src in srcs.items():
+            items.append((f"K12 {oid}.params.{k}: its source field {src.get('field')!r} is not under scaled_to_30_days.",
+                          not str(src.get("field", "")).startswith("scaled_to_30_days.")))
+        for target, expr in (o.get("changes") or {}).items():
+            names = _names_of(expr)
+            for k in sorted(set(srcs) & names):
+                field = srcs[k].get("field")
+                if target == OPTION_ONLY_SOURCE and field == OPTION_ONLY_SOURCE:
+                    continue
+                qty = RATE_FIELDS.get(field)
+                ok = qty is not None and any({k, *qty} <= ns for ns in _mult_names(expr))
+                items.append((f"K12 {oid}.changes.{target}: source param {k} ({field}) is a rate in RATE_FIELDS times the option's own "
+                              f"quantity {' * '.join(qty or ('?',))}", ok))
+    for oid in KOBO_SETTINGS:
+        params = (opts.get(oid) or {}).get("params") or {}
+        for k in ("avoided_l", "added_throughput_kwh"):
+            w = unavailable_words(params.get(k))
+            items.append((f"K12 {oid}.params.{k} is unavailable({KOBO_SETTING_WORDS!r}) (got {params.get(k)!r:.60})", w == KOBO_SETTING_WORDS))
+    return items
+
+
+def _names_of(expr):
+    import ast as _ast
+    try:
+        return {n.id for n in _ast.walk(_ast.parse(str(expr).strip(), mode="eval")) if isinstance(n, _ast.Name)}
+    except SyntaxError:
+        return set()
+
+
+def _row_key(line):
+    return _hashlib.sha256(line.strip().encode("utf-8")).hexdigest()[:16]
+
+
+def _k11_files(root):
+    mock = root / MOCK
+    files = sorted(p for p in list(root.glob("*.md")) + list(root.glob("*.html")) + list(mock.glob("*.md")) + list(mock.glob("*.html"))
+                   if p.name not in K11_EXCLUDED)
+    return files + [mock / "fixtures.js"]
+
+
+def k11(root, doc):
+    items = []
+    for f in _k11_files(root):
+        rel = f.relative_to(root).as_posix()
+        text = f.read_text(encoding="utf-8")
+        if f.name in ("index.html", "fixtures.js"):
+            text, same = literal_skipped(text, doc)
+            items.append((f"K11 {rel}: its MANIFEST literal parses to the manifest gen_fixtures.py embeds (so it may be skipped)", same is True))
+        base = K11_BASE_ROWS.get(rel, set())
+        hits = [i + 1 for i, line in enumerate(text.split("\n")) if K_WORDS.search(line) and _row_key(line) not in base]
+        items.append((f"K11 {rel}: no 'design value' or 'design estimate' (lines {hits[:5]})", not hits))
+    return items
+
+
+def view_held(root, doc):
+    view = view_object(doc)
+    items = []
+    for h in VIEW_HELD:
+        inside, v = _view_at(view, h["path"])
+        items.append((f"VIEW_HELD {'.'.join(h['path'])}: present inside the world view, until {h.get('until')}",
+                      inside and v is not None and h.get("until") == "0K4f"))
+    strings = {p for p, v in _walk_paths(view) if isinstance(v, str) and K_WORDS.search(v)}
+    held_str = {_held_view_path(h["path"]) for h in VIEW_HELD if isinstance(_view_at(view, h["path"])[1], str)}
+    items.append((f"VIEW_HELD the view strings K1's words match {sorted(map(_dotted, strings))} == its string entries "
+                  f"{sorted(map(_dotted, held_str))}", strings == held_str))
+    return items
+
+
+def _selftest(label, base, planted, marker):
+    """A plant must add a failing item (one the unplanted manifest does not fail with that label) naming its marker."""
+    before = {lab for lab, ok in base if not ok}
+    return (f"K9 self-test: {label} fails", any((not ok) and marker in lab and lab not in before for lab, ok in planted))
+
+
+def k9(root, doc, im):
+    out = []
+    p = _copy.deepcopy(doc)   # P1: a re-added design_value
+    params = p["evaluation"]["options"]["KOB-STOPSOC"]["params"]
+    cur = params.get("avoided_l", 0)
+    params["avoided_l"] = {**cur, "design_value": "K"} if isinstance(cur, dict) else {"value": cur, "design_value": "K"}
+    out.append(_selftest("a re-added design_value (K1)", k1(doc), k1(p), "no design_value key"))
+    p = _copy.deepcopy(doc)   # P2: MTO-HULLER litres_per_kwh at 0.3
+    p["evaluation"]["options"]["MTO-HULLER"]["params"]["litres_per_kwh"] = {
+        "value": 0.3, "source": {"study": "M8", "case": "mto-huller", "field": "litres_per_customer_kwh"}}
+    out.append(_selftest("MTO-HULLER litres_per_kwh set to 0.3 (K2)", k2(doc), k2(p), "litres_per_kwh: value 0.3"))
+    p = _copy.deepcopy(doc)   # P5: a restored dawn_adequacy bound
+    p["evaluation"]["bounds"]["MINI_GRID"].append({"id": "dawn_adequacy", "node": "replayed_dawn_days_below_safeguard", "max": "0"})
+    out.append(_selftest("a restored dawn_adequacy bound (K5)", k5(doc), k5(p), "MINI_GRID.dawn_adequacy"))
+    p = _copy.deepcopy(doc)   # P18: a scaled-to-30-days source on a Kobo setting
+    p["evaluation"]["options"]["KOB-STOPSOC"]["params"]["avoided_l"] = {
+        "value": 212.751, "source": {"study": "K8", "case": "stop-70-reserve-30", "field": "scaled_to_30_days.avoided_l"}}
+    out.append(_selftest("KOB-STOPSOC avoided_l on a K8 scaled_to_30_days.avoided_l source (K12)", k12(doc), k12(p), "KOB-STOPSOC.params.avoided_l: its source field"))
+    # P17: a scratch factor `unavailable("x") | 0` is not available (null, words "x"), never 0
+    p = _copy.deepcopy(doc)
+    V = next(t for t in p["tenants"] if t["vertical"] == "MINI_GRID")
+    p["factor_map"]["MINI_GRID"]["scratch_p17"] = 'unavailable("x") | 0'
+    try:
+        e = im.Model(p).site_sides(V["sites"][0]["site"])["plan"]
+        side = im.side_out(e["nodes"]) if e["status"] == "evaluated" else {}
+        got = ((side.get("nodes") or {}).get("scratch_p17", "absent"), (side.get("not_available") or {}).get("scratch_p17"))
+    except Exception as ex:   # noqa: BLE001 (a self-test reports, never raises)
+        got = (f"raised {ex!r}", None)
+    direct = im.evaluate('unavailable("x") | 0', lambda n: None)
+    out.append((f"K9 self-test (P17): unavailable(\"x\") | 0 is not available, never 0 (side node {got[0]!r}, words {got[1]!r}; "
+                f"direct {direct!r})", got == (None, "x") and im.is_na(direct) and direct.words == "x" and im.r2(direct) is None))
+    return out
+
+
+def replay_sources(root, doc, ref, href, dv, im):
+    for fn in (lambda: k1(doc), lambda: k2(doc), lambda: k3(doc), lambda: k4(doc, ref, href, dv), lambda: k5(doc), lambda: k6(doc),
+               lambda: k7(root, doc), lambda: k8(root), lambda: k9(root, doc, im), lambda: k10(doc), lambda: k11(root, doc),
+               lambda: k12(doc), lambda: view_held(root, doc)):
+        for label, ok in fn():
+            check(label, ok)
+
+
 def main(path):
     root = pathlib.Path(path).resolve().parent
     doc = yaml.safe_load(open(path, encoding="utf-8"))
     DOC.update(doc)
     spec = importlib.util.spec_from_file_location("independent_model", root / "independent_model.py")
     im = importlib.util.module_from_spec(spec); spec.loader.exec_module(im)
+    print(f"independent model: {im.__file__}", file=sys.stderr)
+    _history, _cache = im.compute_history, {}
+
+    def compute_history_once(p):   # history_checks() and replay_sources() read the same result
+        if p not in _cache:
+            _cache[p] = _history(p)
+        return _cache[p]
+    im.compute_history = compute_history_once
     ref = im.compute(str(path))
     dv = json.loads((root / "derived-values.json").read_text(encoding="utf-8"))
+    if (root / "replay-studies.json").exists():
+        RS.update(json.loads((root / "replay-studies.json").read_text(encoding="utf-8")))
 
     def walk(o):
         if isinstance(o, dict):
             for k, v in o.items():
-                if k not in ("oracle", "evaluation", "plans", "calibration_spikes", "owner_question_variants", "empty_states", "operations"): walk(v)
+                if k not in ("oracle", "evaluation", "plans", "replay_studies", "owner_question_variants", "empty_states", "operations"): walk(v)
         elif isinstance(o, list):
             for v in o: walk(v)
         elif isinstance(o, float):   # money records are written with cents (floats); counts and days are integers
@@ -2029,6 +2601,7 @@ def main(path):
     reconciliation(doc, dv)   # after the history checks, so H9's baseline (checks before them) is unchanged
     option_basis(doc)         # after the history checks too (D-RECON.6)
     operations(root, doc)     # after the history checks too (D-L4OPS.7)
+    replay_sources(root, doc, ref, im.compute_history(str(path)) if (root / "history.json").exists() else None, dv, im)   # 0K4m: after them too
     _write_labels()
     print(f"{passes} checks passed ({nh} history checks), {len(failures)} failed")
     for f in failures:
