@@ -64,6 +64,7 @@ export function WaitingForYou({ client }: { client?: EstateClient }) {
       <button
         type="button"
         className="ia-inbox"
+        data-shell-control
         aria-haspopup="dialog"
         aria-controls={INBOX_ID}
         onClick={(event) => api.open(INBOX_ID, event.currentTarget)}

@@ -5,7 +5,6 @@
  */
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { Route, Routes } from "react-router-dom";
-import { computeAccessibleName } from "dom-accessibility-api";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { LinkedMemoryRouter as MemoryRouter } from "../../test/refLinks";
@@ -114,7 +113,7 @@ describe("the badge is the Decisions tile's Waiting for a choice (W1, D-IAP.37 Q
     expect(control().getAttribute("aria-controls")).toBe("ia-inbox");
     expect(control().getAttribute("type")).toBe("button");
     // jsdom puts a space between the label's and the hidden text's spans; a browser joins inline spans as written.
-    expect(computeAccessibleName(control()).replace(/ ,/g, ",")).toBe("Waiting for you, 23 waiting");
+    expect(screen.getByRole("button", { name: /^Waiting for you ?, 23 waiting$/ })).toBe(control());
     expect(reads.calls).toBe(1);
   });
 

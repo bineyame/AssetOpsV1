@@ -101,7 +101,7 @@ function noVocabularyViolations(page: string) {
 // bar on every page; it is chrome, not page content, so it is the one button this read-only check allows.
 function pageButtons(): string[] {
   return screen.queryAllByRole("button")
-    .filter((b) => !b.hasAttribute("data-shared-range-button"))
+    .filter((b) => !b.hasAttribute("data-shared-range-button") && !b.hasAttribute("data-shell-control"))
     .map((b) => b.outerHTML);
 }
 

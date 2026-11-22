@@ -11,6 +11,7 @@ import type { SiteDetailReadModel } from "../siteReadModel";
 import { EMPTY_ANALYTICS_CLIENT } from "./analyticsFixtures";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
+import { isShellInboxRead } from "../../test/shellReads";
 
 /*
  * W4-02 unit 6: a MINIGRID Site's Performance/Backup route renders the v69 `backup` panels from the q9 public read
@@ -352,7 +353,7 @@ describe("post-W6 W4 R309/R313: backup result tones and refused frame", () => {
       "fetch",
       vi.fn((input: RequestInfo | URL) => {
         const url = String(input);
-        fetched.push(url);
+        if (!isShellInboxRead(url)) fetched.push(url);
         const body = { schema_version: "site-backup-range-1", site: { site_code: CODE, timezone: "Africa/Nairobi" }, window: {}, days: [],
           totals: { days_counted: 0, days_requested: 0, partial: false, sequence_counts: { PASS: 0, FAIL: 0, INCOMPLETE: 0 }, start_success_count: null,
             served_kwh: null, unserved_kwh: null, demand_kwh: null } };

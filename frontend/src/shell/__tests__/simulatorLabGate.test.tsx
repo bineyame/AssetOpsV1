@@ -386,7 +386,7 @@ describe("simulator lab gate: disabled", () => {
       await screen.findByRole("main");
 
       expect(container.querySelectorAll(
-          "form, button:not([data-shared-range-button]), input, select",
+          "form, button:not([data-shared-range-button]):not([data-shell-control]), input, select",
         )).toHaveLength(
         0,
       );

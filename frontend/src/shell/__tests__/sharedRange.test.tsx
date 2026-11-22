@@ -43,6 +43,17 @@ function LocationProbe() {
 
 const where = () => document.querySelector("[data-location]")?.textContent ?? "";
 
+/** The distinct requests in order (the page's and the shell's inbox read are the same request). */
+function distinct<T>(rows: T[]): T[] {
+  const seen = new Set<string>();
+  return rows.filter((r) => {
+    const k = JSON.stringify(r);
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+}
+
 function estate(): EstateClient & { calls: EstatePortfolioQuery[] } {
   const base = fakeClient((lens) => loaded(findingsBody(lens)));
   const client = {
@@ -207,7 +218,8 @@ describe("SR-1 filling in the address on entry", () => {
     await settledScreen();
     expect(where()).toBe(`/portfolio/outcomes?${WEEK}`);
     // The page reads once, for the range now in the address (the same request it made before SR-1).
-    expect(client.calls.map((q) => [q.from, q.to])).toEqual([["2026-09-30T00:00:00Z", "2026-10-07T00:00:00Z"]]);
+    // IA-P P6: the shell's "Waiting for you" reads the same range too (`distinct`).
+    expect(distinct(client.calls.map((q) => [q.from, q.to]))).toEqual([["2026-09-30T00:00:00Z", "2026-10-07T00:00:00Z"]]);
   });
 
   it("IA-P2 P3b: /portfolio with no range opens on last month, whole days", async () => {
@@ -446,7 +458,8 @@ describe("SR-1 the Portfolio reads the shared range", () => {
     // IA-P2 P3b: the Overview reads E2 (not the estate client), so the estate request is pinned on the Outcomes tab.
     renderApp("/portfolio/outcomes?from=2026-10-06&to=2026-10-06", client);
     await settledScreen();
-    expect(client.calls.map((q) => [q.from, q.to, q.known_at, q.lens])).toEqual([
+    // IA-P P6: the shell's "Waiting for you" makes the same request (`distinct`).
+    expect(distinct(client.calls.map((q) => [q.from, q.to, q.known_at, q.lens]))).toEqual([
       ["2026-10-06T00:00:00Z", "2026-10-07T00:00:00Z", null, "all"],
     ]);
     expect(rangeButton().getAttribute("aria-label")).toBe("Date range for every page: Yesterday, 6 Oct 2026. Change");
@@ -456,7 +469,7 @@ describe("SR-1 the Portfolio reads the shared range", () => {
       fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Apply" }));
     });
     await settledScreen();
-    expect(client.calls.map((q) => [q.from, q.to])).toEqual([
+    expect(distinct(client.calls.map((q) => [q.from, q.to]))).toEqual([
       ["2026-10-06T00:00:00Z", "2026-10-07T00:00:00Z"],
       ["2026-09-30T00:00:00Z", "2026-10-07T00:00:00Z"],
     ]);
