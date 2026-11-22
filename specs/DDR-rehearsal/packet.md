@@ -113,3 +113,9 @@ their commands and shows the checker's first failing gate move G2 -> G3 -> G5 ->
   each reader's kind exist and never reads uploads): test 4a fails (no gate fails at all, so G3 is the only gate that sees
   the fault). M1 closed, coordinator-verified. Log `/opt/assetecon/evidence/DDR-rehearsal/build-2026-11-21/chain3.log`.
   Check-all: All 42 guards passed (blocking; 0 advisory, 0 warned)..
+
+## Rehearsal run (§5.1), 22 Nov
+
+- G9 failed on the 22 Nov rehearsal (`SCREEN` at `$.cash.text`): the expectation file predated 5c cash fix r6 (D-5C.29). A key-by-key diff of World A's served screen (same path as G9, `Stores.screen`) against the file's `screen` found one drifted path, `$.cash.text`; the cash table (rows, Billed column, total) already matched. Refreshed that one string to "Of $9,688.00 billed for October, $8,870.00 has been collected, $150.00 is paid but in transit and $668.00 is still outstanding." The fixture SHAs are unchanged (the XLSX and profile did not change).
+- Rerun of the checker only, on the existing `assetops_rehearsal_ddr1_test` with this branch's file: G1 to G10 all PASS, exit 0 (`/opt/assetecon/evidence/DDR-rehearsal/run-2026-11-22/check-rerun.log`).
+- DDR test files on `fix/ddr-expect-r6`: 26 passed, 1 failed. The failure is `test_5_no_code_for_the_new_layout`, which diffs `main...HEAD` and expects DDR's own branch changes (`rehearsal_check.py`, the profile); on a branch off post-merge main it fails by construction, not because of the cash text.
