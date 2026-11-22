@@ -67,8 +67,10 @@ def test_the_three_checks_are_live_and_fail_on_an_empty_store(inputs) -> None:
 def test_the_checker_still_imports_nothing_from_the_simulator() -> None:
     import ast
     tree = ast.parse((ROOT / "tools" / "dd_check.py").read_text(encoding="utf-8"))
+    inside = {id(n) for f in ast.walk(tree) if isinstance(f, ast.FunctionDef) and f.name == "check_property_table_parity"
+              for n in ast.walk(f)}  # C-DD21's one function imports the writer's table (DD3.1)
     names = {n.module if isinstance(n, ast.ImportFrom) else a.name
-             for n in ast.walk(tree) if isinstance(n, (ast.Import, ast.ImportFrom))
+             for n in ast.walk(tree) if isinstance(n, (ast.Import, ast.ImportFrom)) and id(n) not in inside
              for a in (n.names if isinstance(n, ast.Import) else [n])}
     assert not [x for x in names if x and ("simulator" in x or "world" in x)]
 

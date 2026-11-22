@@ -98,7 +98,7 @@ def test_stubs_fail_naming_their_unit(inputs) -> None:
     stubs = tuple(c for c in dd_check.ORDER if c in dd_check.STUBS)
     results = dd_check.run(inputs, stubs)
     assert [r.check for r in results] == list(stubs) and not any(r.passed for r in results)
-    assert set(dd_check.STUBS) | {"C-DD1", "C-DD2", "C-DD3", "C-DD4", "C-DD13"} == set(dd_check.ORDER)
+    assert set(dd_check.STUBS) | {"C-DD1", "C-DD2", "C-DD3", "C-DD4", "C-DD11", "C-DD12", "C-DD13", "C-DD16", "C-DD21"} == set(dd_check.ORDER)
     assert dd_check.stub("C-DD5").detail == ["not live: its unit DD4.4 has not landed"]
 
 
@@ -109,8 +109,12 @@ def test_unknown_check_is_a_usage_error(capsys) -> None:
 
 def test_checker_shares_no_module_with_the_generators() -> None:
     tree = ast.parse((ROOT / "tools/dd_check.py").read_text(encoding="utf-8"))
-    names = {a.name for n in ast.walk(tree) if isinstance(n, ast.Import) for a in n.names}
-    names |= {n.module for n in ast.walk(tree) if isinstance(n, ast.ImportFrom) and n.module}
+    # C-DD21 compares the writer's table with the backend's, so its one function imports the writer's `telemetry`
+    # (DD3.1); every other function and the module level stay free of it.
+    inside = {id(n) for f in ast.walk(tree) if isinstance(f, ast.FunctionDef) and f.name == "check_property_table_parity"
+              for n in ast.walk(f)}
+    names = {a.name for n in ast.walk(tree) if isinstance(n, ast.Import) and id(n) not in inside for a in n.names}
+    names |= {n.module for n in ast.walk(tree) if isinstance(n, ast.ImportFrom) and n.module and id(n) not in inside}
     banned = ("assetops_simulator", "simulator", "world", "world_history", "walk_world", "check_manifest",
               "check_alignment", "generate", "exports")
     assert not [n for n in names if n.split(".")[0] in banned], names
