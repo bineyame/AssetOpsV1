@@ -1,0 +1,353 @@
+{
+ "input_class": "SIMULATED",
+ "evidence_class": "MODELLED",
+ "commit": "f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1",
+ "model": "mini-grid/8",
+ "season": "v2",
+ "season_inputs_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+ "trajectory_digests": {
+  "site": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+ },
+ "assumptions": [
+  "fixture"
+ ],
+ "admission_rule": [
+  "fixture"
+ ],
+ "status": "CALIBRATED",
+ "window_start": "2026-09-30T21:00:00Z",
+ "days": 31,
+ "frame": {
+  "kind": "SITE_RECORD",
+  "tenant": "lakeside-power",
+  "site_code": "KOBO-001"
+ },
+ "baseline": {
+  "case_id": "baseline",
+  "stop_soc_pct": {
+   "exact": "90/1"
+  },
+  "reserve_soc_pct": {
+   "exact": "30/1"
+  },
+  "avoided_l_by_month": [
+   {
+    "month": "2026-10",
+    "days": 31,
+    "value": {
+     "exact": "0/1"
+    }
+   }
+  ],
+  "added_throughput_kwh_by_month": [
+   {
+    "month": "2026-10",
+    "days": 31,
+    "value": {
+     "exact": "0/1"
+    }
+   }
+  ],
+  "unserved_kwh": {
+   "exact": "0/1"
+  },
+  "reserve_breach_steps": 0,
+  "max_starts_in_a_day": 2,
+  "longest_days_without_full_charge": 4,
+  "worst_dawn_soc_pct": {
+   "exact": "69/2"
+  },
+  "dawn_days_below": 4,
+  "new_dawn_days_below": []
+ },
+ "cases": [
+  {
+   "case_id": "stop-90-reserve-25",
+   "stop_soc_pct": {
+    "exact": "90/1"
+   },
+   "reserve_soc_pct": {
+    "exact": "25/1"
+   },
+   "avoided_l_by_month": [
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "5/1"
+     }
+    }
+   ],
+   "added_throughput_kwh_by_month": [
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "0/1"
+     }
+    }
+   ],
+   "unserved_kwh": {
+    "exact": "0/1"
+   },
+   "reserve_breach_steps": 0,
+   "max_starts_in_a_day": 3,
+   "longest_days_without_full_charge": 5,
+   "worst_dawn_soc_pct": {
+    "exact": "69/2"
+   },
+   "dawn_days_below": 4,
+   "new_dawn_days_below": [],
+   "admission": {
+    "admitted": true,
+    "first_failing_part": null,
+    "parts": [
+     {
+      "name": "energy_not_served",
+      "case_value": {
+       "exact": "0/1"
+      },
+      "baseline_value": {
+       "exact": "0/1"
+      },
+      "limit": null,
+      "judged": "RELATIVE",
+      "passed": true
+     },
+     {
+      "name": "reserve_breaches",
+      "case_value": {
+       "exact": "0/1"
+      },
+      "baseline_value": {
+       "exact": "0/1"
+      },
+      "limit": null,
+      "judged": "RELATIVE",
+      "passed": true
+     },
+     {
+      "name": "starts",
+      "case_value": {
+       "exact": "3/1"
+      },
+      "baseline_value": {
+       "exact": "2/1"
+      },
+      "limit": {
+       "exact": "6/1"
+      },
+      "judged": "ABSOLUTE",
+      "passed": true
+     },
+     {
+      "name": "full_charge",
+      "case_value": {
+       "exact": "5/1"
+      },
+      "baseline_value": {
+       "exact": "4/1"
+      },
+      "limit": {
+       "exact": "6/1"
+      },
+      "judged": "ABSOLUTE",
+      "passed": true
+     }
+    ]
+   }
+  },
+  {
+   "case_id": "stop-60-reserve-30",
+   "stop_soc_pct": {
+    "exact": "60/1"
+   },
+   "reserve_soc_pct": {
+    "exact": "30/1"
+   },
+   "avoided_l_by_month": [
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "150/1"
+     }
+    }
+   ],
+   "added_throughput_kwh_by_month": [
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "100/1"
+     }
+    }
+   ],
+   "unserved_kwh": {
+    "exact": "0/1"
+   },
+   "reserve_breach_steps": 0,
+   "max_starts_in_a_day": 3,
+   "longest_days_without_full_charge": 5,
+   "worst_dawn_soc_pct": {
+    "exact": "69/2"
+   },
+   "dawn_days_below": 4,
+   "new_dawn_days_below": [],
+   "admission": {
+    "admitted": true,
+    "first_failing_part": null,
+    "parts": [
+     {
+      "name": "energy_not_served",
+      "case_value": {
+       "exact": "0/1"
+      },
+      "baseline_value": {
+       "exact": "0/1"
+      },
+      "limit": null,
+      "judged": "RELATIVE",
+      "passed": true
+     },
+     {
+      "name": "reserve_breaches",
+      "case_value": {
+       "exact": "0/1"
+      },
+      "baseline_value": {
+       "exact": "0/1"
+      },
+      "limit": null,
+      "judged": "RELATIVE",
+      "passed": true
+     },
+     {
+      "name": "starts",
+      "case_value": {
+       "exact": "3/1"
+      },
+      "baseline_value": {
+       "exact": "2/1"
+      },
+      "limit": {
+       "exact": "6/1"
+      },
+      "judged": "ABSOLUTE",
+      "passed": true
+     },
+     {
+      "name": "full_charge",
+      "case_value": {
+       "exact": "5/1"
+      },
+      "baseline_value": {
+       "exact": "4/1"
+      },
+      "limit": {
+       "exact": "6/1"
+      },
+      "judged": "ABSOLUTE",
+      "passed": true
+     }
+    ]
+   }
+  },
+  {
+   "case_id": "stop-60-reserve-25",
+   "stop_soc_pct": {
+    "exact": "60/1"
+   },
+   "reserve_soc_pct": {
+    "exact": "25/1"
+   },
+   "avoided_l_by_month": [
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "250/1"
+     }
+    }
+   ],
+   "added_throughput_kwh_by_month": [
+    {
+     "month": "2026-10",
+     "days": 31,
+     "value": {
+      "exact": "150/1"
+     }
+    }
+   ],
+   "unserved_kwh": {
+    "exact": "0/1"
+   },
+   "reserve_breach_steps": 0,
+   "max_starts_in_a_day": 3,
+   "longest_days_without_full_charge": 8,
+   "worst_dawn_soc_pct": {
+    "exact": "69/2"
+   },
+   "dawn_days_below": 4,
+   "new_dawn_days_below": [],
+   "admission": {
+    "admitted": false,
+    "first_failing_part": "full_charge",
+    "parts": [
+     {
+      "name": "energy_not_served",
+      "case_value": {
+       "exact": "0/1"
+      },
+      "baseline_value": {
+       "exact": "0/1"
+      },
+      "limit": null,
+      "judged": "RELATIVE",
+      "passed": true
+     },
+     {
+      "name": "reserve_breaches",
+      "case_value": {
+       "exact": "0/1"
+      },
+      "baseline_value": {
+       "exact": "0/1"
+      },
+      "limit": null,
+      "judged": "RELATIVE",
+      "passed": true
+     },
+     {
+      "name": "starts",
+      "case_value": {
+       "exact": "3/1"
+      },
+      "baseline_value": {
+       "exact": "2/1"
+      },
+      "limit": {
+       "exact": "6/1"
+      },
+      "judged": "ABSOLUTE",
+      "passed": true
+     },
+     {
+      "name": "full_charge",
+      "case_value": {
+       "exact": "8/1"
+      },
+      "baseline_value": {
+       "exact": "4/1"
+      },
+      "limit": {
+       "exact": "6/1"
+      },
+      "judged": "ABSOLUTE",
+      "passed": false
+     }
+    ]
+   }
+  }
+ ]
+}

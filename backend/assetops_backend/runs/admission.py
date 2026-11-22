@@ -21,6 +21,7 @@ from assetops_backend.runs.replay_study import EVIDENCE_CLASS, INPUT_CLASSES, Ca
 
 ADMISSION_PARTS = ("energy_not_served", "reserve_breaches", "starts", "full_charge")  # this order
 JUDGED = frozenset({"RELATIVE", "ABSOLUTE", "RELATIVE_BASELINE_FAILS"})
+DAWN_LIMIT_PCT = Fraction(35)  # the dawn limit's one home (D-P6.22); information, never a gate
 
 
 @dataclass(frozen=True)
@@ -49,6 +50,21 @@ class AdmissionPart:
     def __post_init__(self) -> None:
         if self.name not in ADMISSION_PARTS or self.judged not in JUDGED:
             raise ValueError("ADMISSION_PART_INVALID")
+
+
+@dataclass(frozen=True)
+class AdmissionMeasures:
+    """The four measures the rule judges (6c §3.2), so a stored study can be judged without its projection."""
+
+    unserved_kwh: Fraction
+    reserve_breach_steps: int
+    max_starts_in_a_day: int
+    longest_days_without_full_charge: int
+
+    @classmethod
+    def of(cls, case: CaseOutcome) -> "AdmissionMeasures":
+        return cls(case.unserved_kwh, case.reserve_breach_steps, case.max_starts_in_a_day,
+                   case.longest_days_without_full_charge)
 
 
 @dataclass(frozen=True)
@@ -99,16 +115,10 @@ def _dawn(case: CaseOutcome, dawn_limit_pct: Fraction) -> DawnInformation:
     return DawnInformation(worst, worst - dawn_limit_pct, len(below), below)
 
 
-def admit(baseline: CaseOutcome, case: CaseOutcome, rule: AdmissionRule = AdmissionRule(),
-          dawn_limit_pct: Fraction = Fraction(35)) -> Admission:
-    """The four parts of D-0K4.9 for `case` against `baseline` over the same days, and the dawn beside them."""
-    if not isinstance(baseline, CaseOutcome) or not isinstance(case, CaseOutcome):
-        raise TypeError("ADMISSION_INPUT_INVALID")
-    if not isinstance(rule, AdmissionRule) or type(dawn_limit_pct) is not Fraction:
-        raise TypeError("ADMISSION_INPUT_INVALID")
-    if baseline.input_class != case.input_class:
-        raise ValueError("ADMISSION_INPUT_CLASS_MISMATCH")
-    parts = (
+def judge(baseline: AdmissionMeasures, case: AdmissionMeasures,
+          rule: AdmissionRule = AdmissionRule()) -> tuple[AdmissionPart, ...]:
+    """The four parts of D-0K4.9 for `case` against `baseline`, in `ADMISSION_PARTS` order."""
+    return (
         _relative("energy_not_served", case.unserved_kwh, baseline.unserved_kwh),
         _relative("reserve_breaches", Fraction(case.reserve_breach_steps), Fraction(baseline.reserve_breach_steps)),
         _absolute("starts", Fraction(case.max_starts_in_a_day), Fraction(baseline.max_starts_in_a_day),
@@ -116,16 +126,31 @@ def admit(baseline: CaseOutcome, case: CaseOutcome, rule: AdmissionRule = Admiss
         _absolute("full_charge", Fraction(case.longest_days_without_full_charge),
                   Fraction(baseline.longest_days_without_full_charge), Fraction(rule.full_charge_every_days - 1)),
     )
+
+
+def admit(baseline: CaseOutcome, case: CaseOutcome, rule: AdmissionRule = AdmissionRule(),
+          dawn_limit_pct: Fraction = DAWN_LIMIT_PCT) -> Admission:
+    """The four parts of D-0K4.9 for `case` against `baseline` over the same days, and the dawn beside them."""
+    if not isinstance(baseline, CaseOutcome) or not isinstance(case, CaseOutcome):
+        raise TypeError("ADMISSION_INPUT_INVALID")
+    if not isinstance(rule, AdmissionRule) or type(dawn_limit_pct) is not Fraction:
+        raise TypeError("ADMISSION_INPUT_INVALID")
+    if baseline.input_class != case.input_class:
+        raise ValueError("ADMISSION_INPUT_CLASS_MISMATCH")
+    parts = judge(AdmissionMeasures.of(baseline), AdmissionMeasures.of(case), rule)
     return Admission(case_id=case.case_id, admitted=all(p.passed for p in parts), parts=parts,
                      dawn=_dawn(case, dawn_limit_pct), rule=rule, input_class=case.input_class)
 
 
 __all__ = [
     "ADMISSION_PARTS",
+    "DAWN_LIMIT_PCT",
     "JUDGED",
     "Admission",
+    "AdmissionMeasures",
     "AdmissionPart",
     "AdmissionRule",
     "DawnInformation",
     "admit",
+    "judge",
 ]

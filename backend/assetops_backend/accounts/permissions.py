@@ -71,6 +71,7 @@ COMMAND_ROLES: dict[str, tuple[str, ...]] = {
     "decision.prepare": (ANALYST,),
     "decision.one_off": (SITE_MANAGER, FINANCE),
     "decision.choose": (EXECUTIVE,),
+    "decision.evaluate": (ANALYST,),  # 6c (spec §4, E0): the analyst values the options
 }
 #: §3: a case event kind not listed above (any other kind) admits the Site manager only.
 OTHER_EVENT_ROLES: tuple[str, ...] = (SITE_MANAGER,)

@@ -85,3 +85,69 @@ def e1_base() -> MappingProxyType:
 
 
 E1_CHANGES = {"peak_kwh": change(-1000, "field-integrated"), "kwh_0000_0500": change(1000, "field-integrated")}
+
+
+# --- F1's decision (an injected lever, D-P6.21) and the decisions of C1 and E1 ------------------------------------
+
+import dataclasses  # noqa: E402
+import json  # noqa: E402
+from datetime import datetime, timezone  # noqa: E402
+from pathlib import Path  # noqa: E402
+from uuid import UUID  # noqa: E402
+
+from assetops_backend.decisions.models import SETTING_GRID_CHANGES  # noqa: E402
+from assetops_backend.decisions.records import DecisionRow, OneOffRow, OptionRow  # noqa: E402
+from assetops_backend.structure.levers import LEVERS, Lever, SettingAxis, grid, option_key  # noqa: E402
+
+FIXTURES = Path(__file__).resolve().parent / "fixtures" / "decisions"
+TENANT = UUID(int=0xA)
+SITE = UUID(int=0xB)
+PERSON = UUID(int=0xC)
+AT = datetime(2026, 11, 24, 9, 0, tzinfo=timezone.utc)
+CURRENT = {"stop_soc_pct": D(90), "reserve_soc_pct": D(30)}
+TEST_LEVER = Lever("test_stop_reserve", "MINI_GRID", "candidate_l", "SETTING_GRID",
+                   (SettingAxis("stop_soc_pct", (D(90), D(80), D(70), D(60)), "%"),
+                    SettingAxis("reserve_soc_pct", (D(30), D(25)), "%")),
+                   "stop-{stop_soc_pct}-reserve-{reserve_soc_pct}", ("candidate_l", "battery_throughput_kwh"))
+F1G_LEVER = dataclasses.replace(TEST_LEVER, axes=(SettingAxis("stop_soc_pct", (D(90), D(60)), "%"),
+                                                  TEST_LEVER.axes[1]))
+TEST_GRID = {"test_stop_reserve": SETTING_GRID_CHANGES["generator_stop_reserve"]}
+
+
+def decision_of(lever: Lever | None, structure_key: str = "MINI_GRID", current=None, keys=(), period="2026-10"):
+    """A decision and its options in position order: no action first, then the lever's grid minus today."""
+    current = CURRENT if current is None else current
+    did = UUID(int=0xD)
+    row = DecisionRow(did, TENANT, SITE, structure_key, "none" if lever is None else lever.lever_id,
+                      "contribution" if lever is None else lever.purpose_factor, None, period, 12, dict(current),
+                      "decision-prepare-1", PERSON, "ANALYST", True, AT)
+    options = [OptionRow(UUID(int=0x100), TENANT, did, "no-action", "NO_ACTION", dict(current), 0)]
+    points = [] if lever is None else [p for p in grid(lever) if dict(p) != dict(current)]
+    for point in points:
+        options.append(OptionRow(UUID(int=0x100 + len(options)), TENANT, did, option_key(lever, point),
+                                 "SETTING_GRID", dict(point), len(options)))
+    for key in keys:
+        options.append(OptionRow(UUID(int=0x100 + len(options)), TENANT, did, key, "SETTING_GRID", {}, len(options)))
+    return row, tuple(options)
+
+
+def one_off_of(option: OptionRow, amount="90.00", currency="USD") -> OneOffRow:
+    return OneOffRow(UUID(int=0x200 + option.position), TENANT, option.id, D(amount), currency, 0,
+                     "Technician sets the controller on a routine visit", PERSON, "SITE_MANAGER", True, AT)
+
+
+def study_doc(name: str = "study-f1.json") -> dict:
+    return json.loads((FIXTURES / name).read_text())
+
+
+def write_study(tmp_path: Path, doc: dict, name: str = "study.json") -> Path:
+    path = tmp_path / name
+    path.write_text(json.dumps(doc))
+    return path
+
+
+def case_doc(doc: dict, case_id: str) -> dict:
+    return next(c for c in doc["cases"] if c["case_id"] == case_id)
+
+
+REAL_LEVER = LEVERS["generator_stop_reserve"]
