@@ -1,9 +1,9 @@
-# DD3b review packet (DD3b1 + its D-DD.145 fix round; DD3b2 part 1 of the writer, PARTIAL)
+# DD3b review packet (DD3b1 + its D-DD.145 fix round; DD3b2 writer and model steps; dd_check and pure runs of Kisiwa/Mto PARTIAL)
 
 Branch `task/DD3b-mini-plant` (worktree `/opt/assetecon/AssetOpsV1-dd3b`), base main `6e3c02ab5`. Part 1 of 3
 (D-DD.142: DD3b1 2.0 u). Scope: D-DD.127 and spec DD §4.3, in `simulator/assetops_simulator/packs/mini_grid.py` and
 tests only. DD3b2 (writer units, D-DD.97/104/126/128/129/132) and DD3b3 (D-DD.92/130/131) follow.
-`USER_REVIEW_REQUIRED`: no (no screen, no figure moved; the owner-approved D-DD.97 lands in DD3b2).
+`USER_REVIEW_REQUIRED`: no (no screen; the figures moved are the owner-approved D-DD.97 and D-DD.104, below).
 
 ## What was built
 
@@ -76,11 +76,52 @@ tests only. DD3b2 (writer units, D-DD.97/104/126/128/129/132) and DD3b3 (D-DD.92
   `test_dd3_datasheet_check.py`, `test_dd1_check.py` 34 passed after the F re-pin. Architecture guard passed;
   statement catalogue exit 0. No Postgres run yet (DD3b2 incomplete; one `--db-lane` run at its end).
 
+## DD3b2 writer and model steps (D-DD.97, .104, .126, .129, .145, .146)
+
+Commits `08edaab94` (code + tests), `71badcc41` (callers, re-pins). All in `simulator/assetops_simulator/world/telemetry.py`:
+- `Need.per_unit` / `Need.version`: generator curve keys and `inverter-ac-limit` per unit; policy rows (start/stop
+  SOC, runtime, delay) from the lead unit only (first by code, D-DD.43); `pv-array-share` v9 only, % / 100 -> "1".
+- `pack_version`: v8 with one generator and one inverter (Kobo), else v9 (Kisiwa, Mto); `SiteRun.pack` feeds the
+  manifest's `pack`. Per unit: GENERATION + FUEL_SUPPLY per generator, PV_SOURCE per inverter, `generator-state`
+  STOPPED per generator, on v9 `inverter-state` AVAILABLE per inverter. `supported()` per D-DD.129.
+- `UNIT_EVENTS` (D-DD.126, 4 rows, `M` operations parity test); one-minute WINDOW forcings `unit-fail@<unit>` /
+  `unit-restore@<unit>`; a generator's state row of the step holding the event starts at the instant;
+  `conditions.unit_events` and `conditions.unit_event_timing` (D-DD.145's sentence verbatim). Inverter state is not
+  emitted (D-DD.146); `_resolve` binds the per-unit roles one row per unit.
+- Ledger: each generator's litres on its own curve, summed; a missing unit output or state refuses `TEL_PACK`.
+- `SEASON_V2_SUN_SITES = ("KOBO-001",)`; D-DD.97's `res` shape + `conditions.load_shape_basis`; D-DD.104 warm-up
+  (`warm_up_soc`, `conditions.start_soc`, the 40 % default deleted).
+- Defaults refused: `sun_weights`, `fuel_notes` (`TEL_BOOKS`); no expenses file for a mini-grid tenant
+  (`TEL_BOOKS`); an empty state map (`TEL_BINDING`, mini and vertical frames; every committed map is non-empty);
+  a Site with no binding is F's `unbound` list and a `not_written` manifest line. `DEFAULT_DAY_WEIGHTS` moved into
+  `test_dd3_telemetry.py`; `DEFAULT_SUN_WEIGHTS` is kept only for tests' hand-made books (parity-pinned).
+
+Tests first: `test_dd3b2_units.py` +16 (16 failed before the code: refusals not raised, MTO "needs exactly one
+INVERTER", the old `res` tuple, no `unit_events`; reasons kept in the session log), 19 pass after. Simulator reach
+(`test_dd3_telemetry`, `_site_inputs_cli`, `test_dd4_span_end`, `test_telemetry_join_parity`, `test_mini_grid_v9`,
+`test_scope_seasons_parity`, `test_3a3_exports`, `test_dd2_*`, `test_dd2b_*`, `test_dd4_telemetry_cold`,
+`test_dd4_thika_incident`, `test_decide_v8`, `test_cycle_charge_split`, `test_dd3b2_units`): 222 passed, 47 s,
+revision `71badcc41`. Re-pins: four `test_mini_grid_v9.py` multi-unit cases start at a stated 40 % (`_kobo_at_40`,
+their own scenario; the warm-up start leaves no generator run on 1-2 Oct); W1's join golden regenerated from the
+writer (kernel and pack v8 equal main's; `source` names the revision).
+
 ## Moved figures
 
-No world figure yet. Pins moved: Lakeside's F digest `4e36563d...` -> `25345568...` (tank ratings and the kit enter
-the foundation; D-DD.93 re-pin). DD3b1 changes no writer input and no world figure: Kobo's fuel, candidate and bridge are DD3b2/DD3b3's
-(D-DD.97, D-DD.104, D-DD.131).
+Kobo, `tools/dd3_pure_run.py --books <exports>` (no-load 0.62, 1 Jul-31 Oct), before (`3aa165f67`) -> after (`71badcc41`):
+
+| Kobo | before | after | D-DD.97 projection |
+|---|---|---|---|
+| Oct burned | 507.86 L | 514.22 L | 514.22 L |
+| Oct consumption (burned + 120 L draw) | 627.86 L | 634.22 L | about 634 L |
+| Oct stand-in candidate | 42.03 L | 24.56 L | 24.56 L |
+| CANDIDATE_RUNNING bridge at 1.25 $/L | -52.54 | -30.70 | about -30.70 |
+| Oct generator hours | 51.17 | 51.33 | 51.3 |
+| Jul burned | 37.38 L | 0.00 L | 0 (D-DD.104) |
+| Sep burned / candidate | 751.90 / 59.75 L | 762.20 / 39.92 L | |
+| Starting SOC (1 Jul) | 40 % | 437916/7277 = 60.18 % | about 60.4 % (old shape) |
+
+Nothing fitted: the shape is D-DD.97's tuple, the SOC the warm-up's exact value. Pins moved earlier: Lakeside's F
+digest `4e36563d...` -> `25345568...` (D-DD.128).
 
 ## Known Deviations
 
@@ -103,11 +144,14 @@ the foundation; D-DD.93 re-pin). DD3b1 changes no writer input and no world figu
 
 5. **`/1` file unchanged (D-DD.128 says `/2` and `/1`).** `lakeside-power.v1.onboarding.json` carries no properties
    for any Site (format 1 has ratings only) and the writer SKIPs `/1`; adding the kit there would invent a shape.
-   Question for the Architect: confirm `/2` alone.
+   The coordinator confirmed: the kit is in `/2` alone (kept here for the reviewer).
+7. `generator_minutes` in the ledger counts unit-minutes (each running unit); only the pure-run table reads it.
+8. A Site with no binding is carried in F as `unbound` (written only when non-empty, so committed F digests hold)
+   rather than as a Site entry, because F's readers take every `sites` entry as bound.
 6. **D-DD.146 applied to the plan**: C-DD6's Kisiwa (state evidence) and Mto (power evidence) clauses go live in
    DD3b2's step 8 (handoff); not yet built.
 
 ## Next
 
-DD3b2: writer units (`supported()`, `NEEDS` `per_unit`, v8/v9 by Site, `UNIT_EVENTS` table with `M` parity, the
-kit and tank ratings, sun calendar, hidden defaults, D-DD.97 shape, D-DD.104 warm-up), the pure runs, C-DD21.
+DD3b2 rest (handoff "Next"): `tools/dd_check.py` C-DD6 evidence and the Kisiwa/Mto clauses, `--pure`, C-DD21's
+v9 row; `dd3_pure_run.py --site` and the Kisiwa/Mto pure runs; the one `--db-lane` reach run. Then DD3b3.

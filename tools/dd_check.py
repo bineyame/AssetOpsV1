@@ -664,7 +664,8 @@ def check_property_table_parity(inputs: Inputs) -> Result:
     frozen = frozen_world_inputs(base_run(1, version=8, site_edit=season_site_v2))
     backend = {r.state_key: (r.address.split("@")[0], r.canonical_unit, r.dimension, r.parameter_id.removeprefix("model-need:"))
                for r in frozen.initial_values if r.answered_by == "SITE_FOUNDATION"}
-    table = {n.state_key: (n.state_key, n.unit, n.dimension, n.property_key) for n in telemetry.NEEDS}
+    table = {n.state_key: (n.state_key, n.unit, n.dimension, n.property_key) for n in telemetry.NEEDS
+             if n.version in (None, 8)}  # Kobo's v8 rows; the v9-only rows are DD3b2's Kisiwa row check (next)
     detail = [f"{k}: backend {backend.get(k)} != writer {table.get(k)}" for k in sorted(set(backend) | set(table))
               if backend.get(k) != table.get(k)]
     needs = set(MINI_GRID_V8_MODEL.foundation_needs)
