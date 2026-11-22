@@ -284,3 +284,25 @@ loop-decisions.js, loop-portfolio.js, index.html, fixture-mapping.md, derivation
 - `check_manifest.py` at `d346ddd36`: `7475 checks passed (2880 history checks), 337 failed`: anchors() 308, documents() 4, K11 18
   (units 2-3); outside them: **H4b x6** (Kobo Jul-Sep plan/actual: the independent model still writes MODEL_PENDING slice `0K4e`,
   the evaluator `0K4f` per D-0K4.44: a model-side fix) and H9 (set in closing commit 6, D-0K4.43). Param failures gone.
+
+## Commit 2b, evaluator side (rev 4; `c15e10d0d`, K13 `e96751d0b`)
+
+- Seam as main's (§2.3a): structures, factor_map, leaf_sources, home_categories.nodes, bridge_drivers, Kobo bridge rows and
+  finding from main; Kobo factor_sources, MODEL_PENDING and the 0K4f queued row out; `forward_baseline.MINI_GRID`
+  `admission_parts_failed: "0"`; KOB changes on `candidate_l`, KIS-BATT60 on `necessary_l`; money factors and lever as main;
+  Kobo/Kisiwa/Mto hand-typed bridge litres replaced by `{fig:}` actual/plan placeholders; OR-MG-1 rev 4 words;
+  vertical-factor-map.md lever back. My own comparison: all 11 K13 parts equal main's canonical hashes.
+- Evaluator: D-0K4.46 (protective no-candidate takes none; entry `{chosen: null, admissible: [], how: "no candidate: ..."}`;
+  P24 probe on Kisiwa PASS, evidence 2b/plant_p24.py), D-0K4.48 (sensitivity null when not available or money_changes false),
+  MODEL_PENDING code removed. D-0K4.47 already held. Plan figures unchanged (3,660.00 / 2,213.33).
+- K13 added in check_manifest.py as `product_parity()` after `replay_sources()` (not inside section 15; literals from main at
+  1d4713cc8). P23 (`generator_l: "record.diesel_l | 0"` plus its leaf_sources row) fails K13 factor_map and leaf_sources;
+  P26 as specified (nulling candidate_l) crashes BOTH models in history (Kobo's contribution becomes not available; the
+  evaluator at `evaluate_history` series, the model `Unresolved: not a number: None`) before K13 runs; variant P26b
+  (`candidate_l: "0"` override) fails K13 on dv sites, portfolio, history and mr sites. P23 with `record.diesel_l` alone also
+  crashes the model (history has no diesel_l). Evidence /opt/assetecon/evidence/0K4m/2b/.
+- check_manifest at `e96751d0b` (after merging model side 036b880ae): `7488 checks passed (2868 history checks), 303 failed`.
+  Outside anchors()/documents()/K11: H9; K10 (left, coordinator); `evaluator options.MTO-INV-CLAIM/BUYNOW.sensitivities.
+  diesel_minus_20pct: None != -230.0 / -2910.0` (spec ambiguity: D-0K4.48 says those read null; the model nulls only on value null).
+- Product-parity run (8 files, DB URL unreachable): fails exactly `test_3b1_structure_registry.py::test_t1_leaf_sources_absence_and_words_equal_the_manifest`
+  and `test_3b3_structure_evaluate.py::test_t6_each_state_yields_its_leaf_value_on_its_own_record`; the other six files pass.
