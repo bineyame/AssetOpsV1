@@ -29,6 +29,7 @@ W1_BOOKS = {
     "fuel_notes": [{"at": "2026-07-01T10:00:00+03:00", "litres": 400},
                    {"at": "2026-07-05T10:00:00+03:00", "litres": 400}],
     "day_weights": {"classes": {"WD": [1, 2, 3, 4, 5], "SA": [6], "SU": [7]}, "WD": "1.00", "SA": "0.97", "SU": "0.90"},
+    "sun_weights": tel.DEFAULT_SUN_WEIGHTS,  # D-DD.129: a required key (W1 ran on the default)
 }
 W1_ROWS = {
     "FUEL_TANK": [("tank-capacity", "2500", "L")],

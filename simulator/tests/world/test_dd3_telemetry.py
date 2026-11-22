@@ -45,11 +45,16 @@ def _kobo(sites_file: dict) -> dict:
     return kobo
 
 
+#: `demand` family day weights by day class (`history.families.demand.day` of the manifest); this test's own
+#: (D-DD.129 moved it out of the writer).
+DAY_WEIGHTS = {"classes": {"WD": [1, 2, 3, 4, 5], "SA": [6], "SU": [7]}, "WD": "1.00", "SA": "0.97", "SU": "0.90"}
+
+
 def _books(first_note_l: int = 100, delivered_kwh: int = 8592, unexplained_l: int = 12) -> dict:
     return {"KOBO-001": {
         "months": {"2026-07": {"delivered_kwh": delivered_kwh, "unexplained_l": unexplained_l}},
         "fuel_notes": [{"at": "2026-07-01T10:00:00+03:00", "litres": first_note_l}],
-        "day_weights": tel.DEFAULT_DAY_WEIGHTS}}
+        "day_weights": DAY_WEIGHTS, "sun_weights": tel.DEFAULT_SUN_WEIGHTS}}
 
 
 def test_site_inputs_joins_the_foundation_with_its_bindings(sites_file: dict) -> None:
@@ -241,7 +246,7 @@ def test_books_carry_the_views_solar_surplus_weights() -> None:
                      "solar_surplus": {"season": {"cool_dry": "0.70"}, "day": {"WD": "1.00", "SA": "1.00", "SU": "0.50"}}}},
         "tenants": [{"tenant": "t", "vertical": "MINI_GRID",
                      "sites": [{"site": "s", "code": "X-001", "period": {"actual": {"delivered_kwh": 1}}}]}]}
-    sun = tel.books_for(view, {"tenants": {"t": {"s": {}}}}, {})["X-001"]["sun_weights"]
+    sun = tel.books_for(view, {"tenants": {"t": {"s": {}}}}, {"t": ""})["X-001"]["sun_weights"]
     assert sun == {"seasons": {"2026-07": "cool_dry"}, "classes": {"WD": [1, 2, 3, 4, 5], "SA": [6], "SU": [7]},
                    "season": {"cool_dry": "0.70"}, "day": {"WD": "1.00", "SA": "1.00", "SU": "0.50"}}
 

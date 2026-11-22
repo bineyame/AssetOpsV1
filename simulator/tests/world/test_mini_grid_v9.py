@@ -31,7 +31,7 @@ INVERTER_STATE = "inverter-state"
 @pytest.fixture(scope="module")
 def books() -> dict:
     history = json.loads((LAYER4 / "history.json").read_text(encoding="utf-8"))
-    return tel.books_for(load_fixture(), history, {})["KOBO-001"]
+    return tel.books_for(load_fixture(), history, {"lakeside-power": ""})["KOBO-001"]
 
 
 def _v9(frozen, *, inverters: tuple[str, ...] = ("pv-inverter",)):
