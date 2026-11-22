@@ -38,10 +38,13 @@ class SiteValue:
 
 
 class UnitRolesRefused(ValueError):
-    def __init__(self, unit: str, detail: str) -> None:
-        super().__init__(f"{REFUSED_CODE}: {detail}")
+    """Refusal record (code, unit, held policy keys); readers map it to their own refusal, no text here."""
+
+    def __init__(self, unit: str, held: Sequence[str]) -> None:
+        super().__init__(REFUSED_CODE, unit, tuple(held))
         self.code = REFUSED_CODE
         self.unit = unit
+        self.held = tuple(held)
 
 
 def _missing(values: Mapping[str, Any]) -> tuple[str, ...]:
@@ -106,8 +109,7 @@ def lead_policy(components: Sequence[Mapping[str, Any]]) -> dict[str, Mapping[st
     for unit in generators[1:]:
         held = sorted({p.get("property_key") for p in _properties(unit)} & set(POLICY_KEYS))
         if held:
-            raise UnitRolesRefused(str(unit.get("component_id")),
-                                   f"non-lead unit {unit.get('component_id')} carries policy {held}")
+            raise UnitRolesRefused(str(unit.get("component_id")), held)
     if not generators:
         return {}
     return {p["property_key"]: p for p in _properties(generators[0]) if p.get("property_key") in POLICY_KEYS}
