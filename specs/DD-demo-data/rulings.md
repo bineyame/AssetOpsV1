@@ -2529,3 +2529,89 @@ built from it until the owner approves.
     `interactive-mockup-vNEXT/`, the `EFFICIENCY_CONDITION` freeze and the parity re-pins
     (`backend/tests/golden/6h_parity.json` lists the moved figures). If approved, DD4b 4.75 → 5.75 u, DD 49.75 →
     50.75 u.
+
+# DD rulings, round 18 (D-DD.145): DD3b1 deviations 1-4 (unit events as forcings)
+
+Architect (Claude, DD lane), 2026-11-22. Read: `packet-DD3b.md` "Known Deviations" 1-4 on `task/DD3b-mini-plant`
+(f1f71ae65); `simulator/assetops_simulator/kernel/execute.py` `_forcing_index` (skips `end <= start`) and
+`_cause_index` (POINT causes at `point_due_at`); `world/telemetry.py` `STEP_MINUTES` 5; D-DD.75, D-DD.126,
+D-DD.127. The owner is informed; no owner weigh-in is needed (no story figure moves).
+
+- **D-DD.145 Unit events are one-minute WINDOW forcings read at the step that holds them; the kernel is unchanged.
+  Deviations 2-4 are confirmed** (model; amends D-DD.127's "POINT forcings" and spec §4.3 "Forcings").
+  - *Ruling on deviation 1: the builder's default.* A kernel that exposes POINT forcings is a version move at a
+    protected seam. It would reach every pack that reads forcings (mini-grid v1-v9, cold-thermal 1-2, EV), and its
+    proof would be a byte-parity golden over every pack's runs. It would buy nothing that the 5-minute step can
+    resolve: a POINT and a one-minute WINDOW both land on the one step `point-applied-once` names. So:
+    - the writer declares `UNIT_FAIL` / `UNIT_RESTORE <component>` as a WINDOW [t, t + 1 min), with t the instant
+      in `UNIT_EVENTS`;
+    - v9 applies it in `commit` at the start of the step that holds t;
+    - the unit's state-change event row is stamped **t itself** (18:40, 19:20, 11:00, 11:02), never the step start
+      or the next step, because C-DD6 and C-DD20 read the instant;
+    - the 5-minute sample at the failing step's start still shows the unit as it was, and the controller acts from
+      the next step;
+    - `conditions` gains "unit failures and restores apply at the 5-minute step holding their instant; the
+      controller responds at the next step (Assumed)". If the kernel ever exposes POINT forcings, `_unit_events`
+      reads them unchanged (the builder's note), and no figure moves.
+  - *Is the one-step lag honest for Kisiwa, 30 Oct 18:40 (D-DD.126)? Yes.* 18:40 is a step start, so GEN-KS-01 is
+    out for the whole 18:40-18:45 step, and GEN-KS-02 can be asked to start from 18:45. A controller detecting a
+    trip and bringing on the standby set takes a start delay, cranking and warm-up of about a minute to a few
+    minutes, so a response within 5 minutes is ordinary practice. The battery carries the gap. C-DD20's question
+    (unserved evening energy after 18:40) is unaffected. Mto's 11:02 is off the grid and applies from 11:00, two
+    minutes early, inside one 5-minute mean: the same quantisation every forcing in the writer has (D-DD.75), not a
+    claim. Its event row still reads 11:02.
+  - *Deviation 2, confirmed with a floor:* the requested generator power P = max(0, demand + the battery's charge
+    acceptance at T (taper and headroom, the pack's own limit) − available solar). This is v8's cycle-charging
+    intent, made numeric for choosing a set.
+  - *Deviation 3, confirmed:* on a fuel-limited multi-unit segment, each unit gets its rating share of the tank, and
+    where the no-load burn exceeds the tank, the litres are scaled to the tank. A unit test asserts the segment's
+    litres never exceed the tank. No Site reaches it.
+  - *Deviation 4, confirmed:* `UNIT_RESTORE` returns a generator to STOPPED (D-DD.127), and it can be asked to start
+    from the next step. Kisiwa's 17 Aug 11:00 restore therefore makes GEN-KS-01 startable from 11:05.
+  - *Units:* none. This is the default already built, plus a `conditions` line and the event-stamp test (DD3b1's fix
+    round or DD3b2, at the builder's choice).
+
+# DD rulings, round 19 (D-DD.146): C-DD6's Kisiwa and Mto clauses on the channels roles-5 admits
+
+Architect (Claude, DD lane), 2026-11-22. Read: `backend/conversions/world/KISIWA-001-bindings.json` and
+`MTO-001-bindings.json` (`minigrid-roles-5`; `generator_state` ENUM admits FAILED; no inverter state role),
+`COLD-THIKA-bindings.json`, `tools/dd_check.py` `judge_failures_at_instant`, spec §4.3, D-DD.45, D-DD.121,
+D-DD.127, D-DD.145. The owner is informed, and may weigh in on the inverter-state gap (last bullet).
+
+- **D-DD.146 No binding or role is added. C-DD6 asks each failure of the channel the product admits for that unit.
+  Kisiwa and Mto go live in DD3b, not PENDING** (model; amends D-DD.145's "event row", D-DD.121, spec §4.3
+  "Readings" and §8.1 C-DD6; the builder's defaults (a), (b) and (d) are confirmed, and (c) is changed).
+  - *Why the judge moves, not the bindings.* The class is that the judge reads one channel shape. Thika's GEN-CR-01
+    failure is a START_RESULT event, because its role set has `backup_start_event`. A mini-grid genset controller
+    reports the same fact as a status change, and roles-5 already admits that change (`generator_state` per unit,
+    FAILED in its map). An event channel added only so the judge finds an event would duplicate a fact already on
+    the unit's own channel. That would be bridging, and it would move roles-5's readiness (D-DD.45
+    `every_component` is true on the unit roles, so Kobo would show an unbound channel), DD3c's `unit_roles`
+    readers and the onboarding parity goldens, for no reader.
+  - *Rule (C-DD6, `judge_failures_at_instant`).* A clause names its evidence:
+    - `"evidence": "event"`: a value-null `event` row with outcome FAILED (Thika, unchanged).
+    - `"evidence": "state"`: a STATE row whose value is FAILED, starting at the clause minute, on the unit's own
+      `source_id`. In both cases no other source shows FAILED at that minute.
+    - Kisiwa: `{"site": "KISIWA-001", "unit": "GEN-KS-01", "source_id": "gen-ks-01-controller", "at":
+      "2026-10-30T18:40", "evidence": "state"}`. The 14 Aug 19:20 FAILED and the 17 Aug 11:00 STOPPED rows are
+      asserted in the same test as information.
+    - The writer starts that state row at the instant (D-DD.145), so "the event row carries the instant" now reads
+      "the unit's state row starts at the instant".
+  - *Mto: the inverter's fault is in its power, and the instant is the O&M record's.* Roles-5 binds per-inverter
+    `pv_power` and `pv_available_power`, with no state.
+    - The clause is `"evidence": "power"`: INV-MT-02's (`inv-mt-02-controller` `ac-power`) 5-minute mean is 0 from
+      the step holding 11:02 to the end of the span, while irradiance is above 0 and INV-MT-01's mean is above 0 at
+      that step. It is above 0 at the step before.
+    - The minute 11:02 itself is the book's (`M` operations, the O&M occurrence), not a reading. The judge's detail
+      says so.
+    - The pack's inverter state (D-DD.127) stays internal. The writer emits only bound channels.
+    - Spec §4.3 "Readings" becomes: "per unit device, power (5-minute mean); generator units also state on change;
+      inverter state is not emitted (roles-5 has no role for it, D-DD.146)".
+  - *(b) confirmed:* `conditions.unit_events` lists every unit event with its instant and source. It is information,
+    never admitted.
+  - *The gap, stated rather than bridged.* A real inverter reports a fault state, and the product has no role to
+    read one. The coordinator logs "inverter_state role (roles-6) and a reader" in `.agent/backlog-post-demo.md`
+    (not demo-critical: the Mto beat is the claim and the lost daytime supply, which power shows). The owner may
+    want it sooner.
+  - *Units:* +0.25 u in DD3b2 (the judge's evidence field, two clauses, tests on the writer's rows). DD3b 5.75 →
+    6.0 u, DD 50.75 → 51.0 u.
