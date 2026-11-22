@@ -115,6 +115,10 @@ class EvaluationService:
         if lever.generator not in modelled or any(o.generator not in modelled for o in options):
             raise DecisionRefused("LEVER_UNKNOWN")
         stated = lever.generator == STATED_OPTIONS
+        if stated:  # a stored option key that has left the catalogue has no model either
+            known = {o.key for o in lever.options}
+            if any(o.generator == STATED_OPTIONS and o.option_key not in known for o in options):
+                raise DecisionRefused("LEVER_UNKNOWN")
         if study_path is None and not stated:
             raise DecisionRefused("STUDY_REQUIRED")
         study: StudyInput | None = None

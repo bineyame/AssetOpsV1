@@ -89,3 +89,16 @@ def test_t1_runs_to_bounds_not_checked_with_no_study():
     assert (run.outcome, stopgap.disposition, stopgap.reason_code) == ("BOUNDS_NOT_CHECKED", "CONDITIONAL",
                                                                        "BOUNDS_NOT_CHECKED")
     assert len(by_option) == 3
+
+
+def test_a_stored_option_key_that_left_the_catalogue_is_refused_not_crashed():
+    """Review L3: an option renamed or removed after prepare refuses LEVER_UNKNOWN at E3, reading nothing."""
+    import dataclasses
+
+    w = _n1()
+    lever = w.service._levers["storage_contract"]
+    w.service._levers = {**w.service._levers, "storage_contract": dataclasses.replace(
+        lever, options=tuple(o for o in lever.options if o.key != "storage-contract"))}
+    with pytest.raises(DecisionRefused) as caught:
+        w.evaluate()
+    assert caught.value.code == "LEVER_UNKNOWN" and w.read.calls == [] and w.store.runs == []
