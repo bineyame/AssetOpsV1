@@ -54,7 +54,8 @@ def test_l2_a_unit_without_a_curve_gives_fuel_curve_missing() -> None:
 
 
 def test_l3_the_curve_window_is_the_units_intersection() -> None:
-    late = FuelCurve(Fraction(1, 2), SFC2, Fraction(2), "foundation:nl-2", (datetime(2026, 10, 15, tzinfo=d4.UTC), None))
+    late = FuelCurve(Fraction(1, 2), SFC2, Fraction(2), "foundation:nl-2",
+                     (datetime(2026, 10, 15, tzinfo=d4.UTC), None))
     month = month_litres(two_units(curve=late), d4.FB)
     assert month.values["unexplained_l"].missing.note == rules.FUEL_CURVE_MISSING
 
@@ -80,6 +81,9 @@ class Tx:
 
     def active_assets(self):
         return self.assets
+
+    def component_order(self, lo, hi):
+        return [a.asset_code for a in self.assets]
 
     def sfc_history(self, gen_id, lo, hi):
         from assetops_backend.mini_depth.rules import SfcValue

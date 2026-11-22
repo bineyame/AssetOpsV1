@@ -55,7 +55,7 @@ if URL:
     from assetops_backend.structure.registry import REGISTRIES
     from assetops_backend.structure.litres.inputs import day_state
     from assetops_backend.structure.litres.rules import (
-        ASSESSED, EDGE, ONE_EACH, DispatchDay, FuelCurve, LitreInputs, RunSpan, SpanUse, month_litres)
+        ASSESSED, EDGE, ONE_EACH, DispatchDay, FuelCurve, LitreInputs, RunSpan, SpanUse, UnitFuel, month_litres)
 
 
 def _model_3_2():
@@ -135,7 +135,7 @@ def _litres(assess, runner, k) -> dict[str, str]:
         for state in (day_state(d["available"], d["status"], d["selected"], d["accepted_reading_count"]),))
     use = lambda a, b: SpanUse(Fraction(30) * Fraction(int((b - a).total_seconds()), 3600), 0)  # noqa: E731
     curve = FuelCurve(Fraction(3, 10), "foundation:test", None, None, (lo - 2 * EDGE, None))
-    inp = LitreInputs("2026-10", lo, hi, k, ONE_EACH, days, use, lambda a, b: True, curve, ())
+    inp = LitreInputs("2026-10", lo, hi, k, ONE_EACH, days, (UnitFuel("gen", use, curve),), lambda a, b: True, ())
     filled_by = {f: REGISTRIES["MINI_GRID"].row(f).filled_by for f in ("necessary_l", "candidate_l", "unexplained_l")}
     month = month_litres(inp, filled_by)
     return {leaf: month.values[leaf].value for leaf in ("necessary_l", "candidate_l")}
