@@ -357,7 +357,11 @@ def test_t8_shipped_catalogue_loads():
                                          # 0K4a (D-0K4.19): mini-grid v8's description and restated fuel-tank state.
                                          "model_profile.description", "model_profile.state",
                                          # 0K4e (D-0K4.24): energy-cover entries.
-                                         "dispatch.energy_cover", "dispatch.energy_cover_cause"} | set(DEEP_DIVE_STATEMENTS)
+                                         "dispatch.energy_cover", "dispatch.energy_cover_cause",
+                                         # 6h (D-P6.58): the lever words of the named-option levers.
+                                         "decision_lever.title", "decision_lever.question", "decision_lever.no_action",
+                                         "decision_lever.option_label", "decision_lever.study",
+                                         "decision_lever.record"} | set(DEEP_DIVE_STATEMENTS)
     assert set(cat.vocabulary["en"]) == {"factor", "heading", "headline_subject", "record", "record_noun",
                                          "evidence", "unit", "noun", "month", "format", "action_state",
                                          "foundation_property", "dispatch_input", "reading_problem"}

@@ -211,3 +211,19 @@ decision `D-2026-10-31-board-action-refresh-lineage`; packet `archive/agent-hist
   `STRUCTURE_UNAVAILABLE` (adapter `decisions/adapters/structure_read.py`); `build_evaluation` run end to end on
   Lakeside KOBO-001 (ON1 stores no fuel price or wear rate, so every option names those records). Open: cli.py's
   broad composition catch (6a's).
+
+## 6h: named-option levers for every Site type (2026-11-22, `task/6h-named-option-levers`, in review)
+
+- `structure/levers.py` (`STATED_OPTIONS` generator, `LeverOption`, `ChangeSource` STUDY/RECORD) and nine named levers
+  (backup_cover, chamber_efficiency, storage_contract, charging_schedule, charger_restore, fleet_capacity_use,
+  generator_redundancy, productive_demand, fuel_reconciliation); the twelve §5.2 registry rows list them; `check_levers`
+  branches 15 to 22, `check_lever_paths` (every pinned Finding has a decision path or is pending); migration 0073
+  (`option_record`, widened generator and outcome checks); `decision_lever` words.
+- Evaluator: `difference(..., also=)` and `LeafChange.currency`; `stated_changes` (a document's level minus the
+  decision month's own leaf; missing is never 0); an option's own unrecorded leaf always makes its value null (D-P6.60);
+  evidence and source class include changed leaves (D-P6.61); protective levers (`bounds_required`) end
+  `BOUNDS_NOT_CHECKED` and recommend nothing. `state_option_record` command (`decision.option_record`, site manager or
+  finance), both stores, six new refusal codes. Parity golden (`tests/golden/6h_parity.json`) holds 6c and Kobo's
+  generator path byte for byte.
+- Open: 6f words for `OPTION_STUDY`/`OPTION_RECORD`; 6b bounds lift `BOUNDS_NOT_CHECKED`; EV simulation studies for
+  `charging_schedule` (S1 names them missing); packet Q1 to Q4.

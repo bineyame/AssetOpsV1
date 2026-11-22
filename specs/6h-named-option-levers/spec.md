@@ -1,6 +1,6 @@
 # 6h: named-option levers for every Site type (implementer spec, with its reviewer guide)
 
-**Status: rev 1, handshake answered (W4); buildable.** Architect (Claude), 2026-11-22. Demo-critical.
+**Status: in_review (built; packet.md).** Spec rev 1, handshake answered (W4); Architect (Claude), 2026-11-22. Demo-critical.
 **Rulings:** `specs/6f-decisions-screen/rulings.md` D-P6.51 to D-P6.58; this folder's `rulings.md` D-P6.59 to D-P6.67
 (the handshake, `handshake-review.md`). **Owner:** "Build 6h (Recommended)" and 6h Q3
 "Yes, +1.0 u" (`owner/owner-6f-q1-levers-2026-11-22.md`). **Why:** `specs/6f-decisions-screen/assessment-levers.md`.
