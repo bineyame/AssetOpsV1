@@ -141,8 +141,12 @@ class ColdLoadParameters:
     auxiliary_kw: Fraction
     field_heat_minutes: int = 360
     field_heat_target_degc: Fraction = Fraction(4)
+    #: D-DD.87: the chamber temperature is held on this grid (degC); the rounding is booked in `rounding_total`.
+    temperature_quantum: Fraction | None = None
 
     def __post_init__(self) -> None:
+        if self.temperature_quantum is not None and self.temperature_quantum <= 0:
+            raise PhysicallyUnacceptable(f"temperature quantum {self.temperature_quantum} is not positive")
         if self.cop <= 0:
             raise PhysicallyUnacceptable(f"cop {self.cop} is not positive")
         for name in ("respiration_kw_per_crate", "field_heat_kwh_per_crate_degc", "auxiliary_kw"):
@@ -155,7 +159,7 @@ class ColdLoadParameters:
 #: The DD world's values, all rooms (spec section 4.4's table; Assumed, written in the readings manifest).
 DD_LOAD_PARAMETERS = ColdLoadParameters(
     respiration_kw_per_crate=Fraction(15, 10000), field_heat_kwh_per_crate_degc=Fraction(37, 1800),
-    cop=Fraction(2), auxiliary_kw=Fraction(1))
+    cop=Fraction(2), auxiliary_kw=Fraction(1), temperature_quantum=Fraction(1, 1000000))
 
 
 @dataclass(frozen=True)
@@ -234,6 +238,8 @@ class ColdState:
     initial_temperature: Fraction = Fraction(0)
     heat_total: Fraction = Fraction(0)
     cool_total: Fraction = Fraction(0)
+    #: D-DD.87: thermal_capacity x (exact - gridded temperature), summed (kWh); 0 without a quantum
+    rounding_total: Fraction = Fraction(0)
     compressor_energy_slot: Fraction = Fraction(0)
     # public transition ordinals per event channel and correlation counters
     ordinals: tuple[tuple[str, int], ...] = ()
@@ -293,9 +299,10 @@ def check_move(kind: str, before: str, after: str) -> None:
 
 
 def check_residual(params: ColdParameters, state: ColdState) -> None:
-    """Stored thermal energy since the start must equal integrated heat minus cooling, exactly."""
+    """Stored thermal energy since the start must equal integrated heat minus cooling minus the booked grid
+    rounding (D-DD.87), exactly."""
     stored = params.thermal_capacity * (state.temperature - state.initial_temperature)
-    residual = stored - (state.heat_total - state.cool_total)
+    residual = stored - (state.heat_total - state.cool_total - state.rounding_total)
     if residual != 0:
         raise PhysicallyUnacceptable(f"energy residual {residual} kWh is not zero")
 
@@ -474,8 +481,15 @@ class ColdPack:
             if s.bus == "POWERED":
                 compressor_kw += self.load.auxiliary_kw
         t_next = s.temperature + (heat - cool) / self.p.thermal_capacity
+        rounding_total = s.rounding_total
+        if self.load is not None and self.load.temperature_quantum is not None:
+            q = self.load.temperature_quantum
+            t_grid = round(t_next / q) * q  # round half to even
+            rounding_total += self.p.thermal_capacity * (t_next - t_grid)
+            t_next = t_grid
         # 5. energy integration
         after = replace(s, minute=t + STEP, temperature=t_next, heat_total=s.heat_total + heat,
+                        rounding_total=rounding_total,
                         cool_total=s.cool_total + cool, compressor_energy_slot=s.compressor_energy_slot + compressor_kw,
                         ordinals=tuple(sorted(ordinals.items())))  # __post_init__ enforces [-40, 60]
         # 6. invariant

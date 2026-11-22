@@ -152,3 +152,46 @@ def test_full_room_at_capacity_runs_unclipped():
     # 6 kW cooling exceeds leak + 400 x respiration + one batch's field heat at 28 degC: the band holds
     assert max(temps) < 5 and min(temps) > Fraction(3, 2)
     assert all(v >= 1 for v in meter)  # auxiliary always on a powered bus; no value clipped to a cap
+
+
+# -- D-DD.87: the 10^-6 degC grid, the rounding booked in the energy ledger -------------------------------------
+
+def _crates_run(load: ColdLoadParameters, minutes: int):
+    forcings = (_f(0, "CRATES_IN", "room-1", "40"), _f(0, "DOOR_OPEN", "door-1", "OPEN"),
+                _f(5, "DOOR_CLOSE", "door-1", "CLOSED"), _f(0, "EFFICIENCY", "compressor-1", "21/20"))
+    return run_window(ColdPack(_params(), load=load), start=T0, end=_at(minutes), initial_temperature=Fraction(3),
+                      ambient=Fraction(24), forcings=forcings)
+
+
+def test_dd_load_parameters_declare_the_micro_degree_grid():
+    assert DD_LOAD_PARAMETERS.temperature_quantum == Fraction(1, 1000000)
+
+
+def test_every_step_temperature_is_on_the_grid_and_the_residual_holds():
+    from dataclasses import replace
+    run = _crates_run(DD_LOAD_PARAMETERS, 6 * 60)
+    for tr in run.transitions:
+        assert 1000000 % tr.after.temperature.denominator == 0
+    last = run.transitions[-1].after
+    assert last.rounding_total != 0
+    pack = ColdPack(_params(), load=DD_LOAD_PARAMETERS)
+    check_residual(pack.p, last)
+    # the ledger is exact: dropping the booked rounding breaks it
+    with pytest.raises(PhysicallyUnacceptable):
+        check_residual(pack.p, replace(last, rounding_total=Fraction(0)))
+
+
+def test_quantised_six_hours_match_exact_probe_readings_to_the_thousandth():
+    from dataclasses import replace
+    exact = _crates_run(replace(DD_LOAD_PARAMETERS, temperature_quantum=None), 6 * 60)
+    grid = _crates_run(DD_LOAD_PARAMETERS, 6 * 60)
+    assert exact.transitions[-1].after.rounding_total == 0
+
+    def probe(run):
+        return [(r.source_time, r.value) for r in run.records if r.device_id == "chamber-probe"]
+
+    pe, pg = probe(exact), probe(grid)
+    assert len(pe) == 6 * 60 // 5 + 1 and [t for t, _v in pe] == [t for t, _v in pg]
+    # Known deviation (packet): rounding both to 0.001 differs at one reading that sits 1.7e-6 degC from a
+    # half-thousandth; the readings themselves agree well inside a thousandth (measured max 2.9e-6 degC).
+    assert max(abs(a - b) for (_t, a), (_u, b) in zip(pe, pg)) < Fraction(1, 100000)
