@@ -8,3 +8,8 @@
 - DD rev 2 Q7, Kobo no-load fuel: "0.62 L/h, Assumed (Recommended)" - fitted to the FG Wilson P50-3 sheet's three stated points; replaces owner-fuel-scope-2026-11-07.md Q2's 3.3 L/h for Kobo's new kit.
 - DD rev 2 Q8, demo done: "Yes, after Q11 and Q12 (Recommended)".
 - DD rev 2 Q9, bills: "Bills follow the meter (Recommended)" - story figures move with the simulation, checked by direction, never tuned.
+
+## D-DD.76 tank sizes (later the same day)
+
+Asked: "Accept these tank sizes?" (Kobo 2,500 L, Kisiwa 5,000 L, Mto 1,000 L, starting half full; the 400 L was a template placeholder.)
+Owner answer: "Accept (Recommended)".
