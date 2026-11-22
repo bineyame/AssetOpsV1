@@ -18,6 +18,7 @@
      "obligation_hours_without_redundancy": 0.0,
      "shortfall_backed": 0.0,
      "obligation_hours_without_backup": 0.0,
+     "replayed_dawn_days_below_safeguard": 0.0,
      "asset_days_out_of_service": 0.0,
      "asset_days_total": 0.0,
      "asset_days_available": 0.0,
@@ -31,10 +32,8 @@
      "productive_tariff": 0.3,
      "in_transit": 0.0,
      "outstanding": 0.0,
-     "necessary_l": null,
-     "candidate_l": null,
-     "generator_l": 700.0,
-     "admission_parts_failed": 0.0,
+     "necessary_l": 700.0,
+     "candidate_l": 0.0,
      "unexplained_l": 0.0,
      "extra_l": 0.0,
      "diesel_price": 1.25,
@@ -54,10 +53,6 @@
      "standby_kw": 0.0,
      "lost_unit_kw": 0.0,
      "dawn_days_below": 0.0
-    },
-    "not_available": {
-     "necessary_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)",
-     "candidate_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)"
     }
    },
    "actual": {
@@ -75,6 +70,7 @@
      "obligation_hours_without_redundancy": 0.0,
      "shortfall_backed": 0.0,
      "obligation_hours_without_backup": 0.0,
+     "replayed_dawn_days_below_safeguard": 0.0,
      "asset_days_out_of_service": 0.0,
      "asset_days_total": 155.0,
      "asset_days_available": 155.0,
@@ -88,10 +84,8 @@
      "productive_tariff": 0.3,
      "in_transit": 0.0,
      "outstanding": 278.0,
-     "necessary_l": null,
-     "candidate_l": null,
-     "generator_l": 1060.0,
-     "admission_parts_failed": 0.0,
+     "necessary_l": 730.0,
+     "candidate_l": 330.0,
      "unexplained_l": 120.0,
      "extra_l": 0.0,
      "diesel_price": 1.25,
@@ -111,10 +105,6 @@
      "standby_kw": 0.0,
      "lost_unit_kw": 0.0,
      "dawn_days_below": 0.0
-    },
-    "not_available": {
-     "necessary_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)",
-     "candidate_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)"
     }
    }
   },
@@ -134,6 +124,7 @@
      "obligation_hours_without_redundancy": 0.0,
      "shortfall_backed": 0.0,
      "obligation_hours_without_backup": 0.0,
+     "replayed_dawn_days_below_safeguard": 0.0,
      "asset_days_out_of_service": 0.0,
      "asset_days_total": 0.0,
      "asset_days_available": 0.0,
@@ -149,8 +140,6 @@
      "outstanding": 0.0,
      "necessary_l": 2300.0,
      "candidate_l": 0.0,
-     "generator_l": 2300.0,
-     "admission_parts_failed": 0.0,
      "unexplained_l": 0.0,
      "extra_l": 0.0,
      "diesel_price": 1.3,
@@ -187,6 +176,7 @@
      "obligation_hours_without_redundancy": 10.0,
      "shortfall_backed": 0.0,
      "obligation_hours_without_backup": 10.0,
+     "replayed_dawn_days_below_safeguard": 0.0,
      "asset_days_out_of_service": 2.0,
      "asset_days_total": 124.0,
      "asset_days_available": 122.0,
@@ -202,8 +192,6 @@
      "outstanding": 270.0,
      "necessary_l": 2380.0,
      "candidate_l": 0.0,
-     "generator_l": 2380.0,
-     "admission_parts_failed": 0.0,
      "unexplained_l": 20.0,
      "extra_l": 0.0,
      "diesel_price": 1.3,
@@ -242,6 +230,7 @@
      "obligation_hours_without_redundancy": 0.0,
      "shortfall_backed": 1.0,
      "obligation_hours_without_backup": 0.0,
+     "replayed_dawn_days_below_safeguard": 0.0,
      "asset_days_out_of_service": 0.0,
      "asset_days_total": 0.0,
      "asset_days_available": 0.0,
@@ -257,8 +246,6 @@
      "outstanding": 0.0,
      "necessary_l": 300.0,
      "candidate_l": 0.0,
-     "generator_l": 300.0,
-     "admission_parts_failed": 0.0,
      "unexplained_l": 0.0,
      "extra_l": 0.0,
      "diesel_price": 1.25,
@@ -295,6 +282,7 @@
      "obligation_hours_without_redundancy": 20.0,
      "shortfall_backed": 1.0,
      "obligation_hours_without_backup": 0.0,
+     "replayed_dawn_days_below_safeguard": 0.0,
      "asset_days_out_of_service": 4.0,
      "asset_days_total": 155.0,
      "asset_days_available": 151.0,
@@ -310,8 +298,6 @@
      "outstanding": 120.0,
      "necessary_l": 320.0,
      "candidate_l": 0.0,
-     "generator_l": 320.0,
-     "admission_parts_failed": 0.0,
      "unexplained_l": 0.0,
      "extra_l": 0.0,
      "diesel_price": 1.25,
@@ -1359,7 +1345,7 @@
     "reason": "over the 61 replayed days the 25 kW limit adds no generator energy and no unserved energy"
    },
    "sensitivities": {
-    "diesel_minus_20pct": -230.0
+    "diesel_minus_20pct": null
    },
    "admissible": true,
    "value": null,
@@ -1456,7 +1442,7 @@
     "reason": "over the 61 replayed days the 25 kW limit adds no generator energy and no unserved energy"
    },
    "sensitivities": {
-    "diesel_minus_20pct": -2910.0
+    "diesel_minus_20pct": null
    },
    "admissible": true,
    "value": null,
@@ -3324,13 +3310,13 @@
    "plan": {
     "sums": {
      "adjustments_kwh": 0.0,
-     "admission_parts_failed": 0.0,
      "asset_days_available": 0.0,
      "asset_days_out_of_service": 0.0,
      "asset_days_total": 0.0,
      "battery_throughput_kwh": 0.0,
      "battery_wear": 0.0,
      "billed_kwh": 21650.0,
+     "candidate_l": 0.0,
      "collected": 9785.0,
      "collection_cost": 0.0,
      "contribution": 2295.0,
@@ -3343,13 +3329,13 @@
      "extra_l": 0.0,
      "field_visits": 0.0,
      "fuel_cost": 4240.0,
-     "generator_l": 3300.0,
      "hours_per_day": 0.0,
      "in_transit": 0.0,
      "liability": 0.0,
      "lost_unit_kw": 85.0,
      "major_assets": 0.0,
      "metered_kwh": 21650.0,
+     "necessary_l": 3300.0,
      "obligation_hours_without_backup": 0.0,
      "obligation_hours_without_redundancy": 0.0,
      "om": 1800.0,
@@ -3358,6 +3344,7 @@
      "productive_kwh": 0.0,
      "productive_tariff": 0.9,
      "reduced_days": 0.0,
+     "replayed_dawn_days_below_safeguard": 0.0,
      "revenue": 9785.0,
      "shortfall_backed": 1.0,
      "staff": 1450.0,
@@ -3375,13 +3362,13 @@
    "actual": {
     "sums": {
      "adjustments_kwh": 115.0,
-     "admission_parts_failed": 0.0,
      "asset_days_available": 428.0,
      "asset_days_out_of_service": 6.0,
      "asset_days_total": 434.0,
      "battery_throughput_kwh": 0.0,
      "battery_wear": 0.0,
      "billed_kwh": 21445.0,
+     "candidate_l": 330.0,
      "collected": 8870.0,
      "collection_cost": 0.0,
      "contribution": 1443.0,
@@ -3394,13 +3381,13 @@
      "extra_l": 0.0,
      "field_visits": 3.0,
      "fuel_cost": 4995.0,
-     "generator_l": 3760.0,
      "hours_per_day": 10.0,
      "in_transit": 150.0,
      "liability": 0.0,
      "lost_unit_kw": 85.0,
      "major_assets": 14.0,
      "metered_kwh": 21700.0,
+     "necessary_l": 3430.0,
      "obligation_hours_without_backup": 10.0,
      "obligation_hours_without_redundancy": 30.0,
      "om": 1800.0,
@@ -3409,6 +3396,7 @@
      "productive_kwh": 0.0,
      "productive_tariff": 0.9,
      "reduced_days": 6.0,
+     "replayed_dawn_days_below_safeguard": 0.0,
      "revenue": 9688.0,
      "shortfall_backed": 1.0,
      "staff": 1450.0,
@@ -4101,6 +4089,7 @@
          "obligation_hours_without_redundancy": 0.0,
          "shortfall_backed": 0.0,
          "obligation_hours_without_backup": 0.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
          "asset_days_out_of_service": 0.0,
          "delivered_kwh": 8550.0,
          "technical_loss_kwh": 0.0,
@@ -4112,10 +4101,8 @@
          "productive_tariff": 0.3,
          "in_transit": 0.0,
          "outstanding": 0.0,
-         "necessary_l": null,
-         "candidate_l": null,
-         "generator_l": 700.0,
-         "admission_parts_failed": 0.0,
+         "necessary_l": 700.0,
+         "candidate_l": 0.0,
          "unexplained_l": 0.0,
          "extra_l": 0.0,
          "diesel_price": 1.25,
@@ -4132,10 +4119,6 @@
          "lost_unit_kw": 0.0,
          "dawn_days_below": 0.0
         },
-        "not_available": {
-         "necessary_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)",
-         "candidate_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)"
-        },
         "not_observed": [
          "asset_days_available",
          "asset_days_total"
@@ -4147,6 +4130,8 @@
            "delivered_kwh",
            "technical_loss_kwh",
            "adjustments_kwh",
+           "necessary_l",
+           "candidate_l",
            "unexplained_l"
           ],
           "record_kind": "PLAN_LINE (a target line per factor)",
@@ -4166,26 +4151,6 @@
           "slice": "5a",
           "record_words": "Targets below the site total",
           "assumption": "Target not set below the site total: leaks and avoidable use are taken at zero, and the rest of the target on its main factor (assumption)"
-         },
-         {
-          "side": "plan",
-          "leaf": "necessary_l",
-          "record_kind": "dispatch-3.2 (generator_state, pv_available_power, battery_soc; FUEL_DELIVERY, TANK_DIP)",
-          "source_family": "OBSERVER",
-          "cause": "MODEL_PENDING",
-          "carried_as": null,
-          "blocks": [],
-          "slice": "0K4f"
-         },
-         {
-          "side": "plan",
-          "leaf": "candidate_l",
-          "record_kind": "dispatch-3.2 (generator_state, pv_available_power, battery_soc)",
-          "source_family": "OBSERVER",
-          "cause": "MODEL_PENDING",
-          "carried_as": null,
-          "blocks": [],
-          "slice": "0K4f"
          },
          {
           "side": "plan",
@@ -4247,6 +4212,7 @@
          "obligation_hours_without_redundancy": 0.0,
          "shortfall_backed": 0.0,
          "obligation_hours_without_backup": 0.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
          "asset_days_out_of_service": 0.0,
          "delivered_kwh": 8592.0,
          "technical_loss_kwh": 387.0,
@@ -4258,10 +4224,8 @@
          "productive_tariff": 0.3,
          "in_transit": 0.0,
          "outstanding": 262.47,
-         "necessary_l": null,
-         "candidate_l": null,
-         "generator_l": 971.0,
-         "admission_parts_failed": 0.0,
+         "necessary_l": 711.0,
+         "candidate_l": 260.0,
          "unexplained_l": 12.0,
          "extra_l": 0.0,
          "diesel_price": 1.25,
@@ -4278,35 +4242,11 @@
          "lost_unit_kw": 0.0,
          "dawn_days_below": 0.0
         },
-        "not_available": {
-         "necessary_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)",
-         "candidate_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)"
-        },
         "not_observed": [
          "asset_days_available",
          "asset_days_total"
         ],
         "missing": [
-         {
-          "side": "actual",
-          "leaf": "necessary_l",
-          "record_kind": "dispatch-3.2 (generator_state, pv_available_power, battery_soc; FUEL_DELIVERY, TANK_DIP)",
-          "source_family": "OBSERVER",
-          "cause": "MODEL_PENDING",
-          "carried_as": null,
-          "blocks": [],
-          "slice": "0K4f"
-         },
-         {
-          "side": "actual",
-          "leaf": "candidate_l",
-          "record_kind": "dispatch-3.2 (generator_state, pv_available_power, battery_soc)",
-          "source_family": "OBSERVER",
-          "cause": "MODEL_PENDING",
-          "carried_as": null,
-          "blocks": [],
-          "slice": "0K4f"
-         },
          {
           "side": "actual",
           "stage": "usable_capacity",
@@ -4384,6 +4324,7 @@
          "obligation_hours_without_redundancy": 0.0,
          "shortfall_backed": 0.0,
          "obligation_hours_without_backup": 0.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
          "asset_days_out_of_service": 0.0,
          "delivered_kwh": 8550.0,
          "technical_loss_kwh": 0.0,
@@ -4395,10 +4336,8 @@
          "productive_tariff": 0.3,
          "in_transit": 0.0,
          "outstanding": 0.0,
-         "necessary_l": null,
-         "candidate_l": null,
-         "generator_l": 700.0,
-         "admission_parts_failed": 0.0,
+         "necessary_l": 700.0,
+         "candidate_l": 0.0,
          "unexplained_l": 0.0,
          "extra_l": 0.0,
          "diesel_price": 1.25,
@@ -4415,10 +4354,6 @@
          "lost_unit_kw": 0.0,
          "dawn_days_below": 0.0
         },
-        "not_available": {
-         "necessary_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)",
-         "candidate_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)"
-        },
         "not_observed": [
          "asset_days_available",
          "asset_days_total"
@@ -4430,6 +4365,8 @@
            "delivered_kwh",
            "technical_loss_kwh",
            "adjustments_kwh",
+           "necessary_l",
+           "candidate_l",
            "unexplained_l"
           ],
           "record_kind": "PLAN_LINE (a target line per factor)",
@@ -4449,26 +4386,6 @@
           "slice": "5a",
           "record_words": "Targets below the site total",
           "assumption": "Target not set below the site total: leaks and avoidable use are taken at zero, and the rest of the target on its main factor (assumption)"
-         },
-         {
-          "side": "plan",
-          "leaf": "necessary_l",
-          "record_kind": "dispatch-3.2 (generator_state, pv_available_power, battery_soc; FUEL_DELIVERY, TANK_DIP)",
-          "source_family": "OBSERVER",
-          "cause": "MODEL_PENDING",
-          "carried_as": null,
-          "blocks": [],
-          "slice": "0K4f"
-         },
-         {
-          "side": "plan",
-          "leaf": "candidate_l",
-          "record_kind": "dispatch-3.2 (generator_state, pv_available_power, battery_soc)",
-          "source_family": "OBSERVER",
-          "cause": "MODEL_PENDING",
-          "carried_as": null,
-          "blocks": [],
-          "slice": "0K4f"
          },
          {
           "side": "plan",
@@ -4530,6 +4447,7 @@
          "obligation_hours_without_redundancy": 0.0,
          "shortfall_backed": 0.0,
          "obligation_hours_without_backup": 0.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
          "asset_days_out_of_service": 0.0,
          "delivered_kwh": 8669.0,
          "technical_loss_kwh": 391.0,
@@ -4541,10 +4459,8 @@
          "productive_tariff": 0.3,
          "in_transit": 0.0,
          "outstanding": 264.83,
-         "necessary_l": null,
-         "candidate_l": null,
-         "generator_l": 955.0,
-         "admission_parts_failed": 0.0,
+         "necessary_l": 701.0,
+         "candidate_l": 254.0,
          "unexplained_l": 12.0,
          "extra_l": 0.0,
          "diesel_price": 1.25,
@@ -4561,35 +4477,11 @@
          "lost_unit_kw": 0.0,
          "dawn_days_below": 0.0
         },
-        "not_available": {
-         "necessary_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)",
-         "candidate_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)"
-        },
         "not_observed": [
          "asset_days_available",
          "asset_days_total"
         ],
         "missing": [
-         {
-          "side": "actual",
-          "leaf": "necessary_l",
-          "record_kind": "dispatch-3.2 (generator_state, pv_available_power, battery_soc; FUEL_DELIVERY, TANK_DIP)",
-          "source_family": "OBSERVER",
-          "cause": "MODEL_PENDING",
-          "carried_as": null,
-          "blocks": [],
-          "slice": "0K4f"
-         },
-         {
-          "side": "actual",
-          "leaf": "candidate_l",
-          "record_kind": "dispatch-3.2 (generator_state, pv_available_power, battery_soc)",
-          "source_family": "OBSERVER",
-          "cause": "MODEL_PENDING",
-          "carried_as": null,
-          "blocks": [],
-          "slice": "0K4f"
-         },
          {
           "side": "actual",
           "stage": "usable_capacity",
@@ -4667,6 +4559,7 @@
          "obligation_hours_without_redundancy": 0.0,
          "shortfall_backed": 0.0,
          "obligation_hours_without_backup": 0.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
          "asset_days_out_of_service": 0.0,
          "delivered_kwh": 8274.0,
          "technical_loss_kwh": 0.0,
@@ -4678,10 +4571,8 @@
          "productive_tariff": 0.3,
          "in_transit": 0.0,
          "outstanding": 0.0,
-         "necessary_l": null,
-         "candidate_l": null,
-         "generator_l": 677.0,
-         "admission_parts_failed": 0.0,
+         "necessary_l": 677.0,
+         "candidate_l": 0.0,
          "unexplained_l": 0.0,
          "extra_l": 0.0,
          "diesel_price": 1.25,
@@ -4698,10 +4589,6 @@
          "lost_unit_kw": 0.0,
          "dawn_days_below": 0.0
         },
-        "not_available": {
-         "necessary_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)",
-         "candidate_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)"
-        },
         "not_observed": [
          "asset_days_available",
          "asset_days_total"
@@ -4713,6 +4600,8 @@
            "delivered_kwh",
            "technical_loss_kwh",
            "adjustments_kwh",
+           "necessary_l",
+           "candidate_l",
            "unexplained_l"
           ],
           "record_kind": "PLAN_LINE (a target line per factor)",
@@ -4732,26 +4621,6 @@
           "slice": "5a",
           "record_words": "Targets below the site total",
           "assumption": "Target not set below the site total: leaks and avoidable use are taken at zero, and the rest of the target on its main factor (assumption)"
-         },
-         {
-          "side": "plan",
-          "leaf": "necessary_l",
-          "record_kind": "dispatch-3.2 (generator_state, pv_available_power, battery_soc; FUEL_DELIVERY, TANK_DIP)",
-          "source_family": "OBSERVER",
-          "cause": "MODEL_PENDING",
-          "carried_as": null,
-          "blocks": [],
-          "slice": "0K4f"
-         },
-         {
-          "side": "plan",
-          "leaf": "candidate_l",
-          "record_kind": "dispatch-3.2 (generator_state, pv_available_power, battery_soc)",
-          "source_family": "OBSERVER",
-          "cause": "MODEL_PENDING",
-          "carried_as": null,
-          "blocks": [],
-          "slice": "0K4f"
          },
          {
           "side": "plan",
@@ -4813,6 +4682,7 @@
          "obligation_hours_without_redundancy": 0.0,
          "shortfall_backed": 0.0,
          "obligation_hours_without_backup": 0.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
          "asset_days_out_of_service": 0.0,
          "delivered_kwh": 8646.0,
          "technical_loss_kwh": 390.0,
@@ -4824,10 +4694,8 @@
          "productive_tariff": 0.3,
          "in_transit": 0.0,
          "outstanding": 264.14,
-         "necessary_l": null,
-         "candidate_l": null,
-         "generator_l": 1024.0,
-         "admission_parts_failed": 0.0,
+         "necessary_l": 658.0,
+         "candidate_l": 366.0,
          "unexplained_l": 11.0,
          "extra_l": 0.0,
          "diesel_price": 1.25,
@@ -4844,35 +4712,11 @@
          "lost_unit_kw": 0.0,
          "dawn_days_below": 0.0
         },
-        "not_available": {
-         "necessary_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)",
-         "candidate_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)"
-        },
         "not_observed": [
          "asset_days_available",
          "asset_days_total"
         ],
         "missing": [
-         {
-          "side": "actual",
-          "leaf": "necessary_l",
-          "record_kind": "dispatch-3.2 (generator_state, pv_available_power, battery_soc; FUEL_DELIVERY, TANK_DIP)",
-          "source_family": "OBSERVER",
-          "cause": "MODEL_PENDING",
-          "carried_as": null,
-          "blocks": [],
-          "slice": "0K4f"
-         },
-         {
-          "side": "actual",
-          "leaf": "candidate_l",
-          "record_kind": "dispatch-3.2 (generator_state, pv_available_power, battery_soc)",
-          "source_family": "OBSERVER",
-          "cause": "MODEL_PENDING",
-          "carried_as": null,
-          "blocks": [],
-          "slice": "0K4f"
-         },
          {
           "side": "actual",
           "stage": "usable_capacity",
@@ -4996,6 +4840,7 @@
          "cost_to_serve": 4190.0,
          "contribution": -65.0,
          "shortfall_backed": 0.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
          "delivered_kwh": 7500.0,
          "technical_loss_kwh": 0.0,
          "unexplained_loss_kwh": 0.0,
@@ -5008,8 +4853,6 @@
          "outstanding": 0.0,
          "necessary_l": 2300.0,
          "candidate_l": 0.0,
-         "generator_l": 2300.0,
-         "admission_parts_failed": 0.0,
          "unexplained_l": 0.0,
          "extra_l": 0.0,
          "diesel_price": 1.3,
@@ -5038,6 +4881,7 @@
            "delivered_kwh",
            "technical_loss_kwh",
            "adjustments_kwh",
+           "necessary_l",
            "unexplained_l"
           ],
           "record_kind": "PLAN_LINE (a target line per factor)",
@@ -5144,6 +4988,7 @@
          "cost_to_serve": 4316.1,
          "contribution": -397.9,
          "shortfall_backed": 0.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
          "delivered_kwh": 7654.0,
          "technical_loss_kwh": 501.0,
          "unexplained_loss_kwh": 0.0,
@@ -5156,8 +5001,6 @@
          "outstanding": 259.96,
          "necessary_l": 2377.0,
          "candidate_l": 0.0,
-         "generator_l": 2377.0,
-         "admission_parts_failed": 0.0,
          "unexplained_l": 20.0,
          "extra_l": 0.0,
          "diesel_price": 1.3,
@@ -5283,6 +5126,7 @@
          "cost_to_serve": 4190.0,
          "contribution": -65.0,
          "shortfall_backed": 0.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
          "delivered_kwh": 7500.0,
          "technical_loss_kwh": 0.0,
          "unexplained_loss_kwh": 0.0,
@@ -5295,8 +5139,6 @@
          "outstanding": 0.0,
          "necessary_l": 2300.0,
          "candidate_l": 0.0,
-         "generator_l": 2300.0,
-         "admission_parts_failed": 0.0,
          "unexplained_l": 0.0,
          "extra_l": 0.0,
          "diesel_price": 1.3,
@@ -5325,6 +5167,7 @@
            "delivered_kwh",
            "technical_loss_kwh",
            "adjustments_kwh",
+           "necessary_l",
            "unexplained_l"
           ],
           "record_kind": "PLAN_LINE (a target line per factor)",
@@ -5431,6 +5274,7 @@
          "cost_to_serve": 4196.5,
          "contribution": -315.15,
          "shortfall_backed": 0.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
          "delivered_kwh": 7582.0,
          "technical_loss_kwh": 496.0,
          "unexplained_loss_kwh": 0.0,
@@ -5443,8 +5287,6 @@
          "outstanding": 257.5,
          "necessary_l": 2286.0,
          "candidate_l": 0.0,
-         "generator_l": 2286.0,
-         "admission_parts_failed": 0.0,
          "unexplained_l": 19.0,
          "extra_l": 0.0,
          "diesel_price": 1.3,
@@ -5570,6 +5412,7 @@
          "cost_to_serve": 4093.8,
          "contribution": -101.9,
          "shortfall_backed": 0.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
          "delivered_kwh": 7258.0,
          "technical_loss_kwh": 0.0,
          "unexplained_loss_kwh": 0.0,
@@ -5582,8 +5425,6 @@
          "outstanding": 0.0,
          "necessary_l": 2226.0,
          "candidate_l": 0.0,
-         "generator_l": 2226.0,
-         "admission_parts_failed": 0.0,
          "unexplained_l": 0.0,
          "extra_l": 0.0,
          "diesel_price": 1.3,
@@ -5612,6 +5453,7 @@
            "delivered_kwh",
            "technical_loss_kwh",
            "adjustments_kwh",
+           "necessary_l",
            "unexplained_l"
           ],
           "record_kind": "PLAN_LINE (a target line per factor)",
@@ -5718,6 +5560,7 @@
          "cost_to_serve": 4037.9,
          "contribution": -137.3,
          "shortfall_backed": 0.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
          "delivered_kwh": 7619.0,
          "technical_loss_kwh": 498.0,
          "unexplained_loss_kwh": 0.0,
@@ -5730,8 +5573,6 @@
          "outstanding": 258.76,
          "necessary_l": 2165.0,
          "candidate_l": 0.0,
-         "generator_l": 2165.0,
-         "admission_parts_failed": 0.0,
          "unexplained_l": 18.0,
          "extra_l": 0.0,
          "diesel_price": 1.3,
@@ -5905,6 +5746,7 @@
          "cost_to_serve": 1325.0,
          "contribution": 915.0,
          "shortfall_backed": 1.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
          "delivered_kwh": 5600.0,
          "technical_loss_kwh": 0.0,
          "unexplained_loss_kwh": 0.0,
@@ -5917,8 +5759,6 @@
          "outstanding": 0.0,
          "necessary_l": 300.0,
          "candidate_l": 0.0,
-         "generator_l": 300.0,
-         "admission_parts_failed": 0.0,
          "unexplained_l": 0.0,
          "extra_l": 0.0,
          "diesel_price": 1.25,
@@ -5947,7 +5787,8 @@
            "delivered_kwh",
            "technical_loss_kwh",
            "unexplained_loss_kwh",
-           "adjustments_kwh"
+           "adjustments_kwh",
+           "necessary_l"
           ],
           "record_kind": "PLAN_LINE (a target line per factor)",
           "source_family": "COMMERCIAL_RECORD",
@@ -5956,8 +5797,11 @@
           "blocks": [
            "metered_kwh",
            "billed_kwh",
+           "diesel_l",
            "revenue",
+           "fuel_cost",
            "collected",
+           "cost_to_serve",
            "contribution"
           ],
           "slice": "5a",
@@ -6050,6 +5894,7 @@
          "cost_to_serve": 1342.5,
          "contribution": 772.3,
          "shortfall_backed": 1.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
          "delivered_kwh": 5726.0,
          "technical_loss_kwh": 286.0,
          "unexplained_loss_kwh": 115.0,
@@ -6062,8 +5907,6 @@
          "outstanding": 114.52,
          "necessary_l": 314.0,
          "candidate_l": 0.0,
-         "generator_l": 314.0,
-         "admission_parts_failed": 0.0,
          "unexplained_l": 0.0,
          "extra_l": 0.0,
          "diesel_price": 1.25,
@@ -6189,6 +6032,7 @@
          "cost_to_serve": 1325.0,
          "contribution": 915.0,
          "shortfall_backed": 1.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
          "delivered_kwh": 5600.0,
          "technical_loss_kwh": 0.0,
          "unexplained_loss_kwh": 0.0,
@@ -6201,8 +6045,6 @@
          "outstanding": 0.0,
          "necessary_l": 300.0,
          "candidate_l": 0.0,
-         "generator_l": 300.0,
-         "admission_parts_failed": 0.0,
          "unexplained_l": 0.0,
          "extra_l": 0.0,
          "diesel_price": 1.25,
@@ -6231,7 +6073,8 @@
            "delivered_kwh",
            "technical_loss_kwh",
            "unexplained_loss_kwh",
-           "adjustments_kwh"
+           "adjustments_kwh",
+           "necessary_l"
           ],
           "record_kind": "PLAN_LINE (a target line per factor)",
           "source_family": "COMMERCIAL_RECORD",
@@ -6240,8 +6083,11 @@
           "blocks": [
            "metered_kwh",
            "billed_kwh",
+           "diesel_l",
            "revenue",
+           "fuel_cost",
            "collected",
+           "cost_to_serve",
            "contribution"
           ],
           "slice": "5a",
@@ -6334,6 +6180,7 @@
          "cost_to_serve": 1336.25,
          "contribution": 759.75,
          "shortfall_backed": 1.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
          "delivered_kwh": 5676.0,
          "technical_loss_kwh": 284.0,
          "unexplained_loss_kwh": 114.0,
@@ -6346,8 +6193,6 @@
          "outstanding": 113.51,
          "necessary_l": 309.0,
          "candidate_l": 0.0,
-         "generator_l": 309.0,
-         "admission_parts_failed": 0.0,
          "unexplained_l": 0.0,
          "extra_l": 0.0,
          "diesel_price": 1.25,
@@ -6473,6 +6318,7 @@
          "cost_to_serve": 1312.5,
          "contribution": 855.1,
          "shortfall_backed": 1.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
          "delivered_kwh": 5419.0,
          "technical_loss_kwh": 0.0,
          "unexplained_loss_kwh": 0.0,
@@ -6485,8 +6331,6 @@
          "outstanding": 0.0,
          "necessary_l": 290.0,
          "candidate_l": 0.0,
-         "generator_l": 290.0,
-         "admission_parts_failed": 0.0,
          "unexplained_l": 0.0,
          "extra_l": 0.0,
          "diesel_price": 1.25,
@@ -6515,7 +6359,8 @@
            "delivered_kwh",
            "technical_loss_kwh",
            "unexplained_loss_kwh",
-           "adjustments_kwh"
+           "adjustments_kwh",
+           "necessary_l"
           ],
           "record_kind": "PLAN_LINE (a target line per factor)",
           "source_family": "COMMERCIAL_RECORD",
@@ -6524,8 +6369,11 @@
           "blocks": [
            "metered_kwh",
            "billed_kwh",
+           "diesel_l",
            "revenue",
+           "fuel_cost",
            "collected",
+           "cost_to_serve",
            "contribution"
           ],
           "slice": "5a",
@@ -6618,6 +6466,7 @@
          "cost_to_serve": 1310.0,
          "contribution": 840.0,
          "shortfall_backed": 1.0,
+         "replayed_dawn_days_below_safeguard": 0.0,
          "delivered_kwh": 5821.0,
          "technical_loss_kwh": 291.0,
          "unexplained_loss_kwh": 116.0,
@@ -6630,8 +6479,6 @@
          "outstanding": 116.43,
          "necessary_l": 288.0,
          "candidate_l": 0.0,
-         "generator_l": 288.0,
-         "admission_parts_failed": 0.0,
          "unexplained_l": 0.0,
          "extra_l": 0.0,
          "diesel_price": 1.25,

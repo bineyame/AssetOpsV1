@@ -80,9 +80,6 @@ tenants:
 
   - site: Kobo
     observations: {october: {unserved_critical_kwh: 0, customer_hours_interrupted: 0, field_visits: 1, major_assets: 5}}
-    factor_sources:   # 0K4m (D-0K4.35): the recorded 730/330 split is a design value the view keeps for 0K4f; nothing reads it
-      necessary_l: 'unavailable("dispatch-3.3 classification of Kobo''s October generator, solar and battery readings (0K4f)")'
-      candidate_l: 'unavailable("dispatch-3.3 classification of Kobo''s October generator, solar and battery readings (0K4f)")'
     code: KOBO-001
     role_in_story: "controllable generator running (hero) + incomplete-evidence battery warranty"
     reuse: "existing demo Site KOBO-001 (template kobo-mini-grid-60kw.yaml v3)"
@@ -113,12 +110,13 @@ tenants:
       variance: -562.00
       bridge:
         - {driver: DEMAND_VOLUME, overlap_group: KOBO-2026-10-REV, amount: 38.00, basis: "95 kWh x {rec:tenants[lakeside-power].prices.tariff_usd_per_kwh.Kobo}", class: ECONOMIC_ACTUAL}
-        - {driver: GENERATOR_RUNNING, overlap_group: KOBO-2026-10-FUEL, amount: -450.00, basis: "{fig:sites[lakeside-power/Kobo].actual.nodes.generator_l} L against plan {fig:sites[lakeside-power/Kobo].plan.nodes.generator_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kobo}; the split into candidate and needed running: Not available yet (dispatch-3.3 on Kobo's October readings; 0K4f)", class: DERIVED,
-           note: "observed factor; what an option avoids is that option's effect (M3), never a node of the observed structure"}
+        - {driver: CANDIDATE_RUNNING, overlap_group: KOBO-2026-10-FUEL, amount: -412.50, basis: "{fig:sites[lakeside-power/Kobo].actual.nodes.candidate_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kobo}: generator running while solar could carry the load (dispatch-3.2 Candidate; plan {fig:sites[lakeside-power/Kobo].plan.nodes.candidate_l} L); model-implied litres from metered generator energy x SFC", class: DERIVED,
+           note: "observed factor; how much of it an option avoids is that option's effect (M3), never a node of the observed structure"}
+        - {driver: EVENING_LOAD_GROWTH, overlap_group: KOBO-2026-10-FUEL, amount: -37.50, basis: "{fig:sites[lakeside-power/Kobo].actual.nodes.necessary_l} L against plan {fig:sites[lakeside-power/Kobo].plan.nodes.necessary_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kobo} (Necessary by dispatch classification of metered generator energy x declared consumption rate)", class: DERIVED}
         - {driver: UNEXPLAINED_RESIDUAL, overlap_group: KOBO-2026-10-FUEL, amount: -150.00, basis: "{fig:sites[lakeside-power/Kobo].actual.nodes.unexplained_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kobo} consumed minus modelled; investigate (MG-L5)", class: DERIVED}
       fuel_balance: {opening_dip_l: 220, deliveries_l: 1200, closing_dip_l: 240, consumed_l: 1180, model_implied_l: 1060, residual_l: 120, tolerance_pct: 2.0}
     findings_expected:
-      - {mechanism: GENERATOR_SUPPORT_CANDIDATE, status: NOT_AVAILABLE_YET, record: "dispatch-3.3 on Kobo's October readings (0K4f); fuel-cost-1 bounds over 3.3 Candidate time"}
+      - {mechanism: GENERATOR_SUPPORT_CANDIDATE, days: "11 of 31", gross_exposure_l: [0, 330], gross_exposure_usd: [0.00, 412.50], note: "fuel-cost-1 upper bound (includes its 1.10 consumption allowance); NOT the decision value and NOT the observed candidate-running factor (330 L x 1.25 = 412.50 from metered generator energy); the build keeps the two separate"}
       - {mechanism: UNEXPLAINED_FUEL, residual_l: 120, note: "above 2% tolerance; investigation, no recovery claimed"}
     decision:
       thread: "Kobo generator runs after dawn while solar could carry the load"
@@ -192,7 +190,7 @@ tenants:
       variance: -185.00
       bridge:
         - {driver: DEMAND_VOLUME, overlap_group: KIS-2026-10-REV, amount: -55.00, basis: "100 kWh x {rec:tenants[lakeside-power].prices.tariff_usd_per_kwh.Kisiwa}", class: ECONOMIC_ACTUAL}
-        - {driver: SOLAR_SHORTFALL_NECESSARY_GEN, overlap_group: KIS-2026-10-FUEL, amount: -104.00, basis: "80 L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kisiwa} (rainy month; all generator time Necessary by dispatch classification)", class: DERIVED}
+        - {driver: SOLAR_SHORTFALL_NECESSARY_GEN, overlap_group: KIS-2026-10-FUEL, amount: -104.00, basis: "{fig:sites[lakeside-power/Kisiwa].actual.nodes.necessary_l} L against plan {fig:sites[lakeside-power/Kisiwa].plan.nodes.necessary_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kisiwa} (rainy month; all generator time Necessary by dispatch classification)", class: DERIVED}
         - {driver: UNEXPLAINED_RESIDUAL, overlap_group: KIS-2026-10-FUEL, amount: -26.00, basis: "{fig:sites[lakeside-power/Kisiwa].actual.nodes.unexplained_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kisiwa}; within 2% tolerance, reported not investigated", class: DERIVED}
       fuel_balance: {model_implied_l: 2380, consumed_l: 2400, residual_l: 20, tolerance_pct: 2.0}
     findings_expected:
@@ -248,7 +246,7 @@ tenants:
         - {driver: DEMAND_VOLUME, overlap_group: MTO-2026-10-REV, amount: -8.00, basis: "20 kWh x {rec:tenants[lakeside-power].prices.tariff_usd_per_kwh.Mto}", class: ECONOMIC_ACTUAL}
         - {driver: METER_MAPPING_UNBILLED, overlap_group: MTO-2026-10-REV, amount: -56.00, basis: "{fig:sites[lakeside-power/Mto].actual.nodes.unmapped_kwh} kWh x {rec:tenants[lakeside-power].prices.tariff_usd_per_kwh.Mto}; 6 customers, meter swap 3 Oct not applied", class: ECONOMIC_ACTUAL}
         - {driver: AUTHORISED_ADJUSTMENT, overlap_group: MTO-2026-10-REV, amount: -16.00, basis: "{fig:sites[lakeside-power/Mto].actual.nodes.adjustments_kwh} kWh x {rec:tenants[lakeside-power].prices.tariff_usd_per_kwh.Mto} clinic allowance, approved", class: ECONOMIC_ACTUAL}
-        - {driver: EVENING_NECESSARY_GEN, overlap_group: MTO-2026-10-FUEL, amount: -25.00, basis: "20 L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Mto} (Necessary evening running by dispatch classification)", class: DERIVED}
+        - {driver: EVENING_NECESSARY_GEN, overlap_group: MTO-2026-10-FUEL, amount: -25.00, basis: "{fig:sites[lakeside-power/Mto].actual.nodes.necessary_l} L against plan {fig:sites[lakeside-power/Mto].plan.nodes.necessary_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Mto} (Necessary evening running by dispatch classification)", class: DERIVED}
     energy_to_cash:
       chain: "delivered 6,000 -> expected loss 300 -> metered 5,580 (+120 unexplained) -> billed 5,400 (140 unmapped, 40 authorised) -> collected 1,890 + in transit 150 + outstanding 120 = 2,160"
       unexplained_kwh_money: null   # deliberately unpriced: investigation, not theft, not collectible
@@ -817,7 +815,7 @@ structures:   # rev 10 (owner, ninth to eleventh messages): the declared outcome
     billed_kwh: "metered_kwh - adjustments_kwh - unmapped_kwh"                         # metered -> billed (leaks: adjustments, unmapped meters)
     revenue: "billed_kwh * tariff + productive_kwh * productive_tariff"
     collected: "revenue - in_transit - outstanding"                                    # revenue -> cash
-    diesel_l: "generator_l + unexplained_l + extra_l"                                  # physical: generator litres + residual + extra running (0K4m: necessary_l and candidate_l are its decomposition, read by no node)
+    diesel_l: "necessary_l + candidate_l + unexplained_l + extra_l"                   # physical: dispatch classification + residual + extra running
     fuel_cost: "diesel_l * diesel_price"
     battery_wear: "battery_throughput_kwh * wear_rate"
     cost_to_serve: "fuel_cost + om + staff + collection_cost + battery_wear"
@@ -825,6 +823,7 @@ structures:   # rev 10 (owner, ninth to eleventh messages): the declared outcome
     obligation_hours_without_redundancy: "reduced_days * hours_per_day"                # Protect (P1): a unit is out
     shortfall_backed: "min(1, floor(standby_kw / max(lost_unit_kw, 1)))"             # rev 13 (L2): 1 when standby capacity covers the lost unit
     obligation_hours_without_backup: "obligation_hours_without_redundancy * (1 - shortfall_backed)"   # ... and nothing backs the remaining unit
+    replayed_dawn_days_below_safeguard: "dawn_days_below"                              # rev 12 (H1): MG5 dawn adequacy (replay result)
     asset_days_out_of_service: "reduced_days"                                          # Protect (P2): one unit out per reduced-capacity event
     asset_days_total: "major_assets * period_days"                                     # O2
     asset_days_available: "asset_days_total - asset_days_out_of_service"
@@ -878,8 +877,6 @@ factor_map:   # how each vertical's source records become leaf factors (record =
     outstanding: "record.outstanding | 0"
     necessary_l: "record.necessary_l | record.diesel_l"
     candidate_l: "record.candidate_l | 0"
-    generator_l: "record.diesel_l - (record.unexplained_l | 0) | record.necessary_l + record.candidate_l"   # 0K4m (I2): the recorded generator litres; on a history month (no diesel_l) their recorded split
-    admission_parts_failed: "0"   # 0K4m: the admission parts an option fails (runs/admission.py over its replay); observed sides 0
     unexplained_l: "record.unexplained_l | 0"
     extra_l: "0"
     diesel_price: "prices.diesel_usd_per_l[site]"
@@ -976,7 +973,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
     COLD_CHAIN: [nights_without_backup_cover, cover_not_claimable]
     EV_DEPOT_CAPTIVE: [departures_missed, cover_not_claimable]
   forward_baseline:   # rev 12 (L5): options look forward from as_of; the period-observation leaves below are reset before an option's changes apply
-    MINI_GRID: {reduced_days: "0"}
+    MINI_GRID: {reduced_days: "0", admission_parts_failed: "0"}   # 0K4m (§2.3a): the admission count is an option-only leaf
     COLD_CHAIN: {uncovered_nights: "0", backup_unproven_days: "0"}
     EV_DEPOT_CAPTIVE: {}
   option_detail:   # rev 12 (L7): per-vertical detail nodes shown with an option (capacity check, unit cost, bills), declared here
@@ -993,7 +990,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       months: 12
       params: {avoided_l: 'unavailable("a dispatch replay on Kobo''s October as recorded (0K4f)")', added_throughput_kwh: 'unavailable("a dispatch replay on Kobo''s October as recorded (0K4f)")',
                admission_parts_failed_option: {value: 0, source: {study: K8, case: stop-70-reserve-30, field: admission_parts_failed}}}
-      changes: {generator_l: "generator_l - avoided_l", battery_throughput_kwh: "battery_throughput_kwh + added_throughput_kwh", admission_parts_failed: "admission_parts_failed_option"}
+      changes: {candidate_l: "candidate_l - avoided_l", battery_throughput_kwh: "battery_throughput_kwh + added_throughput_kwh", admission_parts_failed: "admission_parts_failed_option"}
       information: {source: {study: K8, case: stop-70-reserve-30}, dawn_days_below: 4, baseline_dawn_days_below: 4, new_dawn_days_below: 0,
                     worst_dawn_soc_pct: 34.794737, min_soc_pct: 33.141398, max_starts_in_a_day: 3, longest_days_without_full_charge: 5, admitted: true, first_failing_part: null}
       cost_lines: {vendor_remote_reconfiguration: 60.00, trial_supervision: 30.00}
@@ -1004,7 +1001,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       months: 12
       params: {avoided_l: 'unavailable("a dispatch replay on Kobo''s October as recorded (0K4f)")', added_throughput_kwh: 'unavailable("a dispatch replay on Kobo''s October as recorded (0K4f)")',
                admission_parts_failed_option: {value: 0, source: {study: K8, case: stop-90-reserve-25, field: admission_parts_failed}}}
-      changes: {generator_l: "generator_l - avoided_l", battery_throughput_kwh: "battery_throughput_kwh + added_throughput_kwh", admission_parts_failed: "admission_parts_failed_option"}
+      changes: {candidate_l: "candidate_l - avoided_l", battery_throughput_kwh: "battery_throughput_kwh + added_throughput_kwh", admission_parts_failed: "admission_parts_failed_option"}
       information: {source: {study: K8, case: stop-90-reserve-25}, dawn_days_below: 11, baseline_dawn_days_below: 4, new_dawn_days_below: 7,
                     worst_dawn_soc_pct: 29.815789, min_soc_pct: 28.243229, max_starts_in_a_day: 2, longest_days_without_full_charge: 4, admitted: true, first_failing_part: null}
       crew_visits: {value: 0, basis: "remote reconfiguration, as KOB-STOPSOC"}
@@ -1034,7 +1031,7 @@ evaluation:   # inputs for M3 and M4. Each option: the site, the reference it is
       basis: NO_ACTION
       months: 12
       params: {shifted_fuel_l: 'unavailable("a Kisiwa battery replay (queue Q7)")'}
-      changes: {generator_l: "generator_l - shifted_fuel_l"}
+      changes: {necessary_l: "necessary_l - shifted_fuel_l"}
       cost_lines: {battery_60_kwh: 14000.00}
       crew_visits: {value: 1, basis: "installation visit (assumption; no quote held)"}
     MTO-INV-CLAIM:
@@ -1393,7 +1390,6 @@ home_categories:   # design rev 16.11 §2.0 (OD-21; Architect's calls): the regi
       collected: [optimize, O3]               # cash, outside the contribution gap
       necessary_l: [optimize, O1]
       candidate_l: [optimize, O1]
-      generator_l: [optimize, O1]
       unexplained_l: [optimize, O1]
       extra_l: [optimize, O1]
       diesel_l: [optimize, O1]                # also the fuel balance (dips and deliveries): the record of the same litres
@@ -1416,7 +1412,7 @@ home_categories:   # design rev 16.11 §2.0 (OD-21; Architect's calls): the regi
       shortfall_backed: [protect, P1]
       obligation_hours_without_backup: [protect, P1]
       dawn_days_below: [protect, P1]
-      admission_parts_failed: [protect, P1]
+      replayed_dawn_days_below_safeguard: [protect, P1]
       unserved_critical_kwh: [protect, P1]
       customer_hours_interrupted: [protect, P1]
       asset_days_out_of_service: [protect, P2]
@@ -1515,10 +1511,11 @@ home_categories:   # design rev 16.11 §2.0 (OD-21; Architect's calls): the regi
     COLD_CHAIN: [{name: idle_capacity, measure: "capacity_crate_days - occupied_total_crate_days", objective: G2}]
     EV_DEPOT_CAPTIVE: [{name: spare_deliverable_energy, measure: "deliverable_kwh_night - required_kwh_night (Ruiru: 6 more buses fit)", objective: G2}]
   bridge_drivers:   # a bridge row's factor (manifest key `driver`, rule R6) -> its node, whose home it takes
-    GENERATOR_RUNNING: generator_l
+    CANDIDATE_RUNNING: candidate_l
     UNEXPLAINED_RESIDUAL: unexplained_l
-    SOLAR_SHORTFALL_NECESSARY_GEN: generator_l   # 0K4m: necessary running is generator litres (diesel_l reads generator_l; necessary_l is its decomposition)
-    EVENING_NECESSARY_GEN: generator_l
+    EVENING_LOAD_GROWTH: necessary_l
+    SOLAR_SHORTFALL_NECESSARY_GEN: necessary_l
+    EVENING_NECESSARY_GEN: necessary_l
     DEMAND_VOLUME: metered_kwh
     METER_MAPPING_UNBILLED: unmapped_kwh
     AUTHORISED_ADJUSTMENT: adjustments_kwh
@@ -1587,11 +1584,11 @@ home_categories:   # design rev 16.11 §2.0 (OD-21; Architect's calls): the regi
   option_money_factors:   # rev 16.12 (H known gap; owner rule 3): the money factors each valued option changes, so each effect is
                           # placed under its own factor's heading and counted once. Each is a factor the option's `changes` name (or,
                           # for a cover option, the service cost line linked to the Protect measure it moves). check_manifest.py homes().
-    KOB-STOPSOC: [generator_l, battery_throughput_kwh]
-    KOB-RESERVE: [generator_l, battery_throughput_kwh]
+    KOB-STOPSOC: [candidate_l, battery_throughput_kwh]
+    KOB-RESERVE: [candidate_l, battery_throughput_kwh]
     MTO-HULLER: [productive_kwh, extra_l, collection_cost]
     MTO-WELDING: [delivered_kwh, extra_l]
-    KIS-BATT60: [generator_l]                 # the generator litres shifted to the battery (Not available yet: a Kisiwa battery replay, Q7); its one-off is the battery
+    KIS-BATT60: [necessary_l]                 # the fuel shifted to the battery (Not available yet: a Kisiwa battery replay, Q7); its one-off is the battery
     MTO-INV-CLAIM: [extra_l]                  # extra fuel at half inverter capacity until the restore; the one-off is its own column
     MTO-INV-BUYNOW: [extra_l]
     MWEA-AGG: [contract_crate_days, contract_rate, handling]
@@ -1613,7 +1610,7 @@ home_categories:   # design rev 16.11 §2.0 (OD-21; Architect's calls): the regi
                # operations, including an asset's warranty or service remedy; the finance and commercial lead for billing, collection and
                # customer accounts; the executive for capital. Every notice and claim Action is the finance lead's whoever chooses.
                # Keyed by the decision's screen route (#/decision/<id>); plan = the allocator's decision name, where it has one.
-    - {id: kobo-generator, site: Kobo, plan: kobo_generator, finding: "Candidate running: the generator runs while solar and the battery could carry the load", finding_factor: candidate_l, lever: generator_l, heading: optimize, chooser: SITE_MANAGER}
+    - {id: kobo-generator, site: Kobo, plan: kobo_generator, finding: "Candidate running: the generator runs while solar and the battery could carry the load", finding_factor: candidate_l, lever: candidate_l, heading: optimize, chooser: SITE_MANAGER}
     - {id: kobo-battery, site: Kobo, plan: kobo_battery_evidence, finding: "Risk to a right: the battery warranty cannot be claimed without a capacity test and a temperature record", finding_factor: cover_not_claimable, lever: cover_not_claimable, heading: protect, chooser: SITE_MANAGER}
     - {id: kisiwa-genset, site: Kisiwa, plan: kisiwa_genset, finding: "At its limit: the evening supply runs on one generator since generator 1 failed", finding_factor: obligation_hours_without_redundancy, lever: obligation_hours_without_redundancy, heading: protect, chooser: SITE_MANAGER}
     - {id: kisiwa-om, site: Kisiwa, finding: "Late repair response: 96 h against the O&M contract's 48 h, so a fee credit may be due", finding_factor: om, lever: om, heading: optimize, chooser: SITE_MANAGER,
@@ -1643,8 +1640,6 @@ empty_states:   # rev 16.13 (20 Nov; owner routed the placeholder audit's gaps 1
   #         NEVER_EMPTY    - calendar
   # family: COMMERCIAL_RECORD (integration-source-to-canonical-design.md §6.1 kinds) | READING (role) | OPERATIONAL_RECORD |
   #         OBSERVER (a computed leaf over the named records) | DECLARED (site configuration, price or model) | DOCUMENT | CALENDAR
-  # cause:  NOT_RECEIVED | NOT_CONNECTED | NOT_CALCULATED_YET | MODEL_PENDING (0K4m: a computed leaf whose model has not yet run on
-  #         this world's records; its slice is 0K4f; the leaf's factor is `unavailable(...)` and its value null with words, never 0)
   leaf_sources:
     MINI_GRID:
       delivered_kwh:              {family: READING, kind: feeder_demand, absent: MISSING, slice: 3B3}
@@ -1659,7 +1654,6 @@ empty_states:   # rev 16.13 (20 Nov; owner routed the placeholder audit's gaps 1
       outstanding:                {family: COMMERCIAL_RECORD, kind: RECEIPT, absent: ZERO_WHEN_HELD, slice: 4b}
       necessary_l:                {family: OBSERVER, kind: "dispatch-3.2 (generator_state, pv_available_power, battery_soc; FUEL_DELIVERY, TANK_DIP)", absent: MISSING, slice: 3B3}
       candidate_l:                {family: OBSERVER, kind: "dispatch-3.2 (generator_state, pv_available_power, battery_soc)", absent: ZERO_WHEN_HELD, slice: 3B3}
-      generator_l:                {family: OBSERVER, kind: "model-implied litres (metered generator energy x SFC; FUEL_DELIVERY, TANK_DIP)", absent: MISSING, slice: 3B3}
       unexplained_l:              {family: OBSERVER, kind: "fuel balance (FUEL_DELIVERY, TANK_DIP) minus dispatch-3.2", absent: ZERO_WHEN_HELD, slice: 3B3}
       extra_l:                    {family: OBSERVER, kind: "forward replay (an option's extra running)", absent: OPTION_ONLY, slice: 6c}
       diesel_price:               {family: COMMERCIAL_RECORD, kind: "EXPENSE (FUEL)", absent: MISSING, slice: 4b}
@@ -1679,7 +1673,6 @@ empty_states:   # rev 16.13 (20 Nov; owner routed the placeholder audit's gaps 1
       standby_kw:                 {family: DECLARED, kind: "outage units (site configuration)", absent: ZERO_WHEN_HELD, slice: 3B3}
       lost_unit_kw:               {family: DECLARED, kind: "outage units (site configuration)", absent: ZERO_WHEN_HELD, slice: 3B3}
       dawn_days_below:            {family: READING, kind: battery_soc, absent: ZERO_WHEN_HELD, slice: 3B3}
-      admission_parts_failed:     {family: OBSERVER, kind: "runs/admission.py over the replay study", absent: OPTION_ONLY, slice: 6c}
     COLD_CHAIN:
       crate_days:                 {family: COMMERCIAL_RECORD, kind: "STORAGE_MOVEMENT (occupied crate-days)", absent: MISSING, slice: 9d}
       rate:                       {family: COMMERCIAL_RECORD, kind: "TARIFF_SCHEDULE (storage rate card)", absent: MISSING, slice: 9d}
@@ -1779,7 +1772,6 @@ empty_states:   # rev 16.13 (20 Nov; owner routed the placeholder audit's gaps 1
       slice: 4c
       trigger: "pulled from the deferral queue when a lane is free after the must-keep set (day 12); at the latest when a pilot pins a real register profile"
   queued_slices:   # slices declared here, outside plan_model.py's fortnight: each with its scope, units and trigger
-    0K4f: {name: "The fuel law and the worlds on v8: the product's fuel law reads v8's curve, the Kobo template and DS2's telemetry writer adopt v8, the demo database is rebuilt, and Kobo's October readings are classified by dispatch-3.3", lane: STR, units: 2, deps: [0K4e, 4d]}   # 0K4m (D-0K4.44): the MODEL_PENDING slice; outside the fortnight (spec §2.4)
     4c: {name: "Capacity by time window: usable capacity and idle capacity as capacity factors (no money), from the kept headroom observer", lane: STR, units: 2.5, deps: [3B3, 0M]}
   record_words:   # plain words for a record kind on screen, where the leaf row gives none
     PLAN_LINE: "Targets below the site total"
@@ -1864,7 +1856,7 @@ disorder_tests:   # deliberately irregular records every build must contain
   - {id: CLOCK-1, what: "OCPP MeterValues with charger clock 4 min fast", expect: "clock offset corrected from StatusNotification pairing; flagged"}
 
 oracle:   # PRIVATE expectation oracle: compared against computed results; never read by product code
-  - {id: OR-MG-1, expect: "Kobo: candidate running Not available yet (dispatch-3.3); both settings admitted on K8's replayed days; their litres and value Not available yet (a dispatch replay on Kobo's October as recorded, 0K4f)"}
+  - {id: OR-MG-1, expect: "Kobo: candidate running {fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l} L as the world records it (dispatch-3.2; dispatch-3.3 re-classifies it in 0K4f); both settings admitted on K8's replayed days; their litres and value Not available yet (a dispatch replay on Kobo's October as recorded, 0K4f)"}
   - {id: OR-MG-2, expect: "Kisiwa: zero Candidate minutes; no fuel saving option qualifies"}
   - {id: OR-MG-3, expect: "Mto: MTO-HULLER valued on M8 litres per kWh; MTO-WELDING as the evaluator gives"}
   - {id: OR-MG-4, expect: "Mto energy-to-cash: 140 unbilled mapping, 40 authorised, 120 unexplained unpriced; billed 2,160 = 1,890 + 150 + 120"}

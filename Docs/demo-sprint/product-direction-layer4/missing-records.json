@@ -4,31 +4,13 @@
  "sites": {
   "lakeside-power/Kobo": [
    {
-    "side": "actual",
-    "leaf": "necessary_l",
-    "record_kind": "dispatch-3.2 (generator_state, pv_available_power, battery_soc; FUEL_DELIVERY, TANK_DIP)",
-    "source_family": "OBSERVER",
-    "cause": "MODEL_PENDING",
-    "carried_as": null,
-    "blocks": [],
-    "slice": "0K4f"
-   },
-   {
-    "side": "actual",
-    "leaf": "candidate_l",
-    "record_kind": "dispatch-3.2 (generator_state, pv_available_power, battery_soc)",
-    "source_family": "OBSERVER",
-    "cause": "MODEL_PENDING",
-    "carried_as": null,
-    "blocks": [],
-    "slice": "0K4f"
-   },
-   {
     "side": "plan",
     "leaves": [
      "delivered_kwh",
      "technical_loss_kwh",
      "adjustments_kwh",
+     "necessary_l",
+     "candidate_l",
      "unexplained_l"
     ],
     "record_kind": "PLAN_LINE (a target line per factor)",
@@ -48,26 +30,6 @@
     "slice": "5a",
     "record_words": "Targets below the site total",
     "assumption": "Target not set below the site total: leaks and avoidable use are taken at zero, and the rest of the target on its main factor (assumption)"
-   },
-   {
-    "side": "plan",
-    "leaf": "necessary_l",
-    "record_kind": "dispatch-3.2 (generator_state, pv_available_power, battery_soc; FUEL_DELIVERY, TANK_DIP)",
-    "source_family": "OBSERVER",
-    "cause": "MODEL_PENDING",
-    "carried_as": null,
-    "blocks": [],
-    "slice": "0K4f"
-   },
-   {
-    "side": "plan",
-    "leaf": "candidate_l",
-    "record_kind": "dispatch-3.2 (generator_state, pv_available_power, battery_soc)",
-    "source_family": "OBSERVER",
-    "cause": "MODEL_PENDING",
-    "carried_as": null,
-    "blocks": [],
-    "slice": "0K4f"
    },
    {
     "side": "actual",
@@ -122,6 +84,7 @@
      "delivered_kwh",
      "technical_loss_kwh",
      "adjustments_kwh",
+     "necessary_l",
      "unexplained_l"
     ],
     "record_kind": "PLAN_LINE (a target line per factor)",
@@ -196,7 +159,8 @@
      "technical_loss_kwh",
      "unexplained_loss_kwh",
      "adjustments_kwh",
-     "unmapped_kwh"
+     "unmapped_kwh",
+     "necessary_l"
     ],
     "record_kind": "PLAN_LINE (a target line per factor)",
     "source_family": "COMMERCIAL_RECORD",
@@ -205,8 +169,11 @@
     "blocks": [
      "metered_kwh",
      "billed_kwh",
+     "diesel_l",
      "revenue",
+     "fuel_cost",
      "collected",
+     "cost_to_serve",
      "contribution"
     ],
     "slice": "5a",

@@ -482,7 +482,8 @@ def main(path, variants=True) -> dict:
         for sn, sp in (spec.get("sensitivities") or {}).items():
             rs = run(oid, sp.get("params"), sp.get("factors"))
             # computed as the value is (unrounded monthly change), never from the rounded output fields
-            sens[sn] = None if "not_available" in r or "not_available" in rs else money(rs["_value"])
+            # D-0K4.48: null when the option has no value (not available, or not valued in money)
+            sens[sn] = None if "not_available" in r or "not_available" in rs or not r["money_changes"] else money(rs["_value"])
             RAW_SENS[oid][sn] = None if sens[sn] is None else rs["_value"]
         if sens:
             r["sensitivities"] = sens
@@ -585,7 +586,12 @@ def main(path, variants=True) -> dict:
             for d in pl["decisions"]:
                 if d["kind"] != "protective":
                     continue
-                pick = next(o for o in items if o in d["options"])
+                pick = next((o for o in items if o in d["options"]), None)
+                if pick is None:   # N5 (D-0K4.46): a decision with no candidate takes none; never infeasible for that reason alone
+                    why = "every option is not available" if all("not_available" in O[o] for o in d["options"]) else \
+                        f"no option meets {', '.join(d.get('hard', []))} and the decision declares no fallback"
+                    prot[d["name"]] = {"chosen": None, "admissible": [], "how": f"no candidate: {why}"}
+                    continue
                 least_any = min(d["options"], key=lambda o: (viol(o, d), D_(O[o]["operator_one_off"])))
                 prot[d["name"]] = {"chosen": pick, "admissible": [o for o in d["options"] if admissible(o, d)],
                                    "how": "meets its hard bounds" if admissible(pick, d) else f"least violation within the plan ({money(viol(pick, d))})"}
@@ -757,15 +763,6 @@ def missing_entry(side, subject, row, cause, carried_as, blocks, **extra):
     return e
 
 
-MODEL_PENDING, MODEL_PENDING_SLICE = "MODEL_PENDING", "0K4f"   # 0K4m spec §2.4 (D-0K4.44): a computed leaf whose model has not yet run on this world's records
-
-
-def pending_leaves(side, fm, vals, leaf_sources, struct):
-    """N1 (0K4m): a leaf declared `unavailable(...)` on a side: missing with cause MODEL_PENDING, never carried, never own."""
-    return [missing_entry(side, {"leaf": f}, {**leaf_sources[f], "slice": MODEL_PENDING_SLICE}, MODEL_PENDING, None, ancestors(struct, [f]))
-            for f in fm if na(vals[f])]
-
-
 def unreceived_leaves(side, fm, vals, leaf_sources, struct):
     """An observed side's entries: a leaf whose record is absent and that nothing else fills (missing_records and history)."""
     return [missing_entry(side, {"leaf": f}, leaf_sources[f], "NOT_RECEIVED", None, ancestors(struct, [f])) for f in fm if vals[f] is None]
@@ -828,9 +825,9 @@ def missing_records(doc) -> dict:
             entry = missing_entry
             # observed sides: a leaf whose record is absent and that nothing else fills
             for k, _ in sides[1:]:
-                ents += unreceived_leaves(k, fm, vals[k], LS[vert], S[vert]) + pending_leaves(k, fm, vals[k], LS[vert], S[vert])
+                ents += unreceived_leaves(k, fm, vals[k], LS[vert], S[vert])
             # the target side: not decomposed (residual), or leaves without a target line of their own (labelled assumption)
-            ents += target_side_entries(doc, vert, fm, vals, own) + pending_leaves("plan", fm, vals["plan"], LS[vert], S[vert])
+            ents += target_side_entries(doc, vert, fm, vals, own)
             # actual lines carried at target (coverage ESTIMATED)
             for line, state in (s_["period"].get("coverage") or {}).items():
                 if state == "ESTIMATED":
@@ -918,12 +915,11 @@ def evaluate_history(doc, hist, out) -> dict:
                     unobserved = [missing_entry(side, {"leaf": f}, ES["leaf_sources"][vert][f], cause, None, ancestors(S[vert], [f])) for f in from_obs]
                     # (b) the entries October's same side gets, on the history records, less the October-only kinds (coverage
                     # ESTIMATED and rights conditions; review DS1p M1, MB5)
-                    pending = [e for e in pending_leaves(side, fm, vals[side], ES["leaf_sources"][vert], S[vert]) if e["leaf"] not in from_obs]
                     if side == "plan":
-                        missing = target_side_entries(doc, vert, fm, vals, own) + pending
+                        missing = target_side_entries(doc, vert, fm, vals, own)
                     else:
                         missing = [e for e in unreceived_leaves(side, fm, vals[side], ES["leaf_sources"][vert], S[vert]) if e["leaf"] not in from_obs]
-                        missing += pending + field_assumption_entries(ES, s_) + deferred_stage_entries(ES, vert)
+                        missing += field_assumption_entries(ES, s_) + deferred_stage_entries(ES, vert)
                     missing += unobserved
                     not_obs = sorted({b for e in unobserved for b in e["blocks"]})
                     if {"contribution", "cost_to_serve"} & set(not_obs):
