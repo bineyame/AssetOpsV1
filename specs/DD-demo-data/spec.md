@@ -3,7 +3,7 @@
 Status: **rev 2, 2026-11-22; DD1 in_review (`packet-DD1.md`); DD2a in_review (`packet-DD2a.md`); DD2b in_review (`packet-DD2b.md`)**: the combined handshake (`handshake.md`, R1-R10, I1-I15) is answered there under "Answers
 (Architect)" and ruled in `rulings.md` (D-DD.17 to D-DD.34). Rev 1 (same day) had 19.5 u in four parts; rev 2 has
 **30.0 u in six parts** (§7); restated by D-DD.44 to **33.0 u in seven parts** (DD3 splits into DD3a, DD3b), by D-DD.47 to 33.5 u, and by D-DD.57 to
-**34.25 u in eight parts** (DD2 splits into DD2a, DD2b), by D-DD.66 to **35.25 u**, by D-DD.73 to **35.75 u**, by D-DD.74 to **36.25 u**, by D-DD.79 to **37.0 u**, by D-DD.80 to **37.5 u**, by D-DD.88 to **39.0 u** (DD4 splits into DD4a, DD4b), by D-DD.96 to **41.5 u**, by D-DD.101 to **42.0 u**, and by D-DD.107 to **43.25 u in ten parts** (DD3b splits into DD3b, DD3c). Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
+**34.25 u in eight parts** (DD2 splits into DD2a, DD2b), by D-DD.66 to **35.25 u**, by D-DD.73 to **35.75 u**, by D-DD.74 to **36.25 u**, by D-DD.79 to **37.0 u**, by D-DD.80 to **37.5 u**, by D-DD.88 to **39.0 u** (DD4 splits into DD4a, DD4b), by D-DD.96 to **41.5 u**, by D-DD.101 to **42.0 u**, by D-DD.107 to **43.25 u in ten parts** (DD3b splits into DD3b, DD3c), and by D-DD.116 to **44.0 u** (DD3c 3.25 u). Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
 it grounded on the product goals"); owner answers to Q1-Q6: `owner/owner-demo-data-answers-2026-11-22.md`. Owner words on
 Kobo's equipment: `owner/owner-iap-q1-q2-kobo-datasheets-2026-11-22.md`. **Rulings:** D-DD.1 to D-DD.16 (§9) and
 D-DD.17 to D-DD.107 (`rulings.md`); index lines in `.ai/decisions/index-rulings-26.md`, `index-rulings-27.md`,
@@ -843,7 +843,7 @@ Order: DD1 → (DD2a → DD2b ∥ DD3a) → (DD4a → DD4b ∥ DD3b ∥ DD3c) �
   `measured.json` and tested on a fixture. C-DD2 to C-DD4 go live for the decided books, with C-DD4's node clause and
   the checker's own evaluator (D-DD.55).
 
-### DD3: the mini-grid's operating reality (12.5 u in three parts, D-DD.44, D-DD.73, D-DD.79, D-DD.80, D-DD.96, D-DD.107: DD3a = DD3.1, DD3.2, 6.0 u (D-DD.102), `task/DD3a-mini-reality`; DD3b = DD3.3, 4.0 u, `task/DD3b-mini-units`; DD3c = DD3.4, 2.5 u, `task/DD3c-unit-roles`)
+### DD3: the mini-grid's operating reality (13.25 u in three parts, D-DD.44, D-DD.73, D-DD.79, D-DD.80, D-DD.96, D-DD.107, D-DD.116: DD3a = DD3.1, DD3.2, 6.0 u (D-DD.102), `task/DD3a-mini-reality`; DD3b = DD3.3, 4.0 u, `task/DD3b-mini-units`; DD3c = DD3.4, 3.25 u, `task/DD3c-unit-roles`)
 
 - **DD3.1 Writer core and Kobo on v8 (2.75; D-DD.79, D-DD.80).** §4.1 and §4.2 for Kobo: `site-inputs`, scaling, chaining, the tank's
   deliveries and declared draw, golden digests. C-DD11, C-DD12 and C-DD21 go live. The kernel's forcing index and its
@@ -857,10 +857,14 @@ Order: DD1 → (DD2a → DD2b ∥ DD3a) → (DD4a → DD4b ∥ DD3b ∥ DD3c) �
   The three Sites' fuel notes restated from the tank by the reorder rule (D-DD.92, +1.0 u; owner asked first).
   First run: D-DD.97's load timing (+0.25) and D-DD.104's battery start (+0.25), both before the notes. The notes run
   starts once DD4a (D-DD.103's span to 6 Nov 06:00) is on main (D-DD.107).
-- **DD3.4 Unit roles in the readers (2.5; D-DD.41, D-DD.44; part DD3c, D-DD.107).** `sites/unit_roles.py`: the Site-from-units rule and
-  the lead-unit policy read, called by every reader D-DD.41 lists for a `minigrid-roles-5` set; a migration lets the
-  mini-depth lift accept one roles-4 or roles-5 set; Kobo's world conversion moves to roles-5 with a parity test of its
-  product outputs. Merges before DD5.1 loads Kisiwa's or Mto's readings.
+- **DD3.4 Unit roles in the readers (3.25; D-DD.41, D-DD.44; part DD3c, D-DD.107; pre-flight ruled by D-DD.108 to
+  D-DD.116).** `sites/unit_roles.py`: the Site-from-units rule (state as D-DD.111; installed and available rating as
+  D-DD.112, all units FAILED = 0 kW available) and the lead-unit policy read, called by every Site-figure reader
+  whatever the role set (D-DD.110); one `MINI_DEPTH_ROLE_SETS` constant and migration `0074_unit_role_sets` let every
+  mini-depth gate accept one roles-4 or roles-5 set, with each reach and parity test of D-DD.109 (including
+  `assessment_worker.ROLES_BY_SET` from the served sets); the litres split per unit (D-DD.113); Kobo's world
+  conversion moves to roles-5 with D-DD.114's normalised parity of its product outputs. Five parts (D-DD.116). Merges
+  before DD5.1 loads Kisiwa's or Mto's readings.
 
 ### DD4: cold and EV operating reality, and the measured books (9.25 u in two parts, D-DD.88, D-DD.96, D-DD.101, D-DD.107: DD4a = DD4.1, DD4.2, 5.5 u (D-DD.107), `task/DD4-cold-ev-reality`; DD4b = DD4.3, DD4.4, 3.75 u (D-DD.101), `task/DD4b-ev-measured`)
 
@@ -1004,7 +1008,7 @@ The checker shares no logic, list or expected figure with the generators. Expect
 
 - **D-DD.1 to D-DD.16** as in rev 1, kept below. D-DD.4 is amended by D-DD.21 and D-DD.22, D-DD.5 by D-DD.24, and
   D-DD.10 by D-DD.17 and D-DD.30.
-- **D-DD.17 to D-DD.107**: `rulings.md` (D-DD.97 owner-approved 22 Nov; built in DD3b, D-DD.107).
+- **D-DD.17 to D-DD.116**: `rulings.md` (D-DD.97 owner-approved 22 Nov; built in DD3b, D-DD.107).
 
 - **D-DD.1 The cast.** The manifest's three operators and nine Sites, as §1's table. *Why:* one world drives the
   manifest, mock, documents and product. *Reverse:* a cast change is a manifest change first.
