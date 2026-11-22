@@ -9,12 +9,12 @@ Base: `frontend/mockups/v70/` (110 screens), copied byte-identical into `src-v70
 | | Count |
 |---|---:|
 | v7.0 screens | 110 |
-| of which Preserved | 80 |
-| of which Changed | 21 |
+| of which Preserved | 65 |
+| of which Changed | 36 |
 | of which Merged | 9 |
 | of which Retired | 0 |
-| Added screens | 77 |
-| Screens in the mock-up | 187 |
+| Added screens | 74 |
+| Screens in the mock-up | 184 |
 
 Preserved means the screen's canvas text is identical to v7.0 after the display-name map (checked by the audit: 65/65). Of the preserved screens, 44 carry re-based names (GreenHarvest → Thika, Depot → Ruiru, site ids); the rest are unchanged.
 
@@ -51,7 +51,7 @@ Preserved means the screen's canvas text is identical to v7.0 after the display-
 | # | Route | v7.0 title / section | Status | Reason |
 |---:|---|---|---|---|
 | 1 | `#/portfolio` | Portfolio Value & Operations | Changed | Overview tab of the restructured Portfolio: outcomes computed from factors, the value chain strip, four outcome cards with their factors, factors needing attention, the look-alike contrast and first moves. Replaces the v7.0 Portfolio page (ranked Findings, count cards, objective matrix, Kobo-only opportunity, one depot’s tariff estimate). |
-| 2 | `#/sites` | Sites | Changed | Directory re-based on the selected demo operator: three sites with their outcome against target, the factor needing attention and the recommended move. |
+| 2 | `#/sites` | Sites | Changed | Directory re-based on the selected demo operator: three sites with their outcome against plan, the factor needing attention and the recommended move. |
 | 3 | `#/mini` | Kobo Mini-grid / Overview | Changed | Kept as the “Operating outcomes (earlier view)” sub-view of Kobo’s Overview; the site’s Overview tab now opens the factor structure. |
 | 4 | `#/foundation` | Kobo Mini-grid / Foundation | Preserved | Unchanged apart from re-based display names (Thika, Ruiru, site ids). |
 | 5 | `#/readiness` | Kobo Mini-grid / Foundation | Preserved | Unchanged apart from re-based display names (Thika, Ruiru, site ids). |
@@ -86,13 +86,13 @@ Preserved means the screen's canvas text is identical to v7.0 after the display-
 | 34 | `#/sitework-incidents` | Kobo Mini-grid / Work | Preserved | Unchanged apart from re-based display names (Thika, Ruiru, site ids). |
 | 35 | `#/sitework-maintenance` | Kobo Mini-grid / Work | Preserved | Unchanged apart from re-based display names (Thika, Ruiru, site ids). |
 | 36 | `#/evidence-analysis` | Kobo Mini-grid / Evidence | Preserved | Unchanged apart from re-based display names (Thika, Ruiru, site ids). |
-| 37 | `#/assets` | Assets | Preserved | Unchanged. |
-| 38 | `#/findings` | Findings | Preserved | Unchanged. |
-| 39 | `#/actions` | Actions | Preserved | Unchanged. |
-| 40 | `#/incidents` | Incidents | Preserved | Unchanged. |
-| 41 | `#/maintenance` | Maintenance | Preserved | Unchanged. |
-| 42 | `#/globalevidence` | Portfolio evidence | Preserved | Unchanged. |
-| 43 | `#/globalfinancials` | Portfolio financials | Changed | Becomes the operator’s economic statement: every site’s money factors against target with evidence classes, and portfolio ratios composed as Σ ÷ Σ. |
+| 37 | `#/assets` | Assets | Changed | Slim banner: example items from the three demo operators shown together. |
+| 38 | `#/findings` | Findings | Changed | Slim banner: example items from the three demo operators shown together. |
+| 39 | `#/actions` | Actions | Changed | Slim banner: example items from the three demo operators shown together. |
+| 40 | `#/incidents` | Incidents | Changed | Slim banner: example items from the three demo operators shown together. |
+| 41 | `#/maintenance` | Maintenance | Changed | Slim banner: example items from the three demo operators shown together. |
+| 42 | `#/globalevidence` | Portfolio evidence | Changed | Slim banner: example items from the three demo operators shown together. |
+| 43 | `#/globalfinancials` | Portfolio financials | Changed | Becomes the operator’s economic statement: every site’s money factors against plan with evidence classes, and portfolio ratios composed as Σ ÷ Σ. |
 | 44 | `#/cold-foundation` | GreenHarvest Cold Room / Foundation | Preserved | Unchanged apart from re-based display names (Thika, Ruiru, site ids). |
 | 45 | `#/cold-health` | GreenHarvest Cold Room / Health | Preserved | Unchanged apart from re-based display names (Thika, Ruiru, site ids). |
 | 46 | `#/cold-evidence` | GreenHarvest Cold Room / Evidence | Preserved | Unchanged apart from re-based display names (Thika, Ruiru, site ids). |
@@ -137,8 +137,8 @@ Preserved means the screen's canvas text is identical to v7.0 after the display-
 | 85 | `#/sld` | Kobo Mini-grid / Foundation | Preserved | Unchanged apart from re-based display names (Thika, Ruiru, site ids). |
 | 86 | `#/cold-sld` | GreenHarvest Cold Room / Foundation | Preserved | Unchanged apart from re-based display names (Thika, Ruiru, site ids). |
 | 87 | `#/ev-sld` | Depot Charging Hub / Foundation | Changed | Slim banner: these detailed views come from the earlier demo (2 connectors, 80 kW) and depot-wide figures are on the Ruiru overview. |
-| 88 | `#/assets-warranty` | Assets / Warranty & vendors | Preserved | Unchanged. |
-| 89 | `#/asset-register` | Assets / Register asset | Preserved | Unchanged. |
+| 88 | `#/assets-warranty` | Assets / Warranty & vendors | Changed | Slim banner: example items from the three demo operators shown together. |
+| 89 | `#/asset-register` | Assets / Register asset | Changed | Slim banner: example items from the three demo operators shown together. |
 | 90 | `#/asset-overview` | Kobo battery / Overview | Preserved | Unchanged apart from re-based display names (Thika, Ruiru, site ids). |
 | 91 | `#/site-create-form` | Sites / Add site · form | Preserved | Unchanged. |
 | 92 | `#/site-create-template` | Sites / From template | Preserved | Unchanged. |
@@ -150,33 +150,31 @@ Preserved means the screen's canvas text is identical to v7.0 after the display-
 | 98 | `#/asset-work` | Kobo battery / Work | Preserved | Unchanged. |
 | 99 | `#/asset-evidence` | Kobo battery / Evidence | Preserved | Unchanged. |
 | 100 | `#/asset-warranty` | Kobo battery / Warranty | Preserved | Unchanged. |
-| 101 | `#/findings-cost` | Findings / Cost | Preserved | Unchanged. |
-| 102 | `#/findings-risks` | Findings / Risks | Preserved | Unchanged. |
-| 103 | `#/findings-opportunities` | Findings / Opportunities | Preserved | Unchanged. |
-| 104 | `#/maintenance-preventive` | Maintenance / Preventive · scheduled | Preserved | Unchanged. |
+| 101 | `#/findings-cost` | Findings / Cost | Changed | Slim banner: example items from the three demo operators shown together. |
+| 102 | `#/findings-risks` | Findings / Risks | Changed | Slim banner: example items from the three demo operators shown together. |
+| 103 | `#/findings-opportunities` | Findings / Opportunities | Changed | Slim banner: example items from the three demo operators shown together. |
+| 104 | `#/maintenance-preventive` | Maintenance / Preventive · scheduled | Changed | Slim banner: example items from the three demo operators shown together. |
 | 105 | `#/wr-overview` | Starter and control-circuit inspection / Overview | Preserved | Unchanged apart from re-based display names (Thika, Ruiru, site ids). |
 | 106 | `#/wr-record` | Starter and control-circuit inspection / Maintenance record | Preserved | Unchanged apart from re-based display names (Thika, Ruiru, site ids). |
 | 107 | `#/wr-history` | Starter and control-circuit inspection / History | Preserved | Unchanged apart from re-based display names (Thika, Ruiru, site ids). |
-| 108 | `#/oprecords` | Operational records | Preserved | Unchanged. |
-| 109 | `#/settings-policies` | Settings / Operational policies | Preserved | Unchanged. |
-| 110 | `#/settings-tenant` | Settings / Tenant configuration | Preserved | Unchanged. |
+| 108 | `#/oprecords` | Operational records | Changed | Slim banner: example items from the three demo operators shown together. |
+| 109 | `#/settings-policies` | Settings / Operational policies | Changed | Slim banner: example items from the three demo operators shown together. |
+| 110 | `#/settings-tenant` | Settings / Tenant configuration | Changed | Slim banner: example items from the three demo operators shown together. |
 
 ## 5. Added screens
 
 | Route | Title / section | Question it answers |
 |---|---|---|
-| `#/portfolio/outcomes-by-site` | Portfolio | Each outcome by site, broken down through its factors to target against actual; Protect measures against their targets. |
+| `#/portfolio/outcomes-by-site` | Portfolio | Each outcome by site, broken down through its factors to plan against actual; Protect measures against their targets. |
 | `#/portfolio/demand-and-capacity` | Portfolio | Demand that adds contribution, rejected demand with break-even, and capacity without a customer. |
-| `#/portfolio/act-first` | Portfolio | The issues needing a decision, each with who decides, and beside them the plan for November and December awaiting approval. |
+| `#/portfolio/act-first` | Portfolio | The plan for November and December under budget, crew visits and deadlines, with the switches that re-compute it. |
 | `#/portfolio/what-changed` | Portfolio | Actions (each chosen option) with frozen predictions and three verdicts; contract rights and their states. |
 | `#/portfolio/scope` | Portfolio | Coverage by site and leaf factor, missing records, sources and the pilot request. |
 | `#/portfolio/scope/pilot` | A deep-dive and pilot on your data | Deep-dive and pilot: minimum records, what you get, and the steps to a subscription. |
-| `#/portfolio/act-first/plan` | The plan for November and December | The plan: its items and the Actions under each, with creator, owner, due date and release; the approval; items left out and why. |
-| `#/not-found` | Page not found |  |
 | `#/site/kobo` | Kobo / Overview | Kobo: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights. |
-| `#/site/kobo/economics` | Kobo / Financials | Kobo economics: every factor against target, prices and models used. |
+| `#/site/kobo/economics` | Kobo / Financials | Kobo economics: every factor against plan, prices and models used. |
 | `#/site/kisiwa` | Kisiwa / Overview | Kisiwa: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights. |
-| `#/site/kisiwa/economics` | Kisiwa / Financials | Kisiwa economics: every factor against target, prices and models used. |
+| `#/site/kisiwa/economics` | Kisiwa / Financials | Kisiwa economics: every factor against plan, prices and models used. |
 | `#/site/kisiwa/foundation` | Kisiwa / Foundation | Foundation views for Kisiwa (not built in this mock-up). |
 | `#/site/kisiwa/health` | Kisiwa / Health | Health views for Kisiwa (not built in this mock-up). |
 | `#/site/kisiwa/performance` | Kisiwa / Performance | Performance views for Kisiwa (not built in this mock-up). |
@@ -184,7 +182,7 @@ Preserved means the screen's canvas text is identical to v7.0 after the display-
 | `#/site/kisiwa/work` | Kisiwa / Work | Work views for Kisiwa (not built in this mock-up). |
 | `#/site/kisiwa/evidence` | Kisiwa / Evidence | Evidence views for Kisiwa (not built in this mock-up). |
 | `#/site/mto` | Mto / Overview | Mto: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights. |
-| `#/site/mto/economics` | Mto / Financials | Mto economics: every factor against target, prices and models used. |
+| `#/site/mto/economics` | Mto / Financials | Mto economics: every factor against plan, prices and models used. |
 | `#/site/mto/foundation` | Mto / Foundation | Foundation views for Mto (not built in this mock-up). |
 | `#/site/mto/health` | Mto / Health | Health views for Mto (not built in this mock-up). |
 | `#/site/mto/performance` | Mto / Performance | Performance views for Mto (not built in this mock-up). |
@@ -192,7 +190,7 @@ Preserved means the screen's canvas text is identical to v7.0 after the display-
 | `#/site/mto/work` | Mto / Work | Work views for Mto (not built in this mock-up). |
 | `#/site/mto/evidence` | Mto / Evidence | Evidence views for Mto (not built in this mock-up). |
 | `#/site/mwea` | Mwea / Overview | Mwea: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights. |
-| `#/site/mwea/economics` | Mwea / Financials | Mwea economics: every factor against target, prices and models used. |
+| `#/site/mwea/economics` | Mwea / Financials | Mwea economics: every factor against plan, prices and models used. |
 | `#/site/mwea/foundation` | Mwea / Foundation | Foundation views for Mwea (not built in this mock-up). |
 | `#/site/mwea/health` | Mwea / Health | Health views for Mwea (not built in this mock-up). |
 | `#/site/mwea/performance` | Mwea / Performance | Performance views for Mwea (not built in this mock-up). |
@@ -200,9 +198,9 @@ Preserved means the screen's canvas text is identical to v7.0 after the display-
 | `#/site/mwea/work` | Mwea / Work | Work views for Mwea (not built in this mock-up). |
 | `#/site/mwea/evidence` | Mwea / Evidence | Evidence views for Mwea (not built in this mock-up). |
 | `#/site/thika` | Thika / Overview | Thika: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights. |
-| `#/site/thika/economics` | Thika / Financials | Thika economics: every factor against target, prices and models used. |
+| `#/site/thika/economics` | Thika / Financials | Thika economics: every factor against plan, prices and models used. |
 | `#/site/kirinyaga` | Kirinyaga / Overview | Kirinyaga: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights. |
-| `#/site/kirinyaga/economics` | Kirinyaga / Financials | Kirinyaga economics: every factor against target, prices and models used. |
+| `#/site/kirinyaga/economics` | Kirinyaga / Financials | Kirinyaga economics: every factor against plan, prices and models used. |
 | `#/site/kirinyaga/foundation` | Kirinyaga / Foundation | Foundation views for Kirinyaga (not built in this mock-up). |
 | `#/site/kirinyaga/health` | Kirinyaga / Health | Health views for Kirinyaga (not built in this mock-up). |
 | `#/site/kirinyaga/performance` | Kirinyaga / Performance | Performance views for Kirinyaga (not built in this mock-up). |
@@ -210,7 +208,7 @@ Preserved means the screen's canvas text is identical to v7.0 after the display-
 | `#/site/kirinyaga/work` | Kirinyaga / Work | Work views for Kirinyaga (not built in this mock-up). |
 | `#/site/kirinyaga/evidence` | Kirinyaga / Evidence | Evidence views for Kirinyaga (not built in this mock-up). |
 | `#/site/embakasi` | Embakasi / Overview | Embakasi: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights. |
-| `#/site/embakasi/economics` | Embakasi / Financials | Embakasi economics: every factor against target, prices and models used. |
+| `#/site/embakasi/economics` | Embakasi / Financials | Embakasi economics: every factor against plan, prices and models used. |
 | `#/site/embakasi/foundation` | Embakasi / Foundation | Foundation views for Embakasi (not built in this mock-up). |
 | `#/site/embakasi/health` | Embakasi / Health | Health views for Embakasi (not built in this mock-up). |
 | `#/site/embakasi/performance` | Embakasi / Performance | Performance views for Embakasi (not built in this mock-up). |
@@ -218,7 +216,7 @@ Preserved means the screen's canvas text is identical to v7.0 after the display-
 | `#/site/embakasi/work` | Embakasi / Work | Work views for Embakasi (not built in this mock-up). |
 | `#/site/embakasi/evidence` | Embakasi / Evidence | Evidence views for Embakasi (not built in this mock-up). |
 | `#/site/kasarani` | Kasarani / Overview | Kasarani: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights. |
-| `#/site/kasarani/economics` | Kasarani / Financials | Kasarani economics: every factor against target, prices and models used. |
+| `#/site/kasarani/economics` | Kasarani / Financials | Kasarani economics: every factor against plan, prices and models used. |
 | `#/site/kasarani/foundation` | Kasarani / Foundation | Foundation views for Kasarani (not built in this mock-up). |
 | `#/site/kasarani/health` | Kasarani / Health | Health views for Kasarani (not built in this mock-up). |
 | `#/site/kasarani/performance` | Kasarani / Performance | Performance views for Kasarani (not built in this mock-up). |
@@ -226,14 +224,13 @@ Preserved means the screen's canvas text is identical to v7.0 after the display-
 | `#/site/kasarani/work` | Kasarani / Work | Work views for Kasarani (not built in this mock-up). |
 | `#/site/kasarani/evidence` | Kasarani / Evidence | Evidence views for Kasarani (not built in this mock-up). |
 | `#/site/ruiru` | Ruiru / Overview | Ruiru: outcomes with their factor structure, Protect measures, attention, decisions, obligations and rights. |
-| `#/site/ruiru/economics` | Ruiru / Financials | Ruiru economics: every factor against target, prices and models used. |
+| `#/site/ruiru/economics` | Ruiru / Financials | Ruiru economics: every factor against plan, prices and models used. |
 | `#/decision/kobo-generator` | Kobo generator stop setting / Decision | Kobo generator stop setting |
 | `#/decision/kobo-battery` | Kobo battery warranty evidence / Decision | Kobo battery warranty evidence |
 | `#/decision/kisiwa-genset` | Kisiwa evening backup generator / Decision | Kisiwa evening backup generator |
 | `#/decision/kisiwa-om` | Kisiwa late repair response and service credit / Decision | Kisiwa late repair response and service credit |
 | `#/decision/mto-demand` | Mto new daytime demand / Decision | Mto new daytime demand |
 | `#/decision/mto-billing` | Mto billing after the meter swap / Decision | Mto billing after the meter swap |
-| `#/decision/mto-losses` | Mto energy not explained after expected losses / Decision | Mto energy not explained after expected losses |
 | `#/decision/mto-inverter` | Mto inverter 2 restore path / Decision | Mto inverter 2 restore path |
 | `#/decision/mwea-occupancy` | Mwea occupancy / Decision | Mwea occupancy |
 | `#/decision/thika-backup` | Thika stock cover until the start controller is replaced / Decision | Thika stock cover until the start controller is replaced |
@@ -285,7 +282,7 @@ The same order and rename are recommended for the live product (owner decision Q
 | Finding | Change in the mock-up |
 |---|---|
 | OE-4 first fold | The Overview opens with the headline sentence, the four figures (each with a one-line note; the detail is in its drawer) and the plan's first three moves on one strip with "Open the plan". The value chain sits behind a disclosure (closed at phone width, open on wide screens). The outcome cards, factors needing attention and the look-alike contrast follow. |
-| OE-6 design values | Every figure that rests on a replay carries the visible label "Design estimate: not yet tested on your recorded data": the Kobo decision (210 L, 20 L, 61 of 61 and 4 of 61 replayed days, $2,916), the Mto demand decision (68 L, $395 a month, $3,540), the Embakasi schedule (31 of 31 nights; deliverable energy), the Mto inverter sensitivity (plan values including the huller), the plan-value drawer, and the plan's rows on Act first. Kirinyaga carries "Design value: the recovery share is an assumption (80%, range 60–90%)". The Overview plan figure says "includes design values not yet run on site data". |
+| OE-6 design values | Every figure that rests on a replay carries the visible label "Design value: the replay has not yet been run on site data": the Kobo decision (210 L, 20 L, 61 of 61 and 4 of 61 replayed days, $2,916), the Mto demand decision (68 L, $395 a month, $3,540), the Embakasi schedule (31 of 31 nights; deliverable energy), the Mto inverter sensitivity (plan values including the huller), the plan-value drawer, and the plan's rows on Act first. Kirinyaga carries "Design value: the recovery share is an assumption (80%, range 60–90%)". The Overview plan figure says "includes design values not yet run on site data". |
 | LY-1 operations (O2) | "Operations measures by site, against plan" on Outcomes by site (Σ ÷ Σ portfolio values), lines on the Optimize card, and a per-site table on site pages: asset availability 98.62% (428 of 434 asset-days, rev 7 counting rule), field visits 3 (plan 3), 7,683.33 delivered kWh per visit; cooling availability 99.997% (4 minutes lost at Thika), 22,820 crate-days without an excursion (plan 26,040); deliverable energy used (import-limited) 56.23% (Embakasi 46.67%, Kasarani 85.71%, Ruiru 61.25%; rev 7), 50.08 required departures met per installed charger. |
 | LY-2 cold realisation | Cold value chain stages: capacity → occupied → chargeable (ledger to invoice reconciliation) → invoiced → received, with each leak named; October shows no difference, so there is no billing option this month (stated in the chargeable-crate-days factor). |
 | LY-4 downside | Act first shows the downside beside the plan value for every operator and case: Lakeside +$2,556 if the cooperative does not sign (other sensitivities: diesel 20% cheaper +$5,670; only 160 L feasible +$5,346); Harvest +$1,512.40 if the aggregator does not sign (Kirinyaga recovery at 60%: +$2,716.80); Metro $0 if the tariff does not apply. Switched cases say "Downside shown for the default plan". |
@@ -300,7 +297,7 @@ The same order and rename are recommended for the live product (owner decision Q
 | Finding | Change in the mock-up |
 |---|---|
 | N-M1 EV operations measure | Shown as "Deliverable energy used (import-limited)": delivered ÷ deliverable kWh a night, deliverable being the lower of chargers in service × kW and the import limit. Each depot shows its binding limit (Embakasi import 500 kW; Kasarani chargers 200 kW; Ruiru import 400 kW). Portfolio 5,960 ÷ 10,600 = 56.23%. Ruiru's 34% is labelled "nameplate charger-hours" on Demand and capacity, the Metro Grow card and the Ruiru expansion decision, with "61% of deliverable energy a night (the 400 kW import limit binds)" beside it. |
-| N-M2 design-value tags everywhere | One rule in code (`tagReplay` in `loop-core.js`): every container (table row, list item, paragraph, definition, figure card, path card, plan total, drawer header) holding a replay figure (210 L, 20 L avoided, 61 of 61, 4 of 61, $2,916, 68 L, $395, $3,540, 31 of 31, $6,096, $2,556, $3,546, $5,670, $5,346) gets the visible tag "Design estimate: not yet tested on your recorded data". This covers the Overview Optimize card and contrast panel, the Act first path cards, plan rows, total, downside and four-case table, What changed, Demand and capacity, the decision pages and every evidence drawer. The Mto inverter banner names both the Kobo stop-setting replay and the huller replay. The audit scans every route and every evidence drawer and fails any occurrence whose container lacks the tag. |
+| N-M2 design-value tags everywhere | One rule in code (`tagReplay` in `loop-core.js`): every container (table row, list item, paragraph, definition, figure card, path card, plan total, drawer header) holding a replay figure (210 L, 20 L avoided, 61 of 61, 4 of 61, $2,916, 68 L, $395, $3,540, 31 of 31, $6,096, $2,556, $3,546, $5,670, $5,346) gets the visible tag "Design value: the replay has not yet been run on site data". This covers the Overview Optimize card and contrast panel, the Act first path cards, plan rows, total, downside and four-case table, What changed, Demand and capacity, the decision pages and every evidence drawer. The Mto inverter banner names both the Kobo stop-setting replay and the huller replay. The audit scans every route and every evidence drawer and fails any occurrence whose container lacks the tag. |
 | N-L3 wording | Path cards read "Modelled 12-month change from the valued options". The Lakeside plan-value drawer no longer repeats "Net of the valued options’ own one-off costs". The Harvest drawer and Act first use "Assumption: Kirinyaga recovery share 80%, range 60–90%"; its source line names the repair quote, recovery assumption and draft contract (no forward replay); the Harvest Overview note says "includes an assumed recovery share (80%)". Option drawers name the forward replay only for replay-based options. |
 | N-L4 | "Required departures met per installed charger" (50.08; 51.75 per charger-day in service, stated in the basis). |
 | Diesel −20% | +$5,670 wherever shown (read from the file). |
@@ -387,18 +384,6 @@ Check: every number on every page (all routes, three operators) and in every evi
 | Fix | Demand and capacity (Harvest): the idle-capacity table reads each room's evaluated capacity (rev 12 left it empty, so idle crate-days showed negative). |
 | Audit expectations | The switch-case checks read the evaluator's switch cases from derived-values.json instead of typed expected figures or the manifest's stated case copies. |
 | Register | Every item in the mock-up code and tools that is not read from the evaluation or the manifest is listed with its disposition in the derivation-register fragment for this round. |
-
-## 7k. 0K4m (21-22 Nov 2026): one figure per quantity (spec 0K4m §4 rev 5; D-0K4.50 to D-0K4.56)
-
-| Change | What changed on screen and why |
-|---|---|
-| Simulated chip | Each figure that rests on a simulation study carries the chip "Simulated"; its title reads "Simulated: from a simulation of a declared 61-day season, not your recorded data", with the days of that figure's own study (K8 for Kobo, M8 for Mto). The dagger mark and its label are gone. The tagger reads `SOURCE_PATTERNS` and `SOURCE_LABELS` from the fixtures; the audit's independent set (`tools/replay_values.py`) reads `source:`, `information:` and `replay_studies`. |
-| Kobo's two settings | Litres and value read "Not available yet: needs a simulation of Kobo's own October"; the admission line ("Passes the operating checks: energy served, reserve kept, starts within the maker's limit, regular full charge") and the dawn line (information, not a limit) stand beside them. No setting is recommended or valued; no sensitivity is shown. |
-| Kobo's split | The 330 L and 730 L read as October's records classify them, to be re-checked against Kobo's own 5-minute readings; the slice code sits only in the drawer's reviewer block. |
-| Other gaps | KIS-BATT60: "Not available yet: needs a simulation with a Kisiwa battery". Embakasi per-bus departure timing: "Not available yet: needs a simulation of the charging schedule"; the 21-bus night and its kW are gone. The welder's break-even reads "Not available yet"; the welder's value is the evaluator's. |
-| Mto | The huller and welder sums read the evaluator's litres a kWh (M8) and monthly change; the inverter paths are not valued in money and show no sensitivity. |
-| Readers | Every reader of a field 0K4m removed reads the evaluator's figure or states its gap; no element is dropped. Kobo's verification line reads "the four operating checks still pass over the trial", with the matched days from the fixtures. |
-| Drawer and popover | A drawer holding a Simulated figure lists that study's four assumptions in words. The popover: "Simulated figures come from a simulation of a declared season; 'Not available yet' names the record that would fill it". |
 
 ## 8. Conflicts and gaps found (not fixed by invention)
 
