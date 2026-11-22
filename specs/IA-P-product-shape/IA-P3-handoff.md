@@ -1,4 +1,4 @@
-# IA-P3 handoff after run 3 (P5 partial: tabs, section lines, object pages built; parity proof and alias pending; P6, P7 not built)
+# IA-P3 handoff after run 4 (P5 built to D-IAP.42-45 except the alias test migration and slice-end paperwork; P6, P7 not built)
 
 Branch `task/IA-P3-sites-site-inbox`, worktree `/opt/assetecon/AssetOpsV1-iap3`, from `main` `8f8b3ad16`.
 Main baseline worktree `/opt/assetecon/AssetOpsV1-iap3main` (detached at `main` `4b648381c`, `npm ci` done; delete with
@@ -100,3 +100,63 @@ Commits `1607351ac` (P5 build) and `bbb707964` (test migration), on `7e3c92e99`.
 - Q-P5-2: the pinned bodies cannot be byte-current (uuid4 ids, clock-relative COLD world). Pin a normalised body (ids
   and dates replaced by stable tokens, the subset relation kept), or pin once and assert shape and the subset only?
 - Coordinator Q1 and Q2 (packet §5) are still open; R795 is the candidate row; `sites/SitesIndex.tsx` kept.
+
+## Run 4 (P5 on D-IAP.42 to D-IAP.45; PARTIAL, stopped at the context limit)
+
+Merged main `12e618be3` (conflicts in spec Status and state index resolved: DD3a keeps 206, IA-P3 is 207). Commits
+`2edb16d4b`..`188c5fee8`. Baseline worktree `/opt/assetecon/AssetOpsV1-iap3main` is now at main `12e618be3`.
+
+- Built, test-first:
+  - D-IAP.42/43 server test (`test_iap_site_findings_parity_postgres.py`): MINI flipped (missing ids must sit on a
+    Site whose estate coverage, keyed by `site_id` via `_site_uuid`, is not CURRENT/HISTORICAL; measured PARTIAL; a
+    full subset fails "MINI parity holds: ship the MINI alias (D-IAP.42)"); COLD and EV normalised (`_normalise`),
+    subset asserted before and after; pins written once (`IAP_WRITE_FIXTURES=1`, 267 s, 3 passed). COLD's month
+    window is the 31 days ending on the data day (a calendar month is not stable under the shift; Known Deviation).
+  - **SPEC_CONFLICT Q-P5-3 (Architect):** a second build (167 s) differs from the pins after D-IAP.43 normalising, in
+    classes the ruling does not name: `run-<hex32>` ids, sha1/sha256 digests over ids, wall-clock record stamps
+    (`as_of`, `decided_at`, `committed_watermark`), and arrays ordered by uuid value (so first-appearance tokens
+    permute). Diff counts: cold-site 884 leaves, ev-site 1784; estate bodies not reported as drifting. The subset
+    holds on both runs. The byte compare now `pytest.xfail`s with the drift named; a ruling (tokenise those classes
+    and sort id-ordered arrays, or compare a projection) is needed before it can be a hard assert.
+  - Client layer `estate/__tests__/siteFindingsParity.test.ts`: COLD and EV pass (2/2). Plant `parity` (`site_id`
+    scope key in `findingsDef().site`): 2 failed, reverted.
+  - D-IAP.42 alias: `SiteFindingsFrame` redirects COLD/EV to `/findings?{from,to,known_at}&scope=site:{id}`
+    (`siteFindingsAlias`, `siteFindingsAliased` in `shell/siteSections.tsx`); the frame's cold/EV branches and its
+    `coldAssessment`/`evAssessment` props are gone. MINI keeps its index, lit under Evidence, Evidence line
+    "Records · Uploads · Findings" (also on MINI Evidence and Uploads). Test `shell/__tests__/siteFindingsAlias.test.tsx`
+    (6 failed first, 6 pass solo). Register R796 (MD-IAP-15).
+  - D-IAP.44: lifecycle word (`deriveSiteView` word, `<small data-lifecycle>`) on Sites rows and Outcomes L2 rows;
+    Outcomes gets the directory through `EstatePortfolioFrame` → `OutcomesSites` (`useDirectorySites`,
+    `lifecycleWords`); a refused directory read shows no word. 2 new `sitesList` tests (failed first); plant `nolife`
+    failed 2, reverted. R795 now D2 (both homes named).
+  - D-IAP.45: `sites/SitesIndex.tsx` and `sitesIndex.test.tsx` deleted (no export was imported elsewhere); the
+    hard-wiring baseline entry, the `sharedVisualVocabulary` comment and the css header comment re-pointed.
+  - Risks fixed: one Evidence line on cold/EV ("Records · Analysis · Uploads", drawn by `coldSiteViews`/`EvSiteViews`
+    Subtabs through `ui/SiteSections`; `routes.uploads` added; shell no longer adds a second nav); Assets crumbs drop
+    Health; Foundation row drops "Change & effect" (default `withChanges=false`; Changes pages draw no Foundation row,
+    crumb "Changes"; R797). Tests migrated (b): `evSiteMoneyRoutes` (line), `operatorSiteTabs` (MINI line),
+    `siteFoundationRevision` 3, `siteFoundationChange` 2, `foundationScreen` (passes `withChanges`).
+  - Gates T1/T2 in `tools/iap_gates.cjs` (+ fixtures `fixtures/iap/site-{mini,cold,ev}.json` from
+    `shell/__tests__/kobo-site-detail.json` with id/type/name replaced; `routes.json`). Fresh build, `vite preview`
+    :5573: 62 of 62 pass. Plant `seventab`: T1 fails on all three, `operatorSiteTabs` 38 failed. Plant `crumb` (tab
+    row on the mini Finding view): T2 mini fails. Shots and logs: `/opt/assetecon/evidence/IA-P/IA-P3/p5/` (132 files).
+  - Layout evidence: not run (`tools/layout-evidence.mjs` needs the backend and a store; R4 at 390 in iap_gates passes).
+
+## Next (P5 remainder, in order)
+
+1. Migrate the alias fallout (branch run of estate+shell+ui+sites: 34 failed of 4144, 188 files, 192 s, at
+   `188c5fee8`): `sites/__tests__/coldFindingIndex.test.tsx` (10) and `evFindingIndex.test.tsx` (9) mount the
+   index at `/sites/:id/findings`, which now redirects; `siteRangeMatrix` "cold /findings (R)" and "ev /findings (R)"
+   rows (now aliases); check `siteRangeMatrix` "each Site route" and `siteFindingsAlias` COLD (failed in-suite, passed
+   solo: probably settle timing). The components `ColdFindingIndex`/`EvFindingIndex` are mounted by no route now:
+   ask the Architect whether they go (D-IAP.45 logic) or their tests mount them directly. Compare the rest with the
+   main run of the same scope (`vitest-main.log` from this run, see below); handoff run 3 lists the pre-existing ones.
+2. Slice-end: move the per-file migration table into `packet-IA-P3.md` (§P5, with run 3's and run 4's rows),
+   counts branch vs main, `test_iap_*` (branch run started this run; main once), guards, state entry 207, spec Status.
+
+## Questions for the Architect (run 4)
+
+- Q-P5-3 (SPEC_CONFLICT, D-IAP.43): the normalised bodies are not stable across builds (classes above). Which
+  normalisation, or which projection, is the byte compare to run on?
+- Q-P5-4: `ColdFindingIndex` and `EvFindingIndex` (and their tests) are unmounted by the alias: delete, or keep and
+  re-mount their tests directly?
