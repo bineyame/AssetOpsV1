@@ -1,40 +1,47 @@
-# IA-P reviewer guide (rev 2, 2026-11-22: the Overview follows the range)
+# IA-P reviewer guide (rev 3, 2026-11-22: handshake answered; three parts)
 
 Read `spec.md` (§2, §3, §5, your part's §6 cards, §7, §10), `spec-period.md` (P.1, then P.2 to P.7 for IA-P1 and P.8 for
-IA-P2) and `rulings.md` (D-IAP.15 on for rev 2).
-- **Depth:** discovery (W5), one review per part: IA-P1 after P3b, IA-P2 after P7. Both
-  parts add money figures and an endpoint (E2 in IA-P1; E0 and E1 in IA-P2).
+IA-P2) `rulings.md` (D-IAP.15 on for rev 2, D-IAP.24 on for rev 3), and `handshake.md` "Answers (Architect)" (binding).
+The parts are IA-P1 (P1, P0, P2), IA-P2 (P3a, P3b, P4a) and IA-P3 (P4b, P5, P6, P7).
+- **Depth:** discovery (W5), one review per part: IA-P1 after P2, IA-P2 after P4a and IA-P3 after
+  P7. IA-P1 sweeps every range read; IA-P2 adds E2, E0 and E1; IA-P3 renders their figures.
 - **Questions** go in `handshake.md` with the Implementer's pre-flight, one combined round (`.ai/RULES.md` §4). Mid-build
   questions go in `mid-build-questions.md`.
 - **Mock:** vNEXT as built by IA-1, IA-2a and IA-2b1. Do not open `frontend/mockups/v69/` or `v71/`.
 
-**IA-P1 done when:**
-1. The rail equals spec §2.1 (R1).
-2. `iaRouteMap.test.ts` passes, and fails on the `routemap` plant.
-3. Every P1 to P3 alias lands with the range kept (R2).
-4. The Portfolio has three tabs. `/portfolio` follows the range in all three modes (H3 to H6), and `deep_dive_gates.cjs`
-   passes at `/portfolio?from=2026-10-01&to=2026-10-31` unchanged in its checks (H3).
-5. E2's World P literals hold exactly (`spec-period.md` P.7 test 2), each month row's gap is that month's tile 2 (test 3),
-   and the committed fixtures are current (test 10).
-6. Decisions, Findings and Actions are `HomeList`. Every P1 to P3b plant fails its named check.
-7. `view.py` and the 5c backend tests are unchanged, and the mid-build count is 0.
+**IA-P1 done when** (P1, P0, P2):
+1. The rail equals spec §2.1 (R1), and `iaRouteMap.test.ts` fails both ways: on the `routemap` plant and on the `alias`
+   plant (D-IAP.27).
+2. Every P1 and P2 alias lands with the range kept (R2).
+3. On a 61-day range a non-whole page sends the 31-day window and the bar says so, and links keep the whole range (R7, R8).
+   `noRawRangeReads` fails on the `rawread` plant.
+4. Decisions, Findings and Actions are `HomeList`. `MONITOR` rows read "Being watched" and are not counted as waiting.
+5. Every P1, P0 and P2 plant fails its named check, and the mid-build count is 0.
 
-**IA-P2 done when:**
-1. E1's World A and World P literals hold exactly (P.8 tests 1 and 7), and the sum check fails on the `sum` plant.
-2. The Sites gap tile equals the Overview's tile 2 string on a one-month and a two-month range (S1).
-3. Six Site tabs show on MINI, COLD and EV (T1), and object pages have three-part crumbs (T2).
-4. The inbox badge equals the Decisions waiting tile (W1).
-5. Ctrl K works, and only live targets are indexed.
-6. Every P4 to P7 plant fails.
-7. SC-1's catalogue check and the hand-built guard are green.
-8. The ladder note is in the packet.
+**IA-P2 done when** (P3a, P3b, P4a):
+1. The Portfolio has three tabs. `/portfolio` follows the range in all three modes (H3 to H6), and `deep_dive_gates.cjs`
+   passes at the October range unchanged in its checks.
+2. E2's World P and World G literals hold (P.7 tests 2 and 11), each month row's gap is that month's tile 2 (test 3), and
+   the fixtures are current (test 10).
+3. E1's World A, World G and World P literals hold (P.8 tests 1, 2 and 7), the sum check fails on the `sum` plant, and
+   World X degrades (4b).
+4. `view.py` and the 5c backend tests are unchanged. SC-1's checks are green, and the ladder note is in the packet.
+
+**IA-P3 done when** (P4b, P5, P6, P7):
+1. The Sites gap tile equals the Overview's tile 2 on a one-month and a two-month range (S1), and reads "Not available yet"
+   under a facet (MD-IAP-13).
+2. Thika is named on the Overview, Outcomes and the Sites list (the matrix test).
+3. There are six Site tabs on MINI, COLD and EV (T1), and object pages have three-part crumbs (T2).
+4. The inbox badge equals the Decisions waiting tile (W1). Ctrl K works, and only live targets are indexed.
+5. Every P4b to P7 plant fails, and the mid-build count is 0.
 
 **First checks.**
 - **Diff scope.** `frontend/src`, `tools/iap_gates.cjs`, `tools/deep_dive_gates.cjs`, `tools/checks/navigation-truthfulness.ps1`,
-  this folder, the register and the DDR runbook's S7 line. In IA-P1 also: `backend/assetops_backend/deep_dive/period.py`
+  this folder, the register and the DDR runbook's S7 line. In IA-P2 also: `backend/assetops_backend/deep_dive/period.py`
   and `read.py`, `deep_dive_api.py`, `i18n/statements/en/portfolio_period.py` and
-  `backend/tests/test_iap_portfolio_period.py`. In IA-P2 also: `deep_dive/sites.py`, `estate/portfolio.py`,
-  `i18n/statements/en/portfolio_sites.py`, `backend/tests/test_iap_*` and `walk-layer4-v1.json`.
+  `backend/tests/test_iap_portfolio_period.py`, `deep_dive/sites.py`, `estate/portfolio.py`,
+  `i18n/statements/en/portfolio_sites.py` and `backend/tests/test_iap_*`. In IA-P3 also: `walk-layer4-v1.json` and
+  `backend/tests/test_wk_walk_world.py` (I13). In IA-P1: every range read's request builder (the P0 sweep).
 - **No reviewed read rewritten.** `git diff` of `estateClient.ts` is additive only (E0 types).
 - **Independence (W2).** `homeLists.test` and `iap_gates.cjs` compute expected rows from the fixture bodies with their own
   code, never by calling `homeListModel` or the defs (only `homeListModel.test`'s synthetic block calls the model).

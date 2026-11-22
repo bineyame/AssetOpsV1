@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-P6.20 to D-P6.29)
+# Decision index: Demo-sprint and later rulings (index only) (D-P6.20 to D-P6.29, D-IAP.24 to D-IAP.33)
 
 - `D-P6.20` 6a's DecisionStore gains site_by_id (Protocol, memory, adapter); 6c E3/E4 use it · live · specs/6-decision-valued/rulings.md
 - `D-P6.21` setting_changes and EvaluationService take grid_changes (default SETTING_GRID_CHANGES); tests inject F1's lever · live · specs/6-decision-valued/rulings.md
@@ -10,3 +10,13 @@
 - `D-P6.27` storage and output forms: jsonb shapes, fractions n/d lowest terms, JSON line keys and forms · live · specs/6-decision-valued/rulings.md
 - `D-P6.28` import allowlist: four decisions/ modules may import runs.admission/replay_study names; no simulator or host loaded · live · specs/6-decision-valued/rulings.md
 - `D-P6.29` a zero change with no money leaf takes the one-off's currency; no ONE_OFF_CURRENCY · live · specs/6-decision-valued/rulings.md
+- `D-IAP.24` long range: shared range to 731 days; Overview/Outcomes/Sites read whole; other reads readWindow (last 31 days), bar declares it; owner Q12 · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.25` period body names Sites not compared (W.sites line, Compared for k of n suffix, row sites); World G tests · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.26` cold-chain/EV rows: No monthly figures for {type} Sites yet (snapshots MINI_GRID only); MD-IAP-12; owner Q11 · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.27` route-map test both ways with own section 2.4 literals; resolves constants, .map arrays, Lab routes · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.28` month-word year rule; Sites gap tile only unfiltered (MD-IAP-13); E1 fixtures current; by_site pin; sum checks degrade to 503 · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.29` MONITOR placement is watching (Being watched), not waiting; E0, tiles, badge follow · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.30` implementer clarifications adopted (I1, I3-I6, I8, I9, I11-I14, I16) as answered in handshake.md · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.31` object pages incl. verification pages; failed-parity Findings index lit under Evidence (MD-IAP-15); live rail icons (MD-IAP-14) · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.32` rev 3 units: P0 added, P4 split; IA-P1 4.5, IA-P2 5.0, IA-P3 4.5 (14.0 u); one rung rebuild after IA-P2 · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.33` owner Q9 Last month (D-IAP.21 stands), Q10 Month by month (MD-IAP-10 stands) · live · specs/IA-P-product-shape/rulings.md
