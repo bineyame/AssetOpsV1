@@ -2,10 +2,10 @@
 
 Status: **rev 2, 2026-11-22; DD1 in_review (`packet-DD1.md`)**: the combined handshake (`handshake.md`, R1-R10, I1-I15) is answered there under "Answers
 (Architect)" and ruled in `rulings.md` (D-DD.17 to D-DD.34). Rev 1 (same day) had 19.5 u in four parts; rev 2 has
-**30.0 u in six parts** (§7). Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
+**30.0 u in six parts** (§7); restated by D-DD.44 to **33.0 u in seven parts** (DD3 splits into DD3a, DD3b). Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
 it grounded on the product goals"); owner answers to Q1-Q6: `owner/owner-demo-data-answers-2026-11-22.md`. Owner words on
 Kobo's equipment: `owner/owner-iap-q1-q2-kobo-datasheets-2026-11-22.md`. **Rulings:** D-DD.1 to D-DD.16 (§9) and
-D-DD.17 to D-DD.34 (`rulings.md`); index lines in `.ai/decisions/index-rulings-26.md` and `index-rulings-27.md`.
+D-DD.17 to D-DD.44 (`rulings.md`); index lines in `.ai/decisions/index-rulings-26.md` and `index-rulings-27.md`.
 **Reviewer guide:** `reviewer-guide.md` (rev 2). `USER_REVIEW_REQUIRED: true` (demo narrative, evidence labels, what the
 served app shows; owner Q7-Q9 open with defaults applied).
 
@@ -691,7 +691,7 @@ line's: 10.50 / 10.50; 7.80 / 8.03; 5.60 / 5.56. The packet quotes these residua
 Six parts, one branch each, each with one discovery review (W5: a new mechanism, a protected seam and money figures).
 Order: DD1 → (DD2 ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merges). See §8.2.
 
-### DD1: three operators (4.0 u; `task/DD1-three-operators`)
+### DD1: three operators (4.5 u, D-DD.44; `task/DD1-three-operators`)
 
 - **DD1.1 Onboarding of every vertical (1.0).**
   - `operator_file.py` maps verticals `{"MINI_GRID": "MINIGRID", "COLD_CHAIN": "COLDCHAIN", "EV_DEPOT": "EV_CHARGING"}`.
@@ -702,14 +702,16 @@ Order: DD1 → (DD2 ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merges). See �
     shape (exemplars: `fixtures/w2/cold-lab-001.yaml`, `ev-lab-001.yaml`).
   - Tests: one per vertical; one refusal per new key misuse (`ONBOARD_SITE_INVALID`); every `/1` file's digest is
     unchanged byte for byte.
-- **DD1.2 The three files, bindings and enabled sources (1.75).**
+- **DD1.2 The three files, bindings and enabled sources (2.25; D-DD.44).**
   - `backend/tests/fixtures/on1/harvest-cold.onboarding.json` and `metro-bus.onboarding.json`: people and Sites from
     `demo_workflow` and `tenants`; emails `<name lower>@<slug>.example`; one executive, one finance lead and one analyst
     each; site managers bound to their Sites. The rooms and depots carry the foundations of §4.4 and §4.5.
   - Lakeside's file moves to `/2` with devices; Kobo's data-sheet values arrive in DD3.2.
   - Every `/2` file and binding set has `valid_from` 2026-06-30T21:00:00Z.
   - Nine binding conversions, `backend/conversions/world/<SITE>-bindings.json` (`assetops.binding-conversion/1`; role
-    sets `minigrid-roles-4`, `cold-roles-1`, `ev-roles-1`). Kisiwa's and Mto's list every unit's device.
+    sets `minigrid-roles-4` at Kobo, `minigrid-roles-5` at Kisiwa and Mto (D-DD.41), `cold-roles-1`, `ev-roles-1`).
+    Kisiwa's and Mto's list every unit's device, each bound to its unit. Kisiwa's site policy sits on `gen-ks-01` only
+    (D-DD.43).
   - One new apply step, idempotent, run for `data: emulated` only: `onboard_operator apply --bindings DIR` (D-DD.36). It
     publishes through `binding_conversion.convert` and `BindingService.publish`, then runs `provision_gateway
     enable-gateway` and `enable-source` in process for each disabled row. The guard compares the served tenant
@@ -737,7 +739,7 @@ Order: DD1 → (DD2 ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merges). See �
 - **DD2.5 Statements (0.75).** §5.4 for Lakeside's history months. The cold and EV writer is wired to `measured.json`
   and tested on a fixture. C-DD2 to C-DD4 go live for the decided books.
 
-### DD3: the mini-grid's operating reality (6.0 u; `task/DD3-mini-reality`)
+### DD3: the mini-grid's operating reality (8.5 u in two parts, D-DD.44: DD3a = DD3.1, DD3.2, 3.75 u, `task/DD3a-mini-reality`; DD3b = DD3.3, DD3.4, 4.75 u, `task/DD3b-mini-units`)
 
 - **DD3.1 Writer core and Kobo on v8 (1.75).** §4.1 and §4.2 for Kobo: `site-inputs`, scaling, chaining, the tank's
   deliveries and declared draw, golden digests. C-DD11 and C-DD12 go live.
@@ -746,6 +748,10 @@ Order: DD1 → (DD2 ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merges). See �
   lists every moved figure. C-DD16 goes live.
 - **DD3.3 Mini-grid v9 (2.25).** §4.3: the model, the forcings, the parity test against v8 on Kobo's October, and
   Kisiwa and Mto in the writer. C-DD19 (mini part) goes live, and C-DD8 runs on the pure output.
+- **DD3.4 Unit roles in the readers (2.5; D-DD.41, D-DD.44).** `sites/unit_roles.py`: the Site-from-units rule and
+  the lead-unit policy read, called by every reader D-DD.41 lists for a `minigrid-roles-5` set; a migration lets the
+  mini-depth lift accept one roles-4 or roles-5 set; Kobo's world conversion moves to roles-5 with a parity test of its
+  product outputs. Merges before DD5.1 loads Kisiwa's or Mto's readings.
 
 ### DD4: cold and EV operating reality, and the measured books (5.75 u; `task/DD4-cold-ev-reality`)
 
@@ -797,7 +803,7 @@ Order: DD1 → (DD2 ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merges). See �
   - Fold in the DDR runbook's ten queued clarity notes.
   - Evidence goes to `/opt/assetecon/evidence/DD/<run>/`.
 
-**Size: 30.0 units, about 48 commits** (rev 1: 19.5 u). Each part is at or under 6 units. 0K4f grows by 0.5 u
+**Size: 33.0 units (D-DD.44; rev 2: 30.0 u), about 52 commits** (rev 1: 19.5 u). Each part is at or under 6 units. 0K4f grows by 0.5 u
 (D-DD.30).
 
 ---
@@ -847,8 +853,8 @@ itself.
 ```
  now ──► IA-P1 ──► IA-P2 ─────────────────────────────────────────► IA-P3
  now ──► DD1 ──┬─► DD2 ──┐
-               └─► DD3 ──┴─► DD4 ──► DD5 ──► DD6 (after IA-P2): first build = D-IAP.32's rebuild + the DD world
-                     └─► 0K4f (after DD3; takes template v4) ─┐
+               └─► DD3a ─► DD3b ┴─► DD4 ──► DD5 ──► DD6 (after IA-P2): first build = D-IAP.32's rebuild + the DD world
+                     └─► 0K4f (after DD3b; takes template v4) ─┐
  IA-P done ──► Q11 (cold/EV monthly figures) ─────────────────┼─► ONE rebuild = the accepted demo (owner Q8)
  IA-P done ──► Q12 (whole ranges on every page) ──────────────┘
 ```

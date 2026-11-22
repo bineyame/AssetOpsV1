@@ -18,7 +18,7 @@ Coordinator state: `.agent/coordinator-handoff.md`. Owner words: `owner/SUMMARY.
 
 ## DD: demo data
 - Branch `task/DD-handshake`; spec `specs/DD-demo-data/spec.md`.
-- 30.0 u in six parts (rev 2): 3 operators, 9 Sites, books Jul-Oct, readings
+- 33.0 u in seven parts (rev 2, D-DD.44): 3 operators, 9 Sites, books Jul-Oct, readings
   1 Jul-6 Nov, telemetry. Handshake answered; owner Q7-Q9 answered.
 
 ## 0K4f: Kobo on its own records
