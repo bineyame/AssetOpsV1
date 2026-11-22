@@ -12,6 +12,8 @@ compares them with the manifest, and the start-up check with the catalogue.
 
 The rights nodes `cover_not_claimable` and `unclaimable_cover` and the operations measures
 are not rows in version 1 (D-3B1.5).
+
+6a: `candidate_l` lists its lever (`levers=("generator_stop_reserve",)`); version unchanged (no value changes).
 """
 
 from __future__ import annotations
@@ -27,9 +29,9 @@ _ABOVE, _CALENDAR = HOMES["above"], HOMES["calendar"]
 
 def _leaf(factor_id: str, unit: Unit, home: Home, family: str, kind: str, absent: str,
           words: str | None = None, tolerance: Tolerance | None = None, *, composes: str,
-          neutral: Decimal | None = None) -> FactorRow:
+          neutral: Decimal | None = None, levers: tuple[str, ...] = ()) -> FactorRow:
     return FactorRow(factor_id, None, unit, home, FilledBy(family, kind, words), absent, tolerance,
-                     neutral=neutral, composes=composes)
+                     levers=levers, neutral=neutral, composes=composes)
 
 
 def _node(factor_id: str, expression: str, unit: Unit, home: Home, *, composes: str,
@@ -62,7 +64,8 @@ ROWS: tuple[FactorRow, ...] = (
           "dispatch-3.3 (generator_state, pv_available_power, battery_soc; FUEL_DELIVERY, TANK_DIP)", "MISSING",
           composes="SUM"),
     _leaf("candidate_l", L, Home(_OPTIMIZE, "O1"), "OBSERVER",
-          "dispatch-3.3 (generator_state, pv_available_power, battery_soc)", "ZERO_WHEN_HELD", composes="SUM"),
+          "dispatch-3.3 (generator_state, pv_available_power, battery_soc)", "ZERO_WHEN_HELD", composes="SUM",
+          levers=("generator_stop_reserve",)),
     _leaf("unexplained_l", L, Home(_OPTIMIZE, "O1"), "OBSERVER",
           "fuel balance (FUEL_DELIVERY, TANK_DIP) minus dispatch-3.3", "ZERO_WHEN_HELD",
           tolerance=Tolerance(of_factor="diesel_l", pct=Decimal("2.0")), composes="SUM"),

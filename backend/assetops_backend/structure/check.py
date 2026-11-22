@@ -18,7 +18,8 @@ a `REGISTRIES` key that differs from its registry's `structure_key` refuses as `
 3B4 added `check_observed` (D-3B4.2, D-3B4.16, D-3B4.20, D-3B4.25): the observer's tables against the registries,
 run by `check_all()` on the start-up path after `check_pins`.
 
-Deferred (D-3B1.6): levers (step 6).
+6a added `check_levers` (D-P6.12, D-P6.23; spec §3.1): the levers against the registries and the pins, run by
+`check_all()` between `check_pins` and `check_observed`, on the start-up path only. It was D-3B1.6's deferred item.
 """
 
 from __future__ import annotations
@@ -30,6 +31,7 @@ from decimal import Decimal
 from assetops_backend.config import ConfigurationError
 from assetops_backend.outcomes import outcome_map as _outcome_map
 from assetops_backend.structure import pins as _pins
+from assetops_backend.structure import levers as _levers
 from assetops_backend.structure import registry as _registry
 from assetops_backend.structure.attribution.rules import BRIDGE_ROOTS
 from assetops_backend.structure.observe import rules as _observe
@@ -323,6 +325,70 @@ def check_pins(pins: Mapping[str, "_pins.Pin"] | None = None, registries: Mappin
                 raise StructureError("STRUCTURE_PIN_MISSING", _NO_KEY, mechanism)
 
 
+_LEVER_ID = re.compile(r"[a-z][a-z0-9_]{0,63}", re.ASCII)
+_OPTION_KEY = re.compile(r"[a-z0-9][a-z0-9-]{0,63}", re.ASCII)
+
+
+def _lever_fault(lever: "_levers.Lever", registries: Mapping[str, Registry], pins: Mapping[str, "_pins.Pin"],
+                 all_levers: Mapping[str, "_levers.Lever"]) -> None:
+    """Branches 2 to 14 of spec §3.1 for one lever, in order."""
+    def refuse() -> StructureError:
+        return StructureError("STRUCTURE_LEVER", lever.structure_key, lever.lever_id)
+
+    reg = registries.get(lever.structure_key)
+    if reg is None:
+        raise refuse()
+    purpose = next((row for row in reg.rows if row.factor_id == lever.purpose_factor), None)
+    if purpose is None:
+        raise refuse()
+    if lever.lever_id not in purpose.levers:
+        raise refuse()
+    leaves = {row.factor_id for row in reg.rows if row.is_leaf}
+    if any(name not in leaves for name in lever.changes):
+        raise refuse()
+    if any(not _LEVER_ID.fullmatch(axis.name) for axis in lever.axes):
+        raise refuse()
+    if any(len(axis.values) == 0 for axis in lever.axes):
+        raise refuse()
+    if any(len(set(axis.values)) != len(axis.values) for axis in lever.axes):
+        raise refuse()
+    if len({axis.unit for axis in lever.axes}) > 1:
+        raise refuse()
+    if set(re.findall(r"\{(\w*)\}", lever.key_template)) != {axis.name for axis in lever.axes}:
+        raise refuse()
+    if any(value != value.to_integral_value() for axis in lever.axes for value in axis.values):
+        raise refuse()
+    keys = [_levers.option_key(lever, point) for point in _levers.grid(lever)]
+    if len(set(keys)) != len(keys):
+        raise refuse()
+    if any(not _OPTION_KEY.fullmatch(key) for key in keys):
+        raise refuse()
+    for pin in pins.values():
+        pin_reg = registries.get(pin.structure_key)
+        pin_row = None if pin_reg is None else next((r for r in pin_reg.rows if r.factor_id == pin.factor_id), None)
+        if pin_row is None or lever.lever_id not in pin_row.levers or pin_row.home is None or purpose.home is None:
+            continue
+        if pin_row.home.category != purpose.home.category:
+            raise refuse()
+
+
+def check_levers(levers: Mapping[str, "_levers.Lever"] | None = None,
+                 registries: Mapping[str, Registry] | None = None,
+                 pins: Mapping[str, "_pins.Pin"] | None = None) -> None:
+    """6a (spec §3.1): raise the first lever fault as `STRUCTURE_LEVER <structure_key>/<lever_id>`, branch by branch
+    (a branch runs over every lever before the next starts). A `None` argument reads the real table at call time."""
+    levers = _levers.LEVERS if levers is None else levers
+    registries = _registry.REGISTRIES if registries is None else registries
+    pins = _pins.PINS if pins is None else pins
+    for key, reg in registries.items():  # 1: a row's lever names no lever
+        for row in reg.rows:
+            for name in row.levers:
+                if name not in levers:
+                    raise StructureError("STRUCTURE_LEVER", key, name)
+    for lever in levers.values():
+        _lever_fault(lever, registries, pins, levers)
+
+
 OBSERVE_CODES = ("STRUCTURE_OBSERVE_KEY", "STRUCTURE_OBSERVE_COVER", "STRUCTURE_OBSERVE_LEAF",
                  "STRUCTURE_OBSERVE_SOURCE", "STRUCTURE_OBSERVE_DIRECTION", "STRUCTURE_OBSERVE_KIND")
 _NOT_SOURCES = frozenset({"DECLARED", "CALENDAR"})
@@ -413,6 +479,7 @@ def check_all(registries: Mapping[str, Registry] | None = None) -> None:
                 raise StructureError("STRUCTURE_NOT_APPLICABLE", key, entry)
     if registries is None:
         check_pins()
+        check_levers()
         check_observed()
 
 
@@ -425,4 +492,4 @@ def check_at_start() -> None:
 
 
 __all__ = ["CODES", "OBSERVE_CODES", "PIN_CODES", "StructureError", "check", "check_all", "check_at_start",
-           "check_observed", "check_pins"]
+           "check_levers", "check_observed", "check_pins"]

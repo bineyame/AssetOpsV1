@@ -54,6 +54,7 @@ SPEC_ROLES = {
     "commercial.accounts_statement": (FIN,),
     # 3B4 (spec §5.3): the tolerance command's two keys (a command line, no route).
     "structure.tolerance.money": (FIN,), "structure.tolerance.operational": (SM,),
+    "decision.prepare": ("ANALYST",), "decision.one_off": (SM, FIN), "decision.choose": ("OPERATOR_EXECUTIVE",),  # 6a
     # 3C1b (spec §3): the trial actions.
     "action.accept": (SM,), "action.apply": (SM,), "action.observe": (SM, FT),
 }
@@ -484,7 +485,7 @@ def detail(response) -> dict:
 
 def test_command_roles_is_the_spec_table() -> None:
     assert COMMAND_ROLES == SPEC_ROLES
-    assert set(COMMANDS) == {k for k in SPEC_ROLES if not k.startswith(("commercial.", "action.", "structure."))}
+    assert set(COMMANDS) == {k for k in SPEC_ROLES if not k.startswith(("commercial.", "action.", "structure.", "decision."))}
     for other in ("work.case_event.VERIFIED", "work.case_event.CREATED", "work.case_event.?"):
         assert roles_of(other) == (SM,)
 
