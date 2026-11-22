@@ -121,3 +121,12 @@ Owner Q7 is answered: 0.62 L/h, DATASHEET_FIT (`owner/owner-demo-data-answers-20
    TEL_PACK on overfill, determinism across two processes.
 2. DD3.2 commit 1b (pure run, gate 0.62 and 3.3), commit 2 (the /2 write by `tools/datasheet_template.py --write`, manifest Kobo physical, regenerate).
 3. Packet `specs/DD-demo-data/packet-DD3a.md`, state entry in `.ai/state/index-3.md`, spec status.
+
+## Update 3 (guards)
+- Scope run (every non-postgres test file importing fuel_cost_v2, vocabulary, sites.models, trial_fuel_comparison): after fixing three
+  stale exact-set tests (`test_w205a_ev_vocabulary`, `test_w402_roles_properties`, `test_a3_idle_fuel`) all pass (2059 + 41 re-run).
+  Postgres-named files importing them (3) not yet run: `tools/heavy-slot.sh --db -- pwsh tools/run-host-tests.ps1 -- <files>`.
+- Architecture guard passes. Statement-catalogue: baseline updated by hand for my 4 new hand-built fingerprints (precedent DD1.2);
+  `test_statement_catalogue.py` still fails 2 tests on ONE finding not mine:
+  `HAND_BUILT_NEW decisions/adapters/structure_read.py:24 j:GuardedStructureRead.site_inputs:d0bac1208c82` (file identical to main; report to coordinator).
+- Still to do: all of "Next" above (writer, C-DD11/12, pure run, commit 2, packet, state entry).
