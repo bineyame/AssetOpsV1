@@ -982,7 +982,7 @@ class Model:
         out["right_states"] = OrderedDict((a, st["eligibility"]) for a, st in run["rights"].items())
         out["lapsed_rights"] = [a for a, st in run["rights"].items() if st["eligibility"] == "LAPSED"]
         out["violations"] = OrderedDict((k, r2(v)) for k, v in violations.items())
-        out["params"] = OrderedDict((k, r2(v)) for k, v in run["params"].items())
+        out["params"] = OrderedDict((k, rdec(v, 6)) for k, v in run["params"].items())
         out["cost_lines"] = OrderedDict((k, {"amount": r2(a), "operator_share": sh}) for k, (a, sh) in run["cost_lines"].items())
         if sens:
             out["sensitivities"] = OrderedDict((k, r2(v)) for k, v in sens.items())
