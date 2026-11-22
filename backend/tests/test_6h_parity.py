@@ -11,7 +11,7 @@ from capture_6h_parity import GOLDEN, collect, dump
 # Q4 (packet): this one recorded case monkeypatches `difference` with a double that gives Deltas no origins while its
 # changed leaf carries `demo-simulated`. D-P6.61's source class now unions the changed leaf's origins, so the double's
 # row reads SIMULATED (golden: RECORDED). A real `difference` already carries them, so no real row differs. Only the
-# `source_class` of this key is set aside; every other field is still compared. The Architect confirms or rules.
+# `source_class` of this key is set aside; every other field is still compared. Accepted by D-P6.68.
 DOUBLE_SOURCE_CLASS = {"test_6c_evaluate::test_4_a_node_with_no_value_is_named_by_its_own_missing_leaves"}
 
 
