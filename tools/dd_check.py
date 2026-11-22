@@ -37,7 +37,7 @@ SITE_TYPE = {"MINI_GRID": "MINIGRID", "COLD_CHAIN": "COLDCHAIN", "EV_DEPOT": "EV
 STUBS = {
     "C-DD5": "DD4.4", "C-DD6": "DD4.4", "C-DD7": "DD4.4",
     "C-DD8": "DD3.3", "C-DD9": "DD6.1", "C-DD10": "DD6.1",
-    "C-DD14": "DD5.2", "C-DD15": "DD6.1", "C-DD16": "DD3.2", "C-DD17": "DD3.3", "C-DD18": "DD6.1",
+    "C-DD14": "DD5.2", "C-DD15": "DD6.1", "C-DD17": "DD3.3", "C-DD18": "DD6.1",
     "C-DD19": "DD3.3", "C-DD20": "DD4.4",
 }
 ORDER = tuple(f"C-DD{i}" for i in range(1, 22))
@@ -617,8 +617,105 @@ def check_property_table_parity(inputs: Inputs) -> Result:
     return Result("C-DD21", not detail, detail[:20] or [f"{len(table)} rows equal the backend's frozen initial values"])
 
 
+DATASHEET_SLOT = ROOT / "config/datasheets/kobo-equipment.json"
+DATASHEET_FILE = ROOT / "backend/tests/fixtures/on1/lakeside-power.onboarding.json"
+DATASHEET_SITE = "KOBO-001"
+
+
+def _half_even(value, quantum: str) -> str:
+    from fractions import Fraction
+
+    value = Fraction(value)
+    return str((Decimal(value.numerator) / Decimal(value.denominator)).quantize(Decimal(quantum), rounding=ROUND_HALF_EVEN))
+
+
+def datasheet_expectation(slot: dict) -> dict[str, dict[str, tuple[str, str]]]:
+    """C-DD16: the checker's own reading of spec §6's mapping table (exact arithmetic; shares nothing with the tool).
+    Per component type: property key -> (value text, basis code). Raises ValueError when the slot cannot be mapped."""
+    from fractions import Fraction
+
+    gen, bat = slot["generator"], slot["battery"]
+    assumed = {a["item"]: a for a in slot.get("assumed", [])}
+
+    def stated_or_assumed(stated, item: str) -> tuple[str, str]:
+        if stated is not None:
+            return str(stated), "MANUFACTURER_DATASHEET"
+        entry = assumed.get(item) or {}
+        if "value" not in entry or not entry.get("basis_code"):
+            raise ValueError(f"{item}: neither stated nor assumed with a basis code")
+        return str(entry["value"]), entry["basis_code"]
+
+    prime = Fraction(gen["prime_kw"])
+    pts = [(Fraction(int(pct), 100) * prime, Fraction(v)) for pct, v in gen["fuel_l_per_h"].items() if v is not None]
+    sfc = _half_even(Fraction(gen["fuel_l_per_h"]["100"]) / prime, "0.0001")
+    if gen.get("no_load_l_per_h") is not None:
+        no_load = (str(gen["no_load_l_per_h"]), "MANUFACTURER_DATASHEET")
+    else:
+        no_load = stated_or_assumed(None, "generator.no_load_l_per_h")
+        if no_load[1] == "DATASHEET_FIT":
+            n = len(pts)
+            mx, my = sum(x for x, _ in pts) / n, sum(y for _, y in pts) / n
+            slope = sum((x - mx) * (y - my) for x, y in pts) / sum((x - mx) ** 2 for x, _ in pts)
+            fitted = _half_even(my - slope * mx, "0.01")
+            if Decimal(no_load[0]) != Decimal(fitted):
+                raise ValueError(f"the slot's DATASHEET_FIT no-load {no_load[0]} is not the fit's {fitted}")
+    capacity = _half_even(bat["modules"] * Fraction(bat["module_usable_kwh"]), "0.1")
+    return {"GENERATOR": {"generator-rated-power": (str(gen["prime_kw"]), "MANUFACTURER_DATASHEET"),
+                          "specific-fuel-consumption": (sfc, "MANUFACTURER_DATASHEET"),
+                          "generator-no-load-fuel-rate": no_load,
+                          "generator-minimum-load": stated_or_assumed(gen.get("minimum_load_pct"), "generator.minimum_load_pct")},
+            "BATTERY": {"battery-energy-capacity": (capacity, "MANUFACTURER_DATASHEET"),
+                        "battery-charge-taper-start": stated_or_assumed(bat.get("charge_taper_start_soc_pct"),
+                                                                        "battery.charge_taper_start_soc_pct")}}
+
+
+def judge_datasheet(slot: dict, document: dict, site_code: str = DATASHEET_SITE) -> Result:
+    """C-DD16: the world's Kobo Site (its `/2` foundation, which the writer runs on) carries each mapped value and its
+    `-basis` sibling, each with source SITE, version 1, and the generator's and battery's ratings equal the mapped ones."""
+    try:
+        want = datasheet_expectation(slot)
+    except (ValueError, KeyError, ZeroDivisionError) as error:
+        return Result("C-DD16", False, [f"slot cannot be mapped (fit or slot): {error}"])
+    site = next((s for s in document.get("sites", []) if s.get("code") == site_code), None)
+    if site is None:
+        return Result("C-DD16", False, [f"{site_code} is not in the /2 file"])
+    detail, compared = [], 0
+    rating_of = {"GENERATOR": "generator-rated-power", "BATTERY": "battery-energy-capacity"}
+    for kind, values in want.items():
+        found = [c for c in site.get("components", []) if c.get("type") == kind]
+        if len(found) != 1:
+            detail.append(f"{site_code} has {len(found)} {kind} components, not one")
+            continue
+        props = {p.get("property_key"): p for p in found[0].get("properties", [])}
+        rating = (found[0].get("rating") or {}).get("value")
+        if rating is None or Decimal(str(rating)) != Decimal(values[rating_of[kind]][0]):
+            detail.append(f"{kind} rating {rating} != {values[rating_of[kind]][0]}")
+        for key, (text, basis) in values.items():
+            for name, expected in ((key, text), (f"{key}-basis", basis)):
+                compared += 1
+                p = props.get(name)
+                if p is None:
+                    detail.append(f"{kind} {name}: missing (want {expected})")
+                    continue
+                got = p.get("value")
+                same = (got == expected) if name.endswith("-basis") else (
+                    not isinstance(got, (str, bool)) and got is not None and Decimal(str(got)) == Decimal(expected))
+                if not same:
+                    detail.append(f"{kind} {name}: {got!r} != {expected}")
+                if (p.get("source"), p.get("source_version")) != ("SITE", 1):
+                    detail.append(f"{kind} {name}: source {p.get('source')} v{p.get('source_version')} != SITE v1")
+    return Result("C-DD16", not detail, detail[:20] or [f"{compared} properties and 2 ratings equal the slot's mapping"])
+
+
+def check_datasheet(inputs: Inputs) -> Result:
+    """C-DD16 on the committed slot and Lakeside's `/2` file."""
+    return judge_datasheet(json.loads(DATASHEET_SLOT.read_text(encoding="utf-8")),
+                           json.loads(DATASHEET_FILE.read_text(encoding="utf-8")))
+
+
 LIVE: dict[str, Callable[[Inputs], Result]] = {
     "C-DD11": check_two_processes_agree, "C-DD12": check_no_oracle_read, "C-DD21": check_property_table_parity,
+    "C-DD16": check_datasheet,
     "C-DD1": check_cast, "C-DD2": _judged(judge_kinds), "C-DD3": _judged(judge_identities),
     "C-DD4": _judged(judge_leaves_and_nodes), "C-DD13": check_tenant_isolation}
 
