@@ -1,4 +1,4 @@
-# IA-P1 handoff (partial: P1 and P0 done; P2 not started)
+# IA-P1 handoff (partial: P1, P0 done; P2 code built, tests and gates open)
 
 Builder (Claude), 2026-11-22. Branch `task/IA-P1-frame-portfolio` (worktree `/opt/assetecon/AssetOpsV1-iap1`; the spec names
 `task/IA-P1-frame-range-lists`, the dispatch named this one). Stopped near the context limit as the dispatch requires.
@@ -72,22 +72,62 @@ row; mini `/health` has an extra read) and `sr2RequestUrls.test.tsx` "SR-6b mini
 Links inside Site pages that rebuild from the raw window (SiteAnalyticsFrames action `window=`) were windowed with their
 requests, not split; a Site-side `link` pair is not added (the spec names only the estate and Work links).
 
-## Next: P2 (lists; not started)
+## P2 state (code committed "IA-P P2 (partial)"; the dispatch stopped near the context limit)
 
-Read in this order: spec.md §5.2 (the React transcription, the four defs table), §6 "P2" (files, tests, plants, gates
-L1 to L3), and IA-2b rev 2 (`git show b3102080c:specs/IA-1-shape-rebuild/spec-IA-2b.md`): §3.1 model steps 1 to 7 (tier,
-facets, search, sort, cap 10, keep-first, groups) and `iaListHref`'s order; §3.2 markup and chips; §3.3 write and
-restore; §3.4 format; §7 copy; §8 Block A (the `homeListModel.test.ts` cases: tiers at 2, 3, 10, 11, 25). The model is
-pure, so write `ui/__tests__/homeListModel.test.ts` first with literals.
+Settled first: `siteRangeMatrix.test.tsx` (2 tests) and `sr2RequestUrls.test.tsx` "SR-6b" (1 test) FAIL ON MAIN TOO (run in a
+scratch worktree of main: 3 failed, 119 passed). Name them in the packet as pre-existing; do not fix.
 
-Build order: `ui/homeListModel.ts` + test, `ui/HomeList.tsx` + `homeList.css`, `estate/homeLists.tsx` (decisions,
-findings, actions defs) + test, `estate/estateReadCache.tsx` (mount in `OperatorShellLayout`), rewire `findingIndex.tsx`
-and `actionIndex.tsx` and add `EstateDecisionsFrame` in `shell/EstateRootFrames.tsx`, App.tsx `/decisions` and the
-aliases, `portfolioWords.ts` (`act-first` out of `PORTFOLIO_TABS`), `iaRoutes.ts` (Decisions in `IA_HOMES`, P2 aliases
-in `LEGACY_ROUTES`, Decisions rail item live in `OperatorShellLayout`, `navigation-truthfulness.ps1` and its fixtures,
-`iap_gates.cjs` RAIL and PAGES, `routes.json` estate bodies), `sharedRange.ts` (`/decisions` in `RANGE_PAGES`,
-`FILLED_PAGES`), gates L1 to L3, plants `tile rowctl restore cap dropref`, MD-IAP-2 and MD-IAP-6 register rows,
-`iaRouteMap` growth, then the packet.
+Built (all type-check; `npx tsc --noEmit` clean for non-test files):
+- `ui/homeListModel.ts` + `ui/__tests__/homeListModel.test.ts` (22 pass), `ui/HomeList.tsx`, `ui/homeList.css`.
+- `estate/homeLists.tsx` (decisions, findings, actions defs, item builders, `DecisionsListPage`, `FindingsListPage`,
+  `ActionsListPage`) + `estate/__tests__/homeLists.test.tsx` (22 pass).
+- `estate/estateReadCache.tsx` (`loadAllPages`, I9 restart, provider mounted in `OperatorShellLayout`, `useEstateRead`).
+- `shell/EstateRootFrames.tsx` (`EstateDecisionsFrame`, lens prop gone), `App.tsx` (`/decisions`; lens routes gone),
+  `iaRoutes.ts` (Decisions home; aliases `/portfolio/act-first`, `/findings/cost|risks|opportunities`, unit IA-P1),
+  `OperatorShellLayout.tsx` (Decisions rail live), `sharedRange.ts` (`/decisions` range page; lens paths out),
+  `portfolioWords.ts` (`act-first` out of tabs; `DECISIONS_PATH` lives here), `PortfolioTabs.tsx` (`decisionsHref`),
+  `EstatePortfolio.tsx` (PriorityPanel, FindingRow, placementRows, EvidenceAside deleted; `consequenceFirst`, `barBody`
+  exported), `findingIndex.tsx` and `actionIndex.tsx` cut to the reused words, `estateClient.ts` (`waiting_count?`,
+  `waiting_by_site?` typed), `test/settled.ts` ("the decisions across the estate").
+
+Deviations to record in the packet:
+- Branch is `task/IA-P1-frame-portfolio` (spec names `task/IA-P1-frame-range-lists`); the 731 literal (P0 test fix, 2024-10-31
+  to 2026-10-31 is 731 days); `OPERATIONAL_RECORDS_PATH` stays (the cross-language fixture).
+- I8: the mini-grid set for `findingLinkLive` comes from the body's own rows (`domain === "MINIGRID"`) and coverage, not an
+  extra `/api/sites` read (the handshake said the Site directory from the shared cache). Same set today's page used.
+- The Findings opportunity table rows and `OpportunityList` (CH-4) left with the old Findings table; opportunities remain on
+  the Portfolio Opportunity tab. The early-warning list under the Findings table is gone with it (the Overview keeps its pulse).
+- The Portfolio page keeps its `lens` plumbing as the constant `"all"` (P3b rebuilds the Overview); `portfolioHref`'s lens
+  argument is unused.
+- E0 is P4a: `waiting_count` is read when present (typed optional) and the tile counts rows otherwise.
+
+## Open in P2 (do these next, in order)
+
+1. Test fallout (113 failures in the last `src/estate src/shell src/ui` run; 1m39s). Retire or rewrite, never weaken:
+   - `estate/__tests__/estatePortfolio.test.tsx` (41): the Act-first tab, PL-1 lens tests, CC-R2 table groups and FindingRow
+     cell tests test deleted UI. Delete the retired ones (list them in the packet); fix the ones that only used the tab row
+     (`PF-T ... tab links`, counts, `every tab link carries from, to and known_at`).
+   - `estateRoots.test.tsx` (23): the Findings lens tables, CH-4 opportunities, OUT-A pills, OUT-C warnings under the table,
+     the Actions table. Replace the live ones by assertions on the list (homeLists.test covers the new shape).
+   - `estatePortfolioRoutes.test.tsx` (2): old `/portfolio?lens=X` now goes to `/decisions?lens=X` (EstatePortfolioPage);
+     `test_w303_global_route_precedence...`.
+   - Rail: `operatorRailInventory` (22), `sitesIndexRoute`, `siteDetailRoute`, `siteFoundationRoute`, `sharedVisualVocabulary`,
+     `operatorRouteFrames`, `operatorSiteTabs`, `simulatorLabWorkspaceEntryPoint`: the Decisions item is live, so the live list
+     gains `Decisions` (`/decisions`) and the unavailable list loses it ("Decisions, Not available yet" gone).
+   - `sharedRange.test.tsx` (4): `/portfolio/act-first` expectations become `/decisions`; `t028Screens`,
+     `w301EstateShellRoutes`, `DeepDiveMonth` test 13 (tab row without Act first), `iaRouteMap` ("unresolvable route constant
+     DECISIONS_PATH": teach the test's constant resolver `portfolioWords.ts`, or import the constant from
+     `operatorSiteRoutes.ts` instead).
+2. `navigation-truthfulness.ps1` and its fixtures (Decisions live, `/decisions` a route), `iap_gates.cjs` RAIL and PAGES plus
+   L1 to L3, `routes.json` estate bodies (portfolio, findings, actions; the gate serves them from `fixtures/iap/`).
+3. Plants `tile rowctl restore cap dropref`: each a one-line edit shown failing then reverted. `cap` fails
+   `homeListModel.test` (HOME_LIST_CAP 11), `tile` and `dropref` and `restore` fail `homeLists.test`, `rowctl` fails
+   `homeLists.test` and gate L2.
+4. MD-IAP-2 and MD-IAP-6 rows in `.agent/mock-departure-register.md` (MD-IAP-2 note gains the third State word, D-IAP.29).
+5. `iaRouteMap` growth check, `iap_gates` and the fast `check-all`, lean screenshots at 1440 and 390
+   (`/opt/assetecon/tools/pw`: `source env.sh && export LD_LIBRARY_PATH=$AUDIT_LD_LIBRARY_PATH`), light and dark.
+6. `specs/IA-P-product-shape/packet-IA-P1.md`, spec Status in_review, built-state entry + `index-*.md` line, `specs/INDEX.md`
+   row (index under 8000 bytes). Delete the scratch folder.
 
 ## Risks
 
