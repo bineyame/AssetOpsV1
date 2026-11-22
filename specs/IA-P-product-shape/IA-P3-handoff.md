@@ -154,6 +154,21 @@ Merged main `12e618be3` (conflicts in spec Status and state index resolved: DD3a
 2. Slice-end: move the per-file migration table into `packet-IA-P3.md` (§P5, with run 3's and run 4's rows),
    counts branch vs main, `test_iap_*` (branch run started this run; main once), guards, state entry 207, spec Status.
 
+## Slice-end runs done in run 4 (at `ecd7a62bc` + the guard fix)
+
+- vitest estate+shell+ui+sites: branch 34 failed / 4110 passed (4144, 188 files, 192 s); main `12e618be3` 12 failed /
+  4081 passed (4093, 184 files, 213 s). On both: s502OverviewFindingList (2 vs 3, flaky), siteRangeMatrix 2, sr2RequestUrls,
+  domainActionVerification, evActionFixRound, evSiteMoneyRoutes 2, siteWorkCases. Main only: linkRefOnly 1 (flake).
+  Branch only: coldFindingIndex 10, evFindingIndex 9, siteRangeMatrix +2 (cold/ev /findings R rows), siteFindingsAlias
+  COLD (in-suite only), simulatorLabGate 1 and coldWorkCases 1 (not looked at: check for flakes on rerun).
+- Backend `test_iap_*` (4 files, one --db call, 270 s): 86 passed, 2 xfailed (the Q-P5-3 byte compare; this run's
+  drift also names `claim.correlation_id`, `selection_token`, `scope.access_basis`, `window.known_at`). Main has no parity
+  file; its 3 `test_iap_*` files were 85/85 in run 1 (not rerun on `12e618be3`).
+- Guards: `check-architecture` first FAILED (site-substrate: "the single-definition check found no Site presentation
+  component in frontend/src/sites", because D-IAP.45 deleted `SitesIndex`/`SiteTable`/`SiteRow`); the pattern now also
+  covers `SiteFindingIndex` and `SiteControlsTable` (`tools/checks/site-substrate.ps1`), then passed. Not re-planted.
+  `check-agent-workflow` passed; `statement_catalogue.py` exit 0; tsc clean at `188c5fee8`; fresh build ok; iap_gates 62/62.
+
 ## Questions for the Architect (run 4)
 
 - Q-P5-3 (SPEC_CONFLICT, D-IAP.43): the normalised bodies are not stable across builds (classes above). Which
