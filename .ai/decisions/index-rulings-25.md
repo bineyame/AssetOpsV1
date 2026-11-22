@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-IAP.1 to D-IAP.14)
+# Decision index: Demo-sprint and later rulings (index only) (D-IAP.1 to D-IAP.14, D-P6.1 to D-P6.19)
 
 - `D-IAP.1` scope: menu, Portfolio, lists, Site tab row, inbox, scope, search; IA-2c/2d/2e content follow the mock; Plan unavailable (no plan record) · live · specs/IA-P-product-shape/rulings.md
 - `D-IAP.2` the month (5c) is the Portfolio Overview; /portfolio/month aliases; SR-4c month span; range exception is owner Q2 · live · specs/IA-P-product-shape/rulings.md
@@ -14,3 +14,22 @@
 - `D-IAP.12` old Overview re-housed: cards to Outcomes L3, top three to Overview L2, pulse retired, coverage to Evidence, changes to Results · live · specs/IA-P-product-shape/rulings.md
 - `D-IAP.13` units P1-P7 in two parts (IA-P1 3.75 u, IA-P2 4.75 u); iap_gates.cjs and route-map test first; plants · live · specs/IA-P-product-shape/rulings.md
 - `D-IAP.14` only P4 stales the world key (one rung rebuild); walk pages still land; DDR path aliased, runbook line in P3 · live · specs/IA-P-product-shape/rulings.md
+- `D-P6.1` P6 approved by the owner 22 Nov (accept all p6 defaults); defaults are D-P6.13-19; 6a/6c rev 1, gate P met · live · specs/6-decision-valued/rulings.md
+- `D-P6.2` world-month rule: only a SITE_RECORD study values; declared season (kobo-61d) = Not available yet, admission and dawn kept; Kobo NAY until 0K4f · live · specs/6-decision-valued/rulings.md
+- `D-P6.3` generator lever changes candidate_l (-avoided) and battery_throughput_kwh by deltas (LeafChange), as the pack's option layer · live · specs/6-decision-valued/rulings.md
+- `D-P6.4` difference folds expressions on both sides, never stated records · live · specs/6-decision-valued/rulings.md
+- `D-P6.5` candidate = admitted and valued above 0; exact 0 is WORTH_THE_SAME_AS_NO_ACTION; doing nothing wins ties · live · specs/6-decision-valued/rulings.md
+- `D-P6.6` stored unrounded; outputs half-even once, money cents, other quantities 6 places (D-0K4.42) · live · specs/6-decision-valued/rulings.md
+- `D-P6.7` one SC-1 statement decision.refused with a code slot; numbers as slots; 6c joins it · live · specs/6-decision-valued/rulings.md
+- `D-P6.8` read follows the IA Decisions list: state, decides_role, recommended, period filter; no route in 6a/6c · live · specs/6-decision-valued/rulings.md
+- `D-P6.9` 6f lights the Decisions rows; 5c tile 4 Plan value stays Not available yet until 7a/7c · live · specs/6-decision-valued/rulings.md
+- `D-P6.10` 6a 3.0 u then 6c 3.0 u; 6d/6e beside 6c after 6a; gates P and K met · live · specs/6-decision-valued/rulings.md
+- `D-P6.11` pre-flight answered from main (sign check, contribution rows, admission API, by-month keys, uniques, check_all) · live · specs/6-decision-valued/rulings.md
+- `D-P6.12` a lever's axes share one unit (STRUCTURE_LEVER) · live · specs/6-decision-valued/rulings.md
+- `D-P6.13` owner default 1: the executive chooses by name and date; none valid · live · specs/6-decision-valued/rulings.md
+- `D-P6.14` owner default 2: wear cost missing -> value Not available yet, fuel effects shown · live · specs/6-decision-valued/rulings.md
+- `D-P6.15` owner default 3: 12 x the Site-record study's average full month, stated (months_averaged) · live · specs/6-decision-valued/rulings.md
+- `D-P6.16` owner default 4: highest value; within 10 % nearest today's setting; dawn never decides · live · specs/6-decision-valued/rulings.md
+- `D-P6.17` owner default 5: no recommendation until every admitted setting is valued (RANKING_INCOMPLETE) · live · specs/6-decision-valued/rulings.md
+- `D-P6.18` owner default 6: one-off by site manager (that Site) or finance lead with basis; doing nothing 0 · live · specs/6-decision-valued/rulings.md
+- `D-P6.19` owner default 7: NO_ACTION_BEST, "Doing nothing is worth more than any setting tried" · live · specs/6-decision-valued/rulings.md

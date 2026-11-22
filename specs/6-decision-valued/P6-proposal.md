@@ -1,6 +1,6 @@
 # P6: each change valued against doing nothing (proposal for the owner)
 
-**DRAFT, awaiting owner P6.** Architect (Claude), 21 Nov 2026. This proposal is for your day-14 sitting. Nothing is built from it until you approve it.
+**APPROVED by the owner, 22 Nov 2026:** "accept all p6 defaults" (`owner/owner-accept-p6-defaults-2026-11-22.md`). Architect (Claude), 21 Nov 2026. The seven defaults below are rulings D-P6.13 to D-P6.19 (`rulings.md`, this folder); the text is kept as approved, and what changed since is in the last section.
 
 ## What exists today, and what it gives
 
@@ -38,7 +38,7 @@ The season re-run built this week (spike K) replays a season's readings under ea
 
 ## The defaults you can accept, each with its alternative
 
-| # | Question | Default (proposed) | Alternative |
+| # | Question | Default (accepted 22 Nov) | Alternative |
 |---|---|---|---|
 | 1 | Who chooses | The operator's executive, by name and date; "none" is a valid choice | Also the finance lead |
 | 2 | Battery wear cost, which Kobo has not given | "Not available yet": fuel saved is shown, the 12-month value is not | You state a typical battery wear cost for now, labelled "assumed" (as you accepted for the battery type). Kobo's value then shows (+0.5 unit) |
@@ -51,3 +51,13 @@ The season re-run built this week (spike K) replays a season's readings under ea
 The mock-up's Kobo decision still shows the old figures (+$2,916.00 as a design estimate, and the reserve setting rejected at dawn). Under your one-figure rule and the service checks you accepted, those figures become the model's own figures, and the reserve setting becomes "passes; dawn readings shown". That restatement is unit 0K4m's.
 
 **Size and order:** 6a, the records (3 units), then 6c, the valuation (3 units). Unit 6c also needs spike K's service-check code (0K4d), which is in review. The specs are `specs/6a-decision-records/spec.md` and `specs/6c-option-evaluator/spec.md`, both drafts.
+
+## Since approval (22 Nov)
+
+- Both specs are rev 1, ready for the handshake, at 3 units each. Spike K's service-check code (0K4d) is on `main`.
+- **Kobo's fuel saved is not shown yet.** The re-run above is a simulated season, not Kobo's October. Under your 21 Nov
+  rule ("loyal to the operating world") and D-0K4.38, its litres are never put on Kobo's month. Until unit 0K4f runs
+  the simulation on Kobo's own October (still labelled Simulated), Kobo's litres and value read "Not available yet"
+  and its service checks are shown. Default 2 applies from then (D-P6.2; your call in the rulings' queue, Q1).
+- The 212.8 L and 59.7 L in the table above are the season's figures (window × 30 / 61), shown to illustrate the
+  layout; no screen shows them.
