@@ -44,7 +44,10 @@ STUBS = {
 #: D-DD.121: C-DD6 is live by vertical (so in LIVE, not STUBS); its clauses not yet producible, each with the unit that makes it live.
 PENDING = {"C-DD6": ("KISIWA-001 GEN-KS-01 2026-10-30T18:40 DD3b", "MTO-001 INV-MT-02 2026-10-28T11:02 DD3b"),
            "C-DD7": ("mini-grid load served + unserved = delivered_kwh: unserved energy is no readings channel (DD3a writes "
-                     "it to measured.json only); the readings-side clause lands with DD3b/DD5",),
+                     "it to measured.json only); the readings-side clause lands with DD3b/DD5",
+                     "EV kwh_2200_2400, kwh_0000_0500 (meter_billed leaves, read by `M`'s EV structure, "
+                     "structure/rows_ev_depot.py): D-DD.99's EV month has no hour sums, so `meter_billed` writes them "
+                     "metered: null; the exact clause waits for the Architect"),
            "C-DD20": ("KISIWA-001 unserved evening energy after 2026-10-30T18:40, none from 2026-08-17T11:00 to then DD3b",
                       "MTO-001 generator litres per day after 2026-10-28T11:02 above the 28 days before DD3b")}
 ORDER = tuple(f"C-DD{i}" for i in range(1, 22))

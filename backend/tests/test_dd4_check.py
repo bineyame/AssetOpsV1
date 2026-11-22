@@ -195,6 +195,8 @@ def test_c7_readings_and_books_agree_exactly() -> None:
     result = _meter(_books())
     assert result.check == "C-DD7" and result.passed, result.detail
     assert any(p.startswith("mini-grid") for p in result.pending)
+    # question (a): the EV hour sums are `meter_billed` leaves C-DD7 checks exactly, but measured.json has none
+    assert any(p.startswith("EV kwh_2200_2400, kwh_0000_0500") for p in result.pending)
 
 
 @pytest.mark.parametrize("index, edit, words", [
