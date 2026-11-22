@@ -216,7 +216,7 @@ class _Tx:
         return list(self._order)
 
     def timezone(self):
-        return "UTC"
+        return "Africa/Nairobi"
 
     def lock(self, *_):
         pass
@@ -258,7 +258,7 @@ def test_f8_service_keys_the_window_on_the_lead_unit_and_reads_every_unit() -> N
     tx = _Tx()
     result = FuelBalanceService._assess(tx, NIGHT)
     row = tx.appended
-    assert result.created is True
+    assert result.appended is True
     assert row["generator_asset_id"] == GEN  # declared first, though its asset code sorts last
     assert [u["asset_id"] for u in row["terms"]["units"]] == [GEN, GEN2]
     assert Fraction(row["terms"]["loaded_litres"]) == Fraction(131, 10)
@@ -272,4 +272,4 @@ def test_f9_service_refuses_without_one_tank_and_a_generator(generators: int, ta
 
     with pytest.raises(FuelBalanceRefused) as err:
         FuelBalanceService._assess(_Tx(generators=generators, tanks=tanks), NIGHT)
-    assert err.value.args[0] == ASSETS_UNSUPPORTED
+    assert err.value.code == ASSETS_UNSUPPORTED
