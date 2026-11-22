@@ -28,10 +28,11 @@ from assetops_contracts.canonical import to_canonical_json  # noqa: E402
 
 from assetops_simulator.world.canonical import file_bytes, write_canonical_file  # noqa: E402
 from assetops_simulator.world import telemetry as telemetry_writer  # noqa: E402
+from assetops_simulator.world import telemetry_cold as cold_writer  # noqa: E402
 from assetops_simulator.world.books import build_books  # noqa: E402
 from assetops_simulator.world.exports import file_name  # noqa: E402
 from assetops_simulator.world.history import generate_history  # noqa: E402
-from assetops_simulator.world.months import period_end  # noqa: E402
+from assetops_simulator.world.profile_csv import load_profile, render_profile  # noqa: E402
 from assetops_simulator.world.records import batch_file_name, build_records  # noqa: E402
 from assetops_simulator.world.view import ManifestView  # noqa: E402
 
@@ -172,18 +173,25 @@ def _site_inputs(onboarding: Path, bindings: Path, out: Path) -> int:
     return 0
 
 
-def _telemetry(manifest: Path, sites: Path, books: Path, out: Path, start: str, end: str | None,
+def _telemetry(manifest: Path, sites: Path, books: Path, out: Path, start: str, end: str,
                only: tuple[str, ...] | None) -> int:
     try:
         target = _out_dir(out)
         view = load_view(manifest)
         history = generate_history(view)
-        end = end or period_end(view["accounting_period"]).isoformat()
         expenses = {p.name.removesuffix(".expenses.csv"): p.read_text(encoding="utf-8")
                     for p in books.glob("*.expenses.csv")}
+        records = build_records(view, history)
+        ledgers = cold_writer.cold_ledger_files(view, history, records)
+        for ledger in ledgers:  # D-DD.119: the readings and the admitted books come from one ledger
+            exported = books / file_name(ledger)
+            rendered = render_profile(load_profile(ledger.layout_id)[1], list(ledger.records))
+            if not exported.is_file() or exported.read_bytes() != rendered:
+                raise telemetry_writer.TelemetryRefused("TEL_BOOKS", file_name(ledger))
+        decided = {**telemetry_writer.books_for(view, history, expenses),
+                   **cold_writer.cold_books_for(view, history, records, ledgers=ledgers)}
         result = telemetry_writer.build_telemetry(
-            view, json.loads(sites.read_text(encoding="utf-8")), telemetry_writer.books_for(view, history, expenses),
-            start=start, end=end, only=only)
+            view, json.loads(sites.read_text(encoding="utf-8")), decided, start=start, end=end, only=only)
     except telemetry_writer.TelemetryRefused as error:
         print(error, file=sys.stderr)
         return 3
@@ -223,9 +231,11 @@ def build_parser() -> argparse.ArgumentParser:
     telemetry.add_argument("--sites", required=True, type=Path)
     telemetry.add_argument("--books", required=True, type=Path, help="the directory `exports` wrote")
     telemetry.add_argument("--out", required=True, type=Path, help="a new or empty directory outside the repository")
-    telemetry.add_argument("--start", default="2026-07-01", help="first local day of the span")
-    telemetry.add_argument("--end", default=None,
-                           help="last local day of the span (default: the last day of the accounting period)")
+    telemetry.add_argument("--start", default=telemetry_writer.READINGS_SPAN[0],
+                           help="first local day of the span (default: READINGS_SPAN's start, D-DD.103)")
+    telemetry.add_argument("--end", default=telemetry_writer.READINGS_SPAN[1],
+                           help="a local date (the whole day) or a local instant YYYY-MM-DDTHH:MM "
+                                "(default: READINGS_SPAN's end, D-DD.103)")
     telemetry.add_argument("--site", action="append", default=None, help="a Site code; repeat for several")
     check = commands.add_parser("check")
     check.add_argument("--manifest", required=True, type=Path)

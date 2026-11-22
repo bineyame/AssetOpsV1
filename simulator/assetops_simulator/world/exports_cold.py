@@ -3,12 +3,15 @@
 Per Site-month (July to September from `history.json`, October from `period`), in the source profiles' own formats:
 
 - the storage ledger (`cold-storage-ledger-illustrative`): batches of 40 crates (the remainder batch of a month
-  carries the rest), each staying 7 days, admitted at 08:00 and checked out at 16:00 local. A crate-day is a crate in
+  carries the rest), each staying 7 days, received at a free receiving time (08:00 or 16:00 local, one IN of at most
+  40 crates per receiving time, D-DD.85) and checked out at 16:00 local seven dates later. A crate-day is a crate in
   the room on a date from its admission date up to the day before it leaves (`crate_days_in`), so a batch admitted
   late in a month carries crate-days into the next. Admissions are spread over the month's days, and the month's
   occupied crate-days equal the leaf exactly: the standard batches fill what earlier batches have not, and the
   remainder batch carries the rest (`r // 7` crates for 7 days, plus one crate leaving after `r % 7` days). The
-  manifest's named batches (B-1029, B-1031, B-1034; `NAMED_BATCHES`, with a parity test) keep their crates and times.
+  manifest's named batches (B-1029, B-1031, B-1034; `NAMED_BATCHES`, with a parity test) keep their crates and their
+  check-out; they are received in lots (D-DD.85), placed before any fill. A month whose crate-days cannot be placed
+  stops the build (`EMU_RECEIVING`).
   A movement after `as_of` is not written (the crates are still in the room). Rows dated in June are opening stock
   (D-DD.63): batches admitted in June that are still in on 1 July, with every OUT after their IN. June has no
   invoice, receipt or leaf, and a check that reads the ledger by month judges July to October only. The room never
@@ -51,6 +54,8 @@ BATCH_CRATES = 40
 STAY_DAYS = 7  # Assumed (spec §5.2)
 IN_AT = time(8, 0)
 OUT_AT = time(16, 0)
+#: D-DD.85: each date's receiving times (local), 08:00 before 16:00; one IN lot of at most BATCH_CRATES each.
+RECEIVING_AT = (time(8, 0), time(16, 0))
 CUSTOMERS = 6
 COMMODITIES = ("Tomatoes", "Cabbage", "Kale", "Mangoes", "French beans", "Avocado")
 METHODS = ("MOBILE_MONEY", "MOBILE_MONEY", "BANK")
@@ -71,6 +76,7 @@ PERIOD_FIELD = {"revenue": "revenue", "received": "collected"}
 
 #: D-DD.51: the manifest's named batches (`tenants.harvest-cold.sites.*.incident.batches`), with a parity test. Only
 #: B-1029's check-out is a manifest time; the other times are the 7-day stay around the 6 Oct incident (Assumed).
+#: The admission instant is the latest lot's receiving time (D-DD.85, `_named`).
 NAMED_BATCHES = (
     ("COLD-THIKA", "B-1029", "Cabbage", 60, "2026-09-28T08:00", "2026-10-05T16:00"),
     ("COLD-THIKA", "B-1031", "French beans, export grade", 120, "2026-10-01T08:00", "2026-10-08T16:00"),
@@ -84,30 +90,31 @@ class Batch:
     ref: str
     customer: str
     commodity: str
-    admitted: datetime
+    ins: list = field(default_factory=list)  # [(at, crates)] lots received, in time order (D-DD.85)
     outs: list = field(default_factory=list)  # [(at, crates)], in time order
 
     @property
     def crates(self) -> int:
-        return sum(n for _, n in self.outs)
+        return sum(n for _, n in self.ins)
+
+
+def _dates_from(day: date, first: date, last: date) -> int:
+    return max(0, (last - max(day, first)).days + 1)
 
 
 def crate_days_in(batch: Batch, month: str) -> int:
-    """The batch's crate-days dated in `month`: each crate counts the dates from admission up to its leaving day."""
+    """The batch's crate-days dated in `month`: a crate counts each date from its lot's admission up to the day
+    before it leaves (per lot, D-DD.85)."""
     first, last = date(*parse_month(month), 1), period_end(month)
-    total = 0
-    for out_at, crates in batch.outs:
-        start, stop = max(batch.admitted.date(), first), min(out_at.date() - timedelta(days=1), last)
-        if stop >= start:
-            total += crates * ((stop - start).days + 1)
-    return total
+    return (sum(n * _dates_from(at.date(), first, last) for at, n in batch.ins)
+            - sum(n * _dates_from(at.date(), first, last) for at, n in batch.outs))
 
 
 def presence_peak(batches: list[Batch]) -> int:
     """The most crates in the room at once (movements in time order; a check-out before an admission at one instant)."""
     events = []
     for b in batches:
-        events.append((b.admitted, 1, b.crates))
+        events += [(at, 1, n) for at, n in b.ins]
         events += [(at, 0, -n) for at, n in b.outs]
     level = peak = 0
     for _, _, n in sorted(events, key=lambda e: (e[0], e[1])):
@@ -117,24 +124,45 @@ def presence_peak(batches: list[Batch]) -> int:
 
 
 def _named(code: str, zone) -> list[Batch]:
-    out = []
+    """D-DD.85: each named batch is received in lots of at most `BATCH_CRATES`, in `NAMED_BATCHES` order; each lot
+    takes the latest free receiving time at or before the named instant, full lots last. All lots leave together."""
+    out: list[Batch] = []
+    taken: set[datetime] = set()
     for site, ref, commodity, crates, admitted, leaves in NAMED_BATCHES:
-        if site == code:
-            at_in = datetime.fromisoformat(admitted).replace(tzinfo=zone)
-            at_out = datetime.fromisoformat(leaves).replace(tzinfo=zone)
-            out.append(Batch(code, ref, f"{code}-K-01", commodity, at_in, [(at_out, crates)]))
+        if site != code:
+            continue
+        named = datetime.fromisoformat(admitted).replace(tzinfo=zone)
+        at_out = datetime.fromisoformat(leaves).replace(tzinfo=zone)
+        lots: list[tuple[datetime, int]] = []
+        left, day = crates, named.date()
+        while left:
+            for t in reversed(RECEIVING_AT):
+                at = datetime.combine(day, t, tzinfo=zone)
+                if at <= named and at not in taken and left:
+                    n = min(BATCH_CRATES, left)
+                    lots.append((at, n))
+                    taken.add(at)
+                    left -= n
+            day -= timedelta(days=1)
+        out.append(Batch(code, ref, f"{code}-K-01", commodity, sorted(lots), [(at_out, crates)]))
     return out
 
 
 def presence_by_date(batches: list[Batch]) -> dict[date, int]:
-    """Crates in the room at some time of each date, its leaving day included (a check-out is at 16:00, after the
-    day's admissions at 08:00)."""
+    """Crates in the room at some time of each date, its leaving day included (a check-out is at 16:00, after or
+    with the day's receiving times)."""
     out: dict[date, int] = {}
     for b in batches:
-        for out_at, crates in b.outs:
-            day = b.admitted.date()
-            while day <= out_at.date():
+        last = max(at for at, _ in b.outs).date() if b.outs else max(at for at, _ in b.ins).date()
+        for at_in, crates in b.ins:
+            day = at_in.date()
+            while day <= last:
                 out[day] = out.get(day, 0) + crates
+                day += timedelta(days=1)
+        for at_out, crates in b.outs:
+            day = at_out.date() + timedelta(days=1)
+            while day <= last:
+                out[day] = out.get(day, 0) - crates
                 day += timedelta(days=1)
     return out
 
@@ -142,12 +170,19 @@ def presence_by_date(batches: list[Batch]) -> dict[date, int]:
 def _fill(code: str, month: str, need: int, zone, seq: list[int], existing: list[Batch]) -> list[Batch]:
     """Batches admitted in `month` whose crate-days dated in the month are exactly `need`.
 
-    Standard batches (40 crates, 7 days) go one at a time on the day whose stay sees the fewest crates (ties: the
-    earlier day), while their crate-days dated in the month still fit. What is left (under one batch) is the
-    remainder batch, inside the month: `rest // 7` crates for 7 days, plus one crate leaving after `rest % 7` days."""
+    D-DD.85: standard batches (40 crates, one lot, leaving at 16:00 seven dates later) go one at a time to the free
+    receiving time chosen by (crates already admitted that date, the crowd over the stay, date, 08:00 before 16:00),
+    while their crate-days dated in the month still fit. What is left (under one batch) is the remainder batch,
+    placed the same way inside the month: `rest // 7` crates for 7 days, plus one crate leaving after `rest % 7`
+    days. A need that cannot be placed stops the build (`EMU_RECEIVING <site> <month>`)."""
     year, number = parse_month(month)
     days = days_in(month)
     presence = presence_by_date(existing)
+    taken = {at for b in existing for at, _ in b.ins}
+    received: dict[date, int] = {}
+    for b in existing:
+        for at, n in b.ins:
+            received[at.date()] = received.get(at.date(), 0) + n
 
     def at(day: int, t: time) -> datetime:
         return datetime.combine(date(year, number, day), t, tzinfo=zone)
@@ -159,33 +194,46 @@ def _fill(code: str, month: str, need: int, zone, seq: list[int], existing: list
         first = date(year, number, day)
         return max(presence.get(first + timedelta(days=k), 0) for k in range(stay + 1))
 
-    def batch(day: int) -> Batch:
+    def key(slot: tuple[int, int]) -> tuple:
+        day, k = slot
+        return (received.get(date(year, number, day), 0), crowd(day, STAY_DAYS), day, k)
+
+    def free(day_range) -> list[tuple[int, int]]:
+        return [(d, k) for d in day_range for k, t in enumerate(RECEIVING_AT) if at(d, t) not in taken]
+
+    def batch(slot: tuple[int, int], crates: int) -> Batch:
         seq[0] += 1
         n = seq[0]
+        admitted = at(slot[0], RECEIVING_AT[slot[1]])
+        taken.add(admitted)
+        received[admitted.date()] = received.get(admitted.date(), 0) + crates
         return Batch(code, f"{code}-B{n:04d}", f"{code}-K-{(n - 1) % CUSTOMERS + 1:02d}",
-                     COMMODITIES[(n - 1) % len(COMMODITIES)], at(day, IN_AT))
+                     COMMODITIES[(n - 1) % len(COMMODITIES)], [(admitted, crates)])
 
     def add(b: Batch, after_days: int, crates: int) -> None:
-        b.outs.append((b.admitted.replace(hour=OUT_AT.hour) + timedelta(days=after_days), crates))
+        admitted = b.ins[0][0]
+        b.outs.append((datetime.combine(admitted.date() + timedelta(days=after_days), OUT_AT, tzinfo=zone), crates))
         for k in range(after_days + 1):
-            day = b.admitted.date() + timedelta(days=k)
+            day = admitted.date() + timedelta(days=k)
             presence[day] = presence.get(day, 0) + crates
 
     out: list[Batch] = []
     left = need
     while True:
-        fits = [d for d in range(1, days + 1) if BATCH_CRATES * weight(d) <= left]
+        fits = [slot for slot in free(range(1, days + 1)) if BATCH_CRATES * weight(slot[0]) <= left]
         if not fits:
             break
-        day = min(fits, key=lambda d: (crowd(d, STAY_DAYS), d))
-        b = batch(day)
+        slot = min(fits, key=key)
+        b = batch(slot, BATCH_CRATES)
         add(b, STAY_DAYS, BATCH_CRATES)
         out.append(b)
-        left -= BATCH_CRATES * weight(day)
+        left -= BATCH_CRATES * weight(slot[0])
     if left:
         crates, short = divmod(left, STAY_DAYS)
-        day = min(range(1, days - STAY_DAYS + 2), key=lambda d: (crowd(d, STAY_DAYS), d))
-        b = batch(day)
+        slots = free(range(1, days - STAY_DAYS + 2))
+        if not slots or crates + (1 if short else 0) > BATCH_CRATES:
+            raise ValueError(f"EMU_RECEIVING {code} {month}")
+        b = batch(min(slots, key=key), crates + (1 if short else 0))
         if short:  # the remainder batch carries the month's last crate-days: one crate leaves early
             add(b, short, 1)
         if crates:
@@ -233,7 +281,10 @@ def _rate_cents(tenant: dict) -> int:
 def _movement_records(batches: list[Batch], as_of_end: datetime) -> list[dict]:
     out = []
     for b in batches:
-        rows = [("in", "IN", b.admitted, b.crates)]
+        if len(b.ins) == 1:
+            rows = [("in", "IN", b.ins[0][0], b.ins[0][1])]
+        else:  # D-DD.85: a batch received in lots, each lot its own Movement id
+            rows = [(f"in-{k}", "IN", at, n) for k, (at, n) in enumerate(b.ins, start=1)]
         rows += [(f"out-{k}", "OUT", at, n) for k, (at, n) in enumerate(b.outs, start=1)]
         for suffix, direction, at, crates in rows:
             if at > as_of_end:
@@ -246,6 +297,24 @@ def _movement_records(batches: list[Batch], as_of_end: datetime) -> list[dict]:
                          "direction": direction}}))
     return sorted(out, key=lambda r: (r["clocks"]["occurred_at"][:7], r["site_code"], r["clocks"]["occurred_at"],
                                       r["source_record_id"]))
+
+
+def _november(site_batches: list[Batch], seq: list[int], as_of_end: datetime) -> list[Batch]:
+    """D-DD.63 (DD4.2): 1-6 Oct's generated admissions (named batches excluded) repeated one October later (its length in days) with new refs,
+    up to `as_of`. Assumed; no November invoice (the month is not closed)."""
+    named = {ref for _site, ref, *_rest in NAMED_BATCHES}
+    shift = timedelta(days=days_in("2026-10"))
+    out: list[Batch] = []
+    for b in sorted(site_batches, key=lambda b: (b.ins[0][0], b.ref)):
+        admitted = b.ins[0][0]
+        if b.ref in named or not (1 <= admitted.day <= 6 and (admitted.year, admitted.month) == (2026, 10)):
+            continue
+        if admitted + shift > as_of_end:
+            continue
+        seq[0] += 1  # the receiving times shift with the admissions (D-DD.85)
+        out.append(Batch(b.code, f"{b.code}-B{seq[0]:04d}", b.customer, b.commodity,
+                         [(at + shift, n) for at, n in b.ins], [(at + shift, n) for at, n in b.outs]))
+    return out
 
 
 def build_cold_exports(view: dict, history: dict, records: RecordsResult, tenant: dict, *,
@@ -321,6 +390,10 @@ def build_cold_exports(view: dict, history: dict, records: RecordsResult, tenant
             written.add((m.code, m.month, "actual", f))
         renamed[(m.code, m.month, "actual", "outstanding")] = AS_UNPAID_CHARGES
 
+    for code in sorted(batches):  # D-DD.63 "November" (DD4.2): the ledger runs to as_of for the rooms' readings
+        batches[code] += _november(batches[code], seq[code], as_of_end)
+        if capacity is not None and presence_peak(batches[code]) > int(capacity):
+            raise ValueError(f"EMU_CAPACITY {name}/{code} 2026-11")
     files: list[ExportFile] = []
     ledger = _movement_records([b for code in sorted(batches) for b in batches[code]], as_of_end)
     invoicing_layout = load_profile(PROFILES["invoicing"], profiles_dir)[1]

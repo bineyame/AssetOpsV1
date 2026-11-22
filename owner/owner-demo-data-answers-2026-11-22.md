@@ -32,3 +32,8 @@ Asked (D-DD.97): evening household peak moved from 16:00-20:00 (test-fixture cop
 Owner answer: "Approve 18:00 peak (Recommended)".
 Asked (D-DD.98): with full buses unplugged and rotated, Kasarani with a charger out ends 2 buses short a night (~7 missed departures, ~$840 penalties) instead of the scenario's 1 (~2, $240); readings stand unless the owner objects.
 Owner answer: "Readings stand (Recommended)".
+
+## D-DD.144 cold-chain energy (later the same day)
+
+Asked: keep the rooms and rebuild the scenario's energy model from the metered kWh (1,304 kWh + 0.055 kWh per crate-day; Mwea ~$315, Thika ~$354, Kirinyaga ~$423 and ~+14 %; repair still beats replace by ~+$150 net), +1.0 u to restate everywhere?
+Owner answer: "Approve rebuild (Recommended)".

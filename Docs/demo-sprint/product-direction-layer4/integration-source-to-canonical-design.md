@@ -170,7 +170,7 @@ Two further instants are bookkeeping: `received_at` (when a batch arrived) and `
 | Kasarani | chargers in service 4 → 3 (CH-K2 fault, 1 Nov 23:40) → deliverable 1,050 < required 1,200<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.required_kwh_night--> kWh: departure bound at risk | 1 Nov 23:40, before the 2 Nov departures | penalties 240.00<!--fig:sites.metro-bus/Kasarani.november_to_date.nodes.penalties--> (2 missed blocks × 120) | penalty statement in November |
 | Embakasi | peak share of energy 55% against 30% planned, from interval energy bucketed by tariff band | the first October nights | invoice peak line 47,740 kWh × 0.24 = 11,457.60 | October invoice, early November |
 | Kobo | candidate generator time after dawn on 11 of 31 days, as the simulated world records it (dispatch-3.2); dispatch-3.3 re-classifies it in 0K4f | each day after its window is assessed | fuel line 1,475.00 | dips, delivery notes, invoice at month end |
-| Thika | chamber above 4 °C from about 19:15 on 6 Oct; B-1031 above its 5 °C limit | 6 Oct, minutes | liability 108.00 | QA note 7 Oct, credit note CN-0412 |
+| Thika | chamber above 4 °C from about 19:35 on 6 Oct; B-1031 above its 5 °C limit | 6 Oct, minutes | liability 108.00 | QA note 7 Oct, credit note CN-0412 |
 | Mto | readings on six new meters with no billing account after the 3 Oct swap | first read cycle after 3 Oct [assumption on read cadence] | revenue 56.00 short | October billing run |
 
 Attention therefore arises at the factor where something happens (a factor deviating from plan, a bound threatened, a latent factor appearing), not when the month's outcome is booked. Before the money node closes, the outcome is shown as **provisional**: the observed factors with their classes, the money nodes that are not yet recorded named as *not available yet* (or ESTIMATED at plan, labelled), and no total that mixes the two (invariant 3 of the main design).
@@ -293,7 +293,7 @@ The structure itself detects the hole in revision 1: the litres-consumed leaf co
 
 ### 3.3 Trace C — Thika: storage ledger, chamber readings, QA note, credit note and EPC contract (v7.0 INC-203)
 
-**Source rows.** Telemetry for 6 Oct (demo-simulated, through today's cold batch path): grid lost from 19:11; automatic start requested 19:11:05; GEN-CR-01 failed to start 19:11:10 (start controller); started by hand 19:14 (operator log); cooling running 19:15; chamber peak 8.2 °C at 19:19; back within 2–4 °C by 19:45. Chamber readings are 5-minute, as on the preserved v7.0 page (probe TMP-003), so durations are bounded ranges.
+**Source rows.** Telemetry for 6 Oct (demo-simulated, through today's cold batch path): grid lost from 19:11; automatic start requested 19:11:05; GEN-CR-01 failed to start 19:11:10 (start controller); started by hand 20:22 (operator log); cooling running 20:23; chamber peak 5.4 °C at 20:25; back within 2–4 °C by 20:55. Chamber readings are 5-minute, as on the preserved v7.0 page (probe TMP-003), so durations are bounded ranges.
 
 ```text
 # storage_ledger_thika.csv (excerpt; in/out times other than B-1029's check-out are [assumption])
@@ -316,12 +316,12 @@ Documents: the customer storage contract (commodity limits French beans 5 °C, a
 
 **Canonical records.** `STORAGE_MOVEMENT` (one IN and one OUT per batch), a `QA_INSPECTION` operational record [proposed kind], `CHARGE` rows (crate-days × 0.20), CN-0412 as `ADJUSTMENT` −108.00, rights-register rows, claim events NOTIFIED 8 Oct → ACKNOWLEDGED 10 Oct → ACCEPTED 17 Oct, insurer notice 8 Oct.
 
-**Reconciliation → leaf factors.** The cold excursion observer establishes the chamber above 4 °C for 25–35 minutes (bounded by 5-minute readings). Joining presence and limits:
+**Reconciliation → leaf factors.** The cold excursion observer establishes the chamber above 4 °C for 75–85 minutes (bounded by 5-minute readings). Joining presence and limits:
 
-| batch | present at 19:11–19:45? | limit | above limit | exposure (At stake, not money) | QA-confirmed damage | contract liability (> 15 min) |
+| batch | present at 19:11–20:55? | limit | above limit | exposure (At stake, not money) | QA-confirmed damage | contract liability (> 15 min) |
 |---|---|---|---|---|---|---|
 | B-1031 French beans, 120 crates | yes | 5 °C | 20–30 min | 2,160.00 (120 × declared 18) | 6 crates = 108.00 | 108.00 (even the 20-minute lower bound exceeds 15) |
-| B-1034 avocado, 80 crates | yes | 12 °C | no (peak 8.2 °C) | — | — | — |
+| B-1034 avocado, 80 crates | yes | 12 °C | no (peak 5.4 °C) | — | — | — |
 | B-1029 cabbage, 60 crates | no (out 5 Oct 16:00) | — | excluded | — | — | — |
 
 Three different factors: exposure is a bound violation with a value at stake; damage needs the QA note; liability needs the contract clause. The bound check uses the lower end of the duration range, so the 5-minute cadence cannot create a liability that the readings do not support.
@@ -330,7 +330,7 @@ Three different factors: exposure is a bound violation with a value at stake; da
 
 **Decision at factor key** (site Thika, factor *backup start*, cause: start controller). The rights factor puts the controller's cost on CoolBuild (claim accepted 17 Oct; replacement scheduled 8 Nov), so the operator's residual cost per path is: stopgap (night manual-start rota and SMS alarm relay) 100.00<!--fig:options.THIKA-EPC-STOPGAP.operator_one_off-->, recommended; wait with no stopgap, rejected (stock unprotected until 8 Nov); self-funded controller 710.00<!--fig:options.THIKA-SELF.operator_one_off-->, rejected (voids the EPC cover). Verification: the witnessed automatic-start test ACT-051 after replacement. The remedy clock is itself a factor: the extracted term "within 30 days of acceptance" put the remedy due on 27 Oct, and the scheduled date is 8 Nov, so the product would flag the supplier's remedy timing for human review, never as a legal conclusion (see the manifest note in the report to the Architect).
 
-**Evidence drawer.** Timeline (grid lost 19:11 → start request 19:11:05 → failed start 19:11:10 → manual start 19:14 → cooling 19:15 → peak 8.2 °C 19:19 → in band by 19:45), the temperature curve with the 4 °C and 5 °C lines, the three batches with presence, limit and result, QA note 7 Oct, CN-0412, the contract clause with page reference, the claim events, and: "Exposure is not damage; damage is not liability. Coverage is decided by the supplier or insurer."
+**Evidence drawer.** Timeline (grid lost 19:11 → start request 19:11:05 → failed start 19:11:10 → manual start 20:22 → cooling 20:23 → peak 5.4 °C 20:25 → in band by 20:55), the temperature curve with the 4 °C and 5 °C lines, the three batches with presence, limit and result, QA note 7 Oct, CN-0412, the contract clause with page reference, the claim events, and: "Exposure is not damage; damage is not liability. Coverage is decided by the supplier or insurer."
 
 ### 3.4 Trace D — Embakasi: OCPP log, roster and utility invoice (CLOCK-1)
 

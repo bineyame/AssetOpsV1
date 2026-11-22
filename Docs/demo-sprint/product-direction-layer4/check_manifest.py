@@ -1268,9 +1268,12 @@ def empty_states(root, doc):
 # ---------------- 11. history (DS1 spec §8.3, checks H1-H11; D-DS1.5 to D-DS1.12) ----------------
 # They run when history.json exists. Every expected value comes from independent_model.compute_history(); the constants below
 # are the base commit's October digests (H8, H10). Lifetime (R14): the next slice that changes October replaces them in its diff.
-H8_DERIVED_SHA = "3f8aa2b118eb2a6872a1bdd1c2adbc22b52216239b88be569b3a77913285c81e"   # derived-values.json at the 0K4m base (was the DS1p base)
+# Re-based (22 Nov) for DD4a's D-DD.89 M commit (rev 16.19): Thika's hand start 20:22 moves cooling_minutes_unavailable 4 -> 72
+# and cooling availability 99.997 -> 99.946 (derived-values.json sites/portfolio, H8, K13); the manifest before `history:` moves (H10).
+# The previous H8_DERIVED_SHA was 3f8aa2b118eb2a6872a1bdd1c2adbc22b52216239b88be569b3a77913285c81e; H10_MANIFEST_SHA a35e31ebd9ee5e7620aeef063860f277c9749d3bccd00786cbeb6a494feab1c7.
+H8_DERIVED_SHA = "b6a37dc910900d70cf6717db5bd5b3056c4a86a181d413f5778304230fddb4cc"   # derived-values.json at the DD4a D-DD.89 base (was the 0K4m base)
 H8_MISSING_SHA = "b8d3bcbc376cf530ddc633e1f5ba1878f99eb0314d47f656278c76423c864fa5"   # missing-records.json at the 0K4m base (was the DS1p base)
-H10_MANIFEST_SHA = "a35e31ebd9ee5e7620aeef063860f277c9749d3bccd00786cbeb6a494feab1c7"  # the manifest at the DS1p base, plus
+H10_MANIFEST_SHA = "5f880ea11bae5aa13a56b125fda5e713ff5047c9d0279f42a54f3fb2008fadee"  # the manifest at the DS1p base, plus
 # `home_categories.reconciliation` (ruling D-RECON.4, 20 Nov): a declaration no evaluator, model or generator reads and outside
 # view_digest; October values (H8), history.json and H11 are unchanged. The DS1p base was 8c027d0405936e4730426633ee703de5623bea3da6ddec36933b50b77a2edb4c.
 # Re-based again (20 Nov) for the data lane of rulings D-RECON.5 to D-RECON.7, all before `history:` and none read by the
@@ -2120,11 +2123,13 @@ RATE_FIELDS = {"litres_per_customer_kwh": ("load_kw", "load_hours_per_day", "day
 OPTION_ONLY_SOURCE = "admission_parts_failed"
 KOBO_SETTINGS = ("KOB-STOPSOC", "KOB-RESERVE")
 KOBO_SETTING_WORDS = "a dispatch replay on Kobo's October as recorded (0K4f)"   # §2.3, R2
-K8_HISTORY_SHA = "6fd610899336b95dbe898cd3c583d06fa130fb065d7912282a33e1e4fe6d4fc8"   # history.json at the 0K4m base (K8);
+K8_HISTORY_SHA = "d2498a9c5a0ea766022aa084682b43652698e65e39924be038a8b62e6f375f0b"   # history.json at the 0K4m base (K8);
 # re-based (22 Nov) for DD3a commit 2: Kobo `physical` from its data sheets moves the view. The previous base was 9cb1b6bfecd6b1cec0d10974c037161e2e454f7dac3694791a584bfd173fd4c9.
 # Re-based (22 Nov) for DD3a's fix round (D-DD.102): a scope digest covers only the `physical` keys its rules read, so the
 # July-September leaves of Kobo, Kisiwa and Mto were re-drawn once and the depots' scope digests moved (cold rooms unchanged).
 # The previous base was 329181f274b22b1563c496b1e5fc7195cbea9944e341356d957f3eaff123cacb.
+# Re-based (22 Nov) for DD4a (D-DD.90, deviation 7): the history.json `view_digest` line moved with the Thika incident resize
+# (D-DD.89); only that line changed (the scope blocks are asserted by test_scope_seasons_parity). The previous base was 6fd610899336b95dbe898cd3c583d06fa130fb065d7912282a33e1e4fe6d4fc8.
 MOCK = "interactive-mockup-vNEXT"
 K11_EXCLUDED = {"REVIEW.md", "REVIEW-response.md"}   # and regeneration/ (never scanned)
 # K11: the decision-history registers (spec §3, I4: by name) and the mock's change register (rows before 21 Nov) are exempt
@@ -2641,8 +2646,10 @@ K13_PARITY = {   # 0K4m K13 (rev 4, D-0K4.45): canonical sha256 of each product-
     ("manifest", "home_categories.findings"): "d271fabbb142ebe177e049ad5760a1cc2d53d2cb149f495a2356cdf185f865e7",
     ("manifest", "chain_model"): "cfa3ebdb879fab1f9884cfc961c95e0df5417a6daf098e4062df2535c2cbbe4f",
     ("manifest", "history.rules"): "55c330af1acba430a295949f8bd4caa5e04ac8c6bacb5c337705fbf45a3f8541",
-    ("derived-values.json", "sites"): "6b7ee11a6a03e8aa683dae78b68d32920c328d385c13c44fc859141d52286d1a",
-    ("derived-values.json", "portfolio"): "c994625db43e247bc1d0ab3176ca13e695668b5d1c3aaeec55e95a2ccd1e254b",
+    # Re-based (22 Nov) for DD4a's D-DD.89 M commit: Thika cooling_minutes_unavailable 4 -> 72 (sites, portfolio). The previous
+    # values were 6b7ee11a6a03e8aa683dae78b68d32920c328d385c13c44fc859141d52286d1a and c994625db43e247bc1d0ab3176ca13e695668b5d1c3aaeec55e95a2ccd1e254b.
+    ("derived-values.json", "sites"): "eadb9d088d075713208ffda22e54ce414bd6ae5fea63e6a35128a3965303b4b3",
+    ("derived-values.json", "portfolio"): "fcfacc9c5514b96cef82a3ed422f60ab3ecb66a4351fa09a599c81b80de3d78a",
     # Re-based (22 Nov) for DD3a commit 2: Kobo `physical` from its data sheets moves the view, so history.json and this part
     # were regenerated (evaluate_structure.py). The previous value was de3fbbaed74207bc3273bfd84453caed3e99432c2d235fe8c092b2409289fc09.
     # Re-based (22 Nov) for DD3a's fix round (D-DD.102): the physical-reads digest re-draws Kobo, Kisiwa and Mto's

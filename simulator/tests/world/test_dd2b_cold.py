@@ -43,13 +43,15 @@ def leaf(month: str, code: str, field: str):
 
 
 def batches_from(ledger: list[dict]) -> dict:
-    """Each batch's admission and check-outs, read back from the ledger rows alone (independent of the module)."""
-    out: dict = defaultdict(lambda: {"in": None, "crates": 0, "outs": []})
+    """Each batch's admission lots and check-outs, read back from the ledger rows alone (independent of the module).
+    D-DD.85: a batch has one or more IN lots."""
+    out: dict = defaultdict(lambda: {"ins": [], "crates": 0, "outs": []})
     for r in ledger:
         b = out[(r["site_code"], r["body"]["batch_ref"])]
         at = datetime.fromisoformat(r["clocks"]["occurred_at"])
         if r["body"]["direction"] == "IN":
-            b["in"], b["crates"] = at, int(r["quantity"]["value"])
+            b["ins"].append((at, int(r["quantity"]["value"])))
+            b["crates"] += int(r["quantity"]["value"])
         else:
             b["outs"].append((at, int(r["quantity"]["value"])))
     return out
@@ -65,12 +67,11 @@ def counted(ledger: list[dict], code: str, month: str) -> int:
     for (site, _), b in batches_from(ledger).items():
         if site != code:
             continue
-        left = b["crates"] - sum(n for _, n in b["outs"])
-        stays = [(at.date(), n) for at, n in b["outs"]] + ([(last + timedelta(days=1), left)] if left else [])
-        for leaves, n in stays:
-            start, stop = max(b["in"].date(), first), min(leaves - timedelta(days=1), last)
-            if stop >= start:
-                total += n * ((stop - start).days + 1)
+        # a crate counts a date when its lot came in on or before it and it leaves after it (per lot, D-DD.85)
+        def dates_from(day: date) -> int:
+            return max(0, (last - max(day, first)).days + 1)
+        total += sum(n * dates_from(at.date()) for at, n in b["ins"])
+        total -= sum(n * dates_from(at.date()) for at, n in b["outs"])
     return total
 
 
@@ -103,13 +104,13 @@ def test_c3_ledger_batches_rooms_and_times() -> None:
         for (site, ref), b in batches_from(ledger).items():
             if site != code:
                 continue
-            assert b["in"].timetz().isoformat() == "08:00:00+03:00", ref
+            assert all(at.timetz().isoformat() in ("08:00:00+03:00", "16:00:00+03:00") for at, _ in b["ins"]), ref
             assert all(at.timetz().isoformat() == "16:00:00+03:00" for at, _ in b["outs"]), ref
             assert b["crates"] <= 120 and sum(n for _, n in b["outs"]) <= b["crates"], ref
             if ref.startswith(f"{code}-B"):
                 assert b["crates"] <= exports_cold.BATCH_CRATES, ref
-                assert all(at.date() - b["in"].date() <= timedelta(days=7) for at, _ in b["outs"]), ref
-            events.append((b["in"], 1, b["crates"]))
+                assert all(at.date() - b["ins"][0][0].date() <= timedelta(days=7) for at, _ in b["outs"]), ref
+            events += [(at, 1, n) for at, n in b["ins"]]
             events += [(at, 0, -n) for at, n in b["outs"]]
         level = peak = 0
         for _, _, n in sorted(events, key=lambda e: (e[0], e[1])):
@@ -124,8 +125,9 @@ def test_c4_named_batches_keep_their_crates_and_times() -> None:
     found = batches_from(rows("profile.cold-storage-ledger"))
     for code, ref, commodity, crates, admitted, leaves in exports_cold.NAMED_BATCHES:
         b = found[(code, ref)]
-        assert (b["crates"], b["in"].isoformat()[:16], [at.isoformat()[:16] for at, _ in b["outs"]]) == (
-            crates, admitted, [leaves])
+        # D-DD.85: received in lots of at most 40, each at or before the named instant (exact lots: test_dd4_cold_receiving)
+        assert (b["crates"], [at.isoformat()[:16] for at, _ in b["outs"]]) == (crates, [leaves])
+        assert all(at.isoformat()[:16] <= admitted and n <= 40 for at, n in b["ins"])
     # D-DD.51 parity: the table equals the manifest's incident batches
     batches = {b["batch"]: b for b in m_site(COLD, "COLD-THIKA")["incident"]["batches"]}
     assert {ref for _, ref, *_ in exports_cold.NAMED_BATCHES} == set(batches)
