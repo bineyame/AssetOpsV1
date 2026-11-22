@@ -690,13 +690,15 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
   about 1-2 min. C-DD12, C-DD16, C-DD21 live and passing.
 - Open (after fix rounds D-DD.93-106; C-DD11 and the five test figures are fixed): D-DD.92's overfill and notes (DD3b);
   D-DD.103's readings span (DD4a); D-DD.104 and D-DD.97 (DD3b); the mock's Kobo kit strings (D-DD.105, alignment pass).
-## DD4a: cold operating reality, part 1 (in_review, stopped for the owner at C-DD6; `specs/DD-demo-data/packet-DD4a.md`)
+## DD4a: cold operating reality, part 1 (in_review, run 2 of 3; `specs/DD-demo-data/packet-DD4a.md`)
 - Settled: cold-thermal 2 holds the chamber on a 1e-6 degC grid with the rounding in `rounding_total` (D-DD.87; v1
   bytes unchanged); a faulted start fails in the request minute and `GENERATOR_HAND_START` replaces `GENERATOR_RESET`
   (D-DD.83); the pack refuses field heat while the chamber is at or above the lot's admission ambient (D-DD.85). The
   cold ledger receives lots of at most 40 crates at 08:00/16:00, one IN per receiving time, named batches in lots from
   27 Sep, `EMU_RECEIVING` (D-DD.85); cold ledger/invoicing pins and samples regenerated; mini and EV books unchanged.
   `world/telemetry_cold.py` `ColdSiteRun` runs a room a day at a time with D-DD.86's forcings (Thika 123 days, 24 s).
-- Left open: Thika's chamber never passes 5 degC (peak 4.05 degC in the outage window, 0 minutes above 5 degC), so
-  C-DD6's B-1031 clause fails: owner choice (D-DD.83 default: readings stand). The join with DD3a's frame (DD3a not on
-  main); no season declared for June or November (the run refuses `TEL_FOUNDATION`); DD4b (EV, measured books).
+  Run 2: `M` declares 2026-11 `short_rains` and a scope digest reads only its months' seasons (D-DD.90; 27 digests
+  equal main); one `READINGS_SPAN` to 6 Nov 06:00, November at October's rate with the draw by day of month
+  (D-DD.103); `build_telemetry` dispatches by pack family and binds cold rows, event rows per D-DD.91 (Kobo 7 days
+  byte-identical to main).
+- Left open: D-DD.89's `M` commit, cold books for the writer, the writer run and C-DD6 (next run); DD4b (EV).

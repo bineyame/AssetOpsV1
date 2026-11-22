@@ -1,6 +1,8 @@
-# Review packet: DD4a cold operating reality, part 1 (STOPPED FOR THE OWNER at C-DD6)
+# Review packet: DD4a cold operating reality, part 1 (run 2: D-DD.90, D-DD.103, the join; C-DD6 still open)
 
-Branch `task/DD4-cold-ev-reality`; spec `spec.md` §4.4, §7 DD4; rulings D-DD.81-88 (DD4a change list and order).
+Branch `task/DD4-cold-ev-reality`; spec `spec.md` §4.4, §7 DD4; rulings D-DD.81-88 (DD4a change list and order);
+run 2: D-DD.96's DD4a list after DD3a (D-DD.90, the join with D-DD.91) and D-DD.103. Not in run 2: D-DD.89's `M`
+commit, the writer run, `test_dd4_thika_incident.py`, C-DD6 (next run).
 USER_REVIEW_REQUIRED: true (C-DD6's B-1031 clause fails on the declared room; story figures vs room figures is the owner's call).
 
 ## Outcome
@@ -47,6 +49,76 @@ nothing was changed. Script: scratch, not committed.
 - `statement_catalogue.py` and `--self-test`: exit 1 on branch AND main with identical output (pre-existing
   `CASE_MISSING decision_lever.title fuel_reconciliation` etc.; no file of this slice involved).
 - Layout evidence: not run (no UI).
+
+## Run 2 (after DD3a merged; main merged at f131aa174)
+Commits: d47713bd7 (D-DD.90), cd71da771 (D-DD.103), 4ec8033db (join, D-DD.81 + D-DD.91).
+- **D-DD.90.** `M` `history.seasons` gains `"2026-11": short_rains`. `scope.history_global` restricts `seasons` to the
+  history's months plus `anchor_period`. `DEFAULT_SUN_WEIGHTS["seasons"]` gains `2026-11`, pinned to `M` by a test.
+  Fixture view and `history.json` regenerated from `M`. Test `world/test_scope_seasons_parity.py` (6), golden
+  `golden/scope_seasons_main.json` from main 759759598: all 27 scope digests of the fixture view and history.json's
+  scope blocks (sha256 of `tenants`) equal main's; a season planted at 2027-01 moves none.
+- **D-DD.103.** `telemetry.READINGS_SPAN = ("2026-07-01T00:00", "2026-11-06T06:00")`; `span_days` takes a local date
+  or a whole-hour local instant (others `TEL_EVENT_UNPLACED`). Mini-grid frozen inputs end at the instant (no forcing,
+  note or draw after it); `SiteRun` writes 72 slots on 6 Nov; `ColdSiteRun` ends at the instant. `books_for` writes
+  each span month after the accounting period as `{"rate_of": "2026-10", "delivered_kwh": E}` (Kobo E by the rule;
+  blocks inside `READINGS_SPAN` scaled to E); a `rate_of` day draws the rate month's same-day part at 02:00. Site
+  manifest `span.to`; `conditions.month_without_books` when the span reaches such a month; `measured.json` month the
+  span ends inside carries `partial_to`. CLI `--start`/`--end` default to `READINGS_SPAN`; the `period_end` fallback
+  is gone. Test `world/test_dd4_span_end.py` (7): Kobo 1 Nov to the end writes six files, the last all `end` <= 06:00,
+  every signal 72 slots, last end 06:00; November load = E (computed in the test by the formula); six draws at 02:00 =
+  October's first six parts (3.88 x 3, 3.87 x 3 L); Mwea ends at 06:00 (meter 72 slots); CLI defaults; refusals.
+- **Join (D-DD.81, D-DD.91).** `build_telemetry` dispatches by `pack_family` (role set family: `minigrid-roles` ->
+  `SiteRun`, `cold-roles` -> `ColdSiteRun`, `ev-roles` -> not written, DD4b). `SiteRun` gains `advance_day()` and
+  `day_records(day)`. `VerticalBinding` (the frame) resolves each pack `(device_id, signal_id)` to one binding row,
+  checks the unit (an event channel must be bound `event`), rounds to the millesimal, checks state maps, writes local
+  ISO instants and event rows `{"value": null, "unit": "event", "event": {record_kind, outcome, actor, component_id,
+  ordinal, correlation}}`; rows sorted by (start, source_id, signal_id, ordinal or 0). Cold manifest: pack
+  `cold-thermal` 2, span with `to`, the run's `private_parameters()` and `conditions()`, mappings by binding row.
+  `telemetry_cold` raises the frame's `TelemetryRefused`; `day_records` rows have the seventh element; the string
+  packing is gone. Test `world/test_telemetry_join_parity.py` (8), golden `golden/telemetry_join_kobo_main.json` from
+  main 759759598 (generator script in scratch, run against the main checkout read-only).
+
+### Parity results
+- Kobo 7 days (W1 inputs, 1-7 Jul): all 7 readings files byte-identical to main. Manifest identical except the two ruled
+  keys, asserted: `span.to` = `2026-07-08T00:00:00+03:00` (D-DD.103) and `2026-11` in the sun table (D-DD.90).
+  Guard proof: QUANTUM planted at 0.0001 -> both Kobo parity tests FAIL; reverted with `git checkout`.
+- Scope digests: 27/27 equal main; history.json scope blocks equal main.
+- Red first (scratch logs): seasons parity 3 failed before the scope change; span-end 5 failed before D-DD.103 (CLI
+  test failed with the CLI change stashed); join 3 failed + 2 errors before the join (the edited cold tests 5 failed
+  with the join stashed).
+
+### Run 2 checks
+- Touched-module tests (every file importing `scope`/`telemetry`/`telemetry_cold`/`world_history` or reading `M`,
+  history.json or the fixture view), separate sim, backend and host pytest calls through `run-host-tests.ps1`,
+  non-DB files in a plain heavy slot (the DB queue was held 20+ min by other lanes), the one Postgres file in `--db`:
+  - branch 4bd79822d: sim (24 files) 311 passed; backend (11) 437 passed, 2 failed; host (3) 40 passed. Wall 127 s.
+  - main 759759598: sim (18 files) 277 passed; backend (11) 437 passed, 2 failed (the same two:
+    `test_3b1_structure_registry::test_t1_leaf_sources...`, `test_3b3_structure_evaluate::test_t6_each_state...`);
+    host 40 passed. Wall 109 s. Sim difference 34: the six world test files
+    only on this branch (receiving, telemetry_cold, cold_ledger, span_end, seasons parity, join parity) and the cases
+    run 1 added to existing files.
+  - First branch run found two of this branch's own failures, fixed in 4bd79822d: `test_core::test_t6_greps[\b31\b]`
+    (run 1's November shift wrote `timedelta(days=31)`; now `days_in("2026-10")`) and D-DD.106 L2's CLI test (its
+    `None` default is replaced by D-DD.103, as that ruling says; the test now asserts `READINGS_SPAN`).
+  - Postgres `test_ddr_rehearsal_postgres.py`: PG_RESULT.
+- `tools/check-architecture.ps1` (ASSETOPS_GUARD_PYTHON set): passed, 110 s. `tools/check-agent-workflow.ps1`: passed.
+- `tools/checks/statement_catalogue.py`: exit 0 on branch and on main, outputs byte-identical.
+- Layout evidence: not run (no UI).
+
+### Run 2 known deviations
+7. `meta.view_digest` covers the whole view (DS1), so `history.json` bytes move with the new season key: only that
+   line. D-DD.90 expected sha256(history.json) unchanged; the test asserts the scope blocks instead. Pins moved:
+   `golden/history_v1.json` `file_sha256` and `view_digest` (via `--update-golden`); no other.
+8. The readings manifest of an unchanged span moves by D-DD.103's `span.to` and D-DD.90's sun-table key (rulings
+   require both); the parity test removes exactly those two, asserting their values. `measured.json` of a span ending
+   inside a month (the 7-day run: July) carries `partial_to`.
+9. D-DD.91 names the door correlation `door`; the pack's key is `door-cycle`, written as the pack gives it.
+10. Pack family is read from the role set family (no `/2` field names a pack); D-DD.81 names the families only.
+11. Cold mappings `record` is the binding row's `asset_code` (mini-grid's is the pack address; cold rows carry no
+    address). The last cold day keeps no 06:00 instant state row (06:00 is the horizon; the meter's interval to 06:00
+    is the last row).
+12. Not built here: cold `books_for` (ledger, cooling, events from `M`) is the writer run's; `tools/dd3_pure_run.py`
+    keeps `--end 2026-10-31` (its table is the booked months); measured `room_kwh` (D-DD.99) is DD4b's.
 
 ## Known deviations
 1. D-DD.87's "identical probe readings to the thousandth": rounding both to 0.001 differs at 1 of 73 readings (exact
