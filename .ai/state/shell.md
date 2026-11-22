@@ -489,3 +489,17 @@ Branch `task/W1-UX-07` (base main `3bb1b8b2`). Packet `archive/agent-history/W1-
 - Gates: `tools/iap_gates.cjs` R1 to R8, L1 to L3 on fixtures under `estate/__tests__/fixtures/iap/`. Packet: `specs/IA-P-product-shape/packet-IA-P1.md`.
 - Left open: the Overview still carries `lens` as "all" (P3b); the Finding row's evidence prompt and placement reasons have no list home;
   three failures on main stay (`siteRangeMatrix` x2, `sr2RequestUrls` SR-6b).
+
+## IA-P2 - the Portfolio on the date range: E2 (P3a), the hub (P3b), E0 and E1 (P4a), the period `out` (D-IAP.34) (built, in_review)
+
+- P3a: `deep_dive/period.py` (`GET /api/portfolio/period`, one body per range: mode `month`, `period` or `none`; whole months only, `shown`
+  span, `notes`, `nav` days, `suggest`); `period` body: headline, four tiles, "Month by month" rows, `out` (the Sites left out, 5c's own
+  sentences, "Only in {months}." when out in some months; `n - k == len(out)`). Statements `portfolio_period.*`, `portfolio_sites.*`.
+- P3b: `/portfolio` is `PortfolioOverview` (E2 by mode: the month screen for E2's served month, `PortfolioPeriod`, or the notes with
+  "Show {month}"); three tabs (Overview, Outcomes, Demand & capacity) on `SectionTabs`; Results is live at `/results`; the scope section is
+  Evidence & records' last section; aliases for `/portfolio/month|opportunity|changes|scope`; `/portfolio` with no range opens on last month.
+- P4a: E0 `waiting_count`, `waiting_by_site` in the estate summary; E1 `GET /api/portfolio/sites` (sum check, logged 503).
+- Gates: `tools/iap_gates.cjs` H1, H2, H4 to H6 (H3 is `tools/deep_dive_gates.cjs <url> <fixture>` at the October range). Packet:
+  `specs/IA-P-product-shape/packet-IA-P2.md` (the per-file migration of 140 existing frontend tests, plants, counts).
+- Left open: the demo's prebuilt `/portfolio` week requests (`tools/demo_combined.py`) no longer match what the Overview reads (E2);
+  MD-IAP-3, -7, -10, -11, -12, -16 registered (R784 to R789); the world ladder's L2 `code` part is stale until the coordinator rebuilds it.

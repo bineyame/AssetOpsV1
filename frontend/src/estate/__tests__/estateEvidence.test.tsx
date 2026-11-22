@@ -10,7 +10,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import { NO_DESCRIPTION, observationSummary, roleWord } from "../estateEvidenceWords";
-import type { EstateCoverageSite } from "../estateClient";
+import type { EstateClient, EstateCoverageSite } from "../estateClient";
+import { loadedPortfolio, portfolioBody, portfolioClient, refused as refusedPortfolio } from "./portfolioFixtures";
 import {
   COVERAGE_PANEL,
   COVERAGE_SUBTITLE,
@@ -48,6 +49,24 @@ const WINDOW = `from=${encodeURIComponent(FROM)}&to=${encodeURIComponent(TO)}`;
 /** SR-4 D-SR.2: every Site link carries the address range; a server link with its own window keeps it (D-SR.42(d)). */
 const ranged = (href: string) => `${href}${href.includes("?") ? "&" : "?"}${WINDOW}`;
 const COLD_LINK = "/sites/COLD-LAB-001/evidence?from=2026-10-14T08%3A00%3A00.000000Z&to=2026-10-14T16%3A00%3A00.000000Z&known_at=2026-10-20T09%3A00%3A00.000000Z";
+
+/**
+ * IA-P2 P3b (spec §2.4, §6 P3b): the v69 `globalevidence` panel structure is checked on the evidence page's own panels;
+ * the Scope & coverage section the Portfolio's scope tab moved here is a further section after them (asserted by the
+ * "Scope & coverage section" tests below), so it is set aside for the v69 comparison and put back.
+ */
+function withoutScopeSection(check: () => void): void {
+  const section = document.querySelector("[data-portfolio-panel='scope']");
+  const parent = section?.parentNode ?? null;
+  const next = section?.nextSibling ?? null;
+  section?.remove();
+  try {
+    check();
+  } finally {
+    if (section !== null && section !== undefined && parent !== null) parent.insertBefore(section, next);
+  }
+}
+const expectEvidencePanels = () => withoutScopeSection(() => expectV69Panels("globalevidence"));
 
 function coverageSite(siteId: string, state: EstateCoverageSite["state"] = "CURRENT"): EstateCoverageSite {
   return { site_id: siteId, state, committed_watermark: null, selection_id: null, match_state: "COMPLETE", job_state: "SETTLED", source_freshness: "RECENT" };
@@ -188,12 +207,12 @@ function LocationProbe() {
   return <output data-testid="location">{`${location.pathname}${location.search}`}</output>;
 }
 
-function renderAt(entry: string, client: EstateEvidenceMoneyClient) {
+function renderAt(entry: string, client: EstateEvidenceMoneyClient, estate: EstateClient = portfolioClient(loadedPortfolio(portfolioBody()))) {
   return render(
     <MemoryRouter initialEntries={[entry]}>
       <main>
         <Routes>
-          <Route path={ESTATE_EVIDENCE_PATH} element={<EstateEvidencePage client={client} />} />
+          <Route path={ESTATE_EVIDENCE_PATH} element={<EstateEvidencePage client={client} estate={estate} />} />
         </Routes>
       </main>
       <LocationProbe />
@@ -234,7 +253,7 @@ describe("W3-02 estate Evidence root", () => {
   it("rendersMockEvidencePanelsAndHonestCards", async () => {
     renderAt(`${ESTATE_EVIDENCE_PATH}?${WINDOW}`, fake(loaded(body())));
     await settledScreen();
-    expectV69Panels("globalevidence");
+    expectEvidencePanels();
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Evidence & records");
     expect(main().textContent).toContain("Cross-site claim readiness, recurring gaps and instrumentation priorities");
     // SR-2: the range is shown once, in the shell's shared bar; the page keeps only its cutoff line.
@@ -254,10 +273,13 @@ describe("W3-02 estate Evidence root", () => {
     const notice = main().querySelector("[data-estate-notice]");
     expect(notice?.textContent).toBe(EVIDENCE_NOTICE);
     expect(notice?.className).toContain("v69-notice--blue");
+    // IA-P2 P3b: the scope section's own Site names (from the Portfolio read it carries) are not the evidence page's.
+    const evidenceOnly = main().cloneNode(true) as HTMLElement;
+    evidenceOnly.querySelector("[data-portfolio-panel='scope']")?.remove();
     for (const mock of ["GreenHarvest", "Depot", "Kobo · mini-grid", "Restore 14:50 PCS", "battery condition", "Excluded", "PCS, loading"]) {
-      expect(main().textContent).not.toContain(mock);
+      expect(evidenceOnly.textContent).not.toContain(mock);
     }
-    expectPlantedPanelRejected("globalevidence");
+    withoutScopeSection(() => expectPlantedPanelRejected("globalevidence"));
   });
 
   it("rendersGroupedCapabilitiesAndTypedGaps", async () => {
@@ -375,7 +397,7 @@ describe("W3-02 estate Evidence root", () => {
       }))),
     );
     await settledScreen();
-    expectV69Panels("globalevidence");
+    expectEvidencePanels();
     expect(cards()[0]).toEqual({ label: "Sites with limited claims", value: "0 of 0", note: NO_ACCESSIBLE_SITES });
     expect(headers(panelTitled(COVERAGE_PANEL))).toHaveLength(5);
     expect(panelTitled(COVERAGE_PANEL).querySelector("[data-estate-note]")?.textContent).toBe(NO_ACCESSIBLE_SITES);
@@ -386,7 +408,7 @@ describe("W3-02 estate Evidence root", () => {
     // Authorized scope, nothing selected.
     view = renderAt(`${ESTATE_EVIDENCE_PATH}?${WINDOW}`, fake(loaded(body({ rows: [], total_count: 0, gaps: [] }))));
     await settledScreen();
-    expectV69Panels("globalevidence");
+    expectEvidencePanels();
     expect(panelTitled(COVERAGE_PANEL).querySelector("[data-estate-note='no-selection']")?.textContent).toBe(NO_SELECTED_EVIDENCE);
     view.unmount();
 
@@ -402,7 +424,7 @@ describe("W3-02 estate Evidence root", () => {
       }))),
     );
     await settledScreen();
-    expectV69Panels("globalevidence");
+    expectEvidencePanels();
     expect(cards()[0]).toEqual({ label: "Sites with limited claims", value: "Not assessed", note: "Some Site evidence is unavailable" });
     expect(within(panelTitled(COVERAGE_PANEL)).getAllByRole("row")).toHaveLength(4);
     expect(panelTitled(COVERAGE_PANEL).querySelector("[data-estate-note='partial']")?.textContent).toBe(STILL_ASSESSED);
@@ -423,7 +445,7 @@ describe("W3-02 estate Evidence root", () => {
       }))),
     );
     await settledScreen();
-    expectV69Panels("globalevidence");
+    expectEvidencePanels();
     expect(main().querySelector("[data-estate-row-context='HISTORICAL']")?.textContent).toBe("Historical as of 18 Oct 2026, 00:00");
     expect(main().querySelector("[data-estate-row-context='HISTORICAL']")?.className).toContain("estate-tone--blue");
     expect(panelTitled(COVERAGE_PANEL).querySelector("[data-estate-note='historical']")?.textContent).toBe("Historical as of 18 Oct 2026, 00:00");
@@ -738,5 +760,29 @@ describe("post-W6 W3-estate refused window", () => {
     // SR-2: a valid range is shown in the shell's shared bar, not on the page.
     expect(main().querySelector("[data-estate-window]")).toBeNull();
     view.unmount();
+  });
+});
+
+describe("IA-P P3b: the Scope & coverage section (moved from the Portfolio's scope tab)", () => {
+  it("renders the coverage line, the scope disclosure and the context footer under the evidence panels", async () => {
+    const estate = portfolioClient(loadedPortfolio(portfolioBody()));
+    renderAt(`${ESTATE_EVIDENCE_PATH}?${WINDOW}`, fake(loaded(body())), estate);
+    await settledScreen();
+    const section = document.querySelector<HTMLElement>("[data-portfolio-panel='scope']")!;
+    expect(section.querySelector("h2")!.textContent).toBe("Scope & coverage");
+    expect(section.querySelector("[data-portfolio-coverage]")).not.toBeNull();
+    expect(estate.calls).toHaveLength(1);
+    expect(estate.calls[0]).toMatchObject({ lens: "all", cursor: null });
+    // The section sits after the evidence page's own panels.
+    const panels = [...document.querySelectorAll("main h2")].map((h) => h.textContent);
+    expect(panels[panels.length - 1]).toBe("Scope & coverage");
+  });
+
+  it("a refused portfolio read shows its refusal inside the section; the evidence panels stay", async () => {
+    renderAt(`${ESTATE_EVIDENCE_PATH}?${WINDOW}`, fake(loaded(body())), portfolioClient(refusedPortfolio(503, "ESTATE_STORE_UNAVAILABLE", "The estate store cannot be read right now.")));
+    await settledScreen();
+    const section = document.querySelector<HTMLElement>("[data-portfolio-panel='scope']")!;
+    expect(section.textContent).toContain("The estate store cannot be read right now.");
+    expect(document.querySelectorAll("main h2").length).toBeGreaterThan(1);
   });
 });

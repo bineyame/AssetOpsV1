@@ -120,7 +120,7 @@ export function SharedRangeOutlet() {
   if (state.status !== "absent") return <Outlet />;
   let next: URLSearchParams;
   if (fillsRangeOnEntry(location.pathname)) {
-    next = entryRange();
+    next = entryRange(location.pathname);
   } else if (isSiteContentPage(location.pathname)) {
     // SR-4a safety net: a Site content page reached by `navigate()` or a data-built link takes, in order, the previous
     // in-app range, the 7 days ending on the address's day, or the entry range (the bar's presets, so WARM-1 still hits).
@@ -129,7 +129,7 @@ export function SharedRangeOutlet() {
       ? new URLSearchParams(previous.current)
       : day !== null
         ? rangeParams({ ...weekEnding(day), known_at: null })
-        : entryRange();
+        : entryRange(location.pathname);
   } else {
     return <Outlet />;
   }

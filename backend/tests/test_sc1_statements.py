@@ -358,6 +358,14 @@ def test_t8_shipped_catalogue_loads():
                                          "model_profile.description", "model_profile.state",
                                          # 0K4e (D-0K4.24): energy-cover entries.
                                          "dispatch.energy_cover", "dispatch.energy_cover_cause",
+                                         # IA-P P3a and P4a (spec-period.md P.6, P.8): the Overview on the range, E1.
+                                         *(f"portfolio_period.{k}" for k in (
+                                             "month", "span", "headline", "compared", "missing", "partial", "open",
+                                             "none", "suggest", "currencies", "fresh", "out_only", "grow_line", "assure_line",
+                                             "assure_entry", "text", "refused")),
+                                         *(f"portfolio_sites.{k}" for k in (
+                                             "headline", "months", "contribution", "driver", "no_driver",
+                                             "no_figures", "without_target", "group", "text")),
                                          # 6h (D-P6.58): the lever words of the named-option levers.
                                          "decision_lever.title", "decision_lever.question", "decision_lever.no_action",
                                          "decision_lever.option_label", "decision_lever.study",

@@ -35,6 +35,7 @@ import {
   FINANCIALS_PATH,
   DECISIONS_ROOT_PATH,
   PORTFOLIO_ROOT_PATH,
+  RESULTS_PATH,
   INCIDENTS_PATH,
   MAINTENANCE_PATH,
   EVIDENCE_RECORDS_PATH,
@@ -135,7 +136,9 @@ import {
   type EstateEvidenceMoneyClient,
   type EstateFinancialsClient,
 } from "./estate/estateEvidenceMoneyClient";
-import { DeepDiveMonthFrame } from "./estate/DeepDiveMonth";
+import { PortfolioOverview } from "./estate/PortfolioOverview";
+import { createPortfolioPeriodClient, type PortfolioPeriodClient } from "./estate/portfolioPeriodClient";
+import { ResultsFrame } from "./estate/Results";
 import { createDeepDiveMonthClient, type DeepDiveMonthClient } from "./estate/deepDiveMonthClient";
 import {
   EstateActionsFrame,
@@ -187,6 +190,7 @@ const defaultColdScenarioList: ColdScenariosClient = new HttpColdScenariosClient
 const defaultColdSite = createColdSiteClient();
 const defaultEstateIndex = createEstateClient();
 const defaultDeepDive = createDeepDiveMonthClient();
+const defaultPortfolioPeriod = createPortfolioPeriodClient();
 const defaultEstateEvidenceMoney = createEstateEvidenceMoneyClient();
 const defaultEstateFinancials = createEstateFinancialsClient();
 const defaultGlobalWork = createGlobalWorkClient();
@@ -295,6 +299,8 @@ export interface AppProps {
   estateIndex?: EstateClient;
   /** 5c: "The month" (`GET /api/portfolio/month`). */
   deepDive?: DeepDiveMonthClient;
+  /** IA-P P3b: E2, the Overview's period read (`GET /api/portfolio/period`). */
+  portfolioPeriod?: PortfolioPeriodClient;
   /** W3-02: the read-only estate Evidence root. */
   estateEvidenceMoney?: EstateEvidenceMoneyClient;
   /** W3-02 commit 4: the read-only estate Financials root. */
@@ -336,6 +342,7 @@ export function App({
   evScenarios,
   estateIndex = defaultEstateIndex,
   deepDive = defaultDeepDive,
+  portfolioPeriod = defaultPortfolioPeriod,
   estateEvidenceMoney = defaultEstateEvidenceMoney,
   estateFinancials = defaultEstateFinancials,
   globalWork = defaultGlobalWork,
@@ -538,14 +545,16 @@ export function App({
           <Route path={DECISIONS_ROOT_PATH} element={<EstateDecisionsFrame client={estateIndex} />} />
           <Route path={ACTIONS_PATH} element={<EstateActionsFrame client={estateIndex} />} />
           {/* W3-02: the estate Evidence root (`ESTATE_EVIDENCE_PATH`; a shell test pins the equality). */}
-          <Route path={EVIDENCE_PATH} element={<EstateEvidenceFrame client={estateEvidenceMoney} />} />
+          <Route path={EVIDENCE_PATH} element={<EstateEvidenceFrame client={estateEvidenceMoney} estate={estateIndex} />} />
           {/* W3-02 commit 4: the estate Financials root (`ESTATE_FINANCIALS_PATH`; a shell test pins the equality). */}
           <Route path={FINANCIALS_PATH} element={<EstateFinancialsFrame client={estateFinancials} />} />
           {/* W3-03 run 2: the estate Portfolio root (`PORTFOLIO_PATH`; a shell test pins the equality). */}
-          {/* 5c (spec §5.1): "The month", before the Portfolio's `:tab?` route. */}
-          <Route path="/portfolio/month" element={<DeepDiveMonthFrame client={deepDive} />} />
-          {/* PF-T: one mounted route for every Portfolio section tab, so a tab switch keeps the page and its reads. */}
-          <Route path={`${PORTFOLIO_ROOT_PATH}/:tab?`} element={<EstatePortfolioFrame client={estateIndex} />} />
+          {/* IA-P P3b (spec §3): the Overview is 5c's screen on the top-bar range (E2 decides the mode). */}
+          <Route path={PORTFOLIO_ROOT_PATH} element={<PortfolioOverview period={portfolioPeriod} month={deepDive} estate={estateIndex} />} />
+          {/* PF-T: one mounted route for Outcomes and Demand & capacity, so a tab switch keeps the page and its reads. */}
+          <Route path={`${PORTFOLIO_ROOT_PATH}/:tab`} element={<EstatePortfolioFrame client={estateIndex} />} />
+          {/* IA-P P3b (I14): Results, the old "What changed" tab. */}
+          <Route path={RESULTS_PATH} element={<ResultsFrame client={estateIndex} />} />
           {/* W6-01a: the global Incidents root (`INCIDENTS_PATH`). */}
           <Route path={INCIDENTS_PATH} element={<GlobalIncidentsFrame client={globalWork} />} />
           {/* W6-01b: the global Maintenance root, Corrective view (`MAINTENANCE_PATH`). */}

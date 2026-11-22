@@ -183,7 +183,7 @@ describe("SR-1 withRange and the rail search", () => {
     renderApp(`/portfolio?${WEEK}&known_at=2026-10-04T12%3A00%3A00Z`);
     await settledScreen();
     const carried = `?${WEEK}&known_at=2026-10-04T12%3A00%3A00Z`;
-    for (const label of ["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Evidence & records", "Financials"]) {
+    for (const label of ["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Results", "Evidence & records", "Financials"]) {
       // IA-P P1 (spec §2.1): Evidence & records is the one root, at /evidence.
       expect(railHref(label)).toBe(`/${label === "Evidence & records" ? "evidence" : label.toLowerCase()}${carried}`);
     }
@@ -198,13 +198,21 @@ describe("SR-1 withRange and the rail search", () => {
 });
 
 describe("SR-1 filling in the address on entry", () => {
+  // IA-P2 P3b (spec §6 P3b, D-IAP.21; I3): the Overview's entry range is last month, so the 7-day default this test
+  // pinned moves to the Outcomes tab (an estate page that reads the estate client); the Overview's own case is below.
   it("an estate page with no range gets the default range in its address, without a history entry", async () => {
     const client = estate();
-    renderApp("/portfolio", client);
+    renderApp("/portfolio/outcomes", client);
     await settledScreen();
-    expect(where()).toBe(`/portfolio?${WEEK}`);
+    expect(where()).toBe(`/portfolio/outcomes?${WEEK}`);
     // The page reads once, for the range now in the address (the same request it made before SR-1).
     expect(client.calls.map((q) => [q.from, q.to])).toEqual([["2026-09-30T00:00:00Z", "2026-10-07T00:00:00Z"]]);
+  });
+
+  it("IA-P2 P3b: /portfolio with no range opens on last month, whole days", async () => {
+    renderApp("/portfolio", estate());
+    await settledScreen();
+    expect(where()).toBe("/portfolio?from=2026-09-01T00%3A00%3A00Z&to=2026-10-01T00%3A00%3A00Z");
   });
 
   it("uses the last range chosen in this browser tab", async () => {
@@ -255,7 +263,11 @@ describe("SR-1 the shared range bar", () => {
   });
 
   it("IA-P P0 (R7): /findings on a 61-day range reads the last 31 days, and the rail Portfolio link keeps the whole range (R8)", async () => {
-    const client = fakeClient((lens) => loaded(findingsBody(lens)));
+    // The rail Portfolio link mounts the Overview, whose decisions read `portfolio`: answer it (no unhandled rejection).
+    const client = {
+      ...fakeClient((lens) => loaded(findingsBody(lens))),
+      portfolio: () => Promise.resolve(loadedPortfolio(portfolioBody())),
+    };
     renderApp(`/findings?from=2026-09-01&to=2026-10-31`, client);
     await settledScreen();
     const reads = (client.calls as { kind: string; from: string; to: string }[]).filter((c) => c.kind === "findings");
@@ -431,7 +443,8 @@ describe("SR-1 review notes closed in SR-2", () => {
 describe("SR-1 the Portfolio reads the shared range", () => {
   it("a day-form address makes the same request as the instant form, and Apply reads the new range", async () => {
     const client = estate();
-    renderApp("/portfolio?from=2026-10-06&to=2026-10-06", client);
+    // IA-P2 P3b: the Overview reads E2 (not the estate client), so the estate request is pinned on the Outcomes tab.
+    renderApp("/portfolio/outcomes?from=2026-10-06&to=2026-10-06", client);
     await settledScreen();
     expect(client.calls.map((q) => [q.from, q.to, q.known_at, q.lens])).toEqual([
       ["2026-10-06T00:00:00Z", "2026-10-07T00:00:00Z", null, "all"],
@@ -449,6 +462,6 @@ describe("SR-1 the Portfolio reads the shared range", () => {
     ]);
     // Tab links carry the shared range.
     const tabs = screen.getByRole("navigation", { name: "Portfolio sections" });
-    expect(within(tabs).getByRole("link", { name: /^What changed/ }).getAttribute("href")).toBe(`/portfolio/changes?${WEEK}`);
+    expect(within(tabs).getByRole("link", { name: /^Demand/ }).getAttribute("href")).toBe(`/portfolio/demand-and-capacity?${WEEK}`);
   });
 });

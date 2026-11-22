@@ -303,6 +303,29 @@ def portfolio_row(r: dict[str, Any], actions: list[dict[str, Any]], site_cov: di
         "_marker": (placed.group_rank, r["_at"], str(site["site_code_key"]), r["site_id"].lower(), fid, frid)}
 
 
+#: IA-P E0 (spec section 4.2, D-IAP.29): a placed Finding in this group with no Action is watched, not waiting.
+WATCHED_GROUP = "MONITOR"
+
+
+def _waiting(r: dict[str, Any]) -> bool:
+    return r["action_id"] is None and r["placement"]["group"] != WATCHED_GROUP
+
+
+def waiting_count(members: list[dict[str, Any]], known: bool) -> int | None:
+    """IA-P E0: the members with no matched Action whose placement group is not MONITOR; null unless F is known."""
+    return sum(1 for r in members if _waiting(r)) if known else None
+
+
+def waiting_by_site(members: list[dict[str, Any]], known: bool) -> dict[str, int] | None:
+    """IA-P E0: the same count per Site code, for every Site with at least one member (0 when none waits)."""
+    if not known:
+        return None
+    out: dict[str, int] = {}
+    for r in members:
+        out[r["site_code"]] = out.get(r["site_code"], 0) + (1 if _waiting(r) else 0)
+    return out
+
+
 def category_counts(members: list[dict[str, Any]], known: bool) -> dict[str, dict[str, int | None]]:
     """OUT-A2: per category, the members carrying it in any role and the distinct Sites whose member's primary
     moved outcome is in it. A NOT_MAPPED member counts nowhere."""
@@ -896,6 +919,9 @@ class EstatePortfolioService(EstateEvidenceService):
                                  for g in GROUPS},
             # OUT-A2 (ruling A-Q11): over `members`; all four keys; both counts null unless F is known.
             "category_counts": category_counts(members, finding_known),
+            # IA-P E0 (spec section 4.2): over `members`, the same rule as the Decisions list's `waiting` state.
+            "waiting_count": waiting_count(members, finding_known),
+            "waiting_by_site": waiting_by_site(members, finding_known),
             "count_basis": count_basis(claims[CLAIM_KEYS[0]]["days"]),
             "claims": claims,
             "checked_days": [{"site_id": str(site["site_id"]), "site_name": site["site_name"],
