@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-DD.17 to D-DD.40)
+# Decision index: Demo-sprint and later rulings (index only) (D-DD.17 to D-DD.44)
 
 - `D-DD.17` data-sheet labels reuse -basis properties; DATASHEET_FIT; Kobo no-load 0.62 L/h Assumed, owner Q7 · live · specs/DD-demo-data/rulings.md
 - `D-DD.18` served fuel split is the readings-fed one; history split only makes delivered litres · live · specs/DD-demo-data/rulings.md
@@ -16,7 +16,7 @@
 - `D-DD.30` Kobo template v4 back to 0K4f (about 2.75 u); DD restates world Kobo and regenerates goldens · live · specs/DD-demo-data/rulings.md
 - `D-DD.31` checker pins history.json by golden sha256; exact C-DD7; triples; cadence from readings manifest · live · specs/DD-demo-data/rulings.md
 - `D-DD.32` build_exports(view, history, months); 400 L notes on fixed days; SOURCE_VERSION 2 pin moves · live · specs/DD-demo-data/rulings.md
-- `D-DD.33` DD restated: 30.0 u in six parts (DD1-DD6), none over 6 u · live · specs/DD-demo-data/rulings.md
+- `D-DD.33` DD restated: 30.0 u in six parts (DD1-DD6), none over 6 u · live, amended by D-DD.44 · specs/DD-demo-data/rulings.md
 - `D-DD.34` owner queue round 2: Q7 no-load rate, Q8 acceptance gate, Q9 bills follow the meter · live · specs/DD-demo-data/rulings.md
 - `D-DD.35` provision_gateway guard compares served_tenant_slug(); safety kept; 13 CLIs same class, backlog · live · specs/DD-demo-data/rulings.md
 - `D-DD.36` apply step: onboard_operator apply --bindings DIR; provisioning in process via provision_gateway.main · live · specs/DD-demo-data/rulings.md
@@ -24,3 +24,7 @@
 - `D-DD.38` EV ids ch-e1.., <charger>-c1/c2, ev-lab devices; display names carry manifest codes · live · specs/DD-demo-data/rulings.md
 - `D-DD.39` EV schedules 00:00-24:00 daily, +180; validator accepts 24:00 as local_end · live · specs/DD-demo-data/rulings.md
 - `D-DD.40` C-DD13 TENANT-1 clause pending until DD5.2, printed beside the result · live · specs/DD-demo-data/rulings.md
+- `D-DD.41` minigrid-roles-5: GENERATOR/INVERTER roles PER_ASSET; Site figures by one unit rule; Kisiwa, Mto publish now · live · specs/DD-demo-data/rulings.md
+- `D-DD.42` Site document limits 10,000 nodes, 96 devices, basis Ruiru 6,623/73; 256 KiB byte bound kept · live · specs/DD-demo-data/rulings.md
+- `D-DD.43` Lakeside template fill accepted; generator policy held once on the lead unit (gen-ks-01) · live · specs/DD-demo-data/rulings.md
+- `D-DD.44` DD restated: 33.0 u in seven parts; DD1.2 +0.5 u; DD3.4 readers 2.5 u; DD3 splits DD3a/DD3b · live · specs/DD-demo-data/rulings.md
