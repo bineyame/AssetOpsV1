@@ -124,8 +124,8 @@ export function decisionsDef(waitingTotal: number | null = null): HomeListDef<De
     site: (i) => i.row.site_code,
     domain: (i) => i.row.domain,
     scopeWord: (s) => (s.startsWith("group:") ? (DOMAIN_WORD as Record<string, string>)[s.slice(6)] ?? s : s.slice(5)),
-    tiles: (_m, items) => [
-      { label: "Waiting for a choice", role: "part" as const, value: waitingTotal ?? items.filter((i) => i.state === "waiting").length },
+    tiles: (_m, rows, whole) => [
+      { label: "Waiting for a choice", role: "part" as const, value: whole && waitingTotal !== null ? waitingTotal : rows.filter((i) => i.state === "waiting").length },
     ],
     none: "No decisions in this range.",
   };
@@ -153,12 +153,16 @@ export function findingItems(
   }));
 }
 
-export function findingsDef(): HomeListDef<FindingItem> {
+/** M2: the Decisions read behind the Findings list is `loading`, `unavailable` (refused) or `ready`; never a false none. */
+export type DecisionsReadState = "loading" | "unavailable" | "ready";
+
+export function findingsDef(decisions: DecisionsReadState = "ready"): HomeListDef<FindingItem> {
   const heading = (i: FindingItem) => {
     const labels = i.row.categories?.state === "MAPPED" ? i.row.categories.items.map((c) => c.label) : [];
     return labels.length > 0 ? labels.join(" · ") : NOT_AVAILABLE_YET;
   };
-  const decision = (i: FindingItem) => (i.decision === null ? "No decision open" : DECISION_STATE_WORD[i.decision.state]);
+  const decision = (i: FindingItem) =>
+    decisions === "loading" ? "Loading…" : decisions === "unavailable" ? NOT_AVAILABLE_YET : i.decision === null ? "No decision open" : DECISION_STATE_WORD[i.decision.state];
   return {
     key: "findings",
     path: FINDINGS_LIST_PATH,
@@ -191,8 +195,12 @@ export function findingsDef(): HomeListDef<FindingItem> {
     text: (i) => `${i.row.title} ${i.row.finding_label} ${i.row.site_name} ${heading(i)} ${decision(i)}`,
     site: (i) => i.row.site_code,
     scopeWord: (s) => s.slice(s.indexOf(":") + 1),
-    tiles: (_m, items) => [
-      { label: "Decision waiting for a choice", role: "part" as const, value: items.filter((i) => i.decision?.state === "waiting").length },
+    tiles: (_m, rows) => [
+      {
+        label: "Decision waiting for a choice",
+        role: "part" as const,
+        value: decisions === "loading" ? "Loading…" : decisions === "unavailable" ? NOT_AVAILABLE_YET : rows.filter((i) => i.decision?.state === "waiting").length,
+      },
     ],
     none: "No Findings in this range.",
   };
@@ -253,11 +261,11 @@ export function actionsDef(summary: ActionsSummary | null = null): HomeListDef<E
     text: (r) => `${r.action_title} ${r.action_code} ${r.site_name} ${r.owner ?? ""} ${r.success_criterion ?? ""}`,
     site: (r) => r.site_code,
     scopeWord: (s) => s.slice(s.indexOf(":") + 1),
-    tiles: (_m, items) =>
-      APPLICATION_ORDER.filter((s) => items.some((r) => r.application_state === s)).map((s) => ({
+    tiles: (_m, rows) =>
+      APPLICATION_ORDER.filter((s) => rows.some((r) => r.application_state === s)).map((s) => ({
         label: APPLICATION_STATE_WORD[s],
         role: "part" as const,
-        value: items.filter((r) => r.application_state === s).length,
+        value: rows.filter((r) => r.application_state === s).length,
       })),
     caption: summary === null ? undefined : () => actionsCaption(summary),
     none: "No Actions in this range.",
@@ -318,7 +326,7 @@ export function DecisionsListPage({ client }: { client?: EstateClient }) {
     <ListPage
       root="decisions"
       title="Decisions"
-      loading={read === null ? "Loading the decisions across the estate." : null}
+      loading={read === null ? "Loading Decisions…" : null}
       refused={read?.status === "refused" ? { code: read.code, copy: read.copy, to: estateHref(DECISIONS_PATH, query) } : null}
       cutoff={<EstateCutoffLine query={query} body={loaded === null ? null : barBody(loaded.first)} windowRefused={read?.status === "refused" && read.code === "INVALID_WINDOW"} />}
     >
@@ -342,12 +350,13 @@ export function FindingsListPage({ client }: { client?: EstateClient }) {
   const dec = decisions?.status === "loaded" ? decisions.value : null;
   const decided = useMemo(() => (dec === null ? [] : decisionItems(dec.first, dec.rows)), [dec]);
   const items = useMemo(() => (loaded === null ? [] : findingItems(loaded.rows, loaded.first.coverage.sites, decided)), [loaded, decided]);
-  const def = useMemo(() => findingsDef(), []);
+  const decisionsState: DecisionsReadState = dec !== null ? "ready" : decisions?.status === "refused" ? "unavailable" : "loading";
+  const def = useMemo(() => findingsDef(decisionsState), [decisionsState]);
   return (
     <ListPage
       root="findings"
       title="Findings"
-      loading={read === null ? "Loading the findings across the estate." : null}
+      loading={read === null ? "Loading Findings…" : null}
       refused={read?.status === "refused" ? { code: read.code, copy: read.copy, to: estateHref(FINDINGS_LIST_PATH, query) } : null}
       cutoff={<EstateCutoffLine query={query} body={loaded?.first ?? null} windowRefused={read?.status === "refused" && read.code === "INVALID_WINDOW"} />}
     >
@@ -372,7 +381,7 @@ export function ActionsListPage({ client }: { client?: EstateClient }) {
     <ListPage
       root="actions"
       title="Actions"
-      loading={read === null ? "Loading the Actions across the estate." : null}
+      loading={read === null ? "Loading Actions…" : null}
       refused={read?.status === "refused" ? { code: read.code, copy: read.copy, to: estateHref(ACTIONS_LIST_PATH, query) } : null}
       cutoff={<EstateCutoffLine query={query} body={loaded?.first ?? null} windowRefused={read?.status === "refused" && read.code === "INVALID_WINDOW"} />}
     >

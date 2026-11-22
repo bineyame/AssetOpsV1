@@ -30,7 +30,7 @@
     "state": "CURRENT",
     "committed_watermark": null,
     "selection_id": null,
-    "match_state": "COMPLETE",
+    "match_state": "NOT_APPLICABLE",
     "job_state": "SETTLED",
     "source_freshness": "RECENT"
    }
@@ -242,9 +242,9 @@
   {
    "finding_id": "f1f1f1f1-0000-4000-8000-000000000005",
    "finding_revision_id": "f1f1f1f1-0000-4000-8000-000000001005",
-   "site_id": "10000000-0000-4000-8000-000000000011",
-   "site_code": "KOBO-001",
-   "site_name": "Kobo Mini-grid",
+   "site_id": "10000000-0000-4000-8000-000000000012",
+   "site_code": "COLD-001",
+   "site_name": "Cold Room",
    "finding_label": "Finding 10000000",
    "title": "Decision 5",
    "priority": null,
@@ -277,22 +277,27 @@
    "link_refs": {
     "finding": {
      "kind": "FINDING",
-     "site": "KOBO-001",
+     "site": "COLD-001",
      "id": "10000000-0000-4000-8000-000000000105",
-     "revision": "10000000-0000-4000-8000-000000000205"
+     "revision": "10000000-0000-4000-8000-000000000205",
+     "window": {
+      "from": "2026-10-06T00:00:00Z",
+      "to": "2026-10-07T00:00:00Z",
+      "known_at": "2026-10-07T00:05:00Z"
+     }
     },
     "site": {
      "kind": "SITE",
-     "site": "KOBO-001"
+     "site": "COLD-001"
     }
    }
   },
   {
    "finding_id": "f1f1f1f1-0000-4000-8000-000000000006",
    "finding_revision_id": "f1f1f1f1-0000-4000-8000-000000001006",
-   "site_id": "10000000-0000-4000-8000-000000000011",
-   "site_code": "KOBO-001",
-   "site_name": "Kobo Mini-grid",
+   "site_id": "10000000-0000-4000-8000-000000000012",
+   "site_code": "COLD-001",
+   "site_name": "Cold Room",
    "finding_label": "Finding 10000000",
    "title": "Decision 6",
    "priority": null,
@@ -325,22 +330,22 @@
    "link_refs": {
     "finding": {
      "kind": "FINDING",
-     "site": "KOBO-001",
+     "site": "COLD-001",
      "id": "10000000-0000-4000-8000-000000000106",
      "revision": "10000000-0000-4000-8000-000000000206"
     },
     "site": {
      "kind": "SITE",
-     "site": "KOBO-001"
+     "site": "COLD-001"
     }
    }
   },
   {
    "finding_id": "f1f1f1f1-0000-4000-8000-000000000007",
    "finding_revision_id": "f1f1f1f1-0000-4000-8000-000000001007",
-   "site_id": "10000000-0000-4000-8000-000000000011",
-   "site_code": "KOBO-001",
-   "site_name": "Kobo Mini-grid",
+   "site_id": "10000000-0000-4000-8000-000000000012",
+   "site_code": "EV-001",
+   "site_name": "Charge Hub",
    "finding_label": "Finding 10000000",
    "title": "Decision 7",
    "priority": null,
@@ -373,13 +378,18 @@
    "link_refs": {
     "finding": {
      "kind": "FINDING",
-     "site": "KOBO-001",
+     "site": "EV-001",
      "id": "10000000-0000-4000-8000-000000000107",
-     "revision": "10000000-0000-4000-8000-000000000207"
+     "revision": "10000000-0000-4000-8000-000000000207",
+     "window": {
+      "from": "2026-10-06T00:00:00Z",
+      "to": "2026-10-07T00:00:00Z",
+      "known_at": "2026-10-07T00:05:00Z"
+     }
     },
     "site": {
      "kind": "SITE",
-     "site": "KOBO-001"
+     "site": "EV-001"
     }
    }
   },
@@ -419,12 +429,7 @@
     "site": "/sites/KOBO-001"
    },
    "link_refs": {
-    "finding": {
-     "kind": "FINDING",
-     "site": "KOBO-001",
-     "id": "10000000-0000-4000-8000-000000000108",
-     "revision": "10000000-0000-4000-8000-000000000208"
-    },
+    "finding": null,
     "site": {
      "kind": "SITE",
      "site": "KOBO-001"

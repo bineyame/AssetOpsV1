@@ -84,6 +84,9 @@
   outline: 2px solid var(--accent);
   outline-offset: -2px;
 }
+.hl-table tbody th[scope="row"] {
+  background: transparent; /* L1: the focused row's outline runs round the title cell too */
+}
 .hl-table th[scope="row"] small {
   display: block;
   font-size: var(--font-size-200); /* never under 12 px (gate R6); the browser's small is 0.83em */

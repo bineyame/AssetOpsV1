@@ -174,6 +174,10 @@ async function checkPage(browser, args, routes, spec, view) {
     if (cur.join() !== spec.current) failures.push(`R3: current tab is [${cur.join(", ")}], expected ${spec.current}`);
     for (const t of r3.tabs) if (!/from=2026-10-01/.test(t.href || "")) failures.push(`R3: tab ${t.text} drops the range (${t.href})`);
   }
+  // M3: a refusal on a served page is a failure. A list page's fixtures are all served, so any refusal fails; on every
+  // page, a refusal of the range itself fails (the range in this gate is a valid 1 to 31 October).
+  const refusals = await page.evaluate(() => [...document.querySelectorAll("[data-page-refusal]")].map((e) => e.getAttribute("data-page-refusal")));
+  for (const code of refusals) if (spec.list || /^INVALID_/.test(code)) failures.push(`R3: ${spec.path} shows a refusal screen (${code})`);
   if (spec.list) failures.push(...(await checkList(page, spec, view)));
   if (view.menu) {
     await page.click(".app-frame__menu-toggle");

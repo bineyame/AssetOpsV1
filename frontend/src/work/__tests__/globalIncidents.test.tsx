@@ -399,7 +399,7 @@ describe("W6-01a A2: global Incidents", () => {
 
   it.each([
     ["one bound missing", `/incidents?from=${encodeURIComponent(FROM)}`, "INVALID_WINDOW"],
-    ["not a UTC midnight", `/incidents?from=2026-10-14T01:00:00Z&to=${encodeURIComponent(TO)}`, "INVALID_WINDOW"],
+    ["not a date", `/incidents?from=yesterday&to=${encodeURIComponent(TO)}`, "INVALID_WINDOW"],
     ["more than 31 days", `/incidents?from=2024-09-01T00:00:00Z&to=${encodeURIComponent(TO)}`, "INVALID_WINDOW"],
     ["out of order", `/incidents?from=${encodeURIComponent(TO)}&to=${encodeURIComponent(FROM)}`, "INVALID_WINDOW"],
     ["repeated from", `${PAGE}&from=${encodeURIComponent(FROM)}`, "INVALID_WINDOW"],
@@ -568,6 +568,17 @@ describe("Post-W6 W6: global Incidents corrections", () => {
       status: "valid",
       query: { from: FROM, to: TO, known_at: null, cursor: null },
     });
+    // IA-P1 M3: the day form (1 to 31 October) is a valid range and reads as instants; a 40-day range reads its last 31 days.
+    expect(globalWorkPageQuery(new URLSearchParams({ from: "2026-10-01", to: "2026-10-31" }), now)).toEqual({
+      status: "valid",
+      query: { from: "2026-10-01T00:00:00Z", to: "2026-11-01T00:00:00Z", known_at: null, cursor: null },
+    });
+    const long = globalWorkPageQuery(new URLSearchParams({ from: "2026-09-01", to: "2026-10-10" }), now);
+    expect(long).toEqual({
+      status: "valid",
+      query: { from: "2026-09-10T00:00:00Z", to: "2026-10-11T00:00:00Z", known_at: null, cursor: null, link: { from: "2026-09-01T00:00:00Z", to: "2026-10-11T00:00:00Z" } },
+    });
+    expect(globalWorkPageQuery(new URLSearchParams({ from: "2026-10-05", to: "2026-10-01" }), now)).toEqual({ status: "invalid", code: "INVALID_WINDOW" });
     mount(PAGE, client({ "page-one": loaded(body([row(1)])) }));
     await settled();
     expect(text(document.querySelector("[data-global-work-membership]"))).toBe("Listed by incident start time.");

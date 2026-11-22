@@ -125,6 +125,14 @@ describe("Decisions list on 25 placed Findings", () => {
     expect(Number(waiting.querySelector("strong")!.textContent)).toBe(23);
   });
 
+  it("M1: under a State facet the parts are counted from the filtered rows and never exceed tile 1", async () => {
+    mount(<DecisionsListPage client={client(decisionRows(25), { summary: { ...portfolioBody().summary, waiting_count: 23 } })} />, `/decisions?${RANGE}&state=watching`);
+    await settledScreen();
+    expect(document.querySelector('[data-tile="total"] strong')!.textContent).toBe("1");
+    const waiting = screen.getByText("Waiting for a choice", { selector: ".hl-tile__label" }).parentElement!;
+    expect(waiting.querySelector("strong")!.textContent).toBe("0");
+  });
+
   it("tier 2 draws the facets, Sort and Search; the form is labelled", async () => {
     mount(<DecisionsListPage client={client(decisionRows(25))} />, `/decisions?${RANGE}`);
     await settledScreen();
@@ -287,6 +295,30 @@ describe("Findings list", () => {
   });
 });
 
+describe("Findings list, Its decision while the Decisions read is not loaded (M2)", () => {
+  const f1 = findingRow(1, { finding_id: id(3), title: "Has a decision" });
+  const findings = async () => loaded(findingsBody("all", { rows: [f1], total_count: 1 }));
+  const decisionCell = () => document.querySelector(`tr[data-row="${id(3)}"] [data-label="Its decision"]`)!.textContent;
+  const tile = () => screen.getByText("Decision waiting for a choice", { selector: ".hl-tile__label" }).parentElement!.textContent;
+
+  it("a refused Decisions read says Not available yet, never No decision open or 0", async () => {
+    const c: EstateClient = { ...client([]), findings, portfolio: async () => ({ status: "refused", httpStatus: 503, code: "UNAVAILABLE", copy: "no" }) };
+    mount(<FindingsListPage client={c} />, `/findings?${RANGE}`, "/findings");
+    await settledScreen();
+    expect(decisionCell()).toBe("Not available yet");
+    expect(tile()).toContain("Not available yet");
+    expect(tile()).not.toMatch(/\b0\b/);
+  });
+
+  it("while the Decisions read is in flight it says Loading, never No decision open or 0", async () => {
+    const c: EstateClient = { ...client([]), findings, portfolio: () => new Promise(() => {}) };
+    mount(<FindingsListPage client={c} />, `/findings?${RANGE}`, "/findings");
+    await settledScreen();
+    expect(decisionCell()).toBe("Loading…");
+    expect(tile()).toContain("Loading…");
+  });
+});
+
 describe("Actions list", () => {
   it("keeps the four server figures as a caption line and one tile per state present", async () => {
     const rows = [actionRow({ action_id: "a1", application_state: "PENDING" }), actionRow({ action_id: "a2", application_state: "APPLIED", owner: "Ada", due_at: "2026-10-30T00:00:00Z" })];
@@ -298,6 +330,15 @@ describe("Actions list", () => {
     expect(labels).toEqual(["Actions", "Pending", "Applied"]);
     expect(document.querySelector('tr[data-row="a1"] [data-label="Owner"]')!.textContent).toBe("Not recorded");
     expect(document.querySelector('tr[data-row="a1"] [data-label="Due"]')!.textContent).toBe("No deadline");
+  });
+
+  it("M1: the state parts sum to tile 1 under a facet", async () => {
+    const rows = [actionRow({ action_id: "a1", application_state: "PENDING" }), actionRow({ action_id: "a2", application_state: "APPLIED" }), actionRow({ action_id: "a3", application_state: "APPLIED" })];
+    const c: EstateClient = { ...client([]), actions: async () => loaded(actionsBody({ rows, total_count: 3 })) };
+    mount(<ActionsListPage client={c} />, `/actions?${RANGE}&state=APPLIED`, "/actions");
+    await settledScreen();
+    const tiles = Array.from(document.querySelectorAll(".hl-tile")).map((t) => [t.querySelector(".hl-tile__label")!.textContent, t.querySelector("strong")!.textContent]);
+    expect(tiles).toEqual([["Actions", "2"], ["Applied", "2"]]);
   });
 
   it("the Due sort puts no date last, in ISO order", () => {

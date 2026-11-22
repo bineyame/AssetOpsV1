@@ -219,7 +219,7 @@ describe("W6-01e E2: global Operational records", () => {
 
     // P-E2-7: plain breadcrumb, subtitle, no tabs, the labelled window form.
     const crumbs = screen.getByRole("navigation", { name: "Breadcrumb" });
-    expect(Array.from(crumbs.querySelectorAll("li")).map(text)).toEqual(["Operational records"]);
+    expect(Array.from(crumbs.querySelectorAll("li")).map(text)).toEqual(["Evidence & records"]);
     expect(crumbs.querySelector("a")).toBeNull();
     expect(document.body.textContent).toContain("Operator logs, manual readings, shift notes and site visits");
     expect(document.querySelector("[data-global-work-tabs], nav[aria-label='Context tabs']")).toBeNull();

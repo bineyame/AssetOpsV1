@@ -627,7 +627,7 @@ export function OperationalRecordsPage({ client }: { client?: GlobalWorkClient }
 
   return (
     <div className="global-work global-work--oprecords" data-global-work-root="operational-records">
-      <Breadcrumbs trail={[{ label: "Operational records" }]} />
+      <Breadcrumbs trail={[{ label: EVIDENCE_RECORDS_TITLE }]} />
       <PageHeader title={EVIDENCE_RECORDS_TITLE} headingId={OPERATIONAL_RECORDS_HEADING_ID} subtitle={OPERATIONAL_RECORDS_SUBTITLE} />
       <SectionTabs label={EVIDENCE_RECORDS_TABS_LABEL} tabs={EVIDENCE_RECORDS_TABS} current={EVIDENCE_RECORDS_PATH} />
       <GlobalWorkBar page={page} label="Operational records window" membership={OPERATIONAL_RECORDS_MEMBERSHIP} />

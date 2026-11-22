@@ -11,7 +11,7 @@ const SOURCES = import.meta.glob(["../../**/*.ts", "../../**/*.tsx"], { query: "
   string
 >;
 
-const RAW = /\bget\(\s*(["'])(from|to)\1\s*\)/;
+const RAW = /\bget(?:All)?\(\s*(["'])(from|to)\1\s*\)/;
 
 describe("no raw range reads (P.9)", () => {
   it("scans a non-empty source tree", () => {
@@ -21,7 +21,7 @@ describe("no raw range reads (P.9)", () => {
   it("reads from/to only in sharedRange.ts", () => {
     const hits: string[] = [];
     for (const [file, text] of Object.entries(SOURCES)) {
-      if (/__tests__\/|\.test\.tsx?$|\/test\/|ui\/sharedRange\.ts$/.test(file)) continue;
+      if (/__tests__\/|\.test\.tsx?$|\/test\/|\/sharedRange\.ts$/.test(file)) continue;
       text.split("\n").forEach((line, i) => {
         if (RAW.test(line)) hits.push(`${file}:${i + 1}: ${line.trim()}`);
       });

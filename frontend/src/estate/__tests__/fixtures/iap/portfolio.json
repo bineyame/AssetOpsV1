@@ -42,7 +42,7 @@
     "state": "CURRENT",
     "committed_watermark": "2026-10-06T23:00:00Z",
     "selection_id": "aaaaaaaa-0000-4000-8000-00000000000a",
-    "match_state": "MATCHED",
+    "match_state": "NOT_APPLICABLE",
     "job_state": "SETTLED",
     "source_freshness": "FRESH"
    },
@@ -51,7 +51,7 @@
     "state": "CURRENT",
     "committed_watermark": "2026-10-06T23:00:00Z",
     "selection_id": "aaaaaaaa-0000-4000-8000-00000000000a",
-    "match_state": "MATCHED",
+    "match_state": "NOT_APPLICABLE",
     "job_state": "SETTLED",
     "source_freshness": "FRESH"
    }
@@ -678,10 +678,10 @@
    }
   },
   {
-   "site_id": "11111111-0000-4000-8000-000000000001",
-   "site_code": "KOBO-001",
-   "site_name": "Aliyu",
-   "domain": "MINIGRID",
+   "site_id": "33333333-0000-4000-8000-000000000003",
+   "site_code": "COLD-001",
+   "site_name": "Cold Room",
+   "domain": "COLDCHAIN",
    "finding_id": "f1f1f1f1-0000-4000-8000-000000000003",
    "finding_revision_id": "f1f1f1f1-0000-4000-8000-000000001003",
    "finding_label": "Extended generator support",
@@ -730,29 +730,34 @@
     "state": "KNOWN"
    },
    "links": {
-    "site": "/sites/KOBO-001",
-    "finding": "/sites/KOBO-001/findings/f1f1f1f1-0000-4000-8000-000000000003?revision_id=f1f1f1f1-0000-4000-8000-000000001003",
+    "site": "/sites/COLD-001",
+    "finding": "/sites/COLD-001/findings/f1f1f1f1-0000-4000-8000-000000000003?revision_id=f1f1f1f1-0000-4000-8000-000000001003",
     "action": null
    },
    "link_refs": {
     "site": {
      "kind": "SITE",
-     "site": "KOBO-001"
+     "site": "COLD-001"
     },
     "finding": {
      "kind": "FINDING",
-     "site": "KOBO-001",
+     "site": "COLD-001",
      "id": "f1f1f1f1-0000-4000-8000-000000000003",
-     "revision": "f1f1f1f1-0000-4000-8000-000000001003"
+     "revision": "f1f1f1f1-0000-4000-8000-000000001003",
+     "window": {
+      "from": "2026-10-06T00:00:00Z",
+      "to": "2026-10-07T00:00:00Z",
+      "known_at": "2026-10-07T00:05:00Z"
+     }
     },
     "action": null
    }
   },
   {
-   "site_id": "11111111-0000-4000-8000-000000000001",
-   "site_code": "KOBO-001",
-   "site_name": "Kobo",
-   "domain": "MINIGRID",
+   "site_id": "33333333-0000-4000-8000-000000000003",
+   "site_code": "COLD-001",
+   "site_name": "Cold Room",
+   "domain": "COLDCHAIN",
    "finding_id": "f1f1f1f1-0000-4000-8000-000000000004",
    "finding_revision_id": "f1f1f1f1-0000-4000-8000-000000001004",
    "finding_label": "Extended generator support",
@@ -801,18 +806,18 @@
     "state": "KNOWN"
    },
    "links": {
-    "site": "/sites/KOBO-001",
-    "finding": "/sites/KOBO-001/findings/f1f1f1f1-0000-4000-8000-000000000004?revision_id=f1f1f1f1-0000-4000-8000-000000001004",
+    "site": "/sites/COLD-001",
+    "finding": "/sites/COLD-001/findings/f1f1f1f1-0000-4000-8000-000000000004?revision_id=f1f1f1f1-0000-4000-8000-000000001004",
     "action": null
    },
    "link_refs": {
     "site": {
      "kind": "SITE",
-     "site": "KOBO-001"
+     "site": "COLD-001"
     },
     "finding": {
      "kind": "FINDING",
-     "site": "KOBO-001",
+     "site": "COLD-001",
      "id": "f1f1f1f1-0000-4000-8000-000000000004",
      "revision": "f1f1f1f1-0000-4000-8000-000000001004"
     },
@@ -820,10 +825,10 @@
    }
   },
   {
-   "site_id": "11111111-0000-4000-8000-000000000001",
-   "site_code": "KOBO-001",
-   "site_name": "Aliyu",
-   "domain": "MINIGRID",
+   "site_id": "44444444-0000-4000-8000-000000000004",
+   "site_code": "EV-001",
+   "site_name": "Charge Hub",
+   "domain": "EV_CHARGING",
    "finding_id": "f1f1f1f1-0000-4000-8000-000000000005",
    "finding_revision_id": "f1f1f1f1-0000-4000-8000-000000001005",
    "finding_label": "Extended generator support",
@@ -872,20 +877,25 @@
     "state": "KNOWN"
    },
    "links": {
-    "site": "/sites/KOBO-001",
-    "finding": "/sites/KOBO-001/findings/f1f1f1f1-0000-4000-8000-000000000005?revision_id=f1f1f1f1-0000-4000-8000-000000001005",
+    "site": "/sites/EV-001",
+    "finding": "/sites/EV-001/findings/f1f1f1f1-0000-4000-8000-000000000005?revision_id=f1f1f1f1-0000-4000-8000-000000001005",
     "action": null
    },
    "link_refs": {
     "site": {
      "kind": "SITE",
-     "site": "KOBO-001"
+     "site": "EV-001"
     },
     "finding": {
      "kind": "FINDING",
-     "site": "KOBO-001",
+     "site": "EV-001",
      "id": "f1f1f1f1-0000-4000-8000-000000000005",
-     "revision": "f1f1f1f1-0000-4000-8000-000000001005"
+     "revision": "f1f1f1f1-0000-4000-8000-000000001005",
+     "window": {
+      "from": "2026-10-06T00:00:00Z",
+      "to": "2026-10-07T00:00:00Z",
+      "known_at": "2026-10-07T00:05:00Z"
+     }
     },
     "action": null
    }
@@ -909,14 +919,9 @@
    "priority": null,
    "placement": {
     "policy_version": "estate-placement/1",
-    "group": "COMPARE_VALUE",
-    "group_rank": 3,
-    "reasons": [
-     {
-      "code": "PRICED_SINGLE",
-      "text": "Priced cost exposure; no like line to compare with"
-     }
-    ]
+    "group": "MONITOR",
+    "group_rank": 5,
+    "reasons": []
    },
    "confidence": "SUPPORTED_SOURCE_COHERENT",
    "confidence_reasons": [
@@ -1015,7 +1020,7 @@
    },
    "links": {
     "site": "/sites/KOBO-001",
-    "finding": "/sites/KOBO-001/findings/f1f1f1f1-0000-4000-8000-000000000007?revision_id=f1f1f1f1-0000-4000-8000-000000001007",
+    "finding": null,
     "action": null
    },
    "link_refs": {
@@ -1023,12 +1028,7 @@
      "kind": "SITE",
      "site": "KOBO-001"
     },
-    "finding": {
-     "kind": "FINDING",
-     "site": "KOBO-001",
-     "id": "f1f1f1f1-0000-4000-8000-000000000007",
-     "revision": "f1f1f1f1-0000-4000-8000-000000001007"
-    },
+    "finding": null,
     "action": null
    }
   },
@@ -1073,7 +1073,7 @@
     "currency": "USD",
     "source_revision_id": "c0c0c0c0-0000-4000-8000-000000000001"
    },
-   "action_id": null,
+   "action_id": "a2a2a2a2-0000-4000-8000-000000000002",
    "action_title": null,
    "action_state": null,
    "application_state": null,

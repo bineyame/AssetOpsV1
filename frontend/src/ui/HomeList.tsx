@@ -38,7 +38,8 @@ export interface HomeListDef<T> extends ListDefModel<T> {
   firstColumn: string;
   columns: readonly HomeListColumn<T>[];
   /** Tiles after the first. */
-  tiles?(model: HomeListModel<T>, items: readonly T[]): HomeListTile[];
+  /** `rows` are the filtered rows, so the parts sum to n; `whole` is true when nothing is filtered or scoped. */
+  tiles?(model: HomeListModel<T>, rows: readonly T[], whole: boolean): HomeListTile[];
   /** A caption line under the tiles. */
   caption?(model: HomeListModel<T>, items: readonly T[]): ReactNode;
   /** The word of a scope chip. */
@@ -127,8 +128,9 @@ export function HomeList<T>({
   const setCount = setFacets.length + (text !== "" ? 1 : 0);
   const clearAll = href({ ...Object.fromEntries(def.facets.map((f) => [f.key, null])), q: null });
 
+  const whole = model.n === model.ns && setCount === 0 && scope === "all";
   const tile1 = total !== null && model.n === model.ns && setCount === 0 && total > model.n ? total : model.n;
-  const tiles: HomeListTile[] = [{ label: def.tileLabel, value: tile1, role: "total" as const }, ...(def.tiles?.(model, items) ?? [])].slice(0, 4);
+  const tiles: HomeListTile[] = [{ label: def.tileLabel, value: tile1, role: "total" as const }, ...(def.tiles?.(model, model.rows, whole) ?? [])].slice(0, 4);
   const caption = def.caption?.(model, items) ?? null;
   const cols = def.columns.length + 1;
   const grouped = model.groups.length > 0;
