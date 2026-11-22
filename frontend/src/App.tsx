@@ -138,6 +138,7 @@ import {
 } from "./estate/estateEvidenceMoneyClient";
 import { PortfolioOverview } from "./estate/PortfolioOverview";
 import { createPortfolioPeriodClient, type PortfolioPeriodClient } from "./estate/portfolioPeriodClient";
+import { createPortfolioSitesClient, type PortfolioSitesClient } from "./estate/portfolioSitesClient";
 import { ResultsFrame } from "./estate/Results";
 import { createDeepDiveMonthClient, type DeepDiveMonthClient } from "./estate/deepDiveMonthClient";
 import {
@@ -191,6 +192,7 @@ const defaultColdSite = createColdSiteClient();
 const defaultEstateIndex = createEstateClient();
 const defaultDeepDive = createDeepDiveMonthClient();
 const defaultPortfolioPeriod = createPortfolioPeriodClient();
+const defaultPortfolioSites = createPortfolioSitesClient();
 const defaultEstateEvidenceMoney = createEstateEvidenceMoneyClient();
 const defaultEstateFinancials = createEstateFinancialsClient();
 const defaultGlobalWork = createGlobalWorkClient();
@@ -301,6 +303,8 @@ export interface AppProps {
   deepDive?: DeepDiveMonthClient;
   /** IA-P P3b: E2, the Overview's period read (`GET /api/portfolio/period`). */
   portfolioPeriod?: PortfolioPeriodClient;
+  /** IA-P P4b: E1, the Sites rows for the range (`/sites`, Outcomes). */
+  portfolioSites?: PortfolioSitesClient;
   /** W3-02: the read-only estate Evidence root. */
   estateEvidenceMoney?: EstateEvidenceMoneyClient;
   /** W3-02 commit 4: the read-only estate Financials root. */
@@ -343,6 +347,7 @@ export function App({
   estateIndex = defaultEstateIndex,
   deepDive = defaultDeepDive,
   portfolioPeriod = defaultPortfolioPeriod,
+  portfolioSites = defaultPortfolioSites,
   estateEvidenceMoney = defaultEstateEvidenceMoney,
   estateFinancials = defaultEstateFinancials,
   globalWork = defaultGlobalWork,
@@ -370,6 +375,8 @@ export function App({
                 flags={flags}
                 directory={siteDirectory}
                 templateLineage={templateLineage}
+                sites={portfolioSites}
+                estate={estateIndex}
               />
             }
           />
@@ -552,7 +559,7 @@ export function App({
           {/* IA-P P3b (spec §3): the Overview is 5c's screen on the top-bar range (E2 decides the mode). */}
           <Route path={PORTFOLIO_ROOT_PATH} element={<PortfolioOverview period={portfolioPeriod} month={deepDive} estate={estateIndex} />} />
           {/* PF-T: one mounted route for Outcomes and Demand & capacity, so a tab switch keeps the page and its reads. */}
-          <Route path={`${PORTFOLIO_ROOT_PATH}/:tab`} element={<EstatePortfolioFrame client={estateIndex} />} />
+          <Route path={`${PORTFOLIO_ROOT_PATH}/:tab`} element={<EstatePortfolioFrame client={estateIndex} sites={portfolioSites} />} />
           {/* IA-P P3b (I14): Results, the old "What changed" tab. */}
           <Route path={RESULTS_PATH} element={<ResultsFrame client={estateIndex} />} />
           {/* W6-01a: the global Incidents root (`INCIDENTS_PATH`). */}

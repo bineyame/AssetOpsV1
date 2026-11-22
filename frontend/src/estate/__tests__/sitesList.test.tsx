@@ -15,6 +15,7 @@ import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import { settledScreen } from "../../test/settled";
 import type { EstateClient, EstatePortfolioBody } from "../estateClient";
 import { fetchPortfolioSites, type PortfolioSites, type PortfolioSitesClient, type PortfolioSitesResult } from "../portfolioSitesClient";
+import { readSharedRange } from "../../ui/sharedRange";
 import { loaded } from "./estateFixtures";
 import WORLD_A_MONTH from "../../../../backend/tests/fixtures/5c/deep_dive_lakeside_2026-10.json?raw";
 import PERIOD_PERIOD from "./fixtures/iap/period-period-2026-09-10.json?raw";
@@ -86,7 +87,7 @@ const BY_RANGE = {
   "2026-11-15|2026-11-21": parse<PortfolioSites>(SITES_NONE),
 };
 
-function renderAt(path: string, e1 = sitesClient(BY_RANGE), estate = estateClient(), dir = directory()) {
+function renderAt(path: string, e1: PortfolioSitesClient = sitesClient(BY_RANGE), estate = estateClient(), dir = directory()) {
   render(
     <MemoryRouter initialEntries={[path]}>
       <App flags={featureFlagsWith(false)} siteDirectory={dir} siteDetail={DETAIL} estateIndex={estate} portfolioSites={e1} />
@@ -94,6 +95,16 @@ function renderAt(path: string, e1 = sitesClient(BY_RANGE), estate = estateClien
     </MemoryRouter>,
   );
   return { e1 };
+}
+
+/** An address as its path, the range's days (links write the range's instant form) and its other parameters. */
+function daysOf(href: string): [string, string, string, string] | string {
+  const [path, search = ""] = href.split("?");
+  const params = new URLSearchParams(search);
+  const state = readSharedRange(params);
+  params.delete("from");
+  params.delete("to");
+  return state.status === "set" ? [path, state.from, state.to, params.toString()] : state.status;
 }
 
 const list = () => document.querySelector<HTMLElement>('[data-home-list="sites"]')!;
@@ -109,7 +120,8 @@ function cells(title: string): Record<string, string> {
 
 describe("IA-P P4b: the Sites list on E1", () => {
   it("World A, October: the rows in E1's order, the tiles, and the gap tile equals the Overview's tile 2", async () => {
-    const { e1 } = renderAt(`/sites?${OCT}`);
+    const e1 = sitesClient(BY_RANGE);
+    renderAt(`/sites?${OCT}`, e1);
     await settledScreen();
     expect(e1.calls).toEqual([["2026-10-01", "2026-10-31"]]);
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Sites");
@@ -135,7 +147,7 @@ describe("IA-P P4b: the Sites list on E1", () => {
       "Waiting for a choice": "2",
     });
     const kobo = within(list()).getByRole("link", { name: "Kobo" });
-    expect(kobo.getAttribute("href")).toBe(`/sites/KOBO-001?${OCT}`);
+    expect(daysOf(kobo.getAttribute("href")!)).toEqual(["/sites/KOBO-001", "2026-10-01", "2026-10-31", ""]);
     // One target per row; no directory table and no Lifecycle column.
     for (const tr of list().querySelectorAll("tbody tr")) expect(tr.querySelectorAll("a").length).toBeLessThanOrEqual(1);
     expect(document.body.textContent).not.toContain("Lifecycle");
@@ -179,7 +191,8 @@ describe("IA-P P4b: the Sites list on E1", () => {
   });
 
   it("World P, September and October: the gap tile is the period's tile 2", async () => {
-    const { e1 } = renderAt(`/sites?${SEP_OCT}`);
+    const e1 = sitesClient(BY_RANGE);
+    renderAt(`/sites?${SEP_OCT}`, e1);
     await settledScreen();
     expect(e1.calls).toEqual([["2026-09-01", "2026-10-31"]]);
     expect(tile("Gap to target").value).toBe("−$1,704.00");
@@ -217,7 +230,7 @@ describe("IA-P P4b: the Sites list on E1", () => {
       "Largest driver against target": "Not available yet",
       "Waiting for a choice": "Not available yet",
     });
-    expect(within(list()).getByRole("link", { name: "Lab Site" }).getAttribute("href")).toBe(`/sites/LAB-SITE-9?${OCT}`);
+    expect(daysOf(within(list()).getByRole("link", { name: "Lab Site" }).getAttribute("href")!)).toEqual(["/sites/LAB-SITE-9", "2026-10-01", "2026-10-31", ""]);
   });
 
   it("a refused E1 shows the served text and Try again, which reads again", async () => {
@@ -300,6 +313,6 @@ describe("IA-P P4b: the Outcomes tab", () => {
     await settledScreen();
     expect(list().querySelectorAll("tbody tr")).toHaveLength(10);
     expect(list().querySelector(".hl-more")!.textContent).toBe("Not shown: 3 Sites. Show all 13");
-    expect(within(list()).getByRole("link", { name: "Show all 13" }).getAttribute("href")).toBe(`/sites?${OCT}&show=all`);
+    expect(daysOf(within(list()).getByRole("link", { name: "Show all 13" }).getAttribute("href")!)).toEqual(["/sites", "2026-10-01", "2026-10-31", "show=all"]);
   });
 });

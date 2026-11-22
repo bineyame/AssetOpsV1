@@ -14,6 +14,8 @@ import { facetValue, homeListHref, homeListModel, type HomeListModel, type ListD
 export interface HomeListColumn<T> {
   label: string;
   cell(item: T): ReactNode;
+  /** A note under the column's heading, as `<small>` (IA-P P0/P4b: a column fed by a capped read says so). */
+  note?: ReactNode;
 }
 
 export interface HomeListTile {
@@ -45,6 +47,8 @@ export interface HomeListDef<T> extends ListDefModel<T> {
   /** The word of a scope chip. */
   scopeWord?(scope: string): string;
   groupWord?(group: string): string;
+  /** IA-P P4b (MD-IAP-13): a text before "Show all", naming the rows the cap hides (never a figure the browser sums). */
+  more?(hidden: readonly T[]): ReactNode;
   none: string;
 }
 
@@ -256,6 +260,7 @@ export function HomeList<T>({
                 {def.columns.map((c) => (
                   <th key={c.label} scope="col">
                     {c.label}
+                    {c.note ? <small>{c.note}</small> : null}
                   </th>
                 ))}
               </tr>
@@ -278,6 +283,7 @@ export function HomeList<T>({
         )}
         {model.hidden.length > 0 ? (
           <p className="hl-more">
+            {def.more ? <>{def.more(model.hidden)} </> : null}
             {options.cap !== undefined ? (
               <Link to={href({ show: null })}>View all {model.n}</Link>
             ) : (

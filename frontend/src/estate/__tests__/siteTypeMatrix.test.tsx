@@ -4,7 +4,7 @@
  * range. Every body is a committed IA-P fixture written by the backend's view (`test_iap_portfolio_period.py` test 10,
  * `test_iap_portfolio_sites.py` test 9).
  */
-import { cleanup, render } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -69,7 +69,14 @@ describe("IA-P P4b: Thika (cold-chain) is named on every page of the matrix", ()
     ["two months", "from=2026-09-01&to=2026-10-31"],
   ] as const) {
     it(`Overview, ${label}`, async () => {
-      expect(await textAt(`/portfolio?${range}`)).toContain("Thika");
+      const text = await textAt(`/portfolio?${range}`);
+      if (label === "two months") {
+        expect(text).toContain("Thika"); // D-IAP.34: in the lead
+      } else {
+        // One month: 5c's `out` reason sits in the step drawer (D-IAP.25), one click away.
+        fireEvent.click(document.querySelector<HTMLElement>('[data-level="L3"] button[aria-haspopup="dialog"]')!);
+        expect(screen.getByRole("dialog").textContent).toContain("Thika: not a mini-grid Site, not included.");
+      }
     });
     it(`Outcomes, ${label}: Thika's row says why by type`, async () => {
       const text = await textAt(`/portfolio/outcomes?${range}`);

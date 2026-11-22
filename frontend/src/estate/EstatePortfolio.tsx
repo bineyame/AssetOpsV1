@@ -75,6 +75,10 @@ import "./estatePortfolio.css";
 import { amountOf, CategoryCards, OUTCOME_MATRIX_LABEL, OUTCOME_MATRIX_NOTE, OutcomeMatrixBody } from "./PortfolioOutcomes";
 import { PortfolioTabs, portfolioHref } from "./PortfolioTabs";
 import { PortfolioCoverage } from "./PortfolioCoverage";
+import type { PortfolioSitesClient } from "./portfolioSitesClient";
+import { OutcomesSites } from "./sitesList";
+import { RangePartNote } from "../ui/RangePartNote";
+import { readSharedRange, type DayRange } from "../ui/sharedRange";
 import { RETRYING_COPY, TEMPORARILY_UNAVAILABLE } from "../sites/temporarilyUnavailable";
 
 /** INFRA-1 (D-E5.47): the summary read while it waits to retry a 503 `TEMPORARILY_UNAVAILABLE`. */
@@ -542,11 +546,15 @@ function Loaded({
   body,
   window,
   summary,
+  sites,
+  range,
 }: {
   tab: HubTab;
   body: EstatePortfolioBody;
   window: Window;
   summary: EstateResult<EstateOutcomeSummaryBody> | null;
+  sites?: PortfolioSitesClient;
+  range: DayRange | null;
 }) {
   const ctx = contextWords(body.status, body.window.known_at);
   const panelRef = useFocusPanelHeading(tab);
@@ -566,9 +574,17 @@ function Loaded({
       <div className="pf-panel" data-portfolio-tab-panel={tab} ref={panelRef}>
         {tab === "outcomes" ? (
           <>
-            {/* IA-P P3b (MD-IAP-7, Q8): the objectives matrix, then the range category cards (L3) until P4. */}
-            <ObjectivesPanel summary={summary} />
-            <CategoryCards body={body} window={window} summary={summary?.status === "loaded" ? summary.value : null} />
+            {/* IA-P P4b (spec §6 P4b): L1 E1's headline, L2 the Sites rows (the Sites list's def). */}
+            <OutcomesSites sites={sites} waitingBySite={body.summary.waiting_by_site} />
+            {/* L3 (MD-IAP-7, Q8): the range category cards, then each Site's objectives in a disclosure; the estate read's
+                31-day window is said when it is not the range (P0, pre-flight Q7). */}
+            <div data-level="L3">
+              <RangePartNote range={range} />
+              <CategoryCards body={body} window={window} summary={summary?.status === "loaded" ? summary.value : null} />
+              <Disclosure summary="Each Site's objectives" name="portfolio-objectives" variant="inline">
+                <ObjectivesPanel summary={summary} />
+              </Disclosure>
+            </div>
           </>
         ) : (
           // IA-P P3b (MD-IAP-3): Demand & capacity holds the opportunity panel; the mock's L1 chain has no live read.
@@ -585,7 +601,7 @@ type Read = { key: string; windowKey: string; lens: EstateLens; first: EstateRes
  * IA-P P3b (spec §2.2, §2.4): the mounted route `/portfolio/:tab` for Outcomes and Demand & capacity. A segment that
  * names no tab (or names the Overview) goes to `/portfolio`, keeping the range, before any read.
  */
-export function EstatePortfolioPage({ client }: { client?: EstateClient }) {
+export function EstatePortfolioPage({ client, sites }: { client?: EstateClient; sites?: PortfolioSitesClient }) {
   const { tab: segment } = useParams();
   const [params] = useSearchParams();
   const tab = portfolioTabFrom(segment);
@@ -594,12 +610,13 @@ export function EstatePortfolioPage({ client }: { client?: EstateClient }) {
     const path = portfolioTabPath("overview");
     return <Navigate replace to={search === "" ? path : `${path}?${search}`} />;
   }
-  return <PortfolioTabsPage client={client} tab={tab} />;
+  return <PortfolioTabsPage client={client} sites={sites} tab={tab} />;
 }
 
-function PortfolioTabsPage({ client, tab }: { client?: EstateClient; tab: HubTab }) {
+function PortfolioTabsPage({ client, sites, tab }: { client?: EstateClient; sites?: PortfolioSitesClient; tab: HubTab }) {
   const reads = useMemo(() => client ?? createEstateClient(), [client]);
   const [params] = useSearchParams();
+  const sharedRange = readSharedRange(params);
   const base = queryFromParams(params);
   // PF-T: the lens belongs to Act first; every other tab reads (and keeps) the whole list.
   const lens: EstateLens = "all";
@@ -683,7 +700,7 @@ function PortfolioTabsPage({ client, tab }: { client?: EstateClient; tab: HubTab
       ) : first.status === "refused" ? (
         <EstateRefusal code={first.code} copy={first.copy} window={window} firstPage={portfolioHref(window, tab)} />
       ) : (
-        <Loaded tab={tab} body={first.value} window={window} summary={currentSummary} />
+        <Loaded tab={tab} body={first.value} window={window} summary={currentSummary} sites={sites} range={sharedRange.status === "set" ? sharedRange : null} />
       )}
     </div>
   );
