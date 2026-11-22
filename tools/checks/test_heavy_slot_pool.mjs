@@ -773,6 +773,69 @@ print(json.dumps([c("slot", False), c("slot", True), c("db", False), c("db", Tru
     } finally { cleanup(r); }
   });
 
+  test("P-T4b T1b: db=True needs --db, not a lane; python lane=True passes under either and fails under a plain slot", async () => {
+    const r = makeRepo();
+    let a;
+    try {
+      for (const trip of [nodeTrip, pyTrip]) {
+        refused(await pooled(r, trip(r, "database job", true), ["--db-lane"]), "database job", DB_REASON, true);
+        passed(await pooled(r, trip(r, "database job", true), ["--db"]), "--db");
+      }
+      const tools = JSON.stringify(path.join(r.M, "tools"));
+      const lane = ["python3", "-c", `import sys, os, json; sys.path.insert(0, ${tools}); import heavy_slot_check as h
+print(json.dumps([h.check_marker(os.environ, slot_dir=h.slot_dir(), lane=True), h.held_lane(os.environ, slot_dir=h.slot_dir(), pid=os.getpid())]))`];
+      const LANE_REASON = "a Postgres test run needs --db-lane (or --db) on the outermost wrapper";
+      const ask = async (extra) => JSON.parse((await pooled(r, lane, extra)).stdout);
+      assert.deepEqual(await ask(["--db"]), [[true, ""], "a"]);
+      assert.deepEqual(await ask(["--db-lane"]), [[true, ""], "a"]);
+      assert.deepEqual(await ask([]), [[false, LANE_REASON], null]);
+      a = await wrapHold(r, "bash", 1, ["--db-lane"]);
+      assert.deepEqual(await ask(["--db-lane"]), [[true, ""], "b"]);
+      const py = await run("python3", ["-c", `import sys, json; sys.path.insert(0, ${tools})
+import heavy_slot_check as h
+c = lambda v: list(h.check_marker({"ASSETOPS_HEAVY_SLOT_CONTAINER": v}, slot_dir=None, in_container=True, lane=True))
+print(json.dumps([c("slot"), c("db")]))`]);
+      assert.deepEqual(JSON.parse(py.stdout), [[true, ""], [true, ""]], py.stderr);
+      // The refusal names the flag to use.
+      const out = await pooled(r, ["python3", "-c", `import sys; sys.path.insert(0, ${tools}); import heavy_slot_check as h; h.require("pytest with Postgres", lane=True)`]);
+      assert.equal(out.code, 69, out.stderr);
+      assert.ok(out.stderr.includes(`(${LANE_REASON}).\nRun it as: tools/heavy-slot.sh --db-lane -- <your command>`), out.stderr);
+      assert.ok(out.stderr.includes("tools/heavy-slot.ps1 -DbLane -- ...)"), out.stderr);
+    } finally { await stop(a); cleanup(r); }
+  });
+
+  test("P-T8 T1b planted shared-DB use: a lane run pointed at the other lane's base, a non-_test or an off-machine URL exits 69", async () => {
+    const r = makeRepo();
+    let a;
+    try {
+      // A Python with SQLAlchemy (assetops_backend.database_target needs it): the guard interpreter or the venv.
+      const venv = [process.env.ASSETOPS_GUARD_PYTHON, path.join(TOOLS, "..", ".venv", "bin", "python"),
+                    "/opt/assetecon/AssetOpsV1/.venv/bin/python"].find((p) => p && fs.existsSync(p));
+      assert.ok(venv, "no Python with SQLAlchemy found (set ASSETOPS_GUARD_PYTHON)");
+      const tools = JSON.stringify(path.join(r.M, "tools"));
+      const probe = [venv, "-c", `import sys; sys.path.insert(0, ${tools}); import heavy_slot_check as h; h.require('pytest with Postgres', lane=True); print("PASSED")`];
+      const env = (host, name) => ({ env: { PYTHONPATH: path.join(TOOLS, "..", "backend"), ASSETOPS_TEST_DATABASE_BASE_URL: undefined,
+                                            PGHOST: undefined, PGDATABASE: undefined, PGPORT: undefined, PGSERVICE: undefined,
+                                            ASSETOPS_TEST_DATABASE_URL: `postgresql+psycopg://u:p@${host}:1/${name}` } });
+      const no = (lane, name, why) => `heavy-slot: refused: pytest with Postgres in database lane ${lane} may not use ${name}: ${why}.\n`;
+      const refusedWith = (out, line) => {
+        assert.equal(out.code, 69, out.stdout + out.stderr);
+        assert.ok(out.stderr.includes(line), out.stderr);
+        assert.doesNotMatch(out.stdout, /PASSED/);
+      };
+      a = await wrapHold(r, "bash", 1, ["--db-lane"]);  // lane a is taken, so the next --db-lane is lane b
+      refusedWith(await pooled(r, probe, ["--db-lane"], env("127.0.0.1", "assetops_test")), no("b", "assetops_test", "it is lane a's database"));
+      passed(await pooled(r, probe, ["--db-lane"], env("127.0.0.1", "assetops_b_test")), "lane b on assetops_b_test");
+      refusedWith(await pooled(r, probe, ["--db-lane"], env("10.0.0.9", "assetops_b_test")),
+                  no("b", "assetops_b_test", "the server is not this machine's development server (host 10.0.0.9)"));
+      await stop(a); a = null;
+      refusedWith(await pooled(r, probe, ["--db-lane"], env("127.0.0.1", "assetops_b_test")), no("a", "assetops_b_test", "it is lane b's database"));
+      refusedWith(await pooled(r, probe, ["--db-lane"], env("127.0.0.1", "assetops")), no("a", "assetops", "its name does not end in _test"));
+      refusedWith(await pooled(r, probe, ["--db"], env("127.0.0.1", "assetops_b_test")), no("a", "assetops_b_test", "it is lane b's database"));
+      passed(await pooled(r, probe, ["--db-lane"], env("127.0.0.1", "assetops_test")), "lane a on assetops_test");
+    } finally { await stop(a); cleanup(r); }
+  });
+
   test("P-T5 the tsc shim: refused unpooled, the real tsc pooled, check 0 then 1, a second install changes nothing", async () => {
     const r = makeRepo();
     try {
