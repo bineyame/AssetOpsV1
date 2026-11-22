@@ -134,8 +134,27 @@ def _exports(manifest: Path, out: Path, extras: Path | None = None, tenants: lis
     return 0
 
 
+ONBOARDING_FORMAT = "assetops.operator-onboarding/2"
+
+
 def _site_inputs(onboarding: Path, bindings: Path, out: Path) -> int:
-    documents = [json.loads(p.read_text(encoding="utf-8")) for p in sorted(onboarding.glob("*.onboarding.json"))]
+    documents = []
+    seen: dict[str, str] = {}
+    try:
+        for path in sorted(onboarding.glob("*.onboarding.json")):
+            document = json.loads(path.read_text(encoding="utf-8"))
+            if document.get("format") != ONBOARDING_FORMAT:  # D-DD.95: `/2` documents only
+                print(f"SKIPPED {path.name} {document.get('format')}", file=sys.stderr)
+                continue
+            for site in document["sites"]:
+                if site["code"] in seen:
+                    raise telemetry_writer.TelemetryRefused(
+                        "TEL_FOUNDATION", f"{site['code']} is in {seen[site['code']]} and {path.name}")
+                seen[site["code"]] = path.name
+            documents.append(document)
+    except telemetry_writer.TelemetryRefused as error:
+        print(error, file=sys.stderr)
+        return 3
     joined = {"schema": telemetry_writer.SITE_INPUTS_SCHEMA, "generator": telemetry_writer.GENERATOR, "sites": []}
     by_code = {}
     for path in sorted(bindings.glob("*-bindings.json")):

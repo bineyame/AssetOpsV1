@@ -148,9 +148,10 @@ def site_inputs(onboarding: dict, bindings: dict[str, dict]) -> dict:
         if binding is None:
             continue
         components = [
-            {"id": c["id"], "type": c["type"], "rating": {"value": _text(c["rating"]["value"]), "unit": c["rating"]["unit"]},
+            {"id": c["id"], "type": c["type"],
+             **({"rating": {"value": _text(c["rating"]["value"]), "unit": c["rating"]["unit"]}} if c.get("rating") else {}),
              "properties": [{"property_key": p["property_key"], "value": _text(p["value"]), "unit": p["unit"]}
-                            for p in c.get("properties", [])]}
+                            for p in c.get("properties", [])]}  # D-DD.95: a rating is written only when the component has one
             for c in site["components"]]
         foundation = {"components": components, "devices": site.get("devices", []), "topology": site["topology"]}
         rows = [{"device_id": b["device_id"], "signal_id": b["signal_id"], "role": b["role"], "asset_code": b["asset_code"],
