@@ -235,7 +235,7 @@ describe("W3-02 estate Evidence root", () => {
     renderAt(`${ESTATE_EVIDENCE_PATH}?${WINDOW}`, fake(loaded(body())));
     await settledScreen();
     expectV69Panels("globalevidence");
-    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Portfolio evidence");
+    expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Evidence & records");
     expect(main().textContent).toContain("Cross-site claim readiness, recurring gaps and instrumentation priorities");
     // SR-2: the range is shown once, in the shell's shared bar; the page keeps only its cutoff line.
     expect(main().querySelector("[data-estate-window]")).toBeNull();
@@ -549,7 +549,7 @@ describe("W3-02 estate Evidence root", () => {
     renderAt(`${ESTATE_EVIDENCE_PATH}?${WINDOW}`, fake(loaded(body())));
     await settledScreen();
     const h1 = screen.getByRole("heading", { level: 1 });
-    expect(h1.textContent).toBe("Portfolio evidence");
+    expect(h1.textContent).toBe("Evidence & records");
     const header = h1.closest("header") as HTMLElement;
     expect(header).not.toBeNull();
     const eyebrow = within(header).getByText(EVIDENCE_EYEBROW, { selector: ".page-header__eyebrow" });

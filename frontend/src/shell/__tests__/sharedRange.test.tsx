@@ -183,8 +183,9 @@ describe("SR-1 withRange and the rail search", () => {
     renderApp(`/portfolio?${WEEK}&known_at=2026-10-04T12%3A00%3A00Z`);
     await settledScreen();
     const carried = `?${WEEK}&known_at=2026-10-04T12%3A00%3A00Z`;
-    for (const label of ["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Operational records", "Evidence", "Financials"]) {
-      expect(railHref(label)).toBe(`/${label === "Operational records" ? "operational-records" : label.toLowerCase()}${carried}`);
+    for (const label of ["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Evidence & records", "Financials"]) {
+      // IA-P P1 (spec §2.1): Evidence & records is the one root, at /evidence.
+      expect(railHref(label)).toBe(`/${label === "Evidence & records" ? "evidence" : label.toLowerCase()}${carried}`);
     }
   });
 
@@ -214,7 +215,8 @@ describe("SR-1 filling in the address on entry", () => {
   });
 
   it("fills only the estate pages in SR-1; Work and Site pages keep their own default until SR-2", () => {
-    for (const path of ["/portfolio", "/portfolio/act-first", "/findings", "/findings/risks", "/actions", "/evidence", "/financials"]) {
+    for (const path of ["/portfolio", "/portfolio/act-first", "/findings", "/findings/risks", "/actions", "/evidence", "/evidence/records", "/financials"]) {
+      // IA-P P1 (spec §2.1): /evidence/records is filled; the /operational-records alias redirects before it reads.
       expect(fillsRangeOnEntry(path)).toBe(true);
     }
     for (const path of ["/sites", "/sites/KOBO-001", "/incidents", "/maintenance", "/operational-records", "/findings/x/y"]) {
@@ -331,7 +333,7 @@ describe("SR-1 the shared range bar", () => {
 
 describe("SR-1 review notes closed in SR-2", () => {
   it("Medium: the bar says All pages only on pages that read the range, and says so where it is not used", async () => {
-    for (const path of ["/portfolio", "/portfolio/act-first", "/findings/risks", "/actions", "/evidence", "/financials", "/incidents", "/maintenance", "/maintenance/preventive", "/operational-records"]) {
+    for (const path of ["/portfolio", "/portfolio/act-first", "/findings/risks", "/actions", "/evidence", "/financials", "/incidents", "/maintenance", "/maintenance/preventive", "/evidence/records"]) {
       expect(readsSharedRange(path)).toBe(true);
     }
     for (const path of ["/sites", "/sites/KOBO-001", "/sites/COLD-LAB-001", "/sites/EV-LAB-001/ev", "/findings/f-1", "/maintenance/requests/c-1"]) {

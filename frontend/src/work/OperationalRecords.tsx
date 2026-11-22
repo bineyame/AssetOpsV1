@@ -22,6 +22,8 @@
 import { useId, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { displayCode } from "../ui/displayCode";
 import { useNavigate } from "react-router-dom";
+import { EVIDENCE_RECORDS_PATH } from "../shell/operatorSiteRoutes";
+import { EVIDENCE_RECORDS_TABS, EVIDENCE_RECORDS_TABS_LABEL, EVIDENCE_RECORDS_TITLE, SectionTabs } from "../ui/SectionTabs";
 import { Breadcrumbs, DataTable, MetricCard, MetricCards, PageHeader, Panel } from "../ui";
 import { CellDisclosure } from "./CellDisclosure";
 import {
@@ -53,8 +55,8 @@ import {
 import { recKindLabel } from "./WorkRequestRecord";
 import "./globalWork.css";
 
-/** The page path; the route constant `OPERATIONAL_RECORDS_PATH` in `shell/operatorSiteRoutes.ts` has the same value. */
-const PAGE_PATH = "/operational-records";
+/** The page path: the Records tab of Evidence & records (IA-P P1); `/operational-records` aliases here. */
+const PAGE_PATH = EVIDENCE_RECORDS_PATH;
 export const OPERATIONAL_RECORDS_HEADING_ID = "operational-records-heading";
 const TABLE_HEADING_ID = "operational-records-table-heading";
 const FORM_HEADING_ID = "operational-records-form-heading";
@@ -626,7 +628,8 @@ export function OperationalRecordsPage({ client }: { client?: GlobalWorkClient }
   return (
     <div className="global-work global-work--oprecords" data-global-work-root="operational-records">
       <Breadcrumbs trail={[{ label: "Operational records" }]} />
-      <PageHeader title="Operational records" headingId={OPERATIONAL_RECORDS_HEADING_ID} subtitle={OPERATIONAL_RECORDS_SUBTITLE} />
+      <PageHeader title={EVIDENCE_RECORDS_TITLE} headingId={OPERATIONAL_RECORDS_HEADING_ID} subtitle={OPERATIONAL_RECORDS_SUBTITLE} />
+      <SectionTabs label={EVIDENCE_RECORDS_TABS_LABEL} tabs={EVIDENCE_RECORDS_TABS} current={EVIDENCE_RECORDS_PATH} />
       <GlobalWorkBar page={page} label="Operational records window" membership={OPERATIONAL_RECORDS_MEMBERSHIP} />
       <GlobalWorkSlot page={page} loading={OPERATIONAL_RECORDS_LOADING} cards={(value) => <Cards body={value} />} />
       <KindChips page={page} />

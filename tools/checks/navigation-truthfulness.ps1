@@ -274,16 +274,17 @@ function Get-OperatorSiteTabFailures {
         $failures.Add($failure) | Out-Null
     }
 
-    # 3. `/` redirects to Sites rather than rendering a placeholder frame.
+    # 3. `/` redirects rather than rendering a placeholder frame. IA-P P1 (spec §2.4, D-IA.15): it is the live alias to
+    # the Portfolio in `LEGACY_ROUTES`, mounted by App.tsx through `liveLegacyRoutes()` and `LegacyRedirect`.
     $appModule = @(Get-ScannedModules -Root "frontend/src" -Extensions @(".tsx") |
         Where-Object { $_.Path -eq "frontend/src/App.tsx" })
+    $iaText = if (Test-Path -LiteralPath "frontend/src/shell/iaRoutes.ts") { Get-Content -LiteralPath "frontend/src/shell/iaRoutes.ts" -Raw } else { "" }
     if ($appModule.Count -eq 0 -or
-        (($appModule[0].Lines -join "`n") -notmatch
-            'path\s*=\s*"/"\s+element\s*=\s*\{\s*<Navigate\s+to=\{SITES_PATH\}\s+replace\s*/>\s*\}')) {
-        $failures.Add(("frontend/src/App.tsx does not redirect / to Sites " +
-            "(Route path=""/"" with Navigate to SITES_PATH, replace). " +
-            "T027 removed the Operator home placeholder; / has no surface of " +
-            "its own.")) | Out-Null
+        (($appModule[0].Lines -join "`n") -notmatch 'liveLegacyRoutes\(\)\.map\(\(route\)\s*=>[\s\S]{0,200}<LegacyRedirect\s+route=\{route\}\s*/>') -or
+        $iaText -notmatch '\{\s*from:\s*"/",\s*to:\s*"/portfolio",\s*unit:\s*"IA-P1"\s*\}') {
+        $failures.Add(("frontend/src/App.tsx does not redirect / to the Portfolio (the LEGACY_ROUTES entry " +
+            "{ from: ""/"", to: ""/portfolio"", unit: ""IA-P1"" } mounted through liveLegacyRoutes() and LegacyRedirect). " +
+            "T027 removed the Operator home placeholder; / has no surface of its own.")) | Out-Null
     }
 
     return $failures
@@ -541,16 +542,19 @@ function Get-OperatorRailFailures {
     }
     if ($failures.Count -gt 0) { return $failures }
 
+    # IA-P P1 (spec §2.1, D-IAP.5): the IA-1 menu (vNEXT IA_RAIL). Decisions goes live in P2, Results in P3b.
     $expected = @(
         "live|Portfolio|OPERATIONS|/portfolio",
         "live|Sites|OPERATIONS|/sites",
-        "unavailable|Assets|OPERATIONS|",
+        "unavailable|Assets & cover|OPERATIONS|",
         "live|Findings|INTELLIGENCE|/findings",
+        "unavailable|Decisions|WORK|",
+        "unavailable|Plan|WORK|",
         "live|Actions|WORK|/actions",
         "live|Incidents|WORK|/incidents",
         "live|Maintenance|WORK|/maintenance",
-        "live|Operational records|WORK|/operational-records",
-        "live|Evidence|ASSURANCE|/evidence",
+        "unavailable|Results|ASSURANCE|",
+        "live|Evidence & records|ASSURANCE|/evidence",
         "live|Financials|BUSINESS|/financials",
         "unavailable|Settings|ADMIN|"
     )
@@ -646,9 +650,11 @@ function Get-OperatorRailFailures {
     # Actions selection, and nothing else may choose the active root.
     # SR-1 (proposal "Item 12.5", SR.3): the call also passes the shared range as the rail `search`, so the left menu
     # keeps the range; it is the shell's `railSearch` (from `rangeSearch`), never a page-only parameter.
-    if (($RailLines -join "`n") -notmatch '<NavRail\s+label="Operator routes"\s+items=\{operatorRailItems\}\s+activeLabel=\{\s*railActiveLabel\(\s*pathname\s*\)\s*\}(?:\s+search=\{\s*railSearch\s*\})?\s*/>') {
-        $failures.Add(("$railPath does not pass operatorRailItems and activeLabel={railActiveLabel(pathname)} " +
-            "to the 'Operator routes' NavRail, so the checked inventory or the Action-detail selection is not what " +
+    # IA-P P1 (spec §5.1, D-IAP.5, handshake I16): the active item is `railHomeOf(pathname)` from `iaRoutes.ts`, which
+    # replaced `railActiveLabel`; the call form here and `export function railHomeOf` there are both pinned.
+    if (($RailLines -join "`n") -notmatch '<NavRail\s+label="Operator routes"\s+items=\{operatorRailItems\}\s+activeLabel=\{\s*railHomeOf\(\s*pathname\s*\)\s*\}(?:\s+search=\{\s*railSearch\s*\})?\s*/>') {
+        $failures.Add(("$railPath does not pass operatorRailItems and activeLabel={railHomeOf(pathname)} " +
+            "to the 'Operator routes' NavRail, so the checked inventory or the IA home selection is not what " +
             "renders.")) | Out-Null
     }
     $railJoined = $RailLines -join "`n"
@@ -657,17 +663,15 @@ function Get-OperatorRailFailures {
         $failures.Add(("$railPath does not pass the shared range (search={railSearch}, railSearch = rangeSearch(params)) " +
             "to the 'Operator routes' NavRail, so the left menu drops the date range (SR-1).")) | Out-Null
     }
-    # The selection helper is exactly the ruled source line (whitespace-flexible): Actions only for a Site Action
-    # detail path, Findings only for a Site Finding detail path (post-W6 W1-b pre-flight ruling 6), null otherwise. A widened pattern or an unconditional label would select Actions elsewhere.
-    $railHelper = 'const railActiveLabel = (pathname: string): "Actions" | "Findings" | null => (/^\/sites\/[^/]+\/actions\/[^/]+(?:\/.*)?$/.test(pathname) ? "Actions" : /^\/sites\/[^/]+\/findings\/[^/]+(?:\/.*)?$/.test(pathname) ? "Findings" : null);'
-    $railHelperPattern = (($railHelper -split '\s+') | ForEach-Object { [regex]::Escape($_) }) -join '\s*'
-    if (($RailLines -join "`n") -notmatch $railHelperPattern) {
-        $failures.Add(("$railPath does not declare the ruled rail selection helper '$railHelper', so the Actions " +
-            "root could be selected outside a Site Action detail path.")) | Out-Null
+    $iaRoutesPath = "frontend/src/shell/iaRoutes.ts"
+    $iaRoutesText = if (Test-Path -LiteralPath $iaRoutesPath) { Get-Content -LiteralPath $iaRoutesPath -Raw } else { "" }
+    if ($iaRoutesText -notmatch 'export\s+function\s+railHomeOf\s*\(\s*pathname\s*:\s*string\s*\)\s*:\s*RailLabel\s*\|\s*null') {
+        $failures.Add(("$iaRoutesPath does not declare 'export function railHomeOf(pathname: string): RailLabel | null', " +
+            "so the rail's active item has no registry behind it (D-IAP.4).")) | Out-Null
     }
-    if (@($RailLines | Where-Object { $_ -match 'activeLabel\s*=\s*["''{]' -and $_ -notmatch 'activeLabel=\{\s*railActiveLabel\(\s*pathname\s*\)\s*\}' }).Count -gt 0) {
-        $failures.Add(("$railPath passes activeLabel other than railActiveLabel(pathname), so the Actions root " +
-            "would be selected on every route.")) | Out-Null
+    if (@($RailLines | Where-Object { $_ -match 'activeLabel\s*=\s*["''{]' -and $_ -notmatch 'activeLabel=\{\s*railHomeOf\(\s*pathname\s*\)\s*\}' }).Count -gt 0) {
+        $failures.Add(("$railPath passes activeLabel other than railHomeOf(pathname), so the rail could light an item " +
+            "outside the IA route registry.")) | Out-Null
     }
     for ($i = 0; $i -lt $RailLines.Count; $i++) {
         $line = $RailLines[$i]
@@ -676,7 +680,7 @@ function Get-OperatorRailFailures {
         if ($line -match 'Operator home') {
             $failures.Add(("Operator home returned to the operator rail at " +
                 "${railPath}:${lineNumber}: $($line.Trim()). T027 removed it; " +
-                "/ redirects to Sites.")) | Out-Null
+                "/ redirects to the Portfolio.")) | Out-Null
         }
         if ($i -ge $start -and $i -le $end) { continue }
         if ($line -match '<(NavLink|Link|a)\b|\bhref\s*=|\bto\s*[:=]') {

@@ -49,8 +49,8 @@ function Invoke-NavigationRailFixturesCheck {
 
         $cases = @(
             @{ Name = "baseline: the real tree passes"; Expect = $null },
-            @{ Name = "unavailable root gains a destination (dead link)"; Expect = "Dead link: the unavailable operator rail root 'Assets' carries 'to'";
-               Rail = (Edit-Lines $rail 'kind: "unavailable", label: "Assets"' 'kind: "unavailable", to: "/assets", label: "Assets"') },
+            @{ Name = "unavailable root gains a destination (dead link)"; Expect = "Dead link: the unavailable operator rail root 'Assets & cover' carries 'to'";
+               Rail = (Edit-Lines $rail 'kind: "unavailable", label: "Assets & cover"' 'kind: "unavailable", to: "/assets", label: "Assets & cover"') },
             @{ Name = "unavailable root gains a click handler"; Expect = "carries 'onClick'";
                Rail = (Edit-Lines $rail 'label: "Settings", group: "ADMIN"' 'label: "Settings", onClick: openSettings, group: "ADMIN"') },
             @{ Name = "live root points at a missing route"; Expect = "points at '/findingz'";
@@ -68,7 +68,7 @@ function Invoke-NavigationRailFixturesCheck {
             @{ Name = "W3-02: Evidence route removed (only the catch-all would serve it)"; Expect = "points at '/evidence'";
                App = (Remove-Line $app 'path=\{EVIDENCE_PATH\}') },
             @{ Name = "W3-02: Evidence demoted back to unavailable"; Expect = "the W1 rail is exactly";
-               Rail = (Edit-Lines $rail 'kind: "live", to: "/evidence", label: "Evidence", end: false' 'kind: "unavailable", label: "Evidence"') },
+               Rail = (Edit-Lines $rail 'kind: "live", to: "/evidence", label: "Evidence & records", end: false' 'kind: "unavailable", label: "Evidence & records"') },
             @{ Name = "W3-02: Financials live root points at a missing route"; Expect = "points at '/financialz'";
                Rail = (Edit-Lines $rail 'to: "/financials"' 'to: "/financialz"') },
             @{ Name = "W3-02: Financials route removed (only the catch-all would serve it)"; Expect = "points at '/financials'";
@@ -89,12 +89,11 @@ function Invoke-NavigationRailFixturesCheck {
                App = (Remove-Line $app 'path=\{MAINTENANCE_PATH\}') },
             @{ Name = "W6-01b: Maintenance demoted back to unavailable"; Expect = "the W1 rail is exactly";
                Rail = (Edit-Lines $rail 'kind: "live", to: "/maintenance", label: "Maintenance", end: false' 'kind: "unavailable", label: "Maintenance"') },
-            @{ Name = "W6-01e: Operational records live root points at a missing route"; Expect = "points at '/operational-recordz'";
-               Rail = (Edit-Lines $rail 'to: "/operational-records"' 'to: "/operational-recordz"') },
-            @{ Name = "W6-01e: Operational records route removed (only the catch-all would serve it)"; Expect = "points at '/operational-records'";
-               App = (Remove-Line $app 'path=\{OPERATIONAL_RECORDS_PATH\}') },
-            @{ Name = "W6-01e: Operational records demoted back to unavailable"; Expect = "the W1 rail is exactly";
-               Rail = (Edit-Lines $rail 'kind: "live", to: "/operational-records", label: "Operational records", end: false' 'kind: "unavailable", label: "Operational records"') },
+            # IA-P P1 (spec §2.1, §6 plants): Decisions stays unavailable until P2; the Records tab's route is registered.
+            @{ Name = "IA-P1: Decisions made live (plant rail)"; Expect = "the W1 rail is exactly";
+               Rail = (Edit-Lines $rail 'kind: "unavailable", label: "Decisions", group: "WORK"' 'kind: "live", to: "/decisions", label: "Decisions", end: false, group: "WORK"') },
+            @{ Name = "IA-P1: Plan given a destination (dead link)"; Expect = "Dead link: the unavailable operator rail root 'Plan' carries 'to'";
+               Rail = (Edit-Lines $rail 'kind: "unavailable", label: "Plan"' 'kind: "unavailable", to: "/plan", label: "Plan"') },
             # Post-W6 W6 Q13 (R371): the unknown request-section route is shelled and renders its own panel.
             @{ Name = "post-W6 W6: unknown request-section route removed"; Expect = "registers no operator route 'path=""/maintenance/requests/:caseId/*""'";
                App = (Remove-Line $app 'path="/maintenance/requests/:caseId/\*"') },
@@ -103,11 +102,11 @@ function Invoke-NavigationRailFixturesCheck {
             @{ Name = "unknown root appended"; Expect = "the W1 rail is exactly";
                Rail = (Insert-After $rail 'label: "Settings", group: "ADMIN"' '  { kind: "unavailable", label: "Reports", group: "ADMIN", icon: "log" },') },
             @{ Name = "label typo"; Expect = "the W1 rail is exactly";
-               Rail = (Edit-Lines $rail 'label: "Operational records"' 'label: "Operational record"') },
+               Rail = (Edit-Lines $rail 'label: "Evidence & records"' 'label: "Evidence & record"') },
             @{ Name = "old group caption"; Expect = "the W1 rail is exactly";
                Rail = (Edit-Lines $rail 'label: "Sites", end: false, group: "OPERATIONS"' 'label: "Sites", end: false, group: "OPERATE"') },
             @{ Name = "root promoted to live without review"; Expect = "the W1 rail is exactly";
-               Rail = (Edit-Lines $rail 'kind: "unavailable", label: "Assets"' 'kind: "live", to: "/sites", label: "Assets"') },
+               Rail = (Edit-Lines $rail 'kind: "unavailable", label: "Assets & cover"' 'kind: "live", to: "/sites", label: "Assets & cover"') },
             @{ Name = "item without an explicit kind"; Expect = "has no explicit kind";
                Rail = (Edit-Lines $rail '\{ kind: "live", to: "/sites"' '{ to: "/sites"') },
             @{ Name = "unparseable inventory line"; Expect = "Unparseable operator rail line";
@@ -118,17 +117,11 @@ function Invoke-NavigationRailFixturesCheck {
                Rail = (Insert-After $rail '\{chrome\?\.footer' '        <NavLink to="/portfolio">Portfolio</NavLink>') },
             @{ Name = "NavRail type stops forbidding to"; Expect = "no longer declares NavRailUnavailableItem";
                Nav = (Remove-Line $nav '^\s*to\?: never;') },
-            # W5-02c K4a (rulings 1-2): the Actions selection stays pathname-scoped to Site Action detail paths.
-            @{ Name = "W5-02c: Actions selected unconditionally"; Expect = "passes activeLabel other than railActiveLabel(pathname)";
-               Rail = (Edit-Lines $rail 'activeLabel=\{railActiveLabel\(pathname\)\}' 'activeLabel="Actions"') },
-            @{ Name = "W5-02c: Actions selection widened to every Site path"; Expect = "does not declare the ruled rail selection helper";
-               Rail = (Edit-Lines $rail '\(/\^\\/sites\\/\[\^/\]\+\\/actions\\/\[\^/\]\+\(\?:\\/\.\*\)\?\$/' '(/^\/sites\//') },
-            # post-W6 W1-b pre-flight ruling 6: the Findings selection stays on Site Finding detail paths; widening it to
-            # the Site Findings index, or to a prefix lookalike, fails the guard.
-            @{ Name = "W1-b: Findings selection widened to the Site Findings index"; Expect = "does not declare the ruled rail selection helper";
-               Rail = (Edit-Lines $rail '\\/findings\\/\[\^/\]\+\(\?:\\/\.\*\)\?\$/' '\/findings(?:\/.*)?$/') },
-            @{ Name = "W1-b: Findings selection widened to a prefix lookalike"; Expect = "does not declare the ruled rail selection helper";
-               Rail = (Edit-Lines $rail '\\/findings\\/\[\^/\]\+' '\/findings[^/]*\/[^/]+') },
+            # IA-P P1 (handshake I16): the active item is railHomeOf(pathname); a fixed label or null fails.
+            @{ Name = "IA-P1: Actions selected unconditionally"; Expect = "passes activeLabel other than railHomeOf(pathname)";
+               Rail = (Edit-Lines $rail 'activeLabel=\{railHomeOf\(pathname\)\}' 'activeLabel="Actions"') },
+            @{ Name = "IA-P1: activeLabel={null} (plant)"; Expect = "does not pass operatorRailItems and activeLabel={railHomeOf(pathname)}";
+               Rail = (Edit-Lines $rail 'activeLabel=\{railHomeOf\(pathname\)\}' 'activeLabel={null}') },
             # SR-1: the left menu keeps the shared range; dropping the rail search, or feeding it the raw address, fails.
             @{ Name = "SR-1: rail search dropped"; Expect = "does not pass the shared range";
                Rail = (Edit-Lines $rail '\s+search=\{railSearch\}' '') },

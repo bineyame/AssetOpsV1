@@ -1,8 +1,10 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 
 import { featureFlags, type FeatureFlags } from "./config/featureFlags";
 import { LegacySiteConfigurationRedirect } from "./shell/LegacySiteConfigurationRedirect";
 import { OperatorShellLayout } from "./shell/OperatorShellLayout";
+import { LegacyRedirect } from "./shell/LegacyRedirect";
+import { liveLegacyRoutes } from "./shell/iaRoutes";
 import { RouteNotAvailableFrame } from "./shell/RouteNotAvailableFrame";
 import { SiteEvidenceFrame } from "./shell/SiteEvidenceFrame";
 import {
@@ -34,7 +36,7 @@ import {
   PORTFOLIO_ROOT_PATH,
   INCIDENTS_PATH,
   MAINTENANCE_PATH,
-  OPERATIONAL_RECORDS_PATH,
+  EVIDENCE_RECORDS_PATH,
   MAINTENANCE_PREVENTIVE_PATH,
   WORK_REQUEST_HISTORY_ROUTE_PATH,
   WORK_REQUEST_RECORD_ROUTE_PATH,
@@ -351,7 +353,10 @@ export function App({
     <Routes>
       <Route element={<WorkspaceShellLayout flags={flags} />}>
         <Route element={<OperatorShellLayout />}>
-          <Route path="/" element={<Navigate to={SITES_PATH} replace />} />
+          {/* IA-P (spec §5.1, D-IAP.4): one redirect per live alias (`LEGACY_ROUTES`), before the target's route. */}
+          {liveLegacyRoutes().map((route) => (
+            <Route key={route.from} path={route.prefix ? `${route.from}/*` : route.from} element={<LegacyRedirect route={route} />} />
+          ))}
           <Route
             path={SITES_PATH}
             element={
@@ -560,8 +565,8 @@ export function App({
           <Route path={WORK_REQUEST_HISTORY_ROUTE_PATH} element={<WorkRequestHistoryFrame client={globalWork} />} />
           {/* Post-W6 W6 Q13 (R371): any other request section is stated in the shell, never the bare catch-all. */}
           <Route path="/maintenance/requests/:caseId/*" element={<WorkRequestUnknownSectionFrame />} />
-          {/* W6-01e E2: the global Operational records root (`OPERATIONAL_RECORDS_PATH`). */}
-          <Route path={OPERATIONAL_RECORDS_PATH} element={<OperationalRecordsFrame client={globalWork} />} />
+          {/* W6-01e E2: the global Operational records, now the Records tab of Evidence & records (IA-P P1). */}
+          <Route path={EVIDENCE_RECORDS_PATH} element={<OperationalRecordsFrame client={globalWork} />} />
           {[FINDING_ROUTE_PATH, FINDING_TAB_ROUTE_PATH].map((path) => (
             <Route
               key={path}

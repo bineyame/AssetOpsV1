@@ -24,9 +24,12 @@ const EMPTY_SITE_DIRECTORY: SiteDirectoryClient = {
 const gateOff = featureFlagsWith(false);
 const gateOn = featureFlagsWith(true);
 
-// W6-01e: Operational records rail root is live.
+// IA-P P1 (spec §2.1): five unavailable roots.
 const UNAVAILABLE_ROOTS = [
-  "Assets",
+  "Assets & cover",
+  "Decisions",
+  "Plan",
+  "Results",
   "Settings",
 ];
 
@@ -59,7 +62,7 @@ function unavailableRow(label: string): HTMLElement {
 }
 
 describe("operator rail inventory (W1-UX-07)", () => {
-  it("lists the eleven v6.9 roots in order, under six headed groups", async () => {
+  it("lists the thirteen IA-P roots in order, under six headed groups", async () => {
     renderAt("/sites");
     await settledScreen();
 
@@ -75,13 +78,16 @@ describe("operator rail inventory (W1-UX-07)", () => {
     ).toEqual([
       "Portfolio",
       "Sites",
-      "Assets",
+      // IA-P P1 (spec §2.1)
+      "Assets & cover",
       "Findings",
+      "Decisions",
+      "Plan",
       "Actions",
       "Incidents",
       "Maintenance",
-      "Operational records",
-      "Evidence",
+      "Results",
+      "Evidence & records",
       "Financials",
       "Settings",
     ]);
@@ -89,8 +95,8 @@ describe("operator rail inventory (W1-UX-07)", () => {
     expect(spacedText(rail())).not.toMatch(/\bOPERATE\b/);
   });
 
-  // W6-01e: Operational records rail root is live.
-  it("has exactly nine links, Portfolio, Sites, Findings, Actions, Incidents, Maintenance, Operational records, Evidence and Financials, and they are the live roots", async () => {
+  // IA-P P1 (spec §2.1): Operational records left the rail; Evidence & records is the one root.
+  it("has exactly eight links, Portfolio, Sites, Findings, Actions, Incidents, Maintenance, Evidence & records and Financials, and they are the live roots", async () => {
     renderAt("/sites");
     await settledScreen();
 
@@ -105,11 +111,10 @@ describe("operator rail inventory (W1-UX-07)", () => {
       ["Actions", "/actions"],
       ["Incidents", "/incidents"],
       ["Maintenance", "/maintenance"],
-      ["Operational records", "/operational-records"],
-      ["Evidence", "/evidence"],
+      ["Evidence & records", "/evidence"],
       ["Financials", "/financials"],
     ]);
-    expect(rail().querySelectorAll("a, button, [href], [tabindex], [role=link]")).toHaveLength(9);
+    expect(rail().querySelectorAll("a, button, [href], [tabindex], [role=link]")).toHaveLength(8);
   });
 
   it.each(UNAVAILABLE_ROOTS)(
@@ -171,7 +176,7 @@ describe("operator rail inventory (W1-UX-07)", () => {
     expect(screen.queryByRole("heading", { level: 1, name: "Page not available" })).toBeNull();
   });
 
-  it("keeps the focusable rail order to the nine live links (gate off)", async () => {
+  it("keeps the focusable rail order to the eight live links (gate off)", async () => {
     renderAt("/sites");
     await settledScreen();
 
@@ -179,19 +184,19 @@ describe("operator rail inventory (W1-UX-07)", () => {
     const focusable = Array.from(
       side.querySelectorAll<HTMLElement>("a[href], button, input, [tabindex]"),
     ).filter((element) => element.getAttribute("tabindex") !== "-1");
-    expect(focusable.map((element) => element.textContent)).toEqual(["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Operational records", "Evidence", "Financials"]);
+    expect(focusable.map((element) => element.textContent)).toEqual(["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Evidence & records", "Financials"]);
   });
 });
 
 /**
  * W5-02c K4a (`archive/agent-history/W5-02c-K4-preflight-rulings.md` rulings 1-2; register R69 resolved): every Site Action detail
  * path, for any Site type, selects the Actions root as the v69 rail does (`index.html:729,742,1114`). Only Actions has
- * `nav-rail__link active` and `aria-current="page"` there; ordinary Site paths, global Actions and Operational records
- * keep their NavLink selection. The nine live links and their focus order never change.
+ * `nav-rail__link active` and `aria-current="page"` there; ordinary Site paths, global Actions and the Records tab
+ * light their railHomeOf item. The eight live links and their focus order never change.
  */
 describe("Site Action detail rail selection (W5-02c K4a)", () => {
   afterEach(() => vi.unstubAllGlobals());
-  const LIVE = ["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Operational records", "Evidence", "Financials"];
+  const LIVE = ["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Evidence & records", "Financials"];
 
   async function railAt(path: string) {
     vi.stubGlobal("fetch", async () => new Response(JSON.stringify({ detail: { code: "UNAVAILABLE", message: "No read in this test." } }), { status: 503 }));
@@ -223,14 +228,14 @@ describe("Site Action detail rail selection (W5-02c K4a)", () => {
     expect(actions.getAttribute("href")).toBe(`/actions${carried}`);
     expect(sites.className).toBe("nav-rail__link");
     expect(sites.getAttribute("aria-current")).toBeNull();
-    // Same nine live links, hrefs and focus order as every other route.
+    // Same eight live links, hrefs and focus order as every other route.
     const side = rail().parentElement as HTMLElement;
     const focusable = Array.from(side.querySelectorAll<HTMLElement>("a[href], button, input, [tabindex]")).filter(
       (element) => element.getAttribute("tabindex") !== "-1",
     );
     expect(focusable.map((element) => element.textContent)).toEqual(LIVE);
     expect(links.map((l) => l.getAttribute("href"))).toEqual(
-      ["/portfolio", "/sites", "/findings", "/actions", "/incidents", "/maintenance", "/operational-records", "/evidence", "/financials"].map(
+      ["/portfolio", "/sites", "/findings", "/actions", "/incidents", "/maintenance", "/evidence", "/financials"].map(
         (to) => `${to}${carried}`,
       ),
     );
@@ -261,8 +266,8 @@ describe("Site Action detail rail selection (W5-02c K4a)", () => {
     ["an ordinary Site page", "/sites/KOBO-001", "Sites"],
     ["a Site Work page", "/sites/KOBO-001/work", "Sites"],
     ["the global Actions root", "/actions", "Actions"],
-    ["the Operational records root", "/operational-records", "Operational records"],
-  ])("keeps NavLink selection on %s", async (_name, path, label) => {
+    ["the Records tab", "/evidence/records", "Evidence & records"],
+  ])("lights the same single item through railHomeOf on %s", async (_name, path, label) => {
     const { links, current, active } = await railAt(path);
     expect(current).toEqual([label]);
     expect(active).toEqual([label]);
@@ -293,7 +298,7 @@ describe("operator rail workspace footer (W1-UX-07)", () => {
     const side = rail().parentElement as HTMLElement;
     expect(
       Array.from(side.querySelectorAll<HTMLElement>("a[href]")).map((a) => a.textContent),
-    ).toEqual(["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Operational records", "Evidence", "Financials", "Simulator Lab"]);
+    ).toEqual(["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Evidence & records", "Financials", "Simulator Lab"]);
 
     fireEvent.click(within(footer).getByRole("link", { name: "Simulator Lab" }));
     expect(screen.getByRole("heading", { level: 1, name: "Simulator Lab" })).toBeInTheDocument();
@@ -322,7 +327,7 @@ describe("operator rail workspace footer (W1-UX-07)", () => {
 describe("NavRail item model (W1-UX-07)", () => {
   it("renders an unavailable item with no destination, whatever the shell passes", () => {
     const items: NavRailItem[] = [
-      { kind: "unavailable", label: "Assets", group: "OPERATIONS", icon: "asset" },
+      { kind: "unavailable", label: "Assets & cover", group: "OPERATIONS", icon: "asset" },
       { kind: "live", to: "/sites", label: "Sites", group: "OPERATIONS", icon: "site" },
     ];
     render(
@@ -334,7 +339,7 @@ describe("NavRail item model (W1-UX-07)", () => {
     );
     const nav = screen.getByRole("navigation", { name: "Test rail" });
     expect(within(nav).getAllByRole("link").map((a) => a.textContent)).toEqual(["Sites"]);
-    expect(within(nav).getByRole("listitem", { name: "Assets, Not available yet" })).toBeVisible();
+    expect(within(nav).getByRole("listitem", { name: "Assets & cover, Not available yet" })).toBeVisible();
   });
 
   it("rejects a destination on an unavailable item at compile time", () => {

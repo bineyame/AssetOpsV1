@@ -163,8 +163,7 @@ describe("W3-01 estate roots in the operator shell", () => {
       ["Actions", "/actions"],
       ["Incidents", "/incidents"],
       ["Maintenance", "/maintenance"],
-      ["Operational records", "/operational-records"],
-      ["Evidence", "/evidence"],
+      ["Evidence & records", "/evidence"],
       ["Financials", "/financials"],
     ]);
     fireEvent.click(within(rail()).getByRole("link", { name: "Actions" }));

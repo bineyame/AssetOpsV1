@@ -4,14 +4,14 @@ Architect classification, 2026-10-24; counts refreshed 2026-10-26 (post-W6 final
 
 | Category | Rows | Standing or open |
 | --- | ---: | ---: |
-| D1 data or feature unavailable | 140 | 139 |
+| D1 data or feature unavailable | 141 | 140 |
 | D2 improvement | 79 | 76 |
 | D3 structural oversight | 140 | 2 |
-| D4 illustrative placeholder | 53 | 53 |
+| D4 illustrative placeholder | 54 | 54 |
 | D5 build order | 8 | 2 |
 | D6 technical constraint | 0 | 0 |
 | Backlog (non-departure) | 1 | 1 |
-| **Total** | **421** | **274** |
+| **Total** | **423** | **276** |
 
 ## D1 — data or feature unavailable
 
@@ -732,3 +732,10 @@ R396; cold names R235; mini status strip R154).
 | R768 | 5c unit 3, KD4 (review R2-L3) | `portfolio/month` "Where the gap comes from" step row | Each step on one row beside its bar at all widths (`uxBridge`, 2 lines) | The step row stacks (label and value, then track) under 720 px of section width (container query), because the shell's navigation leaves 488 px of section at 768; spec §5.3's "above 600 px" is a viewport rule | D1 | At 488 px the five-column row does not fit. Spec line pending Architect (§5.3). | Architect | standing (owner walkthrough) |
 | R769 | 5c unit 3, KD4 (preference) | same | A stacked step takes 2 lines in the mock | The stacked step takes 5 lines. Preference for the owner's walkthrough, not a change: share, chip and Sites on one wrapping meta line would give about 3 | D1 | Review R2-L3 preference; no change made. | owner walkthrough | open |
 | R770 | 1a (D-1A.3, D-1A.6; MOCK DEVIATION MD-1A-1) | Portfolio, Optimize card (v70 `pfCard`, index.html:494) | The `oc-pfdays` line under the figure, `PFDAYS.cost` "Kobo: 6 Oct partly checked" | The SC-1 statement `portfolio_card.cost_scope` in that slot: "Cost of Kobo's lead issue on 30 October 2026, the last of the 30 days shown, not their total" | D2 | Format: SC-1's one `day` format (D-SC1.10), and the scope words the figure needs so it is not read as the period's total (D-1A.2). | 7g (a period figure replaces the value and the line) | 1a |
+
+## IA-P1 additions (2026-11-22; vNEXT, spec `specs/IA-P-product-shape/spec.md` §7)
+
+| ID | Wave/slice/unit | Screen (v69 id) | Mock element | What is shown instead | Category | One-line reason | Owning or resolving unit | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| R771 | IA-P1 P1, MD-IAP-1 (spec §7) | vNEXT `IA_RAIL` WORK › Plan, and the `plan` shape (IA-2a) | Plan as a live rail item opening the plan page | Plan is an unavailable rail item ("Not available yet"), no route | D1 | No plan record exists in the live product (D-IAP.1); a modelled plan shown live would present modelled figures as the operator's. | a plan record (not specified yet) | open |
+| R772 | IA-P1 P1, MD-IAP-14 (spec §7, handshake I15) | vNEXT `IA_RAIL` icons | The mock's icon per rail item | The live icon set (`ui/RailIcon.tsx`), with `decide` new for Decisions so that two items do not share `finding` | D4 | The live product's icon vocabulary is kept; only the one missing icon is added. | none (standing) | standing |

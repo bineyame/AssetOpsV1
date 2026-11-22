@@ -489,6 +489,8 @@ export const WORK_REQUEST_ROUTE_PATH = "/maintenance/requests/:caseId";
 export const WORK_REQUEST_RECORD_ROUTE_PATH = "/maintenance/requests/:caseId/record";
 export const WORK_REQUEST_HISTORY_ROUTE_PATH = "/maintenance/requests/:caseId/history";
 export const OPERATIONAL_RECORDS_PATH = "/operational-records";
+/** IA-P P1 (spec §2.2, D-IAP.5): the Records tab of Evidence & records; `/operational-records` aliases here. */
+export const EVIDENCE_RECORDS_PATH = "/evidence/records";
 export const FINDING_ROUTE_PATH = `${FINDINGS_PATH}/:siteId/:assessmentId`;
 export const FINDING_TAB_ROUTE_PATH = `${FINDING_ROUTE_PATH}/:findingTab`;
 
