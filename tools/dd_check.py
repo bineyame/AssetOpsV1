@@ -16,8 +16,10 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 from dataclasses import dataclass, field
+from decimal import Decimal
 from pathlib import Path
 from typing import Callable
 
@@ -33,7 +35,7 @@ SITE_TYPE = {"MINI_GRID": "MINIGRID", "COLD_CHAIN": "COLDCHAIN", "EV_DEPOT": "EV
 
 #: Stubs: each check's question and the unit that makes it live (spec §8.1 "Live from").
 STUBS = {
-    "C-DD2": "DD2.5", "C-DD3": "DD2.5", "C-DD4": "DD2.5", "C-DD5": "DD4.4", "C-DD6": "DD4.4", "C-DD7": "DD4.4",
+    "C-DD5": "DD4.4", "C-DD6": "DD4.4", "C-DD7": "DD4.4",
     "C-DD8": "DD3.3", "C-DD9": "DD6.1", "C-DD10": "DD6.1", "C-DD11": "DD3.1", "C-DD12": "DD3.1",
     "C-DD14": "DD5.2", "C-DD15": "DD6.1", "C-DD16": "DD3.2", "C-DD17": "DD3.3", "C-DD18": "DD6.1",
     "C-DD19": "DD3.3", "C-DD20": "DD4.4",
@@ -188,11 +190,313 @@ def check_tenant_isolation(inputs: Inputs, client_for: Callable[[str, str], obje
     return Result("C-DD13", not detail, detail, pending=["TENANT-1 refused and counted: planted by DD5.2"])
 
 
+# --- the checker's own evaluator of the manifest's formulas (D-DD.55) -------------------------------------------------
+# `structures` node expressions and `factor_map` leaf expressions are text: names, numbers, `+ - *`, parentheses, and
+# `a | b` (a, or b where a is not recorded). This shares no code or table with the simulator's node table (D-DD.48).
+
+_TOKEN = re.compile(r"\s*(?:(?P<num>[0-9]+(?:\.[0-9]+)?)|(?P<ref>[A-Za-z_][A-Za-z_0-9.]*(?:\[[a-z]+\])?)|(?P<op>[-+*|()]))")
+
+
+class FormulaError(Exception):
+    """A formula uses something the checker's small evaluator does not read."""
+
+
+class _Absent(Exception):
+    """A `record.` field is not recorded: the enclosing `|` alternative is skipped."""
+
+
+def _tokens(text: str) -> list[tuple[str, str]]:
+    out, pos = [], 0
+    while pos < len(text.rstrip()):
+        m = _TOKEN.match(text, pos)
+        if m is None:
+            raise FormulaError(f"cannot read {text!r} at {pos}")
+        pos = m.end()
+        kind = m.lastgroup
+        out.append((kind, m.group(kind)))
+    return out
+
+
+class Formulas:
+    """Evaluates one vertical's `structures` and `factor_map` on a history record (money in dollars) and prices."""
+
+    def __init__(self, structure: dict, factor_map: dict, record: dict, prices: dict, site: str) -> None:
+        self.structure, self.factor_map, self.record, self.prices, self.site = structure, factor_map, record, prices, site
+        self.cache: dict[str, Decimal] = {}
+
+    def node(self, name: str) -> Decimal | None:
+        """The named node or leaf, or None where the record does not reach it."""
+        if name in self.cache:
+            return self.cache[name]
+        text = self.structure.get(name, self.factor_map.get(name))
+        if text is None:
+            raise FormulaError(f"unknown name {name}")
+        try:
+            value = self._alternatives(_tokens(text))
+        except _Absent:
+            return None
+        self.cache[name] = value
+        return value
+
+    def _alternatives(self, tokens: list[tuple[str, str]]) -> Decimal:
+        parts, depth, current = [], 0, []
+        for token in tokens:
+            if token == ("op", "(") or token == ("op", ")"):
+                depth += 1 if token[1] == "(" else -1
+            if token == ("op", "|") and depth == 0:
+                parts.append(current)
+                current = []
+            else:
+                current.append(token)
+        parts.append(current)
+        for part in parts:
+            try:
+                return self._sum(part)
+            except _Absent:
+                continue
+        raise _Absent()
+
+    def _sum(self, tokens: list[tuple[str, str]]) -> Decimal:
+        value = None
+        sign = 1
+        for chunk, op in self._split(tokens, ("+", "-")):
+            term = self._product(chunk)
+            value = sign * term if value is None else value + sign * term
+            sign = 1 if op == "+" else -1
+        if value is None:
+            raise FormulaError("empty formula")
+        return value
+
+    @staticmethod
+    def _split(tokens: list[tuple[str, str]], ops: tuple[str, ...]):
+        """Chunks between top-level operators of `ops`, each with the operator that FOLLOWS it (None at the end)."""
+        chunk, depth = [], 0
+        for token in tokens:
+            if token == ("op", "("):
+                depth += 1
+            elif token == ("op", ")"):
+                depth -= 1
+            if token[0] == "op" and token[1] in ops and depth == 0 and chunk:
+                yield chunk, token[1]
+                chunk = []
+            else:
+                chunk.append(token)
+        yield chunk, None
+
+    def _product(self, tokens: list[tuple[str, str]]) -> Decimal:
+        value = Decimal(1)
+        for chunk, _ in self._split(tokens, ("*",)):
+            value *= self._atom(chunk)
+        return value
+
+    def _atom(self, tokens: list[tuple[str, str]]) -> Decimal:
+        if tokens and tokens[0] == ("op", "(") and tokens[-1] == ("op", ")"):
+            return self._alternatives(tokens[1:-1])
+        if len(tokens) != 1:
+            raise FormulaError(f"cannot read {tokens}")
+        kind, text = tokens[0]
+        if kind == "num":
+            return Decimal(text)
+        if kind != "ref":
+            raise FormulaError(f"cannot read {text}")
+        if text.startswith("record."):
+            if text[7:] not in self.record:
+                raise _Absent()
+            return Decimal(str(self.record[text[7:]]))
+        if text.startswith("prices."):
+            entry = self.prices.get(text[7:].split("[")[0])
+            if isinstance(entry, dict):
+                entry = entry.get(self.site)
+            if entry is None:
+                raise FormulaError(f"no price {text}")
+            return Decimal(str(entry))
+        value = self.node(text)
+        if value is None:
+            raise _Absent()
+        return value
+
+
+def history_record(block_actual: dict, money_leaves: set[str]) -> dict:
+    """A history month's `actual` record in dollars (history.json money is integer cents, `meta.money_unit`)."""
+    return {k: (Decimal(v) / 100 if k in money_leaves else v) for k, v in block_actual.items()}
+
+
+# --- the stored books (SQL) and the judges of C-DD2 to C-DD4 --------------------------------------------------------------
+
+BOOK_QUERY = (
+    "SELECT t.slug AS tenant, s.site_code AS site, r.kind, "
+    "coalesce(r.recognition_period, to_char(r.effective_from, 'YYYY-MM'), to_char(r.occurred_at, 'YYYY-MM')) AS month, "
+    "r.provenance, r.amount, r.quantity, r.status, r.canonical "
+    "FROM commercial_record_revision r JOIN tenant t ON t.id = r.tenant_id LEFT JOIN site s ON s.id = r.site_id "
+    "WHERE NOT EXISTS (SELECT 1 FROM commercial_record_revision n WHERE n.supersedes_revision_id = r.id)")
+#: The decided kinds each product type holds in every Site-month (spec §3; the measured kinds are DD4.4's).
+DECIDED_KINDS = {"MINI_GRID": ("CHARGE", "RECEIPT", "EXPENSE", "BUDGET_LINE"),
+                 "COLD_CHAIN": ("STORAGE_MOVEMENT", "CHARGE", "RECEIPT", "EXPENSE", "BUDGET_LINE"),
+                 "EV_DEPOT": ("FLEET_ROSTER", "EXPENSE", "BUDGET_LINE")}
+EMULATED = "source-emulated"
+BOOK_MONTHS = ("2026-07", "2026-08", "2026-09", "2026-10")
+
+
+def stored_books(database_url: str) -> list[dict]:
+    """The latest revision of every commercial record, one dict each (amounts and quantities exact)."""
+    from sqlalchemy import create_engine, text
+
+    engine = create_engine(database_url)
+    try:
+        with engine.connect() as c:
+            return [{"tenant": r.tenant, "site": r.site, "kind": r.kind, "month": r.month, "provenance": r.provenance,
+                     "amount": None if r.amount is None else Decimal(r.amount),
+                     "quantity": None if r.quantity is None else Decimal(r.quantity), "status": r.status,
+                     "body": json.loads(r.canonical).get("body", {})} for r in c.execute(text(BOOK_QUERY))]
+    finally:
+        engine.dispose()
+
+
+def _site_months(inputs: "Inputs", tenants: set[str] | None):
+    """(tenant slug, vertical, Site name, code, month, record dict in dollars, coverage, is_october, prices)."""
+    manifest, history = inputs.manifest, inputs.history
+    money = set(history["meta"]["money_leaves"])
+    for tenant in manifest["tenants"]:
+        if tenants is not None and tenant["tenant"] not in tenants:
+            continue
+        for site in tenant["sites"]:
+            for month in history["meta"]["months"]:
+                block = history["tenants"][tenant["tenant"]][site["site"]][month]
+                yield (tenant["tenant"], tenant["vertical"], site["site"], site["code"], month,
+                       history_record(block["actual"], money), block.get("coverage", {}), False,
+                       tenant.get("prices", {}))
+            period = site["period"]
+            yield (tenant["tenant"], tenant["vertical"], site["site"], site["code"], manifest["accounting_period"],
+                   period["actual"], period.get("coverage", {}), True, tenant.get("prices", {}))
+
+
+def _by(rows: list[dict], tenant: str, code: str, month: str, kind: str) -> list[dict]:
+    return [r for r in rows if (r["tenant"], r["site"], r["month"], r["kind"]) == (tenant, code, month, kind)]
+
+
+def _sum(rows: list[dict], key: str = "amount") -> Decimal:
+    return sum((r[key] for r in rows), Decimal(0))
+
+
+def judge_kinds(inputs: "Inputs", rows: list[dict], tenants: set[str] | None = None) -> Result:
+    """C-DD2: every Site-month July to October holds each decided kind of its Site type, all labelled Emulated."""
+    detail: list[str] = []
+    for tenant, vertical, _, code, month, _, _, _, _ in _site_months(inputs, tenants):
+        for kind in DECIDED_KINDS.get(vertical, ()):
+            if not _by(rows, tenant, code, month, kind):
+                detail.append(f"{tenant}/{code} {month}: no {kind} record")
+    for r in rows:
+        if (tenants is None or r["tenant"] in tenants) and r["provenance"] != EMULATED:
+            detail.append(f"{r['tenant']}/{r['site']} {r['month']} {r['kind']}: source word {r['provenance']}, not Emulated")
+    return Result("C-DD2", not detail, detail[:40] + ([f"... {len(detail) - 40} more"] if len(detail) > 40 else []))
+
+
+def judge_identities(inputs: "Inputs", rows: list[dict], tenants: set[str] | None = None) -> Result:
+    """C-DD3: the manifest `checks` identities on the stored records, by sums. Mini: revenue = billed x tariff and
+    collected + in transit + outstanding = revenue. Cold: revenue = crate-days x 0.20. EV: energy cost = the sum of
+    its band and demand lines."""
+    detail: list[str] = []
+    for tenant, vertical, name, code, month, record, _, _, prices in _site_months(inputs, tenants):
+        where = f"{tenant}/{code} {month}"
+        charges = _by(rows, tenant, code, month, "CHARGE")
+        receipts = _by(rows, tenant, code, month, "RECEIPT")
+        if vertical == "MINI_GRID":
+            revenue, billed = _sum(charges), _sum(charges, "quantity")
+            tariff = Decimal(str(prices["tariff_usd_per_kwh"][name]))
+            if revenue != billed * tariff:
+                detail.append(f"{where}: revenue {revenue} != billed {billed} x tariff {tariff}")
+            paid = _sum([r for r in receipts if r["status"] == "COLLECTED"])
+            transit = _sum([r for r in receipts if r["status"] == "PAID_IN_TRANSIT"])
+            outstanding = Decimal(str(record.get("outstanding", 0)))
+            if paid + transit + outstanding != revenue:
+                detail.append(f"{where}: collected {paid} + in transit {transit} + outstanding {outstanding} "
+                              f"!= revenue {revenue}")
+        elif vertical == "COLD_CHAIN":
+            invoices = [r for r in charges if r["body"].get("line_type") == "STORAGE"]
+            expected = Decimal(str(record["crate_days"])) * Decimal(str(prices["storage_usd_per_crate_day"]))
+            if _sum(invoices) != expected:
+                detail.append(f"{where}: storage invoices {_sum(invoices)} != crate-days {record['crate_days']} x rate")
+        elif vertical == "EV_DEPOT":
+            lines = [r for r in charges if r["body"].get("line_type") in ("USAGE", "DEMAND")]
+            expected = Decimal(str(record["energy_cost"]))
+            if _sum(lines) != expected:
+                detail.append(f"{where}: band and demand lines {_sum(lines)} != energy cost {expected}")
+    return Result("C-DD3", not detail, detail[:40])
+
+
+#: The checker's own list of the decided node figures of a history month, per vertical (D-DD.55): the stored figure's
+#: reading from the rows, and the node of `structures` it must equal.
+def _stored_nodes(vertical: str, rows: list[dict], tenant: str, code: str, month: str) -> dict[str, Decimal]:
+    charges = _by(rows, tenant, code, month, "CHARGE")
+    receipts = _by(rows, tenant, code, month, "RECEIPT")
+    if vertical == "MINI_GRID":
+        fuel = [r for r in _by(rows, tenant, code, month, "EXPENSE") if r["body"].get("category") == "FUEL"]
+        return {"billed_kwh": _sum(charges, "quantity"), "revenue": _sum(charges),
+                "collected": _sum([r for r in receipts if r["status"] == "COLLECTED"]),
+                "diesel_l": _sum(fuel, "quantity"), "fuel_cost": _sum(fuel)}
+    if vertical == "COLD_CHAIN":
+        return {"revenue": _sum([r for r in charges if r["body"].get("line_type") == "STORAGE"]),
+                "received": _sum(receipts)}
+    return {}
+
+
+#: Stored decided leaves: (expense category, the record fields that hold it, by vertical).
+_EXPENSE_LEAVES = {"MINI_GRID": (("OM", "om"), ("STAFF", "staff")), "COLD_CHAIN": (("OM", "maint"), ("STAFF", "staff")),
+                   "EV_DEPOT": (("OM", "maintenance"),)}
+_RECORDED_NODE = {"MINI_GRID": {"billed_kwh": "billed_kwh", "revenue": "revenue", "collected": "collected",
+                                "diesel_l": "diesel_l", "fuel_cost": "diesel_cost"},
+                  "COLD_CHAIN": {"revenue": "revenue", "received": "collected"}}
+_STRUCTURE = {"MINI_GRID": "MINI_GRID", "COLD_CHAIN": "COLD_CHAIN", "EV_DEPOT": "EV_DEPOT_CAPTIVE"}
+
+
+def judge_leaves_and_nodes(inputs: "Inputs", rows: list[dict], tenants: set[str] | None = None) -> Result:
+    """C-DD4: each decided leaf equals October's `period.actual` and each history month's `history.json`, to the cent;
+    each decided node figure of a history month equals this checker's own evaluation of `structures` and
+    `factor_map` on `history.json`'s leaves, and October's equals what its period records (D-DD.55)."""
+    detail: list[str] = []
+    for tenant, vertical, name, code, month, record, cover, october, prices in _site_months(inputs, tenants):
+        where = f"{tenant}/{code} {month}"
+        expenses = _by(rows, tenant, code, month, "EXPENSE")
+        for category, leaf in _EXPENSE_LEAVES.get(vertical, ()):
+            if leaf not in record or cover.get(leaf) == "ESTIMATED" or cover.get({"maint": "om"}.get(leaf, leaf)) == "ESTIMATED":
+                continue
+            stored = _sum([r for r in expenses if r["body"].get("category") == category])
+            if stored != Decimal(str(record[leaf])):
+                detail.append(f"{where}: {category} {stored} != {leaf} {record[leaf]}")
+        stored_nodes = _stored_nodes(vertical, rows, tenant, code, month)
+        if october:
+            expected = {n: Decimal(str(record[f])) for n, f in _RECORDED_NODE.get(vertical, {}).items() if f in record}
+        else:
+            formulas = Formulas(inputs.manifest["structures"][_STRUCTURE[vertical]],
+                                inputs.manifest["factor_map"][_STRUCTURE[vertical]], record, prices, name)
+            expected = {}
+            for node in _RECORDED_NODE.get(vertical, {}):
+                value = formulas.node(node)
+                if value is not None:
+                    expected[node] = value
+        for node, value in expected.items():
+            if cover.get("revenue") == "ESTIMATED" and node in ("billed_kwh", "revenue", "collected", "received"):
+                continue
+            if cover.get("diesel") == "ESTIMATED" and node in ("diesel_l", "fuel_cost"):
+                continue
+            if stored_nodes.get(node) != value:
+                detail.append(f"{where}: {node} stored {stored_nodes.get(node)} != {'recorded' if october else 'evaluated'} {value}")
+    return Result("C-DD4", not detail, detail[:40])
+
+
+def _judged(judge: Callable[..., Result]) -> Callable[[Inputs], Result]:
+    def run(inputs: Inputs) -> Result:
+        return judge(inputs, stored_books(inputs.database_url))
+    return run
+
+
 def stub(check: str) -> Result:
     return Result(check, False, [f"not live: its unit {STUBS[check]} has not landed"])
 
 
-LIVE: dict[str, Callable[[Inputs], Result]] = {"C-DD1": check_cast, "C-DD13": check_tenant_isolation}
+LIVE: dict[str, Callable[[Inputs], Result]] = {
+    "C-DD1": check_cast, "C-DD2": _judged(judge_kinds), "C-DD3": _judged(judge_identities),
+    "C-DD4": _judged(judge_leaves_and_nodes), "C-DD13": check_tenant_isolation}
 
 
 def run(inputs: Inputs, only: tuple[str, ...] = ORDER) -> list[Result]:
