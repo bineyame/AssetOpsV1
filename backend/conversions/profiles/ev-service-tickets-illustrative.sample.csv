@@ -1,0 +1,4 @@
+Ticket,Site,Asset,Opened at,Acknowledged at,Restored at,State,Contractor
+gen:EV-KAS:ticket:CH-K2,EV-KAS,CH-K2,2026-11-01T23:40:00+03:00,,,Open,oem-contractor
+gen:EV-RUI:ticket:CH-R7,EV-RUI,CH-R7,2026-10-06T00:00:00+03:00,,,Open,oem-contractor
+gen:EV-EMB:ticket:CH-E3,EV-EMB,CH-E3,2026-09-12T02:15:00+03:00,2026-09-12T08:05:00+03:00,2026-09-14T16:30:00+03:00,Restored,oem-contractor

@@ -1,0 +1,101 @@
+[
+  {
+    "body": {
+      "factor_id": "peak_kwh",
+      "line_ref": "peak_kwh",
+      "value": "26040",
+      "version_ref": "budget-2026-v1"
+    },
+    "clocks": {
+      "recognition_period": "2026-07"
+    },
+    "format_version": 1,
+    "kind": "BUDGET_LINE",
+    "site_code": "EV-EMB",
+    "source_record_id": "gen:EV-EMB:2026-07:plan:peak_kwh",
+    "source_version": "1"
+  },
+  {
+    "body": {
+      "factor_id": "max_kw",
+      "line_ref": "max_kw",
+      "value": "450",
+      "version_ref": "budget-2026-v1"
+    },
+    "clocks": {
+      "recognition_period": "2026-07"
+    },
+    "format_version": 1,
+    "kind": "BUDGET_LINE",
+    "site_code": "EV-EMB",
+    "source_record_id": "gen:EV-EMB:2026-07:plan:max_kw",
+    "source_version": "1"
+  },
+  {
+    "body": {
+      "currency": "USD",
+      "factor_id": "maintenance",
+      "line_ref": "maintenance",
+      "value": "600.00",
+      "version_ref": "budget-2026-v1"
+    },
+    "clocks": {
+      "recognition_period": "2026-07"
+    },
+    "format_version": 1,
+    "kind": "BUDGET_LINE",
+    "site_code": "EV-EMB",
+    "source_record_id": "gen:EV-EMB:2026-07:plan:maintenance",
+    "source_version": "1"
+  },
+  {
+    "body": {
+      "currency": "USD",
+      "factor_id": "maintenance",
+      "line_ref": "maintenance",
+      "value": "500.00",
+      "version_ref": "budget-2026-v1"
+    },
+    "clocks": {
+      "recognition_period": "2026-07"
+    },
+    "format_version": 1,
+    "kind": "BUDGET_LINE",
+    "site_code": "EV-RUI",
+    "source_record_id": "gen:EV-RUI:2026-07:plan:maintenance",
+    "source_version": "1"
+  },
+  {
+    "format_version": 1,
+    "kind": "BUDGET_LINE",
+    "source_record_id": "gen:EV-RUI:2026-07:plan:energy_cost",
+    "source_version": "1",
+    "site_code": "EV-RUI",
+    "clocks": {
+      "recognition_period": "2026-07"
+    },
+    "body": {
+      "factor_id": "energy_cost",
+      "value": "12600.00",
+      "version_ref": "budget-2026-v1",
+      "line_ref": "energy_cost",
+      "currency": "USD"
+    }
+  },
+  {
+    "format_version": 1,
+    "kind": "BUDGET_LINE",
+    "source_record_id": "gen:EV-RUI:2026-07:plan:departures_required",
+    "source_version": "1",
+    "site_code": "EV-RUI",
+    "clocks": {
+      "recognition_period": "2026-07"
+    },
+    "body": {
+      "factor_id": "departures_required",
+      "value": "434",
+      "version_ref": "budget-2026-v1",
+      "line_ref": "departures_required"
+    }
+  }
+]

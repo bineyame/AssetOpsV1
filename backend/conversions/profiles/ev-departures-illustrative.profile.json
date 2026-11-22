@@ -1,0 +1,23 @@
+{
+  "schema": "assetops.source-profile",
+  "schema_version": 1,
+  "profile_id": "ev-departures-illustrative",
+  "status": "ILLUSTRATIVE",
+  "source_type": "depot_dispatch_log",
+  "source_system": "ev-departure-log",
+  "file": {"format": "csv", "encoding": "utf-8", "delimiter": ",", "header_row": 1},
+  "values": {"decimal_mark": ".", "thousands_mark": "", "negative": "minus", "date_format": "YYYY-MM-DD", "time_format": "HH:MM", "month_format": "YYYY-MM", "timezone": "Africa/Nairobi"},
+  "version": {"from": "constant", "value": "1"},
+  "columns": [
+    {"header": "Row", "paths": [{"path": "source_record_id", "type": "text"}]},
+    {"header": "Site", "paths": [{"path": "site_code", "type": "text"}]},
+    {"header": "Bus", "paths": [{"path": "subject.ref", "type": "text"}, {"path": "body.vehicle_ref", "type": "text"}]},
+    {"header": "Service day", "paths": [{"path": "body.service_day", "type": "date"}]},
+    {"header": "Departed at", "paths": [{"path": "clocks.occurred_at", "type": "datetime"}]},
+    {"header": "Block met", "paths": [{"path": "body.block_met", "type": "bool", "map": {"Y": "true", "N": "false"}}]},
+    {"header": "kWh at departure", "paths": [{"path": "body.kwh_at_departure", "type": "number"}]},
+    {"header": "Block", "paths": [{"path": "body.block_ref", "type": "text"}]}
+  ],
+  "constants": {"kind": "DEPARTURE", "subject.kind": "VEHICLE"},
+  "personal": []
+}
