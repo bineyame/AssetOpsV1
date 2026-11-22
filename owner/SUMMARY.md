@@ -1,6 +1,6 @@
 # What the owner wants now
 
-Confirmed by the owner on 2026-11-19 (`owner-summary-confirmations-2026-11-19.md`,
+Updated 2026-11-22. Confirmed by the owner on 2026-11-19 (`owner-summary-confirmations-2026-11-19.md`,
 `owner-rules-clarification-2026-11-19.md`). Agents read this first, then the verbatim
 files in `owner/` (188, never edited) by the file named on each line. Where files
 disagree, the later one governs. *(approved proposal)* marks a "yes" to a proposal the
@@ -20,6 +20,12 @@ be relevant in light of our updated goals".
 - **Test policy.** "to avoid expensive full test that holds back progress, so regression or smoke test or isolated test could be used then full test for key milestones". `owner-rules-clarification-2026-11-19.md`
 - **Engagement path.** Initial call, alignment, deep-dive, integration pack and pilot timeline, monitor, then SaaS; file exports show value early; pilot fee or credit; price "disclosed after client conversation". D13 and D14 yes; first change agreed at the end of the deep-dive. `owner-d1-engagement-path-2026-11-18.md`; `owner-sitting1-answers-2026-11-18.md`
 - **Decisions OD-1 to OD-20** (including OD-7 and OD-8, delivery lanes, "yes") are in the Layer 4 pack's `decisions-register.md` (`Docs/demo-sprint/product-direction-layer4/`, on branch `task/pack-recreate-integrate` until merged; OD-1 to OD-20 as of design rev 16.8), not copied here. Delivery order: emulator lane and factor lane in parallel. `owner-design-regeneration-request-2026-11-19.md`
+
+- **Merge on ACCEPT; one walkthrough at product shape.** "i will review once everything is in and we are close to the product shape we are looking for and iterate"; reviewed UI slices merge on ACCEPT, "Merge on ACCEPT (Recommended)"; the real app is specced onto the IA shape. `owner-merge-on-accept-ia-shape-k10-2026-11-22.md`
+- **Decisions are valued against doing nothing (P6).** "accept all p6 defaults" (defaults 1-7). `owner-accept-p6-defaults-2026-11-22.md`
+- **The Overview follows the date range.** Month is the Overview ("Month is the Overview (Recommended)"); "Follow the date range"; a fresh entry opens on "Last month (Recommended)"; two or more months show "Month by month (Recommended)". `owner-iap-q1-q2-kobo-datasheets-2026-11-22.md`
+- **Queued after IA-P.** Cold-chain and EV monthly figures: "Queue after IA-P (Recommended)"; the 31-day cap: "Labelled window now, fix after (Recommended)". (same file)
+- **Docs refresh.** "proceed per recomendation and let me know once the docs are updated": NOW and SUMMARY now, one design-doc and mock alignment pass after IA-P and DD. `owner-docs-refresh-2026-11-22.md`
 
 ## 2. Product direction: economic outcomes built from structured factors
 - **The product starts from what customers earn, save, protect or improve, not from what it can detect.** "The starting point is no longer what AssetOps can detect, but what customers stand to earn, save, protect, or improve financially." `owner-commercial-capability-direction-2026-10-26.md`
@@ -47,6 +53,9 @@ be relevant in light of our updated goals".
 
 ## 4. Honesty and wording on screen
 
+- **One figure per quantity, model-computed and source-labelled, loyal to the operating world** (supersedes the 21 Nov row 37 answer, a design value beside the replay figure). "it should stay loyal to the operating world"; a model fault is fixed in the model, not explained with a second number. `owner-one-figure-loyal-to-operating-world-2026-11-21.md`
+- **Kobo's fuel saved reads "Not available yet" until 0K4f re-runs Kobo's own records.** "Not available yet (Recommended)". `owner-iap-q1-q2-kobo-datasheets-2026-11-22.md`
+
 - **State missing data in the UI as missing.** "if there is data missing to show yet, it should be stated as such in the UI" `owner-V-01a-round2-feedback-2026-10-12.md`
 - **Say "unexplained fuel", never "theft".** "'Unexplained fuel', never 'theft'" `owner-missing-fuel-2026-11-07.md`
 - **Evidence classes (recorded, calculated, assumed, modelled) replace the claim ladder; a simulated result is never labelled "Verified realized field commercial value".** "evidence class is also fine" `owner-summary-confirmations-2026-11-19.md`; "Never use the fourth label for simulated results." `owner-commercial-capability-feedback-2-2026-10-26.md`
@@ -57,6 +66,9 @@ be relevant in light of our updated goals".
 - **Status words say exactly what they mean ("checked" must not imply a failure to check).** "the user facing text for 'checked' should tell exactly what it means" `owner-walkthrough-2026-11-10.md`
 - **No simulator or system vocabulary for users; present each site as a real site.** "simulator specific language such as run, binding...etc should not appear, it should be regarded as a real site." `owner-T028-presentation-direction-2026-10-04.md`
 - **Every capability claimed as available must be demonstrable.** "every capability claimed as available must be demonstrable." `owner-commercial-capability-direction-2026-10-26.md`
+
+- **Representative African data sheets for the demo equipment.** "get a representative datasheet for popular equipments in afrcia and use that"; Kobo stays simulated ("Simulated + datasheets (Recommended)"). Kit: FG Wilson P50-3 (36 kW) and 42 Pylontech US5000 ("Accept, Kobo at 36 kW (Recommended)"). `owner-iap-q1-q2-kobo-datasheets-2026-11-22.md`; `owner-demo-data-answers-2026-11-22.md`
+- **Demo data spec.** "go ahead with witht he demo data spec; make sure it grounded on the product goals"; readings "1 Jul – 6 Nov (Recommended)", books "Four: Jul–Oct (Recommended)", serving "One at a time (Recommended)". `owner-demo-data-spec-2026-11-22.md`; `owner-demo-data-answers-2026-11-22.md`
 
 ## 5. Look, mock fidelity and UI quality
 
