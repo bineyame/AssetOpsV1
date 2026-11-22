@@ -205,3 +205,9 @@ decision `D-2026-10-31-board-action-refresh-lineage`; packet `archive/agent-hist
   `SITE_MONTH_SIMULATION`.
 - Open: Kobo's values wait for 0K4f's Site-record study (D-P6.2, D-P6.26: the header is trusted); `6f` screen; `6b`
   bounds. Pre-existing: 3B3 t6.
+- Fix round 1 (D-P6.34 to D-P6.41): zero money effects carry the option's currency; `assumed` includes a used node's
+  assumed leaves; a missing value is named by its cause (closed list; `Delta.zero_denominators`; an unknown name
+  raises); generators branch by name (`LEVER_UNKNOWN` at E3); only `(StructureError, StoreUnavailable)` reads as
+  `STRUCTURE_UNAVAILABLE` (adapter `decisions/adapters/structure_read.py`); `build_evaluation` run end to end on
+  Lakeside KOBO-001 (ON1 stores no fuel price or wear rate, so every option names those records). Open: cli.py's
+  broad composition catch (6a's).

@@ -106,8 +106,7 @@ Layout evidence: not run (no screen; non-UI slice).
 
 - D-P6.26: 6c trusts a study's `frame` header. A stamped header on a season file would value Kobo's October; 0K4f's
   acceptance must derive `frame` from the Site's stored readings and record `site_readings_digest`.
-- `build_evaluation` (the real composition, structure read over Postgres) is not exercised end to end by a test; the
-  command is tested with injected services, the store through the adapter (test 6).
+- `build_evaluation` is now run end to end (fix round 1, test 6).
 
 ## Review focus
 
@@ -137,3 +136,39 @@ the code commits), then all green.
   `SQLAlchemyError`; `build_evaluation(..., levers=, grid_changes=)`; `horizon_change` and `value` in the 34-digit
   context. Sweep: `composition.py`'s `except BaseException` re-raises after cleanup (kept); `cli.py`'s
   `except Exception` is 6a's composition catch (not changed).
+
+### Plants (D-P6.40 and the new rules), each applied to the code, the three non-DB files run (99 tests), then reverted
+
+| # | Plant | Result |
+|---|---|---|
+| 1 | non-zero `/`, `min`, `max`, `ceil`, `floor` change replaced by 0 | 2 failed (`test_1_a_changed_leaf_through_division_ceil_floor_min_max`, zero-denominator tag) |
+| 2 | changed leaf with a missing base read as 0 | 2 failed (`test_1_..._missing_base_is_missing_never_zero`, `test_4_a_changed_leaf_with_a_missing_base_names_its_record`) |
+| 3 | `ONE_OFF_CURRENCY` never added | 1 failed (`test_4_a_one_off_in_another_currency_...`) |
+| 4 | R0 source class strongest | 1 failed (`test_4_no_actions_source_class_is_the_weakest_across_options`) |
+| 5 | near set `>` for `>=` | 1 failed (`test_4_the_near_set_includes_a_value_at_exactly_the_tie_threshold`) |
+| 6 | distance tie broken by the lower value | 1 failed (`test_4_a_distance_tie_goes_to_the_higher_value`) |
+| 7 | `AT_GRID_EDGE` upper branch removed | 1 failed (`test_4_the_recommended_setting_above_today_at_the_grid_edge`) |
+| 8 | option-only neutral short cut removed | 1 failed (`test_1_the_option_only_neutral_zero_short_cut_matches_evaluate`) |
+| 9 | D-P6.34 zero money effect keeps null | 2 failed (`test_4_f1b_every_row`, `test_4_f1j_...`) |
+| 10 | D-P6.36 node assumed leaves dropped | 1 failed (`test_4_an_assumption_under_a_used_node_is_listed`) |
+| 11 | D-P6.37 node-missing named by a catch-all | 2 failed (the unknown-name and node-names-no-leaf tests) |
+| 12 | D-P6.37 an unknown name does not raise | 2 failed (same two) |
+| 13 | D-P6.38 E3 generator refusal removed | 2 failed (`test_5_an_option_of_an_unmodelled_generator...`, `test_5_e2_reads_the_levers_generator`). The same mutation on `option_inputs`'s raise alone survives: E3 refuses first, so that raise is defence in depth |
+| 14 | D-P6.41 catch widened to `Exception` | 1 failed (`test_5_any_other_failure_of_the_structure_read_propagates`) |
+| 15 | D-P6.41 horizon outside the 34-digit context | 1 failed (`test_4_the_horizon_change_is_computed_in_the_structures_context`) |
+
+Red before green: with the code reverted to the review's head, the new tests failed (8 in difference+evaluate, 3 in
+run); the code then turned them green.
+
+### Test 6 derivation (`test_6_build_evaluation_end_to_end_on_lakeside_kobo`)
+
+ON1 stores for KOBO-001 only calendar, neutral leaves (`extra_l`, `battery_throughput_kwh`, `collection_cost` 0
+NEUTRAL, `period_days` 31) and missing records for the rest (read by a probe of `site_inputs` for 2026-10:
+`candidate_l`, `diesel_price` (`EXPENSE (FUEL)`, `COMMERCIAL_RECORD`) and `wear_rate`
+(`battery_wear_rate_assumption`, `DECLARED`) are all NOT_AVAILABLE, `carried_as` None). Study-f1's changes move
+`candidate_l` and `battery_throughput_kwh`; the fuel cost is `diesel_l x diesel_price` with `diesel_l` changed, so
+its change needs the missing `diesel_price` (every option); the wear cost is `throughput x wear_rate`, needed only
+where the throughput change is non-zero (every option but `stop-90-reserve-25`, whose added kWh is 0). So each
+option's value is None naming `diesel_price`, and `wear_rate` where throughput changes (registry order); nothing is
+assumed; the admitted ones are DEFERRED `VALUE_NOT_AVAILABLE`, `stop-80-reserve-25` and `stop-60-reserve-25` are
+REJECTED (starts, full charge); the run is `RANKING_INCOMPLETE`; no action is 0 SIMULATED.

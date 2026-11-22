@@ -19,4 +19,4 @@ One line per slice, continuing `index-2.md` (number, slice ID, summary, file in 
 194. `1a` Optimize card states its day and scope: `CostScope`, SC-1 `portfolio_card.cost_scope`, `scope_text` on the face (merge held for walkthrough) · estate.md
 195. `0K4m-u3` mock restated: Simulated chip per study, gaps "Not available yet", readers on evaluated fixtures; H10/H9 in commit 6 · data.md
 196. `6a` decision records: migration 0072 (seven append-only tables), levers, `DecisionService`, Postgres store, three commands, one writer guard block; in_review · work.md
-197. `6c` option evaluator: `structure/difference.py`, study reader, lever models, `evaluate_options` command; a declared season values nothing; in_review · work.md
+197. `6c` option evaluator: `structure/difference.py`, study reader, lever models, `evaluate_options` command; a declared season values nothing; fix round 1 (D-P6.34-41) done; in_review · work.md
