@@ -1329,19 +1329,9 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
   const value = (key: string) => text(card(key).querySelector("[data-portfolio-card-value]"));
   const detail = (key: string) => text(card(key).querySelector("[data-portfolio-card-detail]"));
   const basis = (key: string) => text(card(key).querySelector("[data-portfolio-card-basis]"));
-  const protect = (n: number | null) => ({
-    GROW_REVENUE: { open_findings: null, sites_with_primary_finding: null },
-    OPTIMIZE_COST: { open_findings: null, sites_with_primary_finding: null },
-    PROTECT_ASSET: { open_findings: n, sites_with_primary_finding: n },
-    ASSURE_PERFORMANCE: { open_findings: null, sites_with_primary_finding: null },
-  });
   type Summary = ReturnType<typeof portfolioBody>["summary"];
   const kobo: EstateCheckedDays = { site_id: "s-kobo", site_name: "Kobo", checked: 5, requested: 7 };
   const harbour: EstateCheckedDays = { site_id: "s-harbour", site_name: "Harbour", checked: 6, requested: 7 };
-  const body = (patch: Partial<Summary>) => {
-    const base = portfolioBody();
-    return portfolioBody({ summary: { ...base.summary, ...patch } });
-  };
   const scanCards = () => {
     // CH5d1-R: the whole grid, the Optimize card's server words included.
     const grid = (document.querySelector("[data-portfolio-cards]") as HTMLElement).cloneNode(true) as HTMLElement;
