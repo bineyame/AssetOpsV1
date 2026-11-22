@@ -1,8 +1,8 @@
-# 0K4 rulings, continued (D-0K4.31 to D-0K4.44): 0K4m, the pack and mock restated once
+# 0K4 rulings, continued (D-0K4.31 to D-0K4.49): 0K4m, the pack and mock restated once
 
 Architect (Claude), 2026-11-21, standing in for the owner (`owner/owner-away-architect-stands-in-2026-11-21b.md`).
 These rulings continue `rulings.md`, which is past the 15k cap. Unit spec: `specs/0K4m-pack-restate/spec.md`. Owner-level
-calls: owner-away rows 71 to 75 and 77 (`specs/OWNER-AWAY/decisions-2026-11-21.md`). Built on 0K4d as merged (`03c665012`).
+calls: owner-away rows 71 to 75, 77 and 78 (`specs/OWNER-AWAY/decisions-2026-11-21.md`). Built on 0K4d as merged (`03c665012`).
 
 ## D-0K4.31 The pack's numbers are of four kinds; the replay inputs come from a committed extract
 
@@ -249,6 +249,196 @@ calls: owner-away rows 71 to 75 and 77 (`specs/OWNER-AWAY/decisions-2026-11-21.m
   row for it with a made-up size is a design value in the plan.
 - **Reverse:** keep the `0K4e` row and the words of D-0K4.35.
 
+## D-0K4.45 The product-parity seam: 0K4m leaves the structure layer as on main; it moves with 0K4f (unit 1 review H1; amends D-0K4.35, D-0K4.44; owner-away row 78)
+
+- **What the tests assert (measured, 2026-11-22).** Host runner, DB-free (`ASSETOPS_TEST_DATABASE_URL` set to an
+  unreachable sentinel, so no database is touched), one file per run, branch head `7e461e491` against main `1d4713cc8`:
+  121 failures that main does not have, in eight files. The reviewer's 55 plus the two world-tool test files, which use
+  fakes and need no database:
+
+  | File | New failures | What it asserts against the pack |
+  |---|---|---|
+  | `backend/tests/test_3b1_structure_registry.py` | 4 | registry nodes and expressions == `structures.MINI_GRID`; leaf set == `factor_map.MINI_GRID`; `empty_states.leaf_sources`; `home_categories.nodes`; row order |
+  | `backend/tests/test_2a_canonical_manifest_parity.py` | 2 | the contracts' canonical leaf catalogue == `factor_map` per structure |
+  | `backend/tests/test_3b3_structure_evaluate.py` | 40 | the product's evaluated sides == `derived-values.json` `sites` and `missing-records.json` `sites` to the cent; 33 use Kobo's side values as inputs (`Decimal(None)` on the nulled split); `KeyError: 'generator_l'` |
+  | `backend/tests/test_3b4_observer.py` | 7 | observer inputs built from the pack's Kobo sides (`Decimal(None)`) |
+  | `backend/tests/test_5a_targets.py` | 1 | the portfolio's plan sums == `derived-values.json` `portfolio` (`KeyError: 'necessary_l'`) |
+  | `simulator/tests/world/test_records.py` | 1 | T9: Kobo's plan ASSUMPTION entry in `missing-records.json` lists `necessary_l` |
+  | `backend/tests/test_ds4_world.py` | 9 | `tools/world.py` C4 oracle over payloads built from `derived-values.json` `sites`; C4's contract key set == the pack's node set |
+  | `backend/tests/test_wk_walk_world.py` | 57 | the walk refuses because the fake world check's C4 reads FAIL (`assert 4 == 0` in the fixture) |
+
+  Six other readers pass on both (`test_3b2_findings_pinned`, `test_3b6_cold_ev_structures`, `test_5b_attribution`,
+  `test_4b_money_leaves`, `simulator/tests/world/test_cli.py`, `host/tests/test_0m_mto_headroom.py`).
+  `test_ddr_rehearsal_postgres.py` reads only the view through `world_history.py`, and the view is unchanged. Main
+  itself fails two tests in this set (`test_3b1…::test_t1_leaf_sources_absence_and_words_equal_the_manifest`,
+  `test_3b3…::test_t6_each_state_yields_its_leaf_value_on_its_own_record`). They are not 0K4m's, and the coordinator
+  routes them separately.
+- **The surface (the class).** The product, its world and its world check read these parts of the pack and nothing
+  else: in the manifest, `structures`, `factor_map`, `empty_states.leaf_sources`, `home_categories.nodes`,
+  `home_categories.findings`, `chain_model`, `history.rules` and the view; in `derived-values.json`, `sites` and
+  `portfolio`; in `missing-records.json`, `sites`. `tools/world.py` C4 judges every live product world against
+  `derived-values.json` `sites`. A restated `sites` therefore fails the next `world check`, and from then on the WK
+  walk refuses its world (W1).
+- **The options weighed.**
+  - **(b) Bring the product in.** This needs the contracts' leaf catalogue, the MINI_GRID registry and rows
+    (`backend/assetops_backend/structure/`, version 5), the evaluator, the observer, targets, the simulator's world
+    records, `tools/world.py` C4_CONTRACT, product plan targets for Kobo's nulled split, the screens that render the
+    dawn safeguard node, and the eight test files. About 3 units. Then a world build: `backend/assetops_backend`,
+    `contracts/`, `simulator/assetops_simulator` and `tools/world.py` are the ladder's CODE_PATHS, so L1 goes stale,
+    and WK runs again. It also needs a UI hold. This is 0K4f's work done early, without 0K4f's world on v8.
+    Rejected.
+  - **(c) Pin the tests to the pre-0K4m pack.** This needs frozen copies under `backend/tests/fixtures/` and eight
+    repointed test files. The world definition's `derived_values` would also have to point at the frozen copy, or C4
+    fails. The definition is hashed into L1, so that means a world build too. About 0.5 unit plus the build. It
+    leaves two oracles: the product would be certified against a pack the pack has replaced. That is two figures for
+    one quantity, which the owner's rule forbids. It is a workaround. Rejected.
+  - **(a) Leave the structure layer unchanged.** Chosen.
+- **Ruling.**
+  - 0K4m changes none of the surface above. Its `derived-values.json` `sites`, `portfolio` and `history`, and its
+    `missing-records.json` `sites`, are byte-equal (as parsed JSON) to main's.
+  - The structure-layer restatement moves to **0K4f**, as one slice with the product and the world. It covers:
+    - `generator_l`;
+    - Kobo's split, read from dispatch-3.3's classification on the rebuilt world, so no override is needed;
+    - the dawn safeguard node retired;
+    - an admission leaf in the structure.
+
+    0K4f rebuilds the world anyway, so one build covers it.
+  - Concretely, at a new commit **2b** on the branch (spec §2.3a):
+    - Restored as on main: `structures.MINI_GRID` (with `diesel_l` and `replayed_dawn_days_below_safeguard`),
+      `factor_map.MINI_GRID`, `empty_states.leaf_sources.MINI_GRID` and `home_categories.nodes.MINI_GRID`. The same
+      goes for the rows of the dawn node in `empty_states` and the traceability CSV, `home_categories.decisions`
+      (lever `candidate_l`) and `bridge_drivers`. So do Kobo's two bridge rows (`CANDIDATE_RUNNING`,
+      `EVENING_LOAD_GROWTH`) with their basis, `findings_expected.GENERATOR_SUPPORT_CANDIDATE`, and the kobo-candidate
+      Finding.
+    - Removed: Kobo's `factor_sources`, its MODEL_PENDING entries, `MODEL_PENDING` itself (from `CAUSES`, from the
+      vocabulary and from both models) and the `0K4f` row of `empty_states.queued_slices`. Nothing else uses any of
+      them. D-0K4.44's mechanism stays the rule for a future pending slice.
+    - Kept: the option-layer restatement. KOB-STOPSOC's and KOB-RESERVE's `changes` read
+      `candidate_l: "candidate_l - avoided_l"`, and `avoided_l` and `added_throughput_kwh` stay `unavailable(...)`
+      (D-0K4.38). KIS-BATT60's reads `necessary_l: "necessary_l - shifted_fuel_l"`, and `shifted_fuel_l` stays
+      `unavailable(...)`. `option_money_factors` follow: KOB-STOPSOC and KOB-RESERVE `[candidate_l,
+      battery_throughput_kwh]`, KIS-BATT60 `[necessary_l]`.
+    - The admission count becomes an option-only leaf in the pack's existing option frame:
+      `evaluation.forward_baseline.MINI_GRID: {reduced_days: "0", admission_parts_failed: "0"}`. The `admission` bound
+      and each setting's `admission_parts_failed: "admission_parts_failed_option"` change are unchanged. Doing nothing
+      fails no admission part, so its count is 0.
+    - The dawn bound stays removed (`evaluation` is pack-only), and `replayed_dawn_days_below_safeguard` leaves
+      `protect_nodes.MINI_GRID`, so no option reports a dawn count beside its `information`. The node stays in the
+      structure, reading the world's recorded `dawn_days_below_safeguard`, until 0K4f.
+    - OR-MG-1 reads: "Kobo: candidate running {fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l} L as the world
+      records it (dispatch-3.2; dispatch-3.3 re-classifies it in 0K4f); both settings admitted on K8's replayed days;
+      their litres and value Not available yet (a dispatch replay on Kobo's October as recorded, 0K4f)".
+  - **Checks.**
+    - **K10 is retired.**
+    - **K13 (the seam)** is a section-15 check that the canonical sha256 (`json.dumps(sort_keys=True,
+      separators=(",", ":"))`) of each surface part equals a literal computed from main's files (`1d4713cc8`) and
+      written out in full. It covers the seven manifest subtrees above (parsed YAML), `derived-values.json` `sites`,
+      `portfolio` and `history`, and `missing-records.json` `sites`.
+    - **Boundary proof (d)** prints K13 per commit from 2b on.
+    - **Merge gate.** At the branch head, the eight files above, run DB-free as measured here, fail exactly main's
+      failures, by node id.
+    - **Plants.** P23 (`generator_l` re-added to `factor_map.MINI_GRID`) and P26 (Kobo's `factor_sources` re-added)
+      must each fail K13.
+- **Why.**
+  - The pack's derived sides are the product's oracle (W2), so the owner's rule applies across the seam: the product
+    and the pack show one figure for each quantity they share, at every merge. (a) is the only option that keeps that
+    true without a product slice, and it costs no world build.
+  - Kobo's 330 L stays a figure of the simulated world's own record, labelled by its source. The product already shows
+    the actual split blank (C4 class B, NOT_CONNECTED), so no screen pairs 330 with another figure.
+  - The owner's explicit instruction is untouched: the settings' litres and value stay "Not available yet".
+  - D-0K4.35's override was a stand-in default (row 73) for exactly this split. It assumed the derived sides were
+    pack-only, and they are not.
+- **DS4 ladder.**
+  - (a) touches no CODE_PATHS, no `backend/migrations` and no definition file, so the L0, L1 and L2 keys are unchanged
+    and nothing is rebuilt.
+  - The L2 check does go stale, because the `derived-values.json` and manifest blobs change. After the held merge and
+    before the next WK run, the coordinator reruns `world check` in a quiet DB slot. C4 must PASS, since the sides are
+    main's. A FAIL is a stop, and it goes to the Architect (D-WK.10).
+  - Correction to the brief: a change under `backend/tests/` or `simulator/tests/` does not stale L2. Only CODE_PATHS,
+    migrations and the definition do. CHECK_CODE files stale the check only.
+- **Reverse:** restore commit 2's structure-layer restatement, and take (b) or (c) with it.
+
+## D-0K4.46 N5's "no candidate" covers every decision kind, protective included (unit 1 review L1)
+
+- **Ruling.**
+  - "Take none" is a choice in any decision, valued or protective, that has no candidate. That means every option is
+    not available (N1), or no available option meets the hard bounds and the decision declares no
+    `fallback: least_violation`.
+  - The plan is never infeasible for that reason alone.
+  - The protective decision's `protective_choices` entry then reads `{chosen: null, admissible: [], how: "no
+    candidate: every option is not available"}` or `"no candidate: no option meets <hard ids, comma-separated, in
+    declared order> and the decision declares no fallback"`, with no `trade_off` key.
+  - Both models implement this. The evaluator's `next(...)` at `:587` takes a default of `None`, and the model's
+    `return None` at `independent_model.py:1047-1049` goes. `evaluator()` compares `protective_choices`, presence
+    included.
+  - Plant **P24** (scratch copy): every option of one Lakeside protective decision is set `unavailable("probe")`. Both
+    models take none with the first `how` and give equal plans, and nothing crashes.
+- **Why.**
+  - An option that cannot be evaluated says nothing about whether a plan exists. Reading the whole plan as infeasible
+    would hide every other decision's result.
+  - Taking none, with the reason stated in the protective entry, is the honest statement: nothing in this plan protects
+    that asset, and here is why. One rule for every kind is what D-0K4.41 already says.
+- **Reverse:** a protective decision with no candidate makes the plan infeasible in both models.
+
+## D-0K4.47 N1's option words and bound rules are stated in the spec (unit 1 review L2)
+
+- **Ruling.** The handoff's rule becomes spec text (spec §2.2 N1, rev 4), so both models are held to the spec, not to
+  one builder's table:
+  - an option's `not_available` words are those of the first not-available param, in declared `params` order. If no
+    param is not available, they are the value's words: the monthly change's, then the one-off's. If neither is, they
+    are the words of the first not-available bound, in `evaluation.bounds.<vertical>` order;
+  - a not-available value's words are those of its leftmost not-available operand;
+  - a not-available operand wins over a missing record, on either side of any operator except `|`, whose right side
+    runs only on a missing record;
+  - a bound over a not-available node has `violations.<id>: null`, and the option is not available;
+  - `admissible` is null when any hard bound of the option's decision has a null violation. Otherwise it is true
+    exactly when the hard violations sum to 0.
+
+  The packet records that the checker fixes `bcf9f48c0` and `09b6a8757` came from the evaluator side.
+- **Why.** Where the spec is silent, both models carry one builder's choice, and an error there would pass the
+  checker. These are the rules both models already implement. Stating them makes the agreement independent.
+- **Reverse:** none needed. This is a record ruling, and it changes no behaviour.
+
+## D-0K4.48 A sensitivity follows the option's value (unit 1 review L6)
+
+- **Ruling.** Each `sensitivities` value is null when the option's `value` is null, whether the option is not
+  available or not valued in money (`money_changes: false`). Both models do this in commit 2b. MTO-INV-CLAIM's and
+  MTO-INV-BUYNOW's `diesel_minus_20pct` then read null. Units 2 and 3 render no sensitivity for an option that has no
+  value.
+- **Why.** A sensitivity is the option's value under a changed input. A money figure under diesel −20 % for an option
+  the plan lists as not valued in money would be a second figure beside a gap.
+- **Reverse:** sensitivities computed regardless of `money_changes`, and hidden by units 2 and 3.
+
+## D-0K4.49 Review fixes confirmed; 0K4m 4.0 units, eight commits, one held merge (amends D-0K4.43; unit 1 review M1, L3-L5)
+
+- **Ruling.**
+  - **M1, L3 and L4 need no ruling. The builder's fixes at `02cc14fee` are confirmed:**
+    - M1: no must-take filter;
+    - L3: one rounding, from unrounded sums;
+    - L4: stale comments. Under D-0K4.45, the Kisiwa and Mto bridge bases keep main's driver mapping, so L4's
+      re-mapping note lapses, and the bases take `{fig:}` placeholders.
+  - **The M1 probe becomes plant P25,** a K9 self-test written by a model-side builder. All four MTO-INV
+    `extra_l_per_day` are set `unavailable("probe")`. Both models give equal plans, and the plan is feasible.
+  - **L5:** the ledger is rebuilt at commit 6, as planned.
+  - **Decision-history anchors (residual risk; Q22's default).** In `design-questions-and-decisions.md` and
+    `decisions-register.md`, a row dated before 21 Nov keeps its words and loses its `{fig:}` or `<!--fig:-->` anchor.
+    A row from 21 Nov on is anchored to the current figure. If `documents()` then flags an untagged history figure,
+    both files join `documents()`'s history exclusion by name, as they joined K11's.
+  - **Order and size (amends D-0K4.43).**
+    - Commit 2b (unit 1 rework, 0.5 unit) comes before units 2 and 3. It holds D-0K4.45 to .48 and plants P23 to P26.
+      An evaluator-side builder does the manifest and the evaluator; a model-side builder does `independent_model.py`
+      and `check_manifest.py`, sharing no code (W2).
+    - Units 2 and 3 build on 2b's head.
+    - Commits: 1a, 1b, 2, 2b, 3, 4, 5, 6.
+    - The branch still merges once, at commit 6, held for the owner. The head must print `0 failed`, pass K13, and
+      pass the DB-free product-parity set of D-0K4.45.
+    - After the merge, the coordinator reruns `world check` before the next WK run (no build).
+    - Unit 1 is now 2.25 units, and 0K4m is 4.0 (was 3.5).
+    - 0K4f grows by the structure layer, about 1 unit: its size goes from 2 to about 3, to be specced with 0K4f.
+- **Why.** Units 2 and 3 anchor figures from `derived-values.json`, so they must read 2b's figures, not commit 2's.
+  One merge still keeps main green at every merge.
+- **Reverse:** merge with D-0K4.43's order and accept H1 on main (red).
+
 ## Decision queue (W3; defaults applied)
 
 | # | Question | Default |
@@ -261,3 +451,7 @@ calls: owner-away rows 71 to 75 and 77 (`specs/OWNER-AWAY/decisions-2026-11-21.m
 | Q16 | `demo_workflow` version 1 loses KOB-STOPSOC and its two Actions | Follows the evaluator (§2.3, do not choose or predict); units 2 and 3 tell Kobo's story as the settings admitted, litres and value Not available yet |
 | Q17 | `replay-studies.json` committed in 1b, not 1a | Accepted: 1a stays labels only (R5) |
 | Q18 | Whole-branch merge held for the owner (D-0K4.43) | Held; owner asked to confirm on return |
+| Q19 | H1: restate the structure layer now (product in, or tests pinned) or keep it as on main? | Kept as on main; it moves with 0K4f together with the product and the world (D-0K4.45); owner asked to confirm on return (row 78) |
+| Q20 | A protective decision with no candidate | Take none, with the reason in `protective_choices`; never infeasible for that reason alone (D-0K4.46) |
+| Q21 | Sensitivities of an option with no value | Null (D-0K4.48) |
+| Q22 | Decision-history rows that anchor restated figures | Rows before 21 Nov keep their words and lose the anchor; rows from 21 Nov on are anchored (D-0K4.49) |
