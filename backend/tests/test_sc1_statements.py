@@ -358,6 +358,8 @@ def test_t8_shipped_catalogue_loads():
                                          "model_profile.description", "model_profile.state",
                                          # 0K4e (D-0K4.24): energy-cover entries.
                                          "dispatch.energy_cover", "dispatch.energy_cover_cause",
+                                         # DD3.2 (D-DD.17): where an equipment value comes from.
+                                         "component_property.basis",
                                          # IA-P P3a and P4a (spec-period.md P.6, P.8): the Overview on the range, E1.
                                          *(f"portfolio_period.{k}" for k in (
                                              "month", "span", "headline", "compared", "missing", "partial", "open",

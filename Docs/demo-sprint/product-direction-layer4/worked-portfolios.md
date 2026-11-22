@@ -56,7 +56,7 @@ A mini-grid Site's contribution is revenue minus cost to serve. Revenue is bille
 
 | Site | Diesel per litre | Tariff per kWh | Generator consumption rate | How it is known |
 |---|---:|---:|---:|---|
-| Kobo | 1.25<!--fig:sites.lakeside-power/Kobo.actual.nodes.diesel_price--> | 0.40<!--fig:sites.lakeside-power/Kobo.actual.nodes.tariff--> | 0.30<!--rec:tenants[lakeside-power].sites[Kobo].physical.sfc_l_per_kwh--> L/kWh | Record |
+| Kobo | 1.25<!--fig:sites.lakeside-power/Kobo.actual.nodes.diesel_price--> | 0.40<!--fig:sites.lakeside-power/Kobo.actual.nodes.tariff--> | 0.2917<!--rec:tenants[lakeside-power].sites[Kobo].physical.sfc_l_per_kwh--> L/kWh | Record |
 | Kisiwa | 1.30<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.diesel_price--> | 0.55<!--fig:sites.lakeside-power/Kisiwa.actual.nodes.tariff--> | 0.31<!--rec:tenants[lakeside-power].sites[Kisiwa].physical.sfc_l_per_kwh--> L/kWh | Record |
 | Mto | 1.25<!--fig:sites.lakeside-power/Mto.actual.nodes.diesel_price--> | 0.40<!--fig:sites.lakeside-power/Mto.actual.nodes.tariff--> | 0.33<!--rec:tenants[lakeside-power].sites[Mto].physical.sfc_l_per_kwh--> L/kWh | Record |
 | All three Sites | productive-use tariff 0.30<!--rec:tenants[lakeside-power].prices.productive_tariff_usd_per_kwh--> per kWh | | | Record (tariff schedule) |
@@ -71,7 +71,7 @@ The productive-use tariff and battery wear are not used in October (no productiv
 | Step | Figure | How it is known |
 |---|---|---|
 | Fuel balance: opening dip + deliveries − closing dip = litres consumed | 220<!--rec:tenants[lakeside-power].sites[Kobo].period.fuel_balance.opening_dip_l--> + 1,200<!--rec:tenants[lakeside-power].sites[Kobo].period.fuel_balance.deliveries_l--> − 240<!--rec:tenants[lakeside-power].sites[Kobo].period.fuel_balance.closing_dip_l--> = **1,180<!--fig:sites.lakeside-power/Kobo.actual.nodes.diesel_l--> L** | Record (dips and delivery notes) |
-| What the generator should have used: metered generator energy × 0.30 L/kWh | 1,060<!--rec:tenants[lakeside-power].sites[Kobo].period.fuel_balance.model_implied_l--> L | Declared input. The generator-energy reading behind it is not in the demo data, so it cannot be shown |
+| What the generator should have used: metered generator energy × 0.2917<!--rec:tenants[lakeside-power].sites[Kobo].physical.sfc_l_per_kwh--> L/kWh | 1,060<!--rec:tenants[lakeside-power].sites[Kobo].period.fuel_balance.model_implied_l--> L | Declared input. The generator-energy reading behind it is not in the demo data, so it cannot be shown |
 | Classifying each generator interval splits the modelled litres | necessary 730<!--fig:sites.lakeside-power/Kobo.actual.nodes.necessary_l--> L + candidate 330<!--fig:sites.lakeside-power/Kobo.actual.nodes.candidate_l--> L = 1,060 L | Declared input, *stands in for a calculation*: the product classifies each generator interval; the demo types the result; as the simulated world records it (dispatch-3.2); dispatch-3.3 re-classifies it in 0K4f |
 | Unexplained = consumed − modelled | 1,180 − 1,060 = 120<!--fig:sites.lakeside-power/Kobo.actual.nodes.unexplained_l--> L | Declared input, *stands in for a calculation*. Tolerance 2% (Declared input): about 24 L of 1,180 L, so 120 L is far above it: investigate |
 

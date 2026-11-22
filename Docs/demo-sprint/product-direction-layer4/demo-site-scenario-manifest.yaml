@@ -1,4 +1,5 @@
 # AssetEcon Layer 4 — demo site and scenario manifest (proposed design, not built) · rev 12 (17 Nov 2026)
+# rev 16.18 (DD3a, 22 Nov): Kobo physical from its data sheets (spec DD §6, D-DD.30): genset_kw 36 (FG Wilson P50-3 prime), sfc_l_per_kwh 0.2917 (10.5 L/h / 36 kW), battery_kwh 191.5 (42 x Pylontech US5000 4.56 kWh usable).
 # rev 16.17 (0K4m, 21 Nov): one figure per quantity (D-0K4.31 to D-0K4.36): replay inputs from 0K4d's v8 studies (replay-studies.json); the dawn is information; admission per runs/admission.py; Kobo's candidate split, KIS-BATT60 and Embakasi's per-bus timing Not available yet.
 # rev 16.13 (20 Nov): `empty_states` added (structure-specification.md §3.1): the record behind every empty leaf, usable capacity deferred to queued slice 4c, the cold occupied-to-chargeable leak a reconciled zero. No figure changed.
 # rev 12 (re-review rev 11): no typed admissibility (notice-deadline lapse + cover bound; dawn-adequacy bound over the spike-K leaf); value nets the
@@ -86,11 +87,11 @@ tenants:
     physical:
       pv_kw: 60
       inverter_ac_kw: 50
-      battery_kwh: 200
+      battery_kwh: 191.5
       reserve_soc_pct: 30
       pcs_kw: 30
-      genset_kw: 40
-      sfc_l_per_kwh: 0.30
+      genset_kw: 36
+      sfc_l_per_kwh: 0.2917
       start_soc_pct: 35
       stop_soc_pct: 90
       min_runtime_min: 30
