@@ -1156,10 +1156,13 @@ class VerificationService:
 
         def facts(name: str) -> Any:
             w = windows[name]
+            # D-DD.118: each unit's kWh and idle seconds, present only above one unit (`window_evidence`)
+            units = None if "generator_units" not in w else {
+                a: (rules.parse_exact(u["generator_kwh"]), u["idle_seconds"]) for a, u in w["generator_units"].items()}
             return tfc.WindowFacts(tuple(w["evidence_ids"]), bool(w["complete"]),
                                    rules.parse_exact(w.get("generator_kwh")),
                                    rules.parse_exact(w.get("feeder_demand_kwh")), plan[f"{name}_start"],
-                                   plan[f"{name}_end"], w.get("generator_idle_seconds"))
+                                   plan[f"{name}_end"], w.get("generator_idle_seconds"), units)
 
         facts_out = tfc.OutcomeFacts(str(outcome["id"]), str(plan["id"]), str(basis["origin_finding_revision_id"]),
                                      outcome["outcome"], {n: tuple(basis["evidence_ids"].get(n) or ())
@@ -1173,10 +1176,17 @@ class VerificationService:
         # FUEL-1 A2: the generator's declared no-load fuel rate history, read beside the SFC history
         no_load = [] if len(generators) != 1 else self.store.no_load_history(
             tenant_id, site_id, generators[0], plan["baseline_start"], plan["later_end"], now)
+        # D-DD.118: at a Site whose generator power is a unit role (roles-5), every unit with its own histories;
+        # under a ONE set several generators keep the empty history above (UNAVAILABLE, as before)
+        units = () if len(generators) < 2 or "generator_power" not in _unit_roles(
+            plan["basis"]["baseline_bindings"]).get("unit_roles", ()) else tuple(tfc.TrialUnit(
+                str(g), self.store.sfc_history(tenant_id, site_id, g, plan["baseline_start"], plan["later_end"], now),
+                self.store.no_load_history(tenant_id, site_id, g, plan["baseline_start"], plan["later_end"], now))
+                for g in generators)
         prices = tuple(ports.price_selection(tenant_id, site_id, plan[f"{n}_start"], plan[f"{n}_end"], now)
                        for n in tfc.WINDOWS)
         cost = tfc.InterventionCost(Fraction(0), None, COST_CHECK_SOURCE)
-        result = tfc.compare(facts("baseline"), facts("later"), facts_out, sfc, prices, cost, no_load)
+        result = tfc.compare(facts("baseline"), facts("later"), facts_out, sfc, prices, cost, no_load, units=units)
         key = f"auto:{outcome['id']}"
         # CC-D2: the body without the idempotency key (the hook's body: outcome and intervention cost)
         payload = {"outcome_id": str(outcome["id"]), "intervention_cost": result["intervention_cost"]}

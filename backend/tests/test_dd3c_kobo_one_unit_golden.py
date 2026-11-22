@@ -99,6 +99,8 @@ def _cost_check(baseline_kw: str, later_kw: str) -> dict:
 
 
 def _verification() -> dict:
+    import test_s6_verification_rules as s6
+    s6._ids = itertools.count(1)  # S6's reading ids are a module counter: start it as a fresh import does
     return {"improvement": _cost_check("20", "10"), "no_improvement": _cost_check("10", "20"),
             "idle": _cost_check("0", "10")}
 

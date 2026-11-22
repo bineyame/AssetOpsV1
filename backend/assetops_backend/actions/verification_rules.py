@@ -393,6 +393,18 @@ def _idle(state_value: Any, slot_kwh: Fraction | None, end_value: Callable[[], A
     return end_value() not in NOT_RUNNING_STATES
 
 
+def _unit_use(use: list, asset: str, t: datetime, kwh: Fraction | None, gen: dict, readings: list[Reading]) -> None:
+    """D-DD.118: add one slot to a unit's `[kwh, idle seconds]` (None once unknown): A2's idle rule over the unit's
+    own state at the slot start (its sample in the Site state's `units`) and end; unknown without a unit state."""
+    use[0] = None if kwh is None or use[0] is None else use[0] + kwh
+    state = ((gen.get("units") or {}).get(asset) or {}).get("value")
+    states = _by_role_asset(readings, "generator_state", asset)
+    if state is None or kwh is None or use[1] is None:
+        use[1] = None
+    elif _idle(state, kwh, lambda: _instant(t + SLOT, states, numeric=False)[1]):
+        use[1] += int(SLOT.total_seconds())
+
+
 def _by_role_asset(readings: list[Reading], role: str, asset_id: str | None) -> list[Reading]:
     return [r for r in readings if r.role == role and (asset_id is None or r.asset_id == asset_id)]
 
@@ -456,6 +468,8 @@ def window_evidence(start: datetime, readings: Iterable[Reading], *, load_asset_
     def site_power(role: str, t: datetime) -> tuple[dict, Fraction | None]:
         """The units' slot payloads summed through `unit_roles.site_power` (absent if any unit's is)."""
         per = {a: power(role, a, t) for a in units_of[role]}
+        if role == "generator_power":
+            unit_slot.update({a: kwh for a, (_, kwh) in per.items()})
         site = site_units.site_power({a: kwh for a, (_, kwh) in per.items()})
         payload = {"slot_start": _iso(t), "slot_end": _iso(t + SLOT),
                    "state": "COVERED" if site.value is not None else "UNKNOWN", "kwh": fmt(site.value),
@@ -475,6 +489,10 @@ def window_evidence(start: datetime, readings: Iterable[Reading], *, load_asset_
                    "units": {a: p for a, (p, _) in per.items()}}
         return payload, site.value
 
+    # D-DD.118: each generator unit's kWh and idle seconds (the cost check burns each on its own curve); kept only
+    # when generator_power is a unit role reported by several assets, so a one-unit window is unchanged
+    unit_slot: dict[str, Fraction | None] = {}
+    unit_use: dict[str, list] = {a: [Fraction(0), 0] for a in units_of.get("generator_power", ())}
     loads = list(load_asset_ids)
     if not loads:
         note("feeder_demand", None, None, [_problem("MISSING_BINDING", "no load asset is bound")])
@@ -546,6 +564,8 @@ def window_evidence(start: datetime, readings: Iterable[Reading], *, load_asset_
         elif ("generator_state" in units_of and _idle(gen_value, slot_gen_kwh, lambda: site_state(t + SLOT)[1])) \
                 or ("generator_state" not in units_of and idle_slot(t, gen_value, slot_gen_kwh, state_readings)):
             idle_total += int(SLOT.total_seconds())
+        for a, use in unit_use.items():
+            _unit_use(use, a, t, unit_slot.get(a), gen, readings)
 
         if single_assets["battery_soc"] is None:
             soc, soc_value = {"at": _iso(t), "state": "UNKNOWN", "value": None, "evidence_ids": [],
@@ -595,6 +615,8 @@ def window_evidence(start: datetime, readings: Iterable[Reading], *, load_asset_
         "pv_available_kwh": fmt(pv_total),
         "generator_kwh": fmt(gen_total),
         "generator_idle_seconds": idle_total,
+        **({"generator_units": {a: {"generator_kwh": fmt(kwh), "idle_seconds": idle}
+                                for a, (kwh, idle) in unit_use.items()}} if unit_use else {}),
         "unserved_critical_kwh": fmt(unserved_total),
         "below_reserve_seconds": below_total,
         "initial_soc": initial,
