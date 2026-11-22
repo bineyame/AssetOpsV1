@@ -57,7 +57,19 @@ def test_1_the_grid_equals_kobo_grid() -> None:
 
 def test_1_the_registry_row_lists_the_lever_and_no_other_does() -> None:
     listing = {(k, r.factor_id): r.levers for k, reg in REGISTRIES.items() for r in reg.rows if r.levers}
-    assert listing == {("MINI_GRID", "candidate_l"): (LEVER,)}
+    assert listing == {  # 6h spec §5.2 (D-P6.66 N3): the generator's row plus the twelve rows of the table
+        ("MINI_GRID", "candidate_l"): (LEVER,),
+        ("COLD_CHAIN", "nights_without_backup_cover"): ("backup_cover",),
+        ("COLD_CHAIN", "uncovered_nights"): ("backup_cover",), ("COLD_CHAIN", "excursion_crates"): ("backup_cover",),
+        ("COLD_CHAIN", "excess_kwh"): ("chamber_efficiency",),
+        ("COLD_CHAIN", "contract_crate_days"): ("storage_contract",),
+        ("EV_DEPOT_CAPTIVE", "peak_kwh"): ("charging_schedule",),
+        ("EV_DEPOT_CAPTIVE", "departures_missed"): ("charger_restore",),
+        ("EV_DEPOT_CAPTIVE", "chargers_in_service"): ("charger_restore",),
+        ("EV_DEPOT_CAPTIVE", "buses"): ("fleet_capacity_use",),
+        ("MINI_GRID", "obligation_hours_without_redundancy"): ("generator_redundancy",),
+        ("MINI_GRID", "productive_kwh"): ("productive_demand",),
+        ("MINI_GRID", "unexplained_l"): ("fuel_reconciliation",)}
     assert REGISTRIES["MINI_GRID"].version == 4
 
 
@@ -102,7 +114,9 @@ CASES = {
 
 def _planted(case: dict):
     lever = case.get("lever", LEVERS[LEVER])
-    return dict(levers=MappingProxyType({lever.lever_id: lever}), registries=case.get("registries", REGISTRIES),
+    # 6h: the planted lever replaces the real one among every real lever (the rows list the named levers too)
+    return dict(levers=MappingProxyType({**LEVERS, lever.lever_id: lever}),
+                registries=case.get("registries", REGISTRIES),
                 pins=case.get("pins", pins_module.PINS))
 
 
@@ -135,7 +149,8 @@ def test_2_the_cases_cover_fourteen_branches() -> None:
 
 def _two_pin(category: str):
     """A second pinned factor that lists the lever: `unexplained_l` (a pin of `UNEXPLAINED_FUEL`)."""
-    registries = _with_row(REGISTRIES, "MINI_GRID", "unexplained_l", levers=(LEVER,),
+    registries = _with_row(REGISTRIES, "MINI_GRID", "unexplained_l",  # 6h: keeps the row's own lever
+                           levers=(LEVER, *REGISTRIES["MINI_GRID"].row("unexplained_l").levers),
                            home=Home(category, "O1"))
     return dict(levers=LEVERS, registries=registries, pins=pins_module.PINS)
 

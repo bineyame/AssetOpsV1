@@ -58,6 +58,18 @@ class Lever:
     no_action_words: str = "KEEP"   # NO_ACTION_WORDS
 
 
+def _named(lever_id: str, structure_key: str, purpose_factor: str, sources: dict[str, ChangeSource],
+           options: tuple[tuple[str, str, tuple[str, ...]], ...], *, bounds_required: bool = False,
+           no_action_words: str = "KEEP") -> Lever:
+    """A STATED_OPTIONS lever: `changes` are the source keys in the order written (registry order)."""
+    return Lever(lever_id, structure_key, purpose_factor, "STATED_OPTIONS", (), "", tuple(sources),
+                 options=tuple(LeverOption(key, kind, changes) for key, kind, changes in options),
+                 change_sources=MappingProxyType(dict(sources)), bounds_required=bounds_required,
+                 no_action_words=no_action_words)
+
+
+_EV_SCHEDULE = ("peak_kwh", "kwh_2200_2400", "kwh_0000_0500", "max_kw", "extra_missed_departures")
+
 LEVERS: Mapping[str, Lever] = MappingProxyType({
     "generator_stop_reserve": Lever(
         "generator_stop_reserve", "MINI_GRID", "candidate_l", "SETTING_GRID",
@@ -67,6 +79,40 @@ LEVERS: Mapping[str, Lever] = MappingProxyType({
         ("candidate_l", "battery_throughput_kwh"),
         change_sources=MappingProxyType({"candidate_l": STUDY, "battery_throughput_kwh": STUDY}),
         no_action_words="KEEP_SETTINGS"),
+    # 6h (spec §5.1; D-P6.55, D-P6.57, D-P6.59): the named-option levers, every one STATED_OPTIONS
+    **{lever.lever_id: lever for lever in (
+        _named("backup_cover", "COLD_CHAIN", "nights_without_backup_cover", {"uncovered_nights": RECORD},
+               (("stopgap-and-claim", "SUPPLIER_REMEDY", ("uncovered_nights",)),
+                ("self-repair", "REPAIR", ("uncovered_nights",))),
+               bounds_required=True, no_action_words="WAIT_FOR_REMEDY"),
+        _named("chamber_efficiency", "COLD_CHAIN", "excess_kwh", {"model_factor": RECORD, "excess_kwh": RECORD},
+               (("repair", "REPAIR", ("excess_kwh",)),
+                ("replace", "CAPEX", ("model_factor", "excess_kwh")))),
+        _named("storage_contract", "COLD_CHAIN", "contract_crate_days",
+               {"contract_crate_days": RECORD, "contract_rate": RECORD, "handling": RECORD},
+               (("storage-contract", "DEMAND_CONTRACT", ("contract_crate_days", "contract_rate", "handling")),)),
+        _named("charging_schedule", "EV_DEPOT_CAPTIVE", "peak_kwh",
+               {"peak_kwh": STUDY, "kwh_2200_2400": STUDY, "kwh_0000_0500": STUDY, "max_kw": STUDY,
+                "extra_missed_departures": STUDY},
+               (("deadline-aware", "SCHEDULE", _EV_SCHEDULE), ("cheapest-window", "SCHEDULE", _EV_SCHEDULE))),
+        _named("charger_restore", "EV_DEPOT_CAPTIVE", "departures_missed",
+               {"covered_bus_nights": RECORD, "extra_missed_departures": RECORD},
+               (("stopgap-and-claim", "SUPPLIER_REMEDY", ("covered_bus_nights",)),
+                ("local-repair", "REPAIR", ("extra_missed_departures",)),
+                ("reschedule", "SCHEDULE", ("extra_missed_departures",))),
+               bounds_required=True, no_action_words="WAIT_FOR_REMEDY"),
+        _named("fleet_capacity_use", "EV_DEPOT_CAPTIVE", "buses", {"buses": RECORD},
+               (("absorb-part", "CAPACITY_USE", ("buses",)), ("absorb-all", "CAPACITY_USE", ("buses",)),
+                ("add-chargers", "CAPEX", ("buses",)))),
+        _named("generator_redundancy", "MINI_GRID", "obligation_hours_without_redundancy", {"reduced_days": RECORD},
+               (("repair", "REPAIR", ("reduced_days",)), ("replace", "CAPEX", ("reduced_days",)),
+                ("add-storage", "CAPEX", ("reduced_days",))),
+               bounds_required=True),
+        _named("productive_demand", "MINI_GRID", "productive_kwh", {"productive_kwh": RECORD},
+               (("new-connection", "DEMAND_CONNECTION", ("productive_kwh",)),)),
+        _named("fuel_reconciliation", "MINI_GRID", "unexplained_l", {"unexplained_l": RECORD},
+               (("investigate", "INVESTIGATION", ("unexplained_l",)),)),
+    )},
 })
 
 

@@ -4,7 +4,7 @@ One literal tuple of 36 rows: the 23 leaves in `canonical.leaves_of("COLD_CHAIN"
 manifest's `structures.COLD_CHAIN` order. Every literal (unit, home, source, words, absence, composes, neutral) is
 written here, never read from the catalogue or the manifest (W2): the parity test compares them with the manifest's
 `structures`, `factor_map`, `home_categories.nodes` and `empty_states.leaf_sources`, and the start-up check with the
-catalogue. No row states a total (D-3B6.2), carries a tolerance (D-3B6.9) or a lever (step 6). The rights node
+catalogue. No row states a total (D-3B6.2) or carries a tolerance (D-3B6.9). The rights node
 `cover_not_claimable` is not a row (as for MINI_GRID, D-3B1.5).
 """
 
@@ -20,13 +20,15 @@ _ABOVE, _CALENDAR = HOMES["above"], HOMES["calendar"]
 
 
 def _leaf(factor_id: str, unit: Unit, home: Home, family: str, kind: str, absent: str,
-          words: str | None = None, *, composes: str, neutral: Decimal | None = None) -> FactorRow:
+          words: str | None = None, *, composes: str, neutral: Decimal | None = None,
+          levers: tuple[str, ...] = ()) -> FactorRow:
     return FactorRow(factor_id, None, unit, home, FilledBy(family, kind, words), absent, None,
-                     neutral=neutral, composes=composes)
+                     levers=levers, neutral=neutral, composes=composes)
 
 
-def _node(factor_id: str, expression: str, unit: Unit, home: Home, *, composes: str) -> FactorRow:
-    return FactorRow(factor_id, expression, unit, home, None, None, None, composes=composes)
+def _node(factor_id: str, expression: str, unit: Unit, home: Home, *, composes: str,
+          levers: tuple[str, ...] = ()) -> FactorRow:
+    return FactorRow(factor_id, expression, unit, home, None, None, None, levers=levers, composes=composes)
 
 
 ROWS: tuple[FactorRow, ...] = (
@@ -44,7 +46,7 @@ ROWS: tuple[FactorRow, ...] = (
           "MISSING", composes="NONE"),
     _leaf("contract_crate_days", DAY, Home(_GROW, "G3"),
           "COMMERCIAL_RECORD", "CONTRACT_DOCUMENT (an option's storage contract)", "OPTION_ONLY",
-          composes="SUM", neutral=Decimal("0")),
+          composes="SUM", neutral=Decimal("0"), levers=("storage_contract",)),
     _leaf("contract_rate", MONEY / DAY, Home(_GROW, "G3"),
           "COMMERCIAL_RECORD", "CONTRACT_DOCUMENT (an option's storage contract)", "OPTION_ONLY",
           composes="NONE", neutral=Decimal("0")),
@@ -55,7 +57,7 @@ ROWS: tuple[FactorRow, ...] = (
           "OPTION_ONLY", composes="NONE", neutral=Decimal("1")),
     _leaf("excess_kwh", KWH, Home(_OPTIMIZE, "O1"),
           "OBSERVER", "cold energy normalisation (CHARGE electricity bill, STORAGE_MOVEMENT)", "MISSING",
-          composes="SUM"),
+          composes="SUM", levers=("chamber_efficiency",)),
     _leaf("elec_price", MONEY / KWH, Home(_OPTIMIZE, "O1"), "COMMERCIAL_RECORD", "CHARGE (electricity bill)",
           "MISSING", composes="NONE"),
     _leaf("maint", MONEY, Home(_OPTIMIZE, "O1"), "COMMERCIAL_RECORD", "EXPENSE (OM)", "MISSING",
@@ -64,11 +66,12 @@ ROWS: tuple[FactorRow, ...] = (
           "OPTION_ONLY", composes="SUM", neutral=Decimal("0")),
     _leaf("uncovered_nights", DAY, Home(_PROTECT, "P1"),
           "OPERATIONAL_RECORD", "work case (failed start, witnessed test) and the manual-start rota", "ZERO_WHEN_HELD",
-          composes="SUM"),
+          composes="SUM", levers=("backup_cover",)),
     _leaf("backup_unproven_days", DAY, Home(_PROTECT, "P1"),
           "OPERATIONAL_RECORD", "work case (failed start, witnessed test)", "ZERO_WHEN_HELD", composes="SUM"),
     _leaf("excursion_crates", ONE, Home(_PROTECT, "P1"),
-          "OBSERVER", "exposure (chamber temperature, STORAGE_MOVEMENT)", "ZERO_WHEN_HELD", composes="SUM"),
+          "OBSERVER", "exposure (chamber temperature, STORAGE_MOVEMENT)", "ZERO_WHEN_HELD", composes="SUM",
+                levers=("backup_cover",)),
     _leaf("excursion_days", DAY, Home(_PROTECT, "P1"),
           "OBSERVER", "exposure (chamber temperature, STORAGE_MOVEMENT)", "ZERO_WHEN_HELD", composes="SUM"),
     _leaf("batches_exposed", ONE, Home(_PROTECT, "P1"),
@@ -90,7 +93,8 @@ ROWS: tuple[FactorRow, ...] = (
     _node("cost_to_serve", "energy + staff + maint + liability + handling", MONEY, Home(_OPTIMIZE, "O1"),
           composes="SUM"),
     _node("contribution", "revenue - cost_to_serve", MONEY, Home(_ABOVE, None), composes="SUM"),
-    _node("nights_without_backup_cover", "uncovered_nights", DAY, Home(_PROTECT, "P1"), composes="SUM"),
+    _node("nights_without_backup_cover", "uncovered_nights", DAY, Home(_PROTECT, "P1"), composes="SUM",
+          levers=("backup_cover",)),
     _node("days_backup_start_unproven", "backup_unproven_days", DAY, Home(_PROTECT, "P1"), composes="SUM"),
     _node("occupied_total_crate_days", "crate_days + contract_crate_days", DAY, Home(_GROW, "G1"), composes="SUM"),
     _node("crate_days_without_excursion", "crate_days - excursion_crates * excursion_days", DAY,

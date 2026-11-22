@@ -65,3 +65,25 @@ def test_2_the_cli_current_is_optional_and_refused_empty_for_a_grid_lever(capsys
                                   "generator_stop_reserve", "--period", "2026-10"], services=services)
     out, err = capsys.readouterr()
     assert code == 2 and out == "" and "BAD_CURRENT" in err
+
+
+# --- P1: the nine catalogue levers (§10.1) -----------------------------------------------------------------------------
+
+from test_6h_levers import NINE  # noqa: E402
+
+SITE_OF = {"MINI_GRID": "KOBO-001", "COLD_CHAIN": "FRIDGE-001", "EV_DEPOT_CAPTIVE": EV_SITE}
+OTHER_SITE = {"MINI_GRID": "FRIDGE-001", "COLD_CHAIN": EV_SITE, "EV_DEPOT_CAPTIVE": "KOBO-001"}
+
+
+@pytest.mark.parametrize("lever_id", list(NINE))
+def test_2_p1_each_named_lever_prepares_on_a_site_of_its_type(lever_id) -> None:
+    key, _purpose, _changes, options, _bounds, _words = NINE[lever_id]
+    w = _world()
+    got = w.prepare(site=SITE_OF[key], lever_id=lever_id, current={})
+    assert [(o.option_key, o.position, o.generator, dict(o.settings)) for o in got.options] == [
+        ("no-action", 0, "NO_ACTION", {}), *[(k, i, "STATED_OPTIONS", {}) for i, (k, _, _) in enumerate(options, 1)]]
+    assert w.prepare(site=SITE_OF[key], lever_id=lever_id, current={}).already_prepared is True
+    with pytest.raises(DecisionRefused, match="^LEVER_SITE_TYPE$"):
+        w.prepare(site=OTHER_SITE[key], lever_id=lever_id, current={})
+    with pytest.raises(DecisionRefused, match="^BAD_CURRENT$"):
+        w.prepare(site=SITE_OF[key], lever_id=lever_id, current={"stop_soc_pct": Decimal(90)}, period="2026-09")

@@ -20,6 +20,9 @@ run by `check_all()` on the start-up path after `check_pins`.
 
 6a added `check_levers` (D-P6.12, D-P6.23; spec §3.1): the levers against the registries and the pins, run by
 `check_all()` between `check_pins` and `check_observed`, on the start-up path only. It was D-3B1.6's deferred item.
+
+6h added branches 15 to 22 of `check_levers` (named-option levers) and `check_lever_paths` (D-P6.53: every pinned
+Finding has a decision path), run by `check_all()` on the line after `check_levers()`.
 """
 
 from __future__ import annotations
@@ -27,6 +30,7 @@ from __future__ import annotations
 import re
 from collections.abc import Callable, Mapping
 from decimal import Decimal
+from types import MappingProxyType
 
 from assetops_backend.config import ConfigurationError
 from assetops_backend.outcomes import outcome_map as _outcome_map
@@ -421,6 +425,34 @@ def check_levers(levers: Mapping[str, "_levers.Lever"] | None = None,
         _lever_fault(lever, registries, pins, levers)
 
 
+#: 6h (spec §5.3; D-P6.53): a pinned mechanism whose decision path is still to come -> the slice that closes it.
+PENDING_LEVERS: Mapping[str, str] = MappingProxyType({})
+
+
+def check_lever_paths(pins: Mapping[str, "_pins.Pin"] | None = None,
+                      registries: Mapping[str, Registry] | None = None,
+                      levers: Mapping[str, "_levers.Lever"] | None = None,
+                      pending: Mapping[str, str] | None = None) -> None:
+    """6h (spec §5.3; D-P6.53, D-P6.66 N12): every pinned Finding has a decision path. For each `PINS` mechanism in
+    order, the pinned row lists a lever or the mechanism is in `PENDING_LEVERS`, else `STRUCTURE_LEVER_PATH
+    <structure>/<mechanism>`. A pending mechanism whose row lists a lever refuses with its pin's structure key; a pending
+    key that is no pin refuses with structure key `""`. A `None` argument reads the real table at call time."""
+    pins = _pins.PINS if pins is None else pins
+    registries = _registry.REGISTRIES if registries is None else registries
+    levers = _levers.LEVERS if levers is None else levers  # read for symmetry with check_levers; rows name levers
+    pending = PENDING_LEVERS if pending is None else pending
+    for mechanism, pin in pins.items():
+        listed = registries[pin.structure_key].row(pin.factor_id).levers
+        if mechanism in pending:
+            if listed:
+                raise StructureError("STRUCTURE_LEVER_PATH", pin.structure_key, mechanism)
+        elif not listed:
+            raise StructureError("STRUCTURE_LEVER_PATH", pin.structure_key, mechanism)
+    for mechanism in pending:
+        if mechanism not in pins:
+            raise StructureError("STRUCTURE_LEVER_PATH", "", mechanism)
+
+
 OBSERVE_CODES = ("STRUCTURE_OBSERVE_KEY", "STRUCTURE_OBSERVE_COVER", "STRUCTURE_OBSERVE_LEAF",
                  "STRUCTURE_OBSERVE_SOURCE", "STRUCTURE_OBSERVE_DIRECTION", "STRUCTURE_OBSERVE_KIND")
 _NOT_SOURCES = frozenset({"DECLARED", "CALENDAR"})
@@ -512,6 +544,7 @@ def check_all(registries: Mapping[str, Registry] | None = None) -> None:
     if registries is None:
         check_pins()
         check_levers()
+        check_lever_paths()
         check_observed()
 
 
@@ -523,5 +556,5 @@ def check_at_start() -> None:
         raise ConfigurationError(str(error)) from error
 
 
-__all__ = ["CODES", "OBSERVE_CODES", "PIN_CODES", "StructureError", "check", "check_all", "check_at_start",
-           "check_levers", "check_observed", "check_pins"]
+__all__ = ["CODES", "OBSERVE_CODES", "PENDING_LEVERS", "PIN_CODES", "StructureError", "check", "check_all",
+           "check_at_start", "check_lever_paths", "check_levers", "check_observed", "check_pins"]
