@@ -1,0 +1,23 @@
+# Decision index: Demo-sprint and later rulings (index only) (D-IA.61 to D-IA.81)
+
+- `D-IA.61` IA-2b is the list shape only, split 2b1/2b2; 2b2 waits for the owner's IA-2a walkthrough · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.62` One list component; filters, sort, search, show-all in the address; focus keep · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.63` Four lists: stores, one-target rows, facets, count tiles; no at-stake sum (D2) · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.64` Outcomes fold, aliases with a query, crumbs, search index · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.65` 2b2: hub queues as the list, View all, no Decide button, plan link · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.66` IA-2b gates written first, dormant until landed, plants · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.67` IA lists: controls grow with the list (none <3, Sort ≤10, full >10); scale proven by fixture · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.68` Sites gap tile = operator's own gap (EQUAL overview-gap); hidden rows as a remainder part · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.69` No list sorts or sums non-commensurable figures; At stake sort dropped · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.70` Chips name every view state no control shows; every row has a live target · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.71` qty_check count mode, format mode, EQUAL table in IA-2b1 unit 2 · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.72` IA-2b shots matrix S1-S9 with per-class counts; listkeep, listwrap, emptytools · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.73` IA-2b plants compare independent paths; check carries literal word tables · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.74` IA-2b1 reads IA-2a at render; stop re-rule list adds list facets · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.75` List scroll/focus keep in a hashchange listener after the router, keyed to its hash · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.76` List cells text only; figure explainers stay on the Site hub · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.77` iaDecStateKey, iaActionStateKey, iaFindingSite classifiers · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.78` iaAliasTarget: one alias splitter · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.79` IA-2b dormancy: rail units renamed IA-2b1, OWN map rows · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.80` One cap per list, groups as display; amends D-IA.27 per-group cap · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-IA.81` IA-2b size 5 to 6 units; split and stop hold · live · specs/IA-1-shape-rebuild/rulings-5.md

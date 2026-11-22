@@ -46,7 +46,10 @@ CODED_PATHS = frozenset({"kind", "status", "subject.kind", "quantity.unit", "bod
 DATE_FORMATS = ("YYYY-MM-DD", "DD/MM/YYYY", "MM/DD/YYYY", "DD-MM-YYYY", "DD.MM.YYYY", "YYYY/MM/DD")
 TIME_FORMATS = ("HH:MM", "HH:MM:SS")
 MONTH_FORMATS = ("YYYY-MM", "MM/YYYY", "YYYYMM", "Mon-YYYY", "Month YYYY")
-TYPES = ("text", "number", "date", "datetime", "month", "month_of")
+TYPES = ("text", "number", "date", "datetime", "month", "month_of", "bool")
+#: DD2.2 (D-DD.24): a `bool` path carries a map onto exactly these values (the one exception to "a map sits only on a
+#: coded path"); it writes a JSON boolean.
+BOOL_VALUES = frozenset({"true", "false"})
 _MONTHS = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
            "November", "December")
 _SERIAL_MIN, _SERIAL_MAX = 61, 73050  # D-3A6.13 b: 1900-03-01 to 2099-12-31
@@ -119,7 +122,7 @@ def _get(record: Mapping, path: str):
     return value
 
 
-def _put(record: dict, path: str, value: str) -> None:
+def _put(record: dict, path: str, value: str | bool) -> None:
     parts = path.split(".")
     target = record
     for part in parts[:-1]:
@@ -136,10 +139,15 @@ def check_layout(layout: Layout) -> None:
         for path, mapping in column.maps.items():
             if path not in column.paths or len(set(mapping.values())) != len(mapping):
                 raise ValueError(f"NATIVE_LAYOUT {layout.id} {path}")
-            if path not in CODED_PATHS:
+            if column.types.get(path) == "bool":
+                if set(mapping.values()) != BOOL_VALUES or path in CODED_PATHS or path == "source_record_id":
+                    raise ValueError(f"NATIVE_LAYOUT {layout.id} {path}")
+            elif path not in CODED_PATHS:
                 raise ValueError(f"NATIVE_LAYOUT {layout.id} {path}")
         for path in column.paths:
-            if path in CODED_PATHS and path not in column.maps:
+            if column.types.get(path) == "bool" and (path in CODED_PATHS or path == "source_record_id"):
+                raise ValueError(f"NATIVE_LAYOUT {layout.id} {path}")
+            if (path in CODED_PATHS or column.types.get(path) == "bool") and path not in column.maps:
                 raise ValueError(f"NATIVE_LAYOUT {layout.id} {path}")
 
 
@@ -465,6 +473,13 @@ def read_rows(layout: Layout, header: Sequence[str], rows: Sequence[tuple[int, S
                     value = column.maps[path].get(cell)
                     if value is None:
                         miss = miss or path
+                        continue
+                    if column.types.get(path) == "bool":
+                        _put(record, path, value == "true")  # DD2.2: a JSON boolean; the text stays the row's
+                        if path == column.paths[0]:
+                            first_value[column.header] = value
+                        if (t := _top(path)) is not None:
+                            wrote.add(t)
                         continue
                 else:
                     try:

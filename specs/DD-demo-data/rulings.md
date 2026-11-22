@@ -117,10 +117,10 @@ a measured figure (C-DD7, C-DD17, C-DD20).
 
 - **D-DD.24 Source profiles: column tables, a `bool` type, tariffs as canonical JSON** (I7; amends D-DD.5).
   - Every profile's column → path table, constants and coded maps are in spec §5.2 and §5.3. Storage invoicing splits
-    into an invoice file (CHARGE) and a receipt file (RECEIPT), because a profile writes one kind.
+    into an invoice file (CHARGE) and a receipt file (RECEIPT), because a profile writes one kind. *Superseded by D-DD.59: one invoicing file with a Type column.*
   - The cold rate card and the EV tariff schedules are TARIFF_SCHEDULE records in `canonical-json-v1`, written by
     `records.py` as today. A CSV cannot carry `bands`, and DS1b already writes them. The `cold-rate-card` profile is
-    dropped.
+    dropped. *Corrected by D-DD.61: DS1b writes none; `world/tariffs.py` writes them.*
   - DEPARTURE keeps its profile through a contract change. `layouts_v1.TYPES` gains `bool`; a `bool` path must carry a
     `map` whose values are exactly `{"true", "false"}`, the one exception to "a map sits only on a coded path". It has
     its own contract tests (DD2.2).
@@ -281,3 +281,608 @@ Architect (Claude), 2026-11-22. Answers Q-DD1.1 to Q-DD1.6 of `handoff-DD1.md` (
 - **D-DD.40 C-DD13's TENANT-1 clause is pending until DD5.2** (Q-DD1.1). Confirmed. Until DD5.2 C-DD13 is judged on the
   cross-tenant reads and prints `TENANT-1: pending (DD5.2)` beside its result. DD5.2 makes the clause live, and from
   then C-DD13 passes only when both hold. A checker test asserts the pending line.
+
+---
+
+# DD rulings, round 4 (D-DD.41 to D-DD.44): DD1 questions Q-DD1.7 to Q-DD1.9
+
+Architect (Claude), 2026-11-22. Answers Q-DD1.7 to Q-DD1.9 of `packet-DD1.md` (branch `task/DD1-operators`, commit
+`68c799339`). Architect-level calls, logged for owner review; the owner may want to weigh in on D-DD.41 (it adds a
+unit of work, D-DD.44).
+
+- **D-DD.41 Multi-unit role binding: `minigrid-roles-5`, unit roles PER_ASSET, Site figures by one aggregation rule**
+  (Q-DD1.7; the blocker; completes D-DD.21 on the evidence side).
+  - *The fault (a class, W6).* `minigrid-roles-4` says "one generator, one PV inverter per Site": its GENERATOR and
+    INVERTER roles are cardinality ONE, and `BindingService.publish` refuses a Foundation with two such components
+    (`BINDING_ROLE_AMBIGUOUS`). v9 (D-DD.21) models several units, and the Protect beats need each unit's own
+    evidence. Binding only unit 01, or a Site-total channel, would hide the failed unit or add a second figure for one
+    quantity; both rejected. The fix is in the role model, not the data.
+  - *Rule.* (Readiness coverage amended by D-DD.45.) A role is PER_ASSET in `minigrid-roles-5` exactly when its asset type is a unit type of v9 (GENERATOR,
+    INVERTER): `generator_state`, `generator_power`, `mini_backup_start_event`, `pv_power`, `pv_available_power`.
+    Every other role, label, unit, value kind, `required` flag, `states` and `event_kinds` is `minigrid-roles-4`'s,
+    unchanged. Immutable, a new named version beside roles-4; roles-4 is untouched and still refuses (it stays
+    interpretable for the sets published under it).
+  - *Site figures from unit evidence (one rule, one module; built in DD3.4, D-DD.44).* Power roles: the Site value at a
+    step is the sum of the bound units' values; a unit with no value at that step makes the Site value absent there,
+    named by unit (no imputation). `generator_state`: RUNNING if any unit runs, else STARTING if any starts, else
+    STOPPED if any unit is not FAILED, else FAILED. `mini_backup_start_event`: the union in time order, each event
+    keeping its unit. Unit property reads: Site generator rating = the sum of non-FAILED units' `generator-rated-power`;
+    burn per unit on its own curve, Site litres = the sum; Site policy from the lead unit (D-DD.43). One unit gives the
+    unit's own value byte for byte, so a one-unit Site reads as today. Protect reads (C-DD6, the failure on its own unit)
+    read the unit series, never the Site series.
+  - *DD1 now (publish side only).* Kisiwa and Mto publish under roles-5; Kobo stays roles-4 until DD3.4 moves it with a
+    parity proof, so the live Kobo figures are not touched before their readers accept roles-5. Until DD3.4 merges no
+    reader selects a roles-5 set, so Kisiwa and Mto show no generator or PV figure rather than a wrong one; their
+    readings are not loaded before DD5 in any case.
+  - *Builder's change list (DD1.2):*
+    1. `sites/binding_roles.py`: `ROLE_SET_MINIGRID_5 = "minigrid-roles-5"`; `MINIGRID_ROLES_5` = roles-4 with the five
+       roles above as PER_ASSET (built by replacing those five entries, order kept); add it to `ROLES_BY_SET` and to
+       `SERVED_ROLE_SETS_BY_SITE_TYPE["MINIGRID"]`. `ROLE_SET_BY_SITE_TYPE` unchanged.
+    2. `sites/binding_service.py`: roles-5 beside roles-4 in `_V4_TABLE_BY_ROLE_SET` and `_MIXED_V4_ROLES_BY_ROLE_SET`
+       (same entries), and at its third roles-4 reference. Class fix: the readiness branch (`role.cardinality ==
+       "PER_ASSET" and role.asset_type == "LOAD"`, about `:814`) and the verification-missing branch (about `:908`)
+       apply to every PER_ASSET role over the Site's components of `role.asset_type`, so an unbound unit of a required
+       role is named as missing (LOAD output byte-identical).
+       **Amended by D-DD.45:** the premise "every PER_ASSET role covers every component of its type" is wrong (cold's
+       two probe roles share `TEMPERATURE_PROBE`). Both branches take a role exactly when its new explicit flag
+       `every_component` is true (LOAD PER_ASSET roles and the five unit roles above); cold and EV keep main's output.
+    3. `conversions/world/KISIWA-001-bindings.json`, `MTO-001-bindings.json`: `role_set` `minigrid-roles-5`, each
+       unit's device signals bound with that unit's `asset_code`. KOBO-001 unchanged.
+    4. Tests: roles-5 publishes Kisiwa (2 GENERATOR) and Mto (2 INVERTER); roles-4 on the same Foundation still refuses
+       `BINDING_ROLE_AMBIGUOUS` (plant); two bindings of one unit role on one unit refuse `BINDING_ROLE_CONFLICT`;
+       readiness lists `generator_power - <unit>` missing when one unit is unbound; LOAD readiness unchanged on an
+       existing fixture; `test_dd1_onboarding_postgres` Lakeside apply with `--bindings` exits 0, one published set per
+       Site, second apply unchanged (replaces the Q-DD1.7 refusal case).
+  - Not in DD1: every reader (`analytics/assessment_worker`, `mini_depth/*`, migration 0029's lift, `dispatch_v3`,
+    `fuel_balance`, `actions/verification*`, `finding_episode`, `financials/fuel_cost`, `chain/measure_impls`,
+    `runs/replay_*`, `structure/energy/inputs`): DD3.4.
+
+- **D-DD.42 Site document limits: 10,000 nodes, 96 devices, accepted with their basis** (Q-DD1.8).
+  - Accepted. The limits guard parsing cost and refuse runaway documents; they are not product rules. The byte bound
+    (256 KiB) stays and is the binding memory limit (10,000 nodes fit it at about 25 bytes a node). Basis: the largest
+    real demo Site is Ruiru, 6,623 nodes and 73 devices; 10,000 and 96 leave about 1.5x and 1.3x. The template
+    `MAX_DOCUMENT_NODES` moves with them so the device cap stays under the ceiling.
+  - Builder: the three constants' comments name this ID and the basis; one test each that a document at the new
+    limit parses and one over it refuses with the existing code. The user-facing refusal sentences, if they quote a
+    number, quote the new one (statement baseline re-hashed, ratchet count unchanged).
+
+- **D-DD.43 Lakeside template fill accepted; the Site's generator policy is held once, on the lead unit** (Q-DD1.9).
+  - Accepted as applied: where the manifest is silent, template v3's values (PCS 30 kW, tank 400 L, load ratings
+    25/10/40 kW, Kisiwa inverter 30 kW). Values taken from the manifest (Kisiwa SFC 0.31, Mto inverters 25 kW) are
+    labelled `TEMPLATE` today; DD3.2's basis vocabulary relabels Lakeside's `/2` values (Declared, Assumed), as planned.
+    C-DD8 (tank within [0, capacity]) is the check on the 400 L tanks; a breach stops for the Architect.
+  - Amended: start and stop SOC, start delay and minimum runtime are the Site's one control policy (spec §4.3). Copied
+    onto both Kisiwa units they are two stored figures for one quantity. They are held once, on the lead unit (first
+    GENERATOR in declared order, `gen-ks-01`), as a lead set's controller holds a plant's set points. `gen-ks-02`
+    carries only its unit properties (`generator-rated-power`, `specific-fuel-consumption`; DD3.3 adds no-load rate and
+    minimum load). DD3.3's v9 reads the policy from the lead unit and refuses `TEL_FOUNDATION` when a non-lead unit
+    carries one; DD3.4's readers do the same.
+  - Builder (DD1.2): remove the four policy properties from `gen-ks-02` in `lakeside-power.onboarding.json`; a test
+    that no non-lead GENERATOR in the three files carries a policy property. If an existing DD1 test or readiness check
+    requires them on every GENERATOR, stop and report (do not restore them).
+
+- **D-DD.44 DD restated: 33.0 u in seven parts** (amends D-DD.33).
+  - DD1.2 grows 0.5 u (2.25; DD1 4.5 u): D-DD.41's publish side and D-DD.43's edit.
+  - New **DD3.4 Unit roles in the readers (2.5 u)**: one module (`sites/unit_roles.py`: the D-DD.41 aggregation and
+    the lead-unit policy read) that every listed reader calls for a roles-5 set; no reader sums units itself. A new
+    migration lets the mini-depth lift accept one roles-4 or roles-5 set in force. Kobo's world conversion moves to
+    roles-5, and a parity test shows Kobo's product outputs equal under roles-4 and roles-5 (as C-DD19 for v9). The
+    Planner's code-reality check confirms the size; over 3 u stops for the Architect.
+  - DD3 (8.5 u) splits at its seam: **DD3a** DD3.1 and DD3.2 (3.75 u; `task/DD3a-mini-reality`), then **DD3b** DD3.3
+    and DD3.4 (4.75 u; `task/DD3b-mini-units`). DD3.4 must merge before DD5.1 loads Kisiwa's or Mto's readings.
+
+---
+
+# DD rulings, round 5 (D-DD.45 to D-DD.47): DD1 review round 1, H1 and L1 to L3
+
+Architect (Claude), 2026-11-22. Answers `review-DD1.md` round 1 (branch `task/DD1-operators`, `6161bc186`): H1, L1,
+L2, L3 and the Architect question. Architect-level calls, logged for owner review; no owner weigh-in needed (D-DD.45
+restores main's behaviour for cold and EV and changes nothing a user sees for mini-grid beyond D-DD.41).
+
+- **D-DD.45 Readiness coverage is an explicit role property, `every_component`; cardinality only keys the binding**
+  (H1; amends D-DD.41 builder item 2).
+  - *The fault (a class, W6).* D-DD.41 read one field for two facts. `cardinality` PER_ASSET says how a binding is
+    keyed (one per asset, conflict key `(role, asset_id)`, `binding_service.py:472`). It does not say that the role
+    must be bound on *every* component of its asset type. That second fact is true of LOAD feeders and of the v9 units,
+    and false where one asset type carries several roles on different components (cold: `chamber_temperature` on
+    `probe-1`, `ambient_temperature` on `ambient-1`, both `TEMPERATURE_PROBE`). Inferring coverage from cardinality made
+    every correctly bound cold Site state a channel as missing; that is a false statement to the user, the reverse
+    of "missing is stated honestly".
+  - *Ruling.* Coverage is declared where the role is defined, not inferred. `Role` gains
+    `every_component: bool = False`: "readiness and verification readiness read this role once per Site component of
+    `asset_type`, and name each unbound one". It is true on exactly: `feeder_demand` and `feeder_requested_power` (every
+    role set that holds them) and the five `minigrid-roles-5` unit roles of D-DD.41. False on every cold and EV role, so
+    their readiness and verification output is main's, byte for byte.
+  - *Why the flag, not the reviewer's default* (`asset_type == "LOAD"` or role set `minigrid-roles-5`). Same cost (one
+    field, seven true values), but the default is an instance rule in the service: it names one type and one set, and
+    the next multi-unit role set (a second cold room, a second charger bank) would edit `binding_service.py` again. The
+    flag is the general mechanism: the role table states the fact, every reader asks the role, and a new set declares
+    it. An invariant keeps it honest: `every_component` implies PER_ASSET.
+  - *Not ruled now (backlog, owner may weigh in later).* Whether some cold and EV roles *should* cover every component
+    (each compressor, each connector) is a product question; today `cold_foundation.py:333` answers it for cold by
+    reading PER_ASSET as coverage and skipping `chamber_temperature` by name (an instance rule). The sweep that moves
+    `cold_foundation.py` and the cold/EV role tables onto `every_component` changes user-visible readiness, so it waits
+    for a demo-critical reason. Logged in `.agent/backlog-post-demo.md` by the coordinator.
+  - *Builder's change list (DD1 fix round):*
+    1. `sites/binding_roles.py`: add the field after `event_kinds` with a one-line comment citing D-DD.45; set
+       `every_component=True` on `feeder_demand` (`MINIGRID_ROLES`) and `feeder_requested_power`; in `MINIGRID_ROLES_5`
+       use `replace(r, cardinality=PER_ASSET, every_component=True)`. Add a module-level check (or test, item 4c) that no
+       role in `ROLES_BY_SET` has `every_component` without PER_ASSET.
+    2. `sites/binding_service.py:818` and `:914`: the branch condition becomes `role.every_component` (nothing else);
+       rename the loop variable `loads` to `components`; the comment cites D-DD.45. The generic branch is untouched.
+    3. Sweep: `grep -n 'cardinality\|asset_type == "LOAD"' backend/assetops_backend/sites/*.py`; no other site changes
+       (publish keys stay on cardinality; `cold_foundation.py` is the backlog item above). Report the grep in the packet.
+    4. Tests (`test_dd1_onboarding_postgres` or a new `test_dd1_readiness_parity_postgres`):
+       a. *Cold and EV parity, byte for byte.* `readiness()` for cold-lab-001 (the W2-02 lab fixture), COLD-KIRI over
+          its DD1 world conversion, and the W2-05a EV fixture Site, serialised as `json.dumps(x, sort_keys=True,
+          indent=1)` after replacing every UUID string by `uuid-<n>` in first-appearance order, equals a golden file
+          `backend/tests/fixtures/dd1_readiness_parity/<site>.json` captured by running the same helper on main
+          `05be2b968` (capture command and main SHA written in the file's sibling `README`). The cold goldens show
+          `READY_TO_REPORT` and no missing role.
+       b. *Plant.* The same cold comparison with `chamber_temperature` monkeypatched `every_component=True` fails
+          (proves the test catches H1).
+       c. Every role with `every_component` is PER_ASSET; the true set per role set is exactly the seven names above.
+       d. Kept: LOAD readiness unchanged on its existing fixture; Kisiwa with `gen-ks-02` unbound names
+          `Generator power - Generator 02` and `Generator state - Generator 02`, and verification readiness lists
+          `['gen-ks-02']`.
+  - Packet: the false claim "cold tests pass unchanged" is replaced by 4a's result.
+
+- **D-DD.46 L1 fixed now: the document-limit comments state D-DD.42's basis** (L1).
+  - `sites/foundation_parsing.py:119-143`: replace the paragraph arguing 64 against 77 under 2,000 nodes, and the
+    `MAX_SIGNAL_MAPPINGS` note, with D-DD.42's basis in at most three lines (10,000 nodes, 96 devices; Ruiru 6,623/73).
+    No behaviour change; `TestEveryCapCanFire` still passes.
+
+- **D-DD.47 L3 fixed now in the pre-write check; L2 to the backlog with D-DD.42's premise corrected** (L3, L2).
+  - *L3 (a class: every input is read before the first write).* The `--bindings` pre-write check in
+    `onboard_operator.main` reads and parses each `<CODE>-bindings.json` (`json.loads`; catch `OSError`, `ValueError`)
+    and refuses `ONBOARD_SITE_INVALID bindings/<CODE>` with exit 2 and nothing written, the same refusal as a missing
+    file. `_publish_and_enable` takes the parsed fixtures by Site code and no longer opens files. Test: a malformed
+    `KISIWA-001-bindings.json` beside valid ones exits 2, the stderr line names `bindings/KISIWA-001`, and the tenant
+    and Sites are not created.
+  - *L2.* D-DD.42's premise is corrected: the byte bound binds operator files (256 KiB, `operator_file.py:32`) and Site
+    import files (128 KiB, `import_files.py:24`); the Foundation revision POST (`foundation_api.py:492`) has no body
+    bound, and the 10,000-node walker runs after FastAPI has parsed the body. Authenticated route, small risk, not
+    demo-critical: backlog item "content-length bound on the Foundation revision POST, like `evidence_api.py:303`,
+    256 KiB" (coordinator logs it in `.agent/backlog-post-demo.md`).
+  - *Unit impact (D-DD.45 to D-DD.47).* One DD1 fix round, 0.5 u (flag and parity goldens 0.25, L1 and L3 0.25):
+    DD1 4.5 to 5.0 u; DD 33.0 to 33.5 u. Sonnet fix-round builder; re-review by a fresh Claude reviewer on H1 and L3.
+
+---
+
+# DD rulings, round 6 (D-DD.48 to D-DD.57): DD2 pre-flight (B1, B2, Q3 to Q9)
+
+Architect (Claude), 2026-11-22. Answers `handoff-DD2.md` (branch `task/DD2-books`, `ffe33beeb`). Architect-level calls,
+logged for owner review. The owner is informed of D-DD.48 (it answers the owner's "code solution to a data issue"
+concern for this case) and D-DD.49's dropped penalty rows; no weigh-in is needed to proceed.
+
+- **D-DD.48 Mini-grid books: billed kWh, revenue, collections and fuel are nodes of the world's structure, evaluated
+  every month from that month's leaves** (B1; amends spec §5.1 and D-DD.32's litres sentence).
+  - *What the fault is (a class, W6).* Spec §5.1 called billed kWh, revenue and the collections split "`history.json`'s
+    leaves". They are not leaves of the world. The manifest declares them as **nodes** of `structures.MINI_GRID`
+    (`M:813-822`): `metered_kwh = delivered_kwh - technical_loss_kwh - unexplained_loss_kwh`, `billed_kwh = metered_kwh
+    - adjustments_kwh - unmapped_kwh`, `revenue = billed_kwh * tariff + productive_kwh * productive_tariff`, `collected
+    = revenue - in_transit - outstanding`, `diesel_l = necessary_l + candidate_l + unexplained_l + extra_l`, `fuel_cost
+    = diesel_l * diesel_price`. The history generator generates leaves only, by its declared design ("Totals and nodes
+    are not generated here: the evaluator computes them", `history.py:5`). October's `period` records leaves and nodes
+    together, and the nodes satisfy the structure exactly at all three Sites (billed 8645, 7400, 5400; revenue 3458,
+    4070, 2160; collected 3180, 3800, 1890; litres 1180, 2400, 320; fuel cost 1475, 3120, 400). So the gap is in the
+    spec's wording, not in the world model or the generator. Adding node values to `history.json` would put a second
+    copy of each figure beside the evaluator's, against "one model-computed figure per quantity", and would move the
+    pinned history golden for nothing.
+  - *Ruling.* In every month, October included, and on both sides, the exporter takes the mini-grid book figures from
+    the structure's own node expressions, evaluated on the month's leaves through the manifest's `factor_map`. This is
+    the world's balance computing its declared node. It is not a design value and not a fit. It is labelled in code
+    and in the packet as "node of `structures.MINI_GRID`, evaluated on the month's leaves (D-DD.48)". The rows carry
+    the source word *Emulated*, like every book row.
+  - *One mechanism every month.* For October the evaluated node must equal the node that `period` records, or the
+    emulator stops with `EMU_NODE <tenant>/<code> <month> <node>` (the period's `diesel_cost` is node `fuel_cost`).
+    Then October's bytes are unchanged by this ruling, and October proves the derivation against the world's own record.
+  - *Plan side, the same rule.* The plan's `revenue` and `fuel_cost` budget lines come from the same evaluation on the
+    plan record. `delivered_kwh` falls back to plan `billed_kwh` and `necessary_l` to plan `diesel_l` (factor_map), and
+    every leaf with a `| 0` alternative reads 0. October's plan nodes check exactly (3420, 875; 4125, 2990; 2240, 375).
+    D-3A3.13's unit prices then follow from the evaluated plan nodes.
+  - *Builder's change list (DD2.1):*
+    1. `world/exports.py`: a module table `NODES["MINI_GRID"]` with the six expressions above as Python callables, in
+       dependency order, plus each expression's manifest text as a string. Use exact `Decimal`: money in whole cents
+       and kWh and litres whole. Leaves are read through `records.PASS_THROUGH["MINI_GRID"]` (the record fields, in
+       order). Add a `ZERO_LEAVES` frozenset, the leaves whose `factor_map` text ends in `| 0`: technical_loss_kwh,
+       unexplained_loss_kwh, adjustments_kwh, unmapped_kwh, in_transit, outstanding, candidate_l, unexplained_l.
+       `productive_kwh` and `extra_l` are the constant 0 (factor_map `"0"`). `delivered_kwh` and `necessary_l` are
+       required. Prices are `prices.tariff_usd_per_kwh[site]`, `prices.diesel_usd_per_l[site]` and
+       `prices.productive_tariff_usd_per_kwh`. Watch the units: `history.json` money leaves are integer cents
+       (`meta.money_unit`), and `period` money is in dollars.
+    2. `_charges`, `_receipt_records`, `_fuel_records` and the plan `revenue`/`fuel_cost` lines read the evaluated
+       nodes, never `s.a["billed_kwh"]`-style fields. The existing `EMU_REVENUE`, `EMU_COLLECTIONS` and `EMU_FUEL`
+       checks stay. They compare the emitted rows with the evaluated nodes.
+    3. If a required leaf is absent, that node and every node depending on it write no row, and the field is listed
+       `NOT_IN_HISTORY`. A coverage line marked ESTIMATED writes nothing, as now (GAP-1). An absent price stops the
+       emulator with `EMU_PRICE`, as now. A negative node (for example collected < 0) stops it with
+       `EMU_COLLECTIONS`.
+    4. Test `simulator/tests/world/test_dd2_nodes.py`:
+       a. *Parity.* The table's text for each node equals `M` `structures.MINI_GRID[node]`. The `factor_map.MINI_GRID`
+          text of each leaf it reads equals the table's alternatives, and `ZERO_LEAVES` is exactly the set ending
+          `| 0`. The test reads the manifest. The module does not.
+       b. *October.* Evaluated equals recorded for every node `period` carries, on both sides, at all three Sites.
+       c. *Plant.* Change Kobo's October `adjustments_kwh` in a copied view and `EMU_NODE` fires.
+       d. *History.* For July at Kobo: billed 8163, revenue 3265.20 and collected 3002.73, from the pinned
+          `history.json`.
+  - *Checker.* See D-DD.55: the checker evaluates the same nodes with its own code from the manifest text.
+
+- **D-DD.49 Cold and EV budget workbooks are source profiles. The expense ledgers use the existing layout unchanged.
+  No PENALTY rows. No contract change** (B2; amends spec §3 and §5.2-§5.3; the builder's default is not taken).
+  - *Why not extend the illustrative maps.* `budget-illustrative-1` is a built-in contract layout. If each new vertical
+    added lines to it, `contracts/` would be edited per vertical, which is an instance rule on a protected seam. The
+    product's general mechanism for a new operator's file is the source profile (3A6). That is how §3 already brings in
+    every other cold and EV file (D-DD.24), and it reads budget workbooks today
+    (`backend/tests/fixtures/3a6/lakeside-budget.profile.json` maps `body.factor_id`). A real cold-chain operator's
+    budget workbook is its own format, not Lakeside's.
+  - *Why no PENALTY row.* §5.3's "PENALTY (0)" is a typed-in zero. In the world, penalties are a **node**:
+    `penalties = departures_missed * penalty_rate` (`M` `structures.EV_DEPOT_CAPTIVE`). The product computes it from
+    the measured departures (DD4.4) and the rights register. A zero expense row would be a second figure for the same
+    quantity, and it could disagree with the node (Kasarani in November). The penalty statement is already a "not
+    written" record (§3). Without PENALTY, the cold and EV ledgers need only OM and STAFF, and `expenses-illustrative-1`
+    already maps both. Its use is unchanged.
+  - *Which plan figures become budget lines (one rule).* (a) DS1b's own-leaf BUDGET_LINE records of the month, under
+    DS1b R1's rule: a fallback field is never a leaf's line (`NOT_OWN_LINE`), so EV `offpeak_kwh` and `kwh` are not
+    lines. (b) A plan field whose name is a **node** of the Site's structure becomes a node line carrying its recorded
+    value: cold `kwh`; EV `energy_cost` and `departures_required` (Ruiru). This is the same as mini-grid's
+    `billed_kwh` and `diesel_l` node lines. (c) Every other field stays in `unwritten.json` with DS1b's reason: Ruiru
+    `total` is `NOT_READ_BY_A_LEAF`, and EV `kwh` and `offpeak_kwh` are `NOT_OWN_LINE`. The plan's off-peak energy is
+    therefore not received at Embakasi and Kasarani, as `missing-records.json` already says for October. It reads as
+    the labelled assumption, never zero.
+  - *Builder's change list (DD2.3 builds both budget profiles; DD2.4 uses the EV one):*
+    1. `backend/conversions/profiles/cold-budget-illustrative.profile.json` and `ev-budget-illustrative.profile.json`,
+       each with `<id>.sample.csv` and `<id>.expected.json`: `source_type` budget_workbook; constants `kind`
+       BUDGET_LINE and `source_version` "1"; the columns of spec §5.2's new budget table. The Line map is the plan
+       field name to the factor ID, identity on these names. Cold: crate_days, kwh, staff, maint, liability. EV:
+       peak_kwh, max_kw, maintenance, energy_cost, departures_required.
+    2. `exports_cold.py` and `exports_ev.py`: a node-line table `NODE_LINES = {"COLD_CHAIN": {"kwh": "whole"},
+       "EV_DEPOT_CAPTIVE": {"energy_cost": "money", "departures_required": "whole"}}`. Money lines carry
+       `body.currency`. A parity test asserts each name is a key of `M` `structures[key]`. A field written as a node
+       line leaves `unwritten.json`, as mini-grid's `billed_kwh` does. Files: `harvest-cold.profile.cold-budget.csv`,
+       `metro-bus.profile.ev-budget.csv`, `harvest-cold.expenses.csv`, `metro-bus.expenses.csv`.
+    3. The expense ledgers carry DS1b's EXPENSE rows only: cold `maint` as OM and `staff` as STAFF, EV `maintenance` as
+       OM. A test asserts that no cold or EV expense row has category ENERGY or PENALTY.
+    4. `contracts/` is not touched by DD2.3 or DD2.4. DD2.2 stays the only contract change in DD2.
+
+- **D-DD.50 Cold revenue and received are nodes too** (Q3; the builder's default, restated as D-DD.48's mechanism).
+  `NODES["COLD_CHAIN"]`: `revenue = crate_days * rate + contract_crate_days * contract_rate`, and `received = revenue
+  - outstanding`. `rate` is `prices.storage_usd_per_crate_day`, and `contract_*` is the constant 0 (factor_map). The
+  same parity test and October `EMU_NODE` check apply: Mwea 868/820, Thika 1736/1650, Kirinyaga 1984/1900. Invoices
+  sum to revenue. Receipts sum to received, all COLLECTED, because the cold structure has no in-transit leaf. The rest
+  is outstanding.
+
+- **D-DD.51 Values held in incident blocks come from a module table with a manifest parity test** (Q4; default taken).
+  `ManifestView` stays as it is: `history.json`'s `view_digest` does not move. The table holds the tickets (CH-K2
+  opened 2026-11-01T23:40+03:00 and CH-R7 opened 2026-10-06T00:00+03:00, both OPEN on `as_of`) and the named batches
+  B-1029, B-1031 and B-1034 (crates and times). A test reads `M` and asserts every table value. The CH-K2 ACKNOWLEDGED
+  event is the warranty claim's, not the ticket's. Contractor `oem-contractor` (R5). This is the established pattern
+  (`factors.py`, `records.py` tables with parity tests), and D-DD.53 uses it too.
+
+- **D-DD.52 Roster: one generator, July to October in DD2; DD4.3 extends it to 6 Nov** (Q5; default taken, with one
+  condition). DD4.3 adds the November nights, including Kasarani's three spare-bus nights, by giving the same
+  `exports_ev` roster function a wider month span. It never writes a second roster writer. The roster file then holds 1
+  Jul to 6 Nov.
+
+- **D-DD.53 Note days: a disorder test that dates a note sets that note's day** (Q6; amends D-DD.32's last sentence;
+  the builder's default is not taken). The writer puts deliveries into the tank at the note's `occurred_at` (D-DD.19),
+  so the date must be right in DD2. If DD5.2 moved it later, the books and the tank would disagree.
+  - Rule: a month's dated notes (from the manifest's `disorder_tests`, through a module table with a parity test as in
+    D-DD.51) are cut first, each at its date and 10:00 local. The rest of the month's litres are cut into 400 L notes on
+    the fixed cycle (1st, 8th, 15th, 22nd, 29th), and the last of them carries the remainder.
+  - Today there is one dated note, OOO-1: Kobo, 400 L, 2026-10-26. Kobo's October is then 400 L on 26 Oct, 400 L on
+    1 Oct and 380 L on 8 Oct, 1180 in all (`EMU_FUEL` holds).
+  - DD2 writes all three notes in October's expenses file. DD5.2 plants OOO-1 as §5.5 says, unchanged.
+
+- **D-DD.54 Staging in DD2.1 is the three DS1b JSON kinds; profile admission and the statements reader are DD5 and WK**
+  (Q7; default taken, plus one invariant). DS1b's records for cold and EV must also each land in exactly one place: an
+  exported file, a staged JSON or `unwritten.json`. A test over all three tenants asserts this, as the mini-grid
+  exporter already does for its own tenant.
+
+- **D-DD.55 C-DD2 to C-DD4 by SQL, live and failing until DD5; C-DD4 also checks the node figures on history months**
+  (Q8; default taken, amends spec §8.1).
+  - The checks join `commercial_record_revision` to `site` for the Site code. They are tested with pure judges on
+    fixture rows, as C-DD1 is.
+  - C-DD4 gains one clause. For each history month, the decided node figures (mini-grid billed kWh, revenue,
+    collected, litres and fuel cost; cold revenue and received) must equal the checker's **own** evaluation of `M`
+    `structures` and `factor_map` on `history.json`'s leaves, to the cent. The checker reads the manifest text itself,
+    with a minimal evaluator of its own (names, numbers, `+ - *`, `a | b`), and shares no code with D-DD.48's table.
+  - Without this clause the derived billed kWh would be checked by nothing independent (W2), because C-DD3's
+    identities hold by construction once billed is given. The checker's inputs gain `structures` and `factor_map`.
+
+- **D-DD.56 A bool cell missing from its map is refused `NATIVE_VALUE`** (Q9; default taken). This is the same code
+  as every other map miss (`layouts_v1.py:482`). An empty cell reads as absent, and the kind's presence rule decides.
+
+- **D-DD.57 Units: DD2 grows by 0.75 u to 6.25 u and splits** (W4).
+  - Changes: D-DD.48 +0.25 (DD2.1: node table, parity, October check, plan side, D-DD.53's dated note); D-DD.49
+    +0.25 on DD2.3 (both budget profiles with samples and expected files; partly offset by no contract change and no
+    PENALTY);
+    D-DD.55 +0.25 (DD2.5: the checker's evaluator).
+  - **DD2a** (`task/DD2-books`, as built so far): DD2.2 (done, 0.5), DD2.1 (1.5), DD2.5 (1.0), **3.0 u**.
+  - **DD2b** (`task/DD2b-cold-ev-books`, branched from DD2a's head once DD2.2's review is ACCEPT, or from `main` after
+    DD2a merges): DD2.3 (1.75, with D-DD.50) and DD2.4 (1.5), **3.25 u**.
+  - DD goes from 33.5 to **34.25 u** in eight parts.
+
+# DD rulings, round 7 (D-DD.58 to D-DD.66): DD2a review question, DD2b questions and deviations
+
+Architect (Claude), 2026-11-22. Inputs: `review-DD2a.md` round 1 (M1, L1-L3 and the question on C-DD3's EV clause, on
+`task/DD2-books` at e55a79ff9) and `packet-DD2b.md` (deviations 1-8, Q1-Q4 and the Kirinyaga full-room risk, on
+`task/DD2b-cold-ev-books` at 948515f0c), and `review-DD2b.md` round 1 (ACCEPT; M1 = Q2, M2 = Q1, L1-L4, at 3b353031c).
+Checked against code on `main`: `commercial/uploads.py` `_refuse_switch`
+(D-3A6.5), `commercial/profiles.py` (`PROFILE_SOURCE_SYSTEM_TAKEN`), `load_emulated_exports.py` `_mixed`,
+`canonical/sources_v1.py`, `canonical/records_v1.py` (CHARGE, RECEIPT, ADJUSTMENT, TARIFF_SCHEDULE, `bands`),
+`native/layouts_v1.py` (an empty cell writes nothing), `structure/sources.py` (cold `rate` and EV prices
+`NOT_CONNECTED`; mini-grid `tariff` PROVIDED by the existing route) and `world/records.py` (DS1b writes EXPENSE,
+ADJUSTMENT and BUDGET_LINE only). No product contract changes. Owner informed; no weigh-in needed to proceed (one
+WORKAROUND in D-DD.61 is reported for the owner's review).
+
+- **D-DD.58 C-DD3 never crashes, and its EV clause judges the tariff identity on stored invoice lines** (DD2a M1, L1-L3,
+  the Architect question; amends spec §8.1 C-DD3).
+  - *Missing figures.* A Site-month missing a figure a C-DD3 or C-DD4 clause needs (any vertical: mini, cold
+    `crate_days`, EV) is a FAIL detail line `<tenant>/<site> <month>: <figure> not recorded`, never an exception.
+  - *EV clause.* For every stored EV CHARGE line: `amount = round_half_even(quantity x rate, 0.01)`, where the rate is
+    the line's band price in `M` `tenants.metro-bus.sites.<site>.tariff.prices`, read by the checker itself: `PEAK` →
+    `peak`; `OFFPEAK` → `offpeak`; `NIGHT` → `night_from_1_nov`; `FLAT` → `usd_per_kwh`; `DEMAND` →
+    `demand_per_kw_month`. A Site-month's lines then sum to `peak_cost + offpeak_cost + demand_cost`, the `checks`
+    identity. Each failing line is one detail line. While no EV CHARGE row is stored, the clause reports
+    `pending: EV utility invoices are DD4.4's` and is not judged. It is never compared with a `history.json` leaf
+    (history holds no EV `energy_cost`).
+  - *Tests.* One test runs `judge_identities` and `judge_leaves_and_nodes` on the real inputs with `tenants=None` and
+    asserts no exception; one plant drops a cold `crate_days` and asserts a FAIL line. L2: delete `BOOK_MONTHS`. L1:
+    carried; the packet states that DD5's first C-DD2 run is `BOOK_QUERY`'s first proof. L3: not adopted (§8.1 lists
+    two mini identities; C-DD4 covers fuel cost).
+  - *Reach.* The checker only. Parity: the mini-grid and cold clause detail lines on the existing fixture rows
+    (`test_dd2_checker_on_emulated_rows.py`, `tenants=LAKESIDE`) stay identical.
+  - *Why.* The old clause compared lines with a leaf that does not exist and so hid every other judgement. Amount =
+    quantity x tariff is the same identity C-DD3 judges for mini (billed x tariff) and cold (crate-days x 0.20).
+
+- **D-DD.59 Cold invoicing is one export of one system: invoices, receipts and credit notes** (DD2b Q1; replaces §5.2's
+  two invoice and receipt profiles).
+  - *Ruling.* One profile, `cold-storage-invoicing-illustrative` (`source_type` `customer_invoicing`, `source_system`
+    `cold-storage-invoicing`, `version` `row_digest`), file `<slug>.profile.cold-storage-invoicing.csv`, no constants.
+    A `Type` column writes `kind`. Its columns are in spec §5.2. Thika's October credit note
+    (`gen:COLD-THIKA:2026-10:actual:liability`, DS1b's ADJUSTMENT) is a `Credit note` row of this file, with DS1b's
+    values, subject `SITE` and reason; it is no longer staged JSON. D-DD.54's accounting places it in "files".
+  - *Why.* In the operating world a cold-room operator's invoicing system issues the invoices, takes the payments and
+    issues the credit notes, and exports them as one transaction list. The source-type table already says so
+    (`customer_invoicing`: "cold-room invoices, receipts and credit notes"). Two profiles were the spec's error: one
+    source system per source type per Site (D-3A6.5) and one profile per system (`PROFILE_SOURCE_SYSTEM_TAKEN`) are
+    right, because a record's identity is `(tenant, source_system, source_record_id)`. A generator system beside the
+    file would have been a second identity space for the same ledger.
+  - *Rejected.* Receipts as `mobile_money_statement`, review-DD2b M2's default. Cold receipts are M-Pesa, bank and
+    cash payments recorded against invoices, and a mobile-money statement holds no bank or cash payment. The
+    mini-grid precedent fits because Lakeside's collections really are a mobile-money settlement statement. That
+    default would also leave the Thika credit note without a home. Several profiles per system
+    (a 3A6 seam change reaching every Site type, for no operating-world reason).
+  - *If refused.* If `compile_profile` or admission refuses `kind` from a mapped column, or a coded column's empty
+    cell, the builder stops and asks; no constant workaround.
+  - *Reach.* Cold only. Parity: Lakeside's and Metro Bus's exported files are byte-identical to their pre-change bytes
+    (mini-grid PINNED test; an EV golden of the DD2b head).
+
+- **D-DD.60 The source-system rule holds at export, and staged JSON loads in its own step** (the class behind Q1;
+  amends D-DD.54 and §5.1).
+  - *Guard.* `build_books` stops `EMU_SOURCE_SWITCH <tenant> <source_type> <site>` when (a) two exported files of a
+    tenant share a source type, or (b) a staged batch names a Site that an exported file of the same source type
+    names under another `source_system`. This mirrors D-3A6.5 and the loader's `_mixed`, so a clash fails at
+    generation, not at DD5's load.
+  - *Staging.* Staged canonical JSON goes to `<slug>/staged/`, not `<slug>/commercial/`. DD5.3 loads it as step
+    `L1.staged:<slug>`, after the commercial step. Staged today: the cold rate cards and EV tariff schedules
+    (D-DD.61); DS1b's ADJUSTMENT only where no invoicing file of its source type exists. A mini-grid ADJUSTMENT under
+    `billing_export` would clash with `billing-illustrative-1` and stop the export. No Site has one today (every
+    mini-grid `liability` leaf is zero). A future one is an Architect question, not a bypass.
+  - *Tests.* A plant with a non-zero Lakeside `liability` stops `EMU_SOURCE_SWITCH`; the real manifest passes.
+  - *Reach.* All three verticals' export assembly. Parity: Lakeside's `commercial/` bytes are unchanged.
+  - *Class and sweep.* Class: a store invariant (one system per source type per Site) that the emulator did not
+    honour. Sweep: every source type with two writers. `customer_invoicing` is fixed by D-DD.59, `utility_invoice` by
+    D-DD.61 (same system), and `billing_export` by the guard. `expense_ledger` and `budget_workbook` each have one
+    writer per tenant.
+
+- **D-DD.61 Tariff schedules are written from `M` by `world/tariffs.py`; the meter register is DD5.2's** (DD2b Q2;
+  corrects spec §3 and §5.1, whose premise that DS1b writes TARIFF_SCHEDULE and METER_ASSIGNMENT is false).
+  - *Writer.* `simulator/assetops_simulator/world/tariffs.py` (DD2b), `tariff_schedules(view) -> {slug: batch}`,
+    canonical JSON, staged (D-DD.60), `source_version` "1", record IDs `gen:<code>:tariff:<effective_from>`:
+    - Cold, `<slug>.storage_rate_card.json`, `source_type` `storage_rate_card`, `source_system`
+      `cold-storage-invoicing`. One record per Site: `contract_ref` `T-STORAGE`, from 2026-07-01, band `STORAGE`
+      00:00-24:00 at `prices.storage_usd_per_crate_day` (0.20) `per_crate_day`. The invoicing rows' `Tariff` is
+      `T-STORAGE`.
+    - EV, `<slug>.utility_invoice.json`, `source_type` `utility_invoice`, `source_system` `ev-utility-invoice` (the
+      utility issues both the schedule and the invoice, so the same system as the invoice profile). Embakasi: `C-114`
+      from 2026-07-01 to 2026-10-31 (`OFFPEAK-AM` 00:00-18:00 at 0.12, `PEAK` 18:00-22:00 at 0.24, `OFFPEAK-PM`
+      22:00-24:00 at 0.12, `demand_rate` 12.00), and `C-114` from 2026-11-01 (`NIGHT` 00:00-05:00 at 0.09,
+      `OFFPEAK-AM` 05:00-18:00, `PEAK`, `OFFPEAK-PM`, `demand_rate` 12.00). Ruiru: `C-117` from 2026-07-01, the
+      October Embakasi bands with demand 12.00. Kasarani: `FLAT-EV-KASARANI` (the Site code's form), band `FLAT`
+      00:00-24:00 at 0.15, no `demand_rate`. All prices are read from `M` `tariff.prices`.
+  - *Parity test (review-DD2b M1).* Every `Tariff` code on a cold invoicing row or an EV invoice row, samples
+    included, equals the `contract_ref` of a schedule of that Site in force on the row's `effective_from`. Every
+    schedule rate equals `M`'s price. The spec's wording "DS1b already writes" (§3, §5.2, §5.3, and D-DD.24's note) is
+    corrected.
+    - Mini-grid: none. Its `tariff` leaf is PROVIDED by the existing route; Lakeside is unchanged (parity).
+  - *WORKAROUND (owner review).* A canonical band is one interval with a unique name, so the all-other-hours
+    off-peak price is written as two bands, `OFFPEAK-AM` and `OFFPEAK-PM`. The invoice line reads `OFFPEAK` (D-DD.64
+    (2)). The link between them is the name before the hyphen. No product code reads tariff bands today: cold `rate`
+    and the EV prices are `NOT_CONNECTED`. The model fix, a band with several intervals in canonical TARIFF_SCHEDULE,
+    is a contracts change. It goes to the backlog for the first unit that reads time-of-use prices; it is not built
+    in DD.
+  - *Invoice lines (amends §5.6).* One USAGE line per price class of the Site's schedule (`PEAK`, `OFFPEAK`, `NIGHT`
+    from 1 Nov, or `FLAT`), plus one DEMAND line where the schedule has a `demand_rate`. Kasarani has a single `FLAT`
+    line and no DEMAND line.
+  - *Meter register.* Only MAP-1 needs METER_ASSIGNMENT. DD5.2 writes Mto's six re-pointing rows as
+    `lakeside-power.meter_register.json` (`meter_register`, `source_system` `illustrative-meter-register`), staged.
+    There is no baseline register; §5.5's row is amended.
+  - *Why.* Every record kind §3 lists for a Site must exist for C-DD2. A tariff comes from the party that sets it,
+    so the operator issues its rate card and the utility issues its time-of-use schedule.
+
+- **D-DD.62 One NODES table, and DD2a merges before DD2b, which owns every conflict** (DD2b Q3).
+  - *Table.* `simulator/assetops_simulator/world/nodes.py` holds `NODES` (keys `MINI_GRID`, `COLD_CHAIN`), one
+    `emu_node(tenant, code, month, values, recorded)` and one parity test parametrised over the keys against `M`
+    `structures`. `exports.py` and `exports_cold.py` import from it, and their own tables and tests are deleted. The
+    checker keeps its own evaluator (D-DD.55, independence).
+  - *Order.* DD2a goes first, because DD2b carries DD2.2's commits (review-DD2b, Q3). (1) DD2a's fix round (D-DD.58), re-review, merge. (2) DD2b's fix round merges `main` and resolves every
+    conflict: `tools/world_history.py`, `test_3a3_exports.py`, `exports.py`, `tools/world.py` staging. It then makes
+    D-DD.59 to D-DD.62 and D-DD.64's text changes, and goes to review.
+  - *Why.* Two copies of the structure text would drift. The later branch holds both sides, so it resolves the
+    conflicts.
+
+- **D-DD.63 The cold ledger rule** (DD2b deviation 3; replaces §5.2's "Ledger generation", whose division by 7 fails,
+  for example Thika's 8,432 crate-days).
+  - *Crate-day.* A crate counts on each date from its admission date up to the day before it leaves (a stored night;
+    the check-out day is not counted). A month's crate-days are those dated in it, so a batch admitted late in a month
+    carries crate-days into the next, as a real room does. The invoice bills the crate-days dated in its month.
+  - *Fill, per Site-month, in month order.* `need` = the month's `crate_days` leaf minus the crate-days that earlier
+    batches carry into it. Standard batches (40 crates, 7 days, Assumed) are placed one at a time on the day whose stay
+    sees the fewest crates in the room (ties: the earlier day), while their in-month crate-days still fit in `need`.
+    The rest (under 40) is one remainder batch inside the month, with `rest // 7` crates for 7 days and one crate
+    leaving after `rest % 7` days (a partial early collection).
+  - *Opening stock.* June batches, filled at July's daily rate, that are still in on 1 Jul are written, IN rows dated
+    in June included, so every stored OUT has its IN. **June rows are opening stock** (review-DD2b L2). June has no
+    invoice, statement or leaf. Every check that reads the ledger's months (C-DD2 to C-DD4, DD5's loads) judges July
+    to October and treats June movements as opening stock, never as a missing month.
+  - *Clock.* In at 08:00, out at 16:00 local. OUT rows after `as_of` are not written (those crates are still in).
+  - *Bounds.* `EMU_CAPACITY` stops on a room above capacity. Reaching capacity is allowed (D-DD.65).
+  - *November (DD4.2).* DD4.2 extends the ledger to `as_of` for the rooms' readings. November's admissions repeat 1-6
+    Oct's generated admissions (named batches excluded), shifted by 31 days, with new batch refs. They are Assumed,
+    with no November invoice (the month is not closed).
+  - *Reach.* Cold only.
+
+- **D-DD.64 DD2b deviations 1, 2 and 4 to 8 ratified, with the spec amended** (DD2b Q4).
+  1. A profile with a `status` column uses `version: row_digest` (receipts, now the invoicing file, and tickets). A
+     constant version would hide a status change.
+  2. The EV invoice's `Line` (`body.band`, free text) and `Line type` (`body.line_type`, map `{"Usage": "USAGE",
+     "Demand": "DEMAND"}`) are two columns, because a map is one-to-one.
+  4. B-1029 is in on 28 Sep at 08:00. B-1031 and B-1034 are in on 1 Oct at 08:00 and out on 8 Oct at 16:00
+     (Assumed), customer `COLD-THIKA-K-01` (R5).
+  5. `NODE_LINES` applies wherever the plan holds the field, so October Embakasi and Kasarani get `energy_cost` and
+     `departures_required` lines. §5.3's "at Ruiru" described history.
+  6. A roster row's service day is the night's start date. Embakasi returns are rounded to the whole minute,
+     half-even.
+  7. Receipts are paid at month end, 10:00. Methods rotate M-Pesa, M-Pesa, Bank. The tariff code is `T-STORAGE`.
+     Sample-only rows (a cash receipt, an in-transit receipt, ACKNOWLEDGED and CLOSED tickets, and a credit note
+     where needed) exist only to cover every map value (admission step 4b).
+  8. The cold electricity-bill profile is DD4.4's, with its rows (§7 DD4.4 amended).
+
+- **D-DD.65 Kirinyaga's room at exactly 400 crates is accepted** (DD2b risk). The fill minimises crowding, so the
+  peak is what Kirinyaga's crate-days require. A full room on peak days is the operating world. DD4.1's acceptance
+  gains one test: cold-thermal 2 runs at occupancy = capacity with no clipping. C-DD20's Kirinyaga direction is still
+  judged, never tuned.
+
+- **D-DD.65a review-DD2b's Lows** (carried, none blocking).
+  - L1 goes to DD4.4's acceptance: `HAND_SAMPLES` is empty once `exports_measured` exists, and the utility-invoice and
+    departure samples are slices of emulated rows.
+  - L2 is D-DD.63's opening-stock sentence.
+  - L3 is D-DD.65. Capacity is met by the data and guarded by `EMU_CAPACITY`. A history change that trips it is an
+    Architect question.
+  - L4 goes to DD2b's fix round: `test_dd2b_ev.py` uses `zone_currency(view)[0]`, not the host's zone.
+  - The residual determinism risk goes to DD2b's fix round: pin the sha256 of each cold and EV exported file, as 3A3
+    does for mini-grid. This also serves as D-DD.59's EV parity golden.
+
+- **D-DD.66 Units: DD2b +0.75 u, DD5 +0.25 u; DD 35.25 u in eight parts** (W4).
+  - DD2b, 3.25 to **4.0 u**: D-DD.59 (one invoicing profile with Type column and credit-note row, replacing two)
+    +0.25; D-DD.60 and D-DD.61 (guard, staged directory, `tariffs.py`) +0.5. D-DD.62's merge is inside the fix round.
+  - DD2a: no change (D-DD.58 is M1's fix round).
+  - DD5, 5.0 to **5.25 u**: D-DD.61's meter-register file in DD5.2, and the `L1.staged` step in DD5.3 (+0.25).
+  - DD2 is 7.0 u (DD2a 3.0, DD2b 4.0). DD goes from 34.25 to **35.25 u**, each part at or under 6 u.
+
+# DD rulings, round 8 (D-DD.67 to D-DD.73): DD3a mid-build questions and deviations
+
+Architect (Claude), 2026-11-22. Input: `DD3a-handoff.md` on `task/DD3a-mini-reality` at e32b5d57f ("Risks and
+Architect questions" and "Defaults taken"). Checked against code on that branch: `financials/fuel_cost_v2.py:35,158`
+(`NO_LOAD_BASES`, the `NO_LOAD_RATE_BASIS_MISSING` refusal; the set is not in `PARAMETER_VERSION`),
+`fuel_balance/service.py:25` (follows `STATE_PROPERTY_VALUES`), `structure/litres/inputs.py:22,107` (imports fuel
+balance's set), `chain/vocabulary.py:117`, `site_outcomes/mini.py:74,446`, `actions/verification.py:1298`,
+`financials/trial_fuel_comparison.py:69`, `packs/mini_grid.py:93-113` (`GENERATOR_LIFECYCLE`
+`initial_values_supported` = {STOPPED, FAILED}), `sites/models.py:97,432-449` (`COMPONENT_PROPERTY_SOURCES` =
+{TEMPLATE, SITE}; `source_version` = the declaring document's version) and `KOBO-001-bindings.json` (rows keyed by
+`device_id`, `signal_id`). Owner rule applied: "one model-computed figure per quantity, loyal to the operating world;
+fix model faults in the model". Owner informed; no weigh-in needed (no WORKAROUND).
+
+- **D-DD.67 The no-load basis has one vocabulary; fuel-cost-2 and the client words read DATASHEET_FIT** (handoff risks
+  (a) and (b); amends spec §6 "Labels"; the class behind both).
+  - *Fault.* D-DD.17 added `DATASHEET_FIT` to `generator-no-load-fuel-rate-basis`, but two readers keep their own copy
+    of the value set. fuel-cost-2 would refuse Kobo's 0.62 L/h `NO_LOAD_RATE_BASIS_MISSING`, so the fuel cost would
+    read "not available" while the fuel balance and the litres structure (which follow `STATE_PROPERTY_VALUES`) show
+    0.62, and the world's v8 burn uses 0.62. One quantity would have two answers. The fault is in the model, and it is
+    fixed there.
+  - *fuel-cost-2.* `NO_LOAD_BASES = ("GENERIC_DEFAULT", "MANUFACTURER_DATASHEET", "SITE_TEST", "DATASHEET_FIT")`. It stays
+    a literal: the financials models import nothing outside `financials/` and stay pure. `PARAMETER_VERSION` is not
+    touched, so `PARAMETER_SHA256`, `FORMULA_VERSION` and `REVIEWED_PARAMETER_SHA256` are unchanged and no new
+    parameter version is cut. The basis set is not in the reviewed parameter record. The formula and the inequality
+    hold for "the declared no-load fuel rate with its declared basis", whatever the basis is. The `limitation` text
+    (GENERIC_DEFAULT is a generic figure) stays true. A fitted rate is this generator's own figure, labelled Assumed
+    by D-DD.17.
+  - *Client words.* `NO_LOAD_BASIS_WORDS["DATASHEET_FIT"] = "the datasheet-fitted idle fuel rate"`. It renders "counted
+    at the datasheet-fitted idle fuel rate of 0.62 L/h, not measured" (`COST_IDLE`) and "modelled from the
+    datasheet-fitted idle fuel rate, not measured by a fuel meter" (`FUEL_VALUE_PAGE`). Guard V holds (no "no-load",
+    no "load"). The words match D-DD.17's Foundation label ("Assumed: fitted to the data sheet's stated points").
+  - *Sweep (every reader of the basis).* fuel-cost-2 and `NO_LOAD_BASIS_WORDS` change. These need no change:
+    `fuel_balance/service.py` and `structure/litres/inputs.py` (they already follow the vocabulary); the Action and
+    consequence stores and `chain/outcomes.py` (they pass the basis through); `site_outcomes/mini.py` and
+    `actions/verification.py` (they read the words). In `trial_fuel_comparison.py:69`, the comment "one of the three
+    states" becomes "one of the basis states". No frontend reads the basis.
+  - *So it cannot recur.* One test asserts `set(fuel_cost_v2.NO_LOAD_BASES) ==
+    STATE_PROPERTY_VALUES["generator-no-load-fuel-rate-basis"]` and `set(NO_LOAD_BASIS_WORDS) - {None}` equal to the
+    same set. A basis value added later without both readers then fails a test.
+  - *Acceptance (questions).* Does `fuel_cost_v2.quantify`, given a Foundation revision declaring 0.62 L/h
+    `DATASHEET_FIT` with an idle reading, return AVAILABLE with rate 0.62 and basis `DATASHEET_FIT`? Does the idle
+    cost row read the DATASHEET_FIT words? Does an unknown basis string still refuse `NO_LOAD_RATE_BASIS_MISSING`?
+  - *Reach.* Mini-grid Sites only: Sites whose generator declares a no-load rate (Lakeside/Kobo, Kisiwa, Mto, and the
+    test fixtures), on every mini-grid role set. Cold-chain and EV Sites declare no generator no-load rate, so
+    fuel-cost-2 is never selected for them and the words never render. The change only admits one more value: no
+    existing basis changes outcome. Parity: D-DD.68.
+
+- **D-DD.68 Parity test for D-DD.67, golden from main** (standing rule, 22 Nov audit). File
+  `backend/tests/test_dd3_no_load_basis_parity.py`. The goldens are generated on `main` 80661e824 before the change
+  and committed beside the test. Each must match:
+  - canonical JSON of `fuel_cost_v2.quantify` on the existing `test_fuel_cost_v2.py` fixtures, one each for
+    GENERIC_DEFAULT, MANUFACTURER_DATASHEET and SITE_TEST, one for a missing basis (`NO_LOAD_RATE_BASIS_MISSING`) and
+    one with no rate declared;
+  - `PARAMETER_SHA256` and `FORMULA_VERSION`;
+  - the three existing `NO_LOAD_BASIS_WORDS` entries and the `None` entry;
+  - `COST_IDLE` as rendered for GENERIC_DEFAULT.
+  The no-rate case (fuel-cost-1's result returned byte-equal) stands for cold-chain and EV, which declare no rate.
+  Kisiwa and Mto (GENERIC_DEFAULT) are the GENERIC_DEFAULT case.
+
+- **D-DD.69 The writer runs one continuous execution per Site, advanced one local day at a time** (deviation 1;
+  amends spec §4.1 "Per Site-day").
+  - Per Site there is one pack execution over the span. It starts at the span's first local midnight from the
+    declared initial state: generator STOPPED, the tank at 50 % (D-DD.19), the rest as §4.2. It advances one local
+    day at a time. Kobo, Kisiwa and Mto are on Africa/Nairobi, which has no DST, so a day is 288 five-minute steps.
+    Each day's readings file is written from that day's steps. Day d+1 starts from day d's end state by
+    construction. That includes a RUNNING or STARTING generator, which v8 cannot declare at a run start.
+  - The rule holds for every pack the writer drives (DD4.2 and DD4.3 included), so there is one chaining mechanism.
+    A refusal on any day is `TEL_PACK` naming the day.
+  - *Test.* For Kobo, the readings from advancing 288 steps twice are byte-equal to the readings from advancing 576
+    steps once.
+  - *Why.* This is the same thing as chaining day to day, without a generator forced to STOPPED at every midnight.
+    That forced stop would add starts and cut runs that the operating world does not have.
+
+- **D-DD.70 Kisiwa's and Mto's pure run under D-DD.19 moves to DD3b** (deviation 2; amends D-DD.19 "Known before the
+  build", spec §6 "Order inside DD3.2" and §7 DD3.2, DD3.3).
+  - In DD3a, DD3.2 commit 1b runs the writer purely on Kobo, July to October, at 0.62 and at 3.3 L/h. It prints D-DD.19's
+    table per month. Any bound hit, or a Kobo C-DD8 or C-DD17 failure, goes to the Architect before DD3a merges.
+  - In DD3b, DD3.3 runs Kisiwa and Mto purely on v9, July to October, and prints the same table. A failure goes to the
+    Architect before DD3b merges, which is still before DD4 and before DD5 loads their readings. D-DD.19's fallback
+    applies per Site, unchanged.
+  - *Why.* Kisiwa and Mto have two generators or two inverters, and v8 holds one of each (§0). A v8 run of them would
+    print figures from a Site that does not exist.
+
+- **D-DD.71 The data-sheet tool writes `source` "SITE", `source_version` 1** (deviation 3; amends spec §6 "The
+  mapping"). Every property the tool writes carries these, and so does its `-basis` sibling.
+  - *Why.* The closed set is {TEMPLATE, SITE}, and D-DD.17 allows no new value. The values are the Site's own equipment
+    records, not a template copy (`sites/models.py:432`). Version 1 is the Site's first declaration of them. A later
+    re-read of a sheet that changes a value writes the next integer.
+
+- **D-DD.72 A reading's `source_id` is its binding row's `device_id`** (deviation 4; amends spec §4.1 "Output" and
+  "Public records to readings").
+  - In `assetops.world-readings/1`, `source_id` is the `device_id` and `signal_id` the `signal_id` of the Site's binding
+    row for the record's role. The manifest's `mappings` lists (pack record, role, `source_id`, `signal_id`).
+  - A public record with no binding row, or with two, refuses `TEL_BINDING <site> <role>`. This is a new refusal code
+    in §4.1's list.
+  - *Test.* Every pair written for Kobo resolves to exactly one row of `KOBO-001-bindings.json`.
+  - *Why.* The binding conversion keys its rows by `device_id`, and §4.6 resolves each `source_id` through the
+    foundation store's devices. A second identifier would be a second name for one device.
+
+- **D-DD.73 Units: DD3a +0.25 u, DD3b +0.25 u; DD 35.75 u in eight parts** (W4).
+  - DD3a, 3.75 to **4.0 u** (DD3.2 2.0 to 2.25): D-DD.67 and D-DD.68. D-DD.69, D-DD.71 and D-DD.72 are inside DD3.1
+    and DD3.2 as built.
+  - DD3b, 4.75 to **5.0 u** (DD3.3 2.25 to 2.5): D-DD.70's pure-run table and gate.
+  - DD3 is 9.0 u. DD goes from 35.25 to **35.75 u**, and each part stays at or under 6 u.

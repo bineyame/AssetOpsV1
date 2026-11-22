@@ -116,35 +116,10 @@ MAX_TIME_ZONE_LENGTH = 64
 # defect as a store nobody can read, arriving one panel later.
 MAX_TOPOLOGY_NODES = 64
 MAX_CONNECTIONS = 128
-# 64 rather than 128, and the difference is whether this cap can fire at all.
-#
-# A device carries an id, a name, a component reference and a signal list, and
-# the document walker counts every key and scalar in it. Measured against the
-# 2,000-node document ceiling, a document is refused for node count at 77
-# devices - so a cap of 128 could never be reached. Such a document was refused,
-# but for the wrong reason and with a message about node counts rather than
-# about devices, which tells a reader nothing about what to remove.
-#
-# A cap that cannot fire is not protection. This one moves under the ceiling
-# rather than the ceiling moving over it: raising the ceiling to reach the cap
-# would have loosened a whole-document guard to make a per-section guard
-# reachable, which is backwards.
-#
-# 64 leaves headroom under the 77 the ceiling refuses at, so the cap stays the
-# first thing to fire even as a device grows more signals.
-MAX_DEVICES = 64
+# D-DD.42: 10,000 nodes and 96 devices (Ruiru is 6,623 nodes / 73 devices); these are parsing-cost guards.
+# TestEveryCapCanFire builds a document at cap + 1 and reads which guard answers.
+MAX_DEVICES = 96  # D-DD.42: basis Ruiru, 73 devices (1.3x); a parsing-cost guard, under the 10,000-node ceiling
 MAX_SIGNALS_PER_DEVICE = 32
-# 160 rather than 256, for the reason MAX_DEVICES is 64 rather than 128.
-#
-# Measured: the 2,000-node document ceiling starts refusing at 208 mappings, so
-# a cap of 256 could never be reached and a 257-entry list was refused for node
-# count instead - the wrong guard, with a message naming nodes rather than
-# mappings. 160 leaves headroom under 208 so this stays the first guard to
-# speak.
-#
-# Every cap in this module is measured that way by
-# `TestEveryCapCanFire`: build a document at cap + 1 and read which guard
-# answers. A cap above the ceiling is not a limit, it is a comment.
 MAX_SIGNAL_MAPPINGS = 160
 MAX_CONTROL_ASSUMPTIONS = 32
 #: The Site Control vocabulary has two members, so a longer list is declaring

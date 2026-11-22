@@ -55,6 +55,7 @@ SPEC_ROLES = {
     # 3B4 (spec §5.3): the tolerance command's two keys (a command line, no route).
     "structure.tolerance.money": (FIN,), "structure.tolerance.operational": (SM,),
     "decision.prepare": ("ANALYST",), "decision.one_off": (SM, FIN), "decision.choose": ("OPERATOR_EXECUTIVE",),  # 6a
+    "decision.evaluate": ("ANALYST",),  # 6c
     # 3C1b (spec §3): the trial actions.
     "action.accept": (SM,), "action.apply": (SM,), "action.observe": (SM, FT),
 }

@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-DD.17 to D-DD.40)
+# Decision index: Demo-sprint and later rulings (index only) (D-DD.17 to D-DD.47, D-P6.34 to D-P6.41)
 
 - `D-DD.17` data-sheet labels reuse -basis properties; DATASHEET_FIT; Kobo no-load 0.62 L/h Assumed, owner Q7 · live · specs/DD-demo-data/rulings.md
 - `D-DD.18` served fuel split is the readings-fed one; history split only makes delivered litres · live · specs/DD-demo-data/rulings.md
@@ -16,7 +16,7 @@
 - `D-DD.30` Kobo template v4 back to 0K4f (about 2.75 u); DD restates world Kobo and regenerates goldens · live · specs/DD-demo-data/rulings.md
 - `D-DD.31` checker pins history.json by golden sha256; exact C-DD7; triples; cadence from readings manifest · live · specs/DD-demo-data/rulings.md
 - `D-DD.32` build_exports(view, history, months); 400 L notes on fixed days; SOURCE_VERSION 2 pin moves · live · specs/DD-demo-data/rulings.md
-- `D-DD.33` DD restated: 30.0 u in six parts (DD1-DD6), none over 6 u · live · specs/DD-demo-data/rulings.md
+- `D-DD.33` DD restated: 30.0 u in six parts (DD1-DD6), none over 6 u · live, amended by D-DD.44 · specs/DD-demo-data/rulings.md
 - `D-DD.34` owner queue round 2: Q7 no-load rate, Q8 acceptance gate, Q9 bills follow the meter · live · specs/DD-demo-data/rulings.md
 - `D-DD.35` provision_gateway guard compares served_tenant_slug(); safety kept; 13 CLIs same class, backlog · live · specs/DD-demo-data/rulings.md
 - `D-DD.36` apply step: onboard_operator apply --bindings DIR; provisioning in process via provision_gateway.main · live · specs/DD-demo-data/rulings.md
@@ -24,3 +24,18 @@
 - `D-DD.38` EV ids ch-e1.., <charger>-c1/c2, ev-lab devices; display names carry manifest codes · live · specs/DD-demo-data/rulings.md
 - `D-DD.39` EV schedules 00:00-24:00 daily, +180; validator accepts 24:00 as local_end · live · specs/DD-demo-data/rulings.md
 - `D-DD.40` C-DD13 TENANT-1 clause pending until DD5.2, printed beside the result · live · specs/DD-demo-data/rulings.md
+- `D-DD.41` minigrid-roles-5: GENERATOR/INVERTER roles PER_ASSET; Site figures by one unit rule; Kisiwa, Mto publish now · live (readiness coverage amended by D-DD.45) · specs/DD-demo-data/rulings.md
+- `D-DD.42` Site document limits 10,000 nodes, 96 devices, basis Ruiru 6,623/73; 256 KiB byte bound kept · live (premise corrected by D-DD.47) · specs/DD-demo-data/rulings.md
+- `D-DD.43` Lakeside template fill accepted; generator policy held once on the lead unit (gen-ks-01) · live · specs/DD-demo-data/rulings.md
+- `D-DD.44` DD restated: 33.0 u in seven parts; DD1.2 +0.5 u; DD3.4 readers 2.5 u; DD3 splits DD3a/DD3b · live · specs/DD-demo-data/rulings.md
+- `D-DD.45` readiness coverage is an explicit Role.every_component flag (LOAD feeders + five roles-5 unit roles); cold/EV readiness byte-equal to main · live · specs/DD-demo-data/rulings.md
+- `D-DD.46` DD1 L1: document-limit comments state D-DD.42's basis · live · specs/DD-demo-data/rulings.md
+- `D-DD.47` DD1 L3: bindings files parsed in the pre-write check (exit 2); L2 Foundation POST body bound to backlog; DD1 5.0 u, DD 33.5 u · live · specs/DD-demo-data/rulings.md
+- `D-P6.34` a money effect exactly 0 with no money read carries the option's currency; a missing one stays null · live · specs/6-decision-valued/rulings.md
+- `D-P6.35` F1j's zero row: `assumed` [] accepted; §5 amended · live · specs/6-decision-valued/rulings.md
+- `D-P6.36` `assumed` = used assumed leaves plus each used node's assumed_leaves, registry order · live · specs/6-decision-valued/rulings.md
+- `D-P6.37` ZERO_DENOMINATOR only for a zero denominator (tagged); other nodes named by their missing leaves; else raise · live · specs/6-decision-valued/rulings.md
+- `D-P6.38` option_inputs branches NO_ACTION/SETTING_GRID by name; other generators refuse LEVER_UNKNOWN at E3 · live · specs/6-decision-valued/rulings.md
+- `D-P6.39` 6c deviations 6-8 accepted as built; recorded in spec rev 3 · live · specs/6-decision-valued/rulings.md
+- `D-P6.40` eight new plants (M1, L1 rules) in §6; test 4 effect rows literal · live · specs/6-decision-valued/rulings.md
+- `D-P6.41` site_inputs catch narrowed to StructureError/StoreUnavailable (adapter maps SQLAlchemyError); build_evaluation tested end to end · live · specs/6-decision-valued/rulings.md

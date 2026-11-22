@@ -57,7 +57,7 @@ class TestRoles4:
         assert ROLE_SET_MINIGRID_4 in SERVED_ROLE_SETS_BY_SITE_TYPE["MINIGRID"]
         assert ROLE_SET_MINIGRID_4 not in SERVED_ROLE_SETS_BY_SITE_TYPE["COLDCHAIN"]
         assert ROLE_SET_MINIGRID != ROLE_SET_MINIGRID_4  # a new publication still defaults to roles-2
-        assert VERIFICATION_ROLE_SETS == frozenset({ROLE_SET_MINIGRID_3, ROLE_SET_MINIGRID_4})
+        assert VERIFICATION_ROLE_SETS == frozenset({ROLE_SET_MINIGRID_3, ROLE_SET_MINIGRID_4, "minigrid-roles-5"})  # D-DD.41
 
     def test_dispatch_reads_roles_4_with_its_six_unchanged_inputs(self) -> None:
         assert set(assessment_worker.ROLES_BY_SET) >= {ROLE_SET_MINIGRID_3, ROLE_SET_MINIGRID_4}

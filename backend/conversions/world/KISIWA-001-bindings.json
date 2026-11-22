@@ -1,0 +1,210 @@
+{
+  "schema": {
+    "id": "assetops.binding-conversion",
+    "version": 1
+  },
+  "status": "DD1.2 demo world (specs/DD-demo-data/spec.md DD1.2); emulated, configuration only, no observation.",
+  "site_code": "KISIWA-001",
+  "role_set": "minigrid-roles-5",
+  "effective_from": "2026-06-30T21:00:00Z",
+  "note": "First minigrid-roles-4 binding set for KISIWA-001: every device the /2 file declares.",
+  "declare_signals": [],
+  "bindings": [
+    {
+      "legacy_mapping_id": null,
+      "device_id": "pv-inverter-controller",
+      "signal_id": "ac-power",
+      "asset_code": "pv-inverter",
+      "role": "pv_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "pv-inverter-controller",
+      "signal_id": "available-power",
+      "asset_code": "pv-inverter",
+      "role": "pv_available_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "pv-irradiance-sensor",
+      "signal_id": "irradiance",
+      "asset_code": "pv-array",
+      "role": "pv_irradiance",
+      "source_unit": "W/m2",
+      "canonical_unit": "W/m2",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "battery-pcs-controller",
+      "signal_id": "ac-power",
+      "asset_code": "battery-pcs",
+      "role": "battery_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "battery-pcs-controller",
+      "signal_id": "state-of-charge",
+      "asset_code": "battery",
+      "role": "battery_soc",
+      "source_unit": "%",
+      "canonical_unit": "%",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "battery-pcs-controller",
+      "signal_id": "discharge-capability",
+      "asset_code": "battery-pcs",
+      "role": "pcs_discharge_capability",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "gen-ks-01-controller",
+      "signal_id": "ac-power",
+      "asset_code": "gen-ks-01",
+      "role": "generator_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "gen-ks-01-controller",
+      "signal_id": "status",
+      "asset_code": "gen-ks-01",
+      "role": "generator_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "STOPPED": "STOPPED",
+            "STARTING": "STARTING",
+            "RUNNING": "RUNNING",
+            "FAILED": "FAILED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "gen-ks-02-controller",
+      "signal_id": "ac-power",
+      "asset_code": "gen-ks-02",
+      "role": "generator_power",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "gen-ks-02-controller",
+      "signal_id": "status",
+      "asset_code": "gen-ks-02",
+      "role": "generator_state",
+      "source_unit": "state",
+      "canonical_unit": "state",
+      "conversion": {
+        "kind": "ENUM",
+        "parameters": {
+          "map": {
+            "STOPPED": "STOPPED",
+            "STARTING": "STARTING",
+            "RUNNING": "RUNNING",
+            "FAILED": "FAILED"
+          }
+        }
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "fuel-level-sensor",
+      "signal_id": "fuel-level",
+      "asset_code": "fuel-tank",
+      "role": "fuel_level",
+      "source_unit": "L",
+      "canonical_unit": "L",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "residential-meter",
+      "signal_id": "active-power",
+      "asset_code": "load-res",
+      "role": "feeder_demand",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "clinic-meter",
+      "signal_id": "active-power",
+      "asset_code": "load-clinic",
+      "role": "feeder_demand",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    },
+    {
+      "legacy_mapping_id": null,
+      "device_id": "mill-meter",
+      "signal_id": "active-power",
+      "asset_code": "load-mill",
+      "role": "feeder_demand",
+      "source_unit": "kW",
+      "canonical_unit": "kW",
+      "conversion": {
+        "kind": "IDENTITY",
+        "parameters": {}
+      }
+    }
+  ]
+}

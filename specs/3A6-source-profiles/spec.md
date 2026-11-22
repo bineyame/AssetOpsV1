@@ -80,7 +80,7 @@ One JSON object, UTF-8, at most 64 KiB, **closed keys at every level** (an unkno
 | `version` | `{"from": "constant", "value": <1..40 characters, no control>}` (refused, `PROFILE_INVALID version`, when any column writes `status`: D-3A6.16), `{"from": "column"}` (exactly one column writes `source_version`) or `{"from": "row_digest"}` |
 | `record_id_join` | optional list of 2 to 4 distinct headers; when present no column writes `source_record_id`; when absent exactly one column does |
 | `columns` | 2 to 60 objects `{"header": <1..100 characters, no control, unique>, "paths": [<path object>, ...]}`; `paths: []` is a **dropped** column (read for the header match, never written) |
-| path object | `{"path": <canonical path>, "type": "text" \| "number" \| "date" \| "datetime" \| "month" \| "month_of", "map": {<native>: <canonical>}?, "scale": <decimal text>?}`; `map` only with type `text`; `scale` only with type `number`, fullmatching `(0\|[1-9][0-9]{0,11})(\.[0-9]{1,12})?` and not zero |
+| path object | `{"path": <canonical path>, "type": "text" \| "number" \| "date" \| "datetime" \| "month" \| "month_of" \| "bool", "map": {<native>: <canonical>}?, "scale": <decimal text>?}`; `map` only with type `text`, or with type `bool` (DD2.2: the map's values are exactly `true` and `false`, and a `bool` path is never a coded path or `source_record_id`); `scale` only with type `number`, fullmatching `(0\|[1-9][0-9]{0,11})(\.[0-9]{1,12})?` and not zero |
 | `constants` | `{<canonical path>: <string>}` (rule C of 3A3 §2.2 applies) |
 | `personal` | list of `[<path>, "C" \| "M" \| "P"]`, each path in 3A2's `ALLOWED_EXTRA` (checked in the backend, §2.5) |
 

@@ -650,3 +650,20 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
 
 - Settled: the Simulated chip (`srcTag`, title per study's days) replaces the design-value tag; the tagger and the audit read the source set from the fixtures (`SOURCE_PATTERNS`/`SOURCE_LABELS`) and independently (`tools/replay_values.py`); Kobo's settings, KIS-BATT60 and Embakasi per-bus timing read "Not available yet: needs a simulation ..."; admission and dawn lines from `information`; every reader of a removed field reads the evaluator or states its gap; `hand_typed_scan.py` exits 1 on a hit.
 - Open: H10 re-base (manifest prose edit), H9 and K10 in commit 6; the browser audit is stale against the IA-1 mock (audit docs left at 18 Nov; browser-audit.md K11 clears on regeneration); P15 as worded cannot fail (P15b does).
+
+## DD1: three operators (in_review; `specs/DD-demo-data/packet-DD1.md`)
+
+- Settled: `lakeside-power`, `harvest-cold` and `metro-bus` onboard from `/2` files (`backend/tests/fixtures/on1/`) with
+  devices, topology and EV schedules; nine conversions in `backend/conversions/world/`; `onboard_operator apply --bindings DIR`
+  publishes each conversion and enables the gateway and sources in process, idempotently (emulated only). `provision_gateway`
+  follows the served tenant (D-DD.35). `tools/dd_check.py` has C-DD1 and C-DD13 live, 18 stubs.
+- Left open: Kisiwa and Mto bindings are refused by the product's ONE-per-Site roles (Q-DD1.7); Site document bounds were
+  raised (Q-DD1.8); `tools/world.py` L1 does not pass `--bindings` yet.
+
+## DD2a: four months of mini-grid books, notes, staging, statements, C-DD2 to C-DD4 (in_review; `specs/DD-demo-data/packet-DD2a.md`)
+
+- Settled: `exports.py` evaluates billed kWh, revenue, collections and fuel as nodes of `structures.MINI_GRID` every month
+  (`NODES`, parity test; October must equal its period or `EMU_NODE`); `months=`; dated fuel notes (OOO-1 on 26 Oct);
+  `SOURCE_VERSION` "2" (receipts keep "1"); staged DS1b JSON and the Lakeside statements via `world_history.py exports --extras`;
+  `dd_check` has its own formula evaluator and C-DD2 to C-DD4 live (fail until DD5 loads the books); `bool` refused on coded paths.
+- Left open: cold and EV books and profiles (DD2b); DS1b writes no METER_ASSIGNMENT/TARIFF_SCHEDULE; statements reader (DD5/WK).

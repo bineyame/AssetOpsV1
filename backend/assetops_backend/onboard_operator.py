@@ -2,7 +2,7 @@
 
     python -m assetops_backend.onboard_operator digest --file FILE
     python -m assetops_backend.onboard_operator check --file FILE [--key-dir DIR]
-    python -m assetops_backend.onboard_operator apply --file FILE [--key-dir DIR] --confirmed-digest HEX
+    python -m assetops_backend.onboard_operator apply --file FILE [--key-dir DIR] --confirmed-digest HEX  [--bindings DIR]
 
 `digest` reads and parses the file only and prints its roles digest. `check` prints what would be created and writes
 nothing; `apply` creates it and prints the plan as executed. `--key-dir` defaults to `ASSETOPS_PSEUDONYM_KEY_DIR`.
@@ -18,7 +18,7 @@ import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Sequence
+from typing import Any, Sequence
 
 from assetops_backend.accounts.model import AccountRefused
 from assetops_backend.config import ConfigurationError, database_url, served_tenant_slug
@@ -35,7 +35,7 @@ SENTENCES = {
     "ONBOARD_DATA": '"data" must be "emulated" or "real".',
     "ONBOARD_SLUG": 'The operator code must be lower-case letters, digits and hyphens, and not "demo".',
     "ONBOARD_NAME": "A name must be 1 to 120 characters with no surrounding spaces.",
-    "ONBOARD_VERTICAL": "Only mini-grid operators are onboarded for now.",
+    "ONBOARD_VERTICAL": "This operator's business type is not onboarded yet.",
     "ONBOARD_SITE_CODE": "A Site code must be upper-case letters, digits and hyphens, and unique.",
     "ONBOARD_SITE_INVALID": "This Site cannot be created as written.",
     "ONBOARD_EMAIL": "This email cannot be used.",
@@ -86,6 +86,7 @@ def build_parser() -> argparse.ArgumentParser:
         command.add_argument("--key-dir")
         if name == "apply":
             command.add_argument("--confirmed-digest", required=True)
+            command.add_argument("--bindings", metavar="DIR")
     return parser
 
 
@@ -123,6 +124,39 @@ def _compose(url: str, key_dir: str, real_data: bool, served: str) -> OperatorOn
                               clock=_now, real_data=real_data, served_slug=served)
 
 
+def _publish_and_enable(store, f, fixtures: dict[str, Any]) -> int:
+    """D-DD.36: per Site, publish its conversion (idempotent), then enable the gateway and each source still disabled."""
+    from assetops_backend.evidence import provision_gateway
+    from assetops_backend.sites.binding_conversion import ConversionConflict, convert
+    from assetops_backend.sites.binding_service import BindingService
+    from assetops_backend.sites.foundation_service import utc_now
+
+    tenant = store.resolve_tenant(f.slug)
+    for entry in f.sites:
+        fixture = fixtures[entry.code]
+        site = store.find_site(tenant.id, entry.code)
+        try:
+            convert(store, BindingService(store, utc_now), tenant, site, fixture)
+        except ConversionConflict as error:
+            sys.stderr.write(f"BINDING_CONVERSION bindings/{entry.code} {error}\n")
+            return 3
+        reg = store.registrations(tenant.id, site.id)
+        base = ["--tenant", f.slug, "--site", entry.code, "--actor", "onboarding"]
+        for gateway in reg.gateways:
+            if gateway.disabled_at is not None:
+                code = provision_gateway.main(["enable-gateway", *base, "--gateway", gateway.gateway_external_id])
+                if code:
+                    return code
+        gateway_ids = {g.id: g.gateway_external_id for g in reg.gateways}
+        for source in reg.sources:
+            if source.disabled_at is not None:
+                code = provision_gateway.main(["enable-source", *base, "--gateway", gateway_ids[source.gateway_id],
+                                               "--source", source.source_external_id])
+                if code:
+                    return code
+    return 0
+
+
 def main(argv: Sequence[str] | None = None, *, onboarding: OperatorOnboarding | None = None) -> int:
     args = build_parser().parse_args(argv)
     settings = None
@@ -142,11 +176,24 @@ def main(argv: Sequence[str] | None = None, *, onboarding: OperatorOnboarding | 
         onboarding = _compose(settings[0], key_dir, settings[1], settings[2])
     from assetops_backend.commercial.composition import KeyDirectoryMissing, KeyErased, KeyExists
 
+    bindings = getattr(args, "bindings", None)
+    bindings_fixtures: dict[str, Any] = {}
+    if bindings:  # D-DD.36: every Site names its conversion before any write
+        for site in f.sites:  # D-DD.47: read and parse every input before the first write
+            try:
+                bindings_fixtures[site.code] = json.loads(
+                    (Path(bindings) / f"{site.code}-bindings.json").read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                return _refuse("ONBOARD_SITE_INVALID", f"bindings/{site.code}")
     try:
         if args.command == "check":
             plan = onboarding.check(f)
         else:
             plan = onboarding.apply(f, confirmed_digest=args.confirmed_digest)
+            if bindings:
+                code = _publish_and_enable(onboarding.foundation, f, bindings_fixtures)
+                if code:
+                    return code
     except OnboardRefused as refused:
         after = args.command == "apply" and onboarding.wrote
         return _refuse(refused.code, refused.where, status=3 if after else 2)

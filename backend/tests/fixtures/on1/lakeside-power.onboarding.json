@@ -1,5 +1,5 @@
 {
-  "format": "assetops.operator-onboarding/1",
+  "format": "assetops.operator-onboarding/2",
   "data": "emulated",
   "operator": {
     "slug": "lakeside-power",
@@ -14,45 +14,505 @@
       "country": "Kenya",
       "locality": "Kisiwa",
       "lifecycle": "ACTIVE",
-      "valid_from": "2026-07-01T00:00:00Z",
+      "valid_from": "2026-06-30T21:00:00Z",
       "components": [
         {
           "id": "pv-array",
           "type": "PV_ARRAY",
           "name": "PV array",
           "rating": {
-            "value": 30.0,
+            "value": 30,
             "unit": "kW"
-          }
+          },
+          "properties": [
+            {
+              "property_key": "pv-rated-power",
+              "value": 30,
+              "unit": "kW",
+              "source": "TEMPLATE",
+              "source_version": 1
+            }
+          ]
+        },
+        {
+          "id": "pv-inverter",
+          "type": "INVERTER",
+          "name": "PV inverter",
+          "rating": {
+            "value": 30,
+            "unit": "kW"
+          },
+          "properties": [
+            {
+              "property_key": "inverter-ac-limit",
+              "value": 30,
+              "unit": "kW",
+              "source": "TEMPLATE",
+              "source_version": 1
+            }
+          ]
         },
         {
           "id": "battery",
           "type": "BATTERY",
-          "name": "Battery",
+          "name": "Battery energy storage",
           "rating": {
-            "value": 80.0,
+            "value": 80,
             "unit": "kWh"
-          }
+          },
+          "properties": [
+            {
+              "property_key": "battery-energy-capacity",
+              "value": 80,
+              "unit": "kWh",
+              "source": "TEMPLATE",
+              "source_version": 1
+            },
+            {
+              "property_key": "reserve-state-of-charge",
+              "value": 30,
+              "unit": "%",
+              "source": "TEMPLATE",
+              "source_version": 1
+            }
+          ]
+        },
+        {
+          "id": "battery-pcs",
+          "type": "POWER_CONVERSION_SYSTEM",
+          "name": "Battery power conversion system",
+          "rating": {
+            "value": 30,
+            "unit": "kW"
+          },
+          "properties": [
+            {
+              "property_key": "pcs-charge-limit",
+              "value": 30,
+              "unit": "kW",
+              "source": "TEMPLATE",
+              "source_version": 1
+            },
+            {
+              "property_key": "pcs-discharge-limit",
+              "value": 30,
+              "unit": "kW",
+              "source": "TEMPLATE",
+              "source_version": 1
+            },
+            {
+              "property_key": "pcs-conversion-efficiency",
+              "value": 95,
+              "unit": "%",
+              "source": "TEMPLATE",
+              "source_version": 1
+            }
+          ]
         },
         {
           "id": "gen-ks-01",
           "type": "GENERATOR",
-          "name": "Generator 1",
+          "name": "Generator 01",
           "rating": {
-            "value": 60.0,
+            "value": 60,
             "unit": "kW"
-          }
+          },
+          "properties": [
+            {
+              "property_key": "specific-fuel-consumption",
+              "value": 0.31,
+              "unit": "L/kWh",
+              "source": "TEMPLATE",
+              "source_version": 1
+            },
+            {
+              "property_key": "minimum-runtime",
+              "value": 30,
+              "unit": "min",
+              "source": "TEMPLATE",
+              "source_version": 1
+            },
+            {
+              "property_key": "start-soc-threshold",
+              "value": 35,
+              "unit": "%",
+              "source": "TEMPLATE",
+              "source_version": 2
+            },
+            {
+              "property_key": "stop-soc-threshold",
+              "value": 90,
+              "unit": "%",
+              "source": "TEMPLATE",
+              "source_version": 2
+            },
+            {
+              "property_key": "start-delay",
+              "value": 5,
+              "unit": "min",
+              "source": "TEMPLATE",
+              "source_version": 2
+            },
+            {
+              "property_key": "generator-rated-power",
+              "value": 60,
+              "unit": "kW",
+              "source": "TEMPLATE",
+              "source_version": 2
+            }
+          ]
         },
         {
           "id": "gen-ks-02",
           "type": "GENERATOR",
-          "name": "Generator 2",
+          "name": "Generator 02",
           "rating": {
-            "value": 60.0,
+            "value": 60,
+            "unit": "kW"
+          },
+          "properties": [
+            {
+              "property_key": "specific-fuel-consumption",
+              "value": 0.31,
+              "unit": "L/kWh",
+              "source": "TEMPLATE",
+              "source_version": 1
+            },
+            {
+              "property_key": "generator-rated-power",
+              "value": 60,
+              "unit": "kW",
+              "source": "TEMPLATE",
+              "source_version": 2
+            }
+          ]
+        },
+        {
+          "id": "fuel-tank",
+          "type": "FUEL_TANK",
+          "name": "Generator fuel tank",
+          "rating": {
+            "value": 400,
+            "unit": "L"
+          },
+          "properties": [
+            {
+              "property_key": "tank-capacity",
+              "value": 400,
+              "unit": "L",
+              "source": "TEMPLATE",
+              "source_version": 1
+            }
+          ]
+        },
+        {
+          "id": "ac-bus",
+          "type": "AC_BUS",
+          "name": "AC bus",
+          "rating": {
+            "value": 400,
+            "unit": "V"
+          }
+        },
+        {
+          "id": "load-res",
+          "type": "LOAD",
+          "name": "Residential feeder",
+          "rating": {
+            "value": 25,
+            "unit": "kW"
+          }
+        },
+        {
+          "id": "load-clinic",
+          "type": "LOAD",
+          "name": "Health clinic",
+          "rating": {
+            "value": 10,
+            "unit": "kW"
+          }
+        },
+        {
+          "id": "load-mill",
+          "type": "LOAD",
+          "name": "Grain mill",
+          "rating": {
+            "value": 40,
             "unit": "kW"
           }
         }
-      ]
+      ],
+      "devices": [
+        {
+          "device_id": "pv-inverter-controller",
+          "device_type": "CONTROLLER",
+          "display_name": "PV inverter controller",
+          "component_id": "pv-inverter",
+          "signals": [
+            {
+              "signal_id": "ac-power",
+              "display_name": "AC output power",
+              "unit": "kW"
+            },
+            {
+              "signal_id": "available-power",
+              "display_name": "Available AC power",
+              "unit": "kW"
+            }
+          ]
+        },
+        {
+          "device_id": "pv-irradiance-sensor",
+          "device_type": "SENSOR",
+          "display_name": "Plane-of-array irradiance sensor",
+          "component_id": "pv-array",
+          "signals": [
+            {
+              "signal_id": "irradiance",
+              "display_name": "Plane-of-array irradiance",
+              "unit": "W/m2"
+            }
+          ]
+        },
+        {
+          "device_id": "battery-pcs-controller",
+          "device_type": "CONTROLLER",
+          "display_name": "Battery PCS controller",
+          "component_id": "battery-pcs",
+          "signals": [
+            {
+              "signal_id": "ac-power",
+              "display_name": "AC power at the PCS",
+              "unit": "kW"
+            },
+            {
+              "signal_id": "state-of-charge",
+              "display_name": "Battery state of charge",
+              "unit": "%"
+            },
+            {
+              "signal_id": "discharge-capability",
+              "display_name": "Battery discharge capability",
+              "unit": "kW"
+            }
+          ]
+        },
+        {
+          "device_id": "gen-ks-01-controller",
+          "device_type": "CONTROLLER",
+          "display_name": "Generator 01 controller",
+          "component_id": "gen-ks-01",
+          "signals": [
+            {
+              "signal_id": "ac-power",
+              "display_name": "Generator output power",
+              "unit": "kW"
+            },
+            {
+              "signal_id": "status",
+              "display_name": "Generator status",
+              "unit": "state"
+            }
+          ]
+        },
+        {
+          "device_id": "gen-ks-02-controller",
+          "device_type": "CONTROLLER",
+          "display_name": "Generator 02 controller",
+          "component_id": "gen-ks-02",
+          "signals": [
+            {
+              "signal_id": "ac-power",
+              "display_name": "Generator output power",
+              "unit": "kW"
+            },
+            {
+              "signal_id": "status",
+              "display_name": "Generator status",
+              "unit": "state"
+            }
+          ]
+        },
+        {
+          "device_id": "fuel-level-sensor",
+          "device_type": "SENSOR",
+          "display_name": "Fuel level sensor",
+          "component_id": "fuel-tank",
+          "signals": [
+            {
+              "signal_id": "fuel-level",
+              "display_name": "Fuel level",
+              "unit": "L"
+            }
+          ]
+        },
+        {
+          "device_id": "residential-meter",
+          "device_type": "METER",
+          "display_name": "Residential feeder meter",
+          "component_id": "load-res",
+          "signals": [
+            {
+              "signal_id": "active-power",
+              "display_name": "Active power to the residential feeder",
+              "unit": "kW"
+            }
+          ]
+        },
+        {
+          "device_id": "clinic-meter",
+          "device_type": "METER",
+          "display_name": "Clinic meter",
+          "component_id": "load-clinic",
+          "signals": [
+            {
+              "signal_id": "active-power",
+              "display_name": "Active power to the clinic",
+              "unit": "kW"
+            }
+          ]
+        },
+        {
+          "device_id": "mill-meter",
+          "device_type": "METER",
+          "display_name": "Mill meter",
+          "component_id": "load-mill",
+          "signals": [
+            {
+              "signal_id": "active-power",
+              "display_name": "Active power to the mill",
+              "unit": "kW"
+            }
+          ]
+        }
+      ],
+      "topology": {
+        "nodes": [
+          {
+            "node_id": "pv-array",
+            "component_id": "pv-array",
+            "node_role": "GENERATION"
+          },
+          {
+            "node_id": "pv-inverter",
+            "component_id": "pv-inverter",
+            "node_role": "CONVERSION"
+          },
+          {
+            "node_id": "battery",
+            "component_id": "battery",
+            "node_role": "STORAGE"
+          },
+          {
+            "node_id": "battery-pcs",
+            "component_id": "battery-pcs",
+            "node_role": "CONVERSION"
+          },
+          {
+            "node_id": "gen-ks-01",
+            "component_id": "gen-ks-01",
+            "node_role": "GENERATION"
+          },
+          {
+            "node_id": "gen-ks-02",
+            "component_id": "gen-ks-02",
+            "node_role": "GENERATION"
+          },
+          {
+            "node_id": "fuel-tank",
+            "component_id": "fuel-tank",
+            "node_role": "FUEL_STORAGE"
+          },
+          {
+            "node_id": "ac-bus",
+            "component_id": "ac-bus",
+            "node_role": "BUS"
+          },
+          {
+            "node_id": "load-res",
+            "component_id": "load-res",
+            "node_role": "LOAD"
+          },
+          {
+            "node_id": "load-clinic",
+            "component_id": "load-clinic",
+            "node_role": "LOAD"
+          },
+          {
+            "node_id": "load-mill",
+            "component_id": "load-mill",
+            "node_role": "LOAD"
+          }
+        ],
+        "connections": [
+          {
+            "connection_id": "pv-array-to-pv-inverter",
+            "from_node": "pv-array",
+            "to_node": "pv-inverter",
+            "medium": "DC"
+          },
+          {
+            "connection_id": "pv-inverter-to-bus",
+            "from_node": "pv-inverter",
+            "to_node": "ac-bus",
+            "medium": "AC"
+          },
+          {
+            "connection_id": "battery-to-pcs",
+            "from_node": "battery",
+            "to_node": "battery-pcs",
+            "medium": "DC"
+          },
+          {
+            "connection_id": "pcs-to-bus",
+            "from_node": "battery-pcs",
+            "to_node": "ac-bus",
+            "medium": "AC"
+          },
+          {
+            "connection_id": "fuel-tank-to-gen-ks-01",
+            "from_node": "fuel-tank",
+            "to_node": "gen-ks-01",
+            "medium": "FUEL"
+          },
+          {
+            "connection_id": "gen-ks-01-to-bus",
+            "from_node": "gen-ks-01",
+            "to_node": "ac-bus",
+            "medium": "AC"
+          },
+          {
+            "connection_id": "fuel-tank-to-gen-ks-02",
+            "from_node": "fuel-tank",
+            "to_node": "gen-ks-02",
+            "medium": "FUEL"
+          },
+          {
+            "connection_id": "gen-ks-02-to-bus",
+            "from_node": "gen-ks-02",
+            "to_node": "ac-bus",
+            "medium": "AC"
+          },
+          {
+            "connection_id": "bus-to-residential",
+            "from_node": "ac-bus",
+            "to_node": "load-res",
+            "medium": "AC"
+          },
+          {
+            "connection_id": "bus-to-clinic",
+            "from_node": "ac-bus",
+            "to_node": "load-clinic",
+            "medium": "AC"
+          },
+          {
+            "connection_id": "bus-to-mill",
+            "from_node": "ac-bus",
+            "to_node": "load-mill",
+            "medium": "AC"
+          }
+        ]
+      }
     },
     {
       "code": "KOBO-001",
@@ -61,45 +521,445 @@
       "country": "Kenya",
       "locality": "Kobo",
       "lifecycle": "ACTIVE",
-      "valid_from": "2026-07-01T00:00:00Z",
+      "valid_from": "2026-06-30T21:00:00Z",
       "components": [
         {
           "id": "pv-array",
           "type": "PV_ARRAY",
           "name": "PV array",
           "rating": {
-            "value": 60.0,
+            "value": 60,
             "unit": "kW"
-          }
+          },
+          "properties": [
+            {
+              "property_key": "pv-rated-power",
+              "value": 60,
+              "unit": "kW",
+              "source": "TEMPLATE",
+              "source_version": 1
+            }
+          ]
         },
         {
-          "id": "inverter",
+          "id": "pv-inverter",
           "type": "INVERTER",
-          "name": "Inverter",
+          "name": "PV inverter",
           "rating": {
-            "value": 50.0,
+            "value": 50,
             "unit": "kW"
-          }
+          },
+          "properties": [
+            {
+              "property_key": "inverter-ac-limit",
+              "value": 50,
+              "unit": "kW",
+              "source": "TEMPLATE",
+              "source_version": 1
+            }
+          ]
         },
         {
           "id": "battery",
           "type": "BATTERY",
-          "name": "Battery",
+          "name": "Battery energy storage",
           "rating": {
-            "value": 200.0,
+            "value": 200,
             "unit": "kWh"
-          }
+          },
+          "properties": [
+            {
+              "property_key": "battery-energy-capacity",
+              "value": 200,
+              "unit": "kWh",
+              "source": "TEMPLATE",
+              "source_version": 1
+            },
+            {
+              "property_key": "reserve-state-of-charge",
+              "value": 30,
+              "unit": "%",
+              "source": "TEMPLATE",
+              "source_version": 1
+            }
+          ]
+        },
+        {
+          "id": "battery-pcs",
+          "type": "POWER_CONVERSION_SYSTEM",
+          "name": "Battery power conversion system",
+          "rating": {
+            "value": 30,
+            "unit": "kW"
+          },
+          "properties": [
+            {
+              "property_key": "pcs-charge-limit",
+              "value": 30,
+              "unit": "kW",
+              "source": "TEMPLATE",
+              "source_version": 1
+            },
+            {
+              "property_key": "pcs-discharge-limit",
+              "value": 30,
+              "unit": "kW",
+              "source": "TEMPLATE",
+              "source_version": 1
+            },
+            {
+              "property_key": "pcs-conversion-efficiency",
+              "value": 95,
+              "unit": "%",
+              "source": "TEMPLATE",
+              "source_version": 1
+            }
+          ]
         },
         {
           "id": "generator",
           "type": "GENERATOR",
-          "name": "Generator",
+          "name": "Diesel generator",
           "rating": {
-            "value": 40.0,
+            "value": 40,
+            "unit": "kW"
+          },
+          "properties": [
+            {
+              "property_key": "specific-fuel-consumption",
+              "value": 0.3,
+              "unit": "L/kWh",
+              "source": "TEMPLATE",
+              "source_version": 1
+            },
+            {
+              "property_key": "minimum-runtime",
+              "value": 30,
+              "unit": "min",
+              "source": "TEMPLATE",
+              "source_version": 1
+            },
+            {
+              "property_key": "start-soc-threshold",
+              "value": 35,
+              "unit": "%",
+              "source": "TEMPLATE",
+              "source_version": 2
+            },
+            {
+              "property_key": "stop-soc-threshold",
+              "value": 90,
+              "unit": "%",
+              "source": "TEMPLATE",
+              "source_version": 2
+            },
+            {
+              "property_key": "start-delay",
+              "value": 5,
+              "unit": "min",
+              "source": "TEMPLATE",
+              "source_version": 2
+            },
+            {
+              "property_key": "generator-rated-power",
+              "value": 40,
+              "unit": "kW",
+              "source": "TEMPLATE",
+              "source_version": 2
+            }
+          ]
+        },
+        {
+          "id": "fuel-tank",
+          "type": "FUEL_TANK",
+          "name": "Generator fuel tank",
+          "rating": {
+            "value": 400,
+            "unit": "L"
+          },
+          "properties": [
+            {
+              "property_key": "tank-capacity",
+              "value": 400,
+              "unit": "L",
+              "source": "TEMPLATE",
+              "source_version": 1
+            }
+          ]
+        },
+        {
+          "id": "ac-bus",
+          "type": "AC_BUS",
+          "name": "AC bus",
+          "rating": {
+            "value": 400,
+            "unit": "V"
+          }
+        },
+        {
+          "id": "load-res",
+          "type": "LOAD",
+          "name": "Residential feeder",
+          "rating": {
+            "value": 25,
+            "unit": "kW"
+          }
+        },
+        {
+          "id": "load-clinic",
+          "type": "LOAD",
+          "name": "Health clinic",
+          "rating": {
+            "value": 10,
+            "unit": "kW"
+          }
+        },
+        {
+          "id": "load-mill",
+          "type": "LOAD",
+          "name": "Grain mill",
+          "rating": {
+            "value": 40,
             "unit": "kW"
           }
         }
-      ]
+      ],
+      "devices": [
+        {
+          "device_id": "pv-inverter-controller",
+          "device_type": "CONTROLLER",
+          "display_name": "PV inverter controller",
+          "component_id": "pv-inverter",
+          "signals": [
+            {
+              "signal_id": "ac-power",
+              "display_name": "AC output power",
+              "unit": "kW"
+            },
+            {
+              "signal_id": "available-power",
+              "display_name": "Available AC power",
+              "unit": "kW"
+            }
+          ]
+        },
+        {
+          "device_id": "pv-irradiance-sensor",
+          "device_type": "SENSOR",
+          "display_name": "Plane-of-array irradiance sensor",
+          "component_id": "pv-array",
+          "signals": [
+            {
+              "signal_id": "irradiance",
+              "display_name": "Plane-of-array irradiance",
+              "unit": "W/m2"
+            }
+          ]
+        },
+        {
+          "device_id": "battery-pcs-controller",
+          "device_type": "CONTROLLER",
+          "display_name": "Battery PCS controller",
+          "component_id": "battery-pcs",
+          "signals": [
+            {
+              "signal_id": "ac-power",
+              "display_name": "AC power at the PCS",
+              "unit": "kW"
+            },
+            {
+              "signal_id": "state-of-charge",
+              "display_name": "Battery state of charge",
+              "unit": "%"
+            },
+            {
+              "signal_id": "discharge-capability",
+              "display_name": "Battery discharge capability",
+              "unit": "kW"
+            }
+          ]
+        },
+        {
+          "device_id": "generator-controller",
+          "device_type": "CONTROLLER",
+          "display_name": "Generator controller",
+          "component_id": "generator",
+          "signals": [
+            {
+              "signal_id": "ac-power",
+              "display_name": "Generator output power",
+              "unit": "kW"
+            },
+            {
+              "signal_id": "status",
+              "display_name": "Generator status",
+              "unit": "state"
+            }
+          ]
+        },
+        {
+          "device_id": "fuel-level-sensor",
+          "device_type": "SENSOR",
+          "display_name": "Fuel level sensor",
+          "component_id": "fuel-tank",
+          "signals": [
+            {
+              "signal_id": "fuel-level",
+              "display_name": "Fuel level",
+              "unit": "L"
+            }
+          ]
+        },
+        {
+          "device_id": "residential-meter",
+          "device_type": "METER",
+          "display_name": "Residential feeder meter",
+          "component_id": "load-res",
+          "signals": [
+            {
+              "signal_id": "active-power",
+              "display_name": "Active power to the residential feeder",
+              "unit": "kW"
+            }
+          ]
+        },
+        {
+          "device_id": "clinic-meter",
+          "device_type": "METER",
+          "display_name": "Clinic meter",
+          "component_id": "load-clinic",
+          "signals": [
+            {
+              "signal_id": "active-power",
+              "display_name": "Active power to the clinic",
+              "unit": "kW"
+            }
+          ]
+        },
+        {
+          "device_id": "mill-meter",
+          "device_type": "METER",
+          "display_name": "Mill meter",
+          "component_id": "load-mill",
+          "signals": [
+            {
+              "signal_id": "active-power",
+              "display_name": "Active power to the mill",
+              "unit": "kW"
+            }
+          ]
+        }
+      ],
+      "topology": {
+        "nodes": [
+          {
+            "node_id": "pv-array",
+            "component_id": "pv-array",
+            "node_role": "GENERATION"
+          },
+          {
+            "node_id": "pv-inverter",
+            "component_id": "pv-inverter",
+            "node_role": "CONVERSION"
+          },
+          {
+            "node_id": "battery",
+            "component_id": "battery",
+            "node_role": "STORAGE"
+          },
+          {
+            "node_id": "battery-pcs",
+            "component_id": "battery-pcs",
+            "node_role": "CONVERSION"
+          },
+          {
+            "node_id": "generator",
+            "component_id": "generator",
+            "node_role": "GENERATION"
+          },
+          {
+            "node_id": "fuel-tank",
+            "component_id": "fuel-tank",
+            "node_role": "FUEL_STORAGE"
+          },
+          {
+            "node_id": "ac-bus",
+            "component_id": "ac-bus",
+            "node_role": "BUS"
+          },
+          {
+            "node_id": "load-res",
+            "component_id": "load-res",
+            "node_role": "LOAD"
+          },
+          {
+            "node_id": "load-clinic",
+            "component_id": "load-clinic",
+            "node_role": "LOAD"
+          },
+          {
+            "node_id": "load-mill",
+            "component_id": "load-mill",
+            "node_role": "LOAD"
+          }
+        ],
+        "connections": [
+          {
+            "connection_id": "pv-array-to-pv-inverter",
+            "from_node": "pv-array",
+            "to_node": "pv-inverter",
+            "medium": "DC"
+          },
+          {
+            "connection_id": "pv-inverter-to-bus",
+            "from_node": "pv-inverter",
+            "to_node": "ac-bus",
+            "medium": "AC"
+          },
+          {
+            "connection_id": "battery-to-pcs",
+            "from_node": "battery",
+            "to_node": "battery-pcs",
+            "medium": "DC"
+          },
+          {
+            "connection_id": "pcs-to-bus",
+            "from_node": "battery-pcs",
+            "to_node": "ac-bus",
+            "medium": "AC"
+          },
+          {
+            "connection_id": "fuel-tank-to-generator",
+            "from_node": "fuel-tank",
+            "to_node": "generator",
+            "medium": "FUEL"
+          },
+          {
+            "connection_id": "generator-to-bus",
+            "from_node": "generator",
+            "to_node": "ac-bus",
+            "medium": "AC"
+          },
+          {
+            "connection_id": "bus-to-residential",
+            "from_node": "ac-bus",
+            "to_node": "load-res",
+            "medium": "AC"
+          },
+          {
+            "connection_id": "bus-to-clinic",
+            "from_node": "ac-bus",
+            "to_node": "load-clinic",
+            "medium": "AC"
+          },
+          {
+            "connection_id": "bus-to-mill",
+            "from_node": "ac-bus",
+            "to_node": "load-mill",
+            "medium": "AC"
+          }
+        ]
+      }
     },
     {
       "code": "MTO-001",
@@ -108,54 +968,498 @@
       "country": "Kenya",
       "locality": "Mto",
       "lifecycle": "ACTIVE",
-      "valid_from": "2026-07-01T00:00:00Z",
+      "valid_from": "2026-06-30T21:00:00Z",
       "components": [
         {
           "id": "pv-array",
           "type": "PV_ARRAY",
           "name": "PV array",
           "rating": {
-            "value": 50.0,
+            "value": 50,
             "unit": "kW"
-          }
+          },
+          "properties": [
+            {
+              "property_key": "pv-rated-power",
+              "value": 50,
+              "unit": "kW",
+              "source": "TEMPLATE",
+              "source_version": 1
+            }
+          ]
         },
         {
           "id": "inv-mt-01",
           "type": "INVERTER",
-          "name": "Inverter 1",
+          "name": "PV inverter 01",
           "rating": {
-            "value": 25.0,
+            "value": 25,
             "unit": "kW"
-          }
+          },
+          "properties": [
+            {
+              "property_key": "inverter-ac-limit",
+              "value": 25,
+              "unit": "kW",
+              "source": "TEMPLATE",
+              "source_version": 1
+            }
+          ]
         },
         {
           "id": "inv-mt-02",
           "type": "INVERTER",
-          "name": "Inverter 2",
+          "name": "PV inverter 02",
           "rating": {
-            "value": 25.0,
+            "value": 25,
             "unit": "kW"
-          }
+          },
+          "properties": [
+            {
+              "property_key": "inverter-ac-limit",
+              "value": 25,
+              "unit": "kW",
+              "source": "TEMPLATE",
+              "source_version": 1
+            }
+          ]
         },
         {
           "id": "battery",
           "type": "BATTERY",
-          "name": "Battery",
+          "name": "Battery energy storage",
           "rating": {
-            "value": 150.0,
+            "value": 150,
             "unit": "kWh"
-          }
+          },
+          "properties": [
+            {
+              "property_key": "battery-energy-capacity",
+              "value": 150,
+              "unit": "kWh",
+              "source": "TEMPLATE",
+              "source_version": 1
+            },
+            {
+              "property_key": "reserve-state-of-charge",
+              "value": 30,
+              "unit": "%",
+              "source": "TEMPLATE",
+              "source_version": 1
+            }
+          ]
+        },
+        {
+          "id": "battery-pcs",
+          "type": "POWER_CONVERSION_SYSTEM",
+          "name": "Battery power conversion system",
+          "rating": {
+            "value": 30,
+            "unit": "kW"
+          },
+          "properties": [
+            {
+              "property_key": "pcs-charge-limit",
+              "value": 30,
+              "unit": "kW",
+              "source": "TEMPLATE",
+              "source_version": 1
+            },
+            {
+              "property_key": "pcs-discharge-limit",
+              "value": 30,
+              "unit": "kW",
+              "source": "TEMPLATE",
+              "source_version": 1
+            },
+            {
+              "property_key": "pcs-conversion-efficiency",
+              "value": 95,
+              "unit": "%",
+              "source": "TEMPLATE",
+              "source_version": 1
+            }
+          ]
         },
         {
           "id": "generator",
           "type": "GENERATOR",
-          "name": "Generator",
+          "name": "Diesel generator",
           "rating": {
-            "value": 30.0,
+            "value": 30,
+            "unit": "kW"
+          },
+          "properties": [
+            {
+              "property_key": "specific-fuel-consumption",
+              "value": 0.33,
+              "unit": "L/kWh",
+              "source": "TEMPLATE",
+              "source_version": 1
+            },
+            {
+              "property_key": "minimum-runtime",
+              "value": 30,
+              "unit": "min",
+              "source": "TEMPLATE",
+              "source_version": 1
+            },
+            {
+              "property_key": "start-soc-threshold",
+              "value": 35,
+              "unit": "%",
+              "source": "TEMPLATE",
+              "source_version": 2
+            },
+            {
+              "property_key": "stop-soc-threshold",
+              "value": 90,
+              "unit": "%",
+              "source": "TEMPLATE",
+              "source_version": 2
+            },
+            {
+              "property_key": "start-delay",
+              "value": 5,
+              "unit": "min",
+              "source": "TEMPLATE",
+              "source_version": 2
+            },
+            {
+              "property_key": "generator-rated-power",
+              "value": 30,
+              "unit": "kW",
+              "source": "TEMPLATE",
+              "source_version": 2
+            }
+          ]
+        },
+        {
+          "id": "fuel-tank",
+          "type": "FUEL_TANK",
+          "name": "Generator fuel tank",
+          "rating": {
+            "value": 400,
+            "unit": "L"
+          },
+          "properties": [
+            {
+              "property_key": "tank-capacity",
+              "value": 400,
+              "unit": "L",
+              "source": "TEMPLATE",
+              "source_version": 1
+            }
+          ]
+        },
+        {
+          "id": "ac-bus",
+          "type": "AC_BUS",
+          "name": "AC bus",
+          "rating": {
+            "value": 400,
+            "unit": "V"
+          }
+        },
+        {
+          "id": "load-res",
+          "type": "LOAD",
+          "name": "Residential feeder",
+          "rating": {
+            "value": 25,
+            "unit": "kW"
+          }
+        },
+        {
+          "id": "load-clinic",
+          "type": "LOAD",
+          "name": "Health clinic",
+          "rating": {
+            "value": 10,
+            "unit": "kW"
+          }
+        },
+        {
+          "id": "load-mill",
+          "type": "LOAD",
+          "name": "Grain mill",
+          "rating": {
+            "value": 40,
             "unit": "kW"
           }
         }
-      ]
+      ],
+      "devices": [
+        {
+          "device_id": "inv-mt-01-controller",
+          "device_type": "CONTROLLER",
+          "display_name": "PV inverter 01 controller",
+          "component_id": "inv-mt-01",
+          "signals": [
+            {
+              "signal_id": "ac-power",
+              "display_name": "AC output power",
+              "unit": "kW"
+            },
+            {
+              "signal_id": "available-power",
+              "display_name": "Available AC power",
+              "unit": "kW"
+            }
+          ]
+        },
+        {
+          "device_id": "inv-mt-02-controller",
+          "device_type": "CONTROLLER",
+          "display_name": "PV inverter 02 controller",
+          "component_id": "inv-mt-02",
+          "signals": [
+            {
+              "signal_id": "ac-power",
+              "display_name": "AC output power",
+              "unit": "kW"
+            },
+            {
+              "signal_id": "available-power",
+              "display_name": "Available AC power",
+              "unit": "kW"
+            }
+          ]
+        },
+        {
+          "device_id": "pv-irradiance-sensor",
+          "device_type": "SENSOR",
+          "display_name": "Plane-of-array irradiance sensor",
+          "component_id": "pv-array",
+          "signals": [
+            {
+              "signal_id": "irradiance",
+              "display_name": "Plane-of-array irradiance",
+              "unit": "W/m2"
+            }
+          ]
+        },
+        {
+          "device_id": "battery-pcs-controller",
+          "device_type": "CONTROLLER",
+          "display_name": "Battery PCS controller",
+          "component_id": "battery-pcs",
+          "signals": [
+            {
+              "signal_id": "ac-power",
+              "display_name": "AC power at the PCS",
+              "unit": "kW"
+            },
+            {
+              "signal_id": "state-of-charge",
+              "display_name": "Battery state of charge",
+              "unit": "%"
+            },
+            {
+              "signal_id": "discharge-capability",
+              "display_name": "Battery discharge capability",
+              "unit": "kW"
+            }
+          ]
+        },
+        {
+          "device_id": "generator-controller",
+          "device_type": "CONTROLLER",
+          "display_name": "Generator controller",
+          "component_id": "generator",
+          "signals": [
+            {
+              "signal_id": "ac-power",
+              "display_name": "Generator output power",
+              "unit": "kW"
+            },
+            {
+              "signal_id": "status",
+              "display_name": "Generator status",
+              "unit": "state"
+            }
+          ]
+        },
+        {
+          "device_id": "fuel-level-sensor",
+          "device_type": "SENSOR",
+          "display_name": "Fuel level sensor",
+          "component_id": "fuel-tank",
+          "signals": [
+            {
+              "signal_id": "fuel-level",
+              "display_name": "Fuel level",
+              "unit": "L"
+            }
+          ]
+        },
+        {
+          "device_id": "residential-meter",
+          "device_type": "METER",
+          "display_name": "Residential feeder meter",
+          "component_id": "load-res",
+          "signals": [
+            {
+              "signal_id": "active-power",
+              "display_name": "Active power to the residential feeder",
+              "unit": "kW"
+            }
+          ]
+        },
+        {
+          "device_id": "clinic-meter",
+          "device_type": "METER",
+          "display_name": "Clinic meter",
+          "component_id": "load-clinic",
+          "signals": [
+            {
+              "signal_id": "active-power",
+              "display_name": "Active power to the clinic",
+              "unit": "kW"
+            }
+          ]
+        },
+        {
+          "device_id": "mill-meter",
+          "device_type": "METER",
+          "display_name": "Mill meter",
+          "component_id": "load-mill",
+          "signals": [
+            {
+              "signal_id": "active-power",
+              "display_name": "Active power to the mill",
+              "unit": "kW"
+            }
+          ]
+        }
+      ],
+      "topology": {
+        "nodes": [
+          {
+            "node_id": "pv-array",
+            "component_id": "pv-array",
+            "node_role": "GENERATION"
+          },
+          {
+            "node_id": "inv-mt-01",
+            "component_id": "inv-mt-01",
+            "node_role": "CONVERSION"
+          },
+          {
+            "node_id": "inv-mt-02",
+            "component_id": "inv-mt-02",
+            "node_role": "CONVERSION"
+          },
+          {
+            "node_id": "battery",
+            "component_id": "battery",
+            "node_role": "STORAGE"
+          },
+          {
+            "node_id": "battery-pcs",
+            "component_id": "battery-pcs",
+            "node_role": "CONVERSION"
+          },
+          {
+            "node_id": "generator",
+            "component_id": "generator",
+            "node_role": "GENERATION"
+          },
+          {
+            "node_id": "fuel-tank",
+            "component_id": "fuel-tank",
+            "node_role": "FUEL_STORAGE"
+          },
+          {
+            "node_id": "ac-bus",
+            "component_id": "ac-bus",
+            "node_role": "BUS"
+          },
+          {
+            "node_id": "load-res",
+            "component_id": "load-res",
+            "node_role": "LOAD"
+          },
+          {
+            "node_id": "load-clinic",
+            "component_id": "load-clinic",
+            "node_role": "LOAD"
+          },
+          {
+            "node_id": "load-mill",
+            "component_id": "load-mill",
+            "node_role": "LOAD"
+          }
+        ],
+        "connections": [
+          {
+            "connection_id": "pv-array-to-inv-mt-01",
+            "from_node": "pv-array",
+            "to_node": "inv-mt-01",
+            "medium": "DC"
+          },
+          {
+            "connection_id": "inv-mt-01-to-bus",
+            "from_node": "inv-mt-01",
+            "to_node": "ac-bus",
+            "medium": "AC"
+          },
+          {
+            "connection_id": "pv-array-to-inv-mt-02",
+            "from_node": "pv-array",
+            "to_node": "inv-mt-02",
+            "medium": "DC"
+          },
+          {
+            "connection_id": "inv-mt-02-to-bus",
+            "from_node": "inv-mt-02",
+            "to_node": "ac-bus",
+            "medium": "AC"
+          },
+          {
+            "connection_id": "battery-to-pcs",
+            "from_node": "battery",
+            "to_node": "battery-pcs",
+            "medium": "DC"
+          },
+          {
+            "connection_id": "pcs-to-bus",
+            "from_node": "battery-pcs",
+            "to_node": "ac-bus",
+            "medium": "AC"
+          },
+          {
+            "connection_id": "fuel-tank-to-generator",
+            "from_node": "fuel-tank",
+            "to_node": "generator",
+            "medium": "FUEL"
+          },
+          {
+            "connection_id": "generator-to-bus",
+            "from_node": "generator",
+            "to_node": "ac-bus",
+            "medium": "AC"
+          },
+          {
+            "connection_id": "bus-to-residential",
+            "from_node": "ac-bus",
+            "to_node": "load-res",
+            "medium": "AC"
+          },
+          {
+            "connection_id": "bus-to-clinic",
+            "from_node": "ac-bus",
+            "to_node": "load-clinic",
+            "medium": "AC"
+          },
+          {
+            "connection_id": "bus-to-mill",
+            "from_node": "ac-bus",
+            "to_node": "load-mill",
+            "medium": "AC"
+          }
+        ]
+      }
     }
   ],
   "people": [
@@ -174,15 +1478,6 @@
       "roles": [
         {
           "role": "FINANCE_AND_COMMERCIAL_LEAD"
-        }
-      ]
-    },
-    {
-      "email": "wanjiru@lakeside-power.example",
-      "name": "Wanjiru",
-      "roles": [
-        {
-          "role": "ANALYST"
         }
       ]
     },
@@ -222,6 +1517,15 @@
       "roles": [
         {
           "role": "FIELD_TECHNICIAN"
+        }
+      ]
+    },
+    {
+      "email": "wanjiru@lakeside-power.example",
+      "name": "Wanjiru",
+      "roles": [
+        {
+          "role": "ANALYST"
         }
       ]
     }

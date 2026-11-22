@@ -641,11 +641,12 @@ SENTENCES = {
 
 
 def test_statements_every_code_renders_its_sentence() -> None:
-    assert set(SENTENCES) == set(records.REFUSAL_EXIT)
+    six_c = {c for c in records.REFUSAL_EXIT if c.startswith("STUDY_") or c == "STRUCTURE_UNAVAILABLE"}  # 6c's test 7
+    assert set(SENTENCES) == set(records.REFUSAL_EXIT) - six_c
     for code, sentence in SENTENCES.items():
         assert refusal_sentence(code) == sentence, code
     assert records.REFUSAL_EXIT["DECISIONS_UNAVAILABLE"] == 3
-    assert {c for c, e in records.REFUSAL_EXIT.items() if e == 2} == set(SENTENCES) - {"DECISIONS_UNAVAILABLE"}
+    assert {c for c, e in records.REFUSAL_EXIT.items() if e == 2} - six_c == set(SENTENCES) - {"DECISIONS_UNAVAILABLE"}
 
 
 def test_the_roles_are_the_spec_table() -> None:
@@ -667,10 +668,13 @@ def _imports(path: Path) -> set[str]:
     return out
 
 
-def test_9_records_imports_no_adapter_and_nothing_under_decisions_imports_runs() -> None:
+def test_9_records_imports_no_adapter_and_only_6cs_modules_import_runs() -> None:
+    # 6c amends this test (D-P6.28): only study_input, models, evaluate and run import runs.admission and
+    # runs.replay_study (6c's test 9 checks the names).
     for path in (PKG / "decisions").rglob("*.py"):
         for name in _imports(path):
-            assert not name.startswith("assetops_backend.runs"), (path, name)
+            if name.startswith("assetops_backend.runs"):
+                assert path.name in ("study_input.py", "models.py", "evaluate.py", "run.py"), (path, name)
     assert not [n for n in _imports(PKG / "decisions" / "records.py") if "adapters" in n or "sqlalchemy" in n
                 or "psycopg" in n]
 
