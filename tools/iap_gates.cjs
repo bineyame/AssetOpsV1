@@ -18,7 +18,13 @@
 //   R8 the rail Portfolio link from that page keeps from=2026-09-01;
 //   L1 each list page (Decisions, Findings, Actions) draws one data-shape="list" of its own key;
 //   L2 each list row holds exactly one interactive element (its title link) and Tab moves one stop per row;
-//   L3 /portfolio/act-first?lens=cost lands on /decisions?lens=cost and shows the chip "Cost · All findings".
+//   L3 /portfolio/act-first?lens=cost lands on /decisions?lens=cost and shows the chip "Cost · All findings";
+//   H1 the Portfolio shows three tabs in spec 2.2's order (Overview, Outcomes, Demand & capacity), each keeping the range;
+//   H2 in every mode (month, period, none) the Overview has at most 6 blocks and no [data-portfolio-card-value];
+//   H3 deep_dive_gates.cjs passes at /portfolio?from=2026-10-01&to=2026-10-31 (run separately, with its URL argument);
+//   H4 mode period (2026-09-01 to 2026-10-31): the hub regions, R4 at 390, the bar's "All pages", each month row lands on its month;
+//   H5 mode none (2026-11-15 to 2026-11-21): the notes are visible, "Show October 2026" lands on October's range and renders the month;
+//   H6 /portfolio?from=2026-10-01&to=2026-11-21: the bar's tag is data-shared-range-focus="inside".
 // Expected values are spec literals held here, never read from the app's modules (W2 independence).
 //
 // In-page plants (`--plant`): `wide` (a 600 px block at 390 fails R4), `tiny` (an 11 px text fails R6). The source
@@ -32,6 +38,13 @@ assertHeavySlot("browser capture");
 
 const FIXTURES = path.join(__dirname, "..", "frontend", "src", "estate", "__tests__", "fixtures", "iap");
 const PLANTS = ["wide", "tiny"];
+const WORLD_A_MONTH = path.join(__dirname, "..", "backend", "tests", "fixtures", "5c", "deep_dive_lakeside_2026-10.json");
+/** E2 (`/api/portfolio/period`) by the range asked (IA-P2 P3b): a range not listed answers the one-month body. */
+const PERIOD_BY_RANGE = {
+  "2026-09-01|2026-10-31": "period-period-2026-09-10.json",
+  "2026-11-15|2026-11-21": "period-none-2026-11.json",
+};
+const PERIOD_DEFAULT = "period-month-2026-10.json";
 const RANGE = "from=2026-10-01&to=2026-10-31";
 
 /** Spec §2.1 after IA-P1's P2 (kind|label|group): Decisions is live. */
@@ -55,11 +68,18 @@ const RAIL = [
 const ALIASES = [
   ["/", "/portfolio", {}],
   ["/operational-records", "/evidence/records", {}],
+  // IA-P2 P3b (spec 2.4)
+  ["/portfolio/opportunity", "/portfolio/demand-and-capacity", {}],
+  ["/portfolio/changes", "/results", {}],
+  ["/portfolio/scope", "/evidence", {}],
 ];
 
 /** Landed pages and their R3 regions. */
 const PAGES = [
   { path: "/portfolio", rail: "Portfolio", regions: [] },
+  { path: "/portfolio/outcomes", rail: "Portfolio", h1: "Portfolio", tabs: ["Overview", "Outcomes", "Demand & capacity"], current: "Outcomes" },
+  { path: "/portfolio/demand-and-capacity", rail: "Portfolio", h1: "Portfolio", tabs: ["Overview", "Outcomes", "Demand & capacity"], current: "Demand & capacity" },
+  { path: "/results", rail: "Results", h1: "Results", tabs: [], current: "" },
   { path: "/decisions", rail: "Decisions", list: "decisions" },
   { path: "/findings", rail: "Findings", list: "findings" },
   { path: "/actions", rail: "Actions", list: "actions" },
@@ -96,7 +116,11 @@ async function openPage(browser, routes, view) {
   page.on("pageerror", (e) => errors.push(e.message));
   await page.route("**/api/**", (route) => {
     const url = new URL(route.request().url());
-    const body = routes.get(url.pathname);
+    let body = routes.get(url.pathname);
+    if (url.pathname === "/api/portfolio/period") {
+      const key = `${url.searchParams.get("from")}|${url.searchParams.get("to")}`;
+      body = fs.readFileSync(path.join(FIXTURES, PERIOD_BY_RANGE[key] ?? PERIOD_DEFAULT), "utf8");
+    } else if (url.pathname === "/api/portfolio/month") body = fs.readFileSync(WORLD_A_MONTH, "utf8");
     if (body !== undefined) return route.fulfill({ status: 200, contentType: "application/json", headers: { "Cache-Control": "no-store" }, body });
     return route.fulfill({ status: 404, contentType: "application/json", body: "{}" });
   });
@@ -288,6 +312,123 @@ async function checkLongRange(browser, args, routes) {
   return { gate: "long-range", sent, tag, href, failures, pass: failures.length === 0 };
 }
 
+
+/** The Overview hub as drawn: its levels, its blocks (the visible children of each level, drawers aside) and the old card value. */
+async function readHub(page) {
+  return page.evaluate(() => {
+    const visible = (e) => {
+      const r = e.getBoundingClientRect();
+      const cs = getComputedStyle(e);
+      return r.width > 0 && r.height > 0 && cs.visibility !== "hidden" && cs.display !== "none";
+    };
+    const hub = document.querySelector('[data-shape="hub"]');
+    let blocks = 0;
+    const levels = [];
+    if (hub) {
+      for (const region of hub.querySelectorAll(":scope > [data-level]")) {
+        levels.push(region.getAttribute("data-level"));
+        for (const child of region.children) if (!child.classList.contains("dd-drawer") && visible(child)) blocks += 1;
+      }
+    }
+    return {
+      hub: hub !== null,
+      levels,
+      blocks,
+      cardValues: document.querySelectorAll("[data-portfolio-card-value]").length,
+      tabs: [...document.querySelectorAll("[data-section-tabs] a")].map((a) => ({ text: a.textContent.trim(), href: a.getAttribute("href") || "" })),
+      notes: [...document.querySelectorAll(".dd-head [role=note]")].filter(visible).map((n) => n.textContent.trim()),
+      tag: document.querySelector("[data-shared-range-focus]")?.getAttribute("data-shared-range-focus") ?? null,
+      barText: document.querySelector("[data-shared-range-focus]")?.textContent ?? "",
+      bodyText: document.body.textContent,
+      pageWidth: document.documentElement.scrollWidth,
+    };
+  });
+}
+
+async function openPortfolio(browser, routes, url, view = { w: 1440, h: 900, dark: false }) {
+  const o = await openPage(browser, routes, view);
+  await o.page.goto(url);
+  await o.page.waitForSelector('nav[aria-label="Operator routes"]', { state: "attached", timeout: 20000 });
+  await o.page.waitForSelector("[data-shape='hub'], .dd-head", { timeout: 20000 }).catch(() => {});
+  await o.page.waitForTimeout(700);
+  return o;
+}
+
+/** H1 and H2 over the three modes; then H4, H5 and H6 for their ranges. One result per gate. */
+async function checkOverview(browser, args, routes) {
+  const results = [];
+  const modes = [
+    ["month", "from=2026-10-01&to=2026-10-31"],
+    ["period", "from=2026-09-01&to=2026-10-31"],
+    ["none", "from=2026-11-15&to=2026-11-21"],
+  ];
+  const TABS = ["Overview", "Outcomes", "Demand & capacity"];
+  for (const [mode, range] of modes) {
+    const { ctx, page, errors } = await openPortfolio(browser, routes, `${args.base}/portfolio?${range}`);
+    const h = await readHub(page);
+    const failures = [];
+    if (h.tabs.map((t) => t.text).join("|") !== TABS.join("|")) failures.push(`H1: ${mode}: tabs are [${h.tabs.map((t) => t.text).join(", ")}], expected [${TABS.join(", ")}]`);
+    for (const t of h.tabs) if (!new RegExp(`from=${range.split("&")[0].slice(5)}`).test(t.href)) failures.push(`H1: ${mode}: tab ${t.text} drops the range (${t.href})`);
+    if (h.blocks > 6) failures.push(`H2: ${mode}: ${h.blocks} blocks, at most 6`);
+    if (h.cardValues > 0) failures.push(`H2: ${mode}: ${h.cardValues} [data-portfolio-card-value] on the Overview`);
+    if (errors.length > 0) failures.push(`R5: ${errors.length} page errors (${errors[0]})`);
+    results.push({ gate: "H1H2", mode, levels: h.levels, blocks: h.blocks, tabs: h.tabs.map((t) => t.text), failures, pass: failures.length === 0 });
+    await ctx.close();
+  }
+  // H4: mode period, at 390.
+  {
+    const range = "from=2026-09-01&to=2026-10-31";
+    const failures = [];
+    const { ctx, page, errors } = await openPortfolio(browser, routes, `${args.base}/portfolio?${range}`, { w: 390, h: 844, dark: false });
+    const h = await readHub(page);
+    if (h.levels.join() !== "L1,L2,L3") failures.push(`H4: hub regions are [${h.levels.join(", ")}], expected L1, L2, L3`);
+    if (h.pageWidth !== 390) failures.push(`H4/R4: page width ${h.pageWidth} px at 390`);
+    if (!/All pages/.test(h.barText)) failures.push(`H4: the bar's tag text is "${h.barText}", expected "All pages"`);
+    const hrefs = await page.evaluate(() => [...document.querySelectorAll("[data-period-months] tbody tr th a")].map((a) => a.getAttribute("href")));
+    if (hrefs.length !== 2) failures.push(`H4: ${hrefs.length} month row links, expected 2`);
+    const landed = [];
+    for (let i = 0; i < hrefs.length; i += 1) {
+      await page.goto(`${args.base}/portfolio?${range}`);
+      await page.waitForSelector("[data-period-months]", { timeout: 20000 }).catch(() => {});
+      await (await page.$$("[data-period-months] tbody tr th a"))[i].click();
+      await page.waitForTimeout(500);
+      const u = new URL(page.url());
+      landed.push(`${u.pathname}?from=${u.searchParams.get("from")}&to=${u.searchParams.get("to")}`);
+    }
+    const want = ["/portfolio?from=2026-09-01&to=2026-09-30", "/portfolio?from=2026-10-01&to=2026-10-31"];
+    if (landed.join() !== want.join()) failures.push(`H4: month rows landed on [${landed.join(", ")}], expected [${want.join(", ")}]`);
+    if (errors.length > 0) failures.push(`R5: ${errors.length} page errors (${errors[0]})`);
+    results.push({ gate: "H4", levels: h.levels, hrefs, landed, bar: h.barText, failures, pass: failures.length === 0 });
+    await ctx.close();
+  }
+  // H5: mode none.
+  {
+    const failures = [];
+    const { ctx, page, errors } = await openPortfolio(browser, routes, `${args.base}/portfolio?from=2026-11-15&to=2026-11-21`);
+    const h = await readHub(page);
+    if (h.notes.length === 0) failures.push("H5: no visible note in the header");
+    if (h.levels.length > 0) failures.push(`H5: a hub region is drawn in mode none ([${h.levels.join(", ")}])`);
+    await page.getByRole("link", { name: "Show October 2026" }).click();
+    await page.waitForSelector("[data-shape='hub'] [data-level='L1']", { timeout: 20000 }).catch(() => failures.push("H5: October's month did not render after the click"));
+    const u = new URL(page.url());
+    if (!(u.pathname === "/portfolio" && u.searchParams.get("from") === "2026-10-01" && u.searchParams.get("to") === "2026-10-31")) failures.push(`H5: landed on ${u.pathname}${u.search}, expected October's range`);
+    if (errors.length > 0) failures.push(`R5: ${errors.length} page errors (${errors[0]})`);
+    results.push({ gate: "H5", notes: h.notes, landed: `${u.pathname}${u.search}`, failures, pass: failures.length === 0 });
+    await ctx.close();
+  }
+  // H6: a range reaching past the served month.
+  {
+    const failures = [];
+    const { ctx, page, errors } = await openPortfolio(browser, routes, `${args.base}/portfolio?from=2026-10-01&to=2026-11-21`);
+    const h = await readHub(page);
+    if (h.tag !== "inside") failures.push(`H6: the bar's tag is ${h.tag}, expected inside`);
+    if (errors.length > 0) failures.push(`R5: ${errors.length} page errors (${errors[0]})`);
+    results.push({ gate: "H6", tag: h.tag, failures, pass: failures.length === 0 });
+    await ctx.close();
+  }
+  return results;
+}
+
 (async () => {
   const args = parseArgs(process.argv.slice(2));
   const routes = loadRoutes();
@@ -302,6 +443,7 @@ async function checkLongRange(browser, args, routes) {
     report(await checkLongRange(browser, args, routes));
     for (const alias of ALIASES) report(await checkAlias(browser, args, routes, alias));
     report(await checkLensAlias(browser, args, routes));
+    for (const r of await checkOverview(browser, args, routes)) report(r);
     const views = [];
     for (const [w, h] of [[1440, 900], [390, 844]]) for (const dark of [false, true]) views.push({ name: `${w}x${h}-${dark ? "dark" : "light"}`, w, h, dark });
     for (const spec of PAGES) {
