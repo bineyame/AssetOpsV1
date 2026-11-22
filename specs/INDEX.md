@@ -21,7 +21,7 @@ finished work are in `archive/agent-history/`.
 | RC4-F1 | The database a URL really connects to: one resolver for every RC4 decision (0.5 unit; merges before 3A3) | in_review — spec rev 1, packet | `RC4-F1-database-name/spec.md` | 11 KB |
 | ON1 | Operator tenant from one onboarding file; emulated roles granted automatically, real files refused until ON1b; served tenant; key erasure; runbook (2.0 units) | in_review — built on `task/ON1-operator-tenant`; mid-build Q1, Q2 open | `ON1-operator-tenant/spec.md` | 40 KB |
 | 3B2 | Findings pinned to factors | in_review — built on `task/3B2-findings-pinned`, packet | `3B2-findings-pinned/spec.md` | — |
-| IA-1 | Menu, page organization, shape rebuild; IA-2a plan shape (§5.1) | rev 4; IA-1a, IA-1b, IA-1c merged; G2 seen by the owner (21 Nov); IA-2a specified, handshake next | `IA-1-shape-rebuild/spec.md` | 64 KB |
+| IA-1, IA-2b | Shape rebuild; IA-2a plan shape; IA-2b four home lists | rev 4; IA-1a-c merged; IA-2a, 2b1 in review (land together) | `IA-1-shape-rebuild/spec.md`, `IA-1-shape-rebuild/spec-IA-2b.md` | 64, 24 KB |
 | IA-P | Real app onto the IA shape: Overview on range, lists, six Site tabs, inbox (14 u, 3 parts) | live — rev 3, ready to build | `IA-P-product-shape/spec.md` | 58 KB |
 | 5a | Targets per factor, declarer recorded; page P5 | rev 2; unit 1 merged; units 2-3 in review | `5a-targets/spec.md` | 24 KB |
 | 3A6 | Source profiles as data (CSV, one-sheet XLSX), admitted by command; migration 0067 (2.75 u) | merged | `3A6-source-profiles/spec.md` | 70 KB |

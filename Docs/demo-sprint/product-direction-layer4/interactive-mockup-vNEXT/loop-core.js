@@ -338,7 +338,7 @@ const ALIAS = {'portfolio/opportunity':'portfolio/demand-and-capacity',financial
 function resolveScreen(id){
  /* IA-1 (spec §2.2, P8): a live IA alias first, else ALIAS, never chained; a landed IA route renders in the frame */
  const IA=typeof IA_ROUTES!=='undefined',iaT=IA?iaLiveAlias(id):null;
- let target=id;if(iaT){target=iaT;try{const q=location.hash.indexOf('?');history.replaceState(null,'','#/'+target+(q<0?'':location.hash.slice(q)));}catch{}}else if(ALIAS[id]){target=ALIAS[id];try{history.replaceState(null,'','#/'+target);}catch{}}
+ let target=id;if(iaT){target=iaT;try{const q=location.hash.indexOf('?');history.replaceState(null,'',iaCanon('#/'+id+(q<0?'':location.hash.slice(q))));}catch{}} /* D-IA.78: the alias's own query too (iaCanon) */else if(ALIAS[id]){target=ALIAS[id];try{history.replaceState(null,'','#/'+target);}catch{}}
  if(IA&&!target&&typeof iaLanding==='function'){const l=iaLanding(),m=l&&iaLanded(l);if(m)return iaScreen(m.route,l);} /* D-IA.29: the empty hash renders iaStart() */
  if(IA&&typeof iaForeign==='function'&&iaForeign(target)){const m=iaLanded('not-found');if(m)return iaScreen(m.route,'not-found');} /* D-IA.28: another operator's Site or decision */
  if(IA&&target!=='not-found'){const m=iaLanded(target);if(m)return iaScreen(m.route,target);}
@@ -357,7 +357,7 @@ const studyAssumptions=st=>(STUDY(st).assumptions||[]).map(a=>{const m=String(a)
 const DV_CONTAINER='tr,li,p,dd,.hero,.path,.total,.evhead';
 function tagReplay(root){if(!root)return;const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),conts=new Map();let n;
  while((n=w.nextNode())){const pe=n.parentElement;if(pe.closest(SRC_SEL+',.vh,select,option,details.tech,script,style'))continue;const i=SOURCE_RE.findIndex(r=>r.test(n.textContent));if(i>=0){const c=pe.closest(DV_CONTAINER);if(c&&!c.querySelector(SRC_SEL)&&!conts.has(c))conts.set(c,SOURCE_LABELS[i]);}}
- conts.forEach((st,c)=>{const t=c.tagName==='TR'?c.lastElementChild:c.matches('.ux-q')?(c.querySelector('.ux-q-stake')||c):c;t.insertAdjacentHTML('beforeend',' '+srcTag(st));});}
+ conts.forEach((st,c)=>{const t=c.tagName==='TR'?c.lastElementChild:c.matches('.ux-q')?(c.querySelector('.ux-q-stake')||c):c;(t.tagName==='TD'&&t.lastElementChild&&t.lastElementChild.matches('.ux-cell')?t.lastElementChild:t).insertAdjacentHTML('beforeend',' '+srcTag(st));});} /* IA-2b1 review M1: inside the cell's wrapper, so a stacked card keeps the mark in the value column */
 /* ---------- plain words (owner, 19 Nov: no technical words on anything user-facing) ----------
    One display vocabulary for every string a loop screen shows, whether typed in these modules or read from the demo
    data file: applied to the text of the canvas and of each evidence drawer after render. Figures are never touched

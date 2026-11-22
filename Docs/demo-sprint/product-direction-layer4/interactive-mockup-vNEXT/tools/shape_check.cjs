@@ -7,7 +7,7 @@
      ?state=no-recommendation, and after one act (the operator's first waiting decision chosen with its recommendation);
    2 the crawl from iaStart(): every content, tab and palette href, to 6 hops, classifies good (tools/ia_crawl.cjs);
    3 the rail: an unlanded item is an unavailable root with "Not available yet" and no href; a landed item links its route;
-   4 the document title is "<title> · <operator name>";
+   4 the document title is "<docTitle, where the screen sets it, else title> · <operator name>" (IA-2a, D-IA.52 R13);
    5 the Lab gate (also the empty-hash landing and ?book with the switch off): off, no footer, no Lab link, no Lab option in the
      review select, #/lab is not-found; on, the footer reads "Workspace" and "Simulator Lab" with href="#/lab", and #/lab opens the Lab;
    6 (IA-1b) no self-link: no a[href^="#/"] inside a [data-level] region whose iaCanon href has the current path and query;
@@ -22,8 +22,23 @@
    Run: node tools/shape_check.cjs   Plants: SHAPE_PLANT=foreignscope|unlink|stub|rail|palette|primary|lab|tabstop|notfound|noact|lablegacy|
    selflink|aliaskey|crossop|linkprimary|landing|decprimary|stickyact|anchor|sitecrumb|decscope (each must fail). IA-1c r1 adds, in onPage and every state:
    11 (D-IA.36) every a[href^="#"] that is not a #/ link names an element id on the page; 12 (D-IA.38) a decision's crumbs are "Decisions" text, the Site link, the subject text, and
-   .canvas carries data-ia-crumbs="keep"; 13 (D-IA.40) a site/* or decision/* page's scope reads <operator> · <Site> with that Site lit. */
+   .canvas carries data-ia-crumbs="keep"; 13 (D-IA.40) a site/* or decision/* page's scope reads <operator> · <Site> with that Site lit.
+   14 (IA-2a, D-IA.52 R13; live at once) within each group of IA_TAB_GROUPS the landed tab routes have distinct document titles (each tab
+     rendered, document.title read): Portfolio; Site per Site, across every Site of the operator; Plan only with IA-2a landed or
+     IA_FORCE_LANDED=IA-2a (each booted window then loads tools/fixtures/plan_stub.js when it has no shapePlan, before any plant), else the
+     Plan part prints "IA-2a not landed; dormant". Plant SHAPE_PLANT=doctitle (IA-2a landed or forced; item 14 only): docTitle ignored.
+   IA-2b1 (spec-IA-2b §8, D-IA.78, D-IA.79), each part only with IA-2b1 landed or IA_FORCE_LANDED=IA-2b1, else "IA-2b1 not landed; dormant":
+   7 also reads every alias value with its own split (path before "?", the query after it) and asserts that iaAliasTarget(key) returns that
+     path and that query, and that the path is a reserved path (plant SHAPE_PLANT=aliasq: iaAliasTarget leaves the query in the path);
+   12 the decision's first crumb is a link to #/decisions reading "Decisions" (plant SHAPE_PLANT=deccrumb, hosted: the crumb as text);
+   15 (new) on every list route x its views (default, show=all, each facet's first option, each non-default sort, q, the first Site's
+     scope) no a[href^="#/"] in the list section has the current address (path and decoded parameters, compared with its own code). */
+const fs = require('fs'), path = require('path');
 const { boot, classifier, identity, liveRoutes, hrefsOf, OPS } = require('./ia_crawl.cjs');
+const STUB = path.join(__dirname, 'fixtures', 'plan_stub.js');
+/* IA-2a on in this window (landed, or forced by boot); then the stub stands in for the builders when the window has none */
+const plan2 = w => w.eval("IA_LANDED.has('IA-2a')"), l2b = w => w.eval("IA_LANDED.has('IA-2b1')");
+const planStub = w => { if (plan2(w) && w.eval('typeof shapePlan') !== 'function') w.eval(fs.readFileSync(STUB, 'utf8')); };
 const PLANT = process.env.SHAPE_PLANT || '';
 const fails = [], log = [];
 const atLevel = (n, html) => `const r = IA_ROUTES.find(x => x.id === ${n}), _r = r.render; r.render = ctx => _r(ctx).replace('<div data-level="${html[0]}">', '<div data-level="${html[0]}">${html[1]}');`;
@@ -51,10 +66,15 @@ const PLANTS = {
   anchor: `{ ${atLevel("'decision/:dec'", ['L1', '<a href="#nowhere">x</a>'])} }`,
   sitecrumb: `{ const r = IA_ROUTES.find(x => x.id === 'decision/:dec'); r.crumbs = ctx => { const d = decById(ctx.params.dec); return [['Decisions'], [SK[d.site].name], [d.q]]; }; }`,
   decscope: `iaParamSite = p => p.site || null;`,
+  /* IA-2a (D-IA.52 R13): the screen's docTitle dropped, so render() writes s.title */
+  doctitle: `{ const _s = iaScreen; iaScreen = function (route, path) { const s = _s(route, path); delete s.docTitle; return s; }; }`,
+  /* IA-2b1 (D-IA.78; D-IA.9): the alias helper leaves the query in the path; the decision's "Decisions" crumb drawn as text */
+  aliasq: `{ const _a = iaAliasTarget; iaAliasTarget = function (...a) { const t = _a(...a); if (!t || !t.query) return t; const q = typeof t.query === 'string' ? t.query.replace(/^\\?/, '') : new URLSearchParams(t.query).toString(); return q ? { ...t, path: t.path + '?' + q, query: '' } : t; }; }`,
+  deccrumb: `{ const r = IA_ROUTES.find(x => x.id === 'decision/:dec'), _c = r.crumbs; r.crumbs = ctx => { const c = typeof _c === 'function' ? _c(ctx) : _c; return [[c[0][0]], ...c.slice(1)]; }; }`,
   foreignscope: `iaCtx = eval('(' + iaCtx.toString().replace("kind === 'group' ? sites.some(k => iaVertical(k) === id)", "kind === 'group' ? true") + ')');`
 };
-const HOSTED = ['unlink', 'stub', 'rail', 'palette', 'primary', 'tabstop', 'noact', 'selflink', 'linkprimary', 'decprimary', 'stickyact', 'anchor', 'sitecrumb', 'decscope'], DEC_HOSTED = ['decprimary', 'stickyact', 'anchor', 'sitecrumb', 'decscope'];
-const ITEM = { lab: 5, lablegacy: 5, notfound: 'probe', aliaskey: 7, crossop: 8, landing: 9, foreignscope: 10 };
+const HOSTED = ['unlink', 'stub', 'rail', 'palette', 'primary', 'tabstop', 'noact', 'selflink', 'linkprimary', 'decprimary', 'stickyact', 'anchor', 'sitecrumb', 'decscope', 'deccrumb'], DEC_HOSTED = ['decprimary', 'stickyact', 'anchor', 'sitecrumb', 'decscope', 'deccrumb'];
+const ITEM = { lab: 5, lablegacy: 5, notfound: 'probe', aliaskey: 7, crossop: 8, landing: 9, foreignscope: 10, doctitle: 14, aliasq: 7 };
 if (PLANT && !PLANTS[PLANT]) { console.error(`shape_check: unknown plant ${PLANT}`); process.exit(2); }
 const all = !PLANT, runs = n => all || ITEM[PLANT] === n;
 const actOf = e => e.dataset.act || e.dataset.uxAct || (e.dataset.uxDrawer ? `drawer:${e.dataset.uxDrawer}` : '') || (e.getAttribute('href') ? `href:${e.getAttribute('href')}` : '');
@@ -77,8 +97,9 @@ function onPage(B, r, bad, cls, state) {
   f.querySelectorAll('a[href^="#"]').forEach(a => { const h = a.getAttribute('href'); if (h.startsWith('#/')) return; let id = ''; try { id = decodeURIComponent(h.slice(1)); } catch (e) {} if (!id || !doc.getElementById(id)) bad(`${tag}: in-page link "${h}" names no element on the page`); });
   if (/^decision\//.test(r.id)) {
     const d = w.eval(`(() => { const x = decById(${JSON.stringify(r.id.slice(9))}); return { site: x.site, name: SK[x.site].name, q: x.q }; })()`), cr = f.querySelector('.canvas .breadcrumbs'), kids = cr ? [...cr.childNodes].filter(n => !(n.nodeType === 1 && n.tagName === 'SPAN')) : [];
-    const ok = kids.length === 3 && kids[0].nodeType === 3 && kids[0].textContent.trim() === 'Decisions' && kids[1].nodeType === 1 && kids[1].tagName === 'A' && kids[1].getAttribute('href') === `#/site/${d.site}` && kids[1].textContent.trim() === d.name && kids[2].nodeType === 3;
-    if (!ok) bad(`${tag}: the crumbs are not "Decisions" (text), a link #/site/${d.site} reading "${d.name}", then the subject (${kids.map(n => n.nodeType === 1 ? `<${n.tagName.toLowerCase()} ${n.getAttribute('href') || ''}>` : 'text').join(' ')})`);
+    const l2b1 = w.eval("IA_LANDED.has('IA-2b1')"), k0 = kids[0], first = l2b1 ? k0 && k0.nodeType === 1 && k0.tagName === 'A' && k0.getAttribute('href') === '#/decisions' && k0.textContent.trim() === 'Decisions' : k0 && k0.nodeType === 3 && k0.textContent.trim() === 'Decisions';
+    const ok = kids.length === 3 && first && kids[1].nodeType === 1 && kids[1].tagName === 'A' && kids[1].getAttribute('href') === `#/site/${d.site}` && kids[1].textContent.trim() === d.name && kids[2].nodeType === 3;
+    if (!ok) bad(`${tag}: the crumbs are not "Decisions" (${l2b1 ? 'a link #/decisions, IA-2b1' : 'text'}), a link #/site/${d.site} reading "${d.name}", then the subject (${kids.map(n => n.nodeType === 1 ? `<${n.tagName.toLowerCase()} ${n.getAttribute('href') || ''}>` : 'text').join(' ')})`);
     if (!f.querySelector('.canvas[data-ia-crumbs="keep"]')) bad(`${tag}: .canvas does not carry data-ia-crumbs="keep"`);
   }
   if (/^(site|decision)\//.test(r.id) && r.id.split('/').length === 2) {
@@ -87,7 +108,7 @@ function onPage(B, r, bad, cls, state) {
     else if (!lit || lit.getAttribute('href') !== `#/site/${site}`) bad(`${tag}: the lit scope entry is not ${site}`);
   }
   if (state) return { lv };
-  const want = `${w.eval('currentScreen().title')} · ${B.opName}`; if (doc.title !== want) bad(`${tag}: document title "${doc.title}", not "${want}"`);
+  const want = `${w.eval('(s => s.docTitle || s.title)(currentScreen())')} · ${B.opName}`; if (doc.title !== want) bad(`${tag}: document title "${doc.title}", not "${want}"`);
   /* 3 the rail */
   const rail = w.eval('IA_RAIL.map(i => ({ label: i.label, route: i.route, landed: IA_LANDED.has(i.unit) }))');
   for (const i of rail) { const un = f.querySelector(`.rail [data-rail-unavailable="${i.label}"]`), a = [...f.querySelectorAll('.rail a')].find(x => x.textContent.trim() === i.label);
@@ -98,10 +119,13 @@ function onPage(B, r, bad, cls, state) {
   if (r.notFound) for (const x of hrefsOf(doc)) { const c = cls(x); if (c !== 'good') bad(`${tag}: not-found links ${x} (${c})`); }
   return { lv };
 }
+/* every booted window: the stub when IA-2a is on and the window has no builders, then the plant */
+const prep = w => { planStub(w); if (PLANT) w.eval(PLANTS[PLANT]); w.eval('render()'); };
 (async () => {
   for (const op of OPS) {
     const B = await boot(op, 'plan'), { w, doc, go } = B, bad = m => fails.push(`${B.opName} · ${m}`);
-    if (PLANT) w.eval(PLANTS[PLANT]);
+    if (PLANT === 'doctitle' && !plan2(w)) { console.error('shape_check: plant doctitle applies with IA-2a landed or forced (IA_FORCE_LANDED=IA-2a)'); process.exit(2); }
+    prep(w);
     const start = w.eval('iaStart()'); await go(start);
     const cls = classifier(w, op);
     const decHost = w.eval(`(() => { const id = [...new Set(ATTN[${JSON.stringify(op)}].map(r => r[4]))].find(id => uxDecState(id).key === 'choose' && uxRec(decById(id))); return id ? 'decision/' + id : null; })()`);
@@ -113,7 +137,7 @@ function onPage(B, r, bad, cls, state) {
     for (const r of routes) { await go(r.id); const o = onPage(B, r, bad, cls); if (o) log.push(`${B.opName} · #/${r.id} · ${r.notFound ? 'not-found' : r.shape} · levels ${o.lv.join(',') || 'none'}`); }
     /* item 1 in the two other states (unplanted only) */
     if (all) {
-      const N = await boot(op, 'plan', { search: '?state=no-recommendation' }); for (const r of live) { await N.go(r.id); onPage(N, r, bad, cls, 'no-recommendation'); } N.dom.window.close();
+      const N = await boot(op, 'plan', { search: '?state=no-recommendation' }); prep(N.w); for (const r of live) { await N.go(r.id); onPage(N, r, bad, cls, 'no-recommendation'); } N.dom.window.close();
       const first = w.eval(`(() => { const ids = [...new Set(ATTN[${JSON.stringify(op)}].map(r => r[4]))]; return ids.find(id => ['choose', 'none'].includes(uxDecState(id).key) && uxRec(decById(id))) || null; })()`);
       if (first) { w.eval(`uxMockSet({ ...uxMock(), chosen: { ...(uxMock().chosen || {}), ${JSON.stringify(first)}: uxRec(decById(${JSON.stringify(first)})) } })`);
         for (const r of live) { await go(r.id); onPage(B, r, bad, cls, `after choosing ${first}`); } w.eval('uxMockSet({})'); }
@@ -141,7 +165,7 @@ function onPage(B, r, bad, cls, state) {
       await go('lab'); if (w.eval('currentScreen().id') !== 'lab') bad('Lab gate: #/lab does not open the Lab with the switch on');
       w.sessionStorage.removeItem('l4-dev');
       await go(''); if (doc.querySelector('#app a[href^="#/lab"]')) bad('Lab gate: a Lab link on the empty-hash landing with the switch off');
-      const BK = await boot(op, '', { search: '?book' }); if (PLANT) BK.w.eval(PLANTS[PLANT]); await BK.go('');
+      const BK = await boot(op, '', { search: '?book' }); prep(BK.w); await BK.go('');
       if (BK.doc.querySelector('#book-lab')) bad('Lab gate: ?book lists the Lab with the switch off'); if (BK.doc.querySelector('#app a[href^="#/lab"]')) bad('Lab gate: a Lab link in ?book with the switch off'); BK.dom.window.close();
     }
     /* 7 reserved paths (static; its own matching) */
@@ -152,6 +176,20 @@ function onPage(B, r, bad, cls, state) {
         return { keys: Object.keys(IA_ALIASES).map(k => [k, ex(k)]), reserved: [...reserved] }; })()`);
       const R = new Set(S.reserved); S.keys.forEach(([k, xs]) => { const hit = xs.find(x => R.has(x)); if (hit) bad(`reserved paths: the alias key "${k}" matches the route "${hit}"`); });
       log.push(`${B.opName} · reserved paths: ${S.keys.length} alias keys against ${R.size} reserved paths`);
+      /* IA-2b1 (D-IA.78): every alias value split with this check's own code; the helper returns the same path and query */
+      if (l2b(w)) {
+        const V = w.eval(`Object.entries(IA_ALIASES).filter(([k]) => !k.includes(':')).map(([k, v]) => { const s = typeof v === 'function' ? v({}) : v, t = typeof iaAliasTarget === 'function' ? iaAliasTarget(k) : 'no iaAliasTarget';
+          return [k, String(s), t && typeof t === 'object' ? { path: t.path, query: typeof t.query === 'string' ? t.query : t.query ? new URLSearchParams(t.query).toString() : '' } : String(t)]; })`);
+        const qn = q => [...new URLSearchParams(String(q || '').replace(/^\?/, ''))].map(([a, b]) => `${a}=${b}`).sort().join('&');
+        V.forEach(([k, v, t]) => { const i = v.indexOf('?'), path = i < 0 ? v : v.slice(0, i), query = i < 0 ? '' : v.slice(i + 1);
+          /* IA-2b1 unit 3: a function value with no target for this operator (mini, cold, ev) is null, and the helper says so; the
+             reserved-path rule binds the values with a query (the list aliases): the others may lead to unbuilt or other operators' paths */
+          if (v === 'null') { if (t !== 'null') bad(`alias values: "${k}" has no target for this operator, iaAliasTarget gives ${JSON.stringify(t)}`); return; }
+          if (query && !R.has(path)) bad(`alias values: "${k}" leads to "${path}", which is not a reserved path`);
+          if (typeof t !== 'object') bad(`alias values: iaAliasTarget("${k}") is ${t}`);
+          else if (t.path !== path || qn(t.query) !== qn(query)) bad(`alias values: iaAliasTarget("${k}") is { path: "${t.path}", query: "${t.query}" }, its value "${v}" splits to "${path}" and "${query}"`); });
+        log.push(`${B.opName} · alias values: ${V.length} split with the check's own code, ${V.filter(([, v]) => v.includes('?')).length} with a query`);
+      } else if (op === OPS[0]) log.push('IA-2b1 not landed; dormant');
     }
     /* 8 another operator's Site and decision show not-found */
     if (runs(8)) {
@@ -164,9 +202,33 @@ function onPage(B, r, bad, cls, state) {
     /* 10 a scope never empties by address */
     if (runs(10)) {
       const X = w.eval(`(() => { const mine = OPS[${JSON.stringify(op)}].sites, have = new Set(mine.map(iaVertical)), g = ['mini', 'cold', 'ev'].find(x => !have.has(x)), s = Object.keys(SK).find(k => !mine.includes(k)); return { n: mine.length, scopes: ['group:' + g, 'site:' + s] }; })()`);
-      for (const sc of X.scopes) { await go(`portfolio/outcomes?scope=${sc}`); const n = doc.querySelectorAll('.ia-outcomes tr[data-site]').length; if (n !== X.n) bad(`foreign scope: #/portfolio/outcomes?scope=${sc} renders ${n} rows, expected ${X.n}`); }
+      for (const sc of X.scopes) { await go(`portfolio/outcomes?scope=${sc}`); const n = doc.querySelectorAll('.ia-outcomes tr[data-site], table.ia-list tbody tr[data-row]').length; /* IA-2b1: the Outcomes rows are the Sites list's */ if (n !== X.n) bad(`foreign scope: #/portfolio/outcomes?scope=${sc} renders ${n} rows, expected ${X.n}`); }
       log.push(`${B.opName} · foreign scopes: ${X.scopes.join(', ')} render all ${X.n} Sites`);
     }
+    /* 14 distinct document titles within each tab group (the Site group per Site; Plan with IA-2a on) */
+    if (runs(14)) {
+      const G = w.eval(`(() => { const out = [['Portfolio', 'Portfolio', IA_TAB_GROUPS.Portfolio({})]]; OPS[${JSON.stringify(op)}].sites.forEach(k => out.push(['Site', 'Site ' + SK[k].name, IA_TAB_GROUPS.Site({ site: k })]));
+        if (IA_TAB_GROUPS.Plan) out.push(['Plan', 'Plan', IA_TAB_GROUPS.Plan({})]); return out; })()`), on = plan2(w);
+      if (on && !G.some(g => g[0] === 'Plan')) bad('distinct titles: IA-2a is on but IA_TAB_GROUPS has no Plan group');
+      const said = [];
+      for (const [kind, name, tabs] of G) { if (kind === 'Plan' && !on) continue;
+        const landed = tabs.filter(([, id]) => cls('#/' + id) === 'good'), seen = new Map();
+        for (const [label, id] of landed) { await go(id); const t = doc.title, o = seen.get(t); if (o) bad(`distinct titles: in the ${name} group the tabs "${o}" and "${label}" share the document title "${t}"`); else seen.set(t, label); }
+        said.push(`${name} ${landed.length}`); }
+      log.push(`${B.opName} · distinct titles per tab group (landed tabs): ${said.join(', ')}`);
+      if (!on && op === OPS[0]) log.push('IA-2a not landed; dormant');
+    }
+    /* 15 (IA-2b1) no list view links its own address (the tools, the chips and every link of the list section) */
+    if (runs(15) && l2b(w)) {
+      const sites = w.eval(`OPS[${JSON.stringify(op)}].sites`), V = { decisions: ['state=waiting', 'sort=due'], findings: ['heading=optimize', 'sort=site'], actions: ['state=released', 'version=1', 'sort=item'], sites: ['target=below', 'sort=name'] };
+      const canon = h => { const x = String(h).replace(/^#\//, ''), i = x.indexOf('?'); let q = []; try { q = [...new URLSearchParams(i < 0 ? '' : x.slice(i + 1))].map(([a, b]) => `${a}=${b}`).sort(); } catch (e) {} return (i < 0 ? x : x.slice(0, i)) + '?' + q.join('&'); };
+      let n = 0, links = 0;
+      for (const [key, extra] of Object.entries(V)) for (const v of ['', 'show=all', ...extra, 'q=a', `scope=site:${sites[0]}`]) {
+        const h = key + (v ? '?' + v : ''); await go(h); n++; const here = canon(w.location.hash), sec = doc.querySelector('section[data-shape="list"]');
+        if (!sec) { bad(`list self-links: #/${h} has no list section`); continue; }
+        sec.querySelectorAll('a[href^="#/"]').forEach(a => { links++; if (canon(a.getAttribute('href')) === here) bad(`list self-links: #/${h} links its own address with "${a.textContent.trim().slice(0, 40)}" (${a.getAttribute('href')})`); }); }
+      log.push(`${B.opName} · list self-links: ${n} list views, ${links} links`);
+    } else if (runs(15) && op === OPS[0]) log.push('IA-2b1 not landed; dormant');
     if (B.errors.length) bad(`script errors: ${B.errors.slice(0, 2).join(' | ')}`);
     B.dom.window.close();
   }

@@ -16,10 +16,26 @@
    measures its Site crumb (shown, inside the width). SHOTS_ONLY=sweep runs only the sweep.
    IA-1c fix round (D-IA.41): the sweep adds 390, 600, 601, 760 and checks at every width: past, reach, trunc, midword, rows (data-fit 0-4 one line, 5 two row bands, 5 below 761), order (data-fit never rises with width), full (0 at 1920), asof (period menu holds the figures' time; 1440 and 390 on #/portfolio).
    Plants (D-IA.41, SHOTS_ONLY=sweep): wrap, phonesearch, midword, asof must fail; longname must pass.
-   Plants: SHOTS_PLANT=fit (no collapse; with SHOTS_ONLY=sweep), truncate (the search box clipped; sweep), crumbs (the keep rule deleted; with SHOTS_ONLY=decision), status (hides the status words), SHOTS_PLANT=headline (narrows the headline to force a third line), SHOTS_PLANT=stack (removes the stacking media rule). */
+   Plants: SHOTS_PLANT=fit (no collapse; with SHOTS_ONLY=sweep), truncate (the search box clipped; sweep), crumbs (the keep rule deleted; with SHOTS_ONLY=decision), status (hides the status words), SHOTS_PLANT=headline (narrows the headline to force a third line), SHOTS_PLANT=stack (removes the stacking media rule).
+   IA-2r1 (D-IA.55, D-IA.56): SHOTS_ONLY=tabs runs the tab-switch set (plants tabnoscroll, tabscrollall); tilefill (every .heroes.ux-kpis row fills its width, at every
+   measured route and width; plant SHOTS_PLANT=tilefill) is a measure of every run, and the run prints the count of tile rows it measured.
+   IA-2a (spec §5.1.8 row 7, D-IA.52 R14, D-IA.49): with IA-2a in IA_LANDED or IA_FORCE_LANDED=IA-2a (then each page adds the unit and loads
+   tools/fixtures/plan_stub.js when it has no shapePlan, and renders again), the four plan routes plan, plan/left-out, plan/review, plan/history
+   join the measured set at 1440x900, 1280x720 and 390x844, light and dark, with every measure above (fit, truncate, crumbs clauses), and
+   approvefold: at 1440x900 and 1280x720, at scroll 0 and while the plan is proposed, the band's own Approve (.ux-planband
+   [data-ux-act="approve-plan"], never one inside [data-ux-sticky]) has getBoundingClientRect().bottom <= innerHeight. Shots on plan at 1440
+   and 390 light: the Approve dialog open, after Approve, after Send back; the thresholds drawer at 1440 and 390; Lakeside 6500/No on Left out at
+   1440. SHOTS_ONLY=plan runs only this set; otherwise it prints "IA-2a not landed; dormant". Plant SHOTS_PLANT=approvefold (a 900 px block
+   before the band) must fail.
+   IA-2b1 (D-IA.72): the list set S1 to S9 (listSet, below), SHOTS_ONLY=lists; plants listkeep, listwrap, emptytools, listcell (the cell wrapper dropped; fails S1 at 390).
+*/
 const { chromium } = require(process.env.PW), fs = require('fs');
 const base = 'file://' + process.argv[2], out = process.argv[3]; fs.mkdirSync(out, { recursive: true });
-const PLANT = process.env.SHOTS_PLANT || '', LAST = {}; let SW_ORDER = false;
+const PLANT = process.env.SHOTS_PLANT || '', LAST = {}; let relN = 0, SW_ORDER = false, IA2A_ON = false, tilesN = 0, cellsN = 0;
+const path = require('path'), IA2A_FORCED = String(process.env.IA_FORCE_LANDED || '').split(',').map(x => x.trim()).includes('IA-2a');
+const PLAN_STUB = fs.readFileSync(path.join(__dirname, 'fixtures', 'plan_stub.js'), 'utf8');
+const IA2B1_FORCED = String(process.env.IA_FORCE_LANDED || '').split(',').map(x => x.trim()).includes('IA-2b1'); let IA2B1_ON = false;
+const LIST_FX = fs.readFileSync(path.join(__dirname, 'list_fixture.cjs'), 'utf8');
 const measure = () => { const tb = document.querySelector('.ia-frame .topbar'), kids = tb ? [...tb.querySelectorAll(':scope > *, :scope > .right > *')].filter(e => e.getBoundingClientRect().height > 0) : [];
   const cs = kids.map(e => { const r = e.getBoundingClientRect(); return (r.top + r.bottom) / 2; }), oneLine = Math.max(...cs) - Math.min(...cs) <= 8;
   const fit5 = !!tb && tb.dataset.fit === '5', tall = kids.filter(e => !(fit5 && e.matches('.ux-scope-sw')) && e.getBoundingClientRect().height > 40).map(e => e.className || e.tagName), past = tb ? [...tb.querySelectorAll('*')].filter(e => { const r = e.getBoundingClientRect(); return r.width > 0 && !e.closest('details:not([open]) > :not(summary)') && (r.right > innerWidth + 1 || r.left < -1); }).map(e => e.className || e.tagName) : [];
@@ -42,12 +58,150 @@ const measure = () => { const tb = document.querySelector('.ia-frame .topbar'), 
     if (r.width < 16 || r.left < -1 || r.right > innerWidth + 1 || r.top < -1 || r.bottom > innerHeight + 1 || !hit || !(e === hit || e.contains(hit))) reach.push(`${n} not reachable`); }
   const bands = []; cs.slice().sort((a, b) => a - b).forEach(c => { if (!bands.length || c - bands[bands.length - 1] > 8) bands.push(c); });
   const sw = tb && tb.querySelector('.ux-scope-sw>summary'), swc = sw && getComputedStyle(sw), mw = swc ? (swc.overflowWrap !== 'normal' || swc.wordBreak !== 'normal' || swc.textOverflow === 'ellipsis' ? `${swc.overflowWrap}/${swc.wordBreak}/${swc.textOverflow}` : '') : 'no scope switch';
-  return { reach, bandN: bands.length, mw, stackN: st.length, stackBad: [...new Set(stackBad)], hlLines, fit: tb ? tb.dataset.fit || null : null, trunc, crumb, frame: !!document.querySelector('#ia-root.ia-frame'), oneLine, kids: kids.length, tall, past, hscroll: document.documentElement.scrollWidth > innerWidth + 1, rail: !!rr, railPast: rp, un };
+  /* D-IA.56: every .heroes.ux-kpis row in the IA frame fills its width: the last tile's right edge is within 2 px of the row's content right edge */
+  const tiles = [...document.querySelectorAll('.ia-frame .heroes.ux-kpis')].filter(e => e.getClientRects().length && e.children.length).map(e => { const r = e.getBoundingClientRect(), pr = parseFloat(getComputedStyle(e).paddingRight) || 0, last = e.lastElementChild.getBoundingClientRect(); return { n: e.children.length, gap: Math.round(r.right - pr - last.right) }; });
+  return { tiles, reach, bandN: bands.length, mw, stackN: st.length, stackBad: [...new Set(stackBad)], hlLines, fit: tb ? tb.dataset.fit || null : null, trunc, crumb, frame: !!document.querySelector('#ia-root.ia-frame'), oneLine, kids: kids.length, tall, past, hscroll: document.documentElement.scrollWidth > innerWidth + 1, rail: !!rr, railPast: rp, un };
 };
+/* IA-2b1 (D-IA.72, spec-IA-2b §8 row ia_shots): the list set. Runs when IA-2b1 is in IA_LANDED or IA_FORCE_LANDED=IA-2b1 (each page then adds
+   the unit and renders again), else prints "IA-2b1 not landed; dormant". SHOTS_ONLY=lists runs only this set. Classes (each printed with its count):
+   S1 the four lists x 3 operators at 390x844, 1280x720, 1440x900, light and dark; S2 each facet value with at least 1 row, by address (chip);
+   S3 each non-default sort; S4 q=zzqx (the empty state, with the tier's sort and the search kept); S5 scope=site:<first Site> (chip);
+   S6 Actions after Approve and after Send back (on #/plan) per operator, and Lakeside 6500/No (Returned); S7 Metro #/actions (2 rows, no
+   controls); S2 to S7 at 390 and 1440 light. S8 the fixture (tools/list_fixture.cjs, installed in the page): sites30 default, show=all,
+   target=below&q=fixture, q=zzqx, and decisions25 at state=draft after a Send back; 390 and 1440, light and dark. S9 keeps place at 390:
+   Lakeside #/decisions sort (live), sites30 target select and search submit: the control scrolled to half the viewport's height, changed as a
+   user would (focus, then change or the form submitted), then its top within 4 px of before and focus on it. A case whose page cannot scroll
+   that far prints its place clause skipped with the reason and still asserts focus. In every shot: no sideways scroll; every element of the
+   tools and chips rows ends inside the page and each tools control keeps its own width (not squeezed by a row that cannot wrap); tilefill; at 390 table.ia-list.ux-stack is stacked (thead hidden, cells block or grid) and fits
+   (D-IA.35 L5). Plants (SHOTS_PLANT): listkeep (iaListRestore not registered; fails S9), listwrap (nowrap on the tools and chips rows; fails S8
+   at 390), emptytools (the empty state drawn without its chips and tools; fails S4 on every operator). */
+const LISTS = ['decisions', 'findings', 'actions', 'sites'], LOPS = ['lakeside', 'harvest', 'metro'], LSITE = { lakeside: 'kobo', harvest: 'mwea', metro: 'embakasi' };
+const listMeasure = () => { const W = innerWidth, past = [], L = document.querySelector('section[data-shape="list"]'), txt = e => (e ? e.textContent : '').replace(/\s+/g, ' ').trim();
+  document.querySelectorAll('.ia-list-tools, .ia-list-chips').forEach(row => [row, ...row.querySelectorAll('*')].forEach(e => { const r = e.getBoundingClientRect(); if (r.width > 0 && (r.right > W + 1 || r.left < -1)) past.push(`${e.tagName.toLowerCase()}${e.getAttribute('name') ? `[name=${e.getAttribute('name')}]` : e.classList.length ? '.' + e.classList[0] : ''} ends at ${Math.round(r.right)} > ${W}`); }));
+  /* each control of the tools row keeps its own width (its clone, unconstrained, beside it; capped at the row's width): a row that cannot wrap squeezes them */
+  const squeezed = []; document.querySelectorAll('.ia-list-tools select, .ia-list-tools input, .ia-list-tools button').forEach(e => { const c = e.cloneNode(true); c.removeAttribute('name'); c.removeAttribute('id'); c.style.cssText = 'position:absolute;visibility:hidden;width:auto;max-width:none;min-width:0;flex:none;left:0;top:0';
+    e.parentElement.appendChild(c); const nat = c.getBoundingClientRect().width; c.remove(); const fw = e.closest('.ia-list-tools').clientWidth, w = e.getBoundingClientRect().width;
+    if (w < Math.min(nat, fw) - 1) squeezed.push(`${e.tagName.toLowerCase()}${e.getAttribute('name') ? `[name=${e.getAttribute('name')}]` : ''} ${Math.round(w)} px, its own width ${Math.round(nat)}`); });
+  /* IA-2b1 review M1: in a stacked card every line of a cell's value starts at the value column or right of it (a second line must not fall under the label) */
+  const cellBad = []; let cellN = 0; if (innerWidth <= 760) document.querySelectorAll('table.ia-list.ux-stack tbody td[data-label]').forEach(td => { const cs = getComputedStyle(td); if (cs.display !== 'grid') return; cellN++;
+    const vl = td.getBoundingClientRect().left + (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.gridTemplateColumns) || 0) + (parseFloat(cs.columnGap) || 0), tw = document.createTreeWalker(td, NodeFilter.SHOW_TEXT); let n;
+    while ((n = tw.nextNode())) { if (!n.textContent.trim()) continue; const rg = document.createRange(); rg.selectNodeContents(n); for (const r of rg.getClientRects()) if (r.width > 0 && r.left < vl - 1) { cellBad.push(`"${n.textContent.trim().slice(0, 30)}" under the label of ${td.dataset.label} (starts at ${Math.round(r.left)}, value column at ${Math.round(vl)})`); break; } } });
+  const tabs = [...document.querySelectorAll('table.ia-list.ux-stack')].map(t => { const th = t.querySelector('thead'), td = t.querySelector('tbody td'); return { head: th ? getComputedStyle(th).display : 'none', td: td ? getComputedStyle(td).display : null }; });
+  const q = s => L && L.querySelector(s);
+  return { past: [...new Set(past)], squeezed, cellBad, cellN, tabs, list: !!L, rows: L ? L.querySelectorAll('tr[data-row]').length : 0, tools: !!q('form[data-ia-list-tools]'), sort: (q('[data-ia-list-tools] select[name="sort"]') || {}).value || null,
+    qv: q('[data-ia-list-tools] input[name="q"]') ? q('[data-ia-list-tools] input[name="q"]').value : null, chips: L ? [...L.querySelectorAll('.ia-list-chips .ia-chip')].map(txt) : [], empty: txt(q('.ux-empty')), more: txt(q('.ux-more')),
+    states: L ? [...L.querySelectorAll('tr[data-row] .status-pill')].map(txt) : [] }; };
+async function listPlant(p) {
+  if (PLANT === 'listwrap') await p.addStyleTag({ content: '.ia-list-tools,.ia-list-chips{flex-wrap:nowrap!important}' });
+  if (PLANT === 'listcell') await p.evaluate(() => { const o = iaListBody; iaListBody = function (...a) { return o.apply(this, a).replace(/(<td data-label="[^"]*">)<span class="ux-cell">/g, '$1').replace(/<\/span><\/td>/g, '</td>'); }; render(); });
+  if (PLANT === 'listkeep') await p.evaluate(() => window.removeEventListener('hashchange', iaListRestore));
+  if (PLANT === 'emptytools') await p.evaluate(() => { const o = iaListBody; iaListBody = function (...a) { const h = o.apply(this, a); return /Nothing matches these filters\./.test(h) ? h.replace(/<p class="ia-list-chips"[\s\S]*?<\/p>/, '').replace(/<form class="ia-list-tools"[\s\S]*?<\/form>/, '') : h; }; render(); });
+}
+const fxInstall = (p, name) => p.evaluate(([src, n]) => { if (!window.__F) { const module = { exports: {} }; new Function('module', 'require', src)(module, () => ({})); window.__F = module.exports; } return window.__F.install(window, n).length; }, [LIST_FX, name]);
+async function planAct(p, how) { /* the plan sets' flow (run(): approved, sentback, case) */
+  if (how === 'nd') { await p.evaluate(() => { for (const [n, v] of [['sw-budget', '6500'], ['sw-loi', 'no']]) { const i = document.querySelector(`input[name="${n}"][value="${v}"]`); i.checked = true; i.dispatchEvent(new Event('change', { bubbles: true })); } }); await p.waitForTimeout(300); return; }
+  await p.click('[data-shape="plan"] .ux-planband [data-ux-act="' + (how === 'sentback' ? 'send-back' : 'approve-plan') + '"]'); await p.waitForTimeout(300);
+  if (how === 'sentback') await p.evaluate(() => { const t = document.getElementById('ux-sb-reason'), s = document.getElementById('ux-sb-way'); t.value = 'The crew cannot do both visits'; s.value = [...s.options].find(o => o.value).value; for (const e of [t, s]) for (const k of ['input', 'change']) e.dispatchEvent(new Event(k, { bubbles: true })); });
+  await p.click('#uxact [data-ux-act-go]'); await p.waitForTimeout(400); }
+async function listSet(b, lines) {
+  let bad = 0; const CN = {}, cnt = (c, ok) => { CN[c] = CN[c] || { n: 0, bad: 0 }; CN[c].n++; if (!ok) { CN[c].bad++; bad++; } };
+  const open = async (op, w, h, dark, start) => { const ctx = await b.newContext({ viewport: { width: w, height: h }, colorScheme: dark ? 'dark' : 'light' }); await ctx.addInitScript(v => { try { sessionStorage.setItem('l4-op', v); } catch (e) {} }, op);
+    const p = await ctx.newPage(), errs = []; p.on('pageerror', e => errs.push(e.message)); await p.goto(`${base}#/${start}`); await p.waitForTimeout(400);
+    if (IA2B1_FORCED) await p.evaluate(() => { IA_LANDED.add('IA-2b1'); render(); }); await listPlant(p); return { ctx, p, errs }; };
+  const common = (m, lm, w, errs) => { const why = [];
+    if (!m.frame) why.push('no frame'); if (!lm.list) why.push('no list section'); if (m.hscroll) why.push('sideways scroll'); if (errs.length) why.push(`page error ${errs[0].slice(0, 80)}`);
+    if (lm.past.length) why.push(`the tools or chips row runs past the page (${lm.past[0]})`);
+    cellsN += lm.cellN; if (lm.cellBad.length) why.push(`a stacked cell's later line starts in the label column (${lm.cellBad.length}: ${lm.cellBad[0]}) (listcell)`);
+    if (lm.squeezed.length) why.push(`the tools row squeezes a control (${lm.squeezed[0]}) (listwrap)`);
+    for (const t of m.tiles) { tilesN++; if (Math.abs(t.gap) > 2) why.push(`a ${t.n}-tile row stops ${t.gap} px short of its row's right edge (tilefill)`); }
+    if (w === 390) { lm.tabs.forEach(t => { if (t.head !== 'none' || (t.td && !['block', 'grid'].includes(t.td))) why.push(`table.ia-list not stacked (thead ${t.head}, td ${t.td})`); }); if (m.stackBad.length) why.push(`stacked table does not fit: ${m.stackBad[0]}`); }
+    return why; };
+  /* o: { cls, op, w, dark, hash, start (default hash), pre(p), fx, check(p, lm) -> reasons, tag } */
+  const lrun = async o => { const h = o.w === 390 ? 844 : o.w === 1280 ? 720 : 900, { ctx, p, errs } = await open(o.op, o.w, h, o.dark, o.start || o.hash);
+    if (o.pre) await o.pre(p);
+    if ((o.start && o.start !== o.hash) || o.fx) { await p.evaluate(x => { location.hash = '#/' + x; }, o.hash); await p.waitForTimeout(300); if (o.fx) { await p.evaluate(() => render()); await p.waitForTimeout(100); } }
+    const m = await p.evaluate(measure), lm = await p.evaluate(listMeasure), why = [...common(m, lm, o.w, errs), ...(o.check ? await o.check(p, lm) : [])]; cnt(o.cls, !why.length);
+    const th = o.dark ? 'dark' : 'light', tag = o.tag ? ` (${o.tag})` : '';
+    if (!PLANT) await p.screenshot({ path: `${out}/lists-${o.cls}-${o.op}-${(o.tag ? o.tag + '-' : '') + o.hash.replace(/[\/?&=:]+/g, '-')}-${o.w}-${th}.png`, fullPage: true });
+    lines.push(`${why.length ? 'BAD' : 'ok '} ${o.cls} ${o.op} #/${o.hash}${tag} ${o.w}x${h} ${th}: ${lm.rows} rows, tools ${lm.tools ? `sort ${lm.sort}${lm.qv !== null ? `, search "${lm.qv}"` : ''}` : 'none'}${lm.chips.length ? `, chips ${lm.chips.map(c => `[${c}]`).join(' ')}` : ''}${lm.empty ? `, empty "${lm.empty}"` : ''}${why.length ? ' · ' + why.join('; ') : ''}`);
+    await ctx.close(); };
+  /* each operator's lists as the page sees them: tier, sorts, facet values with at least 1 row, the first Site's name */
+  const INFO = {};
+  for (const op of LOPS) { const { ctx, p } = await open(op, 1440, 900, false, 'decisions');
+    INFO[op] = await p.evaluate(() => Object.fromEntries(Object.entries(IA_LIST_DEFS).map(([k, d]) => { const it = d.items(LS.op), m = iaListModel(d, it, {}, { kind: 'all' });
+      return [k, { tier: m.tier, sorts: d.sorts.map(s => s.key), facets: (d.facets || []).flatMap(f => f.options().map(([v, w]) => ({ f: f.key, v: String(v), w: iaListText(w), n: it.filter(x => String(f.of(x)) === String(v)).length }))).filter(x => x.n) }]; })));
+    INFO[op].siteName = await p.evaluate(s => SK[s].name, LSITE[op]); await ctx.close(); }
+  const W2 = [390, 1440];
+  /* S1 default */
+  for (const op of LOPS) for (const w of [390, 1280, 1440]) for (const dark of [false, true]) for (const key of LISTS) await lrun({ cls: 'S1', op, w, dark, hash: key });
+  /* S2 each facet value with at least 1 row, by address: the rows are that value's, and the chip names it (the tier draws no facet select live) */
+  for (const op of LOPS) for (const key of LISTS) for (const f of INFO[op][key].facets) for (const w of W2) await lrun({ cls: 'S2', op, w, dark: false, hash: `${key}?${f.f}=${encodeURIComponent(f.v)}`,
+    check: async (p, lm) => { const why = []; if (lm.rows !== Math.min(f.n, 10)) why.push(`${lm.rows} rows, the store has ${f.n} with ${f.f}=${f.v}`);
+      if (INFO[op][key].tier < 2 && !lm.chips.some(c => c.toLowerCase().startsWith(f.w))) why.push(`no chip reading "${f.w} · …"`); return why; } });
+  /* S3 each non-default sort */
+  for (const op of LOPS) for (const key of LISTS) for (const s of INFO[op][key].sorts.slice(1)) for (const w of W2) await lrun({ cls: 'S3', op, w, dark: false, hash: `${key}?sort=${s}`,
+    check: async (p, lm) => (INFO[op][key].tier >= 1 && lm.sort !== s ? [`the sort select reads ${lm.sort}, not ${s}`] : []) });
+  /* S4 a search with no result: the empty state, the tier's sort (its default) and the search kept (the chip below tier 2, the box at 2) */
+  for (const op of LOPS) for (const key of LISTS) for (const w of W2) await lrun({ cls: 'S4', op, w, dark: false, hash: `${key}?q=zzqx`,
+    check: async (p, lm) => { const why = [], t = INFO[op][key].tier; if (!/^Nothing matches these filters\./.test(lm.empty)) why.push(`no "Nothing matches these filters." state (got "${lm.empty}")`);
+      if (t >= 1 && lm.sort !== INFO[op][key].sorts[0]) why.push(`the tier-${t} sort is not drawn (sort ${lm.sort}) (emptytools)`);
+      if (t < 2 && !lm.chips.includes('Matching “zzqx” · Clear search')) why.push('the search chip "Matching “zzqx” · Clear search" is not drawn (emptytools)');
+      if (t === 2 && lm.qv !== 'zzqx') why.push('the search box does not keep "zzqx" (emptytools)'); return why; } });
+  /* S5 scope = the operator's first Site */
+  for (const op of LOPS) for (const key of LISTS) for (const w of W2) await lrun({ cls: 'S5', op, w, dark: false, hash: `${key}?scope=site:${LSITE[op]}`,
+    check: async (p, lm) => (lm.chips.includes(`${INFO[op].siteName} · All sites`) ? [] : [`no chip "${INFO[op].siteName} · All sites"`]) });
+  /* S6 Actions after Approve and after Send back; Lakeside 6500/No (Returned) */
+  for (const op of LOPS) for (const how of ['approved', 'sentback', ...(op === 'lakeside' ? ['nd'] : [])]) for (const w of W2) await lrun({ cls: 'S6', op, w, dark: false, start: 'plan', hash: 'actions', tag: how === 'nd' ? '6500-no' : how,
+    pre: p => planAct(p, how), check: async (p, lm) => { const why = [], st = await p.evaluate(() => uxPlanState(LS.op).state);
+      if (how === 'approved' && st !== 'APPROVED') why.push(`the plan is ${st} after Approve`); if (how === 'sentback' && st !== 'DRAFT') why.push(`the plan is ${st} after Send back`);
+      if (how === 'nd' && !lm.states.includes('Returned')) why.push('no Returned row in the 6500/No case'); if (!lm.rows) why.push('no rows'); return why; } });
+  /* S7 no controls: Metro Actions, 2 rows */
+  for (const w of W2) await lrun({ cls: 'S7', op: 'metro', w, dark: false, hash: 'actions', check: async (p, lm) => [...(lm.tools ? ['the tools are drawn'] : []), ...(lm.rows !== 2 ? [`${lm.rows} rows, not 2`] : []), ...(lm.chips.length ? ['chips drawn'] : [])] });
+  /* S8 the fixture. decisions25 is cloned from the booted operator's decisions, so its draft rows exist only after the plan is sent back */
+  const drafted = await (async () => { const { ctx, p } = await open('lakeside', 1440, 900, false, 'plan'); await planAct(p, 'sentback'); await fxInstall(p, 'decisions25');
+    const n = await p.evaluate(() => IA_LIST_DEFS.decisions.items(LS.op).filter(x => iaDecStateKey(x) === 'draft').length); await ctx.close(); return n; })();
+  const DST = drafted ? 'draft' : 'approval'; lines.push(`S8 decisions25 after Send back: ${drafted} rows in state draft${drafted ? '' : '; none, so the case uses state=approval'}`);
+  const S8 = [['sites30', 'sites', null, (p, lm) => (lm.rows !== 10 || !/Show all 30/.test(lm.more) ? [`${lm.rows} rows, more "${lm.more}" (expected 10 and Show all 30)`] : [])],
+    ['sites30', 'sites?show=all', null, (p, lm) => (lm.rows !== 30 ? [`${lm.rows} rows, not 30`] : [])],
+    ['sites30', 'sites?target=below&q=fixture', null, (p, lm) => (!lm.rows || lm.qv !== 'fixture' ? [`${lm.rows} rows, search "${lm.qv}"`] : [])],
+    ['sites30', 'sites?q=zzqx', null, (p, lm) => (!/^Nothing matches these filters\./.test(lm.empty) || !lm.tools || lm.qv !== 'zzqx' ? [`empty "${lm.empty}", tools ${lm.tools}, search "${lm.qv}"`] : [])],
+    ['decisions25', `decisions?state=${DST}`, 'sentback', (p, lm) => (!lm.rows ? ['no rows'] : [])]];
+  for (const [fx, hash, how, ck] of S8) for (const w of W2) for (const dark of [false, true]) await lrun({ cls: 'S8', op: 'lakeside', w, dark, fx, start: how ? 'plan' : 'sites', hash, tag: fx,
+    pre: async p => { if (how) await planAct(p, how); await fxInstall(p, fx); }, check: async (p, lm) => ck(p, lm) });
+  /* S9 keeps place at 390 */
+  const S9 = [['Lakeside #/decisions sort (live)', 'decisions', null, 'sort', 'select', 'due'], ['sites30 target select', 'sites', 'sites30', 'target', 'select', 'below'], ['sites30 search submit', 'sites', 'sites30', 'q', 'search', 'fixture']];
+  for (const [label, start, fx, name, kind, val] of S9) { const { ctx, p, errs } = await open('lakeside', 390, 844, false, start);
+    if (fx) { await fxInstall(p, fx); await p.evaluate(() => render()); await p.waitForTimeout(100); }
+    const why = [], pos = await p.evaluate(n => { const e = document.querySelector(`[data-ia-list-tools] [name="${n}"]`); if (!e) return null; const top = e.getBoundingClientRect().top + scrollY; return { top: Math.round(top), want: Math.round(top - innerHeight / 2), maxY: document.documentElement.scrollHeight - innerHeight, half: innerHeight / 2 }; }, name);
+    let note = '';
+    if (!pos) why.push(`no control [name=${name}]`); else {
+      const reach = pos.want >= 0 && pos.want <= pos.maxY;
+      if (reach) { await p.evaluate(y => window.scrollTo({ top: y, behavior: 'instant' }), pos.want); await p.waitForTimeout(100); }
+      else note = `place skipped: the control's top is ${pos.top} px at scroll 0${pos.want < 0 ? `, above half the viewport (${pos.half})` : `, and the page scrolls only ${pos.maxY} px`}, so it cannot sit at half height; measured from scroll 0, focus asserted`;
+      const before = await p.evaluate(([n, kind, v]) => { const e = document.querySelector(`[data-ia-list-tools] [name="${n}"]`), t = e.getBoundingClientRect().top, h0 = location.hash; e.focus();
+        if (kind === 'select') { e.value = v; e.dispatchEvent(new Event('change', { bubbles: true })); } else { e.value = v; e.form.requestSubmit(); } return { t, h0 }; }, [name, kind, val]);
+      await p.waitForTimeout(500);
+      const a = await p.evaluate(n => { const e = document.querySelector(`[data-ia-list-tools] [name="${n}"]`); return { t: e ? e.getBoundingClientRect().top : null, focus: !!e && document.activeElement === e, hash: location.hash, y: scrollY }; }, name);
+      if (a.hash === before.h0) why.push('the change wrote no address');
+      if (a.t === null || Math.abs(a.t - before.t) > 4) why.push(`the control's top moved ${Math.round(before.t)} -> ${a.t === null ? 'gone' : Math.round(a.t)} (listkeep)`);
+      if (!a.focus) why.push('focus is not on the control (listkeep)');
+      note = `${note ? note + '; ' : ''}top ${Math.round(before.t)} -> ${a.t === null ? '-' : Math.round(a.t)}, focus ${a.focus}, ${a.hash}`; }
+    const m = await p.evaluate(measure), lm = await p.evaluate(listMeasure); why.push(...common(m, lm, 390, errs)); cnt('S9', !why.length);
+    if (!PLANT) await p.screenshot({ path: `${out}/lists-S9-${label.replace(/[^a-z0-9]+/gi, '-').replace(/-+$/, '').toLowerCase()}-390-light.png` });
+    lines.push(`${why.length ? 'BAD' : 'ok '} S9 ${label} 390x844 light: ${note}${why.length ? ' · ' + why.join('; ') : ''}`); await ctx.close(); }
+  const NAMES = { S1: 'default', S2: 'facet values by address', S3: 'non-default sorts', S4: 'no-result search', S5: 'scope first Site', S6: 'Actions after Approve / Send back / 6500-No', S7: 'no controls', S8: 'fixture', S9: 'keeps place' };
+  for (const c of Object.keys(NAMES)) lines.push(`${CN[c] && !CN[c].bad ? 'ok ' : 'BAD'} ${c} ${NAMES[c]}: ${CN[c] ? CN[c].n : 0} shots, ${CN[c] ? CN[c].bad : 0} bad`);
+  for (const c of Object.keys(NAMES)) if (!CN[c]) bad++;
+  return bad; }
 (async () => { const b = await chromium.launch({ executablePath: process.env.CHROME }); const lines = []; let bad = 0;
   const run = async (op, w, h, dark, r, shot, act) => {
     const ctx = await b.newContext({ viewport: { width: w, height: h }, colorScheme: dark ? 'dark' : 'light' }); await ctx.addInitScript(v => { try { sessionStorage.setItem('l4-op', v); } catch (e) {} }, op);
     const p = await ctx.newPage(); await p.goto(`${base}#/${r}`); await p.waitForTimeout(400);
+    if (IA2A_FORCED) await p.evaluate(src => { IA_LANDED.add('IA-2a'); if (typeof shapePlan !== 'function') (0, eval)(src); render(); }, PLAN_STUB);
+    if (act === 'case') { await p.evaluate(() => { for (const [n, v] of [['sw-budget', '6500'], ['sw-loi', 'no']]) { const i = document.querySelector(`input[name="${n}"][value="${v}"]`); i.checked = true; i.dispatchEvent(new Event('change', { bubbles: true })); } location.hash = '#/plan/left-out'; }); await p.waitForTimeout(300); }
+    if (PLANT === 'approvefold') await p.evaluate(() => { const b = document.querySelector('[data-shape="plan"] .ux-planband'); if (b) b.insertAdjacentHTML('beforebegin', '<div data-plant="approvefold" style="height:900px"></div>'); });
+    if (PLANT === 'tilefill') await p.evaluate(() => { const del = l => { for (let i = l.length - 1; i >= 0; i--) { const r = l[i]; if (r.cssRules && r.type !== CSSRule.STYLE_RULE) del(r.cssRules); else if (/heroes\.ux-kpis[^{]*last-child/.test(r.selectorText || '') && /ia-frame/.test(r.selectorText)) (r.parentRule || r.parentStyleSheet).deleteRule(i); } }; for (const sh of document.styleSheets) del(sh.cssRules); });
+    if (PLANT === 'releasedtype') await p.addStyleTag({ content: '.ia-plan-released{font-size:1rem!important;color:#c00!important}' }); /* D-IA.60 L6: the rule removed */
     if (PLANT === 'status') await p.addStyleTag({ content: '.ia-rail-status{display:none!important}' });
     if (PLANT === 'fit') await p.evaluate(() => { iaFitTopbar = () => {}; render(); });
     if (PLANT === 'truncate') await p.addStyleTag({ content: '.ia-frame .topbar .searchbox{max-width:140px;overflow:hidden}.ia-frame .topbar .ia-search-t{overflow:hidden;text-overflow:ellipsis}' });
@@ -61,9 +215,20 @@ const measure = () => { const tb = document.querySelector('.ia-frame .topbar'), 
     if (PLANT === 'headline') await p.addStyleTag({ content: '.ux-headline{max-width:220px!important}' });
     if (PLANT === 'stack') await p.evaluate(() => { for (const sh of document.styleSheets) for (let i = sh.cssRules.length - 1; i >= 0; i--) { const r = sh.cssRules[i]; if (r.type === CSSRule.MEDIA_RULE && /max-width:\s*760px/.test(r.conditionText) && /table\.ux-stack/.test(r.cssText)) sh.deleteRule(i); } });
     if (act === 'inbox') { await p.click('[data-ia-inbox]'); await p.waitForTimeout(350); }
+    const fold = r.startsWith('plan') && !act && (w === 1440 || w === 1280) ? await p.evaluate(() => { const a = [...document.querySelectorAll('[data-shape="plan"] .ux-planband [data-ux-act="approve-plan"]')].find(e => !e.closest('[data-ux-sticky]'));
+      return a ? { b: Math.round(a.getBoundingClientRect().bottom), h: innerHeight, y: scrollY } : null; }) : null;
+    if (['dialog', 'approved', 'sentback'].includes(act)) { await p.click('[data-shape="plan"] .ux-planband [data-ux-act="' + (act === 'sentback' ? 'send-back' : 'approve-plan') + '"]'); await p.waitForTimeout(300);
+      if (act === 'sentback') await p.evaluate(() => { const t = document.getElementById('ux-sb-reason'), s = document.getElementById('ux-sb-way'); t.value = 'The crew cannot do both visits'; s.value = [...s.options].find(o => o.value).value; for (const e of [t, s]) for (const k of ['input', 'change']) e.dispatchEvent(new Event(k, { bubbles: true })); });
+      if (act !== 'dialog') { await p.click('#uxact [data-ux-act-go]'); await p.waitForTimeout(400); } }
+    if (act === 'thresholds') { await p.click('[data-shape="plan"] button[data-ux-drawer="ia-plan-thresholds"]'); await p.waitForTimeout(350); }
     const m = await p.evaluate(measure), why = [];
     if (act === 'inbox') { const ib = await p.evaluate(() => { const d = document.getElementById('ia-inbox'), r = d && d.querySelector('.ux-drawer-panel').getBoundingClientRect(); return { open: !!d && d.dataset.open === 'true', fits: !!r && r.left >= -1 && r.right <= innerWidth + 1, rows: d ? d.querySelectorAll('a[data-ia-row]').length : 0 }; });
       if (!ib.open) why.push('the inbox did not open'); if (!ib.fits) why.push('the inbox panel runs past the window'); m.inboxRows = ib.rows; }
+    if (r.startsWith('plan') && !act && (w === 1440 || w === 1280) && IA2A_ON) { if (!fold) why.push('no band Approve measured (approvefold)'); else if (fold.b > fold.h || fold.y) why.push(`the band's Approve ends at ${fold.b} past the first viewport ${fold.h} (approvefold)`); else m.fold = fold.b; }
+    if (act === 'thresholds' && !(await p.evaluate(() => (document.getElementById('ia-plan-thresholds') || {}).dataset?.open === 'true'))) why.push('the thresholds drawer did not open');
+    if (act === 'approved' && !(await p.evaluate(() => /approved/i.test((document.querySelector('.ux-toast') || {}).textContent || '')))) why.push('no approval toast');
+    if (r === 'plan' && !act && IA2A_ON) { const t = await p.evaluate(() => { const a = document.querySelector('.ia-plan-released'), b = document.querySelector('.approval-releases'); if (!a || !b) return null; const x = getComputedStyle(a), y = getComputedStyle(b); return { same: x.fontSize === y.fontSize && x.color === y.color && x.fontWeight === y.fontWeight, a: `${x.fontSize} ${x.fontWeight} ${x.color}`, b: `${y.fontSize} ${y.fontWeight} ${y.color}` }; });
+      if (t) { relN++; if (!t.same) why.push(`the already-released clause reads ${t.a}, the release line ${t.b} (releasedtype)`); } }
     if (!m.frame) why.push('no frame'); if (m.hscroll) why.push('sideways scroll'); if (m.tall.length) why.push(`tall top-bar item ${m.tall[0]}`); if (m.past.length) why.push(`top bar runs past the window (${m.past[0]})`);
     if (m.reach.length && !act) why.push(`${m.reach[0]} (reach)`); if (m.trunc.length) why.push(`truncated control (${m.trunc[0]})`); if (m.mw) why.push(`the scope label breaks inside a word or ends in an ellipsis (${m.mw}) (midword)`);
     if (w < 761 && m.fit !== '5') why.push(`data-fit ${m.fit}, not 5 below 761 (rows)`);
@@ -77,14 +242,67 @@ const measure = () => { const tb = document.querySelector('.ia-frame .topbar'), 
     if (m.rail && !m.un.length) why.push('no unavailable items measured');
     if (w >= 1280 && m.hlLines !== null && m.hlLines > 2) why.push(`headline on ${m.hlLines} lines`);
     if (w <= 760 && m.stackBad.length) why.push(`stacked table does not fit: ${m.stackBad[0]}`); if (w === 390 && r === 'portfolio/outcomes' && !m.stackN) why.push('no table.ux-stack measured on Outcomes');
+    for (const t of m.tiles) { tilesN++; if (Math.abs(t.gap) > 2) why.push(`a ${t.n}-tile row stops ${t.gap} px short of its row's right edge (tilefill)`); }
     if (!why.length) {} else bad++;
     if (shot) await p.screenshot({ path: `${out}/${op}-${r === 'x-unknown' ? 'not-found' : r.replace(/\//g, '-')}${act ? `-${act}` : ''}-${w}-${dark ? 'dark' : 'light'}.png`, fullPage: false });
-    lines.push(`${why.length ? 'BAD' : 'ok '} ${op} #/${r}${act ? ` (${act} open, ${m.inboxRows} rows)` : ''} ${w}x${h} ${dark ? 'dark' : 'light'}: top bar one line ${m.oneLine} (${m.kids} items), rail ${m.rail ? `${m.un.length} unavailable items measured` : 'hidden'}${m.hlLines !== null ? `, headline ${m.hlLines} line(s)` : ''}${why.length ? ' · ' + why.join('; ') : ''}`); await ctx.close(); };
+    lines.push(`${why.length ? 'BAD' : 'ok '} ${op} #/${r}${act ? ` (${act}${act === 'inbox' ? ` open, ${m.inboxRows} rows` : ''})` : ''}${m.fold ? ` band Approve bottom ${m.fold}` : ''} ${w}x${h} ${dark ? 'dark' : 'light'}: top bar one line ${m.oneLine} (${m.kids} items), rail ${m.rail ? `${m.un.length} unavailable items measured` : 'hidden'}${m.hlLines !== null ? `, headline ${m.hlLines} line(s)` : ''}${why.length ? ' · ' + why.join('; ') : ''}`); await ctx.close(); };
   const SITES = { lakeside: ['kobo', 'kisiwa', 'mto'], harvest: ['mwea', 'thika', 'kirinyaga'], metro: ['embakasi', 'kasarani', 'ruiru'] };
   const ONLY = process.env.SHOTS_ONLY; /* optional: run only the hub routes (IA-1b's set), or only the decisions and the inbox (IA-1c's) */
   /* IA-1c: every decision of each operator, and the inbox open */
   const DECS = await (async () => { const ctx = await b.newContext(), p = await ctx.newPage(); await p.goto(`${base}#/plan`); await p.waitForTimeout(300);
     const x = await p.evaluate(() => Object.fromEntries(Object.keys(OPS).map(op => [op, DEC.filter(d => OPS[op].sites.includes(d.site)).map(d => d.id)]))); const L = await p.evaluate(() => Object.fromEntries(Object.keys(OPS).map(op => [op, DEC.filter(d => OPS[op].sites.includes(d.site)).sort((a, b) => SK[b.site].name.length - SK[a.site].name.length)[0].id]))); await ctx.close(); x.longest = L; return x; })();
+  /* IA-2b1 (D-IA.72, spec-IA-2b §8 row ia_shots): the list set, S1 to S9, each class printed with its count */
+  { const ctx = await b.newContext(), p = await ctx.newPage(); await p.goto(`${base}#/plan`); await p.waitForTimeout(300); IA2B1_ON = IA2B1_FORCED || await p.evaluate(() => IA_LANDED.has('IA-2b1')); await ctx.close(); }
+  if (!IA2B1_ON) { lines.push('IA-2b1 not landed; dormant'); if (ONLY === 'lists') { await b.close(); console.log(lines.join('\n')); process.exit(0); } }
+  else if (!ONLY || ONLY === 'lists') { const r2 = await listSet(b, lines); bad += r2;
+    if (ONLY === 'lists') { await b.close(); console.log(lines.join('\n') + `\ntile rows measured: ${tilesN}; stacked cells measured: ${cellsN}`); console.log(`shots: ${lines.filter(l => /^(ok |BAD)/.test(l)).length} measured, ${bad} bad`); process.exit(bad ? 1 : 0); } }
+  /* IA-2a: the four plan routes (landed, or forced) */
+  { const ctx = await b.newContext(), p = await ctx.newPage(); await p.goto(`${base}#/plan`); await p.waitForTimeout(300); IA2A_ON = IA2A_FORCED || await p.evaluate(() => IA_LANDED.has('IA-2a')); await ctx.close(); }
+  if (!IA2A_ON) { lines.push('IA-2a not landed; dormant'); if (ONLY === 'plan') { await b.close(); console.log(lines.join('\n') + `\ntile rows measured: ${tilesN}`); process.exit(0); } }
+  else if (!ONLY || ONLY === 'plan') { for (const op of Object.keys(SITES)) for (const [w, h] of [[1440, 900], [1280, 720], [390, 844]]) for (const dark of [false, true]) for (const r of ['plan', 'plan/left-out', 'plan/review', 'plan/history']) await run(op, w, h, dark, r, !PLANT);
+    if (!PLANT) { for (const op of Object.keys(SITES)) for (const [w, h] of [[1440, 900], [390, 844]]) { for (const a of ['dialog', 'approved', 'sentback', 'thresholds']) await run(op, w, h, false, 'plan', true, a); }
+      await run('lakeside', 1440, 900, false, 'plan', true, 'case'); }
+    if (!relN) { lines.push('BAD no already-released clause measured (releasedtype)'); bad++; } lines.push(`releasedtype: ${relN} clauses measured`);
+    if (ONLY === 'plan') { await b.close(); console.log(lines.join('\n') + `\ntile rows measured: ${tilesN}`); console.log(`shots: ${lines.length} measured, ${bad} bad`); process.exit(bad ? 1 : 0); } }
+
+  /* D-IA.55: a tab switch shows its tab. Every group with more than one landed tab (Portfolio; Plan; Site on one Site of each type) x the operator x
+     390x844, 1280x720, 1440x900: from the first tab click each other tab in turn, then the last back to the first, then Back once. After two frames:
+     the content's first box has at least 48 px inside the viewport; the active tab is wholly in view; after a click focus is on the active tab (or the
+     phone menu's summary); on the plan routes at 1440 and 1280 scrollY is 0. Plants tabnoscroll (no listener), tabscrollall (no fold test). */
+  if (IA2A_ON && (!ONLY || ONLY === 'tabs')) {
+    const CFGS = ['proposed', 'approved', 'sent back'].flatMap(st => [false, true].map(nd => [st, nd])); /* D-IA.58: every plan state x the default and the non-default case (D-IA.50) */
+    const GROUPS = op => [['Portfolio', 'portfolio'], ['Plan', 'plan'], ['Site', `site/${SITES[op][0]}`]];  /* a group with one landed tab draws no tabs and has no switch: reported, not measured */ let tabN = 0, tabBad = 0;
+    for (const op of Object.keys(SITES)) for (const [w, h] of [[390, 844], [1280, 720], [1440, 900]]) for (const [g, start] of GROUPS(op)) for (const [state, cs] of (g === 'Plan' ? CFGS : [['proposed', false]])) {
+      const ctx = await b.newContext({ viewport: { width: w, height: h } }); await ctx.addInitScript(v => { try { sessionStorage.setItem('l4-op', v); } catch (e) {} }, op);
+      const p = await ctx.newPage(); await p.goto(`${base}#/${start}`); await p.waitForTimeout(400);
+      if (IA2A_FORCED) await p.evaluate(src => { IA_LANDED.add('IA-2a'); if (typeof shapePlan !== 'function') (0, eval)(src); render(); }, PLAN_STUB);
+      if (cs) await p.evaluate(() => { for (const [n, v] of (({ lakeside: [['sw-budget', '6500'], ['sw-loi', 'no']], harvest: [['sw-agg', 'no']], metro: [['sw-tou', 'no']] })[sessionStorage.getItem('l4-op')] || [])) { const i = document.querySelector(`input[name="${n}"][value="${v}"]`); if (i) { i.checked = true; i.dispatchEvent(new Event('change', { bubbles: true })); } } });
+      if (state !== 'proposed') { await p.click('[data-shape="plan"] .ux-planband [data-ux-act="' + (state === 'sent back' ? 'send-back' : 'approve-plan') + '"]'); await p.waitForTimeout(300);
+        if (state === 'sent back') await p.evaluate(() => { const t = document.getElementById('ux-sb-reason'), s = document.getElementById('ux-sb-way'); t.value = 'The crew cannot do both visits'; s.value = [...s.options].find(o => o.value).value; for (const e of [t, s]) for (const k of ['input', 'change']) e.dispatchEvent(new Event(k, { bubbles: true })); });
+        await p.click('#uxact [data-ux-act-go]'); await p.waitForTimeout(400); }
+      if (PLANT === 'tabstrip') await p.evaluate(() => { iaTabSwitch = () => requestAnimationFrame(() => { const s = document.querySelector('[data-ia-tabs]'), L2 = document.querySelector('[data-level="L2"]') || document.querySelector('[data-level]'), box = L2 && [L2, ...L2.querySelectorAll('*')].find(e => e.getClientRects().length); if (s && box && box.getBoundingClientRect().top + scrollY > innerHeight - 48) window.scrollTo({ top: s.firstElementChild.getBoundingClientRect().top + scrollY, behavior: 'instant' }); const t = [...document.querySelector('[data-ia-tabs]').querySelectorAll('a.active, .ux-tabmenu summary')].find(e => e.getClientRects().length); if (t) t.focus({ preventScroll: true }); }); }); /* the D-IA.55 rule: strip to the top */
+      if (PLANT === 'tabnoscroll') await p.evaluate(() => { iaTabSwitch = () => requestAnimationFrame(() => { const t = [...document.querySelector('[data-ia-tabs]').querySelectorAll('a.active, .ux-tabmenu summary')].find(e => e.getClientRects().length); if (t) t.focus({ preventScroll: true }); }); }); /* no scroll listener, focus kept */
+      if (PLANT === 'tabscrollall') await p.evaluate(() => { iaTabSwitch = () => requestAnimationFrame(() => { const s = document.querySelector('[data-ia-tabs]'); if (s) window.scrollTo({ top: s.firstElementChild.getBoundingClientRect().top + scrollY, behavior: 'instant' }); const t = [...document.querySelector('[data-ia-tabs]').querySelectorAll('a.active, .ux-tabmenu summary')].find(e => e.getClientRects().length); if (t) t.focus({ preventScroll: true }); }); });
+      const hrefs = await p.evaluate(() => [...document.querySelectorAll('[data-ia-tabs] nav.tabs a[href^="#/"]')].map(a => a.getAttribute('href'))), seq = [...hrefs.slice(1), hrefs[0]];
+      if (hrefs.length < 2) { if (g === 'Site') lines.push(`ok  ${op} ${g} ${w}x${h}: one landed tab, no tab switch (not measured)`); else { lines.push(`BAD ${op} ${g} ${w}x${h}: fewer than 2 tabs measured`); bad++; tabBad++; } await ctx.close(); continue; }
+      const check = async (label, click) => { await p.waitForTimeout(150);
+        const m = await p.evaluate(() => { const strip = document.querySelector('[data-ia-tabs]'), L2 = document.querySelector('[data-level="L2"]') || document.querySelector('[data-level]'), box = L2 && [L2, ...L2.querySelectorAll('*')].find(e => e.getClientRects().length), act = strip && [...strip.querySelectorAll('a.active, .ux-tabmenu summary')].find(e => e.getClientRects().length), r = act && act.getBoundingClientRect(), f = document.activeElement;
+          const bar = document.querySelector('[data-ux-sticky]'), br = bar && bar.classList.contains('is-on') ? bar.getBoundingClientRect() : null, barTop = br && br.top > innerHeight / 2 ? br.top : innerHeight, barBottom = br && br.top <= innerHeight / 2 ? br.bottom : 0, bt = box ? box.getBoundingClientRect().top : null;
+          return { under: bt !== null && scrollY > 0 && bt < barBottom - 1 ? Math.round(barBottom - bt) : 0, inside: box ? barTop - bt : null, tabIn: !!r && r.top >= -1 && r.bottom <= innerHeight + 1, focus: !!act && f === act, y: scrollY }; });
+        const why = []; tabN++;
+        if (m.inside === null || m.inside < 48) why.push(`the tab's content starts ${m.inside === null ? 'nowhere' : `${Math.round(m.inside)} px inside`} the viewport, under 48`);
+        if (m.under) why.push(`the tab's content starts ${m.under} px under the sticky bar`);
+        if (!m.tabIn && !m.y) why.push('the active tab is not wholly in view'); if (click && !m.focus) why.push('focus is not on the active tab');
+        if (g === 'Plan' && (w === 1440 || w === 1280) && !cs && state === 'proposed' && m.y) why.push(`scrollY ${Math.round(m.y)}, not 0 (tabscrollall)`);
+        if (why.length) { bad++; tabBad++; lines.push(`BAD ${op} ${g}${g === 'Plan' ? ` ${state}${cs ? ' non-default' : ''}` : ''} ${w}x${h} ${label}: ${why.join('; ')}`); } };
+      for (const hr of seq) { await p.evaluate(h2 => { const a = [...document.querySelectorAll('[data-ia-tabs] nav.tabs a')].find(x => x.getAttribute('href') === h2), vis = a && a.getClientRects().length ? a : null;
+          if (vis) vis.click(); else { const d = document.querySelector('[data-ia-tabs] .ux-tabmenu'); if (d) d.open = true; const l = d && [...d.querySelectorAll('nav a')].find(x => x.getAttribute('href') === h2); if (l) l.click(); else location.hash = h2; } }, hr);
+        await check(`click ${hr}`, true); }
+      await p.goBack(); await check('Back', false);
+      await ctx.close(); }
+    lines.push(`${tabBad ? 'BAD' : 'ok '} tab switches: ${tabN} switches measured (3 operators x 3 widths x the groups; Plan x 3 states x 2 cases), ${tabBad} bad`);
+    if (!tabN) { lines.push('BAD no tab switch measured'); bad++; }
+    if (ONLY === 'tabs') { await b.close(); console.log(lines.join('\n') + `\ntile rows measured: ${tilesN}`); console.log(`shots: ${lines.length} measured, ${bad} bad`); process.exit(bad ? 1 : 0); } }
   if (ONLY !== 'hub') for (const op of Object.keys(SITES)) for (const [w, h] of [[1440, 900], [1280, 720], [390, 844]]) for (const dark of [false, true]) {
     for (const d of DECS[op]) if (ONLY !== 'sweep') await run(op, w, h, dark, `decision/${d}`, !PLANT);
     if (ONLY !== 'sweep') await run(op, w, h, dark, 'portfolio', !PLANT, 'inbox'); }
@@ -94,10 +312,10 @@ const measure = () => { const tb = document.querySelector('.ia-frame .topbar'), 
   SW_ORDER = ONLY === 'sweep' || !ONLY;
   if (ONLY === 'sweep' || !ONLY) for (const op of Object.keys(SITES)) for (const w of SW) for (const r of ['portfolio', 'plan', 'x-unknown', `decision/${DECS.longest[op]}`]) await run(op, w, 800, false, r, false);
   SW_ORDER = false;
-  if (ONLY === 'sweep') { await b.close(); console.log(lines.join('\n')); console.log(`shots: ${lines.length} measured, ${bad} bad`); process.exit(bad ? 1 : 0); }
-  if (ONLY === 'decision') { await b.close(); console.log(lines.join('\n')); console.log(`shots: ${lines.length} measured, ${bad} bad`); process.exit(bad ? 1 : 0); }
+  if (ONLY === 'sweep') { await b.close(); console.log(lines.join('\n') + `\ntile rows measured: ${tilesN}`); console.log(`shots: ${lines.length} measured, ${bad} bad`); process.exit(bad ? 1 : 0); }
+  if (ONLY === 'decision') { await b.close(); console.log(lines.join('\n') + `\ntile rows measured: ${tilesN}`); console.log(`shots: ${lines.length} measured, ${bad} bad`); process.exit(bad ? 1 : 0); }
   for (const op of Object.keys(SITES)) for (const [w, h] of [[1440, 900], [1280, 720], [390, 844]]) for (const dark of [false, true]) for (const r of ['portfolio', 'portfolio/outcomes', 'portfolio/demand-and-capacity', ...SITES[op].map(k => `site/${k}`)]) if (ONLY !== 'decision') await run(op, w, h, dark, r, !PLANT);
-  if (ONLY === 'hub') { await b.close(); console.log(lines.join('\n')); console.log(`shots: ${lines.length} measured, ${bad} bad`); process.exit(bad ? 1 : 0); }
+  if (ONLY === 'hub') { await b.close(); console.log(lines.join('\n') + `\ntile rows measured: ${tilesN}`); console.log(`shots: ${lines.length} measured, ${bad} bad`); process.exit(bad ? 1 : 0); }
   for (const op of ['lakeside', 'harvest', 'metro']) for (const [w, h] of [[1440, 900], [1280, 720], [1200, 800], [900, 800], [390, 844]]) for (const dark of [false, true]) for (const r of ['plan', 'x-unknown']) await run(op, w, h, dark, r, true);
   for (const op of ['lakeside', 'harvest', 'metro']) for (const w of [390, 600]) for (const r of ['plan', 'x-unknown']) await run(op, w, 800, false, r, false);
-  await b.close(); console.log(lines.join('\n')); console.log(`shots: ${lines.length} measured, ${bad} bad`); process.exit(bad ? 1 : 0); })();
+  await b.close(); console.log(lines.join('\n') + `\ntile rows measured: ${tilesN}`); console.log(`shots: ${lines.length} measured, ${bad} bad`); process.exit(bad ? 1 : 0); })();
