@@ -159,3 +159,10 @@ Owner Q7 is answered: 0.62 L/h, DATASHEET_FIT (`owner/owner-demo-data-answers-20
    Because the hand-written test fixture `_kobo()` adds the curve properties itself, tests keep passing after commit 2; drop that helper then.
 3. Scope run: every test file importing a touched module (telemetry, world_history, dd_check, datasheet_template, sites.models, fuel_cost_v2, vocabulary) incl. the 3 postgres-named files (`tools/heavy-slot.sh --db -- pwsh tools/run-host-tests.ps1 -- <files>`), on branch AND main. Architecture guard (`ASSETOPS_GUARD_PYTHON=/opt/assetecon/AssetOpsV1/.venv/bin/python`), statement-catalogue guard.
 4. `specs/DD-demo-data/packet-DD3a.md` (all rounds), state entry + index line (next free number in `.ai/state/index-3.md`), spec Status in_review.
+
+## Update 4 addendum: full-span speed (blocking finding)
+The full 123-day Kobo pure run did not finish in over 15 minutes (7 days: 11 s). The kernel scans every forcing at every step
+(`kernel/execute.py:1280`), so one continuous execution over the span costs O(steps x forcings) even with hour-block windows (about 11.8k forcings).
+Options for the Architect (not taken): (a) a kernel exposure index by offset (protected seam), (b) the writer runs the span in
+windows with a hand-off of end state (conflicts with D-DD.69 for RUNNING generators), (c) wider constant windows. Ask before building more.
+The pure-run table at 0.62 and 3.3 is therefore NOT produced; commit 1b and commit 2 are not started.
