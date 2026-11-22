@@ -2,7 +2,7 @@
 
 Each ruling has its reason. The owner asked for this spec on 22 Nov (`owner/owner-merge-on-accept-ia-shape-k10-2026-11-22.md`)
 and reviews once the product is close to the shape. The open owner questions are spec §9 (Q3 to Q10, with the defaults
-applied). Q1 and Q2 were answered on 22 Nov (D-IAP.15). Rev 2 rulings are D-IAP.15 to D-IAP.23, and rev 3 rulings (the handshake) D-IAP.24 to D-IAP.33, at the end.
+applied). Q1 and Q2 were answered on 22 Nov (D-IAP.15). Rev 2 rulings are D-IAP.15 to D-IAP.23, rev 3 rulings (the handshake) D-IAP.24 to D-IAP.33, and build rulings from D-IAP.34, at the end.
 
 - **D-IAP.1 Scope and boundary.**
   - IA-P brings the real app onto the agreed shape for these parts: the menu, the Portfolio's three tabs and its Overview,
@@ -262,3 +262,34 @@ applied). Q1 and Q2 were answered on 22 Nov (D-IAP.15). Rev 2 rulings are D-IAP.
   - Q9 "Last month": D-IAP.21 stands.
   - Q10 "Month by month": MD-IAP-10 stands.
   - Both leave the queue. R1's answer keeps Q10 reachable.
+
+- **D-IAP.34 The period body names the Sites it leaves out (IA-P2 deviation 12; amends D-IAP.25).**
+  - Question (IA-P2 handoff, deviation 12): on a two-month range the period Overview says "Compared for 3 of 4 Sites"
+    but names Thika only inside a month's step drawer, reached by leaving the period. Is the count enough? **No.**
+    Missing data is named, not just counted, and the R2 matrix asks for 5c's `out` reason in mode `period` too.
+  - **Contract (E2 body only, `spec-period.md` P.5).** A new key `out`, after `notices`: a list of sentences, `[]` when
+    every Site is compared in every served month.
+    - The Sites: every code in some served month's `R_m.out`, in the `every` order (the latest month's `asked` first).
+    - Each line is 5c's own sentence, `V_m.out_line(code, reasons)` of the latest served month in which that Site is
+      out, string for string (one sentence, no re-wording).
+    - A Site out in some served months but not all gets `portfolio_period.out_only`: "{line} Only in {months}." (`months`
+      by `span`'s year rule; SC-1 data, `"rephrase": "never"`).
+  - **One set for the count and the names (class fix).** The period's `k` and `n` (headline `compared` and tile 1's
+    `W.sites`) become: `n` = the Sites asked in any served month; `k` = `n` minus the Sites named in `out`. So
+    `n - k == len(out)` by construction, and a Site out only in an earlier month can no longer give "Compared for 4 of 4
+    Sites". The headline's `fewer` is `k < n`. Month rows keep their own `W.sites(k_m, n_m)`. World G (Thika out in both
+    months) still reads "3 of 4".
+  - **Words on the page.** `PortfolioPeriod.tsx` `Lead` renders `body.out` after the notices with the step drawer's own
+    markup, `<Lines lines={body.out} className="dd-lines dd-lines--note" />`, under `data-dd-out`. On World G two
+    months: "… Compared for 3 of 4 Sites." then "Thika: not a mini-grid Site, not included." No title, no count repeated.
+  - **Mock.** The lines are 5c's drawer `out` lines (form kept), shown in the period lead because the period has no step
+    drawer (MD-IAP-10). MOCK DEVIATION MD-IAP-16 (D2), registered in P3b.
+  - **Reach (a shared read changes).** E2's `body` is read only by `/portfolio` in mode `period` (`PortfolioPeriod`).
+    Unchanged, and pinned by a parity test: the 5c month read and `/portfolio` in mode `month` (`view.py` diff empty;
+    `month-*.json` fixtures byte-identical), E2 modes `month` and `none` (`period-month-*.json`, `period-none-*.json`
+    byte-identical; `body` null), E1 and the pages that read it (Sites list, Outcomes L1 and L2; `sites-*.json`
+    byte-identical), and the DDR S7 and WK walk pages. Test 14 in `spec-period.md` P.7.
+  - **Size.** +0.5 unit in IA-P2 (P3a's code 0.25, P3b's render 0.25): IA-P2 5.5, IA-P 14.5. Still under the 6-unit cap.
+  - Reason: honest numbers and the range rule (a cold-chain or EV Site never leaves a page without its name and why);
+    one sentence per fact (5c's `out` line reused, not rewritten); the count and the names come from one set, so they
+    cannot disagree.

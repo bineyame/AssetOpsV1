@@ -1040,3 +1040,102 @@ owner is asked to weigh in on D-DD.76 (it declares three Site tanks).
   4.0 to **4.75 u**, DD3 9.75 u; DD goes from 36.25 to **37.0 u**, each part at or under 6 u.
   - *Order inside DD3a.* (1) the parity golden on the unchanged kernel, committed; (2) the index, parity green, timing;
     (3) D-DD.77; (4) D-DD.76's tank rows, then commit 1b's pure run on the new tank; (5) commit 2 as §6 says.
+
+# DD rulings, round 10 (D-DD.80): DD3a blocker (kernel speed, second round: the cause path)
+
+Architect (Claude), 2026-11-22. Input: `DD3a-handoff.md` Update 5 on `task/DD3a-mini-reality` at c35c50e92 (timings
+7 / 14 / 28 days 5.5 / 15.3 / 74.8 s, 123 days over 10 min; cProfile of 28 days, 99.7 s, `point_due_at` 53.2 s over
+249,984 calls). Checked against code on that branch: `kernel/execute.py:250-271` (`_forcing_index`, D-DD.75), `:1079-1125`
+(`_phase_apply_events`: every cause at every step, `point_due_at` per POINT cause), `:1383-1410` (`_phase_evolve`: every
+cause at every step for the non-POINT shapes), `:1700-1706`, `:1845-1869` (`Execution`, `_advance_one`, `step_length`),
+`:1618` (`_PHASES`, reached only through `Execution`), `contracts/.../execution_contract.py:1671` (`point_due_at`, a scan of
+every step start), `contracts/.../world_inputs.py:77` (`FrozenInterval.step_starts`, a property that builds a tuple of every
+step start at each read) and `:343` (`excludes`), every `for ... in world.inputs.<collection>` in `execute.py` (lines 260,
+276, 361, 472, 544, 687, 715, 753, 757, 820, 887, 916 are setup, read once; 1100 and 1391 are per step), and
+`host/forward_replay.py:193,320` (one read each). `git diff main -- simulator/assetops_simulator/kernel contracts` on the
+branch is D-DD.75's index only. The owner is informed; no owner weigh-in is needed (no figure moves).
+
+- **D-DD.80 The kernel indexes declared causes by step, as D-DD.75 indexes forcings; the per-boundary rebuild of the
+  step starts goes with it; byte-identical** (blocker; protected seam, no contract change).
+  - *The class (W6).* A boundary must cost the same whatever the span. Three per-step reads violate it, all in
+    `kernel/execute.py`: (1) `_phase_apply_events` walks every cause and, for each POINT one, calls `point_due_at`, a scan
+    of every step start: O(steps × POINT causes × steps), the square the timings show (the writer adds a draw a day and
+    the notes, so POINT causes grow with the span too); (2) `_phase_evolve` walks every cause at every step for the WINDOW
+    and INTERVAL_WIDE shapes: O(steps × causes); (3) `_phase_apply_events` reads `interval.step_starts`, which builds a
+    tuple of every step start, at every boundary (8,064 reads at 28 days). D-DD.75 fixed the same class for forcings. This
+    ruling closes it: after it, no per-step code in the kernel reads a frozen-input collection or a derived value whose
+    size grows with the span. Every other loop over `world.inputs` in `execute.py` is setup (listed above), read once.
+  - *Options.* An index of causes by step is taken. `point_due_at` by arithmetic is refused: it is a contract function
+    (protected seam; `backend/.../scenarios/execution.py:82` re-exports it), it would leave (2) and (3), and it would put a
+    second definition of `point-applied-once` beside the contract's. Caching `step_starts` alone is refused: it removes (3)
+    only. With the index, nothing per step reads the step starts, so no cache is needed.
+  - *Change (`kernel/execute.py` only).*
+    1. `_World` gains `point_causes_by_step: dict[int, tuple[int, ...]] | None = None` and
+       `spread_causes_by_step: dict[int, tuple[int, ...]] | None = None` beside `forcings_by_step`, with a comment
+       citing D-DD.80.
+    2. The step walk of `_forcing_index` moves, unchanged, into one pure helper
+       `_steps_overlapping(step_starts, timestep, duration, start, end) -> Iterator[int]`: from
+       `max(bisect_right(step_starts, start) - 1, 0)` while `step_starts[cursor] < end`, yield `s` when
+       `overlap_minutes(s, min(s + timestep, duration) - s, start, end - start) > 0`. `_forcing_index` calls it; its
+       output is unchanged.
+    3. New pure function `_cause_index(inputs) -> tuple[dict[int, tuple[int, ...]], dict[int, tuple[int, ...]]]`, read
+       once: `step_starts = inputs.interval.step_starts`; for each position `p` of `inputs.causes`, in order:
+       - POINT: `due = point_due_at(step_starts, timestep, cause.offset_minutes)` (the contract's function, called once
+         per cause); when `due is not None`, append `p` to the first map at `due`.
+       - WINDOW or INTERVAL_WIDE: `(start, end) = _entry_span(cause, duration)`; when `end <= start`, append `p` to the
+         second map at step 0 (the old loop reached such a cause at the first step and raised from
+         `window_share_of_step`; keeping it there keeps that, which D-DD.75 could only skip); otherwise append `p` to the
+         second map at every `s` of `_steps_overlapping(...)`.
+       Values are tuples, ascending by construction.
+    4. `_ensure_cause_index(world)`: when `world.point_causes_by_step is None`, set both maps from `_cause_index`.
+    5. `_phase_apply_events`: after the terminal-instant return, call `_ensure_cause_index(world)`. The
+       `step_starts = ...` line goes. The cause loop becomes `for position in world.point_causes_by_step.get(world.offset,
+       ()):` with `cause = world.inputs.causes[position]` as its first line; the `shape != "POINT"` check, the
+       `point_due_at` call and the `due != world.offset` check go (the index holds exactly those). From the `_excluded`
+       check on, every line is unchanged.
+    6. `_phase_evolve`: after the `begins_a_step` return, call `_ensure_cause_index(world)`. The loop becomes
+       `for position in world.spread_causes_by_step.get(world.offset, ()):` with `cause = world.inputs.causes[position]`
+       first; the `shape == "POINT"` check goes. From the `_excluded` check on (`_entry_span`, `window_share_of_step`,
+       `if share == 0: continue`), every line is unchanged.
+    7. Nothing else changes: no contract (`git diff main -- contracts` stays empty), no pack, no writer, no setup check,
+       `point_due_at` and `FrozenInterval.step_starts` untouched.
+  - *Why it is byte-identical.* (a) POINT: the old loop applied a cause at the one offset where
+    `point_due_at(...) == world.offset`; the index stores the cause at exactly that value, computed by the same function
+    with the same arguments. Every non-terminal boundary is a step start, and the terminal one returns before the loop in
+    both. (b) Spread: `window_share_of_step` is `overlap_minutes(...) / (end - start)` with `world.step_length =
+    min(s + dt, duration) - s` (`_advance_one`), so `share == 0` exactly when the helper's predicate fails; the loop keeps
+    its own `share == 0` check besides. (c) Every skipped cause was skipped after pure reads (frozen inputs, the run's
+    exclusions) with no side effect, and the kept ones are visited in input order, so `grouped`, its lists, the sorted
+    address walk, the ledger and the digest are the same. (d) The lazy build covers every way a `_World` is made,
+    stepped or batched.
+  - *Reach.* One Site type, mini-grid: the ten `EXECUTABLE_MODELS` (minimal fuel tank, daytime mini-grid, mini-grid v1 to
+    v8) and the DD3 writer, through `Execution` and `_PHASES`. Packs reached: the mini-grid and fuel packs those models
+    bind (`packs/mini_grid.py`, `packs/minigrid.py`), unchanged. Cold chain (`ColdExecution`, its own runner) and EV
+    charging (its own path) never reach `_PHASES`; the builder confirms by grep, as for D-DD.75, and adds a case if
+    either does. Forward replay (`host/forward_replay.py`) reads the step starts once and is unchanged.
+  - *Parity (golden from main's kernel; the loader `--reference main` exists).* Order: first commit the new cases with
+    goldens from main's kernel and the test green on the branch's current kernel (D-DD.75 is byte-identical, so both
+    agree; the packet shows both digests), then the kernel edit, then all cases green. Existing K1 to K8, D1, F1, X1, W1,
+    S1 stay. W1 carries POINT causes (notes, the 02:00 draw); K1 to K8 may carry none, so three cases are added, built on
+    F1's run (the minimal fuel tank model, whose tank takes `CAUSAL_INPUT`) with causes added in the test:
+    - **C1 (POINT):** causes at offset 0, exactly on a later step boundary, mid-step, two on one address in one step
+      (one INCREASE, one DECREASE), and in the last step; plus one on an address the run excludes as `CAUSAL_INPUT` when
+      the frozen inputs admit such a record without a setup change (else the packet says it is not made).
+    - **C2 (spread):** a WINDOW cause whose first and last steps are partial, one inside a single step, one ending at the
+      interval's end, and one INTERVAL_WIDE; on a duration not a multiple of the timestep (short last step) when setup
+      admits it (else the packet says so).
+    - **S2:** C1 advanced one boundary at a time, equal to C1's digest.
+    The zero-length spread cause has no case (setup or `overlap_minutes` refuses it before any case can carry it); the
+    packet notes the edge, as D-DD.75's did.
+  - *Timing, target and stop rule (packet).* Wall time of the Kobo pure run (`tools/dd3_pure_run.py`, 0.62 L/h) at 7, 14
+    and 28 days before and after, and the 123-day run at 0.62 and at 3.3 on the 2500 L tank, with the 28-day cProfile top
+    15 after. **Target:** each 123-day run at most **3 minutes** wall on the idle machine, and the cost linear in the
+    span: wall(28 days) / wall(14 days) at most **2.4** (linear 2.0, square 4.0). The estimate from Update 5's profile is
+    about 2 to 2.5 minutes. **Stop rule:** if either is missed, the builder keeps the edit if parity is green, makes no
+    further kernel, writer or window change (never tunes inputs to meet a time), and hands the Architect the timings, the
+    28-day cProfile top 15 and the size of `inputs.unmodelled_inputs` at 123 days (`excludes` scans it per cause and per
+    forcing; it should not grow with the span).
+  - *Order inside DD3a (amends D-DD.79's).* After (4): (4a) the C1, C2 and S2 goldens, committed; (4b) this index, parity
+    green, timings; then commit 1b's pure run and (5) as D-DD.79 says.
+  - *Units (W4).* DD3.1 2.25 to **2.75** (the index, three parity cases, timings). DD3a 4.75 to **5.25 u**, DD3 10.25 u,
+    DD 37.0 to **37.5 u**; each part at or under 6 u. (A parallel DD4 ruling restates DD4 only; the DD total adds both.)
