@@ -2570,3 +2570,48 @@ D-DD.127. The owner is informed; no owner weigh-in is needed (no story figure mo
     from the next step. Kisiwa's 17 Aug 11:00 restore therefore makes GEN-KS-01 startable from 11:05.
   - *Units:* none. This is the default already built, plus a `conditions` line and the event-stamp test (DD3b1's fix
     round or DD3b2, at the builder's choice).
+
+# DD rulings, round 19 (D-DD.146): C-DD6's Kisiwa and Mto clauses on the channels roles-5 admits
+
+Architect (Claude, DD lane), 2026-11-22. Read: `backend/conversions/world/KISIWA-001-bindings.json` and
+`MTO-001-bindings.json` (`minigrid-roles-5`; `generator_state` ENUM admits FAILED; no inverter state role),
+`COLD-THIKA-bindings.json`, `tools/dd_check.py` `judge_failures_at_instant`, spec §4.3, D-DD.45, D-DD.121,
+D-DD.127, D-DD.145. The owner is informed, and may weigh in on the inverter-state gap (last bullet).
+
+- **D-DD.146 No binding or role is added. C-DD6 asks each failure of the channel the product admits for that unit.
+  Kisiwa and Mto go live in DD3b, not PENDING** (model; amends D-DD.145's "event row", D-DD.121, spec §4.3
+  "Readings" and §8.1 C-DD6; the builder's defaults (a), (b) and (d) are confirmed, and (c) is changed).
+  - *Why the judge moves, not the bindings.* The class is that the judge reads one channel shape. Thika's GEN-CR-01
+    failure is a START_RESULT event, because its role set has `backup_start_event`. A mini-grid genset controller
+    reports the same fact as a status change, and roles-5 already admits that change (`generator_state` per unit,
+    FAILED in its map). An event channel added only so the judge finds an event would duplicate a fact already on
+    the unit's own channel. That would be bridging, and it would move roles-5's readiness (D-DD.45
+    `every_component` is true on the unit roles, so Kobo would show an unbound channel), DD3c's `unit_roles`
+    readers and the onboarding parity goldens, for no reader.
+  - *Rule (C-DD6, `judge_failures_at_instant`).* A clause names its evidence:
+    - `"evidence": "event"`: a value-null `event` row with outcome FAILED (Thika, unchanged).
+    - `"evidence": "state"`: a STATE row whose value is FAILED, starting at the clause minute, on the unit's own
+      `source_id`. In both cases no other source shows FAILED at that minute.
+    - Kisiwa: `{"site": "KISIWA-001", "unit": "GEN-KS-01", "source_id": "gen-ks-01-controller", "at":
+      "2026-10-30T18:40", "evidence": "state"}`. The 14 Aug 19:20 FAILED and the 17 Aug 11:00 STOPPED rows are
+      asserted in the same test as information.
+    - The writer starts that state row at the instant (D-DD.145), so "the event row carries the instant" now reads
+      "the unit's state row starts at the instant".
+  - *Mto: the inverter's fault is in its power, and the instant is the O&M record's.* Roles-5 binds per-inverter
+    `pv_power` and `pv_available_power`, with no state.
+    - The clause is `"evidence": "power"`: INV-MT-02's (`inv-mt-02-controller` `ac-power`) 5-minute mean is 0 from
+      the step holding 11:02 to the end of the span, while irradiance is above 0 and INV-MT-01's mean is above 0 at
+      that step. It is above 0 at the step before.
+    - The minute 11:02 itself is the book's (`M` operations, the O&M occurrence), not a reading. The judge's detail
+      says so.
+    - The pack's inverter state (D-DD.127) stays internal. The writer emits only bound channels.
+    - Spec §4.3 "Readings" becomes: "per unit device, power (5-minute mean); generator units also state on change;
+      inverter state is not emitted (roles-5 has no role for it, D-DD.146)".
+  - *(b) confirmed:* `conditions.unit_events` lists every unit event with its instant and source. It is information,
+    never admitted.
+  - *The gap, stated rather than bridged.* A real inverter reports a fault state, and the product has no role to
+    read one. The coordinator logs "inverter_state role (roles-6) and a reader" in `.agent/backlog-post-demo.md`
+    (not demo-critical: the Mto beat is the claim and the lost daytime supply, which power shows). The owner may
+    want it sooner.
+  - *Units:* +0.25 u in DD3b2 (the judge's evidence field, two clauses, tests on the writer's rows). DD3b 5.75 →
+    6.0 u, DD 50.75 → 51.0 u.
