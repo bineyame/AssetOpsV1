@@ -24,6 +24,7 @@ const SECTION_2_4 = [
   "/portfolio",
   "/portfolio/month",
   "/portfolio/act-first",
+  "/decisions",
   "/portfolio/outcomes",
   "/portfolio/opportunity",
   "/portfolio/changes",

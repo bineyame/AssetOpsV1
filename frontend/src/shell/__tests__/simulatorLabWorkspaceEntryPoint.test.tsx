@@ -49,7 +49,7 @@ const OPERATOR_ROUTES = ["/sites"];
  * capability, so it is listed in both gate states like Sites.
  */
 // W6-01e: Operational records rail root is live.
-const OPERATOR_NAVIGATION_LABELS = ["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Evidence & records", "Financials"];
+const OPERATOR_NAVIGATION_LABELS = ["Portfolio", "Sites", "Findings", "Decisions", "Actions", "Incidents", "Maintenance", "Evidence & records", "Financials"];
 
 /** Injected and empty: placement assertions must not depend on a store. */
 const EMPTY_SITE_DIRECTORY: SiteDirectoryClient = {

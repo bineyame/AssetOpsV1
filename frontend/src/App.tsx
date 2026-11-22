@@ -33,6 +33,7 @@ import {
   ACTIONS_PATH,
   EVIDENCE_PATH,
   FINANCIALS_PATH,
+  DECISIONS_ROOT_PATH,
   PORTFOLIO_ROOT_PATH,
   INCIDENTS_PATH,
   MAINTENANCE_PATH,
@@ -119,7 +120,6 @@ import { createEvScenariosClient, type EvScenariosClient } from "./sites/evScena
 import { SiteEvFrame } from "./shell/evSiteRoutes";
 import { createColdSiteClient, type ColdSiteClient } from "./sites/coldSiteClient";
 import { createEstateClient, type EstateClient } from "./estate/estateClient";
-import { DECISIONS_PATH } from "./estate/portfolioWords";
 import { createGlobalWorkClient, type GlobalWorkClient } from "./work/globalWorkClient";
 import { GlobalIncidentsFrame } from "./work/GlobalIncidents";
 import { GlobalMaintenanceFrame } from "./work/GlobalMaintenance";
@@ -535,7 +535,7 @@ export function App({
               `/findings/:siteId/:assessmentId[/:findingTab]` patterns; those keep their handlers. */}
           <Route path={FINDINGS_PATH} element={<EstateFindingsFrame client={estateIndex} />} />
           {/* IA-P P2 (D-IAP.3): the Decisions list, one row per placed Finding. */}
-          <Route path={DECISIONS_PATH} element={<EstateDecisionsFrame client={estateIndex} />} />
+          <Route path={DECISIONS_ROOT_PATH} element={<EstateDecisionsFrame client={estateIndex} />} />
           <Route path={ACTIONS_PATH} element={<EstateActionsFrame client={estateIndex} />} />
           {/* W3-02: the estate Evidence root (`ESTATE_EVIDENCE_PATH`; a shell test pins the equality). */}
           <Route path={EVIDENCE_PATH} element={<EstateEvidenceFrame client={estateEvidenceMoney} />} />

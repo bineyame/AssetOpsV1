@@ -197,8 +197,8 @@ describe("operator route navigation", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: "Findings" }),
     ).toBeInTheDocument();
-    // W3-01: `/findings` is the estate All root now, not the T028 global index.
-    expect(document.querySelector('[data-estate-root="all"]')).not.toBeNull();
+    // IA-P P2: `/findings` is the Findings list (data-estate-root=findings), not the T028 global index.
+    expect(document.querySelector('[data-estate-root="findings"]')).not.toBeNull();
     expect(screen.queryByText(EMPTY_ANALYTICS_STATEMENT)).toBeNull();
 
     fireEvent.click(within(operatorNavigation).getByRole("link", { name: "Actions" }));
@@ -232,6 +232,7 @@ describe("operator route navigation", () => {
         ["Portfolio", "/portfolio"],
         ["Sites", "/sites"],
         ["Findings", "/findings"],
+        ["Decisions", "/decisions"],
         ["Actions", "/actions"],
         ["Incidents", "/incidents"],
         ["Maintenance", "/maintenance"],
@@ -278,7 +279,7 @@ describe("operator route navigation", () => {
         [["WORK", "WORK"]],
         [
           // IA-P P1 (spec §2.1)
-          `Decisions | ${off}`,
+          "Decisions | live",
           `Plan | ${off}`,
           "Actions | live",
           "Incidents | live",

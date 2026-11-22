@@ -9,12 +9,12 @@ import { describe, expect, it } from "vitest";
 
 import { App } from "../../App";
 import { featureFlagsWith } from "../../config/featureFlags";
-import { PORTFOLIO_ROOT_PATH } from "../../shell/operatorSiteRoutes";
+import { DECISIONS_ROOT_PATH, PORTFOLIO_ROOT_PATH } from "../../shell/operatorSiteRoutes";
 import type { SiteDetailClient, SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import { HYBRID_MINI_GRID_SITE } from "../../sites/__tests__/sldFixtures";
 import { settledScreen } from "../../test/settled";
 import type { EstateClient } from "../estateClient";
-import { PORTFOLIO_PATH } from "../portfolioWords";
+import { DECISIONS_PATH, PORTFOLIO_PATH } from "../portfolioWords";
 import { fakeClient, findingsBody, loaded } from "./estateFixtures";
 import { loadedPortfolio, portfolioBody } from "./portfolioFixtures";
 
@@ -51,6 +51,7 @@ function renderAt(path: string, client: EstateClient) {
 describe("W3-03 Portfolio shell route", () => {
   it("test_w303_global_route_precedence_and_unavailable_multiset", async () => {
     expect(PORTFOLIO_ROOT_PATH).toBe(PORTFOLIO_PATH);
+    expect(DECISIONS_ROOT_PATH).toBe(DECISIONS_PATH);
     const client = estate();
     const view = renderAt("/portfolio", client);
     await settledScreen();
@@ -67,17 +68,18 @@ describe("W3-03 Portfolio shell route", () => {
       .filter((li) => li.querySelector("a") === null && li.querySelector(".nav-rail__label") !== null)
       .map((li) => li.querySelector(".nav-rail__label")?.textContent);
     // W6-01e: Operational records rail root is live.
-    expect(unavailable).toEqual(["Assets & cover", "Decisions", "Plan", "Results", "Settings"]);
+    expect(unavailable).toEqual(["Assets & cover", "Plan", "Results", "Settings"]);
     view.unmount();
 
-    // The risk root stays the estate Findings risk lens; it is not the Portfolio and not `/findings`.
+    // IA-P P2: the old risk lens address is an alias of the Findings list; it is not the Portfolio.
     const second = estate();
     renderAt("/findings/risks", second);
     await settledScreen();
-    // SR-1: the shell fills the empty estate address with the shared range; the path is unchanged.
-    expect(document.querySelector("[data-location]")?.textContent).toMatch(/^\/findings\/risks\?from=[^&]+&to=[^&]+$/);
+    // SR-1: the shell fills the empty estate address with the shared range; the alias lands on /findings.
+    expect(document.querySelector("[data-location]")?.textContent).toMatch(/^\/findings\?from=[^&]+&to=[^&]+&lens=risks$/);
     expect(screen.queryByRole("main", { name: "Portfolio" })).toBeNull();
-    expect(second.portfolioCalls).toBe(0);
+    // IA-P P2: the Findings list also reads the Portfolio once, for the decision each Finding sits under.
+    expect(second.portfolioCalls).toBe(1);
   });
 });
 
@@ -99,11 +101,11 @@ describe("PF-T Portfolio tab routes", () => {
     expect(client.portfolioCalls).toBe(1);
   });
 
-  it("an old /portfolio?lens=X address redirects to /portfolio/act-first?lens=X", async () => {
+  it("an old /portfolio?lens=X address goes to /decisions?lens=X (IA-P P2: Act first became the Decisions home)", async () => {
     const client = estate();
     renderAt(`/portfolio?${WINDOW}&lens=risks`, client);
     await settledScreen();
-    expect(where()).toBe(`/portfolio/act-first?${WINDOW}&lens=risks`);
+    expect(where()).toBe(`/decisions?${WINDOW}&lens=risks`);
     expect(client.portfolioCalls).toBe(1);
   });
 

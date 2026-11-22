@@ -89,9 +89,13 @@ function Invoke-NavigationRailFixturesCheck {
                App = (Remove-Line $app 'path=\{MAINTENANCE_PATH\}') },
             @{ Name = "W6-01b: Maintenance demoted back to unavailable"; Expect = "the W1 rail is exactly";
                Rail = (Edit-Lines $rail 'kind: "live", to: "/maintenance", label: "Maintenance", end: false' 'kind: "unavailable", label: "Maintenance"') },
-            # IA-P P1 (spec §2.1, §6 plants): Decisions stays unavailable until P2; the Records tab's route is registered.
-            @{ Name = "IA-P1: Decisions made live (plant rail)"; Expect = "the W1 rail is exactly";
-               Rail = (Edit-Lines $rail 'kind: "unavailable", label: "Decisions", group: "WORK"' 'kind: "live", to: "/decisions", label: "Decisions", end: false, group: "WORK"') },
+            # IA-P P1 and P2 (spec §2.1, §6 plants): Decisions is live from P2 and its route is registered; the Records tab's route is registered.
+            @{ Name = "IA-P2: Decisions live root points at a missing route"; Expect = "points at '/decisionz'";
+               Rail = (Edit-Lines $rail 'to: "/decisions"' 'to: "/decisionz"') },
+            @{ Name = "IA-P2: Decisions route removed (only the catch-all would serve it)"; Expect = "points at '/decisions'";
+               App = (Remove-Line $app 'path=\{DECISIONS_ROOT_PATH\}') },
+            @{ Name = "IA-P2: Decisions demoted back to unavailable"; Expect = "the W1 rail is exactly";
+               Rail = (Edit-Lines $rail 'kind: "live", to: "/decisions", label: "Decisions", end: false' 'kind: "unavailable", label: "Decisions"') },
             @{ Name = "IA-P1: Plan given a destination (dead link)"; Expect = "Dead link: the unavailable operator rail root 'Plan' carries 'to'";
                Rail = (Edit-Lines $rail 'kind: "unavailable", label: "Plan"' 'kind: "unavailable", to: "/plan", label: "Plan"') },
             # Post-W6 W6 Q13 (R371): the unknown request-section route is shelled and renders its own panel.

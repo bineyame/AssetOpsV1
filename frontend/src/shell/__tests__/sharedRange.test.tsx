@@ -215,7 +215,7 @@ describe("SR-1 filling in the address on entry", () => {
   });
 
   it("fills only the estate pages in SR-1; Work and Site pages keep their own default until SR-2", () => {
-    for (const path of ["/portfolio", "/portfolio/act-first", "/findings", "/findings/risks", "/actions", "/evidence", "/evidence/records", "/financials"]) {
+    for (const path of ["/portfolio", "/decisions", "/findings", "/actions", "/evidence", "/evidence/records", "/financials"]) {
       // IA-P P1 (spec §2.1): /evidence/records is filled; the /operational-records alias redirects before it reads.
       expect(fillsRangeOnEntry(path)).toBe(true);
     }
@@ -289,30 +289,30 @@ describe("SR-1 the shared range bar", () => {
   });
 
   it("changes nothing until Apply; Apply writes the range, keeps the lens, restarts at page one and announces it", async () => {
-    renderApp(`/portfolio/act-first?${WEEK}&lens=cost&cursor=c9`);
+    renderApp(`/decisions?${WEEK}&lens=cost&cursor=c9`);
     await settledScreen();
     fireEvent.click(rangeButton());
     const dialog = screen.getByRole("dialog");
     fireEvent.click(within(dialog).getByRole("button", { name: "Last 30 days" }));
     expect(within(dialog).getByRole("button", { name: "Last 30 days" }).getAttribute("aria-pressed")).toBe("true");
     expect(within(dialog).getByRole("button", { name: "Last 7 days" }).getAttribute("aria-pressed")).toBe("false");
-    expect(where()).toBe(`/portfolio/act-first?${WEEK}&lens=cost&cursor=c9`);
+    expect(where()).toBe(`/decisions?${WEEK}&lens=cost&cursor=c9`);
     fireEvent.click(within(dialog).getByRole("button", { name: "Apply" }));
     await settledScreen();
-    expect(where()).toBe("/portfolio/act-first?from=2026-09-07T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&lens=cost");
+    expect(where()).toBe("/decisions?from=2026-09-07T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&lens=cost");
     expect(document.activeElement).toBe(rangeButton());
     expect(document.querySelector("[data-shared-range-live]")?.textContent).toBe("Every page now shows 7 Sep – 6 Oct 2026");
   });
 
   it("SR-2b L1: a range change clears an open record as well as the cursor, and keeps the lens", async () => {
-    renderApp(`/portfolio/act-first?${WEEK}&lens=cost&cursor=c9&record=r1`);
+    renderApp(`/decisions?${WEEK}&lens=cost&cursor=c9&record=r1`);
     await settledScreen();
     fireEvent.click(rangeButton());
     const dialog = screen.getByRole("dialog");
     fireEvent.click(within(dialog).getByRole("button", { name: "Last 30 days" }));
     fireEvent.click(within(dialog).getByRole("button", { name: "Apply" }));
     await settledScreen();
-    expect(where()).toBe("/portfolio/act-first?from=2026-09-07T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&lens=cost");
+    expect(where()).toBe("/decisions?from=2026-09-07T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&lens=cost");
   });
 
   it("a custom range has labelled date inputs and rejects a backwards range", async () => {
@@ -359,7 +359,7 @@ describe("SR-1 the shared range bar", () => {
 
 describe("SR-1 review notes closed in SR-2", () => {
   it("Medium: the bar says All pages only on pages that read the range, and says so where it is not used", async () => {
-    for (const path of ["/portfolio", "/portfolio/act-first", "/findings/risks", "/actions", "/evidence", "/financials", "/incidents", "/maintenance", "/maintenance/preventive", "/evidence/records"]) {
+    for (const path of ["/portfolio", "/decisions", "/findings", "/actions", "/evidence", "/financials", "/incidents", "/maintenance", "/maintenance/preventive", "/evidence/records"]) {
       expect(readsSharedRange(path)).toBe(true);
     }
     for (const path of ["/sites", "/sites/KOBO-001", "/sites/COLD-LAB-001", "/sites/EV-LAB-001/ev", "/findings/f-1", "/maintenance/requests/c-1"]) {

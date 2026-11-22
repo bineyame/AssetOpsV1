@@ -385,7 +385,7 @@ describe("the landing route", () => {
         .getAllByRole("link")
         .map((link) => link.textContent),
     // W6-01e: Operational records rail root is live.
-    ).toEqual(["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Evidence & records", "Financials"]);
+    ).toEqual(["Portfolio", "Sites", "Findings", "Decisions", "Actions", "Incidents", "Maintenance", "Evidence & records", "Financials"]);
   });
 });
 

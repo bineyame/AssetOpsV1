@@ -542,13 +542,13 @@ function Get-OperatorRailFailures {
     }
     if ($failures.Count -gt 0) { return $failures }
 
-    # IA-P P1 (spec §2.1, D-IAP.5): the IA-1 menu (vNEXT IA_RAIL). Decisions goes live in P2, Results in P3b.
+    # IA-P P1 (spec §2.1, D-IAP.5): the IA-1 menu (vNEXT IA_RAIL). Decisions is live from P2, Results goes live in P3b.
     $expected = @(
         "live|Portfolio|OPERATIONS|/portfolio",
         "live|Sites|OPERATIONS|/sites",
         "unavailable|Assets & cover|OPERATIONS|",
         "live|Findings|INTELLIGENCE|/findings",
-        "unavailable|Decisions|WORK|",
+        "live|Decisions|WORK|/decisions",
         "unavailable|Plan|WORK|",
         "live|Actions|WORK|/actions",
         "live|Incidents|WORK|/incidents",

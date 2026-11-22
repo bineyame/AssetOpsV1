@@ -104,7 +104,7 @@ const LIVE_SITE_DETAIL: SiteDetailReadModel = {
  * index, a surface of its own rather than a placeholder for a site page.
  */
 // IA-P P1 (spec §2.1): Operational records left the rail; Evidence & records is the one root.
-const OPERATOR_NAVIGATION_LABELS = ["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Evidence & records", "Financials"];
+const OPERATOR_NAVIGATION_LABELS = ["Portfolio", "Sites", "Findings", "Decisions", "Actions", "Incidents", "Maintenance", "Evidence & records", "Financials"];
 
 function directoryWith(sites: SiteSummary[]): SiteDirectoryClient {
   return { listSites: () => Promise.resolve({ status: "loaded", sites }) };
@@ -450,7 +450,7 @@ describe("operator navigation lost an item and gained none", () => {
     unmount();
 
     // IA-P P1 (spec §2.1): Operational records left the rail; Evidence & records is the one root.
-    expect(hrefs).toEqual(["/portfolio", "/sites", "/findings", "/actions", "/incidents", "/maintenance", "/evidence", "/financials"]);
+    expect(hrefs).toEqual(["/portfolio", "/sites", "/findings", "/decisions", "/actions", "/incidents", "/maintenance", "/evidence", "/financials"]);
     for (const href of hrefs) {
       const view = renderAt(href, ENABLED);
       await settledScreen();

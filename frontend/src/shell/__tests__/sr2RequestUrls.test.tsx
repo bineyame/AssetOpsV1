@@ -227,7 +227,9 @@ describe("SR-2 the demo's API requests are byte-identical", () => {
   const W = "from=2026-10-25T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z";
   it.each([
     ["/portfolio?from=2026-10-25T00:00:00Z&to=2026-11-02T00:00:00Z", [`/api/estate/portfolio?${W}&limit=50`, `/api/estate/outcome-summary?${W}`]],
-    ["/findings?from=2026-10-25T00:00:00Z&to=2026-11-02T00:00:00Z", [`/api/estate/findings?${W}`, `/api/estate/scope?${W}`, `/api/estate/outcome-summary?${W}`]],
+    // IA-P P2: the Findings list reads its Findings and the Decisions it joins (the shared cache, every page, 50 each);
+    // it no longer reads the Site scope or the outcome summary (the Site names come from the rows themselves, I8).
+    ["/findings?from=2026-10-25T00:00:00Z&to=2026-11-02T00:00:00Z", [`/api/estate/findings?${W}&limit=50`, `/api/estate/portfolio?${W}&limit=50`]],
     ["/maintenance?from=2026-10-04T00:00:00Z&to=2026-11-04T00:00:00Z", ["/api/work/maintenance?from=2026-10-04T00%3A00%3A00Z&to=2026-11-04T00%3A00%3A00Z&limit=5"]],
   ])("%s requests exactly what it did before SR-2", async (path, expected) => {
     const got = await requestsAt(path);

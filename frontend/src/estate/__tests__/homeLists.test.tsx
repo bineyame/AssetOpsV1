@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { LinkedMemoryRouter as MemoryRouter } from "../../test/refLinks";
 import { settledScreen } from "../../test/settled";
-import type { EstateClient, EstatePortfolioBody, EstatePortfolioRow, EstateResult } from "../estateClient";
+import { createEstateClient, invalidWindowCopy, type EstateClient, type EstatePortfolioBody, type EstatePortfolioRow, type EstateResult } from "../estateClient";
 import { actionsDef, decisionStateKey, DecisionsListPage, ActionsListPage, FindingsListPage, decisionsDef } from "../homeLists";
 import { actionRow, actionsBody, findingRow, findingsBody, loaded } from "./estateFixtures";
 import { portfolioBody, row } from "./portfolioFixtures";
@@ -316,5 +316,66 @@ describe("the defs", () => {
     ]);
     expect(def.facets[0].options.map((o) => o.word)).toEqual(["Waiting for a choice", "Being watched", "Under way"]);
     expect(def.facets[1].options.map((o) => o.word)).toEqual(["Cost", "Risks", "Opportunities"]);
+  });
+});
+
+// Re-homed from the retired estateRoots tests (IA-P P2): the refused-window sentences and the Action title rule.
+describe("refused window and Action titles on the lists", () => {
+  const WIN = "from=2026-10-13T00%3A00%3A00Z&to=2026-10-20T00%3A00%3A00Z";
+  const cases: [string, string][] = [
+    ["from=2026-10-07T00:00:00Z&to=2026-10-05T00:00:00Z", "The selected window needs both a start and an end, with the start before the end."],
+    ["from=2024-08-01T00:00:00Z&to=2026-10-01T00:00:00Z", "The selected window is longer than 31 days."],
+    [WIN, "The selected window is invalid."],
+  ];
+  const refusedRead = { status: "refused" as const, httpStatus: 422, code: "INVALID_WINDOW", copy: "server copy" };
+  const refusing: EstateClient = {
+    findings: async () => refusedRead,
+    actions: async () => refusedRead,
+    portfolio: async () => refusedRead,
+    scope: async () => refusedRead,
+  };
+
+  it("each list says the shared sentence for the window it was asked, and never echoes the dates", async () => {
+    const pages: [JSX.Element, string][] = [
+      [<DecisionsListPage client={refusing} />, "/decisions"],
+      [<FindingsListPage client={refusing} />, "/findings"],
+      [<ActionsListPage client={refusing} />, "/actions"],
+    ];
+    for (const [ui, path] of pages) {
+      for (const [query, copy] of cases) {
+        const view = mount(ui, `${path}?${query}`, path);
+        await settledScreen();
+        expect(document.querySelector("[data-page-refusal='INVALID_WINDOW'] p")?.textContent).toBe(copy);
+        expect(document.querySelector("[data-estate-window]")?.textContent).toBe("Window not valid");
+        view.unmount();
+      }
+    }
+  });
+
+  it("the real client classifies the same way, and a store refusal keeps its own copy", async () => {
+    const body = JSON.stringify({ detail: { code: "INVALID_WINDOW", message: "x" } });
+    vi.stubGlobal("fetch", vi.fn(() => Promise.resolve(new Response(body, { status: 422 }))));
+    const read = await createEstateClient().findings({ from: "2026-10-07T00:00:00Z", to: "2026-10-05T00:00:00Z", known_at: null, cursor: null, lens: "all", state: "all" });
+    expect(read).toEqual({ status: "refused", httpStatus: 422, code: "INVALID_WINDOW", copy: "The selected window needs both a start and an end, with the start before the end." });
+    vi.unstubAllGlobals();
+    expect(invalidWindowCopy({ from: "2026-10-01T00:00:00Z", to: null })).toBe("The selected window needs both a start and an end, with the start before the end.");
+    expect(invalidWindowCopy({ from: "2026-10-01T00:00:00Z", to: "2026-11-01T00:00:00Z" })).toBe("The selected window is invalid.");
+    expect(invalidWindowCopy({ from: "2026-10-01T00:00:00Z", to: "2026-11-01T00:00:01Z" })).toBe("The selected window is longer than 31 days.");
+    const store = { status: "refused" as const, httpStatus: 503, code: "ESTATE_STORE_UNAVAILABLE", copy: "Estate records are unavailable right now. Try again." };
+    mount(<ActionsListPage client={{ ...refusing, actions: async () => store }} />, `/actions?${WIN}`, "/actions");
+    await settledScreen();
+    expect(document.querySelector("[data-page-refusal] p")?.textContent).toBe(store.copy);
+    expect(document.querySelector("[data-estate-window]")).toBeNull();
+  });
+
+  it("an Action's title is the selected title or the code alone", async () => {
+    const titled = actionRow({ action_title: "Review generator stop setting" });
+    const untitled = actionRow({ action_id: "10000000-0000-4000-8000-000000000299", action_title: null as unknown as string });
+    const c: EstateClient = { ...client([]), actions: async () => loaded(actionsBody({ rows: [titled, untitled], total_count: 2 })) };
+    mount(<ActionsListPage client={c} />, `/actions?${RANGE}`, "/actions");
+    await settledScreen();
+    const titles = Array.from(document.querySelectorAll("tbody tr[data-row] a")).map((a) => a.textContent);
+    expect(titles).toEqual(["Review generator stop setting", "ACT-001"]);
+    expect(document.body.textContent).not.toContain("Battery reserve trial");
   });
 });

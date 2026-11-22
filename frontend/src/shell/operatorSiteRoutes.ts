@@ -482,6 +482,8 @@ export const EVIDENCE_PATH = "/evidence";
 export const FINANCIALS_PATH = "/financials";
 /** W3-03 run 2: the estate Portfolio root (`PORTFOLIO_PATH` in `estate/portfolioWords.ts`; a shell test pins it). */
 export const PORTFOLIO_ROOT_PATH = "/portfolio";
+/** IA-P P2: the Decisions home (`DECISIONS_PATH` in `estate/portfolioWords.ts`; a shell test pins it). */
+export const DECISIONS_ROOT_PATH = "/decisions";
 export const INCIDENTS_PATH = "/incidents";
 export const MAINTENANCE_PATH = "/maintenance";
 export const MAINTENANCE_PREVENTIVE_PATH = "/maintenance/preventive";
