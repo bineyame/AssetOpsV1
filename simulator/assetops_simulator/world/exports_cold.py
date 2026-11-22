@@ -300,10 +300,10 @@ def _movement_records(batches: list[Batch], as_of_end: datetime) -> list[dict]:
 
 
 def _november(site_batches: list[Batch], seq: list[int], as_of_end: datetime) -> list[Batch]:
-    """D-DD.63 (DD4.2): 1-6 Oct's generated admissions (named batches excluded) repeated 31 days later with new refs,
+    """D-DD.63 (DD4.2): 1-6 Oct's generated admissions (named batches excluded) repeated one October later (its length in days) with new refs,
     up to `as_of`. Assumed; no November invoice (the month is not closed)."""
     named = {ref for _site, ref, *_rest in NAMED_BATCHES}
-    shift = timedelta(days=31)
+    shift = timedelta(days=days_in("2026-10"))
     out: list[Batch] = []
     for b in sorted(site_batches, key=lambda b: (b.ins[0][0], b.ref)):
         admitted = b.ins[0][0]
