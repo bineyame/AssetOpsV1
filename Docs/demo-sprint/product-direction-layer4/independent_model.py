@@ -86,7 +86,7 @@ getcontext().prec = 50
 ZERO = Decimal(0)
 ONE = Decimal(1)
 MODEL_PENDING = "MODEL_PENDING"   # 0K4m (spec §2.4): a computed leaf whose model version is pending
-MODEL_PENDING_SLICE = "0K4e"
+MODEL_PENDING_SLICE = "0K4f"
 CENT = Decimal("0.01")
 
 
@@ -1479,7 +1479,7 @@ def _history_missing(manifest, M, V, s, refs, fed, sides, cause):
     for side in ("plan", "actual"):
         for f in sorted(fed):
             out[side].append(ent(side, {"leaf": f}, LS[f]["kind"], LS[f]["family"], cause, None, _reach(refs, [f]), LS[f]["slice"]))
-    # N1 (0K4m, I2): a not-available leaf is a computed leaf whose model version is pending: MODEL_PENDING, slice 0K4e
+    # N1 (0K4m, I2): a not-available leaf is a computed leaf whose model version is pending: MODEL_PENDING, slice 0K4f
     for side in ("plan", "actual"):
         for f in order:
             if is_na(sides[side]["leaves"].get(f)):
