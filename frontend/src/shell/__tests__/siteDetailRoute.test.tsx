@@ -103,8 +103,8 @@ const LIVE_SITE_DETAIL: SiteDetailReadModel = {
  * site because it is the INTELLIGENCE rail root and owns the global Findings
  * index, a surface of its own rather than a placeholder for a site page.
  */
-// W6-01e: Operational records rail root is live.
-const OPERATOR_NAVIGATION_LABELS = ["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Operational records", "Evidence", "Financials"];
+// IA-P P1 (spec §2.1): Operational records left the rail; Evidence & records is the one root.
+const OPERATOR_NAVIGATION_LABELS = ["Portfolio", "Sites", "Findings", "Decisions", "Actions", "Incidents", "Maintenance", "Evidence & records", "Financials"];
 
 function directoryWith(sites: SiteSummary[]): SiteDirectoryClient {
   return { listSites: () => Promise.resolve({ status: "loaded", sites }) };
@@ -444,12 +444,13 @@ describe("operator navigation lost an item and gained none", () => {
       .getByRole("navigation", { name: "Operator routes" })
       .querySelectorAll("a");
     const hrefs = Array.from(destinations).map(
-      (link) => link.getAttribute("href") ?? "",
+      (link) => (link.getAttribute("href") ?? "").split("?")[0],
     );
+    // IA-P P1: `/` lands on Portfolio, which fills the shared range, so every rail href carries it; compare the paths.
     unmount();
 
-    // W6-01e: Operational records rail root is live.
-    expect(hrefs).toEqual(["/portfolio", "/sites", "/findings", "/actions", "/incidents", "/maintenance", "/operational-records", "/evidence", "/financials"]);
+    // IA-P P1 (spec §2.1): Operational records left the rail; Evidence & records is the one root.
+    expect(hrefs).toEqual(["/portfolio", "/sites", "/findings", "/decisions", "/actions", "/incidents", "/maintenance", "/evidence", "/financials"]);
     for (const href of hrefs) {
       const view = renderAt(href, ENABLED);
       await settledScreen();

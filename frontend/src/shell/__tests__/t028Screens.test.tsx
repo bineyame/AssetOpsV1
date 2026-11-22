@@ -498,7 +498,7 @@ describe("the Findings rail root and Site > Findings (AC21)", () => {
     const view = renderAt("/findings");
     await settledScreen();
     expect(railCurrent()).toBe("Findings");
-    expect(document.querySelector('[data-estate-root="all"]')).not.toBeNull();
+    expect(document.querySelector('[data-estate-root="findings"]')).not.toBeNull();
     expect(document.querySelector("[data-finding-row]")).toBeNull();
     view.unmount();
     for (const path of [`/findings/${SITE_ID}/${CANDIDATE_ID}`, `/findings/${SITE_ID}/${CANDIDATE_ID}/analysis`]) {

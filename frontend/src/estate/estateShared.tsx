@@ -3,6 +3,7 @@
  * date/cutoff bar (spec S17), the URL query state, the Site basis-state chip (Run 12 ruling 3), the coverage
  * limitation sentence and the refusal view. Nothing here reads a mock value.
  */
+import { linkBound, windowBound } from "../ui/sharedRange";
 import type { ReactNode } from "react";
 import { RangeLink as Link } from "../ui/RangeLink";
 import { Notice } from "../ui";
@@ -41,10 +42,16 @@ export function queryFromParams(params: URLSearchParams, now?: number): EstateQu
   const state = params.get("state");
   // SR-1 (SR.3): the shared range's short day form (`to` included) reads as the same UTC window as the instant form,
   // so both address forms make the same request. Any other value is passed on unchanged for the server to judge.
-  const from = params.get("from");
-  const to = params.get("to");
+  const from = windowBound(params, "from");
+  const to = windowBound(params, "to");
   const days = from !== null && to !== null && validDay(from) && validDay(to) ? rangeWindow({ from, to }) : null;
+  // IA-P P0: a range over 31 days is read as its last 31 days; the page's links keep the whole range.
+  const whole = linkBound(params, "from");
+  const wholeTo = linkBound(params, "to");
+  const windowed = whole !== null && wholeTo !== null && from !== whole;
+  const link = windowed ? { link: { from: whole, to: wholeTo } } : {};
   return {
+    ...link,
     from: days?.from ?? from ?? fallback.from,
     to: days?.to ?? to ?? fallback.to,
     known_at: params.get("known_at"),
@@ -56,12 +63,12 @@ export function queryFromParams(params: URLSearchParams, now?: number): EstateQu
 /** An app href on `path` keeping the window and cutoff; `state`/`cursor` only when given (page one otherwise). */
 export function estateHref(
   path: string,
-  query: Pick<EstateQuery, "from" | "to" | "known_at">,
+  query: Pick<EstateQuery, "from" | "to" | "known_at" | "link">,
   extra: { state?: EstateStateFilter; cursor?: string | null } = {},
 ): string {
   const params = new URLSearchParams();
-  params.set("from", query.from);
-  params.set("to", query.to);
+  params.set("from", query.link?.from ?? query.from);
+  params.set("to", query.link?.to ?? query.to);
   if (query.known_at) params.set("known_at", query.known_at);
   if (extra.state && extra.state !== "all") params.set("state", extra.state);
   if (extra.cursor) params.set("cursor", extra.cursor);

@@ -1,0 +1,150 @@
+/* IA-P P2 (spec §5.2): the home list, with the live tokens. IA-2b rev 2 §3.2's rules, transcribed. */
+[data-shape="list"] .hl-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-3);
+  margin: 0 0 var(--space-4);
+}
+.hl-tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  min-width: 0;
+}
+.hl-tile__label {
+  font-size: var(--font-size-200);
+  color: var(--text-secondary);
+}
+.hl-tile__value {
+  font-size: var(--font-size-700);
+  color: var(--text-primary);
+}
+.hl-caption {
+  margin: 0 0 var(--space-4);
+  font-size: var(--font-size-200);
+  color: var(--text-secondary);
+}
+.hl-tools,
+.hl-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: end;
+  margin: 0 0 var(--space-3);
+}
+.hl-tools label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--font-size-200);
+  color: var(--text-secondary);
+  min-width: 0;
+}
+.hl-tools select,
+.hl-tools input[type="search"] {
+  max-width: 100%;
+  min-height: 36px;
+}
+.hl-chip {
+  display: inline-block;
+  padding: 2px var(--space-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  font-size: var(--font-size-200);
+  background: var(--surface-sunken);
+}
+.hl-empty {
+  margin: var(--space-4) 0;
+  color: var(--text-secondary);
+}
+.hl-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-table);
+}
+.hl-table th,
+.hl-table td {
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.hl-table thead th {
+  font-size: var(--text-table-head);
+  color: var(--text-secondary);
+}
+.hl-table tbody tr {
+  position: relative;
+}
+.hl-table tbody tr:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.hl-table tbody th[scope="row"] {
+  background: transparent; /* L1: the focused row's outline runs round the title cell too */
+}
+.hl-table th[scope="row"] small {
+  display: block;
+  font-size: var(--font-size-200); /* never under 12 px (gate R6); the browser's small is 0.83em */
+  font-weight: var(--weight-regular);
+  color: var(--text-secondary);
+}
+.hl-go {
+  font-weight: var(--weight-semibold);
+}
+.hl-go::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.hl-group th {
+  background: var(--surface-sunken);
+  font-weight: var(--weight-semibold);
+}
+.hl-count {
+  color: var(--text-secondary);
+  font-weight: var(--weight-regular);
+}
+.hl-more {
+  margin: var(--space-3) 0 0;
+}
+@media (max-width: 640px) {
+  .hl-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  .hl-table,
+  .hl-table tbody,
+  .hl-table tr,
+  .hl-table th,
+  .hl-table td {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .hl-table tbody tr {
+    border-bottom: 1px solid var(--border-strong);
+    padding: var(--space-2) 0;
+  }
+  .hl-table th,
+  .hl-table td {
+    border-bottom: 0;
+    padding: var(--space-1) var(--space-3);
+  }
+  .hl-table td::before {
+    content: attr(data-label) ": ";
+    color: var(--text-secondary);
+  }
+  .hl-tools label,
+  .hl-tools select,
+  .hl-tools input[type="search"] {
+    width: 100%;
+  }
+}

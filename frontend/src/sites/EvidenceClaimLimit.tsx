@@ -26,7 +26,7 @@ import { ChartNote, currentnessWords, readResultWords, DataTable, Disclosure, Fa
 import { PeriodStrip, type StripTone } from "./periodStrip";
 import { isDay } from "./dispatchWords";
 import { formatDay } from "../ui/time";
-import { rangeWindow, readSharedRange } from "../ui/sharedRange";
+import { rangeWindow, readWindow } from "../ui/sharedRange";
 import { ClaimLimitRange } from "./ClaimLimitRange";
 import { BackToRange } from "./SiteRangeParts";
 import type { RangeWindowQuery, SiteRangeClient } from "./siteRangeClient";
@@ -270,8 +270,8 @@ export interface EvidenceClaimLimitProps {
 
 /** SR-7b (D-SR.25): with no `day`, a valid address range shows the claim limit day by day. */
 function claimRangeOf(params: URLSearchParams): RangeWindowQuery | null {
-  const state = readSharedRange(params);
-  return state.status === "set" ? { ...rangeWindow(state), known_at: state.known_at } : null;
+  const state = readWindow(params);
+  return state === null ? null : { ...rangeWindow(state), known_at: state.known_at };
 }
 
 export function EvidenceClaimLimit({ siteId, client, assessmentHref, chooserTarget, detailTarget, rangeClient }: EvidenceClaimLimitProps) {

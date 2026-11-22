@@ -3,6 +3,8 @@ import { useLocation, useOutletContext, useSearchParams } from "react-router-dom
 
 import { AppHeader, NavRail, type NavRailItem } from "../ui";
 import { RangeFocusProvider } from "../ui/rangeFocus";
+import { EstateReadCacheProvider } from "../estate/estateReadCache";
+import { railHomeOf } from "./iaRoutes";
 import { SharedRangeBar, SharedRangeOutlet } from "./SharedRangeBar";
 import { rangeSearch } from "./sharedRange";
 import type { WorkspaceChrome } from "./WorkspaceShellLayout";
@@ -40,7 +42,7 @@ export const DEMONSTRATION_BANNER = "Demonstration · example sites and records"
  *
  * What is left is what a navigation item can truthfully say: the Sites index.
  * T027 removed the T002 `Operator home` item and its placeholder frame; `/`
- * now redirects to Sites.
+ * now redirects to the Portfolio (IA-P P1, D-IA.15).
  *
  * T028 adds the Findings rail root, which owns the global Findings index, and
  * the group headers (`D-2026-10-02-grammar-ownership-test`).
@@ -60,26 +62,26 @@ export const DEMONSTRATION_BANNER = "Demonstration · example sites and records"
 const operatorRailItems: NavRailItem[] = [
   { kind: "live", to: "/portfolio", label: "Portfolio", end: false, group: "OPERATIONS", icon: "grid" },
   { kind: "live", to: "/sites", label: "Sites", end: false, group: "OPERATIONS", icon: "site" },
-  { kind: "unavailable", label: "Assets", group: "OPERATIONS", icon: "asset" },
+  { kind: "unavailable", label: "Assets & cover", group: "OPERATIONS", icon: "asset" },
   { kind: "live", to: "/findings", label: "Findings", end: false, group: "INTELLIGENCE", icon: "finding" },
+  { kind: "live", to: "/decisions", label: "Decisions", end: false, group: "WORK", icon: "decide" },
+  { kind: "unavailable", label: "Plan", group: "WORK", icon: "clock" },
   { kind: "live", to: "/actions", label: "Actions", end: false, group: "WORK", icon: "action" },
   { kind: "live", to: "/incidents", label: "Incidents", end: false, group: "WORK", icon: "incident" },
   { kind: "live", to: "/maintenance", label: "Maintenance", end: false, group: "WORK", icon: "work" },
-  { kind: "live", to: "/operational-records", label: "Operational records", end: false, group: "WORK", icon: "log" },
-  { kind: "live", to: "/evidence", label: "Evidence", end: false, group: "ASSURANCE", icon: "evidence" },
+  { kind: "unavailable", label: "Results", group: "ASSURANCE", icon: "book" },
+  { kind: "live", to: "/evidence", label: "Evidence & records", end: false, group: "ASSURANCE", icon: "evidence" },
   { kind: "live", to: "/financials", label: "Financials", end: false, group: "BUSINESS", icon: "money" },
   { kind: "unavailable", label: "Settings", group: "ADMIN", icon: "gear" },
 ];
 
 /**
- * W5-02c K4a (`archive/agent-history/W5-02c-K4-preflight-rulings.md` rulings 1-2; register R69 resolved): every Site Action detail
- * path, for any Site type (W1 mini-grid, cold and EV), selects the `Actions` root as the v69 rail does for
- * `cold-action` and `action-*` (`index.html:729,742,1114`). post-W6 W1-b Q25 / R202 (pre-flight ruling 6): every
- * Site Finding detail path and child (`/sites/:id/findings/:fid`, including Recommendation, Evidence, History and
- * Alternatives) selects `Findings`; the Site Findings index keeps `NavLink` matching, as does every other path. The
- * guard in `tools/checks/navigation-truthfulness.ps1` pins this exact source line and its call form.
+ * IA-P P1 (spec §2.1, §5.1, D-IAP.5): the menu is IA-1's `IA_RAIL` (groups, order, labels). Decisions goes live in
+ * P2 and Results in P3b; Plan is unavailable while the product has no plan record (D-IAP.1, MD-IAP-1). Operational
+ * records is the Records tab of Evidence & records. The item an address lights is `railHomeOf` (`iaRoutes.ts`), which
+ * replaced `railActiveLabel`: a Site Action detail lights Actions, a Site Finding detail Findings, every other address
+ * its §2.4 family. The guard in `tools/checks/navigation-truthfulness.ps1` pins the call form below.
  */
-const railActiveLabel = (pathname: string): "Actions" | "Findings" | null => (/^\/sites\/[^/]+\/actions\/[^/]+(?:\/.*)?$/.test(pathname) ? "Actions" : /^\/sites\/[^/]+\/findings\/[^/]+(?:\/.*)?$/.test(pathname) ? "Findings" : null);
 
 /**
  * The rail is a real component now, but it owns no items: this list is still
@@ -133,11 +135,12 @@ export function OperatorShellLayout() {
           ) : null}
         </div>
         <div className="app-frame__rail-body" id="operator-rail-body">
-          <NavRail label="Operator routes" items={operatorRailItems} activeLabel={railActiveLabel(pathname)} search={railSearch} />
+          <NavRail label="Operator routes" items={operatorRailItems} activeLabel={railHomeOf(pathname)} search={railSearch} />
           {chrome?.footer ?? null}
         </div>
       </div>
 
+      <EstateReadCacheProvider>
       <RangeFocusProvider>
       <div className="app-frame__body">
         {/* SR-1 (v71 Change 0b): the top-bar row holds the one shared date range; the demonstration banner stays. */}
@@ -152,6 +155,7 @@ export function OperatorShellLayout() {
         </div>
       </div>
       </RangeFocusProvider>
+      </EstateReadCacheProvider>
     </div>
   );
 }

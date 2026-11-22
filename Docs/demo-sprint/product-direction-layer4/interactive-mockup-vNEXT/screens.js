@@ -1001,7 +1001,7 @@ function render(){
  const s=currentScreen();document.querySelector('.conf-pop')?.remove();
  $('#overlay').innerHTML='';document.body.style.overflow='';
  /* IA-1 (spec §2.1, §2.4): a landed IA route renders in the frame, through iaRender only */
- if(typeof IA_ROUTES!=='undefined'){IA_ROUTE_ACTIVE=!!s.ia;if(s.ia&&!new URLSearchParams(location.search).has('book')){document.title=`${s.title} · ${OPS[LS.op].name}`;$('#app').innerHTML=`${reviewBar(s)}<div id="ia-root"></div>`;iaRender(s.ia,s.ctx);afterRender(s);window.mockupReady=true;return;}}
+ if(typeof IA_ROUTES!=='undefined'){IA_ROUTE_ACTIVE=!!s.ia;if(s.ia&&!new URLSearchParams(location.search).has('book')){document.title=`${s.docTitle||s.title} · ${OPS[LS.op].name}`;$('#app').innerHTML=`${reviewBar(s)}<div id="ia-root"></div>`;iaRender(s.ia,s.ctx);afterRender(s);window.mockupReady=true;return;}}
  document.title=`AssetOps · ${s.title}${s.section?' / '+s.section:''} · Screen review`;
  if(new URLSearchParams(location.search).has('book')){
   const pages=SCREENS.filter(x=>x.book!==false&&(x.root!=='Simulator Lab'||(typeof iaDev!=='function'||iaDev())));

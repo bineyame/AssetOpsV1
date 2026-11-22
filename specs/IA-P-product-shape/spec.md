@@ -1,6 +1,6 @@
 # IA-P: the real app on the agreed shape (implementer spec)
 
-Status: live, **rev 3** (2026-11-22: handshake answered, `handshake.md`; the long range, P0; three parts), ready to build.
+Status: in_review (IA-P1: P0, P1 and P2 built, `packet-IA-P1.md`; IA-P2 and IA-P3 not started). **rev 3** (2026-11-22: handshake answered, `handshake.md`; the long range, P0; three parts).
 Architect (Claude). Rev 2 (the Overview follows the range) and rev 1 were merged on 2026-11-22.
 Owner request: `owner/owner-merge-on-accept-ia-shape-k10-2026-11-22.md`. The owner reviews once the product is close to the
 shape, then iterates. UI slices merge on review ACCEPT, with one combined walkthrough at the end.

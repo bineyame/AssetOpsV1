@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { linkBound } from "../ui/sharedRange";
 import { useSearchParams } from "react-router-dom";
 import { RangeLink as Link } from "../ui/RangeLink";
 
@@ -67,8 +68,8 @@ export const EV_SITE_SOURCES_FRAGMENT = "#ev-site-sources-heading";
  */
 export function evSourcesHref(evidencePath: string, params: URLSearchParams): string {
   const query = new URLSearchParams();
-  const from = params.get("from");
-  const to = params.get("to");
+  const from = linkBound(params, "from");
+  const to = linkBound(params, "to");
   if (from !== null && to !== null && isUtcInstant(from) && isUtcInstant(to) && Date.parse(from) < Date.parse(to)) {
     query.set("from", from);
     query.set("to", to);

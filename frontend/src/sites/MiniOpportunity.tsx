@@ -7,6 +7,7 @@
  * gated fields. Mock `F-109`, Medium, 18–20 kW, 3/5, 10 kW × 1 h, the tariff and $2.50 never appear as defaults; a
  * missing source reads as its exact gap copy (u4 value mapping, u6 dry-read).
  */
+import { linkBound } from "../ui/sharedRange";
 import { useEffect, useState, type ReactNode } from "react";
 import { RangeLink as Link } from "../ui/RangeLink";
 
@@ -171,8 +172,8 @@ export function renewableHref(body: OpportunityDetailBody, siteCode: string, per
   const q = raw.indexOf("?");
   if (q < 0) return null;
   const params = new URLSearchParams(raw.slice(q + 1));
-  const from = params.get("from");
-  const to = params.get("to");
+  const from = linkBound(params, "from");
+  const to = linkBound(params, "to");
   const knownAt = params.get("known_at");
   if (from === null || to === null || knownAt === null || siteCode === "") return null;
   const out = new URLSearchParams({ from, to, known_at: knownAt });

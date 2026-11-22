@@ -1,6 +1,6 @@
 import { UnavailableTab } from "../ui/UnavailableEntry";
 import { displayCode } from "../ui/displayCode";
-import { useLegacyFocusDayRewrite } from "../ui/sharedRange";
+import { linkBound, useLegacyFocusDayRewrite, windowBound } from "../ui/sharedRange";
 import { FoundationSubtabs, foundationViewSegment } from "../sites/FoundationSubtabs";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Navigate, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
@@ -488,8 +488,8 @@ function scopeFromQuery(params: URLSearchParams): FindingIndexScope {
   const limit = Number(params.get("limit"));
   return {
     domain: params.get("domain") ?? FINDING_INDEX_DOMAIN,
-    from: params.get("from") ?? today.from,
-    to: params.get("to") ?? today.to,
+    from: windowBound(params, "from") ?? today.from,
+    to: windowBound(params, "to") ?? today.to,
     limit: params.get("limit") === null || !Number.isFinite(limit) ? null : limit,
     cursor: params.get("cursor"),
   };
@@ -1327,7 +1327,7 @@ export function opportunityPriceInstant(
   const days = (body?.opportunity?.day_rows ?? []).filter((r) => r.mini_revision_id !== null).map((r) => r.local_day).sort();
   const noon = days.length > 0 ? siteLocalNoonUtc(days[days.length - 1], timeZone) : "";
   if (noon !== "") return noon;
-  const to = windowTo ?? (body?.links.renewable ? new URLSearchParams(body.links.renewable.split("?")[1] ?? "").get("to") : null);
+  const to = windowTo ?? (body?.links.renewable ? linkBound(new URLSearchParams(body.links.renewable.split("?")[1] ?? ""), "to") : null);
   const t = to === null ? Number.NaN : new Date(to).getTime();
   return new Date(Number.isNaN(t) ? Date.now() : t - 1000).toISOString().replace(".000Z", "Z");
 }
@@ -1349,7 +1349,7 @@ function OpportunityScreen({
   const read = useOpportunity(client, site.site_id, opportunityId, mini, knownAt);
   const loaded = mini && read !== null && read.status === "loaded" && read.value.opportunity !== null ? read.value : null;
   const [urlParams] = useSearchParams();
-  const windowTo = urlParams.get("to");
+  const windowTo = windowBound(urlParams, "to");
   const priceAt = useMemo(() => opportunityPriceInstant(loaded, site.timezone, windowTo), [loaded, site.timezone, windowTo]);
   const declaredPrice = useDeclaredPrice(financials, site.site_id, mini && read !== null, knownAt, priceAt);
   const renewable =
@@ -1468,8 +1468,8 @@ export function SiteFinancialsFrame({
   const navigate = useNavigate();
   const title = view === "assumptions" ? "Financial assumptions" : view === "scenarios" ? "Financial scenarios" : "Financials";
   const scope: ScenarioScope = {
-    from: params.get("from"),
-    to: params.get("to"),
+    from: windowBound(params, "from"),
+    to: windowBound(params, "to"),
     known_at: params.get("known_at"),
     cursor: params.get("cursor"),
   };
@@ -1883,7 +1883,7 @@ function DomainActionUnknownSection({ site, actionId, params }: { site: LoadedSi
   const p = domainActionPresentation(site.site_type);
   const rawKnownAt = params.get("known_at");
   const knownAt = rawKnownAt !== null && isUtcInstant(rawKnownAt) ? rawKnownAt : null;
-  const rawWindow = p.windowQuery ? { from: params.get("from"), to: params.get("to") } : null;
+  const rawWindow = p.windowQuery ? { from: windowBound(params, "from"), to: windowBound(params, "to") } : null;
   const window = rawWindow !== null && rawWindow.from !== null && rawWindow.to !== null && actionWindowRefusal(rawWindow) === null ? rawWindow : null;
   return (
     <main aria-labelledby={ACTION_UNKNOWN_SECTION_HEADING_ID} data-action-unknown-section>
@@ -2039,7 +2039,7 @@ export function SiteActionFrame({
         if (DOMAIN_ACTION_SITE_TYPES.includes(site.site_type) && (actionView === undefined || actionView === "verification")) {
           // R348: the window is parsed only where the presentation carries it (EV); a refused one is carried nowhere.
           const carriesWindow = domainActionPresentation(site.site_type).windowQuery;
-          const rawWindow = carriesWindow ? { from: params.get("from"), to: params.get("to") } : null;
+          const rawWindow = carriesWindow ? { from: windowBound(params, "from"), to: windowBound(params, "to") } : null;
           const windowRefusal = rawWindow === null ? null : actionWindowRefusal(rawWindow);
           return (
             <DomainActionRoute
@@ -2260,8 +2260,8 @@ const DEFAULT_WORK_CLIENT = createWorkClient();
 
 /** The Work page query. W5-02 K2a (P-K2a-38): `known_at` is parsed and preserved beside the window and cursor. */
 function workScopeFromQuery(params: URLSearchParams): (ActionIndexScope & { knownAt: string | null }) | null {
-  const from = params.get("from");
-  const to = params.get("to");
+  const from = windowBound(params, "from");
+  const to = windowBound(params, "to");
   if (!from || !to) return null;
   const limit = Number(params.get("limit"));
   return {
@@ -2279,8 +2279,8 @@ function workScopeFromQuery(params: URLSearchParams): (ActionIndexScope & { know
  * `limit` is not a URL query. A mini-grid Site keeps its W1 choose-window state.
  */
 function domainWorkScope(params: URLSearchParams): DomainIndexScope {
-  const from = params.get("from");
-  const to = params.get("to");
+  const from = windowBound(params, "from");
+  const to = windowBound(params, "to");
   const window = from && to ? { from, to } : defaultWorkWindow();
   return { ...window, knownAt: params.get("known_at"), cursor: params.get("cursor") };
 }
@@ -2552,8 +2552,8 @@ function WorkSubrow({
 export const SITE_WORK_CASES_HEADING_ID = "site-work-cases-heading";
 
 function workCasesScope(params: URLSearchParams, site: { site_type: string; timezone?: string | null }): WorkScope {
-  const from = params.get("from");
-  const to = params.get("to");
+  const from = windowBound(params, "from");
+  const to = windowBound(params, "to");
   // post-W6 final-fix M1: a mini Site's default is seven Site-local days (its form fields show the same days); cold
   // and EV keep R338's seven UTC days.
   const fallback = domainWorkPresentation(site.site_type) === null ? siteSevenDayWindow(site.timezone ?? null) : defaultWorkWindow();

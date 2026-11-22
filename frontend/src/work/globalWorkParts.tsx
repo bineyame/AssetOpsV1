@@ -9,6 +9,7 @@
  * operational-only kind validator; with it, an invalid or repeated `kind` is a no-fetch `INVALID_KIND` refusal, and a
  * valid kind rides through Show, Reload, the first-page link and the pager. Without it the other roots ignore `kind`.
  */
+import { windowBound } from "../ui/sharedRange";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
@@ -334,8 +335,8 @@ export function useGlobalWorkPage<B extends GlobalWorkBodyBase>(
     body,
     shown,
     firstPage,
-    rawFrom: params.get("from"),
-    rawTo: params.get("to"),
+    rawFrom: windowBound(params, "from"),
+    rawTo: windowBound(params, "to"),
     go,
     reload: () => {
       if (query === null) return;

@@ -20,6 +20,7 @@
  * and never as a conclusion about how the site is operating.
  */
 
+import { windowBound } from "../ui/sharedRange";
 import { SITE_ZONE_UNAVAILABLE_LABEL, siteTime, siteZoneLabel } from "./siteTime";
 import { findingLocalTime } from "./findingTime";
 import { TimeZoneNote } from "../ui/TimeZoneNote";
@@ -1162,8 +1163,8 @@ function Rejected({
   const [loaded, setLoaded] = useState<EvidenceRead<LedgerRejections> | null>(null);
   // SR-12a (rev 10b.4): the list follows the address's date range (readings by source time in `[from, to)`; untimed ones by receipt).
   const [params] = useSearchParams();
-  const from = params.get("from");
-  const to = params.get("to");
+  const from = windowBound(params, "from");
+  const to = windowBound(params, "to");
   const ranged = from !== null && to !== null;
   useEffect(() => {
     if (ledger === undefined) {

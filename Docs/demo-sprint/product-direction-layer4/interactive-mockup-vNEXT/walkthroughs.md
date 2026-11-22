@@ -15,7 +15,7 @@
 - Open `index.html` in a browser; no server is needed. Or, from this folder, run `python3 -m http.server 8790 --bind 127.0.0.1` and open the local address.
 - Choose the operator in the blue review bar at the top (**Demo operator**). The review bar is review tooling, not part of the product. Its screen selector lists every screen.
 - The top bar of every screen shows the period and the snapshot's date: "October 2026 · Figures as of 06:00, 6 Nov".
-- Main routes: `#/plan` and `#/portfolio` with its three tabs (Overview, `/outcomes`, `/demand-and-capacity`; IA-1b, the empty address opens `#/portfolio`); `#/site/<site>`; `#/decision/<id>` (IA-1c: every decision of the operator, its crumbs Decisions › its Site). "Waiting for you" in the top bar opens the inbox in place: For you (the plan version awaiting approval and the decisions the executive chooses; the badge counts these), In your portfolio, and Since you last looked (the choices and approvals made in this tab). The old `#/portfolio/outcomes-by-site` opens `#/portfolio/outcomes`; `/act-first`, `/what-changed` and `/scope` are kept for the review select until their units land (IA-2b, IA-2d).
+- Main routes: `#/plan` with its four tabs (Items, `/left-out`, `/review`, `/history`; IA-2a: the stepper, the spend, crew and value tiles, the release line and Approve or Send back on every tab) and `#/portfolio` with its three tabs (Overview, `/outcomes`, `/demand-and-capacity`; IA-1b, the empty address opens `#/portfolio`); `#/site/<site>`; `#/decision/<id>` (IA-1c: every decision of the operator, its crumbs Decisions › its Site). "Waiting for you" in the top bar opens the inbox in place: For you (the plan version awaiting approval and the decisions the executive chooses; the badge counts these), In your portfolio, and Since you last looked (the choices and approvals made in this tab). The old `#/portfolio/outcomes-by-site` opens `#/portfolio/outcomes`; `/act-first`, `/what-changed` and `/scope` are kept for the review select until their units land (IA-2b, IA-2d).
 
 **Who appears on screen.** People are shown by role title, with the Site for a Site manager, and a fictional first name, labelled illustrative. The roles are the design's five: the operator executive, the finance and commercial lead, the Site manager, the field technician and the analyst. The system recommends; a person chooses, creates the Actions and approves.
 
@@ -53,7 +53,7 @@
 - *Sees:* first the issues needing a decision, each with who decides. Then the plan, proposed by the system for November and December: version 1, awaiting Amina's approval; $3,660.00<!--fig:plans.lakeside-power.default.spend--> of the $5,000.00<!--rec:plans.lakeside-power.budget--> budget; a modelled +$2,213.33<!--fig:plans.lakeside-power.default.value--> from the valued options only (the rice huller, Simulated). Each item names its owner, its state and an "Effect under each heading": the Kisiwa repair under Protect, the Mto huller under Grow and Optimize. The huller is a capital item, so its Action is created only after approval.
 - *Why it matters:* the plan trades Sites against one budget and one crew, which no single Site can do, and nothing spends above the threshold until the executive approves.
 - *Who:* Amina approves or sends back the version; each item's owner (Halima, David, Peter) creates its operational Actions, and Joseph creates the notice and claim Actions.
-- *Try:* under "What if", switch the budget to $6,500.00<!--rec:plans.lakeside-power.switches.budget[1]--> and the letter of intent to "No"; the plan shows its new spend and value, and the four-case table shows each result.
+- *Try:* under "What if", switch the budget to $6,500.00<!--rec:plans.lakeside-power.switches.budget[1]--> and the letter of intent to "No"; the plan shows its new spend and value, and the four-case table shows each result. The line "Showing the case you chose" then stays on every tab, and Left out lists the Actions that return to their creator. Approve: the dialog, the toast with Undo, the stepper on Approved, the badge down by one and a new first row under History.
 
 **Step 7. Who is doing what.** Route `#/portfolio/what-changed`.
 - *Sees:* every Action with its creator, owner, due date and whether it is released or waiting; the plan's review; and the three verdicts on each chosen change, all "not yet".
@@ -104,7 +104,9 @@
 | `#/portfolio`, each operator | The four cards read as the executive's headings; Grow and Optimize explain the gap; cash stands apart; Protect shows no money of its own |
 | `#/site/kobo`, `#/site/thika`, `#/site/kasarani` | Each factor row names one heading, and the same structure serves all three Site types |
 | `#/decision/kobo-generator`, `#/decision/thika-backup`, `#/decision/kasarani-charger` | Options against doing nothing; who recommends, who chooses, who creates the Actions; each option's "Effect under each heading" |
-| `#/plan`, each operator | Version, owner, item states and thresholds; each switch re-evaluates the plan |
+| `#/plan`, each operator | Version, owner, item states; the thresholds open from "Release thresholds"; each switch re-evaluates the plan |
+| `#/plan/left-out`, `#/plan/review`, `#/plan/history`, each operator | The same header as Items; what is left out and why; the plan's review ("Not yet" while the period is open); versions and approvals, newest first |
+| `#/decisions`, `#/findings`, `#/actions`, `#/sites`, each operator (§6) | One list per object from the menu; the tiles equal the rows; Sort is the only control at this size; each row opens one thing; the Outcomes tab shows the same Site rows |
 
 **Decisions for the owner** (with their defaults, in `../decisions-register.md`):
 
@@ -115,4 +117,26 @@
 | `#/decision/kobo-generator` | Register item D6: simulated figures are shown to clients with their Simulated chip, gaps as "Not available yet", and said aloud. Default: shown, labelled |
 | `#/decision/kisiwa-genset` | Register item Q14: keep Kisiwa's battery fuel saving as a flagged assumption. Default: kept, flagged |
 | `#/decision/mto-inverter` | Register item Q15: when losing a unit breaches redundancy. Default: it follows the capacity computed from records |
+
+## 6. The four home lists (IA-2b1)
+<!--derives: spec-IA-2b §1, §4, §5; D-IA.63, D-IA.67, D-IA.70, D-IA.76-->
+
+**What exists, and what changes.** Decisions, Findings, Actions and Sites were separate screens, each drawn its own way. They are now one list shape, opened from the left menu: count tiles on top, then the rows, at most ten, then "Show all". The address holds the view, so Back and a shared link bring back the same sort and filters. *Serves the executive: every object is found the same way.*
+
+**At the demo's size the lists stay quiet.** Controls grow with the list: none under 3 rows, Sort only up to 10, filters and search above 10. Every operator has 3 Sites and at most 9 rows per list, so each list shows Sort only, and Metro's Actions (2 rows) show none. The filters still exist: an old link such as Cost Findings lands on Findings with a chip "Optimize cost and efficiency · All headings", and the chip is the way out. The full toolbar, group heads and "Show all" appear only on a 30-Site test fixture (shown in the review's screenshots).
+
+| List | Lakeside | Harvest | Metro | A row opens |
+|---|---|---|---|---|
+| Decisions | 8, 3 waiting for a choice | 3, none waiting | 4, 2 waiting | the decision |
+| Findings | 9 | 4 | 7 | its decision (two Kobo Findings open the generator decision; at Metro three open the Embakasi schedule and two the Ruiru expansion) |
+| Actions | 6: 2 released, 4 waiting | 3: 1 released, 2 waiting | 2: 1 released, 1 waiting | the decision whose option it carries out, or the plan |
+| Sites | 3, gap to target −$852 | 3, gap −$770 | 3, gap −$3,184 | the Site |
+
+**Several rows, one target.** A Finding or an Action has no page of its own yet, so its row opens its decision (or the plan). Several rows can therefore lead to the same page; the page is the right one, and each object gets its own page later (IA-2d).
+
+**Where the Outcomes explanations went.** The Portfolio's Outcomes tab now shows the Sites list's rows, without its controls. A row is one link to its Site, so the in-cell "show how this is worked out" buttons left the table: each figure's explanation is one click away on the Site's page, beside the same figure.
+
+**Three things the lists do not do, on purpose.** Decisions, Findings and Actions have no "at stake" total and no stake sort: stakes are valued on different bases and horizons, and some are alternatives, so neither a sum nor an order would be a true figure. The Sites gap tile stays, because Site gaps are one measure in one month and add up to the Overview's own gap (−$852, −$770, −$3,184). Hub queues keep their "Decide" buttons until the next part (IA-2b2), after your walkthrough of the plan.
+
+**Check on screen:** `#/decisions` (Sort to "Due date", then Back), `#/findings-cost` (lands on Findings with the heading chip), a decision's "Decisions" crumb and a Site's "Sites" crumb (both now links), `#/portfolio/outcomes` (the Site rows, no buttons).
 

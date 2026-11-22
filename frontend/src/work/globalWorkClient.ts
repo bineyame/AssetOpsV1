@@ -8,6 +8,7 @@
  * no rows and no count.
  */
 
+import { capWindow, rangeWindow, readSharedRange } from "../ui/sharedRange";
 import { formatDayTime } from "../ui/time";
 import type { OpenNow } from "./openNow";
 
@@ -226,6 +227,8 @@ export interface GlobalWorkQuery {
   known_at: string | null;
   cursor: string | null;
   kind?: GlobalOperationalKind;
+  /** IA-P P0: the whole range of an address longer than 31 days; `from`/`to` hold the read window, links keep this. */
+  link?: { from: string; to: string };
 }
 
 export type GlobalWorkRefusalCode =
@@ -767,7 +770,6 @@ export function globalWorkRequestHref(path: string, query: Pick<GlobalWorkDetail
 // ending today 00:00 UTC; one absent bound is INVALID_WINDOW. Other keys are ignored and never forwarded.
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-const MIDNIGHT = /^\d{4}-\d{2}-\d{2}T00:00:00Z$/;
 const INSTANT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,6})?Z$/;
 
 /**
@@ -781,36 +783,32 @@ export function defaultGlobalWorkWindow(now: number = Date.now()): { from: strin
   return { from: day(today - 7 * DAY_MS), to: day(today) };
 }
 
-function validMidnight(value: string): boolean {
-  return MIDNIGHT.test(value) && !Number.isNaN(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value.slice(0, 10);
-}
-
 export type GlobalWorkPageQuery =
   | { status: "valid"; query: GlobalWorkQuery }
   | { status: "invalid"; code: "INVALID_WINDOW" | "INVALID_KNOWN_AT" };
 
 export function globalWorkPageQuery(params: URLSearchParams, now?: number): GlobalWorkPageQuery {
-  const froms = params.getAll("from");
-  const tos = params.getAll("to");
   const knowns = params.getAll("known_at");
   const cursors = params.getAll("cursor");
-  let window: { from: string; to: string };
-  if (froms.length === 0 && tos.length === 0) {
-    window = defaultGlobalWorkWindow(now);
-  } else {
-    if (froms.length !== 1 || tos.length !== 1) return { status: "invalid", code: "INVALID_WINDOW" };
-    const [from, to] = [froms[0], tos[0]];
-    if (!validMidnight(from) || !validMidnight(to)) return { status: "invalid", code: "INVALID_WINDOW" };
-    const days = (Date.parse(to) - Date.parse(from)) / DAY_MS;
-    if (days < 1 || days > 31) return { status: "invalid", code: "INVALID_WINDOW" };
-    window = { from, to };
-  }
   if (knowns.length > 1) return { status: "invalid", code: "INVALID_KNOWN_AT" };
   const known = knowns.length === 1 ? knowns[0] : null;
   if (known !== null && (!INSTANT.test(known) || Number.isNaN(Date.parse(known)))) {
     return { status: "invalid", code: "INVALID_KNOWN_AT" };
   }
-  return { status: "valid", query: { ...window, known_at: known, cursor: cursors.length > 0 ? cursors[0] : null } };
+  let window: { from: string; to: string };
+  let link: { from: string; to: string } | undefined;
+  if (!params.has("from") && !params.has("to")) {
+    window = defaultGlobalWorkWindow(now);
+  } else {
+    // IA-P P0 (D-IAP.24), M3: both forms are read by `readSharedRange`; a range over 31 days reads its last 31 days and
+    // links keep the whole range. No day arithmetic here.
+    const state = readSharedRange(params, now);
+    if (state.status !== "set") return { status: "invalid", code: "INVALID_WINDOW" };
+    const read = rangeWindow(capWindow(state));
+    window = { from: read.from, to: read.to };
+    if (capWindow(state).from !== state.from) link = rangeWindow(state);
+  }
+  return { status: "valid", query: { ...window, known_at: known, cursor: cursors.length > 0 ? cursors[0] : null, ...(link ? { link } : {}) } };
 }
 
 /**
@@ -819,10 +817,10 @@ export function globalWorkPageQuery(params: URLSearchParams, now?: number): Glob
  */
 export function globalWorkHref(
   path: string,
-  query: Pick<GlobalWorkQuery, "from" | "to" | "known_at" | "kind">,
+  query: Pick<GlobalWorkQuery, "from" | "to" | "known_at" | "kind" | "link">,
   cursor?: string | null,
 ): string {
-  const params = new URLSearchParams({ from: query.from, to: query.to });
+  const params = new URLSearchParams({ from: query.link?.from ?? query.from, to: query.link?.to ?? query.to });
   if (query.known_at) params.set("known_at", query.known_at);
   if (query.kind) params.set("kind", query.kind);
   if (cursor) params.set("cursor", cursor);

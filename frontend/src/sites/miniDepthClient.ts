@@ -5,7 +5,7 @@
  * browser's); `known_at` is optional.
  */
 import { SITES_API_PATH } from "./siteDirectoryClient";
-import { addressRange, focusDayOf, pageDay, rangeDays, rangeWindow, readSharedRange } from "../ui/sharedRange";
+import { addressRange, capWindow, focusDayOf, pageDay, rangeDays, rangeWindow, readSharedRange, windowBound } from "../ui/sharedRange";
 
 /** The served mini tabs, in the backend's order (S6). */
 export const MINI_DOMAINS = ["service", "fuel", "renewable", "backup"] as const;
@@ -435,8 +435,8 @@ export function localDaysWindow(timeZone: string, first: string, days: number): 
  * `known_at` is carried unchanged.
  */
 export function renewableWindowFromParams(params: URLSearchParams, timeZone: string, now: Date = new Date()): MiniWindowQuery {
-  const from = params.get("from");
-  const to = params.get("to");
+  const from = windowBound(params, "from");
+  const to = windowBound(params, "to");
   const known_at = params.get("known_at");
   const focus = focusDayOf(params);
   if (from !== null && to !== null && exactLocalDays(timeZone, from, to) !== null) return { from, to, known_at };
@@ -488,8 +488,8 @@ export function miniRangeWindowFromParams(
   now: Date = new Date(),
 ): MiniWindowQuery | null {
   if (focusDayOf(params) !== null) return null;
-  const from = params.get("from");
-  const to = params.get("to");
+  const from = windowBound(params, "from");
+  const to = windowBound(params, "to");
   if (from !== null && to !== null) {
     // D-SR.76 Q1: exactly one Site-local day keeps the one-day page; any longer range opens the range view.
     if (screen === "renewable" && exactLocalDays(timeZone, from, to) === 1) return null;
@@ -497,7 +497,7 @@ export function miniRangeWindowFromParams(
   }
   const range = addressRange(params, now.getTime());
   if (range === null) return null;
-  return { ...rangeWindow(range), known_at: params.get("known_at") };
+  return { ...rangeWindow(capWindow(range)), known_at: params.get("known_at") };
 }
 
 /** One Site-local clock hour exactly (the one-hour read's pass-through, D-SR.59). */
@@ -536,17 +536,17 @@ export function miniRangeView(
   now: Date = new Date(),
 ): { from: string; to: string; known_at: string | null } | null {
   if (focusDayOf(params) !== null) return null;
-  const from = params.get("from");
-  const to = params.get("to");
+  const from = windowBound(params, "from");
+  const to = windowBound(params, "to");
   if (from !== null && to !== null && isOneLocalHour(timeZone, from, to)) return null;
   const state = readSharedRange(params, now.getTime());
-  return state.status === "set" ? { ...rangeWindow(state), known_at: state.known_at } : null;
+  return state.status === "set" ? { ...rangeWindow(capWindow(state)), known_at: state.known_at } : null;
 }
 
 /** D-SR.76: the address names a `from`/`to` that is not whole UTC days, so the day table says it shows whole days. */
 export function isPartialDayAddress(params: URLSearchParams): boolean {
-  const from = params.get("from");
-  const to = params.get("to");
+  const from = windowBound(params, "from");
+  const to = windowBound(params, "to");
   if (from === null || to === null) return false;
   const day = 86_400_000;
   return Date.parse(from) % day !== 0 || Date.parse(to) % day !== 0;
@@ -563,8 +563,8 @@ export const DEFAULT_SERVICE_HOUR = 12;
  * `known_at` is carried unchanged.
  */
 export function serviceWindowFromParams(params: URLSearchParams, timeZone: string, now: Date = new Date()): MiniWindowQuery {
-  const from = params.get("from");
-  const to = params.get("to");
+  const from = windowBound(params, "from");
+  const to = windowBound(params, "to");
   const known_at = params.get("known_at");
   if (from !== null && to !== null) {
     if (isOneLocalHour(timeZone, from, to)) return { from, to, known_at };

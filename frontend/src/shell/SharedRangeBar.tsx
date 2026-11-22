@@ -26,6 +26,9 @@ import { WINDOW_NOT_VALID } from "../estate/estateClient";
 import { formatDay, formatDayRange, formatDayTime } from "../ui/time";
 import {
   RANGE_MAX_DAYS,
+  READ_WINDOW_DAYS,
+  WHOLE_RANGE_PAGES,
+  capWindow,
   RANGE_PRESETS,
   isWorkPage,
   entryRange,
@@ -46,7 +49,7 @@ import {
   isSiteContentPage,
   weekEnding,
 } from "./sharedRange";
-import { useRangeFocus, type RangeNotUsedNote } from "../ui/rangeFocus";
+import { FOCUS_INSIDE, focusSpanLabel, useRangeFocus, type RangeFocus, type RangeNotUsedNote } from "../ui/rangeFocus";
 import "./sharedRangeBar.css";
 
 export const RANGE_ERROR = `Choose a first day on or before the last day, ${RANGE_MAX_DAYS} days at most.`;
@@ -60,7 +63,7 @@ const NOT_THIS_PAGE_SPOKEN = "This page shows its own dates, not this range";
  * range" / "Showing 5–9 Nov of the range"; outside the range "Showing 24 Oct · range not used". On a point-in-time
  * page: "Range not used · shows now" (or "· current settings", "· prices valid now", "· this record's own period").
  */
-export const FOCUS_INSIDE = "of the range";
+export { FOCUS_INSIDE };
 export const FOCUS_OUTSIDE = "range not used";
 export const RANGE_NOT_USED = "Range not used";
 /** The spoken form of each "now" note ("This page shows <it>"); the tag keeps the short note. */
@@ -76,14 +79,6 @@ const NOW_TAG: Record<RangeNotUsedNote, string> = {
   "current settings": "current settings",
   "prices valid now": "prices valid now",
   "own period": "this record's own period",
-};
-const focusDayLabel = (day: string): string => formatDay(`${day}T00:00:00Z`, { year: false });
-/** `9 Nov` or `5–9 Nov` (`30 Oct – 2 Nov` across months). */
-const focusSpanLabel = (from: string, to: string): string => {
-  if (from === to) return focusDayLabel(from);
-  const last = focusDayLabel(to);
-  const first = focusDayLabel(from);
-  return from.slice(0, 7) === to.slice(0, 7) ? `${first.split(" ")[0]}–${last}` : `${first} – ${last}`;
 };
 const focusSpanSpoken = (from: string, to: string): string =>
   from === to ? formatDay(`${from}T00:00:00Z`) : `${formatDay(`${from}T00:00:00Z`)} to ${formatDay(`${to}T00:00:00Z`)}`;
@@ -167,7 +162,18 @@ export function SharedRangeBar() {
 
   // SR-2: a page showing one day inside the range (FocusPicker) is never "All pages": the tag names its day, and says
   // the range is not used when the day lies outside it.
-  const focus = useRangeFocus();
+  const declared = useRangeFocus();
+  // IA-P P0 (D-IAP.24): a range over 31 days on a page that is not a whole-range page and declared nothing is read as
+  // its last 31 days; the bar says so as a declared span inside the range ("Showing {span} of the range").
+  const windowSpan: RangeFocus | null =
+    declared === null &&
+    set !== null &&
+    rangeDays(set) > READ_WINDOW_DAYS &&
+    !WHOLE_RANGE_PAGES.test(location.pathname) &&
+    readsSharedRange(location.pathname, params)
+      ? { kind: "span", ...capWindow({ from: set.from, to: set.to }) }
+      : null;
+  const focus = declared ?? windowSpan;
   const span = focus?.kind === "span" ? focus : null;
   const now = focus?.kind === "now" ? focus : null;
   const focusInside = span !== null && set !== null && dayInRange(span.from, set) && dayInRange(span.to, set);
