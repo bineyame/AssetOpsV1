@@ -16,7 +16,7 @@ run was real. Database setup itself is in [README-db.md](README-db.md).
   root, the runner or a dependency manifest. Cite its output and the run's JUnit
   zero-skip check in the review packet. It covers `backend/tests` only. A
   change under `field/`, `host/` or `gateway/` also needs that package's own
-  tests (for example `tools/heavy-slot.sh -- pwsh -NoProfile -File tools/run-host-tests.ps1 -- host/tests/<file>`).
+  tests (for example `tools/heavy-slot.sh --db-lane -- pwsh -NoProfile -File tools/run-host-tests.ps1 -- host/tests/<file>`).
 - **Neutral packages (T2):** `simulator/tests` and `contracts/tests` run whole in
   check-all, against this tree's packages (in-process and in child processes).
   `python tools/select-tests.py` prints `neutral:` when a change can affect them.
@@ -60,13 +60,29 @@ and the heavy database jobs. Each refuses to start outside a held slot (exit 69,
 shim in `node_modules/.bin`, `vite.config.ts`, both conftests, the runners, each capture script and each
 database entry point. Not pooled: check-all (it takes its own slot), servers, pytest without a database URL.
 
-- bash: `tools/heavy-slot.sh [--db] [--wait-seconds <n>] [--label <t>] -- <command>` (from `frontend/`:
-  `../tools/heavy-slot.sh -- npx vitest run <file>`). pwsh: `pwsh -NoProfile -File tools/heavy-slot.ps1 [-Db]
+- bash: `tools/heavy-slot.sh [--db | --db-lane] [--wait-seconds <n>] [--label <t>] -- <command>` (from `frontend/`:
+  `../tools/heavy-slot.sh -- npx vitest run <file>`). pwsh: `pwsh -NoProfile -File tools/heavy-slot.ps1 [-Db | -DbLane]
   [-SlotWaitSeconds <n>] -- <command>`; give a wrapped command `--name=value` forms.
-- `--db` (pwsh `-Db`) also takes `db-job.lock`, one heavy database job at a time: every `demo_combined.py`
-  `prepare`, `add-day`, `add-dates` or `tick`, and every run whose tier includes slow (it runs a prepare), so a
-  full or slow-tier suite run is `--db`. Put `--db` on the outermost wrapper; a nested one is refused.
-- `tools/heavy-slot.sh --status` names each slot's holder. A wait ends after 1200 s with exit 75.
+- Two database lanes (T1b), each a lock bound to one base database in `assetopsv1-postgres-1`:
+
+  | Lane | Lock | Base database |
+  | --- | --- | --- |
+  | a | `db-job.lock` | `assetops_test` |
+  | b | `db-job-b.lock` | `assetops_b_test` |
+
+- `--db-lane` (pwsh `-DbLane`) takes the first free lane (a, then b), then a slot: every Postgres test run that is
+  not a database job, such as focused host files through `run-host-tests.ps1` or plain pytest
+  with a URL. Two lane runs proceed side by side; a third waits. A lane run uses at most `-n 2`.
+- `--db` (pwsh `-Db`) takes both lanes (a, then b), one heavy database job at a time: every `demo_combined.py`
+  `prepare`, `add-day`, `add-dates` or `tick`, every run whose tier includes slow (it runs a prepare), so a
+  full or slow-tier suite run is `--db`, and the container runner with `-Server shared`. A `--db` holder counts as
+  lane a. `--db` with `--db-lane` exits 64. Put either on the outermost wrapper; a nested one of the wrong kind is
+  refused (69); `--db-lane` inside a `--db` holder takes nothing.
+- The URL follows the lane. `run-host-tests.ps1` picks `assetops_b_test` in lane b, else `assetops_test`. Plain
+  pytest sets it inside the wrapper: `tools/heavy-slot.sh --db-lane -- bash -c 'ASSETOPS_TEST_DATABASE_URL=postgresql+psycopg://assetops:<pw>@127.0.0.1:55432/$( [ "${ASSETOPS_HEAVY_DB_LANE##*/}" = db-job-b.lock ] && echo assetops_b_test || echo assetops_test ) .venv/bin/python -m pytest <files>'`.
+  Both conftests refuse (69, at configure time) a base that is unclear, not `*_test`, not on this machine, or the
+  other lane's base. A private `assetops_<task>_test` base stays allowed (two lanes on one private base collide).
+- `tools/heavy-slot.sh --status` names each slot's and each lane's holder. A wait ends after 1200 s with exit 75.
 - Nesting is free: a pooled command that starts another pooled command (or check-all) takes nothing more.
 - Exit codes: the command's own, or 64 (usage), 69 (refused), 75 (no slot). A command that itself exits 64, 69
   or 75 is told apart only by the wrapper's `heavy-slot:` line on stderr.
@@ -173,22 +189,22 @@ server's `assetops_test` and refuses a directory or empty target (R2):
 $env:ASSETOPS_TEST_PYTHON = "C:\Users\assef\Bineyame\AssetOpsV1-plan2\.venv\Scripts\python.exe"  # or -Interpreter
 
 # S1 Foundation and bindings
-pwsh -NoProfile -File tools/heavy-slot.ps1 -- tools\run-host-tests.ps1 -- backend/tests/test_s1_foundation_postgres.py backend/tests/test_s1_bindings_postgres.py backend/tests/test_s1_cutover.py backend/tests/test_s1_bindings.py
+pwsh -NoProfile -File tools/heavy-slot.ps1 -DbLane -- tools\run-host-tests.ps1 -- backend/tests/test_s1_foundation_postgres.py backend/tests/test_s1_bindings_postgres.py backend/tests/test_s1_cutover.py backend/tests/test_s1_bindings.py
 
 # S2 ingestion and evidence
-pwsh -NoProfile -File tools/heavy-slot.ps1 -- tools\run-host-tests.ps1 -- backend/tests/test_s2_evidence_ledger_postgres.py backend/tests/test_s2_gateway_access_postgres.py backend/tests/test_s2_site_evidence_postgres.py backend/tests/test_s2_registered_basis_postgres.py
+pwsh -NoProfile -File tools/heavy-slot.ps1 -DbLane -- tools\run-host-tests.ps1 -- backend/tests/test_s2_evidence_ledger_postgres.py backend/tests/test_s2_gateway_access_postgres.py backend/tests/test_s2_site_evidence_postgres.py backend/tests/test_s2_registered_basis_postgres.py
 
 # S3 dispatch
-pwsh -NoProfile -File tools/heavy-slot.ps1 -- tools\run-host-tests.ps1 -- backend/tests/test_s3_dispatch_assessment_postgres.py backend/tests/test_s3_dispatch_read_postgres.py backend/tests/test_s3_demo_configuration.py
+pwsh -NoProfile -File tools/heavy-slot.ps1 -DbLane -- tools\run-host-tests.ps1 -- backend/tests/test_s3_dispatch_assessment_postgres.py backend/tests/test_s3_dispatch_read_postgres.py backend/tests/test_s3_demo_configuration.py
 
 # S3-02a capability and claim-limit read
-pwsh -NoProfile -File tools/heavy-slot.ps1 -- tools\run-host-tests.ps1 -- backend/tests/test_s3_capability_read_postgres.py backend/tests/test_s3_claim_limit_postgres.py
+pwsh -NoProfile -File tools/heavy-slot.ps1 -DbLane -- tools\run-host-tests.ps1 -- backend/tests/test_s3_capability_read_postgres.py backend/tests/test_s3_claim_limit_postgres.py
 
 # S4 Finding and money
-pwsh -NoProfile -File tools/heavy-slot.ps1 -- tools\run-host-tests.ps1 -- backend/tests/test_s4_finding_store_postgres.py backend/tests/test_s4_finding_read_postgres.py backend/tests/test_s4_finding_index_postgres.py backend/tests/test_s4_finding_evidence_history_postgres.py backend/tests/test_s4_assumptions_postgres.py backend/tests/test_s4_consequence_store_postgres.py backend/tests/test_s4_consequence_recompute_postgres.py backend/tests/test_s4_evidence_consequence_work_postgres.py backend/tests/test_s4_evidence_drain_postgres.py backend/tests/test_s4_power_demo_case_postgres.py backend/tests/test_s4_schedule_tick_postgres.py backend/tests/test_s4_schedule_health_postgres.py
+pwsh -NoProfile -File tools/heavy-slot.ps1 -DbLane -- tools\run-host-tests.ps1 -- backend/tests/test_s4_finding_store_postgres.py backend/tests/test_s4_finding_read_postgres.py backend/tests/test_s4_finding_index_postgres.py backend/tests/test_s4_finding_evidence_history_postgres.py backend/tests/test_s4_assumptions_postgres.py backend/tests/test_s4_consequence_store_postgres.py backend/tests/test_s4_consequence_recompute_postgres.py backend/tests/test_s4_evidence_consequence_work_postgres.py backend/tests/test_s4_evidence_drain_postgres.py backend/tests/test_s4_power_demo_case_postgres.py backend/tests/test_s4_schedule_tick_postgres.py backend/tests/test_s4_schedule_health_postgres.py
 ```
 
-Pytest flags go after `--` (optional; it is dropped). From Git Bash use `tools/heavy-slot.sh -- powershell -NoProfile -File tools/run-host-tests.ps1 -- <file> -q` (the script has no common parameters, so `--`, `-q` and `-v` reach pytest); `ASSETOPS_HOST_DRY_RUN=1` prints the resolved targets and exits 3 without running anything; the interpreter is a named-only `-Interpreter` (default: the plan2 venv), so test files are never taken as the interpreter. Flag values such as `-k foo` are not test targets, and an absolute directory path is refused like a relative one. Focused files can also run in Docker, which avoids
+Pytest flags go after `--` (optional; it is dropped). From Git Bash use `tools/heavy-slot.sh --db-lane -- powershell -NoProfile -File tools/run-host-tests.ps1 -- <file> -q` (the script has no common parameters, so `--`, `-q` and `-v` reach pytest); `ASSETOPS_HOST_DRY_RUN=1` prints the resolved targets and exits 3 without running anything; the interpreter is a named-only `-Interpreter` (default: the plan2 venv), so test files are never taken as the interpreter. Flag values such as `-k foo` are not test targets, and an absolute directory path is refused like a relative one. Focused files can also run in Docker, which avoids
 the Windows port forward: `pwsh -NoProfile -File tools/heavy-slot.ps1 -- tools\run-backend-suite-in-container.ps1
 -Targets 'backend/tests/test_x_postgres.py backend/tests/test_y.py'`.
 
