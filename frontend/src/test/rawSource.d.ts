@@ -9,3 +9,14 @@ declare module "*.tsx?raw" {
   const source: string;
   export default source;
 }
+
+/** 5c: a JSON fixture or captured markup read as text (`?raw`): the backend's hand-written World A fixture. */
+declare module "*.json?raw" {
+  const source: string;
+  export default source;
+}
+
+declare module "*.html?raw" {
+  const source: string;
+  export default source;
+}

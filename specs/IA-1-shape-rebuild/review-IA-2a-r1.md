@@ -10,7 +10,7 @@ Reviewer: fresh Claude reviewer (did not author the work). Branch `task/IA-2a-pl
   spec §5.1's wording. Each needs an Architect ruling before the fix (new copy, or a layout rule §5.1.7 does not allow).
   Merge stays held for the owner's IA-2 walkthrough (`USER_REVIEW_REQUIRED: true`).
 - The build matches spec §5.1: four live routes from one shape, L1 identical on the tabs, placement as in §5.1.2, approval panel
-  gone (R757), History as in §5.1.4, `docTitle`, a single state source (`PSTATE()` only in `iaPlanHistory` for
+  gone (R771), History as in §5.1.4, `docTitle`, a single state source (`PSTATE()` only in `iaPlanHistory` for
   version/proposed/opened). `loop-ux.js`/`loop-portfolio.js` hunks are the four splits only.
 - Gates rerun: `parts_identity` 282/282 byte-identical; `plan_shape`, `plan_switch` (793/0), `count`, `shape`, G1, `copy` pass
   unforced (no "dormant"); all 14 plants I ran fail with the packet's first lines.
@@ -109,7 +109,7 @@ both sides at merge, as at `af7847ac2`.
 ### Builder's note 4 (walkthrough polish, no finding)
 
 These are confirmed as described, and none conflicts with §5.1. Review shows "Not yet" once as plain text and once as a chip
-(reviewed copy; R759). History rows run the actor into the label because the `<small>` has no separator. The Items L2 heading
+(reviewed copy; R773). History rows run the actor into the label because the `<small>` has no separator. The Items L2 heading
 repeats the H1.
 
 ## Checks run (by me, head `242303a11`, heavy slot, pw env)

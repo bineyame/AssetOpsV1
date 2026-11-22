@@ -60,6 +60,8 @@ interface CardContent {
   detail: string | null;
   note: string | null;
   days: string | null;
+  /** 1a (D-1A.3): the Optimize card's day and scope, server text; null on every other card. */
+  scope: string | null;
   basis: string;
   destination: string | null;
   tone: string;
@@ -93,13 +95,14 @@ function content(key: OutcomeCategoryKey, body: EstatePortfolioBody, summary: Es
   const note = key === "GROW_REVENUE" || key === "OPTIMIZE_COST" ? null : (body.summary.card_notes?.[key] ?? null);
   if (card === undefined) {
     // The summary has not loaded (or is older): the card says so, never a browser-built value.
-    return { value: "Not known yet", detail: null, note, days: null, basis: "", destination: CARD_DESTINATION[key], tone: "neutral", grow: null, values: null };
+    return { value: "Not known yet", detail: null, note, days: null, scope: null, basis: "", destination: CARD_DESTINATION[key], tone: "neutral", grow: null, values: null };
   }
   return {
     value: serverValue(card),
     detail: card.detail,
     note,
     days: card.days_line,
+    scope: card.scope_text ?? null,
     basis: card.basis_text,
     destination: CARD_DESTINATION[key],
     tone: card.tone,
@@ -277,6 +280,14 @@ export function CategoryCards({
               <div className="value-number oc-pffig" data-portfolio-card-value>
                 {c.value}
               </div>
+              {/* 1a (D-1A.3): v70 pfCard (index.html:494) keeps the days line under the figure; the Optimize card's day
+                  and scope stay on the face, because its figure misleads without them. MOCK DEVIATION MD-1A-1 (R770,
+                  format): SC-1's one day format, not v70's "6 Oct". */}
+              {c.scope ? (
+                <small className="ob-days oc-pfdays" data-portfolio-card-scope>
+                  {c.scope}
+                </small>
+              ) : null}
               {c.detail ? (
                 <p className="oc-pfsent" data-portfolio-card-detail>
                   {c.detail}

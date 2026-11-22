@@ -6,7 +6,7 @@ Spec: `spec-IA-2b.md` (rev 2; `spec.md` §0, §6 to §8 apply). Evidence: `/opt/
 Mid-build questions: **8** (`mid-build-questions.md` § IA-2b1), plus one recorded existing issue. `USER_REVIEW_REQUIRED: true` (UI).
 
 Commits: `7f785dab8`, `51dbb41bb` unit 1 (checks, dormant) · `c5480c05b` unit 2 (`qty_check` modes) · `8b0543c7e` unit 3 (component, not
-live) · `21de38a42` 4(a) defs, routes, Outcomes fold, crumbs, search, register R761-R765, walkthroughs §6 · `c80539d53` 4(b) the flip ·
+live) · `21de38a42` 4(a) defs, routes, Outcomes fold, crumbs, search, register R775-R779, walkthroughs §6 · `c80539d53` 4(b) the flip ·
 `3ec99d53f` `notarget` plant · `b4ea6c7c9` `ia_shots` S1-S9 and the 760 px wrap rule · `8b7bf29ee` the `ux_interaction_check` retarget (see Gates).
 
 ## Built
@@ -64,12 +64,12 @@ on 18 scenarios. Live cents fallbacks: **0** (expected 0).
 2. **The aliases pulled forward from unit 4 (Q5).** Spec §9 puts "the aliases" in 4(a). Unit 3 added the four, dormant, so `aliasq`
    could be proved under force. Correction (review round 1, L1): the palette did not "still list" "Act first (Portfolio)"; the alias made it live, a second entry beside "Decisions · Go to". Fixed: `iaPaletteFilter` drops list-alias entries (the alias stays an address).
 
-## Known deviations (register R761-R765)
-- `MOCK DEVIATION` D2: no "at stake" tile and no stake sort on three lists (R761).
-- `MOCK DEVIATION` D2: Search drawn from 11 items with the filters (R762).
-- `MOCK DEVIATION` D2: the Sites "Not shown" remainder beside "Show all" (R763).
-- `MOCK DEVIATION` D5, resolving in IA-2d: Finding and Action rows open their decision or the plan (R764).
-- `MOCK DEVIATION` D5, resolving in IA-2c: no Assets, Incidents and Maintenance lists (R765).
+## Known deviations (register R775-R779)
+- `MOCK DEVIATION` D2: no "at stake" tile and no stake sort on three lists (R775).
+- `MOCK DEVIATION` D2: Search drawn from 11 items with the filters (R776).
+- `MOCK DEVIATION` D2: the Sites "Not shown" remainder beside "Show all" (R777).
+- `MOCK DEVIATION` D5, resolving in IA-2d: Finding and Action rows open their decision or the plan (R778).
+- `MOCK DEVIATION` D5, resolving in IA-2c: no Assets, Incidents and Maintenance lists (R779).
 R749 to R751 close in IA-2b2.
 
 ## Residual risk and review focus

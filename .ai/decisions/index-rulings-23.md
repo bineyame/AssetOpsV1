@@ -1,23 +1,34 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-IA.61 to D-IA.81)
+# Decision index: Demo-sprint and later rulings (index only) (D-DDR.11 to D-DDR.16, D-WK.10 to D-WK.16, D-3C2.16, D-5C.26 to D-5C.29, D-0K4.31 to D-0K4.44)
 
-- `D-IA.61` IA-2b is the list shape only, split 2b1/2b2; 2b2 waits for the owner's IA-2a walkthrough · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.62` One list component; filters, sort, search, show-all in the address; focus keep · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.63` Four lists: stores, one-target rows, facets, count tiles; no at-stake sum (D2) · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.64` Outcomes fold, aliases with a query, crumbs, search index · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.65` 2b2: hub queues as the list, View all, no Decide button, plan link · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.66` IA-2b gates written first, dormant until landed, plants · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.67` IA lists: controls grow with the list (none <3, Sort ≤10, full >10); scale proven by fixture · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.68` Sites gap tile = operator's own gap (EQUAL overview-gap); hidden rows as a remainder part · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.69` No list sorts or sums non-commensurable figures; At stake sort dropped · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.70` Chips name every view state no control shows; every row has a live target · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.71` qty_check count mode, format mode, EQUAL table in IA-2b1 unit 2 · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.72` IA-2b shots matrix S1-S9 with per-class counts; listkeep, listwrap, emptytools · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.73` IA-2b plants compare independent paths; check carries literal word tables · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.74` IA-2b1 reads IA-2a at render; stop re-rule list adds list facets · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.75` List scroll/focus keep in a hashchange listener after the router, keyed to its hash · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.76` List cells text only; figure explainers stay on the Site hub · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.77` iaDecStateKey, iaActionStateKey, iaFindingSite classifiers · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.78` iaAliasTarget: one alias splitter · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.79` IA-2b dormancy: rail units renamed IA-2b1, OWN map rows · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.80` One cap per list, groups as display; amends D-IA.27 per-group cap · live · specs/IA-1-shape-rebuild/rulings-5.md
-- `D-IA.81` IA-2b size 5 to 6 units; split and stop hold · live · specs/IA-1-shape-rebuild/rulings-5.md
+- `D-DDR.11` (I1) rehearsal_check speaks codes and facts, never English; no statement or baseline entry · live · specs/DDR-rehearsal/rulings.md
+- `D-DDR.12` (R12) every rehearsal database is assetops_rehearsal_${REHEARSAL}_test; runbook, key folder, ON1 test swept · live · specs/DDR-rehearsal/rulings.md
+- `D-DDR.13` (R15) coordinator serves the rehearsal DB on 8992/5492, 13 Nov shape, WK env list, no key (owner-away row 65) · live · specs/DDR-rehearsal/rulings.md
+- `D-DDR.14` (R13, I2) DDR builds beside 3C2 unit 2, reviewed on a base holding it; G10 not left open; amends D-DDR.5 · live · specs/DDR-rehearsal/rulings.md
+- `D-DDR.15` (A1) runbook admits the layout before writing and loading exports; ON1 runbook test table grows · live · specs/DDR-rehearsal/rulings.md
+- `D-DDR.16` §5.2 step 3 gains the two fresh cursor keys (D-WK.15; owner-away row 76) · live · specs/DDR-rehearsal/rulings.md
+- `D-WK.10` (R2) a C4 FAIL on the new L2 after 0K4a/b/e is a stop, never absorbed; dispatch-3.3 text not judged · live · specs/WK-walkthrough-database/rulings.md
+- `D-WK.11` (I2) walk database reached only through guarded walk_url; check_name untouched · live · specs/WK-walkthrough-database/rulings.md
+- `D-WK.12` (R4, DDR R16) two figures only for plan/actual, Kisiwa budget notice, statement/records while unmatched (row 66) · live · specs/WK-walkthrough-database/rulings.md
+- `D-WK.13` (R3) smoke S4: the census judge re-run after the serve · live; amended by D-WK.16 · specs/WK-walkthrough-database/rulings.md
+- `D-WK.14` day 14: 3C2 unit 2, world build+check, WK, then DDR; sizes 0.25, 1.4, 1.5 (owner-away row 67) · live · specs/WK-walkthrough-database/rulings.md
+- `D-WK.15` walk serve api_env gains two fresh cursor keys per serve, never inherited or recorded; amends D-WK.5 (row 76) · live · specs/WK-walkthrough-database/rulings.md
+- `D-WK.16` after the serve chain_response may only grow (SERVE_GROWTH_TABLES); all else exact; W3 exact; amends D-WK.13, T5 (row 76) · live · specs/WK-walkthrough-database/rulings.md
+- `D-3C2.16` unit 2 built now, first on day 14, exact composition lines; merges before WK's world build · live · specs/3C2-agreed-change-action/rulings.md
+- `D-5C.26` (item 6, L3) figure slot with no figure: "Not available yet" once as value, word null, page mutes on null word; revises L9; XXX retired (owner-away row 68) · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.27` (item 7, MD11) step bars on the gap's scale as served track percentages (bridge_bars); D-5C.2 unchanged; MD11 closed (owner-away row 69) · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.28` (M1) no share when R's effect is None or 0; no "Offsets it" without a gap · live · specs/5c-deep-dive-screen/rulings.md
+- `D-5C.29` (DDR cash) cash sentence "Of {billed} billed for {month}, {collected} …, {in_transit} … and {outstanding} …"; "expected" (revenue target) dropped; all cash figures from the cash tree; parts together only when they reconcile (owner-away row 70) · live · specs/5c-deep-dive-screen/rulings.md
+- `D-0K4.31` 0K4m: pack numbers of four kinds; replay inputs via committed `replay-studies.json`; `unavailable()` gap form; no `design_value` · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.32` money on SIMULATED v8 litres is the pack evaluator's figure; amends D-0K4.29 Value cells (owner-away row 71) · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.33` admission bound replaces the dawn bound in the pack; dawn as option information · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.34` Mto litres = litres per customer kWh x declared kWh; amends D-0K4.28 I6 for the pack (owner-away row 72) · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.35` world view not edited; Kobo candidate split Not available yet via factor_sources; generator_l (owner-away row 73) · live in part; split override and generator_l moved to 0K4f by D-0K4.45 · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.36` Embakasi departures from the energy check, per-bus timing NAY; KIS-BATT60 NAY (owner-away row 74) · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.37` 0K4m 2.75 u in three units; unit 3 merge held for owner; 0K4 total 13.25 u; amends D-0K4.1 · live; hold extended to the branch by D-0K4.43 · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.38` world-month rule: study figures only as rates on an option's own quantity; Kobo settings NAY until 0K4f (owner-away row 75) · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.39` 0K4m handshake answers; 3.5 u (1.75/0.75/1.0), unit 1 first; 0K4 total 14.0 u; amends D-0K4.37 · live; order amended by D-0K4.43 · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.40` boundary proof (c): a comment line in no root entry's span is `<root>` and allowed; rev line stays; P20, P21 · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.41` N5: candidacy is availability plus hard bounds, never money_changes; computed-zero options count 0 value; tie order (owner-away row 77) · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.42` N6: output params half-even 6 places; money incl. sensitivities cents once from unrounded; defects 5, 6 no spec change; P22 · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.43` green judged at the branch head; commit 2 fails only on documents units 2-3 restate; go-to-market in unit 2; H9 in commit 6; one merge held for owner; amends D-0K4.37, D-0K4.39 (row 77) · live; order amended by D-0K4.49 · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.44` MODEL_PENDING slice is 0K4f in queued_slices (0K4e row dropped); record words end (0K4f); amends D-0K4.35 words · live as the rule; 0K4m's entries removed by D-0K4.45 · specs/0K4-dispatch-model-review/rulings-2.md

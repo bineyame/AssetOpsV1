@@ -135,6 +135,8 @@ import {
   type EstateEvidenceMoneyClient,
   type EstateFinancialsClient,
 } from "./estate/estateEvidenceMoneyClient";
+import { DeepDiveMonthFrame } from "./estate/DeepDiveMonth";
+import { createDeepDiveMonthClient, type DeepDiveMonthClient } from "./estate/deepDiveMonthClient";
 import {
   EstateActionsFrame,
   EstateEvidenceFrame,
@@ -183,6 +185,7 @@ const defaultMiniDecisions = createMiniDecisionsClient();
 const defaultColdScenarioList: ColdScenariosClient = new HttpColdScenariosClient();
 const defaultColdSite = createColdSiteClient();
 const defaultEstateIndex = createEstateClient();
+const defaultDeepDive = createDeepDiveMonthClient();
 const defaultEstateEvidenceMoney = createEstateEvidenceMoneyClient();
 const defaultEstateFinancials = createEstateFinancialsClient();
 const defaultGlobalWork = createGlobalWorkClient();
@@ -289,6 +292,8 @@ export interface AppProps {
   evScenarios?: EvScenarioChoiceClient;
   /** W3-01: the read-only estate Finding and Action roots (`/api/estate/*`). */
   estateIndex?: EstateClient;
+  /** 5c: "The month" (`GET /api/portfolio/month`). */
+  deepDive?: DeepDiveMonthClient;
   /** W3-02: the read-only estate Evidence root. */
   estateEvidenceMoney?: EstateEvidenceMoneyClient;
   /** W3-02 commit 4: the read-only estate Financials root. */
@@ -329,6 +334,7 @@ export function App({
   coldScenarios,
   evScenarios,
   estateIndex = defaultEstateIndex,
+  deepDive = defaultDeepDive,
   estateEvidenceMoney = defaultEstateEvidenceMoney,
   estateFinancials = defaultEstateFinancials,
   globalWork = defaultGlobalWork,
@@ -536,6 +542,8 @@ export function App({
           {/* W3-02 commit 4: the estate Financials root (`ESTATE_FINANCIALS_PATH`; a shell test pins the equality). */}
           <Route path={FINANCIALS_PATH} element={<EstateFinancialsFrame client={estateFinancials} />} />
           {/* W3-03 run 2: the estate Portfolio root (`PORTFOLIO_PATH`; a shell test pins the equality). */}
+          {/* 5c (spec §5.1): "The month", before the Portfolio's `:tab?` route. */}
+          <Route path="/portfolio/month" element={<DeepDiveMonthFrame client={deepDive} />} />
           {/* PF-T: one mounted route for every Portfolio section tab, so a tab switch keeps the page and its reads. */}
           <Route path={`${PORTFOLIO_ROOT_PATH}/:tab?`} element={<EstatePortfolioFrame client={estateIndex} />} />
           {/* W6-01a: the global Incidents root (`INCIDENTS_PATH`). */}

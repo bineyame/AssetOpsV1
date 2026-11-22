@@ -62,6 +62,7 @@ from assetops_simulator.kernel.model import (
     StepContext,
     TransitionRequest,
 )
+from assetops_simulator.packs import generator_curve
 from assetops_simulator.packs import minigrid as daytime
 from assetops_simulator.packs.fuel import (
     FUEL_TANK_CAPACITY,
@@ -975,7 +976,11 @@ def resolve_v2(context: StepContext, intent: ControlIntent) -> AcceptedFlowSet:
     power read at an instant. v1 is untouched: its runs keep their interval
     measurements and digests.
     """
-    accepted = resolve(context, intent)
+    return _add_v2_measures(context, resolve(context, intent))
+
+
+def _add_v2_measures(context: StepContext, accepted: AcceptedFlowSet) -> AcceptedFlowSet:
+    """v2's additions to an accepted flow set (0K4a §2.1: `resolve_v2`'s body, unchanged)."""
     plant, gen = _both(context)
     value, origin, provenance = _stop_threshold_at(context, gen)
     generator_energy = next(
@@ -1046,7 +1051,11 @@ def resolve_v3(context: StepContext, intent: ControlIntent) -> AcceptedFlowSet:
     requests. v1 and v2 are untouched; their interval measurements and digests
     are what they were (`D-2026-09-22-contract-version-scope`).
     """
-    accepted = resolve_v2(context, intent)
+    return _add_v3_measures(context, resolve_v2(context, intent))
+
+
+def _add_v3_measures(context: StepContext, accepted: AcceptedFlowSet) -> AcceptedFlowSet:
+    """v3's additions to an accepted flow set (0K4a §2.1: `resolve_v3`'s body, unchanged)."""
     plant, _ = _both(context)
     energy = {flow.flow_id: flow.energy for flow in accepted.flows}
     available = energy["pv_potential"] - energy["inverter_clipping"]
@@ -1105,7 +1114,11 @@ def resolve_v4(context: StepContext, intent: ControlIntent) -> AcceptedFlowSet:
     requests. v1-v3 are untouched; their interval measurements and digests are
     what they were.
     """
-    accepted = resolve_v3(context, intent)
+    return _add_v4_measures(context, resolve_v3(context, intent))
+
+
+def _add_v4_measures(context: StepContext, accepted: AcceptedFlowSet) -> AcceptedFlowSet:
+    """v4's additions to an accepted flow set (0K4a §2.1: `resolve_v4`'s body, unchanged)."""
     plant, _ = _both(context)
     energy = {flow.flow_id: flow.energy for flow in accepted.flows}
     return replace(
@@ -1225,7 +1238,12 @@ def resolve_v6(context: StepContext, intent: ControlIntent) -> AcceptedFlowSet:
     and a v5 run of one document accept the same flows, decide the same
     requests and measure every v5 state identically. v1-v5 are untouched.
     """
-    accepted = resolve_v4(context, intent)
+    return _add_v6_measures(context, intent, resolve_v4(context, intent))
+
+
+def _add_v6_measures(context: StepContext, intent: ControlIntent, accepted: AcceptedFlowSet) -> AcceptedFlowSet:
+    """v6's additions to an accepted flow set (0K4a §2.1: `resolve_v6`'s body, unchanged; `intent` for the charge
+    request)."""
     plant, _ = _both(context)
     hours = Fraction(context.to_offset - context.from_offset, 60)
     charge = max(-intent.requests[0].requested, Fraction(0))
@@ -1295,4 +1313,563 @@ MINI_GRID_V7_MODEL = replace(
         for handler in MINI_GRID_V6_MODEL.handlers
     )
     + (FUEL_TANK_SAMPLE_HANDLER,),
+)
+
+
+# --- `mini-grid` v8 (0K4a): the generator takes the load ---------------------
+#
+# D-0K4.3 (cycle charging and generator support) and D-0K4.4 (minimum load).
+# The pure split below is the whole allocation rule for one segment of a
+# RUNNING generator; v8's resolver calls it, and v1-v7 never do.
+
+
+@dataclass(frozen=True)
+class CycleSplit:
+    """One segment's allocation while the generator runs, all in kW."""
+
+    pv_to_load: Fraction
+    pv_to_battery: Fraction
+    curtailed_pv: Fraction
+    generator_to_load: Fraction
+    generator_to_battery: Fraction
+    battery_to_load: Fraction
+    unserved: Fraction
+    #: `D + C < M and D + C < R`: the generator sits below its minimum load
+    #: only because nothing more can be absorbed (never for a fuel cap).
+    below_minimum: bool
+
+
+def _non_negative_kw(name: str, value: object) -> Fraction:
+    if not isinstance(value, Fraction):
+        raise TypeError(f"cycle_charge_split: {name} must be an exact Fraction, not {type(value).__name__}")
+    if value < 0:
+        raise ValueError(f"cycle_charge_split: {name} {value} kW is negative")
+    return value
+
+
+def cycle_charge_split(
+    demand: Fraction,
+    pv_available: Fraction,
+    generator_kw: Fraction,
+    charge_kw: Fraction,
+    minimum_kw: Fraction,
+    discharge_kw: Fraction,
+) -> CycleSplit:
+    """D-0K4.3 for one segment of a RUNNING generator, all in kW.
+
+    `generator_kw` is the usable rating (fuel-capped), `charge_kw` the battery's
+    acceptance C, `discharge_kw` v7's discharge cap (0 at or below the reserve).
+    `minimum_kw > generator_kw` is legal: the generator's share is capped by its
+    usable rating (D-0K4.22).
+
+    1. Generator support: when demand exceeds PV plus the rating, PV and the
+       generator carry all they can and the battery covers the shortfall within
+       its cap; the rest is unserved.
+    2. Cycle charging: otherwise the generator carries the load PV does not and
+       charges the battery, held at the minimum load by charging first and then
+       by curtailing PV, and below it only when the load plus the acceptance is.
+    """
+    D = _non_negative_kw("demand", demand)
+    A = _non_negative_kw("pv_available", pv_available)
+    R = _non_negative_kw("generator_kw", generator_kw)
+    C = _non_negative_kw("charge_kw", charge_kw)
+    M = _non_negative_kw("minimum_kw", minimum_kw)
+    dis = _non_negative_kw("discharge_kw", discharge_kw)
+    zero = Fraction(0)
+    if D > A + R:
+        battery = min(D - A - R, dis)
+        return CycleSplit(A, zero, zero, R, zero, battery, D - A - R - battery, False)
+    g = min(R, max(M, D + C - A), D + C)
+    u = max(zero, min(A, D + C - g))
+    pv_load = min(u, D)
+    return CycleSplit(
+        pv_load,
+        u - pv_load,
+        A - u,
+        D - pv_load,
+        g - (D - pv_load),
+        zero,
+        zero,
+        D + C < M and D + C < R,
+    )
+
+
+CYCLE_CHARGING_REASON = " (v8 cycle charging: a running generator is ahead of the battery)"
+
+
+def decide_v8(view: ControllerView) -> ControlIntent:
+    """v5's controller, with a RUNNING generator ranked immediately before the battery (D-0K4.3, spec §2.3).
+
+    When the generator is RUNNING and the Site's order puts it after the battery, the view's
+    `source-priority-rank` entries are rewritten so the generator moves to immediately before the battery (every
+    other source keeps its place) and `decide_v5` decides on that view; otherwise `decide_v5` decides on the view
+    unchanged. The generator-run decision is therefore v5's exactly, and the battery request asks to discharge only
+    above what the sources now ahead of it offer, and otherwise to charge from everything beyond demand.
+    """
+    state_entry = _entry(view, "generator-state")
+    if state_entry.value != RUNNING:
+        return decide_v5(view)
+    battery_id = _entry(view, "state-of-charge").address.split("@", 1)[1]
+    generator_id = state_entry.address.split("@", 1)[1]
+    ranked = sorted(
+        (item for item in view.entries if item.name == "source-priority-rank"),
+        key=lambda item: item.value,
+    )
+    order = [item.address for item in ranked]
+    if order.index(generator_id) < order.index(battery_id):
+        return decide_v5(view)
+    order.remove(generator_id)
+    order.insert(order.index(battery_id), generator_id)
+    rank = {address: Fraction(position) for position, address in enumerate(order, start=1)}
+    entries = tuple(
+        replace(item, value=rank[item.address]) if item.name == "source-priority-rank" else item
+        for item in view.entries
+    )
+    intent = decide_v5(replace(view, entries=entries))
+    return replace(
+        intent,
+        requests=tuple(
+            replace(item, reason=item.reason + CYCLE_CHARGING_REASON)
+            if item.quantity == "battery-power"
+            else item
+            for item in intent.requests
+        ),
+    )
+
+
+# --- `mini-grid` v8 resolution (0K4a §2.4, commit 3) ---------------------------------------------------------------
+
+#: The fuel law's note for v8, replacing `LINEAR_FUEL_NOTE` (never beside it).
+CURVE_FUEL_NOTE = (
+    "fuel follows the generator's declared curve: the no-load rate over every starting or running minute plus the "
+    "slope to the full-load consumption over accepted energy"
+)
+#: v7's view-bound note (`resolve`), named once for v8's two mismatch cases (D-0K4.22 R6).
+DIFFERED_FROM_THE_VIEW = "the demand or the sources across the step differed from the view at T"
+
+
+def _checked_curve(generator: str, sfc: Fraction, no_load: Fraction, rated: Fraction) -> generator_curve.FuelCurve:
+    """`generator_curve.fuel_curve` for a rating already checked positive (0K4b review: the curve divides by it), its
+    refusals mapped to the run's failure at the no-load rate (spec §2.4)."""
+    if rated <= 0:
+        raise CouplingRefused(
+            "PHYSICAL_RESOLUTION_FAILURE",
+            f"{GENERATOR_RATED_POWER}@{generator}",
+            f"a generator rated at {rated} kW has no fuel curve",
+        )
+    try:
+        return generator_curve.fuel_curve(sfc, no_load, rated)
+    except generator_curve.CurveRefused as refused:
+        raise CouplingRefused(
+            "PHYSICAL_RESOLUTION_FAILURE",
+            f"{generator_curve.NO_LOAD_FUEL_RATE}@{generator}",
+            f"{refused.code}: {refused.detail}",
+        ) from refused
+
+
+def _fuel_cap_kw(curve: generator_curve.FuelCurve, fuel: Fraction, minutes: Fraction, tank: str) -> Fraction | None:
+    """`generator_curve.output_cap_kw` over a segment of positive length only (0K4b review: it divides by it)."""
+    if minutes <= 0:
+        raise CouplingRefused(
+            "PHYSICAL_RESOLUTION_FAILURE", tank, f"a segment of {minutes} min has no fuel cap"
+        )
+    return generator_curve.output_cap_kw(curve, fuel, minutes)
+
+
+def _cycle_plant(context: StepContext, gen: _Generator) -> tuple[generator_curve.FuelCurve, Fraction, Fraction]:
+    """§2.4 (1): the curve, the minimum load in kW and the taper start, from the frozen plant."""
+    no_load = daytime._one(context, generator_curve.NO_LOAD_FUEL_RATE, "generator")[1]
+    minimum_kw = gen.rated * daytime._one(context, generator_curve.MINIMUM_LOAD, "generator")[1] / HUNDRED
+    taper = daytime._one(context, generator_curve.TAPER_START, "battery")[1]
+    return _checked_curve(gen.generator, gen.sfc, no_load, gen.rated), minimum_kw, taper
+
+
+def prepare_v8(context: StepContext) -> None:
+    """v7's checks, then v8's plant reads, so an impossible curve is refused before the first boundary."""
+    prepare(context)
+    _, gen = _both(context)
+    _cycle_plant(context, gen)
+
+
+def _resolve_cycle(context: StepContext, intent: ControlIntent) -> AcceptedFlowSet:
+    """v7's `resolve` with exactly the eight changes of 0K4a spec §2.4 (marked `0K4a §2.4 (n)`); every other line
+    is v7's."""
+    plant, gen = _both(context)
+    curve, minimum_kw, taper = _cycle_plant(context, gen)  # 0K4a §2.4 (1)
+    battery_request = intent.requests[0]
+    run_request = _generator_request(intent)
+    requested = battery_request.requested
+    state = _state(context, gen)
+    eta = plant.efficiency
+    capacity = plant.capacity
+    stored = context.stock(plant.soc_address) * capacity / HUNDRED
+    stored_at_start = stored
+    fuel = context.stock(gen.fuel_address)
+    fuel_at_start = fuel
+
+    totals: dict[str, Fraction] = {}
+    per_load = {load: [Fraction(0), Fraction(0)] for load in plant.loads}
+    limited: list[str] = []
+    generator_limited: list[str] = []
+    effective: list[EffectiveControl] = []
+    segments = daytime._segments(context)
+
+    def add(flow_id: str, energy: Fraction) -> None:
+        totals[flow_id] = totals.get(flow_id, Fraction(0)) + energy
+
+    def note(into: list[str], reason: str) -> None:
+        if reason not in into:
+            into.append(reason)
+
+    if state.value == STARTING:
+        note(generator_limited, f"STARTING: no output during the {gen.start_delay} min start delay")
+    elif state.value == FAILED:
+        note(generator_limited, "FAILED: inert, no output (failure causes are T035's)")
+    elif state.value == STOPPED:
+        note(generator_limited, "STOPPED: no output")
+
+    for start, end in segments:
+        hours = Fraction(end - start, 60)
+        irradiance = daytime._required_level(context, daytime.IRRADIANCE_ADDRESS, start)
+        potential, available = daytime._pv_available(plant, irradiance)
+        reserve, origin, provenance = daytime._reserve_at(context, plant, start)
+        effective.append(
+            EffectiveControl(plant.reserve_address, start, end, reserve, "%", origin, provenance)
+        )
+        demands = {
+            load: daytime._required_level(context, plant.load_address(load), start)
+            for load in plant.loads
+        }
+        demand = sum(demands.values(), Fraction(0))
+
+        generator_cap = Fraction(0)
+        if state.value == RUNNING:  # 0K4a §2.4 (3)
+            by_fuel = _fuel_cap_kw(curve, fuel, Fraction(end - start), gen.fuel_address)
+            generator_cap = gen.rated if by_fuel is None else min(gen.rated, by_fuel)
+            if by_fuel is not None and by_fuel < gen.rated:
+                note(generator_limited, f"fuel in tank ({fuel} L at the segment start)")
+
+        discharge_cap = Fraction(0)
+        if requested > 0:
+            above_reserve = stored - reserve * capacity / HUNDRED
+            by_energy = max(above_reserve, Fraction(0)) * eta / hours
+            discharge_cap = min(requested, plant.discharge_limit, by_energy)
+            if discharge_cap == plant.discharge_limit and requested > plant.discharge_limit:
+                note(limited, f"pcs-discharge-limit {plant.discharge_limit} kW")
+            if by_energy < min(requested, plant.discharge_limit):
+                note(limited, f"energy above the reserve in effect ({reserve} %)")
+        charge_cap = Fraction(0)
+        if requested < 0:
+            by_energy = (capacity - stored) / (eta * hours)
+            acceptance = generator_curve.charge_acceptance_kw(  # 0K4a §2.4 (2)
+                stored * HUNDRED / capacity, plant.charge_limit, taper
+            )
+            charge_cap = min(-requested, acceptance, by_energy)
+            if acceptance < plant.charge_limit and charge_cap == acceptance:
+                note(limited, f"charge taper above {taper} %")
+            if charge_cap == plant.charge_limit and -requested > plant.charge_limit:
+                note(limited, f"pcs-charge-limit {plant.charge_limit} kW")
+            if by_energy < min(-requested, plant.charge_limit):
+                note(limited, "headroom below full")
+
+        def allocate(generator_cap: Fraction, rerun: bool = False):
+            """v7's allocation while STOPPED, STARTING or FAILED; the cycle-charge split while RUNNING."""
+            if state.value != RUNNING:
+                supply = {"pv": available, "battery": discharge_cap, "generator": generator_cap}
+                served_total = min(demand, sum(supply.values(), Fraction(0)))
+                remaining = served_total
+                to_load = {"pv": Fraction(0), "battery": Fraction(0), "generator": Fraction(0)}
+                for source in gen.order:
+                    take = min(supply[source], remaining)
+                    to_load[source] = take
+                    remaining -= take
+
+                # Charging: only while the battery is not discharging, from what the
+                # charging sources have beyond load, in the Site's source order.
+                to_battery = {"pv": Fraction(0), "generator": Fraction(0)}
+                if to_load["battery"] == 0:
+                    room = charge_cap
+                    for source in gen.order:
+                        if source == "battery":
+                            continue
+                        take = min(supply[source] - to_load[source], room)
+                        to_battery[source] = take
+                        room -= take
+                curtailed = available - to_load["pv"] - to_battery["pv"]
+                return to_load, to_battery, curtailed, served_total
+            # 0K4a §2.4 (4): RUNNING.
+            split = cycle_charge_split(
+                demand,
+                available,
+                generator_cap,
+                charge_cap if requested < 0 else Fraction(0),
+                minimum_kw,
+                discharge_cap if requested > 0 else Fraction(0),
+            )
+            if split.below_minimum:
+                note(generator_limited, "below minimum load: nothing more to absorb")
+            if not rerun and (requested > 0) != (demand > available + generator_cap):
+                note(limited, DIFFERED_FROM_THE_VIEW)
+            served_total = demand - split.unserved
+            return (
+                {"pv": split.pv_to_load, "battery": split.battery_to_load, "generator": split.generator_to_load},
+                {"pv": split.pv_to_battery, "generator": split.generator_to_battery},
+                split.curtailed_pv,
+                served_total,
+            )
+
+        to_load, to_battery, curtailed, served_total = allocate(generator_cap)
+        generator_energy = (to_load["generator"] + to_battery["generator"]) * hours
+        burned = generator_curve.fuel_litres(curve, state.value, Fraction(end - start), generator_energy)
+        if burned > fuel:  # 0K4a §2.4 (5)
+            burned = fuel
+            note(generator_limited, f"fuel in tank ({fuel} L) below the no-load burn")
+            if generator_energy != 0:
+                to_load, to_battery, curtailed, served_total = allocate(Fraction(0), rerun=True)
+
+        left = served_total
+        for load in plant.loads:
+            served = min(demands[load], left)
+            left -= served
+            per_load[load][0] += demands[load] * hours
+            per_load[load][1] += served * hours
+
+        generator_energy = (to_load["generator"] + to_battery["generator"]) * hours
+        fuel -= burned
+        charged_ac = (to_battery["pv"] + to_battery["generator"]) * hours
+        stored_in = charged_ac * eta
+        delivered = to_load["battery"] * hours
+        taken_out = delivered / eta
+        stored = stored + stored_in - taken_out
+
+        add("pv_potential", potential * hours)
+        add("inverter_clipping", (potential - available) * hours)
+        add("pv_to_load", to_load["pv"] * hours)
+        add("pv_to_battery", to_battery["pv"] * hours)
+        add("curtailed_pv", curtailed * hours)
+        add("generator_output", generator_energy)
+        add("generator_to_load", to_load["generator"] * hours)
+        add("generator_to_battery", to_battery["generator"] * hours)
+        add("fuel_energy", burned * generator_curve.DIESEL_ENERGY_KWH_PER_L)  # 0K4a §2.4 (6)
+        add("generator_conversion_loss", burned * generator_curve.DIESEL_ENERGY_KWH_PER_L - generator_energy)
+        add("battery_charge_stored", stored_in)
+        add("charge_loss", charged_ac - stored_in)
+        add("battery_discharge_taken", taken_out)
+        add("battery_to_load", delivered)
+        add("discharge_loss", taken_out - delivered)
+        add("load_demand", demand * hours)
+        add("unserved_load", (demand - served_total) * hours)
+
+    step_hours = Fraction(context.to_offset - context.from_offset, 60)
+    pv, inv, bat, pcs, g = plant.pv, plant.inverter, plant.battery, plant.pcs, gen.generator
+
+    def flow(flow_id: str, source: str, sink: str) -> AcceptedFlow:
+        energy = totals[flow_id]
+        return AcceptedFlow(flow_id, source, sink, energy, energy / step_hours)
+
+    flows = [
+        flow("pv_potential", pv, inv),
+        flow("inverter_clipping", inv, "clipped"),
+        flow("pv_to_load", inv, "loads"),
+        flow("pv_to_battery", inv, pcs),
+        flow("curtailed_pv", inv, "curtailed"),
+        flow("generator_output", g, "generator-output"),
+        flow("generator_to_load", g, "loads"),
+        flow("generator_to_battery", g, pcs),
+        flow("fuel_energy", gen.tank, g),
+        flow("generator_conversion_loss", g, "losses"),
+        flow("battery_charge_stored", pcs, bat),
+        flow("charge_loss", pcs, "losses"),
+        flow("battery_discharge_taken", bat, pcs),
+        flow("battery_to_load", pcs, "loads"),
+        flow("discharge_loss", pcs, "losses"),
+        flow("load_demand", "loads", "demand"),
+        flow("unserved_load", "demand", "unserved"),
+    ]
+    loads: list[LoadService] = []
+    for rank, load in enumerate(plant.loads, start=1):
+        demand_energy, served_energy = per_load[load]
+        unserved_energy = demand_energy - served_energy
+        flows.append(AcceptedFlow(f"demand:{load}", load, "demand", demand_energy, demand_energy / step_hours))
+        flows.append(AcceptedFlow(f"served:{load}", "loads", load, served_energy, served_energy / step_hours))
+        flows.append(AcceptedFlow(f"unserved:{load}", load, "unserved", unserved_energy, unserved_energy / step_hours))
+        loads.append(
+            LoadService(
+                address=plant.load_address(load),
+                priority_rank=rank,
+                demand_energy=demand_energy,
+                served_energy=served_energy,
+                unserved_energy=unserved_energy,
+                demand_power=demand_energy / step_hours,
+                served_power=served_energy / step_hours,
+                unserved_power=unserved_energy / step_hours,
+            )
+        )
+
+    served_ids = tuple(f"served:{load}" for load in plant.loads)
+    to_load_ids = ("pv_to_load", "battery_to_load", "generator_to_load")
+    balances = [
+        BalanceIdentity(
+            "pv-potential",
+            ("pv_potential",),
+            ("pv_to_load", "pv_to_battery", "curtailed_pv", "inverter_clipping"),
+        ),
+        BalanceIdentity(
+            "generator-output", ("generator_output",), ("generator_to_load", "generator_to_battery")
+        ),
+        BalanceIdentity(
+            "generator-fuel", ("fuel_energy",), ("generator_output", "generator_conversion_loss")
+        ),
+        BalanceIdentity(
+            "battery-charge",
+            ("pv_to_battery", "generator_to_battery"),
+            ("battery_charge_stored", "charge_loss"),
+        ),
+        BalanceIdentity(
+            "battery-discharge",
+            ("battery_discharge_taken",),
+            ("battery_to_load", "discharge_loss"),
+        ),
+        BalanceIdentity("load-service", ("load_demand",), to_load_ids + ("unserved_load",)),
+        BalanceIdentity("served-by-load", to_load_ids, served_ids),
+        BalanceIdentity(
+            "site-sources-and-sinks",
+            ("pv_potential", "battery_discharge_taken", "generator_output"),
+            served_ids
+            + (
+                "curtailed_pv",
+                "inverter_clipping",
+                "battery_charge_stored",
+                "charge_loss",
+                "discharge_loss",
+            ),
+        ),
+    ]
+    for load in plant.loads:
+        balances.append(
+            BalanceIdentity(
+                f"load:{load}", (f"demand:{load}",), (f"served:{load}", f"unserved:{load}")
+            )
+        )
+
+    battery_net_ac = (
+        totals["battery_to_load"] - totals["pv_to_battery"] - totals["generator_to_battery"]
+    )
+    accepted_power = battery_net_ac / step_hours
+    if accepted_power != requested and not limited:
+        limited.append(DIFFERED_FROM_THE_VIEW)
+    if state.value == RUNNING and totals["generator_output"] == 0:
+        note(generator_limited, "RUNNING with nothing to absorb its output")
+
+    return AcceptedFlowSet(
+        from_offset=context.from_offset,
+        to_offset=context.to_offset,
+        segments=segments,
+        flows=tuple(flows),
+        controls=(
+            AcceptedControl(
+                address=battery_request.address,
+                quantity=battery_request.quantity,
+                requested=requested,
+                accepted=accepted_power,
+                unit="kW",
+                limited_by=tuple(limited),
+            ),
+            AcceptedControl(
+                address=run_request.address,
+                quantity=run_request.quantity,
+                requested=run_request.requested,
+                accepted=state.value,
+                unit=DISCRETE_UNIT,
+                limited_by=tuple(generator_limited),
+            ),
+        ),
+        loads=tuple(loads),
+        effective_controls=tuple(effective),
+        balances=tuple(balances),
+        stock_accounts=(
+            StockAccount(
+                address=plant.soc_address,
+                delta=(stored - stored_at_start) * HUNDRED / capacity,
+                energy_per_unit=capacity / HUNDRED,
+                inflows=("battery_charge_stored",),
+                outflows=("battery_discharge_taken",),
+            ),
+            StockAccount(
+                address=gen.fuel_address,
+                delta=fuel - fuel_at_start,  # 0K4a §2.4 (7)
+                energy_per_unit=generator_curve.DIESEL_ENERGY_KWH_PER_L,
+                inflows=(),
+                outflows=("fuel_energy",),
+            ),
+        ),
+        interval_energies=tuple(
+            sorted(
+                [
+                    (f"{daytime.PV_AC_POWER}@{inv}", totals["pv_to_load"] + totals["pv_to_battery"]),
+                    (f"{daytime.BATTERY_AC_POWER}@{pcs}", battery_net_ac),
+                ]
+                + [
+                    (f"{daytime.LOAD_SERVED_POWER}@{load}", per_load[load][1])
+                    for load in plant.loads
+                ]
+            )
+        ),
+        notes=(CURVE_FUEL_NOTE,),  # 0K4a §2.4 (8)
+    )
+
+
+def resolve_v8(context: StepContext, intent: ControlIntent) -> AcceptedFlowSet:
+    """v8's resolution with every v2, v3, v4 and v6 measurement, in v7's composition order."""
+    return _add_v6_measures(
+        context,
+        intent,
+        _add_v4_measures(context, _add_v3_measures(context, _add_v2_measures(context, _resolve_cycle(context, intent)))),
+    )
+
+
+# --- `mini-grid` v8, the version (0K4a §2.5) -----------------------------------------------------------------------
+
+FUEL_TANK_STOCK_V8 = replace(
+    FUEL_TANK_STOCK_V7,
+    statement=(
+        "The fuel in the tank, initialized by the scenario, moved by the generator's fuel curve while it starts or runs "
+        "and by any frozen declared cause, such as a recorded operational action."
+    ),
+)
+
+V8_SENTENCE = (
+    " Version eight runs the generator as a cycle charger: while it runs it carries the load and charges "
+    "the battery, the battery helps only above what solar and the generator give, the generator is held at its "
+    "minimum load by charging and then by curtailing solar, fuel follows its declared curve, and charging tapers "
+    "near full."
+)
+
+MINI_GRID_V8_COUPLING = replace(MINI_GRID_V6_COUPLING, prepare=prepare_v8, decide=decide_v8, resolve=resolve_v8)
+
+
+def _v8_relation(relation: ComponentRelation) -> ComponentRelation:
+    if relation.relation_id == "generator":
+        return replace(
+            relation,
+            state_keys=relation.state_keys | {generator_curve.NO_LOAD_FUEL_RATE, generator_curve.MINIMUM_LOAD},
+        )
+    if daytime.CAPACITY in relation.state_keys:
+        return replace(relation, state_keys=relation.state_keys | {generator_curve.TAPER_START})
+    return relation
+
+
+#: v7 with the generator carrying the load and charging the battery while it runs (D-0K4.3, D-0K4.4), 0K4b's fuel
+#: curve and charge taper wired in (D-0K4.5, D-0K4.6). A new version so v1-v7 trajectories and digests are unchanged.
+MINI_GRID_V8_MODEL = replace(
+    MINI_GRID_V7_MODEL,
+    model_profile_version=8,
+    statement=MINI_GRID_V7_MODEL.statement + V8_SENTENCE,
+    handlers=tuple(
+        FUEL_TANK_STOCK_V8 if handler.handler_id == FUEL_TANK_STOCK_V8.handler_id else handler
+        for handler in MINI_GRID_V7_MODEL.handlers
+    )
+    + generator_curve.CURVE_HANDLERS,
+    component_relations=tuple(_v8_relation(relation) for relation in MINI_GRID_V7_MODEL.component_relations),
+    coupling=MINI_GRID_V8_COUPLING,
 )

@@ -6,7 +6,7 @@ The text below is the unit 3 handoff, kept for the def contract.
 
 
 Status: units 1 to 3 are built and committed (unit 3 at `8b0543c7e`). Nothing is live. With IA-2b1 not landed, every touched gate is green or dormant.
-Branch `task/IA-2b1-lists`, worktree `/opt/assetecon/AssetOpsV1-ia2b1`. Main 757aba13d is merged in at unit 3 (doc conflicts kept both sides: the IA rulings index moved to `index-rulings-23.md`, the owner-away IA-2b row renumbered 57).
+Branch `task/IA-2b1-lists`, worktree `/opt/assetecon/AssetOpsV1-ia2b1`. Main 757aba13d is merged in at unit 3 (doc conflicts kept both sides: the IA rulings index moved to `index-rulings-23.md` (now `index-rulings-26.md`), the owner-away IA-2b row renumbered 57).
 Mid-build questions: `mid-build-questions.md` § IA-2b1, Q1 to Q4, each built on its default (Q1 waits for the Architect at review).
 
 ## Done

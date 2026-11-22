@@ -72,6 +72,7 @@
    "days_line": null,
    "detail": "At Kobo · not added across sites",
    "missing": false,
+   "scope_text": "Cost of Kobo's lead issue on 31 October 2026, the last of the 7 days shown, not their total",
    "tone": "amber",
    "value": {
     "small": "possible extra fuel cost",

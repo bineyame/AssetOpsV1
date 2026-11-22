@@ -66,11 +66,14 @@ const LOADING =
  * Do not settle by awaiting a level-1 heading. The loading states render one
  * too, so it resolves against the placeholder and leaves the race in place.
  */
+/** 5c (spec §5.2): "The month" says it is preparing the month while its read is in flight. */
+const PREPARING = /Preparing the month…/;
+
 export async function settledScreen(
   scope: HTMLElement = document.body,
 ): Promise<void> {
   await waitFor(() => {
-    if (LOADING.test(scope.textContent ?? "")) {
+    if (LOADING.test(scope.textContent ?? "") || PREPARING.test(scope.textContent ?? "")) {
       throw new Error("the store read has not settled");
     }
   });

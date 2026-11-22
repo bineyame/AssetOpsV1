@@ -60,6 +60,8 @@ Last updated 2026-11-18.
 - Owner documents on `main`: `Docs/demo-sprint/convertion_potential.html`,
   `Docs/demo-sprint/decision-intelligence-mechanism-2026-11-14.html`.
 
+IA-P (real app onto the IA shape): spec rev 1, `specs/IA-P-product-shape/spec.md`; handshake next, then IA-P1 (P1-P3) and IA-P2 (P4-P7).
+
 Also active: `task/gtm-documents` (worktree `/opt/assetecon/AssetOpsV1-gtm`,
 based on the Layer 4 branch): two-week conversion plan, commercial plan and
 website content documents (`Docs/go-to-market/`).

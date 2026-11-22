@@ -1,0 +1,352 @@
+{
+ "schema_version": "estate-outcome-summary-1",
+ "policy_versions": {
+  "catalogue": "outcome-catalogue/2"
+ },
+ "window": {
+  "from": "2026-10-06T00:00:00Z",
+  "to": "2026-10-07T00:00:00Z"
+ },
+ "sites": [
+  {
+   "site_id": "11111111-0000-4000-8000-000000000001",
+   "site_code": "KOBO-001",
+   "site_name": "Kobo",
+   "domain": "MINIGRID",
+   "overview_href": "/sites/KOBO-001",
+   "read_state": "AVAILABLE",
+   "rows": [
+    {
+     "category": "GROW_REVENUE",
+     "state": "OPPORTUNITY",
+     "state_label": "Opportunity",
+     "tone": "green",
+     "lead_outcome": {
+      "key": "X-1",
+      "label": "Unused solar"
+     },
+     "headline": null,
+     "short_value": "18–20 kW unused"
+    },
+    {
+     "category": "OPTIMIZE_COST",
+     "state": "NEEDS_ATTENTION",
+     "state_label": "Needs attention",
+     "tone": "amber",
+     "lead_outcome": {
+      "key": "X-1",
+      "label": "Generator fuel"
+     },
+     "headline": null,
+     "short_value": null
+    },
+    {
+     "category": "PROTECT_ASSET",
+     "state": "NO_OBJECTIVE",
+     "state_label": "No objective declared",
+     "tone": "gray",
+     "lead_outcome": {
+      "key": "X-1",
+      "label": "Battery life"
+     },
+     "headline": null,
+     "short_value": null
+    },
+    {
+     "category": "ASSURE_PERFORMANCE",
+     "state": "WATCH",
+     "state_label": "Watch",
+     "tone": "blue",
+     "lead_outcome": {
+      "key": "X-1",
+      "label": "Evidence coverage"
+     },
+     "headline": null,
+     "short_value": null
+    }
+   ],
+   "window": {
+    "from": "2026-10-06T00:00:00Z",
+    "to": "2026-10-07T00:00:00Z",
+    "known_at": null
+   },
+   "window_basis": "DAY"
+  },
+  {
+   "site_id": "22222222-0000-4000-8000-000000000002",
+   "site_code": "COLD-001",
+   "site_name": "GreenHarvest",
+   "domain": "COLDCHAIN",
+   "overview_href": "/sites/COLD-001?from=2026-10-06T14%3A00%3A00Z&to=2026-10-06T15%3A00%3A00Z",
+   "read_state": "AVAILABLE",
+   "rows": [
+    {
+     "category": "GROW_REVENUE",
+     "state": "NOT_MEASURED",
+     "state_label": "Not measured yet",
+     "tone": "none",
+     "lead_outcome": {
+      "key": "X-1",
+      "label": "Product sales"
+     },
+     "headline": null,
+     "short_value": null
+    },
+    {
+     "category": "OPTIMIZE_COST",
+     "state": "NOT_MEASURED",
+     "state_label": "Not measured yet",
+     "tone": "none",
+     "lead_outcome": {
+      "key": "X-1",
+      "label": "Repair spend"
+     },
+     "headline": null,
+     "short_value": null
+    },
+    {
+     "category": "PROTECT_ASSET",
+     "state": "NEEDS_ATTENTION",
+     "state_label": "Needs attention",
+     "tone": "amber",
+     "lead_outcome": {
+      "key": "X-1",
+      "label": "Product kept cold"
+     },
+     "headline": null,
+     "short_value": null
+    },
+    {
+     "category": "ASSURE_PERFORMANCE",
+     "state": "ON_TRACK",
+     "state_label": "On track",
+     "tone": "green",
+     "lead_outcome": {
+      "key": "X-1",
+      "label": "Evidence coverage"
+     },
+     "headline": null,
+     "short_value": null
+    }
+   ],
+   "window": {
+    "from": "2026-10-06T14:00:00Z",
+    "to": "2026-10-06T15:00:00Z",
+    "known_at": "2026-10-07T00:00:00Z"
+   },
+   "window_basis": "LATEST_EVENT"
+  },
+  {
+   "site_id": "33333333-0000-4000-8000-000000000003",
+   "site_code": "EV-LAB-001",
+   "site_name": "Depot",
+   "domain": "EV_CHARGING",
+   "overview_href": "/sites/EV-LAB-001/ev",
+   "read_state": "AVAILABLE",
+   "rows": [
+    {
+     "category": "GROW_REVENUE",
+     "state": "WATCH",
+     "state_label": "Watch",
+     "tone": "blue",
+     "lead_outcome": {
+      "key": "X-1",
+      "label": "Charger use"
+     },
+     "headline": null,
+     "short_value": null
+    },
+    {
+     "category": "OPTIMIZE_COST",
+     "state": "NOT_MEASURED",
+     "state_label": "Not measured yet",
+     "tone": "none",
+     "lead_outcome": {
+      "key": "X-1",
+      "label": "Energy cost"
+     },
+     "headline": null,
+     "short_value": null
+    },
+    {
+     "category": "PROTECT_ASSET",
+     "state": "NEEDS_ATTENTION",
+     "state_label": "Needs attention",
+     "tone": "amber",
+     "lead_outcome": {
+      "key": "X-1",
+      "label": "Charging service"
+     },
+     "headline": null,
+     "short_value": null
+    },
+    {
+     "category": "ASSURE_PERFORMANCE",
+     "state": "WATCH",
+     "state_label": "Watch",
+     "tone": "blue",
+     "lead_outcome": {
+      "key": "X-1",
+      "label": "Evidence coverage"
+     },
+     "headline": null,
+     "short_value": null
+    }
+   ],
+   "window": {
+    "from": "2026-10-06T00:00:00Z",
+    "to": "2026-10-07T00:00:00Z",
+    "known_at": "2026-10-07T00:00:00Z"
+   },
+   "window_basis": "PERIOD"
+  },
+  {
+   "site_id": "44444444-0000-4000-8000-000000000004",
+   "site_code": "EV-LAB-002",
+   "site_name": "Harbour",
+   "domain": "EV_CHARGING",
+   "overview_href": "/sites/EV-LAB-002/ev",
+   "read_state": "UNAVAILABLE",
+   "rows": [
+    {
+     "category": "GROW_REVENUE",
+     "state": "UNKNOWN",
+     "state_label": "Unknown",
+     "tone": "gray",
+     "lead_outcome": null,
+     "headline": null,
+     "short_value": null
+    },
+    {
+     "category": "OPTIMIZE_COST",
+     "state": "UNKNOWN",
+     "state_label": "Unknown",
+     "tone": "gray",
+     "lead_outcome": null,
+     "headline": null,
+     "short_value": null
+    },
+    {
+     "category": "PROTECT_ASSET",
+     "state": "UNKNOWN",
+     "state_label": "Unknown",
+     "tone": "gray",
+     "lead_outcome": null,
+     "headline": null,
+     "short_value": null
+    },
+    {
+     "category": "ASSURE_PERFORMANCE",
+     "state": "UNKNOWN",
+     "state_label": "Unknown",
+     "tone": "gray",
+     "lead_outcome": null,
+     "headline": null,
+     "short_value": null
+    }
+   ],
+   "window": null,
+   "window_basis": null
+  }
+ ],
+ "categories": [
+  {
+   "category": "GROW_REVENUE",
+   "label": "Grow revenue",
+   "definition": "Capture more income from energy and assets",
+   "icon": "GROW_REVENUE",
+   "sites_needing_attention": 0,
+   "warning_count": 0
+  },
+  {
+   "category": "OPTIMIZE_COST",
+   "label": "Optimize cost",
+   "definition": "Spend less to deliver the same service",
+   "icon": "OPTIMIZE_COST",
+   "sites_needing_attention": 0,
+   "warning_count": 0
+  },
+  {
+   "category": "PROTECT_ASSET",
+   "label": "Protect assets",
+   "definition": "Keep equipment and service safe",
+   "icon": "PROTECT_ASSET",
+   "sites_needing_attention": 0,
+   "warning_count": 0
+  },
+  {
+   "category": "ASSURE_PERFORMANCE",
+   "label": "Assure performance",
+   "definition": "Show that changes worked",
+   "icon": "ASSURE_PERFORMANCE",
+   "sites_needing_attention": 0,
+   "warning_count": 0
+  }
+ ],
+ "warnings": [],
+ "cards": {
+  "GROW_REVENUE": {
+   "value": {
+    "text": "Not available yet",
+    "small": null
+   },
+   "missing": true,
+   "detail": "Site income not recorded",
+   "basis_text": "Opportunities · revenue not measured yet",
+   "days_line": null,
+   "tone": "neutral",
+   "claim": null
+  },
+  "OPTIMIZE_COST": {
+   "value": {
+    "text": "3.31 USD",
+    "small": "possible extra fuel cost"
+   },
+   "missing": false,
+   "detail": "At Kobo · not added across sites",
+   "basis_text": "Modelled from the stored record and the declared price · not a saving",
+   "days_line": null,
+   "tone": "amber",
+   "claim": {
+    "key": "money.possible_extra_fuel_cost",
+    "basis": "NOT_KNOWN",
+    "text": "3.31 USD",
+    "value": {
+     "amount": "3.31",
+     "currency": "USD"
+    }
+   },
+   "scope_text": "Cost of Kobo's lead issue on 30 October 2026, the last of the 30 days shown, not their total"
+  },
+  "PROTECT_ASSET": {
+   "value": {
+    "text": "2",
+    "small": "sites disrupted"
+   },
+   "missing": false,
+   "detail": "Service disruptions recorded as findings · loss not priced",
+   "basis_text": "Measured events, counted separately · loss not priced",
+   "days_line": null,
+   "tone": "red",
+   "claim": null
+  },
+  "ASSURE_PERFORMANCE": {
+   "value": {
+    "text": "Not known yet",
+    "small": null
+   },
+   "missing": false,
+   "detail": "Verified results not known yet · evidence gap at 1 site",
+   "basis_text": "Completed work does not establish savings",
+   "days_line": null,
+   "tone": "neutral",
+   "claim": null,
+   "value_lines": [],
+   "value_note": "No money credited · modelled, not saved"
+  }
+ },
+ "objective_site_count": 0,
+ "objective_sites_unread": 0,
+ "verified_result_count": 0,
+ "verified_sites_unread": 0
+}

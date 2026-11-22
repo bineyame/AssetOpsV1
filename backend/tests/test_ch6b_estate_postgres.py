@@ -219,7 +219,7 @@ def test_optimize_card_is_the_one_builder_over_the_summary_rows_and_equals_the_b
     own Site rows, `/api/estate/chain` carries the same `cards`, and the Kobo Optimize row's `nodes` equal the board's on S
     (one day on both). On the week only the cost claim is compared, because the KPI days differ by design
     (CH6b1-R Q1, V4); the cost claim also equals the S-day (D13) board's: a stored consequence has no days."""
-    from assetops_backend.site_outcomes.read import _optimize_card
+    from assetops_backend.site_outcomes.read import CostScope, _optimize_card
 
     engine, _ = mech
     url = engine.url.render_as_string(hide_password=False)
@@ -235,7 +235,8 @@ def test_optimize_card_is_the_one_builder_over_the_summary_rows_and_equals_the_b
         board = _read(c, "/api/sites/KOBO-001/outcome-board", {"from": sw["from"], "to": sw["to"]})
         day = _read(c, "/api/sites/KOBO-001/outcome-board", {"date": d13.isoformat()})
     card = summary["cards"]["OPTIMIZE_COST"]
-    assert card == _optimize_card(summary["sites"]), card
+    # 1a (D-1A.1): the summary passes each Site's claim day (D13, the week's last day) and window days (7).
+    assert card == _optimize_card(summary["sites"], scope=CostScope({"KOBO-001": d13}, {"KOBO-001": 7})), card
     assert list(summary["cards"]) == ["GROW_REVENUE", "OPTIMIZE_COST", "PROTECT_ASSET", "ASSURE_PERFORMANCE"]
     assert chain["cards"] == summary["cards"]
     row = next(r for r in kobo["rows"] if r["category"] == "OPTIMIZE_COST")

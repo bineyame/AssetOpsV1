@@ -4,7 +4,7 @@ Reviewer: fresh Claude reviewer (did not author the work). Branch `task/IA-2b1-l
 `/opt/assetecon/AssetOpsV1-ia2b1`. IA-2a is not on `main`, so `main...HEAD` carries IA-2a too; the IA-2b1 code was read as
 `task/IA-2a-plan` (`f9430112e`, an ancestor of the head) `..HEAD` on `vNEXT/` (18 files), and the docs as `main...HEAD`.
 Read against `spec-IA-2b.md` §1 to §5 and §7 to §10, `packet-IA-2b1.md`, `mid-build-questions.md` Q1 to Q8,
-`owner/owner-ia2b-defaults-2026-11-21.md`, `owner/owner-ui-ux-guidance-2026-10-25.md` and register rows R761 to R765.
+`owner/owner-ia2b-defaults-2026-11-21.md`, `owner/owner-ui-ux-guidance-2026-10-25.md` and register rows R775 to R779.
 
 ## Summary (round 1)
 
@@ -147,9 +147,9 @@ Read against `spec-IA-2b.md` §1 to §5 and §7 to §10, `packet-IA-2b1.md`, `mi
 
 ## Residual risk
 
-- The Findings and Actions rows open a decision or the plan (R764, D5) until IA-2d. Several rows lead to one page (Lakeside
+- The Findings and Actions rows open a decision or the plan (R778, D5) until IA-2d. Several rows lead to one page (Lakeside
   Findings: kobo-generator ×2). Say this at the walkthrough.
 - A palette query with 12 or more hits cuts at 12 (the reviewed `uxPaletteFill`). The new Finding and Action entries are appended
   last, so an empty query never shows them. Typing finds them.
-- Register row R761's last column ("raised in") is empty where R762 to R765 say IA-2b1 (`.agent/mock-departure-register.md:725`).
+- Register row R775's last column ("raised in") is empty where R776 to R779 say IA-2b1 (`.agent/mock-departure-register.md:725`).
   This is a nit.

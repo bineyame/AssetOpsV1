@@ -602,3 +602,44 @@ Branch `task/0K4c-declared-season` (base main `ec8e64d3f`); spec `specs/0K4c-dec
 - Settled: season v2 beside an unchanged v1 in `host/tests/kobo_season.py` (`OVERCAST_V2` 21 days in spells of 1-4, `load_multiplier_v2` 17/20-23/20 on res and clinic, `mill_on_v2` off on Sundays, `season_site_v2` with 0K4b's assumed rows); `season_inputs(..., overcast=None, season=)`; the canonical `inputs_digest` and `windows_digest`; v1 pinned (59d6456b, f2f0088e) and v2 pinned (465ab6e0). Declared and SIMULATED, never a Kobo record.
 - Open: 0K4a was not on main, so S7's frozen half and the S8 v8 smoke are 0K4d's V0; 0K4d's `study.json` records the v2 digest.
 
+## 0K4e - dispatch-3.3: a battery-support Candidate needs the energy to reach solar cover (in review, 21 Nov)
+
+Branch `task/0K4e-candidate-energy` (base main `b96d5e978`); spec `specs/0K4e-candidate-energy/spec.md` rev 2, rulings D-0K4.10, D-0K4.11, D-0K4.19, D-0K4.23-25; packet `packet.md`. No migration (a model version is data).
+
+- Settled: `dispatch_v3.MODEL_VERSION = "dispatch-3.3"`; row 5b keeps a Candidate only when (SOC - reserve) x capacity x PCS efficiency covers, with 10 % headroom, the load PV does not cover until PV alone covers it (memoised 5-minute walk on `_Index.energy_to_cover(t)`, means held over their own interval only, read range = window +/- 6 h); else Indeterminate `SHORT`/`GAP`/`NOT_REACHED`/`NOT_CONFIGURED`, stored as the segment's `energy_cover` codes and figures (never `reasons`/`missing` text). Foundation `battery-energy-capacity` and `pcs-conversion-efficiency` are controls (`_configuration`). `plain._segment` and `finding_read.portion_cause` render `dispatch.energy_cover` / `dispatch.energy_cover_cause` (SC-1). `claim_limit_read.SUPPORTED_MODELS` holds 3.2 and 3.3; role coverage stays per instant. One baseline swap (`rows_mini_grid` `unexplained_l` source). S4 fixture F05 continues load and PV to 09:45 so its battery-support Candidate holds (mid-build Q1, default applied).
+- Open: Q1's ruling on F05; the md0 mechanism template rebuild (`TEMPLATE_STALE`); the reconcile pass on any demo or telemetry database (coordinator; verifications mixing model versions refuse until it ends); readiness naming an energy-cover Indeterminate (Q10); the dispatch texts' move to SC-1 (Q9); 5c's `test_4_h_kobo_litres` literals follow whichever merges second.
+
+## 0K4a - `mini-grid` v8, the generator takes the load (in review, 21 Nov)
+
+Branch `task/0K4a-dispatch-v8` (base main `b96d5e978`, 0K4b merged in); spec `specs/0K4a-dispatch-v8/spec.md` rev 2, rulings D-0K4.2-4, D-0K4.19, D-0K4.20, D-0K4.22; packet `packet.md`. No migration, no database, no screen, no guard change.
+
+- Settled: simulator `mini-grid` v8 (`decide_v8` ranks a running generator ahead of the battery; `_resolve_cycle` is v7's resolve with the RUNNING allocation by `cycle_charge_split`, 0K4b's fuel curve with a `generator-fuel` balance and tank account at 10 kWh/L, and the charge taper; `_checked_curve` and `_fuel_cap_kw` guard the curve's divisions); v1-v7 byte-identical (N9), v8 pinned by N12 `d6add2a3...5371f11`; backend `MINI_GRID_V8_MODEL` with SC-1 `model_profile.description`/`model_profile.state` served through `served_text` in `run_profile_summary`; `EXECUTABLE_MODELS` and `REPLAY_MODELS` take v8 (N11).
+- Open: no world runs v8 yet (0K4f); calibration is 0K4d's; five mid-build readings for the Architect (packet: N7 37 % run, N13 window, N13b, two test-pin edits).
+
+## 5c-fix-r5 - the deep-dive's rev 4 backend fix: no word beside no figure, step bars, no share without a gap (in review, 21 Nov)
+
+Branch `fix/5c-backend-r5` (base main `4b13c0afe`); spec `specs/5c-deep-dive-screen/spec.md` rev 4 §11 "Backend fix", rulings D-5C.26 to D-5C.28; packet `packet-backend-fix-r5.md`. No migration, no screen, no guard change; schema stays `deep-dive-month-1`.
+
+- Settled: `_View.figure_word` builds every figure slot's word and the headline's evidence, None exactly when the figure's value or currency is absent (L9's card word and `words.NO_CURRENCY` gone; `W.word` takes `currency: str`); a heading's word is the weakest of the steps its sum adds; `shares()` returns nothing when R's effect is None or 0; module-level `bridge_bars(effects, gap)` serves each step's `bar` (`left`, `width`, `tone`) and `bridge.scale` as two-place track percentages (A: revenue 0.00/11.38, fuel cost 11.38/88.62). `backend/tests/deep_dive_worlds.py` holds `world_h`, `world_x`, `in_kes`, `gone`.
+- Open: the screen fix (§11, `task/5c-unit3-screen`: generator on `deep_dive_worlds`, `dd-na`, track and scale, L1-L5); a gap of exactly 0 with a non-zero rest raises in `tile_rest` (pre-existing, not in this scope).
+
+## 0K4d - the admission rule, the rerun on v8 and season v2, MG-T restated (in review, 21 Nov)
+
+Branch `task/0K4d-rerun-restate`; spec `specs/0K4d-rerun-restate/spec.md` rev 2, rulings D-0K4.9, D-0K4.16, D-0K4.26-30; packet `packet.md`. No migration, database, screen or guard change.
+
+- Settled: `runs/admission.py` (four parts, absolute-then-relative fallback, dawn as `DawnInformation` only) and `admission_measures` on `CaseOutcome`; both study tools take `--model-version {7,8}` and `--season {v1,v2}` (mixed pair `STUDY_FLAGS_INVALID`, exit 2; defaults reproduce 0K2 and 0M), headers carry commit, model, season, S9's inputs digest, site trajectory digest and D-0K4.27's assumption strings (`ASSUMED_DERIVATION`, `MTO_ASSUMED_DERIVATION`, `mto_site_v2`); the 61-day v8/v2 figures: Kobo stop 70 212.75 L a month, reserve 25 59.73, both admitted (all 14 cases admitted); Mto huller 153.88 L a month, reduced inverter 0 L a day; §4.2's Kobo option text restated to one figure per quantity.
+- Open: `6c` values the options; the manifest and derived values (0K4m; `check_manifest` H9 counts 6 fewer anchors); the pack's line 5 and §4.3 still name design values; the reduced-inverter 0 is for review.
+
+## WK - the walkthrough database tool (in review, 21 Nov)
+
+Branch `task/WK-walk-world` (base main `3e77a8575`); spec `specs/WK-walkthrough-database/spec.md` rev 2, rulings D-WK.1-14; packet `packet.md`. No migration, no product code, no guard change; no database created or opened.
+
+- Settled: `tools/walk_world.py` (copy, prepare, check, serve, smoke, stop, status, drop) over `world.World` through `WalkDeps(world, http, procs, world_factory, deep_dive, foundation)`; every walk connection through `walk_url` (label rule, `PROTECTED_DATABASES`, `walk_name_ok`, `database_target` name/host/port); copy gated on `current_l2` + `check_state` (one `CREATE DATABASE ... TEMPLATE ... STRATEGY FILE_COPY`); prepare = two `reconcile_month record` + one `build_structure_snapshot build` per tenant-month from `backend/conversions/walk-layer4-v1.json`; check W1-W7 (no stop at first FAIL); serve on 8991/5491 with built envs, refusing 8990/5490 and the 13 Nov tree; smoke S1-S4 (S4 the after-serve census, D-WK.13) with `tools/walk_world_smoke.cjs`.
+- Open: the coordinator's run (spec §5, after 3C2 unit 2 and a world build and check); the npm cmdline form `stop` matches is unverified on a live serve; the smoke script carries no `assertHeavySlot` (packet, deviation 8); the one-figure read of the PNGs (D-WK.12) after the run.
+
+## DDR - the deep-dive rehearsal checker (in review, 21 Nov)
+
+Branch `task/DDR-rehearsal` (main with 3C2 unit 2 merged in); spec `specs/DDR-rehearsal/spec.md` rev 3, rulings D-DDR.1-15; packet `packet.md`. No migration, no screen, no statement.
+
+- Settled: `python -m assetops_backend.rehearsal_check` (ten gates G1-G10, one JSON line each, codes and facts only, `DDR_GATE_FAILED G<n> <CODE>`); `StructureSnapshotStore.portfolio_history`; the board-budget profile fixtures and `lakeside-2026-10.expect.json`; runbook sections 6-12 (admit before load, `_test` names); test 1 runs S1-S12 through the commands with the first failing gate G2 -> ... -> none.
+- Open: the rehearsal itself and its serve (spec §5, coordinator); MB2 and MB3 defaults (stored profile status `ILLUSTRATIVE`; tariff received drops four screen literals); PF1 (the emulated budget's driver lines make the 5c screen answer 500, `VOCABULARY_UNKNOWN actual_quantity`).

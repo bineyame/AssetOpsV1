@@ -21,7 +21,6 @@ import { RangeLink as Link } from "../ui/RangeLink";
 import { linkFor } from "../shell/operatorSiteRoutes";
 import { Badge, DataTable, Disclosure, PageHeader } from "../ui";
 import { TechnicalDetails } from "../ui/TechnicalDetails";
-import { useCurrentTabInView } from "../ui/useCurrentTabInView";
 import {
   createEstateClient,
   type EstateClient,
@@ -66,8 +65,6 @@ import {
   OUTCOME_NOTE,
   PORTFOLIO_PAGE_SIZE,
   PORTFOLIO_SUBTITLE,
-  PORTFOLIO_TABS,
-  PORTFOLIO_TABS_LABEL,
   PORTFOLIO_TITLE,
   portfolioTabFrom,
   portfolioTabPath,
@@ -96,6 +93,7 @@ import { EarlyWarningList } from "../sites/EarlyWarnings";
 import type { OutcomeWarning } from "../sites/outcomeBoardClient";
 import { amountOf, CategoryCards, OUTCOME_MATRIX_LABEL, OUTCOME_MATRIX_NOTE, OutcomeMatrixBody } from "./PortfolioOutcomes";
 import { PortfolioCoverage } from "./PortfolioCoverage";
+import { PortfolioTabs, portfolioHref } from "./PortfolioTabs";
 import { RETRYING_COPY, TEMPORARILY_UNAVAILABLE } from "../sites/temporarilyUnavailable";
 
 /** INFRA-1 (D-E5.47): the summary read while it waits to retry a 503 `TEMPORARILY_UNAVAILABLE`. */
@@ -114,20 +112,12 @@ const SUMMARY_RETRYING: EstateResult<EstateOutcomeSummaryBody> = {
 
 type Window = Pick<EstateQuery, "from" | "to" | "known_at">;
 const LENSES: readonly EstateLens[] = ["all", "cost", "risks", "opportunities"];
+export { portfolioHref };
 const EV_INCOMPLETE = new Set(["UNKNOWN", "PENDING_RECOMPUTE", "STALE_SOURCE"]);
 
 function lensFrom(params: URLSearchParams): EstateLens {
   const lens = params.get("lens");
   return LENSES.includes(lens as EstateLens) ? (lens as EstateLens) : "all";
-}
-
-/**
- * A Portfolio URL: the tab's address with the accepted window and explicit cutoff, never a cursor. PF-T: a
- * non-default lens travels on Act first only.
- */
-export function portfolioHref(window: Window, lens: EstateLens, tab: PortfolioTab = "overview"): string {
-  const href = estateHref(portfolioTabPath(tab), window);
-  return lens === "all" || tab !== "act-first" ? href : `${href}&lens=${lens}`;
 }
 
 /** The shared date bar reads only `status` and `window`; its HISTORICAL line keys off the same status word. */
@@ -820,45 +810,6 @@ function ContextFooter({ body }: { body: EstatePortfolioBody }) {
   );
 }
 
-/**
- * PF-T: the section tab row. The Site tab family (`site-tabs` links with `aria-current`, not an ARIA tablist): each
- * tab is an address carrying the window and cutoff; `lens` only on Act first. A count that is unknown shows no badge.
- */
-function PortfolioTabs({
-  current,
-  window,
-  lens,
-  counts,
-}: {
-  current: PortfolioTab;
-  window: Window;
-  lens: EstateLens;
-  counts: Partial<Record<PortfolioTab, number | null | undefined>>;
-}) {
-  const rowRef = useCurrentTabInView<HTMLElement>();
-  return (
-    <nav className="site-tabs pf-tabs" aria-label={PORTFOLIO_TABS_LABEL} ref={rowRef} data-portfolio-tabs>
-      <ol className="site-tabs__list">
-        {PORTFOLIO_TABS.map(({ tab, label }) => {
-          const n = counts[tab];
-          return (
-            <li key={tab} className={tab === "scope" ? "site-tabs__item pf-tabs__deep" : "site-tabs__item"}>
-              <Link className="site-tabs__link" to={portfolioHref(window, lens, tab)} aria-current={tab === current ? "page" : undefined}>
-                <span data-pf-tab-label>{label}</span>
-                {typeof n === "number" ? (
-                  <span className="pf-tabs__count" data-pf-tab-count>
-                    {n}
-                  </span>
-                ) : null}
-              </Link>
-            </li>
-          );
-        })}
-      </ol>
-    </nav>
-  );
-}
-
 /** PF-T: the Overview keeps the first three ranked findings of "Where management should act first" (v71 `pf-top3`). */
 function TopThree({ body, rows, pending, window }: { body: EstatePortfolioBody; rows: EstatePortfolioRow[]; pending: EstateLens | null; window: Window }) {
   const siteState = new Map(body.coverage.sites.map((s) => [s.site_id, s]));
@@ -1074,6 +1025,8 @@ export function EstatePortfolioPage({ client }: { client?: EstateClient }) {
   const { tab: segment } = useParams();
   const [params] = useSearchParams();
   const tab = portfolioTabFrom(segment);
+  // 5c (spec §5.1): the month is its own route; a `month` segment reaching this frame goes there.
+  if (tab === "month") return <Navigate to="/portfolio/month" replace />;
   if (tab === null || (tab === "overview" && params.get("lens") !== null)) {
     const next = new URLSearchParams(params);
     if (tab === null) next.delete("lens");

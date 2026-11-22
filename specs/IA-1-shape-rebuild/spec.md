@@ -660,7 +660,7 @@ and for Review and History (no side panel; their content does not depend on the 
 | `iaPlanHistory(op)` (§5.1.4) | History · L2 |
 | `p.switches` ("Try another case") | Items and Left out · the side panel |
 | `p.ap.thrBody` (release thresholds) | the drawer `ia-plan-thresholds`, every tab |
-| `p.ap.status`, `p.ap.meters`, `p.ap.note` (the approval panel's state block, legacy meters, recording note) | not on the IA page (the band carries state and meters; the Approve dialog says "Recorded under"); `MOCK DEVIATION` D2, R757 |
+| `p.ap.status`, `p.ap.meters`, `p.ap.note` (the approval panel's state block, legacy meters, recording note) | not on the IA page (the band carries state and meters; the Approve dialog says "Recorded under"); `MOCK DEVIATION` D2, R771 |
 | `p.ap.kv` (Opened, Proposed) | its facts are History's rows |
 
 #### 5.1.3 L1: the plan's header (D-IA.44, D-IA.45)
@@ -685,7 +685,7 @@ and for Review and History (no side panel; their content does not depend on the 
   (`planApprovedIds`, `planReleasedItem`, `releaseShown`, `itemStateOf`, `waitingSummary`; review r4 M1, D-IA.24).
   `PSTATE()` is read only for fields no act changes: `period`, `opened`, `proposed` and the proposed `version`.
 - **The primary.** "Approve version {n}" in the band's act row while `PROPOSED`; the sticky repeats it with the same
-  act (D-IA.23). Neither moves into the title row (R758).
+  act (D-IA.23). Neither moves into the title row (R772).
 
 #### 5.1.4 History (D-IA.47)
 
@@ -742,7 +742,7 @@ Also unchanged: the Approve and Send back dialogs, the toast with Undo, focus af
 plan row (`#/plan`), the badge rule, the Overview's plan tile and its "Review the plan" link.
 
 **Changes:** the IA `plan` page (the interim, §2.6) becomes the plan shape; three tab routes; the L1 gains the stepper
-and one crew meter per month; the approval panel leaves the page (R757); Left out, Listed beside and the returned
+and one crew meter per month; the approval panel leaves the page (R771); Left out, Listed beside and the returned
 Actions move to the Left out tab; "The plan's review" appears on Review; History is new; tabbed routes may set
 `docTitle`; `ia.css` gains `.ia-plan-steps{margin:0 0 var(--s3,12px)}` and `.ia-plan-rules{margin:var(--s2,8px) 0 0}`,
 and from rev 6 `.ia-plan-released{margin:var(--s2,8px) 0 0}`, `[data-ia-tabs]{display:contents}` and the two tile-row
@@ -779,7 +779,7 @@ at 1440 (the returned Actions).
 |---|---|---|---|
 | 1 | 1 | The four parts splits (§5.1.5); `parts_identity.cjs` gains the plan states and `whatChangedScreen` | none |
 | 2 | 1 to 2 | The checks first (W2): `plan_shape_check.cjs`, the `count_check` plan block, `shape_check` item 10, the G1 surfaces, the `ia_shots` clause, the runner's rows; each new assertion is dormant by default (prints `IA-2a not landed; dormant`), runs under `IA_FORCE_LANDED=IA-2a` against a stub (D-IA.49), and `ia_gates` fails any `dormant` output after the flip, and item 10 runs at once (the Portfolio group passes) | none |
-| 3 | 2 | (a) The builders (§5.1.2 to §5.1.4), the three routes with `unit: 'IA-2a'`, `docTitle`, `IA_TAB_GROUPS.Plan`, `ia.css`: not live, so nothing shows. (b) The flip: `plan` renders `shapePlan(ctx, 'items')`, `shapePlanInterim` deleted, `'IA-2a'` added to `IA_LANDED`; `plan_switch_check` and uxi retargeted with their plants shown failing first; `walkthroughs.md` (the plan's tabs); register rows R757 to R760; screenshots; packet | the plan shape |
+| 3 | 2 | (a) The builders (§5.1.2 to §5.1.4), the three routes with `unit: 'IA-2a'`, `docTitle`, `IA_TAB_GROUPS.Plan`, `ia.css`: not live, so nothing shows. (b) The flip: `plan` renders `shapePlan(ctx, 'items')`, `shapePlanInterim` deleted, `'IA-2a'` added to `IA_LANDED`; `plan_switch_check` and uxi retargeted with their plants shown failing first; `walkthroughs.md` (the plan's tabs); register rows R771 to R774; screenshots; packet | the plan shape |
 
 **The clean stop.** Every commit boundary before 3(b) leaves `main`'s screens as they are and every gate green, so the
 branch can pause there. If 3A7 merges during IA-2a: finish the commit in hand (never stop inside one), run the fast
@@ -798,11 +798,11 @@ release line plus the already-released clause (`qty_check`); at 390 every tab sw
 packet carries the D-IA.54 sweep list, the D-IA.56 changed-row list and the template-date count (D-IA.57).
 
 **`MOCK DEVIATION`s** (rows in `.agent/mock-departure-register.md`, a line each in the packet):
-- **R757** D2: the approval panel is not on the plan page; its parts are placed once (§5.1.2).
-- **R758** D2: Approve and Send back sit in the band's act row under the meters, not in the title row of the proposal's
+- **R771** D2: the approval panel is not on the plan page; its parts are placed once (§5.1.2).
+- **R772** D2: Approve and Send back sit in the band's act row under the meters, not in the title row of the proposal's
   figure (inside the first viewport at 1440 and 1280; the sticky repeats them).
-- **R759** D1: Review's "Observed change" and "Review" read "Not yet" while the period is open (reviewed copy).
-- **R760** D5, resolving IA-2d: History has no per-version drawer (the figure's "L4 versions") and no address per entry.
+- **R773** D1: Review's "Observed change" and "Review" read "Not yet" while the period is open (reviewed copy).
+- **R774** D5, resolving IA-2d: History has no per-version drawer (the figure's "L4 versions") and no address per entry.
 
 **Packet** `specs/IA-1-shape-rebuild/packet-IA-2a.md` (§8's list), plus the stop line if any, the `parts_identity`
 counts per function and state, and the L1 tile count per operator.

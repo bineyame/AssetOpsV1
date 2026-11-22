@@ -1,0 +1,16 @@
+# Decision index: Demo-sprint and later rulings (index only) (D-IAP.1 to D-IAP.14)
+
+- `D-IAP.1` scope: menu, Portfolio, lists, Site tab row, inbox, scope, search; IA-2c/2d/2e content follow the mock; Plan unavailable (no plan record) · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.2` the month (5c) is the Portfolio Overview; /portfolio/month aliases; SR-4c month span; range exception is owner Q2 · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.3` interim decision = placed Finding (waiting when no Action agreed); page = Finding recommendation view; 6f replaces · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.4` iaRoutes.ts registry, landed rule, LEGACY_ROUTES keep query; IA names for menu/Portfolio, Site segments kept; tabs carry range · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.5` rail per D-IA.1; Operational records into Evidence & records; railHomeOf replaces railActiveLabel; guard re-pinned · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.6` one HomeList component (IA-2b §3), all pages read via shared cache (1,000 cap stated), ref-less rows shown as text · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.7` Site six tabs (Setup, Performance, Operations folds); Findings off the row behind parity test; object pages no tab row · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.8` E0: estate portfolio summary waiting_count and waiting_by_site (members with no Action), additive · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.9` E1 GET /api/portfolio/sites: server-ordered Sites rows, SC-1 portfolio_sites.*, gaps sum to the Overview gap · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.10` Waiting for you: badge and In your portfolio from waiting decisions; For you not available yet; since = progress rows · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.11` scope switch and search palette (Sites, decisions, Findings, Actions, live rail items; 20 shown) · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.12` old Overview re-housed: cards to Outcomes L3, top three to Overview L2, pulse retired, coverage to Evidence, changes to Results · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.13` units P1-P7 in two parts (IA-P1 3.75 u, IA-P2 4.75 u); iap_gates.cjs and route-map test first; plants · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.14` only P4 stales the world key (one rung rebuild); walk pages still land; DDR path aliased, runbook line in P3 · live · specs/IA-P-product-shape/rulings.md

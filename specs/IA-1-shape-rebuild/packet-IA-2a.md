@@ -10,7 +10,7 @@ spec's "shape_check item 10" is item 14 (items 10 to 13 exist).
 
 Commits: `554863783` unit 1 (splits, `parts_identity` states) · `c5af13ced` unit 2 (checks, stub, forced runs) · `ef7d098ad` 3(a)
 builders, routes, `docTitle`, `ia.css` · `76b739121` uxi page default and M1 route order · `ce3d81d16` `ia_gates` names a crash's
-error line · `dfaeef262` handoff. · `8f9067bca` 3(b) prep (walkthroughs, R757 to R760, state entry) · `a4737f102` **the flip** (IA_LANDED gains
+error line · `dfaeef262` handoff. · `8f9067bca` 3(b) prep (walkthroughs, R771 to R774, state entry) · `a4737f102` **the flip** (IA_LANDED gains
 IA-2a, `plan` renders `shapePlan`, `shapePlanInterim` deleted; built) · `af7847ac2` merge of `main` (`index-2.md`: both sides kept, IA-2a
 renumbered 172).
 
@@ -98,8 +98,8 @@ None blocks the spec's acceptance; 1 and 2 are judgement calls for the owner.
 - The 3(b) prep patch applied cleanly at `fcaf77399`; `.agent/` is gitignored but the register is tracked (staged by path).
 - Done-when item 1 says IA-2a is added "in the last commit": the flip is the last product commit; the merge and this packet follow.
 
-`MOCK DEVIATION`s (register rows, `8f9067bca`): R757 D2 (no approval panel), R758 D2 (Approve in the band's act row),
-R759 D1 (Review "Not yet"), R760 D5 (History: no per-version drawer, no address per entry).
+`MOCK DEVIATION`s (register rows, `8f9067bca`): R771 D2 (no approval panel), R772 D2 (Approve in the band's act row),
+R773 D1 (Review "Not yet"), R774 D5 (History: no per-version drawer, no address per entry).
 
 `USER_REVIEW_REQUIRED: true` (UI/UX: the plan page changed shape). Hold the merge for the owner's IA-2 walkthrough after review.
 

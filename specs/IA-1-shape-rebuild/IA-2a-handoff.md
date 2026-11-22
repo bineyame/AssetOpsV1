@@ -15,7 +15,7 @@
   (after the rebuild), PS crewtile/release/leftout, COPY plan, SHOTS approvefold (48 of 72 bad). Logs `/opt/assetecon/evidence/IA-2a/unit2/`.
 - uxi planans and planwait fail on the builders (forced). The forced uxi base run crashed twice ("Target crashed"), during the /tmp
   quota incident 05:30-05:40; rerun pending.
-- Uncommitted: walkthroughs.md (plan tabs), register R757-R760, `.ai/state/demo.md` + index line 168. The flip is prepared in
+- Uncommitted: walkthroughs.md (plan tabs), register R771-R774, `.ai/state/demo.md` + index line 168. The flip is prepared in
   `<scratch>/ia2a-r2/flip/` (IA_LANDED + IA-2a, plan renders shapePlan, shapePlanInterim deleted).
 - Forced ia_gates at 3(a): 76 runs, all as expected (3805 s). Clean stop taken here; packet-IA-2a.md has the stop line.
 - 3(b) prep: `/opt/assetecon/evidence/IA-2a/3a/3b-prep.patch` (git apply) and `flip.py <vNEXT dir>`.
@@ -109,7 +109,7 @@ Base page for `parts_identity`: `main`'s `index.html`, copy at
      `document.title=\`${s.title} · ${OPS[LS.op].name}\``.
    - Add the three `ia.css` rules.
    - Run every plant under `--force IA-2a`. This is the recommended clean stop.
-3. **3(b).** The flip, the `plan_switch_check` and uxi retargeting, `walkthroughs.md`, R757 to R760, the screenshots
+3. **3(b).** The flip, the `plan_switch_check` and uxi retargeting, `walkthroughs.md`, R771 to R774, the screenshots
    and `packet-IA-2a.md`.
 
 ## Anchors (from a read-only survey; lines in `vNEXT/tools/` unless named)
