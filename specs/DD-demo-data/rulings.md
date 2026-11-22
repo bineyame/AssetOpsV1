@@ -446,3 +446,159 @@ restores main's behaviour for cold and EV and changes nothing a user sees for mi
     256 KiB" (coordinator logs it in `.agent/backlog-post-demo.md`).
   - *Unit impact (D-DD.45 to D-DD.47).* One DD1 fix round, 0.5 u (flag and parity goldens 0.25, L1 and L3 0.25):
     DD1 4.5 to 5.0 u; DD 33.0 to 33.5 u. Sonnet fix-round builder; re-review by a fresh Claude reviewer on H1 and L3.
+
+---
+
+# DD rulings, round 6 (D-DD.48 to D-DD.57): DD2 pre-flight (B1, B2, Q3 to Q9)
+
+Architect (Claude), 2026-11-22. Answers `handoff-DD2.md` (branch `task/DD2-books`, `ffe33beeb`). Architect-level calls,
+logged for owner review. The owner is informed of D-DD.48 (it answers the owner's "code solution to a data issue"
+concern for this case) and D-DD.49's dropped penalty rows; no weigh-in is needed to proceed.
+
+- **D-DD.48 Mini-grid books: billed kWh, revenue, collections and fuel are nodes of the world's structure, evaluated
+  every month from that month's leaves** (B1; amends spec §5.1 and D-DD.32's litres sentence).
+  - *What the fault is (a class, W6).* Spec §5.1 called billed kWh, revenue and the collections split "`history.json`'s
+    leaves". They are not leaves of the world. The manifest declares them as **nodes** of `structures.MINI_GRID`
+    (`M:813-822`): `metered_kwh = delivered_kwh - technical_loss_kwh - unexplained_loss_kwh`, `billed_kwh = metered_kwh
+    - adjustments_kwh - unmapped_kwh`, `revenue = billed_kwh * tariff + productive_kwh * productive_tariff`, `collected
+    = revenue - in_transit - outstanding`, `diesel_l = necessary_l + candidate_l + unexplained_l + extra_l`, `fuel_cost
+    = diesel_l * diesel_price`. The history generator generates leaves only, by its declared design ("Totals and nodes
+    are not generated here: the evaluator computes them", `history.py:5`). October's `period` records leaves and nodes
+    together, and the nodes satisfy the structure exactly at all three Sites (billed 8645, 7400, 5400; revenue 3458,
+    4070, 2160; collected 3180, 3800, 1890; litres 1180, 2400, 320; fuel cost 1475, 3120, 400). So the gap is in the
+    spec's wording, not in the world model or the generator. Adding node values to `history.json` would put a second
+    copy of each figure beside the evaluator's, against "one model-computed figure per quantity", and would move the
+    pinned history golden for nothing.
+  - *Ruling.* In every month, October included, and on both sides, the exporter takes the mini-grid book figures from
+    the structure's own node expressions, evaluated on the month's leaves through the manifest's `factor_map`. This is
+    the world's balance computing its declared node. It is not a design value and not a fit. It is labelled in code
+    and in the packet as "node of `structures.MINI_GRID`, evaluated on the month's leaves (D-DD.48)". The rows carry
+    the source word *Emulated*, like every book row.
+  - *One mechanism every month.* For October the evaluated node must equal the node that `period` records, or the
+    emulator stops with `EMU_NODE <tenant>/<code> <month> <node>` (the period's `diesel_cost` is node `fuel_cost`).
+    Then October's bytes are unchanged by this ruling, and October proves the derivation against the world's own record.
+  - *Plan side, the same rule.* The plan's `revenue` and `fuel_cost` budget lines come from the same evaluation on the
+    plan record. `delivered_kwh` falls back to plan `billed_kwh` and `necessary_l` to plan `diesel_l` (factor_map), and
+    every leaf with a `| 0` alternative reads 0. October's plan nodes check exactly (3420, 875; 4125, 2990; 2240, 375).
+    D-3A3.13's unit prices then follow from the evaluated plan nodes.
+  - *Builder's change list (DD2.1):*
+    1. `world/exports.py`: a module table `NODES["MINI_GRID"]` with the six expressions above as Python callables, in
+       dependency order, plus each expression's manifest text as a string. Use exact `Decimal`: money in whole cents
+       and kWh and litres whole. Leaves are read through `records.PASS_THROUGH["MINI_GRID"]` (the record fields, in
+       order). Add a `ZERO_LEAVES` frozenset, the leaves whose `factor_map` text ends in `| 0`: technical_loss_kwh,
+       unexplained_loss_kwh, adjustments_kwh, unmapped_kwh, in_transit, outstanding, candidate_l, unexplained_l.
+       `productive_kwh` and `extra_l` are the constant 0 (factor_map `"0"`). `delivered_kwh` and `necessary_l` are
+       required. Prices are `prices.tariff_usd_per_kwh[site]`, `prices.diesel_usd_per_l[site]` and
+       `prices.productive_tariff_usd_per_kwh`. Watch the units: `history.json` money leaves are integer cents
+       (`meta.money_unit`), and `period` money is in dollars.
+    2. `_charges`, `_receipt_records`, `_fuel_records` and the plan `revenue`/`fuel_cost` lines read the evaluated
+       nodes, never `s.a["billed_kwh"]`-style fields. The existing `EMU_REVENUE`, `EMU_COLLECTIONS` and `EMU_FUEL`
+       checks stay. They compare the emitted rows with the evaluated nodes.
+    3. If a required leaf is absent, that node and every node depending on it write no row, and the field is listed
+       `NOT_IN_HISTORY`. A coverage line marked ESTIMATED writes nothing, as now (GAP-1). An absent price stops the
+       emulator with `EMU_PRICE`, as now. A negative node (for example collected < 0) stops it with
+       `EMU_COLLECTIONS`.
+    4. Test `simulator/tests/world/test_dd2_nodes.py`:
+       a. *Parity.* The table's text for each node equals `M` `structures.MINI_GRID[node]`. The `factor_map.MINI_GRID`
+          text of each leaf it reads equals the table's alternatives, and `ZERO_LEAVES` is exactly the set ending
+          `| 0`. The test reads the manifest. The module does not.
+       b. *October.* Evaluated equals recorded for every node `period` carries, on both sides, at all three Sites.
+       c. *Plant.* Change Kobo's October `adjustments_kwh` in a copied view and `EMU_NODE` fires.
+       d. *History.* For July at Kobo: billed 8163, revenue 3265.20 and collected 3002.73, from the pinned
+          `history.json`.
+  - *Checker.* See D-DD.55: the checker evaluates the same nodes with its own code from the manifest text.
+
+- **D-DD.49 Cold and EV budget workbooks are source profiles. The expense ledgers use the existing layout unchanged.
+  No PENALTY rows. No contract change** (B2; amends spec §3 and §5.2-§5.3; the builder's default is not taken).
+  - *Why not extend the illustrative maps.* `budget-illustrative-1` is a built-in contract layout. If each new vertical
+    added lines to it, `contracts/` would be edited per vertical, which is an instance rule on a protected seam. The
+    product's general mechanism for a new operator's file is the source profile (3A6). That is how §3 already brings in
+    every other cold and EV file (D-DD.24), and it reads budget workbooks today
+    (`backend/tests/fixtures/3a6/lakeside-budget.profile.json` maps `body.factor_id`). A real cold-chain operator's
+    budget workbook is its own format, not Lakeside's.
+  - *Why no PENALTY row.* §5.3's "PENALTY (0)" is a typed-in zero. In the world, penalties are a **node**:
+    `penalties = departures_missed * penalty_rate` (`M` `structures.EV_DEPOT_CAPTIVE`). The product computes it from
+    the measured departures (DD4.4) and the rights register. A zero expense row would be a second figure for the same
+    quantity, and it could disagree with the node (Kasarani in November). The penalty statement is already a "not
+    written" record (§3). Without PENALTY, the cold and EV ledgers need only OM and STAFF, and `expenses-illustrative-1`
+    already maps both. Its use is unchanged.
+  - *Which plan figures become budget lines (one rule).* (a) DS1b's own-leaf BUDGET_LINE records of the month, under
+    DS1b R1's rule: a fallback field is never a leaf's line (`NOT_OWN_LINE`), so EV `offpeak_kwh` and `kwh` are not
+    lines. (b) A plan field whose name is a **node** of the Site's structure becomes a node line carrying its recorded
+    value: cold `kwh`; EV `energy_cost` and `departures_required` (Ruiru). This is the same as mini-grid's
+    `billed_kwh` and `diesel_l` node lines. (c) Every other field stays in `unwritten.json` with DS1b's reason: Ruiru
+    `total` is `NOT_READ_BY_A_LEAF`, and EV `kwh` and `offpeak_kwh` are `NOT_OWN_LINE`. The plan's off-peak energy is
+    therefore not received at Embakasi and Kasarani, as `missing-records.json` already says for October. It reads as
+    the labelled assumption, never zero.
+  - *Builder's change list (DD2.3 builds both budget profiles; DD2.4 uses the EV one):*
+    1. `backend/conversions/profiles/cold-budget-illustrative.profile.json` and `ev-budget-illustrative.profile.json`,
+       each with `<id>.sample.csv` and `<id>.expected.json`: `source_type` budget_workbook; constants `kind`
+       BUDGET_LINE and `source_version` "1"; the columns of spec §5.2's new budget table. The Line map is the plan
+       field name to the factor ID, identity on these names. Cold: crate_days, kwh, staff, maint, liability. EV:
+       peak_kwh, max_kw, maintenance, energy_cost, departures_required.
+    2. `exports_cold.py` and `exports_ev.py`: a node-line table `NODE_LINES = {"COLD_CHAIN": {"kwh": "whole"},
+       "EV_DEPOT_CAPTIVE": {"energy_cost": "money", "departures_required": "whole"}}`. Money lines carry
+       `body.currency`. A parity test asserts each name is a key of `M` `structures[key]`. A field written as a node
+       line leaves `unwritten.json`, as mini-grid's `billed_kwh` does. Files: `harvest-cold.profile.cold-budget.csv`,
+       `metro-bus.profile.ev-budget.csv`, `harvest-cold.expenses.csv`, `metro-bus.expenses.csv`.
+    3. The expense ledgers carry DS1b's EXPENSE rows only: cold `maint` as OM and `staff` as STAFF, EV `maintenance` as
+       OM. A test asserts that no cold or EV expense row has category ENERGY or PENALTY.
+    4. `contracts/` is not touched by DD2.3 or DD2.4. DD2.2 stays the only contract change in DD2.
+
+- **D-DD.50 Cold revenue and received are nodes too** (Q3; the builder's default, restated as D-DD.48's mechanism).
+  `NODES["COLD_CHAIN"]`: `revenue = crate_days * rate + contract_crate_days * contract_rate`, and `received = revenue
+  - outstanding`. `rate` is `prices.storage_usd_per_crate_day`, and `contract_*` is the constant 0 (factor_map). The
+  same parity test and October `EMU_NODE` check apply: Mwea 868/820, Thika 1736/1650, Kirinyaga 1984/1900. Invoices
+  sum to revenue. Receipts sum to received, all COLLECTED, because the cold structure has no in-transit leaf. The rest
+  is outstanding.
+
+- **D-DD.51 Values held in incident blocks come from a module table with a manifest parity test** (Q4; default taken).
+  `ManifestView` stays as it is: `history.json`'s `view_digest` does not move. The table holds the tickets (CH-K2
+  opened 2026-11-01T23:40+03:00 and CH-R7 opened 2026-10-06T00:00+03:00, both OPEN on `as_of`) and the named batches
+  B-1029, B-1031 and B-1034 (crates and times). A test reads `M` and asserts every table value. The CH-K2 ACKNOWLEDGED
+  event is the warranty claim's, not the ticket's. Contractor `oem-contractor` (R5). This is the established pattern
+  (`factors.py`, `records.py` tables with parity tests), and D-DD.53 uses it too.
+
+- **D-DD.52 Roster: one generator, July to October in DD2; DD4.3 extends it to 6 Nov** (Q5; default taken, with one
+  condition). DD4.3 adds the November nights, including Kasarani's three spare-bus nights, by giving the same
+  `exports_ev` roster function a wider month span. It never writes a second roster writer. The roster file then holds 1
+  Jul to 6 Nov.
+
+- **D-DD.53 Note days: a disorder test that dates a note sets that note's day** (Q6; amends D-DD.32's last sentence;
+  the builder's default is not taken). The writer puts deliveries into the tank at the note's `occurred_at` (D-DD.19),
+  so the date must be right in DD2. If DD5.2 moved it later, the books and the tank would disagree.
+  - Rule: a month's dated notes (from the manifest's `disorder_tests`, through a module table with a parity test as in
+    D-DD.51) are cut first, each at its date and 10:00 local. The rest of the month's litres are cut into 400 L notes on
+    the fixed cycle (1st, 8th, 15th, 22nd, 29th), and the last of them carries the remainder.
+  - Today there is one dated note, OOO-1: Kobo, 400 L, 2026-10-26. Kobo's October is then 400 L on 26 Oct, 400 L on
+    1 Oct and 380 L on 8 Oct, 1180 in all (`EMU_FUEL` holds).
+  - DD2 writes all three notes in October's expenses file. DD5.2 plants OOO-1 as §5.5 says, unchanged.
+
+- **D-DD.54 Staging in DD2.1 is the three DS1b JSON kinds; profile admission and the statements reader are DD5 and WK**
+  (Q7; default taken, plus one invariant). DS1b's records for cold and EV must also each land in exactly one place: an
+  exported file, a staged JSON or `unwritten.json`. A test over all three tenants asserts this, as the mini-grid
+  exporter already does for its own tenant.
+
+- **D-DD.55 C-DD2 to C-DD4 by SQL, live and failing until DD5; C-DD4 also checks the node figures on history months**
+  (Q8; default taken, amends spec §8.1).
+  - The checks join `commercial_record_revision` to `site` for the Site code. They are tested with pure judges on
+    fixture rows, as C-DD1 is.
+  - C-DD4 gains one clause. For each history month, the decided node figures (mini-grid billed kWh, revenue,
+    collected, litres and fuel cost; cold revenue and received) must equal the checker's **own** evaluation of `M`
+    `structures` and `factor_map` on `history.json`'s leaves, to the cent. The checker reads the manifest text itself,
+    with a minimal evaluator of its own (names, numbers, `+ - *`, `a | b`), and shares no code with D-DD.48's table.
+  - Without this clause the derived billed kWh would be checked by nothing independent (W2), because C-DD3's
+    identities hold by construction once billed is given. The checker's inputs gain `structures` and `factor_map`.
+
+- **D-DD.56 A bool cell missing from its map is refused `NATIVE_VALUE`** (Q9; default taken). This is the same code
+  as every other map miss (`layouts_v1.py:482`). An empty cell reads as absent, and the kind's presence rule decides.
+
+- **D-DD.57 Units: DD2 grows by 0.75 u to 6.25 u and splits** (W4).
+  - Changes: D-DD.48 +0.25 (DD2.1: node table, parity, October check, plan side, D-DD.53's dated note); D-DD.49
+    +0.25 on DD2.3 (both budget profiles with samples and expected files; partly offset by no contract change and no
+    PENALTY);
+    D-DD.55 +0.25 (DD2.5: the checker's evaluator).
+  - **DD2a** (`task/DD2-books`, as built so far): DD2.2 (done, 0.5), DD2.1 (1.5), DD2.5 (1.0), **3.0 u**.
+  - **DD2b** (`task/DD2b-cold-ev-books`, branched from DD2a's head once DD2.2's review is ACCEPT, or from `main` after
+    DD2a merges): DD2.3 (1.75, with D-DD.50) and DD2.4 (1.5), **3.25 u**.
+  - DD goes from 33.5 to **34.25 u** in eight parts.

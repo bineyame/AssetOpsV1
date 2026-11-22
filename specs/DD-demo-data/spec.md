@@ -2,10 +2,12 @@
 
 Status: **rev 2, 2026-11-22; DD1 in_review (`packet-DD1.md`)**: the combined handshake (`handshake.md`, R1-R10, I1-I15) is answered there under "Answers
 (Architect)" and ruled in `rulings.md` (D-DD.17 to D-DD.34). Rev 1 (same day) had 19.5 u in four parts; rev 2 has
-**30.0 u in six parts** (§7); restated by D-DD.44 to **33.0 u in seven parts** (DD3 splits into DD3a, DD3b). Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
+**30.0 u in six parts** (§7); restated by D-DD.44 to **33.0 u in seven parts** (DD3 splits into DD3a, DD3b), by D-DD.47 to 33.5 u, and by D-DD.57 to
+**34.25 u in eight parts** (DD2 splits into DD2a, DD2b). Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
 it grounded on the product goals"); owner answers to Q1-Q6: `owner/owner-demo-data-answers-2026-11-22.md`. Owner words on
 Kobo's equipment: `owner/owner-iap-q1-q2-kobo-datasheets-2026-11-22.md`. **Rulings:** D-DD.1 to D-DD.16 (§9) and
-D-DD.17 to D-DD.44 (`rulings.md`); index lines in `.ai/decisions/index-rulings-26.md` and `index-rulings-27.md`.
+D-DD.17 to D-DD.57 (`rulings.md`); index lines in `.ai/decisions/index-rulings-26.md`, `index-rulings-27.md` and
+`index-rulings-28.md`.
 **Reviewer guide:** `reviewer-guide.md` (rev 2). `USER_REVIEW_REQUIRED: true` (demo narrative, evidence labels, what the
 served app shows; owner Q7-Q9 open with defaults applied).
 
@@ -195,13 +197,15 @@ canonical JSON.
 | | customer receipts | `.profile.cold-storage-receipts.csv` | `cold-storage-receipts-illustrative` | RECEIPT | decided | new profile |
 | | storage rate card | DS1b `.tariff_schedule.json` | `canonical-json-v1` | TARIFF_SCHEDULE | decided | records.py; staged |
 | | electricity bill | `.profile.cold-electricity-bill.csv` | `cold-electricity-bill-illustrative` | CHARGE (USAGE, kWh) | **measured** | new profile; rows from the meter |
-| | expenses, budget | `.expenses.csv`, `.budget.csv` | mini-grid layouts | EXPENSE (STAFF, OM), BUDGET_LINE | decided | layouts exist |
+| | expenses | `.expenses.csv` | `expenses-illustrative-1` (unchanged) | EXPENSE (STAFF, OM) | decided | layout exists (D-DD.49) |
+| | budget workbook | `.profile.cold-budget.csv` | `cold-budget-illustrative` | BUDGET_LINE | decided | new profile (D-DD.49) |
 | EV | tariff schedules | DS1b `.tariff_schedule.json` | `canonical-json-v1` | TARIFF_SCHEDULE | decided | records.py; staged |
 | | utility invoice | `.profile.ev-utility-invoice.csv` | `ev-utility-invoice-illustrative` | CHARGE (USAGE by band, DEMAND) | **measured** | new profile; rows from the meter |
 | | fleet roster | `.profile.ev-fleet-roster.csv` | `ev-fleet-roster-illustrative` | FLEET_ROSTER | decided | new profile |
 | | departure log | `.profile.ev-departures.csv` | `ev-departures-illustrative` | DEPARTURE | **measured** | new profile (needs `bool`, DD2.2) |
 | | service tickets | `.profile.ev-service-tickets.csv` | `ev-service-tickets-illustrative` | SERVICE_TICKET | decided | new profile |
-| | expenses, budget | `.expenses.csv`, `.budget.csv` | mini-grid layouts | EXPENSE (OM, PENALTY), BUDGET_LINE | decided | layouts exist |
+| | expenses | `.expenses.csv` | `expenses-illustrative-1` (unchanged) | EXPENSE (OM) | decided | layout exists (D-DD.49: no PENALTY row; penalties are a node) |
+| | budget workbook | `.profile.ev-budget.csv` | `ev-budget-illustrative` | BUDGET_LINE | decided | new profile (D-DD.49) |
 | All | management accounts | `<slug>.statements.json` | `assetops.world-statements/1` (§5.4) | read by WK `prepare` | decided | new |
 | All | contract documents, QA notes, penalty statement | — | not written | — | — | stay "Not available yet" naming the record |
 
@@ -419,13 +423,19 @@ times and run ids, as `test_ds3_parity_postgres.py` does. In the same commit, th
 `build_exports(view, history, *, months=None)` writes the four files for every month of `history.months` plus
 `accounting_period`, one file per key, rows ordered by (month, Site, row).
 
-- July to September values are `history.json`'s leaves: billed kWh, revenue, collections split, O&M, staff, budget
-  lines.
-- Fuel notes are 400 L notes of the month's delivered litres: `necessary_l + candidate_l + unexplained_l`, or October's
-  `period.actual.diesel_l`. Notes fall on the 1st, 8th, 15th, 22nd and 29th at 10:00 local, cycling. The last note
-  carries the remainder, stated in its document reference.
+- Leaves (O&M, staff, outstanding, in transit, the kWh and litre leaves) are `history.json`'s for July to September
+  and `period`'s for October.
+- **Billed kWh, revenue, collected, litres and fuel cost are nodes of `structures.MINI_GRID`** (D-DD.48), evaluated in
+  every month, on both sides, from that month's leaves through `factor_map` (`NODES["MINI_GRID"]`, with a parity test
+  against `M`). For October the evaluated node must equal the node `period` records (`EMU_NODE`). The plan's revenue
+  and fuel cost lines come from the same evaluation.
+- Fuel notes are 400 L notes of the month's litres node (`necessary_l + candidate_l + unexplained_l + extra_l`). A note
+  dated by a disorder test is cut first, at its date (D-DD.53: OOO-1, Kobo, 400 L, 26 Oct). The rest fall on the 1st,
+  8th, 15th, 22nd and 29th at 10:00 local, cycling. The last note carries the remainder, stated in its document
+  reference.
 - The totals rules `EMU_REVENUE`, `EMU_COLLECTIONS` and `EMU_FUEL` stop the emulator on any miss.
-- A MISSING leaf writes no row and is listed in `unwritten.json` (`NOT_IN_HISTORY`).
+- A missing required leaf writes no row for its node or any node depending on it, and is listed in `unwritten.json`
+  (`NOT_IN_HISTORY`).
 - DS1b's METER_ASSIGNMENT, TARIFF_SCHEDULE and ADJUSTMENT JSON files for the same months are staged by
   `tools/world.py inputs()`.
 - The pin moves (`SOURCE_VERSION` "2", `test_3a3_exports.py:142, 243`) are listed in the packet.
@@ -457,7 +467,8 @@ whole crates. Every profile has the constant `source_version` "1".
 | At | `clocks.occurred_at` (datetime) |
 
 `cold-storage-invoices-illustrative` (CHARGE; constants `kind` CHARGE, `subject.kind` CUSTOMER, `quantity.unit`
-crate_day, `body.line_type` STORAGE). One invoice per customer per month; Σ amount = revenue = crate-days × 0.20:
+crate_day, `body.line_type` STORAGE). One invoice per customer per month; Σ amount = revenue, the `structures.COLD_CHAIN`
+node `crate_days × rate` (D-DD.50; October checked by `EMU_NODE`):
 
 | Column | Paths (type) |
 |---|---|
@@ -470,8 +481,8 @@ crate_day, `body.line_type` STORAGE). One invoice per customer per month; Σ amo
 | Amount, Currency | `amount.value` (number), `amount.currency` |
 | Tariff | `body.tariff_code` |
 
-`cold-storage-receipts-illustrative` (RECEIPT; constants `kind` RECEIPT, `subject.kind` CUSTOMER). Σ = collected; the
-rest is outstanding at month end:
+`cold-storage-receipts-illustrative` (RECEIPT; constants `kind` RECEIPT, `subject.kind` CUSTOMER). Σ = received, the
+node `revenue − outstanding`, all COLLECTED (D-DD.50); the rest is outstanding at month end:
 
 | Column | Paths (type) |
 |---|---|
@@ -484,9 +495,23 @@ rest is outstanding at month end:
 | Method | `body.method` (map `{"M-Pesa": "MOBILE_MONEY", "Bank": "BANK", "Cash": "CASH"}`) |
 | State | `status` (map `{"Collected": "COLLECTED", "In transit": "PAID_IN_TRANSIT"}`) |
 
-The rate card is DS1b's TARIFF_SCHEDULE (0.20 per crate-day from 2026-07-01), staged. Expenses carry STAFF and OM.
-Budget lines `crate_days, kwh, staff, maint, liability` come from `history.rules.COLD_CHAIN.plan` (the plan side is
-decided).
+The rate card is DS1b's TARIFF_SCHEDULE (0.20 per crate-day from 2026-07-01), staged. Expenses carry STAFF and OM in
+`expenses-illustrative-1`, unchanged.
+
+**Budget workbooks** (D-DD.49), `cold-budget-illustrative` and `ev-budget-illustrative` (BUDGET_LINE; constants `kind`
+BUDGET_LINE, `source_version` "1"). Lines: DS1b's own-leaf BUDGET_LINE records (R1), plus plan fields naming a structure
+node (`NODE_LINES`: cold `kwh`; EV `energy_cost`, `departures_required`). Cold lines: `crate_days, kwh, staff, maint,
+liability`. Every other plan field stays in `unwritten.json` with DS1b's reason.
+
+| Column | Paths (type) |
+|---|---|
+| Line ID | `source_record_id` |
+| Site | `site_code` |
+| Month | `clocks.recognition_period` (month) |
+| Line | `body.line_ref` (text) and `body.factor_id` (text, map: identity on the profile's line names) |
+| Value | `body.value` (number) |
+| Currency | `body.currency` (empty cell = absent; present on money lines) |
+| Budget version | `body.version_ref` |
 
 ### 5.3 EV decided files (`world/exports_ev.py`; DD2.4)
 
@@ -504,7 +529,7 @@ decided).
 | Required kWh | `body.required_kwh` (number) |
 
 `ev-service-tickets-illustrative` (SERVICE_TICKET; constants `kind` SERVICE_TICKET, `subject.kind` ASSET). Rows come
-from the incident blocks: Kasarani CH-K2 opened 2026-11-01T23:40+03:00 and Ruiru CH-R7 opened 2026-10-06T00:00+03:00,
+from the incident blocks, through a module table with a manifest parity test (D-DD.51): Kasarani CH-K2 opened 2026-11-01T23:40+03:00 and Ruiru CH-R7 opened 2026-10-06T00:00+03:00,
 both Open on `as_of` unless the manifest records an acknowledgement.
 
 | Column | Paths (type) |
@@ -519,7 +544,11 @@ both Open on `as_of` unless the manifest records an acknowledgement.
 | Contractor | `body.counterparty_ref` |
 
 Tariffs are DS1b's TARIFF_SCHEDULE per Site (the bands of `M` `tenants.metro-bus.sites.*.tariff`), staged. Expenses
-carry OM and PENALTY (0). Budget lines come from `history.rules.EV_DEPOT.plan`.
+carry OM only, in `expenses-illustrative-1`. There is no PENALTY row: penalties are the node `departures_missed ×
+penalty_rate` (D-DD.49). Budget lines are in `ev-budget-illustrative` (§5.2's table): `peak_kwh, max_kw, maintenance`
+and, at Ruiru, `energy_cost, departures_required`. EV `kwh` and `offpeak_kwh` are `NOT_OWN_LINE`, and Ruiru `total`
+is `NOT_READ_BY_A_LEAF`. The roster covers July to October here, and DD4.3 extends the same function to 6 Nov
+(D-DD.52).
 
 ### 5.4 Statements (`assetops.world-statements/1`; DD2.5)
 
@@ -688,8 +717,8 @@ line's: 10.50 / 10.50; 7.80 / 8.03; 5.60 / 5.56. The packet quotes these residua
 
 ## 7. Units (W4: parts of at most 6 units; units of 1 to 3 commits)
 
-Six parts, one branch each, each with one discovery review (W5: a new mechanism, a protected seam and money figures).
-Order: DD1 → (DD2 ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merges). See §8.2.
+Eight parts (DD3 and DD2 each split in two), one branch each, each with one discovery review (W5: a new mechanism, a protected seam and money figures).
+Order: DD1 → (DD2a → DD2b ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merges). See §8.2.
 
 ### DD1: three operators (4.5 u, D-DD.44; `task/DD1-three-operators`)
 
@@ -725,19 +754,22 @@ Order: DD1 → (DD2 ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merges). See �
   - It reads the manifest's `oracle`, `checks` and `period` by its own YAML read. It reads `history.json` by its own
     JSON read, after asserting its sha256 equals `simulator/tests/world/golden/history_v1.json`'s digest (D-DD.31).
 
-### DD2: four months of decided books (5.5 u; `task/DD2-books`)
+### DD2: four months of decided books (6.25 u in two parts, D-DD.57: DD2a = DD2.2, DD2.1, DD2.5, 3.0 u, `task/DD2-books`; DD2b = DD2.3, DD2.4, 3.25 u, `task/DD2b-cold-ev-books`)
 
-- **DD2.1 Mini-grid months, notes and staging (1.25).** §5.1; `inputs()` stages DS1b JSON.
+- **DD2.1 Mini-grid months, notes and staging (1.5).** §5.1 and D-DD.48 (node table, parity, `EMU_NODE`, plan side),
+  D-DD.53 (dated note). `inputs()` stages DS1b's METER_ASSIGNMENT, TARIFF_SCHEDULE and ADJUSTMENT JSON (D-DD.54).
 - **DD2.2 Profile `bool` type (0.5).** `layouts_v1.TYPES` gains `bool`. A `bool` path must carry a `map` whose values
   are exactly `{"true", "false"}`, the one exception to "a map sits only on a coded path"; it writes a JSON boolean.
   Contract tests: accept; refuse an unmapped cell; refuse a map without both values; refuse a map on a non-bool,
   non-coded path.
-- **DD2.3 Cold decided books and profiles (1.5).** §5.2: three profiles with samples and expected files; the ledger
-  rule; admission by `source_profile admit --expected E --as <analyst>`.
+- **DD2.3 Cold decided books and profiles (1.75).** §5.2: three profiles plus both budget profiles (D-DD.49), with
+  samples and expected files; cold nodes (D-DD.50); the ledger rule; admission by `source_profile admit --expected E
+  --as <analyst>`.
 - **DD2.4 EV decided books and profiles (1.5).** §5.3: the roster and tickets profiles. The invoice and departure
   profiles of §5.6 are defined here, with samples and expected files; their rows come in DD4.4.
-- **DD2.5 Statements (0.75).** §5.4 for Lakeside's history months. The cold and EV writer is wired to `measured.json`
-  and tested on a fixture. C-DD2 to C-DD4 go live for the decided books.
+- **DD2.5 Statements and checks (1.0).** §5.4 for Lakeside's history months. The cold and EV writer is wired to
+  `measured.json` and tested on a fixture. C-DD2 to C-DD4 go live for the decided books, with C-DD4's node clause and
+  the checker's own evaluator (D-DD.55).
 
 ### DD3: the mini-grid's operating reality (8.5 u in two parts, D-DD.44: DD3a = DD3.1, DD3.2, 3.75 u, `task/DD3a-mini-reality`; DD3b = DD3.3, DD3.4, 4.75 u, `task/DD3b-mini-units`)
 
@@ -803,7 +835,7 @@ Order: DD1 → (DD2 ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merges). See �
   - Fold in the DDR runbook's ten queued clarity notes.
   - Evidence goes to `/opt/assetecon/evidence/DD/<run>/`.
 
-**Size: 33.0 units (D-DD.44; rev 2: 30.0 u), about 52 commits** (rev 1: 19.5 u). Each part is at or under 6 units. 0K4f grows by 0.5 u
+**Size: 34.25 units (D-DD.57; D-DD.47: 33.5 u; D-DD.44: 33.0 u; rev 2: 30.0 u), about 54 commits** (rev 1: 19.5 u). Each part is at or under 6 units. 0K4f grows by 0.5 u
 (D-DD.30).
 
 ---
@@ -817,7 +849,7 @@ Order: DD1 → (DD2 ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merges). See �
 | C-DD1 | Does the clone hold exactly the three tenants, nine Sites (codes, product types) and `demo_workflow`'s (person, role, Site) triples? | DD1.3 |
 | C-DD2 | Does every Site-month July to October hold each record kind §3 lists for that Site, each with source word *Emulated*? | DD2.5 (measured kinds DD4.4) |
 | C-DD3 | Do the manifest `checks` identities hold on the stored records, by the checker's SQL? Mini: revenue = billed × tariff, and collected + in transit + outstanding = revenue. Cold: revenue = crate-days × 0.20. EV: energy cost = Σ band costs + demand cost. | DD2.5 |
-| C-DD4 | Does each decided commercial leaf equal October's `period.actual` and each history month's `history.json` to the cent? Leaves listed in `meter_billed` are excluded. | DD2.5 |
+| C-DD4 | Does each decided commercial leaf equal October's `period.actual` and each history month's `history.json` to the cent? Does each decided node figure of a history month (mini billed kWh, revenue, collected, litres, fuel cost; cold revenue, received) equal the checker's own evaluation of `M` `structures` and `factor_map` on `history.json`'s leaves (D-DD.55)? Leaves listed in `meter_billed` are excluded. | DD2.5 |
 | C-DD5 | Does every Site have readings on every day of the span, at the cadence its readings manifest declares (the checker's own cadence table must equal it), with `source_mode` SIMULATED and no gap except a declared outage? | DD4.4 |
 | C-DD6 | Is each failure in the readings at its instant, on its own unit (Thika GEN-CR-01 6 Oct 19:11; Kasarani CH-K2 1 Nov 23:40; Ruiru CH-R7 c2 6 Oct; Kisiwa GEN-KS-01 30 Oct 19:10; Mto INV-MT-02 28 Oct 11:02)? Is B-1031 above 5 °C for more than 15 minutes, and B-1034 below 12 °C? | DD4.4 |
 | C-DD7 | Do readings and books agree **exactly**? Mini: load served + unserved = `delivered_kwh`. Cold: bill kWh = room meter kWh. EV: invoice band kWh = Site meter band kWh; DEMAND = the largest 30-minute mean; each departure's `block_met` = delivered ≥ required; delivered + undelivered = roster required. Metered values are printed beside the manifest's, as information. | DD4.4 |
@@ -845,15 +877,15 @@ Order: DD1 → (DD2 ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merges). See �
 | Decisions, Actions, Results | items made by `prepare` | items made by `prepare` | listed items, or the empty state while a command is pending (D-DD.27) |
 
 The checker shares no logic, list or expected figure with the generators. Expected figures come only from the manifest's
-`oracle`, `checks` and `period` blocks, and from `history.json` pinned by its golden digest, each read by the checker
-itself.
+`oracle`, `checks` and `period` blocks (and `structures` and `factor_map` for C-DD4's node clause, D-DD.55), and from
+`history.json` pinned by its golden digest, each read by the checker itself.
 
 ### 8.2 Sequencing (D-DD.13, D-DD.26)
 
 ```
  now ──► IA-P1 ──► IA-P2 ─────────────────────────────────────────► IA-P3
- now ──► DD1 ──┬─► DD2 ──┐
-               └─► DD3a ─► DD3b ┴─► DD4 ──► DD5 ──► DD6 (after IA-P2): first build = D-IAP.32's rebuild + the DD world
+ now ──► DD1 ──┬─► DD2a ─► DD2b ──┐
+               └─► DD3a ─► DD3b ──┴─► DD4 ──► DD5 ──► DD6 (after IA-P2): first build = D-IAP.32's rebuild + the DD world
                      └─► 0K4f (after DD3b; takes template v4) ─┐
  IA-P done ──► Q11 (cold/EV monthly figures) ─────────────────┼─► ONE rebuild = the accepted demo (owner Q8)
  IA-P done ──► Q12 (whole ranges on every page) ──────────────┘
@@ -880,7 +912,7 @@ itself.
 
 - **D-DD.1 to D-DD.16** as in rev 1, kept below. D-DD.4 is amended by D-DD.21 and D-DD.22, D-DD.5 by D-DD.24, and
   D-DD.10 by D-DD.17 and D-DD.30.
-- **D-DD.17 to D-DD.40**: `rulings.md`.
+- **D-DD.17 to D-DD.57**: `rulings.md`.
 
 - **D-DD.1 The cast.** The manifest's three operators and nine Sites, as §1's table. *Why:* one world drives the
   manifest, mock, documents and product. *Reverse:* a cast change is a manifest change first.
