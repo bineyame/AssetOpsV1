@@ -2,7 +2,7 @@
 
 Branch `task/6c-option-evaluator` (worktree `/opt/assetecon/AssetOpsV1-6c`), on `main` at 57cecf954. Commits:
 bced7b260 (1: difference), 4bb16168a (2: study, admission, models, evaluator), c380b1faf (3: command, run, Postgres),
-plus the bookkeeping commit. Implementer: Claude (assetops-implementer). `USER_REVIEW_REQUIRED: true` (spec header).
+plus the bookkeeping commit and 3689dac36 (the study file read moved into an adapter, as the guard requires). Implementer: Claude (assetops-implementer). `USER_REVIEW_REQUIRED: true` (spec header).
 
 ## Outcome
 
@@ -69,7 +69,13 @@ Changed: `runs/admission.py` (`AdmissionMeasures`, `judge`, `DAWN_LIMIT_PCT`; `a
 
 ## Guards
 
-GUARDS_PLACEHOLDER
+- `tools/check-all.ps1` (fast) at 3689dac36: "All 42 guards passed (blocking; 0 advisory, 0 warned)"; exit 0.
+- `tools/check-architecture.ps1`: exit 0 at 3689dac36. Its first run, at c380b1faf, failed on two lines: "Storage technology above
+  the adapter layer" for `from pathlib import Path` in `decisions/study_input.py` and `decisions/run.py`. Fixed in
+  3689dac36: the bytes are read in `decisions/adapters/study_file.py` (`read_study_bytes`), which the composition
+  passes as `EvaluationService(read_bytes=...)` and `read_study(path, read_bytes)`. Known deviation 8.
+- `tools/check-agent-workflow.ps1`: "Agent workflow check passed."
+- After the fix: 6c's four files plus 6a decisions/commands: `206 passed in 25.90s`.
 
 Layout evidence: not run (no screen; non-UI slice).
 
@@ -91,6 +97,10 @@ Layout evidence: not run (no screen; non-UI slice).
    the frame check, before `STUDY_MONTH_NOT_COVERED`.
 7. **6a files touched** (named above): `admit_person` lifted from `DecisionService._admit` (same behaviour);
    `cli.run` gains `build`. `read_study` raises its own `StudyRefused(code)` (0K4d's has a closed code set).
+
+8. **`read_study(path, read_bytes)` and `EvaluationService(..., read_bytes=)`**: each takes one injected reader in
+   addition to the spec's signature. The configuration-persistence guard bans file access in `decisions/` outside
+   `adapters/`.
 
 ## Residual risk
 
