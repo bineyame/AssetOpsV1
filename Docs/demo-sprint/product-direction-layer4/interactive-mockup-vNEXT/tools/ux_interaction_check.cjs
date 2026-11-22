@@ -162,6 +162,10 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=anchor: (D-IA.36) iaInPa
     const ids = await p.evaluate(() => [...document.querySelectorAll('[data-ux-drawer^="uxo-"]')].map(e => e.dataset.uxDrawer));
     let good = 0; for (const id of ids) { await p.click(`[data-ux-drawer="${id}"]`); await p.waitForTimeout(200); const s = await p.evaluate(id => { const d = document.getElementById(id); return d.dataset.open === 'true' && !!d.querySelector('.ux-obl') && !!d.querySelector('[data-heading],.muted'); }, id); await p.keyboard.press('Escape'); await p.waitForTimeout(150); if (s) good++; }
     ok(ids.length === 4 && good === ids.length, `decision: ${good} of ${ids.length} option Details drawers open with limits and effects`);
+    await p.context().close(); }
+  /* 0K4m (D-0K4.38, specs/0K4m-pack-restate/handoff.md: both Kobo settings not available, KOB-STOPSOC leaves the default plan): Kobo's decision has no released item
+     any more, so the released-state check reads a decision whose item is released in the default plan (Thika, Harvest) */
+  { const p = await page('decision/thika-backup', { op: 'harvest' }); await openAll(p); await p.waitForTimeout(100);
     const chosen = await p.evaluate(() => /Released/.test(document.querySelector('.ux-dmeta .status-pill').textContent) && !document.querySelector('[data-ux-drawer^="uxc-"]'));
     ok(chosen, 'decision: a released item shows its state in the header, and no Choose button');
     await p.context().close(); }
@@ -392,7 +396,7 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=anchor: (D-IA.36) iaInPa
         const lis = [...document.querySelectorAll('.ux-dsteps li')].map(li => ({ t: li.textContent.trim(), c: li.className })), grid = !!document.querySelector('.who-decides') && vis(document.querySelector('.who-decides'));
         const cards = document.querySelectorAll('.ux-ocard').length, base = document.querySelectorAll('.ux-ocard.is-base').length;
         /* the path the design gives this decision (decision-loop §6) */
-        const d = decById(id), op = SK[d.site].op, st = uxDecState(id), it = deciderOf(id).item, oid = it || uxRec(d), path = oid ? uxReleaseFor(op, oid).path : 'wait', atOnce = st.key === 'released' && releaseOf(op, it).at;
+        const d = decById(id), op = SK[d.site].op, st = uxDecState(id), it = deciderOf(id).item, oid = it || uxRec(d) || d.opts.find(o => !isNoAction(o) && uxDisp(o) !== 'REJECTED') /* as uxDecSteps (review r2 L2): with nothing recommended, the path of an option that can be chosen; 0K4m D-0K4.38 left Kobo's generator with no recommended option */, path = oid ? uxReleaseFor(op, oid).path : 'wait', atOnce = st.key === 'released' && releaseOf(op, it).at;
         const want = [st.key === 'none' ? 'No option recommended' : 'Recommended', 'Chosen', ...(atOnce || path === 'at' ? ['Released at once'] : path === 'none' ? ['Actions go ahead'] : ['Awaiting approval', 'Actions released'])];
         const curAt = lis.findIndex(l => /is-current/.test(l.c)), wantCur = st.key === 'released' ? want.length - 1 : st.key === 'approval' ? 2 : 0;
         const stepsOk = lis.map(l => l.t).join('|') === want.join('|') && lis.filter(l => /is-current/.test(l.c)).length === 1 && curAt === wantCur && !(atOnce && lis.some(l => /Awaiting approval/.test(l.t)));
