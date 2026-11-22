@@ -100,7 +100,8 @@ Commits: d47713bd7 (D-DD.90), cd71da771 (D-DD.103), 4ec8033db (join, D-DD.81 + D
   - First branch run found two of this branch's own failures, fixed in 4bd79822d: `test_core::test_t6_greps[\b31\b]`
     (run 1's November shift wrote `timedelta(days=31)`; now `days_in("2026-10")`) and D-DD.106 L2's CLI test (its
     `None` default is replaced by D-DD.103, as that ruling says; the test now asserts `READINGS_SPAN`).
-  - Postgres `test_ddr_rehearsal_postgres.py`: PG_RESULT.
+  - Postgres `test_ddr_rehearsal_postgres.py` (one `--db` slot per tree): branch a5c7e9515 12 passed (214 s, after
+    a 90-min queue); main 759759598 12 passed (178 s).
 - `tools/check-architecture.ps1` (ASSETOPS_GUARD_PYTHON set): passed, 110 s. `tools/check-agent-workflow.ps1`: passed.
 - `tools/checks/statement_catalogue.py`: exit 0 on branch and on main, outputs byte-identical.
 - Layout evidence: not run (no UI).
