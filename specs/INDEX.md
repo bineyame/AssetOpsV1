@@ -39,7 +39,7 @@ finished work are in `archive/agent-history/`.
 | ENV1 | Upload parses under limits, per-host slots (1.35 units) | merged | `ENV1-parse-limits/spec.md` | 38 KB |
 | 0K3 | Replay series from stored readings (2.5 units) | merged | `0K3-replay-series-reader/spec.md` | 25 KB |
 | 0K4 | Dispatch model path (owner, 21 Nov): 14.5 u with 0K4m; 0K4f queued (+~1 u structure layer, D-0K4.45) | live | `0K4-dispatch-model-review/rulings.md`, `0K4-dispatch-model-review/rulings-2.md`; `0K4a-dispatch-v8/`, `0K4b-fuel-curve-taper/`, `0K4c-declared-season/`, `0K4d-rerun-restate/`, `0K4e-candidate-energy/` | 140 KB |
-| 0K4m | Pack and mock restated from 0K4d's v8 figures; 4.0 u (rev 4, product-parity seam kept) | live — build | `0K4m-pack-restate/` | 39 KB |
+| 0K4m | Pack and mock restated from 0K4d's v8 figures; 4.0 u (rev 5, unit 3 pre-flight rulings D-0K4.50-.56) | live — build | `0K4m-pack-restate/` | 39 KB |
 | 1a | Optimize card states its day and scope: SC-1 line on the face, pin first (1.75 u) | live — rev 2, build-ready; merge held for walkthrough | `1a-optimize-card-scope/spec.md` | 18 KB |
 | WK | Walkthrough DB tool: checked L2 copied, prepared, W1-W7, serve 8991/5491 (1.4 u) | merged; coordinator run pending | `WK-walkthrough-database/spec.md` |
 | 6a, 6c | Decisions valued against doing nothing: records, one-offs, choice (6a, 3 u); evaluator ranking admitted settings (6c, 3 u); P6 proposal | draft: awaiting owner P6 | `6-decision-valued/P6-proposal.md`; `6a-decision-records/spec.md`; `6c-option-evaluator/spec.md` | 6, 39, 33 KB |

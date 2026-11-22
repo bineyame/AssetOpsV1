@@ -103,10 +103,11 @@ NUMERIC = re.compile(r"[$€£]\s?\d|\bUSD\b|\bKES\b|\bNGN\b|\d+(\.\d+)?\s?%|\b\
 
 
 def design_values():
-    """H3: figures that rest on a replay not yet run (options with design values) and the plans that include one."""
+    """H3: figures that rest on a simulated replay (options whose params or information read a replay study,
+    `replay_sources`, 0K4m N4) and the plans that include one."""
     vals, opts = set(), set()
     for k, o in DV["options"].items():
-        if o.get("design_values"):
+        if o.get("replay_sources"):
             opts.add(k)
             for f in ("value", "monthly_or_horizon_change"):
                 if o.get(f):
@@ -170,7 +171,7 @@ def lint_block(b):
     for v in numbers(t):
         for d in DESIGN:
             if abs(v - d) <= 0.05 * d:
-                return f"design value {d:g} (as {v:g})"
+                return f"replay figure {d:g} (as {v:g})"
     if NUMERIC.search(t) and not LABEL.search(t):
         return "a figure without an exact illustration label"
     if (any(re.search(r"(?<![\d,.])" + re.escape(f) + r"(?![\d])", t) for f in COMMERCIAL_FIGS) or COMMERCIAL.search(t)) and not re.search(r"\bemulated\b", t, re.I):
