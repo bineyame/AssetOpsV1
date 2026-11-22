@@ -66,6 +66,11 @@ COMMAND_ROLES: dict[str, tuple[str, ...]] = {
     # 3B4 (spec §5.3, D-3B4.11): a Site's tolerance on an observed leaf; the command names the person (`--as`).
     "structure.tolerance.money": (FINANCE,),
     "structure.tolerance.operational": (SITE_MANAGER,),
+    # 6a (spec §3.3; D-P6.13, D-P6.18, D-P6.24): the analyst prepares, a Site manager of that Site or the finance lead
+    # states a one-off, only the executive chooses.
+    "decision.prepare": (ANALYST,),
+    "decision.one_off": (SITE_MANAGER, FINANCE),
+    "decision.choose": (EXECUTIVE,),
 }
 #: §3: a case event kind not listed above (any other kind) admits the Site manager only.
 OTHER_EVENT_ROLES: tuple[str, ...] = (SITE_MANAGER,)

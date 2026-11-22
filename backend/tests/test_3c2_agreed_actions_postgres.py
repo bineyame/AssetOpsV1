@@ -116,7 +116,9 @@ def test_6_chain_triggers_checks_and_refused_downgrade(lake, engine) -> None:  #
         c.execute(_INSERT, _params(row))
     _refused_write(engine, "UPDATE agreed_action SET title = 'x' WHERE id = :i", {"i": row.id}, "append-only")
     _refused_write(engine, "DELETE FROM agreed_action WHERE id = :i", {"i": row.id}, "append-only")
-    _refused_write(engine, "TRUNCATE agreed_action", {}, "append-only")
+    # 6a's `decision_choice` references agreed_action (0072), so a plain TRUNCATE is refused by the FK check before
+    # the trigger runs; CASCADE reaches the statement trigger of agreed_action first.
+    _refused_write(engine, "TRUNCATE agreed_action CASCADE", {}, "agreed_action rows are append-only")
     assert _count(engine) == 1
     other = seed_tenant(engine, "other-op")
     zara = build_account_service(URL)

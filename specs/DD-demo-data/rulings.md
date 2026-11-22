@@ -208,3 +208,76 @@ a measured figure (C-DD7, C-DD17, C-DD20).
 
 - **D-DD.34 Owner queue, round 2.** Q7, Q8 and Q9 of spec §A, with defaults applied now (W3). The owner is asked to
   weigh in on all three: Q7 replaces an owner value, Q8 sets when the demo counts as done, and Q9 moves story figures.
+
+---
+
+# DD rulings, round 3 (D-DD.35 to D-DD.40): DD1 mid-build questions
+
+Architect (Claude), 2026-11-22. Answers Q-DD1.1 to Q-DD1.6 of `handoff-DD1.md` (branch `task/DD1-operators`, commit
+`26fbb3927`). None needs the owner; each is logged here for owner review.
+
+- **D-DD.35 The gateway provisioning guard compares the served tenant** (Q-DD1.3; the blocker).
+  - `evidence/provision_gateway.py:71` compares `args.tenant` with `config.served_tenant_slug()`, not the constant
+    `DEVELOPMENT_TENANT_SLUG`. A `ConfigurationError` from it exits 2 with its own sentence before any store is built.
+    The refusal reads `Tenant {x!r} is not the tenant this environment serves (ASSETOPS_TENANT_SLUG; unset means "demo").`
+  - *Safety intent kept.* The S2-02 guard stops a gateway credential or enablement being written for a tenant the
+    deployment does not serve, through a typo or a wrong flag. After the change: with the variable unset the behaviour is
+    byte-identical ("demo" only); with it set, the flag and the environment must still agree, so it is still a two-key
+    check; and an ON1 operator database holds one tenant (`ONBOARD_DATABASE_NOT_EMPTY`), so the flag cannot reach another
+    tenant's rows. `served_tenant_slug()` is the server's own answer to "which tenant" (D-ON1.5), so the CLI and the app
+    can no longer disagree. The old guard also made every ON1 operator's gateway unprovisionable, a latent fault.
+  - Tests (no database, `store=` injected): unset + `demo` runs; unset + `lakeside-power` exits 2; set `lakeside-power` +
+    `lakeside-power` runs; set `lakeside-power` + `demo` exits 2; set to an invalid slug exits 2 and builds no store.
+  - *Class (W6):* thirteen other operator CLIs compare the constant (`publish_source`, `chain/backfill`,
+    `chain/snapshots`, `chain/period_backfill`, `recompute_consequences`, `publish_assumption`, `declare_objective`,
+    `record_clock_attestation`, `evidence_migration`, `performance_migration`, `sites/convert_kobo_bindings`,
+    `sites/demo_configuration`; `sites/import_kobo` passes it as `configured_tenant_slug`). None is on DD's command
+    list (spec §0: `bulk_load`, `source_profile admit`, `provision_gateway`, `build_structure_snapshot`,
+    `observe_structure`), so DD changes only `provision_gateway`. Rule: a later unit that runs one of them for a
+    non-"demo" tenant makes the same change with the same five tests. The coordinator records the thirteen as one
+    backlog task. This is a guard change, which D-DS4.3 kept out of DS4; it is DD's, narrow and recorded here.
+
+- **D-DD.36 The apply step lives in `onboard_operator apply --bindings DIR`** (Q-DD1.4; amends D-DD.29's "subprocess").
+  - Adopted as proposed: optional `--bindings DIR`; `tools/world.py` L1 passes `backend/conversions/world`. Without the
+    option `apply` is unchanged, so existing tests stay as they are.
+  - The two provisioning steps run **in process** through `provision_gateway.main([...])`, not as a subprocess: the same
+    entry, argument checks, guard (D-DD.35) and `gateway_access_event`, without a product command forking the
+    interpreter. It runs in the same process whose `served_tenant_slug()` onboarding already checked
+    (`ONBOARD_TENANT_NOT_SERVED`).
+  - Order per Site: `convert` (idempotent) then publish; then read `registrations()` and call `enable-gateway` /
+    `enable-source --source` only for rows with `disabled_at` set. A non-zero exit from a step stops the apply with that
+    exit code and the step's own stderr; a re-run completes it.
+  - A Site with no `<CODE>-bindings.json` in DIR refuses `ONBOARD_SITE_INVALID` with where `bindings/<CODE>`, before
+    any write. No new sentence.
+  - Real files: `ONBOARD_REAL_AWAITS_APPROVAL` already refuses before this step; a test shows a real file with
+    `--bindings` exits with that code and writes no binding set and no event.
+
+- **D-DD.37 Cold compressor rating 6 kW, the cooling rating** (Q-DD1.5). Adopted. `compressor-1.rating` is 6 kW,
+  equal to `cold-cooling-capacity`, as in cold-lab-001: both state the cooling duty, one quantity. The electrical draw
+  (cooling × f_m / cop, about 3 kW at full duty) stays the pack's private result (§4.4) and is never written as a rating.
+  No product read uses a compressor's rating.
+
+- **D-DD.38 EV ids follow the manifest's asset codes** (Q-DD1.6). Adopted, with display names.
+  - Ids as proposed, lower-cased manifest codes, as Lakeside's `gen-ks-01`: chargers `ch-e1..ch-e10`, `ch-k1..ch-k4`,
+    `ch-r1..ch-r12`; connectors `<charger>-c1`, `<charger>-c2`; devices `<connector>-charger-controller`,
+    `-connector-controller`, `-connector-meter` (ev-lab-001's set); `feed-1`, `site-meter-1`.
+  - Display names carry the manifest's codes, so C-DD6 and every screen name the story's unit: charger `Charger CH-K2`,
+    connector `CH-R7 connector 2`, devices as ev-lab-001's wording with that prefix.
+  - Topology: `feed-1` → `site-meter-1` → each charger → its two connectors (POWER), plus ev-lab-001's SIGNAL edges per
+    charger.
+
+- **D-DD.39 EV schedules: every connector enabled all day; `24:00` accepted as a day's end** (Q-DD1.2; amends the
+  proposal).
+  - Confirmed: `/2` accepts `connector_enable_schedules` (spec §7 DD1.1 amended).
+  - Amended: the proposed 00:00-23:59 leaves a disabled minute every night, inside the overnight charging window, and
+    the product's windows would show it. That is a model fault, so it is fixed in the model (owner, 2026-11-21: one
+    figure loyal to the operating world): `sites/ev_foundation._validate_schedules` accepts `local_end` `24:00` (end of
+    the local day), `local_start` stays `00:00`-`23:59`. The reads already take it (`ev_site_reads._occurrences` allows
+    hour 24; the window builder adds 24 h), and the screen prints the text. Tests: `00:00`-`24:00` accepted; `24:00`
+    as `local_start` refused; `24:01` refused.
+  - Every connector: seven entries, `00:00`-`24:00`, `time_zone` `Africa/Nairobi`, `utc_offset_minutes` 180. The load
+    manager (§4.5), not the schedule, limits charging.
+
+- **D-DD.40 C-DD13's TENANT-1 clause is pending until DD5.2** (Q-DD1.1). Confirmed. Until DD5.2 C-DD13 is judged on the
+  cross-tenant reads and prints `TENANT-1: pending (DD5.2)` beside its result. DD5.2 makes the clause live, and from
+  then C-DD13 passes only when both hold. A checker test asserts the pending line.

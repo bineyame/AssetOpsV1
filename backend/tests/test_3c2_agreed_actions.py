@@ -25,6 +25,7 @@ from assetops_backend.accounts.service import AccountService
 from assetops_backend.actions import agreed
 from assetops_backend.actions.agreed import (OWNER_COVER, AgreedActionService, MemoryAgreedActionStore,
                                              StoreUnavailable, refusal_sentence, state_code, state_words)
+from lakeside_people import LakesidePeople
 from test_3c0a_accounts_service import PW, MemoryStore
 
 BACKEND = Path(__file__).resolve().parents[1]
@@ -101,42 +102,21 @@ class Composed:
 
 class World:
     def __init__(self, ids: tuple[int, ...] | None = None) -> None:
-        self.accounts_store = MemoryStore()
-        self.accounts = AccountService(self.accounts_store, clock=lambda: T_R1)
         self.store = MemoryAgreedActionStore()
+        self.p = LakesidePeople(self.store.add_site, self.store.add_person, at=T_R1)  # handshake I7
+        self.accounts_store, self.accounts, self.tenant = self.p.accounts_store, self.p.accounts, self.p.tenant
+        self.sites, self.people = self.p.sites, self.p.people
         self.clock = Clock(T_R1)
         numbers = iter(ids) if ids is not None else count(1)
         self.service = AgreedActionService(self.store, self.accounts, clock=self.clock,
                                            new_id=lambda: UUID(int=next(numbers)))
-        self.tenant = self.accounts_store.add_tenant(SLUG, "Lakeside Power")
-        self.sites = {code: self._site(self.tenant, code, kind)
-                      for code, kind in (("KISIWA-001", "MINIGRID"), ("KOBO-001", "MINIGRID"),
-                                         ("MTO-001", "MINIGRID"), ("FRIDGE-001", "COLDCHAIN"))}
-        self.people: dict[str, UUID] = {}
-        self._person(SLUG, email("amina"), "Amina", executive=True)
-        for name, role, site in (("Joseph", FIN, None), ("Wanjiru", ANALYST, None), ("Peter", SM, "KOBO-001"),
-                                 ("Halima", SM, "KISIWA-001"), ("David", SM, "MTO-001"), ("Musa", TECH, None)):
-            self._person(SLUG, email(name.lower()), name)
-            self.accounts.onboard_grant(SLUG, email(name.lower()), role, site)
         # Fatuma: a second executive of Lakeside, disabled (the memory store refuses a second executive account).
-        pid = self._person(SLUG, email("fatuma"), "Fatuma")
+        pid = self.p.person(SLUG, email("fatuma"), "Fatuma")
         row_id = uuid4()
         self.accounts_store.grants.append(GrantRow(row_id, row_id, self.tenant, pid, "Fatuma", EXEC, None, None,
                                                    "GRANTED", None, None, "service:onboarding", T_R1))
         self.accounts_store.statuses.append((pid, "DISABLED", None, T_R1 + timedelta(seconds=1), uuid4()))
-        self.other = self.accounts_store.add_tenant("other-op", "Other Op")
-        self._person("other-op", "zara@other-op.example", "Zara", executive=True)
-
-    def _site(self, tenant: UUID, code: str, kind: str) -> UUID:
-        sid = self.accounts_store.add_site(tenant, code)
-        self.store.add_site(tenant, code, kind, sid)
-        return sid
-
-    def _person(self, slug: str, address: str, name: str, *, executive: bool = False) -> UUID:
-        pid = self.accounts.onboard_create(slug, address, name, PW, executive=executive)
-        self.store.add_person(pid, name)
-        self.people[name] = pid
-        return pid
+        self.other = self.p.other
 
     def run(self, argv: list[str], capsys, *, services=None) -> tuple[int, str, str]:
         code = record_action.main(argv, services=services or Composed(self.service))

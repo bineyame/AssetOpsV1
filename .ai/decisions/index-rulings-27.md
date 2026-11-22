@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-DD.17 to D-DD.34)
+# Decision index: Demo-sprint and later rulings (index only) (D-DD.17 to D-DD.40)
 
 - `D-DD.17` data-sheet labels reuse -basis properties; DATASHEET_FIT; Kobo no-load 0.62 L/h Assumed, owner Q7 · live · specs/DD-demo-data/rulings.md
 - `D-DD.18` served fuel split is the readings-fed one; history split only makes delivered litres · live · specs/DD-demo-data/rulings.md
@@ -18,3 +18,9 @@
 - `D-DD.32` build_exports(view, history, months); 400 L notes on fixed days; SOURCE_VERSION 2 pin moves · live · specs/DD-demo-data/rulings.md
 - `D-DD.33` DD restated: 30.0 u in six parts (DD1-DD6), none over 6 u · live · specs/DD-demo-data/rulings.md
 - `D-DD.34` owner queue round 2: Q7 no-load rate, Q8 acceptance gate, Q9 bills follow the meter · live · specs/DD-demo-data/rulings.md
+- `D-DD.35` provision_gateway guard compares served_tenant_slug(); safety kept; 13 CLIs same class, backlog · live · specs/DD-demo-data/rulings.md
+- `D-DD.36` apply step: onboard_operator apply --bindings DIR; provisioning in process via provision_gateway.main · live · specs/DD-demo-data/rulings.md
+- `D-DD.37` cold compressor rating 6 kW = cooling capacity; electrical draw stays private · live · specs/DD-demo-data/rulings.md
+- `D-DD.38` EV ids ch-e1.., <charger>-c1/c2, ev-lab devices; display names carry manifest codes · live · specs/DD-demo-data/rulings.md
+- `D-DD.39` EV schedules 00:00-24:00 daily, +180; validator accepts 24:00 as local_end · live · specs/DD-demo-data/rulings.md
+- `D-DD.40` C-DD13 TENANT-1 clause pending until DD5.2, printed beside the result · live · specs/DD-demo-data/rulings.md
