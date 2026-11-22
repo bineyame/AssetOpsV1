@@ -1,14 +1,31 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-P6.42 to D-P6.50, D-DD.48 to D-DD.57)
+# Decision index: Demo-sprint and later rulings (index only) (D-P6.42 to D-P6.67, D-DD.48 to D-DD.66)
 
 - `D-P6.42` 6f split: 6f1 (list source + read-only page, 4.0 u) after IA-P1/IA-P2; 6f2 carded after 6b/6d specs · live · specs/6f-decisions-screen/rulings.md
-- `D-P6.43` Decisions list is the union of records and uncovered placed Findings (amends D-P6.8); order rule · live · specs/6f-decisions-screen/rulings.md
-- `D-P6.44` E0 waiting counts the union via a DecisionCoverage port; port fault gives null · live · specs/6f-decisions-screen/rulings.md
+- `D-P6.43` Decisions list union of records and uncovered placed Findings · withdrawn by D-P6.52 · specs/6f-decisions-screen/rulings.md
+- `D-P6.44` one waiting count; amended by D-P6.52: records NOT_VALUED/WAITING only, no coverage port · live · specs/6f-decisions-screen/rulings.md
 - `D-P6.45` page words served: SC-1 decision_page.* statements; money cents signed; rounded once · live · specs/6f-decisions-screen/rulings.md
 - `D-P6.46` missing inputs named by a closed map; 5c RECORD_KEYS reused; wear_rate record words · live · specs/6f-decisions-screen/rulings.md
 - `D-P6.47` who decides: chooser, else current executive by name, else role words; name_of closes 6a F5 · live · specs/6f-decisions-screen/rulings.md
 - `D-P6.48` option cards: baseline, recommended, by rank, deferred, rejected; cap 7 + Show all; table never cut · live · specs/6f-decisions-screen/rulings.md
 - `D-P6.49` 6f1 page read-only: "Choosing on this page: not available yet"; stale-choice line · live · specs/6f-decisions-screen/rulings.md
 - `D-P6.50` verify section shows the approved P6 method as "Not started" before 6e · live · specs/6f-decisions-screen/rulings.md
+- `D-P6.51` lever model gains named options (STATED_OPTIONS) and option records; slice 6h 4.0 u (6h1-6h4) · live · specs/6f-decisions-screen/rulings.md
+- `D-P6.52` D-P6.43 withdrawn; Decisions list is records only (D-P6.8); 6f1 3.75 u, U2 gated on 6h; MD-6F-7 withdrawn · live · specs/6f-decisions-screen/rulings.md
+- `D-P6.53` every pinned Finding has a lever path or a PENDING_LEVERS slice; STRUCTURE_LEVER_PATH at start-up · live · specs/6f-decisions-screen/rulings.md
+- `D-P6.54` 6h catalogue scope: nine levers across the three Site types · live · specs/6f-decisions-screen/rulings.md
+- `D-P6.55` Embakasi schedule options valued from a charging replay of the Site's own month (STUDY); EV replay queued · live · specs/6f-decisions-screen/rulings.md
+- `D-P6.56` decisions prepared by the analyst or DD's walk; no auto-prepare before 7a · live · specs/6f-decisions-screen/rulings.md
+- `D-P6.57` protective levers: outcome BOUNDS_NOT_CHECKED, options CONDITIONAL; purpose-factor closure shown · live · specs/6f-decisions-screen/rulings.md
+- `D-P6.58` option record = a document's monthly level, model computes the change; lever words in decision_lever.py · live · specs/6f-decisions-screen/rulings.md
+- `D-P6.59` 6h backup_cover moves uncovered_nights only; BACKUP_UNPROVEN_DAYS record word dropped · live · specs/6h-named-option-levers/rulings.md
+- `D-P6.60` an option's unrecorded changed leaves are named (after outcome misses, before ONE_OFF); value null · live · specs/6h-named-option-levers/rulings.md
+- `D-P6.61` option row evidence and source class include known-delta changed leaves; NEUTRAL falls back to all · live · specs/6h-named-option-levers/rulings.md
+- `D-P6.62` LeafChange.currency enters the difference; OPTION_RECORD_CURRENCY withdrawn · live · specs/6h-named-option-levers/rulings.md
+- `D-P6.63` lever branches 6-13 run for SETTING_GRID only; branch 17 refuses STATED_OPTIONS with a key_template · live · specs/6h-named-option-levers/rulings.md
+- `D-P6.64` gate G4: 6h done on K2; DD-world Kasarani reads 150.00 once November inputs read (Q11) · live · specs/6h-named-option-levers/rulings.md
+- `D-P6.65` no-action level = decision month's leaf; Thika uncovered nights -26; owner asked to weigh in · live · specs/6h-named-option-levers/rulings.md
+- `D-P6.66` 6h handshake N1-N12 rulings (KEEP_SETTINGS, record words, three tests, helpers, option_inputs, N10 plant) · live · specs/6h-named-option-levers/rulings.md
+- `D-P6.67` 6h shared-change reach, parity golden test 8, unit card 4.25 u · live · specs/6h-named-option-levers/rulings.md
 - `D-DD.48` mini-grid billed/revenue/collected/litres/fuel cost are structures.MINI_GRID nodes evaluated every month from leaves (both sides); October EMU_NODE; spec §5.1 defect, not a generator gap · live · specs/DD-demo-data/rulings.md
 - `D-DD.49` cold/EV budget workbooks via source profiles; expenses-illustrative-1 unchanged; no PENALTY rows (penalties a node); no contract change · live · specs/DD-demo-data/rulings.md
 - `D-DD.50` cold revenue and received are structure nodes (crate_days x rate; revenue - outstanding), all COLLECTED · live · specs/DD-demo-data/rulings.md
@@ -19,3 +36,13 @@
 - `D-DD.55` C-DD2-4 by SQL, failing until DD5; C-DD4 node clause by the checker's own evaluator of M structures/factor_map · live · specs/DD-demo-data/rulings.md
 - `D-DD.56` bool map miss refused NATIVE_VALUE · live · specs/DD-demo-data/rulings.md
 - `D-DD.57` DD2 6.25 u splits: DD2a 3.0 u, DD2b 3.25 u; DD 34.25 u in eight parts · live · specs/DD-demo-data/rulings.md
+- `D-DD.58` C-DD3: missing figure is a FAIL line, never an exception; EV clause = line amount = quantity x M band price, pending until DD4.4; DD2a L1-L3 · live · specs/DD-demo-data/rulings.md
+- `D-DD.59` cold invoicing is one customer_invoicing export (invoices, receipts, credit notes; Type column); Thika ADJUSTMENT a credit-note row, not staged · live · specs/DD-demo-data/rulings.md
+- `D-DD.60` EMU_SOURCE_SWITCH guard at export (D-3A6.5 mirrored); staged JSON in <slug>/staged/, loaded as L1.staged · live · specs/DD-demo-data/rulings.md
+- `D-DD.61` tariff schedules from M by world/tariffs.py (cold rate card, EV utility schedules; mini none); MAP-1 meter register by DD5.2; WORKAROUND OFFPEAK-AM/PM bands · live · specs/DD-demo-data/rulings.md
+- `D-DD.62` one NODES table world/nodes.py; merge DD2a then DD2b, DD2b owns conflicts · live · specs/DD-demo-data/rulings.md
+- `D-DD.63` cold ledger rule: stored-night crate-days, month carry, standard + remainder batch, opening stock, November by DD4.2 · live · specs/DD-demo-data/rulings.md
+- `D-DD.64` DD2b deviations 1, 2, 4-8 ratified, spec amended · live · specs/DD-demo-data/rulings.md
+- `D-DD.65` Kirinyaga at 400-crate capacity accepted; DD4.1 full-room test · live · specs/DD-demo-data/rulings.md
+- `D-DD.65a` review-DD2b Lows: L1 to DD4.4, L2 in D-DD.63, L3 in D-DD.65, L4 and file sha256 pins to DD2b fix round · live · specs/DD-demo-data/rulings.md
+- `D-DD.66` DD2b 4.0 u, DD5 5.25 u; DD 35.25 u in eight parts · live · specs/DD-demo-data/rulings.md
