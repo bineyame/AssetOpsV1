@@ -1226,8 +1226,7 @@ def empty_state_problems(doc, slices, mr, dv):
                         or (side_dv.get("nodes") or {}).get(e["leaf"], 0) is not None:
                     bad.append(f"missing-records {key}: {e['leaf']} is MODEL_PENDING but the {e.get('side')} side does not report it null with words (stale empty state)")
             elif e.get("carried_as") is None and "leaf" in e and side_dv.get("status") == "evaluated":
-                if not (e.get("cause") == "MODEL_PENDING" and e.get("slice") == "0K4e"):   # spec 0K4m §2.4: a pending model version, not a stale empty state
-                    bad.append(f"missing-records {key}: {e['leaf']} is shown as not available on a side that is evaluated (stale empty state)")
+                bad.append(f"missing-records {key}: {e['leaf']} is shown as not available on a side that is evaluated (stale empty state)")
     return bad
 
 
