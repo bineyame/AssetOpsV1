@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-P6.42 to D-P6.50)
+# Decision index: Demo-sprint and later rulings (index only) (D-P6.42 to D-P6.50, D-DD.48 to D-DD.57)
 
 - `D-P6.42` 6f split: 6f1 (list source + read-only page, 4.0 u) after IA-P1/IA-P2; 6f2 carded after 6b/6d specs · live · specs/6f-decisions-screen/rulings.md
 - `D-P6.43` Decisions list is the union of records and uncovered placed Findings (amends D-P6.8); order rule · live · specs/6f-decisions-screen/rulings.md
@@ -9,3 +9,13 @@
 - `D-P6.48` option cards: baseline, recommended, by rank, deferred, rejected; cap 7 + Show all; table never cut · live · specs/6f-decisions-screen/rulings.md
 - `D-P6.49` 6f1 page read-only: "Choosing on this page: not available yet"; stale-choice line · live · specs/6f-decisions-screen/rulings.md
 - `D-P6.50` verify section shows the approved P6 method as "Not started" before 6e · live · specs/6f-decisions-screen/rulings.md
+- `D-DD.48` mini-grid billed/revenue/collected/litres/fuel cost are structures.MINI_GRID nodes evaluated every month from leaves (both sides); October EMU_NODE; spec §5.1 defect, not a generator gap · live · specs/DD-demo-data/rulings.md
+- `D-DD.49` cold/EV budget workbooks via source profiles; expenses-illustrative-1 unchanged; no PENALTY rows (penalties a node); no contract change · live · specs/DD-demo-data/rulings.md
+- `D-DD.50` cold revenue and received are structure nodes (crate_days x rate; revenue - outstanding), all COLLECTED · live · specs/DD-demo-data/rulings.md
+- `D-DD.51` incident-block values (tickets, named batches) via module table + manifest parity test; view_digest unchanged · live · specs/DD-demo-data/rulings.md
+- `D-DD.52` EV roster: one generator, Jul-Oct in DD2, DD4.3 widens the span to 6 Nov · live · specs/DD-demo-data/rulings.md
+- `D-DD.53` a disorder test that dates a note sets its day (OOO-1 Kobo 400 L 26 Oct); amends D-DD.32 · live · specs/DD-demo-data/rulings.md
+- `D-DD.54` DD2.1 stages three DS1b JSON kinds; every DS1b record in one file, staged JSON or unwritten · live · specs/DD-demo-data/rulings.md
+- `D-DD.55` C-DD2-4 by SQL, failing until DD5; C-DD4 node clause by the checker's own evaluator of M structures/factor_map · live · specs/DD-demo-data/rulings.md
+- `D-DD.56` bool map miss refused NATIVE_VALUE · live · specs/DD-demo-data/rulings.md
+- `D-DD.57` DD2 6.25 u splits: DD2a 3.0 u, DD2b 3.25 u; DD 34.25 u in eight parts · live · specs/DD-demo-data/rulings.md
