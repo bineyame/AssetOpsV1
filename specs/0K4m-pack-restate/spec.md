@@ -1,13 +1,14 @@
 # 0K4m: the pack and the vNEXT mock-up restated once from 0K4d's figures (implementer spec)
 
-Status: ready to build, rev 4 (Architect, Claude, 2026-11-22: unit 1 review rulings D-0K4.45 to D-0K4.49, marked
+Status: ready to build, rev 5 (Architect, Claude, 2026-11-22: unit 3 pre-flight rulings D-0K4.50 to D-0K4.56, marked
+**(rev 5)**, owner-away row 79. Rev 4, 2026-11-22: unit 1 review rulings D-0K4.45 to D-0K4.49, marked
 **(rev 4)**; the product-parity seam, §2.3a, is the largest. Rev 3, 2026-11-22: unit 1 rulings D-0K4.40 to D-0K4.44, marked **(rev 3)**;
 rev 2, 2026-11-21: handshake answered, `handshake.md`; owner away,
 Architect standing in under `owner/owner-away-architect-stands-in-2026-11-21b.md`). **4.0 units in three units of work**
 (D-0K4.49; rev 3 had 3.5, D-0K4.39; rev 1 had 2.75, D-0K4.37). Discovery review (W5): new evaluator semantics and money figures. Non-product: no
 backend, frontend, simulator, config, contract or database file changes. `USER_REVIEW_REQUIRED: true` (the owner sees
 the restated figures and mock). Rulings: D-0K4.9, D-0K4.11, D-0K4.13 and D-0K4.27 to D-0K4.29 in
-`specs/0K4-dispatch-model-review/rulings.md`; this unit's D-0K4.31 to D-0K4.49 in
+`specs/0K4-dispatch-model-review/rulings.md`; this unit's D-0K4.31 to D-0K4.56 in
 `specs/0K4-dispatch-model-review/rulings-2.md`. Change list: `specs/0K4-dispatch-model-review/one-figure-change-list.md`
 rows 13 and 16-31. Reviewer guide: `reviewer-guide.md`. Rev 2 marks each handshake answer **(rev 2, Rn or In)** where
 it applies; the largest is the world-month rule (§1.3, D-0K4.38, owner-away row 75).
@@ -468,24 +469,31 @@ every number honest with its basis.
   (`loop-core.js:288`) goes; the drawer reads the source from the fixtures (fix the class, not the instance).
   **(rev 2, I4)** `tools/replay_values.py`, the audit's independent replay set (`audit.mjs:16`), is rewritten to read
   `source:`, `information:` and `replay_studies`, sharing nothing with `gen_fixtures.py`.
-- **Labels (exact copy, plain language, no system vocabulary).**
-  - `DVTEXT` and `dvTag` (`loop-portfolio.js:269-270`) become `SIMTEXT` = `'Simulated: a replay of a declared ' +
-    <replay_studies.K8.days from the fixtures> + '-day season, not your recorded data'` and `srcTag`, which renders
+- **Labels (exact copy, plain language, no system vocabulary).** **(rev 5, D-0K4.50)** "replay" never appears on screen
+  (`vocab_check.cjs` keeps its ban); the struck strings below are replaced by D-0K4.50's exact strings, and every
+  exact string is run through the guard before coding.
+  - `DVTEXT` and `dvTag` (`loop-portfolio.js:269-270`) become `SIMTEXT` = ~~`'Simulated: a replay of a declared ' +
+    <replay_studies.K8.days from the fixtures> + …`~~ **(rev 5)** `'Simulated: from a simulation of a declared ' + <days of
+    the study the figure's own source names (D-0K4.53)> + '-day season, not your recorded data'` and `srcTag`, which renders
     **(rev 2, I4)** the mock's per-figure chip, `<span class="ux-chip is-neutral" title="<SIMTEXT>">Simulated</span>`
     (`loop-ux.js:42, 710`; `ux.css:105`). `.ux-prov` stays the page's "About these figures" popover, with the copy
     below. The "†" goes.
   - The drawer lists the study's four assumptions as `<key in words> <value> <unit> (assumed: <derivation>)` or
     `(declared: …)`, without the basis code.
   - Not-available text: `'Not available yet: ' + <words>`. The words: ~~Kobo's candidate split~~ (rev 4, D-0K4.45:
-    the split shows the world's record from the fixtures, and `loop-core.js:243` reads its days from them); KIS-BATT60, "needs a replay of a Kisiwa battery"; Embakasi per-bus
-    timing, "needs a replay of the charging schedule"; the warranty floor, "needs Kobo's battery sheet".
-  - **(rev 2, R2)** Kobo's two settings: litres and value `'Not available yet: needs a replay of Kobo''s own October'`,
+    the split shows the world's record from the fixtures, and `loop-core.js:243` reads its days from them); KIS-BATT60, ~~"needs a replay of a Kisiwa battery"~~ **(rev 5)** "needs a simulation with a Kisiwa battery"; Embakasi per-bus
+    timing, ~~"needs a replay of the charging schedule"~~ **(rev 5)** "needs a simulation of the charging schedule"; the warranty floor, "needs Kobo's battery sheet".
+  - **(rev 2, R2)** Kobo's two settings: litres and value ~~`'Not available yet: needs a replay of Kobo''s own October'`~~ **(rev 5)** `'Not available yet: needs a simulation of
+    Kobo''s own October'`,
     with the admission line and the dawn line beside them; no litres or money figure on their cards, the overview
     tile or the drawer.
   - The dawn line: `'Dawn: lowest 5 am charge <worst> % (<n> of 61 days below 35 %; information, not a limit)'`, with
     every figure from `information`. The admission line: `'Passes the operating checks: energy served, reserve kept,
     starts within the maker's limit, regular full charge'`, or, where it fails, the first failing part in words.
   - `DV_KIRI` ("Assumption: recovery share 80 %") stays (change-list row 31).
+  - **(rev 5, D-0K4.51)** Kobo's split (330 / 730): no chip; beside it `'as October''s records classify it; to be
+    re-checked against Kobo''s own 5-minute readings'`; the code 0K4f only in the drawer's "For reviewers" block.
+  - **(rev 5, D-0K4.54)** For Kobo's settings and KIS-BATT60 the mock renders these strings, never the manifest's `reason`.
 - **Places** (from the read of the mock; each moves to fixtures or to the labels above):
   - option and decision labels: `loop-site.js:35-37, 59, 63`; `loop-portfolio.js:45, 298-304, 478, 489-491`;
   - queue and overview: `loop-ux.js:69, 141, 341, 701, 711, 724-727`;
@@ -493,11 +501,19 @@ every number honest with its basis.
   - the prose: `loop-decisions.js:273-275` (no "35 % at 5 am on every day", no "160 L") and `:363` (no "21-bus …
     406 kW");
   - `loop-protect.js:88` (`pe.design_value` becomes `pe.source`);
-  - the popover, `loop-core.js:425`: "Simulated figures come from a replay of a declared season; 'Not available yet'
+  - the popover, `loop-core.js:425`: ~~"Simulated figures come from a replay of a declared season;~~ **(rev 5)** "Simulated figures
+    come from a simulation of a declared season; 'Not available yet'
     names the record that would fill it";
   - `loop-core.js:243` "(11 of 31 October days)" becomes the not-available text;
   - each hand-typed "of 61" (`loop-decisions.js:75, 273, 274`, `loop-site.js:37`) reads `replay_studies.K8.days` from the
     fixtures.
+  - **(rev 5, D-0K4.55) The reader class.** Every mock reader reads a field the regenerated fixtures carry (evaluator
+    option figure or manifest record), swept from the keys main's `fixtures.js` has and the new one lacks
+    (`forward_replay.*`, `days_without_headroom`, `economics.*`, the break-even); an element with no source keeps its
+    place and reads `'Not available yet: ' + <words>`; no row is dropped. Kobo's verify line, the KOB-STOPSOC wear
+    line and the Mto prose take D-0K4.55's exact copy. `audit.mjs` reports `consoleErrorRoutes: 0`.
+  - **(rev 5, D-0K4.52)** The manifest's three bridge `basis` strings (`:115, 193, 249`) read "against a target of";
+    every manifest string is swept for OD-6's retired forms (words only; no K13 part).
 - **Documents:**
   - `walkthroughs.md:33, 48, 53, 94, 115`: anchored figures; "design estimate" goes; the dawn reads as information;
   - `fixture-mapping.md:25, 60, 75, 76, 108, 111, 128, 148, 153` (hand-written);
@@ -508,10 +524,12 @@ every number honest with its basis.
   - `tools/vocab_check.cjs` fails on "Design estimate", "design value" and "†" in rendered text;
   - `tools/hand_typed_scan.py` exits 1 on any hit not on its allow-list. Its `:124` "21-bus night" entry goes;
   - regenerate `tools/rendered-manifest-strings.json` (`rendered_strings.cjs`);
-  - run `tools/run-audit.sh --shots` through `tools/heavy-slot.sh`, with `/opt/assetecon/tools/pw/env.sh`. Evidence
-    goes to `/opt/assetecon/evidence/0K4m/`, never `screenshots/`.
+  - run `tools/run-audit.sh` ~~`--shots`~~ through `tools/heavy-slot.sh`, with `/opt/assetecon/tools/pw/env.sh`. Evidence
+    goes to `/opt/assetecon/evidence/0K4m/`, never `screenshots/`. **(rev 5, D-0K4.53)** In the repo without `--shots`;
+    shots from a scratch copy into `/opt/assetecon/evidence/0K4m/u3/`, the copy deleted after.
 - **(rev 3, D-0K4.43) Closing commit 6**, by whichever unit finishes last: set `H9_BASELINE` from the ledger
-  (commit 1a's labels on main against the branch head), with its by-section comment; the head prints `0 failed`.
+  (commit 1a's labels on main against the branch head), with its by-section comment; **(rev 5, D-0K4.56)** remove
+  `k10()` and its call (K10 was retired in rev 4 and still runs at `ba2da1c4e`); the head prints `0 failed`.
 - **The branch merges once, at commit 6, held for the owner** (owner-away terms: UI-facing changes wait for the
   owner's look; D-0K4.37, extended to the branch by D-0K4.43). Units 1-2 are reviewed together, unit 3 after them.
 
@@ -524,7 +542,8 @@ every number honest with its basis.
    `extract_replay_studies.py --check` pass against the two study files?
 4. Is the dawn bounded nowhere, and is Kobo's choice made only among settings the admission line admits?
 5. (rev 4, D-0K4.45) Do Kobo's candidate and necessary litres read the world's record, equal to main's on the plan,
-   October and history months (K13), and are they labelled with their source and 0K4f in every document and on the mock?
+   October and history months (K13), and are they labelled with their source and 0K4f in every document and on the mock (rev 5, D-0K4.51: on the mock, the
+   source in words on screen and 0K4f in the reviewer block only)?
 5a. (rev 2, R2) Do Kobo's two settings read litres, throughput and value "Not available yet" with their words, admitted
    on the replay, with no K8 amount applied to the world's month (K12)? Does the boundary proof print (a), (b) and (c)
    for every commit?
@@ -568,7 +587,7 @@ every number honest with its basis.
 | P23 (rev 4, D-0K4.45) | `generator_l` re-added to `factor_map.MINI_GRID` (scratch copy) | K13 |
 | P24 (rev 4, D-0K4.46) | every option of one Lakeside protective decision `unavailable("probe")` (scratch copy) | must pass: both models take none with the stated `how`, equal plans, no crash |
 | P25 (rev 4, D-0K4.49) | all four MTO-INV `extra_l_per_day` `unavailable("probe")` (K9 self-test) | must pass: feasible, equal plans |
-| P26 (rev 4, D-0K4.45) | Kobo's `factor_sources` re-added, nulling `candidate_l` (scratch copy) | K13 (`derived-values.json` `sites`) |
+| P26 (rev 4, D-0K4.45; rev 5, D-0K4.56) | Kobo's `factor_sources: {candidate_l: "0"}` re-added (scratch copy; P26b; a null crashes the history series first) | K13 (`derived-values.json` `sites`) |
 
 ## 7. Scope limits
 
