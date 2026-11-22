@@ -632,6 +632,25 @@ Start-Sleep -Seconds 120
     } finally { await stop(a); await stop(b); cleanup(r); }
   });
 
+  test("P18 --db-lane does not take lane b beside an old-tools --db (db-job.owner db=yes, live pid, no lane-b owner) (M1)", async () => {
+    const r = makeRepo();
+    let x; let lb;
+    try {
+      x = await rawHold(r, path.join(r.D, "db-job.lock"));
+      const forge = (pid) => fs.writeFileSync(path.join(r.D, "db-job.owner"), `pid=${pid}\nlabel=old\nsince=2026-01-01T00:00:00Z\ncwd=/x\ndb=yes\n`);
+      forge(x.child.pid);
+      for (const out of await Promise.all([bashW(r, ["--db-lane", "--wait-seconds", "3", "--", "true"]),
+                                           pwshW(r, ["-DbLane", "-SlotWaitSeconds", "3", "--", "true"])])) {
+        assert.equal(out.code, 75, out.stderr);
+        assert.match(out.stderr, LANES_BUSY);
+        assert.equal(held(path.join(r.D, "db-job-b.lock")), false, "the probe of lane b is released");
+      }
+      forge(2147483646);   // a dead pid: not a live holder, lane b is free again
+      lb = await markHold(r, "bash", ["--db-lane"]);
+      assert.match(laneOf(lb), /\/db-job-b\.lock$/, lb.out());
+    } finally { await stop(x); await stop(lb); cleanup(r); }
+  });
+
   test("P17 --db waits on lane b while a --db-lane holds it; --db-lane waits while a --db holds both", async () => {
     const r = makeRepo();
     let x; let lb; let ex;

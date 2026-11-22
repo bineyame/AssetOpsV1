@@ -68,6 +68,23 @@ def test_l1_an_unclear_environment_is_refused_and_an_import_failure_is_named(mon
     assert got == _line("a", "that URL", "assetops_backend does not import")
 
 
+def test_l1_check_reads_the_url_the_harness_routes_from(monkeypatch) -> None:
+    stale, real = URL.format(host="127.0.0.1", name="assetops_b_test"), URL.format(host="127.0.0.1", name="assetops_test")
+    env = {"ASSETOPS_TEST_DATABASE_BASE_URL": stale, "ASSETOPS_TEST_DATABASE_URL": real}
+    assert h.harness_base_url(env) == real  # a serial run: the stale base variable is ignored
+    assert h.harness_base_url({**env, "ASSETOPS_TEST_RUN_ID": "r1"}) == stale  # a routed run: the base is the base
+    assert h.harness_base_url({}) is None
+    monkeypatch.setattr(h, "_in_container", lambda: False)
+    monkeypatch.setattr(h, "check_marker", lambda *a, **k: (True, ""))
+    monkeypatch.setattr(h, "held_lane", lambda env, **opts: "b")
+    monkeypatch.setattr(h, "slot_dir", lambda: None)
+    for k in env:
+        monkeypatch.setenv(k, env[k])
+    monkeypatch.delenv("ASSETOPS_TEST_RUN_ID", raising=False)
+    with pytest.raises(SystemExit):  # lane b holds, the harness works on lane a's database: refused
+        h.require("pytest", lane=True)
+
+
 # ---- T-L2: lane_workers_refusal (D-T1.25) ----
 WORKERS = "heavy-slot: refused: a database-lane run uses at most -n 2 (T1b); use --db for more."
 
@@ -126,7 +143,7 @@ def test_l6_lane_databases_match_the_runner() -> None:
 CREATE_SITES = {
     "backend/tests/mechanism_dataset.py": "content-keyed mechanism template, built exclusively, staged and renamed",
     "backend/tests/pg_harness.py": "stem + run id",
-    "backend/tests/setup_cache.py": "content-keyed snapshot under an advisory lock, staged and renamed",
+    "backend/tests/setup_cache.py": "content-keyed snapshot; advisory lock within one base only (host lanes do not enable the cache), staged and renamed",
     "backend/tests/test_ds4_world.py": "a fake (no server)",
     "backend/tests/test_md0_mechanism_postgres.py": "random token",
     "backend/tests/test_out_b4_board_postgres.py": "stem-derived (_case_db_name, T1b)",

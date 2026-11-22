@@ -234,13 +234,21 @@ def refusal(tool: str, reason: str, db: bool = False, lane: bool = False) -> str
             "RULES §7 (T1).")
 
 
+def harness_base_url(environ) -> str | None:
+    """The URL backend/tests/pg_harness.py `route` routes from: the base variable only when the run id is also set
+    (a routed run or worker), else the plain URL, so a stale base variable cannot split the check from the harness."""
+    if environ.get("ASSETOPS_TEST_RUN_ID"):
+        return environ.get("ASSETOPS_TEST_DATABASE_BASE_URL") or environ.get("ASSETOPS_TEST_DATABASE_URL")
+    return environ.get("ASSETOPS_TEST_DATABASE_URL")
+
+
 def require(tool: str, *, db: bool = False, lane: bool = False, exit_with=None) -> None:
     in_container = _in_container()
     sd = None if in_container else slot_dir()
     ok, reason = check_marker(os.environ, slot_dir=sd, in_container=in_container, db=db, lane=lane)
     message = None if ok else refusal(tool, reason, db, lane)
     if ok and lane and not in_container:
-        url = os.environ.get("ASSETOPS_TEST_DATABASE_BASE_URL") or os.environ.get("ASSETOPS_TEST_DATABASE_URL")
+        url = harness_base_url(os.environ)
         message = lane_database_refusal(held_lane(os.environ, slot_dir=sd), url)
     if message is None:
         return

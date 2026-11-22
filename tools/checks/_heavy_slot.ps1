@@ -239,7 +239,15 @@ function Enter-HeavySlot {
             foreach ($candidate in @($dbPath, $dbbPath)) {
                 if ($laneStream) { break }
                 try { $laneStream = [IO.File]::Open($candidate, 'OpenOrCreate', 'ReadWrite', 'None'); $lanePath = $candidate }
-                catch [System.IO.IOException] { }
+                catch [System.IO.IOException] { continue }
+                # M1: lane b is not free while an old-tools -Db (owner db=yes, live pid, no lane-b owner of its own) holds lane a.
+                if ($candidate -eq $dbbPath) {
+                    $oa = Read-HeavyOwner $dbPath
+                    $ob = Read-HeavyOwner $dbbPath
+                    if ($oa['db'] -eq 'yes' -and $oa['pid'] -and $oa['pid'] -ne $ob['pid'] -and (Get-Process -Id ([int]$oa['pid']) -ErrorAction SilentlyContinue)) {
+                        $laneStream.Dispose(); $laneStream = $null; $lanePath = $null
+                    }
+                }
             }
         }
         if ((-not $Db -or $dbbStream) -and (-not $DbLane -or $laneStream)) {

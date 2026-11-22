@@ -246,7 +246,19 @@ elif ((hs_lane)); then
     while :; do
         for hs_p in "$hs_db_path" "$hs_dbb_path"; do
             exec {hs_fd}>>"$hs_p"
-            if flock -n -x "$hs_fd"; then hs_lanefd=$hs_fd; hs_lane_path=$hs_p; break; fi
+            if flock -n -x "$hs_fd"; then
+                # M1: lane b is not free while an old-tools --db (owner db=yes, live pid, no lane-b owner of its own) holds lane a.
+                if [[ $hs_p == "$hs_dbb_path" ]]; then
+                    hs_owner_field "$D/db-job.owner" db; hs_odb=$hs_val
+                    hs_owner_field "$D/db-job.owner" pid; hs_opid=$hs_val
+                    hs_owner_field "$D/db-job-b.owner" pid; hs_obpid=$hs_val
+                    if [[ $hs_odb == yes && -n $hs_opid && $hs_opid != "$hs_obpid" ]] && kill -0 "$hs_opid" 2>/dev/null; then
+                        exec {hs_fd}>&-
+                        continue
+                    fi
+                fi
+                hs_lanefd=$hs_fd; hs_lane_path=$hs_p; break
+            fi
             exec {hs_fd}>&-
         done
         [[ -n $hs_lanefd ]] && break

@@ -72,9 +72,10 @@ Two focused Postgres runs now proceed side by side: `--db-lane` / `-DbLane` take
 
 ## Residual risk
 
-- Transition at merge: a `--db` holder started from the old wrapper holds only `db-job.lock`. A new `--db-lane`
-  entry would take lane b beside it. Merge when `--status` shows `db-job` free (or accept one overlap: lane b's
-  databases are isolated by name).
+- Mixed old and new wrappers (M1, closed in code, Fix round 1): a `--db` holder from an old wrapper holds only
+  `db-job.lock`; a new `--db-lane` no longer takes lane b while `db-job.owner` shows `db=yes` with a live pid and
+  no lane-b owner of that pid. Remaining window: an old `--db` that has the lock but has not yet written its owner
+  file (milliseconds).
 - Two lanes on one private base collide (documented gap). No FIFO for `--db` (D-T1.18).
 
 ## Review focus
@@ -87,3 +88,16 @@ Two focused Postgres runs now proceed side by side: `--db-lane` / `-DbLane` take
 
 - Switch the brief footer in `.ai/ROLE_CONFIG.md` from `--db` to `--db-lane` (decision queue 2).
 - `assetops_b_test` already exists in `assetopsv1-postgres-1` (created by S1; the init SQL covers fresh volumes).
+
+## Fix round 1 (review-T1b.md round 1)
+
+- M1 (code): `--db-lane` (`tools/heavy-slot.sh`, `tools/checks/_heavy_slot.ps1`) releases a probed lane b and keeps
+  waiting when `db-job.owner` is `db=yes` with a live pid different from `db-job-b.owner`'s; lane a is still taken
+  when free. Test P18 in `tools/checks/test_heavy_slot_pool.mjs` forges that owner state (bash and pwsh, plus a dead
+  pid taking lane b); it failed on the previous head and passes now. Residual-risk paragraph above corrected.
+- L1: `heavy_slot_check.harness_base_url` mirrors `pg_harness.route` (base variable only with `ASSETOPS_TEST_RUN_ID`);
+  `require` uses it. Test `test_l1_check_reads_the_url_the_harness_routes_from`.
+- L2: chose the documentation fix (smaller, honest): spec §5 row and the T-L5 reason now say the advisory lock is per
+  database and host lanes do not enable the setup cache. No code change.
+- L3: `backend/README-db.md` shows `--db-lane` with the runner and no fixed URL export.
+- Not run: any `--db` or `--db-lane` job (live lanes in use).
