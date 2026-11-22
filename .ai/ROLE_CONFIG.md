@@ -94,7 +94,7 @@ resumed. State in every review which reviewer produced it.
     "Run commands from the worktree ROOT with repo-relative paths. Postgres tests: ONE call
     `tools/heavy-slot.sh --db -- pwsh tools/run-host-tests.ps1 -- <files>`; vitest only via
     `tools/heavy-slot.sh`; architecture guard with
-    `ASSETOPS_GUARD_PYTHON=/opt/assetecon/AssetOpsV1/.venv/bin/python`. A queued heavy slot is
+    `ASSETOPS_GUARD_PYTHON=/opt/assetecon/AssetOpsV1/.venv/bin/python`, and `tools/checks/statement_catalogue.py` (exit 0, or output identical to main). A queued heavy slot is
     waited on, never a reason to stop. Delete only files you created, never a directory under
     /tmp/claude-1001. No background job or preview server left running at hand-back."
   - **Test scope before hand-back:** a builder runs the whole test directory or module its diff
@@ -107,12 +107,27 @@ resumed. State in every review which reviewer produced it.
   - **Model coverage before design:** a spec Architect first checks that the model (levers,
     structures, factors, records) covers every Site type the work shows. A gap is fixed in the
     model, or put to the owner labelled WORKAROUND; it is never bridged in code silently.
+  - **Coordinator merge check:** before every merge, run check-decision-index, check-agent-workflow and `statement_catalogue.py` on the merged tree (6c and 6h each broke the catalogue on main unseen).
   - **Coordinator housekeeping:** stop an agent's leftover background work (TaskStop) as soon
     as its hand-back is in; check `tools/heavy-slot.sh --status` before dispatching DB-heavy
     work alongside another; merge dependent branches in order and check a long-running agent's
     log at about 60 minutes instead of waiting blind.
   - **Briefs stay within the rules above:** at most about 25 lines plus the footer; a reviewer
     brief gives target, prior results and constraints, never a list of what to judge.
+  - **One part per builder run (second audit, 22 Nov evening).** A builder brief names ONE
+    spec part (e.g. DD3.1, P3b), not a whole slice: DD3a took five builders and IA-P2 three
+    because each ran out of context mid-slice and the next re-read everything. The slice end
+    (full scope vs main, packet, state entry) is its own short run.
+  - **Code-reality pre-flight per part:** before a DD or other data part is built, its builder
+    (or the lane Architect) checks the spec against the code and the world inputs and batches
+    every question into ONE ruling round. Mid-build ruling rounds are for surprises only (DD
+    had seven rounds in one day, most of them findable before code).
+  - **One Architect per lane, kept:** reuse the lane's Architect with SendMessage until about
+    200k context, then hand off to a fresh one with a short note. Parallel fresh Architects in
+    one lane collided on IDs (D-DD.80 used twice).
+  - **No merge without the shared branch held:** a branch is held behind another only when
+    they share files (`git diff --name-only` overlap); otherwise each merges on its own ACCEPT
+    (IA-P1 waited hours behind IA-2b1 with no overlap).
 
 ## Updating bindings
 

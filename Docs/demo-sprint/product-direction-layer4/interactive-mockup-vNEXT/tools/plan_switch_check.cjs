@@ -290,7 +290,11 @@ for (const dc of MAN.home_categories.decisions) { const op = Object.keys(T).find
   const dom = boot(op, `decision/${dc.id}`), regs = [...dom.window.document.querySelectorAll('[aria-label="Service and asset limits under each option"]')];
   regs.forEach((rg, j) => { const t = squash(rg.textContent); ok(!/\$\s?\d/.test(t), `${dc.id}: Protect option table ${j + 1} shows no dollar figure${/\$\s?\d/.test(t) ? ' (' + t.match(/.{50}\$\s?\d.{10}/)?.[0] + ')' : ''}`); });
   dom.window.close(); }
-{ const hu = MAN.tenants[0].sites.find(s => s.site === 'Mto').decision.options.find(o => o.id === 'MTO-HULLER').economics, cost = hu.fuel_monthly + hu.collection_cost_monthly;
+/* 0K4m (D-0K4.45 to .48, specs/0K4m-pack-restate/spec.md): the manifest no longer states the huller's revenue_monthly or fuel_monthly; they are the evaluator's params
+   (load, hours, days, litres per kWh) at the tenant's prices, and revenue less fuel less collection must equal the evaluator's monthly change */
+{ const mto = MAN.tenants[0].sites.find(s => s.site === 'Mto').decision.options.find(o => o.id === 'MTO-HULLER').economics, pm = DV.options['MTO-HULLER'].params, pr = MAN.tenants[0].prices,
+    kwh = pm.load_kw * pm.load_hours_per_day * pm.days, hu = { revenue_monthly: kwh * pr.productive_tariff_usd_per_kwh }, fuel = pm.litres_per_kwh * kwh * pr.diesel_usd_per_l.Mto, cost = fuel + mto.collection_cost_monthly;
+  ok(Math.abs(hu.revenue_monthly - cost - DV.options['MTO-HULLER'].monthly_or_horizon_change) < 0.005, `huller: evaluator params give revenue ${hu.revenue_monthly} less cost ${cost} = the evaluator's monthly change ${DV.options['MTO-HULLER'].monthly_or_horizon_change}`);
   for (const [hash, sel] of [['decision/mto-demand', '.opts tbody tr:first-child'], ['plan', '.plan-item[data-item="MTO-HULLER"]']]) {
     const dom = boot('lakeside', hash), el = dom.window.document.querySelector(sel), g = squash(el?.querySelector('[data-heading="grow"]')?.textContent), o = squash(el?.querySelector('[data-heading="optimize"]')?.textContent);
     ok(g.includes(usd(hu.revenue_monthly)) && g.startsWith('Grow revenue +') && o.includes(usd(cost)) && o.startsWith('Optimize cost and efficiency −'), `${hash}: huller Grow +${hu.revenue_monthly} and Optimize −${cost} (${g} | ${o})`);
@@ -367,7 +371,9 @@ ok(Object.keys(HC.option_money_factors).every(id => optSeen.has(id)), `every opt
     const dom = boot('lakeside', hash), el = dom.window.document.querySelector(sel), tx = squash(el?.textContent);
     const oneOff = hash.startsWith('decision') ? squash(el?.querySelector('td:nth-child(4)')?.textContent) : squash([...(el?.querySelectorAll('.plan-item-figs > div') || [])].find(x => /^One-off cost/.test(squash(x.querySelector('dt')?.textContent)))?.querySelector('dd')?.textContent);
     const o = squash(el?.querySelector('[data-heading="optimize"]')?.textContent);
-    ok(oneOff.startsWith(usd(dv.net_one_off)) && oneOff.includes(`supplier bears ${usd(cov)}`) && !oneOff.includes(usd(-dv.value)) && tx.includes('−' + usd(dv.value)) && o.startsWith('Optimize cost and efficiency −') && o.includes(usd(dv.monthly_or_horizon_change)),
+    /* 0K4m (spec.md: MTO-INV-CLAIM "not valued in money", M8 0 extra litres): with no value the Optimize line says "Not available yet", never a figure */
+    const valued = dv.valued_in_money && dv.value != null;
+    ok(oneOff.startsWith(usd(dv.net_one_off)) && oneOff.includes(`supplier bears ${usd(cov)}`) && (valued ? !oneOff.includes(usd(-dv.value)) && tx.includes('−' + usd(dv.value)) && o.startsWith('Optimize cost and efficiency −') && o.includes(usd(dv.monthly_or_horizon_change)) : o.includes('Not available yet') && !/NaN|undefined/.test(tx)),
       `${hash}: Mto claim one-off ${dv.net_one_off}, supplier bears ${cov}, extra fuel ${dv.monthly_or_horizon_change} under Optimize, value ${dv.value} not a one-off (${oneOff} | ${o})`);
     dom.window.close(); } }
 // (8) and (11) What changed: each chosen option's state derives from its item and Actions; release states are Figure 6d's four
