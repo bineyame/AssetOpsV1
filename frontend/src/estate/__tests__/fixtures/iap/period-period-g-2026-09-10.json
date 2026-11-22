@@ -85,6 +85,9 @@
       }
     ],
     "notices": [],
+    "out": [
+      "Thika: not a mini-grid Site, not included."
+    ],
     "months": {
       "title": "Month by month",
       "columns": [
