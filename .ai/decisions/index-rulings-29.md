@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-DD.67 to D-DD.79)
+# Decision index: Demo-sprint and later rulings (index only) (D-DD.67 to D-DD.80)
 
 - `D-DD.67` no-load basis one vocabulary: fuel-cost-2 admits DATASHEET_FIT (no parameter version change), client words "the datasheet-fitted idle fuel rate", set-equality test · live · specs/DD-demo-data/rulings.md
 - `D-DD.68` parity test for D-DD.67, goldens from main 80661e824 (three bases, missing basis, no rate, parameter digest, words) · live · specs/DD-demo-data/rulings.md
@@ -13,3 +13,4 @@
 - `D-DD.77` Kobo sun outside season v2's calendar = clear shape x solar_surplus day weight (Jul-Aug 0.80), not all clear · live · specs/DD-demo-data/rulings.md
 - `D-DD.78` DD3a Update 4 deviations ratified: hour-block forcings, largest remainder, load shape, critical order, skips, rounding, tank failures as TEL_PACK, C-DD21 · live · specs/DD-demo-data/rulings.md
 - `D-DD.79` DD3a 4.75 u (DD3.1 2.25, DD3.2 2.5), DD3 9.75 u, DD 37.0 u; order inside DD3a · live · specs/DD-demo-data/rulings.md
+- `D-DD.80` kernel cause index by step (POINT via the contract's `point_due_at` once per cause; WINDOW/INTERVAL_WIDE by the D-DD.75 walk), per-boundary `step_starts` read removed; byte-identical, cause cases C1, C2, S2; mini-grid only; target 123 days <= 3 min and 28/14-day ratio <= 2.4, stop rule; DD3a 5.25 u, DD 37.5 u · live · specs/DD-demo-data/rulings.md
