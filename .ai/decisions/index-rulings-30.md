@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-IA.61 to D-IA.81, D-P6.68 to D-P6.71, D-IAP.34)
+# Decision index: Demo-sprint and later rulings (index only) (D-IA.61 to D-IA.81, D-P6.68 to D-P6.71, D-IAP.34, D-DD.80 to D-DD.87)
 
 - `D-IA.61` IA-2b is the list shape only, split 2b1/2b2; 2b2 waits for the owner's IA-2a walkthrough · live · specs/IA-1-shape-rebuild/rulings-5.md
 - `D-IA.62` One list component; filters, sort, search, show-all in the address; focus keep · live · specs/IA-1-shape-rebuild/rulings-5.md
@@ -26,3 +26,11 @@
 - `D-P6.70` no sign rule on option record values; later only as per-leaf data · live · specs/6h-named-option-levers/rulings.md
 - `D-P6.71` 6h packet Q1-Q3 accepted as built (standby-generator title, unused levers arg, prepare parity) · live · specs/6h-named-option-levers/rulings.md
 - `D-IAP.34` period body names Sites left out: E2 body.out (5c out_line), k/n from one set, lead lines (MD-IAP-16); parity test; IA-P2 5.5 u · live · specs/IA-P-product-shape/rulings.md
+- `D-DD.80` DD4 deviation: telemetry_cold.py / telemetry_ev.py on a day-level protocol; telemetry.py the only frame; join after DD3a with mini parity · live · specs/DD-demo-data/rulings.md
+- `D-DD.81` C-DD3 reads a FLAT Site's price at tariff.usd_per_kwh; _EV_PRICE maps band to a tariff path · live · specs/DD-demo-data/rulings.md
+- `D-DD.82` Thika from two v2 mechanisms: failed start reported at request; GENERATOR_HAND_START (FAILED->RUNNING) replaces GENERATOR_RESET; 4 min as M; C-DD6 prediction to owner · live · specs/DD-demo-data/rulings.md
+- `D-DD.83` C-DD19 judged in world check C5 by the simulator parity tests in a subprocess; dd_check neither imports nor runs the simulator · live · specs/DD-demo-data/rulings.md
+- `D-DD.84` cold rooms receive lots at 08:00/16:00, max 40 crates (from the room's cooling); named batches in lots; pulse validity guard; EMU_RECEIVING · live · specs/DD-demo-data/rulings.md
+- `D-DD.85` AMBIENT and EFFICIENCY ratified as private v2 forcings at local midnights; ambient public via the probe, f_m private · live · specs/DD-demo-data/rulings.md
+- `D-DD.86` cold-thermal 2 temperature on a 1e-6 degC grid, rounding booked in the energy ledger (unbounded denominators otherwise) · live · specs/DD-demo-data/rulings.md
+- `D-DD.87` DD4 7.25 u split: DD4a cold 4.0 u, DD4b EV + measured books 3.25 u; DD 38.5 u; DD4a join waits for DD3a only · live · specs/DD-demo-data/rulings.md

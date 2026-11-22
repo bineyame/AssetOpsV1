@@ -3,11 +3,11 @@
 Status: **rev 2, 2026-11-22; DD1 in_review (`packet-DD1.md`); DD2a in_review (`packet-DD2a.md`); DD2b in_review (`packet-DD2b.md`)**: the combined handshake (`handshake.md`, R1-R10, I1-I15) is answered there under "Answers
 (Architect)" and ruled in `rulings.md` (D-DD.17 to D-DD.34). Rev 1 (same day) had 19.5 u in four parts; rev 2 has
 **30.0 u in six parts** (§7); restated by D-DD.44 to **33.0 u in seven parts** (DD3 splits into DD3a, DD3b), by D-DD.47 to 33.5 u, and by D-DD.57 to
-**34.25 u in eight parts** (DD2 splits into DD2a, DD2b), by D-DD.66 to **35.25 u**, by D-DD.73 to **35.75 u**, by D-DD.74 to **36.25 u**, and by D-DD.79 to **37.0 u**. Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
+**34.25 u in eight parts** (DD2 splits into DD2a, DD2b), by D-DD.66 to **35.25 u**, by D-DD.73 to **35.75 u**, by D-DD.74 to **36.25 u**, by D-DD.79 to **37.0 u**, and by D-DD.87 to **38.5 u** (DD4 splits into DD4a, DD4b). Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
 it grounded on the product goals"); owner answers to Q1-Q6: `owner/owner-demo-data-answers-2026-11-22.md`. Owner words on
 Kobo's equipment: `owner/owner-iap-q1-q2-kobo-datasheets-2026-11-22.md`. **Rulings:** D-DD.1 to D-DD.16 (§9) and
-D-DD.17 to D-DD.79 (`rulings.md`); index lines in `.ai/decisions/index-rulings-26.md`, `index-rulings-27.md`,
-`index-rulings-28.md` and `index-rulings-29.md`.
+D-DD.17 to D-DD.87 (`rulings.md`); index lines in `.ai/decisions/index-rulings-26.md`, `index-rulings-27.md`,
+`index-rulings-28.md`, `index-rulings-29.md` and `index-rulings-30.md`.
 **Reviewer guide:** `reviewer-guide.md` (rev 2). `USER_REVIEW_REQUIRED: true` (demo narrative, evidence labels, what the
 served app shows; owner Q7-Q9 open with defaults applied).
 
@@ -241,6 +241,10 @@ cold and EV Site-days were never measured. DD6.3 measures; owner Q4 governs (cap
 
 ### 4.1 The writer (`simulator/assetops_simulator/world/telemetry.py`, new; DD3.1, DD4.2, DD4.3)
 
+The frame is `world/telemetry.py` alone. Cold and EV drive their packs in `world/telemetry_cold.py` and
+`world/telemetry_ev.py` on D-DD.80's day-level protocol, and are joined to `build_telemetry` after DD3a merges.
+
+
 - `build_telemetry(view, site_inputs, decided_books, *, start, end) -> TelemetryResult`. Pure: no store, clock or
   network.
   - `site_inputs` is the parsed `assetops.world-site-inputs/1` file `F` (D-DD.28): per Site its tenant slug, code,
@@ -341,11 +345,18 @@ Added to cold-thermal 1, as **private load parameters** (`ColdLoadParameters`, p
 - **Compressor electrical kW** = cooling kW × `f_m` / `cop`. **Meter kW** = compressor electrical + `auxiliary_kw`. The
   meter signal is its 5-minute mean.
 - **Efficiency condition** `f_m` (private, per room-month) is 1 everywhere except Kirinyaga: July 1.05, August 1.10,
-  September 1.17 (`history.sites`), October and November 500/403.
+  September 1.17 (`history.sites`), October and November 500/403. Forcing `EFFICIENCY` at 00:00 local on a month's first
+  day when it changes (D-DD.85).
 - **Ambient per day** = 24 °C + (w_d − 1) / 0.025, where w_d is the `cooling` family day weight. 24 °C and 2.5 % per °C
-  are the manifest's reference ambient and sensitivity (`M:430`).
-- **New forcing** `GENERATOR_RESET` (FAILED → STOPPED; the controller's start request then runs as usual), for a start
-  by hand.
+  are the manifest's reference ambient and sensitivity (`M:430`). w_d is season × day class with no jitter (22.8, 24.8 or
+  24.0 °C). Forcing `AMBIENT` at each local midnight after the first day; the ambient probe reports it (D-DD.85).
+- **A failed start is reported when it happens** (`start_failure_at_request`, True in the DD values): a start request
+  on a faulted generator fails in the same minute (D-DD.82).
+- **New forcing** `GENERATOR_HAND_START` (FAILED → RUNNING at its minute, actor OPERATOR; the transfer follows after its
+  delay), for a start by hand (D-DD.82; replaces `GENERATOR_RESET`).
+- **Temperature grid** 10⁻⁶ °C (`temperature_quantum`), with the rounding booked in the energy ledger (D-DD.86).
+- **Field-heat validity**: a pulse active while the chamber is at or above its lot's admission ambient raises
+  (D-DD.84).
 - **Zero terms = v1.** With respiration, field heat and auxiliary 0, `cop` 1, `f_m` 1 and no crate forcings, v2
   produces v1's bytes (C-DD19).
 - **Foundation per room** (the `/2` file; the product sees these): cold-lab-001's thirteen values
@@ -354,10 +365,12 @@ Added to cold-thermal 1, as **private load parameters** (`ColdLoadParameters`, p
 - **Thika, 6 Oct**, at minute resolution:
   - `GRID_LOSS` 19:11;
   - `GENERATOR_FAILURE` 19:11 (start requested 19:11:05, failed 19:11:10);
-  - `GENERATOR_RESET` 19:14;
+  - `GENERATOR_HAND_START` 19:14 (running 19:14, bus powered 19:15: 4 minutes without cooling, as `M`);
   - `GRID_RESTORE` 22:00 (the manifest states none; Assumed, in `conditions`).
 
-  B-1029 goes out on 5 Oct at 16:00. B-1031 (120 crates) and B-1034 (80 crates) are present, at their ledger times.
+  B-1029 goes out on 5 Oct at 16:00. B-1031 (120 crates) and B-1034 (80 crates) are present, received in lots at their
+  ledger times (D-DD.84). D-DD.82 predicts that C-DD6's B-1031 clause fails on the declared room; if it does, it goes to
+  the owner.
 - What the chamber does is the pack's. C-DD6 asks the story's facts (B-1031 above its 5 °C limit for more than 15
   minutes; B-1034 below 12 °C). A failure goes to the Architect; nothing is tuned.
 
@@ -460,11 +473,14 @@ whole crates. A profile's `source_version` is the constant "1", except that a pr
   `rest // 7` crates for 7 days and one crate leaving after `rest % 7` days.
 - Opening stock: June batches, filled at July's daily rate, that are still in on 1 Jul, IN rows dated in June
   included. June rows are opening stock, never a missing month, for every check.
-- Admission is at 08:00 local and check-out at 16:00 local. OUT rows after `as_of` are not written. `EMU_CAPACITY`
+- Receiving (D-DD.84): each date has receiving times 08:00 and 16:00 local; each IN takes one free time and carries at
+  most 40 crates; the fill's key is (crates already admitted that date, crowd, date, 08:00 first); `EMU_RECEIVING`
+  stops an unplaceable month. Check-out is at 16:00 local. OUT rows after `as_of` are not written. `EMU_CAPACITY`
   stops above capacity; reaching it is allowed (D-DD.65). DD4.2 extends the ledger to `as_of` by repeating 1-6 Oct's
   generated admissions 31 days later.
-- The manifest's named batches keep their crates and times: B-1029 is in on 28 Sep at 08:00; B-1031 and B-1034 are in
-  on 1 Oct at 08:00 and out on 8 Oct at 16:00 (Assumed); customer `COLD-THIKA-K-01` (D-DD.64 (4)).
+- The manifest's named batches keep their crates, received in lots (D-DD.84; Assumed): B-1029 40 on 28 Sep 08:00 and
+  20 on 27 Sep 16:00, out 5 Oct 16:00; B-1031 40 each on 1 Oct 08:00, 30 Sep 16:00 and 30 Sep 08:00; B-1034 40 each on
+  29 Sep 16:00 and 29 Sep 08:00; both out on 8 Oct at 16:00; customer `COLD-THIKA-K-01` (D-DD.64 (4)).
 
 `cold-storage-ledger-illustrative` (STORAGE_MOVEMENT; constants `kind` STORAGE_MOVEMENT, `subject.kind` BATCH,
 `quantity.unit` crate):
@@ -748,7 +764,7 @@ line's: 10.50 / 10.50; 7.80 / 8.03; 5.60 / 5.56. The packet quotes these residua
 ## 7. Units (W4: parts of at most 6 units; units of 1 to 3 commits)
 
 Eight parts (DD3 and DD2 each split in two), one branch each, each with one discovery review (W5: a new mechanism, a protected seam and money figures).
-Order: DD1 → (DD2a → DD2b ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merges). See §8.2.
+Order: DD1 → (DD2a → DD2b ∥ DD3) → DD4a → DD4b → DD5 → DD6 (after IA-P2 merges). See §8.2.
 
 ### DD1: three operators (4.5 u, D-DD.44; `task/DD1-three-operators`)
 
@@ -822,13 +838,13 @@ Order: DD1 → (DD2a → DD2b ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merg
   mini-depth lift accept one roles-4 or roles-5 set; Kobo's world conversion moves to roles-5 with a parity test of its
   product outputs. Merges before DD5.1 loads Kisiwa's or Mto's readings.
 
-### DD4: cold and EV operating reality, and the measured books (5.75 u; `task/DD4-cold-ev-reality`)
+### DD4: cold and EV operating reality, and the measured books (7.25 u in two parts, D-DD.87: DD4a = DD4.1, DD4.2, 4.0 u, `task/DD4-cold-ev-reality`; DD4b = DD4.3, DD4.4, 3.25 u, `task/DD4b-ev-measured`)
 
-- **DD4.1 cold-thermal 2 (1.5).** §4.4: the model and its parity test against v1, and a run at occupancy = capacity
+- **DD4.1 cold-thermal 2 (2.0; D-DD.82, D-DD.86).** §4.4: the model and its parity test against v1, and a run at occupancy = capacity
   with no clipping (D-DD.65). C-DD19 (cold part) goes live.
-- **DD4.2 Cold writer (1.25).** The ledger extended to `as_of` (D-DD.63), rooms on the ledger's movements, ambient, `f_m`, and Thika's events.
+- **DD4.2 Cold writer (2.0; D-DD.80's join, D-DD.84, D-DD.85).** The ledger extended to `as_of` (D-DD.63), rooms on the ledger's movements, ambient, `f_m`, and Thika's events.
 - **DD4.3 EV writer (1.75).** §4.5: roster in, practice, connector assignment, the depot load manager, faults, CLOCK-1.
-- **DD4.4 Measured books (1.25).** §5.6, including the cold electricity-bill profile (D-DD.64 (8)), and the cold and EV
+- **DD4.4 Measured books (1.5; D-DD.83).** §5.6, including the cold electricity-bill profile (D-DD.64 (8)), and the cold and EV
   statements; `HAND_SAMPLES` empty once `exports_measured` exists (D-DD.65a). C-DD5, C-DD6, C-DD7 and C-DD20 go live.
 
 ### DD5: loaded into the world (5.25 u, D-DD.66; `task/DD5-load`)
@@ -875,7 +891,7 @@ Order: DD1 → (DD2a → DD2b ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merg
   - Fold in the DDR runbook's ten queued clarity notes.
   - Evidence goes to `/opt/assetecon/evidence/DD/<run>/`.
 
-**Size: 36.25 units (D-DD.74; D-DD.73: 35.75 u; D-DD.66: 35.25 u; D-DD.57: 34.25 u; D-DD.47: 33.5 u; D-DD.44: 33.0 u; rev 2: 30.0 u), about 54 commits** (rev 1: 19.5 u). Each part is at or under 6 units. 0K4f grows by 0.5 u
+**Size: 38.5 units (D-DD.87; D-DD.79: 37.0 u; D-DD.74: 36.25 u; D-DD.73: 35.75 u; D-DD.66: 35.25 u; D-DD.57: 34.25 u; D-DD.47: 33.5 u; D-DD.44: 33.0 u; rev 2: 30.0 u), about 54 commits** (rev 1: 19.5 u). Each part is at or under 6 units. 0K4f grows by 0.5 u
 (D-DD.30).
 
 ---
@@ -888,7 +904,7 @@ Order: DD1 → (DD2a → DD2b ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merg
 |---|---|---|
 | C-DD1 | Does the clone hold exactly the three tenants, nine Sites (codes, product types) and `demo_workflow`'s (person, role, Site) triples? | DD1.3 |
 | C-DD2 | Does every Site-month July to October hold each record kind §3 lists for that Site, each with source word *Emulated*? | DD2.5 (measured kinds DD4.4) |
-| C-DD3 | Do the manifest `checks` identities hold on the stored records, by the checker's SQL? Mini: revenue = billed × tariff, and collected + in transit + outstanding = revenue. Cold: revenue = crate-days × 0.20. EV: each invoice line's amount = quantity × its band price in `M` `tariff.prices`, half-even (so lines sum to Σ band costs + demand cost); pending until DD4.4 stores EV invoices. A missing figure is a FAIL line, never an exception (D-DD.58). | DD2.5 |
+| C-DD3 | Do the manifest `checks` identities hold on the stored records, by the checker's SQL? Mini: revenue = billed × tariff, and collected + in transit + outstanding = revenue. Cold: revenue = crate-days × 0.20. EV: each invoice line's amount = quantity × its band price in `M` `tariff.prices` (a FLAT Site's at `tariff.usd_per_kwh`, D-DD.81), half-even (so lines sum to Σ band costs + demand cost); pending until DD4.4 stores EV invoices. A missing figure is a FAIL line, never an exception (D-DD.58). | DD2.5 |
 | C-DD4 | Does each decided commercial leaf equal October's `period.actual` and each history month's `history.json` to the cent? Does each decided node figure of a history month (mini billed kWh, revenue, collected, litres, fuel cost; cold revenue, received) equal the checker's own evaluation of `M` `structures` and `factor_map` on `history.json`'s leaves (D-DD.55)? Leaves listed in `meter_billed` are excluded. | DD2.5 |
 | C-DD5 | Does every Site have readings on every day of the span, at the cadence its readings manifest declares (the checker's own cadence table must equal it), with `source_mode` SIMULATED and no gap except a declared outage? | DD4.4 |
 | C-DD6 | Is each failure in the readings at its instant, on its own unit (Thika GEN-CR-01 6 Oct 19:11; Kasarani CH-K2 1 Nov 23:40; Ruiru CH-R7 c2 6 Oct; Kisiwa GEN-KS-01 30 Oct 19:10; Mto INV-MT-02 28 Oct 11:02)? Is B-1031 above 5 °C for more than 15 minutes, and B-1034 below 12 °C? | DD4.4 |
@@ -904,7 +920,7 @@ Order: DD1 → (DD2a → DD2b ∥ DD3) → DD4 → DD5 → DD6 (after IA-P2 merg
 | C-DD16 | Does the world's Kobo Site carry the slot's values with their `-basis` properties, as the tool maps them? | DD3.2 |
 | C-DD17 | Is Kobo's served unexplained fuel, July to October, ≥ 0 every month, within the product's tolerance July to September, and above it in October? | DD3.3 (pure), DD6.1 (served) |
 | C-DD18 | For each tenant on October, is each of the four outcome categories shown by at least one surfaced item (Finding, decision or outcome row), or by a "Not available yet" naming the missing record, as §A's table expects? | DD6.1 |
-| C-DD19 | Is v9 with one unit each byte-identical to v8 on Kobo's October, and cold-thermal 2 with zero load terms byte-identical to v1? | DD3.3, DD4.1 |
+| C-DD19 | Is v9 with one unit each byte-identical to v8 on Kobo's October, and cold-thermal 2 with zero load terms byte-identical to v1? Judged in `world check` C5 by the simulator's parity tests; `dd_check` prints that line and does not count it (D-DD.83). | DD3.3, DD4.1 |
 | C-DD20 | Do the story mechanisms hold by direction? Mwea's kWh per crate-day rises each month as occupancy falls. Kirinyaga's kWh per crate-day rises each month. Embakasi's metered peak share rises each month. Kisiwa has unserved evening energy after 30 Oct 19:10 and none before. Mto's generator litres per day are higher after 28 Oct 11:02 than in the 28 days before. A failure stops for the Architect; nothing is tuned. | DD4.4 (Kisiwa and Mto from DD3.3) |
 | C-DD21 | Does the writer's `NEEDS` table match the backend's frozen Kobo v8 initial values, address, parameter and unit (D-DD.78)? | DD3.1 |
 
@@ -937,6 +953,7 @@ The checker shares no logic, list or expected figure with the generators. Expect
 - DD2.2 changes `contracts/` (a protected seam) and is reviewed as one.
 - DD2b merges ahead of DD5, main green, once `world_history.py exports --tenant` and its consumers (`tools/world.py`
   L1, DDR S3, the two runbooks) are in (D-DD.74); DD3a, DD3b and DD4 build on its files from main.
+- DD4 is two parts (D-DD.87): DD4a's join waits for DD3a on main; DD4b follows DD4a; DD5 follows DD3b and DD4b.
 - 0K4f, Q11 and Q12 each need a rebuild; the coordinator runs one after all three merge.
 
 ### 8.3 Guards
@@ -955,7 +972,7 @@ The checker shares no logic, list or expected figure with the generators. Expect
 
 - **D-DD.1 to D-DD.16** as in rev 1, kept below. D-DD.4 is amended by D-DD.21 and D-DD.22, D-DD.5 by D-DD.24, and
   D-DD.10 by D-DD.17 and D-DD.30.
-- **D-DD.17 to D-DD.74**: `rulings.md`.
+- **D-DD.17 to D-DD.87**: `rulings.md`.
 
 - **D-DD.1 The cast.** The manifest's three operators and nine Sites, as §1's table. *Why:* one world drives the
   manifest, mock, documents and product. *Reverse:* a cast change is a manifest change first.
