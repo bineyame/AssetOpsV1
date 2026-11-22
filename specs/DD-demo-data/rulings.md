@@ -2444,3 +2444,88 @@ owner-level questions are in `preflight-remaining.md` §2, each with its default
   - DD6 3.75 → **4.75 u** (D-DD.133 +0.25, D-DD.134 +0.75).
   - DD: 44.0 → **49.75 u** in eleven slices. `WK-SC` (D-DD.137, 2.0 u) is outside DD and built only on the owner's
     yes.
+
+# DD rulings, round 17 (D-DD.143 to D-DD.144): DD4a review Q1 (Mwea's `f_m`) and Q2 (metered room energy against `M`) (Q2 a DRAFT)
+
+Architect (Claude, fresh DD lane hand-off after round 16), 2026-11-22. Read: `review-DD4a.md` Q1, Q2 and its residual-risk
+note (on `task/DD4-cold-ev-reality` at 5d6217703; DD4a is since merged to main at 6e3c02ab5); D-DD.20, D-DD.119;
+spec §4.4, §5.6; `M` (`demo-site-scenario-manifest.yaml`) `harvest-cold` (`energy_model`, the three rooms' `period`,
+bridges and options) and `history.json`'s cold room-months. Writer run `/opt/assetecon/worlds/DD4a-0c5d5fab7b90/`
+read only (Σ compressor-meter 5-minute means × 5/60 per room-month; ambient and chamber means from the readings);
+the projection is a read-only script in the session scratchpad, deleted after. No database touched. Owner rules
+applied: loyal to the operating world, one model-computed figure per quantity, nothing fitted to the story; the
+Kobo precedent (D-DD.92: "Revisit a plant figure", then "Architect proposes, owner approves", D-DD.97; D-DD.98 and
+D-DD.125: the readings stand and the story moves).
+
+The owner is informed of both. **D-DD.144 is a DRAFT awaiting the owner**: nothing beyond D-DD.20's meter bill is
+built from it until the owner approves.
+
+- **D-DD.143 Q1: Mwea has no efficiency condition, f = 1 in every month; the ruling's test holds and its text is
+  amended** (model; amends D-DD.119 "efficiency" and spec §4.4; builder default 14 confirmed).
+  - *Why.* `f_m` is a world input: a declared compressor condition that the meter then shows. Mwea's 2650 against
+    2635 (+0.6 %) is a story residual "inside 5 % tolerance" whose own decision text says "no equipment problem to
+    fix" (`MWEA-COMPRESSOR`). Reading it back as a condition would make an output an input, and under D-DD.144 both
+    leaves follow the meter, which would make the input circular.
+  - *Rule (replaces D-DD.119's sentence "for the accounting period, Fraction(period.actual.kwh) /
+    Fraction(period.actual.kwh_model) ... A Site with no `kwh` rule and no `kwh_model` has no entry").* A room has
+    an `f_m` table only where the story declares an equipment efficiency condition: Kirinyaga alone (`role_in_story`
+    "normalised energy inefficiency", the `KIRI-REPAIR` condenser and leak repair). Its table stays {07: 21/20,
+    08: 11/10, 09: 117/100, 10: 500/403, 11: 500/403}. Mwea and Thika have no entry (f = 1).
+  - *Unit impact: none.* The built code and its test already do this; nothing moves (no readings, no pins).
+
+- **D-DD.144 Q2 (DRAFT, awaiting the owner): `M`'s side is wrong. Its cold energy model is a figure no physics
+  produced; the room stands and the cold energy story is restated from the meter** (model; would amend `M`
+  `harvest-cold.energy_model` and the cold `period` leaves, D-DD.119's `f_m` source, spec §4.4 and §7 DD4).
+  - *Which side.* The writer meters October at Mwea 1576.3, Thika 1771.3 and Kirinyaga 2113.6 kWh against `M`'s
+    2650, 3720 and 5000. Decomposed from the readings (October, ambient 24 °C, chamber mean 3.02 °C):
+    - crate-independent: auxiliary 1.0 kW × 744 h = 744 kWh, plus leak 0.08 × 21 K × 744 h / COP 2 ≈ 625 kWh:
+      about 1,370 kWh a room, against `M`'s `base_kwh` 1550 (12 % apart);
+    - crate-dependent (respiration, field heat, door): about 0.045-0.05 kWh per crate-day at the meter, against
+      `M`'s `k_kwh_per_crate_day` **0.25**. That term is the whole gap: (M − meter) / crate-days is 0.247, 0.225
+      and 0.220 (Kirinyaga at f = 1).
+    - 0.25 kWh a crate-day at COP 2 is about 21 W of heat per 20 kg crate, about 1 W/kg: some ten times vegetable
+      respiration at 2-5 °C (refrigeration handbook tables, about 20-150 mW/kg), or a full field-heat pull-down of
+      the whole stock every day. No load the room lacks closes it: the gap is 1.4-2.9 kW continuous per room, while
+      fans, controls, lighting and defrost (off-cycle at a 2-4 °C box) are already in the 1.0 kW auxiliary, and the
+      door, the weakest figure by provenance (0.02 kWh/min, copied from the cold-lab fixture; a curtained 2 m² door
+      at 21 K infiltrates nearer 3-4 kW), opens 33-62 times a month, so even a sourced value adds under 10 kWh.
+    - `M` itself labels the model "[proposed] ... coefficients fitted on 60 days of meter + occupancy per room in a
+      pilot". No pilot ran. Its October kWh are that model's output plus a story excess: the D-DD.92 class (a history
+      no physics produced). Scale check (room volume Assumed, about 75 m³ for 400 crates): the meter's about
+      19,000-21,000 kWh a year is about 250-285 kWh/m³, already above measured cold-store benchmarks (UK stores
+      59-124 kWh/m³ a year, small stores higher, an 8× spread: Evans et al., Defra cold-store studies); `M`'s is
+      420-800.
+  - *Proposal (Assumed method, not a fitted world).* Keep every room figure. Restate `M`'s energy model by the
+    product's own declared method run on the world's readings, so the model is computed, not typed:
+    - `base_kwh` and `k_kwh_per_crate_day` = the ordinary least-squares line of the metered room-month kWh,
+      normalised to 24 °C by `M`'s form (÷ (1 + 0.025 × (ambient − 24))), on `crate_days`, over the healthy rooms'
+      pilot months: **Mwea and Thika, July-September** (6 room-months, 92 days a room; Kirinyaga is excluded because
+      it carries a declared condition). `base_kwh` to whole kWh, `k` to 4 decimals, half-even. Projected: **1304 and
+      0.0554** (`status` becomes "fitted on Jul-Sep meter + occupancy, Mwea and Thika (D-DD.144)").
+    - Every cold `kwh` leaf (history and period) is the meter's (D-DD.20, unchanged); `kwh_model`, plan `kwh`, energy
+      and every `{fig:}` they feed follow the restated model, in one `M` commit after DD4.4's bill, rev bump (D-DD.30
+      chain). A figure that does not follow stops for the Architect.
+    - `f_m` source frozen: Kirinyaga's table becomes the declared constant `telemetry_cold.EFFICIENCY_CONDITION`
+      (D-DD.143's values) with a parity test against the view at main 6e3c02ab5, because `M`'s period `kwh` /
+      `kwh_model` will follow the meter and can no longer be the input that drives it.
+  - *Result, October (projection; the writer measures).*
+
+    | Room | Meter kWh (`M`) | Energy cost at 0.20 (`M`) | Model kWh | Story |
+    |---|---|---|---|---|
+    | Mwea | 1576 (2650) | about 315.26 (530.00) | about 1544 | +2.1 % above model (`M` +0.6 %), still inside 5 %: "no equipment problem" holds; contribution about +203 (−12); still the highest cost per crate-day |
+    | Thika | 1771 (3720) | about 354.26 (744.00) | about 1785 | −0.7 %; the incident story is untouched |
+    | Kirinyaga | 2114 (5000) | about 422.72 (1000.00) | about 1854 | **about +14 % (`M` +24 %)**: about 260 kWh, about −52 a month (−194); repair about 41.65 a month, about +150 net on 12 months (+1,512.40); replace about −3,950 (−1,988.40). Repair still beats replace, by less |
+
+    The 24 % is the compressor's own condition (f = 500/403); the meter shows about +14 % because the 1 kW auxiliary
+    does not degrade. July-September at Kirinyaga read +3 %, +6 %, +8 % against the model, a visible drift.
+  - *Alternative.* Revisit a room figure so the meter approaches `M`: it needs 1.4-2.9 kW more continuous load per
+    room (auxiliary about 3-4 kW, or COP below 1), which no source supports. Refused as fitting the world to the
+    story. The other alternative is to keep `M`'s model beside the meter: the product would then show every room
+    40-55 % below its model, which is two figures for one quantity.
+  - *Default applied pending the owner.* DD4.4 builds the cold bill from the meter as D-DD.20 already rules, and
+    `meter_billed` prints `M`'s figures beside it. The restatement (new part **DD4.6**, 1.0 u, after DD4.5) waits
+    for approval: the model fit as above, `M` restated with the sweep of every typed "24%", "+0.6%", "970 kWh",
+    "194", "155.20", "1,512.40" and "775 kWh" in `M`, `domain-and-decision-models.md` and
+    `interactive-mockup-vNEXT/`, the `EFFICIENCY_CONDITION` freeze and the parity re-pins
+    (`backend/tests/golden/6h_parity.json` lists the moved figures). If approved, DD4b 4.75 → 5.75 u, DD 49.75 →
+    50.75 u.

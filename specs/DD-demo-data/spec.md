@@ -6,7 +6,7 @@ Status: **rev 2, 2026-11-22; DD1 in_review (`packet-DD1.md`); DD2a in_review (`p
 **34.25 u in eight parts** (DD2 splits into DD2a, DD2b), by D-DD.66 to **35.25 u**, by D-DD.73 to **35.75 u**, by D-DD.74 to **36.25 u**, by D-DD.79 to **37.0 u**, by D-DD.80 to **37.5 u**, by D-DD.88 to **39.0 u** (DD4 splits into DD4a, DD4b), by D-DD.96 to **41.5 u**, by D-DD.101 to **42.0 u**, by D-DD.107 to **43.25 u in ten parts** (DD3b splits into DD3b, DD3c), and by D-DD.116 to **44.0 u** (DD3c 3.25 u), and by D-DD.142 to **49.75 u in eleven slices** (lane-wide pre-flight, `preflight-remaining.md`: DD3b 5.75, DD4b 4.75, DD5 split into DD5a 3.5 and DD5b 3.75, DD6 4.75). Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
 it grounded on the product goals"); owner answers to Q1-Q6: `owner/owner-demo-data-answers-2026-11-22.md`. Owner words on
 Kobo's equipment: `owner/owner-iap-q1-q2-kobo-datasheets-2026-11-22.md`. **Rulings:** D-DD.1 to D-DD.16 (§9) and
-D-DD.17 to D-DD.142 (`rulings.md`; the remaining parts' pre-flight: `preflight-remaining.md`); index lines in `.ai/decisions/index-rulings-26.md`, `index-rulings-27.md`,
+D-DD.17 to D-DD.144 (`rulings.md`; the remaining parts' pre-flight: `preflight-remaining.md`); index lines in `.ai/decisions/index-rulings-26.md`, `index-rulings-27.md`,
 `index-rulings-28.md`, `index-rulings-29.md` and `index-rulings-30.md`.
 **Reviewer guide:** `reviewer-guide.md` (rev 2). `USER_REVIEW_REQUIRED: true` (demo narrative, evidence labels, what the
 served app shows; owner Q7-Q9 open with defaults applied).
@@ -361,7 +361,8 @@ Added to cold-thermal 1, as **private load parameters** (`ColdLoadParameters`, p
 - **Compressor electrical kW** = cooling kW × `f_m` / `cop`. **Meter kW** = compressor electrical + `auxiliary_kw`. The
   meter signal is its 5-minute mean.
 - **Efficiency condition** `f_m` (private, per room-month) is 1 everywhere except Kirinyaga: July 1.05, August 1.10,
-  September 1.17 (`history.sites`), October and November 500/403. Forcing `EFFICIENCY` at 00:00 local on a month's first
+  September 1.17 (`history.sites`), October and November 500/403. Mwea and Thika have no entry (D-DD.143). DRAFT D-DD.144, if the owner approves: the table
+  becomes the declared constant `telemetry_cold.EFFICIENCY_CONDITION`, and `M`'s cold energy model and `kwh` leaves follow the meter (DD4.6). Forcing `EFFICIENCY` at 00:00 local on a month's first
   day when it changes (D-DD.86).
 - **Ambient per day** (November declared `short_rains`, scope digests unchanged: D-DD.90) = 24 °C + (w_d − 1) / 0.025, where w_d is the `cooling` family day weight. 24 °C and 2.5 % per °C
   are the manifest's reference ambient and sensitivity (`M:430`). w_d is season × day class with no jitter (22.8, 24.8 or
@@ -1011,7 +1012,7 @@ The checker shares no logic, list or expected figure with the generators. Expect
 
 - **D-DD.1 to D-DD.16** as in rev 1, kept below. D-DD.4 is amended by D-DD.21 and D-DD.22, D-DD.5 by D-DD.24, and
   D-DD.10 by D-DD.17 and D-DD.30.
-- **D-DD.17 to D-DD.142**: `rulings.md` (D-DD.97 owner-approved 22 Nov; built in DD3b, D-DD.107).
+- **D-DD.17 to D-DD.144**: `rulings.md` (D-DD.144 a DRAFT awaiting the owner) (D-DD.97 owner-approved 22 Nov; built in DD3b, D-DD.107).
 
 - **D-DD.1 The cast.** The manifest's three operators and nine Sites, as §1's table. *Why:* one world drives the
   manifest, mock, documents and product. *Reverse:* a cast change is a manifest change first.
