@@ -107,8 +107,9 @@ W1_BOOKS = {
     "day_weights": {"classes": {"WD": [1, 2, 3, 4, 5], "SA": [6], "SU": [7]}, "WD": "1.00", "SA": "0.97", "SU": "0.90"},
 }
 
-#: W1's Kobo equipment rows, set here (replacing any the /2 file carries), so commit 2's data-sheet write does not
-#: move the case: tank 2500 L (D-DD.76) and the three curve properties at the slot's values.
+#: W1's Kobo equipment rows, set here (replacing any the /2 file carries): tank 2500 L (D-DD.76) and the three curve
+#: properties at the slot's values. Rated power, SFC and battery capacity are read from the /2 file, so DD3.2 commit 2
+#: (36 kW, 0.2917 L/kWh, 191.5 kWh) moved W1's inputs and its golden was regenerated with main's kernel.
 W1_ROWS = {
     "FUEL_TANK": [("tank-capacity", "2500", "L")],
     "GENERATOR": [("generator-no-load-fuel-rate", "0.62", "L/h"), ("generator-minimum-load", "30", "%")],
