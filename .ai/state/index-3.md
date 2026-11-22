@@ -18,3 +18,4 @@ One line per slice, continuing `index-2.md` (number, slice ID, summary, file in 
 193. `5c` unit 3: "The month" screen (Portfolio tab, hub shape, drawers, gates script with eight plants; rev 4 screen fix: served step bars and scale, `dd-na` mute, drawer focus and lock; in_review) · estate.md
 194. `1a` Optimize card states its day and scope: `CostScope`, SC-1 `portfolio_card.cost_scope`, `scope_text` on the face (merge held for walkthrough) · estate.md
 195. `0K4m-u3` mock restated: Simulated chip per study, gaps "Not available yet", readers on evaluated fixtures; H10/H9 in commit 6 · data.md
+196. `IA-P1` real app on the IA shape, part 1: long range (P0), 13-item rail and aliases (P1), one list component for Decisions, Findings, Actions with the shared read cache (P2; in_review) · shell.md

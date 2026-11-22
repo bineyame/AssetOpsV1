@@ -4,7 +4,7 @@
  * the canonical address back. Nothing here reads a store, a date or a word of a list's own; the defs supply them.
  */
 
-/** IA-2b D-IA.80: one cap per list. */
+/** IA-2b (cap, one per list; spec §5.2, D-IAP.6). */
 export const HOME_LIST_CAP = 10;
 
 export interface ListOption {

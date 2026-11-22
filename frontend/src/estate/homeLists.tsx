@@ -7,7 +7,7 @@ import { useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { PageHeader } from "../ui";
-import { DETAIL_NOT_AVAILABLE, HomeList, type HomeListDef } from "../ui/HomeList";
+import { HomeList, type HomeListDef } from "../ui/HomeList";
 import { formatDay } from "../ui/time";
 import { linkFor } from "../shell/operatorSiteRoutes";
 import {
@@ -59,8 +59,9 @@ const LENS_OPTIONS = [
   { value: "opportunities", word: "Opportunities" },
 ];
 
-function miniGridIds(rows: readonly { site_id: string; domain: string }[]): ReadonlySet<string> {
-  return new Set(rows.filter((r) => r.domain === "MINIGRID").map((r) => r.site_id));
+/** Mini-grid Sites: coverage reports a matcher state for them; cold and EV Sites report `NOT_APPLICABLE` (as the Findings list does). */
+function miniGridIds(sites: readonly EstateCoverageSite[]): ReadonlySet<string> {
+  return new Set(sites.filter((s) => s.match_state !== "NOT_APPLICABLE").map((s) => s.site_id));
 }
 
 /** I8: `recommendation` only on a mini-grid `FINDING` Ref; a `FUEL_FINDING` and a windowed cold or EV Ref link as sent. */
@@ -73,7 +74,7 @@ function decisionTarget(row: EstatePortfolioRow, mini: ReadonlySet<string>): str
 
 export function decisionItems(body: EstatePortfolioBody, rows: readonly EstatePortfolioRow[]): DecisionItem[] {
   const sites = new Map<string, EstateCoverageSite>(body.coverage.sites.map((s) => [s.site_id, s]));
-  const mini = miniGridIds(rows);
+  const mini = miniGridIds(body.coverage.sites);
   return rows.map((row) => ({
     row,
     state: decisionStateKey(row),
@@ -385,4 +386,3 @@ export function ActionsListPage({ client }: { client?: EstateClient }) {
   );
 }
 
-export { DETAIL_NOT_AVAILABLE };

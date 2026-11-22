@@ -7,6 +7,7 @@ import { useLayoutEffect, useRef, type FormEvent, type ReactNode } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 import "./homeList.css";
+import { DataTable } from "./DataTable";
 import { RangeLink as Link } from "./RangeLink";
 import { facetValue, homeListHref, homeListModel, type HomeListModel, type ListDefModel } from "./homeListModel";
 
@@ -246,34 +247,32 @@ export function HomeList<T>({
             </p>
           )
         ) : (
-          <div className="table-wrap">
-            <table className="hl-table" id={`home-list-${def.key}`}>
-              <thead>
-                <tr>
-                  <th scope="col">{def.firstColumn}</th>
-                  {def.columns.map((c) => (
-                    <th key={c.label} scope="col">
-                      {c.label}
+          <DataTable tableClassName="hl-table">
+            <thead>
+              <tr>
+                <th scope="col">{def.firstColumn}</th>
+                {def.columns.map((c) => (
+                  <th key={c.label} scope="col">
+                    {c.label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            {grouped ? (
+              model.groups.map((g) => (
+                <tbody key={g.g} data-group={g.g}>
+                  <tr className="hl-group">
+                    <th colSpan={cols} scope="rowgroup">
+                      {def.groupWord?.(g.g) ?? g.g} <span className="hl-count">{g.n_g}</span>
                     </th>
-                  ))}
-                </tr>
-              </thead>
-              {grouped ? (
-                model.groups.map((g) => (
-                  <tbody key={g.g} data-group={g.g}>
-                    <tr className="hl-group">
-                      <th colSpan={cols} scope="rowgroup">
-                        {def.groupWord?.(g.g) ?? g.g} <span className="hl-count">{g.n_g}</span>
-                      </th>
-                    </tr>
-                    {model.shown.filter((item) => def.group!(item) === g.g).map(rowOf)}
-                  </tbody>
-                ))
-              ) : (
-                <tbody>{model.shown.map(rowOf)}</tbody>
-              )}
-            </table>
-          </div>
+                  </tr>
+                  {model.shown.filter((item) => def.group!(item) === g.g).map(rowOf)}
+                </tbody>
+              ))
+            ) : (
+              <tbody>{model.shown.map(rowOf)}</tbody>
+            )}
+          </DataTable>
         )}
         {model.hidden.length > 0 ? (
           <p className="hl-more">

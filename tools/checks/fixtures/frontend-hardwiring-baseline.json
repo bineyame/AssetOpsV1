@@ -18,9 +18,6 @@
   "estate/estateClient.ts": {
    "lit": 3
   },
-  "estate/findingIndex.tsx": {
-   "href": 4
-  },
   "estate/portfolioWords.ts": {
    "lit": 3
   },
@@ -130,7 +127,7 @@
  },
  "totals": {
   "api": 12,
-  "href": 24,
+  "href": 20,
   "lit": 69,
   "cmp": 50,
   "code": 3
