@@ -9,6 +9,12 @@ run of `test_daytime_mini_grid.py`; F1 the first run of `simulator/tests/test_fu
 `FORCING_VALUE_AMBIGUOUS` case of `simulator/tests/test_execution_failures.py`; W1 the DD3 writer's Kobo 7 days from
 2026-07-01 with the tank set to 2500 L here; S1 K8 advanced one boundary at a time.
 
+D-DD.80 adds three cause cases on F1's run (the minimal fuel tank, whose tank takes `CAUSAL_INPUT`), causes added here:
+C1 POINT causes (offset 0, on a later step boundary, mid-step, two on one address in one step, the last step, and one
+on an address the run excludes as `CAUSAL_INPUT`); C2 spread causes (WINDOWs with partial first and last steps, inside
+one step, ending at the interval's end, and an INTERVAL_WIDE) on a duration not a multiple of the timestep; S2 C1
+advanced one boundary at a time.
+
 Regenerating a golden digest (only when a case's INPUTS move, never for a kernel change) runs main's kernel:
 `python host/tests/test_kernel_forcing_index_parity.py --reference main [CASE ...]` loads `kernel/execute.py` from that
 revision as a separate module and rewrites the named entries.
@@ -34,7 +40,7 @@ if __name__ == "__main__":  # the same paths `host/conftest.py` gives pytest
     for extra in (HERE, HERE.parent, REPOSITORY / "simulator", REPOSITORY / "contracts", REPOSITORY / "backend"):
         sys.path.insert(0, str(extra))
 
-from assetops_contracts.world_inputs import ForcingInput  # noqa: E402
+from assetops_contracts.world_inputs import DeclaredCause, FrozenInterval, ForcingInput, UnmodelledInput  # noqa: E402
 from assetops_simulator.kernel import execute as current_kernel  # noqa: E402
 from assetops_simulator.packs.fuel import MINIMAL_FUEL_MODEL  # noqa: E402
 from assetops_simulator.packs.mini_grid import MINI_GRID_V8_MODEL  # noqa: E402
@@ -124,6 +130,53 @@ def _writer_case():
     return tel.frozen_inputs(kobo, W1_BOOKS, "2026-07-01", "2026-07-07"), MINI_GRID_V8_MODEL
 
 
+def _cause(event_id, address, direction, quantity, shape, offset, duration=None):
+    return DeclaredCause(
+        event_id=event_id, address=address, state_key=address.split("@")[0], direction=direction,
+        parameter_id=f"{event_id}-quantity", quantity=Fraction(quantity), canonical_unit="L", dimension="VOLUME",
+        shape=shape, offset_minutes=offset, duration_minutes=duration)
+
+
+#: C1's excluded address: a stock the run records as unmodelled in the `CAUSAL_INPUT` role.
+EXCLUDED = "spare-tank-volume@spare-tank"
+
+
+def _point_cause_case():
+    conftest = _simulator_conftest()
+    inputs = conftest.world_inputs()
+    tank = conftest.TANK
+    added = (
+        _cause("c1-at-zero", tank, "INCREASE", 10, "POINT", 0),
+        _cause("c1-on-boundary", tank, "DECREASE", 5, "POINT", 600),
+        _cause("c1-mid-step", tank, "INCREASE", 3, "POINT", 607),
+        _cause("c1-same-step-up", tank, "INCREASE", 7, "POINT", 1207),
+        _cause("c1-same-step-down", tank, "DECREASE", 4, "POINT", 1210),
+        _cause("c1-last-step", tank, "INCREASE", 2, "POINT", 2455),
+        _cause("c1-excluded", EXCLUDED, "INCREASE", 9, "POINT", 900),
+    )
+    return replace(inputs, causes=inputs.causes + added,
+                   unmodelled_inputs=inputs.unmodelled_inputs + (UnmodelledInput(EXCLUDED, "CAUSAL_INPUT"),)), \
+        MINIMAL_FUEL_MODEL
+
+
+C2_DURATION = 2467  # 164 full 15-min steps and a 7-min last step
+
+
+def _spread_cause_case():
+    conftest = _simulator_conftest()
+    inputs = conftest.world_inputs()
+    tank = conftest.TANK
+    interval = FrozenInterval(start_time=inputs.interval.start_time, end_time="2026-09-22T17:07:00Z",
+                              duration_minutes=C2_DURATION, timestep_minutes=inputs.interval.timestep_minutes)
+    added = (
+        _cause("c2-partial-ends", tank, "DECREASE", 25, "WINDOW", 607, 50),
+        _cause("c2-inside-one-step", tank, "INCREASE", 6, "WINDOW", 1203, 7),
+        _cause("c2-to-the-end", tank, "INCREASE", 11, "WINDOW", 2430, C2_DURATION - 2430),
+        _cause("c2-interval-wide", tank, "DECREASE", 20, "INTERVAL_WIDE", 0),
+    )
+    return replace(inputs, interval=interval, causes=inputs.causes + added), MINIMAL_FUEL_MODEL
+
+
 RUN_ID = "run-" + "0" * 32  # a draft's run id is random; the digest covers it, so every case pins it
 
 
@@ -140,13 +193,16 @@ BUILDERS = {
     "F1": _pinned(_fuel_case),
     "X1": _pinned(_ambiguous_case),
     "W1": _pinned(_writer_case),
+    "C1": _pinned(_point_cause_case),
+    "C2": _pinned(_spread_cause_case),
 }
-CASES = (*BUILDERS, "S1")
+STEPPED = {"S1": "K8", "S2": "C1"}  # a case advanced one boundary at a time, and the batched case it must equal
+CASES = (*BUILDERS, *STEPPED)
 
 
 def digest(case: str, kernel=current_kernel) -> str:
-    if case == "S1":  # K8, one boundary at a time
-        inputs, model = BUILDERS["K8"]()
+    if case in STEPPED:  # the batched case, one boundary at a time
+        inputs, model = BUILDERS[STEPPED[case]]()
         execution = kernel.start(inputs, model)
         while not execution.is_terminal:
             execution.advance(1)
@@ -164,9 +220,21 @@ def test_every_case_gives_main_kernels_digest(case: str) -> None:
     assert digest(case) == _golden()[case]
 
 
-def test_s1_stepped_equals_k8_batched() -> None:
+@pytest.mark.parametrize("stepped", STEPPED)
+def test_stepped_equals_batched(stepped: str) -> None:
     golden = _golden()
-    assert golden["S1"] == golden["K8"]
+    assert golden[stepped] == golden[STEPPED[stepped]]
+
+
+@pytest.mark.parametrize("case", ("C1", "C2"))
+def test_cause_case_runs_to_the_end(case: str) -> None:
+    """A cause case that the kernel refused would prove nothing about the cause path."""
+    inputs, model = BUILDERS[case]()
+    trajectory = current_kernel.execute(inputs, model)
+    assert trajectory.outcome == "COMPLETED", trajectory.failure
+    applied = {event.event_id for event in trajectory.applied_events}
+    added = {cause.event_id for cause in inputs.causes if cause.event_id.startswith(case.lower())}
+    assert added - applied == ({"c1-excluded"} if case == "C1" else set())
 
 
 def _reference_kernel(revision: str):
