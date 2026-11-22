@@ -1,6 +1,6 @@
 """DD4.4 (spec §8.1; D-DD.55, D-DD.124): C-DD5, C-DD6's EV clauses, C-DD7 and C-DD20 judged on the writer's own rows.
 
-One local day per Site is run through the frame (`build_telemetry`): Kasarani on 1 Nov (CH-K2's fault), Ruiru on 6 Oct
+Local days are run through the frame (`build_telemetry`): Kasarani 1-2 Nov (CH-K2's fault), Ruiru on 6 Oct
 (CH-R7 c2's fault; PEAK, OFFPEAK and DEMAND) and Mwea on 1 Oct. Their books are `exports_measured`'s rows over the same
 run's `measured.json`, with the day's `partial_to` taken off so the one-day month is written (the rule the books follow is
 the whole-month rule's; only the span is short). C-DD20 reads the books of the committed `measured.json` fixtures.
@@ -33,21 +33,21 @@ def _whole(document: dict) -> dict:
     return document
 
 
-def _ev_day(code: str, day: str):
-    result = tel.build_telemetry({}, _sites(), {code: _decided(code)}, start=day, end=day, only=(code,))
-    files = dict(result.files)
-    rows = json.loads(files[f"{EV}/telemetry/{code}.{day}.readings.json"])["readings"]
-    return rows, _whole(json.loads(files[f"{EV}/telemetry/measured.json"]))
+def _ev_days(code: str, first: str, last: str):
+    result = tel.build_telemetry({}, _sites(), {code: _decided(code)}, start=first, end=last, only=(code,))
+    rows = [r for name, data in result.files if name.startswith(f"{EV}/telemetry/{code}.")
+            for r in json.loads(data)["readings"]]
+    return rows, _whole(json.loads(dict(result.files)[f"{EV}/telemetry/measured.json"]))
 
 
 @pytest.fixture(scope="module")
 def kasarani():
-    return _ev_day("EV-KAS", "2026-11-01")
+    return _ev_days("EV-KAS", "2026-11-01", "2026-11-02")  # the 1 Nov bus-night departs on 2 Nov
 
 
 @pytest.fixture(scope="module")
 def ruiru():
-    return _ev_day("EV-RUI", "2026-10-06")
+    return _ev_days("EV-RUI", "2026-10-06", "2026-10-06")
 
 
 @pytest.fixture(scope="module")
@@ -77,20 +77,20 @@ def _ev_books(code: str, document: dict) -> list[dict]:
     return invoice + departures + roster + schedules
 
 
-def _span(day: str):
+def _span(day: str, days: int = 1):
     start = datetime.fromisoformat(f"{day}T00:00:00+03:00")
-    return start, start + timedelta(days=1)
+    return start, start + timedelta(days=days)
 
 
 def test_c5_on_the_writers_rows(kasarani, ruiru, mwea) -> None:
     dd_check = _dd_check()
-    for code, (rows, _doc), day in (("EV-KAS", kasarani, "2026-11-01"), ("EV-RUI", ruiru, "2026-10-06"),
-                                    ("COLD-MWEA", mwea, "2026-10-01")):
-        result = dd_check.judge_cadence({code: rows}, {code: "SIMULATED"}, (code,), *_span(day), {})
+    for code, (rows, _doc), day, days in (("EV-KAS", kasarani, "2026-11-01", 2), ("EV-RUI", ruiru, "2026-10-06", 1),
+                                          ("COLD-MWEA", mwea, "2026-10-01", 1)):
+        result = dd_check.judge_cadence({code: rows}, {code: "SIMULATED"}, (code,), *_span(day, days), {})
         assert result.passed, (code, result.detail[:5])
         gap = [r for r in rows if not r["start"].startswith(f"{day}T12:")]  # an hour of readings lost
-        assert any("gap" in d for d in dd_check.judge_cadence({code: gap}, {code: "SIMULATED"}, (code,), *_span(day),
-                                                               {}).detail)
+        assert any("gap" in d for d in dd_check.judge_cadence({code: gap}, {code: "SIMULATED"}, (code,),
+                                                               *_span(day, days), {}).detail)
 
 
 def test_c6_ev_clauses_on_the_writers_rows(kasarani, ruiru) -> None:

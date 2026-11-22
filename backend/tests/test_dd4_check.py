@@ -63,6 +63,7 @@ def test_c5_span_is_ms_history_start_to_as_of_at_06_00(inputs) -> None:
 def test_c5_a_whole_day_of_means_and_states_passes() -> None:
     rows = day_of("compressor-meter", "power", lambda t: "2.400")
     rows.append(instant("compressor-controller", "state", "2026-10-01T03:07:00+03:00", "RUNNING"))
+    rows.append(mean("chamber-probe", "temperature", T0 + FIVE * 7, "4.0", "degC", 0))  # a sample on the grid
     result = _cadence({"COLD-MWEA": rows})
     assert result.check == "C-DD5" and result.passed, result.detail
 
@@ -82,6 +83,8 @@ def test_c5_a_missing_slot_is_a_gap_unless_declared() -> None:
     (lambda rows, modes: rows.append(mean("compressor-meter", "power", T0 + FIVE * 3, "1.0", minutes=10)), "cadence"),
     (lambda rows, modes: rows.append(mean("compressor-meter", "power", T0 + timedelta(minutes=2), "1.0")), "cadence"),
     (lambda rows, modes: rows.append(mean("compressor-meter", "power", T0 + DAY, "1.0")), "outside the span"),
+    (lambda rows, modes: rows.append(mean("chamber-probe", "temperature", T0 + timedelta(minutes=2), "4.0", "degC", 0)),
+     "cadence"),  # a sample off the 5-minute grid
 ])
 def test_c5_fails_on_mode_cadence_and_span(change, words) -> None:
     rows, modes = day_of("compressor-meter", "power", lambda t: "2.400"), {"COLD-MWEA": "SIMULATED"}
