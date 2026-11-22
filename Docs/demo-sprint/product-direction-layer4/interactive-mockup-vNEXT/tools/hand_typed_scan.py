@@ -121,7 +121,6 @@ MALLOW = [
     ('tenants[lakeside-power].sites[Kobo].decision.options[KOB-STOPSOC].carrier', '90', 'threshold 90 -> 70', 'declared controller settings (current and new)'),
     ('tenants[lakeside-power].sites[Kobo].entitlement.evidence.cycles', '6000', 'of 6000', 'warranty limit quoted in the evidence record'),
     ('tenants[lakeside-power].sites[Kobo].entitlement.evidence.throughput', '600', 'of 600 MWh', 'warranty limit quoted in the evidence record'),
-    ('tenants[metro-bus].sites[Embakasi].decision.options[EMB-DEADLINE].replay', '21', '21-bus night', 'spike E replay basis (design value)'),
     ('tenants[lakeside-power].sites[Kisiwa].period.bridge[DEMAND_VOLUME].basis', '100', '100 kWh', 'bridge quantity = actual - plan billed kWh; no single node (export requested)'),
     ('tenants[lakeside-power].sites[Kisiwa].period.bridge[SOLAR_SHORTFALL_NECESSARY_GEN].basis', '80', '80 L', 'bridge quantity = actual - plan needed litres; no single node (export requested)'),
     ('tenants[lakeside-power].sites[Kobo].period.bridge[EVENING_LOAD_GROWTH].basis', '30', '30 L', 'bridge quantity = actual - plan needed litres; no single node (export requested)'),

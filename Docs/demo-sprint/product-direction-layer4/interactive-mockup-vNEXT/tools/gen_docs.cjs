@@ -213,6 +213,18 @@ Check: every number on every page (all routes, three operators) and in every evi
 | Audit expectations | The switch-case checks read the evaluator's switch cases from derived-values.json instead of typed expected figures or the manifest's stated case copies. |
 | Register | Every item in the mock-up code and tools that is not read from the evaluation or the manifest is listed with its disposition in the derivation-register fragment for this round. |
 
+## 7k. 0K4m (21-22 Nov 2026): one figure per quantity (spec 0K4m §4 rev 5; D-0K4.50 to D-0K4.56)
+
+| Change | What changed on screen and why |
+|---|---|
+| Simulated chip | Each figure that rests on a simulation study carries the chip "Simulated"; its title reads "Simulated: from a simulation of a declared 61-day season, not your recorded data", with the days of that figure's own study (K8 for Kobo, M8 for Mto). The dagger mark and its label are gone. The tagger reads \`SOURCE_PATTERNS\` and \`SOURCE_LABELS\` from the fixtures; the audit's independent set (\`tools/replay_values.py\`) reads \`source:\`, \`information:\` and \`replay_studies\`. |
+| Kobo's two settings | Litres and value read "Not available yet: needs a simulation of Kobo's own October"; the admission line ("Passes the operating checks: energy served, reserve kept, starts within the maker's limit, regular full charge") and the dawn line (information, not a limit) stand beside them. No setting is recommended or valued; no sensitivity is shown. |
+| Kobo's split | The 330 L and 730 L read as October's records classify them, to be re-checked against Kobo's own 5-minute readings; the slice code sits only in the drawer's reviewer block. |
+| Other gaps | KIS-BATT60: "Not available yet: needs a simulation with a Kisiwa battery". Embakasi per-bus departure timing: "Not available yet: needs a simulation of the charging schedule"; the 21-bus night and its kW are gone. The welder's break-even reads "Not available yet"; the welder's value is the evaluator's. |
+| Mto | The huller and welder sums read the evaluator's litres a kWh (M8) and monthly change; the inverter paths are not valued in money and show no sensitivity. |
+| Readers | Every reader of a field 0K4m removed reads the evaluator's figure or states its gap; no element is dropped. Kobo's verification line reads "the four operating checks still pass over the trial", with the matched days from the fixtures. |
+| Drawer and popover | A drawer holding a Simulated figure lists that study's four assumptions in words. The popover: "Simulated figures come from a simulation of a declared season; 'Not available yet' names the record that would fill it". |
+
 ## 8. Conflicts and gaps found (not fixed by invention)
 
 1. **Ruiru scale.** The preserved v7.0 EV pages describe a 2-connector, 80 kW depot with daytime public sessions (charger CHG-002, session SES-011 at 14:03) and a tariff revenue estimate. The scenario file's Ruiru is a captive depot with 12 chargers, a 400 kW import limit and night charging (21:00–05:00), and names the asset "charger 7, connector 2". Names were re-based; the physical scale and charger id were not rewritten. A banner says so.
@@ -248,8 +260,8 @@ Scripted with Playwright and Chromium (\`tools/audit.mjs\`, run via \`tools/run-
 | Same check on preserved v7.0 screens (exempt; reported separately) | ${S.identifierHitsPreservedV70} occurrences on ${new Set(A.idHitsPreserved.map(h => h.id)).size} preserved routes (${[...new Set(A.idHitsPreserved.map(h => h.id))].length} distinct pages) |
 | Role words (CEO, COO, CFO, CCO), executive-question stems or headings phrased as a question on added/changed screens, tab rows, evidence drawers and review-notes drawers | ${S.roleOrQuestionHits} |
 | Rev 6: Portfolio tab order Overview, Outcomes by site, Demand and capacity, Act first, What changed, Scope & coverage | ${S.rev6TabOrder ? 'pass' : 'FAIL'} (old route lands on ${S.rev6OldRoute}) |
-| Rev 6/7: design-value labels on the Kobo, Mto demand, Embakasi, Kirinyaga and Mto inverter decision pages; each operator's plan-value drawer (Harvest: assumption wording, no forward replay) and Overview note | ${S.rev6DesignValueLabels ? 'pass' : 'FAIL'} |
-| Rev 7/8: design-value scan over every route and every evidence drawer, using the audit's own set derived from the YAML (tools/replay_values.py) | ${S.designValueScan} |
+| Rev 6/7 (0K4m: the Simulated chip or the gap words): labels on the Kobo, Mto demand, Embakasi, Kirinyaga and Mto inverter decision pages; each operator's plan-value drawer (Harvest: assumption wording, no forward replay) and Overview note | ${S.rev6DesignValueLabels ? 'pass' : 'FAIL'} |
+| Rev 7/8 (0K4m: Simulated chips): source scan over every route and every evidence drawer, using the audit's own set derived from the YAML (tools/replay_values.py) | ${S.designValueScan} |
 | Rev 7: EV measure shown as "Deliverable energy used (import-limited)" with binding limits; Ruiru 34% labelled nameplate charger-hours beside 61% of deliverable energy | ${S.rev7EvMeasure && S.rev7RuiruNameplate ? 'pass' : 'FAIL'} |
 | Rev 6: no "not explained by the model" wording on Ruiru (site page, economics, factor structure, waterfall rows) | ${S.rev6RuiruWording ? 'pass' : 'FAIL'} |
 | Filter or lens controls on Portfolio tabs | ${S.filterControlsOnPortfolio} |
