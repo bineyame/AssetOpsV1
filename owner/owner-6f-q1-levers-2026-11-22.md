@@ -13,3 +13,9 @@ Owner answer: "Build 6h (Recommended)".
 
 Asked: "6h Q3: spend +1.0 u so the demo shows real values (not 'Not available yet') for Mwea's contract decision and the two stopgap decisions?"
 Owner answer: "Yes, +1.0 u".
+
+## 6h D-P6.65 (Thika stopgap baseline), same day
+
+Asked: "the 'stopgap' decision is valued by comparing against doing nothing. What should 'doing nothing' be measured against?"
+Owner answer: "Decision month (Recommended)" (compare with the decision month's own figure; October 26 uncovered nights).
+Also informed: 6h is 4.25 u after the handshake (0.5 u above the approved 3.75 u); Kasarani's DD-world value waits on Q11.
