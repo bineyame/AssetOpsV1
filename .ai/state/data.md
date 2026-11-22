@@ -688,5 +688,5 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
   regenerated; DATASHEET_FIT in fuel-cost-2 and the client words; tanks 5000/2500/1000 L; the kernel indexes forcings
   (D-DD.75) and causes (D-DD.80) by step, byte-identical (parity K1-K8, D1, F1, X1, W1, S1, C1, C2, S2): 123 days in
   about 1-2 min. C-DD12, C-DD16, C-DD21 live and passing.
-- Open: overfill bound hit Aug-Oct in the pure run (D-DD.19, Architect); C-DD11 fails (`site-inputs` reads every
-  onboarding file in the directory); five hand-written test figures still at the pre-commit-2 world.
+- Open (after fix rounds D-DD.93-106; C-DD11 and the five test figures are fixed): D-DD.92's overfill and notes (DD3b);
+  D-DD.103's readings span (DD4a); D-DD.104 and D-DD.97 (DD3b); the mock's Kobo kit strings (D-DD.105, alignment pass).

@@ -214,3 +214,10 @@ def test_s9_v2_is_pinned_as_a_whole():
     inputs = season_inputs(base_run(61), 61, season="v2")
     assert inputs_digest(inputs) == V2_INPUTS_DIGEST
     assert _own_digest(inputs) == V2_INPUTS_DIGEST
+
+
+def test_season_v2_days_matches_the_simulator_calendar_length() -> None:
+    """D-DD.106 L2: the simulator's declared calendar length is the season's."""
+    from assetops_simulator.world import telemetry
+    import kobo_season
+    assert telemetry.SEASON_V2_DAYS == kobo_season.SEASON_DAYS

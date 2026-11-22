@@ -182,7 +182,8 @@ SUN_W_PER_M2: dict[str, tuple[int, ...]] = {
 #: Season v2's overcast days, indexed from 2026-09-01 (`host/tests/kobo_season.py` OVERCAST_V2); no other day is.
 OVERCAST_DAYS = frozenset({2, 3, 7, 8, 9, 13, 17, 18, 19, 20, 24, 25, 28, 33, 38, 39, 45, 50, 51, 52, 57})
 SEASON_V2_DAY_ZERO = date(2026, 9, 1)
-SEASON_V2_LAST_DAY = date(2026, 11, 1) - timedelta(days=1)  # the calendar covers 1 Sep to the end of Oct only
+SEASON_V2_DAYS = 61  # D-0K2.1's calendar length: 1 Sep to 31 Oct (host test pins it to kobo_season.SEASON_DAYS)
+SEASON_V2_LAST_DAY = SEASON_V2_DAY_ZERO + timedelta(days=SEASON_V2_DAYS - 1)
 #: D-DD.77: the `solar_surplus` family of the manifest's `history` block, the default (books carry the view's own).
 #: A day outside season v2's calendar gets the clear shape times season x day-class weight, no jitter.
 DEFAULT_SUN_WEIGHTS = {

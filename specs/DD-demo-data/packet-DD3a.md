@@ -239,6 +239,20 @@ None of the reported items is changed in this round.
 - `check_manifest.py`: 7795 passed, 6 failed (walkthroughs, A1, A2, A3, A5, H9: the branch baseline the review lists).
   K8 and K13 failed before their re-base and pass after.
 
+## Fix round 2, run 2 (D-DD.106 L2, L3, L5; D-DD.105)
+- Main merged again (clean; index rows kept). `statement_catalogue.py` rerun after the merge (result under Checks, below).
+- **L2.** `telemetry.py` declares `SEASON_V2_DAYS = 61` and `SEASON_V2_LAST_DAY = SEASON_V2_DAY_ZERO + timedelta(days=SEASON_V2_DAYS - 1)`;
+  no month-end literal. `world_history.py telemetry --end` defaults to `None` and resolves to
+  `period_end(view["accounting_period"])` (D-DD.103's `READINGS_SPAN` replaces it later). No guard was given an allowance.
+  Tests: `simulator/tests/world/test_records.py` (`test_l2_*`), `host/tests/test_0k4c_season_v2.py`
+  (`SEASON_V2_DAYS == kobo_season.SEASON_DAYS`).
+- **L5 (the tank's moved product readers).** Every reader of `tank-capacity` on a Lakeside Site sees 2500/5000/1000 L once DD5
+  loads the `/2` file: `runs/profiles.py:910-920` (`fuel-tank-capacity`, frozen into lab runs) and
+  `runs/operational_actions.py:76` (`CAPACITY_STATE`). Nothing served moves before DD5.
+- **D-DD.105.** The mock's Kobo kit strings ("200 kWh", "40 kW", "0.30 L/kWh" in `screens.js` and
+  `screen-manifest-vnext.json`) go to the design-doc alignment pass queued in `.ai/NOW.md`, not this slice.
+- **L3.** `.ai/state/data.md` and `.ai/state/index-3.md` "Open" now name the true open items (D-DD.92, D-DD.103, D-DD.104, D-DD.97, mock kit).
+
 ## Residual risk and questions
 - Q1 (gate, D-DD.19): overfill bound hit Aug-Oct at both rates (about 270-670 L refused a month). The stated fallback
   (notes restated from a reorder rule at 25 %) is the Architect's call; it would move the books and history again.

@@ -22,7 +22,6 @@ sys.path.insert(0, str(REPOSITORY / "contracts"))  # DS1b P1: the canonical form
 #                                       `EMU_*` or `DS1B_*` on stderr
 
 import argparse  # noqa: E402
-from datetime import date, timedelta  # noqa: E402
 import json  # noqa: E402
 
 from assetops_contracts.canonical import to_canonical_json  # noqa: E402
@@ -32,6 +31,7 @@ from assetops_simulator.world import telemetry as telemetry_writer  # noqa: E402
 from assetops_simulator.world.books import build_books  # noqa: E402
 from assetops_simulator.world.exports import file_name  # noqa: E402
 from assetops_simulator.world.history import generate_history  # noqa: E402
+from assetops_simulator.world.months import period_end  # noqa: E402
 from assetops_simulator.world.records import batch_file_name, build_records  # noqa: E402
 from assetops_simulator.world.view import ManifestView  # noqa: E402
 
@@ -172,12 +172,13 @@ def _site_inputs(onboarding: Path, bindings: Path, out: Path) -> int:
     return 0
 
 
-def _telemetry(manifest: Path, sites: Path, books: Path, out: Path, start: str, end: str,
+def _telemetry(manifest: Path, sites: Path, books: Path, out: Path, start: str, end: str | None,
                only: tuple[str, ...] | None) -> int:
     try:
         target = _out_dir(out)
         view = load_view(manifest)
         history = generate_history(view)
+        end = end or period_end(view["accounting_period"]).isoformat()
         expenses = {p.name.removesuffix(".expenses.csv"): p.read_text(encoding="utf-8")
                     for p in books.glob("*.expenses.csv")}
         result = telemetry_writer.build_telemetry(
@@ -223,8 +224,8 @@ def build_parser() -> argparse.ArgumentParser:
     telemetry.add_argument("--books", required=True, type=Path, help="the directory `exports` wrote")
     telemetry.add_argument("--out", required=True, type=Path, help="a new or empty directory outside the repository")
     telemetry.add_argument("--start", default="2026-07-01", help="first local day of the span")
-    telemetry.add_argument("--end", default=(date(2026, 11, 1) - timedelta(days=1)).isoformat(),
-                           help="last local day of the span (default: the last day of October)")
+    telemetry.add_argument("--end", default=None,
+                           help="last local day of the span (default: the last day of the accounting period)")
     telemetry.add_argument("--site", action="append", default=None, help="a Site code; repeat for several")
     check = commands.add_parser("check")
     check.add_argument("--manifest", required=True, type=Path)
