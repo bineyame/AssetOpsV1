@@ -31,6 +31,8 @@ PORTFOLIO = "00000000-0000-4000-8000-000000000000"
 SITE_IDS = {"KISIWA-001": "00000000-0000-4000-8000-000000000001", "KOBO-001": "00000000-0000-4000-8000-000000000002",
             "MTO-001": "00000000-0000-4000-8000-000000000003"}
 AS_OF = "2026-11-21T10:00:00.123456+00:00"
+CURSOR_KEYS = ("ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX", "ASSETOPS_WORK_CURSOR_KEY_HEX")
+PARENT_KEY = "ab" * 32
 PARENT_CENSUS = {"commercial_accounts_statement": 0, "site": 3, "structure_snapshot": 4, "tenant": 1}
 FORBIDDEN = {"PGDATABASE": "x", "PGHOST": "elsewhere", "PGPORT": "1", "PGSERVICE": "s", "PGHOSTADDR": "h",
              "PGSERVICEFILE": "f", "ASSETOPS_PSEUDONYM_KEY_DIR": "/k", "ASSETOPS_REAL_OPERATOR_DATA": "1",
@@ -341,6 +343,10 @@ class Env:
         args = [argv[0], "--label", "1123", "--state", str(self.state), *argv[1:]]
         return WK.main(args, deps=self.deps)
 
+    def set_chain_response(self, n):
+        self.census["chain_response"] = n
+        self.l2["census"]["chain_response"] = n
+
     def manifest(self):
         p = self.state / "walks" / f"{WALK}.json"
         return json.loads(p.read_text()) if p.is_file() else None
@@ -603,6 +609,69 @@ def test_t5_census_judge():
     assert not WK.census_judge(PARENT_CENSUS, after, 2, two)[0]
 
 
+def test_t5_growth_table_only_grows_and_only_in_s4_judge():
+    parent = dict(PARENT_CENSUS, chain_response=5)
+    after = dict(parent, commercial_accounts_statement=2, structure_snapshot=8)
+    g = WK.SERVE_GROWTH_TABLES
+    assert g == ("chain_response",)
+    assert WK.census_judge(parent, dict(after, chain_response=8), 2, SNAPS, g) == (
+        True, "5 tables; chain_response +3 (D-WK.16)")
+    assert WK.census_judge(parent, after, 2, SNAPS, g)[0]                      # +0 passes
+    ok, detail = WK.census_judge(parent, dict(after, chain_response=4), 2, SNAPS, g)
+    assert not ok and detail == "chain_response at least 5 != 4"
+    ok, detail = WK.census_judge(parent, dict(after, site=4), 2, SNAPS, g)
+    assert not ok and detail == "site 3 != 4"
+    ok, detail = WK.census_judge(parent, dict(after, response_cache=1), 2, SNAPS, g)
+    assert not ok and detail == "response_cache None != 1"
+    # W3 (no growth argument) stays exact for every table
+    ok, detail = WK.census_judge(parent, dict(after, chain_response=6), 2, SNAPS)
+    assert not ok and detail == "chain_response 5 != 6"
+
+
+def test_t5_w3_fails_on_chain_response_plus_one(env, capsys):
+    env.set_chain_response(5)
+    env.prepared()
+    capsys.readouterr()
+    env.census["chain_response"] += 1
+    assert env.main("check") == 4
+    lines, _ = _lines(capsys)
+    w3 = next(x for x in lines if x["check"] == "W3")
+    assert w3 == {"check": "W3", "state": "FAIL", "detail": "chain_response 5 != 6"}
+
+
+@pytest.mark.parametrize("delta,state", [(3, "PASS"), (-1, "FAIL")])
+def test_t5_smoke_s4_chain_response_growth(env, capsys, delta, state):
+    env.set_chain_response(5)
+    env.served()
+    capsys.readouterr()
+
+    def wrote():
+        env.census["chain_response"] += delta
+    env.runner.after_node = wrote
+    assert env.main("smoke") == (0 if state == "PASS" else 4)
+    lines, _ = _lines(capsys)
+    s4 = lines[3]
+    assert s4["check"] == "S4" and s4["state"] == state
+    if delta > 0:
+        assert "chain_response +3 (D-WK.16)" in s4["detail"]
+    else:
+        assert s4["detail"] == "chain_response at least 5 != 4"
+
+
+def test_t5_smoke_s4_plus_one_in_another_table_fails(env, capsys):
+    env.set_chain_response(5)
+    env.served()
+    capsys.readouterr()
+
+    def wrote():
+        env.census["chain_response"] += 3
+        env.census["site"] += 1
+    env.runner.after_node = wrote
+    assert env.main("smoke") == 4
+    lines, _ = _lines(capsys)
+    assert lines[3]["state"] == "FAIL" and lines[3]["detail"] == "site 3 != 4"
+
+
 def test_t5_w3_fails_on_an_undeclared_row(env, capsys):
     env.prepared()
     capsys.readouterr()
@@ -748,6 +817,7 @@ def test_t7_w4_and_s2_fail_on_rebuild_needed(env, capsys):
 
 def test_t8_serve_envs_and_argv(env, capsys):
     env.environ.update(FORBIDDEN)
+    env.environ.update({k: PARENT_KEY for k in CURSOR_KEYS})
     env.environ.pop("PGHOST"), env.environ.pop("PGDATABASE"), env.environ.pop("PGPORT"), env.environ.pop("PGSERVICE")
     env.environ.pop("PGHOSTADDR"), env.environ.pop("PGSERVICEFILE")   # the walk URL refuses these; the env never has them
     env.checked()
@@ -758,7 +828,7 @@ def test_t8_serve_envs_and_argv(env, capsys):
     assert api["argv"] == [sys.executable, "-m", "uvicorn", "lab_app:app", "--host", "127.0.0.1", "--port", "8991"]
     assert api["cwd"] == f"{tree}/host"
     assert set(api["env"]) == {"PATH", "HOME", "LANG", "PYTHONPATH", "DATABASE_URL", "ASSETOPS_TENANT_SLUG",
-                               "ASSETOPS_PG_PORT", "ASSETOPS_PG_PASSWORD", "PYTHONUNBUFFERED"}
+                               "ASSETOPS_PG_PORT", "ASSETOPS_PG_PASSWORD", "PYTHONUNBUFFERED", *CURSOR_KEYS}
     assert api["env"]["PYTHONPATH"] == os.pathsep.join(f"{tree}/{p}" for p in
                                                        ("backend", "contracts", "gateway", "simulator", "host"))
     assert api["env"]["ASSETOPS_TENANT_SLUG"] == "lakeside-power" and api["env"]["DATABASE_URL"].endswith(f"/{WALK}")
@@ -769,13 +839,31 @@ def test_t8_serve_envs_and_argv(env, capsys):
     (line,), _ = _lines(capsys)
     assert line == {"api": "http://127.0.0.1:8991", "web": "http://127.0.0.1:5491", "api_pid": api["pid"],
                     "web_pid": web["pid"]}
+    keys = [api["env"][k] for k in CURSOR_KEYS]
+    assert all(re.fullmatch(r"[0-9a-f]{64}", k) for k in keys) and keys[0] != keys[1]
+    assert not set(keys) & {PARENT_KEY}                                        # never from the parent environment
+    haystack = (env.state / "walks" / f"{WALK}.json").read_text() + capsys.readouterr().out
+    for log in (env.tree / "var").rglob("*"):
+        if log.is_file():
+            haystack += log.read_text(errors="replace")
+    assert not any(k in haystack for k in keys)
     s = env.manifest()["serve"]
     assert set(s) == {"tree", "port", "web_port", "api", "web", "started_at"} and s["api"]["pid"] == api["pid"]
 
 
 def test_t8_api_env_drops_every_forbidden_name():
     e = WK.api_env(Path("/t"), {"PATH": "/p", "HOME": "/h", **FORBIDDEN}, "lakeside-power", "postgresql://u@h/d")
-    assert set(e) == {"PATH", "HOME", "PYTHONPATH", "DATABASE_URL", "ASSETOPS_TENANT_SLUG", "PYTHONUNBUFFERED"}
+    assert set(e) == {"PATH", "HOME", "PYTHONPATH", "DATABASE_URL", "ASSETOPS_TENANT_SLUG", "PYTHONUNBUFFERED",
+                      *CURSOR_KEYS}
+
+
+def test_t8_cursor_keys_are_fresh_each_serve():
+    parent = {"PATH": "/p", "HOME": "/h", **{k: PARENT_KEY for k in CURSOR_KEYS}}
+    a = WK.api_env(Path("/t"), parent, "lakeside-power", "postgresql://u@h/d")
+    b = WK.api_env(Path("/t"), parent, "lakeside-power", "postgresql://u@h/d")
+    for k in CURSOR_KEYS:
+        assert re.fullmatch(r"[0-9a-f]{64}", a[k]) and a[k] != b[k] and PARENT_KEY not in (a[k], b[k])
+    assert a[CURSOR_KEYS[0]] != a[CURSOR_KEYS[1]]
 
 
 def test_t8_smoke_node_env_is_exactly_six(env, capsys):

@@ -20,6 +20,7 @@ import argparse
 import json
 import os
 import re
+import secrets
 import signal
 import socket
 import stat
@@ -220,13 +221,29 @@ def expected_census(parent: Mapping[str, int], statements: int, snapshots: Mappi
     return want
 
 
+# D-WK.16: derived-byte tables the serve's response store may add to; used only by S4, never by W3.
+SERVE_GROWTH_TABLES = ("chain_response",)
+
+
 def census_judge(parent: Mapping[str, int], census: Mapping[str, int], statements: int,
-                 snapshots: Mapping[str, Any]) -> tuple[bool, str]:
-    """W3 and S4: the copy differs from its parent only by the declared rows."""
+                 snapshots: Mapping[str, Any], growth: Sequence[str] = ()) -> tuple[bool, str]:
+    """W3 and S4: the copy differs from its parent only by the declared rows. `growth` tables (S4 only) may grow."""
     want = expected_census(parent, statements, snapshots)
-    diff = [f"{t} {want.get(t)} != {census.get(t)}" for t in sorted(set(want) | set(census))
-            if want.get(t) != census.get(t)]
-    return not diff, "; ".join(diff) or f"{len(census)} tables"
+    diff: list[str] = []
+    grown: list[str] = []
+    for t in sorted(set(want) | set(census)):
+        if t in growth:
+            base, now = want.get(t, 0), census.get(t, 0)
+            if now < base:
+                diff.append(f"{t} at least {base} != {now}")
+            else:
+                grown.append(f"{t} +{now - base} (D-WK.16)")
+        elif want.get(t) != census.get(t):
+            diff.append(f"{t} {want.get(t)} != {census.get(t)}")
+    detail = "; ".join(diff)
+    if not detail:
+        detail = "; ".join([f"{len(census)} tables", *grown])
+    return not diff, detail
 
 
 def _iso_z(text: str) -> str:
@@ -288,6 +305,9 @@ def api_env(tree: Path, environ: Mapping[str, str], tenant: str, url: str) -> di
         if k in environ:
             e[k] = environ[k]
     e["PYTHONUNBUFFERED"] = "1"
+    # D-WK.15: fresh per serve, never from the parent environment, never recorded or printed.
+    e["ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX"] = secrets.token_hex(32)
+    e["ASSETOPS_WORK_CURSOR_KEY_HEX"] = secrets.token_hex(32)
     return e
 
 
@@ -788,9 +808,9 @@ def _w2(walk: Walk, m: Mapping[str, Any]) -> dict:
     return _line("W2", not bad, "; ".join(bad) or f"{len(snaps)} snapshots match")
 
 
-def _census_line(walk: Walk, m: Mapping[str, Any], check: str) -> dict:
+def _census_line(walk: Walk, m: Mapping[str, Any], check: str, growth: Sequence[str] = ()) -> dict:
     ok, detail = census_judge(m.get("parent_census") or {}, walk.census(), len(walk.walk_definition().statements),
-                              m.get("snapshots") or {})
+                              m.get("snapshots") or {}, growth)
     return _line(check, ok, detail)
 
 
@@ -1030,7 +1050,7 @@ def cmd_smoke(walk: Walk) -> int:
     bad = [f"status {status}"] if status != 200 else judge_month(body, expect, expected_as_of(m, expect))
     lines.append(_line("S2", not bad, "; ".join(bad) or f"{expect['tenant']} {expect['month']} served"))
     lines.append(_guard("S3", lambda: _s3(walk, s, wd)))
-    lines.append(_guard("S4", lambda: _census_line(walk, m, "S4")))  # D-WK.13: after the pages were walked
+    lines.append(_guard("S4", lambda: _census_line(walk, m, "S4", SERVE_GROWTH_TABLES)))  # D-WK.13: after the pages were walked
     passed = all(x["state"] == "PASS" for x in lines)
     for x in lines:
         walk.emit(x)
