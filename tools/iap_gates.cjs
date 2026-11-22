@@ -417,11 +417,13 @@ async function checkOverview(browser, args, routes) {
     const want = ["/portfolio?from=2026-09-01&to=2026-09-30", "/portfolio?from=2026-10-01&to=2026-10-31"];
     if (landed.join() !== want.join()) failures.push(`H4: month rows landed on [${landed.join(", ")}], expected [${want.join(", ")}]`);
     // M1: each cell's second part is its own line below the first (and no five-digit year or figure-then-word run in the text).
+    await page.goto(`${args.base}/portfolio?${range}`);
+    await page.waitForSelector("[data-period-months]", { timeout: 20000 }).catch(() => {});
     const runTogether = await page.evaluate((plant) => {
       const bad = [];
       for (const tr of document.querySelectorAll("[data-period-months] tbody tr")) {
         for (const small of tr.querySelectorAll("small")) {
-          if (plant === "inline") small.style.display = "inline";
+          if (plant === "inline") { small.style.display = "inline"; small.parentElement.style.whiteSpace = "nowrap"; }
           const first = small.previousElementSibling ?? small.parentElement.firstElementChild;
           const own = first && first !== small ? first : null;
           if (own && small.getBoundingClientRect().top < own.getBoundingClientRect().bottom - 1) bad.push(`${small.textContent} sits on the line of ${own.textContent || "its figure"}`);
