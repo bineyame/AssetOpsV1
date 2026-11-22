@@ -1,4 +1,4 @@
-# DD3b review packet, part 1 (DD3b1: mini-grid v9 pack and its parity)
+# DD3b review packet (DD3b1 + its D-DD.145 fix round; DD3b2 part 1 of the writer, PARTIAL)
 
 Branch `task/DD3b-mini-plant` (worktree `/opt/assetecon/AssetOpsV1-dd3b`), base main `6e3c02ab5`. Part 1 of 3
 (D-DD.142: DD3b1 2.0 u). Scope: D-DD.127 and spec DD §4.3, in `simulator/assetops_simulator/packs/mini_grid.py` and
@@ -60,9 +60,26 @@ tests only. DD3b2 (writer units, D-DD.97/104/126/128/129/132) and DD3b3 (D-DD.92
 - `tools/check-architecture.ps1` (ASSETOPS_GUARD_PYTHON=main venv): passed. `tools/checks/statement_catalogue.py`:
   exit 0. `check-agent-workflow.ps1`: passed. `check-decision-index.py`: OK.
 
+## DD3b1 fix round (D-DD.145) and DD3b2 part 1 (D-DD.128)
+
+- Tests added to `test_mini_grid_v9.py`: P is never negative (min 0, max > 0 on Kobo 1-2 Oct with two sets) and a
+  fuel-limited two-set segment never burns more than the tank (tank 0.3 L, runs dry, never below 0). Both pass on
+  the built pack (the behaviour was DD3b1's), so each was proven by a plant (3, 4 below). Requested-power floor and
+  litres cap were already in the code; the pack is unchanged.
+- Kit (D-DD.128) in Lakeside's `/2` file; `pv-array-share` (+ basis) registered as a Foundation property (unit %,
+  INVERTER, words and statement cases). `test_dd3b2_units.py` 3 tests, failed 3/3 on the old file first.
+- Plants: 3. `max(0, ...)` removed from `view_v9`: the floor test FAILED (`assert Fraction(-32193, 1000) == 0`).
+  4. The scaling of litres to the tank removed: the fuel test FAILED (`INTEGRATION_BOUND_FAILURE ... take the stock to
+  -37/300 against a LOWER bound of 0`). Both reverted with `git checkout`.
+- Checks at f16d759a8: `test_mini_grid_v9.py -k never` 2 passed; `test_dd3b2_units.py`, `test_dd1_operator_files.py`,
+  `test_sc1_statements.py` 414 passed; `test_dd3_telemetry.py`, `test_dd3_site_inputs_cli.py`,
+  `test_dd3_datasheet_check.py`, `test_dd1_check.py` 34 passed after the F re-pin. Architecture guard passed;
+  statement catalogue exit 0. No Postgres run yet (DD3b2 incomplete; one `--db-lane` run at its end).
+
 ## Moved figures
 
-None. DD3b1 changes no writer input and no world figure: Kobo's fuel, candidate and bridge are DD3b2/DD3b3's
+No world figure yet. Pins moved: Lakeside's F digest `4e36563d...` -> `25345568...` (tank ratings and the kit enter
+the foundation; D-DD.93 re-pin). DD3b1 changes no writer input and no world figure: Kobo's fuel, candidate and bridge are DD3b2/DD3b3's
 (D-DD.97, D-DD.104, D-DD.131).
 
 ## Known Deviations
@@ -83,6 +100,12 @@ None. DD3b1 changes no writer input and no world figure: Kobo's fuel, candidate 
 3. A fuel-limited multi-unit segment caps each unit on its rating share of the tank; when the no-load burn exceeds
    the tank, the litres are scaled to the tank (v8's single-unit rule, lifted). Not reached by any Site's run.
 4. A restored generator returns to STOPPED and can be asked to start from the next step.
+
+5. **`/1` file unchanged (D-DD.128 says `/2` and `/1`).** `lakeside-power.v1.onboarding.json` carries no properties
+   for any Site (format 1 has ratings only) and the writer SKIPs `/1`; adding the kit there would invent a shape.
+   Question for the Architect: confirm `/2` alone.
+6. **D-DD.146 applied to the plan**: C-DD6's Kisiwa (state evidence) and Mto (power evidence) clauses go live in
+   DD3b2's step 8 (handoff); not yet built.
 
 ## Next
 
