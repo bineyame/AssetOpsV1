@@ -162,3 +162,18 @@ def test_s1_embakasi_names_each_simulation_then_the_one_off():
         assert [(m.record_kind, m.source_family, m.factor_id) for m in rows[key].missing] == want
     assert outcome == "RANKING_INCOMPLETE"
 
+
+
+def test_a_held_record_over_a_missing_base_level_is_missing_never_zero():
+    from option_fixtures import leaves_for
+    base = leaves_for(CC, {})  # the month's uncovered nights were not received
+    _, opts = named_decision("backup_cover", "2026-10", 1)
+    by_key = {o.option_key: o for o in opts}
+    rec = [record_of(by_key["stopgap-and-claim"], "uncovered_nights", 0, "DAY", seq=1)]
+    _, rows, _ = run("backup_cover", base, "2026-10", 1, rec, {"stopgap-and-claim": "100.00"})
+    r = rows["stopgap-and-claim"]
+    miss = base["uncovered_nights"].missing
+    assert r.value is None
+    assert (miss.record_kind, miss.source_family, "uncovered_nights") in [
+        (m.record_kind, m.source_family, m.factor_id) for m in r.missing]
+    assert effects(r)["uncovered_nights"][0] is None
