@@ -1920,3 +1920,156 @@ The owner is informed of all six. No ruling needs the owner's decision. Two stor
   - *Mid-build count.* The reviewer counted four Architect rounds inside DD3a. D-DD.104 shows one more fault, which
     the code-reality pre-flight would have found by varying one undeclared input. DD3b's pre-flight lists every
     writer default (`.get(..., <literal>)`) and its declared source before code.
+
+---
+
+# DD rulings, round 15 (D-DD.108 to D-DD.116): DD3c pre-flight Q1-Q12, the all-FAILED rating, DD3a's digest sweep
+
+Architect (Claude), 2026-11-22, fresh hand-off after round 14. Read: `specs/DD-demo-data/DD3c-preflight.md` and
+`DD3c-handoff.md` on `task/DD3c-unit-roles` (`f98233038`); rulings D-DD.41, .43, .44, .45, .70, .102, .107; spec §7
+DD3. Checked against code on that branch: migrations `0029` (the final gate, `:196-205`), `0048` (`RENEWABLE_HOUR`,
+`_functions_0048`), `0049` (calls `mini_enqueue_hour`, redefines nothing); `mini_depth/{inputs,read,store}.py`;
+`analytics/assessment_worker.py:62-63` and `assessment_inputs.role_coverage`; `runs/replay_series.py:40,340`;
+`structure/litres/{inputs,rules}.py`; `analytics/service.py:43-54,142` and `main.py:406-417`;
+`sites/unit_roles.py`. DD3a's W6 digest sweep: `packet-DD3a.md` §"Sweep (W6)" on `task/DD3a-mini-reality`.
+
+Two findings the pre-flight missed, both ruled below: `assessment_worker.ROLES_BY_SET` lists roles-1..4 only, so a
+roles-5 set gets an empty role-coverage block in the dispatch input set (D-DD.109); and the litres split refuses every
+multi-unit Site (D-DD.113). The owner is informed of all nine; none needs the owner's decision. The owner may want to
+weigh in on D-DD.113's consequence (Kisiwa gets a litres split in the demo) and on D-DD.110's replay note.
+
+- **D-DD.108 Q1, Q6, Q7, Q8 accepted as applied.**
+  - *Q1.* "Exactly one set in force" counts `minigrid-roles-4` and `minigrid-roles-5` together, in Python and SQL;
+    two overlapping sets of either name give no work (SQL) and the reader's existing `CONFIGURATION_MISSING` (Python).
+    No new constraint: the world is built fresh (DD6), so no Site carries both. One Postgres test publishes a roles-4
+    and a roles-5 set over one hour on one Site and asserts no job is enqueued and the mini-depth reader refuses.
+  - *Q6.* `UnitRolesRefused(code="TEL_FOUNDATION", unit=...)`, mapped by each reader to its existing Foundation or
+    configuration refusal; no new user-facing string.
+  - *Q7.* Missing units' asset codes go into the existing detail or limit field; reason codes and text unchanged.
+  - *Q8.* Events: union in time order; equal times in declared Foundation order (the order that also names the lead).
+
+- **D-DD.109 Q2: migration `0074_unit_role_sets` accepted, with exact counts; one Python constant; every reach of the
+  gate named with its parity test** (protected seam: the mini-depth enqueue gate).
+  - *Constant.* `sites/binding_roles.py`: `MINI_DEPTH_ROLE_SETS: tuple[str, ...] = (ROLE_SET_MINIGRID_4,
+    ROLE_SET_MINIGRID_5)`, comment citing this ID. Every Python gate below reads it; none names roles-4 alone.
+  - *Migration.* Built in 0048's style from 0048's own texts (load 0048 as 0048 loads 0029). Upgrade:
+    `_functions_0048()` with `b.role_set = 'minigrid-roles-4'` replaced by `b.role_set IN ('minigrid-roles-4',
+    'minigrid-roles-5')` (count exactly 1, in `mini_enqueue_hour`) and the gate comment's "current `minigrid-roles-4`
+    binding set" by "current `minigrid-roles-4` or `minigrid-roles-5` binding set" (count exactly 1);
+    `RENEWABLE_HOUR` as `CREATE OR REPLACE` with `s.role_set = 'minigrid-roles-4'` replaced likewise (count exactly 1).
+    Any other count raises. `mini_enqueue_accepted` and `mini_enqueue_configuration` hold no role-set text and are
+    re-created unchanged inside the same body. Downgrade executes `_functions_0048()` and `RENEWABLE_HOUR` (as `CREATE
+    OR REPLACE`) unchanged. No data change, no trigger change. The migration writes its own literals (migrations do not
+    import live code); a test asserts they equal `MINI_DEPTH_ROLE_SETS`.
+  - *Reaches (every place the gate's meaning is read).* SQL: (S1) `mini_enqueue_hour`'s final gate, reached by the
+    `mini_enqueue_accepted` trigger (accepted evidence), by `mini_enqueue_configuration` (called at publish,
+    `postgres_foundation_store.py:758`), and by 0049's one-time backfill (history, not re-run); (S2)
+    `mini_renewable_hour`, reached by `mini_enqueue_hour`'s hour check and by both enqueue loops. Python: (P1)
+    `mini_depth/store.read_hour_rows` (`role_set = :rs` becomes `role_set = ANY(:rs)` over the constant; the parameter
+    becomes `role_sets`); (P2) `mini_depth/inputs.py:216,227` (the count spans both names); (P3) `mini_depth/read.py:220`
+    and `:487-488` (feeder sets, hence `structure/energy/inputs.feeder_month`); (P4) `mini_depth/store.py:376-386`
+    `_PV_BOUND` (hence `mini_decisions/projection` `daylight_hours`); (P5) `analytics/assessment_worker.ROLES_BY_SET`,
+    hence `runs/replay_series.py:340`: today roles-1..4, so a roles-5 set gets no role-coverage rows. It becomes
+    `{s: tuple(roles_for(s)) for s in sorted(SERVED_ROLE_SETS_BY_SITE_TYPE["MINIGRID"])}` (the served sets, not a
+    hand list; W6). The refusal detail at `inputs.py:227` names both sets; if `statement_catalogue.py` covers it, the
+    one changed line is re-hashed citing this ID and reported, nothing else may move.
+  - *Parity tests (Postgres, `*_test` DB).* T1 roles-4 unchanged: on the existing 0029/0048 fixtures, the job rows
+    (domain, window, cause) after upgrade equal those before, and after downgrade-upgrade; the existing 0029/0048
+    tests pass untouched. T2 roles-5 one set: Kobo published under roles-5 enqueues the same job rows as under roles-4
+    for one October day, from evidence and from publish. T3 both sets (D-DD.108 Q1): no job; Python refuses. T4 other
+    sets: a roles-1..3 Site, a cold and an EV Site enqueue nothing, as on main. T5 renewable hour on two inverters: a
+    positive `pv_available_power` on either unit makes the hour renewable; on neither, not; unbound, the 12:00 rule.
+    T6 migration text: each replacement counted once, the downgrade body byte-equal to 0048's, literals equal the
+    constant. T7 coverage: Kobo's dispatch input-set role coverage under roles-5 equals roles-4's after replacing the
+    role-set name and UUIDs (D-DD.114's normaliser). Plant (reverted): drop roles-5 from the SQL list; T2 and T5 fail.
+
+- **D-DD.110 Q3 and Q10 accepted; Kisiwa's replay refusal is honest output.**
+  - *Q3.* The Site-figure readers call `sites/unit_roles.py` whatever the role set, as listed; one unit gives the
+    unit's value byte for byte. The per-unit readers stay per unit, one two-unit test each. Plus D-DD.109 P5.
+  - *Q10.* `replay_series` builds the Site series through `unit_roles`; `replay_study`/`headroom_replay` unchanged.
+    Their v8 model needs refuse a two-unit Site. That refusal is honest, not a gap: v8 holds one generator and one
+    inverter (§0), and a v8 replay of Kisiwa or Mto would print figures for a Site that does not exist (D-DD.70's
+    reason). A v9 replay is a new capability, not a reader fix; the coordinator logs "v9 replay for multi-unit Sites"
+    in `.agent/backlog-post-demo.md`. The owner may weigh in if a what-if at Kisiwa is demo-critical.
+
+- **D-DD.111 Q4 amended: a Site state the known units decide is stated; otherwise absent, named by unit.**
+  - D-DD.41's state rule is an "any" cascade, so some steps are decided whatever an absent unit holds. Per step:
+    RUNNING if any unit with a state is RUNNING; else, if any unit has no state, absent (named by unit); else D-DD.41's
+    cascade (STARTING if any starts, STOPPED if any is not FAILED, else FAILED).
+  - *Why.* With one unit running and the other silent, the Site is running whatever the silent unit does; saying
+    "absent" there drops a known fact. STARTING, STOPPED and FAILED depend on every unit, so a silent unit leaves them
+    undecided. Nothing is imputed: the stated value holds for every value the absent unit could take.
+  - *Builder.* `site_generator_state` in part 1's module; two tests (RUNNING + absent gives RUNNING; STOPPED + absent
+    gives absent naming the unit); the one-unit identity test unchanged. Power keeps D-DD.41's rule (a sum is
+    undecided while any term is absent).
+
+- **D-DD.112 Q5 and the open point: installed and available rating are two quantities; every unit FAILED gives 0 kW
+  available** (amends D-DD.41's rating sentence by naming the two).
+  - *Two quantities, one figure each.* `site_installed_rating(components)`: the sum of every GENERATOR unit's
+    `generator-rated-power` (a unit without exactly one gives absent, named by unit). `site_available_rating(components,
+    states)`: at a step, the sum over units whose state is not FAILED; a unit with no state at the step gives absent,
+    named by unit (its inclusion is undecided). `site_rating` with its optional `states` is replaced by these two, so
+    no caller gets one quantity under two meanings. No reader reads a Site rating today (`generator-rated-power` is read
+    only by `runs/profiles.py` and the module), so neither is wired into a reader in DD3c.
+  - *All units FAILED: available rating 0 kW, not absent.* Every unit's state is known, and each says the unit gives
+    no power: the evidence decides the sum, and it is zero (`Decimal("0")`, unit kW, no missing units). "Missing is
+    never zero" forbids turning an unknown into 0; here nothing is unknown. D-DD.41's "absent if any unit is absent"
+    is about absent values, and a FAILED state is a present value. Absent stays for: a unit with no state (undecided)
+    and a Site with no GENERATOR (nothing declared). Builder: the empty-sum path returns the zero, not absent; one test
+    each for all-FAILED (0, no missing), no GENERATOR (absent), one FAILED plus one silent (absent, naming the silent).
+
+- **D-DD.113 Q9: Kisiwa's litres saying `NOT_ONE_EACH` is a gap, fixed in DD3c; `fuel_basis` checked, not changed**
+  (W6: the class is "every reader of a GENERATOR unit quantity", wider than D-DD.41's list).
+  - *Why a gap.* Kisiwa's generator readings and tank records exist, and D-DD.41 gives the rule (each unit burns on
+    its own curve; Site litres are the sum; one tank). The refusal predates the rule; it is not a statement about the
+    evidence. Left, Kisiwa would show no litres split where Kobo shows one from the same kind of data (owner: data in
+    range gives output on every page, the same for every Site).
+  - *Change (`structure/litres`).* `rules.py`: new `UnitFuel(unit: str, use: Callable[[datetime, datetime], SpanUse],
+    curve: FuelCurve)`; `LitreInputs.use` and `.curve` are replaced by `units: tuple[UnitFuel, ...]` in declared
+    Foundation order; `held` stays Site-level (any unit's power or state reading). `_piece` evaluates each unit as
+    today and sums: any unit `USE_INCOMPLETE` gives that note first, then any `NO_LOAD_RATE_MISSING`; `idle` is any
+    unit's. `FUEL_CURVE_MISSING` when any unit's `sfc` is None. The curve's validity window is the intersection of the
+    units' windows (None if any is None). Sources list each unit's refs in unit order through `_unique`. `inputs.py`:
+    the condition becomes one FUEL_TANK and at least one GENERATOR; each unit gets its own `sfc_for`/`no_load_for`
+    reads and its own `_Readings(..., unit id)`; `relevant_readings` takes every unit's id. The values `"ONE_EACH"` and
+    `"NOT_ONE_EACH"` are kept (pinned by 4d's tests); their comment now reads "one tank and every GENERATOR unit"
+    citing this ID. No new note, no new copy.
+  - *Tests.* Kobo's October litres month byte-equal to main (one unit); a two-unit fixture with different SFCs gives
+    the per-unit sum; one unit without a curve gives `FUEL_CURVE_MISSING`; two tanks still give `NOT_ONE_EACH`. Plant:
+    one curve applied to both units' kWh; the two-unit test fails.
+  - *`analytics/service.fuel_basis` (first GENERATOR with an SFC, legacy dispatch on the ingestion listener,
+    `main.py:417`).* Builder checks whether DD5's `load_world_inputs` path reaches `AssessmentService.assess_site`. If
+    not, it is logged in `.agent/backlog-post-demo.md` ("fuel_basis first-match on multi-unit Sites") and untouched.
+    If it does, the builder stops and reports to the Architect before part 4.
+  - `mini_decisions/projection.py:85` is fixed by D-DD.109 P4, as the pre-flight says.
+
+- **D-DD.114 Q11 accepted, with the parity defined.** Only `conversions/world/KOBO-001-bindings.json` moves to roles-5
+  (and its three test pins); the demo-config and w402 conversions stay roles-4. The parity run publishes Kobo under
+  roles-4 in one fresh scratch state and under roles-5 in another (never both sets on one Site; D-DD.108). Compared,
+  for one October day (the month for litres): mini-depth revision values (figures, states, reasons, limits), the
+  dispatch assessment (interval classes, limits, input-set coverage), the fuel balance, and the litres month. Each is
+  serialised with `sort_keys`, UUIDs replaced by `uuid-<n>` in first-appearance order and the role-set name by
+  `<role-set>` (D-DD.45's normaliser); then byte-equal. A stored digest is compared directly only if it embeds neither
+  ids nor the role-set name; the packet lists which digests were compared which way. Any other difference stops for
+  the Architect.
+
+- **D-DD.115 DD3a's W6 digest sweep: `generator`, `site.code`, mini-grid `months`, EV `day_classes`/`families` stay
+  in the scope digest; no re-draw before the demo** (coordinator item; D-DD.102's class, for the other keys).
+  - *The class D-DD.102 fixed* is a digest input that is a world fact expected to be corrected (kit figures as data
+    sheets arrive), so a truer world re-seeds history. These four are not that: `generator` is the generator's version
+    constant, meant to re-seed when it changes; `site.code` is the Site's fixed identity (beside the key `site.site`);
+    `months` is the fixed four-month calendar (D-DD.2); `day_classes`/`families` are fixed global shape tables. Each
+    changes only by a deliberate design change that re-draws history anyway. None is wrong today, and removing any
+    re-draws July-September at every affected Site for no change in any figure's meaning.
+  - *Later.* The general form (each scope's digest covers exactly the keys its rules read, declared beside the rules,
+    as D-DD.102 did for `physical`) goes to `.agent/backlog-post-demo.md` with the four keys named, for the first slice
+    after the demo that re-draws history for its own reason. A digest change is a re-draw and needs that reason.
+
+- **D-DD.116 Q12 and units: DD3c 2.5 → 3.25 u in five parts; DD 43.25 → 44.0 u** (W4; D-DD.44's 3 u stop, ruled here).
+  - +0.25 u: the builder's survey (five readers, four per-unit checks, D-DD.109 P5 and T1-T7). +0.5 u: D-DD.113's
+    litres per unit. D-DD.111 and D-DD.112 are small edits inside part 1. DD3c stays under W4's 6 u.
+  - *Parts.* (1) `unit_roles.py` (done) plus D-DD.111, D-DD.112; (2) migration 0074, `MINI_DEPTH_ROLE_SETS`, the
+    mini_depth and structure/energy readers, `ROLES_BY_SET`, T1-T7; (3) dispatch_v3, verification, replay_series,
+    fuel_balance and the per-unit checks; (4) litres per unit (D-DD.113) and the `fuel_basis` check; (5) Kobo to
+    roles-5 and D-DD.114's parity.
+  - DD: 43.25 → **44.0 u** in ten parts, each at or under 6 u. Order unchanged (D-DD.107).
