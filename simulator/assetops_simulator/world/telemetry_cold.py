@@ -36,7 +36,7 @@ from zoneinfo import ZoneInfo
 from ..packs.cold import (DD_LOAD_PARAMETERS, FORCING_EFFECTS, PROPERTY_FIELDS, V2_FORCING_ASSETS, ColdForcingRow,
                           ColdPack, ColdParameters, ColdState)
 from ..packs.errors import PhysicallyUnacceptable
-from .telemetry import TelemetryRefused, span_days
+from .telemetry import TelemetryRefused, _months_without_books, span_days
 
 STEP = timedelta(minutes=1)
 DOOR_MINUTES = 5  # spec §4.4: door per movement
@@ -251,4 +251,71 @@ class ColdSiteRun:
         }
 
 
-__all__ = ["ColdSiteRun", "cold_parameters", "day_ambient", "EVENT_FORCINGS"]
+# --- the cold books (D-DD.119, D-DD.120) -------------------------------------------------------------------------------
+
+#: D-DD.120: Thika's story events (`M`'s incidents are outside the view by design); `test_dd4_cold_books` pins them to `M`.
+STORY_EVENTS: dict[str, tuple[dict, ...]] = {"COLD-THIKA": (
+    {"kind": "GRID_LOSS", "at": "2026-10-06T19:11:00+03:00", "source": "incident.grid_outage"},
+    {"kind": "GENERATOR_FAILURE", "at": "2026-10-06T19:11:00+03:00", "source": "incident.backup"},
+    {"kind": "GENERATOR_HAND_START", "at": "2026-10-06T20:22:00+03:00", "source": "incident.backup (D-DD.89)"},
+    {"kind": "GRID_RESTORE", "at": "2026-10-06T22:00:00+03:00", "source": "Assumed (spec §4.4): M states no restore"},
+)}
+
+LEDGER_KEY = "profile.cold-storage-ledger"
+
+
+def cold_ledger_files(view: dict, history: dict, records) -> list:
+    """Each COLD_CHAIN tenant's ledger `ExportFile`, from the same function the `exports` command runs (D-DD.119)."""
+    from .exports_cold import build_cold_exports
+
+    out = []
+    for tenant in view["tenants"]:
+        if tenant.get("vertical") != "COLD_CHAIN":
+            continue
+        out += [f for f in build_cold_exports(view, history, records, tenant).files if f.key == LEDGER_KEY]
+    return out
+
+
+def _efficiency(view: dict, tenant: dict, site: dict) -> dict[str, str]:
+    """D-DD.119 `f_m`: the history months' `cooling` arguments of the Site's own `actual.kwh` rule (read by
+    `world/history.py`'s parser), the accounting period's kwh / kwh_model, and that value for a month after it."""
+    from .history import ANCHOR, _number, _parse, _Scope
+
+    hist = view["history"]
+    rule = hist.get("sites", {}).get(f"{tenant['tenant']}/{site['site']}", {}).get("actual", {}).get("kwh")
+    if rule is None:
+        return {}
+    out: dict[str, str] = {}
+    for month in sorted(hist["months"]):
+        scope = _Scope(view, tenant, site, month, False)
+        entry = scope.listed(_parse(scope, "kwh", rule), "kwh")
+        if entry != ANCHOR:
+            out[month] = str(_number(entry, scope.key, "kwh"))
+    accounting = view["accounting_period"]
+    actual = site["period"]["actual"]
+    period = Fraction(str(actual["kwh"])) / Fraction(str(actual["kwh_model"]))
+    for month in (accounting, *_months_without_books(accounting)):
+        out[month] = str(period)
+    return out
+
+
+def cold_books_for(view: dict, history: dict, records, *, ledgers: list | None = None) -> dict[str, dict]:
+    """Per cold Site code: the writer's books (D-DD.119), built in process from the exported books' own functions.
+    `ledgers` are `cold_ledger_files`' result when the caller already has them (the CLI's byte check)."""
+    rows = [r for f in (cold_ledger_files(view, history, records) if ledgers is None else ledgers) for r in f.records]
+    hist = view["history"]
+    out: dict[str, dict] = {}
+    for tenant in view["tenants"]:
+        if tenant.get("vertical") != "COLD_CHAIN":
+            continue
+        for site in tenant["sites"]:
+            code = site["code"]
+            out[code] = {"ledger": [r for r in rows if r["site_code"] == code],
+                         "cooling": hist["families"]["cooling"], "seasons": hist["seasons"],
+                         "day_classes": hist["day_classes"], "efficiency": _efficiency(view, tenant, site),
+                         "events": list(STORY_EVENTS.get(code, ()))}
+    return out
+
+
+__all__ = ["ColdSiteRun", "cold_parameters", "day_ambient", "EVENT_FORCINGS", "STORY_EVENTS", "cold_books_for",
+           "cold_ledger_files"]
