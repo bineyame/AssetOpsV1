@@ -78,3 +78,26 @@ Handoff with anchors and history: `specs/IA-P-product-shape/handshake-IA-P1-hand
 - L1 (th row fill transparent), L2 (copy "Loading Decisions…" etc.; added to `settled.ts`), L4 (crumb "Evidence & records") fixed.
 - Deferred: L2 tile labels while loading; L3 (First page nonce in `useEstateRead`/cache); L5 (second exemption const needs a missing-claim-scan config change); L4 "See all 8 findings" wording (P3b rebuilds the panel).
 - Checks: tsc clean; vitest on ui, estate, work and two shell files 648 passed, 1 failed (SR-6b, pre-existing on main); architecture, agent-workflow, missing-claim (44 tagged, 10 baselined), hard-wiring (12/20/69/50/3), navigation x2 pass; fresh build, `iap_gates.cjs` 29 of 29, exit 0.
+
+## Fix round 2 (full `src/shell` run: 21 failed in 7 files on the branch, 3 in 2 on main)
+One cause for 18 of the 21: the Site Overview range view's loading sentence ("Loading the site's overview for this date range.",
+`RANGE_OVERVIEW_LOADING`, `sites/SiteRangeOverview.tsx`) was not in the `settledScreen` list (`test/settled.ts`). On the branch the
+range read (windowed through `capWindow`, P0) is still in flight when `settledScreen` first checks, so the tests asserted against the
+loading screen. Verified: the same test passes after a 300 ms wait, and the page shows 5 cards. No product behaviour changed; the
+sentence is a real loading state that the helper's contract says must be listed. Class (c): test-helper gap, fixed in the helper (neither a nor b).
+
+| Test (file) | Cause | a/b | Change |
+|---|---|---|---|
+| overviewDispatchAssessment x3 | range-loading sentence unlisted, asserts on loading screen | helper | `settled.ts` lists the sentence |
+| s502OverviewFindingList x2 (request scope, refused read) | same | helper | same |
+| s5SiteWindowOverview x2 (default day to address, SR-4b fallback) | same | helper | same |
+| siteDetailScreen x1 (quick actions click) | same: markup changed when the read landed | helper | same |
+| siteOverviewScreen x10 | same | helper | same |
+| siteRangeMatrix x2, sr2RequestUrls SR-6b | pre-existing on main, out of scope | n/a | none |
+
+Counts: a = 0, b = 0, helper = 18 (all 18 branch-only failures). Spec/packet behaviour changes did not touch any of these tests.
+Run: `src/shell` 65 files passed, 3 failed files; 5 failed, 1598 passed (3 are main's; `s502` refused-read and `ev / (R)` failed once under
+full-suite load and passed on a rerun of those two files: 2 failed = main's two matrix tests). `src/ui src/estate src/work`: 585 passed.
+tsc clean; fresh build; `iap_gates.cjs` 29 of 29, exit 0; architecture (needs `ASSETOPS_GUARD_PYTHON`, the worktree has no `.venv`),
+agent-workflow, missing-claim (44 tagged, 10 baselined), hard-wiring (12/20/69/50/3), navigation x2 pass.
+Why the range read lands later than on main is not investigated; no behaviour test fails on it.
