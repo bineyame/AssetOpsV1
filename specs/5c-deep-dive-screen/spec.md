@@ -1,6 +1,6 @@
 # 5c: the month, explained (the one deep-dive screen; implementer spec)
 
-Status: rev 5, Architect (Claude), 2026-11-21 (rev 2 2026-11-20, re-scoped by D-BW1.9 and D-BW1.12; handshake round 1
+Status: in_review (units 1-3 built; screen fix built, 2026-11-21). rev 5, Architect (Claude), 2026-11-21 (rev 2 2026-11-20, re-scoped by D-BW1.9 and D-BW1.12; handshake round 1
 answered, `rulings.md` "Handshake answers"). **Rev 3** folds in review round 1 of units 1-2 (`rulings.md` D-5C.19 to
 D-5C.25): §2.4 after SC-1f (D-5C.19), the headline's evidence (D-5C.20), nested drivers (D-5C.21), caps on the screen
 (D-5C.22), "(at budget)" (D-5C.23), World H's price (D-5C.24) and two record words (D-5C.25). §3.5's literals below
@@ -578,6 +578,8 @@ assetops_backend.record_action --tenant SLUG --as EMAIL --title TEXT --owner EMA
   two marks at `left: ${scale.target_at}%` ("{totals.target_label} {totals.target}") and `${scale.actual_at}%`
   ("{totals.actual_label} {totals.actual}", the end mark, `translateX(-100%)`). Track, bar and scale are
   `aria-hidden`. No `Number(`, `parseFloat` or arithmetic on these strings.
+  *Pending Architect line (KD4, register R768):* the step row stacks under 720 px of section width (container
+  query), not above 600 px of viewport, because the shell's navigation leaves 488 px of section at 768.
 - **No figure (rev 4, D-5C.26).** A figure slot's value takes the modifier `dd-na` (the muted style of today's
   `dd-kpi__value--na`, renamed) when its `word` is null: tiles, steps, drivers; an outcome card when `word` and
   `drawer` are both null. No test on a key or on a text.

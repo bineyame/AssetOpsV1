@@ -1,0 +1,546 @@
+{
+  "schema": "deep-dive-month-1",
+  "operator": "Lakeside Power",
+  "month": "2026-10",
+  "month_words": "October 2026",
+  "nav": {
+    "previous": "2026-09",
+    "next": null
+  },
+  "state": "SERVED",
+  "state_text": null,
+  "as_of": "2026-11-20T08:00:00Z",
+  "as_of_text": "Figures as of 20 November 2026, 08:00 UTC.",
+  "fresh": {
+    "current": true,
+    "text": null,
+    "untracked_text": "Not checked for later changes: Diesel not shown to be avoidable (Kobo), Diesel run while solar and battery could carry the load (Kobo) and Unexplained fuel (Kobo)."
+  },
+  "standing": {
+    "reconciled": false,
+    "reason": "THIS_MONTH_NOT_MATCHED",
+    "text": "Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1%.",
+    "details": [
+      "Fuel cost (Recorded and Emulated): the accounts say $5,100.00 and the records say $4,995.00, $105.00 less (2.06%), beyond the $51.00 allowed (1%)."
+    ]
+  },
+  "headline": {
+    "text": "Contribution is $852.00 below target in October; cost and efficiency explain $755.00 of it.",
+    "evidence": [
+      "Estimated, not yet reconciled"
+    ]
+  },
+  "status_line": "Figures as of 20 November 2026, 08:00 UTC. Not yet reconciled with the management accounts. Kisiwa's budget disagrees with its own lines.",
+  "tiles": [
+    {
+      "key": "contribution",
+      "label": "Contribution",
+      "value": "$1,443.00",
+      "word": "Estimated, not yet reconciled",
+      "lines": [
+        "Target $2,295.00 · 63% of target",
+        "3 of 3 Sites",
+        "91.5% of cost from figures received"
+      ],
+      "bar": {
+        "actual": "1443.00",
+        "target": "2295.00"
+      }
+    },
+    {
+      "key": "gap",
+      "label": "Gap to target",
+      "value": "−$852.00",
+      "word": "Estimated, not yet reconciled",
+      "lines": [
+        "Grow −$97.00 · Optimize −$755.00",
+        "$252.00 of it not split to its drivers yet"
+      ],
+      "bar": null
+    },
+    {
+      "key": "plan_spend",
+      "label": "Plan spend",
+      "value": "Not available yet",
+      "word": null,
+      "lines": [
+        "No plan has been made yet"
+      ],
+      "bar": null
+    },
+    {
+      "key": "plan_value",
+      "label": "Plan value, 12 months",
+      "value": "Not available yet",
+      "word": null,
+      "lines": [
+        "Each change is valued against doing nothing when decisions are recorded"
+      ],
+      "bar": null
+    }
+  ],
+  "notices": [
+    "Kisiwa's budget states a contribution of −$60.00; its budget lines add to −$65.00. The target used is −$65.00."
+  ],
+  "bridge": {
+    "title": "Cost and efficiency explain $755.00 of the $852.00 gap. Open a step for what is behind it.",
+    "totals": {
+      "actual_label": "Contribution, October",
+      "actual": "$1,443.00",
+      "target_label": "Target",
+      "target": "$2,295.00"
+    },
+    "scale": {
+      "target_at": "0.00",
+      "actual_at": "100.00"
+    },
+    "groups": [
+      {
+        "key": "GROW_REVENUE",
+        "label": "Grow revenue",
+        "value": "−$97.00",
+        "steps": [
+          {
+            "key": "revenue",
+            "label": "Revenue",
+            "value": "−$97.00",
+            "share": "11% of what widens the gap",
+            "word": "Emulated, not yet reconciled",
+            "sites": "3 of 3 Sites",
+            "bar": {
+              "left": "0.00",
+              "width": "11.38",
+              "tone": "lowers"
+            },
+            "drawer": {
+              "title": "Revenue",
+              "lines": [
+                "Actual $9,688.00 · Target $9,785.00 · Difference −$97.00",
+                "Effect on contribution −$97.00",
+                "3 of 3 Sites"
+              ],
+              "sites": [
+                {
+                  "site": "Kobo",
+                  "value": "+$38.00",
+                  "text": "Not split further until the billing export with each line's kWh and tariff, a feeder meter export, a meter register with change dates, the customer meter reads for the month, each feeder's expected technical loss as declared in the Site's setup, the productive-use tariff and budget lines for energy delivered, tariff and productive-use price."
+                },
+                {
+                  "site": "Kisiwa",
+                  "value": "−$55.00",
+                  "text": "Not split further until the billing export with each line's kWh and tariff, a feeder meter export, a meter register with change dates, the customer meter reads for the month, each feeder's expected technical loss as declared in the Site's setup, the productive-use tariff and budget lines for energy delivered, tariff and productive-use price."
+                },
+                {
+                  "site": "Mto",
+                  "value": "−$80.00",
+                  "text": "Not split further until the billing export with each line's kWh and tariff, a feeder meter export, a meter register with change dates, the customer meter reads for the month, each feeder's expected technical loss as declared in the Site's setup, the productive-use tariff and budget lines for energy delivered, tariff and productive-use price."
+                }
+              ],
+              "carried": [],
+              "out": [],
+              "lines_org": [],
+              "drivers": []
+            }
+          }
+        ]
+      },
+      {
+        "key": "OPTIMIZE_COST",
+        "label": "Optimize cost and efficiency",
+        "value": "−$755.00",
+        "steps": [
+          {
+            "key": "fuel_cost",
+            "label": "Fuel cost",
+            "value": "−$755.00",
+            "share": "89% of what widens the gap",
+            "word": "Emulated, not yet reconciled",
+            "sites": "3 of 3 Sites",
+            "bar": {
+              "left": "11.38",
+              "width": "88.62",
+              "tone": "lowers"
+            },
+            "drawer": {
+              "title": "Fuel cost",
+              "lines": [
+                "Actual $4,995.00 · Target $4,240.00 · Difference +$755.00",
+                "Effect on contribution −$755.00",
+                "3 of 3 Sites"
+              ],
+              "sites": [
+                {
+                  "site": "Kobo",
+                  "value": "−$600.00",
+                  "text": null
+                },
+                {
+                  "site": "Kisiwa",
+                  "value": "−$130.00",
+                  "text": "Not split further until the EMS interval export (generator running and output, solar available power, battery charge), the generator's fuel curve (litres per kWh; litres per hour idle), tank dips at the start and end of the month, fuel delivery notes and a generator and a fuel tank declared in the Site's setup (litres are worked out for each)."
+                },
+                {
+                  "site": "Mto",
+                  "value": "−$25.00",
+                  "text": "Not split further until the EMS interval export (generator running and output, solar available power, battery charge), the generator's fuel curve (litres per kWh; litres per hour idle), tank dips at the start and end of the month, fuel delivery notes and a generator and a fuel tank declared in the Site's setup (litres are worked out for each)."
+                }
+              ],
+              "carried": [],
+              "out": [],
+              "lines_org": [],
+              "drivers": [
+                {
+                  "key": "diesel_l",
+                  "label": "Diesel used",
+                  "value": "−$600.00",
+                  "sites": "1 of 3 Sites",
+                  "detail": "Actual 1,180 L · Target 700 L",
+                  "word": "Modelled, not yet reconciled",
+                  "children": [
+                    {
+                      "key": "necessary_l",
+                      "label": "Diesel not shown to be avoidable",
+                      "value": "−$37.50",
+                      "sites": "1 of 3 Sites",
+                      "detail": "Actual 730 L · Target 700 L",
+                      "word": "Modelled, not yet reconciled",
+                      "children": []
+                    },
+                    {
+                      "key": "candidate_l",
+                      "label": "Diesel run while solar and battery could carry the load",
+                      "value": "−$412.50",
+                      "sites": "1 of 3 Sites",
+                      "detail": "Actual 330 L · Target 0 L",
+                      "word": "Modelled, not yet reconciled",
+                      "children": []
+                    },
+                    {
+                      "key": "unexplained_l",
+                      "label": "Unexplained fuel",
+                      "value": "−$150.00",
+                      "sites": "1 of 3 Sites",
+                      "detail": "Actual 120 L · Target 0 L",
+                      "word": "Modelled, not yet reconciled",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "key": "diesel_price",
+                  "label": "Diesel price",
+                  "value": "$0.00",
+                  "sites": "1 of 3 Sites",
+                  "detail": null,
+                  "word": "Modelled, not yet reconciled",
+                  "children": []
+                }
+              ]
+            }
+          },
+          {
+            "key": "om",
+            "label": "O&M",
+            "value": "$0.00",
+            "share": "No effect",
+            "word": "Estimated, not yet reconciled",
+            "sites": "3 of 3 Sites",
+            "bar": null,
+            "drawer": {
+              "title": "O&M",
+              "lines": [
+                "Actual $1,800.00 · Target $1,800.00 · Difference $0.00",
+                "Effect on contribution $0.00",
+                "3 of 3 Sites"
+              ],
+              "sites": [
+                {
+                  "site": "Kobo",
+                  "value": "$0.00",
+                  "text": null
+                },
+                {
+                  "site": "Kisiwa",
+                  "value": "$0.00 (at budget)",
+                  "text": null
+                },
+                {
+                  "site": "Mto",
+                  "value": "$0.00",
+                  "text": null
+                }
+              ],
+              "carried": [
+                "Kisiwa: no service contractor invoice received; taken at its budget line for the month (estimate)."
+              ],
+              "out": [],
+              "lines_org": [],
+              "drivers": []
+            }
+          },
+          {
+            "key": "staff",
+            "label": "Staff",
+            "value": "$0.00",
+            "share": "No effect",
+            "word": "Emulated, not yet reconciled",
+            "sites": "3 of 3 Sites",
+            "bar": null,
+            "drawer": {
+              "title": "Staff",
+              "lines": [
+                "Actual $1,450.00 · Target $1,450.00 · Difference $0.00",
+                "Effect on contribution $0.00",
+                "3 of 3 Sites"
+              ],
+              "sites": [
+                {
+                  "site": "Kobo",
+                  "value": "$0.00",
+                  "text": null
+                },
+                {
+                  "site": "Kisiwa",
+                  "value": "$0.00",
+                  "text": null
+                },
+                {
+                  "site": "Mto",
+                  "value": "$0.00",
+                  "text": null
+                }
+              ],
+              "carried": [],
+              "out": [],
+              "lines_org": [
+                "The organisation's budget also states $1,200.00 for staff that no Site carries; it is listed, not added."
+              ],
+              "drivers": []
+            }
+          }
+        ]
+      }
+    ],
+    "by_site": {
+      "columns": [
+        "Site",
+        "Contribution",
+        "Target",
+        "Gap",
+        "Revenue",
+        "Fuel cost",
+        "O&M",
+        "Staff"
+      ],
+      "rows": [
+        [
+          "Kobo",
+          "$883.00",
+          "$1,445.00",
+          "−$562.00",
+          "+$38.00",
+          "−$600.00",
+          "$0.00",
+          "$0.00"
+        ],
+        [
+          "Kisiwa",
+          "−$250.00",
+          "−$65.00",
+          "−$185.00",
+          "−$55.00",
+          "−$130.00",
+          "$0.00 (at budget)",
+          "$0.00"
+        ],
+        [
+          "Mto",
+          "$810.00",
+          "$915.00",
+          "−$105.00",
+          "−$80.00",
+          "−$25.00",
+          "$0.00",
+          "$0.00"
+        ]
+      ],
+      "total": [
+        "3 of 3 Sites",
+        "$1,443.00",
+        "$2,295.00",
+        "−$852.00",
+        "−$97.00",
+        "−$755.00",
+        "$0.00",
+        "$0.00"
+      ]
+    }
+  },
+  "cash": {
+    "title": "Cash collected, outside the contribution gap",
+    "text": "Of $9,688.00 billed for October, $8,870.00 has been collected, $150.00 is paid but in transit and $668.00 is still outstanding.",
+    "word": "Estimated, not yet reconciled",
+    "sites": "3 of 3 Sites",
+    "table": {
+      "columns": [
+        "Site",
+        "Billed",
+        "Collected",
+        "In transit",
+        "Outstanding"
+      ],
+      "rows": [
+        [
+          "Kobo",
+          "$3,458.00",
+          "$3,180.00",
+          "$0.00",
+          "$278.00"
+        ],
+        [
+          "Kisiwa",
+          "$4,070.00",
+          "$3,800.00",
+          "$0.00",
+          "$270.00"
+        ],
+        [
+          "Mto",
+          "$2,160.00",
+          "$1,890.00",
+          "$150.00",
+          "$120.00"
+        ]
+      ],
+      "total": [
+        "3 of 3 Sites",
+        "$9,688.00",
+        "$8,870.00",
+        "$150.00",
+        "$668.00"
+      ]
+    }
+  },
+  "outcomes": [
+    {
+      "key": "grow",
+      "label": "Grow revenue",
+      "value": "−$97.00",
+      "word": "Emulated, not yet reconciled",
+      "line": "Revenue against target, 3 of 3 Sites",
+      "drawer": null
+    },
+    {
+      "key": "optimize",
+      "label": "Optimize cost and efficiency",
+      "value": "−$755.00",
+      "word": "Estimated, not yet reconciled",
+      "line": "Fuel, O&M and staff against target; cash collected is shown apart",
+      "drawer": null
+    },
+    {
+      "key": "protect",
+      "label": "Protect asset and capital",
+      "value": "Not available yet",
+      "word": null,
+      "line": "Limits, warranties and rights are not set up yet",
+      "drawer": null
+    },
+    {
+      "key": "assure",
+      "label": "Assure performance and returns",
+      "value": "Not yet reconciled",
+      "word": null,
+      "line": "1 budget disagreement · 91.5% of cost from figures received",
+      "drawer": {
+        "title": "Reconciliation with the management accounts",
+        "lines": [
+          "Not yet reconciled: October 2026 (the organisation) does not match the management accounts within 1%.",
+          "Fuel cost (Recorded and Emulated): the accounts say $5,100.00 and the records say $4,995.00, $105.00 less (2.06%), beyond the $51.00 allowed (1%).",
+          "Not checked for later changes: Diesel not shown to be avoidable (Kobo), Diesel run while solar and battery could carry the load (Kobo) and Unexplained fuel (Kobo)."
+        ]
+      }
+    }
+  ],
+  "decisions": {
+    "title": "Decisions",
+    "text": "Not available yet: no decision has been valued against doing nothing."
+  },
+  "actions": {
+    "title": "Actions in hand",
+    "connected": false,
+    "text": "Not available yet: an agreed change is recorded as an Action with its owner and due date.",
+    "rows": [],
+    "more": 0
+  },
+  "not_available": {
+    "rows": [
+      {
+        "needs": "the billing export with each line's kWh and tariff",
+        "fills": "Billing adjustments, Energy on unmapped meters and Tariff",
+        "sites": "Kobo, Kisiwa and Mto"
+      },
+      {
+        "needs": "a feeder meter export",
+        "fills": "Energy delivered, Technical losses and Unexplained losses",
+        "sites": "Kobo, Kisiwa and Mto"
+      },
+      {
+        "needs": "a meter register with change dates",
+        "fills": "Unexplained losses and Energy on unmapped meters",
+        "sites": "Kobo, Kisiwa and Mto"
+      },
+      {
+        "needs": "the customer meter reads for the month",
+        "fills": "Unexplained losses and Energy on unmapped meters",
+        "sites": "Kobo, Kisiwa and Mto"
+      },
+      {
+        "needs": "each feeder's expected technical loss as declared in the Site's setup",
+        "fills": "Technical losses and Unexplained losses",
+        "sites": "Kobo, Kisiwa and Mto"
+      },
+      {
+        "needs": "the productive-use tariff",
+        "fills": "Productive-use price",
+        "sites": "Kobo, Kisiwa and Mto"
+      },
+      {
+        "needs": "the EMS interval export (generator running and output, solar available power, battery charge)",
+        "fills": "Diesel not shown to be avoidable, Diesel run while solar and battery could carry the load and Unexplained fuel",
+        "sites": "Kisiwa and Mto"
+      },
+      {
+        "needs": "the generator's fuel curve (litres per kWh; litres per hour idle)",
+        "fills": "Diesel not shown to be avoidable, Diesel run while solar and battery could carry the load and Unexplained fuel",
+        "sites": "Kisiwa and Mto"
+      },
+      {
+        "needs": "tank dips at the start and end of the month",
+        "fills": "Unexplained fuel",
+        "sites": "Kisiwa and Mto"
+      },
+      {
+        "needs": "fuel delivery notes",
+        "fills": "Unexplained fuel",
+        "sites": "Kisiwa and Mto"
+      },
+      {
+        "needs": "the service contractor's invoices",
+        "fills": "O&M (taken at its budget line meanwhile)",
+        "sites": "Kisiwa"
+      },
+      {
+        "needs": "a generator and a fuel tank declared in the Site's setup (litres are worked out for each)",
+        "fills": "Diesel not shown to be avoidable, Diesel run while solar and battery could carry the load and Unexplained fuel",
+        "sites": "Kisiwa and Mto"
+      },
+      {
+        "needs": "budget lines for energy delivered, tariff and productive-use price",
+        "fills": "Energy delivered, Tariff and Productive-use price",
+        "sites": "Kobo, Kisiwa and Mto"
+      }
+    ],
+    "not_built": "Not built yet: the value of each change against doing nothing, and the limits, warranties and rights under Protect."
+  }
+}
