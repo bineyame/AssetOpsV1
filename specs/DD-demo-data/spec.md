@@ -3,7 +3,7 @@
 Status: **rev 2, 2026-11-22; DD1 in_review (`packet-DD1.md`); DD2a in_review (`packet-DD2a.md`); DD2b in_review (`packet-DD2b.md`)**: the combined handshake (`handshake.md`, R1-R10, I1-I15) is answered there under "Answers
 (Architect)" and ruled in `rulings.md` (D-DD.17 to D-DD.34). Rev 1 (same day) had 19.5 u in four parts; rev 2 has
 **30.0 u in six parts** (§7); restated by D-DD.44 to **33.0 u in seven parts** (DD3 splits into DD3a, DD3b), by D-DD.47 to 33.5 u, and by D-DD.57 to
-**34.25 u in eight parts** (DD2 splits into DD2a, DD2b), by D-DD.66 to **35.25 u**, by D-DD.73 to **35.75 u**, by D-DD.74 to **36.25 u**, by D-DD.79 to **37.0 u**, by D-DD.80 to **37.5 u**, by D-DD.88 to **39.0 u** (DD4 splits into DD4a, DD4b), and by D-DD.96 to **41.5 u**. Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
+**34.25 u in eight parts** (DD2 splits into DD2a, DD2b), by D-DD.66 to **35.25 u**, by D-DD.73 to **35.75 u**, by D-DD.74 to **36.25 u**, by D-DD.79 to **37.0 u**, by D-DD.80 to **37.5 u**, by D-DD.88 to **39.0 u** (DD4 splits into DD4a, DD4b), by D-DD.96 to **41.5 u**, and by D-DD.101 to **42.0 u**. Architect (Claude). Owner request: `owner/owner-demo-data-spec-2026-11-22.md` ("make sure
 it grounded on the product goals"); owner answers to Q1-Q6: `owner/owner-demo-data-answers-2026-11-22.md`. Owner words on
 Kobo's equipment: `owner/owner-iap-q1-q2-kobo-datasheets-2026-11-22.md`. **Rulings:** D-DD.1 to D-DD.16 (§9) and
 D-DD.17 to D-DD.96 (`rulings.md`); index lines in `.ai/decisions/index-rulings-26.md`, `index-rulings-27.md`,
@@ -269,7 +269,8 @@ The frame is `world/telemetry.py` alone. Cold and EV drive their packs in `world
     `ordinal`, `correlation`); ties sort by `event.ordinal`; the ids are formed at sealing (D-DD.91);
   - per Site, `<SITE>.manifest.json`: the pack versions, private parameters, conditions, mappings and a golden digest
     per Site-month;
-  - per tenant, `<slug>/telemetry/measured.json`: the meter month totals the measured books are written from (§5.6).
+  - per tenant, `<slug>/telemetry/measured.json`: the meter month totals the measured books are written from (§5.6),
+    schema `assetops.world-measured/1` per D-DD.99 (per vertical month objects; EV `departures`).
 - **Public records to readings.** The writer maps each pack public record (device, signal) to the role set's
   `source_id` and `signal_id`, where `source_id` is the binding row's `device_id` (D-DD.72); the map is written in the readings manifest's `mappings`. `S/observation/transform.py` is
   not on this path.
@@ -386,7 +387,8 @@ Added to cold-thermal 1, as **private load parameters** (`ColdLoadParameters`, p
   - Kasarani: return 22:00, departure 05:00.
   - Ruiru: return 21:00, departure 05:00.
   - `required_kwh` is `kwh_per_bus_night`, scaled by largest remainder (to 0.001 kWh) so the month's total equals `kwh`.
-  - Kasarani's spare bus is in the roster on the nights the incident lists it.
+  - Kasarani's spare bus is in the roster on the nights the incident lists it: a daytime-charged bus (arrives 10:00
+    local, departs 05:00 with 150.000 kWh; D-DD.98), not a ninth night bus.
 - **Plug-in practice (input).** At Embakasi, each night the first `round_half_even(20 × p_m)` buses by return time
   plug in on arrival, and the rest plug in at 22:00. `p_m` is 0.36, 0.43, 0.49, 0.55 for July to October; November
   keeps 0.55. At Kasarani and Ruiru every bus plugs in at its return.
@@ -399,7 +401,9 @@ Added to cold-thermal 1, as **private load parameters** (`ColdLoadParameters`, p
   - each share is capped by connector and charger ratings and by the bus's remaining need;
   - each share is passed to that charger's pack as `REQUEST_KW` for the minute. Each pack instance has `site_limit_kw`
     = its charger rating.
-- A session stops requesting when the bus has its `required_kwh`, and unplugs at departure.
+- A session stops requesting when the bus has its `required_kwh`, and unplugs at departure, unless a bus waits:
+  then the full bus unplugs at that minute and the longest-waiting bus plugs in on that connector 5 minutes later
+  (`ROTATION_MINUTES`, Assumed; D-DD.98).
 - **Faults.** Kasarani CH-K2 `FAULT` at 2026-11-01T23:40+03:00, with no `CLEAR` in the span. Ruiru CH-R7 connector 2
   `FAULT` from 2026-10-06T00:00 local, with no `CLEAR`.
 - **CLOCK-1 (disorder, D-DD.25).** On 2026-10-15 at Embakasi, every reading of the third charger's sessions (by
@@ -619,7 +623,8 @@ The build manifest lists each test with its rows. None is planted in a history m
 
 ### 5.6 Measured books (`world/exports_measured.py`; DD4.4; D-DD.20)
 
-Written by `world_history.py exports --telemetry DIR` from `measured.json`.
+Written by `world_history.py exports --telemetry DIR` from `measured.json` (schema D-DD.99; whole months only for
+bills and invoices, every bus-night for the departure log).
 
 **Cold electricity bill**, `cold-electricity-bill-illustrative` (CHARGE; constants `kind` CHARGE, `subject.kind` SITE,
 `quantity.unit` kWh, `body.line_type` USAGE). One row per room-month. kWh is the room meter's month energy (Σ 5-minute
@@ -843,12 +848,12 @@ Order: DD1 → (DD2a → DD2b ∥ DD3) → DD4a → DD4b → DD5 → DD6 (after 
   mini-depth lift accept one roles-4 or roles-5 set; Kobo's world conversion moves to roles-5 with a parity test of its
   product outputs. Merges before DD5.1 loads Kisiwa's or Mto's readings.
 
-### DD4: cold and EV operating reality, and the measured books (8.25 u in two parts, D-DD.88, D-DD.96: DD4a = DD4.1, DD4.2, 5.0 u, `task/DD4-cold-ev-reality`; DD4b = DD4.3, DD4.4, 3.25 u, `task/DD4b-ev-measured`)
+### DD4: cold and EV operating reality, and the measured books (8.75 u in two parts, D-DD.88, D-DD.96, D-DD.101: DD4a = DD4.1, DD4.2, 5.0 u, `task/DD4-cold-ev-reality`; DD4b = DD4.3, DD4.4, 3.75 u (D-DD.101), `task/DD4b-ev-measured`)
 
 - **DD4.1 cold-thermal 2 (2.0; D-DD.83, D-DD.87).** §4.4: the model and its parity test against v1, and a run at occupancy = capacity
   with no clipping (D-DD.65). C-DD19 (cold part) goes live.
 - **DD4.2 Cold writer (2.0; D-DD.81's join, D-DD.85, D-DD.86).** The ledger extended to `as_of` (D-DD.63), rooms on the ledger's movements, ambient, `f_m`, and Thika's events.
-- **DD4.3 EV writer (1.75).** §4.5: roster in, practice, connector assignment, the depot load manager, faults, CLOCK-1.
+- **DD4.3 EV writer (2.25; D-DD.98, D-DD.100).** §4.5: roster in, practice, connector assignment and rotation, the depot load manager, faults, the daytime spare, CLOCK-1.
 - **DD4.4 Measured books (1.5; D-DD.84).** §5.6, including the cold electricity-bill profile (D-DD.64 (8)), and the cold and EV
   statements; `HAND_SAMPLES` empty once `exports_measured` exists (D-DD.65a). C-DD5, C-DD6, C-DD7 and C-DD20 go live.
 
@@ -896,7 +901,7 @@ Order: DD1 → (DD2a → DD2b ∥ DD3) → DD4a → DD4b → DD5 → DD6 (after 
   - Fold in the DDR runbook's ten queued clarity notes.
   - Evidence goes to `/opt/assetecon/evidence/DD/<run>/`.
 
-**Size: 41.5 units (D-DD.96; D-DD.88: 39.0 u; D-DD.80: 37.5 u; D-DD.79: 37.0 u; D-DD.74: 36.25 u; D-DD.73: 35.75 u; D-DD.66: 35.25 u; D-DD.57: 34.25 u; D-DD.47: 33.5 u; D-DD.44: 33.0 u; rev 2: 30.0 u), about 54 commits** (rev 1: 19.5 u). Each part is at or under 6 units. 0K4f grows by 0.5 u
+**Size: 42.0 units (D-DD.101; D-DD.96: 41.5 u; D-DD.88: 39.0 u; D-DD.80: 37.5 u; D-DD.79: 37.0 u; D-DD.74: 36.25 u; D-DD.73: 35.75 u; D-DD.66: 35.25 u; D-DD.57: 34.25 u; D-DD.47: 33.5 u; D-DD.44: 33.0 u; rev 2: 30.0 u), about 54 commits** (rev 1: 19.5 u). Each part is at or under 6 units. 0K4f grows by 0.5 u
 (D-DD.30).
 
 ---
@@ -979,7 +984,7 @@ The checker shares no logic, list or expected figure with the generators. Expect
 
 - **D-DD.1 to D-DD.16** as in rev 1, kept below. D-DD.4 is amended by D-DD.21 and D-DD.22, D-DD.5 by D-DD.24, and
   D-DD.10 by D-DD.17 and D-DD.30.
-- **D-DD.17 to D-DD.88**: `rulings.md`.
+- **D-DD.17 to D-DD.101**: `rulings.md` (D-DD.97 is a DRAFT awaiting owner approval).
 
 - **D-DD.1 The cast.** The manifest's three operators and nine Sites, as §1's table. *Why:* one world drives the
   manifest, mock, documents and product. *Reverse:* a cast change is a manifest change first.
