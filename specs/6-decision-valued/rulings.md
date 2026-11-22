@@ -1,4 +1,4 @@
-# Step 6 rulings (D-P6.1 to D-P6.33): decisions valued against doing nothing, 6a and 6c
+# Step 6 rulings (D-P6.1 to D-P6.41): decisions valued against doing nothing, 6a and 6c
 
 Architect (Claude), 2026-11-22. They apply the owner's acceptance of the seven P6 defaults ("accept all p6 defaults",
 `owner/owner-accept-p6-defaults-2026-11-22.md`) to `6a-decision-records/spec.md` and `6c-option-evaluator/spec.md`,
@@ -270,6 +270,86 @@ Simulated). Code read on `main` at `a26444647`. D-P6.13 to D-P6.19 are the owner
   `name_of(tenant_id, person_id)` store read so each command makes one small read and names the row just written;
   deviation 3 stands until then.
 - **Why.** F2 can misreport an executive's choice and is a few lines; F5 is cost and rare naming, not correctness.
+
+## D-P6.34 A money effect that is exactly 0 carries the option's currency (6c review Q1, deviation 1)
+
+- **Ruling.** When an `EffectRow`'s unit is a money unit, its change is exactly 0 and its `Delta.currency` is None (no
+  money value read), `evaluate.py` sets its currency to the option row's `currency` (after D-P6.29). A money effect
+  whose change is missing keeps currency null (F1a's `battery_wear`), and so does a zero money effect of an option
+  whose own currency is None. Non-money rows stay null. §5's "money effects carry USD" stands, with that exception.
+- **Why.** D-P6.29's class extended from the option row to its effect rows: the stored row is what 6f and 7c read, and
+  a null currency on a valued 0 would read as "currency unknown". It is a label on an exact 0, not a figure.
+
+## D-P6.35 F1j's zero row lists no assumed input (6c review Q2, deviation 2)
+
+- **Ruling.** Accepted as built. §5 F1j says `stop-90-reserve-25`'s `assumed` is [] (nothing changed, so no price was
+  read); "every other row as F1b" means the other options.
+- **Why.** §3.4 step 3 literally; listing an assumption the figure did not read would overstate it.
+
+## D-P6.36 `assumed` includes a used node's assumed leaves (6c review Q3, deviation 3)
+
+- **Ruling.** `assumed` is the union, in registry order without repeats, of each used leaf whose base
+  `missing.carried_as` is `TARGET` or `ASSUMPTION` and each used node's `FactorValue.assumed_leaves` from `v0`. New
+  test 4 case: a planted registry where the outcome reads a node resting on an ASSUMPTION leaf; `assumed` names that
+  leaf. No fixture literal changes (no fixture reads such a node).
+- **Why.** Evidence, origins and currency already propagate from a used node's value; an assumption under a node is
+  still an assumption under the figure the executive chooses by.
+
+## D-P6.37 A missing value is named by its cause, never a catch-all (6c review Q4, L3, deviation 4)
+
+- **Ruling.** `ZERO_DENOMINATOR`/`STRUCTURE`/node is written only for a zero denominator: the difference fold tags it
+  (a new `Delta.zero_denominators: tuple[str, ...]`, registry order, () by default) and a `v0` node whose `problem`
+  kind starts `ZERO_DENOMINATOR:` reads the same. A node with no value for any other reason is named by its own
+  `missing_leaves`, each through the leaf rule (§3.4 step 1), deduplicated in registry order. A name that resolves to
+  none of these raises (a code defect, not a missing input). §3.4 gains the closed list of `MissingInput` names
+  6c writes; 6f's spec carries `ZERO_DENOMINATOR`'s "Not available yet" text. No `ONE_OFF_CURRENCY` when the option
+  has no currency stands (its change is already missing).
+- **Why.** "Missing is never zero" includes naming: the executive and 6f must see the record that is missing, and a
+  mislabelled cause sends the operator to the wrong record.
+
+## D-P6.38 Each generator is branched on by name; an unmodelled one refuses (6c review Q5, L2, deviation 5)
+
+- **Ruling.** `option_inputs` branches on `NO_ACTION` (no changes, no study) and `SETTING_GRID` (the grid model)
+  explicitly. A decision whose options carry any other generator refuses `LEVER_UNKNOWN` (6a's code, exit 2) at E3,
+  before the study is read and before the structure read. E2's `STUDY_REQUIRED` is raised when the lever's generator
+  is `SETTING_GRID` and no study is given. Tests: E2 on the lever's generator; an option with a planted generator outside those two refuses
+  `LEVER_UNKNOWN` with the structure read not called.
+- **Why.** A generator with no model must not read "worth the same as doing nothing" (a missing value shown as 0).
+  `LEVER_UNKNOWN` is the existing class "the evaluator has no model for this lever"; a new code would add a statement
+  variant for the same meaning. 6g or 6b adds its branch with its model.
+
+## D-P6.39 Deviations 6 to 8 accepted (6c review Q6)
+
+- **Ruling.** As built: the months check inside E3 after the frame check (6); 6a's `admit_person` lift, `cli.run(build=)`
+  and `StudyRefused` (7); `read_study(path, read_bytes)` and `EvaluationService(read_bytes=)` (8). Recorded in the spec
+  (rev 3 amendments).
+- **Why.** Each is the order or the seam the spec's own rules and the persistence guard require.
+
+## D-P6.40 Every spec'd rule has a plant; test 4 is literal (6c review Q7, M1, L1, L4)
+
+- **Ruling.** §6's plant list gains eight, each failing its named test and shown failing in the fix packet: the
+  non-zero `/`, `min`, `max`, `ceil`, `floor` change replaced by 0 (1); a changed leaf with a missing base read as base
+  0 (1); `ONE_OFF_CURRENCY` never added (4); R0's source class strongest instead of weakest (4); the near set `>` for
+  `>=` (4); a distance tie broken by the lower value (4); `AT_GRID_EDGE`'s upper branch removed (4); the option-only
+  neutral short cut removed (1). Test 4's expected effect rows are literals, with no helper arithmetic (L4).
+- **Why.** The class is "a spec'd rule whose break no test sees"; the fix is a plant per rule, not three tests.
+
+## D-P6.41 Only a declared failure reads as STRUCTURE_UNAVAILABLE; the composition is tested end to end (6c Q8)
+
+- **Ruling.** `run.py`'s catch around `site_inputs` narrows to `(StructureError, StoreUnavailable)`. `build_evaluation`
+  passes the structure read through a wrapper in `decisions/adapters/` that maps a `SQLAlchemyError` to
+  `StoreUnavailable`; `decisions/run.py` imports no SQLAlchemy. Any other exception propagates (a traceback, never exit
+  3). Sweep: every `except Exception`/`BaseException` in 6c's modules is narrowed to named errors, or re-raises after
+  cleanup (`build_evaluation`'s dispose stays). `build_evaluation` gains keyword-only `levers` and `grid_changes`
+  passed to `EvaluationService` (production defaults; D-P6.21's seam through the composition). `horizon_change` is
+  computed in `evaluate`'s 34-digit context.
+- **Tests.** Test 5: a read raising `TypeError` propagates as `TypeError`, nothing written; one raising
+  `StoreUnavailable` refuses `STRUCTURE_UNAVAILABLE`, exit 3, nothing written. Test 6 gains `build_evaluation(URL, ...)`
+  end to end on ON1's onboarded Lakeside `KOBO-001`, period 2026-10, F1's test lever, grid and `study-f1.json`, with
+  the one-offs of test 6: the stored run's outcome and each row's `value`, `missing` and `assumed` as literals derived
+  by hand from what ON1 stores for KOBO-001 (the derivation written in the packet), then `dispose()`.
+- **Why.** A wiring fault must surface as a fault, not as "the month's figures cannot be read right now"; the real
+  composition is the one path no test ran.
 
 ## Decision queue (W3; owner answers in)
 

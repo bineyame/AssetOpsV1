@@ -297,7 +297,7 @@ unit of work, D-DD.44).
     (`BINDING_ROLE_AMBIGUOUS`). v9 (D-DD.21) models several units, and the Protect beats need each unit's own
     evidence. Binding only unit 01, or a Site-total channel, would hide the failed unit or add a second figure for one
     quantity; both rejected. The fix is in the role model, not the data.
-  - *Rule.* A role is PER_ASSET in `minigrid-roles-5` exactly when its asset type is a unit type of v9 (GENERATOR,
+  - *Rule.* (Readiness coverage amended by D-DD.45.) A role is PER_ASSET in `minigrid-roles-5` exactly when its asset type is a unit type of v9 (GENERATOR,
     INVERTER): `generator_state`, `generator_power`, `mini_backup_start_event`, `pv_power`, `pv_available_power`.
     Every other role, label, unit, value kind, `required` flag, `states` and `event_kinds` is `minigrid-roles-4`'s,
     unchanged. Immutable, a new named version beside roles-4; roles-4 is untouched and still refuses (it stays
@@ -323,6 +323,9 @@ unit of work, D-DD.44).
        "PER_ASSET" and role.asset_type == "LOAD"`, about `:814`) and the verification-missing branch (about `:908`)
        apply to every PER_ASSET role over the Site's components of `role.asset_type`, so an unbound unit of a required
        role is named as missing (LOAD output byte-identical).
+       **Amended by D-DD.45:** the premise "every PER_ASSET role covers every component of its type" is wrong (cold's
+       two probe roles share `TEMPERATURE_PROBE`). Both branches take a role exactly when its new explicit flag
+       `every_component` is true (LOAD PER_ASSET roles and the five unit roles above); cold and EV keep main's output.
     3. `conversions/world/KISIWA-001-bindings.json`, `MTO-001-bindings.json`: `role_set` `minigrid-roles-5`, each
        unit's device signals bound with that unit's `asset_code`. KOBO-001 unchanged.
     4. Tests: roles-5 publishes Kisiwa (2 GENERATOR) and Mto (2 INVERTER); roles-4 on the same Foundation still refuses
@@ -367,3 +370,79 @@ unit of work, D-DD.44).
     Planner's code-reality check confirms the size; over 3 u stops for the Architect.
   - DD3 (8.5 u) splits at its seam: **DD3a** DD3.1 and DD3.2 (3.75 u; `task/DD3a-mini-reality`), then **DD3b** DD3.3
     and DD3.4 (4.75 u; `task/DD3b-mini-units`). DD3.4 must merge before DD5.1 loads Kisiwa's or Mto's readings.
+
+---
+
+# DD rulings, round 5 (D-DD.45 to D-DD.47): DD1 review round 1, H1 and L1 to L3
+
+Architect (Claude), 2026-11-22. Answers `review-DD1.md` round 1 (branch `task/DD1-operators`, `6161bc186`): H1, L1,
+L2, L3 and the Architect question. Architect-level calls, logged for owner review; no owner weigh-in needed (D-DD.45
+restores main's behaviour for cold and EV and changes nothing a user sees for mini-grid beyond D-DD.41).
+
+- **D-DD.45 Readiness coverage is an explicit role property, `every_component`; cardinality only keys the binding**
+  (H1; amends D-DD.41 builder item 2).
+  - *The fault (a class, W6).* D-DD.41 read one field for two facts. `cardinality` PER_ASSET says how a binding is
+    keyed (one per asset, conflict key `(role, asset_id)`, `binding_service.py:472`). It does not say that the role
+    must be bound on *every* component of its asset type. That second fact is true of LOAD feeders and of the v9 units,
+    and false where one asset type carries several roles on different components (cold: `chamber_temperature` on
+    `probe-1`, `ambient_temperature` on `ambient-1`, both `TEMPERATURE_PROBE`). Inferring coverage from cardinality made
+    every correctly bound cold Site state a channel as missing; that is a false statement to the user, the reverse
+    of "missing is stated honestly".
+  - *Ruling.* Coverage is declared where the role is defined, not inferred. `Role` gains
+    `every_component: bool = False`: "readiness and verification readiness read this role once per Site component of
+    `asset_type`, and name each unbound one". It is true on exactly: `feeder_demand` and `feeder_requested_power` (every
+    role set that holds them) and the five `minigrid-roles-5` unit roles of D-DD.41. False on every cold and EV role, so
+    their readiness and verification output is main's, byte for byte.
+  - *Why the flag, not the reviewer's default* (`asset_type == "LOAD"` or role set `minigrid-roles-5`). Same cost (one
+    field, seven true values), but the default is an instance rule in the service: it names one type and one set, and
+    the next multi-unit role set (a second cold room, a second charger bank) would edit `binding_service.py` again. The
+    flag is the general mechanism: the role table states the fact, every reader asks the role, and a new set declares
+    it. An invariant keeps it honest: `every_component` implies PER_ASSET.
+  - *Not ruled now (backlog, owner may weigh in later).* Whether some cold and EV roles *should* cover every component
+    (each compressor, each connector) is a product question; today `cold_foundation.py:333` answers it for cold by
+    reading PER_ASSET as coverage and skipping `chamber_temperature` by name (an instance rule). The sweep that moves
+    `cold_foundation.py` and the cold/EV role tables onto `every_component` changes user-visible readiness, so it waits
+    for a demo-critical reason. Logged in `.agent/backlog-post-demo.md` by the coordinator.
+  - *Builder's change list (DD1 fix round):*
+    1. `sites/binding_roles.py`: add the field after `event_kinds` with a one-line comment citing D-DD.45; set
+       `every_component=True` on `feeder_demand` (`MINIGRID_ROLES`) and `feeder_requested_power`; in `MINIGRID_ROLES_5`
+       use `replace(r, cardinality=PER_ASSET, every_component=True)`. Add a module-level check (or test, item 4c) that no
+       role in `ROLES_BY_SET` has `every_component` without PER_ASSET.
+    2. `sites/binding_service.py:818` and `:914`: the branch condition becomes `role.every_component` (nothing else);
+       rename the loop variable `loads` to `components`; the comment cites D-DD.45. The generic branch is untouched.
+    3. Sweep: `grep -n 'cardinality\|asset_type == "LOAD"' backend/assetops_backend/sites/*.py`; no other site changes
+       (publish keys stay on cardinality; `cold_foundation.py` is the backlog item above). Report the grep in the packet.
+    4. Tests (`test_dd1_onboarding_postgres` or a new `test_dd1_readiness_parity_postgres`):
+       a. *Cold and EV parity, byte for byte.* `readiness()` for cold-lab-001 (the W2-02 lab fixture), COLD-KIRI over
+          its DD1 world conversion, and the W2-05a EV fixture Site, serialised as `json.dumps(x, sort_keys=True,
+          indent=1)` after replacing every UUID string by `uuid-<n>` in first-appearance order, equals a golden file
+          `backend/tests/fixtures/dd1_readiness_parity/<site>.json` captured by running the same helper on main
+          `05be2b968` (capture command and main SHA written in the file's sibling `README`). The cold goldens show
+          `READY_TO_REPORT` and no missing role.
+       b. *Plant.* The same cold comparison with `chamber_temperature` monkeypatched `every_component=True` fails
+          (proves the test catches H1).
+       c. Every role with `every_component` is PER_ASSET; the true set per role set is exactly the seven names above.
+       d. Kept: LOAD readiness unchanged on its existing fixture; Kisiwa with `gen-ks-02` unbound names
+          `Generator power - Generator 02` and `Generator state - Generator 02`, and verification readiness lists
+          `['gen-ks-02']`.
+  - Packet: the false claim "cold tests pass unchanged" is replaced by 4a's result.
+
+- **D-DD.46 L1 fixed now: the document-limit comments state D-DD.42's basis** (L1).
+  - `sites/foundation_parsing.py:119-143`: replace the paragraph arguing 64 against 77 under 2,000 nodes, and the
+    `MAX_SIGNAL_MAPPINGS` note, with D-DD.42's basis in at most three lines (10,000 nodes, 96 devices; Ruiru 6,623/73).
+    No behaviour change; `TestEveryCapCanFire` still passes.
+
+- **D-DD.47 L3 fixed now in the pre-write check; L2 to the backlog with D-DD.42's premise corrected** (L3, L2).
+  - *L3 (a class: every input is read before the first write).* The `--bindings` pre-write check in
+    `onboard_operator.main` reads and parses each `<CODE>-bindings.json` (`json.loads`; catch `OSError`, `ValueError`)
+    and refuses `ONBOARD_SITE_INVALID bindings/<CODE>` with exit 2 and nothing written, the same refusal as a missing
+    file. `_publish_and_enable` takes the parsed fixtures by Site code and no longer opens files. Test: a malformed
+    `KISIWA-001-bindings.json` beside valid ones exits 2, the stderr line names `bindings/KISIWA-001`, and the tenant
+    and Sites are not created.
+  - *L2.* D-DD.42's premise is corrected: the byte bound binds operator files (256 KiB, `operator_file.py:32`) and Site
+    import files (128 KiB, `import_files.py:24`); the Foundation revision POST (`foundation_api.py:492`) has no body
+    bound, and the 10,000-node walker runs after FastAPI has parsed the body. Authenticated route, small risk, not
+    demo-critical: backlog item "content-length bound on the Foundation revision POST, like `evidence_api.py:303`,
+    256 KiB" (coordinator logs it in `.agent/backlog-post-demo.md`).
+  - *Unit impact (D-DD.45 to D-DD.47).* One DD1 fix round, 0.5 u (flag and parity goldens 0.25, L1 and L3 0.25):
+    DD1 4.5 to 5.0 u; DD 33.0 to 33.5 u. Sonnet fix-round builder; re-review by a fresh Claude reviewer on H1 and L3.
