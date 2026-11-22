@@ -57,8 +57,6 @@ const ENTRY = "/portfolio/outcomes?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00
 const RANGE = "from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z";
 const KNOWN_Q = "known_at=2026-10-07T00%3A00%3A00Z";
 const ranged = (href: string, q: string = RANGE) => `${href}${href.includes("?") ? "&" : "?"}${q}`;
-/** PF-T: the same window on a section tab. */
-const tabEntry = (segment: string) => ENTRY.replace("/portfolio/outcomes?", `/portfolio/${segment}?`);
 
 const NODE_FS = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
 const CWD = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
@@ -1344,8 +1342,6 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
     const base = portfolioBody();
     return portfolioBody({ summary: { ...base.summary, ...patch } });
   };
-  const checked = (n: number, days = [kobo], extra: Partial<Summary> = {}) =>
-    body({ count_basis: "CHECKED_DAYS", checked_days: days, category_counts: protect(n), ...extra });
   const scanCards = () => {
     // CH5d1-R: the whole grid, the Optimize card's server words included.
     const grid = (document.querySelector("[data-portfolio-cards]") as HTMLElement).cloneNode(true) as HTMLElement;
