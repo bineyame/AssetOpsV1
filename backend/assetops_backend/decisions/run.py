@@ -14,8 +14,8 @@ from typing import Any
 from uuid import UUID, uuid4
 
 from assetops_backend.decisions.evaluate import EVALUATOR_VERSION, OptionInput, evaluate_options, fraction_text
-from assetops_backend.decisions.models import (SETTING_GRID, SETTING_GRID_CHANGES, check_grid_changes, match_cases,
-                                               months_averaged, setting_changes)
+from assetops_backend.decisions.models import (NO_ACTION, SETTING_GRID, SETTING_GRID_CHANGES, check_grid_changes,
+                                               match_cases, months_averaged, setting_changes)
 from assetops_backend.decisions.records import (COMMANDS, DecisionRefused, DecisionRow, DecisionStore, OneOffRow,
                                                 OptionRow, RunRow, StoreUnavailable, _now, admit_person)
 from assetops_backend.decisions.study_input import SITE_RECORD, CaseInput, StudyInput, StudyRefused, read_study
@@ -55,9 +55,11 @@ def option_inputs(options: tuple[OptionRow, ...], lever: Lever, study: StudyInpu
     """§3.5: each option's leaf changes, admission, dawn and one-off; no action has none."""
     out = []
     for option in options:
-        if option.generator != SETTING_GRID:
+        if option.generator == NO_ACTION:
             out.append(OptionInput(option, None, None, None, None))
             continue
+        if option.generator != SETTING_GRID:  # D-P6.38: no model, no figure (E3 refuses before this is reached)
+            raise DecisionRefused("LEVER_UNKNOWN")
         case = by_key[option.option_key]
         out.append(OptionInput(option, setting_changes(lever, case, study, grid_changes=grid_changes),
                                admissions[case.case_id], dawn_record(case, study.days), one_offs.get(option.id)))
@@ -94,7 +96,12 @@ class EvaluationService:
         lever = self._levers.get(decision.lever_id)
         if lever is None:
             raise DecisionRefused("LEVER_UNKNOWN")
-        if study_path is None:  # E2: a SETTING_GRID lever (the only generator) needs its study
+        if lever.generator == SETTING_GRID and study_path is None:  # E2: a SETTING_GRID lever needs its study
+            raise DecisionRefused("STUDY_REQUIRED")
+        modelled = (NO_ACTION, SETTING_GRID)  # E3, D-P6.38: a generator with no model refuses before anything is read
+        if lever.generator not in modelled or any(o.generator not in modelled for o in options):
+            raise DecisionRefused("LEVER_UNKNOWN")
+        if study_path is None:
             raise DecisionRefused("STUDY_REQUIRED")
         try:  # E3
             study = read_study(study_path, self._read_bytes)
@@ -110,7 +117,7 @@ class EvaluationService:
         registry = self._registries[decision.structure_key]
         try:
             base = self._read.site_inputs(site, decision.period, now).leaves
-        except Exception:  # noqa: BLE001 - any failure to read the month is the structure being unavailable
+        except (StructureError, StoreUnavailable):  # D-P6.41: a declared failure; anything else is a fault and propagates
             raise DecisionRefused("STRUCTURE_UNAVAILABLE") from None
         one_offs = self._call(self._store.latest_one_offs, tenant_id, decision.id)  # E5
         inputs = option_inputs(options, lever, study, by_key, admissions, one_offs, grid_changes=self._grid_changes)

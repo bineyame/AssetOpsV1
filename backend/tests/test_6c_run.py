@@ -15,7 +15,8 @@ import pytest
 from assetops_backend import evaluate_options as command
 from assetops_backend.decisions.adapters.study_file import read_study_bytes
 from assetops_backend.decisions.models import SETTING_GRID_CHANGES
-from assetops_backend.decisions.records import DecisionRefused, DecisionService, MemoryDecisionStore, refusal_sentence
+from assetops_backend.decisions.records import (DecisionRefused, DecisionService, MemoryDecisionStore, StoreUnavailable,
+                                                refusal_sentence)
 from assetops_backend.decisions.run import EvaluationService
 from assetops_backend.structure.check import StructureError
 from lakeside_people import SLUG, LakesidePeople, email
@@ -191,7 +192,7 @@ def test_5_e0_to_e2_refusals(w) -> None:
 
 
 def test_5_the_structure_cannot_be_read_or_raises(w) -> None:
-    w.read.fail = RuntimeError("down")
+    w.read.fail = StoreUnavailable("down")
     with refused("STRUCTURE_UNAVAILABLE"):
         w.evaluate()
     w.read.fail = None
@@ -203,6 +204,65 @@ def test_5_the_structure_cannot_be_read_or_raises(w) -> None:
     with refused("STRUCTURE_UNAVAILABLE"):
         w.evaluate()
     assert w.store.runs == []
+
+
+def test_5_a_declared_failure_of_the_structure_read_exits_3_and_writes_nothing(w) -> None:
+    for error in (StoreUnavailable("down"), StructureError("STRUCTURE_LEAF_INPUT", "MINI_GRID", "x")):
+        w.read.fail = error
+        with pytest.raises(DecisionRefused) as caught:
+            w.evaluate()
+        assert (caught.value.code, caught.value.exit) == ("STRUCTURE_UNAVAILABLE", 3)
+        assert w.store.runs == []
+
+
+def test_5_any_other_failure_of_the_structure_read_propagates(w) -> None:
+    """D-P6.41: a wiring fault is a traceback, never "the month's figures cannot be read right now"."""
+    for error in (TypeError("a wiring fault"), RuntimeError("a defect"), KeyError("leaf")):
+        w.read.fail = error
+        with pytest.raises(type(error)):
+            w.evaluate()
+        assert w.store.runs == []
+
+
+def test_5_the_adapter_maps_a_database_error_and_nothing_else(w) -> None:
+    from sqlalchemy.exc import OperationalError
+
+    from assetops_backend.decisions.adapters.structure_read import GuardedStructureRead
+    guarded = GuardedStructureRead(w.read)
+    assert guarded.site_inputs(SimpleNamespace(site_code="KOBO-001"), "2026-10").leaves is w.read.leaves
+    w.read.fail = OperationalError("select 1", {}, Exception("connection refused"))
+    with pytest.raises(StoreUnavailable):
+        guarded.site_inputs(SimpleNamespace(site_code="KOBO-001"), "2026-10")
+    w.read.fail = TypeError("a wiring fault")
+    with pytest.raises(TypeError):
+        guarded.site_inputs(SimpleNamespace(site_code="KOBO-001"), "2026-10")
+
+
+def test_5_an_option_of_an_unmodelled_generator_refuses_before_the_study_and_the_read(w, monkeypatch) -> None:
+    """D-P6.38: no model for this generator, so no figure: LEVER_UNKNOWN at E3, the study unread, nothing read."""
+    real = w.store.decision
+
+    def planted(tenant_id, decision_id):
+        decision, options = real(tenant_id, decision_id)
+        return decision, tuple(dataclasses.replace(o, generator="PLANT_GENERATOR") if o.position == 3 else o
+                               for o in options)
+    monkeypatch.setattr(w.store, "decision", planted)
+    for study in (F1, "no-such-study.json"):  # a missing file would be STUDY_UNREADABLE if it were read
+        with refused("LEVER_UNKNOWN"):
+            w.evaluate(study)
+        assert w.read.calls == [] and w.store.runs == []
+
+
+def test_5_e2_reads_the_levers_generator(w) -> None:
+    """STUDY_REQUIRED is for a SETTING_GRID lever; a lever of another generator has no model: LEVER_UNKNOWN."""
+    other = dataclasses.replace(TEST_LEVER, generator="PLANT_GENERATOR")
+    service = EvaluationService(w.store, w.p.accounts, w.read, clock=lambda: CLOCK, levers={"test_stop_reserve": other},
+                                grid_changes={}, read_bytes=read_study_bytes)
+    with refused("LEVER_UNKNOWN"):
+        service.evaluate(tenant_slug=SLUG, as_email=email("wanjiru"), decision_id=w.decision_id, study_path=None)
+    with refused("STUDY_REQUIRED"):
+        w.evaluate(study=None)
+    assert w.read.calls == [] and w.store.runs == []
 
 
 def test_5_a_refused_record_is_record_invalid(w, monkeypatch) -> None:
@@ -276,7 +336,7 @@ def test_7_refusals_stderr_and_exit(w, capsys, tmp_path) -> None:
     for argv, code_name, status in cases:
         code, out, err = _main(w, argv, capsys)
         assert (code, out, err) == (status, "", f"{code_name} {refusal_sentence(code_name)}\n"), code_name
-    w.read.fail = RuntimeError("down")
+    w.read.fail = StoreUnavailable("down")
     code, out, err = _main(w, ["--as", email("wanjiru"), "--study", str(F1)], capsys)
     assert (code, out, err) == (3, "", "STRUCTURE_UNAVAILABLE The month's figures cannot be read right now.\n")
     code = command.main(["--tenant", SLUG, "--as", email("wanjiru"), "--decision", "nope"])

@@ -4,13 +4,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Callable
+from typing import Callable, Mapping
 
 from assetops_backend.accounts.composition import build_account_service
 from assetops_backend.decisions.adapters.postgres_decision_store import PostgresDecisionStore
+from assetops_backend.decisions.adapters.structure_read import GuardedStructureRead
 from assetops_backend.decisions.adapters.study_file import read_study_bytes
+from assetops_backend.decisions.models import SETTING_GRID_CHANGES
 from assetops_backend.decisions.records import DecisionService
 from assetops_backend.decisions.run import EvaluationService
+from assetops_backend.structure.levers import LEVERS, Lever
 
 __all__ = ["DecisionsService", "EvaluationsService", "build_decisions", "build_evaluation"]
 
@@ -42,8 +45,10 @@ class EvaluationsService:
     dispose: Callable[[], None]
 
 
-def build_evaluation(database_url: str, *, clock: Callable[[], datetime] = _now) -> EvaluationsService:
-    """6c (spec §4): the evaluation service over the decision store, the accounts and the structure read."""
+def build_evaluation(database_url: str, *, clock: Callable[[], datetime] = _now,
+                     levers: Mapping[str, Lever] = LEVERS, grid_changes=SETTING_GRID_CHANGES) -> EvaluationsService:
+    """6c (spec §4): the evaluation service over the decision store, the accounts and the structure read. The levers and
+    their grid model are the production ones unless a test injects them (D-P6.21, D-P6.41)."""
     from assetops_backend.structure.composition import build_structure_read
 
     store = PostgresDecisionStore(database_url)
@@ -60,5 +65,6 @@ def build_evaluation(database_url: str, *, clock: Callable[[], datetime] = _now)
         accounts._store.dispose()
         structure.dispose()
 
-    return EvaluationsService(EvaluationService(store, accounts, structure.read, clock=clock,
+    return EvaluationsService(EvaluationService(store, accounts, GuardedStructureRead(structure.read), clock=clock,
+                                                levers=levers, grid_changes=grid_changes,
                                                 read_bytes=read_study_bytes), dispose)

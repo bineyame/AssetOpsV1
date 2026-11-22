@@ -19,6 +19,7 @@ from assetops_backend.structure.difference import LeafChange
 from assetops_backend.structure.evaluate import _context
 from assetops_backend.structure.levers import Lever
 
+NO_ACTION = "NO_ACTION"
 SETTING_GRID = "SETTING_GRID"
 SETTING_GRID_CHANGES: Mapping[str, tuple[tuple[str, str, int], ...]] = MappingProxyType({
     # lever_id -> (changed leaf, study by-month field, sign)                       D-P6.3
@@ -113,5 +114,5 @@ def match_cases(decision: DecisionRow, options: tuple[OptionRow, ...], study: St
     return MappingProxyType(by_key), tuple(ignored)
 
 
-__all__ = ["ORIGIN_OF_INPUT", "SETTING_GRID", "SETTING_GRID_CHANGES", "SITE_MONTH_MISSING", "check_grid_changes",
+__all__ = ["NO_ACTION", "ORIGIN_OF_INPUT", "SETTING_GRID", "SETTING_GRID_CHANGES", "SITE_MONTH_MISSING", "check_grid_changes",
            "full_months", "match_cases", "months_averaged", "setting_changes"]
