@@ -311,11 +311,19 @@ def test_9_route() -> None:
 
 # --- 10: the frontend fixtures are the view's --------------------------------------------------------------------
 
+NAMES_G = {**NAMES, "THIKA-001": "Thika"}
+
+
 def _fixture_bodies() -> dict:
     sep_missing = {**_world_p(), "2026-09": NO_SNAP}
     return {"period-period-2026-09-10.json": period(_world_p(), "2026-09-01", "2026-10-31"),
             "period-month-2026-10.json": period(sep_missing, "2026-09-01", "2026-10-31"),
-            "period-none-2026-11.json": period({"2026-10": world("A")[0]}, "2026-11-15", "2026-11-21")}
+            "period-none-2026-11.json": period({"2026-10": world("A")[0]}, "2026-11-15", "2026-11-21"),
+            # R2 (D-IAP.25): World G names Thika, the Site not compared, on a one-month and a two-month range.
+            "period-period-g-2026-09-10.json": period(_world_p("G"), "2026-09-01", "2026-10-31", NAMES_G),
+            "period-month-g-2026-10.json": period({"2026-10": world("G")[0]}, "2026-10-01", "2026-10-31", NAMES_G),
+            "month-g-2026-10.json": month_view(operator="Lakeside Power", month="2026-10", served=world("G")[0],
+                                               standing=NOT_MATCHED, actions=OFF, names=NAMES_G, now=NOW)}
 
 
 def test_10_fixtures_are_current() -> None:

@@ -9,6 +9,8 @@ import { useSearchParams } from "react-router-dom";
 import { PageHeader } from "../ui";
 import { HomeList, type HomeListDef } from "../ui/HomeList";
 import { formatDay } from "../ui/time";
+import { RangePartNote } from "../ui/RangePartNote";
+import { readSharedRange } from "../ui/sharedRange";
 import { linkFor } from "../shell/operatorSiteRoutes";
 import {
   EstateCutoffLine,
@@ -395,3 +397,36 @@ export function ActionsListPage({ client }: { client?: EstateClient }) {
   );
 }
 
+
+/** IA-P P3b (spec §3 "Overview L2"): the Decisions rows on the Overview are capped at six. */
+export const OVERVIEW_DECISIONS_CAP = 6;
+
+/**
+ * IA-P P3b (spec §3, §6 P3b): the Overview's L2 Decisions panel. The Decisions list's rows for the range, through the
+ * one list component with no tools and no tiles, capped at six, then "View all {n}" to `/decisions` with the range.
+ * The rows come from the same cached read as the Decisions list (31-day window, P0); the block says so on a longer
+ * range (`RangePartNote`). The title is the caller's (5c's served panel title in mode `month`).
+ */
+export function DecisionsRows({ client, title }: { client?: EstateClient; title: string }) {
+  const reads = useMemo(() => client ?? createEstateClient(), [client]);
+  const [params] = useSearchParams();
+  const query = queryFromParams(params);
+  const read = useEstateRead(reads, "portfolio", query);
+  const loaded = read?.status === "loaded" ? read.value : null;
+  const items = useMemo(() => (loaded === null ? [] : decisionItems(loaded.first, loaded.rows)), [loaded]);
+  const def = useMemo(() => decisionsDef(loaded?.truncated ? (loaded.first.summary.waiting_count ?? null) : null), [loaded]);
+  const range = readSharedRange(params);
+  return (
+    <section className="dd-panel" aria-labelledby="dd-decisions-h" data-overview-decisions>
+      <h2 id="dd-decisions-h">{title}</h2>
+      <RangePartNote range={range.status === "set" ? range : null} />
+      {read === null ? (
+        <p className="estate-loading">Loading Decisions…</p>
+      ) : read.status === "refused" ? (
+        <EstateRefusal code={read.code} copy={read.copy} window={query} firstPage={estateHref(DECISIONS_PATH, query)} />
+      ) : (
+        <HomeList def={def} items={items} total={read.value.first.total_count} options={{ tools: false, tiles: false, cap: OVERVIEW_DECISIONS_CAP }} />
+      )}
+    </section>
+  );
+}

@@ -13,6 +13,10 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useSearchParams } from "react-router-dom";
 
+import type { EstateClient } from "./estateClient";
+import { DecisionsRows } from "./homeLists";
+import type { PeriodDays } from "./portfolioPeriodClient";
+
 import { DataTable } from "../ui";
 import { RangeLink as Link } from "../ui/RangeLink";
 import {
@@ -25,7 +29,6 @@ import {
   type DeepDiveStepBar,
   type DeepDiveTable,
 } from "./deepDiveMonthClient";
-import { queryFromParams } from "./estateShared";
 import { PortfolioTabs } from "./PortfolioTabs";
 import "./deepDiveMonth.css";
 
@@ -58,22 +61,6 @@ export const DD_COPY = {
 
 const SITE_CAP = 10;
 const NOT_AVAILABLE_CAP = 8;
-const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
-/** A `YYYY-MM` code as words ("September 2026"): a label for the month links, not a figure. */
-function monthWords(code: string): string {
-  const [y, m] = code.split("-");
-  return `${MONTHS[parseInt(m, 10) - 1] ?? m} ${y}`;
-}
-
-/** The month after `code`, for the disabled "next" label only. */
-function monthAfter(code: string): string {
-  const [y, m] = code.split("-").map((p) => parseInt(p, 10));
-  return m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, "0")}`;
-}
-
-const monthHref = (code: string) => `/portfolio/month?month=${code}`;
-
 /** The bar's widths (spec §5.3: the page's one ratio), as percentages of the larger magnitude. */
 function barWidths(bar: { actual: string; target: string }): { actual: number; target: number } {
   const a = Number(bar.actual);
@@ -137,13 +124,13 @@ function Scale({ scale, totals }: { scale: { target_at: string; actual_at: strin
 
 /* ---------- drawers (vNEXT `uxOpen`/`uxClose`: dialog, focus to Close, Escape and scrim close, focus returns) ---------- */
 
-interface DrawerApi {
+export interface DrawerApi {
   openId: string | null;
   open: (id: string, opener: HTMLElement) => void;
   close: () => void;
 }
 
-function useDrawers(): DrawerApi {
+export function useDrawers(): DrawerApi {
   const [openId, setOpenId] = useState<string | null>(null);
   const opener = useRef<HTMLElement | null>(null);
   const restore = useRef(false);
@@ -387,10 +374,11 @@ function Lead({ body }: { body: DeepDiveMonthBody }) {
   );
 }
 
-function Tiles({ body }: { body: DeepDiveMonthBody }) {
+/** IA-P P3b: the four tiles (L1), shared by the month and the period body. */
+export function DdTiles({ tiles }: { tiles: NonNullable<DeepDiveMonthBody["tiles"]> }) {
   return (
     <div className="dd-kpis">
-      {body.tiles!.map((tile) => (
+      {tiles.map((tile) => (
         <div key={tile.key} className="dd-kpi" data-dd-tile={tile.key}>
           <span className="dd-kpi__label">{tile.label}</span>
           <span className={mute(tile.word, "dd-kpi__value")}>
@@ -405,31 +393,38 @@ function Tiles({ body }: { body: DeepDiveMonthBody }) {
   );
 }
 
-function Queue({ body }: { body: DeepDiveMonthBody }) {
-  const actions = body.actions!;
+/** IA-P P3b: the "Actions in hand" panel (L2), shared by the month and the period body. */
+export function DdActions({ actions }: { actions: NonNullable<DeepDiveMonthBody["actions"]> }) {
+  return (
+    <section className="dd-panel" aria-labelledby="dd-actions-h">
+      <h2 id="dd-actions-h">{actions.title}</h2>
+      {actions.text !== null ? <p>{actions.text}</p> : null}
+      {actions.rows.length > 0 ? (
+        <ul className="dd-actions">
+          {actions.rows.map((row, i) => (
+            <li key={i} className="dd-action">
+              <span className="dd-action__title">{row.title}</span>
+              <span className="dd-chip">{row.state}</span>
+              <span className="dd-action__meta">{row.owner}</span>
+              <span className="dd-action__meta">{row.agreed}</span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      {actions.more > 0 ? <p className="dd-more">{DD_COPY.more(actions.more)}</p> : null}
+    </section>
+  );
+}
+
+/**
+ * IA-P P3b (spec §3 "Overview L2"): one queue block. 5c's Decisions panel is the Decisions list's rows for the range
+ * (at most six, then "View all {n}"); "Actions in hand" stays beside them, from the body of the mode.
+ */
+export function DdQueue({ title, actions, estate }: { title: string; actions: NonNullable<DeepDiveMonthBody["actions"]> | null; estate?: EstateClient }) {
   return (
     <div className="dd-queue">
-      <section className="dd-panel" aria-labelledby="dd-decisions-h">
-        <h2 id="dd-decisions-h">{body.decisions!.title}</h2>
-        <p>{body.decisions!.text}</p>
-      </section>
-      <section className="dd-panel" aria-labelledby="dd-actions-h">
-        <h2 id="dd-actions-h">{actions.title}</h2>
-        {actions.text !== null ? <p>{actions.text}</p> : null}
-        {actions.rows.length > 0 ? (
-          <ul className="dd-actions">
-            {actions.rows.map((row, i) => (
-              <li key={i} className="dd-action">
-                <span className="dd-action__title">{row.title}</span>
-                <span className="dd-chip">{row.state}</span>
-                <span className="dd-action__meta">{row.owner}</span>
-                <span className="dd-action__meta">{row.agreed}</span>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-        {actions.more > 0 ? <p className="dd-more">{DD_COPY.more(actions.more)}</p> : null}
-      </section>
+      <DecisionsRows client={estate} title={title} />
+      {actions !== null ? <DdActions actions={actions} /> : null}
     </div>
   );
 }
@@ -513,13 +508,21 @@ function Cash({ body }: { body: DeepDiveMonthBody }) {
   );
 }
 
-function Outcomes({ body, api }: { body: DeepDiveMonthBody; api: DrawerApi }) {
-  const na = body.not_available!;
+/** IA-P P3b: the outcome cards (L3), shared by the month and the period body; the period serves no not-available rows. */
+export function DdOutcomes({
+  cards,
+  na,
+  api,
+}: {
+  cards: NonNullable<DeepDiveMonthBody["outcomes"]>;
+  na: DeepDiveMonthBody["not_available"] | null;
+  api: DrawerApi;
+}) {
   return (
     <section className="dd-section" aria-labelledby="dd-outcomes-h">
       <h2 id="dd-outcomes-h">{DD_COPY.byOutcome}</h2>
       <div className="dd-cards">
-        {body.outcomes!.map((card) => (
+        {cards.map((card) => (
           <div key={card.key} className="dd-card" data-dd-outcome={card.key}>
             <span className="dd-card__label">{card.label}</span>
             {card.drawer !== null ? (
@@ -535,23 +538,27 @@ function Outcomes({ body, api }: { body: DeepDiveMonthBody; api: DrawerApi }) {
           </div>
         ))}
       </div>
-      <h3 id="dd-na-h">{DD_COPY.notAvailable}</h3>
-      <ul className="dd-gaps" aria-labelledby="dd-na-h">
-        <Capped
-          items={na.rows}
-          cap={NOT_AVAILABLE_CAP}
-          className="dd-gaps__row"
-          render={(row) => (
-            <>
-              <span className="dd-gaps__needs">{row.needs}</span>
-              <span className="dd-gaps__fills">{row.fills}</span>
-              <span className="dd-gaps__sites">{row.sites}</span>
-            </>
-          )}
-        />
-      </ul>
-      <p className="dd-meta">{na.not_built}</p>
-      {body.outcomes!.map((card) =>
+      {na ? (
+        <>
+          <h3 id="dd-na-h">{DD_COPY.notAvailable}</h3>
+          <ul className="dd-gaps" aria-labelledby="dd-na-h">
+            <Capped
+              items={na.rows}
+              cap={NOT_AVAILABLE_CAP}
+              className="dd-gaps__row"
+              render={(row) => (
+                <>
+                  <span className="dd-gaps__needs">{row.needs}</span>
+                  <span className="dd-gaps__fills">{row.fills}</span>
+                  <span className="dd-gaps__sites">{row.sites}</span>
+                </>
+              )}
+            />
+          </ul>
+          <p className="dd-meta">{na.not_built}</p>
+        </>
+      ) : null}
+      {cards.map((card) =>
         card.drawer !== null ? (
           <Drawer key={card.key} id={`dd-outcome-${card.key}`} title={card.drawer.title} api={api}>
             <Lines lines={card.drawer.lines} />
@@ -562,40 +569,87 @@ function Outcomes({ body, api }: { body: DeepDiveMonthBody; api: DrawerApi }) {
   );
 }
 
-function MonthNav({ body }: { body: DeepDiveMonthBody }) {
-  const next = body.nav.next;
+/** A month's range on the Overview: `from` and `to` replaced, every other parameter of the address kept (spec §3). */
+export function monthRangeHref(days: { from: string; to: string }, params: URLSearchParams): string {
+  const next = new URLSearchParams(params);
+  next.set("from", days.from);
+  next.set("to", days.to);
+  return `/portfolio?${next.toString()}`;
+}
+
+/** IA-P P3b (I1): the ‹ › links are E2's `nav` (days from the server); with `next` null no next control is drawn. */
+export type MonthNavDays = { previous: PeriodDays | null; next: PeriodDays | null };
+
+function MonthNav({ current, nav }: { current: string; nav: MonthNavDays | null }) {
+  const [params] = useSearchParams();
   return (
     <nav className="dd-nav" aria-label={DD_COPY.monthNav}>
-      <Link className="dd-nav__link" to={monthHref(body.nav.previous)}>
-        ‹ {monthWords(body.nav.previous)}
-      </Link>
-      <b className="dd-nav__current">{body.month_words}</b>
-      {next !== null ? (
-        <Link className="dd-nav__link" to={monthHref(next)}>
-          {monthWords(next)} ›
+      {nav?.previous ? (
+        <Link className="dd-nav__link" to={monthRangeHref(nav.previous, params)}>
+          ‹ {nav.previous.month_words}
         </Link>
-      ) : (
-        <button type="button" className="dd-nav__link" disabled>
-          {monthWords(monthAfter(body.month))} ›
-        </button>
-      )}
+      ) : null}
+      <b className="dd-nav__current">{current}</b>
+      {nav?.next ? (
+        <Link className="dd-nav__link" to={monthRangeHref(nav.next, params)}>
+          {nav.next.month_words} ›
+        </Link>
+      ) : null}
     </nav>
+  );
+}
+
+/** IA-P P3b: E2's notes in the header (`<p class="dd-period" role="note">`). */
+export function DdNotes({ notes }: { notes: readonly string[] }) {
+  return (
+    <>
+      {notes.map((note) => (
+        <p key={note} className="dd-period" role="note">
+          {note}
+        </p>
+      ))}
+    </>
+  );
+}
+
+/** IA-P P3b: the hub header of every Overview mode: the title, the operator, the three tabs, then the mode's own lines. */
+export function DdHead({ operator, children }: { operator: string | null; children?: ReactNode }) {
+  return (
+    <header className="dd-head">
+      <div className="dd-head__title">
+        <h1>{DD_COPY.title}</h1>
+        {operator !== null ? <p className="dd-operator">{operator}</p> : null}
+      </div>
+      <PortfolioTabs current="overview" />
+      {children}
+    </header>
   );
 }
 
 type Read = { key: string; result: DeepDiveResult };
 
-export function DeepDiveMonthPage({ client }: { client?: DeepDiveMonthClient }) {
+/**
+ * 5c's month screen as the Overview's mode `month` (IA-P P3b, spec §3). It reads the month read for E2's month (never
+ * for the range's `to`), and takes the header's links and notes from E2. L1 and L3 are 5c's, unchanged.
+ */
+export function DeepDiveMonthPage({
+  client,
+  estate,
+  month,
+  nav,
+  notes,
+}: {
+  client?: DeepDiveMonthClient;
+  estate?: EstateClient;
+  month: string;
+  nav: MonthNavDays | null;
+  notes: readonly string[];
+}) {
   const reads = useRef(client ?? createDeepDiveMonthClient()).current;
-  const [params] = useSearchParams();
-  const month = params.get("month") ?? undefined;
   const [attempt, setAttempt] = useState(0);
-  const key = `${month ?? ""}|${attempt}`;
+  const key = `${month}|${attempt}`;
   const [read, setRead] = useState<Read | null>(null);
   const api = useDrawers();
-  // spec §5.1: the month page's tabs carry the Portfolio's default window and lens.
-  const window = queryFromParams(new URLSearchParams());
-
   useEffect(() => {
     let live = true;
     void reads.fetchDeepDiveMonth(month).then((result) => {
@@ -635,15 +689,15 @@ export function DeepDiveMonthPage({ client }: { client?: DeepDiveMonthClient }) 
       <>
         <div data-level="L1">
           <Lead body={body} />
-          <Tiles body={body} />
+          <DdTiles tiles={body.tiles!} />
         </div>
         <div data-level="L2">
-          <Queue body={body} />
+          <DdQueue title={body.decisions!.title} actions={body.actions!} estate={estate} />
         </div>
         <div data-level="L3">
           <Bridge body={body} api={api} />
           <Cash body={body} />
-          <Outcomes body={body} api={api} />
+          <DdOutcomes cards={body.outcomes!} na={body.not_available!} api={api} />
         </div>
       </>
     );
@@ -651,23 +705,20 @@ export function DeepDiveMonthPage({ client }: { client?: DeepDiveMonthClient }) 
 
   return (
     <section data-shape="hub" className="dd-month">
-      <header className="dd-head">
-        <div className="dd-head__title">
-          <h1>{DD_COPY.title}</h1>
-          {body !== null ? <p className="dd-operator">{body.operator}</p> : null}
-        </div>
-        <PortfolioTabs current="month" window={window} lens="all" />
-        {body !== null ? <MonthNav body={body} /> : null}
-      </header>
+      <DdHead operator={body !== null ? body.operator : null}>
+        {body !== null ? <MonthNav current={body.month_words} nav={nav} /> : null}
+        <DdNotes notes={notes} />
+      </DdHead>
       {content}
     </section>
   );
 }
 
-export function DeepDiveMonthFrame({ client }: { client?: DeepDiveMonthClient }) {
+/** The month screen in its own `<main>` (the Overview's frame is `PortfolioOverview.tsx`; tests mount this one). */
+export function DeepDiveMonthFrame(props: Parameters<typeof DeepDiveMonthPage>[0]) {
   return (
     <main aria-label="Portfolio">
-      <DeepDiveMonthPage client={client} />
+      <DeepDiveMonthPage {...props} />
     </main>
   );
 }

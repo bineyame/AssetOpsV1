@@ -10,7 +10,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { expectPlantedPanelRejected, expectV69Panels, panelTitled } from "../../test/panelStructure";
 import { settledScreen } from "../../test/settled";
 import { NO_DESCRIPTION, observationSummary, roleWord } from "../estateEvidenceWords";
-import type { EstateCoverageSite } from "../estateClient";
+import type { EstateClient, EstateCoverageSite } from "../estateClient";
+import { loadedPortfolio, portfolioBody, portfolioClient, refused as refusedPortfolio } from "./portfolioFixtures";
 import {
   COVERAGE_PANEL,
   COVERAGE_SUBTITLE,
@@ -188,12 +189,12 @@ function LocationProbe() {
   return <output data-testid="location">{`${location.pathname}${location.search}`}</output>;
 }
 
-function renderAt(entry: string, client: EstateEvidenceMoneyClient) {
+function renderAt(entry: string, client: EstateEvidenceMoneyClient, estate: EstateClient = portfolioClient(loadedPortfolio(portfolioBody()))) {
   return render(
     <MemoryRouter initialEntries={[entry]}>
       <main>
         <Routes>
-          <Route path={ESTATE_EVIDENCE_PATH} element={<EstateEvidencePage client={client} />} />
+          <Route path={ESTATE_EVIDENCE_PATH} element={<EstateEvidencePage client={client} estate={estate} />} />
         </Routes>
       </main>
       <LocationProbe />
@@ -738,5 +739,29 @@ describe("post-W6 W3-estate refused window", () => {
     // SR-2: a valid range is shown in the shell's shared bar, not on the page.
     expect(main().querySelector("[data-estate-window]")).toBeNull();
     view.unmount();
+  });
+});
+
+describe("IA-P P3b: the Scope & coverage section (moved from the Portfolio's scope tab)", () => {
+  it("renders the coverage line, the scope disclosure and the context footer under the evidence panels", async () => {
+    const estate = portfolioClient(loadedPortfolio(portfolioBody()));
+    renderAt(`${ESTATE_EVIDENCE_PATH}?${WINDOW}`, fake(loaded(body())), estate);
+    await settledScreen();
+    const section = document.querySelector<HTMLElement>("[data-portfolio-panel='scope']")!;
+    expect(section.querySelector("h2")!.textContent).toBe("Scope & coverage");
+    expect(section.querySelector("[data-portfolio-coverage]")).not.toBeNull();
+    expect(estate.calls).toHaveLength(1);
+    expect(estate.calls[0]).toMatchObject({ lens: "all", cursor: null });
+    // The section sits after the evidence page's own panels.
+    const panels = [...document.querySelectorAll("main h2")].map((h) => h.textContent);
+    expect(panels[panels.length - 1]).toBe("Scope & coverage");
+  });
+
+  it("a refused portfolio read shows its refusal inside the section; the evidence panels stay", async () => {
+    renderAt(`${ESTATE_EVIDENCE_PATH}?${WINDOW}`, fake(loaded(body())), portfolioClient(refusedPortfolio(503, "ESTATE_STORE_UNAVAILABLE", "The estate store cannot be read right now.")));
+    await settledScreen();
+    const section = document.querySelector<HTMLElement>("[data-portfolio-panel='scope']")!;
+    expect(section.textContent).toContain("The estate store cannot be read right now.");
+    expect(document.querySelectorAll("main h2").length).toBeGreaterThan(1);
   });
 });

@@ -10,6 +10,8 @@ import { formatRange } from "../ui/time";
 import { useSearchParams } from "react-router-dom";
 import { RangeLink as Link } from "../ui/RangeLink";
 import { EVIDENCE_RECORDS_TABS, EVIDENCE_RECORDS_TABS_LABEL, EVIDENCE_RECORDS_TITLE, SectionTabs } from "../ui/SectionTabs";
+import type { EstateClient } from "./estateClient";
+import { PortfolioScopeSection } from "./EstatePortfolio";
 import { DataTable, Disclosure, MetricCard, MetricCards, Notice, PageHeader, Panel } from "../ui";
 import { TechnicalDetails } from "../ui/TechnicalDetails";
 import { UnavailableInline } from "../ui/UnavailableEntry";
@@ -419,7 +421,7 @@ function barBody(body: EstateEvidenceBody | null): EstateEnvelope | null {
   return body === null ? null : (body as unknown as EstateEnvelope);
 }
 
-export function EstateEvidencePage({ client }: { client?: EstateEvidenceMoneyClient }) {
+export function EstateEvidencePage({ client, estate }: { client?: EstateEvidenceMoneyClient; estate?: EstateClient }) {
   const reads = useMemo(() => client ?? createEstateEvidenceMoneyClient(), [client]);
   const [params] = useSearchParams();
   const query = queryFromParams(params);
@@ -474,6 +476,8 @@ export function EstateEvidencePage({ client }: { client?: EstateEvidenceMoneyCli
           <Notice tone="blue" data={{ "data-estate-notice": "" }}>
             {EVIDENCE_NOTICE}
           </Notice>
+          {/* IA-P P3b (spec §2.4): the second section, "Scope & coverage", moved from the Portfolio. */}
+          <PortfolioScopeSection client={estate} />
         </>
       )}
     </div>

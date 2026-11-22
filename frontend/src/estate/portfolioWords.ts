@@ -25,19 +25,18 @@ export const PORTFOLIO_PAGE_SIZE = 50;
 export const DECISIONS_PATH = "/decisions";
 
 /**
- * PF-T: the Portfolio section tabs (owner-approved names, walkthrough item 5.1; proposal 2026-11-10 §6). Each tab is
- * an address under `/portfolio/:tab?`; Overview is the bare root. `scope` is the deep tab, set apart at the right.
+ * IA-P P3b (spec §2.2, D-IAP.2): the Portfolio's three tabs. Overview is the bare root and follows the top-bar range
+ * (5c's screen, §3); Outcomes and Demand & capacity are addresses under `/portfolio/:tab`. "The month", Opportunity,
+ * What changed and Scope & coverage are aliases now (§2.4): to the range, Demand & capacity, Results and Evidence.
  */
-export type PortfolioTab = "overview" | "month" | "outcomes" | "opportunity" | "changes" | "scope";
+export type PortfolioTab = "overview" | "outcomes" | "demand";
 export const PORTFOLIO_TABS: readonly { tab: PortfolioTab; label: string; segment: string | null }[] = [
   { tab: "overview", label: "Overview", segment: null },
-  // 5c (spec §5.1, D-5C.1): "The month", the one deep-dive screen, at the plain `/portfolio/month` (no window, no lens).
-  { tab: "month", label: "The month", segment: "month" },
-  { tab: "outcomes", label: "Outcomes by site", segment: "outcomes" },
-  { tab: "opportunity", label: "Opportunity", segment: "opportunity" },
-  { tab: "changes", label: "What changed", segment: "changes" },
-  { tab: "scope", label: "Scope & coverage", segment: "scope" },
+  { tab: "outcomes", label: "Outcomes", segment: "outcomes" },
+  { tab: "demand", label: "Demand & capacity", segment: "demand-and-capacity" },
 ];
+/** spec §5.3: "Portfolio" (5c's H1) on all three tabs. */
+export const PORTFOLIO_HUB_TITLE = "Portfolio";
 export const PORTFOLIO_TABS_LABEL = "Portfolio sections";
 /** The tab a `:tab` segment names; `null` for a segment that names no tab (the page redirects to Overview). */
 export function portfolioTabFrom(segment: string | undefined): PortfolioTab | null {
