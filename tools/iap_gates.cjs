@@ -32,6 +32,9 @@
 //   T2 (IA-P3 P5) an object page per vertical (a Finding page): no Site tab row, and a breadcrumb of exactly three parts.
 //   W1 (IA-P3 P6) the "Waiting for you" badge text equals the /decisions "Waiting for a choice" tile (non-zero on the
 //      fixture), and at 1280 the top bar is on one line (every child of the top bar on one row, the bar one control high).
+//   K1 (IA-P3 P7) on /decisions at 1280: Ctrl K opens the search dialog with its input focused, Ctrl K closes it and focus
+//      returns to the element focused before; Escape does the same. Shots (--shots): the scope menu and the palette at
+//      1440, 1280 and 390, light and dark (a /api/sites directory of the E1 Sites is served for this gate only).
 //   Site detail bodies: fixtures/iap/site-{mini,cold,ev}.json (D-IAP.38; their source is in packet-IA-P3 §P5).
 // Expected values are spec literals held here, never read from the app's modules (W2 independence).
 //
@@ -640,6 +643,77 @@ async function checkInbox(browser, args, routes) {
   return { gate: "W1", ...read, failures, pass: failures.length === 0 };
 }
 
+/** K1's directory: the E1 Sites as `/api/sites` summaries (this gate only; the other gates keep their 404). */
+const K1_SITES = JSON.stringify({
+  sites: [
+    ["KOBO-001", "Kobo", "MINIGRID"],
+    ["KISIWA-001", "Kisiwa", "MINIGRID"],
+    ["MTO-001", "Mto", "MINIGRID"],
+    ["COLD-001", "Cold Room", "COLDCHAIN"],
+    ["EV-001", "Charge Hub", "EV_CHARGING"],
+  ].map(([site_id, display_name, site_type]) => ({
+    site_id, display_name, site_type, timezone: "Africa/Nairobi", lifecycle_status: "ACTIVE", origin: "REGISTERED",
+    location: { country: "KE", locality: "Nairobi" }, source: { mode: "REGISTERED" }, template: null,
+  })),
+});
+
+/** K1 (spec §6 P7): the Ctrl K open and close cycle with focus returned. Shots: the scope menu and the palette. */
+async function checkSearch(browser, args, routes) {
+  const failures = [];
+  const o = await openPage(browser, routes, { w: 1280, h: 900, dark: false });
+  await o.page.route("**/api/sites", (route) => route.fulfill({ status: 200, contentType: "application/json", body: K1_SITES }));
+  await o.page.goto(`${args.base}/decisions?${RANGE}`);
+  await o.page.waitForSelector('[data-home-list="decisions"]', { timeout: 20000 }).catch(() => {});
+  const SEARCH = 'button[aria-label="Search Sites, decisions and Findings"]';
+  const state = () =>
+    o.page.evaluate((sel) => {
+      const dialog = document.querySelector('[role="dialog"][aria-label="Search Sites, decisions and Findings"]');
+      const a = document.activeElement;
+      return { open: dialog !== null, inputFocused: dialog !== null && a !== null && a.getAttribute("role") === "combobox" && dialog.contains(a), searchFocused: a === document.querySelector(sel) };
+    }, SEARCH);
+  const steps = {};
+  await o.page.focus(SEARCH);
+  await o.page.keyboard.press("Control+k");
+  await o.page.waitForTimeout(200);
+  steps.ctrlOpen = await state();
+  await o.page.keyboard.press("Control+k");
+  await o.page.waitForTimeout(200);
+  steps.ctrlClose = await state();
+  await o.page.keyboard.press("Control+k");
+  await o.page.waitForTimeout(200);
+  await o.page.keyboard.press("Escape");
+  await o.page.waitForTimeout(200);
+  steps.escClose = await state();
+  if (!(steps.ctrlOpen.open && steps.ctrlOpen.inputFocused)) failures.push(`K1: Ctrl K did not open the dialog with the input focused (${JSON.stringify(steps.ctrlOpen)})`);
+  if (steps.ctrlClose.open || !steps.ctrlClose.searchFocused) failures.push(`K1: Ctrl K did not close it with focus returned (${JSON.stringify(steps.ctrlClose)})`);
+  if (steps.escClose.open || !steps.escClose.searchFocused) failures.push(`K1: Escape did not close it with focus returned (${JSON.stringify(steps.escClose)})`);
+  if (o.errors.length > 0) failures.push(`R5: /decisions ${o.errors.length} page errors (${o.errors[0]})`);
+  await o.ctx.close();
+  if (args.shots && args.plant === null) {
+    fs.mkdirSync(args.shots, { recursive: true });
+    for (const [w, h] of [[1440, 900], [1280, 900], [390, 844]]) {
+      for (const dark of [false, true]) {
+        const v = await openPage(browser, routes, { w, h, dark });
+        await v.page.route("**/api/sites", (route) => route.fulfill({ status: 200, contentType: "application/json", body: K1_SITES }));
+        await v.page.goto(`${args.base}/portfolio/outcomes?${RANGE}&scope=group:MINIGRID`);
+        await v.page.waitForSelector("[data-every-site-chip]", { timeout: 20000 }).catch(() => {});
+        await v.page.click("[data-scope-switch] > button");
+        await v.page.waitForSelector('[role="menu"] [role="menuitem"]:nth-child(1)', { timeout: 20000 }).catch(() => {});
+        await v.page.waitForTimeout(300);
+        await v.page.screenshot({ path: path.join(args.shots, `p7-scope-${w}x${h}-${dark ? "dark" : "light"}.png`) });
+        await v.page.keyboard.press("Escape");
+        await v.page.keyboard.press("Control+k");
+        await v.page.waitForSelector('[role="dialog"] input', { timeout: 20000 }).catch(() => {});
+        await v.page.keyboard.type("kobo");
+        await v.page.waitForTimeout(500);
+        await v.page.screenshot({ path: path.join(args.shots, `p7-search-${w}x${h}-${dark ? "dark" : "light"}.png`) });
+        await v.ctx.close();
+      }
+    }
+  }
+  return { gate: "K1", steps, failures, pass: failures.length === 0 };
+}
+
 (async () => {
   const args = parseArgs(process.argv.slice(2));
   const routes = loadRoutes();
@@ -658,6 +732,7 @@ async function checkInbox(browser, args, routes) {
     for (const r of await checkSites(browser, args, routes)) report(r);
     for (const r of await checkSiteFrames(browser, args, routes)) report(r);
     report(await checkInbox(browser, args, routes));
+    report(await checkSearch(browser, args, routes));
     const views = [];
     for (const [w, h] of [[1440, 900], [390, 844]]) for (const dark of [false, true]) views.push({ name: `${w}x${h}-${dark ? "dark" : "light"}`, w, h, dark });
     for (const spec of PAGES) {
