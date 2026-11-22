@@ -1,9 +1,9 @@
 # 6a: decisions, options and their records (implementer spec)
 
-**Status: rev 1, ready for the handshake.** P6 approved by the owner, 22 Nov 2026 ("accept all p6 defaults",
+**Status: rev 2, handshake answered (`handshake.md`; D-P6.20 to D-P6.29); ready to build.** P6 approved by the owner, 22 Nov 2026 ("accept all p6 defaults",
 `owner/owner-accept-p6-defaults-2026-11-22.md`); every default is decided (§10) and logged as D-P6.1 to D-P6.19
-(`specs/6-decision-valued/rulings.md`). Architect (Claude), 2026-11-21 rev 0, 2026-11-22 rev 1. Lane 3 (`delivery-plan.md` §2,
-row `6a`). **3.0 units**, three commits. Discovery review (W5): new schema, a person rule, the record every money
+(`specs/6-decision-valued/rulings.md`). Architect (Claude), 2026-11-21 rev 0, 2026-11-22 rev 1 and rev 2. Lane 3 (`delivery-plan.md` §2,
+row `6a`). **3.25 units**, three commits. Discovery review (W5): new schema, a person rule, the record every money
 figure of step 6 hangs on. `USER_REVIEW_REQUIRED: true` (it fixes what a decision is; no screen).
 
 - **Owner proposal (approved):** `specs/6-decision-valued/P6-proposal.md`. **Rulings:** `specs/6-decision-valued/rulings.md`.
@@ -91,8 +91,8 @@ CREATE TABLE decision_option (
     generator text NOT NULL CHECK (generator IN ('NO_ACTION', 'SETTING_GRID')),
     settings jsonb NOT NULL CHECK (jsonb_typeof(settings) = 'object'),
     position integer NOT NULL CHECK (position >= 0),
-    CHECK ((generator = 'NO_ACTION') = (option_key = 'no-action')),
-    CHECK ((generator = 'NO_ACTION') = (position = 0)),
+    CONSTRAINT decision_option_no_action_key CHECK ((generator = 'NO_ACTION') = (option_key = 'no-action')),
+    CONSTRAINT decision_option_no_action_first CHECK ((generator = 'NO_ACTION') = (position = 0)),
     CONSTRAINT decision_option_tenant_id_unique UNIQUE (tenant_id, id),
     CONSTRAINT decision_option_key_unique UNIQUE (decision_id, option_key),
     CONSTRAINT decision_option_position_unique UNIQUE (decision_id, position),
@@ -130,7 +130,7 @@ CREATE TABLE option_evaluation_run (
     run_role text NOT NULL CHECK (run_role = 'ANALYST'),
     run_by_script boolean NOT NULL,
     run_at timestamptz NOT NULL WS(run_at),
-    CHECK ((study_sha256 IS NULL) = (study_identity IS NULL)),
+    CONSTRAINT option_evaluation_run_study_pair CHECK ((study_sha256 IS NULL) = (study_identity IS NULL)),
     CONSTRAINT option_evaluation_run_tenant_id_unique UNIQUE (tenant_id, id),
     FOREIGN KEY (tenant_id, decision_id) REFERENCES decision (tenant_id, id),
     FOREIGN KEY (tenant_id, run_by_person_id) REFERENCES operator_account (tenant_id, id)
@@ -158,10 +158,12 @@ CREATE TABLE option_evaluation (
     assumed jsonb NOT NULL CHECK (jsonb_typeof(assumed) = 'array'),
     admission jsonb NULL CHECK (admission IS NULL OR jsonb_typeof(admission) = 'object'),
     dawn jsonb NULL CHECK (dawn IS NULL OR jsonb_typeof(dawn) = 'object'),
-    CHECK ((value IS NULL) = (jsonb_array_length(missing) > 0)),
-    CHECK (value IS NULL OR currency IS NOT NULL OR disposition = 'COMPARISON'),
-    CHECK (disposition <> 'COMPARISON' OR (value = 0 AND rank IS NULL AND one_off_id IS NULL)),
-    CHECK (disposition <> 'RECOMMENDED' OR rank = 1),
+    CONSTRAINT option_evaluation_value_or_missing CHECK ((value IS NULL) = (jsonb_array_length(missing) > 0)),
+    CONSTRAINT option_evaluation_value_currency
+        CHECK (value IS NULL OR currency IS NOT NULL OR disposition = 'COMPARISON'),
+    CONSTRAINT option_evaluation_comparison
+        CHECK (disposition <> 'COMPARISON' OR (value = 0 AND rank IS NULL AND one_off_id IS NULL)),
+    CONSTRAINT option_evaluation_recommended_first CHECK (disposition <> 'RECOMMENDED' OR rank = 1),
     CONSTRAINT option_evaluation_tenant_id_unique UNIQUE (tenant_id, id),
     CONSTRAINT option_evaluation_once UNIQUE (run_id, option_id),
     FOREIGN KEY (tenant_id, run_id) REFERENCES option_evaluation_run (tenant_id, id),
@@ -180,7 +182,7 @@ CREATE TABLE option_effect (
     unit text NOT NULL CHECK (char_length(unit) BETWEEN 1 AND 32),
     currency text NULL CHECK (currency IS NULL OR currency ~ '^[A-Z]{3}$'),
     missing jsonb NOT NULL CHECK (jsonb_typeof(missing) = 'array'),
-    CHECK ((change_per_month IS NULL) = (jsonb_array_length(missing) > 0)),
+    CONSTRAINT option_effect_change_or_missing CHECK ((change_per_month IS NULL) = (jsonb_array_length(missing) > 0)),
     CONSTRAINT option_effect_once UNIQUE (evaluation_id, factor_id),
     FOREIGN KEY (tenant_id, evaluation_id) REFERENCES option_evaluation (tenant_id, id)
 );
@@ -216,6 +218,11 @@ CREATE TABLE decision_choice (
 - **Cross-row checks in code, not SQL** (the adapter's transaction): an evaluation's option belongs to its run's
   decision; a choice's option and run belong to its decision; the `one_off_id` belongs to the evaluation's option.
   Each has a refusal code in §3.3 and a test.
+- **Constraint names (handshake R4).** Every table-level and multi-column CHECK is named as above; column checks keep
+  Postgres's `<table>_<column>_check`. Test 6 asserts each name; the packet lists them.
+- **jsonb shapes (D-P6.27).** `settings` and `current_settings`: `{axis: decimal string}`. `missing`: a list of
+  `[record_kind, source_family, factor_id or null]`. `assumed`: a list of factor ids. `admission`, `dawn`: 6c §3.5's
+  objects, fractions `"n/d"` in lowest terms, integers as numbers. `MissingInput` round-trips exactly (test 7).
 - **Append-only.** For each of the seven new tables: `<t>_immutable BEFORE UPDATE OR DELETE ... FOR EACH ROW` and
   `<t>_no_truncate BEFORE TRUNCATE ... FOR EACH STATEMENT`, both `EXECUTE FUNCTION ledger_append_only()`.
 - **Downgrade.** `LOCK TABLE` all seven `IN ACCESS EXCLUSIVE MODE`; refuse with `RAISE EXCEPTION 'Downgrade of
@@ -258,17 +265,29 @@ def option_key(lever: Lever, point: Mapping[str, Decimal]) -> str   # template f
 ```
 - The grid is 0K4d's `KOBO_GRID` (`runs/replay_study.py:50-52`, on `main`), axis for axis, in the same order. Test 1
   writes the 13 keys as literals and also proves the grid equal to `KOBO_GRID` (`Fraction` against `Decimal` values).
-- `rows_mini_grid.py`: the `candidate_l` row gains `levers=("generator_stop_reserve",)`. No other row changes.
+- `rows_mini_grid.py`: the `candidate_l` row gains `levers=("generator_stop_reserve",)`. No other row changes. **No
+  version bump** (handshake I4): `levers` changes no value, expression or source, and a bump would fail every stored
+  v4 snapshot; the module docstring records "6a: `candidate_l` lists its lever; version unchanged (no value changes)".
 - `check.py` replaces the "Deferred (D-3B1.6): levers (step 6)." docstring line with `check_levers(levers=None,
-  registries=None, pins=None)`, run by `check_all()` after `check_pins` (it is cross-registry, as `check_pins` is;
-  `check(reg)` stays per-registry). It refuses
-  (`StructureError("STRUCTURE_LEVER", structure_key, lever_id)`), in this order: a `FactorRow.levers` entry naming no
-  `LEVERS` key; a lever whose `structure_key` is not in `REGISTRIES`; a `purpose_factor` that is not a row of that
-  registry, or whose row does not list the lever; a `changes` entry that is not a leaf of that registry; an axis name
-  not `ID_RE`, or an empty or repeated `values`; axes whose `unit` differ (D-P6.12); a template whose `{names}` differ from the axis names, or a
-  non-whole value under a template; two grid points with one key; and **OD-25:** a lever whose purpose factor's
-  `home.category` differs from the home category of every pinned factor (`structure/pins.py` `PINS`) that lists the
-  lever. That last rule is how a decision's heading cannot disagree at run time.
+  registries=None, pins=None)`, run by `check_all()` between `check_pins()` and `check_observed()`, on the no-argument
+  path only (it is cross-registry; `check(reg)` stays per-registry). It refuses with `StructureError("STRUCTURE_LEVER",
+  structure_key, lever_id)` on fourteen branches, in this order (test 2 has one case each):
+  1. a `FactorRow.levers` entry naming no `LEVERS` key;
+  2. a lever whose `structure_key` is not in `REGISTRIES`;
+  3. a `purpose_factor` that is not a row of that registry;
+  4. a purpose factor's row that does not list the lever;
+  5. a `changes` entry that is not a leaf of that registry;
+  6. an axis name not `ID_RE`;
+  7. an empty `values`;
+  8. a repeated value in `values`;
+  9. axes whose `unit` differ (D-P6.12);
+  10. a template whose `{names}` differ from the axis names;
+  11. a non-whole value under a template;
+  12. two grid points with one key;
+  13. a filled key outside the `option_key` form `^[a-z0-9][a-z0-9-]{0,63}$`;
+  14. **OD-25 (D-P6.23):** a lever whose purpose factor's `home.category` differs from that of **any** pinned factor
+      (`structure/pins.py` `PINS`) that lists the lever; test 2 also has a two-pin case (one agreeing, one not).
+  The last rule is how a decision's heading cannot disagree at run time.
 
 ### 3.2 `decisions/records.py` (pure apart from the injected store and accounts)
 
@@ -313,13 +332,14 @@ class RunRow: id; tenant_id; decision_id; evaluator_version: str; outcome: str; 
 class ChoiceRow: id; tenant_id; decision_id; option_id: UUID | None; run_id; agreed_action_id: UUID | None
     chosen_by_person_id; chosen_role: str; chosen_by_script: bool; chosen_at: datetime
 @dataclass(frozen=True)
-class DecisionBundle: decision: DecisionRow; site_code: str; options: tuple[OptionRow, ...]
+class DecisionBundle: decision: DecisionRow; site_code: str; site_name: str; options: tuple[OptionRow, ...]
     one_offs: Mapping[UUID, OneOffRow]; run: RunRow | None; choice: ChoiceRow | None   # latest one-offs and run
     names: Mapping[UUID, str]       # person id -> display name, for every person id in the bundle
 class DecisionRefused(Exception):   # .code, .exit (2, or 3 for DECISIONS_UNAVAILABLE)
 
 class DecisionStore(Protocol):
     def site(self, tenant_id: UUID, site_code: str) -> SiteRef | None             # chain/ports.py SiteRef
+    def site_by_id(self, tenant_id: UUID, site_id: UUID) -> SiteRef | None        # D-P6.20; read by 6c
     def finding(self, tenant_id: UUID, site_id: UUID, finding_id: UUID) -> str | None   # its mechanism
     def find_decision(self, tenant_id, site_id, lever_id, period, finding_id) -> DecisionRow | None
     def add_decision(self, row: DecisionRow, options: tuple[OptionRow, ...]) -> tuple[DecisionRow, bool]
@@ -353,8 +373,8 @@ checks (raising `DecisionRefused("RECORD_INVALID")`) and the newest-first order.
 
 Common steps C1-C3 for every command: (C1) `tenant_by_slug` None → `UNKNOWN_TENANT`; (C2) the person is
 `onboard_person(as_email)`, of this tenant and `active`, else `PERSON_NOT_FOUND`; (C3) the person's first held role
-in `roles_of(command)` (any Site, except that a SITE_MANAGER grant must cover the decision's Site) is the recorded
-role, else `PERSON_ROLE_REQUIRED`.
+holds some role of `roles_of(command)`, at any Site, else `PERSON_ROLE_REQUIRED`; for prepare and choose that role
+is the recorded role. For `state_one_off` the recorded role is fixed after O1 (D-P6.24, below).
 
 **prepare** (`decision.prepare`: `(ANALYST,)`): C1-C3; (P1) `period` not `YYYY-MM` → `BAD_PERIOD`; `horizon_months`
 outside 1-60 → `BAD_HORIZON`; (P2) `store.site` None → `SITE_NOT_FOUND`; (P3) `lever_id` not in `levers` →
@@ -362,14 +382,17 @@ outside 1-60 → `BAD_HORIZON`; (P2) `store.site` None → `SITE_NOT_FOUND`; (P3
 (`structure/read.py`) → `LEVER_SITE_TYPE`;
 (P4) `finding_id` given: `store.finding` None → `FINDING_NOT_FOUND`; its mechanism's pin (`pins.pin_of`) is None or
 its factor's row does not list the lever → `FINDING_NOT_ON_LEVER`; (P5) `current`'s keys differ from the axis names →
-`BAD_CURRENT`; (P6) the re-run: `find_decision` found → return it with `already_prepared=True`, writing nothing (the
-current settings are not compared; a re-run with other settings is `ALREADY_PREPARED_OTHER` when they differ);
+`BAD_CURRENT`; (P6) the re-run: `find_decision` found → compare `current` to the stored `current_settings` axis by
+axis, numerically (`Decimal("90") == Decimal("90.0")`), and `horizon_months` to the stored one: equal → return it with
+`already_prepared=True`, writing nothing; different → `ALREADY_PREPARED_OTHER`;
 (P7) write the decision, the no-action option (`position` 0, `settings = current`) and one `SETTING_GRID` option for
 each grid point not equal to `current`, at positions 1, 2, … in grid order, in one transaction. A `current` that is
 not a grid point is allowed: then every grid point is an option.
 
 **state_one_off** (`decision.one_off`: `(SITE_MANAGER, FINANCE)`; D-P6.18): C1-C3; (O1) `decision` None → `DECISION_NOT_FOUND`;
-(O2) no option with that key → `OPTION_NOT_FOUND`; the no-action option → `NO_ACTION_ONE_OFF` (doing nothing costs 0
+(O1b, D-P6.24) the recorded role is the first role in `roles_of("decision.one_off")` order that the person holds and
+that covers the decision's Site (FINANCE covers every Site; SITE_MANAGER only a granted Site), else
+`PERSON_ROLE_REQUIRED`; (O2) no option with that key → `OPTION_NOT_FOUND`; the no-action option → `NO_ACTION_ONE_OFF` (doing nothing costs 0
 by rule, D-P6.18); (O3) `amount` negative, more than 2 decimals or over 12 integer digits → `BAD_AMOUNT`; `currency` not
 `^[A-Z]{3}$` → `BAD_CURRENCY`; `crew_visits` negative → `BAD_CREW_VISITS`; `basis` empty after U+0020 strip, over 200
 characters or with a refused character category (3C2's `clean_title` rule) → `BAD_BASIS`; (O4) append. A later
@@ -381,7 +404,8 @@ used (`one_off_id`).
 `ALREADY_CHOSEN`; (H3) `latest_run` None → `NOT_EVALUATED`; (H4) `option_key` given and not an option →
 `OPTION_NOT_FOUND`; its evaluation in the latest run is `COMPARISON` → `CHOOSE_NONE_INSTEAD` (choosing no action is
 `--none`); `REJECTED` → `OPTION_REJECTED` (a rejection is overridden only by a recorded change to its rule, never at
-the choice); (H5) `agreed_action_id` given: `agreed_action_site` False → `ACTION_NOT_FOUND`; its Site is not the
+the choice); (H5) `agreed_action_id` given (with an option or with `--none`; keeping things as they are may still have
+an agreed Action): `agreed_action_site` False → `ACTION_NOT_FOUND`; its Site is None (a tenant-wide Action) or not the
 decision's Site → `ACTION_SITE_MISMATCH`; (H6) write `ChoiceRow(option_id or None, run_id = latest run's id, …)`.
 Choosing an option whose value is missing, or a `DEFERRED` one, is allowed: people decide, and the value is
 information (D-P6.5).
@@ -402,7 +426,7 @@ One SC-1 statement, `decision.refused`, as `i18n/statements/en/agreed_action.py`
 | `PERSON_NOT_FOUND` | The person is not an active person of this operator. |
 | `PERSON_ROLE_REQUIRED` | This person's role does not allow this step. |
 | `BAD_PERIOD` | Write the month as YYYY-MM, like {period_example}. (`example` "2026-10") |
-| `BAD_HORIZON` | Write the horizon in months, from {least} to {most}. (`count` 1, `bare`; `count` 60) |
+| `BAD_HORIZON` | Write the horizon as {least} to {most}. (`count` 1, `bare`; `count` 60, noun `month`: "as 1 to 60 months") |
 | `SITE_NOT_FOUND` | This operator has no Site with that code. |
 | `LEVER_UNKNOWN` | No change of that kind is known. |
 | `LEVER_SITE_TYPE` | That kind of change does not apply to this Site's type. |
@@ -416,7 +440,7 @@ One SC-1 statement, `decision.refused`, as `i18n/statements/en/agreed_action.py`
 | `BAD_AMOUNT` | Write the amount as a number with at most {places} decimals, like {amount_example}. (`count` 2, `bare`; `example` "90.00") |
 | `BAD_CURRENCY` | Write the currency as {letters} capital letters, like USD. (`count` 3, `bare`) |
 | `BAD_CREW_VISITS` | Write the crew visits as a whole number. |
-| `BAD_BASIS` | Say in up to {chars} what the cost is based on. (`count` 200 characters) |
+| `BAD_BASIS` | Say in up to {chars} what the cost is based on. (`count` 200, noun `character`, as 3C2) |
 | `ALREADY_CHOSEN` | This decision already has a recorded choice. |
 | `NOT_EVALUATED` | The options have not been valued yet. |
 | `CHOOSE_NONE_INSTEAD` | To keep things as they are, choose none. |
@@ -440,7 +464,7 @@ class OptionView: option_key: str; generator: str; settings: Mapping[str, Decima
 class OneOffView: amount: Decimal; currency: str; crew_visits: int; basis: str; declared_by_name: str
     declared_at: datetime
 @dataclass(frozen=True)
-class DecisionView: decision_id: str; site_code: str; lever_id: str; purpose_factor_id: str; home_category: str
+class DecisionView: decision_id: str; site_code: str; site_name: str; lever_id: str; purpose_factor_id: str; home_category: str
     finding_id: str | None; period: str; horizon_months: int; prepared_by_name: str; prepared_at: datetime
     state: str                     # NOT_VALUED | WAITING | CHOSEN | UNDER_WAY | KEPT_AS_IS (rule below)
     decides_role: str              # "OPERATOR_EXECUTIVE": roles_of("decision.choose")[0]
@@ -473,8 +497,10 @@ class ChoiceView: option_key: str | None; chosen_by_name: str; chosen_at: dateti
   decision_option` per option; on `IntegrityError` with `decision_once`, roll back and return the stored row with
   `True`. `add_run`: one transaction: the run, its evaluations, their effects (plain `INSERT ... VALUES`). `add_choice`:
   the same lock and identity pattern with `decision_choice_once`. Numerics are passed as `str(Decimal)` and read back as
-  `Decimal`; jsonb settings hold decimal strings (`{"stop_soc_pct": "70"}`). It reads `site`, `finding`
-  (`mechanism` only), `agreed_action` (`site_id` only) and `operator_account` (names), and no other table.
+  `Decimal`; jsonb values bind as `CAST(:name AS jsonb)` (the form of every adapter on `main`), in §2's shapes.
+  `site_by_id`: `SELECT id, site_code, site_type, timezone FROM site WHERE tenant_id = :t AND id = :s`. It reads `site`
+  (with `name` for the read), `finding` (`mechanism` only), `agreed_action` (`site_id` only) and `operator_account`
+  (names), and no other table.
 - `decisions/composition.py`: `build_decisions(database_url) -> DecisionsService(service, dispose)`, the only importer
   of the adapter. `decisions/decisions_composition.py` re-exports the two names for the commands, `6c` and `6f`.
 - `accounts/permissions.py` `COMMAND_ROLES` gains `"decision.prepare": (ANALYST,)`, `"decision.one_off":
@@ -490,16 +516,27 @@ class ChoiceView: option_key: str | None; chosen_by_name: str; chosen_at: dateti
     declared_at`.
   - `python -m assetops_backend.choose_option --tenant --as --decision UUID (--option KEY | --none) [--action UUID]`
     → `decision_id, option_key` (null for none), `run_id, agreed_action_id, chosen_by, chosen_at, already_chosen`.
-  Bad flag shapes: `BAD_UUID` (a code of `decision.refused`, §3.4); `--option` with `--none`, or
-  neither, is argparse's own error (exit 2).
+  Flag values (handshake I8): argparse takes every value as `str`; the command maps a malformed value to the
+  service's code before any store call: `--current` (not `NAME=VALUE[,...]` with decimal values) → `BAD_CURRENT`;
+  `--amount` → `BAD_AMOUNT`; `--crew-visits` → `BAD_CREW_VISITS`; `--horizon` → `BAD_HORIZON`; `--period` →
+  `BAD_PERIOD`; a UUID flag → `BAD_UUID`; no `DATABASE_URL` → `NO_DATABASE` (exit 2, 3C2's `REFUSAL_EXIT`).
+  `--option` with `--none`, or neither, is argparse's own error (exit 2). `--none` with `--action` is allowed (H5).
+  Output forms (D-P6.27): `settings` and `amount` decimal strings (`"70"`, `"90.00"`); times
+  `%Y-%m-%dT%H:%M:%SZ` (`record_action.py:50`); `prepared_by`, `declared_by`, `chosen_by` display names;
+  `home_category` the code (`OPTIMIZE_COST`).
 - Guard: `tools/checks/configuration-persistence.ps1` gains one writer block for the seven tables as 3C2 §2.6: the
-  adapter is the sole runtime writer, plain `INSERT ... VALUES` only, no `UPDATE`, `DELETE` or `TRUNCATE`; shown
+  adapter is the sole runtime writer, plain `INSERT ... VALUES` only, no `UPDATE`, `DELETE` or `TRUNCATE`. The block
+  holds seven per-table INSERT patterns, each required at least once (anti-vacuity, as the event-store block), and its
+  VALUES pattern admits exactly one nested form, `CAST(:name AS jsonb)`:
+  `VALUES\s*\((?:[^()]|CAST\(:\w+\s+AS\s+jsonb\))*\)`. The advisory-lock `SELECT` and the reads are not writes. Shown
   failing once with an `UPDATE decision_choice` planted in the adapter, and once with an `INSERT INTO decision` in
   another module.
 
 ## 5. Fixtures (hand-written; the tests write these literals, W2)
 
-3C2 §4's people and Sites, by the same fixture file and stores: tenant `lakeside-power`; Sites KISIWA-001,
+3C2 §4's people and Sites, from `backend/tests/lakeside_people.py`, a plain helper module that 3C2's `World`
+(`tests/test_3c2_agreed_actions.py:101-140`) moves into; 3C2's two test files import it and still pass unchanged
+(handshake I7). 6a extends it with the decision store; the Postgres people come from 3C2's `onboarded` fixture. tenant `lakeside-power`; Sites KISIWA-001,
 KOBO-001, MTO-001 (MINIGRID) and, in the memory store, FRIDGE-001 (COLDCHAIN); Amina OPERATOR_EXECUTIVE; Joseph
 FINANCE_AND_COMMERCIAL_LEAD; Wanjiru ANALYST; Peter SITE_MANAGER KOBO-001; Halima SITE_MANAGER KISIWA-001; David
 SITE_MANAGER MTO-001; Musa FIELD_TECHNICIAN; tenant `other-op` with Zara. Emails `<name>@lakeside-power.example`.
@@ -512,6 +549,12 @@ Clock `2026-11-24T09:00:00Z`; `new_id` gives `UUID(int=1)`, `UUID(int=2)`, … .
   `stop-60-reserve-25` (positions 1-13). `home_category` = `candidate_l`'s home category (Optimize).
   `horizon_months` 12. Re-run: same id, `already_prepared` true, row counts unchanged.
 - **F-P2** current `stop_soc_pct=72,reserve_soc_pct=30` (not a grid point): 15 options, `no-action` {72, 30} first.
+- **F-P3** (memory store) Wanjiru prepares KOBO-001 2026-10 with a stored `GENERATOR_SUPPORT_CANDIDATE` Finding: a
+  second decision beside F-P1, `finding_id` set, `home_category` `OPTIMIZE_COST`.
+- **F-P4** the same with a stored `UNEXPLAINED_FUEL` Finding → `FINDING_NOT_ON_LEVER` (its pin `unexplained_l` lists
+  no lever). **F-P5** a random UUID → `FINDING_NOT_FOUND`.
+- **F-P6** re-runs of F-P1 with `stop_soc_pct=90.0` (equal: `already_prepared`), with `reserve_soc_pct=25`, and with
+  `--horizon 6` (each `ALREADY_PREPARED_OTHER`).
 - **F-O1** Peter states `stop-70-reserve-30`: 90.00 USD, 0 crew visits, basis "Technician sets the controller on a
   routine visit". A second statement of 120.00 at 09:05 is the current one.
 - **F-C1** after a run stored by the test (each option `ACCEPTABLE` except `no-action` `COMPARISON` and
@@ -521,18 +564,22 @@ Clock `2026-11-24T09:00:00Z`; `new_id` gives `UUID(int=1)`, `UUID(int=2)`, … .
 - Refusals, one fixture each: Peter prepares → `PERSON_ROLE_REQUIRED`; Wanjiru prepares on FRIDGE-001 →
   `LEVER_SITE_TYPE`; Musa states a one-off → `PERSON_ROLE_REQUIRED`; David states a one-off on the KOBO-001 decision →
   `PERSON_ROLE_REQUIRED` (his grant is MTO-001's); Joseph states it → stored (FINANCE covers every Site); a one-off on
-  `no-action` → `NO_ACTION_ONE_OFF`; Zara reads or chooses on Lakeside's decision → `PERSON_NOT_FOUND`; Amina chooses
+  `no-action` → `NO_ACTION_ONE_OFF`; David states a one-off on a missing decision → `DECISION_NOT_FOUND`; Hassan
+(SITE_MANAGER MTO-001 and FINANCE_AND_COMMERCIAL_LEAD, added to the helper) states it on KOBO-001 → stored, role
+`FINANCE_AND_COMMERCIAL_LEAD`; Zara chooses or states a one-off on Lakeside's decision → `PERSON_NOT_FOUND`; Amina chooses
   `stop-60-reserve-25` → `OPTION_REJECTED`; chooses before any run → `NOT_EVALUATED`; links an agreed Action recorded
-  with `--site MTO-001` → `ACTION_SITE_MISMATCH`.
+  with `--site MTO-001` → `ACTION_SITE_MISMATCH`, and one with no Site → `ACTION_SITE_MISMATCH`; Amina chooses
+  `--none --action <R1>` on a fresh decision → stored, `state` `KEPT_AS_IS`.
 
 ## 6. Tests (written first)
 
 1. Levers: `grid()` and `option_key()` give F-P1's 13 keys in order (literals); the grid equals `KOBO_GRID`.
 2. `check_levers()` refuses each of the ten rules (one planted registry or lever per rule, each its own case);
    `check_all()` calls it on the real registries and passes.
-3. Prepare: F-P1, F-P2, the re-run, `ALREADY_PREPARED_OTHER`, P1 to P5's refusals (memory store).
-4. One-offs: F-O1 (latest wins), O1 to O3's refusals.
-5. Choose: F-C1, H1 to H5's refusals; choosing none stores `option_id` null.
+3. Prepare: F-P1 to F-P6, P1 to P5's refusals (memory store).
+4. One-offs: F-O1 (latest wins), O1 to O3's refusals, David's and Hassan's cases.
+5. Choose: F-C1, H1 to H5's refusals (the Site-less Action included); choosing none stores `option_id` null; `--none
+   --action`; `site_by_id` found and missing (memory store).
 6. Migration (Postgres, through the slot pool): every check, unique and FK above on a hand row (each violation asserted
    by constraint name); `decision_has_no_action` refuses a decision committed alone; `option_evaluation_run_complete`
    refuses a run missing one option; each table's UPDATE, DELETE and TRUNCATE refused; the downgrade refuses with rows
@@ -541,11 +588,13 @@ Clock `2026-11-24T09:00:00Z`; `new_id` gives `UUID(int=1)`, `UUID(int=2)`, … .
    copy, the index catch still holds); `for_tenant` newest first with names; `state` through all five values
    (F-P1 `NOT_VALUED`, after the run `WAITING`, F-C1 `UNDER_WAY`, a choice without an Action `CHOSEN`, `--none`
    `KEPT_AS_IS`); `recommended` null under F-C1's `RANKING_INCOMPLETE` run; the period filter (2026-10 to 2026-10
-   holds F-P1; 2026-11 to 2026-12 gives none). The same cases run on the memory store in test 5.
+   holds F-P1; 2026-11 to 2026-12 gives none); another tenant's decisions are absent; `site_name` read; `site_by_id`;
+   one row of each jsonb column stored and read back exactly (D-P6.27). The same cases run on the memory store in test 5.
 8. Commands: each JSON line's exact keys and values for F-P1, F-O1, F-C1; every refusal's stderr line and exit; no `@`
-   on stdout or stderr; the catalogue validator passes `decision.refused` (one key, every code a variant).
+   on stdout or stderr; the catalogue validator passes `decision.refused` (one key, every code a variant); one case per
+   malformed flag (handshake I8).
 9. Seams: `decisions/records.py` imports no adapter; `structure/levers.py` imports only `decimal`, `dataclasses`,
-   `types`, `collections.abc`; nothing under `decisions/` imports `runs/` (6c does that).
+   `types`, `collections.abc`; nothing under `decisions/` imports `runs/` (6c amends this to D-P6.28's allowlist).
 
 **Plants** (each fails its named test; shown once in a scratch copy, the run in the packet): drop the deferred trigger
 (6); let prepare include the current point as an option (3, F-P1 count 15); let a site manager choose (5); store the
@@ -578,8 +627,8 @@ setting grid (`6g`, `9c`); plan items and release thresholds (`7a`); reopening a
 |---|---|---:|
 | 1 | Migration `0072` and test 6 | 1.0 |
 | 2 | `structure/levers.py`, `check_levers`, the registry row, `decisions/records.py` with the memory store, statements; tests 1-5, 9 | 1.25 |
-| 3 | Adapter, composition, three commands, permissions, guard; tests 7, 8 | 0.75 |
-| | **6a** | **3.0** |
+| 3 | Adapter (`site_by_id` included), composition, three commands, permissions, seven-pattern guard, the people helper move; tests 7, 8 | 1.0 |
+| | **6a** | **3.25** |
 
 Depends on: owner P6 (gate P, met 22 Nov); `main` holding 3B1, 3B2, 3C0a, 3C1a, 3A6, 3C2, SC-1a, 0K4d (all merged;
 0K4d only for test 1). Unblocks

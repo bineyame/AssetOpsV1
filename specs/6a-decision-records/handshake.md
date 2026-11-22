@@ -198,4 +198,41 @@ Code read only; no test was run (no 6a code exists yet). `study.json` sha256 `c5
 
 ## Answers (Architect)
 
-*(to be filled)*
+Architect (Claude), 2026-11-22. Spec moves to rev 2 with every answer below. New rulings D-P6.20 to D-P6.29
+(`specs/6-decision-valued/rulings.md`). Owner answers since rev 1: Q1 "Not available yet (Recommended)", Q3 (6f1/6f2)
+accepted.
+
+- **R1. Resolved.** Both owner files are committed on `main` (the coordinator, 22 Nov). The packet cites
+  `git log -1 -- owner/owner-accept-p6-defaults-2026-11-22.md`.
+- **R2. Accepted (D-P6.23).** Refuse when the purpose factor's category differs from that of **any** pinned factor
+  listing the lever. Test 2 adds the two-pin case (one agreeing, one disagreeing: refuses).
+- **R3. Accepted.** F-P3, F-P4, F-P5 as written, in §5 and test 3. `home_category` is the code `OPTIMIZE_COST`.
+- **R4. Accepted.** Every table-level and multi-column CHECK is named `<table>_<rule>`; the names are listed in §2 and
+  test 6 asserts them. Column checks keep `<table>_<column>_check`.
+- **R5. Accepted.** Fourteen branches, listed in §3.1, one case each in test 2.
+- **I1. Accepted, High (D-P6.20).** `DecisionStore.site_by_id(tenant_id, site_id) -> SiteRef | None` in the Protocol,
+  the memory store and the adapter; tested in tests 5 and 7. 6c uses it (6c I2).
+- **I2. Accepted (D-P6.24).** C3 checks a held role of `roles_of(command)` at any Site; after O1 the recorded role is
+  the first in `roles_of` order that covers the decision's Site (FINANCE every Site, SITE_MANAGER its granted Sites),
+  else `PERSON_ROLE_REQUIRED`. David on a missing decision: `DECISION_NOT_FOUND`. The SITE_MANAGER-at-MTO plus FINANCE
+  case records `FINANCE_AND_COMMERCIAL_LEAD`.
+- **I3. Accepted.** On the identity match, `current` (axis by axis, numerically) and `horizon_months` are compared to
+  the stored ones: equal returns the stored decision, different refuses `ALREADY_PREPARED_OTHER`. Test 3 covers both.
+- **I4. Accepted.** No version bump; the `rows_mini_grid.py` docstring records it.
+- **I5. Accepted (D-P6.27).** The shapes as written, in §2.
+- **I6. Accepted, with the repo's own form.** jsonb binds as `CAST(:name AS jsonb)` (the form of every adapter on
+  `main`). The 6a block's VALUES pattern allows exactly that nested form: `VALUES\s*\((?:[^()]|CAST\(:\w+\s+AS\s+jsonb\))*\)`.
+  Seven per-table INSERT patterns, each required at least once (anti-vacuity). Lock and reads are not writes.
+- **I7. Accepted.** `backend/tests/lakeside_people.py` holds `World`'s people and Sites; 3C2's two test files import it
+  and pass unchanged; 6a extends it.
+- **I8. Accepted.** Every flag is parsed as `str` and mapped as written; test 8 has one case each.
+- **I9. Accepted (D-P6.27).**
+- **I10. Accepted.** A Site-less Action is `ACTION_SITE_MISMATCH`. `--none --action` is allowed and reads `KEPT_AS_IS`
+  (the state rule's order already puts a null option first); plant 9 goes through the service.
+- **I11. Accepted.** "Write the horizon as {least} to {most}." (`least` bare, `most` noun `month`); `BAD_BASIS` noun
+  `character`. Zara's fixture covers choosing and stating a one-off; test 7 shows another tenant's decisions absent.
+- **I12. Accepted.** `DecisionView.site_name` (adapter reads `site.name`).
+- **I13. Accepted.** `check_levers()` runs between `check_pins()` and `check_observed()`, no-argument path only. A key
+  outside the `option_key` form refuses (branch 13).
+
+Size: 6a 3.25 u (1.0, 1.25, 1.0): commit 3 grows by `site_by_id`, the seven-pattern guard and the people helper move.

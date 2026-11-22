@@ -211,4 +211,41 @@ file's types and months are those listed in I8 and the header above.
 
 ## Answers (Architect)
 
-*(to be filled)*
+Architect (Claude), 2026-11-22. Spec moves to rev 2 with every answer below. New rulings D-P6.20 to D-P6.29
+(`specs/6-decision-valued/rulings.md`).
+
+- **R1. Accepted (D-P6.26).** 6c ships as specified; the packet's residual risk names the gap. 0K4f's acceptance
+  gains: the writer derives `frame` from the replay's input (the Site's stored readings, by tenant and Site), never
+  from a flag, and never writes 0K4d's `StudyFrame` under that key; the study records `site_readings_digest`, which a
+  later check compares. §8 cites this. Recorded for 0K4f's spec (not yet written).
+- **R2. Accepted.** The literals are in §5 as written. F1h: confirmed, `diesel_price` is read, because `val1(b)` is
+  folded even when `d(a)` is MISSING (§2 now says so), so `assumed` is ["diesel_price"] and `evidence_class` MODELLED.
+  K1 lists every row.
+- **R3. Accepted, rule written out (D-P6.25).** RECORDED means "no simulated or emulated input": `unknown` and the
+  record origins read RECORDED, and the label speaks for simulation and emulation only; the evidence class (DECLARED,
+  ESTIMATED, MODELLED ...) carries the rest. Making `unknown` the weakest class would label every priced Site
+  SIMULATED, which is false the other way. Plant added (C1 with a `source-emulated` base leaf gives EMULATED).
+- **R4. Accepted (D-P6.28).** 6c amends 6a's test 9 to the allowlist as written; 6c's test 9 adds the `sys.modules`
+  check.
+- **R5. Accepted.** The gate reads `git grep -n "def add_run" main -- backend/assetops_backend/decisions/` showing the
+  Protocol's and the adapter's lines.
+- **R6. Accepted.** Top-level keys in that order; `frame` `{"kind", "tenant", "site_code"}`; `admitted` null for
+  `no-action`.
+- **I1. Accepted, High (D-P6.21).** `setting_changes(..., *, grid_changes=SETTING_GRID_CHANGES)` and
+  `EvaluationService(..., grid_changes=SETTING_GRID_CHANGES)`; the start-up assertion runs over every entry passed in.
+- **I2. Accepted, High (D-P6.20).** 6a adds `site_by_id` (6a I1). If 6a merges without it, 6c adds it in commit 3 and
+  names 6a's files.
+- **I3. Accepted, High (D-P6.22).** The scan covers `decisions/study_input.py`, `models.py`, `evaluate.py`, `run.py` and
+  `structure/difference.py`. `runs/admission.py` gains `DAWN_LIMIT_PCT = Fraction(35)` as `admit`'s default; 6c imports
+  it for `margin_points`. Guide check 9 amended.
+- **I4. Accepted (D-P6.27).** Fractions `"n/d"` in lowest terms, integers as numbers; K1's literals as written.
+- **I5. Accepted (D-P6.29).** A zero change with no currency takes the one-off's; no `ONE_OFF_CURRENCY`. Fixture F1j.
+- **I6. Accepted.** E3's order as written, all before E4; test 5 asserts no structure read on each E3 refusal.
+- **I7. Accepted.** `read_study` returns the header identity plus `frame`; `run.py` adds `ignored_cases` and
+  `months_averaged`.
+- **I8. Accepted.** One key-to-type table in §3.1; F1's digests as written.
+- **I9. Accepted,** each default as written.
+- **I10. Accepted.** `MissingInput("CURRENCY_MISMATCH", "STRUCTURE", None)`; `assumed` lists TARGET and ASSUMPTION.
+- **I11. Accepted.** A `StructureError` in E6 refuses `STRUCTURE_UNAVAILABLE` (exit 3), nothing written; test 5 has it.
+
+Size: 6c stays 3.0 u. The answers are clarifications and literals; `DAWN_LIMIT_PCT` and the injection are a few lines.
