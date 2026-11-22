@@ -85,8 +85,6 @@ getcontext().prec = 50
 
 ZERO = Decimal(0)
 ONE = Decimal(1)
-MODEL_PENDING = "MODEL_PENDING"   # 0K4m (spec §2.4): a computed leaf whose model version is pending
-MODEL_PENDING_SLICE = "0K4f"
 CENT = Decimal("0.01")
 
 
@@ -985,7 +983,7 @@ class Model:
         out["params"] = OrderedDict((k, rdec(v, 6)) for k, v in run["params"].items())
         out["cost_lines"] = OrderedDict((k, {"amount": r2(a), "operator_share": sh}) for k, (a, sh) in run["cost_lines"].items())
         if sens:
-            out["sensitivities"] = OrderedDict((k, r2(v)) for k, v in sens.items())
+            out["sensitivities"] = OrderedDict((k, None if out["value"] is None else r2(v)) for k, v in sens.items())
         od = (self.ev.get("option_detail") or {}).get(V)
         if od:
             if od.get("capacity"):
@@ -1044,14 +1042,18 @@ class Model:
                 cands, on_fb = list(opts), True
             else:
                 cands = []
+            how = None
             if kind == "protective":
-                if not cands:
-                    return None
-                ch = list(cands)
+                if cands:
+                    ch = list(cands)
+                else:   # D-0K4.46: no candidate takes none, never infeasible
+                    ch = [None]
+                    how = ("no candidate: every option is not available" if not opts else
+                           "no candidate: no option meets %s and the decision declares no fallback" % ", ".join(hard))
             else:
                 optional = d.get("optional", True)
                 ch = ([None] if (optional or not cands) else []) + list(cands)
-            decs.append({"d": d, "hv": hv, "on_fb": on_fb})
+            decs.append({"d": d, "hv": hv, "on_fb": on_fb, "how": how})
             choices.append(ch)
 
         best, best_key = None, None
@@ -1101,6 +1103,10 @@ class Model:
         for dd, c in zip(decs, best["combo"]):
             d = dd["d"]
             if d.get("kind") != "protective":
+                continue
+            if c is None:   # D-0K4.46: {chosen: null, admissible: [], how}, no trade_off
+                prot[d["name"]] = None
+                detail[d["name"]] = OrderedDict([("chosen", None), ("admissible", []), ("how", dd["how"])])
                 continue
             prot[d["name"]] = c
             v = dd["hv"][c]
@@ -1479,12 +1485,6 @@ def _history_missing(manifest, M, V, s, refs, fed, sides, cause):
     for side in ("plan", "actual"):
         for f in sorted(fed):
             out[side].append(ent(side, {"leaf": f}, LS[f]["kind"], LS[f]["family"], cause, None, _reach(refs, [f]), LS[f]["slice"]))
-    # N1 (0K4m, I2): a not-available leaf is a computed leaf whose model version is pending: MODEL_PENDING, slice 0K4f
-    for side in ("plan", "actual"):
-        for f in order:
-            if is_na(sides[side]["leaves"].get(f)):
-                out[side].append(ent(side, {"leaf": f}, LS[f]["kind"], LS[f]["family"], MODEL_PENDING, None,
-                                     _reach(refs, [f]), MODEL_PENDING_SLICE))
     return out
 
 
