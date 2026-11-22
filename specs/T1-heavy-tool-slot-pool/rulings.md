@@ -302,3 +302,50 @@ spec did not check its file list against the dispatch's limits on `.claude/` and
 - **L-a.** L5, L6 and the D-T1.15a cost are added to the spec's "Documented gaps" (§5.2).
 - **L-b.** The pwsh wrapper on Linux follows D-T1.15a: its INT and HUP handlers set `Cancel`, forward only on
   the second signal and never KILL (P8c). Windows Ctrl-C is unchanged.
+
+## T1b rulings (2026-11-22: a second Postgres test lane)
+
+Owner approval, verbatim: `owner/owner-second-db-lane-2026-11-22.md` ("proceed"). Spec: `spec-T1b.md`.
+
+- `D-T1.19` **Two database lanes, each a lock bound to one base database.** Lane a is `db-job.lock` with
+  `assetops_test`; lane b is `db-job-b.lock` with `assetops_b_test`, both in `assetopsv1-postgres-1`.
+  - Why a base per lane: run-owned databases already isolate runs; what two runs share is the base (admin lease,
+    orphan sweep, stem-derived names). A base per lane makes the sweep and every stem name lane-private.
+  - Why `assetops_b_test`, not the example `assetops_test_b`: every guard requires the name to end in `_test`,
+    and the stem `assetops_b` cannot match a lane-a pattern.
+
+- `D-T1.20` **`--db` keeps its meaning and takes both lanes; `--db-lane` takes one (amends D-T1.4).** `--db`
+  stays "one heavy database job at a time" for the §5.5 entry points, slow-tier runs and container runs on the
+  shared server. Every other Postgres run uses `--db-lane`.
+  - Why this way round: nothing that is exclusive today becomes concurrent by accident; every existing `--db`
+    command line keeps working (serially). The gain comes from switching focused runs to `--db-lane`.
+
+- `D-T1.21` **Markers and order.** `--db` exports `ASSETOPS_HEAVY_DB` and `ASSETOPS_HEAVY_DB_B`; `--db-lane`
+  exports `ASSETOPS_HEAVY_DB_LANE`. `db=True` needs both exclusive markers; a lane needs either. Acquire: `--db`
+  takes lane a, then lane b, then a slot; `--db-lane` takes the first free lane, then a slot. No process waits
+  holding a slot, so no cycle forms. A nested entry of the wrong kind exits 69 at once (amends D-T1.13).
+
+- `D-T1.22` **A host Postgres pytest needs a lane and the lane's database (revises D-T1.16).** The conftests'
+  first statement requires `lane=True`; at configure time a run is refused (69) when its base URL is unclear
+  (RC4-F1 `database_target`), does not end in `_test`, is off this machine, or names the other lane's base.
+  In a container the lane rule is satisfied by the `slot` marker (the dedicated server has no lanes).
+  - Why at configure time: the refusal comes before any module imports or any DDL, and it is the one place every
+    pytest path (host runner, plain pytest, xdist workers) passes.
+
+- `D-T1.23` **A run gets its URL from its lane.** `run-host-tests.ps1` picks `assetops_b_test` when the lane leaf
+  is `db-job-b.lock`, else `assetops_test`; a URL set by hand is passed through and checked by D-T1.22.
+
+- `D-T1.24` **What stays shared.** Per-run templates and their migration to head are not shared and need no lock.
+  Content-keyed caches (setup-cache snapshots, mechanism templates) stay shared on purpose: advisory lock or
+  exclusive build, staging plus rename, clone under a share lock. The one fixed-name defect, `_case_db`
+  (`assetops_out_<slice>_<case>_test`, 9 modules), becomes stem-derived; lane a's names are byte-identical. A test
+  keeps the class closed: every `CREATE DATABASE` file is listed with its isolation reason.
+
+- `D-T1.25` **No new memory or CPU capacity.** A lane run holds one of the two T1 slots (D-T1.1 stays the memory
+  bound), so two lane runs fill the pool and other heavy tools wait. A lane-only run is refused above `-n 2`.
+  - Why: two runs at `-n 2` are 4 workers plus 2 controllers on one Postgres server, the most the no-swap machine
+    was sized for beside the dev server.
+
+- `D-T1.26` **The second database is created, not migrated.** One idempotent `createdb` in
+  `assetopsv1-postgres-1`, plus the init SQL for a fresh volume. The base is an admin connection only; runs
+  migrate their own templates. Size 1.0 u, discovery review.

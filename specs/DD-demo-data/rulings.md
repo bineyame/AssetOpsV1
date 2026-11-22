@@ -2073,3 +2073,374 @@ weigh in on D-DD.113's consequence (Kisiwa gets a litres split in the demo) and 
     fuel_balance and the per-unit checks; (4) litres per unit (D-DD.113) and the `fuel_basis` check; (5) Kobo to
     roles-5 and D-DD.114's parity.
   - DD: 43.25 → **44.0 u** in ten parts, each at or under 6 u. Order unchanged (D-DD.107).
+
+---
+
+# DD rulings, round 16 (D-DD.117 onward): the lane-wide pre-flight for every remaining part
+
+Architect (Claude, the kept DD lane Architect), 2026-11-22, under the owner's DD strategy
+(`owner/owner-dd-strategy-2026-11-22.md`; `.ai/ROLE_CONFIG.md` "DD strategy"). One round for DD3c parts 3-5, DD4a's
+remaining runs, DD4b, DD3b, DD5 and DD6. Checked read-only against main `965fc4d17`, `task/DD3c-unit-roles`
+(`09bd3ba99`), `task/DD4-cold-ev-reality` (`a5c7e9515`), `task/DD4b-ev-measured` (`8d519ef49`) and `M` by key.
+Owner words read: `owner/owner-demo-data-answers-2026-11-22.md` (D-DD.92: "Revisit a plant figure", then D-DD.97
+"Approve 18:00 peak"; D-DD.98: "Readings stand"). The sorted question list, defaults, build plan, sizes and reach
+sets are in `preflight-remaining.md`; this file holds the rulings. The owner is informed of all of them; the
+owner-level questions are in `preflight-remaining.md` §2, each with its default applied.
+
+## DD3c, parts 3 to 5
+
+- **D-DD.117 Fuel balance on a multi-unit Site: the lead unit names the window; every unit burns; no schema change**
+  (model; W6 class of D-DD.113: every reader of a GENERATOR unit quantity).
+  - *Code.* `fuel_balance/service.py:75-79` refuses any Site without exactly one GENERATOR (`ASSETS_UNSUPPORTED`);
+    `fuel_balance_window.generator_asset_id` (0055) and the unexplained-fuel finding's mini-grid key (0056:31) hold
+    one generator id.
+  - *Rule.* One FUEL_TANK and at least one GENERATOR. The window's `generator_asset_id` is the lead unit
+    (`unit_roles.lead_unit`, D-DD.43: the first GENERATOR in declared Foundation order); at a one-unit Site that is the
+    one unit, so every stored row is unchanged. `rules.assess` takes `units: tuple[(asset_id, sfc, no_load), ...]`:
+    model-implied litres are the sum of each unit's burn on its own SFC and no-load rate (D-DD.113's shape); a unit
+    without an SFC gives the existing missing-SFC limitation. `relevant_readings` takes every unit's id.
+    `input_sha256` adds `"generator_asset_ids"` (all units, declared order) **only when there is more than one unit**,
+    and `terms` gains a `units` list only then, so one-unit digests and terms are byte-identical.
+  - *Tests.* Kobo one night: row and digest byte-equal to main. Two-unit fixture with different SFCs: implied litres
+    = per-unit sum; lead id in the column. Plant (reverted): one SFC for both units; the two-unit test fails.
+  - *Why no column.* The window is a tank's balance; the generator id only keys the finding to an asset an operator
+    acts on. The lead unit carries the Site's policy, so a finding raised on it points at the right control. A list
+    column would migrate two tables for no served difference.
+
+- **D-DD.118 DD3c parts 3 to 5: the pre-flight defaults (Q3, Q10, Q11) stand as ruled by D-DD.110 and D-DD.114;
+  `fuel_basis` resolved.** `dispatch_v3` pv sums the pv units through `unit_roles.site_power` (no
+  `MULTIPLE_BINDINGS` at a Site whose units are each bound once); `minimum-runtime` reads `lead_policy`;
+  `verification*` reads the three single-power roles and `generator_state` through `unit_roles`, the fuel comparison
+  per unit summed. `analytics/service.fuel_basis` is reached only through `IngestionService`'s completed listener
+  (`main.py:418`, central ingestion); DD5 loads through `BulkEvidenceLoad`, which does not call it, so D-DD.113's
+  first branch holds: the coordinator logs "fuel_basis first-match on multi-unit Sites" in
+  `.agent/backlog-post-demo.md`, untouched. The DD3c builder confirms with one grep and records it in the packet.
+
+## DD4a, the remaining runs
+
+- **D-DD.119 The cold writer's books are built in process from the same functions as the exported books, and checked
+  against them byte for byte** (BLOCKER for the writer run: `books_for` is mini-grid only, `telemetry.py:825-860`;
+  `build_telemetry` would `KeyError` on a cold Site).
+  - `world/telemetry_cold.py` gains `cold_books_for(view, history, records) -> dict[code, books]`, called by
+    `tools/world_history.py telemetry` beside `books_for`:
+    - `ledger`: the rows of the `ExportFile` whose kind is `profile.cold-storage-ledger` returned by
+      `exports_cold.build_cold_exports(view, history, records, tenant)` for each COLD_CHAIN tenant (`records` from the
+      same DS1b function the `records` command runs);
+    - `cooling`, `seasons`, `day_classes`: the view's `history.families.cooling`, `history.seasons`,
+      `history.day_classes`;
+    - `efficiency` (`f_m`): for each history month, the Site's `history.sites[<tenant>/<site>].actual.kwh` rule's
+      `cooling` arguments, read by `world/history.py`'s own rule parser (no second parser); for the accounting period,
+      `Fraction(period.actual.kwh) / Fraction(period.actual.kwh_model)` (Kirinyaga 5000/4030 = 500/403); for a month
+      after it, the accounting period's value (D-DD.103's `rate_of` class). A Site with no `kwh` rule and no
+      `kwh_model` has no entry (f = 1). Test: Kirinyaga's table is {07: 21/20, 08: 11/10, 09: 117/100, 10: 500/403,
+      11: 500/403}; Mwea and Thika empty.
+    - `events`: D-DD.120.
+  - *Check.* The CLI renders the in-process ledger rows with the ledger profile and compares them with
+    `<books>/<file_name>` byte for byte; a difference refuses `TEL_BOOKS <file>` (exit 3). So the readings and the
+    books the product admits come from one ledger.
+
+- **D-DD.120 Thika's events are a module table with a manifest parity test** (D-DD.51's class; `M`'s incidents are
+  outside the view by design, `view.py:3-4`). `telemetry_cold.STORY_EVENTS = {"COLD-THIKA": ({"kind": "GRID_LOSS",
+  "at": "2026-10-06T19:11:00+03:00", "source": "incident.grid_outage"}, {"kind": "GENERATOR_FAILURE", "at":
+  "2026-10-06T19:11:00+03:00", "source": "incident.backup"}, {"kind": "GENERATOR_HAND_START", "at":
+  "2026-10-06T20:22:00+03:00", "source": "incident.backup (D-DD.89)"}, {"kind": "GRID_RESTORE", "at":
+  "2026-10-06T22:00:00+03:00", "source": "Assumed (spec §4.4): M states no restore"})}`. The parity test reads `M`
+  after D-DD.89's commit and asserts the three `M` instants (`grid_outage` "from 19:11"; `backup`'s "failed to start
+  19:11:10" minute and "started by hand 20:22"). Mwea and Kirinyaga have no entry.
+
+- **D-DD.121 C-DD6 is written in DD4a and goes live by vertical; each clause not yet producible is pending with its
+  unit** (amends §8.1 "Live from").
+  - The judge (`check_failures_at_instant`) takes readings rows, as D-DD.55's judges do; its SQL fetch is the
+    clone's. DD4a: Thika's clauses (GEN-CR-01 FAILED at 19:11 on its own device, B-1031 above 5 °C > 15 min,
+    B-1034 below 12 °C) live, tested on the writer's Thika rows in `test_dd4_thika_incident.py`. DD4b: Kasarani CH-K2
+    and Ruiru CH-R7 c2. DD3b: Kisiwa GEN-KS-01 (at 18:40, D-DD.126) and Mto INV-MT-02. On the clone it fails until
+    DD5 loads. `STUBS["C-DD6"]` becomes the per-clause pending list.
+
+- **D-DD.122 DD4a's writer run: the three rooms over `READINGS_SPAN`, out of tree, measured.** Output
+  `/opt/assetecon/worlds/DD4a-<commit12>/` (never the tree). The packet records seconds and bytes per room and per
+  Site-day, the five 5-minute readings above 5 °C at Thika, and each D-DD.89 expected figure reproduced (or the stop).
+  C-DD11's two-process check gains Mwea for 1-2 Jul. Mwea, Kirinyaga and Thika must each end at 06:00 on 6 Nov.
+
+## DD4b
+
+- **D-DD.123 DD4b rejoins on DD4a's frame; DD4.3's spare and rotation are rebuilt to D-DD.98** (builder default made
+  exact; the branch predates the join and D-DD.98).
+  - *Order.* After DD4a merges: merge main into `task/DD4b-ev-measured` first. `telemetry.VERTICAL_PACKS` gains
+    `"ev-charger": ("ev-charger", 1)`; `_vertical` picks the run class from one table `VERTICAL_RUNS = {"cold-thermal":
+    ColdSiteRun, "ev-charger": EvSiteRun}` (no second branch). `EvSiteRun.day_records` returns D-DD.91's seven-element
+    rows; its event object adds `session_id` and `connector_id` only where the pack gives them.
+  - *Rebuild.* The ninth night spare of `22275cdaa` is replaced by D-DD.98's daytime spare (`EV-KAS-S01`, 10:00
+    arrival on 2, 3, 4 Nov, unplugged by the rotation rule, departs 05:00 with 150.000 kWh) and the rotation rule with
+    `ROTATION_MINUTES = 5`; D-DD.98's Embakasi/Ruiru parity golden from `8d519ef49`.
+  - *Measured hooks.* Each run class exposes `measured_months() -> {month: dict}` with its vertical's fixed key set
+    (D-DD.99); `EvSiteRun` also `departures()`. `measured_for` asks every run for its months, so mini-grid bytes stay
+    DD3a's (parity test). The frame writes `departures` only for a tenant with EV Sites.
+  - *One source for bands and prices.* Band hours, price classes and the demand rate come from the Site's
+    `world/tariffs.py` TARIFF_SCHEDULE records (the records the product admits), never from literals; the cold bill's
+    price is the view's `prices.electricity_usd_per_kwh`.
+
+- **D-DD.124 DD4.4's open details.**
+  - *Cold electricity bill profile* `cold-electricity-bill-illustrative`: profile, sample (a slice of emulated rows,
+    D-DD.65a) and expected file, as §5.6's table. Account `<CODE>-UTIL` (the EV invoice's form), tariff code
+    `T-GRID-COLD` (one illustrative grid tariff at 0.20, declared once in `exports_measured.py` with a parity test
+    against `M` `prices.electricity_usd_per_kwh`), From the month's first day, To the next month's first day
+    (exclusive, as the EV sample).
+  - *Statements* (§5.4): cold `revenue` = Σ the invoicing file's CHARGE rows, `energy_cost` = Σ bill rows; EV has no
+    revenue record (a captive depot, `M` holds none), so the EV statement omits `revenue` (schema
+    `assetops.world-statements/1` admits it absent for EV_DEPOT only; missing is never zero) and `energy_cost` = Σ
+    invoice rows. Neither is recorded by WK until Q11 sets `snapshot_months` (D-DD.28).
+  - *`meter_billed`* is `<slug>.meter-billed.json` (`assetops.world-meter-billed/1`; rows `site_code`, `month`,
+    `leaf`, `metered`, `manifest`), written by `exports --telemetry`, information only, never admitted.
+  - *C-DD5, C-DD7, C-DD20* follow D-DD.55: judges on rows, tested on the emulated rows in `simulator/tests/world/`
+    and on hand rows in `backend/tests/test_dd4_check.py` (no database); the SQL fetch fails on the clone until DD5.
+    C-DD5's cadence table is the checker's own (5-minute means; states and events on change).
+
+- **D-DD.125 The EV capacity stage bounds buses by charger as well as by energy; Kasarani's November story is
+  restated from the readings** (model; the owner chose "Readings stand" for D-DD.98, and the owner's rule is "one
+  figure, loyal to the operating world": D-DD.98's structure fault is fixed in the model now, not left as a finding).
+  - `structure/rows_ev_depot.py` and `M` `structures`: new node `buses_full_by_charger = chargers_in_service ×
+    floor(charger_kw × window_h / kwh_per_bus_night)`; `buses_short_per_night = max(ceil(max(required_kwh_night −
+    supplied_kwh_night, 0) / kwh_per_bus_night), max(buses − buses_full_by_charger, 0))`. `charger_kw` is the charger's
+    rating, which bounds every connector on it (each depot's connectors equal its chargers: 60/60, 50/50, 60/60), so no
+    connector leaf is added. Registry pins and `home_categories` row (Protect P1) follow.
+  - *Parity.* Every figure in `backend/tests/golden/6h_parity.json` and every `M` option figure is unchanged except
+    Kasarani's from 1 Nov (the bound does not bind elsewhere); the test lists the moved ones.
+  - *Restated in `M`* (one commit after DD4.4's measured departures, rev bump, D-DD.30 chain): Kasarani's November
+    `departures_missed`, penalties, the stopgap's covered bus-nights, and every `{fig:...}` they feed, from the
+    departure log (short rows less spare rows met). D-DD.98 projects about 7 missed and about 840.00 against 2 and
+    240.00. A figure that does not follow the readings stops for the Architect.
+  - New part **DD4.5** (1.0 u) in DD4b, after DD4.4.
+
+## DD3b
+
+- **D-DD.126 Kisiwa's failure is at 18:40, the instant `M`'s operations record; 19:10 is when it was reported. The
+  August outage is in the world too** (BLOCKER; amends spec §A table, §4.2 "Unit failures", C-DD6, C-DD20).
+  - `M` `operations` `kis-gen1-2026-10-30.at` is 18:40; 19:10 is the O&M `occurrence.reported` (the SLA clock).
+    Physics follows the failure; the SLA reads the report. GEN-KS-01 `UNIT_FAIL` at 2026-10-30T18:40+03:00, no restore.
+  - `kis-gen1-2026-08-14` (19:20, restored 17 Aug 11:00) is an outage inside the span. Leaving it out would show a
+    running unit `M` records as out. `UNIT_FAIL` 2026-08-14T19:20+03:00 and `UNIT_RESTORE` 2026-08-17T11:00+03:00.
+  - Mto `INV-MT-02` `UNIT_FAIL` 2026-10-28T11:02+03:00 (operations agree), no restore.
+  - The writer reads these from a module table `UNIT_EVENTS` with a parity test against `M` `operations` (D-DD.51).
+  - C-DD20 (Kisiwa): unserved evening energy after 30 Oct 18:40, and none from 17 Aug 11:00 to 30 Oct 18:40; the
+    August days are printed as information (whether one 60 kW set carries the evening is the plant's answer).
+
+- **D-DD.127 v9 adds a unit lifecycle in a new spec version; v1 to v8 are untouched** (model; protected seam: the
+  pack's lifecycle). `MINI_GRID_V9_MODEL` carries its own lifecycle table: GENERATOR (STOPPED | STARTING | RUNNING) →
+  FAILED on `UNIT_FAIL`, FAILED → STOPPED on `UNIT_RESTORE`; INVERTER {AVAILABLE, FAILED} with the same two forcings.
+  `UNIT_FAIL`/`UNIT_RESTORE` are POINT forcings whose value is the component id, indexed by step like every forcing
+  (D-DD.75). A unit failing while RUNNING stops at that step (§4.3). With one generator and one inverter, v9 runs v8's
+  code path (a one-unit fast path), so C-DD19's parity is by construction and by test. v8's FAILED-initial rule is
+  unchanged. `host/execution_adapter.py` `EXECUTABLE_MODELS` gains v9 only if a host test needs it (default: not
+  registered; the writer drives the pack directly).
+
+- **D-DD.128 Kisiwa's and Mto's kit is completed in the `/2` and `/1` files; the stale tank ratings are corrected**
+  (default made exact; W6: every unit property §4.2 and §4.3 read).
+  - Per generator unit: `generator-no-load-fuel-rate` 0.08 L/h per kW of `generator-rated-power` (Kisiwa 4.8, Mto
+    2.4), `generator-minimum-load` 30 %, and per Site `battery-charge-taper-start` 95 %; each with its `-basis`
+    GENERIC_DEFAULT, source SITE, version 1 (spec §4.2, owner 7 Nov).
+  - `pv-array-share` per inverter = its `inverter-ac-limit` / Σ the Site's limits (Mto 1/2 each; Kisiwa's one
+    inverter 1), basis "Assumed: array split in proportion to inverter rating" (`M` `physical.inverters` gives the
+    ratings only).
+  - Each FUEL_TANK component's `rating` equals its `tank-capacity` (5000, 1000, 2500 L): the 400 L is the template
+    placeholder D-DD.76 removed from the property.
+
+- **D-DD.129 The writer runs units: v8 where a Site has one of each, v9 otherwise; every hidden default is declared or
+  refused** (D-DD.107's last bullet, done here).
+  - `supported()`: one BATTERY, one FUEL_TANK, at least one GENERATOR and one INVERTER. GENERATOR and INVERTER roles
+    are PER_ASSET, bound per unit as `feeder_demand` is. The pack per Site: v8 with exactly one of each (Kobo, also
+    after DD3c moves it to roles-5: D-DD.21), else v9. The ledger burns each unit on its own curve and sums.
+  - `NEEDS` rows gain `per_unit`; policy rows are read from the lead unit only (`TEL_FOUNDATION` otherwise, D-DD.43).
+    C-DD21 keeps Kobo v8 and adds one v9 row check on Kisiwa.
+  - *Sun.* The season v2 calendar applies only at the Sites in `SEASON_V2_SUN_SITES = ("KOBO-001",)` (spec §4.2 and
+    D-DD.77 say so; `_sun` applies it to every Site today, a fault). Test: Kisiwa on 15 Sep uses clear × weight.
+  - *Defaults removed* (each becomes a refusal, or a declared value): `books.get("sun_weights", ...)` and
+    `books.get("fuel_notes", [])` become required keys; `expenses.get(slug, "")` refuses `TEL_BOOKS` for a mini-grid
+    tenant with no expenses file; `interval_measurement(...) or Fraction(0)` and `or "STOPPED"` refuse `TEL_PACK`
+    naming the unit and step; a state channel with an empty map refuses `TEL_BINDING`; a Site absent from the bindings
+    is written as a `not_written` manifest line, not skipped. `DEFAULT_DAY_WEIGHTS` moves into the one test using it.
+    Kept with their rulings: `TANK_START_FRACTION`, `DRAW_MINUTE`, `CRITICAL_ORDER`, generator initial OFF,
+    `unexplained_l | 0` (`M` factor_map). `exports.py` `CUSTOMERS = 40`: the builder reports its source in the packet;
+    unchanged in DD3b.
+  - D-DD.97's shape and D-DD.104's warm-up land in the first run (the warm-up reads the lead unit's stop threshold).
+
+- **D-DD.130 Purchases and consumption are separate in the books: the expense file follows the notes file**
+  (completes D-DD.92; amends §4.2 "Fuel" wording and D-DD.32's `EMU_FUEL`).
+  - `exports.py` reads `config/world/fuel-notes.json` (D-DD.92's schema) for every mini-grid Site in it; `_notes`'s
+    cycle stays only for a Site not in the file (none after DD3b; the test asserts all three are listed). The expense
+    rows are the notes: litres and amount = litres × the Site's diesel price. `EMU_FUEL` becomes Σ expense amounts =
+    Σ note litres × price, per Site-month.
+  - The books carry no consumption figure. Consumption is the readings' (D-DD.18), served by the product's fuel
+    balance and litres split. C-DD4's node clause drops mini-grid `litres` and `fuel cost` (now purchases, judged by
+    `EMU_FUEL` and C-DD8's balance); the other mini-grid nodes stay judged.
+  - `history.json`'s mini-grid `necessary_l`/`candidate_l` remain history generator leaves (D-DD.18 already refuses
+    to serve that split); `unexplained_l` stays the declared draw's input.
+  - The expense category word is the layout's `Diesel`; §4.2's "category FUEL" is corrected.
+
+- **D-DD.131 The fuel leaves of `M` are restated from the notes run, each by its own stated rule; nothing is a
+  remainder** (the leaf-by-leaf list D-DD.92 deferred; one `M` commit after the notes run, rev bump).
+  - A tool step `tools/dd3_pure_run.py --leaves --site CODE` prints the table below from the notes run; the builder
+    writes the values into `M` and a test asserts `M` equals the tool's output (D-DD.93: a literal is the regenerated
+    value).
+  - Per Site (Kobo, Kisiwa, Mto), October `period.actual`: `diesel_l` = burned + declared draw (whole litres,
+    half-even); `necessary_l`, `candidate_l` = the pure run's split (the writer's stand-in, labelled in `M` "projected
+    from the pure run; the served figure is the product's"); `unexplained_l` unchanged; `diesel_cost` = `diesel_l` ×
+    price; `contribution` and `variance` by `M`'s own identities.
+  - Bridge: each fuel line keeps its stated basis formula on the restated leaves (CANDIDATE_RUNNING =
+    −candidate × price; EVENING_LOAD_GROWTH and Kisiwa's SOLAR_SHORTFALL = −(necessary − plan necessary) × price;
+    UNEXPLAINED_RESIDUAL = −unexplained × price). If the bridge does not close against the restated variance under
+    the manifest check, stop for the Architect.
+  - `fuel_balance`: `opening_dip_l`, `closing_dip_l` = the tank readings at 1 Oct 00:00 and 1 Nov 00:00 (whole
+    litres); `deliveries_l` = Σ October notes; `consumed_l` = opening + deliveries − closing; `model_implied_l` =
+    burned; `residual_l` = consumed − implied.
+  - `findings_expected`: GENERATOR_SUPPORT_CANDIDATE `days` = October days with a positive stand-in, exposure
+    `[0, candidate_l]` and `[0, × price]`; UNEXPLAINED_FUEL unchanged. Portfolio totals, `derived-values.json`,
+    `missing-records.json` and the mock's generated fixtures by the D-DD.30 chain; `worked-portfolios.md:74` cites the
+    record (D-DD.94). July-September `M` history stays (D-DD.130).
+  - The packet lists every leaf old → new, grouped by Site. Owner informed (Kobo's story is the smaller one, as
+    approved with D-DD.97).
+
+- **D-DD.132 The pure-run checks run without a database.** `tools/dd_check.py --pure DIR` (the pure run's readings and
+  `measured.json`) judges C-DD8 (tank within [0, capacity]; Kobo's October balance; Kisiwa zero candidate minutes),
+  C-DD17's pure part and C-DD20's Kisiwa and Mto clauses; `--database-url` is then not required. Same judges as on
+  the clone (D-DD.55).
+
+## DD6
+
+- **D-DD.133 C8 passes when every check passes or is pending with its closing unit; a stub fails** (BLOCKER:
+  `dd_check` fails every non-live result, `dd_check.py:521,765`; §10 Q6 needs C8 to pass on DD6's first build).
+  - A result is PENDING when every failing line names its closing unit (Q11, Q12, IA-P3, the unit of D-DD.137). C8 =
+    no FAIL; PENDING lines are listed in the world check output. A stub (no live code) is a FAIL: by DD6 none is left.
+  - C8 runs `python tools/dd_check.py --database-url <clone> --json --world-manifest <path>` as a `world.run_step`
+    subprocess, before the clone is dropped (the ASGI client mutates `os.environ`, `dd_check.py:150-158`, so it stays
+    in the child). Exit code = C8's state.
+  - C-DD15: `_rung` writes `seconds` and `cap_seconds` into the world manifest; dd_check reads them by
+    `--world-manifest`. C-DD17's served part goes live in DD6.1 (the fuel-balance read through the ASGI client).
+    C-DD10 judges Lakeside; Harvest Cold and Metro Bus are pending Q11 (D-DD.11).
+
+- **D-DD.134 WK: walk definition `/2`, statements placed by the build, one walk database for three tenants.**
+  - `assetops.walk-definition/2` beside `/1`: `statements` may be `[]`, `expect` may be null, a statement carries
+    `fuel_cost` or `energy_cost`; the file is `walk-layer4-v2-<slug>.json`; `world` must equal the world
+    definition's.
+  - `tools/world.py` copies each `<slug>.statements.json` into `inputs/<digest>/<slug>/statements/` (in the inputs
+    digest), and the walk manifest records the path. `prepare` records a tenant's statements only when its
+    `snapshot_months` is non-empty (D-DD.28), `--as` the tenant's finance lead (DD1's email rule). Cold and EV
+    statements are therefore not recorded in DD; `energy_cost` recording is Q11's.
+  - Snapshot, W4, W7 and S2 count only tenants and months in `snapshot_months`; a skipped step is recorded
+    `{"step", "skipped": true}`.
+  - One walk database and label hold the three tenants. `serve --tenant <slug>` sets `ASSETOPS_TENANT_SLUG` for the
+    child; a serve whose recorded tenant differs is stopped by PID first. Ports 8991/5491; 8990, 5490 and the owner's
+    walk stay protected.
+
+- **D-DD.135 `demo_workflow`'s items: DD6 creates what the product's commands allow, as the people the product
+  permits, at story time; the rest is listed pending** (model, with an owner-level question: `preflight-remaining.md`
+  §2 O1, O2).
+  - *Code.* `action.agree` and `decision.choose` are executive-only (`accounts/permissions.py:64,74`); `M` names Site
+    managers and finance leads. `record_action` refuses a due date before the wall clock (`agreed.py:46,197`): seven
+    of nine due dates (6-20 Nov) are before 22 Nov. `prepare_decision` needs a lever and period that items do not
+    carry. The Decisions and Actions pages read the estate portfolio and the S6 action store, not 6a or 3C2 rows
+    (`frontend/src/estate/homeLists.tsx:319-323`, `estate/composition.py:43`).
+  - *Rule.* The product's permissions win over `M`'s naming: an act the product reserves to the executive is run as
+    the tenant's executive, and `M`'s `created_by`/`chosen_by` are corrected to the person who may perform it (the
+    manager is kept as `proposed_by` where `M` has the field). Due dates are judged against the world's story time,
+    `M` `snapshot.as_of` (2026-11-06T06:00+03:00), not the wall clock: that needs a product clock under the world
+    environment, which is not on main. Until it is, DD6 lists every item "pending: story clock (D-DD.137)" and the
+    Decisions, Actions and Results cells of C-DD9 are PENDING with that unit and with "Decisions/Actions pages read 6a
+    and 3C2 rows (IA-P lane)".
+  - *Default if the owner does not answer:* the pending listing above; DD6 is complete without the items.
+
+- **D-DD.136 DD6.3 tooling.** Keep-awake on this Linux host is `systemd-inhibit --what=sleep:idle` around the build
+  (`tools/keep-awake-during-tests.ps1` is Windows-only). `--cap-seconds 28800` (the flag exists, default 3600).
+  Evidence `/opt/assetecon/evidence/DD/<UTC date>-<commit12>/`, created by the build step. The ten clarity notes are
+  `specs/DDR-rehearsal/packet.md` §"Where the runbook was unclear" 1-10, applied identically to both runbook copies
+  (`Docs/engineering/operator-deep-dive-runbook.md`, `specs/ON1-operator-tenant/runbook.md`), then
+  `test_ddr_rehearsal_check.py`.
+
+- **D-DD.137 The story clock is a queued unit, outside DD's size, built only on the owner's yes** (owner-level O1).
+  `WK-SC` (2.0 u): one product clock that reads `ASSETOPS_STORY_NOW` under `world.env` only (prepare and serve),
+  every command and read that takes `system_clock` through it, a guard that it is unset outside world databases; then
+  `prepare` creates `demo_workflow`'s items per D-DD.135. If the owner says no, the items stay pending and the served
+  demo shows no decisions or actions from `demo_workflow`.
+
+## DD5
+
+- **D-DD.138 World cold and EV bindings carry v4 channel metadata; EV depots get one closed world table**
+  (BLOCKER, model; protected seam `contracts/` and the binding service).
+  - *Code.* `binding_service.py:712` publishes `v4_metadata=origin != "CONVERSION"`, so every world conversion
+    (`onboard_operator apply --bindings`, D-DD.36) publishes without it and `_decide_v4` rejects each cold or EV
+    envelope `MAPPING_INCOMPATIBLE` (`evidence/ledger.py:424-431`). `V4_EV_CHANNEL_MAPPINGS`
+    (`source_envelope_v4.py:689-693`) is the lab's closed table (`c1`, `c2`, `site-meter`); the world's depots
+    declare `ch-<charger>-c<n>-connector-*` and `site-meter-1` (D-DD.38).
+  - *Rule.* A conversion publishes v4 metadata when its role set's channels are v4 (`cold-roles-1`, `ev-roles-1`),
+    from the closed table for that role set; mini-grid role sets keep today's behaviour (v3; D-DD.139). New closed
+    table `V4_WORLD_EV_CHANNEL_MAPPINGS`, built by `_ev_connector(prefix)` for exactly the prefixes
+    `ch-<charger code lower>-c<n>` a depot's `/2` file declares, plus `("site-meter-1", "import")`: generated by one
+    function from the Foundation, so it stays closed per Site and the lab table is byte-identical. The cold world
+    devices are checked against the cold closed table first; a mismatch is the same fix, not a rename.
+  - *Tests.* A conversion-published COLD-THIKA set accepts one v4 meter and one event envelope; EV-KAS likewise for a
+    connector energy and the Site import; Kobo's roles-4 conversion digest is byte-equal to main; the lab EV table
+    is unchanged (identity).
+
+- **D-DD.139 Sealing: mini-grid rows as v3, cold and EV as v4; batches of at most 256; one sequence per source over
+  the span** (BLOCKER for the ruling text of §4.6; amends §4.6).
+  - Envelopes: mini-grid `SourceEnvelopeV3` (roles-4/5 are mixed sets, `binding_service.py:236-241`); cold and EV
+    `SourceEnvelopeV4`. One pure backend builder `evidence/world_seal.py` `seal_readings(...)`, mirroring the gateway's
+    `_envelope_v4`/`seal_batch_v2`, with a parity test against the gateway's output for one row of each kind.
+  - Fields: `device_id` = the row's `source_id` (D-DD.72); envelope `source_id` = the source UUID from the binding
+    set's snapshot download (`binding_service.py:1143`), which also gives foundation version and `valid_from`,
+    binding set id and version and `snapshot_sha256`; `published_at` = source time; quality GOOD; STATE_AT_INSTANT
+    when `start` = `end`, INTERVAL_MEAN otherwise, INTERVAL_DELTA for EV connector energy; times in UTC `Z`.
+  - Batches: per (Site, source, local day), split into consecutive batches of at most `MAX_BATCH_ENVELOPES` (256) in
+    reading order, `<SITE>.<source>.<day>.<n>.batch.json`; `sequence_epoch` "1" and one sequence per source running
+    over the whole span (no message-id collision across days).
+  - Ids: D-DD.91's cold ids; `cold_correlation_id` moves from `host/cold_publication.py` to `contracts/` beside
+    `cold_event_id` (host re-exports it). EV: a connector session's `correlation_id` is its `session_id`
+    (`source_envelope_v4.py` ~336), formed at sealing by a new `ev_session_id(foundation_digest, connector device,
+    session ordinal)` in `contracts/`; DD4b's writer gives EV measurement rows inside a session a `"session":
+    {"ordinal", "connector_id"}` object (mini-grid and cold rows have none, so their bytes are unchanged).
+  - Resolution: `PostgresEvidenceLedger.site_scope(slug, code)` (not the FastAPI `registered_site_scope`); an unknown
+    Site, gateway or source refuses `WORLD_TELEMETRY_UNRESOLVED`, **exit 2** (the module's refusal code; 3 is
+    DATABASE_ERROR).
+
+- **D-DD.140 The inputs folder: telemetry staged without manifests; `sealed/` beside, outside the digest**
+  (model; amends §4.6 and DD5.3).
+  - `L1.telemetry` copies only `*.readings.json` and `measured.json` into `inputs/<digest>/<slug>/telemetry/`; the
+    readings manifests (they hold `private_parameters`) stay with the generator's output. F is
+    `inputs/<digest>/site-inputs.json`. Both are in the inputs digest.
+  - `load_world_inputs` accepts `staged/`, `sealed/` and `disorder/`; it writes `sealed/` once, and on a re-run
+    re-seals and refuses if the bytes differ. `sealed/` is not in the digest (it is a function of the inputs and the
+    database ids). C6 globs `*/sealed/*.batch.json`.
+  - `read_definition` dispatches on format; for `/2`, `telemetry.span` must equal `READINGS_SPAN`. The `/1` key set
+    and `batches == 0` guard (`world.py:739`) are unchanged for `/1`. C5 runs the two parity files as two
+    `harness_run` calls.
+  - Bulk lift: `BULK_SITE_TYPE_UNPROVEN` stays in `BULK_REFUSALS` and the guard at `postgres_evidence_ledger.py:688`
+    stays (for any future type); `test_ds3_bulk_load_postgres.py`'s `case_coldchain_site` becomes an
+    unknown-type case. The parity test also asserts that enqueue (`_enqueue_admitted`, v3 and COLDCHAIN only) is the
+    same on both paths.
+
+- **D-DD.141 Disorder is planted in loader-legal files, one directory per test** (model; amends §5.5).
+  - `<slug>/disorder/<ID>/` holds loader-legal names (`load_emulated_exports._files`); each `L1.disorder:<ID>` step
+    runs `load_emulated_exports --dir` on it with `fail=False` and records the exit, compared with §5.5's expected
+    exit.
+  - TENANT-1: a Harvest Cold canonical `customer_invoicing.json` whose batch `tenant_code` is `lakeside-power`
+    (CSV rows carry no tenant), expected exit 3 and `INTAKE_TENANT_MISMATCH`; C-DD13 then drops its pending line
+    (D-DD.40).
+  - OOO-1: the late file repeats the 26 Oct note's `source_record_id` with `recorded` 2026-11-04 (a second revision
+    by `row_digest`).
+  - MAP-1: the meter register writer is `world/meter_register.py` (METER_ASSIGNMENT, `effective_from`; §5.5's
+    `valid_from` corrected), six Mto meters in code order from 2026-10-03, its kWh taken from `M` by a module table
+    with a parity test (D-DD.51); staged JSON.
+  - FX-1 and LATE-SETTLE-1 are planted by `exports.py` outside the history months; goldens re-pin (D-DD.93).
+  - CLOCK-1 stays "planted, not built" (D-DD.25); the manifest's "corrected; flagged" is listed in the packet for the
+    design-doc alignment pass.
+
+- **D-DD.142 Units and parts** (W4; the pre-flight's sizes, `preflight-remaining.md` §3).
+  - DD3b 4.0 → **5.75 u** in three parts: DD3b1 v9 pack (D-DD.127) and its parity, 2.0; DD3b2 writer units,
+    Kisiwa/Mto kit and pure runs, D-DD.97, D-DD.104, D-DD.126, D-DD.128, D-DD.129, D-DD.132, 2.0; DD3b3 notes and
+    leaves (D-DD.92, D-DD.130, D-DD.131), 1.75 (after DD4a on main).
+  - DD4a stays 5.5 u (D-DD.119 to D-DD.122 are the remaining runs already counted).
+  - DD4b 3.75 → **4.75 u** (DD4.5, D-DD.125, +1.0; D-DD.123's rejoin is inside DD4.3's count).
+  - DD5 5.25 → **7.25 u**, split: **DD5a** = DD5.1 with D-DD.138 to D-DD.140, 3.5 u (`task/DD5a-seal`); **DD5b** =
+    DD5.2 and DD5.3 with D-DD.141, 3.75 u (`task/DD5b-ladder`). Each at or under 6 u.
+  - DD6 3.75 → **4.75 u** (D-DD.133 +0.25, D-DD.134 +0.75).
+  - DD: 44.0 → **49.75 u** in eleven slices. `WK-SC` (D-DD.137, 2.0 u) is outside DD and built only on the owner's
+    yes.

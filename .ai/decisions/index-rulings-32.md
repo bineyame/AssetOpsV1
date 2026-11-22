@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-DD.108 to D-DD.116)
+# Decision index: Demo-sprint and later rulings (index only) (D-DD.108 to D-DD.142, D-T1.19 to D-T1.26)
 
 - `D-DD.108` DD3c Q1, Q6-Q8 accepted: roles-4 and roles-5 counted together (both = no work), TEL_FOUNDATION mapped to existing refusals, units in detail fields, event ties by Foundation order · live · specs/DD-demo-data/rulings.md
 - `D-DD.109` DD3c Q2: migration 0074 with exact-count replacements, MINI_DEPTH_ROLE_SETS constant, gate reaches S1-S2/P1-P5 (incl. ROLES_BY_SET from served sets), parity tests T1-T7 · live · specs/DD-demo-data/rulings.md
@@ -9,3 +9,37 @@
 - `D-DD.114` DD3c Q11: Kobo-only move to roles-5; parity in two fresh states, normalised (UUIDs, role-set name), four outputs · live · specs/DD-demo-data/rulings.md
 - `D-DD.115` DD3a W6 sweep: generator, site.code, mini-grid months, EV day_classes/families stay in the scope digest; no re-draw before the demo · live · specs/DD-demo-data/rulings.md
 - `D-DD.116` DD3c 2.5 -> 3.25 u in five parts (survey +0.25, litres per unit +0.5); DD 44.0 u · live · specs/DD-demo-data/rulings.md
+- `D-DD.117` DD3c fuel balance on multi-unit Sites: lead unit in generator_asset_id, per-unit burn, digest/terms change only above one unit; no migration · live · specs/DD-demo-data/rulings.md
+- `D-DD.118` DD3c parts 3-5 defaults stand (D-DD.110, D-DD.114); fuel_basis not on DD5's bulk path, to backlog · live · specs/DD-demo-data/rulings.md
+- `D-DD.119` DD4a cold writer books in process from build_cold_exports, byte-checked against the exported ledger; f_m from the view · live · specs/DD-demo-data/rulings.md
+- `D-DD.120` DD4a Thika events as a module table with M parity (D-DD.51 class); GRID_RESTORE 22:00 Assumed · live · specs/DD-demo-data/rulings.md
+- `D-DD.121` C-DD6 written in DD4a, live by vertical; pending clauses named with their unit · live · specs/DD-demo-data/rulings.md
+- `D-DD.122` DD4a writer run: three rooms over READINGS_SPAN, out of tree, timed; C-DD11 adds Mwea · live · specs/DD-demo-data/rulings.md
+- `D-DD.123` DD4b rejoins DD4a's frame (VERTICAL_RUNS, 7-element rows); spare and rotation rebuilt to D-DD.98; measured hooks; bands from tariffs · live · specs/DD-demo-data/rulings.md
+- `D-DD.124` DD4.4 details: cold bill profile, account/tariff code, statements (EV without revenue), meter_billed file, C-DD5/7/20 judges on rows · live · specs/DD-demo-data/rulings.md
+- `D-DD.125` EV capacity stage bounded by charger too (rows_ev_depot + M); Kasarani November restated from readings; new DD4.5 1.0 u · live · specs/DD-demo-data/rulings.md
+- `D-DD.126` Kisiwa GEN-KS-01 fails 30 Oct 18:40 (operations), 19:10 is the report; August outage 14-17 Aug in the world; C-DD20 amended · live · specs/DD-demo-data/rulings.md
+- `D-DD.127` v9 has its own unit lifecycle (FAILED via UNIT_FAIL/UNIT_RESTORE POINT forcings); v1-v8 untouched; one-unit fast path · live · specs/DD-demo-data/rulings.md
+- `D-DD.128` Kisiwa/Mto kit completed in /2 and /1 (no-load, min load, taper, pv-array-share by rating); tank ratings = capacity · live · specs/DD-demo-data/rulings.md
+- `D-DD.129` Writer runs units (v8 one of each, else v9); Kobo-only season v2 sun; every hidden .get default declared or refused · live · specs/DD-demo-data/rulings.md
+- `D-DD.130` Books carry purchases (notes file), not consumption; EMU_FUEL restated; C-DD4 drops mini fuel nodes · live · specs/DD-demo-data/rulings.md
+- `D-DD.131` M fuel leaves restated from the notes run by each leaf's stated rule; bridge closes or stops; tool-printed values · live · specs/DD-demo-data/rulings.md
+- `D-DD.132` dd_check --pure judges C-DD8, C-DD17 pure and C-DD20 mini clauses without a database · live · specs/DD-demo-data/rulings.md
+- `D-DD.133` C8: PENDING with closing unit passes, stubs fail; dd_check as subprocess; C-DD15 from world manifest; C-DD17 served in DD6.1 · live · specs/DD-demo-data/rulings.md
+- `D-DD.134` WK walk definition /2; statements placed in inputs and recorded only for snapshot tenants; one walk DB, serve --tenant · live · specs/DD-demo-data/rulings.md
+- `D-DD.135` demo_workflow items: product permissions win (executive acts), story time not wall clock; pending until WK-SC · live · specs/DD-demo-data/rulings.md
+- `D-DD.136` DD6.3: systemd-inhibit keep-awake, cap 28800, evidence path, ten runbook notes in both copies · live · specs/DD-demo-data/rulings.md
+- `D-DD.137` WK-SC story clock (2.0 u) queued outside DD, built only on the owner's yes (O1) · live · specs/DD-demo-data/rulings.md
+- `D-DD.138` World cold/EV conversions publish v4 metadata; closed world EV table generated per depot's declared connectors · live · specs/DD-demo-data/rulings.md
+- `D-DD.139` Sealing: mini v3, cold/EV v4; batches <= 256; one sequence per source; one seal builder; exit 2; EV session ids · live · specs/DD-demo-data/rulings.md
+- `D-DD.140` Inputs folder: telemetry staged without manifests, sealed/ outside the digest, F placed, C5/C6 updated · live · specs/DD-demo-data/rulings.md
+- `D-DD.141` Disorder planted in loader-legal per-test dirs; TENANT-1, OOO-1, MAP-1, FX-1, LATE-SETTLE-1 specified; CLOCK-1 as D-DD.25 · live · specs/DD-demo-data/rulings.md
+- `D-DD.142` Units: DD3b 5.75 (3 parts), DD4b 4.75, DD5 7.25 split DD5a/DD5b, DD6 4.75; DD 49.75 u · live · specs/DD-demo-data/rulings.md
+- `D-T1.19` T1b Two DB lanes: db-job.lock with assetops_test, db-job-b.lock with assetops_b_test · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.20` T1b --db takes both lanes (one heavy DB job at a time); --db-lane takes one (amends D-T1.4) · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.21` T1b Lane markers, acquire order, nested refusals (amends D-T1.13) · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.22` T1b Host Postgres pytest needs a lane and the lane's _test database, refused at configure time (revises D-T1.16) · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.23` T1b run-host-tests picks the lane's database URL · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.24` T1b What stays shared; _case_db names stem-derived; CREATE DATABASE inventory · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.25` T1b No new capacity: a lane holds a T1 slot; lane runs at most -n 2 · live · specs/T1-heavy-tool-slot-pool/rulings.md
+- `D-T1.26` T1b Second database created by idempotent createdb, not migrated; 1.0 u · live · specs/T1-heavy-tool-slot-pool/rulings.md
