@@ -578,6 +578,8 @@ assetops_backend.record_action --tenant SLUG --as EMAIL --title TEXT --owner EMA
   two marks at `left: ${scale.target_at}%` ("{totals.target_label} {totals.target}") and `${scale.actual_at}%`
   ("{totals.actual_label} {totals.actual}", the end mark, `translateX(-100%)`). Track, bar and scale are
   `aria-hidden`. No `Number(`, `parseFloat` or arithmetic on these strings.
+  *Pending Architect line (KD4, register R768):* the step row stacks under 720 px of section width (container
+  query), not above 600 px of viewport, because the shell's navigation leaves 488 px of section at 768.
 - **No figure (rev 4, D-5C.26).** A figure slot's value takes the modifier `dd-na` (the muted style of today's
   `dd-kpi__value--na`, renamed) when its `word` is null: tiles, steps, drivers; an outcome card when `word` and
   `drawer` are both null. No test on a key or on a text.
