@@ -78,9 +78,34 @@ def _month_sites(month: str, *codes: str):
     return lambda rows: [r for r in rows if r["clocks"]["recognition_period"] == month and r["site_code"] in codes]
 
 
+def _ins_and_outs(n: int):
+    def pick(rows):
+        ins = [r for r in rows if r["body"]["direction"] == "IN"][:n]
+        outs = [r for r in rows if r["body"]["direction"] == "OUT"][:n]
+        return [r for r in rows if r in ins or r in outs]
+    return pick
+
+
+def _receipt(code, i, at, amount, method, status):
+    return {"format_version": 1, "kind": "RECEIPT", "source_record_id": f"gen:{code}:2026-10:receipt-x{i}",
+            "source_version": "", "site_code": code, "subject": {"kind": "CUSTOMER", "ref": f"{code}-K-0{i}"},
+            "clocks": {"occurred_at": at, "recognition_period": "2026-10"},
+            "amount": {"value": amount, "currency": "USD"}, "status": status,
+            "body": {"payer_ref": f"{code}-K-0{i}", "method": method}}
+
+
+#: Hand-written rows added to a slice so the sample shows every value of the profile's maps (3A6 admission step 4b):
+#: the emulator writes no cash receipt and nothing in transit (the cold structure has no in-transit leaf, D-DD.50).
+SAMPLE_EXTRAS = {
+    "cold-storage-receipts-illustrative": [
+        _receipt("COLD-THIKA", 7, "2026-10-30T15:20:00+03:00", "42.00", "CASH", "COLLECTED"),
+        _receipt("COLD-THIKA", 8, "2026-10-31T18:45:00+03:00", "36.00", "MOBILE_MONEY", "PAID_IN_TRANSIT"),
+    ],
+}
+
 #: profile id -> (emulated file, row selection)
 SAMPLES = {
-    "cold-storage-ledger-illustrative": (f"{COLD}.profile.cold-storage-ledger.csv", _first(6)),
+    "cold-storage-ledger-illustrative": (f"{COLD}.profile.cold-storage-ledger.csv", _ins_and_outs(3)),
     "cold-storage-invoices-illustrative": (f"{COLD}.profile.cold-storage-invoices.csv", _first(6)),
     "cold-storage-receipts-illustrative": (f"{COLD}.profile.cold-storage-receipts.csv", _first(6)),
     "cold-budget-illustrative": (f"{COLD}.profile.cold-budget.csv", _month_sites("2026-07", "COLD-THIKA")),
@@ -125,6 +150,9 @@ HAND_SAMPLES = {
         _ticket("EV-RUI", "CH-R7", "2026-10-06T00:00:00+03:00", "OPEN"),
         _ticket("EV-EMB", "CH-E3", "2026-09-12T02:15:00+03:00", "RESTORED", "2026-09-12T08:05:00+03:00",
                 "2026-09-14T16:30:00+03:00"),
+        _ticket("EV-EMB", "CH-E5", "2026-08-03T21:10:00+03:00", "ACKNOWLEDGED", "2026-08-04T09:00:00+03:00"),
+        _ticket("EV-RUI", "CH-R2", "2026-07-19T04:30:00+03:00", "CLOSED", "2026-07-19T10:00:00+03:00",
+                "2026-07-20T12:00:00+03:00"),
     ],
     "ev-utility-invoice-illustrative": [
         _invoice_line("EV-RUI", "PEAK", "USAGE", "6076", "kWh", "1458.24", "C-117"),
@@ -152,7 +180,10 @@ def sample_of(profile_id: str, books=None) -> tuple[bytes, list[dict]]:
         return render_profile(layout, records), records
     name, pick = SAMPLES[profile_id]
     f = files_by_name((books or built()[3]))[name]
-    records = pick(list(f.records))
+    records = pick(list(f.records)) + copy.deepcopy(SAMPLE_EXTRAS.get(profile_id, []))
+    for r in records:
+        if layout.version_digest and not r["source_version"]:
+            r["source_version"] = row_digest(layout, r)
     return render_profile(layout, records), records
 
 

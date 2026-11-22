@@ -57,5 +57,46 @@
       "acknowledged_at": "2026-09-12T08:05:00+03:00",
       "restored_at": "2026-09-14T16:30:00+03:00"
     }
+  },
+  {
+    "format_version": 1,
+    "kind": "SERVICE_TICKET",
+    "source_record_id": "gen:EV-EMB:ticket:CH-E5",
+    "source_version": "r543bd20d029d0f60",
+    "site_code": "EV-EMB",
+    "subject": {
+      "kind": "ASSET",
+      "ref": "CH-E5"
+    },
+    "clocks": {
+      "occurred_at": "2026-08-03T21:10:00+03:00"
+    },
+    "status": "ACKNOWLEDGED",
+    "body": {
+      "asset_ref": "CH-E5",
+      "counterparty_ref": "oem-contractor",
+      "acknowledged_at": "2026-08-04T09:00:00+03:00"
+    }
+  },
+  {
+    "format_version": 1,
+    "kind": "SERVICE_TICKET",
+    "source_record_id": "gen:EV-RUI:ticket:CH-R2",
+    "source_version": "r6515bf952831528d",
+    "site_code": "EV-RUI",
+    "subject": {
+      "kind": "ASSET",
+      "ref": "CH-R2"
+    },
+    "clocks": {
+      "occurred_at": "2026-07-19T04:30:00+03:00"
+    },
+    "status": "CLOSED",
+    "body": {
+      "asset_ref": "CH-R2",
+      "counterparty_ref": "oem-contractor",
+      "acknowledged_at": "2026-07-19T10:00:00+03:00",
+      "restored_at": "2026-07-20T12:00:00+03:00"
+    }
   }
 ]

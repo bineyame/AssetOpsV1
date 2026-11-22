@@ -142,5 +142,53 @@
       "payer_ref": "COLD-KIRI-K-06",
       "method": "BANK"
     }
+  },
+  {
+    "format_version": 1,
+    "kind": "RECEIPT",
+    "source_record_id": "gen:COLD-THIKA:2026-10:receipt-x7",
+    "source_version": "ra6ff7da488c6f52e",
+    "site_code": "COLD-THIKA",
+    "subject": {
+      "kind": "CUSTOMER",
+      "ref": "COLD-THIKA-K-07"
+    },
+    "clocks": {
+      "occurred_at": "2026-10-30T15:20:00+03:00",
+      "recognition_period": "2026-10"
+    },
+    "amount": {
+      "value": "42.00",
+      "currency": "USD"
+    },
+    "status": "COLLECTED",
+    "body": {
+      "payer_ref": "COLD-THIKA-K-07",
+      "method": "CASH"
+    }
+  },
+  {
+    "format_version": 1,
+    "kind": "RECEIPT",
+    "source_record_id": "gen:COLD-THIKA:2026-10:receipt-x8",
+    "source_version": "rde2826095084e194",
+    "site_code": "COLD-THIKA",
+    "subject": {
+      "kind": "CUSTOMER",
+      "ref": "COLD-THIKA-K-08"
+    },
+    "clocks": {
+      "occurred_at": "2026-10-31T18:45:00+03:00",
+      "recognition_period": "2026-10"
+    },
+    "amount": {
+      "value": "36.00",
+      "currency": "USD"
+    },
+    "status": "PAID_IN_TRANSIT",
+    "body": {
+      "payer_ref": "COLD-THIKA-K-08",
+      "method": "MOBILE_MONEY"
+    }
   }
 ]
