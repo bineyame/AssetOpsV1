@@ -427,3 +427,67 @@ these rulings. No figure moves. The owner is told of the unit card (D-P6.79) and
 - **Why.** (1) and (2) are consequences of D-P6.73 that the ruling did not foresee: no behaviour or word moves.
   (3) A named-option run has no season, so naming one would be false.
 - **Reverse:** none needed.
+
+## D-P6.81 Number-word rewordings: "one-off" stays by a narrow guard exemption; the 10 % is a figure; the rest ratified or amended
+
+Ratifies with changes the 6f1 handoff's number-word deviation (`6f1-handoff.md` at ea2a19585). Amends §3.4's words,
+D-P6.50's "Not started" line and D-SC1.32's scan. Mock: vNEXT `loop-site.js` column "One-off cost · who pays".
+
+- **The class (W6).** The guard refuses a token that states a count, so a figure cannot hide in a template. Three
+  kinds of word hit it here, and each gets its own answer. (a) An idiom that states no count: "one-off" means "not
+  recurring", and there is no other plain word for that. It gets a narrow exemption. (b) A pronoun or conjunction
+  ("the one", "choose one", "once the change is made"): an exact plain word exists, so it is reworded. (c) A real
+  figure ("a tenth", "zero"): the figure goes in a slot from the model, or the word says the state without a number.
+- **(a) The exemption, `schema.NUMBER_WORD_IDIOMS["en"] = (("one", ("off", "offs")),)`.** In `check_literal`, after
+  the split into letter runs, a `one` token is skipped only when the separator between it and the next token is a
+  single `-` or `_` and that next token is in the pair's tails (case-folded). Nothing else changes: `one` alone, "one
+  off", "one--off", "one-of" and "twenty-one-off" (`twenty` is still refused) are all still refused. The same rule applies to variant ids, because `ONE_OFF` is the same lexeme in identifier form.
+  T12b gains loads, each alone in a template: "one-off cost", "One-off", "one-offs", the variant id
+  `ONE_OFF_CURRENCY`. It gains rejects, each alone in a template: "one off", "one-of", "one", "one-offer", "first-off".
+  A new idiom needs an Architect ruling that shows it states no count.
+- **Why an exemption and not a rewording.** "Set-up" and "upfront" are false for a fee, a contract term or a
+  deposit, which are one-offs but are not set-up costs. "Non-recurring" is jargon. The mock says "One-off cost", and
+  6a and 6c, the CLI (`state_one_off.py`) and the stored codes all use the same name. A rewording would split one
+  concept into two names and depart from the mock.
+- **Final words** (replace §3.4's and the handoff's; slots unchanged unless stated):
+  - "One-off" as §3.4 wrote it: `one_off` STATED "costs {amount}" · NIL "no one-off cost" · MISSING "one-off cost not
+    stated yet"; `one_off_detail` STATED "{amount} one-off, stated by {person} on {day}: {basis}"; `cost_answer`
+    STATED "{amount} one-off, stated by {person}" · NIL "No one-off cost" · MISSING "One-off cost not stated yet";
+    `all_columns` COST "One-off cost"; `missing` ONE_OFF "Not available yet: needs the one-off cost of this change,
+    stated by the Site manager or the finance lead".
+  - `missing` ONE_OFF_CURRENCY "Not available yet: the one-off cost is in a different currency from the month's
+    figures" (plainer than "another currency than").
+  - `missing` CURRENCY_MISMATCH "Not available yet: the month's figures are in different currencies". This is the
+    existing `deep_dive` wording. "Several" was false for two currencies.
+  - `missing` NIL_DENOMINATOR "Not available yet: {factor} cannot be worked out, because a figure it divides by is
+    nil" (ratified: "nil" is plain business English for the stored state, and it states no count).
+  - `can_choose` ANY "{who} can still choose an option, or none." · `how` "... and recommends an option. ..."
+    (ratified).
+  - `why_rule` SETTING "Each setting that passes the service checks is valued against doing nothing, over the same
+    figures that make up the month's contribution. The setting worth the most is recommended; among the settings
+    within {margin} of it, the setting closest to today's settings. The dawn readings are shown beside each setting
+    and never decide." · `why_rule` OPTION "Each option is valued against doing nothing, over the same figures that
+    make up the month's contribution. The option worth the most is recommended; among the options within {margin} of
+    it, the option highest on the list."
+  - `why_answer` NEAR "It is within {margin} of the best value and the closest to today's settings." · new twin
+    NEAR_OPTION "It is within {margin} of the best value and the highest on the list." The §3.4 twin rule applies:
+    NEAR names today's settings, which a named-option lever does not have.
+  - `change_caption` FIRST "{option} (the setting highest on the list that passes): change a month against doing
+    nothing". The rule is position order (§4), not time, so "earliest" would mislead.
+  - "once" → "when": `reason` BOUNDS_NOT_CHECKED "Its limits are checked when bounds are set." · `limits_answer`
+    NO_CHECKS "These options have no service checks; their limits are checked when bounds are set" ·
+    `verify_answer` "Working and money are checked separately, after the change is made" · `verify_items` STATE "Not
+    started: the checks begin when the change is made." (ratified, with "after" in `verify_answer` because the checks come after the change; amends D-P6.50's line).
+- **`{margin}`** is a `percent` slot (D-P6.73's shared format, 0 places, unsigned). Its value is `1 - TIE` read from
+  6c's evaluator constant (`TIE = Decimal("0.9")`, D-P6.16) and never retyped, so it reads "10%" today and follows
+  the model if the model changes (one figure, loyal to the model). "Valued close to the best" is refused: it hides
+  the rule's figure.
+- **Variant ids.** `ONE_OFF` and `ONE_OFF_CURRENCY` are restored and equal 6c's codes, with no mapping. `NIL`
+  (`one_off`, `cost_answer`) and `NIL_DENOMINATOR` stand ("zero" stays refused), and the view maps 6c's `ZERO` and
+  `ZERO_DENOMINATOR` onto them in one table. Test 1 asserts that every 6c code reaches a variant.
+- **Cost.** The exemption, its T12b lines and the restored ids are U1 work: +0.25 u, so 6f1 is **4.5 u**. The words
+  parity golden is unchanged, because no existing template contains "one-off". `test_sc1_statements.py` T12b changes
+  only its named load and reject lines (it joins D-P6.80's named-line list).
+- **Owner.** Told: "one-off" keeps the mock's word through a narrow guard exemption; the near-best rule now prints
+  its 10 %. These are defaults the owner may reword at the walkthrough.
+- **Reverse:** drop `NUMBER_WORD_IDIOMS` and use "upfront cost" (a MOCK DEVIATION of the wording category).

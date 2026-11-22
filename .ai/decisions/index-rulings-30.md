@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-IA.61 to D-IA.81, D-P6.68 to D-P6.80, D-IAP.34, D-DD.97 to D-DD.107)
+# Decision index: Demo-sprint and later rulings (index only) (D-IA.61 to D-IA.81, D-P6.68 to D-P6.81, D-IAP.34, D-DD.97 to D-DD.107)
 
 - `D-IA.61` IA-2b is the list shape only, split 2b1/2b2; 2b2 waits for the owner's IA-2a walkthrough · live · specs/IA-1-shape-rebuild/rulings-5.md
 - `D-IA.62` One list component; filters, sort, search, show-all in the address; focus keep · live · specs/IA-1-shape-rebuild/rulings-5.md
@@ -46,3 +46,4 @@
 - `D-DD.105` DD3a L4: vNEXT mock's hand-typed Kobo kit to the design-doc alignment pass; amends D-DD.94 mock part · live · specs/DD-demo-data/rulings.md
 - `D-DD.106` DD3a L2 (SEASON_V2_DAYS, CLI end from accounting period), L3, L5, L6 in the fix round; two-run order · live · specs/DD-demo-data/rulings.md
 - `D-DD.107` D-DD.97 to DD3b; DD3b split (DD3b 4.0 u, DD3c 2.5 u); DD3a 6.0, DD4a 5.5; DD 43.25 u in ten parts; notes run after DD4a · live · specs/DD-demo-data/rulings.md
+- `D-P6.81` 6f1 number words: "one-off" kept via narrow NUMBER_WORD_IDIOMS exemption (one + off/offs by - or _; amends D-SC1.32); near-best prints {margin} = 1 - TIE percent; other rewordings ratified/amended; ONE_OFF ids restored; 6f1 4.5 u · live · specs/6f-decisions-screen/rulings.md
