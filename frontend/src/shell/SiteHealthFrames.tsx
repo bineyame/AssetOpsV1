@@ -29,7 +29,7 @@ import { EV_SITE_TAB_HREFS } from "./evSiteRoutes";
 import { OperatorSiteTabs } from "./operatorSiteTabs";
 import { RangeNotUsed, RangeSpan, useDeclareRangeNotUsed } from "../ui/rangeFocus";
 import { RangeLink as Link } from "../ui/RangeLink";
-import { focusDayOf, rangeWindow, readSharedRange } from "../ui/sharedRange";
+import { capWindow, focusDayOf, rangeWindow, readSharedRange } from "../ui/sharedRange";
 import { SiteScoped } from "./SiteAnalyticsFrames";
 
 const DEFAULT_HEALTH = createHealthClient();
@@ -172,7 +172,7 @@ function MiniGridHealth({
     );
   }
   const day = focusDayOf(params);
-  const window = rangeWindow(day === null ? range : { from: day, to: day });
+  const window = rangeWindow(day === null ? capWindow(range) : { from: day, to: day });
   return (
     <>
       {day === null ? null : (

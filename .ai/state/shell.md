@@ -477,3 +477,15 @@ Branch `task/W1-UX-07` (base main `3bb1b8b2`). Packet `archive/agent-history/W1-
   MiniPerformance, MiniScenarios, ColdScenarios, ColdCooling, coldDepthGraphics, evDepthGraphics, siteWorkCases,
   coldWorkPresentation, SiteAction, Foundation panels, Simulator Lab tooling) and their page notes.
 
+
+## IA-P1 - the real app on the IA shape, part 1: P0, P1, P2 (built, in_review)
+
+- P0: requests read the window, links keep the whole range (a 61-day range sends the last 31 days; the rail and links keep all 61).
+- P1: `IA_RAIL` (13 items, six groups), `shell/iaRoutes.ts` (live families and aliases), Evidence & records with Coverage and Records tabs.
+- P2: `ui/HomeList.tsx` on `ui/homeListModel.ts` (cap 10, tiers 0 to 2, facets, sort, search, all in the address) draws `/decisions`
+  (new, rail live), `/findings` and `/actions` from `estate/homeLists.tsx`; `estate/estateReadCache.tsx` reads every page once (I9 restart).
+  `/portfolio/act-first` and `/findings/cost|risks|opportunities` are aliases. Decisions rows are placed Findings in three States
+  (MD-IAP-2, D-IAP.29); Due and Who decides read "Not available yet". `DECISIONS_ROOT_PATH` mirrors `DECISIONS_PATH`.
+- Gates: `tools/iap_gates.cjs` R1 to R8, L1 to L3 on fixtures under `estate/__tests__/fixtures/iap/`. Packet: `specs/IA-P-product-shape/packet-IA-P1.md`.
+- Left open: the Overview still carries `lens` as "all" (P3b); the Finding row's evidence prompt and placement reasons have no list home;
+  three failures on main stay (`siteRangeMatrix` x2, `sr2RequestUrls` SR-6b).

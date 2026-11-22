@@ -7,14 +7,13 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import { LinkedMemoryRouter as MemoryRouter } from "../../test/refLinks";
 import { describe, expect, it } from "vitest";
 import { leadingIntruders, panelTitled, renderedPanelTitles, strayBetweenPanels, strayOutsidePanels, stripIntruders } from "../../test/panelStructure";
-import { describeViolations, forbiddenPhrases, scanProductVocabulary } from "../../test/productVocabulary";
+import { describeViolations, scanProductVocabulary } from "../../test/productVocabulary";
 import { settledScreen } from "../../test/settled";
 import { expectOneHeadline, gapIds } from "../../test/headline";
 import type {
   EstateCheckedDays,
   EstateClient,
   EstateOutcomeSummaryBody,
-  EstatePortfolioBody,
   EstatePortfolioCard,
   EstatePortfolioQuery,
   EstatePortfolioScopeIdsBody,
@@ -23,7 +22,7 @@ import type {
 } from "../estateClient";
 
 type EstateOutcomeSummaryRead = EstateResult<EstateOutcomeSummaryBody>;
-import { EstatePortfolioPage } from "../EstatePortfolio";
+import { consequenceFirst, EstatePortfolioPage } from "../EstatePortfolio";
 import { mechanismWords, OPPORTUNITY_PANEL, PRIORITY_PANEL } from "../portfolioWords";
 import { outcomeWarning, planWarning } from "../../test/outcomeBoardFixture";
 import type { OutcomeWarning } from "../../sites/outcomeBoardClient";
@@ -49,7 +48,6 @@ import {
   STATUS_BODIES,
   withOutcomeSummary,
 } from "./portfolioFixtures";
-import { withLinkRefs } from "../../test/linkRefs";
 
 const ENTRY = "/portfolio?from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z";
 /** SR-4 D-SR.2: every Site link carries the address range; D-SR.57: a target's own from/to win, the address known_at is added. */
@@ -58,7 +56,6 @@ const KNOWN_Q = "known_at=2026-10-07T00%3A00%3A00Z";
 const ranged = (href: string, q: string = RANGE) => `${href}${href.includes("?") ? "&" : "?"}${q}`;
 /** PF-T: the same window on a section tab. */
 const tabEntry = (segment: string) => ENTRY.replace("/portfolio?", `/portfolio/${segment}?`);
-const ACT = tabEntry("act-first");
 
 const NODE_FS = (await import(/* @vite-ignore */ `node:${"fs"}`)) as { readFileSync: (p: string, e: string) => string };
 const CWD = (globalThis as unknown as { process: { cwd: () => string } }).process.cwd();
@@ -152,10 +149,8 @@ describe("estate Portfolio page", () => {
     const pulse = document.querySelector("[data-portfolio-pulse]") as HTMLElement;
     expect(text(pulse)).toContain("Not assessed priority sites");
     expect(text(pulse)).toContain("Distinct consequence categories · no combined savings total");
-    showTab("Act first");
-    const rows = Array.from(document.querySelectorAll("[data-portfolio-row]"));
-    expect(rows).toHaveLength(2);
-    expect(text(rows[0])).toContain("Unpriced");
+    // IA-P P2: the ranked Findings table left the Portfolio; the Decisions list holds the rows (homeLists.test).
+    expect(document.querySelectorAll("[data-portfolio-row]")).toHaveLength(0);
   });
 
   it("showsCustomerMechanismWordsNotRawCodes", async () => {
@@ -165,12 +160,7 @@ describe("estate Portfolio page", () => {
     expect(mechanismWords("EV_INTERRUPTION")).toBe("Charging session interrupted");
     expect(mechanismWords(null)).toBe("Mechanism not recorded");
     expect(mechanismWords("SOMETHING_NEW")).toBe("Mechanism not recorded");
-    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody())));
-    await settledScreen();
-    const priority = panel("Where management should act first");
-    expect(text(priority)).toContain("Possible extended generator support");
-    expect(text(priority)).toContain("Chamber temperature above policy");
-    expect(text(priority)).not.toMatch(/[A-Z]+_[A-Z_]+/);
+    // IA-P P2: the ranked panel that rendered these words left the Portfolio; the word map is still the one source.
   });
 
   it("rendersUnpricedCardAndEmptyRisksLensNotAssessed", async () => {
@@ -179,75 +169,14 @@ describe("estate Portfolio page", () => {
         ? { ...c, state: "UNPRICED" as const, line_keys: ["cold"], detail: "GreenHarvest · consequence recorded without a price", basis_text: "Price not established" }
         : c,
     );
-    renderAt(`${ENTRY}&lens=risks`, portfolioClient(loadedPortfolio(portfolioBody({ value_cards: cards, rows: [], total_count: 0, lens: "risks" }))));
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ value_cards: cards, rows: [], total_count: 0, lens: "risks" }))));
     await settledScreen();
-    // PF-T: the old lens address opens Act first.
-    expect(text(document.querySelector("[data-portfolio-empty]"))).toBe("No matching supported Findings");
-    // CC-R2-Q3 ruling: with no rows the panel bottom keeps only the Findings link.
-    const bottom = panel("Where management should act first").querySelector(".panel-bottom") as HTMLElement;
-    expect(bottom.querySelector("span")).toBeNull();
-    expect(within(bottom).getByRole("link", { name: "Open all Findings →" })).toBeTruthy();
-    showTab("Overview");
     await settledScreen();
     // CH5d1-R: the body's `value_cards` stay on the wire unrendered (BL-51); Optimize is the server card only.
     const first = document.querySelector("[data-portfolio-card='OPTIMIZE_COST']") as HTMLElement;
     expect(text(first.querySelector("[data-portfolio-card-value]"))).toBe("Not known yet");
     expect(text(first)).not.toContain("consequence recorded without a price");
     expect(text(document.querySelector("[data-portfolio-card='PROTECT_ASSET'] [data-portfolio-card-value]"))).toBe("Not known yet");
-  });
-
-  it("rendersEveryFindingColumnAndFourLensStates", async () => {
-    const client = portfolioClient(
-      loadedPortfolio(portfolioBody({ coverage: { ...portfolioBody().coverage, finding_state: "PARTIAL" } })),
-    );
-    renderAt(ENTRY, client);
-    await settledScreen();
-    const priority = panel("Where management should act first");
-    expect(Array.from(priority.querySelectorAll("thead th")).map((th) => th.textContent)).toEqual([
-      "Site",
-      "Finding / operating mechanism",
-      "Value / consequence",
-      "Placement", // CC-R2: was "Priority"
-      "Confidence",
-      "Action / next move",
-    ]);
-    expect(text(priority.querySelector("[data-portfolio-count]"))).toBe("2 findings · so far, some days incomplete");
-    const partialObjectives = document.querySelector("[data-portfolio-panel='objectives']") as HTMLElement;
-    expect(text(partialObjectives)).not.toContain("Site detail is unavailable for these cells.");
-    expect(text(partialObjectives)).not.toContain("Select a linked cell for context.");
-    const w1 = priority.querySelector(`[data-portfolio-row^='f1f1f1f1']`) as HTMLElement;
-    const cells = Array.from(w1.querySelectorAll("td")).map(lines);
-    expect(cells[0]).toBe("Kobo Mini-grid Current view");
-    expect(cells[1]).toBe("Extended generator support Possible extended generator support");
-    expect(cells[2]).toBe("$3.31–$3.97 6 Oct 2026, 14:20–15:20");
-    // CC-R2: the server's placement group and reason line; the derived confidence words and reasons.
-    expect(cells[3]).toBe("Compare value Priced cost exposure; no like line to compare with");
-    expect(cells[4]).toBe("Well supported Supported finding · Prepared example data source");
-    expect(cells[5]).toBe("No action yet No action agreed yet Review finding");
-    const cold = priority.querySelector(`[data-portfolio-row^='f2f2f2f2']`) as HTMLElement;
-    expect(text(cold)).toContain("Finding detail unavailable");
-    expect(cold.querySelector("[data-portfolio-finding-link]")).toBeNull();
-    // CC-R2-Q3 ruling: the subtitle and the bottom line (no longer computed from priority).
-    expect(text(priority)).toContain(
-      "Selected findings across accessible Sites, grouped by where to look first, with evidence confidence alongside.",
-    );
-    expect(text(priority.querySelector(".panel-bottom span"))).toBe("Placement and confidence answer different questions.");
-    const lenses = within(priority).getAllByRole("button").filter((b) => b.closest("[aria-label='Finding lens']"));
-    expect(lenses.map((b) => [b.textContent, b.getAttribute("aria-pressed")])).toEqual([
-      ["All findings", "true"],
-      ["Cost", "false"],
-      ["Risks", "false"],
-      ["Opportunities", "false"],
-    ]);
-    for (const [label, lens] of [["Cost", "cost"], ["Risks", "risks"], ["Opportunities", "opportunities"]] as const) {
-      await act(async () => {
-        fireEvent.click(within(panel("Where management should act first")).getByRole("button", { name: label }));
-      });
-      await settledScreen();
-      expect(screen.getAllByTestId("where")[0].textContent).toContain(`lens=${lens}`);
-      expect(client.calls.at(-1)).toMatchObject({ lens, cursor: null, limit: 50 });
-    }
-    expect(client.calls.map((c) => c.lens)).toEqual(["all", "cost", "risks", "opportunities"]);
   });
 
   // OUT-B B6 (R521): the five-row objectives matrix is replaced by the four-row outcome matrix from the outcome summary
@@ -376,92 +305,6 @@ describe("estate Portfolio page", () => {
     }
   });
 
-  it("rendersTypedEvidencePromptAndExactDestinations", async () => {
-    renderAt(`${ACT}&known_at=2026-10-07T00:00:00Z`, portfolioClient(loadedPortfolio(portfolioBody())));
-    await settledScreen();
-    const aside = document.querySelector("[data-portfolio-prompt]") as HTMLElement;
-    expect(aside.getAttribute("data-portfolio-prompt")).toBe("AVAILABLE");
-    expect(text(aside)).toContain("Restore the battery report at Kobo to address the selected evidence gap.");
-    // R9/L3: the server-selected code is rendered as-is, with no invented Site link.
-    expect(aside.querySelector("[data-portfolio-prompt-site]")?.getAttribute("data-portfolio-prompt-site")).toBe("KOBO-001");
-    const links = within(aside).getAllByRole("link");
-    expect(links.map((a) => a.getAttribute("href"))).toEqual([
-      "/evidence?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-10-07T00%3A00%3A00Z",
-    ]);
-    const priority = panel("Where management should act first");
-    const w1 = priority.querySelector(`[data-portfolio-row^='f1f1f1f1']`) as HTMLElement;
-    expect(w1.querySelector("[data-portfolio-site-link]")?.getAttribute("href")).toBe(ranged("/sites/KOBO-001", `${RANGE}&${KNOWN_Q}`));
-    expect(w1.querySelector("[data-portfolio-finding-link]")?.getAttribute("href")).toBe(
-      ranged("/sites/KOBO-001/findings/f1f1f1f1-0000-4000-8000-000000000001?revision_id=e1e1e1e1-0000-4000-8000-000000000001", `${RANGE}&${KNOWN_Q}`),
-    );
-    expect(within(priority).getByRole("link", { name: "Open all Findings →" }).getAttribute("href")).toBe(
-      "/findings?from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-10-07T00%3A00%3A00Z",
-    );
-  });
-
-  it("PB-3 review M1: an open episode shows its start; no time only when neither end is held; no basis claim", async () => {
-    const open = { ...COLD_ROW, episode_start: "2026-10-30T16:15:00Z", episode_end: null };
-    const none = { ...COLD_ROW, finding_id: "f3f3f3f3-0000-4000-8000-000000000003", episode_start: null, episode_end: null };
-    renderAt(ACT, portfolioClient(loadedPortfolio(portfolioBody({ rows: [open, none], total_count: 2 }))));
-    await settledScreen();
-    const cell = (id: string) => text(document.querySelector(`[data-portfolio-row^='${id}'] td:nth-child(3)`));
-    expect(cell("f2f2f2f2")).toContain("From 30 Oct 2026, 16:15 · no end time yet");
-    expect(cell("f3f3f3f3")).toContain("No time recorded yet");
-    expect(text(document.body)).not.toContain("cost basis");
-  });
-
-  it("rendersIncompleteAndNoGapPromptWithoutSite", async () => {
-    const body = portfolioBody({
-      evidence_prompt: { state: "COVERAGE_INCOMPLETE", text: "Evidence coverage incomplete", site_id: null, site_code: null, gap_code: null, destination: "/evidence" },
-    });
-    renderAt(ACT, portfolioClient(loadedPortfolio(body)));
-    await settledScreen();
-    const aside = document.querySelector("[data-portfolio-prompt]") as HTMLElement;
-    expect(text(aside)).toContain("Evidence coverage incomplete");
-    expect(aside.querySelector("[data-portfolio-prompt-site]")).toBeNull();
-  });
-
-  it("clearsPrivilegedRowsOn401And503", async () => {
-    for (const [status, code, copy] of [
-      [401, "UNAUTHENTICATED", "Sign in to see estate records."],
-      [503, "ESTATE_STORE_UNAVAILABLE", "Estate records are unavailable right now. Try again."],
-      [409, "ESTATE_BASIS_CHANGED", "The list changed. Reload the first page."],
-    ] as const) {
-      const client = portfolioClient(loadedPortfolio(portfolioBody({ next_cursor: "opaque-cursor" })), refused(status, code, copy));
-      const view = renderAt(ACT, client);
-      await settledScreen();
-      expect(text(document.body)).toContain("GreenHarvest");
-      await act(async () => {
-        fireEvent.click(screen.getByRole("button", { name: "Load more Findings" }));
-      });
-      expect(client.calls[1]).toMatchObject({ cursor: "opaque-cursor", lens: "all" });
-      expect(document.querySelector(`[data-page-refusal='${code}']`)).not.toBeNull();
-      expect(text(document.body)).toContain(copy);
-      for (const stale of ["GreenHarvest", "Kobo", "KOBO-001", "Depot", "f1f1f1f1"]) expect(text(document.body)).not.toContain(stale);
-      expect(document.querySelectorAll("[data-portfolio-row], [data-portfolio-card]")).toHaveLength(0);
-      view.unmount();
-    }
-  });
-
-  it("appendsOnlyFindingRowsOnLoadMore", async () => {
-    const extra = row({ finding_id: "f3f3f3f3-0000-4000-8000-000000000003", finding_revision_id: "e3e3e3e3-0000-4000-8000-000000000003" });
-    const pageTwo = portfolioBody({ rows: [extra], next_cursor: null, value_cards: [], objectives: [] });
-    const client = withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody({ next_cursor: "c1" })), loadedPortfolio(pageTwo)));
-    renderAt(ACT, client);
-    await settledScreen();
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Load more Findings" }));
-    });
-    expect(document.querySelectorAll("[data-portfolio-row]")).toHaveLength(3);
-    expect(screen.queryByRole("button", { name: "Load more Findings" })).toBeNull();
-    showTab("Overview");
-    expect(document.querySelectorAll("[data-portfolio-card]")).toHaveLength(4);
-    // OUT-B B6 (R521): the outcome matrix (4 categories x 4 Sites) stays; Load more does not re-read the summary.
-    showTab("Outcomes by site");
-    expect(document.querySelectorAll("[data-portfolio-outcome-cell]")).toHaveLength(16);
-    expect(client.summaryCalls).toHaveLength(1);
-  });
-
   it("ch4_opportunity_panel_none_reads_nothing_found_and_links_to_findings_opportunities", async () => {
     renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody())));
     await settledScreen();
@@ -579,7 +422,7 @@ describe("estate Portfolio page", () => {
       total_count: 0,
       progress: { ...portfolioBody().progress, pending_trial_count: null, verified_resolution_count: 2, rows: [progressRow("act-1", true), progressRow("act-2", false), progressRow("act-3", false, true), progressRow("act-4", true, false)] },
     });
-    renderAt(`${ENTRY}&lens=opportunities`, portfolioClient(loadedPortfolio(body)));
+    renderAt(ENTRY, portfolioClient(loadedPortfolio(body)));
     await settledScreen();
     const progress = panel("What changed in this review");
     expect(text(progress)).toContain("Completed activity · Not known yet");
@@ -615,17 +458,14 @@ describe("estate Portfolio page", () => {
     const statuses = Object.keys(STATUS_BODIES) as EstatePortfolioStatus[];
     expect(statuses.sort()).toEqual(["CURRENT", "EMPTY_SCOPE", "HISTORICAL", "PARTIAL", "PENDING", "UNKNOWN"]);
     for (const status of statuses) {
-      const view = renderAt(ACT, portfolioClient(loadedPortfolio(STATUS_BODIES[status])));
+      const view = renderAt(ENTRY, portfolioClient(loadedPortfolio(STATUS_BODIES[status])));
       await settledScreen();
       expect(document.querySelector("[data-portfolio-context]")?.getAttribute("data-portfolio-context")).toBe(status);
       expect(text(document.querySelector("[data-portfolio-context]"))).toContain(expected[status]);
-      // PF-T: Act first holds the ranked panel; the other three panels are on their own tabs.
-      expect(Array.from(document.querySelectorAll("section.panel")).map((p) => p.getAttribute("data-portfolio-panel"))).toEqual(["priority"]);
-      if (status === "PENDING") expect(text(document.querySelector("[data-portfolio-row^='f2f2f2f2'] [data-portfolio-value]"))).toBe("Updating · Unpriced");
+      // IA-P P2: the ranked panel is gone; the Overview holds the top three panel only. The row-value prefixes
+      // (Updating, Historical) are asserted on consequenceFirst below.
+      expect(Array.from(document.querySelectorAll("section.panel")).map((p) => p.getAttribute("data-portfolio-panel"))).toEqual(["top3"]);
       if (status === "EMPTY_SCOPE") {
-        expect(text(document.querySelector("[data-portfolio-count]"))).toBe("0 findings");
-        expect(text(document.querySelector("[data-portfolio-panel='priority']"))).not.toMatch(/some days incomplete/i);
-        expect(text(document.querySelector("[data-portfolio-empty]"))).toBe("No selected Findings for this window");
         expect(text(document.querySelector("[data-portfolio-domains]"))).toBe("0 accessible Sites · 0 mini-grid / 0 cold-chain / 0 EV charging");
       }
       view.unmount();
@@ -634,10 +474,9 @@ describe("estate Portfolio page", () => {
     const historic = portfolioBody({
       coverage: { ...portfolioBody().coverage, sites: [coverageSite(SITES[0].site_id, "HISTORICAL")] },
     });
-    const view = renderAt(ACT, portfolioClient(loadedPortfolio(historic)));
-    await settledScreen();
-    expect(text(document.querySelector("[data-portfolio-row^='f1f1f1f1'] [data-portfolio-value]"))).toBe("Historical · Value withheld");
-    view.unmount();
+    expect(consequenceFirst(historic.rows.find((r) => r.finding_id.startsWith("f1f1f1f1"))!, historic.coverage.sites[0])).toBe("Historical · Value withheld");
+    const pending = STATUS_BODIES.PENDING;
+    expect(consequenceFirst(pending.rows.find((r) => r.finding_id.startsWith("f2f2f2f2"))!, pending.coverage.sites.find((c) => c.site_id === pending.rows.find((r) => r.finding_id.startsWith("f2f2f2f2"))!.site_id))).toBe("Updating · Unpriced");
   });
 
   it("optimizeCardRendersOnePricedSiteServerCard", async () => {
@@ -679,15 +518,12 @@ describe("estate Portfolio page", () => {
   });
 
   it("preservesWindowAndCutoffAcrossGlobalRoots", async () => {
-    renderAt(`${ENTRY}&known_at=2026-10-07T00:00:00Z&lens=cost`, portfolioClient(loadedPortfolio(portfolioBody({ lens: "cost" }))));
+    renderAt(`${ENTRY}&known_at=2026-10-07T00:00:00Z`, portfolioClient(loadedPortfolio(portfolioBody())));
     await settledScreen();
     const tuple = "from=2026-10-06T00%3A00%3A00Z&to=2026-10-07T00%3A00%3A00Z&known_at=2026-10-07T00%3A00%3A00Z";
-    // PF-T: the lens address opens Act first; the card links are on the Overview. Collect both tabs' links.
     const hrefs = Array.from(document.querySelectorAll("a")).map((a) => a.getAttribute("href") ?? "");
-    showTab("Overview");
-    await settledScreen();
-    hrefs.push(...Array.from(document.querySelectorAll("a")).map((a) => a.getAttribute("href") ?? ""));
-    for (const root of ["/findings?", "/findings/risks?", "/evidence?", "/financials?"]) {
+    // IA-P P2: "Open all Findings" sat in the deleted ranked panel; the card links to the old lens paths stay until P3b.
+    for (const root of ["/findings/risks?", "/evidence?", "/financials?"]) {
       const hit = hrefs.filter((h) => h.startsWith(root));
       expect(hit.length).toBeGreaterThan(0);
       for (const h of hit) {
@@ -739,15 +575,8 @@ describe("estate Portfolio page", () => {
       finding_revision_id: "e1e1e1e1-0000-4000-8000-0000000000aa",
       links: { ...row().links, finding: "/sites/KOBO-001/findings/aa" },
     });
-    renderAt(ACT, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody({ rows: [row(), twin] })))));
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody({ rows: [row(), twin] })))));
     await settledScreen();
-    const labels = Array.from(document.querySelectorAll("[data-portfolio-row] td:nth-child(2) small:first-of-type")).map(text);
-    // POLISH §3.1: the mechanism words only; the Finding ids stay on the row attribute, never in the text.
-    expect(labels).toEqual(["Possible extended generator support", "Possible extended generator support"]);
-    const visible = document.querySelector("[data-portfolio-panel='priority']")!.cloneNode(true) as HTMLElement;
-    visible.querySelectorAll("[data-technical-details]").forEach((e) => e.remove());
-    expect(visible.textContent).not.toMatch(/[0-9a-f]{8}-[0-9a-f]{4}-|Finding KOBO-001/);
-    expect(document.querySelectorAll("[data-portfolio-finding-link]")).toHaveLength(2);
     const main = document.querySelector(".estate-portfolio") as HTMLElement;
     // PF-T (v71 `portfolio-tabs.html` supersedes the v69 one-page composition): the title, the cutoff line (SR-1: the
     // range itself is in the shell's shared top bar) and the context row sit above the tab row, and the panel follows.
@@ -757,15 +586,9 @@ describe("estate Portfolio page", () => {
     for (let i = 1; i < nodes.length; i += 1) {
       expect(nodes[i - 1].compareDocumentPosition(nodes[i]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     }
-    // Act first keeps the evidence prompt beside the ranked list (as in v70); the matrix has its own tab.
-    const side = main.querySelector("[data-portfolio-side]") as HTMLElement;
-    expect(side.querySelector("[data-portfolio-prompt]")).not.toBeNull();
-    expect(side.querySelector("[data-portfolio-panel='objectives']")).toBeNull();
-    expect(main.querySelector("[data-portfolio-scroll='findings'] table")).not.toBeNull();
     // Each v69 panel now sits on its own tab; each tab shows exactly its panel titles.
     const perTab: [string, string[]][] = [
       ["Overview", ["Overview", "Where management should act first"]],
-      ["Act first", ["Where management should act first"]],
       ["Outcomes by site", ["Outcomes across the estate"]],
       ["Opportunity", ["An opportunity beyond reducing cost"]],
       ["What changed", ["What changed in this review"]],
@@ -804,7 +627,7 @@ describe("estate Portfolio page", () => {
     renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody())));
     await settledScreen();
     const ids = gapIds();
-    for (const label of ["Overview", "Act first", "Outcomes by site", "Opportunity", "What changed", "Scope & coverage"]) {
+    for (const label of ["Overview", "Outcomes by site", "Opportunity", "What changed", "Scope & coverage"]) {
       if (label !== "Overview") showTab(label);
       const h1 = expectOneHeadline("Portfolio Value & Operations");
       expect(h1.closest(".page-header")?.querySelector(".page-header__subtitle")?.textContent).toBe(
@@ -867,46 +690,6 @@ describe("post-W6 W3-estate Portfolio links, scope disclosure and refused window
       }
     }
     expect(text(outcomes)).not.toContain("No configured objective");
-  });
-
-  it("coldAndEvFindingTitlesAreLiveOnlyWithAServerWindowedLink", async () => {
-    const coldLink = `/sites/COLD-001/findings/${COLD_ROW.finding_id}?${WIN}`;
-    const live = withLinkRefs({ ...COLD_ROW, links: { ...COLD_ROW.links, finding: coldLink } });
-    const ev = row({
-      site_id: SITES[2].site_id,
-      site_code: "EV-LAB-001",
-      site_name: "Depot",
-      domain: "EV_CHARGING",
-      finding_id: "f3f3f3f3-0000-4000-8000-000000000003",
-      finding_revision_id: "e3e3e3e3-0000-4000-8000-000000000003",
-      title: "Connector fault",
-      links: { site: "/sites/EV-LAB-001/ev", finding: null, action: null },
-    });
-    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ rows: [live, ev], total_count: 2 }))));
-    await settledScreen();
-    const priority = panel("Where management should act first");
-    const coldRow = priority.querySelector("[data-portfolio-row^='f2f2f2f2']") as HTMLElement;
-    expect(coldRow.querySelector("[data-portfolio-finding-link]")?.getAttribute("href")).toBe(coldLink);
-    expect(text(coldRow)).not.toContain("Finding detail unavailable");
-    const evRow = priority.querySelector("[data-portfolio-row^='f3f3f3f3']") as HTMLElement;
-    expect(evRow.querySelector("[data-portfolio-finding-link]")).toBeNull();
-    expect(text(evRow)).toContain("Finding detail unavailable");
-    expect(evRow.querySelector("[data-portfolio-site-link]")?.getAttribute("href")).toBe(ranged("/sites/EV-LAB-001/ev"));
-  });
-
-  it("rowWithoutLinkRefsRendersNoLinkWhateverItsLinksSay", async () => {
-    // CH5a2-R4(c): the row keeps its legacy `links` text but carries no `link_refs`.
-    const bare = row({ link_refs: {} });
-    expect(bare.links.site).not.toBeNull();
-    expect(bare.links.finding).not.toBeNull();
-    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ rows: [bare], total_count: 1 }))));
-    await settledScreen();
-    const tr = panel("Where management should act first").querySelector("[data-portfolio-row]") as HTMLElement;
-    expect(tr).not.toBeNull();
-    expect(tr.querySelector("[data-portfolio-site-link]")).toBeNull();
-    expect(tr.querySelector("[data-portfolio-finding-link]")).toBeNull();
-    expect(tr.querySelectorAll("a[href^='/sites/']")).toHaveLength(0);
-    expect(text(tr)).toContain("Finding detail unavailable");
   });
 
   it("scopeIdsLoadOnOpenShowsLoadingThenRefusalCopy", async () => {
@@ -1028,7 +811,7 @@ describe("post-W6 W3-estate Portfolio links, scope disclosure and refused window
   it("refusedWindowUsesTheSharedSentencesAndNeverEchoesDates", async () => {
     const cases: [string, string][] = [
       ["/portfolio?from=2026-10-07T00:00:00Z&to=2026-10-05T00:00:00Z", "The selected window needs both a start and an end, with the start before the end."],
-      ["/portfolio?from=2026-08-01T00:00:00Z&to=2026-10-01T00:00:00Z", "The selected window is longer than 31 days."],
+      ["/portfolio?from=2024-08-01T00:00:00Z&to=2026-10-01T00:00:00Z", "The selected window is longer than 31 days."],
       [ENTRY, "The selected window is invalid."],
     ];
     for (const [entry, copy] of cases) {
@@ -1051,149 +834,6 @@ describe("post-W6 W3-estate Portfolio links, scope disclosure and refused window
 });
 
 describe("CC-R2 Portfolio placement groups (D5)", () => {
-  const groupHeads = () =>
-    Array.from(document.querySelectorAll("tr.placement-group")).map((tr) => [tr.getAttribute("data-placement-group"), text(tr)]);
-
-  it("headsEachGroupOnceWithItsCountAndShowsEveryRowsReasonLine", async () => {
-    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody())));
-    await settledScreen();
-    const priority = panel("Where management should act first");
-    expect(groupHeads()).toEqual([
-      ["ACT_NOW", "Act now · 1"],
-      ["COMPARE_VALUE", "Compare value · 1"],
-    ]);
-    const head = priority.querySelector("tr.placement-group th") as HTMLElement;
-    expect(head.getAttribute("scope")).toBe("colgroup");
-    expect(head.getAttribute("colspan")).toBe("6");
-    // Every row: a group heading precedes it and its Placement cell has the group label and the reason line.
-    const body = Array.from(priority.querySelectorAll("tbody tr"));
-    expect(body.map((tr) => (tr.classList.contains("placement-group") ? "head" : tr.getAttribute("data-portfolio-row")?.slice(0, 8)))).toEqual([
-      "head",
-      "f2f2f2f2",
-      "head",
-      "f1f1f1f1",
-    ]);
-    const cold = priority.querySelector("[data-portfolio-row^='f2f2f2f2'] [data-portfolio-placement]") as HTMLElement;
-    expect(cold.getAttribute("data-portfolio-placement")).toBe("ACT_NOW");
-    expect(lines(cold)).toBe("Act now No end is recorded for this episode · No action agreed yet · review the recommendation");
-    for (const cell of Array.from(priority.querySelectorAll("[data-portfolio-placement-reasons]"))) {
-      expect(text(cell)).not.toBe("");
-      expect(text(cell)).not.toMatch(/saving|saved/i);
-    }
-    expect(Array.from(priority.querySelectorAll("[data-portfolio-confidence]")).map((c) => c.getAttribute("data-portfolio-confidence"))).toEqual([
-      "SUPPORTED_SOURCE_COHERENT",
-      "SUPPORTED_SOURCE_COHERENT",
-    ]);
-    // R5.3: the policy text is reachable from the panel, closed by default.
-    const policy = priority.querySelector("[data-placement-policy]") as HTMLDetailsElement;
-    expect(policy.open).toBe(false);
-    expect(text(policy.querySelector("summary"))).toBe("How placement works");
-    expect(Array.from(policy.querySelectorAll("li")).map(text)).toEqual([
-      "Needs investigation first: the evidence source is mixed or unresolved, the Finding is unconfirmed, or its cost is withheld.",
-      "Act now: the episode is open, returned or reopened, and no Action is underway or its resolution was withdrawn.",
-      "Monitor (checked next): a change was applied or verified.",
-      "Compare value: the Finding has a priced cost exposure.",
-      "Unpriced risk: the Finding has no price basis.",
-    ]);
-    expect(text(policy.querySelector("p"))).toBe(
-      "Groups say where to look first; they are not a value ranking. Within a group, most recent first. Policy estate-placement/1.",
-    );
-    expect(text(priority)).not.toMatch(/\bscore\b/i);
-  });
-
-  it("DIESEL-1-R3p: a verified fuel Finding row shows its own interval, the server's Verified and its fuel page link", async () => {
-    const fid = "f7f7f7f7-0000-4000-8000-000000000007";
-    const href = `/sites/KOBO-001/fuel-findings/${fid}`;
-    const fuel = row({
-      finding_id: fid,
-      finding_revision_id: "e7e7e7e7-0000-4000-8000-000000000007",
-      finding_label: "Unexplained fuel overnight",
-      title: "Unexplained fuel overnight",
-      mechanism: "UNEXPLAINED_FUEL",
-      lens_flags: ["RISK"],
-      placement: {
-        policy_version: "estate-placement/1",
-        group: "MONITOR",
-        group_rank: 5,
-        reasons: [{ code: "VERIFIED_WATCH_RETURN", text: "Verified; watch for a return" }],
-      },
-      consequence: { state: "PRICED", amount: "41.25", amount_low: "41.25", amount_high: "57.75", currency: "USD", source_revision_id: "c7c7c7c7-0000-4000-8000-000000000007" },
-      workflow_label: "Verified",
-      links: { site: "/sites/KOBO-001", finding: href, action: null },
-      link_refs: { site: { kind: "SITE", site: "KOBO-001" }, finding: { kind: "FUEL_FINDING", site: "KOBO-001", id: fid }, action: null },
-    });
-    renderAt(ACT, portfolioClient(loadedPortfolio(portfolioBody({ rows: [fuel] }))));
-    await settledScreen();
-    const tr = document.querySelector(`[data-portfolio-row^='f7f7f7f7']`) as HTMLElement;
-    expect(tr).not.toBeNull();
-    expect(text(tr)).toContain("$41.25–$57.75");
-    expect(text(tr)).toContain("MonitorVerified; watch for a return");
-    expect(text(tr)).not.toContain("No action yet");
-    expect(text(tr.querySelectorAll("td")[5] as HTMLElement)).toBe("VerifiedReview finding");
-    expect(tr.querySelectorAll("[data-portfolio-workflow]").length).toBe(1);
-    const anchor = Array.from(tr.querySelectorAll("a")).find((a) => a.getAttribute("href") === ranged(href));
-    expect(anchor?.textContent).toContain("Unexplained fuel overnight");
-    // K8 coordinator ruling: the mechanism line names the recorded mechanism, never "Mechanism not recorded".
-    expect(mechanismWords("UNEXPLAINED_FUEL")).toBe("Unexplained fuel overnight");
-    expect(Array.from(tr.querySelectorAll("small")).map(text)).toContain("Unexplained fuel overnight");
-    expect(text(tr)).not.toContain("Mechanism not recorded");
-    const { violations } = scanProductVocabulary(tr, "portfolio fuel row");
-    expect(violations, describeViolations(violations)).toEqual([]);
-  });
-
-  it("MD-FUEL-K4-1: a fuel row with no thread keeps the no-action fallback", async () => {
-    const fid = "f8f8f8f8-0000-4000-8000-000000000008";
-    const fuel = row({
-      finding_id: fid,
-      finding_revision_id: "e8e8e8e8-0000-4000-8000-000000000008",
-      mechanism: "UNEXPLAINED_FUEL",
-      workflow_label: "No action agreed yet",
-      links: { site: "/sites/KOBO-001", finding: `/sites/KOBO-001/fuel-findings/${fid}`, action: null },
-      link_refs: { site: { kind: "SITE", site: "KOBO-001" }, finding: { kind: "FUEL_FINDING", site: "KOBO-001", id: fid }, action: null },
-    });
-    renderAt(ACT, portfolioClient(loadedPortfolio(portfolioBody({ rows: [fuel] }))));
-    await settledScreen();
-    const tr = document.querySelector(`[data-portfolio-row^='f8f8f8f8']`) as HTMLElement;
-    expect(tr).not.toBeNull();
-    expect(text(tr)).toContain("No action yetNo action agreed yet");
-  });
-
-  it("R4.1: a Cold row with a thread state shows it in bold; one with no action agreed keeps the no-action text", async () => {
-    const link = (fid: string) => ({
-      links: { site: "/sites/COLD-001", finding: `/sites/COLD-001/findings/${fid}`, action: null },
-      link_refs: {
-        site: { kind: "SITE" as const, site: "COLD-001" },
-        finding: { kind: "FUEL_FINDING" as const, site: "COLD-001", id: fid },
-        action: null,
-      },
-    });
-    const pending = row({
-      finding_id: "c1c1c1c1-0000-4000-8000-000000000001",
-      finding_revision_id: "d1d1d1d1-0000-4000-8000-000000000001",
-      mechanism: "COLD_START_FAILURE",
-      action_id: null,
-      workflow_label: "Pending",
-      ...link("c1c1c1c1-0000-4000-8000-000000000001"),
-    });
-    const none = row({
-      finding_id: "c2c2c2c2-0000-4000-8000-000000000002",
-      finding_revision_id: "d2d2d2d2-0000-4000-8000-000000000002",
-      mechanism: "COLD_EXCURSION",
-      action_id: null,
-      workflow_label: "No action agreed yet",
-      ...link("c2c2c2c2-0000-4000-8000-000000000002"),
-    });
-    renderAt(ACT, portfolioClient(loadedPortfolio(portfolioBody({ rows: [pending, none] }))));
-    await settledScreen();
-    const p = document.querySelector(`[data-portfolio-row^='c1c1c1c1']`) as HTMLElement;
-    const cell = p.querySelectorAll("td")[5] as HTMLElement;
-    expect(cell.querySelector("strong[data-portfolio-workflow]")?.textContent).toBe("Pending");
-    expect(text(cell)).not.toContain("No action yet");
-    expect(text(cell)).toContain("Review finding");
-    const n = document.querySelector(`[data-portfolio-row^='c2c2c2c2']`) as HTMLElement;
-    expect(text(n)).toContain("No action yetNo action agreed yet");
-  });
-
   it("namesOnePrioritySiteInTheSingular", async () => {
     const base = portfolioBody();
     renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ summary: { ...base.summary, priority_site_count: 1 } }))));
@@ -1203,89 +843,6 @@ describe("CC-R2 Portfolio placement groups (D5)", () => {
     expect(pulse).not.toContain("priority sites");
   });
 
-  it("omitsTheCountWhenPlacementCountsAreNull", async () => {
-    const counts = { NEEDS_INVESTIGATION: null, ACT_NOW: null, COMPARE_VALUE: null, UNPRICED_RISK: null, MONITOR: null };
-    const base = portfolioBody();
-    renderAt(ACT, portfolioClient(loadedPortfolio(portfolioBody({ summary: { ...base.summary, placement_counts: counts } }))));
-    await settledScreen();
-    expect(groupHeads()).toEqual([
-      ["ACT_NOW", "Act now"],
-      ["COMPARE_VALUE", "Compare value"],
-    ]);
-  });
-
-  it("showsAGroupSplitAcrossPagesOnce", async () => {
-    const extra = row({ finding_id: "f3f3f3f3-0000-4000-8000-000000000003", finding_revision_id: "e3e3e3e3-0000-4000-8000-000000000003" });
-    const pageTwo = portfolioBody({ rows: [extra], next_cursor: null, value_cards: [], objectives: [] });
-    const client = portfolioClient(loadedPortfolio(portfolioBody({ next_cursor: "c1" })), loadedPortfolio(pageTwo));
-    renderAt(ACT, client);
-    await settledScreen();
-    await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Load more Findings" }));
-    });
-    await settledScreen();
-    expect(document.querySelectorAll("[data-portfolio-row]")).toHaveLength(3);
-    expect(groupHeads()).toEqual([
-      ["ACT_NOW", "Act now · 1"],
-      ["COMPARE_VALUE", "Compare value · 1"],
-    ]);
-  });
-});
-
-describe("CC-R2-Q1 placement and confidence words", () => {
-  const REASONS = [
-    "Evidence comes from mixed sources; check the source before acting",
-    "Evidence source is not resolved; check the source before acting",
-    "The latest assessment no longer confirms this finding; check its basis",
-    "Cost is withheld because its basis is not current",
-    "No end is recorded for this episode",
-    "Returned after an earlier episode (Finding 1a2b3c4d)",
-    "Reopened after it had closed",
-    "No action agreed yet · review the recommendation",
-    "Action accepted, not yet applied",
-    "Change applied; verification result pending",
-    "Earlier resolution withdrawn after new evidence",
-    "Priced cost exposure; compares with like lines in Financials",
-    "Priced cost exposure; no like line to compare with",
-    "Product temperature risk; no price basis",
-    "Backup start failure; no price basis",
-    "Charging service interruption; no price basis",
-    "No price basis for this finding",
-    "Change verified on example data; watch for it coming back",
-    "Change applied; no verified result yet",
-    "No open signal",
-  ];
-  const CONFIDENCE: [string, string[]][] = [
-    ["SUPPORTED_SOURCE_COHERENT", ["Supported finding", "example data"]],
-    ["LIMITED", ["Unconfirmed finding", "Prepared example data source", "Cost basis withheld"]],
-    ["UNKNOWN", ["Supported finding", "Mixed sources", "Site coverage incomplete; other findings may be missing"]],
-    ["UNKNOWN", ["Unconfirmed finding", "Source not resolved"]],
-  ];
-
-  it("everyPlacementAndConfidenceTextIsFreeOfGuardedWords", async () => {
-    const groups = ["NEEDS_INVESTIGATION", "ACT_NOW", "COMPARE_VALUE", "MONITOR"] as const;
-    const rows = CONFIDENCE.map(([confidence, reasons], i) =>
-      row({
-        finding_id: `f${i}f${i}f${i}f${i}-0000-4000-8000-00000000000${i}`,
-        finding_revision_id: `e${i}e${i}e${i}e${i}-0000-4000-8000-00000000000${i}`,
-        placement: {
-          policy_version: "estate-placement/1",
-          group: groups[i],
-          group_rank: i + 1,
-          reasons: REASONS.slice(i * 5, i * 5 + 5).map((t) => ({ code: `C${i}`, text: t })),
-        },
-        confidence,
-        confidence_reasons: reasons,
-      }),
-    );
-    renderAt(ENTRY, portfolioClient(loadedPortfolio(portfolioBody({ rows, total_count: rows.length }))));
-    await settledScreen();
-    const priority = panel("Where management should act first");
-    expect(priority.querySelectorAll("[data-portfolio-row]")).toHaveLength(4);
-    const shown = text(priority);
-    for (const t of [...REASONS, ...CONFIDENCE.flatMap(([, r]) => r)]) expect(shown).toContain(t);
-    expect(forbiddenPhrases(priority.textContent ?? "")).toEqual([]);
-  });
 });
 
 describe("OUT-A A6: Portfolio outcome category cards", () => {
@@ -1562,7 +1119,8 @@ describe("OUT-C U5: Portfolio early warnings", () => {
     planWarning({ key: "PEAK_NEAR_IMPORT_LIMIT:s", title: "Peak close to the import limit", site_name: "Depot Charging" }),
   ];
 
-  it("pulseCountsSummaryWarningsAndTheListUnderTheTableShowsAtMostFourWithTheSite", async () => {
+  it("pulseCountsSummaryWarningsAndCountsThemSeparatelyOnTheProtectCard", async () => {
+    // IA-P P2: the warning list under the ranked table left with the table; the pulse and the Protect card stay.
     renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "loaded", value: withWarnings(five(), 4) }));
     await settledScreen();
     expect(pulseWarnings()).toBe("5 warnings not yet priced");
@@ -1570,17 +1128,7 @@ describe("OUT-C U5: Portfolio early warnings", () => {
     expect(pulse.querySelector("[data-portfolio-pulse-warnings] + .pulse-note")).not.toBeNull();
     expect(pulse.querySelector("[data-portfolio-pulse-warnings] svg")).toBeNull();
     expect(protectDetail()).toBe("Service disruptions recorded as findings · 4 early warnings, counted separately · loss not priced");
-    // PF-T: the warning list sits under the ranked table on Act first.
-    showTab("Act first");
-    const list = document.querySelector("[data-portfolio-panel='priority'] [data-early-warnings]") as HTMLElement;
-    expect(list.previousElementSibling?.getAttribute("data-portfolio-scroll")).toBe("findings");
-    const items = Array.from(list.querySelectorAll("li"));
-    expect(items).toHaveLength(4);
-    expect(text(items[0].querySelector("small"))).toMatch(/^GreenHarvest · Optimize cost and efficiency · /);
-    expect(text(items[2].querySelector("small"))).toMatch(/^Kobo · /);
-    expect(text(list)).not.toContain("Peak close to the import limit");
-    expect(/[$€£]|\b(USD|EUR|GBP|KES|ETB)\b/.test(text(list))).toBe(false);
-    expect(describeViolations(scanProductVocabulary(list, "portfolio", { set: "w1" }).violations)).toBe("");
+    expect(document.querySelector("[data-early-warnings]")).toBeNull();
   });
 
   it("oneWarningIsSingularAndZeroIsShownWithNoList", async () => {
@@ -1644,8 +1192,8 @@ describe("OUT-C U5: Portfolio early warnings", () => {
     );
     expect(cell?.querySelector("br + [data-portfolio-scope-gaps]")).not.toBeNull();
     expect(text(cell?.querySelector("[data-portfolio-scope-gaps]") ?? null)).toBe("Incomplete days: 11 Oct: no readings · 12 Oct: not analysed yet");
-    showTab("Act first");
-    expect(text(document.querySelector("[data-portfolio-row^='f1f1f1f1'] [data-portfolio-value]"))).toBe("Value not shown while this site has incomplete days");
+    // IA-P P2: the row value moved to the Decisions list's At stake cell, built by the same consequenceFirst.
+    expect(consequenceFirst(body.rows.find((r) => r.finding_id.startsWith("f1f1f1f1"))!, body.coverage.sites[0])).toBe("Value not shown while this site has incomplete days");
     // the coverage line stays above the tabs on every tab
     expect(document.querySelectorAll("[data-portfolio-coverage]")).toHaveLength(1);
     // no state code on screen, in a title or in an aria-label; no "checked" for data anywhere on the page
@@ -1670,8 +1218,8 @@ describe("OUT-C U5: Portfolio early warnings", () => {
     renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(body)), { status: "loaded", value: outcomeSummaryBody({ coverage_line: COVERAGE_INCOMPLETE }) }));
     await settledScreen();
     const line = await coverageLine();
-    showTab("Act first");
-    const value = text(document.querySelector("[data-portfolio-row^='f1f1f1f1'] [data-portfolio-value]"));
+    // IA-P P2: the row value is the Decisions list's At stake cell, built by the same consequenceFirst.
+    const value = consequenceFirst(body.rows[1], body.coverage.sites[0]);
     expect(value).toBe(`$3.31–$3.97 for 6 of 7 days analysed · ${clause}`);
     // one day set: the coverage line names the same gap day with the same words, and the count excludes it
     expect(text(line.querySelector("[data-portfolio-coverage-site]"))).toBe(
@@ -1685,8 +1233,7 @@ describe("OUT-C U5: Portfolio early warnings", () => {
     body.rows = [COLD_ROW, row()];
     renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(body)), { status: "loaded", value: outcomeSummaryBody({ coverage_line: COVERAGE_INCOMPLETE }) }));
     await settledScreen();
-    showTab("Act first");
-    expect(text(document.querySelector("[data-portfolio-row^='f1f1f1f1'] [data-portfolio-value]"))).toBe(
+    expect(consequenceFirst(body.rows[1], body.coverage.sites[0])).toBe(
       "$3.31–$3.97 for 10 of 14 days analysed · 4 days without a usable result",
     );
   });
@@ -2119,135 +1666,13 @@ describe("WALK1-1: checked days, verified count and Grow estimates", () => {
   });
 });
 
-describe("PL-1: a lens change keeps the page and loads the panel only", () => {
-  type Answer = EstateResult<EstatePortfolioBody>;
-  function deferredClient(first: Answer) {
-    const pending: Array<{ query: EstatePortfolioQuery; resolve: (a: Answer) => void }> = [];
-    const client: EstateClient = {
-      findings: () => Promise.reject(new Error("no")),
-      actions: () => Promise.reject(new Error("no")),
-      scope: () => Promise.reject(new Error("no")),
-      portfolio: (query) =>
-        query.lens === "all"
-          ? Promise.resolve(first)
-          : new Promise<Answer>((resolve) => {
-              pending.push({ query, resolve });
-            }),
-    };
-    return { client, pending };
-  }
-  const heldRow = row({ finding_id: "aaaaaaaa-0000-4000-8000-00000000000a", finding_revision_id: "bbbbbbbb-0000-4000-8000-00000000000a", title: "Held all-lens row", finding_label: "Held all-lens row" });
-  const costRow = row({ finding_id: "cccccccc-0000-4000-8000-00000000000c", finding_revision_id: "dddddddd-0000-4000-8000-00000000000c", title: "Fresh cost row", finding_label: "Fresh cost row" });
-  const riskRow = row({ finding_id: "eeeeeeee-0000-4000-8000-00000000000e", finding_revision_id: "ffffffff-0000-4000-8000-00000000000e", title: "Fresh risk row", finding_label: "Fresh risk row" });
-  const start = async (first: Answer) => {
-    const d = deferredClient(first);
-    // PF-T: the lenses live on Act first.
-    renderAt(ACT, d.client);
-    await settledScreen();
-    return d;
-  };
-  const click = async (label: string) => {
-    await act(async () => {
-      fireEvent.click(within(panel("Where management should act first")).getByRole("button", { name: label }));
-    });
-  };
-  const priority = () => document.querySelector("[data-portfolio-panel='priority']") as HTMLElement;
-
-  it("keeps the context, tab row and evidence prompt while the lens read is pending", async () => {
-    await start(loadedPortfolio(portfolioBody({ rows: [heldRow], total_count: 1 })));
-    await click("Cost");
-    expect(document.querySelector("[data-estate-loading]")).toBeNull();
-    expect(document.querySelector("[data-portfolio-context]")).not.toBeNull();
-    // PF-T: the cards and pulse are on the Overview tab; Act first keeps its tab row and evidence prompt.
-    expect(document.querySelector("[data-portfolio-tabs]")).not.toBeNull();
-    expect(document.querySelector("[data-portfolio-side] [data-portfolio-prompt]")).not.toBeNull();
-  });
-
-  it("shows a loading row, aria-busy and no held row on the priority panel", async () => {
-    await start(loadedPortfolio(portfolioBody({ rows: [heldRow], total_count: 1 })));
-    await click("Cost");
-    const p = priority();
-    expect(p.getAttribute("aria-busy")).toBe("true");
-    expect(within(p).getByRole("button", { name: "Cost" }).getAttribute("aria-pressed")).toBe("true");
-    expect(within(p).getByRole("button", { name: "All findings" }).getAttribute("aria-pressed")).toBe("false");
-    expect(text(p.querySelector("[data-portfolio-loading-rows]"))).toBe("Loading the Cost findings.");
-    expect(text(p)).not.toContain("Held all-lens row");
-    expect(text(p.querySelector("[data-portfolio-count]"))).toBe("Loading findings");
-    expect(within(p).queryByText("Load more Findings")).toBeNull();
-  });
-
-  it("replaces the page with the lens response: new rows and total_count", async () => {
-    const d = await start(loadedPortfolio(portfolioBody({ rows: [heldRow], total_count: 1 })));
-    await click("Cost");
-    await act(async () => {
-      d.pending[0].resolve(loadedPortfolio(portfolioBody({ rows: [costRow], total_count: 7, lens: "cost" })));
-    });
-    await settledScreen();
-    const p = priority();
-    expect(p.getAttribute("aria-busy")).not.toBe("true");
-    expect(p.querySelector("[data-portfolio-loading-rows]")).toBeNull();
-    expect(text(p)).toContain("Fresh cost row");
-    expect(text(p)).not.toContain("Held all-lens row");
-    expect(text(p.querySelector("[data-portfolio-count]"))).toContain("7 findings");
-  });
-
-  it("a refusal on the lens read replaces the page", async () => {
-    const d = await start(loadedPortfolio(portfolioBody({ rows: [heldRow], total_count: 1 })));
-    await click("Cost");
-    await act(async () => {
-      d.pending[0].resolve(refused(503, "ESTATE_STORE_UNAVAILABLE", "The estate store is unavailable."));
-    });
-    await settledScreen();
-    expect(document.querySelector("[data-portfolio-panel='priority']")).toBeNull();
-    expect(document.querySelector("[data-portfolio-pulse]")).toBeNull();
-    expect(document.body.textContent).toContain("The estate store is unavailable.");
-  });
-
-  it("cost then risks quickly shows the risks body only", async () => {
-    const d = await start(loadedPortfolio(portfolioBody({ rows: [heldRow], total_count: 1 })));
-    await click("Cost");
-    await click("Risks");
-    expect(d.pending.map((c) => c.query.lens)).toEqual(["cost", "risks"]);
-    await act(async () => {
-      d.pending[1].resolve(loadedPortfolio(portfolioBody({ rows: [riskRow], total_count: 3, lens: "risks" })));
-    });
-    await act(async () => {
-      d.pending[0].resolve(loadedPortfolio(portfolioBody({ rows: [costRow], total_count: 9, lens: "cost" })));
-    });
-    await settledScreen();
-    const p = priority();
-    expect(text(p)).toContain("Fresh risk row");
-    expect(text(p)).not.toContain("Fresh cost row");
-    expect(text(p)).not.toContain("Held all-lens row");
-    expect(within(p).getByRole("button", { name: "Risks" }).getAttribute("aria-pressed")).toBe("true");
-  });
-
-  it("a refused load-more after a lens change replaces the page", async () => {
-    const d = await start(loadedPortfolio(portfolioBody({ rows: [heldRow], total_count: 1 })));
-    await click("Cost");
-    await act(async () => {
-      d.pending[0].resolve(loadedPortfolio(portfolioBody({ rows: [costRow], total_count: 7, lens: "cost", next_cursor: "cur-2" })));
-    });
-    await settledScreen();
-    await click("Load more Findings");
-    expect(d.pending[1].query).toMatchObject({ lens: "cost", cursor: "cur-2" });
-    await act(async () => {
-      d.pending[1].resolve(refused(503, "ESTATE_STORE_UNAVAILABLE", "The estate store is unavailable."));
-    });
-    await settledScreen();
-    expect(document.querySelector("[data-portfolio-panel='priority']")).toBeNull();
-    expect(document.body.textContent).not.toContain("Fresh cost row");
-    expect(document.body.textContent).toContain("The estate store is unavailable.");
-  });
-});
-
 /**
  * PF-T: Portfolio section tabs (`archive/agent-history/architect-proposal-portfolio-layout-2026-11-10.md` §6, §11; layout
  * `frontend/mockups/v71/portfolio-tabs.html`). One assertion per card rule.
  */
 describe("PF-T Portfolio section tabs", () => {
   const WINDOW_QUERY = "from=2026-10-06T00:00:00Z&to=2026-10-07T00:00:00Z&known_at=2026-10-07T00:05:00Z";
-  const TAB_NAMES = ["Overview", "The month", "Act first", "Outcomes by site", "Opportunity", "What changed", "Scope & coverage"];
+  const TAB_NAMES = ["Overview", "The month", "Outcomes by site", "Opportunity", "What changed", "Scope & coverage"];
 
   function renderTabs(entry: string, client: EstateClient) {
     return render(
@@ -2281,13 +1706,7 @@ describe("PF-T Portfolio section tabs", () => {
       const p = paramsOf(a);
       expect([p.get("from"), p.get("to"), p.get("known_at")]).toEqual(["2026-10-06T00:00:00Z", "2026-10-07T00:00:00Z", "2026-10-07T00:05:00Z"]);
     }
-    expect(tabLinks().map(pathOf)).toEqual(["/portfolio", "/portfolio/month", "/portfolio/act-first", "/portfolio/outcomes", "/portfolio/opportunity", "/portfolio/changes", "/portfolio/scope"]);
-  });
-
-  it("lens travels on the Act first link only", async () => {
-    renderTabs(`/portfolio/act-first?${WINDOW_QUERY}&lens=cost`, portfolioClient(loadedPortfolio(portfolioBody({ lens: "cost" }))));
-    await settledScreen();
-    expect(tabLinks().map((a) => paramsOf(a).get("lens"))).toEqual([null, null, "cost", null, null, null, null]);
+    expect(tabLinks().map(pathOf)).toEqual(["/portfolio", "/portfolio/month", "/portfolio/outcomes", "/portfolio/opportunity", "/portfolio/changes", "/portfolio/scope"]);
   });
 
   it("an unknown count shows no badge, never 0", async () => {
@@ -2299,12 +1718,12 @@ describe("PF-T Portfolio section tabs", () => {
     expect(text(tabRow())).not.toMatch(/\d/);
   });
 
-  it("known counts show on Act first, Opportunity and What changed", async () => {
+  it("known counts show on Opportunity and What changed", async () => {
     const base = portfolioBody();
     const body = portfolioBody({ total_count: 6, summary: { ...base.summary, opportunity_count: 1, accepted_action_count: 3 } });
     renderTabs(`/portfolio?${WINDOW_QUERY}`, portfolioClient(loadedPortfolio(body)));
     await settledScreen();
-    expect(tabLinks().map((a) => a.querySelector("[data-pf-tab-count]")?.textContent ?? null)).toEqual([null, null, "6", null, "1", "3", null]);
+    expect(tabLinks().map((a) => a.querySelector("[data-pf-tab-count]")?.textContent ?? null)).toEqual([null, null, null, "1", "3", null]);
   });
 
   it("a tab change keeps the page mounted, reads nothing again and moves focus to the panel heading", async () => {
@@ -2320,25 +1739,6 @@ describe("PF-T Portfolio section tabs", () => {
     expect(document.activeElement).toBe(screen.getByRole("heading", { level: 2, name: OPPORTUNITY_PANEL }));
   });
 
-  it("moving from Act first lens=cost to another tab reads nothing again", async () => {
-    const client = portfolioClient(loadedPortfolio(portfolioBody()));
-    renderTabs(`/portfolio?${WINDOW_QUERY}`, client);
-    await settledScreen();
-    expect(client.calls.map((c) => c.lens)).toEqual(["all"]);
-    // Choosing the Cost lens on Act first is the one new read.
-    fireEvent.click(tabLink("Act first"));
-    await settledScreen();
-    fireEvent.click(within(panel("Where management should act first")).getByRole("button", { name: "Cost" }));
-    await settledScreen();
-    expect(client.calls.map((c) => c.lens)).toEqual(["all", "cost"]);
-    // The whole list is already held by key: any other tab shows it with no new read.
-    fireEvent.click(tabLink("Opportunity"));
-    await settledScreen();
-    fireEvent.click(tabLink("What changed"));
-    await settledScreen();
-    expect(client.calls.map((c) => c.lens)).toEqual(["all", "cost"]);
-  });
-
   it("Overview shows the four cards, the counts strip as tab links and the top 3 with See all", async () => {
     const rows = [1, 2, 3, 4].map((n) => row({ finding_id: `f-${n}`, finding_revision_id: `r-${n}`, title: `Finding ${n}` }));
     const base = portfolioBody();
@@ -2347,16 +1747,16 @@ describe("PF-T Portfolio section tabs", () => {
     expect(document.querySelectorAll(".oc-pfcard").length).toBe(4);
     const pulse = document.querySelector("[data-portfolio-pulse]")!;
     expect(Array.from(pulse.querySelectorAll("a")).map(pathOf)).toEqual([
-      "/portfolio/act-first",
+      "/decisions",
       "/portfolio/opportunity",
       "/portfolio/scope",
       "/portfolio/changes",
-      "/portfolio/act-first",
+      "/decisions",
     ]);
     const top3 = screen.getByRole("region", { name: PRIORITY_PANEL });
     expect(Array.from(top3.querySelectorAll("ol > li")).map((li) => text(li.querySelector("[data-pf-top3-title]")))).toEqual(["Finding 1", "Finding 2", "Finding 3"]);
     const seeAll = within(top3).getByRole("link", { name: "See all 4 findings →" });
-    expect(pathOf(seeAll)).toBe("/portfolio/act-first");
+    expect(pathOf(seeAll)).toBe("/decisions");
     expect(screen.queryByRole("group", { name: "Finding lens" })).toBeNull();
   });
 

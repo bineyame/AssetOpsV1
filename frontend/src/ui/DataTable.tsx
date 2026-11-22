@@ -49,10 +49,12 @@ export interface DataTableProps {
   labelledBy?: string;
   /** W5-03a: keep the first column visible while the region scrolls horizontally (opt-in). */
   stickyFirstColumn?: boolean;
+  /** IA-P P2: an extra class on the table itself, for a list that stacks its rows at narrow width (`hl-table`). */
+  tableClassName?: string;
   children: ReactNode;
 }
 
-export function DataTable({ labelledBy, stickyFirstColumn = false, children }: DataTableProps) {
+export function DataTable({ labelledBy, stickyFirstColumn = false, tableClassName, children }: DataTableProps) {
   return (
     <div
       className={stickyFirstColumn ? "data-table__scroll data-table__scroll--sticky" : "data-table__scroll"}
@@ -60,7 +62,7 @@ export function DataTable({ labelledBy, stickyFirstColumn = false, children }: D
       aria-labelledby={labelledBy}
       tabIndex={labelledBy === undefined ? undefined : 0}
     >
-      <table className="data-table" aria-labelledby={labelledBy}>
+      <table className={tableClassName ? `data-table ${tableClassName}` : "data-table"} aria-labelledby={labelledBy}>
         {children}
       </table>
     </div>

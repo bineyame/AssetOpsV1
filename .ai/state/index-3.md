@@ -24,3 +24,4 @@ One line per slice, continuing `index-2.md` (number, slice ID, summary, file in 
 199. `DD2a` mini-grid books for Jul-Oct from the structure's nodes (D-DD.48), dated fuel notes, staged DS1b JSON, Lakeside statements, `dd_check` evaluator + C-DD2..C-DD4 live; bool Lows; in_review · data.md
 200. `IA-2a` mock-up plan shape: four tabs, stepper, crew tiles, History (IA-1 shape rebuild) · demo.md
 201. `IA-2b1` mock-up list shape: four home lists from one component, landed in the mock-up, in review · demo.md
+202. `IA-P1` real app on the IA shape, part 1: long range (P0), 13-item rail and aliases (P1), one list component for Decisions, Findings, Actions with the shared read cache (P2; in_review) · shell.md

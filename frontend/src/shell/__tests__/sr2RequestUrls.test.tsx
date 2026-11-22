@@ -227,7 +227,9 @@ describe("SR-2 the demo's API requests are byte-identical", () => {
   const W = "from=2026-10-25T00%3A00%3A00Z&to=2026-11-02T00%3A00%3A00Z";
   it.each([
     ["/portfolio?from=2026-10-25T00:00:00Z&to=2026-11-02T00:00:00Z", [`/api/estate/portfolio?${W}&limit=50`, `/api/estate/outcome-summary?${W}`]],
-    ["/findings?from=2026-10-25T00:00:00Z&to=2026-11-02T00:00:00Z", [`/api/estate/findings?${W}`, `/api/estate/scope?${W}`, `/api/estate/outcome-summary?${W}`]],
+    // IA-P P2: the Findings list reads its Findings and the Decisions it joins (the shared cache, every page, 50 each);
+    // it no longer reads the Site scope or the outcome summary (the Site names come from the rows themselves, I8).
+    ["/findings?from=2026-10-25T00:00:00Z&to=2026-11-02T00:00:00Z", [`/api/estate/findings?${W}&limit=50`, `/api/estate/portfolio?${W}&limit=50`]],
     ["/maintenance?from=2026-10-04T00:00:00Z&to=2026-11-04T00:00:00Z", ["/api/work/maintenance?from=2026-10-04T00%3A00%3A00Z&to=2026-11-04T00%3A00%3A00Z&limit=5"]],
   ])("%s requests exactly what it did before SR-2", async (path, expected) => {
     const got = await requestsAt(path);
@@ -313,5 +315,24 @@ describe("SR-7 / SR-11: Service and Backup over a range send one range read with
     const got = await siteRequestsAt(path, code === "KOBO-001" ? site : as(HYBRID_MINI_GRID_SITE, code));
     expect(got.filter((u) => u.includes("-range?"))).toEqual([expected]);
     expect(got.filter((u) => /\/performance\/mini\/(service|backup)\?/.test(u))).toEqual([]);
+  });
+});
+
+describe("IA-P P0 (D-IAP.24): a 61-day address reads the last 31 days on every read family", () => {
+  const LONG = "from=2026-09-01T00:00:00Z&to=2026-11-01T00:00:00Z";
+  const decoded = (u: string): string => decodeURIComponent(u);
+  it.each([
+    ["mini-grid health (source health, range read)", `/sites/KOBO-001/health?${LONG}`, as(HYBRID_MINI_GRID_SITE, "KOBO-001")],
+    ["mini-grid Kisiwa Findings (mini depth)", `/sites/KISIWA-001/findings?${LONG}`, as(HYBRID_MINI_GRID_SITE, "KISIWA-001")],
+    ["cold overview", `/sites/COLD-LAB-001?${LONG}`, as(COLD_SITE, "COLD-LAB-001")],
+    ["EV overview", `/sites/EV-LAB-001/ev?${LONG}`, as(EV_SITE, "EV-LAB-001")],
+  ])("%s", async (_label, path, site) => {
+    const sent = (await siteRequestsAt(path, site)).filter((u) => u.includes("from="));
+    expect(sent.length).toBeGreaterThan(0);
+    for (const u of sent) {
+      expect(decoded(u)).toContain("from=2026-10-01T00:00:00Z");
+      expect(decoded(u)).toContain("to=2026-11-01T00:00:00Z");
+      expect(decoded(u)).not.toContain("2026-09-01");
+    }
   });
 });

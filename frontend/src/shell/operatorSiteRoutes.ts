@@ -482,6 +482,8 @@ export const EVIDENCE_PATH = "/evidence";
 export const FINANCIALS_PATH = "/financials";
 /** W3-03 run 2: the estate Portfolio root (`PORTFOLIO_PATH` in `estate/portfolioWords.ts`; a shell test pins it). */
 export const PORTFOLIO_ROOT_PATH = "/portfolio";
+/** IA-P P2: the Decisions home (`DECISIONS_PATH` in `estate/portfolioWords.ts`; a shell test pins it). */
+export const DECISIONS_ROOT_PATH = "/decisions";
 export const INCIDENTS_PATH = "/incidents";
 export const MAINTENANCE_PATH = "/maintenance";
 export const MAINTENANCE_PREVENTIVE_PATH = "/maintenance/preventive";
@@ -489,6 +491,8 @@ export const WORK_REQUEST_ROUTE_PATH = "/maintenance/requests/:caseId";
 export const WORK_REQUEST_RECORD_ROUTE_PATH = "/maintenance/requests/:caseId/record";
 export const WORK_REQUEST_HISTORY_ROUTE_PATH = "/maintenance/requests/:caseId/history";
 export const OPERATIONAL_RECORDS_PATH = "/operational-records";
+/** IA-P P1 (spec §2.2, D-IAP.5): the Records tab of Evidence & records; `/operational-records` aliases here. */
+export const EVIDENCE_RECORDS_PATH = "/evidence/records";
 export const FINDING_ROUTE_PATH = `${FINDINGS_PATH}/:siteId/:assessmentId`;
 export const FINDING_TAB_ROUTE_PATH = `${FINDING_ROUTE_PATH}/:findingTab`;
 

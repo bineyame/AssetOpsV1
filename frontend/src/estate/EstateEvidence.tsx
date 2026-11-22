@@ -9,6 +9,7 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 import { formatRange } from "../ui/time";
 import { useSearchParams } from "react-router-dom";
 import { RangeLink as Link } from "../ui/RangeLink";
+import { EVIDENCE_RECORDS_TABS, EVIDENCE_RECORDS_TABS_LABEL, EVIDENCE_RECORDS_TITLE, SectionTabs } from "../ui/SectionTabs";
 import { DataTable, Disclosure, MetricCard, MetricCards, Notice, PageHeader, Panel } from "../ui";
 import { TechnicalDetails } from "../ui/TechnicalDetails";
 import { UnavailableInline } from "../ui/UnavailableEntry";
@@ -28,7 +29,8 @@ import "./estateEvidence.css";
 
 export const ESTATE_EVIDENCE_PATH = "/evidence";
 
-export const EVIDENCE_TITLE = "Portfolio evidence";
+/** IA-P P1 (spec §5.3): the Evidence & records title on both tabs; the subtitle stays this tab's own. */
+export const EVIDENCE_TITLE = EVIDENCE_RECORDS_TITLE;
 /** The mock eyebrow, rendered by `PageHeader`'s eyebrow slot above the title (W3-02 c2b). */
 export const EVIDENCE_EYEBROW = "Evidence";
 export const EVIDENCE_SUBTITLE = "Cross-site claim readiness, recurring gaps and instrumentation priorities";
@@ -444,6 +446,7 @@ export function EstateEvidencePage({ client }: { client?: EstateEvidenceMoneyCli
   return (
     <div className="estate-page estate-evidence" data-estate-root="evidence">
       <PageHeader eyebrow={EVIDENCE_EYEBROW} title={EVIDENCE_TITLE} subtitle={EVIDENCE_SUBTITLE} />
+      <SectionTabs label={EVIDENCE_RECORDS_TABS_LABEL} tabs={EVIDENCE_RECORDS_TABS} current={ESTATE_EVIDENCE_PATH} />
       <EstateCutoffLine query={query} body={barBody(body)} windowRefused={read?.status === "refused" && read.code === "INVALID_WINDOW"} />
       {read === null ? (
         <p className="estate-loading" data-estate-loading>

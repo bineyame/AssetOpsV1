@@ -125,15 +125,15 @@ const T004_OPERATOR_NAVIGATION_LABELS = [
  * against is T004's list plus exactly this item; any other addition fails.
  */
 // W3-03 run 2 admits the reviewed estate Portfolio root (closure 1 navigation, closure 4 S17).
-// W6-01e: Operational records rail root is live.
-const ADMITTED_SINCE_T004 = ["Findings", "Actions", "Evidence", "Financials", "Portfolio", "Incidents", "Maintenance", "Operational records"];
+// IA-P P1 (spec §2.1): Operational records left the rail; Evidence & records is the one root.
+const ADMITTED_SINCE_T004 = ["Findings", "Decisions", "Actions", "Evidence & records", "Financials", "Portfolio", "Incidents", "Maintenance"];
 
 /**
  * Operator navigation after T028, in order. T008 removed both parameterless
  * site items, T011A did not change the list, and T028 added Findings.
  */
-// W6-01e: Operational records rail root is live.
-const OPERATOR_NAVIGATION_LABELS = ["Portfolio", "Sites", "Findings", "Actions", "Incidents", "Maintenance", "Operational records", "Evidence", "Financials"];
+// IA-P P1 (spec §2.1): Operational records left the rail; Evidence & records is the one root.
+const OPERATOR_NAVIGATION_LABELS = ["Portfolio", "Sites", "Findings", "Decisions", "Actions", "Incidents", "Maintenance", "Evidence & records", "Financials"];
 
 function directoryWith(sites: SiteSummary[]): SiteDirectoryClient {
   return { listSites: () => Promise.resolve({ status: "loaded", sites }) };
@@ -466,11 +466,12 @@ describe("the parameterless Site Configuration placeholder is gone", () => {
       within(container)
         .getByRole("navigation", { name: "Operator routes" })
         .querySelectorAll("a"),
-    ).map((link) => link.getAttribute("href") ?? "");
+    ).map((link) => (link.getAttribute("href") ?? "").split("?")[0]);
+    // IA-P P1: `/` lands on Portfolio, which fills the shared range, so every rail href carries it; compare the paths.
     unmount();
 
-    // W6-01e: Operational records rail root is live.
-    expect(hrefs).toEqual(["/portfolio", "/sites", "/findings", "/actions", "/incidents", "/maintenance", "/operational-records", "/evidence", "/financials"]);
+    // IA-P P1 (spec §2.1): Operational records left the rail; Evidence & records is the one root.
+    expect(hrefs).toEqual(["/portfolio", "/sites", "/findings", "/decisions", "/actions", "/incidents", "/maintenance", "/evidence", "/financials"]);
     for (const href of hrefs) {
       const view = renderAt(href, ENABLED);
       await settledScreen(view.container);
