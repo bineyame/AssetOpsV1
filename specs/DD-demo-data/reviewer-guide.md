@@ -54,6 +54,15 @@ a new mechanism, a protected seam, money-bearing records). Before any code, read
 - **DD2.**
   - History months come from `history.json` leaves and October from `period`; the totals stop the emulator on any
     miss.
+  - Mini-grid billed kWh, revenue, collected, litres and fuel cost, and cold revenue and received, are the structure's
+    nodes evaluated on the month's leaves (D-DD.48, D-DD.50). The node table matches `M` by a parity test, October's
+    evaluated nodes equal `period`'s (`EMU_NODE`, with a plant), and no exporter reads a node field such as
+    `s.a["billed_kwh"]`.
+  - Cold and EV budgets are the two budget profiles. `contracts/` is untouched outside DD2.2, and no cold or EV
+    expense row is ENERGY or PENALTY (D-DD.49).
+  - Kobo's October notes are 400 L on 26 Oct, 400 L on 1 Oct and 380 L on 8 Oct (D-DD.53).
+  - Every DS1b record lands in exactly one exported file, one staged JSON or `unwritten.json` (D-DD.54).
+  - C-DD4's node clause uses the checker's own evaluator, which shares no code with the exporter (D-DD.55).
   - The `bool` type has its four contract tests, and a map on any other non-coded path still refuses.
   - Each profile's columns match `spec.md` §5.2 and §5.3 exactly, pass `run_probes` on the sample, and are admitted
     with `--expected` and `--as`.
