@@ -82,3 +82,69 @@ Gate log and shots: `/opt/assetecon/evidence/IA-P/IA-P3/p4b-migration/`. Layout 
 
 `estate/sitesList.tsx` `siteItems` (directory rows), `ui/HomeList.tsx` `labelledBy`, and §2's (b) calls, above all the
 retirements (`siteTemplateLineage`, the two badge tests, W1-F1, R127 crumb).
+
+## 7. P5 (D-IAP.38 to D-IAP.47): per-file test migration
+
+Rule as §2: (a) the slice broke real behaviour, fix the code; (b) the test pins what the spec replaced, migrate it and
+cite the section. Nothing was loosened to pass; a deleted test names the content it covered.
+
+### 7.1 Run 3 (`1607351ac`, `bbb707964`): six tabs, object pages (spec §2.3, §6 P5, D-IAP.38)
+
+| Files | Tests | Class | Why |
+| --- | --- | --- | --- |
+| `siteAction` 16, `miniDecisions` 3, `evAssessmentRoutes` 3, `domainActionVerification` 2, `coldWorkActions` 1, `w1f4ActionStructure` 1, `siteFuelFinding` 1 | 27 | (b) | object pages draw no tab row; the crumb has three parts (§2.3) |
+| `operatorSiteTabsOverride`, `siteDetailRoute`, `siteFoundationRevision`, `siteFoundationRoute`, `t028Screens`, `coldDepth`, `coldHealthDepth`, `evFoundation`, `evSiteMoneyRoutes`, `mini{Backup,Fuel,Renewable,Service}Routes`, `siteFoundationChange`, `siteHealthBoundary`, `siteWorkActions`, `mockDeviationStyle`, `overflowContainment` (19 files, count by `git show --stat bbb707964`) | 27 | (b) | the tab row is six labels with the section line under it (§2.3, `SITE_TAB_OF`) |
+| `SiteAnalyticsFrames.tsx` stale `mock-deviation.css` import | 1 | (a) | fixed in code |
+
+### 7.2 Run 4 (alias, Evidence line, Foundation row)
+
+| File | Class | Why |
+| --- | --- | --- |
+| `evSiteMoneyRoutes` (line), `operatorSiteTabs` (MINI Evidence line "Records · Uploads · Findings") | (b) | one Evidence line (D-IAP.38, D-IAP.42) |
+| `siteFoundationRevision` 3, `siteFoundationChange` 2, `foundationScreen` | (b) | the Foundation row no longer carries "Change & effect" (R797) |
+| `coldFindingIndex` 10, `evFindingIndex` 9 | (b), see 7.3 | D-IAP.42 alias; D-IAP.47 deletes the screens |
+| `siteRangeMatrix` "cold /findings (R)", "ev /findings (R)" | (b) | rows are now alias rows (7.4) |
+| `siteFindingsAlias` COLD (failed only in the full run) | no defect | passes alone and on the 143-test run of three files; a load timing failure under a full run (see 7.5) |
+| `simulatorLabGate` "operator route /" | not this slice | fails alone on main `12e618be3` too: "/" draws the Overview's "Try again" button when its unstubbed period read is refused (`PortfolioOverview.tsx`); listed on main in §3 |
+| `coldWorkCases` | no defect | passes alone (142 of 143 in that run, the one being `simulatorLabGate`) |
+
+### 7.3 D-IAP.47: the 19 tests sorted (`ColdFindingIndex`, `EvFindingIndex` deleted)
+
+Moved (b) to a test of the Findings list at `scope=site:{id}` or of the alias:
+- range kept through the redirect (`from`, `to`, **and** `known_at`): `siteFindingsAlias` COLD and EV (known_at added) and
+  `siteRangeMatrix` alias rows; the main tabs carry `known_at` on the kept MINI index: `siteFindingsAlias` MINI (was
+  `coldFindingIndex` "mini keeps the mini index"; the EV file's "leaves a mini Site on the mini index" is the same test);
+- the Site's rows only, and the empty state in the def's words: `homeLists` "Findings list at scope=site:{id}" (2 new);
+- a refused window says the shared sentence: already `homeLists` "refused window ... each list says the shared sentence"
+  (covers `r253_refusal 0`, the EV "refuses a window" test).
+
+Deleted with the component, content named (it is not on the Findings list; for the walkthrough):
+
+| Test(s) | Content only the old index drew |
+| --- | --- |
+| `r253_selected_rows_columns_and_windowed_links`, EV "lists the selected EV Findings", EV Q23 | the 7-column table (Domain, Priority, Confidence, State, Main consequence, Lens), "Not assessed" cells, the Domain link to Performance temperature or backup, "Began ... ended" period, the cold read's own window/cutoff when the address has none, MOCK DEVIATION R435 and R436 labels |
+| `r253_no_selected_assessment` | "No cold assessment for this window" (the list has no selected-assessment state) |
+| `r253_cursor_note`, EV "states empty and cursor", EV "keeps paging honesty" | the first-N paging note (the list reads every page, I9) |
+| `r253_refusal 1`, `r253_refusal 2`, EV "does not call a 503 a window error" | "Source permission refused" and "Assessment unavailable" strips and their references panel (the list says one sentence per refusal) |
+| `OUT-A A4` cold and EV (2) | the Affects / Also checked pills on the Site index rows (the list rows carry category labels, projected in the parity pin) |
+| `OUT-C U5` cold and EV (4) | the Site's early warnings under the Site Findings list (`EarlyWarnings`, still used by other pages); **not on the Findings list: named as missing** |
+
+Code removed: `sites/EvFindingIndex.tsx`, `ColdFindingIndex` and its props, `COLD_FINDINGS_*`, `coldFindingsCursorNote`,
+`episodePeriod`, `mainConsequence` (all in `ColdAssessmentViews.tsx`), unused imports there, and `ROADMAP_WORDS`
+`coldFindingsNotGlobal`, `evFindingsNotGlobal`, `manageFindings` (the owner-example assertion in `roadmapWords.test.ts`
+now keeps `reviewRecommendation` only).
+
+### 7.4 `siteRangeMatrix`
+
+`RangeMatrixEntry.alias` (new): cold and EV `/findings` rows are `R` with `alias: true`; the R-row test skips them and a
+new "alias rows" describe asserts the redirect to `/findings` with `scope=site:{code}` and `from`, `to`, `known_at` kept
+(plus a non-empty-set guard). The two failures left (`each Site route`: `/sites/:siteId/uploads` has no row; `mini
+/health (R)`) fail identically on main `12e618be3` (run alone there).
+
+### 7.5 D-IAP.46 and the guards
+
+- Parity pin: `_projection` compares the envelope and the named row fields (tokens by episode_start then title, Site body
+  first), hard assert, no xfail. Plants `estatedrift` and `sitedrop`: see 7.6.
+- `check-architecture` (site-substrate pattern widened in run 4 to `SiteFindingIndex` and `SiteControlsTable`): planted
+  `export function SiteFindingIndex()` in `frontend/src/shell/PlantSubstrate.tsx`; it failed with "Site presentation
+  component declared outside the shared substrate in frontend/src/shell/PlantSubstrate.tsx:1"; file removed, guard clean.

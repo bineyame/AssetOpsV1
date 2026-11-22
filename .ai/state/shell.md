@@ -504,7 +504,7 @@ Branch `task/W1-UX-07` (base main `3bb1b8b2`). Packet `archive/agent-history/W1-
 - Left open: the demo's prebuilt `/portfolio` week requests (`tools/demo_combined.py`) no longer match what the Overview reads (E2);
   MD-IAP-3, -7, -10, -11, -12, -16 registered (R784 to R789); the world ladder's L2 `code` part is stale until the coordinator rebuilds it.
 
-## IA-P3 - Sites, the Site's six tabs, the inbox, scope and search (P4b built, in_review; P5 to P7 not built)
+## IA-P3 - Sites, the Site's six tabs, the inbox, scope and search (P4b and P5 built, in_review; P6 and P7 not built)
 
 - Pre-flight for the whole part: `specs/IA-P-product-shape/IA-P3-preflight.md` (28 questions with defaults; Q21 blocks only
   P5's `/sites/:id/findings` alias). Meeting point with 6f1: `decisionItems(` (6f1 U2's W6 sweep, §4.4).
@@ -517,5 +517,13 @@ Branch `task/W1-UX-07` (base main `3bb1b8b2`). Packet `archive/agent-history/W1-
   the More line has the singular "Not shown: 1 Site.". `HomeList` gained `options.labelledBy` (the `/sites` table is a
   named keyboard region again). 41 existing tests migrated (`packet-IA-P3.md` §2); test helpers `test/sitesE1.ts`,
   `test/rangeHrefs.ts`; `settledScreen` waits on "Loading Sites…".
-- Left open: P5, P6, P7; the demo prebuild (part IA-PD, D-IAP.36); register R790 to R793; the template-lineage note and
+- P5 (D-IAP.38 to D-IAP.47): six Site tabs (`SITE_TAB_OF`, `ui/SiteSections`), object pages without a tab row and with
+  three-part crumbs, one Evidence line per vertical. `/sites/:id/findings` redirects on COLD and EV to
+  `/findings?scope=site:{id}` (range and `known_at` kept; `siteFindingsAlias`); MINI keeps its index (MD-IAP-15, the
+  estate withholds a PARTIAL mini Site). Parity proven by `test_iap_site_findings_parity_postgres.py` (subset, plus a hard
+  named-field projection compare, D-IAP.46; plants `estatedrift`, `sitedrop`) and `siteFindingsParity.test.ts`.
+  Lifecycle word on Sites and Outcomes rows (D-IAP.44). `SitesIndex`, `ColdFindingIndex`, `EvFindingIndex` deleted
+  (D-IAP.45, D-IAP.47); the Site's early warnings and the cold index's table columns have no home on the Findings list
+  (`packet-IA-P3.md` §7.3). Gates T1, T2. `RangeMatrixEntry.alias` marks the alias rows.
+- Left open: P6, P7; the demo prebuild (part IA-PD, D-IAP.36); register R790 to R793; the template-lineage note and
   "In setup" have no place on the list (packet questions); `sites/SitesIndex.tsx` is mounted by no route.
