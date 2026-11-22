@@ -126,7 +126,20 @@ def _diff(a, b, at: str = "$", out: list | None = None) -> list[str]:
     return out
 
 
-def _parity(c, vertical: str, code: str, windows: dict[str, dict], why: str = "") -> dict:
+def _site_uuid(url: str, code: str) -> str:
+    """The Site's stored id (the estate coverage keys its sites by `site_id`, not by code)."""
+    from sqlalchemy import create_engine, text
+    from sqlalchemy.pool import NullPool
+
+    engine = create_engine(url, poolclass=NullPool)
+    try:
+        with engine.connect() as connection:
+            return str(connection.execute(text("SELECT id FROM site WHERE site_code = :c"), {"c": code}).scalar_one())
+    finally:
+        engine.dispose()
+
+
+def _parity(c, vertical: str, code: str, windows: dict[str, dict], why: str = "", site_uuid: str | None = None) -> dict:
     """Reads both windows, prints each, then asserts D-IAP.39; returns the whole-month bodies (page one)."""
     site_key = "rows" if vertical == "mini" else "items"
     out, failures = {}, []
@@ -140,7 +153,7 @@ def _parity(c, vertical: str, code: str, windows: dict[str, dict], why: str = ""
         extra = sorted((i, estate[i]["site_code"], estate[i].get("finding_label")) for i in set(estate) - site_ids)
         first = estate_bodies[0]
         total = first.get("total_count")
-        cover = [(s.get("site_code"), s.get("state"), s.get("reason")) for s in (first.get("coverage") or {}).get("sites", [])]
+        cover = [(s.get("site_id"), s.get("state"), s.get("job_state")) for s in (first.get("coverage") or {}).get("sites", [])]
         print(f"\nIAP-PARITY {vertical} {name} window={w} site_status={site_bodies[0].get('status')} "
               f"site_pages={len(site_bodies)} site_ids={len(site_ids)} estate_pages={len(estate_bodies)} "
               f"estate_total_count={total} estate_status={first.get('status')} estate_lens={first.get('lens')} "
@@ -159,12 +172,14 @@ def _parity(c, vertical: str, code: str, windows: dict[str, dict], why: str = ""
         if wrong_code:
             failures.append(f"{name}: estate rows with another site_code: {wrong_code}")
         if vertical == "mini":  # D-IAP.42: flipped; the withheld ids belong to a Site the estate does not cover
-            states = {s.get("site_code"): s.get("state") for s in (first.get("coverage") or {}).get("sites", [])}
+            states = {s.get("site_id"): s.get("state") for s in (first.get("coverage") or {}).get("sites", [])}
+            state = states.get(site_uuid, "<absent>")
+            print(f"\nIAP-PARITY mini {name} estate coverage of {code} ({site_uuid}) = {state}")
             if not missing:
                 failures.append(f"{name}: MINI parity holds: ship the MINI alias (D-IAP.42)")
-            elif states.get(code) in ("CURRENT", "HISTORICAL"):
+            elif state in ("CURRENT", "HISTORICAL"):
                 failures.append(f"{name}: Site ids {missing} are missing from the estate read although {code} is "
-                                f"{states.get(code)} there")
+                                f"{state} there")
         else:
             if missing:
                 failures.append(f"{name}: Site ids missing from the estate read: {missing}")
@@ -259,6 +274,8 @@ def _pin(vertical: str, code: str, bodies: dict) -> None:
             (FIXTURES / name).write_text(text, encoding="utf-8")
     for name, text in files.items():
         pinned = (FIXTURES / name).read_text(encoding="utf-8")
+        if pinned != text and os.environ.get("IAP_PARITY_DUMP"):
+            (Path(os.environ["IAP_PARITY_DUMP"]) / name).write_text(text, encoding="utf-8")
         assert pinned == text, (name, _diff(json.loads(pinned), json.loads(text)))
 
 
@@ -278,7 +295,8 @@ def test_mini_kobo_site_findings_are_in_the_estate_findings(monkeypatch, tmp_pat
         with b4._client() as c:
             # Kobo's data is 2026-10-05..11-03 (ch5c2 DAYS); the 61-day range 2026-09-04..11-03 reads 10-04..11-03
             bodies = _parity(c, "mini", "KOBO-001",
-                             _month_and_61(date(2026, 10, 1), date(2026, 10, 31), date(2026, 11, 3), known_at))
+                             _month_and_61(date(2026, 10, 1), date(2026, 10, 31), date(2026, 11, 3), known_at),
+                             site_uuid=_site_uuid(url, "KOBO-001"))
     print(f"\nIAP-PARITY mini month pages (site, estate) = {bodies['pages']}")  # D-IAP.42: no MINI pin
 
 
