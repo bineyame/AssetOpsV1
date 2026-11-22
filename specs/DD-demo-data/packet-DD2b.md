@@ -152,3 +152,5 @@ spec S3 row, the ON1 runbook and the deep-dive runbook add `--tenant lakeside-po
 `simulator/tests/world/test_dd2b_tenant_filter.py`: t1 (one tenant writes no other tenant's file, same Lakeside bytes as
 the unfiltered run, in the directory and in extras), t2 (two flags write both), t3 (unknown slug refused); each shown
 failing (`unrecognized arguments: --tenant`) before the change. Gate counts are in the hand-back.
+
+**Gate (D-DD.74).** Nine backend files, one `run-host-tests.ps1` call: branch 178 passed, 0 failed (3m34s; the 12 former reds green). Same files on main (1a446dc2b, scratch worktree, removed; `test_dd2b_profile_admission.py` exists only on the branch): 167 passed, 0 failed. `simulator/tests`: 648 passed. Architecture and workflow guards pass.
