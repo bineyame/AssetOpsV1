@@ -182,7 +182,8 @@ CREATE TABLE option_effect (
     unit text NOT NULL CHECK (char_length(unit) BETWEEN 1 AND 32),
     currency text NULL CHECK (currency IS NULL OR currency ~ '^[A-Z]{3}$'),
     missing jsonb NOT NULL CHECK (jsonb_typeof(missing) = 'array'),
-    CONSTRAINT option_effect_change_or_missing CHECK ((change_per_month IS NULL) = (jsonb_array_length(missing) > 0)),
+    CONSTRAINT option_effect_change_or_missing CHECK (CASE WHEN jsonb_typeof(missing) = 'array'
+        THEN (change_per_month IS NULL) = (jsonb_array_length(missing) > 0) END),   -- D-P6.32
     CONSTRAINT option_effect_once UNIQUE (evaluation_id, factor_id),
     FOREIGN KEY (tenant_id, evaluation_id) REFERENCES option_evaluation (tenant_id, id)
 );
@@ -217,7 +218,7 @@ CREATE TABLE decision_choice (
   a deferred constraint trigger `option_evaluation_run_complete AFTER INSERT ON option_evaluation_run`.
 - **Cross-row checks in code, not SQL** (the adapter's transaction): an evaluation's option belongs to its run's
   decision; a choice's option and run belong to its decision; the `one_off_id` belongs to the evaluation's option.
-  Each has a refusal code in §3.3 and a test.
+  Each refuses `RECORD_INVALID` in both stores and has a test (D-P6.30).
 - **Constraint names (handshake R4).** Every table-level and multi-column CHECK is named as above; column checks keep
   Postgres's `<table>_<column>_check`. Test 6 asserts each name; the packet lists them.
 - **jsonb shapes (D-P6.27).** `settings` and `current_settings`: `{axis: decimal string}`. `missing`: a list of
@@ -410,7 +411,9 @@ decision's Site → `ACTION_SITE_MISMATCH`; (H6) write `ChoiceRow(option_id or N
 Choosing an option whose value is missing, or a `DEFERRED` one, is allowed: people decide, and the value is
 information (D-P6.5).
 
-Store errors in any step → `DECISIONS_UNAVAILABLE` (exit 3). Every other refusal exits 2.
+Store errors in any step → `DECISIONS_UNAVAILABLE` (exit 3), except a refused record (SQLSTATE class 22 or 23,
+not a resolved identity conflict, and the cross-row checks) → `RECORD_INVALID` in both stores (D-P6.30, D-P6.31).
+Every other refusal exits 2.
 
 ### 3.4 Words: `i18n/statements/en/decision.py` (D-P6.7)
 
@@ -449,6 +452,7 @@ One SC-1 statement, `decision.refused`, as `i18n/statements/en/agreed_action.py`
 | `ACTION_SITE_MISMATCH` | That Action is for another Site. |
 | `BAD_UUID` | Write the reference as it was printed. |
 | `NO_DATABASE` | Set DATABASE_URL to the operator's database. |
+| `RECORD_INVALID` | This record does not fit the decision it names, so nothing was stored. (D-P6.30) |
 | `DECISIONS_UNAVAILABLE` | The decisions store cannot be reached right now. |
 
 A `count` slot's unit word ("characters") follows the catalogue's count form as `agreed_action.refused`'s `most` does;

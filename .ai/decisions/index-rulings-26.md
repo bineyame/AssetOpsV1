@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-P6.20 to D-P6.29, D-IAP.24 to D-IAP.33, D-DD.1 to D-DD.16)
+# Decision index: Demo-sprint and later rulings (index only) (D-P6.20 to D-P6.33, D-IAP.24 to D-IAP.33, D-DD.1 to D-DD.16)
 
 - `D-P6.20` 6a's DecisionStore gains site_by_id (Protocol, memory, adapter); 6c E3/E4 use it · live · specs/6-decision-valued/rulings.md
 - `D-P6.21` setting_changes and EvaluationService take grid_changes (default SETTING_GRID_CHANGES); tests inject F1's lever · live · specs/6-decision-valued/rulings.md
@@ -10,6 +10,10 @@
 - `D-P6.27` storage and output forms: jsonb shapes, fractions n/d lowest terms, JSON line keys and forms · live · specs/6-decision-valued/rulings.md
 - `D-P6.28` import allowlist: four decisions/ modules may import runs.admission/replay_study names; no simulator or host loaded · live · specs/6-decision-valued/rulings.md
 - `D-P6.29` a zero change with no money leaf takes the one-off's currency; no ONE_OFF_CURRENCY · live · specs/6-decision-valued/rulings.md
+- `D-P6.30` cross-row checks in add_run/add_choice refuse RECORD_INVALID, exit 2, a decision.refused variant · live · specs/6-decision-valued/rulings.md
+- `D-P6.31` Postgres maps SQLSTATE 22/23 (not identity) to RECORD_INVALID; other errors stay DECISIONS_UNAVAILABLE · live · specs/6-decision-valued/rulings.md
+- `D-P6.32` option_effect_change_or_missing guarded by jsonb_typeof array so missing_check refuses by name · live · specs/6-decision-valued/rulings.md
+- `D-P6.33` 6a review: F2 fixed now; F5 (name_of read) queued · live · specs/6-decision-valued/rulings.md
 - `D-IAP.24` long range: shared range to 731 days; Overview/Outcomes/Sites read whole; other reads readWindow (last 31 days), bar declares it; owner Q12 · live · specs/IA-P-product-shape/rulings.md
 - `D-IAP.25` period body names Sites not compared (W.sites line, Compared for k of n suffix, row sites); World G tests · live · specs/IA-P-product-shape/rulings.md
 - `D-IAP.26` cold-chain/EV rows: No monthly figures for {type} Sites yet (snapshots MINI_GRID only); MD-IAP-12; owner Q11 · live · specs/IA-P-product-shape/rulings.md

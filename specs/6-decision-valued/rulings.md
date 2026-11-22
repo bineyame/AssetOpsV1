@@ -1,4 +1,4 @@
-# Step 6 rulings (D-P6.1 to D-P6.29): decisions valued against doing nothing, 6a and 6c
+# Step 6 rulings (D-P6.1 to D-P6.33): decisions valued against doing nothing, 6a and 6c
 
 Architect (Claude), 2026-11-22. They apply the owner's acceptance of the seven P6 defaults ("accept all p6 defaults",
 `owner/owner-accept-p6-defaults-2026-11-22.md`) to `6a-decision-records/spec.md` and `6c-option-evaluator/spec.md`,
@@ -233,6 +233,43 @@ Simulated). Code read on `main` at `a26444647`. D-P6.13 to D-P6.19 are the owner
 - **Ruling.** When the outcome's change is exactly 0 and reads no money leaf, the option's currency is its one-off's,
   and no `ONE_OFF_CURRENCY` is added. With no one-off, `ONE_OFF` is missing as usual.
 - **Why.** Otherwise a valued option is refused by 6a's currency check or wrongly reads as missing.
+
+## D-P6.30 A refused record is `RECORD_INVALID`, exit 2, one variant of `decision.refused` (6a review F1, F4)
+
+- **Ruling.** The adapter's cross-row checks refuse `RECORD_INVALID`: in `add_run`, an evaluation's option not of
+  `run.decision_id`, or a `one_off_id` whose option is not the evaluation's; in `add_choice`, an `option_id` not of
+  `decision_id`, or a `run_id` of another decision. Both stores make all four checks, read inside the write's
+  transaction before any insert. `RECORD_INVALID` joins `REFUSAL_EXIT` at exit 2 and `decision.refused` (D-P6.7) as
+  variant `record_invalid`: "This record does not fit the decision it names, so nothing was stored." It has no number,
+  so no slot. Tests: one case per check in test 5 (memory) and test 7 (Postgres), and the statement case renders it.
+- **Why.** One name for the class "the parts of a record do not belong together"; the operator cannot fix it by
+  retrying, so it is not exit 3, and a code outside the statement crashes `cli.refuse` (F4's `StatementError`).
+
+## D-P6.31 One error for a refused record in both stores (6a review Q2, F4)
+
+- **Ruling.** The Postgres adapter maps a driver error of SQLSTATE class 22 (data) or 23 (integrity) that is not an
+  identity conflict it already resolves (the re-run unique keys) to `DecisionRefused("RECORD_INVALID")`; every other
+  `SQLAlchemyError` stays `StoreUnavailable` → `DECISIONS_UNAVAILABLE` (exit 3). This covers both deferred triggers,
+  every FK and CHECK. The memory store already raises `RECORD_INVALID` for the same cases. Sweep: every `decisions/`
+  writer, now and in 6c (E7 `add_run`); test 7 adds one Postgres case each for a deferred trigger and a CHECK showing
+  exit 2. Fixed on the 6a branch with F1, before 6c builds.
+- **Why.** A 6c test on the memory store must expect what production raises, and an invalid record must never tell an
+  operator to retry.
+
+## D-P6.32 `option_effect_change_or_missing` is guarded on the array type (6a review Q1, F3)
+
+- **Ruling.** `CONSTRAINT option_effect_change_or_missing CHECK (CASE WHEN jsonb_typeof(missing) = 'array' THEN
+  (change_per_month IS NULL) = (jsonb_array_length(missing) > 0) END)`. A non-array `missing` gives NULL there, and
+  `option_effect_missing_check` refuses it by name; test 6b asserts that name in place of `SHADOWED`. Names unchanged.
+- **Why.** The named check should fire; the migration is immutable after merge, so only now is it free.
+
+## D-P6.33 F2 is fixed now; F5 is queued (6a review)
+
+- **Ruling.** F2 in this fix round: after `add_choice` returns `already=True`, apply H2's comparison (`ALREADY_CHOSEN`
+  when the stored choice differs) and print the stored choice's option key. F5 is queued as a 6a follow-up: a
+  `name_of(tenant_id, person_id)` store read so each command makes one small read and names the row just written;
+  deviation 3 stands until then.
+- **Why.** F2 can misreport an executive's choice and is a few lines; F5 is cost and rare naming, not correctness.
 
 ## Decision queue (W3; owner answers in)
 

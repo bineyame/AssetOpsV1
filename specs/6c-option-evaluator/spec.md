@@ -316,7 +316,8 @@ run in order, and the first that fails refuses:
 - **E5.** The latest one-offs: `store.latest_one_offs`.
 - **E6.** `evaluate_options`. A `StructureError` raised inside refuses `STRUCTURE_UNAVAILABLE` (exit 3); nothing is
   written.
-- **E7.** `store.add_run(RunRow(...))`, with study identity and sha256 set.
+- **E7.** `store.add_run(RunRow(...))`, with study identity and sha256 set. A refused run is `RECORD_INVALID` (exit 2) in both stores
+  (D-P6.30, D-P6.31); 6c's tests expect that code.
 
 Every call writes a new run, because a valuation is dated. The latest run is the one a choice binds (6a H3).
 
