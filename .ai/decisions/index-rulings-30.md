@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-IA.61 to D-IA.81, D-P6.68 to D-P6.71)
+# Decision index: Demo-sprint and later rulings (index only) (D-IA.61 to D-IA.81, D-P6.68 to D-P6.71, D-IAP.34)
 
 - `D-IA.61` IA-2b is the list shape only, split 2b1/2b2; 2b2 waits for the owner's IA-2a walkthrough · live · specs/IA-1-shape-rebuild/rulings-5.md
 - `D-IA.62` One list component; filters, sort, search, show-all in the address; focus keep · live · specs/IA-1-shape-rebuild/rulings-5.md
@@ -25,3 +25,4 @@
 - `D-P6.69` guarded also in _value_option stands (6c doubles, unreachable in production) · live · specs/6h-named-option-levers/rulings.md
 - `D-P6.70` no sign rule on option record values; later only as per-leaf data · live · specs/6h-named-option-levers/rulings.md
 - `D-P6.71` 6h packet Q1-Q3 accepted as built (standby-generator title, unused levers arg, prepare parity) · live · specs/6h-named-option-levers/rulings.md
+- `D-IAP.34` period body names Sites left out: E2 body.out (5c out_line), k/n from one set, lead lines (MD-IAP-16); parity test; IA-P2 5.5 u · live · specs/IA-P-product-shape/rulings.md

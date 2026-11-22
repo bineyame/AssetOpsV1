@@ -1,6 +1,6 @@
 # IA-P rev 2: the Overview on the date range (the period rule and E2; implementer spec, binding)
 
-Status: live, rev 3 (handshake answers, D-IAP.24 to D-IAP.33; P.9 is new), Architect (Claude), 2026-11-22. Part of `spec.md` (its §3 points here). Decisions D-IAP.15 to
+Status: live, rev 3 (handshake answers, D-IAP.24 to D-IAP.33; P.9 is new; P.5 `out` and P.7 tests 13 and 14 by D-IAP.34), Architect (Claude), 2026-11-22. Part of `spec.md` (its §3 points here). Decisions D-IAP.15 to
 D-IAP.23 (`rulings.md`). Owner answers, verbatim: `owner/owner-iap-q1-q2-kobo-datasheets-2026-11-22.md` (Q1 "Month is
 the Overview", Q2 "Follow the date range").
 
@@ -114,8 +114,9 @@ as is), and `R_m = V_m.R`.
 | `status_line` | `as_of_text`, then `standing_short` by `S.reconciled`, then 5c's `status_disagreement` over the distinct disagreeing Sites of every month (the latest month's `asked` order first) |
 | `fresh` | `portfolio_period.fresh` naming the months whose `V_m` freshness is not current; null when all are current |
 | `headline` | `{"text", "evidence"}`: 5c's headline choice (`W.named` on ΣE, Σgrow, Σoptimize; the same five variants and the `subject`/`verb` words) through `portfolio_period.headline*`; `evidence` `[word(ΣE, cur, R_m…)]` |
-| `tiles` | contribution: `W.amount(ΣA, cur)`, word, lines `[W.tile_target(ΣT, share), W.sites(k, n)]` (5c's share rule; `k`, `n` of the latest served month; D-IAP.25), bar `{"actual": str(ΣA), "target": str(ΣT)}` or null. gap: `W.amount(ΣE, cur, "SIGNED")`, word, lines `[W.tile_split(Σgrow, Σoptimize)]` when both are present. plan_spend and plan_value: 5c's tiles 3 and 4 exactly |
+| `tiles` | contribution: `W.amount(ΣA, cur)`, word, lines `[W.tile_target(ΣT, share), W.sites(k, n)]` (5c's share rule; `n` the Sites asked in any served month, `k` = `n` minus the Sites in `out`; D-IAP.34), bar `{"actual": str(ΣA), "target": str(ΣT)}` or null. gap: `W.amount(ΣE, cur, "SIGNED")`, word, lines `[W.tile_split(Σgrow, Σoptimize)]` when both are present. plan_spend and plan_value: 5c's tiles 3 and 4 exactly |
 | `notices` | `[portfolio_period.currencies]` or `[]` |
+| `out` | the Sites left out of the figures, named with why (D-IAP.34): every code in some served month's `R_m.out`, in the `every` order (the latest month's `asked` first); each line is `V_m.out_line(code, reasons)` of the latest served month in which it is out, string for string; a Site out in some served months but not all gets `portfolio_period.out_only`. `[]` when none. `n - k == len(out)` |
 | `months` | `{"title": "Month by month", "columns": ["Month", "Contribution", "Gap to target", "Largest driver against target"], "rows"}`. There is one row per whole month (served or missing), ascending |
 | `outcomes` | the four cards in `HEADINGS` order (below) |
 | `actions` | 5c's `actions` block, built by the same function |
@@ -155,7 +156,8 @@ summed.
 |---|---|
 | `span` | one: "{month}" · two: "{first} and {last}" · more: "{first} to {last}". Month names alone when every served month is in one year, else with the year ("November 2025 to February 2026") |
 | `headline` / `_more` / `_gap` / `_on` / `_na` | 5c's five, with "in {month_name}" read as "across {period}": "Contribution is {abs gap} {below\|above} target across {period}; {subject} {verb} {abs big} of it." · "…across {period}; {subject} {verb} {abs big}, more than the whole gap." · "Contribution is {abs gap} {below\|above} target across {period}." · "Contribution is on target across {period}." · "Contribution across {period} is not available yet." |
-| `compared` | "Compared for {k} of {n} Sites." Appended to the headline when `k < n` in any served month (`k`, `n` of the latest served month; D-IAP.25) |
+| `compared` | "Compared for {k} of {n} Sites." Appended to the headline when `k < n` (`k`, `n` as tile 1's; D-IAP.34) |
+| `out_only` | "{line} Only in {months}." (`line` the 5c `out` sentence as a name slot; `months` by `span`'s year rule; D-IAP.34) |
 | `missing` | "No figures are served for {months}, so it is not in these figures." · (2 or more) "…, so they are not in these figures." |
 | `partial` | "{months} is only partly in this range, so it is not counted: the figures are kept by whole month." · (2) "{months} are only partly in this range, so they are not counted: the figures are kept by whole month." |
 | `open` | "{months} has not closed yet, so it has no figures." · (2 or more) "{months} have not closed yet, so they have no figures." |
@@ -213,8 +215,17 @@ month="2026-09"))` (`Served` has no `month` field; in the test's `_world_p()`). 
     output for tests 2, 4 and 6, so the gates never test a stale body.
 11. **World G two months** (D-IAP.25): World G (`served_world(thika=True)`) with a September copy, 2026-09-01 to
     2026-10-31: the headline ends " Compared for 3 of 4 Sites."; tiles[0]'s lines hold "3 of 4 Sites"; each month row's
-    `sites` is "3 of 4 Sites".
+    `sites` is "3 of 4 Sites"; `out` is ["Thika: not a mini-grid Site, not included."] (D-IAP.34).
 12. **Degrade, not 500** (I7): World X (currency mismatch) over two months: no raise; the totals read "Not available yet".
+13. **One set** (D-IAP.34): test 11's World G, with Thika removed from October's `snapshot.asked` (and from its root's
+    `out`) by `replace`, so Thika is out in September only: the headline ends " Compared for 3 of 4 Sites.";
+    `out` is ["Thika: not a mini-grid Site, not included. Only in September."]; `n - k == len(out)`. World P (no Site out): `out` [] and no `compared` sentence.
+    Plants: `countonly` (`out` always []) and `twosets` (`k`, `n` of the latest month again) each fail this test.
+14. **Parity** (D-IAP.34): World G October's `month_view` equals `month-g-2026-10.json`; E2 modes `month` and `none`
+    equal `period-month-2026-10.json`, `period-month-g-2026-10.json` and `period-none-2026-11.json` (body null); E1 equals
+    `sites-2026-09-10.json`, `sites-2026-10.json` and `sites-none-2026-11.json`;
+    `git diff main -- backend/assetops_backend/deep_dive/view.py` is empty, and those fixture files are byte-identical
+    across the D-IAP.34 commits (`git diff <commit before them> -- <files>` empty, named in the packet). Only `period-period-*.json` bodies gain `out`.
 
 ## P.8 E1: `GET /api/portfolio/sites?from=YYYY-MM-DD&to=YYYY-MM-DD` (new; D-IAP.9, D-IAP.20)
 
