@@ -38,6 +38,7 @@ makes `EXACT_RATIONAL` a description rather than an aspiration: 311/1000 times
 
 from __future__ import annotations
 
+from bisect import bisect_right
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from fractions import Fraction
@@ -195,6 +196,10 @@ class _World:
     #: exposures are already computed, and the step's view, intent and
     #: acceptance. Rebuilt at every instant.
     exposures_ready: bool = False
+    #: D-DD.75: for each step start, the positions in `inputs.forcings` whose
+    #: span overlaps that step, ascending. Built once, lazily, from the frozen
+    #: inputs alone (`_forcing_index`).
+    forcings_by_step: dict[int, tuple[int, ...]] | None = None
     view_now: ControllerView | None = None
     intent_now: ControlIntent | None = None
     accepted_now: AcceptedFlowSet | None = None
@@ -239,6 +244,31 @@ def _entry_span(
         return entry.offset_minutes, entry.offset_minutes
     length = entry.duration_minutes or 0
     return entry.offset_minutes, entry.offset_minutes + length
+
+
+def _forcing_index(inputs: FrozenWorldInputs) -> dict[int, tuple[int, ...]]:
+    """D-DD.75: each step start's overlapping forcings, by position, in input order.
+
+    The same predicate `_compute_exposures` applies at every step (a positive
+    `overlap_minutes` of the step and the entry's span), computed once, so a run
+    costs O(steps + forcings x steps each spans) instead of O(steps x forcings).
+    """
+    interval = inputs.interval
+    duration, timestep = interval.duration_minutes, interval.timestep_minutes
+    step_starts = interval.step_starts
+    index: dict[int, list[int]] = {}
+    for position, forcing in enumerate(inputs.forcings):
+        start, end = _entry_span(forcing, duration)
+        if end <= start:
+            continue
+        cursor = max(bisect_right(step_starts, start) - 1, 0)
+        while cursor < len(step_starts) and step_starts[cursor] < end:
+            step = step_starts[cursor]
+            length = min(step + timestep, duration) - step
+            if overlap_minutes(step, length, start, end - start) > 0:
+                index.setdefault(step, []).append(position)
+            cursor += 1
+    return {step: tuple(positions) for step, positions in index.items()}
 
 
 def _refuse_entries_outside_the_interval(world: _World) -> None:
@@ -1277,7 +1307,10 @@ def _compute_exposures(world: _World) -> None:
     step_end = world.offset + world.step_length
     exposed_by_address: dict[str, list[tuple[ForcingInput, int, int]]] = {}
 
-    for forcing in world.inputs.forcings:
+    if world.forcings_by_step is None:
+        world.forcings_by_step = _forcing_index(world.inputs)
+    for position in world.forcings_by_step.get(world.offset, ()):
+        forcing = world.inputs.forcings[position]
         if _excluded(world, forcing.address, "FORCING_INPUT"):
             continue
         if world.model.handler(
