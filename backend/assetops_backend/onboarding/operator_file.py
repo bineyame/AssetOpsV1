@@ -26,6 +26,9 @@ from assetops_backend.sites.foundation_service import ImportSource, plan_import
 from assetops_backend.sites.site_parsing import parse_site_document
 
 FORMAT = "assetops.operator-onboarding/1"
+FORMAT_2 = "assetops.operator-onboarding/2"
+#: DD1.1 (D-DD.6): the operator verticals onboarded, as the Site type each one's Sites take.
+SITE_TYPES = {"MINI_GRID": "MINIGRID", "COLD_CHAIN": "COLDCHAIN", "EV_DEPOT": "EV_CHARGING"}
 MAX_BYTES = 262144
 DOCUMENT_FORMAT = "ASSETOPS_ONBOARDING_JSON"
 FINANCE = "FINANCE_AND_COMMERCIAL_LEAD"
@@ -36,6 +39,10 @@ _TOP = ("format", "data", "operator", "sites", "people")
 _OPERATOR = ("slug", "name", "vertical")
 _SITE = ("code", "name", "timezone", "country", "locality", "lifecycle", "valid_from", "components")
 _COMPONENT = ("id", "type", "name", "rating")
+#: `/2` (D-DD.6): optional per-Site foundation content and per-component properties, in the Site import's shape.
+_SITE_2_OPTIONAL = ("devices", "topology", "connector_enable_schedules")
+_COMPONENT_2 = ("id", "type", "name")
+_COMPONENT_2_OPTIONAL = ("rating", "properties")
 _PERSON = ("email", "name", "roles")
 #: A placeholder tenant: `plan_import` is pure and only copies the tenant's id into the plan it builds.
 _CHECK_TENANT = TenantRef(UUID(int=0), "check", "check")
@@ -125,24 +132,34 @@ def _name(value: Any, where: str) -> str:
     return value
 
 
-def site_document(site: SiteEntry, *, real: bool) -> dict:
-    """Spec §3.2: the Site document of one file Site."""
+def _component(c: dict) -> dict:
+    out = {"component_id": c["id"], "component_type": c["type"], "display_name": c["name"]}
+    for key in _COMPONENT_2_OPTIONAL:  # a `/1` component always has `rating` and never `properties`
+        if key in c:
+            out[key] = c[key]
+    return out
+
+
+def site_document(site: SiteEntry, *, real: bool, site_type: str = "MINIGRID") -> dict:
+    """Spec §3.2: the Site document of one file Site. A `/1` file's document is unchanged byte for byte (DD1.1)."""
     e = site.entry
+    foundation = {"version": 1, "valid_from": e["valid_from"],
+                  "summary": "Onboarded from the operator's onboarding file.",
+                  "components": [_component(c) for c in e["components"]]}
+    for key in _SITE_2_OPTIONAL:
+        if key in e:
+            foundation[key] = e[key]
     return {
-        "site_id": e["code"], "display_name": e["name"], "site_type": "MINIGRID",
+        "site_id": e["code"], "display_name": e["name"], "site_type": site_type,
         "location": {"country": e["country"], "locality": e["locality"]}, "timezone": e["timezone"],
         "lifecycle_status": e["lifecycle"], "origin": "USER", "source": {"mode": "LIVE" if real else "SIMULATED"},
-        "foundation": {"version": 1, "valid_from": e["valid_from"],
-                       "summary": "Onboarded from the operator's onboarding file.",
-                       "components": [{"component_id": c["id"], "component_type": c["type"],
-                                       "display_name": c["name"], "rating": c["rating"]}
-                                      for c in e["components"]]},
+        "foundation": foundation,
     }
 
 
 def site_source(f: OperatorFile, site: SiteEntry) -> ImportSource:
     """Spec §3.2: the Site's `ImportSource`; its sha256 depends on its own entry only."""
-    document = site_document(site, real=f.real)
+    document = site_document(site, real=f.real, site_type=SITE_TYPES[f.operator.vertical])
     path = f"onboarding:{f.slug}/{site.code}"
     digest = hashlib.sha256(json.dumps(document, sort_keys=True, separators=(",", ":"),
                                        ensure_ascii=False).encode("utf-8")).hexdigest()
@@ -159,12 +176,12 @@ def roles_digest(f: OperatorFile) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def _sites(value: Any, operator: Operator, data: str) -> tuple[SiteEntry, ...]:
+def _sites(value: Any, operator: Operator, data: str, fmt: str = FORMAT) -> tuple[SiteEntry, ...]:
     sites: list[SiteEntry] = []
     seen: set[str] = set()
     for i, entry in enumerate(_list(value, 1, 50, "sites")):
         where = f"sites[{i}]"
-        _strict(entry, _SITE, where)
+        _strict(entry, _SITE, where, _SITE_2_OPTIONAL if fmt == FORMAT_2 else ())
         code = entry["code"]
         if not isinstance(code, str) or _SITE_CODE.fullmatch(code) is None or code.lower() in seen:
             raise OnboardRefused("ONBOARD_SITE_CODE", f"{where}.code")
@@ -173,9 +190,12 @@ def _sites(value: Any, operator: Operator, data: str) -> tuple[SiteEntry, ...]:
         if not isinstance(components, list):
             raise OnboardRefused("ONBOARD_STRUCTURE", f"{where}.components")
         for j, component in enumerate(components):
-            _strict(component, _COMPONENT, f"{where}.components[{j}]")
+            if fmt == FORMAT_2:
+                _strict(component, _COMPONENT_2, f"{where}.components[{j}]", _COMPONENT_2_OPTIONAL)
+            else:
+                _strict(component, _COMPONENT, f"{where}.components[{j}]")
         sites.append(SiteEntry(i, code, entry))
-    probe = OperatorFile(FORMAT, data, operator, tuple(sites), ())
+    probe = OperatorFile(fmt, data, operator, tuple(sites), ())
     for site in sites:
         refused = False
         try:  # the parser's and the planner's messages may quote a value: neither is kept (spec §2)
@@ -243,7 +263,7 @@ def parse_operator_file(data: bytes) -> OperatorFile:
         unreadable = True
     if unreadable or not isinstance(doc, dict):
         raise OnboardRefused("ONBOARD_FILE")
-    if doc.get("format") != FORMAT:
+    if doc.get("format") not in (FORMAT, FORMAT_2):
         raise OnboardRefused("ONBOARD_FORMAT", "format")
     _strict(doc, _TOP, None)
     if doc["data"] not in ("emulated", "real"):
@@ -252,8 +272,8 @@ def parse_operator_file(data: bytes) -> OperatorFile:
     if not isinstance(op["slug"], str) or _SLUG.fullmatch(op["slug"]) is None or op["slug"] == "demo":
         raise OnboardRefused("ONBOARD_SLUG", "operator.slug")
     operator = Operator(op["slug"], _name(op["name"], "operator.name"), op["vertical"])
-    if op["vertical"] != "MINI_GRID":
+    if op["vertical"] not in SITE_TYPES:
         raise OnboardRefused("ONBOARD_VERTICAL", "operator.vertical")
-    sites = _sites(doc["sites"], operator, doc["data"])
+    sites = _sites(doc["sites"], operator, doc["data"], doc["format"])
     people = _people(doc["people"], {s.code for s in sites})
-    return OperatorFile(FORMAT, doc["data"], operator, sites, people)
+    return OperatorFile(doc["format"], doc["data"], operator, sites, people)

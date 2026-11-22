@@ -35,7 +35,7 @@ SENTENCES = {
     "ONBOARD_DATA": '"data" must be "emulated" or "real".',
     "ONBOARD_SLUG": 'The operator code must be lower-case letters, digits and hyphens, and not "demo".',
     "ONBOARD_NAME": "A name must be 1 to 120 characters with no surrounding spaces.",
-    "ONBOARD_VERTICAL": "Only mini-grid operators are onboarded for now.",
+    "ONBOARD_VERTICAL": "This operator's business type is not onboarded yet.",
     "ONBOARD_SITE_CODE": "A Site code must be upper-case letters, digits and hyphens, and unique.",
     "ONBOARD_SITE_INVALID": "This Site cannot be created as written.",
     "ONBOARD_EMAIL": "This email cannot be used.",

@@ -14,7 +14,8 @@ import pytest
 from assetops_backend.onboarding.operator_file import (FORMAT, MAX_BYTES, OnboardRefused, parse_operator_file,
                                                       roles_digest, site_document, site_source)
 
-FIXTURE = Path(__file__).resolve().parent / "fixtures" / "on1" / "lakeside-power.onboarding.json"
+#: The `/1` file as ON1 shipped it, kept as a fixture when Lakeside's own file moved to `/2` (DD1.2).
+FIXTURE = Path(__file__).resolve().parent / "fixtures" / "on1" / "lakeside-power.v1.onboarding.json"
 #: Computed once from the fixture (spec §6) and pinned.
 DIGEST = "cfdfc54bf41514ef011e36de3da1734fbd5ae11a00a7bf76df0c23cbb6ab22a3"
 
@@ -72,11 +73,11 @@ WANJIRU = {"email": "wanjiru@x.example", "name": "Wanjiru", "roles": [{"role": "
 
 #: One planted refusal per rule of spec §2 (each code once), with its `where`.
 PLANTS = [
-    ("format", _set(["format"], "assetops.operator-onboarding/2"), "ONBOARD_FORMAT", "format"),
+    ("format", _set(["format"], "assetops.operator-onboarding/3"), "ONBOARD_FORMAT", "format"),
     ("data", _set(["data"], "maybe"), "ONBOARD_DATA", "data"),
     ("slug", _set(["operator", "slug"], "demo"), "ONBOARD_SLUG", "operator.slug"),
     ("name", _set(["operator", "name"], " Lakeside"), "ONBOARD_NAME", "operator.name"),
-    ("vertical", _set(["operator", "vertical"], "COLD_CHAIN"), "ONBOARD_VERTICAL", "operator.vertical"),
+    ("vertical", _set(["operator", "vertical"], "HYDRO"), "ONBOARD_VERTICAL", "operator.vertical"),
     ("site code", _set(["sites", 2, "code"], "kobo-001"), "ONBOARD_SITE_CODE", "sites[2].code"),
     ("site invalid", _set(["sites", 1, "lifecycle"], "SLEEPING"), "ONBOARD_SITE_INVALID", "sites[1]"),
     ("email", _person(4, email="not an email"), "ONBOARD_EMAIL", "people[4].email"),
