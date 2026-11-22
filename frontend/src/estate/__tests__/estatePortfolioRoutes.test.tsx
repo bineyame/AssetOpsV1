@@ -104,8 +104,8 @@ describe("PF-T Portfolio tab routes", () => {
     await settledScreen();
     expect(where()).toBe(`/portfolio/demand-and-capacity?${WINDOW}`);
     expect(screen.getByRole("main", { name: "Portfolio" })).toBe(main);
-    // IA-P P6: the Outcomes tab's read and the shell's "Waiting for you" read; the tab switch adds none.
-    expect(client.portfolioCalls).toBe(2);
+    // IA-P P7 (packet §9): the Outcomes tab and the shell's "Waiting for you" share the one cached read; the tab switch adds none.
+    expect(client.portfolioCalls).toBe(1);
   });
 
   it("an old /portfolio?lens=X address goes to /decisions?lens=X (IA-P P2: Act first became the Decisions home)", async () => {
