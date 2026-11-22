@@ -1,8 +1,8 @@
-# 0K4 rulings, continued (D-0K4.31 to D-0K4.39): 0K4m, the pack and mock restated once
+# 0K4 rulings, continued (D-0K4.31 to D-0K4.44): 0K4m, the pack and mock restated once
 
 Architect (Claude), 2026-11-21, standing in for the owner (`owner/owner-away-architect-stands-in-2026-11-21b.md`).
 These rulings continue `rulings.md`, which is past the 15k cap. Unit spec: `specs/0K4m-pack-restate/spec.md`. Owner-level
-calls: owner-away rows 71 to 75 (`specs/OWNER-AWAY/decisions-2026-11-21.md`). Built on 0K4d as merged (`03c665012`).
+calls: owner-away rows 71 to 75 and 77 (`specs/OWNER-AWAY/decisions-2026-11-21.md`). Built on 0K4d as merged (`03c665012`).
 
 ## D-0K4.31 The pack's numbers are of four kinds; the replay inputs come from a committed extract
 
@@ -161,6 +161,94 @@ calls: owner-away rows 71 to 75 (`specs/OWNER-AWAY/decisions-2026-11-21.md`). Bu
 - **Why.** The handshake found real gaps in the proof (semantic hash, null against absent, unlabelled H9) and in the
   place lists. Each default closes its gap with a check, not a note, and the size follows the added work.
 
+## D-0K4.40 Boundary proof (c): a comment in no node is outside the view (unit 1 Known Deviation 1)
+
+- **Ruling.** Accept header comments as a class, and amend the script to the spec's wording; the rev line stays under
+  the header. (c) maps each changed line to the innermost node whose `yaml.compose` span (key start mark to value end
+  mark) holds it. A comment or blank line that no root entry's span holds (before the first key, or between two root
+  entries) maps to `<root>`, and `<root>` comment and blank lines are allowed. Every other line keeps the spec's test:
+  forbidden when its path is inside a node the view copies, comment lines included. Two new plants on scratch copies:
+  **P20**, a comment line inside Kobo's `physical`, must fail (c); **P21**, a comment line above the first key, must
+  pass (c). The packet prints both, beside the per-commit table.
+- **Why.** The spec forbids lines "inside a node the view copies"; the script forbade every line outside every key,
+  which is stricter than the rule. The view copies parsed nodes, so a header comment is never in it, and the manifest
+  keeps all its rev lines in that header. Moving the line would break the file's convention to satisfy a script
+  defect. P20 proves the amendment still catches a comment inside a view node, and P21 proves the class is scoped.
+- **Reverse:** move the rev line into a non-view node (for example `empty_states`' comment) and keep the stricter
+  script.
+
+## D-0K4.41 The allocator: an option that changes no money node is a candidate in every decision (Known Deviation 2)
+
+- **Ruling.** Confirmed, stated once for both models (spec §2.2, N5):
+  - an option is a candidate of a decision when it is available (N1) and meets the decision's hard bounds, or, when
+    no option does and the decision declares `fallback: least_violation`, every available option is a candidate;
+  - whether the option changes a money node does not affect candidacy. An option that changes no money node
+    (`money_changes: false`: every money node equals its basis's) adds 0 to plan value and its one-off to spend, and it
+    is listed under `not_valued_in_money`. Its zero is computed, not assumed: a gap is N1's not available, never
+    chosen;
+  - "take none" is a choice only where the decision is `optional: true` (or has no candidate); rank is least total
+    violation, then highest value, then lowest spend; a tie keeps the first combination in declared option order,
+    "take none" first.
+  The evaluator drops its `must` clause and implements this text, so its code no longer depends on decision kind.
+  Lakeside then takes MTO-INV-CLAIM (spend 3,660.00) as each model finds from the spec.
+- **Why.** M8 finds 0 extra litres a day under the inverter limit, so the inverter paths really move no money node.
+  The decision still has to be made (`optional: false`): the warranty claim is the cheapest path that meets the cover
+  bound, and that is a real reason to take it. Excluding computed-zero options made the plan infeasible, which is false
+  of the world. In optional decisions the rule changes no result: such an option can only tie "take none" or lose to it.
+- **Reverse:** candidacy in a valued decision requires `money_changes: true`, and Lakeside reads infeasible.
+
+## D-0K4.42 Output precision: params at six places, money at cents (coordinator's fifth point; Known Deviations 3, 4)
+
+- **Ruling.** Both models emit each output `params` value rounded half-even to 6 decimal places (N2's rule, now for
+  outputs too), and null when not available. Every money output, `value`, `value_if_admissible` and each
+  `sensitivities` value included, is rounded half-even to cents once, at output, from the unrounded computation (the
+  monthly change is never rounded before `x months`). Node, bound and protect outputs stay at cents, as today. The
+  independent model's `r2` on params (`independent_model.py:985`) becomes the six-place rounding; line 988's `r2` on
+  sensitivities stays.
+- **Defects 5 and 6 need no spec change.** §2.4 defines a MODEL_PENDING entry (null on the side, with words), so
+  `empty_state_problems()` must accept it. H2 must read `|` as N1 does: an alternative applies on a month only when its
+  records are present there, so a history month takes `generator_l`'s fallback.
+- **Why.** Params are inputs: a rate below a cent (0.094815 L/kWh) cannot be compared at cents, and six places is the
+  precision the manifest states them at, so the output echoes the input losslessly. Full precision would compare binary
+  float representations from two arithmetics. Money is stated in cents everywhere.
+- **Reverse:** emit params at full precision on both sides.
+
+## D-0K4.43 Green is judged at the branch head; one merge, held for the owner (amends D-0K4.37, D-0K4.39; Known Deviation 7)
+
+- **Ruling.** Commits 2 to 5 are judged green together, at the branch head. Unit 2 cannot land first: its anchors read
+  the figures commit 2 produces.
+  - **Commit 2 (unit 1's end):** `check_manifest.py` fails only in `anchors()`, `documents()` and K11, and only on
+    files unit 2 or 3 restates. Every other check passes. H8 and H10 are re-based in commit 2; the packet lists the
+    failures by file, with the H9 ledger marked provisional.
+  - **Unit 2 (commit 3)** takes every document the checker reads outside the mock, as a class: the pack's documents,
+    and `Docs/go-to-market/` (`website-content.md`, `commercial-plan.md` and their `.html` twins, regenerated by their
+    `render_*_html.py`). At its head the only failures are on `interactive-mockup-vNEXT/` files.
+  - **Unit 3 (commits 4-5)** clears those failures. A closing **commit 6** sets `H9_BASELINE` from the ledger at the
+    branch head, and the head prints `0 failed`.
+  - **Order (restates D-0K4.39).** Unit 1 first. Units 2 and 3 then build in parallel on commit 2's head. Units 1-2
+    are reviewed together, unit 3 after them. The branch merges once, at commit 6, and that merge is held for the
+    owner's look (`USER_REVIEW_REQUIRED`; D-0K4.37's unit 3 hold now covers the branch). Size unchanged: 3.5 units.
+- **Why.** The mock's `index.html` carries "Design estimate" until unit 3 rewrites its labels, so main could not be
+  green after a units 1-2 merge without a K11 exemption, and an exemption would weaken the check that proves the rule.
+  One merge keeps main green at every merge. Nothing on main waits on units 1-2: 0K4f follows the 5c walkthrough.
+- **Reverse:** merge units 1-2 on review with K11 scoped off `interactive-mockup-vNEXT/` until unit 3.
+
+## D-0K4.44 The pending slice is 0K4f; `queued_slices` is the place (Known Deviation 8)
+
+- **Ruling.** The mechanism is accepted: a slice outside the fortnight is declared in `empty_states.queued_slices`,
+  never in `plan_model.py` SLICES. The entry is wrong, and so was spec §2.4: 0K4e is merged (`704124784`), and 4d is
+  built. What is pending is the world on v8, with Kobo's October readings for dispatch-3.3 to classify: **0K4f**
+  (D-0K4.13). The class fix, swept over the spec, the manifest and both models:
+  - every MODEL_PENDING entry names slice `0K4f`, and `MODEL_PENDING` reads "a computed leaf whose model has not yet
+    run on this world's records";
+  - Kobo's `factor_sources` words, the finding's record and the bridge basis end "(0K4f)", not "(0K4e, 4d)";
+  - `queued_slices` drops the `0K4e` row and declares `0K4f: {name: "The fuel law and the worlds on v8: the product's
+    fuel law reads v8's curve, the Kobo template and DS2's telemetry writer adopt v8, the demo database is rebuilt,
+    and Kobo's October readings are classified by dispatch-3.3", lane: STR, units: 2, deps: [0K4e, 4d]}`.
+- **Why.** A missing-record entry must name the unit that would fill it. A merged slice can fill nothing, and a typed
+  row for it with a made-up size is a design value in the plan.
+- **Reverse:** keep the `0K4e` row and the words of D-0K4.35.
+
 ## Decision queue (W3; defaults applied)
 
 | # | Question | Default |
@@ -169,3 +257,7 @@ calls: owner-away rows 71 to 75 (`specs/OWNER-AWAY/decisions-2026-11-21.md`). Bu
 | Q12 | The world-view design values (Kobo's 330/730, Mto's 5 L a day) | Move with 0K4f's world rebuild (D-0K4.35) |
 | Q13 | Unit 3 (mock) merge while the owner is away | Held for the owner's look (D-0K4.37) |
 | Q14 | Kobo's settings: absolute litres, a share, or Not available yet (R2) | Not available yet until the model runs on Kobo's October as recorded (D-0K4.38); owner asked to confirm on return |
+| Q15 | MTO-WELDING's typed `break_even_tariff_usd_per_kwh: 0.42` (from the old fuel rate; not in §2.3) | A computed quantity typed by hand, so a design value (§1.1): removed from the row in commit 2; each reader (unit 2 documents, unit 3 mock) shows the evaluator's welder value instead (spec §2.3, rev 3) |
+| Q16 | `demo_workflow` version 1 loses KOB-STOPSOC and its two Actions | Follows the evaluator (§2.3, do not choose or predict); units 2 and 3 tell Kobo's story as the settings admitted, litres and value Not available yet |
+| Q17 | `replay-studies.json` committed in 1b, not 1a | Accepted: 1a stays labels only (R5) |
+| Q18 | Whole-branch merge held for the owner (D-0K4.43) | Held; owner asked to confirm on return |

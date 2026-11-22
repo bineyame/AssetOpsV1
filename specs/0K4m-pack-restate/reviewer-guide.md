@@ -25,6 +25,8 @@ Review units 1-2 together. Review unit 3 on its own, after units 1-2.
      (b) `world_history.py check` exits 0; (c) no changed line of the manifest, comment lines included, maps to
      `period.plan`, `period.actual`, `period.coverage` or a TOP, TENANT or SITE key the view copies (`view.py:17-20`).
      Lines under `period:` outside those three (bridge rows, `variance`) are expected.
+     (rev 3, D-0K4.40) A comment line in no root entry's span maps to `<root>` and is allowed; P20 and P21 show
+     the class is scoped.
    - `VIEW_HELD` lists exactly the four view paths in spec §1.2, K1 exempts only its string entry, and K11's skip of
      the `MANIFEST` literal is guarded by its equality check.
    - Run the simulator world tests (`simulator/tests/world/`) through the slot pool. Any failure is High.
@@ -46,12 +48,16 @@ Review units 1-2 together. Review unit 3 on its own, after units 1-2.
      Kobo's contribution, variance and `GENERATOR_RUNNING` row still evaluate, and the fuel group still adds to its line.
    - KIS-BATT60 has `value: null` and `not_available`, is never chosen, and is listed under the plan's `not_available`.
    - Each null is a present key, never an absent one (P16), and `unavailable("x") | 0` is not 0 (P17).
-   - `missing-records.json` holds the `MODEL_PENDING` entries.
+   - `missing-records.json` holds the `MODEL_PENDING` entries, each naming slice `0K4f` (rev 3, D-0K4.44).
 7. **H9 is earned, not set.**
    - Read the ledger from 4502 and add it up. Run commit 1a's `check_manifest.py` with `CHECK_LABELS` on main's
      manifest and the branch's on the branch, and take the per-section multiset diff: each added or removed check is
      in the ledger.
    - H11 passes with the digest unchanged.
+   - (rev 3, D-0K4.43) Commit 2 fails only in `anchors()`, `documents()` and K11 on files units 2 and 3 restate;
+     `0 failed` and `H9_BASELINE` are judged at the branch head (commit 6). The branch merges once, held for the owner.
+   - (rev 3, D-0K4.41, D-0K4.42) Read N5 and N6 in each model against the spec text, not against each other: candidacy
+     never depends on `money_changes`; params at six places, money at cents from the unrounded value.
 8. **Plants.** Read the builder's plant evidence (§6). Make two plants of your own on a scratch copy, never in the
    worktree:
    - N1 propagation broken in the evaluator, so that a node reading a not-available factor yields 0;

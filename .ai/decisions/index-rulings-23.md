@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-DDR.11 to D-DDR.16, D-WK.10 to D-WK.16, D-3C2.16, D-5C.26 to D-5C.29, D-0K4.31 to D-0K4.39)
+# Decision index: Demo-sprint and later rulings (index only) (D-DDR.11 to D-DDR.16, D-WK.10 to D-WK.16, D-3C2.16, D-5C.26 to D-5C.29, D-0K4.31 to D-0K4.44)
 
 - `D-DDR.11` (I1) rehearsal_check speaks codes and facts, never English; no statement or baseline entry · live · specs/DDR-rehearsal/rulings.md
 - `D-DDR.12` (R12) every rehearsal database is assetops_rehearsal_${REHEARSAL}_test; runbook, key folder, ON1 test swept · live · specs/DDR-rehearsal/rulings.md
@@ -22,8 +22,13 @@
 - `D-0K4.32` money on SIMULATED v8 litres is the pack evaluator's figure; amends D-0K4.29 Value cells (owner-away row 71) · live · specs/0K4-dispatch-model-review/rulings-2.md
 - `D-0K4.33` admission bound replaces the dawn bound in the pack; dawn as option information · live · specs/0K4-dispatch-model-review/rulings-2.md
 - `D-0K4.34` Mto litres = litres per customer kWh x declared kWh; amends D-0K4.28 I6 for the pack (owner-away row 72) · live · specs/0K4-dispatch-model-review/rulings-2.md
-- `D-0K4.35` world view not edited; Kobo candidate split Not available yet via factor_sources; generator_l (owner-away row 73) · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.35` world view not edited; Kobo candidate split Not available yet via factor_sources; generator_l (owner-away row 73) · live; words amended by D-0K4.44 · specs/0K4-dispatch-model-review/rulings-2.md
 - `D-0K4.36` Embakasi departures from the energy check, per-bus timing NAY; KIS-BATT60 NAY (owner-away row 74) · live · specs/0K4-dispatch-model-review/rulings-2.md
-- `D-0K4.37` 0K4m 2.75 u in three units; unit 3 merge held for owner; 0K4 total 13.25 u; amends D-0K4.1 · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.37` 0K4m 2.75 u in three units; unit 3 merge held for owner; 0K4 total 13.25 u; amends D-0K4.1 · live; hold extended to the branch by D-0K4.43 · specs/0K4-dispatch-model-review/rulings-2.md
 - `D-0K4.38` world-month rule: study figures only as rates on an option's own quantity; Kobo settings NAY until 0K4f (owner-away row 75) · live · specs/0K4-dispatch-model-review/rulings-2.md
-- `D-0K4.39` 0K4m handshake answers; 3.5 u (1.75/0.75/1.0), unit 1 first; 0K4 total 14.0 u; amends D-0K4.37 · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.39` 0K4m handshake answers; 3.5 u (1.75/0.75/1.0), unit 1 first; 0K4 total 14.0 u; amends D-0K4.37 · live; order amended by D-0K4.43 · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.40` boundary proof (c): a comment line in no root entry's span is `<root>` and allowed; rev line stays; P20, P21 · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.41` N5: candidacy is availability plus hard bounds, never money_changes; computed-zero options count 0 value; tie order (owner-away row 77) · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.42` N6: output params half-even 6 places; money incl. sensitivities cents once from unrounded; defects 5, 6 no spec change; P22 · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.43` green judged at the branch head; commit 2 fails only on documents units 2-3 restate; go-to-market in unit 2; H9 in commit 6; one merge held for owner; amends D-0K4.37, D-0K4.39 (row 77) · live · specs/0K4-dispatch-model-review/rulings-2.md
+- `D-0K4.44` MODEL_PENDING slice is 0K4f in queued_slices (0K4e row dropped); record words end (0K4f); amends D-0K4.35 words · live · specs/0K4-dispatch-model-review/rulings-2.md
