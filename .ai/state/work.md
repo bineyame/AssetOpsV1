@@ -192,3 +192,16 @@ decision `D-2026-10-31-board-action-refresh-lineage`; packet `archive/agent-hist
   `tests/lakeside_people.py` shared by 3C2 and 6a. No value computed, no route, no served string.
 - Open: `6c` writes runs through `add_run`; `6b` bounds; `6f` screen. Packet Q1 (shadowed `option_effect_missing_check`)
   and Q2 (one error for a refused record). Pre-existing: 3B1 t1, 3B3 t6.
+
+## 6c: options valued against doing nothing (2026-11-22, `task/6c-option-evaluator`, in review)
+
+- `structure/difference.py` (the product-rule difference through a registry's expressions, no stated map, parity with
+  `evaluate` on every node of the three registries); `runs/admission.py` gains `AdmissionMeasures`, `judge` and
+  `DAWN_LIMIT_PCT` (`admit` delegates); `decisions/study_input.py` (one study file, frame SITE_RECORD or
+  DECLARED_SEASON), `decisions/models.py` (`SETTING_GRID_CHANGES`, injectable; full-month mean, no scaling),
+  `decisions/evaluate.py` (dispositions R0-R4, the four run outcomes, near set and distance), `decisions/run.py`
+  (`EvaluationService` E0-E7), command `evaluate_options`, `decision.evaluate` (ANALYST), ten `decision.refused`
+  variants. A declared season (every study today, Kobo's included) values nothing: values name
+  `SITE_MONTH_SIMULATION`.
+- Open: Kobo's values wait for 0K4f's Site-record study (D-P6.2, D-P6.26: the header is trusted); `6f` screen; `6b`
+  bounds. Pre-existing: 3B3 t6.

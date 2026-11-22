@@ -1,6 +1,6 @@
 # 6c: options valued against doing nothing (the evaluator; implementer spec)
 
-**Status: rev 2, handshake answered (`handshake.md`; D-P6.20 to D-P6.29); ready to build after 6a.** P6 approved by the owner, 22 Nov 2026 ("accept all p6 defaults",
+**Status: in_review (built 22 Nov 2026 on `task/6c-option-evaluator`). Rev 2, handshake answered (`handshake.md`; D-P6.20 to D-P6.29); ready to build after 6a.** P6 approved by the owner, 22 Nov 2026 ("accept all p6 defaults",
 `owner/owner-accept-p6-defaults-2026-11-22.md`); every default is decided (§11) and logged as D-P6.1 to D-P6.19
 (`specs/6-decision-valued/rulings.md`). Architect (Claude), 2026-11-21 rev 0, 2026-11-22 rev 1 and rev 2. Lane 3 (`delivery-plan.md` §2, row `6c`). **3.0 units**,
 three commits. Discovery review (W5): a money figure and a new mechanism. `USER_REVIEW_REQUIRED: true` (these are the
