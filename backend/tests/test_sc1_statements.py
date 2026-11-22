@@ -350,6 +350,8 @@ def test_t8_shipped_catalogue_loads():
                                          "action.actor_label", "action.observe_note", "action.change_statement",
                                          "action.publish_note", "action.client_authority_forbidden",
                                          "action.unknown_site",
+                                         # 1a (D-1A.9): the Optimize card's day and scope.
+                                         "portfolio_card.cost_scope",
                                          # 0K4b (D-0K4.19): Foundation property names and model-profile needs.
                                          "foundation.property_name", "model_profile.need",
                                          # 0K4a (D-0K4.19): mini-grid v8's description and restated fuel-tank state.

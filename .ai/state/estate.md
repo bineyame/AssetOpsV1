@@ -225,3 +225,13 @@ plus Addendum 1. Packet `archive/agent-history/COV-PARTIAL-packet.md`. Decision 
   `test_5c_screen_worlds_fresh.py` fails on a stale committed world (L4).
 - Open: dark theme; `StoreAgreedActions` (3C2 unit 2); "Show all" in the by-Site tables (outside drawers) still drops
   focus; the pre-existing `chainScreenRoutes` failure (`/sites/:siteId/uploads` missing from the routes fixture).
+
+## 1a - Optimize card states its day and scope (built, in_review; merge held for the owner's walkthrough)
+
+- Settled: the Portfolio Optimize card's figure stays one lead issue's stored cost (pinned: `window_day` rule 3,
+  `summary_window` DAY, `lead_finding`, the card's keys). `_summary` fills `CostScope` per Site (claim day: the
+  DAY board day, a one-day PERIOD window's day, else None; window days); `_optimize_card(..., scope=)` adds the last
+  key `scope_text`, the SC-1 statement `portfolio_card.cost_scope` (six variants, D-1A.9; `noun.day`). The face shows
+  it in v70's `oc-pfdays` slot (`data-portfolio-card-scope`, Optimize only; MD-1A-1, register R770).
+- Left open: the period's cost figure (`7g`); the site board's hidden fields (`1b`); cold-chain and EV cost claims are
+  not priced yet (the statement covers them).

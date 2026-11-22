@@ -105,7 +105,7 @@ VOCABULARY = {
     },
     "noun": {
         "forms": ["one", "other"],
-        "order": ["site", "budget_disagreement", "reading", "character", "month"],
+        "order": ["site", "budget_disagreement", "reading", "character", "month", "day"],
         "entries": {
             "site": {"one": "Site", "other": "Sites"},
             "budget_disagreement": {"one": "budget disagreement", "other": "budget disagreements"},
@@ -113,6 +113,8 @@ VOCABULARY = {
             # 3C2 (D-3C2.14): the agreed change's title length, in its refusal sentence.
             "character": {"one": "character", "other": "characters"},
             "month": {"one": "month", "other": "months"},  # 5c: the plan value's horizon (D-SC1.21)
+            # 1a (D-1A.8): the window's days, in the Optimize card's scope line.
+            "day": {"one": "day", "other": "days"},
         },
     },
     "month": {

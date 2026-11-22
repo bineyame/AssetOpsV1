@@ -12,7 +12,7 @@ UNKNOWN and `read_state` is PARTIAL. A port whose service is not configured rais
 from __future__ import annotations
 
 import logging
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, replace
 from datetime import date, datetime, timezone
 from typing import Any, Callable
@@ -30,6 +30,7 @@ from assetops_backend.chain.read import (SITE_TYPE_OF_DOMAIN, lifecycle_cutoff, 
 from assetops_backend.chain.read import board_day as local_board_day
 from assetops_backend.chain.claims import (SITES_DISRUPTED, VERIFIED_RESULTS, EstateCounts, estate_count_claims,
                                            opportunity_items)
+from assetops_backend.i18n import Absent, Count, Day, Name, State, message, render
 from assetops_backend.chain.vocabulary import (CHECKED_DAYS_BASIS, COST_SMALL, INCOME_LABELS, NOT_KNOWN_TEXT,
                                                card_text, count_card_value, day_counts, days_line, estate_income,
                                                money_text, node_text, sites_text)
@@ -146,6 +147,14 @@ def _open(gate: Callable[[str, UUID, UUID], tuple[bool, str]] | None, site: Site
 
 #: CH6b1-R Q2 (R14): mini Sites are judged on `window_day`, every other Site on the requested window (PERIOD).
 WINDOW_BASIS_DAY, WINDOW_BASIS_PERIOD = "DAY", "PERIOD"
+
+
+@dataclass(frozen=True)
+class CostScope:
+    """1a (D-1A.1, D-1A.5): per Site code, the day its Optimize claim is chosen on (None: the latest issue in the
+    requested window) and how many days the requested window shows at that Site."""
+    day: Mapping[str, date | None]
+    days: Mapping[str, int]
 PROTECT_CATEGORY = cold.PROTECT
 _MISS = object()   # CH6b1-R3: "no windows were read for this Site" (the board reads its own)
 
@@ -690,8 +699,16 @@ class SiteOutcomeBoardService:
         # list a declared objective; every other Site (a failed board or a failed objectives read) is unread.
         read_sites = objective_sites = 0
         verified_read = 0  # WALK1-1 (WN-1): the Sites whose board loaded (`verified_sites_unread`)
+        scope_day: dict[str, date | None] = {}   # 1a (D-1A.1): each Site's Optimize claim day and window days
+        scope_days: dict[str, int] = {}
         for site in sites:
             basis, b_day, b_lo, b_hi = self.summary_window(site, lo, hi, known_at)
+            wd = window_days(lo, hi, site.timezone)
+            # 1a L2: "the last of the N days shown" names `window_day`, so a DAY Site's day is stated only where it is
+            # the last of the days shown; a mixed-frame window (Site-local `lo`, UTC `hi`) names no day instead.
+            scope_day[site.site_code] = (b_day if len(wd) <= 1 or b_day == wd[-1] else None) \
+                if basis == WINDOW_BASIS_DAY else (wd[0] if len(wd) == 1 else None)
+            scope_days[site.site_code] = len(wd)
             earnings: dict[str, Any] | None = None
             try:
                 with perf.timed(f"board.{site.site_code}"):  # QW-1: each Site's board inside the summary
@@ -719,6 +736,7 @@ class SiteOutcomeBoardService:
                         "domain": site.domain, "overview_href": _overview_href(site), "read_state": read_state,
                         "rows": rows, "window": window, "window_basis": window_basis, "earnings": earnings})
         _, money_total = portfolio_parts(out)
+        scope = CostScope(scope_day, scope_days)
         counted = self.estate_counts(sites, lo, hi, known_at)
         categories = [{"category": cat, "label": CATEGORY_LABEL[cat], "definition": CATEGORY_DEFINITION[cat],
                        "icon": CATEGORY_ICON[cat],
@@ -736,7 +754,8 @@ class SiteOutcomeBoardService:
                 "verified_sites_unread": len(sites) - verified_read, "money_total": money_total,
                 # CH6b2-R Q1: the ONE card builder; `/api/estate/chain` carries the same `cards`.
                 "cards": portfolio_cards(out, counted, money_total, categories,
-                                         objective_sites if read_sites else None, len(sites) - read_sites),
+                                         objective_sites if read_sites else None, len(sites) - read_sites,
+                                         scope=scope),
                 # PF-C1: the one coverage line, from the same `counted.days` the cards count.
                 "coverage_line": portfolio_coverage(out, counted)}
 
@@ -898,7 +917,33 @@ def _cost_claim(s: dict[str, Any]) -> dict[str, Any] | None:
     return (row.get("nodes") or {}).get("earnings")
 
 
-def _optimize_card(sites: list[dict[str, Any]], counted: EstateCounts | None = None) -> dict[str, Any]:
+def cost_scope_text(priced: list[tuple[dict[str, Any], dict[str, Any]]], scope: CostScope | None) -> str | None:
+    """1a (spec section 3.3, D-1A.9): the Optimize card's day and scope, the SC-1 statement
+    `portfolio_card.cost_scope` over the priced Sites' `CostScope` facts; None without a scope or a priced Site."""
+    if scope is None or not priced:
+        return None
+    codes = [s["site_code"] for s, _ in priced]
+    n = {scope.days[c] for c in codes}
+    d = {scope.day[c] for c in codes}
+    span = State("ONE_DAY") if n == {1} else State("RANGE")
+    if len(priced) == 1:
+        (s, _), = priced
+        c = s["site_code"]
+        sites, site = State("ONE"), Name(s.get("site_name") or c, "site.name")
+        day = Day(scope.day[c]) if scope.day[c] is not None else Absent("LATEST_IN_RANGE")
+        days = Absent("ONE_DAY") if n == {1} else Count(scope.days[c], "day")
+    else:
+        sites, site = State("SEVERAL"), Absent("SEVERAL")
+        if len(d) == 1 and None not in d and len(n) == 1:
+            day = Day(next(iter(d)))
+            days = Absent("ONE_DAY") if n == {1} else Count(next(iter(n)), "day")
+        else:
+            day = days = Absent("DAYS_DIFFER")
+    return render(message("portfolio_card.cost_scope", sites=sites, site=site, span=span, day=day, days=days))
+
+
+def _optimize_card(sites: list[dict[str, Any]], counted: EstateCounts | None = None, *,
+                   scope: CostScope | None = None) -> dict[str, Any]:
     """CH5d1-R 2.1: the Optimize card from each Site's chain cost claim (`avoided_cost@1` over `money_head`), the
     claim the board shows, so the card and its "Why?" share one source. Never summed across Sites (design A6,
     D-AW-5): one priced Site shows its claim text byte-equal; two or more list each Site's claim."""
@@ -920,12 +965,12 @@ def _optimize_card(sites: list[dict[str, Any]], counted: EstateCounts | None = N
     days = {s["site_code"]: c.get("days") for s, c in priced}
     return {"value": value, "missing": False, "detail": detail, "basis_text": basis,
             "days_line": _own_days([s for s, _ in priced], lambda s: days[s["site_code"]], counted),
-            "tone": tone, "claim": claim}
+            "tone": tone, "claim": claim, "scope_text": cost_scope_text(priced, scope)}
 
 
 def portfolio_cards(sites: list[dict[str, Any]], counted: EstateCounts | None, money_total: dict[str, Any],
                     categories: list[dict[str, Any]], objective_sites: int | None,
-                    objectives_unread: int) -> dict[str, dict[str, Any]]:
+                    objectives_unread: int, *, scope: CostScope | None = None) -> dict[str, dict[str, Any]]:
     """CH6b2-R Q1 (build sheet CH-6 §B2): the ONE builder of the Portfolio's four cards (Grow, Optimize, Protect,
     Assure), called by the summary and carried by `/api/estate/chain`, so they agree by construction. Each card is
     `{value: {text, small}, missing, detail, basis_text, days_line, tone, claim, parts?}`; the browser renders markup
@@ -962,7 +1007,7 @@ def portfolio_cards(sites: list[dict[str, Any]], counted: EstateCounts | None, m
                   for e in (r.get("nodes") or {}).get("unexplained_fuel") or ()]
     return {
         GROW: _grow_card(sites, money_total, counted),
-        COST: _optimize_card(sites, counted),
+        COST: _optimize_card(sites, counted, scope=scope),   # 1a: `scope` states its day and scope
         PROTECT: {"value": count_card_value(disrupted), "missing": False,
                   "detail": card_text("protect.detail.none") if w is None
                   else card_text("protect.detail", w=w, warnings="warning" if w == 1 else "warnings"),

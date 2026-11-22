@@ -1435,6 +1435,54 @@ describe("OUT-A A6: Portfolio outcome category cards", () => {
     );
   });
 
+  // 1a (spec §3.5, D-1A.3, D-1A.10 I2): the Optimize card's day and scope, server text, on the face in v70's
+  // `oc-pfdays` slot (after the figure, before the sentence); every other card unchanged.
+  const SCOPE = "Cost of Kobo's lead issue on 30 October 2026, the last of the 30 days shown, not their total";
+  const faceHooks = (root: Element) =>
+    [...new Set([...root.querySelectorAll("*")].flatMap((n) => [...n.attributes].map((a) => a.name)).filter((a) => a.startsWith("data-portfolio-")))].sort();
+  const ON_CARD = ["data-portfolio-card-basis", "data-portfolio-card-detail", "data-portfolio-card-link", "data-portfolio-card-name", "data-portfolio-card-value"];
+  const scoped = () => outcomeSummaryBody({ cards: serverCards({ OPTIMIZE_COST: { ...OPTIMIZE_ONE_SITE, scope_text: SCOPE } }) });
+
+  it("f1OptimizeFaceStatesTheServerScopeBetweenTheFigureAndTheSentence", async () => {
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "loaded", value: scoped() }));
+    await settledScreen();
+    const optimize = card("OPTIMIZE_COST");
+    const scope = optimize.querySelectorAll("[data-portfolio-card-scope]");
+    expect(scope).toHaveLength(1);
+    expect(scope[0].textContent).toBe(SCOPE);
+    expect(scope[0].tagName).toBe("SMALL");
+    expect(scope[0].classList.contains("oc-pfdays")).toBe(true);
+    const fig = optimize.querySelector("[data-portfolio-card-value]") as Element;
+    const detail = optimize.querySelector("[data-portfolio-card-detail]") as Element;
+    expect(fig.compareDocumentPosition(scope[0]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(scope[0].compareDocumentPosition(detail) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(fig.contains(scope[0])).toBe(false);
+    expect(value("OPTIMIZE_COST")).toBe("3.31 USD possible extra fuel cost");
+    expect(faceHooks(optimize)).toEqual([...ON_CARD, "data-portfolio-card-scope"].sort());
+  });
+
+  it("f2NoScopeLineWithoutServerScopeText", async () => {
+    for (const optimize of [{ ...OPTIMIZE_ONE_SITE, scope_text: null }, OPTIMIZE_ONE_SITE]) {
+      const view = renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "loaded", value: outcomeSummaryBody({ cards: serverCards({ OPTIMIZE_COST: optimize }) }) }));
+      await settledScreen();
+      expect(document.querySelector("[data-portfolio-card-scope]")).toBeNull();
+      expect(faceHooks(card("OPTIMIZE_COST"))).toEqual(ON_CARD);
+      view.unmount();
+    }
+  });
+
+  it("f3TheOtherThreeCardsNeverRenderAScopeLine", async () => {
+    renderAt(ENTRY, withOutcomeSummary(portfolioClient(loadedPortfolio(portfolioBody())), { status: "loaded", value: scoped() }));
+    await settledScreen();
+    expect(document.querySelectorAll("[data-portfolio-card-scope]")).toHaveLength(1);
+    for (const key of ["GROW_REVENUE", "PROTECT_ASSET", "ASSURE_PERFORMANCE"]) {
+      expect(card(key).querySelector("[data-portfolio-card-scope]")).toBeNull();
+      expect(card(key).querySelector(".oc-pfdays")).toBeNull();
+      expect(text(card(key))).not.toContain(SCOPE);
+      expect(faceHooks(card(key))).toEqual(ON_CARD);
+    }
+  });
+
   it("assureRendersTheServerDetailVerbatimForEveryGapShape", async () => {
     const cases = [
       "Verified results not known yet · evidence gaps at all 3 sites",
