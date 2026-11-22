@@ -159,6 +159,10 @@ class OperatorOnboarding:
             raise OnboardRefused("ONBOARDING_CLOSED", closed)
         return plan
 
+    @property
+    def foundation(self):
+        return self._foundation
+
     def apply(self, f: OperatorFile, *, confirmed_digest: str) -> Plan:
         self.wrote = False
         if confirmed_digest != roles_digest(f):
