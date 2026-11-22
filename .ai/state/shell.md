@@ -503,3 +503,14 @@ Branch `task/W1-UX-07` (base main `3bb1b8b2`). Packet `archive/agent-history/W1-
   `specs/IA-P-product-shape/packet-IA-P2.md` (the per-file migration of 140 existing frontend tests, plants, counts).
 - Left open: the demo's prebuilt `/portfolio` week requests (`tools/demo_combined.py`) no longer match what the Overview reads (E2);
   MD-IAP-3, -7, -10, -11, -12, -16 registered (R784 to R789); the world ladder's L2 `code` part is stale until the coordinator rebuilds it.
+
+## IA-P3 - Sites, the Site's six tabs, the inbox, scope and search (P4b built, in_review; P5 to P7 not built)
+
+- Pre-flight for the whole part: `specs/IA-P-product-shape/IA-P3-preflight.md` (28 questions with defaults; Q21 blocks only
+  P5's `/sites/:id/findings` alias). Meeting point with 6f1: `decisionItems(` (6f1 U2's W6 sweep, §4.4).
+- P4b: `/sites` is the Sites list on `HomeList` (`estate/sitesList.tsx`), rows from E1 (`estate/portfolioSitesClient.ts`) in
+  E1's order, then directory Sites E1 lacks; tiles Sites, Below target, Gap to target (E1 `total.gap` only unfiltered, R6);
+  "Waiting for a choice" from E0 with the 31-day window note in the column heading; mode `none`: notes, no target facet.
+  Outcomes: L1 E1 headline, L2 the same rows (no tools, no tiles), L3 cards then "Each Site's objectives". `/sites` is a
+  range page. `HomeList` gained `def.more` and a column `note`. Gate S1 in `tools/iap_gates.cjs`.
+- Left open: P5, P6, P7; the demo's prebuilt responses do not answer `/api/portfolio/sites`; register R790 to R793.
