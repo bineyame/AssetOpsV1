@@ -56,8 +56,8 @@
      "dawn_days_below": 0.0
     },
     "not_available": {
-     "necessary_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4e, 4d)",
-     "candidate_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4e, 4d)"
+     "necessary_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)",
+     "candidate_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)"
     }
    },
    "actual": {
@@ -113,8 +113,8 @@
      "dawn_days_below": 0.0
     },
     "not_available": {
-     "necessary_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4e, 4d)",
-     "candidate_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4e, 4d)"
+     "necessary_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)",
+     "candidate_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)"
     }
    }
   },
@@ -4133,8 +4133,8 @@
          "dawn_days_below": 0.0
         },
         "not_available": {
-         "necessary_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4e, 4d)",
-         "candidate_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4e, 4d)"
+         "necessary_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)",
+         "candidate_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)"
         },
         "not_observed": [
          "asset_days_available",
@@ -4175,7 +4175,7 @@
           "cause": "MODEL_PENDING",
           "carried_as": null,
           "blocks": [],
-          "slice": "0K4e"
+          "slice": "0K4f"
          },
          {
           "side": "plan",
@@ -4185,7 +4185,7 @@
           "cause": "MODEL_PENDING",
           "carried_as": null,
           "blocks": [],
-          "slice": "0K4e"
+          "slice": "0K4f"
          },
          {
           "side": "plan",
@@ -4279,8 +4279,8 @@
          "dawn_days_below": 0.0
         },
         "not_available": {
-         "necessary_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4e, 4d)",
-         "candidate_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4e, 4d)"
+         "necessary_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)",
+         "candidate_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)"
         },
         "not_observed": [
          "asset_days_available",
@@ -4295,7 +4295,7 @@
           "cause": "MODEL_PENDING",
           "carried_as": null,
           "blocks": [],
-          "slice": "0K4e"
+          "slice": "0K4f"
          },
          {
           "side": "actual",
@@ -4305,7 +4305,7 @@
           "cause": "MODEL_PENDING",
           "carried_as": null,
           "blocks": [],
-          "slice": "0K4e"
+          "slice": "0K4f"
          },
          {
           "side": "actual",
@@ -4416,8 +4416,8 @@
          "dawn_days_below": 0.0
         },
         "not_available": {
-         "necessary_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4e, 4d)",
-         "candidate_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4e, 4d)"
+         "necessary_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)",
+         "candidate_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)"
         },
         "not_observed": [
          "asset_days_available",
@@ -4458,7 +4458,7 @@
           "cause": "MODEL_PENDING",
           "carried_as": null,
           "blocks": [],
-          "slice": "0K4e"
+          "slice": "0K4f"
          },
          {
           "side": "plan",
@@ -4468,7 +4468,7 @@
           "cause": "MODEL_PENDING",
           "carried_as": null,
           "blocks": [],
-          "slice": "0K4e"
+          "slice": "0K4f"
          },
          {
           "side": "plan",
@@ -4562,8 +4562,8 @@
          "dawn_days_below": 0.0
         },
         "not_available": {
-         "necessary_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4e, 4d)",
-         "candidate_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4e, 4d)"
+         "necessary_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)",
+         "candidate_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)"
         },
         "not_observed": [
          "asset_days_available",
@@ -4578,7 +4578,7 @@
           "cause": "MODEL_PENDING",
           "carried_as": null,
           "blocks": [],
-          "slice": "0K4e"
+          "slice": "0K4f"
          },
          {
           "side": "actual",
@@ -4588,7 +4588,7 @@
           "cause": "MODEL_PENDING",
           "carried_as": null,
           "blocks": [],
-          "slice": "0K4e"
+          "slice": "0K4f"
          },
          {
           "side": "actual",
@@ -4699,8 +4699,8 @@
          "dawn_days_below": 0.0
         },
         "not_available": {
-         "necessary_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4e, 4d)",
-         "candidate_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4e, 4d)"
+         "necessary_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)",
+         "candidate_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)"
         },
         "not_observed": [
          "asset_days_available",
@@ -4741,7 +4741,7 @@
           "cause": "MODEL_PENDING",
           "carried_as": null,
           "blocks": [],
-          "slice": "0K4e"
+          "slice": "0K4f"
          },
          {
           "side": "plan",
@@ -4751,7 +4751,7 @@
           "cause": "MODEL_PENDING",
           "carried_as": null,
           "blocks": [],
-          "slice": "0K4e"
+          "slice": "0K4f"
          },
          {
           "side": "plan",
@@ -4845,8 +4845,8 @@
          "dawn_days_below": 0.0
         },
         "not_available": {
-         "necessary_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4e, 4d)",
-         "candidate_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4e, 4d)"
+         "necessary_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)",
+         "candidate_l": "dispatch-3.3 classification of Kobo's October generator, solar and battery readings (0K4f)"
         },
         "not_observed": [
          "asset_days_available",
@@ -4861,7 +4861,7 @@
           "cause": "MODEL_PENDING",
           "carried_as": null,
           "blocks": [],
-          "slice": "0K4e"
+          "slice": "0K4f"
          },
          {
           "side": "actual",
@@ -4871,7 +4871,7 @@
           "cause": "MODEL_PENDING",
           "carried_as": null,
           "blocks": [],
-          "slice": "0K4e"
+          "slice": "0K4f"
          },
          {
           "side": "actual",

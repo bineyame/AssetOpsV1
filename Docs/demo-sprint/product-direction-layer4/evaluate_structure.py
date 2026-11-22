@@ -38,7 +38,7 @@ import operator
 import pathlib
 import re
 import sys
-from decimal import Decimal as D
+from decimal import Decimal as D, ROUND_HALF_EVEN
 
 import yaml
 
@@ -198,7 +198,7 @@ class Env:
 def money(x):
     if na(x):
         return x
-    return None if x is None else float(D(x).quantize(D("0.01")))
+    return None if x is None else float(D(x).quantize(D("0.01"), rounding=ROUND_HALF_EVEN))   # N6: half-even, once, at output
 
 
 def out_money(x):
@@ -453,7 +453,7 @@ def main(path, variants=True) -> dict:
                "rights": {"claimable_cover": money(opt["claimable_cover"]), "unclaimable_cover": money(opt["unclaimable_cover"]), "cover_lost": money(lost),
                           "lapsed": lapsed, "states": {a: r["eligibility"] for a, r in rights.items() if r["site"] == site}},
                "violations": violations, "restore_basis": restore_basis,
-               "restore_date": restore.isoformat() if restore else None, "params": {k: None if na(v) else float(v) for k, v in params.items()},
+               "restore_date": restore.isoformat() if restore else None, "params": {k: None if na(v) else float(D(v).quantize(D("0.000001"), rounding=ROUND_HALF_EVEN)) for k, v in params.items()},   # N6
                # N4: the replay studies the option's `source:` params and its information read
                "replay_sources": sorted({ps["source"]["study"] for ps in (spec.get("params") or {}).values() if isinstance(ps, dict) and "source" in ps}
                                         | ({spec["information"]["source"]["study"]} if "source" in (spec.get("information") or {}) else set())),
@@ -509,12 +509,10 @@ def main(path, variants=True) -> dict:
         def candidates(d, drops=()):
             """Options a decision may take: those meeting its hard bounds; if none can and it declares the fallback, all of them
             (violation is then minimised jointly with the rest of the plan)."""
-            # N1: a not-available option is never chosen. A decision that must take one (protective, or valued with optional:
-            # false) may take an option that changes no money node: its spend counts, its value is not valued in money (0K4m: the
-            # Mto inverter paths once M8's extra fuel is 0)
-            must = d["kind"] == "protective" or not d.get("optional", True)
-            opts = [o for o in d["options"] if o not in drops and "not_available" not in O[o]
-                    and (must or O[o]["value_if_admissible"] is not None)]
+            # N5 (D-0K4.41): a candidate is available (N1) and meets the hard bounds; whether it changes a money node never
+            # affects candidacy, whatever the decision's kind (an option with money_changes false adds 0 to value, its one-off
+            # to spend, and is listed as not valued in money)
+            opts = [o for o in d["options"] if o not in drops and "not_available" not in O[o]]
             ok = [o for o in opts if admissible(o, d)]
             return (ok, False) if ok or d.get("fallback") != "least_violation" else (opts, True)
 
@@ -551,7 +549,7 @@ def main(path, variants=True) -> dict:
                 opts, lv = candidates(d, drops)
                 if lv:
                     lvd.add(d["name"])
-                if d["kind"] == "valued" and (d.get("optional", True) or not opts):
+                if (d["kind"] == "valued" and d.get("optional", True)) or not opts:   # N5: "take none" first
                     opts = [None] + opts
                 choice_sets.append(opts)
             res, why_not = None, {}
@@ -758,7 +756,7 @@ def missing_entry(side, subject, row, cause, carried_as, blocks, **extra):
     return e
 
 
-MODEL_PENDING, MODEL_PENDING_SLICE = "MODEL_PENDING", "0K4e"   # 0K4m spec §2.4: a computed leaf whose model version is pending
+MODEL_PENDING, MODEL_PENDING_SLICE = "MODEL_PENDING", "0K4f"   # 0K4m spec §2.4 (D-0K4.44): a computed leaf whose model has not yet run on this world's records
 
 
 def pending_leaves(side, fm, vals, leaf_sources, struct):

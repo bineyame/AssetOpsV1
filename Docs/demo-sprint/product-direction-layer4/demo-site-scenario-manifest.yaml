@@ -81,8 +81,8 @@ tenants:
   - site: Kobo
     observations: {october: {unserved_critical_kwh: 0, customer_hours_interrupted: 0, field_visits: 1, major_assets: 5}}
     factor_sources:   # 0K4m (D-0K4.35): the recorded 730/330 split is a design value the view keeps for 0K4f; nothing reads it
-      necessary_l: 'unavailable("dispatch-3.3 classification of Kobo''s October generator, solar and battery readings (0K4e, 4d)")'
-      candidate_l: 'unavailable("dispatch-3.3 classification of Kobo''s October generator, solar and battery readings (0K4e, 4d)")'
+      necessary_l: 'unavailable("dispatch-3.3 classification of Kobo''s October generator, solar and battery readings (0K4f)")'
+      candidate_l: 'unavailable("dispatch-3.3 classification of Kobo''s October generator, solar and battery readings (0K4f)")'
     code: KOBO-001
     role_in_story: "controllable generator running (hero) + incomplete-evidence battery warranty"
     reuse: "existing demo Site KOBO-001 (template kobo-mini-grid-60kw.yaml v3)"
@@ -113,12 +113,12 @@ tenants:
       variance: -562.00
       bridge:
         - {driver: DEMAND_VOLUME, overlap_group: KOBO-2026-10-REV, amount: 38.00, basis: "95 kWh x {rec:tenants[lakeside-power].prices.tariff_usd_per_kwh.Kobo}", class: ECONOMIC_ACTUAL}
-        - {driver: GENERATOR_RUNNING, overlap_group: KOBO-2026-10-FUEL, amount: -450.00, basis: "{fig:sites[lakeside-power/Kobo].actual.nodes.generator_l} L against plan {fig:sites[lakeside-power/Kobo].plan.nodes.generator_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kobo}; the split into candidate and needed running: Not available yet (dispatch-3.3 on Kobo's October readings; 0K4e, 4d)", class: DERIVED,
+        - {driver: GENERATOR_RUNNING, overlap_group: KOBO-2026-10-FUEL, amount: -450.00, basis: "{fig:sites[lakeside-power/Kobo].actual.nodes.generator_l} L against plan {fig:sites[lakeside-power/Kobo].plan.nodes.generator_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kobo}; the split into candidate and needed running: Not available yet (dispatch-3.3 on Kobo's October readings; 0K4f)", class: DERIVED,
            note: "observed factor; what an option avoids is that option's effect (M3), never a node of the observed structure"}
         - {driver: UNEXPLAINED_RESIDUAL, overlap_group: KOBO-2026-10-FUEL, amount: -150.00, basis: "{fig:sites[lakeside-power/Kobo].actual.nodes.unexplained_l} L x {rec:tenants[lakeside-power].prices.diesel_usd_per_l.Kobo} consumed minus modelled; investigate (MG-L5)", class: DERIVED}
       fuel_balance: {opening_dip_l: 220, deliveries_l: 1200, closing_dip_l: 240, consumed_l: 1180, model_implied_l: 1060, residual_l: 120, tolerance_pct: 2.0}
     findings_expected:
-      - {mechanism: GENERATOR_SUPPORT_CANDIDATE, status: NOT_AVAILABLE_YET, record: "dispatch-3.3 on Kobo's October readings (0K4e); fuel-cost-1 bounds over 3.3 Candidate time"}
+      - {mechanism: GENERATOR_SUPPORT_CANDIDATE, status: NOT_AVAILABLE_YET, record: "dispatch-3.3 on Kobo's October readings (0K4f); fuel-cost-1 bounds over 3.3 Candidate time"}
       - {mechanism: UNEXPLAINED_FUEL, residual_l: 120, note: "above 2% tolerance; investigation, no recovery claimed"}
     decision:
       thread: "Kobo generator runs after dawn while solar could carry the load"
@@ -273,7 +273,6 @@ tenants:
           load: {kw: 10, window: "18:00-21:00", days_per_month: 22, kwh_month: 660}
           replay: M8 mto-welder
           economics: {class: MODELLED, input_class: SIMULATED, value: "{fig:options.MTO-WELDING.value}", monthly_change: "{fig:options.MTO-WELDING.monthly_or_horizon_change}"}
-          break_even_tariff_usd_per_kwh: 0.42
           disposition: REJECTED
           reason: "every evening kWh is diesel; margin negative at {rec:tenants[lakeside-power].prices.tariff_usd_per_kwh.Mto} and no demand evidence"
         - id: MTO-BILLING
@@ -1644,8 +1643,8 @@ empty_states:   # rev 16.13 (20 Nov; owner routed the placeholder audit's gaps 1
   #         NEVER_EMPTY    - calendar
   # family: COMMERCIAL_RECORD (integration-source-to-canonical-design.md §6.1 kinds) | READING (role) | OPERATIONAL_RECORD |
   #         OBSERVER (a computed leaf over the named records) | DECLARED (site configuration, price or model) | DOCUMENT | CALENDAR
-  # cause:  NOT_RECEIVED | NOT_CONNECTED | NOT_CALCULATED_YET | MODEL_PENDING (0K4m: a computed leaf whose model version is pending;
-  #         its slice is 0K4e; the leaf's factor is `unavailable(...)` and its value null with words, never 0)
+  # cause:  NOT_RECEIVED | NOT_CONNECTED | NOT_CALCULATED_YET | MODEL_PENDING (0K4m: a computed leaf whose model has not yet run on
+  #         this world's records; its slice is 0K4f; the leaf's factor is `unavailable(...)` and its value null with words, never 0)
   leaf_sources:
     MINI_GRID:
       delivered_kwh:              {family: READING, kind: feeder_demand, absent: MISSING, slice: 3B3}
@@ -1780,7 +1779,7 @@ empty_states:   # rev 16.13 (20 Nov; owner routed the placeholder audit's gaps 1
       slice: 4c
       trigger: "pulled from the deferral queue when a lane is free after the must-keep set (day 12); at the latest when a pilot pins a real register profile"
   queued_slices:   # slices declared here, outside plan_model.py's fortnight: each with its scope, units and trigger
-    0K4e: {name: "Candidate energy: dispatch-3.3 classification of generator, solar and battery readings (Kobo's candidate and needed running)", lane: STR, units: 1, deps: [3B3]}   # 0K4m: the MODEL_PENDING slice; outside the fortnight (spec §2.4)
+    0K4f: {name: "The fuel law and the worlds on v8: the product's fuel law reads v8's curve, the Kobo template and DS2's telemetry writer adopt v8, the demo database is rebuilt, and Kobo's October readings are classified by dispatch-3.3", lane: STR, units: 2, deps: [0K4e, 4d]}   # 0K4m (D-0K4.44): the MODEL_PENDING slice; outside the fortnight (spec §2.4)
     4c: {name: "Capacity by time window: usable capacity and idle capacity as capacity factors (no money), from the kept headroom observer", lane: STR, units: 2.5, deps: [3B3, 0M]}
   record_words:   # plain words for a record kind on screen, where the leaf row gives none
     PLAN_LINE: "Targets below the site total"
