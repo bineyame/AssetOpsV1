@@ -152,3 +152,15 @@ writer.
   record-to-reading layer (quantisation, mappings, sort) is pinned only from DD4a's join parity onward.
 - C-DD12's static scan matches the literal "oracle". A key built by concatenation (as `ORACLE_KEY` itself is) would pass
   it. The runtime `refuse_oracle` covers the inputs, not a module that reads the file directly.
+
+## Re-review (fix round 2) (2026-11-22, head 8b021760d; verification re-review, W5)
+
+**Summary.**
+- **Verdict: ACCEPT.** No finding remains open in DD3a. No High, Medium or Low found.
+- M1 fixed by D-DD.102: `PHYSICAL_READS` and `physical_read` in `world/scope.py`; `_Scope.physical` reads only the restricted dict, so an undeclared read refuses. Cold golden from main committed before the change.
+- M2 and L1 are recorded as moved by ruling (D-DD.103 to DD4a, D-DD.104 to DD3b), in `.ai/state/data.md` "Open" and the packet. Neither is built here: no `READINGS_SPAN`, no `start_soc` change (`telemetry.py` diff is only L2).
+- L2: `SEASON_V2_DAYS = 61` and a derived last day, with a host test pinning it to `kobo_season.SEASON_DAYS`; CLI `--end` is `None`, resolved from `period_end(accounting_period)`. No guard allowance added.
+- L3 (state Open rewritten), L4 (D-DD.105 line in the packet), L5 (tank readers named), L6 (main merged; catalogue exit 0): done.
+- Moved figures recomputed from `Docs/demo-sprint/product-direction-layer4/derived-values.json`: Kobo Jul (billed 8318 x 0.40 = 3327.20; diesel 972 x 1.25 = 1215; cost 1215+600+500 = 2315; contribution 1012.20) and Kisiwa Sep (7272 x 0.55 = 3999.60; 2134 x 1.30 = 2774.20; cost 3974.20; contribution +25.40). Mto Aug also ties, and the Jul portfolio sum 1012.20-318.15+823.25 = 1517.30 matches the packet.
+- Checks I ran at head: simulator+host+tools (22 files: all `simulator/tests/world/test_*.py`, `test_0k4c_season_v2`, the kernel parity, `test_0m_mto_headroom`, `test_select_tests_neutral`) 322 passed. Architecture, workflow guards pass; `statement_catalogue.py` exit 0, "OK ... (9 adopted)".
+- Not rerun: the backend 101-file run (cited from the packet: 2244 passed, 3 errors equal to main's) and `check_manifest` (7795/6, the known baseline). Residual risk: the 3 `test_ch6b_estate_postgres` TEMPLATE_STALE errors are main's, unverified by me.
