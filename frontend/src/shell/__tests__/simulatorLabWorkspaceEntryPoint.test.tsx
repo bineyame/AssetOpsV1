@@ -11,6 +11,7 @@ import {
   simulatorLabWorkspaceEntryPoints,
 } from "../simulatorLabRoutes";
 import { settledScreen } from "../../test/settled";
+import { estateE0, sitesE1 } from "../../test/sitesE1";
 import { spacedText } from "../../test/text";
 
 /**
@@ -59,7 +60,7 @@ const EMPTY_SITE_DIRECTORY: SiteDirectoryClient = {
 function renderAt(path: string, flags: FeatureFlags) {
   return render(
     <MemoryRouter initialEntries={[path]}>
-      <App flags={flags} siteDirectory={EMPTY_SITE_DIRECTORY} />
+      <App flags={flags} siteDirectory={EMPTY_SITE_DIRECTORY} portfolioSites={sitesE1()} estateIndex={estateE0({})} />
     </MemoryRouter>,
   );
 }
@@ -134,12 +135,11 @@ describe("workspace entry point: disabled", () => {
       expect(
         screen.queryByRole("navigation", { name: "Workspace utilities" }),
       ).toBeNull();
-      // post-W6 shell R127: the Sites page now carries its root breadcrumb, so the operator rail is the only
-      // navigation besides that page crumb; a workspace landmark would still fail.
-      expect(
-        screen.getAllByRole("navigation").filter((nav) => nav.getAttribute("aria-label") !== "Breadcrumb"),
-      ).toHaveLength(1);
-      expect(screen.getAllByRole("navigation", { name: "Breadcrumb" })).toHaveLength(1);
+      // IA-P P4b (spec §5.3): the Sites list page has no root crumb (R127's crumb left with the directory page), so the
+      // operator rail is the only navigation; a workspace landmark would still fail.
+      await settledScreen();
+      expect(screen.getAllByRole("navigation")).toHaveLength(1);
+      expect(screen.queryByRole("navigation", { name: "Breadcrumb" })).toBeNull();
       expect(
         screen.queryByRole("link", { name: SIMULATOR_LAB_ENTRY_POINT_LABEL }),
       ).toBeNull();

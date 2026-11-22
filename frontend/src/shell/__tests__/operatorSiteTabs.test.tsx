@@ -17,6 +17,7 @@ import { EMPTY_EVIDENCE_CLIENT } from "../../sites/__tests__/evidenceFixtures";
 import { COLD_SITE, FROM, KNOWN, SITE as COLD_CODE, TO, coldFetch } from "../../sites/__tests__/coldWorkFixtures";
 import { EV_SITE, EV_SITE_CODE, evIndexBody, evRow } from "../../sites/__tests__/evWorkFixtures";
 import { settledScreen } from "../../test/settled";
+import { estateE0, sitesE1 } from "../../test/sitesE1";
 import {
   OPERATOR_SITE_TABS,
   OPERATOR_SITE_TABS_LABEL,
@@ -147,6 +148,7 @@ function renderAt(path: string, flags: FeatureFlags = ENABLED) {
         siteDirectory={directoryWith([SITE])}
         siteDetail={detailClientFor([SITE_DETAIL])}
         siteEvidence={EMPTY_EVIDENCE_CLIENT}
+        portfolioSites={sitesE1()} estateIndex={estateE0({})}
       />
     </MemoryRouter>,
   );
@@ -332,7 +334,9 @@ describe("the tab row belongs to a site", () => {
 
   it("does not render on the Sites index", async () => {
     renderAt("/sites");
-    await screen.findByRole("table", { name: "Site inventory" });
+    // IA-P P4b (spec §6 P4b): the Sites list replaces the directory table.
+    await settledScreen();
+    expect(document.querySelector('[data-home-list="sites"] tbody tr[data-row="MG-002"]')).not.toBeNull();
 
     expect(
       screen.queryByRole("navigation", { name: OPERATOR_SITE_TABS_LABEL }),

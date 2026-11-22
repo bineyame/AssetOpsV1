@@ -19,6 +19,7 @@ import type {
   SiteSummary,
 } from "../../sites/siteReadModel";
 import { settledScreen } from "../../test/settled";
+import { estateE0, sitesE1 } from "../../test/sitesE1";
 import { spacedText } from "../../test/text";
 
 /**
@@ -54,7 +55,8 @@ const ENABLED = featureFlagsWith(true);
  * "Setup details" disclosure. No fact was dropped; `Last analysed` was an
  * all-dash column and is explained beside the table instead.
  */
-const SITES_INDEX_COLUMNS = ["Site", "Type", "Mode", "Operating view", "Setup details", "Actions"];
+/** IA-P P4b (spec §6 P4b, §4.3 E1 `columns`): the Sites list's columns, which replace the directory table's. */
+const SITES_INDEX_COLUMNS = ["Site", "Group", "Contribution", "Gap to target", "Largest driver against target", "Waiting for a choice"];
 
 /**
  * The rendered Site tabs, written out rather than imported
@@ -164,6 +166,8 @@ function renderAt(path: string, flags: FeatureFlags = ENABLED) {
         siteDirectory={directoryWith([SITE])}
         siteDetail={detailClientFor([SITE_DETAIL])}
         siteTemplateCatalog={CATALOG}
+        portfolioSites={sitesE1()}
+        estateIndex={estateE0({})}
       />
     </MemoryRouter>,
   );
@@ -233,7 +237,7 @@ describe.each(SURFACES_WITH_A_TABLE)(
 describe("the correction buys no space from the inventories", () => {
   it("leaves the Sites index with all its columns", async () => {
     renderAt("/sites");
-    await screen.findByRole("table", { name: "Site inventory" });
+    await settledScreen();
 
     // The M1 viewport policy is explicit that a column is never dropped
     // because the viewport is narrow: that would be a further state beside not
@@ -241,7 +245,7 @@ describe("the correction buys no space from the inventories", () => {
     // by the V-01a round 2 owner ruling. Containing the overflow is the layout
     // change; losing a column would have been a product change.
     expect(
-      within(screen.getByRole("table", { name: "Site inventory" }))
+      within(screen.getByRole("table", { name: "Sites" }))
         .getAllByRole("columnheader")
         .map((header) => header.textContent),
     ).toEqual(SITES_INDEX_COLUMNS);

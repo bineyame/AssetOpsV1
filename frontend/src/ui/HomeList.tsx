@@ -57,6 +57,11 @@ export interface HomeListOptions {
   tiles?: boolean;
   /** Overrides the cap; "Show all" becomes "View all", linking to the list's own route. */
   cap?: number;
+  /**
+   * The id of the heading that names the table. The table's scroll region is then a named, keyboard-reachable region
+   * (`DataTable` `labelledBy`), as the directory table it replaces on `/sites` was (IA-P3 P4b, test migration (a)).
+   */
+  labelledBy?: string;
 }
 
 export const DETAIL_NOT_AVAILABLE = "Detail not available yet";
@@ -253,7 +258,7 @@ export function HomeList<T>({
             </p>
           )
         ) : (
-          <DataTable tableClassName="hl-table">
+          <DataTable tableClassName="hl-table" labelledBy={options.labelledBy}>
             <thead>
               <tr>
                 <th scope="col">{def.firstColumn}</th>

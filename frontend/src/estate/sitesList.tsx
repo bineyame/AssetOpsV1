@@ -232,7 +232,7 @@ export function SitesListPage({
       ) : result.status === "refused" ? (
         <SitesRefusal result={result} retry={retry} />
       ) : (
-        <HomeList def={def!} items={items} />
+        <HomeList def={def!} items={items} options={{ labelledBy: "sites-heading" }} />
       )}
     </div>
   );

@@ -17,6 +17,7 @@ import {
 import type { SiteDirectoryClient } from "../../sites/siteDirectoryClient";
 import { simulatorLabRoutes } from "../simulatorLabRoutes";
 import { settledScreen } from "../../test/settled";
+import { estateE0, sitesE1 } from "../../test/sitesE1";
 import { spacedText } from "../../test/text";
 
 /**
@@ -302,6 +303,8 @@ function renderAt(path: string, flags: FeatureFlags) {
         flags={flags}
         siteDirectory={EMPTY_SITE_DIRECTORY}
         runSetup={RUN_SETUP}
+        portfolioSites={sitesE1()}
+        estateIndex={estateE0({})}
       />
     </MemoryRouter>,
   );
@@ -394,8 +397,9 @@ describe("simulator lab gate: disabled", () => {
   it("still serves the Sites index when the gate is closed", async () => {
     renderAt("/sites", DISABLED);
 
+    // IA-P P4b (spec §6 P4b): the Sites list's empty sentence replaces the directory's.
     expect(
-      await screen.findByText("No sites configured"),
+      await screen.findByText("No Sites in this scope."),
     ).toBeInTheDocument();
   });
 
@@ -492,8 +496,9 @@ describe("simulator lab gate: enabled", () => {
   it("serves the same Sites index it serves with the gate closed", async () => {
     renderAt("/sites", ENABLED);
 
+    // IA-P P4b (spec §6 P4b): the Sites list's empty sentence replaces the directory's.
     expect(
-      await screen.findByText("No sites configured"),
+      await screen.findByText("No Sites in this scope."),
     ).toBeInTheDocument();
   });
 
