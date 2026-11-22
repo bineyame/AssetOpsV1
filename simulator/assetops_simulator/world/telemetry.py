@@ -44,10 +44,11 @@ from assetops_contracts.world_inputs import (
 )
 
 from ..kernel.execute import start as start_execution
+from ..packs import generator_curve
 from ..packs.mini_grid import MINI_GRID_V8_MODEL
 from . import GENERATOR
 from .allocate import allocate
-from .canonical import canonical_bytes, sha256_hex
+from .canonical import canonical_bytes, file_bytes, sha256_hex
 from .months import day_class, parse_month
 
 SITE_INPUTS_SCHEMA = "assetops.world-site-inputs/1"
@@ -408,7 +409,17 @@ class SiteRun:
         self._started = False
         self._bounded_seen = 0
         self.refused_litres = Fraction(0)
+        self.strict = True  # False: a bounded transition is recorded, not refused (the pure run's table only)
         self.next_day = 0
+        self.ledger: dict[str, dict] = {}
+        values = {row.state_key: row.value for row in self.frozen.initial_values}
+        self._curve = generator_curve.fuel_curve(values["generator-specific-fuel-consumption"],
+                                                 values["generator-no-load-fuel-rate"], values["generator-rated-power"])
+        self._tank = next(r.address for r in self.frozen.initial_values if r.state_key == TANK_ADDRESS)
+        self._gen = next(r.address for r in self.frozen.initial_values
+                         if r.state_key == "generator-rated-power").split("@")[1]
+        self._pcs = next(r.address for r in self.frozen.initial_values
+                         if r.state_key == "pcs-charge-limit").split("@")[1]
         self._start = datetime.fromisoformat(self.frozen.interval.start_time.replace("Z", "+00:00"))
 
     # -- the binding of every public record (D-DD.72) --
@@ -472,7 +483,7 @@ class SiteRun:
         done = self._execution.advance(steps)
         self.steps_advanced += done
         refusal = self._pack_refusal(before + 1)
-        if refusal is not None and strict:
+        if refusal is not None and (strict and self.strict or self._execution.failure is not None):
             raise refusal
         if done < steps and strict:
             raise TelemetryRefused("TEL_PACK", f"{self.code} {self._day_text(before + done)} the execution stopped early")
@@ -487,11 +498,43 @@ class SiteRun:
             boundary, start_minute = boundaries[step], (step - 1) * STEP_MINUTES
             end_at = (self._start + timedelta(minutes=step * STEP_MINUTES)).astimezone(self.zone)
             start_at = (self._start + timedelta(minutes=start_minute)).astimezone(self.zone)
+            self._account(start_at, boundaries[step - 1], boundary)
             for pair in self.pairs:
                 value = self._value(pair, boundary, boundaries[step - 1])
                 out.append({"source_id": pair["source_id"], "signal_id": pair["signal_id"],
                             "start": start_at.isoformat(), "end": end_at.isoformat(), "value": value, "unit": pair["unit"]})
         return sorted(out, key=lambda r: (r["start"], r["source_id"], r["signal_id"]))
+
+    def _account(self, start_at: datetime, previous, boundary) -> None:
+        """The month ledger: what the measured books and the pure-run table are written from (not published)."""
+        month = start_at.strftime("%Y-%m")
+        tank = boundary.stock(self._tank)
+        row = self.ledger.get(month)
+        if row is None:
+            opening = previous.stock(self._tank)
+            row = self.ledger[month] = {
+                "demand_kwh": {}, "served_kwh": {}, "unserved_kwh": {}, "generator_kwh": Fraction(0),
+                "generator_minutes": 0, "tank_open": opening, "tank_min": opening, "tank_max": opening,
+                "modelled_l": Fraction(0), "standin_candidate_l": Fraction(0), "starts": 0, "steps": 0}
+        row["steps"] += 1
+        row["tank_close"], row["tank_min"], row["tank_max"] = tank, min(row["tank_min"], tank), max(row["tank_max"], tank)
+        step = previous.control_step
+        for load in step.accepted.loads if step is not None else ():
+            feeder = load.address.split("@")[-1]
+            for key, value in (("demand_kwh", load.demand_energy), ("served_kwh", load.served_energy),
+                               ("unserved_kwh", load.unserved_energy)):
+                row[key][feeder] = row[key].get(feeder, Fraction(0)) + value
+        energy = boundary.interval_measurement(f"generator-output-power@{self._gen}") or Fraction(0)
+        state = previous.discrete_state_for_step(f"{STATE_ADDRESS}@{self._gen}") or "STOPPED"
+        litres = generator_curve.fuel_litres(self._curve, state, Fraction(STEP_MINUTES), energy)
+        row["generator_kwh"] += energy
+        row["modelled_l"] += litres
+        if state == "RUNNING":
+            row["generator_minutes"] += STEP_MINUTES
+        if energy > 0:
+            capability = boundary.interval_measurement(f"battery-discharge-capability@{self._pcs}")
+            if capability is not None and capability >= energy:
+                row["standin_candidate_l"] += litres  # a stand-in: the battery could have carried this slot
 
     def next_day_readings(self) -> list[dict]:
         index = self.next_day
@@ -545,12 +588,13 @@ def build_telemetry(view: dict, sites: dict, decided_books: dict, *, start: str,
     `start` and `end` are the first and last local day of the span."""
     refuse_oracle(sites)
     files, manifests = [], []
+    by_tenant: dict[str, list[SiteRun]] = {}
     for site in sites["sites"]:
         code = site["code"]
         if only is not None and code not in only:
             continue
         if not supported(site):
-            manifests.append((f"{code}.manifest.json", {"schema": MANIFEST_SCHEMA, "site_code": code,
+            manifests.append((f"{site['tenant']}/telemetry/{code}.manifest.json", {"schema": MANIFEST_SCHEMA, "site_code": code,
                                                         "not_written": "TEL_PACK no pack for this structure yet (DD3.3)"}))
             continue
         run = SiteRun(site, decided_books[code], start, end)
@@ -559,8 +603,11 @@ def build_telemetry(view: dict, sites: dict, decided_books: dict, *, start: str,
             data = day_file(site, day, run.next_day_readings())
             files.append((f"{site['tenant']}/telemetry/{code}.{day.isoformat()}.readings.json", data))
             digests.setdefault(day.strftime("%Y-%m"), hashlib.sha256()).update(data)
-        manifests.append((f"{code}.manifest.json", site_manifest(site, run, decided_books[code],
-                                                                 {m: d.hexdigest() for m, d in sorted(digests.items())})))
+        by_tenant.setdefault(site["tenant"], []).append(run)
+        manifests.append((f"{site['tenant']}/telemetry/{code}.manifest.json", site_manifest(
+            site, run, decided_books[code], {m: d.hexdigest() for m, d in sorted(digests.items())})))
+    for slug, runs in sorted(by_tenant.items()):
+        files.append((f"{slug}/telemetry/measured.json", file_bytes(measured_for(slug, runs))))
     return TelemetryResult(tuple(files), tuple(manifests))
 
 
@@ -578,3 +625,52 @@ def site_manifest(site: dict, run: SiteRun, books: dict, golden: dict[str, str])
             "declared_draw": "month unexplained_l in equal daily parts at 02:00 local (D-DD.19)",
             "fuel_notes": books.get("fuel_notes", []), "critical_load_order": list(CRITICAL_ORDER)},
         "mappings": run.mappings, "golden_digests": golden}
+
+
+# --- the decided books ------------------------------------------------------------------------------------------------
+
+def books_for(view: dict, history: dict, expenses: dict[str, str]) -> dict[str, dict]:
+    """Per Site code: the months' delivered kWh and unexplained litres (history months from `history`, the accounting
+    period from the view's period), the fuel notes of the tenant's expenses file (`expenses`, tenant slug to CSV
+    text; rows of category Diesel), and the `demand` family's day weights. Mini-grid tenants only."""
+    import csv
+    import io
+
+    families = view["history"]["families"]["demand"]["day"]
+    weights = {"classes": view["history"]["day_classes"], **{k: str(v) for k, v in families.items()}}
+    accounting = view["accounting_period"]
+    out: dict[str, dict] = {}
+    for tenant in view["tenants"]:
+        if tenant.get("vertical") != "MINI_GRID":
+            continue
+        slug = tenant["tenant"]
+        notes: dict[str, list[dict]] = {}
+        for row in csv.DictReader(io.StringIO(expenses.get(slug, ""))):
+            if row["Category"] == "Diesel":
+                notes.setdefault(row["Site"], []).append({"at": row["Date"], "litres": int(row["Litres"])})
+        for site in tenant["sites"]:
+            months = {}
+            for month, block in history["tenants"][slug][site["site"]].items():
+                months[month] = {"delivered_kwh": block["actual"]["delivered_kwh"],
+                                 "unexplained_l": block["actual"].get("unexplained_l", 0)}
+            actual = site["period"]["actual"]
+            months[accounting] = {"delivered_kwh": actual["delivered_kwh"], "unexplained_l": actual.get("unexplained_l", 0)}
+            out[site["code"]] = {"months": months, "day_weights": weights,
+                                 "fuel_notes": sorted(notes.get(site["code"], []), key=lambda n: n["at"])}
+    return out
+
+
+def measured_for(slug: str, runs: list[SiteRun]) -> dict:
+    """`<slug>/telemetry/measured.json`: per Site and month, the load energy the meters carried and the unserved
+    energy the pack's accepted loads record (`accepted.loads[].unserved_energy`); no unserved signal is published."""
+    sites = {}
+    for run in runs:
+        months = {}
+        for month, row in sorted(run.ledger.items()):
+            months[month] = {
+                "demand_kwh": {k: _decimal(v) for k, v in sorted(row["demand_kwh"].items())},
+                "served_kwh": {k: _decimal(v) for k, v in sorted(row["served_kwh"].items())},
+                "unserved_kwh": {k: _decimal(v) for k, v in sorted(row["unserved_kwh"].items())},
+                "generator_kwh": _decimal(row["generator_kwh"])}
+        sites[run.code] = months
+    return {"schema": "assetops.world-measured/1", "tenant": slug, "sites": sites}

@@ -36,11 +36,11 @@ SITE_TYPE = {"MINI_GRID": "MINIGRID", "COLD_CHAIN": "COLDCHAIN", "EV_DEPOT": "EV
 #: Stubs: each check's question and the unit that makes it live (spec §8.1 "Live from").
 STUBS = {
     "C-DD5": "DD4.4", "C-DD6": "DD4.4", "C-DD7": "DD4.4",
-    "C-DD8": "DD3.3", "C-DD9": "DD6.1", "C-DD10": "DD6.1", "C-DD11": "DD3.1", "C-DD12": "DD3.1",
+    "C-DD8": "DD3.3", "C-DD9": "DD6.1", "C-DD10": "DD6.1",
     "C-DD14": "DD5.2", "C-DD15": "DD6.1", "C-DD16": "DD3.2", "C-DD17": "DD3.3", "C-DD18": "DD6.1",
     "C-DD19": "DD3.3", "C-DD20": "DD4.4",
 }
-ORDER = tuple(f"C-DD{i}" for i in range(1, 21))
+ORDER = tuple(f"C-DD{i}" for i in range(1, 22))
 
 
 class InputError(Exception):
@@ -522,7 +522,103 @@ def stub(check: str) -> Result:
     return Result(check, False, [f"not live: its unit {STUBS[check]} has not landed"])
 
 
+GENERATOR_MODULES = ("simulator/assetops_simulator/world", "tools/world_history.py")
+#: Names the writer's own refusal may carry; every other mention of the answer block in a generator module fails C-DD12.
+ANSWER_BLOCK_ALLOWED = ("refuse_oracle", "TEL_ORACLE_READ", "ORACLE_KEY")
+
+
+def check_no_oracle_read(inputs: Inputs) -> Result:
+    """C-DD12: no generator module imports, names or indexes the answer block (static scan of the sources; the writer's
+    own `TEL_ORACLE_READ` refusal is the runtime half). Docstrings and comments are not code."""
+    import ast
+
+    detail = []
+    paths = sorted(p for part in GENERATOR_MODULES for p in
+                   ((ROOT / part).rglob("*.py") if (ROOT / part).is_dir() else [ROOT / part]))
+    for path in paths:
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        docstrings = {id(n.body[0].value) for n in ast.walk(tree)
+                      if isinstance(n, (ast.Module, ast.FunctionDef, ast.ClassDef)) and n.body
+                      and isinstance(n.body[0], ast.Expr) and isinstance(n.body[0].value, ast.Constant)}
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Name):
+                text = node.id
+            elif isinstance(node, ast.Attribute):
+                text = node.attr
+            elif isinstance(node, (ast.FunctionDef, ast.ClassDef)):
+                text = node.name
+            elif isinstance(node, (ast.Import, ast.ImportFrom)):
+                text = " ".join([getattr(node, "module", None) or "", *[a.name for a in node.names]])
+            elif isinstance(node, ast.Constant) and isinstance(node.value, str) and id(node) not in docstrings:
+                text = node.value
+            else:
+                continue
+            if "oracle" in text.lower() and not any(a in text for a in ANSWER_BLOCK_ALLOWED):
+                detail.append(f"{path.relative_to(ROOT)}:{getattr(node, 'lineno', 0)} {text[:60]}")
+    return Result("C-DD12", not detail, [f"{len(paths)} modules scanned"] + detail[:20] if detail else
+                  [f"{len(paths)} modules scanned, none names the answer block"])
+
+
+def _run_world(args: list[str]) -> None:
+    import subprocess
+
+    done = subprocess.run([sys.executable, str(ROOT / "tools/world_history.py"), *args], capture_output=True, text=True)
+    if done.returncode != 0:
+        raise RuntimeError(f"world_history.py {args[0]} exited {done.returncode}: {done.stderr.strip()[:300]}")
+
+
+def check_two_processes_agree(inputs: Inputs, first: str = "2026-07-01", last: str = "2026-07-02") -> Result:
+    """C-DD11: two generator runs in separate processes give identical bytes for books, readings and measured books.
+    A two-day window of Kobo (the writer is deterministic by construction; this is the proof it is)."""
+    import tempfile
+
+    onboarding = ROOT / "backend/tests/fixtures/on1"
+    manifest = str(MANIFEST)
+    digests = []
+    with tempfile.TemporaryDirectory(prefix="ddcheck-") as scratch:
+        for run in ("a", "b"):
+            base = Path(scratch) / run
+            _run_world(["exports", "--manifest", manifest, "--out", str(base / "books")])
+            _run_world(["site-inputs", "--onboarding", str(onboarding), "--bindings",
+                        str(ROOT / "backend/conversions/world"), "--out", str(base / "sites.json")])
+            _run_world(["telemetry", "--manifest", manifest, "--sites", str(base / "sites.json"), "--books",
+                        str(base / "books"), "--out", str(base / "telemetry"), "--start", first, "--end", last,
+                        "--site", "KOBO-001"])
+            digests.append({str(p.relative_to(base)): hashlib.sha256(p.read_bytes()).hexdigest()
+                            for p in sorted(base.rglob("*")) if p.is_file()})
+    differing = sorted(k for k in set(digests[0]) | set(digests[1]) if digests[0].get(k) != digests[1].get(k))
+    kinds = {"books": any(k.startswith("books/") for k in digests[0]),
+             "readings": any(k.endswith(".readings.json") for k in digests[0]),
+             "measured": any(k.endswith("measured.json") for k in digests[0])}
+    detail = [f"{len(digests[0])} files compared; books/readings/measured present: {kinds}"]
+    return Result("C-DD11", not differing and all(kinds.values()), detail + [f"differs: {k}" for k in differing[:10]])
+
+
+def check_property_table_parity(inputs: Inputs) -> Result:
+    """C-DD21: the writer's property-to-address table (`telemetry.NEEDS`) equals the backend's, which the product freezes.
+    Compared on Kobo's v8 draft built through the host adapter: every initial value's address, state key, unit and
+    dimension, and the writer's table row for it; and the pack's foundation needs by name."""
+    for part in ("host", "host/tests", "backend", "contracts", "simulator"):
+        sys.path.insert(0, str(ROOT / part))
+    from assetops_simulator.world import telemetry
+    from execution_adapter import frozen_world_inputs
+    from kobo_season import base_run, season_site_v2
+    from assetops_backend.runs.profiles import MINI_GRID_V8_MODEL
+
+    frozen = frozen_world_inputs(base_run(1, version=8, site_edit=season_site_v2))
+    backend = {r.state_key: (r.address.split("@")[0], r.canonical_unit, r.dimension, r.parameter_id.removeprefix("model-need:"))
+               for r in frozen.initial_values if r.answered_by == "SITE_FOUNDATION"}
+    table = {n.state_key: (n.state_key, n.unit, n.dimension, n.property_key) for n in telemetry.NEEDS}
+    detail = [f"{k}: backend {backend.get(k)} != writer {table.get(k)}" for k in sorted(set(backend) | set(table))
+              if backend.get(k) != table.get(k)]
+    needs = set(MINI_GRID_V8_MODEL.foundation_needs)
+    missing = sorted(needs - {n.state_key for n in telemetry.NEEDS} - {"pv-rated-power"} - set(backend) - {"fuel-tank-capacity"})
+    detail += [f"foundation need {m} has no writer row" for m in missing]
+    return Result("C-DD21", not detail, detail[:20] or [f"{len(table)} rows equal the backend's frozen initial values"])
+
+
 LIVE: dict[str, Callable[[Inputs], Result]] = {
+    "C-DD11": check_two_processes_agree, "C-DD12": check_no_oracle_read, "C-DD21": check_property_table_parity,
     "C-DD1": check_cast, "C-DD2": _judged(judge_kinds), "C-DD3": _judged(judge_identities),
     "C-DD4": _judged(judge_leaves_and_nodes), "C-DD13": check_tenant_isolation}
 
