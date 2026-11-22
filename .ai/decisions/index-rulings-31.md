@@ -1,4 +1,4 @@
-# Decision index: Demo-sprint and later rulings (index only) (D-IAP.35 to D-IAP.45)
+# Decision index: Demo-sprint and later rulings (index only) (D-IAP.35 to D-IAP.47)
 
 - `D-IAP.35` IA-P3 P4b answers Q1-Q10: directory-only Site rows (Group from site_type, E0 waiting), singular More line · live · specs/IA-P-product-shape/rulings.md
 - `D-IAP.36` demo prebuilt routes ask E2/month/E1 (answer check, live-composed) + whole-month Portfolio and Sites links; part IA-PD 0.5 u · live · specs/IA-P-product-shape/rulings.md
@@ -11,3 +11,5 @@
 - `D-IAP.43` parity bodies pinned normalised: uuid tokens, times re-based to 2026-10-01, byte compare; shape-only rejected · live · specs/IA-P-product-shape/rulings.md
 - `D-IAP.44` Sites rows carry non-Active lifecycle word as small; lineage note stays on Site Setup; R795 D2 · live · specs/IA-P-product-shape/rulings.md
 - `D-IAP.45` sites/SitesIndex.tsx and its test deleted in P5; live exports moved first · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.46` parity pin compares a named projection (envelope + row fields, tokens by episode_start/title); build noise excluded; plants estatedrift, sitedrop · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.47` ColdFindingIndex and EvFindingIndex deleted; 19 tests sorted (b) moved or deleted with content named; siteRangeMatrix rows become alias rows · live · specs/IA-P-product-shape/rulings.md

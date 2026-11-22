@@ -30,5 +30,4 @@ One line per slice, continuing `index-2.md` (number, slice ID, summary, file in 
 205. `IA-P2` Portfolio on the date range: E2 period read with `out` (D-IAP.34), Overview hub by mode on three tabs, Results live, E0 waiting counts and E1 Sites read; in_review · shell.md
 206. `DD3a` Kobo operating reality: pure v8 telemetry writer, data sheets in `/2` + manifest rev 16.18, kernel forcing and cause indexes (byte-identical, 123 days in 1-2 min); open: D-DD.92 overfill and notes, D-DD.103, D-DD.104, D-DD.97, mock kit strings (in_review) · data.md
 207. `T1b` second Postgres test lane: `--db-lane` (lane a `assetops_test`, lane b `assetops_b_test`), `--db` takes both, conftest lane-database refusals, stem-derived `_case_db`; in_review · tools.md
-
 208. `IA-P3` Sites list and Outcomes on E1 (P4b: one list component, E1 order, server gap tile, E0 waiting column); P5-P7 not built; in_review · shell.md
