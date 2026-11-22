@@ -251,10 +251,10 @@ class ColdState:
     door_cycle: int = 0
     probe_reported_failure: bool = False
     # cold-thermal 2: crates in the room, the efficiency condition f and active field-heat pulses
-    # (last minute inclusive, kWh per minute)
+    # (last minute inclusive, kWh per minute, the lot's admission ambient in degC: D-DD.85)
     crates: int = 0
     efficiency: Fraction = Fraction(1)
-    pulses: tuple[tuple[datetime, Fraction], ...] = ()
+    pulses: tuple[tuple[datetime, Fraction, Fraction], ...] = ()
 
     def __post_init__(self) -> None:
         for name, allowed in (("door", DOOR_STATES), ("compressor", COMPRESSOR_STATES), ("grid", GRID_STATES),
@@ -488,7 +488,11 @@ class ColdPack:
         compressor_kw = self.p.cooling_capacity if running else Fraction(0)
         if self.load is not None:
             heat += s.crates * self.load.respiration_kw_per_crate * Fraction(1, 60)
-            heat += sum((kwh for last, kwh in s.pulses if t <= last), Fraction(0))
+            active = [(kwh, produce) for last, kwh, produce in s.pulses if t <= last]
+            if any(s.temperature >= produce for _kwh, produce in active):
+                # D-DD.85: the even spread holds only while the chamber is colder than the produce
+                raise PhysicallyUnacceptable("field heat beyond the produce temperature")
+            heat += sum((kwh for kwh, _produce in active), Fraction(0))
             s = replace(s, pulses=tuple(p for p in s.pulses if p[0] > t))
             compressor_kw = compressor_kw * s.efficiency / self.load.cop
             if s.bus == "POWERED":
@@ -524,7 +528,7 @@ class ColdPack:
             total = n * load.field_heat_kwh_per_crate_degc * (s.ambient - load.field_heat_target_degc)
             last = s.minute + STEP * (load.field_heat_minutes - 1)
             return replace(s, crates=s.crates + n,
-                           pulses=s.pulses + ((last, total / load.field_heat_minutes),))
+                           pulses=s.pulses + ((last, total / load.field_heat_minutes, s.ambient),))
         if f.kind == "AMBIENT":
             return replace(s, ambient=Fraction(f.value))
         if f.kind == "EFFICIENCY":

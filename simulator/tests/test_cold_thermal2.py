@@ -235,3 +235,17 @@ def test_quantised_six_hours_match_exact_probe_readings_to_the_thousandth():
     # Known deviation (packet): rounding both to 0.001 differs at one reading that sits 1.7e-6 degC from a
     # half-thousandth; the readings themselves agree well inside a thousandth (measured max 2.9e-6 degC).
     assert max(abs(a - b) for (_t, a), (_u, b) in zip(pe, pg)) < Fraction(1, 100000)
+
+
+# -- D-DD.85: the pack refuses field heat beyond the produce's own temperature ----------------------------------
+
+def test_field_heat_beyond_the_produce_temperature_raises():
+    pack = ColdPack(_params(), load=DD_LOAD_PARAMETERS)
+    # the lot came in at 24 degC; a chamber at or above 24 degC while its pulse is active is refused
+    with pytest.raises(PhysicallyUnacceptable, match="field heat beyond the produce temperature"):
+        run_window(pack, start=T0, end=_at(10), initial_temperature=Fraction(24), ambient=Fraction(24),
+                   forcings=(_f(0, "CRATES_IN", "room-1", "40"),))
+    # the same lot into a chamber below its temperature is accepted; the pulse records its admission ambient
+    run = run_window(pack, start=T0, end=_at(10), initial_temperature=Fraction(3), ambient=Fraction(24),
+                     forcings=(_f(0, "CRATES_IN", "room-1", "40"),))
+    assert [p[2] for p in run.transitions[0].after.pulses] == [Fraction(24)]

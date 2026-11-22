@@ -27,7 +27,7 @@ def test_november_admissions_repeat_1_to_6_october_shifted_31_days():
     assert october, "the fixture admits generated batches on 1-6 Oct"
     shifted = sorted((s, (datetime.fromisoformat(a) + timedelta(days=31)).isoformat(), c) for s, a, c in october)
     assert november == shifted
-    refs = [r["Batch"] for r in ins]
+    refs = [r["Batch"] for r in ins if not r["Batch"].startswith("B-")]  # generated batches: one IN each (D-DD.85)
     assert len(refs) == len(set(refs)), "November batches carry new refs"
     assert all(r["At"][:10] <= as_of for r in rows), "no movement after as_of is written"
 
