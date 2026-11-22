@@ -577,6 +577,8 @@ class World:
             extras = self.state / "tmp" / f"extras-{pid}"
             argv = ["tools/world_history.py", "exports", "--manifest", d.manifest, "--out", str(exports),
                     "--extras", str(extras)]
+            for t in d.tenants:  # D-DD.74: only the definition's tenants' books
+                argv += ["--tenant", t.slug]
             self.run_step("-", "L1.exports", argv, self.env(None))
             slugs = [t.slug for t in d.tenants]
             for slug in slugs:
