@@ -1,6 +1,6 @@
 # DDR: the deep-dive rehearsed end to end on emulated exports (implementer spec)
 
-Status: in_review (build 2026-11-21, `packet.md`); rev 3, Architect (Claude), 2026-11-21: handshake round 2 answered (`rulings.md`, "Handshake answers (round 2)",
+Status: in_review (build 2026-11-21, `packet.md`); rev 4, 2026-11-22: §5.2 step 3 gains the two cursor keys (D-DDR.16); rev 3, Architect (Claude), 2026-11-21: handshake round 2 answered (`rulings.md`, "Handshake answers (round 2)",
 D-DDR.11 to D-DDR.15; D-WK.12 for the one-figure read); rev 2 answered round 1. Lane B, the deep-dive path's last unit
 (`two-week-build-plan.md` §0.1 row 14; D-BW1.11). **1.5 units** (rev 2: 1.25; +0.1 codes and facts, D-DDR.11; +0.1 the
 runbook order and ON1's runbook test, D-DDR.15; +0.05 the key check, R17). Day-14 order (D-WK.14): 3C2 unit 2, then
@@ -266,7 +266,9 @@ or any `/opt/assetecon/AssetOpsV1-wk*` worktree.
 3. **API**, from `/opt/assetecon/AssetOpsV1-ddrserve/host`, the environment built with `env -i`, never inherited:
    `PATH`, `HOME`, `LANG`; `PYTHONPATH` the tree's `backend`, `contracts`, `gateway`, `simulator`, `host` joined by
    `:`; `DATABASE_URL` the rehearsal URL (runbook step 2's form); `ASSETOPS_TENANT_SLUG=lakeside-power`;
-   `ASSETOPS_PG_PORT`, `ASSETOPS_PG_PASSWORD` when the coordinator's shell holds them; `PYTHONUNBUFFERED=1`. Never
+   `ASSETOPS_PG_PORT`, `ASSETOPS_PG_PASSWORD` when the coordinator's shell holds them; `PYTHONUNBUFFERED=1`;
+   `ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX` and `ASSETOPS_WORK_CURSOR_KEY_HEX`, each a fresh
+   `python -c 'import secrets; print(secrets.token_hex(32))'` per serve, never written to a file or log (D-DDR.16). Never
    `ASSETOPS_PSEUDONYM_KEY_DIR` (commercial uploads stay off), `ASSETOPS_REAL_OPERATOR_DATA`,
    `ASSETOPS_OPERATIONAL_ENTRY`, any `ASSETOPS_READING_UPLOAD_*` or `ASSETOPS_GATEWAY_*` name,
    `ASSETOPS_PERIOD_READ_KINDS`, or a `PG*` name. Command: `setsid /opt/assetecon/AssetOpsV1/.venv/bin/python -m uvicorn

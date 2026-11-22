@@ -1,7 +1,7 @@
 # WK: the walkthrough database, copied from the checked world (implementer spec and coordinator runbook)
 
 Status: in_review (built on `task/WK-walk-world`, packet `packet.md`); rev 2, Architect (Claude), 2026-11-21: handshake round 1 answered (`rulings.md`, "Handshake answers (round 1)",
-D-WK.10 to D-WK.14); rev 1 the same day, on the owner's delegation
+D-WK.10 to D-WK.14); rev 3, 2026-11-22: serve label 1122 smoke S3/S4 (D-WK.15 cursor keys, D-WK.16 `chain_response` after the serve; owner-away row 76); rev 1 the same day, on the owner's delegation
 (`owner/owner-away-architect-stands-in-2026-11-21b.md`; owner-away rows 36 (owner: option b), 53, 54, 66 and 67).
 `delivery-plan.md` §2 row `WK`: "Prepare the clean day-14 walkthrough database at main" (1 unit; structure page
 DAY13; non-screen). `two-week-build-plan.md` §0.2 day 13, §0.3 ("`DS3`, `DS4` and the walkthrough database `WK`").
@@ -9,7 +9,7 @@ DAY13; non-screen). `two-week-build-plan.md` §0.2 day 13, §0.3 ("`DS3`, `DS4` 
 after-serve census D-WK.13, the smoke's browser env and `WalkDeps`). Day-14 order (D-WK.14): 3C2 unit 2, then the world
 build and check (§5 step 1), then WK's run, then DDR. Standard review (W5): it reuses DS4's reviewed meaning of clean
 and good, adds only product-command writes, and serves the way the 13 Nov walkthrough is served.
-**Decisions:** `rulings.md` (D-WK.1 to D-WK.14). **Reviewer guide:** `reviewer-guide.md`.
+**Decisions:** `rulings.md` (D-WK.1 to D-WK.16). **Reviewer guide:** `reviewer-guide.md`.
 
 - **What it is.** One coordinator-only tool, `tools/walk_world.py`. It copies the current checked L2 world template
   into `assetops_polish_walk<label>_test` with `CREATE DATABASE ... TEMPLATE` (owner row 36, option b). On top of the
@@ -207,7 +207,8 @@ does (D-WK.5), each child with `start_new_session=True`, stdout and stderr to `D
   env built, never inherited: `PATH`, `HOME`, `LANG` when set; `PYTHONPATH` = `DIR/backend`, `DIR/contracts`,
   `DIR/gateway`, `DIR/simulator`, `DIR/host` joined by `os.pathsep`; `DATABASE_URL` the walk URL;
   `ASSETOPS_TENANT_SLUG` the definition's `serve.tenant`; `ASSETOPS_PG_PORT`, `ASSETOPS_PG_PASSWORD` when set;
-  `PYTHONUNBUFFERED=1`. Never set, whatever the parent holds: `ASSETOPS_PSEUDONYM_KEY_DIR` (commercial uploads stay
+  `PYTHONUNBUFFERED=1`; `ASSETOPS_ESTATE_PORTFOLIO_CURSOR_KEY_HEX` and `ASSETOPS_WORK_CURSOR_KEY_HEX`, each a fresh
+  `secrets.token_hex(32)` per serve, never inherited, recorded, logged or printed (D-WK.15). Never set, whatever the parent holds: `ASSETOPS_PSEUDONYM_KEY_DIR` (commercial uploads stay
   off, `main.py:693`), `ASSETOPS_REAL_OPERATOR_DATA`, `ASSETOPS_OPERATIONAL_ENTRY`, any `ASSETOPS_READING_UPLOAD_*`,
   `ASSETOPS_GATEWAY_*` or `ASSETOPS_LIVE_FIELD_*` name, `ASSETOPS_PERIOD_READ_KINDS`, or a `PG_TARGET_ENV` name
   (`PGDATABASE` and the rest).
@@ -233,7 +234,8 @@ does (D-WK.5), each child with `start_new_session=True`, stdout and stderr to `D
   `pageerror`, or the cap. It saves one full-page PNG per page and `report.json` (`[{"page", "api", "fail": [{"url",
   "status"}], "errors"}]`). Exit 0 when every page passes, else 1. S4 (D-WK.13; R3), after S3: W3's census judge
   re-run read-only on `walk_url`'s URL against the manifest's `parent_census` plus the declared deltas; any other
-  difference FAILs naming the table and both counts (a read that wrote a row). `smoke` prints S1 to S4 and `ALL` and
+  difference FAILs naming the table and both counts (a read that wrote a row), except that a table in
+  `SERVE_GROWTH_TABLES = ("chain_response",)` passes at or above its prepared count, and S4 prints its growth (D-WK.16). `smoke` prints S1 to S4 and `ALL` and
   exits 0 or 4.
 - **`stop`:** for each recorded child, if `/proc/<pid>/cmdline` still equals its recorded `argv`, send SIGTERM to its
   process group, wait 10 s, then SIGKILL. Otherwise report `WALK_PID_REUSED <pid>` and leave it. Set `serve` to null.
@@ -250,10 +252,10 @@ does (D-WK.5), each child with `start_new_session=True`, stdout and stderr to `D
 | T2 | `copy` refusals in order, on a fake world: `current_l2` raising `WORLD_TEMPLATE_STALE` passes through (exit 2); `check_state` `(None, "manifest")` gives `WALK_CHECK_STALE manifest`; `(None, None)` gives `WALK_NOT_CHECKED`; `(False, None)` gives `WALK_CHECK_FAILED`; an existing name gives `WALK_EXISTS`; a busy L2 gives `WALK_DATABASE_IN_USE`. No admin DDL is issued in any of them |
 | T3 | `copy` success: the fake admin's statements are exactly one `CREATE DATABASE "assetops_polish_walk1123_test" TEMPLATE "<l2>" STRATEGY FILE_COPY` plus `SELECT`s; the manifest has every §3.2 field |
 | T4 | `prepare`: the argv of all three steps equals §3.3 exactly (from the committed walk definition); `E` has exactly the listed keys when the parent environment also holds `PGDATABASE`, `ASSETOPS_REAL_OPERATOR_DATA` and `ASSETOPS_OPERATIONAL_ENTRY`; `WALK_COMMIT_MOVED`, `WALK_PREPARED`, `WALK_UNKNOWN`; a failed second step gives exit 3, two step records, `snapshots` null |
-| T5 | Census judge: equal plus the two declared deltas is PASS; `+1` in any other table FAILs naming it with both counts; a statement delta of 1 FAILs; the snapshot delta is computed from the build lines' `sites`; the same judge as smoke S4 FAILs on a row added after the serve (D-WK.13) |
+| T5 | Census judge: equal plus the two declared deltas is PASS; `+1` in any other table FAILs naming it with both counts; a statement delta of 1 FAILs; the snapshot delta is computed from the build lines' `sites`; the same judge as smoke S4 FAILs on a row added after the serve (D-WK.13); after the serve `chain_response` +3 PASSes, `chain_response` -1 FAILs, +1 elsewhere still FAILs, and W3 with `chain_response` +1 FAILs (D-WK.16) |
 | T6 | `check` runs W1 to W7 even after W1 FAILs; exit 4; the manifest's `check.passed` is false; all PASS gives exit 0 |
 | T7 | W4 and S2 judge: SERVED, current, reconciled, 1443.00 and 2295.00 is PASS; each of `REBUILD_NEEDED`, `fresh.current` false, `reconciled` false, actual `1443.01` FAILs with its reason |
-| T8 | `serve` env: the API env has exactly the listed keys when the parent holds every forbidden name; the web env has exactly its four; the smoke's `node` env has exactly its six (I3); `--tree /opt/assetecon/AssetOpsV1-walk` (and a symlink to it) is `WALK_TREE_MISMATCH`; port 8990 or 5490 in the walk definition is `WALK_DEFINITION_INVALID` and on the command line `WALK_PORT_PROTECTED`; serve is refused for an unchecked manifest, a mismatched tree HEAD, a busy port |
+| T8 | `serve` env: the API env has exactly the listed keys when the parent holds every forbidden name, the two cursor keys each 64 hex characters, different from each other and between two serves, never the parent's values, and absent from the manifest and logs (D-WK.15); the web env has exactly its four; the smoke's `node` env has exactly its six (I3); `--tree /opt/assetecon/AssetOpsV1-walk` (and a symlink to it) is `WALK_TREE_MISMATCH`; port 8990 or 5490 in the walk definition is `WALK_DEFINITION_INVALID` and on the command line `WALK_PORT_PROTECTED`; serve is refused for an unchecked manifest, a mismatched tree HEAD, a busy port |
 | T9 | `stop`: a PID whose cmdline matches is signalled (fake process table); a reused PID is left and reported |
 | T10 | `drop`: refused while serving and with sessions; issues `DROP DATABASE "<walk>"`, never `FORCE`; removes only the walk manifest; issues nothing naming the L2 |
 | T11 | `smoke_pages`: the committed definitions expand to 10 pages, the three Site pages in definition order (Kisiwa, Kobo, Mto as the world definition lists them) |
