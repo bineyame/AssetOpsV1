@@ -248,6 +248,23 @@ def _movement_records(batches: list[Batch], as_of_end: datetime) -> list[dict]:
                                       r["source_record_id"]))
 
 
+def _november(site_batches: list[Batch], seq: list[int], as_of_end: datetime) -> list[Batch]:
+    """D-DD.63 (DD4.2): 1-6 Oct's generated admissions (named batches excluded) repeated 31 days later with new refs,
+    up to `as_of`. Assumed; no November invoice (the month is not closed)."""
+    named = {ref for _site, ref, *_rest in NAMED_BATCHES}
+    shift = timedelta(days=31)
+    out: list[Batch] = []
+    for b in sorted(site_batches, key=lambda b: (b.admitted, b.ref)):
+        if b.ref in named or not (1 <= b.admitted.day <= 6 and (b.admitted.year, b.admitted.month) == (2026, 10)):
+            continue
+        if b.admitted + shift > as_of_end:
+            continue
+        seq[0] += 1
+        out.append(Batch(b.code, f"{b.code}-B{seq[0]:04d}", b.customer, b.commodity, b.admitted + shift,
+                         [(at + shift, n) for at, n in b.outs]))
+    return out
+
+
 def build_cold_exports(view: dict, history: dict, records: RecordsResult, tenant: dict, *,
                        profiles_dir: Path = PROFILES_DIR) -> BooksResult:
     zone, currency = zone_currency(view)
@@ -321,6 +338,10 @@ def build_cold_exports(view: dict, history: dict, records: RecordsResult, tenant
             written.add((m.code, m.month, "actual", f))
         renamed[(m.code, m.month, "actual", "outstanding")] = AS_UNPAID_CHARGES
 
+    for code in sorted(batches):  # D-DD.63 "November" (DD4.2): the ledger runs to as_of for the rooms' readings
+        batches[code] += _november(batches[code], seq[code], as_of_end)
+        if capacity is not None and presence_peak(batches[code]) > int(capacity):
+            raise ValueError(f"EMU_CAPACITY {name}/{code} 2026-11")
     files: list[ExportFile] = []
     ledger = _movement_records([b for code in sorted(batches) for b in batches[code]], as_of_end)
     invoicing_layout = load_profile(PROFILES["invoicing"], profiles_dir)[1]

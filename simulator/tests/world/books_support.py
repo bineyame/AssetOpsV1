@@ -211,7 +211,7 @@ PINNED_COLD_EV: dict[str, str] = {
     "harvest-cold.profile.cold-storage-invoicing.csv":
         "12c6e51d8f6286f9d2ea49a0e9a8c4e2b204434e6f9e7a13ce8ca63aee71fb4b",
     "harvest-cold.profile.cold-storage-ledger.csv":
-        "296b9176923ba5bfb45d9f27c29ca3efe38fbc3a79f3fc45f65750a73689bbc4",
+        "061486cc21a57c18b236a48abac324aa54ab4874f95bb5f9ab7c3a48bd7eb59f",  # DD4.2: November admissions (D-DD.63)
     "metro-bus.expenses.csv":
         "5b68506247721888acf47996428f1726c8f80a81bdef15dc8dfe11ee3400c822",
     "metro-bus.profile.ev-budget.csv":
