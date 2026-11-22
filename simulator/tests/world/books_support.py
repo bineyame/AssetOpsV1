@@ -2,8 +2,8 @@
 manifest `M` read as YAML (the modules never read it), and the profile samples (D-DD.24).
 
 Samples of a file the emulator writes are a slice of that file (`SAMPLES`), so a sample cannot drift from the
-emulator. Samples of a file whose rows come later (DD4.4) or that has under three rows are rendered from the
-hand-written records of `HAND_SAMPLES`. `--update-golden` rewrites both (`test_dd2b_books.py`).
+emulator; the measured books (DD4.4) are sliced from `exports_measured` over the committed `measured.json` fixtures.
+`HAND_SAMPLES` is empty (D-DD.65a L1). `--update-golden` rewrites the samples (`test_dd2b_books.py`).
 """
 
 from __future__ import annotations
@@ -17,6 +17,7 @@ import yaml
 
 from assetops_simulator.world.books import build_books
 from assetops_simulator.world.exports import file_name
+from assetops_simulator.world.exports_measured import build_measured_exports
 from assetops_simulator.world.history import generate_history
 from assetops_simulator.world.profile_csv import PROFILES_DIR, load_profile, render_profile, row_digest
 from assetops_simulator.world.records import build_records
@@ -64,6 +65,24 @@ def files_by_name(books) -> dict:
     return {file_name(f): f for f in books.files}
 
 
+MEASURED_FIXTURES = Path(__file__).resolve().parent / "fixtures" / "measured"
+
+
+def measured_fixture(slug: str) -> dict:
+    """A tenant's committed `measured.json` (DD4.4 plant, revision 059f211ad)."""
+    return json.loads((MEASURED_FIXTURES / f"{slug}.measured.json").read_text(encoding="utf-8"))
+
+
+def emulated_files() -> dict:
+    """Every emulated file of the fixture view by name: the books, and the measured books of `exports_measured` over
+    the committed `measured.json` fixtures (D-DD.65a L1, D-DD.124)."""
+    if "files" not in _CACHE:
+        view, history, _, books = built()
+        measured = build_measured_exports(view, history, books.files, {s: measured_fixture(s) for s in (COLD, EV)})
+        _CACHE["files"] = {**files_by_name(books), **{file_name(f): f for f in measured.files}}
+    return _CACHE["files"]
+
+
 def tenant_view(view: dict, name: str) -> dict:
     return next(t for t in view["tenants"] if t["tenant"] == name)
 
@@ -102,23 +121,12 @@ def _receipt(code, i, at, amount, method, status):
             "body": {"payer_ref": f"{code}-K-0{i}", "method": method}}
 
 
-#: Hand-written rows added to a slice so the sample shows every value of the profile's maps (3A6 admission step 4b):
-#: the emulator writes no cash receipt and nothing in transit (the cold structure has no in-transit leaf, D-DD.50).
-SAMPLE_EXTRAS = {
-    "cold-storage-invoicing-illustrative": [
-        _receipt("COLD-THIKA", 7, "2026-10-30T15:20:00+03:00", "42.00", "CASH", "COLLECTED"),
-        _receipt("COLD-THIKA", 8, "2026-10-31T18:45:00+03:00", "36.00", "MOBILE_MONEY", "PAID_IN_TRANSIT"),
-    ],
-}
-
-#: profile id -> (emulated file, row selection)
-SAMPLES = {
-    "cold-storage-ledger-illustrative": (f"{COLD}.profile.cold-storage-ledger.csv", _ins_and_outs(3)),
-    "cold-storage-invoicing-illustrative": (f"{COLD}.profile.cold-storage-invoicing.csv", _invoicing_slice),
-    "cold-budget-illustrative": (f"{COLD}.profile.cold-budget.csv", _month_sites("2026-07", "COLD-THIKA")),
-    "ev-budget-illustrative": (f"{EV}.profile.ev-budget.csv", _month_sites("2026-07", "EV-EMB", "EV-RUI")),
-    "ev-fleet-roster-illustrative": (f"{EV}.profile.ev-fleet-roster.csv", _first(6)),
-}
+def _departures_met_short_met(rows):
+    """Kasarani's 1 Nov B02 (met) and B03 (short, D-DD.98), then Ruiru's first 6 Oct departure: both Y and N."""
+    kas = [r for r in rows if r["site_code"] == "EV-KAS" and r["body"]["service_day"] == "2026-11-01"
+           and r["body"]["vehicle_ref"] in ("EV-KAS-B02", "EV-KAS-B03")]
+    rui = [r for r in rows if r["site_code"] == "EV-RUI" and r["body"]["service_day"] == "2026-10-06"][:1]
+    return kas + rui
 
 
 def _ticket(code, asset, opened, state, ack=None, restored=None):
@@ -132,48 +140,41 @@ def _ticket(code, asset, opened, state, ack=None, restored=None):
             "clocks": {"occurred_at": opened}, "status": state, "body": body}
 
 
-def _invoice_line(code, band, line_type, qty, unit, amount, tariff, month="2026-10", first="2026-10-01",
-                  after="2026-11-01"):
-    return {"format_version": 1, "kind": "CHARGE", "source_record_id": f"gen:{code}:{month}:invoice:{band}",
-            "source_version": "1", "site_code": code, "subject": {"kind": "SITE", "ref": code},
-            "clocks": {"effective_from": first, "effective_to": after, "recognition_period": month},
-            "quantity": {"value": qty, "unit": unit}, "amount": {"value": amount, "currency": "USD"},
-            "body": {"account_ref": f"{code}-UTIL", "band": band, "line_type": line_type, "tariff_code": tariff}}
-
-
-def _departure(code, bus, day, at, met, kwh):
-    return {"format_version": 1, "kind": "DEPARTURE", "source_record_id": f"gen:{code}:{day}:departure:{bus[-2:]}",
-            "source_version": "1", "site_code": code, "subject": {"kind": "VEHICLE", "ref": bus},
-            "clocks": {"occurred_at": at},
-            "body": {"vehicle_ref": bus, "service_day": day, "block_met": met, "kwh_at_departure": kwh,
-                     "block_ref": f"{code}-BLK-{bus[-2:]}"}}
-
-
-#: Hand-written sample records (rows come in DD4.4, or the file has under three rows). Ruiru's October bill lines are
-#: the manifest's (6076 kWh x 0.24, 54684 kWh x 0.12, 380 kW x 12.00).
-HAND_SAMPLES = {
+#: Hand-written rows added to a slice so the sample shows every value of the profile's maps (3A6 admission step 4b):
+#: the emulator writes no cash receipt and nothing in transit (the cold structure has no in-transit leaf, D-DD.50), and
+#: its two tickets are both OPEN (the other three states are shown by hand rows).
+SAMPLE_EXTRAS = {
+    "cold-storage-invoicing-illustrative": [
+        _receipt("COLD-THIKA", 7, "2026-10-30T15:20:00+03:00", "42.00", "CASH", "COLLECTED"),
+        _receipt("COLD-THIKA", 8, "2026-10-31T18:45:00+03:00", "36.00", "MOBILE_MONEY", "PAID_IN_TRANSIT"),
+    ],
     "ev-service-tickets-illustrative": [
-        _ticket("EV-KAS", "CH-K2", "2026-11-01T23:40:00+03:00", "OPEN"),
-        _ticket("EV-RUI", "CH-R7", "2026-10-06T00:00:00+03:00", "OPEN"),
         _ticket("EV-EMB", "CH-E3", "2026-09-12T02:15:00+03:00", "RESTORED", "2026-09-12T08:05:00+03:00",
                 "2026-09-14T16:30:00+03:00"),
         _ticket("EV-EMB", "CH-E5", "2026-08-03T21:10:00+03:00", "ACKNOWLEDGED", "2026-08-04T09:00:00+03:00"),
         _ticket("EV-RUI", "CH-R2", "2026-07-19T04:30:00+03:00", "CLOSED", "2026-07-19T10:00:00+03:00",
                 "2026-07-20T12:00:00+03:00"),
     ],
-    "ev-utility-invoice-illustrative": [
-        _invoice_line("EV-RUI", "PEAK", "USAGE", "6076", "kWh", "1458.24", "C-117"),
-        _invoice_line("EV-RUI", "OFFPEAK", "USAGE", "54684", "kWh", "6562.08", "C-117"),
-        _invoice_line("EV-RUI", "DEMAND", "DEMAND", "380", "kW", "4560.00", "C-117"),
-        _invoice_line("EV-EMB", "NIGHT", "USAGE", "4200", "kWh", "378.00", "C-114", "2026-11", "2026-11-01",
-                      "2026-12-01"),
-    ],
-    "ev-departures-illustrative": [
-        _departure("EV-KAS", "EV-KAS-B01", "2026-11-01", "2026-11-02T05:00:00+03:00", True, "150.000"),
-        _departure("EV-KAS", "EV-KAS-B07", "2026-11-02", "2026-11-03T05:00:00+03:00", False, "96.500"),
-        _departure("EV-RUI", "EV-RUI-B03", "2026-10-06", "2026-10-07T05:00:00+03:00", True, "140.000"),
-    ],
 }
+
+#: profile id -> (emulated file, row selection); the measured books are `exports_measured` over the fixtures.
+SAMPLES = {
+    "cold-storage-ledger-illustrative": (f"{COLD}.profile.cold-storage-ledger.csv", _ins_and_outs(3)),
+    "cold-storage-invoicing-illustrative": (f"{COLD}.profile.cold-storage-invoicing.csv", _invoicing_slice),
+    "cold-budget-illustrative": (f"{COLD}.profile.cold-budget.csv", _month_sites("2026-07", "COLD-THIKA")),
+    "cold-electricity-bill-illustrative": (f"{COLD}.profile.cold-electricity-bill.csv",
+                                           _month_sites("2026-10", "COLD-MWEA", "COLD-THIKA", "COLD-KIRI")),
+    "ev-budget-illustrative": (f"{EV}.profile.ev-budget.csv", _month_sites("2026-07", "EV-EMB", "EV-RUI")),
+    "ev-fleet-roster-illustrative": (f"{EV}.profile.ev-fleet-roster.csv", _first(6)),
+    "ev-service-tickets-illustrative": (f"{EV}.profile.ev-service-tickets.csv", _first(2)),
+    "ev-utility-invoice-illustrative": (f"{EV}.profile.ev-utility-invoice.csv",
+                                        _month_sites("2026-10", "EV-EMB", "EV-KAS", "EV-RUI")),
+    "ev-departures-illustrative": (f"{EV}.profile.ev-departures.csv", _departures_met_short_met),
+}
+
+#: D-DD.65a L1: empty once `exports_measured` writes the measured books (DD4.4); kept so a later profile without
+#: emulated rows has one named place.
+HAND_SAMPLES: dict[str, list[dict]] = {}
 
 
 def sample_of(profile_id: str, books=None) -> tuple[bytes, list[dict]]:
@@ -186,7 +187,7 @@ def sample_of(profile_id: str, books=None) -> tuple[bytes, list[dict]]:
                 r["source_version"] = row_digest(layout, r)
         return render_profile(layout, records), records
     name, pick = SAMPLES[profile_id]
-    f = files_by_name((books or built()[3]))[name]
+    f = files_by_name(books)[name] if books is not None else emulated_files()[name]
     records = pick(list(f.records)) + copy.deepcopy(SAMPLE_EXTRAS.get(profile_id, []))
     for r in records:
         if layout.version_digest and not r["source_version"]:
@@ -217,7 +218,7 @@ PINNED_COLD_EV: dict[str, str] = {
     "metro-bus.profile.ev-budget.csv":
         "3bfbfac1c3fd72c93b4291d9b3c2d690bc0d1e1d7c778413802cdc63af263748",
     "metro-bus.profile.ev-fleet-roster.csv":
-        "3576f26c9e9b88caa948b1a1292f9d7bbac7c0ef6f48c3fa5f3fc51061bb681c",
+        "22ab6f159db850a6a1029a5b9b8a21c5d54b6f820331a7f7e49152d181acbcf9",  # DD4.3: roster to 6 Nov (D-DD.98)
     "metro-bus.profile.ev-service-tickets.csv":
         "3579df14f4c4442a38620b2a0ee5c7360ff5b18c4d061c5beb462f9c042b4a24",
 }
