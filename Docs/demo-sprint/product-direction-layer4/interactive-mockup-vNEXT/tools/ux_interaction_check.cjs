@@ -31,6 +31,9 @@ const prep = async p => { await p.evaluate(([u, plant]) => { u.forEach(x => IA_L
   if (plant === 'planans' && typeof shapePlan === 'function') { const _s = shapePlan; shapePlan = (ctx, tab) => { const h = _s(ctx, tab); if (tab !== 'left-out') return h; const t = document.createElement('template'); t.innerHTML = h; t.content.querySelectorAll('.ux-ans').forEach(e => { e.textContent = ''; }); return t.innerHTML; }; }
   if (plant === 'planwait' && typeof iaPlanHistory === 'function') { const _h = iaPlanHistory; iaPlanHistory = op => _h(op).replace(/(Version [\d,]+, )approved/, '$1awaiting approval'); }
   if (u.length || plant === 'planans' || plant === 'planwait') render(); }, [FORCED, process.env.UXI_PLANT || '']); };
+/* IA-2b1 (spec-IA-2b §5, mid-build Q6): #/portfolio/act-first is an alias of the Decisions list once IA-2b1 lands; the reviewed screen stays
+   registered, and the blocks that measure it read it with the alias removed in that window only (as plan_switch_check does) */
+const actFirst = async (p, hash) => { if (hash !== 'portfolio/act-first') return; await p.evaluate(() => { if (typeof IA_ALIASES === 'object' && 'portfolio/act-first' in IA_ALIASES && IA_LANDED.has('IA-2b1')) { delete IA_ALIASES['portfolio/act-first']; history.replaceState(null, '', '#/portfolio/act-first'); render(); } }); await p.waitForTimeout(100); };
 const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=anchor: (D-IA.36) iaInPage returns false, the in-page link lands on not-found; UXI_PLANT=container: the item list's container query removed; the layout gate must fail at 1440 and 1280 */
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.CHROME });
@@ -49,7 +52,7 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=anchor: (D-IA.36) iaInPa
     /* review Site M3: sideways overflow is any visible element in the canvas past the viewport outside its own scrolling frame;
        the page never scrolls sideways (.workspace clips), so the page's scrollWidth alone cannot fail */
     await ctx.addInitScript(() => { window.__ovf = () => { const out = []; for (const e of document.querySelectorAll('#app .canvas *')) { const a = e.getBoundingClientRect(); if (a.width <= 1 || a.height <= 1 || (a.right <= innerWidth + 1 && a.left >= -1)) continue; if (e.closest('.ux-drawer:not([data-open="true"]), [hidden], .vh')) continue;
-      let sc = false; for (let x = e.parentElement; x && !sc && !x.matches('.canvas'); x = x.parentElement) { const ov = getComputedStyle(x).overflowX; sc = ov === 'auto' || ov === 'scroll'; } if (!sc) out.push(`${e.tagName.toLowerCase()}.${String(e.className).split(' ')[0]} ${Math.round(a.left)}..${Math.round(a.right)}`); } return out.length ? out.slice(0, 3).join('; ') : false; }; }); const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message)); await p.goto(base + (o.q || '') + '#/' + hash); await p.waitForTimeout(500); await prep(p); await p.waitForTimeout(100); p._errs = errs; if (TEXT_OK === null) TEXT_OK = PLANT === 'expiry' ? false : !(await p.evaluate(() => IA_LANDED.has('IA-1c'))); await p.evaluate(v => { window.__tx = v; }, TEXT_OK); return p; };
+      let sc = false; for (let x = e.parentElement; x && !sc && !x.matches('.canvas'); x = x.parentElement) { const ov = getComputedStyle(x).overflowX; sc = ov === 'auto' || ov === 'scroll'; } if (!sc) out.push(`${e.tagName.toLowerCase()}.${String(e.className).split(' ')[0]} ${Math.round(a.left)}..${Math.round(a.right)}`); } return out.length ? out.slice(0, 3).join('; ') : false; }; }); const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message)); await p.goto(base + (o.q || '') + '#/' + hash); await p.waitForTimeout(500); await prep(p); await p.waitForTimeout(100); await actFirst(p, hash); p._errs = errs; if (TEXT_OK === null) TEXT_OK = PLANT === 'expiry' ? false : !(await p.evaluate(() => IA_LANDED.has('IA-1c'))); await p.evaluate(v => { window.__tx = v; }, TEXT_OK); return p; };
   if (PLANT === 'container') { for (const op of ['lakeside', 'harvest', 'metro']) for (const [w, h] of [[1440, 900], [1280, 720]]) { const p = await page('plan', { op, w, h });
       await p.evaluate(() => { for (const sh of document.styleSheets) for (let i = sh.cssRules.length - 1; i >= 0; i--) { const r = sh.cssRules[i]; if (r.constructor.name === 'CSSContainerRule' && r.containerName === 'uxitems') sh.deleteRule(i); } }); await p.waitForTimeout(150);
       const lay = await p.evaluate(PLAN_LAYOUT); ok(lay.rows > 0 && !lay.bad.length, `plant container: ${op} plan at ${w}: ${lay.rows} rows${lay.bad.length ? `, ${lay.bad.join('; ')}` : ''}`); await p.context().close(); }
@@ -62,14 +65,14 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=anchor: (D-IA.36) iaInPa
     await p.keyboard.press('Control+k'); await p.waitForTimeout(150);
     const op1 = await p.evaluate(() => document.getElementById('ux-cmd')?.dataset.open === 'true' && document.activeElement.classList.contains('ux-cmd-in'));
     await p.keyboard.type('kobo gen'); await p.waitForTimeout(100);
-    const kg = await p.evaluate(() => document.querySelector('#ux-cmd-list [aria-selected="true"]')?.textContent || ''), decLive = await p.evaluate(() => IA_LANDED.has('IA-1c'));
+    const kg = await p.evaluate(() => document.querySelector('#ux-cmd-list [aria-selected="true"]')?.textContent || ''), decLive = await p.evaluate(() => IA_LANDED.has('IA-1c')), listLive = await p.evaluate(() => IA_LANDED.has('IA-2b1'));
     await p.fill('.ux-cmd-in', 'findings'); await p.waitForTimeout(100);
     const fd = await p.evaluate(() => document.querySelector('#ux-cmd-list [aria-selected="true"]')?.textContent || '');
     await p.fill('.ux-cmd-in', 'kisiwa'); await p.waitForTimeout(100);
     const first = await p.evaluate(() => document.querySelector('#ux-cmd-list [aria-selected="true"]')?.textContent || '');
     await p.keyboard.press('Enter'); await p.waitForTimeout(400);
     const at = await p.evaluate(() => location.hash);
-    ok(op1 && (decLive ? /Kobo generator/.test(kg) : !/Kobo generator/.test(kg)) && !fd && /Kisiwa/.test(first) && at === '#/site/kisiwa', `command search: Ctrl+K opens, "kobo gen" finds ${kg ? `"${kg}"` : 'nothing live'}, "findings" finds ${fd ? `"${fd}"` : 'nothing live'}, "kisiwa" finds "${first}", Enter opens ${at}`);
+    ok(op1 && (decLive ? /Kobo generator/.test(kg) : !/Kobo generator/.test(kg)) && (listLive ? /^Findings/.test(fd) : !fd) && /Kisiwa/.test(first) && at === '#/site/kisiwa', `command search: Ctrl+K opens, "kobo gen" finds ${kg ? `"${kg}"` : 'nothing live'}, "findings" finds ${fd ? `"${fd}"` : 'nothing live'}, "kisiwa" finds "${first}", Enter opens ${at}`);
     if (at !== '#/portfolio') { await p.goto(base + '#/portfolio'); await p.waitForTimeout(400); }
   }
   const evBoard = async () => { const p = await page('portfolio/demand-and-capacity', { op: 'metro' }); /* D-IA.35 L1: the live route, not the legacy builder */
@@ -609,7 +612,7 @@ const PLANT = process.env.UXI_PLANT || ''; /* UXI_PLANT=anchor: (D-IA.36) iaInPa
       await p.click('.ux-planband [data-ux-act="approve-plan"]'); await p.waitForTimeout(250); await p.click('#uxact [data-ux-act-go]'); await p.waitForTimeout(400);
       const dec = { lakeside: 'kisiwa-genset', harvest: 'kirinyaga-energy', metro: 'embakasi-schedule' }[op], routes = ['portfolio', 'portfolio/act-first', 'portfolio/what-changed', `decision/${dec}`, 'plan'];
       if (IA2) routes.splice(routes.length - 1, 0, ...TABS2); /* plan stays last: the Send back and case flows below run on it */
-      for (const rt of routes) { await p.goto(base + '#/' + rt); await p.waitForTimeout(300); await prep(p); await p.waitForTimeout(100);
+      for (const rt of routes) { await p.goto(base + '#/' + rt); await p.waitForTimeout(300); await prep(p); await p.waitForTimeout(100); await actFirst(p, rt);
         const s = await p.evaluate(src => { const k = document.querySelector('.canvas').cloneNode(true); k.querySelectorAll('.ux-dsteps').forEach(x => x.remove()); /* the stage list names its steps */ const t = k.textContent.replace(/\s+/g, ' '), m = t.match(new RegExp('.{0,40}(?:' + src + ').{0,20}', 'i')); return { say: m ? m[0] : '', waiting: document.querySelectorAll('[data-release="WAITING"]').length }; }, WAIT.source);
         if (s.say || s.waiting) fails.push(`${rt} after Approve: "${s.say}" ${s.waiting} waiting pills`);
         if (rt === 'portfolio' && await p.evaluate(() => !!document.querySelector('.ux-toast'))) fails.push('the toast of the plan survives navigation to another page (L1)'); }
