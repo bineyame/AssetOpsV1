@@ -1,4 +1,4 @@
-# DD3c handoff (partial: parts 1, 2 and part 3's fuel balance, of 5; D-DD.116)
+# DD3c handoff (partial: parts 1, 2 and 3 of 5, part 3's trial fuel comparison per unit open; D-DD.116)
 
 - Done, part 1 (+ D-DD.111, D-DD.112): `backend/assetops_backend/sites/unit_roles.py`. `site_generator_state` states
   RUNNING when any unit with a state runs, else absent (named by unit) while any unit is silent, else D-DD.41's
@@ -43,20 +43,35 @@
 - D-DD.118 `fuel_basis` grep: `analytics/service.fuel_basis` is reached only by `main.py:418`
   (`ingestion.add_completed_listener(assessments.assess_site)`); `load_world_inputs.py` and `evidence/bulk_load.py`
   have no hit. Backlog line is the coordinator's.
-- Next, part 3b-3d (not started; anchors from the survey, branch 5990506f6):
-  - `analytics/dispatch_v3.py`: `_Index.lookup` L196-204 gives `MULTIPLE_BINDINGS` (L203); `_evaluate` L398 reads
-    PV through `take()`; sum PV per asset like the feeder loop L391-397 through `unit_roles.site_power`. `_slot`
-    L256-260 (`len(panels) != 1` -> GAP MULTIPLE_BINDINGS): same. Generators already per unit (`assess` L672-681).
-    minimum-runtime: `index.control(CONTROL_MINIMUM_RUNTIME)` L432/L615, loaded in
-    `analytics/adapters/postgres_assessment_store.py` L328-335 by `_property(content,"GENERATOR","minimum-runtime")`
-    (L213-220, first GENERATOR holding the key): switch to `unit_roles.lead_policy`.
-  - `actions/verification_rules.py`: `_SINGLE_POWER_ROLES` L371; `window_evidence` L392+ (`AMBIGUOUS_BINDING` at
-    L419-425); slot loop L457-465 (sum per role over units); state `_instant` L489-495 -> `unit_roles.site_generator_state`.
-    `actions/verification.py` `_cost_check` ~L1133-1180: `len(generators) != 1` -> empty sfc (L1160/L1163); fuel per
-    unit summed into `trial_fuel_comparison.compare` (L180-188).
-  - `runs/replay_series.py`: `ONE_ASSET_ROLES` L51; `bound_assets` L145-165 refuses (`READER_BINDING_CHANGED`
-    L154-157); `series_from_readings` L276-294 (sum PV and GEN_POWER via `unit_roles.site_power_series`, state via
-    `site_generator_state`). Replay study/headroom v8 refusal of two units stays (D-DD.110 Q10).
+- Done, part 3b-3d (D-DD.118, D-DD.110 Q3/Q10), commits bedf63cff (tests, 12 failed first) and 31abdf4da:
+  - `sites/unit_roles.per_asset(role_set, role)`: a reader sums a role only when every binding of it is PER_ASSET in
+    its set (roles-5); under a ONE set two assets keep each reader's existing refusal (MULTIPLE_BINDINGS,
+    AMBIGUOUS_BINDING, READER_BINDING_CHANGED).
+  - `analytics/dispatch_v3.py`: `_Index.unit_assets`/`site_lookup` (PV through `unit_roles.site_power`; an absent
+    unit named as `<existing missing text> (asset <id>)`, D-DD.108 Q7); `_slot` sums the PV units' held values.
+    minimum-runtime: `postgres_assessment_store._lead_policy_property` (`unit_roles.lead_policy`); a non-lead unit
+    holding a policy key raises `UnitRolesRefused` out of `_configuration` (no new text; see open points).
+  - `actions/verification_rules.window_evidence(..., unit_roles=...)`: named unit roles reported by several assets
+    give the Site slot payload (same keys plus `units`: each unit's payload) through `site_power` and
+    `site_generator_state`; idle via `_idle` over the Site state at the slot end. `verification._unit_roles(bound)`
+    names the roles PER_ASSET in every bound set. One asset: byte-identical (test).
+  - `runs/replay_series.py`: `UNIT_ROLES = (PV, GEN_POWER, GEN_STATE)`; `bound_assets` keeps every unit under
+    roles-5; the series sums PV and generator power and states the Site state per step. `replay_study`/headroom v8
+    refusal untouched (D-DD.110 Q10).
+  - D-DD.117 risks: `night_text._use_note`: at a multi-unit Site the existing USE note over the Site's summed
+    figure (summed kWh at sum(loaded L)/sum(kWh), 3 dp; summed idle minutes at idle L per idle hour; lead's
+    declared SFC when no kWh ran); no None, no new template (statement catalogue exit 0). `postgres_assessment_store
+    ._fuel_balance_foundation_ids(terms)` adds every unit's SFC and no-load revision ids; one unit unchanged.
+  - Tests `backend/tests/test_dd3c_readers_units.py` (14). Plants, reverted: sum under roles-4 (2 dispatch tests
+    fail), replay first unit only, verification first unit's kWh, night note lead SFC (each its test fails).
+  - Checks on 31abdf4da: architecture passed, agent workflow passed, statement catalogue exit 0.
+- Open points for review: (1) the night note's form (summed figure, blended L/kWh) is the default the coordinator
+  named, to be confirmed; per-unit terms would need a new catalogued template. (2) minimum-runtime refusal raises
+  (the dispatch job fails loud) rather than adding a limit: a limit line would be new text (D-DD.108 Q6).
+- Next, part 3 remainder: `actions/verification._cost_check` (L1160-1170) still gives an empty SFC history unless
+  exactly one generator (the cost check reads UNAVAILABLE at a two-unit Site, honest absence). D-DD.118 wants the
+  fuel comparison per unit summed: needs per-unit `generator_kwh`/idle per window (now in each slot's `units`) and
+  `financials/trial_fuel_comparison.compare` taking per-unit SFC/no-load; not built.
   - Then part 4 (D-DD.113 litres; `structure/litres/inputs.py:54,96-98`), part 5 (Kobo roles-5, D-DD.114).
 - Risks: T2/T3/T5/T7 relabel the KOBO-001 PowerSite fixture's sets as replica; they do not publish under roles-5
   (part 5 does). The publish reach is the direct `mini_enqueue_configuration` call that publish makes. The

@@ -177,11 +177,13 @@ def _bindings(rows: list[dict[str, Any]]) -> dict[str, Any]:
                             for role in sorted({r["role"] for r in rows})}}
 
 
-def _unit_roles(bindings: dict[str, Any]) -> list[str]:
-    """The window roles read as unit roles: PER_ASSET in every bound set (roles-5; D-DD.118). Roles-4: none."""
+def _unit_roles(bindings: dict[str, Any]) -> dict[str, list[str]]:
+    """`window_evidence`'s `unit_roles` keyword: the roles PER_ASSET in every bound set (roles-5; D-DD.118). Roles-4
+    names none, so the call is exactly as before (no keyword)."""
     sets = bindings.get("role_sets") or []
-    return [role for role in (*rules.SINGLE_POWER_ROLES, "generator_state")
-            if sets and all(unit_roles.per_asset(s, role) for s in sets)]
+    roles = [role for role in (*rules.SINGLE_POWER_ROLES, "generator_state")
+             if sets and all(unit_roles.per_asset(s, role) for s in sets)]
+    return {"unit_roles": roles} if roles else {}
 
 
 def _critical_asset(bindings: dict[str, Any]) -> str | None:
@@ -791,7 +793,7 @@ class VerificationService:
                                                   critical_load_asset_id=basis.get("critical_load_asset_id"),
                                                   reserves=reserves, battery_asset_id=str(plan["battery_asset_id"]),
                                                   role_assets=bound.get("role_assets"),
-                                                  unit_roles=_unit_roles(bound))
+                                                  **_unit_roles(bound))
         return windows
 
     def evidence(self, tenant_id: UUID, site_id: UUID, site_code: str, action_id: UUID, plan_id: UUID | None = None,
