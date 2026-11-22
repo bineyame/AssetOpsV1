@@ -2623,6 +2623,38 @@ def replay_sources(root, doc, ref, href, dv, im):
             check(label, ok)
 
 
+K13_PARITY = {   # 0K4m K13 (rev 4, D-0K4.45): canonical sha256 of each product-parity part on main at 1d4713cc8
+    ("manifest", "structures"): "ef3506fd946df69d9d0e34bca27552fab6e9e2d3a62ea09f12eae817205e85a8",
+    ("manifest", "factor_map"): "20f69d057d769d19728b5e16e46427871fdca8e75d6eceb98fe5b46ca06e6c36",
+    ("manifest", "empty_states.leaf_sources"): "a71fcf305a2e80a01509c3b6af40d7b17785f942aabbe500d15847834f8ee566",
+    ("manifest", "home_categories.nodes"): "40dfde548dd57dd7023d468302f1acfd2d28c5dbc0a5b638ae6df2a1fc832e9e",
+    ("manifest", "home_categories.findings"): "d271fabbb142ebe177e049ad5760a1cc2d53d2cb149f495a2356cdf185f865e7",
+    ("manifest", "chain_model"): "cfa3ebdb879fab1f9884cfc961c95e0df5417a6daf098e4062df2535c2cbbe4f",
+    ("manifest", "history.rules"): "55c330af1acba430a295949f8bd4caa5e04ac8c6bacb5c337705fbf45a3f8541",
+    ("derived-values.json", "sites"): "6b7ee11a6a03e8aa683dae78b68d32920c328d385c13c44fc859141d52286d1a",
+    ("derived-values.json", "portfolio"): "c994625db43e247bc1d0ab3176ca13e695668b5d1c3aaeec55e95a2ccd1e254b",
+    ("derived-values.json", "history"): "de3fbbaed74207bc3273bfd84453caed3e99432c2d235fe8c092b2409289fc09",
+    ("missing-records.json", "sites"): "d17461a1a6f5a347ea26f0455fa1cdad5792bdf65167097eb57a31ad771346e3",
+}
+
+
+def product_parity(root, doc, dv):
+    """K13 (spec rev 4 §2.2, §2.3a): the parts the product, its world and tools/world.py's C4 check read equal main's."""
+    import hashlib
+    canon = lambda o: hashlib.sha256(json.dumps(o, sort_keys=True, separators=(",", ":"), default=str).encode()).hexdigest()
+    mr = json.loads((root / "missing-records.json").read_text(encoding="utf-8"))
+    src = {"manifest": doc, "derived-values.json": dv, "missing-records.json": mr}
+    for (f, p), want in K13_PARITY.items():
+        cur, ok = src[f], True
+        for k in p.split("."):
+            ok = isinstance(cur, dict) and k in cur
+            cur = cur[k] if ok else None
+            if not ok:
+                break
+        got = canon(cur) if ok else None
+        check(f"K13 {f} {p}: canonical sha256 {str(got)[:12]} == main's {want[:12]}", got == want)
+
+
 def main(path):
     root = pathlib.Path(path).resolve().parent
     doc = yaml.safe_load(open(path, encoding="utf-8"))
@@ -2668,6 +2700,7 @@ def main(path):
     option_basis(doc)         # after the history checks too (D-RECON.6)
     operations(root, doc)     # after the history checks too (D-L4OPS.7)
     replay_sources(root, doc, ref, im.compute_history(str(path)) if (root / "history.json").exists() else None, dv, im)   # 0K4m: after them too
+    product_parity(root, doc, dv)   # 0K4m K13 (D-0K4.45): after operations, outside H9's base
     _write_labels()
     print(f"{passes} checks passed ({nh} history checks), {len(failures)} failed")
     for f in failures:
