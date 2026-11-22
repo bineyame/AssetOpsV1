@@ -217,7 +217,7 @@ PINNED_COLD_EV: dict[str, str] = {
     "metro-bus.profile.ev-budget.csv":
         "3bfbfac1c3fd72c93b4291d9b3c2d690bc0d1e1d7c778413802cdc63af263748",
     "metro-bus.profile.ev-fleet-roster.csv":
-        "70357dfa667e407c8e6cce618197be2c7fa45b2232594cdcd9476d1f9f174d1a",
+        "3576f26c9e9b88caa948b1a1292f9d7bbac7c0ef6f48c3fa5f3fc51061bb681c",
     "metro-bus.profile.ev-service-tickets.csv":
         "3579df14f4c4442a38620b2a0ee5c7360ff5b18c4d061c5beb462f9c042b4a24",
 }
