@@ -40,6 +40,7 @@ from assetops_backend.analytics.assessment_inputs import (
 from assetops_backend.analytics.assessment_worker import ROLES_BY_SET
 from assetops_backend.analytics.cohort import select_cohort
 from assetops_backend.runs.replay_study import ObservedSeries
+from assetops_backend.sites import unit_roles
 from assetops_contracts.forward_replay import LoadSeries
 
 STEP = timedelta(minutes=5)
@@ -49,6 +50,9 @@ REPLAY_ROLES = (PV, LOAD, GEN_POWER, GEN_STATE, SOC, FUEL)  # the query's roles,
 MEAN_ROLES = frozenset({PV, LOAD, GEN_POWER})  # an interval mean, kW
 INSTANT_ROLES = frozenset({SOC, FUEL, GEN_STATE})  # a reading at a step's start
 ONE_ASSET_ROLES = (PV, GEN_POWER, GEN_STATE, SOC, FUEL)  # exactly one bound asset each; LOAD: one or more
+#: D-DD.110 Q10: these may bind several units when every binding is PER_ASSET in its set (roles-5); the Site series
+#: is then built through `unit_roles`. Under a ONE set a second asset is still a binding change.
+UNIT_ROLES = (PV, GEN_POWER, GEN_STATE)
 UNITS = MappingProxyType({PV: "kW", LOAD: "kW", GEN_POWER: "kW", SOC: "%", FUEL: "L", GEN_STATE: "state"})
 STATES = ON_STATES | OFF_STATES  # RUNNING, STOPPED, STARTING, FAILED
 INPUT_CLASS_BY_MODE = MappingProxyType({"LIVE": "RECORDED", "SIMULATED": "SIMULATED"})
@@ -151,6 +155,12 @@ def bound_assets(bindings: Sequence[RoleBinding], asset_codes: Mapping[UUID, str
                   and (b.valid_to is None or b.valid_to > window.start)}
         if not assets:
             raise SeriesRefused("READER_ROLE_UNBOUND", role, f"no binding of {role} over the window")
+        units = len(assets) > 1 and role in UNIT_ROLES and all(
+            unit_roles.per_asset(b.role_set, role) for b in bindings if b.role == role and b.valid_from < window.end
+            and (b.valid_to is None or b.valid_to > window.start))
+        if units:
+            out[role] = tuple(sorted(assets, key=str))
+            continue
         if role in ONE_ASSET_ROLES:
             if len(assets) > 1:
                 raise SeriesRefused("READER_BINDING_CHANGED", role,
@@ -273,8 +283,21 @@ def series_from_readings(readings: Sequence[AcceptedReading], bound: Mapping[str
         return tuple(slots.get(k) for k in range(n))
 
     # 6. the series
-    [pv_asset], [gen_asset], [state_asset], [soc_asset], [fuel_asset] = (bound[r] for r in ONE_ASSET_ROLES)
-    gen_kw = mean_series(GEN_POWER, gen_asset)
+    def site_mean(role: str) -> tuple:
+        """The Site series of a unit role: one asset is its own series; several, `unit_roles.site_power` a step."""
+        if len(bound[role]) == 1:
+            return mean_series(role, bound[role][0])
+        by_unit = {str(a): mean_series(role, a) for a in bound[role]}
+        return tuple(unit_roles.site_power({u: s[k] for u, s in by_unit.items()}).value for k in range(n))
+
+    def site_state() -> tuple:
+        if len(bound[GEN_STATE]) == 1:
+            return instant_series(GEN_STATE, bound[GEN_STATE][0])
+        by_unit = {str(a): instant_series(GEN_STATE, a) for a in bound[GEN_STATE]}
+        return tuple(unit_roles.site_generator_state({u: s[k] for u, s in by_unit.items()}).value for k in range(n))
+
+    [soc_asset], [fuel_asset] = bound[SOC], bound[FUEL]
+    gen_kw = site_mean(GEN_POWER)
     start_fuel = instants.get((FUEL, fuel_asset), {}).get(0)
     if start_fuel is None:
         raise SeriesRefused("READER_START_FUEL_UNKNOWN", FUEL, "no GOOD fuel reading at the window start")
@@ -289,10 +312,10 @@ def series_from_readings(readings: Sequence[AcceptedReading], bound: Mapping[str
     series = ObservedSeries(
         interval_start=start.strftime(INSTANT),
         timestep_minutes=5,
-        pv_available_kw=mean_series(PV, pv_asset),
+        pv_available_kw=site_mean(PV),
         loads=tuple(LoadSeries(asset_codes[a], mean_series(LOAD, a)) for a in bound[LOAD]),
         generator_kwh=tuple(None if kw is None else kw * Fraction(5, 60) for kw in gen_kw),
-        generator_state=instant_series(GEN_STATE, state_asset),
+        generator_state=site_state(),
         soc_pct=instant_series(SOC, soc_asset),
         start_fuel_l=start_fuel,
         input_class=classes.pop(),
@@ -346,6 +369,6 @@ class SeriesReader:
 
 __all__ = [
     "INPUT_CLASS_BY_MODE", "INSTANT", "INSTANT_ROLES", "MAX_DAYS", "MEAN_ROLES", "ONE_ASSET_ROLES", "READER_REFUSALS",
-    "REPLAY_ROLES", "STATES", "STEP", "UNITS", "PlacedSeries", "SeriesRead", "SeriesReader", "SeriesRefused",
-    "SeriesRequest", "bound_assets", "local_window", "series_from_readings",
+    "REPLAY_ROLES", "STATES", "STEP", "UNITS", "UNIT_ROLES", "PlacedSeries", "SeriesRead", "SeriesReader",
+    "SeriesRefused", "SeriesRequest", "bound_assets", "local_window", "series_from_readings",
 ]

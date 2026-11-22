@@ -23,6 +23,8 @@ from functools import reduce
 from operator import add
 from typing import Any
 
+from assetops_backend.sites.binding_roles import PER_ASSET, roles_for
+
 GENERATOR = "GENERATOR"
 RATING_KEY = "generator-rated-power"
 #: The Site's one control policy, held on the lead unit (D-DD.43).
@@ -93,6 +95,12 @@ def site_events(events: Mapping[str, Iterable[Any]], *, at: Callable[[Any], Any]
     """The union of the units' events in time order, each as (unit, event); ties keep the units' given order."""
     tagged = [(unit, e) for unit, unit_events in events.items() for e in unit_events]
     return tuple(sorted(tagged, key=lambda pair: at(pair[1])))
+
+
+def per_asset(role_set: str, role: str) -> bool:
+    """True when `role` is a unit role (PER_ASSET) in `role_set`; a reader sums only those (D-DD.118)."""
+    found = roles_for(role_set).get(role)
+    return found is not None and found.cardinality == PER_ASSET
 
 
 def units(components: Sequence[Mapping[str, Any]], asset_type: str) -> tuple[Mapping[str, Any], ...]:

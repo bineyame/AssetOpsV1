@@ -27,6 +27,7 @@ from assetops_backend.actions.ports import ActionRefused
 from assetops_backend.analytics.assessment_inputs import BRACKET
 from assetops_backend.chain.vocabulary import (  # FUEL-1 A3-R §3.6 (precedent `verification_families.py:41`)
     FUEL_VALUE_PAGE, NO_LOAD_BASIS_WORDS, money_text, price_text, trial_litres)
+from assetops_backend.sites import unit_roles
 from assetops_backend.sites.binding_roles import VERIFICATION_POINT_ROLES, VERIFICATION_POWER_ROLES
 
 VERIFY = "VERIFY"
@@ -174,6 +175,13 @@ def _bindings(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "critical_load_asset_ids": critical,
             "role_assets": {role: sorted({str(r["asset_id"]) for r in rows if r["role"] == role and r["asset_id"]})
                             for role in sorted({r["role"] for r in rows})}}
+
+
+def _unit_roles(bindings: dict[str, Any]) -> list[str]:
+    """The window roles read as unit roles: PER_ASSET in every bound set (roles-5; D-DD.118). Roles-4: none."""
+    sets = bindings.get("role_sets") or []
+    return [role for role in (*rules.SINGLE_POWER_ROLES, "generator_state")
+            if sets and all(unit_roles.per_asset(s, role) for s in sets)]
 
 
 def _critical_asset(bindings: dict[str, Any]) -> str | None:
@@ -782,7 +790,8 @@ class VerificationService:
             windows[name] = rules.window_evidence(lo, readings, load_asset_ids=list(basis["load_asset_ids"]),
                                                   critical_load_asset_id=basis.get("critical_load_asset_id"),
                                                   reserves=reserves, battery_asset_id=str(plan["battery_asset_id"]),
-                                                  role_assets=bound.get("role_assets"))
+                                                  role_assets=bound.get("role_assets"),
+                                                  unit_roles=_unit_roles(bound))
         return windows
 
     def evidence(self, tenant_id: UUID, site_id: UUID, site_code: str, action_id: UUID, plan_id: UUID | None = None,

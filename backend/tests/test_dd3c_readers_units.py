@@ -180,8 +180,8 @@ def test_verification_without_unit_roles_keeps_the_ambiguous_binding() -> None:
 
 
 def test_verification_one_unit_is_byte_identical_with_unit_roles_named() -> None:
-    plain = _window(full_window())
-    assert _window(full_window(), unit_roles=("generator_power", "generator_state", PV)) == plain
+    readings = full_window()
+    assert _window(readings, unit_roles=("generator_power", "generator_state", PV)) == _window(readings)
 
 
 # --------------------------------------------------------------------------- D-DD.117 risks: night text, run ids
@@ -189,7 +189,8 @@ def test_verification_one_unit_is_byte_identical_with_unit_roles_named() -> None
 
 def _multi_unit_window(idle: int):
     w = k5.probe_window(0, idle_seconds=idle)
-    terms = {**w.terms, "sfc_l_per_kwh": None, "no_load_l_per_h": None, "sfc_revision_id": None,
+    terms = {**w.terms, "generator_kwh": "14.5", "loaded_litres": "4.9275", "idle_seconds": idle,
+             "sfc_l_per_kwh": None, "no_load_l_per_h": None, "sfc_revision_id": None,
              "no_load_revision_id": None,
              "units": [{"asset_id": "u1", "generator_kwh": "10.5", "idle_seconds": idle, "loaded_litres": "3.7275",
                         "unknown_slots": 0, "sfc_l_per_kwh": "0.355", "sfc_revision_id": "rev-s1",
@@ -200,12 +201,13 @@ def _multi_unit_window(idle: int):
     return replace(w, terms=terms)
 
 
-def test_night_text_use_note_at_a_multi_unit_site_states_every_unit_never_none() -> None:
+def test_night_text_use_note_at_a_multi_unit_site_states_the_summed_figure_never_none() -> None:
+    """The existing note over the Site's sums: 14.5 kWh; L/kWh = (3.7275 + 1.2) / 14.5 = 0.3398 -> 0.34; idle
+    1500 s of unit 1 at 4.9 L/h only."""
     note = k5.card(nt.night_view(_multi_unit_window(0), [], k5.TZ), "USE")["note"]
-    assert note == "Modelled: 10.5 kWh × 0.355 L/kWh + 4.0 kWh × 0.3 L/kWh, 10 % either way"
+    assert note == "Modelled: 14.5 kWh × 0.34 L/kWh, 10 % either way"
     idle = k5.card(nt.night_view(_multi_unit_window(1500), [], k5.TZ), "USE")["note"]
-    assert idle == ("Modelled: 10.5 kWh × 0.355 L/kWh plus 25 min idle at 4.9 L/h + 4.0 kWh × 0.3 L/kWh, "
-                    "10 % either way")
+    assert idle == "Modelled: 14.5 kWh × 0.34 L/kWh plus 25 min idle at 4.9 L/h, 10 % either way"
     assert "None" not in note + idle
 
 
