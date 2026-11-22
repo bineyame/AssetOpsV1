@@ -54,6 +54,9 @@ SLOT = timedelta(minutes=5)
 MINUTES_PER_HOUR = 60
 QUANTUM_KW = Fraction(1)
 LATE_PLUG = time(22, 0)  # spec §4.5: the rest plug in at 22:00
+#: D-DD.98: a full bus is unplugged for a waiting one, which plugs in on that connector this many minutes later.
+ROTATION_MINUTES = 5
+ROTATION_MINUTES_DELTA = timedelta(minutes=ROTATION_MINUTES)
 #: Spec §4.5 plug-in practice at Embakasi, July to October; November keeps October's (pre-flight Q14, parity test).
 PRACTICE = {"2026-07": "0.36", "2026-08": "0.43", "2026-09": "0.49", "2026-10": "0.55", "2026-11": "0.55"}
 SITE_METER = "site-meter"
@@ -124,8 +127,16 @@ class EvSiteRun:
             {"condition": "initial state", "value": "every connector UNPLUGGED; no bus at the depot before its first "
              "roster return", "source": "DD4b-preflight Q11 (Assumed)"},
             {"condition": "fault under a charging bus", "value": "the aborted bus rejoins the queue at the fault "
-             "minute with its remaining need", "source": "DD4b-preflight Q7 (Assumed)"}]
+             "minute with its remaining need", "source": "DD4b-preflight Q7 (Assumed)"},
+            {"condition": "rotation", "value": f"at the first minute a bus waits and a plugged bus has its required_kwh, "
+             f"the full bus UNPLUGs and stays parked to its departure; the longest-waiting bus plugs in on that connector "
+             f"{ROTATION_MINUTES} minutes later", "source": "D-DD.98 (Assumed attendant handling)"}]
         self.practice = {m: Fraction(Decimal(v)) for m, v in books.get("practice", {}).items()}
+        if any(r["body"]["vehicle_ref"].endswith("-S01") and r["site_code"] == self.code
+               for r in books.get("roster", [])):
+            self._conditions.append({"condition": "spare arrival", "value": "the spare arrives at 10:00 local on its "
+                                     "night's start date, plugs in on arrival and charges on idle daytime connectors",
+                                     "source": "D-DD.98 (Assumed)"})
         if self.practice:
             self._conditions.append({"condition": "plug-in practice", "value": " ".join(
                 f"{m}={v}" for m, v in sorted(books["practice"].items())), "source": "spec §4.5 (D-DD.23)"})
@@ -140,6 +151,9 @@ class EvSiteRun:
         self.queue: list[_Bus] = []
         self.on: dict[tuple[int, str], _Bus] = {}
         self.requests: dict[tuple[int, str], Fraction] = {}
+        self.parked: list[_Bus] = []  # full buses rotated off their connector (D-DD.98)
+        self.reserved: dict[tuple[int, str], tuple[_Bus, datetime]] = {}  # connector -> (waiting bus, plug instant)
+        self._unplugs: list[tuple[datetime, str, str]] = []  # rotation UNPLUGs: (instant, bus, connector asset)
         self.advanced = 0
         self._records: dict[date, list[tuple]] = {}
         self._departed: list[dict] = []
@@ -304,9 +318,13 @@ class EvSiteRun:
                 self._leave(bus, t)
                 del self.on[s]
                 self.requests.pop(s, None)
-        for bus in [b for b in self.queue if b.departure <= t]:
-            self.queue.remove(bus)
+        for bus in [b for b in self.queue if b.departure <= t] + [b for b in self.parked if b.departure <= t]:
+            (self.queue if bus in self.queue else self.parked).remove(bus)
             self._leave(bus, t)
+        for s, (bus, _at) in list(self.reserved.items()):
+            if bus.departure <= t:
+                del self.reserved[s]
+                self._leave(bus, t)
         # faults
         for s in self._faults.get(t, ()):
             forcing[s[0]].append(EvForcingRow(t, "FAULT", s[1], "LATCH"))
@@ -317,28 +335,57 @@ class EvSiteRun:
                 bus.connector = None
                 bus.plug_at = t
                 self.queue.append(bus)
+            held = self.reserved.pop(s, None)
+            if held is not None:  # its connector faulted before the plug: the bus waits again
+                self.queue.append(held[0])
         # plug-ins join the queue
         while self._next < len(self._arrivals) and self._arrivals[self._next].plug_at <= t:
             self.queue.append(self._arrivals[self._next])
             self._next += 1
         self.queue.sort(key=lambda b: (b.plug_at, b.order))
-        # 2. connector assignment
+        # 2. connector assignment: a connector held for a rotated-in bus first (D-DD.98), then the queue
+        due = [(s, bus) for s, (bus, at) in self.reserved.items() if at <= t]
+        for s, bus in sorted(due, key=lambda x: self.slots.index(x[0])):
+            del self.reserved[s]
+            self._plug(s, bus, t, forcing, busy)
         for bus in list(self.queue):
-            free = next((s for s in self.slots if s not in busy and s not in self.on
+            free = next((s for s in self.slots if s not in busy and s not in self.on and s not in self.reserved
                          and self.states[s[0]].connector(s[1]).state == "UNPLUGGED"), None)
             if free is None:
                 break
-            k = free[0]
-            state = self.states[k]
-            label = f"session-{state.plugs + 1 + sum(1 for f in forcing[k] if f.kind == 'PLUG')}"
-            forcing[k] += [EvForcingRow(t, "PLUG", free[1], label), EvForcingRow(t, "AUTHORIZE", free[1], "ACCEPT")]
-            busy.add(free)
             self.queue.remove(bus)
-            self.on[free] = bus
-            bus.connector = free
-            bus.plugged_at = t
-            self._plugs.append((t, bus.ref, self.asset(free), bus.night))
+            self._plug(free, bus, t, forcing, busy)
+        # rotation (D-DD.98): a waiting bus takes the connector of a full one, ROTATION_MINUTES later
+        for bus in list(self.queue):
+            full = next((s for s in self.slots if s in self.on and s not in busy and s not in self.reserved
+                         and self.on[s].delivered >= self.on[s].required
+                         and self.states[s[0]].connector(s[1]).state != "FAULTED"), None)
+            if full is None:
+                break
+            forcing[full[0]].append(EvForcingRow(t, "UNPLUG", full[1], "END"))
+            busy.add(full)
+            gone = self.on.pop(full)
+            self.requests.pop(full, None)
+            gone.connector = None
+            self.parked.append(gone)
+            self._unplugs.append((t, gone.ref, self.asset(full)))
+            self.queue.remove(bus)
+            self.reserved[full] = (bus, t + ROTATION_MINUTES_DELTA)
         # 3. the depot manager
+        self._manage(t, forcing, busy)
+
+    def _plug(self, free: tuple[int, str], bus: _Bus, t: datetime, forcing: list, busy: set) -> None:
+        k = free[0]
+        state = self.states[k]
+        label = f"session-{state.plugs + 1 + sum(1 for f in forcing[k] if f.kind == 'PLUG')}"
+        forcing[k] += [EvForcingRow(t, "PLUG", free[1], label), EvForcingRow(t, "AUTHORIZE", free[1], "ACCEPT")]
+        busy.add(free)
+        self.on[free] = bus
+        bus.connector = free
+        bus.plugged_at = t
+        self._plugs.append((t, bus.ref, self.asset(free), bus.night))
+
+    def _manage(self, t: datetime, forcing: list, busy: set) -> None:
         charging = []
         for s, bus in self.on.items():
             if s in busy:
@@ -495,6 +542,10 @@ class EvSiteRun:
 
     def departures(self) -> list[dict]:
         return list(self._departed)
+
+    def unplugs(self) -> list[tuple[datetime, str, str]]:
+        """The rotation UNPLUGs (D-DD.98): (instant, bus, connector asset)."""
+        return list(self._unplugs)
 
     def plug_ins(self, night: str) -> list[tuple[datetime, str]]:
         return [(t, bus) for t, bus, _, n in self._plugs if n == night]

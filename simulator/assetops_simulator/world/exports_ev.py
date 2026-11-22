@@ -5,7 +5,7 @@ In the source profiles' own formats:
 - the fleet roster (`ev-fleet-roster-illustrative`): one row per bus per night, 1 Jul to 6 Nov, by the one roster
   function `roster_rows` (DD4.3 widened its span to the open nights before `as_of`, D-DD.52; pre-flight Q8: November
   rows carry `kwh_per_bus_night` exactly, with no month total to scale to). Kasarani's spare bus `EV-KAS-S01` is one
-  more row on each of `SPARE_NIGHTS` (pre-flight Q9). A
+  more row on each of `SPARE_NIGHTS` (pre-flight Q9), returning at `SPARE_ARRIVAL` (D-DD.98: a daytime spare). A
   night is dated by its start (the evening return); the bus leaves the next morning. Embakasi's returns spread over
   17:30-19:30 by bus index (17:30 + i x 120/(n-1) minutes, to the whole minute, half to even), departure 05:30;
   Kasarani returns 22:00, Ruiru 21:00, both depart 05:00. `required_kwh` is `kwh_per_bus_night` scaled by largest
@@ -59,6 +59,8 @@ TICKETS = (
 #: Pre-flight Q9: the nights (dated by their start) Kasarani's one spare bus is in the roster. `M` gives their count
 #: (`observations.november_to_date.spare_bus_nights`), not their dates; a manifest parity test pins the count and range.
 SPARE_NIGHTS = {"EV-KAS": ("2026-11-02", "2026-11-03", "2026-11-04")}
+#: D-DD.98: the spare is a daytime-charged bus; it arrives at 10:00 local on the night's start date (Assumed).
+SPARE_ARRIVAL = time(10, 0)
 CONTRACTOR = "oem-contractor"  # R5: source text, never a named counterparty
 MILLI = 1000
 
@@ -102,7 +104,7 @@ def roster_rows(m: SiteMonth, zone, nights: list[date], *, scaled: bool = True) 
     returns = _return_times(m.code, buses)
     spare = set(SPARE_NIGHTS.get(m.code, ()))
     plan = [(night, [(f"{i + 1:02d}", f"B{i + 1:02d}", returns[i]) for i in range(buses)]
-             + ([("S01", "S01", returns[0])] if night.isoformat() in spare else [])) for night in nights]
+             + ([("S01", "S01", SPARE_ARRIVAL)] if night.isoformat() in spare else [])) for night in nights]
     count = sum(len(row) for _, row in plan)
     if scaled:
         total = m.whole("actual", "kwh")

@@ -40,10 +40,10 @@ def test_r2_spare_nights_parity_with_the_manifest() -> None:
     assert set(exports_ev.SPARE_NIGHTS) == {"EV-KAS"}
 
 
-def test_r3_spare_row_shape() -> None:
+def test_r3_spare_row_shape() -> None:  # D-DD.98 replaces Q9's 22:00 return with the 10:00 daytime arrival
     spare = [r for r in roster() if r["subject"]["ref"] == "EV-KAS-S01"]
     assert [r["clocks"]["effective_from"] for r in spare] == list(exports_ev.SPARE_NIGHTS["EV-KAS"])
     r = spare[0]
     assert r["body"]["block_ref"] == "EV-KAS-BLK-S01" and r["body"]["required_kwh"] == "150.000"
-    assert r["body"]["return_at"] == f"{r['clocks']['effective_from']}T22:00:00+03:00"
+    assert r["body"]["return_at"] == f"{r['clocks']['effective_from']}T10:00:00+03:00"  # D-DD.98: daytime spare
     assert r["source_record_id"] == f"gen:EV-KAS:{r['clocks']['effective_from']}:roster:S01"

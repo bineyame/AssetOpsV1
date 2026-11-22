@@ -44,7 +44,7 @@ def test_v2_kasarani_rotation_unplugs_a_full_bus_for_a_waiting_one_five_minutes_
     from assetops_simulator.world import telemetry_ev
 
     assert telemetry_ev.ROTATION_MINUTES == 5
-    r = run("EV-KAS", "2026-11-02", "2026-11-03", faults=[KAS_FAULT])
+    r = run("EV-KAS", "2026-11-01", "2026-11-03", faults=[KAS_FAULT])
     plugs = r.assignments("2026-11-02")
     # every bus of the night gets a connector: the waiting ones on a connector a full bus left 5 minutes before
     refs = {bus for _, bus, _ in plugs}
@@ -57,7 +57,7 @@ def test_v2_kasarani_rotation_unplugs_a_full_bus_for_a_waiting_one_five_minutes_
 
 
 def test_v3_the_spare_arrives_at_10_charges_by_day_and_is_rotated_off_at_22() -> None:
-    r = run("EV-KAS", "2026-11-02", "2026-11-03", faults=[KAS_FAULT])
+    r = run("EV-KAS", "2026-11-01", "2026-11-03", faults=[KAS_FAULT])
     spare = [p for p in r.assignments("2026-11-02") if p[1] == "EV-KAS-S01"]
     assert len(spare) == 1 and spare[0][0] == local("2026-11-02T10:00")
     out = [u for u in r.unplugs() if u[1] == "EV-KAS-S01"]
