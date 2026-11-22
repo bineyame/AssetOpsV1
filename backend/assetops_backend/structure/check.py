@@ -38,7 +38,7 @@ from assetops_backend.structure.observe import rules as _observe
 from assetops_backend.structure.expressions import (
     Bin, Expr, ExpressionError, Neg, Num, Ref, UnitError, names, parse, unit_of,
 )
-from assetops_backend.structure.registry import ABSENT, COMPOSES, FAMILIES, HOMES, Registry
+from assetops_backend.structure.registry import ABSENT, COMPOSES, FAMILIES, HOMES, FactorRow, Registry
 from assetops_contracts.canonical.factors import FACTOR_ID_PATTERN, LEAF_FACTORS, STRUCTURE_KEYS, leaves_of
 from assetops_contracts.canonical.units import KWH
 
@@ -327,11 +327,13 @@ def check_pins(pins: Mapping[str, "_pins.Pin"] | None = None, registries: Mappin
 
 _LEVER_ID = re.compile(r"[a-z][a-z0-9_]{0,63}", re.ASCII)
 _OPTION_KEY = re.compile(r"[a-z0-9][a-z0-9-]{0,63}", re.ASCII)
+_NO_ACTION_KEY = "no-action"
 
 
 def _lever_fault(lever: "_levers.Lever", registries: Mapping[str, Registry], pins: Mapping[str, "_pins.Pin"],
                  all_levers: Mapping[str, "_levers.Lever"]) -> None:
-    """Branches 2 to 14 of spec §3.1 for one lever, in order."""
+    """Branches 2 to 14 of 6a spec §3.1 for one lever, in order (6 to 13 for `SETTING_GRID` only, D-P6.63), then
+    6h's 15 to 22."""
     def refuse() -> StructureError:
         return StructureError("STRUCTURE_LEVER", lever.structure_key, lever.lever_id)
 
@@ -346,23 +348,24 @@ def _lever_fault(lever: "_levers.Lever", registries: Mapping[str, Registry], pin
     leaves = {row.factor_id for row in reg.rows if row.is_leaf}
     if any(name not in leaves for name in lever.changes):
         raise refuse()
-    if any(not _LEVER_ID.fullmatch(axis.name) for axis in lever.axes):
-        raise refuse()
-    if any(len(axis.values) == 0 for axis in lever.axes):
-        raise refuse()
-    if any(len(set(axis.values)) != len(axis.values) for axis in lever.axes):
-        raise refuse()
-    if len({axis.unit for axis in lever.axes}) > 1:
-        raise refuse()
-    if set(re.findall(r"\{(\w*)\}", lever.key_template)) != {axis.name for axis in lever.axes}:
-        raise refuse()
-    if any(value != value.to_integral_value() for axis in lever.axes for value in axis.values):
-        raise refuse()
-    keys = [_levers.option_key(lever, point) for point in _levers.grid(lever)]
-    if len(set(keys)) != len(keys):
-        raise refuse()
-    if any(not _OPTION_KEY.fullmatch(key) for key in keys):
-        raise refuse()
+    if lever.generator == "SETTING_GRID":  # 6 to 13 (D-P6.63): the grid branches, for the grid generator only
+        if any(not _LEVER_ID.fullmatch(axis.name) for axis in lever.axes):
+            raise refuse()
+        if any(len(axis.values) == 0 for axis in lever.axes):
+            raise refuse()
+        if any(len(set(axis.values)) != len(axis.values) for axis in lever.axes):
+            raise refuse()
+        if len({axis.unit for axis in lever.axes}) > 1:
+            raise refuse()
+        if set(re.findall(r"\{(\w*)\}", lever.key_template)) != {axis.name for axis in lever.axes}:
+            raise refuse()
+        if any(value != value.to_integral_value() for axis in lever.axes for value in axis.values):
+            raise refuse()
+        keys = [_levers.option_key(lever, point) for point in _levers.grid(lever)]
+        if len(set(keys)) != len(keys):
+            raise refuse()
+        if any(not _OPTION_KEY.fullmatch(key) for key in keys):
+            raise refuse()
     for pin in pins.values():
         pin_reg = registries.get(pin.structure_key)
         pin_row = None if pin_reg is None else next((r for r in pin_reg.rows if r.factor_id == pin.factor_id), None)
@@ -370,6 +373,34 @@ def _lever_fault(lever: "_levers.Lever", registries: Mapping[str, Registry], pin
             continue
         if pin_row.home.category != purpose.home.category:
             raise refuse()
+    _named_fault(lever, purpose, refuse)
+
+
+def _named_fault(lever: "_levers.Lever", purpose: FactorRow, refuse: Callable[[], StructureError]) -> None:
+    """6h (spec §3.2): branches 15 to 22, in order."""
+    if lever.generator not in _levers.GENERATORS:  # 15
+        raise refuse()
+    if set(lever.change_sources) != set(lever.changes) or any(  # 16
+            source.kind not in _levers.CHANGE_SOURCE_KINDS for source in lever.change_sources.values()):
+        raise refuse()
+    if lever.generator == "SETTING_GRID" and lever.options:  # 17
+        raise refuse()
+    if lever.generator == "STATED_OPTIONS" and (lever.axes or not lever.options or lever.key_template):
+        raise refuse()
+    keys = [option.key for option in lever.options]  # 18
+    if any(not _OPTION_KEY.fullmatch(key) or key == _NO_ACTION_KEY for key in keys) or len(set(keys)) != len(keys):
+        raise refuse()
+    if any(option.kind not in _levers.OPTION_KINDS for option in lever.options):  # 19
+        raise refuse()
+    for option in lever.options:  # 20
+        if not option.changes or any(name not in lever.changes for name in option.changes):
+            raise refuse()
+        if list(option.changes) != [name for name in lever.changes if name in option.changes]:
+            raise refuse()
+    if lever.no_action_words not in _levers.NO_ACTION_WORDS:  # 21
+        raise refuse()
+    if lever.bounds_required and (purpose.home is None or purpose.home.category != HOMES["protect"]):  # 22
+        raise refuse()
 
 
 def check_levers(levers: Mapping[str, "_levers.Lever"] | None = None,

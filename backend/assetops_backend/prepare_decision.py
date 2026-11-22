@@ -1,7 +1,7 @@
 """6a (`specs/6a-decision-records/spec.md` §4; D-P6.3, D-P6.14): prepare a decision on a Site's lever, in the analyst's name.
 
     python -m assetops_backend.prepare_decision --tenant SLUG --as EMAIL --site CODE --lever ID --period YYYY-MM
-        --current NAME=VALUE[,NAME=VALUE...] [--finding UUID] [--horizon N]
+        [--current NAME=VALUE[,NAME=VALUE...]] [--finding UUID] [--horizon N]
 
 The analyst's trusted act, not a sign-in. Writes the decision and its options (no action first, then the lever's grid
 minus today's setting) once; a re-run says so (`already_prepared` true). Success: one JSON line on stdout, exit 0;
@@ -26,7 +26,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--site", required=True, help="the Site's code")
     parser.add_argument("--lever", required=True, help="the lever's id")
     parser.add_argument("--period", required=True, help="the period, YYYY-MM")
-    parser.add_argument("--current", required=True, help="today's setting: NAME=VALUE[,NAME=VALUE...]")
+    parser.add_argument("--current", default="", help="today's setting: NAME=VALUE[,NAME=VALUE...] (6h: optional; "
+                        "a named-option lever has none)")
     parser.add_argument("--finding", default=None, help="the Finding the decision answers (a UUID)")
     parser.add_argument("--horizon", default=None, help="months the options are valued over (default 12)")
     return parser
@@ -34,6 +35,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 def _current(raw: str):
     settings = {}
+    if raw == "":  # 6h (spec §3.3): no current; a SETTING_GRID lever then refuses BAD_CURRENT at P5
+        return settings
     for part in raw.split(","):
         name, found, value = part.partition("=")
         if not found or not name or name in settings:

@@ -34,7 +34,8 @@ HORIZON_MIN, HORIZON_MAX = 1, 60
 COMMANDS = MappingProxyType({"prepare": "decision.prepare", "one_off": "decision.one_off",
                              "choose": "decision.choose", "evaluate": "decision.evaluate"})
 DISPOSITIONS = ("COMPARISON", "RECOMMENDED", "CONDITIONAL", "ACCEPTABLE", "DEFERRED", "REJECTED")
-RUN_OUTCOMES = ("RECOMMENDED", "NO_ACTION_BEST", "RANKING_INCOMPLETE", "NOTHING_ADMITTED")
+RUN_OUTCOMES = ("RECOMMENDED", "NO_ACTION_BEST", "RANKING_INCOMPLETE", "NOTHING_ADMITTED", "BOUNDS_NOT_CHECKED")
+STATED_OPTIONS = "STATED_OPTIONS"  # 6h: the named-option generator
 SOURCE_CLASSES = ("SIMULATED", "EMULATED", "RECORDED")  # weakest first
 STATE_NOT_VALUED, STATE_WAITING, STATE_CHOSEN, STATE_UNDER_WAY, STATE_KEPT = (
     "NOT_VALUED", "WAITING", "CHOSEN", "UNDER_WAY", "KEPT_AS_IS")
@@ -395,7 +396,7 @@ class DecisionService:
                 raise DecisionRefused("FINDING_NOT_FOUND")
             if not self._pin_lists_lever(mechanism, lever_id):
                 raise DecisionRefused("FINDING_NOT_ON_LEVER")
-        names = {axis.name for axis in lever.axes}  # P5
+        names = {axis.name for axis in lever.axes}  # P5 (6h: a STATED_OPTIONS lever has no axes, so current is {})
         if set(current) != names or any(not isinstance(v, Decimal) or not v.is_finite() for v in current.values()):
             raise DecisionRefused("BAD_CURRENT")
         found = self._call(self._store.find_decision, tenant_id, site.site_id, lever_id, period, finding_id)  # P6
@@ -408,10 +409,15 @@ class DecisionService:
                                lever.purpose_factor, finding_id, period, horizon_months, dict(current), RULE_VERSION,
                                person.person_id, role, True, now)
         options = [OptionRow(self._new_id(), tenant_id, decision.id, NO_ACTION_KEY, "NO_ACTION", dict(current), 0)]
-        for point in grid(lever):
-            if not _same_settings(point, current):
-                options.append(OptionRow(self._new_id(), tenant_id, decision.id, option_key(lever, point),
-                                         lever.generator, dict(point), len(options)))
+        if lever.generator == STATED_OPTIONS:  # 6h P7: the lever's named options in catalogue order
+            for named in lever.options:
+                options.append(OptionRow(self._new_id(), tenant_id, decision.id, named.key, STATED_OPTIONS, {},
+                                         len(options)))
+        else:
+            for point in grid(lever):
+                if not _same_settings(point, current):
+                    options.append(OptionRow(self._new_id(), tenant_id, decision.id, option_key(lever, point),
+                                             lever.generator, dict(point), len(options)))
         stored, already = self._call(self._store.add_decision, decision, tuple(options))
         if already:
             _, options_back = self._call(self._store.decision, tenant_id, stored.id)
