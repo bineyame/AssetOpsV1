@@ -21,7 +21,7 @@
 - `D-IAP.19` class fix: /evidence/records, /decisions, /results, /sites join RANGE_PAGES and FILLED_PAGES · live · specs/IA-P-product-shape/rulings.md
 - `D-IAP.20` E1 takes from/to, same resolver; period rows sum months compared, Compared in k of m months; total.gap = Overview tile 2 · live · specs/IA-P-product-shape/rulings.md
 - `D-IAP.21` fresh Portfolio entry (no range, none stored) fills Last month; other pages keep 7 days; owner may veto (Q9) · live · specs/IA-P-product-shape/rulings.md
-- `D-IAP.22` rev 2 sizes: P3a 1.5, P3b 1.75, P4 2.0; IA-P1 5.75 u, IA-P2 5.0 u; P3a and P4 each stale the world key · live · specs/IA-P-product-shape/rulings.md
+- `D-IAP.22` rev 2 sizes: P3a 1.5, P3b 1.75, P4 2.0; IA-P1 5.75 u, IA-P2 5.0 u; P3a and P4 each stale the world key · superseded by D-IAP.32 · specs/IA-P-product-shape/rulings.md
 - `D-IAP.23` Kobo stays Simulated; IA-P figures take their word via 5c figure_word, no IA-P label; no change · live · specs/IA-P-product-shape/rulings.md
 - `D-P6.1` P6 approved by the owner 22 Nov (accept all p6 defaults); defaults are D-P6.13-19; 6a/6c rev 1, gate P met · live · specs/6-decision-valued/rulings.md
 - `D-P6.2` world-month rule: only a SITE_RECORD study values; declared season (kobo-61d) = Not available yet, admission and dawn kept; Kobo NAY until 0K4f · live · specs/6-decision-valued/rulings.md

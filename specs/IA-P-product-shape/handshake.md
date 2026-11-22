@@ -328,3 +328,154 @@ reading the estate portfolio for the range, page 1 only. `Results.test.tsx` is n
 
 High 3 (R1, R2, R3). Medium 13 (R4 to R8, I1, I2, I7 to I12). Low 9 (R9, I3 to I6, I13 to I16). 25 in all (9 R, 16 I).
 R1 is a stop: until the cap is ruled, P3b's H4 and H6 and P4's S1 cannot pass in a browser.
+
+## Answers (Architect)
+
+Architect (Claude), 2026-11-22. All 25 questions are answered, and the spec is now rev 3. The rulings are D-IAP.24 to D-IAP.33. Owner
+answers on `main` (`owner/owner-iap-q1-q2-kobo-datasheets-2026-11-22.md`): Q9 "Last month" and Q10 "Month by month". Both
+stand (D-IAP.33), and nothing below reverses them. Two new owner questions, Q11 and Q12, carry defaults and do not block
+the build.
+
+**R1 (High): accepted, with a central design (D-IAP.24; `spec-period.md` P.9; new unit P0).** Q10 is kept.
+- **The cap.** The shared range accepts up to 731 days (`RANGE_MAX_DAYS`). A 731-day range holds at most 24 whole months,
+  so E2's 24-month cap is never the first limit a range hits.
+- **Whole-range pages.** `/portfolio`, `/portfolio/outcomes` and `/sites` (`WHOLE_RANGE_PAGES`) send the whole range to E2
+  and E1.
+- **Every other read** keeps its server's 31-day cap. It reads `readWindow(params)`, the last 31 days ending at `to`
+  (equal to the range at 31 days or fewer). It is one helper in `sharedRange.ts`: `to` is kept, and `from` becomes
+  `max(from, to − 30 days)`. This is a sweep of every raw `get("from")`/`get("to")`: 35 call sites, plus the 10 helper
+  users. A static vitest guard fails on any `get("from")` or `get("to")` outside `sharedRange.ts`.
+- **The bar** declares that window itself on every non-whole page where the range is over 31 days and the page declared
+  no span of its own. It uses its existing words, "Showing {span} of the range". No page needs its own declaration.
+- **Mixed pages.** On a whole-range page, a block fed by a capped read (Overview L2, Outcomes L3, the Sites "Waiting for
+  a choice" column, the inbox and search) carries `RangePartNote` with the same words beside the block or in the column
+  header.
+- **Why this is honest.** Every page still says exactly which days it shows. Showing the whole range on every page needs
+  every 31-day read raised: estate, Site, cold, EV, actions and source health. That is a cross-system change with unknown
+  query cost, so it goes to the owner as **Q12**. Default: IA-P ships the labelled window, and a measured cap-raise task
+  is queued after IA-P.
+
+**R2 (High): accepted (D-IAP.25).**
+- The period body's tile 1 keeps 5c's `W.sites(k, n)` line, with `k` and `n` from the latest served month.
+- The headline gains the suffix `portfolio_period.compared` "Compared for {k} of {n} Sites." when `k < n` in any served
+  month, using the latest month's `k` and `n`.
+- Each month row gains `sites` (5c's `W.sites` for that month).
+- P.7 adds test 11, World G with a September copy: the suffix, the tile line, and each row's "3 of 4 Sites".
+- P.8 test 2 is World G. A vitest matrix test asserts that the Overview, Outcomes and the Sites list each name Thika on a
+  one-month and a two-month fixture.
+
+**R3 (High): accepted in part (D-IAP.26, MD-IAP-12, owner Q11).**
+- **Confirmed: there is no cold-chain or EV monthly figure source.** Snapshots are built for MINI_GRID only
+  (`structure_snapshot/read.py:60`, D-3B6.6). The EV and cold structures exist, but no snapshot or target is served for
+  them. So the mock's cost-kind cell ("Cost per required departure met") has no live source, and E1 does not get a second
+  kind in IA-P.
+- **The row now says why, by Site type.** A cold-chain or EV row's Contribution cell reads `portfolio_sites.no_figures`
+  "No monthly figures for {domain word} Sites yet". Gap and driver read "Not available yet", and the row has no gap
+  word. A mini-grid Site that is not compared keeps "Not available yet", with 5c's reason in the Overview.
+- **The range rule.** The page is not empty for these Sites:
+  - the row's "Waiting for a choice" is range output;
+  - the row's link opens the Site Overview, which follows the range for every type;
+  - Outcomes L3 shows the range category cards and objectives for every type.
+  What is missing is one quantity: monthly money against target.
+- **MD-IAP-12 (D1).** Its resolving unit is "monthly figures for cold-chain and EV" (a cost-kind snapshot and targets),
+  which is not specified yet. Whether to build it is **Q11** for the owner. Default: state the gap now, and specify the
+  unit after IA-P when the owner schedules it.
+
+**R4: accepted (D-IAP.27).**
+- `iaRouteMap.test.ts` holds §2.4's "Current address" column as its own literals and asserts both directions: (a) every
+  route path matches an `IA_HOMES` pattern or a live `LEGACY_ROUTES.from`; (b) every §2.4 literal resolves to a route or a
+  live alias.
+- The `routemap` plant fails (a), and the `alias` plant fails (b).
+
+**R5: accepted (D-IAP.28).**
+- `{months}` follows `span`'s year rule over the months the sentence names, so test 4 reads "September".
+- `suggest` keeps `month_words` with the year ("Show October 2026").
+- Test 6 is written out in P.7: "November is only partly in this range, so it is not counted: the figures are kept by
+  whole month."
+
+**R6: accepted (D-IAP.28, MD-IAP-13).**
+- The Sites "Gap to target" tile shows `total.gap` only at scope `all` with no facet and no `q`. Otherwise it reads "Not
+  available yet", with the line "For every Site only".
+- The More line is "Not shown: {h} Sites." with no figure. IA-2b §3.4's re-formatting is not transcribed: E1's strings are
+  shown as served.
+
+**R7: ruled (D-IAP.29).**
+- A placed Finding in `MONITOR` with no Action is not a choice waiting. Its State is `watching`, "Being watched", a third
+  facet option.
+- `waiting` is `action_id` null and placement not `MONITOR`. `NEEDS_INVESTIGATION` stays waiting, because choosing to
+  investigate is a choice.
+- E0's `waiting_count` and `waiting_by_site` use the same rule, with an added test: a `MONITOR` member is not counted.
+- The badge, tiles and inbox follow, and MD-IAP-2's note gains the third word.
+
+**R8: accepted.** P.8 test 9, "Fixtures current": `fixtures/iap/sites-2026-10.json`, `sites-2026-09-10.json` and
+`sites-none-2026-11.json` equal `sites_view` for tests 1, 7 and 3, and the E0 fixture's `waiting_by_site` keys are E1's
+codes.
+
+**R9: accepted.** P.8 test 1 also asserts that each compared row's `gap` equals its Site's `by_site` Gap cell in October's
+`month_view`, string for string.
+
+**I1: accepted.** `MonthNav` reads only E2's `nav`, and with `next` null it draws no next control. `MONTHS`, `monthWords`
+and `monthAfter` are deleted. The nav assertion update is named in the packet.
+
+**I2: accepted.** The test imports `operatorSiteRoutes.ts` to resolve each `{IDENT}`, reads the array literals before each
+`.map`, and takes the Lab paths from `simulatorLabRoutes(stub)`. An unresolvable `path={…}` fails the test.
+
+**I3: accepted.** The signature is `entryRange(pathname?: string, now = Date.now())`, called with `location.pathname`. The
+`/` alias runs before the fill, and `portfolioHub.test` asserts that `/` lands on last month.
+
+**I4: accepted.** The bar keeps its words ("Showing {span} of the range"), and P.1's column is corrected to them. H6 checks
+`data-shared-range-focus="inside"`.
+
+**I5: accepted.**
+- Use `W.tile_target`, `W.tile_split` and `W.status_line(latest as_of, S.reconciled, union of disagreeing (latest month's
+  asked order first), names)`.
+- E2 and E1 refuse 422 with `portfolio_period.refused` through their own helper, and `_refused` keeps 503.
+
+**I6: accepted.**
+- The fakes are `backend/tests/test_5c_deep_dive_api.py`'s.
+- `_world_p()` uses `replace(served, snapshot=replace(served.snapshot, month="2026-09"))`.
+- P.8 test 8 empties Mto's September `SiteMonthSnapshot.targets`. The packet shows September `R.k` = 2 of 3.
+
+**I7: accepted.**
+- The sum check runs only when `R.effect` and every compared effect are present.
+- In the route, an `AssertionError` is a logged 503 `DEEP_DIVE_UNAVAILABLE`. In tests it raises.
+- Test 4b uses World X: no raise, and every gap reads "Not available yet". The same applies to E2's period sums.
+
+**I8: accepted.**
+- Decisions and Findings rows link through `findingLinkLive`, exported and using the Site directory from the shared cache.
+- `recommendation` is added only to a mini-grid `FINDING` Ref. `FUEL_FINDING` links its own page, and cold-chain and EV
+  rows link their windowed Finding page.
+- A row that fails the check is text, with "Detail not available yet".
+
+**I9: accepted.** On a `FIRST_PAGE_CODES` refusal, `loadAllPages` restarts once from page 1. A second refusal shows the
+list's `EstateRefusal` with its retry. The body-level fields are page 1's, and only `rows` are concatenated.
+
+**I10: accepted (D-IAP.31, MD-IAP-15; the reviewer's "MD-IAP-8b").**
+- Finding pages are object pages.
+- A Site Findings index kept for a vertical whose parity test failed lights Evidence, and its section line reads "In
+  Evidence: Records · Uploads · Findings" until its alias ships.
+- The mill and fuel verification pages are object pages with home "Actions".
+
+**I11: accepted.** The fixtures are the five sets the reviewer listed, each with its source in the packet. Any other
+`/api/*` answers 404. The fixture base is built in P1 and grows with each unit.
+
+**I12: accepted.** P2 transcribes IA-2b rev 2 at `task/IA-2b1-lists` `b3102080c`, named in the packet. A later IA-2b change
+is a mid-build question.
+
+**I13: accepted.** P7 updates `test_t11_smoke_pages`' list in the same commit, and the diff scope gains it.
+
+**I14: accepted.** `Results.tsx` and `Results.test.tsx` are new: `PageHeader` "Results" and "What changed in this review",
+then `ProgressPanel` moved verbatim, reading the estate portfolio's page 1 for the window.
+
+**I15: accepted (MD-IAP-14, D4).** The icons stay as §2.1, the live icon set. `decide` is new because two items cannot
+share `finding`.
+
+**I16: accepted.** The guard pins the call form in `OperatorShellLayout.tsx` and `export function railHomeOf` in
+`iaRoutes.ts`. Both plants are shown failing: the extra live item and `activeLabel={null}`.
+
+**Size (D-IAP.32).** 14.0 units, in three parts, each under 6:
+- **IA-P1** (P0, P1, P2): 4.5;
+- **IA-P2** (P3a, P3b, P4a): 5.0;
+- **IA-P3** (P4b, P5, P6, P7): 4.5.
+
+Only IA-P2 touches `backend/assetops_backend`, so there is one rung rebuild after it merges.
