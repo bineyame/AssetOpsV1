@@ -1,6 +1,6 @@
 # T1b: a second Postgres test lane (implementer spec)
 
-Status: spec rev 1, 2026-11-22. Architect: Claude. Rulings `D-T1.19`-`D-T1.26` (`rulings.md`, "T1b rulings").
+Status: in_review (built 2026-11-22, `packet-T1b.md`); spec rev 1, 2026-11-22. Architect: Claude. Rulings `D-T1.19`-`D-T1.26` (`rulings.md`, "T1b rulings").
 Owner approval, verbatim: `owner/owner-second-db-lane-2026-11-22.md` ("proceed").
 Branch `task/T1b-db-lanes` from `main`, own worktree. Review depth: discovery (W5), one fresh Claude reviewer.
 `USER_REVIEW_REQUIRED: false`. Size: **1.0 u** (§11).
