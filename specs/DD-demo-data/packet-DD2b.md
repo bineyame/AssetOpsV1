@@ -141,3 +141,14 @@ moved tables failed on the missing `exports.NODES` import before `nodes.py` exis
 
 **Left for DD5.** `L1.staged:<slug>` loads the staged directory; the meter register (`lakeside-power.meter_register.json`)
 is DD5.2's. DD5's first C-DD2 run is `BOOK_QUERY`'s first proof (DD2a L1).
+
+## Fix round 8 (D-DD.74)
+
+`tools/world_history.py exports` gains an optional repeatable `--tenant SLUG`: the output directory and `--extras` keep
+only `<slug>.*` files; `unwritten.json` stays whole; an unknown slug prints `EMU_TENANT_UNKNOWN <slug>` and exits 3;
+`build_books` is unchanged (the filter runs on its result). `tools/world.py` L1.exports passes `--tenant` per definition
+tenant (the `test_ds4_world.py` stub writes only Lakeside files, so no argv assertion changed). DDR test S3, the DDR
+spec S3 row, the ON1 runbook and the deep-dive runbook add `--tenant lakeside-power`. New
+`simulator/tests/world/test_dd2b_tenant_filter.py`: t1 (one tenant writes no other tenant's file, same Lakeside bytes as
+the unfiltered run, in the directory and in extras), t2 (two flags write both), t3 (unknown slug refused); each shown
+failing (`unrecognized arguments: --tenant`) before the change. Gate counts are in the hand-back.
