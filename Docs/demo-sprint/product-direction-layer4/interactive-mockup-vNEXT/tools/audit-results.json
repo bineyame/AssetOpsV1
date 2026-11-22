@@ -3433,7 +3433,7 @@
   {
    "route": "portfolio",
    "sel": ".attn-k",
-   "ratio": 5.8,
+   "ratio": 6.87,
    "size": "12px",
    "pass": true
   },
@@ -3479,6 +3479,13 @@
    "route": "portfolio",
    "sel": ".op-select",
    "ratio": 7.44,
+   "size": "12px",
+   "pass": true
+  },
+  {
+   "route": "portfolio",
+   "sel": ".ux-chip.is-neutral",
+   "ratio": 6.87,
    "size": "12px",
    "pass": true
   },
@@ -4445,13 +4452,10 @@
  },
  "oracleShipped": false,
  "placeholders": {
-  "fig": 97,
+  "fig": 95,
   "rec": 52,
-  "strings": 81,
-  "unresolved": [
-   "{fig:options.KOB-RESERVE.information.admitted}",
-   "{fig:options.KOB-STOPSOC.information.admitted}"
-  ]
+  "strings": 80,
+  "unresolved": []
  },
  "reviewNotesNoDrawer": [
   "portfolio",
@@ -4973,7 +4977,7 @@
   "switchCasesOk": "2/8",
   "drawerOk": true,
   "focusVisible": "5/5",
-  "contrastPass": "21/21",
+  "contrastPass": "22/22",
   "preservedIdentical": "0/80",
   "oracleShipped": false,
   "hand_typed_figures": 0,
@@ -4982,9 +4986,9 @@
   "manifestStringsScanned": 285,
   "handTypedAllowList": 48,
   "handTypedAllowUnused": 0,
-  "placeholdersFig": 97,
+  "placeholdersFig": 95,
   "placeholdersRec": 52,
-  "placeholderStrings": 81,
-  "unresolvedPlaceholders": 2
+  "placeholderStrings": 80,
+  "unresolvedPlaceholders": 0
  }
 }

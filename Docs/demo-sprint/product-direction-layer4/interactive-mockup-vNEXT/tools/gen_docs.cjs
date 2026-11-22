@@ -258,7 +258,7 @@ Scripted with Playwright and Chromium (\`tools/audit.mjs\`, run via \`tools/run-
 | Vocabulary hits (option codes, internal terms, ISO dates, ">=", "LOI", "O&M", undefined/NaN) on added and changed screens and sampled evidence drawers | ${S.vocabHits} |
 | Product record ids (F-, ACT-, WR-, INC-) bare, or asset/batch tags without a plain name, on added and changed screens and sampled drawers | ${S.identifierHitsAddedChanged} |
 | Same check on preserved v7.0 screens (exempt; reported separately) | ${S.identifierHitsPreservedV70} occurrences on ${new Set(A.idHitsPreserved.map(h => h.id)).size} preserved routes (${[...new Set(A.idHitsPreserved.map(h => h.id))].length} distinct pages) |
-| Role words (CEO, COO, CFO, CCO), executive-question stems or headings phrased as a question on added/changed screens, tab rows, evidence drawers and review-notes drawers | ${S.roleOrQuestionHits} |
+| Role words (CEO, COO, CFO, CCO), executive-question stems or headings phrased as a question on added/changed screens, tab rows, evidence drawers and review-notes drawers | ${S.roleOrQuestionHits}${(A.reviewNotesNoDrawer || []).length ? `; not checked: the review-notes drawer did not open on ${(A.reviewNotesNoDrawer || []).length} routes` : ''} |
 | Rev 6: Portfolio tab order Overview, Outcomes by site, Demand and capacity, Act first, What changed, Scope & coverage | ${S.rev6TabOrder ? 'pass' : 'FAIL'} (old route lands on ${S.rev6OldRoute}) |
 | Rev 6/7 (0K4m: the Simulated chip or the gap words): labels on the Kobo, Mto demand, Embakasi, Kirinyaga and Mto inverter decision pages; each operator's plan-value drawer (Harvest: assumption wording, no forward replay) and Overview note | ${S.rev6DesignValueLabels ? 'pass' : 'FAIL'} |
 | Rev 7/8 (0K4m: Simulated chips): source scan over every route and every evidence drawer, using the audit's own set derived from the YAML (tools/replay_values.py) | ${S.designValueScan} |
@@ -268,7 +268,7 @@ Scripted with Playwright and Chromium (\`tools/audit.mjs\`, run via \`tools/run-
 | Demo operator selector in the product top bar / in the review bar | ${S.operatorSelectInTopbar} / ${S.operatorSelectInReviewBar} |
 | Switch cases re-computing the plan correctly | ${S.switchCasesOk} |
 | Evidence drawer (keyboard open, focus inside and trapped, Escape closes, focus returns, definition, formula, source rows, clocks, coverage, provenance) | ${S.drawerOk ? 'all pass' : 'FAIL'} |
-| Visible focus on representative controls | ${S.focusVisible} |
+| Visible focus on representative controls | ${S.focusVisible}${(A.focusTargetsGone || []).length ? `; not checked: ${(A.focusTargetsGone || []).length} selectors have no target on the landed frame (${(A.focusTargetsGone || []).map(g => `${g.sel} on ${g.route}`).join('; ')})` : ''} |
 | Contrast spot checks at least 4.5:1 | ${S.contrastPass} |
 | Preserved v7.0 screens identical after the name map | ${S.preservedIdentical} |
 | Private oracle shipped in the bundle | ${S.oracleShipped ? 'YES' : 'no'} |

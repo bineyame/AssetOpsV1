@@ -15,7 +15,7 @@ Scripted with Playwright and Chromium (`tools/audit.mjs`, run via `tools/run-aud
 | Vocabulary hits (option codes, internal terms, ISO dates, ">=", "LOI", "O&M", undefined/NaN) on added and changed screens and sampled evidence drawers | 38 |
 | Product record ids (F-, ACT-, WR-, INC-) bare, or asset/batch tags without a plain name, on added and changed screens and sampled drawers | 0 |
 | Same check on preserved v7.0 screens (exempt; reported separately) | 133 occurrences on 16 preserved routes (16 distinct pages) |
-| Role words (CEO, COO, CFO, CCO), executive-question stems or headings phrased as a question on added/changed screens, tab rows, evidence drawers and review-notes drawers | 0 |
+| Role words (CEO, COO, CFO, CCO), executive-question stems or headings phrased as a question on added/changed screens, tab rows, evidence drawers and review-notes drawers | 0; not checked: the review-notes drawer did not open on 71 routes |
 | Rev 6: Portfolio tab order Overview, Outcomes by site, Demand and capacity, Act first, What changed, Scope & coverage | FAIL (old route lands on #/portfolio/demand-and-capacity) |
 | Rev 6/7 (0K4m: the Simulated chip or the gap words): labels on the Kobo, Mto demand, Embakasi, Kirinyaga and Mto inverter decision pages; each operator's plan-value drawer (Harvest: assumption wording, no forward replay) and Overview note | FAIL |
 | Rev 7/8 (0K4m: Simulated chips): source scan over every route and every evidence drawer, using the audit's own set derived from the YAML (tools/replay_values.py) | independent set of 3 replay figures (same as the tagger's: true); 4 occurrences scanned on all routes and 405 drawers; unlabelled 0; unrelated matches on preserved v7.0 pages (exempt, not replay figures): 0 |
@@ -25,12 +25,12 @@ Scripted with Playwright and Chromium (`tools/audit.mjs`, run via `tools/run-aud
 | Demo operator selector in the product top bar / in the review bar | 0 / 207 |
 | Switch cases re-computing the plan correctly | 2/8 |
 | Evidence drawer (keyboard open, focus inside and trapped, Escape closes, focus returns, definition, formula, source rows, clocks, coverage, provenance) | all pass |
-| Visible focus on representative controls | 5/5 |
-| Contrast spot checks at least 4.5:1 | 21/21 |
+| Visible focus on representative controls | 5/5; not checked: 2 selectors have no target on the landed frame (button.wfrow on portfolio/outcomes-by-site; details.astable summary on portfolio/outcomes-by-site) |
+| Contrast spot checks at least 4.5:1 | 22/22 |
 | Preserved v7.0 screens identical after the name map | 0/80 |
 | Private oracle shipped in the bundle | no |
 | Hand-typed figures restating an evaluated figure: total (in loop-*.js / in 285 rendered manifest strings / unused allow-list entries) | 0 (0 / 0 / 0); allow-list 48 entries, each keyed by file or manifest path, literal and context |
-| Manifest placeholders filled on screen (fig / rec / strings) and unresolved | 97 / 52 / 81; unresolved 2 |
+| Manifest placeholders filled on screen (fig / rec / strings) and unresolved | 95 / 52 / 80; unresolved 0 |
 
 ## Switch cases
 
@@ -83,12 +83,13 @@ Plan-figure notes as shown on the Overview:
 - portfolio `.ec-stake`: 7.53:1 (12px) pass
 - portfolio `.ec-na`: 7.53:1 (12px) pass
 - portfolio `.note`: 7.53:1 (12px) pass
-- portfolio `.attn-k`: 5.8:1 (12px) pass
+- portfolio `.attn-k`: 6.87:1 (12px) pass
 - portfolio `.attn-new .attn-k`: 5.34:1 (12px) pass
 - portfolio `.attn-at .attn-k`: 5.56:1 (12px) pass
 - portfolio `.attn-unobs .attn-k`: 6.87:1 (12px) pass
 - portfolio `.ocard h4`: 7.53:1 (12px) pass
 - portfolio `.op-select`: 7.44:1 (12px) pass
+- portfolio `.ux-chip.is-neutral`: 6.87:1 (12px) pass
 - portfolio/act-first `.cellnote`: 7.53:1 (12px) pass
 - portfolio/act-first `.meterhead`: 16.46:1 (12px) pass
 - decision/mto-inverter `.legal`: 14.83:1 (12px) pass
