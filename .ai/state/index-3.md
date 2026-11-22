@@ -27,3 +27,4 @@ One line per slice, continuing `index-2.md` (number, slice ID, summary, file in 
 202. `IA-P1` real app on the IA shape, part 1: long range (P0), 13-item rail and aliases (P1), one list component for Decisions, Findings, Actions with the shared read cache (P2; in_review) · shell.md
 203. `DD2b` cold and EV books: ledger, one invoicing export (Type column), roster/tickets/budget in 8 source profiles; one NODES table, tariff schedules, EMU_SOURCE_SWITCH guard, staged dir, byte pins (D-DD.50-63); in_review · data.md
 204. `6h` named-option levers: `STATED_OPTIONS` generator, nine levers on cold-chain, EV and mini-grid, `option_record` (migration 0073), `state_option_record`, `BOUNDS_NOT_CHECKED` for protective levers, parity golden; in_review · work.md
+205. `DD4a` cold operating reality part 1: 1e-6 degC grid, hand start, receiving lots, `ColdSiteRun`; stopped for the owner (C-DD6 B-1031 not above 5 degC); join pending DD3a; in_review · data.md

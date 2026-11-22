@@ -681,3 +681,14 @@ Branch `task/0K4m-u3-mock` (on `task/0K4m-pack-restate` at 2b); spec `specs/0K4m
 - Left open: DD5.3 loads `<slug>/staged/` as step `L1.staged:<slug>` and DD5.2 writes the meter register; the EV
   utility-invoice rows are DD4.4's. `test_ddr_rehearsal_postgres.py` fails 9 tests (the loader does not read cold files),
   the same at the DD2b head: DD5's.
+
+## DD4a: cold operating reality, part 1 (in_review, stopped for the owner at C-DD6; `specs/DD-demo-data/packet-DD4a.md`)
+- Settled: cold-thermal 2 holds the chamber on a 1e-6 degC grid with the rounding in `rounding_total` (D-DD.87; v1
+  bytes unchanged); a faulted start fails in the request minute and `GENERATOR_HAND_START` replaces `GENERATOR_RESET`
+  (D-DD.83); the pack refuses field heat while the chamber is at or above the lot's admission ambient (D-DD.85). The
+  cold ledger receives lots of at most 40 crates at 08:00/16:00, one IN per receiving time, named batches in lots from
+  27 Sep, `EMU_RECEIVING` (D-DD.85); cold ledger/invoicing pins and samples regenerated; mini and EV books unchanged.
+  `world/telemetry_cold.py` `ColdSiteRun` runs a room a day at a time with D-DD.86's forcings (Thika 123 days, 24 s).
+- Left open: Thika's chamber never passes 5 degC (peak 4.05 degC in the outage window, 0 minutes above 5 degC), so
+  C-DD6's B-1031 clause fails: owner choice (D-DD.83 default: readings stand). The join with DD3a's frame (DD3a not on
+  main); no season declared for June or November (the run refuses `TEL_FOUNDATION`); DD4b (EV, measured books).
