@@ -1,4 +1,4 @@
-# IA-P3 handoff after run 2 (P4b with D-IAP.35 and its test migration done; P5 to P7 not built)
+# IA-P3 handoff after run 3 (P5 partial: tabs, section lines, object pages built; parity proof and alias pending; P6, P7 not built)
 
 Branch `task/IA-P3-sites-site-inbox`, worktree `/opt/assetecon/AssetOpsV1-iap3`, from `main` `8f8b3ad16`.
 Main baseline worktree `/opt/assetecon/AssetOpsV1-iap3main` (detached at `main` `4b648381c`, `npm ci` done; delete with
@@ -42,3 +42,47 @@ Main baseline worktree `/opt/assetecon/AssetOpsV1-iap3main` (detached at `main` 
 - `.agent/mock-departure-register.md` R790+ and state index 206 may collide with 6f1 or DD rows: whoever merges second
   renumbers them.
 - The Sites list on the demo build: `tools/demo_combined.py` does not prebuild `/api/portfolio/sites` (pre-flight Q11).
+
+## Run 3 (P5, PARTIAL; stopped near the context limit)
+
+Commits `1607351ac` (P5 build) and `bbb707964` (test migration), on `7e3c92e99`.
+
+- Built, test-first: six tabs and `SITE_TAB_OF` (`shell/operatorSiteTabs.tsx`; frames keep old labels, mapped in the
+  component); `ui/SiteSections.tsx` + `shell/siteSections.tsx` (Setup: Foundation · Changes · Assets; Evidence: Records ·
+  Uploads; Performance: the four existing "Performance sections" navs gain "In Performance:" and a trailing Health, and
+  the Health page shows Performance · Health); Assets lights Setup; Uploads gains the row, lights Evidence, crumb
+  Sites › {Site} › Upload readings; object pages (every Finding view, fuel Finding, Actions, verifications) draw no tab
+  row and use `ui/Breadcrumbs` with three parts (`siteObjectPages.test.tsx`); R383 closed, R794 (MD-IAP-8) and R795
+  (candidate: lineage note and "In setup", coordinator Q1) added.
+- Fail-first: `operatorSiteTabs` 56 failed of 95; `siteObjectPages` 10 of 10. Now 95/95 and 10/10.
+- Migration: object pages 27 tests in 7 files (b) (subagent table: siteAction 16, miniDecisions 3, evAssessmentRoutes 3,
+  domainActionVerification 2, coldWorkActions 1, w1f4ActionStructure 1, siteFuelFinding 1); tabs and lines 27 tests in
+  19 files (b) plus one (a) (stale `mock-deviation.css` import in `SiteAnalyticsFrames.tsx`). Per-file rows go in the
+  packet. Pre-existing on main `759759598` too (not P5): s502OverviewFindingList (flaky), siteRangeMatrix 2,
+  sr2RequestUrls, domainActionVerification "32 days", evActionFixRound, evSiteMoneyRoutes outcome board 2, outcomeBoard
+  (flaky), siteWorkCases "36-day".
+- Baseline worktree `/opt/assetecon/AssetOpsV1-iap3main` is at main `759759598`.
+
+## Next (P5 remainder, in order)
+
+1. Server parity test `backend/tests/test_iap_site_findings_parity_postgres.py` (written by a subagent, UNCOMMITTED and
+   unverified if still uncommitted: check `git status`; its result per vertical decides the alias). Fixtures
+   `frontend/src/estate/__tests__/fixtures/iap/parity-{mini,cold,ev}-{site,estate}.json`.
+2. Client layer `estate/__tests__/siteFindingsParity.test.ts` (D-IAP.39 layer 2: `loadAllPages` → `findingItems` →
+   `homeListModel(findingsDef(), items, {show:"all"}, "site:{code}")` ⊇ Site ids); plant `parity` (`site:` keyed on
+   `row.site_id` in `estate/homeLists.tsx` `findingsDef().site`).
+3. The alias per passing vertical: a `LEGACY_ROUTES` entry `/sites/:siteId/findings` → `/findings?scope=site:{id}`
+   (unit IA-P3) only if all three pass; else a type-aware redirect inside `SiteFindingsFrame` for passing verticals and
+   MD-IAP-15 (index lit under Evidence, "Findings" in its section line) for failing ones.
+4. Plants `seventab` (Findings back in the row: fails operatorSiteTabs and T1), `crumb` (a Finding page keeps the row:
+   T2), `parity`. Gates T1 and T2 in `tools/iap_gates.cjs`; shots per spec P5.
+5. Full scope runs on branch and main (estate, shell, ui vitest; backend `test_iap_*` + parity), tsc, fresh build,
+   `iap_gates.cjs`, check-architecture, check-agent-workflow, `statement_catalogue.py`; packet §P5; state entry; spec Status.
+
+## Risks (run 3)
+
+- Cold and EV Evidence pages now carry two navs named "Evidence sections" (their own Overview | Analysis row and the
+  new Records · Uploads line). Merge them into one line next run.
+- Foundation pages show "Change & effect" in the Foundation sub-tabs and "Changes" in the Setup line (both by spec).
+- Assets/Asset crumbs still read Sites › {Site} › Health › Battery although the page lights Setup.
+- Mini Finding views whose h1 is "Finding" carry "Finding" as the crumb title.
