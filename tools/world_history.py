@@ -16,7 +16,8 @@ sys.path.insert(0, str(REPOSITORY / "contracts"))  # DS1b P1: the canonical form
 #                                       `DS1_CHECK_DIFF <scope_key>` (or `meta`) and exit 1
 #   records  --manifest M --out DIR     DS1b: write the canonical v1 batches and `unwritten.json` into a new
 #                                       or empty DIR outside the repository; exit 3 with `DS1B_*` on stderr
-#   exports  --manifest M --out DIR     3A3: write the emulated native CSV exports (October, mini-grid) and
+#   exports  --manifest M --out DIR     3A3/DD2b: write the emulated native CSV exports (mini-grid October; cold
+#                                       and EV July-October in their source profiles' formats) and
 #                                       `unwritten.json` into a new or empty DIR outside the repository; exit 3 with
 #                                       `EMU_*` or `DS1B_*` on stderr
 
@@ -26,7 +27,8 @@ import json  # noqa: E402
 from assetops_contracts.canonical import to_canonical_json  # noqa: E402
 
 from assetops_simulator.world.canonical import file_bytes, write_canonical_file  # noqa: E402
-from assetops_simulator.world.exports import build_exports, file_name  # noqa: E402
+from assetops_simulator.world.books import build_books  # noqa: E402
+from assetops_simulator.world.exports import file_name  # noqa: E402
 from assetops_simulator.world.history import generate_history  # noqa: E402
 from assetops_simulator.world.records import batch_file_name, build_records  # noqa: E402
 from assetops_simulator.world.view import ManifestView  # noqa: E402
@@ -101,7 +103,7 @@ def _exports(manifest: Path, out: Path) -> int:
     try:
         target = _out_dir(out)
         view = load_view(manifest)
-        result = build_exports(view, generate_history(view))
+        result = build_books(view, generate_history(view))  # mini-grid, cold and EV books (DD2b)
     except ValueError as error:
         if not str(error).startswith(("EMU_", "DS1B_")):
             raise

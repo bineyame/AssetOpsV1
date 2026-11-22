@@ -239,7 +239,12 @@ def test_tool_exports_writes_files_and_refuses(tmp_path) -> None:
     run = subprocess.run([sys.executable, str(CLI), "exports", "--manifest", str(FIXTURE), "--out", str(out)],
                          capture_output=True, text=True, timeout=300)
     assert run.returncode == 0, run.stderr
-    assert sorted(p.name for p in out.iterdir()) == sorted([*PINNED, "unwritten.json"])
+    cold_ev = ["harvest-cold.expenses.csv", "harvest-cold.profile.cold-budget.csv",  # DD2b: cold and EV books
+               "harvest-cold.profile.cold-storage-invoices.csv", "harvest-cold.profile.cold-storage-ledger.csv",
+               "harvest-cold.profile.cold-storage-receipts.csv", "metro-bus.expenses.csv",
+               "metro-bus.profile.ev-budget.csv", "metro-bus.profile.ev-fleet-roster.csv",
+               "metro-bus.profile.ev-service-tickets.csv"]
+    assert sorted(p.name for p in out.iterdir()) == sorted([*PINNED, *cold_ev, "unwritten.json"])
     assert {n: hashlib.sha256((out / n).read_bytes()).hexdigest() for n in PINNED} == PINNED
     again = subprocess.run([sys.executable, str(CLI), "exports", "--manifest", str(FIXTURE), "--out", str(out)],
                            capture_output=True, text=True, timeout=300)
