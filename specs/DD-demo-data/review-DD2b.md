@@ -109,5 +109,7 @@ would be deterministic.
 - If the c9-style plant happens in real data (a missing month of `crate_days`), the previous month's late batches still
   show crates in the room in a month with no invoice. This is honest (the crates were there), but a reader could take
   it as unbilled occupancy. It only matters if DD4 or history ever drops a cold month.
-- The cold and EV full files have no byte golden, only sample slices (b3) and round trips. Determinism rests on the
-  CLI's two-run comparison in `test_3a3_exports.py` and on the absence of host-dependent inputs (L4 aside).
+- The cold and EV full files have no byte golden, only sample slices (b3) and round trips. No test compares
+  two runs' bytes: the CLI's second run in `test_3a3_exports.py` only checks the `DS1B_OUT not-empty` refusal.
+  Determinism rests on the code using no clock or randomness (I found none; L4 is test-only). DD2a or DD5 could pin
+  the cold and EV files' sha256 as 3A3 does for mini-grid.
