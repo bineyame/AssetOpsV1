@@ -18,7 +18,7 @@ import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Sequence
+from typing import Any, Sequence
 
 from assetops_backend.accounts.model import AccountRefused
 from assetops_backend.config import ConfigurationError, database_url, served_tenant_slug
@@ -124,7 +124,7 @@ def _compose(url: str, key_dir: str, real_data: bool, served: str) -> OperatorOn
                               clock=_now, real_data=real_data, served_slug=served)
 
 
-def _publish_and_enable(store, f, directory: Path) -> int:
+def _publish_and_enable(store, f, fixtures: dict[str, Any]) -> int:
     """D-DD.36: per Site, publish its conversion (idempotent), then enable the gateway and each source still disabled."""
     from assetops_backend.evidence import provision_gateway
     from assetops_backend.sites.binding_conversion import ConversionConflict, convert
@@ -133,7 +133,7 @@ def _publish_and_enable(store, f, directory: Path) -> int:
 
     tenant = store.resolve_tenant(f.slug)
     for entry in f.sites:
-        fixture = json.loads((directory / f"{entry.code}-bindings.json").read_text(encoding="utf-8"))
+        fixture = fixtures[entry.code]
         site = store.find_site(tenant.id, entry.code)
         try:
             convert(store, BindingService(store, utc_now), tenant, site, fixture)
@@ -177,9 +177,13 @@ def main(argv: Sequence[str] | None = None, *, onboarding: OperatorOnboarding | 
     from assetops_backend.commercial.composition import KeyDirectoryMissing, KeyErased, KeyExists
 
     bindings = getattr(args, "bindings", None)
+    bindings_fixtures: dict[str, Any] = {}
     if bindings:  # D-DD.36: every Site names its conversion before any write
-        for site in f.sites:
-            if not (Path(bindings) / f"{site.code}-bindings.json").is_file():
+        for site in f.sites:  # D-DD.47: read and parse every input before the first write
+            try:
+                bindings_fixtures[site.code] = json.loads(
+                    (Path(bindings) / f"{site.code}-bindings.json").read_text(encoding="utf-8"))
+            except (OSError, ValueError):
                 return _refuse("ONBOARD_SITE_INVALID", f"bindings/{site.code}")
     try:
         if args.command == "check":
@@ -187,7 +191,7 @@ def main(argv: Sequence[str] | None = None, *, onboarding: OperatorOnboarding | 
         else:
             plan = onboarding.apply(f, confirmed_digest=args.confirmed_digest)
             if bindings:
-                code = _publish_and_enable(onboarding.foundation, f, Path(bindings))
+                code = _publish_and_enable(onboarding.foundation, f, bindings_fixtures)
                 if code:
                     return code
     except OnboardRefused as refused:

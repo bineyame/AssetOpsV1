@@ -84,6 +84,9 @@ class Role:
     #: W2-01: an EVENT role's exact v4 record kinds; the outcomes allowed for
     #: each are the closed v4 kind-to-outcome table's.
     event_kinds: tuple[str, ...] = ()
+    #: D-DD.45: readiness reads this role once per Site component of `asset_type` and names each unbound one.
+    #: Coverage is declared here, never inferred from cardinality (which only keys the binding).
+    every_component: bool = False
 
     @property
     def enum_states(self) -> tuple[str, ...]:
@@ -93,7 +96,7 @@ class Role:
 MINIGRID_ROLES: tuple[Role, ...] = (
     Role("generator_state", "Generator state", "GENERATOR", "state", "STATE", ONE, True),
     Role("generator_power", "Generator power", "GENERATOR", "kW", "NUMBER", ONE, True),
-    Role("feeder_demand", "Feeder demand", "LOAD", "kW", "NUMBER", PER_ASSET, True),
+    Role("feeder_demand", "Feeder demand", "LOAD", "kW", "NUMBER", PER_ASSET, True, every_component=True),
     Role("battery_soc", "Battery state of charge", "BATTERY", "%", "NUMBER", ONE, True),
     Role(
         "battery_reserve", "Battery reserve", "BATTERY", "%", "NUMBER", ONE, True,
@@ -131,7 +134,7 @@ MINIGRID_ROLES_4: tuple[Role, ...] = MINIGRID_ROLES_3 + (
     Role(
         "storage_charge_requested_power", "Storage charge requested power", "BATTERY", "kW", "NUMBER", ONE, False,
     ),
-    Role("feeder_requested_power", "Feeder requested power", "LOAD", "kW", "NUMBER", PER_ASSET, False),
+    Role("feeder_requested_power", "Feeder requested power", "LOAD", "kW", "NUMBER", PER_ASSET, False, every_component=True),
     Role(
         "site_supply_state", "Primary supply state", "AC_BUS", "state", "STATE", ONE, False,
         states=MINI_SUPPLY_STATES,
@@ -244,7 +247,7 @@ _UNIT_ROLES_5 = frozenset({"generator_state", "generator_power", "mini_backup_st
                            "pv_available_power"})
 #: `D-DD.41`: roles-4 with the five unit roles PER_ASSET (order kept); every other field is roles-4's.
 MINIGRID_ROLES_5: tuple[Role, ...] = tuple(
-    replace(r, cardinality=PER_ASSET) if r.role in _UNIT_ROLES_5 else r for r in MINIGRID_ROLES_4
+    replace(r, cardinality=PER_ASSET, every_component=True) if r.role in _UNIT_ROLES_5 else r for r in MINIGRID_ROLES_4
 )
 
 ROLES_BY_SET: dict[str, tuple[Role, ...]] = {

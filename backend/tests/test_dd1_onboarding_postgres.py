@@ -170,3 +170,16 @@ def test_an_unbound_unit_is_named_in_readiness(store, engine, tmp_path, monkeypa
     missing = readiness(seen.site, seen.revision, seen.registrations, seen.binding_set)["missing_roles"]
     assert any(m.startswith("Generator power - ") and "Generator 02" in m for m in missing), missing
     assert not any("Generator 01" in m for m in missing)
+
+
+def test_a_malformed_conversion_file_refuses_before_any_write(store, engine, tmp_path, monkeypatch, capsys) -> None:  # noqa: F811
+    """D-DD.47: every input is parsed before the first write; a malformed file is the same refusal as a missing one."""
+    _env(monkeypatch, tmp_path, "lakeside-power")
+    world = tmp_path / "world"
+    shutil.copytree(WORLD, world)
+    (world / "KISIWA-001-bindings.json").write_text("{not json", encoding="utf-8")
+    code, _, err = _run(capsys, LAKESIDE, ("--bindings", str(world)))
+    assert code == 2 and err.startswith("ONBOARD_SITE_INVALID bindings/KISIWA-001"), err
+    with engine.connect() as c:
+        assert c.execute(text("SELECT count(*) FROM tenant")).scalar() == 0
+        assert c.execute(text("SELECT count(*) FROM site")).scalar() == 0

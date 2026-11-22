@@ -815,11 +815,11 @@ def readiness(
             if status != "CONFIGURED" and role.required:
                 missing.append(role.label)
             continue
-        if role.cardinality == "PER_ASSET":
-            # D-DD.41 class fix: every PER_ASSET role is read over the Site's components of its own asset type.
-            loads = [a for a in assets if a.asset_type == role.asset_type]
+        if role.every_component:
+            # D-DD.45: a role declared every_component is read over the Site's components of its asset type.
+            components = [a for a in assets if a.asset_type == role.asset_type]
             subjects = []
-            for load in loads:
+            for load in components:
                 hits = [b for b in bound if b.asset_id == load.id]
                 subjects.append({
                     "asset_id": str(load.id),
@@ -829,7 +829,7 @@ def readiness(
                 })
                 if not hits and role.required:
                     missing.append(f"{role.label} - {load.attributes.get('display_name') or load.asset_code}")
-            status = "CONFIGURED" if loads and all(s["status"] == "CONFIGURED" for s in subjects) else "UNBOUND"
+            status = "CONFIGURED" if components and all(s["status"] == "CONFIGURED" for s in subjects) else "UNBOUND"
             entries.append({**base, "status": status, "subjects": subjects})
             continue
         status = "CONFIGURED" if bound else "UNBOUND"
@@ -911,10 +911,10 @@ def verification_readiness(
         bound = [b for b in bindings if b.role == name]
         lab_message, site_message = VERIFICATION_MESSAGES[name]
         entry = {"role": name, "label": role.label, "lab_message": lab_message, "site_message": site_message}
-        if role.cardinality == "PER_ASSET":
-            loads = [a for a in assets if a.asset_type == role.asset_type]
-            unbound = [load for load in loads if not any(b.asset_id == load.id for b in bound)]
-            if not loads:
+        if role.every_component:  # D-DD.45
+            components = [a for a in assets if a.asset_type == role.asset_type]
+            unbound = [load for load in components if not any(b.asset_id == load.id for b in bound)]
+            if not components:
                 missing.append({**entry, "asset_codes": []})
             elif unbound:
                 missing.append({**entry, "asset_codes": [load.asset_code for load in unbound]})
