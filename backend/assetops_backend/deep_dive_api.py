@@ -7,14 +7,16 @@ fault (503). The 200 body is `month_view`'s JSON. Every answer carries `Cache-Co
 """
 from __future__ import annotations
 
+from datetime import date
 from typing import TYPE_CHECKING, Any
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Query, Request
 from fastapi.responses import JSONResponse
 
 from assetops_backend.accounts.principal import person_from_request
-from assetops_backend.deep_dive.read import BAD_MONTH, BadMonth, DeepDiveRead
-from assetops_backend.deep_dive.tables import NO_STORE, ROUTE
+from assetops_backend.deep_dive.period import BAD_RANGE, refused_text
+from assetops_backend.deep_dive.read import BAD_MONTH, BadMonth, BadRange, DeepDiveRead
+from assetops_backend.deep_dive.tables import DAY_PATTERN, NO_STORE, PERIOD_ROUTE, RANGE_FROM, RANGE_TO, ROUTE
 from assetops_backend.i18n import State, message, render
 
 if TYPE_CHECKING:
@@ -32,6 +34,20 @@ def _refused(status: int, code: str) -> JSONResponse:
     return _refusal(status, code, render(message("deep_dive.refused", code=State(code))))
 
 
+def _range_refused(code: str) -> JSONResponse:
+    """E2's and E1's own 422 (`portfolio_period.refused`); `_refused` keeps the 503."""
+    return _refusal(422, code, refused_text(code))
+
+
+def _day(raw: str | None) -> date:
+    if raw is None or DAY_PATTERN.fullmatch(raw) is None:
+        raise BadRange(BAD_RANGE)
+    try:
+        return date.fromisoformat(raw)
+    except ValueError:
+        raise BadRange(BAD_RANGE) from None
+
+
 def _person_required() -> JSONResponse:
     return _refusal(401, PERSON_REQUIRED, render(message("person.person_required")))
 
@@ -40,8 +56,8 @@ def build_deep_dive_router(read: DeepDiveRead | None, *, accounts: AccountServic
                            unavailable: tuple[type[BaseException], ...]) -> APIRouter:
     router = APIRouter()
 
-    @router.get(ROUTE)
-    def portfolio_month(request: Request, month: str | None = None) -> Any:
+    def answer(request: Request, body_of) -> Any:
+        """The refusal order every route here shares (module docstring); `body_of(tenant, registry)` reads."""
         if read is None:
             return _refused(503, UNAVAILABLE_CODE)
         registry = request.app.state.site_registry
@@ -55,15 +71,29 @@ def build_deep_dive_router(read: DeepDiveRead | None, *, accounts: AccountServic
                 person = person_from_request(request, accounts)
                 if person is None or person.tenant_id != tenant.id:
                     return _person_required()
-            names = {s.site_code: s.name for s in registry.imported_sites()}
-            body = read.month(tenant, month, names)
+            body = body_of(tenant, registry)
         except BadMonth:
             return _refused(422, BAD_MONTH)
+        except BadRange as error:
+            return _range_refused(error.code)
         except unavailable:
             return _refused(503, UNAVAILABLE_CODE)
         return JSONResponse(status_code=200, content=body, headers=NO_STORE)
 
+    def names_of(registry) -> dict[str, str]:
+        return {s.site_code: s.name for s in registry.imported_sites()}
+
+    @router.get(ROUTE)
+    def portfolio_month(request: Request, month: str | None = None) -> Any:
+        return answer(request, lambda tenant, registry: read.month(tenant, month, names_of(registry)))
+
+    @router.get(PERIOD_ROUTE)
+    def portfolio_period(request: Request, first: str | None = Query(None, alias=RANGE_FROM),
+                         last: str | None = Query(None, alias=RANGE_TO)) -> Any:
+        return answer(request, lambda tenant, registry: read.period(tenant, _day(first), _day(last),
+                                                                    names_of(registry)))
+
     return router
 
 
-__all__ = ["ROUTE", "build_deep_dive_router"]
+__all__ = ["PERIOD_ROUTE", "ROUTE", "build_deep_dive_router"]
