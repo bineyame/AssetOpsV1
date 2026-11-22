@@ -1,4 +1,4 @@
-# 6a handoff (partial: unit 1 of 3 done)
+# 6a handoff (partial: units 1 and 2 of 3 done)
 
 Branch `task/6a-decision-records`, worktree `/opt/assetecon/AssetOpsV1-6a`, built on `main` 8821c9484. Not merged.
 Implementer (Claude), 2026-11-22. Stopped after unit 1 by the dispatch's context rule (unit 2 is 1.25 u and would
@@ -57,3 +57,34 @@ names (`<table>_<columns>_fkey`). Unreachable by a hand row and asserted in the 
 ## Live databases
 
 None left: the host runner's routed clones (`*_pt<run>_*_test`) are dropped by the harness at the end of each run.
+
+## Unit 2 (commit 2, done; 22 Nov)
+
+- **Built:** `structure/levers.py` (pure), `check.check_levers` (14 branches, any-pin rule; between `check_pins` and
+  `check_observed`), `candidate_l` lists the lever (docstring note, no version bump), `decisions/records.py` (rows,
+  `DecisionStore` Protocol with `site_by_id`, `DecisionService` prepare / state_one_off / choose / for_tenant,
+  `MemoryDecisionStore`, `refusal_sentence`, `REFUSAL_EXIT` incl. `BAD_UUID`, `NO_DATABASE`), statement
+  `i18n/statements/en/decision.py`, `COMMAND_ROLES` rows for the three commands (`accounts/permissions.py`).
+- **Tests:** `backend/tests/test_6a_decisions.py` (81 passed; tests 1-5, 9, sentences) and
+  `backend/tests/lakeside_people.py` (the shared people incl. Hassan; 3C2's `World` NOT yet moved onto it: unit 3, I7).
+  Edited to follow the additions: `test_3c1a_person_work.py` (`SPEC_ROLES` + `decision.` filter), `test_sc1_statements.py`
+  (catalogue set), new `tests/statement_cases/decision.py` (one case per variant), `tools/checks/statement_catalogue.py`
+  (`decisions/records.py` in `ADOPTED`).
+- **Plants (each failed its test, reverted):** include current point (F-P1 count), first one-off instead of latest,
+  non-executive choose, `KEPT_AS_IS` read after an Action (state order), a non-leaf in `changes` (test 2).
+- **Fast check-all:** 42 of 42 passed (142 s; frontend/node_modules symlinked, removed).
+- **Pre-existing failures on base `8821c9484` (also fail there; not mine):** `test_3b1_structure_registry.py::
+  test_t1_leaf_sources_absence_and_words_equal_the_manifest` (manifest says dispatch-3.2, row says 3.3) and
+  `test_3b3_structure_evaluate.py::test_t6_each_state_yields_its_leaf_value_on_its_own_record`.
+- **Guard shape learned (for unit 3):** `ADOPTED` files may hold no text-like literal: no regex literals, no
+  `x == "-"` string compares, no docstring prose that reads as a sentence in a function body, no `"Africa/..."`
+  strings (a default of `"UTC"` is code form). Use `isdigit`/`find` style checks.
+- **Deviations:** none beyond unit 1's. Q1 default stands.
+
+## Next (unit 3, spec section 4)
+
+Adapter (`decisions/adapters/postgres_decision_store.py`, with `site_by_id`), composition, `decision_prepare`,
+`decision_one_off`, `decision_choose` commands, seven-pattern INSERT guard (I6), move `World`'s people onto
+`tests/lakeside_people.py` (3C2's two test files must pass unchanged), tests 7 and 8; then the packet, spec
+`Status: in_review`, `.ai/state/` entry. `records.py` already carries `refusal_sentence`, `REFUSAL_EXIT` and the
+`StoreUnavailable` the adapter must raise.

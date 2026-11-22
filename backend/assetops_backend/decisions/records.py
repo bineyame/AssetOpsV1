@@ -8,7 +8,6 @@ rule, both deferred checks of migration 0072 and the newest-first order.
 """
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from decimal import Decimal
@@ -39,8 +38,6 @@ RUN_OUTCOMES = ("RECOMMENDED", "NO_ACTION_BEST", "RANKING_INCOMPLETE", "NOTHING_
 SOURCE_CLASSES = ("SIMULATED", "EMULATED", "RECORDED")  # weakest first
 STATE_NOT_VALUED, STATE_WAITING, STATE_CHOSEN, STATE_UNDER_WAY, STATE_KEPT = (
     "NOT_VALUED", "WAITING", "CHOSEN", "UNDER_WAY", "KEPT_AS_IS")
-_PERIOD = re.compile(r"[0-9]{4}-(0[1-9]|1[0-2])", re.ASCII)
-_CURRENCY = re.compile(r"[A-Z]{3}", re.ASCII)
 AMOUNT_PLACES, AMOUNT_INTEGER_DIGITS, CURRENCY_LETTERS, BASIS_MAX = 2, 12, 3, 200
 
 #: §3.3 refusal codes and their exit codes (3 only for the store).
@@ -298,6 +295,19 @@ def refusal_sentence(code: str) -> str:
                           letters=Count(CURRENCY_LETTERS, "character"), chars=Count(BASIS_MAX, "character")))
 
 
+def _period_ok(period: object) -> bool:
+    # The shape of the table's period CHECK: four digits, a hyphen, a month from 01 to 12.
+    if not isinstance(period, str) or len(period) != 7 or period.find("-") != 4:
+        return False
+    digits = period[:4] + period[5:]
+    return digits.isascii() and digits.isdigit() and 1 <= int(period[5:]) <= 12
+
+
+def _currency_ok(currency: object) -> bool:
+    return (isinstance(currency, str) and len(currency) == CURRENCY_LETTERS and currency.isascii()
+            and currency.isalpha() and currency.isupper())
+
+
 def _now(clock: Callable[[], datetime]) -> datetime:
     """D-3C2.10: one clock read per method, in whole UTC seconds. A naive datetime is a programming error."""
     value = clock()
@@ -359,7 +369,7 @@ class DecisionService:
                 horizon_months: int = HORIZON_DEFAULT) -> Prepared:
         now = _now(self._clock)
         tenant_id, person, role = self._admit(COMMANDS["prepare"], tenant_slug, as_email)
-        if not _PERIOD.fullmatch(period):  # P1
+        if not _period_ok(period):  # P1
             raise DecisionRefused("BAD_PERIOD")
         if isinstance(horizon_months, bool) or not HORIZON_MIN <= horizon_months <= HORIZON_MAX:
             raise DecisionRefused("BAD_HORIZON")
@@ -427,7 +437,7 @@ class DecisionService:
             raise DecisionRefused("NO_ACTION_ONE_OFF")
         if not _amount_ok(amount):  # O3
             raise DecisionRefused("BAD_AMOUNT")
-        if not isinstance(currency, str) or not _CURRENCY.fullmatch(currency):
+        if not _currency_ok(currency):
             raise DecisionRefused("BAD_CURRENCY")
         if isinstance(crew_visits, bool) or not isinstance(crew_visits, int) or crew_visits < 0:
             raise DecisionRefused("BAD_CREW_VISITS")
@@ -492,7 +502,7 @@ class DecisionService:
     def for_tenant(self, tenant_id: UUID, *, period_from: str | None = None,
                    period_to: str | None = None) -> tuple[DecisionView, ...]:
         for bound in (period_from, period_to):
-            if bound is not None and not _PERIOD.fullmatch(bound):
+            if bound is not None and not _period_ok(bound):
                 raise DecisionRefused("BAD_PERIOD")
         if period_from is not None and period_to is not None and period_from > period_to:
             return ()
@@ -568,7 +578,7 @@ class MemoryDecisionStore:
         self.choices: list[ChoiceRow] = []
 
     def add_site(self, tenant_id: UUID, code: str, site_type: str, site_id: UUID | None = None,
-                 name: str | None = None, timezone_name: str = "Africa/Dar_es_Salaam") -> UUID:
+                 name: str | None = None, timezone_name: str = "UTC") -> UUID:
         sid = site_id or uuid4()
         self.sites[(tenant_id, code.lower())] = (SiteRef(tenant_id, sid, code, site_type, timezone_name), name or code)
         return sid
