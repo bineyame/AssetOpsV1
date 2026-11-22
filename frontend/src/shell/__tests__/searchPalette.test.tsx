@@ -87,10 +87,11 @@ describe("the entries and the match rule", () => {
   });
 });
 
+const REFUSED = { status: "refused", httpStatus: 503, code: "ESTATE_STORE_UNAVAILABLE", copy: "" };
 function estateClient(): EstateClient {
   return {
-    findings: () => Promise.reject(new Error("no findings")),
-    actions: () => Promise.reject(new Error("no actions")),
+    findings: () => Promise.resolve(REFUSED),
+    actions: () => Promise.resolve(REFUSED),
     scope: () => Promise.reject(new Error("no scope")),
     portfolio: () => Promise.resolve(loaded(JSON.parse(PORTFOLIO) as EstatePortfolioBody)),
     getOutcomeSummary: () => Promise.resolve({ status: "refused", httpStatus: 503, code: "ESTATE_STORE_UNAVAILABLE", copy: "" }),
@@ -137,18 +138,18 @@ describe("the palette in the shell", () => {
     await settledScreen();
     fireEvent.click(searchButton());
     await settledScreen();
-    const input = screen.getByRole("combobox");
+    const input = within(screen.getByRole("dialog")).getByRole("combobox");
     fireEvent.change(input, { target: { value: "plan" } });
     await settledScreen();
-    expect(screen.queryAllByRole("option").map((o) => o.textContent)).toEqual([]);
+    expect(within(screen.getByRole("dialog")).queryAllByRole("option").map((o) => o.textContent)).toEqual([]);
     fireEvent.change(input, { target: { value: "cold" } });
     await settledScreen();
-    const options = screen.getAllByRole("option");
+    const options = within(screen.getByRole("dialog")).getAllByRole("option");
     expect(options[0].textContent).toContain("Cold Room");
     expect(options[0].getAttribute("aria-selected")).toBe("true");
     fireEvent.keyDown(input, { key: "ArrowDown" });
-    expect(screen.getAllByRole("option")[1].getAttribute("aria-selected")).toBe("true");
-    expect(input.getAttribute("aria-activedescendant")).toBe(screen.getAllByRole("option")[1].id);
+    expect(within(screen.getByRole("dialog")).getAllByRole("option")[1].getAttribute("aria-selected")).toBe("true");
+    expect(input.getAttribute("aria-activedescendant")).toBe(within(screen.getByRole("dialog")).getAllByRole("option")[1].id);
     fireEvent.keyDown(input, { key: "ArrowUp" });
     fireEvent.keyDown(input, { key: "Enter" });
     await settledScreen();
@@ -156,7 +157,7 @@ describe("the palette in the shell", () => {
     expect(document.querySelector("[data-location]")!.textContent!.startsWith("/sites/COLD-001?")).toBe(true);
     fireEvent.click(searchButton());
     await settledScreen();
-    fireEvent.keyDown(screen.getByRole("combobox"), { key: "Escape" });
+    fireEvent.keyDown(within(screen.getByRole("dialog")).getByRole("combobox"), { key: "Escape" });
     expect(screen.queryByRole("dialog")).toBeNull();
     expect(document.activeElement).toBe(searchButton());
   });

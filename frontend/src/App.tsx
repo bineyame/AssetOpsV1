@@ -362,7 +362,7 @@ export function App({
 
   return (
     <RefLinkProvider value={linkFor}>
-    <EstateClientProvider client={estateIndex}>
+    <EstateClientProvider client={estateIndex} directory={siteDirectory}>
     <Routes>
       <Route element={<WorkspaceShellLayout flags={flags} />}>
         <Route element={<OperatorShellLayout />}>

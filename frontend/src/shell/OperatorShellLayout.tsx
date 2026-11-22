@@ -7,6 +7,8 @@ import { EstateReadCacheProvider } from "../estate/estateReadCache";
 import { railHomeOf } from "./iaRoutes";
 import { SharedRangeBar, SharedRangeOutlet } from "./SharedRangeBar";
 import { WaitingForYou } from "./WaitingForYou";
+import { EverySiteChip, ScopeSwitch } from "./ScopeSwitch";
+import { SearchPalette } from "./SearchPalette";
 import { rangeSearch } from "./sharedRange";
 import type { WorkspaceChrome } from "./WorkspaceShellLayout";
 import "./demonstrationBanner.css";
@@ -145,8 +147,10 @@ export function OperatorShellLayout() {
       <RangeFocusProvider>
       <div className="app-frame__body">
         {/* SR-1 (v71 Change 0b): the top-bar row holds the one shared date range; the demonstration banner stays. IA-P P6:
-            "Waiting for you" after the range bar (spec §6 P6). */}
+            "Waiting for you" after the range bar (spec §6 P6). P7: Scope · Search · range bar · Waiting for you. */}
         <header className="app-topbar" data-shared-range-topbar>
+          <ScopeSwitch />
+          <SearchPalette rail={operatorRailItems} />
           <SharedRangeBar />
           <WaitingForYou />
         </header>
@@ -154,6 +158,8 @@ export function OperatorShellLayout() {
           {DEMONSTRATION_BANNER}
         </p>
         <div className="app-frame__content">
+          {/* P7 (MD-IAP-5; D-IAP.40): "This page shows every Site" above the page on the pages whose reads have no scope. */}
+          <EverySiteChip />
           <SharedRangeOutlet />
         </div>
       </div>

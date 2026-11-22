@@ -1,0 +1,171 @@
+/* IA-P P7 (spec §6 P7): the top bar's scope switch and search button, the search palette and the every-Site chip.
+   Tokens only. */
+.ia-scope {
+  position: relative;
+}
+.ia-scope__button,
+.ia-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 4px 10px;
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  white-space: nowrap;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.ia-search {
+  color: var(--text-secondary);
+}
+.ia-scope__button:focus-visible,
+.ia-search:focus-visible,
+.ia-scope__menu button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.ia-search__keys {
+  padding: 0 4px;
+  font: inherit;
+  font-size: var(--text-xs);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+.ia-search__short {
+  display: none;
+}
+/* Below the widest top bar the button keeps its accessible name and shows the short word. */
+@media (max-width: 1360px) {
+  .ia-search__label {
+    display: none;
+  }
+  .ia-search__short {
+    display: inline;
+  }
+}
+@media (max-width: 640px) {
+  .ia-search__keys {
+    display: none;
+  }
+}
+.ia-scope__menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 40;
+  min-width: 200px;
+  max-width: min(320px, calc(100vw - 32px));
+  max-height: min(420px, 70vh);
+  margin: 0;
+  padding: var(--space-1) 0;
+  overflow-y: auto;
+  list-style: none;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--dd-shadow-drawer);
+}
+.ia-scope__split {
+  margin-top: var(--space-1);
+  padding-top: var(--space-1);
+  border-top: 1px solid var(--border-subtle);
+}
+.ia-scope__menu button {
+  display: block;
+  width: 100%;
+  padding: 6px 12px;
+  font: inherit;
+  font-size: var(--text-sm);
+  text-align: left;
+  color: var(--text-primary);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.ia-scope__menu button:hover,
+.ia-scope__menu button[aria-current="true"] {
+  background: var(--surface-sunken);
+}
+.ia-palette {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+}
+.ia-palette__scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--dd-overlay);
+}
+.ia-palette__panel {
+  position: relative;
+  width: min(560px, calc(100vw - 32px));
+  margin: 12vh auto 0;
+  padding: var(--space-3);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--dd-shadow-drawer);
+}
+.ia-palette__input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  font: inherit;
+  color: var(--text-primary);
+  background: var(--surface-page);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+}
+.ia-palette__list {
+  max-height: 50vh;
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+.ia-palette__option {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-2);
+  align-items: baseline;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.ia-palette__option[aria-selected="true"] {
+  background: var(--surface-sunken);
+  outline: 1px solid var(--accent);
+}
+.ia-palette__kind,
+.ia-palette__empty {
+  color: var(--text-secondary);
+}
+.ia-palette__empty {
+  margin: var(--space-2) 0 0;
+}
+.ia-every-site {
+  margin: 0 0 var(--space-3);
+}
+.ia-every-site__chip {
+  display: inline-block;
+  padding: 2px var(--space-2);
+  font-size: var(--font-size-200);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+}
+/* In the top bar, Scope and Search sit at the start, the range bar and "Waiting for you" at the end; on a phone the
+   bar wraps instead of pushing the page sideways. */
+.app-topbar > .ia-search {
+  margin-right: auto;
+}
+@media (max-width: 640px) {
+  .app-topbar {
+    flex-wrap: wrap;
+  }
+}
