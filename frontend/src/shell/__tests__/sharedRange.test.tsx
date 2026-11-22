@@ -190,10 +190,11 @@ describe("SR-1 withRange and the rail search", () => {
   });
 
   it("an address with no range leaves the rail links bare", async () => {
-    renderApp("/sites");
+    // IA-P P4b (spec §6 "Range pages"): /sites now fills its range on entry; /incidents keeps its own default.
+    renderApp("/incidents");
     await settledScreen();
     expect(railHref("Findings")).toBe("/findings");
-    expect(where()).toBe("/sites");
+    expect(where()).toBe("/incidents");
   });
 });
 
@@ -223,11 +224,11 @@ describe("SR-1 filling in the address on entry", () => {
   });
 
   it("fills only the estate pages in SR-1; Work and Site pages keep their own default until SR-2", () => {
-    for (const path of ["/portfolio", "/decisions", "/findings", "/actions", "/evidence", "/evidence/records", "/financials"]) {
-      // IA-P P1 (spec §2.1): /evidence/records is filled; the /operational-records alias redirects before it reads.
+    for (const path of ["/portfolio", "/decisions", "/findings", "/actions", "/evidence", "/evidence/records", "/financials", "/sites"]) {
+      // IA-P P4b: /sites is a range page (spec §6 "Range pages"). IA-P P1 (spec §2.1): /evidence/records is filled; the /operational-records alias redirects before it reads.
       expect(fillsRangeOnEntry(path)).toBe(true);
     }
-    for (const path of ["/sites", "/sites/KOBO-001", "/incidents", "/maintenance", "/operational-records", "/findings/x/y"]) {
+    for (const path of ["/sites/KOBO-001", "/incidents", "/maintenance", "/operational-records", "/findings/x/y"]) {
       expect(fillsRangeOnEntry(path)).toBe(false);
     }
   });
@@ -371,17 +372,16 @@ describe("SR-1 the shared range bar", () => {
 
 describe("SR-1 review notes closed in SR-2", () => {
   it("Medium: the bar says All pages only on pages that read the range, and says so where it is not used", async () => {
-    for (const path of ["/portfolio", "/decisions", "/findings", "/actions", "/evidence", "/financials", "/incidents", "/maintenance", "/maintenance/preventive", "/evidence/records"]) {
+    for (const path of ["/portfolio", "/decisions", "/findings", "/actions", "/evidence", "/financials", "/incidents", "/maintenance", "/maintenance/preventive", "/evidence/records", "/sites"]) {
       expect(readsSharedRange(path)).toBe(true);
     }
-    for (const path of ["/sites", "/sites/KOBO-001", "/sites/COLD-LAB-001", "/sites/EV-LAB-001/ev", "/findings/f-1", "/maintenance/requests/c-1"]) {
+    for (const path of ["/sites/KOBO-001", "/sites/COLD-LAB-001", "/sites/EV-LAB-001/ev", "/findings/f-1", "/maintenance/requests/c-1"]) {
       expect(readsSharedRange(path)).toBe(false);
     }
     const withRange = new URLSearchParams(WEEK);
     for (const path of ["/sites/KISIWA-001/findings", "/sites/COLD-LAB-001", "/sites/EV-LAB-001/ev", "/performance/service"]) {
       expect(readsSharedRange(path, withRange)).toBe(true);
     }
-    expect(readsSharedRange("/sites", withRange)).toBe(false);
     expect(readsSharedRange("/findings/f-1", withRange)).toBe(false);
   });
 
