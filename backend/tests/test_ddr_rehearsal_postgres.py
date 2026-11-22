@@ -120,7 +120,7 @@ class Rehearsal:
 
     def s3(self, *, replace: bool = True) -> None:
         run = subprocess.run([sys.executable, str(REPO / "tools" / "world_history.py"), "exports", "--manifest",
-                              str(MANIFEST), "--out", str(self.dir)], capture_output=True, text=True, timeout=300)
+                              str(MANIFEST), "--out", str(self.dir), "--tenant", SLUG], capture_output=True, text=True, timeout=300)
         self.exits["S3"] = run.returncode
         if replace:
             (self.dir / f"{SLUG}.budget.csv").unlink()

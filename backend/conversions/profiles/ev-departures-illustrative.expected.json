@@ -1,0 +1,65 @@
+[
+  {
+    "format_version": 1,
+    "kind": "DEPARTURE",
+    "source_record_id": "gen:EV-KAS:2026-11-01:departure:01",
+    "source_version": "1",
+    "site_code": "EV-KAS",
+    "subject": {
+      "kind": "VEHICLE",
+      "ref": "EV-KAS-B01"
+    },
+    "clocks": {
+      "occurred_at": "2026-11-02T05:00:00+03:00"
+    },
+    "body": {
+      "vehicle_ref": "EV-KAS-B01",
+      "service_day": "2026-11-01",
+      "block_met": true,
+      "kwh_at_departure": "150.000",
+      "block_ref": "EV-KAS-BLK-01"
+    }
+  },
+  {
+    "format_version": 1,
+    "kind": "DEPARTURE",
+    "source_record_id": "gen:EV-KAS:2026-11-02:departure:07",
+    "source_version": "1",
+    "site_code": "EV-KAS",
+    "subject": {
+      "kind": "VEHICLE",
+      "ref": "EV-KAS-B07"
+    },
+    "clocks": {
+      "occurred_at": "2026-11-03T05:00:00+03:00"
+    },
+    "body": {
+      "vehicle_ref": "EV-KAS-B07",
+      "service_day": "2026-11-02",
+      "block_met": false,
+      "kwh_at_departure": "96.500",
+      "block_ref": "EV-KAS-BLK-07"
+    }
+  },
+  {
+    "format_version": 1,
+    "kind": "DEPARTURE",
+    "source_record_id": "gen:EV-RUI:2026-10-06:departure:03",
+    "source_version": "1",
+    "site_code": "EV-RUI",
+    "subject": {
+      "kind": "VEHICLE",
+      "ref": "EV-RUI-B03"
+    },
+    "clocks": {
+      "occurred_at": "2026-10-07T05:00:00+03:00"
+    },
+    "body": {
+      "vehicle_ref": "EV-RUI-B03",
+      "service_day": "2026-10-06",
+      "block_met": true,
+      "kwh_at_departure": "140.000",
+      "block_ref": "EV-RUI-BLK-03"
+    }
+  }
+]

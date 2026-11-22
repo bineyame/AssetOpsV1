@@ -25,3 +25,4 @@ One line per slice, continuing `index-2.md` (number, slice ID, summary, file in 
 200. `IA-2a` mock-up plan shape: four tabs, stepper, crew tiles, History (IA-1 shape rebuild) · demo.md
 201. `IA-2b1` mock-up list shape: four home lists from one component, landed in the mock-up, in review · demo.md
 202. `IA-P1` real app on the IA shape, part 1: long range (P0), 13-item rail and aliases (P1), one list component for Decisions, Findings, Actions with the shared read cache (P2; in_review) · shell.md
+203. `DD2b` cold and EV books: ledger, one invoicing export (Type column), roster/tickets/budget in 8 source profiles; one NODES table, tariff schedules, EMU_SOURCE_SWITCH guard, staged dir, byte pins (D-DD.50-63); in_review · data.md

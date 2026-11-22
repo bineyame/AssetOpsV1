@@ -1,0 +1,6 @@
+Line ID,Site,Month,Line,Value,Currency,Budget version
+gen:COLD-THIKA:2026-07:plan:crate_days,COLD-THIKA,2026-07,crate_days,8680,,budget-2026-v1
+gen:COLD-THIKA:2026-07:plan:kwh,COLD-THIKA,2026-07,kwh,3720,,budget-2026-v1
+gen:COLD-THIKA:2026-07:plan:staff,COLD-THIKA,2026-07,staff,350.00,USD,budget-2026-v1
+gen:COLD-THIKA:2026-07:plan:maint,COLD-THIKA,2026-07,maint,80.00,USD,budget-2026-v1
+gen:COLD-THIKA:2026-07:plan:liability,COLD-THIKA,2026-07,liability,0.00,USD,budget-2026-v1

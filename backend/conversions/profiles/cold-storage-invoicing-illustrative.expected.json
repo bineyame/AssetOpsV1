@@ -1,0 +1,233 @@
+[
+  {
+    "format_version": 1,
+    "kind": "CHARGE",
+    "source_record_id": "gen:COLD-KIRI:2026-07:invoice-01",
+    "source_version": "ra8e0181553ce6f0f",
+    "site_code": "COLD-KIRI",
+    "subject": {
+      "kind": "CUSTOMER",
+      "ref": "COLD-KIRI-K-01"
+    },
+    "clocks": {
+      "effective_from": "2026-07-01",
+      "effective_to": "2026-08-01",
+      "recognition_period": "2026-07"
+    },
+    "quantity": {
+      "value": "1440",
+      "unit": "crate_day"
+    },
+    "amount": {
+      "value": "288.00",
+      "currency": "USD"
+    },
+    "body": {
+      "account_ref": "COLD-KIRI-K-01",
+      "line_type": "STORAGE",
+      "tariff_code": "T-STORAGE"
+    }
+  },
+  {
+    "format_version": 1,
+    "kind": "CHARGE",
+    "source_record_id": "gen:COLD-KIRI:2026-07:invoice-02",
+    "source_version": "r25336a4d0af1af7f",
+    "site_code": "COLD-KIRI",
+    "subject": {
+      "kind": "CUSTOMER",
+      "ref": "COLD-KIRI-K-02"
+    },
+    "clocks": {
+      "effective_from": "2026-07-01",
+      "effective_to": "2026-08-01",
+      "recognition_period": "2026-07"
+    },
+    "quantity": {
+      "value": "1800",
+      "unit": "crate_day"
+    },
+    "amount": {
+      "value": "360.00",
+      "currency": "USD"
+    },
+    "body": {
+      "account_ref": "COLD-KIRI-K-02",
+      "line_type": "STORAGE",
+      "tariff_code": "T-STORAGE"
+    }
+  },
+  {
+    "format_version": 1,
+    "kind": "CHARGE",
+    "source_record_id": "gen:COLD-KIRI:2026-07:invoice-03",
+    "source_version": "r83fc6bebc63d9450",
+    "site_code": "COLD-KIRI",
+    "subject": {
+      "kind": "CUSTOMER",
+      "ref": "COLD-KIRI-K-03"
+    },
+    "clocks": {
+      "effective_from": "2026-07-01",
+      "effective_to": "2026-08-01",
+      "recognition_period": "2026-07"
+    },
+    "quantity": {
+      "value": "1440",
+      "unit": "crate_day"
+    },
+    "amount": {
+      "value": "288.00",
+      "currency": "USD"
+    },
+    "body": {
+      "account_ref": "COLD-KIRI-K-03",
+      "line_type": "STORAGE",
+      "tariff_code": "T-STORAGE"
+    }
+  },
+  {
+    "format_version": 1,
+    "kind": "RECEIPT",
+    "source_record_id": "gen:COLD-KIRI:2026-07:receipt-01",
+    "source_version": "r31b49b38059487ac",
+    "site_code": "COLD-KIRI",
+    "subject": {
+      "kind": "CUSTOMER",
+      "ref": "COLD-KIRI-K-01"
+    },
+    "clocks": {
+      "occurred_at": "2026-07-31T10:00:00+03:00",
+      "recognition_period": "2026-07"
+    },
+    "amount": {
+      "value": "288.00",
+      "currency": "USD"
+    },
+    "status": "COLLECTED",
+    "body": {
+      "payer_ref": "COLD-KIRI-K-01",
+      "method": "MOBILE_MONEY"
+    }
+  },
+  {
+    "format_version": 1,
+    "kind": "RECEIPT",
+    "source_record_id": "gen:COLD-KIRI:2026-07:receipt-02",
+    "source_version": "r27328c862d3a7675",
+    "site_code": "COLD-KIRI",
+    "subject": {
+      "kind": "CUSTOMER",
+      "ref": "COLD-KIRI-K-02"
+    },
+    "clocks": {
+      "occurred_at": "2026-07-31T10:00:00+03:00",
+      "recognition_period": "2026-07"
+    },
+    "amount": {
+      "value": "360.00",
+      "currency": "USD"
+    },
+    "status": "COLLECTED",
+    "body": {
+      "payer_ref": "COLD-KIRI-K-02",
+      "method": "MOBILE_MONEY"
+    }
+  },
+  {
+    "format_version": 1,
+    "kind": "RECEIPT",
+    "source_record_id": "gen:COLD-KIRI:2026-07:receipt-03",
+    "source_version": "rea6dbbb607366414",
+    "site_code": "COLD-KIRI",
+    "subject": {
+      "kind": "CUSTOMER",
+      "ref": "COLD-KIRI-K-03"
+    },
+    "clocks": {
+      "occurred_at": "2026-07-31T10:00:00+03:00",
+      "recognition_period": "2026-07"
+    },
+    "amount": {
+      "value": "288.00",
+      "currency": "USD"
+    },
+    "status": "COLLECTED",
+    "body": {
+      "payer_ref": "COLD-KIRI-K-03",
+      "method": "BANK"
+    }
+  },
+  {
+    "amount": {
+      "currency": "USD",
+      "value": "-108.00"
+    },
+    "body": {
+      "authorised_by_ref": "finance-lead",
+      "document_ref": "gen:COLD-THIKA:2026-10:actual:liability",
+      "reason_code": "CUSTOMER_COMPENSATION"
+    },
+    "clocks": {
+      "effective_from": "2026-10-01",
+      "recognition_period": "2026-10"
+    },
+    "format_version": 1,
+    "kind": "ADJUSTMENT",
+    "site_code": "COLD-THIKA",
+    "source_record_id": "gen:COLD-THIKA:2026-10:actual:liability",
+    "source_version": "rce8750a7da7d7ff4",
+    "subject": {
+      "kind": "SITE",
+      "ref": "COLD-THIKA"
+    }
+  },
+  {
+    "format_version": 1,
+    "kind": "RECEIPT",
+    "source_record_id": "gen:COLD-THIKA:2026-10:receipt-x7",
+    "source_version": "r87d55920794fd675",
+    "site_code": "COLD-THIKA",
+    "subject": {
+      "kind": "CUSTOMER",
+      "ref": "COLD-THIKA-K-07"
+    },
+    "clocks": {
+      "occurred_at": "2026-10-30T15:20:00+03:00",
+      "recognition_period": "2026-10"
+    },
+    "amount": {
+      "value": "42.00",
+      "currency": "USD"
+    },
+    "status": "COLLECTED",
+    "body": {
+      "payer_ref": "COLD-THIKA-K-07",
+      "method": "CASH"
+    }
+  },
+  {
+    "format_version": 1,
+    "kind": "RECEIPT",
+    "source_record_id": "gen:COLD-THIKA:2026-10:receipt-x8",
+    "source_version": "r0f0e2a32f1037d1a",
+    "site_code": "COLD-THIKA",
+    "subject": {
+      "kind": "CUSTOMER",
+      "ref": "COLD-THIKA-K-08"
+    },
+    "clocks": {
+      "occurred_at": "2026-10-31T18:45:00+03:00",
+      "recognition_period": "2026-10"
+    },
+    "amount": {
+      "value": "36.00",
+      "currency": "USD"
+    },
+    "status": "PAID_IN_TRANSIT",
+    "body": {
+      "payer_ref": "COLD-THIKA-K-08",
+      "method": "MOBILE_MONEY"
+    }
+  }
+]
