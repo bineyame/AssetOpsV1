@@ -460,7 +460,8 @@ FIG_DOCS = ("layer4-transformation-design.md", "worked-portfolios.md", "design-a
             "design-questions-and-decisions.md", "product-transition-and-roadmap.md")
 REQUIRED = {"layer4-transformation-design.md": ["sites.lakeside-power/Kobo.plan.nodes.contribution", "sites.lakeside-power/Kobo.actual.nodes.contribution",
                                              # rev 16.2: Lakeside's plan figures live in worked-portfolios.md (required there)
-                                             "portfolio.lakeside-power.actual.sums.contribution", "options.KOB-STOPSOC.value"],
+                                             # 0K4m (22 Nov): KOB-STOPSOC has no value (D-0K4.38); the headline option figure is MTO-HULLER's
+                                             "portfolio.lakeside-power.actual.sums.contribution", "options.MTO-HULLER.value"],
             # rev 16: the three worked portfolios and the demonstration world moved to the companion file
             "worked-portfolios.md": [f"plans.{t}.default.{k}" for t in ("lakeside-power", "harvest-cold", "metro-bus")
                                                 for k in ("spend", "value", "crew_visits_used")] +
@@ -469,11 +470,11 @@ REQUIRED = {"layer4-transformation-design.md": ["sites.lakeside-power/Kobo.plan.
              "sites.metro-bus/Kasarani.november_to_date.nodes.penalties"],
             "interactive-mockup-vNEXT/walkthroughs.md": [f"plans.{t}.default.{k}" for t in ("lakeside-power", "harvest-cold", "metro-bus") for k in ("spend", "value")] +
             ["sites.metro-bus/Kasarani.november_to_date.nodes.departures_missed", "sites.metro-bus/Kasarani.november_to_date.nodes.penalties"],
-            "design-questions-and-decisions.md": ["owner_question_variants.Q15.B.lakeside-power.cases.6500/True.value", "owner_question_variants.Q15.B.lakeside-power.cases.6500/True.value_change_vs_applied",
-                                                  "owner_question_variants.Q15.C.lakeside-power.cases.5000/False.value"],
+            # 0K4m (22 Nov, D-0K4.49): the Q15 row is dated 17 Nov, so it keeps its words and loses the anchors of figures
+            # that moved; the decision history requires no headline anchor
             # rev 5 of the roadmap (20 Nov): a short roadmap; its three money figures are anchored
             "product-transition-and-roadmap.md": ["sites.lakeside-power/Kobo.plan.nodes.contribution", "sites.lakeside-power/Kobo.actual.nodes.contribution",
-                                                  "options.KOB-STOPSOC.value"]}
+                                                  "options.MTO-HULLER.value"]}   # 0K4m: was KOB-STOPSOC's (no value, D-0K4.38)
 ANCHOR = re.compile(r"(?:(?<=[\s(=:*$|/,;])|^)((?:−|\+|-(?=\d))\s?)?\$?([\d,]*\d(?:\.\d+)?)(%?)(\**)<!--fig:(-?)([^>]+)-->", re.M)
 FIGX = re.compile(r"(?:(?<=[\s(=:*$|/,;])|^)((?:−|\+|-(?=\d))\s?)?\$?([\d,]*\d(?:\.\d+)?)(%?)(\**)<!--figx:([^>]+)-->", re.M)
 RECORDS: set = set()
