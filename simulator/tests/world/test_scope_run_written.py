@@ -8,6 +8,7 @@ depots.
 
 from __future__ import annotations
 
+import json
 from fractions import Fraction
 
 import pytest
@@ -113,3 +114,149 @@ def test_period_input_drops_only_listed_keys_and_skips_missing_ones() -> None:
         "coverage": {},
     }
     assert scope_module.period_input(site_doc, "UNKNOWN_VERTICAL") == site_doc["period"]
+
+
+# --- D-DD.176: what a run-written October key may move in the history ------------------------------------------------
+
+from decimal import Decimal  # noqa: E402
+
+from assetops_simulator.world import history as history_module  # noqa: E402
+from assetops_simulator.world import telemetry as tel  # noqa: E402
+from assetops_simulator.world.history import generate_scope  # noqa: E402
+
+#: Stated here, independently of `history.RUN_DERIVED` (D-DD.176; listed from the code's rules in pre-flight).
+EXPECTED_DERIVED = {
+    "MINI_GRID": ("necessary_l", "candidate_l"),
+    "COLD_CHAIN": ("kwh",),
+    "EV_DEPOT": ("peak_kwh", "offpeak_kwh", "kwh_2200_2400", "kwh_0000_0500", "max_kw"),
+}
+
+
+def _flat(block: dict, prefix: str = "") -> dict:
+    out = {}
+    for key, value in block.items():
+        if isinstance(value, dict):
+            out.update(_flat(value, f"{prefix}{key}."))
+        else:
+            out[f"{prefix}{key}"] = value
+    return out
+
+
+def _history_paths(view: dict, tenant: str, site: str) -> dict:
+    return {m: _flat(generate_scope(view, tenant, site, m)) for m in _months(view)}
+
+
+def _bump_value(period: dict, side: str, key: str) -> bool:
+    """Change one present period value, keeping its type (a decimal string stays one); False when absent."""
+    block = period if side == "period" else period.get(side, {})
+    old = block.get(key)
+    if isinstance(old, bool) or old is None:
+        return False
+    if isinstance(old, (int, float)):
+        block[key] = old + 7
+    elif isinstance(old, str):
+        block[key] = str(Decimal(old) + 7)
+    else:
+        return False
+    return True
+
+
+def _stray_paths(tenant: str, site: str) -> list[str]:
+    """Every history path that a run-written key moved outside `RUN_DERIVED`, plus any physical read that moved."""
+    base = load_fixture()
+    vertical = tenant_of(base, tenant)["vertical"]
+    derived = set(history_module.RUN_DERIVED[vertical])
+    before = _history_paths(base, tenant, site)
+    rules = scope_module.merged_rules(base["history"], vertical, tenant, site)
+    physical = scope_module.physical_read(site_of(base, tenant, site), rules)
+    stray, bumped = [], 0
+    for side, keys in scope_module.RUN_WRITTEN[vertical].items():
+        for key in keys:
+            view = load_fixture()
+            if not _bump_value(site_of(view, tenant, site)["period"], side, key):
+                continue
+            bumped += 1
+            after = _history_paths(view, tenant, site)
+            for month in after:
+                for path in set(after[month]) | set(before[month]):
+                    if after[month].get(path) != before[month].get(path):
+                        leaf = path.split(".")[-1]
+                        if path.split(".")[0] not in SIDES_HISTORY or leaf not in derived:
+                            stray.append(f"{side}.{key} -> {month} {path}")
+            if scope_module.physical_read(site_of(view, tenant, site), rules) != physical:
+                stray.append(f"{side}.{key} -> physical")
+    if tenant == "lakeside-power":  # the ruled Sites carry their run-written leaves (Kasarani carries none)
+        assert bumped, f"{tenant}/{site}: no run-written key present"
+    return stray
+
+
+SIDES_HISTORY = ("plan", "actual")
+
+
+def test_run_derived_table_is_as_ruled_and_never_read_back() -> None:
+    assert history_module.RUN_DERIVED == EXPECTED_DERIVED
+    physical = {k for keys in scope_module.PHYSICAL_READS.values() for k in keys} | set(scope_module.PHYSICAL_READS)
+    for vertical, keys in history_module.RUN_DERIVED.items():
+        assert not set(keys) & physical
+        assert not set(keys) & set(history_module.WRITER_READS[vertical])
+
+
+def test_the_import_check_refuses_a_derived_key_a_writer_reads(monkeypatch) -> None:
+    monkeypatch.setitem(history_module.RUN_DERIVED, "MINI_GRID", ("necessary_l", "delivered_kwh"))
+    with pytest.raises(ValueError, match="RUN_DERIVED_READ_BACK MINI_GRID delivered_kwh"):
+        history_module._run_derived_is_never_read_back()
+
+
+@pytest.mark.parametrize("tenant,site", [(t, s) for t, sites in SITES.items() for s in sites])
+def test_a_run_written_key_moves_only_run_derived_history_paths(tenant: str, site: str) -> None:
+    assert _stray_paths(tenant, site) == []
+
+
+def test_lakesides_run_written_keys_move_the_scaled_litres() -> None:
+    """Non-empty: the guard's set is real (Kisiwa's necessary and candidate litres follow October's)."""
+    view = load_fixture()
+    before = _history_paths(view, "lakeside-power", "Kisiwa")
+    site_of(view, "lakeside-power", "Kisiwa")["period"]["actual"]["necessary_l"] += 100
+    after = _history_paths(view, "lakeside-power", "Kisiwa")
+    assert all(after[m]["actual.necessary_l"] > before[m]["actual.necessary_l"] for m in after)
+
+
+def test_plant_a_rule_that_also_scales_delivered_kwh_fails_the_guard(monkeypatch) -> None:
+    """Plant: `delivered_kwh` made to follow October's necessary litres is caught."""
+    real = history_module._value
+
+    def planted(scope, side, leaf, tokens, made):
+        value = real(scope, side, leaf, tokens, made)
+        if leaf == "delivered_kwh" and side == "actual":
+            return value * scope.october("actual", "necessary_l") / 100
+        return value
+
+    monkeypatch.setattr(history_module, "_value", planted)
+    stray = _stray_paths("lakeside-power", "Kobo")
+    assert any(path.endswith("actual.delivered_kwh") for path in stray), stray
+
+
+def test_the_writers_read_no_run_derived_history_value() -> None:
+    """`WRITER_READS` is the code's: changing every `RUN_DERIVED` value in the history leaves the books unchanged."""
+    from assetops_simulator.world.telemetry_cold import cold_books_for
+
+    from .books_support import built
+
+    view, history, records, _ = built()
+
+    def bumped() -> dict:
+        out = json.loads(json.dumps(history))
+        for tenant_doc in view["tenants"]:
+            derived = history_module.RUN_DERIVED[tenant_doc["vertical"]]
+            for months in out["tenants"][tenant_doc["tenant"]].values():
+                for block in months.values():
+                    for side in SIDES_HISTORY:
+                        for key in derived:
+                            if key in block[side]:
+                                block[side][key] += 7
+        return out
+
+    planted = bumped()
+    assert planted != history
+    assert tel.books_for(view, planted, {"lakeside-power": ""}) == tel.books_for(view, history, {"lakeside-power": ""})
+    assert cold_books_for(view, planted, records) == cold_books_for(view, history, records)
