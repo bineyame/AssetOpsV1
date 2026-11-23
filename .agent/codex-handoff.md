@@ -35,17 +35,16 @@ file. The coordinator refreshes it after every merge and every owner decision. L
 
 ## 3. State on 23 Nov
 
-Merged: IA-P (all), 6a, 6c, 6h, DD1, DD2a, DD2b, DD3a, DD3c, DD4a, DD4b, DD4b follow-up, DD5a, DD3b, T1b (second DB lane),
-main simulator fix (world tests 386/386).
+Merged: IA-P (all), 6a, 6c, 6h, DD1, DD2a, DD2b, DD3a, DD3c, DD4a, DD4b, DD4b follow-up, DD5a, DD3b, DD3d-a, T1b (second DB lane),
+main simulator fix (world tests 526/526 on 23 Nov after DD3d-a).
 
 In flight (branch, what is left):
-- DD3b `task/DD3b-mini-plant`: fix round for D-DD.164/165 (fixed point: generate twice
-  byte-identical), then merge. Known failures it may carry: 7 DDR rehearsal + ds4 t12 (closed by
-  DD3d.4), six H5 (closed by DD3d.3).
-- DD5a: merged 23 Nov.
-- DD4b follow-up: merged 23 Nov.
-- 6f1 `task/6f1-decisions`: U1 built (needs review); U2 (list, after IA-P3 and 6h, both merged) and
-  U3 (decision page) remain; spec `specs/6f-decisions-screen/spec.md` rev 2, rulings D-P6.42-81.
+- DD3d-b `task/DD3d-b-fuel-cost`: see section 4 item 4.
+- 6f1 `task/6f1-decisions`: U1 reviewed REJECT (`review-6f1-U1.md`, 4 High); fix round under way (Sixth session
+  in `6f1-handoff.md`), then re-review (named findings, plus discovery on `evaluate.py` and named options), then
+  merge. Spec rev 4, rulings D-P6.42-93. Open point 8: a stated one-off shows "Declared" (builder default).
+- `fix/main-4d-litre` (worktree AssetOpsV1-4dfix): tests failing on main, `test_4d_litre_split` x2 and
+  `test_5c_deep_dive_api/_view` x7.
 
 ## 4. Remaining work, in order (units)
 
@@ -53,11 +52,14 @@ In flight (branch, what is left):
 2. DD5a: merged 23 Nov.
 3. DD3d-a: merged 23 Nov (its six Lows go into DD3d-b, `specs/DD-demo-data/review-DD3d-a.md`).
 4. DD3d-b (3.75 u, same card): fuel cost = burned x price (D-DD.163) and the owner-approved
-   run-rate budget (D-DD.166). Branch `task/DD3d-b-fuel-cost` (in progress), worktree AssetOpsV1-dd3db.
+   run-rate budget (D-DD.166). Branch `task/DD3d-b-fuel-cost` (in progress, about 0.75 u built, RED by design:
+   116 pure failures at f563f9c6c), worktree AssetOpsV1-dd3db. Start from `DD3d-b-handoff.md` on the branch and
+   rulings D-DD.177-180 (on the branch only, coordinator confirmed). Run 2 = handoff steps 1-3; then steps 4-6.
+   Headline is now projected about -195.30, not -196.60 (Kisiwa October litres 903, not 904); not yet measured.
 5. DD5b (4.25 u, card `specs/DD-demo-data/cards/DD5b.md`) after DD5a, DD3b, DD3d-b, DD4b follow-up.
 6. DD6 (5.25 u, card `specs/DD-demo-data/cards/DD6.md`): world built and served.
 7. WK-SC story clock (3.0 u, `specs/DD-demo-data/spec-WK-SC.md`, card `cards/WK-SC.md`) after DD6.
-8. 6f1 (5.25 u, spec rev 3): U1 review running, then fix round (D-P6.82/83), U1 merges first; U2 and U3
+8. 6f1 (5.5 u, spec rev 4): U1 fix round running (D-P6.82-93), re-review, U1 merges first; U2 and U3
    then build in parallel from `specs/6f-decisions-screen/cards/6f1-U2.md` and `6f1-U3.md`; U3 merges
    before U2. Then 6f2 (choice on screen).
 9. IA-PD demo routes (0.5 u, D-IAP.36) before the next demo build; IA-P: rebuild the world rung
