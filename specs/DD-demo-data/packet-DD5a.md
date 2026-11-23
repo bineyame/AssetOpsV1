@@ -74,7 +74,7 @@ review per the card).
   passed. `check-decision-index.py`: OK. `statement_catalogue.py`: OK after refusal details became codes and names
   only, and `--prune` dropped the one stale print of the old bulk-guard sentence.
 - Reach set, ONE `--db-lane` call at af5185c9f (card list + host/backend files importing `cold_publication` + Lab cold
-  bindings + all dd5a files; `reach-final.log`, file list `reach-final-files.txt`): REACH_RESULT.
+  bindings + all dd5a files; `reach-final.log`, file list `reach-final-files.txt`): **243 passed, 1 skipped**, 620.8 s pytest, 624 s wall incl. slot wait, exit 0. Main: `.agent/main-baseline/` (not rerun).
 - D-DD.118: `grep -rn fuel_basis` over `bulk_load.py`, `load_world_inputs.py`, `world_seal.py`, the Postgres ledger,
   `ledger.py`, `ledger_service.py`: no match.
 - Largest batch seen: 256 envelopes (the split test); world days in these tests are under 256 per source.
