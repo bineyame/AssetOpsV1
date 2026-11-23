@@ -26,7 +26,7 @@
   ],
   "schema": "assetops.history/1",
   "shape_source": "synthetic",
-  "view_digest": "81d118a80a182017f7ac435dd9b51a629fb07bffd03e4de4c87584d443cd763c"
+  "view_digest": "0f3fe8be740f86374249930adbbd610baad15a0fc773d2fb03ec71134d10f3e4"
  },
  "tenants": {
   "harvest-cold": {
@@ -267,10 +267,10 @@
     "2026-07": {
      "actual": {
       "adjustments_kwh": 29,
-      "candidate_l": 54,
+      "candidate_l": 56,
       "delivered_kwh": 7589,
       "in_transit": 0,
-      "necessary_l": 805,
+      "necessary_l": 802,
       "om": 70000,
       "outstanding": 25775,
       "staff": 50000,
@@ -296,10 +296,10 @@
     "2026-08": {
      "actual": {
       "adjustments_kwh": 29,
-      "candidate_l": 51,
+      "candidate_l": 53,
       "delivered_kwh": 7622,
       "in_transit": 0,
-      "necessary_l": 796,
+      "necessary_l": 793,
       "om": 70000,
       "outstanding": 25887,
       "staff": 50000,
@@ -325,10 +325,10 @@
     "2026-09": {
      "actual": {
       "adjustments_kwh": 29,
-      "candidate_l": 71,
+      "candidate_l": 73,
       "delivered_kwh": 7773,
       "in_transit": 0,
-      "necessary_l": 739,
+      "necessary_l": 737,
       "om": 70000,
       "outstanding": 26398,
       "staff": 50000,
