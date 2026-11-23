@@ -618,6 +618,13 @@ class TestServedTenant:
                                                value="1.50", reason="test"), SYSTEM_PUBLISHER)
         assert (SERVED, "KOBO-001") not in dd_check.stored_diesel_prices(URL, "2026-10")
         assert dd_check.stored_diesel_prices(URL, "2026-11")[(SERVED, "KOBO-001")] == Decimal("1.50")
+        # one hour into local November (22:00Z): November is not covered, October still is
+        (kisiwa,) = prices.revisions(*sites["KISIWA-001"], KEY)
+        prices.publish(*sites["KISIWA-001"], pub(kisiwa["id"], "late", kind="CORRECTION", value="1.60", reason="test",
+                                                 vf=datetime(2026, 10, 31, 22, tzinfo=UTC)), SYSTEM_PUBLISHER)
+        assert dd_check.stored_diesel_prices(URL, "2026-10")[(SERVED, "KISIWA-001")] == Decimal("1.30")
+        assert (SERVED, "KISIWA-001") not in dd_check.stored_diesel_prices(URL, "2026-11")
+        del declared[(SERVED, "KISIWA-001")]
         # the development tenant's own price is its own
         prices.publish(*sites["demo"], pub(None, "demo", value="9.00"), SYSTEM_PUBLISHER)
         assert dd_check.stored_diesel_prices(URL, "2026-11") == {
