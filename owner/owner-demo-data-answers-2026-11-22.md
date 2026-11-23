@@ -54,3 +54,7 @@ Context given: with simulated fuel, Lakeside's Portfolio headline moved from -$8
 Owner: "have the architect check the budget"
 Follow-up asked (DRAFT D-DD.166): replace Lakeside's typed fuel budget with a run-rate rule (Jul-Sep average fuel use + 10 % contingency at the declared price, Assumed); Portfolio headline about -$196.60, Kobo -$389.50, Kisiwa +$312.90, Mto -$120.00; +1.75 u as DD3d.5.
 Owner answer: "Approve run-rate rule (Recommended)".
+
+## D-DD.165 Kisiwa candidate share, final (23 Nov)
+
+Asked: final measured share 20.7 / 16.1 / 0 / 10.6 % (Jul-Oct) vs accepted ~0 / 11 / 0 / 10 %; cause: the 1.1x PV-over-load threshold; nothing tuned; story states the measured shares. Owner: "Accept measured (Recommended)".
